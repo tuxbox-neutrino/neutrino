@@ -52,6 +52,7 @@ class CLuaInstCCWindow : CCHeaderTypes
 		static int CCWindowSetCenterPos(lua_State *L);
 		static int CCWindowDelete(lua_State *L);
 		static int CCWindowSetDimensionsAll(lua_State *L);
+		static int CCWindowSetBodyImage(lua_State *L);
 };
 
 #endif //_LUACCWINDOW_H

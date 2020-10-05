@@ -57,6 +57,7 @@ void CLuaInstCCWindow::CCWindowRegister(lua_State *L)
 		{ "footer_height",  CLuaInstCCWindow::CCWindowGetFooterHeight_dep }, /* function 'footer_height' is deprecated */
 		{ "setCenterPos",   CLuaInstCCWindow::CCWindowSetCenterPos },
 		{ "setDimensionsAll", CLuaInstCCWindow::CCWindowSetDimensionsAll },
+		{ "setBodyImage",   CCWindowSetBodyImage },
 		{ "__gc",           CLuaInstCCWindow::CCWindowDelete },
 		{ NULL, NULL }
 	};
@@ -338,6 +339,20 @@ int CLuaInstCCWindow::CCWindowSetCenterPos(lua_State *L)
 		along_mode=tmp_along_mode;
 
 	D->w->setCenterPos(along_mode);
+	return 0;
+}
+
+int CLuaInstCCWindow::CCWindowSetBodyImage(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCCWindow *D = CCWindowCheck(L, 1);
+	if (!D) return 0;
+
+	std::string image = "";
+	if (lua_istable(L, -1))
+		tableLookup(L, "image_path", image);
+
+	D->w->setBodyBGImage(image);
 	return 0;
 }
 
