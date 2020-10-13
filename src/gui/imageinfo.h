@@ -59,6 +59,7 @@ class CImageInfo : public CMenuTarget
 		void InitInfos();
 		void InitBuildInfos();
 		void InitInfoText(const std::string& text);
+		void initAPIVersions();
 		std::string getLicenseText();
 		std::string getPolicyText();
 		void ShowWindow();

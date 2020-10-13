@@ -387,11 +387,23 @@ void CImageInfo::InitInfoData()
 #endif
 
 	//internal api versions
+	initAPIVersions();
+
+	//www
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", PACKAGE_URL)});
+	//doc
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.tuxbox-neutrino.org")});
+	//support
+	v_info.push_back( {g_Locale->getText(LOCALE_IMAGEINFO_FORUM),	config.getString("forum", "http://forum.tuxbox.org")});
+}
+
+void CImageInfo::initAPIVersions()
+{
 	string s_api;
-#ifdef ENABLE_LUA
+	#ifdef ENABLE_LUA
 	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
 	s_api	+= ", ";
-#endif
+	#endif
 	s_api	+= "yWeb ";
 	s_api	+= getYWebVersion();
 	s_api	+= ", ";
@@ -403,13 +415,6 @@ void CImageInfo::InitInfoData()
 	s_api	+= + " ";
 	s_api	+= YHTTPD_VERSION;
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_API),	s_api});
-
-	//www
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", PACKAGE_URL)});
-	//doc
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.tuxbox-neutrino.org")});
-	//support
-	v_info.push_back( {g_Locale->getText(LOCALE_IMAGEINFO_FORUM),	config.getString("forum", "http://forum.tuxbox.org")});
 }
 
 
