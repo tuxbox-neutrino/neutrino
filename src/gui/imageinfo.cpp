@@ -389,6 +389,12 @@ void CImageInfo::InitInfoData()
 	//internal api versions
 	initAPIVersions();
 
+	//support infos
+	initSupportInfo();
+}
+
+void CImageInfo::initSupportInfo()
+{
 	//www
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", PACKAGE_URL)});
 	//doc
