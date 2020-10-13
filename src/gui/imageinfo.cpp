@@ -377,6 +377,18 @@ void CImageInfo::InitInfoData()
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS),	PACKAGE_VERSION_GIT});
 #endif
 
+	//stb info
+	initHalInfo();
+
+	//internal api versions
+	initAPIVersions();
+
+	//support infos
+	initSupportInfo();
+}
+
+void CImageInfo::initHalInfo()
+{
 #if USE_STB_HAL
 	hal_libversion_t ver;
 	hal_get_lib_version(&ver);
@@ -385,12 +397,6 @@ void CImageInfo::InitInfoData()
 	//libstb-hal git status
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS), ver.vGitDescribe});
 #endif
-
-	//internal api versions
-	initAPIVersions();
-
-	//support infos
-	initSupportInfo();
 }
 
 void CImageInfo::initSupportInfo()
