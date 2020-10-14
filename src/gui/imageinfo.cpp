@@ -56,7 +56,7 @@
 
 #define VERSION_FILE "/.version"
 
-#define OS_RELEASE_FILE "/etc/os-release"
+#define OS_RELEASE_FILE "/usr/lib/os-release"
 #define OE_IMAGE_VERSION_FILE "/etc/image-version"
 
 using namespace std;
