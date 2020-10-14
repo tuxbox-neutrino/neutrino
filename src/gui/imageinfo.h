@@ -58,6 +58,7 @@ class CImageInfo : public CMenuTarget
 		void InitMinitv();
 		void InitInfos();
 		void InitBuildInfos();
+		void initKernelInfo();
 		void initHalInfo();
 		void InitInfoText(const std::string& text);
 		void initSupportInfo();

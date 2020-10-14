@@ -356,9 +356,7 @@ void CImageInfo::InitInfoData()
 		v_info.push_back(pretty_name);
 
 	//kernel
-	struct utsname uts_info;
-	if (uname(&uts_info) == 0)
-		v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_KERNEL),	uts_info.release});
+	initKernelInfo();
 
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DATE),	builddate});
 
@@ -398,6 +396,14 @@ void CImageInfo::initHalInfo()
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_VCS), ver.vGitDescribe});
 #endif
 }
+
+void CImageInfo::initKernelInfo()
+{
+	struct utsname uts_info;
+	if (uname(&uts_info) == 0)
+		v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_KERNEL),	uts_info.release});
+}
+
 
 void CImageInfo::initSupportInfo()
 {
