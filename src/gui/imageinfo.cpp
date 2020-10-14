@@ -307,15 +307,6 @@ void CImageInfo::InitInfoData()
 
 	config.loadConfig(VERSION_FILE);
 
-	string builddate = "";
-#ifdef BUILT_DATE
-	builddate = BUILT_DATE;
-#else
-	builddate = config.getString("builddate", "").c_str();
-#endif
-	if (builddate.empty())
-		builddate = PACKAGE_VERSION_DATE;
-
 	string version_string = config.getString("version", "");
 
 #ifdef IMAGE_VERSION
@@ -358,7 +349,8 @@ void CImageInfo::InitInfoData()
 	//kernel
 	initKernelInfo();
 
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DATE),	builddate});
+	//build date
+	initBuildDateInfo();
 
 	//creator
 	string creator = config.getString("creator", "");
@@ -383,6 +375,19 @@ void CImageInfo::InitInfoData()
 
 	//support infos
 	initSupportInfo();
+}
+
+void CImageInfo::initBuildDateInfo()
+{
+	string builddate = "";
+#ifdef BUILT_DATE
+	builddate = BUILT_DATE;
+#else
+	builddate = config.getString("builddate", "").c_str();
+#endif
+	if (builddate.empty())
+		builddate = PACKAGE_VERSION_DATE;
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DATE),	builddate});
 }
 
 void CImageInfo::initHalInfo()
