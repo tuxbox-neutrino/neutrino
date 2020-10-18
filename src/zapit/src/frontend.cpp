@@ -63,9 +63,10 @@ extern int zapit_debug;
 #define SYMBOL_RATE	4
 #define DELIVERY_SYSTEM 5
 #define INNER_FEC	6
-// DVB-S/S2/S2X specific
+// DVB-S/S2 specific
 #define PILOTS		7
 #define ROLLOFF		8
+// DVB-S2X specific
 #define MIS		9
 // DVB-T specific
 #define BANDWIDTH	4
@@ -79,11 +80,8 @@ extern int zapit_debug;
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
-#if HAVE_CST_HARDWARE
-	#define FE_DVBS2_PROPS	8
-#else
-	#define FE_DVBS2_PROPS	9
-#endif
+#define FE_DVBS2_PROPS	8
+#define FE_DVBS2X_PROPS	9
 #define FE_DVBC_PROPS	6
 #define FE_DVBT_PROPS 10
 #define FE_DVBT2_PROPS 11
@@ -110,10 +108,21 @@ static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
 	{ DTV_PILOT,		{}     , { PILOT_AUTO		}, 0 },
 	{ DTV_ROLLOFF,		{}     , { ROLLOFF_AUTO		}, 0 },
-#if ! HAVE_CST_HARDWARE
+	{ DTV_TUNE,		{}     , { 0			}, 0 }
+};
+
+static const struct dtv_property dvbs2x_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
+	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
+	{ DTV_MODULATION,	{}     , { PSK_8		}, 0 },
+	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
+	{ DTV_SYMBOL_RATE,	{}     , { 27500000		}, 0 },
+	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBS2		}, 0 },
+	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
+	{ DTV_PILOT,		{}     , { PILOT_AUTO		}, 0 },
+	{ DTV_ROLLOFF,		{}     , { ROLLOFF_AUTO		}, 0 },
 	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },
-#endif
-	{ DTV_TUNE,		{}, { 0			} ,0 }
+	{ DTV_TUNE,		{}     , { 0			}, 0 }
 };
 
 static const struct dtv_property dvbc_cmdargs[] = {
@@ -373,7 +382,7 @@ void CFrontend::getFEInfo(void)
 	if (ret == 0) {
 		for (uint32_t i = 0; i < prop[0].u.buffer.len; i++) {
 			if (i >= MAX_DELSYS) {
-				printf("ERROR: too many delivery systems on frontend %d/%d\n", adapter, fenumber);
+				printf("[fe%d/%d] ERROR: too many delivery systems\n", adapter, fenumber);
 				break;
 			}
 
@@ -382,30 +391,37 @@ void CFrontend::getFEInfo(void)
 			case SYS_DVBC_ANNEX_B:
 			case SYS_DVBC_ANNEX_C:
 				deliverySystemMask |= DVB_C;
+				printf("[fe%d/%d] add delivery system DVB-C (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				break;
 			case SYS_DVBT:
 				deliverySystemMask |= DVB_T;
+				printf("[fe%d/%d] add delivery system DVB-T (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				break;
 			case SYS_DVBT2:
 				deliverySystemMask |= DVB_T2;
 				isMultistream = info.caps & FE_CAN_MULTISTREAM;
+				printf("[fe%d/%d] add delivery system DVB-T2 (delivery_system: %d / Multistream: %s)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i], isMultistream ? "yes" :"no");
 				break;
 			case SYS_DVBS:
 				deliverySystemMask |= DVB_S;
+				printf("[fe%d/%d] add delivery system DVB-S (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				break;
 			case SYS_DVBS2:
 				deliverySystemMask |= DVB_S2;
 				isMultistream = info.caps & FE_CAN_MULTISTREAM;
+				printf("[fe%d/%d] add delivery system DVB-S2 (delivery_system: %d / Multistream: %s)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i], isMultistream ? "yes" :"no");
 				break;
 			case SYS_DVBS2X:
 				deliverySystemMask |= DVB_S2X;
 				isMultistream = info.caps & FE_CAN_MULTISTREAM;
+				printf("[fe%d/%d] add delivery system DVB-S2X (delivery_system: %d / Multistream: %s)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i], isMultistream ? "yes" :"no");
 				break;
 			case SYS_DTMB:
 				deliverySystemMask |= DTMB;
+				printf("[fe%d/%d] add delivery system DTMB (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				break;
 			default:
-				printf("ERROR: delivery system unknown on frontend %d/%d (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
+				printf("[fe%d/%d] ERROR: delivery system unknown (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				continue;
 			}
 
@@ -637,7 +653,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 			break;
 		default:
 			if (zapit_debug)
-				printf("No valid fec for DVB-S2/DVB-S2X set!\n");
+				printf("no valid fec for DVB-S2/DVB-S2X set!\n");
 			/* fall through */
 		case fAuto:
 			fec = FEC_AUTO;
@@ -1583,8 +1599,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	switch (feparams->delsys) {
 	case DVB_S:
 	case DVB_S2:
-	case DVB_S2X:
-		if (feparams->delsys == DVB_S2 || feparams->delsys == DVB_S2X) {
+		if (feparams->delsys == DVB_S2) {
 			nrOfProps			= FE_DVBS2_PROPS;
 			memcpy(cmdseq.props, dvbs2_cmdargs, sizeof(dvbs2_cmdargs));
 
@@ -1603,6 +1618,19 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		cmdseq.props[FREQUENCY].u.data	= feparams->frequency;
 		cmdseq.props[SYMBOL_RATE].u.data= feparams->symbol_rate;
 		cmdseq.props[INNER_FEC].u.data	= fec; /*_inner*/ ;
+		break;
+	case DVB_S2X:
+		nrOfProps				= FE_DVBS2X_PROPS;
+		memcpy(cmdseq.props, dvbs2x_cmdargs, sizeof(dvbs2x_cmdargs));
+		cmdseq.props[MODULATION].u.data	= feparams->modulation;
+		cmdseq.props[ROLLOFF].u.data		= feparams->rolloff;
+		cmdseq.props[PILOTS].u.data		= pilot;
+		cmdseq.props[MIS].u.data		= feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26);
+		if (zapit_debug)
+			printf("[fe%d/%d] tuner pilot %d (feparams %d) streamid (%d/%d/%d)\n", adapter, fenumber, pilot, feparams->pilot, feparams->plp_id, feparams->pls_code, feparams->pls_mode );
+		cmdseq.props[FREQUENCY].u.data		= feparams->frequency;
+		cmdseq.props[SYMBOL_RATE].u.data	= feparams->symbol_rate;
+		cmdseq.props[INNER_FEC].u.data		= fec; /*_inner*/ ;
 		break;
 	case DVB_C:
 		memcpy(cmdseq.props, dvbc_cmdargs, sizeof(dvbc_cmdargs));
