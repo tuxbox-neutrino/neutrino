@@ -743,6 +743,8 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			feparams.pls_code = xmlGetNumericAttribute(tps, "pls_code", 0);
 			if (feparams.pls_code == 0)
 				feparams.pls_code = 1;
+			if ((feparams.delsys == DVB_S2) && (feparams.pls_mode > 0) && (feparams.pls_code > 1))
+				feparams.delsys = DVB_S2X;
 		}
 		else if (CFrontend::isTerr(delsys)) {
 			const char *system = xmlGetAttribute(tps, "system");
