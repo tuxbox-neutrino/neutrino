@@ -80,8 +80,8 @@ extern int zapit_debug;
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
-#define FE_DVBS2_PROPS	8
-#define FE_DVBS2X_PROPS	9
+#define FE_DVBS2_PROPS	10
+#define FE_DVBS2X_PROPS	10
 #define FE_DVBC_PROPS	6
 #define FE_DVBT_PROPS 10
 #define FE_DVBT2_PROPS 11
@@ -89,13 +89,13 @@ extern int zapit_debug;
 /* stolen from dvb.c from vlc */
 static const struct dtv_property dvbs_cmdargs[] = {
 	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{0,0,0}, { 0			}, 0 },
-	{ DTV_MODULATION,	{0,0,0}, { QPSK			}, 0 },
-	{ DTV_INVERSION,	{0,0,0}, { INVERSION_AUTO	}, 0 },
-	{ DTV_SYMBOL_RATE,	{0,0,0}, { 27500000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{0,0,0}, { SYS_DVBS		}, 0 },
-	{ DTV_INNER_FEC,	{0,0,0}, { FEC_AUTO		}, 0 },
-	{ DTV_TUNE,		{0,0,0}, { 0			}, 0 }
+	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
+	{ DTV_MODULATION,	{}     , { QPSK			}, 0 },
+	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
+	{ DTV_SYMBOL_RATE,	{}     , { 27500000		}, 0 },
+	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBS		}, 0 },
+	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
+	{ DTV_TUNE,		{}     , { 0			}, 0 }
 };
 
 static const struct dtv_property dvbs2_cmdargs[] = {
@@ -108,6 +108,8 @@ static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
 	{ DTV_PILOT,		{}     , { PILOT_AUTO		}, 0 },
 	{ DTV_ROLLOFF,		{}     , { ROLLOFF_AUTO		}, 0 },
+	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },
+	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },		// twice for BCM45308X
 	{ DTV_TUNE,		{}     , { 0			}, 0 }
 };
 
@@ -122,6 +124,7 @@ static const struct dtv_property dvbs2x_cmdargs[] = {
 	{ DTV_PILOT,		{}     , { PILOT_AUTO		}, 0 },
 	{ DTV_ROLLOFF,		{}     , { ROLLOFF_AUTO		}, 0 },
 	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },
+	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },		// twice for BCM45308X
 	{ DTV_TUNE,		{}     , { 0			}, 0 }
 };
 
@@ -1449,7 +1452,13 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	return bandwidth_hz;
 }
 
-bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_properties& cmdseq)
+void CFrontend::setName(const char* _name)
+{
+	memset(info.name, '\0', sizeof(info.name));
+	snprintf(info.name, sizeof(info.name)-1, "%s", _name);
+}
+
+bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_properties& cmdseq, bool useMultistream)
 {
 	fe_pilot_t pilot = PILOT_OFF;
 	int fec;
@@ -1600,16 +1609,24 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case DVB_S:
 	case DVB_S2:
 		if (feparams->delsys == DVB_S2) {
-			nrOfProps			= FE_DVBS2_PROPS;
-			memcpy(cmdseq.props, dvbs2_cmdargs, sizeof(dvbs2_cmdargs));
+			if (useMultistream) {
+				nrOfProps				= FE_DVBS2X_PROPS;
+				memcpy(cmdseq.props, dvbs2x_cmdargs, sizeof(dvbs2x_cmdargs));
+				cmdseq.props[MIS].u.data	= feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26);
+			} else {
+				nrOfProps			= FE_DVBS2_PROPS;
+				memcpy(cmdseq.props, dvbs2_cmdargs, sizeof(dvbs2_cmdargs));
+			}
+
 			cmdseq.props[MODULATION].u.data	= feparams->modulation;
 			cmdseq.props[ROLLOFF].u.data	= feparams->rolloff;
 			cmdseq.props[PILOTS].u.data	= pilot;
-#if ! HAVE_CST_HARDWARE
-			cmdseq.props[MIS].u.data	= feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26);
-#endif
+
 			if (zapit_debug)
-				printf("[fe%d/%d] tuner pilot %d (feparams %d) streamid (%d/%d/%d)\n", adapter, fenumber, pilot, feparams->pilot, feparams->plp_id, feparams->pls_code, feparams->pls_mode);
+				if (useMultistream)
+					printf("[fe%d/%d] tuner pilot %d (feparams %d) streamid (%d/%d/%d)\n", adapter, fenumber, pilot, feparams->pilot, feparams->plp_id, feparams->pls_code, feparams->pls_mode );
+				else
+					printf("[fe%d/%d] tuner pilot %d (feparams %d)\n", adapter, fenumber, pilot, feparams->pilot);
 		} else {
 			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
 			nrOfProps	= FE_DVBS_PROPS;
@@ -1716,7 +1733,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		}
 	}
 
-	if (!buildProperties(feparams, cmdseq))
+	if (!buildProperties(feparams, cmdseq, isMultistream))
 		return 0;
 
 	{

@@ -159,7 +159,7 @@ class CFrontend
 		//uint32_t numDeliverySystems;
 		t_channel_id		channel_id;
 
-		bool				buildProperties(const FrontendParameters*, struct dtv_properties &);
+		bool				buildProperties(const FrontendParameters*, struct dtv_properties &, bool useMultistream);
 
 		FrontendParameters		getFrontend(void) const;
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
@@ -311,6 +311,7 @@ class CFrontend
 		static fe_delivery_system_t	getFEDeliverySystem(delivery_system_t Delsys);
 		static uint32_t			getFEBandwidth(fe_bandwidth_t bandwidth);
 		const char*			getName(void) const { return info.name; }
+		void				setName(const char* _name);
 private:
 		// DEPRECATED
 		fe_type_t			getType() { return info.type; }
