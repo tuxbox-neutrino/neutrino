@@ -158,7 +158,7 @@ int CCAMMenuHandler::doMainMenu()
 
 	int CiSlots = ca ? ca->GetNumberCISlots() : 0;
 	if(CiSlots) {
-#if BOXMODEL_VUPLUS_ALL //FIXME: loacles not available
+#if BOXMODEL_VUPLUS_ALL
 		cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_DELAY, &g_settings.ci_delay, CI_DELAY_OPTIONS, CI_DELAY_OPTION_COUNT, true, this));
 #endif
 		cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));

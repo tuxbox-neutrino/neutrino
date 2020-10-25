@@ -308,8 +308,10 @@ channellist.since since
 channellist.start starts
 ci.check_live_slot Check CI-slot for live-tv use
 ci.clock CI clock (Mhz)
+ci.clock_extra_high extra high
 ci.clock_high high
 ci.clock_normal normal
+ci.delay DVB-CI delay
 ci.empty No CAM in slot
 ci.ignore_msg Ignore CA messages
 ci.init_failed CAM init failed
