@@ -392,7 +392,6 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		t_original_network_id original_network_id = xmlGetNumericAttribute(node, "on", 16);
 		feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
 		feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
-		feparams.plp_id = (uint8_t) xmlGetNumericAttribute(node, "pli", 0);
 
 		const char *system = xmlGetAttribute(node, "sys");
 		if (system) {
@@ -445,6 +444,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			feparams.code_rate_LP = (fe_code_rate_t) xmlGetNumericAttribute(node, "lp", 0);
 			feparams.guard_interval = (fe_guard_interval_t) xmlGetNumericAttribute(node, "gi", 0);
 			feparams.hierarchy = (fe_hierarchy_t) xmlGetNumericAttribute(node, "hi", 0);
+			feparams.plp_id = (uint8_t) xmlGetNumericAttribute(node, "pli", 0);
 
 			if (feparams.frequency < 1000*1000)
 				feparams.frequency = feparams.frequency*1000;
