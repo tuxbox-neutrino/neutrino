@@ -80,11 +80,7 @@ extern int zapit_debug;
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
-#if HAVE_CST_HARDWARE
-#define FE_DVBS2_PROPS	8
-#else
 #define FE_DVBS2_PROPS	10
-#endif
 #define FE_DVBS2X_PROPS	10
 #define FE_DVBC_PROPS	6
 #define FE_DVBT_PROPS 10
@@ -102,20 +98,6 @@ static const struct dtv_property dvbs_cmdargs[] = {
 	{ DTV_TUNE,		{}     , { 0			}, 0 }
 };
 
-#if HAVE_CST_HARDWARE
-static const struct dtv_property dvbs2_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
-	{ DTV_MODULATION,	{}     , { PSK_8		}, 0 },
-	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
-	{ DTV_SYMBOL_RATE,	{}     , { 27500000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBS2		}, 0 },
-	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_PILOT,		{}     , { PILOT_AUTO		}, 0 },
-	{ DTV_ROLLOFF,		{}     , { ROLLOFF_AUTO		}, 0 },
-	{ DTV_TUNE,		{}     , { 0			}, 0 }
-};
-#else
 static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
 	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
@@ -130,7 +112,6 @@ static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },		// twice for BCM45308X
 	{ DTV_TUNE,		{}     , { 0			}, 0 }
 };
-#endif
 
 static const struct dtv_property dvbs2x_cmdargs[] = {
 	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
