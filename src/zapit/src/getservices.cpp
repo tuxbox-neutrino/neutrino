@@ -432,6 +432,8 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			feparams.pls_code = xmlGetNumericAttribute(node, "plc", 0);
 			if (feparams.pls_code == 0)
 				feparams.pls_code = 1;
+			if ((feparams.delsys == DVB_S2) && (feparams.pls_mode > 0) && (feparams.pls_code > 1))
+				feparams.delsys = DVB_S2X;
 		}
 		else if (CFrontend::isTerr(delsys)) {
 			//<TS id="0001" on="7ffd" frq="650000" inv="2" bw="3" hp="9" lp="9" con="6" tm="2" gi="0" hi="4" sys="6">
