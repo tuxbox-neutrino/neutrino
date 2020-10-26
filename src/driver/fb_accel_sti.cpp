@@ -275,7 +275,7 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
 		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", xx,yy,width,height,stride);
-	blit();
+	//blit();
 }
 
 /* width / height => source surface   *
