@@ -1566,7 +1566,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		p[cmdseq.num].cmd = DTV_HIERARCHY,			p[cmdseq.num].u.data = feparams->hierarchy,						cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_BANDWIDTH_HZ,		p[cmdseq.num].u.data = getFEBandwidth(feparams->bandwidth),		cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_INVERSION,			p[cmdseq.num].u.data = feparams->inversion,						cmdseq.num++;
-		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBT2) && fe_can_multistream)
+		if (getFEDeliverySystem(feparams->delsys) == SYS_DVBT2)
 		{
 #if defined DTV_STREAM_ID
 			p[cmdseq.num].cmd = DTV_STREAM_ID,		p[cmdseq.num].u.data = feparams->plp_id,						cmdseq.num++;
