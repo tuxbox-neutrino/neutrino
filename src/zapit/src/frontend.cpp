@@ -1338,10 +1338,22 @@ void CFrontend::setName(const char* _name)
 	snprintf(info.name, sizeof(info.name)-1, "%s", _name);
 }
 
-bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_properties& cmdseq, bool can_multistream)
+int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
+	tuned = false;
+
+	struct dvb_frontend_event ev;
+	{
+		// Erase previous events
+		while (1) {
+			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
+				break;
+			//printf("[fe%d/%d] DEMOD: event status %d\n", adapter, fenumber, ev.status);
+		}
+	}
+
 	fe_pilot_t pilot = PILOT_OFF;
-	int fec;
+	int fec = FEC_AUTO;
 	fe_code_rate_t fec_inner = feparams->fec_inner;
 
 	/* cast to int is ncesessary because many of the FEC_S2 values are not
@@ -1486,15 +1498,17 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	}
 
 	struct dtv_property p[FE_MAX_PROPS];
+	memset(p, 0, sizeof(p));
+	struct dtv_properties cmdseq;
+	cmdseq.props = p;
+	cmdseq.num   = 0;
+	p[cmdseq.num].cmd = DTV_CLEAR; cmdseq.num++;
 
 	switch (feparams->delsys)
 	{
 	case DVB_S:
 	case DVB_S2:
 	case DVB_S2X:
-		cmdseq.props = p;
-		cmdseq.num   = 0;
-		p[cmdseq.num].cmd = DTV_CLEAR,																				cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM,	p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys),	cmdseq.num++;
 		if (config.diseqcType == DISEQC_UNICABLE)
 			p[cmdseq.num].cmd = DTV_FREQUENCY,
@@ -1515,7 +1529,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		{
 			p[cmdseq.num].cmd = DTV_ROLLOFF,		p[cmdseq.num].u.data = feparams->rolloff,						cmdseq.num++;
 			p[cmdseq.num].cmd = DTV_PILOT,			p[cmdseq.num].u.data = pilot,									cmdseq.num++;
-			if (can_multistream)
+			if (fe_can_multistream)
 			{
 #if (DVB_API_VERSION >= 5 && DVB_API_VERSION_MINOR >= 11)
 				p[cmdseq.num].cmd = DTV_STREAM_ID, p[cmdseq.num].u.data = feparams->plp_id,							cmdseq.num++;
@@ -1525,35 +1539,23 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 #endif
 			}
 			p[cmdseq.num].cmd = DTV_ISDBT_SB_SEGMENT_IDX, p[cmdseq.num].u.data = (feparams->plp_id == 0 ? 0 : (0x80000000 | (/*default pid*/4096 << 16) | feparams->plp_id)), cmdseq.num++;
-			p[cmdseq.num].cmd = DTV_TUNE, cmdseq.num++;
 		}
-		else
-		{
-			p[cmdseq.num].cmd = DTV_TUNE, cmdseq.num++;
-		}
-		if (can_multistream)
+		if (fe_can_multistream)
 			INFO("[fe%d/%d] tuner pilot %d (feparams %d) streamid (%d/%d/%d)\n", adapter, fenumber, pilot, feparams->pilot, feparams->plp_id, feparams->pls_code, feparams->pls_mode );
 		else
 			INFO("[fe%d/%d] tuner pilot %d (feparams %d)\n", adapter, fenumber, pilot, feparams->pilot);
 		break;
 	case DVB_C:
-		cmdseq.props = p;
-		cmdseq.num   = 0;
-		p[cmdseq.num].cmd = DTV_CLEAR,																				cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM,	p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys),	cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_FREQUENCY,			p[cmdseq.num].u.data = feparams->frequency,						cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_MODULATION,			p[cmdseq.num].u.data = feparams->modulation,					cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_SYMBOL_RATE,		p[cmdseq.num].u.data = feparams->symbol_rate,					cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_INNER_FEC,			p[cmdseq.num].u.data = fec_inner,								cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_INNER_FEC,			p[cmdseq.num].u.data = feparams->fec_inner,						cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_INVERSION,			p[cmdseq.num].u.data = feparams->inversion,						cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_TUNE, cmdseq.num++;
 		break;
 	case DVB_T:
 	case DVB_T2:
 	case DTMB:
-		cmdseq.props = p;
-		cmdseq.num   = 0;
-		p[cmdseq.num].cmd = DTV_CLEAR, cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM, p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys), cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_FREQUENCY,	p[cmdseq.num].u.data = feparams->frequency, cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_CODE_RATE_LP,	p[cmdseq.num].u.data = feparams->code_rate_LP, cmdseq.num++;
@@ -1564,7 +1566,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		p[cmdseq.num].cmd = DTV_HIERARCHY,	p[cmdseq.num].u.data = feparams->hierarchy, cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_BANDWIDTH_HZ,	p[cmdseq.num].u.data = getFEBandwidth(feparams->bandwidth), cmdseq.num++;
 		p[cmdseq.num].cmd = DTV_INVERSION,	p[cmdseq.num].u.data = feparams->inversion, cmdseq.num++;
-		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBT2) && can_multistream)
+		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBT2) && fe_can_multistream)
 		{
 #if defined DTV_STREAM_ID
 			p[cmdseq.num].cmd = DTV_STREAM_ID	,	p[cmdseq.num].u.data = feparams->plp_id, cmdseq.num++;
@@ -1572,47 +1574,18 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			p[cmdseq.num].cmd = DTV_DVBT2_PLP_ID	,	p[cmdseq.num].u.data = feparams->plp_id, cmdseq.num++;
 #endif
 		}
-		p[cmdseq.num].cmd = DTV_TUNE, cmdseq.num++;
 		break;
 	default:
 		INFO("[fe%d/%d] unknown frontend type, exiting\n", adapter, fenumber);
-		return false;
-	}
-
-	return true;
-}
-
-int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
-{
-	struct dtv_properties cmdseq;
-#ifdef PEDANTIC_VALGRIND_SETUP
-	memset(&cmdseq, 0, sizeof(cmdseq));
-#endif
-
-	tuned = false;
-
-	struct dvb_frontend_event ev;
-	{
-		// Erase previous events
-		while (1) {
-			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
-				break;
-			//printf("[fe%d/%d] DEMOD: event status %d\n", adapter, fenumber, ev.status);
-		}
-	}
-
-	if (!buildProperties(feparams, cmdseq, fe_can_multistream))
 		return 0;
-
-	{
-		//FE_TIMER_INIT();
-		//FE_TIMER_START();
-		if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
-			ERROR("FE_SET_PROPERTY");
-			return false;
-		}
-		//FE_TIMER_STOP("FE_SET_PROPERTY took");
 	}
+	p[cmdseq.num].cmd = DTV_TUNE, cmdseq.num++;
+
+	if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
+		ERROR("FE_SET_PROPERTY");
+		return 0;
+	}
+
 	if (nowait)
 		return 0;
 	{
