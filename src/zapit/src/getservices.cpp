@@ -426,12 +426,20 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 			/* TODO: add xml tag ? */
 			feparams.pilot = ZPILOT_AUTO;
-			feparams.plp_id = xmlGetNumericAttribute(node, "pli", 0);
+
+			feparams.plp_id = (unsigned int) xmlGetNumericAttribute(node, "pli", 0);
+			if (feparams.plp_id == 0)
+				feparams.plp_id = NO_STREAM_ID_FILTER;
+
 			feparams.pls_mode = (fe_pls_mode_t) xmlGetNumericAttribute(node, "plm", 0);
+			if (feparams.pls_mode == 0)
+				feparams.pls_mode = PLS_Gold;
+
 			feparams.pls_code = xmlGetNumericAttribute(node, "plc", 0);
 			if (feparams.pls_code == 0)
-				feparams.pls_code = 1;
-			if ((feparams.delsys == DVB_S2) && (feparams.pls_mode > 0) && (feparams.pls_code > 1))
+				feparams.pls_code = PLS_Default_Gold_Code;
+
+			if ((feparams.delsys == DVB_S2) && feparams.plp_id != NO_STREAM_ID_FILTER)
 				feparams.delsys = DVB_S2X;
 		}
 		else if (CFrontend::isTerr(delsys)) {
@@ -444,7 +452,9 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			feparams.code_rate_LP = (fe_code_rate_t) xmlGetNumericAttribute(node, "lp", 0);
 			feparams.guard_interval = (fe_guard_interval_t) xmlGetNumericAttribute(node, "gi", 0);
 			feparams.hierarchy = (fe_hierarchy_t) xmlGetNumericAttribute(node, "hi", 0);
-			feparams.plp_id = (uint8_t) xmlGetNumericAttribute(node, "pli", 0);
+			feparams.plp_id = (unsigned int) xmlGetNumericAttribute(node, "pli", 0);
+			if (feparams.plp_id == 0)
+				feparams.plp_id = NO_STREAM_ID_FILTER;
 
 			if (feparams.frequency < 1000*1000)
 				feparams.frequency = feparams.frequency*1000;
@@ -636,9 +646,9 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			feparams.frequency = xmlGetNumericAttribute(tps, "centre_frequency", 0);
 		feparams.inversion = INVERSION_AUTO;
 
-		feparams.plp_id = 0; // NO_STREAM_ID_FILTER = ~0U, seems not suitable here
-		feparams.pls_mode = PLS_Root;
-		feparams.pls_code = 1;
+		feparams.plp_id = NO_STREAM_ID_FILTER;
+		feparams.pls_mode = PLS_Gold;
+		feparams.pls_code = PLS_Default_Gold_Code;
 
 		if (CFrontend::isCable(delsys)) {
 			const char *system = xmlGetAttribute(tps, "system");
@@ -740,12 +750,20 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 #endif
 			feparams.fec_inner = (fe_code_rate_t) xml_fec;
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-			feparams.plp_id = xmlGetNumericAttribute(tps, "is_id", 0);
+
+			feparams.plp_id = (unsigned int) xmlGetNumericAttribute(tps, "is_id", 0);
+			if (feparams.plp_id == 0)
+				feparams.plp_id = NO_STREAM_ID_FILTER;
+
 			feparams.pls_mode = (fe_pls_mode_t) xmlGetNumericAttribute(tps, "pls_mode", 0);
+			if (feparams.pls_mode == 0)
+				feparams.pls_mode = PLS_Gold;
+
 			feparams.pls_code = xmlGetNumericAttribute(tps, "pls_code", 0);
 			if (feparams.pls_code == 0)
-				feparams.pls_code = 1;
-			if ((feparams.delsys == DVB_S2) && (feparams.pls_mode > 0) && (feparams.pls_code > 1))
+				feparams.pls_code = PLS_Default_Gold_Code;
+
+			if ((feparams.delsys == DVB_S2) && feparams.plp_id != NO_STREAM_ID_FILTER)
 				feparams.delsys = DVB_S2X;
 		}
 		else if (CFrontend::isTerr(delsys)) {
@@ -786,8 +804,11 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 							xmlGetNumericAttribute(tps, "guard_interval", 0);
 			feparams.hierarchy = (fe_hierarchy_t)
 							xmlGetNumericAttribute(tps, "hierarchy", 0);
-			feparams.plp_id = (uint8_t)
+			feparams.plp_id = (unsigned int)
 							xmlGetNumericAttribute(tps, "plp_id", 0);
+			if (feparams.plp_id == 0)
+				feparams.plp_id = NO_STREAM_ID_FILTER;
+
 			if (feparams.frequency < 1000*1000)
 				feparams.frequency *= 1000;
 		}

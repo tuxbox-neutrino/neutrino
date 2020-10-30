@@ -1538,7 +1538,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 				p[cmdseq.num].cmd = DTV_STREAM_ID, p[cmdseq.num].u.data = feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26), cmdseq.num++;
 #endif
 			}
-			p[cmdseq.num].cmd = DTV_ISDBT_SB_SEGMENT_IDX, p[cmdseq.num].u.data = (feparams->plp_id == 0 ? 0 : (0x80000000 | (/*default pid*/4096 << 16) | feparams->plp_id)), cmdseq.num++;
+			p[cmdseq.num].cmd = DTV_ISDBT_SB_SEGMENT_IDX, p[cmdseq.num].u.data = (feparams->plp_id == NO_STREAM_ID_FILTER ? 0 : (0x80000000 | (T2MI_Default_Pid << 16) | feparams->plp_id)), cmdseq.num++;
 		}
 		if (fe_can_multistream)
 			INFO("[fe%d/%d] tuner pilot %d (feparams %d) streamid (%d/%d/%d)\n", adapter, fenumber, pilot, feparams->pilot, feparams->plp_id, feparams->pls_code, feparams->pls_mode );

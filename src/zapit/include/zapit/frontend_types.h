@@ -115,6 +115,16 @@ typedef enum {
 	PLS_Unknown
 } fe_pls_mode_t;
 
+typedef enum {
+	PLS_Default_Gold_Code,
+	PLS_Default_Root_Code
+} fe_pls_code_t;
+
+typedef enum {
+	No_T2MI_PLP_Id = NO_STREAM_ID_FILTER,
+	T2MI_Default_Pid = 4096
+};
+
 typedef struct {
 	delivery_system_t	delsys;
 	uint32_t		frequency;
@@ -136,7 +146,7 @@ typedef struct {
 	enum fe_interleaving	interleaving;
 #endif
 	uint8_t			polarization;
-	uint8_t			plp_id; //0-255
+	unsigned int	plp_id; //0-255
 	fe_pls_mode_t	pls_mode;
 	uint32_t		pls_code; //0-262142
 } FrontendParameters;
