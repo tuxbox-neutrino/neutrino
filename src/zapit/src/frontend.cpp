@@ -1556,22 +1556,22 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 	case DVB_T:
 	case DVB_T2:
 	case DTMB:
-		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM, p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys), cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_FREQUENCY,	p[cmdseq.num].u.data = feparams->frequency, cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_CODE_RATE_LP,	p[cmdseq.num].u.data = feparams->code_rate_LP, cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_CODE_RATE_HP,	p[cmdseq.num].u.data = feparams->code_rate_HP, cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_MODULATION,	p[cmdseq.num].u.data = feparams->modulation, cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_TRANSMISSION_MODE,	p[cmdseq.num].u.data = feparams->transmission_mode, cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_GUARD_INTERVAL,	p[cmdseq.num].u.data = feparams->guard_interval, cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_HIERARCHY,	p[cmdseq.num].u.data = feparams->hierarchy, cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_BANDWIDTH_HZ,	p[cmdseq.num].u.data = getFEBandwidth(feparams->bandwidth), cmdseq.num++;
-		p[cmdseq.num].cmd = DTV_INVERSION,	p[cmdseq.num].u.data = feparams->inversion, cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM,	p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys),	cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_FREQUENCY,			p[cmdseq.num].u.data = feparams->frequency,						cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_CODE_RATE_LP,		p[cmdseq.num].u.data = feparams->code_rate_LP,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_CODE_RATE_HP,		p[cmdseq.num].u.data = feparams->code_rate_HP,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_MODULATION,			p[cmdseq.num].u.data = feparams->modulation,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_TRANSMISSION_MODE,	p[cmdseq.num].u.data = feparams->transmission_mode,				cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_GUARD_INTERVAL,		p[cmdseq.num].u.data = feparams->guard_interval,				cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_HIERARCHY,			p[cmdseq.num].u.data = feparams->hierarchy,						cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_BANDWIDTH_HZ,		p[cmdseq.num].u.data = getFEBandwidth(feparams->bandwidth),		cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_INVERSION,			p[cmdseq.num].u.data = feparams->inversion,						cmdseq.num++;
 		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBT2) && fe_can_multistream)
 		{
 #if defined DTV_STREAM_ID
-			p[cmdseq.num].cmd = DTV_STREAM_ID	,	p[cmdseq.num].u.data = feparams->plp_id, cmdseq.num++;
+			p[cmdseq.num].cmd = DTV_STREAM_ID,		p[cmdseq.num].u.data = feparams->plp_id,						cmdseq.num++;
 #elif defined DTV_DVBT2_PLP_ID
-			p[cmdseq.num].cmd = DTV_DVBT2_PLP_ID	,	p[cmdseq.num].u.data = feparams->plp_id, cmdseq.num++;
+			p[cmdseq.num].cmd = DTV_DVBT2_PLP_ID,	p[cmdseq.num].u.data = feparams->plp_id,						cmdseq.num++;
 #endif
 		}
 		break;
