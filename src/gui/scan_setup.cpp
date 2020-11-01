@@ -1812,7 +1812,7 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 		coderateLP->setHint("", LOCALE_MENU_HINT_SCAN_FEC);
 		tm = new CMenuOptionChooser(LOCALE_EXTRA_TP_TRANSMIT_MODE, (int *)&scansettings.terrestrial_TP_transmit_mode, TERRSETUP_SCANTP_TRANSMIT_MODE, TERRSETUP_SCANTP_TRANSMIT_MODE_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 		tm->setHint("", LOCALE_MENU_HINT_SCAN_TRANSMIT_MODE);
-		CStringInput		*pli 	= new CStringInput(LOCALE_EXTRA_TP_PLI, &scansettings.terrestrial_TP_pli, 1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+		CStringInput		*pli 	= new CStringInput(LOCALE_EXTRA_TP_PLI, &scansettings.terrestrial_TP_pli, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Pli 	= new CMenuDForwarder(LOCALE_EXTRA_TP_PLI, true, scansettings.terrestrial_TP_pli, pli, "", CRCInput::convertDigitToKey(shortCut++));
 	}
 
@@ -2037,7 +2037,7 @@ void CScanSetup::updateManualSettings()
 				scansettings.sat_TP_delsys = tI->second.feparams.delsys;
 				scansettings.sat_TP_mod = tI->second.feparams.modulation;
 				scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
-				scansettings.sat_TP_pli = to_string(tI->second.feparams.plp_id);
+				scansettings.sat_TP_pli = (tI->second.feparams.plp_id == NO_STREAM_ID_FILTER ? "0" : to_string(tI->second.feparams.plp_id));
 				scansettings.sat_TP_plc = to_string(tI->second.feparams.pls_code);
 				scansettings.sat_TP_plm = tI->second.feparams.pls_mode;
 			} else if (CFrontend::isCable(tI->second.feparams.delsys)) {
@@ -2056,7 +2056,7 @@ void CScanSetup::updateManualSettings()
 				scansettings.terrestrial_TP_transmit_mode = tI->second.feparams.transmission_mode;
 				scansettings.terrestrial_TP_coderate_HP = tI->second.feparams.code_rate_HP;
 				scansettings.terrestrial_TP_coderate_LP = tI->second.feparams.code_rate_LP;
-				scansettings.terrestrial_TP_pli = to_string(tI->second.feparams.plp_id);
+				scansettings.terrestrial_TP_pli = (tI->second.feparams.plp_id == NO_STREAM_ID_FILTER ? "0" : to_string(tI->second.feparams.plp_id));
 
 				scansettings.terrestrialName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
 			}
@@ -2162,7 +2162,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 			scansettings.sat_TP_delsys = tmpI->second.feparams.delsys;
 			scansettings.sat_TP_mod = tmpI->second.feparams.modulation;
 			scansettings.sat_TP_pilot = tmpI->second.feparams.pilot;
-			scansettings.sat_TP_pli = to_string(tmpI->second.feparams.plp_id);
+			scansettings.sat_TP_pli = (tmpI->second.feparams.plp_id == NO_STREAM_ID_FILTER ? "0" : to_string(tmpI->second.feparams.plp_id));
 			scansettings.sat_TP_plc = to_string(tmpI->second.feparams.pls_code);
 			scansettings.sat_TP_plm = tmpI->second.feparams.pls_mode;
 		}
@@ -2181,7 +2181,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 			scansettings.terrestrial_TP_transmit_mode = tmpI->second.feparams.transmission_mode;
 			scansettings.terrestrial_TP_coderate_HP = tmpI->second.feparams.code_rate_HP;
 			scansettings.terrestrial_TP_coderate_LP = tmpI->second.feparams.code_rate_LP;
-			scansettings.terrestrial_TP_pli = to_string(tmpI->second.feparams.plp_id);
+			scansettings.terrestrial_TP_pli = (tmpI->second.feparams.plp_id == NO_STREAM_ID_FILTER ? "0" : to_string(tmpI->second.feparams.plp_id));
 			//scansettings.terrestrialName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
 		}
 	}
