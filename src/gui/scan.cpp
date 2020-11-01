@@ -450,7 +450,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				if (CFrontend::isSat(feparams->delsys))
 				{
 					CFrontend::getDelSys(feparams->delsys, feparams->fec_inner, feparams->modulation,  f, s, m);
-					snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s (%d/%d/%s) ", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m, feparams->plp_id, feparams->pls_code, transponder::getPLSMode(feparams->pls_mode).c_str());
+					if (feparams->plp_id == NO_STREAM_ID_FILTER)
+						snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s ", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m);
+					else
+						snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s (%u/%s/%s) ", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m, feparams->plp_id, transponder::getPLSCode(feparams->pls_code).c_str(), transponder::getPLSMode(feparams->pls_mode).c_str());
 				}
 				else if (CFrontend::isCable(feparams->delsys))
 				{
@@ -461,7 +464,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				{
 					CFrontend::getDelSys(feparams->delsys, feparams->code_rate_HP, feparams->modulation, f, s, m);
 					CFrontend::getDelSys(feparams->delsys, feparams->code_rate_LP, feparams->modulation, f2, s, m);
-					snprintf(buffer,sizeof(buffer), "%u %d %s %s %s %d ", freq, CFrontend::getFEBandwidth(feparams->bandwidth)/1000, f, f2, m, feparams->plp_id);
+					if (feparams->plp_id == NO_STREAM_ID_FILTER)
+						snprintf(buffer,sizeof(buffer), "%u %d %s %s %s ", freq, CFrontend::getFEBandwidth(feparams->bandwidth)/1000, f, f2, m);
+					else
+						snprintf(buffer,sizeof(buffer), "%u %d %s %s %s %u ", freq, CFrontend::getFEBandwidth(feparams->bandwidth)/1000, f, f2, m, feparams->plp_id);					
 				}
 				paintLine(xpos2, ypos_frequency, w - (7*fw), buffer);
 			}
