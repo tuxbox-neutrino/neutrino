@@ -42,7 +42,7 @@
 
 #include <driver/display.h>
 #include <driver/screen_max.h>
-#include <driver/display.h>
+#include <lib/libnet/libnet.h>
 #include <system/helpers.h>
 #include <system/debug.h>
 
@@ -106,8 +106,11 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 				return res;
 		}
 
-		std::string fname = "neutrino.conf";
-		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname);
+		std::string hostName = "";
+		netGetHostname(hostName);
+		std::string timeStr = getNowTimeStr("_%Y%m%d_%H%M");
+		std::string fname = "neutrino_" + hostName + timeStr + ".conf";
+		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname, 45);
 		sms->exec(NULL, "");
 		delete sms;
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DATE=$(date +%Y-%m-%d_%H-%M-%S)
+DATE=$(date +%Y%m%d_%H%M)
 USRF="/var/tuxbox/config/tobackup.conf"
 BAKF="$1/${2:-settings_${DATE}.tar.gz}"
 
