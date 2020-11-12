@@ -106,10 +106,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 				return res;
 		}
 
-		std::string hostName = "";
-		netGetHostname(hostName);
-		std::string timeStr = getNowTimeStr("_%Y%m%d_%H%M");
-		std::string fname = "neutrino_" + hostName + timeStr + ".conf";
+		std::string fname = "neutrino_" + getBackupSuffix() + ".conf";
 		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname, 45);
 		sms->exec(NULL, "");
 		delete sms;
@@ -146,8 +143,9 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			hintBox->paint();
 
 			const char backup_sh[] = TARGET_PREFIX "/bin/backup.sh";
+			std::string fname = "settings_" + getBackupSuffix(); // file ending is set by backup script;
 			dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, backup_sh, g_settings.backup_dir.c_str());
-			my_system(2, backup_sh, g_settings.backup_dir.c_str());
+			my_system(3, backup_sh, g_settings.backup_dir.c_str(), fname.c_str());
 
 			hintBox->hide();
 			delete hintBox;

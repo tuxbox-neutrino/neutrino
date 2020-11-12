@@ -52,7 +52,6 @@
 #include <driver/screen_max.h>
 #include <driver/screenshot.h>
 
-#include <lib/libnet/libnet.h>
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <sys/socket.h>
@@ -125,11 +124,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				return res;
 		}
 
-
-		std::string hostName = "";
-		netGetHostname(hostName);
-		std::string timeStr = getNowTimeStr("_%Y%m%d_%H%M");
-		std::string fname = "keys_" + hostName + timeStr + ".conf";
+		std::string fname = "keys_" + getBackupSuffix() + ".conf";
 		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname, 45);
 		sms->exec(NULL, "");
 		delete sms;
