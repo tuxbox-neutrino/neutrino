@@ -53,6 +53,7 @@
 //#include <driver/framebuffer.h>
 #include <system/helpers.h>
 #include <system/helpers-json.h>
+#include <lib/libnet/libnet.h>
 #include <gui/update_ext.h>
 #include <libmd5sum.h>
 #define MD5_DIGEST_LENGTH 16
@@ -493,6 +494,13 @@ std::string getFileExt(std::string &file)
 	return _getBaseName(f, ".");
 }
 
+std::string getBackupSuffix()
+{
+	std::string hostName = "";
+	netGetHostname(hostName);
+
+	return hostName + getNowTimeStr("_%Y%m%d_%H%M");
+}
 
 std::string getNowTimeStr(const char* format)
 {
