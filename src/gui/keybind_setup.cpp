@@ -52,6 +52,7 @@
 #include <driver/screen_max.h>
 #include <driver/screenshot.h>
 
+#include <lib/libnet/libnet.h>
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <sys/socket.h>
@@ -108,16 +109,36 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "savekeys") {
 		CFileBrowser fileBrowser;
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true) {
-			std::string fname = "keys.conf";
-			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname);
-			sms->exec(NULL, "");
-			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
-			printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());
-			CNeutrinoApp::getInstance()->saveKeys(sname.c_str());
-			delete sms;
+
+		char msgtxt[1024];
+		snprintf(msgtxt, sizeof(msgtxt), g_Locale->getText(LOCALE_SETTINGS_BACKUP_DIR), g_settings.backup_dir.c_str());
+
+		int result = ShowMsg(LOCALE_EXTRA_SAVECONFIG, msgtxt, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbCancel);
+		if (result == CMsgBox::mbrCancel)
+			return res;
+		if (result == CMsgBox::mbrNo)
+		{
+			fileBrowser.Dir_Mode = true;
+			if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
+				g_settings.backup_dir = fileBrowser.getSelectedFile()->Name;
+			else
+				return res;
 		}
+
+
+		std::string hostName = "";
+		netGetHostname(hostName);
+		std::string timeStr = getNowTimeStr("_%Y%m%d_%H%M");
+		std::string fname = "keys_" + hostName + timeStr + ".conf";
+		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname, 45);
+		sms->exec(NULL, "");
+		delete sms;
+
+		std::string sname = g_settings.backup_dir + "/" + fname;
+		printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());
+
+		CNeutrinoApp::getInstance()->saveKeys(sname.c_str());
+
 		return menu_return::RETURN_REPAINT;
 	}
 
