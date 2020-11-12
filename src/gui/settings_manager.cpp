@@ -42,7 +42,6 @@
 
 #include <driver/display.h>
 #include <driver/screen_max.h>
-#include <lib/libnet/libnet.h>
 #include <system/helpers.h>
 #include <system/debug.h>
 
