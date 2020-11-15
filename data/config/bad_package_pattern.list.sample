@@ -11,6 +11,7 @@ avahi
 base-passwd-
 bash-
 bluez5-
+boost-
 bsd
 busybox-
 catchsegv
@@ -34,12 +35,14 @@ gettext
 git-
 gitweb
 glibc-
+gstreamer1.0-
 initscripts-
 icu
 jpeg-tools
 kbd-
 kernel
 kmod-
+kodi-
 krb5
 ldd
 lib
