@@ -838,7 +838,7 @@ struct row
 
 void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 {
-	char buf[100];
+	char buf[100], buf2[259];
 	bool has_vpid = false;
 	bool is_webchan = false;
 	int xres = 0, yres = 0, aspectRatio = 0, framerate = -1, i = 0;
@@ -1147,15 +1147,15 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 		r.key = "E2 Logo 1";
 		r.key += ": ";
-		snprintf(buf, sizeof(buf), "%s.png", e2filename1);
-		r.val = buf;
+		snprintf(buf2, sizeof(buf2), "%s.png", e2filename1);
+		r.val = buf2;
 		v.push_back(r);
 
 		if ((std::string) e2filename1 != (std::string) e2filename2) {
 			r.key = "E2 Logo 2";
 			r.key += ": ";
-			snprintf(buf, sizeof(buf), "%s.png", e2filename2);
-			r.val = buf;
+			snprintf(buf2, sizeof(buf2), "%s.png", e2filename2);
+			r.val = buf2;
 			v.push_back(r);
 		}
 	}
