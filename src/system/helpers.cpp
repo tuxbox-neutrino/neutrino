@@ -1615,18 +1615,18 @@ std::string randomFile(std::string suffix, std::string directory, unsigned int l
 	return directory + "/" + randomString(length) + "." + suffix;
 }
 
-std::string downloadUrlToRandomFile(std::string url, std::string directory, unsigned int length)
+std::string downloadUrlToRandomFile(std::string url, std::string directory, unsigned int length, unsigned int timeout)
 {
 	if (strstr(url.c_str(), "://"))
 	{
 		std::string file = randomFile(url.substr(url.find_last_of(".") + 1), directory, length);
-		if (downloadUrl(url, file, " ", 1))
+		if (downloadUrl(url, file, " ", timeout))
 			return file;
 	}
 	return url;
 }
 
-std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_id channel_id)
+std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_id channel_id, unsigned int timeout)
 {
 
 	if (channel_id == 0)
@@ -1642,7 +1642,7 @@ std::string downloadUrlToLogo(std::string url, std::string directory, t_channel_
 		std::string file = directory + "/" + strChnId + url.substr(url.find_last_of("."));
 		if (file_exists(file))
 			return file;
-		if (downloadUrl(url, file, " ", 1))
+		if (downloadUrl(url, file, " ", timeout))
 			return file;
 	}
 	return url;

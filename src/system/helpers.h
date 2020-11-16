@@ -169,8 +169,8 @@ bool utf8_check_is_valid(const std::string &str);
 
 std::string randomString(unsigned int length = 10);
 std::string randomFile(std::string suffix = "tmp", std::string directory = "/tmp", unsigned int length = 10);
-std::string downloadUrlToRandomFile(std::string url, std::string directory = "/tmp", unsigned int length = 10);
-std::string downloadUrlToLogo(std::string url, std::string directory = "/tmp", t_channel_id channel_id = 0);
+std::string downloadUrlToRandomFile(std::string url, std::string directory = "/tmp", unsigned int length = 10, unsigned int timeout = 1);
+std::string downloadUrlToLogo(std::string url, std::string directory = "/tmp", t_channel_id channel_id = 0, unsigned int timeout = 1);
 
 // curl
 struct MemoryStruct {
