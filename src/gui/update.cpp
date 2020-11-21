@@ -654,7 +654,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			   ofgwrite will copy this tarball to new rootfs.
 			   It's untared at first start of new image.
 			*/
-			my_system(3, TARGET_PREFIX "/bin/backup.sh", "/tmp", "backup_flash.tar.gz");
+			my_system(3, TARGET_PREFIX "/bin/backup.sh", "/tmp", "backup_flash"); // file ending is set by backup script;
 			hintBox.hide();
 		}
 
