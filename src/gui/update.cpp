@@ -709,11 +709,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 				if(g_settings.hdmi_cec_standby){
 					videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 				}
-				std::string startup_new = "/boot/STARTUP_" + to_string(selected);
+				std::string startup_file("/boot/");
+				startup_file += g_info.hw_caps->startup_file;
+				std::string startup_new = startup_file + "_" + to_string(selected);
 				dprintf(DEBUG_NORMAL, "[update] Start selected partition %d (%s)\n", selected, startup_new.c_str());
 #ifndef DRYRUN
 				CFileHelpers fh;
-				fh.copyFile(startup_new.c_str(), "/boot/STARTUP");
+				fh.copyFile(startup_new.c_str(), startup_file.c_str());
 #endif
 			}
 		} else if (selected > 0 && strcmp(c, to_string(selected).c_str()) == 0) {
