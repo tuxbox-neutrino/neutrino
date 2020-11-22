@@ -39,6 +39,7 @@ hw_caps_t *get_hwcaps(void) {
 	caps.can_ar_14_9 = 1;
 	caps.can_ps_14_9 = 1;
 	caps.force_tuner_2G = 0;
+	strcpy(caps.startup_file, "");
 	strcpy(caps.boxvendor, "Coolstream");
 	strcpy(caps.boxarch, "Nevis");
 	switch (rev) {
