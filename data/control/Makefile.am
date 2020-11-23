@@ -1,3 +1,6 @@
+#EXTRA_DIST = \
+#	migration.sh migration.sh.in
+
 installdir = $(CONTROLDIR)
 
 install_SCRIPTS = \

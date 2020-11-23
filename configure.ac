@@ -472,6 +472,11 @@ AC_CONFIG_FILES([
 src/nhttpd/nhttpd.conf
 ])
 
+## Migration script
+#AC_CONFIG_FILES([
+#data/control/migration.sh
+#])
+
 # Backup configs
 AC_CONFIG_FILES([
 data/config/settingsupdate.conf
