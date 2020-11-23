@@ -25,30 +25,34 @@
 ## vor der Sicherung aus dem neuen Image zu löschende Dateien/Verzeichnisse,
 ## gekennzeichnet durch ein vorangestelltes ~
 # z.B.
-# ~/share/tuxbox/neutrino/themes/Classic.theme
+# ~@THEMESDIR@/Classic.theme
 #---------------------------------------------------------------------------
 
 
 #-------------
 ## Sicherungen
 #-------------
+@CONFIGDIR@/
+
+/etc/exports
 /etc/hostname
 /etc/hosts
-/etc/network
+/etc/passwd
 /etc/resolv.conf
 /etc/wpa_supplicant.conf
-/var/etc
-/var/tuxbox/config
+
+
+## Persönliche Sicherungen
 
 
 #----------------------------------------------------------------------------------------
 ## von der Sicherung auszuschließende Dateien, gekennzeichnet durch ein vorangestelltes -
 #----------------------------------------------------------------------------------------
 -/var/etc/update.urls
--/var/tuxbox/config/cables.xml
--/var/tuxbox/config/encoding.conf
--/var/tuxbox/config/providermap.xml
--/var/tuxbox/config/radio-stations.xml
--/var/tuxbox/config/satellites.xml
--/var/tuxbox/config/settingsupdate.conf
--/var/tuxbox/config/tobackup.conf
+-@CONFIGDIR@/cables.xml
+-@CONFIGDIR@/encoding.conf
+-@CONFIGDIR@/providermap.xml
+-@CONFIGDIR@/radio-stations.xml
+-@CONFIGDIR@/satellites.xml
+-@CONFIGDIR@/settingsupdate.conf
+-@CONFIGDIR@/tobackup.conf

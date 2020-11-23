@@ -472,6 +472,12 @@ AC_CONFIG_FILES([
 src/nhttpd/nhttpd.conf
 ])
 
+# Backup configs
+AC_CONFIG_FILES([
+data/config/settingsupdate.conf
+data/config/tobackup.conf
+])
+
 # Themes
 #AC_CONFIG_FILES([
 #data/themes/Material_Blue-Grey.theme

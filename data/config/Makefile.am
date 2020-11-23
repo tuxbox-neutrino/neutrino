@@ -1,3 +1,7 @@
+EXTRA_DIST = \
+	settingsupdate.conf settingsupdate.conf.in \
+	tobackup.conf tobackup.conf.in
+
 installdir = $(CONFIGDIR)
 
 install_DATA = \
