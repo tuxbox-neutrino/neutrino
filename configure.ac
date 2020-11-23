@@ -353,7 +353,9 @@ AC_SUBST(STB_HAL_LIB)
 AC_SUBST(LUA_CFLAGS)
 AC_SUBST(LUA_LIBS)
 AC_SUBST(BLURAY_LIBS)
+AC_SUBST(LIBCOOLSTREAM_STATIC_DIR)
 
+# Makefiles
 AC_CONFIG_FILES([
 Makefile
 data/Makefile
@@ -399,12 +401,12 @@ data/pictures/screensaver/Makefile
 data/policy/Makefile
 data/scripts/Makefile
 data/themes/Makefile
-data/themes/Grey-Blue/Makefile
-data/themes/Grey-Blue/icons/Makefile
-data/themes/Grey-Blue/icons/buttons/Makefile
 data/themes/Grey-3.0/Makefile
 data/themes/Grey-3.0/icons/Makefile
 data/themes/Grey-3.0/icons/buttons/Makefile
+data/themes/Grey-Blue/Makefile
+data/themes/Grey-Blue/icons/Makefile
+data/themes/Grey-Blue/icons/buttons/Makefile
 data/themes/Neutrino-3.0/Makefile
 data/themes/Neutrino-3.0/icons/Makefile
 data/themes/Neutrino-3.0/icons/buttons/Makefile
@@ -415,6 +417,8 @@ data/webradio/Makefile
 data/webtv/Makefile
 data/y-web/Makefile
 data/y-web/images/Makefile
+data/y-web/info/Makefile
+data/y-web/jquery/Makefile
 data/y-web/languages/Makefile
 data/y-web/scripts/Makefile
 data/y-web/styles/Makefile
@@ -451,7 +455,6 @@ src/gui/widget/Makefile
 src/gui/widget/yaft/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
-src/nhttpd/nhttpd.conf
 src/nhttpd/tuxboxapi/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
@@ -463,5 +466,15 @@ src/zapit/Makefile
 src/zapit/lib/Makefile
 src/zapit/src/Makefile
 ])
+
+# Webserver config
+AC_CONFIG_FILES([
+src/nhttpd/nhttpd.conf
+])
+
+# Themes
+#AC_CONFIG_FILES([
+#data/themes/Material_Blue-Grey.theme
+#])
 
 AC_OUTPUT
