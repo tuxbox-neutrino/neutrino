@@ -265,7 +265,10 @@ int CMsgBox::exec()
 	neutrino_msg_data_t data;
 	int res = menu_return::RETURN_REPAINT;
 
-	ccw_footer->getSelectedButtonObject()->setButtonAlias(mb_show_button);
+	CComponentsButton *btn = ccw_footer->getSelectedButtonObject();
+	if (btn)
+		btn->setButtonAlias(mb_show_button);
+
 	int selected = ccw_footer->getSelectedButton();
 	if (timeout == NO_TIMEOUT)
 		timeout = 0;
