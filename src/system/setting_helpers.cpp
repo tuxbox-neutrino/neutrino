@@ -498,7 +498,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 					const char *zptr = xmlGetAttribute(search, "zone");
 					if(zptr)
 						zone = zptr;
-					if (!access(DATADIR "/zoneinfo/" + zone, R_OK))
+					if (!access(TARGET_PREFIX "/share/zoneinfo/" + zone, R_OK))
 						found = true;
 					break;
 				}
@@ -509,7 +509,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
         }
 	if(found) {
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-		std::string cmd = DATADIR "/zoneinfo/" + zone;
+		std::string cmd = TARGET_PREFIX "/share/zoneinfo/" + zone;
 		printf("symlink %s to /etc/localtime\n", cmd.c_str());
 		if (unlink("/etc/localtime"))
 			perror("unlink failed");

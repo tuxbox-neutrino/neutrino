@@ -153,7 +153,7 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 				if(zptr)
 					zone = zptr;
 				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-				if (access("/usr/share/zoneinfo/" + zone, R_OK))
+				if (access(TARGET_PREFIX "/share/zoneinfo/" + zone, R_OK))
 					printf("[neutrino] timezone file '%s' not installed\n", zone.c_str());
 				else
 				{
