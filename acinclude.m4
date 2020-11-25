@@ -268,6 +268,9 @@ TUXBOX_APPS_DIRECTORY_ONE(configdir, CONFIGDIR, localstatedir, /var, /tuxbox/con
 TUXBOX_APPS_DIRECTORY_ONE(datadir, DATADIR, datadir, /share, /tuxbox,
 	[--with-datadir=PATH], [where to find data files])
 
+TUXBOX_APPS_DIRECTORY_ONE(datadir_var, DATADIR_VAR, localstatedir, /var, /tuxbox,
+	[--with-datadir=PATH], [where to find data files])
+
 TUXBOX_APPS_DIRECTORY_ONE(controldir, CONTROLDIR, datadir, /share, /tuxbox/neutrino/control,
 	[--with-controldir=PATH], [where to find control scripts])
 
@@ -350,6 +353,7 @@ TUXBOX_APPS_DIRECTORY_ONE(flagdir, FLAGDIR, localstatedir, /var, /etc,
 dnl automake <= 1.6 needs this specifications
 AC_SUBST(CONFIGDIR)
 AC_SUBST(DATADIR)
+AC_SUBST(DATADIR_VAR)
 AC_SUBST(CONTROLDIR)
 AC_SUBST(CONTROLDIR_VAR)
 AC_SUBST(FONTDIR)
