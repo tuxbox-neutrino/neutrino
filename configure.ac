@@ -496,4 +496,16 @@ data/config/tobackup.conf
 #data/themes/Material_Blue-Grey.theme
 #])
 
+# Oled themes
+AC_CONFIG_FILES([
+data/oled/themes/400x240/Default.otheme
+data/oled/themes/480x320/Default.otheme
+data/oled/themes/480x320/Advanced.otheme
+data/oled/themes/480x320/Easy.otheme
+data/oled/themes/480x320/Medium.otheme
+data/oled/themes/480x320/Simple.otheme
+data/oled/themes/480x320/Weather.otheme
+data/oled/themes/800x480/Default.otheme
+])
+
 AC_OUTPUT
