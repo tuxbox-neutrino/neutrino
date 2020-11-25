@@ -65,11 +65,13 @@ extern CPictureViewer *g_PicViewer;
 
 #define LCD_DATADIR		"/tmp/lcd/"
 
+#define LCD_ICONSDIR		TARGET_PREFIX "/share/lcd/icons/"
 #define ICONSEXT		".png"
 
 #define LOGO_DUMMY		ICONSDIR "/blank.png"
 
 #define BRIGHTNESS		LCD_DATADIR "brightness"
+#define BRIGHTNESS_STANDBY	LCD_DATADIR "brightness_standby"
 #define RESOLUTION		LCD_DATADIR "resolution"
 #define ASPECTRATIO		LCD_DATADIR "aspectratio"
 #define VIDEOTEXT		LCD_DATADIR "videotext"
@@ -82,6 +84,7 @@ extern CPictureViewer *g_PicViewer;
 #define MODE_TSHIFT		LCD_DATADIR "mode_tshift"
 #define MODE_TIMER		LCD_DATADIR "mode_timer"
 #define MODE_ECM		LCD_DATADIR "mode_ecm"
+#define MODE_CAM		LCD_DATADIR "mode_cam"
 
 #define SERVICE			LCD_DATADIR "service"
 #define CHANNELNR		LCD_DATADIR "channelnr"
