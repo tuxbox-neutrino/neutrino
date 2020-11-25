@@ -477,6 +477,14 @@ src/nhttpd/nhttpd.conf
 #data/control/migration.sh
 #])
 
+# Backup scripts
+AC_CONFIG_FILES([
+data/scripts/backup.sh
+data/scripts/restore.sh
+data/scripts/backup_flash.sh
+data/scripts/restore_flash.sh
+])
+
 # Backup configs
 AC_CONFIG_FILES([
 data/config/settingsupdate.conf

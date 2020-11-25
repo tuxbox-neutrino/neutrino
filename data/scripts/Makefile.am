@@ -1,3 +1,9 @@
+EXTRA_DIST = \
+	backup.sh backup.sh.in \
+	restore.sh restore.sh.in \
+	backup_flash.sh backup_flash.sh.in \
+	restore_flash.sh restore_flash.sh.in
+
 installdir = $(bindir)
 
 install_SCRIPTS = \

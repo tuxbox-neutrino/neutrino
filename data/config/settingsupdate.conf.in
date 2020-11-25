@@ -32,13 +32,41 @@
 #-------------
 ## Sicherungen
 #-------------
-@CONFIGDIR@/
+@CONFIGDIR@/tobackup.conf
+@CONFIGDIR@/settingsupdate.conf
+
+@CONFIGDIR@/cables.xml
+#
+#
+#@CONFIGDIR@/FritzCallMonitor.cfg
+@CONFIGDIR@/radio-favorites.xml
+@CONFIGDIR@/radio-stations.xml
+@CONFIGDIR@/timerd.conf
+@CONFIGDIR@/satellites.xml
+@CONFIGDIR@/tuxcal/
+@CONFIGDIR@/tuxmail/
+@CONFIGDIR@/zapit/
+#
+#
+@CONFIGDIR@/scan.conf
+#
+#
+@FLAGDIR@/
+
+#/var/bin/
+#
+#/var/log/
+#/var/root/
+#/var/xupnpd/
 
 /etc/exports
 /etc/hostname
 /etc/hosts
+#
 /etc/passwd
+#
 /etc/resolv.conf
+/etc/samba/smb.conf
 /etc/wpa_supplicant.conf
 
 
@@ -48,11 +76,11 @@
 #----------------------------------------------------------------------------------------
 ## von der Sicherung auszuschlieﬂende Dateien, gekennzeichnet durch ein vorangestelltes -
 #----------------------------------------------------------------------------------------
--/var/etc/update.urls
--@CONFIGDIR@/cables.xml
--@CONFIGDIR@/encoding.conf
--@CONFIGDIR@/providermap.xml
--@CONFIGDIR@/radio-stations.xml
--@CONFIGDIR@/satellites.xml
--@CONFIGDIR@/settingsupdate.conf
--@CONFIGDIR@/tobackup.conf
+#-/var/etc/update.urls
+#-@CONFIGDIR@/cables.xml
+#-@CONFIGDIR@/encoding.conf
+#-@CONFIGDIR@/providermap.xml
+#-@CONFIGDIR@/radio-stations.xml
+#-@CONFIGDIR@/satellites.xml
+#-@CONFIGDIR@/settingsupdate.conf
+#-@CONFIGDIR@/tobackup.conf

@@ -4,7 +4,7 @@
 
 HOST=$(hostname)
 DATE=$(date +%Y%m%d_%H%M)
-USRF="/var/tuxbox/config/tobackup.conf"
+USRF="@CONFIGDIR@/tobackup.conf"
 BAKF="$1/${2:-settings_${HOST}_${DATE}}.tar.gz"
 
 if [ -e "${USRF}" ]; then
@@ -15,7 +15,7 @@ if [ -e "${USRF}" ]; then
 		done < $USRF
 
 else
-	TOBACKUP="/var/tuxbox/config/"
+	TOBACKUP="@CONFIGDIR@/"
 fi
 
 # check existence
