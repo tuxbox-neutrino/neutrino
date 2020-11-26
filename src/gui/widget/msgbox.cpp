@@ -239,13 +239,13 @@ void CMsgBox::initButtons()
 	Refresh();
 
 	//set the 1st button as default selected button
-	ccw_footer->setSelectedButton(0);
+	ccw_footer->SetSelectedButton(0);
 
 	//define default selected button from default_result
 	if (v_buttons.size() > 1){
 		for (size_t i = 0; i< v_buttons.size(); i++){
 			if (v_buttons[i].btn_result == default_result){
-				ccw_footer->setSelectedButton(i);
+				ccw_footer->SetSelectedButton(i);
 				break;
 			}
 		}
@@ -314,9 +314,9 @@ int CMsgBox::exec()
 		else if(msg == CRCInput::RC_right || msg == CRCInput::RC_left)
 		{
 			if (msg == CRCInput::RC_right)
-				ccw_footer->setSelectedButton(selected+1);
+				ccw_footer->SetSelectedButton(selected+1);
 			else
-				ccw_footer->setSelectedButton(selected-1);
+				ccw_footer->SetSelectedButton(selected-1);
 			mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
 			selected = ccw_footer->getSelectedButton();
 
