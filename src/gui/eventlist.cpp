@@ -30,24 +30,24 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <gui/eventlist.h>
-#include <gui/epgplus.h>
-#include <gui/epgview.h>
-#include <gui/followscreenings.h>
-#include <gui/moviebrowser/mb.h>
-#include <gui/timerlist.h>
-#include <gui/user_menue.h>
+#include "eventlist.h"
+#include "epgplus.h"
+#include "epgview.h"
+#include "followscreenings.h"
+#include "moviebrowser/mb.h"
+#include "timerlist.h"
+#include "user_menue.h"
 
-#include <gui/widget/icons.h>
-#include <gui/widget/msgbox.h>
-#include <gui/widget/mountchooser.h>
-#include <gui/pictureviewer.h>
+#include "widget/icons.h"
+#include "widget/msgbox.h"
+#include "widget/mountchooser.h"
+#include "pictureviewer.h"
 
 #include "widget/hintbox.h"
 #include "widget/buttons.h"
 #include "bouquetlist.h"
-#include <gui/widget/stringinput.h>
-#include <gui/widget/keyboard_input.h>
+#include "widget/stringinput.h"
+#include "widget/keyboard_input.h"
 
 #include <driver/display.h>
 #include <driver/screen_max.h>
