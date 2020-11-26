@@ -102,6 +102,7 @@ enum
 	OM_STATUS,
 	OM_CONFIGURE,
 	OM_DOWNLOAD,
+	OM_CLEAN,
 	OM_MAX
 };
 
@@ -117,7 +118,8 @@ static string pkg_types[OM_MAX] =
 	OPKG_CL OPKG_CL_CONFIG_OPTIONS " install ",
 	OPKG_CL " status ",
 	OPKG_CL " configure ",
-	OPKG_CL " download "
+	OPKG_CL " download ",
+	OPKG_CL " clean "
 };
 
 COPKGManager::COPKGManager(): opkg_conf('\t')
@@ -153,6 +155,7 @@ void COPKGManager::init()
 COPKGManager::~COPKGManager()
 {
 	pkg_map.clear();
+	execCmd(pkg_types[OM_CLEAN], CShellWindow::QUIET);
 	CFileHelpers::removeDir(OPKG_TMP_DIR);
 }
 
