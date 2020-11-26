@@ -681,8 +681,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		if (!footer->isPainted())
 			footer->paint();
-		else
+		else{
 			footer->hide();
+			delete footer;
+			footer = NULL;
+		}
 		return res;
 	}
 	else if (actionKey == "scrollbar"){
