@@ -35,7 +35,7 @@
 #endif
 #include <sstream>
 
-#include <gui/channellist.h>
+#include "channellist.h"
 
 #include <unistd.h>
 #include <global.h>
@@ -49,34 +49,34 @@
 #include <driver/radiotext.h>
 #include <driver/fontrenderer.h>
 
-#include <gui/color.h>
-#include <gui/color_custom.h>
-#include <gui/epgview.h>
-#include <gui/eventlist.h>
-#include <gui/infoviewer.h>
-#include <gui/osd_setup.h>
-#include <gui/components/cc.h>
-#include <gui/widget/stringinput.h>
-#include <gui/widget/keyboard_input.h>
-#include <gui/widget/buttons.h>
-#include <gui/widget/icons.h>
-#include <gui/movieplayer.h>
-#include <gui/infoclock.h>
+#include "color.h"
+#include "color_custom.h"
+#include "epgview.h"
+#include "eventlist.h"
+#include "infoviewer.h"
+#include "osd_setup.h"
+#include "components/cc.h"
+#include "widget/stringinput.h"
+#include "widget/keyboard_input.h"
+#include "widget/buttons.h"
+#include "widget/icons.h"
+#include "movieplayer.h"
+#include "infoclock.h"
 #if 0
-#include <gui/widget/messagebox.h>
-#include <gui/widget/hintbox.h>
+#include "widget/messagebox.h"
+#include "widget/hintbox.h"
 #else
-#include <gui/widget/msgbox.h>
+#include "widget/msgbox.h"
 #endif
 #include <system/helpers.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
 
-#include <gui/bouquetlist.h>
+#include "bouquetlist.h"
 #include <daemonc/remotecontrol.h>
 #include <zapit/client/zapittools.h>
-#include <gui/pictureviewer.h>
-#include <gui/bedit/bouqueteditor_chanselect.h>
+#include "pictureviewer.h"
+#include "bedit/bouqueteditor_chanselect.h"
 
 #include <zapit/zapit.h>
 #include <zapit/satconfig.h>
