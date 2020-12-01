@@ -401,6 +401,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	// video
 	int vid_Mode_default = VIDEO_STD_720P50;
+#if HAVE_ARM_HARDWARE
+	vid_Mode_default = VIDEO_STD_1080P50;
+#endif
 	if (getenv("NEUTRINO_DEFAULT_SCART") != NULL)
 		vid_Mode_default = VIDEO_STD_PAL;
 
