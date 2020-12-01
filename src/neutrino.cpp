@@ -918,7 +918,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_show_res_icon = configfile.getInt32("channellist_show_res_icon", 0);
 
 	//screen configuration
-	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", 0) : osd_resolution_tmp;
+	int osd_res = OSDMODE_720;
+#if HAVE_ARM_HARDWARE
+	osd_res = OSDMODE_1080;
+#endif
+	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", osd_res) : osd_resolution_tmp;
 	COsdHelpers::getInstance()->g_settings_osd_resolution_save = g_settings.osd_resolution;
 	g_settings.screen_StartX_crt_0 = configfile.getInt32("screen_StartX_crt_0",   80);
 	g_settings.screen_StartY_crt_0 = configfile.getInt32("screen_StartY_crt_0",   45);
