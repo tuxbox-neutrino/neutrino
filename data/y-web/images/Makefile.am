@@ -82,8 +82,11 @@ install_DATA =	accept.png \
 		x_red.png \
 		zap.png
 
+# fallback rc
+install_DATA += rc_cst_v1.jpg
+
 if BOXTYPE_CST
-install_DATA += rc_cst_v1.jpg \
+install_DATA += #rc_cst_v1.jpg \
 		rc_cst_v2.png \
 		rc_cst_v3.png \
 		rc_cst_v4.png \
@@ -92,6 +95,16 @@ install_DATA += rc_cst_v1.jpg \
 endif
 
 if BOXMODEL_HD51
+install_DATA += rc_ax_hd51.png \
+		rc_mutant_hd51.png
+endif
+
+if BOXMODEL_HD60
+install_DATA += rc_ax_hd51.png \
+		rc_mutant_hd51.png
+endif
+
+if BOXMODEL_HD61
 install_DATA += rc_ax_hd51.png \
 		rc_mutant_hd51.png
 endif
