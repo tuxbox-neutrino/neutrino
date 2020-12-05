@@ -403,6 +403,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	int vid_Mode_default = VIDEO_STD_720P50;
 #if HAVE_ARM_HARDWARE
 	vid_Mode_default = VIDEO_STD_1080P50;
+#elif HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2)
+	vid_Mode_default = VIDEO_STD_1080P24;
 #endif
 	if (getenv("NEUTRINO_DEFAULT_SCART") != NULL)
 		vid_Mode_default = VIDEO_STD_PAL;
@@ -919,7 +921,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//screen configuration
 	int osd_res = OSDMODE_720;
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2))
 	osd_res = OSDMODE_1080;
 #endif
 	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", osd_res) : osd_resolution_tmp;
