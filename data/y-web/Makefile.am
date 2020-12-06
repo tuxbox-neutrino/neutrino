@@ -109,6 +109,7 @@ install-data-hook:
 		sed -i \
 			-e 's|%(CONFIGDIR)|$(CONFIGDIR)|g' \
 			-e 's|%(DATADIR)|$(DATADIR)|g' \
+			-e 's|%(DATADIR_VAR)|$(DATADIR_VAR)|g' \
 			-e 's|%(CONTROLDIR)|$(CONTROLDIR)|g' \
 			-e 's|%(CONTROLDIR_VAR)|$(CONTROLDIR_VAR)|g' \
 			-e 's|%(FONTDIR)|$(FONTDIR)|g' \
