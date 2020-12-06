@@ -547,7 +547,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~AirDigital Zgemma H7C/S~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
 		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD60~{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~Mutant HD60~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
-		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD61~{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD61~{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
 
 		{=comment:fallback~=}				{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
@@ -1088,6 +1088,62 @@ start-block~rc_mutant_hd51
 <!-- <area shape="rect" coords="124,554,148,570" href="javascript:rcsim('KEY_PAUSE')" /> -->
 </map>
 end-block~rc_mutant_hd51
+
+# ------ Remote AX HD61
+start-block~rc_ax_hd61
+<img src="images/rc_ax_hd61.png" usemap="#rc"/>
+<map name="rc" id="rc">
+<area shape="rect" coords="25,74,46,95" href="javascript:rcsim('KEY_POWER')" />
+<area shape="rect" coords="137,74,163,95" href="javascript:rcsim('KEY_MUTE')" />
+<!-- <area shape="rect" coords="21,80,49,101" href="javascript:rcsim('KEY_SLEEP')"/> -->
+<area shape="rect" coords="13,109,39,131" href="javascript:rcsim('KEY_TV')" />
+<!-- <area shape="rect" coords="88,80,114,98" href="javascript:rcsim('KEY_RADIO')" /> -->
+<!-- <area shape="rect" coords="122,81,146,98" href="javascript:rcsim('KEY_HELP')" /> -->
+<area shape="rect" coords="103,110,127,132" href="javascript:rcsim('KEY_AUDIO')" />
+<area shape="rect" coords="147,109,171,132" href="javascript:rcsim('KEY_SUBTITLE')" />
+<area shape="rect" coords="60,109,84,132" href="javascript:rcsim('KEY_TEXT')" />
+<area shape="rect" coords="12,142,52,162" href="javascript:rcsim('KEY_1')" />
+<area shape="rect" coords="72,141,101,162" href="javascript:rcsim('KEY_2')" />
+<area shape="rect" coords="133,141,175,162" href="javascript:rcsim('KEY_3')" />
+<area shape="rect" coords="12,171,52,195" href="javascript:rcsim('KEY_4')" />
+<area shape="rect" coords="72,171,102,195" href="javascript:rcsim('KEY_5')" />
+<area shape="rect" coords="133,171,175,195" href="javascript:rcsim('KEY_6')" />
+<area shape="rect" coords="12,204,52,224" href="javascript:rcsim('KEY_7')" />
+<area shape="rect" coords="72,204,114,224" href="javascript:rcsim('KEY_8')" />
+<area shape="rect" coords="133,204,175,224" href="javascript:rcsim('KEY_9')" />
+<area shape="rect" coords="72,236,114,254" href="javascript:rcsim('KEY_0')" />
+<area shape="rect" coords="12,234,52,253" href="javascript:rcsim('KEY_PREVIOUS')" />
+<area shape="rect" coords="134,234,174,253" href="javascript:rcsim('KEY_NEXT')" />
+<area shape="rect" coords="9,556,34,582" href="javascript:rcsim('KEY_RED')" />
+<area shape="rect" coords="58,556,82,582" href="javascript:rcsim('KEY_GREEN')" />
+<area shape="rect" coords="102,556,126,582" href="javascript:rcsim('KEY_YELLOW')" />
+<area shape="rect" coords="148,556,175,582" href="javascript:rcsim('KEY_BLUE')" />
+<area shape="poly" coords="10,520,28,504,45,524,27,539" href="javascript:rcsim('KEY_INFO')" />
+<area shape="poly" coords="10,396,29,380,47,400,28,416" href="javascript:rcsim('KEY_SETUP')" />
+<area shape="rect" coords="72,384,112,431," href="javascript:rcsim('KEY_UP')" />
+<area shape="rect" coords="17,434,63,486" href="javascript:rcsim('KEY_LEFT')" />
+<area shape="rect" coords="118,435,164,486" href="javascript:rcsim('KEY_RIGHT')" />
+<area shape="rect" coords="64,488,122,532" href="javascript:rcsim('KEY_DOWN')" />
+<area shape="poly" coords="136,400,153,382,170,398,152,416" href="javascript:rcsim('KEY_HOME')" />
+<area shape="rect" coords="77,329,110,364" href="javascript:rcsim('KEY_EPG')" />
+<area shape="rect" coords="12,272,48,316" href="javascript:rcsim('KEY_VOLUMEUP')" />
+<area shape="rect" coords="12,318,48,364" href="javascript:rcsim('KEY_VOLUMEDOWN')" />
+<area shape="rect" coords="137,272,174,316" href="javascript:rcsim('KEY_PAGEUP')" />
+<area shape="rect" coords="137,318,174,364" href="javascript:rcsim('KEY_PAGEDOWN')" />
+<area shape="poly" coords="66,460,91,436,114,460,90,484" href="javascript:rcsim('KEY_OK')" />
+<area shape="poly" coords="136,520,152,506,170,524,153,539" href="javascript:rcsim('KEY_FAVORITES')" />
+<area shape="rect" coords="9,634,40,649" href="javascript:rcsim('KEY_RECORD')" />
+<area shape="rect" coords="9,604,40,622" href="javascript:rcsim('KEY_REWIND')" />
+<area shape="rect" coords="142,604,174,622" href="javascript:rcsim('KEY_FORWARD')" />
+<area shape="rect" coords="96,604,129,621" href="javascript:rcsim('KEY_STOP')" />
+<area shape="rect" coords="52,604,85,621" href="javascript:rcsim('KEY_PLAYPAUSE')" />
+<area shape="rect" coords="142,660,174,678" href="javascript:rcsim('KEY_HELP')" />
+<area shape="poly" coords="48,392,94,381,133,394,111,440,92,432,72,438" href="javascript:rcsim('KEY_UP')" />
+<area shape="poly" coords="24,418,66,446,66,477,24,502" href="javascript:rcsim('KEY_LEFT')" />
+<area shape="poly" coords="111,439,158,419,158,502,113,476" href="javascript:rcsim('KEY_RIGHT')" />
+<area shape="poly" coords="47,527,91,540,134,528,111,480,90,488,71,480" href="javascript:rcsim('KEY_DOWN')" />
+</map>
+end-block~rc_ax_hd61
 
 # ------ Remote WWIO BRE2ZE 4K
 start-block~rc_wwio_bre2ze4k

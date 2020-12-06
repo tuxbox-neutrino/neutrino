@@ -105,8 +105,7 @@ install_DATA += rc_ax_hd51.png \
 endif
 
 if BOXMODEL_HD61
-install_DATA += rc_ax_hd51.png \
-		rc_mutant_hd51.png
+install_DATA += rc_ax_hd61.png
 endif
 
 if BOXMODEL_BRE2ZE4K
