@@ -48,8 +48,6 @@ install_DATA =	accept.png \
 		popup.png \
 		properties.png \
 		radio.png \
-		rc_dbox_nokia_old.png \
-		rc_dbox_philips.png \
 		record.png \
 		reload.png \
 		remove.png \
@@ -82,70 +80,24 @@ install_DATA =	accept.png \
 		x_red.png \
 		zap.png
 
-# fallback rc
-install_DATA += rc_cst_v1.jpg
-
-if BOXTYPE_CST
-install_DATA += #rc_cst_v1.jpg \
+# remote controls
+install_DATA += rc_cst_v1.jpg \
 		rc_cst_v2.png \
 		rc_cst_v3.png \
 		rc_cst_v4.png \
 		rc_cst_v5.png \
-		rc_cst_v6.png
-endif
+		rc_cst_v6.png \
+		rc_dbox_nokia_old.png \
+		rc_dbox_philips.png
 
-if BOXMODEL_HD51
+if ! BOXTYPE_CST
 install_DATA += rc_ax_hd51.png \
-		rc_mutant_hd51.png
-endif
-
-if BOXMODEL_HD60
-install_DATA += rc_ax_hd51.png \
-		rc_mutant_hd51.png
-endif
-
-if BOXMODEL_HD61
-install_DATA += rc_ax_hd61.png
-endif
-
-if BOXMODEL_BRE2ZE4K
-install_DATA += rc_wwio_bre2ze4k.png
-endif
-
-if BOXMODEL_VUSOLO4K
-install_DATA += rc_vuplus.png
-endif
-
-if BOXMODEL_H7
-install_DATA += rc_zgemma_h7.png
-endif
-
-if BOXMODEL_OSMIO4KPLUS
-install_DATA += rc_osmio4k.png
-endif
-
-if BOXMODEL_VUDUO4K
-install_DATA += rc_vuplus.png
-endif
-
-if BOXMODEL_VUULTIMO4K
-install_DATA += rc_vuplus.png
-endif
-
-if BOXMODEL_VUUNO4K
-install_DATA += rc_vuplus.png
-endif
-
-if BOXMODEL_VUUNO4KSE
-install_DATA += rc_vuplus.png
-endif
-
-if BOXMODEL_VUZERO4K
-install_DATA += rc_vuplus.png
-endif
-
-if BOXMODEL_VUDUO
-install_DATA += rc_vuplus.png
+		rc_ax_hd61.png \
+		rc_mutant_hd51.png \
+		rc_wwio_bre2ze4k.png \
+		rc_zgemma_h7.png \
+		rc_osmio4k.png \
+		rc_vuplus.png
 endif
 
 # file manager
