@@ -179,7 +179,7 @@ bool CFlashUpdate::checkOnlineVersion()
 
 	CConfigFile _configfile('\t');
 	std::string versionString = "????????????????";
-	if (_configfile.loadConfig(TARGET_PREFIX "/.version"))
+	if (_configfile.loadConfig(IMAGE_VERSION_FILE))
 		versionString = _configfile.getString("version", "????????????????");
 	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
 	CFlashVersionInfo curInfo(versionString.c_str());
@@ -235,7 +235,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	std::string versionString = "????????????????";
 	std::string imagedescription = "";
 	std::string imageversion = "n/a";
-	if (_configfile.loadConfig(TARGET_PREFIX "/.version"))
+	if (_configfile.loadConfig(IMAGE_VERSION_FILE))
 	{
 		versionString = _configfile.getString("version", "????????????????");
 		imagedescription = _configfile.getString("imagedescription", "");

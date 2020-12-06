@@ -170,7 +170,7 @@ bool CBuildInfo::GetData()
 
 #if 0
 	CConfigFile data ('\t');
-	data.loadConfig(TARGET_PREFIX "/.version");
+	data.loadConfig(IMAGE_VERSION_FILE);
 	build_info_t creator	= {BI_TYPE_ID_CREATOR, LOCALE_BUILDINFO_CREATOR, data.getString("creator", "n/a")};
 	v_info.push_back(creator);
 #endif

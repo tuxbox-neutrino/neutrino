@@ -54,8 +54,6 @@
 #include <nhttpd/yconfig.h>
 #include <ctype.h>
 
-#define VERSION_FILE "/.version"
-
 #define OS_RELEASE_FILE "/usr/lib/os-release"
 #define OE_IMAGE_VERSION_FILE "/etc/image-version"
 
@@ -305,7 +303,7 @@ void CImageInfo::InitInfoData()
 		config.clear();
 	}
 
-	config.loadConfig(VERSION_FILE);
+	config.loadConfig(IMAGE_VERSION_FILE);
 
 	string version_string = config.getString("version", "");
 
@@ -331,7 +329,7 @@ void CImageInfo::InitInfoData()
 		}else
 			version_string = oe_image_version;
 	}else
-		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s]\n", __func__, __LINE__, VERSION_FILE, version_string.c_str());
+		printf("[CImageInfo]\t[%s - %d], WARNING! %s contains possible wrong version format, content = [%s]\n", __func__, __LINE__, IMAGE_VERSION_FILE, version_string.c_str());
 #endif
 
 	image_info_t imagename 	= {g_Locale->getText(LOCALE_IMAGEINFO_IMAGE),	config.getString("imagename", PACKAGE_NAME)};

@@ -29,6 +29,8 @@
   #define NEUTRINO_CPP extern
 #endif
 
+#define IMAGE_VERSION_FILE             "/.version"
+
 #define NEUTRINO_SETTINGS_FILE		CONFIGDIR "/neutrino.conf"
 #define NEUTRINO_SCAN_SETTINGS_FILE	CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE	DATADIR   "/neutrino/.plocked"
