@@ -1629,6 +1629,8 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "video";
 			case RC_tv:
 				return "tv";
+			case RC_tv2:
+				return "tv2";
 			case RC_radio:
 				return "radio";
 			case RC_text:
@@ -1756,6 +1758,8 @@ int CRCInput::translate(int code)
 #if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
 		case KEY_VIDEO:
 			return RC_favorites;
+		case KEY_TV2:
+			return RC_tv;
 #elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 		case KEY_VIDEO:
 			return RC_mode;

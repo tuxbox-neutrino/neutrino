@@ -226,6 +226,7 @@ class CRCInput
 			RC_audio	= KEY_AUDIO,
 			RC_video	= KEY_VIDEO,
 			RC_tv		= KEY_TV,
+			RC_tv2		= KEY_TV2,
 			RC_radio	= KEY_RADIO,
 			RC_text		= KEY_TEXT,
 			RC_info		= KEY_INFO,
