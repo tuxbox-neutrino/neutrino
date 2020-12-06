@@ -61,6 +61,13 @@ function do_init(){
 			break;
 	}
 	document.f.fb.selectedIndex = sel;
+	var cst = (loadSyncURL("/control/info?hwinfo").indexOf("CST") > -1);
+	var fb_options = document.f.fb.getElementsByTagName("option");
+	for (var i = 0; i < fb_options.length; i++)
+	{
+		if (cst && i > 2+8)
+			fb_options[i].disabled = true;
+	}
 	obj_set_radio_value('screenshot_rc', "{=ini-get:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;false~cache=}");
 	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;start_page;bouquets~cache=}";
 	var sel=4;
