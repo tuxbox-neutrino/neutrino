@@ -141,10 +141,10 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SETTINGS_BACKUP));
 			hintBox->paint();
 
-			const char backup_sh[] = TARGET_PREFIX "/bin/backup.sh";
+			std::string backup_sh = find_executable("backup.sh");
 			std::string fname = "settings_" + getBackupSuffix(); // file ending is set by backup script;
-			dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, backup_sh, g_settings.backup_dir.c_str());
-			my_system(3, backup_sh, g_settings.backup_dir.c_str(), fname.c_str());
+			dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, backup_sh.c_str(), g_settings.backup_dir.c_str());
+			my_system(3, backup_sh.c_str(), g_settings.backup_dir.c_str(), fname.c_str());
 
 			hintBox->hide();
 			delete hintBox;
@@ -165,10 +165,10 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
 			if(result == CMsgBox::mbrYes)
 			{
-				const char restore_sh[] = TARGET_PREFIX "/bin/restore.sh";
+				std::string restore_sh = find_executable("restore.sh");
 				std::string restore_file = fileBrowser.getSelectedFile()->Name;
-				dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, restore_sh, restore_file.c_str());
-				my_system(2, restore_sh, restore_file.c_str());
+				dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, restore_sh.c_str(), restore_file.c_str());
+				my_system(2, restore_sh.c_str(), restore_file.c_str());
 			}
 		}
 		return res;

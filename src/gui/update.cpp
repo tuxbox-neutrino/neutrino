@@ -654,7 +654,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			   ofgwrite will copy this tarball to new rootfs.
 			   It's untared at first start of new image.
 			*/
-			my_system(3, TARGET_PREFIX "/bin/backup.sh", "/tmp", "backup_flash"); // file ending is set by backup script;
+			std::string backup_sh = find_executable("backup.sh");
+			my_system(3, backup_sh.c_str(), "/tmp", "backup_flash"); // file ending is set by backup script;
 			hintBox.hide();
 		}
 
@@ -766,10 +767,10 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else // not image, install
 	{
-		const char install_sh[] = TARGET_PREFIX "/bin/install.sh";
-		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s\n",install_sh, g_settings.update_dir.c_str(), filename.c_str() );
+		std::string install_sh = find_executable("install.sh");
+		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s\n", install_sh.c_str(), g_settings.update_dir.c_str(), filename.c_str() );
 #ifndef DRYRUN
-		my_system(3, install_sh, g_settings.update_dir.c_str(), filename.c_str());
+		my_system(3, install_sh.c_str(), g_settings.update_dir.c_str(), filename.c_str());
 #endif
 		showGlobalStatus(100);
 		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_READY);
