@@ -200,8 +200,11 @@ typedef struct button_label_cc
 	int 				btn_result;
 	int 				btn_alias;
 	std::string 			bg_image;
+	std::string 			bg_sel_image;
+	std::string 			bg_pre_sel_image;
 	std::string 			hint;
 	fb_pixel_t			text_color;
+	fb_pixel_t			text_sel_color;
 	uint32_t			sort_id;
 	//defaults
 	button_label_cc(): 	button(NULL),
@@ -209,6 +212,7 @@ typedef struct button_label_cc
 				locale(NONEXISTANT_LOCALE),
 				directKeys(0, RC_NOKEY /*CRCInput::RC_nokey*/),
 				text_color(COL_MENUCONTENTSELECTED_PLUS_0),
+				text_sel_color(COL_MENUCONTENTSELECTED_PLUS_0),
 				sort_id(0){}
 	bool operator< (const button_label_cc& i) const
 	{
