@@ -200,16 +200,16 @@ typedef struct button_label_cc
 	int 				btn_alias;
 	std::string 			bg_image;
 	std::string 			hint;
-	uint32_t			order_id;
+	uint32_t			sort_id;
 	//defaults
 	button_label_cc(): 	button(NULL),
 				text(std::string()),
 				locale(NONEXISTANT_LOCALE),
 				directKeys(0, RC_NOKEY /*CRCInput::RC_nokey*/),
-				order_id(0){}
+				sort_id(0){}
 	bool operator< (const button_label_cc& i) const
 	{
-		return this->order_id < i.order_id ;
+		return this->sort_id < i.sort_id ;
 	}
 } button_label_cc_struct;
 
