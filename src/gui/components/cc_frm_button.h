@@ -229,6 +229,12 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		}
 
 		/**
+		 * Remove all defined direct keys.
+		 * @return	void
+		 */
+		void clearButtonDirectKeys(){cc_directKeys.clear();}
+
+		/**
 		 * Returns count of existant direct keys of cc_directKeys container.
 		 * @return	size_t
 		 * @see		getButtonDirectKey(), driver/rcinput.h for possible values
