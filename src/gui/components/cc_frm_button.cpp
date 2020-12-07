@@ -214,9 +214,7 @@ void CComponentsButton::initCaption()
 		 * These dimensions must be enough to display complete content like possible icon and without truncated text.
 		*/
 		Font *tmp_font = cc_btn_font;
-		if ((tmp_font->getHeight()-reduce) > (height-reduce) && (tmp_font->getRenderWidth(cc_btn_text)-reduce) > width-reduce)
-			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
-		if ((cc_btn_font->getHeight()-reduce) > (height-reduce))
+		if ((tmp_font->getHeight()-reduce) > (height-reduce) || (tmp_font->getRenderWidth(cc_btn_text)-reduce) > width-reduce)
 			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
 
 		cc_btn_font = tmp_font;
