@@ -95,7 +95,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	cc_item_type.id = CC_ITEMTYPE_BUTTON;
-	cc_item_type.name = "cc_base_button";
+	cc_item_type.name = caption.empty() ? "cc_button" :  caption;
 
 	x = cc_xr = cc_xr_old = x_old	= x_pos;
 	y = cc_yr = cc_yr_old = y_old	= y_pos;
