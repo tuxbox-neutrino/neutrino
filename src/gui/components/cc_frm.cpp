@@ -492,51 +492,40 @@ void CComponentsForm::paintCCItems()
 					continue;
 			}
 
-			//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-			w_parent_frame = xpos <= fr_thickness ? fr_thickness : w_parent_frame;
-
 			//set required x-position to item:
 			//append vertical
 			if (xpos == CC_APPEND){
 				auto_x += append_x_offset;
-				v_cc_items.at(i)->setRealXPos(auto_x + xpos + w_parent_frame);
+				v_cc_items.at(i)->setRealXPos(auto_x + xpos);
 				auto_x += w_item;
 			}
 			//positionize vertical centered
 			else if (xpos == CC_CENTERED){
-				auto_x =  this_w/2 - w_item/2 - w_parent_frame/2;
+				auto_x =  this_w/2 - w_item/2;
 				v_cc_items.at(i)->setRealXPos(this_x + auto_x);
 			}
 			else{
-				v_cc_items.at(i)->setRealXPos(this_x + xpos + w_parent_frame);
+				v_cc_items.at(i)->setRealXPos(this_x + xpos);
 				auto_x = (v_cc_items.at(i)->getRealXPos() + w_item);
 			}
-
-			//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
-			w_parent_frame = ypos <= fr_thickness ? fr_thickness : w_parent_frame;
 
 			//set required y-position to item
 			//append hor
 			if (ypos == CC_APPEND){
 				auto_y += append_y_offset;
 				// FIXME: ypos is probably wrong here, because it is -1
-				v_cc_items.at(i)->setRealYPos(auto_y + ypos + w_parent_frame);
+				v_cc_items.at(i)->setRealYPos(auto_y + ypos);
 				auto_y += h_item;
 			}
 			//positionize hor centered
 			else if (ypos == CC_CENTERED){
-				auto_y =  height/2 - h_item/2 - w_parent_frame/2;
+				auto_y =  height/2 - h_item/2;
 				v_cc_items.at(i)->setRealYPos(this_y + auto_y);
 			}
 			else{
-				v_cc_items.at(i)->setRealYPos(this_y + ypos + w_parent_frame);
+				v_cc_items.at(i)->setRealYPos(this_y + ypos);
 				auto_y = (v_cc_items.at(i)->getRealYPos() + h_item);
 			}
-
-			//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
-			//TODO: other constellations not considered at the moment
-			if (w_parent_frame)
-				v_cc_items.at(i)->setCorner(max(0, v_cc_items.at(i)->getCornerRadius()- w_parent_frame), v_cc_items.at(i)->getCornerType());
 
 			//These steps check whether the element can be painted into the container.
 			//Is it too wide or too high, it will be shortened and displayed in the log.
