@@ -161,8 +161,9 @@ void CComponentsButton::initIcon()
 		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
 		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 		cc_btn_icon_obj->doPaintBg(false);
-		cc_btn_icon_obj->setHeight(h_icon, true);
 	}
+	cc_btn_icon_obj->setHeight(h_icon, true);
+	cc_btn_icon_obj->setPicture(cc_btn_icon);
 }
 
 void CComponentsButton::initCaption()
@@ -280,6 +281,12 @@ void CComponentsButton::setCaption(const neutrino_locale_t locale_text)
 {
 	cc_btn_text_locale = locale_text;
 	setCaption(g_Locale->getText(cc_btn_text_locale));
+}
+
+void CComponentsButton::setButtonIcon(const std::string& icon)
+{
+	cc_btn_icon = icon;
+	initCCBtnItems();
 }
 
 void CComponentsButton::initCCBtnItems()

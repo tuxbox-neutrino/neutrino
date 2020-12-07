@@ -266,6 +266,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///returns an alias value from button object, see also cc_btn_alias
 		int getButtonAlias(){return cc_btn_alias;}
 
+		///assigns icon to button object, parameter1 as std::string
+		void setButtonIcon(const std::string& icon);
+
 		///signal on pressed key/button
 		sigc::signal<void> OnPressedButton;
 };
