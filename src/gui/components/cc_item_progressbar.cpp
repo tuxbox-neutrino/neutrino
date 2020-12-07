@@ -64,7 +64,7 @@ CProgressBar::CProgressBar(	const int x_pos,
 	height		= height_old 	= h;
 
 	col_frame 	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
 	pb_red 		= R;
@@ -396,7 +396,7 @@ void CProgressBar::paintProgress(const bool &do_save_bg)
 	initDimensions();
 
 	//body
-	if (pb_last_width == -1 && col_body != 0) /* first paint */
+	if (pb_last_width == -1 && col_body_std != 0) /* first paint */
 		paintInit(do_save_bg); 
 
 	//progress

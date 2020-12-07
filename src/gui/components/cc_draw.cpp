@@ -43,12 +43,14 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	height	= height_old	= CC_HEIGHT_MIN;
 	width	= width_old	= CC_WIDTH_MIN;
 
-	col_body = col_body_old			= COL_MENUCONTENT_PLUS_0;
-	col_shadow = col_shadow_old 		= COL_SHADOW_PLUS_0;
-	col_frame = col_frame_old 		= COL_FRAME_PLUS_0;
-	col_shadow_clean			= 0;
+	col_body_std			= COL_MENUCONTENT_PLUS_0;
+	col_body_sel			= COL_MENUCONTENTSELECTED_PLUS_0;
+	col_body_sec			= COL_MENUCONTENTINACTIVE_PLUS_0;
+	col_shadow = col_shadow_old 	= COL_SHADOW_PLUS_0;
+	col_frame = col_frame_old 	= COL_FRAME_PLUS_0;
+	col_shadow_clean		= 0;
 
-	cc_body_image = cc_body_image_old 	= std::string();
+	cc_bg_image = cc_bg_image_old = cc_bg_sel_image	= cc_bg_sec_image = "";
 
 	fr_thickness = fr_thickness_old		= 0;
 
@@ -184,9 +186,9 @@ bool CCDraw::applyColChanges()
 		cc_body_gradient_direction_old = cc_body_gradient_direction;
 		ret = true;
 	}
-	if (cc_body_image != cc_body_image_old){
-		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], col changes cc_body_image %s != cc_body_image_old %s...\033[0m\n", __func__, __LINE__, cc_body_image.c_str(), cc_body_image_old.c_str());
-		cc_body_image_old = cc_body_image;
+	if (cc_bg_image != cc_bg_image_old){
+		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], col changes cc_bg_image %s != cc_bg_image_old %s...\033[0m\n", __func__, __LINE__, cc_bg_image.c_str(), cc_bg_image_old.c_str());
+		cc_bg_image_old = cc_bg_image;
 		ret = true;
 	}
 
@@ -550,7 +552,7 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 		/* Paint all fb relevant basic parts (shadow, frame and body)
 		 * with all specified properties, paint_bg must be enabled.
 		*/
-		if (cc_enable_frame && cc_body_image.empty()){
+		if (cc_enable_frame && cc_bg_image.empty()){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
 				if (v_fbdata.at(i).frame_thickness > 0 && cc_allow_paint){
 					frameBuffer->paintBoxFrame(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, v_fbdata.at(i).frame_thickness, v_fbdata.at(i).color, v_fbdata.at(i).r, v_fbdata.at(i).rtype);
@@ -616,8 +618,8 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 						*  we try to render an image instead to render default box.
 						*  Paint of background image is prefered, next steps will be ignored!
 						*/
-						if (!cc_body_image.empty()){
-							if (g_PicViewer->DisplayImage(cc_body_image, v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, CFrameBuffer::TM_NONE)){
+						if (!cc_bg_image.empty()){
+							if (g_PicViewer->DisplayImage(cc_bg_image, v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, CFrameBuffer::TM_NONE)){
 								// catch screen and store into paint cache
 								v_fbdata.at(i).pixbuf = getScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy);
 								v_fbdata.at(i).is_painted = true;
@@ -631,15 +633,15 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 
 							// On failed image paint, write this into log and reset image name.
 							if (!v_fbdata.at(i).is_painted){
-								dprintf(DEBUG_NORMAL, "\033[33m\[CCDraw]\t[%s - %d], WARNING: bg image %s defined, but paint failed,\nfallback to default rendering...\033[0m\n", __func__, __LINE__, cc_body_image.c_str());
-								cc_body_image = "";
+								dprintf(DEBUG_NORMAL, "\033[33m\[CCDraw]\t[%s - %d], WARNING: bg image %s defined, but paint failed,\nfallback to default rendering...\033[0m\n", __func__, __LINE__, cc_bg_image.c_str());
+								cc_bg_image = "";
 							}
 						}
 
 						/* If no background image is defined, we paint default box or box with gradient
 						 * This is also possible if any background image is defined but image paint ist failed
 						 */
-						if (cc_body_image.empty()){
+						if (cc_bg_image.empty()){
 							if (cc_body_gradient_enable != CC_COLGRAD_OFF ){
 
 								/* If color gradient enabled we create a gradient_data
@@ -683,7 +685,7 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 									}
 								}
 							}else{
-								/* If is nothihng cached or no background image was defined or image paint was failed,
+								/* If is nothing cached or no background image was defined or image paint was failed,
 								*  render a default box.
 								*/
 								dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], paint default box)...\033[0m\n", __func__, __LINE__);
@@ -871,22 +873,24 @@ bool CCDraw::cancelBlink(bool keep_on_screen)
 	return false;
 }
 
-bool CCDraw::setBodyBGImage(const std::string& image_path)
+bool CCDraw::setBodyBGImage(const std::string& image_path, const std::string& sel_image_path, const std::string& sec_image_path)
 {
-	if (cc_body_image == image_path)
+	if (cc_bg_std_image == image_path && cc_bg_image == image_path && cc_bg_sel_image == sel_image_path && cc_bg_sec_image == sec_image_path)
 		return false;
 
-	cc_body_image = image_path;
+	cc_bg_std_image = cc_bg_image = image_path;
+	cc_bg_sel_image = sel_image_path;
+	cc_bg_sec_image = sec_image_path;
 
 	if (clearPaintCache())
-		dprintf(DEBUG_NORMAL, "\033[33m\[CCDraw]\t[%s - %d],  new body background image defined: %s , \033[0m\n", __func__, __LINE__, cc_body_image.c_str());
+		dprintf(DEBUG_NORMAL, "\033[33m\[CCDraw]\t[%s - %d], body background image defined standard: [%s]  selected: [%s], secondary: [%s]\033[0m\n", __func__, __LINE__, cc_bg_image.c_str(), cc_bg_sel_image.c_str(), cc_bg_sec_image.c_str());
 
 	return true;
 }
 
-bool CCDraw::setBodyBGImageName(const std::string& image_name)
+bool CCDraw::setBodyBGImageName(const std::string& image_name, const std::string& sel_image_name, const std::string& sec_image_name)
 {
-	return  setBodyBGImage(frameBuffer->getIconPath(image_name));
+	return  setBodyBGImage(frameBuffer->getIconPath(image_name), frameBuffer->getIconPath(sel_image_name), frameBuffer->getIconPath(sec_image_name));
 }
 
 int  CCDraw::getXPos() const
@@ -930,4 +934,23 @@ void CCDraw::allowPaint(const bool& allow)
 bool CCDraw::paintAllowed()
 {
 	return cc_allow_paint;
+}
+
+void CCDraw::setColorBody(const fb_pixel_t &color_std, const fb_pixel_t &color_sel, const fb_pixel_t &color_sec)
+{
+	if (col_body_std != color_std)
+		col_body_std = color_std;
+
+	if (color_sel != col_body_sel)
+		col_body_sel = color_sel;
+
+	if (color_sec != col_body_sec)
+		col_body_sec = color_sec;
+}
+
+void CCDraw::setColorAll(const fb_pixel_t &color_frame, const fb_pixel_t &color_body, const fb_pixel_t &color_shadow, const fb_pixel_t &color_body_sel, const fb_pixel_t &color_body_sec)
+{
+	setColorBody(color_body, color_body_sel, color_body_sec);
+	setColorFrame(color_frame);
+	setColorShadow(color_shadow);
 }

@@ -132,9 +132,9 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsHeader::resetFont));
 
-	shadow		= shadow_mode;
-	col_frame = col_frame_old 	= color_frame;
-	col_body = col_body_old		= color_body;
+	shadow				= shadow_mode;
+	col_frame 			= color_frame;
+	col_body_std			= color_body;
 	col_shadow = col_shadow_old	= color_shadow;
 
 	cc_body_gradient_enable	 	= cc_body_gradient_enable_old	= (cch_size_mode == CC_HEADER_SIZE_SMALL ? g_settings.theme.menu_SubHead_gradient : g_settings.theme.menu_Head_gradient);
@@ -180,7 +180,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 }
 
 void CComponentsHeader::initRepaintSlot(){
-	sl_form_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::kill), cc_parent ? col_body : 0, -1, CC_FBDATA_TYPES, false);
+	sl_form_repaint = sigc::bind(sigc::mem_fun(*this, &CComponentsHeader::kill), cc_parent ? col_body_std : 0, -1, CC_FBDATA_TYPES, false);
 	OnBeforeRePaint.connect(sl_form_repaint);
 }
 
@@ -667,7 +667,7 @@ void CComponentsHeader::initCaption()
 
 		//assign general properties
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
-		cch_text_obj->setColorBody(col_body);
+		cch_text_obj->setColorBody(col_body_std);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
 			cch_text_obj->getCTextBoxObject()->clearScreenBuffer();
 		cch_text_obj->setText(cch_text, cch_caption_align, cch_font, cch_col_text);
@@ -694,7 +694,7 @@ void CComponentsHeader::initCCItems()
 	initCaptionFont();
 
 	//set basic properties
-	Init(x, y, width, height, col_frame, col_body, col_shadow);
+	Init(x, y, width, height, col_frame, col_body_std, col_shadow);
 
 	//init icon
 	initIcon();

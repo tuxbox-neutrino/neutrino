@@ -93,7 +93,7 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 	//create status text object
 	status_txt = new CComponentsLabel();
 	status_txt->setDimensionsAll(OFFSET_INNER_MID, OFFSET_INNER_MID, width-2*OFFSET_INNER_MID, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-	status_txt->setColorBody(col_body);
+	status_txt->setColorBody(col_body_std);
 	status_txt->doPaintTextBoxBg(true);
 	status_txt->doPaintBg(false);
 	addWindowItem(status_txt);
@@ -125,7 +125,7 @@ CProgressBar* CProgressWindow::getProgressItem()
 		y_tmp += OFFSET_INNER_MID;
 	}
 	pBar->setDimensionsAll(OFFSET_INNER_MID, y_tmp, width-2*OFFSET_INNER_MID, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-	pBar->setColorBody(col_body);
+	pBar->setColorBody(col_body_std);
 	pBar->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
 	pBar->setFrameThickness(FRAME_WIDTH_MIN);
 	pBar->setColorFrame(COL_PROGRESSBAR_ACTIVE_PLUS_0);

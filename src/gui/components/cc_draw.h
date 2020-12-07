@@ -71,7 +71,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		int width, width_old;
 
 		///property: color of body
-		fb_pixel_t col_body, col_body_old;
+		fb_pixel_t col_body, col_body_old, col_body_std, col_body_sel, col_body_sec;
 		///property: color of shadow
 		fb_pixel_t col_shadow, col_shadow_old;
 		///property: color of frame
@@ -79,7 +79,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///internal property: color for shadow clean up
 		fb_pixel_t col_shadow_clean;
 		///property: background image, see also setBodyBGImage()
-		std::string cc_body_image, cc_body_image_old;
+		std::string cc_bg_image, cc_bg_image_old, cc_bg_std_image, cc_bg_sel_image, cc_bg_sec_image;
 
 		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness, fr_thickness_old;
@@ -213,25 +213,29 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		void setFrameThickness(const int& thickness);
 		///return of frame thickness
 		int getFrameThickness() const {return fr_thickness;}
-		///set frame color
-		void setColorFrame(fb_pixel_t color){col_frame = color;}
 
 		void set2ndColor(fb_pixel_t col_2nd){cc_body_gradient_2nd_col = col_2nd;}
 
 		///get frame color
 		fb_pixel_t getColorFrame() const {return col_frame;}
 		///get body color
-		fb_pixel_t getColorBody() const {return col_body;}
+		fb_pixel_t getColorBody() const {return col_body_std;}
 		///get shadow color
 		fb_pixel_t getColorShadow() const {return col_shadow;}
 
 		///set body color
-		void setColorBody(fb_pixel_t color){col_body = color;}
+		void setColorBody(const fb_pixel_t &color_std, const fb_pixel_t &color_sel = COL_MENUCONTENTSELECTED_PLUS_0, const fb_pixel_t &color_sec = COL_MENUCONTENTINACTIVE_PLUS_0);
 		///set shadow color
-		void setColorShadow(fb_pixel_t color){col_shadow = color;}
+		void setColorShadow(const fb_pixel_t &color){col_shadow = color;}
+		///set frame color
+		void setColorFrame(const fb_pixel_t &color){col_frame = color;}
 		///set all basic framebuffer element colors at once
 		///Note: Possible color values are defined in "gui/color.h" and "gui/color_custom.h"
-		void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
+		void setColorAll(	const fb_pixel_t &color_frame,
+					const fb_pixel_t &color_body,
+					const fb_pixel_t &color_shadow,
+					const fb_pixel_t &color_body_sel = COL_MENUCONTENTSELECTED_PLUS_0,
+					const fb_pixel_t &color_body_sec = COL_MENUCONTENTINACTIVE_PLUS_0);
 
 		///set corner types
 		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
@@ -411,24 +415,44 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		 * @return bool
 		 *
 		 * @param[in] image_path	Path to image.
+		 * @param[in] sel_image_path	Path to select image.
 		 *
 		 * @see
 		 * 	cc_body_image
 		 * 	setBodyBGImageName()
 		*/
-		bool setBodyBGImage(const std::string& image_path);
+		bool setBodyBGImage(const std::string& image_path, const std::string& sel_image_path = "", const std::string& sec_image_path = "");
 
 		/**Sets an image name for body background, returns true if new image was applied.
 		 *
 		 * @return bool
 		 *
 		 * @param[in] image_name	Basename of image.
+		 * @param[in] sel_image_name	Path to select image.
 		 *
 		 * @see
 		 * 	cc_body_image
 		 * 	setBodyBGImage()
 		*/
-		bool setBodyBGImageName(const std::string& image_name);
+		bool setBodyBGImageName(const std::string& image_name, const std::string& sel_image_name = "", const std::string& sec_image_name = "");
+
+		/**Gets current Path of select background image
+		 *
+		 * @return std::string
+		*/
+		std::string getBodyBGImage() {return cc_bg_std_image;}
+
+		/**Gets current Path of default background image
+		 *
+		 * @return std::string
+		*/
+		std::string getBodyBGSelectedImage() {return cc_bg_sel_image;}
+
+		/**Gets current Path of secondary background image
+		 *
+		 * @return std::string
+		*/
+		std::string getBodyBGSecondaryImage() {return cc_bg_sec_image;}
 };
 
 #endif

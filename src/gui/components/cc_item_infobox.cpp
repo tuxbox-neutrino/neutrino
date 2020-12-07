@@ -59,7 +59,7 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 	shadow		= shadow_mode;
 	col_frame 	= color_frame;
 	cc_enable_frame	= true;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
 	ct_text 	= info_text;
@@ -124,7 +124,7 @@ void CComponentsInfoBox::paintPicture()
 	string image = frameBuffer->getIconPath(pic_name);
 	pic = new CComponentsPicture(x_pic+x_offset, y_pic, pic_width, min(pic_height, height-2*fr_thickness), image); //NOTE: icons do not scale!
 
-	pic->setColorBody(col_body);
+	pic->setColorBody(col_body_std);
 
 	//set gradient behavior of pic object
 	if (cc_body_gradient_enable)

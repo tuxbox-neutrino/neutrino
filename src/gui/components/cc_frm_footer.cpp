@@ -88,9 +88,9 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	ccf_button_shadow_width  	= shadow ? OFFSET_SHADOW/2 : 0;
 	ccf_button_shadow_force_paint 	= false;
 	ccf_button_container_y		= -1; //centered as default
-	col_frame = col_frame_old	= color_frame;
-	col_body = col_body_old		= color_body;
-	col_shadow = col_shadow_old	= color_shadow;
+	col_frame			= color_frame;
+	col_body_std			= color_body;
+	col_shadow			= color_shadow;
 	cc_body_gradient_enable		= cc_body_gradient_enable_old = CC_COLGRAD_OFF/*g_settings.theme.menu_ButtonBar_gradient*/; //TODO: not complete implemented at the moment
 	cc_body_gradient_direction	= CFrameBuffer::gradientVertical;
 	cc_body_gradient_mode		= CColorGradient::gradientDark2Light;
@@ -182,7 +182,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	if (cch_icon_obj)
 		 x_container = cch_offset+cch_icon_obj->getWidth()+cch_offset;
 	if (btn_container == NULL){
-		btn_container = new CComponentsFrmChain(x_container, y_container, w_container, h_container, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body);
+		btn_container = new CComponentsFrmChain(x_container, y_container, w_container, h_container, 0, CC_DIR_X, this, CC_SHADOW_OFF, COL_MENUCONTENT_PLUS_6, col_body_std);
 		btn_container->setItemName(cc_parent ? cc_parent->getItemName() + ":" + getItemName() + ":btn_container" : "");
 		btn_container->setAppendOffset(0, 0);
 		//btn_container->setCorner(this->corner_rad, this->corner_type);

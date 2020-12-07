@@ -67,6 +67,21 @@ void CComponentsItem::initParent(CComponentsForm* parent)
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(const bool &do_save_bg)
 {
+	if (cc_parent)
+	{	//use defined background color and background images in dependency of focus mode
+		if (cc_parent->hasFocus()){
+			col_body = cc_item_selected ? col_body_sel : col_body_std;
+			cc_bg_image = cc_item_selected ? cc_bg_sel_image : cc_bg_std_image;
+		}
+		else{
+			col_body = cc_item_selected ? col_body_sec : col_body_std;
+			cc_bg_image = cc_item_selected ? cc_bg_sec_image : cc_bg_std_image;
+		}
+	}
+	else
+		col_body = cc_item_selected ? col_body_sel : col_body_std;
+
+	// check possible changed properties and force reinit if required
 	if (hasChanges()){
 		clearFbData();
 		is_painted = false; //force repaint if required
@@ -292,12 +307,18 @@ void CComponentsItem::setFocus(bool focus)
 	cc_has_focus = focus;
 }
 
-void CComponentsItem::setSelected(bool selected, const fb_pixel_t& sel_frame_col,  const fb_pixel_t& frame_col, const fb_pixel_t& sel_body_col, const fb_pixel_t& body_col, const int& frame_w, const int& sel_frame_w)
+void CComponentsItem::setSelected(	bool selected,
+					const fb_pixel_t& sel_frame_col,
+					const fb_pixel_t& frame_col,
+					const fb_pixel_t& sel_body_col,
+					const fb_pixel_t& body_col,
+					const int& frame_w,
+					const int& sel_frame_w)
 {
 	cc_item_selected = selected;
 	fr_thickness = cc_item_selected ? sel_frame_w : frame_w;
-	col_body = cc_item_selected ? sel_body_col : body_col;
-	col_frame = cc_item_selected ? sel_frame_col : frame_col;
+	col_frame 	= cc_item_selected ? sel_frame_col : frame_col;
+	setColorAll(col_frame, body_col, col_shadow, sel_body_col, COL_MENUCONTENT_PLUS_1);
 }
 
 uint8_t CComponentsItem::getPageNumber() const

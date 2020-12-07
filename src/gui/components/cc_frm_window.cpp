@@ -152,7 +152,7 @@ void CComponentsWindow::init(	const int& x_pos, const int& y_pos, const int& w, 
 	paint_bg	= true;
 	shadow		= shadow_mode;
 	col_frame	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
 	ccw_head 	= NULL;
@@ -317,7 +317,7 @@ void CComponentsWindow::initBody()
 
 		ccw_body->setDimensionsAll(x_body, h_header, w_body, h_body);
 		ccw_body->doPaintBg(paint_bg);
-		ccw_body->setColorBody(col_body);
+		ccw_body->setColorBody(col_body_std);
 
 		//handle corner behavior
 		if (!ccw_show_header)

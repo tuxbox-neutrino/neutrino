@@ -62,7 +62,7 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 	fr_thickness	= 2;
 	corner_rad	= RADIUS_SMALL;

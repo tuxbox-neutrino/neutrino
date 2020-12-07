@@ -64,7 +64,7 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 	v_icons		= v_icon_names;
 	shadow		= shadow_mode;
 	col_frame	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
 	chn_direction	= CC_DIR_X;

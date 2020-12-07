@@ -103,7 +103,7 @@ void CMsgBox::init(	const int& Height,
 	initTimeOut();
 
 	col_frame	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 	fr_thickness	= g_settings.theme.message_frame_enable || col_frame != HINTBOX_DEFAULT_FRAME_COLOR ? frame_width : 0;
 

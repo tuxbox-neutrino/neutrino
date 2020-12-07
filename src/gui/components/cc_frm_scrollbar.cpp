@@ -40,7 +40,7 @@ using namespace std;
 		| | sb_up_obj (icon)| |/color_frame
 		| |       /\        | |
 		| +-----------------+ | |/color_shadow
-		|      col_body       | |
+		|    col_body_std     | |
 		|                     |
 		| +-sb_segments_obj+  |
 		| |                 | |
@@ -162,7 +162,7 @@ void CComponentsScrollBar::initSegments()
 		sb_segments_obj->setDimensionsAll(CC_CENTERED, CC_APPEND, w_seg, h_seg_obj);
 
 	//set current color for segment container
-	sb_segments_obj->setColorBody(col_body);
+	sb_segments_obj->setColorBody(col_body_std);
 
 	//clean up segment container before add new segments
 	sb_segments_obj->clear();
@@ -182,7 +182,7 @@ void CComponentsScrollBar::initSegments()
 		tmp_quot = uint32_t((float)sb_segments_count/(float)tmp_segments + 0.5);
 	}
 
-	fb_pixel_t passive_col = sb_visual_enable ? sb_segment_col : col_body;
+	fb_pixel_t passive_col = sb_visual_enable ? sb_segment_col : col_body_std;
 
 	//create and add segments to segment container
 	for(uint32_t i=0; i<tmp_segments; i++){
@@ -209,7 +209,7 @@ void CComponentsScrollBar::initSegments()
 		}
 
 		//set different corner types for segments with possible conditions
-		if (passive_col == col_body){
+		if (passive_col == col_body_std){
 			item->setCorner(RADIUS_MIN, CORNER_ALL);
 			continue;
 		}else if (tmp_segments == 1){

@@ -61,7 +61,7 @@ class CComponentsDetailsLine : public CComponents
 		virtual~CComponentsDetailsLine();
 
 		///set colors
-		void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
+		void setColors(const fb_pixel_t &color_line, const fb_pixel_t &color_shadow);
 		///set colors with system settings
 		void syncSysColors();
 		///set property: lowest y position

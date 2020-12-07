@@ -82,9 +82,9 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	shadow		= shadow_mode;
 	shadow_w	= OFFSET_SHADOW;
 	col_frame 	= color_frame;
-	col_body	= color_background;
+	col_body_std	= color_background;
 	col_shadow	= color_shadow;
-	col_shadow_clean= col_body;
+	col_shadow_clean= col_body_std;
 	do_scale	= allow_scale;
 	image_cache	= NULL; //image
 	enable_cache	= false;
@@ -323,7 +323,7 @@ void CComponentsPicture::paintPicture()
 			if (do_scale)
 				is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width-2*fr_thickness, height-2*fr_thickness);
 			else
-				is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
+				is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body_std);
 
 			if (is_image_painted){
 				frameBuffer->SetTransparentDefault();

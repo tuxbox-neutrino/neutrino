@@ -101,7 +101,7 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	ccx_label_color	= label_color;
 	ccx_text_color	= text_color;
 	col_frame	= color_frame;
-	col_body	= color_body;
+	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 	ccx_label_obj	= NULL;
 	ccx_text_obj	= NULL;
@@ -125,7 +125,7 @@ void CComponentsExtTextForm::initLabel()
 	if (ccx_label_obj){
 		//assign general properties
 		ccx_label_obj->setDimensionsAll(0, y_text, ccx_label_width-2*fr_thickness, height-2*fr_thickness);
-		ccx_label_obj->setColorBody(col_body);
+		ccx_label_obj->setColorBody(col_body_std);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
 			ccx_label_obj->getCTextBoxObject()->clearScreenBuffer();
 		ccx_label_obj->setTextColor(ccx_label_color);
@@ -149,7 +149,7 @@ void CComponentsExtTextForm::initText()
 	if (ccx_text_obj){
 		//assign general properties
 		ccx_text_obj->setDimensionsAll(ccx_label_obj->getWidth(), y_text, ccx_text_width-2*fr_thickness, height-2*fr_thickness);
-		ccx_text_obj->setColorBody(col_body);
+		ccx_text_obj->setColorBody(col_body_std);
 		if (cc_body_gradient_enable != cc_body_gradient_enable_old)
 			ccx_text_obj->getCTextBoxObject()->clearScreenBuffer();
 		ccx_text_obj->setTextColor(ccx_text_color);

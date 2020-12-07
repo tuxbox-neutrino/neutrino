@@ -109,7 +109,7 @@ void CSignalBar::initSBItems()
 {
 	if (cc_parent){
 		//use backround color of parent form if signalbar is embedded
-		col_body = cc_parent->getColorBody();
+		col_body_std = cc_parent->getColorBody();
 
 		//and set required color for text to name label
 		CSignalBox *sbx = static_cast<CSignalBox*>(cc_parent);
@@ -133,7 +133,7 @@ void CSignalBar::initSBarScale()
 	//move and set dimensions
 	int scale_y = (sb_item_height/2 - sb_scale_height/2);
 	sb_scale->setDimensionsAll(fr_thickness, scale_y, sb_scale_width, sb_scale_height);
-	sb_scale->setColorBody(col_body);
+	sb_scale->setColorBody(col_body_std);
 	sb_scale->setActiveColor(sb_active_color);
 	sb_scale->setPassiveColor(sb_passive_color);
 	//add scale object to container
@@ -160,7 +160,7 @@ void CSignalBar::initSBarValue()
 
 	//set current text and body color color
 	sb_vlbl->setTextColor(sb_caption_color);
-	sb_vlbl->setColorBody(col_body);
+	sb_vlbl->setColorBody(col_body_std);
 
 	//add value label object to container
 	if (!sb_vlbl->isAdded())
@@ -187,7 +187,7 @@ void CSignalBar::initSBarName()
 
 	//set current text and body color
 	sb_lbl->setTextColor(sb_caption_color);
-	sb_lbl->setColorBody(col_body);
+	sb_lbl->setColorBody(col_body_std);
 
 	//add name label object to container
 	if (!sb_lbl->isAdded())

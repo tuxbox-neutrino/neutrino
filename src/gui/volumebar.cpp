@@ -50,7 +50,7 @@ CVolumeBar::CVolumeBar()
 
 void CVolumeBar::initVarVolumeBar()
 {
-	col_body 	= COL_MENUCONTENT_PLUS_0;
+	col_body_std 	= COL_MENUCONTENT_PLUS_0;
 	corner_rad 	= CORNER_RADIUS_MID;
 	vb_item_offset 	= OFFSET_INNER_SMALL;
 	height          = CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
@@ -183,7 +183,7 @@ void CVolumeBar::initVolumeBarIcon()
 	}
 
 	vb_icon->setDimensionsAll(vb_icon_x, CC_CENTERED, vb_icon_w, height);
-	vb_icon->setColorBody(col_body);
+	vb_icon->setColorBody(col_body_std);
 	vb_icon->setCorner(corner_rad, CORNER_LEFT);
 }
 
@@ -205,7 +205,7 @@ void CVolumeBar::initVolumeBarScale()
 //set digit text with current volume value
 void CVolumeBar::initVolumeBarDigitValue()
 {
-	vb_digit->kill(col_body);
+	vb_digit->kill(col_body_std);
 	vb_digit->setText(*vb_vol ,vb_digit_mode, *(CVolumeHelper::getInstance()->vb_font));
 }
 

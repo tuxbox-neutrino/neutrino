@@ -103,7 +103,7 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 	ct_col_text	= color_text;
 	ct_old_col_text = ct_col_text;
 	col_frame 	= color_frame;
-	col_body 	= color_body;
+	col_body_std 	= color_body;
 	col_shadow	= color_shadow;
 
 	ct_text_sent	= false;
@@ -170,7 +170,7 @@ void CComponentsText::initCCText()
 		ct_textbox->setWindowMinDimensions(ct_box.iWidth, ct_box.iHeight);
 		ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
 		ct_textbox->enableBackgroundPaint(enable_bg_paint);
-		ct_textbox->setBackGroundColor(col_body);
+		ct_textbox->setBackGroundColor(col_body_std);
 		ct_textbox->setBackGroundRadius(0/*(corner_type ? corner_rad-fr_thickness : 0), corner_type*/);
 		ct_textbox->enableSaveScreen(enable_save_screen);
 

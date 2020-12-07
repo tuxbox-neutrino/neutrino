@@ -147,9 +147,14 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		 void setTextColor(const fb_pixel_t& color_text);
 		///set all basic framebuffer element colors at once
 		///Note: Possible color values are defined in "gui/color.h" and "gui/color_custom.h"
-		 void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow = COL_SHADOW_PLUS_0, fb_pixel_t color_text = COL_MENUCONTENT_TEXT)
+		 void setColorAll(	const fb_pixel_t& color_frame,
+					const fb_pixel_t& color_body,
+					const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
+					const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
+					const fb_pixel_t& color_body_sel = COL_MENUCONTENTSELECTED_PLUS_0,
+					const fb_pixel_t& color_body_sec = COL_MENUCONTENTINACTIVE_PLUS_0)
 					{
-						CCDraw::setColorAll(color_frame, color_body, color_shadow);
+						CCDraw::setColorAll(color_frame, color_body, color_shadow, color_body_sel, color_body_sec);
 						setTextColor(color_text);
 					};
 		///get text color
