@@ -73,6 +73,8 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		///init default fonts for size modes
 		virtual void initDefaultFonts();
 
+		int initButtonContainer(const int& chain_width);
+
 	public:
 		CComponentsFooter(CComponentsForm *parent = NULL);
 		CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,

@@ -187,7 +187,7 @@ void CComponentsButton::initCaption()
 	//set basic properties
 	int x_offset = (!cc_btn_text_obj || !cc_btn_icon_obj) ? 0 : append_x_offset;
 	int w_frame = fr_thickness;
-	int reduce = 2*w_frame;
+	int frame = 2*w_frame;
 	if (cc_btn_text_obj){
 		//position and size
 		int x_cap = w_frame;
@@ -198,26 +198,30 @@ void CComponentsButton::initCaption()
 		if (cc_btn_font == NULL)
 			cc_btn_font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
 
-		//text and font
+		//text (caption) and font
 		/* If button dimension too small, use dynamic font, this ignores possible defined font
 		 * Otherwise definied font will be used. Button dimensions could be defined directly or calculated from a parent container (e.g. footer...).
 		 * These dimensions must be enough to display complete content like possible icon and without truncated text.
 		 */
 		Font *tmp_font = cc_btn_font;
+		int h_cap = min(cc_btn_text_obj->getHeight(), tmp_font->getHeight());
 		int w_cap = tmp_font->getRenderWidth(cc_btn_text);
-		int dx_tmp = x_offset + dx_icon_obj + x_offset + w_cap;
-		int h_cap = min(height - reduce, min(height, tmp_font->getHeight()));
+		int dx_tmp = x_offset + dx_icon_obj + x_offset + w_cap - frame;
 
-		/* If the required space of icon, text and offsets is too small then reduce font size
+		/* If the required sum for space of icon, text, frame and offsets is too small then adapt font size.
 		 */
 		if (dx_tmp > width){
-			if (width == 0)
+			int diff = 0;
+			if (width == 0){
 				width = dx_tmp;
-			int diff = dx_tmp - width;
-			w_cap -= diff;
+			}else{
+				diff = dx_tmp - width;
+				width -= diff;
+				w_cap -= diff;
+			}
 			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
 			cc_btn_font = tmp_font;
-			dprintf(DEBUG_NORMAL, "[CComponentsButton]\t[%s - %d]\t dx_tmp [%d], width [%d] diff [%d] w_cap [%d] h_cap [%d]\n", __func__, __LINE__,dx_tmp, width, diff, w_cap, h_cap);
+// 			dprintf(DEBUG_NORMAL, "[CComponentsButton]\t[%s - %d]\t%s dx_tmp [%d], width [%d] diff [%d] w_cap [%d] h_cap [%d]\n", __func__, __LINE__, cc_btn_text.c_str(), dx_tmp, width, diff, w_cap, h_cap);
 		}
 
 		/*NOTE:
