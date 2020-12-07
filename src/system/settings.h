@@ -1219,6 +1219,9 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 
 #define SIDEBAR_WIDTH		CFrameBuffer::getInstance()->scale2Res(40)
 
+#define SLIDER_HEIGHT		CFrameBuffer::getInstance()->scale2Res(22)
+#define SLIDER_WIDHT		CFrameBuffer::getInstance()->scale2Res(120)
+
 #define BIGFONT_FACTOR		1.5
 
 struct SglobalInfo

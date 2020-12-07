@@ -122,6 +122,7 @@
 
 /* sliders */
 #define NEUTRINO_ICON_SLIDER_BODY	"slider_body"
+#define NEUTRINO_ICON_SLIDER_BODY_PROGRESS "slider_body_progress"
 #define NEUTRINO_ICON_SLIDER_INACTIVE	"slider_inactive"
 #define NEUTRINO_ICON_SLIDER_RED	"slider_red"
 #define NEUTRINO_ICON_SLIDER_GREEN	"slider_green"
