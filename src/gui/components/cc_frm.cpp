@@ -500,7 +500,7 @@ void CComponentsForm::paintCCItems()
 			}
 			//positionize vertical centered
 			else if (xpos == CC_CENTERED){
-				auto_x =  this_w/2 - w_item/2;
+				auto_x =  (this_w - 2* fr_thickness)/2 - w_item/2;
 				v_cc_items.at(i)->setRealXPos(this_x + auto_x);
 			}
 			else{
@@ -518,7 +518,7 @@ void CComponentsForm::paintCCItems()
 			}
 			//positionize hor centered
 			else if (ypos == CC_CENTERED){
-				auto_y =  height/2 - h_item/2;
+				auto_y =  (height - 2* fr_thickness)/2 - h_item/2;
 				v_cc_items.at(i)->setRealYPos(this_y + auto_y);
 			}
 			else{
