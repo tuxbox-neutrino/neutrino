@@ -191,8 +191,8 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		* 		use setButtonDirectKeys().
 		* @see		setButtonDirectKeys(), driver/rcinput.h for possible values
 		*/
-
 		void setButtonDirectKey(const neutrino_msg_t& msg){cc_directKeys.clear(); cc_directKeys.push_back(msg);}
+
 		/**
 		* Assigns a container with any event msg values to button object
 		* @param[in]	v_directKeys
@@ -259,6 +259,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;}
 		///returns an alias value from button object, see also cc_btn_alias
 		int getButtonAlias(){return cc_btn_alias;}
+
+		///signal on pressed key/button
+		sigc::signal<void> OnPressedButton;
 };
 
 //! Sub class of CComponentsButton.
