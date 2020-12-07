@@ -99,8 +99,8 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 
 	x = cc_xr = cc_xr_old = x_old	= x_pos;
 	y = cc_yr = cc_yr_old = y_old	= y_pos;
-	width 		= w;
-	height	 	= h;
+	width 		= max(w, 0);
+	height	 	= max(h, 0);
 	shadow		= shadow_mode;
 	shadow_w	= shadow != CC_SHADOW_OFF ? (shadow_w == -1 ? OFFSET_SHADOW/2 : shadow_w) : 0; //buttons are mostly small elements, so these elements should have a reasonable shadow width
 
@@ -191,14 +191,35 @@ void CComponentsButton::initCaption()
 	if (cc_btn_text_obj){
 		//position and size
 		int x_cap = w_frame;
-		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
+		int dx_icon_obj = cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
+		x_cap += dx_icon_obj;
 
 		/* use system defined font as default if not defined */
 		if (cc_btn_font == NULL)
 			cc_btn_font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
 
-		int w_cap = min(width - x_offset - x_cap - reduce, cc_btn_font->getRenderWidth(cc_btn_text));
-		int h_cap = min(height - reduce, cc_btn_font->getHeight());
+		//text and font
+		/* If button dimension too small, use dynamic font, this ignores possible defined font
+		 * Otherwise definied font will be used. Button dimensions could be defined directly or calculated from a parent container (e.g. footer...).
+		 * These dimensions must be enough to display complete content like possible icon and without truncated text.
+		 */
+		Font *tmp_font = cc_btn_font;
+		int w_cap = tmp_font->getRenderWidth(cc_btn_text);
+		int dx_tmp = x_offset + dx_icon_obj + x_offset + w_cap;
+		int h_cap = min(height - reduce, min(height, tmp_font->getHeight()));
+
+		/* If the required space of icon, text and offsets is too small then reduce font size
+		 */
+		if (dx_tmp > width){
+			if (width == 0)
+				width = dx_tmp;
+			int diff = dx_tmp - width;
+			w_cap -= diff;
+			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
+			cc_btn_font = tmp_font;
+			dprintf(DEBUG_NORMAL, "[CComponentsButton]\t[%s - %d]\t dx_tmp [%d], width [%d] diff [%d] w_cap [%d] h_cap [%d]\n", __func__, __LINE__,dx_tmp, width, diff, w_cap, h_cap);
+		}
+
 		/*NOTE:
 			paint of centered text in y direction without y_offset
 			looks unlovely displaced in y direction especially besides small icons and inside small areas,
@@ -208,17 +229,6 @@ void CComponentsButton::initCaption()
 		int y_cap = height/2 - h_cap/2;
 
 		cc_btn_text_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
-
-		//text and font
-		/* If button dimension too small, use dynamic font, this ignores possible defined font
-		 * Otherwise definied font will be used. Button dimensions are calculated from parent container (e.g. footer...).
-		 * These dimensions must be enough to display complete content like possible icon and without truncated text.
-		*/
-		Font *tmp_font = cc_btn_font;
-		if ((tmp_font->getHeight()-reduce) > (height-reduce) || (tmp_font->getRenderWidth(cc_btn_text)-reduce) > width-reduce)
-			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
-
-		cc_btn_font = tmp_font;
 
 		cc_btn_text_obj->setText(cc_btn_text, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_text_obj->forceTextPaint(); //here required;
@@ -234,6 +244,7 @@ void CComponentsButton::initCaption()
 		}
 		else
 			cc_btn_text_col = cc_btn_text_disable_col;
+
 		cc_btn_text_obj->setTextColor(cc_btn_text_col);
 
 		//corner of text item
