@@ -443,15 +443,16 @@ void CComponentsForm::paintCCItems()
 		sb->setDimensionsAll(x_sb, y_sb, w_sb, h_sb);
 	}
 
+	this_w = width;
+
 	if(page_count > 1){
 		sb->setSegmentCount(page_count);
 		sb->setMarkID(cur_page);
-		this_w = width - w_sb;
+		this_w -= w_sb;
 		sb->paint(false);
 	}else{
 		if (sb->isPainted())
 			sb->kill(col_body);
-		this_w = width;
 	}
 
 	//detect if current page has changed, if true then kill items from screen
