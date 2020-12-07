@@ -117,7 +117,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	append_y_offset = 0;
 	corner_rad	= RADIUS_SMALL;
 	
-	cc_btn_text_col		= cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_MENUFOOT_TEXT;
+	cc_btn_text_col = cc_btn_text_std_col = cc_btn_text_sel_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_MENUFOOT_TEXT;
 	cc_btn_text_disable_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_text_obj = NULL;
@@ -224,7 +224,16 @@ void CComponentsButton::initCaption()
 		cc_btn_text_obj->getCTextBoxObject()->setTextBorderWidth(0,0);
 
 		//set color
-		cc_btn_text_obj->setTextColor(this->cc_item_enabled ? cc_btn_text_col : cc_btn_text_disable_col);
+		if (isEnabled())
+		{
+			if(isSelected())
+				cc_btn_text_col = cc_btn_text_sel_col;
+			else
+				cc_btn_text_col = cc_btn_text_std_col;
+		}
+		else
+			cc_btn_text_col = cc_btn_text_disable_col;
+		cc_btn_text_obj->setTextColor(cc_btn_text_col);
 
 		//corner of text item
 		cc_btn_text_obj->setCorner(corner_rad-w_frame, corner_type);

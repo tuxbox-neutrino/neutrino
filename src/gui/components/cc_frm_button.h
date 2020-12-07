@@ -78,9 +78,7 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		int 	cc_btn_alias;
 
 		///property: text color
-		fb_pixel_t cc_btn_text_col;
-		///property: text color for disabled button
-		fb_pixel_t cc_btn_text_disable_col;
+		fb_pixel_t cc_btn_text_col, cc_btn_text_disable_col, cc_btn_text_std_col, cc_btn_text_sel_col;
 		///object: text font
 		Font* cc_btn_font;
 		///object: dynamic font object handler
@@ -135,7 +133,12 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		virtual ~CComponentsButton(){};
 
 		///set text color
-		void setButtonTextColor(fb_pixel_t caption_color){cc_btn_text_col = caption_color;};
+		void setButtonTextColor(const fb_pixel_t &caption_color, const fb_pixel_t &sel_caption_color = COL_BUTTON_TEXT_ENABLED, const fb_pixel_t &dis_caption_color = COL_BUTTON_TEXT_DISABLED)
+					{
+						cc_btn_text_std_col 	= caption_color;
+						cc_btn_text_sel_col 	= sel_caption_color;
+						cc_btn_text_disable_col = dis_caption_color;
+					};
 
 		/**Member to modify background behavior of embeded caption object.
 		* @param[in]  mode
