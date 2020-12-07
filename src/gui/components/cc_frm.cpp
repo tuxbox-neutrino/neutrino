@@ -421,11 +421,10 @@ void CComponentsForm::paintCCItems()
 {
 	//using of real x/y values to paint items if this text object is bound in a parent form
 	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = 0;
-	int w_parent_frame = 0;
+
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
 		this_y = auto_y = cc_yr;
-		w_parent_frame = cc_parent->getFrameThickness();
 	}
 
 	//init and handle scrollbar
