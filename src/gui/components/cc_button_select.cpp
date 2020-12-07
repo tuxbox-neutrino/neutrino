@@ -48,7 +48,7 @@ int CCButtonSelect::getSelectedButton()
 	return -1;
 }
 
-void CCButtonSelect::setSelectedButton( size_t item_id,
+void CCButtonSelect::SetSelectedButton( size_t item_id,
 					const fb_pixel_t& sel_fr_col,
 					const fb_pixel_t& fr_col,
 					const fb_pixel_t& sel_bg_col,
@@ -64,7 +64,7 @@ void CCButtonSelect::setSelectedButton( size_t item_id,
 			CComponentsItem *item = btn_container->getCCItem(i);
 			if (item->getItemType() >= CC_ITEMTYPE_BUTTON && item->getItemType() <= CC_ITEMTYPE_BUTTON_BLUE){
 				btn = static_cast<CComponentsButton*>(item);
-				btn->setButtonTextColor(text_col);
+				btn->setButtonTextColor(text_col, sel_text_col);
 			}
 		}
 		if (!btn){
@@ -72,13 +72,23 @@ void CCButtonSelect::setSelectedButton( size_t item_id,
 			return;
 		}
 
-		fb_pixel_t sel_col = fr_col;
-		if (btn_container->size() > 1)
-			sel_col = sel_fr_col; //TODO: make it configurable
-		btn_container->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
-
-		getSelectedButtonObject()->setButtonTextColor(sel_text_col);
+		setSelectedButton(item_id, sel_fr_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
+		getSelectedButtonObject()->setButtonTextColor(text_col, sel_text_col);
 	}
+}
+
+void CCButtonSelect::setSelectedButton( size_t item_id,
+					const fb_pixel_t& sel_fr_col,
+					const fb_pixel_t& fr_col,
+					const fb_pixel_t& sel_bg_col,
+					const fb_pixel_t& bg_col,
+					const int& frame_width,
+					const int& sel_frame_width)
+{
+	fb_pixel_t sel_col = fr_col;
+	if (btn_container->size() > 1)
+		sel_col = sel_fr_col; //TODO: make it configurable
+	btn_container->setSelectedItem(item_id, sel_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
 }
 
 
