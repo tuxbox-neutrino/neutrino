@@ -32,6 +32,7 @@
 #include <gui/color.h>
 #include <vector>
 #include <sys/types.h>
+#include <sigc++/slot.h>
 
 struct gradientData_t;
 class Font;
@@ -206,6 +207,7 @@ typedef struct button_label_cc
 	fb_pixel_t			text_color;
 	fb_pixel_t			text_sel_color;
 	uint32_t			sort_id;
+	sigc::slot<void>		btn_slot;
 	//defaults
 	button_label_cc(): 	button(NULL),
 				text(std::string()),
