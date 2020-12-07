@@ -280,10 +280,11 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			for (i = 0; i < c_btns; i++){
 				w_btn_tmp -= c_btns;
 				w_btn_tmp = max(0, w_btn_tmp);
-				btn_container->getCCItem(i)->setWidth(w_btn_tmp); // value = 0 forces recalculation, refresh is required
-				static_cast<CComponentsButton*>(btn_container->getCCItem(i))->Refresh();
-				w_used_tmp -= max(0, btn_container->getCCItem(i)->getWidth());
-				dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFooter]\t[%s - %d] item %d -> w_used_tmp [%d] :: w_btn_tmp [%d] w_container = %d\033[0m\n", __func__, __LINE__, (int)i, w_used_tmp, w_btn_tmp, w_container);
+				CComponentsButton *btn = static_cast<CComponentsButton*>(btn_container->getCCItem(i));
+				btn->setWidth(w_btn_tmp); // value = 0 forces recalculation, refresh is required
+				btn->Refresh();
+				w_used_tmp -= max(0, btn->getWidth());
+				dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFooter]\t[%s - %d] item [%d] -> w_used_tmp [%d] :: w_btn_tmp [%d] w_container = %d  \t%s\033[0m\n", __func__, __LINE__, (int)i, w_used_tmp, w_btn_tmp, w_container, btn->getItemName().c_str());
 			}
 		}
 
