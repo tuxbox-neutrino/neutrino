@@ -29,6 +29,7 @@
 #include <driver/neutrino_msg_t.h>
 #include <driver/fb_generic.h>
 #include <gui/color_custom.h>
+#include <gui/color.h>
 #include <vector>
 #include <sys/types.h>
 
@@ -200,12 +201,14 @@ typedef struct button_label_cc
 	int 				btn_alias;
 	std::string 			bg_image;
 	std::string 			hint;
+	fb_pixel_t			text_color;
 	uint32_t			sort_id;
 	//defaults
 	button_label_cc(): 	button(NULL),
 				text(std::string()),
 				locale(NONEXISTANT_LOCALE),
 				directKeys(0, RC_NOKEY /*CRCInput::RC_nokey*/),
+				text_color(COL_MENUCONTENTSELECTED_PLUS_0),
 				sort_id(0){}
 	bool operator< (const button_label_cc& i) const
 	{
