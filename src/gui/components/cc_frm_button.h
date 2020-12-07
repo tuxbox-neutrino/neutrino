@@ -166,7 +166,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 		///get caption, type as std::string
 		std::string getCaptionString(){return cc_btn_text;};
 		///get loacalized caption id, type = neutrino_locale_t
-		neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;};
+		neutrino_locale_t getCaptionLocale(){return cc_btn_text_locale;}
+		///get font type of caption, type as Font*
+		Font* getButtonFont(){return cc_btn_font;}
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
 		void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
