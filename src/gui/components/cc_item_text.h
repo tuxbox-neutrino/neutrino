@@ -74,8 +74,6 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		bool ct_text_sent;
 		///property: force sending text to the CTextBox object, false= text only sended, if text was changed, see also textChanged()
 		bool ct_force_text_paint;
-		///helper: convert int to string
-		static std::string iToString(int int_val); //helper to convert int to string
 
 		std::mutex ct_mutex;
 
@@ -184,6 +182,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		static std::string getTextFromFile(const std::string& path_to_textfile);
 		///returns current text content of text/label object as std::string
 		std::string getText();
+
+		///helper: convert int to string
+		static std::string iToString(int int_val); //helper to convert int to string: TODO: replace with helper methode
 
 		///return current font
 		Font* getFont();
