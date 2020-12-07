@@ -131,6 +131,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	* Default width this is footer width minus offset left and right of button container (btn_container).
 	*/
 	int w_container = max(0, width - 2*cch_offset);
+
 	/*
 	* Calculate current available space for button container depends of already embedded footer objects.
 	* If already existing some items then subtract those width from footer width.
@@ -141,8 +142,9 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			if (getCCItem(i) != btn_container) // avoid to point on button container itself!
 				w_container -= getCCItem(i)->getWidth();
 		}
-		w_container = max(0, w_container);
+		w_container = max(0, w_container - 2*cch_offset);
 	}
+
 	/*
 	* On defined parameter chain_width (means width of button container),
 	* compare and if required recalculate current available space for button container depends of passed chain with parameter.
@@ -152,7 +154,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		if (chain_width <= w_container){
 			w_container = chain_width;
 		}else{
-			dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFooter]\t[%s - %d], NOTE: parameter chain_width is too large, defined value = %d, fallback to maximal value = %d => \033[0m\n",
+			dprintf(DEBUG_DEBUG, "\033[33m[CComponentsFooter]\t[%s - %d], NOTE: parameter chain_width is too large, defined value = %d, fallback to maximal value = %d => \033[0m\n",
 				__func__, __LINE__, chain_width, w_container);
 		}
 	}
@@ -284,7 +286,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 				btn->setWidth(w_btn_tmp); // value = 0 forces recalculation, refresh is required
 				btn->Refresh();
 				w_used_tmp -= max(0, btn->getWidth());
-				dprintf(DEBUG_NORMAL, "\033[33m[CComponentsFooter]\t[%s - %d] item [%d] -> w_used_tmp [%d] :: w_btn_tmp [%d] w_container = %d  \t%s\033[0m\n", __func__, __LINE__, (int)i, w_used_tmp, w_btn_tmp, w_container, btn->getItemName().c_str());
+				dprintf(DEBUG_DEBUG, "\033[33m[CComponentsFooter]\t[%s - %d] item [%d] -> w_used_tmp [%d] :: w_btn_tmp [%d] w_container = %d  \t%s\033[0m\n", __func__, __LINE__, (int)i, w_used_tmp, w_btn_tmp, w_container, btn->getItemName().c_str());
 			}
 		}
 
