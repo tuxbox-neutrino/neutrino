@@ -67,8 +67,10 @@ void CCButtonSelect::setSelectedButton( size_t item_id,
 				btn->setButtonTextColor(text_col);
 			}
 		}
-		if (!btn)
-			dprintf(DEBUG_NORMAL, "\033[33m[CCButtonSelect]\t[%s - %d], no button object found...\033[0m\n", __func__, __LINE__);
+		if (!btn){
+			dprintf(DEBUG_NORMAL, "\033[31m[CCButtonSelect]\t[%s - %d], ERROR: btn_container size = %d, no button object available...\033[0m\n", __func__, __LINE__, (int)btn_container->size());
+			return;
+		}
 
 		fb_pixel_t sel_col = fr_col;
 		if (btn_container->size() > 1)

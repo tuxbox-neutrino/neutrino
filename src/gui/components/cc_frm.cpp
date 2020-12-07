@@ -711,6 +711,8 @@ CComponentsItem* CComponentsForm::getSelectedItemObject() const
 	CComponentsItem* ret = NULL;
 	if (sel != -1)
 		ret = static_cast<CComponentsItem*>(this->getCCItem(sel));
+	else
+		dprintf(DEBUG_NORMAL, "\033[31m[CComponentsForm]\t[%s - %d], ERROR: no item object found...\033[0m\n", __func__, __LINE__);
 
 	return ret;
 }
