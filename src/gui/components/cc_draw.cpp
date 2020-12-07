@@ -237,7 +237,7 @@ void CCDraw::setFrameThickness(const int& thickness)
 
 	//ensure enabled frame if frame width > 0
 	cc_enable_frame = false;
-	if (fr_thickness)
+	if (fr_thickness > 0)
 		cc_enable_frame = true;
 }
 
