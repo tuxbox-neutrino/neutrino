@@ -142,12 +142,12 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///send options for text font (size and type), color and mode (allignment)
-		 void setTextFont(Font* font_text);
+		void setTextFont(Font* font_text);
 		///set text color
-		 void setTextColor(const fb_pixel_t& color_text);
+		void setTextColor(const fb_pixel_t& color_text);
 		///set all basic framebuffer element colors at once
 		///Note: Possible color values are defined in "gui/color.h" and "gui/color_custom.h"
-		 void setColorAll(	const fb_pixel_t& color_frame,
+		void setColorAll(	const fb_pixel_t& color_frame,
 					const fb_pixel_t& color_body,
 					const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0,
 					const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT,
@@ -158,55 +158,55 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 						setTextColor(color_text);
 					};
 		///get text color
-		 fb_pixel_t getTextColor(){return ct_col_text;};
+		fb_pixel_t getTextColor(){return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
-		 void setTextMode(const int mode);
-                ///set text border width
-		 void setTextBorderWidth(const int Hborder, const int Vborder = 0);
+		void setTextMode(const int mode);
+		///set text border width
+		void setTextBorderWidth(const int Hborder, const int Vborder = 0);
 
 		///send option to CTextBox object to paint background box behind text or not
-		 void doPaintTextBoxBg(bool do_paintbox_bg);
+		void doPaintTextBoxBg(bool do_paintbox_bg);
 
 		///initialize all required attributes for text and send to the CTextBox object
 		void initCCText();
 
 		///set text as string also possible with overloades members for loacales, const char and text file, returns true if text was changed
-		 bool setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text with const char*, returns true if text was changed
-			bool setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text from locale, returns true if text was changed
-		 bool setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text from digit, digit is integer, returns true if text was changed
-		 bool setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///set text directly from a textfile, path as string is required, returns true if text was changed
-		 bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
+		bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL, const fb_pixel_t& color_text = 0, const int& style = FONT_STYLE_REGULAR);
 		///get text directly from a textfile, path as string is required
 		static std::string getTextFromFile(const std::string& path_to_textfile);
 		///returns current text content of text/label object as std::string
-		 std::string getText();
+		std::string getText();
 
 		///return current font
 		Font* getFont();
 
 		///set screen x-position, parameter as int
-		 void setXPos(const int& xpos);
+		void setXPos(const int& xpos);
 		///set screen y-position, parameter as int
-		 void setYPos(const int& ypos);
+		void setYPos(const int& ypos);
 		///set height of component on screen
-		 void setHeight(const int& h);
+		void setHeight(const int& h);
 		///set width of component on screen
-		 void setWidth(const int& w);
+		void setWidth(const int& w);
 
 		///helper to remove linebreak chars from a string if needed
-		 void removeLineBreaks(std::string& str);
+		void removeLineBreaks(std::string& str);
 
 		///force paint of text even if text was changed or not
-		 void forceTextPaint(bool force_text_paint = true);
+		void forceTextPaint(bool force_text_paint = true);
 		///gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
-		 CTextBox* getCTextBoxObject();
+		CTextBox* getCTextBoxObject();
 
 		///returns count of lines from a text box page
-		 int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
+		int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
 
 		/**Member to modify background behavior of textbox object
 		* @param[in]  mode
@@ -233,7 +233,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		 * we ensure also clean up the background of textbox object.
 		 * Returns true if any buffer was cleane
 		*/
-		 bool clearSavedScreen();
+		bool clearSavedScreen();
 // 		///set color gradient on/off, returns true if gradient mode was changed
 // 		 bool enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color = 255 /*=COL_BACKGROUND*/);
 };
