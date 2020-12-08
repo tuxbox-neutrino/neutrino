@@ -20,167 +20,167 @@ end-block~build_live_url
 
 # ------- yWeb save Settings
 start-block~yWeb_save_settings
-{=ini-set:/var/tuxbox/config/Y-Web.conf;management_ip;{=managementIP=}~open=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;management_ip2;{=managementIP2=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_mac_1;{=wol_mac_1=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_mac_2;{=wol_mac_2=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_mac_3;{=wol_mac_3=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_desc_1;{=wol_desc_1=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_desc_2;{=wol_desc_2=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_desc_3;{=wol_desc_3=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;fb;{=fb=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;screenshot_rc;{=screenshot_rc=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;start_page;{=start_page=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;style;{=style=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;yweb_box_name;{=yweb_box_name=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;yweb_box_color;{=yweb_box_color=}~save=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;management_ip;{=managementIP=}~open=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;management_ip2;{=managementIP2=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;wol_mac_1;{=wol_mac_1=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;wol_mac_2;{=wol_mac_2=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;wol_mac_3;{=wol_mac_3=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;wol_desc_1;{=wol_desc_1=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;wol_desc_2;{=wol_desc_2=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;wol_desc_3;{=wol_desc_3=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;fb;{=fb=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;{=screenshot_rc=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;start_page;{=start_page=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;style;{=style=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;yweb_box_name;{=yweb_box_name=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;yweb_box_color;{=yweb_box_color=}~save=}
 end-block~yWeb_save_settings
 
 # ------- Live save Settings
 start-block~Live_save_settings
-{=ini-set:/var/tuxbox/config/Y-Web.conf;slavebox;{=slavebox=}~open=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;vlc_record_path;{=vlc_record_path=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;deinterlace;{=deinterlace=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;deinterlace_filter;{=v=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;udp;{=udp=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;http_caching;{=http_caching=}~save=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;slavebox;{=slavebox=}~open=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;vlc_record_path;{=vlc_record_path=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;deinterlace;{=deinterlace=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;deinterlace_filter;{=v=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;udp;{=udp=}~cache=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;http_caching;{=http_caching=}~save=}
 end-block~Live_save_settings
 
 # ------- nhttpd save Settings
 start-block~nhttpd_save_settings
-{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_auth.username;{=authuser=}~open=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_auth.password;{=authpassword=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_auth.no_auth_client;{=noauthclient=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_auth.authenticate;{=authenticate=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;{=port=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;webserver.threading;{=threading=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;{=no_keep_alive_ips=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory;{=hosted_directory=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory;{=override_directory=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types;{=mod_sendfile_mime_types=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.sendAll;{=mod_sendfile_sendAll=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;Language.selected;{=language=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;Tuxbox.DisplayLogos;{=Tuxbox_DisplayLogos=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL;{=Tuxbox_LogosURL=}~save=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;mod_auth.username;{=authuser=}~open=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;mod_auth.password;{=authpassword=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;mod_auth.no_auth_client;{=noauthclient=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;mod_auth.authenticate;{=authenticate=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;{=port=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;webserver.threading;{=threading=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;server.no_keep-alive_ips;{=no_keep_alive_ips=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.hosted_directory;{=hosted_directory=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.override_directory;{=override_directory=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;mod_sendfile.mime_types;{=mod_sendfile_mime_types=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;mod_sendfile.sendAll;{=mod_sendfile_sendAll=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;Language.selected;{=language=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;Tuxbox.DisplayLogos;{=Tuxbox_DisplayLogos=}~cache=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;Tuxbox.LogosURL;{=Tuxbox_LogosURL=}~save=}
 {=func:do_reload_httpd_config=}
 end-block~nhttpd_save_settings
 
 # ------- Video / Audio save Settings
 start-block~video_audio_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;video_Format;{=video_Format=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;video_backgroundFormat;{=video_backgroundFormat=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;video_csync;{=h_video_csync=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;vcr_AutoSwitch;{=vcr_AutoSwitch=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audio_AnalogMode;{=audio_AnalogMode=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audiochannel_up_down_enable;{=audiochannel_up_down_enable=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audio_left_right_selectable;{=audio_left_right_selectable=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audio_avs_Control;{=h_audio_avs_Control=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audio_DolbyDigital;{=audio_DolbyDigital=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audio_step;{=audio_step=}~save=}
-{=ini-set:/var/tuxbox/config/controld.conf;vcroutput;{=h_vcroutput=}~open=}
-{=ini-set:/var/tuxbox/config/controld.conf;videooutput;{=h_videooutput=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;video_Format;{=video_Format=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;video_backgroundFormat;{=video_backgroundFormat=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;video_csync;{=h_video_csync=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;vcr_AutoSwitch;{=vcr_AutoSwitch=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audio_AnalogMode;{=audio_AnalogMode=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audiochannel_up_down_enable;{=audiochannel_up_down_enable=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audio_left_right_selectable;{=audio_left_right_selectable=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audio_avs_Control;{=h_audio_avs_Control=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audio_DolbyDigital;{=audio_DolbyDigital=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;audio_step;{=audio_step=}~save=}
+{=ini-set:%(CONFIGDIR)/controld.conf;vcroutput;{=h_vcroutput=}~open=}
+{=ini-set:%(CONFIGDIR)/controld.conf;videooutput;{=h_videooutput=}~save=}
 end-block~video_audio_save_settings
 
 # ------- LCD save Settings
 start-block~lcd_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_power;{=lcd_power=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_inverse;{=lcd_inverse=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_dim_time;{=lcd_dim_time=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_dim_brightness;{=lcd_dim_brightness=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_epgmode;{=lcd_epgmode=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_show_volume;{=lcd_show_volume=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_contrast;{=lcd_contrast=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_brightness;{=lcd_brightness=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_standbybrightness;{=lcd_standbybrightness=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_power;{=lcd_power=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_inverse;{=lcd_inverse=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_dim_time;{=lcd_dim_time=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_dim_brightness;{=lcd_dim_brightness=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_epgmode;{=lcd_epgmode=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_show_volume;{=lcd_show_volume=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_contrast;{=lcd_contrast=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_brightness;{=lcd_brightness=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;lcd_standbybrightness;{=lcd_standbybrightness=}~save=}
 end-block~lcd_save_settings
 
 # ------- Buttons save Settings
 start-block~buttons_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;bouquetlist_mode;{=bouquetlist_mode=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_bouquet_down;{=key_bouquet_down=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_bouquet_up;{=key_bouquet_up=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_addrecord;{=key_channelList_addrecord=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_addremind;{=key_channelList_addremind=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_cancel;{=key_channelList_cancel=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_pagedown;{=key_channelList_pagedown=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_pageup;{=key_channelList_pageup=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_reload;{=key_channelList_reload=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_search;{=key_channelList_search=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_sort;{=key_channelList_sort=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_lastchannel;{=key_lastchannel=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_quickzap_down;{=key_quickzap_down=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_quickzap_up;{=key_quickzap_up=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_subchannel_down;{=key_subchannel_down=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_subchannel_toggle;{=key_subchannel_toggle=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_subchannel_up;{=key_subchannel_up=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_tvradio_mode;{=key_tvradio_mode=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;key_zaphistory;{=key_zaphistory=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;bouquetlist_mode;{=bouquetlist_mode=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_bouquet_down;{=key_bouquet_down=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_bouquet_up;{=key_bouquet_up=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_addrecord;{=key_channelList_addrecord=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_addremind;{=key_channelList_addremind=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_cancel;{=key_channelList_cancel=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_pagedown;{=key_channelList_pagedown=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_pageup;{=key_channelList_pageup=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_reload;{=key_channelList_reload=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_search;{=key_channelList_search=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_channelList_sort;{=key_channelList_sort=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_lastchannel;{=key_lastchannel=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_quickzap_down;{=key_quickzap_down=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_quickzap_up;{=key_quickzap_up=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_subchannel_down;{=key_subchannel_down=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_subchannel_toggle;{=key_subchannel_toggle=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_subchannel_up;{=key_subchannel_up=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_tvradio_mode;{=key_tvradio_mode=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;key_zaphistory;{=key_zaphistory=}~save=}
 end-block~buttons_save_settings
 
 # ------- Personalize save Settings
 start-block~personalize_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_tvmode;{=p_tv=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_radiomode;{=p_radio=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_scartmode;{=p_scart=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_games;{=p_games=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_audioplayer;{=p_audioplayer=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_inetradio;{=p_inetradio=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_movieplayer;{=p_movieplayer=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_pictureviewer;{=p_picviewer=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_pincode;{=p_pincode=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_upnpbrowser;{=p_upnp=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_sleeptimer;{=p_sleeptimer=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_reboot;{=p_reboot=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_shutdown;{=p_shutdown=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_settings;{=p_settings=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_video;{=p_video=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_audio;{=p_audio=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_youth;{=p_youth=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_network;{=p_network=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_recording;{=p_recording=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_language;{=p_language=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_colors;{=p_colors=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_lcd;{=p_lcd=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_keybinding;{=p_keybinding=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_mediaplayer;{=p_mediaplayer=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_driver;{=p_driver=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_misc;{=p_misc=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_service;{=p_service=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_bouqueteditor;{=p_bouqueteditor=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_scants;{=p_scants=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_reload;{=p_reload=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_getplugins;{=p_getplugins=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_restart;{=p_restart=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_epgrestart;{=p_epgrestart=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_chan_epg_stat;{=p_chan_epg_stat=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_imageinfo;{=p_imageinfo=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_update;{=p_update=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_bluebutton;{=p_bluebutton=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_redbutton;{=p_redbutton=}~save=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_tvmode;{=p_tv=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_radiomode;{=p_radio=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_scartmode;{=p_scart=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_games;{=p_games=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_audioplayer;{=p_audioplayer=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_inetradio;{=p_inetradio=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_movieplayer;{=p_movieplayer=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_pictureviewer;{=p_picviewer=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_pincode;{=p_pincode=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_upnpbrowser;{=p_upnp=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_sleeptimer;{=p_sleeptimer=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_reboot;{=p_reboot=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_shutdown;{=p_shutdown=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_settings;{=p_settings=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_video;{=p_video=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_audio;{=p_audio=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_youth;{=p_youth=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_network;{=p_network=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_recording;{=p_recording=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_language;{=p_language=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_colors;{=p_colors=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_lcd;{=p_lcd=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_keybinding;{=p_keybinding=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_mediaplayer;{=p_mediaplayer=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_driver;{=p_driver=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_misc;{=p_misc=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_service;{=p_service=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_bouqueteditor;{=p_bouqueteditor=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_scants;{=p_scants=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_reload;{=p_reload=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_getplugins;{=p_getplugins=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_restart;{=p_restart=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_epgrestart;{=p_epgrestart=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_chan_epg_stat;{=p_chan_epg_stat=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_imageinfo;{=p_imageinfo=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_update;{=p_update=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_bluebutton;{=p_bluebutton=}~cache=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;personalize_redbutton;{=p_redbutton=}~save=}
 end-block~personalize_save_settings
 
 # ------- VNC save Settings
 start-block~vnc_save_settings
-{=ini-set:/var/tuxbox/config/vnc.conf;server;{=server=}~open=}
-{=ini-set:/var/tuxbox/config/vnc.conf;port;{=port=}~cache=}
-{=ini-set:/var/tuxbox/config/vnc.conf;passwd;{=password=}~cache=}
-{=ini-set:/var/tuxbox/config/vnc.conf;scale;{=scale=}~save=}
+{=ini-set:%(CONFIGDIR)/vnc.conf;server;{=server=}~open=}
+{=ini-set:%(CONFIGDIR)/vnc.conf;port;{=port=}~cache=}
+{=ini-set:%(CONFIGDIR)/vnc.conf;passwd;{=password=}~cache=}
+{=ini-set:%(CONFIGDIR)/vnc.conf;scale;{=scale=}~save=}
 end-block~vnc_save_settings
 
 # ------- Timer save Settings
 start-block~timer_save_settings
-{=ini-set:/var/tuxbox/config/Y-Web.conf;tvinfo_username;{=tvinfo_username=}=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;tvinfo_password;{=tvinfo_password=}=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;klack_url;{=klack_url=}=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;klack_securitycode;{=klack_securitycode=}=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;live_resolution_w;{=ini-get:/var/tuxbox/config/Y-Web.conf;live_resolution_w;384=}=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;live_resolution_h;{=ini-get:/var/tuxbox/config/Y-Web.conf;live_resolution_h;288=}=}
-{=file-action:/var/tuxbox/config/channels.txt;add;{=channels=}=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;tvinfo_username;{=tvinfo_username=}=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;tvinfo_password;{=tvinfo_password=}=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;klack_url;{=klack_url=}=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;klack_securitycode;{=klack_securitycode=}=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;live_resolution_w;{=ini-get:%(CONFIGDIR)/Y-Web.conf;live_resolution_w;384=}=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;live_resolution_h;{=ini-get:%(CONFIGDIR)/Y-Web.conf;live_resolution_h;288=}=}
+{=file-action:%(CONFIGDIR)/channels.txt;add;{=channels=}=}
 end-block~timer_save_settings
 
 # ------- Ext save Settings
 start-block~ext_save_settings
-{=file-action:/var/tuxbox/config/extentions.txt;add;{=extentions=}=}
+{=file-action:%(CONFIGDIR)/extentions.txt;add;{=extentions=}=}
 end-block~ext_save_settings
 
 # ------- No Managemant Error
@@ -199,7 +199,7 @@ end-block~no_management
 
 # ------- Managemant Check : insert at Top of Page
 start-block~management_check_top
-{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~1~=}=}
 {=if-empty:{=var-get:management=}
 ~
 	{=include-block:Y_Blocks.txt;no_management=}
@@ -329,9 +329,9 @@ end-block~frame_iso_head
 
 # ------- nhttpd save Settings
 start-block~start_wizard_save_settings
-{=ini-set:/var/tuxbox/config/Y-Web.conf;start_page;{=start_page=}~open=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;startup;true~save=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;Language.selected;{=language=}=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;start_page;{=start_page=}~open=}
+{=ini-set:%(CONFIGDIR)/Y-Web.conf;startup;true~save=}
+{=ini-set:%(CONFIGDIR)/nhttpd.conf;Language.selected;{=language=}=}
 {=func:do_reload_httpd_config=}
 end-block~start_wizard_save_settings
 
@@ -391,7 +391,7 @@ end-block~start_wizard_page
 # ------- Lay-Frame MAIN
 start-block~frame_main
 
-{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;startup=}~
+{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;startup=}~
 {=include-block:Y_Blocks.txt;start_wizard_page=}
 ~
 {=include-block:Y_Blocks.txt;frame_head=}
@@ -439,7 +439,7 @@ end-block~frame_secondary
 # ------- Lay-Frame Boxcontrol-Menu
 start-block~frame_boxcontrol
 {=var-set:sec_menu=Y_Boxcontrol_Menue.yhtm=}
-{=var-set:startpage={=ini-get:/var/tuxbox/config/Y-Web.conf;start_page;none=}=}
+{=var-set:startpage={=ini-get:%(CONFIGDIR)/Y-Web.conf;start_page;none=}=}
 {=var-set:work=
 	{=if-equal:{=var-get:startpage=}~bouquets~Y_Boxcontrol_Bouquets.yhtm
 	~
@@ -519,8 +519,8 @@ end-block~frame_live_epg
 
 # ------- Remote
 start-block~remote
-{=var-set:nfbtype={=ini-get:/var/tuxbox/config/neutrino.conf;remote_control_hardware=}=}
-{=var-set:yfbtype={=ini-get:/var/tuxbox/config/Y-Web.conf;fb;0=}=}
+{=var-set:nfbtype={=ini-get:%(CONFIGDIR)/neutrino.conf;remote_control_hardware=}=}
+{=var-set:yfbtype={=ini-get:%(CONFIGDIR)/Y-Web.conf;fb;0=}=}
 {=var-set:boxtype={=func:get_boxtype=}=}
 {=if-equal:{=var-get:yfbtype=}~0~
 	{=if-equal:{=var-get:nfbtype=}~2~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
