@@ -97,7 +97,8 @@ install_DATA += rc_ax_hd51.png \
 		rc_wwio_bre2ze4k.png \
 		rc_zgemma_h7.png \
 		rc_osmio4k.png \
-		rc_vuplus.png
+		rc_vuplus.png \
+		rc_mutant_hd60.png
 endif
 
 # file manager
