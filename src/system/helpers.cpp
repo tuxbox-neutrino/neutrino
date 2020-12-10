@@ -48,6 +48,7 @@
 #include <linux/hdreg.h>
 #include <linux/fs.h>
 #include "debug.h"
+
 #include <global.h>
 #include <driver/fontrenderer.h>
 //#include <driver/framebuffer.h>
@@ -63,6 +64,14 @@ using namespace std;
 #include <curl/types.h>
 #endif
 
+#if 0
+
+#include <vector>
+#include <fstream>
+
+#define MD5_DIGEST_LENGTH 16
+#include <gui/widget/hintbox.h>
+#endif
 
 int mySleep(int sec) {
 	struct timeval timeout;
@@ -98,6 +107,25 @@ bool file_exists(const char *filename)
 
 void  wakeup_hdd(const char *hdd_dir)
 {
+#if 0
+	CHintBox loadBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_HDD_WAKEUP_START));
+
+	if (!g_settings.hdd_wakeup_msg)
+		msg = false;
+	if (msg)
+		loadBox.paint();
+
+	std::string wakeup_sh = find_executable("wakeup.sh");
+	if (!wakeup_sh.empty())
+		my_system(2, wakeup_sh.c_str(), hdd_dir);
+
+	if (!g_settings.hdd_wakeup) {
+		printf("[hdd] internal wakeup disabled\n");
+		if (msg)
+			loadBox.hide();
+		return;
+	}
+#endif
 	if(!check_dir(hdd_dir) && hdd_get_standby(hdd_dir)){
 		std::string wakeup_file = hdd_dir;
 		wakeup_file += "/.wakeup";
@@ -117,6 +145,10 @@ void  wakeup_hdd(const char *hdd_dir)
 		hdd_flush(hdd_dir);
 		remove(wakeup_file.c_str());
 	}
+#if 0
+	if (msg)
+		loadBox.hide();
+#endif
 }
 //use for script with full path
 int my_system(const char * cmd)
