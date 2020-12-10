@@ -21,8 +21,8 @@
 #if 0
 For testing try:
 
-cat <<EOT > /share/tuxbox/neutrino/luaplugins/test.lua
-#!/bin/luaclient
+cat <<EOT > /usr/share/tuxbox/neutrino/luaplugins/test.lua
+#!/usr/bin/luaclient
 
 for i,v in ipairs(arg) do
 	print(tostring(i) .. "\t" .. tostring(v))
@@ -30,9 +30,9 @@ end
 return "ok"
 EOT
 
-chmod +x /share/tuxbox/neutrino/luaplugins/test.lua
+chmod +x /usr/share/tuxbox/neutrino/luaplugins/test.lua
 
-/share/tuxbox/neutrino/luaplugins/test.lua a b c d
+/usr/share/tuxbox/neutrino/luaplugins/test.lua a b c d
 #endif
 
 #include <config.h>
