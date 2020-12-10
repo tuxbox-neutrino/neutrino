@@ -176,12 +176,8 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 		items[i] = new CNetworkService(services[i].cmd, services[i].options);
 		services[i].enabled = items[i]->Enabled();
 
-		std::string execute1 = "/bin/" + services[i].cmd;
-		std::string execute2 = "/sbin/" + services[i].cmd;
-
-		active = false;
-		if ( !(access(execute1, F_OK)) || !(access(execute2, F_OK)) )
-			active = true;
+		std::string exec = find_executable(services[i].cmd.c_str());
+		active = !exec.empty();
 			
 		if ( (services[i].name == "Telnet") && useinetd)
 			active = false;
