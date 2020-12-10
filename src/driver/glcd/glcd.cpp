@@ -897,7 +897,9 @@ void cGLCD::Run(void)
 				char ws[10];
 				snprintf(ws, sizeof(ws), "%d", bitmap->Width());
 				const char *bmpShot = "/tmp/glcd-video.bmp";
-				my_system(4, "/bin/grab", "-vr", ws, bmpShot);
+				std::string grab = find_executable("grab");
+				if (!grab.empty())
+					my_system(4, grab.c_str(), "-vr", ws, bmpShot);
 				int bw = 0, bh = 0;
 				g_PicViewer->getSize(bmpShot, &bw, &bh);
 				if (bw > 0 && bh > 0)
