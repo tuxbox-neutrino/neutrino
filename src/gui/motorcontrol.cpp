@@ -569,7 +569,8 @@ void CMotorControl::startSatFind(void)
 			break;
 		case 0:
 			printf("[motorcontrol] starting satfind...\n");
-			if (execlp("/bin/satfind", "satfind", NULL) < 0)
+			std::string satfind = find_executable("satfind");
+			if (satfind.empty() || execlp(satfind.c_str(), "satfind", NULL) < 0)
 				printf("[motorcontrol] execlp satfind failed.\n");
 			break;
 	} /* switch */
