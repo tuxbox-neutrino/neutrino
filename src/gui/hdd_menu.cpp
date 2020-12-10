@@ -47,6 +47,7 @@
 #include <neutrino_menue.h>
 #include "hdd_menu.h"
 
+#include <cs_api.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/msgbox.h>
@@ -60,9 +61,6 @@
 #include <mymenu.h>
 #include <driver/screen_max.h>
 #include <driver/record.h>
-
-#define BLKID_BIN    "/sbin/blkid"
-#define EJECT_BIN    "/bin/eject"
 
 #define MDEV_MOUNT	"/lib/mdev/fs/mount"
 #define MOUNT_BASE	"/media/"
@@ -89,12 +87,12 @@ const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 };
 
 devtool_s CHDDMenuHandler::devtools[] = {
-	{ "ext4",  "/sbin/fsck.ext4",  "-C 1 -f -y", "/sbin/mkfs.ext4",  "-m 0", false, false },
-	{ "ext3",  "/sbin/fsck.ext3",  "-C 1 -f -y", "/sbin/mkfs.ext3",  "-m 0", false, false },
-	{ "ext2",  "/sbin/fsck.ext2",  "-C 1 -f -y", "/sbin/mkfs.ext2",  "-m 0", false, false },
-	{ "vfat",  "/sbin/fsck.vfat",  "-a",         "/sbin/mkfs.vfat",  "",    false, false },
-	{ "exfat", "/sbin/fsck.exfat", "",           "/sbin/mkfs.exfat", "",    false, false },
-	{ "xfs",   "/sbin/xfs_repair", "",           "/sbin/mkfs.xfs",   "-f",  false, false },
+	{ "ext4",  "fsck.ext4",  "-C 1 -f -y", "mkfs.ext4",  "-m 0", false, false },
+	{ "ext3",  "fsck.ext3",  "-C 1 -f -y", "mkfs.ext3",  "-m 0", false, false },
+	{ "ext2",  "fsck.ext2",  "-C 1 -f -y", "mkfs.ext2",  "-m 0", false, false },
+	{ "vfat",  "fsck.vfat",  "-a",         "mkfs.vfat",  "",    false, false },
+	{ "exfat", "fsck.exfat", "",           "mkfs.exfat", "",    false, false },
+	{ "xfs",   "xfs_repair", "",           "mkfs.xfs",   "-f",  false, false },
 };
 #define FS_MAX (sizeof(CHDDMenuHandler::devtools)/sizeof(devtool_s))
 
@@ -182,9 +180,10 @@ void CHDDMenuHandler::getBlkIds()
 {
 	pid_t pid;
 	std::string blkid = find_executable("blkid");
+	printf("CHDDMenuHandler::getBlkIds: blkid = %s\n", blkid.c_str());
 	if (blkid.empty())
 		return;
-	std::string pcmd = blkid + (std::string)" -s TYPE";
+	std::string pcmd = blkid + " -s TYPE";
 
 	FILE* f = my_popen(pid, pcmd.c_str(), "r");
 	if (!f) {
@@ -279,11 +278,19 @@ void CHDDMenuHandler::check_dev_tools()
 				__func__, devtools[i].fmt.c_str());
 			continue;
 		}
-		if (!access(devtools[i].fsck.c_str(), X_OK))
+		std::string fsck = find_executable(devtools[i].fsck.c_str());
+		if (!fsck.empty())
+		{
+			devtools[i].fsck = fsck;
 			devtools[i].fsck_supported = true;
-		if (!access(devtools[i].mkfs.c_str(), X_OK))
+		}
+		std::string mkfs = find_executable(devtools[i].mkfs.c_str());
+		if (!mkfs.empty())
+		{
+			devtools[i].mkfs = mkfs;
 			devtools[i].mkfs_supported = true;
-		printf("check_dev_tools: %s: fsck %d mkfs %d\n", devtools[i].fmt.c_str(), devtools[i].fsck_supported, devtools[i].mkfs_supported);
+		}
+		printf("check_dev_tools: %s: fsck (%s) %d mkfs (%s) %d\n", devtools[i].fmt.c_str(), devtools[i].fsck.c_str(), devtools[i].fsck_supported, devtools[i].mkfs.c_str(), devtools[i].mkfs_supported);
 	}
 }
 
@@ -299,8 +306,10 @@ devtool_s * CHDDMenuHandler::get_dev_tool(std::string fmt)
 bool CHDDMenuHandler::mount_dev(std::string name)
 {
 	std::string dev = name.substr(0, 2);
-	if (dev == "sr" && !access(EJECT_BIN, X_OK)) {
-		std::string eject = std::string(EJECT_BIN) + " -t /dev/" + name;
+	std::string eject = find_executable("eject");
+	printf("CHDDMenuHandler::mount_dev: eject = %s\n", eject.c_str());
+	if (dev == "sr" && !eject.empty()) {
+		eject += " -t /dev/" + name;
 		system(eject.c_str());
 		sleep(3);
 	}
@@ -329,8 +338,10 @@ bool CHDDMenuHandler::umount_dev(std::string name)
 		return false;
 #endif
 	std::string dev = name.substr(0, 2);
-	if (dev == "sr" && !access(EJECT_BIN, X_OK)) {
-		std::string eject = std::string(EJECT_BIN) + " /dev/" + name;
+	std::string eject = find_executable("eject");
+	printf("CHDDMenuHandler::umount_dev: eject = %s\n", eject.c_str());
+	if (dev == "sr" && !eject.empty()) {
+		eject += " /dev/" + name;
 		system(eject.c_str());
 	}
 	lock_refresh = true;
@@ -786,9 +797,10 @@ _show_menu:
 	mc->setHint("", LOCALE_MENU_HINT_HDD_SLEEP);
 	hddmenu->addItem(mc);
 
-	const char hdparm[] = "/sbin/hdparm";
+	std::string hdparm = find_executable("hdparm");
+	printf("CHDDMenuHandler::doMenu: hdparm = %s\n", hdparm.c_str());
 	struct stat stat_buf;
-	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
+	bool have_nonbb_hdparm = !::lstat(hdparm.c_str(), &stat_buf) && !S_ISLNK(stat_buf.st_mode);
 	if (have_nonbb_hdparm) {
 		mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
@@ -1342,10 +1354,9 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	if (g_settings.hdd_sleep > 0 && g_settings.hdd_sleep < 60)
 		g_settings.hdd_sleep = 60;
 
-	const char hdidle[] = "/sbin/hd-idle";
-	bool have_hdidle = !access(hdidle, X_OK);
-
-	if (have_hdidle && g_settings.hdd_sleep > 0) {
+	std::string hdidle = find_executable("hd-idle");
+	printf("CHDDDestExec::exec: hd-idle = %s\n", hdidle.c_str());
+	if (!hdidle.empty() && g_settings.hdd_sleep > 0) {
 		system("kill $(pidof hd-idle)");
 		int sleep_seconds = g_settings.hdd_sleep;
 		switch (sleep_seconds) {
@@ -1359,7 +1370,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 					sleep_seconds *= 5;
 		}
 		if (sleep_seconds)
-			my_system(3, hdidle, "-i", to_string(sleep_seconds).c_str());
+			my_system(3, hdidle.c_str(), "-i", to_string(sleep_seconds).c_str());
 
 		while (n--)
 			free(namelist[n]);
@@ -1367,9 +1378,9 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 		return menu_return::RETURN_NONE;
 	}
 
-	const char hdparm[] = "/sbin/hdparm";
-	bool have_hdparm = !access(hdparm, X_OK);
-	if (!have_hdparm)
+	std::string hdparm = find_executable("hdparm");
+	printf("CHDDDestExec::exec: hdparm = %s\n", hdparm.c_str());
+	if (!hdparm.empty())
 	{
 		while (n--)
 			free(namelist[n]);
@@ -1378,7 +1389,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	}
 
 	struct stat stat_buf;
-	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
+	bool have_nonbb_hdparm = !::lstat(hdparm.c_str(), &stat_buf) && !S_ISLNK(stat_buf.st_mode);
 
 	for (int i = 0; i < n; i++) {
 		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
@@ -1390,9 +1401,9 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 		snprintf(opt, sizeof(opt), "/dev/%s",namelist[i]->d_name);
 
 		if (have_nonbb_hdparm)
-			my_system(4, hdparm, M_opt, S_opt, opt);
+			my_system(4, hdparm.c_str(), M_opt, S_opt, opt);
 		else // busybox hdparm doesn't support "-M"
-			my_system(3, hdparm, S_opt, opt);
+			my_system(3, hdparm.c_str(), S_opt, opt);
 
 		free(namelist[i]);
 	}
