@@ -1,5 +1,5 @@
 AUDIOSelectMenue.head Tonoptionen
-EPGMenu.epgplus EPG-Zeitlinien (EPG-Plus)
+EPGMenu.epgplus EPG-Zeitlinien
 EPGMenu.eventinfo Info zur Sendung
 EPGMenu.eventlist Vorschau aktuelles Programm
 EPGMenu.head EPG - Programminformation
@@ -7,7 +7,7 @@ EPGMenu.streaminfo Technische Informationen
 EPGPlus.actions Aktionen
 EPGPlus.bybouquet_mode bouquetweise
 EPGPlus.bypage_mode seitenweise
-EPGPlus.head Vorschau-Übersicht (EPG Plus)
+EPGPlus.head EPG-Zeitlinien
 EPGPlus.next_bouquet Bouquet vor
 EPGPlus.options Optionen
 EPGPlus.page_down Seite zurück
