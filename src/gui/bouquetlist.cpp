@@ -412,9 +412,9 @@ int CBouquetList::show(bool bShowChannelList)
 	for (unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]); count++)
 	{
 		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT]->getRenderWidth(g_Locale->getText(CBouquetListButtons[count].locale));
-		w_max_text = std::max(w_max_text, w_text);
+		w_max_text = std::max(w_max_text, w_text) + OFFSET_INNER_SMALL;
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
-		w_max_icon = std::max(w_max_icon, icol_w);
+		w_max_icon = std::max(w_max_icon, icol_w) + OFFSET_INNER_SMALL;
 		h_max_icon = std::max(h_max_icon, icol_h);
 	}
 
