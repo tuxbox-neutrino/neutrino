@@ -300,6 +300,16 @@ void CImageInfo::InitInfoData()
 	if (file_exists(OE_IMAGE_VERSION_FILE)){
 		config.loadConfig(OE_IMAGE_VERSION_FILE);
 		oe_image_version = config.getString("imageversion", "");
+		string desc = config.getString("imagedescription", "");
+		if (!desc.empty())
+			oe_image_version += " - " + desc;
+		desc = config.getString("describe", "");
+		if (!pretty_name.info_text.empty()) {
+			if (!desc.empty())
+				pretty_name.info_text += " - " + desc;
+		}
+		else
+			pretty_name.info_text = "unknown";
 		config.clear();
 	}
 
