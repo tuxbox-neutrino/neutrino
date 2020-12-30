@@ -31,9 +31,36 @@ install_DATA = \
 	res_uhd.png \
 	subt.png \
 	subt_gray.png \
-	tuner_1.png \
-	tuner_2.png \
-	tuner_3.png \
-	tuner_4.png \
 	vtxt.png \
 	vtxt_gray.png
+
+install_DATA += \
+	tuner.png \
+	tuner_01.png \
+	tuner_02.png \
+	tuner_03.png \
+	tuner_04.png
+
+if ! BOXTYPE_CST
+install_DATA += \
+	tuner_05.png \
+	tuner_06.png \
+	tuner_07.png \
+	tuner_08.png \
+	tuner_09.png \
+	tuner_10.png \
+	tuner_11.png \
+	tuner_12.png \
+	tuner_13.png \
+	tuner_14.png \
+	tuner_15.png \
+	tuner_16.png \
+	tuner_17.png \
+	tuner_18.png \
+	tuner_19.png \
+	tuner_20.png \
+	tuner_21.png \
+	tuner_22.png \
+	tuner_23.png \
+	tuner_24.png
+endif

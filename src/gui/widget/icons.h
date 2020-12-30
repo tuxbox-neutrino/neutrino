@@ -273,10 +273,7 @@
 #define NEUTRINO_ICON_SCRAMBLED2_GREY	"ca2_gray"
 #define NEUTRINO_ICON_SUBT		"subt"
 #define NEUTRINO_ICON_SUBT_GREY		"subt_gray"
-#define NEUTRINO_ICON_TUNER_1		"tuner_1"
-#define NEUTRINO_ICON_TUNER_2		"tuner_2"
-#define NEUTRINO_ICON_TUNER_3		"tuner_3"
-#define NEUTRINO_ICON_TUNER_4		"tuner_4"
+#define NEUTRINO_ICON_TUNER		"tuner"
 #define NEUTRINO_ICON_VTXT		"vtxt"
 #define NEUTRINO_ICON_VTXT_GREY		"vtxt_gray"
 

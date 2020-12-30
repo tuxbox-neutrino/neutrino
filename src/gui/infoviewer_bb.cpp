@@ -193,7 +193,7 @@ void CInfoViewerBB::getBBIconInfo()
 			break;
 		case CInfoViewerBB::ICON_TUNER:
 			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !isTSMode && !IS_WEBCHAN(g_InfoViewer->get_current_channel_id()))
-				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
+				iconView = checkBBIcon(NEUTRINO_ICON_TUNER, &w, &h);
 			break;
 		default:
 			break;
@@ -678,22 +678,13 @@ void CInfoViewerBB::showIcon_Tuner()
 		return;
 	}
 
-	std::string icon_name;
-	switch (CFEManager::getInstance()->getLiveFE()->getNumber()) {
-		case 1:
-			icon_name = NEUTRINO_ICON_TUNER_2;
-			break;
-		case 2:
-			icon_name = NEUTRINO_ICON_TUNER_3;
-			break;
-		case 3:
-			icon_name = NEUTRINO_ICON_TUNER_4;
-			break;
-		case 0:
-		default:
-			icon_name = NEUTRINO_ICON_TUNER_1;
-			break;
-	}
+	char icon_name[12];
+	snprintf(icon_name, sizeof(icon_name), "%s_%02d", NEUTRINO_ICON_TUNER, CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
+
+	int w = 0, h = 0;
+	if (!checkBBIcon(icon_name, &w, &h))
+		snprintf(icon_name, sizeof(icon_name), "%s", NEUTRINO_ICON_TUNER);
+
 	showBBIcons(CInfoViewerBB::ICON_TUNER, icon_name);
 }
 
