@@ -1385,7 +1385,7 @@ menu.hint_misc_cpufreq Set the CPU frequency
 menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
 menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
 menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
-menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
+menu.hint_misc_general Standby-, teletext- and debuglevel-settings
 menu.hint_misc_onlineservices Configure and control online services like Weather, YouTube, SHOUTCast and TMDb
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies

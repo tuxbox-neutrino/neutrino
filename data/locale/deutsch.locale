@@ -1438,7 +1438,7 @@ menu.hint_misc_cpufreq Legen Sie die Taktfrequenz der CPU fest
 menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Ausschalten, setzen bzw. ändern des Inaktivitätstimers
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
-menu.hint_misc_general Standby-, Videotext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
+menu.hint_misc_general Standby-, Videotext- und Debuglevel-Einstellungen
 menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter, YouTube, SHOUTCast und TMDb
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
