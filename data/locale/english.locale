@@ -1,6 +1,6 @@
 AUDIOSelectMenue.head Audio Options
 EPGMenu.epgplus EPG-Timelines
-EPGMenu.eventinfo Details current program
+EPGMenu.eventinfo Eventinfo
 EPGMenu.eventlist Eventlist current programm
 EPGMenu.head EPG - Program information
 EPGMenu.streaminfo Technical informations

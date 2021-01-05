@@ -1,6 +1,6 @@
 AUDIOSelectMenue.head Tonoptionen
 EPGMenu.epgplus EPG-Zeitlinien
-EPGMenu.eventinfo Info zur Sendung
+EPGMenu.eventinfo Eventinfo
 EPGMenu.eventlist Vorschau aktuelles Programm
 EPGMenu.head EPG - Programminformation
 EPGMenu.streaminfo Technische Informationen
