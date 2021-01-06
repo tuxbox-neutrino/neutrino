@@ -30,7 +30,7 @@
 /** 	Paint a box on screen.
 *	@param[in] x 				position
 *	@param[in] y 				position
-*	@param[in] dx 				witdh
+*	@param[in] dx 				width
 *	@param[in] dy 				height
 *	@param[in] color_body			color of background, default = COL_MENUCONTENT_PLUS_0
 *	@param[in] radius 			corner radius, default = 0
@@ -137,7 +137,7 @@ bool paintBoxRel0(	const int& x,
 *	@param[in] std::string& 		text
 *	@param[in] x 				position
 *	@param[in] y 				position
-*	@param[in] dx 				witdh
+*	@param[in] dx 				width
 *	@param[in] dy 				height
 *	@param[in] *font			pointer to font type object, default = NULL, sets g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO] as default font
 *	@param[in] color_body			color of box, default = COL_MENUCONTENT_PLUS_0
@@ -214,7 +214,7 @@ bool paintTextBoxRel(	const std::string& text,
 *	@param[in] std::string& 		full path to image file or icon filename without file extension (e.g. .png)
 *	@param[in] x 				position
 *	@param[in] y 				position
-*	@param[in] dx 				witdh, default = 0 (no scale)
+*	@param[in] dx 				width, default = 0 (no scale)
 *	@param[in] dy 				height, default = 0 (no scale)
 *	@param[in] transparent			image transparency mode
 *						@li CFrameBuffer::TM_EMPTY
@@ -275,5 +275,66 @@ bool paintImage(	const std::string& Image,
 			const fb_pixel_t& color_frame = COL_FRAME_PLUS_0,
 			int shadow_mode = CC_SHADOW_OFF,
 			const fb_pixel_t& color_shadow = COL_SHADOW_PLUS_0);
+
+/**	Paints a box with icon and optional text as content on screen with defined position and dimensions.\n
+ *	If no dimensions are defined, this method will try to paint the box without any scale.\n
+ *	If an dimension is defined it will be try to scale the image.\n
+ *	Default behavior is paint an icon on screen like known method paintIcon() in class CFrameBuffer.
+ *	@param[in] std::string& 		icon filename without file extension (e.g. .png)
+ *	@param[in] x 				position
+ *	@param[in] y 				position
+ *	@param[in] dx 				width, default = 0 (no scale)
+ *	@param[in] dy 				height, default = 0 (no scale)
+ *	@param[in] std::string& 		text (default empty)
+ *	@param[in] font_style			font style
+ *						@li CComponentsText::FONT_STYLE_REGULAR (default)
+ *						@li CComponentsText::FONT_STYLE_BOLD,
+ *						@li CComponentsText::FONT_STYLE_ITALIC
+ *	@param[in] color_body			color of background, default = COL_MENUCONTENT_PLUS_0
+ *	@param[in] color_text 			color of text, default = COL_MENUCONTENT_TEXT
+ *
+ *	@return
+ *		True if painted
+ *	@see
+ *		@li paintImage()
+ */
+bool paintIcon (	const std::string& filename,
+			const int& x,
+			const int& y,
+			const int& dx,
+			const int& dy,
+			const std::string& text = std::string(),
+			const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
+			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT);
+
+/**	Overloaded version of paintIcon() without dimension parameters Paints a box with icon and optional text as content on screen with defined position.\n
+ *	If no dimensions are defined, this method will try to paint the box without any scale.\n
+ *	If an dimension is defined it will be try to scale the image.\n
+ *	Default behavior is paint an icon on screen like known method paintIcon() in class CFrameBuffer.
+ *	@param[in] std::string& 		icon filename without file extension (e.g. .png)
+ *	@param[in] x 				position
+ *	@param[in] y 				position
+ *	@param[in] std::string& 		text (default empty)
+ *	@param[in] font_style			font style
+ *						@li CComponentsText::FONT_STYLE_REGULAR (default)
+ *						@li CComponentsText::FONT_STYLE_BOLD,
+ *						@li CComponentsText::FONT_STYLE_ITALIC
+ *	@param[in] color_body			color of background, default = COL_MENUCONTENT_PLUS_0
+ *	@param[in] color_text 			color of text, default = COL_MENUCONTENT_TEXT
+ *
+ *	@return
+ *		True if painted
+ *	@see
+ *		@li paintImage()
+ *		@li paintIcon()
+ */
+bool paintIcon (	const std::string& filename,
+			const int& x,
+			const int& y,
+			const std::string& text = std::string(),
+			const int& font_style = CComponentsText::FONT_STYLE_REGULAR,
+			const fb_pixel_t& color_body = COL_MENUCONTENT_PLUS_0,
+			const fb_pixel_t& color_text = COL_MENUCONTENT_TEXT);
 
 #endif

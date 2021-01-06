@@ -707,6 +707,13 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
+	else if (actionKey == "icon") {
+		int y = 100;
+		for (int i = 0; i < 10; i++){
+			paintIcon (NEUTRINO_ICON_BUTTON_BLUE, 100, y, to_string(i), CNeutrinoFonts::FONT_STYLE_BOLD, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENT_TEXT);
+			y += 30;
+		}
+	}
 	else if (actionKey == "iconform"){
 		if (iconform == NULL){
 			iconform = new CComponentsIconForm();
@@ -1239,6 +1246,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Blinking Extended Text", true, NULL, this, "blinking_text_ext"));
 	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
 	widget->addItem(new CMenuForwarder("Record", true, NULL, this, "show_records"));
+	widget->addItem(new CMenuForwarder("Icon", true, NULL, this, "icon"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)
