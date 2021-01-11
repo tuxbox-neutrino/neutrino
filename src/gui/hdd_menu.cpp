@@ -90,6 +90,7 @@ devtool_s CHDDMenuHandler::devtools[] = {
 	{ "ext4",  "fsck.ext4",  "-C 1 -f -y", "mkfs.ext4",  "-m 0", false, false },
 	{ "ext3",  "fsck.ext3",  "-C 1 -f -y", "mkfs.ext3",  "-m 0", false, false },
 	{ "ext2",  "fsck.ext2",  "-C 1 -f -y", "mkfs.ext2",  "-m 0", false, false },
+	{ "f2fs",  "fsck.f2fs",  "",           "mkfs.f2fs",  "-f",  false, false },
 	{ "vfat",  "fsck.vfat",  "-a",         "mkfs.vfat",  "",    false, false },
 	{ "exfat", "fsck.exfat", "",           "mkfs.exfat", "",    false, false },
 	{ "xfs",   "xfs_repair", "",           "mkfs.xfs",   "-f",  false, false },
