@@ -834,101 +834,101 @@ fsk.to_12 to 12
 fsk.to_16 to 16
 fsk.to_7 to 7
 glcd.align_center centered
-glcd.align_channel arrange channel
-glcd.align_duration arrange event duration
-glcd.align_end arrange event end
-glcd.align_epg arrange epg
+glcd.align_channel Channel arrangement
+glcd.align_duration Event duration arrangement
+glcd.align_end Event end arrangement
+glcd.align_epg EPG arrangement
 glcd.align_left left
 glcd.align_none none
 glcd.align_right right
-glcd.align_start arrange event start
-glcd.align_time arrange time
-glcd.bar_width length progressbar
-glcd.bar_x_position progressbar x-position
-glcd.bar_y_position progressbar y-position
-glcd.brightness brightness
-glcd.brightness_standby brightness standby
-glcd.brightness_dim dim
-glcd.brightness_dim_time dim timeout
-glcd.brightness_settings brightness
-glcd.color.amber amber
-glcd.color.black black
-glcd.color.blue blue
-glcd.color.bluegray blue grey
-glcd.color.brown brown
-glcd.color.cyan cyan
-glcd.color.deeporange dark orange
-glcd.color.deeppurple dark purple
-glcd.color.gray grey
-glcd.color.green green
-glcd.color.indigo indigo
-glcd.color.lightblue light blue
-glcd.color.lightgreen light green
-glcd.color.lime lime
-glcd.color.orange orange
-glcd.color.pink pink
-glcd.color.purple purple
-glcd.color.red red
-glcd.color.teal teal
-glcd.color.white white
-glcd.color.yellow yellow
-glcd.channel_x_position cahnnel x-position
-glcd.channel_y_position channel y-position
-glcd.digital_clock_y_position digital clock y-position
-glcd.display display-type
-glcd.duration_x_position event duration x-position
-glcd.duration_y_position event-duration y-position
+glcd.align_start Event start arrangement
+glcd.align_time Time arrangement
+glcd.bar_width Progressbar width
+glcd.bar_x_position Progressbar x-position
+glcd.bar_y_position Progressbar y-position
+glcd.brightness Brightness
+glcd.brightness_standby Brightness standby
+glcd.brightness_dim Dim
+glcd.brightness_dim_time Dim timeout
+glcd.brightness_settings Brightness
+glcd.color.amber Amber
+glcd.color.black Black
+glcd.color.blue Blue
+glcd.color.bluegray Blue grey
+glcd.color.brown Brown
+glcd.color.cyan Cyan
+glcd.color.deeporange Dark orange
+glcd.color.deeppurple Dark purple
+glcd.color.gray Grey
+glcd.color.green Green
+glcd.color.indigo Indigo
+glcd.color.lightblue Light blue
+glcd.color.lightgreen Light green
+glcd.color.lime Lime
+glcd.color.orange Orange
+glcd.color.pink Pink
+glcd.color.purple Purple
+glcd.color.red Red
+glcd.color.teal Teal
+glcd.color.white White
+glcd.color.yellow Yellow
+glcd.channel_x_position Channel x-position
+glcd.channel_y_position Channel y-position
+glcd.digital_clock_y_position Digital clock y-position
+glcd.display Display-type
+glcd.duration_x_position Event duration x-position
+glcd.duration_y_position Event duration y-position
 glcd.enable GraphLCD active
-glcd.end_x_position event end x-position
-glcd.end_y_position event end y-position
+glcd.end_x_position Event end x-position
+glcd.end_y_position Event end y-position
 glcd.epg_x_position EPG x-position
 glcd.epg_y_position EPG y-position
-glcd.font font
-glcd.font_autoresize auto size
+glcd.font Font
+glcd.font_autoresize Auto size
 glcd.head GraphLCD-support
-glcd.logo_x_position channel logo x-position
-glcd.logo_y_position channel logo y-position
-glcd.mirror_osd show osd-menu on GraphLCD
-glcd.mirror_video show video on GraphLCD
-glcd.position_settings position and dimensions
-glcd.restart restart
-glcd.scroll_speed scroll speed
-glcd.select.bar progressbar color
-glcd.select.bg background color
-glcd.select.fg text color
-glcd.show_duration show event duration
-glcd.show_end show event end
-glcd.show_logo show channel logo
-glcd.show_progressbar show progressbar
-glcd.show_start show event start
-glcd.show_time show time
-glcd.show_weather show weather
-glcd.simple_clock_y_position simple clock y-position
-glcd.size_bar progressbar height
-glcd.size_channel channel height
-glcd.size_duration event duration height
-glcd.size_end event end height
-glcd.size_epg epg height
-glcd.size_logo channel logo height
-glcd.size_simple_clock simple clock height
-glcd.size_start event start height
-glcd.size_time time height
-glcd.size_time_standby standby time height
-glcd.theme select theme
-glcd.theme_settings themes
-glcd.standby_analog_clock analog clock
-glcd.standby_digital_clock digital clock
+glcd.logo_x_position Channel logo x-position
+glcd.logo_y_position Channel logo y-position
+glcd.mirror_osd Show OSD-menu on GraphLCD
+glcd.mirror_video Show video on GraphLCD
+glcd.position_settings Positions and dimensions
+glcd.restart Restart
+glcd.scroll_speed Scroll speed
+glcd.select.bar Progressbar color
+glcd.select.bg Background color
+glcd.select.fg Text color
+glcd.show_duration Event duration display
+glcd.show_end Event end display
+glcd.show_logo Channel logo display
+glcd.show_progressbar Progressbar display
+glcd.show_start Event start display
+glcd.show_time Time display
+glcd.show_weather Weather display
+glcd.simple_clock_y_position Simple clock y-position
+glcd.size_bar Progressbar height
+glcd.size_channel Channel height
+glcd.size_duration Event duration height
+glcd.size_end Event end height
+glcd.size_epg EPG height
+glcd.size_logo Channel logo height
+glcd.size_simple_clock Simple clock height
+glcd.size_start Event start height
+glcd.size_time Time height
+glcd.size_time_standby Standby time height
+glcd.theme Select theme
+glcd.theme_settings Themes
+glcd.standby_analog_clock Analog clock
+glcd.standby_digital_clock Digital clock
 glcd.standby_lcd_clock LCD-clock
 glcd.standby_led_clock LED-clock
-glcd.standby_settings standby-settings
-glcd.standby_simple_clock simple clock
-glcd.standby_weather weather in standby mode
-glcd.start_x_position event start x-position
-glcd.start_y_position event start y-position
-glcd.time_in_standby show time in standby mode
-glcd.time_x_position time x-position
-glcd.time_y_position time y-position
-glcd.volume volume
+glcd.standby_settings Standby-settings
+glcd.standby_simple_clock Simple clock
+glcd.standby_weather Weather in standby mode
+glcd.start_x_position Event start x-position
+glcd.start_y_position Event start y-position
+glcd.time_in_standby Time display in standby mode
+glcd.time_x_position Time x-position
+glcd.time_y_position Time y-position
+glcd.volume Volume
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -1073,16 +1073,16 @@ languagesetup.osd OSD language
 languagesetup.select OSD language
 lcd4l_brightness Brightness
 lcd4l_brightness_standby Brightness in standby
-lcd4l_clock_a Analog clock in Standby-Mode
+lcd4l_clock_a Analog clock in standby mode
 lcd4l_convert Convert umlauts
 lcd4l_display_type Display type
 lcd4l_display_type_setup Display type setup
-lcd4l_logodir Channellogo-Directory
-lcd4l_skin Display-Style
+lcd4l_logodir Channel logo directory
+lcd4l_skin Display style
 lcd4l_skin_0 Standard
-lcd4l_skin_1 User 1
-lcd4l_skin_2 User 2
-lcd4l_skin_3 User 3
+lcd4l_skin_1 Large
+lcd4l_skin_2 Small (SysInfo)
+lcd4l_skin_3 d-box2
 lcd4l_skin_4 User 4
 lcd4l_skin_radio Activate Radio-Style
 lcd4l_support LCD4Linux-Support
@@ -1186,7 +1186,7 @@ menu.hint_adzap_active AdZap is active. With a new call it will be deactivated.
 menu.hint_adzap_writedata Write data according to adzap status to /tmp/adzap.data
 menu.hint_adzap_zap Zap to last viewed channel or to start channel during timer activation
 menu.hint_aplay Audio player
-menu.hint_aplay_setup Change title display, start directory, screen saver and more
+menu.hint_aplay_setup Change title display, start directory, screen saver etc.
 menu.hint_audio Audio output, DD\nSRS True volume options
 menu.hint_audio_ac3 Pass AC3 audio tracks unchanged
 menu.hint_audio_adjust_vol_ac3 Channel specific volume adjustment for AC3 streams
@@ -1243,7 +1243,7 @@ menu.hint_channellist_show_empty_favs Show or hide empty bouquets in favorites
 menu.hint_channellist_show_eventlogo Enable/disable event logos.
 menu.hint_channellist_show_infobox Show or hide bottom infobox of channellist
 menu.hint_channellist_show_res_icon Show or hide the icon to signalize resolution
-menu.hint_channellogos_setup Configure global channelogos options
+menu.hint_channellogos_setup Configure global channel logos options
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_ci_mode Allow switching to these channels while CI recording
@@ -1762,7 +1762,7 @@ messagebox.yes Yes
 miscsettings.channellist Channellist
 miscsettings.channellist_enablesdt Transponder background update
 miscsettings.channellist_epgtext_align Programtext Align
-miscsettings.channellogos Channellogos
+miscsettings.channellogos Channel logos
 miscsettings.colored_events Program colored
 miscsettings.colored_events_0 none
 miscsettings.colored_events_1 current
