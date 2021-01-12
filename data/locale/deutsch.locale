@@ -882,9 +882,9 @@ glcd.enable GraphLCD aktiv
 glcd.end_x_position Sendungsende x-Position
 glcd.end_y_position Sendungsende y-Position
 glcd.epg_x_position EPG x-Position
-glcd.epg_y_position EPG x-Position
+glcd.epg_y_position EPG y-Position
 glcd.font Schrift
-glcd.font_autoresize Automatische SChriftgröße
+glcd.font_autoresize Automatische Schriftgröße
 glcd.head GraphLCD-Unterstützung
 glcd.logo_x_position Senderlogo x-Position
 glcd.logo_y_position Senderlogo y-Position

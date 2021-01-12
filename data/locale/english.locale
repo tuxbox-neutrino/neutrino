@@ -833,49 +833,102 @@ fsk.from_7 from 7
 fsk.to_12 to 12
 fsk.to_16 to 16
 fsk.to_7 to 7
-glcd.brightness Brightness
-glcd.brightness_standby Brightness in standby
-glcd.color.amber Amber
-glcd.color.black Black
-glcd.color.blue Blue
-glcd.color.bluegray Bluegray
-glcd.color.brown Brown
-glcd.color.cyan Cyan
-glcd.color.deeporange Deep Orange
-glcd.color.deeppurple Deep Purple
-glcd.color.gray Gray
-glcd.color.green Green
-glcd.color.indigo Indigo
-glcd.color.lightblue Light Blau
-glcd.color.lightgreen Light Green
-glcd.color.lime Lime
-glcd.color.orange Orange
-glcd.color.pink Pink
-glcd.color.purple Purple
-glcd.color.red Red
-glcd.color.teal Teal
-glcd.color.white White
-glcd.color.yellow Yellow
-glcd.display Display type
-glcd.enable GraphLCD enabled
-glcd.font Font
-glcd.head GraphLCD-Support
-glcd.mirror_osd Show OSD menu on GraphLCD
-glcd.mirror_video Show running video on GraphLCD
-glcd.restart Rescan
-glcd.scroll_speed Scrolling Speed
-glcd.select.bar Progress bar color
-glcd.select.bg Background color
-glcd.select.fg Foreground color
-glcd.show_logo Show channel logo
-glcd.size_bar Progress bar height
-glcd.size_channel Channel height
-glcd.size_epg EPG height
-glcd.size_logo Logo height
-glcd.size_time Time height
-glcd.size_time_standby Time height in standby
-glcd.time_in_standby Display time in standby
-glcd.volume Volume
+glcd.align_center centered
+glcd.align_channel arrange channel
+glcd.align_duration arrange event duration
+glcd.align_end arrange event end
+glcd.align_epg arrange epg
+glcd.align_left left
+glcd.align_none none
+glcd.align_right right
+glcd.align_start arrange event start
+glcd.align_time arrange time
+glcd.bar_width length progressbar
+glcd.bar_x_position progressbar x-position
+glcd.bar_y_position progressbar y-position
+glcd.brightness brightness
+glcd.brightness_standby brightness standby
+glcd.brightness_dim dim
+glcd.brightness_dim_time dim timeout
+glcd.brightness_settings brightness
+glcd.color.amber amber
+glcd.color.black black
+glcd.color.blue blue
+glcd.color.bluegray blue grey
+glcd.color.brown brown
+glcd.color.cyan cyan
+glcd.color.deeporange dark orange
+glcd.color.deeppurple dark purple
+glcd.color.gray grey
+glcd.color.green green
+glcd.color.indigo indigo
+glcd.color.lightblue light blue
+glcd.color.lightgreen light green
+glcd.color.lime lime
+glcd.color.orange orange
+glcd.color.pink pink
+glcd.color.purple purple
+glcd.color.red red
+glcd.color.teal teal
+glcd.color.white white
+glcd.color.yellow yellow
+glcd.channel_x_position cahnnel x-position
+glcd.channel_y_position channel y-position
+glcd.digital_clock_y_position digital clock y-position
+glcd.display display-type
+glcd.duration_x_position event duration x-position
+glcd.duration_y_position event-duration y-position
+glcd.enable GraphLCD active
+glcd.end_x_position event end x-position
+glcd.end_y_position event end y-position
+glcd.epg_x_position EPG x-position
+glcd.epg_y_position EPG y-position
+glcd.font font
+glcd.font_autoresize auto size
+glcd.head GraphLCD-support
+glcd.logo_x_position channel logo x-position
+glcd.logo_y_position channel logo y-position
+glcd.mirror_osd show osd-menu on GraphLCD
+glcd.mirror_video show video on GraphLCD
+glcd.position_settings position and dimensions
+glcd.restart restart
+glcd.scroll_speed scroll speed
+glcd.select.bar progressbar color
+glcd.select.bg background color
+glcd.select.fg text color
+glcd.show_duration show event duration
+glcd.show_end show event end
+glcd.show_logo show channel logo
+glcd.show_progressbar show progressbar
+glcd.show_start show event start
+glcd.show_time show time
+glcd.show_weather show weather
+glcd.simple_clock_y_position simple clock y-position
+glcd.size_bar progressbar height
+glcd.size_channel channel height
+glcd.size_duration event duration height
+glcd.size_end event end height
+glcd.size_epg epg height
+glcd.size_logo channel logo height
+glcd.size_simple_clock simple clock height
+glcd.size_start event start height
+glcd.size_time time height
+glcd.size_time_standby standby time height
+glcd.theme select theme
+glcd.theme_settings themes
+glcd.standby_analog_clock analog clock
+glcd.standby_digital_clock digital clock
+glcd.standby_lcd_clock LCD-clock
+glcd.standby_led_clock LED-clock
+glcd.standby_settings standby-settings
+glcd.standby_simple_clock simple clock
+glcd.standby_weather weather in standby mode
+glcd.start_x_position event start x-position
+glcd.start_y_position event start y-position
+glcd.time_in_standby show time in standby mode
+glcd.time_x_position time x-position
+glcd.time_y_position time y-position
+glcd.volume volume
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
