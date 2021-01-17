@@ -162,23 +162,6 @@ void transponder::dumpServiceXml(FILE * fd)
 				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
 		}
 	} else if (CFrontend::isTerr(feparams.delsys)) {
-		if (getFEParams()->plp_id == NO_STREAM_ID_FILTER)
-		{
-		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" bw=\"%u\" hp=\"%hu\" lp=\"%hu\" con=\"%u\" tm=\"%u\" gi=\"%u\" hi=\"%u\" sys=\"%hu\">\n",
-				transport_stream_id, original_network_id,
-				getFEParams()->frequency,
-				getFEParams()->inversion,
-				getFEParams()->bandwidth,
-				getFEParams()->code_rate_HP,
-				getFEParams()->code_rate_LP,
-				getFEParams()->modulation,
-				getFEParams()->transmission_mode,
-				getFEParams()->guard_interval,
-				getFEParams()->hierarchy,
-				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
-		}
-		else
-		{
 		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" bw=\"%u\" hp=\"%hu\" lp=\"%hu\" con=\"%u\" tm=\"%u\" gi=\"%u\" hi=\"%u\" pli=\"%u\" sys=\"%hu\">\n",
 				transport_stream_id, original_network_id,
 				getFEParams()->frequency,
@@ -192,7 +175,6 @@ void transponder::dumpServiceXml(FILE * fd)
 				getFEParams()->hierarchy,
 				getFEParams()->plp_id,
 				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
-		}
 	}
 }
 
@@ -233,20 +215,6 @@ void transponder::dump(std::string label)
 				getFEParams()->delsys);
 		}
 	} else if (CFrontend::isTerr(feparams.delsys)) {
-		if (getFEParams()->plp_id == NO_STREAM_ID_FILTER)
-		{
-			printf("%s tp-id %016" PRIx64 " freq %d bw %d coderate_HP %d coderate_LP %d const %d guard %d sys %d\n", label.c_str(),
-				transponder_id,
-				getFEParams()->frequency,
-				getFEParams()->bandwidth,
-				getFEParams()->code_rate_HP,
-				getFEParams()->code_rate_LP,
-				getFEParams()->modulation,
-				getFEParams()->guard_interval,
-				getFEParams()->delsys);
-		}
-		else
-		{
 			printf("%s tp-id %016" PRIx64 " freq %d bw %d coderate_HP %d coderate_LP %d const %d guard %d pli %u sys %d\n", label.c_str(),
 				transponder_id,
 				getFEParams()->frequency,
@@ -257,7 +225,6 @@ void transponder::dump(std::string label)
 				getFEParams()->guard_interval,
 				getFEParams()->plp_id,
 				getFEParams()->delsys);
-		}
 	}
 }
 

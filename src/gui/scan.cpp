@@ -260,8 +260,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.hierarchy		= (fe_hierarchy_t)scansettings.terrestrial_TP_hierarchy;
 			TP.feparams.delsys		= (delivery_system_t)scansettings.terrestrial_TP_delsys;
 			TP.feparams.plp_id = (unsigned int)atoi(scansettings.terrestrial_TP_pli.c_str());
-			if (TP.feparams.plp_id == 0)
-				TP.feparams.plp_id = NO_STREAM_ID_FILTER;
 		} else if (CFrontend::isCable(delsys)) {
 			TP.feparams.frequency	= atoi(scansettings.cable_TP_freq.c_str());
 			TP.feparams.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());

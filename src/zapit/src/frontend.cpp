@@ -1567,6 +1567,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 #elif defined DTV_DVBT2_PLP_ID
 			p[cmdseq.num].cmd = DTV_DVBT2_PLP_ID,	p[cmdseq.num].u.data = feparams->plp_id,						cmdseq.num++;
 #endif
+			INFO("[fe%d/%d] streamid (%d/%d/%d)\n", adapter, fenumber, feparams->plp_id, feparams->pls_code, feparams->pls_mode );
 		}
 		break;
 	default:

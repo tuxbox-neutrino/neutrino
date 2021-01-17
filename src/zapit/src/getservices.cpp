@@ -453,8 +453,6 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			feparams.guard_interval = (fe_guard_interval_t) xmlGetNumericAttribute(node, "gi", 0);
 			feparams.hierarchy = (fe_hierarchy_t) xmlGetNumericAttribute(node, "hi", 0);
 			feparams.plp_id = (unsigned int) xmlGetNumericAttribute(node, "pli", 0);
-			if (feparams.plp_id == 0)
-				feparams.plp_id = NO_STREAM_ID_FILTER;
 
 			if (feparams.frequency < 1000*1000)
 				feparams.frequency = feparams.frequency*1000;
@@ -806,8 +804,6 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 							xmlGetNumericAttribute(tps, "hierarchy", 0);
 			feparams.plp_id = (unsigned int)
 							xmlGetNumericAttribute(tps, "plp_id", 0);
-			if (feparams.plp_id == 0)
-				feparams.plp_id = NO_STREAM_ID_FILTER;
 
 			if (feparams.frequency < 1000*1000)
 				feparams.frequency *= 1000;

@@ -459,8 +459,6 @@ bool CNit::ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, Transpor
 	feparams.delsys			= DVB_T2;
 	feparams.inversion		= INVERSION_AUTO;
 	feparams.plp_id 		= (unsigned int)sd->getPlpId();
-	if (feparams.plp_id == 0)
-		feparams.plp_id = NO_STREAM_ID_FILTER;
 	feparams.code_rate_HP		= CFrontend::getCodeRate(FEC_AUTO, DVB_T2);
 	feparams.code_rate_LP		= CFrontend::getCodeRate(FEC_AUTO, DVB_T2);
 	feparams.modulation		= CFrontend::getConstellation(QAM_AUTO);
