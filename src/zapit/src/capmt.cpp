@@ -294,7 +294,11 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	/* all the modes: RECORD, STREAM, PIP except PLAY now stopping here !! */
 	if (mode && start == false && source != cDemux::GetSource(0)) {
 		INFO("MODE not PLAY:(%d) start=false, src %d getsrc %d", mode, source, cDemux::GetSource(0));
-		cam->sendMessage(NULL, 0, false);
+		/* Possibly beware stopping cam in case of overlapping timers on same channel */
+		if (newmask != oldmask)
+		{
+			cam->sendMessage(NULL, 0, false);
+		}
 		/* clean up channel_map with stopped record/stream/pip services NOT live-tv */
 		it = channel_map.find(channel_id);
 		if(it != channel_map.end() && newmask != 0 && it->second != cam)
