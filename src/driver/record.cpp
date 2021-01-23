@@ -336,12 +336,13 @@ bool CRecordInstance::Stop(bool remove_event)
 	printf("%s: file %s.ts\n", __FUNCTION__, filename);
 	SaveXml();
 	/* Stop do close fd - if started */
+	/* Stop do close fd - if started */
 	record->Stop();
+
+	CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
 	if(!autoshift)
 		CFEManager::getInstance()->unlockFrontend(frontend, true);//FIXME testing
-
-	CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
 	if (autoshift && g_settings.timeshift_delete)
 		CMoviePlayerGui::getInstance().deleteTimeshift();

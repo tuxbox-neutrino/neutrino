@@ -217,12 +217,13 @@ void CStreamInstance::run()
 			Send(r);
 	}
 
+	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
+
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if(frontend)
 		CFEManager::getInstance()->unlockFrontend(frontend);
 	//CZapit::getInstance()->SetRecordMode(false);
 #endif
-	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
 	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
 
