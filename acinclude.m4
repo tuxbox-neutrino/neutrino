@@ -471,8 +471,8 @@ AC_ARG_WITH(boxtype,
 AC_ARG_WITH(boxmodel,
 	AS_HELP_STRING([--with-boxmodel], [valid for generic: generic, raspi])
 AS_HELP_STRING([], [valid for coolstream: hd1, hd2])
-AS_HELP_STRING([], [valid for armbox: hd51, hd60, hd61, bre2ze4k, h7, osmio4k, osmio4kplus, vusolo4k, vuduo4k, vuduo4kse, vuultimo4k, vuuno4k, vuuno4kse, vuzero4k])
-AS_HELP_STRING([], [valid for mipsbox: vuduo]),
+AS_HELP_STRING([], [valid for armbox: hd60, hd61, hd51, bre2ze4k, h7, osmini4k, osmio4k, osmio4kplus, vusolo4k, vuduo4k, vuduo4kse, vuultimo4k, vuuno4k, vuuno4kse, vuzero4k])
+AS_HELP_STRING([], [valid for mipsbox: vuduo, vuduo2]),
 	[case "${withval}" in
 		generic|raspi)
 			if test "$BOXTYPE" = "generic"; then
@@ -500,14 +500,14 @@ AS_HELP_STRING([], [valid for mipsbox: vuduo]),
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 		;;
-		hd51|hd60|hd61|bre2ze4k|h7|osmio4k|osmio4kplus|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k)
+		hd60|hd61|hd51|bre2ze4k|h7|osmini4k|osmio4k|osmio4kplus|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k)
 			if test "$BOXTYPE" = "armbox"; then
 				BOXMODEL="$withval"
 			else
 				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
 			fi
 		;;
-		vuduo)
+		vuduo|vuduo2|gb800se|osnino|osninoplus|osninopro)
 			if test "$BOXTYPE" = "mipsbox"; then
 				BOXMODEL="$withval"
 			else
@@ -538,13 +538,17 @@ AM_CONDITIONAL(BOXMODEL_CST_HD1, test "$BOXMODEL" = "hd1")
 AM_CONDITIONAL(BOXMODEL_CST_HD2, test "$BOXMODEL" = "hd2")
 
 # armbox
-AM_CONDITIONAL(BOXMODEL_HD51, test "$BOXMODEL" = "hd51")
 AM_CONDITIONAL(BOXMODEL_HD60, test "$BOXMODEL" = "hd60")
 AM_CONDITIONAL(BOXMODEL_HD61, test "$BOXMODEL" = "hd61")
+
+AM_CONDITIONAL(BOXMODEL_HD51, test "$BOXMODEL" = "hd51")
 AM_CONDITIONAL(BOXMODEL_BRE2ZE4K, test "$BOXMODEL" = "bre2ze4k")
 AM_CONDITIONAL(BOXMODEL_H7, test "$BOXMODEL" = "h7")
+
+AM_CONDITIONAL(BOXMODEL_OSMINI4K, test "$BOXMODEL" = "osmini4k")
 AM_CONDITIONAL(BOXMODEL_OSMIO4K, test "$BOXMODEL" = "osmio4k")
 AM_CONDITIONAL(BOXMODEL_OSMIO4KPLUS, test "$BOXMODEL" = "osmio4kplus")
+
 AM_CONDITIONAL(BOXMODEL_VUSOLO4K, test "$BOXMODEL" = "vusolo4k")
 AM_CONDITIONAL(BOXMODEL_VUDUO4K, test "$BOXMODEL" = "vuduo4k")
 AM_CONDITIONAL(BOXMODEL_VUDUO4KSE, test "$BOXMODEL" = "vuduo4kse")
@@ -555,6 +559,13 @@ AM_CONDITIONAL(BOXMODEL_VUZERO4K, test "$BOXMODEL" = "vuzero4k")
 
 # mipsbox
 AM_CONDITIONAL(BOXMODEL_VUDUO, test "$BOXMODEL" = "vuduo")
+AM_CONDITIONAL(BOXMODEL_VUDUO2, test "$BOXMODEL" = "vuduo2")
+
+AM_CONDITIONAL(BOXMODEL_GB800SE, test "$BOXMODEL" = "gb800se")
+
+AM_CONDITIONAL(BOXMODEL_OSNINO, test "$BOXMODEL" = "osnino")
+AM_CONDITIONAL(BOXMODEL_OSNINOPLUS, test "$BOXMODEL" = "osninoplus")
+AM_CONDITIONAL(BOXMODEL_OSNINOPRO, test "$BOXMODEL" = "osninopro")
 
 if test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
@@ -580,29 +591,38 @@ case "$BOXTYPE" in
 esac
 AM_CONDITIONAL(HAVE_LIBSTB_HAL, test "$libstb_hal" = "yes")
 
-# TODO: do we need more defines?
+# generic
 if test "$BOXMODEL" = "generic"; then
 	AC_DEFINE(BOXMODEL_GENERIC, 1, [generic pc])
 elif test "$BOXMODEL" = "raspi"; then
 	AC_DEFINE(BOXMODEL_RASPI, 1, [raspberry pi])
+
+# coolstream
 elif test "$BOXMODEL" = "hd1"; then
 	AC_DEFINE(BOXMODEL_CST_HD1, 1, [coolstream hd1/neo/neo2/zee])
 elif test "$BOXMODEL" = "hd2"; then
 	AC_DEFINE(BOXMODEL_CST_HD2, 1, [coolstream tank/trinity/trinity v2/trinity duo/zee2/link])
-elif test "$BOXMODEL" = "hd51"; then
-	AC_DEFINE(BOXMODEL_HD51, 1, [hd51])
+
+# armbox
 elif test "$BOXMODEL" = "hd60"; then
 	AC_DEFINE(BOXMODEL_HD60, 1, [hd60])
 elif test "$BOXMODEL" = "hd61"; then
 	AC_DEFINE(BOXMODEL_HD61, 1, [hd61])
+
+elif test "$BOXMODEL" = "hd51"; then
+	AC_DEFINE(BOXMODEL_HD51, 1, [hd51])
 elif test "$BOXMODEL" = "bre2ze4k"; then
 	AC_DEFINE(BOXMODEL_BRE2ZE4K, 1, [bre2ze4k])
 elif test "$BOXMODEL" = "h7"; then
 	AC_DEFINE(BOXMODEL_H7, 1, [h7])
+
+elif test "$BOXMODEL" = "osmini4k"; then
+        AC_DEFINE(BOXMODEL_OSMINI4K, 1, [osmini4k])
 elif test "$BOXMODEL" = "osmio4k"; then
         AC_DEFINE(BOXMODEL_OSMIO4K, 1, [osmio4k])
 elif test "$BOXMODEL" = "osmio4kplus"; then
         AC_DEFINE(BOXMODEL_OSMIO4KPLUS, 1, [osmio4kplus])
+
 elif test "$BOXMODEL" = "vusolo4k"; then
 	AC_DEFINE(BOXMODEL_VUSOLO4K, 1, [vusolo4k])
 elif test "$BOXMODEL" = "vuduo4k"; then
@@ -617,13 +637,27 @@ elif test "$BOXMODEL" = "vuuno4kse"; then
 	AC_DEFINE(BOXMODEL_VUUNO4KSE, 1, [vuuno4kse])
 elif test "$BOXMODEL" = "vuzero4k"; then
 	AC_DEFINE(BOXMODEL_VUZERO4K, 1, [vuzero4k])
+
+# mipsbox
 elif test "$BOXMODEL" = "vuduo"; then
 	AC_DEFINE(BOXMODEL_VUDUO, 1, [vuduo])
+elif test "$BOXMODEL" = "vuduo2"; then
+	AC_DEFINE(BOXMODEL_VUDUO2, 1, [vuduo2])
+
+elif test "$BOXMODEL" = "gb800se"; then
+	AC_DEFINE(BOXMODEL_GB800SE, 1, [gb800se])
+
+elif test "$BOXMODEL" = "osnino"; then
+	AC_DEFINE(BOXMODEL_OSNINO, 1, [osnino])
+elif test "$BOXMODEL" = "osninoplus"; then
+	AC_DEFINE(BOXMODEL_OSNINOPLUS, 1, [osninoplus])
+elif test "$BOXMODEL" = "osninopro"; then
+	AC_DEFINE(BOXMODEL_OSNINOPRO, 1, [osninopro])
 fi
 
 # all vuplus BOXMODELs
 case "$BOXMODEL" in
-	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo)
+	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo|vuduo2)
 		AC_DEFINE(BOXMODEL_VUPLUS_ALL, 1, [vuplus_all])
 		vuplus_all=true
 	;;
@@ -647,7 +681,7 @@ AM_CONDITIONAL(BOXMODEL_VUPLUS_ARM, test "$vuplus_arm" = "true")
 
 # all vuplus mips BOXMODELs
 case "$BOXMODEL" in
-	vuduo)
+	vuduo|vuduo2)
 		AC_DEFINE(BOXMODEL_VUPLUS_MIPS, 1, [vuplus_mips])
 		vuplus_mips=true
 	;;
@@ -671,7 +705,7 @@ AM_CONDITIONAL(BOXMODEL_HISILICON, test "$hisilicon" = "true")
 
 # BOXMODELs that allows to change osd resolution
 case "$BOXMODEL" in
-	hd2|hd51|hd60|hd61|bre2ze4k|h7|osmio4k|osmio4kplus|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo)
+	hd2|hd60|hd61|hd51|bre2ze4k|h7|osmini4k|osmio4k|osmio4kplus|vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|vuzero4k|vuduo|vuduo2|gb800se|osnino|osninoplus|osninopro)
 		AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
 	;;
 esac
