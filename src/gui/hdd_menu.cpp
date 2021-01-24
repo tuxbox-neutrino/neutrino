@@ -53,6 +53,7 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/progresswindow.h>
+#include <gui/widget/keyboard_input.h>
 
 #include <system/helpers.h>
 #include <system/settings.h>
@@ -64,6 +65,8 @@
 
 #define MDEV_MOUNT	"/lib/mdev/fs/mount"
 #define MOUNT_BASE	"/media/"
+
+#define MKFS_LABEL_DEFAULT "records"
 
 #define HDD_NOISE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
@@ -87,13 +90,13 @@ const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 };
 
 devtool_s CHDDMenuHandler::devtools[] = {
-	{ "ext4",  "fsck.ext4",  "-C 1 -f -y", "mkfs.ext4",  "-m 0", false, false },
-	{ "ext3",  "fsck.ext3",  "-C 1 -f -y", "mkfs.ext3",  "-m 0", false, false },
-	{ "ext2",  "fsck.ext2",  "-C 1 -f -y", "mkfs.ext2",  "-m 0", false, false },
-	{ "f2fs",  "fsck.f2fs",  "",           "mkfs.f2fs",  "-f",  false, false },
-	{ "vfat",  "fsck.vfat",  "-a",         "mkfs.vfat",  "",    false, false },
-	{ "exfat", "fsck.exfat", "",           "mkfs.exfat", "",    false, false },
-	{ "xfs",   "xfs_repair", "",           "mkfs.xfs",   "-f",  false, false },
+	{ "ext4",  "fsck.ext4",  "-C 1 -f -y", "mkfs.ext4",  "-m 0", "-L", false, false },
+	{ "ext3",  "fsck.ext3",  "-C 1 -f -y", "mkfs.ext3",  "-m 0", "-L", false, false },
+	{ "ext2",  "fsck.ext2",  "-C 1 -f -y", "mkfs.ext2",  "-m 0", "-L", false, false },
+	{ "f2fs",  "fsck.f2fs",  "",           "mkfs.f2fs",  "-f",   "-l", false, false },
+	{ "vfat",  "fsck.vfat",  "-a",         "mkfs.vfat",  "",     "-n", false, false },
+	{ "exfat", "fsck.exfat", "",           "mkfs.exfat", "",     "-n", false, false },
+	{ "xfs",   "xfs_repair", "",           "mkfs.xfs",   "-f",   "-L", false, false },
 };
 #define FS_MAX (sizeof(CHDDMenuHandler::devtools)/sizeof(devtool_s))
 
@@ -108,6 +111,7 @@ CHDDMenuHandler::CHDDMenuHandler()
 	show_menu = false;
 	in_menu = false;
 	lock_refresh = false;
+	mkfs_label = MKFS_LABEL_DEFAULT;
 }
 
 CHDDMenuHandler::~CHDDMenuHandler()
@@ -644,6 +648,13 @@ int CHDDMenuHandler::showDeviceMenu(std::string dev)
 	mc->setHint("", LOCALE_MENU_HINT_HDD_FMT);
 	hddmenu->addItem(mc);
 
+	char hint2[1024];
+	snprintf(hint2, sizeof(hint2)-1, g_Locale->getText(LOCALE_HDD_LABEL_HINT2), MKFS_LABEL_DEFAULT);
+	CKeyboardInput choseLabel((std::string) g_Locale->getText(LOCALE_HDD_LABEL), &mkfs_label, 0, NULL, NULL, (std::string) g_Locale->getText(LOCALE_HDD_LABEL_HINT1), (std::string) hint2);
+	mf = new CMenuForwarder(LOCALE_HDD_LABEL, true, mkfs_label, &choseLabel);
+	mf->setHint("", LOCALE_MENU_HINT_HDD_LABEL);
+	hddmenu->addItem(mf);
+
 	std::string key = "f" + dev;
 	mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", this, key.c_str());
 	mf->setHint("", LOCALE_MENU_HINT_HDD_FORMAT);
@@ -1031,7 +1042,10 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	std::string devpart = dev + part;
 	std::string partname = devname + part;
 
-	std::string mkfscmd = devtool->mkfs + " " + devtool->mkfs_options + " " + partname;
+	std::string mkfscmd = devtool->mkfs + " " + devtool->mkfs_options + " ";
+	if (!devtool->mkfs_labelswitch.empty() && !mkfs_label.empty())
+		mkfscmd += devtool->mkfs_labelswitch + " \"" + mkfs_label + "\" ";
+	mkfscmd += partname;
 	printf("mkfs cmd: [%s]\n", mkfscmd.c_str());
 
 	res = ShowMsg(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo );
@@ -1215,7 +1229,8 @@ _remount:
 	if (!res) {
 		res = mount_dev(devpart);
 
-		if(res) {
+		if (res && mkfs_label == MKFS_LABEL_DEFAULT)
+		{
 			std::string dst = MOUNT_BASE + devpart;
 			snprintf(cmd, sizeof(cmd), "%s/movies", dst.c_str());
 			safe_mkdir(cmd);

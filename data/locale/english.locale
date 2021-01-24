@@ -936,14 +936,31 @@ hdd_30min 30 min.
 hdd_5min 5 min.
 hdd_60min 60 min.
 hdd_activate Apply settings
+hdd_allow_set_recdir Allow recordings immediately
 hdd_check Check filesystem
 hdd_check_failed Filesystem-check failed!
 hdd_extended_settings Extended settings
 hdd_fast Fast
 hdd_format Format device
 hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
+hdd_format_on_mount_failed Format device when mount failed
 hdd_format_warn All data on device will be lost! Continue with formatting?
 hdd_fs Filesystem used to format
+hdd_label Device label
+hdd_label_hint1 Enter device label and press save
+hdd_label_hint2 Only with "%s" (recording medium) the necessary folders will be written to device
+hdd_info_capacity Capacity
+hdd_info_firmware Firmware
+hdd_info_head HDD Info
+hdd_info_info Sampled with smartctl
+hdd_info_model Model
+hdd_info_model_family Model family
+hdd_info_rotation_rate Rotation rate
+hdd_info_sata_version SATA-version
+hdd_info_sector_size Sector size
+hdd_info_serial Serial
+hdd_info_temperature Temperature
+hdd_info_unknown unknown
 hdd_manage Manage device
 hdd_middle Mid
 hdd_mount Mount
@@ -951,7 +968,8 @@ hdd_mount_failed Failed to mount.
 hdd_mount_ok Device ready to use.
 hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
-hdd_not_found No HDD found
+hdd_not_found No device found
+hdd_power Internal HDD-power
 hdd_set_recdir Use device for recording ?
 hdd_settings Data storage
 hdd_sleep Switch off after
@@ -962,6 +980,9 @@ hdd_statfs_recording while recording only
 hdd_umount Unmount
 hdd_umount_warn Unmount device
 hdd_umounted Device removed
+hdd_wakeup Internal wakeup function
+hdd_wakeup_msg Wakeup function with message
+hdd_wakeup_start Wakeup starting
 help_box_title Help
 imageinfo.api API:
 imageinfo.creator Creator:
@@ -1300,14 +1321,21 @@ menu.hint_foot_back Change GUI footer background color
 menu.hint_foot_textcolor Change GUI window footer text color
 menu.hint_games Show list of installed games
 menu.hint_hdd Format and check data storage
+menu.hint_hdd_allow_set_recdir Allow to set new connected devices as a record medium
 menu.hint_hdd_apply Apply sleep/noise parameters
 menu.hint_hdd_check Check filesystem (fsck)
 menu.hint_hdd_fmt Select the data storage format
 menu.hint_hdd_format Create HDD partition and format it
+menu.hint_hdd_format_on_mount_failed Format HDD device when mount failed?
+menu.hint_hdd_info Device information about capacity, temperature etc.
+menu.hint_hdd_label Enter device label
 menu.hint_hdd_noise Set Automatic Acoustic Management\nnot all drives support this
+menu.hint_hdd_power Activate internal HDD power for Coolstream HD1 boxes
 menu.hint_hdd_sleep Select time to stop hdd on inactivity
 menu.hint_hdd_statfs Specify when the recording directory fill level in infoviewer and, if available, on VFD, may be updated
 menu.hint_hdd_tools Initialize HDD, check filesystem
+menu.hint_hdd_wakeup Turns the internal wakeup functions for connected drives on or off
+menu.hint_hdd_wakeup_msg Turns the messages while starting the wakeup function on or off
 menu.hint_head_back Change GUI title background color
 menu.hint_head_textcolor Change GUI window title text color
 menu.hint_imageinfo Information about installed software

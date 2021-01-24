@@ -936,22 +936,40 @@ hdd_30min 30 min.
 hdd_5min 5 min.
 hdd_60min 60 min.
 hdd_activate Übernehmen
+hdd_allow_set_recdir Erlaube sofort Aufnahmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Datenträgerprüfung fehlgeschlagen
 hdd_extended_settings Erweiterte Einstellungen
 hdd_fast Schnell
 hdd_format Formatiere Datenträger
 hdd_format_failed Formatierung fehlgeschlagen! Stellen Sie sicher, dass der Datenträger nicht in Verwendung ist und versuchen Sie es erneut.
+hdd_format_on_mount_failed Formatieren bei Einhänge-Fehler
 hdd_format_warn Alle Daten auf dem Datenträger werden gelöscht! Formatierung starten?
 hdd_fs Dateisystem zum formatieren
-hdd_manage Laufwerke verwalten
+hdd_label Datenträger-Bezeichnung
+hdd_label_hint1 Datenträger-Bezeichnung eingeben und mit Speichern übernehmen
+hdd_label_hint2 Nur bei "%s" (Aufnahme-Medium) werden die nötigen Verzeichnisse auf den Datenträger geschrieben
+hdd_info_capacity Kapazität
+hdd_info_firmware Firmware
+hdd_info_head HDD Info
+hdd_info_info Ausgelesen mit smartctl
+hdd_info_model Modell
+hdd_info_model_family Modellreihe
+hdd_info_rotation_rate Rotationsrate
+hdd_info_sata_version SATA-Version
+hdd_info_sector_size Sektorengröße
+hdd_info_serial Seriennummer
+hdd_info_temperature Temperatur
+hdd_info_unknown unbekannt
+hdd_manage Datenträger verwalten
 hdd_middle Mittel
 hdd_mount Mount
-hdd_mount_failed Fehler! Bitte Datenträgereinstellungen überprüfen?
+hdd_mount_failed Fehler! Bitte Datenträgereinstellungen überprüfen.
 hdd_mount_ok Datenträger bereit
 hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Kein Datenträger
+hdd_power Interne HDD-Stromversorgung
 hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Datenträger
 hdd_sleep Ausschalten nach
@@ -962,6 +980,9 @@ hdd_statfs_recording nur während Aufnahme
 hdd_umount Aushängen
 hdd_umount_warn Datenträger aushängen
 hdd_umounted Gerät entfernt
+hdd_wakeup Interne Aufweckfunktion
+hdd_wakeup_msg Aufweckfunktion mit Nachricht
+hdd_wakeup_start Aufweckfunktion wird gestartet
 help_box_title Hilfe
 imageinfo.api API:
 imageinfo.creator Ersteller:
@@ -1300,14 +1321,21 @@ menu.hint_foot_back Ändern Sie die Fußleisten-Hintergrundfarbe
 menu.hint_foot_textcolor Ändern Sie die Fußleisten-Textfarbe
 menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Datenträger
+menu.hint_hdd_allow_set_recdir Erlaubt das sofortige Einstellen des neuen Datenträgers als Aufnahmemedium
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
 menu.hint_hdd_check Überprüft das Dateisystem und führt gegebenfalls eine Reparatur durch (fsck)
 menu.hint_hdd_fmt Wählen Sie das Datenträgerformat aus
 menu.hint_hdd_format Erstellt eine Partition auf dem Datenträger und formatiert diese
-menu.hint_hdd_noise Setzen Sie Parameter für das Automatic Acoustic Management.\nNicht alle Laufwerke unterstützen diese Funktion
+menu.hint_hdd_format_on_mount_failed Soll der Datenträger formatiert werden, wenn das Einhängen fehlschlägt?
+menu.hint_hdd_info Datenträger-Informationen über Kapazität, Temperatur usw.
+menu.hint_hdd_label Geben Sie die Datenträger-Bezeichnung ein
+menu.hint_hdd_noise Setzen Sie Parameter für das Automatic Acoustic Management.\nNicht alle Datenträger unterstützen diese Funktion
+menu.hint_hdd_power Interne HDD-Stromversorgung für die Coolstream HD1 Boxen aktivieren.
 menu.hint_hdd_sleep Dieser Wert definiert, nach wieviel Minuten die Festplatte bei Inaktivität in den Sleep-Modus geschaltet wird
 menu.hint_hdd_statfs Legen Sie fest, wann die Aufnahmeverzeichnis-Füllstandsanzeige im InfoViewer (und ggf. am VFD-Display) aktualisiert werden darf
 menu.hint_hdd_tools Formatieren Sie die gefundenen Datenträger bzw. überprüfen Sie deren Dateisystem
+menu.hint_hdd_wakeup Schaltet die internen Aufweckfunktionen für Festplatten ein oder aus
+menu.hint_hdd_wakeup_msg Schaltet die Benachrichtigung über den Start der Aufweckfunktion ein oder aus
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software
