@@ -91,18 +91,13 @@ int tv_pip_y;
 
 //#define TV169FULLSTARTX (sx+ 8*40) //(sx +(ex +1 - sx)/2)
 #define TV169FULLSTARTX (screen_x + screen_w / 2)
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+//#define TV169FULLSTARTY sy
 #define TV169FULLSTARTY (screen_h / 4)
-#else
-#define TV169FULLSTARTY sy
-#endif
 //#define TV169FULLWIDTH  (ex - sx)/2
 #define TV169FULLWIDTH  (screen_w / 2)
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+//#define TV169FULLHEIGHT (ey - sy)
 #define TV169FULLHEIGHT (screen_h / 2)
-#else
-#define TV169FULLHEIGHT (ey - sy)
-#endif
+
 #define TOPMENUSTARTX (TV43STARTX+2)
 //#define TOPMENUENDX TVENDX
 #define TOPMENUSTARTY StartY
