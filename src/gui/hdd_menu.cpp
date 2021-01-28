@@ -644,7 +644,7 @@ int CHDDMenuHandler::showDeviceMenu(std::string dev)
 	if (found)
 		hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE));
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, fsoptions, opcount, mkfs_enabled);
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, fsoptions, opcount, mkfs_enabled, NULL, RC_NOKEY, NULL, true);
 	mc->setHint("", LOCALE_MENU_HINT_HDD_FMT);
 	hddmenu->addItem(mc);
 
