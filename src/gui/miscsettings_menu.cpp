@@ -40,11 +40,10 @@
 #include <gui/weather_norway_locations.h>
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
+
 #include <gui/keybind_setup.h>
-#ifdef ENABLE_LCD4LINUX
-#include <gui/lcd4l_setup.h>
-#endif
 #include <gui/plugins.h>
+
 #include <gui/sleeptimer.h>
 #include <gui/zapit_setup.h>
 
@@ -330,13 +329,6 @@ int CMiscMenue::showMiscSettingsMenu()
 	mf->setHint("", LOCALE_MENU_HINT_MISC_ZAPIT);
 	misc_menue.addItem(mf);
 
-#ifdef ENABLE_LCD4LINUX
-	// LCD4Linux Setup
-	CLCD4lSetup lcd4lSetup;
-	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, !find_executable("lcd4linux").empty(), NULL, &lcd4lSetup, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mf->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SUPPORT);
-	misc_menue.addItem(mf);
-#endif
 
 	// onlineservices
 	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ONLINESERVICES, true, NULL, this, "onlineservices", CRCInput::convertDigitToKey(shortcut++));

@@ -33,10 +33,6 @@
 #include <config.h>
 #endif
 
-#ifdef ENABLE_GRAPHLCD
-#include <gui/glcdsetup.h>
-#endif
-
 #include "vfd_setup.h"
 
 #include <global.h>
@@ -46,9 +42,16 @@
 
 #include <gui/widget/icons.h>
 
+#ifdef ENABLE_GRAPHLCD
+#include <gui/glcdsetup.h>
+#endif
+
+#ifdef ENABLE_LCD4LINUX
+#include "gui/lcd4l_setup.h"
+#endif
+
 #include <driver/display.h>
 #include <driver/screen_max.h>
-#include <driver/display.h>
 
 #include <system/debug.h>
 #include <system/helpers.h>
@@ -205,10 +208,16 @@ int CVfdSetup::showSetup()
 		vfds->addItem(led_num);
 	}
 
+#ifdef ENABLE_LCD4LINUX
+	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, !find_executable("lcd4linux").empty(), NULL, CLCD4lSetup::getInstance(), NULL, CRCInput::RC_blue);
+	mf->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SUPPORT);
+	vfds->addItem(mf);
+#endif
+
 	CMenuItem* glcd_setup = NULL;
 #ifdef ENABLE_GRAPHLCD
 	GLCD_Menu glcdMenu;
-	glcd_setup = new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL, CRCInput::RC_blue);
+	glcd_setup = new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL);
 	vfds->addItem(glcd_setup);
 #endif
 
