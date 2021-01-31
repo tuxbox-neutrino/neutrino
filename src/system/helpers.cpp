@@ -467,6 +467,16 @@ bool exec_controlscript(std::string script)
 	return ret;
 }
 
+bool exec_initscript(std::string script, std::string command)
+{
+	dprintf(DEBUG_NORMAL, "executing service %s %s\n", script.c_str(), command.c_str());
+	int ret = my_system(3, "service", script.c_str(), command.c_str());
+	if (ret)
+		dprintf(DEBUG_NORMAL, "exec init script [%s] failed\n", script.c_str());
+
+	return ret;
+}
+
 std::string backtick(std::string command)
 {
 	char *buf = NULL;
