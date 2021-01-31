@@ -810,6 +810,9 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		}
 		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
+#endif
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_CHANNELLIST_ENABLESDT))

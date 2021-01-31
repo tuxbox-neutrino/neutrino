@@ -100,6 +100,13 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_
 	{ VIDEO_HDMI_CEC_MODE_TUNER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_TUNER    },
 	{ VIDEO_HDMI_CEC_MODE_RECORDER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_RECORDER }
 };
+#define VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT 3
+const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_VOL_OPTIONS[VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT] =
+{
+	{ VIDEO_HDMI_CEC_VOL_OFF		, LOCALE_VIDEOMENU_HDMI_CEC_VOL_OFF },
+	{ VIDEO_HDMI_CEC_VOL_AUDIOSYSTEM, LOCALE_VIDEOMENU_HDMI_CEC_VOL_AUDIOSYSTEM },
+	{ VIDEO_HDMI_CEC_VOL_TV			, LOCALE_VIDEOMENU_HDMI_CEC_VOL_TV }
+};
 #endif
 
 int CCECSetup::showMenu()
@@ -123,7 +130,7 @@ int CCECSetup::showMenu()
 	cec2 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_STANDBY, &g_settings.hdmi_cec_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
 	cec2->setHint("", LOCALE_MENU_HINT_CEC_STANDBY);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	cec3 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VOLUME, &g_settings.hdmi_cec_volume, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
+	cec3 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VOLUME, &g_settings.hdmi_cec_volume, VIDEOMENU_HDMI_CEC_VOL_OPTIONS, VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
 	cec3->setHint("", LOCALE_MENU_HINT_CEC_VOLUME);
 #endif
 #endif
@@ -176,6 +183,9 @@ void CCECSetup::setCECSettings()
 	printf("[neutrino CEC Settings] %s init CEC settings...\n", __FUNCTION__);
 	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
+#endif
 	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 }
 #endif
@@ -211,6 +221,13 @@ bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON))
 	{
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VOLUME))
+	{
+		if (g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF)
+		{
+			videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
+		}
 	}
 #endif
 

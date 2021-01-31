@@ -2812,7 +2812,10 @@ videomenu.hdmi_cec_mode_recorder as Sat/Cable PVR
 videomenu.hdmi_cec_mode_tuner as Sat/Cable STB
 videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_view_on Enable CEC View on
-videomenu.hdmi_cec_volume Activate CEC volume control
+videomenu.hdmi_cec_volume CEC volume control
+videomenu.hdmi_cec_vol_audiosystem Audiosystem
+videomenu.hdmi_cec_vol_off off
+videomenu.hdmi_cec_vol_tv TV
 videomenu.hue Hue
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan
