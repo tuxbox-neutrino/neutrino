@@ -341,6 +341,17 @@ bool CFlashTool::getInfo()
 	return true;
 }
 
+
+void CFlashTool::stopDaemons()
+{
+#ifdef ENABLE_LCD4LINUX
+	if (g_settings.lcd4l_support)
+		LCD4l->StopLCD4l();
+#endif
+
+	CNeutrinoApp::getInstance()->stopDaemonsForFlash();
+}
+
 bool CFlashTool::erase(int globalProgressEnd)
 {
 	erase_info_t lerase;

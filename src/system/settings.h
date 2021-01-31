@@ -931,6 +931,7 @@ struct SNeutrinoSettings
 	int glcd_scroll_speed;
 	int glcd_selected_config;
 #endif
+
 #ifdef ENABLE_LCD4LINUX
 	// lcd4linux
 	int lcd4l_support;
@@ -942,6 +943,7 @@ struct SNeutrinoSettings
 	int lcd4l_skin_radio;
 	int lcd4l_convert;
 #endif
+
 	// lcdd
 	enum LCD_SETTINGS {
 		LCD_BRIGHTNESS         = 0,

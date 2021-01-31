@@ -114,7 +114,7 @@ class CAudioPlayerGui : public CMenuTarget
 		bool		m_streamripper_available;
 		bool		m_streamripper_active;
 
-#if ENABLE_GRAPHLCD
+#ifdef ENABLE_GRAPHLCD
 		struct tm *tm_struct;
 		int		glcd_position;
 		std::string	glcd_channel;

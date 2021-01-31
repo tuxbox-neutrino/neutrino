@@ -72,7 +72,6 @@
 #include <hardware/video.h>
 
 #ifdef ENABLE_LCD4LINUX
-// lcd4l-support
 #include "driver/lcd4l.h"
 extern CLCD4l *LCD4l;
 #endif
