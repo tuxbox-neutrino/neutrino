@@ -945,32 +945,34 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 	switch (audioChannelType) {
 		case CZapitAudioChannel::AC3:
 			audioStr = "AC3";
-			audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
 			break;
 		case CZapitAudioChannel::MPEG:
 			audioStr = "MPEG2";
-			audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
 			break;
 		case CZapitAudioChannel::AAC:
 			audioStr = "AAC";
-			audioDecoder->SetStreamType(AUDIO_FMT_AAC);
 			break;
 		case CZapitAudioChannel::AACPLUS:
-			audioStr = "AAC-PLUS";
-			audioDecoder->SetStreamType(AUDIO_FMT_AAC_PLUS);
+			audioStr = "AAC-HE";
 			break;
 		case CZapitAudioChannel::DTS:
 			audioStr = "DTS";
-			audioDecoder->SetStreamType(AUDIO_FMT_DTS);
+			break;
+		case CZapitAudioChannel::DTSHD:
+			audioStr = "DTSHD";
 			break;
 		case CZapitAudioChannel::EAC3:
-			audioStr = "DD-PLUS";
-			audioDecoder->SetStreamType(AUDIO_FMT_DD_PLUS);
+			audioStr = "EAC3";
+			break;
+		case CZapitAudioChannel::LPCM:
+			audioStr = "LPCM";
 			break;
 		default:
 			printf("[zapit] unknown audio channel type 0x%x\n", audioChannelType);
 			break;
 	}
+
+	audioDecoder->SetStreamType(audioChannelType);
 
 	/* FIXME: bigger percent for AC3 only, what about AAC etc ? */
 	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3 || audioChannelType == CZapitAudioChannel::EAC3);

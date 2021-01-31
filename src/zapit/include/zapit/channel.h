@@ -100,12 +100,14 @@ class CZapitAudioChannel
 		unsigned char		componentTag;
 
 	enum ZapitAudioChannelType {
-		MPEG,
-		AC3,
-		AAC,
-		AACPLUS, //?
-		DTS,
-		EAC3,
+		MPEG = 1,
+		AC3 = 0,
+		AAC = 8,
+		AACPLUS = 9,
+		DTS = 2,
+		LPCM = 6,
+		DTSHD = 0x10,
+		EAC3 = 0x22,
 		UNKNOWN
 	};
 	ZapitAudioChannelType audioChannelType;

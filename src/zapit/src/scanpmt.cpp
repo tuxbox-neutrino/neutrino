@@ -144,13 +144,16 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 			{
 				RegistrationDescriptor *sd = (RegistrationDescriptor*) d;
 				switch (sd->getFormatIdentifier()) {
-				case 0x44545331:
-				case 0x44545332:
-				case 0x44545333:
+				case DRF_ID_DTS1:
+				case DRF_ID_DTS2:
+				case DRF_ID_DTS3:
 					audio_type = CZapitAudioChannel::DTS;
 					break;
-				case 0x41432d33:
+				case DRF_ID_AC3:
 					audio_type = CZapitAudioChannel::AC3;
+					break;
+				case DRF_ID_EAC3:
+					audio_type = CZapitAudioChannel::EAC3;
 					break;
 				default:
 #ifdef DEBUG_PMT
@@ -263,48 +266,64 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 		}
 	}
 	switch (stream_type) {
-	case 0x01: // MPEG1 Video
-	case 0x02: // MPEG2 Video (H262)
+	case STREAM_TYPE_VIDEO_MPEG1:
+	case STREAM_TYPE_VIDEO_MPEG2:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_MPEG2;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x10: // AVC Video Stream (MPEG4 H263)
-	case 0x1b: // AVC Video Stream (MPEG4 H264)
+	case STREAM_TYPE_VIDEO_MPEG4:
+	case STREAM_TYPE_VIDEO_H264:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_MPEG4;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x24: // HEVC Video Stream (MPEG4 H265)
-	case 0x27: // SHVC Video Stream (MPEG4 H265 TS)
+	case STREAM_TYPE_VIDEO_HEVC:
+	case STREAM_TYPE_VIDEO_SHVC:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_HEVC;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x42: // CAVS Video Stream (China)
+	case STREAM_TYPE_VIDEO_CAVS:
 		channel->setVideoPid(esinfo->getPid());
 		channel->type = CHANNEL_CAVS;
 		DBG("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
-	case 0x03: // MPEG1 Audio
-	case 0x04: // MPEG2 Audio
+	case STREAM_TYPE_AUDIO_MPEG1:
+	case STREAM_TYPE_AUDIO_MPEG2:
 		audio_type = CZapitAudioChannel::MPEG;
 		audio = true;
 		break;
-	case 0x06: // MPEG2 Subtitiles
+	case STREAM_TYPE_PRIVATE_DATA: // MPEG2 Subtitles
 		if(audio_type != CZapitAudioChannel::UNKNOWN)
 			audio = true;
 		break;
-	case 0x0F: // AAC ADTS (MPEG2)
+	case STREAM_TYPE_AUDIO_AAC:
 		audio_type = CZapitAudioChannel::AAC;
 		audio = true;
 		break;
-	case 0x11: // AAC LATM (MPEG4)
+	case STREAM_TYPE_AUDIO_AAC_LATM:
 		audio_type = CZapitAudioChannel::AACPLUS;
 		audio = true;
 		break;
-	case 0x81: // Dolby Digital
+	case STREAM_TYPE_AUDIO_AC3:
 		audio_type = CZapitAudioChannel::AC3;
+		audio = true;
+		break;
+	case STREAM_TYPE_AUDIO_DTS:
+		audio_type = CZapitAudioChannel::DTS;
+		audio = true;
+		break;
+	case STREAM_TYPE_AUDIO_DTSHD:
+		audio_type = CZapitAudioChannel::DTSHD;
+		audio = true;
+		break;
+	case STREAM_TYPE_AUDIO_LPCM:
+		audio_type = CZapitAudioChannel::LPCM;
+		audio = true;
+		break;
+	case STREAM_TYPE_AUDIO_EAC3:
+		audio_type = CZapitAudioChannel::EAC3;
 		audio = true;
 		break;
 	default:
