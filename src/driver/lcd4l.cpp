@@ -193,6 +193,8 @@ void CLCD4l::StartLCD4l()
 		pthread_detach(thrLCD4l);
 		lcd4linux(true);
 	}
+	if (g_settings.lcd4l_support)
+		exec_initscript("lcd4linux", "start");
 }
 
 void CLCD4l::StopLCD4l()
@@ -204,6 +206,7 @@ void CLCD4l::StopLCD4l()
 		thrLCD4l = 0;
 		lcd4linux(false);
 	}
+	exec_initscript("lcd4linux", "stop");
 }
 
 void CLCD4l::SwitchLCD4l()
