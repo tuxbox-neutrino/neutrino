@@ -443,13 +443,21 @@ void CRecordInstance::GetPids(CZapitChannel * channel)
 		CZapitClient::responseGetAPIDs response;
 		response.pid = channel->getAudioPid(i);
 		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN - 1);
-		response.is_ac3 = response.is_aac = response.is_eac3 = 0;
+		response.is_ac3 = response.is_aac = response.is_aache = response.is_eac3 = response.is_dts = response.is_dtshd = response.is_lpcm = 0;
 		if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
 		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
 			response.is_aac = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
+			response.is_aache = 1;
 		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
 			response.is_eac3 = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::DTS) {
+			response.is_dts = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::DTSHD) {
+			response.is_dtshd = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::LPCM) {
+			response.is_lpcm = 1;
 		}
 		response.component_tag = channel->getAudioChannel(i)->componentTag;
 		allpids.APIDs.push_back(response);
@@ -495,8 +503,16 @@ void CRecordInstance::ProcessAPIDnames()
 								tmp_desc2 += " (AC3)";
 							else if (allpids.APIDs[j].is_aac && tmp_desc2.find(" (AAC)"))
 								tmp_desc2 += " (AAC)";
+							else if (allpids.APIDs[j].is_aache && tmp_desc2.find(" (AACP)"))
+								tmp_desc2 += " (AACP)";
 							else if (allpids.APIDs[j].is_eac3 && tmp_desc2.find(" (EAC3)"))
 								tmp_desc2 += " (EAC3)";
+							else if (allpids.APIDs[j].is_dts && tmp_desc2.find(" (DTS)"))
+								tmp_desc2 += " (DTS)";
+							else if (allpids.APIDs[j].is_dtshd && tmp_desc2.find(" (DTSHD)"))
+								tmp_desc2 += " (DTSHD)";
+							else if (allpids.APIDs[j].is_lpcm && tmp_desc2.find(" (LPCM)"))
+								tmp_desc2 += " (LPCM)";
 
 							if(!tmp_desc2.empty()){
 								strncpy(allpids.APIDs[j].desc, tmp_desc2.c_str(), DESC_MAX_LEN -1);

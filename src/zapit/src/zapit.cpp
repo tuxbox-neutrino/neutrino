@@ -2084,13 +2084,21 @@ void CZapit::sendAPIDs(int connfd)
 		VALGRIND_PARANOIA(response);
 		response.pid = current_channel->getAudioPid(i);
 		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN-1);
-		response.is_ac3 = response.is_aac = response.is_eac3 = 0;
+		response.is_ac3 = response.is_aac = response.is_aache = response.is_eac3 = response.is_dts = response.is_dtshd = response.is_lpcm = 0;
 		if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
 		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
 			response.is_aac = 1;
+		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
+			response.is_aache = 1;
 		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
 			response.is_eac3 = 1;
+		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::DTS) {
+			response.is_dts = 1;
+		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::DTSHD) {
+			response.is_dtshd = 1;
+		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::LPCM) {
+			response.is_lpcm = 1;
 		}
 		response.component_tag = current_channel->getAudioChannel(i)->componentTag;
 
