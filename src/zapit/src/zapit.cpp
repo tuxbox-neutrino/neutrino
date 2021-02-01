@@ -942,6 +942,40 @@ void CZapit::SetVolumePercent(int default_ac3, int default_pcm)
 void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioChannelType)
 {
 	const char *audioStr = "UNKNOWN";
+
+#if HAVE_CST_HARDWARE
+	//TODO: align libcoolstream audioDecoder->SetStreamType()
+
+	switch (audioChannelType) {
+		case CZapitAudioChannel::AC3:
+			audioStr = "AC3";
+			audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
+			break;
+		case CZapitAudioChannel::MPEG:
+			audioStr = "MPEG2";
+			audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+			break;
+		case CZapitAudioChannel::AAC:
+			audioStr = "AAC";
+			audioDecoder->SetStreamType(AUDIO_FMT_AAC);
+			break;
+		case CZapitAudioChannel::AACPLUS:
+			audioStr = "AAC-HE";
+			audioDecoder->SetStreamType(AUDIO_FMT_AAC_PLUS);
+			break;
+		case CZapitAudioChannel::DTS:
+			audioStr = "DTS";
+			audioDecoder->SetStreamType(AUDIO_FMT_DTS);
+			break;
+		case CZapitAudioChannel::EAC3:
+			audioStr = "EAC3";
+			audioDecoder->SetStreamType(AUDIO_FMT_DD_PLUS);
+			break;
+		default:
+			printf("[zapit] unknown audio channel type 0x%x\n", audioChannelType);
+			break;
+	}
+#else
 	switch (audioChannelType) {
 		case CZapitAudioChannel::AC3:
 			audioStr = "AC3";
@@ -973,6 +1007,7 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 	}
 
 	audioDecoder->SetStreamType(audioChannelType);
+#endif
 
 	/* FIXME: bigger percent for AC3 only, what about AAC etc ? */
 	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3 || audioChannelType == CZapitAudioChannel::EAC3);
