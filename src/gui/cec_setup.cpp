@@ -100,6 +100,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_
 	{ VIDEO_HDMI_CEC_MODE_TUNER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_TUNER    },
 	{ VIDEO_HDMI_CEC_MODE_RECORDER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_RECORDER }
 };
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #define VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT 3
 const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_VOL_OPTIONS[VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT] =
 {
@@ -107,6 +108,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_VOL_OPTIONS[VIDEOMENU_HDMI_C
 	{ VIDEO_HDMI_CEC_VOL_AUDIOSYSTEM, LOCALE_VIDEOMENU_HDMI_CEC_VOL_AUDIOSYSTEM },
 	{ VIDEO_HDMI_CEC_VOL_TV			, LOCALE_VIDEOMENU_HDMI_CEC_VOL_TV }
 };
+#endif
 #endif
 
 int CCECSetup::showMenu()
@@ -224,10 +226,12 @@ bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VOLUME))
 	{
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		if (g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF)
 		{
 			videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
 		}
+#endif
 	}
 #endif
 
