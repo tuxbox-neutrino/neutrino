@@ -235,9 +235,15 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.delsys = (delivery_system_t)scansettings.sat_TP_delsys;
 			TP.feparams.modulation = (fe_modulation_t) scansettings.sat_TP_mod;
 			TP.feparams.pilot = (zapit_pilot_t) scansettings.sat_TP_pilot;
-			TP.feparams.plp_id = atoi(scansettings.sat_TP_pli.c_str());
-			TP.feparams.pls_code = atoi(scansettings.sat_TP_plc.c_str());
+			TP.feparams.plp_id = (unsigned int)atoi(scansettings.sat_TP_pli.c_str());
+			if (TP.feparams.plp_id == 0)
+				TP.feparams.plp_id = NO_STREAM_ID_FILTER;
+			TP.feparams.pls_code = (uint32_t)atoi(scansettings.sat_TP_plc.c_str());
+			if (TP.feparams.pls_code == 0)
+				TP.feparams.pls_code = PLS_Default_Gold_Code;
 			TP.feparams.pls_mode = (fe_pls_mode_t) scansettings.sat_TP_plm;
+			if (TP.feparams.pls_mode == 0)
+				TP.feparams.pls_mode = PLS_Gold;
 		} else if (CFrontend::isTerr(delsys)) {
 			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
 			TP.feparams.frequency = atoi(scansettings.terrestrial_TP_freq.c_str());
@@ -253,7 +259,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.guard_interval	= (fe_guard_interval_t)scansettings.terrestrial_TP_guard;
 			TP.feparams.hierarchy		= (fe_hierarchy_t)scansettings.terrestrial_TP_hierarchy;
 			TP.feparams.delsys		= (delivery_system_t)scansettings.terrestrial_TP_delsys;
-			TP.feparams.plp_id = atoi(scansettings.terrestrial_TP_pli.c_str());
+			TP.feparams.plp_id = (unsigned int)atoi(scansettings.terrestrial_TP_pli.c_str());
+			if (TP.feparams.plp_id == 0)
+				TP.feparams.plp_id = NO_STREAM_ID_FILTER;
 		} else if (CFrontend::isCable(delsys)) {
 			TP.feparams.frequency	= atoi(scansettings.cable_TP_freq.c_str());
 			TP.feparams.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());
@@ -442,7 +450,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				if (CFrontend::isSat(feparams->delsys))
 				{
 					CFrontend::getDelSys(feparams->delsys, feparams->fec_inner, feparams->modulation,  f, s, m);
-					snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s (%d/%d/%s) ", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m, feparams->plp_id, feparams->pls_code, transponder::getPLSMode(feparams->pls_mode).c_str());
+					if (feparams->plp_id == NO_STREAM_ID_FILTER)
+						snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s ", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m);
+					else
+						snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s (%u/%s/%s) ", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m, feparams->plp_id, transponder::getPLSCode(feparams->pls_code).c_str(), transponder::getPLSMode(feparams->pls_mode).c_str());
 				}
 				else if (CFrontend::isCable(feparams->delsys))
 				{
@@ -453,7 +464,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				{
 					CFrontend::getDelSys(feparams->delsys, feparams->code_rate_HP, feparams->modulation, f, s, m);
 					CFrontend::getDelSys(feparams->delsys, feparams->code_rate_LP, feparams->modulation, f2, s, m);
-					snprintf(buffer,sizeof(buffer), "%u %d %s %s %s %d ", freq, CFrontend::getFEBandwidth(feparams->bandwidth)/1000, f, f2, m, feparams->plp_id);
+					if (feparams->plp_id == NO_STREAM_ID_FILTER)
+						snprintf(buffer,sizeof(buffer), "%u %d %s %s %s ", freq, CFrontend::getFEBandwidth(feparams->bandwidth)/1000, f, f2, m);
+					else
+						snprintf(buffer,sizeof(buffer), "%u %d %s %s %s %u ", freq, CFrontend::getFEBandwidth(feparams->bandwidth)/1000, f, f2, m, feparams->plp_id);					
 				}
 				paintLine(xpos2, ypos_frequency, w - (7*fw), buffer);
 			}

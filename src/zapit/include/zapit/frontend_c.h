@@ -159,8 +159,6 @@ class CFrontend
 		//uint32_t numDeliverySystems;
 		t_channel_id		channel_id;
 
-		bool				buildProperties(const FrontendParameters*, struct dtv_properties &, bool can_multistream);
-
 		FrontendParameters		getFrontend(void) const;
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
 		void				secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms);

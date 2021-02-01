@@ -333,9 +333,9 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	memset(&feparams, 0, sizeof(feparams));
 	feparams.polarization = sd->getPolarization();
 	feparams.pilot = ZPILOT_AUTO;
-	feparams.plp_id = 0;
-	feparams.pls_code = 1;
-	feparams.pls_mode = PLS_Root;
+	feparams.plp_id = NO_STREAM_ID_FILTER;
+	feparams.pls_code = PLS_Default_Gold_Code;
+	feparams.pls_mode = PLS_Gold;
 
 	switch (modulation_system) {
 	case 0: // DVB-S
@@ -458,7 +458,9 @@ bool CNit::ParseTerrestrial2Descriptor(T2DeliverySystemDescriptor * sd, Transpor
 
 	feparams.delsys			= DVB_T2;
 	feparams.inversion		= INVERSION_AUTO;
-	feparams.plp_id 		= sd->getPlpId();
+	feparams.plp_id 		= (unsigned int)sd->getPlpId();
+	if (feparams.plp_id == 0)
+		feparams.plp_id = NO_STREAM_ID_FILTER;
 	feparams.code_rate_HP		= CFrontend::getCodeRate(FEC_AUTO, DVB_T2);
 	feparams.code_rate_LP		= CFrontend::getCodeRate(FEC_AUTO, DVB_T2);
 	feparams.modulation		= CFrontend::getConstellation(QAM_AUTO);

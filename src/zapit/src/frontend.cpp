@@ -54,122 +54,7 @@ extern int zapit_debug;
 #define WEST	1
 #define USALS
 
-#define CLEAR		0
-// Common properties
-#define FREQUENCY	1
-#define MODULATION	2
-#define INVERSION	3
-// common to S/S2/C
-#define SYMBOL_RATE	4
-#define DELIVERY_SYSTEM 5
-#define INNER_FEC	6
-// DVB-S/S2 specific
-#define PILOTS		7
-#define ROLLOFF		8
-// DVB-S2X specific
-#define MIS		9
-// DVB-T specific
-#define BANDWIDTH	4
-#define CODE_RATE_HP	6
-#define CODE_RATE_LP	7
-#define TRANSMISSION_MODE 8
-#define GUARD_INTERVAL	9
-#define HIERARCHY	10
-// DVB-T2 specific
-#define PLP_ID 11
-
-#define FE_COMMON_PROPS	2
-#define FE_DVBS_PROPS	6
-#define FE_DVBS2_PROPS	8
-#define FE_DVBS2X_PROPS	9
-#define FE_DVBC_PROPS	6
-#define FE_DVBT_PROPS 10
-#define FE_DVBT2_PROPS 11
-
-/* stolen from dvb.c from vlc */
-static const struct dtv_property dvbs_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
-	{ DTV_MODULATION,	{}     , { QPSK			}, 0 },
-	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
-	{ DTV_SYMBOL_RATE,	{}     , { 27500000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBS		}, 0 },
-	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_TUNE,		{}     , { 0			}, 0 }
-};
-
-static const struct dtv_property dvbs2_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
-	{ DTV_MODULATION,	{}     , { PSK_8		}, 0 },
-	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
-	{ DTV_SYMBOL_RATE,	{}     , { 27500000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBS2		}, 0 },
-	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_PILOT,		{}     , { PILOT_AUTO		}, 0 },
-	{ DTV_ROLLOFF,		{}     , { ROLLOFF_AUTO		}, 0 },
-	{ DTV_TUNE,		{}     , { 0			}, 0 }
-};
-
-static const struct dtv_property dvbs2x_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
-	{ DTV_MODULATION,	{}     , { PSK_8		}, 0 },
-	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
-	{ DTV_SYMBOL_RATE,	{}     , { 27500000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBS2		}, 0 },
-	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_PILOT,		{}     , { PILOT_AUTO		}, 0 },
-	{ DTV_ROLLOFF,		{}     , { ROLLOFF_AUTO		}, 0 },
-	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },
-	{ DTV_TUNE,		{}     , { 0			}, 0 }
-};
-
-static const struct dtv_property dvbc_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
-	{ DTV_MODULATION,	{}     , { QAM_AUTO		}, 0 },
-	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
-	{ DTV_SYMBOL_RATE,	{}     , { 27500000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBC_ANNEX_AC	}, 0 },
-	{ DTV_INNER_FEC,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_TUNE,		{}     , { 0			}, 0 }
-};
-
-static const struct dtv_property dvbt_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
-	{ DTV_MODULATION,	{}     , { QAM_AUTO		}, 0 },
-	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
-	{ DTV_BANDWIDTH_HZ,	{}     , { 8000000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBT		}, 0 },
-	{ DTV_CODE_RATE_HP,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_CODE_RATE_LP,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_TRANSMISSION_MODE,{}     , { TRANSMISSION_MODE_AUTO }, 0 },
-	{ DTV_GUARD_INTERVAL,	{}     , { GUARD_INTERVAL_AUTO	}, 0 },
-	{ DTV_HIERARCHY,	{}     , { HIERARCHY_AUTO	}, 0 },
-	{ DTV_TUNE,		{}     , { 0			}, 0 }
-};
-
-static const struct dtv_property dvbt2_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			}, 0 },
-	{ DTV_FREQUENCY,	{}     , { 0			}, 0 },
-	{ DTV_MODULATION,	{}     , { QAM_AUTO		}, 0 },
-	{ DTV_INVERSION,	{}     , { INVERSION_AUTO	}, 0 },
-	{ DTV_BANDWIDTH_HZ,	{}     , { 8000000		}, 0 },
-	{ DTV_DELIVERY_SYSTEM,	{}     , { SYS_DVBT2		}, 0 },
-	{ DTV_CODE_RATE_HP,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_CODE_RATE_LP,	{}     , { FEC_AUTO		}, 0 },
-	{ DTV_TRANSMISSION_MODE,{}     , { TRANSMISSION_MODE_AUTO }, 0 },
-	{ DTV_GUARD_INTERVAL,	{}     , { GUARD_INTERVAL_AUTO	}, 0 },
-	{ DTV_HIERARCHY,	{}     , { HIERARCHY_AUTO	}, 0 },
-#if defined DTV_STREAM_ID
-	{ DTV_STREAM_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },
-#elif defined DTV_DVBT2_PLP_ID
-	{ DTV_DVBT2_PLP_ID,	{}     , { NO_STREAM_ID_FILTER	}, 0 },
-#endif
-	{ DTV_TUNE,		{}     , { 0			}, 0 }
-};
+#define FE_MAX_PROPS 18
 
 #define diff(x,y)	(max(x,y) - min(x,y))
 
@@ -1310,10 +1195,8 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 		delsys = SYS_DVBS;
 		break;
 	case DVB_S2:
-		delsys = SYS_DVBS2;
-		break;
 	case DVB_S2X:
-		delsys = SYS_DVBS2X;
+		delsys = SYS_DVBS2;
 		break;
 	case DVB_T:
 		delsys = SYS_DVBT;
@@ -1449,10 +1332,22 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	return bandwidth_hz;
 }
 
-bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_properties& cmdseq, bool can_multistream)
+int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
+	tuned = false;
+
+	struct dvb_frontend_event ev;
+	{
+		// Erase previous events
+		while (1) {
+			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
+				break;
+			//printf("[fe%d/%d] DEMOD: event status %d\n", adapter, fenumber, ev.status);
+		}
+	}
+
 	fe_pilot_t pilot = PILOT_OFF;
-	int fec;
+	int fec = FEC_AUTO;
 	fe_code_rate_t fec_inner = feparams->fec_inner;
 
 	/* cast to int is ncesessary because many of the FEC_S2 values are not
@@ -1464,7 +1359,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		break;
 	case FEC_2_3:
 		fec = FEC_2_3;
-		if ((feparams->delsys == DVB_S2 || feparams->delsys == DVB_S2X) && feparams->modulation == PSK_8)
+		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
 #if BOXMODEL_VUPLUS_ARM
 			pilot = PILOT_AUTO;
 #else
@@ -1473,7 +1368,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		break;
 	case FEC_3_4:
 		fec = FEC_3_4;
-		if ((feparams->delsys == DVB_S2 || feparams->delsys == DVB_S2X) && feparams->modulation == PSK_8)
+		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
 #if BOXMODEL_VUPLUS_ARM
 			pilot = PILOT_AUTO;
 #else
@@ -1485,7 +1380,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		break;
 	case FEC_5_6:
 		fec = FEC_5_6;
-		if ((feparams->delsys == DVB_S2 || feparams->delsys == DVB_S2X) && feparams->modulation == PSK_8)
+		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
 #if BOXMODEL_VUPLUS_ARM
 			pilot = PILOT_AUTO;
 #else
@@ -1503,7 +1398,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		break;
 	case FEC_3_5:
 		fec = FEC_3_5;
-		if ((feparams->delsys == DVB_S2 || feparams->delsys == DVB_S2X) && feparams->modulation == PSK_8)
+		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
 #if BOXMODEL_VUPLUS_ARM
 			pilot = PILOT_AUTO;
 #else
@@ -1577,159 +1472,114 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		break;
 	default:
 		INFO("[fe%d/%d] DEMOD: unknown FEC: %d\n", adapter, fenumber, fec_inner);
-		/* fall through */
+	/* fall through */
 	case FEC_AUTO:
 		fec = FEC_AUTO;
 		break;
 	}
 	switch(feparams->pilot)
 	{
-		case ZPILOT_ON:
-			pilot = PILOT_ON;
-			break;
-		case ZPILOT_OFF:
-			pilot = PILOT_OFF;
-			break;
-		case ZPILOT_AUTO:
-		default:
-			pilot = PILOT_AUTO;
-			break;
+	case ZPILOT_ON:
+		pilot = PILOT_ON;
+		break;
+	case ZPILOT_OFF:
+		pilot = PILOT_OFF;
+		break;
+	case ZPILOT_AUTO:
+	default:
+		pilot = PILOT_AUTO;
+		break;
 	}
 
-	int nrOfProps	= 0;
+	struct dtv_property p[FE_MAX_PROPS];
+	memset(p, 0, sizeof(p));
+	struct dtv_properties cmdseq;
+	cmdseq.props = p;
+	cmdseq.num   = 0;
+	p[cmdseq.num].cmd = DTV_CLEAR; cmdseq.num++;
 
 	switch (feparams->delsys)
 	{
 	case DVB_S:
 	case DVB_S2:
 	case DVB_S2X:
-		if (feparams->delsys == DVB_S2 || feparams->delsys == DVB_S2X)
-		{
-			if (can_multistream)
-			{
-				nrOfProps			= FE_DVBS2X_PROPS;
-				memcpy(cmdseq.props, dvbs2x_cmdargs, sizeof(dvbs2x_cmdargs));
-				cmdseq.props[MIS].u.data	= feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26);
-			}
-			else
-			{
-				nrOfProps			= FE_DVBS2_PROPS;
-				memcpy(cmdseq.props, dvbs2_cmdargs, sizeof(dvbs2_cmdargs));
-			}
-			cmdseq.props[MODULATION].u.data	= feparams->modulation;
-			cmdseq.props[ROLLOFF].u.data		= feparams->rolloff;
-			cmdseq.props[PILOTS].u.data		= pilot;
-		}
+		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM,	p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys),	cmdseq.num++;
+		if (config.diseqcType == DISEQC_UNICABLE)
+			p[cmdseq.num].cmd = DTV_FREQUENCY,
+			p[cmdseq.num].u.data = sendEN50494TuningCommand(feparams->frequency, currentToneMode == SEC_TONE_ON,
+											currentVoltage == SEC_VOLTAGE_18, !!config.uni_lnb),					cmdseq.num++;
+
+		else if (config.diseqcType == DISEQC_UNICABLE2)
+			p[cmdseq.num].cmd = DTV_FREQUENCY,
+			p[cmdseq.num].u.data = sendEN50607TuningCommand(feparams->frequency, currentToneMode == SEC_TONE_ON,
+											currentVoltage == SEC_VOLTAGE_18, config.uni_lnb),						cmdseq.num++;
 		else
+			p[cmdseq.num].cmd = DTV_FREQUENCY,		p[cmdseq.num].u.data = feparams->frequency,						cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_MODULATION,			p[cmdseq.num].u.data = feparams->modulation,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_SYMBOL_RATE,		p[cmdseq.num].u.data = feparams->symbol_rate,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_INNER_FEC,			p[cmdseq.num].u.data = fec,										cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_INVERSION,			p[cmdseq.num].u.data = feparams->inversion,						cmdseq.num++;
+		if (getFEDeliverySystem(feparams->delsys) == SYS_DVBS2)
 		{
-			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
-			nrOfProps			= FE_DVBS_PROPS;
+			p[cmdseq.num].cmd = DTV_ROLLOFF,		p[cmdseq.num].u.data = feparams->rolloff,						cmdseq.num++;
+			p[cmdseq.num].cmd = DTV_PILOT,			p[cmdseq.num].u.data = pilot,									cmdseq.num++;
+			if (fe_can_multistream)
+			{
+#if (DVB_API_VERSION >= 5 && DVB_API_VERSION_MINOR >= 11)
+				p[cmdseq.num].cmd = DTV_STREAM_ID, p[cmdseq.num].u.data = feparams->plp_id,							cmdseq.num++;
+				p[cmdseq.num].cmd = DTV_SCRAMBLING_SEQUENCE_INDEX, p[cmdseq.num].u.data = feparams->pls_code,		cmdseq.num++;
+#else
+				p[cmdseq.num].cmd = DTV_STREAM_ID, p[cmdseq.num].u.data = feparams->plp_id | (feparams->pls_code << 8) | (feparams->pls_mode << 26), cmdseq.num++;
+#endif
+			}
+			p[cmdseq.num].cmd = DTV_ISDBT_SB_SEGMENT_IDX, p[cmdseq.num].u.data = (feparams->plp_id == NO_STREAM_ID_FILTER ? 0 : (0x80000000 | (T2MI_Default_Pid << 16) | feparams->plp_id)), cmdseq.num++;
 		}
-		cmdseq.props[FREQUENCY].u.data		= feparams->frequency;
-		cmdseq.props[SYMBOL_RATE].u.data	= feparams->symbol_rate;
-		cmdseq.props[INNER_FEC].u.data		= fec; /*_inner*/ ;
-		if (can_multistream)
+		if (fe_can_multistream)
 			INFO("[fe%d/%d] tuner pilot %d (feparams %d) streamid (%d/%d/%d)\n", adapter, fenumber, pilot, feparams->pilot, feparams->plp_id, feparams->pls_code, feparams->pls_mode );
 		else
 			INFO("[fe%d/%d] tuner pilot %d (feparams %d)\n", adapter, fenumber, pilot, feparams->pilot);
 		break;
 	case DVB_C:
-		memcpy(cmdseq.props, dvbc_cmdargs, sizeof(dvbc_cmdargs));
-		nrOfProps				= FE_DVBC_PROPS;
-		cmdseq.props[FREQUENCY].u.data		= feparams->frequency;
-		cmdseq.props[MODULATION].u.data	= feparams->modulation;
-		cmdseq.props[SYMBOL_RATE].u.data	= feparams->symbol_rate;
-		cmdseq.props[INNER_FEC].u.data		= fec_inner;
+		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM,	p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys),	cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_FREQUENCY,			p[cmdseq.num].u.data = feparams->frequency,						cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_MODULATION,			p[cmdseq.num].u.data = feparams->modulation,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_SYMBOL_RATE,		p[cmdseq.num].u.data = feparams->symbol_rate,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_INNER_FEC,			p[cmdseq.num].u.data = feparams->fec_inner,						cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_INVERSION,			p[cmdseq.num].u.data = feparams->inversion,						cmdseq.num++;
 		break;
 	case DVB_T:
-	case DTMB:
-		memcpy(cmdseq.props, dvbt_cmdargs, sizeof(dvbt_cmdargs));
-		nrOfProps				= FE_DVBT_PROPS;
-		cmdseq.props[FREQUENCY].u.data		= feparams->frequency;
-		cmdseq.props[MODULATION].u.data	= feparams->modulation;
-		cmdseq.props[INVERSION].u.data		= feparams->inversion;
-		cmdseq.props[CODE_RATE_HP].u.data	= feparams->code_rate_HP;
-		cmdseq.props[CODE_RATE_LP].u.data	= feparams->code_rate_LP;
-		cmdseq.props[TRANSMISSION_MODE].u.data	= feparams->transmission_mode;
-		cmdseq.props[GUARD_INTERVAL].u.data	= feparams->guard_interval;
-		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
-		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
-		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
-		break;
 	case DVB_T2:
-		memcpy(cmdseq.props, dvbt2_cmdargs, sizeof(dvbt2_cmdargs));
-		nrOfProps				= FE_DVBT2_PROPS;
-		cmdseq.props[FREQUENCY].u.data		= feparams->frequency;
-		cmdseq.props[MODULATION].u.data	= feparams->modulation;
-		cmdseq.props[INVERSION].u.data		= feparams->inversion;
-		cmdseq.props[CODE_RATE_HP].u.data	= feparams->code_rate_HP;
-		cmdseq.props[CODE_RATE_LP].u.data	= feparams->code_rate_LP;
-		cmdseq.props[TRANSMISSION_MODE].u.data	= feparams->transmission_mode;
-		cmdseq.props[GUARD_INTERVAL].u.data	= feparams->guard_interval;
-		cmdseq.props[HIERARCHY].u.data		= feparams->hierarchy;
-		cmdseq.props[DELIVERY_SYSTEM].u.data	= getFEDeliverySystem(feparams->delsys);
-		cmdseq.props[BANDWIDTH].u.data		= getFEBandwidth(feparams->bandwidth);
-		cmdseq.props[PLP_ID].u.data		= feparams->plp_id;
+	case DTMB:
+		p[cmdseq.num].cmd = DTV_DELIVERY_SYSTEM,	p[cmdseq.num].u.data = getFEDeliverySystem(feparams->delsys),	cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_FREQUENCY,			p[cmdseq.num].u.data = feparams->frequency,						cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_CODE_RATE_LP,		p[cmdseq.num].u.data = feparams->code_rate_LP,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_CODE_RATE_HP,		p[cmdseq.num].u.data = feparams->code_rate_HP,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_MODULATION,			p[cmdseq.num].u.data = feparams->modulation,					cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_TRANSMISSION_MODE,	p[cmdseq.num].u.data = feparams->transmission_mode,				cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_GUARD_INTERVAL,		p[cmdseq.num].u.data = feparams->guard_interval,				cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_HIERARCHY,			p[cmdseq.num].u.data = feparams->hierarchy,						cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_BANDWIDTH_HZ,		p[cmdseq.num].u.data = getFEBandwidth(feparams->bandwidth),		cmdseq.num++;
+		p[cmdseq.num].cmd = DTV_INVERSION,			p[cmdseq.num].u.data = feparams->inversion,						cmdseq.num++;
+		if (getFEDeliverySystem(feparams->delsys) == SYS_DVBT2)
+		{
+#if defined DTV_STREAM_ID
+			p[cmdseq.num].cmd = DTV_STREAM_ID,		p[cmdseq.num].u.data = feparams->plp_id,						cmdseq.num++;
+#elif defined DTV_DVBT2_PLP_ID
+			p[cmdseq.num].cmd = DTV_DVBT2_PLP_ID,	p[cmdseq.num].u.data = feparams->plp_id,						cmdseq.num++;
+#endif
+		}
 		break;
 	default:
 		INFO("[fe%d/%d] unknown frontend type, exiting\n", adapter, fenumber);
-		return false;
-	}
-
-
-	if (config.diseqcType == DISEQC_UNICABLE)
-		cmdseq.props[FREQUENCY].u.data = sendEN50494TuningCommand(feparams->frequency,
-							currentToneMode == SEC_TONE_ON,
-							currentVoltage == SEC_VOLTAGE_18,
-							!!config.uni_lnb);
-
-	if (config.diseqcType == DISEQC_UNICABLE2)
-		cmdseq.props[FREQUENCY].u.data = sendEN50607TuningCommand(feparams->frequency,
-							currentToneMode == SEC_TONE_ON,
-							currentVoltage == SEC_VOLTAGE_18,
-							config.uni_lnb);
-
-	cmdseq.num += nrOfProps;
-
-	return true;
-}
-
-int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
-{
-	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBT2_PROPS]; // WARNING: increase when needed more space
-	struct dtv_properties cmdseq;
-#ifdef PEDANTIC_VALGRIND_SETUP
-	memset(&cmdargs, 0, sizeof(cmdargs));
-	memset(&cmdseq, 0, sizeof(cmdseq));
-#endif
-
-	cmdseq.num	= FE_COMMON_PROPS;
-	cmdseq.props	= cmdargs;
-
-	tuned = false;
-
-	struct dvb_frontend_event ev;
-	{
-		// Erase previous events
-		while (1) {
-			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
-				break;
-			//printf("[fe%d/%d] DEMOD: event status %d\n", adapter, fenumber, ev.status);
-		}
-	}
-
-	if (!buildProperties(feparams, cmdseq, fe_can_multistream))
 		return 0;
-
-	{
-		//FE_TIMER_INIT();
-		//FE_TIMER_START();
-		if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
-			ERROR("FE_SET_PROPERTY");
-			return false;
-		}
-		//FE_TIMER_STOP("FE_SET_PROPERTY took");
 	}
+	p[cmdseq.num].cmd = DTV_TUNE, cmdseq.num++;
+
+	if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
+		ERROR("FE_SET_PROPERTY");
+		return 0;
+	}
+
 	if (nowait)
 		return 0;
 	{

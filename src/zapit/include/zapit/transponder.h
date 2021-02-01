@@ -49,6 +49,7 @@ public:
 	static char pol(unsigned char pol);
 	std::string description(void);
 	static std::string getPLSMode(const uint8_t pls_mode);
+	static std::string getPLSCode(const uint32_t pls_code);
 
 	delivery_system_t getDelSys(void) { return feparams.delsys; }
 	t_transport_stream_id getTransportStreamId(void) { return transport_stream_id; }

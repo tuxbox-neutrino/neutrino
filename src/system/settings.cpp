@@ -149,7 +149,7 @@ bool CScanSettings::loadSettings(const char * const fileName)
 	sat_TP_delsys = configfile.getInt32("sat_TP_delsys", DVB_S);
 	sat_TP_pilot = configfile.getInt32("sat_TP_pilot", ZPILOT_AUTO);
 	sat_TP_pli  = configfile.getString("sat_TP_pli", "0");
-	sat_TP_plc  = configfile.getString("sat_TP_plc", "1");
+	sat_TP_plc  = configfile.getString("sat_TP_plc", "0");
 	sat_TP_plm  = configfile.getInt32("sat_TP_plm", 0);
 
 	cableName     = configfile.getString("cableName", cableName);
@@ -210,9 +210,18 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("sat_TP_delsys", sat_TP_delsys);
 	configfile.setInt32("sat_TP_mod", sat_TP_mod);
 	configfile.setInt32("sat_TP_pilot", sat_TP_pilot);
-	configfile.setString("sat_TP_pli", sat_TP_pli);
-	configfile.setString("sat_TP_plc", sat_TP_plc);
-	configfile.setInt32("sat_TP_plm", sat_TP_plm);
+	if (atoi(sat_TP_pli.c_str()) == 0)
+	{
+		configfile.setString("sat_TP_pli", "0");
+		configfile.setString("sat_TP_plc", "0");
+		configfile.setInt32("sat_TP_plm", 0);
+	}
+	else
+	{
+		configfile.setString("sat_TP_pli", sat_TP_pli);
+		configfile.setString("sat_TP_plc", sat_TP_plc);
+		configfile.setInt32("sat_TP_plm", sat_TP_plm);
+	}
 
 	configfile.setString("cableName", cableName);
 	configfile.setInt32("cable_TP_fec", cable_TP_fec);
@@ -231,7 +240,10 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("terrestrial_TP_guard", terrestrial_TP_guard);
 	configfile.setInt32("terrestrial_TP_transmit_mode", terrestrial_TP_transmit_mode);
 	configfile.setInt32("terrestrial_TP_delsys", terrestrial_TP_delsys);
-	configfile.setString("terrestrial_TP_pli", terrestrial_TP_pli);
+	if (atoi(terrestrial_TP_pli.c_str()) == 0)
+		configfile.setString("terrestrial_TP_pli", "0");
+	else
+		configfile.setString("terrestrial_TP_pli", terrestrial_TP_pli);
 
 	if(configfile.getModifiedFlag())
 		configfile.saveConfig(fileName);
