@@ -1523,6 +1523,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		{
 			p[cmdseq.num].cmd = DTV_ROLLOFF,		p[cmdseq.num].u.data = feparams->rolloff,						cmdseq.num++;
 			p[cmdseq.num].cmd = DTV_PILOT,			p[cmdseq.num].u.data = pilot,									cmdseq.num++;
+#if !HAVE_CST_HARDWARE
 			if (fe_can_multistream)
 			{
 #if (DVB_API_VERSION >= 5 && DVB_API_VERSION_MINOR >= 11)
@@ -1533,6 +1534,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 #endif
 			}
 			p[cmdseq.num].cmd = DTV_ISDBT_SB_SEGMENT_IDX, p[cmdseq.num].u.data = (feparams->plp_id == NO_STREAM_ID_FILTER ? 0 : (0x80000000 | (T2MI_Default_Pid << 16) | feparams->plp_id)), cmdseq.num++;
+#endif
 		}
 		if (fe_can_multistream)
 			INFO("[fe%d/%d] tuner pilot %d (feparams %d) streamid (%d/%d/%d)\n", adapter, fenumber, pilot, feparams->pilot, feparams->plp_id, feparams->pls_code, feparams->pls_mode );
