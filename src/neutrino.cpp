@@ -1173,10 +1173,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		}
 	}
 
-	if(configfile.getUnknownKeyQueryedFlag() && (erg==0)) {
-		erg = 2;
-	}
-
 #ifdef BOXMODEL_CST_HD2
 	g_settings.brightness = configfile.getInt32("brightness", 0);
 	g_settings.contrast = configfile.getInt32("contrast", 0);
@@ -1204,11 +1200,18 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.version_pseudo = configfile.getString("version_pseudo", "19700101000000");
 
-	if (g_settings.version_pseudo < NEUTRINO_VERSION_PSEUDO)
-		upgradeSetup(fname);
+	if (!erg)
+	{
+		if (g_settings.version_pseudo < NEUTRINO_VERSION_PSEUDO)
+			upgradeSetup(fname);
 
-	if(erg)
+		if (configfile.getUnknownKeyQueryedFlag())
+			erg = 2;
+	}
+
+	if (erg)
 		configfile.setModifiedFlag(true);
+
 	return erg;
 }
 
