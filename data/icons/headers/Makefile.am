@@ -5,6 +5,7 @@ install_DATA = \
 	bookmarkmanager.png \
 	colors.png \
 	edit.png \
+	edit_find.png \
 	error.png \
 	features.png \
 	games.png \
