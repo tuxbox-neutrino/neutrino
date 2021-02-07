@@ -314,10 +314,15 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 		audio_type = CZapitAudioChannel::DTS;
 		audio = true;
 		break;
+// STREAM_TYPE_AUDIO_DTSHD: SCTE-35[5] digital program insertion cue message
+// or DTS 8 channel lossless audio in a packetized stream
+// disabled until furhther detection
+#if 0
 	case STREAM_TYPE_AUDIO_DTSHD:
 		audio_type = CZapitAudioChannel::DTSHD;
 		audio = true;
 		break;
+#endif
 	case STREAM_TYPE_AUDIO_LPCM:
 		audio_type = CZapitAudioChannel::LPCM;
 		audio = true;
