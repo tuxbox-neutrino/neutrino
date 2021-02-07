@@ -120,6 +120,7 @@ static void set_lua_variables(lua_State *L)
 		{ "sat2",		CRCInput::RC_sat2 },
 		{ "record",		CRCInput::RC_record },
 		{ "play",		CRCInput::RC_play },
+		{ "playpause",		CRCInput::RC_playpause },
 		{ "pause",		CRCInput::RC_pause },
 		{ "forward",		CRCInput::RC_forward },
 		{ "rewind",		CRCInput::RC_rewind },
