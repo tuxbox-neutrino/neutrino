@@ -82,6 +82,16 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	std::string btnGreen      = "";
 	std::string btnYellow     = "";
 	std::string btnBlue       = "";
+	std::string btn0          = "";
+	std::string btn1          = "";
+	std::string btn2          = "";
+	std::string btn3          = "";
+	std::string btn4          = "";
+	std::string btn5          = "";
+	std::string btn6          = "";
+	std::string btn7          = "";
+	std::string btn8          = "";
+	std::string btn9          = "";
 	lua_Integer x = 100, y = 100, dx = 450, dy = 250;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
@@ -106,7 +116,16 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	tableLookup(L, "btnGreen", btnGreen);
 	tableLookup(L, "btnYellow", btnYellow);
 	tableLookup(L, "btnBlue", btnBlue);
-
+	tableLookup(L, "btn0", btn0);
+	tableLookup(L, "btn1", btn1);
+	tableLookup(L, "btn2", btn2);
+	tableLookup(L, "btn3", btn3);
+	tableLookup(L, "btn4", btn4);
+	tableLookup(L, "btn5", btn5);
+	tableLookup(L, "btn6", btn6);
+	tableLookup(L, "btn7", btn7);
+	tableLookup(L, "btn8", btn8);
+	tableLookup(L, "btn9", btn9);
 	color_frame  = checkMagicMask(color_frame);
 	color_body   = checkMagicMask(color_body);
 	color_shadow = checkMagicMask(color_shadow);
@@ -165,6 +184,66 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 				btnSblue.button 	= NEUTRINO_ICON_BUTTON_BLUE;
 				btnSblue.text 		= btnBlue;
 				buttons.push_back(btnSblue);
+			}
+			if (!btn0.empty()) {
+				button_label_cc btnS0;
+				btnS0.button		= NEUTRINO_ICON_BUTTON_0;
+				btnS0.text		= btn0;
+				buttons.push_back(btnS0);
+			}
+			if (!btn1.empty()) {
+				button_label_cc btnS1;
+				btnS1.button		= NEUTRINO_ICON_BUTTON_1;
+				btnS1.text		= btn1;
+				buttons.push_back(btnS1);
+			}
+			if (!btn2.empty()) {
+				button_label_cc btnS2;
+				btnS2.button		= NEUTRINO_ICON_BUTTON_2;
+				btnS2.text		= btn2;
+				buttons.push_back(btnS2);
+			}
+			if (!btn3.empty()) {
+				button_label_cc btnS3;
+				btnS3.button		= NEUTRINO_ICON_BUTTON_3;
+				btnS3.text		= btn3;
+				buttons.push_back(btnS3);
+			}
+			if (!btn4.empty()) {
+				button_label_cc btnS4;
+				btnS4.button		= NEUTRINO_ICON_BUTTON_4;
+				btnS4.text		= btn4;
+				buttons.push_back(btnS4);
+			}
+			if (!btn5.empty()) {
+				button_label_cc btnS5;
+				btnS5.button		= NEUTRINO_ICON_BUTTON_5;
+				btnS5.text		= btn5;
+				buttons.push_back(btnS5);
+			}
+			if (!btn6.empty()) {
+				button_label_cc btnS6;
+				btnS6.button		= NEUTRINO_ICON_BUTTON_6;
+				btnS6.text		= btn6;
+				buttons.push_back(btnS6);
+			}
+			if (!btn7.empty()) {
+				button_label_cc btnS7;
+				btnS7.button		= NEUTRINO_ICON_BUTTON_7;
+				btnS7.text		= btn7;
+				buttons.push_back(btnS7);
+			}
+			if (!btn8.empty()) {
+				button_label_cc btnS8;
+				btnS8.button		= NEUTRINO_ICON_BUTTON_8;
+				btnS8.text		= btn8;
+				buttons.push_back(btnS8);
+			}
+			if (!btn9.empty()) {
+				button_label_cc btnS9;
+				btnS9.button		= NEUTRINO_ICON_BUTTON_9;
+				btnS9.text		= btn9;
+				buttons.push_back(btnS9);
 			}
 			if (!buttons.empty())
 				footer->setButtonLabels(buttons, footer->getWidth(), footer->getWidth() / buttons.size());
