@@ -674,8 +674,9 @@ void CInfoViewerBB::showIcon_Tuner()
 		return;
 	}
 
-	char icon_name[12];
-	snprintf(icon_name, sizeof(icon_name), "%s_%02d", NEUTRINO_ICON_TUNER, CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
+	char icon_name[9];
+	snprintf(icon_name, sizeof(icon_name), "%s_%02u", NEUTRINO_ICON_TUNER, (uint32_t)CFEManager::getInstance()->getLiveFE()->getNumber() + 1);
+	icon_name[8] = '\0'; /* ensure termination... */
 
 	int w = 0, h = 0;
 	if (!checkBBIcon(icon_name, &w, &h))
