@@ -22,7 +22,6 @@
 */
 
 #include <cstring>
-#include <unistd.h>
 #include <system/settings.h>
 
 #include <zapit/settings.h>
@@ -187,10 +186,6 @@ bool CScanSettings::loadSettings(const char * const fileName)
 
 bool CScanSettings::saveSettings(const char * const fileName)
 {
-	// get sure we got initialized variables
-	if (access(fileName, R_OK) != 0)
-		loadSettings(fileName);
-
 	configfile.setInt32("bouquetMode", bouquetMode);
 	configfile.setInt32("scanType", scanType);
 
