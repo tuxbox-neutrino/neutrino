@@ -105,18 +105,22 @@ static void replace_umlauts(std::string &s)
 CLCD::CLCD()
 {
 	/* do not show menu in neutrino...,at Line Display true, because there is th GLCD Menu */
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
+	if (
+		   g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT
+		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM
+		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY
+	)
 	{
 		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
 			has_lcd = true;
 		else
 			has_lcd = false;
-		mode = MODE_TVRADIO;
-		switch_name_time_cnt = 0;
-		timeout_cnt = 0;
 	} else
 		has_lcd = false;
 
+	mode = MODE_TVRADIO;
+	switch_name_time_cnt = 0;
+	timeout_cnt = 0;
 	servicename = "";
 	servicenumber = -1;
 	thread_running = false;
@@ -142,7 +146,11 @@ CLCD* CLCD::getInstance()
 
 void CLCD::wake_up()
 {
-	if (g_info.hw_caps->display_can_set_brightness)
+	if (
+		   g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT
+		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM
+		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY
+	)
 	{
 		if (atoi(g_settings.lcd_setting_dim_time.c_str()) > 0)
 		{
@@ -166,7 +174,10 @@ void* CLCD::TimeThread(void *)
 	while (CLCD::getInstance()->thread_running)
 	{
 		sleep(1);
-		if (g_info.hw_caps->display_can_set_brightness)
+		if (
+			   g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT
+			|| g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM
+		)
 		{
 			struct stat buf;
 			if (stat("/tmp/vfd.locked", &buf) == -1)
@@ -319,7 +330,10 @@ void CLCD::showTime(bool force)
 			ret = ioctl(fd, VFDSETTIME2, &now);
 			close(fd);
 #endif
-			if ((g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT) || (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM))
+			if (
+				   g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT
+				|| g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM
+			)
 			{
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 				if (mode == MODE_STANDBY || (g_settings.lcd_info_line && mode == MODE_TVRADIO))
@@ -608,7 +622,11 @@ void CLCD::setPower(int)
 
 int CLCD::getPower()
 {
-	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT || g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY)
+	if (
+		   g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT
+		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM
+		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY
+	)
 		return g_settings.lcd_setting[SNeutrinoSettings::LCD_POWER];
 	else
 		return 0;
