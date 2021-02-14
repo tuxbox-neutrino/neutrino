@@ -1112,8 +1112,8 @@ lcd4l_support_off off
 lcd4l_support_on on
 lcd4l_weather Weather in standby mode
 lcd_info_line Show in infoline
-lcd_info_line_channel Channelname
-lcd_info_line_channel_no Channelnumber
+lcd_info_line_channelname Channelname
+lcd_info_line_channelnumber Channelnumber
 lcd_info_line_clock Clock
 lcdcontroler.brightness Normal mode
 lcdcontroler.brightnessdeepstandby Deep-standby
