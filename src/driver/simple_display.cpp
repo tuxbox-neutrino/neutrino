@@ -105,17 +105,9 @@ static void replace_umlauts(std::string &s)
 CLCD::CLCD()
 {
 	/* do not show menu in neutrino...,at Line Display true, because there is th GLCD Menu */
-	if (
-		   g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT
-		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM
-		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY
-	)
-	{
-		if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
-			has_lcd = true;
-		else
-			has_lcd = false;
-	} else
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LINE_TEXT)
+		has_lcd = true;
+	else
 		has_lcd = false;
 
 	mode = MODE_TVRADIO;
