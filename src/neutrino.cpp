@@ -472,11 +472,21 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		sprintf(cfg_key, "enabled_video_mode_%d", i);
 		g_settings.enabled_video_modes[i] = configfile.getInt32(cfg_key, 0);
 	}
-#if VIDEOMENU_VIDEOMODE_OPTION_COUNT > 3
-	g_settings.enabled_video_modes[5] = 1; // 720p 50Hz
-	g_settings.enabled_video_modes[6] = 1; // 720p 60Hz
-	g_settings.enabled_video_modes[7] = 1; // 1080i 50Hz
+
+	if (erg)
+	{
+		/*
+		   enable some defaults for g_settings.key_switchformat
+		*/
+		g_settings.enabled_video_modes[5] = 1; // VIDEO_STD_720P50
+		g_settings.enabled_video_modes[7] = 1; // VIDEO_STD_1080I50
+#if HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2)
+		g_settings.enabled_video_modes[10] = 1; // VIDEO_STD_1080P24
+#elif HAVE_ARM_HARDWARE
+		g_settings.enabled_video_modes[13] = 1; // VIDEO_STD_1080P50
+		g_settings.enabled_video_modes[18] = 1; // VIDEO_STD_2160P50
 #endif
+	}
 
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
 		sprintf(cfg_key, "enabled_auto_mode_%d", i);
