@@ -148,7 +148,11 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 			break;
 		case EN_TYPE_AUDIO:
 			apid[nba]=pid;
+#if HAVE_CST_HARDWARE
+			atypes[nba]=isAC3;
+#else
 			atypes[nba]=!isAC3;
+#endif
 			if(data != NULL){
 				apid_lang[nba][0] = data[0];
 				apid_lang[nba][1] = data[1];
