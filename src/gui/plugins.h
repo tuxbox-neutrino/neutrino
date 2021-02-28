@@ -65,6 +65,7 @@ class CPlugins
 			int integration;
 			bool shellwindow;
 			bool hide;
+			int menu_return;
 			bool operator< (const plugin& a) const
 			{
 				return this->index < a.index ;
@@ -102,18 +103,19 @@ class CPlugins
 		inline       int           getType             (const int number) const { return plugin_list[number].type              ; }
 		inline       int           getIntegration      (const int number) const { return plugin_list[number].integration       ; }
 		inline       bool          isHidden            (const int number) const { return plugin_list[number].hide              ; }
+		inline       int           getMenuReturn       (const int number) const { return plugin_list[number].menu_return       ; }
 		inline       int           getIndex            (const int number) const { return plugin_list[number].index             ; }
 		inline      neutrino_msg_t getKey              (const int number) const { return plugin_list[number].key               ; }
 
 		void setType (const int number, int t) { plugin_list[number].type = (CPlugins::p_type_t) t ; }
 		bool overrideType(plugin *plugin_data, std::string &setting, p_type type);
 
-		void startPlugin(int number);				// start plugins by number
-		void startPlugin(const char * const filename);		// start plugins by filename
-		void startPlugin_by_name(const std::string & name);	// start plugins by "name=" in .cfg
-		void startScriptPlugin(int number);
-		void popenScriptPlugin(const char * script);
-		void startLuaPlugin(int number);
+		int startPlugin(int number);				// start plugins by number
+		int startPlugin(const char * const filename);		// start plugins by filename
+		int startPlugin_by_name(const std::string & name);	// start plugins by "name=" in .cfg
+		int startScriptPlugin(int number);
+		int popenScriptPlugin(int number, const char * script);
+		int startLuaPlugin(int number);
 		bool hasPlugin(CPlugins::p_type_t type);
 
 		const std::string& getScriptOutput() const;

@@ -62,12 +62,12 @@ CPluginList::CPluginList(const neutrino_locale_t Title, const uint32_t listtype)
 
 int CPluginList::run()
 {
-	g_Plugins->startPlugin(number);
+	int ret = g_Plugins->startPlugin(number);
 	if (!g_Plugins->getScriptOutput().empty()) {
 		hide();
 		ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL, 320, g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]);
 	}
-	return menu_return::RETURN_REPAINT;
+	return ret;
 }
 
 int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -138,6 +138,8 @@ CPluginsExec* CPluginsExec::getInstance()
 
 int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 {
+	int ret = menu_return::RETURN_REPAINT;
+
 	if (actionKey.empty())
 		return menu_return::RETURN_NONE;
 
@@ -153,7 +155,7 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 		return menu_return::RETURN_EXIT;
 	}
 	else if (sel >= 0)
-		g_Plugins->startPlugin(sel);
+		ret = g_Plugins->startPlugin(sel);
 
 	if (!g_Plugins->getScriptOutput().empty())
 		ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL);
@@ -161,5 +163,5 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (g_Plugins->getIntegration(sel) == PLUGIN_INTEGRATION_DISABLED)
 		return menu_return::RETURN_EXIT;
 
-	return menu_return::RETURN_REPAINT;
+	return ret;
 }
