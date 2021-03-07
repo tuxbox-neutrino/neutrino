@@ -8,6 +8,7 @@ autoconf
 autofs-
 alsa-server
 avahi
+base-files
 base-passwd-
 bash-
 bluez5-
@@ -15,12 +16,14 @@ boost-
 bsd
 busybox-
 catchsegv
+coreutils-
 -charmap-
 cups
 db-
 -dbg$
 -dev$
 -doc$
+dvb-
 e2fsprogs-
 elfutils
 enca
@@ -63,6 +66,7 @@ ntp-
 openssh-
 openssl-
 opkg-
+os
 pam-
 pango
 pci
