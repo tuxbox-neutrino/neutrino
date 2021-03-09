@@ -95,6 +95,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	std::string btnPlay       = "";
 	std::string btnPlayPause  = "";
 	std::string btnOk         = "";
+	std::string btnSetup      = "";
 	lua_Integer x = 100, y = 100, dx = 450, dy = 250;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
@@ -132,6 +133,7 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 	tableLookup(L, "btnPlay", btnPlay);
 	tableLookup(L, "btnPlayPause", btnPlayPause);
 	tableLookup(L, "btnOk", btnOk);
+	tableLookup(L, "btnSetup", btnSetup);
 	color_frame  = checkMagicMask(color_frame);
 	color_body   = checkMagicMask(color_body);
 	color_shadow = checkMagicMask(color_shadow);
@@ -268,6 +270,12 @@ int CLuaInstCCWindow::CCWindowNew(lua_State *L)
 				btnSOk.button	= NEUTRINO_ICON_BUTTON_OKAY;
 				btnSOk.text	= btnOk;
 				buttons.push_back(btnSOk);
+			}
+			if (!btnSetup.empty()) {
+				button_label_cc btnSSetup;
+				btnSSetup.button	= NEUTRINO_ICON_BUTTON_MENU;
+				btnSSetup.text		= btnSetup;
+				buttons.push_back(btnSSetup);
 			}
 			if (!buttons.empty())
 				footer->setButtonLabels(buttons, footer->getWidth(), footer->getWidth() / buttons.size());
