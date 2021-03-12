@@ -612,7 +612,8 @@ void CVideoSettings::setVideoSettings()
 #endif
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #ifdef ENABLE_PIP
-	pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+	if (pipDecoder != NULL)
+		pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #endif
 
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
@@ -625,7 +626,8 @@ void CVideoSettings::setVideoSettings()
 	changeNotify(LOCALE_VIDEOMENU_SDOSD, NULL);
 #endif
 #ifdef ENABLE_PIP
-	pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	if (pipDecoder != NULL)
+		pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
 #endif
 }
 

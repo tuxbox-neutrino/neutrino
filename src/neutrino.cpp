@@ -5356,9 +5356,9 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_unlock = tconfig->getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = tconfig->getInt32( "key_screenshot", (unsigned int)CRCInput::RC_nokey );
 #ifdef ENABLE_PIP
-	g_settings.key_pip_close = tconfig->getInt32( "key_pip_close", CRCInput::RC_help );
-	g_settings.key_pip_setup = tconfig->getInt32( "key_pip_setup", CRCInput::RC_pos );
-	g_settings.key_pip_swap = tconfig->getInt32( "key_pip_swap", CRCInput::RC_recall );
+	g_settings.key_pip_close = tconfig->getInt32( "key_pip_close", CRCInput::RC_prev );
+	g_settings.key_pip_setup = tconfig->getInt32( "key_pip_setup", CRCInput::RC_nokey );
+	g_settings.key_pip_swap = tconfig->getInt32( "key_pip_swap", CRCInput::RC_next );
 #endif
 	g_settings.key_current_transponder = tconfig->getInt32( "key_current_transponder", CRCInput::RC_games );
 
@@ -5417,8 +5417,8 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_help = tconfig->getInt32( "key_help", CRCInput::RC_help );
 	g_settings.key_record = tconfig->getInt32( "key_record", CRCInput::RC_record );
-	g_settings.key_switchformat = tconfig->getInt32("key_switchformat", CRCInput::RC_prev);
-	g_settings.key_next43mode = tconfig->getInt32("key_next43mode", CRCInput::RC_next);
+	g_settings.key_switchformat = tconfig->getInt32("key_switchformat", CRCInput::RC_nokey);
+	g_settings.key_next43mode = tconfig->getInt32("key_next43mode", CRCInput::RC_nokey);
 	g_settings.key_volumeup = tconfig->getInt32( "key_volumeup",  CRCInput::RC_plus );
 	g_settings.key_volumedown = tconfig->getInt32( "key_volumedown", CRCInput::RC_minus );
 

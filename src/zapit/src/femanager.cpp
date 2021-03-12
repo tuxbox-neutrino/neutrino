@@ -726,8 +726,10 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 	if (frontend) {
 #ifdef DYNAMIC_DEMUX
 		int dnum = getDemux(channel->getTransponderId(), frontend->getNumber());
-		INFO("record demux: %d", dnum);
+		INFO("record dyn demux: %d", dnum);
 		channel->setRecordDemux(dnum);
+		INFO("pip dyn demux: %d", dnum);
+		channel->setPipDemux(dnum);
 		if (forrecord && !dnum) {
 			frontend = NULL;
 		} else {
