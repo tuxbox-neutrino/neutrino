@@ -241,6 +241,7 @@ bouquetname.removed Removed channels
 bouquetname.uhdtv UHD channels
 bouquetname.webradio WebRadio channels
 bouquetname.webtv WebTV channels
+boxmode12_not_activated Boxmode 12 not activated!
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler version
 buildinfo.compiler_flags Compiler flags

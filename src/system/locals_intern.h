@@ -268,6 +268,7 @@ const char * locale_real_names[] =
 	"bouquetname.uhdtv",
 	"bouquetname.webradio",
 	"bouquetname.webtv",
+	"boxmode12_not_activated",
 	"buildinfo.compiled_on",
 	"buildinfo.compiled_with",
 	"buildinfo.compiler_flags",
