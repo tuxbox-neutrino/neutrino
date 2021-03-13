@@ -734,6 +734,10 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 		}
 	}
 
+	pipDemux->SetSource(dnum, pip_fe->getNumber());
+	newchannel->setPipDemux(dnum);
+	newchannel->setRecordDemux(pip_fe->getNumber());
+
 	pipDecoder->SetStreamType((VIDEO_FORMAT)newchannel->type);
 	pipDemux->pesFilter(newchannel->getVideoPid());
 	pipDemux->Start();
