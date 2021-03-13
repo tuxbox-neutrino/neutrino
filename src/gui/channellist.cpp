@@ -925,6 +925,32 @@ int CChannelList::show()
 		}
 #ifdef ENABLE_PIP
 		else if (!empty && ((msg == CRCInput::RC_play) || (msg == CRCInput::RC_playpause) || (msg == (neutrino_msg_t) g_settings.key_pip_close))) {
+#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7
+				bool bm12=false;
+				FILE *f = fopen("/proc/cmdline", "r");
+				if (f) {
+					char buf[256] = "";
+					while(fgets(buf, sizeof(buf), f) != NULL) {
+						if (strstr(buf, "boxmode=12") != NULL) {
+							bm12=true;
+						}
+					}
+					fclose(f);
+				}
+				if (!bm12) {
+					ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_BOXMODE12_NOT_ACTIVATED, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
+				} else {
+					if(SameTP()) {
+						if (CZapit::getInstance()->GetPipChannelID() == (*chanlist)[selected]->getChannelID()) {
+							g_Zapit->stopPip();
+							calcSize();
+							paintBody();
+						} else {
+							handleMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, true);
+						}
+					}
+				}
+#else
 			if(SameTP()) {
 				if (CZapit::getInstance()->GetPipChannelID() == (*chanlist)[selected]->getChannelID()) {
 					g_Zapit->stopPip();
@@ -934,6 +960,7 @@ int CChannelList::show()
 					handleMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, true);
 				}
 			}
+#endif
 		}
 #endif
 		else if (!empty && ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help))) {
