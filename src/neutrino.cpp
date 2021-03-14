@@ -3279,22 +3279,10 @@ void CNeutrinoApp::RealRun()
 			}
 #ifdef ENABLE_PIP
 			else if (msg == (neutrino_msg_t) g_settings.key_pip_close) {
-#if BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7
-				bool bm12=false;
-				FILE *f = fopen("/proc/cmdline", "r");
-				if (f) {
-					char buf[256] = "";
-					while(fgets(buf, sizeof(buf), f) != NULL) {
-						if (strstr(buf, "boxmode=12") != NULL) {
-							bm12=true;
-						}
-					}
-					fclose(f);
-				}
-				if (!bm12)
+				int boxmode = getBoxMode();
+				if (boxmode > -1 && boxmode != 12)
 					ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_BOXMODE12_NOT_ACTIVATED, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
 				else
-#endif
 				{
 					t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
 					if (pip_channel_id)
