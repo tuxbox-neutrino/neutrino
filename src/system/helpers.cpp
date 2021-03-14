@@ -1848,6 +1848,29 @@ bool isDigitWord(std::string str)
 	return true;
 }
 
+int getBoxMode()
+{
+	int boxmode = -1;
+
+#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
+	FILE *f = fopen("/proc/cmdline", "r");
+	if (f)
+	{
+		char buf[256] = "";
+		while(fgets(buf, sizeof(buf), f) != NULL)
+		{
+			if (strstr(buf, "boxmode=12") != NULL)
+				boxmode = 12;
+			else
+				boxmode = 1;
+		}
+		fclose(f);
+	}
+#endif
+
+	return boxmode;
+}
+
 int getActivePartition()
 {
 	int c = -1;
