@@ -288,7 +288,7 @@ int CHintBox::exec()
 			res = messages_return::handled;
 			break;
 		}
-		else if((msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
+		else if ((msg == (neutrino_msg_t) g_settings.key_next43mode) || (msg == (neutrino_msg_t) g_settings.key_switchformat)) {
 			res = messages_return::cancel_all;
 			g_RCInput->postMsg(msg, data);
 		}
