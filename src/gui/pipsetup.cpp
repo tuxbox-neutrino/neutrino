@@ -124,10 +124,10 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 	paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
-
+#if !HAVE_CST_HARDWARE
 	if (pipDecoder != NULL)
 		pipDecoder->ShowPig(1);
-
+#endif
 	bool loop=true;
 	while (loop) {
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
@@ -173,9 +173,10 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 void CPipSetup::hide()
 {
 	frameBuffer->Clear();
-
+#if !HAVE_CST_HARDWARE
 	if (pipDecoder != NULL)
 		pipDecoder->ShowPig(0);
+#endif
 }
 
 void CPipSetup::clear()
