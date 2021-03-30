@@ -69,6 +69,10 @@ CMiscMenue::CMiscMenue()
 {
 	width = 50;
 
+	fanNotifier = NULL;
+	cpuNotifier = NULL;
+	sectionsdConfigNotifier = NULL;
+
 	epg_save = NULL;
 	epg_save_standby = NULL;
 	epg_save_frequently = NULL;
@@ -76,6 +80,7 @@ CMiscMenue::CMiscMenue()
 	epg_read_now = NULL;
 	epg_read_frequently = NULL;
 	epg_dir = NULL;
+	epg_read_now = NULL;
 }
 
 CMiscMenue::~CMiscMenue()
@@ -264,7 +269,6 @@ int CMiscMenue::showMiscSettingsMenu()
 	int shortcut = 1;
 
 	//misc settings
-	fanNotifier = new CFanControlNotifier();
 	sectionsdConfigNotifier = new CSectionsdConfigNotifier();
 	CMenuWidget misc_menue(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP);
 
@@ -336,9 +340,11 @@ int CMiscMenue::showMiscSettingsMenu()
 	misc_menue.addItem(mf);
 
 	//CPU
+	CMenuWidget misc_menue_cpu(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	if (g_info.hw_caps->can_cpufreq)
 	{
-		CMenuWidget misc_menue_cpu(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
+		if (cpuNotifier != NULL)
+			cpuNotifier = new CCpuFreqNotifier();
 		showMiscSettingsMenuCPUFreq(&misc_menue_cpu);
 		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CPU, true, NULL, &misc_menue_cpu, NULL, CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_MISC_CPUFREQ);
@@ -349,6 +355,7 @@ int CMiscMenue::showMiscSettingsMenu()
 
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
+	delete cpuNotifier;
 	return res;
 }
 
@@ -376,6 +383,8 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//fan speed
 	if (g_info.hw_caps->has_fan)
 	{
+		if (fanNotifier != NULL)
+			fanNotifier = new CFanControlNotifier();
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
 		ms_general->addItem(mn);
@@ -781,7 +790,6 @@ void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 {
 	ms_cpu->addIntroItems(LOCALE_MISCSETTINGS_CPU);
 
-	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
 }

@@ -41,6 +41,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 			NORWAY = 1,
 		};
 		CFanControlNotifier *fanNotifier;
+		CCpuFreqNotifier * cpuNotifier;
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
 		//COnOffNotifier* miscNotifier;
 		CMenuOptionChooser * epg_save;
