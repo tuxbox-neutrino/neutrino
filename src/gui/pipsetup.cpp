@@ -15,8 +15,8 @@
 #include <hardware/video.h>
 
 #define PERCENT 5
-#define XMOVE 10
-#define YMOVE 10
+#define XMOVE 5
+#define YMOVE 5
 
 #ifdef ENABLE_PIP
 
