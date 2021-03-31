@@ -360,7 +360,7 @@ colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
 colormenu.menucolors Themes
-colormenu.osd_preset TV preset
+colormenu.osd_preset Screen preset
 colormenu.osd_resolution OSD resolution
 colormenu.progressbar_active Active part color
 colormenu.progressbar_passive Background
@@ -1520,7 +1520,7 @@ menu.hint_opkg_upgrade Updates all installed packages to the most recent version
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_behavior_infobar Show infobar depending on time set or manually on or off.
 menu.hint_osd_language Select OSD language
-menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
+menu.hint_osd_preset Choose between Screen A and B for different Screen Setup
 menu.hint_osd_resolution Change OSD resolution
 menu.hint_osd_timing Show OSD element depending on time set or manually on or off.
 menu.hint_other_fonts Change other font sizes
@@ -2270,6 +2270,10 @@ options.off off
 options.on on
 options.on.without_messages Without msg
 options.serial serial
+options.start start
+options.stop stop
+osd.preset_screen_a Screen 1
+osd.preset_screen_a Screen 2
 parentallock.bouquetmode Bouquets are default
 parentallock.changepin change PIN code
 parentallock.changepin_hint1 Enter your new parental lock pin code here!
