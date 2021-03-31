@@ -137,6 +137,78 @@ bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return true;
 }
 
+bool CFlagFileNotifier::changeNotify(const neutrino_locale_t, void * data)
+{
+	std::string flagfile = FLAGDIR;
+	flagfile += "/.";
+	flagfile += filename;
+
+	if ((*(int *)data) != 0)
+	{
+		FILE * fd = fopen(flagfile.c_str(), "w");
+		if (fd)
+		{
+			fclose(fd);
+			if (strstr(filename, "scart_osd_fix"))
+			{
+				//change to scart-osd-fix values
+				g_settings.screen_StartX_b_0 = 30;
+				g_settings.screen_StartY_b_0 = 45;
+				g_settings.screen_EndX_b_0 = 690;
+				g_settings.screen_EndY_b_0 = 535;
+				g_settings.screen_preset = 1;
+
+				//set values
+				g_settings.screen_StartX = g_settings.screen_StartX_b_0;
+				g_settings.screen_StartY = g_settings.screen_StartY_b_0;
+				g_settings.screen_EndX = g_settings.screen_EndX_b_0;
+				g_settings.screen_EndY = g_settings.screen_EndY_b_0;
+
+				CFrameBuffer::getInstance()->Clear();
+
+				g_settings.font_scaling_x = 100;
+				g_settings.font_scaling_y = 100;
+			}
+			else
+			{
+				printf("[CFlagFileNotifier] executing \"service %s start\"\n", filename);
+				if (my_system(3, "service", filename, "start") != 0)
+					printf("[CFlagFileNotifier] executing failed\n");
+			}
+		}
+	}
+	else
+	{
+		if (strstr(filename, "scart_osd_fix"))
+		{
+			//reset to defaults
+			g_settings.screen_StartX_b_0 = 22;
+			g_settings.screen_StartY_b_0 = 12;
+			g_settings.screen_EndX_b_0 = 1259 - g_settings.screen_StartX_b_0 - 1;
+			g_settings.screen_EndY_b_0 =  708 - g_settings.screen_StartY_b_0 - 1;
+
+			//set values
+			g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_b_0 : g_settings.screen_StartX_a_0;
+			g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_b_0 : g_settings.screen_StartY_a_0;
+			g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_b_0 : g_settings.screen_EndX_a_0;
+			g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_b_0 : g_settings.screen_EndY_a_0;
+
+			CFrameBuffer::getInstance()->Clear();
+
+			g_settings.font_scaling_x = 105;
+			g_settings.font_scaling_y = 105;
+		}
+		else
+		{
+			printf("[CFlagFileNotifier] executing \"service %s stop\"\n", filename);
+			if (my_system(3, "service", filename, "stop") != 0)
+				printf("[CFlagFileNotifier] executing failed\n");
+		}
+		remove(flagfile.c_str());
+	}
+	return menu_return::RETURN_REPAINT;
+}
+
 void CColorSetupNotifier::setPalette()
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();

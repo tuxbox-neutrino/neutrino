@@ -723,8 +723,8 @@ int COsdSetup::showOsdSetup()
 		mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
 		osd_menu->addItem(mc);
 	}
-#if 0
-#if !defined BOXMODEL_CST_HD2
+
+#if defined BOXMODEL_CST_HD1
 	int scart_osd_fix_exist = 0;
 	if (file_exists("/var/etc/.scart_osd_fix"))
 		scart_osd_fix_exist = 1;
@@ -734,7 +734,7 @@ int COsdSetup::showOsdSetup()
 	mc->setHint(NEUTRINO_ICON_HINT_IMAGELOGO, LOCALE_MENU_HINT_SCART_OSD_FIX);
 	osd_menu->addItem(mc);
 #endif
-#endif
+
 #if 0
 	// round corners
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.theme.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
@@ -776,9 +776,9 @@ int COsdSetup::showOsdSetup()
 			CAudioMute::getInstance()->enableMuteIcon(true);
 	}
 
-// #if !defined BOXMODEL_CST_HD2
-// 	delete scartFileNotifier;
-// #endif
+#if defined BOXMODEL_CST_HD1
+	delete scartFileNotifier;
+#endif
 	delete colorInfoclockNotifier;
 	delete screensaverNotifier;
 	delete channellistNotifier;

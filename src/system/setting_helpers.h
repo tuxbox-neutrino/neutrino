@@ -82,6 +82,14 @@ class CTouchFileNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
+class CFlagFileNotifier : public CChangeObserver
+{
+	const char * filename;
+public:
+	inline CFlagFileNotifier(const char * _filename) { filename = _filename; };
+	bool changeNotify(const neutrino_locale_t, void * data);
+};
+
 class CColorSetupNotifier : public CChangeObserver
 {
 	public:
