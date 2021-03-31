@@ -80,7 +80,7 @@ CMiscMenue::CMiscMenue()
 	epg_read_now = NULL;
 	epg_read_frequently = NULL;
 	epg_dir = NULL;
-	epg_read_now = NULL;
+	epg_scan = NULL;
 }
 
 CMiscMenue::~CMiscMenue()
@@ -269,7 +269,8 @@ int CMiscMenue::showMiscSettingsMenu()
 	int shortcut = 1;
 
 	//misc settings
-	sectionsdConfigNotifier = new CSectionsdConfigNotifier();
+	if (sectionsdConfigNotifier == NULL)
+		sectionsdConfigNotifier = new CSectionsdConfigNotifier();
 	CMenuWidget misc_menue(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP);
 
 	misc_menue.addIntroItems(LOCALE_MISCSETTINGS_HEAD);
@@ -354,8 +355,12 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 
 	delete fanNotifier;
+	fanNotifier = NULL;
 	delete sectionsdConfigNotifier;
+	sectionsdConfigNotifier = NULL;
 	delete cpuNotifier;
+	cpuNotifier = NULL;
+
 	return res;
 }
 
