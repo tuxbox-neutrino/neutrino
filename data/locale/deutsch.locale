@@ -360,7 +360,7 @@ colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
 colormenu.font_ttx Videotext Schriftart
 colormenu.menucolors Themes
-colormenu.osd_preset Monitor Auswahl
+colormenu.osd_preset Bildschirm Auswahl
 colormenu.osd_resolution OSD-Auflösung
 colormenu.progressbar_active Farbe des aktiven Teil
 colormenu.progressbar_passive Hintergrundfarbe
@@ -1520,7 +1520,7 @@ menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste ve
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs usw.
 menu.hint_osd_behavior_infobar Infobar nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
-menu.hint_osd_preset Wählen Sie zwischen Monitor 1 und 2 für unterschiedliche Bildbereiche
+menu.hint_osd_preset Wählen Sie zwischen Bildschirm 1 und 2 für unterschiedliche Bildbereiche
 menu.hint_osd_resolution Wählen Sie eine OSD-Auflösung
 menu.hint_osd_timing OSD-Element nach Zeitvorgabe oder manuell ein- oder ausblenden.
 menu.hint_other_fonts Ändern Sie andere Schriftgrößen
@@ -2272,8 +2272,8 @@ options.on.without_messages ohne Msg
 options.serial seriell
 options.start starten
 options.stop stoppen
-osd.preset_screen_a Monitor 1
-osd.preset_screen_b Monitor 2
+osd.preset_screen_a Bildschirm 1
+osd.preset_screen_b Bildschirm 2
 parentallock.bouquetmode Bouquets sind standardmässig
 parentallock.changepin PIN-Code festlegen
 parentallock.changepin_hint1 Geben Sie hier Ihren neuen PIN-Code ein!

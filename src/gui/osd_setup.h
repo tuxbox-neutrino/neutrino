@@ -101,8 +101,8 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 
 		enum
 		{
-			PRESET_LCD,
-			PRESET_CRT
+			PRESET_LCD_A,
+			PRESET_LCD_B
 		};
 		
 		COsdSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);

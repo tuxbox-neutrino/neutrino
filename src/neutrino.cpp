@@ -935,23 +935,28 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 	g_settings.osd_resolution      = (osd_resolution_tmp == -1) ? configfile.getInt32("osd_resolution", osd_res) : osd_resolution_tmp;
 	COsdHelpers::getInstance()->g_settings_osd_resolution_save = g_settings.osd_resolution;
-	g_settings.screen_StartX_crt_0 = configfile.getInt32("screen_StartX_crt_0",   80);
-	g_settings.screen_StartY_crt_0 = configfile.getInt32("screen_StartY_crt_0",   45);
-	g_settings.screen_EndX_crt_0   = configfile.getInt32("screen_EndX_crt_0"  , 1280 - g_settings.screen_StartX_crt_0 - 1);
-	g_settings.screen_EndY_crt_0   = configfile.getInt32("screen_EndY_crt_0"  ,  580 - g_settings.screen_StartY_crt_0 - 1);
-	g_settings.screen_StartX_lcd_0 = configfile.getInt32("screen_StartX_lcd_0",   40);
-	g_settings.screen_StartY_lcd_0 = configfile.getInt32("screen_StartY_lcd_0",   25);
-	g_settings.screen_EndX_lcd_0   = configfile.getInt32("screen_EndX_lcd_0"  , 1280 - g_settings.screen_StartX_lcd_0 - 1);
-	g_settings.screen_EndY_lcd_0   = configfile.getInt32("screen_EndY_lcd_0"  ,  720 - g_settings.screen_StartY_lcd_0 - 1);
-	g_settings.screen_StartX_crt_1 = configfile.getInt32("screen_StartX_crt_1",   80);
-	g_settings.screen_StartY_crt_1 = configfile.getInt32("screen_StartY_crt_1",   45);
-	g_settings.screen_EndX_crt_1   = configfile.getInt32("screen_EndX_crt_1"  , 1920 - g_settings.screen_StartX_crt_1 - 1);
-	g_settings.screen_EndY_crt_1   = configfile.getInt32("screen_EndY_crt_1"  ,  870 - g_settings.screen_StartY_crt_1 - 1);
-	g_settings.screen_StartX_lcd_1 = configfile.getInt32("screen_StartX_lcd_1",   40);
-	g_settings.screen_StartY_lcd_1 = configfile.getInt32("screen_StartY_lcd_1",   25);
-	g_settings.screen_EndX_lcd_1   = configfile.getInt32("screen_EndX_lcd_1"  , 1920 - g_settings.screen_StartX_lcd_1 - 1);
-	g_settings.screen_EndY_lcd_1   = configfile.getInt32("screen_EndY_lcd_1"  , 1080 - g_settings.screen_StartY_lcd_1 - 1);
-	g_settings.screen_preset       = configfile.getInt32("screen_preset", COsdSetup::PRESET_LCD);
+
+	// default for fullpixel
+	g_settings.screen_StartX_lcd_a_0 = configfile.getInt32("screen_StartX_lcd_a_0",   0);
+	g_settings.screen_StartY_lcd_a_0 = configfile.getInt32("screen_StartY_lcd_a_0",   0);
+	g_settings.screen_EndX_lcd_a_0   = configfile.getInt32("screen_EndX_lcd_a_0"  , 1280 - g_settings.screen_StartX_lcd_a_0 - 1);
+	g_settings.screen_EndY_lcd_a_0   = configfile.getInt32("screen_EndY_lcd_a_0"  ,  720 - g_settings.screen_StartY_lcd_a_0 - 1);
+	g_settings.screen_StartX_lcd_a_1 = configfile.getInt32("screen_StartX_lcd_a_1",   0);
+	g_settings.screen_StartY_lcd_a_1 = configfile.getInt32("screen_StartY_lcd_a_1",   0);
+	g_settings.screen_EndX_lcd_a_1   = configfile.getInt32("screen_EndX_lcd_a_1"  , 1920 - g_settings.screen_StartX_lcd_a_1 - 1);
+	g_settings.screen_EndY_lcd_a_1   = configfile.getInt32("screen_EndY_lcd_a_1"  , 1080 - g_settings.screen_StartY_lcd_a_1 - 1);
+
+	// default for non fullpixel
+	g_settings.screen_StartX_lcd_b_0 = configfile.getInt32("screen_StartX_lcd_b_0",   22);
+	g_settings.screen_StartY_lcd_b_0 = configfile.getInt32("screen_StartY_lcd_b_0",   12);
+	g_settings.screen_EndX_lcd_b_0   = configfile.getInt32("screen_EndX_lcd_b_0"  , 1259 - g_settings.screen_StartX_lcd_b_0 - 1);
+	g_settings.screen_EndY_lcd_b_0   = configfile.getInt32("screen_EndY_lcd_b_0"  ,  708 - g_settings.screen_StartY_lcd_b_0 - 1);
+	g_settings.screen_StartX_lcd_b_1 = configfile.getInt32("screen_StartX_lcd_b_1",   33);
+	g_settings.screen_StartY_lcd_b_1 = configfile.getInt32("screen_StartY_lcd_b_1",   18);
+	g_settings.screen_EndX_lcd_b_1   = configfile.getInt32("screen_EndX_lcd_b_1"  , 1888 - g_settings.screen_StartX_lcd_b_1 - 1);
+	g_settings.screen_EndY_lcd_b_1   = configfile.getInt32("screen_EndY_lcd_b_1"  , 1062 - g_settings.screen_StartY_lcd_b_1 - 1);
+
+	g_settings.screen_preset       = configfile.getInt32("screen_preset", COsdSetup::PRESET_LCD_A);
 	setScreenSettings();
 
 	// avoid configuration mismatch
@@ -1235,18 +1240,18 @@ void CNeutrinoApp::setScreenSettings()
 		case 1:
 		    {
 			switch (g_settings.screen_preset) {
-				case COsdSetup::PRESET_CRT:
-					g_settings.screen_StartX = g_settings.screen_StartX_crt_1;
-					g_settings.screen_StartY = g_settings.screen_StartY_crt_1;
-					g_settings.screen_EndX   = g_settings.screen_EndX_crt_1;
-					g_settings.screen_EndY   = g_settings.screen_EndY_crt_1;
+				case COsdSetup::PRESET_LCD_B:
+					g_settings.screen_StartX = g_settings.screen_StartX_lcd_b_1;
+					g_settings.screen_StartY = g_settings.screen_StartY_lcd_b_1;
+					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_b_1;
+					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_b_1;
 					break;
-				case COsdSetup::PRESET_LCD:
+				case COsdSetup::PRESET_LCD_A:
 				default:
-					g_settings.screen_StartX = g_settings.screen_StartX_lcd_1;
-					g_settings.screen_StartY = g_settings.screen_StartY_lcd_1;
-					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_1;
-					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_1;
+					g_settings.screen_StartX = g_settings.screen_StartX_lcd_a_1;
+					g_settings.screen_StartY = g_settings.screen_StartY_lcd_a_1;
+					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_a_1;
+					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_a_1;
 					break;
 			}
 		    }
@@ -1256,18 +1261,18 @@ void CNeutrinoApp::setScreenSettings()
 		default:
 		    {
 			switch (g_settings.screen_preset) {
-				case COsdSetup::PRESET_CRT:
-					g_settings.screen_StartX = g_settings.screen_StartX_crt_0;
-					g_settings.screen_StartY = g_settings.screen_StartY_crt_0;
-					g_settings.screen_EndX   = g_settings.screen_EndX_crt_0;
-					g_settings.screen_EndY   = g_settings.screen_EndY_crt_0;
+				case COsdSetup::PRESET_LCD_B:
+					g_settings.screen_StartX = g_settings.screen_StartX_lcd_b_0;
+					g_settings.screen_StartY = g_settings.screen_StartY_lcd_b_0;
+					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_b_0;
+					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_b_0;
 					break;
-				case COsdSetup::PRESET_LCD:
+				case COsdSetup::PRESET_LCD_A:
 				default:
-					g_settings.screen_StartX = g_settings.screen_StartX_lcd_0;
-					g_settings.screen_StartY = g_settings.screen_StartY_lcd_0;
-					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_0;
-					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_0;
+					g_settings.screen_StartX = g_settings.screen_StartX_lcd_a_0;
+					g_settings.screen_StartY = g_settings.screen_StartY_lcd_a_0;
+					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_a_0;
+					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_a_0;
 					break;
 			}
 		    }
@@ -1820,22 +1825,22 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//screen configuration
 	configfile.setInt32("osd_resolution"     , COsdHelpers::getInstance()->g_settings_osd_resolution_save);
-	configfile.setInt32("screen_StartX_lcd_0", g_settings.screen_StartX_lcd_0);
-	configfile.setInt32("screen_StartY_lcd_0", g_settings.screen_StartY_lcd_0);
-	configfile.setInt32("screen_EndX_lcd_0"  , g_settings.screen_EndX_lcd_0);
-	configfile.setInt32("screen_EndY_lcd_0"  , g_settings.screen_EndY_lcd_0);
-	configfile.setInt32("screen_StartX_crt_0", g_settings.screen_StartX_crt_0);
-	configfile.setInt32("screen_StartY_crt_0", g_settings.screen_StartY_crt_0);
-	configfile.setInt32("screen_EndX_crt_0"  , g_settings.screen_EndX_crt_0);
-	configfile.setInt32("screen_EndY_crt_0"  , g_settings.screen_EndY_crt_0);
-	configfile.setInt32("screen_StartX_lcd_1", g_settings.screen_StartX_lcd_1);
-	configfile.setInt32("screen_StartY_lcd_1", g_settings.screen_StartY_lcd_1);
-	configfile.setInt32("screen_EndX_lcd_1"  , g_settings.screen_EndX_lcd_1);
-	configfile.setInt32("screen_EndY_lcd_1"  , g_settings.screen_EndY_lcd_1);
-	configfile.setInt32("screen_StartX_crt_1", g_settings.screen_StartX_crt_1);
-	configfile.setInt32("screen_StartY_crt_1", g_settings.screen_StartY_crt_1);
-	configfile.setInt32("screen_EndX_crt_1"  , g_settings.screen_EndX_crt_1);
-	configfile.setInt32("screen_EndY_crt_1"  , g_settings.screen_EndY_crt_1);
+	configfile.setInt32("screen_StartX_lcd_a_0", g_settings.screen_StartX_lcd_a_0);
+	configfile.setInt32("screen_StartY_lcd_a_0", g_settings.screen_StartY_lcd_a_0);
+	configfile.setInt32("screen_EndX_lcd_a_0"  , g_settings.screen_EndX_lcd_a_0);
+	configfile.setInt32("screen_EndY_lcd_a_0"  , g_settings.screen_EndY_lcd_a_0);
+	configfile.setInt32("screen_StartX_lcd_a_1", g_settings.screen_StartX_lcd_a_1);
+	configfile.setInt32("screen_StartY_lcd_a_1", g_settings.screen_StartY_lcd_a_1);
+	configfile.setInt32("screen_EndX_lcd_a_1"  , g_settings.screen_EndX_lcd_a_1);
+	configfile.setInt32("screen_EndY_lcd_a_1"  , g_settings.screen_EndY_lcd_a_1);
+	configfile.setInt32("screen_StartX_lcd_b_0", g_settings.screen_StartX_lcd_b_0);
+	configfile.setInt32("screen_StartY_lcd_b_0", g_settings.screen_StartY_lcd_b_0);
+	configfile.setInt32("screen_EndX_lcd_b_0"  , g_settings.screen_EndX_lcd_b_0);
+	configfile.setInt32("screen_EndY_lcd_b_0"  , g_settings.screen_EndY_lcd_b_0);
+	configfile.setInt32("screen_StartX_lcd_b_1", g_settings.screen_StartX_lcd_b_1);
+	configfile.setInt32("screen_StartY_lcd_b_1", g_settings.screen_StartY_lcd_b_1);
+	configfile.setInt32("screen_EndX_lcd_b_1"  , g_settings.screen_EndX_lcd_b_1);
+	configfile.setInt32("screen_EndY_lcd_b_1"  , g_settings.screen_EndY_lcd_b_1);
 	configfile.setInt32("screen_preset"      , g_settings.screen_preset);
 
 	//Software-update
@@ -5895,14 +5900,14 @@ static struct __key_rename key_rename[] = {
 	{ "casystem_display",	"infobar_casystem_display" },
 	{ "casystem_dotmatrix",	"infobar_casystem_dotmatrix"},
 	{ "casystem_frame",	"infobar_casystem_frame" },
-	{ "screen_StartX_crt",	"screen_StartX_crt_0" },
-	{ "screen_StartY_crt",	"screen_StartY_crt_0" },
-	{ "screen_EndX_crt",	"screen_EndX_crt_0" },
-	{ "screen_EndY_crt",	"screen_EndY_crt_0" },
-	{ "screen_StartX_lcd",	"screen_StartX_lcd_0" },
-	{ "screen_StartY_lcd",	"screen_StartY_lcd_0" },
-	{ "screen_EndX_lcd",	"screen_EndX_lcd_0" },
-	{ "screen_EndY_lcd",	"screen_EndY_lcd_0" },
+	{ "screen_StartX_lcd",	"screen_StartX_lcd_a_0" },
+	{ "screen_StartY_lcd",	"screen_StartY_lcd_a_0" },
+	{ "screen_EndX_lcd",	"screen_EndX_lcd_a_0" },
+	{ "screen_EndY_lcd",	"screen_EndY_lcd_a_0" },
+	{ "screen_StartX_crt",	"screen_StartX_lcd_b_0" },
+	{ "screen_StartY_crt",	"screen_StartY_lcd_b_0" },
+	{ "screen_EndX_crt",	"screen_EndX_lcd_b_0" },
+	{ "screen_EndY_crt",	"screen_EndY_lcd_b_0" },
 	{ "timing.infobar_movieplayer",	"timing.infobar_media_video" },
 	{ "ci_clock", "ci_clock_0" },
 	{ "ci_save_pincode", "ci_save_pincode_0" },
