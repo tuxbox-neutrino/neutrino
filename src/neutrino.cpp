@@ -1396,6 +1396,15 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		g_settings.key_pip_setup = CRCInput::RC_nokey;
 		g_settings.key_pip_swap = CRCInput::RC_next;
 	}
+	if (g_settings.version_pseudo < "20213103000000")
+	{
+		// switch g_settings.screen_preset
+		/*
+		   old: 0 = CRT, 1 = LCD
+		   new: 0 = Screen 1, 1 = Screen 2
+		*/
+		g_settings.screen_preset = !g_settings.screen_preset;
+	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
