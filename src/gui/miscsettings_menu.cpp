@@ -343,7 +343,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	CMenuWidget misc_menue_cpu(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	if (g_info.hw_caps->can_cpufreq)
 	{
-		if (cpuNotifier != NULL)
+		if (cpuNotifier == NULL)
 			cpuNotifier = new CCpuFreqNotifier();
 		showMiscSettingsMenuCPUFreq(&misc_menue_cpu);
 		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CPU, true, NULL, &misc_menue_cpu, NULL, CRCInput::convertDigitToKey(shortcut++));
@@ -383,7 +383,7 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//fan speed
 	if (g_info.hw_caps->has_fan)
 	{
-		if (fanNotifier != NULL)
+		if (fanNotifier == NULL)
 			fanNotifier = new CFanControlNotifier();
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
