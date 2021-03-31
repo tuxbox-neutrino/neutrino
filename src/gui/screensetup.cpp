@@ -119,13 +119,13 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 					case 1:
 					    {
 						switch (g_settings.screen_preset) {
-							case COsdSetup::PRESET_LCD_B:
+							case COsdSetup::PRESET_SCREEN_B:
 								g_settings.screen_StartX_lcd_b_1 = g_settings.screen_StartX;
 								g_settings.screen_StartY_lcd_b_1 = g_settings.screen_StartY;
 								g_settings.screen_EndX_lcd_b_1   = g_settings.screen_EndX;
 								g_settings.screen_EndY_lcd_b_1   = g_settings.screen_EndY;
 								break;
-							case COsdSetup::PRESET_LCD_A:
+							case COsdSetup::PRESET_SCREEN_A:
 							default:
 								g_settings.screen_StartX_lcd_a_1 = g_settings.screen_StartX;
 								g_settings.screen_StartY_lcd_a_1 = g_settings.screen_StartY;
@@ -140,13 +140,13 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 					default:
 					    {
 						switch (g_settings.screen_preset) {
-							case COsdSetup::PRESET_LCD_B:
+							case COsdSetup::PRESET_SCREEN_B:
 								g_settings.screen_StartX_lcd_b_0 = g_settings.screen_StartX;
 								g_settings.screen_StartY_lcd_b_0 = g_settings.screen_StartY;
 								g_settings.screen_EndX_lcd_b_0   = g_settings.screen_EndX;
 								g_settings.screen_EndY_lcd_b_0   = g_settings.screen_EndY;
 								break;
-							case COsdSetup::PRESET_LCD_A:
+							case COsdSetup::PRESET_SCREEN_A:
 							default:
 								g_settings.screen_StartX_lcd_a_0 = g_settings.screen_StartX;
 								g_settings.screen_StartY_lcd_a_0 = g_settings.screen_StartY;

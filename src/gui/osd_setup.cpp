@@ -421,8 +421,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 #define OSD_PRESET_OPTIONS_COUNT 2
 const CMenuOptionChooser::keyval_ext OSD_PRESET_OPTIONS[] =
 {
-	{ COsdSetup::PRESET_LCD_A, LOCALE_OSD_PRESET_SCREEN_A },
-	{ COsdSetup::PRESET_LCD_B, LOCALE_OSD_PRESET_SCREEN_B }
+	{ COsdSetup::PRESET_SCREEN_A, LOCALE_OSD_PRESET_SCREEN_A },
+	{ COsdSetup::PRESET_SCREEN_B, LOCALE_OSD_PRESET_SCREEN_B }
 };
 
 #define INFOBAR_CASYSTEM_MODE_OPTION_COUNT 4

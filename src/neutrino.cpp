@@ -956,7 +956,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_EndX_lcd_b_1   = configfile.getInt32("screen_EndX_lcd_b_1"  , 1888 - g_settings.screen_StartX_lcd_b_1 - 1);
 	g_settings.screen_EndY_lcd_b_1   = configfile.getInt32("screen_EndY_lcd_b_1"  , 1062 - g_settings.screen_StartY_lcd_b_1 - 1);
 
-	g_settings.screen_preset       = configfile.getInt32("screen_preset", COsdSetup::PRESET_LCD_A);
+	g_settings.screen_preset       = configfile.getInt32("screen_preset", COsdSetup::PRESET_SCREEN_A);
 	setScreenSettings();
 
 	// avoid configuration mismatch
@@ -1240,13 +1240,13 @@ void CNeutrinoApp::setScreenSettings()
 		case 1:
 		    {
 			switch (g_settings.screen_preset) {
-				case COsdSetup::PRESET_LCD_B:
+				case COsdSetup::PRESET_SCREEN_B:
 					g_settings.screen_StartX = g_settings.screen_StartX_lcd_b_1;
 					g_settings.screen_StartY = g_settings.screen_StartY_lcd_b_1;
 					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_b_1;
 					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_b_1;
 					break;
-				case COsdSetup::PRESET_LCD_A:
+				case COsdSetup::PRESET_SCREEN_A:
 				default:
 					g_settings.screen_StartX = g_settings.screen_StartX_lcd_a_1;
 					g_settings.screen_StartY = g_settings.screen_StartY_lcd_a_1;
@@ -1261,13 +1261,13 @@ void CNeutrinoApp::setScreenSettings()
 		default:
 		    {
 			switch (g_settings.screen_preset) {
-				case COsdSetup::PRESET_LCD_B:
+				case COsdSetup::PRESET_SCREEN_B:
 					g_settings.screen_StartX = g_settings.screen_StartX_lcd_b_0;
 					g_settings.screen_StartY = g_settings.screen_StartY_lcd_b_0;
 					g_settings.screen_EndX   = g_settings.screen_EndX_lcd_b_0;
 					g_settings.screen_EndY   = g_settings.screen_EndY_lcd_b_0;
 					break;
-				case COsdSetup::PRESET_LCD_A:
+				case COsdSetup::PRESET_SCREEN_A:
 				default:
 					g_settings.screen_StartX = g_settings.screen_StartX_lcd_a_0;
 					g_settings.screen_StartY = g_settings.screen_StartY_lcd_a_0;
