@@ -1404,6 +1404,23 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		   new: 0 = Screen 1, 1 = Screen 2
 		*/
 		g_settings.screen_preset = !g_settings.screen_preset;
+
+		configfile.deleteKey("screen_EndX_crt_0");
+		configfile.deleteKey("screen_EndX_crt_1");
+		configfile.deleteKey("screen_EndX_lcd_0");
+		configfile.deleteKey("screen_EndX_lcd_1");
+		configfile.deleteKey("screen_EndY_crt_0");
+		configfile.deleteKey("screen_EndY_crt_1");
+		configfile.deleteKey("screen_EndY_lcd_0");
+		configfile.deleteKey("screen_EndY_lcd_1");
+		configfile.deleteKey("screen_StartX_crt_0");
+		configfile.deleteKey("screen_StartX_crt_1");
+		configfile.deleteKey("screen_StartX_lcd_0");
+		configfile.deleteKey("screen_StartX_lcd_1");
+		configfile.deleteKey("screen_StartY_crt_0");
+		configfile.deleteKey("screen_StartY_crt_1");
+		configfile.deleteKey("screen_StartY_lcd_0");
+		configfile.deleteKey("screen_StartY_lcd_1");
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
