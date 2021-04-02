@@ -419,7 +419,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 }
 
 #define OSD_PRESET_OPTIONS_COUNT 2
-const CMenuOptionChooser::keyval_ext OSD_PRESET_OPTIONS[] =
+const CMenuOptionChooser::keyval OSD_PRESET_OPTIONS[OSD_PRESET_OPTIONS_COUNT] =
 {
 	{ COsdSetup::PRESET_SCREEN_A, LOCALE_OSD_PRESET_SCREEN_A },
 	{ COsdSetup::PRESET_SCREEN_B, LOCALE_OSD_PRESET_SCREEN_B }
