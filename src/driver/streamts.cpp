@@ -486,13 +486,13 @@ void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids
 					CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
 					printf("CStreamManager::AddPids: genpsi apid %x (%d)\n", *it, atype);
 					if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
-						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, 0, channel->getAudioChannel(i)->description.c_str());
 					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
-						psi.addPid(*it, EN_TYPE_AUDIO_AAC, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO_AAC, 0, channel->getAudioChannel(i)->description.c_str());
 					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
-						psi.addPid(*it, EN_TYPE_AUDIO_AACP, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO_AACP, 0, channel->getAudioChannel(i)->description.c_str());
 					} else {
-						psi.addPid(*it, EN_TYPE_AUDIO, atype, channel->getAudioChannel(i)->description.c_str());
+						psi.addPid(*it, EN_TYPE_AUDIO, (atype == CZapitAudioChannel::AC3), channel->getAudioChannel(i)->description.c_str());
 					}
 				}
 			}

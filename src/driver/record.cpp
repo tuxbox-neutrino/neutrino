@@ -231,16 +231,16 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		apids[numpids++] = recMovieInfo->audioPids[i].AudioPid;
 		switch (channel->getAudioChannel(i)->audioChannelType) {
 			case CZapitAudioChannel::EAC3:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, 0, channel->getAudioChannel(i)->description.c_str());
 				break;
 			case CZapitAudioChannel::AAC:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AAC, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AAC, 0, channel->getAudioChannel(i)->description.c_str());
 				break;
 			case CZapitAudioChannel::AACPLUS:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AACP, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AACP, 0, channel->getAudioChannel(i)->description.c_str());
 				break;
 			default:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, (recMovieInfo->audioPids[i].atype == CZapitAudioChannel::AC3), channel->getAudioChannel(i)->description.c_str());
 				break;
 		}
 
