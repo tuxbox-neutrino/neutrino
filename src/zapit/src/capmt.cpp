@@ -225,7 +225,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	cammap_iterator_t it = channel_map.find(channel_id);
-	if(it != channel_map.end()) {
+	if (it != channel_map.end()) {
 		cam = it->second;
 	} else if(start) {
 		cam = new CCam();
@@ -233,7 +233,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	} else {
 		return false;
 	}
-	if(channel == NULL) {
+	if (channel == NULL) {
 		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
 		StopCam(channel_id, cam);
 		return false;
@@ -244,7 +244,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #if ! HAVE_CST_HARDWARE && ! HAVE_GENERIC_HARDWARE
 	CFrontend *frontend = CFEManager::getInstance()->getFrontend(channel);
 #endif
-	switch(mode) {
+	switch (mode) {
 		case PLAY:
 #if HAVE_CST_HARDWARE
 			source = DEMUX_SOURCE_0;
@@ -260,9 +260,14 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		case RECORD:
 #if HAVE_SPARK_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 //			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, frontend ? frontend->getNumber() : -1, channel->getRecordDemux());
-			if(frontend)
+#ifdef DYNAMIC_DEMUX
+			source = channel->getRecordDemux();
+			demux = channel->getRecordDemux();
+#else
+			if (frontend)
 				source = frontend->getNumber();
 			demux = source;
+#endif // DYNAMIC_DEMUX
 #else
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
@@ -271,9 +276,19 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			break;
 		case PIP:
 #if HAVE_SPARK_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-			if(frontend)
-				source = frontend->getNumber();
+#ifdef DYNAMIC_DEMUX
+			source = channel->getPipDemux();
+			demux = channel->getPipDemux();
+#else
+			if (frontend)
+			{
+				if (frontend->sameTsidOnid(channel->getTransponderId()))
+					source = frontend->getNumber();
+				else
+					source = frontend->getNumber() + 1;
+			}
 			demux = source;
+#endif // DYNAMIC_DEMUX
 #else
 			source = channel->getRecordDemux();
 			demux = channel->getPipDemux();
@@ -283,18 +298,19 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	}
 
 	oldmask = cam->getCaMask();
-	if(force_update)
+	if (force_update)
 		newmask = oldmask;
 	else
 		newmask = cam->makeMask(demux, start);
 
-	if(cam->getSource() > 0)
+	if (cam->getSource() > 0)
 		source = cam->getSource();
 
 	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d rmode %d mp %d", channel_id, channel->getName().c_str(),
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update, rmode, mp);
 
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
+
 #if ! HAVE_CST_HARDWARE
 	/* stop decoding if record stops unless it's the live channel. TODO:PIP? */
 	/* all the modes: RECORD, STREAM, PIP except PLAY now stopping here !! */
@@ -307,7 +323,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		}
 		/* clean up channel_map with stopped record/stream/pip services NOT live-tv */
 		it = channel_map.find(channel_id);
-		if(it != channel_map.end() && newmask != 0 && it->second != cam)
+		if (it != channel_map.end() && newmask != 0 && it->second != cam)
 		{
 			delete it->second;
 			channel_map.erase(channel_id);
