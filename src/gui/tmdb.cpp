@@ -191,23 +191,43 @@ bool cTmdb::GetMovieDetails(std::string lang, bool second)
 
 std::string cTmdb::CreateEPGText()
 {
-	std::string epgtext;
-	epgtext += "Vote: "+minfo.vote_average.substr(0,3)+"/10 Votecount: "+to_string(minfo.vote_count)+"\n";
+	std::string epgtext("");
+
+	epgtext += "Vote: " + minfo.vote_average.substr(0,3) + "/10 Votecount: " + to_string(minfo.vote_count) + "\n";
 	epgtext += "\n";
-	epgtext += minfo.overview+"\n";
+	epgtext += minfo.overview + "\n";
 	epgtext += "\n";
 	if (minfo.media_type == "tv")
-		epgtext += (std::string)g_Locale->getText(LOCALE_EPGVIEWER_LENGTH)+": "+minfo.runtimes+"\n";
+		epgtext += g_Locale->getString(LOCALE_EPGVIEWER_LENGTH) + ": " + minfo.runtimes + "\n";
 	else
-		epgtext += (std::string)g_Locale->getText(LOCALE_EPGVIEWER_LENGTH)+": "+to_string(minfo.runtime)+"\n";
-	epgtext += (std::string)g_Locale->getText(LOCALE_EPGVIEWER_GENRE)+": "+minfo.genres+"\n";
-	epgtext += (std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ORIGINAL_TITLE) +" : "+ minfo.original_title+"\n";
-	epgtext += (std::string)g_Locale->getText(LOCALE_EPGEXTENDED_YEAR_OF_PRODUCTION)+" : "+ minfo.release_date.substr(0,4) +"\n";
+		epgtext += g_Locale->getString(LOCALE_EPGVIEWER_LENGTH) + ": " + to_string(minfo.runtime) + "\n";
+	epgtext += g_Locale->getString(LOCALE_EPGVIEWER_GENRE) + ": " + minfo.genres + "\n";
+	epgtext += g_Locale->getString(LOCALE_EPGEXTENDED_ORIGINAL_TITLE) + ": " + minfo.original_title + "\n";
+	epgtext += g_Locale->getString(LOCALE_EPGEXTENDED_YEAR_OF_PRODUCTION) + ": " + minfo.release_date.substr(0,4) + "\n";
 	if (minfo.media_type == "tv")
-		epgtext += "Seasons/Episodes: "+to_string(minfo.seasons)+"/"+to_string(minfo.episodes)+"\n";
+		epgtext += "Seasons/Episodes: " + to_string(minfo.seasons) + "/" + to_string(minfo.episodes) + "\n";
 	if (!minfo.cast.empty())
-		epgtext += (std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ minfo.cast+"\n";
+		epgtext += g_Locale->getString(LOCALE_EPGEXTENDED_ACTORS) + ":\n" + minfo.cast + "\n";
+
 	return epgtext;
+}
+
+std::string cTmdb::CreateMovieText()
+{
+	std::string movietext("");
+
+	if (!minfo.overview.empty())
+	{
+		movietext = minfo.overview + "\n";
+		if (!minfo.cast.empty())
+		{
+			movietext += "\n";
+			movietext += g_Locale->getString(LOCALE_EPGEXTENDED_ACTORS) + ":\n";
+			movietext += minfo.cast;
+		}
+	}
+
+	return movietext;
 }
 
 void cTmdb::cleanup()

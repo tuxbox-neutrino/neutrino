@@ -62,6 +62,7 @@ class cTmdb
 		static cTmdb* getInstance();
 		void        setTitle(std::string epgtitle);
 		std::string CreateEPGText();
+		std::string CreateMovieText();
 
 		std::string getTitle()				{ return minfo.epgtitle;}
 		std::string getOrgTitle()			{ return minfo.original_title;}
@@ -69,7 +70,7 @@ class cTmdb
 		std::string getDescription()			{ return minfo.overview;}
 		std::string getVote()				{ return minfo.vote_average;}
 		std::string getCast()				{ return minfo.cast;}
-		std::string getCover()              { return TMDB_COVER;}
+		std::string getCover()				{ return TMDB_COVER;}
 		bool        hasCover()				{ return !minfo.poster_path.empty();}
 		bool        getBigCover(std::string cover)	{ return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, cover);}
 		bool        getSmallCover(std::string cover)	{ return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, cover);}

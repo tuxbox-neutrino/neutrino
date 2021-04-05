@@ -1171,11 +1171,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							epgText_saved = epgText;
 							epgText.clear();
 							tmdb_active = !tmdb_active;
-
-							epgTextSwitch = tmdb->getDescription();
-							if (!tmdb->getCast().empty())
-								epgTextSwitch += "\n\n"+(std::string)g_Locale->getText(LOCALE_EPGEXTENDED_ACTORS)+":\n"+ tmdb->getCast()+"\n";
-
+							epgTextSwitch = tmdb->CreateMovieText();
 							processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
 							textCount = epgText.size();
 							stars = tmdb->getStars();
@@ -1668,39 +1664,8 @@ int CEpgData::showIMDb(bool splash)
 	epgText.clear();
 
 	//data
-	std::string txt;
-	txt.clear();
-	imdb->getIMDbData(txt);
-	processTextToArray(" ", 0, imdb->gotPoster()); // empty line to get space for the rating stars
-	// create mp_movie_info->epgInfo2
-	if (imdb->checkIMDbElement("Plot"))
-	{
-		epgTextSwitch = imdb->getIMDbElement("Plot") + "\n";
-		if (imdb->checkIMDbElement("Title"))
-		{
-			epgTextSwitch += "\n";
-			epgTextSwitch += g_Locale->getString(LOCALE_IMDB_DATA_TITLE) + ": ";
-			epgTextSwitch += imdb->getIMDbElement("Title");
-		}
-		if (imdb->checkIMDbElement("Country"))
-		{
-			epgTextSwitch += "\n";
-			epgTextSwitch += g_Locale->getString(LOCALE_IMDB_DATA_RELEASED) + ": ";
-			epgTextSwitch += imdb->getIMDbElement("Country");
-			if (imdb->checkIMDbElement("Released"))
-			{
-				epgTextSwitch += ", " + imdb->getIMDbElement("Released");
-			}
-		}
-		if (imdb->checkIMDbElement("Actors"))
-		{
-			epgTextSwitch += "\n";
-			epgTextSwitch += g_Locale->getString(LOCALE_IMDB_DATA_ACTORS) + ": ";
-			epgTextSwitch += imdb->getIMDbElement("Actors");
-		}
-	}
-
-	processTextToArray(txt, 0, imdb->gotPoster());
+	epgTextSwitch = imdb->CreateMovieText();
+	processTextToArray(imdb->CreateEPGText(), 0, imdb->gotPoster());
 
 	textCount = epgText.size();
 

@@ -24,8 +24,6 @@
 #ifndef __imdb__
 #define __imdb__
 
-
-
 #include <zapit/zapit.h>
 
 class CIMDB
@@ -46,7 +44,8 @@ class CIMDB
 		void StringReplace(std::string &str, const std::string search, const std::string rstr);
 		void cleanup();
 
-		void getIMDbData(std::string& txt);
+		std::string CreateEPGText();
+		std::string CreateMovieText();
 
 		bool gotPoster();
 
