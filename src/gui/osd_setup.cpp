@@ -729,7 +729,7 @@ int COsdSetup::showOsdSetup()
 
 	CFlagFileNotifier * scartFileNotifier = new CFlagFileNotifier("scart_osd_fix");
 	mc = new CMenuOptionChooser(LOCALE_SCART_OSD_FIX, &scart_osd_fix_exist, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.screen_preset, scartFileNotifier);
-	mc->setHint(NEUTRINO_ICON_HINT_IMAGELOGO, LOCALE_MENU_HINT_SCART_OSD_FIX);
+	mc->setHint("", LOCALE_MENU_HINT_SCART_OSD_FIX);
 	osd_menu->addItem(mc);
 #endif
 

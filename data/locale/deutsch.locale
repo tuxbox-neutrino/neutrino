@@ -1665,6 +1665,7 @@ menu.hint_scan_usals USALS Optionen
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
 menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
 menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
+menu.hint_scart_osd_fix Anzeigefix für ältere Monitore\nPAL bzw. PAL-Breitbild Auflösung
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screensaver_delay Legen sie die Zeit (in Minuten) fest, nach der der Bildschirmschoner starten soll oder schaltet ihn aus
@@ -2553,6 +2554,7 @@ scants.select_tp Wählen Sie einen Transponder
 scants.startnow Kanalsuche starten
 scants.test Empfangstest
 scants.transponders Transponder:
+scart_osd_fix CRT SCART OSD-Fix
 scrambled_channel Verschlüsselung aktiv
 screensaver.delay Verzögerung
 screensaver.dir Verzeichnis
