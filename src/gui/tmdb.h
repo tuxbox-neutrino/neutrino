@@ -61,8 +61,8 @@ class cTmdb
 		~cTmdb();
 		static cTmdb* getInstance();
 		void        setTitle(std::string epgtitle);
-		std::string CreateEPGText();
-		std::string CreateMovieText();
+		std::string getEPGText();
+		std::string getMovieText();
 
 		std::string getTitle()				{ return minfo.epgtitle;}
 		std::string getOrgTitle()			{ return minfo.original_title;}

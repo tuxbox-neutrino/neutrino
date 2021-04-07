@@ -1171,8 +1171,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							epgText_saved = epgText;
 							epgText.clear();
 							tmdb_active = !tmdb_active;
-							epgTextSwitch = tmdb->CreateMovieText();
-							processTextToArray(tmdb->CreateEPGText(), 0, tmdb->hasCover());
+							epgTextSwitch = tmdb->getMovieText();
+							processTextToArray(tmdb->getEPGText(), 0, tmdb->hasCover());
 							textCount = epgText.size();
 							stars = tmdb->getStars();
 							showText(showPos, sy + toph, tmdb_active || (imdb_active && imdb->gotPoster()));
@@ -1664,8 +1664,8 @@ int CEpgData::showIMDb(bool splash)
 	epgText.clear();
 
 	//data
-	epgTextSwitch = imdb->CreateMovieText();
-	processTextToArray(imdb->CreateEPGText(), 0, imdb->gotPoster());
+	epgTextSwitch = imdb->getMovieText();
+	processTextToArray(imdb->getEPGText(), 0, imdb->gotPoster());
 
 	textCount = epgText.size();
 
