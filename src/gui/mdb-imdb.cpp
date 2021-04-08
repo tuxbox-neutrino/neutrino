@@ -40,10 +40,10 @@
 
 #include "mdb-imdb.h"
 
-CIMDB* CIMDB::getInstance()
+CIMDB *CIMDB::getInstance()
 {
-	static CIMDB* imdb = NULL;
-	if(!imdb)
+	static CIMDB *imdb = NULL;
+	if (!imdb)
 		imdb = new CIMDB();
 	return imdb;
 }
@@ -71,13 +71,16 @@ std::string CIMDB::utf82url(std::string s)
 	std::stringstream ss;
 	for (size_t i = 0; i < s.length(); ++i)
 	{
-		if (unsigned(s[i]) <= ' ') {
+		if (unsigned(s[i]) <= ' ')
+		{
 			ss << '+';
 		}
-		else if (unsigned(s[i]) <= '\x27') {
+		else if (unsigned(s[i]) <= '\x27')
+		{
 			ss << "%" << std::hex << unsigned(s[i]);
 		}
-		else {
+		else
+		{
 			ss << s[i];
 		}
 	}
@@ -90,7 +93,7 @@ std::string CIMDB::parseString(std::string search1, std::string search2, std::st
 	size_t pos_wildcard, pos_search1, pos_search2;
 	pos_wildcard = pos_search1 = pos_search2 = std::string::npos;
 
-	if((pos_wildcard = search1.find('*')) != std::string::npos)
+	if ((pos_wildcard = search1.find('*')) != std::string::npos)
 	{
 		search = search1.substr(0, pos_wildcard);
 		//std::cout << "wildcard detected" << '\t' << "= " << search << "[*]" << search1.substr(pos_wildcard+1) << std::endl;
@@ -99,19 +102,19 @@ std::string CIMDB::parseString(std::string search1, std::string search2, std::st
 		search = search1;
 
 	//std::cout << "search1" << "\t\t\t" << "= " << '"' << search << '"' << std::endl;
-	if((pos_search1 = str.find(search)) != std::string::npos)
+	if ((pos_search1 = str.find(search)) != std::string::npos)
 	{
 		//std::cout << "search1 found" << "\t\t" << "= " << '"' << search << '"' << " at pos "<< (int)(pos_search1) << " => " << str << std::endl;
 
 		pos_search1 += search.length();
 
-		if(pos_wildcard != std::string::npos)
+		if (pos_wildcard != std::string::npos)
 		{
 			size_t pos_wildcard_ext;
-			std::string wildcard_ext = search1.substr(pos_wildcard+1);
+			std::string wildcard_ext = search1.substr(pos_wildcard + 1);
 
 			//std::cout << "wildcard_ext" << "\t\t" << "= " << '"' << wildcard_ext << '"' << std::endl;
-			if((pos_wildcard_ext = str.find(wildcard_ext,pos_wildcard+1)) != std::string::npos)
+			if ((pos_wildcard_ext = str.find(wildcard_ext, pos_wildcard + 1)) != std::string::npos)
 			{
 				//std::cout << "wildcard_ext found" << "\t" << "= " << '"' << wildcard_ext << '"' << " at pos "<< (int)(pos_wildcard_ext) << " => " << str << std::endl;
 				pos_search1 = pos_wildcard_ext + wildcard_ext.length();
@@ -119,29 +122,29 @@ std::string CIMDB::parseString(std::string search1, std::string search2, std::st
 			else
 			{
 				//std::cout << "wildcard_ext not found in line " << acc << " - exit" << std::endl;
-				return("");
+				return ("");
 			}
 		}
 	}
 	else
 	{
 		//std::cout << "search1 not found in line " << acc << " - exit" << std::endl;
-		return("");
+		return ("");
 	}
 
-	if(pos_search1 != std::string::npos)
+	if (pos_search1 != std::string::npos)
 	{
 		//std::cout << "search2 " << "\t\t" << "= " << '"' << search2 << '"' << std::endl;
 
-		if(search2 == "\n")
+		if (search2 == "\n")
 		{
 			ret = str.substr(pos_search1, str.length() - pos_search1);
-			return(ret);
+			return (ret);
 		}
 
-		if((pos_search2 = str.find(search2, pos_search1)) != std::string::npos)
+		if ((pos_search2 = str.find(search2, pos_search1)) != std::string::npos)
 		{
-			if(search2.empty())
+			if (search2.empty())
 				pos_search2 = str.length();
 
 			//std::cout << "search2" << "\t\t\t" << "= " << '"' << search2 << '"' << " found at "<< (int)(pos_search2) << " => " << str << std::endl;
@@ -152,10 +155,10 @@ std::string CIMDB::parseString(std::string search1, std::string search2, std::st
 
 	}
 
-	return(ret);
+	return (ret);
 }
 
-std::string CIMDB::parseFile(std::string search1, std::string search2, const char* file, std::string firstline, int line_offset)
+std::string CIMDB::parseFile(std::string search1, std::string search2, const char *file, std::string firstline, int line_offset)
 {
 
 	acc = 0;
@@ -164,11 +167,11 @@ std::string CIMDB::parseFile(std::string search1, std::string search2, const cha
 	size_t pos_firstline;
 	pos_firstline = std::string::npos;
 
-	if(firstline.empty())
+	if (firstline.empty())
 		pos_firstline = 0;
 
 	fh.open(file, std::ios::in);
-	if(fh.is_open())
+	if (fh.is_open())
 	{
 		int line = 0;
 		while (!fh.eof())
@@ -176,33 +179,33 @@ std::string CIMDB::parseFile(std::string search1, std::string search2, const cha
 			getline(fh, str);
 			acc++;
 
-			if(pos_firstline == std::string::npos)
+			if (pos_firstline == std::string::npos)
 			{
-				if((pos_firstline = str.find(firstline)) != std::string::npos)
+				if ((pos_firstline = str.find(firstline)) != std::string::npos)
 				{
 					//std::cout << "firstline found " << str << std::endl;
 				}
 				continue;
 			}
 
-			if(line_offset /*&& pos_firstline != std::string::npos*/)
+			if (line_offset /*&& pos_firstline != std::string::npos*/)
 			{
-				if(line+1 != line_offset)
+				if (line + 1 != line_offset)
 				{
 					line++;
 					continue;
 				}
 			}
 
-			ret = parseString(search1,search2,str);
+			ret = parseString(search1, search2, str);
 
-			if(!ret.empty())
+			if (!ret.empty())
 				break;
 		}
 		fh.close();
 	}
 
-	return(ret);
+	return (ret);
 }
 
 std::string CIMDB::googleIMDb(std::string s)
@@ -210,7 +213,7 @@ std::string CIMDB::googleIMDb(std::string s)
 	CHTTPTool httpTool;
 	std::string ret = search_error;
 	std::string search_string("title+");
-	char* search_char = (char*) s.c_str();
+	char *search_char = (char *) s.c_str();
 
 	m.clear();
 	unlink(search_outfile.c_str());
@@ -236,7 +239,7 @@ std::string CIMDB::googleIMDb(std::string s)
 	{
 		ret = parseFile("https://www.imdb.com/title/", ">", search_outfile.c_str());
 
-		if(ret.empty())
+		if (ret.empty())
 			ret = parseFile("http://www.imdb.de/title/", ">", search_outfile.c_str());
 
 		std::string delimiters = "/&;";
@@ -247,19 +250,19 @@ std::string CIMDB::googleIMDb(std::string s)
 	return ret;
 }
 
-void CIMDB::initMap( std::map<std::string, std::string>& my )
+void CIMDB::initMap(std::map<std::string, std::string> &my)
 {
 	std::string errMsg = "";
 	Json::Value root;
 
 	std::ostringstream ss;
-	std::ifstream fh(imdb_outfile.c_str(),std::ifstream::in);
+	std::ifstream fh(imdb_outfile.c_str(), std::ifstream::in);
 	ss << fh.rdbuf();
 	std::string filedata = ss.str();
 
 	bool parsedSuccess = parseJsonFromString(filedata, &root, &errMsg);
 
-	if(!parsedSuccess)
+	if (!parsedSuccess)
 	{
 		std::cout << "Failed to parse JSON\n";
 		std::cout << errMsg << std::endl;
@@ -299,14 +302,14 @@ void CIMDB::initMap( std::map<std::string, std::string>& my )
 	//my["Type"]		= root.get("Type", "").asString();
 }
 
-int CIMDB::getMovieDetails(const std::string& epgTitle)
+int CIMDB::getMovieDetails(const std::string &epgTitle)
 {
 	CHTTPTool httpTool;
 	int ret = 0;
 
 	std::string imdb_id = googleIMDb(epgTitle);
 
-	if(((imdb_id.find(search_error)) != std::string::npos))
+	if (((imdb_id.find(search_error)) != std::string::npos))
 		return ret;
 
 	std::string url = imdb_url + imdb_id;
@@ -317,34 +320,36 @@ int CIMDB::getMovieDetails(const std::string& epgTitle)
 
 		//std::cout << "m now contains " << m.size() << " elements.\n";
 
-		if(m.empty() || m["Response"]!="True")
+		if (m.empty() || m["Response"] != "True")
 			return 0;
 
 		//for (std::map<std::string,std::string>::iterator it=m.begin(); it!=m.end(); ++it)
 		//	std::cout << it->first << " => " << it->second << '\n';
 
 		//download Poster
-		if(m["Poster"] != "N/A")
+		if (m["Poster"] != "N/A")
 		{
 			// if possible load bigger image
-			std::string origURL ("300");
-			std::string replURL ("600");
+			std::string origURL("300");
+			std::string replURL("600");
 
-			if (m["Poster"].compare(m["Poster"].size()-7,3,origURL) == 0){
+			if (m["Poster"].compare(m["Poster"].size() - 7, 3, origURL) == 0)
+			{
 				//std::cout << "########## " << m["Poster"] << " contains " << origURL << '\n';
-				m["Poster"].replace(m["Poster"].size()-7,3,replURL);
+				m["Poster"].replace(m["Poster"].size() - 7, 3, replURL);
 				//std::cout << "########## New string: " << m["Poster"] << '\n';
 			}
 
 			if (httpTool.downloadFile(m["Poster"], posterfile.c_str()))
 				return 2;
-			else {
+			else
+			{
 				if (access(posterfile.c_str(), F_OK) == 0)
 					unlink(posterfile.c_str());
 				return 1;
 			}
 		}
-		ret=2;
+		ret = 2;
 	}
 
 	return ret;
@@ -434,13 +439,13 @@ std::string CIMDB::getMovieText()
 	return movietext;
 }
 
-std::string CIMDB::getFilename(CZapitChannel * channel, uint64_t id)
+std::string CIMDB::getFilename(CZapitChannel *channel, uint64_t id)
 {
 	char		fname[512]; // UTF-8
 	char		buf[256];
 	unsigned int	pos = 0;
 
-	if(check_dir(g_settings.network_nfs_recordingdir.c_str()))
+	if (check_dir(g_settings.network_nfs_recordingdir.c_str()))
 		return ("");
 
 	snprintf(fname, sizeof(fname), "%s/", g_settings.network_nfs_recordingdir.c_str());
@@ -451,36 +456,40 @@ std::string CIMDB::getFilename(CZapitChannel * channel, uint64_t id)
 	if (FilenameTemplate.empty())
 		FilenameTemplate = "%C_%T_%d_%t";
 
-	StringReplace(FilenameTemplate,"%d","");
-	StringReplace(FilenameTemplate,"%t","");
-	StringReplace(FilenameTemplate,"__","_");
+	StringReplace(FilenameTemplate, "%d", "");
+	StringReplace(FilenameTemplate, "%t", "");
+	StringReplace(FilenameTemplate, "__", "_");
 
 	std::string channel_name = channel->getName();
-	if (!(channel_name.empty())) {
+	if (!(channel_name.empty()))
+	{
 		strcpy(buf, UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
 		ZapitTools::replace_char(buf);
-		StringReplace(FilenameTemplate,"%C",buf);
+		StringReplace(FilenameTemplate, "%C", buf);
 	}
 	else
-		StringReplace(FilenameTemplate,"%C","no_channel");
+		StringReplace(FilenameTemplate, "%C", "no_channel");
 
 	CShortEPGData epgdata;
-	if(CEitManager::getInstance()->getEPGidShort(id, &epgdata)) {
-		if (!(epgdata.title.empty())) {
+	if (CEitManager::getInstance()->getEPGidShort(id, &epgdata))
+	{
+		if (!(epgdata.title.empty()))
+		{
 			strcpy(buf, epgdata.title.c_str());
 			ZapitTools::replace_char(buf);
-			StringReplace(FilenameTemplate,"%T",buf);
+			StringReplace(FilenameTemplate, "%T", buf);
 		}
 		else
-			StringReplace(FilenameTemplate,"%T","no_title");
+			StringReplace(FilenameTemplate, "%T", "no_title");
 
-		if (!(epgdata.info1.empty())) {
+		if (!(epgdata.info1.empty()))
+		{
 			strcpy(buf, epgdata.info1.c_str());
 			ZapitTools::replace_char(buf);
-			StringReplace(FilenameTemplate,"%I",buf);
+			StringReplace(FilenameTemplate, "%I", buf);
 		}
 		else
-			StringReplace(FilenameTemplate,"%I","no_info");
+			StringReplace(FilenameTemplate, "%I", "no_info");
 	}
 
 	strcpy(&(fname[pos]), UTF8_TO_FILESYSTEM_ENCODING(FilenameTemplate.c_str()));
@@ -496,8 +505,9 @@ void CIMDB::StringReplace(std::string &str, const std::string search, const std:
 {
 	std::string::size_type ptr = 0;
 	std::string::size_type pos = 0;
-	while((ptr = str.find(search,pos)) != std::string::npos){
-		str.replace(ptr,search.length(),rstr);
+	while ((ptr = str.find(search, pos)) != std::string::npos)
+	{
+		str.replace(ptr, search.length(), rstr);
 		pos = ptr + rstr.length();
 	}
 }

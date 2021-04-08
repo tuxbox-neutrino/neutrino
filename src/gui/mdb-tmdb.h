@@ -1,4 +1,6 @@
 /*
+	Movie Database - TMDb
+
 	Copyright (C) 2015-2020 TangoCash
 
 	License: GPLv2
@@ -25,7 +27,8 @@
 #include <system/helpers-json.h>
 #include <gui/widget/hintbox.h>
 
-typedef struct {
+typedef struct
+{
 	std::string epgtitle;
 	std::string poster_path;
 	std::string overview;
@@ -42,13 +45,13 @@ typedef struct {
 	int         episodes;
 	int         seasons;
 	std::string cast;
-}tmdbinfo;
+} tmdbinfo;
 
 class CTMDB
 {
 	private:
 		tmdbinfo minfo;
-		CHintBox* hintbox;
+		CHintBox *hintbox;
 		std::string key; // tmdb api key
 		bool getMovieDetails(std::string lang, bool second = false);
 		bool getData(std::string url, Json::Value *root);
@@ -58,23 +61,23 @@ class CTMDB
 	public:
 		CTMDB();
 		~CTMDB();
-		static CTMDB* getInstance();
+		static CTMDB *getInstance();
 		void        setTitle(std::string epgtitle);
 		std::string getEPGText();
 		std::string getMovieText();
 
-		std::string getTitle()				{ return minfo.epgtitle;}
-		std::string getOrgTitle()			{ return minfo.original_title;}
-		std::string getReleaseDate()			{ return minfo.release_date;}
-		std::string getDescription()			{ return minfo.overview;}
-		std::string getVote()				{ return minfo.vote_average;}
-		std::string getCast()				{ return minfo.cast;}
-		std::string getPoster()				{ return posterfile;}
-		bool        hasPoster()				{ return !minfo.poster_path.empty();}
-		bool        getBigPoster(std::string poster)	{ return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, poster);}
-		bool        getSmallPoster(std::string poster)	{ return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, poster);}
-		int         getResults()			{ return minfo.result;}
-		int         getStars()				{ return (int) (atof(minfo.vote_average.c_str())+0.5);}
+		std::string getTitle()				{ return minfo.epgtitle; }
+		std::string getOrgTitle()			{ return minfo.original_title; }
+		std::string getReleaseDate()			{ return minfo.release_date; }
+		std::string getDescription()			{ return minfo.overview; }
+		std::string getVote()				{ return minfo.vote_average; }
+		std::string getCast()				{ return minfo.cast; }
+		std::string getPoster()				{ return posterfile; }
+		bool        hasPoster()				{ return !minfo.poster_path.empty(); }
+		bool        getBigPoster(std::string poster)	{ return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, poster); }
+		bool        getSmallPoster(std::string poster)	{ return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, poster); }
+		int         getResults()			{ return minfo.result; }
+		int         getStars()				{ return (int)(atof(minfo.vote_average.c_str()) * 10); }
 		void        cleanup();
 };
 

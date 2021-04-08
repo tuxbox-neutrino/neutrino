@@ -37,15 +37,15 @@ class CIMDB
 		std::string googleIMDb(std::string s);
 		std::string utf82url(std::string s);
 		std::string parseString(std::string search1, std::string search2, std::string str);
-		std::string parseFile(std::string search1, std::string search2, const char* file, std::string firstline="", int line_offset=0);
+		std::string parseFile(std::string search1, std::string search2, const char *file, std::string firstline = "", int line_offset = 0);
 		std::map<std::string, std::string> m;
 
-		void initMap(std::map<std::string, std::string>& my);
+		void initMap(std::map<std::string, std::string> &my);
 
 	public:
 		CIMDB();
 		~CIMDB();
-		static CIMDB* getInstance();
+		static CIMDB *getInstance();
 
 		std::string search_url;
 		std::string search_outfile;
@@ -53,20 +53,20 @@ class CIMDB
 		std::string imdb_outfile;
 		std::string posterfile;
 
-		int getMovieDetails(const std::string& epgTitle);
-		std::string getFilename(CZapitChannel * channel, uint64_t id);
+		int getMovieDetails(const std::string &epgTitle);
+		std::string getFilename(CZapitChannel *channel, uint64_t id);
 		void StringReplace(std::string &str, const std::string search, const std::string rstr);
 		void cleanup();
 
 		std::string getEPGText();
 		std::string getMovieText();
 
-		std::string getPoster()	{ return posterfile;}
+		std::string getPoster() { return posterfile; }
 		bool hasPoster() { return (access(posterfile.c_str(), F_OK) == 0); }
 
 		bool checkElement(std::string element);
 		//FIXME: what if m[element] doesn't exist?
-		std::string getIMDbElement(std::string element)  { return m[element]; };
+		std::string getIMDbElement(std::string element) { return m[element]; };
 };
 
 #endif
