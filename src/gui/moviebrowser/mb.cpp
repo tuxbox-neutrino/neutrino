@@ -51,6 +51,7 @@
 #include "mb_functions.h"
 #include "mb_help.h"
 #include <gui/filebrowser.h>
+#include <gui/mdb-imdb.h>
 #include <gui/mdb-tmdb.h>
 #include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
@@ -423,8 +424,6 @@ void CMovieBrowser::init(void)
 
 	m_doRefresh = false;
 	m_doLoadMovies = false;
-
-	imdb = CIMDB::getInstance();
 }
 
 void CMovieBrowser::initGlobalStorageSettings(void)
@@ -813,6 +812,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			hintBox.paint();
 
 			std::string title = m_movieSelectionHandler->epgTitle;
+			CIMDB *imdb = CIMDB::getInstance();
 			imdb->getIMDb(title);
 
 #if 0
@@ -878,6 +878,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 					printf("* poster: copy error\n");
 			}
 
+			imdb = NULL;
 			//m_movieInfo.saveMovieInfo(*m_movieSelectionHandler);
 			hintBox.hide();
 		}
