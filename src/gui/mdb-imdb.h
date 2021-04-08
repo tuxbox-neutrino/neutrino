@@ -53,7 +53,7 @@ class CIMDB
 		std::string imdb_outfile;
 		std::string posterfile;
 
-		int getIMDb(const std::string& epgTitle);
+		int getMovieDetails(const std::string& epgTitle);
 		std::string getFilename(CZapitChannel * channel, uint64_t id);
 		void StringReplace(std::string &str, const std::string search, const std::string rstr);
 		void cleanup();
@@ -64,7 +64,7 @@ class CIMDB
 		std::string getPoster()	{ return posterfile;}
 		bool hasPoster() { return (access(posterfile.c_str(), F_OK) == 0); }
 
-		bool checkIMDbElement(std::string element);
+		bool checkElement(std::string element);
 		//FIXME: what if m[element] doesn't exist?
 		std::string getIMDbElement(std::string element)  { return m[element]; };
 };

@@ -50,8 +50,8 @@ class CTMDB
 		tmdbinfo minfo;
 		CHintBox* hintbox;
 		std::string key; // tmdb api key
-		bool GetMovieDetails(std::string lang, bool second = false);
-		bool GetData(std::string url, Json::Value *root);
+		bool getMovieDetails(std::string lang, bool second = false);
+		bool getData(std::string url, Json::Value *root);
 		void selectResult(Json::Value elements, int results, int &used_result);
 		std::string posterfile;
 

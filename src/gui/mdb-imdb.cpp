@@ -299,7 +299,7 @@ void CIMDB::initMap( std::map<std::string, std::string>& my )
 	//my["Type"]		= root.get("Type", "").asString();
 }
 
-int CIMDB::getIMDb(const std::string& epgTitle)
+int CIMDB::getMovieDetails(const std::string& epgTitle)
 {
 	CHTTPTool httpTool;
 	int ret = 0;
@@ -350,7 +350,7 @@ int CIMDB::getIMDb(const std::string& epgTitle)
 	return ret;
 }
 
-bool CIMDB::checkIMDbElement(std::string element)
+bool CIMDB::checkElement(std::string element)
 {
 	if (m[element].empty() || m[element].compare("N/A") == 0)
 		return false;
@@ -366,34 +366,34 @@ std::string CIMDB::getEPGText()
 	std::string epgtext("");
 
 	epgtext += g_Locale->getString(LOCALE_IMDB_DATA_VOTES) + ": " + m["imdbVotes"] + "\n";
-	if (checkIMDbElement("Metascore"))
+	if (checkElement("Metascore"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_METASCORE) + ": " + m["Metascore"] + "/100\n";
 	epgtext += "\n";
 	epgtext += g_Locale->getString(LOCALE_IMDB_DATA_TITLE) + ": " + m["Title"] + "\n";
-	if (checkIMDbElement("Released"))
+	if (checkElement("Released"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_RELEASED) + ": " + m["Country"] + ", " + m["Released"] + "\n";
-	if (checkIMDbElement("Runtime"))
+	if (checkElement("Runtime"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_RUNTIME) + ": " + m["Runtime"] + "\n";
-	if (checkIMDbElement("Genre"))
+	if (checkElement("Genre"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_GENRE) + ": " + m["Genre"] + "\n";
-	if (checkIMDbElement("Awards"))
+	if (checkElement("Awards"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_AWARDS) + ": " + m["Awards"] + "\n";
-	if (checkIMDbElement("Director"))
+	if (checkElement("Director"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_DIRECTOR) + ": " + m["Director"] + "\n";
-	if (checkIMDbElement("Writer"))
+	if (checkElement("Writer"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_WRITER) + ": " + m["Writer"] + "\n";
-	if (checkIMDbElement("Production"))
+	if (checkElement("Production"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_PRODUCTION) + ": " + m["Production"] + "\n";
-	if (checkIMDbElement("Website"))
+	if (checkElement("Website"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_WEBSITE) + ": " + m["Website"] + "\n";
-	if (checkIMDbElement("BoxOffice"))
+	if (checkElement("BoxOffice"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_BOXOFFICE) + ": " + m["BoxOffice"] + "\n";
-	if (checkIMDbElement("Actors"))
+	if (checkElement("Actors"))
 	{
 		epgtext += "\n";
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_ACTORS) + ": " + m["Actors"] + "\n";
 	}
-	if (checkIMDbElement("Plot"))
+	if (checkElement("Plot"))
 	{
 		epgtext += "\n";
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_PLOT) + ": " + m["Plot"];
@@ -406,24 +406,24 @@ std::string CIMDB::getMovieText()
 {
 	std::string movietext("");
 
-	if (checkIMDbElement("Plot"))
+	if (checkElement("Plot"))
 	{
 		movietext = m["Plot"] + "\n";
-		if (checkIMDbElement("Title"))
+		if (checkElement("Title"))
 		{
 			movietext += "\n";
 			movietext += g_Locale->getString(LOCALE_IMDB_DATA_TITLE) + ": ";
 			movietext += m["Title"];
 		}
-		if (checkIMDbElement("Country"))
+		if (checkElement("Country"))
 		{
 			movietext += "\n";
 			movietext += g_Locale->getString(LOCALE_IMDB_DATA_RELEASED) + ": ";
 			movietext += m["Country"];
-			if (checkIMDbElement("Released"))
+			if (checkElement("Released"))
 				movietext += ", " + m["Released"];
 		}
-		if (checkIMDbElement("Actors"))
+		if (checkElement("Actors"))
 		{
 			movietext += "\n";
 			movietext += g_Locale->getString(LOCALE_IMDB_DATA_ACTORS) + ": ";

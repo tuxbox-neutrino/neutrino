@@ -1200,7 +1200,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					//show IMDb info
 					imdb_active = true;
 					showIMDb(true); //show splashscreen only
-					imdb->getIMDb(epgData.title);
+					imdb->getMovieDetails(epgData.title);
 					showIMDb();
 					showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);

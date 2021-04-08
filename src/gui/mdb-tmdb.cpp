@@ -74,9 +74,9 @@ void CTMDB::setTitle(std::string epgtitle)
 	hintbox->paint();
 
 	std::string lang = Lang2ISO639_1(g_settings.language);
-	GetMovieDetails(lang);
+	getMovieDetails(lang);
 	if ((minfo.result < 1 || minfo.overview.empty()) && lang != "en")
-		GetMovieDetails("en", true);
+		getMovieDetails("en", true);
 
 	if(hintbox){
 		hintbox->hide();
@@ -85,7 +85,7 @@ void CTMDB::setTitle(std::string epgtitle)
 	}
 }
 
-bool CTMDB::GetData(std::string url, Json::Value *root)
+bool CTMDB::getData(std::string url, Json::Value *root)
 {
 	std::string answer;
 	if (!getUrl(url, answer))
@@ -101,13 +101,13 @@ bool CTMDB::GetData(std::string url, Json::Value *root)
 	return true;
 }
 
-bool CTMDB::GetMovieDetails(std::string lang, bool second)
+bool CTMDB::getMovieDetails(std::string lang, bool second)
 {
 	printf("[TMDB]: %s\n",__func__);
 	Json::Value root;
 	const std::string urlapi = "http://api.themoviedb.org/3/";
 	std::string url	= urlapi + "search/multi?api_key="+key+"&language="+lang+"&query=" + encodeUrl(minfo.epgtitle);
-	if(!(GetData(url, &root)))
+	if(!(getData(url, &root)))
 		return false;
 
 	minfo.result = root.get("total_results",0).asInt();
@@ -119,7 +119,7 @@ bool CTMDB::GetMovieDetails(std::string lang, bool second)
 			printf("[TMDB]: second try\n");
 			title.replace(pos1, pos2-pos1+1, "");
 			url	= urlapi + "search/multi?api_key="+key+"&language="+lang+"&query=" + encodeUrl(title);
-			if(!(GetData(url, &root)))
+			if(!(getData(url, &root)))
 				return false;
 
 			minfo.result = root.get("total_results",0).asInt();
@@ -140,7 +140,7 @@ bool CTMDB::GetMovieDetails(std::string lang, bool second)
 		}
 		if (minfo.id > -1) {
 			url = urlapi+minfo.media_type+"/"+to_string(minfo.id)+"?api_key="+key+"&language="+lang+"&append_to_response=credits";
-			if(!(GetData(url, &root)))
+			if(!(getData(url, &root)))
 				return false;
 
 			minfo.overview = root.get("overview","").asString();

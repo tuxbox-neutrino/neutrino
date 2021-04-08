@@ -813,7 +813,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 
 			std::string title = m_movieSelectionHandler->epgTitle;
 			CIMDB *imdb = CIMDB::getInstance();
-			imdb->getIMDb(title);
+			imdb->getMovieDetails(title);
 
 #if 0
 			element = imdb->getIMDbElement("Title");
