@@ -244,7 +244,7 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 {
 	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2];
-	std::string cover = tmdb->getCover();
+	std::string cover = "";
 	int cover_max_width = ox/4; //25%
 	int cover_max_height = sb-(2*OFFSET_INNER_MID);
 	int cover_width = 0;
@@ -255,6 +255,8 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	{
 		if (imdb_active)
 			cover = imdb->posterfile;
+		else if (tmdb_active)
+			cover = tmdb->getCover();
 
 		g_PicViewer->getSize(cover.c_str(), &cover_width, &cover_height);
 		if (cover_width && cover_height)
@@ -700,6 +702,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		startzeit=*a_startzeit;
 	id=a_id;
 
+	imdb_active = false;
+	imdb_stars = 0;
 	tmdb_active = false;
 	stars = 0;
 
@@ -985,9 +989,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				CNeutrinoApp::getInstance()->handleMsg(msg, data);
 				break;
 			case CRCInput::RC_left:
-				if(imdb_active)
-					imdb_active = false;
-
 				if ((prev_id != 0) && !call_fromfollowlist && !mp_info)
 				{
 					toph = topboxheight;
@@ -996,9 +997,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				}
 				break;
 			case CRCInput::RC_right:
-				if(imdb_active)
-					imdb_active = false;
-
 				if ((next_id != 0) && !call_fromfollowlist && !mp_info)
 				{
 					toph = topboxheight;
@@ -1182,7 +1180,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					} else {
 						epgText = epgText_saved;
 						textCount = epgText.size();
-						tmdb_active = !tmdb_active;
+						tmdb_active = false;
 						stars=0;
 						showText(showPos, sy + toph);
 					}
