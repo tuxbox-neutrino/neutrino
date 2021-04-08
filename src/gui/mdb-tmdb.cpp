@@ -24,26 +24,22 @@
 #include <config.h>
 #endif
 
+#include <fstream>
+#include <set>
+#include <string>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
-#include <fstream>
-
-#include <set>
-#include <string>
 
 #include <neutrino.h>
-
-#include "system/settings.h"
-#include "system/set_threadname.h"
-
+#include <system/settings.h>
+#include <system/set_threadname.h>
 #include <driver/screen_max.h>
-
 #include <global.h>
-
 #include "mdb-tmdb.h"
 
 CTMDB* CTMDB::getInstance()

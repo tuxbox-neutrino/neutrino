@@ -28,34 +28,17 @@
 #include <fstream>
 #include <iostream>
 
+#include <unistd.h>
+
 #include <global.h>
 #include <driver/screen_max.h>
 #include <system/httptool.h>
 #include <system/helpers.h>
 #include <system/helpers-json.h>
 #include <eitd/sectionsd.h>
-#include <unistd.h>
 #include <json/json.h>
 
 #include "mdb-imdb.h"
-
-
-CIMDB::CIMDB()
-{
-	search_url	= "http://www.google.de/search?q=";
-	search_outfile	= "/tmp/google.out";
-	search_error	= "IMDb: Google download failed";
-	imdb_url	= "http://www.omdbapi.com/?plot=full&r=json&i=";
-	imdb_outfile	= "/tmp/imdb.json";
-	posterfile	= "/tmp/imdb.jpg";
-
-	acc = 0;
-}
-
-CIMDB::~CIMDB()
-{
-	cleanup();
-}
 
 CIMDB* CIMDB::getInstance()
 {
@@ -65,11 +48,22 @@ CIMDB* CIMDB::getInstance()
 	return imdb;
 }
 
-inline std::string CIMDB::getApiKey()
+CIMDB::CIMDB()
 {
-	std::string 	ret = "&apikey=";
-			ret += g_settings.omdb_api_key;
-	return ret;
+	key		= g_settings.omdb_api_key;
+	search_url	= "http://www.google.de/search?q=";
+	search_outfile	= "/tmp/google.out";
+	search_error	= "IMDb: Google download failed";
+	imdb_url	= "http://www.omdbapi.com/?plot=full&r=json&apikey=" + key + "&i=";
+	imdb_outfile	= "/tmp/imdb.json";
+	posterfile	= "/tmp/imdb.jpg";
+
+	acc = 0;
+}
+
+CIMDB::~CIMDB()
+{
+	cleanup();
 }
 
 std::string CIMDB::utf82url(std::string s)
@@ -315,7 +309,7 @@ int CIMDB::getIMDb(const std::string& epgTitle)
 	if(((imdb_id.find(search_error)) != std::string::npos))
 		return ret;
 
-	std::string url = imdb_url + imdb_id + getApiKey();
+	std::string url = imdb_url + imdb_id;
 
 	if (httpTool.downloadFile(url, imdb_outfile.c_str()))
 	{

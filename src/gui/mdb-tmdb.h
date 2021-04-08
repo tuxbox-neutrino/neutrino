@@ -21,9 +21,9 @@
 #define __TMDB__
 
 #include <string>
-#include "system/helpers.h"
+#include <system/helpers.h>
 #include <system/helpers-json.h>
-#include "gui/widget/hintbox.h"
+#include <gui/widget/hintbox.h>
 
 #define TMDB_COVER "/tmp/tmdb.jpg"
 

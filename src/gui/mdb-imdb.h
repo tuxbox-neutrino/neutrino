@@ -56,6 +56,7 @@ class CIMDB
 	private:
 		int acc;
 		std::string imdb_url;
+		std::string key; // omdb api key
 
 		std::string googleIMDb(std::string s);
 		std::string utf82url(std::string s);
