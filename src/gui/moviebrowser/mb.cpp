@@ -51,7 +51,7 @@
 #include "mb_functions.h"
 #include "mb_help.h"
 #include <gui/filebrowser.h>
-#include <gui/tmdb.h>
+#include <gui/mdb-tmdb.h>
 #include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
@@ -2156,7 +2156,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					extension = "." + extension;
 					str_replace(extension, ".jpg", cover_file);
 					printf("TMDB: %s : %s\n",m_movieSelectionHandler->file.Name.c_str(),cover_file.c_str());
-					cTmdb* tmdb = cTmdb::getInstance();
+					CTMDB* tmdb = CTMDB::getInstance();
 					if (tmdb)
 					{
 						tmdb->setTitle(m_movieSelectionHandler->epgTitle);

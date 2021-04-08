@@ -1,5 +1,5 @@
 /*
-	imdb
+	Movie Database - OMDb/IMDb
 
 	(C) 2009-2016 NG-Team
 	(C) 2016 NI-Team
@@ -37,7 +37,7 @@
 #include <unistd.h>
 #include <json/json.h>
 
-#include "imdb.h"
+#include "mdb-imdb.h"
 
 
 CIMDB::CIMDB()

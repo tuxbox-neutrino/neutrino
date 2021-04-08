@@ -133,7 +133,7 @@ CEpgData::CEpgData()
 
 	imdb = CIMDB::getInstance();
 	imdb_active = false;
-	tmdb = cTmdb::getInstance();
+	tmdb = CTMDB::getInstance();
 	tmdb_active = false;
 	movie_filename.clear();
 }

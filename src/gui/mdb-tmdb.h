@@ -46,7 +46,7 @@ typedef struct {
 	std::string cast;
 }tmdbinfo;
 
-class cTmdb
+class CTMDB
 {
 	private:
 		tmdbinfo minfo;
@@ -57,9 +57,9 @@ class cTmdb
 		void selectResult(Json::Value elements, int results, int &used_result);
 
 	public:
-		cTmdb();
-		~cTmdb();
-		static cTmdb* getInstance();
+		CTMDB();
+		~CTMDB();
+		static CTMDB* getInstance();
 		void        setTitle(std::string epgtitle);
 		std::string getEPGText();
 		std::string getMovieText();

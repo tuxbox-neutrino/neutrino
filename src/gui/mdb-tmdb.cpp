@@ -1,4 +1,6 @@
 /*
+	Movie Database - TMDb
+
 	Copyright (C) 2015-2020 TangoCash
 
 	License: GPLv2
@@ -42,17 +44,17 @@
 
 #include <global.h>
 
-#include "tmdb.h"
+#include "mdb-tmdb.h"
 
-cTmdb* cTmdb::getInstance()
+CTMDB* CTMDB::getInstance()
 {
-	static cTmdb* tmdb = NULL;
+	static CTMDB* tmdb = NULL;
 	if(!tmdb)
-		tmdb = new cTmdb();
+		tmdb = new CTMDB();
 	return tmdb;
 }
 
-cTmdb::cTmdb()
+CTMDB::CTMDB()
 {
 #ifdef TMDB_API_KEY
 	key = TMDB_API_KEY;
@@ -62,12 +64,12 @@ cTmdb::cTmdb()
 	hintbox = NULL;
 }
 
-cTmdb::~cTmdb()
+CTMDB::~CTMDB()
 {
     cleanup();
 }
 
-void cTmdb::setTitle(std::string epgtitle)
+void CTMDB::setTitle(std::string epgtitle)
 {
 	minfo.epgtitle = epgtitle;
 
@@ -86,7 +88,7 @@ void cTmdb::setTitle(std::string epgtitle)
 	}
 }
 
-bool cTmdb::GetData(std::string url, Json::Value *root)
+bool CTMDB::GetData(std::string url, Json::Value *root)
 {
 	std::string answer;
 	if (!getUrl(url, answer))
@@ -102,7 +104,7 @@ bool cTmdb::GetData(std::string url, Json::Value *root)
 	return true;
 }
 
-bool cTmdb::GetMovieDetails(std::string lang, bool second)
+bool CTMDB::GetMovieDetails(std::string lang, bool second)
 {
 	printf("[TMDB]: %s\n",__func__);
 	Json::Value root;
@@ -189,7 +191,7 @@ bool cTmdb::GetMovieDetails(std::string lang, bool second)
 	return false;
 }
 
-std::string cTmdb::getEPGText()
+std::string CTMDB::getEPGText()
 {
 	std::string epgtext("");
 
@@ -212,7 +214,7 @@ std::string cTmdb::getEPGText()
 	return epgtext;
 }
 
-std::string cTmdb::getMovieText()
+std::string CTMDB::getMovieText()
 {
 	std::string movietext("");
 
@@ -230,13 +232,13 @@ std::string cTmdb::getMovieText()
 	return movietext;
 }
 
-void cTmdb::cleanup()
+void CTMDB::cleanup()
 {
 	if (access(TMDB_COVER, F_OK) == 0)
 		unlink(TMDB_COVER);
 }
 
-void cTmdb::selectResult(Json::Value elements, int results, int &use_result)
+void CTMDB::selectResult(Json::Value elements, int results, int &use_result)
 {
 	if(hintbox){
 		hintbox->hide();
