@@ -509,8 +509,3 @@ void CIMDB::cleanup()
 	if (access(posterfile.c_str(), F_OK) == 0)
 		unlink(posterfile.c_str());
 }
-
-bool CIMDB::gotPoster()
-{
-	return (access(posterfile.c_str(), F_OK) == 0);
-}

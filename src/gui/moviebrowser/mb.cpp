@@ -2161,10 +2161,10 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					if (tmdb)
 					{
 						tmdb->setTitle(m_movieSelectionHandler->epgTitle);
-						if ((tmdb->getResults() > 0) && (tmdb->hasCover()))
+						if ((tmdb->getResults() > 0) && (tmdb->hasPoster()))
 						{
 							if (!cover_file.empty())
-								if (tmdb->getSmallCover(cover_file))
+								if (tmdb->getSmallPoster(cover_file))
 									refresh();
 						}
 						tmdb->cleanup();

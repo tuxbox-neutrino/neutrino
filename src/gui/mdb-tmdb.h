@@ -25,8 +25,6 @@
 #include <system/helpers-json.h>
 #include <gui/widget/hintbox.h>
 
-#define TMDB_COVER "/tmp/tmdb.jpg"
-
 typedef struct {
 	std::string epgtitle;
 	std::string poster_path;
@@ -55,6 +53,7 @@ class CTMDB
 		bool GetMovieDetails(std::string lang, bool second = false);
 		bool GetData(std::string url, Json::Value *root);
 		void selectResult(Json::Value elements, int results, int &used_result);
+		std::string posterfile;
 
 	public:
 		CTMDB();
@@ -70,10 +69,10 @@ class CTMDB
 		std::string getDescription()			{ return minfo.overview;}
 		std::string getVote()				{ return minfo.vote_average;}
 		std::string getCast()				{ return minfo.cast;}
-		std::string getCover()				{ return TMDB_COVER;}
-		bool        hasCover()				{ return !minfo.poster_path.empty();}
-		bool        getBigCover(std::string cover)	{ return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, cover);}
-		bool        getSmallCover(std::string cover)	{ return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, cover);}
+		std::string getPoster()				{ return posterfile;}
+		bool        hasPoster()				{ return !minfo.poster_path.empty();}
+		bool        getBigPoster(std::string poster)	{ return downloadUrl("http://image.tmdb.org/t/p/w342" + minfo.poster_path, poster);}
+		bool        getSmallPoster(std::string poster)	{ return downloadUrl("http://image.tmdb.org/t/p/w185" + minfo.poster_path, poster);}
 		int         getResults()			{ return minfo.result;}
 		int         getStars()				{ return (int) (atof(minfo.vote_average.c_str())+0.5);}
 		void        cleanup();

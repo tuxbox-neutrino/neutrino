@@ -24,10 +24,24 @@
 #ifndef __imdb__
 #define __imdb__
 
+#include <system/helpers.h>
 #include <zapit/zapit.h>
 
 class CIMDB
 {
+	private:
+		int acc;
+		std::string imdb_url;
+		std::string key; // omdb api key
+
+		std::string googleIMDb(std::string s);
+		std::string utf82url(std::string s);
+		std::string parseString(std::string search1, std::string search2, std::string str);
+		std::string parseFile(std::string search1, std::string search2, const char* file, std::string firstline="", int line_offset=0);
+		std::map<std::string, std::string> m;
+
+		void initMap(std::map<std::string, std::string>& my);
+
 	public:
 		CIMDB();
 		~CIMDB();
@@ -47,26 +61,12 @@ class CIMDB
 		std::string getEPGText();
 		std::string getMovieText();
 
-		bool gotPoster();
+		std::string getPoster()	{ return posterfile;}
+		bool hasPoster() { return (access(posterfile.c_str(), F_OK) == 0); }
 
 		bool checkIMDbElement(std::string element);
 		//FIXME: what if m[element] doesn't exist?
 		std::string getIMDbElement(std::string element)  { return m[element]; };
-
-	private:
-		int acc;
-		std::string imdb_url;
-		std::string key; // omdb api key
-
-		std::string googleIMDb(std::string s);
-		std::string utf82url(std::string s);
-		std::string parseString(std::string search1, std::string search2, std::string str);
-		std::string parseFile(std::string search1, std::string search2, const char* file, std::string firstline="", int line_offset=0);
-		std::map<std::string, std::string> m;
-
-		std::string getApiKey();
-
-		void	initMap(std::map<std::string, std::string>& my);
 };
 
 #endif

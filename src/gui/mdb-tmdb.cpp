@@ -57,6 +57,7 @@ CTMDB::CTMDB()
 #else
 	key = g_settings.tmdb_api_key;
 #endif
+	posterfile = "/tmp/tmdb.jpg";
 	hintbox = NULL;
 }
 
@@ -174,9 +175,9 @@ bool CTMDB::GetMovieDetails(std::string lang, bool second)
 				//printf("test: %s (%s)\n",elements[i].get("character","").asString().c_str(),elements[i].get("name","").asString().c_str());
 			}
 
-			unlink(TMDB_COVER);
-			if (hasCover())
-				getBigCover(TMDB_COVER);
+			unlink(posterfile.c_str());
+			if (hasPoster())
+				getBigPoster(posterfile.c_str());
 			//printf("[TMDB]: %s (%s) %s\n %s\n %d\n",minfo.epgtitle.c_str(),minfo.original_title.c_str(),minfo.release_date.c_str(),minfo.overview.c_str(),minfo.found);
 
 			return true;
@@ -230,8 +231,8 @@ std::string CTMDB::getMovieText()
 
 void CTMDB::cleanup()
 {
-	if (access(TMDB_COVER, F_OK) == 0)
-		unlink(TMDB_COVER);
+	if (access(posterfile.c_str(), F_OK) == 0)
+		unlink(posterfile.c_str());
 }
 
 void CTMDB::selectResult(Json::Value elements, int results, int &use_result)
