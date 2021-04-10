@@ -3060,6 +3060,7 @@ TIMER_START();
 
 TIMER_STOP("################################## after all ##################################");
 	if (g_settings.softupdate_autocheck) {
+#if 0
 		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET));
 		hintBox->paint();
 		CFlashUpdate flash;
@@ -3070,6 +3071,7 @@ TIMER_STOP("################################## after all #######################
 		}
 		hintBox->hide();
 		delete hintBox;
+#endif
 	}
 
 	for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
