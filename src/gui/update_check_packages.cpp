@@ -60,7 +60,10 @@ void CUpdateCheckPackages::check4PackageUpdates()
 
 	COPKGManager man;
 	if (!man.hasOpkgSupport())
+	{
+		check_done = true;
 		return;
+	}
 
 	man.setUpdateCheckResult(false);
 
