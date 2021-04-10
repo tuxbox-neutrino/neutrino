@@ -2870,6 +2870,9 @@ webtv.xml.auto Auto-load WebTV files
 window_size Window size in %
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?
+wizard.message_check_for_updates Update
+wizard.message_check_for_updates_ask_enable Should updates be checked automatically in future? The check up will run automatically at background on each startup. The check up can also be launched manually at any time and can be adjusted by the update settings.
+wizard.message_check_for_updates_ask_now Now check for updates?
 wizard.setup First installation
 wizard.setup_advanced Advanced
 wizard.setup_easy Easy

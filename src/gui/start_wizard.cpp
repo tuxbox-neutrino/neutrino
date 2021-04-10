@@ -48,10 +48,11 @@
 #include "scan_setup.h"
 #include "settings_manager.h"
 #include "videosettings.h"
+#include "opkg_manager.h"
 #include <zapit/zapit.h>
 #include <system/helpers.h>
 
-#include <gui/widget/msgbox.h>
+#include "widget/msgbox.h"
 
 #include <hardware/video.h>
 
@@ -133,6 +134,22 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			res = CNetworkSetup::getInstance()->exec(NULL, "");
 			CNetworkSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_OFF);
 		}
+
+		//package update check
+		if(advanced && res != menu_return::RETURN_EXIT_ALL)
+		{
+			COPKGManager man(SNeutrinoSettings::WIZARD_START);
+			if (man.hasOpkgSupport())
+			{
+				int msg = ShowMsg(LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES, LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES_ASK_NOW, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450);
+				if (msg == CMsgBox::mbrYes)
+					res = man.exec(NULL, "");
+				msg = ShowMsg(LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES, LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES_ASK_ENABLE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450);
+				if (msg == CMsgBox::mbrYes)
+					g_settings.softupdate_autocheck_packages = true;
+			}
+		}
+
 		bool init_settings = false;
 		if (CFEManager::getInstance()->haveSat())
 			init_settings = file_exists(CONFIGDIR "/initial/");
