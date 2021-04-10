@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2015 T. Graf 'dbt'
+	Copyright (C) 2012-2020 T. Graf 'dbt'
 	www.dbox2-tuning.net
 
 	Adaptions:
@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
 
 #define OPKG_MAX_FEEDS 10
 
@@ -107,7 +108,10 @@ class COPKGManager : public CMenuTarget
 		std::string getBlankPkgName(const std::string& line);
 		bool isInstalled(const std::string& pkg_name);
 		bool isUpgradable(const std::string& pkg_name);
-		void showUpdateCheckResult();
+
+		void initUpdateMessage(bool enable_message = true);
+		bool removeInfoBarTxt();
+		std::mutex opk_mutex;
 
 		/*!
 		* Gets an info from opkg command info or status from a package via keywords as std::string
@@ -172,7 +176,8 @@ class COPKGManager : public CMenuTarget
 
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		static bool hasOpkgSupport();
-		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = true);
+		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = false);
+		void setUpdateCheckResult(bool enable_message = true);
 		bool installPackage(const std::string& pkg_name, std::string options = std::string(), bool force_configure = false);
 		bool checkSize(const std::string& pkg_name);
 };
