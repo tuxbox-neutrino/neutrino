@@ -157,10 +157,10 @@ class COPKGManager : public CMenuTarget
 		* howto: a simple way to filter a package is to add the pure name, if you want
 		* to hide a package (even which name) then add this name to a line. Eg. if you want to hide
 		* package wget then add this and this package is not displayed at the gui.
-		* Also a few place holders should work, see the badpackage() function, but this
+		* Also a few place holders should work, see the isBadPackage() function, but this
 		* can be inaccurately because it could filter innocent packages.
 		*/
-		bool badpackage(std::string &s);
+		bool isBadPackage(std::string &s);
 
 		void showError(const char* local_msg, char* err_msg = NULL, const std::string& additional_text = std::string());
 		int doUpdate();

@@ -393,7 +393,7 @@ vector<string> COPKGManager::getBadPackagePatternList()
 	return v_ret;
 }
 
-bool COPKGManager::badpackage(std::string &s)
+bool COPKGManager::isBadPackage(std::string &s)
 {
 	if(v_bad_pattern.empty())
 		return false;
@@ -439,7 +439,7 @@ void COPKGManager::updateMenu()
 	getPkgData(CMD_LIST_UPGRADEABLE);
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
-		if (badpackage(it->second.name))
+		if (isBadPackage(it->second.name))
 			continue;
 		it->second.forwarder->iconName_Info_right = "";
 		it->second.forwarder->setActive(true);
@@ -659,7 +659,7 @@ int COPKGManager::showMenu()
 	pkg_vec.clear();
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
-		if (badpackage(it->second.name))
+		if (isBadPackage(it->second.name))
 			continue;
 		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
 		it->second.forwarder->setHint("", it->second.desc);
@@ -858,7 +858,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 		switch (pkg_content_id) {
 			case CMD_LIST: {
 				/* do not even put "bad" packages into the list to save memory */
-				if (badpackage(name))
+				if (isBadPackage(name))
 					continue;
 				pkg_map[name] = pkg(name, line, line);
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
