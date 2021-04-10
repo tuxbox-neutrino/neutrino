@@ -62,17 +62,17 @@
 #include <fstream>
 
 #if 1
-#define OPKG_CL "opkg"
+#define OPKG "opkg"
 #else
-#define OPKG_CL "opkg-cl"
+#define OPKG "opkg-cl"
 #endif
 
 #define OPKG_TMP_DIR "/tmp/.opkg"
 #define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
 #if 0
-#define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
+#define OPKG_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
 #else
-#define OPKG_CL_CONFIG_OPTIONS ""
+#define OPKG_CONFIG_OPTIONS ""
 #endif
 
 #define OPKG_BAD_PATTERN_LIST_FILE CONFIGDIR "/bad_package_pattern.list"
@@ -93,35 +93,35 @@ using namespace std;
 
 enum
 {
-	OM_LIST,
-	OM_LIST_INSTALLED,
-	OM_LIST_UPGRADEABLE,
-	OM_UPDATE,
-	OM_UPGRADE,
-	OM_REMOVE,
-	OM_INFO,
-	OM_INSTALL,
-	OM_STATUS,
-	OM_CONFIGURE,
-	OM_DOWNLOAD,
-	OM_CLEAN,
-	OM_MAX
+	CMD_LIST,
+	CMD_LIST_INSTALLED,
+	CMD_LIST_UPGRADEABLE,
+	CMD_UPDATE,
+	CMD_UPGRADE,
+	CMD_REMOVE,
+	CMD_INFO,
+	CMD_INSTALL,
+	CMD_STATUS,
+	CMD_CONFIGURE,
+	CMD_DOWNLOAD,
+	CMD_CLEAN,
+	CMD_MAX
 };
 
-static string pkg_types[OM_MAX] =
+static string pm_cmd[CMD_MAX] =
 {
-	OPKG_CL " list ",
-	OPKG_CL " list-installed ",
-	OPKG_CL " list-upgradable ",
-	OPKG_CL " -A update ",
-	OPKG_CL OPKG_CL_CONFIG_OPTIONS " upgrade ",
-	OPKG_CL OPKG_CL_CONFIG_OPTIONS " remove ",
-	OPKG_CL " info ",
-	OPKG_CL OPKG_CL_CONFIG_OPTIONS " install ",
-	OPKG_CL " status ",
-	OPKG_CL " configure ",
-	OPKG_CL " download ",
-	OPKG_CL " clean "
+	OPKG " list ",
+	OPKG " list-installed ",
+	OPKG " list-upgradable ",
+	OPKG " -A update ",
+	OPKG OPKG_CONFIG_OPTIONS " upgrade ",
+	OPKG OPKG_CONFIG_OPTIONS " remove ",
+	OPKG " info ",
+	OPKG OPKG_CONFIG_OPTIONS " install ",
+	OPKG " status ",
+	OPKG " configure ",
+	OPKG " download ",
+	OPKG " clean "
 };
 
 COPKGManager::COPKGManager(int wizard_mode): opkg_conf('\t')
@@ -135,7 +135,7 @@ void COPKGManager::init(int wizard_mode)
 		return;
 
 	is_wizard = wizard_mode;
-	OM_ERRORS();
+	OPKG_ERRORS();
 	width = 80;
 
 	//define default dest keys
@@ -158,7 +158,7 @@ void COPKGManager::init(int wizard_mode)
 COPKGManager::~COPKGManager()
 {
 	pkg_map.clear();
-	execCmd(pkg_types[OM_CLEAN], CShellWindow::QUIET);
+	execCmd(pm_cmd[CMD_CLEAN], CShellWindow::QUIET);
 	CFileHelpers::removeDir(OPKG_TMP_DIR);
 }
 
@@ -188,7 +188,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		if (ShowMsg(LOCALE_OPKG_TITLE, loc, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel) {
 			if (parent)
 				parent->hide();
-			execCmd(pkg_types[OM_REMOVE] + pkg_vec[selected]->name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
+			execCmd(pm_cmd[CMD_REMOVE] + pkg_vec[selected]->name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
 			refreshMenu();
 		}
 		return res;
@@ -245,7 +245,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		}
 		return res;
 	}
-	if(actionKey == pkg_types[OM_UPGRADE]) {
+	if(actionKey == pm_cmd[CMD_UPGRADE]) {
 		if (parent)
 			parent->hide();
 		int r = execCmd(actionKey, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
@@ -331,7 +331,7 @@ bool COPKGManager::checkSize(const string& pkg_name)
 	if(!access( pkg_file.c_str(), F_OK)) //use local package
 		fh.copyFile(pkg_file.c_str(), tmp_dest_file.c_str(), 0644);
 	else
-		execCmd(pkg_types[OM_DOWNLOAD] + plain_pkg); //download package
+		execCmd(pm_cmd[CMD_DOWNLOAD] + plain_pkg); //download package
 
 	//unpack package into test dir
 	string ar = "ar -x " + plain_pkg + char(0x2a);
@@ -435,8 +435,8 @@ bool COPKGManager::badpackage(std::string &s)
 void COPKGManager::updateMenu()
 {
 	bool upgradesAvailable = false;
-	getPkgData(OM_LIST_INSTALLED);
-	getPkgData(OM_LIST_UPGRADEABLE);
+	getPkgData(CMD_LIST_INSTALLED);
+	getPkgData(CMD_LIST_UPGRADEABLE);
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
 		if (badpackage(it->second.name))
@@ -533,10 +533,10 @@ bool COPKGManager::checkUpdates(const std::string & package_name, bool show_prog
 		status->showStatus(25); /* after do_update, we have actually done the hardest work already */
 	}
 
-	getPkgData(OM_LIST);
+	getPkgData(CMD_LIST);
 	if (show_progress)
 		status->showStatus(50);
-	getPkgData(OM_LIST_UPGRADEABLE);
+	getPkgData(CMD_LIST_UPGRADEABLE);
 	if (show_progress)
 		status->showStatus(75);
 
@@ -584,7 +584,7 @@ int COPKGManager::doUpdate()
 		hintBox->paint();
 	}
 
-	int r = execCmd(pkg_types[OM_UPDATE], CShellWindow::QUIET);
+	int r = execCmd(pm_cmd[CMD_UPDATE], CShellWindow::QUIET);
 
 	if (hintBox){
 		hintBox->hide();
@@ -613,8 +613,8 @@ int COPKGManager::showMenu()
 	installed = false;
 	setUpdateCheckResult(true);
 #if 0
-	getPkgData(OM_LIST);
-	getPkgData(OM_LIST_UPGRADEABLE);
+	getPkgData(CMD_LIST);
+	getPkgData(CMD_LIST_UPGRADEABLE);
 #endif
 
 	menu = new CMenuWidget(g_Locale->getText(LOCALE_SERVICEMENU_UPDATE), NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
@@ -623,7 +623,7 @@ int COPKGManager::showMenu()
 
 	//upgrade all installed packages
 	std::string upd_info = to_string(num_updates) + " " + g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE);
-	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, upd_info.c_str() , this, pkg_types[OM_UPGRADE].c_str(), CRCInput::RC_red);
+	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, upd_info.c_str() , this, pm_cmd[CMD_UPGRADE].c_str(), CRCInput::RC_red);
 	upgrade_forwarder->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_UPGRADE);
 	menu->addItem(upgrade_forwarder);
 
@@ -715,14 +715,14 @@ int COPKGManager::showMenu()
 
 bool COPKGManager::hasOpkgSupport()
 {
-	if (find_executable(OPKG_CL).empty()) {
-		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]" OPKG_CL " executable not found\n", __func__, __LINE__);
+	if (find_executable(OPKG).empty()) {
+		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]" OPKG " executable not found\n", __func__, __LINE__);
 		return false;
 	}
 
 	if (! find_executable(SYSTEM_UPDATE).empty()) {
 		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] " SYSTEM_UPDATE " script found\n", __func__, __LINE__);
-		pkg_types[OM_UPGRADE] = SYSTEM_UPDATE;
+		pm_cmd[CMD_UPGRADE] = SYSTEM_UPDATE;
 	}
 
 #if 0
@@ -782,7 +782,7 @@ string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
 			string line(buf);
 			trim(line, " ");
 			string tmp;
-			/* When pkgDesc is empty, return description only for OM_INFO */
+			/* When pkgDesc is empty, return description only for CMD_INFO */
 			if (!pkgDesc.empty()) {
 				tmp = getKeyInfo(line, "Package:", " ");
 				if (!tmp.empty())
@@ -811,22 +811,22 @@ string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
 
 void COPKGManager::getPkgData(const int pkg_content_id)
 {
-	dprintf(DEBUG_INFO, "[COPKGManager] [%s - %d] executing %s\n", __func__, __LINE__, pkg_types[pkg_content_id].c_str());
+	dprintf(DEBUG_INFO, "[COPKGManager] [%s - %d] executing %s\n", __func__, __LINE__, pm_cmd[pkg_content_id].c_str());
 
 	switch (pkg_content_id) {
-		case OM_LIST:
+		case CMD_LIST:
 			pkg_map.clear();
 			list_installed_done = false;
 			list_upgradeable_done = false;
 			break;
-		case OM_LIST_INSTALLED:
+		case CMD_LIST_INSTALLED:
 			if (list_installed_done)
 				return;
 			list_installed_done = true;
 			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it)
 				it->second.installed = false;
 			break;
-		case OM_LIST_UPGRADEABLE:
+		case CMD_LIST_UPGRADEABLE:
 			if (list_upgradeable_done)
 				return;
 			list_upgradeable_done = true;
@@ -836,9 +836,9 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 	}
 
 	pid_t pid = 0;
-	FILE *f = my_popen(pid, pkg_types[pkg_content_id].c_str(), "r");
+	FILE *f = my_popen(pid, pm_cmd[pkg_content_id].c_str(), "r");
 	if (!f) {
-		showError("Internal Error", strerror(errno), pkg_types[pkg_content_id]);
+		showError("Internal Error", strerror(errno), pm_cmd[pkg_content_id]);
 		return;
 	}
 
@@ -856,7 +856,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 			continue;
 
 		switch (pkg_content_id) {
-			case OM_LIST: {
+			case CMD_LIST: {
 				/* do not even put "bad" packages into the list to save memory */
 				if (badpackage(name))
 					continue;
@@ -866,13 +866,13 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 					it->second.desc = getPkgDescription(name, line);
 				break;
 			}
-			case OM_LIST_INSTALLED: {
+			case CMD_LIST_INSTALLED: {
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
 					it->second.installed = true;
 				break;
 			}
-			case OM_LIST_UPGRADEABLE: {
+			case CMD_LIST_UPGRADEABLE: {
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
 					it->second.upgradable = true;
@@ -909,7 +909,7 @@ string COPKGManager::getBlankPkgName(const string& line)
 
 string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key, bool current_status)
 {
-	execCmd(pkg_types[current_status ? OM_STATUS : OM_INFO] + pkg_name, CShellWindow::QUIET);
+	execCmd(pm_cmd[current_status ? CMD_STATUS : CMD_INFO] + pkg_name, CShellWindow::QUIET);
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
 
 	if (pkg_key.empty()) {
@@ -998,14 +998,14 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, line.c_str());
 		 */
 
-		/*duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS,
+		/*duplicate option cache: option is defined in OPKG_CONFIG_OPTIONS,
 		 * NOTE: if found first cache option in the opkg.conf file, this will be preferred and it's not really an error!
 		*/
 		if (line.find("Duplicate option cache") != string::npos){
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: %s\n", __func__, __LINE__,  line.c_str());
 			*ok = true;
 			has_err = false;
-			*res = OM_SUCCESS;
+			*res = OPKG_SUCCESS;
 			return;
 		}
 		/*resolve_conffiles: already existent configfiles are not installed, but renamed in the same directory,
@@ -1015,30 +1015,30 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: %s\n", __func__, __LINE__, line.c_str());
 			*ok = true;
 			has_err = false;
-			*res = OM_SUCCESS;
+			*res = OPKG_SUCCESS;
 			return;
 		}
 		//download error:
 		if (line.find("opkg_download:") != string::npos){
-			*res = OM_DOWNLOAD_ERR;
+			*res = OPKG_DOWNLOAD_ERR;
 			//*ok = false;
 			return;
 		}
 		//not enough space
 		if (line.find("No space left on device") != string::npos){
-			*res = OM_OUT_OF_SPACE_ERR;
+			*res = OPKG_OUT_OF_SPACE_ERR;
 			//*ok = false;
 			return;
 		}
 		//deps
 		if (line.find("satisfy_dependencies") != string::npos){
-			*res = OM_UNSATISFIED_DEPS_ERR;
+			*res = OPKG_UNSATISFIED_DEPS_ERR;
 			*ok = false;
 			return;
 		}
 		/* hack */
 		if (line.find("system-update: err_reset") != string::npos) {
-			*res = OM_SUCCESS;
+			*res = OPKG_SUCCESS;
 			*ok = true;
 			has_err = false;
 			return;
@@ -1046,7 +1046,7 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		//unknown error
 		if (*ok){
 			dprintf(DEBUG_DEBUG, "[COPKGManager] [%s - %d]  ERROR: unhandled error %s\n", __func__, __LINE__, line.c_str());
-			*res = OM_UNKNOWN_ERR;
+			*res = OPKG_UNKNOWN_ERR;
 			//*ok = false;
 			return;
 		}
@@ -1055,7 +1055,7 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		/* never reached */
 		if (!has_err){
 			*ok = true;
-			*res = OM_SUCCESS;
+			*res = OPKG_SUCCESS;
 		}
 #endif
 	}
@@ -1092,30 +1092,30 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 	else{
 		string opts = " " + options + " ";
 
-		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT | CShellWindow::ACKNOWLEDGE);
+		int r = execCmd(pm_cmd[CMD_INSTALL] + opts + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT | CShellWindow::ACKNOWLEDGE);
 		if (r){
 			switch(r){
-				case OM_OUT_OF_SPACE_ERR:
+				case OPKG_OUT_OF_SPACE_ERR:
 					DisplayErrorMessage("Not enough space available");
 					break;
-				case OM_DOWNLOAD_ERR:
+				case OPKG_DOWNLOAD_ERR:
 					DisplayErrorMessage("Can't download package. Check network!");
 					break;
-				case OM_UNSATISFIED_DEPS_ERR:{
+				case OPKG_UNSATISFIED_DEPS_ERR:{
 					int msgRet = ShowMsg("Installation", "Unsatisfied deps while installation! Try to repeat to force dependencies!", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 600, -1);
 					if (msgRet == CMsgBox::mbrYes)
 						return installPackage(pkg_name, "--force-depends");
 					break;
 				}
 				default:
-					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pkg_types[OM_INSTALL] + opts + pkg_name);
+					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pm_cmd[CMD_INSTALL] + opts + pkg_name);
 					/* errno / strerror considered useless here
-					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + opts + pkg_name);
+					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pm_cmd[CMD_INSTALL] + opts + pkg_name);
 					 */
 			}
 		}else{
 			if (force_configure)
-				execCmd(pkg_types[OM_CONFIGURE] + getBlankPkgName(pkg_name), 0);
+				execCmd(pm_cmd[CMD_CONFIGURE] + getBlankPkgName(pkg_name), 0);
 			installed = true; //TODO: catch real result
 		}
 	}

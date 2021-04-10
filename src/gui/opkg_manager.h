@@ -72,30 +72,30 @@ class COPKGManager : public CMenuTarget
 		std::string *local_dir;
 
 		bool has_err;
-		typedef struct om_error_data_t
+		typedef struct OPKG_error_data_t
 		{
 			std::string	id;
 			int		num;
-		}om_error_struct_t;
+		}OPKG_error_struct_t;
 		//error types
 		enum
 		{
-			OM_UNKNOWN_ERR 		=-1,
-			OM_SUCCESS		= 0,
-			OM_UNSATISFIED_DEPS_ERR = 5,
-			OM_DOWNLOAD_ERR		= 11,
-			OM_CONFLICT_ERR		= 12,
-			OM_OUT_OF_SPACE_ERR	= 15,
-			OM_PREREM_SCRIPT_ERR	= 16,
+			OPKG_UNKNOWN_ERR 		=-1,
+			OPKG_SUCCESS		= 0,
+			OPKG_UNSATISFIED_DEPS_ERR = 5,
+			OPKG_DOWNLOAD_ERR		= 11,
+			OPKG_CONFLICT_ERR		= 12,
+			OPKG_OUT_OF_SPACE_ERR	= 15,
+			OPKG_PREREM_SCRIPT_ERR	= 16,
 		};
-		om_error_data_t *err_list;
-		void OM_ERRORS()
+		OPKG_error_data_t *err_list;
+		void OPKG_ERRORS()
 		{
-			static om_error_data_t errlist[] = { 	{ "Cannot satisfy the following dependencies"	, OM_UNSATISFIED_DEPS_ERR	}, 
-								{ "No space left on device"			, OM_OUT_OF_SPACE_ERR 		},
-								{ "The following packages conflict"		, OM_CONFLICT_ERR		},
-								{ "Only have"					, OM_OUT_OF_SPACE_ERR 		},
-								{ "prerm script for package"			, OM_PREREM_SCRIPT_ERR		},
+			static OPKG_error_data_t errlist[] = { 	{ "Cannot satisfy the following dependencies"	, OPKG_UNSATISFIED_DEPS_ERR	}, 
+								{ "No space left on device"			, OPKG_OUT_OF_SPACE_ERR 		},
+								{ "The following packages conflict"		, OPKG_CONFLICT_ERR		},
+								{ "Only have"					, OPKG_OUT_OF_SPACE_ERR 		},
+								{ "prerm script for package"			, OPKG_PREREM_SCRIPT_ERR		},
 							} ;
 			err_list = errlist;
 		};
