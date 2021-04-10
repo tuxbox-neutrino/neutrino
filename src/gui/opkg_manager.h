@@ -44,12 +44,13 @@ class COPKGManager : public CMenuTarget
 {
 	private:
 		int width;
+		int is_wizard;
 		std::string tmp_str;
 		CConfigFile opkg_conf;
 		void saveConfig();
 		void loadConfig();
 		struct pkg;
-		void init();
+		void init(int wizard_mode);
 		bool silent; // Controls some screen messages, eg, avoids unintended or disturbing messages on update checks at background.
 		//config
 		std::string config_src[OPKG_MAX_FEEDS];
@@ -171,9 +172,10 @@ class COPKGManager : public CMenuTarget
 
 		int num_updates;
 	public:
-		COPKGManager();
+		COPKGManager(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~COPKGManager();
 
+		void setWizardMode(int mode) {is_wizard = mode;}
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		static bool hasOpkgSupport();
 		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = false);

@@ -124,16 +124,17 @@ static string pkg_types[OM_MAX] =
 	OPKG_CL " clean "
 };
 
-COPKGManager::COPKGManager(): opkg_conf('\t')
+COPKGManager::COPKGManager(int wizard_mode): opkg_conf('\t')
 {
-	init();
+	init(wizard_mode);
 }
 
-void COPKGManager::init()
+void COPKGManager::init(int wizard_mode)
 {
 	if (!hasOpkgSupport())
 		return;
 
+	is_wizard = wizard_mode;
 	OM_ERRORS();
 	width = 80;
 
@@ -165,15 +166,14 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
+	removeInfoBarTxt();
+
 	if (actionKey.empty()) {
 		if (parent)
 			parent->hide();
 		int ret = showMenu();
 		saveConfig();
 		CFileHelpers::removeDir(OPKG_TMP_DIR);
-
-		if (!num_updates)
-			removeInfoBarTxt();
 
 		return ret;
 	}
@@ -457,7 +457,9 @@ void COPKGManager::updateMenu()
 	if (expert_mode){
 		menu->setFooter(COPKGManagerFooterButtonsExpert, COPKGManagerFooterButtonCountExpert);
 	}
-	else{
+	else if (is_wizard) {
+		menu->setSelected(2); //next-item
+	}else{
 		menu->setSelected(2); //back-item
 		menu->setFooter(COPKGManagerFooterButtons, COPKGManagerFooterButtonCount);
 	}
@@ -617,25 +619,33 @@ int COPKGManager::showMenu()
 
 	menu = new CMenuWidget(g_Locale->getText(LOCALE_SERVICEMENU_UPDATE), NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
 	menu->addIntroItems(LOCALE_OPKG_TITLE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_BACK, CMenuWidget::BRIEF_HINT_YES);
+	menu->setWizardMode(is_wizard);
 
 	//upgrade all installed packages
-	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, NULL , this, pkg_types[OM_UPGRADE].c_str(), CRCInput::RC_red);
+	std::string upd_info = to_string(num_updates) + " " + g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE);
+	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, upd_info.c_str() , this, pkg_types[OM_UPGRADE].c_str(), CRCInput::RC_red);
 	upgrade_forwarder->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_UPGRADE);
 	menu->addItem(upgrade_forwarder);
 
-	//select and install local package
-	CMenuForwarder *fw;
-	fw = new CMenuForwarder(LOCALE_OPKG_INSTALL_LOCAL_PACKAGE, true, NULL, this, "local_package", CRCInput::RC_green);
-	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_INSTALL_LOCAL_PACKAGE);
-	menu->addItem(fw);
+	if (!is_wizard)
+	{
+		CMenuForwarder *fw = NULL;
+
+		//select and install local package
+		fw = new CMenuForwarder(LOCALE_OPKG_INSTALL_LOCAL_PACKAGE, true, NULL, this, "local_package", CRCInput::RC_green);
+		fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_INSTALL_LOCAL_PACKAGE);
+		menu->addItem(fw);
+
 #if ENABLE_OPKG_GUI_FEED_SETUP
-	//feed setup
-	CMenuWidget feeds_menu(LOCALE_OPKG_TITLE, NEUTRINO_ICON_UPDATE, w_max (100, 10));
-	showMenuConfigFeed(&feeds_menu);
-	fw = new CMenuForwarder(LOCALE_OPKG_FEED_ADDRESSES, true, NULL, &feeds_menu, NULL, CRCInput::RC_www);
-	fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_FEED_ADDRESSES_EDIT);
-	menu->addItem(fw);
+		//feed setup
+		CMenuWidget feeds_menu(LOCALE_OPKG_TITLE, NEUTRINO_ICON_UPDATE, w_max (100, 10));
+		showMenuConfigFeed(&feeds_menu);
+		fw = new CMenuForwarder(LOCALE_OPKG_FEED_ADDRESSES, true, NULL, &feeds_menu, NULL, CRCInput::RC_www);
+		fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_FEED_ADDRESSES_EDIT);
+		menu->addItem(fw);
 #endif
+	}
+
 	menu->addItem(GenericMenuSeparatorLine);
 
 	menu_offset = menu->getItemsCount();
@@ -645,6 +655,7 @@ int COPKGManager::showMenu()
 	menu->addKey(CRCInput::RC_blue, this, "rc_blue");
 	menu->addKey(CRCInput::RC_yellow, this, "rc_yellow");
 
+	// package list
 	pkg_vec.clear();
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
