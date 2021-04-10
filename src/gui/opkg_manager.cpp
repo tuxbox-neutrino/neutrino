@@ -779,10 +779,10 @@ bool COPKGManager::hasOpkgSupport()
 		return false;
 	}
 
-	if (! find_executable(SYSTEM_UPDATE).empty()) {
-		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] " SYSTEM_UPDATE " script found\n", __func__, __LINE__);
+	if (find_executable(SYSTEM_UPDATE).empty())
+		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] NOTE: " SYSTEM_UPDATE " script not found\n", __func__, __LINE__);
+	else
 		pm_cmd[CMD_UPGRADE] = SYSTEM_UPDATE;
-	}
 
 #if 0
 	/* If directory /var/lib/opkg resp. /opt/opkg
