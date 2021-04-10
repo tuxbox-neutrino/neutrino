@@ -107,6 +107,7 @@ class COPKGManager : public CMenuTarget
 		std::string getBlankPkgName(const std::string& line);
 		bool isInstalled(const std::string& pkg_name);
 		bool isUpgradable(const std::string& pkg_name);
+		void showUpdateCheckResult();
 
 		/*!
 		* Gets an info from opkg command info or status from a package via keywords as std::string

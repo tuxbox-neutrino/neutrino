@@ -553,15 +553,23 @@ void COPKGManager::refreshMenu() {
 	updateMenu();
 }
 
-int COPKGManager::showMenu()
+
+void COPKGManager::showUpdateCheckResult()
 {
-	installed = false;
-	if (checkUpdates()){
+	checkUpdates();
+
+	if (num_updates)
+	{
 		std::string update_msg = to_string(num_updates) + " ";
 		update_msg += g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE);
 		DisplayInfoMessage(update_msg.c_str());
 	}
+}
 
+int COPKGManager::showMenu()
+{
+	installed = false;
+	showUpdateCheckResult();
 #if 0
 	getPkgData(OM_LIST);
 	getPkgData(OM_LIST_UPGRADEABLE);
