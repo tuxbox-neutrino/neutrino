@@ -43,13 +43,27 @@
 class COPKGManager : public CMenuTarget
 {
 	private:
+		struct pkg {
+			std::string name;
+			std::string version;
+			std::string desc;
+			bool installed;
+			bool upgradable;
+			CMenuForwarder *forwarder;
+			pkg() { }
+			pkg(std::string &_name, std::string &_version, std::string &_desc)
+			: name(_name), version(_version), desc(_desc), installed(false), upgradable(false) { }
+		};
+		struct pkg;
+		std::map<std::string,pkg> pkg_map;
+		std::vector<pkg*> pkg_vec;
+
 		int width;
 		int is_wizard;
 		std::string tmp_str;
 		CConfigFile opkg_conf;
 		void saveConfig();
 		void loadConfig();
-		struct pkg;
 		void init(int wizard_mode);
 		bool silent; // Controls some screen messages, eg, avoids unintended or disturbing messages on update checks at background.
 		//config
@@ -58,9 +72,6 @@ class COPKGManager : public CMenuTarget
 
 		//filter
 		std::vector<std::string> v_bad_pattern;
-
-		std::map<std::string,pkg> pkg_map;
-		std::vector<pkg*> pkg_vec;
 
 		CMenuWidget *menu;
 		CMenuForwarder *upgrade_forwarder;
@@ -158,17 +169,7 @@ class COPKGManager : public CMenuTarget
 		std::string getInfoDir();
 		std::string getPkgDescription(std::string pkgName, std::string pkgDesc="");
 
-		struct pkg {
-			std::string name;
-			std::string version;
-			std::string desc;
-			bool installed;
-			bool upgradable;
-			CMenuForwarder *forwarder;
-			pkg() { }
-			pkg(std::string &_name, std::string &_version, std::string &_desc)
-				: name(_name), version(_version), desc(_desc), installed(false), upgradable(false) { }
-		};
+
 
 		int num_updates;
 	public:
