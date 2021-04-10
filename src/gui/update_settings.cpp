@@ -38,8 +38,11 @@
 #include <mymenu.h>
 #include <neutrino_menue.h>
 #include <gui/filebrowser.h>
+#include <gui/update_check.h>
+#if ENABLE_PKG_MANAGEMENT
 #include <gui/opkg_manager.h>
 #include <gui/update_check_packages.h>
+#endif
 #include <gui/update_ext.h>
 #include <gui/update_settings.h>
 #include <gui/widget/icons.h>
@@ -160,20 +163,18 @@ int CUpdateSettings::initMenu()
 #endif
 
 	CMenuOptionChooser *autocheck = NULL;
-#if 0
 	autocheck = new CMenuOptionChooser(LOCALE_FLASHUPDATE_AUTOCHECK, &g_settings.softupdate_autocheck, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	autocheck->setHint("", LOCALE_MENU_HINT_AUTO_UPDATE_CHECK);
-#endif
 
+#if ENABLE_PKG_MANAGEMENT
 	CMenuOptionChooser *package_autocheck = NULL;
 	if (COPKGManager::hasOpkgSupport()){
 		package_autocheck = new CMenuOptionChooser(LOCALE_FLASHUPDATE_AUTOCHECK_PACKAGES, &g_settings.softupdate_autocheck_packages, AUTOUPDATE_CHECK_OPTIONS, auto_update_options_count, true, this);
 		package_autocheck->setHint("", LOCALE_MENU_HINT_AUTO_UPDATE_CHECK);
 	}
-
+#endif
 	w_upsettings.addItem(fw_update_dir);
-	if (fw_url)
-		w_upsettings.addItem(fw_url);
+	w_upsettings.addItem(fw_url);
 #if ENABLE_EXTUPDATE
 	w_upsettings.addItem(name_backup);
 #ifndef BOXMODEL_CST_HD2
@@ -184,8 +185,10 @@ int CUpdateSettings::initMenu()
 #endif
 	if (autocheck)
 		w_upsettings.addItem(autocheck);
+#if ENABLE_PKG_MANAGEMENT
 	if (package_autocheck)
 		w_upsettings.addItem(package_autocheck);
+#endif
 #if 0
 	w_upsettings.addItem(apply_kernel);
 #endif
@@ -200,14 +203,14 @@ bool CUpdateSettings::changeNotify(const neutrino_locale_t OptionName, void * /*
 {
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK) || ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK_PACKAGES))
 	{
-#if 0
-		CUpdateCheck::getInstance()->stopTimer();
+		CFlashUpdateCheck::getInstance()->stopThread();
 		if (g_settings.softupdate_autocheck)
-			CUpdateCheck::getInstance()->startThread();
-#endif
-		CUpdateCheckPackages::getInstance()->stopTimer();
+			CFlashUpdateCheck::getInstance()->startThread();
+#if ENABLE_PKG_MANAGEMENT
+		CUpdateCheckPackages::getInstance()->stopThread();
 		if (g_settings.softupdate_autocheck_packages)
 			CUpdateCheckPackages::getInstance()->startThread();
+#endif
 	}
 
 	return false;

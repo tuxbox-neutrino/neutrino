@@ -48,7 +48,9 @@
 #include "scan_setup.h"
 #include "settings_manager.h"
 #include "videosettings.h"
+#if ENABLE_PKG_MANAGEMENT
 #include "opkg_manager.h"
+#endif
 #include <zapit/zapit.h>
 #include <system/helpers.h>
 
@@ -135,6 +137,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			CNetworkSetup::getInstance()->setWizardMode(SNeutrinoSettings::WIZARD_OFF);
 		}
 
+#if ENABLE_PKG_MANAGEMENT
 		//package update check
 		if(advanced && res != menu_return::RETURN_EXIT_ALL)
 		{
@@ -149,6 +152,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 					g_settings.softupdate_autocheck_packages = true;
 			}
 		}
+#endif
 
 		bool init_settings = false;
 		if (CFEManager::getInstance()->haveSat())

@@ -49,7 +49,9 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
+#if ENABLE_PKG_MANAGEMENT
 #include <gui/opkg_manager.h>
+#endif
 #include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 
@@ -495,6 +497,7 @@ bool CFlashUpdate::checkVersion4Update()
 		}
 		hide();
 
+#if ENABLE_PKG_MANAGEMENT
 		//package install:
 		if (file_selected->getType() == CFile::FILE_PKG_PACKAGE){
 			COPKGManager opkg;
@@ -510,6 +513,7 @@ bool CFlashUpdate::checkVersion4Update()
 			//!always leave here!
 			return false;
 		}
+#endif
 
 		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
