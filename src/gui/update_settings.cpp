@@ -38,6 +38,7 @@
 #include <mymenu.h>
 #include <neutrino_menue.h>
 #include <gui/filebrowser.h>
+#include <gui/opkg_manager.h>
 #include <gui/update_ext.h>
 #include <gui/update_settings.h>
 #include <gui/widget/icons.h>
@@ -147,6 +148,7 @@ int CUpdateSettings::initMenu()
 #endif
 
 	CMenuOptionChooser *autocheck = new CMenuOptionChooser(LOCALE_FLASHUPDATE_AUTOCHECK, &g_settings.softupdate_autocheck, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
+	CMenuOptionChooser *package_autocheck = new CMenuOptionChooser("Package update check", &g_settings.softupdate_autocheck_packages, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
 //	apply_settings->setHint("", LOCALE_MENU_HINT_XXX);
 
 	w_upsettings.addItem(fw_update_dir);
@@ -161,7 +163,8 @@ int CUpdateSettings::initMenu()
 #endif
 #endif
 	w_upsettings.addItem(autocheck);
-
+	if (COPKGManager::hasOpkgSupport())
+		w_upsettings.addItem(package_autocheck);
 #if 0
 	w_upsettings.addItem(apply_kernel);
 #endif

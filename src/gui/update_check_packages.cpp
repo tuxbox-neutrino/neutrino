@@ -51,7 +51,7 @@ CUpdateCheck* CUpdateCheck::getInstance()
 
 void CUpdateCheck::check4PackageUpdates()
 {
-	if (!g_settings.softupdate_autocheck)
+	if (!g_settings.softupdate_autocheck_packages)
 		return;
 
 	COPKGManager man;

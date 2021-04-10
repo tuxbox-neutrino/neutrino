@@ -829,6 +829,7 @@ struct SNeutrinoSettings
 	std::string softupdate_proxyusername;
 	std::string softupdate_proxypassword;
 	int softupdate_autocheck;
+	int softupdate_autocheck_packages;
 	int softupdate_name_mode_apply;
 	int softupdate_name_mode_backup;
 	int apply_settings;
