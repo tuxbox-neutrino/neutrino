@@ -682,7 +682,7 @@ int COPKGManager::showMenu()
 			so it's controlled by the package maintainer!
 		*/
 		//restart neutrino: user decision
-		if(!access( "/tmp/.restart", F_OK)){
+		if(!access( "/tmp/.restart_neutrino", F_OK)){
 			int msg = ShowMsg(LOCALE_OPKG_TITLE, g_Locale->getText(LOCALE_OPKG_SUCCESS_INSTALL), CMsgBox::mbrNo,
 			CMsgBox::mbYes | CMsgBox::mbNo,
 			NEUTRINO_ICON_QUESTION,
@@ -691,7 +691,7 @@ int COPKGManager::showMenu()
 				exit_action = "restart";
 		}
 		//restart neutrino: forced
-		if (!access( "/tmp/.force_restart", F_OK))
+		if (!access( "/tmp/.force_restart_neutrino", F_OK))
 			exit_action = "restart";
 		//reboot stb: forced
 		if (!access( "/tmp/.reboot", F_OK)){
