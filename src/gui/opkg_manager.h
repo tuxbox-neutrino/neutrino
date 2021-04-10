@@ -177,6 +177,7 @@ class COPKGManager : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		static bool hasOpkgSupport();
 		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = false);
+		int getNumUpdates(bool show_progress = false) {if (!num_updates) checkUpdates("", show_progress); return num_updates;}
 		void setUpdateCheckResult(bool enable_message = true);
 		bool installPackage(const std::string& pkg_name, std::string options = std::string(), bool force_configure = false);
 		bool checkSize(const std::string& pkg_name);
