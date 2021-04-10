@@ -212,6 +212,12 @@ audioplayer.streamripper_dir Streamripper-Verzeichnis
 audioplayer.streamripper_start Streamripper starten
 audioplayer.streamripper_stop Streamripper stoppen
 audioplayer.title_artist Titel, Interpret
+auto_update_check_6_hours alle 6 Stunden
+auto_update_check_daily täglich
+auto_update_check_monthly monatlich
+auto_update_check_off deaktiviert
+auto_update_check_on_start_only nur bei Start
+auto_update_check_weekly wöchentlich
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
@@ -672,7 +678,8 @@ filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
 flashupdate.apply_settings Sollen die aktuellen Einstellungen in das neue Image übernommen werden?
-flashupdate.autocheck Beim Start nach Updates suchen
+flashupdate.autocheck Auf Flash-Updates prüfen
+flashupdate.autocheck_packages Auf Paket-Updates prüfen
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online-Update
@@ -1238,6 +1245,7 @@ menu.hint_audioplayer_streamripper_dir Wählen Sie das Aufnahmeverzeichnis für 
 menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Playliste
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
+menu.hint_auto_update_check Prüfintervalle für Updates festlegen.
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_back_brief Zurück zum vorherigen Menü.
 menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons

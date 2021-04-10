@@ -27,15 +27,16 @@
 
 #include "components/cc_timer.h"
 
-class CUpdateCheck : public CComponentsTimer
+class CUpdateCheckPackages : public CComponentsTimer
 {
 	private:
 		void check4PackageUpdates();
+		bool check_done;
 
 	public:
-		CUpdateCheck();
-		virtual ~CUpdateCheck(){};
-		static CUpdateCheck* getInstance();
+		CUpdateCheckPackages();
+		virtual ~CUpdateCheckPackages(){};
+		static CUpdateCheckPackages* getInstance();
 		void startThread() {initThread();}
 };
 

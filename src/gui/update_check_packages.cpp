@@ -32,26 +32,30 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 
-CUpdateCheck::CUpdateCheck():CComponentsTimer(1000*60/*1000*6*60*/)
+CUpdateCheckPackages::CUpdateCheckPackages():CComponentsTimer(1000*60*60*(g_settings.softupdate_autocheck_packages <= 0 ? 1 : g_settings.softupdate_autocheck_packages))
 {
 	tm_thread_name	= "n:update_check";
+	check_done = false;
 
 	//init slot for package check
-	OnTimer.connect(sigc::mem_fun(*this, &CUpdateCheck::check4PackageUpdates));
+	OnTimer.connect(sigc::mem_fun(*this, &CUpdateCheckPackages::check4PackageUpdates));
 }
 
-CUpdateCheck* CUpdateCheck::getInstance()
+CUpdateCheckPackages* CUpdateCheckPackages::getInstance()
 {
-	static CUpdateCheck * uc = NULL;
+	static CUpdateCheckPackages * uc = NULL;
 	if (!uc)
-		uc = new CUpdateCheck();
+		uc = new CUpdateCheckPackages();
 
 	return uc;
 }
 
-void CUpdateCheck::check4PackageUpdates()
+void CUpdateCheckPackages::check4PackageUpdates()
 {
-	if (!g_settings.softupdate_autocheck_packages)
+	if (!g_settings.softupdate_autocheck_packages) //disabled
+		return;
+
+	if (g_settings.softupdate_autocheck_packages == -1 && check_done) //only on start
 		return;
 
 	COPKGManager man;
@@ -59,4 +63,6 @@ void CUpdateCheck::check4PackageUpdates()
 		return;
 
 	man.setUpdateCheckResult(false);
+
+	check_done = true;
 }

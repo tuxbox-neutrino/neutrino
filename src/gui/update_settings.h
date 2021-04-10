@@ -55,20 +55,21 @@ class CUrlConfigSetupNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t = NONEXISTANT_LOCALE, void *data = NULL);
 };
 
-class CUpdateSettings : public CMenuTarget
+class CUpdateSettings : public CMenuTarget, CChangeObserver
 {
 	private:
 		int width;
 		int initMenu();
-		
+
 #ifdef USE_SMS_INPUT
 		CStringInputSMS *input_url_file;
 #endif
-	
+
 	public:	
 		CUpdateSettings();
 		~CUpdateSettings();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		bool changeNotify(const neutrino_locale_t = NONEXISTANT_LOCALE, void *data = NULL);
 };
 
 #endif

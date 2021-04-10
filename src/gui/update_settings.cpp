@@ -39,6 +39,7 @@
 #include <neutrino_menue.h>
 #include <gui/filebrowser.h>
 #include <gui/opkg_manager.h>
+#include <gui/update_check_packages.h>
 #include <gui/update_ext.h>
 #include <gui/update_settings.h>
 #include <gui/widget/icons.h>
@@ -77,6 +78,17 @@ const CMenuOptionChooser::keyval SOFTUPDATE_NAME_MODE2_OPTIONS[SOFTUPDATE_NAME_M
 	{ CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME, LOCALE_FLASHUPDATE_NAMEMODE2_HOSTNAME_TIME }
 };
 #endif
+
+const CMenuOptionChooser::keyval AUTOUPDATE_CHECK_OPTIONS[] =
+{
+	{ -1, 	LOCALE_AUTO_UPDATE_CHECK_ON_START_ONLY 	},
+	{ 0, 	LOCALE_AUTO_UPDATE_CHECK_OFF		},
+	{ 6, 	LOCALE_AUTO_UPDATE_CHECK_6_HOURS 	},
+	{ 24, 	LOCALE_AUTO_UPDATE_CHECK_DAILY 		},
+	{ 168, 	LOCALE_AUTO_UPDATE_CHECK_WEEKLY 	},
+	{ 672, 	LOCALE_AUTO_UPDATE_CHECK_MONTHLY 	}
+};
+size_t auto_update_options_count = sizeof(AUTOUPDATE_CHECK_OPTIONS)/sizeof(AUTOUPDATE_CHECK_OPTIONS[0]);
 
 int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 {
@@ -147,9 +159,17 @@ int CUpdateSettings::initMenu()
 	OnOffNotifier->addItem(apply_kernel);
 #endif
 
-	CMenuOptionChooser *autocheck = new CMenuOptionChooser(LOCALE_FLASHUPDATE_AUTOCHECK, &g_settings.softupdate_autocheck, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
-	CMenuOptionChooser *package_autocheck = new CMenuOptionChooser("Package update check", &g_settings.softupdate_autocheck_packages, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
-//	apply_settings->setHint("", LOCALE_MENU_HINT_XXX);
+	CMenuOptionChooser *autocheck = NULL;
+#if 0
+	autocheck = new CMenuOptionChooser(LOCALE_FLASHUPDATE_AUTOCHECK, &g_settings.softupdate_autocheck, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	autocheck->setHint("", LOCALE_MENU_HINT_AUTO_UPDATE_CHECK);
+#endif
+
+	CMenuOptionChooser *package_autocheck = NULL;
+	if (COPKGManager::hasOpkgSupport()){
+		package_autocheck = new CMenuOptionChooser(LOCALE_FLASHUPDATE_AUTOCHECK_PACKAGES, &g_settings.softupdate_autocheck_packages, AUTOUPDATE_CHECK_OPTIONS, auto_update_options_count, true, this);
+		package_autocheck->setHint("", LOCALE_MENU_HINT_AUTO_UPDATE_CHECK);
+	}
 
 	w_upsettings.addItem(fw_update_dir);
 	if (fw_url)
@@ -162,8 +182,9 @@ int CUpdateSettings::initMenu()
 	w_upsettings.addItem(name_apply);
 #endif
 #endif
-	w_upsettings.addItem(autocheck);
-	if (COPKGManager::hasOpkgSupport())
+	if (autocheck)
+		w_upsettings.addItem(autocheck);
+	if (package_autocheck)
 		w_upsettings.addItem(package_autocheck);
 #if 0
 	w_upsettings.addItem(apply_kernel);
@@ -173,4 +194,21 @@ int CUpdateSettings::initMenu()
 	delete OnOffNotifier;
 
 	return res;
+}
+
+bool CUpdateSettings::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
+{
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK) || ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK_PACKAGES))
+	{
+#if 0
+		CUpdateCheck::getInstance()->stopTimer();
+		if (g_settings.softupdate_autocheck)
+			CUpdateCheck::getInstance()->startThread();
+#endif
+		CUpdateCheckPackages::getInstance()->stopTimer();
+		if (g_settings.softupdate_autocheck_packages)
+			CUpdateCheckPackages::getInstance()->startThread();
+	}
+
+	return false;
 }

@@ -3075,9 +3075,12 @@ TIMER_STOP("################################## after all #######################
 		}
 		hintBox->hide();
 		delete hintBox;
+
+		CUpdateCheck::getInstance()->startThread();
 	}
 #endif
-	CUpdateCheck::getInstance()->startThread();
+	if (g_settings.softupdate_autocheck_packages)
+		CUpdateCheckPackages::getInstance()->startThread();
 
 	for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
 		g_Sectionsd->readSIfromXMLTV((*it).c_str());
