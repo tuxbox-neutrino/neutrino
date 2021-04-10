@@ -5,8 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2020 T. Graf 'dbt'
-	www.dbox2-tuning.net
+	Copyright (C) 2012-2021 T. Graf 'dbt'
 
 	Adaptions:
 	Copyright (C) 2013 martii
@@ -67,8 +66,6 @@
 #define OPKG "opkg-cl"
 #endif
 
-#define OPKG_TMP_DIR "/tmp/.opkg"
-#define OPKG_TEST_DIR OPKG_TMP_DIR "/test"
 #if 0
 #define OPKG_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=" OPKG_TMP_DIR
 #else
@@ -77,11 +74,6 @@
 
 #define OPKG_BAD_PATTERN_LIST_FILE CONFIGDIR "/bad_package_pattern.list"
 #define OPKG_GOOD_PATTERN_LIST_FILE CONFIGDIR "/good_package_pattern.list"
-#if 0
-#define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf"
-#else
-#define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf.borken"
-#endif
 
 /* script to call instead of "opkg upgrade"
  * opkg fails to gracefully self-upgrade, and additionally has some ordering issues
@@ -139,12 +131,6 @@ void COPKGManager::init(int wizard_mode)
 	OPKG_ERRORS();
 	width = 80;
 
-	//define default dest keys
-	string dest_defaults[] = {"/", OPKG_TEST_DIR, OPKG_TMP_DIR, "/mnt"};
-	for(size_t i=0; i<sizeof(dest_defaults)/sizeof(dest_defaults[0]) ;i++)
-		config_dest.push_back(dest_defaults[i]);
-
-	loadConfig();
 	pkg_map.clear();
 	list_installed_done = false;
 	list_upgradeable_done = false;
@@ -152,7 +138,7 @@ void COPKGManager::init(int wizard_mode)
 	local_dir = &g_settings.update_dir_opkg;
 	v_bad_pattern = getBadPackagePatternList();
 	v_good_pattern = getGoodPackagePatternList();
-	CFileHelpers::createDir(OPKG_TMP_DIR);
+
 	silent = false;
 	num_updates = 0;
 }
@@ -161,7 +147,6 @@ COPKGManager::~COPKGManager()
 {
 	pkg_map.clear();
 	execCmd(pm_cmd[CMD_CLEAN], CShellWindow::QUIET);
-	CFileHelpers::removeDir(OPKG_TMP_DIR);
 }
 
 int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
@@ -174,8 +159,6 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		if (parent)
 			parent->hide();
 		int ret = showMenu();
-		saveConfig();
-		CFileHelpers::removeDir(OPKG_TMP_DIR);
 
 		return ret;
 	}
@@ -1205,69 +1188,4 @@ bool COPKGManager::isUpgradable(const string& pkg_name)
 		if (it->second.upgradable)
 			return true;
 	return false;
-}
-
-
-void COPKGManager::showMenuConfigFeed(CMenuWidget *feed_menu)
-{
-	feed_menu->addIntroItems(LOCALE_OPKG_FEED_ADDRESSES);
-
-	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		CKeyboardInput *feedinput = new CKeyboardInput("Feed " +to_string(i+1), &config_src[i], 0, NULL, NULL, LOCALE_OPKG_ENTER_FEED_ADDRESS, LOCALE_OPKG_ENTER_FEED_ADDRESS_EXAMPLE);
-		CMenuForwarder *fw = new CMenuDForwarder( string(), true , config_src[i], feedinput, NULL, CRCInput::convertDigitToKey(i));
-		feed_menu->addItem( fw);
-	}
-}
-
-void COPKGManager::loadConfig()
-{
-	opkg_conf.clear();
-	bool load_defaults = false;
-
-	if (!opkg_conf.loadConfig(OPKG_CONFIG_FILE,  '\t')){
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  Error: error while loading opkg config file! -> %s. Using default settings!\n", __func__, __LINE__, OPKG_CONFIG_FILE);
-		load_defaults = true;
-	}
-
-	//package feeds
-	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		string src_key = "src " + to_string(i);
-		config_src[i] = opkg_conf.getString(src_key, string());
-	}
-
-	//dest dir default keys, predefined in constructor
-	for(size_t j=0; j<config_dest.size() ;j++){
-		string dest_key = "dest " + to_string(j);
-		opkg_conf.getString(dest_key, config_dest[j]);
-	}
-
-	//load default settings and write to config file
-	if (load_defaults)
-		saveConfig();
-}
-
-void COPKGManager::saveConfig()
-{
-	//set package feeds
-	for(size_t i=0; i<OPKG_MAX_FEEDS ;i++){
-		string src_key = "src " + to_string(i);
-
-		if (!config_src[i].empty())
-			opkg_conf.setString(src_key, config_src[i]);
-		else
-			opkg_conf.deleteKey(src_key); //remove unused keys
-	}
-
-	//set dest dir default key values
-	for(size_t j=0; j<config_dest.size() ;j++){
-		string dest_key = "dest " + to_string(j);
-		opkg_conf.setString(dest_key, config_dest[j]);
-	}
-
-	//finally save config file
-	if (!opkg_conf.saveConfig(OPKG_CONFIG_FILE, '\t')){
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  Error: error while saving opkg config file! -> %s\n", __func__, __LINE__, OPKG_CONFIG_FILE);
-		if (!silent)
-			DisplayErrorMessage("Error while saving opkg config file!");
-	}
 }

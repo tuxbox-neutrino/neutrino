@@ -6,7 +6,6 @@
 
 	Implementation:
 	Copyright (C) 2012-2021 T. Graf 'dbt'
-	www.dbox2-tuning.net
 
 	Adaptions:
 	Copyright (C) 2013 martii
@@ -62,13 +61,8 @@ class COPKGManager : public CMenuTarget
 		int is_wizard;
 		std::string tmp_str;
 		CConfigFile opkg_conf;
-		void saveConfig();
-		void loadConfig();
 		void init(int wizard_mode);
 		bool silent; // Controls some screen messages, eg, avoids unintended or disturbing messages on update checks at background.
-		//config
-		std::string config_src[OPKG_MAX_FEEDS];
-		std::vector<std::string> config_dest;
 
 		//filter
 		std::vector<std::string> v_bad_pattern, v_good_pattern;
@@ -140,7 +134,6 @@ class COPKGManager : public CMenuTarget
 
 		std::string getKeyInfo(const std::string& input, const std::string& pkg_info_key, const std::string& delimiters);
 		int showMenu();
-		void showMenuConfigFeed(CMenuWidget *feed_menu);
 		void updateMenu();
 		void refreshMenu();
 
