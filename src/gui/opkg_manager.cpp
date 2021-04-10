@@ -76,6 +76,7 @@
 #endif
 
 #define OPKG_BAD_PATTERN_LIST_FILE CONFIGDIR "/bad_package_pattern.list"
+#define OPKG_GOOD_PATTERN_LIST_FILE CONFIGDIR "/good_package_pattern.list"
 #if 0
 #define OPKG_CONFIG_FILE "/etc/opkg/opkg.conf"
 #else
@@ -150,6 +151,7 @@ void COPKGManager::init(int wizard_mode)
 	expert_mode = false;
 	local_dir = &g_settings.update_dir_opkg;
 	v_bad_pattern = getBadPackagePatternList();
+	v_good_pattern = getGoodPackagePatternList();
 	CFileHelpers::createDir(OPKG_TMP_DIR);
 	silent = false;
 	num_updates = 0;
@@ -376,48 +378,75 @@ static const struct button_label COPKGManagerFooterButtonsExpert[COPKGManagerFoo
 
 vector<string> COPKGManager::getBadPackagePatternList()
 {
-	vector<string> v_ret;
+	return COPKGManager::getPackagePatternList(OPKG_BAD_LIST);
+}
 
-	ifstream in (OPKG_BAD_PATTERN_LIST_FILE, ios::in);
+vector<string> COPKGManager::getGoodPackagePatternList()
+{
+	return COPKGManager::getPackagePatternList(OPKG_GOOD_LIST);
+}
+
+vector<string> COPKGManager::getPackagePatternList(opkg_pattern_list_t type)
+{
+	vector<string> v_ret;
+	std::string list_file = OPKG_BAD_PATTERN_LIST_FILE;
+
+	if (type == OPKG_GOOD_LIST)
+		list_file = OPKG_GOOD_PATTERN_LIST_FILE;
+
+	ifstream in (list_file, ios::in);
 	if (!in){
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] can't open %s, %s\n", __func__, __LINE__, OPKG_BAD_PATTERN_LIST_FILE, strerror(errno));
 		return v_ret;
 	}
 	string line;
 
-	while(getline(in, line)){
+	while(getline(in, line))
 		v_ret.push_back(line);
-	}
+
 	in.close();
 
 	return v_ret;
 }
 
-bool COPKGManager::isBadPackage(std::string &s)
+bool COPKGManager::isFilteredPackage(std::string &package_name, opkg_pattern_list_t type)
 {
-	if(v_bad_pattern.empty())
+	std::vector<std::string> v_patterns;
+
+	if (type == OPKG_BAD_LIST)
+		v_patterns = v_bad_pattern;
+	else if (type == OPKG_GOOD_LIST)
+		v_patterns = v_good_pattern;
+
+	if(v_patterns.empty())
 		return false;
 
 	size_t i;
 	string st = "";
-	for (i = 0; i < v_bad_pattern.size(); i++)
+	for (i = 0; i < v_patterns.size(); i++)
 	{
-		string p = v_bad_pattern[i];
+		string p = v_patterns[i];
 		if (p.empty())
 			continue;
 
 		size_t patlen = p.length() - 1;
 		bool res = false;
+
 		/* poor man's regex :-) only supported are "^" and "$" */
-		if (p.substr(patlen, 1) == "$") { /* match at end */
-			size_t pos = s.rfind(p.substr(0, patlen)); /* s.len-patlen can be -1 == npos */
-			if (pos != string::npos && pos == (s.length() - patlen))
+		if (p.substr(patlen, 1) == "$")
+		{ /* match at end */
+			size_t pos = package_name.rfind(p.substr(0, patlen)); /* package_name.len-patlen can be -1 == npos */
+			if (pos != string::npos && pos == (package_name.length() - patlen))
 				res = true;
-		} else if (p.substr(0, 1) == "^") { /* match at beginning */
-			if (s.find(p.substr(1)) == 0)
+		}
+		else if (p.substr(0, 1) == "^")
+		{ /* match at beginning */
+			if (package_name.find(p.substr(1)) == 0)
 				res = true;
-		} else { /* match everywhere */
-			if (s.find(p) != string::npos)
+		}
+		else
+		{ /* match everywhere */
+			if (package_name.find(p) != string::npos)
 				res = true;
 		}
 		if (res)
@@ -425,12 +454,40 @@ bool COPKGManager::isBadPackage(std::string &s)
 	}
 
 	if (!st.empty()){
-		dprintf(DEBUG_INFO, "[%s] filtered '%s' pattern(s) '%s'\n", __func__, s.c_str(), st.c_str());
+		dprintf(DEBUG_DEBUG, "[%s] filtered '%s' pattern(s) '%s'\n", __func__, package_name.c_str(), st.c_str());
 		return true;
 	}
 
 	return false;
 }
+
+bool COPKGManager::isBadPackage(std::string &package_name)
+{
+	return isFilteredPackage(package_name, OPKG_BAD_LIST);
+}
+
+bool COPKGManager::isGoodPackage(std::string &package_name)
+{
+	return isFilteredPackage(package_name, OPKG_GOOD_LIST);
+}
+
+bool COPKGManager::isPermittedPackage(std::string &package_name)
+{
+	bool ret = (!isBadPackage(package_name));
+
+	if (isBadPackage(package_name) && !isGoodPackage(package_name))
+		ret = false;
+
+// 	if (isGoodPackage(package_name))
+// 		ret = true;
+
+	if (isBadPackage(package_name) && isGoodPackage(package_name))
+		ret = true;
+
+
+	return ret;
+}
+
 
 void COPKGManager::updateMenu()
 {
@@ -439,8 +496,9 @@ void COPKGManager::updateMenu()
 	getPkgData(CMD_LIST_UPGRADEABLE);
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
-		if (isBadPackage(it->second.name))
+		if (!isPermittedPackage(it->second.name))
 			continue;
+
 		it->second.forwarder->iconName_Info_right = "";
 		it->second.forwarder->setActive(true);
 		if (it->second.upgradable) {
@@ -659,8 +717,9 @@ int COPKGManager::showMenu()
 	pkg_vec.clear();
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
-		if (isBadPackage(it->second.name))
+		if (!isPermittedPackage(it->second.name))
 			continue;
+
 		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
 		it->second.forwarder->setHint("", it->second.desc);
 		menu->addItem(it->second.forwarder);
@@ -858,8 +917,9 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 		switch (pkg_content_id) {
 			case CMD_LIST: {
 				/* do not even put "bad" packages into the list to save memory */
-				if (isBadPackage(name))
+				if (!isPermittedPackage(name))
 					continue;
+
 				pkg_map[name] = pkg(name, line, line);
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())

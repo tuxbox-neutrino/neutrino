@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2020 T. Graf 'dbt'
+	Copyright (C) 2012-2021 T. Graf 'dbt'
 	www.dbox2-tuning.net
 
 	Adaptions:
@@ -71,7 +71,7 @@ class COPKGManager : public CMenuTarget
 		std::vector<std::string> config_dest;
 
 		//filter
-		std::vector<std::string> v_bad_pattern;
+		std::vector<std::string> v_bad_pattern, v_good_pattern;
 
 		CMenuWidget *menu;
 		CMenuForwarder *upgrade_forwarder;
@@ -144,12 +144,23 @@ class COPKGManager : public CMenuTarget
 		void updateMenu();
 		void refreshMenu();
 
-		//!Returns a vector with possible filter entries from OPKG_BAD_PATTERN_LIST_FILE 
+		typedef enum
+		{
+			OPKG_BAD_LIST 	= 0,
+			OPKG_GOOD_LIST 	= 1
+		}opkg_pattern_list_t;
+
+		static std::vector<std::string> getPackagePatternList(opkg_pattern_list_t type);
+
+		//!Returns a vector with possible filter entries from OPKG_BAD_PATTERN_LIST_FILE or OPKG_GOOD_PATTERN_LIST_FILE
 		static std::vector<std::string> getBadPackagePatternList();
+		static std::vector<std::string> getGoodPackagePatternList();
+
+		bool isFilteredPackage(std::string &package_name, opkg_pattern_list_t type);
 		/*!
 		* Returns true if found a ''bad'' package, Parameter: package name as std::string by rev
 		* To detect bad packages, it must be exist a matching pattern list file.
-		* Path is defined in OPKG_BAD_PATTERN_LIST_FILE.
+		* Path is defined in OPKG_X_PATTERN_LIST_FILE.
 		* This provides the option to filter some unwanted entries in the package list menue.
 		* This makes sense eg. to hinder that the user could change important system packages.
 		* NOTE: a sample file you should find here as : "/var/tuxbox/config/bad_package_pattern.list.sample"
@@ -160,7 +171,12 @@ class COPKGManager : public CMenuTarget
 		* Also a few place holders should work, see the isBadPackage() function, but this
 		* can be inaccurately because it could filter innocent packages.
 		*/
-		bool isBadPackage(std::string &s);
+		bool isBadPackage(std::string &package_name);
+		/*!
+		The same like isBadPackage() but as whitlist
+		*/
+		bool isGoodPackage(std::string &package_name);
+		bool isPermittedPackage(std::string &package_name);
 
 		void showError(const char* local_msg, char* err_msg = NULL, const std::string& additional_text = std::string());
 		int doUpdate();
