@@ -252,7 +252,7 @@ AC_ARG_ENABLE(extupdate,
 AM_CONDITIONAL(ENABLE_EXTUPDATE, test "$enable_extupdate" = "yes")
 
 AC_ARG_ENABLE(pkg-management,
-	AS_HELP_STRING([--enable-pkg-management], [enable package management @<:@default=no@:>@]),
+	AS_HELP_STRING([--enable-pkg-management], [enable gui package management @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_PKG_MANAGEMENT, 1, [enable package management]))
 AM_CONDITIONAL(ENABLE_PKG_MANAGEMENT, test "$enable_pkg_management" = "yes")
 
