@@ -174,7 +174,8 @@ int CUpdateSettings::initMenu()
 	}
 #endif
 	w_upsettings.addItem(fw_update_dir);
-	w_upsettings.addItem(fw_url);
+	if (fw_url)
+		w_upsettings.addItem(fw_url);
 #if ENABLE_EXTUPDATE
 	w_upsettings.addItem(name_backup);
 #ifndef BOXMODEL_CST_HD2
