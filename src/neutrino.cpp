@@ -3068,21 +3068,9 @@ TIMER_START();
 #endif
 
 TIMER_STOP("################################## after all ##################################");
-	if (g_settings.softupdate_autocheck) {
-#if 0
-		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET));
-		hintBox->paint();
-		CFlashUpdate flash;
-		if(flash.checkOnlineVersion()) {
-			hintBox->hide();
-			//flash.enableNotify(false);
-			flash.exec(NULL, "inet");
-		}
-		hintBox->hide();
-		delete hintBox;
-#endif
+
+	if (g_settings.softupdate_autocheck)
 		CFlashUpdateCheck::getInstance()->startThread();
-	}
 #if ENABLE_PKG_MANAGEMENT
 	if (g_settings.softupdate_autocheck_packages)
 		CUpdateCheckPackages::getInstance()->startThread();
