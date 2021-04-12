@@ -202,17 +202,19 @@ int CUpdateSettings::initMenu()
 
 bool CUpdateSettings::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK) || ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK_PACKAGES))
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK))
 	{
 		CFlashUpdateCheck::getInstance()->stopThread();
 		if (g_settings.softupdate_autocheck)
 			CFlashUpdateCheck::getInstance()->startThread();
+	}
 #if ENABLE_PKG_MANAGEMENT
-		CUpdateCheckPackages::getInstance()->stopThread();
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_FLASHUPDATE_AUTOCHECK_PACKAGES))
+	{
+		CUpdateCheckPackages::getInstance()->stopTimer();
 		if (g_settings.softupdate_autocheck_packages)
 			CUpdateCheckPackages::getInstance()->startThread();
-#endif
 	}
-
+#endif
 	return false;
 }
