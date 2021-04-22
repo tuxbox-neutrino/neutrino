@@ -131,6 +131,8 @@ audio.srs_nmgr Noise-Manager
 audio.srs_volume Referenzlautstärke
 audiomenu.PCMOffset Lautstärkeabsenkung PCM
 audiomenu.ac3 AC3 durchleiten
+audiomenu.ac3_atype0 AC3 Ton auf älteren Typ ändern
+audiomenu.ac3_atype1 AC3 Ton auf default Type ändern
 audiomenu.analog_mode Analog Modus
 audiomenu.analog_out Analog-Ausgang
 audiomenu.auto_lang Tonwahl automatisch

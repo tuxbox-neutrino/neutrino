@@ -158,6 +158,8 @@ const char * locale_real_names[] =
 	"audio.srs_volume",
 	"audiomenu.PCMOffset",
 	"audiomenu.ac3",
+	"audiomenu.ac3_atype0",
+	"audiomenu.ac3_atype1",
 	"audiomenu.analog_mode",
 	"audiomenu.analog_out",
 	"audiomenu.auto_lang",

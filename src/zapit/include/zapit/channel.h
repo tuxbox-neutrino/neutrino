@@ -99,19 +99,6 @@ class CZapitAudioChannel
 		std::string		description;
 		unsigned char		componentTag;
 
-#if HAVE_CST_HARDWARE
-	enum ZapitAudioChannelType {
-		MPEG = 0,
-		AC3 = 1,
-		AAC = 2,
-		AACPLUS = 3,
-		DTS = 4,
-		LPCM = 6,
-		DTSHD = 0x10,
-		EAC3 = 0x22,
-		UNKNOWN
-	};
-#else
 	enum ZapitAudioChannelType {
 		MPEG = 1,
 		AC3 = 0,
@@ -123,7 +110,6 @@ class CZapitAudioChannel
 		EAC3 = 0x22,
 		UNKNOWN
 	};
-#endif
 	ZapitAudioChannelType audioChannelType;
 };
 

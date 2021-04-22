@@ -131,6 +131,8 @@ audio.srs_nmgr Noise manager
 audio.srs_volume Reference volume
 audiomenu.PCMOffset Volume Decrease PCM
 audiomenu.ac3 AC3 passthrough
+audiomenu.ac3_atype0 switch AC3 Sound to older Audio Type
+audiomenu.ac3_atype1 switch AC3 Sound to default Audio Type
 audiomenu.analog_mode Analog mode
 audiomenu.analog_out Analog output
 audiomenu.auto_lang Auto select audio
