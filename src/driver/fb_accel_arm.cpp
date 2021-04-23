@@ -316,6 +316,26 @@ void CFbAccelARM::setOsdResolutions()
 	}
 }
 
+/* original interface: 1 == pixel alpha, 2 == global alpha premultiplied */
+void CFbAccelARM::setBlendMode(uint8_t mode)
+{
+	/* mode = 1 => reset to no extra transparency */
+	if (mode == 1)
+		setBlendLevel(0);
+}
+
+/* level = 100 -> transparent, level = 0 -> nontransparent */
+void CFbAccelARM::setBlendLevel(int level)
+{
+	char tmp[3]={0x0};
+	int _level = 0xff - ( level * 0xff / 100);
+	sprintf(tmp,"%d", _level);
+	int pfd = open("/proc/stb/video/alpha", O_WRONLY);
+	if (pfd)
+		write(pfd, tmp, sizeof(tmp));
+	close(pfd);
+}
+
 int CFbAccelARM::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int nbpp)
 {
 	if (!available&&!active)

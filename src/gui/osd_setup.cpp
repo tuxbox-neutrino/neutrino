@@ -739,12 +739,12 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
 	osd_menu->addItem(mc);
 #endif
-#if !HAVE_ARM_HARDWARE //FIXME: make it usable for AX51
+
 	// fade windows
 	mc = new CMenuOptionChooser(LOCALE_COLORMENU_FADE, &g_settings.widget_fade, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
 	mc->setHint("", LOCALE_MENU_HINT_FADE);
 	osd_menu->addItem(mc);
-#endif
+
 	// window size
 	memset(window_size_value, 0, sizeof(window_size_value));
 	snprintf(window_size_value, sizeof(window_size_value), "%d / %d", g_settings.window_width, g_settings.window_height);
