@@ -245,6 +245,8 @@ class CFbAccelMIPS
 		int scale2Res(int size);
 		bool fullHdAvailable();
 		void setOsdResolutions();
+		void setBlendMode(uint8_t mode);
+		void setBlendLevel(int level);
 #if ENABLE_MIPS_ACC
 		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
 #endif
