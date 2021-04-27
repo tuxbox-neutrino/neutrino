@@ -2163,8 +2163,10 @@ nfs.alreadymounted Zložka je už pripojená
 nfs.automount Pripojiť pri spustení
 nfs.dir Zložka / Zdielanie
 nfs.ip IP servera NFS/CIFS
-nfs.localdir Lokálna zložka
-nfs.mount Pripojiť sieťovú zložku
+nfs.localdir Lokálny priečinok
+nfs.mac MAC adresu
+nfs.mac_refresh vyhľadať MAC adresu
+nfs.mount Pripojiť sieťový priečinok
 nfs.mount_options Možnosti pripojenia
 nfs.mounterror Chyba pripojenia
 nfs.mounterror_notsup Nepodporovaný súborový systém
@@ -2172,7 +2174,6 @@ nfs.mountnow Pripojiť teraz
 nfs.mountok Pripojenie úspešné
 nfs.mounttimeout Chyba pripojenia: uplynul časový limit
 nfs.password Heslo CIFS
-nfs.refresh_mac vyhľadať MAC adresu
 nfs.remount Znovu pripojiť
 nfs.type Typ
 nfs.type_cifs CIFS
@@ -2358,7 +2359,6 @@ recordingmenu.dvbsub_pids Nahrať titulky
 recordingmenu.end_of_recording_epg času udalosti v EPG
 recordingmenu.end_of_recording_max max. času nahrávania
 recordingmenu.end_of_recording_name Ukončiť nahrávanie podľa
-recordingmenu.file Disk (súbor)
 recordingmenu.filename_template Dočasný názov
 recordingmenu.filename_template_hint Zástupné znaky súborov budú nahradené
 recordingmenu.filename_template_hint2 %C = kanál, %T = názov, %I = info, %d = dátum, %t = čas
@@ -2369,19 +2369,18 @@ recordingmenu.multimenu.info_stop_all %d z %d nahrávaní bude zastavených.
 recordingmenu.multimenu.rec_akt Nahrať aktuálny kanál
 recordingmenu.multimenu.stop_all Zastaviť všetky nahrávania
 recordingmenu.multimenu.timeshift Časový posun
-recordingmenu.off vypnuté
+recordingmenu.multimenu.timeshift2record Po dokončení si ponechajte záznam s časovým posunom
 recordingmenu.record_is_not_running Žiadne nahrávanie nebeží!
 recordingmenu.record_is_running Nahrávanie beží!
-recordingmenu.save_in_channeldir Nahrávanie do zložky s názvom kanálu
-recordingmenu.server server
-recordingmenu.server_mac Adresa MAC servera
+recordingmenu.save_in_channeldir Nahrávanie do priečinka s názvom kanálu
 recordingmenu.setupnow Použiť nastavenia
 recordingmenu.slow_warn Upozorniť na pomalé nahrávanie
 recordingmenu.timeshift Časový posun
-recordingmenu.tsdir Zložka časového posunu
-recordingmenu.vcr Videorekordér
+recordingmenu.tsdir Priečinok časového posunu
 recordingmenu.vtxt_pid Nahrať teletext
 recordingmenu.zap_on_announce Prepnúť na kanál pred začatím nahrávania
+recording_type.file Disk (súbor)
+recording_type.off vypnuté
 recordtimer.announce Začatie nahrávania za pár minút.
 remotebox_add pridať
 remotebox_channel_na Kanál nedostupný na vzdialenom boxe

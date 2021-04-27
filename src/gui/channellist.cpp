@@ -1895,7 +1895,7 @@ void CChannelList::paintButtonBar(bool is_current)
 		}
 		if (i == 4) {
 			//manage record button
-			if (g_settings.recording_type == RECORDING_OFF)
+			if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
 				continue;
 			if (IS_WEBCHAN(channel_id))
 				continue;

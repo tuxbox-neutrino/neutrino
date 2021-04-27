@@ -127,7 +127,7 @@ public:
 				 tmTime2->tm_hour, tmTime2->tm_min);
 			*display = std::string(disp);
 			m1->setActive(true);
-			m6->setActive((g_settings.recording_type == RECORDING_FILE));
+			m6->setActive((g_settings.recording_type == CNeutrinoApp::RECORDING_FILE));
 		}
 		else
 		{
@@ -1673,7 +1673,7 @@ int CTimerList::modifyTimer()
 		timer_recordingDir = timer->recordingDir;
 		strncpy(t_old.recordingDir, timer->recordingDir, sizeof(t_old.recordingDir));
 
-		bool recDirEnabled = (g_settings.recording_type == RECORDING_FILE); // obsolete?
+		bool recDirEnabled = (g_settings.recording_type == CNeutrinoApp::RECORDING_FILE);
 		CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
 		timerSettings.addItem(GenericMenuSeparatorLine);
 		timerSettings.addItem(m6);

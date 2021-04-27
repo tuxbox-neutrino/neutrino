@@ -292,7 +292,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_RECORD:
 		{
-			if (g_settings.recording_type == RECORDING_OFF)
+			if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
 			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
@@ -301,7 +301,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_TIMESHIFT:
 		{
-			if (g_settings.recording_type == RECORDING_OFF)
+			if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
 			menu_item = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !timeshift, NULL, CRecordManager::getInstance(), "Timeshift", key, icon);
@@ -310,7 +310,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_MB:
 		{
-			if (g_settings.recording_type == RECORDING_OFF)
+			if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
 				break;
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
 			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, !_mode_ts, NULL, neutrino, "tsmoviebrowser", key, icon);

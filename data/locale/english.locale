@@ -2222,6 +2222,8 @@ nfs.automount Mount on startup
 nfs.dir directory/share
 nfs.ip Server IP
 nfs.localdir local dir
+nfs.mac MAC address
+nfs.mac_refresh look up MAC address
 nfs.mount Mount Network volume
 nfs.mount_options mount options
 nfs.mounterror mount error
@@ -2230,7 +2232,6 @@ nfs.mountnow mount now
 nfs.mountok mount successful
 nfs.mounttimeout mount error: timeout
 nfs.password password
-nfs.refresh_mac look up MAC address
 nfs.remount remount directories
 nfs.type type
 nfs.type_cifs CIFS
@@ -2414,29 +2415,27 @@ recordingmenu.dvbsub_pids record dvbsub stream
 recordingmenu.end_of_recording_epg EPG act. Event
 recordingmenu.end_of_recording_max max. Recordingtime
 recordingmenu.end_of_recording_name Endtime of Recording
-recordingmenu.file direct (file)
 recordingmenu.filename_template filename template
 recordingmenu.filename_template_hint wildcards will be replaced
 recordingmenu.filename_template_hint2 %C = channel, %T = title, %I = info, %d = date, %t = time
 recordingmenu.help Recording devices:\n--------------------------\nserver:\nusing streaming software on a PC\n\n(analog) vcr:\nusing the vcr outlet\n\ndirect (file):\ndirectly into an NFS mounted directory\nor onto an internal hard drive\nTS: use spts mode(dbox2)\nPES: do not use spts mode(dbox2)\n\n\nMax. file size:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: almost unlimited (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.multimenu.ask_stop_all really stop all %d recordings?
 recordingmenu.multimenu.info_stop_all %d of %d recordings will be stopped.
-recordingmenu.multimenu.rec_akt record current channel
-recordingmenu.multimenu.stop_all stop all recordings
-recordingmenu.multimenu.timeshift Timeshift
-recordingmenu.off off
+recordingmenu.multimenu.rec_akt Start recording
+recordingmenu.multimenu.stop_all Stop all recordings
+recordingmenu.multimenu.timeshift Start timeshift
+recordingmenu.multimenu.timeshift2record Save timeshift recording after finalization
 recordingmenu.record_is_not_running No record is running!
 recordingmenu.record_is_running Record is running!
 recordingmenu.save_in_channeldir Save in channel dir
-recordingmenu.server server
-recordingmenu.server_mac MAC address
 recordingmenu.setupnow Activate changes
 recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
-recordingmenu.vcr vcr
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
+recording_type.file Direct (File)
+recording_type.off off
 recordtimer.announce Recording starts in a few minutes
 remotebox_add Add
 remotebox_channel_na Channel not available on Remote-Box

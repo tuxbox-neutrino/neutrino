@@ -267,10 +267,10 @@ int CNFSMountGui::menuEntry(int nr)
 	CKeyboardInput passInput(LOCALE_NFS_PASSWORD, &g_settings.network_nfs[nr].password);
 	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (g_settings.network_nfs[nr].type != (int)CFSMounter::NFS), NULL, &passInput);
 
-	CMACInput macInput(LOCALE_RECORDINGMENU_SERVER_MAC, &g_settings.network_nfs[nr].mac, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CMenuForwarder *macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, NULL, &macInput);
+	CMACInput macInput(LOCALE_NFS_MAC, &g_settings.network_nfs[nr].mac, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CMenuForwarder *macInput_fwd = new CMenuForwarder(LOCALE_NFS_MAC, true, NULL, &macInput);
 
-	CMenuForwarder *refreshMAC_fwd = new CMenuForwarder(LOCALE_NFS_REFRESH_MAC, true, NULL, this, ("refreshMAC" + to_string(nr)).c_str(), CRCInput::RC_yellow);
+	CMenuForwarder *refreshMAC_fwd = new CMenuForwarder(LOCALE_NFS_MAC_REFRESH, true, NULL, this, ("refreshMAC" + to_string(nr)).c_str(), CRCInput::RC_yellow);
 
 	CMenuForwarder *mountnow_fwd = new CMenuForwarder(LOCALE_NFS_MOUNTNOW, !(CFSMounter::isMounted(g_settings.network_nfs[nr].local_dir)), NULL, this, ("domount" + to_string(nr)).c_str(), CRCInput::RC_red);
 

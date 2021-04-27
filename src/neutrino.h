@@ -67,10 +67,8 @@ public:
 
 	enum
 	{
-		RECORDING_OFF    = 0,
-		RECORDING_SERVER = 1,
-		RECORDING_VCR    = 2,
-		RECORDING_FILE   = 3
+		RECORDING_OFF = 0,
+		RECORDING_FILE
 	};
 
 private:

@@ -2222,6 +2222,8 @@ nfs.automount Beim Start mounten
 nfs.dir Verzeichnis/Freigabe
 nfs.ip Server IP
 nfs.localdir lokales Verzeichnis
+nfs.mac MAC-Adresse
+nfs.mac_refresh MAC-Adresse feststellen
 nfs.mount Netzwerk Verzeichnis mounten
 nfs.mount_options Mount-Optionen
 nfs.mounterror Mount-Fehler
@@ -2230,7 +2232,6 @@ nfs.mountnow Jetzt mounten
 nfs.mountok Mount erfolgreich
 nfs.mounttimeout Mount-Fehler: Timeout
 nfs.password Passwort
-nfs.refresh_mac MAC-Adresse feststellen
 nfs.remount Verzeichnisse erneut mounten
 nfs.type Typ
 nfs.type_cifs CIFS
@@ -2414,7 +2415,6 @@ recordingmenu.dvbsub_pids Untertitel aufnehmen
 recordingmenu.end_of_recording_epg EPG aktuelles Event
 recordingmenu.end_of_recording_max max. Aufnahmezeit
 recordingmenu.end_of_recording_name Ende der Sofortaufnahme
-recordingmenu.file Direkt (Datei)
 recordingmenu.filename_template Vorlage für Dateiname
 recordingmenu.filename_template_hint Platzhalter werden durch folgende Werte ersetzt:
 recordingmenu.filename_template_hint2 %C = Kanal, %T = Titel, %I = Info, %d = Datum, %t = Zeit
@@ -2423,20 +2423,19 @@ recordingmenu.multimenu.ask_stop_all Wirklich alle %d Aufnahmen beenden?
 recordingmenu.multimenu.info_stop_all %d von %d Aufnahmen werden beendet.
 recordingmenu.multimenu.rec_akt Aufnahme aktueller Kanal
 recordingmenu.multimenu.stop_all Alle Aufnahmen beenden
-recordingmenu.multimenu.timeshift Timeshift
-recordingmenu.off aus
+recordingmenu.multimenu.timeshift Starte Timeshift
+recordingmenu.multimenu.timeshift2record Behalte Timeshift-Aufnahme nach Beendigung
 recordingmenu.record_is_not_running Keine laufende Aufnahme verfügbar!
 recordingmenu.record_is_running Aufnahme läuft!
 recordingmenu.save_in_channeldir Speichere im Kanalverzeichnis
-recordingmenu.server Server
-recordingmenu.server_mac MAC-Adresse
 recordingmenu.setupnow Einstellungen jetzt übernehmen
 recordingmenu.slow_warn Warnung bei langsamen Aufnahmemedien
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
-recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Videotext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
+recording_type.file Direkt (Datei)
+recording_type.off aus
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
 remotebox_add Hinzufügen
 remotebox_channel_na Kanal auf Remote-Box nicht verfügbar
