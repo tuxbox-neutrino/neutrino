@@ -299,8 +299,6 @@ const char * locale_real_names[] =
 	"channellist.epgtext_align_left",
 	"channellist.epgtext_align_right",
 	"channellist.extended",
-	"channellist.extended_colored",
-	"channellist.extended_simple",
 	"channellist.favs",
 	"channellist.foot",
 	"channellist.foot_freq",
