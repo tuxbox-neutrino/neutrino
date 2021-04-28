@@ -68,7 +68,7 @@ public:
 	enum
 	{
 		RECORDING_OFF = 0,
-		RECORDING_FILE
+		RECORDING_FILE = 1
 	};
 
 private:

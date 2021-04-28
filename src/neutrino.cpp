@@ -808,8 +808,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.timeshift_hours = configfile.getInt32( "timeshift_hours", 4 );
 	g_settings.filesystem_is_utf8              = configfile.getBool("filesystem_is_utf8"                 , true );
 
-	//recording (server + vcr)
-	g_settings.recording_type = configfile.getInt32("recording_type", RECORDING_FILE);
+	//recording
+	g_settings.recording_type = configfile.getInt32("recording_type", CNeutrinoApp::RECORDING_FILE);
 	g_settings.recording_stopsectionsd         = configfile.getBool("recording_stopsectionsd"            , false );
 	g_settings.recording_audio_pids_default    = configfile.getInt32("recording_audio_pids_default", TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
 	g_settings.recording_zap_on_announce       = configfile.getBool("recording_zap_on_announce"      , false);
@@ -1223,6 +1223,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	if (!erg)
 	{
+		// fix wrong entry
+		if (g_settings.version_pseudo == "20213103000000")
+			g_settings.version_pseudo = "20210331000000";
+
 		if (g_settings.version_pseudo < NEUTRINO_VERSION_PSEUDO)
 			upgradeSetup(fname);
 
@@ -1402,7 +1406,7 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		g_settings.key_pip_setup = CRCInput::RC_nokey;
 		g_settings.key_pip_swap = CRCInput::RC_next;
 	}
-	if (g_settings.version_pseudo < "20213103000000")
+	if (g_settings.version_pseudo < "20210331000000")
 	{
 		// switch g_settings.screen_preset
 		/*
@@ -1427,6 +1431,10 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		configfile.deleteKey("screen_StartY_crt_1");
 		configfile.deleteKey("screen_StartY_lcd_0");
 		configfile.deleteKey("screen_StartY_lcd_1");
+	}
+	if (g_settings.version_pseudo < "20210428200000")
+	{
+		g_settings.recording_type = CNeutrinoApp::RECORDING_FILE;
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
@@ -1747,7 +1755,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString( "last_webtv_dir", g_settings.last_webtv_dir);
 	configfile.setBool  ("filesystem_is_utf8"                 , g_settings.filesystem_is_utf8             );
 
-	//recording (server + vcr)
+	//recording
 	configfile.setInt32 ("recording_type",                      g_settings.recording_type);
 	configfile.setBool  ("recording_stopsectionsd"            , g_settings.recording_stopsectionsd        );
 
