@@ -1044,11 +1044,8 @@ ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, Exit aborts
 keybindingmenu.addrecord add record timer
 keybindingmenu.addremind add zapto timer
-keybindingmenu.allchannels_on_ok all-services
-keybindingmenu.bouquetchannels_on_ok current bouquet
 keybindingmenu.bouquetdown bouquet back
 keybindingmenu.bouquethandling Bouquet-control
-keybindingmenu.bouquetlist_on_ok bouquet-list
 keybindingmenu.bouquetup next bouquet
 keybindingmenu.cancel close channellist
 keybindingmenu.channeldown channel down
