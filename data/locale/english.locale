@@ -2273,7 +2273,6 @@ options.ntp_off DVB
 options.ntp_on NTP
 options.off off
 options.on on
-options.on.without_messages Without msg
 options.start start
 options.stop stop
 osd.preset_screen_a Screen 1
