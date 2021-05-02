@@ -67,8 +67,10 @@ class CEpgData
 		bool			bigFonts;
 		bool 			has_follow_screenings;
 		bool 			call_fromfollowlist;
+		bool			imdb_active;
+		int			imdb_stars;
 		bool			tmdb_active;
-
+		int			tmdb_stars;
 		time_t			tmp_curent_zeit;
 
 		uint64_t		prev_id;
@@ -101,9 +103,6 @@ class CEpgData
 		void showProgressBar();
 		bool isCurrentEPG(const t_channel_id channel_id);
 
-		bool imdb_active;
-		int tmdb_stars, imdb_stars;
-		std::string imdb_rating;
 		std::string epg_title;
 		std::string movie_filename;
 
