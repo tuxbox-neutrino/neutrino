@@ -204,7 +204,7 @@ std::string CTMDB::getEPGText()
 {
 	std::string epgtext("");
 
-	epgtext += "Vote: " + minfo.vote_average.substr(0, 3) + "/10 Votecount: " + to_string(minfo.vote_count) + "\n";
+	epgtext += "Vote: " + minfo.vote_average.substr(0, 3) + "/10; Votecount: " + to_string(minfo.vote_count) + "\n";
 	epgtext += "\n";
 	epgtext += minfo.overview + "\n";
 	epgtext += "\n";

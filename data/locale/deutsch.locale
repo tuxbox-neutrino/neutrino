@@ -1018,6 +1018,7 @@ imdb.data_genre Genre
 imdb.data_metascore Metascore
 imdb.data_plot Handlung
 imdb.data_production Produktion
+imdb.data_rating Bewertung
 imdb.data_rating_failed Keine Bewertung
 imdb.data_released Veröffentlicht
 imdb.data_runtime Spieldauer

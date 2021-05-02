@@ -386,11 +386,18 @@ std::string CIMDB::getEPGText()
 
 	std::string epgtext("");
 
-	epgtext += g_Locale->getString(LOCALE_IMDB_DATA_VOTES) + ": " + m["imdbVotes"] + "\n";
+	if (checkElement("imdbRating"))
+	{
+		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_RATING) + ": " + m["imdbRating"] + "/10; ";
+		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_VOTES) + ": " + m["imdbVotes"] + "\n";
+	}
 	if (checkElement("Metascore"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_METASCORE) + ": " + m["Metascore"] + "/100\n";
-	epgtext += "\n";
-	epgtext += g_Locale->getString(LOCALE_IMDB_DATA_TITLE) + ": " + m["Title"] + "\n";
+	if (checkElement("Title"))
+	{
+		epgtext += "\n";
+		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_TITLE) + ": " + m["Title"] + "\n";
+	}
 	if (checkElement("Released"))
 		epgtext += g_Locale->getString(LOCALE_IMDB_DATA_RELEASED) + ": " + m["Country"] + ", " + m["Released"] + "\n";
 	if (checkElement("Runtime"))

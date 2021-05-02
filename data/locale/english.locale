@@ -1018,6 +1018,7 @@ imdb.data_genre Genre
 imdb.data_metascore Metascore
 imdb.data_plot Plot
 imdb.data_production Production
+imdb.data_rating Rating
 imdb.data_rating_failed No rating
 imdb.data_released Released
 imdb.data_runtime Runtime
