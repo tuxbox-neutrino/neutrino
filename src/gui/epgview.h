@@ -35,8 +35,8 @@
 
 #include <system/settings.h>
 
-#include <gui/mdb-imdb.h>
-#include <gui/mdb-tmdb.h>
+#include "mdb-imdb.h"
+#include "mdb-tmdb.h"
 #include <driver/movieinfo.h>
 #include "widget/menue.h"
 #include "widget/navibar.h"
@@ -68,7 +68,7 @@ class CEpgData
 		bool 			has_follow_screenings;
 		bool 			call_fromfollowlist;
 		bool			tmdb_active;
-		int			stars;
+
 		time_t			tmp_curent_zeit;
 
 		uint64_t		prev_id;
@@ -101,14 +101,11 @@ class CEpgData
 		void showProgressBar();
 		bool isCurrentEPG(const t_channel_id channel_id);
 
-
 		bool imdb_active;
-		int imdb_stars;
+		int tmdb_stars, imdb_stars;
 		std::string imdb_rating;
 		std::string epg_title;
 		std::string movie_filename;
-		int showIMDb();
-		Font *fontIMDb;
 
 	public:
 
