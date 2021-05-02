@@ -70,7 +70,7 @@ void CTMDB::setTitle(std::string epgtitle)
 {
 	minfo.epgtitle = epgtitle;
 
-	hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_TMDB_READ_DATA));
+	hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_TMDB_READ_DATA);
 	hintbox->paint();
 
 	std::string lang = Lang2ISO639_1(g_settings.language);

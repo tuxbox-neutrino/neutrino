@@ -62,7 +62,7 @@ class CTMDB
 		CTMDB();
 		~CTMDB();
 		static CTMDB *getInstance();
-		void        setTitle(std::string epgtitle);
+		void setTitle(std::string epgtitle);
 		std::string getEPGText();
 		std::string getMovieText();
 

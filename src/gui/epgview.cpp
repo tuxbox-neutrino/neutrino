@@ -1199,8 +1199,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				{
 					//show IMDb info
 					imdb_active = true;
-					showIMDb(true); //show splashscreen only
-					imdb->getMovieDetails(epgData.title);
+					imdb->setTitle(epgData.title);
 					showIMDb();
 					showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
@@ -1640,17 +1639,8 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 }
 
 //imdb start
-int CEpgData::showIMDb(bool splash)
+int CEpgData::showIMDb()
 {
-	fontIMDb = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
-
-	frameBuffer->paintBoxRel(sx, sy+toph, ox /*- 15*/, sb, COL_MENUCONTENT_PLUS_0);
-	if (splash)
-	{
-		fontIMDb->RenderString(sx+OFFSET_INNER_MID, sy+toph+medlineheight, ox-OFFSET_INNER_MID, "IMDb: Daten werden geladen ...", COL_MENUCONTENT_TEXT, 0, true);
-		return 0;
-	}
-
 	//title
 	std::string title = imdb->getIMDbElement("Title");
 

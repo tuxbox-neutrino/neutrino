@@ -26,10 +26,12 @@
 
 #include <system/helpers.h>
 #include <zapit/zapit.h>
+#include <gui/widget/hintbox.h>
 
 class CIMDB
 {
 	private:
+		CHintBox *hintbox;
 		int acc;
 		std::string imdb_url;
 		std::string key; // omdb api key
@@ -46,6 +48,9 @@ class CIMDB
 		CIMDB();
 		~CIMDB();
 		static CIMDB *getInstance();
+		void setTitle(std::string epgtitle);
+		std::string getEPGText();
+		std::string getMovieText();
 
 		std::string search_url;
 		std::string search_outfile;
@@ -57,9 +62,6 @@ class CIMDB
 		std::string getFilename(CZapitChannel *channel, uint64_t id);
 		void StringReplace(std::string &str, const std::string search, const std::string rstr);
 		void cleanup();
-
-		std::string getEPGText();
-		std::string getMovieText();
 
 		std::string getPoster() { return posterfile; }
 		bool hasPoster() { return (access(posterfile.c_str(), F_OK) == 0); }

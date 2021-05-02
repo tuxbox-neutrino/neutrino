@@ -50,7 +50,8 @@ CIMDB *CIMDB::getInstance()
 
 CIMDB::CIMDB()
 {
-	key		= g_settings.omdb_api_key;
+	key = g_settings.omdb_api_key;
+	hintbox = NULL;
 	search_url	= "http://www.google.de/search?q=";
 	search_outfile	= "/tmp/google.out";
 	search_error	= "IMDb: Google download failed";
@@ -64,6 +65,21 @@ CIMDB::CIMDB()
 CIMDB::~CIMDB()
 {
 	cleanup();
+}
+
+void CIMDB::setTitle(std::string epgtitle)
+{
+	hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_IMDB_READ_DATA);
+	hintbox->paint();
+
+	getMovieDetails(epgtitle);
+
+	if (hintbox)
+	{
+		hintbox->hide();
+		delete hintbox;
+		hintbox = NULL;
+	}
 }
 
 std::string CIMDB::utf82url(std::string s)

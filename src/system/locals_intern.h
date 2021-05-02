@@ -1054,6 +1054,7 @@ const char * locale_real_names[] =
 	"imdb.data_writer",
 	"imdb.info",
 	"imdb.info_save",
+	"imdb.read_data",
 	"inetradio.autostart",
 	"inetradio.name",
 	"infoviewer.epgnotload",
