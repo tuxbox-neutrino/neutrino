@@ -455,6 +455,19 @@ std::string CIMDB::getMovieText()
 	return movietext;
 }
 
+int CIMDB::getStars()
+{
+	std::string imdbRating = "";
+
+	if (checkElement("imdbRating"))
+		imdbRating = getIMDbElement("imdbRating");
+
+	if (imdbRating.empty() || imdbRating == "N/A")
+		return 0;
+
+	return (int)(atof(imdbRating.c_str()) * 10);
+}
+
 std::string CIMDB::getFilename(CZapitChannel *channel, uint64_t id)
 {
 	char		fname[512]; // UTF-8

@@ -65,6 +65,7 @@ class CIMDB
 
 		std::string getPoster() { return posterfile; }
 		bool hasPoster() { return (access(posterfile.c_str(), F_OK) == 0); }
+		int getStars();
 
 		bool checkElement(std::string element);
 		//FIXME: what if m[element] doesn't exist?

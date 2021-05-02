@@ -1658,21 +1658,7 @@ int CEpgData::showIMDb()
 	textCount = epgText.size();
 
 	//rating
-	imdb_rating = imdb->getIMDbElement("imdbRating");
-
-	std::string value = imdb_rating;
-	if (imdb_rating == "N/A")
-	{
-		value = "0";
-		imdb_rating = g_Locale->getText(LOCALE_IMDB_DATA_RATING_FAILED);
-	}
-	else
-		imdb_rating += "/10";
-
-	size_t pos = value.find_first_of(",.");
-	if (pos != std::string::npos)
-		value.replace(pos, 1, ""); // change 8,1 or 8.1 to 81
-	imdb_stars = atoi(value);
+	imdb_stars = imdb->getStars();
 
 	showText(0, sy + toph, imdb->hasPoster());
 	return 0;
