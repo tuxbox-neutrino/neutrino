@@ -288,6 +288,14 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			cover_offset = 0;
 			frameBuffer->paintBoxRel(sx, y, ox-SCROLLBAR_WIDTH, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
+		/* FIXME
+		else
+		{
+			char hint[1024];
+			snprintf(hint, sizeof(hint), g_Locale->getText(LOCALE_MDB_SAVE_POSTER_HINT), g_RCInput->getKeyName((neutrino_msg_t) g_settings.mbkey_cover));
+			font->RenderString(sx+OFFSET_INNER_MID, y+OFFSET_INNER_MID+cover_height+OFFSET_INNER_MID+font->getHeight(), cover_width, hint, COL_MENUCONTENT_TEXT);
+		}
+		*/
 	}
 
 	// recalculate
@@ -1197,30 +1205,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						else
 							ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NODETAILED, CMsgBox::mbrOk , CMsgBox::mbrOk);
 					}
-					else if (imdb_active && imdb->hasPoster())
-					{
-						imdb_active = false;
-						CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_IMDB_INFO_SAVE);
-						hintBox->paint();
-
-						std::string picname;
-						if (mp_info)
-						{
-							size_t _pos;
-							if ((_pos = movie_filename.rfind(".")) != std::string::npos)
-								picname = movie_filename.substr(0, _pos) + ".jpg";
-						}
-						else
-							picname = CMDBTools::getInstance()->getFilename(channel, epgData.eventID);
-
-						CFileHelpers fh;
-						if (!fh.copyFile(imdb->posterfile.c_str(), picname.c_str(), 0644))
-							perror( "IMDb: error copy file" );
-
-						sleep(2);
-						hintBox->hide();
-						showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
-					}
 					else
 					{
 						imdb_active = false;
@@ -1388,6 +1372,38 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						msg = 0;
 					} else
 						loop = false;
+				}
+				else if (msg == (neutrino_msg_t) g_settings.mbkey_cover)
+				{
+					std::string poster("");
+
+					if (imdb_active && imdb->hasPoster())
+						poster = imdb->getPoster();
+					else if (tmdb_active && tmdb->hasPoster())
+						poster = tmdb->getPoster();
+
+					if (!poster.empty())
+					{
+						CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_MDB_SAVE_POSTER);
+						hintBox.paint();
+
+						std::string picname;
+						if (mp_info)
+						{
+							size_t _pos;
+							if ((_pos = movie_filename.rfind(".")) != std::string::npos)
+								picname = movie_filename.substr(0, _pos) + ".jpg";
+						}
+						else
+							picname = CMDBTools::getInstance()->getFilename(channel, epgData.eventID);
+
+						CFileHelpers fh;
+						if (!fh.copyFile(poster.c_str(), picname.c_str(), 0644))
+							perror( "IMDb: error copy file" );
+
+						sleep(2);
+						hintBox.hide();
+					}
 				}
 				else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
 					if (!call_fromfollowlist) {
@@ -1645,21 +1661,9 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		adzap_button += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 	}
 
-
 	// check imdb button
 	if (g_settings.omdb_enabled)
-	{
-		if (imdb_active)
-		{
-			EpgButtons[UsedButtons][1].button = (imdb->hasPoster()) ? NEUTRINO_ICON_BUTTON_GREEN : NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
-			EpgButtons[UsedButtons][1].locale = LOCALE_IMDB_INFO_SAVE;
-		}
-		else
-		{
-			EpgButtons[UsedButtons][1].button = NEUTRINO_ICON_BUTTON_GREEN;
-			EpgButtons[UsedButtons][1].locale = LOCALE_IMDB_INFO;
-		}
-	}
+		EpgButtons[UsedButtons][1].button = NEUTRINO_ICON_BUTTON_GREEN;
 	else
 		EpgButtons[UsedButtons][1].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
 
@@ -1670,9 +1674,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		EpgButtons[UsedButtons][2].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
 
 	if (mp_info)
-	{
 		::paintButtons(x, y, w, MaxButtons, EpgButtons[MP_BUTTONS], w, h);
-	}
 	else
 	{
 		// check followscreenings button

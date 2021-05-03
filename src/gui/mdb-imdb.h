@@ -42,6 +42,8 @@ class CIMDB
 		std::string parseFile(std::string search1, std::string search2, const char *file, std::string firstline = "", int line_offset = 0);
 		std::map<std::string, std::string> m;
 
+		std::string posterfile;
+
 		void initMap(std::map<std::string, std::string> &my);
 
 	public:
@@ -56,7 +58,6 @@ class CIMDB
 		std::string search_outfile;
 		std::string search_error;
 		std::string imdb_outfile;
-		std::string posterfile;
 
 		int getMovieDetails(const std::string &epgTitle);
 		void cleanup();

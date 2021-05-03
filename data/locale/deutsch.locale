@@ -1027,7 +1027,6 @@ imdb.data_votes Stimmen
 imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
 imdb.info IMDb-Info
-imdb.info_save Bild speichern
 imdb.read_data Suche IMDb-Daten ...
 inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
@@ -1206,6 +1205,8 @@ mbkey.copy_several Film kopieren und teilen
 mbkey.cover Filmcover erzeugen/löschen
 mbkey.cut Film schneiden
 mbkey.truncate Film kürzen
+mdb.save_poster Bild speichern
+mdb.save_poster_hint Bild speichern mit %s
 menu.back Zurück
 menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter

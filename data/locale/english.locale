@@ -1027,7 +1027,6 @@ imdb.data_votes Votes
 imdb.data_website Website
 imdb.data_writer Screenplay author
 imdb.info IMDb-Info
-imdb.info_save save Cover
 imdb.read_data Search IMDb data ...
 inetradio.autostart Internetradio auto-start
 inetradio.name Internetradio
@@ -1206,6 +1205,8 @@ mbkey.copy_several Copy and split movie
 mbkey.cover Create/remove movie cover
 mbkey.cut Cut movie
 mbkey.truncate Truncate movie
+mdb.save_poster Save poster
+mdb.save_poster_hint Save poster with %s
 menu.back Back
 menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
