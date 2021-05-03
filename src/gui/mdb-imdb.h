@@ -59,8 +59,6 @@ class CIMDB
 		std::string posterfile;
 
 		int getMovieDetails(const std::string &epgTitle);
-		std::string getFilename(CZapitChannel *channel, uint64_t id);
-		void StringReplace(std::string &str, const std::string search, const std::string rstr);
 		void cleanup();
 
 		std::string getPoster() { return posterfile; }

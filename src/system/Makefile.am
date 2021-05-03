@@ -36,6 +36,7 @@ libneutrino_system_a_SOURCES = \
 	luaserver.cpp \
 	localize.cpp \
 	helpers.cpp \
+	mdb-tools.cpp \
 	ping.cpp \
 	proc_tools.cpp \
 	settings.cpp \

@@ -41,6 +41,7 @@
 #include "timerlist.h"
 #include <zapit/zapit.h>
 #include <system/helpers.h>
+#include <system/mdb-tools.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -1210,7 +1211,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								picname = movie_filename.substr(0, _pos) + ".jpg";
 						}
 						else
-							picname = imdb->getFilename(channel, epgData.eventID);
+							picname = CMDBTools::getInstance()->getFilename(channel, epgData.eventID);
 
 						CFileHelpers fh;
 						if (!fh.copyFile(imdb->posterfile.c_str(), picname.c_str(), 0644))
