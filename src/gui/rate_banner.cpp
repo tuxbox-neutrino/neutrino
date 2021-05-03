@@ -80,7 +80,8 @@ void CRateBanner::paint(const bool &do_save_bg)
 	addIcons(rat_icon_bg, rat_max);
 
 	paintCCItems();
-	frameBuffer->RestoreScreen(x_base, y, w_tmp, height, pixbuf);
+	if (pixbuf)
+		frameBuffer->RestoreScreen(x_base, y, w_tmp, height, pixbuf);
 	delete[] pixbuf;
 	pixbuf = NULL;
 }
