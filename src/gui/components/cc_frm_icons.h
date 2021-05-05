@@ -30,9 +30,9 @@ class CComponentsIconForm : public CComponentsFrmChain
 {
 	private:
 		std::vector<std::string> v_icons;
-		void initMaxHeight(int *pheight);
 
 	protected:
+		void initMaxHeight(int *pheight);
 		void initVarIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::vector<std::string> &v_icon_names,
 					CComponentsForm* parent,
