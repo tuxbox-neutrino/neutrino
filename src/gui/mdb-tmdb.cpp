@@ -258,7 +258,7 @@ void CTMDB::selectResult(Json::Value elements, int results, int &use_result)
 
 	int select = 0;
 
-	CMenuWidget *m = new CMenuWidget(LOCALE_TMDB_READ_DATA, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget *m = new CMenuWidget(LOCALE_TMDB_READ_DATA, NEUTRINO_ICON_TMDB);
 	CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
 
 	// we don't show introitems, so we add a separator for a smoother view
