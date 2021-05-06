@@ -331,9 +331,9 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 			CRateBanner cc_starbar(sx+OFFSET_INNER_MID+cover_offset, y+OFFSET_INNER_MID, stars, max_stars, provider_logo);
 			cc_starbar.paint();
 
-			medlinecount = (sb - cc_starbar.getHeight()) / medlineheight;
+			medlinecount = (sb - cc_starbar.getHeight() - OFFSET_INNER_MID) / medlineheight;
+			y += cc_starbar.getHeight() + OFFSET_INNER_MID;
 		}
-		y += medlineheight;
 	}
 
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
