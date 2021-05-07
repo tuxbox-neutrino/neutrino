@@ -53,8 +53,8 @@ CRateBanner::~CRateBanner()
 void CRateBanner::init(const std::string& quote_icon, const std::string& quote_icon_bg, const float& quote, const float& quote_max, const std::string& provider_logo)
 {
 	cc_item_type.name 	= "rate_banner";
-	append_x_offset = OFFSET_INNER_SMALL;
-	paint_bg = false;
+	append_x_offset = OFFSET_INNER_MIN;
+	paint_bg 	= false;
 	rat_prov_logo 	= provider_logo;
 	rat_icon 	= quote_icon;
 	rat_icon_bg 	= quote_icon_bg;
