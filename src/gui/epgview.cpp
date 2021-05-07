@@ -305,30 +305,24 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	if (startPos == 0 && (imdb_active || tmdb_active))
 	{
 		std::string provider_logo = "";
-		int stars = 0;
+		float stars = 0.0;
+		float max_stars = 10.0;
 
 		if (imdb_active)
 		{
 			provider_logo = NEUTRINO_ICON_IMDB;
-			stars = imdb_stars;
+			stars = (float)imdb_stars;
 		}
 		else if (tmdb_active)
 		{
 			provider_logo = NEUTRINO_ICON_TMDB;
-			stars = tmdb_stars;
+			stars = (float)tmdb_stars;
 		}
 
 		// show ranking
-		if (stars > 0)
+		if (stars > 0) //TODO: What if ranking is really = 0, and it's saved so in database, not empty and not N/A? Suggestion: getStars() should return -1 on missing rating.
 		{
-			int max_stars = 10;
-			if (imdb_active && imdb_stars)
-				stars = imdb_stars / max_stars;
-			if (tmdb_active && tmdb_stars)
-				stars = tmdb_stars / max_stars;
-
-			//create and paint ranking banner
-			CRateBanner cc_starbar(sx+OFFSET_INNER_MID+cover_offset, y+OFFSET_INNER_MID, stars, max_stars, provider_logo);
+			CRateBanner cc_starbar(sx+OFFSET_INNER_MID+cover_offset, y+OFFSET_INNER_MID, stars/max_stars, max_stars, provider_logo);
 			cc_starbar.paint();
 
 			medlinecount = (sb - cc_starbar.getHeight() - OFFSET_INNER_MID) / medlineheight;
