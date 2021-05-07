@@ -3267,7 +3267,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		for (unsigned i = 0; i < subtext.size(); i++)
 			g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT);
 
-		end_time = sub->end_display_time + time_monotonic_ms();
+		end_time = std::max(sub->end_display_time, 1500u) + time_monotonic_ms();
 	}
 	avsubtitle_free(sub);
 	delete sub;
