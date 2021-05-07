@@ -788,7 +788,7 @@ void CStreamStream::Close()
 		av_free(avio_ctx);
 
 	if (bsfc){
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,48,100 ))
 		av_bitstream_filter_close(bsfc);
 #else
 		av_bsf_free(&bsfc);
@@ -907,7 +907,7 @@ bool CStreamStream::Open()
 	av_dump_format(ofcx, 0, ofcx->url, 1);
 #endif
 	av_log_set_level(AV_LOG_WARNING);
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,48,100 ))
 	bsfc = av_bitstream_filter_init("h264_mp4toannexb");
 	if (!bsfc)
 		printf("%s: av_bitstream_filter_init h264_mp4toannexb failed!\n", __FUNCTION__);
@@ -971,7 +971,7 @@ void CStreamStream::run()
 #endif
 		if (bsfc && codec->codec_id == AV_CODEC_ID_H264 ) {
 			AVPacket newpkt = pkt;
-#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,52,100 ))
+#if (LIBAVCODEC_VERSION_INT < AV_VERSION_INT( 57,48,100 ))
 			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
 				av_packet_unref(&pkt);
 				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
