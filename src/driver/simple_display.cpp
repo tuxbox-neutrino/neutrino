@@ -247,7 +247,8 @@ void CLCD::showServicename(std::string name, const int num, bool)
 	}
 	else
 	{
-		replace_umlauts(servicename);
+		if (!g_info.hw_caps->display_can_umlauts)
+			replace_umlauts(servicename);
 		strncpy(display_text, servicename.c_str(), sizeof(display_text) - 1);
 		display_text[sizeof(display_text) - 1] = '\0';
 	}
@@ -430,7 +431,8 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 	if (mode != MODE_MENU_UTF8)
 		return;
 	std::string tmp = text;
-	replace_umlauts(tmp);
+	if (!g_info.hw_caps->display_can_umlauts)
+		replace_umlauts(tmp);
 	ShowText(tmp.c_str());
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	wake_up();
@@ -442,7 +444,8 @@ void CLCD::showAudioTrack(const std::string &, const std::string & title, const 
 	if (mode != MODE_AUDIO)
 		return;
 	std::string tmp = title;
-	replace_umlauts(tmp);
+	if (!g_info.hw_caps->display_can_umlauts)
+		replace_umlauts(tmp);
 	ShowText(tmp.c_str());
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	wake_up();
