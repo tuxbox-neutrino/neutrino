@@ -32,6 +32,7 @@ hw_caps_t *get_hwcaps(void) {
 	caps.display_yres = 0;
 	caps.display_can_deepstandby = (rev > 7);
 	caps.display_can_set_brightness = 1;
+	caps.display_can_umlauts = 1;
 	caps.display_has_statusline = 1;
 	caps.display_has_colon = 0;
 	caps.has_button_timer = 0;

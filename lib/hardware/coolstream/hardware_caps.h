@@ -37,6 +37,7 @@ typedef struct hw_caps
 	int display_yres;
 	int display_can_set_brightness;
 	int display_can_deepstandby;
+	int display_can_umlauts;
 	int display_has_statusline;
 	int display_has_colon;
 	int has_button_timer;
