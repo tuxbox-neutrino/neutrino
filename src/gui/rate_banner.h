@@ -34,8 +34,8 @@
 class CRateBanner : public CComponentsIconForm
 {
 	private:
-		std::string rat_icon, rat_icon_bg, rat_prov_logo;
-		float rate, rat_max;
+		std::string rate_icon, rate_icon_bg, rate_prov_logo;
+		float rate, rate_max;
 
 		void init(	const std::string& quote_icon,
 				const std::string& quote_icon_bg,

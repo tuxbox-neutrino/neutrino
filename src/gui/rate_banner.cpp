@@ -52,32 +52,32 @@ CRateBanner::~CRateBanner()
 
 void CRateBanner::init(const std::string& quote_icon, const std::string& quote_icon_bg, const float& quote, const float& quote_max, const std::string& provider_logo)
 {
-	cc_item_type.name 	= "rate_banner";
-	append_x_offset = OFFSET_INNER_MIN;
-	paint_bg 	= false;
-	rat_prov_logo 	= provider_logo;
-	rat_icon 	= quote_icon;
-	rat_icon_bg 	= quote_icon_bg;
+	cc_item_type.name = "rate_banner";
+	append_x_offset	= OFFSET_INNER_MIN;
+	paint_bg	= false;
+	rate_prov_logo	= provider_logo;
+	rate_icon	= quote_icon;
+	rate_icon_bg	= quote_icon_bg;
 	rate		= quote;
-	rat_max 	= quote_max;
+	rate_max	= quote_max;
 }
 
 void CRateBanner::paint(const bool &do_save_bg)
 {
 	clear();
-	addIcon(rat_prov_logo);
-	addIcons(rat_icon, rat_max);
+	addIcon(rate_prov_logo);
+	addIcons(rate_icon, rate_max);
 	paintForm(do_save_bg);
 
-	int x_base = getCCItem(rat_icon)->getRealXPos();
-	float w_rate_space = static_cast<float>(width - (getCCItem(rat_prov_logo) ? getCCItem(rat_prov_logo)->getWidth() - append_x_offset : 0));
-	float w_rate_size = w_rate_space / rat_max * rate;
+	int x_base = getCCItem(rate_icon)->getRealXPos();
+	float w_rate_space = static_cast<float>(width - (getCCItem(rate_prov_logo) ? getCCItem(rate_prov_logo)->getWidth() - append_x_offset : 0));
+	float w_rate_size = w_rate_space / rate_max * rate;
 	int w_tmp = static_cast<int>(round(w_rate_size)) - append_x_offset;
 	fb_pixel_t* pixbuf = getScreen(x_base, y, w_tmp, height);
 
 	removeAllIcons();
-	addIcon(rat_prov_logo);
-	addIcons(rat_icon_bg, rat_max);
+	addIcon(rate_prov_logo);
+	addIcons(rate_icon_bg, rate_max);
 
 	paintCCItems();
 	if (pixbuf)
