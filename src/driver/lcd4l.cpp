@@ -719,7 +719,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 		else if (parseID == NeutrinoModes::mode_avinput)
 		{
-			Logo = LCD_ICONSDIR "/avinput" ICONSEXT;
+			//FIXME
+			Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 			Service = g_Locale->getText(LOCALE_MAINMENU_AVINPUTMODE);
 		}
 		else if (parseID == NeutrinoModes::mode_ts)
