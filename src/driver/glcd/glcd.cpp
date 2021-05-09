@@ -1769,3 +1769,25 @@ std::string cGLCD::GetConfigName(int driver)
 		driver = 0;
 	return GLCD::Config.driverConfigs[driver].name;
 }
+
+void cGLCD::AVInputMode(bool b)
+{
+	if (cglcd)
+	{
+		bool mo = cglcd->doMirrorOSD;
+		if (b)
+		{
+			cglcd->doScrollChannel = false;
+			cglcd->doScrollEpg = false;
+			cglcd->MirrorOSD(false);
+			cglcd->lockChannel(g_info.hw_caps->boxname, g_Locale->getText(LOCALE_MAINMENU_AVINPUTMODE), 0);
+		}
+		else
+		{
+			cglcd->doScrollChannel = true;
+			cglcd->doScrollEpg = true;
+			cglcd->MirrorOSD(mo);
+			cglcd->unlockChannel();
+		}
+	}
+}

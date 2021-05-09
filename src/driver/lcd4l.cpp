@@ -717,6 +717,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		{
 			Service = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
 		}
+		else if (parseID == NeutrinoModes::mode_avinput)
+		{
+			Logo = LCD_ICONSDIR "/avinput" ICONSEXT;
+			Service = g_Locale->getText(LOCALE_MAINMENU_AVINPUTMODE);
+		}
 		else if (parseID == NeutrinoModes::mode_ts)
 		{
 			if (ModeTshift)

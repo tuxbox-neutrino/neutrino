@@ -664,7 +664,7 @@ void CLCD::showVolume(const char vol, const bool perform_update)
 	if (
 	    ((mode == MODE_TVRADIO) && (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) ||
 	    ((mode == MODE_MOVIE) && (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) ||
-	    (mode == MODE_SCART) ||
+	    (mode == MODE_AVINPUT) ||
 	    (mode == MODE_AUDIO)
 	    )
 	{
@@ -956,8 +956,12 @@ void CLCD::setMode(const MODES m, const char * const title)
 		showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
 		break;
 	}
-	case MODE_SCART:
-		display.load_screen(&(background[BACKGROUND_LCD]));
+	case MODE_AVINPUT:
+		display.clear_screen(); // clear lcd
+		drawBanner();
+		display.load_screen_element(&(element[ELEMENT_SCART]), (lcd_width-element[ELEMENT_SCART].header.width)/2, 12);
+		display.load_screen_element(&(element[ELEMENT_SPEAKER]), 0, lcd_height-element[ELEMENT_SPEAKER].header.height-1);
+
 		showVolume(volume, false);
 		showclock = true;
 		showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */

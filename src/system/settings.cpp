@@ -49,6 +49,8 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	
 	{"personalize_games"			, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},	
 	{"personalize_tools"			, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
+	{"personalize_avinput"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_avinput_pip"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_scripts"			, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
 	{"personalize_lua"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_settings"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},

@@ -382,7 +382,7 @@ static void set_lua_variables(lua_State *L)
 		{ "UNKNOWN",		(lua_Integer)NeutrinoModes::mode_unknown },
 		{ "TV",			(lua_Integer)NeutrinoModes::mode_tv },
 		{ "RADIO",		(lua_Integer)NeutrinoModes::mode_radio },
-		{ "SCART",		(lua_Integer)NeutrinoModes::mode_scart },
+		{ "AVINPUT",		(lua_Integer)NeutrinoModes::mode_avinput },
 		{ "STANDBY",		(lua_Integer)NeutrinoModes::mode_standby },
 		{ "AUDIO",		(lua_Integer)NeutrinoModes::mode_audio },
 		{ "PIC",		(lua_Integer)NeutrinoModes::mode_pic },

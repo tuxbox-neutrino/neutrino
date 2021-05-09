@@ -77,7 +77,7 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 #endif
 	g_Zapit->muteAudio(newValue);
 
-	if( isEvent && ( neutrino->getMode() != NeutrinoModes::mode_scart ) && ( neutrino->getMode() != NeutrinoModes::mode_pic))
+	if (isEvent && (neutrino->getMode() != NeutrinoModes::mode_avinput) && (neutrino->getMode() != NeutrinoModes::mode_pic))
 	{
 		if (doInit)
 			CVolumeHelper::getInstance()->refresh();

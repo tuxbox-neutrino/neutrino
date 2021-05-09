@@ -514,6 +514,7 @@ extra.key_next43mode Next aspect ratio
 extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
+extra.key_pip_close_avinput Stop/Start PiP (HDMI)
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
 extra.key_record Record
@@ -1176,6 +1177,8 @@ mainmenu.reboot Reboot
 mainmenu.recording Recording
 mainmenu.recording_start Start
 mainmenu.recording_stop Stop
+mainmenu.avinputmode HDMI Input (Mode)
+mainmenu.avinputmode_pip HDMI Input (PiP)
 mainmenu.scripts Scripts
 mainmenu.service Installation (service)
 mainmenu.settings System settings

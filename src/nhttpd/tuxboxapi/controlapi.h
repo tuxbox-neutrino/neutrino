@@ -116,7 +116,7 @@ private:
 	void VideoFormatCGI(CyhookHandler *hh);
 	void VideoOutputCGI(CyhookHandler *hh);
 	void VCROutputCGI(CyhookHandler *hh);
-	void ScartModeCGI(CyhookHandler *hh);
+	void AVInputModeCGI(CyhookHandler *hh);
 	void AudioCGI(CyhookHandler *hh);
 	void CryptCGI(CyhookHandler *hh);
 	void setBouquetCGI(CyhookHandler *hh);

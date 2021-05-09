@@ -618,7 +618,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		//showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
 		break;
 	}
-	case MODE_SCART:
+	case MODE_AVINPUT:
 		showVolume(volume, false);
 		showclock = true;
 		//showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */

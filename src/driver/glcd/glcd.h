@@ -230,6 +230,7 @@ class cGLCD
 		static void TogglePower();
 		int GetConfigSize();
 		std::string GetConfigName(int);
+		static void AVInputMode(bool);
 		bool dumpBuffer(fb_pixel_t *s, int format, const char *filename);
 		void UpdateBrightness();
 		int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);

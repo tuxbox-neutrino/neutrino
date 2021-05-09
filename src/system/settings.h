@@ -483,6 +483,8 @@ struct SNeutrinoSettings
 
 		P_MAIN_GAMES,
 		P_MAIN_TOOLS,
+		P_MAIN_AVINPUT,
+		P_MAIN_AVINPUT_PIP,
 		P_MAIN_SCRIPTS,
 		P_MAIN_LUA,
 		P_MAIN_SETTINGS,
@@ -735,6 +737,7 @@ struct SNeutrinoSettings
 
 	int key_current_transponder;
 	int key_pip_close;
+	int key_pip_close_avinput;
 	int key_pip_setup;
 	int key_pip_swap;
 	int key_format_mode_active;
