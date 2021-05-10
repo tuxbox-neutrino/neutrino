@@ -667,9 +667,11 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 #ifdef ENABLE_PIP
 bool CZapit::StopPip()
 {
+#if !HAVE_CST_HARDWARE
 	if (CNeutrinoApp::getInstance()->avinput_pip) {
 		CNeutrinoApp::getInstance()->StopAVInputPiP();
 	}
+#endif
 
 	if (pip_channel_id) {
 		INFO("[pip] stop %llx", pip_channel_id);
