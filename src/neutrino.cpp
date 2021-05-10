@@ -709,6 +709,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 #ifdef ENABLE_GRAPHLCD
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0);
+	g_settings.glcd_logodir = configfile.getString("glcd_logodir", "/media/sda1/logos");
 
 	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
 	g_settings.glcd_standby_weather = configfile.getInt32("glcd_standby_weather", 1);
@@ -1706,6 +1707,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 #ifdef ENABLE_GRAPHLCD
 	configfile.setInt32("glcd_enable", g_settings.glcd_enable);
+	configfile.setString("glcd_logodir" , g_settings.glcd_logodir);
 	configfile.setInt32("glcd_time_in_standby", g_settings.glcd_time_in_standby);
 	configfile.setInt32("glcd_standby_weather", g_settings.glcd_standby_weather);
 	configfile.setInt32("glcd_mirror_osd", g_settings.glcd_mirror_osd);

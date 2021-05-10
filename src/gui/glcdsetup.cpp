@@ -210,6 +210,12 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		return GLCD_Theme_Position_Settings();
 	}
+	else if (actionKey == "glcd_logodir")
+	{
+		const char *action_str = "glcd_logodir";
+		chooserDir(g_settings.glcd_logodir, false, action_str);
+		return menu_return::RETURN_REPAINT;
+	}
 	else
 	{
 		return GLCD_Menu_Settings();
@@ -334,6 +340,11 @@ int GLCD_Menu::GLCD_Menu_Settings()
 	gms->addItem(GenericMenuSeparatorLine);
 
 	int shortcut = 1;
+	gms->addItem(new CMenuForwarder(LOCALE_GLCD_LOGODIR, true, g_settings.glcd_logodir, this, "glcd_logodir",
+				CRCInput::convertDigitToKey(shortcut++)));
+
+	gms->addItem(GenericMenuSeparator);
+
 	gms->addItem(new CMenuForwarder(LOCALE_GLCD_THEME_SETTINGS, true, NULL, this, "theme_settings",
 				CRCInput::convertDigitToKey(shortcut++)));
 	gms->addItem(new CMenuForwarder(LOCALE_GLCD_BRIGHTNESS_SETTINGS, true, NULL, this, "brightness_settings",
@@ -342,6 +353,7 @@ int GLCD_Menu::GLCD_Menu_Settings()
 				CRCInput::convertDigitToKey(shortcut++)));
 	gms->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SCROLL_SPEED,
 				&g_settings.glcd_scroll_speed, true, 1, 63, this));
+
 	gms->addItem(GenericMenuSeparatorLine);
 
 	gms->addItem(new CMenuOptionChooser(LOCALE_GLCD_MIRROR_OSD, &g_settings.glcd_mirror_osd,

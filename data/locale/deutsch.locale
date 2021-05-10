@@ -895,6 +895,7 @@ glcd.epg_y_position EPG y-Position
 glcd.font Schrift
 glcd.font_autoresize Automatische Schriftgröße
 glcd.head GraphLCD-Unterstützung
+glcd.logodir Senderlogo-Verzeichnis
 glcd.logo_x_position Senderlogo x-Position
 glcd.logo_y_position Senderlogo y-Position
 glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen

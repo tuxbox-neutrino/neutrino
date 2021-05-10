@@ -895,6 +895,7 @@ glcd.epg_y_position EPG y-position
 glcd.font Font
 glcd.font_autoresize Auto size
 glcd.head GraphLCD-support
+glcd.logodir Channel logo directory
 glcd.logo_x_position Channel logo x-position
 glcd.logo_y_position Channel logo y-position
 glcd.mirror_osd Show OSD-menu on GraphLCD

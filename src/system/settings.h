@@ -923,6 +923,7 @@ struct SNeutrinoSettings
 #ifdef ENABLE_GRAPHLCD
 	// graphlcd
 	int glcd_enable;
+	std::string glcd_logodir;
 
 	int glcd_time_in_standby;
 	int glcd_standby_weather;

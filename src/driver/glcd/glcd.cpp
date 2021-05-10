@@ -1501,7 +1501,7 @@ bool cGLCD::showImage(uint64_t cid, std::string cname, uint32_t dx, uint32_t dy,
 	std::string logo;
 	int sw, sh;
 
-	if (g_PicViewer->GetLogoName(cid, cname, logo, &sw, &sh))
+	if (g_PicViewer->GetLogoName(cid, cname, logo, &sw, &sh, CPictureViewer::GRAPHLCD, true))
 	{
 		return showImage(logo, (uint32_t) sw, (uint32_t) sh, dx, dy, dw, dh, transp, maximize);
 	}

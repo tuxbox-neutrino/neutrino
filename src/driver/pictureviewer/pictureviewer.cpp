@@ -531,7 +531,7 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, bool lcd4l_mode, bool enable_event_logo)
+bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &ChannelName, std::string &name, int *width, int *height, int enable_special_logo, bool enable_event_logo)
 {
 	std::string fileType[] = { ".png", ".jpg", ".gif" };
 	std::vector<std::string> v_path;
@@ -562,11 +562,21 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 		// add neccessary paths to v_path
 		v_path.clear();
-		if (lcd4l_mode)
+		switch(enable_special_logo)
 		{
+			case LCD4LINUX:
 #ifdef ENABLE_LCD4LINUX
-			v_path.push_back(g_settings.lcd4l_logodir);
+				v_path.push_back(g_settings.lcd4l_logodir);
 #endif
+				break;
+			case GRAPHLCD:
+#ifdef ENABLE_GRAPHLCD
+				v_path.push_back(g_settings.glcd_logodir);
+#endif
+				break;
+			case NOPE:
+			default:
+				break;
 		}
 		v_path.push_back(g_settings.logo_hdd_dir);
 		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
@@ -652,12 +662,23 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 		for (size_t f = 0; f < v_file.size(); f++)
 		{
-			// process g_settings.lcd4l_logodir
-			if (lcd4l_mode)
+			switch(enable_special_logo)
 			{
+				case LCD4LINUX:
 #ifdef ENABLE_LCD4LINUX
-				v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
+					// process g_settings.lcd4l_logodir
+					v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
 #endif
+					break;
+				case GRAPHLCD:
+#ifdef ENABLE_GRAPHLCD
+					// process g_settings.glcd_logodir
+					v_path.push_back(g_settings.glcd_logodir + "/" + v_file[f] + fileType[i]);
+#endif
+					break;
+				case NOPE:
+				default:
+					break;
 			}
 			// process g_settings.logo_hdd_dir
 			v_path.push_back(g_settings.logo_hdd_dir + "/" + v_file[f] + fileType[i]);

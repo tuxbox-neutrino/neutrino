@@ -922,6 +922,7 @@ const char * locale_real_names[] =
 	"glcd.font",
 	"glcd.font_autoresize",
 	"glcd.head",
+	"glcd.logodir",
 	"glcd.logo_x_position",
 	"glcd.logo_y_position",
 	"glcd.mirror_osd",

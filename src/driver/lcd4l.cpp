@@ -681,7 +681,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			else
 				Service = g_RemoteControl->getCurrentChannelName();
 
-			g_PicViewer->GetLogoName(parseID, Service, Logo, &dummy, &dummy, true, true);
+			g_PicViewer->GetLogoName(parseID, Service, Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
 
 			ChannelNr = CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber();
 		}
@@ -752,7 +752,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 					{
 						if (!g_PicViewer->GetLogoName(CMoviePlayerGui::getInstance().p_movie_info->channelId,
 									      CMoviePlayerGui::getInstance().p_movie_info->channelName,
-									      Logo, &dummy, &dummy, true, true))
+									      Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true))
 							Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 					}
 					else /* show play-icon */
