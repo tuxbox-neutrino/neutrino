@@ -21,6 +21,7 @@ hw_caps_t *get_hwcaps(void) {
 	int chip = cs_get_chip_type();
 	caps.has_fan = (rev < 8); // see dirty part of hw_caps in neutrino.cpp
 	caps.has_HDMI = 1;
+	caps.has_HDMI_input = 0;
 	caps.has_SCART = (rev != 10);
 	caps.has_SCART_input = 0;
 	caps.has_YUV_cinch = 1;

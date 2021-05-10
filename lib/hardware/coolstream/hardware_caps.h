@@ -23,6 +23,7 @@ typedef struct hw_caps
 {
 	int has_fan;
 	int has_HDMI;
+	int has_HDMI_input;
 	int has_SCART;
 	int has_SCART_input;
 	int has_YUV_cinch;
