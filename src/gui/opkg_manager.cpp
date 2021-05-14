@@ -484,7 +484,7 @@ void COPKGManager::updateMenu()
 	bool upgradesAvailable = false;
 	getPkgData(CMD_LIST_INSTALLED);
 	getPkgData(CMD_LIST_UPGRADEABLE);
-	initPackagePatternLists();
+
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
 		if (!isPermittedPackage(it->second.name))
@@ -647,7 +647,7 @@ int COPKGManager::doUpdate()
 			DisplayErrorMessage(msg.c_str());
 		return r;
 	}
-
+	initPackagePatternLists();
 	return 0;
 }
 
