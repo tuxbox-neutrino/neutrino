@@ -143,6 +143,7 @@ class COPKGManager : public CMenuTarget
 			OPKG_GOOD_LIST 	= 1
 		}opkg_pattern_list_t;
 
+		void initPackagePatternLists();
 		static std::vector<std::string> getPackagePatternList(opkg_pattern_list_t type);
 
 		//!Returns a vector with possible filter entries from OPKG_BAD_PATTERN_LIST_FILE or OPKG_GOOD_PATTERN_LIST_FILE

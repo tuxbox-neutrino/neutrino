@@ -136,8 +136,7 @@ void COPKGManager::init(int wizard_mode)
 	list_upgradeable_done = false;
 	expert_mode = false;
 	local_dir = &g_settings.update_dir_opkg;
-	v_bad_pattern = getBadPackagePatternList();
-	v_good_pattern = getGoodPackagePatternList();
+	initPackagePatternLists();
 
 	silent = false;
 	num_updates = 0;
@@ -359,6 +358,14 @@ static const struct button_label COPKGManagerFooterButtonsExpert[COPKGManagerFoo
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_OPKG_BUTTON_UNINSTALL }
 };
 
+void COPKGManager::initPackagePatternLists()
+{
+	v_bad_pattern.clear();
+	v_bad_pattern = getBadPackagePatternList();
+	v_good_pattern.clear();
+	v_good_pattern = getGoodPackagePatternList();
+}
+
 vector<string> COPKGManager::getBadPackagePatternList()
 {
 	return COPKGManager::getPackagePatternList(OPKG_BAD_LIST);
@@ -477,6 +484,7 @@ void COPKGManager::updateMenu()
 	bool upgradesAvailable = false;
 	getPkgData(CMD_LIST_INSTALLED);
 	getPkgData(CMD_LIST_UPGRADEABLE);
+	initPackagePatternLists();
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
 		/* this should no longer trigger at all */
 		if (!isPermittedPackage(it->second.name))
