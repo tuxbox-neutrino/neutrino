@@ -158,19 +158,6 @@ void CNeutrinoApp::InitMenuMain()
 	radioswitch->setHint(NEUTRINO_ICON_HINT_RADIOMODE, LOCALE_MENU_HINT_RADIOMODE);
 	personalize.addItem(MENU_MAIN, radioswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RADIO_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch, DCOND_MODE_RADIO | DCOND_MODE_TS); //observed
 
-	//avinput mode
-	if ((g_info.hw_caps->has_SCART_input) || (g_info.hw_caps->has_HDMI_input)) {
-		CMenuForwarder *avinputmode = new CMenuForwarder(LOCALE_MAINMENU_AVINPUTMODE, true, NULL, this, "avinput", g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE] != 0 ? CRCInput::RC_green : CRCInput::RC_nokey);
-		//avinputmode->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE, LOCALE_MAINMENU_HINT_AVINPUTMODE);
-		personalize.addItem(MENU_MAIN, avinputmode, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT]);
-
-#ifdef ENABLE_PIP
-		CMenuForwarder *avinputmode_pip = new CMenuForwarder(LOCALE_MAINMENU_AVINPUTMODE_PIP, true, NULL, this, "avinput_pip", false /*CRCInput::RC_nokey*/);
-		//avinputmode_pip->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE_PIP, LOCALE_MAINMENU_HINT_AVINPUTMODE_PIP);
-		personalize.addItem(MENU_MAIN, avinputmode_pip, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT_PIP]);
-#endif
-	}
-
 	//timer
 	CMenuForwarder *timerlist = new CMenuForwarder(LOCALE_TIMERLIST_NAME, true, NULL, new CTimerList(), NULL, CRCInput::RC_yellow);
 	timerlist->setHint(NEUTRINO_ICON_HINT_TIMERS, LOCALE_MENU_HINT_TIMERS);
@@ -180,6 +167,20 @@ void CNeutrinoApp::InitMenuMain()
 	CMenuForwarder *media = new CMenuForwarder(LOCALE_MAINMENU_MEDIA, true, NULL, CMediaPlayerMenu::getInstance(), NULL, CRCInput::RC_blue);
 	media->setHint(NEUTRINO_ICON_HINT_MEDIA, LOCALE_MENU_HINT_MEDIA);
 	personalize.addItem(MENU_MAIN, media, &g_settings.personalize[SNeutrinoSettings::P_MAIN_MEDIA]);
+
+	//avinput mode
+	if ((g_info.hw_caps->has_SCART_input) || (g_info.hw_caps->has_HDMI_input)) {
+		personalize.addSeparator(MENU_MAIN);
+		CMenuForwarder *avinputmode = new CMenuForwarder(LOCALE_MAINMENU_AVINPUTMODE, true, NULL, this, "avinput");
+		avinputmode->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE, LOCALE_MENU_HINT_AVINPUTMODE);
+		personalize.addItem(MENU_MAIN, avinputmode, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT]);
+
+#ifdef ENABLE_PIP
+		CMenuForwarder *avinputmode_pip = new CMenuForwarder(LOCALE_MAINMENU_AVINPUTMODE_PIP, true, NULL, this, "avinput_pip");
+		avinputmode_pip->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE_PIP, LOCALE_MENU_HINT_AVINPUTMODE_PIP);
+		personalize.addItem(MENU_MAIN, avinputmode_pip, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT_PIP]);
+#endif
+	}
 
 	CMenuForwarder * mf;
 	//games

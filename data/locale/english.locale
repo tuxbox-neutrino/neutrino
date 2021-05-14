@@ -1250,6 +1250,8 @@ menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
 menu.hint_auto_update_check Set interval mode for update checks.
+menu.hint_avinputmode Use AV input of your receiver
+menu.hint_avinputmode_pip Use AV input of your receiver in PiP mode
 menu.hint_back Return to previous menu\nPress menu key to close all menus
 menu.hint_back_brief Return to previous menu
 menu.hint_backlight Configure buttons backlight

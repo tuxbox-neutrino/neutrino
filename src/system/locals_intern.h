@@ -1277,6 +1277,8 @@ const char * locale_real_names[] =
 	"menu.hint_auto_lang",
 	"menu.hint_auto_subs",
 	"menu.hint_auto_update_check",
+	"menu.hint_avinputmode",
+	"menu.hint_avinputmode_pip",
 	"menu.hint_back",
 	"menu.hint_back_brief",
 	"menu.hint_backlight",

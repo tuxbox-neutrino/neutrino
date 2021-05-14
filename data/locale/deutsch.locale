@@ -1250,6 +1250,8 @@ menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Play
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
 menu.hint_auto_update_check Prüfintervalle für Updates festlegen.
+menu.hint_avinputmode AV-Eingang des Receivers verwenden
+menu.hint_avinputmode_pip AV-Eingang des Receivers im PiP verwenden
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_back_brief Zurück zum vorherigen Menü.
 menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons

@@ -5,6 +5,8 @@ install_DATA = \
 	hint_adzap.png \
 	hint_aplay.png \
 	hint_audio.png \
+	hint_avinputmode.png \
+	hint_avinputmode_pip.png \
 	hint_back.png \
 	hint_backup.png \
 	hint_bedit.png \
