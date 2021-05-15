@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	FS Mount/Umount by Zwen
-	
+
 	Homepage: http://dbox.cyberphoria.org/
 
 	Kommentar:
@@ -39,69 +39,68 @@
 
 class CFSMounter
 {
-// protected
- public:
-	
-	enum FS_Support
-	{
-		FS_UNSUPPORTED   = 0,
-		FS_READY         = 1,
-		FS_NEEDS_MODULES = 2,
-		FS_UNPROBED      = 3
-	};
-	
- public:
+	public:
 
-	enum FSType
-	{
-		NFS  = 0,
-		CIFS = 1,
-		LUFS = 2
-	};
-	
-	enum MountRes
-	{
-		MRES_FS_NOT_SUPPORTED     = 0,
-		MRES_FS_ALREADY_MOUNTED   = 1,
-		MRES_TIMEOUT              = 2,
-		MRES_UNKNOWN              = 3,
-		MRES_OK                   = 4
-	};
+		enum FS_Support
+		{
+			FS_UNSUPPORTED   = 0,
+			FS_READY         = 1,
+			FS_NEEDS_MODULES = 2,
+			FS_UNPROBED      = 3
+		};
 
-	enum UMountRes
-	{
-		UMRES_ERR = 0,
-		UMRES_OK  = 1
-	};
+	public:
 
-	struct MountInfo
-	{
-		std::string device;
-		std::string mountPoint;
-		std::string type;
-	};
+		enum FSType
+		{
+			NFS  = 0,
+			CIFS = 1,
+			LUFS = 2
+		};
 
-	typedef std::vector<CFSMounter::MountInfo> MountInfos;
+		enum MountRes
+		{
+			MRES_FS_NOT_SUPPORTED     = 0,
+			MRES_FS_ALREADY_MOUNTED   = 1,
+			MRES_TIMEOUT              = 2,
+			MRES_UNKNOWN              = 3,
+			MRES_OK                   = 4
+		};
 
- private:
-/*
-	FS_Support m_nfs_sup;
-	FS_Support m_cifs_sup;
-	FS_Support m_lufs_sup;
-*/
- public:
-	CFSMounter();
-	static bool isMounted(const std::string &local_dir);
-	static CFSMounter::MountRes mount(const std::string &ip, const std::string &dir, const std::string &local_dir,
-				       const FSType fstype, const std::string &username, const std::string &password,
-				       std::string options1, std::string options2);
-	static bool automount();
-	static CFSMounter::UMountRes umount(const char * const dir = NULL);
-	static void getMountedFS(MountInfos& fs); 
-	static FS_Support fsSupported(const FSType fs, const bool keep_modules = false);
+		enum UMountRes
+		{
+			UMRES_ERR = 0,
+			UMRES_OK  = 1
+		};
+
+		struct MountInfo
+		{
+			std::string device;
+			std::string mountPoint;
+			std::string type;
+		};
+
+		typedef std::vector<CFSMounter::MountInfo> MountInfos;
+
+	private:
+		/*
+			FS_Support m_nfs_sup;
+			FS_Support m_cifs_sup;
+			FS_Support m_lufs_sup;
+		*/
+	public:
+		CFSMounter();
+		static bool isMounted(const std::string &local_dir);
+		static CFSMounter::MountRes mount(const std::string &ip, const std::string &dir, const std::string &local_dir,
+						  const FSType fstype, const std::string &username, const std::string &password,
+						  std::string options1, std::string options2);
+		static bool automount();
+		static CFSMounter::UMountRes umount(const char *const dir = NULL);
+		static void getMountedFS(MountInfos &fs);
+		static FS_Support fsSupported(const FSType fs, const bool keep_modules = false);
 };
 
-bool in_proc_filesystems(const char * const fsname);
+bool in_proc_filesystems(const char *const fsname);
 bool insert_modules(const CFSMounter::FSType fstype);
 bool remove_modules(const CFSMounter::FSType fstype);
 
