@@ -228,8 +228,8 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 	{
 		if (fstype == NFS)
 		{
-			options1 = "ro,soft,udp";
-			options2 = "nolock,rsize=8192,wsize=8192";
+			options1 = "soft,udp";
+			options2 = "nolock";
 		}
 		else if (fstype == CIFS)
 		{
@@ -251,8 +251,6 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 		cmd += dir;
 		cmd += ' ';
 		cmd += local_dir;
-		cmd += " -o ";
-		cmd += options1;
 	}
 	else if (fstype == CIFS)
 	{
@@ -266,12 +264,6 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 		cmd += username;
 		cmd += ",password=";
 		cmd += password;
-		//cmd += ",unc=//"; for whats needed?
-		//cmd += ip;
-		//cmd += '/';
-		//cmd += dir;
-		//cmd += ',';
-		//cmd += options1;
 	}
 	else
 	{
@@ -285,11 +277,18 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 		cmd += ip;
 		cmd += ",root=/";
 		cmd += dir;
-		cmd += ',';
+	}
+
+	if (!options1.empty())
+	{
+		if (fstype == NFS)
+			cmd += " -o ";
+		else
+			cmd += ',';
 		cmd += options1;
 	}
 
-	if (options2[0] != '\0')
+	if (!options2.empty())
 	{
 		cmd += ',';
 		cmd += options2;
