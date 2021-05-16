@@ -34,8 +34,14 @@ function do_init(){
 	{
 		if (fb_options[i].value == val)
 			document.f.fb.selectedIndex = i;
-		if (cst && i > 2+8)
-			fb_options[i].disabled = true;
+		if (cst)
+		{
+			// rc_cst_trinity_duo is the last cst rc in selection
+			if (val > {=var-get:_rc_cst_trinity_duo=})
+				val = {=var-get:_rc_auto=};
+			if (fb_options[i].value > {=var-get:_rc_cst_trinity_duo=})
+				fb_options[i].disabled = true;
+		}
 	}
 	obj_set_radio_value('screenshot_rc', "{=ini-get:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;false~cache=}");
 	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;start_page;bouquets~cache=}";
