@@ -517,69 +517,104 @@ start-block~frame_live_epg
 </html>
 end-block~frame_live_epg
 
+# ------- Remote control variables
+start-block~rc_variables
+{=var-set:_fb_dbox_philips=2=}
+{=var-set:_fb_dbox_nokia_old=1=}
+{=var-set:_fb_auto=0=}
+
+{=var-set:_rc_dbox_philips=-2=}
+{=var-set:_rc_dbox_nokia_old=-1=}
+{=var-set:_rc_auto=0=}
+{=var-set:_rc_cst_neo=1=}
+{=var-set:_rc_cst_zee=2=}
+{=var-set:_rc_cst_neo2=3=}
+{=var-set:_rc_cst_tank=4=}
+{=var-set:_rc_cst_trinity=5=}
+{=var-set:_rc_cst_zee2=6=}
+{=var-set:_rc_cst_link=7=}
+{=var-set:_rc_cst_trinity_duo=8=}
+{=var-set:_rc_ax_hd51=9=}
+{=var-set:_rc_mutant_hd51=10=}
+{=var-set:_rc_wwio_breeze4k=11=}
+{=var-set:_rc_vuplus_solo4k=12=}
+{=var-set:_rc_vuplus_duo4k=13=}
+{=var-set:_rc_vuplus_duo4kse=14=}
+{=var-set:_rc_vuplus_ultimo4k=15=}
+{=var-set:_rc_vuplus_uno4k=16=}
+{=var-set:_rc_vuplus_uno4kse=17=}
+{=var-set:_rc_vuplus_zero4k=18=}
+{=var-set:_rc_vuplus_duo=19=}
+{=var-set:_rc_zgemma_h7=20=}
+{=var-set:_rc_ax_hd60=21=}
+{=var-set:_rc_mutant_hd60=22=}
+{=var-set:_rc_ax_hd61=23=}
+end-block~rc_variables
+
 # ------- Remote
 start-block~remote
-{=var-set:nfbtype={=ini-get:/var/tuxbox/config/neutrino.conf;remote_control_hardware=}=}
-{=var-set:yfbtype={=ini-get:/var/tuxbox/config/Y-Web.conf;fb;0=}=}
+{=include-block:Y_Blocks.txt;rc_variables=}
+{=var-set:nfbtype={=ini-get:%(CONFIGDIR)/neutrino.conf;remote_control_hardware=}=}
+{=var-set:yfbtype={=ini-get:%(CONFIGDIR)/Y-Web.conf;fb;0=}=}
 {=var-set:boxtype={=func:get_boxtype=}=}
-{=if-equal:{=var-get:yfbtype=}~0~
-	{=if-equal:{=var-get:nfbtype=}~2~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
-	{=if-equal:{=var-get:nfbtype=}~1~	{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
-		{=if-equal:{=var-get:boxtype=}~CST Neo~		{=include-block:Y_Blocks.txt;rc_cst_v2=}~
-		{=if-equal:{=var-get:boxtype=}~CST Zee~		{=include-block:Y_Blocks.txt;rc_cst_v3=}~
-		{=if-equal:{=var-get:boxtype=}~CST Neo Twin~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-		{=if-equal:{=var-get:boxtype=}~CST Tank~	{=include-block:Y_Blocks.txt;rc_cst_v5=}~
-		{=if-equal:{=var-get:boxtype=}~CST Trinity~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-		{=if-equal:{=var-get:boxtype=}~CST Zee2~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-		{=if-equal:{=var-get:boxtype=}~CST Link~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-		{=if-equal:{=var-get:boxtype=}~CST Trinity Duo~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD51~{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
-		{=if-equal:{=var-get:boxtype=}~Mutant HD51~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
-		{=if-equal:{=var-get:boxtype=}~WWIO BRE2ZE 4K~	{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ DUO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ DUO4KSE~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ UNO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ ZERO4K~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-		{=if-equal:{=var-get:boxtype=}~VU+ DUO~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+{=if-equal:{=var-get:yfbtype=}~{=var-get:_fb_auto=}~
+	{=if-equal:{=var-get:nfbtype=}~{=var-get:_fb_dbox_philips=}~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
+	{=if-equal:{=var-get:nfbtype=}~{=var-get:_fb_dbox_nokia_old=}~	{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
+		{=if-equal:{=var-get:boxtype=}~CST Neo~			{=include-block:Y_Blocks.txt;rc_cst_v2=}~
+		{=if-equal:{=var-get:boxtype=}~CST Zee~			{=include-block:Y_Blocks.txt;rc_cst_v3=}~
+		{=if-equal:{=var-get:boxtype=}~CST Neo Twin~		{=include-block:Y_Blocks.txt;rc_cst_v4=}~
+		{=if-equal:{=var-get:boxtype=}~CST Tank~		{=include-block:Y_Blocks.txt;rc_cst_v5=}~
+		{=if-equal:{=var-get:boxtype=}~CST Trinity~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+		{=if-equal:{=var-get:boxtype=}~CST Zee2~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+		{=if-equal:{=var-get:boxtype=}~CST Link~		{=include-block:Y_Blocks.txt;rc_cst_v4=}~
+		{=if-equal:{=var-get:boxtype=}~CST Trinity Duo~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD51~	{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+		{=if-equal:{=var-get:boxtype=}~Mutant HD51~		{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
+		{=if-equal:{=var-get:boxtype=}~WWIO BRE2ZE 4K~		{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ DUO4K~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ DUO4KSE~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ ULTIMO4K~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ UNO4K~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ UNO4KSE~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ ZERO4K~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+		{=if-equal:{=var-get:boxtype=}~VU+ DUO~			{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~AirDigital Zgemma H7C/S~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
-		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD60~{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
-		{=if-equal:{=var-get:boxtype=}~Mutant HD60~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
-		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD61~{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
+		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD60~	{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+		{=if-equal:{=var-get:boxtype=}~Mutant HD60~		{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
+		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD61~	{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
 
-		{=comment:fallback~=}				{=include-block:Y_Blocks.txt;rc_cst_v1=}
+		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
-	{=if-equal:{=var-get:yfbtype=}~-2~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
-	{=if-equal:{=var-get:yfbtype=}~-1~	{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
-	{=if-equal:{=var-get:yfbtype=}~1~	{=include-block:Y_Blocks.txt;rc_cst_v1=}~
-	{=if-equal:{=var-get:yfbtype=}~2~	{=include-block:Y_Blocks.txt;rc_cst_v2=}~
-	{=if-equal:{=var-get:yfbtype=}~3~	{=include-block:Y_Blocks.txt;rc_cst_v3=}~
-	{=if-equal:{=var-get:yfbtype=}~4~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-	{=if-equal:{=var-get:yfbtype=}~5~	{=include-block:Y_Blocks.txt;rc_cst_v5=}~
-	{=if-equal:{=var-get:yfbtype=}~6~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-	{=if-equal:{=var-get:yfbtype=}~7~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-	{=if-equal:{=var-get:yfbtype=}~8~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-	{=if-equal:{=var-get:yfbtype=}~9~	{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
-	{=if-equal:{=var-get:yfbtype=}~10~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
-	{=if-equal:{=var-get:yfbtype=}~11~	{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
-	{=if-equal:{=var-get:yfbtype=}~12~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~13~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~14~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~15~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~16~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~17~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~18~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~19~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~20~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
-	{=if-equal:{=var-get:yfbtype=}~21~	{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
-	{=if-equal:{=var-get:yfbtype=}~22~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
-	{=if-equal:{=var-get:yfbtype=}~23~	{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_philips=}~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_nokia_old=}~	{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_neo=}~		{=include-block:Y_Blocks.txt;rc_cst_v1=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_zee=}~		{=include-block:Y_Blocks.txt;rc_cst_v2=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_neo2=}~	{=include-block:Y_Blocks.txt;rc_cst_v3=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_tank=}~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_trinity=}~	{=include-block:Y_Blocks.txt;rc_cst_v5=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_zee2=}~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_link=}~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_trinity_duo=}~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd51=}~		{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_mutant_hd51=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_wwio_breeze4k=}~	{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_solo4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo4kse=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_ultimo4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_uno4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_uno4kse=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_zero4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_zgemma_h7=}~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd60=}~		{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_mutant_hd60=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd61=}~		{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
 
-	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;rc_cst_v1=}
+	{=comment:fallback~=}						{=include-block:Y_Blocks.txt;rc_cst_v1=}
 	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 =}
 end-block~remote

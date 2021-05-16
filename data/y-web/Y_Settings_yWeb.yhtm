@@ -1,3 +1,4 @@
+{=include-block:Y_Blocks.txt;rc_variables=}
 {=include-block:Y_Blocks.txt;management_check_top=}
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
@@ -26,45 +27,13 @@ function do_submit(){
 	}
 }
 function do_init(){
-	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;fb;0~open=}";
-	var sel=2;
-	switch(val){
-		case "-2":	// d-box philips
-		case "-1":	// d-box nokia old
-		case "0":	// auto
-		case "1":	// cst hd1/bse
-		case "2":	// cst neo
-		case "3":	// cst zee/neo2
-		case "4":	// cst neo twin
-		case "5":	// cst tank
-		case "6":	// cst trinity
-		case "7":	// cst link
-		case "8":	// cst trinity duo
-		case "9":	// ax hd51
-		case "10":	// mutant hd51
-		case "11":	// wwio bre2ze4k
-		case "12":	// vu solo4k
-		case "13":	// vu duo4k
-		case "14":	// vu duo4kse
-		case "15":	// vu ultimo4k
-		case "16":	// vu uno4k
-		case "17":	// vu uno4kse
-		case "18":	// vu zero4k
-		case "19":	// vu duo
-		case "20":	// zgemma h7
-		case "21":	// ax hd60
-		case "22":	// mutant hd60
-		case "23":	// ax hd61
-			sel=(sel*1+val*1);
-			break;
-		default:
-			break;
-	}
-	document.f.fb.selectedIndex = sel;
+	var val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;0~open=}";
 	var cst = (loadSyncURL("/control/info?hwinfo").indexOf("CST") > -1);
 	var fb_options = document.f.fb.getElementsByTagName("option");
 	for (var i = 0; i < fb_options.length; i++)
 	{
+		if (fb_options[i].value == val)
+			document.f.fb.selectedIndex = i;
 		if (cst && i > 2+8)
 			fb_options[i].disabled = true;
 	}
@@ -168,32 +137,32 @@ select {
 				<td>{=L:set.yweb.remote=}</td>
 				<td>
 					<select name="fb" title="{=L:remote=}">
-						<option value="-2">d-Box | Philips</option>
-						<option value="-1">d-Box | Nokia (alt)</option>
-						<option value="0" selected="selected">{=L:automatic=}</option>
-						<option value="1">CST HD-1 | BSE</option>
-						<option value="2">CST HD-1plus | Neo</option>
-						<option value="3">CST HD-1plus | Zee/Neo2</option>
-						<option value="4">CST HD-1plus | Neo Twin</option>
-						<option value="5">CST HD-2 | Tank</option>
-						<option value="6">CST HD-2 | Trinity</option>
-						<option value="7">CST HD-2 | Link</option>
-						<option value="8">CST HD-2 | Trinity Duo</option>
-						<option value="9">AX | HD51</option>
-						<option value="10">Mutant | HD51</option>
-						<option value="11">WWIO | BRE2ZE 4K</option>
-						<option value="12">VU+ | Solo 4K</option>
-						<option value="13">VU+ | Duo 4K</option>
-						<option value="14">VU+ | Duo 4K SE</option>
-						<option value="15">VU+ | Ultimo 4K</option>
-						<option value="16">VU+ | Uno 4K</option>
-						<option value="17">VU+ | Uno 4K SE</option>
-						<option value="18">VU+ | Zero 4K</option>
-						<option value="19">VU+ | Duo</option>
-						<option value="20">Zgemma | H7</option>
-						<option value="21">AX | HD60</option>
-						<option value="22">Mutant | HD60</option>
-						<option value="23">AX | HD61</option>
+						<option value="{=var-get:_rc_dbox_philips=}">d-Box Philips</option>
+						<option value="{=var-get:_rc_dbox_nokia_old=}">d-Box Nokia (alt)</option>
+						<option value="{=var-get:_rc_auto=}" selected="selected">{=L:automatic=}</option>
+						<option value="{=var-get:_rc_cst_neo=}">CST HD-1 BSE</option>
+						<option value="{=var-get:_rc_cst_zee=}">CST HD-1plus Neo</option>
+						<option value="{=var-get:_rc_cst_neo2=}">CST HD-1plus Zee/Neo2</option>
+						<option value="{=var-get:_rc_cst_tank=}">CST HD-1plus Neo Twin</option>
+						<option value="{=var-get:_rc_cst_trinity=}">CST HD-2 Tank</option>
+						<option value="{=var-get:_rc_cst_zee2=}">CST HD-2 Trinity</option>
+						<option value="{=var-get:_rc_cst_link=}">CST HD-2 Link</option>
+						<option value="{=var-get:_rc_cst_trinity_duo=}">CST HD-2 Trinity Duo</option>
+						<option value="{=var-get:_rc_ax_hd51=}">AX HD51</option>
+						<option value="{=var-get:_rc_ax_hd60=}">AX HD60</option>
+						<option value="{=var-get:_rc_ax_hd61=}">AX HD61</option>
+						<option value="{=var-get:_rc_mutant_hd60=}">Mutant HD60</option>
+						<option value="{=var-get:_rc_mutant_hd51=}">Mutant HD51</option>
+						<option value="{=var-get:_rc_wwio_breeze4k=}">WWIO BRE2ZE 4K</option>
+						<option value="{=var-get:_rc_zgemma_h7=}">Zgemma H7</option>
+						<option value="{=var-get:_rc_vuplus_solo4k=}">VU+ Solo 4K</option>
+						<option value="{=var-get:_rc_vuplus_duo4k=}">VU+ Duo 4K</option>
+						<option value="{=var-get:_rc_vuplus_duo4kse=}">VU+ Duo 4K SE</option>
+						<option value="{=var-get:_rc_vuplus_ultimo4k=}">VU+ Ultimo 4K</option>
+						<option value="{=var-get:_rc_vuplus_uno4k=}">VU+ Uno 4K</option>
+						<option value="{=var-get:_rc_vuplus_uno4kse=}">VU+ Uno 4K SE</option>
+						<option value="{=var-get:_rc_vuplus_zero4k=}">VU+ Zero 4K</option>
+						<option value="{=var-get:_rc_vuplus_duo=}">VU+ Duo</option>
 					</select>
 				</td>
 				<td>{=L:set.yweb.screenshot_rc=}</td>

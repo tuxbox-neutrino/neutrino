@@ -1,4 +1,4 @@
-version=2.9.0.44
-date=27.10.2019
+version=2.9.0.50
+date=16.05.2021
+info=Tuxbox-Neutrino
 type=Release
-info=Port Tuxbox-Neutrino
