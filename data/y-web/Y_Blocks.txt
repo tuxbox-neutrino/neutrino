@@ -560,6 +560,7 @@ start-block~remote
 {=if-equal:{=var-get:yfbtype=}~{=var-get:_fb_auto=}~
 	{=if-equal:{=var-get:nfbtype=}~{=var-get:_fb_dbox_philips=}~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
 	{=if-equal:{=var-get:nfbtype=}~{=var-get:_fb_dbox_nokia_old=}~	{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
+		{=if-equal:{=var-get:boxtype=}~CST HD1~			{=include-block:Y_Blocks.txt;rc_cst_v1=}~
 		{=if-equal:{=var-get:boxtype=}~CST Neo~			{=include-block:Y_Blocks.txt;rc_cst_v2=}~
 		{=if-equal:{=var-get:boxtype=}~CST Zee~			{=include-block:Y_Blocks.txt;rc_cst_v3=}~
 		{=if-equal:{=var-get:boxtype=}~CST Neo Twin~		{=include-block:Y_Blocks.txt;rc_cst_v4=}~
