@@ -43,6 +43,8 @@
 #include <driver/abstime.h>
 #endif
 
+#include <system/helpers.h>
+#include <system/proc_tools.h>
 #include <system/set_threadname.h>
 #include <gui/color.h>
 
@@ -328,13 +330,10 @@ void CFbAccelMIPS::setBlendMode(uint8_t mode)
 /* level = 100 -> transparent, level = 0 -> nontransparent */
 void CFbAccelMIPS::setBlendLevel(int level)
 {
-	char tmp[3]={0x0};
-	int _level = 0xff - ( level * 0xff / 100);
-	sprintf(tmp,"%d", _level);
-	int pfd = open("/proc/stb/video/alpha", O_WRONLY);
-	if (pfd)
-		write(pfd, tmp, sizeof(tmp));
-	close(pfd);
+	char buf[16];
+	int value = 255 - (level * 255 / 100);
+	int len = snprintf(buf, sizeof(buf), "%d", value);
+	proc_put("/proc/stb/video/alpha", buf, len);
 }
 
 int CFbAccelMIPS::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int nbpp)
