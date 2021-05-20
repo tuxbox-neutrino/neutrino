@@ -13,7 +13,7 @@ start-block~neutrino_form
 </style>
 </head>
 <body>
-{=var-set:wait_text={=L:save_vlaues=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 {=include-block:Y_neutrino_Blocks.txt;{=var-get:neutrino=}=}
 </body>
 </html>

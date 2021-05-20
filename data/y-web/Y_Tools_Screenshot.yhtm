@@ -49,7 +49,7 @@ function do_snapshot() {
 	if ("{=var-get:grab=}" != "")
 	{
 		if (enableOSD == 1 && enableVideo == 1)
-			dbox_exec_tools("fbshot grab -q -p -j 85 /tmp/"+filename+".png");
+			dbox_exec_tools("fbshot grab -q -p /tmp/"+filename+".png");
 		else if (enableOSD == 1)
 			dbox_exec_tools("fbshot grab -q -p -o /tmp/"+filename+".png");
 		else if (enableVideo == 1)
@@ -134,7 +134,7 @@ function do_reload(){
 		</div>
 		<table cellpadding="0" class="screenshot">
 		<tr>
-			<td id="remote" {=if-empty:{=noremote=}~~style="display: none"=}>
+			<td id="remote" {=if-equal:{=rc=}~false~style="display: none"~=}>
 				{=include-block:Y_Blocks.txt;remote=}
 			</td>
 			<td class="shot">

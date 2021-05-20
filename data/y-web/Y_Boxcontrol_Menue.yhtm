@@ -163,10 +163,10 @@ function get_data(){
 				</li>
 				~=}
 				<li>
-					<a target="work" title="OSD-{=L:bc.menue.screenshot=}" href="Y_Tools_Screenshot.yhtm?osd=1&noremote=1">OSD-{=L:bc.menue.screenshot=}</a>
+					<a target="work" title="OSD-{=L:bc.menue.screenshot=}" href="Y_Tools_Screenshot.yhtm?osd=1&rc={=ini-get:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;false=}">OSD-{=L:bc.menue.screenshot=}</a>
 				</li>
 				<li>
-					<a target="work" title="TV-{=L:bc.menue.screenshot=}" href="Y_Tools_Screenshot.yhtm?video=1&noremote=1">TV-{=L:bc.menue.screenshot=}</a>
+					<a target="work" title="TV-{=L:bc.menue.screenshot=}" href="Y_Tools_Screenshot.yhtm?video=1&rc={=ini-get:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;false=}">TV-{=L:bc.menue.screenshot=}</a>
 				</li>
 			</ul>
 		</div>

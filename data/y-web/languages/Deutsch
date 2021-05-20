@@ -362,6 +362,7 @@ set.yweb.box_color_desc=Farbe der Box Bezeichnung im Top-Menue. z.B. 2188e0 eing
 set.yweb.box_color=Farbe
 set.yweb.start_page=Startseite
 set.yweb.remote=Fernbedienung
+set.yweb.screenshot_rc=FB im Screenshot-Menü
 
 ========Settings Picture viewer
 set.pv.pictureviewer=Bildbetrachter

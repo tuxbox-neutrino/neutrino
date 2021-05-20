@@ -365,6 +365,7 @@ set.yweb.box_color_desc=Box Name color in Top-Menue. e.g. enter 2188e0 without #
 set.yweb.box_color=Color
 set.yweb.start_page=Start page
 set.yweb.remote=Remote
+set.yweb.screenshot_rc=RC in screenshot menu
 
 ========Settings Picture viewer
 set.pv.pictureviewer=Pictureviewer
