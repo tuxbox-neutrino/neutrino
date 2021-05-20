@@ -586,7 +586,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD61~	{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
-		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
+		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_philips=}~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
