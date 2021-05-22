@@ -401,8 +401,14 @@ void CDBoxInfoWidget::paint()
 #endif
 	title += ": ";
 	title += g_info.hw_caps->boxvendor;
+
 	title += " ";
 	title += g_info.hw_caps->boxname;
+
+	title += " (";
+	title += g_info.hw_caps->boxarch;
+	title += ")";
+
 	width = std::max(width, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(title, true) + 50);
 	x = getScreenStartX(width);
 
