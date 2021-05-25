@@ -569,7 +569,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~CST Zee2~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 		{=if-equal:{=var-get:boxtype=}~CST Link~		{=include-block:Y_Blocks.txt;rc_cst_v4=}~
 		{=if-equal:{=var-get:boxtype=}~CST Trinity Duo~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD51~	{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+		{=if-equal:{=var-get:boxtype=}~AX HD51~			{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~Mutant HD51~		{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~WWIO BRE2ZE 4K~		{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ SOLO4K~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
@@ -581,9 +581,9 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~VU+ ZERO4K~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~VU+ DUO~			{=include-block:Y_Blocks.txt;rc_vuplus=}~
 		{=if-equal:{=var-get:boxtype=}~AirDigital Zgemma H7C/S~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
-		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD60~	{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+		{=if-equal:{=var-get:boxtype=}~AX HD60~			{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~Mutant HD60~		{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
-		{=if-equal:{=var-get:boxtype=}~AX-Technologies HD61~	{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
+		{=if-equal:{=var-get:boxtype=}~AX HD61~			{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
