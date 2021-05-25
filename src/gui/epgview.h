@@ -102,6 +102,7 @@ class CEpgData
 		void showTimerEventBar(bool show, bool adzap = false, bool mp_info = false);
 		void showProgressBar();
 		bool isCurrentEPG(const t_channel_id channel_id);
+		void ResetMDb();
 
 		std::string epg_title;
 		std::string movie_filename;
