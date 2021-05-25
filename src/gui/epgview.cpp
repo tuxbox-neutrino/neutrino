@@ -282,8 +282,10 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 	int offs = fullClear ? 0 : cover_offset;
 	frameBuffer->paintBoxRel(sx+offs, y, ox-SCROLLBAR_WIDTH-offs, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 
-	if (has_cover) {
-		if (!g_PicViewer->DisplayImage(cover ,sx+OFFSET_INNER_MID ,y+OFFSET_INNER_MID, cover_width, cover_height, CFrameBuffer::TM_NONE)) {
+	if (has_cover)
+	{
+		if (!g_PicViewer->DisplayImage(cover ,sx+OFFSET_INNER_MID ,y+OFFSET_INNER_MID, cover_width, cover_height, CFrameBuffer::TM_NONE))
+		{
 			cover_offset = 0;
 			frameBuffer->paintBoxRel(sx, y, ox-SCROLLBAR_WIDTH, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 		}
@@ -291,8 +293,11 @@ void CEpgData::showText(int startPos, int ypos, bool has_cover, bool fullClear)
 		else
 		{
 			char hint[1024];
-			snprintf(hint, sizeof(hint), g_Locale->getText(LOCALE_MDB_SAVE_POSTER_HINT), g_RCInput->getKeyName((neutrino_msg_t) g_settings.mbkey_cover));
-			font->RenderString(sx+OFFSET_INNER_MID, y+OFFSET_INNER_MID+cover_height+OFFSET_INNER_MID+font->getHeight(), cover_width, hint, COL_MENUCONTENT_TEXT);
+			snprintf(hint, sizeof(hint), g_Locale->getText(LOCALE_MDB_SAVE_POSTER_HINT), g_RCInput->getKeyName((neutrino_msg_t) g_settings.mbkey_cover).c_str());
+			int dynfont_width = cover_width;
+			int dynfont_height = font->getHeight();
+			Font *dynfont = *CNeutrinoFonts::getInstance()->getDynFont(dynfont_width, dynfont_height, hint);
+			dynfont->RenderString(sx+OFFSET_INNER_MID, y+OFFSET_INNER_MID+cover_height+OFFSET_INNER_MID+dynfont->getHeight(), dynfont_width, hint, COL_MENUCONTENT_TEXT);
 		}
 		*/
 	}

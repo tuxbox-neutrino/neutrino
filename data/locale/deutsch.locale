@@ -1210,7 +1210,7 @@ mbkey.cover Filmcover erzeugen/löschen
 mbkey.cut Film schneiden
 mbkey.truncate Film kürzen
 mdb.save_poster Bild speichern
-mdb.save_poster_hint Bild speichern mit %s
+mdb.save_poster_hint Bild speichern mit "%s"
 menu.back Zurück
 menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
