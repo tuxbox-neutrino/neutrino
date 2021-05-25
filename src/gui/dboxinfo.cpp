@@ -413,7 +413,7 @@ void CDBoxInfoWidget::paint()
 	x = getScreenStartX(width);
 
 	if (!header)
-		header = new CComponentsHeader(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
+		header = new CComponentsHeader(x, ypos, width, hheight, title, NEUTRINO_ICON_BOXINFO);
 	if (!header->isPainted())
 		header->paint(CC_SAVE_SCREEN_NO);
 

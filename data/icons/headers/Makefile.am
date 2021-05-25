@@ -3,6 +3,7 @@ installdir = $(ICONSDIR)
 install_DATA = \
 	audio.png \
 	bookmarkmanager.png \
+	boxinfo.png \
 	colors.png \
 	edit.png \
 	edit_find.png \
