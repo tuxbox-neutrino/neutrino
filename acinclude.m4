@@ -269,7 +269,7 @@ TUXBOX_APPS_DIRECTORY_ONE(datadir, DATADIR, datadir, /share, /tuxbox,
 	[--with-datadir=PATH], [where to find data files])
 
 TUXBOX_APPS_DIRECTORY_ONE(datadir_var, DATADIR_VAR, localstatedir, /var, /tuxbox,
-	[--with-datadir=PATH], [where to find data files])
+	[--with-datadir_var=PATH], [where to find data files in /var])
 
 TUXBOX_APPS_DIRECTORY_ONE(controldir, CONTROLDIR, datadir, /share, /tuxbox/neutrino/control,
 	[--with-controldir=PATH], [where to find control scripts])
