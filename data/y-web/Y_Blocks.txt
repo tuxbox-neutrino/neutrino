@@ -549,6 +549,7 @@ start-block~rc_variables
 {=var-set:_rc_ax_hd60=21=}
 {=var-set:_rc_mutant_hd60=22=}
 {=var-set:_rc_ax_hd61=23=}
+{=var-set:_rc_maxytec_multiboxse=24=}
 end-block~rc_variables
 
 # ------- Remote
@@ -584,9 +585,10 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~AX HD60~			{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~Mutant HD60~		{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 		{=if-equal:{=var-get:boxtype=}~AX HD61~			{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
+		{=if-equal:{=var-get:boxtype=}~Maxytec MultiboxSE 4K~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
-		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
+		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_philips=}~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
@@ -614,9 +616,10 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd60=}~		{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_mutant_hd60=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd61=}~		{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_maxytec_multiboxse=}~{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 
 	{=comment:fallback~=}						{=include-block:Y_Blocks.txt;rc_cst_v1=}
-	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
+	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 =}
 end-block~remote
 
@@ -1297,7 +1300,7 @@ start-block~rc_zgemma_h7
 </map>
 end-block~rc_zgemma_h7
 
-# ------ Remote Mutant HD60
+# ------ Remote Mutant HD60, Maxytec Multibox SE 4K
 start-block~rc_mutant_hd60
 <img src="images/rc_mutant_hd60.png" usemap="#rc"/>
 <map name="rc" id="rc">

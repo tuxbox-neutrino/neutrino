@@ -333,7 +333,7 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
 	{ CRCInput::RC_yellow,          "7,32",                                 "",     "yellow"        },
 	{ CRCInput::RC_blue,            "12,11,20,21,19,14,29,30,15,35",        "",     "blue"          },
-#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
+#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOXSE
 	{ CRCInput::RC_playpause,       "9",                                    "",     "5"             },
 #else
 	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
@@ -5517,7 +5517,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig->getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig->getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
-#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOXSE || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_nokey ); // FIXME
 #elif BOXMODEL_VUPLUS_ALL
 	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause );
@@ -5555,7 +5555,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_rewind = tconfig->getInt32( "mpkey.rewind", CRCInput::RC_rewind );
 	g_settings.mpkey_forward = tconfig->getInt32( "mpkey.forward", CRCInput::RC_forward );
 	g_settings.mpkey_stop = tconfig->getInt32( "mpkey.stop", CRCInput::RC_stop );
-#if BOXMODEL_HD51 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
+#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOXSE
 	g_settings.mpkey_play = tconfig->getInt32( "mpkey.play", CRCInput::RC_playpause );
 	g_settings.mpkey_pause = tconfig->getInt32( "mpkey.pause", CRCInput::RC_playpause );
 #elif BOXMODEL_VUPLUS_ALL

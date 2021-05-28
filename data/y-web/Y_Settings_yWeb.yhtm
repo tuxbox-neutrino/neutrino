@@ -158,6 +158,7 @@ select {
 						<option value="{=var-get:_rc_ax_hd60=}">AX HD60</option>
 						<option value="{=var-get:_rc_ax_hd61=}">AX HD61</option>
 						<option value="{=var-get:_rc_mutant_hd60=}">Mutant HD60</option>
+						<option value="{=var-get:_rc_maxytec_multiboxse=}">Mayxtec MultiboxSE 4K</option>
 						<option value="{=var-get:_rc_mutant_hd51=}">Mutant HD51</option>
 						<option value="{=var-get:_rc_wwio_breeze4k=}">WWIO BRE2ZE 4K</option>
 						<option value="{=var-get:_rc_zgemma_h7=}">Zgemma H7</option>
