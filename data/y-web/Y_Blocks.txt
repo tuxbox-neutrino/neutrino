@@ -545,7 +545,7 @@ start-block~rc_variables
 {=var-set:_rc_vuplus_uno4kse=17=}
 {=var-set:_rc_vuplus_zero4k=18=}
 {=var-set:_rc_vuplus_duo=19=}
-{=var-set:_rc_zgemma_h7=20=}
+{=var-set:_rc_airdigital_zgemma_h7=20=}
 {=var-set:_rc_ax_hd60=21=}
 {=var-set:_rc_mutant_hd60=22=}
 {=var-set:_rc_ax_hd61=23=}
@@ -591,34 +591,34 @@ start-block~remote
 		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_philips=}~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_nokia_old=}~	{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_neo=}~		{=include-block:Y_Blocks.txt;rc_cst_v1=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_zee=}~		{=include-block:Y_Blocks.txt;rc_cst_v2=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_neo2=}~	{=include-block:Y_Blocks.txt;rc_cst_v3=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_tank=}~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_trinity=}~	{=include-block:Y_Blocks.txt;rc_cst_v5=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_zee2=}~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_link=}~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_trinity_duo=}~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd51=}~		{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_mutant_hd51=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_wwio_breeze4k=}~	{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_solo4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo4kse=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_ultimo4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_uno4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_uno4kse=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_zero4k=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo=}~	{=include-block:Y_Blocks.txt;rc_vuplus=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_zgemma_h7=}~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd60=}~		{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_mutant_hd60=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd61=}~		{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_maxytec_multiboxse=}~{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_philips=}~		{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_nokia_old=}~		{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_neo=}~			{=include-block:Y_Blocks.txt;rc_cst_v1=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_zee=}~			{=include-block:Y_Blocks.txt;rc_cst_v2=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_neo2=}~		{=include-block:Y_Blocks.txt;rc_cst_v3=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_tank=}~		{=include-block:Y_Blocks.txt;rc_cst_v4=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_trinity=}~		{=include-block:Y_Blocks.txt;rc_cst_v5=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_zee2=}~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_link=}~		{=include-block:Y_Blocks.txt;rc_cst_v4=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_cst_trinity_duo=}~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd51=}~			{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_mutant_hd51=}~		{=include-block:Y_Blocks.txt;rc_mutant_hd51=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_wwio_breeze4k=}~		{=include-block:Y_Blocks.txt;rc_wwio_bre2ze4k=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_solo4k=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo4k=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo4kse=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_ultimo4k=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_uno4k=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_uno4kse=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_zero4k=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_vuplus_duo=}~		{=include-block:Y_Blocks.txt;rc_vuplus=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_airdigital_zgemma_h7=}~	{=include-block:Y_Blocks.txt;rc_zgemma_h7=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd60=}~			{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_mutant_hd60=}~		{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd61=}~			{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_maxytec_multiboxse=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 
-	{=comment:fallback~=}						{=include-block:Y_Blocks.txt;rc_cst_v1=}
+	{=comment:fallback~=}							{=include-block:Y_Blocks.txt;rc_cst_v1=}
 	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 =}
 end-block~remote

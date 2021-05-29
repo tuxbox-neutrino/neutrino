@@ -161,7 +161,7 @@ select {
 						<option value="{=var-get:_rc_mutant_hd60=}">Mutant HD60</option>
 						<option value="{=var-get:_rc_maxytec_multiboxse=}">Mayxtec Multibox SE 4K</option>
 						<option value="{=var-get:_rc_wwio_breeze4k=}">WWIO BRE2ZE 4K</option>
-						<option value="{=var-get:_rc_zgemma_h7=}">Zgemma H7</option>
+						<option value="{=var-get:_rc_airdigital_zgemma_h7=}">AirDigital Zgemma H7</option>
 						<option value="{=var-get:_rc_vuplus_solo4k=}">VU+ Solo 4K</option>
 						<option value="{=var-get:_rc_vuplus_duo4k=}">VU+ Duo 4K</option>
 						<option value="{=var-get:_rc_vuplus_duo4kse=}">VU+ Duo 4K SE</option>
