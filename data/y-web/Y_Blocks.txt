@@ -585,7 +585,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~AX HD60~			{=include-block:Y_Blocks.txt;rc_ax_hd51=}~
 		{=if-equal:{=var-get:boxtype=}~Mutant HD60~		{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 		{=if-equal:{=var-get:boxtype=}~AX HD61~			{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
-		{=if-equal:{=var-get:boxtype=}~Maxytec MultiboxSE 4K~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
+		{=if-equal:{=var-get:boxtype=}~Maxytec Multibox SE 4K~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
