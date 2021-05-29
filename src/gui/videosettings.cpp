@@ -530,7 +530,7 @@ int CVideoSettings::showVideoSetup()
 #endif
 #ifdef ENABLE_PIP
 	CPipSetup pip;
-	CMenuForwarder * pipsetup = new CMenuForwarder(LOCALE_VIDEOMENU_PIP, true, NULL, &pip);
+	CMenuForwarder * pipsetup = new CMenuForwarder(LOCALE_VIDEOMENU_PIP, g_info.hw_caps->can_pip, NULL, &pip);
 	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
 	videosetup->addItem(pipsetup);
 #endif
@@ -690,7 +690,8 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		g_Zapit->setMode43(g_settings.video_43mode);
 		videoDecoder->setAspectRatio(g_settings.video_Format, -1);
 #ifdef ENABLE_PIP
-		pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+		if (pipDecoder != NULL)
+			pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #endif
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VIDEOMODE))
@@ -766,7 +767,8 @@ void CVideoSettings::next43Mode(void)
 	g_Zapit->setMode43(g_settings.video_43mode);
 	printf("%s\n", m[g_settings.video_43mode]);
 #ifdef ENABLE_PIP
-	pipDecoder->setAspectRatio(-1, g_settings.video_43mode);
+	if (pipDecoder != NULL)
+		pipDecoder->setAspectRatio(-1, g_settings.video_43mode);
 #endif
 	ShowHint(LOCALE_VIDEOMENU_43MODE, g_Locale->getText(text), 450, 2);
 }
@@ -793,7 +795,8 @@ void CVideoSettings::SwitchFormat()
 
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
 #ifdef ENABLE_PIP
-	pipDecoder->setAspectRatio(g_settings.video_Format, -1);
+	if (pipDecoder != NULL)
+		pipDecoder->setAspectRatio(g_settings.video_Format, -1);
 #endif
 	ShowHint(LOCALE_VIDEOMENU_VIDEOFORMAT, g_Locale->getText(text), 450, 2);
 }
