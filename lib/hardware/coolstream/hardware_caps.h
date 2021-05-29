@@ -27,6 +27,7 @@ typedef struct hw_caps
 	int has_SCART;
 	int has_SCART_input;
 	int has_YUV_cinch;
+	int can_pip;
 	int can_cpufreq;
 	int can_shutdown;
 	int can_cec;
