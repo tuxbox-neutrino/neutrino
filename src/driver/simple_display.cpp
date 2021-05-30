@@ -53,7 +53,11 @@ static bool timer_icon = false;
 #endif
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#if BOXMODEL_MULTIBOXSE
+#define DISPLAY_DEV "/dev/null"
+#else
 #define DISPLAY_DEV "/dev/dbox/oled0"
+#endif
 #include <zapit/zapit.h>
 static bool usb_icon = false;
 static bool timer_icon = false;
@@ -468,6 +472,8 @@ void CLCD::setMode(const MODES m, const char * const title)
 	mode = m;
 
 	setlcdparameter();
+	if ((g_info.hw_caps->display_type == HW_DISPLAY_NONE) && file_exists("/proc/stb/power/powerled"))
+		proc_put("/proc/stb/power/powerled", "on");
 	proc_put("/proc/stb/lcd/show_symbols", true);
 	switch (m) {
 	case MODE_TVRADIO:
@@ -488,6 +494,8 @@ void CLCD::setMode(const MODES m, const char * const title)
 	case MODE_SHUTDOWN:
 		showclock = false;
 		Clear();
+		if ((g_info.hw_caps->display_type == HW_DISPLAY_NONE) && file_exists("/proc/stb/power/powerled"))
+			proc_put("/proc/stb/power/powerled", "off");
 		proc_put("/proc/stb/lcd/show_symbols", false);
 		break;
 	case MODE_STANDBY:
@@ -497,6 +505,8 @@ void CLCD::setMode(const MODES m, const char * const title)
 			setled(0, 1);
 		showclock = true;
 		showTime(true);
+		if ((g_info.hw_caps->display_type == HW_DISPLAY_NONE) && file_exists("/proc/stb/power/powerled"))
+			proc_put("/proc/stb/power/powerled", "off");
 		proc_put("/proc/stb/lcd/show_symbols", false);
 		timeout_cnt = 0;
 		break;
