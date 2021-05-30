@@ -2509,6 +2509,11 @@ unsigned int CZapit::ZapTo(t_channel_id channel_id, bool isSubService)
 	if (!ZapIt(channel_id)) {
 		DBG("[zapit] zapit failed, chid %" PRIx64 "\n", channel_id);
 		SendEvent((isSubService ? CZapitClient::EVT_ZAP_SUB_FAILED : CZapitClient::EVT_ZAP_FAILED), &channel_id, sizeof(channel_id));
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		//zapit failed, but we have to continue the CA pollthread
+		if (!ca->getZapitReady())
+			ca->setZapitReady();
+#endif
 		return result;
 	}
 
@@ -3010,6 +3015,11 @@ void CZapitSdtMonitor::run()
 				printf("[sdt monitor] no changes.\n");
 			else
 				printf("[sdt monitor] found changes.\n");
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+			//now it's time to continue the CA pollthread
+			if (!ca->getZapitReady())
+				ca->setZapitReady();
+#endif
 		}
 	}
 	return;

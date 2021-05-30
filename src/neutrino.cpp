@@ -249,6 +249,13 @@ CNeutrinoApp::CNeutrinoApp()
 {
 	standby_pressed_at.tv_sec = 0;
 #if USE_STB_HAL
+	cCA *CA = NULL;
+	if (!CA)
+	{
+		printf("[neutrino] create CA Instance\n");
+		CA = cCA::GetInstance();
+	}
+
 	/* this needs to happen before the framebuffer is set up */
 	hal_api_init();
 #endif
