@@ -227,40 +227,53 @@ do_mount()
 	fi
 
 	# default options
-	if [ "$options1" = "" ]
+	if [ "$options1" = "" -a "$options2" = "" ]
 	then
-		if [ "$options2" = "" ]
+		if [ "$fstype" = "0" ] # nfs
 		then
-			if [ "$fstype" = "0" ]
-			then
-				options1="ro,soft,udp"
-				options2="nolock,rsize=8192,wsize=8192"
-			fi
-			if [ "$fstype" = "1" ]
-			then
-				options1="ro"
-			fi
+			options1="soft"
+			options2="nolock"
+		elif [ "$fstype" = "1" ] # cifs
+		then
+			options1="ro"
+			options2=""
+		elif [ "$fstype" = "2" ] # lufs
+		then
+			options1=""
+			options2=""
 		fi
 	fi
+
 	# build mount command
 	case "$fstype" in
-		0) #nfs
-			cmd="mount -t nfs $ip:$dir $local_dir -o $options1"
+		0) # nfs
+			cmd="mount -t nfs $ip:$dir $local_dir"
 			;;
-		1)
-			cmd="mount -t cifs $ip/$dir $local_dir -o username=$username,password=$password,unc=//$ip/$dir,$options1";
+		1) # cifs
+			cmd="mount -t cifs //$ip/$dir $local_dir -o username=$username,password=$password";
 			;;
-		2)
-			cmd="lufsd none $local_dir -o fs=ftpfs,username=$username,password=$password,host=$ip,root=/$dir,$options1";
+		2) # lufs
+			cmd="lufsd none $local_dir -o fs=ftpfs,username=$username,password=$password,host=$ip,root=/$dir";
 			;;
 		default)
 			echo "mount type not supported"
 	esac
 
+	if [ "$options1" != "" ]
+	then
+		if [ "$fstype" = "0" ] # nfs
+		then
+			cmd="$cmd -o $options1"
+		else
+			cmd="$cmd,$options1"
+		fi
+	fi
+
 	if [ "$options2" != "" ]
 	then
 		cmd="$cmd,$options2"
 	fi
+
 	res=`$cmd`
 	echo "$cmd" >/tmp/mount.log
 	echo "$res" >>/tmp/mount.log
