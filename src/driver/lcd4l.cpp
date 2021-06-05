@@ -664,7 +664,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	if (newID || parseID == NeutrinoModes::mode_audio || parseID == NeutrinoModes::mode_ts)
+	if (firstRun || newID || parseID == NeutrinoModes::mode_audio || parseID == NeutrinoModes::mode_ts)
 	{
 		std::string Service = "";
 		int ChannelNr = 0;
@@ -852,6 +852,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			case 1:
 				Layout = DisplayType + "user01" + eol;
 				break;
+			case 0:
 			default:
 				Layout = DisplayType + "standard" + eol;
 		}
