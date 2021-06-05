@@ -115,7 +115,7 @@ extern CPictureViewer *g_PicViewer;
 #define WEATHER_ICON		LCD_DATADIR "weather_icon"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
-#define PIDFILE			"/tmp/lcd4linux.pid"
+#define PIDFILE			"/var/run/lcd4linux.pid"
 #define PNGFILE			"/tmp/lcd4linux.png"
 
 static void lcd4linux(bool run)
