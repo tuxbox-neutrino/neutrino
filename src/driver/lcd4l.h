@@ -31,6 +31,7 @@
 #define __lcd4l__
 
 #include <string>
+#include <thread>
 
 class CLCD4l
 {
@@ -66,8 +67,9 @@ class CLCD4l
 		void	ResetParseID() { m_ParseID = 0; }
 
 	private:
-		pthread_t	thrLCD4l;
+		std::thread	*thrLCD4l;
 		static void*	LCD4lProc(void *arg);
+		bool		exit_proc;
 
 		struct tm	*tm_struct;
 		bool		wait4daemon;
