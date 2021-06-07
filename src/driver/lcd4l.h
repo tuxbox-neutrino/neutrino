@@ -22,8 +22,8 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 
 */
 
@@ -32,6 +32,8 @@
 
 #include <string>
 #include <thread>
+
+static void lcd4linux(bool run);
 
 class CLCD4l
 {
@@ -106,7 +108,9 @@ class CLCD4l
 		int		m_ModeRec;
 		int		m_ModeTshift;
 		int		m_ModeTimer;
-		int		m_ModeEcm;
+// 		int		m_ModeEcm;
+		bool		m_ModeCamPresent;
+		int		m_ModeCam;
 
 		std::string	m_Service;
 		int		m_ChannelNr;

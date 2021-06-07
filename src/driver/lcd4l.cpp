@@ -22,8 +22,8 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 
 */
 
@@ -36,8 +36,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <iomanip>
-
-#include <sys/stat.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -100,7 +98,7 @@ extern CPictureViewer *g_PicViewer;
 #define START			LCD_DATADIR "start"
 #define END			LCD_DATADIR "end"
 
-#define LCD_FONT		LCD_DATADIR "font"
+#define FONT			LCD_DATADIR "font"
 #define FGCOLOR			LCD_DATADIR "fgcolor"
 #define BGCOLOR			LCD_DATADIR "bgcolor"
 
@@ -117,54 +115,6 @@ extern CPictureViewer *g_PicViewer;
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PIDFILE			"/var/run/lcd4linux.pid"
 #define PNGFILE			"/tmp/lcd4linux.png"
-
-static void lcd4linux(bool run)
-{
-	const char *buf = "lcd4linux";
-	const char *conf = "/etc/lcd4linux.conf";
-	std::string lcd4l_bin = find_executable(buf);
-	bool isPNG;
-
-	chmod(conf,0x600);
-	chown(conf,0,0);
-
-	if (run == true)
-	{
-		switch (g_settings.lcd4l_display_type)
-		{
-			case CLCD4l::PNG800x480:
-			case CLCD4l::PNG800x600:
-			case CLCD4l::PNG1024x600:
-				isPNG = true;
-				break;
-			default:
-				isPNG = false;
-				break;
-		}
-
-		if (isPNG)
-		{
-			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
-				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4l_bin.c_str(), PNGFILE);
-		} else {
-			if (my_system(1, lcd4l_bin.c_str()) != 0)
-				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, lcd4l_bin.c_str());
-		}
-		sleep(2);
-	}
-	else
-	{
-		if (file_exists(PIDFILE))
-		{
-			if (my_system(3, "killall", "-9", buf) != 0)
-				printf("[CLCD4l] %s: terminating '%s' failed\n", __FUNCTION__, buf);
-		}
-		else
-			dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s is not running \033[0m\n", __func__, __LINE__);
-	}
-}
-
-/* ----------------------------------------------------------------- */
 
 CLCD4l::CLCD4l()
 {
@@ -187,14 +137,14 @@ void CLCD4l::InitLCD4l()
 {
 	if (thrLCD4l)
 	{
-		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] initializing %d \033[0m\n", __func__, __LINE__);
+		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] initializing CLCD4l \033[0m\n", __func__, __LINE__);
 		Init();
 	}
 }
 
 void CLCD4l::StartLCD4l()
 {
-	if (!thrLCD4l && g_settings.lcd4l_support)
+	if (!thrLCD4l)
 	{
 		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] starting thread with mode %d \033[0m\n", __func__, __LINE__, g_settings.lcd4l_support);
 
@@ -217,8 +167,7 @@ void CLCD4l::StopLCD4l()
 		thrLCD4l->join();
 		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] thread [%p] joined\033[0m\n", __func__, __LINE__, thrLCD4l);
 
-		delete thrLCD4l;
-		thrLCD4l = NULL;
+		delete thrLCD4l; thrLCD4l = NULL;
 		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] thread [%p] terminated\033[0m\n", __func__, __LINE__, thrLCD4l);
 	}
 	exec_initscript("lcd4linux", "stop");
@@ -295,6 +244,7 @@ void CLCD4l::Init()
 	m_ParseID	= 0;
 
 	m_Brightness	= -1;
+	m_Brightness_standby = -1;
 	m_Resolution	= "n/a";
 	m_AspectRatio	= "n/a";
 	m_Videotext	= -1;
@@ -305,7 +255,9 @@ void CLCD4l::Init()
 	m_ModeRec	= -1;
 	m_ModeTshift	= -1;
 	m_ModeTimer	= -1;
-	m_ModeEcm	= -1;
+//	m_ModeEcm	= -1;
+	m_ModeCamPresent= false;
+	m_ModeCam	= -1;
 
 	m_Service	= "n/a";
 	m_ChannelNr	= -1;
@@ -381,14 +333,11 @@ void* CLCD4l::LCD4lProc(void* arg)
 			PLCD4l->WriteFile(FLAG_LCD4LINUX);
 			FirstRun = false;
 		}
-		if (g_settings.lcd4l_support == 0)
-		{
+
+		if (!g_settings.lcd4l_support) //off
 			lcd4linux(false);
-		}
-		if (g_settings.lcd4l_support == 1 || g_settings.lcd4l_support == 2)
-		{
+		else
 			lcd4linux(true);
-		}
 	}
 	return 0;
 }
@@ -401,7 +350,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_font.compare(font))
 	{
-		WriteFile(LCD_FONT, font);
+		WriteFile(FONT, font);
 		m_font = font;
 	}
 
@@ -480,6 +429,13 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		WriteFile(BRIGHTNESS, to_string(Brightness));
 		m_Brightness = Brightness;
+	}
+
+	int Brightness_standby = g_settings.lcd4l_brightness_standby;
+	if (m_Brightness_standby != Brightness_standby)
+	{
+		WriteFile(BRIGHTNESS_STANDBY, to_string(Brightness_standby));
+		m_Brightness_standby = Brightness_standby;
 	}
 
 	/* ----------------------------------------------------------------- */
@@ -657,7 +613,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	}
 
 	/* ----------------------------------------------------------------- */
-
+#if 0
 	int ModeEcm = 0;
 
 	if (access("/tmp/ecm.info", F_OK) == 0)
@@ -672,6 +628,22 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		WriteFile(MODE_ECM, ModeEcm ? "on" : "off");
 		m_ModeEcm = ModeEcm;
+	}
+#endif
+	/* ----------------------------------------------------------------- */
+
+	if (firstRun) //FIXME; what if module is added/removed while lcd4l is running?
+	{
+		for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++)
+			m_ModeCamPresent |= cCA::GetInstance()->ModulePresent(CA_SLOT_TYPE_CI, i);
+	}
+
+	int ModeCam = (m_ModeCamPresent && CCamManager::getInstance()->getUseCI());
+
+	if (m_ModeCam != ModeCam)
+	{
+		WriteFile(MODE_CAM, ModeCam ? "on" : "off");
+		m_ModeCam = ModeCam;
 	}
 
 	/* ----------------------------------------------------------------- */
@@ -892,7 +864,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			if (!firstRun)
 			{
 				lcd4linux(false);
-				lcd4linux(true);
+				lcd4linux(true); // reload
 			}
 		}
 	}
@@ -1272,4 +1244,50 @@ std::string CLCD4l::hexStrA2A(unsigned char data)
 
 	snprintf(hexstr, sizeof hexstr, "%02x", ret);
 	return std::string(hexstr);
+}
+
+void lcd4linux(bool run)
+{
+	const char *buf = "lcd4linux";
+	const char *conf = "/etc/lcd4linux.conf";
+	std::string lcd4l_bin = find_executable(buf);
+	bool isPNG;
+
+	chmod(conf,0x600);
+	chown(conf,0,0);
+
+	if (run == true)
+	{
+		switch (g_settings.lcd4l_display_type)
+		{
+			case CLCD4l::PNG800x480:
+			case CLCD4l::PNG800x600:
+			case CLCD4l::PNG1024x600:
+				isPNG = true;
+				break;
+			default:
+				isPNG = false;
+				break;
+		}
+
+		if (isPNG)
+		{
+			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
+				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4l_bin.c_str(), PNGFILE);
+		} else {
+			if (my_system(1, lcd4l_bin.c_str()) != 0)
+				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, lcd4l_bin.c_str());
+		}
+		sleep(2);
+	}
+	else
+	{
+		if (file_exists(PIDFILE))
+		{
+			if (my_system(3, "killall", "-9", buf) != 0)
+				printf("[CLCD4l] %s: terminating '%s' failed\n", __FUNCTION__, buf);
+		}
+		else
+			dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s is not running \033[0m\n", __func__, __LINE__,lcd4l_bin.c_str());
+	}
 }
