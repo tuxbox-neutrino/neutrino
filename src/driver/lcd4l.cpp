@@ -1246,7 +1246,7 @@ std::string CLCD4l::hexStrA2A(unsigned char data)
 	return std::string(hexstr);
 }
 
-void lcd4linux(bool run)
+void CLCD4l::lcd4linux(bool run)
 {
 	const char *buf = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";

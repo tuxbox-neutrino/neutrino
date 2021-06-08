@@ -33,7 +33,6 @@
 #include <string>
 #include <thread>
 
-static void lcd4linux(bool run);
 
 class CLCD4l
 {
@@ -67,7 +66,7 @@ class CLCD4l
 		int	GetMaxBrightness();
 
 		void	ResetParseID() { m_ParseID = 0; }
-
+		static void lcd4linux(bool run);
 	private:
 		std::thread	*thrLCD4l;
 		static void*	LCD4lProc(void *arg);
