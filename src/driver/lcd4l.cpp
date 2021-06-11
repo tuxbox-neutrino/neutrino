@@ -137,7 +137,7 @@ void CLCD4l::InitLCD4l()
 {
 	if (thrLCD4l)
 	{
-		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] initializing CLCD4l \033[0m\n", __func__, __LINE__);
+		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] initializing CLCD4l \033[0m\n", __func__, __LINE__);
 		Init();
 	}
 }
@@ -146,29 +146,29 @@ void CLCD4l::StartLCD4l()
 {
 	if (!thrLCD4l)
 	{
-		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] starting thread with mode %d \033[0m\n", __func__, __LINE__, g_settings.lcd4l_support);
+		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] starting thread with mode %d \033[0m\n", __func__, __LINE__, g_settings.lcd4l_support);
 
 		exit_proc = false;
-		thrLCD4l = new std::thread (LCD4lProc, this);
-		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] thread [%p] is running\033[0m\n", __func__, __LINE__, thrLCD4l);
+		thrLCD4l = new std::thread(LCD4lProc, this);
+		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] thread [%p] is running\033[0m\n", __func__, __LINE__, thrLCD4l);
 	}
-	lcd4linux(true);
-	exec_initscript("lcd4linux", "start");
+	if (g_settings.lcd4l_support)
+		exec_initscript("lcd4linux", "start");
 }
 
 void CLCD4l::StopLCD4l()
 {
 	if (thrLCD4l)
 	{
-		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] stopping thread [%p]\033[0m\n", __func__, __LINE__, thrLCD4l);
+		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] stopping thread [%p]\033[0m\n", __func__, __LINE__, thrLCD4l);
 
-		lcd4linux(false);
 		exit_proc = true;
 		thrLCD4l->join();
-		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] thread [%p] joined\033[0m\n", __func__, __LINE__, thrLCD4l);
+		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] thread [%p] joined\033[0m\n", __func__, __LINE__, thrLCD4l);
 
-		delete thrLCD4l; thrLCD4l = NULL;
-		dprintf(DEBUG_NORMAL,"\033[32m[CLCD4l] [%s - %d] thread [%p] terminated\033[0m\n", __func__, __LINE__, thrLCD4l);
+		delete thrLCD4l;
+		thrLCD4l = NULL;
+		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] thread [%p] terminated\033[0m\n", __func__, __LINE__, thrLCD4l);
 	}
 	exec_initscript("lcd4linux", "stop");
 }
@@ -256,7 +256,7 @@ void CLCD4l::Init()
 	m_ModeTshift	= -1;
 	m_ModeTimer	= -1;
 //	m_ModeEcm	= -1;
-	m_ModeCamPresent= false;
+	m_ModeCamPresent = false;
 	m_ModeCam	= -1;
 
 	m_Service	= "n/a";
@@ -287,9 +287,9 @@ void CLCD4l::Init()
 	wait4daemon = true;
 }
 
-void* CLCD4l::LCD4lProc(void* arg)
+void *CLCD4l::LCD4lProc(void *arg)
 {
-	CLCD4l *PLCD4l = static_cast<CLCD4l*>(arg);
+	CLCD4l *PLCD4l = static_cast<CLCD4l *>(arg);
 
 	PLCD4l->Init();
 
@@ -300,9 +300,9 @@ void* CLCD4l::LCD4lProc(void* arg)
 	bool NewParseID = false;
 
 	//printf("[CLCD4l] %s: starting loop\n", __FUNCTION__);
-	while(!PLCD4l->exit_proc)
+	while (!PLCD4l->exit_proc)
 	{
-		if ( (!access(PIDFILE, F_OK) == 0) && (!FirstRun) )
+		if ((!access(PIDFILE, F_OK) == 0) && (!FirstRun))
 		{
 			if (g_settings.lcd4l_support == 1) // automatic
 			{
@@ -356,10 +356,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	std::string fgcolor	= hexStr(t.infobar_Text_red)
-				+ hexStr(t.infobar_Text_green)
-				+ hexStr(t.infobar_Text_blue)
-				+ hexStrA2A(t.infobar_Text_alpha);
+	std::string fgcolor = hexStr(t.infobar_Text_red)
+			+ hexStr(t.infobar_Text_green)
+			+ hexStr(t.infobar_Text_blue)
+			+ hexStrA2A(t.infobar_Text_alpha);
 
 	if (m_fgcolor.compare(fgcolor))
 	{
@@ -369,10 +369,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	std::string bgcolor	= hexStr(t.infobar_red)
-				+ hexStr(t.infobar_green)
-				+ hexStr(t.infobar_blue)
-				+ hexStrA2A(t.infobar_alpha);
+	std::string bgcolor = hexStr(t.infobar_red)
+			+ hexStr(t.infobar_green)
+			+ hexStr(t.infobar_blue)
+			+ hexStrA2A(t.infobar_alpha);
 
 	if (m_bgcolor.compare(bgcolor))
 	{
@@ -382,10 +382,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	std::string fcolor1	= hexStr(t.infobar_Text_red)
-				+ hexStr(t.infobar_Text_green)
-				+ hexStr(t.infobar_Text_blue)
-				+ hexStr(t.infobar_Text_alpha);
+	std::string fcolor1 = hexStr(t.infobar_Text_red)
+			+ hexStr(t.infobar_Text_green)
+			+ hexStr(t.infobar_Text_blue)
+			+ hexStr(t.infobar_Text_alpha);
 
 	if (m_fcolor1.compare(fcolor1))
 	{
@@ -395,10 +395,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	std::string fcolor2	= hexStr(t.colored_events_red)
-				+ hexStr(t.colored_events_green)
-				+ hexStr(t.colored_events_blue)
-				+ hexStr(t.colored_events_alpha);
+	std::string fcolor2 = hexStr(t.colored_events_red)
+			+ hexStr(t.colored_events_green)
+			+ hexStr(t.colored_events_blue)
+			+ hexStr(t.colored_events_alpha);
 
 	if (!t.colored_events_infobar)
 		fcolor2 = fcolor1;
@@ -411,10 +411,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	std::string pbcolor	= hexStr(t.menu_Content_Selected_red)
-				+ hexStr(t.menu_Content_Selected_green)
-				+ hexStr(t.menu_Content_Selected_blue)
-				+ hexStrA2A(t.menu_Content_Selected_alpha);
+	std::string pbcolor = hexStr(t.menu_Content_Selected_red)
+			+ hexStr(t.menu_Content_Selected_green)
+			+ hexStr(t.menu_Content_Selected_blue)
+			+ hexStrA2A(t.menu_Content_Selected_alpha);
 
 	if (m_pbcolor.compare(pbcolor))
 	{
@@ -672,7 +672,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		else if (parseID == NeutrinoModes::mode_audio)
 		{
 			const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
-			if ( (!meta.sc_station.empty()) && (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP))
+			if ((!meta.sc_station.empty()) && (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP))
 				Service = meta.sc_station;
 			else
 			{
@@ -863,8 +863,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_Layout = Layout;
 			if (!firstRun)
 			{
-				lcd4linux(false);
-				lcd4linux(true); // reload
+				const char *buf = "service lcd4linux reload";
+
+				//printf("[CLCD4l] %s: executing '%s'\n", __FUNCTION__, buf);
+				if (my_system(3, "service", "lcd4linux", "reload") != 0)
+					printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
 			}
 		}
 	}
@@ -883,7 +886,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		t_channel_id channel_id = parseID & 0xFFFFFFFFFFFFULL;
 
-		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+		CZapitChannel *channel = CZapit::getInstance()->GetCurrentChannel();
 		if (channel)
 			channel_id = channel->getEpgID();
 
@@ -925,7 +928,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (CurrentNext.flags & CSectionsdClient::epgflags::has_next)
 		{
-			Event += "\n"+ CurrentNext.next_name;
+			Event += "\n" + CurrentNext.next_name;
 			time_t next_start_time = CurrentNext.next_zeit.startzeit;
 			tm_struct = localtime(&next_start_time);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
@@ -947,11 +950,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		else
 		{
 			const CAudioMetaData meta = CAudioPlayer::getInstance()->getMetaData();
-			if ( !meta.artist.empty() )
+			if (!meta.artist.empty())
 				Event += meta.artist;
-			if ( !meta.artist.empty() && !meta.title.empty() )
+			if (!meta.artist.empty() && !meta.title.empty())
 				Event += " - ";
-			if ( !meta.title.empty() )
+			if (!meta.title.empty())
 				Event += meta.title;
 
 			if (!meta.album.empty())
@@ -963,7 +966,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			time_t total = meta.total_time;
 			time_t done = CAudioPlayer::getInstance()->getTimePlayed();
 
-			if ( (total > 0) && (done > 0) )
+			if ((total > 0) && (done > 0))
 			{
 				Progress = 100 * done / total;
 				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld", done / 60, done % 60, total / 60, total % 60);
@@ -975,6 +978,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 	}
+#if 0
+	else if (parseID == NeutrinoModes::mode_pic)
+	{
+		// TODO: Event = Bildname
+	}
+#endif
 	else if (parseID == NeutrinoModes::mode_ts)
 	{
 		if (CMoviePlayerGui::getInstance().p_movie_info)
@@ -1003,18 +1012,23 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 
 		time_t sTime = time(NULL);
-		sTime -= (CMoviePlayerGui::getInstance().GetPosition()/1000);
+		sTime -= (CMoviePlayerGui::getInstance().GetPosition() / 1000);
 		tm_struct = localtime(&sTime);
 
 		snprintf(Start, sizeof(Start), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 
 		time_t eTime = time(NULL);
-		eTime +=(CMoviePlayerGui::getInstance().GetDuration()/1000) - (CMoviePlayerGui::getInstance().GetPosition()/1000);
+		eTime += (CMoviePlayerGui::getInstance().GetDuration() / 1000) - (CMoviePlayerGui::getInstance().GetPosition() / 1000);
 		tm_struct = localtime(&eTime);
 
 		snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
 	}
-
+#if 0
+	else if (parseID == NeutrinoModes::mode_upnp)
+	{
+		// TODO?
+	}
+#endif
 	/* ----------------------------------------------------------------- */
 
 	Event += "\n"; // make sure we have at least two lines in event-file
@@ -1237,9 +1251,9 @@ std::string CLCD4l::hexStrA2A(unsigned char data)
 	int a = 100 - data;
 	int ret = a * 0xFF / 100;
 
-	if(data == 0)
+	if (data == 0)
 		ret = 0xFF;
-	else if(data >= 100)
+	else if (data >= 100)
 		ret = 0x00;
 
 	snprintf(hexstr, sizeof hexstr, "%02x", ret);

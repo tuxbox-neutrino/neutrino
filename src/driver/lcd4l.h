@@ -69,7 +69,7 @@ class CLCD4l
 		static void lcd4linux(bool run);
 	private:
 		std::thread	*thrLCD4l;
-		static void*	LCD4lProc(void *arg);
+		static void	*LCD4lProc(void *arg);
 		bool		exit_proc;
 
 		struct tm	*tm_struct;
