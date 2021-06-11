@@ -862,13 +862,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			WriteFile(LAYOUT, Layout);
 			m_Layout = Layout;
 			if (!firstRun)
-			{
-				const char *buf = "service lcd4linux reload";
-
-				//printf("[CLCD4l] %s: executing '%s'\n", __FUNCTION__, buf);
-				if (my_system(3, "service", "lcd4linux", "reload") != 0)
-					printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, buf);
-			}
+				exec_initscript("lcd4linux", "reload");
 		}
 	}
 
