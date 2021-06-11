@@ -226,7 +226,7 @@ if (i == 0) { // only for slot 0 valid - fix later
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 }
 		} else {
-			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_CI_EMPTY), i);
+			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_CI_EMPTY), i+1);
 			tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
 			cammenu->addItem(new CMenuDForwarder(str1, false, NULL, tempMenu));
 			memset(str1,0,sizeof(str1));
