@@ -73,7 +73,6 @@
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 #endif
 
 extern CRemoteControl * g_RemoteControl;
@@ -1585,7 +1584,7 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 #ifdef ENABLE_LCD4LINUX
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CHANNELLIST_SHOW_EVENTLOGO))
 	{
-		LCD4l->ResetParseID();
+		CLCD4l::getInstance()->ResetParseID();
 	}
 #endif
 	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_INFOCLOCK)) ||

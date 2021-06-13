@@ -88,7 +88,6 @@
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 #endif
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
@@ -980,7 +979,7 @@ int CChannelList::show()
 	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-	LCD4l->RemoveFile("/tmp/lcd/menu");
+	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
 #endif
 
 	if(!dont_hide){
@@ -2265,7 +2264,7 @@ void CChannelList::updateVfd()
 #endif
 #ifdef ENABLE_LCD4LINUX
 	if (g_settings.lcd4l_support)
-		LCD4l->CreateFile("/tmp/lcd/menu", chan->getName().c_str(), g_settings.lcd4l_convert);
+		CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", chan->getName().c_str(), g_settings.lcd4l_convert);
 #endif
 }
 

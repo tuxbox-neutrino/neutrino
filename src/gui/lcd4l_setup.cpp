@@ -53,7 +53,6 @@
 #include <driver/screen_max.h>
 
 #include "driver/lcd4l.h"
-extern CLCD4l *LCD4l;
 
 const CMenuOptionChooser::keyval LCD4L_SUPPORT_OPTIONS[] =
 {
@@ -144,9 +143,9 @@ bool CLCD4lSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data
 
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCD4L_SUPPORT))
 	{
-		LCD4l->StopLCD4l();
+		CLCD4l::getInstance()->StopLCD4l();
 		if (g_settings.lcd4l_support)
-			LCD4l->StartLCD4l();
+			CLCD4l::getInstance()->StartLCD4l();
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LCD4L_DISPLAY_TYPE))
 	{
@@ -248,10 +247,10 @@ int CLCD4lSetup::show()
 	}
 
 	if (initlcd4l)
-		LCD4l->InitLCD4l();
+		CLCD4l::getInstance()->InitLCD4l();
 
 	if (g_settings.lcd4l_support == 1 ) // automatic
-		LCD4l->ForceRun();
+		CLCD4l::getInstance()->ForceRun();
 
 	return res;
 }
@@ -283,11 +282,11 @@ int CLCD4lSetup::showTypeSetup()
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SKIN_RADIO);
 	typeSetup->addItem(mc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, LCD4l->GetMaxBrightness(), this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS, (int *)&temp_lcd4l_brightness, true, 1, CLCD4l::getInstance()->GetMaxBrightness(), this);
 	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS);
 	typeSetup->addItem(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, !g_settings.shutdown_real, 1, LCD4l->GetMaxBrightness(), this);
+	nc = new CMenuOptionNumberChooser(LOCALE_LCD4L_BRIGHTNESS_STANDBY, (int *)&g_settings.lcd4l_brightness_standby, !g_settings.shutdown_real, 1, CLCD4l::getInstance()->GetMaxBrightness(), this);
 	nc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_BRIGHTNESS_STANDBY);
 	typeSetup->addItem(nc);
 

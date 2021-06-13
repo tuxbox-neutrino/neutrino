@@ -131,6 +131,14 @@ CLCD4l::~CLCD4l()
 	thrLCD4l = NULL;
 }
 
+CLCD4l *CLCD4l::getInstance()
+{
+	static CLCD4l *me = NULL;
+	if (!me)
+		me = new CLCD4l();
+	return me;
+}
+
 /* ----------------------------------------------------------------- */
 
 void CLCD4l::InitLCD4l()
