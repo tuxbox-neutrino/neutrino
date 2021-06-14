@@ -51,7 +51,16 @@ CVolumeBar::CVolumeBar()
 void CVolumeBar::initVarVolumeBar()
 {
 	col_body_std 	= COL_MENUCONTENT_PLUS_0;
-	corner_rad 	= CORNER_RADIUS_MID;
+
+	if (g_settings.theme.rounded_corners == 1)
+	{
+		corner_rad 	= CORNER_RADIUS_MID;
+	}
+	else
+	{
+		corner_rad 	= CORNER_RADIUS_NONE;
+	}
+
 	vb_item_offset 	= OFFSET_INNER_SMALL;
 	height          = CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
@@ -95,7 +104,14 @@ void CVolumeBar::initVolumeBarSize()
 	vb_pbh 		= height-2*vb_item_offset;
 
 	//result for width
-	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset + corner_rad/2;
+	if (g_settings.theme.rounded_corners == 1)
+	{
+		width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset + corner_rad/2;
+	}
+	else
+	{
+		width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset;
+	}
 
 	//adapt x-pos
 	vb_pbx 		= vb_item_offset + vb_icon_w + vb_item_offset;
