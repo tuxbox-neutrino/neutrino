@@ -424,7 +424,6 @@ bool cYTFeedParser::supportedFormat(int fmt)
 bool cYTFeedParser::decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo)
 {
 	bool ret = false;
-	decodeUrl(answer);
 #if 0
 	std::string infofile = thumbnail_dir;
 	infofile += "/";
@@ -432,59 +431,79 @@ bool cYTFeedParser::decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo)
 	infofile += ".txt";
 	saveToFile(infofile.c_str(), answer);
 #endif
-	if(answer.find("token=") == std::string::npos)
-		return ret;
 
 	//FIXME check expire
 	std::vector<std::string> ulist;
-	std::string::size_type fmt = answer.find("url_encoded_fmt_stream_map=");
-	if (fmt != std::string::npos) {
-		fmt = answer.find("=", fmt);
-		splitString(answer, ",", ulist, fmt+1);
-		for (unsigned i = 0; i < ulist.size(); i++) {
-#if 0 // to decode all params
-			decodeUrl(ulist[i]);
-			printf("URL: %s\n", ulist[i].c_str());
-#endif
-			std::map<std::string,std::string> smap;
-			std::vector<std::string> uparams;
-			splitString(ulist[i], "&", uparams);
-			if (uparams.size() < 3)
-				continue;
-			for (unsigned j = 0; j < uparams.size(); j++) {
-				decodeUrl(uparams[j]);
-#ifdef DEBUG_PARSER
-				printf("	param: %s\n", uparams[j].c_str());
-#endif
-				splitString(uparams[j], "=", smap);
-			}
-#ifdef DEBUG_PARSER
-			printf("=========================================================\n");
-#endif
-			cYTVideoUrl yurl;
-			yurl.url = smap["url"];
-			std::size_t sig = std::string::npos;
-			std::string::size_type ptr = smap["url"].find("signature=");
-			if (ptr != std::string::npos)
-			{
-				ptr = smap["url"].find("=", ptr);
-				smap["url"].erase(0,ptr+1);
 
-				if((ptr = smap["url"].find("&")) != std::string::npos)
-					yurl.sig = smap["url"].substr(0,ptr);
-			}else{
-				sig = smap["url"].find("&sig=");
-			}
+	// Extract player_response
+	std::string::size_type player_resp_start = answer.find("player_response=");
+	if (player_resp_start == std::string::npos) {
+		printf("player_response not found\n");
+		return false;
+	}
 
-			int id = atoi(smap["itag"].c_str());
-			if (supportedFormat(id) && !yurl.url.empty() && (!yurl.sig.empty() || (sig != std::string::npos))) {
-				yurl.quality = smap["quality"];
-				yurl.type = smap["type"];
-				vinfo.formats.insert(yt_urlmap_pair_t(id, yurl));
-				ret = true;
-			}
+	player_resp_start = answer.find("=", player_resp_start) + 1;
+	std::string::size_type player_resp_end = answer.find("&", player_resp_start);
+	if (player_resp_end == std::string::npos) {
+		player_resp_end = answer.length();
+	}
+	std::string player_response = answer.substr(player_resp_start, player_resp_end - player_resp_start);
+	decodeUrl(player_response);
+
+	// Load player_response as json
+	Json::Value root;
+	if (!parseJsonFromString(player_response, &root, NULL)) {
+		printf("Decoding player_response failed\n");
+		return false;
+	}
+
+	const Json::Value streamingData = root["streamingData"];
+	if (!streamingData) {
+		printf("streamingData element not present\n");
+		return false;
+	}
+
+	const Json::Value formats = streamingData["formats"];
+	if (!formats) {
+		printf("formats element not present\n");
+		return false;
+	}
+
+	for (auto it = formats.begin(); it != formats.end(); ++it) {
+		const Json::Value format = *it;
+
+		int id = format["itag"].asInt();
+		std::string quality = format["quality"].asString();
+		std::string url;
+
+		if (!format["url"].empty()) {
+			url = format["url"].asString();
+		} else if (!format["cipher"].empty()) {
+			// FIXME add support for cipher (is it still used or was it replaced by signatureCipher?)
+			printf("cipher unsupported: %s\n", format["cipher"].asCString());
+			continue;
+		} else if (!format["signatureCipher"].empty()) {
+			// FIXME add support for signatureCipher
+			printf("signatureCipher unsupported: %s\n", format["signatureCipher"].asCString());
+			continue;
+		} else {
+			printf("Unable to find url\n");
+			continue;
+		}
+#ifdef DEBUG_PARSER
+		printf("%d: %s - %s\n", id, quality.c_str(), url.c_str());
+#endif
+
+		cYTVideoUrl yurl;
+		if (supportedFormat(id) && !url.empty()) {
+			yurl.quality = quality;
+			yurl.url = url;
+			yurl.type = format["mimeType"].asString();
+			vinfo.formats.insert(yt_urlmap_pair_t(id, yurl));
+			ret = true;
 		}
 	}
+
 	return ret;
 }
 
@@ -592,7 +611,7 @@ bool cYTFeedParser::ParseVideoInfo(cYTVideoInfo &vinfo, CURL *_curl_handle)
 		std::string vurl = "https://www.youtube.com/get_video_info?video_id=";
 		vurl += vinfo.id;
 		vurl += estr[i];
-		vurl += "&ps=default&eurl=&gl=US&hl=en";
+		vurl += "&ps=default&eurl=&gl=US&hl=en&html5=1";
 		printf("cYTFeedParser::ParseVideoInfo: get [%s]\n", vurl.c_str());
 		std::string answer;
 		if (!getUrl(vurl, answer, _curl_handle))
