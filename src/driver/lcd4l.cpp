@@ -533,14 +533,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	int Tuner = 1 + CFEManager::getInstance()->getLiveFE()->getNumber();
-
-	if (m_Tuner != Tuner)
+	if (CFEManager::getInstance()->getLiveFE())
 	{
-		WriteFile(TUNER, to_string(Tuner));
-		m_Tuner = Tuner;
-	}
+		int Tuner = 1 + CFEManager::getInstance()->getLiveFE()->getNumber();
 
+		if (m_Tuner != Tuner)
+		{
+			WriteFile(TUNER, to_string(Tuner));
+			m_Tuner = Tuner;
+		}
+	}
 	/* ----------------------------------------------------------------- */
 
 	int Volume = g_settings.current_volume;
