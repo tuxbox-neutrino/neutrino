@@ -41,7 +41,7 @@
 
 class CFrameBuffer;
 class COsdSetup : public CMenuTarget, public CChangeObserver
-{	
+{
 	private:
 		CFrameBuffer *frameBuffer;
 		CColorSetupNotifier *colorSetupNotifier;
@@ -81,10 +81,10 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		void showOsdScreensaverSetup(CMenuWidget *menu_screensaver);
 		void paintWindowSize(int w, int h);
 
- 		void AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);
+		void AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);
 		void resetRadioText();
 	public:
-		enum INFOBAR_CHANNEL_LOGO_POS_OPTIONS	
+		enum INFOBAR_CHANNEL_LOGO_POS_OPTIONS
 		{
 			INFOBAR_NO_LOGO,
 			INFOBAR_LOGO_AS_CHANNELLUM,
@@ -92,7 +92,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 			INFOBAR_LOGO_BESIDE_CHANNELNAME
 		};
 
-		enum INFOBAR_CHANNEL_LOGO_BACKROUND_OPTIONS	
+		enum INFOBAR_CHANNEL_LOGO_BACKROUND_OPTIONS
 		{
 			INFOBAR_NO_BACKGROUND,
 			INFOBAR_LOGO_FRAMED,
@@ -104,7 +104,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 			PRESET_SCREEN_A,
 			PRESET_SCREEN_B
 		};
-		
+
 		COsdSetup(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~COsdSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
