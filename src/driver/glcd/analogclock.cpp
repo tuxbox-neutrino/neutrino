@@ -104,10 +104,10 @@ void InitAnalogClock(void)
 			}
 		}
 found:
-		printf("[%s:%s] found file: %s\n", __file__, __func__, tmp_file.c_str());
+		//printf("[%s:%s] found file: %s\n", __file__, __func__, tmp_file.c_str());
 		file[i] += std::string(tmp_file);
 	}
-	printf("[%s:%s] finish initialization\n", __file__, __func__);
+	//printf("[%s:%s] finish initialization\n", __file__, __func__);
 }
 
 void RenderClock(int x, int y)

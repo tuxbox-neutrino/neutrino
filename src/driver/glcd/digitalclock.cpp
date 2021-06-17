@@ -121,10 +121,10 @@ void InitDigitalClock(void)
 			}
 		}
 found:
-		printf("[%s:%s] found file: %s\n", __file__, __func__, digit_file.c_str());
+		//printf("[%s:%s] found file: %s\n", __file__, __func__, digit_file.c_str());
 		digit[i] += std::string(digit_file);
 	}
-	printf("[%s:%s] finish initialization\n", __file__, __func__);
+	//printf("[%s:%s] finish initialization\n", __file__, __func__);
 }
 
 void RenderTimeDigit(int _digit, int x, int y)

@@ -33,7 +33,7 @@ GLCD::cFont font_time_standby;
 
 void InitSimpleClock(void)
 {
-	printf("[%s:%s] finish initialization\n", __file__, __func__);
+	//printf("[%s:%s] finish initialization\n", __file__, __func__);
 }
 
 void SimpleClockUpdateFonts(int mode)
