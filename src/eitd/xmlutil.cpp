@@ -590,7 +590,7 @@ bool readEventsFromDir(std::string &epgdir, int &ev_count)
 {
 	struct dirent **namelist;
 	int n = scandir(epgdir.c_str(), &namelist, my_filter, NULL);
-	debug(DEBUG_NORMAL, "Reading Information from directory %s, file count %d", epgdir.c_str(), n);
+	debug(DEBUG_NORMAL, "Reading data from directory %s, file count %d", epgdir.c_str(), n);
 	if (n <= 0)
 		return false;
 
@@ -624,12 +624,12 @@ void *insertEventsfromFile(void * data)
 
 	if (index_parser == NULL) {
 		readEventsFromDir(epg_dir, ev_count);
-		debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events) from %s",
+		debug(DEBUG_NORMAL, "Reading data finished after %" PRId64 " ms (%d events) from %s",
 				time_monotonic_ms()-now, ev_count, epg_dir.c_str());
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
-	debug(DEBUG_NORMAL, "Reading Information from file: %s", indexname.c_str());
+	debug(DEBUG_NORMAL, "Reading data from file: %s", indexname.c_str());
 
 	eventfile = xmlDocGetRootElement(index_parser);
 	eventfile = xmlChildrenNode(eventfile);
@@ -642,7 +642,7 @@ void *insertEventsfromFile(void * data)
 		epgname = epg_dir + filename;
 		readEventsFromFile(epgname, ev_count);
 
-		debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events) from %s",
+		debug(DEBUG_NORMAL, "Reading data finished after %" PRId64 " ms (%d events) from %s",
 			time_monotonic_ms()-now, ev_count, epgname.c_str());
 
 		eventfile = xmlNextNode(eventfile);
@@ -686,7 +686,7 @@ void *insertEventsfromXMLTV(void * data)
 		pthread_exit(NULL);
 	}
 
-	debug(DEBUG_NORMAL, "Reading Information finished after %" PRId64 " milliseconds (%d events) from %s",
+	debug(DEBUG_NORMAL, "Reading data finished after %" PRId64 " ms (%d events) from %s",
 	       time_monotonic_ms()-now, ev_count, url.c_str());
 
 	reader_ready = true;
