@@ -366,7 +366,7 @@ colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
 colormenu.menucolors Themes
-colormenu.osd_preset Screen preset
+colormenu.osd_preset Screen selection
 colormenu.osd_resolution OSD resolution
 colormenu.progressbar_active Active part color
 colormenu.progressbar_passive Background
@@ -1681,7 +1681,7 @@ menu.hint_scan_usalsall Use USALS for all satellites on this frontend
 menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
 menu.hint_scart_osd_fix Screen-fix for some older TVs\nPAL/PAL widescreen resolution
 menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
-menu.hint_screen_setup Configure screen margins
+menu.hint_screen Configure screens and screen margins
 menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
 menu.hint_screensaver_enable_text_info Show additional text informations if available.
@@ -1689,6 +1689,7 @@ menu.hint_screensaver_mode Select screensaver mode.
 menu.hint_screensaver_random Enable/disable random image selection.
 menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
 menu.hint_screensaver_timeout Select the timeout to changes in screensavers
+menu.hint_screensetup Configure screen margins
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
@@ -2566,6 +2567,7 @@ scants.test Test signal
 scants.transponders Transponders:
 scart_osd_fix CRT SCART OSD-Fix
 scrambled_channel Scrambled channel
+screen.menu Screen
 screensaver.delay Delay
 screensaver.dir Directory
 screensaver.enable_text_info Text information

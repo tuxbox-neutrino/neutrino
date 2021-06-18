@@ -78,6 +78,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		void showOsdEventlistSetup(CMenuWidget *menu_eventlist);
 		void showOsdVolumeSetup(CMenuWidget *menu_volume);
 		void showOsdInfoclockSetup(CMenuWidget *menu_infoclock);
+		void showOsdScreenSetup(CMenuWidget *menu_screen);
 		void showOsdScreenShotSetup(CMenuWidget *menu_screenshot);
 		void showOsdScreensaverSetup(CMenuWidget *menu_screensaver);
 		void paintWindowSize(int w, int h);
