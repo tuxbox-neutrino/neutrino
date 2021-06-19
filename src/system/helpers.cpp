@@ -467,14 +467,30 @@ bool exec_controlscript(std::string script)
 	return ret;
 }
 
-bool exec_initscript(std::string script, std::string command)
+bool exec_initscript(std::string script, std::string command, std::string system_command)
 {
-	dprintf(DEBUG_NORMAL, "executing service %s %s\n", script.c_str(), command.c_str());
-	int ret = my_system(3, "service", script.c_str(), command.c_str());
-	if (ret)
-		dprintf(DEBUG_NORMAL, "exec init script [%s] failed\n", script.c_str());
+	std::string user = getenv("USER");
+	if (user != "root")
+		dprintf(DEBUG_NORMAL, "[helpers] [%s - %d] NOTE: current user is not root!\n", __func__, __LINE__);
 
-	return ret;
+	int ret = 1;
+	if (system_command == "service")
+	{
+		dprintf(DEBUG_DEBUG, "executing %s %s %s\n", system_command.c_str(), script.c_str(), command.c_str());
+		ret = my_system(3, system_command.c_str(), script.c_str(), command.c_str());
+	}
+	else if (system_command == "systemctl")
+	{
+		dprintf(DEBUG_DEBUG, "executing %s %s %s\n", system_command.c_str(), command.c_str(), script.c_str());
+		ret = my_system(3, system_command.c_str(), command.c_str(), script.c_str());
+	}
+	else
+		dprintf(DEBUG_NORMAL, "Error: [helpers] [%s - %d] no system command defined\n", __func__, __LINE__);
+
+	if (ret)
+		dprintf(DEBUG_NORMAL, "Error: [helpers] exec init script [%s] failed\n", system_command.c_str());
+
+	return ret == 0 ? true : false;
 }
 
 std::string backtick(std::string command)
