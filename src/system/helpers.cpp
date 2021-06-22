@@ -459,12 +459,12 @@ bool exec_controlscript(std::string script)
 	if (access((std::string)CONTROLDIR_VAR + "/" + script.c_str(), X_OK) == 0)
 		controlscript = (std::string)CONTROLDIR_VAR + "/" + script;
 
-	dprintf(DEBUG_NORMAL, "executing %s\n", controlscript.c_str());
+	dprintf(DEBUG_DEBUG, "executing %s\n", controlscript.c_str());
 	int ret = my_system(controlscript.c_str());
 	if (ret)
-		dprintf(DEBUG_NORMAL, "exec control script [%s] failed\n", controlscript.c_str());
+		dprintf(DEBUG_NORMAL, "Error: [helpers] exec control script [%s] failed\n", controlscript.c_str());
 
-	return ret;
+	return ret == 0 ? true : false;
 }
 
 bool exec_initscript(std::string script, std::string command, std::string system_command)
