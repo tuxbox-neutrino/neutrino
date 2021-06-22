@@ -488,7 +488,7 @@ bool exec_initscript(std::string script, std::string command, std::string system
 		dprintf(DEBUG_NORMAL, "Error: [helpers] [%s - %d] no system command defined\n", __func__, __LINE__);
 
 	if (ret)
-		dprintf(DEBUG_NORMAL, "Error: [helpers] exec init script [%s] failed\n", system_command.c_str());
+		dprintf(DEBUG_NORMAL, "Error: [helpers] exec init script [%s] failed\n", script.c_str());
 
 	return ret == 0 ? true : false;
 }
