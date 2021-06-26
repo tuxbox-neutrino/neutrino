@@ -1654,7 +1654,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("volume_size"  , g_settings.volume_size);
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 	configfile.setBool("show_menu_hints" , g_settings.show_menu_hints);
-	configfile.setInt32("infobar_show_sysfs_hdd"  , g_settings.infobar_show_sysfs_hdd  );
+	configfile.setBool("infobar_show_sysfs_hdd"  , g_settings.infobar_show_sysfs_hdd  );
 	configfile.setInt32("show_mute_icon"   , g_settings.show_mute_icon);
 	configfile.setInt32("infobar_show_res"  , g_settings.infobar_show_res  );
 	configfile.setInt32("infobar_show_dd_available"  , g_settings.infobar_show_dd_available  );
