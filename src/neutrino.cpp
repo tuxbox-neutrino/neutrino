@@ -1260,11 +1260,13 @@ void CNeutrinoApp::setScreenSettings()
 	g_settings.screen_width = frameBuffer->getScreenWidth(true);
 	g_settings.screen_height = frameBuffer->getScreenHeight(true);
 
-	switch (g_settings.osd_resolution) {
+	switch (g_settings.osd_resolution)
+	{
 #ifdef ENABLE_CHANGE_OSD_RESOLUTION
 		case 1:
-		    {
-			switch (g_settings.screen_preset) {
+		{
+			switch (g_settings.screen_preset)
+			{
 				case COsdSetup::PRESET_SCREEN_B:
 					g_settings.screen_StartX = g_settings.screen_StartX_b_1;
 					g_settings.screen_StartY = g_settings.screen_StartY_b_1;
@@ -1279,13 +1281,14 @@ void CNeutrinoApp::setScreenSettings()
 					g_settings.screen_EndY   = g_settings.screen_EndY_a_1;
 					break;
 			}
-		    }
+		}
 		break;
 #endif
 		case 0:
 		default:
-		    {
-			switch (g_settings.screen_preset) {
+		{
+			switch (g_settings.screen_preset)
+			{
 				case COsdSetup::PRESET_SCREEN_B:
 					g_settings.screen_StartX = g_settings.screen_StartX_b_0;
 					g_settings.screen_StartY = g_settings.screen_StartY_b_0;
@@ -1300,7 +1303,7 @@ void CNeutrinoApp::setScreenSettings()
 					g_settings.screen_EndY   = g_settings.screen_EndY_a_0;
 					break;
 			}
-		    }
+		}
 		break;
 	}
 }
