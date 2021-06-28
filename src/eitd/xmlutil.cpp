@@ -642,7 +642,7 @@ void *insertEventsfromFile(void * data)
 		epgname = epg_dir + filename;
 		readEventsFromFile(epgname, ev_count);
 
-		debug(DEBUG_NORMAL, "Reading data finished after %" PRId64 " ms (%d events) from %s",
+		debug(DEBUG_DEBUG, "Reading data finished after %" PRId64 " ms (%d events) from %s",
 			time_monotonic_ms()-now, ev_count, epgname.c_str());
 
 		eventfile = xmlNextNode(eventfile);
