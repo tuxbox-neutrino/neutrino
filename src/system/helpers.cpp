@@ -469,9 +469,9 @@ bool exec_controlscript(std::string script)
 
 bool exec_initscript(std::string script, std::string command, std::string system_command)
 {
-	std::string user = getenv("USER");
-	if (user != "root")
-		dprintf(DEBUG_NORMAL, "[helpers] [%s - %d] NOTE: current user is not root!\n", __func__, __LINE__);
+	const char* user = getenv("USER");
+	if (strncmp("root", user, 4))
+		dprintf(DEBUG_NORMAL, "[helpers] [%s - %d] NOTE: current user %s is not root!\n", __func__, __LINE__, user);
 
 	int ret = 1;
 	if (system_command == "service")
