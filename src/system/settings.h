@@ -259,7 +259,7 @@ struct SNeutrinoGlcdTheme
 	int glcd_icons_percent;
 	int glcd_icons_y_position;
 
-	int glcd_icon_ecm_x_position;
+// 	int glcd_icon_ecm_x_position;
 	int glcd_icon_cam_x_position;
 	int glcd_icon_txt_x_position;
 	int glcd_icon_dd_x_position;
@@ -286,75 +286,85 @@ struct SNeutrinoGlcdTheme
 
 struct SNeutrinoSettings
 {
-	std::string version_pseudo;
+	// theme/color options
+	SNeutrinoTheme theme;
+	std::string theme_name;
 
-	//video
-	int video_Format;
+#ifdef ENABLE_GRAPHLCD
+	SNeutrinoGlcdTheme glcd_theme;
+	std::string glcd_theme_name;
+
+	int glcd_enable;
+	std::string glcd_logodir;
+
+	int glcd_time_in_standby;
+	int glcd_standby_weather;
+
+	int glcd_brightness;
+	int glcd_brightness_dim;
+	std::string glcd_brightness_dim_time;
+	int glcd_brightness_standby;
+	int glcd_mirror_osd;
+	int glcd_mirror_video;
+	int glcd_scroll_speed;
+	int glcd_selected_config;
+#endif
+
+#ifdef ENABLE_LCD4LINUX
+	int lcd4l_support;
+	std::string lcd4l_logodir;
+	int lcd4l_display_type;
+	int lcd4l_skin;
+	int lcd4l_skin_radio;
+	int lcd4l_brightness;
+	int lcd4l_brightness_standby;
+	int lcd4l_convert;
+#endif
+
+#define MODE_ICONS_NR_OF_ENTRIES 8
+	int mode_icons;
+	int mode_icons_background;
+	int mode_icons_skin;
+	std::string mode_icons_flag[MODE_ICONS_NR_OF_ENTRIES];
+
+// 	int show_ecm;
+// 	int show_ecm_pos;
+
+	// video
 	int video_Mode;
 	int analog_mode1;
 	int analog_mode2;
+	int video_Format;
 	int video_43mode;
 
+	// hdmi cec
+	int hdmi_cec_mode;
+	int hdmi_cec_view_on;
+	int hdmi_cec_standby;
+	int hdmi_cec_volume;
+
 #if HAVE_ARM_HARDWARE
+	int psi_brightness;
 	int psi_contrast;
 	int psi_saturation;
-	int psi_brightness;
-	int psi_tint;
 	int psi_step;
+	int psi_tint;
 #endif
 
-#ifdef BOXMODEL_CST_HD2
-	int brightness;
-	int contrast;
-	int saturation;
-	int enable_sd_osd;
-#endif
+	// volume
 	char current_volume;
 	int current_volume_step;
 	int start_volume;
+	int audio_volume_percent_ac3;
+	int audio_volume_percent_pcm;
+
 	int channel_mode;
 	int channel_mode_radio;
 	int channel_mode_initial;
 	int channel_mode_initial_radio;
 
-	//misc
-	int shutdown_real;
-	int shutdown_real_rcdelay;
-	int shutdown_count;
-	int shutdown_min;
-	int sleeptimer_min;
-	int record_safety_time_before;
-	int record_safety_time_after;
-	int zapto_pre_time;
-	int zappingmode;
-	int infobar_sat_display;
-	int infobar_show_channeldesc;
-	int infobar_subchan_disp_pos;
-	int infobar_buttons_usertitle;
-
 	int fan_speed;
-	int infobar_show;
-	int infobar_show_channellogo;
-	int infobar_progressbar;
-	int infobar_casystem_display;
-	int infobar_casystem_dotmatrix;
-	int infobar_casystem_frame;
-	int scrambled_message;
-	int volume_pos;
-	int volume_digits;
-	int volume_size;
-	int show_mute_icon;
-	int menu_pos;
-	int show_menu_hints;
-	int infobar_show_sysfs_hdd;
-	int infobar_show_res;
-	int infobar_show_tuner;
-	int infobar_show_dd_available;
-	//audio
-	int audio_AnalogMode;
-	int audio_DolbyDigital;
-	int auto_lang;
-	int auto_subs;
+
 	int srs_enable;
 	int srs_algo;
 	int srs_ref_volume;
@@ -367,28 +377,18 @@ struct SNeutrinoSettings
 	int spdif_dd;
 #endif // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int analog_out;
-	int audio_volume_percent_ac3;
-	int audio_volume_percent_pcm;
 
-	//video
-	int video_dbdr;
-	int hdmi_cec_mode;
-	int hdmi_cec_view_on;
-	int hdmi_cec_standby;
-	int hdmi_cec_volume;
-	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
-	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
-	int cpufreq;
-	int standby_cpufreq;
-	int make_hd_list;
-	int make_webtv_list;
-	int make_webradio_list;
-	int make_new_list;
-	int make_removed_list;
-	int keep_channel_numbers;
-	int show_empty_favorites;
 	int avsync;
 	int clockrec;
+	int video_dbdr;
+
+	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
+	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
+
+	int zappingmode;
+
+	int cpufreq;
+	int standby_cpufreq;
 
 	// ci-settings
 	int ci_standby_reset;
@@ -408,75 +408,251 @@ struct SNeutrinoSettings
 	int ci_rpr[4];
 #endif
 
-	int radiotext_enable;
-	int webradio_xml_auto;
-	int webtv_xml_auto;
+	int make_hd_list;
+	int make_new_list;
+	int make_removed_list;
+	int make_webradio_list;
+	int make_webtv_list;
 
-	//screen saver
+	int keep_channel_numbers;
+	int show_empty_favorites;
+
+	// lcd/led
+	enum LCD_SETTINGS
+	{
+		LCD_BRIGHTNESS = 0,
+		LCD_STANDBY_BRIGHTNESS,
+		LCD_CONTRAST,
+		LCD_POWER,
+		LCD_INVERSE,
+		LCD_SHOW_VOLUME,
+		LCD_AUTODIMM,
+		LCD_DEEPSTANDBY_BRIGHTNESS,
+#if USE_STB_HAL
+		LCD_EPGMODE,
+#endif
+		LCD_SETTING_COUNT
+	};
+	int lcd_setting[LCD_SETTING_COUNT];
+	std::string lcd_setting_dim_time;
+	int lcd_setting_dim_brightness;
+	int lcd_info_line;
+	int lcd_scroll;
+	int lcd_notify_rclock;
+
+	int backlight_tv;
+	int backlight_standby;
+	int backlight_deepstandby;
+
+	int led_tv_mode;
+	int led_standby_mode;
+	int led_deep_mode;
+	int led_rec_mode;
+	int led_blink;
+
+#ifdef BOXMODEL_CST_HD2
+	int brightness;
+	int contrast;
+	int saturation;
+#endif
+
+	// hdd
+	enum
+	{
+		HDD_STATFS_OFF = 0,
+		HDD_STATFS_ALWAYS,
+		HDD_STATFS_RECORDING
+	};
+	int hdd_fs;
+	int hdd_sleep;
+	int hdd_noise;
+	int hdd_statfs_mode;
+	int hdd_format_on_mount_failed;
+	int hdd_wakeup;
+	int hdd_wakeup_msg;
+	int hdd_allow_set_recdir;
+
+	// timer
+	std::vector<timer_remotebox_item> timer_remotebox_ip;
+	int timer_followscreenings;
+
+	// misc
+	int zap_cycle;
+	int remote_control_hardware;
+	int enable_sdt;
+	int radiotext_enable;
+	int cacheTXT;
+	int zapto_pre_time;
+	int minimode;
+
+	int filesystem_is_utf8;
+
+	// shutdown
+	int shutdown_count;
+	int shutdown_min;
+	int shutdown_real;
+	int shutdown_real_rcdelay;
+	int sleeptimer_min;
+	int power_standby;
+
+	// screen saver
 	int screensaver_delay;
 	std::string screensaver_dir;
-	int screensaver_timeout;
-	int screensaver_random;
 	int screensaver_mode;
 	int screensaver_mode_text;
+	int screensaver_random;
+	int screensaver_timeout;
 
-	//vcr
+	// vcr
 	int vcr_AutoSwitch;
 
-	//language
-	std::string language;
-	std::string timezone;
+	// audio
+	int audio_AnalogMode;
+	int audio_DolbyDigital;
 
+	int audiochannel_up_down_enable;
+
+	// language
+	int auto_lang;
+	int auto_subs;
 	std::string pref_lang[3];
 	std::string pref_subs[3];
 	std::string subs_charset;
 
-	// EPG
-	int epg_save;
-	int epg_save_standby;
-	int epg_save_frequently;
+	std::string language;
+	std::string timezone;
+
+	// epg
+	std::string epg_dir;
+	int epg_cache;
+	int epg_extendedcache;
+	int epg_max_events;
+	int epg_old_events;
 	int epg_read;
 	int epg_read_frequently;
-	int epg_cache;
-	int epg_old_events;
-	int epg_max_events;
-	int epg_extendedcache;
-	std::string epg_dir;
+	int epg_save;
+	int epg_save_frequently;
+	int epg_save_mode;
+	int epg_save_standby;
 	int epg_scan;
 	int epg_scan_mode;
 	int epg_scan_rescan;
-	int epg_save_mode;
-	int enable_sdt;
 
-	int epg_search_history_size;
+	// epg search
 	int epg_search_history_max;
+	int epg_search_history_size;
 	std::list<std::string> epg_search_history;
 
-	//network
-	std::string network_ntpserver;
-	std::string network_ntprefresh;
-	int network_ntpenable;
-	//int network_ntpatboot;
+	// network
 	std::string ifname;
 
-	std::list<std::string> webtv_xml;
-	std::list<std::string> webradio_xml;
-	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
+#define NETWORK_NFS_NR_OF_ENTRIES 8
+	struct
+	{
+		std::string ip;
+		std::string mac;
+		std::string local_dir;
+		std::string dir;
+		int automount;
+		std::string mount_options1;
+		std::string mount_options2;
+		int type;
+		std::string username;
+		std::string password;
+	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
 
-	//personalize
-	enum PERSONALIZE_SETTINGS  //settings.h
+#define NETFS_NR_OF_ENTRIES NETWORK_NFS_NR_OF_ENTRIES
+	typedef enum
+	{
+		FSTAB = 0,
+		AUTOMOUNT = 1,
+
+		NETFS_MOUNT_TYPE_COUNT
+	} NETFS_MOUNT_TYPE;
+
+	struct
+	{
+		std::string ip;
+		std::string dir;
+		std::string local_dir;
+		int type;
+		std::string username;
+		std::string password;
+		std::string options1;
+		std::string options2;
+		int active;
+		std::string dump;
+		std::string pass;
+	} netfs[NETFS_MOUNT_TYPE_COUNT][NETFS_NR_OF_ENTRIES];
+
+	std::string network_nfs_audioplayerdir;
+	std::string network_nfs_moviedir;
+	std::string network_nfs_picturedir;
+	std::string network_nfs_recordingdir;
+	std::string network_nfs_streamripperdir;
+
+	std::string downloadcache_dir;
+	std::string logo_hdd_dir;
+
+	// recording
+	int record_safety_time_before;
+	int record_safety_time_after;
+
+	int record_hours;
+	int recording_already_found_check;
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	int recording_bufsize;
+	int recording_bufsize_dmx;
+#endif
+	int recording_choose_direct_rec_dir;
+	int recording_epg_for_end;
+	int recording_epg_for_filename;
+	std::string recording_filename_template;
+	int recording_save_in_channeldir;
+	int recording_fill_warning;
+	int recording_slow_warning;
+	int recording_startstop_msg;
+	int recording_stopsectionsd;
+	int recording_stream_pmt_pid;
+	int recording_stream_subtitle_pids;
+	int recording_stream_vtxt_pid;
+	int recording_type;
+	int recording_zap_on_announce;
+	int shutdown_timer_record_type;
+
+	unsigned char recording_audio_pids_default;
+	int recording_audio_pids_ac3;
+	int recording_audio_pids_alt;
+	int recording_audio_pids_std;
+
+	// timeshift
+	std::string timeshiftdir;
+	int timeshift_auto;
+	int timeshift_delete;
+	int timeshift_hours;
+	int timeshift_pause;
+	int timeshift_temp;
+
+	// ntp server for sectionsd
+	int network_ntpenable;
+	std::string network_ntpserver;
+	std::string network_ntprefresh;
+	int network_ntpatboot;
+
+	// personalize
+	enum PERSONALIZE_SETTINGS // settings.h
 	{
 		P_MAIN_PINSTATUS,
 
-		//user menu
+		// user menu
 		P_MAIN_BLUE_BUTTON,
 		P_MAIN_YELLOW_BUTTON,
 		P_MAIN_GREEN_BUTTON,
 		P_MAIN_RED_BUTTON,
 
-		//main menu
+		// main menu
 		P_MAIN_TV_MODE,
-		P_MAIN_TV_RADIO_MODE, //togglemode
+		P_MAIN_TV_RADIO_MODE, // togglemode
 		P_MAIN_RADIO_MODE,
 		P_MAIN_TIMER,
 		P_MAIN_MEDIA,
@@ -496,7 +672,7 @@ struct SNeutrinoSettings
 		P_MAIN_INFOMENU,
 		P_MAIN_CISETTINGS,
 
-		//settings menu
+		// settings menu
 		P_MSET_SETTINGS_MANAGER,
 		P_MSET_VIDEO,
 		P_MSET_AUDIO,
@@ -511,7 +687,7 @@ struct SNeutrinoSettings
 		P_MSET_MEDIAPLAYER,
 		P_MSET_MISC,
 
-		//service menu
+		// service menu
 		P_MSER_TUNER,
 		P_MSER_SCANTS,
 		P_MSER_RELOAD_CHANNELS,
@@ -522,7 +698,7 @@ struct SNeutrinoSettings
 		P_MSER_SERVICE_INFOMENU,
 		P_MSER_SOFTUPDATE,
 
-		//media menu
+		// media menu
 		P_MEDIA_MENU,
 		P_MEDIA_AUDIO,
 		P_MEDIA_INETPLAY,
@@ -530,22 +706,22 @@ struct SNeutrinoSettings
 		P_MEDIA_PVIEWER,
 		P_MEDIA_UPNP,
 
-		//movieplayer menu
+		// movieplayer menu
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY_VIDEO,
 		P_MPLAYER_FILEPLAY_AUDIO,
 		P_MPLAYER_YTPLAY,
 
-		//feature keys
+		// feature keys
 		P_FEAT_KEY_FAVORIT,
 		P_FEAT_KEY_TIMERLIST,
 		P_FEAT_KEY_VTXT,
 		P_FEAT_KEY_RC_LOCK,
 
-		//user menu
+		// user menu
 		P_UMENU_SHOW_CANCEL,
 
-		//plugins types
+		// plugins types
 		P_UMENU_PLUGIN_TYPE_GAMES,
 		P_UMENU_PLUGIN_TYPE_TOOLS,
 		P_UMENU_PLUGIN_TYPE_SCRIPTS,
@@ -554,256 +730,52 @@ struct SNeutrinoSettings
 		P_SETTINGS_MAX
 	};
 
-	int  personalize[P_SETTINGS_MAX];
+	int personalize[P_SETTINGS_MAX];
 	std::string personalize_pincode;
 
-	//timing
-	enum TIMING_SETTINGS 
-	{
-		TIMING_MENU = 0,
-		TIMING_CHANLIST,
-		TIMING_EPG,
-		TIMING_VOLUMEBAR,
-		TIMING_FILEBROWSER,
-		TIMING_NUMERICZAP,
-		TIMING_POPUP_MESSAGES,
-		TIMING_STATIC_MESSAGES,
-
-		TIMING_SETTING_COUNT
-	};
-
-	int timing [TIMING_SETTING_COUNT];
-
-	//timing/handling infobar
-	enum HANDLING_INFOBAR_SETTINGS
-	{
-		HANDLING_INFOBAR,
-		HANDLING_INFOBAR_RADIO,
-		HANDLING_INFOBAR_MEDIA_AUDIO,
-		HANDLING_INFOBAR_MEDIA_VIDEO,
-
-		HANDLING_INFOBAR_SETTING_COUNT
-	};
-
-	int handling_infobar[HANDLING_INFOBAR_SETTING_COUNT];
-
-	//widget settings
+	// widget settings
 	int widget_fade;
 
-	//theme/color options
-	SNeutrinoTheme theme;
-	std::string theme_name;
-	SNeutrinoGlcdTheme glcd_theme;
-	std::string glcd_theme_name;
-	bool osd_colorsettings_advanced_mode;
-
-	//network
-#define NETWORK_NFS_NR_OF_ENTRIES 8
-	struct {
-		std::string ip;
-		std::string mac;
-		std::string local_dir;
-		std::string dir;
-		int  automount;
-		std::string mount_options1;
-		std::string mount_options2;
-		int  type;
-		std::string username;
-		std::string password;
-	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
-	std::string network_nfs_audioplayerdir;
-	std::string network_nfs_streamripperdir;
-	std::string network_nfs_picturedir;
-	std::string network_nfs_moviedir;
-	std::string network_nfs_recordingdir;
-	std::string timeshiftdir;
-	std::string downloadcache_dir;
-	std::string last_webradio_dir;
+	// webtv
+	int webtv_xml_auto;
+	std::list<std::string> webtv_xml;
 	std::string last_webtv_dir;
 
-	//recording
-	int  recording_type;
-	int  recording_stopsectionsd;
-	unsigned char recording_audio_pids_default;
-	int recording_audio_pids_std;
-	int recording_audio_pids_alt;
-	int recording_audio_pids_ac3;
-	int recording_stream_vtxt_pid;
-	int recording_stream_subtitle_pids;
-	int recording_stream_pmt_pid;
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	int recording_bufsize;
-	int recording_bufsize_dmx;
-#endif
-	int recording_choose_direct_rec_dir;
-	int recording_epg_for_filename;
-	int recording_epg_for_end;
-	int recording_save_in_channeldir;
-	int recording_zap_on_announce;
-	int recording_slow_warning;
-	//int recording_fill_warning;
-	int recording_startstop_msg;
-	int shutdown_timer_record_type;
-	std::vector<timer_remotebox_item> timer_remotebox_ip;
-	int timer_followscreenings;
-	std::string recording_filename_template;
-	int recording_already_found_check;
+	// webradio
+	int webradio_xml_auto;
+	std::list<std::string> webradio_xml;
+	std::string last_webradio_dir;
 
-	// timeshift
-	int timeshift_pause;
-	int timeshift_auto;
-	int timeshift_temp;
-	int timeshift_delete;
-	int timeshift_hours;
+	// xmltv
+	std::list<std::string> xmltv_xml; // see http://wiki.xmltv.org/
 
-	int filesystem_is_utf8;
-	// default plugin for ts-movieplayer (red button)
-	std::string movieplayer_plugin;
+	int livestreamResolution;
+	std::string livestreamScriptPath;
+
+	// plugins
 	std::string plugin_hdd_dir;
-
-	std::string logo_hdd_dir;
-
 	std::string plugins_disabled;
 	std::string plugins_game;
-	std::string plugins_tool;
-	std::string plugins_script;
 	std::string plugins_lua;
+	std::string plugins_script;
+	std::string plugins_tool;
 
-	//key configuration
-	int key_tvradio_mode;
+	// default plugin for movieplayer
+	std::string movieplayer_plugin;
 
-	int key_pageup;
-	int key_pagedown;
-
-	int key_channelList_cancel;
-	int key_channelList_sort;
-	int key_channelList_addrecord;
-	int key_channelList_addremind;
-
-	int key_favorites;
-	int key_quickzap_up;
-	int key_quickzap_down;
-	int key_bouquet_up;
-	int key_bouquet_down;
-	int key_subchannel_up;
-	int key_subchannel_down;
-	int key_zaphistory;
-	int key_lastchannel;
-	int key_list_start;
-	int key_list_end;
-	int key_power_off;
-	int key_standby_off_add;
-	int menu_left_exit;
-	int record_hours;
-	int key_record;
-	int key_help;
-	int key_next43mode;
-	int key_switchformat;
-	int key_volumeup;
-	int key_volumedown;
-
-	int mbkey_copy_onefile;
-	int mbkey_copy_several;
-	int mbkey_cut;
-	int mbkey_truncate;
-	int mbkey_cover;
-
-	int mpkey_rewind;
-	int mpkey_forward;
-	int mpkey_pause;
-	int mpkey_stop;
-	int mpkey_play;
-	int mpkey_audio;
-	int mpkey_time;
-	int mpkey_bookmark;
-	int mpkey_plugin;
-	int mpkey_goto;
-	int mpkey_subtitle;
-	int mpkey_next_repeat_mode;
-	int key_timeshift;
-	int key_plugin;
-
-	int key_unlock;
-
-	int key_screenshot;
-	int screenshot_count;
-	int screenshot_format;
-	int screenshot_cover;
-	int screenshot_mode;
-	int screenshot_video;
-	int screenshot_scale;
-	int auto_cover;
+	// screenshot
 	std::string screenshot_dir;
+	int screenshot_count;
+	int screenshot_cover;
+	int screenshot_format;
+	int screenshot_mode;
+	int screenshot_scale;
+	int screenshot_video;
+	int auto_cover;
 
-	int key_current_transponder;
-	int key_pip_close;
-	int key_pip_close_avinput;
-	int key_pip_setup;
-	int key_pip_swap;
-	int key_format_mode_active;
-	int key_pic_mode_active;
-	int key_pic_size_active;
+	// screen configuration
+	int osd_resolution;
 
-	int cacheTXT;
-	int minimode;
-	int mode_clock;
-
-	enum MODE_LEFT_RIGHT_KEY_TV_SETTINGS 
-	{
-		ZAP     = 0,
-		VZAP    = 1,
-		VOLUME  = 2,
-		INFOBAR = 3
-	};
-	int mode_left_right_key_tv;
-
-	int spectrum;
-	int pip_width;
-	int pip_height;
-	int pip_x;
-	int pip_y;
-	int pip_radio_width;
-	int pip_radio_height;
-	int pip_radio_x;
-	int pip_radio_y;
-	int bigFonts;
-	int window_size;
-	int window_width;
-	int window_height;
-	int eventlist_additional;
-	int eventlist_epgplus;
-
-	enum CHANNELLIST_ADDITIONAL_MODES
-	{
-		CHANNELLIST_ADDITIONAL_MODE_OFF		= 0,
-		CHANNELLIST_ADDITIONAL_MODE_EPG 	= 1,
-		CHANNELLIST_ADDITIONAL_MODE_MINITV	= 2
-	};
-	int channellist_additional;
-	int channellist_displaymode;
-	bool channellist_descmode;
-	int channellist_epgtext_align_right;
-	int channellist_foot;
-	int channellist_new_zap_mode;
-	int channellist_sort_mode;
-	int channellist_numeric_adjust;
-	int channellist_show_channellogo;
-	int channellist_show_eventlogo;
-	int channellist_show_infobox;
-	int channellist_show_numbers;
-	int channellist_show_res_icon;
-	int repeat_blocker;
-	int repeat_genericblocker;
-#define LONGKEYPRESS_OFF 499
-	int longkeypress_duration;
-	int remote_control_hardware;
-	int audiochannel_up_down_enable;
-
-	//screen configuration
-	int screen_StartX;
-	int screen_StartY;
-	int screen_EndX;
-	int screen_EndY;
 	int screen_StartX_a_0;
 	int screen_StartY_a_0;
 	int screen_EndX_a_0;
@@ -812,6 +784,7 @@ struct SNeutrinoSettings
 	int screen_StartY_a_1;
 	int screen_EndX_a_1;
 	int screen_EndY_a_1;
+
 	int screen_StartX_b_0;
 	int screen_StartY_b_0;
 	int screen_EndX_b_0;
@@ -820,52 +793,61 @@ struct SNeutrinoSettings
 	int screen_StartY_b_1;
 	int screen_EndX_b_1;
 	int screen_EndY_b_1;
-	int osd_resolution;
+
 	int screen_preset;
+
+	int screen_StartX;
+	int screen_StartY;
+	int screen_EndX;
+	int screen_EndY;
+
 	int screen_width;
 	int screen_height;
 
-	//Software-update
-	int softupdate_mode;
-	std::string softupdate_url_file;
-	std::string softupdate_proxyserver;
-	std::string softupdate_proxyusername;
-	std::string softupdate_proxypassword;
+	// software update
 	int softupdate_autocheck;
 #if ENABLE_PKG_MANAGEMENT
 	int softupdate_autocheck_packages;
 #endif
-	int softupdate_name_mode_apply;
-	int softupdate_name_mode_backup;
+	int softupdate_mode;
 	int apply_settings;
 	int apply_kernel;
+	std::string softupdate_url_file;
+	int softupdate_name_mode_apply;
+	int softupdate_name_mode_backup;
+	std::string softupdate_proxyserver;
+	std::string softupdate_proxyusername;
+	std::string softupdate_proxypassword;
 
-	int flashupdate_createimage_add_var;
-	int flashupdate_createimage_add_root1;
-	int flashupdate_createimage_add_uldr;
-	int flashupdate_createimage_add_u_boot;
 	int flashupdate_createimage_add_env;
-	int flashupdate_createimage_add_spare;
 	int flashupdate_createimage_add_kernel;
+	int flashupdate_createimage_add_root1;
+	int flashupdate_createimage_add_spare;
+	int flashupdate_createimage_add_u_boot;
+	int flashupdate_createimage_add_uldr;
+	int flashupdate_createimage_add_var;
 
-	std::string	backup_dir;
-
-	std::string	update_dir;
-	std::string	update_dir_opkg;
-
-	//BouquetHandling
-	int bouquetlist_mode;
+	std::string backup_dir;
+	std::string update_dir;
+	std::string update_dir_opkg;
 
 	// parentallock
 	int parentallock_prompt;
 	int parentallock_lockage;
 	int parentallock_defaultlocked;
-	int parentallock_zaptime;
 	std::string parentallock_pincode;
+	int parentallock_zaptime;
 
+	// fonts
+	std::string font_file;
+	std::string ttx_font_file;
 
-	// Font sizes
-	enum FONT_TYPES {
+	int font_scaling_x;
+	int font_scaling_y;
+
+	// font sizes
+	enum FONT_TYPES
+	{
 		FONT_TYPE_MENU = 0,
 		FONT_TYPE_MENU_TITLE,
 		FONT_TYPE_MENU_INFO,
@@ -903,7 +885,8 @@ struct SNeutrinoSettings
 		FONT_TYPE_COUNT
 	};
 
-	enum FONT_TYPES_FIXED {
+	enum FONT_TYPES_FIXED
+	{
 		FONT_TYPE_FIXED_30_BOLD = 0,
 		FONT_TYPE_FIXED_30_REGULAR,
 		FONT_TYPE_FIXED_30_ITALIC,
@@ -916,176 +899,214 @@ struct SNeutrinoSettings
 		FONT_TYPE_FIXED_COUNT
 	};
 
-	int infoClockFontSize;
-	int infoClockSeconds;
-	int infoClockBackground;
-
-#ifdef ENABLE_GRAPHLCD
-	// graphlcd
-	int glcd_enable;
-	std::string glcd_logodir;
-
-	int glcd_time_in_standby;
-	int glcd_standby_weather;
-
-	int glcd_mirror_osd;
-	int glcd_mirror_video;
-
-	int glcd_brightness;
-	int glcd_brightness_standby;
-	int glcd_brightness_dim;
-	std::string glcd_brightness_dim_time;
-	int glcd_scroll_speed;
-	int glcd_selected_config;
-#endif
-
-#ifdef ENABLE_LCD4LINUX
-	// lcd4linux
-	int lcd4l_support;
-	std::string lcd4l_logodir;
-	int lcd4l_brightness;
-	int lcd4l_brightness_standby;
-	int lcd4l_display_type;
-	int lcd4l_skin;
-	int lcd4l_skin_radio;
-	int lcd4l_convert;
-#endif
-
-	// lcdd
-	enum LCD_SETTINGS {
-		LCD_BRIGHTNESS         = 0,
-		LCD_STANDBY_BRIGHTNESS ,
-		LCD_CONTRAST           ,
-		LCD_POWER              ,
-		LCD_INVERSE            ,
-		LCD_SHOW_VOLUME        ,
-		LCD_AUTODIMM           ,
-		LCD_DEEPSTANDBY_BRIGHTNESS,
-#if USE_STB_HAL
-		LCD_EPGMODE            ,
-#endif
-		LCD_SETTING_COUNT
-	};
-	int lcd_setting[LCD_SETTING_COUNT];
-	int lcd_info_line;
-	std::string lcd_setting_dim_time;
-	int lcd_setting_dim_brightness;
-	int led_tv_mode;
-	int led_standby_mode;
-	int led_deep_mode;
-	int led_rec_mode;
-	int led_blink;
-	int backlight_tv;
-	int backlight_standby;
-	int backlight_deepstandby;
-	int lcd_scroll;
-	int lcd_notify_rclock;
-
-	//#define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
-#define FILESYSTEM_ENCODING_TO_UTF8(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
-#define UTF8_TO_FILESYSTEM_ENCODING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::UTF8_to_Latin1(a).c_str())
-	//#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))
-#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a))
-
-	// pictureviewer
-	int picviewer_slide_time;
-	int picviewer_scaling;
-
-	//audioplayer
-	int   audioplayer_display;
-	int   audioplayer_follow;
-	int   audioplayer_highprio;
-	int   audioplayer_select_title_by_name;
-	int   audioplayer_repeat_on;
-	int   audioplayer_show_playlist;
-	int   audioplayer_enable_sc_metadata;
-	int   audioplayer_cover_as_screensaver;
-
-	int   inetradio_autostart;
-
-	//Filebrowser
-	int filebrowser_showrights;
-	int filebrowser_sortmethod;
-	int filebrowser_denydirectoryleave;
-
-	//online services
-	int   movieplayer_repeat_on;
-	int movieplayer_display_playtime;
-
-	//online services
+	// online services
 	std::string weather_api_key;
 	int weather_enabled;
+
 	int weather_country;
 	std::string weather_location;
 	std::string weather_city;
+
 	std::string youtube_dev_id;
 	int youtube_enabled;
+
 	std::string tmdb_api_key;
 	int tmdb_enabled;
+
 	std::string omdb_api_key;
 	int omdb_enabled;
+
 	std::string shoutcast_dev_id;
 	int shoutcast_enabled;
 
-	//zapit setup
+	// zapit setup
 	std::string StartChannelTV;
 	std::string StartChannelRadio;
 	t_channel_id startchanneltv_id;
 	t_channel_id startchannelradio_id;
 	int uselastchannel;
 
-	//adzap
+	// adzap
 	int adzap_zapBackPeriod;
-	int adzap_writeData;
 	int adzap_zapOnActivation;
-	enum { ADZAP_ZAP_OFF, ADZAP_ZAP_TO_LAST, ADZAP_ZAP_TO_START };
+	int adzap_writeData;
 
-	int	power_standby;
-	int	hdd_sleep;
-	int	hdd_noise;
-	int	hdd_fs;
-	enum { HDD_STATFS_OFF = 0, HDD_STATFS_ALWAYS, HDD_STATFS_RECORDING };
-	int	hdd_statfs_mode;
-	//int	hdd_format_on_mount_failed;
-	//int	hdd_wakeup;
-	//int	hdd_wakeup_msg;
-	//int	hdd_allow_set_recdir;
-	int	zap_cycle;
-	int	sms_channel;
-	int	sms_movie;
+	enum
+	{
+		ADZAP_ZAP_OFF,
+		ADZAP_ZAP_TO_LAST,
+		ADZAP_ZAP_TO_START
+	};
 
-	std::string	font_file;
-	std::string	ttx_font_file;
+	// pip
+#ifdef ENABLE_PIP
+	int pip_width;
+	int pip_height;
+	int pip_x;
+	int pip_y;
+	int pip_radio_width;
+	int pip_radio_height;
+	int pip_radio_x;
+	int pip_radio_y;
+#endif
 
-	int font_scaling_x;
-	int font_scaling_y;
+	// pictureviewer
+	int picviewer_scaling;
+	int picviewer_slide_time;
 
-	int		ca_init;
-	int		show_menu_hints_line;
+	// audioplayer
+	int audioplayer_cover_as_screensaver;
+	int audioplayer_display;
+	int audioplayer_enable_sc_metadata;
+	int audioplayer_follow;
+	int audioplayer_highprio;
+	int audioplayer_repeat_on;
+	int audioplayer_select_title_by_name;
+	int audioplayer_show_playlist;
+	int inetradio_autostart;
+	int spectrum;
 
-	#define MODE_ICONS_NR_OF_ENTRIES 8
-	int		mode_icons;
-	int		mode_icons_background;
-	int		mode_icons_skin;
-	std::string	mode_icons_flag[MODE_ICONS_NR_OF_ENTRIES];
+	// movieplayer
+	int movieplayer_bisection_jump;
+	int movieplayer_display_playtime;
+	int movieplayer_repeat_on;
+	int movieplayer_timeosd_while_searching;
 
-	int		livestreamResolution;
-	std::string	livestreamScriptPath;
+	// filebrowser
+	int filebrowser_denydirectoryleave;
+	int filebrowser_showrights;
+	int filebrowser_sortmethod;
 
-	// USERMENU
+	// infoclock
+	int mode_clock;
+	int infoClockBackground;
+	int infoClockFontSize;
+	int infoClockSeconds;
+
+	// volume gui
+	int show_mute_icon;
+	int volume_digits;
+	int volume_pos;
+	int volume_size;
+
+	// menu
+	int menu_pos;
+	int show_menu_hints;
+	int show_menu_hints_line;
+
+	// epgview
+	int bigFonts;
+
+	// eventlist
+	int eventlist_additional;
+	int eventlist_epgplus;
+
+	// channellist
+	bool channellist_descmode;
+	int channellist_displaymode;
+
+	enum CHANNELLIST_ADDITIONAL_MODES
+	{
+		CHANNELLIST_ADDITIONAL_MODE_OFF = 0,
+		CHANNELLIST_ADDITIONAL_MODE_EPG = 1,
+		CHANNELLIST_ADDITIONAL_MODE_MINITV = 2
+	};
+
+	int channellist_additional;
+	int channellist_epgtext_align_right;
+	int channellist_foot;
+	int channellist_new_zap_mode;
+	int channellist_numeric_adjust;
+	int channellist_show_channellogo;
+	int channellist_show_eventlogo;
+	int channellist_show_infobox;
+	int channellist_show_numbers;
+	int channellist_show_res_icon;
+	int channellist_sort_mode;
+
+	// infobar
 	typedef enum
 	{
-		// Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT = 0,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME = 1,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL = 2,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS = 3
+	} INFOBAR_PROGRESSBAR_ARRANGEMENT_TYPES;
+
+// 	int infobar_analogclock;
+	int infobar_buttons_usertitle;
+	int infobar_casystem_display;
+	int infobar_casystem_dotmatrix;
+	int infobar_casystem_frame;
+	int infobar_progressbar;
+	int infobar_sat_display;
+	int infobar_show;
+	int infobar_show_channeldesc;
+	int infobar_show_channellogo;
+	int infobar_show_dd_available;
+	int infobar_show_res;
+	int infobar_show_sysfs_hdd;
+	int infobar_show_tuner;
+	int infobar_subchan_disp_pos;
+
+	int scrambled_message;
+
+	// windows
+	int window_size;
+	int window_width;
+	int window_height;
+
+	// osd
+	bool osd_colorsettings_advanced_mode;
+#ifdef BOXMODEL_CST_HD2
+	int enable_sd_osd;
+#endif
+
+	// timing
+	enum TIMING_SETTINGS
+	{
+		TIMING_MENU = 0,
+		TIMING_CHANLIST,
+		TIMING_EPG,
+		TIMING_VOLUMEBAR,
+		TIMING_FILEBROWSER,
+		TIMING_NUMERICZAP,
+		TIMING_POPUP_MESSAGES,
+		TIMING_STATIC_MESSAGES,
+
+		TIMING_SETTING_COUNT
+	};
+
+	int timing [TIMING_SETTING_COUNT];
+
+	// timing/handling infobar
+	enum HANDLING_INFOBAR_SETTINGS
+	{
+		HANDLING_INFOBAR,
+		HANDLING_INFOBAR_RADIO,
+		HANDLING_INFOBAR_MEDIA_AUDIO,
+		HANDLING_INFOBAR_MEDIA_VIDEO,
+
+		HANDLING_INFOBAR_SETTING_COUNT
+	};
+
+	int handling_infobar[HANDLING_INFOBAR_SETTING_COUNT];
+
+	// usermenu
+	typedef enum
+	{
+		// Do not change ordering of members, add new item just before BUTTON_MAX!
 		BUTTON_RED = 0,
 		BUTTON_GREEN = 1,
 		BUTTON_YELLOW = 2,
 		BUTTON_BLUE = 3,
+
 		BUTTON_MAX // MUST be always the last in the list
 	} USER_BUTTON;
 
 	typedef enum
 	{
-		// Do not change ordering of members, add new item just before ITEM_MAX!!!
+		// Do not change ordering of members, add new item just before ITEM_MAX!
 		ITEM_NONE = 0,
 		ITEM_BAR = 1,
 		ITEM_EPG_LIST = 2,
@@ -1108,27 +1129,31 @@ struct SNeutrinoSettings
 		ITEM_CLOCK = 19,
 		ITEM_GAMES = 20,
 		ITEM_SCRIPTS = 21,
-		ITEM_YOUTUBE = 22,
-		ITEM_FILEPLAY = 23,
-		ITEM_TOOLS = 24,
-		ITEM_LUA = 25,
+
+
+
+		ITEM_YOUTUBE = 25,
 		ITEM_FILEPLAY_VIDEO = 26,
-		ITEM_HDDMENU = 27,
-		ITEM_AUDIOPLAY = 28,
-		ITEM_INETPLAY = 29,
-		ITEM_NETSETTINGS = 30,
-		ITEM_SWUPDATE = 31,
-		ITEM_LIVESTREAM_RESOLUTION = 32,
-		ITEM_ADZAP = 33,
-		ITEM_FILEPLAY_AUDIO = 34,
-		ITEM_TIMESHIFT = 35,
-#ifdef ENABLE_LCD4LINUX
-		ITEM_LCD4LINUX = 36,
-#endif
+		ITEM_TOOLS = 27,
+		ITEM_LUA = 28,
+		ITEM_TUNER_RESTART = 29,
+		ITEM_HDDMENU = 30,
+		ITEM_AUDIOPLAY = 31,
+		ITEM_INETPLAY = 32,
+		ITEM_NETSETTINGS = 33,
+		ITEM_SWUPDATE = 34,
+		ITEM_LIVESTREAM_RESOLUTION = 35,
+		ITEM_ADZAP = 36,
+		ITEM_TESTMENU = 37,
+		ITEM_FILEPLAY_AUDIO = 38,
+		ITEM_TIMESHIFT = 39,
+		ITEM_LCD4LINUX = 40,
+
 		ITEM_MAX // MUST be always the last in the list
 	} USER_ITEM;
 
-	typedef struct {
+	typedef struct
+	{
 		unsigned int key;
 		std::string items;
 		std::string title;
@@ -1136,25 +1161,102 @@ struct SNeutrinoSettings
 	} usermenu_t;
 	std::vector<usermenu_t *> usermenu;
 
-	//progressbar arrangement for infobar
-	typedef enum
-	{
-		INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT = 0,
-		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME = 1,
-		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL = 2,
-		INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS = 3	
-	}INFOBAR_PROGRESSBAR_ARRANGEMENT_TYPES;
-
 	enum WIZARD_MODES
 	{
-		WIZARD_OFF	= 0,
-		WIZARD_START	= 1,
-		WIZARD_ON	= 2
+		WIZARD_OFF = 0,
+		WIZARD_START = 1,
+		WIZARD_ON = 2
 	};
+
+	std::string version_pseudo;
+
+	// key configuration; alphabetical order
+	int key_bouquet_down;
+	int key_bouquet_up;
+	int key_channelList_addrecord;
+	int key_channelList_addremind;
+	int key_channelList_cancel;
+	int key_channelList_sort;
+	int key_current_transponder;
+	int key_favorites;
+	int key_format_mode_active;
+	int key_help;
+	int key_lastchannel;
+	int key_list_end;
+	int key_list_start;
+	int key_next43mode;
+	int key_pagedown;
+	int key_pageup;
+	int key_pic_mode_active;
+	int key_pic_size_active;
+	int key_pip_close;
+	int key_pip_close_avinput;
+	int key_pip_setup;
+	int key_pip_swap;
+	int key_power_off;
+	int key_quickzap_down;
+	int key_quickzap_up;
+	int key_record;
+	int key_screenshot;
+	int key_standby_off_add;
+	int key_subchannel_down;
+	int key_subchannel_up;
+	int key_switchformat;
+	int key_timeshift;
+	int key_tvradio_mode;
+	int key_unlock;
+	int key_volumedown;
+	int key_volumeup;
+	int key_zaphistory;
+
+	int mbkey_copy_onefile;
+	int mbkey_copy_several;
+	int mbkey_cover;
+	int mbkey_cut;
+	int mbkey_truncate;
+
+	int mpkey_audio;
+	int mpkey_bookmark;
+	int mpkey_forward;
+	int mpkey_goto;
+	int mpkey_next_repeat_mode;
+	int mpkey_pause;
+	int mpkey_play;
+	int mpkey_plugin;
+	int mpkey_rewind;
+	int mpkey_stop;
+	int mpkey_subtitle;
+	int mpkey_time;
+
+	// key options
+	int bouquetlist_mode;
+	int menu_left_exit;
+	int repeat_blocker;
+	int repeat_genericblocker;
+	int sms_channel;
+	int sms_movie;
+
+#define LONGKEYPRESS_OFF 499
+	int longkeypress_duration;
+
+	enum MODE_LEFT_RIGHT_KEY_TV_SETTINGS
+	{
+		ZAP = 0,
+		VZAP = 1,
+		VOLUME = 2,
+		INFOBAR = 3
+	};
+
+	int mode_left_right_key_tv;
 };
 
 extern const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SETTINGS_MAX];
 
+//#define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
+#define FILESYSTEM_ENCODING_TO_UTF8(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
+#define UTF8_TO_FILESYSTEM_ENCODING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::UTF8_to_Latin1(a).c_str())
+//#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))
+#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a))
 
 // timeout modes
 typedef struct time_settings_t
@@ -1204,9 +1306,9 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 #define CORNER_RADIUS_MIN	CFrameBuffer::getInstance()->scale2Res(3)
 #define CORNER_RADIUS_NONE	0
 
-#define RADIUS_LARGE	(g_settings.theme.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
+#define RADIUS_LARGE		(g_settings.theme.rounded_corners ? CORNER_RADIUS_LARGE : CORNER_RADIUS_NONE)
 #define RADIUS_MID		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MID   : CORNER_RADIUS_NONE)
-#define RADIUS_SMALL	(g_settings.theme.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
+#define RADIUS_SMALL		(g_settings.theme.rounded_corners ? CORNER_RADIUS_SMALL : CORNER_RADIUS_NONE)
 #define RADIUS_MIN		(g_settings.theme.rounded_corners ? CORNER_RADIUS_MIN   : CORNER_RADIUS_NONE)
 #define RADIUS_NONE		0
 
@@ -1221,7 +1323,7 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 
 #define SCROLLBAR_WIDTH		(OFFSET_INNER_MID + 2*OFFSET_INNER_MIN)
 
-#define FRAME_WIDTH_MIN		CFrameBuffer::getInstance()->scale2Res(2)
+#define FRAME_WIDTH_MIN		1
 #define FRAME_WIDTH_NONE	0
 
 #define DETAILSLINE_WIDTH	CFrameBuffer::getInstance()->scale2Res(16)
