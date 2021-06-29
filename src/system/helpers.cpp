@@ -470,8 +470,11 @@ bool exec_controlscript(std::string script)
 bool exec_initscript(std::string script, std::string command, std::string system_command)
 {
 	const char* user = getenv("USER");
-	if (strncmp("root", user, 4))
-		dprintf(DEBUG_NORMAL, "[helpers] [%s - %d] NOTE: current user %s is not root!\n", __func__, __LINE__, user);
+	if (user != NULL)
+	{
+		if (strncmp("root", user, 4))
+			dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] NOTE: current user %s is not root!\n", __func__, __LINE__, user);
+	}
 
 	int ret = 1;
 	if (system_command == "service")
