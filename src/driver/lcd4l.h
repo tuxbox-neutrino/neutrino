@@ -8,6 +8,7 @@
 	Homepage: http://www.neutrino-images.de/
 
 	Copyright (C) 2016-2019 'TangoCash'
+	Copyright (C) 2021, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -32,7 +33,7 @@
 
 #include <string>
 #include <thread>
-
+#include <sigc++/signal.h>
 
 class CLCD4l
 {
@@ -75,6 +76,16 @@ class CLCD4l
 			START_LCD4L 	= 1,
 			RELOAD_LCD4L	= 2
 		};
+
+		// use signal/slot handlers
+		// That is helping to keep the GUI code away from code inside ./src/driver.
+		sigc::signal<void> 	OnBeforeRestart,
+					OnAfterRestart,
+					OnBeforeStart,
+					OnAfterStart,
+					OnBeforeStop,
+					OnAfterStop;
+
 	private:
 		std::thread	*thrLCD4l;
 		static void	*LCD4lProc(void *arg);

@@ -7,7 +7,8 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Modded    (C) 2016 'TangoCash'
+	Modded	  (C) 2016 'TangoCash'
+		  (C) 2021, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -22,16 +23,16 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
 #ifndef __lcd4l_setup__
 #define __lcd4l_setup__
 
-#include <gui/widget/menue.h>
+#include "gui/widget/menue.h"
+#include "gui/widget/hintbox.h"
+#include <sigc++/signal.h>
 
 class CLCD4lSetup : public CMenuTarget, CChangeObserver
 {
@@ -45,12 +46,20 @@ class CLCD4lSetup : public CMenuTarget, CChangeObserver
 		int show();
 		int showTypeSetup();
 
+		//messages
+		CHint *hint;
+		void removeHint();
+		void showHint(const std::string &text);
+		//slots
+		sigc::slot<void> sl_start, sl_stop, sl_restart, sl_remove;
+
 	public:
 		static CLCD4lSetup* getInstance();
 		CLCD4lSetup();
 		~CLCD4lSetup();
 		int exec(CMenuTarget *parent, const std::string &actionkey);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
+		void connectSlots();
 };
 
 #endif

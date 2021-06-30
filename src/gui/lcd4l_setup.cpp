@@ -7,7 +7,8 @@
 	Copyright (C) 2012-2018 'vanhofen'
 	Homepage: http://www.neutrino-images.de/
 
-	Modded    (C) 2016 'TangoCash'
+	Modded	  (C) 2016 'TangoCash'
+		  (C) 2021, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -22,9 +23,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -87,15 +86,24 @@ const CMenuOptionChooser::keyval LCD4L_SKIN_OPTIONS[] =
 };
 #define LCD4L_SKIN_OPTION_COUNT (sizeof(LCD4L_SKIN_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
+using namespace sigc;
+
 CLCD4lSetup::CLCD4lSetup()
 {
 	width = 40;
-
+	hint = NULL;
 	lcd4l_display_type_changed = false;
+
+	sl_start = bind(mem_fun(*this, &CLCD4lSetup::showHint), "Starting lcd service...");
+	sl_stop = bind(mem_fun(*this, &CLCD4lSetup::showHint), "Stopping lcd service...");
+	sl_restart = bind(mem_fun(*this, &CLCD4lSetup::showHint), "Restarting lcd service...");
+	sl_remove = mem_fun(*this, &CLCD4lSetup::removeHint);
+	connectSlots();
 }
 
 CLCD4lSetup::~CLCD4lSetup()
 {
+	removeHint();
 }
 
 CLCD4lSetup* CLCD4lSetup::getInstance()
@@ -291,4 +299,33 @@ int CLCD4lSetup::showTypeSetup()
 	typeSetup->addItem(nc);
 
 	return typeSetup->exec(NULL, "");
+}
+
+void CLCD4lSetup::showHint(const std::string &text)
+{
+	removeHint();
+	hint = new CHint(text.c_str());
+	hint->paint();
+
+}
+
+void CLCD4lSetup::removeHint()
+{
+	if (hint)
+	{
+		hint->hide();
+		delete hint;
+		hint = NULL;
+	}
+}
+
+void CLCD4lSetup::connectSlots()
+{
+	CLCD4l::getInstance()->OnBeforeStart.connect(sl_start);
+	CLCD4l::getInstance()->OnBeforeStop.connect(sl_stop);
+	CLCD4l::getInstance()->OnBeforeRestart.connect(sl_restart);
+
+	CLCD4l::getInstance()->OnAfterStart.connect(sl_remove);
+	CLCD4l::getInstance()->OnAfterStop.connect(sl_remove);
+	CLCD4l::getInstance()->OnAfterRestart.connect(sl_remove);
 }
