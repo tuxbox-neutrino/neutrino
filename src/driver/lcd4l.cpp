@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <iomanip>
+#include <system/set_threadname.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -298,6 +299,7 @@ void CLCD4l::Init()
 void *CLCD4l::LCD4lProc(void *arg)
 {
 	CLCD4l *PLCD4l = static_cast<CLCD4l *>(arg);
+	set_threadname("lcd4l");
 	PLCD4l->Init();
 
 	sleep(5); //please wait !
