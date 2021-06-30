@@ -3007,7 +3007,7 @@ void CZapitSdtMonitor::run()
 			bool updated = CServiceManager::getInstance()->SaveCurrentServices(tpid);
 			CServiceManager::getInstance()->CopyCurrentServices(tpid);
 
-			if(updated && (CZapit::getInstance()->GetScanSDT() == 1))
+			if(updated && (CZapit::getInstance()->GetScanSDT()))
 				CZapit::getInstance()->SendEvent(CZapitClient::EVT_SDT_CHANGED);
 			if(!updated)
 				printf("[sdt monitor] no changes.\n");

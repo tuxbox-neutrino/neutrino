@@ -215,8 +215,8 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 
 	sidpmt = pat.getSids();
 	//Update form PAT if SDT is empty
-	bool ScanSDT = CZapit::getInstance()->GetScanSDT();//check for normal scan withot ScanSDT
-	if(ScanSDT && !sdt_read && !sidpmt.empty() && (pat_tsid == transport_stream_id || (transport_stream_id == 0 && pat_tsid > 1 ))){
+	int ScanSDT = CZapit::getInstance()->GetScanSDT();//check for normal scan without ScanSDT-PMT
+	if(ScanSDT == 2 && !sdt_read && !sidpmt.empty() && (pat_tsid == transport_stream_id || (transport_stream_id == 0 && pat_tsid > 1 ))){
 		bool  ret = false;
 		for (std::map<int,int>::iterator patit=sidpmt.begin(); patit!=sidpmt.end(); ++patit){
 			if(patit->first != 0 && patit->second != 0){
@@ -322,7 +322,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 			}
 		}
 	}
-	if(ScanSDT && pat_tsid == transport_stream_id){
+	if(ScanSDT == 2 && pat_tsid == transport_stream_id){
 		for (std::map<int,int>::iterator patit=sidpmt.begin(); patit!=sidpmt.end(); ++patit){
 			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid()){
 				failed = true;

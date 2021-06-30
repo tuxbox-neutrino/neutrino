@@ -269,6 +269,9 @@ channellist.additional_on ein
 channellist.additional_on_minitv ein (mit MiniTV)
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
+channellist.enablesdt_off aus
+channellist.enablesdt_on ein
+channellist.enablesdt_on_extended ein (mit PMT)
 channellist.epgtext_align_left links
 channellist.epgtext_align_right rechts
 channellist.extended Sendungsfortschritt anzeigen
