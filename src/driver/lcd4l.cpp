@@ -161,7 +161,7 @@ void CLCD4l::StartLCD4l()
 		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] thread [%p] is running\033[0m\n", __func__, __LINE__, thrLCD4l);
 	}
 	if (g_settings.lcd4l_support)
-		exec_initscript("lcd4linux", "start");
+		exec_initscript("lcd4linux", "start", "systemctl");
 }
 
 void CLCD4l::StopLCD4l()
@@ -178,7 +178,7 @@ void CLCD4l::StopLCD4l()
 		thrLCD4l = NULL;
 		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] thread [%p] terminated\033[0m\n", __func__, __LINE__, thrLCD4l);
 	}
-	exec_initscript("lcd4linux", "stop");
+	exec_initscript("lcd4linux", "stop", "systemctl");
 }
 
 void CLCD4l::SwitchLCD4l()
@@ -298,7 +298,6 @@ void CLCD4l::Init()
 void *CLCD4l::LCD4lProc(void *arg)
 {
 	CLCD4l *PLCD4l = static_cast<CLCD4l *>(arg);
-
 	PLCD4l->Init();
 
 	sleep(5); //please wait !
@@ -341,11 +340,6 @@ void *CLCD4l::LCD4lProc(void *arg)
 			PLCD4l->WriteFile(FLAG_LCD4LINUX);
 			FirstRun = false;
 		}
-
-		if (!g_settings.lcd4l_support) //off
-			lcd4linux(false);
-		else
-			lcd4linux(true);
 	}
 	return 0;
 }
@@ -543,6 +537,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_Tuner = Tuner;
 		}
 	}
+
 	/* ----------------------------------------------------------------- */
 
 	int Volume = g_settings.current_volume;
@@ -872,7 +867,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			WriteFile(LAYOUT, Layout);
 			m_Layout = Layout;
 			if (!firstRun)
-				exec_initscript("lcd4linux", "reload");
+				exec_initscript("lcd4linux", "restart", "systemctl");
 		}
 	}
 
@@ -1264,48 +1259,59 @@ std::string CLCD4l::hexStrA2A(unsigned char data)
 	return std::string(hexstr);
 }
 
-void CLCD4l::lcd4linux(bool run)
+void CLCD4l::lcd4linux(int run)
 {
-	const char *buf = "lcd4linux";
+	const char *lcd4lbin = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";
-	std::string lcd4l_bin = find_executable(buf);
+	const std::string systemd_cmd = "systemctl";
+	std::string lcd4lbin_path = find_executable(lcd4lbin);
 	bool isPNG;
 
 	chmod(conf,0x600);
 	chown(conf,0,0);
 
-	if (run == true)
-	{
-		switch (g_settings.lcd4l_display_type)
-		{
-			case CLCD4l::PNG800x480:
-			case CLCD4l::PNG800x600:
-			case CLCD4l::PNG1024x600:
-				isPNG = true;
-				break;
-			default:
-				isPNG = false;
-				break;
-		}
+	int lcd4_pid = getpidof(lcd4lbin);
 
-		if (isPNG)
+	if (run == START_LCD4L)
+	{
+		if (lcd4_pid == 0)
 		{
-			if (my_system(3, lcd4l_bin.c_str(), "-o", PNGFILE) != 0)
-				printf("[CLCD4l] %s: executing '%s -o %s' failed\n", __FUNCTION__, lcd4l_bin.c_str(), PNGFILE);
-		} else {
-			if (my_system(1, lcd4l_bin.c_str()) != 0)
-				printf("[CLCD4l] %s: executing '%s' failed\n", __FUNCTION__, lcd4l_bin.c_str());
+			switch (g_settings.lcd4l_display_type)
+			{
+				case CLCD4l::PNG800x480:
+				case CLCD4l::PNG800x600:
+				case CLCD4l::PNG1024x600:
+					isPNG = true;
+					break;
+				default:
+					isPNG = false;
+					break;
+			}
+
+			if (isPNG)
+			{
+				if (my_system(3, lcd4lbin_path.c_str(), "-o", PNGFILE) != 0)
+					dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] executing '%s -o %s' failed \033[0m\n", __func__, __LINE__, lcd4lbin, PNGFILE);
+			}
+			else
+			{
+				if (exec_initscript(lcd4lbin, "start", systemd_cmd) != 0)
+					dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s start failed \033[0m\n", __func__, __LINE__, lcd4lbin);
+			}
+			sleep(2);
 		}
-		sleep(2);
+	}
+	else if (run == RELOAD_LCD4L)
+	{
+		if (exec_initscript(lcd4lbin, "reload", systemd_cmd) != 0)
+			dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s reload failed \033[0m\n", __func__, __LINE__, lcd4lbin);
 	}
 	else
 	{
-		if (file_exists(PIDFILE))
+		if (lcd4_pid)
 		{
-			if (my_system(3, "killall", "-9", buf) != 0)
-				printf("[CLCD4l] %s: terminating '%s' failed\n", __FUNCTION__, buf);
+			if (exec_initscript(lcd4lbin, "stop", systemd_cmd) != 0)
+				dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s stop failed \033[0m\n", __func__, __LINE__, lcd4lbin);
 		}
-		else
-			dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s is not running \033[0m\n", __func__, __LINE__,lcd4l_bin.c_str());
 	}
 }

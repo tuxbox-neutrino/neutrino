@@ -67,7 +67,14 @@ class CLCD4l
 		int	GetMaxBrightness();
 
 		void	ResetParseID() { m_ParseID = 0; }
-		static void lcd4linux(bool run);
+
+		static void lcd4linux(int run);
+		enum
+		{
+			STOP_LCD4L 	= 0,
+			START_LCD4L 	= 1,
+			RELOAD_LCD4L	= 2
+		};
 	private:
 		std::thread	*thrLCD4l;
 		static void	*LCD4lProc(void *arg);
