@@ -356,9 +356,6 @@ uint8_t CSdt::FixServiceType(uint8_t type)
 			(type == 0x82) || (type == 0x87) || (type == 0xd3))
 		return ST_DIGITAL_TELEVISION_SERVICE;
 
-	if(type == 0x0A)
-		return ST_DIGITAL_RADIO_SOUND_SERVICE;
-
 	return type;
 }
 
@@ -368,14 +365,22 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	if(SID)
 		printf("=================== PAT: sid %04x ===================\n",SID);
 #endif
-	uint8_t service_type = SID ? 1 : FixServiceType(sd->getServiceType());
-	uint8_t real_type = SID ? 1 : sd->getServiceType();
+	uint8_t service_type_tmp = ST_DIGITAL_TELEVISION_SERVICE;
+	if(sd){
+		service_type_tmp = sd->getServiceType();
+		if(service_type_tmp == ST_DIGITAL_RADIO_SOUND_SERVICE || service_type_tmp == 0x0A){
+			service_type_tmp = ST_DIGITAL_RADIO_SOUND_SERVICE;//change real radio type to 2
+		}
+	}
+
+	uint8_t service_type = FixServiceType(service_type_tmp);
+	uint8_t real_type = service_type_tmp;
 	t_service_id service_id = SID ? SID : service->getServiceId();
 	bool free_ca = SID ? 1 : service->getFreeCaMode();
 
 	int tsidonid = (transport_stream_id << 16) | original_network_id;
-	std::string providerName = SID ? "" :  stringDVBUTF8(sd->getServiceProviderName(), 0, tsidonid);
-	std::string serviceName = SID ? "" : stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
+	std::string providerName = (SID && !sd) ? "" :  stringDVBUTF8(sd->getServiceProviderName(), 0, tsidonid);
+	std::string serviceName = (SID && !sd) ? "" : stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
 
 #ifdef DEBUG_SDT_SERVICE
 	printf("[SDT] sid %04x type %x provider [%s] service [%s] scrambled %d\n", service_id, sd->getServiceType(),
