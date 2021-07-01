@@ -368,7 +368,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	uint8_t service_type_tmp = ST_DIGITAL_TELEVISION_SERVICE;
 	if(sd){
 		service_type_tmp = sd->getServiceType();
-		if(service_type_tmp == ST_DIGITAL_RADIO_SOUND_SERVICE || service_type_tmp == 0x0A){
+		if(service_type_tmp == 0x0A){
 			service_type_tmp = ST_DIGITAL_RADIO_SOUND_SERVICE;//change real radio type to 2
 		}
 	}
