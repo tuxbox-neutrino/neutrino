@@ -354,7 +354,11 @@ uint8_t CSdt::FixServiceType(uint8_t type)
 			(type==0xc5) || (type==0xc6)  || (type == 0x11) ||
 			(type == 0x16) || (type == 0x19) || (type == 0x1f) ||
 			(type == 0x82) || (type == 0x87) || (type == 0xd3))
-		return 1;
+		return ST_DIGITAL_TELEVISION_SERVICE;
+
+	if(type == 0x0A)
+		return ST_DIGITAL_RADIO_SOUND_SERVICE;
+
 	return type;
 }
 
