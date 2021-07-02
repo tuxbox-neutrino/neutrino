@@ -1241,7 +1241,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.infobar_casystem_frame = configfile.getInt32("infobar_casystem_frame", 0);
 	g_settings.infobar_progressbar = configfile.getInt32("infobar_progressbar", 2);
 	g_settings.infobar_sat_display = configfile.getBool("infobar_sat_display", true);
-	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 0));
+	g_settings.infobar_show = configfile.getInt32("infobar_show", 0);
 	g_settings.infobar_show_channeldesc = configfile.getBool("infobar_show_channeldesc", false);
 	g_settings.infobar_show_channellogo = configfile.getInt32("infobar_show_channellogo", 5);
 	g_settings.infobar_show_dd_available = configfile.getInt32("infobar_show_dd_available", 1);
@@ -1327,9 +1327,11 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	if (!erg)
 	{
-		// fix wrong entry
+		// fix wrong entries
 		if (g_settings.version_pseudo == "20213103000000")
 			g_settings.version_pseudo = "20210331000000";
+		else if (g_settings.version_pseudo == "20212804200000")
+			g_settings.version_pseudo = "20210428200000";
 
 		if (g_settings.version_pseudo < NEUTRINO_VERSION_PSEUDO)
 			upgradeSetup(fname);
@@ -1578,6 +1580,11 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	{
 		g_settings.recording_type = CNeutrinoApp::RECORDING_FILE;
 	}
+	if (g_settings.version_pseudo < "20210702230000")
+	{
+		configfile.deleteKey("infobar_cn");
+	}
+
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
