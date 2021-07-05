@@ -31,17 +31,17 @@
 
 #include <string>
 
-const char *mdev_env[] = 
+const char *mdev_env[] =
 {
-	"ACTION" ,
-	"MDEV" ,
-	"DEVPATH" ,
+	"ACTION",
+	"MDEV",
+	"DEVPATH",
 	"INTERFACE",
 	"DEVNAME",
 	NULL /* terminating entry */
 };
 
-int main (int /*argc*/, char **argv)
+int main(int /*argc*/, char **argv)
 {
 	struct sockaddr_un servaddr;
 	int clilen, sock_fd;
@@ -58,19 +58,21 @@ int main (int /*argc*/, char **argv)
 		exit(1);
 	}
 
-	if (connect(sock_fd, (struct sockaddr*) &servaddr, clilen) < 0)
+	if (connect(sock_fd, (struct sockaddr *) &servaddr, clilen) < 0)
 	{
 		perror("error connect socket " NEUTRINO_UDS_NAME);
 		goto _error;
 	}
 
-	for (unsigned i = 0; mdev_env[i]; i++) {
-		char * s = getenv(mdev_env[i]);
+	for (unsigned i = 0; mdev_env[i]; i++)
+	{
+		char *s = getenv(mdev_env[i]);
 		if (s)
 			data += std::string(mdev_env[i]) + "=" + s + " ";
 	}
 
-	if (data.empty()) {
+	if (data.empty())
+	{
 		printf("%s: env data empty\n", argv[0]);
 		goto _error;
 	}
@@ -81,12 +83,14 @@ int main (int /*argc*/, char **argv)
 	head.initiatorID = CEventServer::INITID_NEUTRINO;
 	head.dataSize = data.size() + 1;
 
-	if (write(sock_fd, &head, sizeof(head)) != sizeof(head)) {
+	if (write(sock_fd, &head, sizeof(head)) != sizeof(head))
+	{
 		perror("write event");
 		goto _error;
 	}
 
-	if (write(sock_fd, data.c_str(), head.dataSize) != (ssize_t) head.dataSize) {
+	if (write(sock_fd, data.c_str(), head.dataSize) != (ssize_t) head.dataSize)
+	{
 		perror("write data");
 		goto _error;
 	}
