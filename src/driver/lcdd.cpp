@@ -660,7 +660,8 @@ void CLCD::showRCLock(int duration)
 
 void CLCD::showVolume(const char vol, const bool perform_update)
 {
-	volume = vol;
+	setVolume(vol);
+
 	if (
 	    ((mode == MODE_TVRADIO) && (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) ||
 	    ((mode == MODE_MOVIE) && (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) ||
@@ -692,6 +693,14 @@ void CLCD::showVolume(const char vol, const bool perform_update)
 		  displayUpdate();
 	}
 	wake_up();
+}
+
+void CLCD::setVolume(const char vol)
+{
+	if (vol == volume)
+		return;
+
+	volume = vol;
 }
 
 void CLCD::showPercentOver(const unsigned char perc, const bool perform_update, const MODES m)

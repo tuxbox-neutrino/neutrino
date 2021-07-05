@@ -395,14 +395,11 @@ void CLCD::showVolume(const char vol, const bool update)
 	const int type = (g_info.hw_caps->display_xres < 5) + (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM);
 	const char *vol_fmt[] = { "Vol:%3d%%", "%4d", "%4d" };
 	const char *mutestr[] = { "Vol:MUTE", "mute", " -0-"};
+
 	if (vol == volume && update)
 		return;
-	volume = vol;
-	/* char is unsigned, so vol is never < 0 */
-	if (volume > 100)
-		volume = 100;
 
-	ShowIcon(FP_ICON_MUTE, muted);
+	setVolume(vol);
 
 	if (muted)
 	{
@@ -420,10 +417,22 @@ void CLCD::showVolume(const char vol, const bool update)
 	}
 
 	ShowText(s);
+	vol_active = true;
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	wake_up();
 #endif
-	vol_active = true;
+}
+
+void CLCD::setVolume(const char vol)
+{
+	if (vol == volume)
+		return;
+
+	volume = vol;
+
+	/* char is unsigned, so volume is never < 0 */
+	if (volume > 100)
+		volume = 100;
 }
 
 void CLCD::showPercentOver(const unsigned char /*perc*/, const bool /*perform_update*/, const MODES)
@@ -662,7 +671,13 @@ void CLCD::setMuted(bool mu)
 {
 	printf("CLCD::%s %d\n", __func__, mu);
 	muted = mu;
-	showVolume(volume, false);
+	if (muted)
+		showVolume(volume, false);
+	ShowIcon(FP_ICON_MUTE, muted);
+
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	wake_up();
+#endif
 }
 
 void CLCD::resume()

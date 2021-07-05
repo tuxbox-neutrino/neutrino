@@ -421,11 +421,10 @@ void CVFD::showVolume(const char vol, const bool force_update)
 	static int oldpp = 0;
 	if(!has_lcd) return;
 
-	ShowIcon(FP_ICON_MUTE, muted);
-
-	if(!force_update && vol == volume)
+	if (vol == volume && !force_update)
 		return;
-	volume = vol;
+
+	setVolume(vol);
 
 	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 2 /* off */)
 		return;
@@ -455,6 +454,18 @@ printf("CVFD::showVolume: %d, bar %d\n", (int) vol, pp);
 			oldpp = pp;
 		}
 	}
+}
+
+void CVFD::setVolume(const char vol)
+{
+	if (vol == volume)
+		return;
+
+	volume = vol;
+
+	/* char is unsigned, so volume is never < 0 */
+	if (volume > 100)
+		volume = 100;
 }
 
 void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update*/, const MODES origin)
@@ -741,7 +752,9 @@ void CVFD::setMuted(bool mu)
 {
 	if(!has_lcd) return;
 	muted = mu;
-	showVolume(volume);
+	if (muted)
+		showVolume(volume);
+	ShowIcon(FP_ICON_MUTE, muted);
 }
 
 void CVFD::resume()
