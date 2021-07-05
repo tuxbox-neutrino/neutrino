@@ -5031,7 +5031,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 #ifdef ENABLE_GRAPHLCD
 		cGLCD::StandbyMode(true);
 #endif
-		CVFD::getInstance()->ShowText("standby...");
+		CVFD::getInstance()->ShowText("Standby ...");
 		if( mode == NeutrinoModes::mode_avinput ) {
 		}
 		g_InfoViewer->setUpdateTimer(0); // delete timer
