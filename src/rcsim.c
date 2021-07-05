@@ -75,11 +75,12 @@ enum initiators
 
 #include "rcsim.h"
 
-void usage(char *n){
-	unsigned int keynum = sizeof(keyname)/sizeof(struct key);
+void usage(char *n)
+{
+	unsigned int keynum = sizeof(keyname) / sizeof(struct key);
 	unsigned int i;
 #if defined (EVENTDEV)
-	printf ("rcsim v1.2\nUsage: %s <keyname> [<time>] [<repeat>]\n"
+	printf("rcsim v1.2\nUsage: %s <keyname> [<time>] [<repeat>]\n"
 		"    <keyname> is an excerpt of the 'KEY_FOO'-names in <driver/rcinput.h>,\n"
 		"    <time>    is how long a code is repeatedly sent,\n"
 		"              unit is seconds, default is 0 = sent only once\n"
@@ -91,18 +92,19 @@ void usage(char *n){
 		"             ; KEY_1 sent once\n"
 		"        %s KEY_OK 2 250\n"
 		"             ; KEY_OK sent every 250ms for 2 seconds\n\n"
-		"    Keys:",n,n,n);
+		"    Keys:", n, n, n);
 #else
-	printf ("rcsim v1.2\nUsage: %s <keyname>\n\n"
-		"    Keys:",n);
+	printf("rcsim v1.2\nUsage: %s <keyname>\n\n"
+		"    Keys:", n);
 #endif
-	for (i=0;i<keynum;){
+	for (i = 0; i < keynum;)
+	{
 		if ((i % 4) == 0)
-			printf ("\n    %-20s",keyname[i++].name);
+			printf("\n    %-20s", keyname[i++].name);
 		else
-			printf ("%-20s",keyname[i++].name);
+			printf("%-20s", keyname[i++].name);
 	}
-	printf ("\n\n");
+	printf("\n\n");
 }
 
 /* we could also use the neutrino socket on the dbox, but this needs more testing.
@@ -111,10 +113,10 @@ void usage(char *n){
 int push(int ev, unsigned int code, unsigned int value)
 {
 	struct input_event iev;
-	iev.type=EV_KEY;
-	iev.code=code;
-	iev.value=value;
-	return write (ev,&iev,sizeof(iev));
+	iev.type = EV_KEY;
+	iev.code = code;
+	iev.value = value;
+	return write(ev, &iev, sizeof(iev));
 }
 #else
 int push(int ev, unsigned int code, unsigned int value)
@@ -141,7 +143,7 @@ int push(int ev, unsigned int code, unsigned int value)
 		return fd;
 	}
 
-	if (connect(fd, (struct sockaddr*) &servaddr, clilen) < 0)
+	if (connect(fd, (struct sockaddr *) &servaddr, clilen) < 0)
 	{
 		errmsg = "connect " NEUTRINO_SOCKET;
 		goto error;
@@ -173,81 +175,94 @@ int push(int ev, unsigned int code, unsigned int value)
 	close(fd);
 	return 0;
 
- error:
+error:
 	perror(errmsg);
 	close(fd);
 	return -1;
 }
 #endif
 
-int main (int argc, char **argv){
+int main(int argc, char **argv)
+{
 	int evd;
-	unsigned long sendcode=KEY_0;
-	unsigned int keys = sizeof(keyname)/sizeof(struct key);
-	unsigned long rctime=0;
-	unsigned long reptime=500;
+	unsigned long sendcode = KEY_0;
+	unsigned int keys = sizeof(keyname) / sizeof(struct key);
+	unsigned long rctime = 0;
+	unsigned long reptime = 500;
 	unsigned int offset;
 
-	if (argc<2||argc>4){
+	if (argc < 2 || argc > 4)
+	{
 		usage(argv[0]);
 		return 1;
 	}
 
-	if (argc==2)
-		if (!strncmp(argv[1],"--help",6)||!strncmp(argv[1],"-h",2)){
+	if (argc == 2)
+		if (!strncmp(argv[1], "--help", 6) || !strncmp(argv[1], "-h", 2))
+		{
 			usage(argv[0]);
 			return 1;
 		}
 
-	for (offset=0;offset<keys;offset++){
-		if (!strcmp(argv[1],keyname[offset].name)){
+	for (offset = 0; offset < keys; offset++)
+	{
+		if (!strcmp(argv[1], keyname[offset].name))
+		{
 			sendcode = keyname[offset].code;
 			break;
 		}
 	}
 
-	if (offset==keys){
-		printf ("keyname '%s' not found in list\n",argv[1]);
+	if (offset == keys)
+	{
+		printf("keyname '%s' not found in list\n", argv[1]);
 		return 1;
 	}
 
-	if (argc==4){
-		reptime=atol (argv[3]);
+	if (argc == 4)
+	{
+		reptime = atol(argv[3]);
 	}
 
-	if (argc>=3){
-		rctime=(atol (argv[2])*1000)/reptime;
+	if (argc >= 3)
+	{
+		rctime = (atol(argv[2]) * 1000) / reptime;
 	}
 
 #if defined (EVENTDEV)
-	evd=open (EVENTDEV,O_RDWR);
-	if (evd<0){
-		perror ("opening " EVENTDEV " failed");
+	evd = open(EVENTDEV, O_RDWR);
+	if (evd < 0)
+	{
+		perror("opening " EVENTDEV " failed");
 		return 1;
 	}
 #else
 	evd = -1; // close(-1) does not harm... ;)
 #endif
-	printf ("sending key %s for %ld seconds\n",keyname[offset].name,(reptime*rctime)/1000);
-	if (push (evd,sendcode,KEY_PRESSED)<0){
-		perror ("writing 'key_pressed' event failed");
-		close (evd);
+	printf("sending key %s for %ld seconds\n", keyname[offset].name, (reptime * rctime) / 1000);
+	if (push(evd, sendcode, KEY_PRESSED) < 0)
+	{
+		perror("writing 'key_pressed' event failed");
+		close(evd);
 		return 1;
 	}
-	while (rctime--){
-		usleep(reptime*1000);
-		if (push (evd,sendcode,KEY_AUTOREPEAT)<0){
-			perror ("writing 'key_autorepeat' event failed");
-			close (evd);
+	while (rctime--)
+	{
+		usleep(reptime * 1000);
+		if (push(evd, sendcode, KEY_AUTOREPEAT) < 0)
+		{
+			perror("writing 'key_autorepeat' event failed");
+			close(evd);
 			return 1;
 		}
 	}
-	if (push (evd,sendcode,KEY_RELEASED)<0){
-		perror ("writing 'key_released' event failed");
-		close (evd);
+	if (push(evd, sendcode, KEY_RELEASED) < 0)
+	{
+		perror("writing 'key_released' event failed");
+		close(evd);
 		return 1;
 	}
-	close (evd);
+	close(evd);
 	return 0;
 }
 
