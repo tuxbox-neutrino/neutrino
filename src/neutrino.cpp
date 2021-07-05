@@ -5028,6 +5028,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	lockStandbyCall = true;
 
 	if( bOnOff ) {
+		// set standby flag
+		if (FILE *f = fopen("/tmp/.standby", "w"))
+			fclose(f);
+
 #ifdef ENABLE_GRAPHLCD
 		cGLCD::StandbyMode(true);
 #endif
@@ -5186,6 +5190,11 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_Sectionsd->setPauseScanning(false);
 
 		InfoClock->enableInfoClock(true);
+
+
+		// remove standby flag
+		if (access("/tmp/.standby", F_OK) == 0)
+			unlink("/tmp/.standby");
 
 		g_audioMute->AudioMute(current_muted, true);
 		StartSubtitles();
