@@ -794,7 +794,7 @@ void CLCD::SetIcons(int, bool)
 
 void CLCD::ShowDiskLevel()
 {
-#if !HAVE_GENERIC_HARDWARE && !HAVE_ARM_HARDWARE && !HAVE_MIPS_HARDWARE
+#if HAVE_SPARK_HARDWARE
 	int hdd_icons[9] ={24, 23, 21, 20, 19, 18, 17, 16, 22};
 	int percent, digits, i, j;
 	uint64_t t, u;
@@ -820,6 +820,15 @@ void CLCD::ShowDiskLevel()
 		SetIcons(SPARK_HDD, false);
 
 	}
+#else
+	int percent = 0;
+	uint64_t t, u;
+	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
+	{
+		percent = (int)((u * 100ULL) / t);
+		//printf("CLCD::%s %d\n", __func__, percent);
+		proc_put("/proc/stb/lcd/symbol_hddprogress", percent);
+	}
 #endif
 }
 void CLCD::UpdateIcons()
@@ -830,7 +839,6 @@ void CLCD::UpdateIcons()
 	SetIcons(SPARK_CAB, aktFE->isCable(aktFE->getCurrentDeliverySystem()));
 	SetIcons(SPARK_TER, aktFE->isTerr(aktFE->getCurrentDeliverySystem()));
 
-	ShowDiskLevel();
 	SetIcons(SPARK_USB, usb_icon);
 #endif
 #if HAVE_SPARK_HARDWARE || HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
@@ -846,6 +854,7 @@ void CLCD::UpdateIcons()
 			SetIcons(SPARK_MP3, chan->getAudioChannel()->audioChannelType == CZapitAudioChannel::MPEG);
 		}
 	}
+	ShowDiskLevel();
 #endif
 }
 
