@@ -405,14 +405,14 @@ int CNeutrinoApp::loadSetup(const char *fname)
 #endif
 
 #ifdef ENABLE_LCD4LINUX
-	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support" , 0);
-	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", LOGODIR);
-	g_settings.lcd4l_display_type = configfile.getInt32("lcd4l_display_type", 0);
-	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin", 0);
-	g_settings.lcd4l_skin_radio = configfile.getInt32("lcd4l_skin_radio", 0);
 	g_settings.lcd4l_brightness = configfile.getInt32("lcd4l_brightness", 7);
 	g_settings.lcd4l_brightness_standby = configfile.getInt32("lcd4l_brightness_standby", 3);
 	g_settings.lcd4l_convert = configfile.getInt32("lcd4l_convert", 1);
+	g_settings.lcd4l_display_type = configfile.getInt32("lcd4l_display_type", 0);
+	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", LOGODIR);
+	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin" , 0);
+	g_settings.lcd4l_skin_radio = configfile.getInt32("lcd4l_skin_radio" , 0);
+	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support" , 0);
 #endif
 
 	g_settings.mode_icons = configfile.getInt32("mode_icons", 0);
@@ -457,8 +457,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_SD_RGB_SCART); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_SD_YPRPB_CINCH); // default YPBPR
 #endif
-	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
+	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 
 	// hdmi cec
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0);
@@ -475,22 +475,22 @@ int CNeutrinoApp::loadSetup(const char *fname)
 #endif
 
 	// volume
-	g_settings.current_volume = configfile.getInt32("current_volume", 75);
-	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 5);
+	g_settings.current_volume = configfile.getInt32("current_volume", 100);
+	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
 	g_settings.start_volume = configfile.getInt32("start_volume", -1);
 	if (g_settings.start_volume >= 0)
-		g_settings.current_volume = g_settings.hdmi_cec_volume ? 75 : g_settings.start_volume;
+		g_settings.current_volume = g_settings.hdmi_cec_volume ? 100 : g_settings.start_volume;
 	g_settings.audio_volume_percent_ac3 = configfile.getInt32("audio_volume_percent_ac3", 100);
 	g_settings.audio_volume_percent_pcm = configfile.getInt32("audio_volume_percent_pcm", 100);
 
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
-	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
 	g_settings.channel_mode_initial = configfile.getInt32("channel_mode_initial", LIST_MODE_FAV);
-	g_settings.channel_mode_initial_radio = configfile.getInt32("channel_mode_initial_radio", LIST_MODE_FAV);
 	if (g_settings.channel_mode_initial > -1)
 		g_settings.channel_mode = g_settings.channel_mode_initial;
+	g_settings.channel_mode_initial_radio = configfile.getInt32("channel_mode_initial_radio", LIST_MODE_FAV);
 	if (g_settings.channel_mode_initial_radio > -1)
 		g_settings.channel_mode_radio = g_settings.channel_mode_initial_radio;
+	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
 
 	g_settings.fan_speed = configfile.getInt32("fan_speed", 1);
 	if (g_settings.fan_speed < 1)
@@ -498,7 +498,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	g_settings.srs_enable = configfile.getInt32("srs_enable", 0);
 	g_settings.srs_algo = configfile.getInt32("srs_algo", 1);
-	g_settings.srs_ref_volume = configfile.getInt32("srs_ref_volume", 75);
+	g_settings.srs_ref_volume = configfile.getInt32("srs_ref_volume", 40);
 	g_settings.srs_nmgr_enable = configfile.getInt32("srs_nmgr_enable", 0);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	g_settings.ac3_pass = configfile.getInt32("ac3_pass", 0);
@@ -598,21 +598,21 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	// lcd/led
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
-	g_settings.lcd_setting_dim_time = configfile.getString("lcd_dim_time", "0");
-	g_settings.lcd_setting_dim_brightness = configfile.getInt32("lcd_dim_brightness", 0);
-	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0); //channel name or clock
-	g_settings.lcd_scroll = configfile.getInt32("lcd_scroll", 1);
+	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
 	g_settings.lcd_notify_rclock = configfile.getInt32("lcd_notify_rclock", 1);
+	g_settings.lcd_scroll = configfile.getInt32("lcd_scroll", 1);
+	g_settings.lcd_setting_dim_brightness = configfile.getInt32("lcd_dim_brightness", 0);
+	g_settings.lcd_setting_dim_time = configfile.getString("lcd_dim_time","0");
 
-	g_settings.backlight_tv = configfile.getInt32("backlight_tv", 1);
-	g_settings.backlight_standby = configfile.getInt32("backlight_standby", 0);
 	g_settings.backlight_deepstandby = configfile.getInt32("backlight_deepstandby", 0);
+	g_settings.backlight_standby = configfile.getInt32("backlight_standby", 0);
+	g_settings.backlight_tv = configfile.getInt32("backlight_tv", 1);
 
-	g_settings.led_tv_mode = configfile.getInt32("led_tv_mode", 2);
-	g_settings.led_standby_mode = configfile.getInt32("led_standby_mode", 3);
+	g_settings.led_blink = configfile.getInt32("led_blink", 1);
 	g_settings.led_deep_mode = configfile.getInt32("led_deep_mode", 3);
 	g_settings.led_rec_mode = configfile.getInt32("led_rec_mode", 1);
-	g_settings.led_blink = configfile.getInt32("led_blink", 1);
+	g_settings.led_standby_mode = configfile.getInt32("led_standby_mode", 3);
+	g_settings.led_tv_mode = configfile.getInt32("led_tv_mode", 2);
 
 #ifdef BOXMODEL_CST_HD2
 	g_settings.brightness = configfile.getInt32("brightness", 0);
@@ -622,13 +622,13 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	// hdd
 	g_settings.hdd_fs = configfile.getInt32("hdd_fs", 0);
-	g_settings.hdd_sleep = configfile.getInt32("hdd_sleep", 60);
+	g_settings.hdd_sleep = configfile.getInt32("hdd_sleep", 120);
 	g_settings.hdd_noise = configfile.getInt32("hdd_noise", 254);
 	g_settings.hdd_statfs_mode = configfile.getInt32("hdd_statfs_mode", SNeutrinoSettings::HDD_STATFS_RECORDING);
-	g_settings.hdd_format_on_mount_failed = configfile.getInt32("hdd_format_on_mount_failed", 0);
-	g_settings.hdd_wakeup = configfile.getInt32("hdd_wakeup", 1);
-	g_settings.hdd_wakeup_msg = configfile.getInt32("hdd_wakeup_msg", 1);
-	g_settings.hdd_allow_set_recdir = configfile.getInt32("hdd_allow_set_recdir", 1);
+// 	g_settings.hdd_format_on_mount_failed = configfile.getInt32("hdd_format_on_mount_failed", 0);
+// 	g_settings.hdd_wakeup = configfile.getInt32("hdd_wakeup", 1);
+// 	g_settings.hdd_wakeup_msg = configfile.getInt32("hdd_wakeup_msg", 1);
+// 	g_settings.hdd_allow_set_recdir = configfile.getInt32("hdd_allow_set_recdir", 1);
 
 	// timer
 	g_settings.timer_remotebox_ip.clear();
@@ -646,16 +646,17 @@ int CNeutrinoApp::loadSetup(const char *fname)
 			timer_rb.rbaddress = configfile.getString(k, "");
 			if (timer_rb.rbaddress.empty())
 				continue;
-			k = "timer_remotebox_rbname_" + to_string(i);
-			timer_rb.rbname = configfile.getString(k, "");
-			if (timer_rb.rbname.empty())
-				timer_rb.rbname = timer_rb.rbaddress;
+			k = "timer_remotebox_port_" + to_string(i);
+			timer_rb.port = configfile.getInt32(k, 80);
 			k = "timer_remotebox_user_" + to_string(i);
 			timer_rb.user = configfile.getString(k, "");
 			k = "timer_remotebox_pass_" + to_string(i);
 			timer_rb.pass = configfile.getString(k, "");
-			k = "timer_remotebox_port_" + to_string(i);
-			timer_rb.port = configfile.getInt32(k, 80);
+			k = "timer_remotebox_rbname_" + to_string(i);
+			timer_rb.rbname = configfile.getString(k, "");
+			timer_rb.enabled = configfile.getBool("timer_remotebox_enabled_" + to_string(i), true);
+			if (timer_rb.rbname.empty())
+				timer_rb.rbname = timer_rb.rbaddress;
 
 			g_settings.timer_remotebox_ip.push_back(timer_rb);
 		}
@@ -677,7 +678,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.shutdown_count = configfile.getInt32("shutdown_count", 0);
 	if (g_info.hw_caps->can_shutdown)
 	{
-		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 0);
+		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
 		g_settings.shutdown_real = configfile.getBool("shutdown_real", false);
 	}
 	else
@@ -725,6 +726,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 				_lang = "French" ;
 				break;
 		}
+
 		sprintf(cfg_key, "pref_lang_%d", i);
 		g_settings.pref_lang[i] = configfile.getString(cfg_key, _lang);
 		sprintf(cfg_key, "pref_subs_%d", i);
@@ -736,8 +738,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.timezone = configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna");
 
 	// epg
-	g_settings.epg_dir = configfile.getString("epg_dir", "/media/sda1/epg");
 	g_settings.epg_cache = configfile.getInt32("epg_cache_time", 7);
+	g_settings.epg_dir = configfile.getString("epg_dir", "/media/sda1/epg");
 	g_settings.epg_extendedcache = configfile.getInt32("epg_extendedcache_time", 168);
 	g_settings.epg_max_events = configfile.getInt32("epg_max_events", 30000);
 	g_settings.epg_old_events = configfile.getInt32("epg_old_events", 1);
@@ -777,18 +779,18 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	for (int i = 0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
 		std::string i_str(to_string(i));
+		g_settings.network_nfs[i].dir = configfile.getString("network_nfs_dir_" + i_str, "");
 		g_settings.network_nfs[i].ip = configfile.getString("network_nfs_ip_" + i_str, "");
-		g_settings.network_nfs[i].mac = configfile.getString("network_nfs_mac_" + i_str, "11:22:33:44:55:66");
 		g_settings.network_nfs[i].local_dir = configfile.getString("network_nfs_local_dir_" + i_str, "");
 		if (g_settings.network_nfs[i].local_dir.empty())
 			g_settings.network_nfs[i].local_dir = "/mnt/mnt" + i_str;
-		g_settings.network_nfs[i].dir = configfile.getString("network_nfs_dir_" + i_str, "");
 		g_settings.network_nfs[i].automount = configfile.getInt32("network_nfs_automount_" + i_str, 0);
-		g_settings.network_nfs[i].mount_options1 = configfile.getString("network_nfs_mount_options1_" + i_str, "soft");
+		g_settings.network_nfs[i].mac = configfile.getString("network_nfs_mac_" + i_str, "11:22:33:44:55:66");
+		g_settings.network_nfs[i].mount_options1 = configfile.getString("network_nfs_mount_options1_" + i_str, "rw,soft");
 		g_settings.network_nfs[i].mount_options2 = configfile.getString("network_nfs_mount_options2_" + i_str, "nolock");
+		g_settings.network_nfs[i].password = configfile.getString("network_nfs_password_" + i_str, "");
 		g_settings.network_nfs[i].type = configfile.getInt32("network_nfs_type_" + i_str, 0);
 		g_settings.network_nfs[i].username = configfile.getString("network_nfs_username_" + i_str, "");
-		g_settings.network_nfs[i].password = configfile.getString("network_nfs_password_" + i_str, "");
 	}
 
 	g_settings.network_nfs_audioplayerdir = configfile.getString("network_nfs_audioplayerdir", "/media/sda1/music");
@@ -812,8 +814,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.recording_epg_for_filename = configfile.getBool("recording_epg_for_filename", true);
 	g_settings.recording_filename_template = configfile.getString("recordingmenu.filename_template", "%C_%T_%d_%t");
 	g_settings.recording_save_in_channeldir = configfile.getBool("recording_save_in_channeldir", false);
-	g_settings.recording_fill_warning = configfile.getInt32("recording_fill_warning", 95);
-	g_settings.recording_slow_warning = configfile.getBool("recording_slow_warning", false);
+// 	g_settings.recording_fill_warning = configfile.getInt32("recording_fill_warning", 95);
+	g_settings.recording_slow_warning = configfile.getBool("recording_slow_warning", true);
 	g_settings.recording_startstop_msg = configfile.getBool("recording_startstop_msg", true);
 	g_settings.recording_stopsectionsd = configfile.getBool("recording_stopsectionsd", false);
 	g_settings.recording_stream_pmt_pid = configfile.getBool("recordingmenu.stream_pmt_pid", false);
@@ -826,11 +828,11 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.recording_audio_pids_default = configfile.getInt32("recording_audio_pids_default", TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
 
 	// timeshift
-	g_settings.timeshiftdir = configfile.getString("timeshiftdir", "");
 	g_settings.timeshift_auto = configfile.getInt32("timeshift_auto", 0);
 	g_settings.timeshift_delete = configfile.getInt32("timeshift_delete", 1);
-	g_settings.timeshift_hours = configfile.getInt32("timeshift_hours", 4);
-	g_settings.timeshift_pause = configfile.getInt32("timeshift_pause", 1);
+	g_settings.timeshiftdir = configfile.getString("timeshiftdir", "");
+	g_settings.timeshift_hours = configfile.getInt32("timeshift_hours", 4 );
+	g_settings.timeshift_pause = configfile.getInt32("timeshift_pause", 1 );
 	g_settings.timeshift_temp = configfile.getInt32("timeshift_temp", 1);
 
 	std::string timeshiftdir;
@@ -879,9 +881,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	}
 
 	// ntp server for sectionsd
-	g_settings.network_ntpenable = configfile.getBool("network_ntpenable", true);
 	g_settings.network_ntpserver = configfile.getString("network_ntpserver", "0.de.pool.ntp.org");
 	g_settings.network_ntprefresh = configfile.getString("network_ntprefresh", "30");
+	g_settings.network_ntpenable = configfile.getBool("network_ntpenable", false);
 	g_settings.network_ntpatboot = configfile.getBool("network_ntpatboot", false);
 
 	// personalize
@@ -981,14 +983,14 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.movieplayer_plugin = configfile.getString("movieplayer_plugin", "---");
 
 	// screenshot
-	g_settings.screenshot_dir = configfile.getString("screenshot_dir", "/media/sda1/movies");
+	g_settings.auto_cover = configfile.getInt32("auto_cover", 0);
 	g_settings.screenshot_count = configfile.getInt32("screenshot_count", 1);
 	g_settings.screenshot_cover = configfile.getInt32("screenshot_cover", 0);
+	g_settings.screenshot_dir = configfile.getString("screenshot_dir", "/media/sda1/movies");
 	g_settings.screenshot_format = configfile.getInt32("screenshot_format", 1);
 	g_settings.screenshot_mode = configfile.getInt32("screenshot_mode", 0);
 	g_settings.screenshot_scale = configfile.getInt32("screenshot_scale", 0);
 	g_settings.screenshot_video = configfile.getInt32("screenshot_video", 1);
-	g_settings.auto_cover = configfile.getInt32("auto_cover", 0);
 
 	// screen configuration
 	int osd_res = OSDMODE_720;
@@ -1002,7 +1004,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.screen_StartX_a_0 = configfile.getInt32("screen_StartX_a_0", 0);
 	g_settings.screen_StartY_a_0 = configfile.getInt32("screen_StartY_a_0", 0);
 	g_settings.screen_EndX_a_0 = configfile.getInt32("screen_EndX_a_0", 1280 - g_settings.screen_StartX_a_0 - 1);
-	g_settings.screen_EndY_a_0 = configfile.getInt32("screen_EndY_a_0",  720 - g_settings.screen_StartY_a_0 - 1);
+	g_settings.screen_EndY_a_0 = configfile.getInt32("screen_EndY_a_0", 720 - g_settings.screen_StartY_a_0 - 1);
 	g_settings.screen_StartX_a_1 = configfile.getInt32("screen_StartX_a_1", 0);
 	g_settings.screen_StartY_a_1 = configfile.getInt32("screen_StartY_a_1", 0);
 	g_settings.screen_EndX_a_1 = configfile.getInt32("screen_EndX_a_1", 1920 - g_settings.screen_StartX_a_1 - 1);
@@ -1012,7 +1014,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.screen_StartX_b_0 = configfile.getInt32("screen_StartX_b_0", 22);
 	g_settings.screen_StartY_b_0 = configfile.getInt32("screen_StartY_b_0", 12);
 	g_settings.screen_EndX_b_0 = configfile.getInt32("screen_EndX_b_0", 1259 - g_settings.screen_StartX_b_0 - 1);
-	g_settings.screen_EndY_b_0 = configfile.getInt32("screen_EndY_b_0",  708 - g_settings.screen_StartY_b_0 - 1);
+	g_settings.screen_EndY_b_0 = configfile.getInt32("screen_EndY_b_0", 708 - g_settings.screen_StartY_b_0 - 1);
 	g_settings.screen_StartX_b_1 = configfile.getInt32("screen_StartX_b_1", 33);
 	g_settings.screen_StartY_b_1 = configfile.getInt32("screen_StartY_b_1", 18);
 	g_settings.screen_EndX_b_1 = configfile.getInt32("screen_EndX_b_1", 1888 - g_settings.screen_StartX_b_1 - 1);
@@ -1059,13 +1061,13 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		setenv("http_proxy", proxy.c_str(), 1);
 	}
 
-	g_settings.flashupdate_createimage_add_env = configfile.getInt32("flashupdate_createimage_add_env", 0);
-	g_settings.flashupdate_createimage_add_kernel = configfile.getInt32("flashupdate_createimage_add_kernel", 1);
-	g_settings.flashupdate_createimage_add_root1 = configfile.getInt32("flashupdate_createimage_add_root1", 0);
-	g_settings.flashupdate_createimage_add_spare = configfile.getInt32("flashupdate_createimage_add_spare", 0);
-	g_settings.flashupdate_createimage_add_u_boot = configfile.getInt32("flashupdate_createimage_add_u_boot", 0);
-	g_settings.flashupdate_createimage_add_uldr = configfile.getInt32("flashupdate_createimage_add_uldr", 1);
 	g_settings.flashupdate_createimage_add_var = configfile.getInt32("flashupdate_createimage_add_var", 1);
+	g_settings.flashupdate_createimage_add_root1 = configfile.getInt32("flashupdate_createimage_add_root1", 0);
+	g_settings.flashupdate_createimage_add_uldr = configfile.getInt32("flashupdate_createimage_add_uldr", 1);
+	g_settings.flashupdate_createimage_add_u_boot = configfile.getInt32("flashupdate_createimage_add_u_boot", 0);
+	g_settings.flashupdate_createimage_add_env = configfile.getInt32("flashupdate_createimage_add_env", 0);
+	g_settings.flashupdate_createimage_add_spare = configfile.getInt32("flashupdate_createimage_add_spare", 0);
+	g_settings.flashupdate_createimage_add_kernel = configfile.getInt32("flashupdate_createimage_add_kernel", 1);
 
 	g_settings.backup_dir = configfile.getString("backup_dir", "/media");
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
@@ -1096,8 +1098,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	}
 	ttx_font_file = g_settings.ttx_font_file.c_str();
 
-	g_settings.font_scaling_x = configfile.getInt32("font_scaling_x", 105);
-	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 105);
+	g_settings.font_scaling_x = configfile.getInt32("font_scaling_x", 100);
+	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 100);
 
 	// online services
 	g_settings.weather_api_key = WEATHER_DEV_KEY;
@@ -1140,16 +1142,16 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
 
 	// zapit setup
-	g_settings.StartChannelTV = configfile.getString("startchanneltv", "");
 	g_settings.StartChannelRadio = configfile.getString("startchannelradio", "");
-	g_settings.startchanneltv_id = configfile.getInt64("startchanneltv_id", 0);
 	g_settings.startchannelradio_id = configfile.getInt64("startchannelradio_id", 0);
+	g_settings.StartChannelTV = configfile.getString("startchanneltv", "");
+	g_settings.startchanneltv_id = configfile.getInt64("startchanneltv_id", 0);
 	g_settings.uselastchannel = configfile.getInt32("uselastchannel", 1);
 
 	// adzap
+	g_settings.adzap_writeData = configfile.getInt32("adzap_writeData", 0);
 	g_settings.adzap_zapBackPeriod = configfile.getInt32("adzap_zapBackPeriod", 180);
 	g_settings.adzap_zapOnActivation = configfile.getInt32("adzap_zapOnActivation", 0);
-	g_settings.adzap_writeData = configfile.getInt32("adzap_writeData", 0);
 
 	// pip
 #ifdef ENABLE_PIP
@@ -1181,10 +1183,10 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.spectrum = configfile.getBool("spectrum", false);
 
 	// movieplayer
-	g_settings.movieplayer_bisection_jump = configfile.getInt32("movieplayer_bisection_jump", 5);
+// 	g_settings.movieplayer_bisection_jump = configfile.getInt32("movieplayer_bisection_jump", 5);
 	g_settings.movieplayer_display_playtime = configfile.getInt32("movieplayer_display_playtime", g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM);
 	g_settings.movieplayer_repeat_on = configfile.getInt32("movieplayer_repeat_on", CMoviePlayerGui::REPEAT_OFF);
-	g_settings.movieplayer_timeosd_while_searching = configfile.getInt32("movieplayer_timeosd_while_searching", 1);
+// 	g_settings.movieplayer_timeosd_while_searching = configfile.getInt32("movieplayer_timeosd_while_searching", 1);
 
 	// filebrowser
 	g_settings.filebrowser_denydirectoryleave = configfile.getBool("filebrowser_denydirectoryleave", false);
@@ -1208,7 +1210,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	// menu
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", true);
-	g_settings.show_menu_hints_line = configfile.getBool("show_menu_hints_line", false);
+// 	g_settings.show_menu_hints_line = configfile.getBool("show_menu_hints_line", false);
 
 	// epgview
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 1);
@@ -1221,9 +1223,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.channellist_descmode = false;
 	g_settings.channellist_displaymode = DISPLAY_MODE_NOW;
 
-	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1); // default no minitv
+	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1);
 	g_settings.channellist_epgtext_align_right = configfile.getBool("channellist_epgtext_align_right", false);
-	g_settings.channellist_foot = configfile.getInt32("channellist_foot", 1); // default next Event
+	g_settings.channellist_foot = configfile.getInt32("channellist_foot", 1);
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 0);
 	g_settings.channellist_numeric_adjust = configfile.getInt32("channellist_numeric_adjust", 0);
 	g_settings.channellist_show_channellogo = configfile.getInt32("channellist_show_channellogo", 1);
@@ -1231,26 +1233,26 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.channellist_show_infobox = configfile.getInt32("channellist_show_infobox", 1);
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
 	g_settings.channellist_show_res_icon = configfile.getInt32("channellist_show_res_icon", 0);
-	g_settings.channellist_sort_mode = configfile.getInt32("channellist_sort_mode", 0); // sort mode: alpha, freq, sat
+	g_settings.channellist_sort_mode = configfile.getInt32("channellist_sort_mode", 0);
 
 	// infobar
 // 	g_settings.infobar_analogclock = configfile.getInt32("infobar_analogclock", 0);
 	g_settings.infobar_buttons_usertitle = configfile.getBool("infobar_buttons_usertitle", false);
-	g_settings.infobar_casystem_display = configfile.getInt32("infobar_casystem_display", 0);
+	g_settings.infobar_casystem_display = configfile.getInt32("infobar_casystem_display", 2);
 	g_settings.infobar_casystem_dotmatrix = configfile.getInt32("infobar_casystem_dotmatrix", 0);
-	g_settings.infobar_casystem_frame = configfile.getInt32("infobar_casystem_frame", 0);
-	g_settings.infobar_progressbar = configfile.getInt32("infobar_progressbar", 2);
+	g_settings.infobar_casystem_frame = configfile.getInt32("infobar_casystem_frame", 1);
+	g_settings.infobar_progressbar = configfile.getInt32("infobar_progressbar", 1);
 	g_settings.infobar_sat_display = configfile.getBool("infobar_sat_display", true);
 	g_settings.infobar_show = configfile.getInt32("infobar_show", 0);
 	g_settings.infobar_show_channeldesc = configfile.getBool("infobar_show_channeldesc", false);
-	g_settings.infobar_show_channellogo = configfile.getInt32("infobar_show_channellogo", 5);
+	g_settings.infobar_show_channellogo = configfile.getInt32("infobar_show_channellogo", 3 );
 	g_settings.infobar_show_dd_available = configfile.getInt32("infobar_show_dd_available", 1);
 	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 0);
-	g_settings.infobar_show_sysfs_hdd = configfile.getBool("infobar_show_sysfs_hdd", false);
+	g_settings.infobar_show_sysfs_hdd = configfile.getBool("infobar_show_sysfs_hdd", true);
 	g_settings.infobar_show_tuner = configfile.getInt32("infobar_show_tuner", 1);
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos", 4);
 
-	g_settings.scrambled_message = configfile.getBool("scrambled_message", false);
+	g_settings.scrambled_message = configfile.getBool("scrambled_message", true);
 
 	// windows
 	g_settings.window_size = configfile.getInt32("window_size", 100);
@@ -1411,14 +1413,6 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 			configfile.setString("usermenu_tv_yellow", g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->items);
 		}
 	}
-	if (g_settings.version_pseudo < "20161411235900")
-	{
-		//convert and remove obsolete recording_tevents key
-		bool recording_tevents = configfile.getBool("recording_tevents", false);
-		if (recording_tevents)
-			g_settings.timer_followscreenings = 2 /*always*/;
-		configfile.deleteKey("recording_tevents");
-	}
 	if (g_settings.version_pseudo < "20162912080000")
 	{
 		//convert and remove obsolete progressbar_* keys
@@ -1460,42 +1454,10 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		configfile.deleteKey("screen_width");
 		configfile.deleteKey("screen_height");
 	}
-	if (g_settings.version_pseudo < "20170516150000")
-	{
-		if (g_settings.movieplayer_bisection_jump == 1)
-			g_settings.movieplayer_bisection_jump = 5;
-	}
-	if (g_settings.version_pseudo < "20170606000000")
-	{
-		//remove CProgressBar::PB_GRAPHIC
-		if (g_settings.theme.progressbar_design == 4 /*CProgressBar::PB_GRAPHIC*/)
-		{
-			g_settings.theme.progressbar_design = CProgressBar::PB_MONO;
-			g_settings.theme.progressbar_gradient = 1;
-		}
-	}
-	if (g_settings.version_pseudo < "20170606215500")
-	{
-		//align fontsize.filebrowser_item to new default
-		if (configfile.getInt32("fontsize.filebrowser_item", 16) == 16)
-			configfile.setInt32("fontsize.filebrowser_item", 17);
-	}
-	if (g_settings.version_pseudo < "20170904080000")
-	{
-		//add flagfile for periodically update-check
-		if (g_settings.mode_icons_flag[4].empty())
-			g_settings.mode_icons_flag[4] = FLAGDIR "/.update";
-	}
 	if (g_settings.version_pseudo < "20170913110000")
 	{
 		//remove easymenu
 		configfile.deleteKey("easymenu");
-	}
-	if (g_settings.version_pseudo < "20180123160000")
-	{
-		// apply tuxtxt font changes
-		if (g_settings.ttx_font_file == FONTDIR "/DejaVuLGCSansMono-Bold.ttf")
-			g_settings.ttx_font_file = FONTDIR "/tuxtxt.ttf";
 	}
 	if (g_settings.version_pseudo < "20181216000000")
 	{
@@ -1523,9 +1485,14 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		g_settings.timeshift_delete = configfile.getInt32("auto_delete", 1);
 		configfile.deleteKey("auto_delete");
 	}
-	if (g_settings.version_pseudo < "20190305000000")
+
+	if (g_settings.version_pseudo < "20161411235900")
 	{
-		configfile.deleteKey("channellist_primetime");
+		//convert and remove obsolete recording_tevents key
+		bool recording_tevents = configfile.getBool("recording_tevents", false);
+		if (recording_tevents)
+			g_settings.timer_followscreenings = 2 /*always*/;
+		configfile.deleteKey("recording_tevents");
 	}
 	if (g_settings.version_pseudo < "20200711000000")
 	{
@@ -1625,17 +1592,18 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("glcd_mirror_video", g_settings.glcd_mirror_video);
 	configfile.setInt32("glcd_scroll_speed", g_settings.glcd_scroll_speed);
 	configfile.setInt32("glcd_selected_config", g_settings.glcd_selected_config);
+
 #endif
 
 #ifdef ENABLE_LCD4LINUX
-	configfile.setInt32("lcd4l_support", g_settings.lcd4l_support);
-	configfile.setString("lcd4l_logodir", g_settings.lcd4l_logodir);
-	configfile.setInt32("lcd4l_display_type", g_settings.lcd4l_display_type);
-	configfile.setInt32("lcd4l_skin", g_settings.lcd4l_skin);
-	configfile.setInt32("lcd4l_skin_radio", g_settings.lcd4l_skin_radio);
 	configfile.setInt32("lcd4l_brightness", g_settings.lcd4l_brightness);
 	configfile.setInt32("lcd4l_brightness_standby", g_settings.lcd4l_brightness_standby);
 	configfile.setInt32("lcd4l_convert", g_settings.lcd4l_convert);
+	configfile.setInt32("lcd4l_display_type", g_settings.lcd4l_display_type);
+	configfile.setInt32("lcd4l_skin", g_settings.lcd4l_skin);
+	configfile.setInt32("lcd4l_skin_radio", g_settings.lcd4l_skin_radio);
+	configfile.setInt32("lcd4l_support", g_settings.lcd4l_support);
+	configfile.setString("lcd4l_logodir", g_settings.lcd4l_logodir);
 #endif
 
 	configfile.setInt32("mode_icons", g_settings.mode_icons);
@@ -1648,17 +1616,19 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	}
 
 
+
+
 	// video
-	configfile.setInt32("video_Mode", g_settings.video_Mode);
 	configfile.setInt32("analog_mode1", g_settings.analog_mode1);
 	configfile.setInt32("analog_mode2", g_settings.analog_mode2);
-	configfile.setInt32("video_Format", g_settings.video_Format);
 	configfile.setInt32("video_43mode", g_settings.video_43mode);
+	configfile.setInt32("video_Format", g_settings.video_Format);
+	configfile.setInt32("video_Mode", g_settings.video_Mode);
 
 	// hdmi cec
 	configfile.setInt32("hdmi_cec_mode", g_settings.hdmi_cec_mode);
-	configfile.setInt32("hdmi_cec_view_on", g_settings.hdmi_cec_view_on);
 	configfile.setInt32("hdmi_cec_standby", g_settings.hdmi_cec_standby);
+	configfile.setInt32("hdmi_cec_view_on", g_settings.hdmi_cec_view_on);
 	configfile.setInt32("hdmi_cec_volume", g_settings.hdmi_cec_volume);
 
 #if HAVE_ARM_HARDWARE
@@ -1757,21 +1727,21 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	// lcd/led
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
-	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 	configfile.setInt32("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
-	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);
-	configfile.setInt32("lcd_scroll", g_settings.lcd_scroll);
+	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
 	configfile.setInt32("lcd_notify_rclock", g_settings.lcd_notify_rclock);
+	configfile.setInt32("lcd_scroll", g_settings.lcd_scroll);
 
-	configfile.setInt32("backlight_tv", g_settings.backlight_tv);
-	configfile.setInt32("backlight_standby", g_settings.backlight_standby);
 	configfile.setInt32("backlight_deepstandby", g_settings.backlight_deepstandby);
+	configfile.setInt32("backlight_standby", g_settings.backlight_standby);
+	configfile.setInt32("backlight_tv", g_settings.backlight_tv);
 
-	configfile.setInt32("led_tv_mode", g_settings.led_tv_mode);
-	configfile.setInt32("led_standby_mode", g_settings.led_standby_mode);
+	configfile.setInt32("led_blink", g_settings.led_blink);
 	configfile.setInt32("led_deep_mode", g_settings.led_deep_mode);
 	configfile.setInt32("led_rec_mode", g_settings.led_rec_mode);
-	configfile.setInt32("led_blink", g_settings.led_blink);
+	configfile.setInt32("led_standby_mode", g_settings.led_standby_mode);
+	configfile.setInt32("led_tv_mode", g_settings.led_tv_mode);
+	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 
 #ifdef BOXMODEL_CST_HD2
 	configfile.setInt32("brightness", g_settings.brightness);
@@ -1784,10 +1754,10 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("hdd_sleep", g_settings.hdd_sleep);
 	configfile.setInt32("hdd_noise", g_settings.hdd_noise);
 	configfile.setInt32("hdd_statfs_mode", g_settings.hdd_statfs_mode);
-	configfile.setInt32("hdd_format_on_mount_failed", g_settings.hdd_format_on_mount_failed);
-	configfile.setInt32("hdd_wakeup", g_settings.hdd_wakeup);
-	configfile.setInt32("hdd_wakeup_msg", g_settings.hdd_wakeup_msg);
-	configfile.setInt32("hdd_allow_set_recdir", g_settings.hdd_allow_set_recdir);
+// 	configfile.setInt32("hdd_format_on_mount_failed", g_settings.hdd_format_on_mount_failed);
+// 	configfile.setInt32("hdd_wakeup", g_settings.hdd_wakeup);
+// 	configfile.setInt32("hdd_wakeup_msg", g_settings.hdd_wakeup_msg);
+// 	configfile.setInt32("hdd_allow_set_recdir", g_settings.hdd_allow_set_recdir);
 
 	// timer
 	configfile.setInt32("timer_remotebox_ip_count", g_settings.timer_remotebox_ip.size());
@@ -1811,13 +1781,13 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("timer_followscreenings", g_settings.timer_followscreenings);
 
 	// misc
-	configfile.setInt32("zap_cycle", g_settings.zap_cycle);
-	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
-	configfile.setInt32("enable_sdt", g_settings.enable_sdt);
 	configfile.setBool("radiotext_enable", g_settings.radiotext_enable);
 	configfile.setInt32("cacheTXT", g_settings.cacheTXT);
-	configfile.setInt32("zapto_pre_time", g_settings.zapto_pre_time);
+	configfile.setInt32("enable_sdt", g_settings.enable_sdt);
 	configfile.setInt32("minimode", g_settings.minimode);
+	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
+	configfile.setInt32("zap_cycle", g_settings.zap_cycle);
+	configfile.setInt32("zapto_pre_time", g_settings.zapto_pre_time);
 
 	configfile.setBool("filesystem_is_utf8", g_settings.filesystem_is_utf8);
 
@@ -1863,16 +1833,16 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	// epg
 	configfile.setString("epg_dir", g_settings.epg_dir);
-	configfile.setInt32("epg_cache_time", g_settings.epg_cache);
-	configfile.setInt32("epg_extendedcache_time", g_settings.epg_extendedcache);
-	configfile.setInt32("epg_max_events", g_settings.epg_max_events);
-	configfile.setInt32("epg_old_events", g_settings.epg_old_events);
 	configfile.setBool("epg_read", g_settings.epg_read);
-	configfile.setInt32("epg_read_frequently", g_settings.epg_read_frequently);
 	configfile.setBool("epg_save", g_settings.epg_save);
+	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
+	configfile.setInt32("epg_cache_time",g_settings.epg_cache);
+	configfile.setInt32("epg_extendedcache_time",g_settings.epg_extendedcache);
+	configfile.setInt32("epg_max_events",g_settings.epg_max_events);
+	configfile.setInt32("epg_old_events",g_settings.epg_old_events);
+	configfile.setInt32("epg_read_frequently", g_settings.epg_read_frequently);
 	configfile.setInt32("epg_save_frequently", g_settings.epg_save_frequently);
 	configfile.setInt32("epg_save_mode", g_settings.epg_save_mode);
-	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
 	configfile.setInt32("epg_scan", g_settings.epg_scan);
 	configfile.setInt32("epg_scan_mode", g_settings.epg_scan_mode);
 	configfile.setInt32("epg_scan_rescan", g_settings.epg_scan_rescan);
@@ -1894,24 +1864,24 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	{
 		sprintf(cfg_key, "network_nfs_ip_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].ip);
-		sprintf(cfg_key, "network_nfs_mac_%d", i);
-		configfile.setString(cfg_key, g_settings.network_nfs[i].mac);
-		sprintf(cfg_key, "network_nfs_local_dir_%d", i);
-		configfile.setString(cfg_key, g_settings.network_nfs[i].local_dir);
 		sprintf(cfg_key, "network_nfs_dir_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].dir);
+		sprintf(cfg_key, "network_nfs_local_dir_%d", i);
+		configfile.setString(cfg_key, g_settings.network_nfs[i].local_dir);
 		sprintf(cfg_key, "network_nfs_automount_%d", i);
 		configfile.setInt32(cfg_key, g_settings.network_nfs[i].automount);
-		sprintf(cfg_key, "network_nfs_mount_options1_%d", i);
-		configfile.setString(cfg_key, g_settings.network_nfs[i].mount_options1);
-		sprintf(cfg_key, "network_nfs_mount_options2_%d", i);
-		configfile.setString(cfg_key, g_settings.network_nfs[i].mount_options2);
 		sprintf(cfg_key, "network_nfs_type_%d", i);
 		configfile.setInt32(cfg_key, g_settings.network_nfs[i].type);
 		sprintf(cfg_key, "network_nfs_username_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].username);
 		sprintf(cfg_key, "network_nfs_password_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].password);
+		sprintf(cfg_key, "network_nfs_mount_options1_%d", i);
+		configfile.setString(cfg_key, g_settings.network_nfs[i].mount_options1);
+		sprintf(cfg_key, "network_nfs_mount_options2_%d", i);
+		configfile.setString(cfg_key, g_settings.network_nfs[i].mount_options2);
+		sprintf(cfg_key, "network_nfs_mac_%d", i);
+		configfile.setString(cfg_key, g_settings.network_nfs[i].mac);
 	}
 
 	configfile.setString("network_nfs_audioplayerdir", g_settings.network_nfs_audioplayerdir);
@@ -1935,7 +1905,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setBool("recording_epg_for_filename", g_settings.recording_epg_for_filename);
 	configfile.setString("recordingmenu.filename_template", g_settings.recording_filename_template);
 	configfile.setBool("recording_save_in_channeldir", g_settings.recording_save_in_channeldir);
-	configfile.setInt32("recording_fill_warning", g_settings.recording_fill_warning);
+// 	configfile.setInt32("recording_fill_warning", g_settings.recording_fill_warning);
 	configfile.setBool("recording_slow_warning", g_settings.recording_slow_warning);
 	configfile.setBool("recording_startstop_msg", g_settings.recording_startstop_msg);
 	configfile.setBool("recording_stopsectionsd", g_settings.recording_stopsectionsd);
@@ -1957,10 +1927,10 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("timeshift_temp", g_settings.timeshift_temp);
 
 	// ntp server for sectionsd
-	configfile.setBool("network_ntpenable", g_settings.network_ntpenable);
-	configfile.setString("network_ntpserver", g_settings.network_ntpserver);
-	configfile.setString("network_ntprefresh", g_settings.network_ntprefresh);
 	configfile.setBool("network_ntpatboot", g_settings.network_ntpatboot);
+	configfile.setBool("network_ntpenable", g_settings.network_ntpenable);
+	configfile.setString("network_ntprefresh", g_settings.network_ntprefresh);
+	configfile.setString("network_ntpserver", g_settings.network_ntpserver);
 
 	// personalize
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++) // settings.h, settings.cpp
@@ -2135,9 +2105,9 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("uselastchannel", g_settings.uselastchannel);
 
 	// adzap
+	configfile.setInt32("adzap_writeData", g_settings.adzap_writeData);
 	configfile.setInt32("adzap_zapBackPeriod", g_settings.adzap_zapBackPeriod);
 	configfile.setInt32("adzap_zapOnActivation", g_settings.adzap_zapOnActivation);
-	configfile.setInt32("adzap_writeData", g_settings.adzap_writeData);
 
 	// pip
 #ifdef ENABLE_PIP
@@ -2166,13 +2136,14 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("audioplayer_select_title_by_name", g_settings.audioplayer_select_title_by_name);
 	configfile.setInt32("audioplayer_show_playlist", g_settings.audioplayer_show_playlist);
 	configfile.setInt32("inetradio_autostart", g_settings.inetradio_autostart);
+
 	configfile.setBool("spectrum", g_settings.spectrum);
 
 	// movieplayer
-	configfile.setInt32("movieplayer_bisection_jump", g_settings.movieplayer_bisection_jump);
+// 	configfile.setInt32("movieplayer_bisection_jump", g_settings.movieplayer_bisection_jump);
 	configfile.setInt32("movieplayer_display_playtime", g_settings.movieplayer_display_playtime);
 	configfile.setInt32("movieplayer_repeat_on", g_settings.movieplayer_repeat_on);
-	configfile.setInt32("movieplayer_timeosd_while_searching", g_settings.movieplayer_timeosd_while_searching);
+// 	configfile.setInt32("movieplayer_timeosd_while_searching", g_settings.movieplayer_timeosd_while_searching);
 
 	// filebrowser
 	configfile.setBool("filebrowser_denydirectoryleave", g_settings.filebrowser_denydirectoryleave);
@@ -2194,7 +2165,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	// menu
 	configfile.setInt32("menu_pos", g_settings.menu_pos);
 	configfile.setBool("show_menu_hints", g_settings.show_menu_hints);
-	configfile.setBool("show_menu_hints_line", g_settings.show_menu_hints_line);
+// 	configfile.setBool("show_menu_hints_line", g_settings.show_menu_hints_line);
 
 	// epgview
 	configfile.setInt32("bigFonts", g_settings.bigFonts);
@@ -3213,6 +3184,10 @@ TIMER_START();
 		CVFD::getInstance()->setVolume(g_settings.current_volume);
 
 
+#ifdef ENABLE_LCD4LINUX
+	CLCD4l::getInstance()->StartLCD4l();
+#endif
+
 #ifdef ENABLE_GRAPHLCD
 	if (current_muted)
 		cGLCD::lockIcon(cGLCD::MUTE);
@@ -3609,7 +3584,6 @@ void CNeutrinoApp::RealRun()
 			else if( msg == CRCInput::RC_text) {
 				g_RCInput->clearRCMsg();
 				InfoClock->enableInfoClock(false);
-
 				StopSubtitles();
 				tuxtx_stop_subtitle();
 
@@ -3620,7 +3594,6 @@ void CNeutrinoApp::RealRun()
 				//	tuxtxt_stop();
 				g_RCInput->clearRCMsg();
 				InfoClock->enableInfoClock(true);
-
 				StartSubtitles();
 			}
 			else if (((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && (g_settings.key_tvradio_mode == (int)CRCInput::RC_nokey)) {
@@ -5772,9 +5745,9 @@ void CNeutrinoApp::loadKeys(const char *fname)
 #if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOXSE || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_nokey); // FIXME
 #elif BOXMODEL_VUPLUS_ALL
-	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_playpause);
+	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_playpause);
 #elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
-	g_settings.key_timeshift = tconfig->getInt32( "key_timeshift", CRCInput::RC_play);
+	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_play);
 #else
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_pause);
 #endif
@@ -5827,7 +5800,8 @@ void CNeutrinoApp::loadKeys(const char *fname)
 
 	g_settings.mode_left_right_key_tv = tconfig->getInt32("mode_left_right_key_tv", SNeutrinoSettings::VZAP);
 
-	if(fname){
+	if (fname)
+	{
 		delete tconfig;
 		tconfig = NULL;
 	}
