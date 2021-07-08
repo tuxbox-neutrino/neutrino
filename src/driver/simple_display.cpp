@@ -826,7 +826,7 @@ void CLCD::ShowDiskLevel()
 	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
 	{
 		percent = (int)((u * 100ULL) / t);
-		//printf("CLCD::%s %d\n", __func__, percent);
+		printf("CLCD::%s %d\n", __func__, percent);
 		proc_put("/proc/stb/lcd/symbol_hddprogress", percent);
 	}
 #endif
