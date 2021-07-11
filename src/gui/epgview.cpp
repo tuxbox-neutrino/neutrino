@@ -1664,9 +1664,9 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 	{
 		// check followscreenings button
 		if (has_follow_screenings && !call_fromfollowlist)
-			EpgButtons[TV_BUTTONS][4].button = NEUTRINO_ICON_BUTTON_0;
+			EpgButtons[TV_BUTTONS][3].button = NEUTRINO_ICON_BUTTON_BLUE;
 		else
-			EpgButtons[TV_BUTTONS][4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+			EpgButtons[TV_BUTTONS][3].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
 
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 			::paintButtons(x, y, w, MaxButtons, EpgButtons[TV_BUTTONS], w, h, "", false, COL_MENUFOOT_TEXT, adzap ? adzap_button.c_str() : NULL, 4);
