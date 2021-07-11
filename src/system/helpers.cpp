@@ -473,24 +473,34 @@ bool exec_initscript(std::string script, std::string command, std::string system
 	if (getuid())
 		dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: current user is not root!\n", __func__, __LINE__);
 #endif
+
+	if (find_executable(system_command.c_str()).empty())
+		dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: %s not found at system!\n", __func__, __LINE__, system_command.c_str());
+
+	const std::string sysctl_bin = "systemctl";
+	bool use_systemd = !find_executable(sysctl_bin.c_str()).empty();
+
+	std::string sys_command = use_systemd ? sysctl_bin : system_command;
+	std::string cmd = command;
 	int ret = 1;
-	if (system_command == "service")
+
+	if (!use_systemd) // 'service' or what ever
 	{
-		dprintf(DEBUG_DEBUG, "executing %s %s %s\n", system_command.c_str(), script.c_str(), command.c_str());
-		ret = my_system(3, system_command.c_str(), script.c_str(), command.c_str());
+		dprintf(DEBUG_DEBUG, "executing %s %s %s\n", sys_command.c_str(), script.c_str(), cmd.c_str());
+		ret = my_system(3, sys_command.c_str(), script.c_str(), cmd.c_str());
 	}
-	else if (system_command == "systemctl")
+	else // systemctl is in use
 	{
-		dprintf(DEBUG_DEBUG, "executing %s %s %s\n", system_command.c_str(), command.c_str(), script.c_str());
-		ret = my_system(3, system_command.c_str(), command.c_str(), script.c_str());
+		dprintf(DEBUG_DEBUG, "executing %s %s %s\n", sys_command.c_str(), cmd.c_str(), script.c_str());
+		ret = my_system(3, sys_command.c_str(), cmd.c_str(), script.c_str());
 	}
-	else
-		dprintf(DEBUG_NORMAL, "Error: [helpers] [%s - %d] no system command defined\n", __func__, __LINE__);
 
 	if (ret)
-		dprintf(DEBUG_NORMAL, "Error: [helpers] exec init script [%s] failed\n", script.c_str());
-
-	return ret == 0 ? true : false;
+	{
+		dprintf(DEBUG_NORMAL, "[helpers] Error: executing [ %s(%s, %s, %s) ] failed\n", __func__, script.c_str(), command.c_str(), system_command.c_str());
+		return false;
+	}
+	return true;
 }
 
 std::string backtick(std::string command)
