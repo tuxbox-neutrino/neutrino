@@ -480,11 +480,11 @@ bool exec_initscript(std::string script, std::string command, std::string system
 	const std::string sysctl_bin = "systemctl";
 	bool use_systemd = !find_executable(sysctl_bin.c_str()).empty();
 
-	std::string sys_command = use_systemd ? sysctl_bin : system_command;
+	std::string sys_command = use_systemd ? sysctl_bin : "service"; // fallback to 'service' if no 'systemctl' was found
 	std::string cmd = command;
 	int ret = 1;
 
-	if (!use_systemd) // 'service' or what ever
+	if (!use_systemd) // default
 	{
 		dprintf(DEBUG_DEBUG, "executing %s %s %s\n", sys_command.c_str(), script.c_str(), cmd.c_str());
 		ret = my_system(3, sys_command.c_str(), script.c_str(), cmd.c_str());
