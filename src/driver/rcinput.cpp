@@ -1762,6 +1762,8 @@ int CRCInput::translate(int code)
 			return RC_favorites;
 		case KEY_TV2:
 			return RC_tv;
+		case KEY_BACK:
+			return RC_home;
 #elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 		case KEY_VIDEO:
 			return RC_mode;
