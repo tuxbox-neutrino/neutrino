@@ -93,6 +93,7 @@ static void set_lua_variables(lua_State *L)
 		{ "standby",		CRCInput::RC_standby },
 		{ "help",		CRCInput::RC_help },
 		{ "home",		CRCInput::RC_home },
+		{ "back",		CRCInput::RC_back },
 		{ "setup",		CRCInput::RC_setup },
 		{ "topleft",		CRCInput::RC_topleft },
 		{ "topright",		CRCInput::RC_topright },
