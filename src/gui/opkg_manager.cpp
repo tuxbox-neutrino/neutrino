@@ -203,7 +203,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		updateMenu();
 		return res;
 	}
-	if (actionKey == "local_package") {
+	if (actionKey == "rc_green") {
 		if (parent)
 			parent->hide();
 
@@ -344,19 +344,22 @@ bool COPKGManager::checkSize(const string& pkg_name)
 }
 
 
-#define COPKGManagerFooterButtonCount 3
-static const struct button_label COPKGManagerFooterButtons[COPKGManagerFooterButtonCount] = {
+static const struct button_label COPKGManagerFooterButtons[] = {
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_OPKG_INSTALL_LOCAL_PACKAGE },
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_OPKG_BUTTON_EXPERT_ON },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_OPKG_BUTTON_INFO },
 	{ NEUTRINO_ICON_BUTTON_OKAY,	   LOCALE_OPKG_BUTTON_INSTALL }
 };
-#define COPKGManagerFooterButtonCountExpert 4
-static const struct button_label COPKGManagerFooterButtonsExpert[COPKGManagerFooterButtonCountExpert] = {
+size_t  COPKGManagerFooterButtonCount = sizeof(COPKGManagerFooterButtons)/sizeof(COPKGManagerFooterButtons[0]);
+
+static const struct button_label COPKGManagerFooterButtonsExpert[] = {
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_OPKG_INSTALL_LOCAL_PACKAGE },
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_OPKG_BUTTON_EXPERT_OFF },
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_OPKG_BUTTON_UNINSTALL },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_OPKG_BUTTON_INFO },
-	{ NEUTRINO_ICON_BUTTON_OKAY,	   LOCALE_OPKG_BUTTON_INSTALL },
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_OPKG_BUTTON_UNINSTALL }
+	{ NEUTRINO_ICON_BUTTON_OKAY,	   LOCALE_OPKG_BUTTON_INSTALL }
 };
+size_t  COPKGManagerFooterButtonCountExpert = sizeof(COPKGManagerFooterButtonsExpert)/sizeof(COPKGManagerFooterButtonsExpert[0]);
 
 void COPKGManager::initPackagePatternLists()
 {
@@ -678,13 +681,14 @@ int COPKGManager::showMenu()
 
 	if (!is_wizard)
 	{
+#if 0
 		CMenuForwarder *fw = NULL;
 
 		//select and install local package
 		fw = new CMenuForwarder(LOCALE_OPKG_INSTALL_LOCAL_PACKAGE, true, NULL, this, "local_package", CRCInput::RC_green);
 		fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_INSTALL_LOCAL_PACKAGE);
 		menu->addItem(fw);
-
+#endif
 #if ENABLE_OPKG_GUI_FEED_SETUP
 		//feed setup
 		CMenuWidget feeds_menu(LOCALE_OPKG_TITLE, NEUTRINO_ICON_UPDATE, w_max (100, 10));
@@ -703,6 +707,7 @@ int COPKGManager::showMenu()
 	menu->addKey(CRCInput::RC_info, this, "rc_info");
 	menu->addKey(CRCInput::RC_blue, this, "rc_blue");
 	menu->addKey(CRCInput::RC_yellow, this, "rc_yellow");
+	menu->addKey(CRCInput::RC_green, this, "rc_green");
 
 	// package list
 	pkg_vec.clear();
