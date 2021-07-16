@@ -167,6 +167,8 @@ void CLCD4l::StartLCD4l()
 	{
 		if (exec_initscript("lcd4linux", "start", "systemctl"))
 			OnAfterStart();
+		else
+			OnAfterError();
 	}
 }
 
@@ -188,6 +190,8 @@ void CLCD4l::StopLCD4l()
 
 	if (exec_initscript("lcd4linux", "stop", "systemctl"))
 		OnAfterStop();
+	else
+		OnAfterError();
 }
 
 void CLCD4l::SwitchLCD4l()
@@ -881,6 +885,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				OnBeforeRestart();
 				if (exec_initscript("lcd4linux", "restart", "systemctl"))
 					OnAfterRestart();
+				else
+					OnAfterError();
 			}
 		}
 	}

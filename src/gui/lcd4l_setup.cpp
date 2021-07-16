@@ -328,4 +328,6 @@ void CLCD4lSetup::connectSlots()
 	CLCD4l::getInstance()->OnAfterStart.connect(sl_remove);
 	CLCD4l::getInstance()->OnAfterStop.connect(sl_remove);
 	CLCD4l::getInstance()->OnAfterRestart.connect(sl_remove);
+
+	CLCD4l::getInstance()->OnAfterError.connect(sl_remove);
 }

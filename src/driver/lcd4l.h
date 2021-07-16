@@ -79,12 +79,13 @@ class CLCD4l
 
 		// use signal/slot handlers
 		// That is helping to keep the GUI code away from code inside ./src/driver.
-		sigc::signal<void> 	OnBeforeRestart,
-					OnAfterRestart,
-					OnBeforeStart,
+		sigc::signal<void>	OnBeforeStart,
 					OnAfterStart,
 					OnBeforeStop,
-					OnAfterStop;
+					OnAfterStop,
+					OnBeforeRestart,
+					OnAfterRestart,
+					OnAfterError;
 
 	private:
 		std::thread	*thrLCD4l;
