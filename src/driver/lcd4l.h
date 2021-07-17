@@ -85,7 +85,7 @@ class CLCD4l
 					OnAfterStop,
 					OnBeforeRestart,
 					OnAfterRestart,
-					OnAfterError;
+					OnError;
 
 	private:
 		std::thread	*thrLCD4l;
