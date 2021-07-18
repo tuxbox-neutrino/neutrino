@@ -2777,6 +2777,7 @@ const char * locale_real_names[] =
 	"timing.menu",
 	"timing.numericzap",
 	"timing.off",
+	"timing.off_auto",
 	"timing.popup_messages",
 	"timing.static_messages",
 	"timing.volumebar",

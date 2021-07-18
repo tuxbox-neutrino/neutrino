@@ -920,23 +920,40 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 void CInfoViewer::setInfobarTimeout(int timeout_ext)
 {
 	int mode = CNeutrinoApp::getInstance()->getMode();
+	int timeout = 0;
 	//define timeouts
 	switch (mode)
 	{
 		case NeutrinoModes::mode_radio:
 		case NeutrinoModes::mode_webradio:
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO] + timeout_ext);
+			timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO];
+			if (timeout < 0)
+				timeout = 0;
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
 			break;
 		case NeutrinoModes::mode_ts:
 			if (CMoviePlayerGui::getInstance().IsAudioPlaying())
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_AUDIO] + timeout_ext);
+			{
+				timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_AUDIO];
+				if (timeout < 0)
+					timeout = 0;
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
+			}
 			else
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_VIDEO] + timeout_ext);
+			{
+				timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_VIDEO];
+				if (timeout < 0)
+					timeout = 0;
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
+			}
 			break;
 		case NeutrinoModes::mode_tv:
 		case NeutrinoModes::mode_webtv:
 		default:
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR] + timeout_ext);
+			timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR];
+			if (timeout < 0)
+				timeout = 0;
+			timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
 			break;
 	}
 }
@@ -2267,8 +2284,8 @@ bool CInfoViewer::hasTimeout()
 {
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	bool ret = (
-		((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]     != 0) ||
-		((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO]  != 0)
+		((mode == NeutrinoModes::mode_tv    || mode == NeutrinoModes::mode_webtv)    && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR]       != 0) ||
+		((mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) && g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO] != 0)
 	);
 	return ret;
 }

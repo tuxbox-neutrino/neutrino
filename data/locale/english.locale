@@ -2750,6 +2750,7 @@ timing.infobar_tv TV mode
 timing.menu Menu
 timing.numericzap Numeric Zap
 timing.off manual, without timeout
+timing.off_auto automatic, without timeout
 timing.popup_messages Popup messages
 timing.static_messages Interactive messages
 timing.volumebar Volume bar

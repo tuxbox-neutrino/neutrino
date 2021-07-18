@@ -1160,8 +1160,9 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 
 	for (int i = 0; i < SNeutrinoSettings::HANDLING_INFOBAR_SETTING_COUNT; i++)
 	{
-		ch = new CMenuOptionNumberChooser(handling_infobar_setting[i].name, &g_settings.handling_infobar[i], true, 0, 240);
+		ch = new CMenuOptionNumberChooser(handling_infobar_setting[i].name, &g_settings.handling_infobar[i], true, -1, 240);
 		ch->setNumberFormat(nf);
+		ch->setLocalizedValue(-1, LOCALE_TIMING_OFF_AUTO);
 		ch->setLocalizedValue(0, LOCALE_TIMING_OFF);
 		ch->setHint("", handling_infobar_setting[i].hint);
 		menu_timeout->addItem(ch);

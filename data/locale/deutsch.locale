@@ -2750,6 +2750,7 @@ timing.infobar_tv TV-Modus
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
 timing.off manuell, ohne Timeout
+timing.off_auto automatisch, ohne Timeout
 timing.popup_messages Popup Meldungen
 timing.static_messages Interaktive Meldungen
 timing.volumebar Lautstärkeanzeige
