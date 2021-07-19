@@ -817,6 +817,18 @@ int CMenuWidget::getItemId(CMenuItem* menuItem)
 	return -1;
 }
 
+int CMenuWidget::getItemId(const char *name)
+{
+	for (uint i= 0; i< items.size(); i++)
+	{
+		std::string s_item_name(items[i]->getName());
+		std::string s_name(name);
+		if (s_name == s_item_name)
+			return i;
+	}
+	return -1;
+}
+
 CMenuItem* CMenuWidget::getItem(const uint& item_id)
 {
 	for (uint i= 0; i< items.size(); i++)
