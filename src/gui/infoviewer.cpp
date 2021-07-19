@@ -927,35 +927,22 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 		case NeutrinoModes::mode_radio:
 		case NeutrinoModes::mode_webradio:
 			timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_RADIO];
-			if (timeout < 0)
-				timeout = 0;
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
 			break;
 		case NeutrinoModes::mode_ts:
 			if (CMoviePlayerGui::getInstance().IsAudioPlaying())
-			{
 				timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_AUDIO];
-				if (timeout < 0)
-					timeout = 0;
-				timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
-			}
 			else
-			{
 				timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR_MEDIA_VIDEO];
-				if (timeout < 0)
-					timeout = 0;
-				timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
-			}
 			break;
 		case NeutrinoModes::mode_tv:
 		case NeutrinoModes::mode_webtv:
 		default:
 			timeout = g_settings.handling_infobar[SNeutrinoSettings::HANDLING_INFOBAR];
-			if (timeout < 0)
-				timeout = 0;
-			timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
 			break;
 	}
+	if (timeout < 0)
+		timeout = 0;
+	timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
 }
 
 bool CInfoViewer::showLivestreamInfo()
