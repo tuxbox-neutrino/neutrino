@@ -65,7 +65,9 @@ class CLuaInstVideo
 		static int getNeutrinoMode(lua_State *L);
 		static int setSinglePlay(lua_State *L);
 		static int VideoDelete(lua_State *L);
-
+#ifdef SCREENSHOT
+		static int Screenshot(lua_State *L);
+#endif
 		static void videoFunctionDeprecated(lua_State *L, std::string oldFunc);
 };
 

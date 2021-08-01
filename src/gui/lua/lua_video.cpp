@@ -31,6 +31,7 @@
 #include <zapit/zapit.h>
 #include <hardware/video.h>
 #include <neutrino.h>
+#include <driver/screenshot.h>
 
 #include "luainstance.h"
 #include "lua_video.h"
@@ -70,6 +71,9 @@ void CLuaInstVideo::LuaVideoRegister(lua_State *L)
 		{ "getNeutrinoMode",        CLuaInstVideo::getNeutrinoMode },
 		{ "setSinglePlay",          CLuaInstVideo::setSinglePlay },
 		{ "__gc",                   CLuaInstVideo::VideoDelete },
+#ifdef SCREENSHOT
+		{ "Screenshot",				CLuaInstVideo::Screenshot },
+#endif
 		{ NULL, NULL }
 	};
 
@@ -351,6 +355,36 @@ int CLuaInstVideo::VideoDelete(lua_State *L)
 	return 0;
 }
 
+#ifdef SCREENSHOT
+int CLuaInstVideo::Screenshot(lua_State *L)
+{
+	CLuaVideo *D = VideoCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L);
+	if (numargs < 2) {
+		printf("CLuaInstVideo::%s: not enough arguments (%d, expected 1)\n", __func__, numargs-1);
+		return 0;
+	}
+
+	bool enableOSD = true;
+	bool enableVideo = true;
+	std::string filename = "screenshot";
+	tableLookup(L, "name", filename);
+	tableLookup(L, "osd", enableOSD);
+	tableLookup(L, "video", enableVideo);
+	CScreenShot * screenshot = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
+	if(screenshot){
+		screenshot->EnableOSD(enableOSD);
+		screenshot->EnableVideo(enableVideo);
+		if (!screenshot->StartSync()){
+			printf("CLuaInstVideo::%s: Error\n", __func__);
+		}
+		delete screenshot;
+	}
+	return 0;
+}
+#endif
 
 /* --------------------------------------------------------------
   deprecated functions
