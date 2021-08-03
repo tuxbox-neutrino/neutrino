@@ -597,7 +597,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 			continue;
 
-#ifdef BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE
+#if BOXMODEL_MULTIBOXSE
 		if ((mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition)) || (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition)))
 		{
 			retfe = mfe;
