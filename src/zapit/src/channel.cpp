@@ -113,6 +113,7 @@ void CZapitChannel::Init()
 	bLocked = DEFAULT_CH_LOCKED;
 	bUseCI = false;
 	altlogo = "";
+	epgmapper = "";
 }
 
 CZapitChannel::~CZapitChannel(void)

@@ -127,6 +127,8 @@ class CZapitChannel
 		std::string script;
 		/* TODO : Enable different unames in different bouquets ( generated bouquetID ? ) */
 		std::string uname;
+		/* EPG Name/ID mapping */
+		std::string epgmapper;
 		t_channel_id epg_id;
 
 		/* WebTV/WebRadio */
@@ -222,6 +224,8 @@ class CZapitChannel
 		t_original_network_id	getOriginalNetworkId(void) 	const { return original_network_id; }
 		std::string		getScriptName(void)		const { return script; }
 		inline void		setScriptName(const std::string &pscript) { script = pscript; }
+		std::string		getEPGmap(void)		const { return epgmapper; }
+		inline void		setEPGmap(const std::string &pepgmapper) { epgmapper = pepgmapper; }
 		unsigned char        	getServiceType(bool real=false);
 		bool			isUHD();
 		bool			isHD();

@@ -550,7 +550,7 @@ t_channel_id getepgid(std::string epg_name)
 
 		for (; !(cit.EndOfChannels()); cit++)
 		{
-			std::string tvg_id = (*cit)->getScriptName();
+			std::string tvg_id = (*cit)->getEPGmap();
 
 			if (tvg_id.empty())
 				continue;
