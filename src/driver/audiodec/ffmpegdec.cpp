@@ -1,3 +1,5 @@
+
+
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
@@ -44,6 +46,7 @@ extern "C" {
 #include <libavutil/opt.h>
 #include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
+#include <libavcodec/avcodec.h>
 }
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
@@ -164,7 +167,11 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /*ft*/)
 		return false;
 	}
 	avc->pb = avioc;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59,0,100)
 	avc->flags |= AVFMT_FLAG_CUSTOM_IO|AVFMT_FLAG_KEEP_SIDE_DATA;
+#else
+	avc->flags |= AVFMT_FLAG_CUSTOM_IO;
+#endif
 
 	AVInputFormat *input_format = NULL;
 

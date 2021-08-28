@@ -54,7 +54,11 @@ private:
 	size_t buffer_size;
 	unsigned char *buffer;
 	AVFormatContext *avc;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59,0,100)
 	AVCodec *codec;
+#else
+	const AVCodec *codec;
+#endif
 	AVCodecContext *c;
 	AVIOContext *avioc;
 	int best_stream;

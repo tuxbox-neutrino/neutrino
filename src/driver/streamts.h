@@ -33,6 +33,7 @@
 
 extern "C" {
 #include <libavformat/avformat.h>
+#include <libavcodec/bsf.h>
 }
 
 typedef std::set<int> stream_pids_t;

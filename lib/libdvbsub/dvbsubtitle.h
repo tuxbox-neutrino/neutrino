@@ -32,7 +32,11 @@ private:
   pthread_mutex_t mutex;
   cList<cDvbSubtitleBitmaps> *bitmaps;
   AVCodecContext * avctx;
-  AVCodec * avcodec;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59,0,100)
+	AVCodec *avcodec;
+#else
+	const AVCodec *avcodec;
+#endif
   int min_x, min_y, max_x, max_y;
   cTimeMs Timeout;
 public:

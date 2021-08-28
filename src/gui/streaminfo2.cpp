@@ -34,6 +34,7 @@
 extern "C" {
 #include <libavutil/opt.h>
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 }
 
 #include <OpenThreads/ScopedLock>
