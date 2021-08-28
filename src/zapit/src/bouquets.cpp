@@ -480,7 +480,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!new_epgxml.empty()) {
 						char buf[100];
 						snprintf(buf, sizeof(buf), "%llx", chan->getChannelID() & 0xFFFFFFFFFFFFULL);
-						chan->setScriptName("#" + new_epgxml + "=" + buf);
+						chan->setEPGmap("#" + new_epgxml + "=" + buf);
 					}
 					newBouquet->addService(chan);
 				} else if (bUser) {
