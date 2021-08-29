@@ -1,5 +1,3 @@
-
-
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
@@ -167,7 +165,7 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType /*ft*/)
 		return false;
 	}
 	avc->pb = avioc;
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59,0,100)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59, 0, 100)
 	avc->flags |= AVFMT_FLAG_CUSTOM_IO|AVFMT_FLAG_KEEP_SIDE_DATA;
 #else
 	avc->flags |= AVFMT_FLAG_CUSTOM_IO;
@@ -247,7 +245,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		Status=DATA_ERR;
 		return Status;
 	}
-#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 )
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 	c = avc->streams[best_stream]->codec;
 #else
 	c = avcodec_alloc_context3(codec);
@@ -370,7 +368,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 			} else{
 				av_frame_unref(frame);
 			}
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57,37,100)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 37, 100)
 			int len = avcodec_decode_audio4(c, frame, &got_frame, &packet);
 			if (len < 0) {
 				// skip frame
@@ -491,7 +489,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 		if (!is_stream) {
 			GetMeta(avc->metadata);
 			for(unsigned int i = 0; i < avc->nb_streams; i++) {
-#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 )
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 				if (avc->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
 #else
 				if (avc->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
@@ -512,7 +510,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 			DeInit();
 			return false;
 		}
-#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 )
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 		if (!codec)
 			codec = avcodec_find_decoder(avc->streams[best_stream]->codec->codec_id);
 		samplerate = avc->streams[best_stream]->codec->sample_rate;
@@ -542,7 +540,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 		printf("CFfmpegDec: format %s (%s) duration %ld\n", avc->iformat->name, type_info.c_str(), total_time);
 
 		for(unsigned int i = 0; i < avc->nb_streams; i++) {
-#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT( 57,25,101 )
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
 			if (avc->streams[i]->codec->bit_rate > 0)
 				bitrate += avc->streams[i]->codec->bit_rate;
 #else

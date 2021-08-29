@@ -32,7 +32,7 @@ private:
   pthread_mutex_t mutex;
   cList<cDvbSubtitleBitmaps> *bitmaps;
   AVCodecContext * avctx;
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59,0,100)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59, 0, 100)
 	AVCodec *avcodec;
 #else
 	const AVCodec *avcodec;
