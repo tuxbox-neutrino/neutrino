@@ -479,7 +479,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					std::string new_epgxml = reMapEpgXML(chan->getChannelID());
 					if(!new_epgxml.empty()) {
 						char buf[100];
-						snprintf(buf, sizeof(buf), "%llx", chan->getChannelID() & 0xFFFFFFFFFFFFULL);
+						snprintf(buf, sizeof(buf), "%llx", chan->getEpgID() & 0xFFFFFFFFFFFFULL);
 						chan->setEPGmap("#" + new_epgxml + "=" + buf);
 					}
 					newBouquet->addService(chan);
@@ -969,9 +969,8 @@ void CBouquetManager::loadWebchannels(int mode)
 							std::string new_epgxml = reMapEpgXML(chid);
 							if(!new_epgxml.empty()) {
 								char buf[100];
-								snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+								snprintf(buf, sizeof(buf), "%llx", channel->getEpgID() & 0xFFFFFFFFFFFFULL);
 								channel->setEPGmap("#" + new_epgxml + "=" + buf);
-								channel->setEPGid(chid);
 							}
 							channel->flags = CZapitChannel::UPDATED;
 							if (gbouquet)
@@ -1084,9 +1083,8 @@ void CBouquetManager::loadWebchannels(int mode)
 								std::string new_epgxml = reMapEpgXML(chid);
 								if(!new_epgxml.empty()) {
 									char buf[100];
-									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+									snprintf(buf, sizeof(buf), "%llx", channel->getEpgID() & 0xFFFFFFFFFFFFULL);
 									channel->setEPGmap("#" + new_epgxml + "=" + buf);
-									channel->setEPGid(chid);
 								}
 								desc = "m3u_loading_logos";
 								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
@@ -1193,9 +1191,8 @@ void CBouquetManager::loadWebchannels(int mode)
 								std::string new_epgxml = reMapEpgXML(chid);
 								if(!new_epgxml.empty()) {
 									char buf[100];
-									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+									snprintf(buf, sizeof(buf), "%llx", channel->getEpgID() & 0xFFFFFFFFFFFFULL);
 									channel->setEPGmap("#" + new_epgxml + "=" + buf);
-									channel->setEPGid(chid);
 								}
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
