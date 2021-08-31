@@ -971,7 +971,6 @@ void CBouquetManager::loadWebchannels(int mode)
 								char buf[100];
 								snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 								channel->setEPGmap("#" + new_epgxml + "=" + buf);
-								channel->setEPGid(chid);
 							}
 							channel->flags = CZapitChannel::UPDATED;
 							if (gbouquet)
@@ -1086,7 +1085,6 @@ void CBouquetManager::loadWebchannels(int mode)
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 									channel->setEPGmap("#" + new_epgxml + "=" + buf);
-									channel->setEPGid(chid);
 								}
 								desc = "m3u_loading_logos";
 								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
@@ -1195,7 +1193,6 @@ void CBouquetManager::loadWebchannels(int mode)
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 									channel->setEPGmap("#" + new_epgxml + "=" + buf);
-									channel->setEPGid(chid);
 								}
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
