@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <zapit>
 	<filter channel_id="b85a1450013e0d49" new_epg_id="ac423070013e213f"/> --rai1
 	<filter channel_id="b12003ee00011072" new_epg_id="ac423070013e213f"/> --rai1
-
 	<filter channel_id="ac9630d4013e4530" new_epg_id="ac423070013e2140"/> --rai2
 	<filter channel_id="b12003ee00011073" new_epg_id="ac423070013e2140"/> --rai2
-
 	<filter channel_id="b12003ee00011074" new_epg_id="ac423070013e2141"/> --rai3
 	<filter channel_id="ac9630d4013e4531" new_epg_id="ac423070013e2141"/> --rai3
-
 	<filter channel_id="ac9630d4013e4534" new_epg_id="ac423070013e2142"/> --rai4
-
 	<filter channel_id="ac9630d4013e4533" new_epg_id="ac421518013e0ce9"/> --raisport1
 	<filter channel_id="b12003ee00011078" new_epg_id="ac423070013e2144"/> --rainews24
-
-	<filter channel_id="b4d6070800c80e26" new_epg_id="b45803fb0001283d"/> --Das Erste
-
-	<filter channel_id="aa0004210001ef10" >RTL.de</filter> --RTL HD
-	<filter channel_id="b6ba3db8013e4224" >RedlightHD.ero</filter> --Redlight HD
 </zapit>
