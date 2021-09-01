@@ -407,7 +407,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 					CFrontend::getXMLDelsysFEC(fec, feparams.delsys, feparams.modulation, feparams.fec_inner);
 				else if (CFrontend::isCable(delsys))
 					feparams.delsys = DVB_C;
-				
+
 			} else if (CFrontend::isTerr(delsys)) {
 				feparams.delsys = delsys;
 			}
@@ -1027,7 +1027,7 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 				config.name.c_str(), config.position, config.diseqc, config.uncommited);
 	else
 		fprintf(fd, "\t<%s name=\"%s\" position=\"%hd\">\n",
-			delivery_name.c_str(), 
+			delivery_name.c_str(),
 			config.name.c_str(), config.position);
 }
 

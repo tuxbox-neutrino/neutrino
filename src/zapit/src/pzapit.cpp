@@ -306,11 +306,11 @@ int main (int argc, char** argv)
 				sscanf(argv[++i], "%" SCNd64 "", &satmask);
 				sscanf(argv[++i], "%d", &diseqc[0]);
 				/*
-								diseqc[0] = strlen(argv[i+1]);
-								for (i++, j = 0; j <= diseqc[0]; j++)
-								{
-									diseqc[j+1] = argv[i][j] - 48;
-								}
+				diseqc[0] = strlen(argv[i+1]);
+				for (i++, j = 0; j <= diseqc[0]; j++)
+				{
+					diseqc[j+1] = argv[i][j] - 48;
+				}
 				*/
 				continue;
 			}

@@ -197,12 +197,12 @@ void CZapitChannel::resetPids(void)
 }
 
 unsigned char CZapitChannel::getServiceType(bool real)
-{ 
+{
 	if(real)
-		return serviceType; 
+		return serviceType;
 	else
 		return serviceType == ST_DIGITAL_RADIO_SOUND_SERVICE ?
-			ST_DIGITAL_RADIO_SOUND_SERVICE : ST_DIGITAL_TELEVISION_SERVICE;	
+			ST_DIGITAL_RADIO_SOUND_SERVICE : ST_DIGITAL_TELEVISION_SERVICE;
 }
 
 bool CZapitChannel::isUHD()
@@ -291,7 +291,7 @@ printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCod
 	tmpSub->hearingImpaired=impaired;
 }
 
-void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id)                                                                                                                                                                                 
+void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id)
 {
 	CZapitDVBSub* oldSub = 0;
 	CZapitDVBSub* tmpSub = 0;
@@ -358,10 +358,10 @@ int CZapitChannel::getChannelSubIndex(void)
 #endif
 #if 0
 void CZapitChannel::setCaPmt(CCaPmt *pCaPmt)
-{ 
+{
 	if(caPmt)
 		delete caPmt;
-	caPmt = pCaPmt; 
+	caPmt = pCaPmt;
 }
 #endif
 

@@ -131,13 +131,13 @@ bool CNit::Read()
 		}
 
 		if ((buffer[0] != 0x40) && ((nid > 0) && (buffer[0] != 0x41))) {
-			// NIT actual or NIT other 
+			// NIT actual or NIT other
 			printf("[NIT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
 			ret = false;
 			goto _return;
 		}
 
-		nit_index = buffer[0] & 1; 
+		nit_index = buffer[0] & 1;
 
 		unsigned char secnum = buffer[6];
 #ifdef DEBUG_NIT
@@ -501,7 +501,7 @@ bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamIn
 
 	const LogicalChannelList &clist = *ld->getChannelList();
 	LogicalChannelListConstIterator it;
-	for (it = clist.begin(); it != clist.end(); ++it) { 
+	for (it = clist.begin(); it != clist.end(); ++it) {
 		t_service_id service_id = (*it)->getServiceId();
 		int lcn = (*it)->getLogicalChannelNumber();
 		t_channel_id channel_id = CZapitChannel::makeChannelId(0, 0,

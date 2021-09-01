@@ -84,7 +84,7 @@ bool CPat::Parse()
 			/* store program map table pid */
 			int service_id	= ((buffer[i] << 8) | buffer[i+1]);
 			int pmt_pid	= (((buffer[i+2] & 0x1F) << 8) | buffer[i+3]);
-			sidpmt.insert(sidpmt_map_pair_t(service_id, pmt_pid)); 
+			sidpmt.insert(sidpmt_map_pair_t(service_id, pmt_pid));
 		}
 	} while (filter[4]++ != buffer[7]);
 	parsed = true;

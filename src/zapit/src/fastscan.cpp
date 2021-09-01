@@ -260,7 +260,7 @@ bool CServiceScan::ScanFast(int num, bool reload)
 
 		tune_tp_index++;
 	}
-	
+
 	ParseFst(op->pid, op);
 
 	//FIXME move to Cleanup() ?
@@ -539,7 +539,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 	}
 
 	bouquetId = g_bouquetManager->existsUBouquet(op->name);
-	if (bouquetId >= 0) 
+	if (bouquetId >= 0)
 		g_bouquetManager->Bouquets[bouquetId]->sortBouquetByNumber();
 
 	fst_sections.clear();

@@ -168,7 +168,7 @@ void transponder::dumpServiceXml(FILE * fd)
 				getFEParams()->inversion,
 				getFEParams()->bandwidth,
 				getFEParams()->code_rate_HP,
-				getFEParams()->code_rate_LP, 
+				getFEParams()->code_rate_LP,
 				getFEParams()->modulation,
 				getFEParams()->transmission_mode,
 				getFEParams()->guard_interval,

@@ -2153,7 +2153,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	}
 
 	// Toneburst should not be repeated and should be sent AFTER
-	// all diseqc, this means we don't support a toneburst switch 
+	// all diseqc, this means we don't support a toneburst switch
 	// before any diseqc equipment.
 	if (config.diseqcType == MINI_DISEQC)
 		sendToneBurst(b, 1);
