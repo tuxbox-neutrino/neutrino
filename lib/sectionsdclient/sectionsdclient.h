@@ -84,7 +84,8 @@ class CSectionsdClient : private CBasicClient
 			EVT_SERVICES_UPDATE,
 			EVT_BOUQUETS_UPDATE,
 #endif
-			EVT_WRITE_SI_FINISHED
+			EVT_WRITE_SI_FINISHED,
+			EVT_RELOAD_XMLTV
 		};
 
 	struct epgflags {

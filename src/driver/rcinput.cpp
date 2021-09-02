@@ -1033,6 +1033,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 							case CSectionsdClient::EVT_BOUQUETS_UPDATE:
 								break;
 #endif
+							case CSectionsdClient::EVT_RELOAD_XMLTV:
+								*msg          = NeutrinoMessages::EVT_RELOAD_XMLTV;
+								*data         = 0;
+								break;
 							default:
 								printf("[neutrino] event INITID_SECTIONSD - unknown eventID 0x%x\n",  emsg.eventID );
 						}
