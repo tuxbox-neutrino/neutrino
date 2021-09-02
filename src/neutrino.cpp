@@ -743,8 +743,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.epg_extendedcache = configfile.getInt32("epg_extendedcache_time", 168);
 	g_settings.epg_max_events = configfile.getInt32("epg_max_events", 30000);
 	g_settings.epg_old_events = configfile.getInt32("epg_old_events", 1);
-	g_settings.epg_read = configfile.getBool("epg_read", g_settings.epg_save);
-	g_settings.epg_read_frequently = configfile.getInt32("epg_read_frequently", 0);
+	g_settings.epg_read = configfile.getBool("epg_read", true);
+	g_settings.epg_read_frequently = configfile.getInt32("epg_read_frequently", 1);
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 	g_settings.epg_save_frequently = configfile.getInt32("epg_save_frequently", 0);
 	g_settings.epg_save_mode = configfile.getInt32("epg_save_mode", 0);
