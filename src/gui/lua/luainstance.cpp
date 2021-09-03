@@ -473,6 +473,7 @@ const char CLuaInstance::className[] = LUA_CLASSNAME;
 
 CLuaInstance::CLuaInstance()
 {
+	DisableAbort = true;
 	/* Create the intepreter object.  */
 	lua = luaL_newstate();
 
@@ -523,7 +524,12 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 	lua_rawseti(lua, -2, n++);
 
 	if (argv && (!argv->empty())) {
+		std::string abort = "DisableAbort";
 		for(std::vector<std::string>::iterator it = argv->begin(); it != argv->end(); ++it) {
+			if (!it->compare(abort)) {
+				DisableAbort = false;
+				continue;
+			}
 			lua_pushstring(lua, it->c_str());
 			lua_rawseti(lua, -2, n++);
 		}
@@ -592,7 +598,11 @@ static void abortHook(lua_State *lua, lua_Debug *)
 
 void CLuaInstance::abortScript()
 {
-	lua_sethook(lua, &abortHook, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+	if(DisableAbort)
+		lua_sethook(lua, &abortHook, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+	else
+		fprintf(stderr, "DisableAbort Script is aktiv\n");
+
 }
 
 #ifdef STATIC_LUAPOSIX
