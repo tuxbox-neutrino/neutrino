@@ -949,7 +949,7 @@ bool CInfoViewer::showLivestreamInfo()
 {
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 	bool web_mode = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
-	if (web_mode && (cc->getEpgID() == 0 || (cc->getScriptName().empty() && info_CurrentNext.current_uniqueKey == 0 && info_CurrentNext.next_uniqueKey == 0)))
+	if (web_mode && (info_CurrentNext.current_uniqueKey == 0 && info_CurrentNext.next_uniqueKey == 0))
 	{
 		std::string livestreamInfo1 = "";
 		std::string livestreamInfo2 = "";
