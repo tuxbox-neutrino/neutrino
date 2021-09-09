@@ -49,6 +49,9 @@ private:
 	std::string func_set_timer_form(CyhookHandler *hh, std::string para);
 	std::string func_bouquet_editor_main(CyhookHandler *hh, std::string para);
 	std::string func_set_bouquet_edit_form(CyhookHandler *hh, std::string para);
+	std::string func_get_webtv_list(CyhookHandler *hh, std::string para);
+	std::string func_get_webradio_list(CyhookHandler *hh, std::string para);
+	std::string func_get_xmltv_list(CyhookHandler *hh, std::string para);
 
 protected:
 	CNeutrinoAPI	*NeutrinoAPI;

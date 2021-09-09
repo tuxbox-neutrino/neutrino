@@ -236,6 +236,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"xmltv.data",		&CControlAPI::xmltvepgCGI,		"+xml"},
 	{"xmltv.xml",		&CControlAPI::xmltvepgCGI,		"+xml"},
 	{"xmltv.m3u",		&CControlAPI::xmltvm3uCGI,		""},
+	{"xmltvlist",		&CControlAPI::xmltvlistCGI,		"text/plain"},
 	// utils
 	{"build_live_url",	&CControlAPI::build_live_url,		""},
 	{"get_logo",		&CControlAPI::logoCGI,			"text/plain"},
@@ -3399,6 +3400,70 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	}
 
 	hh->SendResult(result);
+}
+
+void CControlAPI::xmltvlistCGI(CyhookHandler *hh)
+{
+	std::vector<std::string>::iterator it;
+	std::vector<std::string> url_list;
+	std::string tmp;
+	std::string::size_type i = 0;
+
+	if (!hh->ParamList["webtv"].empty())
+	{
+		std::string webtv_url = hh->ParamList["webtv"];
+		g_settings.webtv_xml.clear();
+		url_list = ::split(webtv_url, '\n');
+		for (it = url_list.begin(); it != url_list.end(); it++)
+		{
+			tmp = (*it);
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
+			if (!tmp.empty())
+				g_settings.webtv_xml.push_back(tmp);
+		}
+	}
+	else
+		g_settings.webtv_xml.clear();
+
+	if (!hh->ParamList["webradio"].empty())
+	{
+		std::string webradio_url = hh->ParamList["webradio"];
+		g_settings.webradio_xml.clear();
+		url_list = ::split(webradio_url, '\n');
+		for (it = url_list.begin(); it != url_list.end(); it++)
+		{
+			tmp = (*it);
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
+			if (!tmp.empty())
+				g_settings.webradio_xml.push_back(tmp);
+		}
+	}
+	else
+		g_settings.webradio_xml.clear();
+
+	if (!hh->ParamList["xmltv"].empty())
+	{
+		std::string xmltv_url = hh->ParamList["xmltv"];
+		g_settings.xmltv_xml.clear();
+		url_list = ::split(xmltv_url, '\n');
+		for (it = url_list.begin(); it != url_list.end(); it++)
+		{
+			tmp = (*it);
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
+			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
+			if (!tmp.empty())
+				g_settings.xmltv_xml.push_back(tmp);
+		}
+	}
+	else
+		g_settings.xmltv_xml.clear();
+
+	hh->SendOk();
 }
 //-------------------------------------------------------------------------
 // audio_no : (optional) audio channel

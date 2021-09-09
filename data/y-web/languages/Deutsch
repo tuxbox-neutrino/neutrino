@@ -256,6 +256,8 @@ set.menue.boot_options=Bootoptionen
 set.menue.peronalization=Personalisierung
 set.menue.plugins=Plugins
 set.menue.others=Diverses
+set.menue.xmltv=XMLTV
+
 ========Neutrino Settings - Recording
 set.rec.rec_dest=Aufnahmeziel
 set.rec.device=Aufnahmeger&auml;t
@@ -405,6 +407,9 @@ set.settings.backup_desc=Sichern Ihrer Einstellungen
 set.settings.restore=Wiederherstellen
 set.settings.restore_desc=Hochladen und wiederherstellen einer vorher erstellten Sicherung. Ihre Box startet danach neu.
 set.settings.warning=Sichern &amp; Wiederherstellen ist nur bei einem gleichen Image mit gleichem Entwicklungsstand sinnvoll.
+
+============Settings XMLTV
+set.xmltv.header=XMLTV Einstellungen
 
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen

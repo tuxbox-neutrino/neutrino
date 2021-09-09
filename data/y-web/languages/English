@@ -259,6 +259,8 @@ set.menue.boot_options=Boot options
 set.menue.peronalization=Personalization
 set.menue.plugins=Plugins
 set.menue.others=Others
+set.menue.xmltv=XMLTV
+
 ========Neutrino Settings - Recording
 set.rec.rec_dest=Recoring destination
 set.rec.device=Recording device
@@ -408,6 +410,9 @@ set.settings.backup_desc=Backup your settings
 set.settings.restore=Restore
 set.settings.restore_desc=Upload and restore your settings. Your STB will reboot.
 set.settings.warning=Backup & Restore is only useful for the same image with the same level of development. 
+
+============Settings XMLTV
+set.xmltv.header=XMLTV Settings
 
 ============ Tools Info
 tools.info.show_messages=Kernel Messages

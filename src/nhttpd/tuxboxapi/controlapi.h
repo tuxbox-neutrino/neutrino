@@ -129,6 +129,7 @@ private:
 	void updateBouquetCGI(CyhookHandler *hh);
 	void xmltvepgCGI(CyhookHandler *hh);
 	void xmltvm3uCGI(CyhookHandler *hh);
+	void xmltvlistCGI(CyhookHandler *hh);
 	void build_live_url(CyhookHandler *hh);
 	void logoCGI(CyhookHandler *hh);
 	void ConfigCGI(CyhookHandler *hh);

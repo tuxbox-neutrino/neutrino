@@ -1,0 +1,52 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit() {
+	show_waitbox(true);
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Settings-XMLTV_Settings=}{=var-set:menu={=L:set.xmltv.header=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" class="y_form" accept-charset="UTF-8" action="/control/xmltvlist" method="POST" enctype="x-www-form-urlencoded">
+		<table border="0" width="100%">
+			<tr>
+				<td colspan="2" class="y_form_header">WebTV</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td><textarea id="webtv" name="webtv" cols="120" rows="10">{=func:get_webtv_list=}</textarea></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="y_form_header">WebRadio</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td><textarea id="webradio" name="webradio" cols="120" rows="10">{=func:get_webradio_list=}</textarea></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="y_form_header">XMLTV</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td><textarea id="xmltv" name="xmltv" cols="120" rows="10">{=func:get_xmltv_list=}</textarea></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_xmltv.yhtm"/>
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">{=L:save=}</button>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}
+
