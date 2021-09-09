@@ -3237,6 +3237,14 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 	hh->ParamList["format"] = "xml";
 	hh->outStart();
 
+	int mode;
+	if (hh->ParamList["mode"] == "tv")
+		mode = CZapitClient::MODE_TV;
+	else if (hh->ParamList["mode"] == "radio")
+		mode = CZapitClient::MODE_RADIO;
+	else
+		mode = CZapitClient::MODE_ALL;
+
 	bool xml_cdata = false;
 	t_channel_id channel_id;
 	std::string result = "";
@@ -3253,8 +3261,10 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 
 		for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
 		{
-			if (m == CZapitClient::MODE_RADIO)
+			if (mode == CZapitClient::MODE_RADIO || m == CZapitClient::MODE_RADIO)
 				g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
+			else
+				g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
 
 			if(!chanlist.empty() && !g_bouquetManager->Bouquets[i]->bHidden && g_bouquetManager->Bouquets[i]->bUser)
 			{
@@ -3311,8 +3321,7 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 
 void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 {
-	hh->outStart();
-	std::string result("#EXTM3U\n");
+	//hh->outStart();
 
 	int mode;
 	if (hh->ParamList["mode"] == "tv")
@@ -3331,6 +3340,16 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	// get hostname
 	char hostname[HOST_NAME_MAX];
 	gethostname(hostname, HOST_NAME_MAX);
+
+	std::string result("#EXTM3U");
+	result += " tvg-url=\"" + host + "/control/xmltv.xml";
+
+	if (mode == CZapitClient::MODE_TV)
+		result += "?mode=tv";
+	else if (mode == CZapitClient::MODE_RADIO)
+		result += "?mode=radio";
+
+	result += "\"\n";
 
 	// build url
 	std::string url = host;

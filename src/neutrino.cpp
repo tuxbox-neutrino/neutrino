@@ -968,6 +968,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		}
 	}
 
+	g_settings.xmltv_xml_m3u.clear();
+
 	g_settings.livestreamResolution = configfile.getInt32("livestreamResolution", 1920);
 	g_settings.livestreamScriptPath = configfile.getString("livestreamScriptPath", WEBTVDIR);
 
@@ -3280,8 +3282,8 @@ TIMER_STOP("################################## after all #######################
 		CUpdateCheckPackages::getInstance()->startThread();
 #endif
 
-	for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
-		g_Sectionsd->readSIfromXMLTV((*it).c_str());
+	xmltv_xml_readepg();
+	xmltv_xml_m3u_readepg();
 
 	RealRun();
 	ExitRun(g_info.hw_caps->can_shutdown);
@@ -4668,6 +4670,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		{
 			printf("CNeutrinoApp::handleMsg: Reading xmltv epg from %s ...\n", (*it).c_str());
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
+		}
+		for (std::list<std::string>::iterator it_tmp = g_settings.xmltv_xml_m3u.begin(); it_tmp != g_settings.xmltv_xml_m3u.end(); it_tmp++)
+		{
+			printf("CNeutrinoApp::handleMsg: Reading xmltv epg from %s ...\n", (*it_tmp).c_str());
+			g_Sectionsd->readSIfromXMLTV((*it_tmp).c_str());
 		}
 		return messages_return::handled;
 	}

@@ -279,6 +279,7 @@ int CWebChannelsSetup::Show()
 		}
 		webchannels_auto();
 		g_Zapit->reinitChannels();
+		CNeutrinoApp::getInstance()->xmltv_xml_m3u_readepg();
 		changed = false;
 		hint.hide();
 	}

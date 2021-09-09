@@ -36,6 +36,7 @@
 #include <iostream>
 
 #include <global.h>
+#include <neutrino.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <system/helpers.h>
 #include <system/set_threadname.h>
@@ -48,6 +49,7 @@
 #include <xmlinterface.h>
 
 #define M3U_START_MARKER        "#EXTM3U"
+#define M3U_START_EPG_MARKER    "tvg-url="
 #define M3U_INFO_MARKER         "#EXTINF"
 #define TVG_INFO_ID_MARKER      "tvg-id="
 #define TVG_INFO_NAME_MARKER    "tvg-name="
@@ -531,6 +533,7 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 		sortBouquets();
 	}
 
+	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_m3u_clear();
 	loadWebtv();
 	loadWebradio();
 	loadLogos();
@@ -986,6 +989,7 @@ void CBouquetManager::loadWebchannels(int mode)
 			{
 				std::ifstream infile;
 				char cLine[1024];
+				std::string epg_url = "";
 				std::string desc = "";
 				std::string title = "";
 				std::string prefix = "";
@@ -1009,8 +1013,22 @@ void CBouquetManager::loadWebchannels(int mode)
 						continue;
 
 					if (strLine.find(M3U_START_MARKER) != std::string::npos)
-						continue;
-
+					{
+						epg_url = "";
+						epg_url = ReadMarkerValue(strLine, M3U_START_EPG_MARKER);
+						printf("tvg-url: %s\n", epg_url.c_str());
+						if (!epg_url.empty())
+						{
+							if (epg_url.find_first_of(',') != std::string::npos)
+							{
+								std::vector<std::string> epg_list = ::split(epg_url, ',');
+								for (std::vector<std::string>::iterator it_epg = epg_list.begin(); it_epg != epg_list.end(); it_epg++)
+									CNeutrinoApp::getInstance()->g_settings_xmltv_xml_m3u_pushback((*it_epg));
+							}
+							else
+								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_m3u_pushback(epg_url);
+						}
+					}
 					if (strLine.find(M3U_INFO_MARKER) != std::string::npos)
 					{
 						int iColon = (int)strLine.find_first_of(':');
