@@ -4666,16 +4666,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_RELOAD_XMLTV) {
-		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it)
-		{
-			printf("CNeutrinoApp::handleMsg: Reading xmltv epg from %s ...\n", (*it).c_str());
-			g_Sectionsd->readSIfromXMLTV((*it).c_str());
-		}
-		for (std::list<std::string>::iterator it_tmp = g_settings.xmltv_xml_m3u.begin(); it_tmp != g_settings.xmltv_xml_m3u.end(); it_tmp++)
-		{
-			printf("CNeutrinoApp::handleMsg: Reading xmltv epg from %s ...\n", (*it_tmp).c_str());
-			g_Sectionsd->readSIfromXMLTV((*it_tmp).c_str());
-		}
+		printf("CNeutrinoApp::handleMsg: reload xmltv epg\n");
+		xmltv_xml_readepg();
+		xmltv_xml_m3u_readepg();
 		return messages_return::handled;
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000)) {

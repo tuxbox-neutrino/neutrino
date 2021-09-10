@@ -178,11 +178,7 @@ int CXMLTVSetup::Show()
 			g_settings.xmltv_xml.push_back(f->getName());
 		}
 
-		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it)
-		{
-			printf("Reading xmltv epg from %s ...\n", (*it).c_str());
-			g_Sectionsd->readSIfromXMLTV((*it).c_str());
-		}
+		CNeutrinoApp::getInstance()->xmltv_xml_readepg();
 	}
 
 	delete m;
