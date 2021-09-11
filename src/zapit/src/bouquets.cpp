@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <fstream>
 #include <iostream>
@@ -1366,37 +1367,60 @@ void CBouquetManager::readEPGMapping()
 	if(!EpgXMLMapping.empty())
 		EpgXMLMapping.clear();
 
-	const std::string epg_map_dir = CONFIGDIR "/zapit/epgmap.xml";
-	xmlDocPtr epgmap_parser = parseXmlFile(epg_map_dir.c_str());
+	std::list<std::string> epgmap_dirs;
+	epgmap_dirs.push_back(CONFIGDIR "/zapit");
+	epgmap_dirs.push_back(WEBTVDIR);
+	epgmap_dirs.push_back(WEBTVDIR_VAR);
 
-	if (epgmap_parser != NULL)
+	std::list<std::string> epgmaps;
+	for (std::list<std::string>::iterator it = epgmap_dirs.begin(); it != epgmap_dirs.end(); ++it)
 	{
+		DIR *dp;
+		struct dirent *d;
 
-		xmlNodePtr epgmap = xmlDocGetRootElement(epgmap_parser);
-		if(epgmap)
-			epgmap = xmlChildrenNode(epgmap);
+		if ((dp = opendir((*it).c_str())) == NULL)
+			continue;
 
-		while (epgmap)
+		while ((d = readdir(dp)) != NULL)
 		{
-			const char *channelid = xmlGetAttribute(epgmap, "channel_id");
-			const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
-			const char *xmlepg = xmlGetData(epgmap); // returns empty string, not NULL if nothing found
-			t_channel_id epg_id = 0;
-			t_channel_id channel_id = 0;
-			if (epgid)
-				epg_id = strtoull(epgid, NULL, 16);
-			if (channelid)
-				channel_id = strtoull(channelid, NULL, 16);
-			if(channel_id && epg_id){
-				EpgIDMapping[channel_id]=epg_id;
-			}
-			if(channel_id && ((xmlepg != NULL) && (xmlepg[0] != '\0'))){
-				EpgXMLMapping[channel_id]=xmlepg;
-			}
-			epgmap = xmlNextNode(epgmap);
+			std::string f = d->d_name;
+			if ((f.compare("epgmap.xml") == 0) || (f.find(".epgmap") != std::string::npos))
+				epgmaps.push_back((*it) + "/" + f);
 		}
 	}
-	xmlFreeDoc(epgmap_parser);
+
+	for (std::list<std::string>::iterator it = epgmaps.begin(); it != epgmaps.end(); ++it)
+	{
+		INFO("read %s", (*it).c_str());
+
+		xmlDocPtr epgmap_parser = parseXmlFile((*it).c_str());
+
+		if (epgmap_parser != NULL)
+		{
+			xmlNodePtr epgmap = xmlDocGetRootElement(epgmap_parser);
+			if (epgmap)
+				epgmap = xmlChildrenNode(epgmap);
+
+			while (epgmap)
+			{
+				const char *channelid = xmlGetAttribute(epgmap, "channel_id");
+				const char *epgid = xmlGetAttribute(epgmap, "new_epg_id");
+				const char *xmlepg = xmlGetData(epgmap); // returns empty string, not NULL if nothing found
+				t_channel_id channel_id = 0;
+				t_channel_id epg_id = 0;
+				if (channelid)
+					channel_id = strtoull(channelid, NULL, 16);
+				if (epgid)
+					epg_id = strtoull(epgid, NULL, 16);
+				if (channel_id && epg_id)
+					EpgIDMapping[channel_id]=epg_id;
+				if (channel_id && ((xmlepg != NULL) && (xmlepg[0] != '\0')))
+					EpgXMLMapping[channel_id]=xmlepg;
+				epgmap = xmlNextNode(epgmap);
+			}
+		}
+		xmlFreeDoc(epgmap_parser);
+	}
 }
 
 void CBouquetManager::convert_E2_EPGMapping(std::string mapfile_in, std::string mapfile_out)

@@ -304,6 +304,8 @@ bool CWebChannelsSetup::changeNotify(const neutrino_locale_t OptionName, void */
 
 int filefilter(const struct dirent *entry)
 {
+	std::string f = entry->d_name;
+
 	int len = strlen(entry->d_name);
 	if (len > 3 && (
 		   (entry->d_name[len - 3] == 'x' && entry->d_name[len - 2] == 'm' && entry->d_name[len - 1] == 'l')
