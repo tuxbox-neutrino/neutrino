@@ -903,6 +903,20 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_ModeChannel)
 	{
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
+		{
+			// FIXME: Doesn't work with timing.infobar_tv/radio=0
+			if (g_InfoViewer->get_livestreamInfo1() == "RESOLUTION=1x1") // comes from best_bitrate_m3u8.lua
+			{
+				Event = g_InfoViewer->get_livestreamInfo2();
+			}
+			else
+			{
+				Event = g_InfoViewer->get_livestreamInfo1();
+				Event += "\n" + g_InfoViewer->get_livestreamInfo2();
+			}
+		}
+
 		t_channel_id channel_id = parseID & 0xFFFFFFFFFFFFULL;
 
 		CZapitChannel *channel = CZapit::getInstance()->GetCurrentChannel();
@@ -951,12 +965,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			time_t next_start_time = CurrentNext.next_zeit.startzeit;
 			tm_struct = localtime(&next_start_time);
 			snprintf(End, sizeof(End), "%02d:%02d", tm_struct->tm_hour, tm_struct->tm_min);
-		}
-
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
-		{
-			// FIXME: Doesn't work with timing.infobar_tv/radio=0
-			Event = g_InfoViewer->get_livestreamInfo1();
 		}
 	}
 	else if (parseID == NeutrinoModes::mode_audio)
