@@ -968,6 +968,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		}
 	}
 
+	g_settings.xmltv_xml_auto.clear();
 	g_settings.xmltv_xml_m3u.clear();
 
 	g_settings.livestreamResolution = configfile.getInt32("livestreamResolution", 1920);
