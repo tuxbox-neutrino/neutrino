@@ -972,23 +972,22 @@ void CBouquetManager::loadWebchannels(int mode)
 							t_channel_id new_epgid = reMapEpgID(chid);
 							if(new_epgid)
 								channel->setEPGid(new_epgid);
-							char buf[100];
-							snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 							if (xmltv)
 							{
-								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback(xmltv);
+								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback(std::string(xmltv));
 							}
-							if (epgmap)
-							{
-								std::string new_epgxml(epgmap);
+							char buf[100];
+							snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
+							std::string new_epgxml = reMapEpgXML(chid);
+							if(!new_epgxml.empty()) {
 								channel->setEPGmap("#" + new_epgxml + "=" + buf);
 							}
-							else
+							// local epgmap overrides global epgmap
+							if (epgmap)
 							{
-								std::string new_epgxml = reMapEpgXML(chid);
-								if(!new_epgxml.empty()) {
-									channel->setEPGmap("#" + new_epgxml + "=" + buf);
-								}
+								std::string new_epgmap(epgmap);
+								if(!new_epgmap.empty())
+									channel->setEPGmap("#" + new_epgmap + "=" + buf);
 							}
 							channel->flags = CZapitChannel::UPDATED;
 							if (gbouquet)
