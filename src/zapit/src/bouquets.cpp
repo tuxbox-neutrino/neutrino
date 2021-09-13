@@ -535,7 +535,6 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 	}
 
 	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_clear();
-	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_m3u_clear();
 	loadWebtv();
 	loadWebradio();
 	loadLogos();
@@ -1039,10 +1038,10 @@ void CBouquetManager::loadWebchannels(int mode)
 							{
 								std::vector<std::string> epg_list = ::split(epg_url, ',');
 								for (std::vector<std::string>::iterator it_epg = epg_list.begin(); it_epg != epg_list.end(); it_epg++)
-									CNeutrinoApp::getInstance()->g_settings_xmltv_xml_m3u_pushback((*it_epg));
+									CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback((*it_epg));
 							}
 							else
-								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_m3u_pushback(epg_url);
+								CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_pushback(epg_url);
 						}
 					}
 					if (strLine.find(M3U_INFO_MARKER) != std::string::npos)

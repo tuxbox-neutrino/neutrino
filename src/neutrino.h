@@ -255,21 +255,10 @@ public:
 	{
 		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
+	}
+	void xmltv_xml_auto_readepg()
+	{
 		for (std::list<std::string>::iterator it = g_settings.xmltv_xml_auto.begin(); it != g_settings.xmltv_xml_auto.end(); it++)
-			g_Sectionsd->readSIfromXMLTV((*it).c_str());
-	}
-
-	void g_settings_xmltv_xml_m3u_clear()
-	{
-		g_settings.xmltv_xml_m3u.clear();
-	}
-	void g_settings_xmltv_xml_m3u_pushback(std::string _epg_url)
-	{
-		g_settings.xmltv_xml_m3u.push_back(_epg_url);
-	}
-	void xmltv_xml_m3u_readepg()
-	{
-		for (std::list<std::string>::iterator it = g_settings.xmltv_xml_m3u.begin(); it != g_settings.xmltv_xml_m3u.end(); it++)
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
 	}
 };
