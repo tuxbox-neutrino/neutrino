@@ -462,7 +462,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 		CMenuOptionChooser(const std::string &Name, int * const OptionValue, const struct keyval * const Options,
 				const size_t Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
 				const neutrino_msg_t DirectKey = RC_NOKEY, const char * const IconName = NULL,
-				bool size_t = false, bool OptionsSort = false);
+				bool Pulldown = false, bool OptionsSort = false);
 		CMenuOptionChooser(const std::string &Name, int * const OptionValue, const struct keyval_ext * const Options,
 				const size_t Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
 				const neutrino_msg_t DirectKey = RC_NOKEY, const char * const IconName = NULL,
