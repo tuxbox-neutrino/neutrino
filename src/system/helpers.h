@@ -36,6 +36,8 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
+#define AGENT "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"
+
 typedef uint64_t t_channel_id;
 
 int my_system(const char * cmd);
@@ -185,8 +187,8 @@ size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data);
 std::string encodeUrl(std::string txt);
 std::string decodeUrl(std::string url);
 
-bool getUrl(std::string &url, std::string &answer, const std::string userAgent = " ", unsigned int timeout = 60);
-bool downloadUrl(std::string url, std::string file, const std::string userAgent = " ", unsigned int timeout = 60);
+bool getUrl(std::string &url, std::string &answer, const std::string userAgent = AGENT, unsigned int timeout = 60);
+bool downloadUrl(std::string url, std::string file, const std::string userAgent = AGENT, unsigned int timeout = 60);
 
 bool isDigitWord(std::string str);
 
