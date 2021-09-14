@@ -677,8 +677,11 @@ void *insertEventsfromXMLTV(void * data)
 	}
 	else if (::downloadUrl(url, tmp_name))
 	{
-		readEventsFromXMLTV(tmp_name, ev_count);
-		remove(tmp_name.c_str());
+		if (!access(tmp_name.c_str(), R_OK))
+		{
+			readEventsFromXMLTV(tmp_name, ev_count);
+			remove(tmp_name.c_str());
+		}
 	}
 	else
 	{
