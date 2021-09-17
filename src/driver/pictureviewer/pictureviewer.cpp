@@ -703,7 +703,8 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 			}
 		}
 
-		if (cc && (name.compare("m3u_loading_logos") != 0))
+		// "alternate_logos" is a helper string from zapit/src/bouquets.cpp
+		if (cc && (name.compare("alternate_logos") != 0))
 		{
 			if (!cc->getAlternateLogo().empty())
 			{

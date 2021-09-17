@@ -990,8 +990,8 @@ void CBouquetManager::loadWebchannels(int mode)
 								if(!new_epgmap.empty())
 									channel->setEPGmap("#" + new_epgmap + "=" + buf);
 							}
-							std::string dummy = "";
-							if (alogo && !g_PicViewer->GetLogoName(chid, std::string(title), dummy))
+							std::string helper = "alternate_logos";
+							if (alogo && !g_PicViewer->GetLogoName(chid, std::string(title), helper))
 							{
 								channel->setAlternateLogo(std::string(alogo));
 								pthread_mutex_lock (&mutex);
@@ -1128,8 +1128,8 @@ void CBouquetManager::loadWebchannels(int mode)
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 									channel->setEPGmap("#" + new_epgxml + "=" + buf);
 								}
-								desc = "m3u_loading_logos";
-								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid,title,desc))
+								std::string helper = "alternate_logos";
+								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid, title, helper))
 								{
 									channel->setAlternateLogo(alogo);
 									pthread_mutex_lock (&mutex);
