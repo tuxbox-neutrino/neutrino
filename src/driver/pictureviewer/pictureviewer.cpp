@@ -536,6 +536,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	std::string fileType[] = { ".png", ".jpg", ".gif" };
 	std::vector<std::string> v_path;
 	std::vector<std::string> v_file;
+	bool got_logo = false;
 
 	// create eventname for eventlogos; Note: We don't process channellogos if any eventlogo was found.
 	std::string EventName = "";
@@ -600,6 +601,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 						if (width && height)
 							getSize(EventLogo.c_str(), width, height);
 						name = EventLogo;
+						got_logo = true;
 						return true;
 					}
 				}
@@ -699,12 +701,13 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 				if (width && height)
 					getSize(v_path[j].c_str(), width, height);
 				name = v_path[j];
+				got_logo = true;
 				return true;
 			}
 		}
 
 		// "alternate_logos" is a helper string from zapit/src/bouquets.cpp
-		if (cc && (name.compare("alternate_logos") != 0))
+		if (cc && (name.compare("alternate_logos") != 0) && !got_logo)
 		{
 			if (!cc->getAlternateLogo().empty())
 			{
