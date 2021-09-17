@@ -10,6 +10,7 @@ install_DATA = \
 	hint_back.png \
 	hint_backup.png \
 	hint_bedit.png \
+	\
 	hint_ci.png \
 	hint_dboxinfo.png \
 	hint_default.png \
@@ -19,7 +20,9 @@ install_DATA = \
 	hint_fileplay.png \
 	hint_games.png \
 	hint_hdd.png \
+	\
 	hint_imageinfo.png \
+	\
 	hint_inetradio.png \
 	hint_info.png \
 	hint_keys.png \
@@ -59,6 +62,8 @@ install_DATA = \
 	hint_tvradio_switch.png \
 	hint_vfd.png \
 	hint_video.png \
+	hint_vtxt.png \
+	hint_webradio.png \
 	hint_webtv.png \
 	hint_xmltv.png \
 	hint_ytplay.png
