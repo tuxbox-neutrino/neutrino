@@ -1613,77 +1613,85 @@ void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::Cu
 	}
 }
 
-void CInfoViewer::showSNR ()
+void CInfoViewer::showSNR()
 {
-	if (! is_visible)
+	if (!is_visible)
 		return;
+
 	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
-	if (!fileplay && !IS_WEBCHAN(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 )) {
-		int y_freq = 2*g_SignalFont->getHeight();
-		if (!g_settings.infobar_sat_display)
-			y_freq -= g_SignalFont->getHeight()/2; //half line up to center freq vertically
-		int y_numbox = numbox->getYPos();
-		if ((newfreq && chanready) || SDT_freq_update) {
-			char freq[22];
-			newfreq = false;
-
-			std::string polarisation = "";
-			
-			if (CFrontend::isSat(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
-				polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
-
-			int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
-			int freqfactor = 1000;
-			if (CFrontend::isTerr(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
-				freqfactor = 1000000;
-			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / freqfactor, frequency % freqfactor, polarisation.c_str());
-
-			int freqWidth = g_SignalFont->getRenderWidth(freq);
-			if (freqWidth > numbox_maxtxtwidth)
-				freqWidth = numbox_maxtxtwidth;
-			g_SignalFont->RenderString(BoxStartX + numbox_offset + ((numbox_maxtxtwidth - freqWidth) / 2), y_numbox + y_freq - 3, freqWidth, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT:COL_INFOBAR_TEXT, 0, renderFlag);
-			SDT_freq_update = false;
-		}
-		if (sigbox == NULL){
-			int sigbox_offset = OFFSET_INNER_MID;
-			sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox+ChanHeight/2, ChanWidth - 2*sigbox_offset, ChanHeight/2, NULL, true, NULL, "S", "Q");
-			sigbox->setItemName("SIGBOX");
-			sigbox->setTextColor(COL_INFOBAR_TEXT);
-			sigbox->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
-			sigbox->setPassiveColor(COL_PROGRESSBAR_PASSIVE_PLUS_0);
-			sigbox->setColorBody(numbox->getColorBody());
-			sigbox->doPaintBg(false);
-			sigbox->enableTboxSaveScreen(numbox->getColBodyGradientMode());
-		}
-		sigbox->setFrontEnd(CFEManager::getInstance()->getLiveFE());
-		sigbox->paint(CC_SAVE_SCREEN_NO);
-	}
-	// TODO: better integration
-	else if (IS_WEBCHAN(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 ))
+	if (g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6)
 	{
-		const char *icon = NULL;
-		int mode = CNeutrinoApp::getInstance()->getMode();
-		switch (mode)
+		if (!IS_WEBCHAN(current_channel_id) && !fileplay)
 		{
-			case NeutrinoModes::mode_webtv:
-				icon = NEUTRINO_ICON_HINT_WEBTV;
-				break;
-			case NeutrinoModes::mode_webradio:
-				icon = NEUTRINO_ICON_HINT_WEBRADIO;
-				break;
-			default: // NeutrinoMode not set yet
-				icon = NEUTRINO_ICON_PLAY;
-				break;
+			int y_freq = 2 * g_SignalFont->getHeight();
+			if (!g_settings.infobar_sat_display)
+				y_freq -= g_SignalFont->getHeight() / 2; //half line up to center freq vertically
+			int y_numbox = numbox->getYPos();
+			if ((newfreq && chanready) || SDT_freq_update)
+			{
+				char freq[22];
+				newfreq = false;
+				std::string polarisation = "";
+
+				if (CFrontend::isSat(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
+					polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
+
+				int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
+				int freqfactor = 1000;
+				if (CFrontend::isTerr(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
+					freqfactor = 1000000;
+				snprintf(freq, sizeof(freq), "%d.%d MHz %s", frequency / freqfactor, frequency % freqfactor, polarisation.c_str());
+
+				int freqWidth = g_SignalFont->getRenderWidth(freq);
+				if (freqWidth > numbox_maxtxtwidth)
+					freqWidth = numbox_maxtxtwidth;
+				g_SignalFont->RenderString(BoxStartX + numbox_offset + ((numbox_maxtxtwidth - freqWidth) / 2), y_numbox + y_freq - 3, freqWidth, freq, SDT_freq_update ? COL_COLORED_EVENTS_TEXT : COL_INFOBAR_TEXT, 0, renderFlag);
+				SDT_freq_update = false;
+			}
+			if (sigbox == NULL)
+			{
+				int sigbox_offset = OFFSET_INNER_MID;
+				sigbox = new CSignalBox(BoxStartX + sigbox_offset, y_numbox + ChanHeight / 2, ChanWidth - 2 * sigbox_offset, ChanHeight / 2, NULL, true, NULL, "S", "Q");
+				sigbox->setItemName("SIGBOX");
+				sigbox->setTextColor(COL_INFOBAR_TEXT);
+				sigbox->setActiveColor(COL_PROGRESSBAR_ACTIVE_PLUS_0);
+				sigbox->setPassiveColor(COL_PROGRESSBAR_PASSIVE_PLUS_0);
+				sigbox->setColorBody(numbox->getColorBody());
+				sigbox->doPaintBg(false);
+				sigbox->enableTboxSaveScreen(numbox->getColBodyGradientMode());
+			}
+			sigbox->setFrontEnd(CFEManager::getInstance()->getLiveFE());
+			sigbox->paint(CC_SAVE_SCREEN_NO);
 		}
-		int icon_w = 0,icon_h = 0;
-		frameBuffer->getIconSize(icon, &icon_w, &icon_h);
-		int icon_x = BoxStartX + ChanWidth / 2 - icon_w / 2;
-		int icon_y = BoxStartY + g_SignalFont->getHeight() + (ChanHeight - g_SignalFont->getHeight()) / 2 - icon_h / 2;
-		frameBuffer->paintIcon(icon, icon_x, icon_y);
+		else if (IS_WEBCHAN(current_channel_id))
+		{
+			const char *icon = NULL;
+			int mode = CNeutrinoApp::getInstance()->getMode();
+			switch (mode)
+			{
+				case NeutrinoModes::mode_webtv:
+					icon = NEUTRINO_ICON_HINT_WEBTV;
+					break;
+				case NeutrinoModes::mode_webradio:
+					icon = NEUTRINO_ICON_HINT_WEBRADIO;
+					break;
+				default: // NeutrinoMode not set yet
+					//icon = NEUTRINO_ICON_PLAY;
+					break;
+			}
+			if (icon)
+			{
+				int icon_w = 0, icon_h = 0;
+				frameBuffer->getIconSize(icon, &icon_w, &icon_h);
+				int icon_x = BoxStartX + ChanWidth / 2 - icon_w / 2;
+				int icon_y = BoxStartY + g_SignalFont->getHeight() + (ChanHeight - g_SignalFont->getHeight()) / 2 - icon_h / 2;
+				frameBuffer->paintIcon(icon, icon_x, icon_y);
+			}
+		}
 	}
-	if(showButtonBar)
+	if (showButtonBar)
 		infoViewerBB->showSysfsHdd();
 }
 
