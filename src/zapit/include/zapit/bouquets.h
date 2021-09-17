@@ -10,8 +10,11 @@
 #include <functional>
 #include <map>
 #include <vector>
+#include <list>
 #include <string.h>
 #include <ctype.h>
+
+#include <OpenThreads/Thread>
 
 #include <inttypes.h>
 #include <zapit/client/zapitclient.h>
@@ -91,7 +94,7 @@ class CZapitBouquet
 
 typedef std::vector<CZapitBouquet *> BouquetList;
 
-class CBouquetManager
+class CBouquetManager : public OpenThreads::Thread
 {
 	private:
 		CZapitBouquet * remainChannels;
@@ -113,11 +116,13 @@ class CBouquetManager
 		void convert_E2_EPGMapping(std::string mapfile_in, std::string mapfile_out = "/tmp/epgmap.xml");
 		void dump_EPGMapping(std::string mapfile_out = "/tmp/epgmap.xml");
 		//logo downloads
-		static void* LogoThread(void* _logolist);
-		pthread_t thrLogo;
-		ZapitChannelList LogoList;
+		void run();
+		bool LogoStart();
+		bool LogoStop();
+		bool logo_running;
+		std::list<t_channel_id> LogoList;
 	public:
-		CBouquetManager() { remainChannels = NULL; thrLogo = 0; };
+		CBouquetManager() { remainChannels = NULL; logo_running = false; };
 		~CBouquetManager();
 		class ChannelIterator
 		{

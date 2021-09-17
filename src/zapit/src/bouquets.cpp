@@ -62,7 +62,6 @@
 
 extern CBouquetManager *g_bouquetManager;
 extern CPictureViewer *g_PicViewer;
-pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define GET_ATTR(node, name, fmt, arg)                                  \
         do {                                                            \
@@ -537,7 +536,6 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_clear();
 	loadWebtv();
 	loadWebradio();
-	loadLogos();
 	parseBouquetsXml(UBOUQUETS_XML, true);
 	renumServices();
 	CServiceManager::getInstance()->SetCIFilter();
@@ -547,6 +545,7 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 	if(!EpgXMLMapping.empty()){
 		EpgXMLMapping.clear();
 	}
+	LogoStart();
 	TIMER_STOP("[zapit] bouquet loading took");
 }
 
@@ -810,6 +809,9 @@ void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int n
 
 void CBouquetManager::clearAll(bool user)
 {
+	LogoStop();
+	LogoList.clear();
+
 	BouquetList tmplist;
 	for (unsigned int i =0; i < Bouquets.size(); i++) {
 		if (user || !Bouquets[i]->bUser)
@@ -822,15 +824,6 @@ void CBouquetManager::clearAll(bool user)
 	if (!user)
 		Bouquets = tmplist;
 	remainChannels = NULL;
-	if(thrLogo != 0)
-	{
-		pthread_cancel(thrLogo);
-		pthread_join(thrLogo, NULL);
-		thrLogo = 0;
-	}
-	pthread_mutex_lock (&mutex);
-	LogoList.clear();
-	pthread_mutex_unlock (&mutex);
 }
 
 void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
@@ -994,9 +987,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (alogo && !g_PicViewer->GetLogoName(chid, std::string(title), helper))
 							{
 								channel->setAlternateLogo(std::string(alogo));
-								pthread_mutex_lock (&mutex);
-								LogoList.push_back(channel);
-								pthread_mutex_unlock (&mutex);
+								LogoList.push_back(chid);
 							}
 
 							channel->flags = CZapitChannel::UPDATED;
@@ -1040,7 +1031,7 @@ void CBouquetManager::loadWebchannels(int mode)
 					{
 						epg_url = "";
 						epg_url = ReadMarkerValue(strLine, M3U_START_EPG_MARKER);
-						printf("tvg-url: %s\n", epg_url.c_str());
+						//printf("tvg-url: %s\n", epg_url.c_str());
 						if (!epg_url.empty())
 						{
 							if (epg_url.find_first_of(',') != std::string::npos)
@@ -1132,9 +1123,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid, title, helper))
 								{
 									channel->setAlternateLogo(alogo);
-									pthread_mutex_lock (&mutex);
-									LogoList.push_back(channel);
-									pthread_mutex_unlock (&mutex);
+									LogoList.push_back(chid);
 								}
 								channel->flags = CZapitChannel::UPDATED;
 								if (gbouquet)
@@ -1252,36 +1241,57 @@ void CBouquetManager::loadWebchannels(int mode)
 	}
 }
 
-void CBouquetManager::loadLogos()
+bool CBouquetManager::LogoStart()
 {
+	if (logo_running)
+		return false;
+	if (LogoList.size() == 0)
+		return false;
 
-	if(thrLogo != 0)
-	{
-		pthread_cancel(thrLogo);
-		pthread_join(thrLogo, NULL);
-		thrLogo = 0;
-	}
-
-	if (LogoList.size() > 0)
-		pthread_create(&thrLogo, NULL, LogoThread, (void*)&LogoList);
+	logo_running = true;
+	return (OpenThreads::Thread::start() == 0);
 }
 
-void* CBouquetManager::LogoThread(void* _logolist)
+bool CBouquetManager::LogoStop()
+{
+	if (!logo_running)
+		return false;
+	logo_running = false;
+	return (OpenThreads::Thread::join() == 0);
+}
+
+void CBouquetManager::run()
 {
 	set_threadname(__func__);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-	pthread_mutex_lock (&mutex);
-	ZapitChannelList *LogoList = (ZapitChannelList *)_logolist;
-	for (ZapitChannelList::iterator it = LogoList->begin(); it != LogoList->end(); ++it)
+	//printf(">>>>>> LogoThread [%s] started...\n",__func__);
+	CZapitChannel *cc = NULL;
+	std::string ologo;
+	std::string nlogo;
+	t_channel_id chid = 0;
+	std::list<t_channel_id>::iterator it = LogoList.begin();
+	while (logo_running && it != LogoList.end())
 	{
-		CZapitChannel *cc = (*it);
-		if (cc)
-			cc->setAlternateLogo(downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID()));
+		chid = (*it);
+		cc = CServiceManager::getInstance()->FindChannel(chid);
+		if (logo_running && cc)
+			ologo = cc->getAlternateLogo();
+		else
+			break;
+		cc = CServiceManager::getInstance()->FindChannel(chid);
+		if (logo_running && cc)
+			nlogo = downloadUrlToLogo(ologo, LOGODIR_TMP, chid);
+		else
+			break;
+		cc = CServiceManager::getInstance()->FindChannel(chid);
+		if (logo_running && cc)
+			cc->setAlternateLogo(nlogo);
+		else
+			break;
+		it++;
 	}
-	LogoList->clear();
-	pthread_mutex_unlock(&mutex);
-	pthread_exit(0);
-	return NULL;
+	LogoList.clear();
+	logo_running = false;
+	//printf(">>>>>>> LogoThread [%s] stopped...\n",__func__);
 }
 
 CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const bool TV)
