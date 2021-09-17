@@ -781,9 +781,18 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_MENUCONTENT_TEXT);
 
-		// TODO: split info WebTV/WebRadio
-		snprintf(buf, sizeof(buf), "%s", IS_WEBCHAN(channel->getChannelID()) ? "Web-Channel" :
-				CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition()).c_str());
+		if (IS_WEBCHAN(current_channel_id))
+		{
+			if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv)
+				snprintf(buf, sizeof(buf), "%s", g_Locale->getText(LOCALE_WEBTV_HEAD));
+			else if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
+				snprintf(buf, sizeof(buf), "%s", g_Locale->getText(LOCALE_WEBRADIO_HEAD));
+			else // NeutrinoMode not set yet
+				snprintf(buf, sizeof(buf), "%s", "WebChannel");
+		}
+		else
+			snprintf(buf, sizeof(buf), "%s", CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition()).c_str());
+
 		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 
 		//channel
