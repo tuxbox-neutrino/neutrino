@@ -1660,6 +1660,29 @@ void CInfoViewer::showSNR ()
 		sigbox->setFrontEnd(CFEManager::getInstance()->getLiveFE());
 		sigbox->paint(CC_SAVE_SCREEN_NO);
 	}
+	// TODO: better integration
+	else if (IS_WEBCHAN(current_channel_id) && ( g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6 ))
+	{
+		const char *icon = NULL;
+		int mode = CNeutrinoApp::getInstance()->getMode();
+		switch (mode)
+		{
+			case NeutrinoModes::mode_webtv:
+				icon = NEUTRINO_ICON_HINT_WEBTV;
+				break;
+			case NeutrinoModes::mode_webradio:
+				icon = NEUTRINO_ICON_HINT_WEBRADIO;
+				break;
+			default: // NeutrinoMode not set yet
+				icon = NEUTRINO_ICON_PLAY;
+				break;
+		}
+		int icon_w = 0,icon_h = 0;
+		frameBuffer->getIconSize(icon, &icon_w, &icon_h);
+		int icon_x = BoxStartX + ChanWidth / 2 - icon_w / 2;
+		int icon_y = BoxStartY + g_SignalFont->getHeight() + (ChanHeight - g_SignalFont->getHeight()) / 2 - icon_h / 2;
+		frameBuffer->paintIcon(icon, icon_x, icon_y);
+	}
 	if(showButtonBar)
 		infoViewerBB->showSysfsHdd();
 }
