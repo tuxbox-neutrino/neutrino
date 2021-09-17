@@ -788,8 +788,18 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 		if (g_settings.infobar_sat_display)
 		{
-			// TODO split into WebTV/WebRadio
-			std::string name = (IS_WEBCHAN(current_channel_id))? "Web-Channel" : CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
+			std::string name;
+			if (IS_WEBCHAN(current_channel_id))
+			{
+				if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv)
+					name = g_Locale->getText(LOCALE_WEBTV_HEAD);
+				else if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
+					name = g_Locale->getText(LOCALE_WEBRADIO_HEAD);
+				else // NeutrinoMode not set yet
+					name = "WebChannel";
+			}
+			else
+				name = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
 			std::string satname_tmp = name;
 			if (satNameWidth > numbox_maxtxtwidth)
