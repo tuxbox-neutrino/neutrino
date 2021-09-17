@@ -615,8 +615,10 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	tname += ": ";
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
-			tname += "Web-Channel"; // TODO split into WebTV/WebRadio
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv)
+			tname += g_Locale->getText(LOCALE_WEBTV_HEAD);
+		else if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
+			tname += g_Locale->getText(LOCALE_WEBRADIO_HEAD);
 		else
 			tname += g_Locale->getText(LOCALE_MAINMENU_MOVIEPLAYER);
 	}
