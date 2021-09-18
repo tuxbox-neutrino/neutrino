@@ -1262,7 +1262,10 @@ std::string  CNeutrinoYParser::func_set_bouquet_edit_form(CyhookHandler *hh, std
 		return "No Bouquet selected";
 }
 
-std::string CNeutrinoYParser::func_get_webtv_list(CyhookHandler *hh, std::string para)
+//-------------------------------------------------------------------------
+// y-funcs : func_get_webtv/webradio/xmltv_list
+//-------------------------------------------------------------------------
+std::string CNeutrinoYParser::func_get_webtv_list(CyhookHandler *, std::string)
 {
 	std::string yresult;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); it++)
@@ -1270,7 +1273,7 @@ std::string CNeutrinoYParser::func_get_webtv_list(CyhookHandler *hh, std::string
 	return yresult;
 }
 
-std::string CNeutrinoYParser::func_get_webradio_list(CyhookHandler *hh, std::string para)
+std::string CNeutrinoYParser::func_get_webradio_list(CyhookHandler *, std::string)
 {
 	std::string yresult;
 	for (std::list<std::string>::iterator it = g_settings.webradio_xml.begin(); it != g_settings.webradio_xml.end(); it++)
@@ -1278,7 +1281,7 @@ std::string CNeutrinoYParser::func_get_webradio_list(CyhookHandler *hh, std::str
 	return yresult;
 }
 
-std::string CNeutrinoYParser::func_get_xmltv_list(CyhookHandler *hh, std::string para)
+std::string CNeutrinoYParser::func_get_xmltv_list(CyhookHandler *, std::string)
 {
 	std::string yresult;
 	for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
