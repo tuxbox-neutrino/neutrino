@@ -254,7 +254,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 #endif
 #ifdef ENABLE_LCD4LINUX
 		if (g_settings.lcd4l_support)
-			CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", lcd_text, g_settings.lcd4l_convert);
+			CLCD4l::getInstance()->CreateMenuFile(lcd_text, g_settings.lcd4l_convert);
 #endif
 	}
 	
@@ -1041,7 +1041,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-					CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
+					CLCD4l::getInstance()->RemoveMenuFile();
 #endif
 
 					//exec this item...
@@ -1063,7 +1063,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 #endif
 #ifdef ENABLE_LCD4LINUX
 					if (g_settings.lcd4l_support)
-						CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", item->lcd_text, g_settings.lcd4l_convert);
+						CLCD4l::getInstance()->CreateMenuFile(item->lcd_text, g_settings.lcd4l_convert);
 #endif
 
 					switch ( rv ) {
@@ -1154,7 +1154,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
+	CLCD4l::getInstance()->RemoveMenuFile();
 #endif
 
 	for (unsigned int count = 0; count < items.size(); count++) 

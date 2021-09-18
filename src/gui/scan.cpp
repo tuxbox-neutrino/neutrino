@@ -400,7 +400,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
+	CLCD4l::getInstance()->RemoveMenuFile();
 #endif
 	return menu_return::RETURN_REPAINT;
 }
@@ -433,7 +433,7 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 #endif
 #ifdef ENABLE_LCD4LINUX
 			if (g_settings.lcd4l_support)
-				CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", g_Locale->getText(LOCALE_SCANTS_HEAD), g_settings.lcd4l_convert);
+				CLCD4l::getInstance()->CreateMenuFile(g_Locale->getText(LOCALE_SCANTS_HEAD), g_settings.lcd4l_convert);
 #endif
 			break;
 
@@ -450,7 +450,7 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 #endif
 #ifdef ENABLE_LCD4LINUX
 			if (g_settings.lcd4l_support)
-				CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", g_Locale->getText(LOCALE_SCANTS_HEAD), g_settings.lcd4l_convert);
+				CLCD4l::getInstance()->CreateMenuFile(g_Locale->getText(LOCALE_SCANTS_HEAD), g_settings.lcd4l_convert);
 #endif
 			break;
 

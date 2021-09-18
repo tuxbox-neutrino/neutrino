@@ -597,7 +597,7 @@ int CBouquetList::show(bool bShowChannelList)
 	cGLCD::unlockChannel();
 #endif
 #ifdef ENABLE_LCD4LINUX
-	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
+	CLCD4l::getInstance()->RemoveMenuFile();
 #endif
 
 	fader.StopFade();
@@ -663,7 +663,7 @@ void CBouquetList::paintItem(int pos)
 #endif
 #ifdef ENABLE_LCD4LINUX
 		if(g_settings.lcd4l_support)
-			CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", lname, g_settings.lcd4l_convert);
+			CLCD4l::getInstance()->CreateMenuFile(lname, g_settings.lcd4l_convert);
 #endif
 	}
 	else

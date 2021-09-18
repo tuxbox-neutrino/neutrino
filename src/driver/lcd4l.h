@@ -65,6 +65,9 @@ class CLCD4l
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);
 		int	RemoveFile(const char *file);
 
+		int	CreateMenuFile(std::string content = "", bool convert = false);
+		int	RemoveMenuFile();
+
 		int	GetMaxBrightness();
 
 		void	ResetParseID() { m_ParseID = 0; }
