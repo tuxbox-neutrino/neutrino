@@ -2973,8 +2973,10 @@ std::string CMoviePlayerGui::getAPIDDesc(unsigned int i)
 	std::string apidtitle;
 	if (i < numpida)
 		getAudioName(apids[i], apidtitle);
-	if (apidtitle == "")
+	if (apidtitle.empty())
 		apidtitle = "Stream " + to_string(i);
+	bool enabled = true;
+	addAudioFormat(i, apidtitle, enabled);
 	return apidtitle;
 }
 
