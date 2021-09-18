@@ -527,10 +527,12 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(epg_save);
 	ms_epg->addItem(epg_save_standby);
 	ms_epg->addItem(epg_save_frequently);
+	ms_epg->addItem(GenericMenuSeparator);
 	ms_epg->addItem(epg_read);
 	ms_epg->addItem(epg_read_frequently);
-	ms_epg->addItem(epg_dir);
 	ms_epg->addItem(epg_read_now);
+	ms_epg->addItem(GenericMenuSeparator);
+	ms_epg->addItem(epg_dir);
 	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mf);
 	ms_epg->addItem(mf1);
