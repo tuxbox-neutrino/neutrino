@@ -163,6 +163,9 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "epg_read_now" || actionKey == "epg_read_now_usermenu")
 	{
+		CHint *hint = new CHint(LOCALE_MISCSETTINGS_EPG_READ);
+		hint->paint();
+
 		struct stat my_stat;
 		if (stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
 		{
@@ -175,6 +178,9 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 			printf("Reading xmltv epg from %s ...\n", (*it).c_str());
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
 		}
+
+		sleep(1); // small delay for very fast hardware
+		delete hint;
 
 		if (actionKey == "epg_read_now_usermenu")
 			return menu_return::RETURN_EXIT_ALL;
@@ -477,11 +483,11 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	epg_read_frequently = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_READ_FREQUENTLY, &g_settings.epg_read_frequently,  OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_read, this);
 	epg_read_frequently->setHint("", LOCALE_MENU_HINT_EPG_READ_FREQUENTLY);
 
-	epg_dir = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, (g_settings.epg_save || g_settings.epg_read), g_settings.epg_dir, this, "epgdir");
-	epg_dir->setHint("", LOCALE_MENU_HINT_EPG_DIR);
-
 	epg_read_now = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_READ_NOW, g_settings.epg_read, NULL, this, "epg_read_now");
 	epg_read_now->setHint("", LOCALE_MENU_HINT_EPG_READ_NOW);
+
+	epg_dir = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, (g_settings.epg_save || g_settings.epg_read), g_settings.epg_dir, this, "epgdir");
+	epg_dir->setHint("", LOCALE_MENU_HINT_EPG_DIR);
 
 	epg_cache = to_string(g_settings.epg_cache);
 	if (epg_cache.length() < 2)
