@@ -58,6 +58,10 @@
 #include <zapit/getservices.h>
 #include <hardware/video.h>
 
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+#endif
+
 extern cVideo * videoDecoder;
 
 #define NEUTRINO_SCAN_START_SCRIPT "scan.start"
@@ -395,6 +399,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 #ifdef ENABLE_GRAPHLCD
 	cGLCD::unlockChannel();
 #endif
+#ifdef ENABLE_LCD4LINUX
+	CLCD4l::getInstance()->RemoveFile("/tmp/lcd/menu");
+#endif
 	return menu_return::RETURN_REPAINT;
 }
 
@@ -424,6 +431,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				cGLCD::lockChannel(g_Locale->getText(LOCALE_SCANTS_HEAD), str, 0);
 				//cGLCD::lockChannel(g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), chan->getName().c_str(), 0);
 #endif
+#ifdef ENABLE_LCD4LINUX
+			if (g_settings.lcd4l_support)
+				CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", g_Locale->getText(LOCALE_SCANTS_HEAD), g_settings.lcd4l_convert);
+#endif
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS:
@@ -436,6 +447,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 #ifdef ENABLE_GRAPHLCD
 			if (g_settings.glcd_enable)
 				cGLCD::lockChannel(g_Locale->getText(LOCALE_SCANTS_HEAD), str, 0);
+#endif
+#ifdef ENABLE_LCD4LINUX
+			if (g_settings.lcd4l_support)
+				CLCD4l::getInstance()->CreateFile("/tmp/lcd/menu", g_Locale->getText(LOCALE_SCANTS_HEAD), g_settings.lcd4l_convert);
 #endif
 			break;
 
