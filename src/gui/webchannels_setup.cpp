@@ -59,6 +59,30 @@ static const struct button_label CWebChannelsSetupFooterButtons[] =
 };
 #define CWebChannelsSetupFooterButtonCount (sizeof(CWebChannelsSetupFooterButtons)/sizeof(CWebChannelsSetupFooterButtons[0]))
 
+#if BOXMODEL_CST_HD1 || BOXMODEL_CST_HD2 || HAVE_SPARK_HARDWARE
+#define WEBTV_XML_QUALITY_OPTION_COUNT 5
+	CMenuOptionChooser::keyval_ext WEBTV_XML_QUALITY_OPTIONS[WEBTV_XML_QUALITY_OPTION_COUNT] =
+	{
+		{ 1920, NONEXISTANT_LOCALE, "1920x1080"	 },
+		{ 1280, NONEXISTANT_LOCALE, "1280x720"	 },
+		{ 854,  NONEXISTANT_LOCALE, "854x480"	 },
+		{ 640,  NONEXISTANT_LOCALE, "640x360"	 },
+		{ 480,  NONEXISTANT_LOCALE, "480x270"	 }
+	};
+#else
+#define WEBTV_XML_QUALITY_OPTION_COUNT 7
+	CMenuOptionChooser::keyval_ext WEBTV_XML_QUALITY_OPTIONS[WEBTV_XML_QUALITY_OPTION_COUNT] =
+	{
+		{ 3840, NONEXISTANT_LOCALE, "3840x2160"	 },
+		{ 2560, NONEXISTANT_LOCALE, "2560x1440"	 },
+		{ 1920, NONEXISTANT_LOCALE, "1920x1080"	 },
+		{ 1280, NONEXISTANT_LOCALE, "1280x720"	 },
+		{ 854,  NONEXISTANT_LOCALE, "854x480"	 },
+		{ 640,  NONEXISTANT_LOCALE, "640x360"	 },
+		{ 480,  NONEXISTANT_LOCALE, "480x270"	 }
+	};
+#endif
+
 int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
@@ -231,6 +255,10 @@ int CWebChannelsSetup::Show()
 	}
 	oc->setHint("", hint_text);
 	m->addItem(oc);
+	if(!webradio)
+	{
+		m->addItem(new CMenuOptionChooser(LOCALE_WEBTV_XML_PREF_QUALITY, &g_settings.webtv_xml_quality, WEBTV_XML_QUALITY_OPTIONS, WEBTV_XML_QUALITY_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true));
+	}
 	m->addItem(GenericMenuSeparator);
 
 	item_offset = m->getItemsCount();

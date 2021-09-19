@@ -2883,6 +2883,7 @@ webradio.xml.auto WebRadio-Dateien automatisch laden
 webtv.head WebTV
 webtv.xml WebTV-Dateien
 webtv.xml.auto WebTV-Dateien automatisch laden
+webtv.xml.pref_quality Bevorzugte Qualität
 window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?
