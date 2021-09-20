@@ -737,7 +737,6 @@ struct SNeutrinoSettings
 	int widget_fade;
 
 	// webtv
-	int webtv_xml_quality;
 	int webtv_xml_auto;
 	std::list<std::string> webtv_xml;
 	std::string last_webtv_dir;

@@ -2885,7 +2885,6 @@ webradio.xml.auto Auto-load WebRadio files
 webtv.head WebTV
 webtv.xml WebTV files
 webtv.xml.auto Auto-load WebTV files
-webtv.xml.pref_quality Prefered quality
 window_size Window size in %
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?

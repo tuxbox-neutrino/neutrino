@@ -59,20 +59,6 @@ static const struct button_label CWebChannelsSetupFooterButtons[] =
 };
 #define CWebChannelsSetupFooterButtonCount (sizeof(CWebChannelsSetupFooterButtons)/sizeof(CWebChannelsSetupFooterButtons[0]))
 
-CMenuOptionChooser::keyval_ext WEBTV_XML_QUALITY_OPTIONS[] =
-{
-#if !HAVE_CST_HARDWARE
-	{ 3840, NONEXISTANT_LOCALE, "3840x2160"	 },
-	{ 2560, NONEXISTANT_LOCALE, "2560x1440"	 },
-#endif
-	{ 1920, NONEXISTANT_LOCALE, "1920x1080"	 },
-	{ 1280, NONEXISTANT_LOCALE, "1280x720"	 },
-	{ 854,  NONEXISTANT_LOCALE, "854x480"	 },
-	{ 640,  NONEXISTANT_LOCALE, "640x360"	 },
-	{ 480,  NONEXISTANT_LOCALE, "480x270"	 }
-};
-#define WEBTV_XML_QUALITY_OPTION_COUNT (sizeof(WEBTV_XML_QUALITY_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
-
 int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
@@ -214,26 +200,14 @@ int CWebChannelsSetup::Show()
 
 	int shortcut = 1;
 
-#if 0
-	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
-
-	bool _mode_webradio = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) &&
-			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
-
 	CMenuForwarder *mf;
-	mf = new CMenuForwarder(LOCALE_LIVESTREAM_SCRIPTPATH, !_mode_webtv || !_mode_webradio, g_settings.livestreamScriptPath, this, "script_path", CRCInput::convertDigitToKey(shortcut++));
-	m->addItem(mf);
-	mf = new CMenuForwarder(LOCALE_LIVESTREAM_RESOLUTION, _mode_webtv, NULL, new CWebTVResolution(), NULL, CRCInput::convertDigitToKey(shortcut++));
-	m->addItem(mf);
-
-	m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, webradio ? LOCALE_WEBRADIO_XML : LOCALE_WEBTV_XML));
-#endif
 
 	if (!webradio)
 	{
-		m->addItem(new CMenuOptionChooser(LOCALE_WEBTV_XML_PREF_QUALITY, &g_settings.webtv_xml_quality, WEBTV_XML_QUALITY_OPTIONS, WEBTV_XML_QUALITY_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true));
-		m->addItem(GenericMenuSeparatorLine);
+		mf = new CMenuForwarder(LOCALE_LIVESTREAM_RESOLUTION, true, NULL, new CWebTVResolution(), NULL, CRCInput::convertDigitToKey(shortcut++));
+		m->addItem(mf);
+
+		m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, webradio ? LOCALE_WEBRADIO_XML : LOCALE_WEBTV_XML));
 	}
 
 	// TODO: show/hide autoloaded content when switching g_settings.webradio/webtv_xml_auto
@@ -464,12 +438,15 @@ CWebTVResolution::CWebTVResolution()
 
 const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
 {
+#if !HAVE_CST_HARDWARE
+	{ 3840, NONEXISTANT_LOCALE, "3840x2160" },
+	{ 2560, NONEXISTANT_LOCALE, "2560x1440" },
+#endif
 	{ 1920, NONEXISTANT_LOCALE, "1920x1080" },
 	{ 1280, NONEXISTANT_LOCALE, "1280x720"  },
 	{ 854,  NONEXISTANT_LOCALE, "854x480"   },
 	{ 640,  NONEXISTANT_LOCALE, "640x360"   },
-	{ 426,  NONEXISTANT_LOCALE, "426x240"   },
-	{ 128,  NONEXISTANT_LOCALE, "128x72"    }
+	{ 480,  NONEXISTANT_LOCALE, "480x270"   }
 };
 #define LIVESTREAM_RESOLUTION_OPTION_COUNT (sizeof(LIVESTREAM_RESOLUTION_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
 

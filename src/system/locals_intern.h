@@ -2912,7 +2912,6 @@ const char * locale_real_names[] =
 	"webtv.head",
 	"webtv.xml",
 	"webtv.xml.auto",
-	"webtv.xml.pref_quality",
 	"window_size",
 	"wizard.initial_settings",
 	"wizard.install_settings",

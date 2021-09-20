@@ -896,7 +896,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.widget_fade = configfile.getBool("widget_fade", false);
 
 	// webtv
-	g_settings.webtv_xml_quality = configfile.getInt32("webtv_xml_quality", 1280);
 	g_settings.webtv_xml_auto = configfile.getInt32("webtv_xml_auto", 1);
 	g_settings.webtv_xml.clear();
 	int webtv_count = configfile.getInt32("webtv_xml_count", 0);
@@ -1945,7 +1944,6 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	// webtv
 	CWebChannelsSetup webchannelssetup;
-	configfile.setInt32("webtv_xml_quality", g_settings.webtv_xml_quality);
 	configfile.setInt32("webtv_xml_auto", g_settings.webtv_xml_auto);
 	int webtv_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it)
