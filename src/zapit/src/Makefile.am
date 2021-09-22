@@ -25,6 +25,7 @@ libzapit_a_SOURCES = \
 	frontend.cpp \
 	getservices.cpp \
 	pat.cpp \
+	scanait.cpp \
 	scanbat.cpp \
 	scan.cpp \
 	scannit.cpp \

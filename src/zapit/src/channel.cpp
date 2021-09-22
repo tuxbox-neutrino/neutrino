@@ -114,6 +114,7 @@ void CZapitChannel::Init()
 	bUseCI = false;
 	altlogo = "";
 	epgmapper = "";
+	aitPid = 0;
 }
 
 CZapitChannel::~CZapitChannel(void)

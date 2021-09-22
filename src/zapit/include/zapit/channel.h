@@ -142,6 +142,7 @@ class CZapitChannel
 
 		unsigned short			pcrPid;
 		unsigned short			pmtPid;
+		unsigned short			aitPid;
 		unsigned short			teletextPid;
 		unsigned short			videoPid;
 		unsigned short			audioPid;
@@ -243,6 +244,7 @@ class CZapitChannel
 		unsigned char 		getAudioChannelCount(void)	{ return (unsigned char) audioChannels.size(); }
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
 		unsigned short		getPmtPid(void)			{ return pmtPid; }
+		unsigned short		getAitPid(void)			{ return aitPid; }
 		unsigned short		getTeletextPid(void)		{ return teletextPid; }
 		const char *		getTeletextLang(void)		{ return ttx_language_code.c_str(); }
 		unsigned short		getVideoPid(void)		{ return videoPid; }
@@ -266,6 +268,7 @@ class CZapitChannel
 		void setAudioChannel(unsigned char pAudioChannel)	{ if (pAudioChannel < audioChannels.size()) currentAudioChannel = pAudioChannel; }
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
+		void setAitPid(unsigned short pAitPid)			{ aitPid = pAitPid; }
 		void setTeletextPid(unsigned short pTeletextPid)	{ teletextPid = pTeletextPid; }
 		void setTeletextLang(std::string lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }
