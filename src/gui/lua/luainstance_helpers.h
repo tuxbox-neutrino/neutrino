@@ -91,6 +91,11 @@ struct table_key_u {
 	lua_Unsigned code;
 };
 
+struct table_key_s {
+	const char *name;
+	const char *code;
+};
+
 struct lua_envexport {
 	const char *name;
 	table_key *t;
@@ -99,6 +104,11 @@ struct lua_envexport {
 struct lua_envexport_u {
 	const char *name;
 	table_key_u *t;
+};
+
+struct lua_envexport_s {
+	const char *name;
+	table_key_s *t;
 };
 
 /* this is stored as userdata in the lua_State */

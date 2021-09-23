@@ -414,6 +414,42 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	/* directories, exported as e.g. DIR['CONFIGDIR'] */
+	table_key_s directories[] =
+	{
+		{ "CONFIGDIR",		CONFIGDIR },
+		{ "DATADIR",		DATADIR },
+		{ "DATADIR_VAR",	DATADIR_VAR },
+		{ "CONTROLDIR",		CONTROLDIR },
+		{ "CONTROLDIR_VAR",	CONTROLDIR_VAR },
+		{ "FONTDIR",		FONTDIR },
+		{ "FONTDIR_VAR",	FONTDIR_VAR },
+		{ "LIBDIR",		LIBDIR },
+		{ "GAMESDIR",		GAMESDIR },
+		{ "ICONSDIR",		ICONSDIR },
+		{ "ICONSDIR_VAR",	ICONSDIR_VAR },
+		{ "LOCALEDIR",		LOCALEDIR },
+		{ "LOCALEDIR_VAR",	LOCALEDIR_VAR },
+		{ "PLUGINDIR",		PLUGINDIR },
+		{ "PLUGINDIR_MNT",	PLUGINDIR_MNT },
+		{ "PLUGINDIR_VAR",	PLUGINDIR_VAR },
+		{ "LUAPLUGINDIR",	LUAPLUGINDIR },
+		{ "LUAPLUGINDIR_VAR",	LUAPLUGINDIR_VAR },
+		{ "THEMESDIR",		THEMESDIR },
+		{ "THEMESDIR_VAR",	THEMESDIR_VAR },
+		{ "WEBRADIODIR",	WEBRADIODIR },
+		{ "WEBRADIODIR_VAR",	WEBRADIODIR_VAR },
+		{ "WEBTVDIR",		WEBTVDIR },
+		{ "WEBTVDIR_VAR",	WEBTVDIR_VAR },
+		{ "LOGODIR",		LOGODIR },
+		{ "LOGODIR_VAR",	LOGODIR_VAR },
+		{ "PRIVATE_HTTPDDIR",	PRIVATE_HTTPDDIR },
+		{ "PUBLIC_HTTPDDIR",	PUBLIC_HTTPDDIR },
+		{ "HOSTED_HTTPDDIR",	HOSTED_HTTPDDIR },
+		{ "FLAGDIR",		FLAGDIR },
+		{ NULL, 0 }
+	};
+
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
 	{
@@ -465,6 +501,26 @@ static void set_lua_variables(lua_State *L)
 			j++;
 		}
 		lua_setglobal(L, e_u[i].name);
+		i++;
+	}
+
+	lua_envexport_s e_s[] =
+	{
+		{ "DIR",	directories },
+		{ NULL, NULL }
+	};
+
+	i = 0;
+	while (e_s[i].name) {
+		int j = 0;
+		lua_newtable(L);
+		while (e_s[i].t[j].name) {
+			lua_pushstring(L, e_s[i].t[j].name);
+			lua_pushstring(L, e_s[i].t[j].code);
+			lua_settable(L, -3);
+			j++;
+		}
+		lua_setglobal(L, e_s[i].name);
 		i++;
 	}
 }
