@@ -1695,6 +1695,10 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 
 	if (imdb_active || tmdb_active)
 		EpgButtons[UsedButtons][1].locale = LOCALE_MISCSETTINGS_EPG_HEAD;
+	else if (g_settings.omdb_enabled && !g_settings.tmdb_enabled)
+		EpgButtons[UsedButtons][1].locale = LOCALE_IMDB_HEAD;
+	else if (g_settings.tmdb_enabled && !g_settings.omdb_enabled)
+		EpgButtons[UsedButtons][1].locale = LOCALE_TMDB_HEAD;
 	else
 		EpgButtons[UsedButtons][1].locale = LOCALE_MDB_HEAD;
 
