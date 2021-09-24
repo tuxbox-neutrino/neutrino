@@ -1031,7 +1031,7 @@ imdb.data_title Original title
 imdb.data_votes Votes
 imdb.data_website Website
 imdb.data_writer Screenplay author
-imdb.info IMDb-Info
+imdb.head IMDb
 imdb.read_data Search IMDb data ...
 inetradio.autostart Internetradio auto-start
 inetradio.name Internetradio
@@ -1212,6 +1212,8 @@ mbkey.copy_several Copy and split movie
 mbkey.cover Create/remove movie cover
 mbkey.cut Cut movie
 mbkey.truncate Truncate movie
+mdb.head Movie database
+mdb.choose Choose movie database
 mdb.save_poster Save poster
 mdb.save_poster_hint Save poster with "%s"
 menu.back Back
@@ -2756,7 +2758,7 @@ timing.static_messages Interactive messages
 timing.volumebar Volume bar
 tmdb.api_key TMDb API key
 tmdb.enabled TMDb support
-tmdb.info TMDb-Info
+tmdb.head TMDb
 tmdb.read_data Search TMDb data ...
 tunersetup.cable Cable (DVB-C)
 tunersetup.hybrid Hybrid (DVB-C/T/T2)

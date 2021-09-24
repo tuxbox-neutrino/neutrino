@@ -1212,6 +1212,8 @@ mbkey.copy_several Film kopieren und teilen
 mbkey.cover Filmcover erzeugen/löschen
 mbkey.cut Film schneiden
 mbkey.truncate Film kürzen
+mdb.head Movie Database
+mdb.choose Movie Database wählen
 mdb.save_poster Bild speichern
 mdb.save_poster_hint Bild speichern mit "%s"
 menu.back Zurück
