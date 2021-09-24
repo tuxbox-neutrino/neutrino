@@ -1635,7 +1635,7 @@ void CEpgData::showProgressBar()
 
 #define TV_BUTTONS 0
 #define MP_BUTTONS 1
-struct button_label EpgButtons[][5] =
+struct button_label EpgButtons[][4] =
 {
 	{
 		// TV_BUTTONS
@@ -1668,7 +1668,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 	}
 
 	int UsedButtons = mp_info ? MP_BUTTONS : TV_BUTTONS;
-	int MaxButtons = mp_info ? 2 : 4; //TODO: auto-calc from struct
+	int MaxButtons = sizeof(EpgButtons[UsedButtons])/sizeof(button_label);
 
 	std::string adzap_button;
 	if (adzap)
