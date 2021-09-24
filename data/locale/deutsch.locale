@@ -1031,7 +1031,7 @@ imdb.data_title Originaltitel
 imdb.data_votes Stimmen
 imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
-imdb.info IMDb-Info
+imdb.head IMDb
 imdb.read_data Suche IMDb-Daten ...
 inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
@@ -2758,7 +2758,7 @@ timing.static_messages Interaktive Meldungen
 timing.volumebar Lautstärkeanzeige
 tmdb.api_key TMDb API Schlüssel
 tmdb.enabled TMDb-Unterstützung
-tmdb.info TMDb-Info
+tmdb.head TMDb
 tmdb.read_data Suche TMDb-Daten ...
 tunersetup.cable Kabel (DVB-C)
 tunersetup.hybrid Hybrid (DVB-C/T/T2)
