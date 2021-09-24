@@ -1171,39 +1171,46 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			// imdb/omdb info and tmdb info
 			case CRCInput::RC_green:
 			{
-				bool omdb_start = false;
+				bool imdb_start = false;
 				bool tmdb_start = false;
 
 				if (g_settings.omdb_enabled && g_settings.tmdb_enabled)
 				{
-					CMsgBox msgBox(g_Locale->getText(LOCALE_MDB_CHOOSE), LOCALE_MDB_HEAD);
-					msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
-					msgBox.setButtonText(CMsgBox::mbNo, g_Locale->getText(LOCALE_IMDB_HEAD));
-					msgBox.setButtonText(CMsgBox::mbYes, g_Locale->getText(LOCALE_TMDB_HEAD));
-					msgBox.paint();
-					msgBox.exec();
-					msgBox.hide();
-
-					switch (msgBox.getResult())
+					if (imdb_active)
+						imdb_start = true;
+					else if (tmdb_active)
+						tmdb_start = true;
+					else
 					{
-						case CMsgBox::mbrNo: // imdb
-							omdb_start = true;
-							break;
-						case CMsgBox::mbrYes: // tmdb
-							tmdb_start = true;
-							break;
-						default:
-							break;
+						CMsgBox msgBox(g_Locale->getText(LOCALE_MDB_CHOOSE), LOCALE_MDB_HEAD);
+						msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
+						msgBox.setButtonText(CMsgBox::mbNo, g_Locale->getText(LOCALE_IMDB_HEAD));
+						msgBox.setButtonText(CMsgBox::mbYes, g_Locale->getText(LOCALE_TMDB_HEAD));
+						msgBox.paint();
+						msgBox.exec();
+						msgBox.hide();
+
+						switch (msgBox.getResult())
+						{
+							case CMsgBox::mbrNo: // imdb
+								imdb_start = true;
+								break;
+							case CMsgBox::mbrYes: // tmdb
+								tmdb_start = true;
+								break;
+							default:
+								break;
+						}
 					}
 				}
 				else if (g_settings.omdb_enabled)
-					omdb_start = true;
+					imdb_start = true;
 				else if (g_settings.tmdb_enabled)
 					tmdb_start = true;
 				else
 					break;
 
-				if (omdb_start)
+				if (imdb_start)
 				{
 					if (tmdb_active)
 					{
@@ -1240,6 +1247,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						epgText = epgText_saved;
 						textCount = epgText.size();
 						showText(showPos, sy + toph);
+						showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 					}
 				}
 				else if (tmdb_start)
@@ -1248,7 +1256,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					{
 						imdb_active = false;
 						imdb_stars = 0;
-						showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 						epgText = epgText_saved;
 						textCount = epgText.size();
 					}
@@ -1267,6 +1274,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							processTextToArray(tmdb->getEPGText(), 0, tmdb->hasPoster());
 							textCount = epgText.size();
 							showText(showPos, sy + toph, tmdb->hasPoster());
+							showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 							timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 						}
 						else
@@ -1279,6 +1287,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						epgText = epgText_saved;
 						textCount = epgText.size();
 						showText(showPos, sy + toph);
+						showTimerEventBar(true, !mp_info && isCurrentEPG(channel_id), mp_info); //show buttons
 					}
 				}
 				break;
@@ -1683,6 +1692,11 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 		EpgButtons[UsedButtons][1].button = NEUTRINO_ICON_BUTTON_GREEN;
 	else
 		EpgButtons[UsedButtons][1].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+
+	if (imdb_active || tmdb_active)
+		EpgButtons[UsedButtons][1].locale = LOCALE_MISCSETTINGS_EPG_HEAD;
+	else
+		EpgButtons[UsedButtons][1].locale = LOCALE_MDB_HEAD;
 
 	if (mp_info)
 		::paintButtons(x, y, w, MaxButtons, EpgButtons[MP_BUTTONS], w, h);
