@@ -1207,12 +1207,6 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 		return true;
 	}
 
-	//saved tvg-id for epg
-	if (script[0] == '#') {
-		realUrl = url;
-		return true;
-	}
-
 	std::string _script = script;
 
 	if (_script.find("/") == std::string::npos)
