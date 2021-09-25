@@ -50,8 +50,9 @@ private:
 	bool Read();
 
 public:
-	CAit(int dnum = 0);
+	CAit();
 	~CAit();
+	void setDemux(int dnum = 0);
 	bool Start();
 	bool Stop();
 	bool Parse();
