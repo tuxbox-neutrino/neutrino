@@ -202,6 +202,17 @@ int CWebChannelsSetup::Show()
 
 	CMenuForwarder *mf;
 
+#if 0
+	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
+			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+
+	bool _mode_webradio = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) &&
+			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+
+	mf = new CMenuForwarder(LOCALE_LIVESTREAM_SCRIPTPATH, !_mode_webtv || !_mode_webradio, g_settings.livestreamScriptPath, this, "script_path", CRCInput::convertDigitToKey(shortcut++));
+	m->addItem(mf);
+#endif
+
 	if (!webradio)
 	{
 		mf = new CMenuForwarder(LOCALE_LIVESTREAM_RESOLUTION, true, NULL, new CWebTVResolution(), NULL, CRCInput::convertDigitToKey(shortcut++));
