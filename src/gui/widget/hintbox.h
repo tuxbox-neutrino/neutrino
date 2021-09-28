@@ -30,6 +30,7 @@
 #ifndef __C_HINTBOX__
 #define __C_HINTBOX__
 
+#include <unistd.h>
 #include <gui/components/cc.h>
 
 #define HINTBOX_MIN_WIDTH	320 // scaled in init
@@ -345,12 +346,15 @@ optional disable/enable background
 class CHint : public CHintBox
 {
 	private:
+		int delay;
+
 		void initHint(bool enable_bg)
 		{
 			paint_bg = enable_bg;
 			ccw_show_header = false;
 			ccw_show_footer = false;
 			cc_item_type.name = "wg.hint";
+			delay = 0;
 		}
 	public:
 		/**CHint Constructor
@@ -368,7 +372,13 @@ class CHint : public CHintBox
 		*/
 		CHint(const neutrino_locale_t Text, bool show_background = true);
 
-		virtual ~CHint(){};
+		virtual void setDelay(int d) {delay = d;}
+
+		virtual ~CHint()
+		{
+			if (delay)
+				sleep(delay);
+		};
 };
 
 
