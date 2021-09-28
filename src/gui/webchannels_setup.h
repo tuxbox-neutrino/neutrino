@@ -40,6 +40,8 @@ class CWebChannelsSetup : public CMenuTarget, CChangeObserver
 		int item_offset;
 		bool changed;
 		CMenuWidget *m;
+		int livestreamResolution;
+
 	public:
 		CWebChannelsSetup();
 		int exec(CMenuTarget *parent, const std::string &actionKey);
@@ -65,6 +67,7 @@ class CWebTVResolution : public CMenuTarget
 		CMenuWidget *m;
 	public:
 		CWebTVResolution();
+		void RestartStream();
 		const char *getResolutionValue();
 		int exec(CMenuTarget *parent, const std::string &actionKey);
 		int Show();

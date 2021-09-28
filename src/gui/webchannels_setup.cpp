@@ -41,6 +41,20 @@
 #include <mymenu.h>
 #include <system/helpers.h>
 
+const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
+{
+#if !HAVE_CST_HARDWARE
+	{ 3840, NONEXISTANT_LOCALE, "3840x2160" },
+	{ 2560, NONEXISTANT_LOCALE, "2560x1440" },
+#endif
+	{ 1920, NONEXISTANT_LOCALE, "1920x1080" },
+	{ 1280, NONEXISTANT_LOCALE, "1280x720"  },
+	{ 854,  NONEXISTANT_LOCALE, "854x480"   },
+	{ 640,  NONEXISTANT_LOCALE, "640x360"   },
+	{ 480,  NONEXISTANT_LOCALE, "480x270"   }
+};
+#define LIVESTREAM_RESOLUTION_OPTION_COUNT (sizeof(LIVESTREAM_RESOLUTION_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
+
 CWebChannelsSetup::CWebChannelsSetup()
 {
 	webradio = false;
@@ -48,6 +62,8 @@ CWebChannelsSetup::CWebChannelsSetup()
 	selected = -1;
 	item_offset = 0;
 	changed = false;
+	m = NULL;
+	livestreamResolution = 0;
 }
 
 static const struct button_label CWebChannelsSetupFooterButtons[] =
@@ -200,29 +216,32 @@ int CWebChannelsSetup::Show()
 
 	int shortcut = 1;
 
-	CMenuForwarder *mf;
-
-#if 0
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
 			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
+#if 0
 	bool _mode_webradio = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) &&
 			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+
+	CMenuForwarder *mf;
 
 	mf = new CMenuForwarder(LOCALE_LIVESTREAM_SCRIPTPATH, !_mode_webtv || !_mode_webradio, g_settings.livestreamScriptPath, this, "script_path", CRCInput::convertDigitToKey(shortcut++));
 	m->addItem(mf);
 #endif
 
+	CMenuOptionChooser *oc;
+
 	if (!webradio)
 	{
-		mf = new CMenuForwarder(LOCALE_LIVESTREAM_RESOLUTION, true, NULL, new CWebTVResolution(), NULL, CRCInput::convertDigitToKey(shortcut++));
-		m->addItem(mf);
+		livestreamResolution = g_settings.livestreamResolution;
+		oc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &livestreamResolution, LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT, _mode_webtv, this, CRCInput::convertDigitToKey(shortcut++), "", true);
+		// FIXME oc->setHint(NEUTRINO_ICON_HINT_DEFAULT, NONEXISTANT_LOCALE);
+		m->addItem(oc);
 
 		m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, webradio ? LOCALE_WEBRADIO_XML : LOCALE_WEBTV_XML));
 	}
 
 	// TODO: show/hide autoloaded content when switching g_settings.webradio/webtv_xml_auto
-	CMenuOptionChooser *oc;
 	char hint_text[1024];
 	if (webradio)
 	{
@@ -293,7 +312,7 @@ int CWebChannelsSetup::Show()
 	return res;
 }
 
-bool CWebChannelsSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
+bool CWebChannelsSetup::changeNotify(const neutrino_locale_t OptionName, void *data)
 {
 	int ret = menu_return::RETURN_NONE;
 
@@ -301,6 +320,17 @@ bool CWebChannelsSetup::changeNotify(const neutrino_locale_t OptionName, void */
 	{
 		changed = true;
 		ret = menu_return::RETURN_REPAINT;
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LIVESTREAM_RESOLUTION))
+	{
+		if (livestreamResolution != g_settings.livestreamResolution)
+		{
+			m->hide();
+			g_settings.livestreamResolution = *(int *)data;
+			CWebTVResolution webtvresolution;
+			webtvresolution.RestartStream();
+			ret = menu_return::RETURN_REPAINT;
+		}
 	}
 
 	return ret;
@@ -447,20 +477,6 @@ CWebTVResolution::CWebTVResolution()
 	width = 40;
 }
 
-const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
-{
-#if !HAVE_CST_HARDWARE
-	{ 3840, NONEXISTANT_LOCALE, "3840x2160" },
-	{ 2560, NONEXISTANT_LOCALE, "2560x1440" },
-#endif
-	{ 1920, NONEXISTANT_LOCALE, "1920x1080" },
-	{ 1280, NONEXISTANT_LOCALE, "1280x720"  },
-	{ 854,  NONEXISTANT_LOCALE, "854x480"   },
-	{ 640,  NONEXISTANT_LOCALE, "640x360"   },
-	{ 480,  NONEXISTANT_LOCALE, "480x270"   }
-};
-#define LIVESTREAM_RESOLUTION_OPTION_COUNT (sizeof(LIVESTREAM_RESOLUTION_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
-
 int CWebTVResolution::exec(CMenuTarget *parent, const std::string & /*actionKey*/)
 {
 	if (parent)
@@ -480,25 +496,30 @@ int CWebTVResolution::Show()
 				    true, NULL, CRCInput::RC_nokey, NULL, true);
 	m->addItem(mc);
 
-	int oldRes = g_settings.livestreamResolution;
+	int livestreamResolution = g_settings.livestreamResolution;
 	int res = m->exec(NULL, "");
 	m->hide();
 	delete m;
 
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
 			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
-	if (oldRes != g_settings.livestreamResolution && _mode_webtv)
-	{
-		CZapitChannel *cc = CZapit::getInstance()->GetCurrentChannel();
-		if (cc && IS_WEBCHAN(cc->getChannelID()))
-		{
-			CMoviePlayerGui::getInstance().stopPlayBack();
-			CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName());
-		}
-	}
+
+	if (livestreamResolution != g_settings.livestreamResolution && _mode_webtv)
+		RestartStream();
 
 	return res;
 }
+
+void CWebTVResolution::RestartStream()
+{
+	CZapitChannel *cc = CZapit::getInstance()->GetCurrentChannel();
+	if (cc && IS_WEBCHAN(cc->getChannelID()))
+	{
+		CMoviePlayerGui::getInstance().stopPlayBack();
+		CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName());
+	}
+}
+
 
 const char *CWebTVResolution::getResolutionValue()
 {
