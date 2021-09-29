@@ -371,17 +371,58 @@ class CHint : public CHintBox
 		virtual ~CHint(){};
 };
 
+
+typedef struct hint_message_data_t
+{
+	sigc::slot<void> slot;
+	std::string text;
+	neutrino_locale_t text_locale;
+	int timeout;
+	bool show_background;
+// 	hint_message_data_t(): 	text(std::string()),
+// 				text_locale(NONEXISTANT_LOCALE),
+// 				timeout(HINTBOX_DEFAULT_TIMEOUT),
+// 				show_background(true){}
+} hint_message_data_struct_t;
+
 /**
 * Simplified methodes to show hintboxes without titlebar and footer
 * Text is UTF-8 encoded
+* @param[in]	Text
+* 	@li 	expects type neutrino_locale_t or const char*
 * @param[in]	timeout
-* 	@li	optional: expects type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
+* 	@li 	optional: expects type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
 * @param[in]	show_background
 * 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 * 	@see	for possible text parameters take a look to CHintBox()
 */
 int ShowHintS(const neutrino_locale_t Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 int ShowHintS(const char * const Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
 
+/**
+ * Simplified methodes to show hintboxes without titlebar and footer with mounted function as slot for custom action
+ * Text is UTF-8 encoded
+ * @param[in]	Text
+ * 	@li 	expects type neutrino_locale_t or const char*
+ * @param[in]	Slot
+ * 	@li 	expects sigc::slot<void>
+ * 	@li 	example:
+ * 	@li 	sigc::slot<void> sl = sigc::mem_fun(g_Plugins, &CPlugins::loadPlugins);\n
+ * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, 1, true, &sl);
+ * 	@li 	or use a function with parameter(s):
+ * 		sigc::slot<void> sl = sigc::bind(sigc::mem_fun(*this, &CMyClass::foo), arg1, arg2, arg3, arg4);\n
+ * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, 1, true, &sl);
+ * @param[in]	timeout
+ * 	@li 	optional: expects type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
+ * @param[in]	show_background
+ * 	@li 	optional: expects type bool, enable/disable backround paint, default = true
+ */
+int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const std::string &Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+
+int ShowHintS(const hint_message_data_t &hint_data);
+int ShowHintS(const std::vector<hint_message_data_t> &v_hint_data);
 
 #endif

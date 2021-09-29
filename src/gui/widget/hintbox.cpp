@@ -497,7 +497,6 @@ CHint::CHint(const neutrino_locale_t Text, bool show_background) : CHintBox("" ,
 int ShowHintS(const char * const Text, int timeout, bool show_background)
 {
 	int res = messages_return::none;
-
 	CHint hint(Text, show_background);
 	hint.setTimeOut(timeout);
 	hint.paint();
@@ -510,4 +509,56 @@ int ShowHintS(const char * const Text, int timeout, bool show_background)
 int ShowHintS(const neutrino_locale_t Text, int timeout, bool show_background)
 {
 	return ShowHintS(g_Locale->getText(Text), timeout, show_background);
+}
+
+int ShowHintS(const std::string& Text, int timeout, bool show_background)
+{
+	return ShowHintS(Text.c_str(), timeout, show_background);
+}
+
+int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+{
+	int res = messages_return::none;
+
+	sigc::signal<void> OnCall;
+	OnCall.connect(Slot);
+	CHint hint(Text, show_background);
+	hint.setTimeOut(timeout);
+	hint.paint();
+	OnCall();
+	res = hint.exec();
+	hint.hide();
+
+	return res;
+}
+
+int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+{
+	return ShowHintS(g_Locale->getText(Text), Slot, timeout, show_background);
+}
+
+int ShowHintS(const std::string& Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+{
+	return ShowHintS(Text.c_str(), Slot, timeout, show_background);
+}
+
+int ShowHintS(const hint_message_data_t &hint_data)
+{
+	std::string text = !hint_data.text.empty() ? hint_data.text : g_Locale->getText(hint_data.text_locale);
+	return ShowHintS(text, hint_data.slot, hint_data.timeout, hint_data.show_background);
+}
+
+int ShowHintS(const std::vector<hint_message_data_t>& v_hint_data)
+{
+	int ret = messages_return::none;
+	for(size_t i=0; i<v_hint_data.size(); i++)
+	{
+		std::string txt = !v_hint_data.at(i).text.empty() ? v_hint_data.at(i).text : g_Locale->getText(v_hint_data.at(i).text_locale);
+		ret = ShowHintS(txt,
+			  v_hint_data.at(i).slot,
+			  v_hint_data.at(i).timeout,
+			  v_hint_data.at(i).show_background);
+	}
+
+	return ret;
 }

@@ -1010,7 +1010,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		DisplayInfoMessage("Info Test!");
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "short_hint"){
+	else if (actionKey == "short_hint with sleep and CHint instance"){
 		CHint *hint = new CHint("Info Test!");
 		// Set the message window outside of screen mid to demonstrate the hide behavior,
 		// so that the hide behavior will not be influenced by any other window or menu.
@@ -1025,6 +1025,41 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "short_hint_timed"){
 		ShowHintS("Info Test...", 3, true);
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "short_hint_timed_slot"){
+		ShowHintS("Info test with function...", sigc::mem_fun(*this, &CTestMenu::showRecords), 3);
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "short_hint_struct"){
+		hint_message_data_t hint;
+		hint.text = "Info Test...";
+		hint.slot = sigc::mem_fun(*this, &CTestMenu::showRecords);
+		hint.timeout = 3;
+		ShowHintS(hint);
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey=="restarttuner")
+	{
+#if 0
+// 		use with CHint instance
+		CHint *hint = new CHint("Restart Tuner");
+		hint->paint();
+		g_Zapit->setStandby(true);
+		sleep(2);
+		g_Zapit->setStandby(false);
+		sleep(2);
+		g_Zapit->Rezap();
+		delete hint;
+#endif
+// 		Use of ShowHintS with slot does the same like previous block,
+// 		but with multiple messages and despite that with lesser effort.
+		std::vector <hint_message_data_t> hints;
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true});
+		ShowHintS(hints);
+
 		return menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "shellwindow"){
@@ -1277,6 +1312,8 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 #endif
 	widget->addItem(new CMenuForwarder("HDD", true, NULL, this, "hdd"));
 	widget->addItem(new CMenuForwarder("SD/MMC", true, NULL, this, "mmc"));
+	widget->addItem(new CMenuForwarder("Tuner Reset", true, NULL, this, "restarttuner"));
+
 #if 0 //some parts DEPRECATED
 	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {
 		CServiceManager::getInstance()->InitSatPosition(test_pos[i], NULL, true);
@@ -1347,6 +1384,8 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Short Hint"));
 	widget->addItem(new CMenuForwarder("Short hint!", true, NULL, this, "short_hint"));
 	widget->addItem(new CMenuForwarder("Short hint with timeout!", true, NULL, this, "short_hint_timed"));
+	widget->addItem(new CMenuForwarder("Short hint with timeout and function!", true, NULL, this, "short_hint_timed_slot"));
+	widget->addItem(new CMenuForwarder("Short hint with struct arg!", true, NULL, this, "short_hint_struct"));
 }
 
 void CTestMenu::showSeparatorTypes(CMenuWidget *widget)
