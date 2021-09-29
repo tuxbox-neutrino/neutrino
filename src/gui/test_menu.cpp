@@ -1010,6 +1010,23 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		DisplayInfoMessage("Info Test!");
 		return menu_return::RETURN_REPAINT;
 	}
+	else if (actionKey == "short_hint"){
+		CHint *hint = new CHint("Info Test!");
+		// Set the message window outside of screen mid to demonstrate the hide behavior,
+		// so that the hide behavior will not be influenced by any other window or menu.
+		hint->setPos(10, 10);
+		hint->paint();
+		sleep(3);
+		// We must call hide() or kill() explicitly, because there is no instruction of hide() inside any destructors.
+		// This behavior is by design.
+		hint->hide();
+		delete hint;
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "short_hint_timed"){
+		ShowHintS("Info Test...", 3, true);
+		return menu_return::RETURN_REPAINT;
+	}
 	else if (actionKey == "shellwindow"){
 		sigc::slot3<void, std::string*, int *, bool *> sl_shell_output;
 		sl_shell_output = sigc::mem_fun(*this, &CTestMenu::handleShellOutput);
@@ -1327,6 +1344,9 @@ void CTestMenu::showMsgTests(CMenuWidget *widget)
 	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Error/Info"));
 	widget->addItem(new CMenuForwarder("Error Message!", true, NULL, this, "msgbox_error"));
 	widget->addItem(new CMenuForwarder("Info Message!", true, NULL, this, "msgbox_info"));
+	widget->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, "Short Hint"));
+	widget->addItem(new CMenuForwarder("Short hint!", true, NULL, this, "short_hint"));
+	widget->addItem(new CMenuForwarder("Short hint with timeout!", true, NULL, this, "short_hint_timed"));
 }
 
 void CTestMenu::showSeparatorTypes(CMenuWidget *widget)
