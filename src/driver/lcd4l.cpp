@@ -469,7 +469,15 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	/* ----------------------------------------------------------------- */
 
 	int x_res, y_res, framerate;
-	videoDecoder->getPictureInfo(x_res, y_res, framerate);
+	if (videoDecoder)
+	{	// Hack: That should not happen, but while shutting down there
+		// could be a null pointer and this can lead to a crash.
+		// This behavior was observed with LeakSanitizer on pc hardware.
+		videoDecoder->getPictureInfo(x_res, y_res, framerate);
+	}
+	else
+		return;
+
 
 	if (y_res == 1088)
 		y_res = 1080;
