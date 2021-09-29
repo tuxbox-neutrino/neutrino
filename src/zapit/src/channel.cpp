@@ -114,7 +114,9 @@ void CZapitChannel::Init()
 	bUseCI = false;
 	altlogo = "";
 	epgmapper = "";
+#if ENABLE_HBBTV
 	aitPid = 0;
+#endif
 }
 
 CZapitChannel::~CZapitChannel(void)

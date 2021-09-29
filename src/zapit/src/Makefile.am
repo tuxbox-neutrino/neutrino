@@ -25,7 +25,6 @@ libzapit_a_SOURCES = \
 	frontend.cpp \
 	getservices.cpp \
 	pat.cpp \
-	scanait.cpp \
 	scanbat.cpp \
 	scan.cpp \
 	scannit.cpp \
@@ -37,6 +36,11 @@ libzapit_a_SOURCES = \
 if ENABLE_FASTSCAN
 libzapit_a_SOURCES += \
 	fastscan.cpp
+endif
+
+if ENABLE_HBBTV
+libzapit_a_SOURCES += \
+	scanait.cpp
 endif
 
 bin_PROGRAMS = pzapit

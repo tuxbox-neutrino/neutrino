@@ -142,7 +142,9 @@ class CZapitChannel
 
 		unsigned short			pcrPid;
 		unsigned short			pmtPid;
+#if ENABLE_HBBTV
 		unsigned short			aitPid;
+#endif
 		unsigned short			teletextPid;
 		unsigned short			videoPid;
 		unsigned short			audioPid;
@@ -244,7 +246,9 @@ class CZapitChannel
 		unsigned char 		getAudioChannelCount(void)	{ return (unsigned char) audioChannels.size(); }
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
 		unsigned short		getPmtPid(void)			{ return pmtPid; }
+#if ENABLE_HBBTV
 		unsigned short		getAitPid(void)			{ return aitPid; }
+#endif
 		unsigned short		getTeletextPid(void)		{ return teletextPid; }
 		const char *		getTeletextLang(void)		{ return ttx_language_code.c_str(); }
 		unsigned short		getVideoPid(void)		{ return videoPid; }
@@ -268,7 +272,9 @@ class CZapitChannel
 		void setAudioChannel(unsigned char pAudioChannel)	{ if (pAudioChannel < audioChannels.size()) currentAudioChannel = pAudioChannel; }
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
+#if ENABLE_HBBTV
 		void setAitPid(unsigned short pAitPid)			{ aitPid = pAitPid; }
+#endif
 		void setTeletextPid(unsigned short pTeletextPid)	{ teletextPid = pTeletextPid; }
 		void setTeletextLang(std::string lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }

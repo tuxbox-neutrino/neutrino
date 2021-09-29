@@ -180,6 +180,11 @@ AC_ARG_ENABLE(graphlcd,
 	AC_DEFINE(ENABLE_GRAPHLCD, 1, [enable GraphLCD support]))
 AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 
+AC_ARG_ENABLE(hbbtv,
+	AS_HELP_STRING([--enable-hbbtv], [enable HBBTV support @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_HBBTV, 1, [enable HBBTV support]))
+AM_CONDITIONAL(ENABLE_HBBTV, test "$enable_hbbtv" = "yes")
+
 AC_ARG_ENABLE(keyboard-no-rc,
 	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control @<:@default=no@:>@]),
 	AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL, 1, [enable keyboard control, disable rc control]))
