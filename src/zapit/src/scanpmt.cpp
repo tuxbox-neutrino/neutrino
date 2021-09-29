@@ -38,7 +38,7 @@
 #include <dvbsi++/teletext_descriptor.h>
 #include <dvbsi++/subtitling_descriptor.h>
 #include <dvbsi++/vbi_teletext_descriptor.h>
-#if ENABLE_HBBTV
+#if ENABLE_AIT
 #include <dvbsi++/application_information_section.h>
 #include <dvbsi++/application_name_descriptor.h>
 #include <dvbsi++/application_profile.h>
@@ -337,7 +337,7 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 		audio_type = CZapitAudioChannel::EAC3;
 		audio = true;
 		break;
-#if ENABLE_HBBTV
+#if ENABLE_AIT
 	case STREAM_TYPE_PRIVATE_SECTION:
 		for (DescriptorConstIterator desc = esinfo->getDescriptors()->begin(); desc != esinfo->getDescriptors()->end(); ++desc)
 		{

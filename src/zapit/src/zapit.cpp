@@ -141,7 +141,7 @@ CZapit::CZapit()
 	pip_channel_id = 0;
 	lock_channel_id = 0;
 	pip_fe = NULL;
-#if ENABLE_HBBTV
+#if ENABLE_AIT
 	ait = new CAit();
 #endif
 }
@@ -666,7 +666,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	if (update_pmt)
 		pmt_set_update_filter(current_channel, &pmt_update_fd);
 
-#if ENABLE_HBBTV
+#if ENABLE_AIT
 	ait->setDemux(current_channel->getRecordDemux());
 	ait->Parse(current_channel);
 #endif

@@ -38,7 +38,7 @@ libzapit_a_SOURCES += \
 	fastscan.cpp
 endif
 
-if ENABLE_HBBTV
+if ENABLE_AIT
 libzapit_a_SOURCES += \
 	scanait.cpp
 endif

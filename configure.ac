@@ -206,6 +206,16 @@ AC_ARG_ENABLE(fastscan,
 	AC_DEFINE(ENABLE_FASTSCAN, 1, [enable fastscan code]))
 AM_CONDITIONAL(ENABLE_FASTSCAN, test "$enable_fastscan" = "yes")
 
+AC_ARG_ENABLE(aitscan,
+	AS_HELP_STRING([--enable-aitscan], [enable Application Information Table support @<:@default=yes@:>@]),
+	[enable_aitscan="$enableval"],
+	[enable_aitscan="yes"])
+
+if test "$enable_aitscan" = "yes"; then
+	AC_DEFINE(ENABLE_AIT, 1, [enable Application Information Table support])
+fi
+AM_CONDITIONAL(ENABLE_AIT, test "$enable_aitscan" = "yes")
+
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING([--enable-giflib], [use giflib instead of libungif @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_GIFLIB, 1, [use giflib instead of libungif]))
