@@ -30,7 +30,6 @@
 #ifndef __C_HINTBOX__
 #define __C_HINTBOX__
 
-#include <unistd.h>
 #include <gui/components/cc.h>
 
 #define HINTBOX_MIN_WIDTH	320 // scaled in init
