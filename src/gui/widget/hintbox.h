@@ -377,7 +377,10 @@ class CHint : public CHintBox
 		virtual ~CHint()
 		{
 			if (delay)
-				sleep(delay);
+			{
+				setTimeOut(delay);
+				exec();
+			}
 		};
 };
 
