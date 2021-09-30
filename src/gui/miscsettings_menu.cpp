@@ -91,7 +91,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	printf("init extended settings menu...\n");
 
-	if(parent != NULL)
+	if ((parent != NULL) && (actionKey.find("epg_read_now") == std::string::npos))
 		parent->hide();
 
 	if(actionKey == "epgdir")
@@ -164,6 +164,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "epg_read_now" || actionKey == "epg_read_now_usermenu")
 	{
 		CHint *hint = new CHint(LOCALE_MISCSETTINGS_EPG_READ);
+		hint->setDelay(1);
 		hint->paint();
 
 		struct stat my_stat;
@@ -179,7 +180,6 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
 		}
 
-		sleep(1); // small delay for very fast hardware
 		delete hint;
 
 		if (actionKey == "epg_read_now_usermenu")
