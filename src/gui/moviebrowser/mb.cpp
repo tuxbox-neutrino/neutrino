@@ -2228,6 +2228,10 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			CMenuWidget m(LOCALE_MOVIEBROWSER_FOOT_SORT, NEUTRINO_ICON_SETTINGS);
 			m.addIntroItems();
 
+			m.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_PREVPLAYDATE, true, NULL, selector, to_string(MB_INFO_PREVPLAYDATE).c_str(), CRCInput::RC_red));
+			m.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_RECORDDATE, true, NULL, selector, to_string(MB_INFO_RECORDDATE).c_str(), CRCInput::RC_green));
+			m.addItem(new CMenuSeparator(CMenuSeparator::LINE));
+#if 0
 			// add PREVPLAYDATE/RECORDDATE sort buttons to footer
 			m.addKey(CRCInput::RC_red, selector, to_string(MB_INFO_PREVPLAYDATE).c_str());
 			m.addKey(CRCInput::RC_green, selector, to_string(MB_INFO_RECORDDATE).c_str());
@@ -2239,7 +2243,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			int footerButtonsCount = sizeof(footerButtons) / sizeof(button_label);
 
 			m.setFooter(footerButtons, footerButtonsCount);
-
+#endif
 			// just show sorting options for displayed rows; sorted by rows
 			for (int row = 0; row < MB_MAX_ROWS && row < m_settings.browserRowNr; row++)
 			{
