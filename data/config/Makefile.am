@@ -1,5 +1,4 @@
 EXTRA_DIST = \
-	settingsupdate.conf settingsupdate.conf.in \
 	tobackup.conf tobackup.conf.in
 
 installdir = $(CONFIGDIR)
@@ -11,6 +10,13 @@ install_DATA = \
 	epglanguages.conf \
 	providermap.xml \
 	satellites.xml \
-	settingsupdate.conf \
 	terrestrial.xml \
 	tobackup.conf
+
+if ENABLE_EXTUPDATE
+EXTRA_DIST += \
+	settingsupdate.conf settingsupdate.conf.in
+
+install_DATA = \
+	settingsupdate.conf
+endif
