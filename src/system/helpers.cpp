@@ -1750,7 +1750,7 @@ size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
 
 bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsigned int timeout)
 {
-	dprintf(DEBUG_NORMAL, "getUrl: url:%s\n", url.c_str());
+	dprintf(DEBUG_NORMAL, "getUrl: url: %s\n", url.c_str());
 
 	CURL * curl_handle = curl_easy_init();
 
@@ -1780,8 +1780,7 @@ bool getUrl(std::string& url, std::string& answer, std::string userAgent, unsign
 
 	if (httpres != 0 || answer.empty())
 	{
-		dprintf(DEBUG_NORMAL, "getUrl: error msg: %s\n", cerror);
-		dprintf(DEBUG_NORMAL, "getUrl: error url: %s\n", url.c_str());
+		dprintf(DEBUG_NORMAL, "getUrl: error: %s (%s)\n", cerror, url.c_str());
 		return false;
 	}
 
@@ -1829,8 +1828,7 @@ bool downloadUrl(std::string url, std::string file, std::string userAgent, unsig
 
 	if (httpres != 0)
 	{
-		dprintf(DEBUG_NORMAL, "curl error msg: %s\n", cerror);
-		dprintf(DEBUG_NORMAL, "curl error url: %s\n", url.c_str());
+		dprintf(DEBUG_NORMAL, "curl error: %s (%s)\n", cerror, url.c_str());
 		unlink(file.c_str());
 		return false;
 	}
