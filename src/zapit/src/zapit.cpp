@@ -774,7 +774,7 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 	INFO("[pip] vpid %X apid %X pcr %X", newchannel->getVideoPid(), newchannel->getAudioPid(), newchannel->getPcrPid());
 	if (!pipDemux) {
 		pipDemux = new cDemux(dnum);
-		pipDemux->Open(DMX_PIP_CHANNEL);
+		pipDemux->Open(DMX_VIDEO_CHANNEL);
 		if (!pipDecoder) {
 			pipDecoder = new cVideo(0, NULL, NULL, 1);
 		}

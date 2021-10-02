@@ -5283,7 +5283,7 @@ void CNeutrinoApp::StartAVInputPiP() {
 
 	if (!pipDemux) {
 		pipDemux = new cDemux(1);
-		pipDemux->Open(DMX_PIP_CHANNEL);
+		pipDemux->Open(DMX_VIDEO_CHANNEL);
 		if (!pipDecoder) {
 			pipDecoder = new cVideo(0, NULL, NULL, 1);
 		}
