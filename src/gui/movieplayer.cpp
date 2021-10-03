@@ -1485,6 +1485,12 @@ bool CMoviePlayerGui::PlayFileStart(void)
 
 	if (is_audio_playing)
 		frameBuffer->showFrame("mp3.jpg");
+
+#if HAVE_CST_HARDWARE
+	if ((g_settings.movieplayer_select_ac3_atype0 == true) && (currentac3 == AC3_ATYPE1))
+		currentac3 = AC3_ATYPE0;
+#endif
+
 #if HAVE_ARM_HARDWARE
 	bool res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration,"",second_file_name);
 #else
@@ -2543,12 +2549,17 @@ void CMoviePlayerGui::selectAudioPid()
 #if HAVE_CST_HARDWARE
 	if (select == numpida) {
 		currentac3 == 1 ? currentac3 = 0 : currentac3 = 1;
+		currentac3 == 1 ? g_settings.movieplayer_select_ac3_atype0 = false : g_settings.movieplayer_select_ac3_atype0 = true;
 		playback->SetAPid(currentapid, currentac3);
 		printf("[movieplayer] currentac3 changed to %d\n", currentac3);
 	}
 	else if ((select >= 0) && (currentapid != apids[select])) {
 		currentapid = apids[select];
 		currentac3 = ac3flags[select];
+
+		if ((g_settings.movieplayer_select_ac3_atype0 == true) && (currentac3 == AC3_ATYPE1))
+			currentac3 = AC3_ATYPE0;
+
 		playback->SetAPid(currentapid, currentac3);
 		getCurrentAudioName(is_file_player, currentaudioname);
 		printf("[movieplayer] apid changed to %d type %d\n", currentapid, currentac3);

@@ -1185,7 +1185,10 @@ int CNeutrinoApp::loadSetup(const char *fname)
 // 	g_settings.movieplayer_bisection_jump = configfile.getInt32("movieplayer_bisection_jump", 5);
 	g_settings.movieplayer_display_playtime = configfile.getInt32("movieplayer_display_playtime", g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM);
 	g_settings.movieplayer_repeat_on = configfile.getInt32("movieplayer_repeat_on", CMoviePlayerGui::REPEAT_OFF);
-// 	g_settings.movieplayer_timeosd_while_searching = configfile.getInt32("movieplayer_timeosd_while_searching", 1);
+#if HAVE_CST_HARDWARE
+	g_settings.movieplayer_select_ac3_atype0 = configfile.getBool("movieplayer_select_ac3_atype0", false);
+#endif
+	g_settings.movieplayer_timeosd_while_searching = configfile.getInt32("movieplayer_timeosd_while_searching", 1);
 
 	// filebrowser
 	g_settings.filebrowser_denydirectoryleave = configfile.getBool("filebrowser_denydirectoryleave", false);
@@ -2142,7 +2145,10 @@ void CNeutrinoApp::saveSetup(const char *fname)
 // 	configfile.setInt32("movieplayer_bisection_jump", g_settings.movieplayer_bisection_jump);
 	configfile.setInt32("movieplayer_display_playtime", g_settings.movieplayer_display_playtime);
 	configfile.setInt32("movieplayer_repeat_on", g_settings.movieplayer_repeat_on);
-// 	configfile.setInt32("movieplayer_timeosd_while_searching", g_settings.movieplayer_timeosd_while_searching);
+#if HAVE_CST_HARDWARE
+	configfile.setBool("movieplayer_select_ac3_atype0", g_settings.movieplayer_select_ac3_atype0);
+#endif
+	configfile.setInt32("movieplayer_timeosd_while_searching", g_settings.movieplayer_timeosd_while_searching);
 
 	// filebrowser
 	configfile.setBool("filebrowser_denydirectoryleave", g_settings.filebrowser_denydirectoryleave);
