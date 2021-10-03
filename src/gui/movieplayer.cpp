@@ -2519,7 +2519,7 @@ void CMoviePlayerGui::selectAudioPid()
 #if HAVE_CST_HARDWARE
 	char cnt[5];
 	sprintf(cnt, "%d", count);
-	std::string apidtitle = (currentac3 == 0) ? g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE1) : g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE0);
+	std::string apidtitle = (currentac3 == AC3_ATYPE0) ? g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE1) : g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE0);
 	CMenuForwarder * item = new CMenuForwarder(apidtitle.c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 	APIDSelector.addItem(item, false);
 #endif
@@ -2548,8 +2548,16 @@ void CMoviePlayerGui::selectAudioPid()
 	printf("CMoviePlayerGui::selectAudioPid: selected %d (%x) current %x\n", select, (select >= 0) ? apids[select] : -1, currentapid);
 #if HAVE_CST_HARDWARE
 	if (select == numpida) {
-		currentac3 == 1 ? currentac3 = 0 : currentac3 = 1;
-		currentac3 == 1 ? g_settings.movieplayer_select_ac3_atype0 = false : g_settings.movieplayer_select_ac3_atype0 = true;
+		if (currentac3 == AC3_ATYPE1)
+		{
+			currentac3 = AC3_ATYPE0;
+			g_settings.movieplayer_select_ac3_atype0 = false;
+		}
+		else
+		{
+			currentac3 = AC3_ATYPE1;
+			g_settings.movieplayer_select_ac3_atype0 = true;
+		}
 		playback->SetAPid(currentapid, currentac3);
 		printf("[movieplayer] currentac3 changed to %d\n", currentac3);
 	}
