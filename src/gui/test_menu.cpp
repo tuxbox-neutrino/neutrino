@@ -1010,8 +1010,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		DisplayInfoMessage("Info Test!");
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey == "short_hint with sleep and CHint instance"){
-		CHint *hint = new CHint("Info Test!");
+	else if (actionKey == "short_hint"){
+		CHint *hint = new CHint("Short hint with sleep and CHint instance");
 		// Set the message window outside of screen mid to demonstrate the hide behavior,
 		// so that the hide behavior will not be influenced by any other window or menu.
 		hint->setPos(10, 10);
@@ -1093,7 +1093,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "footer_key"){
 		CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return", 350, NULL, NULL, CComponentsHeader::CC_BTN_EXIT);
-		hintBox.setTimeOut(15);
+		hintBox.setTimeOut(15, true);
 
 		//optional: it is also possible to add more items into the hint box
 		//here some examples:
