@@ -278,7 +278,7 @@ int CMsgBox::exec()
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
 	if (timeout > 0)
-		enableTimeOutBar();
+		initTimeOutBar();
 
 	bool loop = true;
 	while (loop)
@@ -364,7 +364,7 @@ int CMsgBox::exec()
 		}
 	}
 
-	disableTimeOutBar();
+	clearTimeOutBar();
 	return res;
 }
 

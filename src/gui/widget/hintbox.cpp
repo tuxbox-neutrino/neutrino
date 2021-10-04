@@ -202,13 +202,12 @@ void CHintBox::init(	const std::string& Text,
 
 CHintBox::~CHintBox()
 {
-	enable_timeout_bar = false;
-	disableTimeOutBar();
+	clearTimeOutBar();
 }
 
-void CHintBox::enableTimeOutBar(bool enable)
+void CHintBox::initTimeOutBar(bool do_init)
 {
-	if (!enable_timeout_bar || !enable)
+	if (!do_init)
 	{
 		if(timeout_pb_timer){
 			delete timeout_pb_timer; timeout_pb_timer = NULL;
@@ -220,10 +219,8 @@ void CHintBox::enableTimeOutBar(bool enable)
 			timeout_pb->kill();
 			delete timeout_pb; timeout_pb = NULL;
 		}
-		return;
 	}
-
-	if (enable_timeout_bar && enable)
+	else
 	{
 		if(timeout_pb){
 			timeout_pb->setValues(timeout_pb->getValue()+1, 10*timeout);
@@ -259,7 +256,7 @@ int CHintBox::exec()
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 
-	enableTimeOutBar(timeout > 0);
+	initTimeOutBar(enable_timeout_bar && timeout > 0);
 
 	while ( ! ( res & ( messages_return::cancel_info | messages_return::cancel_all ) ) )
 	{
@@ -304,7 +301,7 @@ int CHintBox::exec()
 		}
 	}
 
-	disableTimeOutBar();
+	clearTimeOutBar();
 	return res;
 }
 
@@ -459,7 +456,7 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 	int res = messages_return::none;
 
 	CHintBox hintBox(Caption, Text, Width, Icon, Picon, header_buttons);
-	hintBox.setTimeOut(timeout);
+	hintBox.setTimeOut(timeout, true);
 	hintBox.paint();
 	res = hintBox.exec();
 	hintBox.hide();
@@ -498,7 +495,7 @@ int ShowHintS(const char * const Text, int timeout, bool show_background)
 {
 	int res = messages_return::none;
 	CHint hint(Text, show_background);
-	hint.setTimeOut(timeout);
+	hint.setTimeOut(timeout, false);
 	hint.paint();
 	res = hint.exec();
 	hint.hide();
@@ -523,7 +520,7 @@ int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout
 	sigc::signal<void> OnCall;
 	OnCall.connect(Slot);
 	CHint hint(Text, show_background);
-	hint.setTimeOut(timeout);
+	hint.setTimeOut(timeout, false);
 	hint.paint();
 	OnCall();
 	res = hint.exec();

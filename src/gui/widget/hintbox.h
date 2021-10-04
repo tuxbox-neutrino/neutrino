@@ -91,7 +91,7 @@ class CHintBox : public CComponentsWindow
 				const int& frame_width);
 
 		virtual void ReSize();
-		void showTimeOutBar(){enableTimeOutBar();}
+		void showTimeOutBar(){initTimeOutBar();}
 		int getMaxWidth(const std::string& Text, const std::string& Title, Font *font, const int& minWidth);
 
 	public:
@@ -209,22 +209,35 @@ class CHintBox : public CComponentsWindow
 		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
 		* To disable timeout use NO_TIMEOUT (0)
 		* @param[in]	Timeout as int as seconds
-		* @param[in]	enable_Timeout_Bar as bool, default = true
+		* @param[in]	enable_Timeout_Bar as bool
 		*/
-		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar = true){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
+		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
 
 		/**
-		* enable/disable visualized timeout as progressbar under titlebar
-		* @param[in]	enable 
-		* 	@li	optional: expects type bool, default = true
-		*/
-		void enableTimeOutBar(bool enable = true);
+		 * enable/disable visualized timeout as progressbar under titlebar
+		 * @param[in]	enable
+		 * 	@li	expects type bool, default = true
+		 */
+		void enableTimeOutBar(bool enable = true){enable_timeout_bar = enable;}
 
 		/**
-		* disable visualized timeout as progressbar
-		* 	@see enableTimeOutBar
-		*/
+		 * disable visualized timeout as progressbar under titlebar
+		 * 	@see	enableTimeOutBar()
+		 */
 		void disableTimeOutBar(){enableTimeOutBar(false);}
+
+		/**
+		* init or unload visualized timeout as progressbar under titlebar
+		* @param[in]	do_init
+		* 	@li	type bool, default = true
+		*/
+		void initTimeOutBar(bool do_init = true);
+
+		/**
+		* unload visualized timeout as progressbar
+		* 	@see initTimeOutBar
+		*/
+		void clearTimeOutBar(){initTimeOutBar(false);}
 
 		/**
 		* scroll handler for text objects: NOTE: exec() must be called !
@@ -377,7 +390,7 @@ class CHint : public CHintBox
 		{
 			if (delay)
 			{
-				setTimeOut(delay);
+				setTimeOut(delay, false);
 				exec();
 			}
 		};
