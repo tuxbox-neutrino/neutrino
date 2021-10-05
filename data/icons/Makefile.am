@@ -3,6 +3,7 @@ SUBDIRS = \
 	filetypes \
 	headers \
 	hints \
+	hourglass \
 	locale \
 	movieplayer \
 	radar \

@@ -60,6 +60,7 @@
 #include "widget/msgbox.h"
 #include "widget/progresswindow.h"
 #include "widget/termwindow.h"
+#include "widget/hourglass.h"
 #include <driver/record.h>
 #include <zapit/femanager.h>
 #include <zapit/scan.h>
@@ -1119,8 +1120,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		showRecords();
 		return res;
 	}
-	
-	
+	else if (actionKey == "hourglass"){
+		CHourGlass hg(20, 20);
+		hg.paint();
+		sleep(10);
+		hg.hide();
+		return res;
+	}
+	else if (actionKey == "hourglass_proc"){
+		CHourGlassProc proc(20, 20, sigc::mem_fun(*this, &CTestMenu::showRecords));
+		proc.exec();
+		return res;
+	}
+
 	return showTestMenu();
 }
 
@@ -1249,6 +1261,10 @@ int CTestMenu::showTestMenu()
 	std::string input_txt;
 	CKeyboardInput input("Text input",  &input_txt, 30, NULL, NULL, "Test");
 	w_test.addItem(new CMenuForwarder("Text input", true, NULL, &input));
+
+	//hourglass
+	w_test.addItem(new CMenuForwarder("Hourglass", true, NULL, this, "hourglass"));
+	w_test.addItem(new CMenuForwarder("Exec process with hourglass!", true, NULL, this, "hourglass_proc"));
 
 	//rate banner
 	w_test.addItem(new CMenuForwarder("Rate banner", true, NULL, this, "rate_banner"));

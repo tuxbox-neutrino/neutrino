@@ -434,10 +434,10 @@ int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bo
  * 	@li 	expects sigc::slot<void>
  * 	@li 	example:
  * 	@li 	sigc::slot<void> sl = sigc::mem_fun(g_Plugins, &CPlugins::loadPlugins);\n
- * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, 1, true, &sl);
+ * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sl, 1);
  * 	@li 	or use a function with parameter(s):
  * 		sigc::slot<void> sl = sigc::bind(sigc::mem_fun(*this, &CMyClass::foo), arg1, arg2, arg3, arg4);\n
- * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, 1, true, &sl);
+ * 		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sl, 1);
  * @param[in]	timeout
  * 	@li 	optional: expects type int as seconds, default = HINTBOX_DEFAULT_TIMEOUT (get from settings)
  * @param[in]	show_background

@@ -388,6 +388,7 @@ data/icons/buttons/Makefile
 data/icons/filetypes/Makefile
 data/icons/headers/Makefile
 data/icons/hints/Makefile
+data/icons/hourglass/Makefile
 data/icons/locale/Makefile
 data/icons/movieplayer/Makefile
 data/icons/radar/Makefile

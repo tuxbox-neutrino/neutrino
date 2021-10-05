@@ -38,6 +38,7 @@
 #include <driver/fontrenderer.h>
 #include <system/debug.h>
 #include <system/settings.h>
+#include <gui/widget/hourglass.h>
 
 #define MSG_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MESSAGE_TEXT]
 
@@ -495,9 +496,34 @@ int ShowHintS(const char * const Text, int timeout, bool show_background)
 {
 	int res = messages_return::none;
 	CHint hint(Text, show_background);
+	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
 	hint.setTimeOut(timeout, false);
+
 	hint.paint();
+	hg.paint();
 	res = hint.exec();
+	hg.hide();
+	hint.hide();
+
+	return res;
+}
+
+int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+{
+	int res = messages_return::none;
+
+	sigc::signal<void> OnCall;
+	OnCall.connect(Slot);
+
+	CHint hint(Text, show_background);
+	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
+	hint.setTimeOut(timeout, false);
+
+	hint.paint();
+	hg.paint();
+	OnCall();
+	res = hint.exec();
+	hg.hide();
 	hint.hide();
 
 	return res;
@@ -511,22 +537,6 @@ int ShowHintS(const neutrino_locale_t Text, int timeout, bool show_background)
 int ShowHintS(const std::string& Text, int timeout, bool show_background)
 {
 	return ShowHintS(Text.c_str(), timeout, show_background);
-}
-
-int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
-{
-	int res = messages_return::none;
-
-	sigc::signal<void> OnCall;
-	OnCall.connect(Slot);
-	CHint hint(Text, show_background);
-	hint.setTimeOut(timeout, false);
-	hint.paint();
-	OnCall();
-	res = hint.exec();
-	hint.hide();
-
-	return res;
 }
 
 int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout, bool show_background)

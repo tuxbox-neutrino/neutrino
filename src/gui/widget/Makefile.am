@@ -22,6 +22,7 @@ libneutrino_gui_widget_a_SOURCES = \
 	colorchooser.cpp \
 	helpbox.cpp \
 	hintbox.cpp \
+	hourglass.cpp \
 	keychooser.cpp \
 	keyboard_input.cpp \
 	listbox.cpp \
