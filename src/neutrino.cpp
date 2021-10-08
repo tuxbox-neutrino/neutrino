@@ -5386,12 +5386,14 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 #endif
 
 	else if (actionKey=="savesettings") {
+		ShowHintS(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::saveSetup), NEUTRINO_SETTINGS_FILE), 1);
+#if 0
 		CHint *hint = new CHint(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT);
 		hint->setDelay(1);
 		hint->paint();
 
 		saveSetup(NEUTRINO_SETTINGS_FILE);
-
+#endif
 		if(g_settings.cacheTXT) {
 			tuxtxt_init();
 		} else
@@ -5400,7 +5402,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		//g_Sectionsd->setEventsAreOldInMinutes((unsigned short) (g_settings.epg_old_hours*60));
 		//g_Sectionsd->setHoursToCache((unsigned short) (g_settings.epg_cache_days*24));
 
-		delete hint;
+// 		delete hint;
 	}
 	else if (actionKey=="recording") {
 		setupRecordingDevice();
