@@ -1,5 +1,9 @@
 installdir = $(ICONSDIR)
 
+if BOXTYPE_CST
+install_DATA = \
+	hourglass.png
+else
 install_DATA = \
 	hourglass0.png \
 	hourglass1.png \
@@ -7,4 +11,5 @@ install_DATA = \
 	hourglass3.png \
 	hourglass4.png \
 	hourglass5.png \
-	hourglass6.png 
+	hourglass6.png
+endif
