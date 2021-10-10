@@ -17,6 +17,6 @@ if ENABLE_EXTUPDATE
 EXTRA_DIST += \
 	settingsupdate.conf settingsupdate.conf.in
 
-install_DATA = \
+install_DATA += \
 	settingsupdate.conf
 endif
