@@ -102,8 +102,8 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	if(actionKey=="networkapply")
 	{
 		applyNetworkSettings();
-		readNetworkSettings();
-		backupNetworkSettings();
+		ShowHintS("Read settings...", (sigc::mem_fun(*this, &CNetworkSetup::readNetworkSettings)));
+		ShowHintS("Backup settings...", (sigc::mem_fun(*this, &CNetworkSetup::backupNetworkSettings)));
 		return res;
 	}
 	else if(actionKey=="networktest")
@@ -558,18 +558,14 @@ void CNetworkSetup::saveNetworkSettings()
 void CNetworkSetup::applyNetworkSettings()
 {
 	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], apply network settings...\n", __func__, __LINE__);
+	ShowHintS(LOCALE_NETWORKMENU_APPLY_SETTINGS, 1);
 
 	if (!checkForIP())
 		return;
 
-	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS)); // UTF-8
-	hintBox.paint();
-
- 	networkConfig->stopNetwork();
-	saveNetworkSettings();
- 	networkConfig->startNetwork();
-
-	hintBox.hide();
+	ShowHintS("Stopping network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::stopNetwork)));
+	ShowHintS("Save network settings...", (sigc::mem_fun(*this, &CNetworkSetup::saveNetworkSettings)));
+	ShowHintS("Starting network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::startNetwork)));
 }
 
 //open a message dialog with buttons,
@@ -697,6 +693,8 @@ const char * CNetworkSetup::mypinghost(std::string &host)
 void CNetworkSetup::testNetworkSettings()
 {
 	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], doing network test...\n", __func__, __LINE__);
+	ShowHintS(LOCALE_NETWORKMENU_TEST, 1);
+
 	std::string our_ip, our_mask, our_broadcast, our_gateway, our_nameserver;
 
 	std::string text, testsite, offset = "    ";
