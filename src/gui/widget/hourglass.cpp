@@ -55,7 +55,7 @@ CHourGlass::CHourGlass(	const int x_pos,
 	initImageFiles();
 
 	hg_file_num		= 0;
-	hg_interval		= interval;
+	hg_interval		= interval == HG_AUTO_PAINT_INTERVAL ? 1000/hg_img_files.size() : interval;
 	hg_timer		= new CComponentsTimer(hg_interval);
 	hg_timer->OnTimer.connect(sigc::bind(sigc::mem_fun(*this, &CHourGlass::paint), true));
 }

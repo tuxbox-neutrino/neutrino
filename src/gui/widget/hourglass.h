@@ -33,6 +33,8 @@
  CHourglass shows only a timer controlled image chain, CHourglassProc will run an additional process.
  */
 
+#define HG_AUTO_PAINT_INTERVAL -1
+
 class CHourGlass : public CComponentsShapeSquare
 {
 	private:
@@ -61,7 +63,7 @@ class CHourGlass : public CComponentsShapeSquare
 		 * 		The max count of images are defined in MAX_IMAGES.
 		 * 		Images must be stored as usual inside the defined icon directories.
 		 * @param[in]	interval
-		 * 	@li 	optional: expects type int64_t, defines paint interval, default = 84ms
+		 * 	@li 	optional: expects type int64_t, defines paint interval in milliseconds, default = HG_AUTO_PAINT_INTERVAL (cycle 1000ms / count of images)
 		 * @param[in]	parent
 		 * 	@li 	optional: expects type CComponentsForm, as a parent container in which this object is embedded, default = NULL (stand alone)
 		 * @param[in]	shadow_mode
@@ -81,7 +83,7 @@ class CHourGlass : public CComponentsShapeSquare
 				const int w = 48,
 				const int h = 48,
 				const std::string& image_basename = "hourglass",
-				const int64_t& interval = 84,
+				const int64_t& interval = HG_AUTO_PAINT_INTERVAL,
 				CComponentsForm *parent = NULL,
 				int shadow_mode = CC_SHADOW_OFF,
 				fb_pixel_t color_frame = COL_FRAME_PLUS_0,
@@ -122,7 +124,7 @@ class CHourGlassProc : public CHourGlass
 				const int w = 48,
 				const int h = 48,
 				const std::string& image_basename = "hourglass",
-				const int64_t& interval = 84,
+				const int64_t& interval = HG_AUTO_PAINT_INTERVAL,
 				CComponentsForm *parent = NULL,
 				int shadow_mode = CC_SHADOW_OFF,
 				fb_pixel_t color_frame = COL_FRAME_PLUS_0,
