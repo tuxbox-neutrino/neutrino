@@ -1040,29 +1040,6 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowHintS(hint);
 		return menu_return::RETURN_REPAINT;
 	}
-	else if (actionKey=="restarttuner")
-	{
-#if 0
-// 		use with CHint instance
-		CHint *hint = new CHint("Restart Tuner");
-		hint->paint();
-		g_Zapit->setStandby(true);
-		sleep(2);
-		g_Zapit->setStandby(false);
-		sleep(2);
-		g_Zapit->Rezap();
-		delete hint;
-#endif
-// 		Use of ShowHintS with slot does the same like previous block,
-// 		but with multiple messages and despite that with lesser effort.
-		std::vector <hint_message_data_t> hints;
-		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true});
-		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true});
-		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true});
-		ShowHintS(hints);
-
-		return menu_return::RETURN_REPAINT;
-	}
 	else if (actionKey == "shellwindow"){
 		sigc::slot3<void, std::string*, int *, bool *> sl_shell_output;
 		sl_shell_output = sigc::mem_fun(*this, &CTestMenu::handleShellOutput);
@@ -1328,7 +1305,7 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 #endif
 	widget->addItem(new CMenuForwarder("HDD", true, NULL, this, "hdd"));
 	widget->addItem(new CMenuForwarder("SD/MMC", true, NULL, this, "mmc"));
-	widget->addItem(new CMenuForwarder("Tuner Reset", true, NULL, this, "restarttuner"));
+	widget->addItem(new CMenuForwarder("Tuner Reset", true, NULL, CNeutrinoApp::getInstance(), "restarttuner"));
 
 #if 0 //some parts DEPRECATED
 	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {

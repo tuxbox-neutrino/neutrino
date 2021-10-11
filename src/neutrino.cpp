@@ -5419,19 +5419,14 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		delete hint;
 #endif
 	}
-#if 0
+#if 1
 	else if (actionKey=="restarttuner")
 	{
-		CHint *hint = new CHint(LOCALE_SERVICEMENU_RESTARTING_TUNER);
-		hint->paint();
-
-		g_Zapit->setStandby(true);
-		sleep(2);
-		g_Zapit->setStandby(false);
-		sleep(2);
-		g_Zapit->Rezap();
-
-		delete hint;
+		std::vector <hint_message_data_t> hints;
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true});
+		ShowHintS(hints);
 	}
 #endif
 	else if (actionKey=="ytplayback" || actionKey=="tsmoviebrowser" || actionKey=="fileplayback_video" || actionKey=="fileplayback_audio")
