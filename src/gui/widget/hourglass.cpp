@@ -33,7 +33,7 @@
 #include <system/helpers.h>
 #include <neutrinoMessages.h>
 
-#define MAX_IMAGES 24
+#define MAX_IMAGES 30
 
 CHourGlass::CHourGlass(	const int x_pos,
 			const int y_pos,
@@ -55,7 +55,7 @@ CHourGlass::CHourGlass(	const int x_pos,
 	initImageFiles();
 
 	hg_file_num		= 0;
-	hg_interval		= interval == HG_AUTO_PAINT_INTERVAL ? 1000/hg_img_files.size() : interval;
+	hg_interval		= interval == HG_AUTO_PAINT_INTERVAL ? (int64_t)(1000/hg_img_files.size()) : interval;
 	hg_timer		= new CComponentsTimer(hg_interval);
 	hg_timer->OnTimer.connect(sigc::bind(sigc::mem_fun(*this, &CHourGlass::paint), true));
 }
