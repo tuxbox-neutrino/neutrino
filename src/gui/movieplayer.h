@@ -115,14 +115,6 @@ class CMoviePlayerGui : public CMenuTarget
 	int            m_LastMode;
 	int            m_ThisMode;
 
-#if HAVE_CST_HARDWARE
-	enum
-	{
-		AC3_ATYPE0 = 0,
-		AC3_ATYPE1 = 1
-	};
-#endif
-
 #ifdef ENABLE_GRAPHLCD
 	struct		tm *tm_struct;
 	int		glcd_position;

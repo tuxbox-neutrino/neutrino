@@ -1487,8 +1487,11 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		frameBuffer->showFrame("mp3.jpg");
 
 #if HAVE_CST_HARDWARE
-	if ((g_settings.movieplayer_select_ac3_atype0 == true) && (currentac3 == AC3_ATYPE1))
-		currentac3 = AC3_ATYPE0;
+	if (g_settings.movieplayer_select_ac3_atype0 == true)
+	{
+		if ((currentac3 == CZapitAudioChannel::AC3) || (currentac3 == CZapitAudioChannel::MPEG))
+			currentac3 = !currentac3;
+	}
 #endif
 
 #if HAVE_ARM_HARDWARE
@@ -2519,7 +2522,11 @@ void CMoviePlayerGui::selectAudioPid()
 #if HAVE_CST_HARDWARE
 	char cnt[5];
 	sprintf(cnt, "%d", count);
-	std::string apidtitle = (currentac3 == AC3_ATYPE0) ? g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE1) : g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE0);
+	std::string apidtitle;
+	if (g_settings.movieplayer_select_ac3_atype0 == false)
+		apidtitle = g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE0);
+	else
+		apidtitle = g_Locale->getText(LOCALE_AUDIOMENU_AC3_ATYPE1);
 	CMenuForwarder * item = new CMenuForwarder(apidtitle.c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 	APIDSelector.addItem(item, false);
 #endif
@@ -2538,7 +2545,7 @@ void CMoviePlayerGui::selectAudioPid()
 	}
 
 	APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE));
-	extern CAudioSetupNotifier     * audioSetupNotifier;
+	extern CAudioSetupNotifier * audioSetupNotifier;
 	APIDSelector.addItem( new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
 				true, audioSetupNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN) );
@@ -2548,25 +2555,24 @@ void CMoviePlayerGui::selectAudioPid()
 	printf("CMoviePlayerGui::selectAudioPid: selected %d (%x) current %x\n", select, (select >= 0) ? apids[select] : -1, currentapid);
 #if HAVE_CST_HARDWARE
 	if (select == numpida) {
-		if (currentac3 == AC3_ATYPE1)
+		if ((currentac3 == CZapitAudioChannel::AC3) || (currentac3 == CZapitAudioChannel::MPEG))
 		{
-			currentac3 = AC3_ATYPE0;
-			g_settings.movieplayer_select_ac3_atype0 = false;
+			g_settings.movieplayer_select_ac3_atype0 = !g_settings.movieplayer_select_ac3_atype0;
+			currentac3 = !currentac3;
+
+			playback->SetAPid(currentapid, currentac3);
+			printf("[movieplayer] currentac3 changed to %d\n", currentac3);
 		}
-		else
-		{
-			currentac3 = AC3_ATYPE1;
-			g_settings.movieplayer_select_ac3_atype0 = true;
-		}
-		playback->SetAPid(currentapid, currentac3);
-		printf("[movieplayer] currentac3 changed to %d\n", currentac3);
 	}
 	else if ((select >= 0) && (currentapid != apids[select])) {
 		currentapid = apids[select];
 		currentac3 = ac3flags[select];
 
-		if ((g_settings.movieplayer_select_ac3_atype0 == true) && (currentac3 == AC3_ATYPE1))
-			currentac3 = AC3_ATYPE0;
+		if (g_settings.movieplayer_select_ac3_atype0 == true)
+		{
+			if ((currentac3 == CZapitAudioChannel::AC3) || (currentac3 == CZapitAudioChannel::MPEG))
+				currentac3 = !currentac3;
+		}
 
 		playback->SetAPid(currentapid, currentac3);
 		getCurrentAudioName(is_file_player, currentaudioname);
