@@ -74,7 +74,7 @@ int CXMLTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		{
 			std::string entry = dirname;
 
-			CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 50);
+			CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 255);
 			e->exec(this, "");
 			delete e;
 
@@ -119,7 +119,7 @@ int CXMLTVSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		std::string tpl = "http://xxx.xxx.xxx.xxx/control/xmltv.xml";
 		std::string entry = tpl;
 
-		CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 50);
+		CKeyboardInput *e = new CKeyboardInput(LOCALE_XMLTV_XML_ENTER, &entry, 255);
 		e->exec(this, "");
 		delete e;
 

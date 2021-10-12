@@ -101,7 +101,7 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		{
 			std::string entry = dirname;
 
-			CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 50);
+			CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 255);
 			e->exec(this, "");
 			delete e;
 
@@ -162,7 +162,7 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 			tpl += "?mode=tv";
 		std::string entry = tpl;
 
-		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 52);
+		CKeyboardInput *e = new CKeyboardInput(LOCALE_WEBCHANNELS_XML_ENTER, &entry, 255);
 		e->exec(this, "");
 		delete e;
 
