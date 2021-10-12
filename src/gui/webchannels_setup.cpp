@@ -216,10 +216,10 @@ int CWebChannelsSetup::Show()
 
 	int shortcut = 1;
 
+#if 0
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
 			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
-#if 0
 	bool _mode_webradio = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) &&
 			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
@@ -234,7 +234,7 @@ int CWebChannelsSetup::Show()
 	if (!webradio)
 	{
 		livestreamResolution = g_settings.livestreamResolution;
-		oc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &livestreamResolution, LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT, _mode_webtv, this, CRCInput::convertDigitToKey(shortcut++), "", true);
+		oc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &livestreamResolution, LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++), "", true);
 		// FIXME oc->setHint(NEUTRINO_ICON_HINT_DEFAULT, NONEXISTANT_LOCALE);
 		m->addItem(oc);
 
