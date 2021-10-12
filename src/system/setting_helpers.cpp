@@ -595,10 +595,8 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 			fprintf(f, "%s\n", zone.c_str());
 			fclose(f);
 		}
-#if 0
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
-#endif
 		tzset();
 	}
 
