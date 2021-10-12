@@ -474,8 +474,24 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 		const char *stop  = xmlGetAttribute(programme, "stop");
 
 		struct tm starttime, stoptime;
+#ifdef BOXMODEL_CST_HD2
+		char sign;
+		int offset_h;
+		int offset_m;
+		sscanf(start, "%04d%02d%02d%02d%02d%02d %c%02d%02d", &(starttime.tm_year), &(starttime.tm_mon), &(starttime.tm_mday), &(starttime.tm_hour), &(starttime.tm_min), &(starttime.tm_sec), &sign, &offset_h, &offset_m);
+		starttime.tm_year -= 1900;
+		starttime.tm_mon -= 1;
+		starttime.tm_isdst = -1;
+		starttime.tm_gmtoff = (sign == '-' ? -1 : 1) * (offset_h*60*60 + offset_m*60);
+		sscanf(stop, "%04d%02d%02d%02d%02d%02d %c%02d%02d", &(stoptime.tm_year), &(stoptime.tm_mon), &(stoptime.tm_mday), &(stoptime.tm_hour), &(stoptime.tm_min), &(stoptime.tm_sec), &sign, &offset_h, &offset_m);
+		stoptime.tm_year -= 1900;
+		stoptime.tm_mon -= 1;
+		stoptime.tm_isdst = -1;
+		stoptime.tm_gmtoff = (sign == '-' ? -1 : 1) * (offset_h*60*60 + offset_m*60);
+#else
 		strptime(start, "%Y%m%d%H%M%S %z", &starttime);
 		strptime(stop, "%Y%m%d%H%M%S %z", &stoptime);
+#endif
 		time_t start_time = mktime(&starttime) + starttime.tm_gmtoff;
 		time_t duration = mktime(&stoptime) + stoptime.tm_gmtoff - start_time;
 
