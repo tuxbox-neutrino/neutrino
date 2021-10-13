@@ -886,13 +886,8 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if (actionKey == "save_movie_info")
 	{
-		CHint *loadBox = new CHint(LOCALE_MOVIEBROWSER_MENU_SAVE);
-		loadBox->setDelay(1);
-		loadBox->paint();
-
-		m_movieInfo.saveMovieInfo(*m_movieSelectionHandler);
-
-		delete loadBox;
+		sigc::slot<void> sl = sigc::hide_return(sigc::bind(sigc::mem_fun(&m_movieInfo, &CMovieInfo::saveMovieInfo), *m_movieSelectionHandler, (CFile*)NULL));
+		ShowHintS(LOCALE_MOVIEBROWSER_MENU_SAVE, sl, 1);
 	}
 	else if (actionKey == "save_movie_info_all")
 	{
