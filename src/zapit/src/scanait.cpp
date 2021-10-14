@@ -126,9 +126,12 @@ bool CAit::Parse()
 	for (sit = sections.begin(); sit != sections.end(); ++sit)
 	{
 
-		if (CServiceScan::getInstance()->Aborted())
-			return false;
+		if (CServiceScan::getInstance()->Aborted()){
+			if (pFile)
+				fclose(pFile);
 
+			return false;
+		}
 		std::list<ApplicationInformation *>::const_iterator i = (*sit)->getApplicationInformation()->begin();
 		sectionLength = (*sit)->getSectionLength() + 3;
 
