@@ -297,15 +297,16 @@ AC_ARG_ENABLE(cleanup,
 AC_ARG_ENABLE(pip,
 	AS_HELP_STRING([--enable-pip], [enable picture in picture support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
-
-AC_ARG_ENABLE(dynamicdemux,
-	AS_HELP_STRING([--enable-dynamicdemux], [enable dynamic demux @<:@default=no@:>@]),
-	AC_DEFINE(DYNAMIC_DEMUX, 1, [enable dynamic demux]))
+AM_CONDITIONAL(ENABLE_PIP, test "$enable_pip" = "yes")
 
 AC_ARG_ENABLE(quadpip,
 	AS_HELP_STRING([--enable-quadpip], [enable quad picture in picture support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support]))
 AM_CONDITIONAL(ENABLE_QUADPIP, test "$enable_quadpip" = "yes")
+
+AC_ARG_ENABLE(dynamicdemux,
+	AS_HELP_STRING([--enable-dynamicdemux], [enable dynamic demux @<:@default=no@:>@]),
+	AC_DEFINE(DYNAMIC_DEMUX, 1, [enable dynamic demux]))
 
 AC_ARG_ENABLE(testing,
 	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
