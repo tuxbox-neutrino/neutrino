@@ -46,7 +46,7 @@ class CScreenSaver : public sigc::trackable
 
 		std::vector<std::string> v_bg_files;
 		unsigned int 	index;
-		t_channel_id	pip_channel_id;
+		t_channel_id	pip_channel_id[3];
 		bool		force_refresh;
 		bool		status_mute;
 		uint 		seed[6];
