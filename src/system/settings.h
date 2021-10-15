@@ -951,6 +951,11 @@ struct SNeutrinoSettings
 	int pip_radio_y;
 #endif
 
+#if ENABLE_PIP && ENABLE_QUADPIP
+	std::string quadpip_channel_window[4];
+	int quadpip_channel_id_window[4];
+#endif
+
 	// pictureviewer
 	int picviewer_scaling;
 	int picviewer_slide_time;

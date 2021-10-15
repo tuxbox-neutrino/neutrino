@@ -2395,6 +2395,11 @@ plugintype.game Spiel
 plugintype.lua Lua-Plugin
 plugintype.script Skript
 plugintype.tool Werkzeug
+quadpip QuadPiP
+quadpip_1 Programm 1
+quadpip_2 Programm 2
+quadpip_3 Programm 3
+quadpip_4 Programm 4
 rclock.locked Gesperrt
 rclock.lockmsg Die Fernbedienung wird gesperrt.\nUm die Sperre aufzuheben, bitte\n[rot] gefolgt von [%s]\nauf der Fernbedienung drücken.
 rclock.title Fernbedienung sperren

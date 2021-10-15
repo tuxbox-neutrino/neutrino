@@ -2395,6 +2395,11 @@ plugintype.game Game
 plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
+quadpip QuadPiP
+quadpip_1 Channel 1
+quadpip_2 Channel 2
+quadpip_3 Channel 3
+quadpip_4 Channel 4
 rclock.locked Locked
 rclock.lockmsg Remote control will be locked.\nTo unlock, press\n[red] followed by [%s]\non your remote control.
 rclock.title Lock remote control

@@ -68,7 +68,10 @@
 #include "gui/sleeptimer.h"
 #include "gui/timerlist.h"
 #include "gui/update_menue.h"
-#if ENABLE_TESTING
+#if ENABLE_PIP && ENABLE_QUADPIP
+#include <gui/quadpip_setup.h>
+#endif
+#ifdef ENABLE_TESTING
 #include "gui/test_menu.h"
 #endif
 #include "gui/update.h"
@@ -269,7 +272,12 @@ void CNeutrinoApp::InitMenuMain()
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_CISETTINGS]);
 	}
 
-#if ENABLE_TESTING
+#if ENABLE_PIP && ENABLE_QUADPIP
+	CMenuForwarder *quadpip = new CMenuForwarder(LOCALE_QUADPIP, true, NULL, new CQuadPiPSetup(), NULL, CRCInput::RC_nokey);
+	personalize.addItem(MENU_MAIN, quadpip/*, &g_settings.personalize[SNeutrinoSettings::P_MAIN_QUADPIP]*/);
+#endif
+
+#ifdef ENABLE_TESTING
 	personalize.addItem(MENU_MAIN, new CMenuForwarder("Test menu", true, NULL, new CTestMenu()), NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 #endif
 }
