@@ -98,6 +98,8 @@ extern cDemux *videoDemux;
 #ifdef ENABLE_PIP
 extern cVideo *pipVideoDecoder[3];
 extern cDemux *pipVideoDemux[3];
+extern cAudio * pipAudioDecoder[3];
+extern cDemux * pipAudioDemux[3];
 #endif
 
 cDemux *pcrDemux = NULL;
@@ -699,6 +701,8 @@ bool CZapit::StopPip(int pip)
 		CCamManager::getInstance()->Stop(pip_channel_id[pip], CCamManager::PIP);
 		pipVideoDemux[pip]->Stop();
 		pipVideoDecoder[pip]->Stop();
+		pipAudioDemux[pip]->Stop();
+		pipAudioDecoder[pip]->Stop();
 		pip_fe[pip] = NULL;
 		pip_channel_id[pip] = 0;
 		return true;
@@ -801,6 +805,21 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	pipVideoDecoder[pip]->Pig(g_settings.pip_x,g_settings.pip_y,g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
 	pipVideoDecoder[pip]->ShowPig(1);
 #endif
+
+	if (!pipAudioDemux[pip]) {
+		pipAudioDemux[pip] = new cDemux(dnum);
+		pipAudioDemux[pip]->Open(DMX_AUDIO_CHANNEL);
+		if (!pipAudioDecoder[pip]) {
+			pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, dnum);
+		}
+	}
+
+	if (newchannel->getAudioChannel())
+		pipAudioDecoder[pip]->SetStreamType(newchannel->getAudioChannel()->audioChannelType);
+	pipAudioDemux[pip]->pesFilter(newchannel->getAudioPid());
+
+	pipVideoDecoder[pip]->SetSyncMode((AVSYNC_TYPE) g_settings.avsync);
+	pipAudioDecoder[pip]->SetSyncMode((AVSYNC_TYPE) g_settings.avsync);
 
 	CCamManager::getInstance()->Start(newchannel->getChannelID(), CCamManager::PIP);
 	return true;
@@ -2634,6 +2653,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 		{
 			pipVideoDecoder[i] = new cVideo(0, NULL, NULL, i+1);
 			pipVideoDecoder[i]->ShowPig(0);
+			pipAudioDecoder[i] = new cAudio(0, NULL, NULL, i+1);
 		}
 #endif
 	}
@@ -2885,6 +2905,10 @@ void CZapit::run()
 			pipVideoDecoder[i] = NULL;
 		if (pipVideoDemux[i])
 			pipVideoDemux[i] = NULL;
+		if (pipAudioDecoder[i])
+			pipAudioDecoder[i] = NULL;
+		if (pipAudioDemux[i])
+			pipAudioDemux[i] = NULL;
 	}
 #endif
 
