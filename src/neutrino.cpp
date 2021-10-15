@@ -6054,7 +6054,7 @@ void CNeutrinoApp::getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::s
 }
 
 #ifdef ENABLE_PIP
-bool CNeutrinoApp::StartPip(const t_channel_id channel_id)
+bool CNeutrinoApp::StartPip(const t_channel_id channel_id, int pip)
 {
 	bool ret = false;
 	if (!g_info.hw_caps->can_pip)
@@ -6069,7 +6069,7 @@ bool CNeutrinoApp::StartPip(const t_channel_id channel_id)
 
 	int recmode = CRecordManager::getInstance()->GetRecordMode(channel_id);
 	if ((recmode == CRecordManager::RECMODE_OFF) || (channel->getRecordDemux() != channel->getPipDemux())) {
-		if (!g_Zapit->zapTo_pip(channel_id))
+		if (!g_Zapit->zapTo_pip(channel_id, pip))
 			DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
 		else
 			ret = true;

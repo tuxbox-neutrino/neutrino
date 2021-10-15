@@ -283,8 +283,8 @@ class CZapit : public OpenThreads::Thread
 		int GetVolume() { return current_volume; };
 		int SetVolumePercent(int percent);
 		void SetVolumePercent(int default_ac3, int default_pcm);
-		bool StartPip(const t_channel_id channel_id);
-		bool StopPip();
+		bool StartPip(const t_channel_id channel_id, int pip = 0);
+		bool StopPip(int pip = 0);
 		void Lock() { mutex.lock(); }
 		void Unlock() { mutex.unlock(); }
 		void EnablePlayback(bool enable) { playbackStopForced = !enable; }
