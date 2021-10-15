@@ -213,6 +213,7 @@ unsigned int CZapitClient::zapTo_pip(const t_channel_id channel_id, int pip)
 	msg.channel_id = channel_id;
 	msg.record = false;
 	msg.pip = true;
+	msg.pip_dev = pip;
 	msg.epg = false;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);

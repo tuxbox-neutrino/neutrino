@@ -199,8 +199,9 @@ class CZapitMessages
 		t_channel_id channel_id;
 		bool record;
 		bool pip;
+		int pip_dev;
 		bool epg;
-		commandZaptoServiceID():channel_id(0),record(false),pip(false),epg(false){}
+		commandZaptoServiceID():channel_id(0), record(false), pip(false), pip_dev(0), epg(false){}
 	};
 	struct commandZaptoEpg
 	{
