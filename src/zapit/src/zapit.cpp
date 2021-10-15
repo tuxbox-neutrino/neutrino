@@ -766,7 +766,7 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 		pipVideoDecoder[0]->SetDemux(pipVideoDemux[0]);
 	}
 	if (CFEManager::getInstance()->getFrontendCount() > 1)
-		cDemux::SetSource(dnum, pip_fe->getNumber());
+		cDemux::SetSource(dnum, pip_fe[pip]->getNumber());
 #else
 #ifdef DYNAMIC_DEMUX
 	int dnum = CFEManager::getInstance()->getDemux(newchannel->getTransponderId(), pip_fe[pip]->getNumber());
@@ -2622,6 +2622,9 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDecoder->SetVideo(videoDecoder);
 
 #ifdef ENABLE_PIP
+#if HAVE_CST_HARDWARE
+	int dnum = 1; // FIXME?
+#endif
 	if (g_info.hw_caps->can_pip)
 	{
 		pipVideoDemux[0] = new cDemux(dnum);
@@ -2645,8 +2648,6 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	if (g_info.hw_caps->can_pip)
 	{
 #if HAVE_CST_HARDWARE
-		pipVideoDemux[0] = new cDemux(dnum);
-		pipVideoDemux[0]->Open(DMX_PIP_CHANNEL);
 		pipVideoDecoder[0] = new cVideo(video_mode, pipVideoDemux[0]->getChannel(), pipVideoDemux[0]->getBuffer(), 1);
 #else
 		for (unsigned i=0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
