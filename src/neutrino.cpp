@@ -1173,7 +1173,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		sprintf(cfg_key, "quadpip_channel_window_%d", i);
 		g_settings.quadpip_channel_window[i] = configfile.getString(cfg_key, "-");
 		sprintf(cfg_key, "quadpip_channel_id_window_%d", i);
-		g_settings.quadpip_channel_id_window[i] = configfile.getInt32(cfg_key, 0);
+		g_settings.quadpip_channel_id_window[i] = configfile.getInt64(cfg_key, 0);
 	}
 #endif
 
@@ -2141,7 +2141,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 		std::string qp = "quadpip_channel_window_" + to_string(i);
 		configfile.setString(qp, g_settings.quadpip_channel_window[i]);
 		qp = "quadpip_channel_id_window_" + to_string(i);
-		configfile.setInt32(qp, g_settings.quadpip_channel_id_window[i]);
+		configfile.setInt64(qp, g_settings.quadpip_channel_id_window[i]);
 	}
 #endif
 

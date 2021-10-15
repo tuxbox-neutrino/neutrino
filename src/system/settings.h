@@ -955,7 +955,7 @@ struct SNeutrinoSettings
 
 #if ENABLE_PIP && ENABLE_QUADPIP
 	std::string quadpip_channel_window[4];
-	int quadpip_channel_id_window[4];
+	t_channel_id quadpip_channel_id_window[4];
 #endif
 
 	// pictureviewer
