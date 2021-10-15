@@ -6,7 +6,6 @@ install_DATA = \
 	hint_aplay.png \
 	hint_audio.png \
 	hint_avinputmode.png \
-	hint_avinputmode_pip.png \
 	hint_back.png \
 	hint_backup.png \
 	hint_bedit.png \
@@ -67,3 +66,12 @@ install_DATA = \
 	hint_webtv.png \
 	hint_xmltv.png \
 	hint_ytplay.png
+
+if ENABLE_PIP
+install_DATA += \
+	hint_avinputmode_pip.png
+if ENABLE_QUADPIP
+install_DATA += \
+	hint_quadpip.png
+endif
+endif

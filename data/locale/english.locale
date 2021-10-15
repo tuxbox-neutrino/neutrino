@@ -1573,6 +1573,7 @@ menu.hint_progressbar_timescale_invert Select your preferred color gradient
 menu.hint_progressbar_timescale_red Choose the red portion of colored progressbars
 menu.hint_progressbar_timescale_yellow Choose the yellow portion of colored progressbars
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
+menu.hint_quadpip Activate QuadPiP
 menu.hint_radiomode Switch box to radio mode
 menu.hint_reboot Reboot box\nNo confirmation
 menu.hint_record_already_found_check Checks before setting a new record timer if an eponymous title already exists

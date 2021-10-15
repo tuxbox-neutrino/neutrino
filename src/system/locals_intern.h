@@ -1600,6 +1600,7 @@ const char * locale_real_names[] =
 	"menu.hint_progressbar_timescale_red",
 	"menu.hint_progressbar_timescale_yellow",
 	"menu.hint_protection",
+	"menu.hint_quadpip",
 	"menu.hint_radiomode",
 	"menu.hint_reboot",
 	"menu.hint_record_already_found_check",

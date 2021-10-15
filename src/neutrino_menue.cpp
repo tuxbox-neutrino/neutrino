@@ -274,6 +274,7 @@ void CNeutrinoApp::InitMenuMain()
 
 #if ENABLE_PIP && ENABLE_QUADPIP
 	CMenuForwarder *quadpip = new CMenuForwarder(LOCALE_QUADPIP, true, NULL, new CQuadPiPSetup(), NULL, CRCInput::RC_nokey);
+	quadpip->setHint(NEUTRINO_ICON_HINT_QUADPIP, LOCALE_MENU_HINT_QUADPIP);
 	personalize.addItem(MENU_MAIN, quadpip/*, &g_settings.personalize[SNeutrinoSettings::P_MAIN_QUADPIP]*/);
 #endif
 
