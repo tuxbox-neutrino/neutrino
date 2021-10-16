@@ -3,8 +3,8 @@ installdir = $(ICONSDIR)
 install_DATA = \
 	16_9.png \
 	16_9_gray.png \
-	ca2.png \
-	ca2_gray.png \
+	ca.png \
+	ca_gray.png \
 	dd.png \
 	dd_avail.png \
 	dd_gray.png \

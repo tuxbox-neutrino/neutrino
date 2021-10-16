@@ -189,7 +189,7 @@ void CInfoViewerBB::getBBIconInfo()
 			break;
 		case CInfoViewerBB::ICON_CA:
 			if (g_settings.infobar_casystem_display == 2)
-				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
+				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
 			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1 && !isTSMode && !IS_WEBCHAN(g_InfoViewer->get_current_channel_id()))
@@ -651,17 +651,17 @@ void CInfoViewerBB::showIcon_CA()
 #if 0
 	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_radio) {
 		if (scrambledNoSig)
-			sIcon = NEUTRINO_ICON_SCRAMBLED2_BLANK;
+			sIcon = NEUTRINO_ICON_SCRAMBLED_BLANK;
 		else {	
 			if (fta)
-				sIcon = NEUTRINO_ICON_SCRAMBLED2_GREY;
+				sIcon = NEUTRINO_ICON_SCRAMBLED_GREY;
 			else
-				sIcon = (scrambledErr) ? NEUTRINO_ICON_SCRAMBLED2_RED : NEUTRINO_ICON_SCRAMBLED2;
+				sIcon = (scrambledErr) ? NEUTRINO_ICON_SCRAMBLED_RED : NEUTRINO_ICON_SCRAMBLED;
 		}
 	}
 	else
 #endif
-		sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2;
+		sIcon = (fta) ? NEUTRINO_ICON_SCRAMBLED_GREY : NEUTRINO_ICON_SCRAMBLED;
 	showBBIcons(CInfoViewerBB::ICON_CA, sIcon);
 }
 
