@@ -8,9 +8,9 @@ install_DATA = \
 	dd.png \
 	dd_avail.png \
 	dd_gray.png \
-	radiotextget.png \
-	radiotextoff.png \
-	radiotextwait.png \
+	radiotext_get.png \
+	radiotext_off.png \
+	radiotext_wait.png \
 	res_000.png \
 	res_1080.png \
 	res_1280.png \
