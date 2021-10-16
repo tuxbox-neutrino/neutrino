@@ -26,10 +26,10 @@
 #define NEUTRINO_ICON_BUTTON_DUMMY		"dummy"
 #define NEUTRINO_ICON_BUTTON_DUMMY_SMALL	"dummy_small"
 
-#define NEUTRINO_ICON_BUTTON_BLUE	"blau"
-#define NEUTRINO_ICON_BUTTON_GREEN	"gruen"
-#define NEUTRINO_ICON_BUTTON_RED	"rot"
-#define NEUTRINO_ICON_BUTTON_YELLOW	"gelb"
+#define NEUTRINO_ICON_BUTTON_BLUE	"btn_blue"
+#define NEUTRINO_ICON_BUTTON_GREEN	"btn_green"
+#define NEUTRINO_ICON_BUTTON_RED	"btn_red"
+#define NEUTRINO_ICON_BUTTON_YELLOW	"btn_yellow"
 
 #define NEUTRINO_ICON_BUTTON_MENU	"menu"
 #define NEUTRINO_ICON_BUTTON_MENU_SMALL	"menu_small"
