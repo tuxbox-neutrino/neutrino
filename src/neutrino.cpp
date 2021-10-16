@@ -3577,11 +3577,12 @@ void CNeutrinoApp::RealRun()
 				{
 					if (CZapit::getInstance()->GetPipChannelID())
 						CZapit::getInstance()->StopPip();
-
+#if !HAVE_GENERIC_HARDWARE
 					if (!avinput_pip)
 						StartAVInputPiP();
 					else
 						StopAVInputPiP();
+#endif
 				}
 			}
 #endif
