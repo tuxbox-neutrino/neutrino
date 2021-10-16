@@ -1527,9 +1527,11 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		g_settings.key_switchformat = CRCInput::RC_nokey;
 		g_settings.key_next43mode = CRCInput::RC_nokey;
 
+#if ENABLE_PIP
 		g_settings.key_pip_close = CRCInput::RC_prev;
 		g_settings.key_pip_setup = CRCInput::RC_nokey;
 		g_settings.key_pip_swap = CRCInput::RC_next;
+#endif
 	}
 	if (g_settings.version_pseudo < "20210331000000")
 	{
