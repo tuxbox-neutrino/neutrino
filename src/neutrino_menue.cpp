@@ -68,7 +68,7 @@
 #include "gui/sleeptimer.h"
 #include "gui/timerlist.h"
 #include "gui/update_menue.h"
-#if ENABLE_PIP && ENABLE_QUADPIP
+#if ENABLE_QUADPIP
 #include <gui/quadpip_setup.h>
 #endif
 #ifdef ENABLE_TESTING
@@ -178,7 +178,7 @@ void CNeutrinoApp::InitMenuMain()
 		avinputmode->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE, LOCALE_MENU_HINT_AVINPUTMODE);
 		personalize.addItem(MENU_MAIN, avinputmode, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT]);
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 		CMenuForwarder *avinputmode_pip = new CMenuForwarder(LOCALE_MAINMENU_AVINPUTMODE_PIP, g_info.hw_caps->can_pip, NULL, this, "avinput_pip");
 		avinputmode_pip->setHint(NEUTRINO_ICON_HINT_AVINPUTMODE_PIP, LOCALE_MENU_HINT_AVINPUTMODE_PIP);
 		personalize.addItem(MENU_MAIN, avinputmode_pip, &g_settings.personalize[SNeutrinoSettings::P_MAIN_AVINPUT_PIP]);
@@ -272,7 +272,7 @@ void CNeutrinoApp::InitMenuMain()
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_CISETTINGS]);
 	}
 
-#if ENABLE_PIP && ENABLE_QUADPIP
+#if ENABLE_QUADPIP
 	// temp, only for testing, changed later
 	if (g_info.hw_caps->pip_devs >= 1) {
 		CMenuForwarder *quadpip = new CMenuForwarder(LOCALE_QUADPIP, true, NULL, new CQuadPiPSetup(), NULL, CRCInput::RC_nokey);

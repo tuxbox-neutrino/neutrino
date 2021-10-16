@@ -18,7 +18,7 @@
 #define XMOVE 5
 #define YMOVE 5
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 
 extern cVideo *pipVideoDecoder[3];
 
@@ -216,4 +216,4 @@ void CPipSetup::paint()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*4, mwidth, hpos, COL_MENUCONTENT_TEXT);
 }
 
-#endif //#ifdef ENABLE_PIP
+#endif //#if ENABLE_PIP

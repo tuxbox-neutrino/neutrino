@@ -113,10 +113,10 @@
 #include "gui/infoclock.h"
 #include "gui/timeosd.h"
 #include "gui/parentallock_setup.h"
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 #include "gui/pipsetup.h"
 #endif
-#if ENABLE_PIP && ENABLE_QUADPIP
+#if ENABLE_QUADPIP
 #include <gui/quadpip_setup.h>
 #endif
 #include "gui/themes.h"
@@ -194,7 +194,7 @@ void * nhttpd_main_thread(void *data);
 //#define DISABLE_SECTIONSD
 
 extern cVideo *videoDecoder;
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 extern cVideo *pipVideoDecoder[3];
 extern cDemux *pipVideoDemux[3];
 #endif
@@ -283,7 +283,7 @@ CNeutrinoApp::CNeutrinoApp()
 	channelList_painted	= false;
 
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 #if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 	avinput_pip = false;
 #endif
@@ -1156,7 +1156,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.adzap_zapOnActivation = configfile.getInt32("adzap_zapOnActivation", 0);
 
 	// pip
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	g_settings.pip_x = configfile.getInt32("pip_x", 50);
 	g_settings.pip_y = configfile.getInt32("pip_y", 50);
 	g_settings.pip_width = configfile.getInt32("pip_width", 365);
@@ -1168,8 +1168,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.pip_radio_height = configfile.getInt32("pip_radio_height", g_settings.pip_height);
 #endif
 
-#if ENABLE_PIP && ENABLE_QUADPIP
-	for (unsigned int i = 0; i < 4; i++) {
+#if ENABLE_QUADPIP
+	for (unsigned int i = 0; i < 4; i++)
+	{
 		sprintf(cfg_key, "quadpip_channel_window_%d", i);
 		g_settings.quadpip_channel_window[i] = configfile.getString(cfg_key, "-");
 		sprintf(cfg_key, "quadpip_channel_id_window_%d", i);
@@ -2126,7 +2127,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("adzap_zapOnActivation", g_settings.adzap_zapOnActivation);
 
 	// pip
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	configfile.setInt32("pip_x", g_settings.pip_x);
 	configfile.setInt32("pip_y", g_settings.pip_y);
 	configfile.setInt32("pip_width", g_settings.pip_width);
@@ -2138,8 +2139,9 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("pip_radio_height", g_settings.pip_radio_height);
 #endif
 
-#if ENABLE_PIP && ENABLE_QUADPIP
-	for (unsigned int i = 0; i < 4; i++) {
+#if ENABLE_QUADPIP
+	for (unsigned int i = 0; i < 4; i++)
+	{
 		std::string qp = "quadpip_channel_window_" + to_string(i);
 		configfile.setString(qp, g_settings.quadpip_channel_window[i]);
 		qp = "quadpip_channel_id_window_" + to_string(i);
@@ -3554,7 +3556,7 @@ void CNeutrinoApp::RealRun()
 #endif
 					CRecordManager::getInstance()->StartTimeshift();
 			}
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 			else if ((msg == (neutrino_msg_t) g_settings.key_pip_close) && g_info.hw_caps->can_pip) {
 				int boxmode = getBoxMode();
 				if (boxmode > -1 && boxmode != 12)
@@ -3577,12 +3579,10 @@ void CNeutrinoApp::RealRun()
 				{
 					if (CZapit::getInstance()->GetPipChannelID())
 						CZapit::getInstance()->StopPip();
-#if !HAVE_GENERIC_HARDWARE
 					if (!avinput_pip)
 						StartAVInputPiP();
 					else
 						StopAVInputPiP();
-#endif
 				}
 			}
 #endif
@@ -4953,7 +4953,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 		videoDecoder->Standby(false);
 	}
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
 	{
 		pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y,
@@ -5063,7 +5063,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(mode == NeutrinoModes::mode_radio && g_Radiotext)
 			g_Radiotext->radiotext_stop();
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 		g_Zapit->stopPip();
 #endif
 		CMoviePlayerGui::getInstance().stopPlayBack();
@@ -5239,7 +5239,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 		videoDecoder->Standby(false);
 	}
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
 	{
 		pipVideoDecoder[0]->Pig(g_settings.pip_radio_x, g_settings.pip_radio_y,
@@ -5306,7 +5306,7 @@ void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 	}
 }
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 #if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 void CNeutrinoApp::StartAVInputPiP() {
 	if (!g_info.hw_caps->can_pip)
@@ -5394,7 +5394,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 #if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 	else if (actionKey=="avinput_pip") {
 		if (CZapit::getInstance()->GetPipChannelID())
@@ -5759,7 +5759,7 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.key_pageup = tconfig->getInt32("key_channelList_pageup", CRCInput::RC_page_up);
 	g_settings.key_pic_mode_active = tconfig->getInt32("key_pic_mode_active", 1);
 	g_settings.key_pic_size_active = tconfig->getInt32("key_pic_size_active", 1);
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	g_settings.key_pip_close = tconfig->getInt32("key_pip_close", CRCInput::RC_prev);
 	g_settings.key_pip_close_avinput = tconfig->getInt32("key_pip_close_avinput", CRCInput::RC_nokey);
 	g_settings.key_pip_setup = tconfig->getInt32("key_pip_setup", CRCInput::RC_nokey);
@@ -5867,7 +5867,7 @@ void CNeutrinoApp::saveKeys(const char *fname)
 	tconfig->setInt32("key_next43mode", g_settings.key_next43mode);
 	tconfig->setInt32("key_pic_mode_active", g_settings.key_pic_mode_active);
 	tconfig->setInt32("key_pic_size_active", g_settings.key_pic_size_active);
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	tconfig->setInt32("key_pip_close", g_settings.key_pip_close);
 	tconfig->setInt32("key_pip_close_avinput", g_settings.key_pip_close_avinput);
 	tconfig->setInt32("key_pip_setup", g_settings.key_pip_setup);
@@ -6056,7 +6056,7 @@ void CNeutrinoApp::getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::s
 	name += zAddData;
 }
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 bool CNeutrinoApp::StartPip(const t_channel_id channel_id, int pip)
 {
 	bool ret = false;

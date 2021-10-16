@@ -358,7 +358,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 			ret = zapit.zapTo_serviceID(chid) > 0;
 
 		if (ret) {
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 			/* FIXME until proper demux management */
 			t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
 			if ((pip_channel_id == chid) && (channel->getRecordDemux() == channel->getPipDemux()))

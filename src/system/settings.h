@@ -942,7 +942,7 @@ struct SNeutrinoSettings
 	};
 
 	// pip
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	int pip_width;
 	int pip_height;
 	int pip_x;
@@ -953,7 +953,7 @@ struct SNeutrinoSettings
 	int pip_radio_y;
 #endif
 
-#if ENABLE_PIP && ENABLE_QUADPIP
+#if ENABLE_QUADPIP
 	std::string quadpip_channel_window[4];
 	t_channel_id quadpip_channel_id_window[4];
 #endif

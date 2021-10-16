@@ -1768,7 +1768,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		ret = false;
 #endif
 	if(ret) {
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 		/* FIXME until proper demux management */
 		t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
 		if ((pip_channel_id == channel_id) && (channel->getRecordDemux() == channel->getPipDemux()))

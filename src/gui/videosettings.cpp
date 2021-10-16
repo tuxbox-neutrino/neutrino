@@ -68,7 +68,7 @@
 #endif
 
 extern cVideo *videoDecoder;
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 extern cVideo *pipVideoDecoder[3];
 #include <gui/pipsetup.h>
 #endif
@@ -528,7 +528,7 @@ int CVideoSettings::showVideoSetup()
 	sd->setHint("", LOCALE_MENU_HINT_VIDEO_SDOSD);
 	videosetup->addItem(sd);
 #endif
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	CPipSetup pip;
 	CMenuForwarder * pipsetup = new CMenuForwarder(LOCALE_VIDEOMENU_PIP, g_info.hw_caps->can_pip, NULL, &pip);
 	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
@@ -611,7 +611,7 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
 #endif
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #endif
@@ -625,7 +625,7 @@ void CVideoSettings::setVideoSettings()
 	changeNotify(LOCALE_VIDEOMENU_SATURATION, NULL);
 	changeNotify(LOCALE_VIDEOMENU_SDOSD, NULL);
 #endif
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
 #endif
@@ -689,7 +689,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 
 		g_Zapit->setMode43(g_settings.video_43mode);
 		videoDecoder->setAspectRatio(g_settings.video_Format, -1);
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 		if (pipVideoDecoder[0] != NULL)
 			pipVideoDecoder[0]->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #endif
@@ -765,8 +765,7 @@ void CVideoSettings::next43Mode(void)
 	text = videomenu_43mode_options[curmode].value;
 	g_settings.video_43mode = videomenu_43mode_options[curmode].key;
 	g_Zapit->setMode43(g_settings.video_43mode);
-	printf("%s\n", m[g_settings.video_43mode]);
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->setAspectRatio(-1, g_settings.video_43mode);
 #endif
@@ -794,7 +793,7 @@ void CVideoSettings::SwitchFormat()
 	g_settings.video_Format = VIDEOMENU_VIDEOFORMAT_OPTIONS[curmode].key;
 
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->setAspectRatio(g_settings.video_Format, -1);
 #endif

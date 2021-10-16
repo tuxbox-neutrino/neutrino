@@ -169,7 +169,7 @@ public:
 	void channelsInit(bool bOnly = false);
 	int run(int argc, char **argv);
 
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 #if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 	bool avinput_pip;
 	void StartAVInputPiP();

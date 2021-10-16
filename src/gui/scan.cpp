@@ -214,7 +214,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	CRecordManager::getInstance()->StopAutoRecord();
 	CNeutrinoApp::getInstance()->stopPlayBack();
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	CZapit::getInstance()->StopPip();
 #endif
 

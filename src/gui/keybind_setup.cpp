@@ -458,7 +458,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf->setHint("", key_settings[NKEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);
 #endif
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	// pip
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_CLOSE].keydescription, true, keychooser[NKEY_PIP_CLOSE]->getKeyName(), keychooser[NKEY_PIP_CLOSE]);
 	mf->setHint("", key_settings[NKEY_PIP_CLOSE].hint);

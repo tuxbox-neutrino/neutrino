@@ -342,7 +342,7 @@ void CEpgScan::EnterStandby()
 void CEpgScan::Next()
 {
 	bool llocked = false;
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	bool plocked = false;
 #endif
 	next_chid = 0;
@@ -367,7 +367,7 @@ void CEpgScan::Next()
 	*/
 	CFEManager::getInstance()->Lock();
 	CFrontend *live_fe = NULL;
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	CFrontend *pip_fe = NULL;
 #endif
 	if (!standby) {
@@ -377,7 +377,7 @@ void CEpgScan::Next()
 			live_fe = CZapit::getInstance()->GetLiveFrontend();
 			CFEManager::getInstance()->lockFrontend(live_fe);
 		}
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 		pip_fe = CZapit::getInstance()->GetPipFrontend();
 		if (pip_fe /* && pip_fe != live_fe*/) {
 			plocked = true;
@@ -407,7 +407,7 @@ _repeat:
 
 	if (llocked)
 		CFEManager::getInstance()->unlockFrontend(live_fe);
-#ifdef ENABLE_PIP
+#if ENABLE_PIP
 	if (plocked)
 		CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
