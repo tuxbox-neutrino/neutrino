@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <cs_api.h>
 #include <sys/sysinfo.h>
+#include <zapit/zapit.h>
 
 #ifdef FBV_SUPPORT_GIF
 extern int fh_gif_getsize (const char *, int *, int *, int, int);
@@ -625,7 +626,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 
 	CZapitChannel * cc = NULL;
 	if (name.compare("alternate_logos") != 0 && ChannelID && CNeutrinoApp::getInstance()->channelList)
-		cc = CNeutrinoApp::getInstance()->channelList->getChannel(ChannelID);
+		cc = CServiceManager::getInstance()->FindChannel(ChannelID);
 
 	if (cc)
 	{
