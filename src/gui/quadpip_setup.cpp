@@ -44,18 +44,18 @@
 
 #include <system/debug.h>
 
-extern cVideo * videoDecoder;		// VIDEO0
-extern cAudio * audioDecoder;		// AUDIO0
-extern cDemux * videoDemux;		// VIDEO DEMUX0
-extern cDemux * audioDemux;		// AUDIO DEMUX0
+extern cVideo *videoDecoder;		// VIDEO0
+extern cAudio *audioDecoder;		// AUDIO0
+extern cDemux *videoDemux;		// VIDEO DEMUX0
+extern cDemux *audioDemux;		// AUDIO DEMUX0
 
-extern cVideo * pipVideoDecoder[3];	// VIDEO 1..3
-extern cAudio * pipAudioDecoder[3];	// AUDIO 1..3
-extern cDemux * pipVideoDemux[3];	// VIDEO DEMUX 1..3
-extern cDemux * pipAudioDemux[3];	// AUDIO DEMUX 1..3
+extern cVideo *pipVideoDecoder[3];	// VIDEO 1..3
+extern cAudio *pipAudioDecoder[3];	// AUDIO 1..3
+extern cDemux *pipVideoDemux[3];	// VIDEO DEMUX 1..3
+extern cDemux *pipAudioDemux[3];	// AUDIO DEMUX 1..3
 
-extern CBouquetManager * g_bouquetManager;
-CComponentsShapeSquare * quad_win = NULL;
+extern CBouquetManager *g_bouquetManager;
+CComponentsShapeSquare *quad_win = NULL;
 int quadpip = 0;
 unsigned int pip_devs = 0;
 int wn = 0;
@@ -74,7 +74,7 @@ CQuadPiPSetup::~CQuadPiPSetup()
 {
 }
 
-int CQuadPiPSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CQuadPiPSetup::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 {
 	dprintf(DEBUG_DEBUG, "init quadpip setup\n");
 	int res = menu_return::RETURN_REPAINT;
@@ -89,7 +89,7 @@ int CQuadPiPSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 /*shows the QuadPiP setup menue*/
 int CQuadPiPSetup::showQuadPiPSetup()
 {
-	CMenuWidget * quadpipsetup = new CMenuWidget(LOCALE_QUADPIP, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget *quadpipsetup = new CMenuWidget(LOCALE_QUADPIP, NEUTRINO_ICON_SETTINGS);
 
 	// menu head
 	quadpipsetup->addItem(GenericMenuSeparator);
@@ -103,9 +103,12 @@ int CQuadPiPSetup::showQuadPiPSetup()
 	// quadpip window channel settings
 	CQuadPiPSetupSelectChannelWidget select;
 	quadpipsetup->addItem(new CMenuForwarder(LOCALE_QUADPIP_1, true, g_settings.quadpip_channel_window[0], &select, "window_1", CRCInput::RC_1));
-	if (pip_devs >= 2) quadpipsetup->addItem(new CMenuForwarder(LOCALE_QUADPIP_2, true, g_settings.quadpip_channel_window[1], &select, "window_2", CRCInput::RC_2));
-	if (pip_devs >= 3) quadpipsetup->addItem(new CMenuForwarder(LOCALE_QUADPIP_3, true, g_settings.quadpip_channel_window[2], &select, "window_3", CRCInput::RC_3));
-	if (pip_devs >= 4) quadpipsetup->addItem(new CMenuForwarder(LOCALE_QUADPIP_4, true, g_settings.quadpip_channel_window[3], &select, "window_4", CRCInput::RC_4));
+	if (pip_devs >= 2)
+		quadpipsetup->addItem(new CMenuForwarder(LOCALE_QUADPIP_2, true, g_settings.quadpip_channel_window[1], &select, "window_2", CRCInput::RC_2));
+	if (pip_devs >= 3)
+		quadpipsetup->addItem(new CMenuForwarder(LOCALE_QUADPIP_3, true, g_settings.quadpip_channel_window[2], &select, "window_3", CRCInput::RC_3));
+	if (pip_devs >= 4)
+		quadpipsetup->addItem(new CMenuForwarder(LOCALE_QUADPIP_4, true, g_settings.quadpip_channel_window[3], &select, "window_4", CRCInput::RC_4));
 
 	// reset all channel settings
 	quadpipsetup->addItem(GenericMenuSeparatorLine);
@@ -118,7 +121,7 @@ int CQuadPiPSetup::showQuadPiPSetup()
 	int res = quadpipsetup->exec(NULL, "");
 
 	if (quad_win != NULL && quad_win->isPainted())
-			quad_win->kill();
+		quad_win->kill();
 
 	delete quadpipsetup;
 	return res;
@@ -129,9 +132,9 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 	if (quadpip)
 	{
 		videoDecoder->QuadPiP(true);
-		for (unsigned i=0; i < pip_devs; i++)
+		for (unsigned i = 0; i < pip_devs; i++)
 		{
-			usleep (200);	// delay time for zap etc.
+			usleep(200);	// delay time for zap etc.
 			if (i == 0)
 			{
 				CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(g_settings.quadpip_channel_id_window[i]);
@@ -139,22 +142,22 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 			}
 			if (i >= 1 && g_settings.quadpip_channel_id_window[i] != 0)
 			{
-				CZapit::getInstance()->StartPip(g_settings.quadpip_channel_id_window[i], i-1);
-				g_Zapit->zapTo_pip(g_settings.quadpip_channel_id_window[i], i-1);
-				pipAudioDemux[i-1]->Start();
-				pipAudioDecoder[i-1]->Start();
+				CZapit::getInstance()->StartPip(g_settings.quadpip_channel_id_window[i], i - 1);
+				g_Zapit->zapTo_pip(g_settings.quadpip_channel_id_window[i], i - 1);
+				pipAudioDemux[i - 1]->Start();
+				pipAudioDecoder[i - 1]->Start();
 				usleep(100);			// delay for audio start/stop for audio later at window selection
-				pipAudioDemux[i-1]->Stop();
-				pipAudioDecoder[i-1]->Stop();
+				pipAudioDemux[i - 1]->Stop();
+				pipAudioDecoder[i - 1]->Stop();
 
-				if (i== 1)
-					pipVideoDecoder[i-1]->Pig(fb_w, 0, fb_w, fb_h, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
-				else if (i== 2)
-					pipVideoDecoder[i-1]->Pig(0, fb_h, fb_w, fb_h, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
-				else if (i== 3)
-					pipVideoDecoder[i-1]->Pig(fb_w, fb_h, fb_w, fb_h, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
+				if (i == 1)
+					pipVideoDecoder[i - 1]->Pig(fb_w, 0, fb_w, fb_h, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
+				else if (i == 2)
+					pipVideoDecoder[i - 1]->Pig(0, fb_h, fb_w, fb_h, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
+				else if (i == 3)
+					pipVideoDecoder[i - 1]->Pig(fb_w, fb_h, fb_w, fb_h, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
 
-				pipVideoDecoder[i-1]->ShowPig(1);
+				pipVideoDecoder[i - 1]->ShowPig(1);
 			}
 		}
 		g_Zapit->Rezap();
@@ -162,7 +165,7 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 	else
 	{
 		videoDecoder->QuadPiP(false);
-		for (unsigned i=0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
+		for (unsigned i = 0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
 		{
 			CCamManager::getInstance()->Stop(g_settings.quadpip_channel_id_window[i], CCamManager::PIP);
 			if (pipVideoDemux[i])
@@ -250,19 +253,19 @@ static void paintWindow(int num)
 	switch (num)
 	{
 		case 0:
-			aw=0;
+			aw = 0;
 			paintWindowSize(0, 0, fb_w, fb_h);
 			break;
 		case 1:
-			aw=1;
+			aw = 1;
 			paintWindowSize(fb_w, 0, fb_w, fb_h);
 			break;
 		case 2:
-			aw=2;
+			aw = 2;
 			paintWindowSize(0, fb_h, fb_w, fb_h);
 			break;
 		case 3:
-			aw=3;
+			aw = 3;
 			paintWindowSize(fb_w, fb_h, fb_w, fb_h);
 			break;
 	}
@@ -284,33 +287,33 @@ int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper(CZapitClient::chann
 
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
 	{
-		CMenuWidget* mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
+		CMenuWidget *mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
 		toDelete.push_back(mwtv);
 		mwtv->addIntroItems();
 		ZapitChannelList channels;
 		g_bouquetManager->Bouquets[i]->getTvChannels(channels);
 
-		for(int j = 0; j < (int) channels.size(); j++)
+		for (int j = 0; j < (int) channels.size(); j++)
 		{
-			CZapitChannel * channel = channels[j];
+			CZapitChannel *channel = channels[j];
 			if (!IS_WEBCHAN(channel->getChannelID()))	// no web channels for pip
 			{
 				char cChannelId[60] = {0};
 				snprintf(cChannelId, sizeof(cChannelId), "ZCT:%d|%" PRIx64 "#", channel->number, channel->getChannelID());
-				CMenuForwarder * chan_item = new CMenuForwarder(channel->getName(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ? NEUTRINO_ICON_SCRAMBLED: (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING));
+				CMenuForwarder *chan_item = new CMenuForwarder(channel->getName(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ? NEUTRINO_ICON_SCRAMBLED : (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING));
 				chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 				mwtv->addItem(chan_item);
 			}
 		}
-		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden ))
+		if (!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden))
 		{
 			mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
 		}
 	}
-	int res = mctv.exec (NULL, "");
+	int res = mctv.exec(NULL, "");
 
 	// delete dynamic created objects
-	for(unsigned int count=0;count<toDelete.size();count++)
+	for (unsigned int count = 0; count < toDelete.size(); count++)
 	{
 		delete toDelete[count];
 	}
@@ -318,7 +321,7 @@ int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper(CZapitClient::chann
 	return res;
 }
 
-int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey)
+int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
@@ -334,7 +337,7 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget* parent, const std::strin
 	{
 		unsigned int cnr = 0;
 		t_channel_id channel_id = 0;
-		sscanf(&(actionKey[4]),"%u|%" SCNx64 "", &cnr, &channel_id);
+		sscanf(&(actionKey[4]), "%u|%" SCNx64 "", &cnr, &channel_id);
 		g_settings.quadpip_channel_window[wn] = actionKey.substr(actionKey.find_first_of("#") + 1);
 		g_settings.quadpip_channel_id_window[wn] = channel_id;
 
@@ -347,16 +350,16 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget* parent, const std::strin
 
 		return menu_return::RETURN_EXIT;
 	}
-	else if(actionKey == "reset")
+	else if (actionKey == "reset")
 	{
-		for (unsigned i=0; i < pip_devs; i++)
+		for (unsigned i = 0; i < pip_devs; i++)
 		{
 			g_settings.quadpip_channel_window[i] = "-";
 			g_settings.quadpip_channel_id_window[i] = 0;
 		}
 	}
 
-	else if(actionKey=="select_window")
+	else if (actionKey == "select_window")
 	{
 		if (!quadpip)
 			return res;
@@ -374,21 +377,21 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget* parent, const std::strin
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
 
-		bool loop=true;
+		bool loop = true;
 		while (loop)
 		{
 			frameBuffer->blit();
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
-			if ( msg <= CRCInput::RC_MaxRC )
+			if (msg <= CRCInput::RC_MaxRC)
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-			if ( msg == CRCInput::RC_ok )
+			if (msg == CRCInput::RC_ok)
 			{
 				// switch to selected channel
 				videoDecoder->QuadPiP(false);
 				quadpip = 0;
-				for (unsigned i=0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
+				for (unsigned i = 0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
 				{
 					CCamManager::getInstance()->Stop(g_settings.quadpip_channel_id_window[i], CCamManager::PIP);
 					if (pipVideoDemux[i])
@@ -477,28 +480,28 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget* parent, const std::strin
 				// channel change 1..4 - direct keys
 				if ((msg == CRCInput::RC_1) && (aw != 0))
 				{
-					switchAudio(aw-1, -1);
+					switchAudio(aw - 1, -1);
 					paintWindow(0);
 				}
 				if ((msg == CRCInput::RC_2) && (aw != 1) && (g_settings.quadpip_channel_id_window[1]))
 				{
-					switchAudio(aw-1, 0);
+					switchAudio(aw - 1, 0);
 					paintWindow(1);
 				}
 				if ((msg == CRCInput::RC_3) && (aw != 2) && (g_settings.quadpip_channel_id_window[2]))
 				{
-					switchAudio(aw-1, 1);
+					switchAudio(aw - 1, 1);
 					paintWindow(2);
 				}
 				if ((msg == CRCInput::RC_4) && (aw != 3) && (g_settings.quadpip_channel_id_window[3]))
 				{
-					switchAudio(aw-1, 2);
+					switchAudio(aw - 1, 2);
 					paintWindow(3);
 				}
 			}
 			else if (msg > CRCInput::RC_MaxRC)
 			{
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+				if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 				{
 					loop = false;
 					res = menu_return::RETURN_EXIT_ALL;

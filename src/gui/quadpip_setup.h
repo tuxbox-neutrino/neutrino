@@ -33,16 +33,16 @@ class CQuadPiPSetup : public CMenuTarget
 	private:
 		int showQuadPiPSetup();
 
-	public:	
+	public:
 		CQuadPiPSetup();
 		~CQuadPiPSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CQuadPiPSetupNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void * Data);
+		bool changeNotify(const neutrino_locale_t, void *Data);
 };
 
 class CQuadPiPSetupSelectChannelWidget : public CMenuWidget
@@ -53,7 +53,7 @@ class CQuadPiPSetupSelectChannelWidget : public CMenuWidget
 	public:
 		CQuadPiPSetupSelectChannelWidget();
 		~CQuadPiPSetupSelectChannelWidget();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 #endif
