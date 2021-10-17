@@ -449,6 +449,9 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				if (uName)
 					uname = uName;
 				const char *url = xmlGetAttribute(channel_node, "u");
+				if (url && ((uintptr_t)url % 4))
+					url = std::string(url).c_str(); /* hack to ensure buffer is aligned */
+
 				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
 				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
 				GET_ATTR(channel_node, "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);
