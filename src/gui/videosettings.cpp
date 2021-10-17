@@ -72,6 +72,9 @@ extern cVideo *videoDecoder;
 extern cVideo *pipVideoDecoder[3];
 #include <gui/pipsetup.h>
 #endif
+#if ENABLE_QUADPIP
+#include <gui/quadpip_setup.h>
+#endif
 extern int prev_video_mode;
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -533,6 +536,12 @@ int CVideoSettings::showVideoSetup()
 	CMenuForwarder * pipsetup = new CMenuForwarder(LOCALE_VIDEOMENU_PIP, g_info.hw_caps->can_pip, NULL, &pip);
 	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
 	videosetup->addItem(pipsetup);
+#endif
+
+#if ENABLE_QUADPIP
+	CMenuForwarder *quadpip = new CMenuForwarder(LOCALE_QUADPIP, g_info.hw_caps->pip_devs >= 1, NULL, new CQuadPiPSetup());
+	quadpip->setHint(NEUTRINO_ICON_HINT_QUADPIP, LOCALE_MENU_HINT_QUADPIP);
+	videosetup->addItem(quadpip);
 #endif
 
 	if (file_exists("/proc/stb/video/zapmode")) {
