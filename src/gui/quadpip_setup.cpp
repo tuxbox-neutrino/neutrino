@@ -74,7 +74,7 @@ CQuadPiPSetup::~CQuadPiPSetup()
 {
 }
 
-int CQuadPiPSetup::exec(CMenuTarget* parent, const std::string & actionKey)
+int CQuadPiPSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 {
 	dprintf(DEBUG_DEBUG, "init quadpip setup\n");
 	int res = menu_return::RETURN_REPAINT;
@@ -124,7 +124,7 @@ int CQuadPiPSetup::showQuadPiPSetup()
 	return res;
 }
 
-bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void * Data)
+bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/)
 {
 	if (quadpip)
 	{
@@ -276,7 +276,7 @@ CQuadPiPSetupSelectChannelWidget::~CQuadPiPSetupSelectChannelWidget()
 {
 }
 
-int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode)
+int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode /*mode*/)
 {
 	std::vector<CMenuWidget *> toDelete;
 	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS);
