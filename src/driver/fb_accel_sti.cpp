@@ -55,10 +55,14 @@
 #define DEFAULT_BPP  32
 
 #define LOGTAG "[fb_accel_sti] "
+#if 0
 static int bpafd = -1;
-static size_t lbb_sz = 1920 * 1080;	/* offset from fb start in 'pixels' */
-static size_t lbb_off = lbb_sz * sizeof(fb_pixel_t);	/* same in bytes */
-static int backbuf_sz = 0;
+#endif
+#define BB_DIMENSION ( DEFAULT_XRES * DEFAULT_YRES )
+static size_t lfb_sz = 1920 * 1080;	/* offset from fb start in 'pixels' */
+static size_t lbb_off = lfb_sz * sizeof(fb_pixel_t);	/* same in bytes */
+static int backbuf_sz = BB_DIMENSION * sizeof(fb_pixel_t); /* size of blitting buffer in bytes */
+static size_t backbuf_off = lbb_off + backbuf_sz;
 
 void CFbAccelSTi::waitForIdle(const char *)
 {
@@ -94,21 +98,23 @@ void CFbAccelSTi::init(const char * const)
 	memset(lfb, 0, available);
 
 	lbb = lfb;	/* the memory area to draw to... */
-	if (available < 12*1024*1024)
+	if (available < 15*1024*1024)
 	{
 		/* for old installations that did not upgrade their module config
 		 * it will still work good enough to display the message below */
 		fprintf(stderr, "[neutrino] WARNING: not enough framebuffer memory available!\n");
-		fprintf(stderr, "[neutrino]          I need at least 12MB.\n");
+		fprintf(stderr, "[neutrino]          I need at least 15MB.\n");
 		FILE *f = fopen("/tmp/infobar.txt", "w");
 		if (f) {
 			fprintf(f, "NOT ENOUGH FRAMEBUFFER MEMORY!");
 			fclose(f);
 		}
-		lbb_sz = 0;
+		lfb_sz = 0;
 		lbb_off = 0;
 	}
-	lbb = lfb + lbb_sz;
+	lbb = lfb + lfb_sz;
+	backbuffer = lbb + BB_DIMENSION;
+#if 0
 	bpafd = open("/dev/bpamem0", O_RDWR | O_CLOEXEC);
 	if (bpafd < 0)
 	{
@@ -149,6 +155,7 @@ void CFbAccelSTi::init(const char * const)
 		bpafd = -1;
 		return;
 	}
+#endif
 #ifdef PARTIAL_BLIT
 	to_blit.xs = to_blit.ys = INT_MAX;
 	to_blit.xe = to_blit.ye = 0;
@@ -167,6 +174,7 @@ CFbAccelSTi::~CFbAccelSTi()
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
+#if 0
 	if (backbuffer)
 	{
 		fprintf(stderr, LOGTAG "unmap backbuffer\n");
@@ -178,6 +186,7 @@ CFbAccelSTi::~CFbAccelSTi()
 		ioctl(bpafd, BPAMEMIO_FREEMEM);
 		close(bpafd);
 	}
+#endif
 	if (lfb)
 		munmap(lfb, available);
 	if (fd > -1)
@@ -299,7 +308,7 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	unsigned long ulFlags = 0;
 	if (!transp) /* transp == false (default): use transparency from source alphachannel */
 		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
-
+#if 0
 	STMFBIO_BLT_EXTERN_DATA blt_data;
 	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
 	blt_data.operation  = BLT_OP_COPY;
@@ -339,6 +348,38 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 				blt_data.src_left, blt_data.src_top, blt_data.src_right, blt_data.src_bottom,
 				blt_data.srcOffset, blt_data.srcPitch, blt_data.srcMemSize);
 	}
+#else
+	STMFBIO_BLT_DATA blt_data;
+	memset(&blt_data, 0, sizeof(STMFBIO_BLT_DATA));
+	blt_data.operation  = BLT_OP_COPY;
+	blt_data.ulFlags    = ulFlags;
+	blt_data.srcOffset  = backbuf_off;
+	blt_data.srcPitch   = width * 4;
+	blt_data.dstOffset  = lbb_off;
+	blt_data.dstPitch   = stride;
+	blt_data.src_left   = xp;
+	blt_data.src_top    = yp;
+	blt_data.src_right  = width;
+	blt_data.src_bottom = bottom;
+	blt_data.dst_left   = x;
+	blt_data.dst_top    = y;
+	blt_data.dst_right  = x + dw;
+	blt_data.dst_bottom = y + dh;
+	blt_data.srcFormat  = SURF_ARGB8888;
+	blt_data.dstFormat  = SURF_ARGB8888;
+	blt_data.srcMemBase = STMFBGP_FRAMEBUFFER;
+	blt_data.dstMemBase = STMFBGP_FRAMEBUFFER;
+
+	mark(x, y, blt_data.dst_right, blt_data.dst_bottom);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	ioctl(fd, STMFBIO_SYNC_BLITTER);
+	if (fbbuff != tmpbuff)
+		memmove(backbuffer, fbbuff, mem_sz);
+	// icons are so small that they will still be in cache
+	msync(backbuffer, backbuf_sz, MS_SYNC);
+	if (ioctl(fd, STMFBIO_BLT, &blt_data ) < 0)
+		perror(LOGTAG "blit2FB STMFBIO_BLT");
+#endif
 	return;
 }
 
