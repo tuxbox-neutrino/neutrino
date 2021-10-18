@@ -120,7 +120,7 @@ CZapitClient::bouquetMode bouquetMode = CZapitClient::BM_UPDATEBOUQUETS;
 static bool update_pmt = true;
 /******************************************************************************/
 CZapit * CZapit::zapit = NULL;
-CZapit::CZapit() 
+CZapit::CZapit()
 	: configfile(',', false)
 {
 	started = false;
@@ -263,7 +263,7 @@ void CZapit::SaveAudioMap()
 	}
 	for (audio_map_iterator_t audio_map_it = audio_map.begin(); audio_map_it != audio_map.end(); audio_map_it++) {
 		fprintf(audio_config_file, "%" PRIx64 " %d %d %d %d %d %d\n", (uint64_t) audio_map_it->first,
-			(int) audio_map_it->second.apid, (int) audio_map_it->second.mode, (int) audio_map_it->second.volume, 
+			(int) audio_map_it->second.apid, (int) audio_map_it->second.mode, (int) audio_map_it->second.volume,
 			(int) audio_map_it->second.subpid, (int) audio_map_it->second.ttxpid, (int) audio_map_it->second.ttxpage);
 	}
 	fdatasync(fileno(audio_config_file));
@@ -1479,7 +1479,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		if(channel)
 			/* FIXME: the following check is no even remotely accurate */
 			response.status = (channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
-		
+
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	}
@@ -1504,7 +1504,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		PrepareChannels();
 
 		current_channel = CServiceManager::getInstance()->FindChannel(cid);
-		ParsePatPmt(current_channel);//reinit pids 
+		ParsePatPmt(current_channel);//reinit pids
 
 		SendCmdReady(connfd);
 		SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
@@ -1913,7 +1913,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		SendCmdReady(connfd);
 		break;
 	}
-#if 0 
+#if 0
 	case CZapitMessages::CMD_SET_DISPLAY_FORMAT: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
@@ -2027,7 +2027,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 #if 0
 			t_original_network_id original_network_id = msgAddSubService.original_network_id;
 			t_service_id          service_id          = msgAddSubService.service_id;
-			t_channel_id sub_channel_id = 
+			t_channel_id sub_channel_id =
 				((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
 				(uint64_t) CREATE_CHANNEL_ID(msgAddSubService.service_id, msgAddSubService.original_network_id, msgAddSubService.transport_stream_id);
 			DBG("NVOD insert %llx\n", sub_channel_id);
@@ -2684,7 +2684,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 		INFO("channels have been loaded succesfully");
 
 	/* FIXME to transit from old satconfig.conf to new frontend.conf,
-	 * ConfigFrontend called after PrepareChannels, as it copy satellitePositions to every fe */ 
+	 * ConfigFrontend called after PrepareChannels, as it copy satellitePositions to every fe */
 	LoadSettings();
 	ConfigFrontend();
 
@@ -2822,7 +2822,7 @@ void CZapit::run()
 							break;
 						}
 					}
-					
+
 					if(!apid_found || vpid != current_channel->getVideoPid()) {
 						ZapIt(current_channel->getChannelID(), true);
 					} else {
@@ -2942,7 +2942,7 @@ void CZapit::SetConfig(Zapit_config * Cfg)
 	SaveSettings(true);
 	ConfigFrontend();
 }
-#if 0 
+#if 0
 //never used
 void CZapit::SendConfig(int connfd)
 {
