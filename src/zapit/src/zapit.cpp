@@ -2720,7 +2720,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	}
 
 	// set ci clock to ZapStart_arg->ci_clock
-	for (uint32_t i = 0; i < ca->GetNumberCISlots(); i++) {
+	for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
 #if HAVE_LIBSTB_HAL
 		ca->SetTSClock(ZapStart_arg->ci_clock[i] * 1000000, i);
 #else
@@ -2732,9 +2732,9 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	// dvb wait delay for ci response
 	ca->SetCIDelay(ZapStart_arg->ci_delay);
 
-	/// relevant pids routing
-	for (uint32_t i = 0; i < ca->GetNumberCISlots(); i++) {
-		ca->SetCIRelevantPidsRouting(ZapStart_arg->ci_rpr[i]);
+	// relevant pids routing
+	for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
+		ca->SetCIRelevantPidsRouting(ZapStart_arg->ci_rpr[i], i);
 	}
 #endif
 
