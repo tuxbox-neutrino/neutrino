@@ -804,7 +804,6 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 
 	pipVideoDecoder[pip]->Pig(g_settings.pip_x,g_settings.pip_y,g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
 	pipVideoDecoder[pip]->ShowPig(1);
-#endif
 
 	if (!pipAudioDemux[pip]) {
 		pipAudioDemux[pip] = new cDemux(dnum);
@@ -820,6 +819,7 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 
 	pipVideoDecoder[pip]->SetSyncMode((AVSYNC_TYPE) g_settings.avsync);
 	pipAudioDecoder[pip]->SetSyncMode((AVSYNC_TYPE) g_settings.avsync);
+#endif
 
 	CCamManager::getInstance()->Start(newchannel->getChannelID(), CCamManager::PIP);
 	return true;
