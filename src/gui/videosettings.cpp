@@ -642,7 +642,7 @@ void CVideoSettings::setVideoSettings()
 
 void CVideoSettings::setupVideoSystem(bool do_ask)
 {
-	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setup videosystem...\n", __func__, __LINE__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setup video system...\n", __func__, __LINE__);
 	COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode); //FIXME
 	COsdHelpers::getInstance()->changeOsdResolution(0, true, false);
 
@@ -750,7 +750,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 
 void CVideoSettings::next43Mode(void)
 {
-	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting 43Mode -> ", __func__, __LINE__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting 4:3 mode...", __func__, __LINE__);
 	neutrino_locale_t text;
 	unsigned int curmode = 0;
 
@@ -776,7 +776,7 @@ void CVideoSettings::next43Mode(void)
 
 void CVideoSettings::SwitchFormat()
 {
-	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting videoformat...\n", __func__, __LINE__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting video format...\n", __func__, __LINE__);
 	neutrino_locale_t text;
 	int curmode = 0;
 
@@ -804,7 +804,7 @@ void CVideoSettings::SwitchFormat()
 
 void CVideoSettings::nextMode(void)
 {
-	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting video Mode...\n", __func__, __LINE__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting video mode...\n", __func__, __LINE__);
 	const char * text;
 	int curmode = 0;
 	int i;
