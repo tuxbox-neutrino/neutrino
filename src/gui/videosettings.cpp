@@ -103,7 +103,7 @@ CVideoSettings::~CVideoSettings()
 
 int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 {
-	printf("[neutrino VideoSettings] %s: init video setup (Mode: %d)...\n",__FUNCTION__ , is_wizard);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], init video setup (Mode: %d)...\n", __func__, __LINE__,  is_wizard);
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
@@ -596,7 +596,7 @@ int CVideoSettings::showVideoSetup()
 
 void CVideoSettings::setVideoSettings()
 {
-	printf("[neutrino VideoSettings] %s init video settings...\n", __FUNCTION__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], init video settings...\n", __func__, __LINE__);
 #if 0
 	//FIXME focus: ?? this is different for different boxes
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
@@ -642,7 +642,7 @@ void CVideoSettings::setVideoSettings()
 
 void CVideoSettings::setupVideoSystem(bool do_ask)
 {
-	printf("[neutrino VideoSettings] %s setup videosystem...\n", __FUNCTION__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setup videosystem...\n", __func__, __LINE__);
 	COsdHelpers::getInstance()->setVideoSystem(g_settings.video_Mode); //FIXME
 	COsdHelpers::getInstance()->changeOsdResolution(0, true, false);
 
@@ -724,7 +724,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SDOSD))
 	{
 		int val = g_settings.enable_sd_osd;
-		printf("SD OSD enable: %d\n", val);
+		dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], SD OSD enable: %d\n", __func__, __LINE__,  val);
 		int fd = CFrameBuffer::getInstance()->getFileHandle();
 		if (ioctl(fd, FBIO_SCALE_SD_OSD, &val))
 			perror("FBIO_SCALE_SD_OSD");
@@ -750,7 +750,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 
 void CVideoSettings::next43Mode(void)
 {
-	printf("[neutrino VideoSettings] %s setting 43Mode -> ", __FUNCTION__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting 43Mode -> ", __func__, __LINE__);
 	neutrino_locale_t text;
 	unsigned int curmode = 0;
 
@@ -776,7 +776,7 @@ void CVideoSettings::next43Mode(void)
 
 void CVideoSettings::SwitchFormat()
 {
-	printf("[neutrino VideoSettings] %s setting videoformat...\n", __FUNCTION__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting videoformat...\n", __func__, __LINE__);
 	neutrino_locale_t text;
 	int curmode = 0;
 
@@ -804,7 +804,7 @@ void CVideoSettings::SwitchFormat()
 
 void CVideoSettings::nextMode(void)
 {
-	printf("[neutrino VideoSettings] %s setting video Mode...\n", __FUNCTION__);
+	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], setting video Mode...\n", __func__, __LINE__);
 	const char * text;
 	int curmode = 0;
 	int i;
