@@ -98,8 +98,10 @@ extern cDemux *videoDemux;
 #if ENABLE_PIP
 extern cVideo *pipVideoDecoder[3];
 extern cDemux *pipVideoDemux[3];
+#if !HAVE_CST_HARDWARE
 extern cAudio * pipAudioDecoder[3];
 extern cDemux * pipAudioDemux[3];
+#endif
 #endif
 
 cDemux *pcrDemux = NULL;
@@ -692,7 +694,6 @@ bool CZapit::StopPip(int pip)
 		CNeutrinoApp::getInstance()->StopAVInputPiP();
 	}
 #endif
-
 	if (pip_channel_id[pip]) {
 		INFO("[pip %d] stop %llx", pip, pip_channel_id[pip]);
 #if !HAVE_CST_HARDWARE
@@ -701,8 +702,10 @@ bool CZapit::StopPip(int pip)
 		CCamManager::getInstance()->Stop(pip_channel_id[pip], CCamManager::PIP);
 		pipVideoDemux[pip]->Stop();
 		pipVideoDecoder[pip]->Stop();
+#if !HAVE_CST_HARDWARE
 		pipAudioDemux[pip]->Stop();
 		pipAudioDecoder[pip]->Stop();
+#endif
 		pip_fe[pip] = NULL;
 		pip_channel_id[pip] = 0;
 		return true;
@@ -2608,6 +2611,9 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDemux = new cDemux();
 	audioDemux->Open(DMX_AUDIO_CHANNEL);
 
+#if defined ENABLE_PIP && defined HAVE_CST_HARDWARE
+	int dnum = 1; // FIXME?
+#endif
 #ifdef BOXMODEL_CST_HD2
 	videoDecoder = cVideo::GetDecoder(0);
 	audioDecoder = cAudio::GetDecoder(0);
@@ -2622,9 +2628,6 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDecoder->SetVideo(videoDecoder);
 
 #if ENABLE_PIP
-#if HAVE_CST_HARDWARE
-	int dnum = 1; // FIXME?
-#endif
 	if (g_info.hw_caps->can_pip)
 	{
 		pipVideoDemux[0] = new cDemux(dnum);
@@ -2648,6 +2651,8 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	if (g_info.hw_caps->can_pip)
 	{
 #if HAVE_CST_HARDWARE
+		pipVideoDemux[0] = new cDemux(dnum);
+		pipVideoDemux[0]->Open(DMX_PIP_CHANNEL);
 		pipVideoDecoder[0] = new cVideo(video_mode, pipVideoDemux[0]->getChannel(), pipVideoDemux[0]->getBuffer(), 1);
 #else
 		for (unsigned i=0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
@@ -2906,10 +2911,12 @@ void CZapit::run()
 			pipVideoDecoder[i] = NULL;
 		if (pipVideoDemux[i])
 			pipVideoDemux[i] = NULL;
+#if !HAVE_CST_HARDWARE
 		if (pipAudioDecoder[i])
 			pipAudioDecoder[i] = NULL;
 		if (pipAudioDemux[i])
 			pipAudioDemux[i] = NULL;
+#endif
 	}
 #endif
 
