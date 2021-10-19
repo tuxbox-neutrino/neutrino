@@ -3215,10 +3215,6 @@ TIMER_START();
 		CVFD::getInstance()->setVolume(g_settings.current_volume);
 
 
-#ifdef ENABLE_LCD4LINUX
-	CLCD4l::getInstance()->StartLCD4l();
-#endif
-
 #ifdef ENABLE_GRAPHLCD
 	if (current_muted)
 		cGLCD::lockIcon(cGLCD::MUTE);
