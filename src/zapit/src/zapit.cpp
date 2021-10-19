@@ -1490,6 +1490,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_BQ_RESTORE: {
 		//2004.08.02 g_bouquetManager->restoreBouquets();
 		if(list_changed) {
+			CNeutrinoApp::getInstance()->channelList->ClearChannelList();
 			PrepareChannels();
 			list_changed = 0;
 		} else {
