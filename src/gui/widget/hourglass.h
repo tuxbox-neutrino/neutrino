@@ -38,11 +38,11 @@
 class CHourGlass : public CComponentsShapeSquare
 {
 	private:
-		std::string 	  	hg_image_basename;
+		std::string hg_image_basename;
 		std::vector<std::string> hg_img_files;
-		int64_t		 	hg_interval;
-		CComponentsTimer* 	hg_timer;
-		size_t			hg_file_num;
+		int64_t hg_interval;
+		CComponentsTimer *hg_timer;
+		size_t hg_file_num;
 
 		void initImageFiles();
 	public:
@@ -82,8 +82,8 @@ class CHourGlass : public CComponentsShapeSquare
 				const int y_pos,
 				const int w = 48,
 				const int h = 48,
-				const std::string& image_basename = "hourglass",
-				const int64_t& interval = HG_AUTO_PAINT_INTERVAL,
+				const std::string &image_basename = "hourglass",
+				const int64_t &interval = HG_AUTO_PAINT_INTERVAL,
 				CComponentsForm *parent = NULL,
 				int shadow_mode = CC_SHADOW_OFF,
 				fb_pixel_t color_frame = COL_FRAME_PLUS_0,
@@ -123,8 +123,8 @@ class CHourGlassProc : public CHourGlass
 				const sigc::slot<void> &Slot,
 				const int w = 48,
 				const int h = 48,
-				const std::string& image_basename = "hourglass",
-				const int64_t& interval = HG_AUTO_PAINT_INTERVAL,
+				const std::string &image_basename = "hourglass",
+				const int64_t &interval = HG_AUTO_PAINT_INTERVAL,
 				CComponentsForm *parent = NULL,
 				int shadow_mode = CC_SHADOW_OFF,
 				fb_pixel_t color_frame = COL_FRAME_PLUS_0,

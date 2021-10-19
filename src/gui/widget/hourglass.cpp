@@ -39,33 +39,33 @@ CHourGlass::CHourGlass(	const int x_pos,
 			const int y_pos,
 			const int w,
 			const int h,
-			const std::string& image_basename,
-			const int64_t& interval,
+			const std::string &image_basename,
+			const int64_t &interval,
 			CComponentsForm *parent,
 			int shadow_mode,
 			fb_pixel_t color_frame,
 			fb_pixel_t color_body,
 			fb_pixel_t color_shadow) : CComponentsShapeSquare(x_pos, y_pos, w, h, parent, shadow_mode, color_frame, color_body, color_shadow)
 {
-	cc_item_type.name	="wg_hourglass";
+	cc_item_type.name = "wg_hourglass";
 
-	hg_image_basename 	= image_basename;
-	cc_bg_image 		= cc_bg_image_old = cc_bg_sel_image = cc_bg_sec_image = "";
+	hg_image_basename = image_basename;
+	cc_bg_image = cc_bg_image_old = cc_bg_sel_image = cc_bg_sec_image = "";
 
 	initImageFiles();
 
-	hg_file_num		= 0;
+	hg_file_num = 0;
 	if (!hg_img_files.empty())
 	{
-		hg_interval	= interval == HG_AUTO_PAINT_INTERVAL ? (int64_t)(1000/hg_img_files.size()) : interval;
-		hg_timer	= new CComponentsTimer(hg_interval);
+		hg_interval = interval == HG_AUTO_PAINT_INTERVAL ? (int64_t)(1000/hg_img_files.size()) : interval;
+		hg_timer = new CComponentsTimer(hg_interval);
 		hg_timer->OnTimer.connect(sigc::bind(sigc::mem_fun(*this, &CHourGlass::paint), true));
 	}
 	else
 	{
-		hg_timer = NULL;
 		hg_interval = 0;
-		dprintf(DEBUG_NORMAL,  "[CHourGlass] [%s - %d] NOTE: No %s-images found..\n", __func__, __LINE__,  hg_image_basename.c_str());
+		hg_timer = NULL;
+		dprintf(DEBUG_NORMAL, "[CHourGlass] [%s - %d] NOTE: No %s-images found..\n", __func__, __LINE__,  hg_image_basename.c_str());
 	}
 }
 
@@ -85,7 +85,7 @@ void CHourGlass::initImageFiles()
 	if (file_exists(path))
 		hg_img_files.push_back(hg_image_basename);
 
-	for(int i = 0; i <= MAX_IMAGES; i++)
+	for (int i = 0; i <= MAX_IMAGES; i++)
 	{
 		filename = hg_image_basename;
 		filename += to_string(i);
@@ -123,15 +123,15 @@ CHourGlassProc::CHourGlassProc(	const int x_pos,
 		const sigc::slot<void> &Slot,
 		const int w,
 		const int h,
-		const std::string& image_basename,
-		const int64_t& interval,
+		const std::string &image_basename,
+		const int64_t &interval,
 		CComponentsForm *parent,
 		int shadow_mode,
 		fb_pixel_t color_frame,
 		fb_pixel_t color_body,
 		fb_pixel_t color_shadow) : CHourGlass(x_pos, y_pos, w, h, image_basename, interval, parent, shadow_mode, color_frame, color_body, color_shadow)
 {
-	cc_item_type.name	="wg_hourglass_proc";
+	cc_item_type.name = "wg_hourglass_proc";
 
 	OnRun.connect(Slot);
 }
