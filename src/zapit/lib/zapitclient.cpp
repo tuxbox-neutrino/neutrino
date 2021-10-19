@@ -1138,8 +1138,10 @@ void CZapitClient::stopPlayBack(const bool sendpmt)
 
 void CZapitClient::stopPip(int pip)
 {
+	CZapitMessages::commandZaptoServiceID msg;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_STOP_PIP);
+	msg.pip_dev = pip;
+	send(CZapitMessages::CMD_STOP_PIP, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
