@@ -48,7 +48,7 @@ class CQuadPiPSetupNotifier : public CChangeObserver
 class CQuadPiPSetupSelectChannelWidget : public CMenuWidget
 {
 	private:
-		int InitZapitChannelHelper(CZapitClient::channelsMode mode);
+		int InitZapitChannelHelper();
 
 	public:
 		CQuadPiPSetupSelectChannelWidget();

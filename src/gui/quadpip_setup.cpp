@@ -279,7 +279,7 @@ CQuadPiPSetupSelectChannelWidget::~CQuadPiPSetupSelectChannelWidget()
 {
 }
 
-int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode /*mode*/)
+int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper()
 {
 	std::vector<CMenuWidget *> toDelete;
 	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS);
@@ -331,7 +331,7 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget *parent, const std::strin
 	if (actionKey.find("window_") != std::string::npos)
 	{
 		wn = atoi(actionKey.substr(7, 1).c_str()) - 1;
-		return InitZapitChannelHelper(CZapitClient::MODE_TV);
+		return InitZapitChannelHelper();
 	}
 	else if (strncmp(actionKey.c_str(), "ZCT:", 4) == 0)
 	{
