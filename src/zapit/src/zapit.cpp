@@ -1503,7 +1503,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_REINIT_CHANNELS: {
 		// Houdini: save actual channel to restore it later, old version's channel was set to scans.conf initial channel
 		t_channel_id cid= current_channel ? current_channel->getChannelID() : 0;
-
+		CNeutrinoApp::getInstance()->channelList->ClearChannelList();
 		PrepareChannels();
 
 		current_channel = CServiceManager::getInstance()->FindChannel(cid);

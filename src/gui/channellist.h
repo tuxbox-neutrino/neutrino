@@ -192,6 +192,7 @@ public:
 
 	void SetChannelList(ZapitChannelList* zlist);
 	void addChannel(CZapitChannel* chan);
+	void ClearChannelList(){if (!(*chanlist).empty()) (*chanlist).clear();};
 
 	CZapitChannel* getChannel(int number);
 	CZapitChannel* getChannel(t_channel_id channel_id);

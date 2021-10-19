@@ -1127,7 +1127,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		CZapitChannel * cc = NULL;
 		if (channel->getChannelID() & 0xFFFFFFFFFFFFULL)
 			if (CNeutrinoApp::getInstance()->channelList)
-				cc = CNeutrinoApp::getInstance()->channelList->getChannel(channel->getChannelID());
+				cc = CServiceManager::getInstance()->FindChannel(channel->getChannelID());
 
 		if (cc)
 		{
