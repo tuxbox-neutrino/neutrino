@@ -31,17 +31,17 @@
 #define CONFIGDIR       "/var/tuxbox/config"
 #endif
 
-#define ZAPITCONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
-#define SERVICES_XML    CONFIGDIR "/zapit/services.xml"
+#define ZAPITCONFIGFILE      ZAPITDIR "/zapit.conf"
+#define SERVICES_XML    ZAPITDIR "/services.xml"
 #define SERVICES_TMP    "/tmp/services.tmp"
-#define BOUQUETS_XML    CONFIGDIR "/zapit/bouquets.xml"
-#define UBOUQUETS_XML    CONFIGDIR "/zapit/ubouquets.xml"
+#define BOUQUETS_XML    ZAPITDIR "/bouquets.xml"
+#define UBOUQUETS_XML    ZAPITDIR "/ubouquets.xml"
 #define BOUQUETS_TMP    "/tmp/bouquets.tmp"
 
 #define CURRENTSERVICES_XML     "/tmp/currentservices.xml"
 #define CURRENTSERVICES_TMP     "/tmp/currentservices.tmp"
 
-#define MYSERVICES_XML	CONFIGDIR "/zapit/myservices.xml"
+#define MYSERVICES_XML	ZAPITDIR "/myservices.xml"
 
 #define CABLES_XML      CONFIGDIR "/cables.xml"
 #define SATELLITES_XML  CONFIGDIR "/satellites.xml" 

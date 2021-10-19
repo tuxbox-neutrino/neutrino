@@ -21,7 +21,7 @@ y_path_varbin="/var/bin"
 y_path_sbin="/sbin"
 y_path_config="%(CONFIGDIR)"
 y_path_tmp="/tmp"
-y_path_zapit="$y_path_config/zapit"
+y_path_zapit="%(ZAPITDIR)"
 
 y_path_plugin_tuxnew="$y_path_config/tuxnews"
 

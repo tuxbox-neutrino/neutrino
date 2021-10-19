@@ -45,12 +45,14 @@
 @CONFIGDIR@/satellites.xml
 @CONFIGDIR@/tuxcal/
 @CONFIGDIR@/tuxmail/
-@CONFIGDIR@/zapit/
 #
 #
 @CONFIGDIR@/scan.conf
-#
-#
+@CONFIGDIR@/srv.conf
+@CONFIGDIR@/flex/flex_eigene_scripte.conf
+
+@ZAPITDIR@/
+
 @FLAGDIR@/
 
 #/var/bin/
@@ -62,13 +64,12 @@
 /etc/exports
 /etc/hostname
 /etc/hosts
-#
+/etc/network/interfaces
 /etc/passwd
-#
+/etc/profile.local
 /etc/resolv.conf
 /etc/samba/smb.conf
 /etc/wpa_supplicant.conf
-
 
 ## Persönliche Sicherungen
 

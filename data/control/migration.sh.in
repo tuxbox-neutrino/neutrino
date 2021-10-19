@@ -30,7 +30,7 @@ fi
 
 if [ -e zapit/frontend.conf ]; then
 	# uni_qrg was renamed to uni_freq
-	sed -i "s|_uni_qrg=|_uni_freq=|g" @CONFIGDIR@/zapit/frontend.conf
+	sed -i "s|_uni_qrg=|_uni_freq=|g" @ZAPITDIR@/frontend.conf
 fi
 
 controlscripts="\

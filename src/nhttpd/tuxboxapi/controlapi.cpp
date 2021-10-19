@@ -667,21 +667,21 @@ void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 // send services.xml
 void CControlAPI::GetServicesxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile(CONFIGDIR "/zapit/services.xml");
+	hh->SendFile(ZAPITDIR "/services.xml");
 }
 
 //-----------------------------------------------------------------------------
 // send bouquets.xml
 void CControlAPI::GetBouquetsxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile(CONFIGDIR "/zapit/bouquets.xml");
+	hh->SendFile(ZAPITDIR "/bouquets.xml");
 }
 //-----------------------------------------------------------------------------
 
 // send ubouquets.xml
 void CControlAPI::GetUBouquetsxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile(CONFIGDIR "/zapit/ubouquets.xml");
+	hh->SendFile(ZAPITDIR "/ubouquets.xml");
 }
 
 //-------------------------------------------------------------------------

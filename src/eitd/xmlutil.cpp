@@ -53,8 +53,8 @@ extern pthread_rwlock_t eventsLock;
 extern bool dvb_time_update;
 extern CBouquetManager *g_bouquetManager;
 
-std::string epg_filter_dir = CONFIGDIR "/zapit/epgfilter.xml";
-std::string dvbtime_filter_dir = CONFIGDIR "/zapit/dvbtimefilter.xml";
+std::string epg_filter_dir = ZAPITDIR "/epgfilter.xml";
+std::string dvbtime_filter_dir = ZAPITDIR "/dvbtimefilter.xml";
 bool epg_filter_is_whitelist = false;
 bool epg_filter_except_current_next = false;
 

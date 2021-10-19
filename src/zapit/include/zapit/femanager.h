@@ -46,7 +46,7 @@
 //#define DYNAMIC_DEMUX
 //#define MAKE_FE_KEY(adapter, number) ((adapter << 8) | (number & 0xFF))
 
-#define FECONFIGFILE      CONFIGDIR "/zapit/frontend.conf"
+#define FECONFIGFILE      ZAPITDIR "/frontend.conf"
 
 typedef std::map<unsigned short, CFrontend*> fe_map_t;
 typedef fe_map_t::iterator fe_map_iterator_t;

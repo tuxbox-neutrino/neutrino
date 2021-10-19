@@ -639,11 +639,11 @@ start-block~neutrino_form-data_diverse
 			</tr>
 			<tr>
 				<td>TV-Startkanal</td>
-				<td><input type="text" name="startchannel_tv" size="4" value="{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;startChannelTV;0~open=}" title="tv-startchannel"/></td>
+				<td><input type="text" name="startchannel_tv" size="4" value="{=ini-get:%(ZAPITDIR)/zapit.conf;startChannelTV;0~open=}" title="tv-startchannel"/></td>
 			</tr>
 			<tr>
 				<td>Radio-Startkanal</td>
-				<td><input type="text" name="startchannel_radio" size="4" value="{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;startChannelRadio;0~cache=}" title="radio-startchannel"/></td>
+				<td><input type="text" name="startchannel_radio" size="4" value="{=ini-get:%(ZAPITDIR)/zapit.conf;startChannelRadio;0~cache=}" title="radio-startchannel"/></td>
 			</tr>
 			<tr title="save audio-PIDs: on/off">
 				<td>Audio-PIDs speichern</td>
@@ -739,9 +739,9 @@ function form_init()
 	obj_set_radio_value('filebrowser_showrights', "{=ini-get:%(CONFIGDIR)/neutrino.conf;filebrowser_showrights;1~cache=}");
 	obj_set_radio_value('filebrowser_denydirectoryleave', "{=ini-get:%(CONFIGDIR)/neutrino.conf;filebrowser_denydirectoryleave;false~cache=}");
 //zapit
-	obj_set_radio_value('save_lastchannel', "{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;saveLastChannel;true~open=}");
-	obj_set_radio_value('save_audio_pids', "{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;saveAudioPIDs;false~cache=}");
-	obj_set_radio_value('bouquet_others', "{=ini-get:%(CONFIGDIR)/zapit/zapit.conf;makeRemainingChannelsBouquet;true~cache=}");
+	obj_set_radio_value('save_lastchannel', "{=ini-get:%(ZAPITDIR)/zapit.conf;saveLastChannel;true~open=}");
+	obj_set_radio_value('save_audio_pids', "{=ini-get:%(ZAPITDIR)/zapit.conf;saveAudioPIDs;false~cache=}");
+	obj_set_radio_value('bouquet_others', "{=ini-get:%(ZAPITDIR)/zapit.conf;makeRemainingChannelsBouquet;true~cache=}");
 	change_lastchannel();
 }
 
@@ -782,11 +782,11 @@ start-block~neutrino_diverse_save_settings
 {=ini-set:%(CONFIGDIR)/neutrino.conf;tuxtxt_cache;{=tuxtxt_cache=}~cache=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;virtual_zap_mode;{=virtual_zap_mode=}~cache=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;volumebar_disp_pos;{=volumebar_disp_pos=}~save=}
-{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;saveAudioPIDs;{=save_audio_pids=}~open=}
-{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;saveLastChannel;{=save_lastchannel=}~cache=}
-{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;startChannelRadio;{=startchannel_radio=}~cache=}
-{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;startChannelTV;{=startchannel_tv=}~cache=}
-{=ini-set:%(CONFIGDIR)/zapit/zapit.conf;makeRemainingChannelsBouquet;{=bouquet_others=}~save=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;saveAudioPIDs;{=save_audio_pids=}~open=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;saveLastChannel;{=save_lastchannel=}~cache=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;startChannelRadio;{=startchannel_radio=}~cache=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;startChannelTV;{=startchannel_tv=}~cache=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;makeRemainingChannelsBouquet;{=bouquet_others=}~save=}
 end-block~neutrino_diverse_save_settings
 
 # ------- Neutrino form-data: pictureviewer -------------------------------

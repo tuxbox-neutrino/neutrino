@@ -25,8 +25,8 @@
 
 #define PAL	0
 #define NTSC	1
-#define AUDIO_CONFIG_FILE	CONFIGDIR "/zapit/audio.conf"
-#define VOLUME_CONFIG_FILE	CONFIGDIR "/zapit/volume.conf"
+#define AUDIO_CONFIG_FILE	ZAPITDIR "/audio.conf"
+#define VOLUME_CONFIG_FILE	ZAPITDIR "/volume.conf"
 
 typedef std::map<t_channel_id, audio_map_set_t> audio_map_t;
 typedef audio_map_t::iterator audio_map_iterator_t;

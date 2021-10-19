@@ -418,6 +418,7 @@ static void set_lua_variables(lua_State *L)
 	table_key_s directories[] =
 	{
 		{ "CONFIGDIR",		CONFIGDIR },
+		{ "ZAPITDIR",		ZAPITDIR },
 		{ "DATADIR",		DATADIR },
 		{ "DATADIR_VAR",	DATADIR_VAR },
 		{ "CONTROLDIR",		CONTROLDIR },
