@@ -2910,15 +2910,23 @@ void CZapit::run()
 	for (unsigned i=0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
 	{
 		StopPip(i);
-		if (pipVideoDecoder[i])
+		if (pipVideoDecoder[i]) {
+			delete pipVideoDecoder[i];
 			pipVideoDecoder[i] = NULL;
-		if (pipVideoDemux[i])
+		}
+		if (pipVideoDemux[i]) {
+			delete pipVideoDemux[i];
 			pipVideoDemux[i] = NULL;
+		}
 #if !HAVE_CST_HARDWARE
-		if (pipAudioDecoder[i])
+		if (pipAudioDecoder[i]) {
+			delete pipAudioDecoder[i];
 			pipAudioDecoder[i] = NULL;
-		if (pipAudioDemux[i])
+		}
+		if (pipAudioDemux[i]) {
+			delete pipAudioDemux[i];
 			pipAudioDemux[i] = NULL;
+		}
 #endif
 	}
 #endif
