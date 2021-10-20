@@ -45,7 +45,7 @@ struct network_service
 	std::string cmd;
 	std::string options;
 	neutrino_locale_t hint;
-	const char * icon;
+	const char *icon;
 	int enabled;
 };
 
@@ -82,7 +82,7 @@ void CNetworkService::Start()
 
 void CNetworkService::Stop()
 {
-	const char killall []= "killall";
+	const char killall [] = "killall";
 	printf("CNetworkService::Stop: %s %s\n", killall, command.c_str());
 	my_system(2, killall, command.c_str());
 	enabled = false;
@@ -93,16 +93,19 @@ void CNetworkService::TouchFile()
 {
 	std::string file = TOUCH_BASE + command;
 	printf("CNetworkService::TouchFile: %s %s\n", enabled ? "create" : "remove", file.c_str());
-	if(enabled) {
-		FILE * fp = fopen(file.c_str(), "w");
+	if (enabled)
+	{
+		FILE *fp = fopen(file.c_str(), "w");
 		if (fp)
 			fclose(fp);
-	} else {
+	}
+	else
+	{
 		unlink(file.c_str());
 	}
 }
 
-bool CNetworkService::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
+bool CNetworkService::changeNotify(const neutrino_locale_t /*OptionName*/, void *data)
 {
 	int value = *(int *)data;
 
@@ -125,7 +128,7 @@ CNetworkServiceSetup::~CNetworkServiceSetup()
 {
 }
 
-int CNetworkServiceSetup::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CNetworkServiceSetup::exec(CMenuTarget *parent, const std::string & /*actionKey*/)
 {
 	dprintf(DEBUG_DEBUG, "init network services setup menu\n");
 
@@ -139,23 +142,23 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 {
 	int shortcut = 1;
 
-	CMenuWidget* setup = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_SERVICES);
+	CMenuWidget *setup = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_SERVICES);
 
 	setup->addIntroItems(LOCALE_NETWORKMENU_SERVICES);
 
-	CNetworkService * items[SERVICE_COUNT];
+	CNetworkService *items[SERVICE_COUNT];
 
 	//telnetd used inetd
 	bool useinetd = false;
-	char *buf=NULL;
+	char *buf = NULL;
 	size_t len = 0;
 
-	FILE* fd = fopen("/etc/inetd.conf", "r");
-	    if(fd)
-	    {
-		while(!feof(fd))
+	FILE *fd = fopen("/etc/inetd.conf", "r");
+	if (fd)
+	{
+		while (!feof(fd))
 		{
-			if(getline(&buf, &len, fd)!=-1)
+			if (getline(&buf, &len, fd) != -1)
 			{
 				if (strstr(buf, "telnetd") != NULL)
 				{
@@ -165,34 +168,35 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 			}
 		}
 		fclose(fd);
-		if(buf)
+		if (buf)
 			free(buf);
-	    }
+	}
 
 	//set active when found
 	bool active;
-		
-	for(unsigned i = 0; i < SERVICE_COUNT; i++) {
+
+	for (unsigned i = 0; i < SERVICE_COUNT; i++)
+	{
 		items[i] = new CNetworkService(services[i].cmd, services[i].options);
 		services[i].enabled = items[i]->Enabled();
 
 		std::string exec = find_executable(services[i].cmd.c_str());
 		active = !exec.empty();
-			
-		if ( (services[i].name == "Telnet") && useinetd)
+
+		if ((services[i].name == "Telnet") && useinetd)
 			active = false;
-		
-		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut++), "");
+
+		CMenuOptionChooser *mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut++), "");
 
 		mc->setHint(services[i].icon, services[i].hint);
 		setup->addItem(mc);
 	}
 
-	int res = setup->exec (NULL, "");
+	int res = setup->exec(NULL, "");
 
 	delete setup;
 
-	for(unsigned i = 0; i < SERVICE_COUNT; i++)
+	for (unsigned i = 0; i < SERVICE_COUNT; i++)
 		delete items[i];
 
 	return res;

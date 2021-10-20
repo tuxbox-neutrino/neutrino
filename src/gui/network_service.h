@@ -55,7 +55,7 @@ class CNetworkServiceSetup : public CMenuTarget
 		CNetworkServiceSetup();
 		~CNetworkServiceSetup();
 
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 #endif
