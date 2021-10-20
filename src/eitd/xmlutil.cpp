@@ -564,10 +564,12 @@ t_channel_id getepgid(std::string epg_name)
 		if (m == CZapitClient::MODE_RADIO)
 			cit = g_bouquetManager->radioChannelsBegin();
 
-		for (; !(cit.EndOfChannels()); cit++)
+		for (; g_bouquetManager->empty || !(cit.EndOfChannels()); cit++)
 		{
-			std::string tvg_id = (*cit)->getEPGmap();
+			if(g_bouquetManager->empty)
+				break;
 
+			std::string tvg_id = (*cit)->getEPGmap();
 			if (tvg_id.empty())
 				continue;
 
@@ -576,6 +578,8 @@ t_channel_id getepgid(std::string epg_name)
 			{
 				if (match_found)
 				{
+					if(g_bouquetManager->empty)
+						break;
 					if ((*cit)->getEpgID() == epgid) continue;
 					(*cit)->setEPGid(epgid);
 				}

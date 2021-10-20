@@ -122,8 +122,9 @@ class CBouquetManager : public OpenThreads::Thread
 		bool logo_running;
 		std::list<t_channel_id> LogoList;
 	public:
-		CBouquetManager() { remainChannels = NULL; logo_running = false; };
+		CBouquetManager() { remainChannels = NULL; logo_running = false; empty = false; };
 		~CBouquetManager();
+		bool empty;
 		class ChannelIterator
 		{
 			private:

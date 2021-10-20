@@ -1180,15 +1180,18 @@ bool CZapit::PrepareChannels()
 {
 	current_channel = 0;
 
-	if (!CServiceManager::getInstance()->LoadServices(false))
+	g_bouquetManager->empty = true;
+	if (!CServiceManager::getInstance()->LoadServices(false)){
+		g_bouquetManager->empty = false;
 		return false;
-
+	}
 	INFO("LoadServices: success");
 
 	if(CNeutrinoApp::getInstance()->channelList)
 		CNeutrinoApp::getInstance()->channelList->ClearChannelList();
 
 	g_bouquetManager->loadBouquets();
+	g_bouquetManager->empty = false;
 	/* save if services changed (update from sdt, etc) */
 	CServiceManager::getInstance()->SaveServices(true, true);
 	return true;
