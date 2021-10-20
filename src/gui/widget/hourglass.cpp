@@ -55,6 +55,9 @@ CHourGlass::CHourGlass(	const int x_pos,
 	initImageFiles();
 
 	hg_file_num = 0;
+	hg_interval = 0;
+	hg_timer = NULL;
+
 	if (!hg_img_files.empty())
 	{
 		hg_interval = interval == HG_AUTO_PAINT_INTERVAL ? (int64_t)(1000/hg_img_files.size()) : interval;
@@ -62,11 +65,7 @@ CHourGlass::CHourGlass(	const int x_pos,
 		hg_timer->OnTimer.connect(sigc::bind(sigc::mem_fun(*this, &CHourGlass::paint), true));
 	}
 	else
-	{
-		hg_interval = 0;
-		hg_timer = NULL;
 		dprintf(DEBUG_NORMAL, "[CHourGlass] [%s - %d] NOTE: No %s-images found..\n", __func__, __LINE__,  hg_image_basename.c_str());
-	}
 }
 
 CHourGlass::~CHourGlass()
