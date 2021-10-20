@@ -44,12 +44,10 @@ class CMediaPlayerSetup : public CMenuTarget
 
 		int showMediaPlayerSetup();
 
-
-	public:	
+	public:
 		CMediaPlayerSetup();
 		~CMediaPlayerSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
-
 
 #endif
