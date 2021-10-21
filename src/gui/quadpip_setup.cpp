@@ -90,7 +90,7 @@ int CQuadPiPSetup::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 /*shows the QuadPiP setup menue*/
 int CQuadPiPSetup::showQuadPiPSetup()
 {
-	CMenuWidget *quadpipsetup = new CMenuWidget(LOCALE_QUADPIP, NEUTRINO_ICON_SETTINGS, (int) w_max (35, 15), MN_WIDGET_ID_MENU_QUADPIP);
+	CMenuWidget *quadpipsetup = new CMenuWidget(LOCALE_QUADPIP, NEUTRINO_ICON_SETTINGS, (int) w_max (35, 15), MN_WIDGET_ID_QUADPIP);
 
 	// menu head
 	quadpipsetup->addItem(GenericMenuSeparator);
