@@ -85,10 +85,12 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			NKEY_NEXT43MODE,
 			NKEY_SWITCHFORMAT,
 			NKEY_SCREENSHOT,
+#if ENABLE_PIP
 			NKEY_PIP_CLOSE,
 			NKEY_PIP_CLOSE_AVINPUT,
 			NKEY_PIP_SETUP,
 			NKEY_PIP_SWAP,
+#endif
 			NKEY_FORMAT_MODE,
 			NKEY_PIC_MODE,
 			NKEY_PIC_SIZE,
