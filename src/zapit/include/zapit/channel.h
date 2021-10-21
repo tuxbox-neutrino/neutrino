@@ -291,7 +291,7 @@ class CZapitChannel
 
 		void addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id);
 
-		unsigned getSubtitleCount() const { return channelSubs.size(); };
+		size_t getSubtitleCount() const { return channelSubs.size(); };
 		CZapitAbsSub* getChannelSub(int index = -1);
 		int getChannelSubIndex(void);
 		void setChannelSub(int subIdx);
