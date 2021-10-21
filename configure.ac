@@ -299,17 +299,17 @@ AC_ARG_ENABLE(pip,
 	AC_DEFINE(ENABLE_PIP, 1, [enable picture in picture support]))
 AM_CONDITIONAL(ENABLE_PIP, test "$enable_pip" = "yes")
 
-if test "$BOXMODEL" = "vusolo4k" -o "$BOXMODEL" = "vuduo4k" -o "$BOXMODEL" = "vuduo4kse" -o "$BOXMODEL" = "vuultimo4k" -o "$BOXMODEL" = "vuuno4kse" -o "$BOXMODEL" = "vuuno4k"; then
+case "$BOXMODEL" in
+	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse)
+		AC_ARG_ENABLE(quadpip,
+			AS_HELP_STRING([--enable-quadpip], [enable quad picture in picture support @<:@default=no@:>@]),
+			AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support]))
 
-AC_ARG_ENABLE(quadpip,
-	AS_HELP_STRING([--enable-quadpip], [enable quad picture in picture support @<:@default=no@:>@]),
-	AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support]))
+		AS_IF(test "$enable_quadpip" = "yes" -a "$enable_pip" != "yes",
+			AC_MSG_ERROR([--enable-quadpip depends on --enable-pip]))
+	;;
+esac
 AM_CONDITIONAL(ENABLE_QUADPIP, test "$enable_quadpip" = "yes")
-
-AS_IF(test "$enable_pip" != "yes",
-	AS_IF(test "$enable_quadpip" = "yes", AC_MSG_ERROR([--enable-quadpip depends on --enable-pip])))
-
-fi
 
 AC_ARG_ENABLE(dynamicdemux,
 	AS_HELP_STRING([--enable-dynamicdemux], [enable dynamic demux @<:@default=no@:>@]),
