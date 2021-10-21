@@ -422,7 +422,7 @@ uint8_t CComponentsWindow::getCurrentPage()
 bool CComponentsWindow::isPageChanged()
 {
 	for(size_t i=0; i<ccw_body->size(); i++){
-		if (ccw_body->getCCItem(i)->getPageNumber() != getCurrentPage())
+	 if ((uint8_t)ccw_body->getCCItem(i)->getPageNumber() != getCurrentPage())
 			return true;
 	}
 	return false;
