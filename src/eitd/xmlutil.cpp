@@ -457,6 +457,7 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
+	std::map<std::string,t_channel_id> cache_epgid;
 
 	if (!(event_parser = parseXmlFile(epgname.c_str())))
 	{
@@ -502,9 +503,22 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 
 		// just loads events if they end is in the future
 		if (time_diff < 0)
-			epgid = getepgid(chan);
+		{
+			std::string tchan = chan;
+			if (cache_epgid[tchan] != 0)
+			{
+				epgid = cache_epgid[chan];
+			}
+			if (epgid == 0)
+			{
+				epgid = getepgid(chan);
+				if (epgid == 0)
+					epgid = 1;//skip check channels not found in channellist
+				cache_epgid[tchan] = epgid;
+			}
 
-		if (epgid != 0)
+		}
+		if (epgid != 0 && epgid != 1)
 		{
 			//debug(DEBUG_NORMAL, "\e[1;34m%s - %d - %s 0x%012" PRIx64 "(%ld) (%ld)\e[0m",__func__, __LINE__,chan, epgid, start_time, duration);
 			onid = GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(epgid);
