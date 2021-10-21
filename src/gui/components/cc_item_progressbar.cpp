@@ -167,7 +167,7 @@ void CProgressBarCache::pbcPaint(int x, int y, int pbc_active_width, int pbc_pas
 {
 	y += yoff;
 	static CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	unsigned int stride = frameBuffer->getStride() / sizeof(fb_pixel_t);
+	unsigned int stride = frameBuffer->getStride() / (unsigned int)sizeof(fb_pixel_t);
 	fb_pixel_t *p = frameBuffer->getFrameBufferPointer() + y * stride + x;
 	int off = stride - pbc_width;
 	if (pbc_active_width > pbc_width)
