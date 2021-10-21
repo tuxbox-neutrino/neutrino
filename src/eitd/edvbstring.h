@@ -8,7 +8,7 @@ int readEncodingFile();
 
 inline std::string stringDVBUTF8(const std::string &string, int table=0, int tsidonid=0)
 {
-	return convertDVBUTF8((const char*)string.c_str(), string.length(), table, tsidonid);
+	return convertDVBUTF8((const char*)string.c_str(), (int)string.length(), table, tsidonid);
 }
 
 int getCountryCodeDefaultMapping( const std::string &lang );
