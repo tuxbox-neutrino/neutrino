@@ -93,7 +93,7 @@ class CPlugins
 
 		void setPluginDir(const std::string & dir) { plugin_dir = dir; }
 
-		inline       int           getNumberOfPlugins  (void            ) const { return plugin_list.size()                    ; }
+		inline       int           getNumberOfPlugins  (void            ) const { return (int)plugin_list.size()               ; }
 		inline const char *        getName             (const int number) const { return plugin_list[number].name.c_str()      ; }
 		inline const char *        getPluginFile       (const int number) const { return plugin_list[number].pluginfile.c_str(); }
 		inline const char *        getPluginDir        (const int number) const { return plugin_list[number].plugindir.c_str() ; }
