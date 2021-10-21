@@ -9,12 +9,8 @@
  *
  */
 
-
-
-
 #include <global.h>
 #include <driver/screen_max.h>
-
 
 // -- this is a simple odd class provided for 'static' usage
 // -- to calculate max. usage of a preferred  menue size (x,y)
@@ -29,8 +25,7 @@
 //
 //  2004-03-17 rasc
 
-
-int w_max (int w_size, int w_add)
+int w_max(int w_size, int w_add)
 {
 	int dw;
 	int ret;
@@ -38,13 +33,13 @@ int w_max (int w_size, int w_add)
 	dw = (g_settings.screen_EndX - g_settings.screen_StartX);
 
 	ret = w_size;
-	if (dw <= (w_size + w_add) ) ret = dw - w_add;
+	if (dw <= (w_size + w_add))
+		ret = dw - w_add;
 
 	return ret;
 }
 
-
-int h_max (int h_size, int h_add)
+int h_max(int h_size, int h_add)
 {
 	int dh;
 	int ret;
@@ -52,25 +47,23 @@ int h_max (int h_size, int h_add)
 	dh = (g_settings.screen_EndY - g_settings.screen_StartY);
 
 	ret = h_size;
-	if (dh <= (h_size + h_add) ) ret = dh - h_add;
+	if (dh <= (h_size + h_add))
+		ret = dh - h_add;
 
 	return ret;
 }
 
-//some helpers to get x and y screen values vor menus and windows
-int getScreenStartX (int width)
+// some helpers to get x and y screen values vor menus and windows
+int getScreenStartX(int width)
 {
 	int w = width;
-	int r = (((g_settings.screen_EndX- g_settings.screen_StartX)-w) / 2) + g_settings.screen_StartX;
+	int r = (((g_settings.screen_EndX - g_settings.screen_StartX) - w) / 2) + g_settings.screen_StartX;
 	return r < 0 ? 0 : r;
 }
 
-int getScreenStartY (int height)
+int getScreenStartY(int height)
 {
 	int y = height;
-	int r = (((g_settings.screen_EndY- g_settings.screen_StartY)-y) / 2) + g_settings.screen_StartY;
+	int r = (((g_settings.screen_EndY - g_settings.screen_StartY) - y) / 2) + g_settings.screen_StartY;
 	return r < 0 ? 0 : r;
 }
-
-
-
