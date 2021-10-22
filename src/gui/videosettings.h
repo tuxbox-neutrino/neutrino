@@ -60,7 +60,7 @@ public:
 		void next43Mode();
 		void SwitchFormat();
 
-		void setVideoSettings();
+		void initVideoSettings();
 		void setupVideoSystem(bool do_ask);
 
 		void setWizardMode(int mode) {is_wizard = mode;};

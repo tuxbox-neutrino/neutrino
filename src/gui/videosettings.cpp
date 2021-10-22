@@ -594,7 +594,7 @@ int CVideoSettings::showVideoSetup()
 	return res;
 }
 
-void CVideoSettings::setVideoSettings()
+void CVideoSettings::initVideoSettings()
 {
 	dprintf(DEBUG_NORMAL, "[CVideoSettings] [%s - %d], init video settings...\n", __func__, __LINE__);
 #if 0
