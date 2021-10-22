@@ -582,7 +582,7 @@ enum XML_Error XML_Parser::doContent(int startTagLevel, const ENCODING *enc, con
 
 	for (;;)
 	{
-		const char *next;
+		const char *next = NULL;
 		int tok=XmlContentTok(enc, s, end, &next);
 		*eventEndPP = next;
 
@@ -1232,7 +1232,7 @@ enum XML_Error XML_Parser::doCdataSection(const ENCODING *enc, const char **star
 
 	for (;;)
 	{
-		const char *next;
+		const char *next = NULL;
 
 		int tok=XmlCdataSectionTok(enc, s, end, &next);
 
@@ -1843,7 +1843,7 @@ enum XML_Error epilogProcessor(void *parser, const char *s, const char *end, con
 
 	for (;;)
 	{
-		const char *next;
+		const char *next = NULL;
 
 		int tok=XmlPrologTok(p->encoding, s, end, &next);
 		p->eventEndPtr=next;

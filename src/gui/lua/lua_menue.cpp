@@ -338,7 +338,7 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 	lua_assert(lua_istable(L, 2));
 
 	CMenuItem *mi = NULL;
-	CLuaMenuItem i;
+	CLuaMenuItem i = {};
 	D->items.push_back(i);
 	CLuaMenuItem *b = &D->items.back();
 

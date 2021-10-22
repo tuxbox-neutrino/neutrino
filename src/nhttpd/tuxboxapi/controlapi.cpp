@@ -3015,11 +3015,12 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 
 	std::string _rec_dir = hh->ParamList["rec_dir"];
 	void *data=NULL;
+	bool standby_on = false;
 	if(type == CTimerd::TIMER_RECORD)
 		announceTimeT-=120;
 	if(type == CTimerd::TIMER_STANDBY)
 	{
-		bool standby_on = (hh->ParamList["sbon"]=="1");
+		standby_on = (hh->ParamList["sbon"]=="1");
 		data=&standby_on;
 	}
 	/* else if(type==CTimerd::TIMER_NEXTPROGRAM || type==CTimerd::TIMER_ZAPTO) */
