@@ -106,8 +106,6 @@ if a[2] == "get" then
 	elseif a[3] == "screen.y_res" then
 		r = SCREEN.Y_RES
 
-	elseif a[3] == "postmsg.standby_on" then
-		r = POSTMSG.STANDBY_ON
 	end
 
 elseif a[2] == "misc" then
