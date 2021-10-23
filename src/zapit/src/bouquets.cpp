@@ -934,6 +934,10 @@ void CBouquetManager::loadWebchannels(int mode)
 						const char *epgmap = xmlGetAttribute(l1, "epgmap");
 						const char *alogo = xmlGetAttribute(l1, "logo");
 						const char *script = xmlGetAttribute(l1, "script");
+						if(alogo && !strlen(alogo))
+						{
+							alogo = NULL;//skip 0 len logo
+						}
 						t_channel_id epg_id = 0;
 						if (epgid)
 						{
