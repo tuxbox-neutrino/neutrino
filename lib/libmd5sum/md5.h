@@ -35,14 +35,11 @@
    is usually not possible.  */
 
 #ifdef _LIBC
-# include <sys/types.h>
-typedef u_int32_t md5_uint32;
+# include <stdint.h>
+typedef uint32_t md5_uint32;
+typedef uintptr_t md5_uintptr;
 #else
-# if defined __STDC__ && __STDC__
-#  define UINT_MAX_32_BITS 4294967295U
-# else
-#  define UINT_MAX_32_BITS 0xFFFFFFFF
-# endif
+# define UINT_MAX_32_BITS 4294967295U
 
 /* If UINT_MAX isn't defined, assume it's a 32-bit type.
    This should be valid for all systems GNU cares about because
@@ -63,11 +60,14 @@ typedef u_int32_t md5_uint32;
      typedef unsigned long md5_uint32;
 #   else
      /* The following line is intended to evoke an error.
-        Using #error is not portable enough.  */
+	Using #error is not portable enough.  */
      "Cannot determine unsigned 32-bit data type."
 #   endif
 #  endif
 # endif
+/* We have to make a guess about the integer type equivalent in size
+   to pointers which should always be correct.  */
+typedef unsigned long int md5_uintptr;
 #endif
 
 #undef __P
