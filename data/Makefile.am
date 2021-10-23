@@ -17,6 +17,11 @@ SUBDIRS = \
 	y-web \
 	zapit
 
+if ENABLE_LUA
+SUBDIRS += \
+	luaplugins
+endif
+
 if ENABLE_GRAPHLCD
 SUBDIRS += \
 	oled

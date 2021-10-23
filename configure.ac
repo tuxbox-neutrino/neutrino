@@ -421,6 +421,7 @@ data/lcd/clock/Makefile
 data/lcd/icons/Makefile
 data/license/Makefile
 data/locale/Makefile
+data/luaplugins/Makefile
 data/oled/Makefile
 data/oled/fonts/Makefile
 data/oled/icons/Makefile
