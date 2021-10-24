@@ -59,8 +59,10 @@ class CScreenSaver : public sigc::trackable
 
 		time_t idletime;
 
-		union u_color {
-			struct s_color {
+		union u_color
+		{
+			struct s_color
+			{
 				uint8_t b, g, r, a;
 			} uc_color;
 			unsigned int i_color;
@@ -76,18 +78,18 @@ class CScreenSaver : public sigc::trackable
 			SCR_MODE_IMAGE,
 			SCR_MODE_CLOCK,
 			SCR_MODE_CLOCK_COLOR
-		}SCR_MODE_T;
+		} SCR_MODE_T;
 
 		typedef enum
 		{
 			SCR_MODE_TEXT_OFF,
 			SCR_MODE_TEXT_ON
 
-		}SCR_MODE_TEXT_T;
+		} SCR_MODE_TEXT_T;
 
 		CScreenSaver();
 		~CScreenSaver();
-		static CScreenSaver* getInstance();
+		static CScreenSaver *getInstance();
 		bool canStart();
 		bool isActive();
 		void Start();
@@ -100,7 +102,7 @@ class CScreenSaver : public sigc::trackable
 		void resetIdleTime() { idletime = time(NULL); }
 		time_t getIdleTime() { return idletime; }
 		void forceRefresh() { force_refresh = true; }
-		static CComponentsFrmClock* getClockObject();
+		static CComponentsFrmClock *getClockObject();
 };
 
 #endif // __CSCREENSAVER_H__
