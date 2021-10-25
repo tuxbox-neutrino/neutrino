@@ -223,7 +223,7 @@ bool CAit::Parse()
 			}
 			if(!hbbtvUrl.empty())
 			{
-				printf("[ait] detected AppID: %d, AppName: %s, Url: %s\n", appid, applicationName.c_str(), hbbtvUrl.c_str());
+				printf("[ait] detected AppID: %d, AppName: %s, Url: %s profilecode: %i orgid: %i sectionLength: %i profileVersion %i\n", appid, applicationName.c_str(), hbbtvUrl.c_str(),profilecode,orgid,sectionLength,profileVersion);
 				if (pFile)
 				{
 					fprintf(pFile, "AppID: %d, AppName: %s, Url: %s\n", appid, applicationName.c_str(), hbbtvUrl.c_str());
