@@ -2483,8 +2483,11 @@ double calcAzimuth(double SatLon, double SiteLat, double SiteLon, int Height_ove
 	if (alfa_r_north < 0)
 		Azimuth = 180 + Deg(ATAN(alfa_ry / alfa_r_north));
 	else
+	{
+		if(alfa_r_north == 0)
+			alfa_r_north = 0.0001;;
 		Azimuth = Rev(360 + Deg(ATAN(alfa_ry / alfa_r_north)));
-
+	}
 	return Azimuth;
 }
 
