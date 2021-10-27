@@ -286,7 +286,9 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 
 	AVFrame *frame = NULL;
 	AVPacket rpacket;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 133, 100)
 	av_init_packet(&rpacket);
+#endif
 	c->channel_layout = c->channel_layout ? c->channel_layout : AV_CH_LAYOUT_STEREO;
 
 	av_opt_set_int(swr, "in_channel_layout",	c->channel_layout,	0);

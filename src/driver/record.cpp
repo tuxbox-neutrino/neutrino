@@ -2330,7 +2330,9 @@ void CStreamRec::run()
 
 	double total = 0;
 	while (!stopped) {
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 133, 100)
 		av_init_packet(&pkt);
+#endif
 		if (av_read_frame(ifcx, &pkt) < 0)
 			break;
 		if (pkt.stream_index < 0)

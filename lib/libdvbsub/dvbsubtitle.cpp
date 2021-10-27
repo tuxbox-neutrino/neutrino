@@ -266,8 +266,9 @@ int cDvbSubtitleConverter::Convert(const uchar *Data, int Length, int64_t pts)
 		Bitmaps = new cDvbSubtitleBitmaps(pts);
 
  	AVSubtitle * sub = Bitmaps->GetSub();
-
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 133, 100)
 	av_init_packet(&avpkt);
+#endif
 	avpkt.data = (uint8_t*) Data;
 	avpkt.size = Length;
 
