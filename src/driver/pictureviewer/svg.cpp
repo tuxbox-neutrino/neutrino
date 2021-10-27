@@ -108,6 +108,62 @@ error:
 	return 0;
 }
 
+int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int* dx, int* dy);
+
+int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int* dx, int* dy)
+{
+	NSVGimage *image = NULL;
+	NSVGrasterizer *rast = NULL;
+	int w, h;
+
+	//printf("[SVG] parsing load %s\n", name);
+	image = nsvgParseFromFile(name, "px", 96.0f);
+	if (image == NULL)
+	{
+		printf("[SVG] Could not open SVG image.\n");
+		goto error;
+	}
+	w = (int)image->width;
+	h = (int)image->height;
+
+	rast = nsvgCreateRasterizer();
+	if (rast == NULL)
+	{
+		printf("[SVG] Could not init rasterizer.\n");
+		goto error;
+	}
+
+	float scale,scale_w,scale_h;
+	scale_w = *dx/w;
+	scale_h = *dy/h;
+
+	scale = std::max(scale_w,scale_h);
+
+	w = (int)(w*scale);
+	h = (int)(h*scale);
+
+	free(*buffer);
+	*buffer = (unsigned char*) malloc(w*h*4);
+
+	*ox = w;
+	*oy = h;
+
+	if (buffer == NULL)
+	{
+		printf("[SVG] Could not alloc image buffer.\n");
+		goto error;
+	}
+
+	//printf("[SVG] rasterizing image %d x %d\n", w, h);
+	nsvgRasterize(rast, image, 0, 0, scale, *buffer, w, h, w*4);
+
+error:
+	nsvgDeleteRasterizer(rast);
+	nsvgDelete(image);
+
+	return 0;
+}
+
 int fh_svg_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*wanted_height*/)
 {
 	NSVGimage *image = NULL;
