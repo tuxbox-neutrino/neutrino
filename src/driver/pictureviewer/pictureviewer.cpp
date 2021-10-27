@@ -43,7 +43,11 @@ extern int fh_crw_getsize (const char *, int *, int *, int, int);
 extern int fh_crw_load (const char *, unsigned char **, int *, int *);
 extern int fh_crw_id (const char *);
 #endif
-
+#ifdef FBV_SUPPORT_SVG
+extern int fh_svg_getsize (const char *, int *, int *, int, int);
+extern int fh_svg_load (const char *, unsigned char **, int *, int *);
+extern int fh_svg_id (const char *);
+#endif
 double CPictureViewer::m_aspect_ratio_correction;
 
 void CPictureViewer::add_format (int (*picsize) (const char *, int *, int *, int, int), int (*picread) (const char *, unsigned char **, int *, int *), int (*id) (const char *))
@@ -77,6 +81,9 @@ void CPictureViewer::getSupportedImageFormats(std::vector<std::string>& exts)
 #ifdef FBV_SUPPORT_CRW
 	exts.push_back(".crw");
 #endif
+#ifdef FBV_SUPPORT_SVG
+	exts.push_back(".svg");
+#endif
 }
 
 void CPictureViewer::init_handlers (void)
@@ -95,6 +102,9 @@ void CPictureViewer::init_handlers (void)
 #endif
 #ifdef FBV_SUPPORT_CRW
   add_format (fh_crw_getsize, fh_crw_load, fh_crw_id);
+#endif
+#ifdef FBV_SUPPORT_SVG
+  add_format (fh_svg_getsize, fh_svg_load, fh_svg_id);
 #endif
 }
 
@@ -831,6 +841,9 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		else
 #endif
 			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
+#ifdef FBV_SUPPORT_SVG
+		if (name.find(".svg") == (name.length() - 4)) bpp = 4;
+#endif
 		dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] load_result: %d \n", __func__, __LINE__, load_ret);
 
 		if (load_ret == FH_ERROR_OK)
