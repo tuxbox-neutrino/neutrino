@@ -195,6 +195,7 @@ void nsvgDelete(NSVGimage* image);
 
 #ifdef NANOSVG_IMPLEMENTATION
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -211,6 +212,7 @@ void nsvgDelete(NSVGimage* image);
 
 #define NSVG_NOTUSED(v) do { (void)(1 ? (void)0 : ( (void)(v) ) ); } while(0)
 #define NSVG_RGB(r, g, b) (((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16))
+#define NSVG_RGBA(r, g, b, a) (((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16) | ((unsigned int)a << 24))
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4996) // Switch off security warnings
@@ -304,7 +306,7 @@ static void nsvg__parseElement(char* s,
 	// Get attribs
 	while (!end && *s && nattr < NSVG_XML_MAX_ATTRIBS-3)
 	{
-		char* name = NULL;
+		char* aname = NULL;
 		char* value = NULL;
 
 		// Skip white space before the attrib name
@@ -315,7 +317,7 @@ static void nsvg__parseElement(char* s,
 			end = 1;
 			break;
 		}
-		name = s;
+		aname = s;
 		// Find end of the attrib name.
 		while (*s && !nsvg__isspace(*s) && *s != '=') s++;
 		if (*s)
@@ -336,9 +338,9 @@ static void nsvg__parseElement(char* s,
 		}
 
 		// Store only well formed attributes
-		if (name && value)
+		if (aname && value)
 		{
-			attr[nattr++] = name;
+			attr[nattr++] = aname;
 			attr[nattr++] = value;
 		}
 	}
@@ -1364,7 +1366,9 @@ static const char* nsvg__getNextPathItem(const char* s, char* it)
 
 static unsigned int nsvg__parseColorHex(const char* str)
 {
-	unsigned int r=0, g=0, b=0;
+	unsigned int r=0, g=0, b=0, a=0;
+	if (sscanf(str, "#%2x%2x%2x%2x", &r, &g, &b, &a) == 4 )	// 2 digit hex with alpha
+		return NSVG_RGBA(r, g, b, a);
 	if (sscanf(str, "#%2x%2x%2x", &r, &g, &b) == 3 )		// 2 digit hex
 		return NSVG_RGB(r, g, b);
 	if (sscanf(str, "#%1x%1x%1x", &r, &g, &b) == 3 )		// 1 digit hex, e.g. #abc -> 0xccbbaa
@@ -1380,6 +1384,21 @@ static unsigned int nsvg__parseColorRGB(const char* str)
 	if (sscanf(str, "rgb(%u%%, %u%%, %u%%)", &r, &g, &b) == 3)	// decimal integer percentage
 		return NSVG_RGB(r*255/100, g*255/100, b*255/100);
 	return NSVG_RGB(128, 128, 128);
+}
+
+static unsigned int nsvg__parseColorRGBA(const char* str)
+{
+	unsigned int r=0, g=0, b=0;
+	float a = 1.0;
+	if (sscanf(str, "rgba(%u, %u, %u, %f)", &r, &g, &b, &a) == 4)		// decimal integers
+	{
+		float alpha = a * 255;
+		if (alpha < 1.0) alpha = 1.0;
+		return NSVG_RGBA(r, g, b, alpha);
+	}
+	if (sscanf(str, "rgba(%u%%, %u%%, %u%%, %f)", &r, &g, &b, &a) == 4)	// decimal integer percentage
+		return NSVG_RGBA((r*255)/100, (g*255)/100, (b*255)/100, (a*255)/100);
+	return NSVG_RGBA(128, 128, 128, 1.0);
 }
 
 typedef struct NSVGNamedColor
@@ -1567,6 +1586,8 @@ static unsigned int nsvg__parseColor(const char* str)
 		return nsvg__parseColorHex(str);
 	else if (len >= 4 && str[0] == 'r' && str[1] == 'g' && str[2] == 'b' && str[3] == '(')
 		return nsvg__parseColorRGB(str);
+	else if (len >= 5 && str[0] == 'r' && str[1] == 'g' && str[2] == 'b' && str[3] == 'a' && str[4] == '(')
+		return nsvg__parseColorRGBA(str);
 	return nsvg__parseColorName(str);
 }
 
@@ -1923,6 +1944,14 @@ static int nsvg__parseAttr(NSVGparser* p, const char* name, const char* value)
 		{
 			attr->hasFill = 1;
 			attr->fillColor = nsvg__parseColor(value);
+			// if the fillColor has an alpha value then use it to
+			// set the fillOpacity
+			if (attr->fillColor & 0xFF000000)
+			{
+				attr->fillOpacity = ((attr->fillColor >> 24) & 0xFF) / 255.0;
+				// remove the alpha value from the color
+				attr->fillColor &= 0x00FFFFFF;
+			}
 		}
 	}
 	else if (strcmp(name, "opacity") == 0)
@@ -1948,6 +1977,14 @@ static int nsvg__parseAttr(NSVGparser* p, const char* name, const char* value)
 		{
 			attr->hasStroke = 1;
 			attr->strokeColor = nsvg__parseColor(value);
+			// if the strokeColor has an alpha value then use it to
+			// set the strokeOpacity
+			if (attr->strokeColor & 0xFF000000)
+			{
+				attr->strokeOpacity = ((attr->strokeColor >> 24) & 0xFF) / 255.0;
+				// remove the alpha value from the color
+				attr->strokeColor &= 0x00FFFFFF;
+			}
 		}
 	}
 	else if (strcmp(name, "stroke-width") == 0)

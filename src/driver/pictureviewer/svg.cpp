@@ -133,14 +133,12 @@ int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, 
 		goto error;
 	}
 
-	float scale,scale_w,scale_h;
+	float scale_w,scale_h;
 	scale_w = *dx/w;
 	scale_h = *dy/h;
 
-	scale = std::max(scale_w,scale_h);
-
-	w = (int)(w*scale);
-	h = (int)(h*scale);
+	w = (int)(w*scale_w);
+	h = (int)(h*scale_h);
 
 	free(*buffer);
 	*buffer = (unsigned char*) malloc(w*h*4);
@@ -155,7 +153,7 @@ int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, 
 	}
 
 	//printf("[SVG] rasterizing image %d x %d\n", w, h);
-	nsvgRasterize(rast, image, 0, 0, scale, *buffer, w, h, w*4);
+	nsvgRasterizeFull(rast, image, 0, 0, scale_w, scale_h, *buffer, w, h, w*4);
 
 error:
 	nsvgDeleteRasterizer(rast);
