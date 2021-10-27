@@ -251,6 +251,17 @@ void cDvbSubtitleConverter::Reset(void)
 	Timeout.Set(0xFFFF*1000);
 }
 
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(58, 133, 100)
+static void get_packet_defaults(AVPacket *pkt)
+{
+    memset(pkt, 0, sizeof(*pkt));
+
+    pkt->pts             = AV_NOPTS_VALUE;
+    pkt->dts             = AV_NOPTS_VALUE;
+    pkt->pos             = -1;
+}
+#endif
+
 int cDvbSubtitleConverter::Convert(const uchar *Data, int Length, int64_t pts)
 {
 	AVPacket avpkt;
@@ -268,6 +279,8 @@ int cDvbSubtitleConverter::Convert(const uchar *Data, int Length, int64_t pts)
  	AVSubtitle * sub = Bitmaps->GetSub();
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 133, 100)
 	av_init_packet(&avpkt);
+#else
+	get_packet_defaults(&avpkt);
 #endif
 	avpkt.data = (uint8_t*) Data;
 	avpkt.size = Length;

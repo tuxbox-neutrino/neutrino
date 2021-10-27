@@ -233,6 +233,16 @@ void CFfmpegDec::DeInit(void)
 	}
 	in = NULL;
 }
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(58, 133, 100)
+static void get_packet_defaults(AVPacket *pkt)
+{
+    memset(pkt, 0, sizeof(*pkt));
+
+    pkt->pts             = AV_NOPTS_VALUE;
+    pkt->dts             = AV_NOPTS_VALUE;
+    pkt->pos             = -1;
+}
+#endif
 
 CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state, CAudioMetaData* _meta_data, time_t* time_played, unsigned int* secondsToSkip)
 {
@@ -288,6 +298,8 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 	AVPacket rpacket;
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 133, 100)
 	av_init_packet(&rpacket);
+#else
+	get_packet_defaults(&rpacket);
 #endif
 	c->channel_layout = c->channel_layout ? c->channel_layout : AV_CH_LAYOUT_STEREO;
 

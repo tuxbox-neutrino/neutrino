@@ -2314,6 +2314,16 @@ bool CStreamRec::Open(CZapitChannel * channel)
 #endif
 	return true;
 }
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(58, 133, 100)
+static void get_packet_defaults(AVPacket *pkt)
+{
+    memset(pkt, 0, sizeof(*pkt));
+
+    pkt->pts             = AV_NOPTS_VALUE;
+    pkt->dts             = AV_NOPTS_VALUE;
+    pkt->pos             = -1;
+}
+#endif
 
 void CStreamRec::run()
 {
@@ -2332,6 +2342,8 @@ void CStreamRec::run()
 	while (!stopped) {
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 133, 100)
 		av_init_packet(&pkt);
+#else
+		get_packet_defaults(&pkt);
 #endif
 		if (av_read_frame(ifcx, &pkt) < 0)
 			break;
