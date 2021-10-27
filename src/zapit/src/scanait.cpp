@@ -41,6 +41,7 @@ CAit::CAit()
 {
 	dmxnum = 0;
 	pid = 0;
+	running = false;
 }
 
 void CAit::setDemux(int dnum)
@@ -50,17 +51,22 @@ void CAit::setDemux(int dnum)
 
 bool CAit::Start()
 {
+	if (running)
+		return false;
+	running = true;
+
 	int ret = start();
 	return (ret == 0);
 }
 
 bool CAit::Stop()
 {
-	if(pid > 0){
-		int ret = join();
-		return (ret == 0);
-	}
-	return false;
+	if (!running)
+		return false;
+	running = false;
+
+	int ret = join();
+	return (ret == 0);
 }
 
 void CAit::run()

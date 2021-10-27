@@ -44,6 +44,7 @@ class CAit : public OpenThreads::Thread
 private:
 	int dmxnum;
 	unsigned short pid;
+	bool running;
 	std::string name;
 	ApplicationInformationSectionList sections;
 	void run();
