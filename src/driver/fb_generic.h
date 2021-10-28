@@ -233,7 +233,7 @@ class CFrameBuffer : public sigc::trackable
 
 		void setIconBasePath(const std::string & iconPath);
 		std::string getIconBasePath(){return iconBasePath;};
-		std::string getIconPath(std::string icon_name, std::string file_type = "png");
+		std::string getIconPath(std::string icon_name, std::string file_type = "");
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */

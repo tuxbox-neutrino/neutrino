@@ -706,27 +706,48 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 
 std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
 {
-	std::string path, filetype = "";
-	if (!file_type.empty())
-		filetype = "." + file_type;
+	// why search when we have an absolut path ?
+	if (icon_name.find("/", 0) != std::string::npos)
+		return icon_name;
 
-	std::string dir[] = {	THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
-				THEMESDIR "/" + g_settings.theme_name + "/icons",
-				ICONSDIR_VAR,
-				iconBasePath
+	std::vector<std::string> filetypes = { ".svg", ".png", ".jpg" };
+	std::string path = icon_name;
+
+	std::string::size_type pos = icon_name.find_last_of(".");
+	if (pos != std::string::npos && file_type.empty())
+		if (std::find(filetypes.begin(), filetypes.end(), icon_name.substr(pos)) != filetypes.end())
+		{
+			icon_name = path.substr(0,pos);
+			file_type = path.substr(pos+1);
+		}
+	if (!file_type.empty())
+	{
+		filetypes.clear();
+		filetypes.push_back("." + file_type);
+	}
+
+	std::vector<std::string> dir =
+	{
+		THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
+		THEMESDIR "/" + g_settings.theme_name + "/icons",
+		ICONSDIR_VAR,
+		iconBasePath
 	};
 
-	for(int i=0; i<4 ; i++){
-		path = std::string(dir[i]) + "/" + icon_name + filetype;
-		if (access(path.c_str(), F_OK) == 0){
-			return path;
+	for(unsigned int t=0; t<filetypes.size(); t++)
+	{
+		for(unsigned int i=0; i<dir.size(); i++)
+		{
+			path = std::string(dir[i]) + "/" + icon_name + filetypes[t];
+			if (access(path.c_str(), F_OK) == 0)
+			{
+				return path;
+			}
 		}
 	}
 
-	if (icon_name.find("/", 0) != std::string::npos)
-		path = icon_name;
-
-	return path;
+	// nothing found, return empty string
+	return "";
 }
 
 void CFrameBuffer::getIconSize(const char * const filename, int* width, int *height)
@@ -1572,7 +1593,7 @@ void CFrameBuffer::Clear()
 
 bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 {
-	std::string picture = getIconPath(filename, "");
+	std::string picture = getIconPath(filename);
 	bool ret = false;
 
 	if (access(picture.c_str(), F_OK) == 0 && !(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
