@@ -1597,7 +1597,13 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	std::string picture = getIconPath(filename);
 	bool ret = false;
 
-	if (access(picture.c_str(), F_OK) == 0 && !(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
+	if (picture.empty())
+	{
+		dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, filename.c_str());
+		return ret;
+	}
+
+	if (!(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
 	{
 		if (videoDecoder)
 		{
@@ -1611,14 +1617,6 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 		}
 		else
 			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], no videoplayer instance available\n", __func__, __LINE__);
-	}
-	else
-	{
-		if (!(fallback_mode & SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED))
-		{
-			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], image not found: %s\n", __func__, __LINE__, picture.c_str());
-			picture = "";
-		}
 	}
 
 	if (!ret)
