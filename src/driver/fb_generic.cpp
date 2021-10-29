@@ -706,7 +706,7 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 
 std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_type)
 {
-	// why search when we have an absolut path ?
+	// why search when we have an absolut path?
 	if (icon_name.find("/", 0) != std::string::npos)
 		return icon_name;
 
@@ -715,11 +715,14 @@ std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_ty
 
 	std::string::size_type pos = icon_name.find_last_of(".");
 	if (pos != std::string::npos && file_type.empty())
+	{
 		if (std::find(filetypes.begin(), filetypes.end(), icon_name.substr(pos)) != filetypes.end())
 		{
-			icon_name = path.substr(0,pos);
-			file_type = path.substr(pos+1);
+			icon_name = path.substr(0, pos);
+			file_type = path.substr(pos + 1);
 		}
+	}
+
 	if (!file_type.empty())
 	{
 		filetypes.clear();
@@ -734,9 +737,9 @@ std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_ty
 		iconBasePath
 	};
 
-	for(unsigned int t=0; t<filetypes.size(); t++)
+	for (unsigned int t = 0; t < filetypes.size(); t++)
 	{
-		for(unsigned int i=0; i<dir.size(); i++)
+		for (unsigned int i = 0; i < dir.size(); i++)
 		{
 			path = std::string(dir[i]) + "/" + icon_name + filetypes[t];
 			if (access(path.c_str(), F_OK) == 0)
