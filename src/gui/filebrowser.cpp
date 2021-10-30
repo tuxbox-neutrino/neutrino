@@ -31,6 +31,7 @@
 #include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
+#include <gui/widget/iconfont.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/hourglass.h>
 
@@ -1239,16 +1240,22 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_WAV:
 			case CFile::FILE_FLAC:
 			case CFile::FILE_AAC:
+				fileicon = g_IconFont ? ICONFONT_MUSIC : NEUTRINO_ICON_MP3;
+				break;
+
 			case CFile::FILE_PLAYLIST:
-				fileicon = NEUTRINO_ICON_MP3;
+				fileicon = g_IconFont ? ICONFONT_LIST : NEUTRINO_ICON_MP3;
 				break;
 
 			case CFile::FILE_DIR:
-				fileicon = NEUTRINO_ICON_FOLDER;
+				if (actual_file->getFileName() == "..")
+					fileicon = g_IconFont ? ICONFONT_FOLDER_OPEN : NEUTRINO_ICON_FOLDER;
+				else
+					fileicon = g_IconFont ? ICONFONT_FOLDER : NEUTRINO_ICON_FOLDER;
 				break;
 
 			case CFile::FILE_PICTURE:
-				fileicon = NEUTRINO_ICON_PICTURE;
+				fileicon = g_IconFont ? ICONFONT_IMAGE : NEUTRINO_ICON_PICTURE;
 				break;
 
 			case CFile::FILE_AVI:
@@ -1257,19 +1264,32 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_VOB:
 			case CFile::FILE_MPG:
 			case CFile::FILE_TS:
-				fileicon = NEUTRINO_ICON_MOVIE;
+				fileicon = g_IconFont ? ICONFONT_FILM : NEUTRINO_ICON_MOVIE;
 				break;
 
 			case CFile::FILE_TEXT:
 			default:
-				fileicon = NEUTRINO_ICON_FILE;
+				fileicon = g_IconFont ? ICONFONT_FILE : NEUTRINO_ICON_FILE;
 		}
 
 		int icon_w = 0;
 		int icon_h = 0;
-		frameBuffer->getIconSize(NEUTRINO_ICON_FILE, &icon_w, &icon_h);
 
-		frameBuffer->paintIcon(fileicon, x + OFFSET_INNER_MID, ypos, item_height);
+		if (g_IconFont)
+		{
+			int iconfont_size = g_IconFont->getSize();
+			g_IconFont->setSize(item_height / 4 * 3);
+			icon_w = g_IconFont->getWidestWidth();
+			int icon_w_real = g_IconFont->getRenderWidth(fileicon);
+			int spacer_x = (icon_w - icon_w_real) / 2;
+			g_IconFont->RenderString(x + OFFSET_INNER_MID + spacer_x, ypos + g_IconFont->getHeight() /*item_height - spacer_y*/, icon_w_real, fileicon, color);
+			g_IconFont->setSize(iconfont_size);
+		}
+		else
+		{
+			frameBuffer->getIconSize(NEUTRINO_ICON_FILE, &icon_w, &icon_h);
+			frameBuffer->paintIcon(fileicon, x + OFFSET_INNER_MID, ypos, item_height);
+		}
 
 		int col1_offset = OFFSET_INNER_MID + icon_w + OFFSET_INNER_MID;
 		fnt_item->RenderString(x + col1_offset, ypos + item_height, col1_width - col1_offset, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color);
