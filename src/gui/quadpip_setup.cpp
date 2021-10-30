@@ -289,6 +289,7 @@ int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper()
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
 	{
 		CMenuWidget *mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
+		CMenuForwarder *chan_item = NULL;
 		toDelete.push_back(mwtv);
 		mwtv->addIntroItems();
 		ZapitChannelList channels;
@@ -301,12 +302,12 @@ int CQuadPiPSetupSelectChannelWidget::InitZapitChannelHelper()
 			{
 				char cChannelId[60] = {0};
 				snprintf(cChannelId, sizeof(cChannelId), "ZCT:%d|%" PRIx64 "#", channel->number, channel->getChannelID());
-				CMenuForwarder *chan_item = new CMenuForwarder(channel->getName(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ? NEUTRINO_ICON_SCRAMBLED : (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING));
+				chan_item = new CMenuForwarder(channel->getName(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ? NEUTRINO_ICON_SCRAMBLED : (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING));
 				chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 				mwtv->addItem(chan_item);
 			}
 		}
-		if (!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden))
+		if (!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden) && chan_item)
 		{
 			mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
 		}
