@@ -287,7 +287,18 @@ return 0;
 	index=FT_Get_Char_Index(face, 'M'); // "M" gives us ascender
 	getGlyphBitmap(index, &glyph);
 	int tM=glyph->top;
+
 	fontwidth = glyph->width;
+	// walk through all chars to find fontwidth_widest
+	FT_UInt gindex = 0;
+	FT_ULong charcode = FT_Get_First_Char(face, &gindex);
+	while (gindex != 0)
+	{
+		getGlyphBitmap(gindex, &glyph);
+		fontwidth_widest = std::max(fontwidth, (int)glyph->width);
+		charcode = FT_Get_Next_Char(face, charcode, &gindex);
+	}
+	//printf("Font::setSize() %s: fontwidth=%d fontwidth_widest=%d\n", face->family_name, fontwidth, fontwidth_widest);
 
 	index=FT_Get_Char_Index(face, 'g'); // "g" gives us descender
 	getGlyphBitmap(index, &glyph);
@@ -317,6 +328,11 @@ return 0;
 int Font::getWidth(void)
 {
 	return fontwidth;
+}
+
+int Font::getWidestWidth(void)
+{
+	return fontwidth_widest;
 }
 
 int Font::getHeight(void)

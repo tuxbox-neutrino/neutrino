@@ -63,6 +63,7 @@ font_sizes_struct fixed_font[SNeutrinoSettings::FONT_TYPE_FIXED_COUNT] =
 
 const font_sizes_struct signal_font = {NONEXISTANT_LOCALE, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
 const font_sizes_struct shell_font = {NONEXISTANT_LOCALE, 18, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
+const font_sizes_struct icon_font = {NONEXISTANT_LOCALE, 14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1};
 
 CNeutrinoFonts::CNeutrinoFonts()
 {
@@ -82,6 +83,7 @@ CNeutrinoFonts::CNeutrinoFonts()
 
 	g_SignalFont = NULL;
 	g_ShellFont = NULL;
+	g_IconFont = NULL;
 
 	InitDynFonts();
 }
@@ -258,6 +260,41 @@ void CNeutrinoFonts::SetupShellFont()
 	g_ShellFont = g_shellFontRenderer->getFont(shell_font_name.c_str(), fontStyle[shell_font.style].c_str(), shell_font_size);
 	if (g_ShellFont)
 		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] shell font family: %s (%s)\n", __func__, __LINE__, shell_font_name.c_str(), shell_ttf.c_str());
+}
+
+std::string CNeutrinoFonts::getIconTTF()
+{
+	const char *icon_ttf[2] = { FONTDIR_VAR "/fa-solid-900.ttf", FONTDIR "/fa-solid-900.ttf" };
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		if (access(icon_ttf[i], F_OK) == 0)
+			return (std::string)icon_ttf[i];
+	}
+	return "";
+}
+
+void CNeutrinoFonts::SetupIconFont()
+{
+	if (g_IconFont)
+	{
+		delete g_IconFont;
+		g_IconFont = NULL;
+	}
+
+	std::string icon_ttf = getIconTTF();
+	if (access(icon_ttf.c_str(), F_OK) != 0)
+		return;
+
+	if (g_iconFontRenderer != NULL)
+		delete g_iconFontRenderer;
+	g_iconFontRenderer = new FBFontRenderClass();
+	g_iconFontRenderer->AddFont(icon_ttf.c_str());
+
+	std::string icon_font_name = g_iconFontRenderer->getFamily(icon_ttf.c_str());
+	int icon_font_size = CFrameBuffer::getInstance()->scale2Res(icon_font.defaultsize)/* + icon_font.size_offset * fontDescr.size_offset*/;
+	g_IconFont = g_iconFontRenderer->getFont(icon_font_name.c_str(), fontStyle[icon_font.style].c_str(), icon_font_size);
+	if (g_IconFont)
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] icon font family: %s (%s)\n", __func__, __LINE__, icon_font_name.c_str(), icon_ttf.c_str());
 }
 
 void CNeutrinoFonts::refreshDynFonts()

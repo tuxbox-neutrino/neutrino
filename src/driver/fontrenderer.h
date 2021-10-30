@@ -54,6 +54,7 @@ class Font
 	// these are HACKED values, because the font metrics were unusable.
 	int height,DigitHeight,DigitOffset,ascender,descender,upper,lower;
 	int fontwidth;
+	int fontwidth_widest;
 	int maxdigitwidth;
 	uint8_t fg_red, fg_green, fg_blue;
 	fb_pixel_t colors[256];
@@ -86,6 +87,7 @@ class Font
 	int getMaxDigitWidth(void);
 	int getDigitOffset(void);
 	int getWidth(void);
+	int getWidestWidth(void);
 	int getSize(){return font.width;}
 	int setSize(int isize);
 

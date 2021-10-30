@@ -2748,6 +2748,8 @@ void CNeutrinoApp::SetupFonts(int fmode)
 		neutrinoFonts->refreshDynFonts();
 	}
 
+	neutrinoFonts->SetupIconFont();
+
 	/* recalculate infobar position */
 	if (g_InfoViewer)
 		g_InfoViewer->start();
@@ -5503,6 +5505,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete g_fixedFontRenderer;
 			delete g_dynFontRenderer;
 			delete g_shellFontRenderer;
+			delete g_iconFontRenderer;
 
 			delete hint;
 
@@ -6112,6 +6115,9 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup g_shellFontRenderer\n"); fflush(stdout);
 	delete g_shellFontRenderer; g_shellFontRenderer = NULL;
 
+	printf("cleanup g_iconFontRenderer\n"); fflush(stdout);
+	delete g_iconFontRenderer; g_iconFontRenderer = NULL;
+
 	printf("cleanup g_PicViewer\n"); fflush(stdout);
 	delete g_PicViewer; g_PicViewer = NULL;
 
@@ -6197,6 +6203,9 @@ void CNeutrinoApp::Cleanup()
 
 	printf("cleanup g_ShellFont\n"); fflush(stdout);
 	delete g_ShellFont; g_ShellFont = NULL;
+
+	printf("cleanup g_IconFont\n"); fflush(stdout);
+	delete g_IconFont; g_IconFont = NULL;
 
 	printf("cleanup g_settings.usermenu[]\n"); fflush(stdout);
 	for (unsigned int i = 0; i < g_settings.usermenu.size(); ++i)

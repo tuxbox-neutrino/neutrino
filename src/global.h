@@ -61,12 +61,14 @@ NEUTRINO_CPP FBFontRenderClass *g_fontRenderer;
 NEUTRINO_CPP FBFontRenderClass *g_fixedFontRenderer;
 NEUTRINO_CPP FBFontRenderClass *g_dynFontRenderer;
 NEUTRINO_CPP FBFontRenderClass *g_shellFontRenderer;
+NEUTRINO_CPP FBFontRenderClass *g_iconFontRenderer;
 
 class Font;
 NEUTRINO_CPP Font *g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
 NEUTRINO_CPP Font *g_FixedFont[SNeutrinoSettings::FONT_TYPE_FIXED_COUNT];
 NEUTRINO_CPP Font *g_SignalFont;
 NEUTRINO_CPP Font *g_ShellFont;
+NEUTRINO_CPP Font *g_IconFont;
 
 #ifdef HAVE_CONTROLD
 class CControldClient;

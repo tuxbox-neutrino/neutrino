@@ -21,6 +21,12 @@ if BOXMODEL_CST_HD2
 install_DATA += UnDotum.ttf
 endif
 
+if ! BOXMODEL_CST_HD1
+# icon font
+install_DATA += \
+	fa-solid-900.ttf
+endif
+
 install-data-hook:
 	cd $(DESTDIR)$(FONTDIR); \
 		mv $(neutrino_ttf) neutrino.ttf; \
