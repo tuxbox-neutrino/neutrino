@@ -1240,22 +1240,22 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_WAV:
 			case CFile::FILE_FLAC:
 			case CFile::FILE_AAC:
-				fileicon = g_IconFont ? ICONFONT_MUSIC : NEUTRINO_ICON_MP3;
+				fileicon = g_IconFont ? FA_MUSIC : NEUTRINO_ICON_MP3;
 				break;
 
 			case CFile::FILE_PLAYLIST:
-				fileicon = g_IconFont ? ICONFONT_LIST : NEUTRINO_ICON_MP3;
+				fileicon = g_IconFont ? FA_LIST : NEUTRINO_ICON_MP3;
 				break;
 
 			case CFile::FILE_DIR:
 				if (actual_file->getFileName() == "..")
-					fileicon = g_IconFont ? ICONFONT_FOLDER_OPEN : NEUTRINO_ICON_FOLDER;
+					fileicon = g_IconFont ? FA_FOLDER_OPEN : NEUTRINO_ICON_FOLDER;
 				else
-					fileicon = g_IconFont ? ICONFONT_FOLDER : NEUTRINO_ICON_FOLDER;
+					fileicon = g_IconFont ? FA_FOLDER : NEUTRINO_ICON_FOLDER;
 				break;
 
 			case CFile::FILE_PICTURE:
-				fileicon = g_IconFont ? ICONFONT_IMAGE : NEUTRINO_ICON_PICTURE;
+				fileicon = g_IconFont ? FA_IMAGE : NEUTRINO_ICON_PICTURE;
 				break;
 
 			case CFile::FILE_AVI:
@@ -1264,12 +1264,12 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_VOB:
 			case CFile::FILE_MPG:
 			case CFile::FILE_TS:
-				fileicon = g_IconFont ? ICONFONT_FILM : NEUTRINO_ICON_MOVIE;
+				fileicon = g_IconFont ? FA_FILM : NEUTRINO_ICON_MOVIE;
 				break;
 
 			case CFile::FILE_TEXT:
 			default:
-				fileicon = g_IconFont ? ICONFONT_FILE : NEUTRINO_ICON_FILE;
+				fileicon = g_IconFont ? FA_FILE : NEUTRINO_ICON_FILE;
 		}
 
 		int icon_w = 0;
