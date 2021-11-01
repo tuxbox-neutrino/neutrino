@@ -1282,7 +1282,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			icon_w = g_IconFont->getWidestWidth();
 			int icon_w_real = g_IconFont->getRenderWidth(fileicon);
 			int spacer_x = (icon_w - icon_w_real) / 2;
-			g_IconFont->RenderString(x + OFFSET_INNER_MID + spacer_x, ypos + g_IconFont->getHeight() /*item_height - spacer_y*/, icon_w_real, fileicon, color);
+			g_IconFont->RenderString(x + OFFSET_INNER_MID + spacer_x, ypos + g_IconFont->getHeight(), icon_w_real, fileicon, color);
 			g_IconFont->setSize(iconfont_size);
 		}
 		else
