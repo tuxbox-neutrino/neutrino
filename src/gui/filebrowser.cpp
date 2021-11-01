@@ -32,6 +32,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/msgbox.h>
+#include <gui/widget/hourglass.h>
 
 #include <algorithm>
 #include <iostream>
@@ -292,6 +293,9 @@ CFile *CFileBrowser::getSelectedFile()
 
 void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 {
+	CHourGlass hg(x + width/2, y + height/3);
+	hg.setXPos(hg.getXPos()-hg.getWidth()/2);
+	hg.paint(false);
 	std::string newpath;
 	if ((m_Mode != ModeSC) && (filename == ".."))
 	{
@@ -348,6 +352,7 @@ void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 	if ((selection != -1) && (selection < (int)filelist.size()))
 		selected = selection;
 
+	hg.kill(COL_MENUCONTENT_PLUS_0);
 	paintHead();
 	paint();
 	paintFoot();
