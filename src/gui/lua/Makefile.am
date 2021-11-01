@@ -34,6 +34,7 @@ libneutrino_gui_lua_a_SOURCES = \
 	lua_curl.cpp \
 	lua_filehelpers.cpp \
 	lua_hintbox.cpp \
+	lua_hourglass.cpp \
 	lua_menue.cpp \
 	lua_messagebox.cpp \
 	lua_misc.cpp \
