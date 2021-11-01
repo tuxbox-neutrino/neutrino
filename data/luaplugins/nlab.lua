@@ -125,17 +125,18 @@ elseif a[2] == "misc" then
 	end
 	misc = nil
 
---[[ FIXME: won't work
 elseif a[2] == "video" then
 	-- see src/gui/lua/lua_video.cpp
 
 	video = video.new()
 	if a[3] == "showpicture" and a[4] ~= nil then
-		r = video:ShowPicture(a[4])
+		video:zapitStopPlayBack()
+		r = video:ShowPicture(arg[4])
 	elseif a[3] == "stoppicture" then
+		video:zapitStopPlayBack(false)
 		r = video:StopPicture()
 	end
-]]
+
 end
 
 if r ~= nil and r ~= "" then
