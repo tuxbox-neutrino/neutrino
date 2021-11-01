@@ -1,28 +1,14 @@
 installdir = $(LOCALEDIR)
 
-locale = \
-	nederlands.locale \
+install_DATA = \
 	deutsch.locale \
-	english.locale \
+	english.locale
+
+unmaintained = \
+	nederlands.locale \
 	slovak.locale
 
-locale_unmaintained = \
-	unmaintained/bayrisch.locale \
-	unmaintained/bosanski.locale \
-	unmaintained/ch-baslerdeutsch.locale \
-	unmaintained/ch-berndeutsch.locale \
-	unmaintained/czech.locale \
-	unmaintained/francais.locale \
-	unmaintained/italiano.locale \
-	unmaintained/polski.locale \
-	unmaintained/portugues.locale \
-	unmaintained/russkij.locale \
-	unmaintained/suomi.locale \
-	unmaintained/svenska.locale
-
-install_DATA  = $(locale)
 # install_DATA += $(locale_unmaintained)
-
 
 if MAINTAINER_MODE
 
