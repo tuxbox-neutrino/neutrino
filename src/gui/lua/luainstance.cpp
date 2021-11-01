@@ -48,6 +48,7 @@
 #include "lua_configfile.h"
 #include "lua_curl.h"
 #include "lua_filehelpers.h"
+#include "lua_hint.h"
 #include "lua_hintbox.h"
 #include "lua_hourglass.h"
 #include "lua_menue.h"
@@ -761,6 +762,7 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 	CLuaInstConfigFile::getInstance()->LuaConfigFileRegister(L);
 	CLuaInstCurl::getInstance()->LuaCurlRegister(L);
 	CLuaInstFileHelpers::getInstance()->LuaFileHelpersRegister(L);
+	CLuaInstHint::getInstance()->HintRegister(L);
 	CLuaInstHintbox::getInstance()->HintboxRegister(L);
 	CLuaInstHourGlass::getInstance()->HourGlassRegister(L);
 	CLuaInstMenu::getInstance()->MenuRegister(L);
