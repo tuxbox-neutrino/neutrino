@@ -843,7 +843,8 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 #endif
 			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
 #ifdef FBV_SUPPORT_SVG
-		if (name.find(".svg") == (name.length() - 4)) bpp = 4;
+		if (name.find(".svg") == (name.length() - 4))
+			bpp = 4;
 #endif
 		dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] load_result: %d \n", __func__, __LINE__, load_ret);
 
