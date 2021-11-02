@@ -106,7 +106,10 @@ void CHourGlass::paint(const bool &do_save_bg)
 
 	cc_bg_image = frameBuffer->getIconPath(hg_img_files.at(hg_file_num), "png");
 
-	hide();
+	if (do_save_bg)
+		hide();
+	else
+		kill();
 
 	if (!hg_timer->isRun())
 		hg_timer->startTimer();
