@@ -1544,8 +1544,8 @@ void nsvgRasterizeFull(NSVGrasterizer* r,
 		if (r->scanline == NULL) return;
 	}
 
-	// for (i = 0; i < h; i++)
-	// 	memset(&dst[i*stride], 0, w*4);
+	for (i = 0; i < h; i++)
+		memset(&dst[i*stride], 0, w*4);
 
 	for (shape = image->shapes; shape != NULL; shape = shape->next)
 	{
