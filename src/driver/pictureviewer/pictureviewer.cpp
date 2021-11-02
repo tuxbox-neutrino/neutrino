@@ -46,7 +46,7 @@ extern int fh_crw_id (const char *);
 #ifdef FBV_SUPPORT_SVG
 extern int fh_svg_getsize (const char *, int *, int *, int, int);
 extern int fh_svg_load (const char *, unsigned char **, int *, int *);
-extern int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int* dx, int* dy);
+extern int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int dx, int dy);
 extern int fh_svg_id (const char *);
 #endif
 double CPictureViewer::m_aspect_ratio_correction;
@@ -865,7 +865,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 #ifdef FBV_SUPPORT_SVG
 					if (name.find(".svg") == (name.length() - 4))
 					{
-						svg_load_resize(name.c_str(), &buffer, &x, &y, width, height);
+						svg_load_resize(name.c_str(), &buffer, &x, &y, *width, *height);
 						if (x != *width || y != *height)
 							buffer = ResizeA(buffer, x, y, *width, *height);
 					}

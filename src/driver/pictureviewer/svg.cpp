@@ -108,9 +108,9 @@ error:
 	return 0;
 }
 
-int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int* dx, int* dy);
+int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int dx, int dy);
 
-int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int* dx, int* dy)
+int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, int dx, int dy)
 {
 	NSVGimage *image = NULL;
 	NSVGrasterizer *rast = NULL;
@@ -134,8 +134,8 @@ int svg_load_resize(const char *name, unsigned char **buffer, int* ox, int* oy, 
 	}
 
 	float scale_w,scale_h;
-	scale_w = *dx/w;
-	scale_h = *dy/h;
+	scale_w = (float)dx/(float)w;
+	scale_h = (float)dy/(float)h;
 
 	w = (int)(w*scale_w);
 	h = (int)(h*scale_h);
