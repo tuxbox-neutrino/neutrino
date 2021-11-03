@@ -55,14 +55,10 @@
 #define DEFAULT_BPP  32
 
 #define LOGTAG "[fb_accel_sti] "
-#if 0
 static int bpafd = -1;
-#endif
-#define BB_DIMENSION ( DEFAULT_XRES * DEFAULT_YRES )
-static size_t lfb_sz = 1920 * 1080;	/* offset from fb start in 'pixels' */
-static size_t lbb_off = lfb_sz * sizeof(fb_pixel_t);	/* same in bytes */
-static int backbuf_sz = BB_DIMENSION * sizeof(fb_pixel_t); /* size of blitting buffer in bytes */
-static size_t backbuf_off = lbb_off + backbuf_sz;
+static size_t lbb_sz = 1920 * 1080;	/* offset from fb start in 'pixels' */
+static size_t lbb_off = lbb_sz * sizeof(fb_pixel_t);	/* same in bytes */
+static int backbuf_sz = 0;
 
 void CFbAccelSTi::waitForIdle(const char *)
 {
@@ -98,23 +94,21 @@ void CFbAccelSTi::init(const char * const)
 	memset(lfb, 0, available);
 
 	lbb = lfb;	/* the memory area to draw to... */
-	if (available < 15*1024*1024)
+	if (available < 12*1024*1024)
 	{
 		/* for old installations that did not upgrade their module config
 		 * it will still work good enough to display the message below */
 		fprintf(stderr, "[neutrino] WARNING: not enough framebuffer memory available!\n");
-		fprintf(stderr, "[neutrino]          I need at least 15MB.\n");
+		fprintf(stderr, "[neutrino]          I need at least 12MB.\n");
 		FILE *f = fopen("/tmp/infobar.txt", "w");
 		if (f) {
 			fprintf(f, "NOT ENOUGH FRAMEBUFFER MEMORY!");
 			fclose(f);
 		}
-		lfb_sz = 0;
+		lbb_sz = 0;
 		lbb_off = 0;
 	}
-	lbb = lfb + lfb_sz;
-	backbuffer = lbb + BB_DIMENSION;
-#if 0
+	lbb = lfb + lbb_sz;
 	bpafd = open("/dev/bpamem0", O_RDWR | O_CLOEXEC);
 	if (bpafd < 0)
 	{
@@ -155,6 +149,10 @@ void CFbAccelSTi::init(const char * const)
 		bpafd = -1;
 		return;
 	}
+#ifdef PARTIAL_BLIT
+	to_blit.xs = to_blit.ys = INT_MAX;
+	to_blit.xe = to_blit.ye = 0;
+	last_xres = 0;
 #endif
 
 	/* start the autoblit-thread (run() function) */
@@ -169,7 +167,6 @@ CFbAccelSTi::~CFbAccelSTi()
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
-#if 0
 	if (backbuffer)
 	{
 		fprintf(stderr, LOGTAG "unmap backbuffer\n");
@@ -181,7 +178,6 @@ CFbAccelSTi::~CFbAccelSTi()
 		ioctl(bpafd, BPAMEMIO_FREEMEM);
 		close(bpafd);
 	}
-#endif
 	if (lfb)
 		munmap(lfb, available);
 	if (fd > -1)
@@ -279,7 +275,7 @@ void CFbAccelSTi::paintRect(const int x, const int y, const int dx, const int dy
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
 		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", xx,yy,width,height,stride);
-	//blit();
+	blit();
 }
 
 /* width / height => source surface   *
@@ -303,7 +299,7 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 	unsigned long ulFlags = 0;
 	if (!transp) /* transp == false (default): use transparency from source alphachannel */
 		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
-#if 0
+
 	STMFBIO_BLT_EXTERN_DATA blt_data;
 	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
 	blt_data.operation  = BLT_OP_COPY;
@@ -343,38 +339,6 @@ void CFbAccelSTi::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_
 				blt_data.src_left, blt_data.src_top, blt_data.src_right, blt_data.src_bottom,
 				blt_data.srcOffset, blt_data.srcPitch, blt_data.srcMemSize);
 	}
-#else
-	STMFBIO_BLT_DATA blt_data;
-	memset(&blt_data, 0, sizeof(STMFBIO_BLT_DATA));
-	blt_data.operation  = BLT_OP_COPY;
-	blt_data.ulFlags    = ulFlags;
-	blt_data.srcOffset  = backbuf_off;
-	blt_data.srcPitch   = width * 4;
-	blt_data.dstOffset  = lbb_off;
-	blt_data.dstPitch   = stride;
-	blt_data.src_left   = xp;
-	blt_data.src_top    = yp;
-	blt_data.src_right  = width;
-	blt_data.src_bottom = bottom;
-	blt_data.dst_left   = x;
-	blt_data.dst_top    = y;
-	blt_data.dst_right  = x + dw;
-	blt_data.dst_bottom = y + dh;
-	blt_data.srcFormat  = SURF_ARGB8888;
-	blt_data.dstFormat  = SURF_ARGB8888;
-	blt_data.srcMemBase = STMFBGP_FRAMEBUFFER;
-	blt_data.dstMemBase = STMFBGP_FRAMEBUFFER;
-
-	mark(x, y, blt_data.dst_right, blt_data.dst_bottom);
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	ioctl(fd, STMFBIO_SYNC_BLITTER);
-	if (fbbuff != tmpbuff)
-		memmove(backbuffer, fbbuff, mem_sz);
-	// icons are so small that they will still be in cache
-	msync(backbuffer, backbuf_sz, MS_SYNC);
-	if (ioctl(fd, STMFBIO_BLT, &blt_data ) < 0)
-		perror(LOGTAG "blit2FB STMFBIO_BLT");
-#endif
 	return;
 }
 
@@ -439,10 +403,20 @@ void CFbAccelSTi::_blit()
 	last = now;
 #endif
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+#ifdef PARTIAL_BLIT
+	if (to_blit.xs == INT_MAX)
+		return;
+
+	int srcXa = to_blit.xs;
+	int srcYa = to_blit.ys;
+	int srcXb = to_blit.xe;
+	int srcYb = to_blit.ye;
+#else
 	const int srcXa = 0;
 	const int srcYa = 0;
 	int srcXb = xRes;
 	int srcYb = yRes;
+#endif
 	STMFBIO_BLT_DATA  bltData;
 	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
 
@@ -465,10 +439,29 @@ void CFbAccelSTi::_blit()
 	if (ioctl(fd, FBIOGET_VSCREENINFO, &s) == -1)
 		perror("CFbAccel <FBIOGET_VSCREENINFO>");
 
+#ifdef PARTIAL_BLIT
+	if (s.xres != last_xres) /* fb resolution has changed -> clear artifacts */
+	{
+		last_xres = s.xres;
+		bltData.src_left   = 0;
+		bltData.src_top    = 0;
+		bltData.src_right  = xRes;
+		bltData.src_bottom = yRes;
+	}
+
+	double xFactor = (double)s.xres/(double)xRes;
+	double yFactor = (double)s.yres/(double)yRes;
+
+	int desXa = xFactor * bltData.src_left;
+	int desYa = yFactor * bltData.src_top;
+	int desXb = xFactor * bltData.src_right;
+	int desYb = yFactor * bltData.src_bottom;
+#else
 	const int desXa = 0;
 	const int desYa = 0;
 	int desXb = s.xres;
 	int desYb = s.yres;
+#endif
 
 	/* dst */
 	bltData.dstOffset  = 0;
@@ -494,11 +487,52 @@ void CFbAccelSTi::_blit()
 		perror(LOGTAG "STMFBIO_BLT");
 	if(ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
 		perror(LOGTAG "blit ioctl STMFBIO_SYNC_BLITTER 2");
+
+#ifdef PARTIAL_BLIT
+	to_blit.xs = to_blit.ys = INT_MAX;
+	to_blit.xe = to_blit.ye = 0;
+#endif
 }
 
+/* not really used yet */
+#ifdef PARTIAL_BLIT
+void CFbAccelSTi::mark(int xs, int ys, int xe, int ye)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (xs < to_blit.xs)
+		to_blit.xs = xs;
+	if (ys < to_blit.ys)
+		to_blit.ys = ys;
+	if (xe > to_blit.xe) {
+		if (xe >= (int)xRes)
+			to_blit.xe = xRes - 1;
+		else
+			to_blit.xe = xe;
+	}
+	if (ye > to_blit.ye) {
+		if (ye >= (int)xRes)
+			to_blit.ye = yRes - 1;
+		else
+			to_blit.ye = ye;
+	}
+#if 0
+	/* debug code that kills neutrino right away if the blit area is invalid
+	 * only enable this for creating a coredump for debugging */
+	fb_var_screeninfo s;
+	if (ioctl(fd, FBIOGET_VSCREENINFO, &s) == -1)
+		perror("CFbAccel <FBIOGET_VSCREENINFO>");
+	if ((xe > s.xres) || (ye > s.yres)) {
+		fprintf(stderr, LOGTAG "mark: values out of range xe:%d ye:%d\n", xe, ye);
+		int *kill = NULL;
+		*kill = 1; /* oh my */
+	}
+#endif
+}
+#else
 void CFbAccelSTi::mark(int, int, int, int)
 {
 }
+#endif
 
 /* wrong name... */
 int CFbAccelSTi::setMode(unsigned int, unsigned int, unsigned int)
