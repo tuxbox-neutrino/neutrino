@@ -474,9 +474,9 @@ _TUXBOX_APPS_LIB_PKGCONFIG($1,$2)
 
 AC_DEFUN([TUXBOX_BOXTYPE], [
 AC_ARG_WITH(boxtype,
-	AS_HELP_STRING([--with-boxtype], [valid values: generic, spark, coolstream, armbox, mipsbox]),
+	AS_HELP_STRING([--with-boxtype], [valid values: generic, coolstream, armbox, mipsbox]),
 	[case "${withval}" in
-		generic|spark|coolstream|armbox|mipsbox)
+		generic|coolstream|armbox|mipsbox)
 			BOXTYPE="$withval"
 		;;
 		*)
@@ -541,7 +541,6 @@ AC_SUBST(BOXTYPE)
 AC_SUBST(BOXMODEL)
 
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
-AM_CONDITIONAL(BOXTYPE_SPARK, test "$BOXTYPE" = "spark")
 AM_CONDITIONAL(BOXTYPE_CST, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_ARMBOX, test "$BOXTYPE" = "armbox")
 AM_CONDITIONAL(BOXTYPE_MIPSBOX, test "$BOXTYPE" = "mipsbox")
@@ -587,8 +586,6 @@ AM_CONDITIONAL(BOXMODEL_OSNINOPRO, test "$BOXMODEL" = "osninopro")
 
 if test "$BOXTYPE" = "generic"; then
 	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
-elif test "$BOXTYPE" = "spark"; then
-	AC_DEFINE(HAVE_SPARK_HARDWARE, 1, [building for a goldenmedia 990 or edision pingulux])
 elif test "$BOXTYPE" = "coolstream"; then
 	AC_DEFINE(HAVE_CST_HARDWARE, 1, [building for a coolstream])
 elif test "$BOXTYPE" = "armbox"; then

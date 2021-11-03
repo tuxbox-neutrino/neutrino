@@ -1512,11 +1512,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		repeat_mode = (repeat_mode_enum) g_settings.movieplayer_repeat_on;
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-#if HAVE_SPARK_HARDWARE
-		CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-		CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-		CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-#endif
 		if (timeshift != TSHIFT_MODE_OFF) {
 			startposition = -1;
 			int i;
@@ -1545,12 +1540,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 				{
 					speed = 0;
 					playstate = CMoviePlayerGui::PAUSE;
-#if HAVE_SPARK_HARDWARE
-					CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
-					CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-					CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-					CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, true);
-#endif
 				}
 				if (timeshift == TSHIFT_MODE_ON)
 					startposition = 0;
@@ -1906,12 +1895,6 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			FileTimeOSD->setMpTimeForced(false);
 			if (playstate > CMoviePlayerGui::PLAY) {
 				playstate = CMoviePlayerGui::PLAY;
-#if HAVE_SPARK_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 				speed = 1;
 				playback->SetSpeed(speed);
 				updateLcd();
@@ -1951,23 +1934,11 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
-#if HAVE_SPARK_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 				speed = 1;
 				playback->SetSpeed(speed);
 			} else {
 				playstate = CMoviePlayerGui::PAUSE;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
-#if HAVE_SPARK_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 				speed = 0;
 				playback->SetSpeed(speed);
 			}
@@ -2004,20 +1975,8 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			bool setSpeed = false;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
 				newspeed = (speed >= 0) ? -1 : (speed - 1);
-#if HAVE_SPARK_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 			} else {
 				newspeed = (speed <= 0) ? 2 : (speed + 1);
-#if HAVE_SPARK_HARDWARE
-				CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
-				CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-				CVFD::getInstance()->ShowIcon(FP_ICON_FF, true);
-#endif
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
 			if (playback->SetSpeed(newspeed)) {
@@ -2234,10 +2193,6 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
-#if HAVE_SPARK_HARDWARE
-	CVFD::getInstance()->ShowIcon(FP_ICON_FR, false);
-	CVFD::getInstance()->ShowIcon(FP_ICON_FF, false);
-#endif
 
 	if (restore)
 		restoreNeutrino();

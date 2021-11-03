@@ -162,11 +162,10 @@ if test "$BOXTYPE" = "coolstream"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
 fi
 
-if test "$BOXTYPE" = "coolstream" ||
+if test "$BOXTYPE" = "generic" ||
+   test "$BOXTYPE" = "coolstream" ||
    test "$BOXTYPE" = "armbox" ||
-   test "$BOXTYPE" = "mipsbox" ||
-   test "$BOXTYPE" = "generic" ||
-   test "$BOXTYPE" = "spark"; then
+   test "$BOXTYPE" = "mipsbox"; then
 	AC_DEFINE(SCREENSHOT, 1, [Define to 1 if the platform supports screenshots])
 fi
 

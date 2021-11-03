@@ -25,9 +25,6 @@
 */
 
 #include <config.h>
-#if HAVE_SPARK_HARDWARE
-#define HAVE_GENERIC_HARDWARE 1
-#endif
 #include "lcddisplay.h"
 
 #include <png.h>

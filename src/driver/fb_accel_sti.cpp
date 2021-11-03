@@ -156,11 +156,6 @@ void CFbAccelSTi::init(const char * const)
 		return;
 	}
 #endif
-#ifdef PARTIAL_BLIT
-	to_blit.xs = to_blit.ys = INT_MAX;
-	to_blit.xe = to_blit.ye = 0;
-	last_xres = 0;
-#endif
 
 	/* start the autoblit-thread (run() function) */
 	OpenThreads::Thread::start();
@@ -444,20 +439,10 @@ void CFbAccelSTi::_blit()
 	last = now;
 #endif
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-#ifdef PARTIAL_BLIT
-	if (to_blit.xs == INT_MAX)
-		return;
-
-	int srcXa = to_blit.xs;
-	int srcYa = to_blit.ys;
-	int srcXb = to_blit.xe;
-	int srcYb = to_blit.ye;
-#else
 	const int srcXa = 0;
 	const int srcYa = 0;
 	int srcXb = xRes;
 	int srcYb = yRes;
-#endif
 	STMFBIO_BLT_DATA  bltData;
 	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
 
@@ -480,29 +465,10 @@ void CFbAccelSTi::_blit()
 	if (ioctl(fd, FBIOGET_VSCREENINFO, &s) == -1)
 		perror("CFbAccel <FBIOGET_VSCREENINFO>");
 
-#ifdef PARTIAL_BLIT
-	if (s.xres != last_xres) /* fb resolution has changed -> clear artifacts */
-	{
-		last_xres = s.xres;
-		bltData.src_left   = 0;
-		bltData.src_top    = 0;
-		bltData.src_right  = xRes;
-		bltData.src_bottom = yRes;
-	}
-
-	double xFactor = (double)s.xres/(double)xRes;
-	double yFactor = (double)s.yres/(double)yRes;
-
-	int desXa = xFactor * bltData.src_left;
-	int desYa = yFactor * bltData.src_top;
-	int desXb = xFactor * bltData.src_right;
-	int desYb = yFactor * bltData.src_bottom;
-#else
 	const int desXa = 0;
 	const int desYa = 0;
 	int desXb = s.xres;
 	int desYb = s.yres;
-#endif
 
 	/* dst */
 	bltData.dstOffset  = 0;
@@ -528,52 +494,11 @@ void CFbAccelSTi::_blit()
 		perror(LOGTAG "STMFBIO_BLT");
 	if(ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
 		perror(LOGTAG "blit ioctl STMFBIO_SYNC_BLITTER 2");
-
-#ifdef PARTIAL_BLIT
-	to_blit.xs = to_blit.ys = INT_MAX;
-	to_blit.xe = to_blit.ye = 0;
-#endif
 }
 
-/* not really used yet */
-#ifdef PARTIAL_BLIT
-void CFbAccelSTi::mark(int xs, int ys, int xe, int ye)
-{
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	if (xs < to_blit.xs)
-		to_blit.xs = xs;
-	if (ys < to_blit.ys)
-		to_blit.ys = ys;
-	if (xe > to_blit.xe) {
-		if (xe >= (int)xRes)
-			to_blit.xe = xRes - 1;
-		else
-			to_blit.xe = xe;
-	}
-	if (ye > to_blit.ye) {
-		if (ye >= (int)xRes)
-			to_blit.ye = yRes - 1;
-		else
-			to_blit.ye = ye;
-	}
-#if 0
-	/* debug code that kills neutrino right away if the blit area is invalid
-	 * only enable this for creating a coredump for debugging */
-	fb_var_screeninfo s;
-	if (ioctl(fd, FBIOGET_VSCREENINFO, &s) == -1)
-		perror("CFbAccel <FBIOGET_VSCREENINFO>");
-	if ((xe > s.xres) || (ye > s.yres)) {
-		fprintf(stderr, LOGTAG "mark: values out of range xe:%d ye:%d\n", xe, ye);
-		int *kill = NULL;
-		*kill = 1; /* oh my */
-	}
-#endif
-}
-#else
 void CFbAccelSTi::mark(int, int, int, int)
 {
 }
-#endif
 
 /* wrong name... */
 int CFbAccelSTi::setMode(unsigned int, unsigned int, unsigned int)

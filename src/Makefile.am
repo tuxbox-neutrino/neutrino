@@ -194,10 +194,6 @@ neutrino_LDADD += \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@
 
-if BOXTYPE_SPARK
-neutrino_LDADD += -lass
-endif
-
 if BOXTYPE_MIPSBOX
 neutrino_LDADD += -lass
 endif

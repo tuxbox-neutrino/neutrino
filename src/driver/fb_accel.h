@@ -29,10 +29,6 @@
 #include <OpenThreads/Condition>
 #include "fb_generic.h"
 
-#if HAVE_SPARK_HARDWARE
-#define PARTIAL_BLIT 1
-#endif
-
 class CFbAccel
 	: public CFrameBuffer
 {
@@ -55,15 +51,6 @@ class CFbAccelSTi
 		OpenThreads::Condition blit_cond;
 		OpenThreads::Mutex blit_mutex;
 		fb_pixel_t *backbuffer;
-#ifdef PARTIAL_BLIT
-		struct {
-			int xs;
-			int ys;
-			int xe;
-			int ye;
-		} to_blit;
-		uint32_t last_xres;
-#endif
 	public:
 		CFbAccelSTi();
 		~CFbAccelSTi();
