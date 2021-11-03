@@ -419,6 +419,12 @@ enum NSVGunits
 	NSVG_UNITS_EX
 };
 
+enum NSVGvisibility
+{
+	NSVG_VIS_DISPLAY = 1,
+	NSVG_VIS_VISIBLE = 2,
+};
+
 typedef struct NSVGcoordinate
 {
 	float value;
@@ -708,7 +714,7 @@ static NSVGparser* nsvg__createParser()
 	p->attr[0].miterLimit = 4;
 	p->attr[0].fillRule = NSVG_FILLRULE_NONZERO;
 	p->attr[0].hasFill = 1;
-	p->attr[0].visible = 1;
+	p->attr[0].visible = NSVG_VIS_DISPLAY | NSVG_VIS_VISIBLE;
 
 	return p;
 
@@ -996,8 +1002,8 @@ static NSVGgradient* nsvg__createGradient(NSVGparser* p, const char* id, const f
 		grad->xform[3] = r;
 		grad->xform[4] = cx;
 		grad->xform[5] = cy;
-		grad->fx = fx / r;
-		grad->fy = fy / r;
+		grad->fx = (fx - cx) / r;
+		grad->fy = (fy - cy) / r;
 	}
 
 	nsvg__xformMultiply(grad->xform, data->xform);
@@ -1143,7 +1149,7 @@ static void nsvg__addShape(NSVGparser* p)
 	}
 
 	// Set flags
-	shape->flags = (attr->visible ? NSVG_FLAGS_VISIBLE : 0x00);
+	shape->flags = ((attr->visible & NSVG_VIS_DISPLAY) && (attr->visible & NSVG_VIS_VISIBLE) ? NSVG_FLAGS_VISIBLE : 0x00);
 
 	// Add to tail
 	if (p->image->shapes == NULL)
@@ -1229,7 +1235,7 @@ static double nsvg__atof(const char* s)
 	char* cur = (char*)s;
 	char* end = NULL;
 	double res = 0.0, sign = 1.0;
-	long long intPart = 0, fracPart = 0;
+	double intPart = 0.0, fracPart = 0.0;
 	char hasIntPart = 0, hasFracPart = 0;
 
 	// Parse optional sign
@@ -1247,10 +1253,10 @@ static double nsvg__atof(const char* s)
 	if (nsvg__isdigit(*cur))
 	{
 		// Parse digit sequence
-		intPart = strtoll(cur, &end, 10);
+		intPart = (double)strtoll(cur, &end, 10);
 		if (cur != end)
 		{
-			res = (double)intPart;
+			res = intPart;
 			hasIntPart = 1;
 			cur = end;
 		}
@@ -1263,10 +1269,10 @@ static double nsvg__atof(const char* s)
 		if (nsvg__isdigit(*cur))
 		{
 			// Parse digit sequence
-			fracPart = strtoll(cur, &end, 10);
+			fracPart = (double)strtoll(cur, &end, 10);
 			if (cur != end)
 			{
-				res += (double)fracPart / pow(10.0, (double)(end - cur));
+				res += fracPart / pow(10.0, (double)(end - cur));
 				hasFracPart = 1;
 				cur = end;
 			}
@@ -1280,12 +1286,12 @@ static double nsvg__atof(const char* s)
 	// Parse optional exponent
 	if (*cur == 'e' || *cur == 'E')
 	{
-		long expPart = 0;
+		double expPart = 0.0;
 		cur++; // skip 'E'
-		expPart = strtol(cur, &end, 10); // Parse digit sequence with sign
+		expPart = (double)strtol(cur, &end, 10); // Parse digit sequence with sign
 		if (cur != end)
 		{
-			res *= pow(10.0, (double)expPart);
+			res *= pow(10.0, expPart);
 		}
 	}
 
@@ -1382,23 +1388,37 @@ static unsigned int nsvg__parseColorRGB(const char* str)
 	if (sscanf(str, "rgb(%u, %u, %u)", &r, &g, &b) == 3)		// decimal integers
 		return NSVG_RGB(r, g, b);
 	if (sscanf(str, "rgb(%u%%, %u%%, %u%%)", &r, &g, &b) == 3)	// decimal integer percentage
-		return NSVG_RGB(r*255/100, g*255/100, b*255/100);
+	{
+		r = (r <= 100) ? ((r*255)/100) : 255;			// FLTK: clip percentages >100
+		g = (g <= 100) ? ((g*255)/100) : 255;
+		b = (b <= 100) ? ((b*255)/100) : 255;
+		return NSVG_RGB(r, g, b);
+	}
 	return NSVG_RGB(128, 128, 128);
 }
 
 static unsigned int nsvg__parseColorRGBA(const char* str)
 {
-	unsigned int r=0, g=0, b=0;
-	float a = 1.0;
-	if (sscanf(str, "rgba(%u, %u, %u, %f)", &r, &g, &b, &a) == 4)		// decimal integers
+	int r = -1, g = -1, b = -1;
+	float a = -1;
+	char s1[32]="", s2[32]="", s3[32]="";
+	sscanf(str + 5, "%d%[%%, \t]%d%[%%, \t]%d%[%%, \t]%f", &r, s1, &g, s2, &b, s3, &a);
+	if (strchr(s1, '%'))
 	{
-		float alpha = a * 255;
-		if (alpha < 1.0) alpha = 1.0;
-		return NSVG_RGBA(r, g, b, alpha);
+		r = (r <= 100) ? ((r*255)/100) : 255;			// FLTK: clip percentages >100
+		g = (g <= 100) ? ((g*255)/100) : 255;
+		b = (b <= 100) ? ((b*255)/100) : 255;
+		a = (a <= 100) ? ((a*255)/100) : 255;
+		return NSVG_RGBA(r,g,b,a);
 	}
-	if (sscanf(str, "rgba(%u%%, %u%%, %u%%, %f)", &r, &g, &b, &a) == 4)	// decimal integer percentage
-		return NSVG_RGBA((r*255)/100, (g*255)/100, (b*255)/100, (a*255)/100);
-	return NSVG_RGBA(128, 128, 128, 1.0);
+	else
+	{
+		r = (r <= 255) ? r : 255;			// FLTK: clip percentages >100
+		g = (g <= 255) ? g : 255;
+		b = (b <= 255) ? b : 255;
+		a = (a <= 1.0) ? a*255 : 255;
+		return NSVG_RGBA(r,g,b,a);
+	}
 }
 
 typedef struct NSVGNamedColor
@@ -1925,9 +1945,19 @@ static int nsvg__parseAttr(NSVGparser* p, const char* name, const char* value)
 	else if (strcmp(name, "display") == 0)
 	{
 		if (strcmp(value, "none") == 0)
-			attr->visible = 0;
+			attr->visible &= ~NSVG_VIS_DISPLAY;
 		// Don't reset ->visible on display:inline, one display:none hides the whole subtree
-
+	}
+	else if (strcmp(name, "visibility") == 0)
+	{
+		if (strcmp(value, "hidden") == 0)
+		{
+			attr->visible &= ~NSVG_VIS_VISIBLE;
+		}
+		else if (strcmp(value, "visible") == 0)
+		{
+			attr->visible |= NSVG_VIS_VISIBLE;
+		}
 	}
 	else if (strcmp(name, "fill") == 0)
 	{
