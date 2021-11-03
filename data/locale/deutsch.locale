@@ -1081,7 +1081,6 @@ keybindingmenu.remotecontrol_hardware_msg_part1 Die Fernbedienung wurde von '
 keybindingmenu.remotecontrol_hardware_msg_part2 ' auf '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' geändert.\nIst dies korrekt?\nBitte die Auswahl innerhalb 15 Sekunden mit der neuen Fernbedienung\nbestätigen. Ansonsten wird die Auswahl zurückgesetzt.
 keybindingmenu.remotecontrol_hardware_philips Philips
-keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Anfangsverzögerung
 keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern

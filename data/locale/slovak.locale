@@ -1004,7 +1004,6 @@ keybindingmenu.remotecontrol_hardware_msg_part1 Diaľkové ovládanie bolo zmene
 keybindingmenu.remotecontrol_hardware_msg_part2 ' na '
 keybindingmenu.remotecontrol_hardware_msg_part3 \nJe to správne ?\nPotvrďte prosím tento výber do 15 sekúnd použitím nového ovládača,\ninak bude výber zrušený.
 keybindingmenu.remotecontrol_hardware_philips Philips
-keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Základné oneskorenie
 keybindingmenu.repeatblockgeneric Oneskorenie opakovania
 keybindingmenu.sort Zmena poradia triedenia

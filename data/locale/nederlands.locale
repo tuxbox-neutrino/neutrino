@@ -781,7 +781,6 @@ keybindingmenu.remotecontrol_hardware_msg_part1 De afstandsbediening is verander
 keybindingmenu.remotecontrol_hardware_msg_part2 ' naar '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs dit correct?\n Bevestig uw selectie binnen 15 seconden door uw nieuwe afstandsbediening te gebruiken.\n Anders wordt uw selectie wordt ongedaan gemaakt.
 keybindingmenu.remotecontrol_hardware_philips Philips
-keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Algemene vertraging
 keybindingmenu.repeatblockgeneric Herhaal vertraging
 keybindingmenu.sort Wijzig sorteer orde

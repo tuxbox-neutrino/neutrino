@@ -734,7 +734,6 @@ bool CHDDMenuHandler::scanDevices()
 			strcpy(vendor, "");
 		}
 
-		/* the Tripledragon only has kernel 2.6.12 available.... :-( */
 		if (oldkernel)
 			snprintf(str, sizeof(str), "/proc/ide/%s/model", namelist[i]->d_name);
 		else

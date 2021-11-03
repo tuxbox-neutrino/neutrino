@@ -268,16 +268,6 @@ class CRCInput
 			RC_analog_on	= KEY_ANALOGON,
 			RC_analog_off	= KEY_ANALOGOFF,
 
-			/* tripledragon keys */
-			RC_eject	= KEY_EJECTCD,
-			RC_aux		= KEY_AUX,          /* 0x186 */
-			RC_timer	= KEY_TIME,
-			RC_tttv		= KEY_TTTV,
-			RC_ttzoom	= KEY_TTZOOM,
-			RC_ttreveal	= KEY_REVEAL,
-			RC_zoomin	= KEY_ZOOMIN,
-			RC_zoomout	= KEY_ZOOMOUT,
-
 			RC_timeout	= 0xFFFFFFFF,
 			RC_nokey	= RC_NOKEY
 		};
@@ -287,8 +277,7 @@ class CRCInput
 		{
 			RC_HW_COOLSTREAM	= 0,
 			RC_HW_DBOX		= 1,
-			RC_HW_PHILIPS		= 2,
-			RC_HW_TRIPLEDRAGON	= 3
+			RC_HW_PHILIPS		= 2
 		};
 		void set_rc_hw(void);
 

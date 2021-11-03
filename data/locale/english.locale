@@ -1081,7 +1081,6 @@ keybindingmenu.remotecontrol_hardware_msg_part1 The remote control has been chan
 keybindingmenu.remotecontrol_hardware_msg_part2 ' to '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs this correct?\nPlease confirm the selection within 15 seconds by using the new remote control.\nOtherwise the selection will be reverted.
 keybindingmenu.remotecontrol_hardware_philips Philips
-keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Generic delay
 keybindingmenu.repeatblockgeneric Repeat delay
 keybindingmenu.sort Change sort order

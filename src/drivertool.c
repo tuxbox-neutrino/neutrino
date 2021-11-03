@@ -173,8 +173,7 @@ void usage(void)
 		printf("\t%-20s %s\n", n[i++].text, arg);
 	}
 	printf("\n");
-	printf("shortcuts:\n\t-c\tswitch primary remote to coolstream\n"
-		"\t-t <n>\tswitch primary remote to Tripledragon addr <n>\n\n");
+	printf("shortcuts:\n\t-c\tswitch primary remote to coolstream\n\n");
 	exit(0);
 }
 

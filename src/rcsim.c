@@ -4,8 +4,7 @@
  *	simulates the remote control, sends the requested key
  *
  *	(c) 2003 Carsten Juttner (carjay@gmx.net)
- *	(c) 2009 Stefan Seyfried, add code to use the neutrino socket instead
- *			of the input subsystem for dreambox / tripledragon
+ *	(c) 2009 Stefan Seyfried, add code to use the neutrino socket
  *	(c) 2011 Stefan Seyfried, convert driver/rcinput.h via script to
  *			rcsim.h for automated import of new keys
  *
@@ -36,19 +35,6 @@
 #include <linux/input.h>
 #include <error.h>
 
-#if 0
-/* if you want use HAVE_XX_HARDWARE, better include config.h :-) */
-#include "config.h"
-
-#if defined(HAVE_DBOX_HARDWARE)
-#define EVENTDEV "/dev/input/event0"
-#elif defined (HAVE_CST_HARDWARE)
-#define EVENTDEV "/dev/input/input0"
-#else
-#endif
-#else
-/* dreambox and tripledragon do not use a "normal" input device, so we cannot
-   (ab-)use the event repeating function of it. use the neutrino socket instead. */
 #include <sys/socket.h>
 #include <sys/un.h>
 #define NEUTRINO_SOCKET "/tmp/neutrino.sock"
@@ -71,7 +57,6 @@ enum initiators
 	INITID_NEUTRINO,
 	INITID_GENERIC_INPUT_EVENT_PROVIDER
 };
-#endif
 
 #include "rcsim.h"
 

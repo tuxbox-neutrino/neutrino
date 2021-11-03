@@ -1894,17 +1894,6 @@ void CRCInput::set_rc_hw(void)
 			ir_protocol = IR_PROTOCOL_RC5;
 			ir_address  = 0x000A;
 			break;
-		case RC_HW_TRIPLEDRAGON:
-			ir_protocol = IR_PROTOCOL_RMAP_E;
-			ir_address  = 0x000A; // with device id 0
-//			ir_address  = 0x100A; // with device id 1
-//			ir_address  = 0x200A; // with device id 2
-//			ir_address  = 0x300A; // with device id 3
-//			ir_address  = 0x400A; // with device id 4
-//			ir_address  = 0x500A; // with device id 5
-//			ir_address  = 0x600A; // with device id 6
-//			ir_address  = 0x700A; // with device id 7
-			break;
 		default:
 			ir_protocol = IR_PROTOCOL_NECE;
 			ir_address  = 0xFF80;
