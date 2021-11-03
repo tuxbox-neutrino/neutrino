@@ -1389,7 +1389,7 @@ static unsigned int nsvg__parseColorRGB(const char* str)
 		return NSVG_RGB(r, g, b);
 	if (sscanf(str, "rgb(%u%%, %u%%, %u%%)", &r, &g, &b) == 3)	// decimal integer percentage
 	{
-		r = (r <= 100) ? ((r*255)/100) : 255;			// FLTK: clip percentages >100
+		r = (r <= 100) ? ((r*255)/100) : 255;
 		g = (g <= 100) ? ((g*255)/100) : 255;
 		b = (b <= 100) ? ((b*255)/100) : 255;
 		return NSVG_RGB(r, g, b);
@@ -1399,26 +1399,25 @@ static unsigned int nsvg__parseColorRGB(const char* str)
 
 static unsigned int nsvg__parseColorRGBA(const char* str)
 {
-	int r = -1, g = -1, b = -1;
-	float a = -1;
-	char s1[32]="", s2[32]="", s3[32]="";
-	sscanf(str + 5, "%d%[%%, \t]%d%[%%, \t]%d%[%%, \t]%f", &r, s1, &g, s2, &b, s3, &a);
-	if (strchr(s1, '%'))
+	int r = 0, g = 0, b = 0;
+	float a = 1.0;
+	if (sscanf(str, "rgba(%u, %u, %u, %f)", &r, &g, &b, &a) == 4)		// decimal integers with alpha
 	{
-		r = (r <= 100) ? ((r*255)/100) : 255;			// FLTK: clip percentages >100
-		g = (g <= 100) ? ((g*255)/100) : 255;
-		b = (b <= 100) ? ((b*255)/100) : 255;
-		a = (a <= 100) ? ((a*255)/100) : 255;
-		return NSVG_RGBA(r,g,b,a);
-	}
-	else
-	{
-		r = (r <= 255) ? r : 255;			// FLTK: clip percentages >100
+		r = (r <= 255) ? r : 255;
 		g = (g <= 255) ? g : 255;
 		b = (b <= 255) ? b : 255;
 		a = (a <= 1.0) ? a*255 : 255;
-		return NSVG_RGBA(r,g,b,a);
+		return NSVG_RGBA(r, g, b, a);
 	}
+	if (sscanf(str, "rgba(%u%%, %u%%, %u%%, %f)", &r, &g, &b, &a) == 4)	// decimal integer percentage with alpha
+	{
+		r = (r <= 100) ? ((r*255)/100) : 255;
+		g = (g <= 100) ? ((g*255)/100) : 255;
+		b = (b <= 100) ? ((b*255)/100) : 255;
+		a = (a <= 100) ? ((a*255)/100) : 255;
+		return NSVG_RGBA(r, g, b, a);
+	}
+	return NSVG_RGBA(128, 128, 128, 255);
 }
 
 typedef struct NSVGNamedColor
