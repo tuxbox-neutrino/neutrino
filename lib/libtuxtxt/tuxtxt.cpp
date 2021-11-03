@@ -1713,7 +1713,6 @@ int tuxtx_main(int pid, int page, int source)
 					transpmode[boxed] = 1; /* switch to normal mode */
 					SwitchTranspMode();
 					break;		/* and evaluate key */
-				case RC_TTTV:
 				case RC_MUTE:		/* regular toggle to transparent */
 				case RC_TEXT:
 					break;
@@ -1800,7 +1799,6 @@ int tuxtx_main(int pid, int page, int source)
 			case RC_BLUE:
 				ColorKey(next_100);
 				break;
-			case RC_TTZOOM:
 			case RC_PLUS:
 				SwitchZoomMode();
 				break;
@@ -1809,7 +1807,6 @@ int tuxtx_main(int pid, int page, int source)
 				SwitchScreenMode(-1);
 				prevscreenmode[boxed] = screenmode[boxed];
 				break;
-			case RC_TTTV:
 			case RC_MUTE:
 				SwitchTranspMode();
 				break;
@@ -1818,7 +1815,6 @@ int tuxtx_main(int pid, int page, int source)
 					RCCode = RC_HOME;
 				SwitchTranspMode();
 				break;
-			case RC_TTREVEAL:
 			case RC_INFO:
 			case RC_HELP:
 				SwitchHintMode();
