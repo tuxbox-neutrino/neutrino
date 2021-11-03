@@ -80,6 +80,8 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		fb_pixel_t col_shadow_clean;
 		///property: background image, see also setBodyBGImage()
 		std::string cc_bg_image, cc_bg_image_old, cc_bg_std_image, cc_bg_sel_image, cc_bg_sec_image;
+		///background image transparency mode
+		int cc_bg_image_tr_mode;
 
 		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness, fr_thickness_old;

@@ -51,6 +51,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	col_shadow_clean		= 0;
 
 	cc_bg_image = cc_bg_image_old = cc_bg_sel_image	= cc_bg_sec_image = "";
+	cc_bg_image_tr_mode = CFrameBuffer::TM_NONE;
 
 	fr_thickness = fr_thickness_old		= 0;
 
@@ -619,7 +620,7 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 						*  Paint of background image is prefered, next steps will be ignored!
 						*/
 						if (!cc_bg_image.empty()){
-							if (g_PicViewer->DisplayImage(cc_bg_image, v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, CFrameBuffer::TM_NONE)){
+							if (g_PicViewer->DisplayImage(cc_bg_image, v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, cc_bg_image_tr_mode)){
 								// catch screen and store into paint cache
 								v_fbdata.at(i).pixbuf = getScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy);
 								v_fbdata.at(i).is_painted = true;
