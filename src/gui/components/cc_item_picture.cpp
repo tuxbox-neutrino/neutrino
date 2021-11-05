@@ -184,6 +184,10 @@ void CComponentsPicture::initCCItem()
 	if (pos == string::npos)
 		do_scale = false;
 
+	// always scale svg's
+	if (pic_name.find(".svg") == (pic_name.length() - 4))
+		do_scale = true;
+
 	//initial internal size
 	if (!do_scale){
 		//use image/icon size as object dimension values
