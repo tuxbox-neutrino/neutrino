@@ -162,6 +162,7 @@ bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		if (g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF)
 		{
+			g_settings.current_volume = 100;
 			videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
 		}
 #endif

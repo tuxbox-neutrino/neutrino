@@ -197,6 +197,7 @@ int CLuaInstMisc::enableMuteIcon(lua_State *L)
 
 int CLuaInstMisc::setVolume(lua_State *L)
 {
+	if (g_settings.hdmi_cec_volume) return 0;
 	CLuaMisc *D = MiscCheckData(L, 1);
 	if (!D) return 0;
 	lua_Integer vol = luaL_checkint(L, 2);
