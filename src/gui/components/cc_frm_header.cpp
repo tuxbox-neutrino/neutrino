@@ -251,7 +251,12 @@ void CComponentsHeader::setIcon(const char* icon_name)
 void CComponentsHeader::setIcon(const std::string& icon_name)
 {
 	cch_icon_name = icon_name;
-	initIcon();
+	std::string fullpath_icon_name = frameBuffer->getIconPath(cch_icon_name);
+
+	if (fullpath_icon_name.find(".svg") == (fullpath_icon_name.length() - 4))
+		initIconSVG();
+	else
+		initIcon();
 }
 
 void CComponentsHeader::initIcon()
@@ -265,6 +270,10 @@ void CComponentsHeader::initIcon()
 		}
 		return;
 	}
+	std::string fullpath_icon_name = frameBuffer->getIconPath(cch_icon_name);
+
+	if (fullpath_icon_name.find(".svg") == (fullpath_icon_name.length() - 4))
+		return;
 
 	//create instance for cch_icon_obj and add to container at once
 	if (cch_icon_obj == NULL){
@@ -298,6 +307,51 @@ void CComponentsHeader::initIcon()
 
 //		//re-assign height of icon object, for the case of changed height
 // 		cch_icon_obj->setHeight(height);
+	}
+}
+
+void CComponentsHeader::initIconSVG()
+{
+	//init cch_icon_obj only if an icon available
+	if (cch_icon_name.empty()) {
+		cch_icon_w = 0;
+		if (cch_icon_obj){
+			removeCCItem(cch_icon_obj);
+			cch_icon_obj = NULL;
+		}
+		return;
+	}
+
+	std::string fullpath_icon_name = frameBuffer->getIconPath(cch_icon_name, "svg");
+
+	if (!(fullpath_icon_name.find(".svg") == (fullpath_icon_name.length() - 4)))
+		return;
+
+	cch_icon_name = fullpath_icon_name;
+
+	//create instance for cch_icon_obj and add to container at once
+	if (cch_icon_obj == NULL){
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header svg icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
+		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name, this);
+	}
+
+	//set properties for icon object
+	if (cch_icon_obj){
+		cch_icon_obj->setPicture(cch_icon_name);
+		//get dimensions of header icon
+		dprintf(DEBUG_INFO, "[CComponentsHeader]\n    [%s - %d] init svg icon size: height = %d\n", __func__, __LINE__, height);
+		cch_icon_obj->setHeight(height - OFFSET_INNER_SMALL,true);
+		cch_icon_obj->doPaintBg(false);
+
+		//set corner mode of icon item
+		int cc_icon_corner_type = CORNER_LEFT;
+		if (corner_type & CORNER_TOP_LEFT || corner_type & CORNER_TOP)
+			cc_icon_corner_type = CORNER_TOP_LEFT;
+
+		cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
+
+		//global set width of icon object
+		cch_icon_w = cch_icon_obj->getWidth();
 	}
 }
 
@@ -710,6 +764,9 @@ void CComponentsHeader::initCCItems()
 
 	//init logo
 	initLogo();
+
+	//init svg icon
+	initIconSVG();
 }
 
 void CComponentsHeader::paint(const bool &do_save_bg)

@@ -151,6 +151,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void initSizeMode();
 		///sub: init icon object
 		void initIcon();
+		///sub: init svg icon object
+		void initIconSVG();
 		///sub: init caption object
 		void initCaption();
 		///sub: init context button object
