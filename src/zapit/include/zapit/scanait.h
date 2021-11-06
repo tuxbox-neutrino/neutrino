@@ -34,30 +34,30 @@
 #define AIT_SECTION_SIZE 4096
 #define PACK_VERSION(major,minor,micro) (((major) << 16) + ((minor) << 8) + (micro))
 #define UNPACK_VERSION(version,major,minor,micro) { \
-        major = (version)&0xff; \
-        minor = (version>>8)&0xff; \
-        micro = (version>>16)&0xff; \
-}
+		major = (version)&0xff; \
+		minor = (version>>8)&0xff; \
+		micro = (version>>16)&0xff; \
+	}
 
 class CAit : public OpenThreads::Thread
 {
-private:
-	int dmxnum;
-	unsigned short pid;
-	bool running;
-	std::string name;
-	ApplicationInformationSectionList sections;
-	void run();
-	bool Read();
+	private:
+		int dmxnum;
+		unsigned short pid;
+		bool running;
+		std::string name;
+		ApplicationInformationSectionList sections;
+		void run();
+		bool Read();
 
-public:
-	CAit();
-	~CAit();
-	void setDemux(int dnum = 0);
-	bool Start();
-	bool Stop();
-	bool Parse();
-	bool Parse(CZapitChannel * const channel);
+	public:
+		CAit();
+		~CAit();
+		void setDemux(int dnum = 0);
+		bool Start();
+		bool Stop();
+		bool Parse();
+		bool Parse(CZapitChannel *const channel);
 };
 
 #endif

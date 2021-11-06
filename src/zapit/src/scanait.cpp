@@ -72,7 +72,7 @@ bool CAit::Stop()
 void CAit::run()
 {
 	set_threadname("zap:ait");
-	if(Parse())
+	if (Parse())
 		printf("[scan] AIT finished.\n");
 	else
 		printf("[scan] AIT failed !\n");
@@ -86,7 +86,7 @@ bool CAit::Read()
 {
 	bool ret = true;
 
-	cDemux * dmx = new cDemux(dmxnum);
+	cDemux *dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	unsigned char buffer[AIT_SECTION_SIZE];
@@ -109,7 +109,7 @@ bool CAit::Read()
 	else
 	{
 		printf("CAit::Read: pid %x found\n", pid);
-		ApplicationInformationSection * ait = new ApplicationInformationSection(buffer);
+		ApplicationInformationSection *ait = new ApplicationInformationSection(buffer);
 		sections.push_back(ait);
 	}
 	dmx->Stop();
@@ -121,10 +121,10 @@ bool CAit::Parse()
 {
 	printf("[ait] trying to parse AIT\n");
 
-	if(!Read())
+	if (!Read())
 		return false;
 
-	FILE * pFile = fopen ("/tmp/ait.txt","w");
+	FILE *pFile = fopen("/tmp/ait.txt", "w");
 	if (pFile)
 		fprintf(pFile, "Channel: %s\n", name.c_str());
 	short int profilecode = 0;
@@ -135,7 +135,8 @@ bool CAit::Parse()
 	for (sit = sections.begin(); sit != sections.end(); ++sit)
 	{
 
-		if (CServiceScan::getInstance()->Aborted()){
+		if (CServiceScan::getInstance()->Aborted())
+		{
 			if (pFile)
 				fclose(pFile);
 
@@ -149,87 +150,87 @@ bool CAit::Parse()
 			std::string hbbtvUrl = "", applicationName = "";
 			std::string TPDescPath = "", SALDescPath = "";
 			int controlCode = (*i)->getApplicationControlCode();
-			ApplicationIdentifier * applicationIdentifier = (ApplicationIdentifier *)(*i)->getApplicationIdentifier();
+			ApplicationIdentifier *applicationIdentifier = (ApplicationIdentifier *)(*i)->getApplicationIdentifier();
 			profilecode = 0;
 			orgid = applicationIdentifier->getOrganisationId();
 			appid = applicationIdentifier->getApplicationId();
 			//printf("[ait] found applicaions ids (pid : 0x%x) : orgid : %d, appid : %d\n", pid, orgid, appid);
-			if (controlCode == 1 || controlCode == 2) /* 1:AUTOSTART, 2:PRESENT  */
+			if (controlCode == 1 || controlCode == 2) /* 1:AUTOSTART, 2:PRESENT */
 			{
 				for (DescriptorConstIterator desc = (*i)->getDescriptors()->begin();
-				        desc != (*i)->getDescriptors()->end(); ++desc)
+					desc != (*i)->getDescriptors()->end(); ++desc)
 				{
 					switch ((*desc)->getTag())
 					{
-					case APPLICATION_DESCRIPTOR:
-					{
-						ApplicationDescriptor* applicationDescriptor = (ApplicationDescriptor*)(*desc);
-						const ApplicationProfileList* applicationProfiles = applicationDescriptor->getApplicationProfiles();
-						ApplicationProfileConstIterator interactionit = applicationProfiles->begin();
-						for(; interactionit != applicationProfiles->end(); ++interactionit)
+						case APPLICATION_DESCRIPTOR:
 						{
-							profilecode = (*interactionit)->getApplicationProfile();
-							profileVersion = PACK_VERSION(
-							                     (*interactionit)->getVersionMajor(),
-							                     (*interactionit)->getVersionMinor(),
-							                     (*interactionit)->getVersionMicro()
-							                 );
-						}
-						break;
-					}
-					case APPLICATION_NAME_DESCRIPTOR:
-					{
-						ApplicationNameDescriptor *nameDescriptor  = (ApplicationNameDescriptor*)(*desc);
-						ApplicationNameConstIterator interactionit = nameDescriptor->getApplicationNames()->begin();
-						for(; interactionit != nameDescriptor->getApplicationNames()->end(); ++interactionit)
-						{
-							applicationName = (*interactionit)->getApplicationName();
-							//if(controlCode == 1) printf("[ait] applicationname: %s\n", applicationName.c_str());
-							break;
-						}
-						break;
-					}
-					case TRANSPORT_PROTOCOL_DESCRIPTOR:
-					{
-						TransportProtocolDescriptor *transport = (TransportProtocolDescriptor*)(*desc);
-						switch (transport->getProtocolId())
-						{
-						case 1: /* object carousel */
-							break;
-						case 2: /* ip */
-							break;
-						case 3: /* interaction */
-						{
-							InterActionTransportConstIterator interactionit = transport->getInteractionTransports()->begin();
-							for(; interactionit != transport->getInteractionTransports()->end(); ++interactionit)
+							ApplicationDescriptor *applicationDescriptor = (ApplicationDescriptor *)(*desc);
+							const ApplicationProfileList *applicationProfiles = applicationDescriptor->getApplicationProfiles();
+							ApplicationProfileConstIterator interactionit = applicationProfiles->begin();
+							for (; interactionit != applicationProfiles->end(); ++interactionit)
 							{
-								TPDescPath = (*interactionit)->getUrlBase()->getUrl();
+								profilecode = (*interactionit)->getApplicationProfile();
+								profileVersion = PACK_VERSION(
+										(*interactionit)->getVersionMajor(),
+										(*interactionit)->getVersionMinor(),
+										(*interactionit)->getVersionMicro()
+									);
+							}
+							break;
+						}
+						case APPLICATION_NAME_DESCRIPTOR:
+						{
+							ApplicationNameDescriptor *nameDescriptor = (ApplicationNameDescriptor *)(*desc);
+							ApplicationNameConstIterator interactionit = nameDescriptor->getApplicationNames()->begin();
+							for (; interactionit != nameDescriptor->getApplicationNames()->end(); ++interactionit)
+							{
+								applicationName = (*interactionit)->getApplicationName();
+								//if(controlCode == 1) printf("[ait] applicationname: %s\n", applicationName.c_str());
 								break;
 							}
 							break;
 						}
+						case TRANSPORT_PROTOCOL_DESCRIPTOR:
+						{
+							TransportProtocolDescriptor *transport = (TransportProtocolDescriptor *)(*desc);
+							switch (transport->getProtocolId())
+							{
+								case 1: /* object carousel */
+									break;
+								case 2: /* ip */
+									break;
+								case 3: /* interaction */
+								{
+									InterActionTransportConstIterator interactionit = transport->getInteractionTransports()->begin();
+									for (; interactionit != transport->getInteractionTransports()->end(); ++interactionit)
+									{
+										TPDescPath = (*interactionit)->getUrlBase()->getUrl();
+										break;
+									}
+									break;
+								}
+							}
+							break;
 						}
-						break;
-					}
-					case GRAPHICS_CONSTRAINTS_DESCRIPTOR:
-						break;
-					case SIMPLE_APPLICATION_LOCATION_DESCRIPTOR:
-					{
-						SimpleApplicationLocationDescriptor *applicationlocation = (SimpleApplicationLocationDescriptor*)(*desc);
-						SALDescPath = applicationlocation->getInitialPath();
-						break;
-					}
-					case APPLICATION_USAGE_DESCRIPTOR:
-						break;
-					case SIMPLE_APPLICATION_BOUNDARY_DESCRIPTOR:
-						break;
+						case GRAPHICS_CONSTRAINTS_DESCRIPTOR:
+							break;
+						case SIMPLE_APPLICATION_LOCATION_DESCRIPTOR:
+						{
+							SimpleApplicationLocationDescriptor *applicationlocation = (SimpleApplicationLocationDescriptor *)(*desc);
+							SALDescPath = applicationlocation->getInitialPath();
+							break;
+						}
+						case APPLICATION_USAGE_DESCRIPTOR:
+							break;
+						case SIMPLE_APPLICATION_BOUNDARY_DESCRIPTOR:
+							break;
 					}
 				}
 				hbbtvUrl = TPDescPath + SALDescPath;
 			}
-			if(!hbbtvUrl.empty())
+			if (!hbbtvUrl.empty())
 			{
-				printf("[ait] detected AppID: %d, AppName: %s, Url: %s profilecode: %i orgid: %i sectionLength: %i profileVersion %i\n", appid, applicationName.c_str(), hbbtvUrl.c_str(),profilecode,orgid,sectionLength,profileVersion);
+				printf("[ait] detected AppID: %d, AppName: %s, Url: %s profilecode: %i orgid: %i sectionLength: %i profileVersion %i\n", appid, applicationName.c_str(), hbbtvUrl.c_str(), profilecode, orgid, sectionLength, profileVersion);
 				if (pFile)
 				{
 					fprintf(pFile, "AppID: %d, AppName: %s, Url: %s\n", appid, applicationName.c_str(), hbbtvUrl.c_str());
@@ -243,12 +244,12 @@ bool CAit::Parse()
 	return true;
 }
 
-bool CAit::Parse(CZapitChannel * const channel)
+bool CAit::Parse(CZapitChannel *const channel)
 {
 	pid = channel->getAitPid();
 	name = channel->getName();
 	unlink("/tmp/ait.txt");
-	if(pid > 0)
+	if (pid > 0)
 	{
 		return Start();
 	}
