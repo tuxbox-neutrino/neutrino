@@ -365,6 +365,8 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	}
 	CMenuWidget* plMenu = NULL;
 	int pcount = g_Plugins->getNumberOfPlugins();
+	if (!pcount)
+		pcount = 1;
 	std::string pldesc[pcount];
 	int pltype[pcount];
 	if (show_pluginmenu)
