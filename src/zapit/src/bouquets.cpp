@@ -431,7 +431,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			const char* useci = xmlGetAttribute(search, "ci");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
-			newBouquet->bFav = (strcmp(name, DEFAULT_BQ_NAME_FAV) == 0);
+			newBouquet->bFav = (strcasecmp(name, DEFAULT_BQ_NAME_FAV) == 0);
 			if (newBouquet->bFav)
 				newBouquet->bName = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
 			else
