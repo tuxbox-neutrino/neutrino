@@ -143,6 +143,7 @@ bc.control.shutdown.ask=Really shutdown the Box?
 bc.control.shutdown=shutdown
 bc.control.status=status
 bc.control.restart=restart
+bc.control.neutrino=Neutrino
 
 ========= Boxcontrol - Message
 bc.msg.message_to_screen_desc=enter message to send to TV screen

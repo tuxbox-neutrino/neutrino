@@ -77,6 +77,7 @@ struct NeutrinoMessages {
 		RELOAD_SETUP            =       CRCInput::RC_Messages + 24,
 		SHOW_MAINMENU           =       CRCInput::RC_Messages + 25,
 		LEAVE_ALL               =       CRCInput::RC_Messages + 26,
+		RESTART                 =       CRCInput::RC_Messages + 27,
 
 
 		EVT_VOLCHANGED                           = CRCInput::RC_Events + 1,

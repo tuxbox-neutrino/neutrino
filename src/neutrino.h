@@ -62,7 +62,8 @@ public:
 		EXIT_ERROR = -1,
 		EXIT_NORMAL = 0,	// g_info.hw_caps->can_shutdown == 0
 		EXIT_SHUTDOWN = 1,	// g_info.hw_caps->can_shutdown == 1
-		EXIT_REBOOT = 2
+		EXIT_REBOOT = 2,
+		EXIT_RESTART = 3
 	};
 
 	enum

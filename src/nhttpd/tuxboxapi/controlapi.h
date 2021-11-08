@@ -111,6 +111,7 @@ private:
 	void LCDAction(CyhookHandler *hh);
 	void YWebCGI(CyhookHandler *hh);
 	void RebootCGI(CyhookHandler *hh);
+	void RestartCGI(CyhookHandler *hh);
 	void RCEmCGI(CyhookHandler *hh);
 	void AspectRatioCGI(CyhookHandler *hh);
 	void VideoFormatCGI(CyhookHandler *hh);

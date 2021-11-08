@@ -56,6 +56,14 @@ function get_data() {
 			CEC: <input id="checkCEC" name="checkCEC" type="checkbox" checked="checked"/>
 			</td>
 		</tr>
+		<tr><td class="y_form_header">{=L:bc.control.neutrino=}</td><td class="y_form_header">&nbsp; <!-- just a placeholder --></td></tr>
+			<td>
+			<input type="button" value="{=L:bc.control.restart=}" onclick='goUrl("/control/restart");'/>
+			</td>
+			<td>
+			&nbsp; <!-- just a placeholder -->
+			</td>
+		</tr>
 		<tr><td class="y_form_header">{=L:bc.control.playback=}</td><td class="y_form_header">{=L:bc.control.recording_mode=}</td></tr>
 		<tr>
 			<td>

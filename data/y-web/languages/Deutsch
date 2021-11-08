@@ -140,7 +140,8 @@ bc.control.reboot=Neustart
 bc.control.shutdown.ask=Box wirklich ausschalten?
 bc.control.shutdown=Ausschalten
 bc.control.status=Status
-bc.control.restart=Neu starten
+bc.control.restart=Neustart
+bc.control.neutrino=Neutrino
 
 ========= Boxcontrol - Message
 bc.msg.message_to_screen_desc=Nachricht eingeben
