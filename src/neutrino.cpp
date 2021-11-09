@@ -4538,7 +4538,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::RESTART ) {
-		ExitRun(CNeutrinoApp::EXIT_RESTART);
+		CNeutrinoApp::getInstance()->exec(NULL, "restart");
 	}
 	else if( msg == NeutrinoMessages::REBOOT ) {
 		ExitRun(CNeutrinoApp::EXIT_REBOOT);
@@ -4818,7 +4818,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	if (cs_get_revision() != 10)
 		bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
 #endif
-	if (exit_code != EXIT_NORMAL && exit_code != EXIT_RESTART)
+	if (exit_code != CNeutrinoApp::EXIT_REBOOT)
 	{
 		if (timer_minutes)
 		{
@@ -5373,12 +5373,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ExitRun(CNeutrinoApp::EXIT_REBOOT);
 		returnval = menu_return::RETURN_NONE;
 	}
-	else if (actionKey=="restart")
-	{
-		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-		ExitRun(CNeutrinoApp::EXIT_RESTART);
-		returnval = menu_return::RETURN_NONE;
-	}
 	else if (actionKey=="clock_switch")
 	{
 		InfoClock->switchClockOnOff();
@@ -5502,6 +5496,8 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 #ifdef ENABLE_LCD4LINUX
 			CLCD4l::getInstance()->StopLCD4l();
 #endif
+			StopSubtitles();
+			stopPlayBack();
 
 			saveSetup(NEUTRINO_SETTINGS_FILE);
 

@@ -62,8 +62,7 @@ public:
 		EXIT_ERROR = -1,
 		EXIT_NORMAL = 0,	// g_info.hw_caps->can_shutdown == 0
 		EXIT_SHUTDOWN = 1,	// g_info.hw_caps->can_shutdown == 1
-		EXIT_REBOOT = 2,
-		EXIT_RESTART = 3
+		EXIT_REBOOT = 2
 	};
 
 	enum
@@ -197,7 +196,7 @@ public:
 	void switchTvRadioMode(const int prev_mode = NeutrinoModes::mode_unknown);
 
 	time_t getStartTime() { return neutrino_start_time; }
-	
+
 	bool isMuted() {return current_muted; }
 	void setCurrentMuted(int m) { current_muted = m; }
 	int recordingstatus;
