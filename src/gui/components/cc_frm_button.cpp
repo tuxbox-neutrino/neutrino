@@ -144,27 +144,21 @@ void CComponentsButton::initIcon()
 		return;
 	}
 
-	//init icon file
-	string::size_type pos = cc_btn_icon.find("/", 0);
-	if (pos == string::npos)
-		cc_btn_icon = frameBuffer->getIconPath(cc_btn_icon);
-
-	//get required icon height and position
-	int h_icon = height-2*fr_thickness - 2*OFFSET_INNER_MIN;
-	int dx_tmp, dy_tmp = 0;
-	frameBuffer->getIconSize(cc_btn_icon.c_str(), &dx_tmp, &dy_tmp);
-	h_icon = min(h_icon, dy_tmp);
-	h_icon -= h_icon % 2;
-	int y_icon = height/2 - h_icon/2;
-
 	//init icon object
 	if (cc_btn_icon_obj == NULL)
-	{
-		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
-		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
-	}
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, 0, cc_btn_icon, this);
+
+	//get required icon height and position
+	int dx_tmp, dy_tmp = 0;
+	cc_btn_icon_obj->getRealSize(&dx_tmp, &dy_tmp);
+
+	int h_icon = height-2*fr_thickness - 2*OFFSET_INNER_MIN;
+	h_icon = min(h_icon, dy_tmp);
+
+	int y_icon = height/2 - h_icon/2;
+
 	cc_btn_icon_obj->setHeight(h_icon);
-	cc_btn_icon_obj->setPicture(cc_btn_icon);
+	cc_btn_icon_obj->setYPos(y_icon);
 }
 
 void CComponentsButton::initCaption()
@@ -212,11 +206,10 @@ void CComponentsButton::initCaption()
 		/* If the required sum for space of icon, text, frame and offsets is too small then adapt font size.
 		 */
 		if (dx_tmp > width){
-			int diff = 0;
 			if (width == 0){
 				width = dx_tmp;
 			}else{
-				diff = dx_tmp - width;
+				int diff = dx_tmp - width;
 				width -= diff;
 				w_cap -= diff;
 			}
