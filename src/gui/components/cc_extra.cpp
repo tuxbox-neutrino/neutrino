@@ -120,7 +120,7 @@ bool paintImage(	const std::string& Image,
 	box.setCorner(radius, corner_type);
 	box.paint(CC_SAVE_SCREEN_NO);
 
-	return box.isPicPainted();
+	return box.isPainted();
 }
 
 bool paintIcon (	const std::string& filename,
