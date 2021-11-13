@@ -98,7 +98,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		///object: clock object
 		CComponentsFrmClock * cch_cl_obj;
 		///object: logo object
-		CComponentsChannelLogoScalable * cch_logo_obj;
+		CComponentsChannelLogo * cch_logo_obj;
 
 		///attributes for logos
 		cch_logo_t cch_logo;
@@ -151,8 +151,6 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void initSizeMode();
 		///sub: init icon object
 		void initIcon();
-		///sub: init svg icon object
-		void initIconSVG();
 		///sub: init caption object
 		void initCaption();
 		///sub: init context button object
@@ -361,9 +359,9 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 					const int& dy = -1)
 					{cch_logo.Id = channelId; cch_logo.Name = channelName, cch_logo.Align = alignment, cch_logo.dy_max = dy; initCCItems();}
 		/**Methode to get channel logo object for direct access to its properties and methodes
-		* @return  	CComponentsChannelLogoScalable*
+		* @return  	CComponentsChannelLogo*
 		*/
-		CComponentsChannelLogoScalable* getChannelLogoObject(){return cch_logo_obj;}
+		CComponentsChannelLogo* getChannelLogoObject(){return cch_logo_obj;}
 };
 
 #endif

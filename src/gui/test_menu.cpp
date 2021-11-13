@@ -85,7 +85,9 @@ CTestMenu::CTestMenu()
 	width = 50;
 	circle = NULL;
 	sq = NULL;
-	pic = chnl_pic = NULL;
+	pic = NULL;
+	picsvg = NULL;
+	chnl_pic = NULL;
 	form = NULL;
 	txt = NULL;
 	header = NULL;
@@ -104,6 +106,7 @@ CTestMenu::~CTestMenu()
 	delete sq;
 	delete circle;
 	delete pic;
+	delete picsvg;
 	delete form;
 	delete txt;
 	delete header;
@@ -430,12 +433,23 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (pic == NULL)
 			pic = new CComponentsPicture (100, 100, 200, 100, ICONSDIR "/mp3-5.jpg");
 
-		if (!pic->isPainted() && !pic->isPicPainted())
+		if (!pic->isPainted())
 			pic->paint();
 		else
 			pic->hide();
 		return res;
 	}
+	else if (actionKey == "picture_svg"){
+		if (picsvg == NULL)
+		picsvg = new CComponentsPicture (100, 100, 100, 0, "tux");
+
+		if (!picsvg->isPainted())
+			picsvg->paint();
+		else
+			picsvg->hide();
+
+	 return res;
+     }
 	else if (actionKey == "blink"){
 		if (sq == NULL)
 			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
@@ -461,13 +475,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "channellogo"){
-		if (chnl_pic == NULL)
-			chnl_pic = new CComponentsChannelLogo(100, 100, "ProSieben", 0);
+		uint64_t chid = CZapit::getInstance()->GetCurrentChannelID();
+		std::string chname = "";
+		if (CServiceManager::getInstance()->FindChannel(chid))
+			chname = CServiceManager::getInstance()->FindChannel(chid)->getName();
 
-		if (!chnl_pic->isPainted() && !chnl_pic->isPicPainted())
+		if (chnl_pic == NULL)
+			chnl_pic = new CComponentsChannelLogo(100, 100, 0, 50, chname, chid);
+
+		if (!chnl_pic->isPainted())
+		{
 			chnl_pic->paint();
+			ShowHint("Logotest", chnl_pic->getPictureName().c_str(), 700, 2);
+		}
 		else
+		{
 			chnl_pic->hide();
+			delete chnl_pic;
+			chnl_pic = NULL;
+		}
 		return res;
 	}
 	else if (actionKey == "form"){
@@ -602,14 +628,14 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "header"){
-		int hh = 30;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+		int hh = 0;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
 			header->addContextButton(NEUTRINO_ICON_BUTTON_RED);
 			header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
 		else{	//For existing instances it's recommended to remove old button icons before add new buttons,
-			//otherwise icons will be appended to already existant icons, alternatively use the setContextButton() methode
+			//otherwise icons will be appended to already existent icons, alternatively use the setContextButton() methode
  			header->removeContextButtons();
 			//enable clock in header with default format
 			header->enableClock(true, "%H:%M", "%H %M", true);
@@ -1278,6 +1304,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Blinking-Square", true, NULL, this, "blink"));
 	widget->addItem(new CMenuForwarder("Blinking-Image", true, NULL, this, "blink_image"));
 	widget->addItem(new CMenuForwarder("Picture", true, NULL, this, "picture"));
+	widget->addItem(new CMenuForwarder("Picture SVG", true, NULL, this, "picture_svg"));
 	widget->addItem(new CMenuForwarder("Channel-Logo", true, NULL, this, "channellogo"));
 	widget->addItem(new CMenuForwarder("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarder("Form with blinking item", true, NULL, this, "form_blink_item"));
