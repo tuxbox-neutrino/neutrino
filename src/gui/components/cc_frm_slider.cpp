@@ -145,7 +145,7 @@ void CComponentsSlider::paint(const bool &do_save_bg)
 
 void CComponentsSlider::paintMarker()
 {
-	if(csl_slider_obj->isPicPainted())
+	if(csl_slider_obj->isPainted())
 		csl_slider_obj->hide();
 // 			//if (csl_slider_obj->getXPos()>0)
 // 			PaintBoxRel(cc_xr, cc_yr, csl_slider_obj->getXPos(), height, COL_GREEN);
