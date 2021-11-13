@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Scrollbar class based up CComponentsFrmChain.
-	Copyright (C) 2014 Thilo Graf 'dbt'
+	Copyright (C) 2014, 2021 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -132,7 +132,6 @@ void CComponentsScrollBar::initTopNaviIcon()
 	if (sb_up_obj == NULL){
 		sb_up_obj = new CComponentsPicture(CC_CENTERED, fr_thickness, width-2*fr_thickness, width-2*fr_thickness, sb_up_icon, this);
 		sb_up_obj->SetTransparent(CFrameBuffer::TM_BLACK);
-		sb_up_obj->doPaintBg(false);
 	}
 }
 
@@ -142,7 +141,6 @@ void CComponentsScrollBar::initBottomNaviIcon()
 	if (sb_down_obj == NULL){
 		sb_down_obj = new CComponentsPicture(CC_CENTERED, height - width-2*fr_thickness, width-2*fr_thickness, 0, sb_down_icon, this);
 		sb_down_obj->SetTransparent(CFrameBuffer::TM_BLACK);
-		sb_down_obj->doPaintBg(false);
 	}
 }
 
