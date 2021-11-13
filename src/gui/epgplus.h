@@ -69,7 +69,7 @@ class EpgPlus
 		class Header
 		{
 			private:
-				CComponentsChannelLogoScalable *logo;
+				CComponentsChannelLogo *logo;
 			//// construction / destruction
 			public:
 				Header(CFrameBuffer* frameBuffer,
