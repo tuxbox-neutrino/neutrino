@@ -455,6 +455,21 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		 * @return std::string
 		*/
 		std::string getBodyBGSecondaryImage() {return cc_bg_sec_image;}
+
+		/**Sets tranparency mode body background image
+		*
+		* @param[in] mode as integer image transparency mode
+		* 				@li CFrameBuffer::TM_EMPTY
+		* 				@li CFrameBuffer::TM_NONE
+		* 				@li CFrameBuffer::TM_BLACK
+		* 				@li CFrameBuffer::TM_INI
+		*
+		* @see
+		* 	cc_body_image
+		* 	setBodyBGImage()
+		* 	drive/fb_generic.h
+		*/
+		void setBodyBGImageTranparencyMode(const int &mode) {cc_bg_image_tr_mode = mode;}
 };
 
 #endif
