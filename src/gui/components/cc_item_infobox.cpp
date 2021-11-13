@@ -121,14 +121,9 @@ void CComponentsInfoBox::paintPicture()
 	int y_pic = (cc_parent ? cc_yr : y) + fr_thickness;
 
 	//init pic object and set icon paint position
-	string image = frameBuffer->getIconPath(pic_name);
-	pic = new CComponentsPicture(x_pic+x_offset, y_pic, pic_width, min(pic_height, height-2*fr_thickness), image); //NOTE: icons do not scale!
+	pic = new CComponentsPicture(x_pic+x_offset, y_pic, pic_width, min(pic_height, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
 
 	pic->setColorBody(col_body_std);
-
-	//set gradient behavior of pic object
-	if (cc_body_gradient_enable)
-		pic->doPaintBg(false);
 
 	//fit icon into frame
 	pic->setYPos(y_pic+(height-2*fr_thickness)/2-pic->getHeight()/2);
@@ -150,7 +145,7 @@ void CComponentsInfoBox::paint(const bool &do_save_bg)
 
 	//set text to the left border if picture is not painted
 	int pic_w = 0;
-	if ((pic) && (pic->isPicPainted()))
+	if ((pic) && (pic->isPainted()))
 		pic_w = pic->getWidth() + x_offset;
 
 	//set text properties and paint text lines
