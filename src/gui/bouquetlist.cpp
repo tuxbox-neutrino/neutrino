@@ -425,7 +425,8 @@ int CBouquetList::show(bool bShowChannelList)
 	   It would be better to get the needed width from
 	   CComponententsFooter class.
 	*/
-	width  = (sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]))*(w_max_icon + w_max_text + 2*OFFSET_INNER_MID);
+	int numButtons = (sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]));
+	width  = numButtons*(w_max_icon + w_max_text + numButtons*OFFSET_INNER_MID);
 	height = 16*item_height;
 
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
