@@ -136,7 +136,8 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 void CComponentsButton::initIcon()
 {
 	//init cch_icon_obj only if an icon available
-	if (cc_btn_icon.empty()) {
+	if (cc_btn_icon.empty())
+	{
 		if (cc_btn_icon_obj)
 			delete cc_btn_icon_obj;
 		cc_btn_icon_obj = NULL;
@@ -157,17 +158,13 @@ void CComponentsButton::initIcon()
 	int y_icon = height/2 - h_icon/2;
 
 	//init icon object
-	if(!cc_btn_icon.empty())
+	if (cc_btn_icon_obj == NULL)
 	{
-		if (cc_btn_icon_obj == NULL)
-		{
-			cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
-			cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
-			cc_btn_icon_obj->doPaintBg(false);
-		}
-		cc_btn_icon_obj->setHeight(h_icon, true);
-		cc_btn_icon_obj->setPicture(cc_btn_icon);
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
+		cc_btn_icon_obj->SetTransparent(CFrameBuffer::TM_BLACK);
 	}
+	cc_btn_icon_obj->setHeight(h_icon);
+	cc_btn_icon_obj->setPicture(cc_btn_icon);
 }
 
 void CComponentsButton::initCaption()
