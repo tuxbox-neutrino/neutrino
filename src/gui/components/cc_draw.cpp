@@ -886,7 +886,7 @@ bool CCDraw::setBodyBGImage(const std::string& image_path, const std::string& se
 	cc_bg_sec_image = sec_image_path;
 
 	if (clearPaintCache())
-		dprintf(DEBUG_NORMAL, "\033[33m\[CCDraw]\t[%s - %d], body background image defined standard: [%s]  selected: [%s], secondary: [%s]\033[0m\n", __func__, __LINE__, cc_bg_image.c_str(), cc_bg_sel_image.c_str(), cc_bg_sec_image.c_str());
+		dprintf(DEBUG_DEBUG, "\033[33m\[CCDraw]\t[%s - %d], body background image defined standard: [%s]  selected: [%s], secondary: [%s]\033[0m\n", __func__, __LINE__, cc_bg_image.c_str(), cc_bg_sel_image.c_str(), cc_bg_sec_image.c_str());
 
 	return true;
 }
