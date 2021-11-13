@@ -1112,7 +1112,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 
 			default:
-				if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
+				if ((msg == CRCInput::RC_standby) || (CNeutrinoApp::getInstance()->listModeKey(msg))) {
 					g_RCInput->postMsg (msg, 0);
 					retval = menu_return::RETURN_EXIT_ALL;
 					msg = CRCInput::RC_timeout;
