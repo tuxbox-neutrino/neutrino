@@ -55,17 +55,17 @@
 #include <zapit/zapit.h>
 #include <hardware/video.h>
 
-extern cVideo * videoDecoder;
-extern CPictureViewer * g_PicViewer;
+extern cVideo *videoDecoder;
+extern CPictureViewer *g_PicViewer;
 
-const struct button_label RescanButton = {NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_UPNPBROWSER_RESCAN};
+const struct button_label RescanButton = {NEUTRINO_ICON_BUTTON_BLUE, LOCALE_UPNPBROWSER_RESCAN};
 const struct button_label BrowseButtons[] =
 {
-	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE },
-	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_FILEBROWSER_PREVPAGE },
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_FILEBROWSER_NEXTPAGE },
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_FILEBROWSER_PREVPAGE },
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_AUDIOPLAYER_STOP },
-	{ NEUTRINO_ICON_BUTTON_OKAY  , LOCALE_AUDIOPLAYER_PLAY },
-	{ NEUTRINO_ICON_BUTTON_HOME ,  LOCALE_MENU_BACK, }
+	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_AUDIOPLAYER_PLAY },
+	{ NEUTRINO_ICON_BUTTON_HOME,  LOCALE_MENU_BACK, }
 };
 
 CUpnpBrowserGui::CUpnpBrowserGui()
@@ -122,8 +122,8 @@ void CUpnpBrowserGui::Init()
 
 	m_header_height = _title_height;
 	m_footer_height = _title_height;
-	m_topbox_height = _top_height*3 + OFFSET_INNER_MID; // topbox: 3 lines + inner offset
-	m_infobox_height = _info_height*2 + OFFSET_INNER_LARGE; // infobox/timebox: 2 lines + inner offset
+	m_topbox_height = _top_height * 3 + OFFSET_INNER_MID; // topbox: 3 lines + inner offset
+	m_infobox_height = _info_height * 2 + OFFSET_INNER_LARGE; // infobox/timebox: 2 lines + inner offset
 
 	/* From top to bottom we have:
 	 *
@@ -145,10 +145,10 @@ void CUpnpBrowserGui::Init()
 	footer.setHeight(m_footer_height);
 	footer.enableShadow(CC_SHADOW_ON, -1, true);
 
-	m_x=getScreenStartX(m_width);
+	m_x = getScreenStartX(m_width);
 	if (m_x < DETAILSLINE_WIDTH) // shouldn't happen
 		m_x = DETAILSLINE_WIDTH;
-	m_y=getScreenStartY(m_height);
+	m_y = getScreenStartY(m_height);
 
 	// calc positions
 	m_header_y = m_y + m_topbox_height + OFFSET_SHADOW + OFFSET_INTER;
@@ -165,15 +165,17 @@ CUpnpBrowserGui::~CUpnpBrowserGui()
 	sigPall.disconnect();
 
 	delete m_socket;
-	if (dline){
+	if (dline)
+	{
 		delete dline; dline = NULL;
 	}
-	if (image){
+	if (image)
+	{
 		delete image; image = NULL;
 	}
 }
 
-int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CUpnpBrowserGui::exec(CMenuTarget *parent, const std::string & /*actionKey*/)
 {
 	CAudioPlayer::getInstance()->init();
 
@@ -190,13 +192,13 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 #endif
 
 	// tell neutrino we're in upnp mode
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , NeutrinoModes::mode_upnp);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_upnp);
 
 	// remember last mode
-	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
+	m_LastMode = (CNeutrinoApp::getInstance()->getLastMode());
 
-	m_deviceliststart=0;
-	m_selecteddevice=0;
+	m_deviceliststart = 0;
+	m_selecteddevice = 0;
 	timeout = 0;
 
 	selectDevice();
@@ -209,7 +211,7 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	m_frameBuffer->Clear();
 
 	CZapit::getInstance()->EnablePlayback(true);
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , m_LastMode);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
 	g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
 
 #ifdef ENABLE_GRAPHLCD
@@ -228,25 +230,25 @@ void CUpnpBrowserGui::splitProtocol(std::string &protocol, std::string &prot, st
 	pos = protocol.find(":", startpos);
 	if (pos != std::string::npos)
 	{
-		prot = protocol.substr(startpos, pos-startpos);
+		prot = protocol.substr(startpos, pos - startpos);
 		startpos = pos + 1;
 
 		pos = protocol.find(":", startpos);
 		if (pos != std::string::npos)
 		{
-			network = protocol.substr(startpos, pos-startpos);
+			network = protocol.substr(startpos, pos - startpos);
 			startpos = pos + 1;
 
 			pos = protocol.find(":", startpos);
 			if (pos != std::string::npos)
 			{
-				mime = protocol.substr(startpos, pos-startpos);
+				mime = protocol.substr(startpos, pos - startpos);
 				startpos = pos + 1;
 
 				pos = protocol.find(":", startpos);
 				if (pos != std::string::npos)
 				{
-					additional = protocol.substr(startpos, pos-startpos);
+					additional = protocol.substr(startpos, pos - startpos);
 				}
 			}
 		}
@@ -262,10 +264,11 @@ bool CUpnpBrowserGui::discoverDevices()
 	CHintBox hintbox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_UPNPBROWSER_SCANNING)); // UTF-8
 	hintbox.paint();
 
-	try {
+	try
+	{
 		m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 	}
-	catch (std::runtime_error& error)
+	catch (std::runtime_error &error)
 	{
 		hintbox.hide();
 		DisplayErrorMessage(error.what());
@@ -298,9 +301,9 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 
 	try
 	{
-		results=m_devices[m_selecteddevice].SendSOAP("urn:schemas-upnp-org:service:ContentDirectory:1", "Browse", attribs);
+		results = m_devices[m_selecteddevice].SendSOAP("urn:schemas-upnp-org:service:ContentDirectory:1", "Browse", attribs);
 	}
-	catch (std::runtime_error& error)
+	catch (std::runtime_error &error)
 	{
 		DisplayErrorMessage(error.what());
 		return false;
@@ -311,15 +314,16 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 {
 	xmlNodePtr   root, node, snode;
-	xmlDocPtr parser = parseXml(result.c_str(),"UTF-8");
+	xmlDocPtr parser = parseXml(result.c_str(), "UTF-8");
 	root = xmlDocGetRootElement(parser);
-	if (!root) {
+	if (!root)
+	{
 		xmlFreeDoc(parser);
 		return NULL;
 	}
 	std::vector<UPnPEntry> *entries = new std::vector<UPnPEntry>;
 
-	for (node=xmlChildrenNode(root); node; node=xmlNextNode(node))
+	for (node = xmlChildrenNode(root); node; node = xmlNextNode(node))
 	{
 		bool isdir;
 		std::string title, artist = "", album = "", albumArtURI = "", id, children;
@@ -328,32 +332,32 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 		if (!strcmp(xmlGetName(node), "container"))
 		{
 			std::vector<UPnPResource> resources;
-			isdir=true;
-			for (snode=xmlChildrenNode(node); snode; snode=xmlNextNode(snode))
+			isdir = true;
+			for (snode = xmlChildrenNode(node); snode; snode = xmlNextNode(snode))
 			{
-				type=xmlGetName(snode);
-				p = strchr(type,':');
+				type = xmlGetName(snode);
+				p = strchr(type, ':');
 				if (p)
-					type=p+1;
-				if (!strcmp(type,"title"))
+					type = p + 1;
+				if (!strcmp(type, "title"))
 				{
-					p=xmlGetData(snode);
+					p = xmlGetData(snode);
 					if (!p)
 						p = "";
-					title=std::string(p);
+					title = std::string(p);
 				}
 			}
 			p = xmlGetAttribute(node, "id");
 			if (!p)
 				p = "";
-			id=std::string(p);
+			id = std::string(p);
 
 			p = xmlGetAttribute(node, "childCount");
 			if (!p)
 				p = "";
-			children=std::string(p);
+			children = std::string(p);
 
-			UPnPEntry entry={id, isdir, title, artist, album, albumArtURI, children, "", "", resources, -1, CFile::FILE_DIR};
+			UPnPEntry entry = {id, isdir, title, artist, album, albumArtURI, children, "", "", resources, -1, CFile::FILE_DIR};
 			entries->push_back(entry);
 		}
 		if (!strcmp(xmlGetName(node), "item"))
@@ -362,140 +366,140 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 			int preferred = -1;
 			std::string protocol, prot, network, mime, additional;
 			CFile::FileType ftype = CFile::FILE_UNKNOWN;
-			isdir=false;
-			for (snode=xmlChildrenNode(node); snode; snode=xmlNextNode(snode))
+			isdir = false;
+			for (snode = xmlChildrenNode(node); snode; snode = xmlNextNode(snode))
 			{
 				std::string duration, url, size;
 				unsigned int i;
-				type=xmlGetName(snode);
-				p = strchr(type,':');
+				type = xmlGetName(snode);
+				p = strchr(type, ':');
 				if (p)
-					type=p+1;
+					type = p + 1;
 
-				if (!strcmp(type,"title"))
-				{
-					p=xmlGetData(snode);
-					if (!p)
-						p = "";
-					title=std::string(p);
-				}
-				else if (!strcmp(type,"artist"))
-				{
-					p=xmlGetData(snode);
-					if (!p)
-						p = "";
-					artist=std::string(p);
-				}
-				else if (!strcmp(type,"album"))
-				{
-					p=xmlGetData(snode);
-					if (!p)
-						p = "";
-					album=std::string(p);
-				}
-				else if (!strcmp(type,"albumArtURI"))
-				{
-					p=xmlGetData(snode);
-					if (!p)
-						p = "";
-					albumArtURI=std::string(p);
-				}
-				else if (!strcmp(type,"res"))
+				if (!strcmp(type, "title"))
 				{
 					p = xmlGetData(snode);
 					if (!p)
 						p = "";
-					url=std::string(p);
+					title = std::string(p);
+				}
+				else if (!strcmp(type, "artist"))
+				{
+					p = xmlGetData(snode);
+					if (!p)
+						p = "";
+					artist = std::string(p);
+				}
+				else if (!strcmp(type, "album"))
+				{
+					p = xmlGetData(snode);
+					if (!p)
+						p = "";
+					album = std::string(p);
+				}
+				else if (!strcmp(type, "albumArtURI"))
+				{
+					p = xmlGetData(snode);
+					if (!p)
+						p = "";
+					albumArtURI = std::string(p);
+				}
+				else if (!strcmp(type, "res"))
+				{
+					p = xmlGetData(snode);
+					if (!p)
+						p = "";
+					url = std::string(p);
 					p = xmlGetAttribute(snode, "size");
 					if (!p)
 						p = "0";
-					size=std::string(p);
+					size = std::string(p);
 					p = xmlGetAttribute(snode, "duration");
 					if (!p)
 						p = "";
-					duration=std::string(p);
+					duration = std::string(p);
 					p = xmlGetAttribute(snode, "protocolInfo");
 					if (!p)
 						p = "";
-					protocol=std::string(p);
+					protocol = std::string(p);
 					UPnPResource resource = {url, protocol, size, duration};
 					resources.push_back(resource);
 				}
-				int pref=0;
-				preferred=-1;
-				for (i=0; i<resources.size(); i++)
+				int pref = 0;
+				preferred = -1;
+				for (i = 0; i < resources.size(); i++)
 				{
-					protocol=resources[i].protocol;
+					protocol = resources[i].protocol;
 					splitProtocol(protocol, prot, network, mime, additional);
 					if (prot != "http-get")
 						continue;
 
-					if (mime.substr(0,6) == "image/" && pref < 1)
+					if (mime.substr(0, 6) == "image/" && pref < 1)
 					{
-						preferred=i;
+						preferred = i;
 					}
 					if (mime == "image/jpeg" && pref < 1)
 					{
-						preferred=i;
-						pref=1;
+						preferred = i;
+						pref = 1;
 					}
 					if (mime == "image/gif" && pref < 2)
 					{
-						preferred=i;
-						pref=2;
+						preferred = i;
+						pref = 2;
 					}
 					if (mime == "audio/mpeg" && pref < 3)
 					{
-						preferred=i;
-						pref=3;
+						preferred = i;
+						pref = 3;
 						ftype = CFile::FILE_MP3;
 					}
 					if ((mime == "audio/ogg" || mime == "audio/x-ogg") && pref < 4)
 					{
 						ftype = CFile::FILE_OGG;
-						preferred=i;
-						pref=4;
+						preferred = i;
+						pref = 4;
 					}
 					if (mime == "audio/x-flac" && pref < 5)
 					{
-						preferred=i;
-						pref=5;
+						preferred = i;
+						pref = 5;
 						ftype = CFile::FILE_FLAC;
 					}
 					if (mime == "audio/x-wav" && pref < 6)
 					{
-						preferred=i;
-						pref=6;
+						preferred = i;
+						pref = 6;
 						ftype = CFile::FILE_WAV;
 					}
-					if (mime.substr(0,6) == "video/" && pref < 7)
+					if (mime.substr(0, 6) == "video/" && pref < 7)
 					{
-						preferred=i;
-						pref=7;
+						preferred = i;
+						pref = 7;
 					}
 					if (mime == "video/x-flv" && pref < 8)
 					{
-						preferred=i;
-						pref=8;
+						preferred = i;
+						pref = 8;
 					}
 					if (mime == "video/mp4" && pref < 9)
 					{
-						preferred=i;
-						pref=9;
+						preferred = i;
+						pref = 9;
 					}
 				}
 			}
 			p = xmlGetAttribute(node, "id");
 			if (!p)
 				p = "";
-			id=std::string(p);
+			id = std::string(p);
 
 			p = xmlGetAttribute(node, "childCount");
 			if (!p)
 				p = "";
-			children=std::string(p);
+			children = std::string(p);
 
-			UPnPEntry entry={id, isdir, title, artist, album, albumArtURI, children, prot, mime, resources, preferred, ftype};
+			UPnPEntry entry = {id, isdir, title, artist, album, albumArtURI, children, prot, mime, resources, preferred, ftype};
 			entries->push_back(entry);
 		}
 	}
@@ -507,15 +511,17 @@ void CUpnpBrowserGui::updateDeviceSelection(int newpos)
 {
 	if (newpos < 0) /* do not explode if called with -1 arg... */
 		return;
-	if((int) m_selecteddevice != newpos) {
+	if ((int) m_selecteddevice != newpos)
+	{
 		int prev_selected = m_selecteddevice;
 		unsigned int oldliststart = m_deviceliststart;
 
 		m_selecteddevice = newpos;
-		m_deviceliststart = (m_selecteddevice/m_listmaxshow)*m_listmaxshow;
+		m_deviceliststart = (m_selecteddevice / m_listmaxshow) * m_listmaxshow;
 		if (oldliststart != m_deviceliststart)
 			paintDevices();
-		else {
+		else
+		{
 			paintDevice(prev_selected - m_deviceliststart);
 			paintDevice(m_selecteddevice - m_deviceliststart);
 		}
@@ -539,7 +545,7 @@ void CUpnpBrowserGui::selectDevice()
 		if (refresh)
 		{
 			paintDevices();
-			refresh=false;
+			refresh = false;
 		}
 
 		g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout to update play/stop state display
@@ -551,16 +557,18 @@ void CUpnpBrowserGui::selectDevice()
 		}
 		else if (msg == CRCInput::RC_home)
 		{
-			loop=false;
+			loop = false;
 		}
-		else if (msg_repeatok == (neutrino_msg_t) g_settings.key_list_start) {
+		else if (msg_repeatok == (neutrino_msg_t) g_settings.key_list_start)
+		{
 			updateDeviceSelection(0);
 		}
-		else if (msg_repeatok == (neutrino_msg_t) g_settings.key_list_end) {
-			updateDeviceSelection(m_devices.size()-1);
+		else if (msg_repeatok == (neutrino_msg_t) g_settings.key_list_end)
+		{
+			updateDeviceSelection(m_devices.size() - 1);
 		}
 		else if (msg_repeatok == CRCInput::RC_up || (int)msg == g_settings.key_pageup ||
-			 msg_repeatok == CRCInput::RC_down || (int)msg == g_settings.key_pagedown)
+			msg_repeatok == CRCInput::RC_down || (int)msg == g_settings.key_pagedown)
 		{
 			int new_selected = UpDownKey(m_devices, msg_repeatok, m_listmaxshow, m_selecteddevice);
 			updateDeviceSelection(new_selected);
@@ -570,23 +578,23 @@ void CUpnpBrowserGui::selectDevice()
 			m_folderplay = false;
 			selectItem("0");
 			m_frameBuffer->Clear();
-			refresh=true;
+			refresh = true;
 		}
 		else if (msg == CRCInput::RC_blue)
 		{
 			m_devices.clear();
 			if (!discoverDevices())
 				return;
-			refresh=true;
+			refresh = true;
 		}
 		else if (msg == NeutrinoMessages::RECORD_START ||
-				msg == NeutrinoMessages::ZAPTO ||
-				msg == NeutrinoMessages::STANDBY_ON ||
-				msg == NeutrinoMessages::LEAVE_ALL ||
-				msg == NeutrinoMessages::SHUTDOWN ||
-				msg == NeutrinoMessages::SLEEPTIMER)
+			msg == NeutrinoMessages::ZAPTO ||
+			msg == NeutrinoMessages::STANDBY_ON ||
+			msg == NeutrinoMessages::LEAVE_ALL ||
+			msg == NeutrinoMessages::SHUTDOWN ||
+			msg == NeutrinoMessages::SLEEPTIMER)
 		{
-			loop=false;
+			loop = false;
 			g_RCInput->postMsg(msg, data);
 		}
 #if 0
@@ -596,12 +604,12 @@ void CUpnpBrowserGui::selectDevice()
 		}
 		else if (msg > CRCInput::RC_MaxRC)
 #endif
-		else
-		{
-			//printf("msg: %x\n", (int) msg);
-			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
-				loop = false;
-		}
+			else
+			{
+				//printf("msg: %x\n", (int) msg);
+				if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+					loop = false;
+			}
 	}
 	CAudioMute::getInstance()->enableMuteIcon(true);
 }
@@ -617,13 +625,14 @@ void CUpnpBrowserGui::playnext(void)
 		std::list<UPnPAttribute>::iterator i;
 
 		printf("playnext: getResults m_playfolder %s m_playid %d\n", m_playfolder.c_str(), m_playid);
-		if (!getResults(m_playfolder, m_playid, 1, results)) {
+		if (!getResults(m_playfolder, m_playid, 1, results))
+		{
 			m_folderplay = false;
 			return;
 		}
-		for (i=results.begin(); i!=results.end(); ++i)
+		for (i = results.begin(); i != results.end(); ++i)
 		{
-			if (i->first=="NumberReturned")
+			if (i->first == "NumberReturned")
 			{
 				if (atoi(i->second.c_str()) != 1)
 				{
@@ -631,29 +640,32 @@ void CUpnpBrowserGui::playnext(void)
 					return;
 				}
 			}
-			else if (i->first=="Result")
+			else if (i->first == "Result")
 			{
-				entries=decodeResult(i->second);
+				entries = decodeResult(i->second);
 			}
 		}
 		//m_playid++;
 		if ((entries != NULL) && (!(*entries)[0].isdir))
 		{
-			int preferred=(*entries)[0].preferred;
+			int preferred = (*entries)[0].preferred;
 			if (preferred != -1)
 			{
 				std::string &mime = (*entries)[0].mime;
-				if (mime.substr(0,6) == "audio/") {
+				if (mime.substr(0, 6) == "audio/")
+				{
 					m_playing_entry = (*entries)[0];
 					m_playing_entry_is_shown = false;
 					playAudio((*entries)[0].resources[preferred].url, (*entries)[0].type);
 				}
-				else if (mime.substr(0,6) == "video/") {
+				else if (mime.substr(0, 6) == "video/")
+				{
 					m_frameBuffer->Clear();
 					m_folderplay = true;
 					playVideo((*entries)[0].title, (*entries)[0].resources[preferred].url);
 				}
-				else if (mime.substr(0,6) == "image/") {
+				else if (mime.substr(0, 6) == "image/")
+				{
 					if (m_folderplay)
 						timeout = time(NULL) + g_settings.picviewer_slide_time;
 					showPicture((*entries)[0].resources[preferred].url);
@@ -661,12 +673,17 @@ void CUpnpBrowserGui::playnext(void)
 				delete entries;
 				entries = NULL;
 				return;
-			}else{
+			}
+			else
+			{
 				delete entries;
 				entries = NULL;
 			}
-		} else {
-			if(entries){
+		}
+		else
+		{
+			if (entries)
+			{
 				delete entries;
 				entries = NULL;
 			}
@@ -681,14 +698,15 @@ void CUpnpBrowserGui::playnext(void)
 			}
 		}
 	}
-	if(entries){
+	if (entries)
+	{
 		delete entries;
 		entries = NULL;
 	}
 	m_frameBuffer->Clear();
 }
 
-bool CUpnpBrowserGui::getItems(std::string id, unsigned int index, std::vector<UPnPEntry> * &entries, unsigned int &total)
+bool CUpnpBrowserGui::getItems(std::string id, unsigned int index, std::vector<UPnPEntry>*&entries, unsigned int &total)
 {
 	bool tfound = false;
 	bool rfound = false;
@@ -704,20 +722,28 @@ bool CUpnpBrowserGui::getItems(std::string id, unsigned int index, std::vector<U
 	if (!getResults(id, index, m_listmaxshow, results))
 		return false;
 
-	for (i=results.begin(); i!=results.end(); ++i) {
-		if (i->first=="NumberReturned") {
-			returned=atoi(i->second.c_str());
-			nfound=true;
-		} else if (i->first=="TotalMatches") {
-			total=atoi(i->second.c_str());
-			tfound=true;
-		} else if (i->first=="Result") {
-			entries=decodeResult(i->second);
-			rfound=true;
+	for (i = results.begin(); i != results.end(); ++i)
+	{
+		if (i->first == "NumberReturned")
+		{
+			returned = atoi(i->second.c_str());
+			nfound = true;
+		}
+		else if (i->first == "TotalMatches")
+		{
+			total = atoi(i->second.c_str());
+			tfound = true;
+		}
+		else if (i->first == "Result")
+		{
+			entries = decodeResult(i->second);
+			rfound = true;
 		}
 	}
-	if (!entries || !nfound || !tfound || !rfound || returned != entries->size() || returned == 0){
-		if(entries){
+	if (!entries || !nfound || !tfound || !rfound || returned != entries->size() || returned == 0)
+	{
+		if (entries)
+		{
 			delete entries;
 			entries = NULL;
 		}
@@ -726,21 +752,25 @@ bool CUpnpBrowserGui::getItems(std::string id, unsigned int index, std::vector<U
 	return true;
 }
 
-bool CUpnpBrowserGui::updateItemSelection(std::string id, std::vector<UPnPEntry> * &entries, int newpos, unsigned int &selected, unsigned int &liststart)
+bool CUpnpBrowserGui::updateItemSelection(std::string id, std::vector<UPnPEntry>*&entries, int newpos, unsigned int &selected, unsigned int &liststart)
 {
-	if((int) selected != newpos) {
+	if ((int) selected != newpos)
+	{
 		int prev_selected = selected;
 		unsigned int oldliststart = liststart;
 
 		selected = newpos;
-		liststart = (selected/m_listmaxshow)*m_listmaxshow;
+		liststart = (selected / m_listmaxshow) * m_listmaxshow;
 		printf("updateItemSelection: list start old %u new %d selected old %d new %d\n", oldliststart, liststart, prev_selected, selected);
-		if (oldliststart != liststart) {
+		if (oldliststart != liststart)
+		{
 			unsigned int total;
 			if (!getItems(id, liststart, entries, total))
 				return false;
 			paintItems(entries, selected - liststart, total - liststart, liststart);
-		} else {
+		}
+		else
+		{
 			paintItem(entries, prev_selected - liststart, selected - liststart);
 			paintItem(entries, selected - liststart, selected - liststart);
 		}
@@ -766,40 +796,49 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 	if (!getItems(id, liststart, entries, total))
 		return endall;
 
-	while (loop && entries!=NULL) {
+	while (loop && entries != NULL)
+	{
 		updateTimes();
 		updateMode();
 
-		if (refresh) {
+		if (refresh)
+		{
 			printf("selectItem: refresh, timeout = %d\n", (int) timeout);
 			if (!timeout)
 				paintItems(entries, selected - liststart, total - liststart, liststart);
-			refresh=false;
+			refresh = false;
 		}
 
 		g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout to update play/stop state display
 		neutrino_msg_t msg_repeatok = msg & ~CRCInput::RC_Repeat;
 
-		if (msg == CRCInput::RC_timeout) {
+		if (msg == CRCInput::RC_timeout)
+		{
 			// nothing
 		}
-		else if (msg == CRCInput::RC_home) {
-			loop=false;
-			endall=true;
+		else if (msg == CRCInput::RC_home)
+		{
+			loop = false;
+			endall = true;
 		}
-		else if (!timeout && (msg == CRCInput::RC_left)) {
-			loop=false;
+		else if (!timeout && (msg == CRCInput::RC_left))
+		{
+			loop = false;
 		}
-		else if (!timeout && (msg_repeatok == (neutrino_msg_t) g_settings.key_list_start)) {
+		else if (!timeout && (msg_repeatok == (neutrino_msg_t) g_settings.key_list_start))
+		{
 			updateItemSelection(id, entries, 0, selected, liststart);
 		}
-		else if (!timeout && (msg_repeatok == (neutrino_msg_t) g_settings.key_list_end)) {
-			updateItemSelection(id, entries, total-1, selected, liststart);
+		else if (!timeout && (msg_repeatok == (neutrino_msg_t) g_settings.key_list_end))
+		{
+			updateItemSelection(id, entries, total - 1, selected, liststart);
 		}
-		else if (!timeout && (msg_repeatok == CRCInput::RC_up || (int) msg == g_settings.key_pageup)) {
+		else if (!timeout && (msg_repeatok == CRCInput::RC_up || (int) msg == g_settings.key_pageup))
+		{
 			int step = ((int) msg == g_settings.key_pageup) ? m_listmaxshow : 1;  // browse or step 1
 			int new_selected = selected - step;
-			if (new_selected < 0) {
+			if (new_selected < 0)
+			{
 				if (selected != 0 && step != 1)
 					new_selected = 0;
 				else
@@ -807,47 +846,53 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			}
 			updateItemSelection(id, entries, new_selected, selected, liststart);
 		}
-		else if (!timeout && (msg_repeatok == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)) {
-			int step =  ((int) msg == g_settings.key_pagedown) ? m_listmaxshow : 1;  // browse or step 1
+		else if (!timeout && (msg_repeatok == CRCInput::RC_down || (int) msg == g_settings.key_pagedown))
+		{
+			int step = ((int) msg == g_settings.key_pagedown) ? m_listmaxshow : 1;   // browse or step 1
 			int new_selected = selected + step;
-			if (new_selected >= (int) total) {
-				if ((total - m_listmaxshow -1 < selected) && (selected != (total - 1)) && (step != 1))
+			if (new_selected >= (int) total)
+			{
+				if ((total - m_listmaxshow - 1 < selected) && (selected != (total - 1)) && (step != 1))
 					new_selected = total - 1;
 				else if (((total / m_listmaxshow) + 1) * m_listmaxshow == total + m_listmaxshow) // last page has full entries
 					new_selected = 0;
 				else
-					new_selected = ((step == (int) m_listmaxshow) && (new_selected < (int) (((total / m_listmaxshow)+1) * m_listmaxshow))) ? (total - 1) : 0;
+					new_selected = ((step == (int) m_listmaxshow) && (new_selected < (int)(((total / m_listmaxshow) + 1) * m_listmaxshow))) ? (total - 1) : 0;
 			}
 			updateItemSelection(id, entries, new_selected, selected, liststart);
 		}
-		else if (!timeout && (msg == CRCInput::RC_ok || msg == CRCInput::RC_right)) {
+		else if (!timeout && (msg == CRCInput::RC_ok || msg == CRCInput::RC_right))
+		{
 			if ((selected - liststart) >= (*entries).size())
 				continue;
-			if ((*entries)[selected - liststart].isdir) {
-				endall=selectItem((*entries)[selected - liststart].id);
+			if ((*entries)[selected - liststart].isdir)
+			{
+				endall = selectItem((*entries)[selected - liststart].id);
 				if (endall)
-					loop=false;
-				refresh=true;
-			} else {
+					loop = false;
+				refresh = true;
+			}
+			else
+			{
 				m_folderplay = false;
-				int preferred=(*entries)[selected - liststart].preferred;
+				int preferred = (*entries)[selected - liststart].preferred;
 				if (preferred != -1)
 				{
 					std::string &mime = (*entries)[selected - liststart].mime;
-					if (mime.substr(0,6) == "audio/")
+					if (mime.substr(0, 6) == "audio/")
 					{
 						m_playing_entry = (*entries)[selected - liststart];
 						m_playing_entry_is_shown = false;
 						playAudio((*entries)[selected - liststart].resources[preferred].url, (*entries)[selected - liststart].type);
 					}
-					else if (mime.substr(0,6) == "video/")
+					else if (mime.substr(0, 6) == "video/")
 					{
 						m_frameBuffer->Clear();
 						playVideo((*entries)[selected - liststart].title, (*entries)[selected - liststart].resources[preferred].url);
 						m_frameBuffer->showFrame("mp3.jpg");
 						refresh = true;
 					}
-					else if (mime.substr(0,6) == "image/")
+					else if (mime.substr(0, 6) == "image/")
 					{
 						videoDecoder->setBlank(true);
 						showPicture((*entries)[selected - liststart].resources[preferred].url);
@@ -858,18 +903,21 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 
 							if (msg == CRCInput::RC_home || msg == CRCInput::RC_ok)
 								break;
-							else if (msg == CRCInput::RC_right || msg == CRCInput::RC_down) {
+							else if (msg == CRCInput::RC_right || msg == CRCInput::RC_down)
+							{
 								m_playfolder = id;
-								m_playid = (m_playid + 1)%total;
+								m_playid = (m_playid + 1) % total;
 								playnext();
 							}
-							else if (msg == CRCInput::RC_left || msg == CRCInput::RC_up) {
+							else if (msg == CRCInput::RC_left || msg == CRCInput::RC_up)
+							{
 								m_playfolder = id;
 								m_playid--;
 								if (m_playid < 0)
 									m_playid = total - 1;
 								playnext();
-							} else
+							}
+							else
 								CNeutrinoApp::getInstance()->handleMsg(msg, data);
 						}
 						m_frameBuffer->Clear();
@@ -879,7 +927,8 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 				}
 			}
 		}
-		else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause) {
+		else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
+		{
 			if ((selected - liststart) >= (*entries).size())
 				continue;
 			m_folderplay = true;
@@ -888,35 +937,39 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			playnext();
 			m_playid++;
 		}
-		else if (msg == CRCInput::RC_yellow) {
+		else if (msg == CRCInput::RC_yellow)
+		{
 			m_folderplay = false;
 			stopAudio();
 		}
 		else if (m_folderplay && (msg == (neutrino_msg_t) CRCInput::RC_stop
-			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP
-			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL)){
+				|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_STOP
+				|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL))
+		{
 			timeout = 0;
 			m_folderplay = false;
 			m_frameBuffer->Clear();
 			refresh = true;
 		}
-		else if (m_folderplay && ((msg == (neutrino_msg_t) CRCInput::RC_prev) || video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV)){
+		else if (m_folderplay && ((msg == (neutrino_msg_t) CRCInput::RC_prev) || video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_PREV))
+		{
 			timeout = 0;
 			m_playid -= 2;
 			if (m_playid < 0)
 				m_playid = 0;
 		}
 		else if (m_folderplay && (msg == (neutrino_msg_t) CRCInput::RC_next
-			|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT)){
+				|| video_key_msg == CMoviePlayerGui::PLUGIN_PLAYSTATE_NEXT))
+		{
 			timeout = 0;
 			stopAudio();
 		}
 		else if (msg == NeutrinoMessages::RECORD_START ||
-				msg == NeutrinoMessages::ZAPTO ||
-				msg == NeutrinoMessages::STANDBY_ON ||
-				msg == NeutrinoMessages::LEAVE_ALL ||
-				msg == NeutrinoMessages::SHUTDOWN ||
-				msg == NeutrinoMessages::SLEEPTIMER)
+			msg == NeutrinoMessages::ZAPTO ||
+			msg == NeutrinoMessages::STANDBY_ON ||
+			msg == NeutrinoMessages::LEAVE_ALL ||
+			msg == NeutrinoMessages::SHUTDOWN ||
+			msg == NeutrinoMessages::SLEEPTIMER)
 		{
 			loop = false;
 			g_RCInput->postMsg(msg, data);
@@ -928,14 +981,15 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 		}
 		else if (msg > CRCInput::RC_MaxRC)
 #endif
-		else
-		{
-			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
-				loop = false;
-			//refresh=true;
-		}
+			else
+			{
+				if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+					loop = false;
+				//refresh=true;
+			}
 
-		if (m_folderplay && ((!timeout || (timeout <= time(NULL))) && (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP))) {
+		if (m_folderplay && ((!timeout || (timeout <= time(NULL))) && (CAudioPlayer::getInstance()->getState() == CBaseDec::STOP)))
+		{
 			playnext();
 			m_playid++;
 		}
@@ -968,12 +1022,12 @@ void CUpnpBrowserGui::paintDeviceInfo()
 
 	// first line
 	tmp = m_devices[m_selecteddevice].manufacturer + " " +
-	      m_devices[m_selecteddevice].manufacturerurl + "\n";
+		m_devices[m_selecteddevice].manufacturerurl + "\n";
 
 	// second line
 	tmp += m_devices[m_selecteddevice].modelname + " " +
-	      m_devices[m_selecteddevice].modelnumber + " " +
-	      m_devices[m_selecteddevice].modeldescription + "\n";
+		m_devices[m_selecteddevice].modelnumber + " " +
+		m_devices[m_selecteddevice].modeldescription + "\n";
 
 	// third line
 	tmp += m_devices[m_selecteddevice].modelurl;
@@ -986,7 +1040,7 @@ void CUpnpBrowserGui::paintDeviceInfo()
 
 void CUpnpBrowserGui::paintDevice(unsigned int _pos)
 {
-	int ypos = m_item_y + _pos*m_item_height;
+	int ypos = m_item_y + _pos * m_item_height;
 	unsigned int pos = m_deviceliststart + _pos;
 
 	bool i_selected	= pos == m_selecteddevice;
@@ -1025,7 +1079,7 @@ void CUpnpBrowserGui::paintDevices()
 
 	// Head
 	CComponentsHeader header(m_x, m_header_y, m_width, m_header_height, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
-	header.enableShadow( CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
+	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 	if (CNeutrinoApp::getInstance()->isMuted()) //TODO: consider mute mode on runtime
 		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	else
@@ -1034,14 +1088,14 @@ void CUpnpBrowserGui::paintDevices()
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// Items
-	for (unsigned int count=0; count<m_listmaxshow; count++)
+	for (unsigned int count = 0; count < m_listmaxshow; count++)
 		paintDevice(count);
 
 	// scrollbar
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, m_devices.size(), m_listmaxshow, m_selecteddevice);
-	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
+	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height * m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 
 	// Foot
 	footer.setCorner(RADIUS_LARGE, CORNER_BOTTOM);
@@ -1052,7 +1106,7 @@ void CUpnpBrowserGui::paintDevices()
 
 void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entries, unsigned int pos, unsigned int selected)
 {
-	int ypos = m_item_y + pos*m_item_height;
+	int ypos = m_item_y + pos * m_item_height;
 
 	bool i_selected	= pos == selected;
 	int i_radius	= RADIUS_NONE;
@@ -1084,7 +1138,7 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entries, unsigned int po
 			paintItem2DetailsLine(pos);
 	}
 
-	int preferred=entry->preferred;
+	int preferred = entry->preferred;
 	std::string info;
 	std::string fileicon;
 	if (entry->isdir)
@@ -1117,7 +1171,7 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entries, unsigned int po
 	if (icon_w && icon_h)
 	{
 		icon_o = icon_w + OFFSET_INNER_MID;
-		m_frameBuffer->paintIcon(fileicon, m_x + OFFSET_INNER_MID, ypos + (m_item_height - icon_h)/2);
+		m_frameBuffer->paintIcon(fileicon, m_x + OFFSET_INNER_MID, ypos + (m_item_height - icon_h) / 2);
 	}
 	g_Font[font_item]->RenderString(m_x + OFFSET_INNER_MID + icon_o, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, name, color, m_item_height);
 	g_Font[font_item]->RenderString(m_x + m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, ypos + m_item_height, w, info, color, m_item_height);
@@ -1128,13 +1182,13 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	std::string tmp;
 	std::stringstream ts;
 
-	int preferred=entry->preferred;
+	int preferred = entry->preferred;
 
 	// LCD
 	CVFD::getInstance()->showMenuText(0, entry->title.c_str(), -1, true);
 
 	// first line
-	ts << "Resources: " << entry->resources.size() << " Selected: " << preferred+1 << " ";
+	ts << "Resources: " << entry->resources.size() << " Selected: " << preferred + 1 << " ";
 	tmp = ts.str();
 
 	if (preferred != -1)
@@ -1159,13 +1213,14 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 		tmp += "URL: " + entry->resources[preferred].url;
 
 	std::string tmpname = "";
-	if(!entry->albumArtURI.empty())
+	if (!entry->albumArtURI.empty())
 	{
 		tmpname = entry->albumArtURI.c_str();
 		tmpname = g_PicViewer->DownloadImage(tmpname);
 		int h_image = infobox.getHeight() - OFFSET_INTER - infobox.getCornerRadius();
-		int y_image = infobox.getYPos() + infobox.getHeight()/2 - h_image/2;
-		if (!image){
+		int y_image = infobox.getYPos() + infobox.getHeight() / 2 - h_image / 2;
+		if (!image)
+		{
 			image = new CComponentsPicture(0, y_image, tmpname, NULL, CC_SHADOW_OFF, COL_MENUCONTENTDARK_PLUS_0);
 			image->doPaintBg(false);
 			image->SetTransparent(CFrameBuffer::TM_BLACK);
@@ -1174,8 +1229,11 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 		image->setHeight(h_image);
 		int x_image = infobox.getXPos() + infobox.getWidth() - image->getWidth() - OFFSET_INTER - infobox.getCornerRadius();
 		image->setXPos(x_image);
-	}else{
-		if (image){
+	}
+	else
+	{
+		if (image)
+		{
 			delete image; image = NULL;
 		}
 	}
@@ -1205,39 +1263,44 @@ void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int sel
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// Items
-	for (unsigned int count=0; count<m_listmaxshow; count++)
+	for (unsigned int count = 0; count < m_listmaxshow; count++)
 		paintItem(entry, count, selected);
 
 	//scrollbar
 	int total_pages;
 	int current_page;
 	getScrollBarData(&total_pages, &current_page, max + offset, m_listmaxshow, selected + offset);
-	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height*m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
+	paintScrollBar(m_x + m_width - SCROLLBAR_WIDTH, m_item_y, SCROLLBAR_WIDTH, m_item_height * m_listmaxshow, total_pages, current_page, CC_SHADOW_ON);
 
 	// Foot buttons
-	size_t numbuttons = sizeof(BrowseButtons)/sizeof(BrowseButtons[0]);
-	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, numbuttons, BrowseButtons, m_width/numbuttons);
+	size_t numbuttons = sizeof(BrowseButtons) / sizeof(BrowseButtons[0]);
+	footer.paintButtons(m_x, m_footer_y, m_width, m_footer_height, numbuttons, BrowseButtons, m_width / numbuttons);
 }
 
 void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 {
 	// Foot info
 	char tmp_time[] = "000:00";
-	int timebox_width = timebox.getFont()->getRenderWidth(tmp_time) + OFFSET_INNER_MID*2;
+	int timebox_width = timebox.getFont()->getRenderWidth(tmp_time) + OFFSET_INNER_MID * 2;
 	infobox.setDimensionsAll(m_x, m_infobox_y, m_width - OFFSET_SHADOW - OFFSET_INTER - timebox_width, m_infobox_height);
 	infobox.setCorner(RADIUS_LARGE);
 	timebox.setDimensionsAll(m_x + m_width - timebox_width, infobox.getYPos(), timebox_width, m_infobox_height);
 	timebox.setCorner(RADIUS_LARGE);
 
 	printf("paintDetails: use_playing %d shown %d\n", use_playing, m_playing_entry_is_shown);
-	if ((!use_playing) && entry->isdir){
+	if ((!use_playing) && entry->isdir)
+	{
 		infobox.kill();
 		timebox.kill();
 		m_playing_entry_is_shown = false;
-	}else{
+	}
+	else
+	{
 		std::string text = "";
-		if (use_playing){
-			if (!m_playing_entry_is_shown){
+		if (use_playing)
+		{
+			if (!m_playing_entry_is_shown)
+			{
 				m_playing_entry_is_shown = true;
 				text = m_playing_entry.title;
 				text += !m_playing_entry.artist.empty() ? " - " + m_playing_entry.artist : "";
@@ -1245,7 +1308,9 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 				if (infobox.setText(text, CTextBox::AUTO_WIDTH))
 					infobox.paint0();
 			}
-		}else{
+		}
+		else
+		{
 			if (!entry)
 				return;
 			m_playing_entry_is_shown = false;
@@ -1263,8 +1328,10 @@ void CUpnpBrowserGui::paintDetails(UPnPEntry *entry, bool use_playing)
 
 void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 {
-	if (pos < 0){
-		if (dline){
+	if (pos < 0)
+	{
+		if (dline)
+		{
 			dline->kill();
 			infobox.kill();
 			timebox.kill();
@@ -1273,23 +1340,25 @@ void CUpnpBrowserGui::paintItem2DetailsLine(int pos)
 	}
 
 	int xpos  = m_x - DETAILSLINE_WIDTH;
-	int ypos1 = m_item_y + pos*m_item_height;
-	int ypos2 = infobox.getYPos() + infobox.getHeight() - infobox.getHeight()/2;
+	int ypos1 = m_item_y + pos * m_item_height;
+	int ypos2 = infobox.getYPos() + infobox.getHeight() - infobox.getHeight() / 2;
 
-	int ypos1a = ypos1 + (m_item_height/2);
+	int ypos1a = ypos1 + (m_item_height / 2);
 
 	if (!dline)
 		dline = new CComponentsDetailsLine();
-	dline->setDimensionsAll(xpos, ypos1a, ypos2, m_item_height/2, infobox.getHeight() - RADIUS_LARGE*2);
+	dline->setDimensionsAll(xpos, ypos1a, ypos2, m_item_height / 2, infobox.getHeight() - RADIUS_LARGE * 2);
 	dline->paint();
 }
 
 void CUpnpBrowserGui::updateTimes(const bool force)
 {
-	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP){
+	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
+	{
 		bool updatePlayed = force;
 
-		if ((m_time_played != CAudioPlayer::getInstance()->getTimePlayed())){
+		if ((m_time_played != CAudioPlayer::getInstance()->getTimePlayed()))
+		{
 			m_time_played = CAudioPlayer::getInstance()->getTimePlayed();
 			updatePlayed = true;
 		}
@@ -1298,7 +1367,8 @@ void CUpnpBrowserGui::updateTimes(const bool force)
 		char play_time[14];
 		snprintf(play_time, sizeof(play_time), "%ld:%02ld", m_time_played / 60, m_time_played % 60);
 
-		if (updatePlayed){
+		if (updatePlayed)
+		{
 			timebox.setText(play_time, CTextBox::CENTER);
 			timebox.paint0();
 		}
@@ -1339,10 +1409,10 @@ void CUpnpBrowserGui::showPicture(std::string name)
 	g_PicViewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	g_PicViewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
-	if (g_settings.video_Format==3)
-		g_PicViewer->SetAspectRatio(16.0/9);
+	if (g_settings.video_Format == 3)
+		g_PicViewer->SetAspectRatio(16.0 / 9);
 	else
-		g_PicViewer->SetAspectRatio(4.0/3);
+		g_PicViewer->SetAspectRatio(4.0 / 3);
 
 	g_PicViewer->ShowImage(name, false);
 	g_PicViewer->Cleanup();
