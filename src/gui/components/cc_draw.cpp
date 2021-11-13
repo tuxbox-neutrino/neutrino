@@ -121,11 +121,13 @@ bool CCDraw::applyDimChanges()
 {
 	bool ret = false;
 	if (height != height_old){
+		height = std::max(0, height);
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], dim changes height %d != height_old %d...\033[0m\n", __func__, __LINE__, height, height_old);
 		height_old = height;
 		ret = true;
 	}
 	if (width != width_old){
+		width = std::max(0, width);
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], dim changes width %d != width_old %d...\033[0m\n", __func__, __LINE__, width, width_old);
 		width_old = width;
 		ret = true;
