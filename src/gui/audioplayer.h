@@ -168,6 +168,9 @@ class CAudioPlayerGui : public CMenuTarget
 		void showMetaData();
 		bool getNumericInput(neutrino_msg_t& msg, int& val);
 
+		void getCurrentCaption(std::string* text);
+		void getCurrentTitleArtist(std::string* text);
+
 		void addToPlaylist(CAudiofileExt &file);
 		void removeFromPlaylist(long pos);
 

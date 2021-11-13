@@ -27,7 +27,7 @@
 #include <config.h>
 #endif
 
-#include <gui/audioplayer.h>
+#include "gui/audioplayer.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -1873,6 +1873,42 @@ void CAudioPlayerGui::paintCover()
 		cover_object.paint();
 	}
 }
+void CAudioPlayerGui::getCurrentCaption(std::string* text)
+{
+	if (m_inetmode)
+	{
+		*text = m_curr_audiofile.MetaData.album;
+	}
+	else
+	{
+		char sNr[20];
+		sprintf(sNr, ": %2d", m_current + 1);
+		*text = g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYING);
+		*text += sNr ;
+	}
+}
+
+void CAudioPlayerGui::getCurrentTitleArtist(std::string* text)
+{
+	GetMetaData(m_curr_audiofile);
+
+	if (m_curr_audiofile.MetaData.title.empty())
+		*text = m_curr_audiofile.MetaData.artist;
+	else if (m_curr_audiofile.MetaData.artist.empty())
+		*text = m_curr_audiofile.MetaData.title;
+	else if (g_settings.audioplayer_display == TITLE_ARTIST)
+	{
+		*text = m_curr_audiofile.MetaData.title;
+		*text += " - ";
+		*text += m_curr_audiofile.MetaData.artist;
+	}
+	else //if (g_settings.audioplayer_display == ARTIST_TITLE)
+	{
+		*text = m_curr_audiofile.MetaData.artist;
+		*text += " - ";
+		*text += m_curr_audiofile.MetaData.title;
+	}
+}
 
 void CAudioPlayerGui::paintTitleBox()
 {
@@ -1901,17 +1937,7 @@ void CAudioPlayerGui::paintTitleBox()
 
 		// first line (Track number)
 		std::string tmp;
-		if (m_inetmode)
-		{
-			tmp = m_curr_audiofile.MetaData.album;
-		}
-		else
-		{
-			char sNr[20];
-			sprintf(sNr, ": %2d", m_current + 1);
-			tmp = g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYING);
-			tmp += sNr ;
-		}
+		getCurrentCaption(&tmp);
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 		int xstart = (m_width - w)/2;
@@ -1920,24 +1946,8 @@ void CAudioPlayerGui::paintTitleBox()
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + OFFSET_INNER_SMALL + 1*m_item_height, m_width - OFFSET_INNER_MID - xstart, tmp, COL_MENUHEAD_TEXT); //caption "current track"
 
 		// second line (Artist/Title...)
-		GetMetaData(m_curr_audiofile);
+		getCurrentTitleArtist(&tmp);
 
-		if (m_curr_audiofile.MetaData.title.empty())
-			tmp = m_curr_audiofile.MetaData.artist;
-		else if (m_curr_audiofile.MetaData.artist.empty())
-			tmp = m_curr_audiofile.MetaData.title;
-		else if (g_settings.audioplayer_display == TITLE_ARTIST)
-		{
-			tmp = m_curr_audiofile.MetaData.title;
-			tmp += " - ";
-			tmp += m_curr_audiofile.MetaData.artist;
-		}
-		else //if (g_settings.audioplayer_display == ARTIST_TITLE)
-		{
-			tmp = m_curr_audiofile.MetaData.artist;
-			tmp += " - ";
-			tmp += m_curr_audiofile.MetaData.title;
-		}
 		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 		xstart = (m_width - w)/2;
 		if (xstart < OFFSET_INNER_MID + m_cover_width)
