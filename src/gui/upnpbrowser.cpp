@@ -1171,7 +1171,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 			image->SetTransparent(CFrameBuffer::TM_BLACK);
 		}
 		image->setPicture(tmpname);
-		image->setHeight(h_image, true);
+		image->setHeight(h_image);
 		int x_image = infobox.getXPos() + infobox.getWidth() - image->getWidth() - OFFSET_INTER - infobox.getCornerRadius();
 		image->setXPos(x_image);
 	}else{
