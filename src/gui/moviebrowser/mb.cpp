@@ -1449,7 +1449,7 @@ void CMovieBrowser::refreshChannelLogo(void)
 	if (old_EpgId != m_movieSelectionHandler->epgId >> 16 || old_ChannelName != m_movieSelectionHandler->channelName)
 	{
 		if (m_channelLogo == NULL)
-			m_channelLogo = new CComponentsChannelLogoScalable(0, 0, m_movieSelectionHandler->channelName, m_movieSelectionHandler->epgId >>16); //TODO: add logo into header as item
+			m_channelLogo = new CComponentsChannelLogo(0, 0, m_movieSelectionHandler->channelName, m_movieSelectionHandler->epgId >>16); //TODO: add logo into header as item
 		old_EpgId = m_movieSelectionHandler->epgId >> 16;
 		old_ChannelName = m_movieSelectionHandler->channelName;
 	}
@@ -1457,9 +1457,9 @@ void CMovieBrowser::refreshChannelLogo(void)
 	if (m_channelLogo && m_channelLogo->hasLogo())
 	{
 		// TODO: move into an own handler, eg. header, so channel logo should be paint in header object
-		m_channelLogo->setWidth(std::min(m_channelLogo->getWidth(), w_logo_max), true);
+		m_channelLogo->setWidth(std::min(m_channelLogo->getWidth(), w_logo_max));
 		if (m_channelLogo->getHeight() > h_logo_max)
-			m_channelLogo->setHeight(h_logo_max, true);
+			m_channelLogo->setHeight(h_logo_max);
 
 		int x = m_cBoxFrame.iX + m_cBoxFrameTitleRel.iX + m_cBoxFrameTitleRel.iWidth - m_channelLogo->getWidth() - OFFSET_INNER_MID;
 		int y = m_cBoxFrame.iY + m_cBoxFrameTitleRel.iY + (m_cBoxFrameTitleRel.iHeight - m_channelLogo->getHeight())/2;
@@ -1540,9 +1540,9 @@ void CMovieBrowser::initMovieCover(void)
 
 			m_movieCover->setHeight(0); // force recalculation
 TRACE("[mb]->%s:%d m_movieCover->getHeight(): %d\n", __func__, __LINE__, m_movieCover->getHeight());
-			m_movieCover->setWidth(cover_w, true);
+			m_movieCover->setWidth(cover_w);
 			if (m_movieCover->getHeight() > movieCoverBox.iHeight/3)
-				m_movieCover->setHeight(movieCoverBox.iHeight/3, true); // use maximal one third of box height
+				m_movieCover->setHeight(movieCoverBox.iHeight/3); // use maximal one third of box height
 
 			m_movieCover->setXPos(movieCoverBox.iX + (movieCoverBox.iWidth - m_movieCover->getWidth())/2);
 			m_movieCover->setYPos(movieCoverBox.iY + OFFSET_INNER_MID);
@@ -1551,9 +1551,9 @@ TRACE("[mb]->%s:%d m_movieCover->getHeight(): %d\n", __func__, __LINE__, m_movie
 		{
 			m_movieCover->setWidth(0); // force recalculation
 TRACE("[mb]->%s:%d m_movieCover->getWidth(): %d\n", __func__, __LINE__, m_movieCover->getWidth());
-			m_movieCover->setHeight(cover_h, true);
+			m_movieCover->setHeight(cover_h);
 			if (m_movieCover->getWidth() > movieCoverBox.iWidth/3)
-				m_movieCover->setWidth(movieCoverBox.iWidth/3, true); // use maximal one third of box width
+				m_movieCover->setWidth(movieCoverBox.iWidth/3); // use maximal one third of box width
 
 			m_movieCover->setXPos(movieCoverBox.iX + movieCoverBox.iWidth - m_movieCover->getWidth() - 2*OFFSET_INNER_MID - OFFSET_SHADOW);
 			m_movieCover->setYPos(movieCoverBox.iY + (movieCoverBox.iHeight - m_movieCover->getHeight())/2);
