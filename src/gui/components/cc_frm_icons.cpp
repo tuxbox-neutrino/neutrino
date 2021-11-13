@@ -1,9 +1,9 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2018 Thilo Graf 'dbt'
+	Copyright (C) 2012-2021 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -34,25 +34,35 @@
 using namespace std;
 
 //sub class CComponentsIconForm inherit from CComponentsForm
-CComponentsIconForm::CComponentsIconForm(CComponentsForm* parent)
+CComponentsIconForm::CComponentsIconForm(CComponentsForm *parent)
 {
 	initVarIconForm(1, 1, 0, 0, vector<string>(), parent);
 }
 
-CComponentsIconForm::CComponentsIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+CComponentsIconForm::CComponentsIconForm(	const int &x_pos,
+						const int &y_pos,
+						const int &w,
+						const int &h,
 						const std::vector<std::string> &v_icon_names,
-						CComponentsForm* parent,
+						CComponentsForm *parent,
 						int shadow_mode,
-						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+						fb_pixel_t color_frame,
+						fb_pixel_t color_body,
+						fb_pixel_t color_shadow)
 {
 	initVarIconForm(x_pos, y_pos, w, h, v_icon_names, parent, shadow_mode, color_frame, color_body, color_shadow);
 }
 
-void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+void CComponentsIconForm::initVarIconForm(	const int &x_pos,
+						const int &y_pos,
+						const int &w,
+						const int &h,
 						const std::vector<std::string> &v_icon_names,
-						CComponentsForm* parent,
+						CComponentsForm *parent,
 						int shadow_mode,
-						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+						fb_pixel_t color_frame,
+						fb_pixel_t color_body,
+						fb_pixel_t color_shadow)
 {
 	cc_item_type.id 	= CC_ITEMTYPE_FRM_ICONFORM;
 	cc_item_type.name 	= "cc_icon_container";
@@ -75,34 +85,29 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 	addIcon(v_icons);
 }
 
-void CComponentsIconForm::addIcon(const std::string& icon_name)
+void CComponentsIconForm::addIcon(const std::string &icon_name)
 {
 	if (icon_name.empty())
 		return;
 
 	//create new cc-picture item object
-	CComponentsPicture *ccp = new CComponentsPicture(chn_direction == CC_DIR_X ? CC_APPEND : CC_CENTERED,
-							chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED,
-							0, 0,
-							icon_name,
-							this);
-	ccp->doPaintBg(false);
-	int dx, dy;
-	ccp->getRealSize(&dx, &dy);
-	height = max(height, dy);
-	width = max(width, dx);
+	CComponentsPicture *ccp = new CComponentsPicture(chn_direction == CC_DIR_X ? CC_APPEND : CC_CENTERED, chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED, icon_name);
+	addCCItem(ccp);
+	height = max(height, ccp->getHeight());
+	width = max(width, ccp->getWidth());
 	initChainItems();
 }
 
 void CComponentsIconForm::addIcon(std::vector<std::string> icon_name)
 {
-	for (size_t i= 0; i< icon_name.size(); i++)
+	for (size_t i = 0; i < icon_name.size(); i++)
 		addIcon(icon_name[i]);
 }
 
-void CComponentsIconForm::addIcons(const std::string& icon_name, const size_t& count)
+void CComponentsIconForm::addIcons(const std::string &icon_name, const size_t &count)
 {
-	if (count == 0){
+	if (count == 0)
+	{
 		dprintf(DEBUG_NORMAL, "[CComponentsIconForm]\t[%s - %d], NOTE: no count of items defined...\n", __func__, __LINE__);
 		return;
 	}
@@ -110,20 +115,16 @@ void CComponentsIconForm::addIcons(const std::string& icon_name, const size_t& c
 		addIcon(icon_name);
 }
 
-void CComponentsIconForm::insertIcon(const uint& icon_id, const std::string& icon_name)
+void CComponentsIconForm::insertIcon(const uint &icon_id, const std::string &icon_name)
 {
 	//create new cc-picture item object
-	CComponentsPicture *ccp = new CComponentsPicture(chn_direction == CC_DIR_X ? CC_APPEND : CC_CENTERED,
-							chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED,
-							0, 0,
-							icon_name);
-	ccp->doPaintBg(false);
+	CComponentsPicture *ccp = new CComponentsPicture(chn_direction == CC_DIR_X ? CC_APPEND : CC_CENTERED, chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED, 0, 0, icon_name);
 
 	insertCCItem(icon_id, ccp);
 	initChainItems();
 }
 
-void CComponentsIconForm::removeIcon(const uint& icon_id)
+void CComponentsIconForm::removeIcon(const uint &icon_id)
 {
 	removeCCItem(icon_id);
 	initChainItems();
@@ -141,9 +142,9 @@ void CComponentsIconForm::removeAllIcons()//TODO
 //get maximal form height depends of biggest icon height, but don't touch defined form height
 void CComponentsIconForm::initMaxHeight(int *pheight)
 {
-	for (size_t i= 0; i< v_icons.size(); i++){
-		int dummy, htmp;
-		frameBuffer->getIconSize(v_icons[i].c_str(), &dummy, &htmp);
+	for (size_t i = 0; i < v_cc_items.size(); i++)
+	{
+		int htmp = v_cc_items.at(i)->getHeight();
 		*pheight = max(htmp, height)/*+2*fr_thickness*/;
 	}
 }
