@@ -201,7 +201,7 @@ void CComponentsButton::initCaption()
 		Font *tmp_font = cc_btn_font;
 		int h_cap = min(cc_btn_text_obj->getHeight(), tmp_font->getHeight());
 		int w_cap = tmp_font->getRenderWidth(cc_btn_text);
-		int dx_tmp = x_offset + dx_icon_obj + x_offset + w_cap - frame;
+		int dx_tmp = x_offset + dx_icon_obj + w_cap - frame;
 
 		/* If the required sum for space of icon, text, frame and offsets is too small then adapt font size.
 		 */
