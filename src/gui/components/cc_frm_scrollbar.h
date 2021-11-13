@@ -65,7 +65,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		///init all items
 		void initCCItems();
 
-		void initVarSbForm(	const int& count, const fb_pixel_t& color_select, const fb_pixel_t& color_passive);
+		void initVarSbForm(const int &count, const fb_pixel_t &color_select, const fb_pixel_t &color_passive);
 
 	public:
 		/**Class constructor to generate individual scrollbar objects
@@ -89,7 +89,7 @@ class CComponentsScrollBar : public CComponentsFrmChain
 					const int &y_pos,
 					const int &w 		= SCROLLBAR_WIDTH,
 					const int &h 		= 0,
-					const int& count 	= 1,
+					const int &count 	= 1,
 					CComponentsForm *parent = NULL,
 					int shadow_mode 	= CC_SHADOW_OFF,
 					fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
@@ -106,14 +106,14 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		 *
 		 * @see				getMarkID()
 		*/
-		void setMarkID(const int& mark_id){sb_mark_id = mark_id; initSegments();}
+		void setMarkID(const int &mark_id) {sb_mark_id = mark_id; initSegments();}
 
 		/**Gets current page number
 		 * @return 			int
 		 *
 		 * @see				setMarkID()
 		*/
-		int getMarkID(){return sb_mark_id;};
+		int getMarkID() {return sb_mark_id;};
 
 		/**Sets count of possible scrollbar segments (e.g. page count) and
 		 * current selected page at once .
@@ -125,24 +125,24 @@ class CComponentsScrollBar : public CComponentsFrmChain
 		 * @see				also setMarkID()
 		 * 				getMarkID()
 		*/
-		void setSegmentCount(const int& segment_count, const int& mark_id = 0);
+		void setSegmentCount(const int &segment_count, const int &mark_id = 0);
 
 		/**Get count of current scrollbar segments (page count)
 		 * @return 			int
 		 *
 		 * @see				setSegmentCount()
 		*/
-		int getSegmentCount(){return sb_segments_count;}
+		int getSegmentCount() {return sb_segments_count;}
 
 		/**Enable/disable vizualized count of possible scroll items
 		 * @param[in] enable		optional, expects type bool.
 		 * @note			Default mode is disabled.
 		*/
-		void enableVisualize(bool enable = true){sb_visual_enable = enable;}
+		void enableVisualize(bool enable = true) {sb_visual_enable = enable;}
 
 		/**Disable vizualized count of possible scroll items
 		*/
-		void disableVisualize(){enableVisualize(false);}
+		void disableVisualize() {enableVisualize(false);}
 };
 
 void getScrollBarData(int *total_pages, int *current_page, int total_items, int items_per_page, int selected_item);
@@ -170,8 +170,8 @@ void paintScrollBar(	const int &x_pos,
 			const int &y_pos,
 			const int &w,
 			const int &h,
-			const int& count,
-			const int& current_num,
+			const int &count,
+			const int &current_num,
 			int shadow_mode 	= CC_SHADOW_OFF,
 			fb_pixel_t color_frame 	= COL_SCROLLBAR_PLUS_0,
 			fb_pixel_t color_body 	= COL_SCROLLBAR_PLUS_0,
