@@ -129,25 +129,25 @@ CNeutrinoAPI::CNeutrinoAPI()
 	UpdateBouquets();
 
 	EventServer = new CEventServer;
-	EventServer->registerEvent2( NeutrinoMessages::SHUTDOWN, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::REBOOT, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::RESTART, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::STANDBY_TOGGLE, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::EVT_POPUP, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::EVT_EXTMSG, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::EVT_START_PLUGIN, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");//reload neutrino conf
-	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_MUTE, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_VOLUME, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::RECORD_START, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
-	EventServer->registerEvent2( NeutrinoMessages::RECORD_STOP, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::SHUTDOWN, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::REBOOT, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::RESTART, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::STANDBY_TOGGLE, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::EVT_POPUP, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::EVT_EXTMSG, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::CHANGEMODE, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::EVT_START_PLUGIN, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);//reload neutrino conf
+	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_MUTE, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_VOLUME, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::RECORD_START, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
+	EventServer->registerEvent2( NeutrinoMessages::RECORD_STOP, CEventServer::INITID_HTTPD, NEUTRINO_UDS_NAME);
 
 	pmutex = new OpenThreads::Mutex(OpenThreads::Mutex::MUTEX_RECURSIVE);
 }
