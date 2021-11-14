@@ -114,9 +114,7 @@ bool paintImage(	const std::string& Image,
 			int shadow_mode,
 			const fb_pixel_t& color_shadow)
 {
-	std::string image = (dx > 0 || dy > 0) ? CFrameBuffer::getInstance()->getIconPath(Image) : Image;
-	CComponentsPicture box( x, y, dx, dy, image, NULL, shadow_mode, color_frame, color_body, color_shadow, transparent);
-	box.doPaintBg(color_body !=0);
+	CComponentsPicture box( x, y, dx, dy, Image, NULL, shadow_mode, color_frame, color_body, color_shadow, transparent);
 	box.setCorner(radius, corner_type);
 	box.paint(CC_SAVE_SCREEN_NO);
 
