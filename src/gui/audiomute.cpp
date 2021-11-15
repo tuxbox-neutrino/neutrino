@@ -43,7 +43,6 @@
 CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
 {
 	y_old			= -1;
-	paint_bg		= false;
 	do_paint_mute_icon	= true;
 	CVolumeHelper::getInstance()->refresh();
 	CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
