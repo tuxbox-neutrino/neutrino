@@ -545,7 +545,6 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			//form->doPaintBg(false);
 
 			CComponentsPicture *ptmp = new CComponentsPicture(10, 10, NEUTRINO_ICON_HINT_INFO);
-			ptmp->doPaintBg(false);
 			ptmp->SetTransparent(CFrameBuffer::TM_BLACK);
 			form->addCCItem(ptmp);
 
