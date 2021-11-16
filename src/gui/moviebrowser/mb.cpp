@@ -1529,7 +1529,6 @@ void CMovieBrowser::initMovieCover(void)
 			m_movieCover = new CComponentsPicture(0, 0, cover_file, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0);
 
 			m_movieCover->enableFrame(true, 1);
-			m_movieCover->doPaintBg(false);
 		}
 
 		// always align positions and dimensions
