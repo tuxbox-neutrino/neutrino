@@ -131,7 +131,6 @@ void CRCLock::lockRC()
 					g_settings.screen_StartX + OFFSET_INNER_MID,
 					g_settings.screen_StartY + OFFSET_INNER_MID,
 					NEUTRINO_ICON_RCLOCK);
-				lockIcon->doPaintBg(false);
 			}
 			lockIcon->paint(CC_SAVE_SCREEN_YES);
 
