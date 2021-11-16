@@ -89,7 +89,6 @@ void Helpbox::addLine(const std::string& icon, const std::string& text, const in
 		picon = new CComponentsPicture (0, 0, icon);
 		w_picon = picon->getWidth();
 		h_picon = picon->getHeight();
-		picon->doPaintBg(false);
 		picon->setYPos(line->getHeight()/2 - h_picon/2);
 		picon->SetTransparent(CFrameBuffer::TM_BLACK);
 		line->addCCItem(picon);
