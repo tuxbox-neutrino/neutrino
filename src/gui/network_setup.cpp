@@ -102,8 +102,8 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	if(actionKey=="networkapply")
 	{
 		applyNetworkSettings();
-		ShowHintS("Read settings...", (sigc::mem_fun(*this, &CNetworkSetup::readNetworkSettings)));
-		ShowHintS("Backup settings...", (sigc::mem_fun(*this, &CNetworkSetup::backupNetworkSettings)));
+		ShowHintS("Read settings...", (sigc::mem_fun(*this, &CNetworkSetup::readNetworkSettings)), 1);
+		ShowHintS("Backup settings...", (sigc::mem_fun(*this, &CNetworkSetup::backupNetworkSettings)), 1);
 		return res;
 	}
 	else if(actionKey=="networktest")
@@ -563,9 +563,9 @@ void CNetworkSetup::applyNetworkSettings()
 	if (!checkForIP())
 		return;
 
-	ShowHintS("Stopping network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::stopNetwork)));
-	ShowHintS("Save network settings...", (sigc::mem_fun(*this, &CNetworkSetup::saveNetworkSettings)));
-	ShowHintS("Starting network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::startNetwork)));
+	ShowHintS("Stopping network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::stopNetwork)), 1);
+	ShowHintS("Save network settings...", (sigc::mem_fun(*this, &CNetworkSetup::saveNetworkSettings)), 1);
+	ShowHintS("Starting network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::startNetwork)), 0);
 }
 
 //open a message dialog with buttons,
