@@ -295,10 +295,7 @@ void CComponentsHeader::initLogo()
 	int h_logo = cch_logo.dy_max == -1 ? height - OFFSET_INNER_SMALL : cch_logo.dy_max;
 
 	if(!cch_logo_obj)
-	{
 		cch_logo_obj = new CComponentsChannelLogo(1, height/2 - h_logo/2, cch_logo.Name, cch_logo.Id, this);
-		cch_logo_obj->setAltLogo("blank");
-	}
 	else
 		cch_logo_obj->setChannel(cch_logo.Id, cch_logo.Name, 0, h_logo);
 
