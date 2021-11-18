@@ -66,7 +66,10 @@ void CCPictureBase::setPicture(const std::string &name, const int &w, const int 
 	int dy_tmp = dy_orig;
 
 	if (getBodyBGImage().empty())
+	{
+		dprintf(DEBUG_NORMAL, "[CCPictureBase] [%s - %d] no image defined or doesn't exists %s\n", __func__, __LINE__, name.c_str());
 		return;
+	}
 
 	g_PicViewer->getSize(getBodyBGImage().c_str(), &dx_orig, &dy_orig);
 
@@ -143,6 +146,7 @@ void CComponentsChannelLogo::setChannel(const uint64_t &channelId, const std::st
 	std::string image = "";
 	channel_id = channelId;
 	channel_name = channelName;
+	has_logo = false;
 
 	//dimensions not required here, will be handled in member setPicture(), therefore here only dummy variables
 	int dmy_x, dmy_y;
@@ -154,12 +158,14 @@ void CComponentsChannelLogo::setChannel(const uint64_t &channelId, const std::st
 
 	//if logo or alternate image not available, set has_logo to false
 	has_logo = !image.empty();
+	if (!has_logo)
+		image = "blank";
 
 	//refresh object
 	setPicture(image, w, h);
 
 	//for sure, if no dimensions were detected set value of has_logo = false
-	if (width && height)
+	if (width && height && has_logo)
 		has_logo = true;
 }
 
