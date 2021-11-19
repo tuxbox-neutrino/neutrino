@@ -41,16 +41,16 @@
 class CGenericMenuActivate
 {
 	private:
-		std::vector<CMenuItem*> items;
+		std::vector<CMenuItem *> items;
 	public:
-		CGenericMenuActivate()		{};
-		~CGenericMenuActivate()		{ items.clear(); };
+		CGenericMenuActivate() {};
+		~CGenericMenuActivate() { items.clear(); };
 
-		void Add(CMenuItem* item)	{ items.push_back(item); }
-		void Clear()			{ items.clear(); }
+		void Add(CMenuItem *item) { items.push_back(item); }
+		void Clear() { items.clear(); }
 		void Activate(bool enable)
 		{
-			for(std::vector<CMenuItem*>::iterator it = items.begin(); it != items.end(); ++it)
+			for (std::vector<CMenuItem *>::iterator it = items.begin(); it != items.end(); ++it)
 				(*it)->setActive(enable);
 		}
 };
@@ -59,35 +59,35 @@ class COnOffNotifier : public CChangeObserver
 {
 	private:
 		int offValue;
-		std::vector<CMenuItem*> toDisable;
+		std::vector<CMenuItem *> toDisable;
 
 	public:
 		COnOffNotifier(int OffValue = 0);
 		bool changeNotify(const neutrino_locale_t, void *Data);
 
-		void addItem(CMenuItem* menuItem);
+		void addItem(CMenuItem *menuItem);
 };
 
 class CSectionsdConfigNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void * );
+		bool changeNotify(const neutrino_locale_t, void *);
 };
 
 class CTouchFileNotifier : public CChangeObserver
 {
-	const char * filename;
+		const char *filename;
 	public:
-		inline CTouchFileNotifier(const char * _filename) { filename = _filename; };
-		bool changeNotify(const neutrino_locale_t, void * data);
+		inline CTouchFileNotifier(const char *_filename) { filename = _filename; };
+		bool changeNotify(const neutrino_locale_t, void *data);
 };
 
 class CFlagFileNotifier : public CChangeObserver
 {
-	const char * filename;
-public:
-	inline CFlagFileNotifier(const char * _filename) { filename = _filename; };
-	bool changeNotify(const neutrino_locale_t, void * data);
+		const char *filename;
+	public:
+		inline CFlagFileNotifier(const char *_filename) { filename = _filename; };
+		bool changeNotify(const neutrino_locale_t, void *data);
 };
 
 class CColorSetupNotifier : public CChangeObserver
@@ -112,56 +112,56 @@ class CFontSizeNotifier : public CChangeObserver
 class CSubtitleChangeExec : public CMenuTarget
 {
 	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CNVODChangeExec : public CMenuTarget
 {
 	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CMoviePluginChangeExec : public CMenuTarget
 {
 	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CTZChangeNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void * data);
+		bool changeNotify(const neutrino_locale_t, void *data);
 };
 
 class CDataResetNotifier : public CMenuTarget
 {
 	public:
-		int exec(CMenuTarget* parent, const std::string& actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CFanControlNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void * data);
+		bool changeNotify(const neutrino_locale_t, void *data);
 		static void setSpeed(unsigned int speed);
 };
 
 class CCpuFreqNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void * data);
+		bool changeNotify(const neutrino_locale_t, void *data);
 };
 
 class CAutoModeNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void * data);
+		bool changeNotify(const neutrino_locale_t, void *data);
 };
 
 class CApiKey
 {
 	public:
-		static int check_api_key(const std::string& api_key_setting, const std::string& api_key_pattern)
+		static int check_api_key(const std::string &api_key_setting, const std::string &api_key_pattern)
 		{
 			return ((api_key_setting != api_key_pattern) && !api_key_setting.empty());
 		}
