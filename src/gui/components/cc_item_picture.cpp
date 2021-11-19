@@ -159,10 +159,14 @@ void CComponentsChannelLogo::setChannel(const uint64_t &channelId, const std::st
 	//if logo or alternate image not available, set has_logo to false
 	has_logo = !image.empty();
 	if (!has_logo)
+	{
 		image = "blank";
-
-	//refresh object
-	setPicture(image, w, h);
+		setPicture(image, 0, 0);
+	}
+	else
+	{
+		setPicture(image, w, h);
+	}
 
 	//for sure, if no dimensions were detected set value of has_logo = false
 	if (width && height && has_logo)
