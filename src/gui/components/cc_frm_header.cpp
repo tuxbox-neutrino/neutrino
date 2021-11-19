@@ -388,7 +388,10 @@ void CComponentsHeader::initLogo()
 		cch_logo_obj->setYPos(height/2 - cch_logo_obj->getHeight()/2);
 	}
 	else
+	{
+		cch_logo_obj->hide();
 		cch_logo_obj->clearFbData();
+	}
 }
 
 void CComponentsHeader::addContextButton(const std::string& button_name)
