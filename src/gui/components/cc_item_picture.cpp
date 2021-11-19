@@ -67,7 +67,7 @@ void CCPictureBase::setPicture(const std::string &name, const int &w, const int 
 
 	if (getBodyBGImage().empty())
 	{
-		dprintf(DEBUG_NORMAL, "[CCPictureBase] [%s - %d] no image defined or doesn't exists %s\n", __func__, __LINE__, name.c_str());
+		dprintf(DEBUG_INFO, "[CCPictureBase] [%s - %d] no image defined or doesn't exists %s\n", __func__, __LINE__, name.c_str());
 		return;
 	}
 
