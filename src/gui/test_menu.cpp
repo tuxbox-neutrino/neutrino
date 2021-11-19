@@ -829,6 +829,18 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			text_2->setFrameThickness(2);
 			text_2->setPageNumber(1);
 			window->addWindowItem(text_2);
+
+			CComponentsPicture *pic0 = new CComponentsPicture (10, 280, 100, 0, "tux");
+			pic0->setPageNumber(0);
+			window->addWindowItem(pic0);
+
+			CComponentsPicture *pic1 = new CComponentsPicture (130, 280, 100, 0, "hint_tvmode");
+			pic1->setPageNumber(0);
+			window->addWindowItem(pic1);
+
+			CComponentsPicture *pic2 = new CComponentsPicture (130, 280, 100, 0, "muted");
+			pic2->setPageNumber(1);
+			window->addWindowItem(pic2);
 		}
 #if 0
 		if (!window->isPainted()){
