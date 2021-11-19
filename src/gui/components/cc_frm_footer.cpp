@@ -267,7 +267,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 			if (icon_name == NEUTRINO_ICON_BUTTON_GREEN)
 				f_col = COL_DARK_GREEN;
 			if (icon_name == NEUTRINO_ICON_BUTTON_YELLOW)
-				f_col = COL_OLIVE;
+				f_col = COL_DARK_YELLOW;
 			if (icon_name == NEUTRINO_ICON_BUTTON_BLUE)
 				f_col = COL_DARK_BLUE;
 			btn->setColorFrame(f_col);

@@ -419,7 +419,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "square"){
 		if (sq == NULL){
-			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
+			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_DARK_YELLOW, COL_LIGHT_GRAY, COL_RED);
 			sq->enableFrame(true,1);
 		}
 
@@ -452,7 +452,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
      }
 	else if (actionKey == "blink"){
 		if (sq == NULL)
-			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_OLIVE, COL_LIGHT_GRAY, COL_RED);
+			sq = new CComponentsShapeSquare (0, 0, 100, 100, NULL, CC_SHADOW_ON, COL_DARK_YELLOW, COL_LIGHT_GRAY, COL_RED);
 
 		sq->paintBlink(500);
 			sleep(10);

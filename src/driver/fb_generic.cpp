@@ -180,24 +180,26 @@ void CFrameBuffer::init(const char * const fbDevice)
 		goto nolfb;
 	}
 
-	/* Windows Colors */
-	paletteSetColor(0x1, 0x010101, tr);
-	paletteSetColor(0x2, 0x800000, tr);
-	paletteSetColor(0x3, 0x008000, tr);
-	paletteSetColor(0x4, 0x808000, tr);
-	paletteSetColor(0x5, 0x000080, tr);
-	paletteSetColor(0x6, 0x800080, tr);
-	paletteSetColor(0x7, 0x008080, tr);
-	paletteSetColor(0x8, 0xA0A0A0, tr);
-	paletteSetColor(0x9, 0x505050, tr);
-	paletteSetColor(0xA, 0xFF0000, tr);
-	paletteSetColor(0xB, 0x00FF00, tr);
-	paletteSetColor(0xC, 0xFFFF00, tr);
-	paletteSetColor(0xD, 0x0000FF, tr);
-	paletteSetColor(0xE, 0xFF00FF, tr);
-	paletteSetColor(0xF, 0x00FFFF, tr);
-	paletteSetColor(0x10, 0xFFFFFF, tr);
-	paletteSetColor(0x11, 0x000000, tr);
+	/* Google Material Colors */
+	paletteSetColor(0x01, 0x010101, tr); // what's this?
+	paletteSetColor(0x02, 0xFFFFFF, tr); // COL_WHITE
+	paletteSetColor(0x03, 0x000000, tr); // COL_BLACK
+	paletteSetColor(0x04, 0xb71c1c, tr); // COL_DARK_RED		red	900
+	paletteSetColor(0x05, 0xf44336, tr); // COL_RED			red	500
+	paletteSetColor(0x06, 0xe57373, tr); // COL_LIGHT_RED		red	300
+	paletteSetColor(0x07, 0x1b5e20, tr); // COL_DARK_GREEN		green	900
+	paletteSetColor(0x08, 0x4caf50, tr); // COL_GREEN		green	500
+	paletteSetColor(0x09, 0x81c784, tr); // COL_LIGHT_GREEN		green	300
+	paletteSetColor(0x0A, 0xf9a825, tr); // COL_DARK_YELLOW		yellow	800
+	paletteSetColor(0x0B, 0xffeb3b, tr); // COL_YELLOW		yellow	500
+	paletteSetColor(0x0C, 0xfff176, tr); // COL_LIGHT_YELLOW	yellow	300
+	paletteSetColor(0x0D, 0x1a237e, tr); // COL_DARK_BLUE		indigo	900
+	paletteSetColor(0x0E, 0x3f51b5, tr); // COL_BLUE		indigo	500
+	paletteSetColor(0x0F, 0x7986cb, tr); // COL_LIGHT_BLUE		indigo	300
+	paletteSetColor(0x10, 0x424242, tr); // COL_DARK_GRAY		grey	800
+	paletteSetColor(0x11, 0x9e9e9e, tr); // COL_GRAY		grey	500
+	paletteSetColor(0x12, 0xe0e0e0, tr); // COL_LIGHT_GRAY		grey	300
+
 	paletteSetColor(COL_BACKGROUND, 0x000000, 0x0);
 
 	paletteSet();
