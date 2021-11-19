@@ -50,58 +50,61 @@
 #define COL_MENUCONTENTSELECTED		254-8*2
 #define COL_MENUCONTENTINACTIVE		254-8*1
 
-#define COL_BACKGROUND 			255
+#define COL_BACKGROUND			255
 
 #ifdef FB_USE_PALETTE
-#define COL_SHADOW_PLUS_0               (COL_SHADOW + 0)
-#define COL_INFOBAR_PLUS_0              (COL_INFOBAR + 0)
-#define COL_INFOBAR_PLUS_1              (COL_INFOBAR + 1)
-#define COL_INFOBAR_PLUS_3              (COL_INFOBAR + 3)
-#define COL_INFOBAR_PLUS_7              (COL_INFOBAR + 7)
-#define COL_INFOBAR_CASYSTEM_PLUS_0     (COL_INFOBAR_CASYSTEM + 0)
-#define COL_INFOBAR_CASYSTEM_PLUS_2     (COL_INFOBAR_CASYSTEM + 2)
-#define COL_MENUHEAD_PLUS_0             (COL_MENUHEAD + 0)
-#define COL_MENUCONTENT_PLUS_0          (COL_MENUCONTENT + 0)
-#define COL_MENUCONTENT_PLUS_1          (COL_MENUCONTENT + 1)
-#define COL_MENUCONTENT_PLUS_2          (COL_MENUCONTENT + 2)
-#define COL_MENUCONTENT_PLUS_3          (COL_MENUCONTENT + 3)
-#define COL_MENUCONTENT_PLUS_4          (COL_MENUCONTENT + 4)
-#define COL_MENUCONTENT_PLUS_5          (COL_MENUCONTENT + 5)
-#define COL_MENUCONTENT_PLUS_6          (COL_MENUCONTENT + 6)
-#define COL_MENUCONTENT_PLUS_7          (COL_MENUCONTENT + 7)
-#define COL_MENUCONTENTDARK_PLUS_0      (COL_MENUCONTENTDARK + 0)
-#define COL_MENUCONTENTDARK_PLUS_2      (COL_MENUCONTENTDARK + 2)
-#define COL_MENUCONTENTSELECTED_PLUS_0  (COL_MENUCONTENTSELECTED + 0)
-#define COL_MENUCONTENTSELECTED_PLUS_2  (COL_MENUCONTENTSELECTED + 2)
-#define COL_MENUCONTENTINACTIVE_PLUS_0  (COL_MENUCONTENTINACTIVE + 0)
-#define COL_MENUFOOT_PLUS_0             (COL_MENUFOOT + 0)
-#define COL_BACKGROUND_PLUS_0           (COL_BACKGROUND + 0)
-#define COL_PROGRESSBAR_PASSIVE_PLUS_0  (COL_PROGRESSBAR + 0)
+
+#define COL_SHADOW_PLUS_0		(COL_SHADOW + 0)
+#define COL_INFOBAR_PLUS_0		(COL_INFOBAR + 0)
+#define COL_INFOBAR_PLUS_1		(COL_INFOBAR + 1)
+#define COL_INFOBAR_PLUS_3		(COL_INFOBAR + 3)
+#define COL_INFOBAR_PLUS_7		(COL_INFOBAR + 7)
+#define COL_INFOBAR_CASYSTEM_PLUS_0	(COL_INFOBAR_CASYSTEM + 0)
+#define COL_INFOBAR_CASYSTEM_PLUS_2	(COL_INFOBAR_CASYSTEM + 2)
+#define COL_MENUHEAD_PLUS_0		(COL_MENUHEAD + 0)
+#define COL_MENUCONTENT_PLUS_0		(COL_MENUCONTENT + 0)
+#define COL_MENUCONTENT_PLUS_1		(COL_MENUCONTENT + 1)
+#define COL_MENUCONTENT_PLUS_2		(COL_MENUCONTENT + 2)
+#define COL_MENUCONTENT_PLUS_3		(COL_MENUCONTENT + 3)
+#define COL_MENUCONTENT_PLUS_4		(COL_MENUCONTENT + 4)
+#define COL_MENUCONTENT_PLUS_5		(COL_MENUCONTENT + 5)
+#define COL_MENUCONTENT_PLUS_6		(COL_MENUCONTENT + 6)
+#define COL_MENUCONTENT_PLUS_7		(COL_MENUCONTENT + 7)
+#define COL_MENUCONTENTDARK_PLUS_0	(COL_MENUCONTENTDARK + 0)
+#define COL_MENUCONTENTDARK_PLUS_2	(COL_MENUCONTENTDARK + 2)
+#define COL_MENUCONTENTSELECTED_PLUS_0	(COL_MENUCONTENTSELECTED + 0)
+#define COL_MENUCONTENTSELECTED_PLUS_2	(COL_MENUCONTENTSELECTED + 2)
+#define COL_MENUCONTENTINACTIVE_PLUS_0	(COL_MENUCONTENTINACTIVE + 0)
+#define COL_MENUFOOT_PLUS_0		(COL_MENUFOOT + 0)
+#define COL_BACKGROUND_PLUS_0		(COL_BACKGROUND + 0)
+#define COL_PROGRESSBAR_PASSIVE_PLUS_0	(COL_PROGRESSBAR + 0)
+
 #else
-#define COL_SHADOW_PLUS_0               (CFrameBuffer::getInstance()->realcolor[(COL_SHADOW + 0)])
-#define COL_INFOBAR_PLUS_0              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 0)])
-#define COL_INFOBAR_PLUS_1              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 1)])
-#define COL_INFOBAR_PLUS_3              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 3)])
-#define COL_INFOBAR_PLUS_7              (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 7)])
-#define COL_INFOBAR_CASYSTEM_PLUS_0     (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR_CASYSTEM + 0)])
-#define COL_INFOBAR_CASYSTEM_PLUS_2     (CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR_CASYSTEM + 2)])
-#define COL_MENUHEAD_PLUS_0             (CFrameBuffer::getInstance()->realcolor[(COL_MENUHEAD + 0)])
-#define COL_MENUCONTENT_PLUS_0          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 0)])
-#define COL_MENUCONTENT_PLUS_1          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 1)])
-#define COL_MENUCONTENT_PLUS_2          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 2)])
-#define COL_MENUCONTENT_PLUS_3          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 3)])
-#define COL_MENUCONTENT_PLUS_4          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 4)])
-#define COL_MENUCONTENT_PLUS_5          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 5)])
-#define COL_MENUCONTENT_PLUS_6          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 6)])
-#define COL_MENUCONTENT_PLUS_7          (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 7)])
-#define COL_MENUCONTENTDARK_PLUS_0      (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTDARK + 0)])
-#define COL_MENUCONTENTDARK_PLUS_2      (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTDARK + 2)])
-#define COL_MENUCONTENTSELECTED_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTSELECTED + 0)])
-#define COL_MENUCONTENTSELECTED_PLUS_2  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTSELECTED + 2)])
-#define COL_MENUCONTENTINACTIVE_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTINACTIVE + 0)])
-#define COL_MENUFOOT_PLUS_0             (CFrameBuffer::getInstance()->realcolor[(COL_MENUFOOT + 0)])
-#define COL_BACKGROUND_PLUS_0           (CFrameBuffer::getInstance()->realcolor[(COL_BACKGROUND + 0)])
-#define COL_PROGRESSBAR_PASSIVE_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_PROGRESSBAR + 0)])
+
+#define COL_SHADOW_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_SHADOW + 0)])
+#define COL_INFOBAR_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 0)])
+#define COL_INFOBAR_PLUS_1		(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 1)])
+#define COL_INFOBAR_PLUS_3		(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 3)])
+#define COL_INFOBAR_PLUS_7		(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 7)])
+#define COL_INFOBAR_CASYSTEM_PLUS_0	(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR_CASYSTEM + 0)])
+#define COL_INFOBAR_CASYSTEM_PLUS_2	(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR_CASYSTEM + 2)])
+#define COL_MENUHEAD_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_MENUHEAD + 0)])
+#define COL_MENUCONTENT_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 0)])
+#define COL_MENUCONTENT_PLUS_1		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 1)])
+#define COL_MENUCONTENT_PLUS_2		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 2)])
+#define COL_MENUCONTENT_PLUS_3		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 3)])
+#define COL_MENUCONTENT_PLUS_4		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 4)])
+#define COL_MENUCONTENT_PLUS_5		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 5)])
+#define COL_MENUCONTENT_PLUS_6		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 6)])
+#define COL_MENUCONTENT_PLUS_7		(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENT + 7)])
+#define COL_MENUCONTENTDARK_PLUS_0	(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTDARK + 0)])
+#define COL_MENUCONTENTDARK_PLUS_2	(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTDARK + 2)])
+#define COL_MENUCONTENTSELECTED_PLUS_0	(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTSELECTED + 0)])
+#define COL_MENUCONTENTSELECTED_PLUS_2	(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTSELECTED + 2)])
+#define COL_MENUCONTENTINACTIVE_PLUS_0	(CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTINACTIVE + 0)])
+#define COL_MENUFOOT_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_MENUFOOT + 0)])
+#define COL_BACKGROUND_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_BACKGROUND + 0)])
+#define COL_PROGRESSBAR_PASSIVE_PLUS_0	(CFrameBuffer::getInstance()->realcolor[(COL_PROGRESSBAR + 0)])
 
 // text colors
 #define COL_COLORED_EVENTS_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 0)])
@@ -121,7 +124,8 @@
 #define COL_MENUCONTENTINACTIVE_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 14)])
 #define COL_INFOCLOCK_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 15)])
 #define COL_PROGRESSBAR_ACTIVE_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 16)])
-#endif
+
+#endif // FB_USE_PALETTE
 
 // some wrappers to get more readability
 #define COL_FRAME			COL_MENUCONTENT_PLUS_6
@@ -144,15 +148,17 @@
 int convertSetupColor2RGB(unsigned char r, unsigned char g, unsigned char b);
 int convertSetupAlpha2Alpha(unsigned char alpha);
 
-void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, bool protect=true);
+void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, bool protect = true);
 
-typedef struct {
+typedef struct
+{
 	uint8_t r;
 	uint8_t g;
 	uint8_t b;
 } RgbColor;
 
-typedef struct {
+typedef struct
+{
 	float h;
 	float s;
 	float v;
@@ -160,10 +166,10 @@ typedef struct {
 
 uint8_t getBrightnessRGB(fb_pixel_t color);
 
-fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br, bool transp=true);
-fb_pixel_t changeBrightnessRGB(fb_pixel_t color, uint8_t br, bool transp=true);
+fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br, bool transp = true);
+fb_pixel_t changeBrightnessRGB(fb_pixel_t color, uint8_t br, bool transp = true);
 
-fb_pixel_t Hsv2SysColor(HsvColor *hsv, uint8_t tr=0xFF);
+fb_pixel_t Hsv2SysColor(HsvColor *hsv, uint8_t tr = 0xFF);
 uint8_t SysColor2Hsv(fb_pixel_t color, HsvColor *hsv);
 
 void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb);
@@ -172,12 +178,13 @@ void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv);
 void getItemColors(fb_pixel_t &t, fb_pixel_t &b, bool selected = false, bool marked = false, bool toggle_background = false, bool toggle_enlighten = false);
 
 
-typedef struct {
+typedef struct
+{
 	uint8_t min;
 	uint8_t max;
 } col_range_t;
 
-fb_pixel_t getRandomColor(col_range_t range_r = {1,255}, col_range_t range_g = {1,255}, col_range_t range_b = {1,255}, uint8_t Alpha = 0);
+fb_pixel_t getRandomColor(col_range_t range_r = {1, 255}, col_range_t range_g = {1, 255}, col_range_t range_b = {1, 255}, uint8_t Alpha = 0);
 
 
 #endif

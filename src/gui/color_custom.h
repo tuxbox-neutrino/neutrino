@@ -2,7 +2,9 @@
 #define __color_custom__
 
 #define COLOR_CUSTOM	0x0
+
 #ifdef FB_USE_PALETTE
+
 /*
 #define COL_WHITE	(COLOR_CUSTOM + 0)
 #define COL_RED		(COLOR_CUSTOM + 1)
@@ -25,7 +27,9 @@
 #define COL_LIGHT_BLUE	0x0F
 #define COL_WHITE	0x10
 #define COL_BLACK	0x11
+
 #else
+
 #define COL_DARK_RED0	0x02
 #define COL_DARK_GREEN0	0x03
 #define COL_OLIVE0 	0x04
@@ -55,7 +59,8 @@
 #define COL_LIGHT_BLUE	(CFrameBuffer::getInstance()->realcolor[0x0F])
 #define COL_WHITE	(CFrameBuffer::getInstance()->realcolor[0x10])
 #define COL_BLACK	(CFrameBuffer::getInstance()->realcolor[0x11])
-#endif
+
+#endif // FB_USE_PALETTE
 
 #define COL_RANDOM	(getRandomColor())
 

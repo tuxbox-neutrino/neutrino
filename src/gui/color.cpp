@@ -1,29 +1,29 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
- 
+
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
- 
+
 	Kommentar:
- 
+
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
 	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
 	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
 	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-	
- 
+
+
 	License: GPL
- 
+
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
 	(at your option) any later version.
- 
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
- 
+
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -55,8 +55,10 @@ int convertSetupColor2RGB(const unsigned char r, const unsigned char g, const un
 
 int convertSetupAlpha2Alpha(unsigned char alpha)
 {
-	if(alpha == 0) return 0xFF;
-	else if(alpha >= 100) return 0;
+	if (alpha == 0)
+		return 0xFF;
+	else if (alpha >= 100)
+		return 0;
 	int a = 100 - alpha;
 	int ret = a * 0xFF / 100;
 	return ret;
@@ -64,27 +66,27 @@ int convertSetupAlpha2Alpha(unsigned char alpha)
 
 void recalcColor(unsigned char &orginal, int fade)
 {
-	if(fade==100)
+	if (fade == 100)
 	{
 		return;
 	}
-	int color =  orginal * fade / 100;
-	if(color>255)
-		color=255;
-	if(color<0)
-		color=0;
+	int color = orginal * fade / 100;
+	if (color > 255)
+		color = 255;
+	if (color < 0)
+		color = 0;
 	orginal = (unsigned char)color;
 }
 
-void protectColor( unsigned char &r, unsigned char &g, unsigned char &b, bool protect )
+void protectColor(unsigned char &r, unsigned char &g, unsigned char &b, bool protect)
 {
 	if (!protect)
 		return;
-	if ((r==0) && (g==0) && (b==0))
+	if ((r == 0) && (g == 0) && (b == 0))
 	{
-		r=1;
-		g=1;
-		b=1;
+		r = 1;
+		g = 1;
+		b = 1;
 	}
 }
 
@@ -93,7 +95,7 @@ void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, b
 	recalcColor(r, fade);
 	recalcColor(g, fade);
 	recalcColor(b, fade);
-	protectColor(r,g,b, protect);
+	protectColor(r, g, b, protect);
 }
 
 uint8_t getBrightnessRGB(fb_pixel_t color)
@@ -110,8 +112,10 @@ fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br, bool transp)
 {
 	int br_ = (int)getBrightnessRGB(color);
 	br_ += br;
-	if (br_ < 0) br_ = 0;
-	if (br_ > 255) br_ = 255;
+	if (br_ < 0)
+		br_ = 0;
+	if (br_ > 255)
+		br_ = 255;
 	return changeBrightnessRGB(color, (uint8_t)br_, transp);
 }
 
@@ -152,17 +156,21 @@ void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb)
 	float f_H = hsv->h;
 	float f_S = hsv->s;
 	float f_V = hsv->v;
-	if (fabsf(f_S) < FLT_EPSILON) {
+	if (fabsf(f_S) < FLT_EPSILON)
+	{
 		rgb->r = (uint8_t)(f_V * 255);
 		rgb->g = (uint8_t)(f_V * 255);
 		rgb->b = (uint8_t)(f_V * 255);
 
-	} else {
+	}
+	else
+	{
 		float f_R;
 		float f_G;
 		float f_B;
 		float hh = f_H;
-		if (hh >= 360) hh = 0;
+		if (hh >= 360)
+			hh = 0;
 		hh /= 60;
 		int i = (int)hh;
 		float ff = hh - (float)i;
@@ -170,7 +178,8 @@ void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb)
 		float q = f_V * (1 - (f_S * ff));
 		float t = f_V * (1 - (f_S * (1 - ff)));
 
-		switch (i) {
+		switch (i)
+		{
 			case 0:
 				f_R = f_V; f_G = t; f_B = p;
 				break;
@@ -211,10 +220,13 @@ void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv)
 	float f_H = 0;
 	float f_S = 0;
 
-	if (fabsf(delta) < FLT_EPSILON) { //gray
+	if (fabsf(delta) < FLT_EPSILON) //gray
+	{
 		f_S = 0;
 		f_H = 0;
-	} else {
+	}
+	else
+	{
 		f_S = (delta / max);
 		if (f_R >= max)
 			f_H = (f_G - f_B) / delta;
@@ -264,7 +276,7 @@ fb_pixel_t getRandomColor(col_range_t range_r, col_range_t range_g, col_range_t 
 {
 	if (!range_r.min || !range_g.min || !range_b.min)
 	{
-		dprintf(DEBUG_NORMAL, "\033[31m[color.cpp] [Error:]\033[0m %s: color range min value < 1 in argument, allowed values are 1-255 [r: min%u/max%u] [g: min%u/max%u] [b: min%u/max%u]\n",__func__, range_r.min, range_r.max, range_g.min, range_g.max, range_b.min, range_b.max);
+		dprintf(DEBUG_NORMAL, "\033[31m[color.cpp] [Error:]\033[0m %s: color range min value < 1 in argument, allowed values are 1-255 [r: min%u/max%u] [g: min%u/max%u] [b: min%u/max%u]\n", __func__, range_r.min, range_r.max, range_g.min, range_g.max, range_b.min, range_b.max);
 		return 0;
 	}
 
