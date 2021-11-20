@@ -495,7 +495,7 @@ void cGLCD::Exec()
 				bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
-
+#if 0
 		if (ecmLocked) {
 			drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Green,
@@ -505,7 +505,7 @@ void cGLCD::Exec()
 				bitmap->Width() - 1, SmalltextWidth, "ecm", &font_smalltext, GLCD::cColor::Gray,
 				GLCD::cColor::Transparent, true, 0, 0);
 		}
-
+#endif
 		if (timerLocked) {
 			drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
 				bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Green,

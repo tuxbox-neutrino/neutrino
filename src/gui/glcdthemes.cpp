@@ -334,7 +334,7 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32("glcd_time_y_position", t.glcd_time_y_position);
 	configfile.setInt32("glcd_icons_percent", t.glcd_icons_percent);
 	configfile.setInt32("glcd_icons_y_position", t.glcd_icons_y_position);
-	configfile.setInt32("glcd_icon_ecm_x_position", t.glcd_icon_ecm_x_position);
+//	configfile.setInt32("glcd_icon_ecm_x_position", t.glcd_icon_ecm_x_position);
 	configfile.setInt32("glcd_icon_cam_x_position", t.glcd_icon_cam_x_position);
 	configfile.setInt32("glcd_icon_txt_x_position", t.glcd_icon_txt_x_position);
 	configfile.setInt32("glcd_icon_dd_x_position", t.glcd_icon_dd_x_position);
@@ -407,7 +407,7 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 	t.glcd_time_y_position = configfile.getInt32("glcd_time_y_position", 0);
 	t.glcd_icons_percent = configfile.getInt32("glcd_icons_percent", 0);
 	t.glcd_icons_y_position = configfile.getInt32("glcd_icons_y_position", 0);
-	t.glcd_icon_ecm_x_position = configfile.getInt32("glcd_icon_ecm_x_position", 0);
+//	t.glcd_icon_ecm_x_position = configfile.getInt32("glcd_icon_ecm_x_position", 0);
 	t.glcd_icon_cam_x_position = configfile.getInt32("glcd_icon_cam_x_position", 0);
 	t.glcd_icon_txt_x_position = configfile.getInt32("glcd_icon_txt_x_position", 0);
 	t.glcd_icon_dd_x_position = configfile.getInt32("glcd_icon_dd_x_position", 0);
