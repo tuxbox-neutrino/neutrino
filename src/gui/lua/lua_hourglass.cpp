@@ -139,6 +139,7 @@ int CLuaInstHourGlass::HourGlassDelete(lua_State *L)
 	LUA_DEBUG("CLuaInstHourGlass::%s %d\n", __func__, lua_gettop(L));
 	CLuaHourGlass *D = HourGlassCheck(L, 1);
 	if (!D) return 0;
+	D->h->kill();
 	delete D;
 	return 0;
 }
