@@ -43,7 +43,7 @@ class CHourGlass : public CComponentsShapeSquare
 		int64_t hg_interval;
 		CComponentsTimer *hg_timer;
 		size_t hg_file_num;
-
+		std::mutex hg_mutex;
 		void initImageFiles();
 	public:
 		/**CHourGlass Constructor

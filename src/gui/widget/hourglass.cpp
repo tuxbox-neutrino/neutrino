@@ -70,8 +70,11 @@ CHourGlass::CHourGlass(	const int x_pos,
 
 CHourGlass::~CHourGlass()
 {
-	delete hg_timer;
-	hg_timer = NULL;
+	if(hg_timer)
+	{
+		delete hg_timer;
+		hg_timer = NULL;
+	}
 }
 
 void CHourGlass::initImageFiles()
@@ -100,6 +103,8 @@ void CHourGlass::paint(const bool &do_save_bg)
 {
 	if (hg_img_files.empty())
 		return;
+
+	std::lock_guard<std::mutex> g(hg_mutex);
 
 	if (hg_file_num > hg_img_files.size()-1)
 		hg_file_num = 0;
