@@ -33,7 +33,7 @@ class CLuaInstHourGlass
 	public:
 		CLuaInstHourGlass() {};
 		~CLuaInstHourGlass() {};
-		static CLuaInstHourGlass* getInstance();
+		static CLuaInstHourGlass *getInstance();
 		static void HourGlassRegister(lua_State *L);
 
 	private:

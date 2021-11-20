@@ -30,23 +30,24 @@
 #include "lua_hourglass.h"
 #include "lua_cc_window.h"
 
-CLuaInstHourGlass* CLuaInstHourGlass::getInstance()
+CLuaInstHourGlass *CLuaInstHourGlass::getInstance()
 {
-	static CLuaInstHourGlass* LuaInstHourGlass = NULL;
+	static CLuaInstHourGlass *LuaInstHourGlass = NULL;
 
-	if(!LuaInstHourGlass)
-		      LuaInstHourGlass = new CLuaInstHourGlass();
+	if (!LuaInstHourGlass)
+		LuaInstHourGlass = new CLuaInstHourGlass();
 	return LuaInstHourGlass;
 }
 
 void CLuaInstHourGlass::HourGlassRegister(lua_State *L)
 {
-	luaL_Reg meth[] = {
-		{ "new",             CLuaInstHourGlass::HourGlassNew },
-		{ "paint",           CLuaInstHourGlass::HourGlassPaint },
-		{ "hide",            CLuaInstHourGlass::HourGlassHide },
-		{ "__gc",            CLuaInstHourGlass::HourGlassDelete },
-		{ NULL,              NULL }
+	luaL_Reg meth[] =
+	{
+		{ "new",	CLuaInstHourGlass::HourGlassNew },
+		{ "paint",	CLuaInstHourGlass::HourGlassPaint },
+		{ "hide",	CLuaInstHourGlass::HourGlassHide },
+		{ "__gc",	CLuaInstHourGlass::HourGlassDelete },
+		{ NULL,		NULL }
 	};
 
 	luaL_newmetatable(L, "hourglass");
@@ -58,7 +59,7 @@ void CLuaInstHourGlass::HourGlassRegister(lua_State *L)
 
 int CLuaInstHourGlass::HourGlassNew(lua_State *L)
 {
-	lua_assert(lua_istable(L,1));
+	lua_assert(lua_istable(L, 1));
 
 	lua_Integer x = 20, y = 20, dx = 48, dy = 48;
 	tableLookup(L, "x", x);
@@ -72,8 +73,8 @@ int CLuaInstHourGlass::HourGlassNew(lua_State *L)
 	lua_Integer interval = HG_AUTO_PAINT_INTERVAL;
 	tableLookup(L, "interval", interval);
 
-	CLuaCCWindow* parent = NULL;
-	tableLookup(L, "parent", (void**)&parent);
+	CLuaCCWindow *parent = NULL;
+	tableLookup(L, "parent", (void **)&parent);
 
 	lua_Integer shadow_mode = CC_SHADOW_OFF;
 	tableLookup(L, "shadow_mode", shadow_mode);
@@ -85,12 +86,12 @@ int CLuaInstHourGlass::HourGlassNew(lua_State *L)
 	tableLookup(L, "color_background", color_background);
 	tableLookup(L, "color_shadow",     color_shadow);
 
-	CComponentsForm* parent_container = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+	CComponentsForm *parent_container = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 
 	CLuaHourGlass **udata = (CLuaHourGlass **) lua_newuserdata(L, sizeof(CLuaHourGlass *));
 	*udata = new CLuaHourGlass();
 
-	(*udata)->h = new CHourGlass(x, y,  dx, dy, image_basename, (int64_t)interval, parent_container, shadow_mode, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow);
+	(*udata)->h = new CHourGlass(x, y, dx, dy, image_basename, (int64_t)interval, parent_container, shadow_mode, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow);
 
 	luaL_getmetatable(L, "hourglass");
 	lua_setmetatable(L, -2);
@@ -104,12 +105,14 @@ CLuaHourGlass *CLuaInstHourGlass::HourGlassCheck(lua_State *L, int n)
 
 int CLuaInstHourGlass::HourGlassPaint(lua_State *L)
 {
-	lua_assert(lua_istable(L,1));
+	lua_assert(lua_istable(L, 1));
 	CLuaHourGlass *D = HourGlassCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	bool do_save_bg = true;
-	if (!tableLookup(L, "do_save_bg", do_save_bg)) {
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
 		std::string tmp = "true";
 		if (tableLookup(L, "do_save_bg", tmp))
 			paramBoolDeprecated(L, tmp.c_str());
@@ -121,9 +124,10 @@ int CLuaInstHourGlass::HourGlassPaint(lua_State *L)
 
 int CLuaInstHourGlass::HourGlassHide(lua_State *L)
 {
-	lua_assert(lua_istable(L,1));
+	lua_assert(lua_istable(L, 1));
 	CLuaHourGlass *D = HourGlassCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 
 	bool tmp1 = false;
 	std::string tmp2 = "false";
@@ -138,7 +142,8 @@ int CLuaInstHourGlass::HourGlassDelete(lua_State *L)
 {
 	LUA_DEBUG("CLuaInstHourGlass::%s %d\n", __func__, lua_gettop(L));
 	CLuaHourGlass *D = HourGlassCheck(L, 1);
-	if (!D) return 0;
+	if (!D)
+		return 0;
 	D->h->kill();
 	delete D;
 	return 0;
