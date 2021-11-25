@@ -52,35 +52,6 @@
 
 #define COL_BACKGROUND			255
 
-#ifdef FB_USE_PALETTE
-
-#define COL_SHADOW_PLUS_0		(COL_SHADOW + 0)
-#define COL_INFOBAR_PLUS_0		(COL_INFOBAR + 0)
-#define COL_INFOBAR_PLUS_1		(COL_INFOBAR + 1)
-#define COL_INFOBAR_PLUS_3		(COL_INFOBAR + 3)
-#define COL_INFOBAR_PLUS_7		(COL_INFOBAR + 7)
-#define COL_INFOBAR_CASYSTEM_PLUS_0	(COL_INFOBAR_CASYSTEM + 0)
-#define COL_INFOBAR_CASYSTEM_PLUS_2	(COL_INFOBAR_CASYSTEM + 2)
-#define COL_MENUHEAD_PLUS_0		(COL_MENUHEAD + 0)
-#define COL_MENUCONTENT_PLUS_0		(COL_MENUCONTENT + 0)
-#define COL_MENUCONTENT_PLUS_1		(COL_MENUCONTENT + 1)
-#define COL_MENUCONTENT_PLUS_2		(COL_MENUCONTENT + 2)
-#define COL_MENUCONTENT_PLUS_3		(COL_MENUCONTENT + 3)
-#define COL_MENUCONTENT_PLUS_4		(COL_MENUCONTENT + 4)
-#define COL_MENUCONTENT_PLUS_5		(COL_MENUCONTENT + 5)
-#define COL_MENUCONTENT_PLUS_6		(COL_MENUCONTENT + 6)
-#define COL_MENUCONTENT_PLUS_7		(COL_MENUCONTENT + 7)
-#define COL_MENUCONTENTDARK_PLUS_0	(COL_MENUCONTENTDARK + 0)
-#define COL_MENUCONTENTDARK_PLUS_2	(COL_MENUCONTENTDARK + 2)
-#define COL_MENUCONTENTSELECTED_PLUS_0	(COL_MENUCONTENTSELECTED + 0)
-#define COL_MENUCONTENTSELECTED_PLUS_2	(COL_MENUCONTENTSELECTED + 2)
-#define COL_MENUCONTENTINACTIVE_PLUS_0	(COL_MENUCONTENTINACTIVE + 0)
-#define COL_MENUFOOT_PLUS_0		(COL_MENUFOOT + 0)
-#define COL_BACKGROUND_PLUS_0		(COL_BACKGROUND + 0)
-#define COL_PROGRESSBAR_PASSIVE_PLUS_0	(COL_PROGRESSBAR + 0)
-
-#else
-
 #define COL_SHADOW_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_SHADOW + 0)])
 #define COL_INFOBAR_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 0)])
 #define COL_INFOBAR_PLUS_1		(CFrameBuffer::getInstance()->realcolor[(COL_INFOBAR + 1)])
@@ -124,8 +95,6 @@
 #define COL_MENUCONTENTINACTIVE_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 14)])
 #define COL_INFOCLOCK_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 15)])
 #define COL_PROGRESSBAR_ACTIVE_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 16)])
-
-#endif // FB_USE_PALETTE
 
 // some wrappers to get more readability
 #define COL_FRAME			COL_MENUCONTENT_PLUS_6
@@ -186,5 +155,6 @@ typedef struct
 
 fb_pixel_t getRandomColor(col_range_t range_r = {1, 255}, col_range_t range_g = {1, 255}, col_range_t range_b = {1, 255}, uint8_t Alpha = 0);
 
+#define COL_RANDOM (getRandomColor())
 
 #endif

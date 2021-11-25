@@ -47,6 +47,7 @@
 
 #include <gui/audiomute.h>
 #include <gui/color.h>
+#include <gui/color_custom.h>
 #include <gui/osd_helpers.h>
 #include <gui/pictureviewer.h>
 #include <system/debug.h>
@@ -181,26 +182,26 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 
 	/* Google Material Colors */
-	paletteSetColor(0x01, 0x010101, tr); // what's this?
-	paletteSetColor(0x02, 0xFFFFFF, tr); // COL_WHITE
-	paletteSetColor(0x03, 0x000000, tr); // COL_BLACK
-	paletteSetColor(0x04, 0xb71c1c, tr); // COL_DARK_RED		red	900
-	paletteSetColor(0x05, 0xf44336, tr); // COL_RED			red	500
-	paletteSetColor(0x06, 0xe57373, tr); // COL_LIGHT_RED		red	300
-	paletteSetColor(0x07, 0x1b5e20, tr); // COL_DARK_GREEN		green	900
-	paletteSetColor(0x08, 0x4caf50, tr); // COL_GREEN		green	500
-	paletteSetColor(0x09, 0x81c784, tr); // COL_LIGHT_GREEN		green	300
-	paletteSetColor(0x0A, 0xf9a825, tr); // COL_DARK_YELLOW		yellow	800
-	paletteSetColor(0x0B, 0xffeb3b, tr); // COL_YELLOW		yellow	500
-	paletteSetColor(0x0C, 0xfff176, tr); // COL_LIGHT_YELLOW	yellow	300
-	paletteSetColor(0x0D, 0x1a237e, tr); // COL_DARK_BLUE		indigo	900
-	paletteSetColor(0x0E, 0x3f51b5, tr); // COL_BLUE		indigo	500
-	paletteSetColor(0x0F, 0x7986cb, tr); // COL_LIGHT_BLUE		indigo	300
-	paletteSetColor(0x10, 0x424242, tr); // COL_DARK_GRAY		grey	800
-	paletteSetColor(0x11, 0x9e9e9e, tr); // COL_GRAY		grey	500
-	paletteSetColor(0x12, 0xe0e0e0, tr); // COL_LIGHT_GRAY		grey	300
+	paletteSetColor(0x01,			0x010101, tr); // what's this?
+	paletteSetColor(COL_WHITE0,		0xFFFFFF, tr);
+	paletteSetColor(COL_BLACK0,		0x000000, tr);
+	paletteSetColor(COL_DARK_RED0,		0xb71c1c, tr); // red		900
+	paletteSetColor(COL_RED0,		0xf44336, tr); // red		500
+	paletteSetColor(COL_LIGHT_RED0,		0xe57373, tr); // red		300
+	paletteSetColor(COL_DARK_GREEN0,	0x1b5e20, tr); // green		900
+	paletteSetColor(COL_GREEN0,		0x4caf50, tr); // green		500
+	paletteSetColor(COL_LIGHT_GREEN0,	0x81c784, tr); // green		300
+	paletteSetColor(COL_DARK_YELLOW0,	0xf9a825, tr); // yellow	800
+	paletteSetColor(COL_YELLOW0,		0xffeb3b, tr); // yellow	500
+	paletteSetColor(COL_LIGHT_YELLOW0,	0xfff176, tr); // yellow	300
+	paletteSetColor(COL_DARK_BLUE0,		0x1a237e, tr); // indigo	900
+	paletteSetColor(COL_BLUE0,		0x3f51b5, tr); // indigo	500
+	paletteSetColor(COL_LIGHT_BLUE0,	0x7986cb, tr); // indigo	300
+	paletteSetColor(COL_DARK_GRAY0,		0x424242, tr); // grey		800
+	paletteSetColor(COL_GRAY0,		0x9e9e9e, tr); // grey		500
+	paletteSetColor(COL_LIGHT_GRAY0,	0xe0e0e0, tr); // grey		300
 
-	paletteSetColor(COL_BACKGROUND, 0x000000, 0x0);
+	paletteSetColor(COL_BACKGROUND,		0x000000, 0x0);
 
 	paletteSet();
 
