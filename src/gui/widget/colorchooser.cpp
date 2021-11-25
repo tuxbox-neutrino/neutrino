@@ -38,7 +38,7 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/icons.h>
 
-static const char * const icon_names[VALUES] =
+static const char *const icon_names[VALUES] =
 {
 	NEUTRINO_ICON_SLIDER_RED,
 	NEUTRINO_ICON_SLIDER_GREEN,
@@ -54,10 +54,10 @@ static const neutrino_locale_t colorchooser_names[VALUES] =
 	LOCALE_COLORCHOOSER_ALPHA
 };
 
-CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, unsigned char *G, unsigned char *B, unsigned char* A, CChangeObserver* Observer)
+CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, unsigned char *G, unsigned char *B, unsigned char *A, CChangeObserver *Observer)
 {
-	observer    = Observer;
-	name        = Name;
+	observer = Observer;
+	name = Name;
 
 	value[VALUE_R] = R;
 	value[VALUE_G] = G;
@@ -69,7 +69,7 @@ void CColorChooser::Init()
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	font        = g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL];
+	font = g_Font[SNeutrinoSettings::FONT_TYPE_WINDOW_GENERAL];
 	item_height = font->getHeight();
 
 	// calculate max width of locals
@@ -80,7 +80,7 @@ void CColorChooser::Init()
 		if (tmp_text_width > text_width)
 			text_width = tmp_text_width;
 	}
-	
+
 	// assuming all sliders have same dimensions
 	int dummy;
 	frameBuffer->getIconSize(NEUTRINO_ICON_SLIDER_ALPHA, &slider_width, &dummy);
@@ -90,19 +90,19 @@ void CColorChooser::Init()
 	   We have a half slider_width before and after the bar
 	   to get the middle of the slider at the point of choise
 	*/
-	bar_offset = slider_width/2;
+	bar_offset = slider_width / 2;
 	bar_full = bar_width + slider_width;
 
-	preview_w = VALUES*item_height;
-	preview_h = VALUES*item_height;
+	preview_w = VALUES * item_height;
+	preview_h = VALUES * item_height;
 
-	width  = w_max((text_width + bar_full + preview_w + 4*OFFSET_INNER_MID), 0);
-	height = h_max((header_height + VALUES*item_height + 2*OFFSET_INNER_SMALL), 0);
+	width = w_max((text_width + bar_full + preview_w + 4 * OFFSET_INNER_MID), 0);
+	height = h_max((header_height + VALUES * item_height + 2 * OFFSET_INNER_SMALL), 0);
 
 	x = getScreenStartX(width);
 	y = getScreenStartY(height);
 
-	preview_x = x + text_width + bar_full + 3*OFFSET_INNER_MID;
+	preview_x = x + text_width + bar_full + 3 * OFFSET_INNER_MID;
 	preview_y = y + header_height + OFFSET_INNER_SMALL;
 
 	chooser_gradient = gradient_none;
@@ -111,7 +111,7 @@ void CColorChooser::Init()
 void CColorChooser::setColor()
 {
 	fb_pixel_t col = getColor();
-	int y_prev = preview_y+((preview_h-header_height)/2);
+	int y_prev = preview_y + ((preview_h - header_height) / 2);
 
 	if ((g_settings.theme.menu_Head_gradient) && ((chooser_gradient == gradient_head_body) || (chooser_gradient == gradient_head_text)))
 	{
@@ -124,7 +124,7 @@ void CColorChooser::setColor()
 	}
 	else
 	{
-		CComponentsShapeSquare preview(preview_x, y_prev, preview_w, preview_h - header_height , NULL, false, COL_FRAME_PLUS_0, col);
+		CComponentsShapeSquare preview(preview_x, y_prev, preview_w, preview_h - header_height, NULL, false, COL_FRAME_PLUS_0, col);
 		preview.setFrameThickness(FRAME_WIDTH_MIN);
 		preview.setCorner(RADIUS_SMALL);
 		preview.paint(false);
@@ -137,16 +137,16 @@ void CColorChooser::setColor()
 	snprintf(col_num, sizeof(col_num), "%x", col);
 	col_num[8] = '\0';
 
-	int w_col_num = preview_w - 2*border_off;
+	int w_col_num = preview_w - 2 * border_off;
 	int h_col_num = font->getHeight();
 
 	Font *dfont = *CNeutrinoFonts::getInstance()->getDynFont(w_col_num, h_col_num, col_num);
 
-	int x_col_num = preview_x + preview_w/2 - dfont->getRenderWidth(col_num)/2;
+	int x_col_num = preview_x + preview_w / 2 - dfont->getRenderWidth(col_num) / 2;
 	printf("[CColorChooser] selected color = hex [%s] dec [%d]\n", col_num, col);
 	PaintBoxRel(preview_x, preview_y, preview_w, h_col_num, COL_MENUCONTENT_PLUS_0);
-	paintTextBoxRel(col_num, x_col_num, preview_y + border_off, w_col_num,  h_col_num,
-			dfont, CTextBox::AUTO_WIDTH | CTextBox::CENTER, CComponentsText::FONT_STYLE_REGULAR, COL_MENUCONTENT_TEXT, COL_MENUCONTENT_PLUS_0, CORNER_RADIUS_MIN, CORNER_ALL);
+	paintTextBoxRel(col_num, x_col_num, preview_y + border_off, w_col_num, h_col_num,
+		dfont, CTextBox::AUTO_WIDTH | CTextBox::CENTER, CComponentsText::FONT_STYLE_REGULAR, COL_MENUCONTENT_TEXT, COL_MENUCONTENT_PLUS_0, CORNER_RADIUS_MIN, CORNER_ALL);
 }
 
 fb_pixel_t CColorChooser::getColor()
@@ -157,10 +157,10 @@ fb_pixel_t CColorChooser::getColor()
 	return (((alpha << 24) & 0xFF000000) | color);
 }
 
-int CColorChooser::exec(CMenuTarget* parent, const std::string &)
+int CColorChooser::exec(CMenuTarget *parent, const std::string &)
 {
 	Init();
-	neutrino_msg_t      msg;
+	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
 
 	int res = menu_return::RETURN_REPAINT;
@@ -176,19 +176,21 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 	paint();
 	setColor();
 
-	int  selected = 0;
+	int selected = 0;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-	bool loop=true;
-	while (loop) {
+	bool loop = true;
+	while (loop)
+	{
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
-		if ( msg <= CRCInput::RC_MaxRC )
+		if (msg <= CRCInput::RC_MaxRC)
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		int val = (*value[selected]);
-		switch ( msg ) {
+		switch (msg)
+		{
 			case CRCInput::RC_down:
 			{
 				if (selected < ((value[VALUE_A]) ? 3 : 2))
@@ -255,10 +257,9 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 			case CRCInput::RC_home:
 			{
 				if (((*value[VALUE_R] != r_alt) || (*value[VALUE_G] != g_alt) || (*value[VALUE_B] != b_alt) || ((value[VALUE_A]) && (*(value[VALUE_A]) != a_alt))) &&
-						(ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel))
+					(ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel))
 					break;
 
-				// sonst abbruch...
 				*value[VALUE_R] = r_alt;
 				*value[VALUE_G] = g_alt;
 				*value[VALUE_B] = b_alt;
@@ -279,7 +280,7 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 				{
 					break;
 				}
-				else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+				else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 				{
 					loop = false;
 					res = menu_return::RETURN_EXIT_ALL;
@@ -307,25 +308,24 @@ void CColorChooser::paint()
 	header.enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 	header.paint(CC_SAVE_SCREEN_NO);
 
-
 	PaintBoxRel(x, y + header_height, width, height - header_height, COL_MENUCONTENT_PLUS_0, RADIUS_NONE, CORNER_NONE, CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 
 	for (int i = 0; i < VALUES; i++)
-		paintSlider(x, y + header_height + OFFSET_INNER_SMALL + i*item_height, value[i], colorchooser_names[i], icon_names[i], (i == 0));
+		paintSlider(x, y + header_height + OFFSET_INNER_SMALL + i * item_height, value[i], colorchooser_names[i], icon_names[i], (i == 0));
 
-	CComponentsFooter footer(x, y + height, width , 0, CComponentsFooter::CC_BTN_LEFT | CComponentsFooter::CC_BTN_UP | CComponentsFooter::CC_BTN_DOWN | CComponentsFooter::CC_BTN_RIGHT);
-	footer.setButtonLabel(NEUTRINO_ICON_BUTTON_OKAY, LOCALE_COLORSETUP_SAVE, width/3);
+	CComponentsFooter footer(x, y + height, width, 0, CComponentsFooter::CC_BTN_LEFT | CComponentsFooter::CC_BTN_UP | CComponentsFooter::CC_BTN_DOWN | CComponentsFooter::CC_BTN_RIGHT);
+	footer.setButtonLabel(NEUTRINO_ICON_BUTTON_OKAY, LOCALE_COLORSETUP_SAVE, width / 3);
 	footer.enableShadow(CC_SHADOW_ON);
 	footer.paint(CC_SAVE_SCREEN_NO);
 }
 
-void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutrino_locale_t text, const char * const iconname, const bool selected)
+void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutrino_locale_t text, const char *const iconname, const bool selected)
 {
 	if (!spos)
 		return;
 
 	// clear area
-	frameBuffer->paintBoxRel(px + text_width + 2*OFFSET_INNER_MID, py, bar_full, item_height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(px + text_width + 2 * OFFSET_INNER_MID, py, bar_full, item_height, COL_MENUCONTENT_PLUS_0);
 	// paint bar
 	/*
 	   NEUTRINO_ICON_SLIDER_BODY should be scaled to bar_width.
@@ -334,14 +334,14 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	//frameBuffer->paintIcon(NEUTRINO_ICON_SLIDER_BODY, px + text_width + 2*OFFSET_INNER_MID + bar_offset, py, item_height);
 	int w_col_rate = font->getRenderWidth("100");
 	int w_bar = bar_width - w_col_rate;
-	int x_bar = px + text_width + 2*OFFSET_INNER_MID + bar_offset;
-	frameBuffer->paintBoxFrame(x_bar, py + item_height/3, w_bar, item_height/3, 1, COL_FRAME_PLUS_0);
+	int x_bar = px + text_width + 2 * OFFSET_INNER_MID + bar_offset;
+	frameBuffer->paintBoxFrame(x_bar, py + item_height / 3, w_bar, item_height / 3, 1, COL_FRAME_PLUS_0);
 
 	// paint slider
-	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_SLIDER_INACTIVE, px + text_width + 2*OFFSET_INNER_MID + ((*spos)*w_bar / 100), py, item_height);
+	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_SLIDER_INACTIVE, px + text_width + 2 * OFFSET_INNER_MID + ((*spos)*w_bar / 100), py, item_height);
 
 	// paint color name
-	paintTextBoxRel(g_Locale->getText(text), px + OFFSET_INNER_MID, py, text_width,  item_height, font);
+	paintTextBoxRel(g_Locale->getText(text), px + OFFSET_INNER_MID, py, text_width, item_height, font);
 	// paint color rate
-	paintTextBoxRel(to_string(*spos), x_bar + w_bar + 2*OFFSET_INTER, py, w_col_rate,  item_height, font, CTextBox::RIGHT);
+	paintTextBoxRel(to_string(*spos), x_bar + w_bar + 2 * OFFSET_INTER, py, w_col_rate, item_height, font, CTextBox::RIGHT);
 }
