@@ -262,9 +262,24 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		///return current schadow width
 		int getShadowWidth(){return shadow_w;}
 
-		///paint caching for body and shadow, see also cc_paint_cache NOTE: has no effect if paint_bg = false
+		/**Enable paint of body and shadow from cache.
+		 * This should help to paint items if they already painted and have existing instance
+		 * Performance protection would prevent this.
+		 * @return void
+		 *
+		 * @param[in]   bool	optional, default value = true
+		 * @Note	This feature is disabled as default. It’s useful to paint calculated parts, e.g. color gradient or with scaled background images.
+		 * In case of painting with enabled background images with transparency parts, could raise unintended backgrounds (e.g. holes, wrong colors or gradients) on screen.
+		 * In such case, it's not recommended enabling this feature.
+		 * This function is not to be confused with save_bg. Paint_cache has no effect for restore of backgrounds with hide ().
+		 * It has only effect to the fb layer tagged with CC_FBDATA_TYPE_BOX and  CC_FBDATA_TYPE_SHADOW_BOX as long as the instance of the item is preserved.
+		 * Of course, there is no effect if paint_bg = false.
+		 * @see		cc_paint_cach, disablePaintCache(), clearPaintCache(), clearFbData(), clearScreenBuffer()
+		*/
 		void enablePaintCache(const bool &enable = true);
-		///disable paint caching for body and shadow
+		/**Disable paint caching for body and shadow
+		 * @see		enablePaintCache()
+		*/
 		void disablePaintCache(){enablePaintCache(false);}
 
 		///returns paint mode, true=item was painted

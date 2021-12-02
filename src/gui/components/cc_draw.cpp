@@ -624,14 +624,14 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 						if (!cc_bg_image.empty()){
 							if (g_PicViewer->DisplayImage(cc_bg_image, v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, cc_bg_image_tr_mode)){
 								// catch screen and store into paint cache
-								v_fbdata.at(i).pixbuf = getScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy);
+								if (cc_paint_cache)
+									v_fbdata.at(i).pixbuf = getScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy);
 								v_fbdata.at(i).is_painted = true;
 							}else{
 								if (v_fbdata.at(i).pixbuf){
 									delete[] v_fbdata.at(i).pixbuf;
 									v_fbdata.at(i).pixbuf = NULL;
 								}
-								v_fbdata.at(i).is_painted = false;
 							}
 
 							// On failed image paint, write this into log and reset image name.
@@ -640,11 +640,11 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 								cc_bg_image = "";
 							}
 						}
-
+						else
+						{
 						/* If no background image is defined, we paint default box or box with gradient
 						 * This is also possible if any background image is defined but image paint ist failed
 						 */
-						if (cc_bg_image.empty()){
 							if (cc_body_gradient_enable != CC_COLGRAD_OFF ){
 
 								/* If color gradient enabled we create a gradient_data
