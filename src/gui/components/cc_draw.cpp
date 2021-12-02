@@ -908,12 +908,12 @@ int  CCDraw::getYPos() const
 
 int  CCDraw::getHeight() const
 {
-	return height;
+	return std::max(0, height);
 }
 
 int  CCDraw::getWidth() const
 {
-	return width;
+	return std::max(0, width);
 }
 
 void CCDraw::setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h)
