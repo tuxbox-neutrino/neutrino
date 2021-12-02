@@ -261,6 +261,33 @@ void CMoviePlayerGui::Init(void)
 	CScreenSaver::getInstance()->resetIdleTime();
 }
 
+#if HAVE_CST_HARDWARE
+bool CMoviePlayerGui::fh_mediafile_id(const char *fname)
+{
+	int fd;
+	unsigned char id[12];
+	fd = open(fname, O_RDONLY); if(fd==-1) return false;
+	read(fd, id, 12);
+	close(fd);
+	// ISO Base Media file (MPEG-4) v1
+	// 66 74 79 70 69 73 6F 6D ftypisom
+	if (id[4]=='f' && id[5]=='t' && id[6]=='y' && id[7]=='p'
+		&& id[8]=='i' && id[9]=='s' && id[10]=='o' && id[11]=='m')
+		return true;
+	// MPEG-4 video file
+	// 66 74 79 70 4D 53 4E 56 ftypMSNV
+	if (id[4]=='f' && id[5]=='t' && id[6]=='y' && id[7]=='p'
+		&& id[8]=='M' && id[9]=='S' && id[10]=='N' && id[11]=='V')
+		return true;
+	// MPEG-4 video|QuickTime file
+	// 66 74 79 70 6D 70 34 32 ftypmp42
+	if (id[4]=='f' && id[5]=='t' && id[6]=='y' && id[7]=='p'
+		&& id[8]=='m' && id[9]=='p' && id[10]=='4' && id[11]=='2')
+		return true;
+	return false;
+}
+#endif
+
 void CMoviePlayerGui::cutNeutrino()
 {
 	printf("%s: playing %d isUPNP %d\n", __func__, playing, isUPNP);
@@ -468,7 +495,10 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 			break;
 		}
 		do {
-#if ! HAVE_CST_HARDWARE
+#if HAVE_CST_HARDWARE
+			if (fh_mediafile_id(file_name.c_str()))
+				is_file_player = true;
+#else
 			is_file_player = true;
 #endif
 			PlayFile();

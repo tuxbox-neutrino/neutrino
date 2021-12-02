@@ -252,6 +252,9 @@ class CMoviePlayerGui : public CMenuTarget
 	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
 	bool selectLivestream(std::vector<livestream_info_t> &streamList, int res, livestream_info_t* info);
 	bool luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList);
+#if HAVE_CST_HARDWARE
+	bool fh_mediafile_id(const char *fname);
+#endif
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
