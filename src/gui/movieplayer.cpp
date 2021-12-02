@@ -802,12 +802,10 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 				printf("CMoviePlayerGui::prepareFile: file %s start %d\n", file_name.c_str(), startposition);
 			}
 		}
-#if HAVE_COOL_HARDWARE
 		if (isYT) {
 			file_name = file->Url;
 			is_file_player = true;
 		}
-#endif
 		fillPids();
 	}
 	if (file->getType() == CFile::FILE_ISO)
