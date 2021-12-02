@@ -470,6 +470,7 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		* 	drive/fb_generic.h
 		*/
 		void setBodyBGImageTranparencyMode(const int &mode) {cc_bg_image_tr_mode = mode;}
+		int getBodyBGImageTranparencyMode() {return cc_bg_image_tr_mode;}
 };
 
 #endif
