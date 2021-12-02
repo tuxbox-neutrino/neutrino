@@ -362,6 +362,15 @@ CMenuOptionChooser::keyval VIDEOMENU_ZAPPINGMODE_OPTIONS[VIDEOMENU_ZAPPINGMODE_O
 	{ 1, LOCALE_VIDEOMENU_ZAPPINGMODE_HOLD }
 };
 
+#define VIDEOMENU_HDMI_MODE_OPTION_COUNT 4
+const CMenuOptionChooser::keyval VIDEOMENU_HDMI_MODE_OPTIONS[VIDEOMENU_HDMI_MODE_OPTION_COUNT] =
+{
+	{ HDMI_MODE_AUTO, LOCALE_VIDEOMENU_HDMI_MODE_AUTO },
+	{ HDMI_MODE_BT2020NCL, LOCALE_VIDEOMENU_HDMI_MODE_BT2020NCL },
+	{ HDMI_MODE_BT2020CL, LOCALE_VIDEOMENU_HDMI_MODE_BT2020CL },
+	{ HDMI_MODE_BT709, LOCALE_VIDEOMENU_HDMI_MODE_BT709 }
+};
+
 int CVideoSettings::showVideoSetup()
 {
 	//init
@@ -524,6 +533,12 @@ int CVideoSettings::showVideoSetup()
 		CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this);
 		zm->setHint("", LOCALE_MENU_HINT_VIDEO_ZAPPINGMODE);
 		videosetup->addItem(zm);
+	}
+
+	if (file_exists("/proc/stb/video/hdmi_colorimetry")) {
+		CMenuOptionChooser *hm = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_MODE, &g_settings.hdmimode, VIDEOMENU_HDMI_MODE_OPTIONS, VIDEOMENU_HDMI_MODE_OPTION_COUNT, true, this);
+		hm->setHint("", LOCALE_MENU_HINT_VIDEO_HDMI_MODE);
+		videosetup->addItem(hm);
 	}
 
 #if HAVE_ARM_HARDWARE
@@ -719,6 +734,10 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_ZAPPINGMODE)) {
 		videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_MODE))
+	{
+		videoDecoder->SetHdmiMode((HDMI_MODE) g_settings.hdmimode);
 	}
 #endif
 	return false;

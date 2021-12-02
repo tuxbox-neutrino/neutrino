@@ -1766,6 +1766,7 @@ menu.hint_video_cinch_mode Wählen Sie den Modus des Ausgangssignals für den Co
 menu.hint_video_contrast Ändert den Kontrast
 menu.hint_video_dbdr Verwendeter MPEG2 Filter
 menu.hint_video_format Wählen Sie das Bildschirmformat ihres Fernsehgerätes
+menu.hint_video_hdmi_mode Wählt den Farbraum für die digitale Ausgabe
 menu.hint_video_mode Wählen Sie den Modus des Ausgangssignals für den HDMI-Anschluss
 menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbedienung ausgewählt werden können
 menu.hint_video_modes_auto Definiert, welche Videosysteme automatisch ausgewählt werden können
@@ -2846,6 +2847,11 @@ videomenu.hdmi_cec_volume CEC Lautstärke Regelung
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
 videomenu.hdmi_cec_vol_off aus
 videomenu.hdmi_cec_vol_tv TV
+videomenu.hdmi_mode Farbraum
+videomenu.hdmi_mode_auto auto
+videomenu.hdmi_mode_bt2020ncl bt2020ncl
+videomenu.hdmi_mode_bt2020cl bt2020cl
+videomenu.hdmi_mode_bt709 bt709
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan

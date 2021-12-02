@@ -386,6 +386,7 @@ struct SNeutrinoSettings
 	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 
 	int zappingmode;
+	int hdmimode;
 
 	int cpufreq;
 	int standby_cpufreq;
