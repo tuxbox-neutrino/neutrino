@@ -48,6 +48,7 @@ class CLuaInstCCPicture
 		static int CCPictureSetCenterPos(lua_State *L);
 		static int CCPictureGetHeight(lua_State *L);
 		static int CCPictureGetWidth(lua_State *L);
+		static int CCPictureSetDoPaintBG(lua_State *L);
 		static int CCPictureDelete(lua_State *L);
 };
 

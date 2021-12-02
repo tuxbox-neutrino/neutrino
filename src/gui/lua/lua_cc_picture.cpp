@@ -35,6 +35,8 @@
 #include "lua_cc_window.h"
 #include "lua_cc_picture.h"
 
+#define LUA_CPICTURE "cpicture"
+
 CLuaInstCCPicture* CLuaInstCCPicture::getInstance()
 {
 	static CLuaInstCCPicture* LuaInstCCPicture = NULL;
@@ -46,7 +48,7 @@ CLuaInstCCPicture* CLuaInstCCPicture::getInstance()
 
 CLuaCCPicture *CLuaInstCCPicture::CCPictureCheck(lua_State *L, int n)
 {
-	return *(CLuaCCPicture **) luaL_checkudata(L, n, "cpicture");
+	return *(CLuaCCPicture **) luaL_checkudata(L, n, LUA_CPICTURE);
 }
 
 void CLuaInstCCPicture::CCPictureRegister(lua_State *L)
@@ -59,15 +61,16 @@ void CLuaInstCCPicture::CCPictureRegister(lua_State *L)
 		{ "setCenterPos", CLuaInstCCPicture::CCPictureSetCenterPos },
 		{ "getHeight",    CLuaInstCCPicture::CCPictureGetHeight },
 		{ "getWidth",    CLuaInstCCPicture::CCPictureGetWidth },
+		{ "doPaintBg",    CLuaInstCCPicture::CCPictureSetDoPaintBG },
 		{ "__gc",         CLuaInstCCPicture::CCPictureDelete },
 		{ NULL, NULL }
 	};
 
-	luaL_newmetatable(L, "cpicture");
+	luaL_newmetatable(L, LUA_CPICTURE);
 	luaL_setfuncs(L, meth, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -1, "__index");
-	lua_setglobal(L, "cpicture");
+	lua_setglobal(L, LUA_CPICTURE);
 }
 
 int CLuaInstCCPicture::CCPictureNew(lua_State *L)
@@ -122,8 +125,10 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 		(*udata)->cp = new CComponentsPicture(x, y, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
 	else
 		(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
+
+	(*udata)->cp->doPaintBg(true);
 	(*udata)->parent = pw;
-	luaL_getmetatable(L, "cpicture");
+	luaL_getmetatable(L, LUA_CPICTURE);
 	lua_setmetatable(L, -2);
 	return 1;
 }
@@ -161,7 +166,23 @@ int CLuaInstCCPicture::CCPicturePaint(lua_State *L)
 			paramBoolDeprecated(L, tmp.c_str());
 		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 	}
+
 	D->cp->paint(do_save_bg);
+	return 0;
+}
+
+int CLuaInstCCPicture::CCPictureSetDoPaintBG(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCCPicture *D = CCPictureCheck(L, 1);
+	if (!D) return 0;
+
+	bool paint_bg = false;
+	std::string tmp = "false";
+	if (tableLookup(L, "paint_bg", tmp))
+		paint_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+
+	D->cp->doPaintBg(paint_bg);
 	return 0;
 }
 
