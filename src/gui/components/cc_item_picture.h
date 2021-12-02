@@ -30,21 +30,22 @@
 #endif
 
 #include "cc_base.h"
+#include "cc_frm.h"
 #include "cc_item_shapes.h"
 #include <string>
 
-//! Sub class of CComponentsShapeSquare. Shows box with image with assigned attributes.
+//! Shows box with image with assigned attributes.
 /*!
-Picture is usable as an object like each other CCItems.
+Usable as an object like each other CCItems.
 */
 
-class CCPictureBase : public CComponentsShapeSquare
+class CCPicture : public CComponentsShapeSquare
 {
 	private:
 		int dx_orig,  dy_orig;
 	public:
 
-		CCPictureBase(const int &x_pos,
+		CCPicture(const int &x_pos,
 			const int &y_pos,
 			const int &w,
 			const int &h,
@@ -56,7 +57,7 @@ class CCPictureBase : public CComponentsShapeSquare
 			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 			const int &transparency_mode = CFrameBuffer::TM_EMPTY);
 
-		virtual~CCPictureBase() {};
+		virtual~CCPicture() {};
 
 		///sets an image name, full image path or url to an image file
 		void setPicture(const std::string &name, const int &w = 0, const int &h = 0);
@@ -77,51 +78,12 @@ class CCPictureBase : public CComponentsShapeSquare
 		void getRealSize(int *dx, int *dy);
 };
 
-class CComponentsPicture : public CCPictureBase
-{
-	public:
-		/*!
-		Use this for non scaled images.
-		Dimensions are defined by image itself.
-		If scaling is required, you should use class CComponentsPicture with dimension parameters see next.
-		width and height are defined by give image dimensions itself and are retrievable e.g. with getWidth() or getHeight().
-		*/
-		CComponentsPicture(const int &x_pos,
-			const int &y_pos,
-			const std::string &image,
-			CComponentsForm *parent = NULL,
-			int shadow_mode = CC_SHADOW_OFF,
-			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-			fb_pixel_t color_background = 0,
-			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-			int transparency_mode = CFrameBuffer::TM_EMPTY)
-			: CCPictureBase(x_pos, y_pos, 0, 0, image, parent, shadow_mode, color_frame, color_background, color_shadow, transparency_mode) {};
+//! Shows box with channel logo with assigned attributes.
+/*!
+Usable as an object like each other CCItems.
+*/
 
-		/*!
-		Use this for scaled images.
-		Dimensions are defined with parameters w (width) and h (height).
-		Only dimension values > 0 have a scale effect!
-		If one of the dimension parameters = 0, the ratio of image will be kept.
-		If scaling is not required, you should use overloaded class CComponentsPicture without dimension parameters or set values of w and h = 0.
-		width and height are retrievable e.g. with getWidth() or getHeight().
-		*/
-		CComponentsPicture(const int &x_pos,
-			const int &y_pos,
-			const int &w,
-			const int &h,
-			const std::string &image,
-			CComponentsForm *parent = NULL,
-			int shadow_mode = CC_SHADOW_OFF,
-			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
-			fb_pixel_t color_background = 0,
-			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-			int transparency_mode = CFrameBuffer::TM_EMPTY)
-			: CCPictureBase(x_pos, y_pos, w, h, image, parent, shadow_mode, color_frame, color_background, color_shadow, transparency_mode) {};
-
-		virtual~CComponentsPicture() {};
-};
-
-class CComponentsChannelLogo : public CCPictureBase
+class CComponentsChannelLogo : public CCPicture
 {
 	private:
 		///channel id
@@ -138,15 +100,13 @@ class CComponentsChannelLogo : public CCPictureBase
 		///indicates that logo is available, after paint or new instance, value = false
 		bool has_logo;
 
-// 		void init(const uint64_t& channelId, const std::string &channelName, bool allow_scale);
-
 	public:
 		/*!
 		Constructor for channel image objects: use this for scaled channel logos.
 		Does the same like class CComponentsPicture() with parameters w (width) and h (height), see above!
 		Requires parameter channel_name or channelId instead image filename
 		NOTE: channel name string is prefered!
-		*/
+		 */
 		CComponentsChannelLogo(const int &x_pos,
 			const int &y_pos,
 			const int &w,
@@ -159,6 +119,24 @@ class CComponentsChannelLogo : public CCPictureBase
 			fb_pixel_t color_background = 0,
 			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
 			const int &transparency_mode = CFrameBuffer::TM_EMPTY);
+
+		/*!
+		Constructor for channel image objects: use this for non scaled channel logos.
+		Does the same like class CComponentsPicture() without parameters w (width) and h (height), see above!
+		Requires parameter channel_name or channelId instead image filename
+		NOTE: channel name string is prefered!
+		 */
+		CComponentsChannelLogo(const int &x_pos,
+			const int &y_pos,
+			const std::string &channelName = "",
+			const uint64_t &channelId = 0,
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_background = 0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+			const int &transparency_mode = CFrameBuffer::TM_EMPTY)
+			: CComponentsChannelLogo(x_pos, y_pos, 0, 0, channelName, channelId, parent, shadow_mode, color_frame, color_background, color_shadow, transparency_mode) {};
 
 		virtual~CComponentsChannelLogo() {};
 
@@ -179,23 +157,157 @@ class CComponentsChannelLogo : public CCPictureBase
 		///returns true, if any logo is available, also if an alternate logo was defined
 		bool hasLogo() {return has_logo;}
 
+};
+
+class CComponentsPicture : public CComponentsForm
+{
+	private:
+		CCPicture *ccp;
+
+		void init(const int &x_pos, const int &y_pos, const std::string &image, const int &transparency_mode)
+		{
+			setPos(x_pos, y_pos);
+
+			if (ccp == NULL)
+			{
+				ccp = new CCPicture(0, 0, width, height, image, this, CC_SHADOW_OFF, COL_FRAME_PLUS_0, 0, COL_SHADOW_PLUS_0, transparency_mode);
+			}
+			else
+			{
+				ccp->setPicture(image, width, height);
+				ccp->SetTransparent(transparency_mode);
+			}
+
+			CComponentsForm::setWidth(ccp->getWidth());
+			CComponentsForm::setHeight(ccp->getHeight());
+		};
+
+	public:
 		/*!
-		Constructor for channel image objects: use this for non scaled channel logos.
-		Does the same like class CComponentsPicture() without parameters w (width) and h (height), see above!
-		Requires parameter channel_name or channelId instead image filename
-		NOTE: channel name string is prefered!
+		Use this for scaled images.
+		Dimensions are defined with parameters w (width) and h (height).
+		Only dimension values > 0 have a scale effect!
+		If one of the dimension parameters = 0, the ratio of image will be kept.
+		If scaling is not required, you should use overloaded class CComponentsPicture without dimension parameters or set values of w and h = 0.
+		width and height are retrievable e.g. with getWidth() or getHeight().
+
+		* @param[in]   int x_pos,  item position
+		* @param[in]   int y_pos,  item position
+		* @param[in]   int w,  item width
+		* @param[in]   int h,  item height
+		* @param[in]   std::string image,  image name,  path or url
+		* @param[in]   CComponentsForm *parent,  parent form in which this item is embedded,  optional,  default NULL
+		* @param[in]   int shadow_mode,  mode of shadow,  optional,  default OFF
+		* @param[in]   fb_pixel_t color_frame,  color of frame,  optional,  default COL_FRAME_PLUS_0
+		* @param[in]   fb_pixel_t color_background,  color of background,  optional,  default 0
+		* @param[in]   fb_pixel_t color_shadow,  color of shadow,  optional,  default COL_SHADOW_PLUS_0
+		* @param[in]   int transparency_mode,  mode of image,  optional,  default CFrameBuffer::TM_EMPTY
 		*/
-		CComponentsChannelLogo(const int &x_pos,
+		CComponentsPicture(const int &x_pos,
 			const int &y_pos,
-			const std::string &channelName = "",
-			const uint64_t &channelId = 0,
+			const int &w,
+			const int &h,
+			const std::string &image,
 			CComponentsForm *parent = NULL,
 			int shadow_mode = CC_SHADOW_OFF,
 			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
 			fb_pixel_t color_background = 0,
 			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
-			const int &transparency_mode = CFrameBuffer::TM_EMPTY)
-			: CComponentsChannelLogo(x_pos, y_pos, 0, 0, channelName, channelId, parent, shadow_mode, color_frame, color_background, color_shadow, transparency_mode) {};
+			int transparency_mode = CFrameBuffer::TM_EMPTY)
+			: CComponentsForm(x_pos, y_pos, w, h, parent, shadow_mode, color_frame, color_background, color_shadow)
+		{
+			cc_item_type.name = image.empty() ? "cc_image_frm" : image;
+			ccp = NULL;
+			paint_bg = false;
+			init(x_pos, y_pos, image, transparency_mode);
+		};
+
+		/*!
+		Use this for non scaled images.
+		Dimensions are defined by image itself.
+		If scaling is required, you should use class CComponentsPicture with dimension parameters see above.
+		width and height are defined by given image dimensions itself and are retrievable e.g. with getWidth() or getHeight().
+		* @param[in]   int x_pos,  item position
+		* @param[in]   int y_pos,  item position
+		* @param[in]   std::string image,  image name,  path or url
+		* @param[in]   CComponentsForm *parent,  parent form in which this item is embedded,  optional,  default NULL
+		* @param[in]   int shadow_mode,  mode of shadow,  optional,  default OFF
+		* @param[in]   fb_pixel_t color_frame,  color of frame,  optional,  default COL_FRAME_PLUS_0
+		* @param[in]   fb_pixel_t color_background,  color of background,  optional,  default 0
+		* @param[in]   fb_pixel_t color_shadow,  color of shadow,  optional,  default COL_SHADOW_PLUS_0
+		* @param[in]   int transparency_mode,  mode of image,  optional,  default CFrameBuffer::TM_EMPTY
+		*/
+		CComponentsPicture(const int &x_pos,
+			const int &y_pos,
+			const std::string &image,
+			CComponentsForm *parent = NULL,
+			int shadow_mode = CC_SHADOW_OFF,
+			fb_pixel_t color_frame = COL_FRAME_PLUS_0,
+			fb_pixel_t color_background = 0,
+			fb_pixel_t color_shadow = COL_SHADOW_PLUS_0,
+			int transparency_mode = CFrameBuffer::TM_EMPTY)
+			: CComponentsPicture(x_pos, y_pos, 0, 0, image, parent, shadow_mode, color_frame, color_background, color_shadow, transparency_mode)
+		{};
+
+		virtual~CComponentsPicture() {};
+
+		/*!
+		Passing original image size, use this to get origin dimensions of embedded image.
+		* @param[in]   *int pointer to image width
+		* @param[in]   *int pointer to image height
+		*/
+		void getRealSize(int *dx, int *dy);
+
+		/*!
+		Sets an image name, full image path or url to an image file.
+		Different dimension values > 0 will scale images, if is only one dimension value != 0, ratio will be kept.
+		* @param[in]   std::string or const *char for image
+		* @param[in]   int w image width, optional,  default 0
+		* @param[in]   int h image height, optional,  default 0
+		*/
+		void setPicture(const std::string &name, const int &w = 0, const int &h = 0);
+		void setPicture(const char *name, const int &w = 0, const int &h = 0);
+
+		/*!
+		 * This will return the current image with full path
+		 *
+		 * @return std::string	returns image path
+		*/
+		std::string getPictureName();
+
+		/*!
+		Sets image transparency mode
+		* @param[in]   int mode
+		*/
+		void SetTransparent(const int &mode);
+
+		/*!
+		Sets width of object, keep_aspect = true keeps ratio related to height
+		* @param[in]   int w image width
+		* @param[in]   bool keep_aspect,  optional default = true
+		*/
+		void setWidth(const int &w, bool keep_aspect = true);
+
+		/*!
+		Sets height of object, keep_aspect = true keeps ratio related to width
+		* @param[in]   int h image width
+		* @param[in]   bool keep_aspect,  optional default = true
+		*/
+		void setHeight(const int &h, bool keep_aspect = true);
+
+		/*!
+		Paints item
+		* @param[in]   bool do_save_bg,  optional default = true. True allows using hide() to restore background
+		*
+		* @see paintInit()
+		*/
+		void paint(const bool &do_save_bg = true);
+
+		/**Enable/Disable paint caching for body and shadow
+		 * @see	       CCDraw::enablePaintCache(),  CCDraw::disablePaintCache()
+		*/
+ 		void enablePaintCache(const bool &enable = true) {ccp->enablePaintCache(enable); enablePaintCache(enable);}
+		void disablePaintCache(){enablePaintCache(false);}
 };
 
 #endif  //__CC_ITEM_PICTURE_V2_H__
