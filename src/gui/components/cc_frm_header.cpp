@@ -269,24 +269,23 @@ void CComponentsHeader::initIcon()
 	//create instance for cch_icon_obj and add to container at once
 	if (cch_icon_obj == NULL){
 		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
-		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, "blank", this);
+		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, "", this);
 	}
 
 	//set properties for icon object
-	if (cch_icon_obj){
-		//set corner mode of icon item
-		int cc_icon_corner_type = CORNER_LEFT;
-		if (corner_type & CORNER_TOP_LEFT || corner_type & CORNER_TOP)
-			cc_icon_corner_type = CORNER_TOP_LEFT;
-		cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
+	//set corner mode of icon item
+	int cc_icon_corner_type = CORNER_LEFT;
+	if (corner_type & CORNER_TOP_LEFT || corner_type & CORNER_TOP)
+		cc_icon_corner_type = CORNER_TOP_LEFT;
+	cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
 
-		cch_icon_obj->setPicture(cch_icon_name);
-		int dx_tmp = 0, dy_tmp = 0;
-		cch_icon_obj->getRealSize(&dx_tmp, &dy_tmp);
-		cch_icon_obj->setHeight(min(height, dy_tmp));
+	cch_icon_obj->setPicture(cch_icon_name);
+	int dx_tmp = 0, dy_tmp = 0;
+	cch_icon_obj->getRealSize(&dx_tmp, &dy_tmp);
+	cch_icon_obj->setHeight(min(height, dy_tmp));
 
-		cch_icon_w = cch_icon_obj->getWidth();
-	}
+	cch_icon_w = cch_icon_obj->getWidth();
+
 }
 
 void CComponentsHeader::initLogo()
