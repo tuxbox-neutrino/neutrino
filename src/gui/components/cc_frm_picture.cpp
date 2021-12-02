@@ -59,13 +59,15 @@ void CComponentsPicture::SetTransparent(const int &mode)
 void CComponentsPicture::setWidth(const int &w, bool keep_aspect)
 {
 	ccp->setWidth(w, keep_aspect);
-	init(x, y, ccp->getBodyBGImage(), ccp->getBodyBGImageTranparencyMode());
+	CComponentsForm::setWidth(ccp->getWidth());
+	CComponentsForm::setHeight(ccp->getHeight());
 }
 
 void CComponentsPicture::setHeight(const int &h, bool keep_aspect)
 {
 	ccp->setHeight(h, keep_aspect);
-	init(x, y, ccp->getBodyBGImage(), ccp->getBodyBGImageTranparencyMode());
+	CComponentsForm::setWidth(ccp->getWidth());
+	CComponentsForm::setHeight(ccp->getHeight());
 }
 
 void CComponentsPicture::paint(const bool &do_save_bg)
