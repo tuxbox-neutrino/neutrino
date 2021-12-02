@@ -397,6 +397,7 @@ void CComponentsForm::paint(const bool &do_save_bg)
 		OnBeforeRePaint();
 	OnBeforePaint();
 	paintForm(do_save_bg);
+	is_painted = true;
 }
 
 bool CComponentsForm::isPageChanged()
