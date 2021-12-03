@@ -1626,7 +1626,7 @@ menu.hint_scan_delsys Select delivery system for this channel/TP.
 menu.hint_scan_diseqc Select diseqc switch input for\nthis satellite
 menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat Diseqc repeat for cascaded switches
-menu.hint_scan_diseqctype Select your diseqc switch protocol\nwith 'advanced' you can use uncommited switches
+menu.hint_scan_diseqctype Select your diseqc / unicbale choice\nwith 'advanced' you can use uncommited switches
 menu.hint_scan_fast CanalDigitaal/TéléSAT/TV Vlaanderen provider scan\nWARNING: diseqc config will be overwritten
 menu.hint_scan_fastdiseqc Start diseqc auto-configuration
 menu.hint_scan_fastprov Select provider to scan
@@ -2473,7 +2473,7 @@ satsetup.auto_scan_all Auto-Scan multiple Satellites
 satsetup.cable Cable scan
 satsetup.cable_nid Network ID
 satsetup.comm_input Commited input
-satsetup.diseqc DiSEqC
+satsetup.diseqc DiSEqC / Unicable
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2

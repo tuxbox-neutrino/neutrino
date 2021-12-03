@@ -1626,7 +1626,7 @@ menu.hint_scan_delsys Wählen Sie das Empfangssystem für diesen Kanal/Transpond
 menu.hint_scan_diseqc Wählen Sie das DiSEqC-Schalter-Eingangssignal für diesen Satelliten
 menu.hint_scan_diseqcorder Wählen Sie die Reihenfolge für committed und uncommitted Kommandos
 menu.hint_scan_diseqcrepeat DiSEqC-Wiederholungen für kaskadierte Schaltungen
-menu.hint_scan_diseqctype Wählen Sie ihr DiSEqC-Protokoll\nMit 'Erweitert' können Sie ihre Anlage einbinden
+menu.hint_scan_diseqctype Wählen Sie Ihre DiSEqC / Unicable Auswahl\nMit 'Erweitert' können Sie ihre Anlage einbinden
 menu.hint_scan_fast Schnell-Suchlauf eines ausgewählten Anbieters\nWARNUNG: DiSEqC-Einstellung wird überschrieben
 menu.hint_scan_fastdiseqc Start DiSEqC-Autokonfiguration
 menu.hint_scan_fastprov Wählen Sie einen Anbieter (Provider) für den Suchlauf
@@ -2473,7 +2473,7 @@ satsetup.auto_scan_all Automatische Suche (alle Satelliten)
 satsetup.cable Kabel-Suchlauf
 satsetup.cable_nid Netzwerk ID
 satsetup.comm_input Committed Input
-satsetup.diseqc DiSEqC
+satsetup.diseqc DiSEqC / Unicable
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
