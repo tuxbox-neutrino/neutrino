@@ -74,6 +74,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 	cch_font		= NULL;
 	cch_size_mode		= sizeMode;
+	cch_offset		= OFFSET_INNER_MID;
 
 	//init font and height
 	initSizeMode();
@@ -207,7 +208,8 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 	 * Button label width is default auto generated, if no label width is defined.
 	 * If parameter label_width is too large, we use maximal possible value.
 	*/
-	int dx_btn = (dx_container - cch_offset * (int)l_count-1) / (int)l_count;
+	int btn_offset = cch_offset/2;
+	int dx_btn = (dx_container - btn_offset * (int)l_count-1) / (int)l_count;
 	if (label_width)
 		if (label_width < dx_btn)
 			dx_btn = label_width;
@@ -249,7 +251,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 		btn->doPaintBg(ccf_enable_button_bg);
 		
 		x_btn += btn_container->getCCItem(i)->getWidth();
-		x_btn += cch_offset;
+		x_btn += btn_offset;
 
 		btn->setButtonDirectKeys(content[i].directKeys);
 		btn->setButtonResult(content[i].btn_result);
