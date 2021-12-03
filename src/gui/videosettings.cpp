@@ -47,7 +47,7 @@
 #include <gui/widget/msgbox.h>
 #include <gui/osd_setup.h>
 #include <gui/osd_helpers.h>
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include <gui/psisetup.h>
 #endif
 
@@ -355,6 +355,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_DBDR_OPTIONS[VIDEOMENU_DBDR_OPTION_CO
 	{ 2, LOCALE_VIDEOMENU_DBDR_BOTH }
 };
 
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #define VIDEOMENU_ZAPPINGMODE_OPTION_COUNT 2
 CMenuOptionChooser::keyval VIDEOMENU_ZAPPINGMODE_OPTIONS[VIDEOMENU_ZAPPINGMODE_OPTION_COUNT] =
 {
@@ -370,6 +371,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_MODE_OPTIONS[VIDEOMENU_HDMI_MODE
 	{ HDMI_MODE_BT2020CL, LOCALE_VIDEOMENU_HDMI_MODE_BT2020CL },
 	{ HDMI_MODE_BT709, LOCALE_VIDEOMENU_HDMI_MODE_BT709 }
 };
+#endif
 
 int CVideoSettings::showVideoSetup()
 {
@@ -529,6 +531,7 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(quadpip);
 #endif
 
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (file_exists("/proc/stb/video/zapmode")) {
 		CMenuOptionChooser * zm = new CMenuOptionChooser(LOCALE_VIDEOMENU_ZAPPINGMODE, &g_settings.zappingmode, VIDEOMENU_ZAPPINGMODE_OPTIONS, VIDEOMENU_ZAPPINGMODE_OPTION_COUNT, true, this);
 		zm->setHint("", LOCALE_MENU_HINT_VIDEO_ZAPPINGMODE);
@@ -541,7 +544,6 @@ int CVideoSettings::showVideoSetup()
 		videosetup->addItem(hm);
 	}
 
-#if HAVE_ARM_HARDWARE
 	videosetup->addItem(GenericMenuSeparatorLine);
 
 	CPSISetup *psiSetup = CPSISetup::getInstance();

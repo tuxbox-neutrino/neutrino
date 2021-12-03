@@ -385,8 +385,10 @@ struct SNeutrinoSettings
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int zappingmode;
 	int hdmimode;
+#endif
 
 	int cpufreq;
 	int standby_cpufreq;

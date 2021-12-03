@@ -157,6 +157,11 @@ libneutrino_gui_a_SOURCES += \
 	psisetup.cpp
 endif
 
+if BOXTYPE_MIPSBOX
+libneutrino_gui_a_SOURCES += \
+	psisetup.cpp
+endif
+
 if ENABLE_TESTING
 libneutrino_gui_a_SOURCES += \
 	test_menu.cpp
