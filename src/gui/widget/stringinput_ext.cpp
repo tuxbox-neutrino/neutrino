@@ -186,7 +186,6 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	if (savescreen)
 		saveScreen();
 	paint();
-	frameBuffer->blit();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
@@ -311,7 +310,6 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				*cancel = true;
 			res = menu_return::RETURN_EXIT_ALL;
 		}
-		frameBuffer->blit();
 	}
 
 	hide();
@@ -336,7 +334,6 @@ void CExtendedInput::hide()
 		restoreScreen();
 	else
 		frameBuffer->paintBackgroundBoxRel(x, y, width, height);
-	frameBuffer->blit();
 }
 
 void CExtendedInput::paint()

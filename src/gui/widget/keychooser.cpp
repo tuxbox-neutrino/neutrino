@@ -76,8 +76,6 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	hintbox.setTimeOut(timeout, true);
 	hintbox.paint();
 
-	CFrameBuffer::getInstance()->blit();
-
 	g_RCInput->clearRCMsg();
 	g_RCInput->setLongPressAny(true);
 

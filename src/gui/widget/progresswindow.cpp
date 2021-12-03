@@ -144,7 +144,6 @@ void CProgressWindow::initStatus(const unsigned int prog, const unsigned int max
 		cur_statusText = statusText;
 	}
 	pBar->paint(false);
-	frameBuffer->blit();
 }
 
 void CProgressWindow::showStatus(const unsigned int prog, const unsigned int max, const string &statusText)

@@ -408,7 +408,6 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	bool loop=true;
 	while (loop)
 	{
-		frameBuffer->blit();
 		if (*valueString != dispval)
 		{
 			CVFD::getInstance()->showMenuText(1,valueString->c_str() , selected+1);
@@ -528,7 +527,6 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
 		delete[] pixBuf;
 		pixBuf = NULL;
-		frameBuffer->blit();
 	} else
 		hide();
 
@@ -552,7 +550,6 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 void CStringInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
-	frameBuffer->blit();
 }
 
 void CStringInput::paint(bool sms)
@@ -804,7 +801,6 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 
 	while(loop)
 	{
-		frameBuffer->blit();
 		g_RCInput->getMsg( &msg, &data, 300 );
 
 		if (msg==CRCInput::RC_left)

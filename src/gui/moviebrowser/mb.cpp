@@ -1102,7 +1102,6 @@ int CMovieBrowser::exec(const char* path)
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 	while (loop)
 	{
-		framebuffer->blit();
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		result = onButtonPress(msg);
@@ -1190,7 +1189,6 @@ int CMovieBrowser::exec(const char* path)
 			timeoutEnd = CRCInput::calcTimeoutEnd(timeout); // calcualate next timeout
 	}
 	hide();
-	framebuffer->blit();
 	//TRACE(" return %d\n",res);
 
 	m_prevBrowserSelection = m_currentBrowserSelection;

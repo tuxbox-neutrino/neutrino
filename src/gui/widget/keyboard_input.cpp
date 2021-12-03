@@ -574,7 +574,6 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		frameBuffer->RestoreScreen(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW, pixBuf);
 		delete[] pixBuf;
 		pixBuf = NULL;
-		frameBuffer->blit();
 	} else
 		hide();
 

@@ -958,7 +958,6 @@ bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing, b
 	bool loop=true;
 	while (loop)
 	{
-		frameBuffer->blit();
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 		neutrino_msg_t msg_repeatok = msg & ~CRCInput::RC_Repeat;
 
@@ -1108,7 +1107,6 @@ bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing, b
 	}
 
 	hide();
-	frameBuffer->blit();
 
 	playlist = filelist;
 

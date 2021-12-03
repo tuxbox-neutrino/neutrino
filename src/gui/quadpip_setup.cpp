@@ -382,7 +382,6 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget *parent, const std::strin
 		bool loop = true;
 		while (loop)
 		{
-			frameBuffer->blit();
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
 			if (msg <= CRCInput::RC_MaxRC)

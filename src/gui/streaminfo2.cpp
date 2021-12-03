@@ -434,7 +434,6 @@ int CStreamInfo2::doSignalStrengthLoop()
 	maxb = minb = lastb = tmp_rate = 0;
 	bool repaint_bitrate = true;
 	ts_setup();
-	frameBuffer->blit();
 	neutrino_msg_data_t data = 0;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(10);
 
@@ -588,7 +587,6 @@ int CStreamInfo2::doSignalStrengthLoop()
 		// -- push other events
 		if (msg > CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
-		frameBuffer->blit();
 	}
 	delete signalbox;
 	signalbox = NULL;
@@ -606,7 +604,6 @@ void CStreamInfo2::hide()
 {
 	pip->hide();
 	frameBuffer->paintBackgroundBoxRel(0, 0, max_width, max_height);
-	frameBuffer->blit();
 }
 
 void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
