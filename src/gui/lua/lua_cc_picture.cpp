@@ -127,6 +127,7 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 		(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow, transparency);
 
 	(*udata)->cp->doPaintBg(true);
+	(*udata)->cp->setCornerType(CORNER_NONE);
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, LUA_CPICTURE);
 	lua_setmetatable(L, -2);
