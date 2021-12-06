@@ -36,7 +36,7 @@
 
 class CExtUpdate
 {
-	 private:
+	private:
 		enum
 		{
 			RESET_UNLOAD	= 1,
@@ -54,7 +54,7 @@ class CExtUpdate
 		std::string mtdramDriver;
 		std::string backupList, defaultBackup;
 		std::string mountPkt;
-		CFileHelpers* FileHelpers;
+		CFileHelpers *FileHelpers;
 		std::vector<std::string> copyList, blackList, deleteList;
 
 		bool flashErrorFlag;
@@ -63,38 +63,39 @@ class CExtUpdate
 		uint64_t free1, free2, free3;
 
 		bool applySettings(void);
-		bool readBackupList(const std::string & dstPath);
-		bool copyFileList(const std::string & fileList, const std::string & dstPath);
-		bool deleteFileList(const std::string & fileList);
-		bool readConfig(const std::string & Config);
-		bool findConfigEntry(std::string & line, std::string find);
+		bool readBackupList(const std::string &dstPath);
+		bool copyFileList(const std::string &fileList, const std::string &dstPath);
+		bool deleteFileList(const std::string &fileList);
+		bool readConfig(const std::string &Config);
+		bool findConfigEntry(std::string &line, std::string find);
 		bool isMtdramLoad();
 		bool checkSpecialFolders(std::string line, bool copy);
 
-		FILE * fUpdate;
+		FILE *fUpdate;
 		char updateLogBuf[1024];
 		std::string fLogfile;
 		int fLogEnabled;
 		void updateLog(const char *buf);
 
- 	public:
+	public:
 		enum
 		{
 			MODE_EXPERT	= 0,
 			MODE_SOFTUPDATE	= 1
 		};
-		enum {
+		enum
+		{
 			SOFTUPDATE_NAME_DEFAULT,
 			SOFTUPDATE_NAME_HOSTNAME_TIME,
 			SOFTUPDATE_NAME_ORGNAME_TIME
 		};
 		CExtUpdate();
 		~CExtUpdate();
-		static CExtUpdate* getInstance();
+		static CExtUpdate *getInstance();
 
-		bool applySettings(std::string & filename, int mode);
-		bool ErrorReset(bool modus, const std::string & msg1="", const std::string & msg2="");
-		bool isBlacklistEntry(const std::string & file);
+		bool applySettings(std::string &filename, int mode);
+		bool ErrorReset(bool modus, const std::string &msg1 = "", const std::string &msg2 = "");
+		bool isBlacklistEntry(const std::string &file);
 
 };
 
@@ -118,8 +119,8 @@ static unsigned int timer_msec;
 #endif // UPDATE_DEBUG
 
 #define WRITE_UPDATE_LOG(fmt, args...) \
-		snprintf(updateLogBuf, sizeof(updateLogBuf), "[update:%d] " fmt, __LINE__ , ## args); \
-		updateLog(updateLogBuf);
+	snprintf(updateLogBuf, sizeof(updateLogBuf), "[update:%d] " fmt, __LINE__ , ## args); \
+	updateLog(updateLogBuf);
 
 #endif
 

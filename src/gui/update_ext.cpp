@@ -56,27 +56,27 @@
 #include <fstream>
 #include <sys/utsname.h>
 
-CHintBox * hintBox = 0;
+CHintBox *hintBox = 0;
 
 CExtUpdate::CExtUpdate()
 {
-	imgFilename     = "";
-	mtdRamError     = "";
-	mtdNumber       = -1;
-	backupList      = CONFIGDIR "/settingsupdate.conf";
-	defaultBackup   = CONFIGDIR;
+	imgFilename = "";
+	mtdRamError = "";
+	mtdNumber = -1;
+	backupList = CONFIGDIR "/settingsupdate.conf";
+	defaultBackup = CONFIGDIR;
 
-	fUpdate         = NULL;
+	fUpdate = NULL;
 	updateLogBuf[0] = '\0';
-	fLogEnabled     = 1;
-	fLogfile        = "/tmp/update.log";
-	mountPkt 	= "/tmp/image_mount";
-	FileHelpers 	= NULL;
-	MTDBuf		= NULL;
-	flashErrorFlag	= false;
-	bsize		= 0;
-	total = used	= 0;
-	free1 = free2	= free3 = 0;
+	fLogEnabled = 1;
+	fLogfile = "/tmp/update.log";
+	mountPkt = "/tmp/image_mount";
+	FileHelpers = NULL;
+	MTDBuf = NULL;
+	flashErrorFlag = false;
+	bsize = 0;
+	total = used = 0;
+	free1 = free2 = free3 = 0;
 
 	copyList.clear();
 	blackList.clear();
@@ -85,30 +85,31 @@ CExtUpdate::CExtUpdate()
 
 CExtUpdate::~CExtUpdate()
 {
-	if(FileHelpers)
+	if (FileHelpers)
 		delete[] FileHelpers;
-	if(MTDBuf)
+	if (MTDBuf)
 		delete[] MTDBuf;
 	copyList.clear();
 	blackList.clear();
 	deleteList.clear();
 }
 
-CExtUpdate* CExtUpdate::getInstance()
+CExtUpdate *CExtUpdate::getInstance()
 {
-	static CExtUpdate* ExtUpdate = NULL;
-	if(!ExtUpdate)
+	static CExtUpdate *ExtUpdate = NULL;
+	if (!ExtUpdate)
 		ExtUpdate = new CExtUpdate();
 	return ExtUpdate;
 }
 
-bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::string & msg2)
+bool CExtUpdate::ErrorReset(bool modus, const std::string &msg1, const std::string &msg2)
 {
 	char buf[1024];
 
-	if (modus & RESET_UNLOAD) {
+	if (modus & RESET_UNLOAD)
+	{
 		umount(mountPkt.c_str());
-//		my_system(2,"rmmod", mtdramDriver.c_str());
+		//my_system(2,"rmmod", mtdramDriver.c_str());
 	}
 	if (modus & CLOSE_FD1)
 		close(fd1);
@@ -116,7 +117,8 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 		close(fd2);
 	if (modus & CLOSE_F1)
 		fclose(f1);
-	if (modus & DELETE_MTDBUF) {
+	if (modus & DELETE_MTDBUF)
+	{
 		if (MTDBuf != NULL)
 			delete[] MTDBuf;
 		MTDBuf = NULL;
@@ -124,23 +126,24 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 	if (msg2.empty())
 		snprintf(buf, sizeof(buf), "%s\n", msg1.c_str());
-	else 
+	else
 		snprintf(buf, sizeof(buf), "%s %s\n", msg1.c_str(), msg2.c_str());
 
-	if ((!msg1.empty()) || (!msg2.empty())) {
+	if ((!msg1.empty()) || (!msg2.empty()))
+	{
 		mtdRamError = buf;
 		WRITE_UPDATE_LOG("ERROR: %s", buf);
 		printf(mtdRamError.c_str());
 	}
-	if(hintBox)
+	if (hintBox)
 		hintBox->hide();
 	sync();
 	return false;
 }
 
-bool CExtUpdate::applySettings(std::string & filename, int mode)
+bool CExtUpdate::applySettings(std::string &filename, int mode)
 {
-	if(!FileHelpers)
+	if (!FileHelpers)
 		FileHelpers = new CFileHelpers();
 
 	if (mode == MODE_EXPERT)
@@ -151,22 +154,23 @@ bool CExtUpdate::applySettings(std::string & filename, int mode)
 	DBG_TIMER_START()
 
 	std::string oldFilename = imgFilename;
-	std::string hostName ="";
+	std::string hostName = "";
 	netGetHostname(hostName);
-	std::string orgPath     = getPathName(imgFilename);
-	std::string orgName     = getBaseName(imgFilename);
-	orgName                 = getFileName(orgName);
-	std::string orgExt      = "." + getFileExt(imgFilename);
-	std::string timeStr     = getNowTimeStr("_%Y%m%d_%H%M");
+	std::string orgPath = getPathName(imgFilename);
+	std::string orgName = getBaseName(imgFilename);
+	orgName = getFileName(orgName);
+	std::string orgExt = "." + getFileExt(imgFilename);
+	std::string timeStr = getNowTimeStr("_%Y%m%d_%H%M");
 	std::string settingsStr = "+settings";
 
-	if (orgPath != "/tmp") {
+	if (orgPath != "/tmp")
+	{
 		if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
 			imgFilename = orgPath + "/" + hostName + timeStr + settingsStr + orgExt;
 		else if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_ORGNAME_TIME)
-			imgFilename = orgPath + "/" + orgName + timeStr  + settingsStr + orgExt;
+			imgFilename = orgPath + "/" + orgName + timeStr + settingsStr + orgExt;
 		else
-			imgFilename = orgPath + "/" + orgName  + settingsStr + orgExt;
+			imgFilename = orgPath + "/" + orgName + settingsStr + orgExt;
 		FileHelpers->copyFile(oldFilename.c_str(), imgFilename.c_str(), 0644);
 	}
 	else
@@ -175,16 +179,20 @@ bool CExtUpdate::applySettings(std::string & filename, int mode)
 
 	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
-	if (!ret) {
+	if (!ret)
+	{
 		if ((!mtdRamError.empty()) && (!flashErrorFlag))
 			DisplayErrorMessage(mtdRamError.c_str());
 
 		// error, delete image file
 		unlink(imgFilename.c_str());
 	}
-	else {
-		if (mode == MODE_EXPERT) {
-			if ((mtdNumber < 3) || (mtdNumber > 4)) {
+	else
+	{
+		if (mode == MODE_EXPERT)
+		{
+			if ((mtdNumber < 3) || (mtdNumber > 4))
+			{
 				const char *err = "invalid mtdNumber\n";
 				printf(err);
 				DisplayErrorMessage(err);
@@ -203,11 +211,14 @@ bool CExtUpdate::applySettings(std::string & filename, int mode)
 bool CExtUpdate::isMtdramLoad()
 {
 	bool ret = false;
-	FILE* f = fopen("/proc/modules", "r");
-	if (f) {
+	FILE *f = fopen("/proc/modules", "r");
+	if (f)
+	{
 		char buf[256] = "";
-		while(fgets(buf, sizeof(buf), f) != NULL) {
-			if (strstr(buf, "mtdram") != NULL) {
+		while (fgets(buf, sizeof(buf), f) != NULL)
+		{
+			if (strstr(buf, "mtdram") != NULL)
+			{
 				ret = true;
 				break;
 			}
@@ -219,7 +230,7 @@ bool CExtUpdate::isMtdramLoad()
 
 bool CExtUpdate::applySettings()
 {
-	if(!hintBox)
+	if (!hintBox)
 		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_PROCESSED));
 	hintBox->paint();
 	mtdRamError = "";
@@ -228,13 +239,13 @@ bool CExtUpdate::applySettings()
 	char buf1[256] = "";
 	char buf2[256] = "";
 
-	CMTDInfo * mtdInfo = CMTDInfo::getInstance();
+	CMTDInfo *mtdInfo = CMTDInfo::getInstance();
 	std::string mtdFilename = mtdInfo->findMTDsystem(); // /dev/mtdX
 	if (mtdFilename.empty())
 		return ErrorReset(0, "error system mtd not found");
 
 #ifdef BOXMODEL_CST_HD2
-	uint64_t mtdSize = 65536*1024; // FIXME hack, mtd size more than free RAM
+	uint64_t mtdSize = 65536 * 1024; // FIXME hack, mtd size more than free RAM
 #else
 	uint64_t mtdSize = mtdInfo->getMTDSize(mtdFilename);
 #endif
@@ -243,31 +254,34 @@ bool CExtUpdate::applySettings()
 
 	// get osrelease
 	struct utsname uts_info;
-	if( uname(&uts_info) == 0 ) {
+	if (uname(&uts_info) == 0)
+	{
 		osrelease = uts_info.release;
-		size_t pos = osrelease.find_first_of(" "); 
-		if (pos != std::string::npos) 
-			osrelease = osrelease.substr(0, pos); 
+		size_t pos = osrelease.find_first_of(" ");
+		if (pos != std::string::npos)
+			osrelease = osrelease.substr(0, pos);
 	}
 	else
 		return ErrorReset(0, "error no kernel info");
 
 	// check if mtdram driver is already loaded
-	if (!isMtdramLoad()) {
+	if (!isMtdramLoad())
+	{
 		// check if exist mtdram driver
 		snprintf(buf1, sizeof(buf1), "/lib/modules/%s/mtdram.ko", osrelease.c_str());
 		mtdramDriver = buf1;
-		if ( !file_exists(mtdramDriver.c_str()) )
+		if (!file_exists(mtdramDriver.c_str()))
 			return ErrorReset(0, "no mtdram driver available");
 		// load mtdram driver
-		snprintf(buf1, sizeof(buf1), "total_size=%llu", mtdSize/1024);
-		snprintf(buf2, sizeof(buf2), "erase_size=%llu", mtdEraseSize/1024);
+		snprintf(buf1, sizeof(buf1), "total_size=%llu", mtdSize / 1024);
+		snprintf(buf2, sizeof(buf2), "erase_size=%llu", mtdEraseSize / 1024);
 		my_system(4, "insmod", mtdramDriver.c_str(), buf1, buf2);
 		// check if mtdram driver is now loaded
 		if (!isMtdramLoad())
 			return ErrorReset(0, "error load mtdram driver");
 	}
-	else {
+	else
+	{
 		DBG_MSG("mtdram driver is already loaded");
 	}
 
@@ -276,17 +290,20 @@ bool CExtUpdate::applySettings()
 	uint64_t mtdRamSize = 0, mtdRamEraseSize = 0;
 	int mtdRamNr = 0;
 	f1 = fopen("/proc/mtd", "r");
-	if(!f1)
+	if (!f1)
 		return ErrorReset(RESET_UNLOAD, "cannot read /proc/mtd");
 	fgets(buf1, sizeof(buf1), f1);
-	while(!feof(f1)) {
-		if(fgets(buf1, sizeof(buf1), f1)!=NULL) {
+	while (!feof(f1))
+	{
+		if (fgets(buf1, sizeof(buf1), f1) != NULL)
+		{
 			char dummy[50] = "";
 			uint32_t tmp1, tmp2;
 			sscanf(buf1, "mtd%1d: %8x %8x \"%48s\"\n", &mtdRamNr, &tmp1, &tmp2, dummy);
 			mtdRamSize = (uint64_t)tmp1;
 			mtdRamEraseSize = (uint64_t)tmp2;
-			if (strstr(buf1, "mtdram test device") != NULL) {
+			if (strstr(buf1, "mtdram test device") != NULL)
+			{
 				sprintf(buf1, "/dev/mtd%d", mtdRamNr);
 				mtdRamFilename = buf1;
 				sprintf(buf1, "/dev/mtdblock%d", mtdRamNr);
@@ -299,16 +316,18 @@ bool CExtUpdate::applySettings()
 
 	if (mtdRamFilename.empty())
 		return ErrorReset(RESET_UNLOAD, "no mtdram test device found");
-	else {
+	else
+	{
 		// check mtdRamSize / mtdRamEraseSize
-		if ((mtdRamSize != mtdSize) || (mtdRamEraseSize != mtdEraseSize)) {
+		if ((mtdRamSize != mtdSize) || (mtdRamEraseSize != mtdEraseSize))
+		{
 			snprintf(buf2, sizeof(buf2), "error MTDSize(%08llx/%08llx) or MTDEraseSize(%08llx/%08llx)\n", mtdSize, mtdRamSize, mtdEraseSize, mtdRamEraseSize);
 			return ErrorReset(RESET_UNLOAD, buf2);
 		}
 	}
 
 	int MTDBufSize = 0xFFFF;
-	MTDBuf         = new char[MTDBufSize];
+	MTDBuf = new char[MTDBufSize];
 	// copy image to mtdblock
 	if (MTDBuf == NULL)
 		return ErrorReset(RESET_UNLOAD, "memory allocation error");
@@ -317,13 +336,14 @@ bool CExtUpdate::applySettings()
 		return ErrorReset(RESET_UNLOAD | DELETE_MTDBUF, "cannot read image file: " + imgFilename);
 	uint64_t filesize = (uint64_t)lseek(fd1, 0, SEEK_END);
 	lseek(fd1, 0, SEEK_SET);
-	if(filesize == 0)
+	if (filesize == 0)
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "image filesize is 0");
-	if(filesize > mtdSize)
+	if (filesize > mtdSize)
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "image filesize too large");
 	fd2 = -1;
 	int tmpCount = 0;
-	while (fd2 < 0) {
+	while (fd2 < 0)
+	{
 		fd2 = open(mtdBlockFileName.c_str(), O_WRONLY, 00644);
 		tmpCount++;
 		if (tmpCount > 3)
@@ -334,9 +354,10 @@ bool CExtUpdate::applySettings()
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "cannot open mtdBlock");
 	uint64_t fsize = filesize;
 	uint32_t block;
-	while(fsize > 0) {
+	while (fsize > 0)
+	{
 		block = (uint32_t)fsize;
-		if(block > (uint32_t)MTDBufSize)
+		if (block > (uint32_t)MTDBufSize)
 			block = MTDBufSize;
 		read(fd1, MTDBuf, block);
 		write(fd2, MTDBuf, block);
@@ -353,7 +374,8 @@ bool CExtUpdate::applySettings()
 	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize))
 		free1 = (total * bsize) / 1024 - (used * bsize) / 1024;
 
-	if (!readBackupList(mountPkt)) {
+	if (!readBackupList(mountPkt))
+	{
 		if (MTDBuf != NULL)
 			delete[] MTDBuf;
 		MTDBuf = NULL;
@@ -378,9 +400,10 @@ bool CExtUpdate::applySettings()
 	fd2 = open(imgFilename.c_str(), O_WRONLY | O_CREAT, 00644);
 	if (fd2 < 0)
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "cannot open image file: ", imgFilename);
-	while(fsize > 0) {
+	while (fsize > 0)
+	{
 		block = (uint32_t)fsize;
-		if(block > (uint32_t)MTDBufSize)
+		if (block > (uint32_t)MTDBufSize)
 			block = MTDBufSize;
 		read(fd1, MTDBuf, block);
 		write(fd2, MTDBuf, block);
@@ -391,7 +414,8 @@ bool CExtUpdate::applySettings()
 	close(fd1);
 	close(fd2);
 	// check image file size
-	if (mtdRamSize != fsizeDst) {
+	if (mtdRamSize != fsizeDst)
+	{
 		unlink(imgFilename.c_str());
 		return ErrorReset(DELETE_MTDBUF, "error file size: ", imgFilename);
 	}
@@ -399,7 +423,7 @@ bool CExtUpdate::applySettings()
 	// unload mtdramDriver only
 	ErrorReset(RESET_UNLOAD);
 
-	if(hintBox)
+	if (hintBox)
 		hintBox->hide();
 
 	if (MTDBuf != NULL)
@@ -416,14 +440,16 @@ int fileSelect(const struct dirent *entry)
 	if ((strcmp(entry->d_name, ".") == 0) || (strcmp(entry->d_name, "..") == 0))
 		return 0;
 	else
+	{
 		if ((!Wildcard.empty()) && (fnmatch(Wildcard.c_str(), entry->d_name, FNM_FILE_NAME)))
 			return 0;
 		else
 			return 1;
+	}
 
 }
 
-bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & dstPath)
+bool CExtUpdate::copyFileList(const std::string &fileList, const std::string &dstPath)
 {
 	Wildcard = "";
 	struct dirent **namelist;
@@ -432,31 +458,36 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 
 	size_t pos = fileList.find_last_of("/");
 	fList = fileList.substr(0, pos);
-	Wildcard = fileList.substr(pos+1);
+	Wildcard = fileList.substr(pos + 1);
 
 	int n = scandir(fList.c_str(), &namelist, fileSelect, 0);
-	if (n > 0) {
+	if (n > 0)
+	{
 		dst = dstPath + fList;
 		FileHelpers->createDir(dst.c_str(), 0755);
-		while (n--) {
+		while (n--)
+		{
 			std::string dName = namelist[n]->d_name;
-			if (lstat((fList+"/"+dName).c_str(), &FileInfo) != -1) {
-				if (S_ISLNK(FileInfo.st_mode)) {
+			if (lstat((fList + "/" + dName).c_str(), &FileInfo) != -1)
+			{
+				if (S_ISLNK(FileInfo.st_mode))
+				{
 					char buf[PATH_MAX];
-					int len = readlink((fList+"/"+dName).c_str(), buf, sizeof(buf)-1);
-					if (len != -1) {
+					int len = readlink((fList + "/" + dName).c_str(), buf, sizeof(buf) - 1);
+					if (len != -1)
+					{
 						buf[len] = '\0';
-						WRITE_UPDATE_LOG("symlink: %s => %s\n", (dst+"/"+dName).c_str(), buf);
-						symlink(buf, (dst+"/"+dName).c_str());
+						WRITE_UPDATE_LOG("symlink: %s => %s\n", (dst + "/" + dName).c_str(), buf);
+						symlink(buf, (dst + "/" + dName).c_str());
 					}
 				}
-				else
-					if (S_ISREG(FileInfo.st_mode)) {
-						WRITE_UPDATE_LOG("copy %s => %s\n", (fList+"/"+dName).c_str(), (dst+"/"+dName).c_str());
-						std::string save = (isBlacklistEntry(fList+"/"+dName)) ? ".save" : "";
-						if (!FileHelpers->copyFile((fList+"/"+dName).c_str(), (dst + "/" + dName + save).c_str(), FileInfo.st_mode & 0x0FFF))
-							return ErrorReset(0, "copyFile error");
-					}
+				else if (S_ISREG(FileInfo.st_mode))
+				{
+					WRITE_UPDATE_LOG("copy %s => %s\n", (fList + "/" + dName).c_str(), (dst + "/" + dName).c_str());
+					std::string save = (isBlacklistEntry(fList + "/" + dName)) ? ".save" : "";
+					if (!FileHelpers->copyFile((fList + "/" + dName).c_str(), (dst + "/" + dName + save).c_str(), FileInfo.st_mode & 0x0FFF))
+						return ErrorReset(0, "copyFile error");
+				}
 			}
 			free(namelist[n]);
 		}
@@ -466,7 +497,7 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 	return true;
 }
 
-bool CExtUpdate::deleteFileList(const std::string & fileList)
+bool CExtUpdate::deleteFileList(const std::string &fileList)
 {
 	Wildcard = "";
 	struct dirent **namelist;
@@ -475,22 +506,27 @@ bool CExtUpdate::deleteFileList(const std::string & fileList)
 
 	size_t pos = fileList.find_last_of("/");
 	fList = fileList.substr(0, pos);
-	Wildcard = fileList.substr(pos+1);
+	Wildcard = fileList.substr(pos + 1);
 
 	int n = scandir(fList.c_str(), &namelist, fileSelect, 0);
-	if (n > 0) {
-		while (n--) {
+	if (n > 0)
+	{
+		while (n--)
+		{
 			std::string dName = namelist[n]->d_name;
-			if (lstat((fList+"/"+dName).c_str(), &FileInfo) != -1) {
-				if (S_ISDIR(FileInfo.st_mode)) {
+			if (lstat((fList + "/" + dName).c_str(), &FileInfo) != -1)
+			{
+				if (S_ISDIR(FileInfo.st_mode))
+				{
 					// Directory
-					WRITE_UPDATE_LOG("delete directory: %s\n", (fList+"/"+dName).c_str());
-					FileHelpers->removeDir((fList+"/"+dName).c_str());
+					WRITE_UPDATE_LOG("delete directory: %s\n", (fList + "/" + dName).c_str());
+					FileHelpers->removeDir((fList + "/" + dName).c_str());
 				}
-				else if (S_ISREG(FileInfo.st_mode)) {
+				else if (S_ISREG(FileInfo.st_mode))
+				{
 					// File
-					WRITE_UPDATE_LOG("delete file: %s\n", (fList+"/"+dName).c_str());
-					unlink((fList+"/"+dName).c_str());
+					WRITE_UPDATE_LOG("delete file: %s\n", (fList + "/" + dName).c_str());
+					unlink((fList + "/" + dName).c_str());
 				}
 			}
 			free(namelist[n]);
@@ -500,27 +536,30 @@ bool CExtUpdate::deleteFileList(const std::string & fileList)
 	return true;
 }
 
-bool CExtUpdate::findConfigEntry(std::string & line, std::string find)
+bool CExtUpdate::findConfigEntry(std::string &line, std::string find)
 {
-	if (line.find("#:" + find + "=") == 0) {
+	if (line.find("#:" + find + "=") == 0)
+	{
 		size_t pos = line.find_first_of('=');
-		line = line.substr(pos+1);
+		line = line.substr(pos + 1);
 		line = trim(line);
 		return true;
 	}
 	return false;
 }
-	
-bool CExtUpdate::readConfig(const std::string & line)
+
+bool CExtUpdate::readConfig(const std::string &line)
 {
 	std::string tmp1 = line;
-	if (findConfigEntry(tmp1, "Log")) {
+	if (findConfigEntry(tmp1, "Log"))
+	{
 		if (!tmp1.empty())
 			fLogEnabled = atoi(tmp1.c_str());
 		return true;
 	}
 	tmp1 = line;
-	if (findConfigEntry(tmp1, "LogFile")) {
+	if (findConfigEntry(tmp1, "LogFile"))
+	{
 		if (!tmp1.empty())
 			fLogfile = tmp1;
 		return true;
@@ -529,10 +568,12 @@ bool CExtUpdate::readConfig(const std::string & line)
 	return true;
 }
 
-bool CExtUpdate::isBlacklistEntry(const std::string & file)
+bool CExtUpdate::isBlacklistEntry(const std::string &file)
 {
-	for(std::vector<std::string>::iterator it = blackList.begin(); it != blackList.end(); ++it) {
-		if (*it == file) {
+	for (std::vector<std::string>::iterator it = blackList.begin(); it != blackList.end(); ++it)
+	{
+		if (*it == file)
+		{
 			DBG_MSG("BlacklistEntry %s\n", (*it).c_str());
 			WRITE_UPDATE_LOG("BlacklistEntry: %s\n", (*it).c_str());
 			return true;
@@ -543,8 +584,9 @@ bool CExtUpdate::isBlacklistEntry(const std::string & file)
 
 bool CExtUpdate::checkSpecialFolders(std::string line, bool copy)
 {
-	if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 
-			(line.find("/sys") == 0) || (line.find("/mnt") == 0) || (line.find("/tmp") == 0)) {
+	if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) ||
+		(line.find("/sys") == 0) || (line.find("/mnt") == 0) || (line.find("/tmp") == 0))
+	{
 		char buf[PATH_MAX];
 		neutrino_locale_t msg = (copy) ? LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SKIPPED : LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_DEL_SKIPPED;
 		snprintf(buf, sizeof(buf), g_Locale->getText(msg), line.c_str());
@@ -555,16 +597,18 @@ bool CExtUpdate::checkSpecialFolders(std::string line, bool copy)
 	return false;
 }
 
-bool CExtUpdate::readBackupList(const std::string & dstPath)
+bool CExtUpdate::readBackupList(const std::string &dstPath)
 {
 	char buf[PATH_MAX];
 	static struct stat FileInfo;
 	std::vector<std::string>::iterator it;
-	
+
 	f1 = fopen(backupList.c_str(), "r");
-	if (f1 == NULL) {
+	if (f1 == NULL)
+	{
 		f1 = fopen(backupList.c_str(), "w");
-		if (f1 != NULL) {
+		if (f1 != NULL)
+		{
 			char tmp1[1024];
 			snprintf(tmp1, sizeof(tmp1), "Log=%d\nLogFile=%s\n\n%s\n\n", fLogEnabled, fLogfile.c_str(), defaultBackup.c_str());
 			fwrite(tmp1, 1, strlen(tmp1), f1);
@@ -590,34 +634,41 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	copyList.clear();
 	blackList.clear();
 	deleteList.clear();
-	while(fgets(buf, sizeof(buf), f1) != NULL) {
+	while (fgets(buf, sizeof(buf), f1) != NULL)
+	{
 		std::string tmpLine;
 		line = buf;
 		line = trim(line);
 		// ignore comments
-		if (line.find_first_of("#") == 0) {
+		if (line.find_first_of("#") == 0)
+		{
 			// config vars
-			if (line.find_first_of(":") == 1) {
+			if (line.find_first_of(":") == 1)
+			{
 				if (line.length() > 1)
 					readConfig(line);
 			}
 			continue;
 		}
 		pos = line.find_first_of("#");
-		if (pos != std::string::npos) {
+		if (pos != std::string::npos)
+		{
 			line = line.substr(0, pos);
 			line = trim(line);
 		}
 		// find blackList entry
-		if (line.find_first_of("-") == 0) {
+		if (line.find_first_of("-") == 0)
+		{
 			tmpLine = line.substr(1);
-			if ((tmpLine.length() > 1) && (lstat(tmpLine.c_str(), &FileInfo) != -1)) {
+			if ((tmpLine.length() > 1) && (lstat(tmpLine.c_str(), &FileInfo) != -1))
+			{
 				if (S_ISREG(FileInfo.st_mode))
 					blackList.push_back(tmpLine);
 			}
 		}
 		// find deleteList entry
-		else if (line.find_first_of("~") == 0) {
+		else if (line.find_first_of("~") == 0)
+		{
 			tmpLine = line.substr(1);
 			if (checkSpecialFolders(tmpLine, false))
 				continue;
@@ -626,7 +677,8 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 				deleteList.push_back(tmpLine);
 		}
 		// find copyList entry
-		else {
+		else
+		{
 			tmpLine = (line.find_first_of("+") == 0) ? line.substr(1) : line; // '+' add entry = default
 			if (checkSpecialFolders(tmpLine, true))
 				continue;
@@ -637,20 +689,25 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	fclose(f1);
 
 	// read DeleteList
-	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
+	for (it = deleteList.begin(); it != deleteList.end(); ++it)
+	{
 		line = *it;
-		if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
+		if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos))
+		{
 			// Wildcards
 			WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
 			deleteFileList(line.c_str());
 		}
-		else if (lstat(line.c_str(), &FileInfo) != -1) {
-			if (S_ISREG(FileInfo.st_mode)) {
+		else if (lstat(line.c_str(), &FileInfo) != -1)
+		{
+			if (S_ISREG(FileInfo.st_mode))
+			{
 				// File
 				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
 				unlink(line.c_str());
 			}
-			else if (S_ISDIR(FileInfo.st_mode)){
+			else if (S_ISDIR(FileInfo.st_mode))
+			{
 				// Directory
 				WRITE_UPDATE_LOG("delete directory: %s\n", line.c_str());
 				FileHelpers->removeDir(line.c_str());
@@ -663,16 +720,18 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 		free2 = (total * bsize) / 1024 - (used * bsize) / 1024;
 
 	// read copyList
-	for(it = copyList.begin(); it != copyList.end(); ++it) {
+	for (it = copyList.begin(); it != copyList.end(); ++it)
+	{
 		line = *it;
 		line = trim(line);
 		// remove '/' from line end
 		size_t len = line.length();
 		pos = line.find_last_of("/");
-		if (len == pos+1)
+		if (len == pos + 1)
 			line = line.substr(0, pos);
 		std::string dst = dstPath + line;
-		if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
+		if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos))
+		{
 			// Wildcards
 			DBG_MSG("Wildcards: %s\n", dst.c_str());
 			WRITE_UPDATE_LOG("\n");
@@ -680,9 +739,12 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 			WRITE_UPDATE_LOG("Wildcards: %s\n", dst.c_str());
 			copyFileList(line, dstPath);
 		}
-		else {
-			if (lstat(line.c_str(), &FileInfo) != -1) {
-				if (S_ISREG(FileInfo.st_mode)) {
+		else
+		{
+			if (lstat(line.c_str(), &FileInfo) != -1)
+			{
+				if (S_ISREG(FileInfo.st_mode))
+				{
 					// one file only
 					pos = dst.find_last_of("/");
 					std::string dir = dst.substr(0, pos);
@@ -695,7 +757,8 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					if (!FileHelpers->copyFile(line.c_str(), (dst + save).c_str(), FileInfo.st_mode & 0x0FFF))
 						return ErrorReset(0, "copyFile error");
 				}
-				else if (S_ISDIR(FileInfo.st_mode)) {
+				else if (S_ISDIR(FileInfo.st_mode))
+				{
 					// directory
 					DBG_MSG("directory: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("\n");
@@ -704,31 +767,35 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					FileHelpers->copyDir(line.c_str(), dst.c_str(), true);
 				}
 			}
-		
+
 		}
 	}
 	sync();
 
-	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize)) {
+	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize))
+	{
 		uint64_t flashWarning = 1000; // 1MB
-		uint64_t flashError   = 600;  // 600KB
+		uint64_t flashError = 600; // 600KB
 		char buf1[1024];
 		total = (total * bsize) / 1024;
 		free3 = total - (used * bsize) / 1024;
 		printf("##### [%s] %llu KB free org, %llu KB free after delete, %llu KB free now\n", __FUNCTION__, free1, free2, free3);
 		memset(buf1, '\0', sizeof(buf1));
-		if (free3 <= flashError) {
-			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_ERROR), free3, total);
+		if (free3 <= flashError)
+		{
+			snprintf(buf1, sizeof(buf1) - 1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_ERROR), free3, total);
 			ShowMsg(LOCALE_MESSAGEBOX_ERROR, buf1, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
 			flashErrorFlag = true;
 			return false;
 		}
-		else if (free3 <= flashWarning) {
-			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_WARNING), free3, total);
-			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf1, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO) != CMsgBox::mbrYes) {
+		else if (free3 <= flashWarning)
+		{
+			snprintf(buf1, sizeof(buf1) - 1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_WARNING), free3, total);
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf1, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO) != CMsgBox::mbrYes)
+			{
 				flashErrorFlag = true;
 				return false;
-		    	}
+			}
 		}
 	}
 	return true;
@@ -738,7 +805,8 @@ void CExtUpdate::updateLog(const char *buf)
 {
 	if ((!fUpdate) && (fLogEnabled))
 		fUpdate = fopen(fLogfile.c_str(), "a");
-	if (fUpdate) {
+	if (fUpdate)
+	{
 		fwrite(buf, 1, strlen(buf), fUpdate);
 		fclose(fUpdate);
 		fUpdate = NULL;
