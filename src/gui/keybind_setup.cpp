@@ -302,15 +302,6 @@ int CKeybindSetup::showKeySetup()
 	cc->setHint("", LOCALE_MENU_HINT_LONGKEYPRESS_DURATION);
 	keySettings->addItem(cc);
 
-#if 0
-	g_settings.accept_other_remotes = access("/etc/lircd_predata_lock", R_OK) ? 1 : 0;
-	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES,
-		&g_settings.accept_other_remotes, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this,
-		CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_ACCEPT_OTHER_REMOTES);
-	keySettings->addItem(mc);
-#endif
-
 	if (RC_HW_SELECT)
 	{
 		CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE,
@@ -593,31 +584,6 @@ void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 
 bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
-#if 0
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES))
-	{
-		struct sockaddr_un sun;
-		memset(&sun, 0, sizeof(sun));
-		sun.sun_family = AF_UNIX;
-		strcpy(sun.sun_path, "/var/run/lirc/lircd");
-		int lircd_sock = socket(AF_UNIX, SOCK_STREAM, 0);
-		if (lircd_sock > -1)
-		{
-			if (!connect(lircd_sock, (struct sockaddr *) &sun, sizeof(sun)))
-			{
-				if (g_settings.accept_other_remotes)
-					write(lircd_sock, "PREDATA_UNLOCK\n", 16);
-				else
-					write(lircd_sock, "PREDATA_LOCK\n", 14);
-			}
-			close(lircd_sock);
-		}
-		// work around junk data sent by vfd controller
-		sleep(2);
-		g_RCInput->clearRCMsg();
-		return false;
-	}
-#endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC) || ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCK))
 	{
 		unsigned int fdelay = g_settings.repeat_blocker;
