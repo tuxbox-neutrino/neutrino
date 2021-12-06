@@ -82,31 +82,35 @@ CKeybindSetup::~CKeybindSetup()
 {
 }
 
-int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
+int CKeybindSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init keybindings setup\n");
-	int   res = menu_return::RETURN_REPAINT;
+	int res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 	{
 		parent->hide();
 	}
 
-	if(actionKey == "loadkeys") {
+	if (actionKey == "loadkeys")
+	{
 		CFileBrowser fileBrowser;
 		CFileFilter fileFilter;
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true) {
+		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
+		{
 			CNeutrinoApp::getInstance()->loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino keybind_setup] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-			for (int i = 0; i < KEYBINDS_COUNT; i++){
+			for (int i = 0; i < KEYBINDS_COUNT; i++)
+			{
 				keychooser[i]->reinitName();
 			}
 		}
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "savekeys") {
+	else if (actionKey == "savekeys")
+	{
 		CFileBrowser fileBrowser;
 
 		char msgtxt[1024];
@@ -125,7 +129,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 
 		std::string fname = "keys_" + getBackupSuffix() + ".conf";
-		CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname, 45);
+		CKeyboardInput *sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname, 45);
 		sms->exec(NULL, "");
 		delete sms;
 
@@ -145,9 +149,9 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 #define KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT 3
 const CMenuOptionChooser::keyval KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS[KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT] =
 {
-	{ CRCInput::RC_HW_COOLSTREAM,   LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM   },
-	{ CRCInput::RC_HW_DBOX,         LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX         },
-	{ CRCInput::RC_HW_PHILIPS,      LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS      }
+	{ CRCInput::RC_HW_COOLSTREAM, LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM },
+	{ CRCInput::RC_HW_DBOX,       LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX       },
+	{ CRCInput::RC_HW_PHILIPS,    LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS    }
 };
 
 #define KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT 4
@@ -162,53 +166,53 @@ const CMenuOptionChooser::keyval KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_OPTIONS[K
 typedef struct key_settings_t
 {
 	const neutrino_locale_t keydescription;
-	int * keyvalue_p;
+	int *keyvalue_p;
 	const neutrino_locale_t hint;
 
 } key_settings_struct_t;
 
 const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 {
-	{LOCALE_KEYBINDINGMENU_TVRADIOMODE,   	&g_settings.key_tvradio_mode,		LOCALE_MENU_HINT_KEY_TVRADIOMODE },
-	{LOCALE_KEYBINDINGMENU_POWEROFF,      	&g_settings.key_power_off,		LOCALE_MENU_HINT_KEY_POWEROFF },
+	{LOCALE_KEYBINDINGMENU_TVRADIOMODE,	&g_settings.key_tvradio_mode,		LOCALE_MENU_HINT_KEY_TVRADIOMODE },
+	{LOCALE_KEYBINDINGMENU_POWEROFF,	&g_settings.key_power_off,		LOCALE_MENU_HINT_KEY_POWEROFF },
 	{LOCALE_KEYBINDINGMENU_STANDBYOFF_ADD,	&g_settings.key_standby_off_add,	LOCALE_MENU_HINT_KEY_STANDBYOFF_ADD },
-	{LOCALE_KEYBINDINGMENU_FAVORITES,	&g_settings.key_favorites, 		LOCALE_MENU_HINT_KEY_FAVORITES },
-	{LOCALE_KEYBINDINGMENU_PAGEUP, 		&g_settings.key_pageup,			LOCALE_MENU_HINT_KEY_PAGEUP },
-	{LOCALE_KEYBINDINGMENU_PAGEDOWN, 	&g_settings.key_pagedown, 		LOCALE_MENU_HINT_KEY_PAGEDOWN },
-	{LOCALE_KEYBINDINGMENU_VOLUMEUP, 	&g_settings.key_volumeup,		LOCALE_MENU_HINT_KEY_VOLUMEUP },
-	{LOCALE_KEYBINDINGMENU_VOLUMEDOWN,	&g_settings.key_volumedown, 		LOCALE_MENU_HINT_KEY_VOLUMEDOWN },
-	{LOCALE_EXTRA_KEY_LIST_START, 		&g_settings.key_list_start, 		LOCALE_MENU_HINT_KEY_LIST_START },
-	{LOCALE_EXTRA_KEY_LIST_END,	 	&g_settings.key_list_end,		LOCALE_MENU_HINT_KEY_LIST_END },
+	{LOCALE_KEYBINDINGMENU_FAVORITES,	&g_settings.key_favorites,		LOCALE_MENU_HINT_KEY_FAVORITES },
+	{LOCALE_KEYBINDINGMENU_PAGEUP,		&g_settings.key_pageup,			LOCALE_MENU_HINT_KEY_PAGEUP },
+	{LOCALE_KEYBINDINGMENU_PAGEDOWN,	&g_settings.key_pagedown,		LOCALE_MENU_HINT_KEY_PAGEDOWN },
+	{LOCALE_KEYBINDINGMENU_VOLUMEUP,	&g_settings.key_volumeup,		LOCALE_MENU_HINT_KEY_VOLUMEUP },
+	{LOCALE_KEYBINDINGMENU_VOLUMEDOWN,	&g_settings.key_volumedown,		LOCALE_MENU_HINT_KEY_VOLUMEDOWN },
+	{LOCALE_EXTRA_KEY_LIST_START,		&g_settings.key_list_start,		LOCALE_MENU_HINT_KEY_LIST_START },
+	{LOCALE_EXTRA_KEY_LIST_END,		&g_settings.key_list_end,		LOCALE_MENU_HINT_KEY_LIST_END },
 	{LOCALE_KEYBINDINGMENU_CANCEL,		&g_settings.key_channelList_cancel,	LOCALE_MENU_HINT_KEY_CANCEL },
 	{LOCALE_KEYBINDINGMENU_SORT,		&g_settings.key_channelList_sort,	LOCALE_MENU_HINT_KEY_SORT },
 	{LOCALE_KEYBINDINGMENU_ADDRECORD,	&g_settings.key_channelList_addrecord,	LOCALE_MENU_HINT_KEY_ADDRECORD },
 	{LOCALE_KEYBINDINGMENU_ADDREMIND,	&g_settings.key_channelList_addremind,	LOCALE_MENU_HINT_KEY_ADDREMIND },
-	{LOCALE_KEYBINDINGMENU_BOUQUETUP,	&g_settings.key_bouquet_up, 		LOCALE_MENU_HINT_KEY_BOUQUETUP },
-	{LOCALE_KEYBINDINGMENU_BOUQUETDOWN,	&g_settings.key_bouquet_down, 		LOCALE_MENU_HINT_KEY_BOUQUETDOWN },
+	{LOCALE_KEYBINDINGMENU_BOUQUETUP,	&g_settings.key_bouquet_up,		LOCALE_MENU_HINT_KEY_BOUQUETUP },
+	{LOCALE_KEYBINDINGMENU_BOUQUETDOWN,	&g_settings.key_bouquet_down,		LOCALE_MENU_HINT_KEY_BOUQUETDOWN },
 	{LOCALE_EXTRA_KEY_CURRENT_TRANSPONDER,	&g_settings.key_current_transponder,	LOCALE_MENU_HINT_KEY_TRANSPONDER },
 	{LOCALE_KEYBINDINGMENU_CHANNELUP,	&g_settings.key_quickzap_up,		LOCALE_MENU_HINT_KEY_CHANNELUP },
-	{LOCALE_KEYBINDINGMENU_CHANNELDOWN,	&g_settings.key_quickzap_down,  	LOCALE_MENU_HINT_KEY_CHANNELDOWN },
-	{LOCALE_KEYBINDINGMENU_SUBCHANNELUP,	&g_settings.key_subchannel_up,  	LOCALE_MENU_HINT_KEY_SUBCHANNELUP },
+	{LOCALE_KEYBINDINGMENU_CHANNELDOWN,	&g_settings.key_quickzap_down,		LOCALE_MENU_HINT_KEY_CHANNELDOWN },
+	{LOCALE_KEYBINDINGMENU_SUBCHANNELUP,	&g_settings.key_subchannel_up,		LOCALE_MENU_HINT_KEY_SUBCHANNELUP },
 	{LOCALE_KEYBINDINGMENU_SUBCHANNELDOWN,	&g_settings.key_subchannel_down,	LOCALE_MENU_HINT_KEY_SUBCHANNELDOWN },
-	{LOCALE_KEYBINDINGMENU_ZAPHISTORY,	&g_settings.key_zaphistory, 		LOCALE_MENU_HINT_KEY_HISTORY },
+	{LOCALE_KEYBINDINGMENU_ZAPHISTORY,	&g_settings.key_zaphistory,		LOCALE_MENU_HINT_KEY_HISTORY },
 	{LOCALE_KEYBINDINGMENU_LASTCHANNEL,	&g_settings.key_lastchannel,		LOCALE_MENU_HINT_KEY_LASTCHANNEL },
 	{LOCALE_MPKEY_PLAY,			&g_settings.mpkey_play,			LOCALE_MENU_HINT_KEY_MPPLAY },
-	{LOCALE_MPKEY_PAUSE,			&g_settings.mpkey_pause, 		LOCALE_MENU_HINT_KEY_MPPAUSE },
+	{LOCALE_MPKEY_PAUSE,			&g_settings.mpkey_pause,		LOCALE_MENU_HINT_KEY_MPPAUSE },
 	{LOCALE_MPKEY_STOP,			&g_settings.mpkey_stop,			LOCALE_MENU_HINT_KEY_MPSTOP },
-	{LOCALE_MPKEY_FORWARD,			&g_settings.mpkey_forward,  		LOCALE_MENU_HINT_KEY_MPFORWARD },
+	{LOCALE_MPKEY_FORWARD,			&g_settings.mpkey_forward,		LOCALE_MENU_HINT_KEY_MPFORWARD },
 	{LOCALE_MPKEY_REWIND,			&g_settings.mpkey_rewind,		LOCALE_MENU_HINT_KEY_MPREWIND },
-	{LOCALE_MPKEY_AUDIO,			&g_settings.mpkey_audio, 		LOCALE_MENU_HINT_KEY_MPAUDIO },
+	{LOCALE_MPKEY_AUDIO,			&g_settings.mpkey_audio,		LOCALE_MENU_HINT_KEY_MPAUDIO },
 	{LOCALE_MPKEY_SUBTITLE,			&g_settings.mpkey_subtitle,		LOCALE_MENU_HINT_KEY_MPSUBTITLE },
 	{LOCALE_MPKEY_TIME,			&g_settings.mpkey_time,			LOCALE_MENU_HINT_KEY_MPTIME },
-	{LOCALE_MPKEY_BOOKMARK,			&g_settings.mpkey_bookmark, 		LOCALE_MENU_HINT_KEY_MPBOOKMARK },
-	{LOCALE_MPKEY_GOTO,			&g_settings.mpkey_goto,	 		NONEXISTANT_LOCALE},
-	{LOCALE_MPKEY_NEXT_REPEAT_MODE,		&g_settings.mpkey_next_repeat_mode,	NONEXISTANT_LOCALE},
+	{LOCALE_MPKEY_BOOKMARK,			&g_settings.mpkey_bookmark,		LOCALE_MENU_HINT_KEY_MPBOOKMARK },
+	{LOCALE_MPKEY_GOTO,			&g_settings.mpkey_goto,			NONEXISTANT_LOCALE },
+	{LOCALE_MPKEY_NEXT_REPEAT_MODE,		&g_settings.mpkey_next_repeat_mode,	NONEXISTANT_LOCALE },
 	{LOCALE_MPKEY_PLUGIN,			&g_settings.mpkey_plugin,		LOCALE_MENU_HINT_KEY_MPPLUGIN },
-	{LOCALE_EXTRA_KEY_TIMESHIFT,		&g_settings.key_timeshift,  		LOCALE_MENU_HINT_KEY_TIMESHIFT },
+	{LOCALE_EXTRA_KEY_TIMESHIFT,		&g_settings.key_timeshift,		LOCALE_MENU_HINT_KEY_TIMESHIFT },
 	{LOCALE_EXTRA_KEY_UNLOCK,		&g_settings.key_unlock,			LOCALE_MENU_HINT_KEY_UNLOCK},
-	{LOCALE_EXTRA_KEY_HELP,			&g_settings.key_help,			NONEXISTANT_LOCALE},
-	{LOCALE_EXTRA_KEY_NEXT43MODE,		&g_settings.key_next43mode,		NONEXISTANT_LOCALE},
-	{LOCALE_EXTRA_KEY_SWITCHFORMAT,		&g_settings.key_switchformat,		NONEXISTANT_LOCALE},
+	{LOCALE_EXTRA_KEY_HELP,			&g_settings.key_help,			NONEXISTANT_LOCALE },
+	{LOCALE_EXTRA_KEY_NEXT43MODE,		&g_settings.key_next43mode,		NONEXISTANT_LOCALE },
+	{LOCALE_EXTRA_KEY_SWITCHFORMAT,		&g_settings.key_switchformat,		NONEXISTANT_LOCALE },
 	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT },
 #if ENABLE_PIP
 	{LOCALE_EXTRA_KEY_PIP_CLOSE,		&g_settings.key_pip_close,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
@@ -238,7 +242,7 @@ bool checkLongPress(uint32_t key)
 	for (unsigned int i = 0; i < CKeybindSetup::KEYBINDS_COUNT; i++)
 		if ((uint32_t)*key_settings[i].keyvalue_p == key)
 			return true;
-	for (std::vector<SNeutrinoSettings::usermenu_t*>::iterator it = g_settings.usermenu.begin(); it != g_settings.usermenu.end(); ++it)
+	for (std::vector<SNeutrinoSettings::usermenu_t *>::iterator it = g_settings.usermenu.begin(); it != g_settings.usermenu.end(); ++it)
 		if (*it && (uint32_t)((*it)->key) == key)
 			return true;
 	return false;
@@ -246,28 +250,28 @@ bool checkLongPress(uint32_t key)
 
 int CKeybindSetup::showKeySetup()
 {
-	//save original rc hardware selection and initialize text strings
+	// save original rc hardware selection and initialize text strings
 	int org_remote_control_hardware = g_settings.remote_control_hardware;
 	char RC_HW_str[3][32];
-	snprintf(RC_HW_str[CRCInput::RC_HW_COOLSTREAM],   sizeof(RC_HW_str[CRCInput::RC_HW_COOLSTREAM])-1,   "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM));
-	snprintf(RC_HW_str[CRCInput::RC_HW_DBOX],         sizeof(RC_HW_str[CRCInput::RC_HW_DBOX])-1,         "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX));
-	snprintf(RC_HW_str[CRCInput::RC_HW_PHILIPS],      sizeof(RC_HW_str[CRCInput::RC_HW_PHILIPS])-1,      "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS));
+	snprintf(RC_HW_str[CRCInput::RC_HW_COOLSTREAM], sizeof(RC_HW_str[CRCInput::RC_HW_COOLSTREAM]) - 1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM));
+	snprintf(RC_HW_str[CRCInput::RC_HW_DBOX],       sizeof(RC_HW_str[CRCInput::RC_HW_DBOX]) - 1,       "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX));
+	snprintf(RC_HW_str[CRCInput::RC_HW_PHILIPS],    sizeof(RC_HW_str[CRCInput::RC_HW_PHILIPS]) - 1,    "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS));
 	char RC_HW_msg[256];
-	snprintf(RC_HW_msg, sizeof(RC_HW_msg)-1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART1));
+	snprintf(RC_HW_msg, sizeof(RC_HW_msg) - 1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART1));
 
-	//keysetup menu
-	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP);
+	// keysetup menu
+	CMenuWidget *keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP);
 	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING);
 
-	//keybindings menu
+	// keybindings menu
 	CMenuWidget bindSettings(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING);
 
-	//keybindings
+	// keybindings
 	for (int i = 0; i < KEYBINDS_COUNT; i++)
 		keychooser[i] = new CKeyChooser((unsigned int *) key_settings[i].keyvalue_p, key_settings[i].keydescription/*as head caption*/, NEUTRINO_ICON_SETTINGS);
 
 	showKeyBindSetup(&bindSettings);
-	CMenuForwarder * mf;
+	CMenuForwarder *mf;
 
 	mf = new CMenuForwarder(LOCALE_KEYBINDINGMENU_EDIT, true, NULL, &bindSettings, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_KEY_BINDING);
@@ -283,7 +287,7 @@ int CKeybindSetup::showKeySetup()
 
 	keySettings->addItem(GenericMenuSeparatorLine);
 
-	//rc tuning
+	// rc tuning
 	std::string ms_number_format("%d ");
 	ms_number_format += g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND);
 	CMenuOptionNumberChooser *cc;
@@ -307,8 +311,9 @@ int CKeybindSetup::showKeySetup()
 	keySettings->addItem(mc);
 #endif
 
-	if (RC_HW_SELECT) {
-		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE,
+	if (RC_HW_SELECT)
+	{
+		CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE,
 			&g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true, NULL,
 			CRCInput::convertDigitToKey(shortcut++));
 		mc->setHint("", LOCALE_MENU_HINT_KEY_HARDWARE);
@@ -333,14 +338,16 @@ int CKeybindSetup::showKeySetup()
 
 	int res = keySettings->exec(NULL, "");
 
-	//check if rc hardware selection has changed before leaving the menu
-	if (org_remote_control_hardware != g_settings.remote_control_hardware) {
+	// check if rc hardware selection has changed before leaving the menu
+	if (org_remote_control_hardware != g_settings.remote_control_hardware)
+	{
 		g_RCInput->CRCInput::set_rc_hw();
 		strcat(RC_HW_msg, RC_HW_str[org_remote_control_hardware]);
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART2));
 		strcat(RC_HW_msg, RC_HW_str[g_settings.remote_control_hardware]);
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART3));
-		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMsgBox::mbrNo) {
+		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMsgBox::mbrNo)
+		{
 			g_settings.remote_control_hardware = org_remote_control_hardware;
 			g_RCInput->CRCInput::set_rc_hw();
 		}
@@ -357,75 +364,77 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 {
 	int shortcut = 1;
 
-	CMenuForwarder * mf;
+	CMenuForwarder *mf;
 
 	bindSettings->addIntroItems(LOCALE_KEYBINDINGMENU_HEAD);
 
-	//modes
-	CMenuWidget* bindSettings_modes = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MODES);
+	// modes
+	CMenuWidget *bindSettings_modes = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MODES);
 	showKeyBindModeSetup(bindSettings_modes);
 	mf = new CMenuDForwarder(LOCALE_KEYBINDINGMENU_MODECHANGE, true, NULL, bindSettings_modes, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_KEY_MODECHANGE);
 	bindSettings->addItem(mf);
 
 	// channellist keybindings
-	CMenuWidget* bindSettings_chlist = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_CHANNELLIST);
+	CMenuWidget *bindSettings_chlist = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_CHANNELLIST);
 	showKeyBindChannellistSetup(bindSettings_chlist);
 	mf = new CMenuDForwarder(LOCALE_KEYBINDINGMENU_CHANNELLIST, true, NULL, bindSettings_chlist, NULL, CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_KEY_CHANNELLIST);
 	bindSettings->addItem(mf);
 
-	// Zapping keys quickzap
-	CMenuWidget* bindSettings_qzap = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_QUICKZAP);
+	// zapping keys quickzap
+	CMenuWidget *bindSettings_qzap = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_QUICKZAP);
 	showKeyBindQuickzapSetup(bindSettings_qzap);
 	mf = new CMenuDForwarder(LOCALE_KEYBINDINGMENU_QUICKZAP, true, NULL, bindSettings_qzap, NULL, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_KEY_QUICKZAP);
- 	bindSettings->addItem(mf);
+	bindSettings->addItem(mf);
 
-	//movieplayer
-	CMenuWidget* bindSettings_mplayer = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEPLAYER);
+	// movieplayer
+	CMenuWidget *bindSettings_mplayer = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEPLAYER);
 	showKeyBindMovieplayerSetup(bindSettings_mplayer);
 	mf = new CMenuDForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, bindSettings_mplayer, NULL, CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_KEY_MOVIEPLAYER);
 	bindSettings->addItem(mf);
 
-	//moviebrowser
-	CMenuWidget* bindSettings_mbrowser = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEBROWSER);
+	// moviebrowser
+	CMenuWidget *bindSettings_mbrowser = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEBROWSER);
 	showKeyBindMoviebrowserSetup(bindSettings_mbrowser);
 	mf = new CMenuDForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, bindSettings_mbrowser, NULL, CRCInput::RC_nokey);
 	mf->setHint("", LOCALE_MENU_HINT_KEY_MOVIEBROWSER);
 	bindSettings->addItem(mf);
 
-	//video
+	// video
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_VIDEO));
-	for (int i = NKEY_NEXT43MODE; i <= NKEY_SWITCHFORMAT; i++) {
+	for (int i = NKEY_NEXT43MODE; i <= NKEY_SWITCHFORMAT; i++)
+	{
 		mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings->addItem(mf);
 	}
 
-	//navigation
+	// navigation
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_NAVIGATION));
-	for (int i = NKEY_PAGE_UP; i <= NKEY_PAGE_DOWN; i++) {
+	for (int i = NKEY_PAGE_UP; i <= NKEY_PAGE_DOWN; i++)
+	{
 		mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings->addItem(mf);
 	}
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_MENU_LEFT_EXIT, &g_settings.menu_left_exit, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_EXTRA_MENU_LEFT_EXIT, &g_settings.menu_left_exit, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_KEY_LEFT_EXIT);
 	bindSettings->addItem(mc);
 
-	//volume
+	// volume
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_VOLUME));
 	for (int i = NKEY_VOLUME_UP; i <= NKEY_VOLUME_DOWN; i++)
 		bindSettings->addItem(new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]));
 
-	//misc
+	// misc
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_MISC));
 	//bindSettings->addItem(new CMenuForwarder(keydescription[NKEY_PLUGIN], true, NULL, keychooser[NKEY_PLUGIN]));
 
-	//Special keys
-	CMenuWidget* bindSettings_special = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_SPECIAL);
+	// special keys
+	CMenuWidget *bindSettings_special = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_SPECIAL);
 	showKeyBindSpecialSetup(bindSettings_special);
 	mf = new CMenuDForwarder(LOCALE_KEYBINDINGMENU_SPECIAL_ACTIVE, true, NULL, bindSettings_special, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_KEY_SPECIAL_ACTIVE);
@@ -457,7 +466,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf->setHint("", key_settings[NKEY_PIP_CLOSE].hint);
 	bindSettings->addItem(mf);
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_CLOSE_AVINPUT].keydescription, true, keychooser[NKEY_PIP_CLOSE_AVINPUT]->getKeyName(), keychooser[NKEY_PIP_CLOSE_AVINPUT]);
-//	mf->setHint("", key_settings[NKEY_PIP_CLOSE_AVINPUT].hint);
+	//mf->setHint("", key_settings[NKEY_PIP_CLOSE_AVINPUT].hint);
 	bindSettings->addItem(mf);
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_SETUP].keydescription, true, keychooser[NKEY_PIP_SETUP]->getKeyName(), keychooser[NKEY_PIP_SETUP]);
 	mf->setHint("", key_settings[NKEY_PIP_SETUP].hint);
@@ -471,6 +480,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	bindSettings->addItem(new CMenuForwarder(key_settings[NKEY_RECORD].keydescription, true, keychooser[NKEY_RECORD]->getKeyName(), keychooser[NKEY_RECORD]));
 
 	bindSettings->addItem(new CMenuSeparator());
+
 	// left/right keys
 	mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV, &g_settings.mode_left_right_key_tv, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_OPTIONS, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_KEY_RIGHT);
@@ -479,7 +489,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 
 void CKeybindSetup::showKeyBindModeSetup(CMenuWidget *bindSettings_modes)
 {
-	CMenuForwarder * mf;
+	CMenuForwarder *mf;
 	bindSettings_modes->addIntroItems(LOCALE_KEYBINDINGMENU_MODECHANGE);
 
 	// tv/radio
@@ -500,16 +510,17 @@ void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist
 {
 	bindSettings_chlist->addIntroItems(LOCALE_KEYBINDINGMENU_CHANNELLIST);
 #if 0
-	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_BOUQUETHANDLING, &g_settings.bouquetlist_mode, KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS, KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT, true );
+	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_BOUQUETHANDLING, &g_settings.bouquetlist_mode, KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS, KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT, true);
 	bindSettings_chlist->addItem(oj);
 #endif
-	for (int i = NKEY_LIST_START; i <= NKEY_CURRENT_TRANSPONDER; i++) {
-		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+	for (int i = NKEY_LIST_START; i <= NKEY_CURRENT_TRANSPONDER; i++)
+	{
+		CMenuForwarder *mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_chlist->addItem(mf);
 	}
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_SMS_CHANNEL, &g_settings.sms_channel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_EXTRA_SMS_CHANNEL, &g_settings.sms_channel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SMS_CHANNEL);
 	bindSettings_chlist->addItem(mc);
 }
@@ -518,8 +529,9 @@ void CKeybindSetup::showKeyBindQuickzapSetup(CMenuWidget *bindSettings_qzap)
 {
 	bindSettings_qzap->addIntroItems(LOCALE_KEYBINDINGMENU_QUICKZAP);
 
-	for (int i = NKEY_CHANNEL_UP; i <= NKEY_LASTCHANNEL; i++) {
-		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+	for (int i = NKEY_CHANNEL_UP; i <= NKEY_LASTCHANNEL; i++)
+	{
+		CMenuForwarder *mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_qzap->addItem(mf);
 	}
@@ -529,24 +541,35 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 {
 	bindSettings_mplayer->addIntroItems(LOCALE_MAINMENU_MOVIEPLAYER);
 
-	for (int i = MPKEY_PLAY; i <= MPKEY_PLUGIN; i++) {
-		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+	for (int i = MPKEY_PLAY; i <= MPKEY_PLUGIN; i++)
+	{
+		CMenuForwarder *mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mplayer->addItem(mf);
 	}
+#if 0
+	bindSettings_mplayer->addItem(GenericMenuSeparatorLine);
+
+	// bisectional jumps
+	CMenuOptionNumberChooser *nc = new CMenuOptionNumberChooser(LOCALE_MOVIEPLAYER_BISECTION_JUMP, &g_settings.movieplayer_bisection_jump, true, 0, 10, this, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+	nc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE));
+	nc->setHint("", LOCALE_MENU_HINT_MOVIEPLAYER_BISECTION_JUMP);
+	bindSettings_mplayer->addItem(nc);
+#endif
 }
 
 void CKeybindSetup::showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrowser)
 {
 	bindSettings_mbrowser->addIntroItems(LOCALE_MOVIEBROWSER_HEAD);
 
-	for (int i = MBKEY_COPY_ONEFILE; i <= MBKEY_COVER; i++) {
-		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+	for (int i = MBKEY_COPY_ONEFILE; i <= MBKEY_COVER; i++)
+	{
+		CMenuForwarder *mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mbrowser->addItem(mf);
 	}
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_SMS_MOVIE, &g_settings.sms_movie, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_EXTRA_SMS_MOVIE, &g_settings.sms_movie, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SMS_MOVIE);
 	bindSettings_mbrowser->addItem(mc);
 }
@@ -560,8 +583,9 @@ void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 	else
 		nkey = NKEY_PIC_MODE;
 
-	for (; nkey <= NKEY_PIC_SIZE; nkey++) {
-		CMenuOptionChooser * mf = new CMenuOptionChooser(key_settings[nkey].keydescription, key_settings[nkey].keyvalue_p, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	for (; nkey <= NKEY_PIC_SIZE; nkey++)
+	{
+		CMenuOptionChooser *mf = new CMenuOptionChooser(key_settings[nkey].keydescription, key_settings[nkey].keyvalue_p, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		mf->setHint("", key_settings[nkey].hint);
 		bindSettings_special->addItem(mf);
 	}
@@ -570,14 +594,17 @@ void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
 bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
 #if 0
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES)) {
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_ACCEPT_OTHER_REMOTES))
+	{
 		struct sockaddr_un sun;
 		memset(&sun, 0, sizeof(sun));
 		sun.sun_family = AF_UNIX;
 		strcpy(sun.sun_path, "/var/run/lirc/lircd");
 		int lircd_sock = socket(AF_UNIX, SOCK_STREAM, 0);
-		if (lircd_sock > -1) {
-			if (!connect(lircd_sock, (struct sockaddr *) &sun, sizeof(sun))) {
+		if (lircd_sock > -1)
+		{
+			if (!connect(lircd_sock, (struct sockaddr *) &sun, sizeof(sun)))
+			{
 				if (g_settings.accept_other_remotes)
 					write(lircd_sock, "PREDATA_UNLOCK\n", 16);
 				else
@@ -591,8 +618,8 @@ bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* d
 		return false;
 	}
 #endif
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC) ||
-			ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCK)) {
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC) || ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCK))
+	{
 		unsigned int fdelay = g_settings.repeat_blocker;
 		unsigned int xdelay = g_settings.repeat_genericblocker;
 

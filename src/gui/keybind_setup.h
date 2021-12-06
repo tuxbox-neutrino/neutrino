@@ -41,8 +41,8 @@
 
 class CKeybindSetup : public CMenuTarget, public CChangeObserver
 {
-	public:	
-		enum keynames 
+	public:
+		enum keynames
 		{
 			NKEY_TV_RADIO_MODE,
 			NKEY_POWER_OFF,
@@ -100,7 +100,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			MBKEY_CUT,
 			MBKEY_TRUNCATE,
 			MBKEY_COVER,
-			
+
 			KEYBINDS_COUNT
 		};
 
@@ -117,13 +117,12 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		void showKeyBindMoviebrowserSetup(CMenuWidget *bindSettings_mbrowser);
 		void showKeyBindSpecialSetup(CMenuWidget *bindSettings_special);
 
-	public:				
+	public:
 		CKeybindSetup();
 		~CKeybindSetup();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		bool changeNotify(const neutrino_locale_t OptionName, void * data);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		bool changeNotify(const neutrino_locale_t OptionName, void *data);
 		static const char *getMoviePlayerButtonName(const neutrino_msg_t key, bool &active, bool return_title = false);
 };
 
 #endif
-		
