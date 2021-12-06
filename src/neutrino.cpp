@@ -4982,11 +4982,9 @@ void CNeutrinoApp::tvMode( bool rezap )
 
 	g_RemoteControl->tvMode();
 	SetChannelMode(g_settings.channel_mode);
+
 	if( rezap )
 		channelRezap();
-#ifdef USEACTIONLOG
-	g_ActionLog->println("mode: tv");
-#endif
 
 	videoDecoder->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);
 	audioDecoder->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);
