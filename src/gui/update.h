@@ -25,11 +25,10 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the 
+	along with this program; if not, write to the
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 */
-
 
 #ifndef __update__
 #define __update__
@@ -47,30 +46,29 @@
 
 class CFlashUpdate : public CProgressWindow
 {
- private:
-	std::string filename;
-	std::string file_md5;
-	std::string sysfs;
-	char	fileType;
-	bool	gotImage;
-	int 	width;
-	bool	notify;
-	
-	std::string newVersion;
-	int	menu_ret;
-	int softupdate_mode;
+	private:
+		std::string filename;
+		std::string file_md5;
+		std::string sysfs;
+		char fileType;
+		bool gotImage;
+		int width;
+		bool notify;
 
-// 	void update_php(std::string &url, const char* type);
-	bool selectHttpImage(void);
-	bool getUpdateImage(const std::string & version);
-	bool checkVersion4Update();
-	
- public:
-	CFlashUpdate();
-	int exec( CMenuTarget* parent, const std::string & actionKey );
-	bool checkOnlineVersion();
-	void enableNotify(bool enable) { notify = enable; }
+		std::string newVersion;
+		int menu_ret;
+		int softupdate_mode;
 
+		void update_php(std::string &url, const char *type);
+		bool selectHttpImage(void);
+		bool getUpdateImage(const std::string &version);
+		bool checkVersion4Update();
+
+	public:
+		CFlashUpdate();
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		bool checkOnlineVersion();
+		void enableNotify(bool enable) { notify = enable; }
 };
 
 class CFlashExpert : public CProgressWindow
@@ -79,13 +77,13 @@ class CFlashExpert : public CProgressWindow
 		int selectedMTD;
 		int width;
 
-		int showMTDSelector(const std::string & actionkey);
-		int showFileSelector(const std::string & actionkey);
+		int showMTDSelector(const std::string &actionkey);
+		int showFileSelector(const std::string &actionkey);
 
 		bool checkSize(int mtd, std::string &backupFile);
 #ifdef BOXMODEL_CST_HD2
 		bool readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable);
-		void readmtdJFFS2(std::string &filename, std::string title="", std::string path="/", bool makeDevTable=true);
+		void readmtdJFFS2(std::string &filename, std::string title = "", std::string path = "/", bool makeDevTable = true);
 #endif
 
 	public:
@@ -95,11 +93,10 @@ class CFlashExpert : public CProgressWindow
 		int createimage_other;
 #endif
 		CFlashExpert();
-		static CFlashExpert* getInstance();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		void writemtd(const std::string & filename, int mtdNumber);
+		static CFlashExpert *getInstance();
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		void writemtd(const std::string &filename, int mtdNumber);
 		void readmtd(int readmtd);
-
 };
 
 #ifdef BOXMODEL_CST_HD2
@@ -113,9 +110,9 @@ class CFlashExpertSetup : public CMenuTarget
 
 	public:
 		CFlashExpertSetup();
-//		~CFlashExpertSetup();
+		//~CFlashExpertSetup();
 
-		int exec(CMenuTarget* parent, const std::string &actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 #endif // BOXMODEL_CST_HD2
 
