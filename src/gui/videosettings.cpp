@@ -85,7 +85,6 @@ CVideoSettings::CVideoSettings(int wizard_mode)
 	is_wizard = wizard_mode;
 
 	SyncControlerForwarder = NULL;
-	VcrVideoOutSignalOptionChooser = NULL;
 
 	width = 35;
 	selected = -1;
@@ -684,9 +683,6 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_DBDR))
 	{
 		videoDecoder->SetDBDR(g_settings.video_dbdr);
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VCRSIGNAL))
-	{
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VIDEOFORMAT) || ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_43MODE))
 	{

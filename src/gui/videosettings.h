@@ -39,7 +39,6 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 	private:
 		CFrameBuffer *frameBuffer;
 		CMenuForwarder *SyncControlerForwarder;
-		CMenuOptionChooser *VcrVideoOutSignalOptionChooser;
 
 		int prev_video_mode;
 
