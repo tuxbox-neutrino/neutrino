@@ -90,175 +90,174 @@ extern CBouquetManager *g_bouquetManager;
 
 class CTimerListNewNotifier : public CChangeObserver
 {
-private:
-	CMenuItem* m1;
-	CMenuItem* m2;
-	CMenuItem* m3;
-	CMenuItem* m4;
-	CMenuItem* m5;
-	CMenuItem* m6;
-	std::string * display;
-	int* iType;
-	time_t* stopTime;
-public:
-	CTimerListNewNotifier( int* Type, time_t* time,CMenuItem* a1, CMenuItem* a2,
-			       CMenuItem* a3, CMenuItem* a4, CMenuItem* a5, CMenuItem* a6, std::string *d)
-	{
-		m1 = a1;
-		m2 = a2;
-		m3 = a3;
-		m4 = a4;
-		m5 = a5;
-		m6 = a6;
-		display=d;
-		iType=Type;
-		stopTime=time;
-	}
-	bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
-	{
-		CTimerd::CTimerEventTypes type = (CTimerd::CTimerEventTypes) *iType;
-		if (type == CTimerd::TIMER_RECORD)
+	private:
+		CMenuItem *m1;
+		CMenuItem *m2;
+		CMenuItem *m3;
+		CMenuItem *m4;
+		CMenuItem *m5;
+		CMenuItem *m6;
+		std::string *display;
+		int *iType;
+		time_t *stopTime;
+	public:
+		CTimerListNewNotifier(int *Type, time_t *time, CMenuItem *a1, CMenuItem *a2,
+			CMenuItem *a3, CMenuItem *a4, CMenuItem *a5, CMenuItem *a6, std::string *d)
 		{
-			*stopTime=(time(NULL)/60)*60;
-			struct tm *tmTime2 = localtime(stopTime);
-			char disp[40];
-			snprintf(disp, sizeof(disp), "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
-				 tmTime2->tm_year+1900,
-				 tmTime2->tm_hour, tmTime2->tm_min);
-			*display = std::string(disp);
-			m1->setActive(true);
-			m6->setActive((g_settings.recording_type == CNeutrinoApp::RECORDING_FILE));
+			m1 = a1;
+			m2 = a2;
+			m3 = a3;
+			m4 = a4;
+			m5 = a5;
+			m6 = a6;
+			display = d;
+			iType = Type;
+			stopTime = time;
 		}
-		else
+		bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
 		{
-			*stopTime=0;
-			*display = "                ";
-			m1->setActive (false);
-			m6->setActive(false);
+			CTimerd::CTimerEventTypes type = (CTimerd::CTimerEventTypes) * iType;
+			if (type == CTimerd::TIMER_RECORD)
+			{
+				*stopTime = (time(NULL) / 60) * 60;
+				struct tm *tmTime2 = localtime(stopTime);
+				char disp[40];
+				snprintf(disp, sizeof(disp), "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon + 1,
+					tmTime2->tm_year + 1900,
+					tmTime2->tm_hour, tmTime2->tm_min);
+				*display = std::string(disp);
+				m1->setActive(true);
+				m6->setActive((g_settings.recording_type == CNeutrinoApp::RECORDING_FILE));
+			}
+			else
+			{
+				*stopTime = 0;
+				*display = "                ";
+				m1->setActive(false);
+				m6->setActive(false);
+			}
+			if (type == CTimerd::TIMER_RECORD || type == CTimerd::TIMER_ZAPTO /*|| type == CTimerd::TIMER_NEXTPROGRAM*/)
+			{
+				m2->setActive(true);
+			}
+			else
+			{
+				m2->setActive(false);
+			}
+			if (type == CTimerd::TIMER_STANDBY)
+				m3->setActive(true);
+			else
+				m3->setActive(false);
+			if (type == CTimerd::TIMER_REMIND)
+				m4->setActive(true);
+			else
+				m4->setActive(false);
+			if (type == CTimerd::TIMER_EXEC_PLUGIN)
+				m5->setActive(true);
+			else
+				m5->setActive(false);
+			return true;
 		}
-		if (type == CTimerd::TIMER_RECORD ||
-		    type == CTimerd::TIMER_ZAPTO)
-				/*|| type == CTimerd::TIMER_NEXTPROGRAM)*/
-		{
-			m2->setActive(true);
-		}
-		else
-		{
-			m2->setActive(false);
-		}
-		if (type == CTimerd::TIMER_STANDBY)
-			m3->setActive(true);
-		else
-			m3->setActive(false);
-		if (type == CTimerd::TIMER_REMIND)
-			m4->setActive(true);
-		else
-			m4->setActive(false);
-		if (type == CTimerd::TIMER_EXEC_PLUGIN)
-			m5->setActive(true);
-		else
-			m5->setActive(false);
-		return true;
-	}
 };
 
 class CTimerListRepeatNotifier : public CChangeObserver
 {
-private:
-	CMenuForwarder* m1;
-	CMenuForwarder* m2;
+	private:
+		CMenuForwarder *m1;
+		CMenuForwarder *m2;
 
-	int* iRepeat;
-	std::string * weekdays;
-public:
-	CTimerListRepeatNotifier( int* repeat, CMenuForwarder* a1, CMenuForwarder *a2, std::string * wstr)
-	{
-		m1 = a1;
-		m2 = a2;
-		iRepeat=repeat;
-		weekdays = wstr;
-	}
+		int *iRepeat;
+		std::string *weekdays;
+	public:
+		CTimerListRepeatNotifier(int *repeat, CMenuForwarder *a1, CMenuForwarder *a2, std::string *wstr)
+		{
+			m1 = a1;
+			m2 = a2;
+			iRepeat = repeat;
+			weekdays = wstr;
+		}
 
-	bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
-	{
-		if (*iRepeat >= (int)CTimerd::TIMERREPEAT_WEEKDAYS)
+		bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
 		{
-			m1->setActive (true);
-			*weekdays = "XXXXX--";
+			if (*iRepeat >= (int)CTimerd::TIMERREPEAT_WEEKDAYS)
+			{
+				m1->setActive(true);
+				*weekdays = "XXXXX--";
+			}
+			else
+			{
+				m1->setActive(false);
+				*weekdays = "-------";
+			}
+			if (*iRepeat != (int)CTimerd::TIMERREPEAT_ONCE)
+				m2->setActive(true);
+			else
+				m2->setActive(false);
+			return true;
 		}
-		else
-		{
-			m1->setActive (false);
-			*weekdays = "-------";
-		}
-		if (*iRepeat != (int)CTimerd::TIMERREPEAT_ONCE)
-			m2->setActive(true);
-		else
-			m2->setActive(false);
-		return true;
-	}
 };
 
 class CTimerListApidNotifier : public CChangeObserver
 {
-private:
-	int* o_dflt;
-	int* o_std;
-	int* o_alt;
-	int* o_ac3;
-	CMenuItem* m_dflt;
-	CMenuItem* m_std;
-	CMenuItem* m_alt;
-	CMenuItem* m_ac3;
-public:
-	CTimerListApidNotifier( int* o1, int* o2, int* o3, int* o4)
-	{
-		o_dflt=o1;
-		o_std=o2;
-		o_alt=o3;
-		o_ac3=o4;
-	}
-
-	void setItems(CMenuItem* m1, CMenuItem* m2, CMenuItem* m3, CMenuItem* m4)
-	{
-		m_dflt=m1;
-		m_std=m2;
-		m_alt=m3;
-		m_ac3=m4;
-	}
-
-	bool changeNotify(const neutrino_locale_t OptionName, void *)
-	{
-		if (OptionName == LOCALE_TIMERLIST_APIDS_DFLT)
+	private:
+		int *o_dflt;
+		int *o_std;
+		int *o_alt;
+		int *o_ac3;
+		CMenuItem *m_dflt;
+		CMenuItem *m_std;
+		CMenuItem *m_alt;
+		CMenuItem *m_ac3;
+	public:
+		CTimerListApidNotifier(int *o1, int *o2, int *o3, int *o4)
 		{
-			if (*o_dflt==0)
+			o_dflt = o1;
+			o_std = o2;
+			o_alt = o3;
+			o_ac3 = o4;
+		}
+
+		void setItems(CMenuItem *m1, CMenuItem *m2, CMenuItem *m3, CMenuItem *m4)
+		{
+			m_dflt = m1;
+			m_std = m2;
+			m_alt = m3;
+			m_ac3 = m4;
+		}
+
+		bool changeNotify(const neutrino_locale_t OptionName, void *)
+		{
+			if (OptionName == LOCALE_TIMERLIST_APIDS_DFLT)
 			{
-				m_std->setActive(true);
-				m_alt->setActive(true);
-				m_ac3->setActive(true);
+				if (*o_dflt == 0)
+				{
+					m_std->setActive(true);
+					m_alt->setActive(true);
+					m_ac3->setActive(true);
+				}
+				else
+				{
+					m_std->setActive(false);
+					m_alt->setActive(false);
+					m_ac3->setActive(false);
+					*o_std = 0;
+					*o_alt = 0;
+					*o_ac3 = 0;
+				}
 			}
 			else
 			{
-				m_std->setActive(false);
-				m_alt->setActive(false);
-				m_ac3->setActive(false);
-				*o_std=0;
-				*o_alt=0;
-				*o_ac3=0;
+				if (*o_std || *o_alt || *o_ac3)
+					*o_dflt = 0;
 			}
+			return true;
 		}
-		else
-		{
-			if (*o_std || *o_alt || *o_ac3)
-				*o_dflt=0;
-		}
-		return true;
-	}
 };
 
-std::string string_printf_helper(const char *fmt, ...) {
+std::string string_printf_helper(const char *fmt, ...)
+{
 	va_list arglist;
-	const int bufferlen = 4*1024;
+	const int bufferlen = 4 * 1024;
 	char buffer[bufferlen] = {0};
 	va_start(arglist, fmt);
 	vsnprintf(buffer, bufferlen, fmt, arglist);
@@ -295,13 +294,13 @@ CTimerList::~CTimerList()
 	delete Timer;
 }
 
-int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
+int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 {
-	const char * key = actionKey.c_str();
+	const char *key = actionKey.c_str();
 
 	if (actionKey == "add_ip")
 	{
-		std::string rbname,rbaddress,user,pass = "";
+		std::string rbname, rbaddress, user, pass = "";
 		std::string port = "80";
 		CKeyboardInput remotebox_name(LOCALE_REMOTEBOX_RBNAME, &rbname, 25);
 		remotebox_name.forceSaveScreen(true);
@@ -314,15 +313,15 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		CKeyboardInput remotebox_pass(LOCALE_REMOTEBOX_PASS, &pass, 15);
 		remotebox_pass.forceSaveScreen(true);
 
-		//menu add remote box
-		CMenuWidget * rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
+		// menu add remote box
+		CMenuWidget *rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBNAME, true, rbname, &remotebox_name));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBADDR, true, rbaddress, &remotebox_address));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PORT, true, port, &remotebox_port));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_USER, true, user, &remotebox_user));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, pass, &remotebox_pass));
 		rbsetup->enableSaveScreen();
-		if ((rbsetup->exec(NULL,"") == true) && (!rbaddress.empty()))
+		if ((rbsetup->exec(NULL, "") == true) && (!rbaddress.empty()))
 		{
 			remboxmenu->hide();
 			remboxmenu->disableSaveScreen();
@@ -365,10 +364,10 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		bselected = remboxmenu->getSelected();
 		if (bselected < item_offset)
 			return menu_return::RETURN_NONE;
-		CMenuItem* item = remboxmenu->getItem(bselected);
-		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
+		CMenuItem *item = remboxmenu->getItem(bselected);
+		CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 		std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
-		std::advance(it, bselected-item_offset);
+		std::advance(it, bselected - item_offset);
 		it->enabled = !it->enabled;
 		f->setInfoIconRight(it->enabled ? NEUTRINO_ICON_MARKER_DIALOG_OK : NEUTRINO_ICON_MARKER_DIALOG_OFF);
 		changed = true;
@@ -378,10 +377,10 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (actionKey == "cha_ip")
 	{
 		bselected = remboxmenu->getSelected();
-		CMenuItem* item = remboxmenu->getItem(bselected);
-		CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
+		CMenuItem *item = remboxmenu->getItem(bselected);
+		CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 		std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
-		std::advance(it,bselected-item_offset);
+		std::advance(it, bselected - item_offset);
 		std::string port = to_string(it->port);
 		CKeyboardInput remotebox_name(LOCALE_REMOTEBOX_RBNAME, &it->rbname, 25);
 		remotebox_name.forceSaveScreen(true);
@@ -394,15 +393,15 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		CKeyboardInput remotebox_pass(LOCALE_REMOTEBOX_PASS, &it->pass, 15);
 		remotebox_pass.forceSaveScreen(true);
 
-		//remote box edit
-		CMenuWidget * rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
+		// remote box edit
+		CMenuWidget *rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBNAME, true, it->rbname, &remotebox_name));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBADDR, true, it->rbaddress, &remotebox_address));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PORT, true, port, &remotebox_port));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_USER, true, it->user, &remotebox_user));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, it->pass, &remotebox_pass));
 		rbsetup->enableSaveScreen();
-		if ((rbsetup->exec(NULL,"") == true) && (!it->rbaddress.empty()))
+		if ((rbsetup->exec(NULL, "") == true) && (!it->rbaddress.empty()))
 		{
 			it->port = atoi(port);
 			f->setName(it->rbname);
@@ -414,7 +413,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 
 	if (strcmp(key, "modifytimer") == 0)
 	{
-		timerlist[selected].announceTime = timerlist[selected].alarmTime -60;
+		timerlist[selected].announceTime = timerlist[selected].alarmTime - 60;
 		if (timerlist[selected].eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS)
 			Timer->getWeekdaysFromStr(&timerlist[selected].eventRepeat, m_weekdaysStr);
 		if (timerlist[selected].eventType == CTimerd::TIMER_RECORD)
@@ -424,11 +423,11 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 				timerlist[selected].apids = TIMERD_APIDS_CONF;
 			else
 				timerlist[selected].apids = (unsigned char)((timer_apids_std * TIMERD_APIDS_STD) | (timer_apids_ac3 * TIMERD_APIDS_AC3) | (timer_apids_alt * TIMERD_APIDS_ALT));
-			Timer->modifyTimerAPid(timerlist[selected].eventID,timerlist[selected].apids);
+			Timer->modifyTimerAPid(timerlist[selected].eventID, timerlist[selected].apids);
 			Timer->modifyRecordTimerEvent(timerlist[selected].eventID, timerlist[selected].announceTime,
-						      timerlist[selected].alarmTime,
-						      timerlist[selected].stopTime, timerlist[selected].eventRepeat,
-						      timerlist[selected].repeatCount,timerlist[selected].recordingDir);
+				timerlist[selected].alarmTime,
+				timerlist[selected].stopTime, timerlist[selected].eventRepeat,
+				timerlist[selected].repeatCount, timerlist[selected].recordingDir);
 		}
 		else if (timerlist[selected].eventType == CTimerd::TIMER_REMOTEBOX)
 		{
@@ -452,16 +451,16 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		else
 		{
 			Timer->modifyTimerEvent(timerlist[selected].eventID, timerlist[selected].announceTime,
-						timerlist[selected].alarmTime,
-						timerlist[selected].stopTime, timerlist[selected].eventRepeat,
-						timerlist[selected].repeatCount);
+				timerlist[selected].alarmTime,
+				timerlist[selected].stopTime, timerlist[selected].eventRepeat,
+				timerlist[selected].repeatCount);
 		}
 		return menu_return::RETURN_EXIT;
 	}
 	else if ((strcmp(key, "send_remotetimer") == 0) && RemoteBoxChanExists(timerlist[selected].channel_id))
 	{
-		int pre = 0,post = 0;
-		Timer->getRecordingSafety(pre,post);
+		int pre = 0, post = 0;
+		Timer->getRecordingSafety(pre, post);
 		CHTTPTool httpTool;
 		std::string r_url;
 		r_url = "http://";
@@ -474,18 +473,20 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
 		r_url += "&rs=on";
-		if (timerlist[selected].eventRepeat > CTimerd::TIMERREPEAT_ONCE) {
+		if (timerlist[selected].eventRepeat > CTimerd::TIMERREPEAT_ONCE)
+		{
 			r_url += "&rep=" + to_string((int)timerlist[selected].eventRepeat);
 			r_url += "&repcount=" + to_string((int)timerlist[selected].repeatCount);
 		}
-		if (timerlist[selected].eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS) {
+		if (timerlist[selected].eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS)
+		{
 			Timer->setWeekdaysToStr(timerlist[selected].eventRepeat, m_weekdaysStr);
 			r_url += "&wd=" + m_weekdaysStr;
 		}
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
 		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
-		if (r_url=="ok")
+		if (r_url == "ok")
 			Timer->removeTimerEvent(timerlist[selected].eventID);
 	}
 	else if ((strcmp(key, "fetch_remotetimer") == 0) && LocalBoxChanExists(timerlist[selected].channel_id))
@@ -494,18 +495,18 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		std::string eventID = to_string((int)timerlist[selected].eventID);
 
 		int res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + timerlist[selected].rem_pre,
-				   timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
-				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"",false, timerlist[selected].eventRepeat, timerlist[selected].repeatCount);
+				timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
+				TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL), "", false, timerlist[selected].eventRepeat, timerlist[selected].repeatCount);
 
 		if (res == -1)
 		{
-			bool forceAdd = askUserOnTimerConflict(timerlist[selected].announceTime,timerlist[selected].stopTime);
+			bool forceAdd = askUserOnTimerConflict(timerlist[selected].announceTime, timerlist[selected].stopTime);
 
 			if (forceAdd)
 			{
 				res = Timer->addRecordTimerEvent(timerlist[selected].channel_id, timerlist[selected].alarmTime + timerlist[selected].rem_pre,
-				   timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
-				   TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL),"", true, timerlist[selected].eventRepeat, timerlist[selected].repeatCount);
+						timerlist[selected].stopTime - timerlist[selected].rem_post, 0, 0, timerlist[selected].announceTime + timerlist[selected].rem_pre,
+						TIMERD_APIDS_CONF, true, timerlist[selected].announceTime > time(NULL), "", true, timerlist[selected].eventRepeat, timerlist[selected].repeatCount);
 			}
 		}
 
@@ -517,7 +518,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&id=" + eventID;
 		//printf("[remotetimer] url:%s\n",r_url.c_str());
 		if (res > 0)
-		r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
+			r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
 		//printf("[remotetimer] status:%s\n",r_url.c_str());
 	}
 	else if (strcmp(key, "del_remotetimer") == 0)
@@ -546,11 +547,13 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		r_url += "&channel_id=" + string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timerlist[selected].channel_id);
 		r_url += "&aj=on";
 		r_url += "&rs=on";
-		if (timerlist[selected].eventRepeat > CTimerd::TIMERREPEAT_ONCE) {
+		if (timerlist[selected].eventRepeat > CTimerd::TIMERREPEAT_ONCE)
+		{
 			r_url += "&rep=" + to_string((int)timerlist[selected].eventRepeat);
 			r_url += "&repcount=" + to_string((int)timerlist[selected].repeatCount);
 		}
-		if (timerlist[selected].eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS) {
+		if (timerlist[selected].eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS)
+		{
 			Timer->setWeekdaysToStr(timerlist[selected].eventRepeat, m_weekdaysStr);
 			r_url += "&wd=" + m_weekdaysStr;
 		}
@@ -560,65 +563,65 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if (strcmp(key, "newtimer") == 0)
 	{
-		timerNew.announceTime=timerNew.alarmTime-60;
+		timerNew.announceTime = timerNew.alarmTime - 60;
 		CTimerd::EventInfo eventinfo;
 		CTimerd::RecordingInfo recinfo;
-		eventinfo.epg_id=0;
-		eventinfo.epg_starttime=0;
-		eventinfo.channel_id=timerNew.channel_id;
+		eventinfo.epg_id = 0;
+		eventinfo.epg_starttime = 0;
+		eventinfo.channel_id = timerNew.channel_id;
 		eventinfo.apids = TIMERD_APIDS_CONF;
 		eventinfo.recordingSafety = false;
 		eventinfo.autoAdjustToEPG = false;
 		timerNew.standby_on = (timerNew_standby_on == 1);
-		void *data=NULL;
+		void *data = NULL;
 		if (timerNew.eventType == CTimerd::TIMER_STANDBY)
-			data=&(timerNew.standby_on);
-		/* else if (timerNew.eventType==CTimerd::TIMER_NEXTPROGRAM || */
+			data = &(timerNew.standby_on);
+		//else if (timerNew.eventType==CTimerd::TIMER_NEXTPROGRAM ||
 		else if (timerNew.eventType == CTimerd::TIMER_ZAPTO ||
-			 timerNew.eventType == CTimerd::TIMER_RECORD)
+			timerNew.eventType == CTimerd::TIMER_RECORD)
 		{
 			if (timerNew_channel_name == "---")
 				return menu_return::RETURN_REPAINT;
-			if (timerNew.eventType==CTimerd::TIMER_RECORD)
+			if (timerNew.eventType == CTimerd::TIMER_RECORD)
 			{
-				recinfo.epg_id=0;
-				recinfo.epg_starttime=0;
-				recinfo.channel_id=timerNew.channel_id;
-				recinfo.apids=TIMERD_APIDS_CONF;
+				recinfo.epg_id = 0;
+				recinfo.epg_starttime = 0;
+				recinfo.channel_id = timerNew.channel_id;
+				recinfo.apids = TIMERD_APIDS_CONF;
 				recinfo.recordingSafety = false;
 				recinfo.autoAdjustToEPG = false; // FIXME -- add GUI option?
 
-				timerNew.announceTime-= 120; // 2 more mins for rec timer
-				strncpy(recinfo.recordingDir,timerNew.recordingDir,sizeof(recinfo.recordingDir));
+				timerNew.announceTime -= 120; // 2 more mins for rec timer
+				strncpy(recinfo.recordingDir, timerNew.recordingDir, sizeof(recinfo.recordingDir));
 				data = &recinfo;
 			}
 			else
-				data= &eventinfo;
+				data = &eventinfo;
 		}
-		else if (timerNew.eventType==CTimerd::TIMER_REMIND)
+		else if (timerNew.eventType == CTimerd::TIMER_REMIND)
 		{
 			if (timerNew_message == "---")
 				return menu_return::RETURN_REPAINT;
-			data = (void*)timerNew_message.c_str();
+			data = (void *)timerNew_message.c_str();
 		}
-		else if (timerNew.eventType==CTimerd::TIMER_EXEC_PLUGIN)
+		else if (timerNew.eventType == CTimerd::TIMER_EXEC_PLUGIN)
 		{
 			if (timerNew_pluginName == "---")
 				return menu_return::RETURN_REPAINT;
-			data = (void*)timerNew_pluginName.c_str();
+			data = (void *)timerNew_pluginName.c_str();
 		}
 		if (timerNew.eventRepeat >= CTimerd::TIMERREPEAT_WEEKDAYS)
 			Timer->getWeekdaysFromStr(&timerNew.eventRepeat, m_weekdaysStr);
 
-		if (Timer->addTimerEvent(timerNew.eventType,data,timerNew.announceTime,timerNew.alarmTime,
-					 timerNew.stopTime,timerNew.eventRepeat,timerNew.repeatCount,false) == -1)
+		if (Timer->addTimerEvent(timerNew.eventType, data, timerNew.announceTime, timerNew.alarmTime,
+				timerNew.stopTime, timerNew.eventRepeat, timerNew.repeatCount, false) == -1)
 		{
-			bool forceAdd = askUserOnTimerConflict(timerNew.announceTime,timerNew.stopTime);
+			bool forceAdd = askUserOnTimerConflict(timerNew.announceTime, timerNew.stopTime);
 
 			if (forceAdd)
 			{
-				Timer->addTimerEvent(timerNew.eventType,data,timerNew.announceTime,timerNew.alarmTime,
-						     timerNew.stopTime, timerNew.eventRepeat,timerNew.repeatCount,true);
+				Timer->addTimerEvent(timerNew.eventType, data, timerNew.announceTime, timerNew.alarmTime,
+					timerNew.stopTime, timerNew.eventRepeat, timerNew.repeatCount, true);
 			}
 		}
 		return menu_return::RETURN_EXIT;
@@ -641,7 +644,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (parent)
 			parent->hide();
 		const char *action_str = "RecDir1";
-		if (chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1))
+		if (chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir) - 1))
 		{
 			printf("[timerlist] new %s dir %s\n", action_str, timerlist[selected].recordingDir);
 		}
@@ -653,7 +656,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (parent)
 			parent->hide();
 		const char *action_str = "RecDir2";
-		if (chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1))
+		if (chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir) - 1))
 		{
 			printf("[timerlist] new %s dir %s\n", action_str, timerNew.recordingDir);
 		}
@@ -673,15 +676,15 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 
 struct button_label TimerListButtons[] =
 {
-	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_TIMERLIST_DELETE },
-	{ NEUTRINO_ICON_BUTTON_GREEN 	, LOCALE_TIMERLIST_NEW    },
-	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
-	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_TIMERLIST_MODIFY },
-	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_TIMERLIST_INFO  },
-	{ NEUTRINO_ICON_BUTTON_PLAY	, LOCALE_TIMERLIST_SEND_TIMER }
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_TIMERLIST_DELETE },
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_TIMERLIST_NEW },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERLIST_RELOAD },
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_TIMERLIST_MODIFY },
+	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_TIMERLIST_INFO },
+	{ NEUTRINO_ICON_BUTTON_PLAY, LOCALE_TIMERLIST_SEND_TIMER }
 };
 // int to match the type in paintButtons
-int TimerListButtonsCount = sizeof(TimerListButtons)/sizeof(TimerListButtons[0]);
+int TimerListButtonsCount = sizeof(TimerListButtons) / sizeof(TimerListButtons[0]);
 
 static const struct button_label RemoteBoxButtons[] =
 {
@@ -691,33 +694,33 @@ static const struct button_label RemoteBoxButtons[] =
 	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_REMOTEBOX_MOD }
 };
 // int to match the type in paintButtons
-int RemoteBoxButtonsCount = sizeof(RemoteBoxButtons)/sizeof(RemoteBoxButtons[0]);
+int RemoteBoxButtonsCount = sizeof(RemoteBoxButtons) / sizeof(RemoteBoxButtons[0]);
 
 void CTimerList::updateEvents(void)
 {
 	timerlist.clear();
-	Timer->getTimerList (timerlist);
-	RemoteBoxTimerList (timerlist);
+	Timer->getTimerList(timerlist);
+	RemoteBoxTimerList(timerlist);
 	sort(timerlist.begin(), timerlist.end());
 
 	header_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	font_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	item_height = 2*font_height + 1; // + 1 for separationline
+	item_height = 2 * font_height + 1; // + 1 for separationline
 	footer_height = header_height;
 
-	width = frameBuffer->getScreenWidth()/100 * 90;
+	width = frameBuffer->getScreenWidth() / 100 * 90;
 	height = frameBuffer->getScreenHeight();
 
 	listmaxshow = (height - header_height - footer_height - OFFSET_SHADOW) / item_height;
 	if (timerlist.size() < listmaxshow)
 		listmaxshow = timerlist.size();
 
-	height = header_height + item_height*listmaxshow + footer_height + OFFSET_SHADOW; // recalc height
+	height = header_height + item_height * listmaxshow + footer_height + OFFSET_SHADOW; // recalc height
 
 	if (!timerlist.empty() && selected == (int)timerlist.size())
 	{
 		selected = timerlist.size() - 1;
-		liststart = (selected/listmaxshow)*listmaxshow;
+		liststart = (selected / listmaxshow) * listmaxshow;
 	}
 
 	x = getScreenStartX(width);
@@ -731,15 +734,15 @@ void CTimerList::RemoteBoxSelect()
 	if (g_settings.timer_remotebox_ip.size() > 1)
 	{
 		CMenuWidget *m = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
-		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+		CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
 
 		// we don't show introitems, so we add a separator for a smoother view
 		m->addItem(GenericMenuSeparator);
 
-		CMenuForwarder* mf;
+		CMenuForwarder *mf;
 		for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
 		{
-			mf = new CMenuForwarder(it->rbname, it->online && it->enabled, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(),it)).c_str());
+			mf = new CMenuForwarder(it->rbname, it->online && it->enabled, NULL, selector, to_string(std::distance(g_settings.timer_remotebox_ip.begin(), it)).c_str());
 			mf->setInfoIconRight(it->enabled ? NEUTRINO_ICON_MARKER_DIALOG_OK : NEUTRINO_ICON_MARKER_DIALOG_OFF);
 			m->addItem(mf);
 		}
@@ -757,16 +760,16 @@ void CTimerList::RemoteBoxSelect()
 	std::advance(it, select);
 	if (!it->enabled)
 		return;
-	if (askUserOnRemoteTimerConflict(timerlist[selected].announceTime, timerlist[selected].stopTime, (char*) it->rbname.c_str()))
+	if (askUserOnRemoteTimerConflict(timerlist[selected].announceTime, timerlist[selected].stopTime, (char *) it->rbname.c_str()))
 	{
-		strncpy(timerlist[selected].remotebox_name,it->rbname.c_str(),sizeof(timerlist[selected].remotebox_name)-1);
+		strncpy(timerlist[selected].remotebox_name, it->rbname.c_str(), sizeof(timerlist[selected].remotebox_name) - 1);
 		timerlist[selected].remotebox_name[sizeof(timerlist[selected].remotebox_name) - 1] = 0;
 	}
 }
 
 bool CTimerList::RemoteBoxChanExists(t_channel_id channel_id)
 {
-	if (strcmp(timerlist[selected].remotebox_name,"") == 0)
+	if (strcmp(timerlist[selected].remotebox_name, "") == 0)
 		return false;
 
 	CHTTPTool httpTool;
@@ -786,7 +789,7 @@ bool CTimerList::RemoteBoxChanExists(t_channel_id channel_id)
 		printf("%s\n", errMsg.c_str());
 	}
 
-	r_url = root.get("success","false").asString();
+	r_url = root.get("success", "false").asString();
 	if (r_url == "false")
 		ShowMsg(LOCALE_REMOTEBOX_CHANNEL_NA, convertChannelId2String(channel_id), CMsgBox::mbrOk, CMsgBox::mbOk, NULL, 450, 30, false);
 
@@ -795,7 +798,7 @@ bool CTimerList::RemoteBoxChanExists(t_channel_id channel_id)
 
 bool CTimerList::LocalBoxChanExists(t_channel_id channel_id)
 {
-	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(channel_id);
+	CZapitChannel *channel = CServiceManager::getInstance()->FindChannel48(channel_id);
 	if (channel)
 		return true;
 	else
@@ -810,7 +813,7 @@ std::string CTimerList::RemoteBoxConnectUrl(std::string _rbname)
 		if (it->rbname == _rbname)
 		{
 			if (!it->user.empty() && !it->pass.empty())
-				c_url += it->user + ":" + it->pass +"@";
+				c_url += it->user + ":" + it->pass + "@";
 			c_url += it->rbaddress;
 			c_url += ":" + to_string(it->port);
 			break;
@@ -852,44 +855,44 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 
 		Json::Value delays = root["data"]["timer"][0];
 
-		rem_pre  = atoi(delays["config"].get("pre_delay","0").asString());
-		rem_post = atoi(delays["config"].get("post_delay","0").asString());
+		rem_pre  = atoi(delays["config"].get("pre_delay", "0").asString());
+		rem_post = atoi(delays["config"].get("post_delay", "0").asString());
 
 		//printf("[remotetimer] pre:%d - post:%d\n", rem_pre, rem_post);
 
 		Json::Value remotetimers = root["data"]["timer"][0]["timer_list"];
 
-		for (unsigned int i= 0; i<remotetimers.size();i++)
+		for (unsigned int i = 0; i < remotetimers.size(); i++)
 		{
 			CTimerd::responseGetTimer rtimer;
-			if ( atoi(remotetimers[i].get("type_number","").asString()) == 5)
+			if (atoi(remotetimers[i].get("type_number", "").asString()) == 5)
 			{
-				strncpy(rtimer.remotebox_name,it->rbname.c_str(),sizeof(rtimer.remotebox_name));
+				strncpy(rtimer.remotebox_name, it->rbname.c_str(), sizeof(rtimer.remotebox_name));
 				rtimer.remotebox_name[sizeof(rtimer.remotebox_name) - 1] = 0;
 				rtimer.rem_pre = rem_pre;
 				rtimer.rem_post = rem_post;
-				rtimer.eventID = atoi(remotetimers[i].get("id","").asString());
+				rtimer.eventID = atoi(remotetimers[i].get("id", "").asString());
 				rtimer.eventType = CTimerd::TIMER_REMOTEBOX;
-				rtimer.eventState = (CTimerd::CTimerEventStates) atoi(remotetimers[i].get("state","").asString());
-				if ( remotetimers[i]["repeat"].get("count","").asString() == "-")
+				rtimer.eventState = (CTimerd::CTimerEventStates) atoi(remotetimers[i].get("state", "").asString());
+				if (remotetimers[i]["repeat"].get("count", "").asString() == "-")
 					rtimer.repeatCount = 0;
 				else
-					rtimer.repeatCount = atoi(remotetimers[i]["repeat"].get("count","").asString());
-				rtimer.eventRepeat = (CTimerd::CTimerEventRepeat)(atoi(remotetimers[i]["repeat"].get("number","").asString()) & 0x1FF);
-				std::string wd = remotetimers[i]["repeat"].get("weekdays","").asString();
+					rtimer.repeatCount = atoi(remotetimers[i]["repeat"].get("count", "").asString());
+				rtimer.eventRepeat = (CTimerd::CTimerEventRepeat)(atoi(remotetimers[i]["repeat"].get("number", "").asString()) & 0x1FF);
+				std::string wd = remotetimers[i]["repeat"].get("weekdays", "").asString();
 				CTimerdClient().getWeekdaysFromStr(&rtimer.eventRepeat, wd);
-				rtimer.alarmTime = (time_t) atoll(remotetimers[i]["alarm"][0].get("digits","").asString().c_str());
-				rtimer.announceTime = (time_t) atoll(remotetimers[i]["announce"][0].get("digits","").asString().c_str());
-				rtimer.stopTime = (time_t) atoll(remotetimers[i]["stop"][0].get("digits","").asString().c_str());
-				rtimer.epg_starttime = (time_t) atoll(remotetimers[i]["start"][0].get("digits","").asString().c_str());
-				sscanf(remotetimers[i].get("epg_id","").asString().c_str(), SCANF_CHANNEL_ID_TYPE, &rtimer.epg_id);
-				sscanf(remotetimers[i].get("channel_id","").asString().c_str(),	SCANF_CHANNEL_ID_TYPE, &rtimer.channel_id);
-				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(rtimer.channel_id);
-				if(channel)
+				rtimer.alarmTime = (time_t) atoll(remotetimers[i]["alarm"][0].get("digits", "").asString().c_str());
+				rtimer.announceTime = (time_t) atoll(remotetimers[i]["announce"][0].get("digits", "").asString().c_str());
+				rtimer.stopTime = (time_t) atoll(remotetimers[i]["stop"][0].get("digits", "").asString().c_str());
+				rtimer.epg_starttime = (time_t) atoll(remotetimers[i]["start"][0].get("digits", "").asString().c_str());
+				sscanf(remotetimers[i].get("epg_id", "").asString().c_str(), SCANF_CHANNEL_ID_TYPE, &rtimer.epg_id);
+				sscanf(remotetimers[i].get("channel_id", "").asString().c_str(),	SCANF_CHANNEL_ID_TYPE, &rtimer.channel_id);
+				CZapitChannel *channel = CServiceManager::getInstance()->FindChannel48(rtimer.channel_id);
+				if (channel)
 					rtimer.channel_id = channel->getChannelID();
-				strncpy(rtimer.epgTitle,remotetimers[i].get("title","").asString().c_str(),sizeof(rtimer.epgTitle)-1);
+				strncpy(rtimer.epgTitle, remotetimers[i].get("title", "").asString().c_str(), sizeof(rtimer.epgTitle) - 1);
 				rtimer.epgTitle[sizeof(rtimer.epgTitle) - 1] = 0;
-				if (remotetimers[i]["audio"].get("apids_conf","").asString() == "true")
+				if (remotetimers[i]["audio"].get("apids_conf", "").asString() == "true")
 					rtimer.apids = TIMERD_APIDS_CONF;
 				//printf("[remotetimer] r-timer:%s - %s\n", remotetimers[i].get("channel_id","").asString().c_str(), remotetimers[i].get("title","").asString().c_str());
 				rtimerlist.push_back(rtimer);
@@ -907,8 +910,8 @@ int CTimerList::show()
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-	bool loop=true;
-	bool update=true;
+	bool loop = true;
+	bool update = true;
 
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
@@ -919,18 +922,18 @@ int CTimerList::show()
 		{
 			hide();
 			updateEvents();
-			update=false;
+			update = false;
 			paint();
 		}
-		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
-		
-		//ignore numeric keys
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
+
+		// ignore numeric keys
 		if (g_RCInput->isNumeric(msg))
 		{
 			msg = CRCInput::RC_nokey;
 		}
-			
-		if ( msg <= CRCInput::RC_MaxRC )
+
+		if (msg <= CRCInput::RC_MaxRC)
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer()))
@@ -945,14 +948,15 @@ int CTimerList::show()
 			|| (msg == CRCInput::RC_timer || msg == CRCInput::RC_program)
 			|| (msg == CRCInput::RC_ok && timerlist.empty())
 		)
-		{	//Exit after timeout or cancel key
+		{
+			// Exit after timeout or cancel key
 			if (fader.StartFadeOut())
 			{
 				timeoutEnd = CRCInput::calcTimeoutEnd(1);
 				msg = 0;
 			}
 			else
-				loop=false;
+				loop = false;
 
 		}
 		else if (!timerlist.empty() && (
@@ -985,30 +989,30 @@ int CTimerList::show()
 			)
 		)
 		{
-			if (modifyTimer()==menu_return::RETURN_EXIT_ALL)
+			if (modifyTimer() == menu_return::RETURN_EXIT_ALL)
 			{
-				res=menu_return::RETURN_EXIT_ALL;
-				loop=false;
+				res = menu_return::RETURN_EXIT_ALL;
+				loop = false;
 			}
 			else
-				update=true;
+				update = true;
 		}
 		else if (!timerlist.empty() && ((msg == CRCInput::RC_play || msg == CRCInput::RC_playpause) && g_settings.timer_remotebox_ip.size() > 0))
 		{
-			if (timerlist[selected].eventType == CTimerd::TIMER_RECORD )
+			if (timerlist[selected].eventType == CTimerd::TIMER_RECORD)
 			{
 				RemoteBoxSelect();
-				if (exec(this,"send_remotetimer"))
+				if (exec(this, "send_remotetimer"))
 				{
 					res = menu_return::RETURN_EXIT_ALL;
 					loop = false;
 				}
 				else
-					update=true;
+					update = true;
 			}
-			else if (timerlist[selected].eventType == CTimerd::TIMER_REMOTEBOX )
+			else if (timerlist[selected].eventType == CTimerd::TIMER_REMOTEBOX)
 			{
-				if (exec(this,"fetch_remotetimer"))
+				if (exec(this, "fetch_remotetimer"))
 				{
 					res = menu_return::RETURN_EXIT_ALL;
 					loop = false;
@@ -1021,7 +1025,7 @@ int CTimerList::show()
 		{
 			if ((timerlist[selected].eventType == CTimerd::TIMER_REMOTEBOX) && (timerlist[selected].eventState < CTimerd::TIMERSTATE_ISRUNNING))
 			{
-				if (exec(this,"del_remotetimer"))
+				if (exec(this, "del_remotetimer"))
 				{
 					res = menu_return::RETURN_EXIT_ALL;
 					loop = false;
@@ -1044,7 +1048,7 @@ int CTimerList::show()
 						memset(buf1, '\0', sizeof(buf1));
 						if (!epgdata.title.empty())
 							title = "(" + epgdata.title + ")\n";
-						snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
+						snprintf(buf1, sizeof(buf1) - 1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
 						if (ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1, CMsgBox::mbrNo, CMsgBox::mbYesNo, NULL, 450) & CMsgBox::mbrNo)
 						{
 							killTimer = false;
@@ -1078,17 +1082,17 @@ int CTimerList::show()
 			update = true;
 		}
 #if 0
-		else if (msg==CRCInput::RC_blue || CRCInput::isNumeric(msg))
+		else if (msg == CRCInput::RC_blue || CRCInput::isNumeric(msg))
 		{
-			//pushback key if...
-			g_RCInput->postMsg( msg, data );
-			loop=false;
+			// pushback key if...
+			g_RCInput->postMsg(msg, data);
+			loop = false;
 		}
 #endif
-		else if ( msg == CRCInput::RC_help || msg == CRCInput::RC_info)
+		else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
 		{
-			CTimerd::responseGetTimer* timer=&timerlist[selected];
-			if (timer!=NULL)
+			CTimerd::responseGetTimer *timer = &timerlist[selected];
+			if (timer != NULL)
 			{
 				if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
 				{
@@ -1124,7 +1128,7 @@ int CTimerList::show()
 	hide();
 	fader.StopFade();
 
-	return(res);
+	return (res);
 }
 
 void CTimerList::hide()
@@ -1153,7 +1157,7 @@ bool CTimerList::RemoteBoxSetup()
 	remboxmenu->addIntroItems();
 
 	item_offset = remboxmenu->getItemsCount();
-	CMenuForwarder* mf;
+	CMenuForwarder *mf;
 	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
 	{
 		mf = new CMenuForwarder(it->rbname, true, NULL, this, "cha_ip");
@@ -1172,7 +1176,7 @@ bool CTimerList::RemoteBoxSetup()
 		for (int i = item_offset; i < remboxmenu->getItemsCount(); i++)
 		{
 			CMenuItem *item = remboxmenu->getItem(i);
-			CMenuForwarder *f = static_cast<CMenuForwarder*>(item);
+			CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 			for (std::vector<timer_remotebox_item>::iterator it = old_timer_remotebox_ip.begin(); it != old_timer_remotebox_ip.end(); ++it)
 			{
 				if (it->rbname == f->getName())
@@ -1188,7 +1192,7 @@ bool CTimerList::RemoteBoxSetup()
 
 void CTimerList::paintItem(int pos)
 {
-	int ypos = y + header_height + pos*item_height;
+	int ypos = y + header_height + pos * item_height;
 
 	int real_width = width;
 	if (timerlist.size() > listmaxshow)
@@ -1198,10 +1202,10 @@ void CTimerList::paintItem(int pos)
 
 	unsigned int currpos = liststart + pos;
 
-	bool i_selected	= currpos == (unsigned) selected;
-	bool i_marked	= false;
-	bool i_switch	= false; //pos & 1;
-	int i_radius	= RADIUS_NONE;
+	bool i_selected = currpos == (unsigned) selected;
+	bool i_marked = false;
+	bool i_switch = false; //pos & 1;
+	int i_radius = RADIUS_NONE;
 
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
@@ -1216,18 +1220,23 @@ void CTimerList::paintItem(int pos)
 	frameBuffer->paintBoxRel(x, ypos, real_width, item_height, bgcolor, i_radius);
 	// separationline
 	frameBuffer->paintHLineRel(x, real_width, ypos + item_height - 1, (pos + 1 == (int) listmaxshow) ? bgcolor : COL_MENUCONTENTDARK_PLUS_0);
-	//shadow
+	// shadow
 	frameBuffer->paintBoxRel(x + width, ypos + OFFSET_SHADOW, OFFSET_SHADOW, item_height, COL_SHADOW_PLUS_0);
 
-	int line1_y = ypos + 1*font_height;
-	int line2_y = ypos + 2*font_height;
+	int line1_y = ypos + 1 * font_height;
+	int line2_y = ypos + 2 * font_height;
 
 	int digit_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth();
-	int time_width = 8*digit_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(".. :"); // keep in sync with strftime-lines below
+	int time_width = 8 * digit_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(".. :"); // keep in sync with strftime-lines below
 
 	if (currpos < timerlist.size())
 	{
-		CTimerd::responseGetTimer & timer = timerlist[currpos];
+		CTimerd::responseGetTimer &timer = timerlist[currpos];
+		if (timer.eventType == CTimerd::TIMER_REMOTEBOX)
+		{
+			color = COL_MENUCONTENTINACTIVE_TEXT;
+			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
+		}
 		char zAlarmTime[25] = {0};
 		struct tm *alarmTime = localtime(&(timer.alarmTime));
 		strftime(zAlarmTime, 20, "%d.%m. %H:%M", alarmTime);
@@ -1242,7 +1251,7 @@ void CTimerList::paintItem(int pos)
 
 		// paint timer-type
 		std::string t_type = (timer.eventType == CTimerd::TIMER_REMOTEBOX) ? std::string(convertTimerType2String(timer.eventType)) + " (" + std::string(timer.remotebox_name) + ")" : convertTimerType2String(timer.eventType);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID + time_width + OFFSET_INNER_MID, line1_y, real_width - time_width - 3*OFFSET_INNER_MID, t_type, color, font_height);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID + time_width + OFFSET_INNER_MID, line1_y, real_width - time_width - 3 * OFFSET_INNER_MID, t_type, color, font_height);
 
 		// paint repeat-type/count
 		std::string t_repeat = convertTimerRepeat2String(timer.eventRepeat);
@@ -1280,127 +1289,129 @@ void CTimerList::paintItem(int pos)
 		std::string zAddData("");
 		switch (timer.eventType)
 		{
-		//case CTimerd::TIMER_NEXTPROGRAM :
-		case CTimerd::TIMER_ZAPTO :
-		case CTimerd::TIMER_RECORD :
-		{
-			zAddData = convertChannelId2String(timer.channel_id); // UTF-8
-			if (timer.apids != TIMERD_APIDS_CONF)
+			//case CTimerd::TIMER_NEXTPROGRAM:
+			case CTimerd::TIMER_ZAPTO:
+			case CTimerd::TIMER_RECORD:
 			{
-				std::string sep = "";
-				zAddData += " (";
-				if (timer.apids & TIMERD_APIDS_STD)
+				zAddData = convertChannelId2String(timer.channel_id);
+// 				zAddData += timer.channel_ci ? " (CI)" : ""; // FIXME: channel_ci not available
+				if (timer.apids != TIMERD_APIDS_CONF)
 				{
-					zAddData += "STD";
-					sep = "/";
+					std::string sep = "";
+					zAddData += " (";
+					if (timer.apids & TIMERD_APIDS_STD)
+					{
+						zAddData += "STD";
+						sep = "/";
+					}
+					if (timer.apids & TIMERD_APIDS_ALT)
+					{
+						zAddData += sep;
+						zAddData += "ALT";
+						sep = "/";
+					}
+					if (timer.apids & TIMERD_APIDS_AC3)
+					{
+						zAddData += sep;
+						zAddData += "AC3";
+						//sep = "/";
+					}
+					zAddData += ')';
 				}
-				if (timer.apids & TIMERD_APIDS_ALT)
+				if (timer.epg_id != 0)
 				{
-					zAddData += sep;
-					zAddData += "ALT";
-					sep = "/";
+					CEPGData epgdata;
+					if (CEitManager::getInstance()->getEPGid(timer.epg_id, timer.epg_starttime, &epgdata))
+					{
+						zAddData += " : ";
+						zAddData += epgdata.title;
+					}
+					else if (strlen(timer.epgTitle) != 0)
+					{
+						zAddData += " : ";
+						zAddData += timer.epgTitle;
+					}
 				}
-				if (timer.apids & TIMERD_APIDS_AC3)
-				{
-					zAddData += sep;
-					zAddData += "AC3";
-//					sep = "/";
-				}
-				zAddData += ')';
-			}
-			if (timer.epg_id!=0)
-			{
-				CEPGData epgdata;
-				if (CEitManager::getInstance()->getEPGid(timer.epg_id, timer.epg_starttime, &epgdata))
-				{
-					zAddData += " : ";
-					zAddData += epgdata.title;
-				}
-				else if (strlen(timer.epgTitle)!=0)
+				else if (strlen(timer.epgTitle) != 0)
 				{
 					zAddData += " : ";
 					zAddData += timer.epgTitle;
 				}
 			}
-			else if (strlen(timer.epgTitle)!=0)
-			{
-				zAddData += " : ";
-				zAddData += timer.epgTitle;
-			}
-		}
-		break;
-		case CTimerd::TIMER_REMOTEBOX :
-		{
-			CHTTPTool httpTool;
-			std::string r_url;
-			r_url = "http://";
-			r_url += RemoteBoxConnectUrl(timer.remotebox_name);
-			r_url += "/control/getchannel?format=json&id=";
-			r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer.channel_id);
-			r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
-
-			std::string errMsg = "";
-			Json::Value root;
-			bool ok = parseJsonFromString(r_url, &root, &errMsg);
-			if (!ok) {
-				printf("Failed to parse JSON\n");
-				printf("%s\n", errMsg.c_str());
-			}
-
-			Json::Value remotechannel = root["data"]["channel"][0];
-
-			zAddData = remotechannel.get("name","").asString();
-			if (timer.apids != TIMERD_APIDS_CONF)
-			{
-				std::string sep = "";
-				zAddData += " (";
-				if (timer.apids & TIMERD_APIDS_STD)
-				{
-					zAddData += "STD";
-					sep = "/";
-				}
-				if (timer.apids & TIMERD_APIDS_ALT)
-				{
-					zAddData += sep;
-					zAddData += "ALT";
-					sep = "/";
-				}
-				if (timer.apids & TIMERD_APIDS_AC3)
-				{
-					zAddData += sep;
-					zAddData += "AC3";
-//					sep = "/";
-				}
-				zAddData += ')';
-			}
-			if (strlen(timer.epgTitle)!=0)
-			{
-				zAddData += " : ";
-				zAddData += timer.epgTitle;
-			}
-		}
-		break;
-		case CTimerd::TIMER_STANDBY:
-		{
-			zAddData = g_Locale->getText(timer.standby_on ? LOCALE_TIMERLIST_STANDBY_ON : LOCALE_TIMERLIST_STANDBY_OFF);
 			break;
-		}
-		case CTimerd::TIMER_REMIND :
-		{
-			zAddData = timer.message; // must be UTF-8 encoded !
-		}
-		break;
-		case CTimerd::TIMER_EXEC_PLUGIN :
-		{
-			zAddData = timer.pluginName;
-		}
-		break;
-		default:
-		{}
+			case CTimerd::TIMER_REMOTEBOX:
+			{
+				CHTTPTool httpTool;
+				std::string r_url;
+				r_url = "http://";
+				r_url += RemoteBoxConnectUrl(timer.remotebox_name);
+				r_url += "/control/getchannel?format=json&id=";
+				r_url += string_printf_helper(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer.channel_id);
+				r_url = httpTool.downloadString(r_url, -1, httpConnectTimeout);
+
+				std::string errMsg = "";
+				Json::Value root;
+				bool ok = parseJsonFromString(r_url, &root, &errMsg);
+				if (!ok)
+				{
+					printf("Failed to parse JSON\n");
+					printf("%s\n", errMsg.c_str());
+				}
+
+				Json::Value remotechannel = root["data"]["channel"][0];
+
+				zAddData = remotechannel.get("name", "").asString();
+				if (timer.apids != TIMERD_APIDS_CONF)
+				{
+					std::string sep = "";
+					zAddData += " (";
+					if (timer.apids & TIMERD_APIDS_STD)
+					{
+						zAddData += "STD";
+						sep = "/";
+					}
+					if (timer.apids & TIMERD_APIDS_ALT)
+					{
+						zAddData += sep;
+						zAddData += "ALT";
+						sep = "/";
+					}
+					if (timer.apids & TIMERD_APIDS_AC3)
+					{
+						zAddData += sep;
+						zAddData += "AC3";
+						//sep = "/";
+					}
+					zAddData += ')';
+				}
+				if (strlen(timer.epgTitle) != 0)
+				{
+					zAddData += " : ";
+					zAddData += timer.epgTitle;
+				}
+			}
+			break;
+			case CTimerd::TIMER_STANDBY:
+			{
+				zAddData = g_Locale->getText(timer.standby_on ? LOCALE_TIMERLIST_STANDBY_ON : LOCALE_TIMERLIST_STANDBY_OFF);
+				break;
+			}
+			case CTimerd::TIMER_REMIND:
+			{
+				zAddData = timer.message; // must be UTF-8 encoded !
+			}
+			break;
+			case CTimerd::TIMER_EXEC_PLUGIN:
+			{
+				zAddData = timer.pluginName;
+			}
+			break;
+			default:
+			{}
 		}
 
 		// paint timer-name
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID + time_width + OFFSET_INNER_MID, line2_y, real_width - time_width - 3*OFFSET_INNER_MID, zAddData, color, font_height);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID + time_width + OFFSET_INNER_MID, line2_y, real_width - time_width - 3 * OFFSET_INNER_MID, zAddData, color, font_height);
 
 		// LCD Display
 		if (currpos == (unsigned) selected)
@@ -1408,14 +1419,14 @@ void CTimerList::paintItem(int pos)
 			std::string line1 = convertTimerType2String(timer.eventType);
 			switch (timer.eventType)
 			{
-				case CTimerd::TIMER_RECORD :
-				case CTimerd::TIMER_ZAPTO :
+				case CTimerd::TIMER_RECORD:
+				case CTimerd::TIMER_ZAPTO:
 				{
 					line1 += ' ';
 					line1 += convertChannelId2String(timer.channel_id);
 					break;
 				}
-				case CTimerd::TIMER_STANDBY :
+				case CTimerd::TIMER_STANDBY:
 				{
 					if (timer.standby_on)
 						line1 += " ON";
@@ -1438,19 +1449,19 @@ void CTimerList::paintHead()
 		header = new CComponentsHeader(x, y, width, header_height, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
 		header->enableClock(true, " %d.%m.%Y - %H:%M ", NULL, false);
 	}
-	if(!header->isPainted())
+	if (!header->isPainted())
 		header->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CTimerList::paintFoot()
 {
-	if(!timerlist.empty() )
+	if (!timerlist.empty())
 	{
-		CTimerd::responseGetTimer* timer=&timerlist[selected];
+		CTimerd::responseGetTimer *timer = &timerlist[selected];
 		if (timer != NULL)
 		{
-			//replace info button with dummy if timer is not type REC or ZAP
-			if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_REMOTEBOX || timer->eventType == CTimerd::TIMER_ZAPTO)
+			// replace info button with dummy if timer is not type REC or ZAP
+			if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_REMOTEBOX)
 				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
 			else
 				TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
@@ -1478,101 +1489,104 @@ void CTimerList::paint()
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_TIMERLIST_NAME));
 
 	paintHead();
-	for (unsigned int count=0; count<listmaxshow; count++)
+	// paint plain background and footer first to avoid flicker effects while timerlist construction
+	frameBuffer->paintBoxRel(x, y + header_height, width, item_height * listmaxshow, COL_MENUCONTENT_PLUS_0);
+	paintFoot();
+	for (unsigned int count = 0; count < listmaxshow; count++)
 	{
 		paintItem(count);
 	}
 
-	if (timerlist.size()>listmaxshow)
+	if (timerlist.size() > listmaxshow)
 	{
 		int total_pages;
 		int current_page;
 		getScrollBarData(&total_pages, &current_page, timerlist.size(), listmaxshow, selected);
-		paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height*listmaxshow, total_pages, current_page);
+		paintScrollBar(x + width - SCROLLBAR_WIDTH, y + header_height, SCROLLBAR_WIDTH, item_height * listmaxshow, total_pages, current_page);
 	}
 
 	paintFoot();
 	visible = true;
 }
 
-const char * CTimerList::convertTimerType2String(const CTimerd::CTimerEventTypes type) // UTF-8
+const char *CTimerList::convertTimerType2String(const CTimerd::CTimerEventTypes type)
 {
 	switch (type)
 	{
-	case CTimerd::TIMER_SHUTDOWN    :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_SHUTDOWN   );
-//	case CTimerd::TIMER_NEXTPROGRAM :
-//		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_NEXTPROGRAM);
-	case CTimerd::TIMER_ZAPTO       :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_ZAPTO      );
-	case CTimerd::TIMER_STANDBY     :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_STANDBY    );
-	case CTimerd::TIMER_RECORD      :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_RECORD     );
-	case CTimerd::TIMER_REMIND      :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_REMIND     );
-	case CTimerd::TIMER_SLEEPTIMER  :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_SLEEPTIMER );
-	case CTimerd::TIMER_EXEC_PLUGIN :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_EXECPLUGIN );
-	case CTimerd::TIMER_REMOTEBOX   :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_REMOTEBOX  );
-	default                         :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_UNKNOWN    );
+		case CTimerd::TIMER_SHUTDOWN:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_SHUTDOWN);
+		//case CTimerd::TIMER_NEXTPROGRAM:
+			//return g_Locale->getText(LOCALE_TIMERLIST_TYPE_NEXTPROGRAM);
+		case CTimerd::TIMER_ZAPTO:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_ZAPTO);
+		case CTimerd::TIMER_STANDBY:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_STANDBY);
+		case CTimerd::TIMER_RECORD:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_RECORD);
+		case CTimerd::TIMER_REMIND:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_REMIND);
+		case CTimerd::TIMER_SLEEPTIMER:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_SLEEPTIMER);
+		case CTimerd::TIMER_EXEC_PLUGIN:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_EXECPLUGIN);
+		case CTimerd::TIMER_REMOTEBOX:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_REMOTEBOX);
+		default:
+			return g_Locale->getText(LOCALE_TIMERLIST_TYPE_UNKNOWN);
 	}
 }
 
-std::string CTimerList::convertTimerRepeat2String(const CTimerd::CTimerEventRepeat rep) // UTF-8
+std::string CTimerList::convertTimerRepeat2String(const CTimerd::CTimerEventRepeat rep)
 {
 	switch (rep)
 	{
-	case CTimerd::TIMERREPEAT_ONCE               :
-		return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_ONCE              );
-	case CTimerd::TIMERREPEAT_DAILY              :
-		return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_DAILY             );
-	case CTimerd::TIMERREPEAT_WEEKLY             :
-		return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_WEEKLY            );
-	case CTimerd::TIMERREPEAT_BIWEEKLY           :
-		return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_BIWEEKLY          );
-	case CTimerd::TIMERREPEAT_FOURWEEKLY         :
-		return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_FOURWEEKLY        );
-	case CTimerd::TIMERREPEAT_MONTHLY            :
-		return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_MONTHLY           );
-	case CTimerd::TIMERREPEAT_BYEVENTDESCRIPTION :
-		return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_BYEVENTDESCRIPTION);
-	default:
-		if (rep >=CTimerd::TIMERREPEAT_WEEKDAYS)
-		{
-			int weekdays = (((int)rep) >> 9);
-			std::string weekdayStr="";
-			if (weekdays & 1)
-				weekdayStr+= g_Locale->getText(LOCALE_TIMERLIST_REPEAT_MONDAY);
-			weekdays >>= 1;
-			if (weekdays & 1)
-				weekdayStr+= g_Locale->getText(LOCALE_TIMERLIST_REPEAT_TUESDAY);
-			weekdays >>= 1;
-			if (weekdays & 1)
-				weekdayStr+= g_Locale->getText(LOCALE_TIMERLIST_REPEAT_WEDNESDAY);
-			weekdays >>= 1;
-			if (weekdays & 1)
-				weekdayStr+= g_Locale->getText(LOCALE_TIMERLIST_REPEAT_THURSDAY);
-			weekdays >>= 1;
-			if (weekdays & 1)
-				weekdayStr+= g_Locale->getText(LOCALE_TIMERLIST_REPEAT_FRIDAY);
-			weekdays >>= 1;
-			if (weekdays & 1)
-				weekdayStr+= g_Locale->getText(LOCALE_TIMERLIST_REPEAT_SATURDAY);
-			weekdays >>= 1;
-			if (weekdays & 1)
-				weekdayStr+= g_Locale->getText(LOCALE_TIMERLIST_REPEAT_SUNDAY);
-			return weekdayStr;
-		}
-		else
-			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_UNKNOWN);
+		case CTimerd::TIMERREPEAT_ONCE:
+			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_ONCE);
+		case CTimerd::TIMERREPEAT_DAILY:
+			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_DAILY);
+		case CTimerd::TIMERREPEAT_WEEKLY:
+			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_WEEKLY);
+		case CTimerd::TIMERREPEAT_BIWEEKLY:
+			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_BIWEEKLY);
+		case CTimerd::TIMERREPEAT_FOURWEEKLY:
+			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_FOURWEEKLY);
+		case CTimerd::TIMERREPEAT_MONTHLY:
+			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_MONTHLY);
+		case CTimerd::TIMERREPEAT_BYEVENTDESCRIPTION:
+			return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_BYEVENTDESCRIPTION);
+		default:
+			if (rep >= CTimerd::TIMERREPEAT_WEEKDAYS)
+			{
+				int weekdays = (((int)rep) >> 9);
+				std::string weekdayStr = "";
+				if (weekdays & 1)
+					weekdayStr += g_Locale->getText(LOCALE_TIMERLIST_REPEAT_MONDAY);
+				weekdays >>= 1;
+				if (weekdays & 1)
+					weekdayStr += g_Locale->getText(LOCALE_TIMERLIST_REPEAT_TUESDAY);
+				weekdays >>= 1;
+				if (weekdays & 1)
+					weekdayStr += g_Locale->getText(LOCALE_TIMERLIST_REPEAT_WEDNESDAY);
+				weekdays >>= 1;
+				if (weekdays & 1)
+					weekdayStr += g_Locale->getText(LOCALE_TIMERLIST_REPEAT_THURSDAY);
+				weekdays >>= 1;
+				if (weekdays & 1)
+					weekdayStr += g_Locale->getText(LOCALE_TIMERLIST_REPEAT_FRIDAY);
+				weekdays >>= 1;
+				if (weekdays & 1)
+					weekdayStr += g_Locale->getText(LOCALE_TIMERLIST_REPEAT_SATURDAY);
+				weekdays >>= 1;
+				if (weekdays & 1)
+					weekdayStr += g_Locale->getText(LOCALE_TIMERLIST_REPEAT_SUNDAY);
+				return weekdayStr;
+			}
+			else
+				return g_Locale->getText(LOCALE_TIMERLIST_REPEAT_UNKNOWN);
 	}
 }
 
-std::string CTimerList::convertChannelId2String(const t_channel_id id) // UTF-8
+std::string CTimerList::convertChannelId2String(const t_channel_id id)
 {
 	std::string name = CServiceManager::getInstance()->GetServiceName(id);
 	if (name.empty())
@@ -1628,39 +1642,39 @@ const CMenuOptionChooser::keyval MESSAGEBOX_NO_YES_OPTIONS[MESSAGEBOX_NO_YES_OPT
 
 int CTimerList::modifyTimer()
 {
-	CTimerd::responseGetTimer* timer=&timerlist[selected];
+	CTimerd::responseGetTimer *timer = &timerlist[selected];
 	CTimerd::responseGetTimer t_old = timerlist[selected];
 	CMenuWidget timerSettings(LOCALE_TIMERLIST_MENUMODIFY, NEUTRINO_ICON_SETTINGS);
 	timerSettings.addIntroItems();
 
 	char type[80];
-	strcpy(type, convertTimerType2String(timer->eventType)); // UTF
+	strcpy(type, convertTimerType2String(timer->eventType));
 	CMenuForwarder *m0 = new CMenuForwarder(LOCALE_TIMERLIST_TYPE, false, type);
-	timerSettings.addItem( m0);
+	timerSettings.addItem(m0);
 
-	CDateInput timerSettings_alarmTime(LOCALE_TIMERLIST_ALARMTIME, &timer->alarmTime , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_TIMERLIST_ALARMTIME, true, timerSettings_alarmTime.getValue(), &timerSettings_alarmTime );
-	timerSettings.addItem( m1);
+	CDateInput timerSettings_alarmTime(LOCALE_TIMERLIST_ALARMTIME, &timer->alarmTime, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_TIMERLIST_ALARMTIME, true, timerSettings_alarmTime.getValue(), &timerSettings_alarmTime);
+	timerSettings.addItem(m1);
 
-	CDateInput timerSettings_stopTime(LOCALE_TIMERLIST_STOPTIME, &timer->stopTime , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CDateInput timerSettings_stopTime(LOCALE_TIMERLIST_STOPTIME, &timer->stopTime, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	if (timer->stopTime != 0)
 	{
-		CMenuForwarder *m2 = new CMenuForwarder(LOCALE_TIMERLIST_STOPTIME, true, timerSettings_stopTime.getValue(), &timerSettings_stopTime );
-		timerSettings.addItem( m2);
+		CMenuForwarder *m2 = new CMenuForwarder(LOCALE_TIMERLIST_STOPTIME, true, timerSettings_stopTime.getValue(), &timerSettings_stopTime);
+		timerSettings.addItem(m2);
 	}
 
 	Timer->setWeekdaysToStr(timer->eventRepeat, m_weekdaysStr);
 	timer->eventRepeat = (CTimerd::CTimerEventRepeat)(((int)timer->eventRepeat) & 0x1FF);
 	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
-	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, ((int)timer->eventRepeat) >= (int)CTimerd::TIMERREPEAT_WEEKDAYS, m_weekdaysStr, &timerSettings_weekdays );
-	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timer->repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HINT_1, LOCALE_TIMERLIST_REPEATCOUNT_HINT_2);
+	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, ((int)timer->eventRepeat) >= (int)CTimerd::TIMERREPEAT_WEEKDAYS, m_weekdaysStr, &timerSettings_weekdays);
+	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int *)&timer->repeatCount, 3, LOCALE_TIMERLIST_REPEATCOUNT_HINT_1, LOCALE_TIMERLIST_REPEATCOUNT_HINT_2);
 
-	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, timer->eventRepeat != (int)CTimerd::TIMERREPEAT_ONCE ,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
+	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, timer->eventRepeat != (int)CTimerd::TIMERREPEAT_ONCE, timerSettings_repeatCount.getValue(), &timerSettings_repeatCount);
 
-	CTimerListRepeatNotifier notifier((int *)&timer->eventRepeat,m4,m5, &m_weekdaysStr);
-	CMenuOptionChooser* m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timer->eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
+	CTimerListRepeatNotifier notifier((int *)&timer->eventRepeat, m4, m5, &m_weekdaysStr);
+	CMenuOptionChooser *m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timer->eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
 
-//printf("TIMER: rec dir %s len %s\n", timer->recordingDir, strlen(timer->recordingDir));
+	//printf("TIMER: rec dir %s len %s\n", timer->recordingDir, strlen(timer->recordingDir));
 
 	timerSettings.addItem(GenericMenuSeparatorLine);
 	timerSettings.addItem(m3);
@@ -1669,12 +1683,12 @@ int CTimerList::modifyTimer()
 	if (timer->eventType == CTimerd::TIMER_RECORD)
 	{
 		if (!strlen(timer->recordingDir))
-			strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timer->recordingDir)-1);
+			strncpy(timer->recordingDir, g_settings.network_nfs_recordingdir.c_str(), sizeof(timer->recordingDir) - 1);
 		timer_recordingDir = timer->recordingDir;
 		strncpy(t_old.recordingDir, timer->recordingDir, sizeof(t_old.recordingDir));
 
 		bool recDirEnabled = (g_settings.recording_type == CNeutrinoApp::RECORDING_FILE);
-		CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
+		CMenuForwarder *m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer_recordingDir, this, "rec_dir1", CRCInput::RC_green);
 		timerSettings.addItem(GenericMenuSeparatorLine);
 		timerSettings.addItem(m6);
 	}
@@ -1690,39 +1704,39 @@ int CTimerList::modifyTimer()
 	int t_old_apids_ac3 = timer_apids_ac3;
 	int t_old_apids_alt = timer_apids_alt;
 	timerSettings_apids.addIntroItems();
-	CMenuOptionChooser* ma1 = new CMenuOptionChooser(LOCALE_TIMERLIST_APIDS_DFLT, &timer_apids_dflt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, &apid_notifier);
+	CMenuOptionChooser *ma1 = new CMenuOptionChooser(LOCALE_TIMERLIST_APIDS_DFLT, &timer_apids_dflt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, &apid_notifier);
 	timerSettings_apids.addItem(ma1);
-	CMenuOptionChooser* ma2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &timer_apids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
+	CMenuOptionChooser *ma2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &timer_apids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
 	timerSettings_apids.addItem(ma2);
-	CMenuOptionChooser* ma3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &timer_apids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
+	CMenuOptionChooser *ma3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &timer_apids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
 	timerSettings_apids.addItem(ma3);
-	CMenuOptionChooser* ma4 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &timer_apids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
+	CMenuOptionChooser *ma4 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &timer_apids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, !timer_apids_dflt, &apid_notifier);
 	timerSettings_apids.addItem(ma4);
-	apid_notifier.setItems(ma1,ma2,ma3,ma4);
+	apid_notifier.setItems(ma1, ma2, ma3, ma4);
 	if (timer->eventType == CTimerd::TIMER_RECORD)
 	{
-		timerSettings.addItem( new CMenuForwarder(LOCALE_TIMERLIST_APIDS, true, NULL, &timerSettings_apids ));
+		timerSettings.addItem(new CMenuForwarder(LOCALE_TIMERLIST_APIDS, true, NULL, &timerSettings_apids));
 	}
 
-	int res = timerSettings.exec(this,"");
+	int res = timerSettings.exec(this, "");
 
 	bool modified = (
-		   timer->alarmTime   != t_old.alarmTime
-		|| timer->stopTime    != t_old.stopTime
-		|| timer->eventRepeat != t_old.eventRepeat
-		|| timer->repeatCount != t_old.repeatCount
-	);
+			   timer->alarmTime   != t_old.alarmTime
+			|| timer->stopTime    != t_old.stopTime
+			|| timer->eventRepeat != t_old.eventRepeat
+			|| timer->repeatCount != t_old.repeatCount
+		);
 	if (!modified && timer->eventType == CTimerd::TIMER_RECORD)
 	{
 		if (timer->recordingDir && t_old.recordingDir)
 			modified = strcmp(timer->recordingDir, t_old.recordingDir);
 		if (!modified)
 			modified = (
-				   t_old_apids_dflt != timer_apids_dflt
-				|| t_old_apids_std  != timer_apids_std
-				|| t_old_apids_ac3  != timer_apids_ac3
-				|| t_old_apids_alt  != timer_apids_alt
-			);
+					   t_old_apids_dflt != timer_apids_dflt
+					|| t_old_apids_std  != timer_apids_std
+					|| t_old_apids_ac3  != timer_apids_ac3
+					|| t_old_apids_alt  != timer_apids_alt
+				);
 	}
 	if (modified)
 	{
@@ -1743,33 +1757,33 @@ int CTimerList::newTimer()
 
 	timerNew.eventRepeat = CTimerd::TIMERREPEAT_ONCE ;
 	timerNew.repeatCount = 0;
-	timerNew.alarmTime = (time(NULL)/60)*60;
-	timerNew.stopTime = (time(NULL)/60)*60;
+	timerNew.alarmTime = (time(NULL) / 60) * 60;
+	timerNew.stopTime = (time(NULL) / 60) * 60;
 	timerNew.channel_id = 0;
 	strcpy(timerNew.message, "---");
-	timerNew_standby_on =false;
-	strncpy(timerNew.recordingDir,g_settings.network_nfs_recordingdir.c_str(),sizeof(timerNew.recordingDir)-1);
+	timerNew_standby_on = false;
+	strncpy(timerNew.recordingDir, g_settings.network_nfs_recordingdir.c_str(), sizeof(timerNew.recordingDir) - 1);
 
 	CMenuWidget timerSettings(LOCALE_TIMERLIST_MENUNEW, NEUTRINO_ICON_SETTINGS);
 	timerSettings.addIntroItems();
 	timerSettings.addItem(new CMenuForwarder(LOCALE_TIMERLIST_SAVE, true, NULL, this, "newtimer", CRCInput::RC_red));
 	timerSettings.addItem(GenericMenuSeparatorLine);
 
-	CDateInput timerSettings_alarmTime(LOCALE_TIMERLIST_ALARMTIME, &(timerNew.alarmTime) , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_TIMERLIST_ALARMTIME, true, timerSettings_alarmTime.getValue(), &timerSettings_alarmTime );
+	CDateInput timerSettings_alarmTime(LOCALE_TIMERLIST_ALARMTIME, &(timerNew.alarmTime), LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_TIMERLIST_ALARMTIME, true, timerSettings_alarmTime.getValue(), &timerSettings_alarmTime);
 
-	CDateInput timerSettings_stopTime(LOCALE_TIMERLIST_STOPTIME, &(timerNew.stopTime) , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CMenuForwarder *m2 = new CMenuForwarder(LOCALE_TIMERLIST_STOPTIME, true, timerSettings_stopTime.getValue(), &timerSettings_stopTime );
+	CDateInput timerSettings_stopTime(LOCALE_TIMERLIST_STOPTIME, &(timerNew.stopTime), LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CMenuForwarder *m2 = new CMenuForwarder(LOCALE_TIMERLIST_STOPTIME, true, timerSettings_stopTime.getValue(), &timerSettings_stopTime);
 
 	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, false, m_weekdaysStr, &timerSettings_weekdays);
 
-	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timerNew.repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HINT_1, LOCALE_TIMERLIST_REPEATCOUNT_HINT_2);
-	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, false,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
+	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int *)&timerNew.repeatCount, 3, LOCALE_TIMERLIST_REPEATCOUNT_HINT_1, LOCALE_TIMERLIST_REPEATCOUNT_HINT_2);
+	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, false, timerSettings_repeatCount.getValue(), &timerSettings_repeatCount);
 
-	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat,m4,m5, &m_weekdaysStr);
+	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat, m4, m5, &m_weekdaysStr);
 	m_weekdaysStr = "XXXXX--";
-	CMenuOptionChooser* m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timerNew.eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
+	CMenuOptionChooser *m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timerNew.eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
 
 	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS);
 	CMenuWidget mcradio(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS);
@@ -1778,16 +1792,16 @@ int CTimerList::newTimer()
 	{
 		if (!g_bouquetManager->Bouquets[i]->bHidden)
 		{
-			CMenuWidget* mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
+			CMenuWidget *mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
 			toDelete.push_back(mwtv);
-			CMenuWidget* mwradio = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
+			CMenuWidget *mwradio = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
 			toDelete.push_back(mwradio);
 
 			ZapitChannelList channels;
 			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
 			for (int j = 0; j < (int) channels.size(); j++)
 			{
-				char cChannelId[3+16+1+1];
+				char cChannelId[3 + 16 + 1 + 1];
 				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->getChannelID());
 				mwtv->addItem(new CMenuForwarder(channels[j]->getName(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_MARKER_SCRAMBLED : (channels[j]->getUrl().empty() ? NULL : NEUTRINO_ICON_MARKER_STREAMING)));
 			}
@@ -1798,7 +1812,7 @@ int CTimerList::newTimer()
 			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
 			for (int j = 0; j < (int) channels.size(); j++)
 			{
-				char cChannelId[3+16+1+1];
+				char cChannelId[3 + 16 + 1 + 1];
 				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->getChannelID());
 				mwradio->addItem(new CMenuForwarder(channels[j]->getName(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_MARKER_SCRAMBLED : (channels[j]->getUrl().empty() ? NULL : NEUTRINO_ICON_MARKER_STREAMING)));
 			}
@@ -1811,54 +1825,49 @@ int CTimerList::newTimer()
 	mm.addItem(new CMenuForwarder(LOCALE_TIMERLIST_MODETV, true, NULL, &mctv));
 	mm.addItem(new CMenuForwarder(LOCALE_TIMERLIST_MODERADIO, true, NULL, &mcradio));
 	timerNew_channel_name = "---";
-	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_CHANNEL, true, timerNew_channel_name, &mm);
+	CMenuForwarder *m6 = new CMenuForwarder(LOCALE_TIMERLIST_CHANNEL, true, timerNew_channel_name, &mm);
 	timerNew_recordingDir = timerNew.recordingDir;
-	CMenuForwarder* m7 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, true, timerNew_recordingDir, this, "rec_dir2", CRCInput::RC_green);
+	CMenuForwarder *m7 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, true, timerNew_recordingDir, this, "rec_dir2", CRCInput::RC_green);
 
-	CMenuOptionChooser* m8 = new CMenuOptionChooser(LOCALE_TIMERLIST_STANDBY, &timerNew_standby_on, TIMERLIST_STANDBY_OPTIONS, TIMERLIST_STANDBY_OPTION_COUNT, false);
+	CMenuOptionChooser *m8 = new CMenuOptionChooser(LOCALE_TIMERLIST_STANDBY, &timerNew_standby_on, TIMERLIST_STANDBY_OPTIONS, TIMERLIST_STANDBY_OPTION_COUNT, false);
 
 	timerNew_message = std::string(timerNew.message);
 	CKeyboardInput timerSettings_msg(LOCALE_TIMERLIST_MESSAGE, &timerNew_message);
-	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_TIMERLIST_MESSAGE, false, timerNew_message, &timerSettings_msg );
+	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_TIMERLIST_MESSAGE, false, timerNew_message, &timerSettings_msg);
 
 	timerNew_pluginName = "---";
-	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL
-										       | CPlugins::P_TYPE_LUA
-										       , timerNew_pluginName);
+	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL | CPlugins::P_TYPE_LUA, timerNew_pluginName);
 	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_TIMERLIST_PLUGIN, false, timerNew_pluginName, &plugin_chooser);
 
-
-	CTimerListNewNotifier notifier2((int *)&timerNew.eventType,
-					&timerNew.stopTime,m2,m6,m8,m9,m10,m7,
-					&timerSettings_stopTime.getValue());
-	CMenuOptionChooser* m0;
+	CTimerListNewNotifier notifier2((int *)&timerNew.eventType, &timerNew.stopTime, m2, m6, m8, m9, m10, m7, &timerSettings_stopTime.getValue());
+	CMenuOptionChooser *m0;
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2, CRCInput::RC_nokey, "", true, true);
 	else
-		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, &TIMERLIST_TYPE_OPTIONS[1], TIMERLIST_TYPE_OPTION_COUNT-1, true, &notifier2);
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, &TIMERLIST_TYPE_OPTIONS[1], TIMERLIST_TYPE_OPTION_COUNT - 1, true, &notifier2);
 
-	timerSettings.addItem( m0);
-	timerSettings.addItem( m1);
-	timerSettings.addItem( m2);
+	timerSettings.addItem(m0);
+	timerSettings.addItem(m1);
+	timerSettings.addItem(m2);
 	timerSettings.addItem(GenericMenuSeparatorLine);
-	timerSettings.addItem( m3);
-	timerSettings.addItem( m4);
-	timerSettings.addItem( m5);
+	timerSettings.addItem(m3);
+	timerSettings.addItem(m4);
+	timerSettings.addItem(m5);
 	timerSettings.addItem(GenericMenuSeparatorLine);
-	timerSettings.addItem( m6);
-	timerSettings.addItem( m7);
-	timerSettings.addItem( m8);
-	timerSettings.addItem( m9);
-	timerSettings.addItem( m10);
+	timerSettings.addItem(m6);
+	timerSettings.addItem(m7);
+	timerSettings.addItem(m8);
+	timerSettings.addItem(m9);
+	timerSettings.addItem(m10);
 
 	notifier2.changeNotify(NONEXISTANT_LOCALE, NULL);
-	int ret=timerSettings.exec(this,"");
+	int ret = timerSettings.exec(this, "");
 
 	cstrncpy(timerNew.pluginName, timerNew_pluginName, sizeof(timerNew.pluginName));
 	cstrncpy(timerNew.message, timerNew_message, sizeof(timerNew.message));
 
 	// delete dynamic created objects
-	for (unsigned int count=0; count<toDelete.size(); count++)
+	for (unsigned int count = 0; count < toDelete.size(); count++)
 	{
 		delete toDelete[count];
 	}
@@ -1867,20 +1876,20 @@ int CTimerList::newTimer()
 	return ret;
 }
 
-bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTime, char * remotebox_name)
+bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTime, char *remotebox_name)
 {
 	CTimerd::TimerList overlappingTimers;
-	int pre = 0,post = 0;
-	Timer->getRecordingSafety(pre,post);
+	int pre = 0, post = 0;
+	Timer->getRecordingSafety(pre, post);
 
-	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end();++it)
+	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end(); ++it)
 	{
-		if (strcmp(it->remotebox_name,remotebox_name) == 0)
+		if (strcmp(it->remotebox_name, remotebox_name) == 0)
 		{
 			if (it->stopTime != 0 && stopTime != 0)
 			{
 				// Check if both timers have start and end. In this case do not show conflict, if endtime is the same than the starttime of the following timer
-				if ((stopTime+post > it->alarmTime) && (announceTime-pre < it->stopTime))
+				if ((stopTime + post > it->alarmTime) && (announceTime - pre < it->stopTime))
 				{
 					overlappingTimers.push_back(*it);
 				}
@@ -1901,7 +1910,7 @@ bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTi
 	{
 		timerbuf += CTimerList::convertTimerType2String(it->eventType);
 		timerbuf += " (";
-		timerbuf += CTimerList::convertChannelId2String(it->channel_id); // UTF-8
+		timerbuf += CTimerList::convertChannelId2String(it->channel_id);
 		if (it->epg_id != 0)
 		{
 			CEPGData epgdata;
@@ -1910,7 +1919,7 @@ bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTi
 				timerbuf += ":";
 				timerbuf += epgdata.title;
 			}
-			else if (strlen(it->epgTitle)!=0)
+			else if (strlen(it->epgTitle) != 0)
 			{
 				timerbuf += ":";
 				timerbuf += it->epgTitle;
@@ -1919,29 +1928,37 @@ bool CTimerList::askUserOnRemoteTimerConflict(time_t announceTime, time_t stopTi
 		timerbuf += "):\n";
 
 		struct tm *annTime = localtime(&(it->announceTime));
-		timerbuf += strftime("%d.%m. %H:%M\n",annTime);
+		timerbuf += strftime("%d.%m. %H:%M\n", annTime);
 
 		struct tm *sTime = localtime(&(it->stopTime));
-		timerbuf += strftime("%d.%m. %H:%M\n",sTime);
+		timerbuf += strftime("%d.%m. %H:%M\n", sTime);
 	}
 	if (overlappingTimers.size() > 0)
-		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMsgBox::mbrNo,CMsgBox::mbNo|CMsgBox::mbYes) == CMsgBox::mbrYes);
+		return (ShowMsg(LOCALE_MESSAGEBOX_INFO, timerbuf, CMsgBox::mbrNo, CMsgBox::mbNo | CMsgBox::mbYes) == CMsgBox::mbrYes);
 	else
 		return true;
 }
 
 bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id channel_id)
 {
-	if (CFEManager::getInstance()->getEnabledCount() == 1) {
+	bool useCI = false;
+	CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (channel)
+		useCI = channel->bUseCI;
+
+	if (CFEManager::getInstance()->getEnabledCount() == 1 || useCI)
+	{
 		CTimerdClient Timer;
-		CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(announceTime,stopTime);
+		CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(announceTime, stopTime);
 		//printf("[CTimerdClient] attention\n%d\t%d\t%d conflicts with:\n",timerNew.announceTime,timerNew.alarmTime,timerNew.stopTime);
 
 		// Don't ask if there are overlapping timers on the same transponder.
-		if (channel_id) {
+		if (channel_id)
+		{
 			CTimerd::TimerList::iterator i;
 			for (i = overlappingTimers.begin(); i != overlappingTimers.end(); i++)
-				if ((i->eventType != CTimerd::TIMER_RECORD || !SAME_TRANSPONDER(channel_id, i->channel_id)))
+				//if ((i->eventType != CTimerd::TIMER_RECORD || !SAME_TRANSPONDER(channel_id, i->channel_id)))
+				if ((i->eventType != CTimerd::TIMER_RECORD || !SAME_TRANSPONDER(channel_id, i->channel_id && !useCI) /*|| (useCI && i->channel_ci)*/)) // FIXME: channel_ci not available
 					break;
 			if (i == overlappingTimers.end())
 				return true; // yes, add timer
@@ -1951,9 +1968,12 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id c
 		timerbuf += "\n";
 		for (CTimerd::TimerList::iterator it = overlappingTimers.begin(); it != overlappingTimers.end(); ++it)
 		{
+// 			if (useCI && !it->channel_ci) // FIXME: channel_ci not available
+// 				continue;
+
 			timerbuf += CTimerList::convertTimerType2String(it->eventType);
 			timerbuf += " (";
-			timerbuf += CTimerList::convertChannelId2String(it->channel_id); // UTF-8
+			timerbuf += CTimerList::convertChannelId2String(it->channel_id);
 			if (it->epg_id != 0)
 			{
 				CEPGData epgdata;
@@ -1962,7 +1982,7 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id c
 					timerbuf += ":";
 					timerbuf += epgdata.title;
 				}
-				else if (strlen(it->epgTitle)!=0)
+				else if (strlen(it->epgTitle) != 0)
 				{
 					timerbuf += ":";
 					timerbuf += it->epgTitle;
@@ -1971,17 +1991,17 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime, t_channel_id c
 			timerbuf += "):\n";
 
 			struct tm *annTime = localtime(&(it->announceTime));
-			timerbuf += strftime("%d.%m. %H:%M\n",annTime);
+			timerbuf += strftime("%d.%m. %H:%M\n", annTime);
 
 			struct tm *sTime = localtime(&(it->stopTime));
-			timerbuf += strftime("%d.%m. %H:%M\n",sTime);
+			timerbuf += strftime("%d.%m. %H:%M\n", sTime);
 			//printf("%d\t%d\t%d\n",it->announceTime,it->alarmTime,it->stopTime);
 		}
 		//printf("message:\n%s\n",timerbuf.c_str());
-		// todo: localize message
+		// TODO: localize message
 		//g_Locale->getText(TIMERLIST_OVERLAPPING_MESSAGE);
 
-		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMsgBox::mbrNo,CMsgBox::mbNo|CMsgBox::mbYes) == CMsgBox::mbrYes);
+		return (ShowMsg(LOCALE_MESSAGEBOX_INFO, timerbuf, CMsgBox::mbrNo, CMsgBox::mbNo | CMsgBox::mbYes) == CMsgBox::mbrYes);
 	}
 	else
 		return true;
