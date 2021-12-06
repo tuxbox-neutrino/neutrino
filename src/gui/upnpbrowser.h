@@ -116,8 +116,8 @@ class CUpnpBrowserGui : public CMenuTarget, public CListHelpers
 		void paintDeviceInfo();
 		void playnext();
 
-		bool getItems(std::string id, unsigned int index, std::vector<UPnPEntry>*&entries, unsigned int &total);
-		bool updateItemSelection(std::string id, std::vector<UPnPEntry>*&entries, int newpos, unsigned int &selected, unsigned int &liststart);
+		bool getItems(std::string id, unsigned int index, std::vector<UPnPEntry> *&entries, unsigned int &total);
+		bool updateItemSelection(std::string id, std::vector<UPnPEntry> *&entries, int newpos, unsigned int &selected, unsigned int &liststart);
 		bool selectItem(std::string);
 		void paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset);
 		void paintItem(std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
