@@ -1766,7 +1766,7 @@ menu.hint_video_cinch_mode Select analog output mode for\ncomposite video out
 menu.hint_video_contrast Change picture contrast
 menu.hint_video_dbdr MPEG2 enhancement filters
 menu.hint_video_format TV aspect ratio
-menu.hint_video_hdmi_mode Selects the color profile for HDMI output
+menu.hint_video_hdmi_colorimetry Selects the color profile for HDMI output
 menu.hint_video_mode HDMI output video mode
 menu.hint_video_modes VF key will cycle between enabled modes 
 menu.hint_video_modes_auto Enable modes to auto-select based on content
@@ -2847,11 +2847,11 @@ videomenu.hdmi_cec_volume CEC volume control
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
 videomenu.hdmi_cec_vol_off off
 videomenu.hdmi_cec_vol_tv TV
-videomenu.hdmi_mode Color profile
-videomenu.hdmi_mode_auto auto
-videomenu.hdmi_mode_bt2020ncl BT 2020 NCL
-videomenu.hdmi_mode_bt2020cl BT 2020 CL
-videomenu.hdmi_mode_bt709 BT 709
+videomenu.hdmi_colorimetry Color profile
+videomenu.hdmi_colorimetry_auto auto
+videomenu.hdmi_colorimetry_bt2020ncl BT 2020 NCL
+videomenu.hdmi_colorimetry_bt2020cl BT 2020 CL
+videomenu.hdmi_colorimetry_bt709 BT 709
 videomenu.hue Hue
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan

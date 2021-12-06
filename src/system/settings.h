@@ -387,7 +387,7 @@ struct SNeutrinoSettings
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int zappingmode;
-	int hdmimode;
+	int hdmi_colorimetry;
 #endif
 
 	int cpufreq;
