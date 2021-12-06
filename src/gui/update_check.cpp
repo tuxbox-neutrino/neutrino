@@ -40,8 +40,6 @@
 #define C4U_SLEEP (6 * 60 * 60) // 6 hours
 #define C4U_FLAGFILE FLAGDIR "/.update"
 
-/* ----------------------------------------------------------------- */
-
 CFlashUpdateCheck::CFlashUpdateCheck()
 {
 	c4u_thread = 0;
@@ -52,9 +50,9 @@ CFlashUpdateCheck::~CFlashUpdateCheck()
 	stopThread();
 }
 
-CFlashUpdateCheck* CFlashUpdateCheck::getInstance()
+CFlashUpdateCheck *CFlashUpdateCheck::getInstance()
 {
-	static CFlashUpdateCheck * c4u = NULL;
+	static CFlashUpdateCheck *c4u = NULL;
 	if (!c4u)
 		c4u = new CFlashUpdateCheck();
 
@@ -66,7 +64,7 @@ void CFlashUpdateCheck::startThread()
 	if (!c4u_thread)
 	{
 		printf("[CFlashUpdateCheck]: starting thread\n");
-		pthread_create(&c4u_thread, NULL, c4u_proc, (void*) NULL);
+		pthread_create(&c4u_thread, NULL, c4u_proc, (void *) NULL);
 		pthread_detach(c4u_thread);
 	}
 }
@@ -84,7 +82,7 @@ void CFlashUpdateCheck::stopThread()
 		unlink(C4U_FLAGFILE);
 }
 
-void* CFlashUpdateCheck::c4u_proc(void*)
+void *CFlashUpdateCheck::c4u_proc(void *)
 {
 	set_threadname("n:flashupdatecheck");
 
@@ -94,7 +92,7 @@ void* CFlashUpdateCheck::c4u_proc(void*)
 	CFlashUpdate flashupdate;
 
 	//printf("[CFlashUpdateCheck] %s: starting loop\n", __FUNCTION__);
-	while(1)
+	while (1)
 	{
 		//printf("[CFlashUpdateCheck]: check for updates\n");
 		if (flashupdate.checkOnlineVersion())

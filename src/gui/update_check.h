@@ -30,15 +30,15 @@ class CFlashUpdateCheck
 	public:
 		CFlashUpdateCheck();
 		~CFlashUpdateCheck();
-		static CFlashUpdateCheck* getInstance();
+		static CFlashUpdateCheck *getInstance();
 
-		void	startThread();
-		void	stopThread();
+		void startThread();
+		void stopThread();
 
 	private:
 
-		pthread_t	c4u_thread;
-		static void*	c4u_proc(void *arg);
+		pthread_t c4u_thread;
+		static void *c4u_proc(void *arg);
 };
 
 #endif // __update_check__
