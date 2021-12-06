@@ -45,22 +45,22 @@ typedef struct usermenu_props_t
 	neutrino_locale_t menue_title;
 	const int menue_button;
 	const neutrino_msg_t DirectKey;
-	const char* IconName;
+	const char *IconName;
 	neutrino_locale_t def_name;
 
-}usermenu_props_struct_t;
+} usermenu_props_struct_t;
 
 #define USERMENU_ITEMS_COUNT SNeutrinoSettings::BUTTON_MAX
 const struct usermenu_props_t usermenu[USERMENU_ITEMS_COUNT] =
 {
-	{LOCALE_USERMENU_BUTTON_RED	, SNeutrinoSettings::BUTTON_RED		, CRCInput::RC_red	,NEUTRINO_ICON_BUTTON_RED	,LOCALE_USERMENU_TITLE_RED	},
-	{LOCALE_USERMENU_BUTTON_GREEN	, SNeutrinoSettings::BUTTON_GREEN	, CRCInput::RC_green	,NEUTRINO_ICON_BUTTON_GREEN	,LOCALE_USERMENU_TITLE_GREEN	},
-	{LOCALE_USERMENU_BUTTON_YELLOW	, SNeutrinoSettings::BUTTON_YELLOW	, CRCInput::RC_yellow	,NEUTRINO_ICON_BUTTON_YELLOW	,LOCALE_USERMENU_TITLE_YELLOW	},
-	{LOCALE_USERMENU_BUTTON_BLUE	, SNeutrinoSettings::BUTTON_BLUE	, CRCInput::RC_blue	,NEUTRINO_ICON_BUTTON_BLUE	,LOCALE_USERMENU_TITLE_BLUE	}
+	{LOCALE_USERMENU_BUTTON_RED	, SNeutrinoSettings::BUTTON_RED		, CRCInput::RC_red	, NEUTRINO_ICON_BUTTON_RED	, LOCALE_USERMENU_TITLE_RED	},
+	{LOCALE_USERMENU_BUTTON_GREEN	, SNeutrinoSettings::BUTTON_GREEN	, CRCInput::RC_green	, NEUTRINO_ICON_BUTTON_GREEN	, LOCALE_USERMENU_TITLE_GREEN	},
+	{LOCALE_USERMENU_BUTTON_YELLOW	, SNeutrinoSettings::BUTTON_YELLOW	, CRCInput::RC_yellow	, NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_USERMENU_TITLE_YELLOW	},
+	{LOCALE_USERMENU_BUTTON_BLUE	, SNeutrinoSettings::BUTTON_BLUE	, CRCInput::RC_blue	, NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_USERMENU_TITLE_BLUE	}
 };
 
 class CUserMenuSetup : public CMenuTarget
-{	
+{
 	private:
 		int width;
 		int max_char;
@@ -69,10 +69,10 @@ class CUserMenuSetup : public CMenuTarget
 		std::string pref_name;
 		neutrino_locale_t local;
 		CMenuForwarder *forwarder;
-		CMenuWidget * ums;
+		CMenuWidget *ums;
 		std::vector<std::string> options;
-		std::map<std::string,std::string> keys;
-		std::map<std::string,std::string> vals;
+		std::map<std::string, std::string> keys;
+		std::map<std::string, std::string> vals;
 
 		int showSetup();
 		void checkButtonName();
@@ -82,7 +82,7 @@ class CUserMenuSetup : public CMenuTarget
 		~CUserMenuSetup();
 		void setCaller(CMenuForwarder *fw) { forwarder = fw ; }
 		int getUsedItemsCount();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		static neutrino_locale_t getLocale(unsigned int i);
 };
 
