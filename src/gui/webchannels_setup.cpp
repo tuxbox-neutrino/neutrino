@@ -32,13 +32,13 @@
 #include <gui/movieplayer.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/keyboard_input.h>
+#include <gui/widget/menue_options.h>
 #include <zapit/zapit.h>
 #include <neutrino_menue.h>
 #include "webchannels_setup.h"
 
 
 #include <dirent.h>
-#include <mymenu.h>
 #include <system/helpers.h>
 
 const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =

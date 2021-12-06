@@ -40,7 +40,6 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
-#include <mymenu.h>
 
 #include <driver/display.h>
 #include <driver/fontrenderer.h>
@@ -52,6 +51,7 @@
 #if ENABLE_PKG_MANAGEMENT
 #include <gui/opkg_manager.h>
 #endif
+#include <gui/widget/menue_options.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 

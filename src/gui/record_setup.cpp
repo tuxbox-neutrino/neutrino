@@ -37,13 +37,13 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
-#include <mymenu.h>
 
 #include "record_setup.h"
 #include <gui/filebrowser.h>
 #include <gui/followscreenings.h>
 
 #include <gui/widget/icons.h>
+#include <gui/widget/menue_options.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>

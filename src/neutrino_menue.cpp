@@ -30,7 +30,6 @@
 
 #include "global.h"
 #include "neutrino.h"
-#include "mymenu.h"
 
 #include <system/debug.h>
 
@@ -75,6 +74,7 @@
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
 #include "gui/videosettings.h"
+#include "gui/widget/menue_options.h"
 #include "driver/record.h"
 #include "driver/display.h"
 

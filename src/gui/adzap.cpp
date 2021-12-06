@@ -31,9 +31,9 @@
 #include <stdlib.h>
 #include <global.h>
 #include <neutrino.h>
-#include <mymenu.h>
 #include <algorithm>
 #include <gui/adzap.h>
+#include <gui/widget/menue_options.h>
 #include <gui/widget/hintbox.h>
 #include <eitd/sectionsd.h>
 #include <driver/screen_max.h>

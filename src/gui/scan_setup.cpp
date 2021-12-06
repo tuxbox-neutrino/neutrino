@@ -38,7 +38,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <mymenu.h>
 #include <neutrino_menue.h>
 
 #include <gui/scan.h>
@@ -47,6 +46,7 @@
 #include <gui/bedit/bouqueteditor_bouquets.h>
 
 #include <gui/widget/hintbox.h>
+#include <gui/widget/menue_options.h>
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>

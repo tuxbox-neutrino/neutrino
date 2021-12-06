@@ -158,7 +158,6 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
-#include <mymenu.h>
 #include <sigc++/bind.h>
 #include <stdio.h>
 #include <sstream>
@@ -171,6 +170,7 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <daemonc/remotecontrol.h>
+#include <gui/widget/menue_options.h>
 #include <gui/widget/helpbox.h>
 #include "widget/msgbox.h"
 #include "widget/hintbox.h"

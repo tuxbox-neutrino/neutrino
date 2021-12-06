@@ -69,9 +69,9 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <mymenu.h>
 
 #include <gui/widget/icons.h>
+#include <gui/widget/menue_options.h>
 #include <gui/adzap.h>
 #include <gui/network_setup.h>
 #ifdef ENABLE_LCD4LINUX

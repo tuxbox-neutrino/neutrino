@@ -39,9 +39,9 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <mymenu.h>
 
 #include <gui/widget/icons.h>
+#include <gui/widget/menue_options.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/msgbox.h>

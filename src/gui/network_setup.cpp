@@ -39,6 +39,7 @@
 #include <gui/nfs.h>
 
 #include <gui/widget/icons.h>
+#include <gui/widget/menue_options.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
@@ -53,7 +54,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <mymenu.h>
 #include <neutrino_menue.h>
 
 #include <driver/screen_max.h>

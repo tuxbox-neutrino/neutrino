@@ -29,9 +29,10 @@
 #include "quadpip_setup.h"
 
 #include <global.h>
-#include <mymenu.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
+
+#include <gui/widget/menue_options.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>

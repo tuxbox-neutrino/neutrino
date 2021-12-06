@@ -32,9 +32,9 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <mymenu.h>
 #include <neutrino_menue.h>
 
+#include <gui/widget/menue_options.h>
 #include <driver/screen_max.h>
 
 #include <system/debug.h>

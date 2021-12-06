@@ -56,6 +56,7 @@
 #include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
+#include <gui/widget/menue_options.h>
 #include <gui/components/cc.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
@@ -63,7 +64,6 @@
 #include <sys/stat.h>
 #include <gui/nfs.h>
 #include <neutrino.h>
-#include <mymenu.h>
 #include <sys/vfs.h> // for statfs
 #include <sys/mount.h>
 #include <utime.h>

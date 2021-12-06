@@ -35,9 +35,10 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <mymenu.h>
 
 #include "subchannel_select.h"
+
+#include <gui/widget/menue_options.h>
 #include <driver/record.h>
 
 extern CRemoteControl *g_RemoteControl;

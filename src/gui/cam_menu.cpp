@@ -40,6 +40,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "widget/icons.h"
+#include "widget/menue_options.h"
 #include "widget/stringinput.h"
 
 #include "widget/progresswindow.h"
@@ -48,7 +49,6 @@
 #include <system/settings.h>
 #include <system/debug.h>
 
-#include <mymenu.h>
 #include <eitd/edvbstring.h>
 #include <zapit/capmt.h>
 #include <zapit/zapit.h>
