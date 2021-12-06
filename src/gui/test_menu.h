@@ -40,8 +40,8 @@
 class CTestMenu : public CMenuTarget
 {
 	private:
-		CComponentsShapeCircle * circle;
-		CComponentsShapeSquare* sq;
+		CComponentsShapeCircle *circle;
+		CComponentsShapeSquare *sq;
 		CComponentsPicture *pic;
 		CComponentsPicture *picsvg;
 		CComponentsForm *form;
@@ -51,10 +51,10 @@ class CTestMenu : public CMenuTarget
 		CComponentsIconForm *iconform;
 		CComponentsWindow *window;
 		CComponentsButton *button;
-		CComponentsFrmClock *clock ,*clock_r;
-		CComponentsChannelLogo* chnl_pic;
-		CComponentsExtTextForm* text_ext;
-		CComponentsScrollBar* scrollbar;
+		CComponentsFrmClock *clock, *clock_r;
+		CComponentsChannelLogo *chnl_pic;
+		CComponentsExtTextForm *text_ext;
+		CComponentsScrollBar *scrollbar;
 		CComponentsTimer *timer;
 		int width, selected;
 
@@ -65,11 +65,10 @@ class CTestMenu : public CMenuTarget
 		void showSeparatorTypes(CMenuWidget *widget);
 		void showRecords();
 		void handleShellOutput(std::string *line, int *, bool *);
-	public:	
+	public:
 		CTestMenu();
 		~CTestMenu();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
-
 
 #endif
