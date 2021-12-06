@@ -2,11 +2,11 @@
 	Neutrino-GUI  -  Tuxbox-Project
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	http://www.tuxbox.org
-		
+
 	Startup wizard
-	based upon an implementation created by 
+	based upon an implementation created by
 	Copyright (C) 2009 CoolStream International Ltd.
-      
+
 	Reworked by dbt (Thilo Graf)
 	Copyright (C) 2012 dbt
 	http://www.dbox2-tuning.net
@@ -27,11 +27,11 @@
 	License along with this program; if not, write to the
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
-	
+
 	NOTE for ignorant distributors:
 	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.
 	Please read it and understand it right!
-	This means for you: Hold it, if not, leave it! You could face legal action! 
+	This means for you: Hold it, if not, leave it! You could face legal action!
 	Otherwise ask the copyright owners, anything else would be theft!
 */
 
@@ -42,18 +42,16 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-
 class CStartUpWizard : public CMenuTarget
 {
-	private:		
+	private:
 		void showBackgroundLogo();
 		void killBackgroundLogo();
-	public:			
+	public:
 		CStartUpWizard();
 		~CStartUpWizard();
-				
-		int 	exec(CMenuTarget* parent, const std::string & actionKey);
-};
 
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+};
 
 #endif
