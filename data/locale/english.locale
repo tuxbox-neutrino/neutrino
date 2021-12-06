@@ -2902,11 +2902,6 @@ wizard.install_settings Do you want to install channels for Astra 19.2°E?
 wizard.message_check_for_updates Update
 wizard.message_check_for_updates_ask_enable Should updates be checked automatically in future? The check up will run automatically at background on each startup. The check up can also be launched manually at any time and can be adjusted by the update settings.
 wizard.message_check_for_updates_ask_now Now check for updates?
-wizard.setup First installation
-wizard.setup_advanced Advanced
-wizard.setup_easy Easy
-wizard.setup_type Installation type
-wizard.setup_type_hint Easy to setup for CanalDigitaal/TéléSAT/TV Vlaanderen providers or simple cable scan
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Neutrino is designed for set-top boxes and is maintained by the Tuxbox community and lives from the support of users and many volontary contributors./nIf you need help or have  suggestions, found bugs, please feel free to contact us.\nSupport pages or Contact and / or Web addresses can be found in the main menu under "Information".\nNext steps will guide you through initial installation of the device.\nImportant: Your set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.after after

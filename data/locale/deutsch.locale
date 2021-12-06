@@ -2902,11 +2902,6 @@ wizard.install_settings Kanalliste für Astra 19.2°E installieren?
 wizard.message_check_for_updates Aktualisierung
 wizard.message_check_for_updates_ask_enable Soll zukünftig automatisch auf Aktualisierungen geprüft werden?\nDie Prüfung erfolgt dann automatisch bei jedem Start.\nDie Prüfung kann jederzeit auch manuell erfolgen und in den Aktualsierungseinstellungen angepasst werden.
 wizard.message_check_for_updates_ask_now Jetzt auf Aktualisierungen prüfen?
-wizard.setup Erste Installation
-wizard.setup_advanced Erweitert
-wizard.setup_easy Einfach
-wizard.setup_type Installationstyp
-wizard.setup_type_hint Wählen Sie einfache Grundeinstellungen oder erweiterte Auswahlmöglichkeiten für die Installation
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
 wizard.welcome_text Neutrino ist eine von der Tuxbox-Community entwickelte und gepflegte Benutzeroberfläche für Set-Top-Boxen und lebt von der Unterstützung der Nutzer und vielen freiwilligen beitragenden Helfern.\nSollten Sie Hilfe benötigen, Anregungen, Verbesserungsvorschläge haben oder Fehler bemerken,\nkönnen Sie sich gerne auf unseren Supportseiten melden oder Kontakt aufnehmen. Kontakt- bzw. Webaddressen entnehmen Sie bitte hierfür im Hauptmenü unter "Informationen". \nIn den folgenden Schritten wird Sie Neutrino durch die Ersteinrichtung führen.\nSicherheitshinweis:\n Ihre Set-Top-Box lässt sich auch per Webinterface steuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie bitte darauf, dass Ihr Gerät nicht von aussen zugänglich ist,\nda sonst ein unbefugter Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
 word.after nach
