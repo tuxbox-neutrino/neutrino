@@ -35,8 +35,8 @@ class CUpdateCheckPackages : public CComponentsTimer
 
 	public:
 		CUpdateCheckPackages();
-		virtual ~CUpdateCheckPackages(){};
-		static CUpdateCheckPackages* getInstance();
+		virtual ~CUpdateCheckPackages() {};
+		static CUpdateCheckPackages *getInstance();
 		void startThread() {initThread();}
 };
 
