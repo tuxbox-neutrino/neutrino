@@ -33,30 +33,29 @@
 
 class CZapitSetup : public CMenuTarget
 {
-private:
+	private:
 
-	int width;
+		int width;
 
-	int showMenu();
-	void changeStartChannel(CMenuForwarder* zapit1, CMenuForwarder* zapit2);
+		int showMenu();
+		void changeStartChannel(CMenuForwarder *zapit1, CMenuForwarder *zapit2);
 
-public:
-	CZapitSetup();
-	~CZapitSetup();
-	int exec(CMenuTarget* parent, const std::string & actionKey);
+	public:
+		CZapitSetup();
+		~CZapitSetup();
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 class CSelectChannelWidget : public CMenuWidget
 {
-private:
-	int width;
-	int InitZapitChannelHelper(CZapitClient::channelsMode mode);
+	private:
+		int width;
+		int InitZapitChannelHelper(CZapitClient::channelsMode mode);
 
-public:
-	CSelectChannelWidget();
-	~CSelectChannelWidget();
-	int exec(CMenuTarget* parent, const std::string & actionKey);
-
+	public:
+		CSelectChannelWidget();
+		~CSelectChannelWidget();
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 #endif

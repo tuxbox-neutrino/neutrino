@@ -28,7 +28,6 @@
 #include <config.h>
 #endif
 
-
 #include "zapit_setup.h"
 
 #include <global.h>
@@ -37,7 +36,6 @@
 #include <neutrino_menue.h>
 
 #include <driver/screen_max.h>
-
 
 CZapitSetup::CZapitSetup()
 {
@@ -48,7 +46,7 @@ CZapitSetup::~CZapitSetup()
 {
 }
 
-int CZapitSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CZapitSetup::exec(CMenuTarget *parent, const std::string &/*actionKey*/)
 {
 	printf("[neutrino] init zapit menu setup...\n");
 	if (parent)
@@ -57,7 +55,7 @@ int CZapitSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	return showMenu();
 }
 
-void CZapitSetup::changeStartChannel(CMenuForwarder* zapit1, CMenuForwarder* zapit2)
+void CZapitSetup::changeStartChannel(CMenuForwarder *zapit1, CMenuForwarder *zapit2)
 {
 	zapit1->paint();
 	zapit2->paint();
@@ -65,30 +63,32 @@ void CZapitSetup::changeStartChannel(CMenuForwarder* zapit1, CMenuForwarder* zap
 
 int CZapitSetup::showMenu()
 {
-	//menue init
-	CMenuWidget *zapit = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_ZAPIT);
-	zapit->addIntroItems(LOCALE_ZAPITSETUP_INFO);
-	COnOffNotifier* miscZapitNotifier = new COnOffNotifier(1);
-	//zapit
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscZapitNotifier, CRCInput::RC_red);
+	// menue init
+	CMenuWidget *zapit = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_ZAPIT);
+	zapit->addIntroItems(LOCALE_ZAPITSETUP_HEAD);
+	COnOffNotifier *miscZapitNotifier = new COnOffNotifier(1);
+
+	// zapit
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscZapitNotifier, CRCInput::RC_red);
 	mc->setHint("", LOCALE_MENU_HINT_LAST_USE);
 
 	CSelectChannelWidget select1;
 	CSelectChannelWidget select2;
 
-	CMenuForwarder 	*zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select1, "tv", CRCInput::RC_green);
+	CMenuForwarder *zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV, !g_settings.uselastchannel, g_settings.StartChannelTV, &select1, "tv", CRCInput::RC_green);
 	zapit1->setHint("", LOCALE_MENU_HINT_LAST_TV);
 
-	CMenuForwarder 	*zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select2, "radio", CRCInput::RC_yellow);
+	CMenuForwarder *zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO, !g_settings.uselastchannel, g_settings.StartChannelRadio, &select2, "radio", CRCInput::RC_yellow);
 	zapit2->setHint("", LOCALE_MENU_HINT_LAST_RADIO);
 
-	#define CHANNEL_LIST_MODE_OPTION_COUNT 5
-	const CMenuOptionChooser::keyval CHANNEL_LIST_MODE_OPTIONS[CHANNEL_LIST_MODE_OPTION_COUNT] = {
-		  { -1,			LOCALE_CHANNELLIST_REMEMBER	}
-		, { LIST_MODE_FAV,	LOCALE_CHANNELLIST_FAVS		}
-		, { LIST_MODE_PROV,	LOCALE_CHANNELLIST_PROVS	}
-		, { LIST_MODE_SAT,	LOCALE_CHANNELLIST_SATS		}
-		, { LIST_MODE_ALL,	LOCALE_CHANNELLIST_HEAD		}
+#define CHANNEL_LIST_MODE_OPTION_COUNT 5
+	const CMenuOptionChooser::keyval CHANNEL_LIST_MODE_OPTIONS[CHANNEL_LIST_MODE_OPTION_COUNT] =
+	{
+		{ -1,			LOCALE_CHANNELLIST_REMEMBER	},
+		{ LIST_MODE_FAV,	LOCALE_CHANNELLIST_FAVS		},
+		{ LIST_MODE_PROV,	LOCALE_CHANNELLIST_PROVS	},
+		{ LIST_MODE_SAT,	LOCALE_CHANNELLIST_SATS		},
+		{ LIST_MODE_ALL,	LOCALE_CHANNELLIST_HEAD		}
 	};
 
 	CMenuOptionChooser *channel_mode = new CMenuOptionChooser(LOCALE_ZAPITSETUP_CHANNELMODE, &g_settings.channel_mode_initial, CHANNEL_LIST_MODE_OPTIONS, CHANNEL_LIST_MODE_OPTION_COUNT, true, NULL, CRCInput::RC_1);
@@ -116,7 +116,7 @@ int CZapitSetup::showMenu()
 	return res;
 }
 
-//select menu
+// select menu
 CSelectChannelWidget::CSelectChannelWidget()
 {
 	width = 40;
@@ -124,21 +124,20 @@ CSelectChannelWidget::CSelectChannelWidget()
 
 CSelectChannelWidget::~CSelectChannelWidget()
 {
-
 }
 
-int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey)
+int CSelectChannelWidget::exec(CMenuTarget *parent, const std::string &actionKey)
 {
-	int   res = menu_return::RETURN_REPAINT;
+	int res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 		parent->hide();
 
-	if(actionKey == "tv")
+	if (actionKey == "tv")
 	{
 		return InitZapitChannelHelper(CZapitClient::MODE_TV);
 	}
-	else if(actionKey == "radio")
+	else if (actionKey == "radio")
 	{
 		return InitZapitChannelHelper(CZapitClient::MODE_RADIO);
 	}
@@ -146,20 +145,20 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 	{
 		unsigned int cnr = 0;
 		t_channel_id channel_id = 0;
-		sscanf(&(actionKey[4]),"%u|%" SCNx64 "", &cnr, &channel_id);
+		sscanf(&(actionKey[4]), "%u|%" SCNx64 "", &cnr, &channel_id);
 
-		if (strncmp(actionKey.c_str(), "ZCT:", 4) == 0)//...tv
+		if (strncmp(actionKey.c_str(), "ZCT:", 4) == 0) // tv
 		{
-			g_settings.StartChannelTV = actionKey.substr(actionKey.find_first_of("#")+1);
+			g_settings.StartChannelTV = actionKey.substr(actionKey.find_first_of("#") + 1);
 			g_settings.startchanneltv_id = channel_id;
 		}
-		else if (strncmp(actionKey.c_str(), "ZCR:", 4) == 0)//...radio
+		else if (strncmp(actionKey.c_str(), "ZCR:", 4) == 0) // radio
 		{
-			g_settings.StartChannelRadio = actionKey.substr(actionKey.find_first_of("#")+1);
-			g_settings.startchannelradio_id= channel_id;
+			g_settings.StartChannelRadio = actionKey.substr(actionKey.find_first_of("#") + 1);
+			g_settings.startchannelradio_id = channel_id;
 		}
 
-		// ...leave bouquet/channel menu and show a refreshed zapit menu with current start channel(s)
+		// leave bouquet/channel menu and show a refreshed zapit menu with current start channel(s)
 		g_RCInput->postMsg(CRCInput::RC_timeout, 0);
 		return menu_return::RETURN_EXIT;
 	}
@@ -174,8 +173,9 @@ int CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode
 	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS, width);
 	mctv.addIntroItems();
 
-	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
-		CMenuWidget* mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS, width);
+	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
+	{
+		CMenuWidget *mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS, width);
 		toDelete.push_back(mwtv);
 		mwtv->addIntroItems();
 		ZapitChannelList channels;
@@ -183,27 +183,28 @@ int CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode
 			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
 		else
 			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
-		for(int j = 0; j < (int) channels.size(); j++) {
-			CZapitChannel * channel = channels[j];
+		for (int j = 0; j < (int) channels.size(); j++)
+		{
+			CZapitChannel *channel = channels[j];
 			char cChannelId[60] = {0};
-			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode==CZapitClient::MODE_TV)?'T':'R', channel->number, channel->getChannelID());
+			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode == CZapitClient::MODE_TV) ? 'T' : 'R', channel->number, channel->getChannelID());
 
-			CMenuForwarder * chan_item = new CMenuForwarder(channel->getName(), true, NULL, this,
+			CMenuForwarder *chan_item = new CMenuForwarder(channel->getName(), true, NULL, this,
 				(std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL,
 				channel->scrambled ? NEUTRINO_ICON_MARKER_SCRAMBLED : (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_MARKER_STREAMING));
 			chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			mwtv->addItem(chan_item);
 
 		}
-		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden ))
+		if (!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden))
 		{
 			mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
 		}
 	}
-	int res = mctv.exec (NULL, "");
+	int res = mctv.exec(NULL, "");
 
 	// delete dynamic created objects
-	for(unsigned int count=0;count<toDelete.size();count++)
+	for (unsigned int count = 0; count < toDelete.size(); count++)
 	{
 		delete toDelete[count];
 	}
