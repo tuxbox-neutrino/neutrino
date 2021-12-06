@@ -7,7 +7,7 @@
 	Headerfile: neutrino_menue.h,
 	Copyright (C) 2011 Thilo Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net
-	
+
         License: GPL
 
         This library is free software; you can redistribute it and/or
@@ -25,33 +25,32 @@
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 
-		
+
 	NOTE for ignorant distributors:
 	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.
 	Please read it and understand it right!
-	This means for you: Hold it, if not, leave it! You could face legal action! 
+	This means for you: Hold it, if not, leave it! You could face legal action!
 	Otherwise ask the copyright owners, anything else would be theft!
 */
-
 
 #ifndef __neutrino_menue__
 #define __neutrino_menue__
 
-//enums for menu widget indicies, 
+// enums for menu widget indicies
 enum MN_WIDGET_ID
 {
-	//settings manager
+	// settings manager
 	MN_WIDGET_ID_SETTINGS_MNGR,
 
-	//network setup
+	// network setup
 	MN_WIDGET_ID_NETWORKSETUP,
 	MN_WIDGET_ID_NETWORKSETUP_NTP,
 	MN_WIDGET_ID_NETWORKSETUP_MOUNTS,
-	
-	//proxysetup
+
+	// proxysetup
 	MN_WIDGET_ID_PROXYSETUP,
-	
-	//osd setup
+
+	// osd setup
 	MN_WIDGET_ID_OSDSETUP,
 	MN_WIDGET_ID_OSDSETUP_MENUS,
 	MN_WIDGET_ID_OSDSETUP_CHANNELLIST,
@@ -68,26 +67,26 @@ enum MN_WIDGET_ID
 	MN_WIDGET_ID_OSDSETUP_VOLUME,
 	MN_WIDGET_ID_OSDSETUP_INFOCLOCK,
 	MN_WIDGET_ID_OSDSETUP_PROGRESSBAR,
-	//actually it does not matter, but these 6 entries must be the same order as in menu
+	// actually it does not matter, but these 6 entries must be the same order as in menu
 	MN_WIDGET_ID_OSDSETUP_FONTSIZE_MENU,
 	MN_WIDGET_ID_OSDSETUP_FONTSIZE_CHANNELLIST,
 	MN_WIDGET_ID_OSDSETUP_FONTSIZE_EVENTLIST,
 	MN_WIDGET_ID_OSDSETUP_FONTSIZE_EPG,
 	MN_WIDGET_ID_OSDSETUP_FONTSIZE_INFOBAR,
-	
-	//language setup
+
+	// language setup
 	MN_WIDGET_ID_LANGUAGESETUP,
 	MN_WIDGET_ID_LANGUAGESETUP_LOCALE,
 	MN_WIDGET_ID_LANGUAGESETUP_PREFAUDIO_LANGUAGE,
-			
-	//recording settings
+
+	// recording settings
 	MN_WIDGET_ID_RECORDSETUP,
 	MN_WIDGET_ID_RECORDSETUP_TIMESHIFT,
 	MN_WIDGET_ID_RECORDSETUP_TIMERSETTINGS,
 	MN_WIDGET_ID_RECORDSETUP_AUDIOSETTINGS,
 	MN_WIDGET_ID_RECORDSETUP_DATASETTINGS,
-	
-	//vfd setup
+
+	// vfd setup
 	MN_WIDGET_ID_VFDSETUP,
 	MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS,
 	MN_WIDGET_ID_VFDSETUP_LED_SETUP,
@@ -97,7 +96,7 @@ enum MN_WIDGET_ID
 	MN_WIDGET_ID_LCD4L_SETUP,
 #endif
 	
-	//keybind setup
+	// keybind setup
 	MN_WIDGET_ID_KEYSETUP,
 	MN_WIDGET_ID_KEYSETUP_KEYBINDING,
 	MN_WIDGET_ID_KEYSETUP_KEYBINDING_MODES,
@@ -106,22 +105,22 @@ enum MN_WIDGET_ID
 	MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEPLAYER,
 	MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEBROWSER,
 	MN_WIDGET_ID_KEYSETUP_KEYBINDING_SPECIAL,
-	
-	//picture viewer setup
+
+	// picture viewer setup
 	MN_WIDGET_ID_PVIEWERSETUP,
-	
-	//audio setup
+
+	// audio setup
 	MN_WIDGET_ID_AUDIOSETUP,
 
-	//webtv/webradio setup
+	// webtv/webradio setup
 	MN_WIDGET_ID_WEBRADIOSETUP,
 	MN_WIDGET_ID_WEBTVSETUP,
 	MN_WIDGET_ID_LIVESTREAM_RESOLUTION,
 
-	//xmltv setup
+	// xmltv setup
 	MN_WIDGET_ID_XMLTVSETUP,
 
-	//misc settings
+	// misc settings
 	MN_WIDGET_ID_MISCSETUP,
 	MN_WIDGET_ID_MISCSETUP_GENERAL,
 	MN_WIDGET_ID_MISCSETUP_ENERGY,
@@ -131,56 +130,56 @@ enum MN_WIDGET_ID
 	MN_WIDGET_ID_MISCSETUP_ONLINESERVICES,
 	MN_WIDGET_ID_MISCSETUP_PLUGINS,
 
-	//media menu
+	// media menu
 	MN_WIDGET_ID_MEDIA,
 	MN_WIDGET_ID_MEDIA_MOVIEPLAYER,
-	
-	//parentallock setup
+
+	// parentallock setup
 	MN_WIDGET_ID_PLOCKSETUP,
-	
-	//drive setup
+
+	// drive setup
 	MN_WIDGET_ID_DRIVESETUP,
-	
-	//zapit settings (start channel)
+
+	// zapit settings (start channel)
 	MN_WIDGET_ID_ZAPIT,
-	
-	//cec setup
+
+	// cec setup
 	MN_WIDGET_ID_CEC,
-	
-	//infomenue
+
+	// infomenue
 	MN_WIDGET_ID_INFOMENUE,
-	
-	//personalize
+
+	// personalize
 	MN_WIDGET_ID_PERSONALIZE,
-	//personalize: to personalize option menues
+	// personalize: to personalize option menues
 	MN_WIDGET_ID_PERSONALIZE_MAIN,
 	MN_WIDGET_ID_PERSONALIZE_SETTINGS,
 	MN_WIDGET_ID_PERSONALIZE_SERVICE,
 	MN_WIDGET_ID_PERSONALIZE_MEDIA,
 	MN_WIDGET_ID_PERSONALIZE_MOVIEPLAYER,
-	//personalize: to personalize sub menues
+	// personalize: to personalize sub menues
 	MN_WIDGET_ID_PERSONALIZE_USERMENU,
 	MN_WIDGET_ID_PERSONALIZE_FEATUREKEYS,
 	MN_WIDGET_ID_PERSONALIZE_PLUGINS,
 
-	//user menu setup
+	// user menu setup
 	MN_WIDGET_ID_USERMENU_RED,
 	MN_WIDGET_ID_USERMENU_GREEN,
 	MN_WIDGET_ID_USERMENU_YELLOW,
 	MN_WIDGET_ID_USERMENU_BLUE,
 	
-	//update file selector
+	// update file selector
 	MN_WIDGET_ID_IMAGESELECTOR,
 	MN_WIDGET_ID_MTDREAD_SELECTOR,
 	MN_WIDGET_ID_MTDWRITE_SELECTOR,
 	MN_WIDGET_ID_FILESELECTOR,
 	MN_WIDGET_ID_MTDREAD_ROOT0,
-	
-	//software update
+
+	// software update
 	MN_WIDGET_ID_SOFTWAREUPDATE,
 	MN_WIDGET_ID_MTDEXPERT,
-	
-	//software update settings
+
+	// software update settings
 	MN_WIDGET_ID_SOFTWAREUPDATE_SETTINGS,
 
 	MN_WIDGET_ID_SCAN_MAIN,
@@ -196,13 +195,13 @@ enum MN_WIDGET_ID
 	MN_WIDGET_ID_TESTMENU_COMPONENTS,
 	MN_WIDGET_ID_TESTMENU_HINT_MSG_TESTS,
 
-	//network services
+	// network services
 	MN_WIDGET_ID_NETWORKSETUP_SERVICES,
 
-	//options select menue
+	// options select menue
 	MN_WIDGET_ID_MENU_SELECT_STRING,
 
-	//glcd menues
+	// glcd menues
 	MN_WIDGET_ID_GLCD_SETTINGS,
 	MN_WIDGET_ID_GLCD_STANDBY_SETTINGS,
 	MN_WIDGET_ID_GLCD_BRIGHTNESS_SETTINGS,
@@ -210,7 +209,7 @@ enum MN_WIDGET_ID
 	MN_WIDGET_ID_GLCD_THEME_POSITION_SETTINGS,
 
 #if ENABLE_QUADPIP
-	//quadpip
+	// quadpip
 	MN_WIDGET_ID_QUADPIP,
 #endif
 
