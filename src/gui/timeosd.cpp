@@ -6,7 +6,7 @@
 	Copyright (C) 2013, Thilo Graf 'dbt'
 	Copyright (C) 2013, Michael Liebmann 'micha-bbg'
 	Copyright (C) 2013, martii
-	
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or
@@ -33,17 +33,17 @@
 #include <neutrino.h>
 #include <gui/volumebar.h>
 #include <gui/infoclock.h>
+
 #include <gui/timeosd.h>
 #include "screensaver.h"
 
-
-CTimeOSD::CTimeOSD():CComponentsFrmClock( 1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
+CTimeOSD::CTimeOSD(): CComponentsFrmClock(1, 1, NULL, "%H:%M:%S", NULL, false, 1, NULL, CC_SHADOW_ON)
 {
-	m_mode    = MODE_HIDE;
-	tmp_mode  = MODE_HIDE;
+	m_mode = MODE_HIDE;
+	tmp_mode = MODE_HIDE;
 	m_restore = false;
 	mp_time_forced = false;
-	cc_item_type.name 	= "time_osd_box";
+	cc_item_type.name = "time_osd_box";
 	Init();
 }
 
@@ -52,14 +52,17 @@ void CTimeOSD::Init()
 	paint_bg = g_settings.infoClockBackground;
 	m_time_show = time(0);
 
-	//use current theme colors
+	// use current theme colors
 	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 
-	//set text color
-	if (paint_bg){
+	// set text color
+	if (paint_bg)
+	{
 		cl_col_text = COL_MENUCONTENT_TEXT;
 		setColorBody(COL_MENUCONTENT_PLUS_0);
-	}else{
+	}
+	else
+	{
 		cl_col_text = COL_INFOCLOCK_TEXT;
 		setColorBody(COL_BACKGROUND_PLUS_0);
 	}
@@ -67,7 +70,7 @@ void CTimeOSD::Init()
 	setClockFont(CInfoClock::getInstance()->getClockFont());
 
 	// set corner radius depending on clock height
-	corner_rad = (g_settings.theme.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
+	corner_rad = (g_settings.theme.rounded_corners) ? std::max(height / 10, CORNER_RADIUS_SMALL) : 0;
 
 	CComponentsFrmClock::initCCLockItems();
 	CVolumeHelper::getInstance()->refresh(cl_font);
@@ -75,7 +78,8 @@ void CTimeOSD::Init()
 	timescale.setType(CProgressBar::PB_TIMESCALE);
 }
 
-#if 0 //if hide() or kill() required, it's recommended to use it separately
+#if 0
+// if hide() or kill() required, it's recommended to use it separately
 CTimeOSD::~CTimeOSD()
 {
 	CComponents::kill();
@@ -83,10 +87,10 @@ CTimeOSD::~CTimeOSD()
 }
 #endif
 
-CTimeOSD* CTimeOSD::getInstance()
+CTimeOSD *CTimeOSD::getInstance()
 {
-	static CTimeOSD* timeOSD = NULL;
-	if(!timeOSD)
+	static CTimeOSD *timeOSD = NULL;
+	if (!timeOSD)
 		timeOSD = new CTimeOSD();
 	return timeOSD;
 }
@@ -97,7 +101,7 @@ void CTimeOSD::initTimeString()
 	toggleFormat();
 	if (m_mode == MODE_DESC)
 		cl_format = "-" + cl_format;
-	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format.c_str(), gmtime_r(&m_time_show, &t));
+	strftime((char *) &cl_timestr, sizeof(cl_timestr), cl_format.c_str(), gmtime_r(&m_time_show, &t));
 }
 
 void CTimeOSD::show(time_t time_show, bool force)
@@ -107,7 +111,7 @@ void CTimeOSD::show(time_t time_show, bool force)
 		return;
 	m_time_show = time_show;
 
-	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0); //use current theme colors
+	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0); // use current theme colors
 
 	paint_bg = true;
 	if (g_settings.infoClockBackground)
@@ -123,18 +127,19 @@ void CTimeOSD::show(time_t time_show, bool force)
 void CTimeOSD::updatePos(int position, int duration)
 {
 	int percent = (duration && duration > 100) ? (position * 100 / duration) : 0;
-	if(percent > 100)
+	if (percent > 100)
 		percent = 100;
-	else if(percent < 0)
+	else if (percent < 0)
 		percent = 0;
 
-	timescale.setProgress(x, y + height/4, width, height/2, percent, 100);
+	timescale.setProgress(x, y + height / 4, width, height / 2, percent, 100);
 	timescale.paint();
 }
 
 void CTimeOSD::update(int position, int duration)
 {
-	switch(m_mode) {
+	switch (m_mode)
+	{
 		case MODE_ASC:
 			show(position, false);
 			break;
@@ -151,7 +156,8 @@ void CTimeOSD::update(int position, int duration)
 
 void CTimeOSD::switchMode(int position, int duration)
 {
-	switch (m_mode) {
+	switch (m_mode)
+	{
 		case MODE_ASC:
 			m_mode = MODE_DESC;
 			CComponents::kill();
@@ -172,7 +178,8 @@ void CTimeOSD::switchMode(int position, int duration)
 
 void CTimeOSD::kill()
 {
-	if (m_mode != MODE_HIDE) {
+	if (m_mode != MODE_HIDE)
+	{
 		KillAndResetTimescale();
 		CComponents::kill();
 	}
