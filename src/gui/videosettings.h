@@ -37,11 +37,11 @@ class CFrameBuffer;
 class CVideoSettings : public CMenuWidget, CChangeObserver
 {
 	private:
-		CFrameBuffer 		*frameBuffer;
-		CMenuForwarder 		*SyncControlerForwarder;
-		CMenuOptionChooser 	*VcrVideoOutSignalOptionChooser;
+		CFrameBuffer *frameBuffer;
+		CMenuForwarder *SyncControlerForwarder;
+		CMenuOptionChooser *VcrVideoOutSignalOptionChooser;
 
-		int			prev_video_mode;
+		int prev_video_mode;
 
 		int is_wizard;
 
@@ -50,7 +50,7 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 		std::vector<CMenuOptionChooser::keyval_ext> videomenu_43mode_options;
 		void Init43ModeOptions();
 
-public:
+	public:
 		CVideoSettings(int wizard_mode = SNeutrinoSettings::WIZARD_OFF);
 		~CVideoSettings();
 
@@ -65,7 +65,7 @@ public:
 
 		void setWizardMode(int mode) {is_wizard = mode;};
 
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 #endif
 
