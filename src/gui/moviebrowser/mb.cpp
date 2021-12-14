@@ -1524,8 +1524,7 @@ void CMovieBrowser::initMovieCover(void)
 	{
 		if (m_movieCover == NULL)
 		{
-			m_movieCover = new CComponentsPicture(0, 0, cover_file, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0);
-
+			m_movieCover = new CComponentsPicture(0, 0, cover_file, NULL, CC_SHADOW_ON, COL_MENUCONTENTDARK_PLUS_0, 0, COL_SHADOW_PLUS_0,  CFrameBuffer::TM_NONE);
 			m_movieCover->enableFrame(true, 1);
 		}
 
