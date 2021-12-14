@@ -1,8 +1,6 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
-
-
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +18,6 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-
 #ifndef __favorites__
 #define __favorites__
 
@@ -28,20 +25,11 @@
 
 #include <string>
 
-
-//
-// -- Implement Favorites...
-// -- Class for adding Favorite channels to a bouquet called "Neutrino__Favorites"
-// -- Bouquet will be created on the first add!
-//
 class CFavorites : public CMenuTarget
 {
-
 	public:
-
-		int  addChannelToFavorites (bool show_list);
-		int  exec(CMenuTarget* parent, const std::string & actionKey);
+		int addChannelToFavorites(bool show_list);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
-
 
 #endif
