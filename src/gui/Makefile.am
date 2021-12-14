@@ -97,6 +97,7 @@ libneutrino_gui_a_SOURCES = \
 	sleeptimer.cpp \
 	start_wizard.cpp \
 	subchannel_select.cpp \
+	test_menu.cpp \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
@@ -160,11 +161,6 @@ endif
 if BOXTYPE_MIPSBOX
 libneutrino_gui_a_SOURCES += \
 	psisetup.cpp
-endif
-
-if ENABLE_TESTING
-libneutrino_gui_a_SOURCES += \
-	test_menu.cpp
 endif
 
 libneutrino_gui2_a_SOURCES = \
