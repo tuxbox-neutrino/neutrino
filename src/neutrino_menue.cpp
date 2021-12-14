@@ -68,6 +68,9 @@
 #include "gui/sleeptimer.h"
 #include "gui/timerlist.h"
 #include "gui/update_menue.h"
+#ifdef ENABLE_TESTING
+#include "gui/test_menu.h"
+#endif
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
 #include "gui/videosettings.h"
@@ -279,6 +282,10 @@ void CNeutrinoApp::InitMenuMain()
 		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_CISETTINGS]);
 	}
+
+#ifdef ENABLE_TESTING
+	personalize.addItem(MENU_MAIN, new CMenuForwarder("Test menu", true, NULL, new CTestMenu()), NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
+#endif
 }
 
 // settings menue
