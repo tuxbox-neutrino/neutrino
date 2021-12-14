@@ -2673,6 +2673,7 @@ subtitles.head Subtitles
 subtitles.stop Stop subtitles
 terrestrialsetup.area Area
 terrestrialsetup.provider Terrestrial Provider
+testmenu Testmenu
 timer.eventrecord.msg The event is scheduled for recording.\nTo edit the schedule open the timer list.
 timer.eventrecord.title Schedule Record
 timer.eventtimed.msg The event is scheduled.\nThe box will power on and \nswitch to this channel at the given time.

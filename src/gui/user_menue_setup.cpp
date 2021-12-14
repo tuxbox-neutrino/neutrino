@@ -101,9 +101,7 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_SWUPDATE,		LOCALE_SERVICEMENU_UPDATE,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION, LOCALE_LIVESTREAM_RESOLUTION,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_ADZAP,		LOCALE_USERMENU_ITEM_ADZAP,		usermenu_show },
-#if 0
 	{ SNeutrinoSettings::ITEM_TESTMENU,		LOCALE_TESTMENU,			usermenu_show },
-#endif
 	{ SNeutrinoSettings::ITEM_FILEPLAY_AUDIO,	LOCALE_MOVIEPLAYER_FILEPLAYBACK_AUDIO,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_TIMESHIFT,		LOCALE_RECORDINGMENU_TIMESHIFT,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_MAX,			NONEXISTANT_LOCALE,			usermenu_show }

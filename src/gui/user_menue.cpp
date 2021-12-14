@@ -79,7 +79,7 @@
 #endif
 #include <gui/update_menue.h>
 #include <gui/hdd_menu.h>
-//#include <gui/test_menu.h>
+#include <gui/test_menu.h>
 #include <gui/webchannels_setup.h>
 #include <gui/miscsettings_menu.h>
 
@@ -555,13 +555,13 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				menu_item->setHint(NEUTRINO_ICON_HINT_ADZAP, adzap_active ? LOCALE_MENU_HINT_ADZAP_ACTIVE : LOCALE_MENU_HINT_ADZAP);
 				break;
 			}
-// 			case SNeutrinoSettings::ITEM_TESTMENU:
-// 			{
-// 				keyhelper.get(&key, &icon);
-// 				menu_item = new CMenuDForwarder(LOCALE_TESTMENU, true, NULL, new CTestMenu(), NULL, key, icon);
-// 				// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
-// 				break;
-// 			}
+			case SNeutrinoSettings::ITEM_TESTMENU:
+			{
+				keyhelper.get(&key, &icon);
+				menu_item = new CMenuDForwarder(LOCALE_TESTMENU, true, NULL, new CTestMenu(), NULL, key, icon);
+				// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
+				break;
+			}
 			case -1: // plugin
 			{
 				int number_of_plugins = g_Plugins->getNumberOfPlugins();
