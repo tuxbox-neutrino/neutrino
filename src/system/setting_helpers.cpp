@@ -415,11 +415,6 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 		audioDemux->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);
 		pcrDemux->SetSyncMode((AVSYNC_TYPE)g_settings.avsync);
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_CLOCKREC))
-	{
-		// Clock recovery enable/disable
-		// FIXME add code here.
-	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_ALGO) ||
 		ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_NMGR) ||
 		ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_VOLUME))

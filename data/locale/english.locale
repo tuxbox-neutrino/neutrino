@@ -140,7 +140,6 @@ audiomenu.auto_subs Auto select subtitles
 audiomenu.avs avs
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
-audiomenu.clockrec 
 audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.dts DTS passthrough
 audiomenu.hdmi_dd Encoded DD on HDMI

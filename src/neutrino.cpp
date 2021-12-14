@@ -510,7 +510,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.analog_out = configfile.getInt32("analog_out", 1);
 
 	g_settings.avsync = configfile.getInt32("avsync", 1);
-	g_settings.clockrec = configfile.getInt32("clockrec", 1);
 	g_settings.video_dbdr = configfile.getInt32("video_dbdr", 0);
 
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
@@ -1697,7 +1696,6 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("analog_out", g_settings.analog_out);
 
 	configfile.setInt32("avsync", g_settings.avsync);
-	configfile.setInt32("clockrec", g_settings.clockrec);
 	configfile.setInt32("video_dbdr", g_settings.video_dbdr);
 
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)

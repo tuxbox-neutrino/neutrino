@@ -379,7 +379,6 @@ struct SNeutrinoSettings
 	int analog_out;
 
 	int avsync;
-	int clockrec;
 	int video_dbdr;
 
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
