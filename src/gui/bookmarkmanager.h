@@ -47,71 +47,66 @@
 class CFramebuffer;
 class CBookmark
 {
- private:
-	std::string name;
-	std::string url;
-	std::string time;
- public:
-	CBookmark(const std::string & name, const std::string & url, const std::string & time);
-	const char *getName(void) const { return name.c_str(); };
-	const char *getUrl (void) const { return url .c_str(); };
-	const char *getTime(void) const { return time.c_str(); };
-	inline void setName(const std::string & new_name) { name = new_name; };
-	inline void setUrl (const std::string & new_url ) { url  = new_url ; };
-	inline void setTime(const std::string & new_time) { time = new_time; };
+	private:
+		std::string name;
+		std::string url;
+		std::string time;
+	public:
+		CBookmark(const std::string &name, const std::string &url, const std::string &time);
+		const char *getName(void) const { return name.c_str(); };
+		const char *getUrl(void) const { return url .c_str(); };
+		const char *getTime(void) const { return time.c_str(); };
+		inline void setName(const std::string &new_name) { name = new_name; };
+		inline void setUrl(const std::string &new_url) { url = new_url ; };
+		inline void setTime(const std::string &new_time) { time = new_time; };
 };
-
-//-----------------------------------------
 
 class CBookmarkManager : public CChangeObserver
 {
- private:
-	std::vector<CBookmark> bookmarks;
-	CConfigFile	bookmarkfile;
-	
-    CFrameBuffer		*frameBuffer;
-	unsigned int		selected;
-	unsigned int		liststart;
-	unsigned int		listmaxshow;
-	int			fheight; // Fonthoehe Timerlist-Inhalt
-	int			theight; // Fonthoehe Timerlist-Titel
-	int			footerHeight;
-	bool			visible;			
-	int 			width;
-	int 			height;
-	int 			x;
-	int 			y;
+	private:
+		std::vector<CBookmark> bookmarks;
+		CConfigFile bookmarkfile;
 
-	
-	//int bookmarkCount;
-	bool bookmarkname_entered;
-	bool bookmarksmodified;
-	void readBookmarkFile();
-	void writeBookmarkFile();
-	CBookmark getBookmark();
-	int addBookmark(CBookmark inBookmark);
-	
-	void paintItem(int pos);
-	void paint();
-	void paintHead();
-	void paintFoot();
-	void hide();
+		CFrameBuffer *frameBuffer;
+		unsigned int selected;
+		unsigned int liststart;
+		unsigned int listmaxshow;
+		int fheight; // Fonthoehe Timerlist-Inhalt
+		int theight; // Fonthoehe Timerlist-Titel
+		int footerHeight;
+		bool visible;
+		int width;
+		int height;
+		int x;
+		int y;
 
+		//int bookmarkCount;
+		bool bookmarkname_entered;
+		bool bookmarksmodified;
+		void readBookmarkFile();
+		void writeBookmarkFile();
+		CBookmark getBookmark();
+		int addBookmark(CBookmark inBookmark);
 
+		void paintItem(int pos);
+		void paint();
+		void paintHead();
+		void paintFoot();
+		void hide();
 
- public:
-	CBookmarkManager();
-	~CBookmarkManager();
-	bool changeNotify(const neutrino_locale_t, void *);
-	int createBookmark(const std::string & name, const std::string & url, const std::string & time);
-	int createBookmark(const std::string & url, const std::string & time);
-	void removeBookmark(unsigned int index);
-	void renameBookmark(unsigned int index);
-	int getBookmarkCount(void) const;
-	int getMaxBookmarkCount(void) const;
-	void flush();
-	
-	const CBookmark * getBookmark(CMenuTarget* parent);
+	public:
+		CBookmarkManager();
+		~CBookmarkManager();
+		bool changeNotify(const neutrino_locale_t, void *);
+		int createBookmark(const std::string &name, const std::string &url, const std::string &time);
+		int createBookmark(const std::string &url, const std::string &time);
+		void removeBookmark(unsigned int index);
+		void renameBookmark(unsigned int index);
+		int getBookmarkCount(void) const;
+		int getMaxBookmarkCount(void) const;
+		void flush();
+
+		const CBookmark *getBookmark(CMenuTarget *parent);
 };
 
 #endif
