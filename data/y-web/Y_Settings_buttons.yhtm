@@ -232,9 +232,8 @@ function do_submit()
 				<td>&nbsp;OK-Taste f&uuml;r</td>
 				<td>
 					<select name="bouquetlist_mode" title="OK-Button for...">
-					<option value="0" selected="selected">Bouquet-Kan&auml;le</option>
-					<option value="1">Bouquetliste</option>
-					<option value="2">Kanalliste</option>
+					<option value="0" selected="selected">Kanalliste</option>
+					<option value="1">Favoriten</option>
 					</select>
 				</td>				
 			</tr>

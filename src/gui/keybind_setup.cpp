@@ -146,6 +146,13 @@ int CKeybindSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 	return res;
 }
 
+#define KEYBINDINGMENU_BOUQUETLIST_MODE_OPTION_COUNT 2
+const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETLIST_MODE_OPTIONS[KEYBINDINGMENU_BOUQUETLIST_MODE_OPTION_COUNT] =
+{
+	{ SNeutrinoSettings::CHANNELLIST, LOCALE_KEYBINDINGMENU_CHANNELLIST },
+	{ SNeutrinoSettings::FAVORITES,   LOCALE_KEYBINDINGMENU_FAVORITES   }
+};
+
 #define KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT 3
 const CMenuOptionChooser::keyval KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS[KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT] =
 {
@@ -500,10 +507,10 @@ void CKeybindSetup::showKeyBindModeSetup(CMenuWidget *bindSettings_modes)
 void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist)
 {
 	bindSettings_chlist->addIntroItems(LOCALE_KEYBINDINGMENU_CHANNELLIST);
-#if 0
-	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_BOUQUETHANDLING, &g_settings.bouquetlist_mode, KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS, KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT, true);
+
+	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_BOUQUETLIST_MODE, &g_settings.bouquetlist_mode, KEYBINDINGMENU_BOUQUETLIST_MODE_OPTIONS, KEYBINDINGMENU_BOUQUETLIST_MODE_OPTION_COUNT, true);
 	bindSettings_chlist->addItem(oj);
-#endif
+
 	for (int i = NKEY_LIST_START; i <= NKEY_CURRENT_TRANSPONDER; i++)
 	{
 		CMenuForwarder *mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);

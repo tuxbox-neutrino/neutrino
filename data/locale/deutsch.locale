@@ -1051,7 +1051,7 @@ ipsetup.hint_2 OK speichert, EXIT bricht ab
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
 keybindingmenu.addremind Umschalt-Timer hinzufügen
 keybindingmenu.bouquetdown Bouquet zurück
-keybindingmenu.bouquethandling OK-Taste für
+keybindingmenu.bouquetlist_mode OK-Taste für
 keybindingmenu.bouquetup Bouquet weiter
 keybindingmenu.cancel Kanalliste schließen
 keybindingmenu.channeldown Kanal runter
