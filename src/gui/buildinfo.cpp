@@ -23,7 +23,6 @@
 	Boston, MA  02110-1301, USA.
 */
 
-
 #include <global.h>
 #include <neutrino.h>
 
@@ -40,14 +39,14 @@ using namespace std;
 CBuildInfo::CBuildInfo(bool show) : CComponentsWindow(0, 0, CCW_PERCENT 85, CCW_PERCENT 85, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
 {
 	initVarBuildInfo();
-// 	setBodyBGImage(DATADIR "/neutrino/icons/start.jpg");
+	//setBodyBGImage(DATADIR "/neutrino/icons/start.jpg");
 	if (show)
 		exec(NULL, "");
 	else
 		GetData();
 }
 
-//init all var members
+// init all var members
 void CBuildInfo::initVarBuildInfo()
 {
 	setCenterPos();
@@ -58,60 +57,63 @@ void CBuildInfo::initVarBuildInfo()
 	shadow = CC_SHADOW_ON;
 }
 
-
-int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
+int CBuildInfo::exec(CMenuTarget *parent, const string & /*actionKey*/)
 {
 	int res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 		parent->hide();
 
-	//exit if no informations available
-	if (!GetData()){
+	// exit if no informations available
+	if (!GetData())
+	{
 		return res;
 	}
 
 	InitInfoItems();
 
-	//paint window
+	// paint window
 	if (!is_painted)
 		paint();
-
 
 	neutrino_msg_t msg;
 	while (1)
 	{
 		neutrino_msg_data_t data;
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(100);
-		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
-		if(msg == CRCInput::RC_setup) {
+		if (msg == CRCInput::RC_setup)
+		{
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
-		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
-			g_RCInput->postMsg (msg, 0);
+		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+		{
+			g_RCInput->postMsg(msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
-		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_page_up)) {
+		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_page_up))
+		{
 			Scroll(false);
 		}
-		else if ((msg == CRCInput::RC_down) || (msg == CRCInput::RC_page_down)) {
+		else if ((msg == CRCInput::RC_down) || (msg == CRCInput::RC_page_down))
+		{
 			Scroll(true);
 		}
-		else if (msg <= CRCInput::RC_MaxRC){
+		else if (msg <= CRCInput::RC_MaxRC)
+		{
 			break;
 		}
 
-		if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout){
-			CNeutrinoApp::getInstance()->handleMsg( msg, data );
+		if (msg > CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
+		{
+			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
-		
-
 	}
 
-	//hide window
+	// hide window
 	hide();
 
 	return res;
@@ -119,9 +121,10 @@ int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
 
 void CBuildInfo::Scroll(bool scrollDown)
 {
-	CTextBox* ctb = static_cast<CComponentsExtTextForm*>(ccw_body->getCCItem(3))->getTextObject()->getCTextBoxObject();
-	ctb->enableBackgroundPaint(true); //FIXME: behavior of CTextBox scroll is broken with disabled background paint
-	if (ctb) {
+	CTextBox *ctb = static_cast<CComponentsExtTextForm *>(ccw_body->getCCItem(3))->getTextObject()->getCTextBoxObject();
+	ctb->enableBackgroundPaint(true); // FIXME: behavior of CTextBox scroll is broken with disabled background paint
+	if (ctb)
+	{
 		if (scrollDown)
 			ctb->scrollPageDown(1);
 		else
@@ -129,7 +132,7 @@ void CBuildInfo::Scroll(bool scrollDown)
 	}
 }
 
-void CBuildInfo::setFontType(Font* font_text)
+void CBuildInfo::setFontType(Font *font_text)
 {
 	if (font_text == NULL)
 		return;
@@ -147,7 +150,7 @@ bool CBuildInfo::GetData()
 #endif
 
 #ifdef USED_BUILD
-	build_info_t build = {BI_TYPE_ID_USED_BUILD , LOCALE_BUILDINFO_COMPILED_ON, USED_BUILD};
+	build_info_t build = {BI_TYPE_ID_USED_BUILD, LOCALE_BUILDINFO_COMPILED_ON, USED_BUILD};
 	v_info.push_back(build);
 #endif
 
@@ -160,7 +163,8 @@ bool CBuildInfo::GetData()
 	cxxflags = trim(cxxflags);
 	// Remove double spaces
 	size_t pos = cxxflags.find("  ");
-	while (pos != string::npos) {
+	while (pos != string::npos)
+	{
 		cxxflags.erase(pos, 1);
 		pos = cxxflags.find("  ", pos);
 	}
@@ -169,13 +173,14 @@ bool CBuildInfo::GetData()
 #endif
 
 #if 0
-	CConfigFile data ('\t');
+	CConfigFile data('\t');
 	data.loadConfig(IMAGE_VERSION_FILE);
 	build_info_t creator	= {BI_TYPE_ID_CREATOR, LOCALE_BUILDINFO_CREATOR, data.getString("creator", "n/a")};
 	v_info.push_back(creator);
 #endif
 
-	if (v_info.empty()){
+	if (v_info.empty())
+	{
 		DisplayInfoMessage("No Informations available. Please report!");
 		return false;
 	}
@@ -185,28 +190,29 @@ bool CBuildInfo::GetData()
 
 void CBuildInfo::InitInfoItems()
 {
-	//get and checkup required informations
+	// get and checkup required informations
 	if (!GetData())
 		return;
 
-	//ensure a clean body
+	// ensure a clean body
 	ccw_body->clear();
 
-	//define size and position
+	// define size and position
 	int x_info = OFFSET_INNER_MID;
 	int h_info = 0; //default height
-	int w_info = width-2*x_info;
+	int w_info = width - 2 * x_info;
 	int y_info = OFFSET_INNER_MID;
 
-	//init info texts
-	for(size_t i=0; i<v_info.size(); i++){
+	// init info texts
+	for (size_t i = 0; i < v_info.size(); i++)
+	{
 		h_info = v_info[i].type_id != BI_TYPE_ID_USED_CXXFLAGS ? font->getHeight() * 2 + OFFSET_INNER_MID : ccw_body->getHeight() - y_info;
 		CComponentsExtTextForm *info = new CComponentsExtTextForm(OFFSET_INNER_MID, y_info, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text, NULL, ccw_body);
 		info->setLabelAndTextFont(font);
 		if (v_info[i].type_id == BI_TYPE_ID_USED_CXXFLAGS)
-			info->setTextModes(CTextBox::TOP , CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL);
+			info->setTextModes(CTextBox::TOP, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL);
 		else
-			info->setTextModes(CTextBox::TOP , CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS);
+			info->setTextModes(CTextBox::TOP, CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS);
 		info->doPaintBg(false);
 		y_info += h_info;
 	}
@@ -214,9 +220,10 @@ void CBuildInfo::InitInfoItems()
 
 // This allows to retrieve information about build infos.
 // Use parameter 'type_info' to get specific information.
-build_info_t CBuildInfo::getInfo(const info_type_id_t& type_id)
+build_info_t CBuildInfo::getInfo(const info_type_id_t &type_id)
 {
-	for(size_t i=0; i<v_info.size(); i++){
+	for (size_t i = 0; i < v_info.size(); i++)
+	{
 		if (v_info[i].type_id == type_id)
 			return v_info[i];
 	}
