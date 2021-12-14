@@ -314,6 +314,11 @@ AC_ARG_ENABLE(dynamicdemux,
 	AS_HELP_STRING([--enable-dynamicdemux], [enable dynamic demux @<:@default=no@:>@]),
 	AC_DEFINE(DYNAMIC_DEMUX, 1, [enable dynamic demux]))
 
+AC_ARG_ENABLE(testing,
+	AS_HELP_STRING([--enable-testing], [enable development code @<:@default=no@:>@]),
+	AC_DEFINE(ENABLE_TESTING, 1, [enable development code]))
+AM_CONDITIONAL(ENABLE_TESTING, test "$enable_testing" = "yes")
+
 AC_ARG_ENABLE(fribidi,
 	AS_HELP_STRING([--enable-fribidi], [enable fribidi support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support]))
