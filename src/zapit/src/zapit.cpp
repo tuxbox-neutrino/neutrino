@@ -1267,6 +1267,8 @@ void CZapit::Rezap(void)
 {
 	if (currentMode & RECORD_MODE)
 		return;
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts)
+		return;
 	if(config.rezapTimeout > 0)
 		sleep(config.rezapTimeout);
 	if(current_channel)
