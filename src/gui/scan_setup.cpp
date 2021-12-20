@@ -2058,7 +2058,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 {
 	std::map<int, transponder> tmplist;
 	std::map<int, transponder>::iterator tmpI;
-	char cnt[5];
+	char cnt[11];
 	int select = -1;
 	static int old_selected = 0;
 	static t_satellite_position old_position = 0;
