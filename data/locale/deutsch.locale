@@ -2852,6 +2852,7 @@ videomenu.hdmi_colorimetry_auto auto
 videomenu.hdmi_colorimetry_bt2020ncl BT 2020 ncl
 videomenu.hdmi_colorimetry_bt2020cl BT 2020 cl
 videomenu.hdmi_colorimetry_bt709 BT 709
+videomenu.hdmi_colorimetry_bt470 BT 470
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan
