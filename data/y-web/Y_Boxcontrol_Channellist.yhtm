@@ -4,7 +4,7 @@
 <script type="text/javascript">
 //<![CDATA[
 function do_zap(channelid) {
-	dbox_zapto(channelid);
+	stb_zapto(channelid);
 	window.location.reload();
 }
 function do_epg(channelid,logoid) {

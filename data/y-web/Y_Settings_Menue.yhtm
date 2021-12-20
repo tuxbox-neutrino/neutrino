@@ -39,14 +39,9 @@ function init(){
 					{=var-set:m_link_text={=L:set.menue.backup_restore=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
-				<li>
-					{=var-set:m_link_href=Y_Settings_Timer.yhtm=}
-					{=var-set:m_link_text={=L:set.menue.timer_settings=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
 			</ul>
 		</div>
-		<div class="y_menu_sec_section">Neutrino</div>
+		<div class="y_menu_sec_section">{=L:neutrino=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_neutrino">
 				<li>
@@ -91,7 +86,7 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				~=}
-				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<!--
 				<li>
 					{=var-set:m_link_href=Y_Settings_video_audio.yhtm=}
 					{=var-set:m_link_text={=L:set.menue.video_audio=}=}
@@ -127,21 +122,16 @@ function init(){
 					{=var-set:m_link_text={=L:set.menue.peronalization=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
-				~=}
+				-->
 			</ul>
 		</div>
-		{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 		<div class="y_menu_sec_section">{=L:plugins=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_plugins">
 				<li>
-					{=var-set:m_link_href=Y_Settings_VNC.yhtm=}
-					{=var-set:m_link_text=VNC=}
-					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 			</ul>
 		</div>
-		~=}
 	</div>
 </div>
 

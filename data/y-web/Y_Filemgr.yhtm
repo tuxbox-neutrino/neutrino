@@ -46,7 +46,7 @@ CyExplorer.prototype = {
 		var mycurrent_row = new Element( 'tr', {'class': ((this.line_number % 2) ==0)?"a":"b"} );
 		$(this.el).insert(mycurrent_row);
 		/* icon */
-		var __img ="/images/ftype_file.gif";
+		var __img ="/images/ftype_file.png";
 		switch (fp.get('type')){
 			case 	"folder":	__img = "/images/ftype_folder.png"; break;
 			case 	"link":	__img = "/images/ftype_link.png"; break;

@@ -19,7 +19,7 @@ function do_submit()
 		alert("{=L:tools.yinstaller.no_file_given=}");
 }
 function init(){
-	var res=dbox_exec_tools("mtd_space");
+	var res=stb_exec_tools("mtd_space");
 	var Ausdruck = /([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*).*$/;
 	Ausdruck.exec(res);
 	var total = RegExp.$2;

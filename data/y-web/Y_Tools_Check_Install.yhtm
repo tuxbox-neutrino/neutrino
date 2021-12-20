@@ -89,16 +89,6 @@ function do_check(){
 	~
 		sLog_addRow(sLog_body, "green", "Programs: fbshot is installed at: {=var-get:fbshot=}. OSD Screenshot is enabled.", "ok");
 	=}
-
-{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-	{=var-set:fcp={=find-exec:fcp=}=}
-	{=if-empty:{=var-get:fcp=}~
-		sLog_addRow(sLog_body, "red", "Programs: fcp is not installed. Image flashing is disabled. ", "failed");
-	~
-		sLog_addRow(sLog_body, "green", "Programs: fcp is installed at: {=var-get:fcp=}. Image flashing is enabled.", "ok");
-	=}
-~=}
-	
 	{=var-set:ether-wake={=find-exec:ether-wake=}=}
 	{=if-empty:{=var-get:ether-wake=}~
 		sLog_addRow(sLog_body, "red", "Programs: ether-wake is not installed. Wake on LAN is disabled. ", "failed");
@@ -112,15 +102,6 @@ function do_check(){
 	~
 		sLog_addRow(sLog_body, "green", "Programs: automount is installed at: {=var-get:automount=}. AutoMount is enabled.", "ok");
 	=}
-{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-	/* udp */
-	{=var-set:udpstreamts={=find-exec:udpstreamts=}=}
-	{=if-empty:{=var-get:udpstreamts=}~
-		sLog_addRow(sLog_body, "red", "Programs: udpstreamts is not installed. udp-streaming is disabled. ", "failed");
-	~
-		sLog_addRow(sLog_body, "green", "Programs: udpstreamts is installed at: {=var-get:udpstreamts=}. udp-streaming is enabled.", "ok");
-	=}
-~=}
 
 	do_stop();
 }

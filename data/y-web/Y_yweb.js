@@ -1,12 +1,11 @@
 /*	yWeb by yjogol
 	internal organisation of yweb
-	$Date$
-	$Revision$
 */
 
 /* define namespace */
 if(typeof(Y) == "undefined")
 	Y = {};
+
 /* Class Y.yweb */
 Y.yweb = new Class.create();
 Object.extend(Y.yweb.prototype, {
@@ -56,7 +55,6 @@ Object.extend(Y.yweb.prototype, {
 	}
 });
 
-
 /* main instance */
 if (window == top.top_main.prim_menu) {
 	var yweb = new Y.yweb();
@@ -74,7 +72,6 @@ else
  * x= type, menuitem, ymenu, file, tag, version, url, yweb_version, info_url
  * u=type,site,description,url
  */
-
 
 /* Class Y.extension */
 Y.extension = new Class.create();
@@ -210,4 +207,3 @@ else
 		var ext = new Y.extension();
 		ext.read_items();
 	}
-

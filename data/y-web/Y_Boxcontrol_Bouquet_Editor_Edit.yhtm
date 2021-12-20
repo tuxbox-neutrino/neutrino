@@ -83,7 +83,7 @@ function poschannel(box, direction){
 		<input type="hidden" name="redirect" value="/Y_Boxcontrol_Bouquet_Editor_Main.yhtm"/>
 		<p><button type="button" ytype="save" onclick="do_submit();">{=L:save=}</button>
 		<button type="button" ytype="cancel" onclick="do_abort();">{=L:cancel=}</button></p>
-		{=L:bouquets_must_be_saved=}
+		{=L:bou.bouquets_must_be_saved=}
 		</form>
 	</div>
 </div>

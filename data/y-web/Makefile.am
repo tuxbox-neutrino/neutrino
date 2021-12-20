@@ -3,7 +3,6 @@ SUBDIRS = images scripts languages styles
 installdir = $(PRIVATE_HTTPDDIR)
 
 install_DATA =	channels.js \
-		channels.txt \
 		extentions.txt \
 		favicon.ico \
 		index.html \
@@ -31,20 +30,11 @@ install_DATA =	channels.js \
 		Y_Ext_Update.js \
 		Y_Ext_Update_refresh.yhtm \
 		Y_Ext_Update.yhtm \
-		Y_Flash.js \
 		Y_Info_Help.yhtm \
 		Y_Info_Menue.yhtm \
 		Y_Info_Updates.yhtm \
-		Y_Live_DoubleView.yhtm \
 		Y_Live_EPG_Info.yhtm \
 		Y_Live_EPG.yhtm \
-		Y_Live.js \
-		Y_Live_Menue.yhtm \
-		Y_Live_Msg.yhtm \
-		Y_Live_Record.yhtm \
-		Y_Live_Transcode.yhtm \
-		Y_LiveViewFull.yhtm \
-		Y_Live.yhtm \
 		Y_Main.css \
 		Y_Menue.yhtm \
 		Y_neutrino_Blocks.txt \
@@ -55,17 +45,14 @@ install_DATA =	channels.js \
 		Y_Settings_buttons.yhtm \
 		Y_Settings_glcd.yhtm \
 		Y_Settings_lcd.yhtm \
-		Y_Settings_Live.yhtm \
 		Y_Settings_Menue.yhtm \
 		Y_Settings_mount_liste.yhtm \
 		Y_Settings_mount.yhtm \
 		Y_Settings_neutrino_forms.yhtm \
 		Y_Settings_nhttpd.yhtm \
 		Y_Settings_personalize.yhtm \
-		Y_Settings_Timer.yhtm \
 		Y_Settings_umount_liste.yhtm \
 		Y_Settings_video_audio.yhtm \
-		Y_Settings_VNC.yhtm \
 		Y_Settings_wol.yhtm \
 		Y_Settings_xmltv.yhtm \
 		Y_Settings_yWeb.yhtm \
@@ -73,28 +60,19 @@ install_DATA =	channels.js \
 		Y_StreamInfo.yhtm \
 		Y_Timer_Edit.yhtm \
 		Y_Timer_List.yhtm \
-		Y_Tools_Bootlogo.yhtm \
 		Y_Tools_Boxcontrol.yhtm \
 		Y_Tools_Check_Install.yhtm \
 		Y_Tools_Cmd.yhtm \
-		Y_Tools_Flash_Menue.yhtm \
-		Y_Tools_Flash_Upload.yhtm \
 		Y_Tools_Glcd_Screenshot.yhtm \
 		Y_Tools_Info_Menue.yhtm \
 		Y_Tools_Installer.yhtm \
-		Y_Tools_lcshot.yhtm \
 		Y_Tools_Menue.yhtm \
 		Y_Tools_Rcsim.yhtm \
 		Y_Tools_Screenshot.yhtm  \
-		Y_Tools_Timer_Sync.js \
-		Y_Tools_Timer_Sync.yhtm \
 		Y_Tools_tvshot.yhtm \
 		Y_User.css \
 		Y_Version.txt \
-		Y_VLC.js \
 		Y_Wait.yhtm \
-		ywidget.css \
-		ywidget.js \
 		Y_yweb.js
 
 # file manager

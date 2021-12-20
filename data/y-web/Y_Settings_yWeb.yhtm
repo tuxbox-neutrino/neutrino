@@ -128,7 +128,7 @@ select {
 			<tr>
 				<td>{=L:set.yweb.box_tag=}</td>
 				<td colspan="3"><input type="text" name="yweb_box_name" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}"
-					title="{=L:box_tag_desc=}"/>
+					title="{=L:set.yweb.box_tag_desc=}"/>
 					<!-- //NI -->
 					<input type="checkbox" name="hostname" value="Hostname" onclick="do_switch_hostname()"/> Hostname
 				</td>
@@ -136,7 +136,7 @@ select {
 			<tr>
 				<td>{=L:set.yweb.box_color=}</td>
 				<td colspan="3"><input type="text" name="yweb_box_color" size="8" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_color=}"
-					title="{=L:box_color_desc=}"/></td>
+					title="{=L:set.yweb.box_color_desc=}"/></td>
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:others=}</td></tr>
 			<tr>

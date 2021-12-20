@@ -1,8 +1,8 @@
 /*	yWeb EPG by yjogol
-	$Date$
-	$Revision$
 */
+
 /*EPG+*/
+
 var g_width_px=0; /*display width*/
 //var g_cols_to_display=0; /*minutes to display*/
 var g_number_of_cols=0; /*nr of cols*/
@@ -27,19 +27,24 @@ function epg_plus_calc_dimensions(){
 	g_width_all_items=g_width_px-c_width_px_bouquet-c_width_px_per_min;
 	$('epg_plus').style.cssText = "width:"+g_width_px;
 }
+
 function epg_zapto(){
-	dbox_zapto($('d_channel_id').innerHTML);
+	stb_zapto($('d_channel_id').innerHTML);
 }
+
 function epg_set_timer_rec(){
-	dbox_set_timer_rec($("d_channel_id").innerHTML, $("d_start").innerHTML, $("d_stop").innerHTML);
+	stb_set_timer_rec($("d_channel_id").innerHTML, $("d_start").innerHTML, $("d_stop").innerHTML);
 }
+
 function epg_set_timer_zap(){
-	dbox_set_timer_zap($("d_channel_id").innerHTML, $("d_start").innerHTML);
+	stb_set_timer_zap($("d_channel_id").innerHTML, $("d_start").innerHTML);
 }
+
 function build_epg_clear(){
 	var ep = $("epg_plus");
 	obj_clear_all_childs(ep);
 }
+
 /*set a layout box and content*/
 function build_epg_setbox(_item, _starttime, _stoptime, _start, _stop){
 	var d_start = Math.max(_start, _starttime);
@@ -50,10 +55,11 @@ function build_epg_setbox(_item, _starttime, _stoptime, _start, _stop){
 	if(d_start<_stoptime)
 		_item.style.cssText = "position:absolute; top:0px; left:"+d_left+"px; width:"+d_width+"px;";
 }
+
 /*show epg details*/
 function show_epg_item(_index){
 	g_selected=_index;
-//epg_diag.show();
+	//epg_diag.show();
 	$("d_desc").update(epg_data[_index][4]+" "+epg_data[_index][0]);
 	$("d_info1").update(epg_data[_index][1]);
 	$("d_info2").update(epg_data[_index][2]);
@@ -62,21 +68,20 @@ function show_epg_item(_index){
 	$("d_channel_id").update(epg_data[_index][6]);
 	var logo =epg_data[_index][7];
 	$('d_logo').update( (logo!="")?"<img class=\"channel_logos\" src=\""+logo+"\">":"" );
-	var imdb_link = '<a target="_blank" class="exlink" href="http://german.imdb.com/find?s=all&q='+(epg_data[_index][0]).gsub(" ","+")+'">IMDb</a>';
-	var klack_link = '<a target="_blank" class="exlink" href="http://www.klack.de/programmsuche.html?search=1&title='+(epg_data[_index][0]).gsub(" ","+")+'">klack.de</a>';
-	var tvinfo_link = '<a target="_blank" class="exlink" href="http://www.tvinfo.de/exe.php3?quicksearch=1&volltext='+(epg_data[_index][0]).gsub(" ","+")+'&tpk=&showall=&genretipp=&target=list.inc">tvinfo.de</a>';
-	$('d_lookup').update(imdb_link+" "+klack_link+" "+tvinfo_link);
-	
+	//var imdb_link = '<a target="_blank" class="exlink" href="http://german.imdb.com/find?s=all&q='+(epg_data[_index][0]).gsub(" ","+")+'">IMDb</a>';
+	//$('d_lookup').update(imdb_link);
+
 	var off=$('epg_plus').cumulativeScrollOffset();
-//	alert(off.inspect());
+	//alert(off.inspect());
 	$('epg_info').setStyle({
 		'left':off.left+50+'px',
 		'top':off.top+50+'px',
 		'position': 'absolute'
-//		'background-color': 'white'
+		//'background-color': 'white'
 	});
 	show_obj("epg_info",true);
 }
+
 /* build one channel row*/
 function build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime, _logo)
 {
@@ -129,6 +134,7 @@ function build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime, _logo)
 		}
 	}
 }
+
 /* build time row*/
 function build_epg_time_bar(_tdiv, _starttime, _stoptime){
 	var _start = _starttime;
@@ -140,6 +146,7 @@ function build_epg_time_bar(_tdiv, _starttime, _stoptime){
 		_start = _stop;
 	}
 }
+
 function get_timer(){
 	g_timer_eventids = new Array();
 	var timer = loadSyncURL("/control/timer?format=id");
@@ -188,6 +195,7 @@ function build_epg_plus(_bouquet, _starttime)
 		window.setTimeout("build_epg_plus_loop("+_starttime+","+_stoptime+")",100);
 	}
 }
+
 function build_epg_plus_loop(_starttime, _stoptime)
 {
 	if(g_i<g_bouquet_list.length){
@@ -211,6 +219,7 @@ function build_epg_plus_loop(_starttime, _stoptime)
 		obj_disable("btGet", false);
 	}
 }
+
 /* main: build epg+ */
 function build_epg_plus_main(){
 	epg_plus_calc_dimensions();
@@ -226,14 +235,16 @@ function build_epg_plus_main(){
 	_secs=document.e.epg_time.value;
 	_secs=parseInt(_secs);
 	build_epg_plus(bou, _secs);
-	/*document.getElementById("epg_plus").width = g_width_px;*/
+	//document.getElementById("epg_plus").width = g_width_px;
 }
+
 /* change time offset and build epg+*/
 function build_epg_plus_delta(_delta){
 	if(document.e.epg_time.selectedIndex + _delta < document.e.epg_time.length && document.e.epg_time.selectedIndex + _delta >= 0)
 		document.e.epg_time.selectedIndex += _delta;
 	build_epg_plus_main();
 }
+
 /* time delta dropdown-list*/
 function build_time_list(_delta){
 	var now = new Date();
@@ -255,13 +266,15 @@ function build_time_list(_delta){
 		__item.value = _time_t;
 	}
 }
+
 /*init call*/
 function epg_plus_init(_display_logos){
 	g_display_logos = _display_logos;
 	window.onresize=epg_plus_calc_dimensions;
 	build_time_list(0);
 }
-/* ---*/
+
+/*---*/
 function do_zap(channelid){
-	dbox_zapto(channelid);
+	stb_zapto(channelid);
 }

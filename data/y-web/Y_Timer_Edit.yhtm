@@ -79,7 +79,7 @@ function init()
 	{=var-set:help_url=Help-Live_Timer-Timer=}{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 
-	<form method="get" class="y_form" name="f" action="/fb/timer.dbox2">
+	<form method="get" class="y_form" name="f" action="/fb/timer.stb">
 	<input type="hidden" name="action" value="{=typ=}"/>
 	<input name="id" type="hidden" value="{=timerId=}"/>
 		<table border="0" width="100%">

@@ -340,7 +340,7 @@ function do_init()
 		<br />
 		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;personalize_save_settings;nix"/>
 		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
-		&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>
+		&nbsp;<button type="button" ytype="refresh" onclick="stb_reload_neutrino()">reload Neutrino</button>
 		&nbsp;<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>
 	</form>
 	</div>

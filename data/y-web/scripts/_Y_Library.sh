@@ -1,8 +1,6 @@
 #!/bin/sh
 # -----------------------------------------------------------
 # Y Library (yjogol)
-# $Date$
-# $Revision$
 # -----------------------------------------------------------
 
 # -----------------------------------------------------------
@@ -17,7 +15,6 @@ call_webserver()
 # ===========================================================
 # Streaming URL
 # ===========================================================
-
 buildLocalIP()
 {
 	localIP=`ifconfig eth0|sed -n '/inet addr/p'|sed -e 's/^.*inet addr://g' -e 's/ .*//g'`
@@ -79,9 +76,10 @@ y_format_message_html()
 	tmp="$tmp <body><div class='work_box'><div class='work_box_head'><div class='work_box_head_h2'>Results</div></div><div class='work_box_body' style='overflow:auto'>"
 	tmp="$tmp <pre>\n$msg\n</pre></div></div></body></html>"
 	
-#	tmp="$tmp <body><div class='y_work_box'><pre>\n$msg\n</pre></div></body></html>"
+	#tmp="$tmp <body><div class='y_work_box'><pre>\n$msg\n</pre></div></body></html>"
 	echo -e "$tmp"
 }
+
 y_format_message_html2()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
@@ -92,6 +90,7 @@ y_format_message_html2()
 	tmp="$tmp $msg</div></div></body></html>"
 	echo "$tmp"
 }
+
 y_format_message_html_plain()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
@@ -106,6 +105,7 @@ y_format_message_html_plain()
 # (Zeilenformat: VarName=VarValue)
 # ===========================================================
 cfg=""
+
 # -----------------------------------------------------------
 # config-Datei lesen/cachen (Inhalt in $cfg)
 # $1=config-Filename
@@ -115,14 +115,16 @@ config_open()
 	cfg=""
 	cfg=`cat $1`
 }
+
 # -----------------------------------------------------------
 # config-Datei schreiben (Inhalt in $cfg)
 # $1=config-Filename
 # -----------------------------------------------------------
 config_write()
 {
-	echo "$cfg" >$1
+	echo "$cfg" > $1
 }
+
 # -----------------------------------------------------------
 # Variablenwert zurueckgeben (vorher open)
 # $1=VarName
@@ -135,6 +137,7 @@ config_get_value()
 	tmp=`echo "$tmp" | $cmd`
 	echo $tmp
 }
+
 # -----------------------------------------------------------
 # Variablenwert zurueckgeben (ohne open)
 # $1=config-Filename
@@ -145,6 +148,7 @@ config_get_value_direct()
 	config_open $1
 	config_get_value $2
 }
+
 # -----------------------------------------------------------
 # Variablenwert setzen (vorher open)
 # $1=VarName)
@@ -161,6 +165,7 @@ config_set_value()
 		cfg=`echo "$cfg" | $cmd`
 	fi
 }
+
 # -----------------------------------------------------------
 # Variablenwert zurueckgeben (ohne open)
 # $1=config-Filename
@@ -173,12 +178,13 @@ config_set_value_direct()
 	config_set_value $2 $3
 	config_write $1
 }
+
 # -----------------------------------------------------------
 # Reboot
 # -----------------------------------------------------------
 yreboot()
 {
-#	reboot
+	#reboot
 	call_webserver "control/reboot"
 }
 
@@ -206,8 +212,5 @@ check_Y_Web_conf()
 	if ! [ -e $y_config_Y_Web ]
 	then
 		echo "skin=Tuxbox"  >$y_config_Y_Web
-		echo "slavebox="	>>$y_config_Y_Web
-		echo "live_resolution_w=384"	>>$y_config_Y_Web
-		echo "live_resolution_wh=288"	>>$y_config_Y_Web
 	fi
 }

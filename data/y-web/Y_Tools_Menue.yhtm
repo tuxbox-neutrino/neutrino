@@ -63,20 +63,6 @@ function init(){
 				<li>
 					<a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">{=L:main.info=}</a>
 				</li>
-				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li>
-					{=var-set:m_link_href=Y_Tools_Bootlogo.yhtm=}
-					{=var-set:m_link_desc==}
-					{=var-set:m_link_text={=L:tools.boot_logo=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				<li>
-					{=var-set:m_link_href=Y_Tools_Flash_Menue.yhtm=}
-					{=var-set:m_link_desc==}
-					{=var-set:m_link_text={=L:tools.image=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				~=}
 				<li>
 					{=var-set:m_link_href=Y_Tools_Cmd.yhtm=}
 					{=var-set:m_link_desc==}

@@ -114,17 +114,20 @@ function set_mode(_mode){
 function init(){
 	volumen_set_audiobar(volumen_get());
 	set_mute_button();
-	add_yExtensions('boxcontrol', 'secmenu_boxcontrol');
-
 	set_sigbar(sig_get());
 	set_snrbar(snr_get());
 	ber_get();
+//	add_yExtensions('boxcontrol', 'secmenu_boxcontrol');
 }
 function get_data(){
 	volumen_set_audiobar(volumen_get());
 	set_sigbar(sig_get());
 	set_snrbar(snr_get());
 	ber_get();
+	add_yExtensions('boxcontrol', 'secmenu_boxcontrol');
+}
+function epg_plus_popup() {
+	window.open("Y_EPG_Plus.yhtm","_blank","resizable=yes,scrollbars=yes");
 }
 //]]>
 </script>
@@ -140,6 +143,10 @@ function get_data(){
 					<a target="work" title="{=L:bc.menue.bouquets_desc=}" href="Y_Boxcontrol_Bouquets.yhtm">{=L:bc.menue.bouquets=}</a>
 				</li>
 				<li>
+					<a target="work" href="Y_EPG_Plus.yhtm">{=L:live.epg_plus=}</a>
+					<a class="y_menu_popup_link" title="{=L:live.epg_plus_popup_desc=}" href="javascript:epg_plus_popup()"><img src="/images/popup.png"/></a>
+				</li>
+				<li>
 					<a target="work" title="{=L:bc.menue.control_desc=}" href="Y_Tools_Boxcontrol.yhtm">{=L:bc.menue.control=}</a>
 				</li>
 				<li>
@@ -153,20 +160,14 @@ function get_data(){
 					<a target="work" title="{=L:bc.menue.glcd_screenshot_desc=}" href="Y_Tools_Glcd_Screenshot.yhtm">{=L:bc.menue.glcd_screenshot=}</a>
 				</li>
 				~=}
-				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li>
-					{=if-empty:{=var-get:lcshot=}~
-					<a target="work" title="{=L:bc.menue.lcd_screenshot_desc=}" href="Y_Tools_lcshot.yhtm">{=L:bc.menue.lcd_screenshot=}</a>
-					~
-					<a href="javascript:void(0)" class="disabled" title="{=L:bc.menue.lcd_screenshot_desc_ni=}">{=L:bc.menue.lcd_screenshot=}</a>
-					=}
-				</li>
-				~=}
 				<li>
 					<a target="work" title="OSD-{=L:bc.menue.screenshot=}" href="Y_Tools_Screenshot.yhtm?osd=1&rc={=ini-get:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;false=}">OSD-{=L:bc.menue.screenshot=}</a>
 				</li>
 				<li>
 					<a target="work" title="TV-{=L:bc.menue.screenshot=}" href="Y_Tools_Screenshot.yhtm?video=1&rc={=ini-get:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;false=}">TV-{=L:bc.menue.screenshot=}</a>
+				</li>
+				<li>
+					<a target="work" href="Y_Timer_List.yhtm">{=L:live.timer=}</a>
 				</li>
 			</ul>
 		</div>
@@ -237,20 +238,6 @@ function get_data(){
 		</center>
 	</div>
 </div>
-{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}~~
-<div class="y_menu_sec_box">
-	<div class="y_menu_sec_box_head"><h2>Switch to</h2></div>
-	<div class="y_menu_sec_box_body">
-		<div class="y_menu_sec">
-			<ul>
-				<li>
-					<a target="_top" title="{=L:bc.menue.webinf_slavebox=}" href="http://{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}/">{=ini-get:%(CONFIGDIR)/Y-Web.conf;slavebox=}</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-</div>
-=}
 <script type="text/javascript">
 //<![CDATA[
 	init();

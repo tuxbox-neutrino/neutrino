@@ -34,12 +34,12 @@ function sLog_addRow(_body, _date, _rec, _zap, _start, _end, _title)
 }
 function set_timer_rec(_channel_id, _start, _stop)
 {
-	var res = dbox_set_timer_rec(_channel_id, _start, _stop);
+	var res = stb_set_timer_rec(_channel_id, _start, _stop);
 	alert("{=L:epg.set_timer_rec=}");
 }
 function set_timer_zap(_channel_id, _start)
 {
-	var res = dbox_set_timer_zap(_channel_id, _start);
+	var res = stb_set_timer_zap(_channel_id, _start);
 	alert("{=L:epg.set_timer_zap=}");
 }
 function show_info(_index)

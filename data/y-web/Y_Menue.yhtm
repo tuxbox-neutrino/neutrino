@@ -1,4 +1,3 @@
-{=global-var-set:boxtype=coolstream=}
 {=global-var-set:alpha=true=}
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>
@@ -95,8 +94,6 @@ function vlc() {
 				<ul id="menu_prim" class="y_menu_prim">
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_boxcontrol"
 						title="{=L:main.boxcontrol_desc=}">{=L:main.boxcontrol=}</a></li>
-					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live"
-						title="{=L:main.live_desc=}">{=L:main.live=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_tools"
 						title="{=L:main.tools_desc=}">{=L:main.tools=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_settings"
@@ -111,8 +108,6 @@ function vlc() {
 			</td>
 			<td>
 				<span class="control_icon">
-					<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live_directtv" title={=L:main.live_tv_desc=}><img src="/images/live.png"></a>
-					<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live&dostart=live_tv_popup" title="{=L:main.live_tv_popup_desc=}"><img src="/images/live_popup.png"></a>
 					<a target="base" href="Y_Tools_Screenshot.yhtm?osd=1" title="{=L:main.remote_full_desc=}"><img src="/images/fb.png"></a>
 					<a href="javascript:vlc()" title="{=L:main.stream_to_vlc_client_desc=}"><img src="/images/vlc.png"></a>
 				</span>

@@ -28,7 +28,7 @@
 	<td>%s</td>
 	<td>%s</td>
 	<td>
-		<a href="/fb/timer.dbox2?action=remove&amp;id=%d">
+		<a href="/fb/timer.stb?action=remove&amp;id=%d">
 		<img src="/images/remove.png" alt="Timer l&ouml;schen"/></a>
 	</td>
 	<td>

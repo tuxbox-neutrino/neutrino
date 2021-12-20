@@ -157,7 +157,7 @@ function do_set_updates2(){
 }
 var avaiable=0;
 function show_free(){
-	var res=dbox_exec_tools("mtd_space");
+	var res=stb_exec_tools("mtd_space");
 	var Ausdruck = /([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*).*$/;
 	Ausdruck.exec(res);
 	var mtd = RegExp.$1;
@@ -241,4 +241,3 @@ function uninstall_build_list2(){
 	});
 	$('statusline').hide();
 }
-
