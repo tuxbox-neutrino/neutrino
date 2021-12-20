@@ -1086,7 +1086,7 @@ void cGLCD::Run(void)
 					if ((info_CurrentNext.current_zeit.dauer > 0) && (info_CurrentNext.current_zeit.dauer < 86400))
 					{
 						Scale = (ts.tv_sec - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
-						char tmp_duration[6] = {0};
+						char tmp_duration[15] = {0};
 						int total = info_CurrentNext.current_zeit.dauer / 60;
 						int done = (abs(time(NULL) - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
 						int todo = total - done;
