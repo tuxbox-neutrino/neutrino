@@ -725,9 +725,11 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 			case 2: // 8PSK
 				feparams.modulation = PSK_8;
 				break;
+#if BOXMODEL_VUPLUS_ARM
 			case 3: // 8APSK
 				feparams.modulation = APSK_8;
 				break;
+#endif
 			case 4: // 16APSK
 				feparams.modulation = APSK_16;
 				break;
