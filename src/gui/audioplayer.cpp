@@ -1692,7 +1692,7 @@ void CAudioPlayerGui::paintItem(int pos)
 		std::string tmp = sNr;
 		getFileInfoToDisplay(tmp, m_playlist[currpos]);
 
-		char dura[14] = {0};
+		char dura[24] = {0};
 		if (m_inetmode)
 		{
 			if (m_playlist[currpos].MetaData.total_time != 0)
@@ -2353,9 +2353,9 @@ void CAudioPlayerGui::updateTimes(const bool force)
 		}
 		if (!CScreenSaver::getInstance()->isActive())
 		{
-			char total_time[17];
+			char total_time[27];
 			snprintf(total_time, sizeof(total_time), " / %ld:%02ld", m_time_total / 60, m_time_total % 60);
-			char played_time[14];
+			char played_time[24];
 			snprintf(played_time, sizeof(played_time), "%ld:%02ld", m_time_played / 60, m_time_played % 60);
 
 			int w_total_time = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(total_time);
