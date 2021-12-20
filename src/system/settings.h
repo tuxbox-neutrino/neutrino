@@ -343,7 +343,7 @@ struct SNeutrinoSettings
 	int hdmi_cec_standby;
 	int hdmi_cec_volume;
 
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int psi_brightness;
 	int psi_contrast;
 	int psi_saturation;
