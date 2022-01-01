@@ -1246,6 +1246,30 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 		proc.exec();
 		return res;
 	}
+	else if (actionKey == "colors")
+	{
+		int x = 50;
+		int y = 20;
+		int dx = 100;
+		int dy = CFrameBuffer::getInstance()->getScreenHeight(false)/32;
+		for(int col = COL_WHITE0; col <= COL_LIGHT_GRAY0; col++)
+		{
+			char col_num[9];
+			fb_pixel_t col_real = CFrameBuffer::getInstance()->realcolor[col];
+			snprintf(col_num, sizeof(col_num), "%#X", col_real);
+			col_num[8] = '\0';
+
+			paintBoxRel0(x, y, dx, dy, col_real);
+			printf("[CTestMenu] color = hex [%s]\n", col_num);
+
+			int dx_text = dx;
+			int dy_text = dy;
+			Font *dfont = *CNeutrinoFonts::getInstance()->getDynFont(dx_text, dy_text, col_num);
+			paintTextBoxRel(col_num, x + dx + OFFSET_INNER_MIN, y+1, dx_text, dy_text, dfont, CTextBox::AUTO_WIDTH | CTextBox::CENTER, CComponentsText::FONT_STYLE_REGULAR);
+
+			y += dy;
+		}
+	}
 
 	return showTestMenu();
 }
@@ -1383,6 +1407,9 @@ int CTestMenu::showTestMenu()
 
 	// rate banner
 	w_test.addItem(new CMenuForwarder("Rate banner", true, NULL, this, "rate_banner"));
+
+	// colors
+	w_test.addItem(new CMenuForwarder("Color palette", true, NULL, this, "colors"));
 
 	// restart gui
 	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART, true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
