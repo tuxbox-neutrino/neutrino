@@ -39,6 +39,7 @@ extern GLFramebuffer *glfb;
 #include <driver/abstime.h>
 #include <system/set_threadname.h>
 #include <gui/color.h>
+#include <gui/color_custom.h>
 
 #define LOGTAG "[fb_glfb] "
 
@@ -49,6 +50,8 @@ CFbAccelGLFB::CFbAccelGLFB()
 
 void CFbAccelGLFB::init(const char *)
 {
+	int tr = 0xff;
+
 	fd = -1;
 	if (!glfb) {
 		fprintf(stderr, LOGTAG "init: GL Framebuffer is not set up? we are doomed...\n");
@@ -65,26 +68,27 @@ void CFbAccelGLFB::init(const char *)
 
 	blit_thread = false;
 
-	/* Windows Colors */
-	int tr = 0xff;
-	paletteSetColor(0x1, 0x010101, tr);
-	paletteSetColor(0x2, 0x800000, tr);
-	paletteSetColor(0x3, 0x008000, tr);
-	paletteSetColor(0x4, 0x808000, tr);
-	paletteSetColor(0x5, 0x000080, tr);
-	paletteSetColor(0x6, 0x800080, tr);
-	paletteSetColor(0x7, 0x008080, tr);
-	paletteSetColor(0x8, 0xA0A0A0, tr);
-	paletteSetColor(0x9, 0x505050, tr);
-	paletteSetColor(0xA, 0xFF0000, tr);
-	paletteSetColor(0xB, 0x00FF00, tr);
-	paletteSetColor(0xC, 0xFFFF00, tr);
-	paletteSetColor(0xD, 0x0000FF, tr);
-	paletteSetColor(0xE, 0xFF00FF, tr);
-	paletteSetColor(0xF, 0x00FFFF, tr);
-	paletteSetColor(0x10, 0xFFFFFF, tr);
-	paletteSetColor(0x11, 0x000000, tr);
-	paletteSetColor(COL_BACKGROUND, 0x000000, 0x0);
+	/* Google Material Colors */
+	paletteSetColor(0x01,			0x010101, tr); // what's this?
+	paletteSetColor(COL_WHITE0,		0xFFFFFF, tr);
+	paletteSetColor(COL_BLACK0,		0x000000, tr);
+	paletteSetColor(COL_DARK_RED0,		0xb71c1c, tr); // red		900
+	paletteSetColor(COL_RED0,		0xf44336, tr); // red		500
+	paletteSetColor(COL_LIGHT_RED0,		0xe57373, tr); // red		300
+	paletteSetColor(COL_DARK_GREEN0,	0x1b5e20, tr); // green		900
+	paletteSetColor(COL_GREEN0,		0x4caf50, tr); // green		500
+	paletteSetColor(COL_LIGHT_GREEN0,	0x81c784, tr); // green		300
+	paletteSetColor(COL_DARK_YELLOW0,	0xf9a825, tr); // yellow	800
+	paletteSetColor(COL_YELLOW0,		0xffeb3b, tr); // yellow	500
+	paletteSetColor(COL_LIGHT_YELLOW0,	0xfff176, tr); // yellow	300
+	paletteSetColor(COL_DARK_BLUE0,		0x1a237e, tr); // indigo	900
+	paletteSetColor(COL_BLUE0,		0x3f51b5, tr); // indigo	500
+	paletteSetColor(COL_LIGHT_BLUE0,	0x7986cb, tr); // indigo	300
+	paletteSetColor(COL_DARK_GRAY0,		0x424242, tr); // grey		800
+	paletteSetColor(COL_GRAY0,		0x9e9e9e, tr); // grey		500
+	paletteSetColor(COL_LIGHT_GRAY0,	0xe0e0e0, tr); // grey		300
+
+	paletteSetColor(COL_BACKGROUND,		0x000000, 0x0);
 
 	paletteSet();
 
