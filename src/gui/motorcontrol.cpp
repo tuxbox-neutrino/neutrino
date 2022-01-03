@@ -147,7 +147,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	paintStatus();
 
 	msg = CRCInput::RC_nokey;
-	while (!(msg == CRCInput::RC_setup) && (!(msg == CRCInput::RC_home)))
+	while (!(msg == CRCInput::RC_setup) && (!CNeutrinoApp::getInstance()->backKey(msg)))
 	{
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(100 /*250*/);
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);

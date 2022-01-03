@@ -265,7 +265,7 @@ const CBookmark *CBookmarkManager::getBookmark(CMenuTarget *parent)
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if ((msg == CRCInput::RC_timeout) ||
-			(msg == CRCInput::RC_home))
+			(CNeutrinoApp::getInstance()->backKey(msg)))
 		{
 			// Exit after timeout or cancel key
 			res = -1;

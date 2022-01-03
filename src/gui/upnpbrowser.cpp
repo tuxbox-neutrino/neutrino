@@ -556,7 +556,7 @@ void CUpnpBrowserGui::selectDevice()
 		{
 			// nothing
 		}
-		else if (msg == CRCInput::RC_home)
+		else if (CNeutrinoApp::getInstance()->backKey(msg))
 		{
 			loop = false;
 		}
@@ -692,7 +692,7 @@ void CUpnpBrowserGui::playnext(void)
 			neutrino_msg_data_t data;
 			g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout to update play/stop state display
 
-			if (msg == CRCInput::RC_home)
+			if (CNeutrinoApp::getInstance()->backKey(msg))
 			{
 				m_folderplay = false;
 				break;
@@ -817,7 +817,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 		{
 			// nothing
 		}
-		else if (msg == CRCInput::RC_home)
+		else if (CNeutrinoApp::getInstance()->backKey(msg))
 		{
 			loop = false;
 			endall = true;
@@ -902,7 +902,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 						{
 							g_RCInput->getMsg(&msg, &data, 10); // 1 sec timeout
 
-							if (msg == CRCInput::RC_home || msg == CRCInput::RC_ok)
+							if (CNeutrinoApp::getInstance()->backKey(msg) || msg == CRCInput::RC_ok)
 								break;
 							else if (msg == CRCInput::RC_right || msg == CRCInput::RC_down)
 							{

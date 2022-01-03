@@ -932,7 +932,7 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		neutrino_msg_t msg = 0;
 		neutrino_msg_data_t data = 0;
 		g_RCInput->getMsg(&msg, &data, 1);
-		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
+		if (CNeutrinoApp::getInstance()->backKey(msg) || msg == CRCInput::RC_stop) {
 			caller->playback->RequestAbort();
 		}
 #if 0

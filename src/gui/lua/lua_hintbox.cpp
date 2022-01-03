@@ -147,7 +147,7 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 
 		if ((msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok))
 			res = messages_return::cancel_info;
-		else if (msg == CRCInput::RC_home)
+		else if (CNeutrinoApp::getInstance()->backKey(msg))
 			res = messages_return::cancel_all;
 		else if (/*(D->b->has_scrollbar()) &&*/ ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))) {
 			if (msg == CRCInput::RC_up)

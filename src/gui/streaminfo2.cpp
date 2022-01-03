@@ -563,7 +563,7 @@ int CStreamInfo2::doSignalStrengthLoop()
 			repaint_bitrate = true;
 			continue;
 		}
-		else if (msg == CRCInput::RC_setup || msg == CRCInput::RC_home)
+		else if (msg == CRCInput::RC_setup || CNeutrinoApp::getInstance()->backKey(msg))
 		{
 			res = menu_return::RETURN_EXIT_ALL;
 			fadeout = true;

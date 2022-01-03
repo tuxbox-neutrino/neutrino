@@ -433,7 +433,7 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
 		/**
-		* Adds an additional exec key to current collection, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
+		* Adds an additional exec key to current collection, default exit keys are CRCInput::RC_home, CRCInput::RC_back and CRCInput::RC_setup
 		* @param[in]	key
 		* 	@li 	expects type const neutrino_msg_t&
 		* @see		river/rcinput.h for possible keys

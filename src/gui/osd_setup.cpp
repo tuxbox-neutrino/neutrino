@@ -340,7 +340,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				CNeutrinoApp::getInstance()->channelList->ResetModules();
 				break;
 			}
-			else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout))
+			else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg == CRCInput::RC_timeout))
 			{
 				g_settings.window_width = old_window_width;
 				g_settings.window_height = old_window_height;

@@ -294,7 +294,8 @@ int CMovieCut::getInput()
 	neutrino_msg_t msg;
 	int retval = 0;
 	g_RCInput->getMsg(&msg, &data, 1, false);
-	if (msg == CRCInput::RC_home) {
+	if (CNeutrinoApp::getInstance()->backKey(msg))
+	{
 		if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIECUT_CANCEL, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) == CMsgBox::mbrYes)
 			retval |= 4;
 	}

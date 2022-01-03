@@ -350,7 +350,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 				msg = CRCInput::RC_timeout;
 			}
 			
-			else if(msg == CRCInput::RC_home) {
+			else if (CNeutrinoApp::getInstance()->backKey(msg)) {
 				if(manual && !scansettings.scan_nit_manual)
 					continue;
 				canceled = false;

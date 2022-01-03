@@ -315,7 +315,7 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 		while (1)
 		{
 			g_RCInput->getMsg(&msg, &data, 100);
-			if (msg == CRCInput::RC_home)
+			if (CNeutrinoApp::getInstance()->backKey(msg))
 				break;
 
 			if (msg != CRCInput::RC_timeout && msg <= CRCInput::RC_MaxRC)

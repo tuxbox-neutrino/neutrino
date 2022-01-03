@@ -217,6 +217,7 @@ int CPSISetup::exec (CMenuTarget * parent, const std::string &)
 				videoDecoder->SetControl(psi_list[selected].control, psi_list[selected].value);
 			}
 			break;
+		case CRCInput::RC_back:
 		case CRCInput::RC_home:	// exit -> revert changes
 			for (i = 0; (i < PSI_RESET) && (psi_list[i].value == psi_list[i].value_old); i++);
 			if (ShowMsg(name, LOCALE_MESSAGEBOX_ACCEPT, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)

@@ -543,7 +543,7 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		{
 			keyDigiPressed(msg);
 		}
-		else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout))
+		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg == CRCInput::RC_timeout))
 		{
 			if ((inputString->getValue() != oldval) &&
 					(ShowMsg(title, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {

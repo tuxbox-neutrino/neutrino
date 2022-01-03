@@ -458,7 +458,7 @@ int CAudioPlayerGui::show()
 			}
 		}
 
-		if (msg == CRCInput::RC_home)
+		if (CNeutrinoApp::getInstance()->backKey(msg))
 		{
 			if (m_state == CAudioPlayerGui::STOP)
 				loop=false;
@@ -1287,7 +1287,7 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *urltag, c
 			neutrino_msg_t msg;
 			neutrino_msg_data_t data;
 			g_RCInput->getMsg(&msg, &data, 0);
-			while (element && msg != CRCInput::RC_home)
+			while (element && !CNeutrinoApp::getInstance()->backKey(msg))
 			{
 				const char *ptr = NULL;
 				const char *name = NULL;
@@ -1605,7 +1605,7 @@ bool CAudioPlayerGui::openSCbrowser(void)
 		neutrino_msg_t msg;
 		neutrino_msg_data_t data;
 		g_RCInput->getMsg(&msg, &data, 0);
-		for (; (files != filebrowser.getSelectedFiles().end()) && (msg != CRCInput::RC_home); ++files)
+		for (; (files != filebrowser.getSelectedFiles().end()) && (!CNeutrinoApp::getInstance()->backKey(msg)); ++files)
 		{
 			//if (maxProgress > SHOW_FILE_LOAD_LIMIT)
 			{

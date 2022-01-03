@@ -139,12 +139,12 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 			(msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok)) {
 				loop = false;
 				break;
-		} else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_spkr)) {
+		} else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg == CRCInput::RC_spkr)) {
 			clear();
 			move(oldx, oldy, true);
 			resize(oldw, oldh, true);
 			paint();
-			if (msg == CRCInput::RC_home)
+			if (CNeutrinoApp::getInstance()->backKey(msg))
 				loop = false;
 		} else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)) {
 			clear();

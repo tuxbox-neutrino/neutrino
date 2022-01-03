@@ -1447,7 +1447,7 @@ int CChannelList::numericZap(int key)
 					chn /= 10;
 			}
 		}
-		else if (msg == CRCInput::RC_home)
+		else if (CNeutrinoApp::getInstance()->backKey(msg))
 		{
 			break;
 		}
@@ -1571,7 +1571,7 @@ void CChannelList::virtual_zap_mode(bool up)
 		else if (msg == CRCInput::RC_up || msg == CRCInput::RC_down) {
 			epgpos = (msg == CRCInput::RC_up) ? -1 : 1;
 		}
-		else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
+		else if ((msg == CRCInput::RC_ok) || (CNeutrinoApp::getInstance()->backKey(msg)) || (msg == CRCInput::RC_timeout)) {
 			if(msg == CRCInput::RC_ok)
 				doZap = true;
 			break;

@@ -486,7 +486,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		{
 			loop=false;
 		}
-		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
+		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg==CRCInput::RC_timeout))
 		{
 			std::string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
 			if ((trim (*valueString) != trim(oldval)) &&
@@ -825,7 +825,7 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 			res = menu_return::RETURN_EXIT;
 			loop=false;
 		}
-		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) || (msg==CRCInput::RC_ok) )
+		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg==CRCInput::RC_timeout) || (msg==CRCInput::RC_ok))
 		{
 			loop=false;
 		}

@@ -1153,7 +1153,7 @@ void CInfoViewer::loop(bool show_dot)
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
 			if(fader.FadeDone())
 				res = messages_return::cancel_info;
-		} else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
+		} else if ((msg == CRCInput::RC_ok) || (CNeutrinoApp::getInstance()->backKey(msg)) || (msg == CRCInput::RC_timeout)) {
 			if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && (msg == CRCInput::RC_ok))
 			{
 				if (fileplay)

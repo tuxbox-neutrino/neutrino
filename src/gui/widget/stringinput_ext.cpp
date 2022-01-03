@@ -274,7 +274,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 			if(cancel != NULL)
 				*cancel = false;
 		}
-		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
+		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg==CRCInput::RC_timeout))
 		{
 			if (trim (*valueString) != trim(oldval)){
 				int erg = ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbNo | CMsgBox::mbYes | CMsgBox::mbCancel);

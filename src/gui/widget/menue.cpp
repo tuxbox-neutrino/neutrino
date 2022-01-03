@@ -1085,6 +1085,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					msg = CRCInput::RC_timeout;
 				break;
 
+			case (CRCInput::RC_back):
 			case (CRCInput::RC_home):
 				no_action = true;
 				msg = CRCInput::RC_timeout;

@@ -267,7 +267,7 @@ int CHintBox::exec()
 		{
 			res = messages_return::cancel_info;
 		}
-		else if(msg == CRCInput::RC_home)
+		else if (CNeutrinoApp::getInstance()->backKey(msg))
 		{
 			res = messages_return::cancel_all;
 		}

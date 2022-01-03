@@ -61,6 +61,7 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 
 	//add default exit keys for exec handler
 	v_exit_keys.push_back(CRCInput::RC_home);
+	v_exit_keys.push_back(CRCInput::RC_back);
 	v_exit_keys.push_back(CRCInput::RC_setup);
 
 	v_cc_items.clear();

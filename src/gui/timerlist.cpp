@@ -942,8 +942,8 @@ int CTimerList::show()
 				loop = false;
 		}
 		else if (
-			   (msg == CRCInput::RC_timeout)
-			|| (msg == CRCInput::RC_home)
+			CNeutrinoApp::getInstance()->backKey(msg)
+			|| (msg == CRCInput::RC_timeout)
 			|| (msg == CRCInput::RC_left)
 			|| (msg == CRCInput::RC_timer || msg == CRCInput::RC_program)
 			|| (msg == CRCInput::RC_ok && timerlist.empty())

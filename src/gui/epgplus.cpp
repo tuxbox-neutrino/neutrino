@@ -1326,7 +1326,7 @@ int EpgPlus::exec(CChannelList *pchannelList, int selectedChannelIndex, CBouquet
 					}
 				}
 			}
-			else if (msg == CRCInput::RC_home)
+			else if (CNeutrinoApp::getInstance()->backKey(msg))
 			{
 				loop = false;
 				res = menu_return::RETURN_EXIT_ALL;

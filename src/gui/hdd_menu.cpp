@@ -1343,7 +1343,7 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 	while (loop)
 	{
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
-		if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_ok || msg == CRCInput::RC_home)
+		if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_ok || CNeutrinoApp::getInstance()->backKey(msg))
 			loop = false;
 	}
 

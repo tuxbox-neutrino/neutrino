@@ -300,7 +300,7 @@ int CPictureViewerGui::show()
 		}
 		g_RCInput->getMsg( &msg, &data, timeout );
 
-		if ( msg == CRCInput::RC_home)
+		if (CNeutrinoApp::getInstance()->backKey(msg))
 		{ //Exit after cancel key
 			if (m_state!=MENU)
 			{

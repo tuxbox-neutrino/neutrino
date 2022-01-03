@@ -254,6 +254,7 @@ int CColorChooser::exec(CMenuTarget *parent, const std::string &)
 				}
 				break;
 			}
+			case CRCInput::RC_back:
 			case CRCInput::RC_home:
 			{
 				if (((*value[VALUE_R] != r_alt) || (*value[VALUE_G] != g_alt) || (*value[VALUE_B] != b_alt) || ((value[VALUE_A]) && (*(value[VALUE_A]) != a_alt))) &&

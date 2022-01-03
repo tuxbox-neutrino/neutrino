@@ -169,6 +169,7 @@ int CScreenSetup::exec(CMenuTarget *parent, const std::string &)
 				break;
 			}
 
+			case CRCInput::RC_back:
 			case CRCInput::RC_home:
 				if (((g_settings.screen_StartX != x_coord[0]) ||
 					(g_settings.screen_EndX != x_coord[1]) ||

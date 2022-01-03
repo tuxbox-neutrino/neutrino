@@ -59,7 +59,7 @@ class CComponentsForm : public CComponentsItem
 		///enable/disable page scrolling, default enabled with page scroll mode up/down keys, see also enablePageScroll()
 		int page_scroll_mode;
 
-		///container for exit keys, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
+		///container for exit keys, default exit keys are CRCInput::RC_home, CRCInput::RC_back and CRCInput::RC_setup
 		std::vector <neutrino_msg_t> v_exit_keys;
 
 		///initialize basic properties
@@ -269,7 +269,7 @@ class CComponentsForm : public CComponentsItem
 		///exec main method, see also sub exec methods
 		int exec();
 
-		///adds additional exec key to current collection, default exit keys are CRCInput::RC_home and CRCInput::RC_setup
+		///adds additional exec key to current collection, default exit keys are CRCInput::RC_home, CRCInput::RC_back and CRCInput::RC_setup
 		void addExitKey(const neutrino_msg_t& key){v_exit_keys.push_back(key);}
 		///remove all current exec keys from current collection, NOTE: use addExitKey() if new exec key is required
 		void removeExitKeys(){v_exit_keys.clear();}

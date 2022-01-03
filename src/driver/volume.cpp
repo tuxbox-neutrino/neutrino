@@ -178,7 +178,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 #endif
 				}
 			}
-			else if (msg == CRCInput::RC_home)
+			else if (CNeutrinoApp::getInstance()->backKey(msg))
 				break;
 			else {
 				g_RCInput->postMsg(msg, data);

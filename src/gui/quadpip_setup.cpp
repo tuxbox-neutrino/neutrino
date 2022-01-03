@@ -416,7 +416,7 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget *parent, const std::strin
 				res = menu_return::RETURN_EXIT_ALL;
 				break;
 			}
-			else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout))
+			else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg == CRCInput::RC_timeout))
 			{
 				// exit - back to menu
 				loop = false;

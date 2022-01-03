@@ -172,6 +172,7 @@ void CMsgBox::initButtons()
 		btn.text = BTN_TEXT(mbNo);
 		btn.directKeys.clear();
 		btn.directKeys.push_back(CRCInput::RC_red);
+		btn.directKeys.push_back(CRCInput::RC_back);
 		btn.directKeys.push_back(CRCInput::RC_home);
 		btn.btn_result = mbrNo;
 		btn.btn_alias = mbNo;
@@ -191,6 +192,7 @@ void CMsgBox::initButtons()
 		btn.button = NEUTRINO_ICON_BUTTON_HOME;
 		btn.text = BTN_TEXT(mbCancel);
 		btn.directKeys.clear();
+		btn.directKeys.push_back(CRCInput::RC_back);
 		btn.directKeys.push_back(CRCInput::RC_home);
 		btn.directKeys.push_back(CRCInput::RC_setup);
 		btn.btn_result = mbrCancel;
@@ -201,6 +203,7 @@ void CMsgBox::initButtons()
 		btn.button = NEUTRINO_ICON_BUTTON_HOME;
 		btn.text = BTN_TEXT(mbBack);
 		btn.directKeys.clear();
+		btn.directKeys.push_back(CRCInput::RC_back);
 		btn.directKeys.push_back(CRCInput::RC_home);
 		btn.btn_result = mbrBack;
 		btn.btn_alias = mbBack;
@@ -220,6 +223,7 @@ void CMsgBox::initButtons()
 		btn.text = BTN_TEXT(mbNo);
 		btn.directKeys.clear();
 		btn.directKeys.push_back(CRCInput::RC_green);
+		btn.directKeys.push_back(CRCInput::RC_back);
 		btn.directKeys.push_back(CRCInput::RC_home);
 		btn.btn_result = mbrNo;
 		btn.btn_alias = mbNo;
@@ -347,8 +351,8 @@ int CMsgBox::exec()
 			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
 			loop = false;
 		}
-		//***action button 'home' with general cancel result***
-		else if (msg == CRCInput::RC_home){
+		//***action button 'home' or 'back' with general cancel result***
+		else if (CNeutrinoApp::getInstance()->backKey(msg)) {
 			result = mbrCancel;
 			loop = false;
 		}

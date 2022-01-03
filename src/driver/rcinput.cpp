@@ -415,7 +415,7 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
 	if ( ( msg == CRCInput::RC_timeout ) ||
-		( msg == CRCInput::RC_home ) ||
+		CNeutrinoApp::getInstance()->backKey(msg) ||
 		( msg == CRCInput::RC_ok ) )
 			doLoop = false;
 		else if (CNeutrinoApp::getInstance()->listModeKey(msg)) {
@@ -1770,8 +1770,6 @@ int CRCInput::translate(int code)
 			return RC_favorites;
 		case KEY_TV2:
 			return RC_tv;
-		case KEY_BACK:
-			return RC_home;
 #elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 		case KEY_VIDEO:
 			return RC_mode;

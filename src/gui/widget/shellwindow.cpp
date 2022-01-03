@@ -290,7 +290,7 @@ void CShellWindow::showResult()
 			{
 				do
 					g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
-				while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
+				while (msg != CRCInput::RC_ok && !CNeutrinoApp::getInstance()->backKey(msg) && msg != CRCInput::RC_timeout);
 			}
 			textBox->hide();
 		}
