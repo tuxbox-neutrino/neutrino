@@ -268,6 +268,8 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 
 		///assigns icon to button object, parameter1 as std::string
 		void setButtonIcon(const std::string& icon);
+		///returns icon file name from button object, see also cc_btn_icon
+		std::string getButtonIcon() {return cc_btn_icon;}
 
 		///signal on pressed key/button
 		sigc::signal<void> OnPressedButton;
