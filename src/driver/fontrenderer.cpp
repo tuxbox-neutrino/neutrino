@@ -289,6 +289,10 @@ return 0;
 	int tM=glyph->top;
 
 	fontwidth = glyph->width;
+#if defined BOXMODEL_CST_HD1
+	// too hard loop below for HD1
+	fontwidth_widest = fontwidth;
+#else
 	// walk through all chars to find fontwidth_widest
 	FT_UInt gindex = 0;
 	FT_ULong charcode = FT_Get_First_Char(face, &gindex);
@@ -298,6 +302,7 @@ return 0;
 		fontwidth_widest = std::max(fontwidth, (int)glyph->width);
 		charcode = FT_Get_Next_Char(face, charcode, &gindex);
 	}
+#endif
 	//printf("Font::setSize() %s: fontwidth=%d fontwidth_widest=%d\n", face->family_name, fontwidth, fontwidth_widest);
 
 	index=FT_Get_Char_Index(face, 'g'); // "g" gives us descender
