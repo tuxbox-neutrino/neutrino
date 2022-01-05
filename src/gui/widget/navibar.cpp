@@ -58,7 +58,8 @@ CNaviBar::CNaviBar(	const int &x_pos,
 
 	nb_lpic = nb_rpic 	= NULL;
 	nb_lText = nb_rText 	= NULL;
-	nb_font			= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE];;
+	nb_font			= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE];
+	nb_topline		= NULL;
 	nb_lpic_enable = nb_rpic_enable = false;
 	nb_l_text = nb_r_text = string();
 
@@ -71,6 +72,13 @@ void CNaviBar::initCCItems()
 	int mid_width 	= width * 40 / 100; // 40%
 	int side_width 	= ((width - mid_width) / 2) - (2 * x_off);
 	int h_text 	= height;
+
+	// small separator line on the top
+	int grad = g_settings.theme.menu_Separator_gradient_enable ? CC_COLGRAD_COL_DARK_LIGHT_DARK : CC_COLGRAD_OFF;
+	if (!nb_topline)
+		nb_topline = new CComponentsShapeSquare(0, 0, width, 2, this, CC_SHADOW_OFF);
+	nb_topline->setColorBody(COL_MENUCONTENT_PLUS_1);
+	nb_topline->setColBodyGradient(grad, CFrameBuffer::gradientHorizontal, COL_MENUCONTENT_PLUS_0, CColorGradient::light);
 
 	// init left arrow
 	if (!nb_lpic)

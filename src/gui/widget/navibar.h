@@ -40,7 +40,7 @@ class CNaviBar : public CComponentsFrmChain
 	private:
 		CComponentsPicture	 	*nb_lpic, *nb_rpic;
 		CComponentsText 		*nb_lText, *nb_rText;
-
+		CComponentsShapeSquare 		*nb_topline;
 		Font				*nb_font;
 
 		bool nb_lpic_enable;
