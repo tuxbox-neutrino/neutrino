@@ -55,7 +55,7 @@
 
 static bool usermenu_show = true;
 static bool usermenu_show_cam = true; // FIXME -- use hwcaps?
-
+static bool usermenu_hide = false;
 struct keyvals
 {
 	const int key;
