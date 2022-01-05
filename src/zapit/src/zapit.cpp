@@ -221,10 +221,14 @@ void CZapit::SaveSettings(bool write)
 #if 1
 		/* FIXME FE specific */
 		configfile.setBool("highVoltage", config.highVoltage);
-		configfile.setInt32("lastSatellitePosition", live_fe->getRotorSatellitePosition());
-		configfile.setInt32("diseqcRepeats", live_fe->getDiseqcRepeats());
-		configfile.setInt32("diseqcType", live_fe->getDiseqcType());
+		if (live_fe)
+		{
+			configfile.setInt32("lastSatellitePosition", live_fe->getRotorSatellitePosition());
+			configfile.setInt32("diseqcRepeats", live_fe->getDiseqcRepeats());
+			configfile.setInt32("diseqcType", live_fe->getDiseqcType());
+		}
 		configfile.setInt32("motorRotationSpeed", config.motorRotationSpeed);
+
 #endif
 		if (configfile.getModifiedFlag())
 			configfile.saveConfig(ZAPITCONFIGFILE);
