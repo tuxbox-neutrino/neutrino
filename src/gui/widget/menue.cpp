@@ -1446,6 +1446,9 @@ void CMenuWidget::initHeader()
 	header->setCaptionColor(COL_MENUHEAD_TEXT);
 	header->enableColBodyGradient(g_settings.theme.menu_Head_gradient, COL_MENUCONTENT_PLUS_0, g_settings.theme.menu_Head_gradient_direction);
 	header->enableGradientBgCleanUp(savescreen);
+	header->removeContextButtons();
+	if (!g_settings.show_menu_hints)
+		header->addContextButton(CComponentsHeader::CC_BTN_HELP);
 
 	if (!subhead_text.empty())
 		initSubHeader();
