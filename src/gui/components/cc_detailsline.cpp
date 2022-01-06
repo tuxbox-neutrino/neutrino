@@ -91,7 +91,7 @@ CComponentsDetailsLine::~CComponentsDetailsLine()
 void CComponentsDetailsLine::paint(const bool &do_save_bg)
 {
 	hide();
-
+	cc_allow_paint = g_settings.theme.show_menu_hints_line;
 	col_body = col_body_std;
 
 	if (hasChanges())

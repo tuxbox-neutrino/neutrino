@@ -1475,6 +1475,7 @@ menu.hint_mbkey_cover Weisen Sie eine Taste zu, um Filmcover während der Wieder
 menu.hint_media Abspielen von Musik, Internetradio und Filmen; Betrachten Sie Bilder
 menu.hint_menu_fonts Ändern Sie die Schriftgrößen im Menü
 menu.hint_menu_hints Zeigt Ihnen Hinweise zu den Menüpunkten an. Sie erreichen das auch jederzeit mit der Taste 'Hilfe'
+menu.hint_menu_hints_line Aktiviert/deaktiviert die Visualisierung von Hinweisen zu relevanten Menüeinträgen mittels einer Line (abhängig vom Theme).
 menu.hint_menu_pos Legen Sie die Anzeigeposition der Menüs fest
 menu.hint_menus Wählen Sie die Anzeigeoptionen für die Menüs
 menu.hint_message_fonts Anpassen der Schrift in Meldungsfenstern
@@ -2618,6 +2619,7 @@ settings.backup_dir Nach %s sichern?\n"Nein" wählt ein anderes Verzeichnis
 settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
 settings.menu_hints Hinweise anzeigen
+settings.menu_hints_line Linie zu den Menü-Hinweisen zeichnen
 settings.menu_pos Position
 settings.menus Menüs
 settings.missingoptionsconffile Die Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.

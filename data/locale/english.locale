@@ -1475,6 +1475,7 @@ menu.hint_mbkey_cover Assign button to create movie cover while playback or dele
 menu.hint_media Play movies, audio files\nWatch pictures
 menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
+menu.hint_menu_hints_line Activates/deactivates the visualization of hints on relevant menu items using a line (depending on the theme).
 menu.hint_menu_pos Select menu position
 menu.hint_menus Configure menu options
 menu.hint_message_fonts Change message text font sizes
@@ -2618,6 +2619,7 @@ settings.backup_dir Save to %s?\n"No" chooses another directory.
 settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_hints Show menu hints
+settings.menu_hints_line Paint a line to the menu hints
 settings.menu_pos Menu position
 settings.menus Menus
 settings.missingoptionsconffile The settings have been updated.\nNew Options will be set to default.

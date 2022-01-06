@@ -170,6 +170,7 @@ struct SNeutrinoTheme
 
 	int rounded_corners;
 	int message_frame_enable;
+	int show_menu_hints_line;
 };
 
 struct timer_remotebox_item
@@ -1005,7 +1006,7 @@ struct SNeutrinoSettings
 	// menu
 	int menu_pos;
 	int show_menu_hints;
-	int show_menu_hints_line;
+	// int show_menu_hints_line;
 
 	// epgview
 	int bigFonts;

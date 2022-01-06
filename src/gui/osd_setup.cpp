@@ -101,7 +101,6 @@ COsdSetup::COsdSetup(int wizard_mode)
 	is_wizard = wizard_mode;
 
 	width = 50;
-	show_menu_hints = 0;
 	show_tuner_icon = 0;
 }
 
@@ -1214,9 +1213,13 @@ void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
 	submenu_menus->addItem(mc);
 
 	// menu hints
-	show_menu_hints = g_settings.show_menu_hints;
-	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS, &show_menu_hints, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS, &g_settings.show_menu_hints, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS);
+	submenu_menus->addItem(mc);
+
+	// menu hints line (details_line)
+	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS_LINE, &g_settings.theme.show_menu_hints_line, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS_LINE);
 	submenu_menus->addItem(mc);
 }
 
@@ -1605,6 +1608,13 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	{
 		CVolumeHelper::getInstance()->refresh();
 		return false;
+	}
+	// menu_hints_line
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_HINTS_LINE))
+	{
+		submenu_menus->hide();
+		g_settings.theme.show_menu_hints_line = * (int*) data;
+		return true;
 	}
 #ifdef ENABLE_LCD4LINUX
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CHANNELLIST_SHOW_EVENTLOGO))

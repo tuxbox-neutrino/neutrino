@@ -396,6 +396,9 @@ void CThemes::setTheme(CConfigFile &configfile)
 
 	// message frames
 	configfile.setInt32( "message_frame_enable", t.message_frame_enable);
+
+	// details line in menu and lists
+	configfile.setInt32("show_menu_hints_line", t.show_menu_hints_line);
 }
 
 void CThemes::getTheme(CConfigFile &configfile)
@@ -518,6 +521,9 @@ void CThemes::getTheme(CConfigFile &configfile)
 
 	// message frames
 	t.message_frame_enable = configfile.getInt32( "message_frame_enable", 0);
+
+	// details line in menu and lists
+	t.show_menu_hints_line = configfile.getInt32("show_menu_hints_line", true);
 
 	if (g_settings.theme_name.empty())
 		applyDefaultTheme();
