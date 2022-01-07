@@ -233,13 +233,17 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		if (parent)
 			parent->hide();
 		int r = execCmd(actionKey, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
-		if (r) {
+		if (r)
+		{
 			/* errno is never set properly, the string is totally useless.
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), strerror(errno), actionKey);
 			 */
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), NULL, actionKey);
-		} else
+		}
+		else
+		{
 			installed = true;
+		}
 		refreshMenu();
 		/* I don't think ending up at the last package in the list is a good idea...
 		g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_up, 0);
@@ -551,15 +555,33 @@ void COPKGManager::initUpdateMessage(bool enable_message)
 	f.close();
 }
 
+
 void COPKGManager::setUpdateCheckResult(bool enable_message)
 {
 	std::lock_guard<std::mutex> g(opk_mutex);
 
 	checkUpdates(std::string(), enable_message);
+	handleUpdateFlagFile();
+
 	if (num_updates)
 		initUpdateMessage(enable_message);
 	else
 		removeInfoBarTxt();
+}
+
+
+void COPKGManager::handleUpdateFlagFile()
+{
+	if (file_exists(HAS_PKG_UPDATE_FLAGFILE))
+		unlink(HAS_PKG_UPDATE_FLAGFILE);
+
+	if (num_updates)
+	{
+		fstream f;
+		f.open(HAS_PKG_UPDATE_FLAGFILE, ios::out);
+		f << num_updates << endl;
+		f.close();
+	}
 }
 
 
@@ -676,6 +698,7 @@ int COPKGManager::showMenu()
 	//upgrade all installed packages
 	std::string upd_info = to_string(num_updates) + " " + g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE);
 	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, upd_info.c_str() , this, pm_cmd[CMD_UPGRADE].c_str(), CRCInput::RC_red);
+	upgrade_forwarder->OnPaintItem.connect(sigc::bind(sigc::mem_fun(this, &COPKGManager::setUpdateStateIcon2Item), upgrade_forwarder));
 	upgrade_forwarder->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_UPGRADE);
 	menu->addItem(upgrade_forwarder);
 
@@ -1201,4 +1224,15 @@ bool COPKGManager::isUpgradable(const string& pkg_name)
 		if (it->second.upgradable)
 			return true;
 	return false;
+}
+
+void COPKGManagerExtra::setUpdateStateIcon2Item(CMenuItem *item)
+{
+	if (!item)
+		return;
+
+	if (file_exists(HAS_PKG_UPDATE_FLAGFILE))
+		item->setInfoIconRight(NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE);
+	else
+		item->setInfoIconRight(NEUTRINO_ICON_MARKER_DIALOG_OK);
 }

@@ -38,8 +38,16 @@
 #include <mutex>
 
 #define OPKG_MAX_FEEDS 10
+#define HAS_PKG_UPDATE_FLAGFILE  "/tmp/.has_pkg_updates"
 
-class COPKGManager : public CMenuTarget
+class COPKGManagerExtra
+{
+	public:
+		// set update status to passed menu item
+		void setUpdateStateIcon2Item(CMenuItem* item);
+};
+
+class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 {
 	private:
 		struct pkg {
@@ -115,6 +123,7 @@ class COPKGManager : public CMenuTarget
 		bool isInstalled(const std::string& pkg_name);
 		bool isUpgradable(const std::string& pkg_name);
 
+		void handleUpdateFlagFile();
 		void initUpdateMessage(bool enable_message = true);
 		bool removeInfoBarTxt();
 		std::mutex opk_mutex;
@@ -195,4 +204,5 @@ class COPKGManager : public CMenuTarget
 		bool installPackage(const std::string& pkg_name, std::string options = std::string(), bool force_configure = false);
 		bool checkSize(const std::string& pkg_name);
 };
+
 #endif
