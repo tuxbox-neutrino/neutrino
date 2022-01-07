@@ -85,7 +85,9 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	if (COPKGManager::hasOpkgSupport())
 	{
 		// firmware update via opkg
-		mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, true, NULL, new COPKGManager(), NULL, CRCInput::RC_red);
+		COPKGManager *man = new COPKGManager();
+		mf = new CMenuDForwarder(LOCALE_OPKG_TITLE, true, NULL, man, NULL, CRCInput::RC_red);
+		mf->OnPaintItem.connect(sigc::bind(sigc::mem_fun(man, &COPKGManager::setUpdateStateIcon2Item), mf));
 		mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG);
 		softUpdate.addItem(mf);
 		inetkey = CRCInput::convertDigitToKey(1);
