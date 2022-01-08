@@ -1424,6 +1424,7 @@ void CBouquetManager::readEPGMapping()
 			if ((f.compare("epgmap.xml") == 0) || (f.find(".epgmap") != std::string::npos))
 				epgmaps.push_back((*it) + "/" + f);
 		}
+		closedir(dp);
 	}
 
 	for (std::list<std::string>::iterator it = epgmaps.begin(); it != epgmaps.end(); ++it)
