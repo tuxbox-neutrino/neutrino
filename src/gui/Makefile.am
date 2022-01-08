@@ -1,8 +1,9 @@
 AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 BUILT_SOURCES = version.h
 version.h:
-	@rm -f $@; \
-	echo '#define BUILT_DATE "'`date`'"' > $@
+	@rm -f $@
+	@echo "#define BUILT_DATE \"$$(date)\"" > $@
+	@echo "#define BUILT_TIMESTAMP \"$$(date +%s)\"" >> $@
 	@if test -d $(top_srcdir)/.git ; then \
 		pushd $(top_srcdir) ; \
 		GITBRANCH=$$(git rev-parse --abbrev-ref HEAD) ; \
