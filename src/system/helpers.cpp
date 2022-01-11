@@ -1874,6 +1874,15 @@ bool isDigitWord(std::string str)
 	return true;
 }
 
+time_t GetBuildTime()
+{
+	static const char *built = __DATE__ " " __TIME__;
+	struct tm t;
+	t.tm_isdst = -1;
+	strptime(built, "%b %d %Y %H:%M:%S", &t);
+	return mktime(&t);
+}
+
 int getBoxMode()
 {
 	int boxmode = -1;

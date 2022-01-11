@@ -159,15 +159,6 @@ CSdtThread threadSDT;
 static int64_t lockstart = 0;
 #endif
 
-inline time_t build_time()
-{
-	static const char *built = __DATE__ " " __TIME__;
-	struct tm t;
-	t.tm_isdst = -1;
-	strptime(built, "%b %d %Y %H:%M:%S", &t);
-	return mktime(&t);
-}
-
 static int sectionsd_stop = 0;
 
 static bool slow_addevent = true;
@@ -1580,7 +1571,7 @@ void CTimeThread::run()
 					sleep_time = 5;
 			}
 			/* in case of wrong TDT date, dont send time is set */
-			if(time_ntp || (dvb_time > build_time())) {
+			if(time_ntp || (dvb_time > GetBuildTime())) {
 				sendTimeEvent(time_ntp, dvb_time);
 				debug(DEBUG_ERROR, "%s: Time set via %s, going to sleep for %d seconds.", name.c_str(),
 						time_ntp ? "NTP" : first_time ? "DVB (TDT)" : "DVB (TOT)", sleep_time);
