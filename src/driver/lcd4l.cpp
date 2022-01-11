@@ -604,15 +604,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			break;
 	}
 
+	std::string _ModeRec = (ModeRec ? "on" : "off");
+	_ModeRec += "\n" + to_string(CRecordManager::getInstance()->GetRecordCount());
+
 	if (m_ModeRec != ModeRec)
 	{
-		WriteFile(MODE_REC, ModeRec ? "on" : "off");
-		std::string rec_icon ="";
-		if (ModeRec)
-			rec_icon = ICONSDIR "/" NEUTRINO_ICON_REC ICONSEXT;
-		else
-			rec_icon = ICONSDIR "/" NEUTRINO_ICON_REC_GRAY ICONSEXT;
-		WriteFile(MODE_REC_ICON, rec_icon);
+		WriteFile(MODE_REC, _ModeRec);
 		m_ModeRec = ModeRec;
 	}
 
