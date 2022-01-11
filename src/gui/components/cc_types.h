@@ -194,7 +194,7 @@ typedef struct cc_string_ext_txt_t
 //for 'button_label' type with string
 typedef struct button_label_cc
 {
-	const char *			button;
+	const char *			button; // icon name
 	std::string 			text;
 	neutrino_locale_t 		locale;
 	std::vector<neutrino_msg_t>	directKeys;
