@@ -286,6 +286,7 @@ void CLCD4l::Init()
 	m_Tuner		= -1;
 	m_Volume	= -1;
 	m_ModeRec	= -1;
+	m_RecordCount	= -1;
 	m_ModeTshift	= -1;
 	m_ModeTimer	= -1;
 //	m_ModeEcm	= -1;
@@ -604,13 +605,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			break;
 	}
 
-	std::string _ModeRec = (ModeRec ? "on" : "off");
-	_ModeRec += "\n" + to_string(CRecordManager::getInstance()->GetRecordCount());
+	int RecordCount = CRecordManager::getInstance()->GetRecordCount();
 
-	if (m_ModeRec != ModeRec)
+	std::string _ModeRec = (ModeRec ? "on" : "off");
+	_ModeRec += "\n" + to_string(RecordCount);
+
+	if ((m_ModeRec != ModeRec) || (m_RecordCount != RecordCount))
 	{
 		WriteFile(MODE_REC, _ModeRec);
 		m_ModeRec = ModeRec;
+		m_RecordCount = RecordCount;
 	}
 
 	if (m_ModeTshift != ModeTshift)
