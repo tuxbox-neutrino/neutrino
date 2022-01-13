@@ -161,6 +161,9 @@ class CComponentsItem : public CComponents
 		void setHeightP(const uint8_t& h_percent);
 		///set item width, parameter as uint8_t, as percent value related to current width of parent form or screen
 		void setWidthP(const uint8_t& w_percent);
+
+		///signal on before init fb layers, called before init fb layers inside paintInit()
+		sigc::signal<void> OnBeforePaintInit;
 };
 
 #endif

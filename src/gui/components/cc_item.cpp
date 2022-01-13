@@ -67,6 +67,8 @@ void CComponentsItem::initParent(CComponentsForm* parent)
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(const bool &do_save_bg)
 {
+	OnBeforePaintInit();
+
 	if (cc_parent)
 	{	//use defined background color and background images in dependency of focus mode
 		if (cc_parent->hasFocus()){
