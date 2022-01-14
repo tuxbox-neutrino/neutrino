@@ -1704,6 +1704,12 @@ menu.hint_volume Konfigurácia volieb okna hlasitosti
 menu.hint_volume_digits Číselné zobrazenie ukazateľa hlasitosti Zap/Vyp
 menu.hint_volume_pos Výber pozície indikátora hlasitosti
 menu.hint_volume_size Výber výšky indikátora hlasitosti
+menu.hint_weather_api_key Zadajte svoj kľúč API OpenWeather. Prázdny vstup deaktivuje podporu počasia
+menu.hint_weather_country Vyberte svoju krajinu.
+menu.hint_weather_enabled Povolenie alebo zakázanie podpory počasia (openweathermap.org)
+menu.hint_weather_location Vyberte svoju lokalitu
+menu.hint_webradio_setup Kanály WebRadio tu nakonfigurované budú k dispozícii v štandartných zoznamoch kanálov
+menu.hint_webradio_xml_auto Automatické načítanie všetkých existujúcich súborov WebRadio z %s/ a %s/
 menu.hint_webtv_setup Tu nakonfigurované WebTV kanály budú k dispozícii v štandartnom zozname kanálov
 menu.hint_webtv_xml_auto Automatické načítanie všetkých existujúcich XML súborov zo zložky %s/
 menu.hint_window_size Zoznam kanálov, EPG-Infp a niektoré iné okná sú zmenšené týmto faktorom
@@ -2785,6 +2791,22 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Obrazový režim
+videomenu.zappingmode Režim prepínania
+videomenu.zappingmode_mute Čierna obraz
+videomenu.zappingmode_hold Statický obraz
+weather.api_key Počasie API kľúč (OpenWeather)
+weather.country Výber krajiny
+weather.country_deutschland Nemecko
+weather.country_norway Nórsko
+weather.enabled Počasie podpora
+weather.location Lokalita
+webchannels.xml.add Pridať
+webchannels.xml.del Odstrániť
+webchannels.xml.enter Zadať
+webchannels.xml.reload Obnoviť
+webradio.head WebRádio
+webradio.xml Súbory WebRádia
+webradio.xml.auto Automatické načítanie WebRádio súborov
 webtv.head WebTV
 webtv.xml WebTV XML súbory
 webtv.xml.add Pridať XML súbor
