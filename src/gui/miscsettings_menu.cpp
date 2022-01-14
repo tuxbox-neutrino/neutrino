@@ -35,8 +35,6 @@
 #include <gui/miscsettings_menu.h>
 #include <gui/weather.h>
 #include <gui/weather_locations.h>
-#include <gui/weather_deutschland_locations.h>
-#include <gui/weather_norway_locations.h>
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
 
@@ -186,13 +184,6 @@ int CMiscMenue::exec(CMenuTarget *parent, const std::string &actionKey)
 
 	return showMiscSettingsMenu();
 }
-
-#define WEATHER_COUNTRY_OPTION_COUNT 2
-const CMenuOptionChooser::keyval WEATHER_COUNTRY_OPTIONS[WEATHER_COUNTRY_OPTION_COUNT] =
-{
-	{ 0, LOCALE_WEATHER_COUNTRY_DEUTSCHLAND },
-	{ 1, LOCALE_WEATHER_COUNTRY_NORWAY }
-};
 
 #define MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS[MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT] =
@@ -648,9 +639,6 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	mf_we->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_API_KEY);
 	ms_oservices->addItem(mf_we);
 #endif
-	CMenuOptionChooser *mf_wc = new CMenuOptionChooser(LOCALE_WEATHER_COUNTRY, &g_settings.weather_country, WEATHER_COUNTRY_OPTIONS, WEATHER_COUNTRY_OPTION_COUNT, true);
-	mf_wc->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_COUNTRY);
-	ms_oservices->addItem(mf_wc);
 
 	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
@@ -752,20 +740,7 @@ int CMiscMenue::showMiscSettingsSelectWeatherLocation()
 	int select = 0;
 	int res = 0;
 
-	int location_option_count = 0;
-	const struct weather_loc *location = NULL;
-	if (g_settings.weather_country == DEUTSCHLAND)
-	{
-		location_option_count = WEATHER_DEUTSCHLAND_LOCATION_OPTION_COUNT;
-		location = WEATHER_DEUTSCHLAND_LOCATION_OPTIONS;
-	}
-	else if (g_settings.weather_country == NORWAY)
-	{
-		location_option_count = WEATHER_NORWAY_LOCATION_OPTION_COUNT;
-		location = WEATHER_NORWAY_LOCATION_OPTIONS;
-	}
-
-	if (location_option_count > 1)
+	if (WEATHER_LOCATION_OPTION_COUNT > 1)
 	{
 		CMenuWidget *m = new CMenuWidget(LOCALE_WEATHER_LOCATION, NEUTRINO_ICON_LANGUAGE);
 		CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
@@ -773,10 +748,10 @@ int CMiscMenue::showMiscSettingsSelectWeatherLocation()
 		m->addItem(GenericMenuSeparator);
 
 		CMenuForwarder *mf;
-		for (int i = 0; i < location_option_count; i++)
+		for (size_t i = 0; i < WEATHER_LOCATION_OPTION_COUNT; i++)
 		{
-			mf = new CMenuForwarder(location[i].key, true, NULL, selector, to_string(i).c_str());
-			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, location[i].value.c_str());
+			mf = new CMenuForwarder(WEATHER_LOCATION_OPTIONS[i].key, true, NULL, selector, to_string(i).c_str());
+			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, WEATHER_LOCATION_OPTIONS[i].value.c_str());
 			m->addItem(mf);
 		}
 
@@ -788,8 +763,8 @@ int CMiscMenue::showMiscSettingsSelectWeatherLocation()
 		if (!m->gotAction())
 			return res;
 	}
-	g_settings.weather_location = location[select].value;
-	g_settings.weather_city = std::string(location[select].key);
+	g_settings.weather_location = WEATHER_LOCATION_OPTIONS[select].value;
+	g_settings.weather_city = std::string(WEATHER_LOCATION_OPTIONS[select].key);
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 	return res;
 }
