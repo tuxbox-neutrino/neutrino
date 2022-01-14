@@ -1,7 +1,7 @@
 /*
-	Copyright (C) 2017, 2018 ,2019 TangoCash
+	Copyright (C) 2017, 2018, 2019, 2020 TangoCash
 
-	“Powered by Dark Sky” https://darksky.net/poweredby/
+	“Powered by OpenWeather” https://openweathermap.org/api/one-call-api
 
 	License: GPLv2
 
@@ -96,7 +96,10 @@ bool CWeather::GetWeatherDetails()
 	if (!g_settings.weather_enabled)
 		return false;
 
-	std::string data = "https://api.darksky.net/forecast/" + key + "/" + coords + "?units=ca&lang=de&exclude=minutely,hourly,flags,alerts";
+	std::string lat = coords.substr(0,coords.find_first_of(','));
+	std::string lon = coords.substr(coords.find_first_of(',')+1);
+
+	std::string data = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&units=metric&lang=de&exclude=minutely,hourly,flags,alerts&appid=" + key;
 	JSONCPP_STRING answer;
 	JSONCPP_STRING formattedErrors;
 
@@ -125,20 +128,20 @@ bool CWeather::GetWeatherDetails()
 		return false;
 	}
 
-	found = DataValues["currently"].get("time", 0).asDouble();
+	found = DataValues["current"].get("dt", 0).asDouble();
 
 	printf("[CWeather]: results found: %lf\n", found);
 
 	if (found > 0)
 	{
 		timezone = DataValues["timezone"].asString();
-		current.timestamp = DataValues["currently"].get("time", 0).asDouble();
-		current.temperature = DataValues["currently"].get("temperature", "").asFloat();
-		current.pressure = DataValues["currently"].get("pressure", "").asFloat();
-		current.humidity = DataValues["currently"].get("humidity", "").asFloat();
-		current.windSpeed = DataValues["currently"].get("windSpeed", "").asFloat();
-		current.windBearing = DataValues["currently"].get("windBearing", "").asDouble();
-		current.icon = current.icon_only_name = DataValues["currently"].get("icon", "").asString();
+		current.timestamp = DataValues["current"].get("dt", 0).asDouble();
+		current.temperature = DataValues["current"].get("temp", "").asFloat();
+		current.pressure = DataValues["current"].get("pressure", "").asFloat();
+		current.humidity = DataValues["current"].get("humidity", "").asFloat();
+		current.windSpeed = DataValues["current"].get("wind_speed", "").asFloat();
+		current.windBearing = DataValues["current"].get("wind_deg", "").asDouble();
+		current.icon = DataValues["current"]["weather"][0].get("icon", "").asString();
 		if (current.icon.empty())
 			current.icon = "unknown.png";
 		else
@@ -150,26 +153,22 @@ bool CWeather::GetWeatherDetails()
 		printf("[CWeather]: temp in %s (%s): %.1f - %s\n", city.c_str(), timezone.c_str(), current.temperature, current.icon.c_str());
 
 		forecast_data daily_data;
-		Json::Value elements = DataValues["daily"]["data"];
+		Json::Value elements = DataValues["daily"];
 		for (unsigned int i = 0; i < elements.size(); i++)
 		{
-			daily_data.timestamp = elements[i].get("time", 0).asDouble();
+			daily_data.timestamp = elements[i].get("dt", 0).asDouble();
 			daily_data.weekday = (int)(localtime(&daily_data.timestamp)->tm_wday);
-			daily_data.icon = daily_data.icon_only_name = elements[i].get("icon", "").asString();
+			daily_data.icon = elements[i]["weather"][0].get("icon", "").asString();
 			if (daily_data.icon.empty())
 				daily_data.icon = "unknown.png";
 			else
 				daily_data.icon = daily_data.icon + ".png";
-
-			if (daily_data.icon_only_name.empty())
-				daily_data.icon_only_name = "unknown";
-
-			daily_data.temperatureMin = elements[i].get("temperatureMin", "").asFloat();
-			daily_data.temperatureMax = elements[i].get("temperatureMax", "").asFloat();
-			daily_data.sunriseTime = elements[i].get("sunriseTime", 0).asDouble();
-			daily_data.sunsetTime = elements[i].get("sunsetTime", 0).asDouble();
-			daily_data.windSpeed = elements[i].get("windSpeed", 0).asFloat();
-			daily_data.windBearing = elements[i].get("windBearing", 0).asDouble();
+			daily_data.temperatureMin = elements[i]["temp"].get("min", "").asFloat();
+			daily_data.temperatureMax = elements[i]["temp"].get("max", "").asFloat();
+			daily_data.sunriseTime = elements[i].get("sunrise", 0).asDouble();
+			daily_data.sunsetTime = elements[i].get("sunset", 0).asDouble();
+			daily_data.windSpeed = elements[i].get("wind_speed", 0).asFloat();
+			daily_data.windBearing = elements[i].get("wind_deg", 0).asDouble();
 
 			struct tm *timeinfo;
 			timeinfo = localtime(&daily_data.timestamp);

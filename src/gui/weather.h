@@ -1,7 +1,7 @@
 /*
-	Copyright (C) 2017, 2018, 2019 TangoCash
+	Copyright (C) 2017, 2018, 2019, 2020 TangoCash
 
-	“Powered by Dark Sky” https://darksky.net/poweredby/
+	“Powered by OpenWeather” https://openweathermap.org/api/one-call-api
 
 	License: GPLv2
 

@@ -1,14 +1,22 @@
 installdir = $(ICONSDIR)/weather
 
 install_DATA = \
-	clear-day.png \
-	clear-night.png \
-	cloudy.png \
-	fog.png \
-	partly-cloudy-day.png \
-	partly-cloudy-night.png \
-	rain.png \
-	sleet.png \
-	snow.png \
-	unknown.png \
-	wind.png
+	01d.png \
+	01n.png \
+	02d.png \
+	02n.png \
+	03d.png \
+	03n.png \
+	04d.png \
+	04n.png \
+	09d.png \
+	09n.png \
+	10d.png \
+	10n.png \
+	11d.png \
+	11n.png \
+	13d.png \
+	13n.png \
+	50d.png \
+	50n.png \
+	unknown.png
