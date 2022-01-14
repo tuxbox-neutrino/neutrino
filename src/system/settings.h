@@ -909,7 +909,6 @@ struct SNeutrinoSettings
 	std::string weather_api_key;
 	int weather_enabled;
 
-	int weather_country;
 	std::string weather_location;
 	std::string weather_city;
 
