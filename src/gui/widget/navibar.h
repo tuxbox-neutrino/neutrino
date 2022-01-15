@@ -50,6 +50,8 @@ class CNaviBar : public CComponentsFrmChain
 		std::string nb_l_text;
 		std::string nb_r_text;
 
+		int nb_bline_mode;
+
 		void initCCItems();
 
 	public:
@@ -86,6 +88,19 @@ class CNaviBar : public CComponentsFrmChain
 				fb_pixel_t &color_shadow = COL_SHADOW_PLUS_0);
 
 		//~CNaviBar(); //is inherited
+
+		enum
+		{
+			NB_BLINE_NONE	= 0,
+			NB_BLINE_TOP	= 1,
+			NB_BLINE_BOTTOM	= 2,
+		};
+		/**
+		* Enable or disable top or bottom lines, alias separator lines
+		* @param[in]	mode
+		* 	@li 	expects enum
+		*/
+		void setBorderLineMode(int mode) {nb_bline_mode = mode; initCCItems();}
 
 		/**
 		* Enable or disable left icon
