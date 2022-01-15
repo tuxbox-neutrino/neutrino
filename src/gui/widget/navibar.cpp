@@ -79,7 +79,7 @@ void CNaviBar::initCCItems()
 	// small separator line on the top
 	if (!nb_topline)
 		nb_topline = new CComponentsShapeSquare(0, 0, width, FRAME_WIDTH_MIN, this, CC_SHADOW_OFF);
-	nb_topline->setColorBody(COL_MENUCONTENT_PLUS_1);
+	nb_topline->setColorBody(COL_FRAME);
 	nb_topline->setColBodyGradient(grad, CFrameBuffer::gradientHorizontal, COL_MENUCONTENT_PLUS_0, CColorGradient::light);
 
 	// init left arrow
@@ -128,7 +128,7 @@ void CNaviBar::initCCItems()
 	// small separator line on the bottom
 	if (!nb_bottomline)
 		nb_bottomline = new CComponentsShapeSquare(0, height - FRAME_WIDTH_MIN, width, FRAME_WIDTH_MIN, this, CC_SHADOW_OFF);
-	nb_bottomline->setColorBody(COL_MENUCONTENT_PLUS_1);
+	nb_bottomline->setColorBody(COL_FRAME);
 	nb_bottomline->setColBodyGradient(grad, CFrameBuffer::gradientHorizontal, COL_MENUCONTENT_PLUS_0, CColorGradient::light);
 }
 
