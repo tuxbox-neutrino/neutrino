@@ -47,21 +47,21 @@ CWeatherSetup::~CWeatherSetup()
 {
 }
 
-int CWeatherSetup::exec(CMenuTarget* parent, const std::string &actionKey)
+int CWeatherSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init weather setup menu\n");
-	int   res = menu_return::RETURN_REPAINT;
+	int res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 		parent->hide();
 
-	if(actionKey == "select_location")
+	if (actionKey == "select_location")
 	{
 		return showSelectWeatherLocation();
 	}
 
 	res = showWeatherSetup();
-	
+
 	return res;
 }
 
@@ -87,7 +87,7 @@ int CWeatherSetup::showWeatherSetup()
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
 	ms_oservices->addItem(mf_wl);
 
-	int res = ms_oservices->exec (NULL, "");
+	int res = ms_oservices->exec(NULL, "");
 	selected = ms_oservices->getSelected();
 	delete ms_oservices;
 	return res;
@@ -101,11 +101,11 @@ int CWeatherSetup::showSelectWeatherLocation()
 	if (WEATHER_LOCATION_OPTION_COUNT > 1)
 	{
 		CMenuWidget *m = new CMenuWidget(LOCALE_WEATHER_LOCATION, NEUTRINO_ICON_LANGUAGE);
-		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+		CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
 
 		m->addItem(GenericMenuSeparator);
 
-		CMenuForwarder* mf;
+		CMenuForwarder *mf;
 		for (size_t i = 0; i < WEATHER_LOCATION_OPTION_COUNT; i++)
 		{
 			mf = new CMenuForwarder(WEATHER_LOCATION_OPTIONS[i].key, true, NULL, selector, to_string(i).c_str());
@@ -121,9 +121,11 @@ int CWeatherSetup::showSelectWeatherLocation()
 
 		delete selector;
 	}
+
 	g_settings.weather_location = WEATHER_LOCATION_OPTIONS[select].value;
 	g_settings.weather_city = std::string(WEATHER_LOCATION_OPTIONS[select].key);
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
+
 	return res;
 }
 
