@@ -94,7 +94,7 @@ CInfoViewer::CInfoViewer ()
 	: fader(g_settings.theme.infobar_alpha)
 {
 	sigbox = NULL;
-	header = numbox = body = rec = NULL;
+	header = numbox = body = NULL;
 	txt_curr_start = txt_curr_event = txt_curr_rest = txt_next_start = txt_next_event = txt_next_in = NULL;
 	timescale = NULL;
 	clock = NULL;
@@ -103,6 +103,10 @@ CInfoViewer::CInfoViewer ()
 	info_CurrentNext.flags = 0;
 	frameBuffer = CFrameBuffer::getInstance();
 	infoViewerBB = CInfoViewerBB::getInstance();
+	weather = CWeather::getInstance();
+	rec = NULL;
+
+
 	InfoHeightY = 0;
 	ButtonWidth = 0;
 	ChanNameX = 0;
@@ -269,128 +273,41 @@ void CInfoViewer::initClock()
 
 void CInfoViewer::showRecordIcon (const bool show)
 {
-	/* FIXME if record or timeshift stopped while infobar visible, artifacts */
+	CRecordManager *crm = CRecordManager::getInstance();
+	recordModeActive = crm->RecordingStatus();
 
-	CRecordManager * crm		= CRecordManager::getInstance();
-	
-	recordModeActive		= crm->RecordingStatus();
-	if (recordModeActive)
+	if (!recordModeActive)
 	{
-		std::string rec_icon = NEUTRINO_ICON_REC_GRAY;
-		std::string ts_icon  = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-
-		t_channel_id cci	= g_RemoteControl->current_channel_id;
-		/* global record mode */
-		int rec_mode 		= crm->GetRecordMode();
-		/* channel record mode */
-		int ccrec_mode 		= crm->GetRecordMode(cci);
-
-		/* set 'active' icons for current channel */
-		if (ccrec_mode & CRecordManager::RECMODE_REC)
-			rec_icon = NEUTRINO_ICON_REC;
-
-		if (ccrec_mode & CRecordManager::RECMODE_TSHIFT)
-			ts_icon  = NEUTRINO_ICON_AUTO_SHIFT;
-
-		int records = crm->GetRecordCount();
-		
-		int txt_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-		int txt_w = 0;
-
-		int box_x = BoxStartX + ChanWidth + 2*OFFSET_SHADOW;
-		int box_y = BoxStartY + OFFSET_SHADOW;
-		int box_w = 0;
-		int box_h = txt_h;
-
-		int icon_space = OFFSET_INTER;
-
-		int rec_icon_x = 0, rec_icon_w = 0, rec_icon_h = 0;
-		int ts_icon_x  = 0, ts_icon_w  = 0, ts_icon_h  = 0;
-
-		frameBuffer->getIconSize(rec_icon.c_str(), &rec_icon_w, &rec_icon_h);
-		frameBuffer->getIconSize(ts_icon.c_str(), &ts_icon_w, &ts_icon_h);
-
-		int icon_h = std::max(rec_icon_h, ts_icon_h);
-		box_h = std::max(box_h, icon_h);
-		box_h += icon_space;
-
-		int icon_y = box_y + box_h/2 - icon_h/2;
-		int txt_y  = box_y + (box_h + txt_h)/2;
-
-		char records_msg[14];
-					
-		if (rec_mode == CRecordManager::RECMODE_REC)
+		if (rec)
 		{
-			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
-			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
-
-			box_w = rec_icon_w + txt_w + icon_space*3;
-			rec_icon_x = box_x + icon_space;
+			rec->kill();
+			delete rec;
+			rec = NULL;
 		}
-		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
-		{
-			box_w = ts_icon_w + icon_space*2;
-			ts_icon_x = box_x + icon_space;
-		}
-		else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
-		{
-			//subtract ts
-			records--;
-			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
-			txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg);
+		return;
+	}
 
-			box_w = ts_icon_w + rec_icon_w + txt_w + icon_space*5;
-			ts_icon_x = box_x + icon_space;
-			rec_icon_x = ts_icon_x + ts_icon_w + icon_space;
-		}
-		
-		if (show)
+	if (show)
+	{
+		if (!rec)
 		{
-			if (rec == NULL){ //TODO: full refactoring of this icon handler
-				rec = new CComponentsShapeSquare(box_x, box_y , box_w, box_h, NULL, CC_SHADOW_ON, COL_RED, COL_INFOBAR_PLUS_0);
-				rec->setItemName("rec");
-				rec->setFrameThickness(FRAME_WIDTH_NONE);
-				rec->setShadowWidth(OFFSET_SHADOW/2);
-				rec->setCorner(RADIUS_MIN, CORNER_ALL);
-			}
-			if (rec->getWidth() != box_w)
-				rec->setWidth(box_w);
+			int box_x = BoxStartX + ChanWidth + 2*OFFSET_SHADOW;
+			int box_y = BoxStartY + OFFSET_SHADOW;
+			rec = new CRecInfo(box_x, box_y , 0, 0, NULL, CC_SHADOW_ON, COL_RED, COL_INFOBAR_PLUS_0);
+			rec->setFrameThickness(FRAME_WIDTH_NONE);
+			rec->setShadowWidth(OFFSET_SHADOW/2);
+			rec->setCorner(RADIUS_MIN, CORNER_ALL);
+		}
 
-			if (!rec->isPainted())
-				rec->paint(CC_SAVE_SCREEN_NO);
-			
-			if (rec_mode != CRecordManager::RECMODE_TSHIFT)
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rec_icon_x + rec_icon_w + icon_space, txt_y, txt_w, records_msg, COL_INFOBAR_TEXT);
-			
-			if (rec_mode == CRecordManager::RECMODE_REC)
-			{
-				paintImage(rec_icon, rec_icon_x, icon_y);
-			}
-			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
-			{
-				paintImage(ts_icon, ts_icon_x, icon_y);
-			}
-			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
-			{
-				paintImage(rec_icon, rec_icon_x, icon_y);
-				paintImage(ts_icon, ts_icon_x, icon_y);
-			}
+		if (rec->isPainted())
+		{
+			if (rec->getCCItem(NEUTRINO_ICON_REC)->isPainted())
+				rec->getCCItem(NEUTRINO_ICON_REC)->kill();
+			else
+				rec->getCCItem(NEUTRINO_ICON_REC)->paint();
 		}
 		else
-		{
-			int icon_x, icon_w;
-			if (rec_mode == CRecordManager::RECMODE_REC){
-				icon_x = rec_icon_x;
-				icon_w = rec_icon_w;
-			}else if (rec_mode == CRecordManager::RECMODE_TSHIFT){
-				icon_x = ts_icon_x;
-				icon_w = ts_icon_w;
-			}else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT){
-				icon_x = ts_icon_x;
-				icon_w = ts_icon_w + rec_icon_w + icon_space*2;
-			}
-			PaintBoxRel(icon_x, icon_y, icon_w, icon_h, COL_INFOBAR_PLUS_0);
-		}
+			rec->paint();
 	}
 }
 
