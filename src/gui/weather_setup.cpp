@@ -41,8 +41,10 @@ CWeatherSetup::CWeatherSetup()
 {
 	width = 40;
 	selected = -1;
+
 	locations.clear();
-	loadLocations();
+	loadLocations(CONFIGDIR "/weather_favorites.xml");
+	loadLocations(WEATHERDIR "/weather_locations.xml");
 }
 
 CWeatherSetup::~CWeatherSetup()
@@ -155,13 +157,13 @@ bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*dat
 	return ret;
 }
 
-void CWeatherSetup::loadLocations()
+void CWeatherSetup::loadLocations(std::string filename)
 {
-	xmlDocPtr parser = parseXmlFile(CONFIGDIR "/weather_locations.xml");
+	xmlDocPtr parser = parseXmlFile(filename.c_str());
 
 	if (parser == NULL)
 	{
-		dprintf(DEBUG_INFO, "failed to load weather_locations.xml\n");
+		dprintf(DEBUG_INFO, "failed to load %s\n", filename.c_str());
 		return;
 	}
 

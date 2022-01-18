@@ -19,6 +19,8 @@
 #ifndef __weather_setup__
 #define __weather_setup__
 
+#define WEATHERDIR DATADIR "/neutrino/weather/"
+
 #include <gui/widget/menue.h>
 
 #include <string>
@@ -41,7 +43,7 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 
 		int showWeatherSetup();
 		int showSelectWeatherLocation();
-		void loadLocations();
+		void loadLocations(std::string filename);
 
 	public:
 		CWeatherSetup();
