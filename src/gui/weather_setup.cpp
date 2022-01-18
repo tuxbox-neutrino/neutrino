@@ -121,8 +121,8 @@ int CWeatherSetup::showSelectWeatherLocation()
 		CMenuForwarder *mf;
 		for (size_t i = 0; i < locations.size(); i++)
 		{
-			mf = new CMenuForwarder(locations[i].key, true, NULL, selector, to_string(i).c_str());
-			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, locations[i].value.c_str());
+			mf = new CMenuForwarder(locations[i].city, true, NULL, selector, to_string(i).c_str());
+			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, locations[i].coords.c_str());
 			m->addItem(mf);
 		}
 
@@ -135,8 +135,8 @@ int CWeatherSetup::showSelectWeatherLocation()
 		delete selector;
 	}
 
-	g_settings.weather_location = locations[select].value;
-	g_settings.weather_city = std::string(locations[select].key);
+	g_settings.weather_location = locations[select].coords;
+	g_settings.weather_city = std::string(locations[select].city);
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 
 	return res;
@@ -175,13 +175,14 @@ void CWeatherSetup::loadLocations(std::string filename)
 	{
 		while ((xmlGetNextOccurence(l1, "location")))
 		{
-			//const char *country = xmlGetAttribute(l1, "country");
+			const char *country = xmlGetAttribute(l1, "country");
 			const char *city = xmlGetAttribute(l1, "city");
 			const char *latitude = xmlGetAttribute(l1, "latitude");
 			const char *longitude = xmlGetAttribute(l1, "longitude");
 			weather_loc loc;
-			loc.key = strdup(city);
-			loc.value = std::string(latitude) + "," + std::string(longitude);
+			loc.country = strdup(country);
+			loc.city = strdup(city);
+			loc.coords = std::string(latitude) + "," + std::string(longitude);
 			locations.push_back(loc);
 			l1 = xmlNextNode(l1);
 		}

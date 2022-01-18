@@ -31,8 +31,9 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 	private:
 		struct weather_loc
 		{
-			char *key;
-			std::string value;
+			char *country;
+			char *city;
+			std::string coords;
 		};
 		std::vector<weather_loc> locations;
 
