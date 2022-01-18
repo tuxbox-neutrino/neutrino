@@ -33,8 +33,7 @@
 #include <system/helpers.h>
 #include <system/debug.h>
 #include <gui/miscsettings_menu.h>
-#include <gui/weather.h>
-#include <gui/weather_locations.h>
+#include "gui/weather_setup.h"
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
 
@@ -155,10 +154,6 @@ int CMiscMenue::exec(CMenuTarget *parent, const std::string &actionKey)
 		return showMiscSettingsMenuPlugins();
 	}
 #endif
-	else if (actionKey == "select_location")
-	{
-		return showMiscSettingsSelectWeatherLocation();
-	}
 	else if (actionKey == "epg_read_now" || actionKey == "epg_read_now_usermenu")
 	{
 		struct stat my_stat;
@@ -628,21 +623,9 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
 	// weather
-	weather_onoff = new CMenuOptionChooser(LOCALE_WEATHER_ENABLED, &g_settings.weather_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_weather_api_key());
-	weather_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_ENABLED);
-	ms_oservices->addItem(weather_onoff);
-
-#if ENABLE_WEATHER_KEY_MANAGE
-	changeNotify(LOCALE_WEATHER_API_KEY, NULL);
-	CKeyboardInput weather_api_key_input(LOCALE_WEATHER_API_KEY, &g_settings.weather_api_key, 32, this);
-	CMenuForwarder *mf_we = new CMenuForwarder(LOCALE_WEATHER_API_KEY, true, weather_api_key_short, &weather_api_key_input);
-	mf_we->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_API_KEY);
-	ms_oservices->addItem(mf_we);
-#endif
-
-	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
-	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
-	ms_oservices->addItem(mf_wl);
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_WEATHER_ENABLED, true, NULL, new CWeatherSetup());
+	mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_ENABLED);
+	ms_oservices->addItem(mf);
 
 	ms_oservices->addItem(GenericMenuSeparator);
 
@@ -735,40 +718,6 @@ int CMiscMenue::showMiscSettingsMenuPlugins()
 	return res;
 }
 #endif
-int CMiscMenue::showMiscSettingsSelectWeatherLocation()
-{
-	int select = 0;
-	int res = 0;
-
-	if (WEATHER_LOCATION_OPTION_COUNT > 1)
-	{
-		CMenuWidget *m = new CMenuWidget(LOCALE_WEATHER_LOCATION, NEUTRINO_ICON_LANGUAGE);
-		CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
-
-		m->addItem(GenericMenuSeparator);
-
-		CMenuForwarder *mf;
-		for (size_t i = 0; i < WEATHER_LOCATION_OPTION_COUNT; i++)
-		{
-			mf = new CMenuForwarder(WEATHER_LOCATION_OPTIONS[i].key, true, NULL, selector, to_string(i).c_str());
-			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, WEATHER_LOCATION_OPTIONS[i].value.c_str());
-			m->addItem(mf);
-		}
-
-		m->enableSaveScreen();
-		res = m->exec(NULL, "");
-
-		delete selector;
-
-		if (!m->gotAction())
-			return res;
-	}
-	g_settings.weather_location = WEATHER_LOCATION_OPTIONS[select].value;
-	g_settings.weather_city = std::string(WEATHER_LOCATION_OPTIONS[select].key);
-	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
-	return res;
-}
-
 // CPU
 void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 {
@@ -856,15 +805,6 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void */*data*/
 		ret = menu_return::RETURN_REPAINT;
 	}
 #endif
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_KEY))
-	{
-		g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
-		if (g_settings.weather_enabled)
-			weather_api_key_short = g_settings.weather_api_key.substr(0, 8) + "...";
-		else
-			weather_api_key_short.clear();
-		weather_onoff->setActive(CApiKey::check_weather_api_key());
-	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TMDB_API_KEY))
 	{
 		g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
