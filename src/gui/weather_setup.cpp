@@ -121,8 +121,12 @@ int CWeatherSetup::showSelectWeatherLocation()
 		CMenuForwarder *mf;
 		for (size_t i = 0; i < locations.size(); i++)
 		{
+			std::string hint = locations[i].country;
+			hint += ": ";
+			hint += locations[i].coords.c_str();
+
 			mf = new CMenuForwarder(locations[i].city, true, NULL, selector, to_string(i).c_str());
-			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, locations[i].coords.c_str());
+			mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, hint);
 			m->addItem(mf);
 		}
 
