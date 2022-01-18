@@ -59,6 +59,7 @@
 #include "widget/keyboard_input.h"
 #include "widget/msgbox.h"
 #include "widget/progresswindow.h"
+#include "widget/record_info.h"
 #include "widget/termwindow.h"
 #include "widget/hourglass.h"
 #include <driver/record.h>
@@ -1270,6 +1271,14 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 			y += dy;
 		}
 	}
+	else if (actionKey ==  "record_count")
+	{
+		CRecInfo rv(20, 20, 120, 0);
+		rv.paint();
+		sleep(3);
+		rv.hide();
+		return res;
+	}
 
 	return showTestMenu();
 }
@@ -1377,8 +1386,12 @@ int CTestMenu::showTestMenu()
 	// buttons
 	w_test.addItem(new CMenuForwarder("Buttons", true, NULL, this, "buttons"));
 
-	// components
-	CMenuWidget *w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
+	// record count
+	CMenuForwarder *f_re = new CMenuForwarder("Record count",  true, NULL, this, "record_count");
+	w_test.addItem(f_re);
+
+	//components
+	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
 	w_test.addItem(new CMenuForwarder(w_cc->getName(), true, NULL, w_cc));
 	showCCTests(w_cc);
 

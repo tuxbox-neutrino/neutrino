@@ -32,6 +32,7 @@ libneutrino_gui_widget_a_SOURCES = \
 	mountchooser.cpp \
 	msgbox.cpp \
 	navibar.cpp \
+	record_info.cpp \
 	shellwindow.cpp \
 	stringinput.cpp \
 	stringinput_ext.cpp \
