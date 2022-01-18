@@ -72,7 +72,6 @@ int CWeatherSetup::showWeatherSetup()
 	CMenuWidget *ms_oservices = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ONLINESERVICES);
 	ms_oservices->addIntroItems(LOCALE_MISCSETTINGS_ONLINESERVICES);
 
-	// weather
 	weather_onoff = new CMenuOptionChooser(LOCALE_WEATHER_ENABLED, &g_settings.weather_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_weather_api_key());
 	weather_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_ENABLED);
 	ms_oservices->addItem(weather_onoff);
@@ -100,7 +99,7 @@ int CWeatherSetup::showSelectWeatherLocation()
 	int select = 0;
 	int res = 0;
 
-	if (locations.size() == 0)
+	if (locations.empty())
 	{
 		ShowHint("Warning", "Failed to load weather_locations.xml\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
 		g_settings.weather_location = "52.52,13.40";
@@ -109,7 +108,7 @@ int CWeatherSetup::showSelectWeatherLocation()
 		return menu_return::RETURN_REPAINT;
 	}
 
-	if (locations.size() > 1)
+	if (locations.size() > 0)
 	{
 		CMenuWidget *m = new CMenuWidget(LOCALE_WEATHER_LOCATION, NEUTRINO_ICON_LANGUAGE);
 		CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
@@ -140,7 +139,7 @@ int CWeatherSetup::showSelectWeatherLocation()
 	return res;
 }
 
-bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
+bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
 {
 	int ret = menu_return::RETURN_NONE;
 
@@ -158,14 +157,13 @@ bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void * /*da
 
 void CWeatherSetup::loadLocations()
 {
-	xmlDocPtr parser = parseXmlFile(CONFIGDIR"/weather_locations.xml");
+	xmlDocPtr parser = parseXmlFile(CONFIGDIR "/weather_locations.xml");
 
 	if (parser == NULL)
 	{
 		dprintf(DEBUG_INFO, "failed to load weather_locations.xml\n");
 		return;
 	}
-
 
 	xmlNodePtr l0 = xmlDocGetRootElement(parser);
 	xmlNodePtr l1 = xmlChildrenNode(l0);
@@ -174,7 +172,7 @@ void CWeatherSetup::loadLocations()
 	{
 		while ((xmlGetNextOccurence(l1, "location")))
 		{
-			const char *country = xmlGetAttribute(l1, "country");
+			//const char *country = xmlGetAttribute(l1, "country");
 			const char *city = xmlGetAttribute(l1, "city");
 			const char *latitude = xmlGetAttribute(l1, "latitude");
 			const char *longitude = xmlGetAttribute(l1, "longitude");
@@ -188,4 +186,3 @@ void CWeatherSetup::loadLocations()
 
 	xmlFreeDoc(parser);
 }
-
