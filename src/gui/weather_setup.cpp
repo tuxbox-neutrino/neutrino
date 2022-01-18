@@ -43,8 +43,8 @@ CWeatherSetup::CWeatherSetup()
 	selected = -1;
 
 	locations.clear();
-	loadLocations(CONFIGDIR "/weather_favorites.xml");
-	loadLocations(WEATHERDIR "/weather_locations.xml");
+	loadLocations(CONFIGDIR "/weather-favorites.xml");
+	loadLocations(WEATHERDIR "/weather-locations.xml");
 }
 
 CWeatherSetup::~CWeatherSetup()
@@ -103,7 +103,8 @@ int CWeatherSetup::showSelectWeatherLocation()
 
 	if (locations.empty())
 	{
-		ShowHint("Warning", "Failed to load weather_locations.xml\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
+		// TODO: localize hint
+		ShowHint("Warning", "Failed to load weather-favorites.xml or weather-locations.xml\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
 		g_settings.weather_location = "52.52,13.40";
 		g_settings.weather_city = "Berlin";
 		CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);

@@ -1,9 +1,9 @@
 configdir = $(CONFIGDIR)
 
 config_DATA = \
-	weather_favorites.xml
+	weather-favorites.xml
 
 weatherdir = $(DATADIR)/neutrino/weather
 
 weather_DATA = \
-	weather_locations.xml
+	weather-locations.xml
