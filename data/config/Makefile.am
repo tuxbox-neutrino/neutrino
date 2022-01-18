@@ -11,7 +11,8 @@ install_DATA = \
 	providermap.xml \
 	satellites.xml \
 	terrestrial.xml \
-	tobackup.conf
+	tobackup.conf \
+	weather_locations.xml
 
 if ENABLE_EXTUPDATE
 EXTRA_DIST += \

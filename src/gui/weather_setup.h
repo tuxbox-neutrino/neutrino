@@ -22,10 +22,18 @@
 #include <gui/widget/menue.h>
 
 #include <string>
+#include <vector>
 
 class CWeatherSetup : public CMenuTarget, CChangeObserver
 {
 	private:
+		struct weather_loc
+		{
+			char *key;
+			std::string value;
+		};
+		std::vector<weather_loc> locations;
+
 		int width, selected;
 
 		CMenuOptionChooser *weather_onoff;
@@ -33,6 +41,7 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 
 		int showWeatherSetup();
 		int showSelectWeatherLocation();
+		void loadLocations();
 
 	public:
 		CWeatherSetup();
