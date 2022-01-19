@@ -44,6 +44,7 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 
 		int showWeatherSetup();
 		int showSelectWeatherLocation();
+		int findLocation();
 		void loadLocations(std::string filename);
 
 	public:

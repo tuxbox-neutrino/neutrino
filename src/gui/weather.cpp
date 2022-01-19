@@ -181,6 +181,45 @@ bool CWeather::GetWeatherDetails()
 	return false;
 }
 
+bool CWeather::FindCoords(int postcode, std::string country, int pc_len)
+{
+	std::string pcode = to_string(postcode);
+	unsigned int number_of_zeros = pc_len - pcode.length();
+	pcode.insert(0, number_of_zeros, '0');
+	std::string data = "http://api.openweathermap.org/geo/1.0/zip?zip=" + pcode + "," + country + "&appid=" + key;
+	JSONCPP_STRING answer;
+	JSONCPP_STRING formattedErrors;
+	Json::CharReaderBuilder builder;
+	Json::CharReader *reader = builder.newCharReader();
+	Json::Value DataValues;
+	answer.clear();
+
+	if (!getUrl(data, answer))
+	{
+		delete reader;
+		return false;
+	}
+
+	bool parsedSuccess = reader->parse(answer.c_str(), answer.c_str() + answer.size(), &DataValues, &formattedErrors);
+	delete reader;
+
+	if (!parsedSuccess)
+	{
+		printf("Failed to parse JSON\n");
+		printf("%s\n", formattedErrors.c_str());
+		return false;
+	}
+
+	if (DataValues["message"].asString() == "not found")
+		return false;
+
+	float lat = DataValues["lat"].asFloat();
+	float lon = DataValues["lon"].asFloat();
+	g_settings.weather_city = DataValues["name"].asString();
+	g_settings.weather_location = to_string(lat) + "," + to_string(lon);
+	return true;
+}
+
 void CWeather::show(int x, int y)
 {
 	checkUpdate();

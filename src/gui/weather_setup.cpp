@@ -63,6 +63,10 @@ int CWeatherSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		return showSelectWeatherLocation();
 	}
+	else if (actionKey == "find_location")
+	{
+		return findLocation();
+	}
 
 	res = showWeatherSetup();
 
@@ -89,6 +93,10 @@ int CWeatherSetup::showWeatherSetup()
 	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
 	ms_oservices->addItem(mf_wl);
+
+	CMenuForwarder *mf_zip = new CMenuForwarder(LOCALE_WEATHER_LOCATION_POSTCODE, g_settings.weather_enabled, NULL, this, "find_location");
+	mf_zip->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION_POSTCODE);
+	ms_oservices->addItem(mf_zip);
 
 	int res = ms_oservices->exec(NULL, "");
 	selected = ms_oservices->getSelected();
@@ -144,6 +152,22 @@ int CWeatherSetup::showSelectWeatherLocation()
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 
 	return res;
+}
+
+int CWeatherSetup::findLocation()
+{
+	int ret = menu_return::RETURN_REPAINT;
+	int postcode = 10178;
+	CIntInput zipcode(LOCALE_WEATHER_LOCATION_POSTCODE, &postcode, (unsigned int)5);
+	ret = zipcode.exec(NULL, "");
+	zipcode.hide();
+
+	if (CWeather::getInstance()->FindCoords(postcode))
+	{
+		CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
+	}
+
+	return ret;
 }
 
 bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
