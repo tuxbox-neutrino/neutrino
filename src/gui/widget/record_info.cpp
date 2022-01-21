@@ -131,12 +131,12 @@ void CRecInfo::init()
 		rv_rec_img = new CComponentsPicture(OFFSET_INNER_MIN, 0, rec_icon, this);
 		w_rec_img = rv_rec_img->getWidth();
 		h_rec_img = rv_rec_img->getHeight();
-		w_icon_space += w_rec_img;
+		w_icon_space += w_rec_img + OFFSET_INNER_MIN;
 	}
 
 	if (!ts_icon.empty())
 	{
-		rv_ts_img = new CComponentsPicture(w_icon_space + OFFSET_INNER_MIN, 0, ts_icon, this);
+		rv_ts_img = new CComponentsPicture(w_icon_space, 0, ts_icon, this);
 		w_ts_img = rv_ts_img->getWidth();
 		h_ts_img = rv_ts_img->getHeight();
 		w_icon_space += w_ts_img;
