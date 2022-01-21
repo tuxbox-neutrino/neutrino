@@ -94,7 +94,7 @@ int CWeatherSetup::showWeatherSetup()
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
 	ms_oservices->addItem(mf_wl);
 
-	CMenuForwarder *mf_zip = new CMenuForwarder(LOCALE_WEATHER_LOCATION_POSTCODE, g_settings.weather_enabled, NULL, this, "find_location");
+	CMenuForwarder *mf_zip = new CMenuForwarder(LOCALE_WEATHER_LOCATION_POSTCODE, g_settings.weather_enabled, g_settings.weather_postcode, this, "find_location");
 	mf_zip->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION_POSTCODE);
 	ms_oservices->addItem(mf_zip);
 
