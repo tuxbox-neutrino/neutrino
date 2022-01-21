@@ -301,10 +301,13 @@ void CInfoViewer::showRecordIcon (const bool show)
 
 		if (rec->isPainted())
 		{
-			if (rec->getCCItem(NEUTRINO_ICON_REC)->isPainted())
-				rec->getCCItem(NEUTRINO_ICON_REC)->kill();
-			else
-				rec->getCCItem(NEUTRINO_ICON_REC)->paint();
+			if (rec->getCCItem(0))
+			{
+				if (rec->getCCItem(0)->isPainted())
+					rec->getCCItem(0)->kill();
+				else
+					rec->getCCItem(0)->paint();
+			}
 		}
 		else
 			rec->paint();
