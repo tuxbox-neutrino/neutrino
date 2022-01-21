@@ -113,8 +113,8 @@ int CWeatherSetup::showSelectWeatherLocation()
 	{
 		// TODO: localize hint
 		ShowHint("Warning", "Failed to load weather-favorites.xml or weather-locations.xml\nPlease press any key or wait some seconds! ...", 700, 10, NULL, NEUTRINO_ICON_HINT_IMAGEINFO, CComponentsHeader::CC_BTN_EXIT);
-		g_settings.weather_location = "52.52,13.40";
-		g_settings.weather_city = "Berlin";
+		g_settings.weather_location = WEATHER_DEFAULT_LOCATION;
+		g_settings.weather_city = WEATHER_DEFAULT_CITY;
 		CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 		return menu_return::RETURN_REPAINT;
 	}
@@ -157,7 +157,8 @@ int CWeatherSetup::showSelectWeatherLocation()
 int CWeatherSetup::findLocation()
 {
 	int ret = menu_return::RETURN_REPAINT;
-	int postcode = 10178;
+
+	int postcode = WEATHER_DEFAULT_POSTCODE;
 	CIntInput zipcode(LOCALE_WEATHER_LOCATION_POSTCODE, &postcode, (unsigned int)5);
 	ret = zipcode.exec(NULL, "");
 	zipcode.hide();

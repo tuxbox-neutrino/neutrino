@@ -104,6 +104,7 @@
 #include "gui/videosettings.h"
 #include "gui/audio_select.h"
 #include "gui/weather.h"
+#include "gui/weather_setup.h"
 #include "gui/webchannels_setup.h"
 
 #include "gui/widget/hintbox.h"
@@ -1111,8 +1112,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.weather_enabled = configfile.getInt32("weather_enabled", 1);
 	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
 
-	g_settings.weather_location = configfile.getString("weather_location", "52.52,13.40");
-	g_settings.weather_city = configfile.getString("weather_city", "Berlin");
+	g_settings.weather_city = configfile.getString("weather_city", WEATHER_DEFAULT_CITY);
+	g_settings.weather_location = configfile.getString("weather_location", WEATHER_DEFAULT_LOCATION);
 
 	g_settings.youtube_dev_id = YT_DEV_KEY;
 #if ENABLE_YOUTUBE_KEY_MANAGE
@@ -2103,8 +2104,8 @@ void CNeutrinoApp::saveSetup(const char *fname)
 #endif
 	configfile.setInt32("weather_enabled", g_settings.weather_enabled);
 
-	configfile.setString("weather_location", g_settings.weather_location);
 	configfile.setString("weather_city", g_settings.weather_city);
+	configfile.setString("weather_location", g_settings.weather_location);
 
 #if ENABLE_YOUTUBE_KEY_MANAGE
 	configfile.setString("youtube_dev_id", g_settings.youtube_dev_id);
