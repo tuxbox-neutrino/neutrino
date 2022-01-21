@@ -47,7 +47,7 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 		std::string weather_api_key_short;
 
 		int showWeatherSetup();
-		int showSelectWeatherLocation();
+		int selectLocation();
 		int findLocation();
 		void loadLocations(std::string filename);
 

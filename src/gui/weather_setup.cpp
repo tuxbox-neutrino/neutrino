@@ -61,7 +61,7 @@ int CWeatherSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 
 	if (actionKey == "select_location")
 	{
-		return showSelectWeatherLocation();
+		return selectLocation();
 	}
 	else if (actionKey == "find_location")
 	{
@@ -104,7 +104,7 @@ int CWeatherSetup::showWeatherSetup()
 	return res;
 }
 
-int CWeatherSetup::showSelectWeatherLocation()
+int CWeatherSetup::selectLocation()
 {
 	int select = 0;
 	int res = 0;
