@@ -158,12 +158,11 @@ int CWeatherSetup::findLocation()
 {
 	int ret = menu_return::RETURN_REPAINT;
 
-	int postcode = WEATHER_DEFAULT_POSTCODE;
-	CIntInput zipcode(LOCALE_WEATHER_LOCATION_POSTCODE, &postcode, (unsigned int)5);
+	CStringInput zipcode(LOCALE_WEATHER_LOCATION_POSTCODE, &g_settings.weather_postcode, 5);
 	ret = zipcode.exec(NULL, "");
 	zipcode.hide();
 
-	if (CWeather::getInstance()->FindCoords(postcode))
+	if (CWeather::getInstance()->FindCoords(g_settings.weather_postcode))
 	{
 		CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 	}
