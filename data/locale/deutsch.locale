@@ -1785,7 +1785,7 @@ menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_weather_api_key Geben Sie den OpenWeather API Schlüssel ein. Eine leere Eingabe schaltet die Wetter-Unterstützung aus
 menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (openweathermap.org) ein bzw. aus
 menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
-menu.hint_weather_location_postcode Geben Sie ihre Postleitzahl zur Anzeige der Wetterdaten an
+menu.hint_weather_postalcode Geben Sie ihre Postleitzahl zur Anzeige der Wetterdaten an
 menu.hint_webradio_setup Hier konfigurierte WebRadio-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_webradio_xml_auto Lädt automatisch alle WebRadio-Dateien aus %s/ und %s/
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
@@ -2885,7 +2885,7 @@ videomenu.zappingmode_hold Standbild
 weather.api_key Wetter API Schlüssel (OpenWeather)
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
-weather.location_postcode Wetter-Standort per Postleitzahl
+weather.postalcode Wetter-Standort per Postleitzahl
 webchannels.xml.add Hinzufügen
 webchannels.xml.del Entfernen
 webchannels.xml.enter Eintragen

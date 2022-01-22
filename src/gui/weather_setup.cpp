@@ -94,8 +94,8 @@ int CWeatherSetup::showWeatherSetup()
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
 	ms_oservices->addItem(mf_wl);
 
-	CMenuForwarder *mf_zip = new CMenuForwarder(LOCALE_WEATHER_LOCATION_POSTCODE, g_settings.weather_enabled, g_settings.weather_postcode, this, "find_location");
-	mf_zip->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION_POSTCODE);
+	CMenuForwarder *mf_zip = new CMenuForwarder(LOCALE_WEATHER_POSTALCODE, g_settings.weather_enabled, g_settings.weather_postalcode, this, "find_location");
+	mf_zip->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_POSTALCODE);
 	ms_oservices->addItem(mf_zip);
 
 	int res = ms_oservices->exec(NULL, "");
@@ -158,11 +158,11 @@ int CWeatherSetup::findLocation()
 {
 	int ret = menu_return::RETURN_REPAINT;
 
-	CStringInput zipcode(LOCALE_WEATHER_LOCATION_POSTCODE, &g_settings.weather_postcode, 5);
+	CStringInput zipcode(LOCALE_WEATHER_POSTALCODE, &g_settings.weather_postalcode, 5);
 	ret = zipcode.exec(NULL, "");
 	zipcode.hide();
 
-	if (CWeather::getInstance()->FindCoords(g_settings.weather_postcode))
+	if (CWeather::getInstance()->FindCoords(g_settings.weather_postalcode))
 	{
 		CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
 	}

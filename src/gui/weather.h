@@ -90,7 +90,7 @@ class CWeather
 		~CWeather();
 		bool checkUpdate(bool forceUpdate = false);
 		void setCoords(std::string new_coords, std::string new_city = "Unknown");
-		bool FindCoords(std::string postcode, std::string country = "DE");
+		bool FindCoords(std::string postalcode, std::string country = "DE");
 
 		// globals
 		std::string getCity()

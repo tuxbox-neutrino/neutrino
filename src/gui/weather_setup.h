@@ -23,7 +23,7 @@
 
 #define WEATHER_DEFAULT_CITY "Berlin"
 #define WEATHER_DEFAULT_LOCATION "52.52,13.40"
-#define WEATHER_DEFAULT_POSTCODE "10178"
+#define WEATHER_DEFAULT_POSTALCODE "10178"
 
 #include <gui/widget/menue.h>
 
