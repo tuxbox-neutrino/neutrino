@@ -96,8 +96,8 @@ bool CWeather::GetWeatherDetails()
 	if (!g_settings.weather_enabled)
 		return false;
 
-	std::string lat = coords.substr(0,coords.find_first_of(','));
-	std::string lon = coords.substr(coords.find_first_of(',')+1);
+	std::string lat = coords.substr(0, coords.find_first_of(','));
+	std::string lon = coords.substr(coords.find_first_of(',') + 1);
 
 	std::string data = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&units=metric&lang=de&exclude=minutely,hourly,flags,alerts&appid=" + key;
 	JSONCPP_STRING answer;
@@ -108,7 +108,7 @@ bool CWeather::GetWeatherDetails()
 	v_forecast.clear();
 
 	Json::CharReaderBuilder builder;
-	Json::CharReader * reader = builder.newCharReader();
+	Json::CharReader *reader = builder.newCharReader();
 	Json::Value DataValues;
 
 	answer.clear();
@@ -188,23 +188,40 @@ std::string CWeather::getDirectionString(int degree)
 	float step = 11.25;
 	float deg = degree;
 
-	     if (deg <=      step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_N); }
-	else if (deg <=  3 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NNE); }
-	else if (deg <=  5 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NE); }
-	else if (deg <=  7 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_ENE); }
-	else if (deg <=  9 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_E); }
-	else if (deg <= 11 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_ESE); }
-	else if (deg <= 13 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SE); }
-	else if (deg <= 15 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SSE); }
-	else if (deg <= 17 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_S); }
-	else if (deg <= 19 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SSW); }
-	else if (deg <= 21 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SW); }
-	else if (deg <= 23 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_WSW); }
-	else if (deg <= 25 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_W); }
-	else if (deg <= 27 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_WNW); }
-	else if (deg <= 29 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NW); }
-	else if (deg <= 31 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NNW); }
-	else                       { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_N); }
+	if (deg <= step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_N);
+	else if (deg <= 3 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NNE);
+	else if (deg <= 5 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NE);
+	else if (deg <= 7 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_ENE);
+	else if (deg <= 9 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_E);
+	else if (deg <= 11 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_ESE);
+	else if (deg <= 13 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SE);
+	else if (deg <= 15 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SSE);
+	else if (deg <= 17 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_S);
+	else if (deg <= 19 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SSW);
+	else if (deg <= 21 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SW);
+	else if (deg <= 23 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_WSW);
+	else if (deg <= 25 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_W);
+	else if (deg <= 27 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_WNW);
+	else if (deg <= 29 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NW);
+	else if (deg <= 31 * step)
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NNW);
+	else
+		direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_N);
 
 	return direction;
 }
@@ -259,13 +276,13 @@ void CWeather::show(int x, int y)
 	ptmp->setColorBody(form->getColorBody());
 	form->addCCItem(ptmp);
 
-	CComponentsText *temp = new CComponentsText(ptmp->getWidth() + 2*RADIUS_MID, ptmp->getHeight()/2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight()/2, 0, 0, getCurrentTemperature() + "°C", CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
+	CComponentsText *temp = new CComponentsText(ptmp->getWidth() + 2 * RADIUS_MID, ptmp->getHeight() / 2 + RADIUS_MID - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight() / 2, 0, 0, getCurrentTemperature() + "°C", CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
 	temp->doPaintBg(false);
 	temp->setTextColor(COL_INFOBAR_TEXT);
 	form->addCCItem(temp);
 
-	int height = std::max(ptmp->getHeight(),temp->getHeight());
-	form->setDimensionsAll(x, y, ptmp->getWidth() + temp->getWidth() + 2*RADIUS_MID, height + 2*RADIUS_MID);
+	int height = std::max(ptmp->getHeight(), temp->getHeight());
+	form->setDimensionsAll(x, y, ptmp->getWidth() + temp->getWidth() + 2 * RADIUS_MID, height + 2 * RADIUS_MID);
 	form->enableShadow();
 	form->paint();
 }
