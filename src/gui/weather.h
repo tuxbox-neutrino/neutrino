@@ -83,6 +83,7 @@ class CWeather
 		std::string key;
 		bool GetWeatherDetails();
 		time_t last_time;
+		std::string getDirectionString(int degree);
 
 	public:
 		static CWeather *getInstance();
@@ -129,6 +130,10 @@ class CWeather
 		{
 			return to_string(current.windBearing);
 		};
+		std::string getCurrentWindDirection()
+		{
+			return getDirectionString(current.windBearing);
+		};
 		std::string getCurrentIcon()
 		{
 			return ICONSDIR"/weather/" + current.icon;
@@ -172,6 +177,12 @@ class CWeather
 			if (i > (int)v_forecast.size())
 				i = (int)v_forecast.size();
 			return to_string(v_forecast[i].windBearing);
+		};
+		std::string getForecastWindDirection(int i = 0)
+		{
+			if (i > (int)v_forecast.size())
+				i = (int)v_forecast.size();
+			return getDirectionString(v_forecast[i].windBearing);
 		};
 		std::string getForecastIcon(int i = 0)
 		{

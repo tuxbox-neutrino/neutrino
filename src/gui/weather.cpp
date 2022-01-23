@@ -181,6 +181,34 @@ bool CWeather::GetWeatherDetails()
 	return false;
 }
 
+std::string CWeather::getDirectionString(int degree)
+{
+	std::string direction("n/a");
+
+	float step = 11.25;
+	float deg = degree;
+
+	     if (deg <=      step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_N); }
+	else if (deg <=  3 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NNE); }
+	else if (deg <=  5 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NE); }
+	else if (deg <=  7 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_ENE); }
+	else if (deg <=  9 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_E); }
+	else if (deg <= 11 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_ESE); }
+	else if (deg <= 13 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SE); }
+	else if (deg <= 15 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SSE); }
+	else if (deg <= 17 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_S); }
+	else if (deg <= 19 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SSW); }
+	else if (deg <= 21 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_SW); }
+	else if (deg <= 23 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_WSW); }
+	else if (deg <= 25 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_W); }
+	else if (deg <= 27 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_WNW); }
+	else if (deg <= 29 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NW); }
+	else if (deg <= 31 * step) { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_NNW); }
+	else                       { direction = g_Locale->getText(LOCALE_WEATHER_DIRECTION_N); }
+
+	return direction;
+}
+
 bool CWeather::FindCoords(std::string postalcode, std::string country)
 {
 	std::string data = "http://api.openweathermap.org/geo/1.0/zip?zip=" + postalcode + "," + country + "&appid=" + key;

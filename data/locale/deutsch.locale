@@ -2883,6 +2883,22 @@ videomenu.zappingmode Umschaltverhalten
 videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_hold Standbild
 weather.api_key Wetter API Schlüssel (OpenWeather)
+weather.direction_e O
+weather.direction_ene ONO
+weather.direction_ese OSO
+weather.direction_n N
+weather.direction_ne NO
+weather.direction_nne NNO
+weather.direction_nnw NNW
+weather.direction_nw NW
+weather.direction_s S
+weather.direction_se SO
+weather.direction_sse SSO
+weather.direction_ssw SSW
+weather.direction_sw SW
+weather.direction_w W
+weather.direction_wnw WNW
+weather.direction_wsw WSW
 weather.enabled Wetter-Unterstützung
 weather.location Wetter-Standort
 weather.postalcode Wetter-Standort per Postleitzahl

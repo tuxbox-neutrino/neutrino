@@ -2883,6 +2883,22 @@ videomenu.zappingmode Zapping mode
 videomenu.zappingmode_mute Black screen
 videomenu.zappingmode_hold Hold screen
 weather.api_key Weather API key (OpenWeather)
+weather.direction_e E
+weather.direction_ene ENE
+weather.direction_ese ESE
+weather.direction_n N
+weather.direction_ne NE
+weather.direction_nne NNE
+weather.direction_nnw NNW
+weather.direction_nw NW
+weather.direction_s S
+weather.direction_se SE
+weather.direction_sse SSE
+weather.direction_ssw SSW
+weather.direction_sw SW
+weather.direction_w W
+weather.direction_wnw WNW
+weather.direction_wsw WSW
 weather.enabled Weather support
 weather.location Weather location
 weather.postalcode Weather location by postal code
