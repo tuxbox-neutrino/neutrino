@@ -29,7 +29,6 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-
 #ifndef __remotecontrol__
 #define __remotecontrol__
 
@@ -51,74 +50,73 @@ struct st_rmsg
 
 class CSubService
 {
- private:
-	struct CZapitClient::commandAddSubServices service;
-	t_satellite_position satellitePosition;
+	private:
+		struct CZapitClient::commandAddSubServices service;
+		t_satellite_position satellitePosition;
 
- public:
-	time_t      startzeit;
-	unsigned    dauer;
-	std::string subservice_name;
+	public:
+		time_t startzeit;
+		unsigned dauer;
+		std::string subservice_name;
 
-	CSubService(const t_original_network_id, const t_service_id, const t_transport_stream_id, const std::string &asubservice_name);
-	CSubService(const t_original_network_id, const t_service_id, const t_transport_stream_id, const time_t astartzeit, const unsigned adauer);
+		CSubService(const t_original_network_id, const t_service_id, const t_transport_stream_id, const std::string &asubservice_name);
+		CSubService(const t_original_network_id, const t_service_id, const t_transport_stream_id, const time_t astartzeit, const unsigned adauer);
 
-	t_channel_id                               getChannelID        (void) const;
-	inline const struct CZapitClient::commandAddSubServices getAsZapitSubService(void) const { return service;           }
+		t_channel_id getChannelID(void) const;
+		inline const struct CZapitClient::commandAddSubServices getAsZapitSubService(void) const { return service; }
 };
 
 typedef std::vector<CSubService> CSubServiceListSorted;
 
 class CRemoteControl
 {
-//	unsigned int            current_programm_timer;
-	uint64_t		zap_completion_timeout;
-	std::string             current_channel_name;
-	int			current_channel_num;
-	t_channel_id            current_sub_channel_id;
+		//unsigned int current_programm_timer;
+		uint64_t zap_completion_timeout;
+		std::string current_channel_name;
+		int current_channel_num;
+		t_channel_id current_sub_channel_id;
 
-	void getNVODs();
-	void getSubChannels();
-	void copySubChannelsToZapit(void);
+		void getNVODs();
+		void getSubChannels();
+		void copySubChannelsToZapit(void);
 
-public:
-	t_channel_id                  current_channel_id;
-	uint64_t		      current_EPGid;
-	//uint64_t                      next_EPGid;
-	CZapitClient::responseGetPIDs current_PIDs;
+	public:
+		t_channel_id current_channel_id;
+		uint64_t current_EPGid;
+		//uint64_t next_EPGid;
+		CZapitClient::responseGetPIDs current_PIDs;
 
-	// APID - Details
-	bool                          has_ac3;
-	bool                          has_unresolved_ctags;
+		// APID - Details
+		bool has_ac3;
+		bool has_unresolved_ctags;
 
-	// SubChannel/NVOD - Details
-	CSubServiceListSorted         subChannels;
-	int                           selected_subchannel;
-	bool                          are_subchannels;
-	bool                          needs_nvods;
-	int                           director_mode;
+		// SubChannel/NVOD - Details
+		CSubServiceListSorted subChannels;
+		int selected_subchannel;
+		bool are_subchannels;
+		bool needs_nvods;
+		int director_mode;
 
-	// Video / Parental-Lock
-	bool                          is_video_started;
+		// Video / Parental-Lock
+		bool is_video_started;
 
-	CRemoteControl();
-	void zapTo_ChannelID(const t_channel_id channel_id, const std::string & channame, int channum, const bool start_video = true); // UTF-8
-	void startvideo();
-	void stopvideo();
-	void queryAPIDs();
-	void setAPID(uint32_t APID);
-	void processAPIDnames();
-	const std::string & setSubChannel(const int numSub, const bool force_zap = false);
-	const std::string & subChannelUp(void);
-	const std::string & subChannelDown(void);
+		CRemoteControl();
+		void zapTo_ChannelID(const t_channel_id channel_id, const std::string &channame, int channum, const bool start_video = true);
+		void startvideo();
+		void stopvideo();
+		void queryAPIDs();
+		void setAPID(uint32_t APID);
+		void processAPIDnames();
+		const std::string &setSubChannel(const int numSub, const bool force_zap = false);
+		const std::string &subChannelUp(void);
+		const std::string &subChannelDown(void);
 
-	void radioMode();
-	void tvMode();
+		void radioMode();
+		void tvMode();
 
-	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
-	inline const std::string & getCurrentChannelName(void) const { return current_channel_name; }
-	inline const int & getCurrentChannelNumber(void) const { return current_channel_num; }
+		int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
+		inline const std::string &getCurrentChannelName(void) const { return current_channel_name; }
+		inline const int &getCurrentChannelNumber(void) const { return current_channel_num; }
 };
-
 
 #endif
