@@ -147,6 +147,8 @@ int CWeatherSetup::selectLocation()
 		delete selector;
 	}
 
+	g_settings.weather_postalcode.clear();
+
 	g_settings.weather_location = locations[select].coords;
 	g_settings.weather_city = std::string(locations[select].city);
 	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
