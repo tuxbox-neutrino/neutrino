@@ -35,7 +35,7 @@
 class CThemes : public CMenuTarget, CColorSetupNotifier, public sigc::trackable
 {
 	private:
-		CConfigFile themefile;
+		CConfigFile theme_cfg;
 
 		int width;
 		SNeutrinoTheme oldTheme;

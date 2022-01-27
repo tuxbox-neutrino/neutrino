@@ -56,7 +56,7 @@
 
 static 	SNeutrinoTheme &t = g_settings.theme;
 CThemes::CThemes()
-: themefile('\t')
+: theme_cfg('\t')
 {
 	width = 40;
 
@@ -239,9 +239,9 @@ void CThemes::rememberOldTheme(bool remember)
 
 void CThemes::readFile(const char *themename)
 {
-	if(themefile.loadConfig(themename))
+	if(theme_cfg.loadConfig(themename))
 	{
-		getTheme(themefile);
+		getTheme(theme_cfg);
 
 		changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = true;
@@ -252,11 +252,11 @@ void CThemes::readFile(const char *themename)
 
 void CThemes::saveFile(const char *themename)
 {
-	setTheme(themefile);
+	setTheme(theme_cfg);
 
-	if (themefile.getModifiedFlag()){
+	if (theme_cfg.getModifiedFlag()){
 		printf("[neutrino theme] save theme into %s\n", themename);
-		if (!themefile.saveConfig(themename))
+		if (!theme_cfg.saveConfig(themename))
 			printf("[neutrino theme] %s write error\n", themename);
 	}
 }
@@ -265,8 +265,8 @@ bool CThemes::applyDefaultTheme()
 {
 	g_settings.theme_name = DEFAULT_THEME;
 	std::string default_theme = THEMESDIR "/" + g_settings.theme_name + ".theme";
-	if(themefile.loadConfig(default_theme)){
-		getTheme(themefile);
+	if(theme_cfg.loadConfig(default_theme)){
+		getTheme(theme_cfg);
 		return true;
 	}
 	dprintf(DEBUG_NORMAL, "[CThemes]\t[%s - %d], No default theme found, creating migrated theme from current theme settings\n", __func__, __LINE__);
