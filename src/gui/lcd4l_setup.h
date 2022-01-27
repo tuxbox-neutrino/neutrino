@@ -41,6 +41,7 @@ class CLCD4lSetup : public CMenuTarget, CChangeObserver
 		int temp_lcd4l_display_type;
 		int temp_lcd4l_skin;
 		int temp_lcd4l_brightness;
+		int temp_lcd4l_screenshots;
 
 		int width;
 		int show();

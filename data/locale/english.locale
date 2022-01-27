@@ -1108,6 +1108,7 @@ lcd4l_convert Convert umlauts
 lcd4l_display_type Display type
 lcd4l_display_type_setup Display type setup
 lcd4l_logodir Channel logo directory
+lcd4l_screenshots Create screenshots
 lcd4l_skin Display style
 lcd4l_skin_0 Standard
 lcd4l_skin_1 Large
@@ -1451,7 +1452,8 @@ menu.hint_lcd4l_clock_a Shows an analog clock instead of a digital clock on disp
 menu.hint_lcd4l_convert Convert umlauts for the built-in LCD4Linux font
 menu.hint_lcd4l_display_type Choose type of external display
 menu.hint_lcd4l_display_type_setup Settings for the type of external display
-menu.hint_lcd4l_logodir Logo directory.\nFallback to default on invalid entry.
+menu.hint_lcd4l_logodir Directory for own channel logos. Fallback to default logos when entry is invalid.
+menu.hint_lcd4l_screenshots Create screenshots from external display in /tmp/lcd4linux.png
 menu.hint_lcd4l_skin Switch between styles\nDefault, User defined, etc.
 menu.hint_lcd4l_skin_radio Switch style when Radio-Mode is activated
 menu.hint_lcd4l_support Activate/deactivate LCD4Linux\nSupported displays: Pearl DPF, Samsung SPF, VU+SOLO4K, PNG

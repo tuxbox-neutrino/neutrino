@@ -406,14 +406,15 @@ int CNeutrinoApp::loadSetup(const char *fname)
 #endif
 
 #ifdef ENABLE_LCD4LINUX
+	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support", 0);
+	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", "/media/sda1/logos");
+	g_settings.lcd4l_display_type = configfile.getInt32("lcd4l_display_type", 0);
+	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin", 0);
+	g_settings.lcd4l_skin_radio = configfile.getInt32("lcd4l_skin_radio", 0);
 	g_settings.lcd4l_brightness = configfile.getInt32("lcd4l_brightness", 7);
 	g_settings.lcd4l_brightness_standby = configfile.getInt32("lcd4l_brightness_standby", 3);
 	g_settings.lcd4l_convert = configfile.getInt32("lcd4l_convert", 1);
-	g_settings.lcd4l_display_type = configfile.getInt32("lcd4l_display_type", 0);
-	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", LOGODIR);
-	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin" , 0);
-	g_settings.lcd4l_skin_radio = configfile.getInt32("lcd4l_skin_radio" , 0);
-	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support" , 0);
+	g_settings.lcd4l_screenshots = configfile.getInt32("lcd4l_screenshots", 0);
 #endif
 
 	g_settings.mode_icons = configfile.getInt32("mode_icons", 0);
@@ -1625,18 +1626,18 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("glcd_mirror_video", g_settings.glcd_mirror_video);
 	configfile.setInt32("glcd_scroll_speed", g_settings.glcd_scroll_speed);
 	configfile.setInt32("glcd_selected_config", g_settings.glcd_selected_config);
-
 #endif
 
 #ifdef ENABLE_LCD4LINUX
-	configfile.setInt32("lcd4l_brightness", g_settings.lcd4l_brightness);
-	configfile.setInt32("lcd4l_brightness_standby", g_settings.lcd4l_brightness_standby);
-	configfile.setInt32("lcd4l_convert", g_settings.lcd4l_convert);
+	configfile.setInt32("lcd4l_support", g_settings.lcd4l_support);
+	configfile.setString("lcd4l_logodir", g_settings.lcd4l_logodir);
 	configfile.setInt32("lcd4l_display_type", g_settings.lcd4l_display_type);
 	configfile.setInt32("lcd4l_skin", g_settings.lcd4l_skin);
 	configfile.setInt32("lcd4l_skin_radio", g_settings.lcd4l_skin_radio);
-	configfile.setInt32("lcd4l_support", g_settings.lcd4l_support);
-	configfile.setString("lcd4l_logodir", g_settings.lcd4l_logodir);
+	configfile.setInt32("lcd4l_brightness", g_settings.lcd4l_brightness);
+	configfile.setInt32("lcd4l_brightness_standby", g_settings.lcd4l_brightness_standby);
+	configfile.setInt32("lcd4l_convert", g_settings.lcd4l_convert);
+	configfile.setInt32("lcd4l_screenshots", g_settings.lcd4l_screenshots);
 #endif
 
 	configfile.setInt32("mode_icons", g_settings.mode_icons);
@@ -1652,16 +1653,16 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 
 	// video
+	configfile.setInt32("video_Mode", g_settings.video_Mode);
 	configfile.setInt32("analog_mode1", g_settings.analog_mode1);
 	configfile.setInt32("analog_mode2", g_settings.analog_mode2);
-	configfile.setInt32("video_43mode", g_settings.video_43mode);
 	configfile.setInt32("video_Format", g_settings.video_Format);
-	configfile.setInt32("video_Mode", g_settings.video_Mode);
+	configfile.setInt32("video_43mode", g_settings.video_43mode);
 
 	// hdmi cec
 	configfile.setInt32("hdmi_cec_mode", g_settings.hdmi_cec_mode);
-	configfile.setInt32("hdmi_cec_standby", g_settings.hdmi_cec_standby);
 	configfile.setInt32("hdmi_cec_view_on", g_settings.hdmi_cec_view_on);
+	configfile.setInt32("hdmi_cec_standby", g_settings.hdmi_cec_standby);
 	configfile.setInt32("hdmi_cec_volume", g_settings.hdmi_cec_volume);
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE

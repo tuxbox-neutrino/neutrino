@@ -171,6 +171,7 @@ int CLCD4lSetup::show()
 	temp_lcd4l_display_type = g_settings.lcd4l_display_type;
 	temp_lcd4l_skin = g_settings.lcd4l_skin;
 	temp_lcd4l_brightness = g_settings.lcd4l_brightness;
+	temp_lcd4l_screenshots = g_settings.lcd4l_screenshots;
 
 	CMenuOptionChooser *mc;
 	CMenuForwarder *mf;
@@ -221,6 +222,10 @@ int CLCD4lSetup::show()
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_CONVERT);
 	lcd4lSetup->addItem(mc);
 
+	mc = new CMenuOptionChooser(LOCALE_LCD4L_SCREENSHOTS, &temp_lcd4l_screenshots, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SCREENSHOTS);
+	lcd4lSetup->addItem(mc);
+
 	int res = lcd4lSetup->exec(NULL, "");
 
 	lcd4lSetup->hide();
@@ -252,6 +257,14 @@ int CLCD4lSetup::show()
 	{
 		g_settings.lcd4l_brightness = temp_lcd4l_brightness;
 		initlcd4l = true;
+	}
+
+	if (g_settings.lcd4l_screenshots != temp_lcd4l_screenshots)
+	{
+		g_settings.lcd4l_screenshots = temp_lcd4l_screenshots;
+		initlcd4l = true;
+
+		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 	}
 
 	if (initlcd4l)
