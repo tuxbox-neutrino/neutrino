@@ -376,6 +376,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	SNeutrinoTheme &t = g_settings.theme;
 
 	std::string font = g_settings.font_file;
+	font += "\n" + g_settings.font_file_monospace;
 
 	if (m_font.compare(font))
 	{
