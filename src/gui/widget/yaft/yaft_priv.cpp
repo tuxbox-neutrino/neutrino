@@ -81,7 +81,7 @@ void YaFT_p::parse_arg(std::string &buf, struct parm_t *pt, int delim, int (is_v
 	logging(DEBUG, "argc:%d\n", pt->argc);
 }
 
-extern std::string ttx_font_file;
+extern std::string font_file_monospace;
 /* constructor, Paint == false means "quiet mode, just execute
  * a command but don't display anything */
 YaFT_p::YaFT_p(bool Paint)
@@ -127,7 +127,7 @@ bool YaFT_p::init()
 	 */
 	std::string shell_ttf = CNeutrinoFonts::getInstance()->getShellTTF();
 	if (shell_ttf.empty())
-		shell_ttf = ttx_font_file;
+		shell_ttf = font_file_monospace;
 	if (paint) {
 		for (int i = 0; i < 2; i++) {
 			delete font; font = NULL;

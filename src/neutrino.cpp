@@ -353,7 +353,7 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
 
-std::string ttx_font_file = "";
+std::string font_file_monospace = "";
 
 int CNeutrinoApp::loadSetup(const char *fname)
 {
@@ -1094,13 +1094,13 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	// fonts
 	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
-	g_settings.ttx_font_file = configfile.getString("ttx_font_file", FONTDIR"/tuxtxt.ttf");
-	if (access(g_settings.ttx_font_file, F_OK) != 0)
+	g_settings.font_file_monospace = configfile.getString("font_file_monospace", FONTDIR"/tuxtxt.ttf");
+	if (access(g_settings.font_file_monospace, F_OK) != 0)
 	{
-		g_settings.ttx_font_file = FONTDIR "/tuxtxt.ttf";
+		g_settings.font_file_monospace = FONTDIR "/tuxtxt.ttf";
 		configfile.setUnknownKeyQueryedFlag(true); // force saving config
 	}
-	ttx_font_file = g_settings.ttx_font_file.c_str();
+	font_file_monospace = g_settings.font_file_monospace.c_str();
 
 	g_settings.font_scaling_x = configfile.getInt32("font_scaling_x", 100);
 	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 100);
@@ -1476,6 +1476,12 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		//remove easymenu
 		configfile.deleteKey("easymenu");
 	}
+	if (g_settings.version_pseudo < "20180123160000")
+	{
+		// apply tuxtxt font changes
+		if (g_settings.font_file_monospace == FONTDIR "/DejaVuLGCSansMono-Bold.ttf")
+			g_settings.font_file_monospace = FONTDIR "/tuxtxt.ttf";
+	}
 	if (g_settings.version_pseudo < "20181216000000")
 	{
 		// apply key changes; KEY_EXIT => KEY_HOME
@@ -1585,6 +1591,13 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	if (g_settings.version_pseudo < "20220114220000")
 	{
 		configfile.deleteKey("weather_country");
+	}
+	if (g_settings.version_pseudo < "20220130200000")
+	{
+		g_settings.font_file_monospace = configfile.getString("ttx_font_file", FONTDIR"/tuxtxt.ttf");
+		if (access(g_settings.font_file_monospace, F_OK) != 0)
+			g_settings.font_file_monospace = FONTDIR "/tuxtxt.ttf";
+		configfile.deleteKey("ttx_font_file");
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
@@ -2095,7 +2108,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	// fonts
 	configfile.setString("font_file", g_settings.font_file);
-	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
+	configfile.setString("font_file_monospace", g_settings.font_file_monospace);
 
 	configfile.setInt32("font_scaling_x", g_settings.font_scaling_x);
 	configfile.setInt32("font_scaling_y", g_settings.font_scaling_y);

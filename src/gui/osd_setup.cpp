@@ -78,7 +78,7 @@
 extern CRemoteControl * g_RemoteControl;
 
 extern const char * locale_real_names[];
-extern std::string ttx_font_file;
+extern std::string font_file_monospace;
 extern CTimeOSD *FileTimeOSD;
 
 COsdSetup::COsdSetup(int wizard_mode)
@@ -274,10 +274,10 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileFilter fileFilter;
 		fileFilter.addFilter("ttf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(getPathName(g_settings.ttx_font_file).c_str()) == true)
+		if (fileBrowser.exec(getPathName(g_settings.font_file_monospace).c_str()) == true)
 		{
-			g_settings.ttx_font_file = fileBrowser.getSelectedFile()->Name;
-			ttx_font_file = fileBrowser.getSelectedFile()->Name;
+			g_settings.font_file_monospace = fileBrowser.getSelectedFile()->Name;
+			font_file_monospace = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST);
 			osdTtxFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
@@ -1102,7 +1102,7 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 	fontSettings->addItem(mfFontFile);
 
 	// select teletext font file
-	osdTtxFontFile = g_settings.ttx_font_file;
+	osdTtxFontFile = g_settings.font_file_monospace;
 	osdTtxFontFile = "(" + getBaseName(osdTtxFontFile) + ")";
 	mfTtxFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, osdTtxFontFile.c_str(), this, "ttx_font", CRCInput::RC_green);
 	mfTtxFontFile->setHint("", LOCALE_MENU_HINT_FONT_TTX);
