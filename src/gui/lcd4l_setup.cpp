@@ -221,11 +221,11 @@ int CLCD4lSetup::show()
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_CONVERT, &g_settings.lcd4l_convert, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_CONVERT);
 	lcd4lSetup->addItem(mc);
-
+#if 0
 	mc = new CMenuOptionChooser(LOCALE_LCD4L_SCREENSHOTS, &temp_lcd4l_screenshots, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 	mc->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SCREENSHOTS);
 	lcd4lSetup->addItem(mc);
-
+# endif
 	int res = lcd4lSetup->exec(NULL, "");
 
 	lcd4lSetup->hide();
