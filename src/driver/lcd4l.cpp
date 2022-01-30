@@ -974,7 +974,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 					done = 0;
 					todo = cur_duration / 60;
 				}
-				snprintf(Duration, sizeof(Duration), "%d/%d", done, total);
+				snprintf(Duration, sizeof(Duration), "%d/%d\n%d\n%d\n%d",
+					done, total,
+					done,
+					todo,
+					total);
 			}
 
 			tm_struct = localtime(&cur_start_time);
@@ -1014,11 +1018,17 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 			time_t total = meta.total_time;
 			time_t done = CAudioPlayer::getInstance()->getTimePlayed();
+			time_t todo = total - done;
 
 			if ((total > 0) && (done > 0))
 			{
 				Progress = 100 * done / total;
-				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld", done / 60, done % 60, total / 60, total % 60);
+
+				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld\n%ld:%02ld\n%ld:%02ld\n%ld:%02ld",
+					done / 60, done % 60, total / 60, total % 60,
+					done / 60, done % 60,
+					todo / 60, todo % 60,
+					total / 60, total % 60);
 			}
 		}
 
@@ -1054,10 +1064,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (!ModeTshift)
 		{
+			Progress = CMoviePlayerGui::getInstance().file_prozent;
+
 			int total = CMoviePlayerGui::getInstance().GetDuration();
 			int done = CMoviePlayerGui::getInstance().GetPosition();
-			snprintf(Duration, sizeof(Duration), "%d/%d", done / (60 * 1000), total / (60 * 1000));
-			Progress = CMoviePlayerGui::getInstance().file_prozent;
+			int todo = total - done;
+			snprintf(Duration, sizeof(Duration), "%d/%d\n%d\n%d\n%d",
+				done / (60 * 1000), total / (60 * 1000),
+				done / (60 * 1000),
+				todo / (60 * 1000),
+				total / (60 * 1000));
 		}
 
 		time_t sTime = time(NULL);
