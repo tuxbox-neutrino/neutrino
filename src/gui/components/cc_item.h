@@ -113,7 +113,8 @@ class CComponentsItem : public CComponents
 					const int& frame_w = 3,
 					const int& sel_frame_w = 3);
 		///set enable mode, see also cc_item_enabled
-		void setEnable(bool enabled){cc_item_enabled = enabled;};
+		void enableCCItem(bool enabled = true){cc_item_enabled = enabled;}
+		void disableCCItem(){enableCCItem(false);}
 		
 		///get select mode, see also setSelected() above
 		bool isSelected(){return cc_item_selected;};
