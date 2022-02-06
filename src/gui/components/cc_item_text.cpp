@@ -163,7 +163,7 @@ void CComponentsText::initCCText()
 		bool enable_save_screen =  cc_txt_save_screen && !ct_paint_textbg;
 		ct_textbox->setTextFont(ct_font);
 		ct_textbox->setTextMode(ct_text_mode);
-		ct_textbox->setTextColor(ct_col_text);
+		ct_textbox->setTextColor(cc_item_enabled ? ct_col_text : COL_MENUCONTENTINACTIVE_TEXT);
 		ct_textbox->enableUTF8(ct_utf8_encoded);
 		ct_textbox->setWindowPos(&ct_box);
 		ct_textbox->setWindowMaxDimensions(ct_box.iWidth, ct_box.iHeight);
