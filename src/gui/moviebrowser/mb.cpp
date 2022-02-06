@@ -3391,6 +3391,8 @@ void CMovieBrowser::showHelp(void)
 	help.exec();
 }
 
+#define MAX_STRING 40 // for keybord input
+
 void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* movie_info, CIntInput* BookStartIntInput, CIntInput* BookLastIntInput, CIntInput* BookEndIntInput)
 {
 	BookmarkMenu->addIntroItems(LOCALE_MOVIEBROWSER_BOOK_HEAD);
@@ -3406,7 +3408,7 @@ void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* m
 		if (movie_info->bookmarks.user[li].name.empty())
 			movie_info->bookmarks.user[li].name = g_Locale->getText(LOCALE_MOVIEBROWSER_BOOK_NEW);
 
-		CKeyboardInput *pBookNameInput = new CKeyboardInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,   &movie_info->bookmarks.user[li].name,   20, NULL, NULL, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO2);
+		CKeyboardInput *pBookNameInput = new CKeyboardInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,   &movie_info->bookmarks.user[li].name, MAX_STRING, NULL, NULL, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO2);
 		CIntInput *pBookPosIntInput    = new CIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.user[li].pos,     5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1,  LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
 		CIntInput *pBookTypeIntInput   = new CIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.user[li].length, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO2);
 
@@ -3420,7 +3422,6 @@ void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* m
 	}
 }
 
-#define MAX_STRING 30
 void CMovieBrowser::initSeriesMenu(CMenuWidget *SeriesMenu, MI_MOVIE_INFO* movie_info, CKeyboardInput *SerieUserInput)
 {
 	SeriesMenu->addIntroItems(LOCALE_MOVIEBROWSER_SERIE_HEAD);
@@ -3487,10 +3488,10 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE-1);
 	snprintf(size,BUFFER_SIZE,"%5" PRIu64 "",movie_info->file.Size>>20);
 
-	CKeyboardInput titelUserInput(LOCALE_MOVIEBROWSER_INFO_TITLE,          &movie_info->epgTitle, (movie_info->epgTitle.empty() || (movie_info->epgTitle.size() < MAX_STRING)) ? MAX_STRING:movie_info->epgTitle.size());
+	CKeyboardInput titelUserInput(LOCALE_MOVIEBROWSER_INFO_TITLE,          &movie_info->epgTitle, (movie_info->epgTitle.empty() || (movie_info->epgTitle.size() < MAX_STRING)) ? MAX_STRING : movie_info->epgTitle.size());
 	CKeyboardInput channelUserInput(LOCALE_MOVIEBROWSER_INFO_CHANNEL,      &movie_info->channelName, MAX_STRING);
-	CKeyboardInput epgUserInput(LOCALE_MOVIEBROWSER_INFO_INFO1,            &movie_info->epgInfo1, 20);
-	CKeyboardInput countryUserInput(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,  &movie_info->productionCountry, 11);
+	CKeyboardInput epgUserInput(LOCALE_MOVIEBROWSER_INFO_INFO1,            &movie_info->epgInfo1, MAX_STRING);
+	CKeyboardInput countryUserInput(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,  &movie_info->productionCountry, MAX_STRING);
 
 	std::string neverplayed = "---";
 	CDateInput     dateUserDateInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,      &movie_info->dateOfLastPlay);
