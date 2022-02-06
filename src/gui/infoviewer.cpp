@@ -297,20 +297,9 @@ void CInfoViewer::showRecordIcon (const bool show)
 			rec->setFrameThickness(FRAME_WIDTH_NONE);
 			rec->setShadowWidth(OFFSET_SHADOW/2);
 			rec->setCorner(RADIUS_MIN, CORNER_ALL);
+			rec->enableColBodyGradient(g_settings.theme.infobar_gradient_top, g_settings.theme.infobar_gradient_top ? COL_INFOBAR_PLUS_0 : header->getColorBody(), g_settings.theme.infobar_gradient_top_direction);
+			rec->paintBlink(500);
 		}
-
-		if (rec->isPainted())
-		{
-			if (rec->getCCItem(0))
-			{
-				if (rec->getCCItem(0)->isPainted())
-					rec->getCCItem(0)->kill();
-				else
-					rec->getCCItem(0)->paint();
-			}
-		}
-		else
-			rec->paint();
 	}
 }
 
@@ -2013,7 +2002,11 @@ void CInfoViewer::killTitle()
 		if (infoViewerBB->getCABar())
 			infoViewerBB->getCABar()->kill();
 		if (rec)
-			rec->kill();
+		{
+			rec->cancelBlink();
+			delete rec;
+			rec = NULL;
+		}
 		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ OFFSET_SHADOW-BoxStartX, bottom-BoxStartY);
 		//frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ OFFSET_SHADOW, bottom);
 		if (!(zap_mode & IV_MODE_VIRTUAL_ZAP)){
