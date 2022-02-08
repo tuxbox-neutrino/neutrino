@@ -332,7 +332,8 @@ int CMsgBox::exec()
 					refreshFoot();
 
 				//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
-				if (timeout > 0) {
+				if (timeout > 0)
+				{
 					if(timeout_pb)
 						timeout_pb->setValues(0, timeout);
 					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
@@ -342,18 +343,27 @@ int CMsgBox::exec()
 		}
 
 		//***action buttons without preselection***
-		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++){
+		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++)
+		{
 			CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
-			if (btn_action->hasButtonDirectKey(msg)){
-				result = (msg_result_t)btn_action->getButtonResult();
-				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
-				loop = false;
+			if (btn_action)
+			{
+				if (btn_action->hasButtonDirectKey(msg))
+				{
+					result = (msg_result_t)btn_action->getButtonResult();
+					dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
+					loop = false;
+				}
 			}
 		}
 		//***action button 'ok' handled with selected button and its predefined result***
-		if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button)){
-			result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
-			loop = false;
+		if (ccw_footer->getSelectedButtonObject())
+		{
+			if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button))
+			{
+				result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
+				loop = false;
+			}
 		}
 		//***action button 'home' or 'back' with general cancel result***
 		else if (CNeutrinoApp::getInstance()->backKey(msg)) {
