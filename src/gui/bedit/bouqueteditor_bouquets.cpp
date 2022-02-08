@@ -195,19 +195,36 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	if (parent)
 		parent->hide();
 
-	Bouquets = &g_bouquetManager->Bouquets;
-	init();
+	bool loop = true;
 
-	paintHead();
-	paintBody();
-	paintFoot();
-	paintItems();
+	// Without check, it would crash if no channels are available (verified on generic pc without tuner)
+#if 0
+	// for tests, enable this block
+	static CBouquetManager bm;
+	g_bouquetManager = &bm;
+	Bouquets = &g_bouquetManager->Bouquets;
+#endif
+	if (g_bouquetManager)
+	{
+		Bouquets = &g_bouquetManager->Bouquets;
+
+		init();
+
+		paintHead();
+		paintBody();
+		paintFoot();
+		paintItems();
+	}
+	else
+	{
+		loop = false;
+		DisplayErrorMessage("No channels available");
+	}
 
 	bouquetsChanged = false;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(*timeout_ptr);
 
-	bool loop = true;
 	while (loop)
 	{
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
