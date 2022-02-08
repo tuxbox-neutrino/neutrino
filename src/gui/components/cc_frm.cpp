@@ -791,23 +791,61 @@ bool CComponentsForm::enableColBodyGradient(const int& enable_mode, const fb_pix
 	return false;
 }
 
-int CComponentsForm::getUsedDY() const
+int CComponentsForm::getFreeDY() const
 {
-	int y_res = 0;
-	for (size_t i= 0; i< v_cc_items.size(); i++)
-		if (v_cc_items.at(i))
-			y_res  = max(v_cc_items.at(i)->getYPos() + v_cc_items.at(i)->getHeight(), y_res);
+	int ret = 0;
+	int y_top = height;
+	int y_down = 0;
 
-	return y_res;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+	{
+		if (v_cc_items.at(i))
+		{
+			// current values
+			int x_cur = v_cc_items.at(i)->getYPos();
+			int yh_cur = x_cur + v_cc_items.at(i)->getHeight();
+
+			// free top space
+			if (x_cur < y_top)
+				y_top = x_cur;
+
+			// free down space
+			if (yh_cur > y_down)
+				y_down = yh_cur;
+		}
+	}
+	ret = y_down - y_top;
+	ret = max(height - ret, 0);
+
+	return ret;
 }
 
-int CComponentsForm::getUsedDX() const
+int CComponentsForm::getFreeDX() const
 {
-	int x_res = 0;
-	for (size_t i= 0; i< v_cc_items.size(); i++)
-		if (v_cc_items.at(i))
-			x_res  = max(v_cc_items.at(i)->getXPos() + v_cc_items.at(i)->getWidth(), x_res);
+	int ret = 0;
+	int x_left = width;
+	int x_right = 0;
 
-	return x_res;
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+	{
+		if (v_cc_items.at(i))
+		{
+			// current values
+			int x_cur = v_cc_items.at(i)->getXPos();
+			int xw_cur = x_cur + v_cc_items.at(i)->getWidth();
+
+			// free left space
+			if (x_cur < x_left)
+				x_left = x_cur;
+
+			// free right space
+			if (xw_cur > x_right)
+				x_right = xw_cur;
+		}
+	}
+	ret = x_right - x_left;
+	ret = max(width - ret, 0);
+
+	return ret;
 }
 

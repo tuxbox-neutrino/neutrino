@@ -227,25 +227,25 @@ class CComponentsForm : public CComponentsItem
 		* @return
 		*	int, used lines
 		*/
-		int getUsedDY() const;
+		int getUsedDY() const {return height - getFreeDY();}
 
 		/**Function to get consumed  space of items inside form in x direction.
 		* @return
 		*	int, used lines
 		*/
-		int getUsedDX() const;
+		int getUsedDX() const {return width - getFreeDX();}
 
 		/**Function to get free usable space of items inside form in y direction.
 		* @return
 		*	int, free lines
 		*/
-		int getFreeDY() const {return height - getUsedDY();}
+		int getFreeDY() const;
 
 		/**Function to get free usable space of items inside form in x direction.
 		* @return
 		*	int, free lines
 		*/
-		int getFreeDX() const {return width - getUsedDX();}
+		int getFreeDX() const;
 
 		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
 		CComponentsItem* getSelectedItemObject() const;
