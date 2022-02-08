@@ -252,18 +252,18 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 
 		///context buttons are to find on the right part of header
 		///add a single context button icon to the header object, arg as string, icon will just add, existing icons are preserved
-		void addContextButton(const std::string& button_name);
+		void addContextButton(const std::string& icon_name);
 		///add a group of context button icons to the header object, arg as string vector, icons will just add, existing icons are preserved
-		void addContextButton(const std::vector<std::string>& v_button_names);
+		void addContextButton(const std::vector<std::string>& v_icon_names);
 		///add a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
 		///icons will just add, existing  icons are preserved
 		void addContextButton(const int& buttons);
 		///remove context buttons from context button object
 		void removeContextButtons();
 		///sets a single context button icon to the header object, arg as string, existing buttons are removed
-		void setContextButton(const std::string& button_name){removeContextButtons(); addContextButton(button_name);};
+		void setContextButton(const std::string& icon_name){removeContextButtons(); addContextButton(icon_name);};
 		///sets a group of context button icons to the header object, arg as string vector, existing buttons are removed
-		void setContextButton(const std::vector<std::string>& v_button_names){removeContextButtons(); addContextButton(v_button_names);};
+		void setContextButton(const std::vector<std::string>& v_icon_names){removeContextButtons(); addContextButton(v_icon_names);};
 		///sets a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
 		///existing buttons are removed
 		void setContextButton(const int& buttons){removeContextButtons(); addContextButton(buttons);};

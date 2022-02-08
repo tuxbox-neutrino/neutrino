@@ -393,16 +393,16 @@ void CComponentsHeader::initLogo()
 	}
 }
 
-void CComponentsHeader::addContextButton(const std::string& button_name)
+void CComponentsHeader::addContextButton(const std::string& icon_name)
 {
-	v_cch_btn.push_back(button_name);
+	v_cch_btn.push_back(icon_name);
 	dprintf(DEBUG_DEBUG, "[CComponentsHeader]  %s added %d default buttons...\n", __func__, (int)v_cch_btn.size());
 }
 
-void CComponentsHeader::addContextButton(const std::vector<std::string>& v_button_names)
+void CComponentsHeader::addContextButton(const std::vector<std::string>& v_icon_names)
 {
-	for (size_t i= 0; i< v_button_names.size(); i++)
-		addContextButton(v_button_names[i]);
+	for (size_t i= 0; i< v_icon_names.size(); i++)
+		addContextButton(v_icon_names[i]);
 }
 
 void CComponentsHeader::addContextButton(const int& buttons)
