@@ -208,6 +208,7 @@ typedef struct button_label_cc
 	fb_pixel_t			text_sel_color;
 	uint32_t			sort_id;
 	sigc::slot<void>		btn_slot;
+	bool 				enabled;
 	//defaults
 	button_label_cc(): 	button(NULL),
 				text(std::string()),
@@ -215,7 +216,8 @@ typedef struct button_label_cc
 				directKeys(0, RC_NOKEY /*CRCInput::RC_nokey*/),
 				text_color(COL_MENUCONTENTSELECTED_PLUS_0),
 				text_sel_color(COL_MENUCONTENTSELECTED_PLUS_0),
-				sort_id(0){}
+				sort_id(0),
+				enabled(true){}
 	bool operator< (const button_label_cc& i) const
 	{
 		return this->sort_id < i.sort_id ;
