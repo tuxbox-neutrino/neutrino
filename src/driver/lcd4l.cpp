@@ -78,6 +78,9 @@ extern CPictureViewer *g_PicViewer;
 #define RADIOTEXT		LCD_DATADIR "radiotext"
 #define DOLBYDIGITAL		LCD_DATADIR "dolbydigital"
 #define TUNER			LCD_DATADIR "tuner"
+#define TUNER_SIG		LCD_DATADIR "tuner_sig"
+#define TUNER_SNR		LCD_DATADIR "tuner_snr"
+#define TUNER_BER		LCD_DATADIR "tuner_ber"
 #define VOLUME			LCD_DATADIR "volume"
 #define MODE_REC		LCD_DATADIR "mode_rec"
 #define MODE_REC_ICON		LCD_DATADIR "mode_rec_icon"
@@ -284,6 +287,9 @@ void CLCD4l::Init()
 	m_Radiotext	= -1;
 	m_DolbyDigital	= "n/a";
 	m_Tuner		= -1;
+	m_Tuner_sig	= -1;
+	m_Tuner_snr	= -1;
+	m_Tuner_ber	= -1;
 	m_Volume	= -1;
 	m_ModeRec	= -1;
 	m_RecordCount	= -1;
@@ -563,14 +569,41 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	if (CFEManager::getInstance()->getLiveFE())
+	CFrontend *frontend = CFEManager::getInstance()->getLiveFE();
+	if (frontend)
 	{
-		int Tuner = 1 + CFEManager::getInstance()->getLiveFE()->getNumber();
+		int Tuner = frontend->getNumber() + 1;
 
 		if (m_Tuner != Tuner)
 		{
 			WriteFile(TUNER, to_string(Tuner));
 			m_Tuner = Tuner;
+		}
+
+		unsigned int sig = frontend->getSignalStrength() & 0xFFFF;
+		int Tuner_sig = (sig & 0xFFFF) * 100 / 65535;
+
+		if (m_Tuner_sig != Tuner_sig)
+		{
+			WriteFile(TUNER_SIG, to_string(Tuner_sig));
+			m_Tuner_sig = Tuner_sig;
+		}
+
+		unsigned int snr = frontend->getSignalNoiseRatio() & 0xFFFF;
+		int Tuner_snr = (snr & 0xFFFF) * 100 / 65535;
+
+		if (m_Tuner_snr != Tuner_snr)
+		{
+			WriteFile(TUNER_SNR, to_string(Tuner_snr));
+			m_Tuner_snr = Tuner_snr;
+		}
+
+		int Tuner_ber = frontend->getBitErrorRate();
+
+		if (m_Tuner_ber != Tuner_ber)
+		{
+			WriteFile(TUNER_BER, to_string(Tuner_ber));
+			m_Tuner_ber = Tuner_ber;
 		}
 	}
 

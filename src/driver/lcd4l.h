@@ -126,6 +126,9 @@ class CLCD4l
 		int		m_Radiotext;
 		std::string	m_DolbyDigital;
 		int		m_Tuner;
+		int		m_Tuner_sig;
+		int		m_Tuner_snr;
+		int		m_Tuner_ber;
 		int		m_Volume;
 		int		m_ModeRec;
 		int		m_RecordCount;
