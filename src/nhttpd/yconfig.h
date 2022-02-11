@@ -96,7 +96,7 @@
 #define UPLOAD_TMP_FILE			"/tmp/upload.tmp"
 #define CACHE_DIR			"/tmp/.cache"
 #define HTTPD_ERRORPAGE			"/Y_ErrorPage.yhtm"
-#define HTTPD_SENDFILE_EXT		"htm:text/html,html:text/html,xml:text/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/bmp,css:text/css,js:text/plain,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:application/octet-stream,tar:application/octet-stream,gz:text/x-gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/avi,mp3:audio/mpeg,ogg:audio/ogg"
+#define HTTPD_SENDFILE_EXT		"htm:text/html,html:text/html,xml:application/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/x-ms-bmp,css:text/css,js:application/javascript,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:audio/x-mpegURL,m3u8:application/x-mpegURL,tar:application/x-tar,gz:application/gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/x-msvideo,mp3:audio/mpeg,ogg:audio/ogg"
 #define HTTPD_SENDFILE_ALL		"true"
 #define HTTPD_LANGUAGEDIR		"languages"
 #define HTTPD_DEFAULT_LANGUAGE 		"English"
