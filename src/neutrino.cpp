@@ -338,8 +338,8 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_red,             "2,3,4,13",                             "",     "red"           },
 	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
-	{ CRCInput::RC_yellow,          "7,32",                                 "",     "yellow"        },
-	{ CRCInput::RC_blue,            "12,11,20,21,19,14,29,30,15,35",        "",     "blue"          },
+	{ CRCInput::RC_yellow,          "7,36",                                 "",     "yellow"        },
+	{ CRCInput::RC_blue,            "12,11,20,21,19,14,30,15,35",           "",     "blue"          },
 #if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOXSE
 	{ CRCInput::RC_playpause,       "9",                                    "",     "5"             },
 #else
