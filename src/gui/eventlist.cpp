@@ -121,6 +121,7 @@ CEventList::CEventList()
 	header = NULL;
 	pb = NULL;
 	navibar = NULL;
+	footer.enableShadow(CC_SHADOW_ON, -1, true);
 }
 
 CEventList::~CEventList()
@@ -703,6 +704,7 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 void CEventList::hide()
 {
 	ResetModules();
+	footer.kill();
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
@@ -1068,9 +1070,8 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	buttons[btn_cnt].locale = LOCALE_TIMERLIST_NAME;
 	btn_cnt++;
 
-	CComponentsFooter footer;
-	footer.enableShadow(CC_SHADOW_ON, -1, true);
-	footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, full_width, footer_height, btn_cnt, buttons);
+	if (!footer.isPainted() ||  btn_cnt != (int)footer.getButtonChainObject()->size())
+		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, full_width, footer_height, btn_cnt, buttons);
 }
 
 // -- Eventlist Menu Handler Class
