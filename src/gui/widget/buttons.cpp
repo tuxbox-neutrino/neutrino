@@ -296,13 +296,11 @@ int paintButtons(       const int &x,
 		const struct button_label * const content,
 		const int &maxwidth,
 		const int &footerheight,
-		std::string /* just to make sure nobody uses anything below */,
 		bool vertical_paint,
 		const uint32_t fcolor,
 		const char * alt_buttontext,
 		const uint &buttontext_id,
-		bool show,
-		const std::vector<neutrino_locale_t>& /*all_buttontext_id*/)
+		bool show)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT];

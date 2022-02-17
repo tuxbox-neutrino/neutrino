@@ -180,8 +180,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	item_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
         //get footer_height from paintButtons
-	buttons1_height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
-	buttons2_height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	buttons1_height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, false, COL_MENUFOOT_TEXT, NULL, 0, false);
+	buttons2_height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, false, COL_MENUFOOT_TEXT, NULL, 0, false);
 	footer_height = buttons1_height + buttons2_height;
 
 	listmaxshow = (height - header_height - footer_height - OFFSET_SHADOW)/item_height;
