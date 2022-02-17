@@ -277,7 +277,8 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_title_height = 3*OFFSET_INNER_SMALL + 2*m_item_height + m_meta_height;
 	m_cover_width = 0;
 	m_info_height = 2*OFFSET_INNER_SMALL + 2*g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-	m_button_height = ::paintButtons(AudioPlayerButtons[0], 4, 0, 0, 0, 0, 0, false, NULL, NULL);
+	CComponentsFooter tmp_foot(NULL, CComponentsFooter::CC_HEADER_SIZE_SMALL);
+	m_button_height = tmp_foot.getHeight();
 
 	m_listmaxshow = (m_height - m_title_height - OFFSET_SHADOW - OFFSET_INTER - m_header_height - 2*m_button_height - OFFSET_SHADOW - OFFSET_INTER - m_info_height - OFFSET_SHADOW) / (m_item_height);
 	m_height = m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + m_listmaxshow*m_item_height + 2*m_button_height + OFFSET_SHADOW + OFFSET_INTER + m_info_height + OFFSET_SHADOW; // recalc height
