@@ -1070,7 +1070,27 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	buttons[btn_cnt].locale = LOCALE_TIMERLIST_NAME;
 	btn_cnt++;
 
-	if (!footer.isPainted() ||  btn_cnt != (int)footer.getButtonChainObject()->size())
+	// paint footer only on changed content
+	bool repaint = false;
+	size_t btn_size = 0;
+	if (footer.getButtonChainObject())
+	{
+		btn_size = footer.getButtonChainObject()->size();
+		if (btn_cnt == (int)btn_size)
+		{
+			for(size_t i=0; i < btn_size; i++)
+			{
+				CComponentsButton *btn = static_cast<CComponentsButton*> (footer.getButtonChainObject()->getCCItem(i));
+				if (g_Locale->getString(buttons[i].locale) != btn->getCaptionString())
+				{
+					repaint = true;
+					break;
+				}
+			}
+		}
+	}
+
+	if (!footer.isPainted() ||  btn_cnt != (int)btn_size || repaint)
 		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, full_width, footer_height, btn_cnt, buttons);
 }
 
