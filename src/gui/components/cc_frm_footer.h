@@ -76,7 +76,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		int initButtonContainer(const int& chain_width);
 
 	public:
-		CComponentsFooter(CComponentsForm *parent = NULL);
+		CComponentsFooter(CComponentsForm *parent = NULL, int sizeMode = CC_HEADER_SIZE_LARGE);
 		CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const int& buttons = 0,
 					CComponentsForm *parent = NULL,

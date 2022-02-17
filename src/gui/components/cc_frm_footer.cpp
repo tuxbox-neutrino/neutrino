@@ -35,10 +35,10 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsFooter inherit from CComponentsHeader
-CComponentsFooter::CComponentsFooter(CComponentsForm* parent):CCButtonSelect()
+CComponentsFooter::CComponentsFooter(CComponentsForm* parent, int sizeMode):CCButtonSelect()
 {
 	//CComponentsFooter
-	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0, CC_HEADER_SIZE_LARGE);
+	initVarFooter(1, 1, 0, 0, 0, parent, CC_SHADOW_OFF, COL_FRAME_PLUS_0, COL_MENUFOOT_PLUS_0, COL_SHADOW_PLUS_0, sizeMode);
 }
 
 CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
