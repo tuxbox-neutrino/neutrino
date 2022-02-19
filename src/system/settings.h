@@ -50,6 +50,7 @@
 
 struct SNeutrinoTheme
 {
+	// head
 	unsigned char menu_Head_alpha;
 	unsigned char menu_Head_red;
 	unsigned char menu_Head_green;
@@ -63,11 +64,14 @@ struct SNeutrinoTheme
 	int menu_Head_gradient;
 	int menu_Head_gradient_direction;
 
+	// subhead
 	int menu_SubHead_gradient;
 	int menu_SubHead_gradient_direction;
 
+	// separator
 	int menu_Separator_gradient_enable;
 
+	//  menu content
 	unsigned char menu_Content_alpha;
 	unsigned char menu_Content_red;
 	unsigned char menu_Content_green;
@@ -98,6 +102,7 @@ struct SNeutrinoTheme
 	unsigned char menu_Content_inactive_Text_green;
 	unsigned char menu_Content_inactive_Text_blue;
 
+	// foot
 	unsigned char menu_Foot_alpha;
 	unsigned char menu_Foot_red;
 	unsigned char menu_Foot_green;
@@ -108,11 +113,13 @@ struct SNeutrinoTheme
 	unsigned char menu_Foot_Text_green;
 	unsigned char menu_Foot_Text_blue;
 
+	int menu_Foot_gradient;
+	int menu_Foot_gradient_direction;
+
 	int menu_Hint_gradient;
 	int menu_Hint_gradient_direction;
-	int menu_ButtonBar_gradient;
-	int menu_ButtonBar_gradient_direction;
 
+	// infobar
 	unsigned char infobar_alpha;
 	unsigned char infobar_red;
 	unsigned char infobar_green;
@@ -135,6 +142,7 @@ struct SNeutrinoTheme
 	int infobar_gradient_bottom;
 	int infobar_gradient_bottom_direction;
 
+	// event text
 	unsigned char colored_events_alpha;
 	unsigned char colored_events_red;
 	unsigned char colored_events_green;
@@ -143,23 +151,21 @@ struct SNeutrinoTheme
 	int colored_events_channellist;
 	int colored_events_infobar;
 
+	// clock
 	unsigned char clock_Digit_alpha;
 	unsigned char clock_Digit_red;
 	unsigned char clock_Digit_green;
 	unsigned char clock_Digit_blue;
 
+	// progressbar
 	int progressbar_design;
 	int progressbar_design_channellist;
 	int progressbar_gradient;
+
 	int progressbar_timescale_red;
 	int progressbar_timescale_green;
 	int progressbar_timescale_yellow;
 	int progressbar_timescale_invert;
-
-	unsigned char shadow_alpha;
-	unsigned char shadow_red;
-	unsigned char shadow_green;
-	unsigned char shadow_blue;
 
 	unsigned char progressbar_active_red;
 	unsigned char progressbar_active_green;
@@ -168,8 +174,19 @@ struct SNeutrinoTheme
 	unsigned char progressbar_passive_green;
 	unsigned char progressbar_passive_blue;
 
+	// shadow
+	unsigned char shadow_alpha;
+	unsigned char shadow_red;
+	unsigned char shadow_green;
+	unsigned char shadow_blue;
+
+	// corners
 	int rounded_corners;
+
+	// message frames
 	int message_frame_enable;
+
+	// details line in menu and lists
 	int show_menu_hints_line;
 };
 
