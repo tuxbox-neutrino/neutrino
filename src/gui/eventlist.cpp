@@ -121,7 +121,7 @@ CEventList::CEventList()
 	header = NULL;
 	pb = NULL;
 	navibar = NULL;
-	footer.enableShadow(CC_SHADOW_ON, -1, true);
+	footer = NULL;
 }
 
 CEventList::~CEventList()
@@ -139,6 +139,9 @@ void CEventList::ResetModules()
 	}
 	if (pb){
 		delete pb; pb = NULL;
+	}
+	if (footer){
+		delete footer; footer = NULL;
 	}
 }
 
@@ -704,7 +707,6 @@ int CEventList::exec(const t_channel_id channel_id, const std::string& channelna
 void CEventList::hide()
 {
 	ResetModules();
-	footer.kill();
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
@@ -1071,15 +1073,20 @@ void CEventList::paintFoot(t_channel_id channel_id)
 	btn_cnt++;
 
 	// paint footer only on changed content
-	size_t btn_size = 0;
-	if (footer.getButtonChainObject())
+	if (!footer)
 	{
-		btn_size = footer.getButtonChainObject()->size();
+		footer = new CComponentsFooter();
+		footer->enableShadow(CC_SHADOW_ON, -1, true);
+	}
+	size_t btn_size = 0;
+	if (footer->getButtonChainObject())
+	{
+		btn_size = footer->getButtonChainObject()->size();
 		if (btn_cnt == (int)btn_size)
 		{
 			for(size_t i=0; i < btn_size; i++)
 			{
-				CComponentsButton *btn = static_cast<CComponentsButton*> (footer.getButtonChainObject()->getCCItem(i));
+				CComponentsButton *btn = static_cast<CComponentsButton*> (footer->getButtonChainObject()->getCCItem(i));
 				if (g_Locale->getString(buttons[i].locale) != btn->getCaptionString())
 				{
 					btn->setCaption(buttons[i].locale);
@@ -1090,8 +1097,8 @@ void CEventList::paintFoot(t_channel_id channel_id)
 		}
 	}
 
-	if (!footer.isPainted() ||  btn_cnt != (int)btn_size)
-		footer.paintButtons(x, y + height - OFFSET_SHADOW - footer_height, full_width, footer_height, btn_cnt, buttons);
+	if (!footer->isPainted() ||  btn_cnt != (int)btn_size)
+		footer->paintButtons(x, y + height - OFFSET_SHADOW - footer_height, full_width, footer_height, btn_cnt, buttons);
 }
 
 // -- Eventlist Menu Handler Class

@@ -79,7 +79,7 @@ class CEventList : public CListHelpers
 	CFrameBuffer	*frameBuffer;
 	CChannelEventList	evtlist;
 	CTimerd::TimerList timerlist;
-	CComponentsFooter footer;
+	CComponentsFooter *footer;
 	void readEvents(const t_channel_id channel_id);
 	unsigned int	selected;
 	unsigned int	current_event;
