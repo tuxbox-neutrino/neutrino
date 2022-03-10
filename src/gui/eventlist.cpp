@@ -1086,7 +1086,7 @@ void CEventList::paintFoot(t_channel_id channel_id)
 		{
 			for(size_t i=0; i < btn_size; i++)
 			{
-				CComponentsButton *btn = static_cast<CComponentsButton*> (footer->getButtonChainObject()->getCCItem(i));
+				CComponentsButton *btn = footer->getButtonLabel(i);
 				if (g_Locale->getString(buttons[i].locale) != btn->getCaptionString())
 				{
 					btn->setCaption(buttons[i].locale);
