@@ -198,9 +198,8 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->integration = PLUGIN_INTEGRATION_DISABLED;
 	plugin_data->hinticon = NEUTRINO_ICON_HINT_PLUGIN;
 
-	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->filename + "_hint.png";
-	if (access(_hintIcon.c_str(), F_OK) == 0)
-		plugin_data->hinticon = _hintIcon;
+	std::string hintIcon = "";
+	std::string _hintIconfile = plugin_data->plugindir + "/" + plugin_data->filename + "_hint.png";
 
 	for (int i = 0; i < linecount; i++)
 	{
@@ -243,7 +242,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		}
 		else if (cmd == "hinticon")
 		{
-			plugin_data->hinticon = parm;
+			hintIcon = parm;
 		}
 		else if (cmd == "type")
 		{
@@ -283,9 +282,20 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	if (plugin_data->name.empty())
 		plugin_data->name = plugin_data->filename;
 
-	_hintIcon = plugin_data->plugindir + "/" + plugin_data->hinticon + ".png";
-	if (access(_hintIcon.c_str(), F_OK) == 0)
-		plugin_data->hinticon = _hintIcon;
+	std::string _hintIconCfg = plugin_data->plugindir + "/" + hintIcon;
+
+	if (!hintIcon.empty() && access((_hintIconCfg + ".svg").c_str() , F_OK) == 0)
+	{
+		plugin_data->hinticon = _hintIconCfg + ".svg";
+	}
+	else if (!hintIcon.empty() && access((_hintIconCfg + ".png").c_str(), F_OK) == 0)
+	{
+		plugin_data->hinticon = _hintIconCfg + ".png";
+	}
+	else if (access(_hintIconfile.c_str(), F_OK) == 0)
+	{
+		plugin_data->hinticon = _hintIconfile;
+	}
 
 	overrideType(plugin_data, g_settings.plugins_disabled, P_TYPE_DISABLED) ||
 	overrideType(plugin_data, g_settings.plugins_game, P_TYPE_GAME) ||
