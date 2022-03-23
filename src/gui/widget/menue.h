@@ -652,6 +652,9 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		void initSelectable();
 		int getSelected()const { return selected; };
 		void move(int xoff, int yoff);
+		int getHeight() {calcSize(); return full_height;}
+		int getFullWidth() {calcSize(); return full_width;}
+		int getWidth() {calcSize(); return full_width - DETAILSLINE_WIDTH;}
 		int getSelectedLine(void)const {return no_action ? -1 : selected;};
 		void setWizardMode(int _from_wizard) { from_wizard = _from_wizard;};
 		void enableFade(bool _enable) { fade = _enable; };
