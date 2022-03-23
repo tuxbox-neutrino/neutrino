@@ -345,7 +345,7 @@ int CMsgBox::exec()
 		//***action buttons without preselection***
 		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++)
 		{
-			CComponentsButton* btn_action = static_cast<CComponentsButton*>(ccw_footer->getButtonChainObject()->getCCItem(i));
+			CComponentsButton* btn_action = ccw_footer->getButtonLabel(i);
 			if (btn_action)
 			{
 				if (btn_action->hasButtonDirectKey(msg))
