@@ -564,13 +564,15 @@ EpgPlus::Footer::Footer(CFrameBuffer *pframeBuffer, int px, int py, int pwidth, 
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
-
+	this->foot = NULL;
 	this->buttonHeight = pbuttonHeight;
 	this->buttonY = this->y - OFFSET_INTER - OFFSET_SHADOW - this->buttonHeight;
 }
 
 EpgPlus::Footer::~Footer()
 {
+	delete foot;
+	foot = NULL;
 }
 
 void EpgPlus::Footer::init()
@@ -626,9 +628,11 @@ struct button_label buttonLabels[] =
 void EpgPlus::Footer::paintButtons(button_label *pbuttonLabels, int numberOfButtons)
 {
 	int buttonWidth = (this->width);
-	CComponentsFooter foot;
-	foot.enableShadow(CC_SHADOW_ON, -1, true);
-	foot.paintButtons(this->x, this->buttonY, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels, buttonWidth / numberOfButtons);
+	if (!foot)
+		foot = new CComponentsFooter();
+	foot->enableShadow(CC_SHADOW_ON, -1, true);
+	if (!foot->isPainted())
+		foot->paintButtons(this->x, this->buttonY, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels, buttonWidth / numberOfButtons);
 }
 
 EpgPlus::EpgPlus()
@@ -1415,6 +1419,13 @@ void EpgPlus::hide()
 		this->selectedChannelEntry->detailsLine->kill();
 		delete this->selectedChannelEntry->detailsLine;
 		this->selectedChannelEntry->detailsLine = NULL;
+	}
+
+	if (this->footer->foot)
+	{
+		this->footer->foot->kill();
+		delete this->footer->foot;
+		this->footer->foot = NULL;
 	}
 
 	this->frameBuffer->paintBackgroundBoxRel(this->usableScreenX, this->usableScreenY, this->usableScreenWidth + OFFSET_SHADOW, this->usableScreenHeight + OFFSET_SHADOW);

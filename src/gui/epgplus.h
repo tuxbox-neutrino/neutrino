@@ -264,6 +264,7 @@ class EpgPlus
 			// attributes
 			public:
 				CFrameBuffer *frameBuffer;
+				CComponentsFooter *foot;
 
 				int x;
 				int y;
