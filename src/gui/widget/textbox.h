@@ -186,7 +186,8 @@ class CTextBox : public sigc::trackable
 		//enable screen saving behind chars, is required for transparent text paint, returns true if mode was changed
 		bool    enableSaveScreen(const bool& mode = true);
 		bool	setText(const std::string* newText, int max_width = 0, bool force_repaint = true);
-		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
+		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;}
+		fb_pixel_t getTextColor(){ return m_textColor;}
 		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
