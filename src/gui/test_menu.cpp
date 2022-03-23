@@ -1380,6 +1380,7 @@ int CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarder("Shell Window Test", true, NULL, this, "shellwindow"));
 	// hardware
 	CMenuWidget *w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
+	w_hw->setPos(20, 50);
 	w_test.addItem(new CMenuForwarder(w_hw->getName(), true, NULL, w_hw));
 	showHWTests(w_hw);
 

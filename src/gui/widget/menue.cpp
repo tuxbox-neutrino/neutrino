@@ -642,7 +642,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	//pos
 	x = y		= 0;
 	height		= 0;
-	w_pos_mode 	= MENU_POS_PRESET;
+	w_pos_mode 	= g_settings.menu_pos;
 
 	//caption and icon
 	nameString 	= NameString;
@@ -716,6 +716,13 @@ void CMenuWidget::move(int xoff, int yoff)
 {
 	offx = xoff;
 	offy = yoff;
+}
+
+void CMenuWidget::setPos(int X, int Y)
+{
+	x = X;
+	y = Y;
+	w_pos_mode = MENU_POS_CUSTOM;
 }
 
 CMenuWidget::~CMenuWidget()
@@ -1489,32 +1496,34 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int y_old = y;
 
 	//configured/custom positions
-	int menu_pos = w_pos_mode == MENU_POS_PRESET ? g_settings.menu_pos : w_pos_mode;
+	int menu_pos = g_settings.menu_pos;
+	if (w_pos_mode == MENU_POS_CUSTOM)
+		menu_pos = MENU_POS_CUSTOM;
+
 	switch(menu_pos)
 	{
+		case MENU_POS_CUSTOM:
+			x += DETAILSLINE_WIDTH;
+			break;
 		case MENU_POS_CENTER:
 			x = offx + scr_x + ((scr_w - menu_width ) >> 1 );
 			y = offy + scr_y + ((scr_h - real_h) >> 1 );
 			x += DETAILSLINE_WIDTH;
 			break;
-			
 		case MENU_POS_TOP_LEFT: 
 			y = offy + scr_y + OFFSET_INNER_MID;
 			x = offx + scr_x + OFFSET_INNER_MID;
 			x += DETAILSLINE_WIDTH;
 			break;
-			
 		case MENU_POS_TOP_RIGHT: 
 			y = offy + scr_y + OFFSET_INNER_MID;
 			x = /*offx +*/ scr_x + scr_w - menu_width - OFFSET_INNER_MID;
 			break;
-			
 		case MENU_POS_BOTTOM_LEFT: 
 			y = /*offy +*/ scr_y + scr_h - real_h - OFFSET_INNER_MID;
 			x = offx + scr_x + OFFSET_INNER_MID;
 			x += DETAILSLINE_WIDTH;
 			break;
-			
 		case MENU_POS_BOTTOM_RIGHT: 
 			y = /*offy +*/ scr_y + scr_h - real_h - OFFSET_INNER_MID;
 			x = /*offx +*/ scr_x + scr_w - menu_width - OFFSET_INNER_MID;
