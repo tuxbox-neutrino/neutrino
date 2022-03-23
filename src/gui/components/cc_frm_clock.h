@@ -66,7 +66,7 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 		int cl_font_style;
 
 		///text color
-		int cl_col_text;
+		fb_pixel_t cl_col_text;
 
 		///refresh mode
 		bool cl_force_repaint;
