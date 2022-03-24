@@ -33,6 +33,7 @@
 
 extern "C" {
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(59, 0, 100)
 #include <libavcodec/bsf.h>
 #endif

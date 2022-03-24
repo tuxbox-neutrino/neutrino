@@ -44,7 +44,6 @@ extern "C" {
 #include <libavutil/opt.h>
 #include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
-#include <libavcodec/avcodec.h>
 }
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
