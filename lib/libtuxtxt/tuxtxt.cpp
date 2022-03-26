@@ -4817,20 +4817,24 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 
 		if ((glyph = FT_Get_Char_Index(face, Char)))
 		{
+			sbitbuffer = (unsigned char*) localbuffer;
+			memmove(sbitbuffer,sbit->buffer,sbit->pitch*sbit->height);
+			int  height = sbit->height;
+			int  p = sbit->pitch;
 			if ((error = FTC_SBitCache_Lookup(cache, &typettf, glyph, &sbit_diacrit, NULL)) == 0)
-
 			{
-				sbitbuffer = (unsigned char*) localbuffer;
-				memmove(sbitbuffer,sbit->buffer,sbit->pitch*sbit->height);
-
-				for (Row = 0; Row < sbit->height; Row++)
+				for (Row = 0; Row < height; Row++)
 				{
-					for (Pitch = 0; Pitch < sbit->pitch; Pitch++)
+					for (Pitch = 0; Pitch < p; Pitch++)
 					{
 						if (sbit_diacrit->pitch > Pitch && sbit_diacrit->height > Row)
-							if((sbit_diacrit->pitch*sbit_diacrit->height) > (Row*sbit->pitch+Pitch))
-								sbitbuffer[Row*sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*sbit->pitch+Pitch];
+							if((sbit_diacrit->pitch*sbit_diacrit->height) > (Row*p+Pitch))
+								sbitbuffer[Row*p+Pitch] |= sbit_diacrit->buffer[Row*p+Pitch];
 					}
+				}
+				if ((error = FTC_SBitCache_Lookup(cache, &typettf, glyph, &sbit, NULL)) != 0)
+				{
+					return;
 				}
 			}
 		}
