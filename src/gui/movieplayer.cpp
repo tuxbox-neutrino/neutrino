@@ -965,6 +965,8 @@ bool CMoviePlayerGui::StartWebtv(void)
 
 	cutNeutrino();
 	clearSubtitle();
+	if (videoDecoder->getBlank())
+		videoDecoder->setBlank(false);
 
 	playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
 #if HAVE_ARM_HARDWARE
@@ -1479,10 +1481,13 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	handleMovieBrowser(CRCInput::RC_nokey, position);
 
 	cutNeutrino();
+	clearSubtitle();
+#if 0
 	if (isWebChannel)
 		videoDecoder->setBlank(true);
-
-	clearSubtitle();
+#endif
+	if (is_file_player && videoDecoder->getBlank())
+		videoDecoder->setBlank(false);
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 	playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
