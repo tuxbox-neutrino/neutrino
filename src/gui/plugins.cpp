@@ -198,10 +198,6 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->integration = PLUGIN_INTEGRATION_DISABLED;
 	plugin_data->hinticon = NEUTRINO_ICON_HINT_PLUGIN;
 
-	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->filename + "_hint.png";
-	if (access(_hintIcon.c_str(), F_OK) == 0)
-		plugin_data->hinticon = _hintIcon;
-
 	for (int i = 0; i < linecount; i++)
 	{
 		std::istringstream iss(line[i]);
@@ -283,9 +279,18 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	if (plugin_data->name.empty())
 		plugin_data->name = plugin_data->filename;
 
-	_hintIcon = plugin_data->plugindir + "/" + plugin_data->hinticon + ".png";
-	if (access(_hintIcon.c_str(), F_OK) == 0)
-		plugin_data->hinticon = _hintIcon;
+	std::string fileType[] = { ".png", ".svg" };
+	std::string h_path[] = { plugin_data->hinticon, plugin_data->filename + "_hint" };
+
+	for (size_t i = 0; i < (sizeof(fileType) / sizeof(fileType[0])); i++)
+	{
+		for (size_t j = 0; j < (sizeof(h_path) / sizeof(h_path[0])); j++)
+		{
+			std::string _hintIcon = plugin_data->plugindir + "/" + h_path[j] + fileType[i];
+			if (access(_hintIcon.c_str(), F_OK) == 0)
+				plugin_data->hinticon = _hintIcon;
+		}
+	}
 
 	overrideType(plugin_data, g_settings.plugins_disabled, P_TYPE_DISABLED) ||
 	overrideType(plugin_data, g_settings.plugins_game, P_TYPE_GAME) ||
