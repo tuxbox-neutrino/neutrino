@@ -4542,7 +4542,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
-		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %d rezap %d\n", (int)(data & NeutrinoModes::mode_mask), (data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
+		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %s rezap %d\n", neutrinoMode_to_string(data & NeutrinoModes::mode_mask), (data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
 		if((data & NeutrinoModes::mode_mask)== NeutrinoModes::mode_radio) {
 			if( mode != NeutrinoModes::mode_radio ) {
 				radioMode((data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
@@ -4883,7 +4883,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 		CVFD::getInstance()->ShowIcon(FP_ICON_TV, false);
 		rezap = true;
 	}
-	INFO("rezap %d current mode %d", rezap, mode);
+	INFO("rezap %d current mode %s", rezap, neutrinoMode_to_string(mode));
 	if (mode == NeutrinoModes::mode_radio || mode == NeutrinoModes::mode_webradio) {
 		if (g_settings.radiotext_enable && g_Radiotext) {
 			delete g_Radiotext;
@@ -5169,7 +5169,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 void CNeutrinoApp::radioMode( bool rezap)
 {
 	//printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
-	INFO("rezap %d current mode %d", rezap, mode);
+	INFO("rezap %d current mode %s", rezap, neutrinoMode_to_string(mode));
 	if (mode == NeutrinoModes::mode_webtv) {
 		CMoviePlayerGui::getInstance().setLastMode(NeutrinoModes::mode_unknown);
 		CMoviePlayerGui::getInstance().stopPlayBack();

@@ -26,6 +26,7 @@
 #endif
 
 #include <iostream>
+#include <sstream>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,6 +51,7 @@
 #include "debug.h"
 
 #include <global.h>
+#include <neutrinoMessages.h>
 #include <driver/fontrenderer.h>
 //#include <driver/framebuffer.h>
 #include <system/helpers.h>
@@ -72,6 +74,47 @@ using namespace std;
 #define MD5_DIGEST_LENGTH 16
 #include <gui/widget/hintbox.h>
 #endif
+
+const char* neutrinoMode_to_string(int mode)
+{
+	std::stringstream s;
+
+	switch (mode)
+	{
+		case NeutrinoModes::mode_unknown:
+			return "MODE_UNKOWN";
+		case NeutrinoModes::mode_tv:
+			return "MODE_TV";
+		case NeutrinoModes::mode_radio:
+			return "MODE_RADIO";
+		case NeutrinoModes::mode_avinput:
+			return "MODE_AVINPUT";
+		case NeutrinoModes::mode_standby:
+			return "MODE_STANDBY";
+		case NeutrinoModes::mode_audio:
+			return "MODE_AUDIO";
+		case NeutrinoModes::mode_pic:
+			return "MODE_PIC";
+		case NeutrinoModes::mode_ts:
+			return "MODE_TS";
+		case NeutrinoModes::mode_off:
+			return "MODE_OFF";
+		case NeutrinoModes::mode_webtv:
+			return "MODE_WEBTV";
+		case NeutrinoModes::mode_upnp:
+			return "MODE_UPNP";
+		case NeutrinoModes::mode_webradio:
+			return "MODE_WEBRADIO";
+		case (int)NeutrinoModes::mode_mask:
+			return "MODE_MASK";
+		case (int)NeutrinoModes::norezap:
+			return "NO_REZAP";
+		default:
+			s << std::hex << mode;
+			std::string res = s.str();
+			return res.c_str();
+	}
+}
 
 int mySleep(int sec) {
 	struct timeval timeout;

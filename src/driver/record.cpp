@@ -1701,7 +1701,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
 		NeutrinoModes::mode_tv : NeutrinoModes::mode_radio;
 
-	printf("%s channel_id %" PRIx64 " mode %d\n", __func__, channel_id, mode);
+	printf("%s channel_id %" PRIx64 " mode %s\n", __func__, channel_id, neutrinoMode_to_string(mode));
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
 	if(last_mode == NeutrinoModes::mode_standby && recmap.empty()) {
@@ -1746,7 +1746,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 			printf("%s found same tp, zapTo_record channel_id %" PRIx64 " result %d\n", __func__, channel_id, ret);
 		}
 		else {
-			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
+			printf("%s mode %s last_mode %s getLastMode %s\n", __FUNCTION__, neutrinoMode_to_string(mode), neutrinoMode_to_string(last_mode), neutrinoMode_to_string(CNeutrinoApp::getInstance()->getLastMode()));
 			StopAutoRecord(false);
 			if (mode != last_mode && (last_mode != NeutrinoModes::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoModes::norezap );
@@ -1795,7 +1795,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	} else if(!ret && mode_changed /*mode != last_mode*/)
 		CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , last_mode);
 
-	printf("%s channel_id %" PRIx64 " mode %d : result %s\n", __func__, channel_id, mode, ret ? "OK" : "BAD");
+	printf("%s channel_id %" PRIx64 " mode %s : result %s\n", __func__, channel_id, neutrinoMode_to_string(mode), ret ? "OK" : "BAD");
 	return ret;
 }
 

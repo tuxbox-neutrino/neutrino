@@ -84,6 +84,7 @@ time_t toEpoch(std::string &date);
 const char *cstr_replace(const char *search, const char *replace, const char *text);
 std::string& str_replace(const std::string &search, const std::string &replace, std::string &text);
 std::string& htmlEntityDecode(std::string& text);
+const char* neutrinoMode_to_string(int mode);
 
 struct helpersDebugInfo {
 	std::string msg;

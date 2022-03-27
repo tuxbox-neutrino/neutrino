@@ -311,7 +311,7 @@ void CMoviePlayerGui::cutNeutrino()
 
 	m_ThisMode = NeutrinoModes::mode_unknown;
 	m_LastMode = CNeutrinoApp::getInstance()->getMode();
-	printf("%s: last mode %d\n", __func__, m_LastMode);fflush(stdout);
+	printf("%s: last mode %s\n", __func__, neutrinoMode_to_string(m_LastMode));fflush(stdout);
 	if (isWebChannel)
 	{
 		bool isRadioMode = (m_LastMode == NeutrinoModes::mode_radio || m_LastMode == NeutrinoModes::mode_webradio);
@@ -322,8 +322,8 @@ void CMoviePlayerGui::cutNeutrino()
 	{
 		m_ThisMode = NeutrinoModes::mode_ts;
 	}
-	printf("%s: this mode %d\n", __func__, m_ThisMode);fflush(stdout);
-	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
+	printf("%s: this mode %s\n", __func__, neutrinoMode_to_string(m_ThisMode));fflush(stdout);
+	printf("%s: save mode %s\n", __func__, neutrinoMode_to_string(m_LastMode));fflush(stdout);
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::norezap | m_ThisMode);
 }
 
@@ -359,7 +359,7 @@ void CMoviePlayerGui::restoreNeutrino()
 #else
 	CZapit::getInstance()->EnablePlayback(true);
 #endif
-	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
+	printf("%s: restore mode %s\n", __func__, neutrinoMode_to_string(m_LastMode));fflush(stdout);
 #if 0
 	if (m_LastMode == NeutrinoModes::mode_tv)
 		g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x200, false);
