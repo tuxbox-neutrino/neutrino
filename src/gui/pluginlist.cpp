@@ -49,7 +49,7 @@
 #include <zapit/client/zapittools.h>
 #include <system/helpers.h>
 
-extern CPlugins       * g_Plugins;    /* neutrino.cpp */
+extern CPlugins *g_Plugins;
 
 CPluginList::CPluginList(const neutrino_locale_t Title, const uint32_t listtype)
 {
@@ -63,21 +63,22 @@ CPluginList::CPluginList(const neutrino_locale_t Title, const uint32_t listtype)
 int CPluginList::run()
 {
 	int ret = g_Plugins->startPlugin(number);
-	if (!g_Plugins->getScriptOutput().empty()) {
+	if (!g_Plugins->getScriptOutput().empty())
+	{
 		hide();
 		ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_SHELL, 320, g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES]);
 	}
 	return ret;
 }
 
-int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
+int CPluginList::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	if (parent)
 		parent->hide();
 
 	CColorKeyHelper keyhelper;
 	neutrino_msg_t key = CRCInput::RC_nokey;
-	const char * dummy = NULL;
+	const char *dummy = NULL;
 
 	number = -1;
 	if (!actionKey.empty())
@@ -98,8 +99,10 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	int nop = g_Plugins->getNumberOfPlugins();
 
-	for(int count = 0; count < nop; count++) {
-		if ((g_Plugins->getType(count) & pluginlisttype) && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == PLUGIN_INTEGRATION_DISABLED)) {
+	for (int count = 0; count < nop; count++)
+	{
+		if ((g_Plugins->getType(count) & pluginlisttype) && !g_Plugins->isHidden(count) && (g_Plugins->getIntegration(count) == PLUGIN_INTEGRATION_DISABLED))
+		{
 			neutrino_msg_t d_key = g_Plugins->getKey(count);
 			keyhelper.get(&key, &dummy, d_key);
 			CMenuForwarder *f = new CMenuForwarder(std::string(g_Plugins->getName(count)), true, NULL, this, to_string(count).c_str(), key);
@@ -126,9 +129,9 @@ int CPluginChooser::run()
 	return menu_return::RETURN_EXIT;
 }
 
-CPluginsExec* CPluginsExec::getInstance()
+CPluginsExec *CPluginsExec::getInstance()
 {
-	static CPluginsExec* pluginsExec = NULL;
+	static CPluginsExec *pluginsExec = NULL;
 
 	if (!pluginsExec)
 		pluginsExec = new CPluginsExec();
@@ -136,7 +139,7 @@ CPluginsExec* CPluginsExec::getInstance()
 	return pluginsExec;
 }
 
-int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
+int CPluginsExec::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	int ret = menu_return::RETURN_REPAINT;
 
@@ -149,7 +152,8 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (parent != NULL)
 		parent->hide();
 
-	if (actionKey == "teletext") {
+	if (actionKey == "teletext")
+	{
 		g_RCInput->postMsg(CRCInput::RC_timeout, 0);
 		g_RCInput->postMsg(CRCInput::RC_text, 0);
 		return menu_return::RETURN_EXIT;

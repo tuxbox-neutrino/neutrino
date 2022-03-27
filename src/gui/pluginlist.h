@@ -43,8 +43,8 @@ class CPluginList : public CMenuTarget
 
 	public:
 		CPluginList(const neutrino_locale_t Title, const uint32_t listtype);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		virtual int run ();
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		virtual int run();
 };
 
 class CPluginChooser : public CPluginList
@@ -53,14 +53,14 @@ class CPluginChooser : public CPluginList
 		std::string *selectedFilePtr;
 	public:
 		CPluginChooser(const neutrino_locale_t Name, const uint32_t listtype, std::string &selectedFile);
-		int run ();
+		int run();
 };
 
 class CPluginsExec : public CMenuTarget
 {
 	public:
-		static CPluginsExec* getInstance();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		static CPluginsExec *getInstance();
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 #endif
