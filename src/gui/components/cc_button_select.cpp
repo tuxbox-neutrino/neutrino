@@ -73,7 +73,8 @@ void CCButtonSelect::SetSelectedButton( size_t item_id,
 		}
 
 		setSelectedButton(item_id, sel_fr_col, fr_col, sel_bg_col, bg_col, frame_width, sel_frame_width);
-		getSelectedButtonObject()->setButtonTextColor(text_col, sel_text_col);
+		if (getSelectedButtonObject())
+			getSelectedButtonObject()->setButtonTextColor(text_col, sel_text_col);
 	}
 }
 
