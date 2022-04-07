@@ -127,7 +127,6 @@ class CMenuItem : public  CComponentsSignals
 		std::string	luaId;
 		neutrino_locale_t name;
 		std::string nameString;
-		neutrino_locale_t desc;
 		std::string descString;
 		CActivateObserver * actObserv;
 
@@ -198,9 +197,9 @@ class CMenuItem : public  CComponentsSignals
 		virtual void setName(const std::string& text);
 		virtual void setName(const neutrino_locale_t text);
 		sigc::signal<void> OnPaintItem;
-		virtual const char *getDescription();
+		virtual std::string getDescription();
 		virtual void setDescription(const std::string& text);
-		virtual void setDescription(const neutrino_locale_t text);
+		virtual void setDescription(const neutrino_locale_t locale_text);
 		virtual int getDescriptionHeight(void);
 		void setActivateObserver(CActivateObserver * Observ) { actObserv = Observ; }
 		void activateNotify(void);

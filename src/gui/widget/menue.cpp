@@ -83,7 +83,6 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	hint		= NONEXISTANT_LOCALE;
 	name		= NONEXISTANT_LOCALE;
 	nameString	= "";
-	desc		= NONEXISTANT_LOCALE;
 	descString	= "";
 	marked		= false;
 	inert		= false;
@@ -230,7 +229,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 {
 	int item_height = height;
 	const char *left_text = getName();
-	const char *desc_text = getDescription();
+	std::string desc_text = getDescription();
 
 	if (select_mode)
 	{
@@ -269,7 +268,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 	}
 
 	int desc_height = 0;
-	if (desc_text && *desc_text)
+	if (!desc_text.empty())
 		desc_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 
 	if (*left_text)
@@ -308,7 +307,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 			has_option_icon = false;
 		}
 	}
-	if (desc_text && *desc_text)
+	if (!desc_text.empty())
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->RenderString(name_start_x + OFFSET_INNER_MID, y+ item_height, _dx- OFFSET_INNER_MID - (name_start_x - x), desc_text, item_color);
 }
 
@@ -533,30 +532,28 @@ const char *CMenuItem::getName(void)
 	return nameString.c_str();
 }
 
-void CMenuItem::setDescription(const std::string& t)
+void CMenuItem::setDescription(const std::string& text)
 {
-	desc = NONEXISTANT_LOCALE;
-	descString = t;
+	descString = text;
 	getHeight();
 }
 
-void CMenuItem::setDescription(const neutrino_locale_t t)
+void CMenuItem::setDescription(const neutrino_locale_t locale_text)
 {
-	desc = t;
 	descString = "";
+	if (locale_text != NONEXISTANT_LOCALE)
+		descString = g_Locale->getText(locale_text);
 	getHeight();
 }
 
-const char *CMenuItem::getDescription(void)
+std::string CMenuItem::getDescription(void)
 {
-	if (desc != NONEXISTANT_LOCALE)
-		return g_Locale->getText(desc);
-	return descString.c_str();
+	return descString;
 }
 
 int CMenuItem::getDescriptionHeight(void)
 {
-	if (*getDescription())
+	if (!getDescription().empty())
 		return g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 	return 0;
 }
@@ -1941,8 +1938,8 @@ int CMenuOptionNumberChooser::getWidth(void)
 
 	width += OFFSET_INNER_MID; /* min 10 pixels between option name and value. enough? */
 
-	const char *desc_text = getDescription();
-	if (*desc_text)
+	std::string desc_text = getDescription();
+	if (!desc_text.empty())
 		width = std::max(width, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return width;
 }
@@ -2228,8 +2225,8 @@ int CMenuOptionChooser::getWidth(void)
 	}
 
 	width += OFFSET_INNER_MID; /* min 10 pixels between option name and value. enough? */
-	const char *desc_text = getDescription();
-	if (*desc_text)
+	std::string desc_text = getDescription();
+	if (!desc_text.empty())
 		width = std::max(width, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return width;
 }
@@ -2435,8 +2432,8 @@ int CMenuForwarder::getWidth(void)
 	else if (bgcol)
 		tw += OFFSET_INNER_MID + CFrameBuffer::getInstance()->scale2Res(60);
 
-	const char *desc_text = getDescription();
-	if (*desc_text)
+	std::string desc_text = getDescription();
+	if (!desc_text.empty())
 		tw = std::max(tw, OFFSET_INNER_MID + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(desc_text));
 	return tw;
 }
