@@ -349,6 +349,17 @@ void CInfoViewerBB::getBBButtonInfo()
 	}
 }
 
+void CInfoViewerBB::initVolscale()
+{
+	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT ||
+		g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT ||
+		g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER ||
+		g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
+		g_InfoViewer->isVolscale = CVolume::getInstance()->hideVolscale();
+	else
+		g_InfoViewer->isVolscale = false;
+}
+
 void CInfoViewerBB::showBBButtons(bool paintFooter)
 {
 	if (!is_visible)
@@ -356,13 +367,7 @@ void CInfoViewerBB::showBBButtons(bool paintFooter)
 	int i;
 	bool paint = false;
 
-	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
-	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
-	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
-	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
-		g_InfoViewer->isVolscale = CVolume::getInstance()->hideVolscale();
-	else
-		g_InfoViewer->isVolscale = false;
+	initVolscale();
 
 	getBBButtonInfo();
 	for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
