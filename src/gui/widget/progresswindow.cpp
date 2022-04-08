@@ -28,7 +28,7 @@
 #endif
 
 #include "progresswindow.h"
-
+#include "hintbox.h"
 #include <global.h>
 #include <neutrino.h>
 
@@ -87,6 +87,8 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 		global_max = 0;
 
 	internal_max = 0;
+
+	fr_thickness = g_settings.theme.message_frame_enable ? HINTBOX_DEFAULT_FRAME_WIDTH : 0;
 
 	showFooter(false);
 
