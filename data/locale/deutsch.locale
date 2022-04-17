@@ -363,6 +363,7 @@ colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
+colormenu.channellist_description_text Textfarbe für Sendungsbeschreibungen
 colormenu.clock_textcolor Ziffernfarbe
 colormenu.fade Ein-/Ausblenden
 colormenu.font Verwendete Schriftart
@@ -370,7 +371,7 @@ colormenu.font_ttx Videotext Schriftart
 colormenu.menucolors Themes
 colormenu.osd_preset Bildschirmauswahl
 colormenu.osd_resolution OSD-Auflösung
-colormenu.progressbar_active Farbe des aktiven Teil
+colormenu.progressbar_active Farbe des aktiven Teils
 colormenu.progressbar_passive Hintergrundfarbe
 colormenu.shadow_color Schattenfarbe
 colormenu.textcolor Textfarbe
@@ -1292,6 +1293,7 @@ menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
 menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
 menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
+menu.hint_color_channellist_description_text Ändern Sie die Farbe für die Sendungsbeschreibungen in der Kanalliste
 menu.hint_color_gradient Schaltet Farbverläufe für verschiedene Menüelemente ein/aus
 menu.hint_color_gradient_direction Richtung des Farbverlaufs festlegen
 menu.hint_color_gradient_separator_enable Farbverlauf für Menü-Trennlinien aktivieren/deaktivieren

@@ -1969,11 +1969,12 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 	int i_radius	= RADIUS_NONE;
 
 	fb_pixel_t color;
-	fb_pixel_t ecolor; // we need one more color for DISPLAY_MODE_NEXT
 	fb_pixel_t bgcolor;
 
 	getItemColors(color, bgcolor, i_selected, i_marked);
-	ecolor = color;
+
+	fb_pixel_t ecolor = color; // we need one more color for DISPLAY_MODE_NEXT
+	fb_pixel_t dcolor = COL_CHANNELLIST_DESCRIPTION_TEXT; // description color
 
 	if (i_selected || i_marked)
 		i_radius = RADIUS_LARGE;
@@ -2216,12 +2217,12 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			if (g_settings.channellist_epgtext_align_right)
 			{
 				// align right
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - ch_desc_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, ecolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - ch_desc_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, dcolor);
 			}
 			else
 			{
 				// align left
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + ch_name_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, ecolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + ch_name_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, dcolor);
 			}
 		}
 		else

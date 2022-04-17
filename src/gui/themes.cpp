@@ -381,6 +381,12 @@ void CThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32( "colored_events_channellist", t.colored_events_channellist );
 	configfile.setInt32( "colored_events_infobar", t.colored_events_infobar );
 
+	// channellist
+	configfile.setInt32("channellist_Description_Text_alpha", t.channellist_Description_Text_alpha);
+	configfile.setInt32("channellist_Description_Text_red", t.channellist_Description_Text_red);
+	configfile.setInt32("channellist_Description_Text_green", t.channellist_Description_Text_green);
+	configfile.setInt32("channellist_Description_Text_blue", t.channellist_Description_Text_blue);
+
 	// osd clock
 	configfile.setInt32( "clock_Digit_alpha", t.clock_Digit_alpha );
 	configfile.setInt32( "clock_Digit_red", t.clock_Digit_red );
@@ -523,6 +529,12 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.colored_events_blue = configfile.getInt32( "colored_events_blue", 0 );
 	t.colored_events_channellist = configfile.getInt32( "colored_events_channellist", 0 );
 	t.colored_events_infobar = configfile.getInt32("colored_events_infobar", 0); /* no bling bling */
+
+	// channellist
+	t.channellist_Description_Text_alpha = configfile.getInt32("channellist_Description_Text_alpha", 0);
+	t.channellist_Description_Text_red = configfile.getInt32("channellist_Description_Text_red", 98);
+	t.channellist_Description_Text_green = configfile.getInt32("channellist_Description_Text_green", 98);
+	t.channellist_Description_Text_blue = configfile.getInt32("channellist_Description_Text_blue", 98);
 
 	// clock
 	t.clock_Digit_alpha = configfile.getInt32( "clock_Digit_alpha", t.menu_Content_Text_alpha );

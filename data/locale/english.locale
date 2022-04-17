@@ -363,6 +363,7 @@ colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
 colormenu.background Background
+colormenu.channellist_description_text Text color for event description
 colormenu.clock_textcolor Digit color
 colormenu.fade Fade GUI
 colormenu.font Select GUI font
@@ -372,7 +373,7 @@ colormenu.osd_preset Screen selection
 colormenu.osd_resolution OSD resolution
 colormenu.progressbar_active Active part color
 colormenu.progressbar_passive Background
-colormenu.shadow_color Shadow Color
+colormenu.shadow_color Shadow color
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
 colormenu.timing Timeouts, display behavior
@@ -1292,6 +1293,7 @@ menu.hint_clock_mode Switch clock on or off
 menu.hint_clock_seconds Show time format with seconds
 menu.hint_clock_size Set the size of the info clock
 menu.hint_clock_textcolor Configure digit colors
+menu.hint_color_channellist_description_text Change color for event descriptions in channellist
 menu.hint_color_gradient Switches color gradients for various menu items on/off
 menu.hint_color_gradient_direction Define direction of color gradient.
 menu.hint_color_gradient_separator_enable Disable/enable color gradient for menu separator lines

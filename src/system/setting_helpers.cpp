@@ -362,6 +362,11 @@ void CColorSetupNotifier::setPalette()
 		convertSetupColor2RGB(t.progressbar_active_red, t.progressbar_active_green, t.progressbar_active_blue),
 		convertSetupAlpha2Alpha(t.menu_Content_alpha));
 
+	// COL_CHANNELLIST_DESCRIPTION_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 22,
+		convertSetupColor2RGB(t.channellist_Description_Text_red, t.channellist_Description_Text_green, t.channellist_Description_Text_blue),
+		convertSetupAlpha2Alpha(t.channellist_Description_Text_alpha));
+
 	frameBuffer->paletteSet();
 }
 

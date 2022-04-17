@@ -95,6 +95,8 @@
 #define COL_MENUCONTENTINACTIVE_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 14)])
 #define COL_INFOCLOCK_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 15)])
 #define COL_PROGRESSBAR_ACTIVE_PLUS_0		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 16)])
+// channellist text colors
+#define COL_CHANNELLIST_DESCRIPTION_TEXT	(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 22)])
 
 // some wrappers to get more readability
 #define COL_FRAME			COL_MENUCONTENT_PLUS_6
