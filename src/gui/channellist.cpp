@@ -1977,7 +1977,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 	fb_pixel_t dcolor = COL_CHANNELLIST_DESCRIPTION_TEXT; // description color
 
 	if (i_selected || i_marked)
+	{
+		dcolor = ecolor;
 		i_radius = RADIUS_LARGE;
+	}
 
 	if (i_selected)
 	{
