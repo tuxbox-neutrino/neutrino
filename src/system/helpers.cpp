@@ -111,8 +111,7 @@ const char* neutrinoMode_to_string(int mode)
 			return "NO_REZAP";
 		default:
 			s << std::hex << mode;
-			std::string res = s.str();
-			return res.c_str();
+			return s.str().c_str();
 	}
 }
 
