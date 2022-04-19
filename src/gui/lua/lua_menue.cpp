@@ -76,6 +76,7 @@ void CLuaInstMenu::MenuRegister(lua_State *L)
 		{ "setActive", CLuaInstMenu::MenuSetActive },
 		{ "setName",   CLuaInstMenu::MenuSetName },
 		{ "setSelected",   CLuaInstMenu::MenuSetSelected },
+		{ "setValue",   CLuaInstMenu::MenuSetValue },
 		{ "__gc",      CLuaInstMenu::MenuDelete },
 		{ NULL, NULL }
 	};
@@ -588,5 +589,26 @@ int CLuaInstMenu::MenuSetSelected(lua_State *L)
 	lua_Integer preselected;	tableLookup(L, "preselected", preselected);
 
 	D->m->setSelected(preselected);
+	return 0;
+}
+
+int CLuaInstMenu::MenuSetValue(lua_State *L)
+{
+	lua_assert(lua_istable(L, 2));
+	CLuaMenu *D = MenuCheck(L, 1);
+	if (!D) return 0;
+
+	lua_Integer id;		tableLookup(L, "item", id);
+	std::string value;	tableLookup(L, "value", value);
+
+	CMenuItem* item = NULL;
+	for (itemmap_iterator_t it = D->itemmap.begin(); it != D->itemmap.end(); ++it) {
+		if (it->first == id) {
+			item = it->second;
+			break;
+		}
+	}
+	if (item)
+		static_cast<CMenuForwarder*>(item)->setOption(value);
 	return 0;
 }
