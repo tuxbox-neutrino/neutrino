@@ -77,6 +77,7 @@ void CLuaInstMenu::MenuRegister(lua_State *L)
 		{ "setName",   CLuaInstMenu::MenuSetName },
 		{ "setSelected",   CLuaInstMenu::MenuSetSelected },
 		{ "setValue",   CLuaInstMenu::MenuSetValue },
+		{ "paintItem",   CLuaInstMenu::MenuPaintItem },
 		{ "__gc",      CLuaInstMenu::MenuDelete },
 		{ NULL, NULL }
 	};
@@ -610,5 +611,25 @@ int CLuaInstMenu::MenuSetValue(lua_State *L)
 	}
 	if (item)
 		static_cast<CMenuForwarder*>(item)->setOption(value);
+	return 0;
+}
+
+int CLuaInstMenu::MenuPaintItem(lua_State *L)
+{
+	lua_assert(lua_istable(L, 2));
+	CLuaMenu *D = MenuCheck(L, 1);
+	if (!D) return 0;
+
+	lua_Integer id;		tableLookup(L, "item", id);
+
+	CMenuItem* item = NULL;
+	for (itemmap_iterator_t it = D->itemmap.begin(); it != D->itemmap.end(); ++it) {
+		if (it->first == id) {
+			item = it->second;
+			break;
+		}
+	}
+	if (item)
+		item->paint();
 	return 0;
 }
