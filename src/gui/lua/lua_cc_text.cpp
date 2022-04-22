@@ -57,6 +57,7 @@ void CLuaInstCCText::CCTextRegister(lua_State *L)
 		{ "new",              CLuaInstCCText::CCTextNew },
 		{ "paint",            CLuaInstCCText::CCTextPaint },
 		{ "hide",             CLuaInstCCText::CCTextHide },
+		{ "kill",             CLuaInstCCText::CCTextKill },
 		{ "setText",          CLuaInstCCText::CCTextSetText },
 		{ "getLines",         CLuaInstCCText::CCTextGetLines },
 		{ "scroll",           CLuaInstCCText::CCTextScroll },
@@ -198,6 +199,23 @@ int CLuaInstCCText::CCTextHide(lua_State *L)
 		D->ct->paint();
 	} else
 		D->ct->hide();
+	return 0;
+}
+
+int CLuaInstCCText::CCTextKill(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCCText *D = CCTextCheck(L, 1);
+	if (!D) return 0;
+
+	lua_Unsigned color_bg  = (lua_Unsigned)COL_BACKGROUND_PLUS_0;
+	lua_Integer corner_radius = -1;
+	if (lua_istable(L, -1)){
+		tableLookup(L, "color_bg", color_bg);
+		tableLookup(L, "corner_radius", corner_radius);
+	}
+
+	D->ct->kill(color_bg, corner_radius, ~CC_FBDATA_TYPES);
 	return 0;
 }
 
