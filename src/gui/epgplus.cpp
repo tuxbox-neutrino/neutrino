@@ -113,7 +113,7 @@ void EpgPlus::Header::paint(const char *Name)
 	{
 		this->head = new CComponentsHeader();
 		this->head->setContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT);
-		this->head->enableClock(true, "%H:%M", "%H %M", true);
+		this->head->enableClock();
 		this->head->enableShadow(CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT, -1, true);
 
 	}

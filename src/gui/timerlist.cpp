@@ -1447,7 +1447,7 @@ void CTimerList::paintHead()
 	if (header == NULL)
 	{
 		header = new CComponentsHeader(x, y, width, header_height, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER, CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT, NULL, CC_SHADOW_ON);
-		header->enableClock(true, " %d.%m.%Y - %H:%M ", NULL, false);
+		header->enableClock(true, "%d.%m.%Y - %H:%M", "%d.%m.%Y - %H %M", true);
 	}
 	if (!header->isPainted())
 		header->paint(CC_SAVE_SCREEN_NO);
