@@ -262,9 +262,6 @@ CMovieBrowser::~CMovieBrowser()
 	if (m_detailsLine)
 		delete m_detailsLine;
 
-	if (m_channelLogo)
-		delete m_channelLogo;
-
 	if (m_movieCover)
 		delete m_movieCover;
 
@@ -416,7 +413,6 @@ void CMovieBrowser::init(void)
 	movielist.clear();
 
 	m_detailsLine = NULL;
-	m_channelLogo = NULL;
 	m_movieCover = NULL;
 
 	old_EpgId = 0;
@@ -1211,9 +1207,6 @@ int CMovieBrowser::exec(const char* path)
 void CMovieBrowser::hide(void)
 {
 	//TRACE("[mb]->%s\n", __func__);
-	if (m_channelLogo){
-		delete m_channelLogo; m_channelLogo = NULL;
-	}
 	if (m_header)	{
 		delete m_header; m_header = NULL;
 	}
@@ -1427,45 +1420,15 @@ void CMovieBrowser::refreshChannelLogo(void)
 {
 	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
 
-	int w_logo_max = m_cBoxFrameTitleRel.iWidth / 4;
-	int h_logo_max = m_cBoxFrameTitleRel.iHeight - 2*OFFSET_INNER_MIN;
-	short pb_hdd_offset = 100 + OFFSET_INNER_MID;
+	short pb_hdd_offset = g_settings.infobar_show_sysfs_hdd ? 100 + OFFSET_INNER_MID + clock_off : clock_off;
 
-	if (show_mode == MB_SHOW_YT)
-		pb_hdd_offset = 0;
-
-	if (m_channelLogo && (old_EpgId != m_movieSelectionHandler->epgId >> 16 || old_ChannelName != m_movieSelectionHandler->channelName))
-	{
-		if (newHeader)
-			m_channelLogo->clearFbData(); // reset logo screen data
-		else
-			m_channelLogo->hide();
-		delete m_channelLogo;
-		m_channelLogo = NULL;
-	}
+	// set channel logo
+	if (g_settings.channellist_show_channellogo)
+		m_header->setChannelLogo(m_movieSelectionHandler->epgId >> 16, m_movieSelectionHandler->channelName, (CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
 
 	if (old_EpgId != m_movieSelectionHandler->epgId >> 16 || old_ChannelName != m_movieSelectionHandler->channelName)
 	{
-		if (m_channelLogo == NULL)
-			m_channelLogo = new CComponentsChannelLogo(0, 0, m_movieSelectionHandler->channelName, m_movieSelectionHandler->epgId >>16); //TODO: add logo into header as item
-		old_EpgId = m_movieSelectionHandler->epgId >> 16;
-		old_ChannelName = m_movieSelectionHandler->channelName;
-	}
-
-	if (m_channelLogo && m_channelLogo->hasLogo())
-	{
-		// TODO: move into an own handler, eg. header, so channel logo should be paint in header object
-		m_channelLogo->setWidth(std::min(m_channelLogo->getWidth(), w_logo_max));
-		if (m_channelLogo->getHeight() > h_logo_max)
-			m_channelLogo->setHeight(h_logo_max);
-
-		int x = m_cBoxFrame.iX + m_cBoxFrameTitleRel.iX + m_cBoxFrameTitleRel.iWidth - m_channelLogo->getWidth() - OFFSET_INNER_MID;
-		int y = m_cBoxFrame.iY + m_cBoxFrameTitleRel.iY + (m_cBoxFrameTitleRel.iHeight - m_channelLogo->getHeight())/2;
-		m_channelLogo->setXPos(x - pb_hdd_offset - m_header->getContextBtnObject()->getWidth());
-		m_channelLogo->setYPos(y);
-		m_channelLogo->hide();
-		m_channelLogo->paint();
-		newHeader = false;
+		refreshTitle();
 	}
 }
 

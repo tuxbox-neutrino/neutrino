@@ -178,7 +178,6 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 
 		CComponentsHeader *m_header;
 		CComponentsDetailsLine *m_detailsLine;
-		CComponentsChannelLogo *m_channelLogo;
 		CComponentsPicture *m_movieCover;
 
 		lf_line_types_t m_browserListLines;
