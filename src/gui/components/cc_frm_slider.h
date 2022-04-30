@@ -58,7 +58,7 @@ class CComponentsSlider : public CComponentsForm
 		void initCCSlItems();
 
 	public:
-		CComponentsSlider(	const int& x_pos = 0, const int& y_pos = 0, const int& w = SLIDER_WIDHT, const int& h = SLIDER_HEIGHT,
+		CComponentsSlider(	const int& x_pos = 0, const int& y_pos = 0, const int& w = SLIDER_WIDTH, const int& h = SLIDER_HEIGHT,
 					const int& current_value = 0,
 					const int& max_value = 100,
 					CComponentsForm *parent = NULL,

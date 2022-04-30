@@ -173,7 +173,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_cl_enable_run	= false;
 
 	cch_pb_x		= cch_offset;
-	cch_pb_w		= 100;
+	cch_pb_w		= PROGRESSBAR_WIDTH;
 	cch_pb_percent		= 0;
 	cch_pb_enable		= false;
 
