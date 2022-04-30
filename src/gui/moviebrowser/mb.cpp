@@ -1635,32 +1635,10 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
-	if (show_mode == MB_SHOW_YT)
-		return;
-
-	int percent_used = 0;
-	int tmp_percent_used = 0;
-	struct statfs s;
-	if (getSelectedFile() != NULL) {
-		if (::statfs(getSelectedFile()->Name.c_str(), &s) == 0) {
-			if (s.f_blocks > 0) {
-				uint64_t bytes_total = s.f_blocks * s.f_bsize;
-				uint64_t bytes_free  = s.f_bfree  * s.f_bsize;
-				uint64_t bytes_used = bytes_total - bytes_free;
-				percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
-			}
-		}
-	}
-
-	if (tmp_percent_used != percent_used || paint_hdd) {
-		tmp_percent_used = percent_used;
-		const short pbw = 100;
-		const short border = m_cBoxFrameTitleRel.iHeight/4;
-		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - m_header->getContextBtnObject()->getWidth() - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw, m_cBoxFrameTitleRel.iHeight/2);
-		pb.setType(CProgressBar::PB_REDRIGHT);
-		pb.setValues(percent_used, 100);
-		pb.paint(false);
-	}
+	if (g_settings.infobar_show_sysfs_hdd && paint_hdd)
+		m_header->enableProgessBar(cHddStat::getInstance()->getPercent());
+	else
+		m_header->setProgessBar(cHddStat::getInstance()->getPercent());
 }
 
 void CMovieBrowser::refreshLCD(void)
