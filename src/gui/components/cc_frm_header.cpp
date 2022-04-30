@@ -152,6 +152,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_btn_obj		= NULL;
 	cch_cl_obj		= NULL;
 	cch_logo_obj		= NULL;
+	cch_pb_obj		= NULL;
 	cch_logo.Id		= 0;
 	cch_logo.Name		= "";
 	cch_logo.dy_max		= -1;
@@ -170,6 +171,11 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_cl_format		= "%H:%M";
 	cch_cl_sec_format 	= cch_cl_format;
 	cch_cl_enable_run	= false;
+
+	cch_pb_x		= cch_offset;
+	cch_pb_w		= 100;
+	cch_pb_percent		= 0;
+	cch_pb_enable		= false;
 
 	addContextButton(buttons);
 	initCCItems();
@@ -317,14 +323,16 @@ void CComponentsHeader::initLogo()
 		*/
 		if (next_item)
 		{
-			if (next_item->getItemType() == CC_ITEMTYPE_FRM_ICONFORM)
+			if (next_item->getItemType() == CC_ITEMTYPE_FRM_CLOCK)
 			{
 				/*
 				 * Either clock is present or buttons are enabled,
 				 * different order of objects are required, not optimal
 				 * but works at the moment.
 				*/
-				if (cch_cl_obj)
+				if (cch_pb_obj)
+					next_item = cch_pb_obj;
+				else if (cch_cl_obj)
 					next_item = cch_cl_obj;
 				else
 					next_item = cch_btn_obj;
@@ -391,6 +399,71 @@ void CComponentsHeader::initLogo()
 		cch_logo_obj->hide();
 		cch_logo_obj->clearFbData();
 	}
+}
+
+void CComponentsHeader::initProgressBar()
+{
+	//exit here if progressbar was disabled
+	if (!cch_pb_enable){
+		if (cch_pb_obj){
+			removeCCItem(cch_pb_obj);
+			cch_pb_obj = NULL;
+		}
+		return;
+	}
+
+	//create instance for header progressbar object and add to container
+	if (cch_pb_obj == NULL){
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init progressbar...\n", __func__, __LINE__);
+		cch_pb_obj = new CProgressBar(cch_pb_x, cch_items_y, cch_pb_w, height/2, col_frame, col_body_std, col_shadow, COL_PROGRESSBAR_ACTIVE_PLUS_0, COL_PROGRESSBAR_PASSIVE_PLUS_0, 40, 100, 70, this);
+		cch_pb_obj->setType(CProgressBar::PB_REDRIGHT);
+	}
+
+	CComponentsItem *next_item;
+
+	if (cch_cl_obj)
+		next_item = cch_cl_obj;
+	else
+		next_item = cch_btn_obj;
+
+	cch_pb_x = next_item ? next_item->getXPos() - cch_pb_obj->getWidth() - cch_offset : width - cch_pb_obj->getWidth() - cch_offset;
+	cch_pb_obj->setXPos(cch_pb_x);
+	
+	cch_pb_w = cch_pb_obj->getWidth();
+}
+
+void CComponentsHeader::enableProgessBar(int percent)
+{
+	cch_pb_enable	= true;
+	cch_pb_percent 	= percent;
+
+	initCCItems();
+
+	if (cch_pb_obj){
+		cch_pb_obj->setValues(percent, 100);
+	}
+}
+
+void CComponentsHeader::setProgessBar(int percent)
+{
+	cch_pb_percent 	= percent;
+
+	if (cch_pb_obj){
+		cch_pb_obj->setValues(percent, 100);
+	}
+}
+
+void CComponentsHeader::disableProgessBar()
+{
+	cch_pb_enable	= false;
+	if (!cch_pb_enable){
+		if (cch_pb_obj){
+			removeCCItem(cch_pb_obj);
+			cch_pb_obj = NULL;
+		}
+	}
+
+	initCCItems();
 }
 
 void CComponentsHeader::addContextButton(const std::string& icon_name)
@@ -691,6 +764,9 @@ void CComponentsHeader::initCCItems()
 
 	//init text
 	initCaption();
+
+	//init progressbar
+	initProgressBar();
 
 	//init logo
 	initLogo();

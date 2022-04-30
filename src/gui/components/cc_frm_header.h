@@ -99,6 +99,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		CComponentsFrmClock * cch_cl_obj;
 		///object: logo object
 		CComponentsChannelLogo * cch_logo_obj;
+		///object: progressbar object
+		CProgressBar * cch_pb_obj;
 
 		///attributes for logos
 		cch_logo_t cch_logo;
@@ -124,6 +126,14 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		int cch_clock_w;
 		///property: internal x-position for caption object
 		int cch_text_x;
+		///property: internal x-position for progressbar object
+		int cch_pb_x;
+		///property: internal width for progressbar object
+		int cch_pb_w;
+		///property: internal progressbar percent for progressbar object
+		int cch_pb_percent;
+		///property: enable/disable progressbar object
+		bool cch_pb_enable;
 		///property: internal offset of context button icons within context button object
 		int cch_buttons_space;
 		///property: internal offset for header items
@@ -159,6 +169,8 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		void initClock();
 		///sub: init logo object
 		void initLogo();
+		///sub: init progressbar object
+		void initProgressBar();
 
 		///int repaint slot
 		void initRepaintSlot();
@@ -362,6 +374,19 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		* @return  	CComponentsChannelLogo*
 		*/
 		CComponentsChannelLogo* getChannelLogoObject(){return cch_logo_obj;}
+		/**Methode to get progessbar object for direct access to its properties and methodes
+		* @return  	CProgressBar*
+		*/
+		CProgressBar* getProgressBarObject(){return cch_pb_obj;}
+
+		///enable display of progressbar, parameter int percent
+		void enableProgessBar(int percent);
+		///set value of progressbar, parameter int percent
+		void setProgessBar(int percent);
+		///get value of progressbar, return int percent
+		int getProgessBar(){return cch_pb_percent;}
+		///disable progressbar, without parameter
+		void disableProgessBar();
 };
 
 #endif
