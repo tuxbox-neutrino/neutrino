@@ -81,6 +81,7 @@
 #include <system/hddstat.h>
 
 extern CPictureViewer * g_PicViewer;
+extern bool timeset;
 
 #define my_scandir scandir64
 #define my_alphasort alphasort64
@@ -1108,6 +1109,11 @@ int CMovieBrowser::exec(const char* path)
 				TRACE("[mb] Timerevent\n");
 				loop = false;
 			}
+			else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == g_InfoViewer->sec_timer_id))
+			{
+				if (timeset)
+					refreshTitle();
+			}
 			else if (msg == CRCInput::RC_ok)
 			{
 				for (unsigned int i = 0; i < m_vMovieInfo.size(); i++) {
@@ -1338,6 +1344,7 @@ void CMovieBrowser::refresh(void)
 	TRACE("[mb]->%s\n", __func__);
 
 	refreshTitle();
+
 	if (m_pcBrowser != NULL && m_showBrowserFiles == true)
 		 m_pcBrowser->refresh();
 	if (m_pcLastPlay != NULL && m_showLastPlayFiles == true)
@@ -1422,7 +1429,9 @@ void CMovieBrowser::refreshChannelLogo(void)
 
 	// set channel logo
 	if (g_settings.channellist_show_channellogo)
+	{
 		m_header->setChannelLogo(m_movieSelectionHandler->epgId >> 16, m_movieSelectionHandler->channelName, (CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
+	}
 
 	if (old_EpgId != m_movieSelectionHandler->epgId >> 16 || old_ChannelName != m_movieSelectionHandler->channelName)
 	{
@@ -1633,6 +1642,8 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
+	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
+
 	if (g_settings.infobar_show_sysfs_hdd && paint_hdd)
 		m_header->enableProgessBar(cHddStat::getInstance()->getPercent());
 	else
@@ -1962,7 +1973,7 @@ void CMovieBrowser::refreshTitle(void)
 		icon = NEUTRINO_ICON_YTPLAY;
 	}
 
-	TRACE("[mb]->refreshTitle : %s\n", title.c_str());
+	TRACE("[mb]->refreshTitle: %s\n", title.c_str());
 
 	int x = m_cBoxFrameTitleRel.iX + m_cBoxFrame.iX;
 	int y = m_cBoxFrameTitleRel.iY + m_cBoxFrame.iY;
@@ -1974,6 +1985,14 @@ void CMovieBrowser::refreshTitle(void)
 	}else{
 		m_header->setCaption(title.c_str());
 	}
+
+	if (timeset)
+	{
+		m_header->enableClock(true, "%H:%M", "%H %M", true);
+		if (m_header->getClockObject())
+			m_header->getClockObject()->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+	}
+
 	m_header->paint(CC_SAVE_SCREEN_NO);
 	newHeader = m_header->isPainted();
 
@@ -3593,6 +3612,9 @@ void CMovieBrowser::initOptionsBrowserMenu(CMenuWidget *OptionsMenuBrowser, CInt
 
 bool CMovieBrowser::showMenu(bool calledExternally)
 {
+	if (m_header->getClockObject())
+		m_header->disableClock();
+
 	/* first clear screen */
 	framebuffer->paintBackground();
 
@@ -3731,6 +3753,9 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 		delete notifiers[i];
 
 	delete nfs;
+
+	if (m_header->getClockObject())
+		m_header->enableClock(true, "%H:%M", "%H %M", true);
 
 	return(true);
 }
