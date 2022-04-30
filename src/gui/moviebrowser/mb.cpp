@@ -1420,8 +1420,6 @@ void CMovieBrowser::refreshChannelLogo(void)
 {
 	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
 
-	short pb_hdd_offset = g_settings.infobar_show_sysfs_hdd ? 100 + OFFSET_INNER_MID + clock_off : clock_off;
-
 	// set channel logo
 	if (g_settings.channellist_show_channellogo)
 		m_header->setChannelLogo(m_movieSelectionHandler->epgId >> 16, m_movieSelectionHandler->channelName, (CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
