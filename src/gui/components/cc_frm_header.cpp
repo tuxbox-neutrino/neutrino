@@ -367,7 +367,7 @@ void CComponentsHeader::initLogo()
 				if (prev_item)
 				{
 					int left_tag = prev_item->getXPos() + prev_item->getWidth();
-					if (x_logo <= left_tag)
+					//if (x_logo <= left_tag)
 						x_logo = left_tag + logo_space/2 - w_logo/2;
 				}
 			}
