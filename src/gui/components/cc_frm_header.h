@@ -335,7 +335,7 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		CComponentsFrmClock* getClockObject(){return cch_cl_obj;}
 
 		///enable display of clock, parameter bool enable, const char* format, bool run
-		void enableClock(bool enable = true, const char* format = "%H:%M", const char* sec_format_str = NULL, bool run = false);
+		void enableClock(bool enable = true, const char* format = "%H:%M", const char* sec_format_str = "%H %M", bool run = true);
 		///disable clock, without parameter
 		void disableClock();
 
