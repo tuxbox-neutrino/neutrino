@@ -912,7 +912,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// set channel logo
 	if (g_settings.channellist_show_channellogo)
-		header->setChannelLogo(channel_id, channel_name);
+		header->setChannelLogo(channel_id, channel_name, (CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
 
 	//paint head
 	header->paint(CC_SAVE_SCREEN_NO);

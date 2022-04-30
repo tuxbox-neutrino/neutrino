@@ -89,7 +89,6 @@ COsdSetup::COsdSetup(int wizard_mode)
 	colorInfoclockNotifier = NULL;
 	screensaverNotifier = NULL;
 	channellistNotifier = NULL;
-	channellogoNotifier = NULL;
 	infobarHddNotifier = NULL;
 	osd_menu = NULL;
 	submenu_menus = NULL;
@@ -569,6 +568,15 @@ const CMenuOptionChooser::keyval PROGRESSBAR_COLOR_OPTIONS[PROGRESSBAR_COLOR_OPT
 	{ CProgressBar::PB_COLOR,       _LOCALE_PROGRESSBAR_COLOR_FULL },
 };
 
+#define OPTIONS_CHANNELLOGO_POSITION_COUNT 4
+const CMenuOptionChooser::keyval OPTIONS_CHANNELLOGO_POSITION[OPTIONS_CHANNELLOGO_POSITION_COUNT] =
+{
+	{ 0, LOCALE_OPTIONS_OFF },							// off
+	{ CCHeaderTypes::CC_LOGO_RIGHT, LOCALE_CHANNELLIST_EPGTEXT_ALIGN_RIGHT },	// right
+	{ CCHeaderTypes::CC_LOGO_LEFT, LOCALE_CHANNELLIST_EPGTEXT_ALIGN_LEFT },		// left
+	{ CCHeaderTypes::CC_LOGO_CENTER, LOCALE_SETTINGS_POS_DEFAULT_CENTER } 		// centered
+};
+
 // show osd setup
 int COsdSetup::showOsdSetup()
 {
@@ -777,7 +785,6 @@ int COsdSetup::showOsdSetup()
 	delete colorInfoclockNotifier;
 	delete screensaverNotifier;
 	delete channellistNotifier;
-	delete channellogoNotifier;
 	delete infobarHddNotifier;
 	delete osd_menu;
 	return res;
@@ -1237,7 +1244,6 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 {
 	menu_channellogos->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLOGOS);
 
-	channellogoNotifier = new COnOffNotifier();
 	CMenuOptionChooser * mc;
 	CMenuForwarder * mf;
 
@@ -1249,7 +1255,7 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 	menu_channellogos->addItem(GenericMenuSeparatorLine);
 
 	// show channellogos
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, channellogoNotifier);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_CHANNELLOGO_POSITION, OPTIONS_CHANNELLOGO_POSITION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELLOGO);
 	menu_channellogos->addItem(mc);
 
@@ -1257,7 +1263,6 @@ void COsdSetup::showOsdChannellogosSetup(CMenuWidget *menu_channellogos)
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_EVENTLOGO, &g_settings.channellist_show_eventlogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.channellist_show_channellogo);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_EVENTLOGO);
 	menu_channellogos->addItem(mc);
-	channellogoNotifier->addItem(mc);
 }
 
 // infobar

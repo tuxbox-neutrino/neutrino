@@ -1799,7 +1799,7 @@ void CChannelList::showChannelLogo()
 		return;
 
 	if(g_settings.channellist_show_channellogo){
-		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName());
+		header->setChannelLogo((*chanlist)[selected]->getChannelID(), (*chanlist)[selected]->getName(), (CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
 		header->getChannelLogoObject()->hide();
 		header->getChannelLogoObject()->clearSavedScreen();
 		header->getChannelLogoObject()->paint();

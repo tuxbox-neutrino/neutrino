@@ -144,7 +144,7 @@ void EpgPlus::Header::paintChannelLogo(const CZapitChannel *Channel)
 		this->logo->clearSavedScreen();
 		if (Channel)
 		{
-			this->head->setChannelLogo(Channel->getChannelID(), Channel->getName());
+			this->head->setChannelLogo(Channel->getChannelID(), Channel->getName(), (CCHeaderTypes::cc_logo_alignment_t)g_settings.channellist_show_channellogo);
 		}
 		this->logo->allowPaint(true);
 		this->logo->paint();
