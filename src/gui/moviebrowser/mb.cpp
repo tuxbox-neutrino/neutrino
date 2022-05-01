@@ -3612,7 +3612,7 @@ void CMovieBrowser::initOptionsBrowserMenu(CMenuWidget *OptionsMenuBrowser, CInt
 
 bool CMovieBrowser::showMenu(bool calledExternally)
 {
-	if (m_header->getClockObject())
+	if (m_header && m_header->getClockObject())
 		m_header->disableClock();
 
 	/* first clear screen */
@@ -3754,7 +3754,7 @@ bool CMovieBrowser::showMenu(bool calledExternally)
 
 	delete nfs;
 
-	if (m_header->getClockObject())
+	if (m_header && m_header->getClockObject())
 		m_header->enableClock();
 
 	return(true);
