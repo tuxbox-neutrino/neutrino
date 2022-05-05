@@ -188,7 +188,7 @@ bool CFrontend::Open(bool init)
 		deliverySystemMask |= DVB_S2;
 		deliverySystemMask |= DVB_S2X;
 		info.type = FE_QPSK;
-		strcpy(info.name, "dummyfe");
+		strcpy(info.name, "dummy fe for testing DVB-S/S2/S2X");
 		return false;
 	}
 
