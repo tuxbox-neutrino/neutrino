@@ -95,9 +95,7 @@ typedef enum dvb_fec {
 	f3_5,
 	f4_5,
 	f9_10,
-	fNone = 15
-#if BOXMODEL_VUPLUS_ARM
-	,
+	fNone = 15,
 	f13_45,
 	f9_20,
 	f11_20,
@@ -116,7 +114,6 @@ typedef enum dvb_fec {
 	f2_3_L,
 	f5_9_L,
 	f26_45_L
-#endif
 } dvb_fec_t;
 
 static fe_sec_voltage_t unicable_lowvolt = SEC_VOLTAGE_13;
@@ -485,7 +482,6 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		case f9_10:
 			fec = FEC_9_10;
 			break;
-#if BOXMODEL_VUPLUS_ARM
 		case f13_45:
 			fec = FEC_13_45;
 			break;
@@ -540,7 +536,6 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		case f26_45_L:
 			fec = FEC_26_45_L;
 			break;
-#endif
 		default:
 			if (zapit_debug)
 				printf("no valid fec for DVB-S2/DVB-S2X set!\n");
@@ -1012,11 +1007,9 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		case PSK_8:
 			mod = "8PSK";
 			break;
-#if BOXMODEL_VUPLUS_ARM
 		case APSK_8:
 			mod = "8APSK";
 			break;
-#endif
 		case APSK_16:
 			mod = "16APSK";
 			break;
@@ -1130,7 +1123,6 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		fec = "0";
 		break;
 #endif
-#if BOXMODEL_VUPLUS_ARM
 	case FEC_13_45:
 		fec = "13/45";
 		break;
@@ -1185,7 +1177,6 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_26_45_L:
 		fec = "26/45L";
 		break;
-#endif
 	default:
 		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 		/* fall through */
@@ -1425,7 +1416,6 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		fec = FEC_NONE;
 		break;
 #endif
-#if BOXMODEL_VUPLUS_ARM
 	case FEC_13_45:
 		fec = FEC_13_45;
 		break;
@@ -1480,7 +1470,6 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 	case FEC_26_45_L:
 		fec = FEC_26_45_L;
 		break;
-#endif
 	default:
 		INFO("[fe%d/%d] DEMOD: unknown FEC: %d\n", adapter, fenumber, fec_inner);
 	/* fall through */
