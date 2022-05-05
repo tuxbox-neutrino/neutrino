@@ -118,7 +118,7 @@ class CStreamInfo2 : public CMenuTarget
 
 		void paint(int mode);
 		void paint_techinfo(int x, int y);
-		void paintCASystem(int xpos, int ypos);
+		void paintCASystem(int xpos, int ypos, bool fake = false);
 		void paint_signal_fe_box(int x, int y, int w, int h);
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
@@ -139,4 +139,3 @@ class CStreamInfo2 : public CMenuTarget
 		int readPacket(uint8_t *buf, int buf_size);
 };
 #endif
-
