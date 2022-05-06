@@ -90,6 +90,8 @@ class Font
 	int getWidestWidth(void);
 	int getSize(){return font.width;}
 	int setSize(int isize);
+	int getAscender(){return ascender;}
+	int getDescender(){return descender * -1;}
 
 	Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const fontmodifier _stylemodifier);
 	~Font(){}
