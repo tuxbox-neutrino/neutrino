@@ -2011,7 +2011,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		  frameBuffer->paintBoxRel(x,ypos, width - SCROLLBAR_WIDTH, fheight, bgcolor, i_radius);
 
 	if(curr < (*chanlist).size()) {
-		char nameAndDescription[255];
+		char chan_name[255];
+		char chan_desc[255];
 		char tmp[10];
 		CZapitChannel* chan = (*chanlist)[curr];
 		int prg_offset = 0;
@@ -2150,11 +2151,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			numwidth = -5;
 		}
 
-		int l=0;
 		if (this->historyMode && g_settings.channellist_show_numbers)
-			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%d: %s", chan->number, chan->getName().c_str());
+			snprintf(chan_name, sizeof(chan_name), "%d: %s", chan->number, chan->getName().c_str());
 		else
-			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
+			snprintf(chan_name, sizeof(chan_name), "%s", chan->getName().c_str());
 
 		int pb_width = prg_offset;
 		int pb_height = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getDigitHeight();
@@ -2172,24 +2172,27 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		pb.setFrameThickness(pb_frame);
 		pb.doPaintBg(false);
 
-		if (!p_event->description.empty())
-			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l, g_settings.channellist_epgtext_align_right ? "  " : " - ");
-		unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
+		unsigned int chan_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(chan_name);
 		int max_name_len = width - numwidth - prg_offset - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - offset_right;
 		if (max_name_len < 0)
 			max_name_len = 0;
-		if ((int) ch_name_len > max_name_len)
-			ch_name_len = max_name_len;
+		if ((int) chan_name_len > max_name_len)
+			chan_name_len = max_name_len;
 
 		if (!p_event->description.empty())
 		{
-			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description);
+			if (g_settings.channellist_epgtext_align_right)
+				snprintf(chan_desc, sizeof(chan_desc), "%s", p_event->description.c_str());
+			else
+				snprintf(chan_desc, sizeof(chan_desc), " - %s", p_event->description.c_str());
 
-			int max_desc_len = max_name_len - ch_name_len;
+			unsigned int chan_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(chan_desc);
+
+			int max_desc_len = max_name_len - chan_name_len;
 			if (max_desc_len < 0)
 				max_desc_len = 0;
-			if ((int) ch_desc_len > max_desc_len)
-				ch_desc_len = max_desc_len;
+			if ((int) chan_desc_len > max_desc_len)
+				chan_desc_len = max_desc_len;
 
 			if (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
 			{
@@ -2215,17 +2218,17 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				}
 			}
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, chan_name_len, chan_name, color);
 			int descr_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getDescender() - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getDescender();
 			if (g_settings.channellist_epgtext_align_right)
 			{
 				// align right
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - ch_desc_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, dcolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - chan_desc_len, ypos + fheight - descr_offset, chan_desc_len, chan_desc, dcolor);
 			}
 			else
 			{
 				// align left
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + ch_name_len, ypos + fheight - descr_offset, ch_desc_len, p_event->description, dcolor);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + chan_name_len, ypos + fheight - descr_offset, chan_desc_len, chan_desc, dcolor);
 			}
 		}
 		else
@@ -2239,7 +2242,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				}
 			}
 			// name
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, ch_name_len, nameAndDescription, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, chan_name_len, chan_name, color);
 		}
 		if (!firstpaint && curr == selected)
 			updateVfd();
@@ -2261,8 +2264,7 @@ void CChannelList::updateVfd()
 
 	if (!(chan->currentEvent.description.empty())) {
 		char nameAndDescription[255];
-		snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s",
-				chan->getName().c_str(), p_event->description.c_str());
+		snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s", chan->getName().c_str(), p_event->description.c_str());
 		CVFD::getInstance()->showMenuText(0, nameAndDescription, -1, true); // UTF-8
 	} else
 		CVFD::getInstance()->showMenuText(0, chan->getName().c_str(), -1, true); // UTF-8
