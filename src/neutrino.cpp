@@ -1240,9 +1240,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.channellist_descmode = false;
 	g_settings.channellist_displaymode = DISPLAY_MODE_NOW;
 
-	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1);
-	g_settings.channellist_epgtext_align_right = configfile.getBool("channellist_epgtext_align_right", false);
-	g_settings.channellist_foot = configfile.getInt32("channellist_foot", 1);
+	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 1); // default no minitv
+	g_settings.channellist_epgtext_alignment = configfile.getInt32("channellist_epgtext_alignment", EPGTEXT_ALIGN_LEFT_MIDDLE);
+	g_settings.channellist_foot = configfile.getInt32("channellist_foot", 1); // default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 0);
 	g_settings.channellist_numeric_adjust = configfile.getInt32("channellist_numeric_adjust", 0);
 	g_settings.channellist_show_channellogo = configfile.getInt32("channellist_show_channellogo", CCHeaderTypes::CC_LOGO_RIGHT);
@@ -1250,7 +1250,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.channellist_show_infobox = configfile.getInt32("channellist_show_infobox", 1);
 	g_settings.channellist_show_numbers = configfile.getInt32("channellist_show_numbers", 1);
 	g_settings.channellist_show_res_icon = configfile.getInt32("channellist_show_res_icon", 0);
-	g_settings.channellist_sort_mode = configfile.getInt32("channellist_sort_mode", 0);
+	g_settings.channellist_sort_mode = configfile.getInt32("channellist_sort_mode", 0); // sort mode: alpha, freq, sat
 
 	// infobar
 // 	g_settings.infobar_analogclock = configfile.getInt32("infobar_analogclock", 0);
@@ -1472,6 +1472,13 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 		if (access(g_settings.font_file_monospace, F_OK) != 0)
 			g_settings.font_file_monospace = FONTDIR "/tuxtxt.ttf";
 		configfile.deleteKey("ttx_font_file");
+	}
+	if (g_settings.version_pseudo < "20220506230000")
+	{
+		g_settings.channellist_epgtext_alignment = configfile.getBool("channellist_epgtext_align_right", false);
+		if (g_settings.channellist_epgtext_alignment == 1) // old bool
+			g_settings.channellist_epgtext_alignment = EPGTEXT_ALIGN_RIGHT_MIDDLE;
+		configfile.deleteKey("channellist_epgtext_align_right");
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
@@ -2108,7 +2115,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	// channellist
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
-	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
+	configfile.setInt32("channellist_epgtext_alignment", g_settings.channellist_epgtext_alignment);
 	configfile.setInt32("channellist_foot", g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
 	configfile.setInt32("channellist_numeric_adjust", g_settings.channellist_numeric_adjust);

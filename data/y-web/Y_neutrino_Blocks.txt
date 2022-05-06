@@ -616,8 +616,9 @@ start-block~neutrino_form-data_diverse
 			<tr title="programtext position: left/right">
 				<td>Ausrichtung Programmtext</td>
 				<td>
-					<input type="radio" name="epgtext_align_right" value="false"/>links&nbsp;
-					<input type="radio" name="epgtext_align_right" value="true"/>rechts
+					<!-- FIXME -->
+					<input type="radio" name="channellist_epgtext_alignment" value="false"/>links&nbsp;
+					<input type="radio" name="channellist_epgtext_alignment" value="true"/>rechts
 				</td>
 			</tr>
 			<tr title="extended channellist: on/off">
@@ -729,7 +730,7 @@ function form_init()
 		document.f.infobar_show.selectedIndex = val;
 	obj_set_radio_value('radiotext', "{=ini-get:%(CONFIGDIR)/neutrino.conf;radiotext_enable;false~cache=}");
 
-	obj_set_radio_value('epgtext_align_right', "{=ini-get:%(CONFIGDIR)/neutrino.conf;channellist_epgtext_align_right;false~cache=}");
+	obj_set_radio_value('channellist_epgtext_alignment', "{=ini-get:%(CONFIGDIR)/neutrino.conf;channellist_epgtext_alignment;false~cache=}");
 	obj_set_radio_value('channellist_extended', "{=ini-get:%(CONFIGDIR)/neutrino.conf;channellist_extended;false~cache=}");
 
 	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;standby_off_with;0=}";
@@ -761,7 +762,7 @@ end-block~neutrino_form-data_diverse
 
 # ------- yWeb save Settings
 start-block~neutrino_diverse_save_settings
-{=ini-set:%(CONFIGDIR)/neutrino.conf;channellist_epgtext_align_right;{=epgtext_align_right=}~open=}
+{=ini-set:%(CONFIGDIR)/neutrino.conf;channellist_epgtext_alignment;{=channellist_epgtext_alignment=}~open=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;channellist_extended;{=channellist_extended=}~cache=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;filebrowser_showrights;{=filebrowser_showrights=}~cache=}
 {=ini-set:%(CONFIGDIR)/neutrino.conf;filebrowser_denydirectoryleave;{=filebrowser_denydirectoryleave=}~cache=}

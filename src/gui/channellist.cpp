@@ -2181,10 +2181,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 		if (!p_event->description.empty())
 		{
-			if (g_settings.channellist_epgtext_align_right)
-				snprintf(chan_desc, sizeof(chan_desc), "%s", p_event->description.c_str());
-			else
+			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_BOTTOM))
 				snprintf(chan_desc, sizeof(chan_desc), " - %s", p_event->description.c_str());
+			else
+				snprintf(chan_desc, sizeof(chan_desc), "%s", p_event->description.c_str());
 
 			unsigned int chan_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(chan_desc);
 
@@ -2219,17 +2219,20 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			}
 
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, chan_name_len, chan_name, color);
-			int descr_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getDescender() - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getDescender();
-			if (g_settings.channellist_epgtext_align_right)
-			{
-				// align right
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - SCROLLBAR_WIDTH - offset_right - chan_desc_len, ypos + fheight - descr_offset, chan_desc_len, chan_desc, dcolor);
-			}
+
+			int chan_desc_x;
+			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_BOTTOM))
+				chan_desc_x = x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + chan_name_len;
 			else
-			{
-				// align left
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + chan_name_len, ypos + fheight - descr_offset, chan_desc_len, chan_desc, dcolor);
-			}
+				chan_desc_x = x + width - SCROLLBAR_WIDTH - offset_right - chan_desc_len;
+
+			int chan_desc_y_off;
+			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_MIDDLE))
+				chan_desc_y_off = fheight/2 - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight()/2;
+			else
+				chan_desc_y_off = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getDescender() - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getDescender();
+
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(chan_desc_x, ypos + fheight - chan_desc_y_off, chan_desc_len, chan_desc, dcolor);
 		}
 		else
 		{

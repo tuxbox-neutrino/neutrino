@@ -271,8 +271,10 @@ channellist.edit Bearbeiten
 channellist.enablesdt_off aus
 channellist.enablesdt_on ein
 channellist.enablesdt_on_extended ein (mit PMT)
-channellist.epgtext_align_left links
-channellist.epgtext_align_right rechts
+channellist.epgtext_align_left_bottom links unten
+channellist.epgtext_align_left_middle links zentriert
+channellist.epgtext_align_right_bottom rechts unten
+channellist.epgtext_align_right_middle rechts zentiert
 channellist.extended Sendungsfortschritt anzeigen
 channellist.favs Favoriten
 channellist.foot Kanalinformationen
@@ -1817,7 +1819,7 @@ messagebox.ok OK
 messagebox.yes Ja
 miscsettings.channellist Kanalliste
 miscsettings.channellist_enablesdt Transponder Hintergrundaktualisierung
-miscsettings.channellist_epgtext_align Event-Text ausrichten
+miscsettings.channellist_epgtext_alignment Event-Text ausrichten
 miscsettings.channellogos Senderlogos
 miscsettings.colored_events Sendung hervorheben
 miscsettings.colored_events_0 keine
@@ -2631,8 +2633,10 @@ settings.noconffile Die Einstellungen wurden nicht\ngefunden. Es werden Standard
 settings.pos_bottom_center unten zentriert
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
-settings.pos_default_center zentriert
+settings.pos_center zentriert
 settings.pos_higher_center höher zentriert
+settings.pos_left links
+settings.pos_right rechts
 settings.pos_top_center oben zentriert
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts

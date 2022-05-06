@@ -271,8 +271,10 @@ channellist.edit Edit
 channellist.enablesdt_off off
 channellist.enablesdt_on on
 channellist.enablesdt_on_extended on (with PMT)
-channellist.epgtext_align_left left
-channellist.epgtext_align_right right
+channellist.epgtext_align_left_bottom left bottom
+channellist.epgtext_align_left_middle left middle
+channellist.epgtext_align_right_bottom right bottom
+channellist.epgtext_align_right_middle right middle
 channellist.extended Show event progress
 channellist.favs Favorites
 channellist.foot Channel Information
@@ -1817,7 +1819,7 @@ messagebox.ok Ok
 messagebox.yes Yes
 miscsettings.channellist Channellist
 miscsettings.channellist_enablesdt Transponder background update
-miscsettings.channellist_epgtext_align Programtext Align
+miscsettings.channellist_epgtext_alignment Programtext alignment
 miscsettings.channellogos Channel logos
 miscsettings.colored_events Program colored
 miscsettings.colored_events_0 none
@@ -2631,8 +2633,10 @@ settings.noconffile No settings found.\nUsing defaults.
 settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
-settings.pos_default_center center
+settings.pos_center center
 settings.pos_higher_center higher center
+settings.pos_left left
+settings.pos_right richt
 settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
