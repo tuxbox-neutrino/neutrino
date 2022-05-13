@@ -2222,9 +2222,14 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 			int chan_desc_x;
 			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_BOTTOM))
+			{
 				chan_desc_x = x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + chan_name_len;
+			}
 			else
+			{
+				chan_desc_len -= OFFSET_INNER_MID;
 				chan_desc_x = x + width - SCROLLBAR_WIDTH - offset_right - chan_desc_len;
+			}
 
 			int chan_desc_y_off;
 			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_MIDDLE))
