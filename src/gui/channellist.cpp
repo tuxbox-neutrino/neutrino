@@ -2189,6 +2189,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			unsigned int chan_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(chan_desc);
 
 			int max_desc_len = max_name_len - chan_name_len;
+			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_BOTTOM))
+				max_desc_len -= OFFSET_INNER_MID;
 			if (max_desc_len < 0)
 				max_desc_len = 0;
 			if ((int) chan_desc_len > max_desc_len)
@@ -2221,15 +2223,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, chan_name_len, chan_name, color);
 
 			int chan_desc_x;
-			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_BOTTOM))
-			{
-				chan_desc_x = x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + chan_name_len;
-			}
-			else
-			{
-				chan_desc_len -= OFFSET_INNER_MID;
+			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_BOTTOM))
 				chan_desc_x = x + width - SCROLLBAR_WIDTH - offset_right - chan_desc_len;
-			}
+			else
+				chan_desc_x = x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + chan_name_len;
 
 			int chan_desc_y_off;
 			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_MIDDLE))
