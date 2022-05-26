@@ -1048,7 +1048,7 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 		// check for spezial folders and mounted folders
 		struct statfs s;
 		::statfs(hostpath, &s);
-		switch (s.f_type) {
+		switch (static_cast<long unsigned int>(s.f_type)) {
 			case 0xEF53L:		/*EXT2 & EXT3*/
 			case 0x6969L:		/*NFS*/
 			case 0xFF534D42L:	/*CIFS*/
