@@ -5571,6 +5571,12 @@ void stop_daemons(bool stopall, bool for_flash)
 	tuxtxt_stop();
 	tuxtxt_close();
 
+#ifdef ENABLE_LCD4LINUX
+	if (g_settings.lcd4l_support) {
+		CLCD4l::getInstance()->StopLCD4l();
+		delete CLCD4l::getInstance();
+	}
+#endif
 #ifdef ENABLE_GRAPHLCD
 	cGLCD::Exit();
 #endif
@@ -5657,10 +5663,6 @@ void sighandler (int signum)
 	case SIGTERM:
 	case SIGINT:
 		CVFD::getInstance()->ShowText("Exiting ...");
-#ifdef ENABLE_LCD4LINUX
-		CLCD4l::getInstance()->StopLCD4l();
-		delete CLCD4l::getInstance();
-#endif
 		delete cHddStat::getInstance();
 		delete CRecordManager::getInstance();
 		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);

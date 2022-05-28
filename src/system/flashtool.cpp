@@ -44,10 +44,6 @@
 #include <neutrino.h>
 #include <driver/display.h>
 
-#ifdef ENABLE_LCD4LINUX
-#include "driver/lcd4l.h"
-#endif
-
 CFlashTool::CFlashTool()
 {
 	statusViewer = NULL;
@@ -338,17 +334,6 @@ bool CFlashTool::getInfo()
 	isnand = (meminfo.type == MTD_NANDFLASH);
 	printf("CFlashTool::getInfo: NAND: %s writesize %d\n", isnand ? "yes" : "no", meminfo.writesize);
 	return true;
-}
-
-
-void CFlashTool::stopDaemons()
-{
-#ifdef ENABLE_LCD4LINUX
-	if (g_settings.lcd4l_support)
-		CLCD4l::getInstance()->StopLCD4l();
-#endif
-
-	CNeutrinoApp::getInstance()->stopDaemonsForFlash();
 }
 
 bool CFlashTool::erase(int globalProgressEnd)
