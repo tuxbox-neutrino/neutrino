@@ -52,7 +52,6 @@ void CVolumeBar::initVarVolumeBar()
 	col_body_std = COL_MENUCONTENT_PLUS_0;
 	corner_rad = g_settings.theme.rounded_corners ? CORNER_RADIUS_MID : CORNER_RADIUS_NONE;
 
-	vb_item_offset = OFFSET_INNER_SMALL;
 	height = CFrameBuffer::getInstance()->scale2Res(g_settings.volume_size);
 
 	// assume volume value as pointer to global setting
@@ -64,10 +63,10 @@ void CVolumeBar::initVarVolumeBar()
 
 	// progressbar object
 	vb_pb = NULL;
-	vb_pbx = 0;
-	vb_pbw = 0;
-	vb_pbh = 0;
-	vb_pby = 0;
+	vb_pb_x = 0;
+	vb_pb_w = 0;
+	vb_pb_h = 0;
+	vb_pb_y = 0;
 
 	// digit
 	vb_digit = NULL;
@@ -92,18 +91,22 @@ void CVolumeBar::initVolumeBarSize()
 	//	vb_digit_w += corner_rad/2;
 
 	// scale
-	vb_pbw = CFrameBuffer::getInstance()->scale2Res(200);
-	vb_pbh = height - 2 * vb_item_offset;
-
-	// result for width
-	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4 * vb_item_offset;
-	if (g_settings.theme.rounded_corners)
-		width += corner_rad / 2;
+	vb_pb_w = CFrameBuffer::getInstance()->scale2Res(200);
+	vb_pb_h = height - 2 * v_spacer;
 
 	// adapt x-pos
-	vb_pbx = vb_item_offset + vb_icon_w + vb_item_offset;
-	vb_icon_x = vb_pbx / 2 - vb_icon_w / 2 + vb_item_offset;
-	vb_digit_x = vb_pbx + vb_pbw + vb_item_offset;
+	vb_icon_x = h_spacer;
+	vb_pb_x = vb_icon_x;
+	if (vb_icon_w)
+		vb_pb_x += vb_icon_w + h_spacer;
+	vb_digit_x = vb_pb_x + vb_pb_w + h_spacer;
+
+	// result for width
+	width = h_spacer + vb_pb_w + h_spacer + vb_digit_w + h_spacer;
+	if (vb_icon_w)
+		width += vb_icon_w + h_spacer;
+	if (g_settings.theme.rounded_corners)
+		width += corner_rad / 2;
 
 	// mute icon
 	cvh->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
@@ -115,7 +118,7 @@ void CVolumeBar::initVolumeBarSize()
 		mute_corrY = (height - mute_dy) / 2;
 	cvh->setMuteIconCorrY(mute_corrY);
 
-	vb_pby = height / 2 - vb_pbh / 2;
+	vb_pb_y = height / 2 - vb_pb_h / 2;
 }
 
 // init current position of form
@@ -206,7 +209,7 @@ void CVolumeBar::initVolumeBarScale()
 	vb_pb->setType(CProgressBar::PB_REDRIGHT);
 	vb_pb->setRgb(85, 75, 100);
 	vb_pb->setFrameThickness(FRAME_WIDTH_NONE);
-	vb_pb->setProgress(vb_pbx, vb_pby, vb_pbw, vb_pbh, *vb_vol, 100);
+	vb_pb->setProgress(vb_pb_x, vb_pb_y, vb_pb_w, vb_pb_h, *vb_vol, 100);
 }
 
 // set digit text with current volume value
@@ -366,7 +369,7 @@ void CVolumeHelper::initVolBarSize()
 	icon_height = 0;
 	digit_width = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_width, &icon_height);
-	icon_height = max(icon_height, 16); // if no icon available
+	icon_height = max(icon_height, 18); // if no icon available
 	icon_height += OFFSET_INNER_MIN;
 	icon_width += OFFSET_INNER_MID;
 	g_settings.volume_size = max(g_settings.volume_size, icon_height);

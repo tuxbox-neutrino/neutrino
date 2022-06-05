@@ -42,7 +42,6 @@ class CVolumeBar : public CComponentsForm
 		int sw, sh;
 		int mute_ax, mute_ay, mute_dx, mute_dy;
 		int h_spacer, v_spacer;
-		int vb_item_offset;
 
 		// clock
 		int clock_y, clock_width, clock_height;
@@ -51,7 +50,7 @@ class CVolumeBar : public CComponentsForm
 		char *vb_vol;
 
 		// scale dimensions
-		int vb_pbx, vb_pby, vb_pbw, vb_pbh;
+		int vb_pb_x, vb_pb_y, vb_pb_w, vb_pb_h;
 
 		// icon dimensions
 		int vb_icon_x, vb_icon_w/*, vb_icon_h*/;
