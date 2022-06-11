@@ -323,20 +323,12 @@ void CComponentsHeader::initLogo()
 		*/
 		if (next_item)
 		{
-			if (next_item->getItemType() == CC_ITEMTYPE_FRM_CLOCK)
-			{
-				/*
-				 * Either clock is present or buttons are enabled,
-				 * different order of objects are required, not optimal
-				 * but works at the moment.
-				*/
-				if (cch_pb_obj)
-					next_item = cch_pb_obj;
-				else if (cch_cl_obj)
-					next_item = cch_cl_obj;
-				else
-					next_item = cch_btn_obj;
-			}
+			if (cch_pb_obj)
+				next_item = cch_pb_obj;
+			else if (cch_cl_obj)
+				next_item = cch_cl_obj;
+			else
+				next_item = cch_btn_obj;
 		}
 
 		/*
@@ -383,8 +375,10 @@ void CComponentsHeader::initLogo()
 			if (cch_caption_align & CC_TITLE_RIGHT)
 			{
 				if (next_item)
+				{
 					if (x_logo + w_logo >= next_item->getXPos())
 						x_logo = next_item->getXPos() - logo_space/2 - w_logo/2;
+				}
 			}
 		}
 
