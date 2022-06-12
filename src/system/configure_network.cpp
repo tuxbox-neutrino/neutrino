@@ -214,26 +214,37 @@ void CNetworkConfig::commitConfig(void)
 
 void CNetworkConfig::startNetwork(void)
 {
-	std::string cmd = "/sbin/ifup " + ifname;
+	std::string ifup = find_executable("ifup");
+	if (ifup.empty())
+	{
+		printf("CNetworkConfig::startNetwork: ifup not found\n");
+		return;
+	}
+
+	std::string cmd = ifup + " " + ifname;
 #ifdef DEBUG
 	printf("CNetworkConfig::startNetwork: %s\n", cmd.c_str());
 #endif
 	my_system(3, "/bin/sh", "-c", cmd.c_str());
 
-	if (!inet_static) {
+	if (!inet_static)
 		init_vars();
-	}
-	//mysystem((char *) "ifup",  (char *) "-v",  (char *) "eth0");
 }
 
 void CNetworkConfig::stopNetwork(void)
 {
-	std::string cmd = "/sbin/ifdown " + ifname;
+	std::string ifdown = find_executable("ifdown");
+	if (ifdown.empty())
+	{
+		printf("CNetworkConfig::stopNetwork: ifdown not found\n");
+		return;
+	}
+
+	std::string cmd = ifdown + " " + ifname;
 #ifdef DEBUG
 	printf("CNetworkConfig::stopNetwork: %s\n", cmd.c_str());
 #endif
 	my_system(3, "/bin/sh", "-c", cmd.c_str());
-
 }
 
 void CNetworkConfig::readWpaConfig()
