@@ -444,6 +444,7 @@ void CComponentsHeader::setProgessBar(int percent)
 
 	if (cch_pb_obj){
 		cch_pb_obj->setValues(percent, 100);
+		cch_pb_obj->paint();
 	}
 }
 
