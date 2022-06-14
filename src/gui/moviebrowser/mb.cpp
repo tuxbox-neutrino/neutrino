@@ -1644,10 +1644,27 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
 	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
 
+	int percent_used = 0;
+	struct statfs s;
+
+	if (getSelectedFile() != NULL)
+	{
+		if (::statfs(getSelectedFile()->Name.c_str(), &s) == 0)
+		{
+			if (s.f_blocks > 0)
+			{
+				uint64_t bytes_total = s.f_blocks * s.f_bsize;
+				uint64_t bytes_free  = s.f_bfree  * s.f_bsize;
+				uint64_t bytes_used = bytes_total - bytes_free;
+				percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
+			}
+		}
+	}
+
 	if (g_settings.infobar_show_sysfs_hdd && paint_hdd)
-		m_header->enableProgessBar(cHddStat::getInstance()->getPercent());
+		m_header->enableProgessBar(percent_used);
 	else
-		m_header->setProgessBar(cHddStat::getInstance()->getPercent());
+		m_header->setProgessBar(percent_used);
 }
 
 void CMovieBrowser::refreshLCD(void)
