@@ -462,12 +462,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
 
-	// hdmi cec
-	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0);
-	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0);
-	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0);
-	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 0);
-
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	g_settings.psi_brightness = configfile.getInt32("video_psi_brightness", 128);
 	g_settings.psi_contrast = configfile.getInt32("video_psi_contrast", 128);
@@ -475,6 +469,12 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.psi_step = configfile.getInt32("video_psi_step", 2);
 	g_settings.psi_tint = configfile.getInt32("video_psi_tint", 128);
 #endif
+
+	// hdmi cec
+	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0);
+	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0);
+	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0);
+	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 0);
 
 	// volume
 	g_settings.current_volume = configfile.getInt32("current_volume", 75);
@@ -1555,12 +1555,6 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("video_Format", g_settings.video_Format);
 	configfile.setInt32("video_43mode", g_settings.video_43mode);
 
-	// hdmi cec
-	configfile.setInt32("hdmi_cec_mode", g_settings.hdmi_cec_mode);
-	configfile.setInt32("hdmi_cec_view_on", g_settings.hdmi_cec_view_on);
-	configfile.setInt32("hdmi_cec_standby", g_settings.hdmi_cec_standby);
-	configfile.setInt32("hdmi_cec_volume", g_settings.hdmi_cec_volume);
-
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	configfile.setInt32("video_psi_brightness", g_settings.psi_brightness);
 	configfile.setInt32("video_psi_contrast", g_settings.psi_contrast);
@@ -1568,6 +1562,12 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("video_psi_step", g_settings.psi_step);
 	configfile.setInt32("video_psi_tint", g_settings.psi_tint);
 #endif
+
+	// hdmi cec
+	configfile.setInt32("hdmi_cec_mode", g_settings.hdmi_cec_mode);
+	configfile.setInt32("hdmi_cec_view_on", g_settings.hdmi_cec_view_on);
+	configfile.setInt32("hdmi_cec_standby", g_settings.hdmi_cec_standby);
+	configfile.setInt32("hdmi_cec_volume", g_settings.hdmi_cec_volume);
 
 	// volume
 	configfile.setInt32( "current_volume", g_settings.current_volume );

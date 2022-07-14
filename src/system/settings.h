@@ -362,12 +362,6 @@ struct SNeutrinoSettings
 	int video_Format;
 	int video_43mode;
 
-	// hdmi cec
-	int hdmi_cec_mode;
-	int hdmi_cec_view_on;
-	int hdmi_cec_standby;
-	int hdmi_cec_volume;
-
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	int psi_brightness;
 	int psi_contrast;
@@ -375,6 +369,12 @@ struct SNeutrinoSettings
 	int psi_step;
 	int psi_tint;
 #endif
+
+	// hdmi cec
+	int hdmi_cec_mode;
+	int hdmi_cec_view_on;
+	int hdmi_cec_standby;
+	int hdmi_cec_volume;
 
 	// volume
 	char current_volume;
