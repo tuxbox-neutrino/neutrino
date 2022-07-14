@@ -459,8 +459,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_SD_RGB_SCART); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_SD_YPRPB_CINCH); // default YPBPR
 #endif
-	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
+	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
 
 	// hdmi cec
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0);
@@ -477,22 +477,24 @@ int CNeutrinoApp::loadSetup(const char *fname)
 #endif
 
 	// volume
-	g_settings.current_volume = g_settings.hdmi_cec_volume ? 100 : configfile.getInt32("current_volume", 100);
+	g_settings.current_volume = configfile.getInt32("current_volume", 75);
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 5);
-	g_settings.start_volume = g_settings.hdmi_cec_volume ? 100 : configfile.getInt32("start_volume", -1);
+	g_settings.start_volume = configfile.getInt32("start_volume", -1);
 	if (g_settings.start_volume >= 0)
-		g_settings.current_volume = g_settings.hdmi_cec_volume ? 100 : g_settings.start_volume;
+		g_settings.current_volume = g_settings.start_volume;
+	if (g_settings.hdmi_cec_volume)
+		g_settings.current_volume = 100;
 	g_settings.audio_volume_percent_ac3 = configfile.getInt32("audio_volume_percent_ac3", 100);
 	g_settings.audio_volume_percent_pcm = configfile.getInt32("audio_volume_percent_pcm", 100);
 
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_FAV);
+	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
 	g_settings.channel_mode_initial = configfile.getInt32("channel_mode_initial", LIST_MODE_FAV);
+	g_settings.channel_mode_initial_radio = configfile.getInt32("channel_mode_initial_radio", LIST_MODE_FAV);
 	if (g_settings.channel_mode_initial > -1)
 		g_settings.channel_mode = g_settings.channel_mode_initial;
-	g_settings.channel_mode_initial_radio = configfile.getInt32("channel_mode_initial_radio", LIST_MODE_FAV);
 	if (g_settings.channel_mode_initial_radio > -1)
 		g_settings.channel_mode_radio = g_settings.channel_mode_initial_radio;
-	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_FAV);
 
 	g_settings.fan_speed = configfile.getInt32("fan_speed", 1);
 	if (g_settings.fan_speed < 1)
@@ -500,7 +502,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	g_settings.srs_enable = configfile.getInt32("srs_enable", 0);
 	g_settings.srs_algo = configfile.getInt32("srs_algo", 1);
-	g_settings.srs_ref_volume = configfile.getInt32("srs_ref_volume", 40);
+	g_settings.srs_ref_volume = configfile.getInt32("srs_ref_volume", 75);
 	g_settings.srs_nmgr_enable = configfile.getInt32("srs_nmgr_enable", 0);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	g_settings.ac3_pass = configfile.getInt32("ac3_pass", 0);
@@ -1568,9 +1570,9 @@ void CNeutrinoApp::saveSetup(const char *fname)
 #endif
 
 	// volume
-	configfile.setInt32( "current_volume", g_settings.hdmi_cec_volume ? 100 : g_settings.current_volume );
+	configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32("current_volume_step", g_settings.current_volume_step);
-	configfile.setInt32( "start_volume", g_settings.hdmi_cec_volume ? 100 : g_settings.start_volume );
+	configfile.setInt32( "start_volume", g_settings.start_volume );
 	configfile.setInt32("audio_volume_percent_ac3", g_settings.audio_volume_percent_ac3);
 	configfile.setInt32("audio_volume_percent_pcm", g_settings.audio_volume_percent_pcm);
 
