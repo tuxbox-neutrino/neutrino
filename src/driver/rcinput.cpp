@@ -1717,6 +1717,26 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "play / pause";
 			case RC_pvr:
 				return "pvr";
+			case RC_f1:
+				return "f1";
+			case RC_f2:
+				return "f2";
+			case RC_f3:
+				return "f3";
+			case RC_f4:
+				return "f4";
+			case RC_f5:
+				return "f5";
+			case RC_f6:
+				return "f6";
+			case RC_f7:
+				return "f7";
+			case RC_f8:
+				return "f8";
+			case RC_f9:
+				return "f9";
+			case RC_f10:
+				return "f10";
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";
