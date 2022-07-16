@@ -93,10 +93,10 @@ license you like.
 // 3. /CMakeLists.txt
 // IMPORTANT: also update the SOVERSION!!
 
-#define JSONCPP_VERSION_STRING "1.9.4"
+#define JSONCPP_VERSION_STRING "1.9.5"
 #define JSONCPP_VERSION_MAJOR 1
 #define JSONCPP_VERSION_MINOR 9
-#define JSONCPP_VERSION_PATCH 4
+#define JSONCPP_VERSION_PATCH 5
 #define JSONCPP_VERSION_QUALIFIER
 #define JSONCPP_VERSION_HEXA                                                   \
   ((JSONCPP_VERSION_MAJOR << 24) | (JSONCPP_VERSION_MINOR << 16) |             \
@@ -135,7 +135,8 @@ license you like.
 #include <cstring>
 #include <memory>
 
-#pragma pack(push, 8)
+#pragma pack(push)
+#pragma pack()
 
 namespace Json {
 template <typename T> class SecureAllocator {
@@ -459,7 +460,8 @@ class ValueConstIterator;
 #include "forwards.h"
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
-#pragma pack(push, 8)
+#pragma pack(push)
+#pragma pack()
 
 namespace Json {
 
@@ -577,7 +579,8 @@ public:
 #pragma warning(disable : 4251 4275)
 #endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
-#pragma pack(push, 8)
+#pragma pack(push)
+#pragma pack()
 
 /** \brief JSON (JavaScript Object Notation).
  */
@@ -960,7 +963,7 @@ public:
   /// \post type() is arrayValue
   void resize(ArrayIndex newSize);
 
-  //@{
+  ///@{
   /// Access an array element (zero based index). If the array contains less
   /// than index element, then null value are inserted in the array so that
   /// its size is index+1.
@@ -968,15 +971,15 @@ public:
   /// this from the operator[] which takes a string.)
   Value& operator[](ArrayIndex index);
   Value& operator[](int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /// Access an array element (zero based index).
   /// (You may need to say 'value[0u]' to get your compiler to distinguish
   /// this from the operator[] which takes a string.)
   const Value& operator[](ArrayIndex index) const;
   const Value& operator[](int index) const;
-  //@}
+  ///@}
 
   /// If the array contains at least index+1 elements, returns the element
   /// value, otherwise returns defaultValue.
@@ -1496,7 +1499,8 @@ inline void swap(Value& a, Value& b) { a.swap(b); }
 #pragma warning(disable : 4251)
 #endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
-#pragma pack(push, 8)
+#pragma pack(push)
+#pragma pack()
 
 namespace Json {
 
@@ -1506,8 +1510,7 @@ namespace Json {
  * \deprecated Use CharReader and CharReaderBuilder.
  */
 
-class JSONCPP_DEPRECATED(
-    "Use CharReader and CharReaderBuilder instead.") JSON_API Reader {
+class JSON_API Reader {
 public:
   using Char = char;
   using Location = const Char*;
@@ -1524,13 +1527,13 @@ public:
   };
 
   /** \brief Constructs a Reader allowing all features for parsing.
+    * \deprecated Use CharReader and CharReaderBuilder.
    */
-  JSONCPP_DEPRECATED("Use CharReader and CharReaderBuilder instead")
   Reader();
 
   /** \brief Constructs a Reader allowing the specified feature set for parsing.
+    * \deprecated Use CharReader and CharReaderBuilder.
    */
-  JSONCPP_DEPRECATED("Use CharReader and CharReaderBuilder instead")
   Reader(const Features& features);
 
   /** \brief Read a Value from a <a HREF="http://www.json.org">JSON</a>
@@ -1913,7 +1916,8 @@ JSON_API IStream& operator>>(IStream&, Value&);
 #pragma warning(disable : 4251)
 #endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
-#pragma pack(push, 8)
+#pragma pack(push)
+#pragma pack()
 
 namespace Json {
 
@@ -2040,7 +2044,7 @@ public:
 /** \brief Abstract class for writers.
  * \deprecated Use StreamWriter. (And really, this is an implementation detail.)
  */
-class JSONCPP_DEPRECATED("Use StreamWriter instead") JSON_API Writer {
+class JSON_API Writer {
 public:
   virtual ~Writer();
 
@@ -2060,7 +2064,7 @@ public:
 #pragma warning(push)
 #pragma warning(disable : 4996) // Deriving from deprecated class
 #endif
-class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API FastWriter
+class JSON_API FastWriter
     : public Writer {
 public:
   FastWriter();
@@ -2110,7 +2114,7 @@ private:
  *     - otherwise, it the values do not fit on one line, or the array contains
  *       object or non empty array, then print one value per line.
  *
- * If the Value have comments then they are outputed according to their
+ * If the Value have comments then they are outputted according to their
  *#CommentPlacement.
  *
  * \sa Reader, Value, Value::setComment()
@@ -2120,7 +2124,7 @@ private:
 #pragma warning(push)
 #pragma warning(disable : 4996) // Deriving from deprecated class
 #endif
-class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API
+class JSON_API
     StyledWriter : public Writer {
 public:
   StyledWriter();
@@ -2179,7 +2183,7 @@ private:
  *     - otherwise, it the values do not fit on one line, or the array contains
  *       object or non empty array, then print one value per line.
  *
- * If the Value have comments then they are outputed according to their
+ * If the Value have comments then they are outputted according to their
  #CommentPlacement.
  *
  * \sa Reader, Value, Value::setComment()
@@ -2189,7 +2193,7 @@ private:
 #pragma warning(push)
 #pragma warning(disable : 4996) // Deriving from deprecated class
 #endif
-class JSONCPP_DEPRECATED("Use StreamWriterBuilder instead") JSON_API
+class JSON_API
     StyledStreamWriter {
 public:
   /**
