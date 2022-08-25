@@ -1391,12 +1391,7 @@ int CLuaInstance::scale2Res(lua_State *L)
 	int value, ret;
 	value = luaL_checkint(L, 2);
 
-	/* Remove this when pu/fb-setmode branch is merged to master */
-#ifdef SCALE2RES_DEFINED
 	ret = CFrameBuffer::getInstance()->scale2Res(value);
-#else
-	ret = value;
-#endif
 	lua_pushinteger(L, ret);
 	return 1;
 }
