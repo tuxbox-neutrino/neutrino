@@ -80,7 +80,7 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	CLuaCCWindow* parent = NULL;
-	lua_Integer x=10, y=10, dx=-1, dy=-1;
+	lua_Integer x=OFFSET_INNER_MID, y=OFFSET_INNER_SMALL, dx=-1, dy=-1;
 	std::string text = "";
 	std::string tmpMode       = "";
 	lua_Integer mode          = CTextBox::AUTO_WIDTH;
