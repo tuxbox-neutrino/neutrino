@@ -313,6 +313,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		void refreshTitle(void); //P2
 		void refreshInfo(void); // P2
 		void refreshLCD(void); // P2
+		void refreshHDDLevel(bool show = false);
 		void refreshDetailsLine(int pos);
 		void hideDetailsLine();
 
@@ -377,8 +378,6 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		void updateFilterSelection(void);
 		void updateSerienames(void);
 		void autoFindSerie(void);
-
-		void info_hdd_level(bool paint_hdd=false);
 
 		neutrino_locale_t getFeedLocale(void);
 		void clearListLines();

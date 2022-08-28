@@ -1640,7 +1640,7 @@ void CMovieBrowser::refreshDetailsLine(int pos)
 	}
 }
 
-void CMovieBrowser::info_hdd_level(bool paint_hdd)
+void CMovieBrowser::refreshHDDLevel(bool show)
 {
 	TRACE("[mb]->%s:%d\n", __func__, __LINE__);
 
@@ -1661,7 +1661,7 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 		}
 	}
 
-	if (g_settings.infobar_show_sysfs_hdd && paint_hdd)
+	if (show)
 		m_header->enableProgessBar(percent_used);
 	else
 		m_header->setProgessBar(percent_used);
@@ -2013,7 +2013,7 @@ void CMovieBrowser::refreshTitle(void)
 	m_header->paint(CC_SAVE_SCREEN_NO);
 	newHeader = m_header->isPainted();
 
-	info_hdd_level(true);
+	refreshHDDLevel(true);
 }
 
 int CMovieBrowser::refreshFoot(bool show)
@@ -3210,7 +3210,7 @@ void CMovieBrowser::updateMovieSelection(void)
 	if (new_selection == true)
 	{
 		//TRACE("new\n");
-		info_hdd_level();
+		refreshHDDLevel();
 		refreshMovieInfo();
 		refreshLCD();
 	}
