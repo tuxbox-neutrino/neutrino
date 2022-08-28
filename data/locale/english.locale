@@ -644,6 +644,8 @@ extra.volume_pos Volumebar
 extra.volume_size Height of display
 extra.west West
 extra.zap_cycle Zap cycle
+extra.zapit_fe_no_same Different tuners when same transponder
+extra.zapit_fe_retries Tune retries
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage 18V for rotor moving 
 extra.zapit_motor_speed Motor moving speed
@@ -1641,6 +1643,8 @@ menu.hint_scan_fastupdate Enable/disable fast scan auto-update
 menu.hint_scan_fec Select transponder FEC
 menu.hint_scan_felink Select tuner to link tuner to
 menu.hint_scan_femode Select tuner connection type
+menu.hint_scan_fenosame For two same CI units:\nUse same tuner only at the same service-id
+menu.hint_scan_feretries Number of retries on tuning failure
 menu.hint_scan_fesetup Configure tuner(s)
 menu.hint_scan_fetimeout Time to wait for signal, in 1/10 of second
 menu.hint_scan_freq Enter transponder frequency
@@ -2576,7 +2580,7 @@ scants.numberofdataservices Data
 scants.numberofradioservices Radio
 scants.numberoftotalservices Total
 scants.numberoftvservices TV
-scants.preverences_receiving_system Preferences
+scants.preferences_receiving_system Preferences
 scants.provider Provider:
 scants.select_tp Select transponder
 scants.startnow start scan
@@ -2782,6 +2786,7 @@ tunersetup.mode Operation mode
 tunersetup.power 5V supply on DVB-T/T2 channels
 tunersetup.sat Satellite (DVB-S/S2)
 tunersetup.terr Terrestrial (DVB-T/T2)
+tunersetup.tunersetup Tuner setup
 unicable.lnb Unicable Input
 unicable.pin Unicable PIN
 unicable.pin_hint PIN (1 - 255) for user frequency\n0 means inactive / off

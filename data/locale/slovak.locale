@@ -643,6 +643,7 @@ extra.volume_pos Ukazovateľ hlasitosti
 extra.volume_size Výška zobrazenia
 extra.west Západne
 extra.zap_cycle Cyklické prepínanie
+extra.zapit_fe_no_same Rôzne tunery, keď je rovnaký transpondér
 extra.zapit_fe_timeout Časový limit naladenia (1 = 10 msek)
 extra.zapit_hvoltage 18V pri točení motora
 extra.zapit_motor_speed Rýchlosť točenia (10 = 1st/sek)
@@ -2501,7 +2502,7 @@ scants.numberofdataservices Data
 scants.numberofradioservices Rádio
 scants.numberoftotalservices Celkom
 scants.numberoftvservices TV
-scants.preverences_receiving_system Nastavenia
+scants.preferences_receiving_system Nastavenia
 scants.provider Poskytovateľ:
 scants.select_tp Výber transpondéru
 scants.startnow Spustiť prehľadávanie

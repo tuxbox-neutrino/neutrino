@@ -644,6 +644,8 @@ extra.volume_pos Lautstärkeanzeige
 extra.volume_size Höhe der Anzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
+extra.zapit_fe_no_same Verschiedene Tuner bei gleichen Transponder
+extra.zapit_fe_retries Tuning Wiederholungen
 extra.zapit_fe_timeout Tuning Timeout
 extra.zapit_hvoltage High (13.5/18.5) Voltage
 extra.zapit_motor_speed Rotor Drehzeit
@@ -1641,6 +1643,8 @@ menu.hint_scan_fastupdate Aktivieren/Deaktivieren Fastscan Auto-Update
 menu.hint_scan_fec Wählen Sie eine Transponder-FEC
 menu.hint_scan_felink Select tuner to link tuner to
 menu.hint_scan_femode Wählen Sie den Verbindungstyp für den zweiten Tuner
+menu.hint_scan_fenosame Für zwei gleiche CI Module:\nGleichen Tuner nur nutzen bei gleicher Service-ID
+menu.hint_scan_feretries Wiederholungen bei fehlgeschlagenem Tuning
 menu.hint_scan_fesetup Konfigurieren des oder der Tuner
 menu.hint_scan_fetimeout Maximale Wartezeit auf das Signal in 1/10 Sekunden
 menu.hint_scan_freq Geben Sie eine Transponder-Frequenz ein
@@ -2576,7 +2580,7 @@ scants.numberofdataservices Daten
 scants.numberofradioservices Radio
 scants.numberoftotalservices Alle
 scants.numberoftvservices TV
-scants.preverences_receiving_system Grundeinstellungen
+scants.preferences_receiving_system Grundeinstellungen
 scants.provider Anbieter
 scants.select_tp Wählen Sie einen Transponder
 scants.startnow Kanalsuche starten
@@ -2782,6 +2786,7 @@ tunersetup.mode Betriebsmodus
 tunersetup.power 5V-Versorgung bei DVB-T/T2 Kanälen
 tunersetup.sat Satellit (DVB-S/S2)
 tunersetup.terr Terrestrisch (DVB-T/T2)
+tunersetup.tunersetup Tunereinstellungen
 unicable.lnb Unicable Eingang
 unicable.pin Unicable PIN
 unicable.pin_hint PIN (1 - 255) für Benutzerfrequenz\n0 bedeutet inaktiv / aus

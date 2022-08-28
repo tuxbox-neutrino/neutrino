@@ -2007,7 +2007,7 @@ scants.numberofdataservices Data
 scants.numberofradioservices Radio
 scants.numberoftotalservices Totaal
 scants.numberoftvservices TV
-scants.preverences_receiving_system Voorkeuren
+scants.preferences_receiving_system Voorkeuren
 scants.provider Provider:
 scants.select_tp Selecteer transponder
 scants.startnow start scan
