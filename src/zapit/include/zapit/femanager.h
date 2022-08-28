@@ -86,6 +86,12 @@ class CFEManager
 			FE_MODE_TWIN,
 			FE_MODE_ALONE
 		} fe_mode_t;
+		typedef enum {
+			FE_FMODE_HYBRID,
+			FE_FMODE_CABLE,
+			FE_FMODE_TERR,
+			FE_FMODE_SAT
+		} fe_fmode_t;
 	private:
 		fe_map_t		femap;
 		fe_mode_t		mode;

@@ -222,6 +222,9 @@ void CFrontend::getFEInfo(void)
 	printf("[fe%d/%d] frontend fd %d type %d\n", adapter, fenumber, fd, info.type);
 	bool legacy = true;
 
+	deliverySystemMask = UNKNOWN_DS;
+	forcedSystemMask = ALL_CABLE|ALL_TERR|ALL_SAT;
+
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	std::ifstream in;
 	if (adapter == 0)
@@ -250,9 +253,6 @@ void CFrontend::getFEInfo(void)
 	in.close();
 	}
 #endif // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-
-	deliverySystemMask = UNKNOWN_DS;
-	forcedSystemMask = UNKNOWN_DS;
 
 #if (DVB_API_VERSION >= 5) && (DVB_API_VERSION_MINOR >= 5)
 	dtv_property prop[1];
@@ -840,13 +840,16 @@ void CFrontend::forceDelSys(int i)
 {
 	switch (i) {
 		case 1:
-			forcedSystemMask = ALL_TERR;
-			break;
-		case 2:
 			forcedSystemMask = ALL_CABLE;
 			break;
+		case 2:
+			forcedSystemMask = ALL_TERR;
+			break;
+		case 3:
+			forcedSystemMask = ALL_SAT;
+			break;
 		default:
-			forcedSystemMask = UNKNOWN_DS;
+			forcedSystemMask = ALL_CABLE|ALL_TERR|ALL_SAT;
 			break;
 	}
 }
@@ -2597,6 +2600,8 @@ bool CFrontend::hasTerr(void)
 
 bool CFrontend::isHybrid(void)
 {
+	if (hasSat() && hasCable() && hasTerr())
+		return true;
 	if (hasSat() && hasCable())
 		return true;
 	if (hasSat() && hasTerr())
@@ -2620,7 +2625,8 @@ bool CFrontend::supportsDelivery(delivery_system_t delsys)
 
 bool CFrontend::forcedDelivery(delivery_system_t delsys)
 {
-	return (forcedSystemMask & delsys) != 0;
+	printf("forcedDelivery: 0x%04x & 0x%04x = 0x%04x\n", forcedSystemMask, delsys, forcedSystemMask & delsys);
+	return (forcedSystemMask & delsys) == 0;
 }
 
 delivery_system_t CFrontend::getCurrentDeliverySystem(void)

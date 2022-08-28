@@ -41,7 +41,7 @@
 #include <hardware/dmx.h>
 #include <OpenThreads/ScopedLock>
 
-static int fedebug = 0;
+static int fedebug = 1;
 static int unused_demux;
 static int noSameFE = 0;
 extern Zapit_config zapitCfg;
@@ -218,28 +218,6 @@ bool CFEManager::loadSettings()
 		config_exist = false;
 	}
 
-	int def_mode0 = CFrontend::FE_MODE_INDEPENDENT;
-	int def_modeX = CFrontend::FE_MODE_UNUSED;
-	if (cableOnly())
-		def_modeX = CFrontend::FE_MODE_INDEPENDENT;
-
-	int newmode = (fe_mode_t) configfile.getInt32("mode", -1);
-	if (newmode >= 0) {
-		INFO("old mode param: %d\n", newmode);
-		if (newmode == FE_MODE_LOOP) {
-			def_mode0 = CFrontend::FE_MODE_MASTER;
-			def_modeX = CFrontend::FE_MODE_LINK_LOOP;
-		} else if (newmode == FE_MODE_TWIN) {
-			def_mode0 = CFrontend::FE_MODE_MASTER;
-			def_modeX = CFrontend::FE_MODE_LINK_TWIN;
-		} else if (newmode == FE_MODE_ALONE) {
-			def_mode0 = CFrontend::FE_MODE_INDEPENDENT;
-			def_modeX = CFrontend::FE_MODE_INDEPENDENT;
-		}
-	}
-	bool fsat = true;
-	//bool fcable = true;
-	bool fterr = true;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -263,41 +241,10 @@ bool CFEManager::loadSettings()
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
-		/* default mode for first / next frontends */
-		int def_mode = def_modeX;
-
-		if (fe->hasCable() && fe->hasTerr())
+		if (fe->isHybrid())
 			fe->forceDelSys(fe_config.force_mode);
 
-		if (fe->hasSat() && fsat) {
-			fsat = false;
-			def_mode = def_mode0;
-		}
-
-		if (fe->hasCable()) {
-#if 0
-			if (fcable) {
-				fcable = false;
-				def_mode = def_mode0;
-			}
-			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
-				def_mode = CFrontend::FE_MODE_INDEPENDENT;
-#endif
-			def_mode = CFrontend::FE_MODE_INDEPENDENT;
-		}
-
-		if (fe->hasTerr()) {
-			if (fterr) {
-				fterr = false;
-				def_mode = def_mode0;
-			}
-			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
-				def_mode = CFrontend::FE_MODE_INDEPENDENT;
-		}
-		if (femap.size() == 1)
-			def_mode = CFrontend::FE_MODE_INDEPENDENT;
-
-		fe->setMode(getConfigValue(fe, "mode", def_mode));
+		fe->setMode(getConfigValue(fe, "mode", CFrontend::FE_MODE_INDEPENDENT));
 		fe->setMaster(getConfigValue(fe, "master", 0));
 
 		char cfg_key[81];
@@ -590,25 +537,36 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
 
-		if (!mfe->supportsDelivery(channel->delsys))
-			continue;
-		if (mfe->forcedDelivery(channel->delsys))
-			continue;
+		// frontend activ
 		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
-			continue;
-
-#if BOXMODEL_MULTIBOXSE
-		if ((mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition)) || (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition)))
 		{
-			retfe = mfe;
+			FEDEBUG("frontend %d not activ, skipping...", mfe->fenumber);
+			continue;
 		}
-		else
-#endif
-		if (mfe->hasSat()) {
+
+		// frontend can requested delivery system
+		if (!mfe->supportsDelivery(channel->delsys))
+		{
+			FEDEBUG("frontend %d not support delsys, skipping...", mfe->fenumber);
+			continue;
+		}
+
+		// frontend is hybrid, check if delivery system is forced by user
+		if (mfe->isHybrid() && mfe->forcedDelivery(channel->delsys))
+		{
+			FEDEBUG("frontend %d not support delsys by user, skipping...", mfe->fenumber);
+			continue;
+		}
+
+		// frontend is sat, and requested position can be serviced
+		if (mfe->hasSat() && !SAT_POSITION_CABLE(satellitePosition) && !SAT_POSITION_TERR(satellitePosition)) {
 			satellite_map_t & satmap = mfe->getSatellites();
 			sat_iterator_t sit = satmap.find(satellitePosition);
 			if ((sit == satmap.end()) || !sit->second.configured)
+			{
+				FEDEBUG("frontend %d not support requested satpos, skipping...", mfe->fenumber);
 				continue;
+			}
 		}
 
 		if (mfe->getMode() == CFrontend::FE_MODE_MASTER) {

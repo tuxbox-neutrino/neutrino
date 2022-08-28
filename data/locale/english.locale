@@ -2777,9 +2777,10 @@ tmdb.enabled TMDb support
 tmdb.head TMDb
 tmdb.read_data Search TMDb data ...
 tunersetup.cable Cable (DVB-C)
-tunersetup.hybrid Hybrid (DVB-C/T/T2)
+tunersetup.hybrid Hybrid (DVB-*)
 tunersetup.mode Operation mode
 tunersetup.power 5V supply on DVB-T/T2 channels
+tunersetup.sat Satellite (DVB-S/S2)
 tunersetup.terr Terrestrial (DVB-T/T2)
 unicable.lnb Unicable Input
 unicable.pin Unicable PIN
