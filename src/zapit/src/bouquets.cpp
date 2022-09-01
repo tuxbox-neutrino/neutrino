@@ -1187,6 +1187,13 @@ void CBouquetManager::loadWebchannels(int mode)
 							}
 							url = url2;
 							free(url2);
+							t_channel_id tmpchid = (((t_channel_id)i3) << 32) | (((t_channel_id)i4) << 16) | (t_channel_id)i2;
+							CZapitChannel * tmp_channel = CServiceManager::getInstance()->FindChannel48(tmpchid);
+							if (tmp_channel)
+							{
+								epg_id = tmp_channel->getChannelID();
+								//printf("e2 chan: %s\n",tmp_channel->getName().c_str());
+							}
 						}
 						else if (strncmp(line, "#DESCRIPTION", 12) == 0)
 						{
@@ -1218,7 +1225,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (!url.empty())
 							{
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
-								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), chid, NULL, mode);
+								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), epg_id ? epg_id : chid, NULL, mode);
 								CServiceManager::getInstance()->AddChannel(channel);
 								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
