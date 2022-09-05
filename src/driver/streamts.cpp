@@ -87,6 +87,7 @@ CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t 
 	running = false;
 	dmx = NULL;
 	buf = NULL;
+	frontend = NULL;
 }
 
 CStreamInstance::~CStreamInstance()
