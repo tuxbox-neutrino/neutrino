@@ -78,7 +78,7 @@
 #define DMX_BUFFER_SIZE (2048*TS_SIZE)
 #define IN_SIZE (250*TS_SIZE)
 
-CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &_pids)
+CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &_pids, bool _send_raw)
 {
 	printf("CStreamInstance:: new channel %" PRIx64 " fd %d\n", chid, clientfd);
 	fds.insert(clientfd);
@@ -88,6 +88,7 @@ CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t 
 	dmx = NULL;
 	buf = NULL;
 	frontend = NULL;
+	send_raw = _send_raw;
 }
 
 CStreamInstance::~CStreamInstance()
@@ -189,11 +190,11 @@ void CStreamInstance::run()
 
 	/* pids here cannot be empty */
 	stream_pids_t::iterator it = pids.begin();
-	printf("CStreamInstance::run: add pid %x\n", *it);
+	printf("CStreamInstance::run: add pid 0x%04x\n", *it);
 	dmx->pesFilter(*it);
 	++it;
 	for (; it != pids.end(); ++it) {
-		printf("CStreamInstance::run: add pid %x\n", *it);
+		printf("CStreamInstance::run: add pid 0x%04x\n", *it);
 		dmx->addPid(*it);
 	}
 #ifdef ENABLE_MULTI_CHANNEL
@@ -202,7 +203,8 @@ void CStreamInstance::run()
 	dmx->Start(true);//FIXME
 #endif
 
-	CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
+	if (!send_raw)
+		CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
@@ -218,7 +220,8 @@ void CStreamInstance::run()
 			Send(r);
 	}
 
-	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
+	if (!send_raw)
+		CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if(frontend)
@@ -385,7 +388,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	return frontend;
 }
 
-bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend)
+bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend, bool &send_raw)
 {
 	char cbuf[512];
 	char *bp;
@@ -440,17 +443,46 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		}
 	} while ((bp = strchr(bp, ',')) && (bp++));
 #else
-	t_channel_id tmpid;
+	t_channel_id tmpid = 0;
 	bp = &cbuf[5];
 	if (sscanf(bp, "id=%" SCNx64, &tmpid) == 1) {
 		channel = CServiceManager::getInstance()->FindChannel(tmpid);
 		chid = tmpid;
 	}
 #endif
+	int tmpraw = 0;
+	bp = &cbuf[25];
+
+	if (sscanf(bp, "raw=%d", &tmpraw) == 1)
+	{
+		send_raw = (tmpraw > 0);
+	}
+
+	if (!tmpid)
+	{
+		bp = &cbuf[5];
+		u_int service;
+		u_int i1, i2, i3, i4, satpos;
+
+		if (sscanf(bp, "%X:0:%X:%X:%X:%X:%X:0:0:0:", &service, &i1, &i2, &i3, &i4, &satpos) == 6)
+		{
+			t_channel_id tmpchid = (((t_channel_id)i3) << 32) | (((t_channel_id)i4) << 16) | (t_channel_id)i2;
+			CZapitChannel *tmp_channel = CServiceManager::getInstance()->FindChannel48(tmpchid);
+
+			if (tmp_channel)
+			{
+				printf("e2 -> n chid:%"SCNx64"\n", channel->getChannelID());
+				channel = tmp_channel;
+				chid = tmp_channel->getChannelID();
+				send_raw = true;
+				pids.clear(); // to catch and stream all pids later !
+			}
+		}
+	}
 	if (!channel)
 		return false;
 
-	printf("CStreamManager::Parse: channel_id %" PRIx64 " [%s]\n", chid, channel->getName().c_str());
+	printf("CStreamManager::Parse: channel_id %" PRIx64 " [%s] send %s\n", chid, channel->getName().c_str(), send_raw ? "raw" : "decrypted");
 	if (IS_WEBCHAN(chid))
 		return true;
 
@@ -468,63 +500,55 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids)
 {
 	if (pids.empty()) {
-		printf("CStreamManager::AddPids: no pids in url, using channel %" PRIx64 " pids\n", channel->getChannelID());
+		printf("CStreamManager::AddPids: searching channel %" PRIx64 " pids\n", channel->getChannelID());
 		if (channel->getVideoPid())
+		{
 			pids.insert(channel->getVideoPid());
+			printf("CStreamManager::AddPids: vpid 0x%04x \n", channel->getVideoPid());
+		}
 		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
+		{
 			pids.insert(channel->getAudioChannel(i)->pid);
-
-	}
-
-	CGenPsi psi;
-	for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it) {
-		if (*it == channel->getVideoPid()) {
-			printf("CStreamManager::AddPids: genpsi vpid %x (%d)\n", *it, channel->type);
-			psi.addPid(*it, channel->type == CHANNEL_MPEG4 ? EN_TYPE_AVC : channel->type == CHANNEL_HEVC ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
-		} else {
-			for (int i = 0; i <  channel->getAudioChannelCount(); i++) {
-				if (*it == channel->getAudioChannel(i)->pid) {
-					CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
-					printf("CStreamManager::AddPids: genpsi apid %x (%d)\n", *it, atype);
-					if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
-						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, 0, channel->getAudioChannel(i)->description.c_str());
-					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
-						psi.addPid(*it, EN_TYPE_AUDIO_AAC, 0, channel->getAudioChannel(i)->description.c_str());
-					} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AACPLUS) {
-						psi.addPid(*it, EN_TYPE_AUDIO_AACP, 0, channel->getAudioChannel(i)->description.c_str());
-					} else {
-						psi.addPid(*it, EN_TYPE_AUDIO, (atype == CZapitAudioChannel::AC3), channel->getAudioChannel(i)->description.c_str());
-					}
-				}
+			printf("CStreamManager::AddPids: apid 0x%04x \n", channel->getAudioChannel(i)->pid);
+		}
+		if (!channel->capids.empty())
+		{
+			for(casys_pids_iterator_t it = channel->capids.begin(); it != channel->capids.end(); ++it)
+			{
+				pids.insert((*it)); //all ECM Pids
+				printf("CStreamManager::AddPids: capid 0x%04x \n", (*it));
 			}
 		}
+		pids.insert(0); //PAT
+		printf("CStreamManager::AddPids: PATpid 0x%04x \n", 0);
+		pids.insert(channel->getPmtPid()); //PMT
+		printf("CStreamManager::AddPids: PMTpid 0x%04x \n", channel->getPmtPid());
+		pids.insert(0x14); //TDT
+		printf("CStreamManager::AddPids: TDTpid 0x%04x \n", 0x14);
 	}
+
 	//add pcr pid
 	if (channel->getPcrPid() && (channel->getPcrPid() != channel->getVideoPid())) {
 		pids.insert(channel->getPcrPid());
-		psi.addPid(channel->getPcrPid(), EN_TYPE_PCR, 0);
+		printf("CStreamManager::AddPids: PCRpid 0x%04x \n", channel->getPcrPid());
 	}
 	//add teletext pid
-	if (g_settings.recording_stream_vtxt_pid && channel->getTeletextPid() != 0) {
+	if (channel->getTeletextPid() != 0) {
 		pids.insert(channel->getTeletextPid());
-		psi.addPid(channel->getTeletextPid(), EN_TYPE_TELTEX, 0, channel->getTeletextLang());
+		printf("CStreamManager::AddPids: Teletext pid 0x%04x \n", channel->getTeletextPid());
 	}
 	//add dvb sub pid
-	if (g_settings.recording_stream_subtitle_pids) {
+	if ((int)channel->getSubtitleCount() > 0) {
 		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
 			CZapitAbsSub* s = channel->getChannelSub(i);
 			if (s->thisSubType == CZapitAbsSub::DVB) {
-				if (i>9)//max sub pids
-					break;
-
 				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
 				pids.insert(sd->pId);
-				psi.addPid(sd->pId, EN_TYPE_DVBSUB, 0, sd->ISO639_language_code.c_str());
+				printf("CStreamManager::AddPids: Subtitle pid 0x%04x \n", sd->pId);
 			}
 		}
 	}
 
-	psi.genpsi(fd);
 }
 
 bool CStreamManager::AddClient(int connfd)
@@ -532,8 +556,9 @@ bool CStreamManager::AddClient(int connfd)
 	stream_pids_t pids;
 	t_channel_id channel_id;
 	CFrontend *frontend;
+	bool send_raw;
 
-	if (Parse(connfd, pids, channel_id, frontend)) {
+	if (Parse(connfd, pids, channel_id, frontend, send_raw)) {
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		streammap_iterator_t it = streams.find(channel_id);
 		if (it != streams.end()) {
@@ -543,7 +568,7 @@ bool CStreamManager::AddClient(int connfd)
 			if (IS_WEBCHAN(channel_id)) {
 				stream = new CStreamStream(connfd, channel_id, pids);
 			} else {
-				stream = new CStreamInstance(connfd, channel_id, pids);
+				stream = new CStreamInstance(connfd, channel_id, pids, send_raw);
 				stream->frontend = frontend;
 			}
 
@@ -743,7 +768,7 @@ _error:
 }
 
 CStreamStream::CStreamStream(int clientfd, t_channel_id chid, stream_pids_t &_pids)
-	: CStreamInstance(clientfd, chid, _pids)
+	: CStreamInstance(clientfd, chid, _pids, false)
 {
 	ifcx = NULL;
 	ofcx = NULL;

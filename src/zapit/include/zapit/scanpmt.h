@@ -36,6 +36,7 @@ class CPmt
 
 		bool Read(unsigned short pid, unsigned short sid);
 		void MakeCAMap(casys_map_t &camap);
+		void MakeCAPids(casys_map_t &capids);
 		bool ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const channel);
 	public:
 		CPmt(int dnum = 0);

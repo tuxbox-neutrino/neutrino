@@ -116,7 +116,9 @@ class CZapitAudioChannel
 class CChannelList;
 
 typedef std::set<int> casys_map_t;
+typedef std::set<int> casys_pids_t;
 typedef casys_map_t::iterator casys_map_iterator_t;
+typedef casys_pids_t::iterator casys_pids_iterator_t;
 
 class CZapitChannel
 {
@@ -198,6 +200,7 @@ class CZapitChannel
 			ANY		= 0xFF
 		} channel_flags_t;
 		casys_map_t			camap;
+		casys_pids_t			capids;
 
 		unsigned int			bLockCount;
 		bool				bLocked;

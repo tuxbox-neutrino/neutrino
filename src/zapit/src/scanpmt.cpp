@@ -114,13 +114,21 @@ bool CPmt::Parse(CZapitChannel * const channel)
 	}
 
 	casys_map_t camap;
+	casys_pids_t capids;
 	MakeCAMap(camap);
 	channel->scrambled = !camap.empty();
+
+	if (channel->scrambled)
+	{
+		MakeCAPids(capids);
+	}
+
 
 	if(CServiceScan::getInstance()->Scanning()) {
 		channel->setRawPmt(NULL);
 	} else {
 		channel->camap = camap;
+		channel->capids = capids;
 		int pmtlen= pmt.getSectionLength() + 3;
 		unsigned char * p = new unsigned char[pmtlen];
 		memmove(p, buffer, pmtlen);
@@ -396,6 +404,32 @@ void CPmt::MakeCAMap(casys_map_t &camap)
 			if ((*dit)->getTag() == CA_DESCRIPTOR ) {
 				CaDescriptor * d = (CaDescriptor*) *dit;
 				camap.insert(d->getCaSystemId());
+			}
+		}
+	}
+}
+
+void CPmt::MakeCAPids(casys_map_t &capids)
+{
+	ProgramMapSection pmt(buffer);
+	CaProgramMapSection capmt(&pmt, 0x03, 0x01);
+	DescriptorConstIterator dit;
+	for (dit = capmt.getDescriptors()->begin(); dit != capmt.getDescriptors()->end(); ++dit) {
+		if ((*dit)->getTag() == CA_DESCRIPTOR ) {
+			CaDescriptor * d = (CaDescriptor*) *dit;
+			//printf("%02X: casys %04X capid %04X, ", d->getTag(), d->getCaSystemId(), d->getCaPid());
+			capids.insert(d->getCaPid());
+		}
+	}
+	const ElementaryStreamInfoList * eslist = pmt.getEsInfo();
+	ElementaryStreamInfoConstIterator it;
+	for (it = eslist->begin(); it != eslist->end(); ++it) {
+		ElementaryStreamInfo *esinfo = *it;
+		const DescriptorList * dlist = esinfo->getDescriptors();
+		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
+			if ((*dit)->getTag() == CA_DESCRIPTOR ) {
+				CaDescriptor * d = (CaDescriptor*) *dit;
+				capids.insert(d->getCaPid());
 			}
 		}
 	}
