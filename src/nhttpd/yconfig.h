@@ -117,7 +117,6 @@
 #define EXTRASDOCUMENTROOT		HOSTED_HTTPDDIR"/extras"
 #define EXTRASDOCUMENTURL		"/hosted/extras"
 
-#define ZAPITXMLPATH			ZAPITDIR
 #define TUXBOX_LOGOS_URL		LOGODIR
 
 #define SSL_PEMFILE			HTTPD_CONFIGDIR "/server.pem"
