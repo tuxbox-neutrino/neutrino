@@ -713,7 +713,9 @@ void *insertEventsfromXMLTV(void * data)
 		if (!access(tmp_name.c_str(), R_OK))
 		{
 			readEventsFromXMLTV(tmp_name, ev_count);
-			remove(tmp_name.c_str());
+			int ret = unlink(tmp_name.c_str());
+			if (ret != 0)
+				printf("Failed to delete file: %s\n", tmp_name.c_str());
 		}
 	}
 	else
