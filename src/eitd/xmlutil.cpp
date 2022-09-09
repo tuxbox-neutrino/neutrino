@@ -464,8 +464,7 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count, bool delete_after)
 		debug(DEBUG_NORMAL, "unable to open %s for reading", epgname.c_str());
 		if (delete_after)
 		{
-			int ret = unlink(epgname.c_str());
-			if (ret != 0)
+			if (unlink(epgname.c_str()))
 				printf("Failed to delete file: %s\n", epgname.c_str());
 		}
 		return false;
@@ -572,8 +571,7 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count, bool delete_after)
 
 	if (delete_after)
 	{
-		int ret = unlink(epgname.c_str());
-		if (ret != 0)
+		if (unlink(epgname.c_str()))
 			printf("Failed to delete file: %s\n", epgname.c_str());
 	}
 
