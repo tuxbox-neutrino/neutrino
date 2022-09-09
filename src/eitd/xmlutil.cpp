@@ -449,7 +449,7 @@ bool readEventsFromFile(std::string &epgname, int &ev_count)
 	return true;
 }
 
-bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
+bool readEventsFromXMLTV(std::string &epgname, int &ev_count, bool delete_after)
 {
 	xmlDocPtr event_parser = NULL;
 	xmlNodePtr tv;
@@ -563,6 +563,14 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count)
 	}
 
 	xmlFreeDoc(event_parser);
+
+	if (delete_after)
+	{
+		int ret = unlink(epgname.c_str());
+		if (ret != 0)
+			printf("Failed to delete file: %s\n", epgname.c_str());
+	}
+
 	return true;
 }
 
@@ -712,10 +720,7 @@ void *insertEventsfromXMLTV(void * data)
 	{
 		if (!access(tmp_name.c_str(), R_OK))
 		{
-			readEventsFromXMLTV(tmp_name, ev_count);
-			int ret = unlink(tmp_name.c_str());
-			if (ret != 0)
-				printf("Failed to delete file: %s\n", tmp_name.c_str());
+			readEventsFromXMLTV(tmp_name, ev_count, true);
 		}
 	}
 	else
