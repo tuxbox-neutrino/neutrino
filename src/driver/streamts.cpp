@@ -471,7 +471,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 
 			if (tmp_channel)
 			{
-				printf("e2 -> n chid:%"SCNx64"\n", channel->getChannelID());
+				printf("e2 -> n chid:%" SCNx64 "\n", channel->getChannelID());
 				channel = tmp_channel;
 				chid = tmp_channel->getChannelID();
 				send_raw = true;
@@ -499,6 +499,9 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 
 void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids, bool send_raw)
 {
+	// avoid compiler warning
+	(void) fd;
+
 	if (pids.empty()) {
 		printf("CStreamManager::AddPids: searching channel %" PRIx64 " pids\n", channel->getChannelID());
 		if (channel->getVideoPid())
