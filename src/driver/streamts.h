@@ -122,7 +122,7 @@ class CStreamManager : public OpenThreads::Thread
 
 		bool	Listen();
 		bool	Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend, bool &send_raw);
-		void	AddPids(int fd, CZapitChannel * channel, stream_pids_t &pids);
+		void	AddPids(int fd, CZapitChannel * channel, stream_pids_t &pids, bool send_raw);
 		void	CheckStandby(bool enter);
 		CFrontend * FindFrontend(CZapitChannel * channel);
 		bool	StopAll();

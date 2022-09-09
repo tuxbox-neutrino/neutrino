@@ -492,12 +492,12 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		return false;
 	}
 
-	AddPids(fd, channel, pids);
+	AddPids(fd, channel, pids, send_raw);
 
 	return !pids.empty();
 }
 
-void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids)
+void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids, bool send_raw)
 {
 	if (pids.empty()) {
 		printf("CStreamManager::AddPids: searching channel %" PRIx64 " pids\n", channel->getChannelID());
@@ -511,7 +511,7 @@ void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids
 			pids.insert(channel->getAudioChannel(i)->pid);
 			printf("CStreamManager::AddPids: apid 0x%04x \n", channel->getAudioChannel(i)->pid);
 		}
-		if (!channel->capids.empty())
+		if (!channel->capids.empty() && send_raw)
 		{
 			for(casys_pids_iterator_t it = channel->capids.begin(); it != channel->capids.end(); ++it)
 			{
