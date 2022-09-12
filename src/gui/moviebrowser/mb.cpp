@@ -80,6 +80,10 @@
 #include <timerdclient/timerdclient.h>
 #include <system/hddstat.h>
 
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+#endif
+
 extern CPictureViewer * g_PicViewer;
 extern bool timeset;
 
@@ -1064,7 +1068,12 @@ int CMovieBrowser::exec(const char* path)
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
 
+	// tell neutrino we're in moviebrowser mode
+	m_LastMode = CNeutrinoApp::getInstance()->getMode();
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoModes::mode_moviebrowser | NeutrinoModes::norezap);
+
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD));
+
 	loadSettings(&m_settings);
 	initFrames();
 
@@ -1179,6 +1188,14 @@ int CMovieBrowser::exec(const char* path)
 				loop = false;
 				g_RCInput->postMsg(msg, data);
 			}
+			else if (msg == NeutrinoMessages::CHANGEMODE)
+			{
+				if ((data & NeutrinoModes::mode_mask) != NeutrinoModes::mode_moviebrowser)
+				{
+					loop = false;
+					m_LastMode = data;
+				}
+			}
 			else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 			{
 				TRACE("[mb]->exec: getInstance\n");
@@ -1206,7 +1223,8 @@ int CMovieBrowser::exec(const char* path)
 		fileInfoStale();
 	}
 
-	//CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
+
 	return (res);
 }
 
@@ -1254,8 +1272,6 @@ void CMovieBrowser::hide(void)
 int CMovieBrowser::paint(void)
 {
 	TRACE("[mb]->%s\n", __func__);
-
-	//CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD));
 
 	Font* font = g_Font[SNeutrinoSettings::FONT_TYPE_MOVIEBROWSER_LIST];
 	m_movieSelectionHandler = NULL;
@@ -1671,6 +1687,11 @@ void CMovieBrowser::refreshLCD(void)
 {
 	if (m_vMovieInfo.empty() || m_movieSelectionHandler == NULL)
 		return;
+
+#ifdef ENABLE_LCD4LINUX
+		if (g_settings.lcd4l_support)
+			CLCD4l::getInstance()->CreateEventFile(m_movieSelectionHandler->epgTitle.c_str(), g_settings.lcd4l_convert);
+#endif
 
 	CVFD::getInstance()->showMenuText(0, m_movieSelectionHandler->epgTitle.c_str(), -1, true); // UTF-8
 }
@@ -4596,7 +4617,13 @@ int CMenuSelector::paint(bool selected)
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), optionName, color);
 
 	if (selected)
+	{
+#ifdef ENABLE_LCD4LINUX
+		if (g_settings.lcd4l_support)
+			CLCD4l::getInstance()->CreateEventFile(optionName, g_settings.lcd4l_convert);
+#endif
 		CVFD::getInstance()->showMenuText(0, optionName, -1, true); // UTF-8
+	}
 
 	return y+height;
 }
