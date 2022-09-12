@@ -2209,6 +2209,12 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	if (!headers.empty())//add cookies
 		av_dict_set(&options, "headers", headers.c_str(), 0);
 
+	if (0 == strncmp(url.c_str(), "http://", 7) || 0 == strncmp(url.c_str(), "https://", 8))
+	{
+		av_dict_set(&options, "timeout", "20000000", 0); //20sec
+		av_dict_set(&options, "reconnect", "1", 0);
+	}
+
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, url.c_str());
 		if (!headers.empty())

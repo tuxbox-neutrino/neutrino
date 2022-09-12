@@ -66,14 +66,6 @@
 #define av_packet_unref	av_free_packet
 #endif
 
-/* experimental mode:
- * stream not possible, if record running
- * pids in url ignored, and added from channel, with fake PAT/PMT
- * different channels supported,
- * with url like http://coolstream:31339/id=c32400030070283e (channel id)
- */
-#define ENABLE_MULTI_CHANNEL
-
 #define TS_SIZE 188
 #define DMX_BUFFER_SIZE (2048*TS_SIZE)
 #define IN_SIZE (250*TS_SIZE)
@@ -197,11 +189,8 @@ void CStreamInstance::run()
 		printf("CStreamInstance::run: add pid 0x%04x\n", *it);
 		dmx->addPid(*it);
 	}
-#ifdef ENABLE_MULTI_CHANNEL
-	dmx->Start();//FIXME
-#else
-	dmx->Start(true);//FIXME
-#endif
+
+	dmx->Start(true);
 
 	if (!send_raw)
 		CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
@@ -432,24 +421,13 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	chid = CZapit::getInstance()->GetCurrentChannelID();
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 
-#ifndef ENABLE_MULTI_CHANNEL
-	/* parse stdin / url path, start dmx filters */
-	do {
-		int pid;
-		int res = sscanf(bp, "%x", &pid);
-		if (res == 1) {
-			printf("CStreamManager::Parse: pid: 0x%x\n", pid);
-			pids.insert(pid);
-		}
-	} while ((bp = strchr(bp, ',')) && (bp++));
-#else
 	t_channel_id tmpid = 0;
 	bp = &cbuf[5];
 	if (sscanf(bp, "id=%" SCNx64, &tmpid) == 1) {
 		channel = CServiceManager::getInstance()->FindChannel(tmpid);
 		chid = tmpid;
 	}
-#endif
+
 	int tmpraw = 0;
 	bp = &cbuf[25];
 
@@ -471,11 +449,10 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 
 			if (tmp_channel)
 			{
-				printf("e2 -> n chid:%" SCNx64 "\n", channel->getChannelID());
+				printf("e2 -> n chid:%" SCNx64 "\n", tmp_channel->getChannelID());
 				channel = tmp_channel;
 				chid = tmp_channel->getChannelID();
 				send_raw = true;
-				pids.clear(); // to catch and stream all pids later !
 			}
 		}
 	}
@@ -483,6 +460,14 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		return false;
 
 	printf("CStreamManager::Parse: channel_id %" PRIx64 " [%s] send %s\n", chid, channel->getName().c_str(), send_raw ? "raw" : "decrypted");
+
+	streammap_iterator_t it = streams.find(chid);
+	if (it != streams.end())
+	{
+		printf("CStreamManager::Parse: channel_id %" PRIx64 " already streaming, just add client %d\n", chid, fd);
+		return true;
+	}
+
 	if (IS_WEBCHAN(chid))
 		return true;
 
@@ -560,6 +545,8 @@ bool CStreamManager::AddClient(int connfd)
 	t_channel_id channel_id;
 	CFrontend *frontend;
 	bool send_raw;
+	
+	pids.clear(); // to catch and stream all pids later !
 
 	if (Parse(connfd, pids, channel_id, frontend, send_raw)) {
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
@@ -649,11 +636,14 @@ void CStreamManager::run()
 						perror("CStreamManager::run(): accept");
 						continue;
 					}
-#if 0
+
 					if (!AddClient(connfd))
+					{
 						close(connfd);
-#endif
-					g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_START, connfd);
+						g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_STOP, 0);
+					}
+					else
+						g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_START, 0);
 					poll_timeout = 1000;
 				} else {
 					if (pfd[i].revents & (POLLHUP | POLLRDHUP)) {
@@ -859,6 +849,13 @@ bool CStreamStream::Open()
 	AVDictionary *options = NULL;
 	if (!headers.empty())
 		av_dict_set(&options, "headers", headers.c_str(), 0);
+
+	if (0 == strncmp(url.c_str(), "http://", 7) || 0 == strncmp(url.c_str(), "https://", 8))
+	{
+		av_dict_set(&options, "timeout", "20000000", 0); //20sec
+		av_dict_set(&options, "reconnect", "1", 0);
+	}
+
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
 		if (!headers.empty())
