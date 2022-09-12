@@ -38,15 +38,9 @@
 #include "SIsections.hpp"
 #include "SIlanguage.hpp"
 #include "debug.h"
-//#define USE_BOOST_SHARED_PTR
-#ifdef USE_BOOST_SHARED_PTR
-#include <boost/shared_ptr.hpp>
-typedef boost::shared_ptr<class SIevent> SIeventPtr;
-typedef boost::shared_ptr<class SIservice> SIservicePtr;
-#else
+
 typedef SIevent * SIeventPtr;
 typedef SIservice * SIservicePtr;
-#endif
 
 /* period to restart EIT reading */
 #define TIME_EIT_SCHEDULED_PAUSE 60 * 60
