@@ -4578,6 +4578,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			lastMode=mode;
 			mode=NeutrinoModes::mode_pic;
 		}
+		if((data & NeutrinoModes::mode_mask)== NeutrinoModes::mode_moviebrowser) {
+			lastMode=mode;
+			mode=NeutrinoModes::mode_moviebrowser;
+		}
 		if((data & NeutrinoModes::mode_mask)== NeutrinoModes::mode_ts) {
 			if(mode == NeutrinoModes::mode_radio)
 				frameBuffer->stopFrame();

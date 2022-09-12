@@ -196,6 +196,7 @@ struct NeutrinoModes
 		mode_webtv = 9,
 		mode_upnp = 10,
 		mode_webradio = 11,
+		mode_moviebrowser = 12,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};
