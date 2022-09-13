@@ -244,11 +244,6 @@ int CLCD4l::CreateEventFile(std::string content, bool convert)
 	return CreateFile(EVENT, content, convert);
 }
 
-int CLCD4l::RemoveEventFile()
-{
-	return RemoveFile(EVENT);
-}
-
 int CLCD4l::CreateMenuFile(std::string content, bool convert)
 {
 	return CreateFile(MENU, content, convert);
@@ -347,7 +342,7 @@ void *CLCD4l::LCD4lProc(void *arg)
 
 	static bool FirstRun = true;
 	uint64_t p_ParseID = 0;
-	bool NewParseID = false;
+	bool new_ParseID = false;
 
 	//printf("[CLCD4l] %s: starting loop\n", __FUNCTION__);
 	while (!PLCD4l->exit_proc)
@@ -370,13 +365,13 @@ void *CLCD4l::LCD4lProc(void *arg)
 		for (int i = 0; i < 10; i++)
 		{
 			usleep(5 * 100 * 1000); // 0.5 sec
-			NewParseID = PLCD4l->CompareParseID(p_ParseID);
-			if (NewParseID || p_ParseID == NeutrinoModes::mode_audio)
+			new_ParseID = PLCD4l->CompareParseID(p_ParseID);
+			if (new_ParseID || p_ParseID == NeutrinoModes::mode_audio || p_ParseID == NeutrinoModes::mode_moviebrowser)
 				break;
 		}
 
-		//printf("[CLCD4l] %s: m_ParseID: %llx (NewParseID: %d)\n", __FUNCTION__, p_ParseID, NewParseID ? 1 : 0);
-		PLCD4l->ParseInfo(p_ParseID, NewParseID, FirstRun);
+		//printf("[CLCD4l] %s: m_ParseID: %llx (new_ParseID: %d)\n", __FUNCTION__, p_ParseID, new_ParseID ? 1 : 0);
+		PLCD4l->ParseInfo(p_ParseID, new_ParseID, FirstRun);
 
 		if (FirstRun)
 		{
@@ -793,7 +788,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 		else if (parseID == NeutrinoModes::mode_moviebrowser)
 		{
-			Logo = ICONSDIR "/" NEUTRINO_ICON_MOVIEPLAYER ICONSEXT;
+			g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
 			Service = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
 		}
 		else if (parseID == NeutrinoModes::mode_ts)
@@ -831,8 +826,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 					else /* show play-icon */
 						Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 					break;
-				default: /* show movieplayer-icon */
-					Logo = ICONSDIR "/" NEUTRINO_ICON_MOVIEPLAYER ICONSEXT;
+				default: /* show movieplayer-logo */
+					g_PicViewer->GetLogoName(0, "Movieplayer", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
 			}
 		}
 		else if (parseID == NeutrinoModes::mode_upnp)
@@ -971,6 +966,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	char Start[6] = {0};
 	char End[6] = {0};
 
+	bool writeEvent = true;
+
 	if (m_ModeChannel)
 	{
 		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
@@ -1094,6 +1091,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	else if (parseID == NeutrinoModes::mode_moviebrowser)
 	{
 		// do nothing; Event is processed in moviebrowser
+		writeEvent = false;
 	}
 	else if (parseID == NeutrinoModes::mode_ts)
 	{
@@ -1152,7 +1150,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	if (m_Event.compare(Event))
 	{
-		WriteFile(EVENT, Event, g_settings.lcd4l_convert);
+		if (writeEvent)
+			WriteFile(EVENT, Event, g_settings.lcd4l_convert);
 		m_Event = Event;
 
 		m_ParseID = 0; // reset channelid to get a possible eventlogo

@@ -66,7 +66,6 @@ class CLCD4l
 		int	RemoveFile(const char *file);
 
 		int	CreateEventFile(std::string content = "", bool convert = false);
-		int	RemoveEventFile();
 		int	CreateMenuFile(std::string content = "", bool convert = false);
 		int	RemoveMenuFile();
 
