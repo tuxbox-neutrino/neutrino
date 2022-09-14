@@ -228,7 +228,7 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 	{
 		if (fstype == NFS)
 		{
-			options1 = "soft,udp";
+			options1 = "soft";
 			options2 = "nolock";
 		}
 		else if (fstype == CIFS)
