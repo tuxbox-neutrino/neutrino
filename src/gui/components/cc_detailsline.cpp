@@ -63,7 +63,7 @@ void CComponentsDetailsLine::initVarDline(	const int& x_pos, const int& y_pos_to
 	h_mark_down 	= h_mark_down_ - 2*shadow_w;
 
 	//CComponentsDetailsLine
-	dl_w 	= CFrameBuffer::getInstance()->scale2Res(3);
+	dl_w 	= CFrameBuffer::getInstance()->scale2Res(OFFSET_INNER_MIN);
 
 	cc_body_gradient_enable = false;
 }
