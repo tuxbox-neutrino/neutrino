@@ -600,7 +600,7 @@ int CScanSetup::showScanMenu()
 	settings->setWizardMode(is_wizard);
 
 	//back
-	settings->addIntroItems(/*is_wizard ? NONEXISTANT_LOCALE : */ LOCALE_SERVICEMENU_SCANTS, NONEXISTANT_LOCALE, 0, 0, false);
+	settings->addIntroItems(/*is_wizard ? NONEXISTANT_LOCALE : */ LOCALE_SERVICEMENU_SCANTS, NONEXISTANT_LOCALE, 0, false, false);
 
 #if 0
 	//save scan settings
