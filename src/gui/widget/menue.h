@@ -632,8 +632,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 			BRIEF_HINT_NO	= 0,
 			BRIEF_HINT_YES	= 1
 		};
-		void addIntroItems(neutrino_locale_t l_subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO, bool SeparatorLine = true);
-		void addIntroItems(const std::string &s_subhead_text, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO, bool SeparatorLine = true);
+		void addIntroItems(neutrino_locale_t l_subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO, bool separatorline = true);
+		void addIntroItems(const std::string &s_subhead_text, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK, bool brief_hint = BRIEF_HINT_NO, bool separatorline = true);
 		bool hasItem();
 		void resetWidget(bool delete_items = false);
 		void insertItem(const uint& item_id, CMenuItem* menuItem);
