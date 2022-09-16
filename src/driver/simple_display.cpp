@@ -45,7 +45,7 @@ static bool timer_icon = false;
 #endif
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#if BOXMODEL_MULTIBOXSE
+#if BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE
 #define DISPLAY_DEV "/dev/null"
 #else
 #define DISPLAY_DEV "/dev/dbox/oled0"
