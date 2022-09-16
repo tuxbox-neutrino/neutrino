@@ -111,7 +111,7 @@ void CProgressWindow::Init(	signal<void, size_t, size_t, string> *statusSignal,
 	//set window height
 	h_height = ccw_head->getHeight();
 	ccw_body->setHeight(ccw_body->back()->getYPos()+ ccw_body->back()->getHeight()+ OFFSET_INNER_MID);
-	height = max(height, ccw_body->getHeight() + h_height);
+	height = max(height, ccw_body->getHeight() + h_height) + fr_thickness;
 
 	//set position on screen
 	setCenterPos();
