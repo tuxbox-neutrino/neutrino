@@ -81,7 +81,7 @@ class CProgressBarCache
 		int yoff;
 
 		fb_pixel_t *pbc_active, *pbc_passive;
- ;
+
 
 		static inline unsigned int make16color(__u32 rgb){return 0xFF000000 | rgb;};
 
