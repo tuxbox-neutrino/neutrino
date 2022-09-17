@@ -41,6 +41,8 @@ glibc-
 gstreamer1.0-
 initscripts-
 icu
+iproute2-
+iptables-
 jpeg-tools
 kbd-
 kernel
