@@ -49,6 +49,8 @@ class COPKGManagerExtra
 
 class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 {
+	friend class CImageInfo;
+
 	private:
 		struct pkg {
 			std::string name;
