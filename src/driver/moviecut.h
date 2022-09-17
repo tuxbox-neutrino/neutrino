@@ -28,21 +28,21 @@ class CMovieCut
 {
 	private:
 		CProgressBar *timescale;
-		CFrameBuffer * frameBuffer;
+		CFrameBuffer *frameBuffer;
 		int x;
 		int y;
 		int percent;
 
-		void reset_atime(const char * path, time_t tt);
-		uint32_t getHeaderDurationMS(MI_MOVIE_INFO * minfo);
-		off64_t getSecondSize(MI_MOVIE_INFO * minfo);
-		void WriteHeader(const char * path, uint32_t duration);
-		int check_pes_start (unsigned char *packet);
+		void reset_atime(const char *path, time_t tt);
+		uint32_t getHeaderDurationMS(MI_MOVIE_INFO *minfo);
+		off64_t getSecondSize(MI_MOVIE_INFO *minfo);
+		void WriteHeader(const char *path, uint32_t duration);
+		int check_pes_start(unsigned char *packet);
 		int find_gop(unsigned char *buf, int r);
 		off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize);
-		int read_psi(const char * spart, unsigned char * buf);
-		void save_info(MI_MOVIE_INFO * minfo, char * dpart, off64_t spos, off64_t secsize);
-		void findNewName(const char * fname, char * dpart,size_t dpart_len);
+		int read_psi(const char *spart, unsigned char *buf);
+		void save_info(MI_MOVIE_INFO *minfo, char *dpart, off64_t spos, off64_t secsize);
+		void findNewName(const char *fname, char *dpart, size_t dpart_len);
 		static int compare_book(const void *x, const void *y);
 		int getInput();
 
@@ -51,9 +51,9 @@ class CMovieCut
 	public:
 		CMovieCut();
 		~CMovieCut();
-		bool truncateMovie(MI_MOVIE_INFO * minfo);
-		bool cutMovie(MI_MOVIE_INFO * minfo);
-		bool copyMovie(MI_MOVIE_INFO * minfo, bool onefile);
+		bool truncateMovie(MI_MOVIE_INFO *minfo);
+		bool cutMovie(MI_MOVIE_INFO *minfo);
+		bool copyMovie(MI_MOVIE_INFO *minfo, bool onefile);
 		//int handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 };
 
