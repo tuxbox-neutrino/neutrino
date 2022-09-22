@@ -62,6 +62,8 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 	col_body_std	= color_body;
 	col_shadow	= color_shadow;
 
+	ib_loader	 = NULL;
+
 	ct_text 	= info_text;
 	ct_text_mode	= mode;
 	ct_font		= font_text;
@@ -79,14 +81,21 @@ CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
 
 CComponentsInfoBox::~CComponentsInfoBox()
 {
+	if (ib_loader)
+	{
+		ib_loader->kill();
+		delete ib_loader; ib_loader = NULL;
+	}
 	delete pic; pic = NULL;
 	delete cctext; cctext = NULL;
+
 }
 
 void CComponentsInfoBox::setPicture(const std::string& picture_name, const int& dx, const int& dy)
 {
 	pic_name = picture_name;
-	if (!pic_name.empty()){
+	if (!pic_name.empty())
+	{
 		frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
 		if (dx > -1)
 			pic_width = dx;
@@ -106,31 +115,61 @@ void CComponentsInfoBox::setPicture(const char* picture_name, const int& dx, con
 
 void CComponentsInfoBox::paintPicture()
 {
-	//ensure empty pic object
-	if (pic){
-		delete pic;
-		pic = NULL;
-	}
-
-	//exit if no image definied
-	if (pic_name.empty())
-		return;
-
-	//NOTE: real values are reqiured, if we paint this item within a form as embedded cc-item
+	// NOTE: Real screen values are required, the picon is not used here as usual within a parent form,
+	// therefore we imitate exceptionally the layout as if it were embedded in a parent form.
 	int x_pic = (cc_parent ? cc_xr : x) + fr_thickness;
 	int y_pic = (cc_parent ? cc_yr : y) + fr_thickness;
 
-	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x_pic+x_offset, y_pic, pic_width, min(pic_height, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
+	// detect possible usage of loader
+	bool has_loader = false;
+	if (!pic_name.empty())
+		has_loader = (pic_name == NEUTRINO_ICON_LOADER);
 
-	pic->setColorBody(col_body_std);
+	// If we have enabled the loader graphic, use this instead picon graphic
+	if (has_loader)
+	{
+		if (!ib_loader)
+		{
+			ib_loader = new CHourGlass (x_pic+x_offset, y_pic);
+			OnBeforeHide.connect(sigc::mem_fun(ib_loader, &CHourGlass::stop));
+			OnBeforeKill.connect(sigc::mem_fun(ib_loader, &CHourGlass::stop));
+			ib_loader->allowPaint(cc_allow_paint);
+		}
 
-	//fit icon into frame
-	pic->setYPos(y_pic+(height-2*fr_thickness)/2-pic->getHeight()/2);
+		ib_loader->setPos(x_pic+x_offset, y_pic+(height-2*fr_thickness)/2-ib_loader->getHeight()/2);
+		ib_loader->paint(true);
+	}
+	else
+	{
+		// ensure we have no loader instance
+		if (ib_loader)
+		{
+			delete ib_loader;
+			ib_loader = NULL;
+		}
 
-	//paint, but set visibility mode
-	pic->allowPaint(cc_allow_paint);
-	pic->paint(CC_SAVE_SCREEN_NO);	
+		//ensure empty pic object
+		if (pic){
+			delete pic;
+			pic = NULL;
+		}
+
+		//exit if no image definied
+		if (pic_name.empty())
+			return;
+
+		//init pic object and set icon paint position
+		pic = new CComponentsPicture(x_pic+x_offset, y_pic, pic_width, min(pic_height, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
+
+		pic->setColorBody(col_body_std);
+
+		//fit icon into frame
+		pic->setYPos(y_pic+(height-2*fr_thickness)/2-pic->getHeight()/2);
+
+		//paint, but set visibility mode
+		pic->allowPaint(cc_allow_paint);
+		pic->paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 void CComponentsInfoBox::paint(const bool &do_save_bg)
@@ -147,6 +186,8 @@ void CComponentsInfoBox::paint(const bool &do_save_bg)
 	int pic_w = 0;
 	if ((pic) && (pic->isPainted()))
 		pic_w = pic->getWidth() + x_offset;
+	if (ib_loader)
+		pic_w = ib_loader->getWidth() + x_offset;
 
 	//set text properties and paint text lines
  	if (!ct_text.empty()){
@@ -155,19 +196,19 @@ void CComponentsInfoBox::paint(const bool &do_save_bg)
 		cctext = NULL;
 	}
 
+	//calculate vars for x-position and dimensions
+	int tx = x_offset + x_text + pic_w;
+	int tw = width - 2*x_offset - pic_w - 2*fr_thickness;
+	int th = height-2*fr_thickness;
+
 	if (cctext == NULL)
-		cctext = new CComponentsText();
+		cctext = new CComponentsText(tx, y_text, tw, th);
 
 	cctext->setText(ct_text, ct_text_mode, ct_font);
 	cctext->doPaintTextBoxBg(ct_paint_textbg);
 	cctext->doPaintBg(false);
 	cctext->setTextColor(ct_col_text);
 	cctext->enableTboxSaveScreen(cc_txt_save_screen);
-
-	//calculate vars for x-position and dimensions
-	int tx = x_offset + x_text + pic_w;
-	int tw = width - 2*x_offset - pic_w - 2*fr_thickness;
-	int th = height-2*fr_thickness;
 	cctext->setDimensionsAll(tx, y_text, tw, th);
 
 	//paint, but set visibility mode

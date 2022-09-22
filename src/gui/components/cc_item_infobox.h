@@ -33,8 +33,10 @@
 #include "cc_item_text.h"
 #include "cc_item_picture.h"
 #include "cc_item.h"
+#include <gui/widget/hourglass.h>
 #include <string>
 
+class CHourGlass;
 //! Sub class of CComponentsItem. Shows box with text and optional icon on screen.
 /*!
 InfoBox has been originally intended for displaying text information or menue hints,
@@ -48,7 +50,7 @@ class CComponentsInfoBox : public CComponentsText
 		int x_offset;
 
 		///object: picture object
-		CComponentsPicture * pic;
+		CComponentsPicture *pic;
 		///property: path or default name of displayed image
 		std::string pic_default_name;
 
@@ -58,6 +60,8 @@ class CComponentsInfoBox : public CComponentsText
 		std::string pic_name;
 
 		int pic_height, pic_width;
+
+		CHourGlass *ib_loader;
 
 	public:
 		///object: internal used CTextBox object
