@@ -70,11 +70,22 @@ CHourGlass::CHourGlass(	const int x_pos,
 
 CHourGlass::~CHourGlass()
 {
+	clear();
+}
+
+void CHourGlass::clear()
+{
 	if(hg_timer)
 	{
 		delete hg_timer;
 		hg_timer = NULL;
 	}
+}
+
+void CHourGlass::stop()
+{
+	if(hg_timer)
+		hg_timer->stopTimer();
 }
 
 void CHourGlass::initImageFiles()

@@ -91,6 +91,8 @@ class CHourGlass : public CComponentsShapeSquare
 				fb_pixel_t color_shadow = COL_SHADOW_PLUS_0);
 
 		virtual ~CHourGlass();
+		void clear();
+		void stop();
 
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 };
