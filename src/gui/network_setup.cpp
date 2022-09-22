@@ -102,8 +102,8 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	if(actionKey=="networkapply")
 	{
 		applyNetworkSettings();
-		ShowHintS("Read settings...", (sigc::mem_fun(*this, &CNetworkSetup::readNetworkSettings)), 1);
-		ShowHintS("Backup settings...", (sigc::mem_fun(*this, &CNetworkSetup::backupNetworkSettings)), 1);
+		ShowHintS("Read settings...", (sigc::mem_fun(*this, &CNetworkSetup::readNetworkSettings)), 1, true, NEUTRINO_ICON_LOADER);
+		ShowHintS("Backup settings...", (sigc::mem_fun(*this, &CNetworkSetup::backupNetworkSettings)), 1, true, NEUTRINO_ICON_LOADER);
 		return res;
 	}
 	else if(actionKey=="networktest")
@@ -558,14 +558,14 @@ void CNetworkSetup::saveNetworkSettings()
 void CNetworkSetup::applyNetworkSettings()
 {
 	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], apply network settings...\n", __func__, __LINE__);
-	ShowHintS(LOCALE_NETWORKMENU_APPLY_SETTINGS, 1);
+	ShowHintS(LOCALE_NETWORKMENU_APPLY_SETTINGS, 1, true, NEUTRINO_ICON_LOADER);
 
 	if (!checkForIP())
 		return;
 
-	ShowHintS("Stopping network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::stopNetwork)), 1);
-	ShowHintS("Save network settings...", (sigc::mem_fun(*this, &CNetworkSetup::saveNetworkSettings)), 1);
-	ShowHintS("Starting network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::startNetwork)), 0);
+	ShowHintS("Stopping network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::stopNetwork)), 1, true, NEUTRINO_ICON_LOADER);
+	ShowHintS("Save network settings...", (sigc::mem_fun(*this, &CNetworkSetup::saveNetworkSettings)), 1, true, NEUTRINO_ICON_LOADER);
+	ShowHintS("Starting network...", (sigc::mem_fun(networkConfig, &CNetworkConfig::startNetwork)), 0, true, NEUTRINO_ICON_LOADER);
 }
 
 //open a message dialog with buttons,
@@ -693,7 +693,7 @@ const char * CNetworkSetup::mypinghost(std::string &host)
 void CNetworkSetup::testNetworkSettings()
 {
 	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], doing network test...\n", __func__, __LINE__);
-	ShowHintS(LOCALE_NETWORKMENU_TEST, 1);
+	ShowHintS(LOCALE_NETWORKMENU_TEST, 1, true, NEUTRINO_ICON_LOADER);
 
 	std::string our_ip, our_mask, our_broadcast, our_gateway, our_nameserver;
 
