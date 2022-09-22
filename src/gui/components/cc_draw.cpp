@@ -754,6 +754,7 @@ void CCDraw::hide()
 //erase or paint over rendered objects
 void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const int& fblayer_type /*fbdata_type*/)
 {
+	OnBeforeKill();
 	int layers = fblayer_type;
 
 	if (fblayer_type & ~CC_FBDATA_TYPES)
@@ -800,6 +801,8 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 
 	firstPaint = true;
 	is_painted = false;
+
+	OnAfterKill();
 }
 
 void CCDraw::killShadow(const fb_pixel_t& bg_color, const int& corner_radius)

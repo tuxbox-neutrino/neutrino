@@ -126,6 +126,11 @@ class CComponentsSignals : public sigc::trackable
 		///signal on after execute hide()
 		sigc::signal<void> OnAfterHide;
 
+		///signal on before execute kill()
+		sigc::signal<void> OnBeforeKill;
+		///signal on after execute kill()
+		sigc::signal<void> OnAfterKill;
+
 		///signal on CComponentsForm::setSelectedItem() is completed
 		sigc::signal<void> OnSelect;
 };
