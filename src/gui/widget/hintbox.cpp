@@ -482,80 +482,74 @@ int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int
 }
 
 
-CHint::CHint(const char * const Text, bool show_background) : CHintBox("" , Text)
+CHint::CHint(const char * const Text, bool show_background, const char * const Picon) : CHintBox("" , Text, HINTBOX_MIN_WIDTH, NULL, Picon)
 {
 	initHint(show_background);
 }
 
-CHint::CHint(const neutrino_locale_t Text, bool show_background) : CHintBox("" , g_Locale->getText(Text))
+CHint::CHint(const neutrino_locale_t Text, bool show_background, const char * const Picon) : CHintBox("" , g_Locale->getText(Text), HINTBOX_MIN_WIDTH, NULL, Picon)
 {
 	initHint(show_background);
 }
 
-int ShowHintS(const char * const Text, int timeout, bool show_background)
+int ShowHintS(const char * const Text, int timeout, bool show_background, const char * const Picon)
 {
 	int res = messages_return::none;
-	CHint hint(Text, show_background);
-	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
+	CHint hint(Text, show_background, Picon);
 	hint.setTimeOut(timeout, false);
 
 	hint.paint();
-	hg.paint();
 	res = hint.exec();
-	hg.hide();
 	hint.hide();
 
 	return res;
 }
 
-int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout, bool show_background, const char * const Picon)
 {
 	int res = messages_return::none;
 
 	sigc::signal<void> OnCall;
 	OnCall.connect(Slot);
 
-	CHint hint(Text, show_background);
-	CHourGlass hg(CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID, CFrameBuffer::getInstance()->getScreenY());
+	CHint hint(Text, show_background, Picon);
 	hint.setTimeOut(timeout, false);
 
 	hint.paint();
-	hg.paint();
 	OnCall();
 	res = hint.exec();
-	hg.hide();
 	hint.hide();
 
 	return res;
 }
 
-int ShowHintS(const neutrino_locale_t Text, int timeout, bool show_background)
+int ShowHintS(const neutrino_locale_t Text, int timeout, bool show_background, const char * const Picon)
 {
-	return ShowHintS(g_Locale->getText(Text), timeout, show_background);
+	return ShowHintS(g_Locale->getText(Text), timeout, show_background, Picon);
 }
 
-int ShowHintS(const std::string& Text, int timeout, bool show_background)
+int ShowHintS(const std::string& Text, int timeout, bool show_background, const char * const Picon)
 {
-	return ShowHintS(Text.c_str(), timeout, show_background);
+	return ShowHintS(Text.c_str(), timeout, show_background, Picon);
 }
 
-int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout, bool show_background, const char * const Picon)
 {
-	return ShowHintS(g_Locale->getText(Text), Slot, timeout, show_background);
+	return ShowHintS(g_Locale->getText(Text), Slot, timeout, show_background, Picon);
 }
 
-int ShowHintS(const std::string& Text, const sigc::slot<void> &Slot, int timeout, bool show_background)
+int ShowHintS(const std::string& Text, const sigc::slot<void> &Slot, int timeout, bool show_background, const char * const Picon)
 {
-	return ShowHintS(Text.c_str(), Slot, timeout, show_background);
+	return ShowHintS(Text.c_str(), Slot, timeout, show_background, Picon);
 }
 
 int ShowHintS(const hint_message_data_t &hint_data)
 {
 	std::string text = !hint_data.text.empty() ? hint_data.text : g_Locale->getText(hint_data.text_locale);
-	return ShowHintS(text, hint_data.slot, hint_data.timeout, hint_data.show_background);
+	return ShowHintS(text, hint_data.slot, hint_data.timeout, hint_data.show_background, hint_data.Picon);
 }
 
-int ShowHintS(const std::vector<hint_message_data_t>& v_hint_data)
+int ShowHintS(const std::vector<hint_message_data_t> &v_hint_data)
 {
 	int ret = messages_return::none;
 	for(size_t i=0; i<v_hint_data.size(); i++)
@@ -564,7 +558,8 @@ int ShowHintS(const std::vector<hint_message_data_t>& v_hint_data)
 		ret = ShowHintS(txt,
 			  v_hint_data.at(i).slot,
 			  v_hint_data.at(i).timeout,
-			  v_hint_data.at(i).show_background);
+			  v_hint_data.at(i).show_background,
+			  v_hint_data.at(i).Picon);
 	}
 
 	return ret;

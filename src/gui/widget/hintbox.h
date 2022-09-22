@@ -106,6 +106,8 @@ class CHintBox : public CComponentsWindow
 		* 	@li 	optional: expects type const char*, defines the icon name on the left side of titlebar, default = DEFAULT_HEADER_ICON
 		* @param[in]	Picon
 		* 	@li 	optional: expects type const char*, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* 		special case: If picon == NEUTRINO_ICON_LOADER, then the animated loader icon known from CHourGlass object will be painted.
+		* 	@see	CHourGlass()
 		* @param[in]	header_buttons
 		* 	@li 	optional: expects type int, defines the icon name on the right side of titlebar, default = 0 (non Icon)
 		* 	@see	class CComponentsWindow()
@@ -274,7 +276,9 @@ class CHintBox : public CComponentsWindow
 		* 		NO_AUTO_LINEBREAK
 		* 		AUTO_LINEBREAK_NO_BREAKCHARS
 		* @param[in]	Picon
-		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)
+		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)\n
+		* 		special case: If picon == NEUTRINO_ICON_LOADER, then the animated loader icon known from CHourGlass object will be painted.
+		* 	@see	CHourGlass()
 		* @param[in]	color_text
 		* 	@li 	optional: expects type fb_pixel_t, defines the text color, default = COL_MENUCONTENT_TEXT
 		* * @param[in]	font_text
@@ -342,7 +346,7 @@ class CHintBox : public CComponentsWindow
 * Text is UTF-8 encoded
 * 	@see	for possible parameters take a look to CHintBox()
 */
-int ShowHint(const neutrino_locale_t Caption, const char * const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
+int ShowHint(const neutrino_locale_t Caption, const char * const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL,const char * const Picon = NULL, const int& header_buttons = 0);
 int ShowHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
 int ShowHint(const char * const Caption, const char * const Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
 int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int Width = HINTBOX_MIN_WIDTH, int timeout = HINTBOX_DEFAULT_TIMEOUT, const char * const Icon = NULL, const char * const Picon = NULL, const int& header_buttons = 0);
@@ -375,14 +379,14 @@ class CHint : public CHintBox
 		* @param[in]	show_background
 		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 		*/
-		CHint(const char * const Text, bool show_background = true);
+		CHint(const char * const Text, bool show_background = true, const char * const Picon = NULL);
 		/**CHint Constructor
 		* @param[in]	Text
 		* 	@li 	expects type neutrino_locale_t, this is the message text inside the window, text is UTF-8 encoded
 		* @param[in]	show_background
 		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 		*/
-		CHint(const neutrino_locale_t Text, bool show_background = true);
+		CHint(const neutrino_locale_t Text, bool show_background = true, const char * const Picon = NULL);
 
 		virtual void setDelay(int d) {delay = d;}
 
@@ -404,10 +408,12 @@ typedef struct hint_message_data_t
 	neutrino_locale_t text_locale;
 	int timeout;
 	bool show_background;
+	const char *Picon;
 // 	hint_message_data_t(): 	text(std::string()),
 // 				text_locale(NONEXISTANT_LOCALE),
 // 				timeout(HINTBOX_DEFAULT_TIMEOUT),
-// 				show_background(true){}
+// 				show_background(true),
+// 				Picon(NULL){}
 } hint_message_data_struct_t;
 
 /**
@@ -421,9 +427,9 @@ typedef struct hint_message_data_t
 * 	@li 	optional: expects type bool, enable/disable backround paint, default = true
 * 	@see	for possible text parameters take a look to CHintBox()
 */
-int ShowHintS(const neutrino_locale_t Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
-int ShowHintS(const char * const Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
-int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const neutrino_locale_t Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true, const char * const Picon = NULL);
+int ShowHintS(const char * const Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true, const char * const Picon = NULL);
+int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true, const char * const Picon = NULL);
 
 /**
  * Simplified methodes to show hintboxes without titlebar and footer with mounted function as slot for custom action
@@ -443,9 +449,9 @@ int ShowHintS(const std::string &Text, int timeout = HINTBOX_DEFAULT_TIMEOUT, bo
  * @param[in]	show_background
  * 	@li 	optional: expects type bool, enable/disable backround paint, default = true
  */
-int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
-int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
-int ShowHintS(const std::string &Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true);
+int ShowHintS(const neutrino_locale_t Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true, const char * const Picon = NULL);
+int ShowHintS(const char * const Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true, const char * const Picon = NULL);
+int ShowHintS(const std::string &Text, const sigc::slot<void> &Slot, int timeout = HINTBOX_DEFAULT_TIMEOUT, bool show_background = true, const char * const Picon = NULL);
 
 int ShowHintS(const hint_message_data_t &hint_data);
 int ShowHintS(const std::vector<hint_message_data_t> &v_hint_data);
