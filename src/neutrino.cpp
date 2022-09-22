@@ -5416,9 +5416,9 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if (actionKey=="restarttuner")
 	{
 		std::vector <hint_message_data_t> hints;
-		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true});
-		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true});
-		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true});
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), true),"Stopping tuner...", NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
+		hints.push_back({sigc::bind(sigc::mem_fun(g_Zapit, &CZapitClient::setStandby), false), "Start tuner...", NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
+		hints.push_back({sigc::hide_return(sigc::mem_fun(g_Zapit, &CZapitClient::Rezap)), "Rezap...", NONEXISTANT_LOCALE, 2, true, NEUTRINO_ICON_LOADER});
 		ShowHintS(hints);
 	}
 #endif
