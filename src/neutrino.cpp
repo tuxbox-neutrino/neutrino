@@ -4422,18 +4422,22 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
-		if(data) {//INACTIVITY SLEEPTIMER
+		if( data && mode == NeutrinoModes::mode_standby ) { //SKIP INACTIVITY SLEEPTIMER
+			printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skipping, already in standby mode\n");
+			return messages_return::handled;
+		}
+		else if(data) {//INACTIVITY SLEEPTIMER
 			int msgbox = ShowMsg(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,
 				      CMsgBox::mbrCancel, CMsgBox::mbCancel, NULL, 450, 60);
 			skipShutdownTimer = !(msgbox & CMsgBox::mbrTimeout);
 			if(skipShutdownTimer) {
-				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skiping\n");
+				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skipping\n");
 				skipShutdownTimer = false;
 				return messages_return::handled;
 			}
 		}else{ //MAIN-MENU SLEEPTIMER
 			if(skipSleepTimer) {
-				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
+				printf("NeutrinoMessages::SLEEPTIMER: skipping\n");
 				skipSleepTimer = false;
 				return messages_return::handled;
 			}
