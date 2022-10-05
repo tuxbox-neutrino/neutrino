@@ -655,6 +655,11 @@ struct SNeutrinoSettings
 	int recording_audio_pids_alt;
 	int recording_audio_pids_std;
 
+	// streaming;
+	int streaming_ecmmode;
+	int streaming_decryptmode;
+	int streaming_port;
+
 	// timeshift
 	std::string timeshiftdir;
 	int timeshift_auto;

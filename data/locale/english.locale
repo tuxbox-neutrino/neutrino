@@ -1951,6 +1951,7 @@ miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
 miscsettings.sleeptimer_min Sleeptimer default
+miscsettings.streaming Streaming
 miscsettings.volume Volume
 miscsettings.zapto_pre_time Zapto Start Time Correction
 motorcontrol.calc_positions (Re)-Calculate Positions
@@ -2701,8 +2702,11 @@ streaminfo.resolution Resolution
 streaminfo.signal Tuner
 streaminfo.videosystem Videosystem
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart GUI.
+streaming.decryptmode Decrypt HTTP Streams
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
+streaming.ecmmode Send entitlements
 streaming.overflow Record buffer overflow, consider to stop some records
+streaming.port Streaming port
 streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.backspace Backspace

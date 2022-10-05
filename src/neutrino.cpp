@@ -828,6 +828,11 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	g_settings.recording_audio_pids_default = configfile.getInt32("recording_audio_pids_default", TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
 
+	// streaming
+	g_settings.streaming_ecmmode = configfile.getInt32("streaming_ecmmode", 0);
+	g_settings.streaming_decryptmode = configfile.getInt32("streaming_decryptmode", 1);
+	g_settings.streaming_port = configfile.getInt32("streaming_port", 31339);
+
 	// timeshift
 	g_settings.timeshift_auto = configfile.getInt32("timeshift_auto", 0);
 	g_settings.timeshift_delete = configfile.getInt32("timeshift_delete", 1);
@@ -1842,6 +1847,11 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setBool("shutdown_timer_record_type", g_settings.shutdown_timer_record_type);
 
 	configfile.setInt32("recording_audio_pids_default", g_settings.recording_audio_pids_default);
+
+	// streaming
+	configfile.setInt32("streaming_ecmmode", g_settings.streaming_ecmmode);
+	configfile.setInt32("streaming_decryptmode", g_settings.streaming_decryptmode);
+	configfile.setInt32("streaming_port", g_settings.streaming_port);
 
 	// timeshift
 	configfile.setString("timeshiftdir", g_settings.timeshiftdir);

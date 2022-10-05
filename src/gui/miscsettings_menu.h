@@ -58,6 +58,8 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser *shoutcast_onoff;
 		CMenuForwarder *epg_dir;
 		CMenuForwarder *epg_read_now;
+		CMenuOptionChooser *ecm_onoff;
+		CMenuOptionChooser *dec_onoff;
 
 		int width;
 
@@ -79,6 +81,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		int showMiscSettingsMenuChanlist();
 		int showMiscSettingsMenuOnlineServices();
 		int showMiscSettingsMenuPlugins();
+		int showMiscSettingsMenuStreaming();
 		void showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu);
 	public:
 		CMiscMenue();

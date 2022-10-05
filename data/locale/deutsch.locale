@@ -1952,6 +1952,7 @@ miscsettings.shutdown_real Standby-Modus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
+miscsettings.streaming Streaming
 miscsettings.volume Lautstärke
 miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
@@ -2702,8 +2703,11 @@ streaminfo.resolution Auflösung
 streaminfo.signal Tuner
 streaminfo.videosystem Videosystem
 streaming.busy Einer oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart der GUI Abhilfe.
+streaming.decryptmode HTTP Streams entschlüsseln
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
+streaming.ecmmode Berechtigungen senden
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
+streaming.port Streaming-Port
 streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.backspace Rücklöschen
