@@ -106,6 +106,7 @@ void CZapitChannel::Init()
 	has_bouquet = false;
 	record_demux = 2;
 	pip_demux = 2;
+	stream_demux = 2;
 	polarization = 0;
 	flags = 0;
 	delsys = DVB_S;

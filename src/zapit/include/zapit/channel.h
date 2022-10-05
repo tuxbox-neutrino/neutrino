@@ -184,6 +184,7 @@ class CZapitChannel
 
 		uint8_t				record_demux;
 		uint8_t				pip_demux;
+		uint8_t				stream_demux;
 
 		void				Init();
 		friend class CChannelList;
@@ -303,8 +304,10 @@ class CZapitChannel
 		void dumpBouquetXml(FILE * fd, bool bUser);
 		void setRecordDemux(uint8_t num) { record_demux = num; };
 		void setPipDemux(uint8_t num) { pip_demux = num; };
+		void setStreamDemux(uint8_t num) { stream_demux = num; };
 		int  getRecordDemux() { return record_demux; };
 		int  getPipDemux() { return pip_demux; };
+		int  getStreamDemux() { return stream_demux; };
 		static t_channel_id makeChannelId(t_satellite_position sat, freq_id_t freq,
 				t_transport_stream_id tsid, t_original_network_id onid, t_service_id sid)
 		{
