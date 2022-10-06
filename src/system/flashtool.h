@@ -53,6 +53,7 @@ class CFlashTool
 
 		bool getInfo();
 		bool erase(int globalProgressEnd=-1);
+		void stopDaemons();
 
 	public:
 		CFlashTool();

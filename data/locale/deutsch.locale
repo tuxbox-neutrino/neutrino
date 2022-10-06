@@ -710,6 +710,7 @@ flashupdate.createimage_warning Nachfolgend wird ein Image für die %s STB erste
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit
+flashupdate.enter_flash_script Stoppe laufende Dienste ...
 flashupdate.erasefailed Flash löschen fehlgeschlagen
 flashupdate.erasing lösche Flash
 flashupdate.experimentalimage Sie haben eine Betaversion oder einen Nightly Build ausgewählt.\nBitte beachten Sie, dass diese Version ungetestet ist\nund Ihre Box nach dem Update möglicherweise nicht mehr funktionsfähig ist.\n\nSoll diese Version wirklich installiert werden?

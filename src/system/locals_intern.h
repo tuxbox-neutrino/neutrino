@@ -737,6 +737,7 @@ const char * locale_real_names[] =
 	"flashupdate.currentversion_sep",
 	"flashupdate.currentversiondate",
 	"flashupdate.currentversiontime",
+	"flashupdate.enter_flash_script",
 	"flashupdate.erasefailed",
 	"flashupdate.erasing",
 	"flashupdate.experimentalimage",

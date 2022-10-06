@@ -232,6 +232,12 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 
 	if(statusViewer) {
 		statusViewer->showLocalStatus(0);
+		statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_ENTER_FLASH_SCRIPT)); // UTF-8
+	}
+	stopDaemons();
+
+	if(statusViewer) {
+		statusViewer->showLocalStatus(0);
 		statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_ERASING)); // UTF-8
 	}
 
@@ -336,6 +342,17 @@ bool CFlashTool::getInfo()
 	return true;
 }
 
+void CFlashTool::stopDaemons()
+{
+/*
+#ifdef ENABLE_LCD4LINUX
+	if (g_settings.lcd4l_support)
+		CLCD4l::getInstance()->StopLCD4l();
+#endif
+*/
+	CNeutrinoApp::getInstance()->stopDaemonsForFlash();
+}
+
 bool CFlashTool::erase(int globalProgressEnd)
 {
 	erase_info_t lerase;
@@ -352,8 +369,6 @@ bool CFlashTool::erase(int globalProgressEnd)
 		close(fd);
 		return false;
 	}
-
-	CNeutrinoApp::getInstance()->stopDaemonsForFlash();
 
 #ifndef VFD_UPDATE
 	CVFD::getInstance()->ShowText("Erase Flash");
@@ -436,7 +451,9 @@ bool CFlashTool::check_md5( const std::string & filename, const std::string & sm
 
 void CFlashTool::reboot()
 {
+	printf("CFlashTool::reboot: start\n");
 	::reboot(RB_AUTOBOOT);
+	printf("CFlashTool::reboot: done\n");
 	::exit(0);
 }
 
