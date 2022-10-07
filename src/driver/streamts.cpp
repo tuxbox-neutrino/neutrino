@@ -165,6 +165,9 @@ void CStreamInstance::RemoveClient(int clientfd)
 
 bool CStreamInstance::Open()
 {
+	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
+	set_threadname("n:streaminstance");
+
 	CZapitChannel * tmpchan = CServiceManager::getInstance()->FindChannel(channel_id);
 	if (!tmpchan)
 		return false;
@@ -303,7 +306,10 @@ bool CStreamManager::SetPort(int newport)
 #endif
 		mutex.lock();
 		if (listenfd >= 0)
+		{
 			close(listenfd);
+			listenfd = -1;
+		}
 		ret = Listen();
 		mutex.unlock();
 	}
@@ -436,7 +442,6 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		return false;
 	}
 
-// 	CFrontend *live_fe = NULL;
 	CZapitChannel * channel = NULL;
 
 	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) {
@@ -529,8 +534,8 @@ void CStreamManager::PreparePids(CZapitChannel *channel, stream_pids_t &pids, bo
 	{
 		for(casys_pids_iterator_t it = channel->capids.begin(); it != channel->capids.end(); ++it)
 		{
-		  pids.insert((*it)); //all ECM Pids
-		  printf("CStreamManager::PreparePids: capid 0x%04x \n", (*it));
+			pids.insert((*it)); //all ECM Pids
+			printf("CStreamManager::PreparePids: capid 0x%04x \n", (*it));
 		}
 	}
 

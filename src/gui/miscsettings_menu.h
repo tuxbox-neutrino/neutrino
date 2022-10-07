@@ -58,8 +58,8 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser *shoutcast_onoff;
 		CMenuForwarder *epg_dir;
 		CMenuForwarder *epg_read_now;
-		CMenuOptionChooser *ecm_onoff;
-		CMenuOptionChooser *dec_onoff;
+		CMenuOptionChooser *entitlements;
+		CMenuOptionChooser *decrypt;
 
 		int width;
 

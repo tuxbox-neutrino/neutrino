@@ -51,6 +51,7 @@
 
 #include <driver/screen_max.h>
 #include <driver/scanepg.h>
+#include <driver/streamts.h>
 
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
@@ -744,20 +745,20 @@ int CMiscMenue::showMiscSettingsMenuStreaming()
 	ms_sservices->addIntroItems(LOCALE_MISCSETTINGS_STREAMING);
 
 	// port
-	CIntInput * miscSettings_streamingport = new CIntInput(LOCALE_STREAMING_PORT, &g_settings.streaming_port, 5);
+	CIntInput * miscSettings_streamingport = new CIntInput(LOCALE_STREAMING_PORT, &g_settings.streaming_port, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, this);
 	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_STREAMING_PORT, true, to_string(g_settings.streaming_port), miscSettings_streamingport);
 	ms_sservices->addItem(mf);
-
+#if 0
 	// entitlements
 	entitlements = new CMenuOptionChooser(LOCALE_STREAMING_ECMMODE, &g_settings.streaming_ecmmode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	//entitlements->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_ECMMODE_ENABLED);
 	ms_sservices->addItem(entitlements);
 
-	// decrypt
+	// decrypt mode
 	decrypt = new CMenuOptionChooser(LOCALE_STREAMING_DECRYPTMODE, &g_settings.streaming_decryptmode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	//decrypt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_DECRYPTMODE_ENABLED);
+	// decrypt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_DECRYPTMODE_ENABLED);
 	ms_sservices->addItem(decrypt);
-
+#endif
 	int res = ms_sservices->exec(NULL, "");
 	delete ms_sservices;
 	return res;
@@ -885,6 +886,10 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void */*data*/
 		else
 			shoutcast_dev_id_short.clear();
 		shoutcast_onoff->setActive(CApiKey::check_shoutcast_dev_id());
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_STREAMING_PORT))
+	{
+		CStreamManager::getInstance()->SetPort(g_settings.streaming_port);
 	}
 	return ret;
 }
