@@ -710,6 +710,7 @@ flashupdate.createimage_warning Now an image for the %s STB is created.\nThis im
 flashupdate.currentversion_sep Current version
 flashupdate.currentversiondate Date
 flashupdate.currentversiontime Time
+flashupdate.enter_flash_script Stopping services ...
 flashupdate.erasefailed erasure of flash failed
 flashupdate.erasing erasing flash
 flashupdate.experimentalimage You have selected a beta version or a nightly build.\nPlease note that this version is untested\nand your box may not work after update.\n\nDo you really want to install this version?
