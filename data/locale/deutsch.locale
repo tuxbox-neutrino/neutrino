@@ -450,7 +450,7 @@ eventfinder.history Frühere Suchen
 eventfinder.keyword Suche nach Textpassage
 eventfinder.max_history Max. Anzahl früherer Suchen
 eventfinder.search Suche
-eventfinder.search_all_epg Ganze 
+eventfinder.search_all_epg Ganze
 eventfinder.search_within_epg Suche innerhalb EPG-Daten
 eventfinder.search_within_list Suche innerhalb Text
 eventfinder.searching Suche ...
@@ -786,7 +786,7 @@ flashupdate.update_with_settings_skipped Ordner [%s] kann nicht gesichert werden
 flashupdate.update_with_settings_warning Warnung Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist möglicherweise zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nSoll der Vorgang trotzdem fortgesetzt werden?
 flashupdate.updatemode Updatemodus
 flashupdate.updatemode_internet Internet
-flashupdate.updatemode_manual von lokalem Update-Verzeichnis 
+flashupdate.updatemode_manual von lokalem Update-Verzeichnis
 flashupdate.url_file Internet Konfigurations-Datei
 flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
@@ -1758,7 +1758,7 @@ menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
 menu.hint_uni_setup Konfiguration Unikabel Frequenz, Userband und Pin
 menu.hint_upnp Universal Plug and Play Browser
 menu.hint_vfd Frontdisplay und Power-LEDs
-menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb 
+menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb
 menu.hint_vfd_brightness_setup Konfiguriert die Helligkeit des Frontdisplays für verschiedene Modi
 menu.hint_vfd_brightnessdeepstandby Definiert die Helligkeit im Deep-Standby
 menu.hint_vfd_brightnessdim Definiert den Wert für das Dimmen des Display nach Ablauf der eingestellten Zeit
@@ -2001,9 +2001,9 @@ moviebrowser.directories Verzeichnisse
 moviebrowser.directories_additional Zusätzliche Verzeichnisse
 moviebrowser.edit_book Markierung ändern
 moviebrowser.edit_book_name_info1 Neuer Markierungsname
-moviebrowser.edit_book_name_info2 
+moviebrowser.edit_book_name_info2
 moviebrowser.edit_book_pos_info1 Neue Position (s)
-moviebrowser.edit_book_pos_info2 
+moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
 moviebrowser.edit_book_type_info2 <0: zurück, >0: vor, 0: kein
 moviebrowser.edit_serie Name der Serie
@@ -2107,7 +2107,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Mark.
 moviebrowser.short_channel Kanal
 moviebrowser.short_country Land
-moviebrowser.short_elapsed 
+moviebrowser.short_elapsed
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
@@ -2125,7 +2125,7 @@ moviebrowser.short_recorddate Datum
 moviebrowser.short_recordtime Zeit
 moviebrowser.short_serie Serie
 moviebrowser.short_size Größe
-moviebrowser.short_spacer 
+moviebrowser.short_spacer
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
@@ -2167,7 +2167,7 @@ moviecut.cancel Bearbeiten des Filmes abbrechen?
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
-movieplayer.bookmarkname_hint2 
+movieplayer.bookmarkname_hint2
 movieplayer.chapters Kapitel
 movieplayer.display_playtime Zeige Spielzeit im VFD/LCD
 movieplayer.fileplayback_audio Multiformat-Audiowiedergabe

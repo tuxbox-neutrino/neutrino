@@ -10,7 +10,7 @@ EPGPlus.bypage_mode Per pagina
 EPGPlus.head Programmagids overzicht (EPG Plus)
 EPGPlus.next_bouquet Volgende favorietenlijst
 EPGPlus.options Opties
-EPGPlus.page_down Pagina omlaag                                                        
+EPGPlus.page_down Pagina omlaag
 EPGPlus.page_up Pagina omhoog
 EPGPlus.prev_bouquet Vorige favorietenlijst
 EPGPlus.record Opnemen
@@ -104,7 +104,7 @@ audio.srs_algo_light Eenvoudig
 audio.srs_algo_normal Normaal
 audio.srs_iq SRS True-volume technologie
 audio.srs_nmgr Ruis manager
-audio.srs_volume Referentie volume 
+audio.srs_volume Referentie volume
 audiomenu.PCMOffset Verlaag volume niveau PCM
 audiomenu.analog_mode Analoge modus
 audiomenu.analog_out Analoge uitgang
@@ -113,11 +113,11 @@ audiomenu.auto_subs Automatisch ondertiteling selecteren
 audiomenu.avs avs
 audiomenu.avsync A/V synchronisatie
 audiomenu.avsync_am Audio master
-audiomenu.clockrec 
+audiomenu.clockrec
 audiomenu.dolbydigital Automatisch Dolby Digital gebruiken indien aanwezig
 audiomenu.hdmi_dd Encoded Dolby Digital via HDMI
 audiomenu.hdmi_dd_auto Automatisch
-audiomenu.hdmi_dd_force Forceer 
+audiomenu.hdmi_dd_force Forceer
 audiomenu.monoleft Mono links
 audiomenu.monoright Mono rechts
 audiomenu.pref_lang Voorkeurstaal
@@ -144,12 +144,12 @@ audioplayer.delete Verwijderen
 audioplayer.deleteall Verwijder alles
 audioplayer.display_order Sorteer volgorde
 audioplayer.enable_sc_metadata Uitlezen van Shoutcast meta-data
-audioplayer.fastforward Snel vooruit spoelen 
+audioplayer.fastforward Snel vooruit spoelen
 audioplayer.follow Automatisch huidige selecteren
 audioplayer.head Audio afspeellijst
 audioplayer.highprio Hoge decodeer prioriteit
 audioplayer.jump_backwards Spring terug
-audioplayer.jump_dialog_hint1 Markeer sprong punt 
+audioplayer.jump_dialog_hint1 Markeer sprong punt
 audioplayer.jump_dialog_hint2 (relatief, in seconden)
 audioplayer.jump_dialog_title Markeer sprong locatie
 audioplayer.jump_forwards Sprong voorwaarts
@@ -185,7 +185,7 @@ bouqueteditor.add Toevoegen
 bouqueteditor.bouquetname Naam van de favorietenlijst
 bouqueteditor.delete Verwijder
 bouqueteditor.delete_question Zender verwijderen uit favorietenlijst?
-bouqueteditor.discardingchanges Herstel wijzigingen. Een moment geduld aub. 
+bouqueteditor.discardingchanges Herstel wijzigingen. Een moment geduld aub.
 bouqueteditor.hide Verberg
 bouqueteditor.lock Vergrendel
 bouqueteditor.move Verplaats
@@ -301,7 +301,7 @@ colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Inactieve content
 colormenusetup.menucontent_selected Geselecteerde content
 colormenusetup.menuhead Menu kop
-colorstatusbar.text Infobalk 
+colorstatusbar.text Infobalk
 colorthememenu.head Selecteer thema
 colorthememenu.head2 Thema's laden
 colorthememenu.menu_hints Hint box
@@ -341,7 +341,7 @@ debug.level_2 informatieve
 debug.level_3 verbose
 epg.saving Opslaan EPG
 epgextended.actors Acteurs
-epgextended.director Regisseur 
+epgextended.director Regisseur
 epgextended.guests Gasten
 epgextended.original_title Originele Titel
 epgextended.presenter Presentator
@@ -519,7 +519,7 @@ extra.volume_size Hoogte van display
 extra.west West
 extra.zap_cycle Zap cyclus
 extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
-extra.zapit_hvoltage 18V voor DiSEqC motor 
+extra.zapit_hvoltage 18V voor DiSEqC motor
 extra.zapit_motor_speed Motor snelheid (10 = 1 graad/sec)
 extra.zapit_scanpids Scan/gebruik PIDS
 extra.zapit_sdt_changed Zenders gewijzigd, herlaad instellingen.
@@ -637,13 +637,13 @@ flashupdate.updatemode Update mode
 flashupdate.updatemode_internet internet
 flashupdate.updatemode_manual Vanaf lokale update directory
 flashupdate.url_file configuratie bestand
-flashupdate.versioncheck Versie controleren 
+flashupdate.versioncheck Versie controleren
 flashupdate.writeflash Schrijf gehele image
 flashupdate.writeflashmtd Schrijf een partitie one
 flashupdate.wrongbase Uw release-cyclus verschilt.\nVerder gaan?
 fontmenu.channellist Kanalenlijst
 fontmenu.epg EPG
-fontmenu.eventlist Programmalijst 
+fontmenu.eventlist Programmalijst
 fontmenu.head Lettertype instellingen
 fontmenu.infobar Informatiebalk
 fontmenu.menu Menu
@@ -733,7 +733,7 @@ infoviewer.epgnotload EPG is niet geladen....
 infoviewer.epgwait wachten op EPG...
 infoviewer.eventlist Programmalijst
 infoviewer.languages Audio
-infoviewer.motor_moving Schotel positionering 
+infoviewer.motor_moving Schotel positionering
 infoviewer.next Volgende
 infoviewer.nocurrent Geen informatie beschikbaar over huidige programma
 infoviewer.noepg EPG is niet beschikbaar
@@ -795,7 +795,7 @@ keybindingmenu.volumeup Verhogen
 keybindingmenu.zaphistory Zap geschiedenis favorietenlijst
 keychooser.head Nieuwe toets instellen
 keychooser.text1 Drukt u alstublieft op de nieuwe toets Please press the new key
-keychooser.text2 Wacht u alstublieft een ogenblik om te annuleren. 
+keychooser.text2 Wacht u alstublieft een ogenblik om te annuleren.
 keychoosermenu.currentkey Huidige toets
 keychoosermenu.setnew nieuwe toets instellen
 keychoosermenu.setnone Geen toets
@@ -881,7 +881,7 @@ menu.hint_a_pic Configureer audiospeler en afbeeldingen
 menu.hint_aplay Audiospeler
 menu.hint_audio Audio output, DD\nSRS True volume opties
 menu.hint_audio_analog_mode Selecteer audio kanaal: \nstereo, mono-left, mono-right
-menu.hint_audio_avsync A/V synchronisatie 
+menu.hint_audio_avsync A/V synchronisatie
 menu.hint_audio_dd Automatisch gebruik maken van DolbyDigital audio indien beschikbaar
 menu.hint_audio_hdmi_dd DolbyDigital via HDMI: Uit - decoded\nautomatisch indien het ondersteund is door het apparaat, forceer.
 menu.hint_audio_spdif_dd DolbyDigital via optische SPDIF aansluiting
@@ -959,10 +959,10 @@ menu.hint_fade Grafische fade overgang van vensters
 menu.hint_fan_speed Beheer ventilator snelheid
 menu.hint_filebrowser_denydirectoryleave Voorkom dat de verkenner de initiële directory verlaat.
 menu.hint_filebrowser_showrights Bestandsrechten weergeven in verkenner
-menu.hint_fileplay Verschillende video bestanden afspelen 
+menu.hint_fileplay Verschillende video bestanden afspelen
 menu.hint_filesystem_is_utf8 Bestandsverkenner bestandssysteem encoding
 menu.hint_font_gui Selecteer het algemene lettertype dat u wenst te gebruiken voor het gebruikersinterface
-menu.hint_font_scaling Globale verticale en horizontale font schaling instellen. 
+menu.hint_font_scaling Globale verticale en horizontale font schaling instellen.
 menu.hint_font_ttx Selecteer het lettertype dat u wenst te gebruiken voor teletekst.
 menu.hint_fonts Configureer lettertypes gebruikersinterface
 menu.hint_games Lijst met geïnstalleerde games weergeven.
@@ -974,7 +974,7 @@ menu.hint_hdd_format Creëer en formatteer HDD partitie
 menu.hint_hdd_noise Akoestische instellingen instellen\nniet alle hardeschijven ondersteunen dit.
 menu.hint_hdd_sleep Selecteer tijd voordat de HDD stopt bij inactiviteit.
 menu.hint_hdd_statfs Specificeer wanneer het gebruikte-nivo opname-map in infoviewer en, indien aanwezig, op VFD, mag worden geupdate
-menu.hint_hdd_tools Initialiseren HDD, bestandssysteem controleren. 
+menu.hint_hdd_tools Initialiseren HDD, bestandssysteem controleren.
 menu.hint_head_back Wijzig titel achtergrond kleur
 menu.hint_head_textcolor Wijzig venstertitel tekst kleur
 menu.hint_imageinfo Informatie over geïnstalleerde software
@@ -996,7 +996,7 @@ menu.hint_infobar_res Kanaal resolutie iconen weergeven
 menu.hint_infobar_sat Huidige satelliet of kabel provider weergeven
 menu.hint_infobar_setup Configureer infobalk opties
 menu.hint_infobar_textcolor Wijzig tekst kleur van de infobalk
-menu.hint_infobar_tuner Actieve tuner icon weergeven 
+menu.hint_infobar_tuner Actieve tuner icon weergeven
 menu.hint_infoclock_setup Configureer info klok GUI opties
 menu.hint_keep_numbers Behoud kanaalnummers na het uitvoeren van volgende scans
 menu.hint_key_addrecord  Knop toewijzen voor het toevoegen van een opname timer
@@ -1005,7 +1005,7 @@ menu.hint_key_binding Herdefinieer het gebruik van toetsen voor algemene handeli
 menu.hint_key_bouquetdown Knop toewijzen voor het schakelen naar de vorige favorietenlijst
 menu.hint_key_bouquetup Knop toewijzen voor het schakelen naar de volgende favorietenlijst
 menu.hint_key_cancel Knop toewijzen voor het sluiten van een geopend menu venster
-menu.hint_key_channel_sms Indien ingeschakeld worden de nummerieke toetsen gebruikt voor de invoer\nvan alfabetische tekens. U kunt zo gemakkelijk een kanaal zoeken in uw favorietenlijst. 
+menu.hint_key_channel_sms Indien ingeschakeld worden de nummerieke toetsen gebruikt voor de invoer\nvan alfabetische tekens. U kunt zo gemakkelijk een kanaal zoeken in uw favorietenlijst.
 menu.hint_key_channeldown Knop toewijzen om snel te schakelen \nnaar het vorige kanaal in de kanalenlijst
 menu.hint_key_channellist Configuur sneltoetsen voor de kanalenlijst
 menu.hint_key_channelup Knop toewijzen om snel te schakelen \nnaar het volgende kanaal in de kanalenlijst
@@ -1013,7 +1013,7 @@ menu.hint_key_format_mode_active Deactiveer/activeer toets voor video formaat co
 menu.hint_key_hardware Wijzig het type afstandsbediening
 menu.hint_key_history Knop toewijzen voor de weergave van de zap geschiedenis
 menu.hint_key_lastchannel Knop toewijzen om snel te zappen naar \nhet vorige kanaal in de zap geschiedenis
-menu.hint_key_left_exit De linker cursor toewijzen om het vorige menu te openen. 
+menu.hint_key_left_exit De linker cursor toewijzen om het vorige menu te openen.
 menu.hint_key_list_end Knop toewijzen om naar het einde van de lijst te gaan.
 menu.hint_key_list_start Knop toewijzen om naar het begin van de lijst te gaan.
 menu.hint_key_load Laad sneltoetsen backup
@@ -1041,7 +1041,7 @@ menu.hint_key_record Toewijzen knop om opname te starten
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
 menu.hint_key_repeatblockgeneric Vertraging tussen het herhalen \nvan toets wanneer toets ingedrukt blijft.
 menu.hint_key_right Selecteer 'rechts' functie in live TV/Radio modus.
-menu.hint_key_save Sneltoetsen opslaan als backup bestand 
+menu.hint_key_save Sneltoetsen opslaan als backup bestand
 menu.hint_key_screenshot Knop toewijzen voor het opslaan van gebruikers interface en/of TV screenshot.
 menu.hint_key_sort Knop toewijzen voor het veranderen van de sorteer orde van uw kanalenlijst
 menu.hint_key_special_active Uitschakelen of inschakelen van speciale toetsen
@@ -1056,7 +1056,7 @@ menu.hint_key_volumedown Toewijzen knop voor verlagen volume
 menu.hint_key_volumeup Toewijzen knop to verhogen volume
 menu.hint_keys Afstandsbediening herhaal ratio \nbewerk sneltoetsen
 menu.hint_lang_pref Selecteer de door u gewenste \naudio, EPG en ondertitelingstaal.
-menu.hint_language OSD taal, tijdzone \n Voorkeurs audio en ondertitelingstaal 
+menu.hint_language OSD taal, tijdzone \n Voorkeurs audio en ondertitelingstaal
 menu.hint_last_radio Start de ontvanger op het door u geselecteerde \nradio kanaal indien deze voor het laatst in radio \nmodus is gebruikt.
 menu.hint_last_tv Start de ontvanger op het door u geselecteerde \nTV kanaal indien deze voor het laatst in TV \nmodus is gebruikt.
 menu.hint_last_use Start de ontvanger op het laatst bekeken kanaal
@@ -1072,7 +1072,7 @@ menu.hint_make_hdlist Automatisch HD kanalenlijst maken \ngebaseerd op kanaaltyp
 menu.hint_make_newlist Kanalenlijst aanmaken met recent toegevoegde kanalen
 menu.hint_make_removedlist Kanalenlijst aanmaken met recent verwijderde kanalen
 menu.hint_make_webtvlist Creeer automatisch WebTV-zenderlijst gebaseerd op\nzendertype en naam
-menu.hint_manage_settings Backup, Herstel, Fabrieksinstellingen 
+menu.hint_manage_settings Backup, Herstel, Fabrieksinstellingen
 menu.hint_mb Uw opnames
 menu.hint_media Films, audio bestanden afspelen of afbeeldingen weergeven
 menu.hint_menu_fonts Lettertype grote van menu's aanpassen
@@ -1190,7 +1190,7 @@ menu.hint_record_timeshift_delete Verwijder alle timeshift opnames na het stoppe
 menu.hint_record_timeshift_pause Timeshift starten zodra live uitzendingen gepauzeerd worden
 menu.hint_record_timeshift_temp Indien uitgeschakeld, start timeshift \nals een willekeurige directe opname
 menu.hint_record_zap Schakel naar het op te nemen kanaal bij de opname melding
-menu.hint_record_zap_pre_time Een aantal minuten voor een ingestelde zaptimer naar het kanaal schakelen. 
+menu.hint_record_zap_pre_time Een aantal minuten voor een ingestelde zaptimer naar het kanaal schakelen.
 menu.hint_recording Opname en timeshift opties \n Timers beveiliging, audio PIDS opties
 menu.hint_reload_channels Herlaad kanalen vanaf flashgeheugen
 menu.hint_reload_plugins Herlaad plugins vanaf flashgeheugen
@@ -1201,7 +1201,7 @@ menu.hint_rounded_corners Teken ronde of vierkante vensterhoeken
 menu.hint_save_settings Alle instellingen opslaan op flashgeheugen
 menu.hint_saveas Gebruikersinterface instellingen opslaan
 menu.hint_scan_auto Auto-scan geselecteerde provider
-menu.hint_scan_autoall Scan verschillende geselecteerde providers tegelijkertijd 
+menu.hint_scan_autoall Scan verschillende geselecteerde providers tegelijkertijd
 menu.hint_scan_autoall_select Satellieten toevoegen om te scannen
 menu.hint_scan_bouquet Selecteer wat u wenst te doen met de huidige favorieten lijsten.
 menu.hint_scan_bw Selecteer de zender bandbreedte
@@ -1243,7 +1243,7 @@ menu.hint_scan_motor Rotor opties, satellite zoeker
 menu.hint_scan_motor_18v Gebruik 18V voor het draaien van de DiSEqC motor
 menu.hint_scan_motor_speed Draaisnelheid van de motor \nin 1/10 graden per seconde
 menu.hint_scan_motorpos Selecteer opgeslagen positie \nvoor deze satelliet
-menu.hint_scan_nid Netwerk ID invoeren 
+menu.hint_scan_nid Netwerk ID invoeren
 menu.hint_scan_nit Transpoders toevoegen via netwerk informatie
 menu.hint_scan_pids Scan en opslaan audio/video/PMT PIDs
 menu.hint_scan_pol Selecteer transponder polarisatie
@@ -1275,7 +1275,7 @@ menu.hint_screenshot_count Wanneer er geen gebruikersinterface op \nhet scherm i
 menu.hint_screenshot_cover Aan: Tijdens het maken van een opname kunt u \neen screenshot maken om weer te geven in de moviebrowser
 menu.hint_screenshot_dir Selecteer map waarin screenshots opgeslagen worden
 menu.hint_screenshot_format Bestandsformaat waarin screenshots worden gemaakt
-menu.hint_screenshot_res Screenshot afmeting: Afmeting van huidig video kanaal\nof OSD afmeting (1280 x 720) 
+menu.hint_screenshot_res Screenshot afmeting: Afmeting van huidig video kanaal\nof OSD afmeting (1280 x 720)
 menu.hint_screenshot_scale Voor video+OSD screenshots, schaal naar video afmeting
 menu.hint_screenshot_setup Configureer screenshots opties
 menu.hint_screenshot_video Live video invoegen in screenshot
@@ -1302,14 +1302,14 @@ menu.hint_softupdate_expert_read Verdeel partitie's (U-Boot, Splash, Kernel, Sys
 menu.hint_softupdate_expert_write Verdeel partitie's (Splash, Kernel, SystemFS) voor het schrijven op het flashgeheugen
 menu.hint_softupdate_settings De lokale update directory en configuratie bestand is ingesteld
 menu.hint_standby Schakel receiver in sleep modus
-menu.hint_start_tostandby Schakel in standby mode na het herstarten 
+menu.hint_start_tostandby Schakel in standby mode na het herstarten
 menu.hint_streaminfo Informatie huidig kanaal: pids, signaal and noise ratio\nBitratio grafieken
 menu.hint_subchannel_pos Selecteer menu positie van subkanalen
 menu.hint_sw_update Update software
 menu.hint_theme Select voorgedefinieerde thema\n Opslaan of laad thema van bestand
 menu.hint_timeouts Verberg gebruikers interface na bepaald aantal seconden.
 menu.hint_timeouts_static_messages Timeout for specific messages with user interaction
-menu.hint_timers Toevoegen/Verplaats/Bewerk \ngeplande opnames of timers etc. 
+menu.hint_timers Toevoegen/Verplaats/Bewerk \ngeplande opnames of timers etc.
 menu.hint_timezone Selecteer uw tijdzone
 menu.hint_tools Start tools
 menu.hint_tvmode Schakel ontvanger in TV modus
@@ -1350,7 +1350,7 @@ menu.hint_ytplay Video's afspelen van de populaire video website Youtube
 menu.hint_zap_cycle Tijdens het schakelen tussen kanalen in huidige favorieten lijst
 menu.next Volgende (Druk op menu om af te sluiten)
 messagebox.back Terug
-messagebox.cancel Annuleer 
+messagebox.cancel Annuleer
 messagebox.discard Wijzigingen ongedaan maken?
 messagebox.error Foutmelding
 messagebox.feature_not_supported Functie wordt niet ondersteund. Neem contact op met uw firmware provider!
@@ -1453,7 +1453,7 @@ motorcontrol.calc_positions (Her)-Calculeer Posities
 motorcontrol.disable_limit (soft) limieten uitschakelen
 motorcontrol.drive_mode Draai Modus
 motorcontrol.drive_mode_auto Draai Modus/auto stop
-motorcontrol.east_limit Oost limiet instellen 
+motorcontrol.east_limit Oost limiet instellen
 motorcontrol.enable_limit Limieten instellen
 motorcontrol.goto Ga naar Motor Positie (a)
 motorcontrol.halt Stop Motor
@@ -1485,7 +1485,7 @@ motorcontrol.store Motor Positie opslaan (a)
 motorcontrol.timed_mode Timed Stap Modus
 motorcontrol.user_menu Gebruikersmenu
 motorcontrol.west_limit West limiet instellen
-moviebrowser.ask_rec_to_delete Het verwijderen van deze film stopt de huidige opname!\n[%s]\nWilt u toch verder gaan? 
+moviebrowser.ask_rec_to_delete Het verwijderen van deze film stopt de huidige opname!\n[%s]\nWilt u toch verder gaan?
 moviebrowser.book_add Markeerpunt toevoegen
 moviebrowser.book_clear_all Alle markeerpunten verwijderen
 moviebrowser.book_head Markeerpunten
@@ -1501,7 +1501,7 @@ moviebrowser.book_type_forward sprong van
 moviebrowser.browser_frame_high Browser hoogte [%]
 moviebrowser.browser_row_head Kolom instellingen
 moviebrowser.browser_row_item Kolom item
-moviebrowser.browser_row_nr Aantal kolommen  
+moviebrowser.browser_row_nr Aantal kolommen
 moviebrowser.browser_row_width Kolom breedte [%]
 moviebrowser.cache_dir Buffer map
 moviebrowser.delete_info Bestanden verwijderen, een moment geduld...
@@ -1509,9 +1509,9 @@ moviebrowser.dir Pad
 moviebrowser.dir_head extra paden
 moviebrowser.edit_book Markeerpunt wijzigen
 moviebrowser.edit_book_name_info1 Geef markeerpunt een nieuwe naam
-moviebrowser.edit_book_name_info2 
+moviebrowser.edit_book_name_info2
 moviebrowser.edit_book_pos_info1 Geef nieuwe eindpositie (s)
-moviebrowser.edit_book_pos_info2 
+moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Geef lengte nieuwe sprong (s)
 moviebrowser.edit_book_type_info2 <0 terug , >0 voor, 0: geen
 moviebrowser.edit_serie Geef de naam van de serie op
@@ -1526,10 +1526,10 @@ moviebrowser.head_filter Filter flims per categorie:
 moviebrowser.head_playlist Laatst afgespeeld:
 moviebrowser.head_recordlist Laatst opgenomen:
 moviebrowser.hide_series Verberg series
-moviebrowser.hint_jumpbackward Sprong terug over 5 s\n '0' om te annuleren 
-moviebrowser.hint_jumpforward Srong vooruit over 5 s\n '0' om te annuleren 
-moviebrowser.hint_movieend Einde van de film over 5 s\n '0' om verder te kijken 
-moviebrowser.hint_newbook_backward Nieuwe sprong terug\n 'blue' voor eindpositie 
+moviebrowser.hint_jumpbackward Sprong terug over 5 s\n '0' om te annuleren
+moviebrowser.hint_jumpforward Srong vooruit over 5 s\n '0' om te annuleren
+moviebrowser.hint_movieend Einde van de film over 5 s\n '0' om verder te kijken
+moviebrowser.hint_newbook_backward Nieuwe sprong terug\n 'blue' voor eindpositie
 moviebrowser.hint_newbook_forward Nieuwe sprong vooruit\n 'blue' voor eindpositie
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanaal
@@ -1559,7 +1559,7 @@ moviebrowser.info_size Bestandsgrootte in (MB)
 moviebrowser.info_title Titel
 moviebrowser.info_videoformat Afbeeldingen
 moviebrowser.last_play_max_items Aantal lijnen laatst afgespeeld
-moviebrowser.last_record_max_items Aantal lijnen laatste opname 
+moviebrowser.last_record_max_items Aantal lijnen laatste opname
 moviebrowser.load_default Laad standaard instellingen
 moviebrowser.menu_directories_head Directory's
 moviebrowser.menu_main_bookmarks Markeerpunten
@@ -1635,7 +1635,7 @@ moviebrowser.yt_search Trefwoord
 movieplayer.bookmark Markeerpunten
 movieplayer.bookmarkname Naam markeerpunt
 movieplayer.bookmarkname_hint1 Naam invoeren voor uw markeerpunt
-movieplayer.bookmarkname_hint2 
+movieplayer.bookmarkname_hint2
 movieplayer.chapters Delen
 movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback Video afspelen
@@ -1645,10 +1645,10 @@ movieplayer.titles Titels
 movieplayer.toomanybookmarks Er zijn te veel markeerpunten.\n Verwijder eerst een markeerpunt.
 movieplayer.tshelp1 Stop
 movieplayer.tshelp10 Ongeveer 10 minuten terug
-movieplayer.tshelp11 Ongeveer 10 minuten overslaan 
+movieplayer.tshelp11 Ongeveer 10 minuten overslaan
 movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tshelp2 Selecteer audio track
-movieplayer.tshelp3 Pause/Voortzetten 
+movieplayer.tshelp3 Pause/Voortzetten
 movieplayer.tshelp4 Creëer markeerpunt
 movieplayer.tshelp5 Voortgang weergeven
 movieplayer.tshelp6 Ongeveer 1 minuut terug
@@ -1669,7 +1669,7 @@ mpkey.rewind Terugspoelen
 mpkey.stop Stop
 mpkey.subtitle Ondertitels
 mpkey.time Tijd weergeven
-networkmenu.apply_settings Wijzigingen worden toegepast... 
+networkmenu.apply_settings Wijzigingen worden toegepast...
 networkmenu.apply_settings_now Wilt u de instellingen toepassen?
 networkmenu.broadcast broadcast adres
 networkmenu.dhcp DHCP
@@ -1702,7 +1702,7 @@ networkmenu.ssid Netwerk naam (SSID)
 networkmenu.ssid_scan WLAN netwerk scan
 networkmenu.ssid_scan_error Geen WLAN netwerken gevonden.
 networkmenu.ssid_scan_wait WLAN netwerk scan is bezig...
-networkmenu.test Netwerktest uitvoeren 
+networkmenu.test Netwerktest uitvoeren
 neutrino_starting %s %s starting ...
 nfs.alreadymounted directory reeds gekoppeld
 nfs.automount Koppelen tijdens het opstarten
@@ -1725,7 +1725,7 @@ nfs.type_lufs FTPFS
 nfs.type_nfs NFS
 nfs.umount Ontkoppeld Netwerk volume
 nfs.umounterror Foutmelding ontkoppelen niet geslaagd
-nfs.username Gebruikersnaam 
+nfs.username Gebruikersnaam
 nfsmenu.head NFS/CIFS/FTPFS instellingen
 nvod.percentage (%d%% over)
 nvod.starting (starten in %d min)
@@ -1780,7 +1780,7 @@ parentallock.never nooit
 parentallock.onsignal bij ongeschikte uitzendingen
 parentallock.parentallock Ouderlijk toezicht
 parentallock.prompt PIN vereist
-personalize.access Toegang opties 
+personalize.access Toegang opties
 personalize.apply_settings Wijzigingen toepassen?
 personalize.button_auto auto
 personalize.button_blue blauw
@@ -1834,7 +1834,7 @@ pictureviewer.help32 Pauzeer muziek
 pictureviewer.help33 Stop muziek
 pictureviewer.help34 Volgende nummer
 pictureviewer.help35 Vorige nummer
-pictureviewer.help4 Afbeelding niet schalen 
+pictureviewer.help4 Afbeelding niet schalen
 pictureviewer.help5 diashow modus
 pictureviewer.help6 Vorige afbeelding
 pictureviewer.help7 Volgende afbeelding
@@ -1933,7 +1933,7 @@ satsetup.extended_motor Motor instellingen
 satsetup.fastscan_all SD en HD
 satsetup.fastscan_auto_diseqc Start auto-diseqc configuratie
 satsetup.fastscan_auto_diseqc_wait Auto-diseqc configuratie is bezig
-satsetup.fastscan_hd Enkel HD 
+satsetup.fastscan_hd Enkel HD
 satsetup.fastscan_head Fastscan
 satsetup.fastscan_prov Provider
 satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
@@ -1980,7 +1980,7 @@ satsetup.use_nit Gebruik NIT
 satsetup.use_usals Gebuik USALS voor alles
 sc.empty Geen smartcard geplaatst
 sc.init_failed Initialisatie smartcard mislukt
-sc.init_ok Smartcard succesvol geinitialiseerd 
+sc.init_ok Smartcard succesvol geinitialiseerd
 sc.inserted Smartcard in de kaartlezer geplaatst
 sc.removed Smartcard uit de kaartlezer verwijderd
 sc.reset Reset smartcard
@@ -2018,8 +2018,8 @@ screensetup.lowerright groen = rechts onder instellen
 screensetup.upperleft rood = links boven instellen
 screenshot.count Aantal
 screenshot.cover Creeer film omslag voor moviebrowser
-screenshot.defdir Doelbestemming 
-screenshot.format Formatteer 
+screenshot.defdir Doelbestemming
+screenshot.format Formatteer
 screenshot.info Screenshot toets is ongebruikt
 screenshot.menu Screenshot
 screenshot.osd OSD resolutie
@@ -2031,7 +2031,7 @@ servicemenu.getplugins Herlaad plugins
 servicemenu.getplugins_hint Plugins worden geladen,\nmoment geduld alstublieft.
 servicemenu.head Installatie / Software update
 servicemenu.imageinfo Firmware info
-servicemenu.reload Herlaad kanalenlijst 
+servicemenu.reload Herlaad kanalenlijst
 servicemenu.reload_hint Kanalenlijst wordt geladen,\nmoment geduld alstublieft.
 servicemenu.restart Soft herstart
 servicemenu.restart_hint Herstarten, een moment geduld
@@ -2196,7 +2196,7 @@ usermenu.items Menu items
 usermenu.key Knop
 usermenu.key_select Toewijzen knop
 usermenu.msg_info_is_empty U heeft geen naam voor dit menu gedefinieerd.\nDe standaard naam wordt gebruikt:\n
-usermenu.msg_warning_no_items Geen items gedefinieerd.\n De menu naam is gereset! 
+usermenu.msg_warning_no_items Geen items gedefinieerd.\n De menu naam is gereset!
 usermenu.name Naam
 video_mode_ok Functioneert deze video modus naar behoren?
 videomenu.43mode 4:3 beeldverhouding
