@@ -1905,10 +1905,10 @@ moviebrowser.dir Zložka
 moviebrowser.directories Zložky
 moviebrowser.directories_additional Dodatočné zložky
 moviebrowser.edit_book Zmeniť záložku
-moviebrowser.edit_book_name_info1 Zadanie nového názovu záložky
-moviebrowser.edit_book_name_info2 Názov záložky
-moviebrowser.edit_book_pos_info1 Zadanie novej pozície
-moviebrowser.edit_book_pos_info2 ????
+moviebrowser.edit_book_name_info1 Názov záložky
+moviebrowser.edit_book_name_info2 Zadanie nového názovu záložky
+moviebrowser.edit_book_pos_info1 Novej pozície
+moviebrowser.edit_book_pos_info2 Zadanie novej pozície v sekundách
 moviebrowser.edit_book_type_info1 Zadanie novej dĺžky skoku
 moviebrowser.edit_book_type_info2 <0 vzad , >0 vpred, 0: nikde
 moviebrowser.edit_serie Zadanie názvu série
@@ -2008,6 +2008,7 @@ moviebrowser.short_audio Zvuk
 moviebrowser.short_book Kniha
 moviebrowser.short_channel Kanál
 moviebrowser.short_country Krajina
+moviebrowser.short_elapsed 
 moviebrowser.short_filename Názov
 moviebrowser.short_format Formát
 moviebrowser.short_genre_major Hlavný žáner
@@ -2025,7 +2026,7 @@ moviebrowser.short_recorddate Dátum
 moviebrowser.short_recordtime Čas
 moviebrowser.short_serie Serial
 moviebrowser.short_size Veľkosť
-moviebrowser.short_spacer Medzera
+moviebrowser.short_spacer 
 moviebrowser.short_title Titul
 moviebrowser.start_head Pozerať film od:
 moviebrowser.start_record_start Začiatok filmu
@@ -2066,8 +2067,8 @@ moviecut.cancel Zrušiť úpravu filmu?
 movieplayer.bisection_jump Priame skoky
 movieplayer.bookmark Záložky
 movieplayer.bookmarkname Názov záložky
-movieplayer.bookmarkname_hint1 Vloženie názvu novej záložky
-movieplayer.bookmarkname_hint2
+movieplayer.bookmarkname_hint1 Novej záložky
+movieplayer.bookmarkname_hint2 Vloženie názvu novej záložky
 movieplayer.chapters Kapitoly
 movieplayer.display_playtime Zobraziť čas prehrávania na VFD
 movieplayer.fileplayback_audio Multiformátové prehrávanie zvuku

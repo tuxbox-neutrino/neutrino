@@ -2000,10 +2000,10 @@ moviebrowser.dir Path
 moviebrowser.directories Directories
 moviebrowser.directories_additional Additional directories
 moviebrowser.edit_book Change bookmark
-moviebrowser.edit_book_name_info1 Enter new bookmark name
-moviebrowser.edit_book_name_info2
-moviebrowser.edit_book_pos_info1 Enter new position (s)
-moviebrowser.edit_book_pos_info2
+moviebrowser.edit_book_name_info1 New bookmark
+moviebrowser.edit_book_name_info2 Enter new bookmark name
+moviebrowser.edit_book_pos_info1 New position
+moviebrowser.edit_book_pos_info2 Enter new position in seconds
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0: backward, >0: forward, 0: none
 moviebrowser.edit_serie Enter name of serie
@@ -2107,7 +2107,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Book
 moviebrowser.short_channel Channel
 moviebrowser.short_country Country
-moviebrowser.short_elapsed
+moviebrowser.short_elapsed 
 moviebrowser.short_filename Name
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
@@ -2125,7 +2125,7 @@ moviebrowser.short_recorddate Date
 moviebrowser.short_recordtime Time
 moviebrowser.short_serie Serie
 moviebrowser.short_size MB
-moviebrowser.short_spacer
+moviebrowser.short_spacer 
 moviebrowser.short_title Title
 moviebrowser.start_head Start movie from:
 moviebrowser.start_record_start Movie start
@@ -2166,8 +2166,8 @@ moviebrowser.yt_search Search keyword
 moviecut.cancel Cancel movie editing?
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
-movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
-movieplayer.bookmarkname_hint2
+movieplayer.bookmarkname_hint1 New bookmark
+movieplayer.bookmarkname_hint2 Enter a name for your new bookmark
 movieplayer.chapters Chapters
 movieplayer.display_playtime Show playtime in VFD
 movieplayer.fileplayback_audio Multiformat audio playback

@@ -1508,10 +1508,10 @@ moviebrowser.delete_info Bestanden verwijderen, een moment geduld...
 moviebrowser.dir Pad
 moviebrowser.dir_head extra paden
 moviebrowser.edit_book Markeerpunt wijzigen
-moviebrowser.edit_book_name_info1 Geef markeerpunt een nieuwe naam
-moviebrowser.edit_book_name_info2
-moviebrowser.edit_book_pos_info1 Geef nieuwe eindpositie (s)
-moviebrowser.edit_book_pos_info2
+moviebrowser.edit_book_name_info1 Nieuwe markeerpunt
+moviebrowser.edit_book_name_info2 Geef markeerpunt een nieuwe naam
+moviebrowser.edit_book_pos_info1 Nieuwe positie
+moviebrowser.edit_book_pos_info2 Geef nieuwe positie in seconden
 moviebrowser.edit_book_type_info1 Geef lengte nieuwe sprong (s)
 moviebrowser.edit_book_type_info2 <0 terug , >0 voor, 0: geen
 moviebrowser.edit_serie Geef de naam van de serie op
@@ -1585,6 +1585,7 @@ moviebrowser.short_audio Audio
 moviebrowser.short_book Boek
 moviebrowser.short_channel Kanaal
 moviebrowser.short_country Land
+moviebrowser.short_elapsed 
 moviebrowser.short_filename Naam
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
@@ -1600,6 +1601,7 @@ moviebrowser.short_quality * (Kwaliteit)
 moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
 moviebrowser.short_size MB
+moviebrowser.short_spacer 
 moviebrowser.short_title Titel
 moviebrowser.start_head Start film vanaf:
 moviebrowser.start_record_start Afspelen vanaf het begin
@@ -1634,8 +1636,8 @@ moviebrowser.yt_related Gerelateerde video's
 moviebrowser.yt_search Trefwoord
 movieplayer.bookmark Markeerpunten
 movieplayer.bookmarkname Naam markeerpunt
-movieplayer.bookmarkname_hint1 Naam invoeren voor uw markeerpunt
-movieplayer.bookmarkname_hint2
+movieplayer.bookmarkname_hint1 Nieuwe markeerpunt
+movieplayer.bookmarkname_hint2 Naam invoeren voor uw markeerpunt
 movieplayer.chapters Delen
 movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback Video afspelen
