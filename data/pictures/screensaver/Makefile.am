@@ -1,4 +1,4 @@
-installdir = $(ICONSDIR)
+installdir = $(ICONSDIR)/screensaver
 
 resolution = 1280x720
 
