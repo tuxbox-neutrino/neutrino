@@ -381,7 +381,7 @@ void CScreenSaver::paint()
 
 		dprintf(DEBUG_INFO, "[CScreenSaver] %s - %d : %s\n", __func__, __LINE__, v_bg_files.at(index).c_str());
 
-		m_frameBuffer->showFrame(v_bg_files.at(index), CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_IMAGE_UNSCALED);
+		m_frameBuffer->showFrame(v_bg_files.at(index), CFrameBuffer::SHOW_FRAME_FALLBACK_MODE_IMAGE);
 
 		handleRadioText(g_settings.screensaver_mode_text);
 
