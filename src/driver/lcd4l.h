@@ -60,6 +60,7 @@ class CLCD4l
 		void	StartLCD4l();
 		void	StopLCD4l();
 		void	SwitchLCD4l();
+		void	RestartLCD4lScript();
 		void	ForceRun() { wait4daemon = false; }
 
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);

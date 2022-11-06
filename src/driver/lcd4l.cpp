@@ -199,6 +199,18 @@ void CLCD4l::StopLCD4l()
 		OnError();
 }
 
+void CLCD4l::RestartLCD4lScript()
+{
+	OnBeforeStart();
+	if (thrLCD4l && g_settings.lcd4l_support)
+	{
+		if (exec_initscript("lcd4linux", "restart", "systemctl"))
+			OnAfterStart();
+		else
+			OnError();
+	}
+}
+
 void CLCD4l::SwitchLCD4l()
 {
 	if (thrLCD4l)
@@ -947,11 +959,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			m_Layout = Layout;
 			if (!firstRun)
 			{
-				OnBeforeRestart();
-				if (exec_initscript("lcd4linux", "restart", "systemctl"))
-					OnAfterRestart();
-				else
-					OnError();
+				RestartLCD4lScript();
 			}
 		}
 	}

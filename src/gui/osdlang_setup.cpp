@@ -32,7 +32,9 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
+#ifdef ENABLE_LCD4LINUX
+#include "driver/lcd4l.h"
+#endif
 #include <unistd.h>
 
 #include "osdlang_setup.h"
@@ -126,6 +128,9 @@ int COsdLangSetup::showLocalSetup()
 	delete localSettings;
 	delete langNotifier;
 	delete tzNotifier;
+#ifdef ENABLE_LCD4LINUX
+	CLCD4l::getInstance()->RestartLCD4lScript();
+#endif
 	return res;
 }
 
