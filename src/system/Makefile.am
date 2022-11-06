@@ -46,3 +46,8 @@ libneutrino_system_a_SOURCES = \
 	ytparser.cpp \
 	setting_helpers.cpp
 #	safe_system.c
+
+if HAVE_UCLIBC
+libneutrino_system_a_SOURCES += \
+	tzif-display.cpp
+endif

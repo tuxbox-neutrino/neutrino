@@ -31,6 +31,9 @@
 
 #include <system/setting_helpers.h>
 #include "configure_network.h"
+#ifdef __UCLIBC__
+#include "tzif-display.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -622,7 +625,20 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void *Data)
 			fprintf(f, "%s\n", zone.c_str());
 			fclose(f);
 		}
+#ifdef __UCLIBC__
+		const char *tzif_rule = get_tzif_rule(cmd.c_str());
+		if (tzif_rule == NULL)
+			return false;
+		f = fopen("/etc/TZ", "w");
+		if (f)
+		{
+			fprintf(f, "%s\n", tzif_rule);
+			fclose(f);
+		}
+		cmd = tzif_rule;
+#else
 		cmd = ":" + zone;
+#endif
 		setenv("TZ", cmd.c_str(), 1);
 		tzset();
 	}

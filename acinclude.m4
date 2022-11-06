@@ -607,6 +607,9 @@ case "$BOXTYPE" in
 esac
 AM_CONDITIONAL(HAVE_LIBSTB_HAL, test "$libstb_hal" = "yes")
 
+# uclibc
+AM_CONDITIONAL(HAVE_UCLIBC, test "$targetlibdir/ld-uClibc.so.0")
+
 # generic
 if test "$BOXMODEL" = "generic"; then
 	AC_DEFINE(BOXMODEL_GENERIC, 1, [generic pc])
