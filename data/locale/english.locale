@@ -524,6 +524,7 @@ extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
 extra.key_record Record
 extra.key_screenshot Screenshot
+extra.key_sleep Sleeptimer
 extra.key_switchformat Next resolution
 extra.key_timeshift Timeshift
 extra.key_unlock Unlock
@@ -1436,6 +1437,7 @@ menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
 menu.hint_key_right Select function for 'left' and 'right' keys in live TV/Radio mode and movieplayer mode
 menu.hint_key_save Save keybindings to a file named keys.conf
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
+menu.hint_key_sleep Assign button to set a sleeptimer
 menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_key_special_active Disable or enable some special keys
 menu.hint_key_standbyoff_add Assign additional button to leave standby mode

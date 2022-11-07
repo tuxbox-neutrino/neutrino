@@ -4185,7 +4185,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		g_videoSettings->SwitchFormat();
 		return messages_return::handled;
 	}
-	else if( msg == CRCInput::RC_sleep ) {
+	else if( msg == (neutrino_msg_t) g_settings.key_sleep ) {
 		CSleepTimerWidget *sleepTimer = new CSleepTimerWidget;
 		sleepTimer->exec(NULL, "");
 		delete sleepTimer;
@@ -5747,6 +5747,7 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.key_quickzap_up = tconfig->getInt32("key_quickzap_up", CRCInput::RC_up);
 	g_settings.key_record = tconfig->getInt32("key_record", CRCInput::RC_record);
 	g_settings.key_screenshot = tconfig->getInt32("key_screenshot", (unsigned int)CRCInput::RC_games);
+	g_settings.key_sleep = tconfig->getInt32("key_sleep", CRCInput::RC_sleep);
 	g_settings.key_standby_off_add = tconfig->getInt32("key_standby_off_add", CRCInput::RC_ok);
 	g_settings.key_subchannel_down = tconfig->getInt32("key_subchannel_down", CRCInput::RC_left);
 	g_settings.key_subchannel_up = tconfig->getInt32("key_subchannel_up", CRCInput::RC_right);
@@ -5855,6 +5856,7 @@ void CNeutrinoApp::saveKeys(const char *fname)
 	tconfig->setInt32("key_quickzap_up", g_settings.key_quickzap_up);
 	tconfig->setInt32("key_record", g_settings.key_record);
 	tconfig->setInt32("key_screenshot", g_settings.key_screenshot);
+	tconfig->setInt32("key_sleep", g_settings.key_sleep);
 	tconfig->setInt32("key_standby_off_add", g_settings.key_standby_off_add);
 	tconfig->setInt32("key_subchannel_down", g_settings.key_subchannel_down);
 	tconfig->setInt32("key_subchannel_up", g_settings.key_subchannel_up);

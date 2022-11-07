@@ -221,6 +221,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_EXTRA_KEY_NEXT43MODE,		&g_settings.key_next43mode,		NONEXISTANT_LOCALE },
 	{LOCALE_EXTRA_KEY_SWITCHFORMAT,		&g_settings.key_switchformat,		NONEXISTANT_LOCALE },
 	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT },
+	{LOCALE_EXTRA_KEY_SLEEP,		&g_settings.key_sleep,			LOCALE_MENU_HINT_KEY_SLEEP },
 #if ENABLE_PIP
 	{LOCALE_EXTRA_KEY_PIP_CLOSE,		&g_settings.key_pip_close,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
 	{LOCALE_EXTRA_KEY_PIP_CLOSE_AVINPUT,	&g_settings.key_pip_close_avinput,	NONEXISTANT_LOCALE /*LOCALE_MENU_HINT_KEY_PIP_CLOSE_AVINPUT*/ },
@@ -458,6 +459,10 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf->setHint("", key_settings[NKEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);
 #endif
+	// sleeptimer
+	mf = new CMenuForwarder(key_settings[NKEY_SLEEP].keydescription, true, keychooser[NKEY_SLEEP]->getKeyName(), keychooser[NKEY_SLEEP]);
+	mf->setHint("", key_settings[NKEY_SLEEP].hint);
+	bindSettings->addItem(mf);
 #if ENABLE_PIP
 	// pip
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_CLOSE].keydescription, true, keychooser[NKEY_PIP_CLOSE]->getKeyName(), keychooser[NKEY_PIP_CLOSE]);

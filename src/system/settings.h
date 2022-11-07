@@ -1239,6 +1239,7 @@ struct SNeutrinoSettings
 	int key_quickzap_up;
 	int key_record;
 	int key_screenshot;
+	int key_sleep;
 	int key_standby_off_add;
 	int key_subchannel_down;
 	int key_subchannel_up;
