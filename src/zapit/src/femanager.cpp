@@ -41,7 +41,7 @@
 #include <hardware/dmx.h>
 #include <OpenThreads/ScopedLock>
 
-static int fedebug = 1;
+static int fedebug = 0;
 static int unused_demux;
 static int noSameFE = 0;
 extern Zapit_config zapitCfg;
