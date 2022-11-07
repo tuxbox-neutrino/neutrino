@@ -1436,7 +1436,7 @@ start-block~rc_axas_e4hd
 <area shape="circle" coords="32,68,13" alt="KEY_POWER" href="javascript:rcsim('KEY_POWER')" />
 <area shape="circle" coords="125,68,11" alt="KEY_MUTE" href="javascript:rcsim('KEY_MUTE')" />
 <area shape="circle" coords="80,368,22" alt="KEY_OK" href="javascript:rcsim('KEY_OK')" />
-<area shape="circle" coords="28,322,14" alt="KEY_MENUE" href="javascript:rcsim('KEY_MENUE')" />
+<area shape="circle" coords="28,322,14" alt="KEY_MENU" href="javascript:rcsim('KEY_MENU')" />
 <area shape="circle" coords="127,321,15" alt="KEY_EXIT" href="javascript:rcsim('KEY_EXIT')" />
 <area shape="circle" coords="29,418,13" alt="KEY_EPG" href="javascript:rcsim('KEY_EPG')" />
 <area shape="circle" coords="127,417,13" alt="KEY_INFO" href="javascript:rcsim('KEY_INFO')" />
