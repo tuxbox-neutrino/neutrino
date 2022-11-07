@@ -503,6 +503,8 @@ int GLCD_Menu::GLCD_Theme_Settings()
 int GLCD_Menu::GLCD_Theme_Position_Settings()
 {
 	cGLCD::getInstance()->SetCfgMode(true);
+	int oled_width = cGLCD::getInstance()->lcd->Width();
+	int oled_height = cGLCD::getInstance()->lcd->Height();
 	
 	CMenuWidget *gtps = new CMenuWidget(LOCALE_GLCD_THEME_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_THEME_POSITION_SETTINGS);
 	gtps->addIntroItems(LOCALE_GLCD_POSITION_SETTINGS);
