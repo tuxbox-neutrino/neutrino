@@ -536,6 +536,7 @@ data/config/tobackup.conf
 
 # Oled themes
 AC_CONFIG_FILES([
+data/oled/themes/220x176/Default.otheme
 data/oled/themes/400x240/Default.otheme
 data/oled/themes/480x320/Default.otheme
 data/oled/themes/480x320/Advanced.otheme
