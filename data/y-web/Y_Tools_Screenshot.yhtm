@@ -1,7 +1,7 @@
 {=var-set:grab={=find-exec:grab=}=}
 {=var-set:fbshot={=find-exec:fbshot=}=}
 
-{=include-block:Y_Blocks.txt;head=}
+{=include-block:Y_Blocks.txt;head_v3=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript">
@@ -78,12 +78,18 @@ function do_clearshot(){
 	loadSyncURL("/control/exec?Y_Tools&screenshot_clear");
 }
 function do_switchrc(){
+	    
+	/*
 	if (id('remote').style.display == 'none')
 		$('remote').show();
 	else
 		$('remote').hide();
 
 	do_switchrc_txt();
+	*/
+	jQuery('#remote').toggle('slide', {direction: 'left'}, 'slow', function() {
+		do_switchrc_txt();
+	});
 }
 
 function do_switchrc_txt(){
@@ -105,7 +111,7 @@ function do_reload(){
 <body onload="do_switchrc_txt(); do_snapshot();">
 <div class="work_box" id="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url==}{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="screenshot_header">
 		<div id="buttons" style="display: block">

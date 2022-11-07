@@ -36,7 +36,7 @@ function do_backup2()
 {=var-set:wait_text=Settings=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Help-Settings-Backup_Restore=}{=var-set:menu={=L:set.menue.backup_restore=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.menue.backup_restore=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<p><div style="border: 1px solid #cccccc; margin-top:20px; padding: 10px;">
 			<img src="/images/cross.png">
@@ -56,7 +56,7 @@ function do_backup2()
 		<tr>
 			<td>
 				<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;settings_backup_restore&amp;restore">
-					tar-File:&nbsp;<input type="file" name="filename" size="70"/>&nbsp;<br/>
+					tar.gz-File:&nbsp;<input type="file" name="filename" size="70"/>&nbsp;<br/>
 					<input type="button" name="su" value="{=L:set.settings.restore=}" title="{=L:set.settings.restore_desc=}" onclick="do_submit()"/>
 					<br/><br/>
 				</form>

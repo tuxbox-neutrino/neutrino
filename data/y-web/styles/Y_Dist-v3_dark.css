@@ -1,0 +1,399 @@
+/* //dark - yweb style*/
+
+body {
+	background-color: #090909;
+	color: #a0a0a0;
+}
+body.iframe {
+	background-color: #151515;
+}
+
+button[ytype]{
+	background-color: #090909;
+}
+button,input,select,form,td {
+}
+button,input[type="button"],input[type="submit"]/*,input[type="file"],input[type="file"] > input[type="button"],input[type="file"] > input[type="text"]*/ {
+	color: #a0a0a0;
+	border: 1px solid #a0a0a0;
+	background-color: #090909;
+	box-shadow: 1px 1px 1px #000;
+}
+button:hover,input[type="button"]:hover,input[type="submit"]:hover/*,input[type="file"]:hover*/ {
+	box-shadow: none;
+}
+select,
+input {
+	padding: 0 3px;
+	background-color: #090909;
+	color: #a0a0a0;
+	border-radius: 3px;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+}
+input[type="text"]:focus,
+input[type="password"]:focus {
+	background: #151515;
+}
+a {
+	color: #a0a0a0;
+}
+td {
+	color: #a0a0a0;
+}
+tr {
+	color: #a0a0a0;
+}
+
+hr {
+	border: none;
+	border-top: solid #a0a0a0 1px;
+	height: 1px;
+}
+
+textarea {
+	background: #090909;
+	color: #a0a0a0;
+}
+
+.y_menu_prim_box {
+	border-color: #000;
+}
+.y_menu_prim_box_head {
+	background: #151515;
+}
+.y_menu_prim_box_body {
+	background-color: #151515;
+}
+.y_menu_prim_box_body #prim span,
+.y_menu_prim_box_body #box_name,
+.y_menu_prim_box_body #clock {
+	text-shadow: 1px 1px 1px #000;
+}
+.y_menu_prim li a {
+	text-shadow: 1px 1px 1px #000;
+}
+.y_menu_prim li.selected a {
+	color: #a0a0a0;
+}
+
+.y_menu_sec_box {
+	border-color: #000;
+}
+.y_menu_sec_box_head {
+	background: #132cfd;
+}
+.y_menu_sec_box_head h2 {
+	color: #a0a0a0;
+/*
+	text-shadow: 1px 1px 1px #000;
+*/
+	text-shadow: 0 -1px #090909, 1px 0 #090909, 0 1px #090909, -1px 0 #090909, #000 1px 1px 1px;
+}
+.y_menu_sec_box_body {
+	background-color: #151515;
+}
+.y_menu_sec li {
+	color: #a0a0a0;
+}
+.y_menu_sec li.plain a {
+	color: #a0a0a0
+}
+.y_menu_sec_section {
+	background-color: #3b3b3b;
+	color: #a0a0a0;
+/*
+	text-shadow: 1px 1px 1px #000;
+*/
+	text-shadow: 0 -1px #090909, 1px 0 #090909, 0 1px #090909, -1px 0 #090909, #000 1px 1px 1px;
+}
+
+.work_box {
+	border-color: #000;
+}
+.work_box_head {
+	background-color: #3b3b3b;
+}
+.work_box_head h2,.work_box_head_h2 {
+	color: #a0a0a0;
+/*
+	text-shadow: 1px 1px 1px #000;
+*/
+	text-shadow: 0 -1px #090909, 1px 0 #090909, 0 1px #090909, -1px 0 #090909, #000 1px 1px 1px;
+}
+.work_box_body {
+	background-color: #151515;
+}
+
+.y_wait_box {
+	border: 1px solid #000;
+}
+.y_wait_box_visible {
+	border: 1px solid #000;
+}
+.y_wait_box_head {
+	background: #132cfd;
+}
+.y_wait_box_head h2 {
+	color: #a0a0a0;
+/*
+	text-shadow: 1px 1px 1px #000;
+*/
+	text-shadow: 0 -1px #090909, 1px 0 #090909, 0 1px #090909, -1px 0 #090909, #000 1px 1px 1px;
+}
+.y_wait_box_body {
+	background-color: #151515;
+}
+
+.y_table,.y_form_table,.y_invisible_table,y_form table {
+	color: #a0a0a0;
+}
+.y_live_button {
+	color: #a0a0a0;
+}
+
+.y_live_bouquets {
+	color: #a0a0a0;
+}
+
+.y_live_channels
+{
+	color: #a0a0a0;
+}
+.y_live_audio_pids
+{
+	color: #a0a0a0;
+}
+
+.y_form_header_oline {
+	color : #a0a0a0;
+}
+
+.y_form_header {
+	border-bottom : 1px solid #a0a0a0;
+	color : #a0a0a0;
+	padding-top:0.5em;
+}
+
+.y_form_section {
+	color : #a0a0a0;
+}
+
+.y_text_boxcontrol_table {
+	border-color: #3b3b3b;
+}
+
+.y_text_boxcontrol_table_progress {
+	border-color: #3b3b3b;
+}
+.y_text_boxcontrol_div_progress {
+	border-color: #3b3b3b;
+}
+#audiobar_right,
+#sigbar_right,
+#snrbar_right {
+	background-color: #151515;
+}
+
+.y_epg_info {
+	border: none;
+	background-color: #202020;
+}
+.y_epg_info #description,
+.y_epg_info #info1,
+.y_epg_info #info2 {
+	background-color: #151515;
+}
+
+.bouquetitemlist .logo_cell {
+	background: #212121;
+	border-bottom: 1px solid #151515;
+}
+
+.channel_logo {
+	background: #212121;
+}
+
+.channel_logos
+{
+	background: #212121;
+}
+
+#epg_plus {
+	border-color : #000;
+}
+.ep_bouquet {
+	border-color : #000;
+}
+.ep_bouquet_name {
+	background: #212121;
+	border-color : #000;
+}
+.ep_bouquet_name a {
+}
+.ep_bouquet_item {
+	border-color : #000;
+}
+.ep_bouquet_item:hover {
+	background-color: #3b3b3b;
+}
+.ep_bouquet_item span:hover {
+}
+.ep_bouquet_rec {
+	border-color : #000;
+}
+.ep_bouquet_zap {
+	border-color : #000;
+}
+.ep_time_bar {
+	border-color : #000;
+}
+.ep_time_bar_item {
+	border-color : #000;
+}
+.ep_info_desc {
+}
+.ep_info_info1 {
+}
+.ep_info_info2 {
+}
+
+#epg_info {
+	border : #999999 solid 1px;
+	background-color: #090909;
+}
+#epg_time {
+}
+
+#epglist thead { 
+	background-color: #151515;
+}
+#epglist tbody tr:hover {
+	background-color: #3b3b3b;
+}
+.a
+{
+	background-color: #212121;
+}
+.aepg
+{
+	background-color: #212121;
+	border-bottom: 1px solid #151515;
+}
+.b
+{
+	background-color: #151515;
+}
+.bepg
+{
+	background-color: #151515;
+	border-bottom: 1px solid #151515;
+}
+.c
+{
+	background-color: #132cfd;
+	color: #090909;
+}
+.c a
+{
+	color: #090909;
+}
+.cepg
+{
+	background-color: #132cfd;
+	color: #090909;
+	border-bottom: 1px solid #151515;
+}
+.cslider_table
+{
+	border: 1px solid #101010;
+}
+.cslider_used
+{
+	background-color: #a0a0a0;
+}
+.cslider_free
+{
+	background-color: #151515;
+}
+.cslider_noepg
+{
+	background-color: #151515;
+}
+.epg
+{
+	font-weight: bold;
+	color: #a0a0a0;
+}
+
+.atimer {
+	background-color: #535353;
+}
+
+.lt_table th {
+	color : #a0a0a0;
+}
+
+table.screenshot {
+	background: #151515;
+}
+
+img#shot {
+	background-color: #151515;
+	border: 1px solid #000;
+}
+
+
+#startjpg {
+	border-color: #3b3b3b;
+}
+
+tr.list:hover td {
+	background-color: #3b3b3b;
+}
+
+div._used_graph {
+	background-color: #090909;
+}
+
+/* Filemgr */
+.diag {
+	border-color: #090909;
+	background-color: #151515;
+}
+.toolbar td {
+	border-color: #090909;
+}
+.toolbar img {
+	border:0;
+}
+.toolbar td:hover {
+	background-color: #151515;
+}
+.button {
+	border-color: #090909;
+}
+.button:hover {
+	background-color: #090909;
+}
+.mform {
+}
+
+.filelist a{
+}
+.box {
+	border-color: #090909;
+}
+.epginfo2{
+}
+.detail_title{
+	border-color: #090909;
+	background-color: #151515;
+}
+.detail_title_active{
+	border-color: #090909;
+	background-color: #151515;
+}
+.detail_img {
+}

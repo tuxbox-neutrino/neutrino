@@ -1,0 +1,49 @@
+{=include-block:Y_Blocks.txt;head_v3=}
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:v3.pzapit-control.title=}=}{=include-block:Y_Blocks.txt;work_menu=}
+	</div></div>
+	<div class="work_box_body">
+	<form action="">
+		<table class="y_invisible_table" cellpadding="5" width="100%">
+			<tr>
+				<td class="y_form_header" width="48%">{=L:v3.pzapit-control.resolution=}</td>
+				<td class="y_form_header" width="48%">{=L:v3.pzapit-control.43mode=}</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="button" value="1080i" onclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;resolution&amp;1080");' />
+					<input type="button" value="720p"  onclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;resolution&amp;720");' />
+					<input type="button" value="Pal"   onclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;resolution&amp;pal");' />
+				</td>
+				<td>
+					<input type="button" value="Letterbox"           onclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;43mode&amp;1");' />
+					<input type="button" value="Pan &amp; Scan"      onclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;43mode&amp;2");' />
+					<input type="button" value="14:9 Pan &amp; Scan" onclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;43mode&amp;3");' />
+				</td>
+			</tr>
+			<tr>
+				<td class="y_form_header" width="48%">{=L:v3.pzapit-control.channellists=}</td>
+				<td class="y_form_header" width="48%">{=L:v3.pzapit-control.tuner=}</td>
+			</tr>
+				<td>
+					<input type="button" value="{=L:v3.reload=}" title="{=L:v3.dblclick=}" ondblclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;reload_channellists");' />
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.reset=}"  title="{=L:v3.dblclick=}" ondblclick='$("out").update(""); goUrl("/control/exec?Y_v3_Tools&amp;reset_tuner");' />
+				</td>
+		</table>
+	</form>
+	</div>
+</div>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="out"></div>
+	</div>
+</div>
+</body>
+</html>

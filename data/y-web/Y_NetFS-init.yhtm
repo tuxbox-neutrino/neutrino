@@ -1,0 +1,21 @@
+{=include-block:Y_Blocks.txt;head_v3=}
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function(){
+        window.document.location.href='/Y_NetFS-control.yhtm?mount_type={=mount_type=}&mount_type_s={=mount_type_s=}';
+});
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu=Initializing {=mount_type_s=}=}{=include-block:Y_Blocks.txt;work_menu=}
+	</div></div>
+	<div class="work_box_body">
+		<img src="/images/wait.gif" class="status" title="wait"> Please wait ...
+		{=func:netfs_read_config {=mount_type=}=}
+	</div>
+</div>
+</body>
+</html>

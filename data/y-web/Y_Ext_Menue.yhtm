@@ -1,4 +1,4 @@
-{=var-set:extension={=if-file-exists:%(CONFIGDIR)/extentions.txt~%(CONFIGDIR)/extentions.txt~{=if-file-exists:%(PUBLIC_HTTPDDIR)/extentions.txt~%(PUBLIC_HTTPDDIR)/extentions.txt~%(PRIVATE_HTTPDDIR)/extentions.txt=}=}=}
+{=var-set:extension={=if-file-exists:%(CONFIGDIR)/extensions.txt~%(CONFIGDIR)/extensions.txt~{=if-file-exists:%(PUBLIC_HTTPDDIR)/extensions.txt~%(PUBLIC_HTTPDDIR)/extensions.txt~%(PRIVATE_HTTPDDIR)/extensions.txt=}=}=}
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~1~=}=}
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>

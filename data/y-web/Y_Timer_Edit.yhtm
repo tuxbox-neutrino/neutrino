@@ -76,7 +76,7 @@ function init()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Live_Timer-Timer=}{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 
 	<form method="get" class="y_form" name="f" action="/fb/timer.stb">
@@ -164,7 +164,7 @@ function init()
 			<tr id="RecDirRow" style="display:none">
 				<td>{=L:live.timer_edit.rec_dir=}:</td>
 				<td>
-				{=include-block:Y_neutrino_Blocks.txt;neutrino_list_record_dirs=}
+				{=include-block:Y_Blocks_Neutrino.txt;neutrino_list_record_dirs=}
 				</td>
 			</tr>
 		</table>

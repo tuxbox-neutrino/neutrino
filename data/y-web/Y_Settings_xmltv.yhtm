@@ -14,7 +14,7 @@ function do_submit() {
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-XMLTV_Settings=}{=var-set:menu={=L:set.xmltv.header=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.xmltv.header=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" accept-charset="UTF-8" action="/control/xmltvlist" method="POST" enctype="x-www-form-urlencoded">
 		<table border="0" width="100%">
@@ -49,4 +49,3 @@ function do_submit() {
 </body>
 </html>
 {=include-block:Y_Blocks.txt;management_check_bottom=}
-

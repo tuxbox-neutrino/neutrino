@@ -1,0 +1,13 @@
+{=include-block:Y_Blocks.txt;head_v3=}
+</head>
+<body>
+<div class="work_box">
+<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:main.v3=}=}{=include-block:Y_Blocks.txt;work_menu=}
+	</div></div>
+	<div class="work_box_body">
+		<img id="startjpg" src="%(ICONSDIR)/start.jpg" alt="" />
+	</div>
+</div>
+</body>
+</html>

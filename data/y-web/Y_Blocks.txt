@@ -4,7 +4,7 @@ start-block~timer
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Neutrino:yWeb:Live_Timer#Timer=}{=var-set:menu=Timer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=Timer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<iframe src="/fb/timer.stb" scrolling="auto" marginheight="1" marginwidth="1" frameborder="0" name="bouquets" style="height : 600px;width:90%;"></iframe>
 
@@ -146,7 +146,7 @@ end-block~personalize_save_settings
 
 # ------- Ext save Settings
 start-block~ext_save_settings
-{=file-action:%(CONFIGDIR)/extentions.txt;add;{=extentions=}=}
+{=file-action:%(CONFIGDIR)/extensions.txt;add;{=extensions=}=}
 end-block~ext_save_settings
 
 # ------- No Managemant Error
@@ -214,15 +214,9 @@ start-block~snip_show_wait
 </div>
 end-block~snip_show_wait
 
-# ------- Wiki Help display
-#<img src="/images/help.gif" align="bottom" />
-start-block~wiki_help
-<a href="https://wiki.tuxbox-neutrino.org/wiki/{=var-get:help_url=}" target="_blank" title="get help from https://wiki.tuxbox-neutrino.org">?</a>
-end-block~wiki_help
-
 # ------- work menu
 start-block~work_menu
-<div class="work_box_help">{=include-block:Y_Blocks.txt;wiki_help=}</div><div style="margin-right:4em;">{=var-get:menu=}</div>
+<div>{=var-get:menu=}</div>
 end-block~work_menu
 
 
@@ -293,6 +287,40 @@ start-block~frame_iso_head
 <title>yWeb</title>
 end-block~frame_iso_head
 
+# ------- Lay-HEAD v3
+start-block~head_v3
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta name="author" content="Community Developers">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="Thu, 01 Jan 1970 00:00:00 GMT" />
+<title>yWeb</title>
+<link rel="stylesheet" type="text/css" href="/Y_Main.css" />
+<link rel="stylesheet" type="text/css" href="/Y_v3.css" />
+<link rel="stylesheet" type="text/css" href="/Y_Dist.css" />
+<link rel="stylesheet" type="text/css" href="/Y_User.css" />
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript" src="/Y_v3lib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+	// Clear y-Cache in our pages
+	yhttpd_cache_clear('');
+//]]>
+</script>
+<script type="text/javascript" src="/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+	// Use jQuery via jQuery(...)
+	jQuery.noConflict();
+//]]>
+</script>
+end-block~head_v3
+
 # ------- nhttpd save Settings
 start-block~start_wizard_save_settings
 {=ini-set:%(CONFIGDIR)/Y-Web.conf;start_page;{=start_page=}~open=}
@@ -321,7 +349,7 @@ function do_submit()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=NeutrinoHD:Inbetriebnahme#Inbetriebnahme=}{=var-set:menu={=L:start.head=}Start Wizard=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:start.head=}Start Wizard=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" width="100%">
@@ -415,7 +443,7 @@ start-block~frame_boxcontrol
 			~
 				{=if-equal:{=var-get:startpage=}~screenshot~Y_Tools_Screenshot.yhtm?osd=1
 				~
-					Y_blank.yhtm
+					Y_Blank.yhtm
 				=}
 			=}
 		=}
@@ -427,21 +455,21 @@ end-block~frame_boxcontrol
 # ------- Lay-Frame Tools-Menu
 start-block~frame_tools
 {=var-set:sec_menu=Y_Tools_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_Blank.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_tools
 
 # ------- Lay-Frame Settings-Menu
 start-block~frame_settings
 {=var-set:sec_menu=Y_Settings_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_Blank.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_settings
 
 # ------- Lay-Frame Extentions-Menu
 start-block~frame_ext
 {=var-set:sec_menu=Y_Ext_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_Blank.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_ext
 
@@ -468,6 +496,43 @@ start-block~frame_live_epg
 </noframes>
 </html>
 end-block~frame_live_epg
+
+# ------- NetFS
+start-block~netfs_local_dir
+{=var-set:local_dir_{=var-get:nr=}={=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_local_dir_{=var-get:nr=}~open=}=}
+end-block~netfs_local_dir
+
+start-block~netfs_is_mount
+{=var-set:is_mount_{=var-get:nr=}={=script:Y_v3_Tools is_mount {=if-equal:{=mount_type=}~1~/mnt/autofs/~=}{=var-get:local_dir_{=var-get:nr=}=}=}=}
+end-block~netfs_is_mount
+
+start-block~netfs_table_row
+		<tr class="list">
+			<td>
+				<img src="/images/{=if-equal:{=var-get:is_mount_{=var-get:nr=}=}~true~check_green~x_red=}.png" class="status">
+				{=var-get:local_dir_{=var-get:nr=}=}
+			</td>
+			<td>
+				<a href="/Y_NetFS-edit.yhtm?nr={=var-get:nr=}&mount_type={=mount_type=}&mount_type_s={=mount_type_s=}" title="{=L:v3.edit=}">
+					<img src="/images/modify.png">
+				</a>
+				{=if-equal:{=mount_type=}~0~
+				{=if-equal:{=var-get:is_mount_{=var-get:nr=}=}~false~
+				<a href="javascript:Y_v3_Tools('do_mount {=var-get:local_dir_{=var-get:nr=}=}', 5000);" title="{=L:v3.netfs-control.mount=}">
+					<img src="/images/server_add.png">
+				</a>
+				<img src="/images/blank.png">
+				~
+				<img src="/images/blank.png">
+				<a href="javascript:Y_v3_Tools('do_umount {=var-get:local_dir_{=var-get:nr=}=}', 5000);" title="{=L:v3.netfs-control.umount=}">
+					<img src="/images/server_delete.png">
+				</a>
+				=}
+				~
+				=}
+			</td>
+		</tr>
+end-block~netfs_table_row
 
 # ------- Remote control variables
 start-block~rc_variables
@@ -577,7 +642,7 @@ end-block~remote
 
 # ------- Remote d-Box Philips/Sagem
 start-block~rc_dbox_philips
-<img src="images/rc_dbox_philips.png" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_dbox_philips.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="poly" href="javascript:rcsim('KEY_RIGHT')" coords="100,117,100,180,67,146,100,116" />
   <area shape="poly" href="javascript:rcsim('KEY_DOWN')" coords="36,181,101,180,66,146" />
@@ -610,7 +675,7 @@ end-block~rc_dbox_philips
 
 # ------- Remote d-Box Nokia old
 start-block~rc_dbox_nokia_old
-<img src="images/rc_dbox_nokia_old.png" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_dbox_nokia_old.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="rect" href="javascript:rcsim('KEY_SETUP')" coords="7,95,45,109" />
   <area shape="circle" href="javascript:rcsim('KEY_7')" coords="60,102,10" />
@@ -643,7 +708,7 @@ end-block~rc_dbox_nokia_old
 
 # ------ Remote CST V1 (HD1 / BSE)
 start-block~rc_cst_v1
-<img src="images/rc_cst_v1.jpg" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_cst_v1.jpg" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="rect" href="javascript:rcsim('KEY_POWER')" coords="134, 38, 159, 68" />
   <area shape="rect" href="javascript:rcsim('KEY_MUTE')" coords="29, 37, 56, 66" />
@@ -696,7 +761,7 @@ end-block~rc_cst_v1
 
 # ------- Remote CST V2 (NEO)
 start-block~rc_cst_v2
-<img src="images/rc_cst_v2.png" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_cst_v2.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="rect" href="javascript:rcsim('KEY_POWER')" coords="22, 28, 45, 50" />
   <area shape="rect" href="javascript:rcsim('KEY_MUTE')" coords="133, 29, 153, 50" />
@@ -751,14 +816,14 @@ end-block~rc_cst_v2
 # ------ Remote CST V3 (ZEE, NEO2)
 start-block~rc_cst_v3
 {=var-set:rcu=rc_cst_v3=}
-<img src="images/rc_cst_v3.png" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_cst_v3.png" usemap="#rc" alt="remote" />
 {=include-block:Y_Blocks.txt;map_rc_cst_v3_v4=}
 end-block~rc_cst_v3
 
 # ------ Remote CST V4 (NEO TWIN)
 start-block~rc_cst_v4
 {=var-set:rcu=rc_cst_v4=}
-<img src="images/rc_cst_v4.png" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_cst_v4.png" usemap="#rc" alt="remote" />
 {=include-block:Y_Blocks.txt;map_rc_cst_v3_v4=}
 end-block~rc_cst_v4
 
@@ -841,7 +906,7 @@ end-block~map_rc_cst_v3_v4
 
 # ------- Remote CST V5 (TANK)
 start-block~rc_cst_v5
-<img src="images/rc_cst_v5.png" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_cst_v5.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="circle" href="javascript:rcsim('KEY_POWER')" coords="50,42,14" alt="standby" title="{=L:rc.key_power=}" />
 
@@ -904,7 +969,7 @@ end-block~rc_cst_v5
 
 # ------- Remote CST V6 (TRINITY)
 start-block~rc_cst_v6
-<img src="images/rc_cst_v6.png" usemap="#rc" alt="remote" />
+<img src="images/rc/rc_cst_v6.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="circle" coords="94,50,16" alt="standby" href="javascript:rcsim('KEY_POWER')" title="{=L:rc.key_power=}" />
   <area shape="circle" coords="150,68,13" alt="mute" href="javascript:rcsim('KEY_MUTE')" title="{=L:rc.key_mute=}" />
@@ -970,7 +1035,7 @@ end-block~rc_cst_v6
 
 # ------ Remote AX HD51
 start-block~rc_ax_hd51
-<img src="images/rc_ax_hd51.png" usemap="#rc"/>
+<img src="images/rc/rc_ax_hd51.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="rect" coords="20,43,49,72" href="javascript:rcsim('KEY_POWER')" />
 <area shape="rect" coords="121,44,148,72" href="javascript:rcsim('KEY_MUTE')" />
@@ -1026,7 +1091,7 @@ end-block~rc_ax_hd51
 
 # ------ Remote Mutant HD51
 start-block~rc_mutant_hd51
-<img src="images/rc_mutant_hd51.png" usemap="#rc"/>
+<img src="images/rc/rc_mutant_hd51.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="rect" coords="18,24,53,48" href="javascript:rcsim('KEY_POWER')" />
 <area shape="rect" coords="121,21,148,47" href="javascript:rcsim('KEY_MUTE')" />
@@ -1082,7 +1147,7 @@ end-block~rc_mutant_hd51
 
 # ------ Remote WWIO BRE2ZE 4K
 start-block~rc_wwio_bre2ze4k
-<img src="images/rc_wwio_bre2ze4k.png" usemap="#rc"/>
+<img src="images/rc/rc_wwio_bre2ze4k.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="rect" coords="17,30,43,57" alt="KEY_POWER" href="javascript:rcsim('KEY_POWER')" />
 <area shape="rect" coords="90,36,113,57" alt="KEY_MODE" href="javascript:rcsim('KEY_MODE')" />
@@ -1144,7 +1209,7 @@ end-block~rc_wwio_bre2ze4k
 
 # ------ Remote VU+ Solo 4K, Duo 4K, Duo 4K SE, Ultimo 4K, Zero 4K, Uno 4K, Uno 4K SE
 start-block~rc_vuplus
-<img src="images/rc_vuplus.png" usemap="#rc"/>
+<img src="images/rc/rc_vuplus.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <!-- <area shape="circle" coords="33,28,10" id="113" alt="v1_mute" href="javascript:rcsim('KEY_POWER_TV')" /> -->
 <area shape="circle" coords="142,28,10" id ="116" alt="Power" href="javascript:rcsim('KEY_POWER')" />
@@ -1197,7 +1262,7 @@ end-block~rc_vuplus
 
 # ------ Remote Air Digital Zgemma H7
 start-block~rc_zgemma_h7
-<img src="images/rc_zgemma_h7.png" usemap="#rc"/>
+<img src="images/rc/rc_zgemma_h7.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="rect" coords="58,46,25,23" alt="KEY_POWER" href="javascript:rcsim('KEY_POWER')" />
 <area shape="rect" coords="134,22,171,46" alt="KEY_MUTE" href="javascript:rcsim('KEY_MUTE')" />
@@ -1254,7 +1319,7 @@ end-block~rc_zgemma_h7
 
 # ------ Remote Mutant HD60, Maxytec Multibox SE 4K
 start-block~rc_mutant_hd60
-<img src="images/rc_mutant_hd60.png" usemap="#rc"/>
+<img src="images/rc/rc_mutant_hd60.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="circle" coords="31,76,12" href="javascript:rcsim('KEY_POWER')" />
 <area shape="circle" coords="122,76,12" href="javascript:rcsim('KEY_MUTE')" />
@@ -1309,7 +1374,7 @@ end-block~rc_mutant_hd60
 
 # ------ Remote AX HD61
 start-block~rc_ax_hd61
-<img src="images/rc_ax_hd61.png" usemap="#rc"/>
+<img src="images/rc/rc_ax_hd61.png" usemap="#rc"/>
 <map name="rc" id="rc">
 <area shape="circle" coords="37,90,15" href="javascript:rcsim('KEY_POWER')" />
 <area shape="circle" coords="144,90,15" href="javascript:rcsim('KEY_MUTE')" />

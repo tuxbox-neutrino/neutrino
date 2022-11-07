@@ -1,18 +1,21 @@
 SUBDIRS = images scripts languages styles
 
+# yWeb
+SUBDIRS += favicon info jquery lcd4linux
+
 installdir = $(PRIVATE_HTTPDDIR)
 
 install_DATA =	channels.js \
-		extentions.txt \
+		extensions.txt \
 		favicon.ico \
 		index.html \
 		prototype.js \
 		robots.txt \
-		lcd4linux.html \
 		Y_About.yhtm \
 		Y_Baselib.js \
-		Y_blank.htm \
+		Y_Blank.yhtm \
 		Y_Blocks.txt \
+		Y_Blocks_Neutrino.txt \
 		Y_Boxcontrol_Bouquet_Editor_Edit.yhtm \
 		Y_Boxcontrol_Bouquet_Editor_Main.yhtm \
 		Y_Boxcontrol_Bouquetlist.yhtm \
@@ -37,7 +40,6 @@ install_DATA =	channels.js \
 		Y_Live_EPG.yhtm \
 		Y_Main.css \
 		Y_Menue.yhtm \
-		Y_neutrino_Blocks.txt \
 		Y_Refresh.yhtm \
 		Y_Settings_automount_liste.yhtm \
 		Y_Settings_automount.yhtm \
@@ -63,13 +65,13 @@ install_DATA =	channels.js \
 		Y_Tools_Boxcontrol.yhtm \
 		Y_Tools_Check_Install.yhtm \
 		Y_Tools_Cmd.yhtm \
-		Y_Tools_Glcd_Screenshot.yhtm \
 		Y_Tools_Info_Menue.yhtm \
 		Y_Tools_Installer.yhtm \
 		Y_Tools_Menue.yhtm \
 		Y_Tools_Rcsim.yhtm \
 		Y_Tools_Screenshot.yhtm  \
-		Y_Tools_tvshot.yhtm \
+		Y_Tools_Screenshot_GraphLCD.yhtm \
+		Y_Tools_Screenshot_LCD4Linux.yhtm  \
 		Y_User.css \
 		Y_Version.txt \
 		Y_Wait.yhtm \
@@ -78,9 +80,23 @@ install_DATA =	channels.js \
 # file manager
 install_DATA +=	accordion.js \
 		effects.js \
+		Y_Blocks_Filemgr.txt \
 		Y_Filemgr.yhtm \
-		Y_Filemgr_Edit.yhtm \
-		Y_Filemgr_blocks.txt
+		Y_Filemgr_Edit.yhtm
+
+# v3-files
+install_DATA += Y_v3lib.js \
+		Y_v3.css 
+
+# tools		
+install_DATA += \
+		Y_m3uConInfo.yhtm \
+		Y_m3uConvert.yhtm \
+		Y_NetFS-control.yhtm \
+		Y_NetFS-edit.yhtm \
+		Y_NetFS-init.yhtm \
+		Y_Plugin-control.yhtm \
+		Y_PZapit-control.yhtm
 
 install-data-hook:
 	@# Badass hack, I know. If anyone knows a better way -- please send patch!
@@ -96,9 +112,12 @@ install-data-hook:
 			-e 's|%(FONTDIR_VAR)|$(FONTDIR_VAR)|g' \
 			-e 's|%(LIBDIR)|$(LIBDIR)|g' \
 			-e 's|%(GAMESDIR)|$(GAMESDIR)|g' \
+			-e 's|%(ICONSDIR)|$(ICONSDIR)|g' \
 			-e 's|%(ICONSDIR_VAR)|$(ICONSDIR_VAR)|g' \
 			-e 's|%(LOCALEDIR)|$(LOCALEDIR)|g' \
 			-e 's|%(LOCALEDIR_VAR)|$(LOCALEDIR_VAR)|g' \
+			-e 's|%(PLUGINDIR)|$(PLUGINDIR)|g' \
+			-e 's|%(PLUGINDIR_MNT)|$(PLUGINDIR_MNT)|g' \
 			-e 's|%(PLUGINDIR_VAR)|$(PLUGINDIR_VAR)|g' \
 			-e 's|%(LUAPLUGINDIR)|$(LUAPLUGINDIR)|g' \
 			-e 's|%(LUAPLUGINDIR_VAR)|$(LUAPLUGINDIR_VAR)|g' \
@@ -106,12 +125,14 @@ install-data-hook:
 			-e 's|%(THEMESDIR_VAR)|$(THEMESDIR_VAR)|g' \
 			-e 's|%(WEBRADIODIR)|$(WEBRADIODIR)|g' \
 			-e 's|%(WEBRADIODIR_VAR)|$(WEBRADIODIR_VAR)|g' \
+			-e 's|%(WEBTVDIR)|$(WEBTVDIR)|g' \
+			-e 's|%(WEBTVDIR_VAR)|$(WEBTVDIR_VAR)|g' \
 			-e 's|%(LOGODIR)|$(LOGODIR)|g' \
 			-e 's|%(LOGODIR_VAR)|$(LOGODIR_VAR)|g' \
-			-e 's|%(LCD4L_ICONSDIR)|$(LCD4L_ICONSDIR)|g' \
-			-e 's|%(LCD4L_ICONSDIR_VAR)|$(LCD4L_ICONSDIR_VAR)|g' \
 			-e 's|%(PRIVATE_HTTPDDIR)|$(PRIVATE_HTTPDDIR)|g' \
 			-e 's|%(PUBLIC_HTTPDDIR)|$(PUBLIC_HTTPDDIR)|g' \
 			-e 's|%(HOSTED_HTTPDDIR)|$(HOSTED_HTTPDDIR)|g' \
 			-e 's|%(FLAGDIR)|$(FLAGDIR)|g' \
 	;
+	@# yWeb
+# 	cp $(DESTDIR)$(PRIVATE_HTTPDDIR)/styles/Y_Dist-v3_dark.css $(DESTDIR)$(PRIVATE_HTTPDDIR)/Y_Dist.css

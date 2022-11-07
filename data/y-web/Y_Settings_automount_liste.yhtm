@@ -36,7 +36,7 @@ function do_delete()
 {=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-AutoMount=}{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div>
+		<div class="work_box_head_h2">{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div>
 	</div>
 	<div class="work_box_body">
 	<form action="/y/cgi" name="f" id="f">
@@ -51,6 +51,6 @@ function do_delete()
 	</form>
 	</div>
 </div>
-{=include-block:Y_neutrino_Blocks.txt;neutrino_form_helpbox=}
+{=include-block:Y_Blocks_Neutrino.txt;neutrino_form_helpbox=}
 </body>
 </html>

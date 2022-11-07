@@ -1,0 +1,54 @@
+{=var-set:lcd4linux_png=/tmp/lcd4linux.png=}
+
+{=include-block:Y_Blocks.txt;head_v3=}
+<meta http-equiv="refresh" content="15; URL=ylcd4linux.yhtm">
+
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
+<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#212121">
+<link rel="manifest" href="/lcd4linux/manifest.json">
+<meta name="theme-color" content="#212121">
+
+<style type="text/css">
+/*<![CDATA[*/
+html {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background-color: #212121;
+	color: #bdbdbd;
+	height: 100%;
+}
+
+.ylcd4linux {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+/*]]>*/
+</style>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function() {
+	jQuery('#screenshot').attr("src", "{=var-get:lcd4linux_png=}?" + Math.random());
+	jQuery('html head').find('title').text("yLCD4Linux");
+});
+//]]>
+</script>
+
+</head>
+<body>
+	<div class="ylcd4linux">
+		{=if-file-exists:{=var-get:lcd4linux_png=}~
+		<img id="screenshot" border="0" src="" alt=""/>
+		~
+		<div>{=var-get:lcd4linux_png=} not found</div>
+		=}
+	</div>
+</body>
+</html>

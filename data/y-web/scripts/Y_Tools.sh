@@ -227,7 +227,7 @@ do_automount_getline()
 do_automount_setline()
 {
 	if ! [ -e $1 ]; then
-		cp /etc/auto.net $1
+		cp /var/etc/auto.net $1
 	fi
 	filename=$1
 	mountname=`echo "$2"|sed -e "s;---;;g"`
@@ -283,7 +283,8 @@ do_cmd()
 
 # -----------------------------------------------------------
 # yInstaller
-# un-tar uploaded file to /tmp. Execute included install.sh
+# un-tar uploaded file to /tmp/y-install.
+# Execute included install.sh.
 # -----------------------------------------------------------
 do_installer()
 {
@@ -295,16 +296,16 @@ do_installer()
 
 	if [ -s "$y_upload_file" ]
 	then
-		# unpack /tmp/upload.tmp
-		cd $y_path_tmp
+		mkdir -p $y_path_install
+		cd $y_path_install
 		tar -xf "$y_upload_file"
 		rm $y_upload_file
-		if [ -s "$y_install" ] #look for install.sh
+		if [ -s "$y_install" ] # look for install.sh
 		then
 			chmod 755 $y_install
 			o=`$y_install` # execute
 			rm -f $y_install # clean up
-			if [ -s "$y_out_html" ] #html - output?
+			if [ -s "$y_out_html" ] # html - output?
 			then
 				echo '<html><head>'
 				echo '<link rel="stylesheet" type="text/css" href="/Y_Main.css">'
@@ -336,7 +337,7 @@ do_installer()
 }
 
 # -----------------------------------------------------------
-# extention Installer $1=URL
+# extension Installer $1=URL
 # -----------------------------------------------------------
 do_ext_installer()
 {
@@ -345,10 +346,11 @@ do_ext_installer()
 	fi
 	wgetlog=`wget -O $y_upload_file $1 2>&1`
 	if [ -s "$y_upload_file" ];then
-		cd $y_path_tmp
+		mkdir -p $y_path_install
+		cd $y_path_install
 		tar -xf "$y_upload_file"
 		rm $y_upload_file
-		if [ -s "$y_install" ] #look for install.sh
+		if [ -s "$y_install" ] # look for install.sh
 		then
 			chmod 755 $y_install
 			o=`$y_install` # execute
@@ -363,7 +365,7 @@ do_ext_installer()
 
 do_ext_uninstaller()
 {
-	uinst="%(CONFIGDIR)/ext/uninstall.sh"
+	uinst="%(CONFIGDIR)/y-ext/uninstall.sh"
 	if [ -e "$uinst"  ]; then
 		chmod 755 "$uinst"
 		`$uinst $1_uninstall.inc`
@@ -385,24 +387,9 @@ proc()
 # -----------------------------------------------------------
 wol()
 {
-	if [ -e $y_path_sbin/ether-wake ]; then
-		msg=`ether-wake $1`
-	fi
+	msg=`ether-wake $1`
 	msg="<b>Wake on LAN $1</b><br><br>$msg"
 	y_format_message_html
-}
-
-# -----------------------------------------------------------
-# lcd shot
-# $1= optionen | leer
-# -----------------------------------------------------------
-do_lcshot()
-{
-	if [ -e "$y_path_varbin/lcshot" ]; then
-		$y_path_varbin/lcshot $*
-	else
-		$y_path_bin/lcshot $*
-	fi
 }
 
 # -----------------------------------------------------------
@@ -456,14 +443,14 @@ do_settings_backup_restore()
 		backup)
 			rm -rf $workdir
 			mkdir -p $workdir
-			$y_path_bin/backup.sh $workdir >/dev/null
+			backup.sh $workdir >/dev/null
 			filename=$(ls -1 -tr $workdir/settings_* | tail -1)
 			echo "$filename"
 		;;
 		restore)
 			if [ -s "$y_upload_file" ]
 			then
-				msg=$($y_path_bin/restore.sh "$y_upload_file")
+				msg=$(restore.sh "$y_upload_file")
 			else
 				msg="error: no upload file"
 			fi
@@ -503,11 +490,10 @@ case "$1" in
 	ext_installer)			shift 1; do_ext_installer $* 2>&1 ;;
 	proc)				shift 1; proc $* ;;
 	wol)				shift 1; wol $* ;;
-	lcshot)				shift 1; do_lcshot $* ;;
 	fbshot)				shift 1; do_fbshot $* ;;
 	fbshot_clear)			do_fbshot_clear ;;
 	screenshot_clear)		do_screenshot_clear ;;
-	get_update_version)		wget -q -O /tmp/version.txt "https://raw.githubusercontent.com/tuxbox-neutrino/gui-neutrino/master/data/y-web/Y_Version.txt" ;;
+	get_update_version)		wget -O /tmp/version.txt "https://raw.githubusercontent.com/tuxbox-neutrino/gui-neutrino/master/data/y-web/Y_Version.txt" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)			shift 1; $* ;;
 	automount_list)			shift 1; do_automount_list $* ;;
@@ -531,27 +517,33 @@ case "$1" in
 		fi
 	;;
 	get_extension_list)
-		if [ -e "$y_path_config/extentions.txt" ]
+		if [ -e "$y_path_config/extensions.txt" ]
 		then
-			cat $y_path_config/extentions.txt
+			cat $y_path_config/extensions.txt
 		else
-			cat $y_path_httpd/extentions.txt
+			cat $y_path_httpd/extensions.txt
 		fi
 	;;
 	write_extension_list)
 		shift 1
-		echo  "$*" >$y_path_config/extentions.txt
+		echo  "$*" >$y_path_config/extensions.txt
 	;;
 	url_get)
 		shift 1
 		res=`wget -O /tmp/$2 "$1" >/tmp/url.log 2>&1`
 		cat /tmp/$2
 	;;
-	mtd_space|var_space)
-		df | while read fs rest; do
+	mtd_space)
+		df | while read filesystem blocks used available percent mounted ; do
 			case ${fs:0:3} in
 				mtd)
-					echo "$fs" "$rest"
+					echo "$filesystem" "$blocks" "$used" "$available" "$percent" "$mounted"
+					break
+				;;
+			esac
+			case $mounted in
+				"/")
+					echo "$filesystem" "$blocks" "$used" "$available" "$percent" "$mounted"
 					break
 				;;
 			esac

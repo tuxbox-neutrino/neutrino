@@ -1,0 +1,365 @@
+{=var-set:_p_list_so={=script:Y_v3_Tools p_list so=}=}
+{=var-set:_p_list_sh={=script:Y_v3_Tools p_list sh=}=}
+{=var-set:_p_list_lua={=script:Y_v3_Tools p_list lua=}=}
+
+{=var-set:r_minidlnad={=script:Y_v3_Tools is_running minidlnad=}=}
+{=var-set:minidlnadport={=script:Y_v3_Tools get_minidlnad_webif_port=}=}
+
+{=var-set:r_xupnpd={=script:Y_v3_Tools is_running xupnpd=}=}
+{=var-set:xupnpdport={=script:Y_v3_Tools get_xupnpd_webif_port=}=}
+
+{=include-block:Y_Blocks.txt;head_v3=}
+</head>
+<body onload='goUrl("/control/reloadplugins");'>
+{=var-set:wait_text={=L:v3.plugin-control.title=}<br/>=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:v3.plugin-control.title=}=}{=include-block:Y_Blocks.txt;work_menu=}
+	</div></div>
+	<div class="work_box_body">
+	<form action="">
+		<table class="y_invisible_table" cellpadding="5" width="100%">
+			<tr>
+				<td class="y_form_header" width="35%">{=L:v3.plugin-control.manage=}</td>
+				<td class="y_form_header" width="5%">&nbsp;</td>
+				<td class="y_form_header">&nbsp;</td>
+				<td class="y_form_header">&nbsp;</td>
+			</tr>
+			<!-- fritzcallmonitor -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.fritzcallmonitor~check_green~x_red=}.png" class="status">
+					FritzCallMonitor
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.fritzcallmonitor~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_fcm_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_fcm_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/FritzCallMonitor.cfg","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.plugin-tools.fcm-addr=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/FritzCallMonitor.addr","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+			</tr>
+			<!-- nfs-server -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.nfsd~check_green~x_red=}.png" class="status">
+					NFS-Server
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.nfsd~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_nfs_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_nfs_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=/etc/exports","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- samba-server -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.samba~check_green~x_red=}.png" class="status">
+					Samba-Server
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.samba~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_samba_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_samba_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file={=if-file-exists:/etc/samba/smb.conf~/etc/samba/smb.conf~/etc/smb.conf=}","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- tuxcal -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.tuxcald~check_green~x_red=}.png" class="status">
+					TuxCal
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.tuxcald~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_tuxcald_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_tuxcald_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/tuxcal/tuxcal.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- tuxmail -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.tuxmaild~check_green~x_red=}.png" class="status">
+					TuxMail
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.tuxmaild~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_tuxmaild_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_tuxmaild_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/tuxmail/tuxmail.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- inadyn -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.inadyn~check_green~x_red=}.png" class="status">
+					Inadyn
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.inadyn~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_inadyn_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_inadyn_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=/etc/inadyn.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- dropbear -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.dropbear~check_green~x_red=}.png" class="status">
+					Dropbear
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.dropbear~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_dropbear_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_dropbear_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- ushare -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.ushare~check_green~x_red=}.png" class="status">
+					uShare
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.ushare~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_ushare_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_ushare_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=/etc/ushare.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- minidlna -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.minidlnad~check_green~x_red=}.png" class="status">
+					MiniDLNA
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.minidlnad~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_minidlna_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_minidlna_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					{=if-equal:{=var-get:r_minidlnad=}~true~
+					<input type="button" value="WebInterface" onclick='goPort("{=var-get:minidlnadport=}");' />
+					~
+					=}
+				</td>
+			</tr>
+			<!-- djmount -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.djmount~check_green~x_red=}.png" class="status">
+					djmount
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.djmount~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_djmount_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_djmount_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+				</td>
+			</tr>
+			<!-- xupnpd -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.xupnpd~check_green~x_red=}.png" class="status">
+					xupnpd
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.xupnpd~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_xupnpd_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_xupnpd_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					{=if-equal:{=var-get:r_xupnpd=}~true~
+					<input type="button" value="WebInterface" onclick='goPort("{=var-get:xupnpdport=}");' />
+					~
+					=}
+				</td>
+			</tr>
+			<!-- crond -->
+			<tr class="list">
+				<td>
+					<img src="images/{=if-file-exists:/var/etc/.crond~check_green~x_red=}.png" class="status">
+					crond
+				</td>
+				<td>
+					{=if-file-exists:/var/etc/.crond~
+					<input type="button" value="{=L:v3.stop=}" onclick='Y_v3_Tools("p_crond_stop", 5000);'/>
+					~
+					<input type="button" value="{=L:v3.start=}" onclick='Y_v3_Tools("p_crond_start", 5000);'/>
+					=}
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+				<td><hr></td>
+			</tr>
+			<!-- EPGscan -->
+			<tr class="list">
+				<td>
+					<img src="images/blank.png" class="status">
+					EPGscan
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/EPGscan.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.plugin-tools.epgscan-dat=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/EPGscan.dat","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+			</tr>
+			<!-- pr-auto-timer -->
+			<tr class="list">
+				<td>
+					<img src="images/blank.png" class="status">
+					Auto Timer
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.configure=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/pr-auto-timer.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.plugin-tools.pat-rules=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/pr-auto-timer.rules","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+			</tr>
+			<!-- RSS-Reader -->
+			<tr class="list">
+				<td>
+					<img src="images/blank.png" class="status">
+					RSS-Reader
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.plugin-tools.rssreader-conf=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=/var/tuxbox/config/rssreader.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+			</tr>
+			<!-- 2webTVxml -->
+			<tr class="list">
+				<td>
+					<img src="images/blank.png" class="status">
+					2webTVxml
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					<input type="button" value="{=L:v3.plugin-tools.2webtvxmlurls-conf=}" onclick='window.open("/Y_Filemgr_Edit.yhtm?file=/var/tuxbox/config/2webTVxmlUrls.conf","edit", "width=800,height=600,resizable=yes");' />
+				</td>
+			</tr>
+		</table>
+		</br>
+		<table class="y_invisible_table" cellpadding="5" width="100%">
+			<tr>
+				<td class="y_form_header" width="35%">{=L:v3.plugin-control.blue=}</td>
+				<td class="y_form_header">&nbsp;</td>
+			</tr>
+			{=var-get:_p_list_so=}
+			<tr>
+				<td><hr></td>
+				<td><hr></td>
+			</tr>
+			{=var-get:_p_list_sh=}
+			<tr>
+				<td><hr></td>
+				<td><hr></td>
+			</tr>
+			{=var-get:_p_list_lua=}
+		</table>
+	</form>
+	</div>
+</div>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="out"></div>
+	</div>
+</div>
+</body>
+</html>

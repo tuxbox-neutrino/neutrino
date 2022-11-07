@@ -56,7 +56,7 @@ function poschannel(box, direction){
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Bouquet-Editor=}{=var-set:menu={=L:bou.bouquet=} &quot;{=name=}&quot;=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bou.bouquet=} &quot;{=name=}&quot;=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<form action="/control/changebouquet" method="post" id="channels" enctype="x-www-form-urlencoded">
 		<p><input type="hidden" name="selected" value="{=selected=}" /></p>

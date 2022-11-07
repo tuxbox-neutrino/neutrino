@@ -1,0 +1,1 @@
+type:u,site:Image,desc:yWeb Neutrino Webinterface Extensions,url:https://raw.githubusercontent.com/tuxbox-neutrino/plugin-webif-extensions/master/yWeb-Extensions/Y_Extensions.txt

@@ -38,17 +38,13 @@ function setCaretToEnd(control)
 		control.setSelectionRange(l, l);
 	}
 }
-function doUpload()
-{
-	upload = window.open('Y_Tools_Cmd_Upload.yhtm?path='+document.f.pwd.value,'upload',"width=500,height=400,scrollbars=yes");
-}
 //]]>
 </script>
 </head>
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Help-Tools-Command_Shell=}{=var-set:menu={=L:tools.command_shell=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:tools.command_shell=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="co" action="">
 		<textarea name="cmds" cols="80" rows="18" title="shell output window"></textarea>
@@ -59,7 +55,6 @@ function doUpload()
 		<tr>
 			<td><input type="button" name="clear" value="{=L:clear=}" onclick="do_clear()"/></td>
 			<td><input type="checkbox" name="appendx" value="1" title="append output (only IE)"/>&nbsp;{=L:tools.cmd_shell.output_desc=}
-			<!--<input type="button" value="Upload" title="upload a file to current directory" onClick="doUpload()">-->
 			</td>
 		</tr><tr>
 			<td>{=L:tools.path=}:&nbsp;</td>

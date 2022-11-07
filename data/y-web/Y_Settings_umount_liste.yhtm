@@ -23,7 +23,7 @@ function do_unmount()
 {=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head">
-	<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-Mounts=}{=var-set:menu=UnMount=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_head_h2">{=var-set:menu=UnMount=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form action="/y/cgi" name="f" id="f">
 		{=func:umount_get_list=}

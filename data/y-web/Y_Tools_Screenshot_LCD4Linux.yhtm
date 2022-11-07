@@ -1,0 +1,54 @@
+{=include-block:Y_Blocks.txt;head_v3=}
+<script type="text/javascript">
+//<![CDATA[
+var interval;
+
+function do_showshot() {
+	$('shot').src = "/tmp/lcd4linux.png?"+Math.random();
+	$('shot').show();
+}
+
+function do_reload(){
+	if (document.getElementById("checkReload").checked)
+		interval = setInterval(do_showshot, document.getElementById("inputReload").value + "000");
+	else
+		clearInterval(interval);
+}
+//]]>
+</script>
+</head>
+<body onload="do_showshot();">
+<div class="work_box" id="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu=LCD4Linux-{=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="screenshot_header">
+		<div id="buttons" style="display: block">
+			<div class="right">
+				Reload: <input type="number" value="15" id="inputReload" min="1" max="180" title="{=L:bc.screenshot.reload_desc=}" disabled /> <input id="checkReload" name="checkReload" type="checkbox" />
+			</div>
+			<div class="clear"></div>
+		</div>
+		</div>
+		<table cellpadding="0" class="screenshot">
+		<tr>
+			<td class="shot">
+				<img id="shot" src="" style="display: none" />
+			</td>
+		</tr>
+		</table>
+	</div>
+</div>
+<script>
+document.getElementById('checkReload').onclick = function() {
+	if (this.checked ) {
+		interval = setInterval(do_showshot, document.getElementById("inputReload").value + "000");
+		document.getElementById("inputReload").disabled = false;
+	} else {
+		clearInterval(interval);
+		document.getElementById("inputReload").disabled = true;
+	}
+};
+</script>
+</body>
+</html>

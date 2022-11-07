@@ -194,7 +194,7 @@ tr {
 	color: #555555;
 }
 .y_menu_prim li a:hover {
-	color: #FF6600;
+	color: #132cfd;
 }
 /*extensions*/
 .y_menu_prim_ext {
@@ -218,7 +218,7 @@ tr {
 .y_menu_sec_box_head {
 	margin: 0;
 	padding: 0;
-	background: #ff6600;
+	background: #132cfd;
 	border-radius: 4px 4px 0 0;
 
 	-webkit-border-top-left-radius: 4px;
@@ -229,7 +229,7 @@ tr {
 .y_menu_sec_box_head h2 {
 	margin: 0;
 	padding: 5px 5px 5px 10px;
-	font-family: Arial, 'Lucida Grande',Tahoma, Verdana, Geneva, Helvetica, sans-serif;
+	/* font-family: Arial, 'Lucida Grande',Tahoma, Verdana, Geneva, Helvetica, sans-serif; */
 	color: white;
 	font-weight: bold;
 	font-size: 1.2em;
@@ -272,12 +272,12 @@ tr {
 	color: #555555
 }
 .y_menu_sec li a:hover {
-	color: #FF6600;
+	color: #132cfd;
 }
 .y_menu_sec_section {
 	margin: 10px 0px 0px 0px;
 	padding: 3px 2px 3px 10px;
-	background-color: #FFCC99;
+	background-color: #F7F7F7;
 	font-size: 10pt;
 	font-weight: bold;
 }
@@ -321,7 +321,7 @@ tr {
 	margin: 0;
 	padding: 0;
 	text-align: center;
-	background-color: #2188e0;
+	background-color: #132cfd;
 	border-radius: 4px 4px 0 0;
 
 	-webkit-border-top-left-radius: 4px;
@@ -332,7 +332,7 @@ tr {
 .work_box_head h2,.work_box_head_h2 {
 	margin: 0;
 	padding: 5px 20px;
-	font-family: Arial, 'Lucida Grande',Tahoma, Verdana, Geneva, Helvetica, sans-serif;
+	/* font-family: Arial, 'Lucida Grande',Tahoma, Verdana, Geneva, Helvetica, sans-serif; */
 	color: white;
 	font-weight: bold;
 	font-size: 1.2em;
@@ -365,7 +365,7 @@ tr {
 }
 /*raus
 .y_work_table {
-	border: 1px dashed #2188e0;
+	border: 1px dashed #132cfd;
 	border-collapse: collapse;
 	background: white;
 	color: #555555;
@@ -380,7 +380,7 @@ tr {
 	text-align: center;
 	border: 1px solid #6D96A9;
 	border-collapse: collapse;
-	background: #F0FAFF;
+	background: #F7F7F7;
 	border-spacing: 1px;
 	height: auto;
 }
@@ -429,7 +429,7 @@ tr {
 .y_wait_box_head {
 	margin: 0;
 	padding: 0;
-	background: #ff6600;
+	background: #132cfd;
 	border-radius: 4px 4px 0 0;
 
 	-webkit-border-top-left-radius: 4px;
@@ -511,7 +511,7 @@ tr {
 
 .y_topline
 {
-	border-top: 1px solid #2188e0;
+	border-top: 1px solid #132cfd;
 }
 .y_form {
 	margin:0;
@@ -554,11 +554,11 @@ tr {
 .y_text_boxcontrol_button
 {
 	padding : 1px;
-	border : #FF8e42 solid 1px;
+	border : #a0a0a0 solid 1px;
 }
 .y_text_boxcontrol_button a:hover
 {
-	background:#FF8e42;
+	background:#a0a0a0;
 }
 .y_text_boxcontrol_table {
 	width:114px;
@@ -566,14 +566,14 @@ tr {
 	background: url('/images/audiobar.png') no-repeat 1px 1px;
 	padding: 1px;
 	margin-top: 10px;
-	border: #FF8e42 solid 1px;
+	border: #132cfd solid 1px;
 }
 .y_text_boxcontrol_table_progress {
 	width: 114px;
 	height: 12px;
 	padding: 0;
 	margin-bottom: 5px;
-	border: #FF8e42 solid 1px;
+	border: #132cfd solid 1px;
 	border-top: 0 none;
 
 	background: #ffffff; /* Old browsers */
@@ -587,7 +587,7 @@ tr {
 }
 .y_text_boxcontrol_div_progress {
 	width: 112px;
-	border: #FF8e42 solid 1px;
+	border: #132cfd solid 1px;
 	font-size: 9px;
 	margin-top: 5px;
 	margin-bottom: -1px;
@@ -612,7 +612,7 @@ tr {
 	vertical-align: top;
 }
 .bouquetitemlist .logo_cell {
-	background: #A1CCF2;
+	background: #A7A7A7;
 	border-bottom: 1px solid white;
 	margin: 0;
 	padding: 0;
@@ -626,7 +626,7 @@ tr {
 	padding: 0 5px;
 }
 .channel_logo {
-	background: #A1CCF2;
+	background: #A7A7A7;
 	max-width: 175px;
 	max-height: 40px;
 }
@@ -635,7 +635,7 @@ tr {
 }
 .channel_logos
 {
-	background: #A1CCF2;
+	background: #A7A7A7;
 	vertical-align: middle;
 	max-width: 100px;
 	max-height: 40px;
@@ -661,7 +661,7 @@ tr {
 	min-height: 40px;
 }
 .ep_bouquet_name {
-	background: #A1CCF2;
+	background: #A7A7A7;
 	border-right : #BBBBBB solid 1px;
 	overflow:hidden;
 	padding-left: 1px;
@@ -686,7 +686,7 @@ tr {
 	font-size:8pt;
 }
 .ep_bouquet_item:hover {
-	background-color: #D3E7F8;
+	background-color: #D7D7D7;
 }
 .ep_bouquet_item span:hover {
 	cursor: pointer;
@@ -697,7 +697,7 @@ tr {
 /*	height: 1.3em;*/
 	padding-left: 1px;
 	padding-right: 1px;
-	background-color: #FF6600;
+	background-color: #132cfd;
 	height: 100%;
 	font-size:8pt;
 	z-index:10;
@@ -765,6 +765,10 @@ tr {
 	font-size: 8pt;
 	height: 20px;
 }
+/* stream info */
+td.set {
+	vertical-align: top;
+}
 /* bouquet*/
 .bouquetlist
 {
@@ -793,14 +797,17 @@ tr.bouquetlist
 }
 .a
 {
-	background-color: #F0FAFF;
-	font-family:Arial,Sans-Serif;
+	background-color: #F7F7F7;
+	/* font-family:Arial,Sans-Serif; */
 	font-size:11pt;
 	border-spacing: 0px;
 	padding: 0px;
 	padding-left: 10px;
 	padding-right: 20px;
 	margin:0px;
+}
+#epglist thead {
+	background-color: #fff;
 }
 #epglist th { 
 	font-weight:bold;
@@ -812,7 +819,7 @@ tr.bouquetlist
 }
 .aepg
 {
-	background-color: #F0FAFF;
+	background-color: #F7F7F7;
 	font-weight:normal;
 	font-size:10pt;
 	padding-left: 10px;
@@ -846,7 +853,7 @@ a:hover.clistsmall
 }
 .c
 {
-	background-color:#D3E7F8;
+	background-color:#D7D7D7;
 	font-weight:bold;
 	font-size:11pt;
 	padding-left: 10px;
@@ -855,7 +862,7 @@ a:hover.clistsmall
 }
 .cepg
 {
-	background-color:#D3E7F8;
+	background-color:#D7D7D7;
 	font-weight:normal;
 	font-size:10pt;
 	padding-left: 10px;
@@ -870,7 +877,7 @@ a:hover.clistsmall
 }
 .cslider_table
 {
-	border: 1px solid #6cafea;
+	border: 1px solid #A0A0A0;
 	width: 30px;
 	border-spacing: 0px;
 	padding: 0px;
@@ -878,15 +885,15 @@ a:hover.clistsmall
 }
 .cslider_used
 {
-	background-color: #A1CCF2;
+	background-color: #A7A7A7;
 }
 .cslider_free
 {
-	background-color: #EAEBFF;
+	background-color: #EAEAEA;
 }
 .cslider_noepg
 {
-	background-color: #FAFAFF;
+	background-color: #FAFAFA;
 }
 .title_table
 {
@@ -926,7 +933,7 @@ a.timer {
 	text-decoration:underline;
 }
 .atimer {
-	background-color: #F0FAFF;
+	background-color: #F7F7F7;
 	text-align: center;
 }
 .btimer {

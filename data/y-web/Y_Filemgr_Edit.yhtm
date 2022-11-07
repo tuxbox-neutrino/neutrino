@@ -42,7 +42,7 @@ function ni(){
 {=var-set:wait_text=Speichern (Save).=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Extensions-filemgr=}{=var-set:menu=File Manager: Editor=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=File Manager: Editor=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 			<table id="prop_toolbar" class="toolbar" cellspacing="1" cellpadding="1">
 			<tr>
@@ -55,7 +55,7 @@ function ni(){
 				<td title="close without save"><a href='javascript:window.close()'><img src="/images/cross.png"/></a></td>
 			</tr>
 			</table>
-	<form name="f" accept-charset="UTF-8" action="/y/cgi?execute=include-block:Y_Filemgr_blocks.txt;edit_save_settings;nix" method="POST">
+	<form name="f" accept-charset="UTF-8" action="/y/cgi?execute=include-block:Y_Blocks_Filemgr.txt;edit_save_settings;nix" method="POST">
 		<textarea id="txt" name="editfile" cols="100" rows="31"  wrap="off" title="Editor" style="width: 100%;">{=include:{=file=}=}</textarea>
 		<input type="hidden" name="tmpl" value="Y_Filemgr_Edit.yhtm"/>
 		<input type="hidden" name="file" value="{=file=}"/>

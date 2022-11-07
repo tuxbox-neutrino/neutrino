@@ -22,7 +22,7 @@ function do_submit()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-Mounts=}{=var-set:menu=Mount {=R1=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		<div class="work_box_head_h2">{=var-set:menu=Mount {=R1=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<input type="hidden" name="nr" value="{=R1=}"/>

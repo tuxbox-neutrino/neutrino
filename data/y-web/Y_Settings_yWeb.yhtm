@@ -54,7 +54,7 @@ function do_init(){
 	}
 	document.f.start_page.selectedIndex = sel;
 	style_old = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;style~cache=}";
-
+	//hostname
 	if ("{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}" == "${HOSTNAME}") {
 		document.f.hostname.checked = true;
 		document.f.yweb_box_name.value = "${HOSTNAME}";
@@ -62,7 +62,7 @@ function do_init(){
 		document.f.yweb_box_name.style.color='#aaaaaa'
 	}
 }
-//NI
+
 function do_switch_hostname()
 {
 	if(document.f.hostname.checked == true)
@@ -92,7 +92,7 @@ select {
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-yWeb=}{=var-set:menu=yWeb=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=yWeb=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" class="y_form_table">
@@ -129,7 +129,7 @@ select {
 				<td>{=L:set.yweb.box_tag=}</td>
 				<td colspan="3"><input type="text" name="yweb_box_name" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}"
 					title="{=L:set.yweb.box_tag_desc=}"/>
-					<!-- //NI -->
+					<!-- //hostname -->
 					<input type="checkbox" name="hostname" value="Hostname" onclick="do_switch_hostname()"/> Hostname
 				</td>
 			</tr>

@@ -12,7 +12,7 @@ function goUrl(_url){
 <body>
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-Info=}{=var-set:menu=Info=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		<div class="work_box_head_h2">{=var-set:menu=Info=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form action="">
 		<table  class="y_invisible_table" cellpadding="5" width="100%">

@@ -19,7 +19,7 @@ function do_send(mode) {
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Message=}{=var-set:menu={=L:bc.menue.messages=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bc.menue.messages=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<table class="y_invisible_table" cellpadding="5" width="100%">
 		<tr><td class="y_form_header">{=L:bc.msg.message_to_screen=}</td></tr>
@@ -38,7 +38,7 @@ function do_send(mode) {
 </div>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Message=}{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="out"></div>
 	</div>

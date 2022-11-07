@@ -48,6 +48,7 @@ directory=Directory
 filename=Filename
 restriced_by_management_ip=restricted by ManagementIP
 automatic=automatically
+unknown=unknown
 show=show
 hide=hide
 
@@ -83,8 +84,6 @@ bc.menue.messages_desc=send Messages to box
 bc.menue.messages=Messages
 bc.menue.remote_desc=Web-based Remote Control
 bc.menue.remote=Remote
-bc.menue.glcd_screenshot_desc=take a GLCD screenshot
-bc.menue.glcd_screenshot=GLCD Screenshot
 bc.menue.screenshot=Screenshot
 
 bc.menue.decrease_volume=decrease volumen
@@ -135,7 +134,7 @@ bc.channels=Channels
 ext.installer_updater=Installer/Updater
 ext.uninstaller=Extensions Uninstaller
 ext.search_for_ext=Search for Extensions ...
-ext.installed_extensions=installed extensions
+ext.installed_extensions=Installed extensions
 ext.type=Type
 ext.extension=Extension
 ext.version=Version
@@ -153,6 +152,7 @@ ext.update_install=update/install
 ext.site=Site
 ext.refresh_now=Settings saved. Refreshing Menue now.
 ext.ext_saved=Extensions Settings saved
+ext.tag=Tag
 
 # ===== Bouquet
 bou.bouquet=Bouquet
@@ -184,6 +184,7 @@ epg.set_timer_zap=Set switch to channel. Done.
 
 # ===== EPG Streaminfo
 epg.si.streaminfo=Streaminfo
+epg.si.url=URL
 epg.si.resolution=Resolution
 epg.si.ratio=Aspect Ratio
 epg.si.fps=Frames per second
@@ -421,7 +422,7 @@ live.timer-sync.status=Status
 
 # ===== INFO
 info.help=Help
-info.About=About
+info.about=About
 info.check_for_updates=Check for Updates
 info.your_version=Your Version
 info.actual_version=Actual Version
@@ -481,3 +482,63 @@ rc.key_picmode=Pic Mode
 rc.key_pos=Pos
 rc.key_recall=Recall
 
+# ===== v3
+main.v3=yWeb
+
+v3.save=Save
+v3.cancel=Cancel
+v3.edit=Edit
+v3.remove=Remove
+v3.create=Create
+v3.start=Start
+v3.stop=Stop
+v3.reset=Reset
+v3.reload=Reload
+v3.configure=Configure
+v3.dblclick=Doubleclick required
+v3.infopage=Infopage
+
+v3.about.your_image=This Image
+v3.about.actual_image=Actual Image
+v3.about.image_upd_no=No update available
+v3.about.image_upd_yes=Update available
+
+v3.pzapit-control=PZapit
+v3.pzapit-control.title=PZapit-Control
+v3.pzapit-control.resolution=Resolution
+v3.pzapit-control.43mode=4:3 mode
+v3.pzapit-control.channellists=Channellists
+v3.pzapit-control.tuner=Tuner
+
+v3.plugin-control=Plugins
+v3.plugin-control.title=Plugin-Control
+v3.plugin-control.manage=Customize Plugins and Services
+v3.plugin-control.blue=Customize Blue Button Plugins
+
+v3.plugin-tools.fcm-addr=Edit Phonebook
+v3.plugin-tools.pat-rules=Edit Rules
+v3.plugin-tools.epgscan-dat=Edit Transponderlist
+v3.plugin-tools.rssreader-conf=Edit RSS-Feeds
+v3.plugin-tools.2webtvxmlurls-conf=Edit WebTV-URLs
+
+v3.netfs-control=NetFS
+v3.netfs-0=fstab
+v3.netfs-1=auto.net
+v3.netfs-control.title=NetFS-Control
+v3.netfs-control.entrys=NetFS-Entries
+v3.netfs-control.restart_menu=The NetFS-Menu will restart now
+v3.netfs-control.mount_all=Mount all
+v3.netfs-control.umount_all=Unmount all
+v3.netfs-control.mount=Mount
+v3.netfs-control.umount=Unmount
+v3.netfs-control.type=Typ
+v3.netfs-control.ip=Remote IP-Adress
+v3.netfs-control.dir=Remote directory
+v3.netfs-control.user=Username
+v3.netfs-control.password=Password
+v3.netfs-control.options=Options
+v3.netfs-control.dump=Dump
+v3.netfs-control.pass=Pass
+v3.netfs-control.local_dir=Local directory
+v3.netfs-control.active=Entry active
+v3.netfs-control.autofs_restart=Restart autofs

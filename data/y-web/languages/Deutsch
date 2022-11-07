@@ -48,6 +48,7 @@ directory=Verzeichnis
 filename=Dateiname
 restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 automatic=automatisch
+unknown=unbekannt
 show=zeigen
 hide=verstecken
 
@@ -83,8 +84,6 @@ bc.menue.messages_desc=Nachricht an die Box senden
 bc.menue.messages=Nachrichten
 bc.menue.remote_desc=Fernbedienung
 bc.menue.remote=Fernbedienung
-bc.menue.glcd_screenshot_desc=GLCD Screenshot erstellen
-bc.menue.glcd_screenshot=GLCD Screenshot
 bc.menue.screenshot=Screenshot
 
 bc.menue.decrease_volume=Lautst&auml;rke verringern
@@ -153,6 +152,7 @@ ext.update_install=Aktualisierung / Installation
 ext.site=Site
 ext.refresh_now=Einstellungen gespeichert. Menues werden aktualisiert.
 ext.ext_saved=Erweiterungseinstellungen gespeichert
+ext.tag=Markierung
 
 # ===== Bouquet
 bou.bouquet=Bouquet
@@ -184,6 +184,7 @@ epg.set_timer_zap=Umschalt-Timer gesetzt
 
 # ===== EPG Streaminfo
 epg.si.streaminfo=Streaminfo
+epg.si.url=URL
 epg.si.resolution=Aufl&ouml;sung
 epg.si.ratio=Verh&auml;ltnis
 epg.si.fps=Bildrate
@@ -421,7 +422,7 @@ live.timer-sync.status=Status
 
 # ===== INFO
 info.help=Hilfe
-info.About=&uuml;ber
+info.about=&Uuml;ber
 info.check_for_updates=Auf Updates pr&uuml;fen
 info.your_version=Deine Version
 info.actual_version=Aktuelle Version
@@ -481,3 +482,63 @@ rc.key_picmode=Pic Mode
 rc.key_pos=Pos
 rc.key_recall=Recall
 
+# ===== v3
+main.v3=yWeb
+
+v3.save=Speichern
+v3.cancel=Abbrechen
+v3.edit=Bearbeiten
+v3.remove=L&ouml;schen
+v3.create=Anlegen
+v3.start=Start
+v3.stop=Stopp
+v3.reset=Reset
+v3.reload=Neu laden
+v3.configure=Konfigurieren
+v3.dblclick=Doppelklick erforderlich
+v3.infopage=Infoseite
+
+v3.about.your_image=Dieses Image
+v3.about.actual_image=Aktuelles Image
+v3.about.image_upd_no=Kein Update verf&uuml;gbar
+v3.about.image_upd_yes=Update verf&uuml;gbar
+
+v3.pzapit-control=PZapit
+v3.pzapit-control.title=PZapit-Steuerung
+v3.pzapit-control.resolution=Aufl&ouml;sung
+v3.pzapit-control.43mode=4:3 Anzeigeverhalten
+v3.pzapit-control.channellists=Kanallisten
+v3.pzapit-control.tuner=Tuner
+
+v3.plugin-control=Plugins
+v3.plugin-control.title=Plugin-Steuerung
+v3.plugin-control.manage=Plugins und Services verwalten
+v3.plugin-control.blue=Plugins auf blauer Taste verwalten
+
+v3.plugin-tools.fcm-addr=Telefonbuch bearbeiten
+v3.plugin-tools.pat-rules=Regeln bearbeiten
+v3.plugin-tools.epgscan-dat=Transponderliste bearbeiten
+v3.plugin-tools.rssreader-conf=RSS-Feeds bearbeiten
+v3.plugin-tools.2webtvxmlurls-conf=WebTV-URLs bearbeiten
+
+v3.netfs-control=NetFS
+v3.netfs-0=fstab
+v3.netfs-1=auto.net
+v3.netfs-control.title=NetFS-Steuerung
+v3.netfs-control.entrys=NetFS-Eintr&auml;ge
+v3.netfs-control.restart_menu=Das NetFS-Men&uuml; wird nun erneut gestartet
+v3.netfs-control.mount_all=Alle einh&auml;ngen
+v3.netfs-control.umount_all=Alle aush&auml;ngen
+v3.netfs-control.mount=Einh&auml;ngen
+v3.netfs-control.umount=Aush&auml;ngen
+v3.netfs-control.type=Typ
+v3.netfs-control.ip=Entfernte IP-Adresse
+v3.netfs-control.dir=Entferntes Verzeichnis
+v3.netfs-control.user=Benutzername
+v3.netfs-control.password=Passwort
+v3.netfs-control.options=Optionen
+v3.netfs-control.dump=Dump
+v3.netfs-control.pass=Pass
+v3.netfs-control.local_dir=Lokales Verzeichnis
+v3.netfs-control.active=Eintrag aktiv
+v3.netfs-control.autofs_restart=autofs neu starten

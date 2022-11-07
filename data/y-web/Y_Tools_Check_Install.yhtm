@@ -39,9 +39,6 @@ function sLog_addRow(_body, state, action_text, state_text){
 	y_add_text_cell_to_row(mycurrent_row, "state_text", state_text);
 }
 /*check*/
-function wiki_url(_page){
-	return "<a href=\"https://wiki.tuxbox-neutrino.org/wiki/"+_page+"\" target='_blank'><b>[Help]<\/b><\/a>"
-}
 function do_check(){
 	sLog_init();
 	sLog_clear();
@@ -62,18 +59,16 @@ function do_check(){
 	=}
 	{=if-equal:{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=}~80~~
 		sLog_addRow(sLog_body, "yellow",
-		"WebServer: not set to Standard-Port. Actual: {=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=} "+wiki_url("Neutrino:yWeb:Settings#WebServer"), "notice");
+		"WebServer: not set to Standard-Port. Actual: {=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=}", "notice");
 	=}
 	/*settings*/
 	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=}~~
 		sLog_addRow(sLog_body, "yellow",
-		"Settings: Management IP(1) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}. "
-		+wiki_url("Neutrino:yWeb:Settings#yWeb"), "notice");
+		"Settings: Management IP(1) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}.", "notice");
 	=}
 	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~~
 		sLog_addRow(sLog_body, "yellow",
-		"Settings: Management IP(2) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}. "
-		+wiki_url("Neutrino:yWeb:Settings#yWeb"), "notice");
+		"Settings: Management IP(2) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}.", "notice");
 	=}
 
 	/*programs*/
@@ -110,9 +105,8 @@ function do_check(){
 </head>
 <body>
 <div class="work_box">
-	<div class="work_box_head">
-		<div class="work_box_head_h2">
-		{=var-set:help_url=Help-Tools-Check_Install=}{=var-set:menu={=L:tools.check_install=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:tools.check_install=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<br />
 		<div id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>

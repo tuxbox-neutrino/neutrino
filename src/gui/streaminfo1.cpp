@@ -821,7 +821,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		spaceoffset = 7 * fontW;
 		box_width2 = box_width-(spaceoffset+xpos);
 
-		//NI channellogo
+		// channellogo
 		ypos+= sheight;
 		sprintf(buf, "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
 		g_Font[font_small]->RenderString(xpos, ypos, box_width, "Logo:" , COL_INFOBAR_TEXT);

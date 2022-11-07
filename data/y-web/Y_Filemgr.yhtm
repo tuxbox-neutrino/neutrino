@@ -46,19 +46,40 @@ CyExplorer.prototype = {
 		var mycurrent_row = new Element( 'tr', {'class': ((this.line_number % 2) ==0)?"a":"b"} );
 		$(this.el).insert(mycurrent_row);
 		/* icon */
-		var __img ="/images/ftype_file.png";
-		switch (fp.get('type')){
-			case 	"folder":	__img = "/images/ftype_folder.png"; break;
-			case 	"link":	__img = "/images/ftype_link.png"; break;
-			case 	"file":	__img = "/images/ftype_file.png"; 
-				switch (fp.get('ext')){
-					case 	"ts": case "ps": case "pes": case "avi":
-						__img = "/images/film.png"; break;
-					case 	"jpg": case "jpeg": case "bmp": case "gif": case "ico": case "png":
-						__img = "/images/picture.png"; break;
-					case 	"file": case "tar": case "zip": case "tar.gz":
+		var __img = "/images/ftype_file.png";
+		switch (fp.get('type')) {
+			case "folder":
+				__img = "/images/ftype_folder.png";
+				break;
+			case "link":
+				__img = "/images/ftype_link.png";
+				break;
+			case "file":
+				__img = "/images/ftype_file.png";
+				switch (fp.get('ext')) {
+					case "ts":
+					case "ps":
+					case "pes":
+					case "avi":
+						__img = "/images/film.png";
+						break;
+					case "jpg":
+					case "jpeg":
+					case "bmp":
+					case "gif":
+					case "ico":
+					case "png":
+						__img = "/images/picture.png";
+						break;
+					case "tar":
+					case "tar.gz":
+					case "zip":
 						__img = "/images/package.png"; 
-					case 	"file": case "txt": case "ini": case "conf":
+						break;
+					case "file":
+					case "txt":
+					case "ini":
+					case "conf":
 						__img = "/images/text.png"; 
 						break;
 				}
@@ -416,7 +437,7 @@ function  do_prop(prop){
 	show_prop();
 
 	document.edit.fitem.value = explorer.ac_item;
-	// Fileextention handling
+	// Fileextension handling
 	var fullfname = explorer.build_fname();
 	switch(explorer.ac_prop.get('ext')){
 		case "xml":
@@ -426,10 +447,11 @@ function  do_prop(prop){
 			}
 			break;
 		case "jpg":
-		case "png":
+		case "jpeg":
 		case "bmp":
 		case "gif":
 		case "ico":
+		case "png":
 			prop_plugin_img(fullfname);
 			break;
 		case "ts":
@@ -565,7 +587,7 @@ function ni() {
 <body onload="init()">
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Extensions-filemgr=}{=var-set:menu=File Manager (1.0.0)=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=File Manager (1.0.0)=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		
 	<table class="mform" width="100%" border="0">

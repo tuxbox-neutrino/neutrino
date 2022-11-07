@@ -452,7 +452,11 @@ data/weather/Makefile
 data/webradio/Makefile
 data/webtv/Makefile
 data/y-web/Makefile
+data/y-web/favicon/Makefile
 data/y-web/images/Makefile
+data/y-web/info/Makefile
+data/y-web/jquery/Makefile
+data/y-web/lcd4linux/Makefile
 data/y-web/languages/Makefile
 data/y-web/scripts/Makefile
 data/y-web/styles/Makefile

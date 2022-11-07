@@ -1,0 +1,180 @@
+{=var-set:cancache==}
+{=var-set:channelnr={=script:Y_v3_Tools getline /tmp/lcd/channelnr=}=}
+{=var-set:duration={=script:Y_v3_Tools getline /tmp/lcd/duration=}=}
+{=var-set:end={=script:Y_v3_Tools getline /tmp/lcd/end=}=}
+{=var-set:event_curr={=script:Y_v3_Tools getline /tmp/lcd/event 1=}=}
+{=var-set:event_next={=script:Y_v3_Tools getline /tmp/lcd/event 2=}=}
+{=var-set:logo={=script:Y_v3_Tools getline /tmp/lcd/logo=}=}
+
+{=var-set:mode_timer={=script:Y_v3_Tools getline /tmp/lcd/mode_timer=}=}
+{=var-set:mode_rec={=script:Y_v3_Tools getline /tmp/lcd/mode_rec=}=}
+{=var-set:mode_tshift={=script:Y_v3_Tools getline /tmp/lcd/mode_tshift=}=}
+{=var-set:mode_logo={=script:Y_v3_Tools getline /tmp/lcd/mode_logo=}=}
+{=var-set:progress={=script:Y_v3_Tools getline /tmp/lcd/progress=}=}
+{=var-set:service={=script:Y_v3_Tools getline /tmp/lcd/service=}=}
+{=var-set:start={=script:Y_v3_Tools getline /tmp/lcd/start=}=}
+{=var-set:tuner={=script:Y_v3_Tools getline /tmp/lcd/tuner=}=}
+{=var-set:volume={=script:Y_v3_Tools getline /tmp/lcd/volume=}=}
+
+{=include-block:Y_Blocks.txt;head_v3=}
+<meta http-equiv="refresh" content="15; URL=yinfo.yhtm">
+
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
+<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#01094b">
+<link rel="manifest" href="/info/manifest.json">
+<meta name="theme-color" content="#01094b">
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function(){
+	var time = new Date();
+	var hours = time.getHours();
+	var minutes = time.getMinutes();
+	if (hours < 10)
+		hours = "0" + hours;
+	if (minutes < 10)
+		minutes = "0" + minutes;
+
+	jQuery('#progress').css({ width: "{=var-get:progress=}%"});
+	jQuery('#clock').html(hours+':'+minutes);
+	jQuery('html head').find('title').text("yInfo");
+});
+//-->//]]>
+</script>
+<style type="text/css">
+/*<![CDATA[*/
+
+/* globals */
+html {
+	margin: 0;
+	padding: 0;
+}
+body {
+	background-color: #01094b;
+	color: #bdbdbd;
+	height: 100%;
+	margin: 5% 2.5%;
+}
+.yinfo {
+	margin: 0 auto;
+	font-size: 5vh;
+	padding: 0;
+}
+.yinfo .left {
+	float: left;
+}
+.yinfo .right {
+	float: right;
+}
+
+/* positions */
+.yinfo .fullwidth {
+	position: fixed;
+	width: 95%;
+}
+.yinfo .status {
+	top: 5%;
+}
+.yinfo .logo {
+	top: 25%;
+}
+.yinfo .eventinfo {
+	bottom: 5%;
+}
+
+/* design */
+.yinfo .status span {
+	color: #c2c2c2;
+	letter-spacing: .1em;
+}
+
+
+
+.yinfo .status .timer {
+	color: {=if-equal:{=var-get:mode_timer=}~on~#ffeb3b~#c2c2c2=}
+}
+.yinfo .status .rec {
+	color: {=if-equal:{=var-get:mode_rec=}~on~#f44336~#c2c2c2=}
+}
+.yinfo .status .ts {
+	color: {=if-equal:{=var-get:mode_tshift=}~on~#f44336~#c2c2c2=}
+}
+.yinfo .logo,
+.yinfo .event {
+	vertical-align: middle;
+	text-align: center;
+	font-size: 10vh;
+	font-weight: bold;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.yinfo .logo img {
+	display: block;
+	margin: 0 auto;
+	height: 20vh;
+	max-width: 90vw;
+	object-fit: contain;
+}
+.yinfo .progress_outer {
+	height: 10vh;
+	background-color: #c2c2c2;
+}
+.yinfo .progress_inner {
+	float: left;
+	background-color: #bdbdbd;
+	width: 0;
+	height: 100%;
+}
+.yinfo .spacer {
+	margin-bottom: 5vh;
+}
+/*]]>*/
+</style>
+</head>
+
+<body>
+	<div class="yinfo">
+
+		<div class="fullwidth status">
+			<div class="left">
+				<span class="timer">TIMER</span>
+				<span class="rec">REC</span>
+				<span class="ts">TS</span>
+			</div>
+		</div>
+		<div class="clear"></div>
+
+		<div class="fullwidth logo">
+		{=if-equal:{=var-get:mode_logo=}~1~
+			<img src="{=var-get:logo=}" alt="{=var-get:service=}">
+		~
+			{=var-get:service=}
+		=}
+		</div>
+		<div class="clear"></div>
+
+		<div class="fullwidth eventinfo">
+			<div class="event">
+				{=var-get:event_curr=}
+			</div>
+			<div class="spacer"></div>
+			<div class="progress_outer">
+				<div id="progress" class="progress_inner"></div>
+			</div>
+			<div class="spacer"></div>
+			<div class="time">
+				<div class="left" id="clock">
+					00:00
+				</div>
+				<div class="right">
+					{=var-get:duration=}
+				</div>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+</body>
+</html>

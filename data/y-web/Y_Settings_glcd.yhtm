@@ -62,7 +62,7 @@ function do_submit()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-LCD=}{=var-set:menu=GLCD Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=GLCD Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -117,9 +117,9 @@ function do_submit()
 		</table>
 		<br />
 		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;glcd_save_settings;nix" />
-		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>&nbsp;
-		<button type="button" ytype="refresh" onclick="stb_reload_neutrino()">reload Neutrino</button>&nbsp;
-		<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
+		&nbsp;
+		<button type="button" ytype="refresh" onclick="stb_reload_neutrino()">reload Neutrino</button>
 	</form>
 	</div>
 </div>

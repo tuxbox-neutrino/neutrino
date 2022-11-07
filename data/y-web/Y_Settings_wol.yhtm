@@ -25,7 +25,7 @@ function goto_settings(){
 <body>
 <div class="work_box">
 	<div class="work_box_head">
-	<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-Wake_on_LAN=}{=var-set:menu=Wake on LAN=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_head_h2">{=var-set:menu=Wake on LAN=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<table border="0" class="y_form_table">

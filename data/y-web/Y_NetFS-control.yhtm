@@ -1,0 +1,117 @@
+{=var-set:nr=0=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+{=var-set:nr=1=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+{=var-set:nr=2=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+{=var-set:nr=3=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+{=var-set:nr=4=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+{=var-set:nr=5=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+{=var-set:nr=6=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+{=var-set:nr=7=} {=include-block:Y_Blocks.txt;netfs_local_dir=}
+
+{=var-set:nr=0=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+{=var-set:nr=1=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+{=var-set:nr=2=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+{=var-set:nr=3=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+{=var-set:nr=4=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+{=var-set:nr=5=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+{=var-set:nr=6=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+{=var-set:nr=7=} {=include-block:Y_Blocks.txt;netfs_is_mount=}
+
+{=include-block:Y_Blocks.txt;head_v3=}
+<script type="text/javascript">
+//<![CDATA[
+function edit_popup()
+{
+	popup = window.open('/Y_Filemgr_Edit.yhtm?file={=if-file-exists:/var/etc/{=L:v3.netfs-{=mount_type=}=}~/var/etc/{=L:v3.netfs-{=mount_type=}=}~/etc/{=L:v3.netfs-{=mount_type=}=}=}', 'edit', 'width=800,height=600,resizable=yes');
+	check_popup();
+}
+
+function check_popup()
+{
+	if(popup.closed == true)
+	{
+		restart_menu();
+	}
+	else
+	{
+		wait_for_popup();
+	}
+}
+
+function wait_for_popup()
+{
+	window.setTimeout("check_popup()", 10);
+}
+
+function restart_menu()
+{
+	alert('{=L:v3.netfs-control.restart_menu=}');
+	window.document.location.href='/Y_NetFS-init.yhtm?mount_type={=mount_type=}&mount_type_s={=mount_type_s=}';
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text={=L:v3.netfs-control.title=}<br/>=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:v3.netfs-control.title=}=}{=include-block:Y_Blocks.txt;work_menu=}
+	</div></div>
+	<div class="work_box_body">
+	<table class="y_invisible_table" cellpadding="5">
+		<tr>
+			<td class="y_form_header" width="30%">
+				{=L:v3.netfs-control.entrys=} {=L:v3.netfs-{=mount_type=}=}
+			</td>
+			<td class="y_form_header">
+				<a href="javascript:edit_popup();" title="{=L:v3.edit=}: {=L:v3.netfs-{=mount_type=}=}">
+					<img src="/images/modify.png">
+				</a>
+				{=if-equal:{=mount_type=}~0~
+				<a href="javascript:Y_v3_Tools('do_mount_all', 5000);" title="{=L:v3.netfs-control.mount_all=}">
+					<img src="/images/server_add.png">
+				</a>
+				<a href="javascript:Y_v3_Tools('do_umount_all', 5000);" title="{=L:v3.netfs-control.umount_all=}">
+					<img src="/images/server_delete.png">
+				</a>
+				~
+				=}
+				{=if-equal:{=mount_type=}~1~
+				<a href="javascript:Y_v3_Tools('do_autofs restart', 5000);" title="{=L:v3.netfs-control.autofs_restart=}">
+					<img src="/images/server_link.png">
+				</a>
+				~
+				=}
+			</td>
+		</tr>
+		{=var-set:nr=0=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+		{=var-set:nr=1=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+		{=var-set:nr=2=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+		{=var-set:nr=3=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+		{=var-set:nr=4=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+		{=var-set:nr=5=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+		{=var-set:nr=6=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+		{=var-set:nr=7=} {=include-block:Y_Blocks.txt;netfs_table_row=}
+	</table>
+	<br />
+	<button type="button" ytype="save" title="{=L:v3.save=}: {=L:v3.netfs-{=mount_type=}=}" onclick="$('out').update(''); goUrl('/y/cgi?execute=func:netfs_write_config {=mount_type=}')">{=L:v3.save=}</button>
+	{=if-equal:{=mount_type=}~1~
+	<button type="button" ytype="refresh" title="{=L:v3.netfs-control.autofs_restart=}" onclick="Y_v3_Tools('do_autofs restart', 5000)">{=L:v3.reload=}</button>
+	~
+	=}
+	</div>
+</div>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="out"></div>
+	</div>
+</div>
+</body>
+</html>

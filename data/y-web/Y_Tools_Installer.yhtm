@@ -38,7 +38,7 @@ function init(){
 <body onload="init()">
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Help-Tools-yInstaller=}{=var-set:menu={=L:tools.yinstaller.head=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:tools.yinstaller.head=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;installer" target="out">
 			{=L:tools.yinstaller.tar_file=}:&nbsp;<input type="file" name="filename" size="70"/>&nbsp;<br/>

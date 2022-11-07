@@ -23,6 +23,7 @@ function init(){
 		<div class="y_menu_sec_section">{=L:main.tools=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_tools">
+				{=comment:NI - disable automounter~
 				<li>
 					{=if-empty:{=var-get:automount=}~
 					<a href="javascript:void(0)" class="disabled" title="{=L:tools.not_installed=}">{=L:tools.automount=}</a>
@@ -33,12 +34,30 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 					=}
 				</li>
+				=}
 				<li>
 					{=var-set:m_link_href=Y_Settings_mount_liste.yhtm=}
 					{=var-set:m_link_desc={=L:tools.mounts_desc=}=}
 					{=var-set:m_link_text={=L:tools.mounts=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
+<!--
+				<li>{=L:v3.netfs-control=}</li>
+				<ul style="margin-left: 1em">
+					<li>
+						{=var-set:m_link_href=Y_NetFS-init.yhtm?mount_type=0&mount_type_s=fstab=}
+						{=var-set:m_link_desc=fstab-{=L:tools.mounts=}=}
+						{=var-set:m_link_text=/var/etc/fstab=}
+						{=include-block:Y_Blocks.txt;management_link=}
+					</li>
+					<li>
+						{=var-set:m_link_href=Y_NetFS-init.yhtm?mount_type=1&mount_type_s=automount=}
+						{=var-set:m_link_desc={=L:tools.automount=}=}
+						{=var-set:m_link_text=/var/etc/auto.net=}
+						{=include-block:Y_Blocks.txt;management_link=}
+					</li>
+				</ul>
+-->
 				<li>
 					{=var-set:m_link_href=Y_Filemgr.yhtm=}
 					{=var-set:m_link_desc={=L:tools.filemgr_desc=}=}
@@ -55,6 +74,12 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 					=}
 				</li>
+				<li>
+					{=var-set:m_link_href=Y_m3uConvert.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text=m3uConvert=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">{=L:tools.expert=}</div>
@@ -68,7 +93,7 @@ function init(){
 					{=var-set:m_link_desc==}
 					{=var-set:m_link_text={=L:tools.command_shell=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
-					<a class="y_menu_popup_link" title="{=L:tools.command_shell=} (popup)" href="javascript:cmd_popup()"><img src="/images/popup.png"/></a>
+					<a title="{=L:tools.command_shell=} (popup)" href="javascript:cmd_popup()" class="y_menu_popup_link" ><img src="/images/popup.png"/></a>
 				</li>
 			</ul>
 		</div>
@@ -78,12 +103,14 @@ function init(){
 				<li>
 					<a target="work" href="Y_Tools_Check_Install.yhtm">{=L:tools.check_install=}</a>
 				</li>
+				{=comment:NI - disable yInstaller~
 				<li>
 					{=var-set:m_link_href=Y_Tools_Installer.yhtm=}
 					{=var-set:m_link_desc==}
 					{=var-set:m_link_text=yInstaller=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
+				=}
 			</ul>
 		</div>
 	</div>

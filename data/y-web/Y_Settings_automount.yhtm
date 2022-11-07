@@ -4,7 +4,7 @@
 //<![CDATA[
 function automount_edit()
 {
-	var mstr = loadSyncURL("/control/exec?Y_Tools&automount_getline&{=if-file-exists:/var/etc/auto.net~/var/etc/auto.net~/etc/auto.net=}&{=R1=}");
+	var mstr = loadSyncURL("/control/exec?Y_Tools&automount_getline&/var/etc/auto.net&{=R1=}");
 	mstr = mstr.replace(/\t/gi," ");
 	mstr = mstr.replace(/[ ]+/gi," ");
 
@@ -133,7 +133,7 @@ function change_type()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-AutoMount=}{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		<div class="work_box_head_h2">{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<input type="hidden" name="nr" value="{=R1=}"/>

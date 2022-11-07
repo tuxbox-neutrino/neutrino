@@ -1,1 +1,0 @@
-type:u,site:Tuxbox-Neutrino,desc:yWeb extentions,url:https://raw.githubusercontent.com/tuxbox-neutrino/gui-yweb/master/Y_Extentions.txt

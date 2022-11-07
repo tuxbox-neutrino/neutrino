@@ -106,7 +106,7 @@ function do_rename(){
 	position: absolute;
 	left: 100px;
 	top: 100px;
-	border: 1px solid #2188e0;
+	border: 1px solid #132cfd;
 	border-collapse: collapse;
 	background-color: white;
 	padding: 1em;
@@ -116,7 +116,7 @@ function do_rename(){
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Bouquet-Editor=}{=var-set:menu={=L:set.menue.bouquet_editor=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.menue.bouquet_editor=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="add" class="fly_form">
 			<form name="add" accept-charset="UTF-8" action="">

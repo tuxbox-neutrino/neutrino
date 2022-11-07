@@ -1,0 +1,97 @@
+{=include-block:Y_Blocks.txt;head_v3=}
+<script type="text/javascript">
+//<![CDATA[
+function form_init()
+{
+	if (document.f.type[0].checked == 1)
+	{
+		document.f.username.disabled=true;
+		document.f.password.disabled=true;
+	}
+	else
+	{
+		document.f.username.disabled=false;
+		document.f.password.disabled=false;
+	}
+}
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body onload="form_init()">
+{=var-set:wait_text={=L:v3.netfs-control.title=}<br/>=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:v3.netfs-control.title=} ({=L:v3.edit=}: {=L:v3.netfs-{=mount_type=}=} - {=nr=})=}{=include-block:Y_Blocks.txt;work_menu=}
+	</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<input type="hidden" name="mount_type" value="{=mount_type=}"/>
+		<input type="hidden" name="mount_type_s" value="{=mount_type_s=}"/>
+		<input type="hidden" name="nr" value="{=nr=}"/>
+		<table border="0" class="y_form_table">
+			<tr>
+				<td>{=L:v3.netfs-control.type=}</td>
+				<td>
+					<input onclick="form_init();" type="radio" name="type" value="0" {=if-equal:{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_type_{=nr=}~open=}~0~checked="checked"~=} />NFS
+					<input onclick="form_init();" type="radio" name="type" value="1" {=if-equal:{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_type_{=nr=}~cache=}~1~checked="checked"~=} />CIFS
+				</td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.ip=}</td>
+				<td><input type="text" name="ip" size="15" maxlength="15" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_ip_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.dir=}</td>
+				<td><input type="text" name="dir" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_dir_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.local_dir=}</td>
+				<td><input type="text" name="localdir" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_local_dir_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.options=} 1</td>
+				<td><input type="text" name="opt1" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_mount_options1_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.options=} 2</td>
+				<td><input type="text" name="opt2" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_mount_options2_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.user=}</td>
+				<td><input type="text" name="username" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_username_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.password=}</td>
+				<td><input type="text" name="password" size="30" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_password_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.dump=}</td>
+				<td><input type="text" name="dump" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_dump_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.pass=}</td>
+				<td><input type="text" name="pass" size="3" maxlength="3" value="{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_pass_{=nr=}~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:v3.netfs-control.active=}</td>
+				<td>
+					<input type="radio" name="active" value="1" {=if-equal:{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_active_{=nr=}~cache=}~1~checked="checked"~=} />{=L:on=}
+					<input type="radio" name="active" value="0" {=if-equal:{=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_active_{=nr=}~cache=}~0~checked="checked"~=} />{=L:off=}
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_NetFS-control.yhtm"/>
+		<input type="hidden" name="execute" value="func:netfs_set_values"/>
+		<button type="button" ytype="accept_" title="ok" onClick="do_submit()">OK</button>
+		<button type="button" ytype="cancel_" title="{=L:cancel=}" name="abort" onClick='window.document.location.href="/Y_NetFS-control.yhtm?mount_type={=mount_type=}&mount_type_s={=mount_type_s=}"'>{=L:v3.cancel=}</button>
+	</form>
+	</div>
+</div>
+</body>
+</html>

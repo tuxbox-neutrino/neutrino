@@ -76,7 +76,7 @@ else
 /* Class Y.extension */
 Y.extension = new Class.create();
 Object.extend(Y.extension.prototype, {
-	ext_version: 1, /* ver of Y.extention*/
+	ext_version: 1, /* ver of Y.extension*/
 	conf_version: 2,/* ver of local conf file */
 	upd_version: 2, /* ver of upd file */
 	file: "",

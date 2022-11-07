@@ -7,6 +7,7 @@
 function init(){
 	add_yExtensions('settings_general', 'secmenu_general');
 	add_yExtensions('settings_neutrino', 'secmenu_neutrino');
+	add_yExtensions('settings_camds', 'secmenu_camds');
 	add_yExtensions('settings_plugins', 'secmenu_plugins');
 }
 </script>
@@ -79,6 +80,11 @@ function init(){
 					{=var-set:m_link_text={=L:set.menue.pictureviewer=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_xmltv.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.xmltv=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 				{=if-equal:{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_enable;0=}~1~
 				<li>
 					{=var-set:m_link_href=Y_Settings_glcd.yhtm=}
@@ -103,11 +109,6 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>
-					{=var-set:m_link_href=Y_Settings_xmltv.yhtm=}
-					{=var-set:m_link_text={=L:set.menue.xmltv=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				<li>
 					{=var-set:m_link_href=Y_Settings_buttons.yhtm=}
 					{=var-set:m_link_text={=L:set.menue.key_settings=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
@@ -125,10 +126,23 @@ function init(){
 				-->
 			</ul>
 		</div>
+
+
+
+
+
+
+
+
+
+
 		<div class="y_menu_sec_section">{=L:plugins=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_plugins">
 				<li>
+					{=var-set:m_link_href=Y_Plugin-control.yhtm=}
+					{=var-set:m_link_text={=L:v3.plugin-control=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 			</ul>
 		</div>

@@ -109,13 +109,15 @@ function vlc() {
 			<td>
 				<span class="control_icon">
 					<a target="base" href="Y_Tools_Screenshot.yhtm?osd=1" title="{=L:main.remote_full_desc=}"><img src="/images/fb.png"></a>
+<!--					<a target="blank" href="info/yinfo.yhtm" title="{=L:v3.infopage=}"><img src="/images/info.png"></a>-->
 					<a href="javascript:vlc()" title="{=L:main.stream_to_vlc_client_desc=}"><img src="/images/vlc.png"></a>
 				</span>
 			</td>
 			<td align="right">
 				<span id="state" style="color : red;font-family: Courier New, Courier, monospace;">&nbsp;</span>
 				<span id="box_name" {=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_color=}~~style="color : #{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_color=};"=}>
-					{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}</span>
+					<!-- hostname,-->
+					{=if-equal:{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}~${HOSTNAME}~{=script:Y_Tools get_hostname=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}=}</span>
 				<span id="clock">00:00</span>
 			</td>
 		</tr>

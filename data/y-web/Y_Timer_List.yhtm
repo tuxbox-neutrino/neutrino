@@ -6,7 +6,7 @@
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Live_Timer-Timer=}{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 <table class="timer">
 <tr class="timer_header">
@@ -40,7 +40,7 @@
 {=func:get_timer_list {=var-get:row=}=}
 
 <tr class="timer_footer">
-	<td colspan="6"><img src="/images/blank.gif" width="1" height="1"/></td>
+	<td colspan="6"><img src="/images/blank.png" width="1" height="1"/></td>
 	<td>
 		<a href="/Y_Timer_Edit.yhtm?typ=new">
 		<img src="/images/new.png" alt="neuer Timer"/></a>

@@ -1,5 +1,6 @@
 {=include-block:Y_Blocks.txt;head_no_charset=}
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<link rel="stylesheet" type="text/css" href="/Y_v3.css" />
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/Y_EPG.js"></script>
@@ -11,7 +12,7 @@
 {=var-set:wait_text={=L:epg.get_epg=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Live_Timer-EPG_Plus=}{=var-set:menu={=L:epg.epg_plus=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:epg.epg_plus=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<form name="e">
 			<select size="1" class="y_live_bouquets" name="bouquets" title="{=L:epg.select_bouquet=}">

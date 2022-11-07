@@ -33,7 +33,7 @@ function sLog_addRow(_body, state, action_text, state_text){
 var update_body;
 /*<upd_site>,<type=n|m>,<link text>,<link helptext>,<url>,<unique tag>,<version>,<url of installer>*/
 /*<type=n|m>,<link text>,<link helptext>,<url>,<unique tag>,<version>*/
-/*<type=u>,<update site name>,<update site helptext>,<url of extention list>*/
+/*<type=u>,<update site name>,<update site helptext>,<url of extension list>*/
 function list_init(){
 	update_body=$("update_list");
 }
@@ -150,7 +150,7 @@ function do_set_updates2(){
 	}
 	sLog_addRow(sLog_body, "green", "updating local extension list. Starting ...", "ok");
 	var extfile=ext.build_extension_file();
-	document.f.extentions.value=extfile;
+	document.f.extensions.value=extfile;
 	show_waitbox(false);
 	alert("Update finished. Menue reload.");
 	do_submit();
@@ -217,7 +217,7 @@ function do_uninstall2(tag){
 		sLog_addRow(sLog_body, "green", "uninstalled: "+tag+"<br/>"+res, "ok");
 	sLog_addRow(sLog_body, "green", "updating local extension list. Starting ...", "ok");
 	var extfile=ext.build_extension_file();
-	document.f.extentions.value=extfile;
+	document.f.extensions.value=extfile;
 	show_waitbox(false);
 	alert("Update finished. Menue reload.");
 	do_submit();
@@ -236,7 +236,7 @@ function uninstall_build_list2(){
 	/*build_list*/
 	i=0;
 	ext.installed_extensions.sortBy(function(e){return e.get('tag');}).each(function(e){
-		res=loadSyncURL("/y/cgi?execute=if-file-exists:%(CONFIGDIR)/ext/"+e.get('tag')+"_uninstall.inc~1~0");
+		res=loadSyncURL("/y/cgi?execute=if-file-exists:%(CONFIGDIR)/y-ext/"+e.get('tag')+"_uninstall.inc~1~0");
 		uninstall_list_addRow(update_body,++i,e,res=="1");
 	});
 	$('statusline').hide();

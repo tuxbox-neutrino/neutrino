@@ -1,0 +1,78 @@
+{=include-block:Y_Blocks.txt;head_v3=}
+	<style type="text/css">
+		#InputOutputField
+		{
+			display: none;
+			font-weight: bold;
+			text-align: left;
+			padding: 1em 0;
+			margin: 1em 0;
+			color: #a0a0a0;
+			border: 1px dashed #555;
+			border-radius: 5px;
+			cursor: default;
+			min-width: 50%;
+			max-width: 100%;
+		}
+
+		#InputOutputField.hover
+		{
+			color: #132cfd;
+			border-color: #132cfd;
+			border-style: solid;
+			box-shadow: inset 0 3px 4px #888;
+		}
+
+		#messages
+		{
+			padding: 0 10px;
+			margin: 1em 0;
+			border: 1px solid #a0a0a0;
+		}
+	</style>
+
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	m3uConvert
+	</div></div>
+	<div class="work_box_body">
+		<table class="y_invisible_table" cellpadding="5" width="100%">
+			<tr><td class="y_form_header" colspan="2">Anleitung zu <b>m3uConvert</b></td></tr>
+			<tr>
+				<td>
+      <p>Mit m3uConvert ist es möglich, m3u-Playlisten in das webtv_usr.xml Format von Neutrino HD zu konvertieren.</p>
+     	 </td>
+			</tr>   
+			<tr><td class="y_form_header" colspan="2">Info zur Verarbeitung</td></tr>
+				<td>
+				<p>Die Verarbeitung der vorhandenen m3u Playlists (Dateien oder Links) kann auf 3 Arten erfolgen:</p>
+         <p><LI>die Links direkt per <b><u>Copy & Paste</u></b> in die Inputbox einfügen</LI>
+            <LI>eine/mehrere Datei/en per <b><u>Drag & Drop</u></b> auf die Inputbox ziehen/loslassen</LI>
+			      <LI>die m3U Dateien direkt über den Button <b><u>importieren</u></b></LI></p>
+			  <p>Bei Darstellungsproblemen von Umlauten, wähle die	korrekte Kodierung dieser Datei. Ziel ist es, dass die Umlaute in der Inputbox korrekt dargestellt werden.</p>
+				<p>Danach kann noch unter Punkt 2 der webtv-Titel und das Genre (beides wird in der Bouquet-Liste angezeigt) und eine Stream-Beschreibung, die dann bei den einzelnen Links gesetzt wird, eingetragen werden. 
+				Diese Information wird dann an der Box entsprechend angezeigt.</p>
+				<p>Mit Punkt 3 wird der Inhalt der Inputbox in das webtv Format für NeutrinoHD konvertiert.</p>
+		
+				</td> 
+			</tr>   
+			<tr><td class="y_form_header" colspan="2">Info zum Export, Speichern oder zur Box übertragen</td></tr>
+				<td>
+				<p>Das Ergebnis der Konvertierung, also die fertigen Einträge können auf zwei Arten exportiert bzw. weiterverarbeitet werden.</p>
+				<p>Dazu muss zuerst unter Punkt 4 der Dateiname angeben werden (default: webtv_usr.xml). Dieser Name wird für die drei Möglichkeiten entsprechend genutzt.</p>
+				<p><LI><p><b><u>Datei online bearbeiten/erstellen</u></b>: Existiert auf der Box bereits eine Datei mit diesem Namen, wird diese im separaten Editor Fenster geöffndet. Hier hat man nun die Möglichkeit neue Links aus der Inputbox direkt per Copy/Paste einzufügen, Sortierung zu ändern etc. In dem Editorfenster, kann man mit dem Speichern Button die Datei wieder zurück auf die Box schreiben.</p>
+				       <p>Wenn es auf der Box KEINE Datei mit diesem Namen gibt, wird über diesen Weg eine neue leere Datei auf der Box angelegt!</p>
+				       <p>Man kann den Ort der Datei wählen: %(WEBTVDIR_VAR)/ = hier wird die Datei automatisch nach Boxstart geladen  ODER %(CONFIGDIR)/ = hier muss die Datei manuell im Menü angemeldet werden (siehe unten)!</p></LI>
+			     <LI><b><u>Download auf PC</u></b>: Der komplette Inhalt der Inputbox wird über die Download-Funktion vom Internetbrowser auf dem PC gespeichert. </LI>
+			  </p>
+			  <p>Wenn egal über welchen Weg, neue webtv-Dateien auf die Box übertragen werden, muss im Menü der Box unter -Einstellungen - Multimedia - WebTV- die neue Datei hinzugefügt werden.<br>
+			  Bei einem Update einer vorhandenen Datei genügt unter Services ein Kanallisten neu laden.</p>
+			  <p>fertig.</p>
+				</td>
+			</tr>   
+
+</body>
+</html>
+

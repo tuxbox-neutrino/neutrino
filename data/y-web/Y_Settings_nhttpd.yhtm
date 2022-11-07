@@ -16,7 +16,7 @@ function form_init()
 }
 function do_submit()
 {
-	if(document.f.authpassword.value.length < 5)
+	if(document.f.authpassword.value.length < 2)
 		alert("{=L:set.nhttpd.check_password=}");
 	else
 	if(document.f.port.value == "")
@@ -41,7 +41,7 @@ function do_check_input_LogosURL()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-WebServer=}{=var-set:menu={=L:set.nhttpd.webserver=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.nhttpd.webserver=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" width="100%">

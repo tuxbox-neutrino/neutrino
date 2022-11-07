@@ -50,7 +50,7 @@ function do_reload(){
 <body onload="do_snapshot();">
 <div class="work_box" id="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url==}{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="screenshot_header">
 		<div id="buttons" style="display: block">

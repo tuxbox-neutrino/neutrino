@@ -1,5 +1,6 @@
 {=include-block:Y_Blocks.txt;head_no_charset=}
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
+<link rel="stylesheet" type="text/css" href="/Y_v3.css" />
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
@@ -20,7 +21,7 @@ function do_stream(channelid, channelname)
 	saveTextAsFile(plist, title, type);
 }
 function do_streaminfo() {
-	window.open("Y_StreamInfo.yhtm", "stream", "width=400");
+	window.open("Y_StreamInfo.yhtm", "stream", "width=520");
 }
 //]]>
 </script>

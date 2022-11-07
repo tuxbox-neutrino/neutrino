@@ -413,7 +413,7 @@ std::string yExecuteScript(std::string cmd) {
 		script = cmd;
 	// get file
 	std::string fullfilename;
-	script += ".sh"; //add script extention
+	script += ".sh"; //add script extension
 
 	char cwd[255];
 	getcwd(cwd, 254);

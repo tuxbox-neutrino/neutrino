@@ -17,11 +17,12 @@ function goUrl(_url){
 }
 function set_btn_standby(){
 	var res = trim(loadSyncURL("/control/standby"));
-	var color = "red";
+	var color = "gray";
 	switch(res){
 		case "off": color = "green"; break;
+		case "on":  color = "red";   break;
 	}
-	$("btn_standby").setStyle({borderColor: color});
+	document.getElementById('btn_standby').style.borderColor = color;
 }
 function standby(_standby){
 	var _cec = (document.getElementById('checkCEC').checked == true) ? "on" : "off";
@@ -29,17 +30,15 @@ function standby(_standby){
 }
 function init() {
 	set_btn_standby();
-}
-function get_data() {
-	set_btn_standby();
+	window.setInterval("set_btn_standby();", 5000);
 }
 //]]>
 </script>
 </head>
-<body>
+<body onload="init()">
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Control=}{=var-set:menu={=L:bc.menue.control=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bc.menue.control=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form action="">
 		<table class="y_invisible_table" cellpadding="5" width="100%">
@@ -108,7 +107,7 @@ function get_data() {
 </div>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Control=}{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="out"></div>
 	</div>

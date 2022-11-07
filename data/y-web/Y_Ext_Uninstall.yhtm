@@ -13,18 +13,23 @@ function init(){
 </script>
 <style>
 .type, .uninstall{
-	text-align:center;;
+	text-align: center;
 }
 </style>
 </head>
 <body onload="init()">
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
-	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Extensions-Uninstall=}{=var-set:menu={=L:ext.uninstaller=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_head">
+		<div class="work_box_head_h2">
+			{=var-set:menu={=L:ext.uninstaller=}=}{=include-block:Y_Blocks.txt;work_menu=}
+		</div>
+	</div>
 	<div class="work_box_body">
-		<div id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
-			<span id="status">{=L:ext.search_for_ext=}</span></div>
+		<div id="statusline">
+			<img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
+			<span id="status">{=L:ext.search_for_ext=}</span>
+		</div>
 
 	<form method="post" name="update" action="">
 		<br/>
@@ -32,28 +37,40 @@ function init(){
 		<table class="lt_table" cellspacing="0" cellpadding="2">
 		<thead align="left">
 		<tr valign="bottom">
-			<th>{=L:ext.type=}</th><th>{=L:ext.extension=}</th>
-			<th>{=L:ext.tag=}</th><th>{=L:ext.version=}</th><th>{=L:ext.size=}</th><th>{=L:ext.uninstall=}</th><th>{=L:ext.info=}</th>
+			<th>{=L:ext.type=}</th>
+			<th>{=L:ext.extension=}</th>
+			<th>{=L:ext.tag=}</th>
+			<th>{=L:ext.version=}</th>
+			<th>{=L:ext.size=}</th>
+			<th>{=L:ext.uninstall=}</th>
+			<th>{=L:ext.info=}</th>
 		</tr>
 		</thead>
 		<tbody id="update_list">
-		<tr><td></td></tr>
+		<tr style="display: none">
+			<td></td>
+		</tr>
 		</tbody>
 		</table>
 	</form>
 	<br/>
 	<div id="free">?</div>
-	{=L:ext.free=}:&nbsp;<span id="avaiable">?</span>k
+	<div>{=L:ext.free=}: <span id="avaiable">?</span>k</div>
+	<br/>
 	<form method="post" name="log" action="">
-	<div class="y_form_header_oline">Log</div>
+		<div class="y_form_header_oline">Log</div>
 		<table class="lt_table" cellspacing="0" cellpadding="4">
 		<thead align="left">
 		<tr>
-			<th>&nbsp;</th><th>{=L:ext.action=}</th><th>{=L:ext.status=}</th>
+			<th>&nbsp;</th>
+			<th>{=L:ext.action=}</th>
+			<th>{=L:ext.status=}</th>
 		</tr>
 		</thead>
 		<tbody id="slog_list">
-		<tr><td></td></tr>
+		<tr style="display: none">
+			<td></td>
+		</tr>
 		</tbody>
 		</table>
 		<br/>
@@ -63,7 +80,7 @@ function init(){
 	<form name="f" accept-charset="UTF-8" action="/y/cgi">
 		<table border="0" class="y_form_table" cellspacing="0" cellpadding="0">
 			<tr>
-				<td><textarea name="extentions" cols="90" rows="5" title="extention list"></textarea></td>
+				<td><textarea name="extensions" cols="90" rows="5" title="extension list"></textarea></td>
 			</tr>
 		</table>
 		<br/>
@@ -75,4 +92,3 @@ function init(){
 </body>
 </html>
 {=include-block:Y_Blocks.txt;management_check_bottom=}
-

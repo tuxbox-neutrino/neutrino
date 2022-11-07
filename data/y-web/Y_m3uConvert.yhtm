@@ -1,0 +1,279 @@
+{=include-block:Y_Blocks.txt;head_v3=}
+	<style type="text/css">
+		#InputOutputField
+		{
+			display: none;
+			font-weight: bold;
+			text-align: left;
+			padding: 1em 0;
+			margin: 1em 0;
+			color: #a0a0a0;
+			border: 1px dashed #555;
+			border-radius: 5px;
+			cursor: default;
+			min-width: 50%;
+			max-width: 100%;
+		}
+
+		#InputOutputField.hover
+		{
+			color: #132cfd;
+			border-color: #132cfd;
+			border-style: solid;
+			box-shadow: inset 0 3px 4px #888;
+		}
+
+		#messages
+		{
+			padding: 0 10px;
+			margin: 1em 0;
+			border: 1px solid #a0a0a0;
+		}
+	</style>
+
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	m3uConvert
+	</div></div>
+	<div class="work_box_body">
+		<br/>
+		<table class="y_invisible_table" cellpadding="5" width="85%">
+		  <tr>
+		    <td>Mit <b>m3uConvert</b> ist es möglich, m3u-Playlisten in das webtv_usr.xml Format zu konvertieren.</td>
+		    <td>Zum ersten Mal hier?<br>
+		    <button onClick="window.open('/Y_m3uConInfo.yhtm', '', 'status=0,title=0,height=0,width=1000,scrollbars=1');" title="Info und Anleitung zu m3uConvert">Info und Anleitung</button></td>
+		  </tr>
+			<tr><td class="y_form_header" colspan="2">1. Streams einfügen:</td></tr>
+			<tr>
+				<td colspan="2">
+					<form>
+						<textarea id="InputOutputField" style="width:95%" rows="10" title="Beispiel: 
+#EXTM3U
+#EXTINF:0,DE:RTL
+http://www.xyz.com:8000/live/test/test/377.ts
+#EXTINF:0,DE:ZDF
+http://www.xyz.com:8000/live/test/test/372.ts
+#EXTINF:0,DE:TNT_SERIE
+http://www.xyz.com:8000/live/test/test/376.ts">
+						</textarea>
+					</form>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="fileselect">Datei(en) auswählen:</label>
+					<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
+				</td>
+				<td>
+					m3u-Quelldatei Kodierung:
+					<div><input type="radio" id="ansi" name="SourceEncoding" value="ANSI" checked="checked"><label for="ansi">  ANSI</label></div>
+					<div><input type="radio" id="utf8" name="SourceEncoding" value="UTF-8"><label for="utf8"> UTF-8</label></div>
+				</td>
+			</tr>   
+			<tr><td class="y_form_header" colspan="2">2. Stream-Infos und Beschreibung angeben:</td></tr>
+				<td>
+					Titel: <input id="inputTitel" title="Variablenwert Titel der webtv-Datei ... webtv [xyz]" value="eigene Streams"></input>  Beschreibung: <input id="inputDescription" title="Variablenwert Description in der Datei ... description='Stream'..." value="webtv"></input>  Genre: <input id="inputGenre" title="Variablenwert Genre in der Datei ... genre='Movie'..." value="Movie"></input>
+				</td>
+			</tr>   
+			<tr><td class="y_form_header" colspan="2">3. Inputbox umwandeln in xml-Format:</td></tr>
+				<td>
+					<button onclick="WriteForm();" title="obige m3u in webtv_usr umwandeln">Umwandeln</button>
+				</td>
+			</tr>   
+			<tr><td class="y_form_header" colspan="2">4. Dateiname zum Speichern und Download:</td></tr>
+				<td>
+					<input id="inputFileNameToSaveAs" value="webtv_usr.xml" title="Dateiname zum lokal speichern oder auf der Box aufrufen/erstellen"></input>
+				</td>
+			</tr>
+			<tr><td class="y_form_header" colspan="2">5. Export mit obigem Dateinamen:</td></tr>
+				<td>
+					<div>Datei online bearbeiten/erstellen: <button onclick="oeffnenXML2();" title="Datei mit obigem Namen auf der Box &ouml;ffnen oder erstellen">unter %(WEBTVDIR_VAR)/ (autoload)</button> . <button onclick="oeffnenXML();" title="Datei mit obigem Namen auf der Box &ouml;ffnen oder erstellen">unter %(CONFIGDIR)/ (manuell)</button>
+						Download: <button onclick="saveXML()" title="Download">Download auf PC</button>
+					</div></td>
+			</tr>
+		</table>   
+	</div>
+
+<script language="javascript" type="text/javascript">
+	var textAreas = document.getElementsByTagName('textarea');
+	Array.prototype.forEach.call(textAreas, function(elem)
+	{
+		elem.placeholder = elem.placeholder.replace(/\\n/g, '\n');
+	});
+	String.prototype.trim = function()
+	{
+		return this.replace(/^\s+|\s+$/g, '');
+	};
+
+	function WriteForm(e)
+	{
+		try
+		{
+			e = document.getElementById("InputOutputField");
+			descri = document.getElementById("inputDescription").value;
+			genre = document.getElementById("inputGenre").value;
+			titel = document.getElementById("inputTitel").value;
+			l = e.value.split("\n");
+			s = '<?xml version="1.0"?>\n<webtvs name="[';
+			s += titel;
+			s += '] ">\n';
+			name = '';
+			if (l.length > 1)
+			{
+				for (var i = 0; i < l.length; i++)
+				{
+					v = l[i].trim();
+					if (v == '') continue;
+					if (v.indexOf("#") !== -1)
+					{
+						if (v.toUpperCase().indexOf("#EXTINF") != -1)
+						{
+							ci = v.indexOf(',');
+							if (ci !== -1) name = v.substr(ci + 1);
+						}
+					}
+					else
+					{
+						if (v.trim().toUpperCase().indexOf('UDP:') != -1)
+						{
+							url = v.replace('udp://@', "udp/", "i");
+						}
+						else url = v;
+						// url=url.replace(/:/g,'%3a');
+						name = name.replace(/#EXTINF:|[0-9],|-[1-9],|,/g, '');
+						name = name.replace(/^\s+/g, '');
+						if (name == '') name = 'Kanal ' + i;
+						s += '    <webtv title="';
+						s += name + '" url="';
+						s += url;
+						s += '" epgid="" genre="';
+						s += genre;
+						s += '" description="';
+						s += descri;
+						s += '" />\n';
+						name = '';
+					}
+				}
+				s = s.split('&').join('&amp;');
+				s += '</webtvs>';
+				e.value = s;
+			}
+		}
+		catch (Err)
+		{
+			alert("Error: " + Err.description);
+		}
+		return false;
+	}
+
+	function oeffnenXML()
+	{
+		var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
+		var form = document.createElement('form');
+		form.setAttribute('method', 'post');
+		form.target = 'Map';
+		form.setAttribute('action', '/Y_Filemgr_Edit.yhtm?file=%(CONFIGDIR)/' +
+			fileNameToSaveAs);
+		document.body.appendChild(form);
+		window.open('', 'Map', 'status=0,title=0,height=0,width=1000,scrollbars=0');
+		form.submit();
+	}
+
+	function oeffnenXML2()
+	{
+		var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
+		var form = document.createElement('form');
+		form.setAttribute('method', 'post');
+		form.target = 'Map';
+		form.setAttribute('action', '/Y_Filemgr_Edit.yhtm?file=%(WEBTVDIR_VAR)/' +
+			fileNameToSaveAs);
+		document.body.appendChild(form);
+		window.open('', 'Map', 'status=0,title=0,height=0,width=1000,scrollbars=0');
+		form.submit();
+	}
+
+	function saveXML()
+	{
+		var textToWrite = document.getElementById("InputOutputField").value;
+		var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
+		var type = 'text/plain';
+		saveTextAsFile(textToWrite, fileNameToSaveAs, type);
+	}
+	// getElementById
+	function $id(id)
+	{
+		return document.getElementById(id);
+	}
+	// output information
+	function Output(msg)
+	{
+		var m = $id("InputOutputField");
+		m.value = m.value + msg;
+	}
+	// file drag hover
+	function FileDragHover(e)
+	{
+		e.stopPropagation();
+		e.preventDefault();
+		e.target.className = (e.type == "dragover" ? "hover" : "");
+	}
+	// file selection
+	function FileSelectHandler(e)
+	{
+		// cancel event and hover styling
+		FileDragHover(e);
+		// fetch FileList object
+		var files = e.target.files || e.dataTransfer.files;
+		// process all File objects
+		for (var i = 0, f; f = files[i]; i++)
+		{
+			ParseFile(f);
+		}
+	}
+	// output file information
+	function ParseFile(file)
+	{
+		var reader = new FileReader();
+		reader.onload = function(e)
+		{
+			Output(e.target.result.replace(/</g, "&lt;").replace(/>/g, "&gt;") + "\n");
+		}
+		if (document.getElementById('ansi').checked)
+		{
+			reader.readAsText(file, 'windows-1252');
+		}
+		else
+		{
+			reader.readAsText(file);
+		}
+	}
+	// initialize
+	function Init()
+	{
+		var fileselect = $id("fileselect"),
+			filedrag = $id("InputOutputField");
+		// file select
+		fileselect.addEventListener("change", FileSelectHandler, false);
+		// is XHR2 available?
+		var xhr = new XMLHttpRequest();
+		if (xhr.upload)
+		{
+			// file drop
+			filedrag.addEventListener("dragover", FileDragHover, false);
+			filedrag.addEventListener("dragleave", FileDragHover, false);
+			filedrag.addEventListener("drop", FileSelectHandler, false);
+			filedrag.style.display = "block";
+		}
+	}
+	// call initialization file
+	if (window.File && window.FileList && window.FileReader)
+	{
+		Init();
+	}
+</script>
+
+</body>
+</html>
+
