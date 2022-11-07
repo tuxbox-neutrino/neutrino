@@ -157,6 +157,7 @@ select {
 						<option value="{=var-get:_rc_ax_hd51=}">AX HD51</option>
 						<option value="{=var-get:_rc_ax_hd60=}">AX HD60</option>
 						<option value="{=var-get:_rc_ax_hd61=}">AX HD61</option>
+						<option value="{=var-get:_rc_axas_e4hd=}">E4HD 4K Ultra</option>
 						<option value="{=var-get:_rc_mutant_hd51=}">Mutant HD51</option>
 						<option value="{=var-get:_rc_mutant_hd60=}">Mutant HD60</option>
 						<option value="{=var-get:_rc_maxytec_multiboxse=}">Mayxtec Multibox SE 4K</option>
