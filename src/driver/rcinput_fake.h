@@ -65,6 +65,10 @@
 #define KEY_BOTTOMRIGHT  0x1a5
 #endif
 
+#ifndef KEY_VOD
+#define KEY_VOD		0x273
+#endif
+
 #define KEY_POWERON	KEY_FN_F1
 #define KEY_POWEROFF	KEY_FN_F2
 #define KEY_STANDBYON	KEY_FN_F3

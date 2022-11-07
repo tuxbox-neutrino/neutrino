@@ -191,6 +191,8 @@ class CRCInput
 			RC_bookmarks	= KEY_BOOKMARKS,
 			RC_program	= KEY_PROGRAM,
 			RC_playpause	= KEY_PLAYPAUSE,
+			RC_touchpad_toggle = KEY_TOUCHPAD_TOGGLE,
+			RC_vod		= KEY_VOD,
 
 			RC_f1		= KEY_F1,
 			RC_f2		= KEY_F2,
