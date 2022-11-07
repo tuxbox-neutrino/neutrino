@@ -861,6 +861,7 @@ glcd.align_none none
 glcd.align_right right
 glcd.align_start Event start arrangement
 glcd.align_time Time arrangement
+glcd.background BG Picture
 glcd.bar_width Progressbar width
 glcd.bar_x_position Progressbar x-position
 glcd.bar_y_position Progressbar y-position
@@ -904,6 +905,16 @@ glcd.epg_y_position EPG y-position
 glcd.font Font
 glcd.font_autoresize Auto size
 glcd.head GraphLCD-support
+glcd.icon_cam_x_position Icon CI x-position
+glcd.icon_dd_x_position Icon Audio x-position
+glcd.icon_ecm_x_position Icon Crypt x-position
+glcd.icon_mute_x_position Icon Mute x-position
+glcd.icon_rec_x_position Icon Record x-position
+glcd.icon_timer_x_position Icon Timer x-position
+glcd.icon_ts_x_position Icon Timeshift x-position
+glcd.icon_txt_x_position Icon Radiotext x-position
+glcd.icon_y_percent Icons height
+glcd.icon_y_position Icons y-position
 glcd.logodir Channel logo directory
 glcd.logo_x_position Channel logo x-position
 glcd.logo_y_position Channel logo y-position

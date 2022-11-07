@@ -540,11 +540,11 @@ void cGLCD::Exec()
 		} else {
 			if (txtLocked) {
 				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Green,
+					bitmap->Width() - 1, SmalltextWidth, "rt", &font_smalltext, GLCD::cColor::Green,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
 				drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Gray,
+					bitmap->Width() - 1, SmalltextWidth, "rt", &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}

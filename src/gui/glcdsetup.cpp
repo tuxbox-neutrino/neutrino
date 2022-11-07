@@ -181,6 +181,20 @@ int GLCD_Menu::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "select_background")
+	{
+		CFileBrowser fileBrowser;
+		CFileFilter fileFilter;
+		fileFilter.addFilter("jpg");
+		fileFilter.addFilter("jpeg");
+		fileFilter.addFilter("png");
+		fileBrowser.Filter = &fileFilter;
+		if (fileBrowser.exec(THEMESDIR) == true)
+			t.glcd_background_image = fileBrowser.getSelectedFile()->Name;
+		else
+			t.glcd_background_image = "";
+		return res;
+	}
 	else if (actionKey == "brightness_default")
 	{
 		g_settings.glcd_brightness = GLCD_DEFAULT_BRIGHTNESS;
@@ -457,11 +471,13 @@ int GLCD_Menu::GLCD_Theme_Settings()
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	//sigc::slot0<void> slot_repaint = sigc::mem_fun(gts, &CMenuWidget::paint); //we want to repaint after changed Option
 
-	gts->addItem(new CMenuForwarder(LOCALE_GLCD_THEME, true, NULL, CGLCDThemes::getInstance(), NULL, CRCInput::RC_red));
+	gts->addItem(new CMenuForwarder(LOCALE_GLCD_THEME, true, NULL, CGLCDThemes::getInstance(), NULL, CRCInput::RC_0));
 
 	gts->addItem(GenericMenuSeparatorLine);
 
-	gts->addItem(new CMenuForwarder(LOCALE_GLCD_FONT, true, t.glcd_font, this, "select_font", CRCInput::RC_green));
+	gts->addItem(new CMenuForwarder(LOCALE_GLCD_FONT, true, t.glcd_font, this, "select_font", CRCInput::RC_red));
+
+	gts->addItem(new CMenuForwarder(LOCALE_GLCD_BACKGROUND, true, t.glcd_background_image, this, "select_background", CRCInput::RC_green));
 
 	gts->addItem(new CMenuForwarder(LOCALE_GLCD_POSITION_SETTINGS, t.glcd_position_settings, NULL, this, "position_settings", CRCInput::RC_yellow));
 
@@ -595,6 +611,29 @@ int GLCD_Menu::GLCD_Theme_Position_Settings()
 
 	gtps->addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_WEATHER, &t.glcd_weather,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
+
+	gtps->addItem(GenericMenuSeparatorLine);
+
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_Y_PERCENT,
+				&t.glcd_icons_percent, true, 0, 100, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_Y_POSITION,
+				&t.glcd_icons_y_position, true, 0, oled_height, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_CAM_X_POSITION,
+				&t.glcd_icon_cam_x_position, true, 0, oled_width, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_DD_X_POSITION,
+				&t.glcd_icon_dd_x_position, true, 0, oled_width, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_ECM_X_POSITION,
+				&t.glcd_icon_ecm_x_position, true, 0, oled_width, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_MUTE_X_POSITION,
+				&t.glcd_icon_mute_x_position, true, 0, oled_width, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_REC_X_POSITION,
+				&t.glcd_icon_rec_x_position, true, 0, oled_width, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_TIMER_X_POSITION,
+				&t.glcd_icon_timer_x_position, true, 0, oled_width, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_TS_X_POSITION,
+				&t.glcd_icon_ts_x_position, true, 0, oled_width, this));
+	gtps->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_TXT_X_POSITION,
+				&t.glcd_icon_txt_x_position, true, 0, oled_width, this));
 
 	int res = gtps->exec(NULL, "");
 	delete gtps;

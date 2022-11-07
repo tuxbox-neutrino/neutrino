@@ -861,6 +861,7 @@ glcd.align_none keine
 glcd.align_right rechts
 glcd.align_start Sendungsstart ausrichten
 glcd.align_time Uhrzeit ausrichten
+glcd.background BG Bild
 glcd.bar_width Fortschrittsbalken Weite
 glcd.bar_x_position Fortschrittsbalken x-Position
 glcd.bar_y_position Fortschrittsbalken y-Position
@@ -904,6 +905,16 @@ glcd.epg_y_position EPG y-Position
 glcd.font Schrift
 glcd.font_autoresize Automatische Schriftgröße
 glcd.head GraphLCD-Unterstützung
+glcd.icon_cam_x_position Icon CI x-Position
+glcd.icon_dd_x_position Icon Ton x-Position
+glcd.icon_ecm_x_position Icon Verschlüsselung x-Position
+glcd.icon_mute_x_position Icon Mute x-Position
+glcd.icon_rec_x_position Icon Aufnahme x-Position
+glcd.icon_timer_x_position Icon Timer x-Position
+glcd.icon_ts_x_position Icon Timeshift x-Position
+glcd.icon_txt_x_position Icon Radiotext x-Position
+glcd.icon_y_percent Icons Höhe
+glcd.icon_y_position Icons y-Position
 glcd.logodir Senderlogo-Verzeichnis
 glcd.logo_x_position Senderlogo x-Position
 glcd.logo_y_position Senderlogo y-Position
