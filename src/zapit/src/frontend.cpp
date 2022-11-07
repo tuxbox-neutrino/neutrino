@@ -347,7 +347,9 @@ void CFrontend::Init(void)
 	mutex.lock();
 	// Set the voltage to On, and wait voltage to become stable
 	// and wait for diseqc equipment to be ready.
+#if !BOXMODEL_E4HDULTRA
 	secSetVoltage(SEC_VOLTAGE_13, 100);
+#endif
 	secSetTone(SEC_TONE_OFF, 20);
 	setDiseqcType((diseqc_t) config.diseqcType, true);
 	setTsidOnid(0);
