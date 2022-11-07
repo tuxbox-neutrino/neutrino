@@ -156,20 +156,23 @@ int CMiscMenue::exec(CMenuTarget *parent, const std::string &actionKey)
 #endif
 	else if (actionKey == "epg_read_now" || actionKey == "epg_read_now_usermenu")
 	{
+		CLoaderHint *lh = new CLoaderHint(LOCALE_MISCSETTINGS_EPG_READ);
+		lh->paint();
+
 		struct stat my_stat;
 		if (stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
 		{
 			printf("Reading epg cache from %s ...\n", g_settings.epg_dir.c_str());
-			//g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
-			ShowHintS(LOCALE_MISCSETTINGS_EPG_READ, sigc::bind(sigc::mem_fun(g_Sectionsd, &CSectionsdClient::readSIfromXML), g_settings.epg_dir.c_str()), 1);
+			g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
 		}
 
 		for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); ++it)
 		{
 			printf("Reading xmltv epg from %s ...\n", (*it).c_str());
-			//g_Sectionsd->readSIfromXMLTV((*it).c_str());
-			ShowHintS(LOCALE_MISCSETTINGS_EPG_READ, sigc::bind(sigc::mem_fun(g_Sectionsd, &CSectionsdClient::readSIfromXMLTV), (*it).c_str()), 1);
+			g_Sectionsd->readSIfromXMLTV((*it).c_str());
 		}
+
+		delete lh;
 
 		if (actionKey == "epg_read_now_usermenu")
 			return menu_return::RETURN_EXIT_ALL;

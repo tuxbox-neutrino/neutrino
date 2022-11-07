@@ -400,6 +400,61 @@ class CHint : public CHintBox
 		};
 };
 
+//! Sub class of CHintBox. Shows a simplified hint as a text hint without footer.
+/*!
+CLoaderHint provides a small window with header and text item,
+optional disable/enable background, picon and delay
+*/
+
+class CLoaderHint : public CHintBox
+{
+	private:
+		int delay;
+
+		void initHint(bool enable_bg)
+		{
+			paint_bg = enable_bg;
+			ccw_show_header = true;
+			ccw_show_footer = false;
+			cc_item_type.name = "wg.hint";
+			delay = 1;
+		}
+	public:
+		/**CLoaderHint Constructor
+		* @param[in]	Text
+		* 	@li 	expects type const char*, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	show_background
+		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
+		* @param[in]	Picon
+		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)\n
+		* 		special case: If picon == NEUTRINO_ICON_LOADER, then the animated loader icon known from CHourGlass object will be painted.
+		* 	@see	CHourGlass()
+		*/
+		CLoaderHint(const char * const Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER);
+		/**CLoaderHint Constructor
+		* @param[in]	Text
+		* 	@li 	expects type neutrino_locale_t, this is the message text inside the window, text is UTF-8 encoded
+		* @param[in]	show_background
+		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
+		* @param[in]	Picon
+		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)\n
+		* 		special case: If picon == NEUTRINO_ICON_LOADER, then the animated loader icon known from CHourGlass object will be painted.
+		* 	@see	CHourGlass()
+		*/
+		CLoaderHint(const neutrino_locale_t Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER);
+
+		virtual void setDelay(int d) {delay = d;}
+
+		virtual ~CLoaderHint()
+		{
+			if (delay)
+			{
+				setTimeOut(delay, false);
+				exec();
+			}
+		};
+};
+
 
 typedef struct hint_message_data_t
 {

@@ -492,6 +492,16 @@ CHint::CHint(const neutrino_locale_t Text, bool show_background, const char * co
 	initHint(show_background);
 }
 
+CLoaderHint::CLoaderHint(const char * const Text, bool show_background, const char * const Picon) : CHintBox(LOCALE_MESSAGEBOX_INFO, Text, HINTBOX_MIN_WIDTH, NEUTRINO_ICON_INFO, Picon)
+{
+	initHint(show_background);
+}
+
+CLoaderHint::CLoaderHint(const neutrino_locale_t Text, bool show_background, const char * const Picon) : CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(Text), HINTBOX_MIN_WIDTH, NEUTRINO_ICON_INFO, Picon)
+{
+	initHint(show_background);
+}
+
 int ShowHintS(const char * const Text, int timeout, bool show_background, const char * const Picon)
 {
 	int res = messages_return::none;

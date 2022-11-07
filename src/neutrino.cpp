@@ -5382,15 +5382,13 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 #endif
 #endif
 
-	else if (actionKey=="savesettings") {
-		ShowHintS(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT, sigc::bind(sigc::mem_fun(*this, &CNeutrinoApp::saveSetup), NEUTRINO_SETTINGS_FILE), 1);
-#if 0
-		CHint *hint = new CHint(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT);
-		hint->setDelay(1);
-		hint->paint();
+	else if (actionKey=="savesettings")
+	{
+		CLoaderHint *lh = new CLoaderHint(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT);
+		lh->paint();
 
 		saveSetup(NEUTRINO_SETTINGS_FILE);
-#endif
+
 		if(g_settings.cacheTXT) {
 			tuxtxt_init();
 		} else
@@ -5399,22 +5397,20 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		//g_Sectionsd->setEventsAreOldInMinutes((unsigned short) (g_settings.epg_old_hours*60));
 		//g_Sectionsd->setHoursToCache((unsigned short) (g_settings.epg_cache_days*24));
 
-// 		delete hint;
+		delete lh;
 	}
-	else if (actionKey=="recording") {
+	else if (actionKey=="recording")
+	{
 		setupRecordingDevice();
 	}
-	else if (actionKey=="reloadplugins") {
-		ShowHintS(LOCALE_SERVICEMENU_GETPLUGINS_HINT, sigc::mem_fun(g_Plugins, &CPlugins::loadPlugins),1);
-#if 0
-		CHint *hint = new CHint(LOCALE_SERVICEMENU_GETPLUGINS_HINT);
-		hint->setDelay(1);
-		hint->paint();
+	else if (actionKey=="reloadplugins")
+	{
+		CLoaderHint *lh = new CLoaderHint(LOCALE_SERVICEMENU_GETPLUGINS_HINT);
+		lh->paint();
 
 		g_Plugins->loadPlugins();
 
-		delete hint;
-#endif
+		delete lh;
 	}
 #if 1
 	else if (actionKey=="restarttuner")
