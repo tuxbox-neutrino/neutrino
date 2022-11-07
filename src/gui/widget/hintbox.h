@@ -424,22 +424,17 @@ class CLoaderHint : public CHintBox
 		* @param[in]	Text
 		* 	@li 	expects type const char*, this is the message text inside the window, text is UTF-8 encoded
 		* @param[in]	show_background
-		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
+		* 	@li 	optional: expects type bool, enable/disable background paint, default = true
 		* @param[in]	Picon
-		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)\n
-		* 		special case: If picon == NEUTRINO_ICON_LOADER, then the animated loader icon known from CHourGlass object will be painted.
+		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NEUTRINO_ICON_LOADER\n
 		* 	@see	CHourGlass()
 		*/
 		CLoaderHint(const char * const Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER);
-		/**CLoaderHint Constructor
+
+		/**Overloaded localized CLoaderHint Constructor
 		* @param[in]	Text
 		* 	@li 	expects type neutrino_locale_t, this is the message text inside the window, text is UTF-8 encoded
-		* @param[in]	show_background
-		* 	@li 	optional: expects type bool, enable/disable backround paint, default = true
-		* @param[in]	Picon
-		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NULL (non Icon)\n
-		* 		special case: If picon == NEUTRINO_ICON_LOADER, then the animated loader icon known from CHourGlass object will be painted.
-		* 	@see	CHourGlass()
+		* 	@see	for other parameters: CLoaderHint()
 		*/
 		CLoaderHint(const neutrino_locale_t Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER);
 
