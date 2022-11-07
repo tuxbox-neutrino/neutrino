@@ -38,6 +38,11 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 LT_INIT
 
+# Set default for ARFLAGS, since autoconf does not have a macro for it.
+# This allows people to set it when running configure or make
+test -n "$ARFLAGS" || ARFLAGS="cr"
+AC_SUBST(ARFLAGS)
+
 # Add build information to local_build_config.h.tmp
 # -------------------------------------------------
 rm -f local_build_config.h.tmp
