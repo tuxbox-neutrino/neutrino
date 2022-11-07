@@ -21,6 +21,7 @@ install_DATA = \
 	hint_hdd.png \
 	\
 	hint_imageinfo.png \
+	hint_imagelogo.png \
 	\
 	hint_inetradio.png \
 	hint_info.png \
