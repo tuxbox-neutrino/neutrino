@@ -28,6 +28,8 @@
 #include <gui/components/cc.h>
 #include <gui/components/cc_timer.h>
 
+#include <system/settings.h>
+
 //! CHourglass shows a small image chain with timed order to visualize running processes or breaks.
 /*!
  CHourglass shows only a timer controlled image chain, CHourglassProc will run an additional process.
@@ -78,8 +80,8 @@ class CHourGlass : public CComponentsShapeSquare
 
 		 * 	@see	class CComponentsShapeSquare()
 		 */
-		CHourGlass(	const int x_pos,
-				const int y_pos,
+		CHourGlass(	const int x_pos = CFrameBuffer::getInstance()->getScreenX() + OFFSET_INNER_MID,
+				const int y_pos = CFrameBuffer::getInstance()->getScreenY() + OFFSET_INNER_MID,
 				const int w = 48,
 				const int h = 48,
 				const std::string &image_basename = "hourglass",
