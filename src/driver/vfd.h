@@ -38,7 +38,7 @@
 #define __USE_FILE_OFFSET64 1
 #endif
 #include "driver/file.h"
-#endif // LCD_UPDATE
+#endif // VFD_UPDATE
 
 #include <pthread.h>
 #include <string>
@@ -62,7 +62,7 @@ class CVFD
                         MODE_PROGRESSBAR,
                         MODE_PROGRESSBAR2,
                         MODE_INFOBOX
-#endif // LCD_UPDATE
+#endif // VFD_UPDATE
 
 		};
 		enum AUDIOMODES
@@ -163,7 +163,7 @@ class CVFD
 		void wake_up();
 		MODES getMode(void) { return mode; };
 		std::string getServicename(void) { return servicename; }
-#ifdef LCD_UPDATE
+#ifdef VFD_UPDATE
         private:
                 CFileList* m_fileList;
                 int m_fileListPos;
@@ -185,7 +185,7 @@ class CVFD
                 void showInfoBox(const char * const title = NULL,const char * const text = NULL,int autoNewline = -1,int timer = -1);
                 void showProgressBar(int global = -1,const char * const text = NULL,int show_escape = -1,int timer = -1);
                 void showProgressBar2(int local = -1,const char * const text_local = NULL,int global = -1,const char * const text_global = NULL,int show_escape = -1);
-#endif // LCD_UPDATE
+#endif // VFD_UPDATE
 
 };
 
