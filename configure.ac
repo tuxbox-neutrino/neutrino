@@ -179,6 +179,30 @@ AC_ARG_ENABLE(lcd4linux,
 	AC_DEFINE(ENABLE_LCD4LINUX, 1, [enable LCD4Linux support]))
 AM_CONDITIONAL(ENABLE_LCD4LINUX, test "$enable_lcd4linux" = "yes")
 
+# lcd
+AC_ARG_ENABLE(lcd,
+	AS_HELP_STRING(--enable-lcd,include lcd support),
+	,[enable_lcd=no])
+AM_CONDITIONAL(ENABLE_LCD,test "$enable_lcd" = "yes")
+
+if test "$enable_lcd" = "yes"; then
+AC_DEFINE(ENABLE_LCD,1,[include lcd support])
+fi
+
+# lcd update
+AM_CONDITIONAL(LCD_UPDATE,test "$enable_lcd_update" = "yes")
+
+if test "$enable_lcd" = "yes"; then
+AC_DEFINE(LCD_UPDATE,1,[include lcd update support])
+fi
+
+# lcdapi
+AM_CONDITIONAL(ENABLE_LCDAPI,test "$enable_lcd" = "yes")
+
+if test "$enable_lcd" = "yes"; then
+AC_DEFINE(ENABLE_LCDAPI,1,[include lcd api support])
+fi
+
 AC_ARG_ENABLE(graphlcd,
 	AS_HELP_STRING([--enable-graphlcd], [enable GraphLCD support @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_GRAPHLCD, 1, [enable GraphLCD support]))
@@ -472,6 +496,7 @@ lib/connection/Makefile
 lib/hardware/coolstream/Makefile
 lib/jsoncpp/Makefile
 lib/libconfigfile/Makefile
+lib/liblcddisplay/Makefile
 lib/libdvbsub/Makefile
 lib/libeventserver/Makefile
 lib/libiw/Makefile
