@@ -1456,10 +1456,10 @@ start-block~rc_axas_e4hd
 <area shape="rect" coords="52,445,72,466" alt="KEY_GREEN" href="javascript:rcsim('KEY_GREEN')" />
 <area shape="rect" coords="86,444,108,465" alt="KEY_YELLOW" href="javascript:rcsim('KEY_YELLOW')" />
 <area shape="rect" coords="121,444,144,466" alt="KEY_BLUE" href="javascript:rcsim('KEY_BLUE')" />
-<area shape="rect" coords="15,222,44,257" alt="KEY_VOLUME_UP" href="javascript:rcsim('KEY_VOLUME_UP')" />
-<area shape="rect" coords="14,259,44,295" alt="KEY_VOLUME_DOWN" href="javascript:rcsim('KEY_VOLUME_DOWN')" />
-<area shape="rect" coords="114,221,144,256" alt="KEY_CHANNEL_UP" href="javascript:rcsim('KEY_CHANNEL_UP')" />
-<area shape="rect" coords="114,259,145,293" alt="KEY_CHANNEL_DOWN" href="javascript:rcsim('KEY_CHANNEL_DOWN')" />
+<area shape="rect" coords="15,222,44,257" alt="KEY_VOLUMEUP" href="javascript:rcsim('KEY_VOLUMEUP')" />
+<area shape="rect" coords="14,259,44,295" alt="KEY_VOLUMEDOWN" href="javascript:rcsim('KEY_VOLUMEDOWN')" />
+<area shape="rect" coords="114,221,144,256" alt="KEY_PAGEUP" href="javascript:rcsim('KEY_PAGEUP')" />
+<area shape="rect" coords="114,259,145,293" alt="KEY_PAGEDOWN" href="javascript:rcsim('KEY_PAGEDOWN')" />
 <area shape="rect" coords="15,482,44,497" alt="KEY_PLAY" href="javascript:rcsim('KEY_PLAY')" />
 <area shape="rect" coords="49,482,76,497" alt="KEY_STOP" href="javascript:rcsim('KEY_STOP')" />
 <area shape="rect" coords="82,482,111,497" alt="KEY_PAUSE" href="javascript:rcsim('KEY_PAUSE')" />
