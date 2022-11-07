@@ -217,6 +217,9 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, st
 	std::string yresult, sel, nr_str, do_show_hidden;
 	int nr=1;
 
+	if (g_bouquetManager == NULL)
+		return "0";
+
 	ySplitString(para," ",nr_str, do_show_hidden);
 	if(!nr_str.empty())
 		nr = atoi(nr_str.c_str());
@@ -244,6 +247,9 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, st
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *, std::string para)
 {
+	if (g_bouquetManager == NULL)
+		return "";
+
 	std::string yresult, ytemplate, do_show_hidden;
 
 	ySplitString(para,"~",ytemplate, do_show_hidden);
@@ -268,6 +274,9 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_actual_bouquet_number(CyhookHandler *, std::string)
 {
+	if (g_bouquetManager == NULL)
+		return "0";
+
 	int actual=0;
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
 		if(g_bouquetManager->existsChannelInBouquet(i, CZapit::getInstance()->GetCurrentChannelID())) {
@@ -320,6 +329,10 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, st
 std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std::string para)
 {
 	int BouquetNr = 0;
+
+	if (g_bouquetManager == NULL)
+		return "0";
+
 	std::string abnumber, tmp,yresult;
 	ZapitChannelList channels;
 	//int num;
@@ -1125,6 +1138,9 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	hh->ParamList["timer_repeatCount"]  = itoa(timer.repeatCount);
 
 	// program row
+	if (g_bouquetManager == NULL)
+		return "";
+
 	t_channel_id current_channel = (cmd == "new") ? CZapit::getInstance()->GetCurrentChannelID() : timer.channel_id;
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
@@ -1174,6 +1190,9 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_bouquet_editor_main(CyhookHandler *hh, std::string para)
 {
+	if (g_bouquetManager == NULL)
+		return "0";
+
 	std::string yresult;
 	int selected = -1;
 	if (hh->ParamList["saved"] == "1")

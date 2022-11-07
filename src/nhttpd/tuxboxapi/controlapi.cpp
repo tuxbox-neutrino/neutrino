@@ -1414,6 +1414,9 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 //-------------------------------------------------------------------------
 void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 {
+	if (g_bouquetManager ==  NULL)
+		return;
+
 	TOutType outType = hh->outStart(true /*old mode*/);
 
 	std::string result = "";
@@ -2155,6 +2158,9 @@ void CControlAPI::ReloadNeutrinoSetupCGI(CyhookHandler *hh)
 
 void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
 {
+	if (g_Plugins ==  NULL)
+		return;
+
 	g_Plugins->loadPlugins();
 	hh->SendOk();
 }
