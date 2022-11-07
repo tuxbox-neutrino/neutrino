@@ -383,7 +383,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.glcd_theme_name = configfile.getString("glcd_theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_OLED_NAME : "");
 	CGLCDThemes::getInstance()->getTheme(configfile);
 
-	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0);
+	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0 || strcmp(g_info.hw_caps->boxvendor, "AXAS") == 0);
 	g_settings.glcd_logodir = configfile.getString("glcd_logodir", "/media/sda1/logos");
 
 	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
