@@ -299,7 +299,7 @@ AC_ARG_ENABLE(pip,
 AM_CONDITIONAL(ENABLE_PIP, test "$enable_pip" = "yes")
 
 case "$BOXMODEL" in
-	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse)
+	vusolo4k|vuduo4k|vuduo4kse|vuultimo4k|vuuno4k|vuuno4kse|e4hdultra)
 		AC_ARG_ENABLE(quadpip,
 			AS_HELP_STRING([--enable-quadpip], [enable quad picture in picture support @<:@default=no@:>@]),
 			AC_DEFINE(ENABLE_QUADPIP, 1, [enable quad picture in picture support]))
