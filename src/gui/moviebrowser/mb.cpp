@@ -2245,7 +2245,6 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
 		{
 			// sorting is not avialable for last play and record
-
 			int directkey = 1;
 			int selected = -1;
 			CMenuSelectorTarget * selector = new CMenuSelectorTarget(&selected);
@@ -2415,7 +2414,8 @@ void CMovieBrowser::scrollBrowserItem(bool next, bool page)
 		mode = cYTFeedParser::NEXT;
 	if (show_mode == MB_SHOW_YT && !next && ytparser.HavePrev() && m_pcBrowser->getSelectedLine() == 0)
 		mode = cYTFeedParser::PREV;
-	if (mode >= 0) {
+	if (mode >= 0)
+	{
 		CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK,	(show_mode == MB_SHOW_YT)
 			? g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_VIDEOS)
 			: g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES), 450);
@@ -2443,9 +2443,9 @@ bool CMovieBrowser::onButtonPressBrowserList(neutrino_msg_t msg)
 		scrollBrowserItem(false, false);
 	else if (msg == CRCInput::RC_down)
 		scrollBrowserItem(true, false);
-	else if (msg == (neutrino_msg_t)g_settings.key_pageup)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pageup) || (msg == CRCInput::RC_left))
 		scrollBrowserItem(false, true);
-	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pagedown) || (msg == CRCInput::RC_right))
 		scrollBrowserItem(true, true);
 	else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
 		markItem(m_pcBrowser);
@@ -2467,9 +2467,9 @@ bool CMovieBrowser::onButtonPressLastPlayList(neutrino_msg_t msg)
 		m_pcLastPlay->scrollLineUp(1);
 	else if (msg == CRCInput::RC_down)
 		m_pcLastPlay->scrollLineDown(1);
-	else if (msg == (neutrino_msg_t)g_settings.key_pageup)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pageup) || (msg == CRCInput::RC_left))
 		m_pcLastPlay->scrollPageUp(1);
-	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pagedown) || (msg == CRCInput::RC_right))
 		m_pcLastPlay->scrollPageDown(1);
 	else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
 		markItem(m_pcLastPlay);
@@ -2491,9 +2491,9 @@ bool CMovieBrowser::onButtonPressLastRecordList(neutrino_msg_t msg)
 		m_pcLastRecord->scrollLineUp(1);
 	else if (msg == CRCInput::RC_down)
 		m_pcLastRecord->scrollLineDown(1);
-	else if (msg == (neutrino_msg_t)g_settings.key_pageup)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pageup) || (msg == CRCInput::RC_left))
 		m_pcLastRecord->scrollPageUp(1);
-	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pagedown) || (msg == CRCInput::RC_right))
 		m_pcLastRecord->scrollPageDown(1);
 	else if (msg == CRCInput::RC_play || msg == CRCInput::RC_playpause)
 		markItem(m_pcLastRecord);
@@ -2512,21 +2512,13 @@ bool CMovieBrowser::onButtonPressFilterList(neutrino_msg_t msg)
 	bool result = true;
 
 	if (msg==CRCInput::RC_up)
-	{
 		m_pcFilter->scrollLineUp(1);
-	}
 	else if (msg == CRCInput::RC_down)
-	{
 		m_pcFilter->scrollLineDown(1);
-	}
-	else if (msg == (neutrino_msg_t)g_settings.key_pageup)
-	{
+	else if ((msg == (neutrino_msg_t)g_settings.key_pageup) || (msg == CRCInput::RC_left))
 		m_pcFilter->scrollPageUp(1);
-	}
-	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
-	{
+	else if ((msg == (neutrino_msg_t)g_settings.key_pagedown) || (msg == CRCInput::RC_right))
 		m_pcFilter->scrollPageDown(1);
-	}
 	else if (msg == CRCInput::RC_ok)
 	{
 		int selected_line = m_pcFilter->getSelectedLine();
@@ -2560,10 +2552,7 @@ bool CMovieBrowser::onButtonPressFilterList(neutrino_msg_t msg)
 		}
 	}
 	else
-	{
-		// default
 		result = false;
-	}
 
 	return (result);
 }
@@ -2573,16 +2562,20 @@ bool CMovieBrowser::onButtonPressMovieInfoList(neutrino_msg_t msg)
 //	TRACE("[mb]->onButtonPressEPGInfoList %d\n",msg);
 	bool result = true;
 
-	if (msg == CRCInput::RC_up)
+	if ((msg == CRCInput::RC_up) || (msg == (neutrino_msg_t)g_settings.key_pageup))
+	{
 		if (m_windowFocus == MB_FOCUS_MOVIE_INFO2 && m_settings.browserAdditional)
 			m_pcInfo2->scrollPageUp(1);
 		else
 			m_pcInfo1->scrollPageUp(1);
-	else if (msg == CRCInput::RC_down)
+	}
+	else if ((msg == CRCInput::RC_down) || (msg == (neutrino_msg_t)g_settings.key_pagedown))
+	{
 		if (m_windowFocus == MB_FOCUS_MOVIE_INFO2 && m_settings.browserAdditional)
 			m_pcInfo2->scrollPageDown(1);
 		else
 			m_pcInfo1->scrollPageDown(1);
+	}
 	else
 		result = false;
 
