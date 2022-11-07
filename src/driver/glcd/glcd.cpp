@@ -645,7 +645,7 @@ void cGLCD::updateFonts()
 
 	if (!fonts_initialized || (fontsize_smalltext_new != fontsize_smalltext)) {
 		fontsize_smalltext = fontsize_smalltext_new;
-		if (!font_smalltext.LoadFT2(FONTDIR "/oled/terminator.ttf", "UTF-8", fontsize_smalltext)) {
+		if (!font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext)) {
 			t.glcd_font = g_settings.font_file;
 			font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext);
 		}
