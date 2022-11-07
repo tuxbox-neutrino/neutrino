@@ -111,7 +111,7 @@ char* tzif2_handle( timezonefileheader *tzh, const char *tzfile_buffer_ptr, size
 		return NULL;
 	}
 
-	printf("tzif2 header found at position %d\n", start_ptr - tzfile_buffer_ptr);
+	printf("tzif2 header found at position %ld\n", start_ptr - tzfile_buffer_ptr);
 	if ( read_tz_header( tzh, (char*) start_ptr ) == false )
 	{
 		printf("Error reading header file version 2\n");
