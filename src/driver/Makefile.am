@@ -79,6 +79,7 @@ libneutrino_driver_a_SOURCES += \
 	fb_accel_glfb.cpp \
 	simple_display.cpp
 endif
+
 if BOXTYPE_ARMBOX
 if ENABLE_LCD
 libneutrino_driver_a_SOURCES += \
@@ -86,7 +87,6 @@ libneutrino_driver_a_SOURCES += \
 	lcdd.cpp
 else
 libneutrino_driver_a_SOURCES += \
-	fb_accel.cpp \
 	fb_accel_arm.cpp \
 	simple_display.cpp
 endif
