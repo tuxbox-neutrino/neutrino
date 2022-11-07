@@ -120,6 +120,7 @@ cGLCD::cGLCD()
 	timeout_cnt = 0;
 	locked_countdown = false;
 	time_thread_started = false;
+	config_mode = false;
 
 	cglcd = this;
 

@@ -155,6 +155,7 @@ class cGLCD
 		static void* Run(void *);
 		static void Lock();
 		static void Unlock();
+		bool config_mode;
 	public:
 		enum {
 			BMP = 0,
@@ -234,6 +235,8 @@ class cGLCD
 		bool dumpBuffer(fb_pixel_t *s, int format, const char *filename);
 		void UpdateBrightness();
 		int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
+		void SetCfgMode(bool mode) { config_mode = mode; };
+		bool GetCfgMode() { return config_mode; };
 
 		void ReInitFont() { fonts_initialized = false; };
 };

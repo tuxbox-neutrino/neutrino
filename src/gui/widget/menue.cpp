@@ -248,7 +248,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const char * right_text
 		}
 
 #ifdef ENABLE_GRAPHLCD
-		if (g_settings.glcd_enable)
+		if (g_settings.glcd_enable && !cGLCD::getInstance()->GetCfgMode())
 			cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), lcd_text, 0);
 #endif
 #ifdef ENABLE_LCD4LINUX
@@ -1061,7 +1061,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					int rv = item->exec( this );
 
 #ifdef ENABLE_GRAPHLCD
-					if (g_settings.glcd_enable)
+					if (g_settings.glcd_enable && !cGLCD::getInstance()->GetCfgMode())
 						cGLCD::lockChannel(g_Locale->getText(LOCALE_MAINMENU_HEAD), item->lcd_text, 0);
 #endif
 #ifdef ENABLE_LCD4LINUX

@@ -233,6 +233,7 @@ bool GLCD_Menu::changeNotify (const neutrino_locale_t OptionName, void *Data)
 	if (!Data)
 		return false;
 	cGLCD *cglcd = cGLCD::getInstance();
+	cglcd->unlockChannel();
 
 	switch(OptionName)
 	{
@@ -485,6 +486,8 @@ int GLCD_Menu::GLCD_Theme_Settings()
 
 int GLCD_Menu::GLCD_Theme_Position_Settings()
 {
+	cGLCD::getInstance()->SetCfgMode(true);
+	
 	CMenuWidget *gtps = new CMenuWidget(LOCALE_GLCD_THEME_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_GLCD_THEME_POSITION_SETTINGS);
 	gtps->addIntroItems(LOCALE_GLCD_POSITION_SETTINGS);
 
@@ -596,6 +599,7 @@ int GLCD_Menu::GLCD_Theme_Position_Settings()
 	int res = gtps->exec(NULL, "");
 	delete gtps;
 	cGLCD::getInstance()->StandbyMode(false);
+	cGLCD::getInstance()->SetCfgMode(false);
 	return res;
 }
 
