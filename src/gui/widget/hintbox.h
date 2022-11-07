@@ -416,7 +416,7 @@ class CLoaderHint : public CHintBox
 			paint_bg = enable_bg;
 			ccw_show_header = enable_header;
 			ccw_show_footer = false;
-			cc_item_type.name = "wg.hint";
+			cc_item_type.name = "wg.loader_hint";
 			delay = 1;
 		}
 	public:
