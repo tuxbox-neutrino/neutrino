@@ -1429,7 +1429,7 @@ start-block~rc_ax_hd61
 </map>
 end-block~rc_ax_hd61
 
-# --- Remote Axas E2 HD Ultra
+# --- Remote Axas E4HD Ultra
 start-block~rc_axas_e4hd
 <img src="images/rc/rc_axas_e4hd.png" usemap="#rc"/>
 <map name="rc" id="rc">
@@ -1474,7 +1474,7 @@ start-block~rc_axas_e4hd
 <area shape="rect" coords="48,504,76,517" alt="KEY_FORWARD" href="javascript:rcsim('KEY_FORWARD')" />
 <area shape="rect" coords="16,89,37,109" alt="KEY_HELP" href="javascript:rcsim('KEY_HELP')" />
 <area shape="rect" coords="51,89,72,110" alt="KEY_TIMER" href="javascript:rcsim('KEY_TIMER')" />
-<area shape="rect" coords="86,89,107,109" alt="KEY_TV_RADIO" href="javascript:rcsim('KEY_TV_RADIO')" />
+<area shape="rect" coords="86,89,107,109" alt="KEY_TV2" href="javascript:rcsim('KEY_TV2')" />
 <area shape="rect" coords="121,89,143,110" alt="KEY_AUDIO" href="javascript:rcsim('KEY_AUDIO')" />
 <area shape="rect" coords="64,225,94,252" alt="KEY_MEDIA" href="javascript:rcsim('KEY_MEDIA')" />
 <area shape="rect" coords="65,267,94,293" alt="KEY_HOME" href="javascript:rcsim('KEY_HOME')" />
