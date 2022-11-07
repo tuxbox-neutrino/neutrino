@@ -65,6 +65,10 @@
 #define KEY_BOTTOMRIGHT	0x1a5
 #endif
 
+#ifndef KEY_TOUCHPAD_TOGGLE
+#define KEY_TOUCHPAD_TOGGLE	0x212
+#endif
+
 #ifndef KEY_VOD
 #define KEY_VOD		0x273
 #endif
