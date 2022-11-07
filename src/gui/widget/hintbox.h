@@ -400,7 +400,7 @@ class CHint : public CHintBox
 		};
 };
 
-//! Sub class of CHintBox. Shows a simplified hint as a text hint without footer.
+//! Sub class of CHintBox. Shows a simplified hint as a text hint without footer and optional header.
 /*!
 CLoaderHint provides a small window with header and text item,
 optional disable/enable background, picon and delay
@@ -411,10 +411,10 @@ class CLoaderHint : public CHintBox
 	private:
 		int delay;
 
-		void initHint(bool enable_bg)
+		void initHint(bool enable_bg, bool enable_header)
 		{
 			paint_bg = enable_bg;
-			ccw_show_header = true;
+			ccw_show_header = enable_header;
 			ccw_show_footer = false;
 			cc_item_type.name = "wg.hint";
 			delay = 1;
@@ -426,17 +426,19 @@ class CLoaderHint : public CHintBox
 		* @param[in]	show_background
 		* 	@li 	optional: expects type bool, enable/disable background paint, default = true
 		* @param[in]	Picon
-		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NEUTRINO_ICON_LOADER\n
+		* 	@li 	optional: expects type std::string, defines the picon name on the left side of message text, default = NEUTRINO_ICON_LOADER
+		* @param[in]	enable_header
+		* 	@li 	optional: expects type bool, enable or disable header for message window, default = false
 		* 	@see	CHourGlass()
 		*/
-		CLoaderHint(const char * const Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER);
+		CLoaderHint(const char * const Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER, bool enable_header = false);
 
 		/**Overloaded localized CLoaderHint Constructor
 		* @param[in]	Text
 		* 	@li 	expects type neutrino_locale_t, this is the message text inside the window, text is UTF-8 encoded
 		* 	@see	for other parameters: CLoaderHint()
 		*/
-		CLoaderHint(const neutrino_locale_t Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER);
+		CLoaderHint(const neutrino_locale_t Text, bool show_background = true, const char * const Picon = NEUTRINO_ICON_LOADER, bool enable_header = false);
 
 		virtual void setDelay(int d) {delay = d;}
 
