@@ -22,47 +22,47 @@
 #define __rcinput_fake_h__
 
 #ifndef KEY_NONEXISTING
-#define KEY_NONEXISTING  0x0
+#define KEY_NONEXISTING	0x0
 #endif
 
 #ifndef KEY_OK
-#define KEY_OK           0x160
+#define KEY_OK		0x160
 #endif
 
 #ifndef KEY_RED
-#define KEY_RED          0x18e
+#define KEY_RED		0x18e
 #endif
 
 #ifndef KEY_GREEN
-#define KEY_GREEN        0x18f
+#define KEY_GREEN	0x18f
 #endif
 
 #ifndef KEY_YELLOW
-#define KEY_YELLOW       0x190
+#define KEY_YELLOW	0x190
 #endif
 
 #ifndef KEY_BLUE
-#define KEY_BLUE         0x191
+#define KEY_BLUE	0x191
 #endif
 
 #ifndef KEY_GAMES
-#define KEY_GAMES        0x1a1
+#define KEY_GAMES	0x1a1
 #endif
 
 #ifndef KEY_TOPLEFT
-#define KEY_TOPLEFT      0x1a2
+#define KEY_TOPLEFT	0x1a2
 #endif
 
 #ifndef KEY_TOPRIGHT
-#define KEY_TOPRIGHT     0x1a3
+#define KEY_TOPRIGHT	0x1a3
 #endif
 
 #ifndef KEY_BOTTOMLEFT
-#define KEY_BOTTOMLEFT   0x1a4
+#define KEY_BOTTOMLEFT	0x1a4
 #endif
 
 #ifndef KEY_BOTTOMRIGHT
-#define KEY_BOTTOMRIGHT  0x1a5
+#define KEY_BOTTOMRIGHT	0x1a5
 #endif
 
 #ifndef KEY_VOD
