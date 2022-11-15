@@ -130,7 +130,8 @@ found:
 void RenderTimeDigit(int _digit, int x, int y)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
-	if (g_settings.glcd_standby_weather)
+	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
+	if (t.glcd_standby_weather)
 		cglcd->imageShow(digit[_digit], x, y, 0, 0, false, false, false, false, false);
 	else
 		cglcd->imageShow(digit[_digit], x, y, 0, 0, false, false, false, false, true);
@@ -139,7 +140,8 @@ void RenderTimeDigit(int _digit, int x, int y)
 void RenderDots(int x, int y)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
-	if (g_settings.glcd_standby_weather)
+	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
+	if (t.glcd_standby_weather)
 		cglcd->imageShow(digit[TIME_DOTS], x, y, 0, 0, false, false, false, true, false);
 	else
 		cglcd->imageShow(digit[TIME_DOTS], x, y, 0, 0, false, false, false, true, true);
@@ -149,7 +151,7 @@ void ShowDigitalClock(int hour, int minute)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	int y = g_settings.glcd_standby_weather ? t.glcd_standby_clock_digital_y_position : cglcd->bitmap->Height() / 2;
+	int y = t.glcd_standby_weather ? t.glcd_standby_clock_digital_y_position : cglcd->bitmap->Height() / 2;
 
 	int a =  10;
 	int b = 117;
@@ -159,7 +161,7 @@ void ShowDigitalClock(int hour, int minute)
 
 	RenderTimeDigit(hour/10, a, y);
 	RenderTimeDigit(hour%10, b, y);
-	RenderDots(c ,(g_settings.glcd_standby_weather ? (y + 35) : y));
+	RenderDots(c ,(t.glcd_standby_weather ? (y + 35) : y));
 	RenderTimeDigit(minute/10, d, y);
 	RenderTimeDigit(minute%10, e, y);
 }

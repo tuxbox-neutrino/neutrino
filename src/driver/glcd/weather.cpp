@@ -27,50 +27,11 @@
 #include <gui/weather.h>
 #include <system/helpers.h>
 
-enum weathers
-{
-        CLEAR_DAY = 0,
-        CLEAR_NIGHT = 1,
-	CLOUDY = 2,
-        FOG = 3,
-        PARTLY_CLOUDY_DAY = 4,
-	PARTLY_CLOUDY_NIGHT = 5,
-	RAIN = 6,
-	SLEET = 7,
-	SNOW = 8,
-	WIND = 9,
-	WEATHER_UNKNOWN = 10
-};
-
-const char * const weather_name[] =
-{
-	"clear-day",
-        "clear-night",
-        "cloudy",
-        "fog",
-        "partly-cloudy-day",
-	"partly-cloudy-night",
-	"rain",
-	"sleet",
-	"snow",
-	"wind",
-	"unknown"
-};
-#define LCD_NUMBER_OF_WEATHERS (sizeof(weather_name)/sizeof(weather_name[0]))
-
-const char * const weather_path[] =
-{
-	ICONSDIR_VAR "/oled/weather/",
-	ICONSDIR "/oled/weather/"
-};
-#define NUMBER_OF_PATHS (sizeof(weather_path)/sizeof(weather_path[0]))
-
 static bool ForceUpdate = true;
 static bool fonts_initialized = false;
 
 GLCD::cFont font_temperature;
-
-static std::string weather[LCD_NUMBER_OF_WEATHERS] = {""};
+GLCD::cFont font_temperature_standby;
 
 static std::string st_current_wcity = "";
 static std::string st_current_wtimestamp = "";
@@ -84,92 +45,48 @@ static std::string st_next_wtemp = "";
 static std::string st_next_wwind = "";
 static std::string st_next_wicon = "";
 
-void InitWeather(void)
+int  weather_percent;
+int  weather_fontsize;
+
+int  standby_weather_percent;
+int  standby_weather_fontsize;
+
+void InitWeather()
 {
-	for (unsigned int i = 0; i < LCD_NUMBER_OF_WEATHERS; i++)
-	{
-		std::string weather_file;
-		for (unsigned int j = 0; j < NUMBER_OF_PATHS; j++)
-		{
-			std::string file_jpg = weather_path[j];
-			file_jpg += weather_name[i];
-			file_jpg += ".jpg";
-			if (file_exists(file_jpg.c_str()))
-			{
-				weather_file = file_jpg;
-				goto found;
-			}
-			std::string file_jpeg = weather_path[j];
-			file_jpeg += weather_name[i];
-			file_jpeg += ".jpeg";
-			if (file_exists(file_jpeg.c_str()))
-			{
-				weather_file = file_jpeg;
-				goto found;
-			}
-			std::string file_png = weather_path[j];
-			file_png += weather_name[i];
-			file_png += ".png";
-			if (file_exists(file_png.c_str()))
-			{
-				weather_file = file_png;
-				goto found;
-			}
-			std::string file_bmp = weather_path[j];
-			file_bmp += weather_name[i];
-			file_bmp += ".bmp";
-			if (file_exists(file_bmp.c_str()))
-			{
-				weather_file = file_bmp;
-				goto found;
-			}
-			std::string file_gif = weather_path[j];
-			file_gif += weather_name[i];
-			file_gif += ".gif";
-			if (file_exists(file_gif.c_str()))
-			{
-				weather_file = file_gif;
-				goto found;
-			}
-		}
-found:
-		//printf("[%s:%s] found file: %s\n", __file__, __func__, weather_file.c_str());
-		weather[i] += std::string(weather_file);
-	}
-	//printf("[%s:%s] finish initialization\n", __file__, __func__);
+	WeatherUpdateFonts;
 }
 
-void WeatherUpdateFonts(void)
+void WeatherUpdateFonts()
 {
 	cGLCD *cglcd = cGLCD::getInstance();
-	int fontsize_temperature = 0;
-	int percent_temperature = std::min(24, 100); // WTF?
-	int fontsize_temperature_new = percent_temperature * cglcd->lcd->Height() / 100;
-	if (!fonts_initialized || (fontsize_temperature_new != fontsize_temperature)) {
-		fontsize_temperature = fontsize_temperature_new;
-		if (!font_temperature.LoadFT2(FONTDIR "/oled/pakenham.ttf", "UTF-8", fontsize_temperature)) {
-			font_temperature.LoadFT2(g_settings.font_file, "UTF-8", fontsize_temperature);
-		}
-	}
-	fonts_initialized = true;
-}
+	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 
-int WeatherNameToNumber(std::string name)
-{
-	for (unsigned int i = 0; i < sizeof(weather_name); i++)
-	{
-		if (name.compare(weather_name[i]) == 0)
-		{
-			return i;
-			break;
+	weather_percent = std::min(t.glcd_weather_percent, 100);
+	int weather_fontsize_new = weather_percent * cglcd->lcd->Height() / 100;
+
+	standby_weather_percent = std::min(t.glcd_standby_weather_percent, 100);
+	int standby_weather_fontsize_new = standby_weather_percent * cglcd->lcd->Height() / 100;
+
+	if (!fonts_initialized || (weather_fontsize_new != weather_fontsize)) {
+		weather_fontsize = weather_fontsize_new;
+		if (!font_temperature.LoadFT2(t.glcd_font, "UTF-8", weather_fontsize)) {
+			font_temperature.LoadFT2(g_settings.font_file, "UTF-8", weather_fontsize);
 		}
 	}
-	return WEATHER_UNKNOWN;
+
+	if (!fonts_initialized || (standby_weather_fontsize_new != standby_weather_fontsize)) {
+		standby_weather_fontsize = standby_weather_fontsize_new;
+		if (!font_temperature_standby.LoadFT2(t.glcd_font, "UTF-8", standby_weather_fontsize)) {
+			font_temperature_standby.LoadFT2(g_settings.font_file, "UTF-8", standby_weather_fontsize);
+		}
+	}
+
+	fonts_initialized = true;
 }
 
 void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 {
-	int forecast = 0;
+	int forecast = 0; // 0 is current day
 
 	std::string current_wcity = "";
 	std::string current_wtimestamp = "";
@@ -193,7 +110,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 			current_wtimestamp = st_current_wtimestamp = to_string((int)CWeather::getInstance()->getCurrentTimestamp());
 			current_wtemp = st_current_wtemp = CWeather::getInstance()->getCurrentTemperature();
 			current_wwind = st_current_wwind = CWeather::getInstance()->getCurrentWindSpeed();
-			current_wicon = st_current_wicon = CWeather::getInstance()->getCurrentIconOnlyName();
+			current_wicon = st_current_wicon = CWeather::getInstance()->getCurrentIcon();
 
 			next_wcity = st_next_wcity = CWeather::getInstance()->getCity();
 			next_wtimestamp = st_next_wtimestamp = to_string((int)CWeather::getInstance()->getForecastWeekday(forecast));
@@ -201,7 +118,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 			//next_wtemp = st_next_wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(forecast);
 			next_wtemp = st_next_wtemp = CWeather::getInstance()->getForecastTemperatureMax(forecast);
 			next_wwind = st_next_wwind = CWeather::getInstance()->getForecastWindBearing(forecast);
-			next_wicon = st_next_wicon = CWeather::getInstance()->getForecastIconOnlyNane(forecast);
+			next_wicon = st_next_wicon = CWeather::getInstance()->getForecastIcon(forecast);
 		}
 		else
 		{
@@ -220,27 +137,35 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 
 		if (current_wicon != "") {
 			if (!standby)
-				cglcd->imageShow(weather[WeatherNameToNumber(current_wicon)], cx, cy, 64, 64, false, false, false, false, false);
+				cglcd->imageShow(current_wicon, cx, cy, weather_fontsize, weather_fontsize, false, false, false, false, false);
 			else
-				cglcd->imageShow(weather[WeatherNameToNumber(current_wicon)], cx, cy, 0, 0, false, false, false, false, false);
+				cglcd->imageShow(current_wicon, cx, cy, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
 		}
 		if (current_wtemp != "") {
 			current_wtemp += "°";
 			WeatherUpdateFonts();
-			cglcd->bitmap->DrawText(170, 240, cglcd->bitmap->Width() - 1, current_wtemp,
-				&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			if (!standby)
+				cglcd->bitmap->DrawText(cx + 5 + weather_fontsize, cy + ((weather_fontsize - font_temperature.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, current_wtemp,
+					&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			else
+				cglcd->bitmap->DrawText(cx + 5 + standby_weather_fontsize, cy + ((standby_weather_fontsize - font_temperature_standby.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, current_wtemp,
+					&font_temperature_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 		}
 		if (next_wicon != "") {
 			if (!standby)
-				cglcd->imageShow(weather[WeatherNameToNumber(next_wicon)], nx, ny, 64, 64, false, false, false, false, false);
+				cglcd->imageShow(next_wicon, nx, ny, weather_fontsize, weather_fontsize, false, false, false, false, false);
 			else
-				cglcd->imageShow(weather[WeatherNameToNumber(next_wicon)], nx, ny, 0, 0, false, false, false, false, false);
+				cglcd->imageShow(next_wicon, nx, ny, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
 		}
 		if (next_wtemp != "") {
 			next_wtemp += "°";
 			WeatherUpdateFonts();
-			cglcd->bitmap->DrawText(250, 240, cglcd->bitmap->Width() - 1, next_wtemp,
-				&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			if (!standby)
+				cglcd->bitmap->DrawText(nx + 5 + weather_fontsize, ny + ((weather_fontsize - font_temperature.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, next_wtemp,
+					&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			else
+				cglcd->bitmap->DrawText(nx + 5 + standby_weather_fontsize, ny + ((standby_weather_fontsize - font_temperature_standby.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, next_wtemp,
+					&font_temperature_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 		}
 	}
 }

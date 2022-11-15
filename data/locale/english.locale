@@ -862,9 +862,9 @@ glcd.align_right right
 glcd.align_start Event start arrangement
 glcd.align_time Time arrangement
 glcd.background BG Picture
-glcd.bar_width Progressbar width
-glcd.bar_x_position Progressbar x-position
-glcd.bar_y_position Progressbar y-position
+glcd.bar_width Progress bar width
+glcd.bar_x_position Progress bar x-position
+glcd.bar_y_position Progress bar y-position
 glcd.brightness Brightness
 glcd.brightness_standby Brightness standby
 glcd.brightness_dim Dim
@@ -923,18 +923,18 @@ glcd.mirror_video Show video on GraphLCD
 glcd.position_settings Positions and dimensions
 glcd.restart Restart
 glcd.scroll_speed Scroll speed
-glcd.select.bar Progressbar color
+glcd.select.bar Progress bar color
 glcd.select.bg Background color
 glcd.select.fg Text color
 glcd.show_duration Event duration display
 glcd.show_end Event end display
 glcd.show_logo Channel logo display
-glcd.show_progressbar Progressbar display
+glcd.show_progressbar Progress bar display
 glcd.show_start Event start display
 glcd.show_time Time display
 glcd.show_weather Weather display
 glcd.simple_clock_y_position Simple clock y-position
-glcd.size_bar Progressbar height
+glcd.size_bar Progress bar height
 glcd.size_channel Channel height
 glcd.size_duration Event duration height
 glcd.size_end Event end height
@@ -953,12 +953,20 @@ glcd.standby_led_clock LED-clock
 glcd.standby_settings Standby-settings
 glcd.standby_simple_clock Simple clock
 glcd.standby_weather Weather in standby mode
+glcd.standby_weather_percent Weather height
+glcd.standby_weather_curr_x_position Weather in standby mode current x-position
+glcd.standby_weather_next_x_position Weather in standby mode next x-position
+glcd.standby_weather_y_position Weather in standby mode y-position
 glcd.start_x_position Event start x-position
 glcd.start_y_position Event start y-position
 glcd.time_in_standby Time display in standby mode
 glcd.time_x_position Time x-position
 glcd.time_y_position Time y-position
 glcd.volume Volume
+glcd.weather_percent Weather height
+glcd.weather_curr_x_position Weather current x-position
+glcd.weather_next_x_position Weather next x-position
+glcd.weather_y_position Weather y-position
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.

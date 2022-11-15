@@ -83,6 +83,6 @@ void ShowSimpleClock(std::string Time, int mode)
 {
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-	int y = g_settings.glcd_standby_weather ? t.glcd_standby_clock_simple_y_position : (cglcd->bitmap->Height() - font_time_standby.Height(Time)) / 2;
+	int y = t.glcd_standby_weather ? t.glcd_standby_clock_simple_y_position : (cglcd->bitmap->Height() - font_time_standby.Height(Time)) / 2;
 	RenderSimpleClock(Time, 255, y, mode);
 }

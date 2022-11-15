@@ -30,6 +30,5 @@
 
 void InitWeather();
 void WeatherUpdateFonts();
-int WeatherNameToNumber(std::string name);
 void RenderWeather(int cx, int cy, int nx, int ny, bool standby);
 void ShowWeather(bool standby);

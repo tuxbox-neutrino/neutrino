@@ -861,7 +861,7 @@ glcd.align_none keine
 glcd.align_right rechts
 glcd.align_start Sendungsstart ausrichten
 glcd.align_time Uhrzeit ausrichten
-glcd.background BG Bild
+glcd.background Hintergrundbild
 glcd.bar_width Fortschrittsbalken Weite
 glcd.bar_x_position Fortschrittsbalken x-Position
 glcd.bar_y_position Fortschrittsbalken y-Position
@@ -891,8 +891,8 @@ glcd.color.red Rot
 glcd.color.teal Teal
 glcd.color.white Weiß
 glcd.color.yellow Gelb
-glcd.channel_x_position Sender x-Position
-glcd.channel_y_position Sender y-Position
+glcd.channel_x_position Sendername x-Position
+glcd.channel_y_position Sendername y-Position
 glcd.digital_clock_y_position Digitaluhr y-Position
 glcd.display Display-Typ
 glcd.duration_x_position Sendungsdauer x-Position
@@ -935,11 +935,11 @@ glcd.show_time Uhrzeit anzeigen
 glcd.show_weather Wetter anzeigen
 glcd.simple_clock_y_position Einfache Uhr y-Position
 glcd.size_bar Fortschrittsbalken Höhe
-glcd.size_channel Sender Höhe
+glcd.size_channel Sendername Höhe
 glcd.size_duration Sendungsdauer Höhe
 glcd.size_end Sendungsende Höhe
 glcd.size_epg EPG Höhe
-glcd.size_logo Senderlogo Höhe
+glcd.size_logo Senderlogo max. Höhe %
 glcd.size_simple_clock Einfache Uhr Höhe
 glcd.size_start Sendungsstart Höhe
 glcd.size_time Uhrzeit Höhe
@@ -953,12 +953,21 @@ glcd.standby_led_clock LED-Uhr
 glcd.standby_settings Standby-Einstellungen
 glcd.standby_simple_clock Einfache Uhr
 glcd.standby_weather Wetter im Standby
+glcd.standby_weather_percent Wetter Höhe
+glcd.standby_weather_curr_x_position Wetter im Standby heute x-Position
+glcd.standby_weather_next_x_position Wetter im Standby morgen x-Position
+glcd.standby_weather_y_position Wetter im Standby y-Position
 glcd.start_x_position Sendungsstart x-Position
 glcd.start_y_position Sendungsstart y-Position
 glcd.time_in_standby Zeitanzeige im Standby
 glcd.time_x_position Uhrzeit x-Position
 glcd.time_y_position Uhrzeit y-Position
 glcd.volume Lautstärke
+glcd.weather_percent Wetter Höhe
+glcd.weather_curr_x_position Wetter heute x-Position
+glcd.weather_next_x_position Wetter morgen x-Position
+glcd.weather_y_position Wetter y-Position
+glcd.width_logo Senderlogo max. Breite %
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.

@@ -386,9 +386,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0 || strcmp(g_info.hw_caps->boxvendor, "AXAS") == 0);
 	g_settings.glcd_logodir = configfile.getString("glcd_logodir", "/media/sda1/logos");
 
-	g_settings.glcd_time_in_standby = configfile.getInt32("glcd_time_in_standby", 1);
-	g_settings.glcd_standby_weather = configfile.getInt32("glcd_standby_weather", 1);
-
 	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", GLCD_DEFAULT_BRIGHTNESS);
 	g_settings.glcd_brightness_dim = configfile.getInt32("glcd_brightness_dim", GLCD_DEFAULT_BRIGHTNESS_DIM);
 	g_settings.glcd_brightness_dim_time = configfile.getString("glcd_brightness_dim_time", GLCD_DEFAULT_BRIGHTNESS_DIM_TIME);
@@ -1510,9 +1507,6 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	configfile.setInt32("glcd_enable", g_settings.glcd_enable);
 	configfile.setString("glcd_logodir", g_settings.glcd_logodir);
-
-	configfile.setInt32("glcd_time_in_standby", g_settings.glcd_time_in_standby);
-	configfile.setInt32("glcd_standby_weather", g_settings.glcd_standby_weather);
 
 	configfile.setInt32("glcd_brightness", g_settings.glcd_brightness);
 	configfile.setInt32("glcd_brightness_dim", g_settings.glcd_brightness_dim);

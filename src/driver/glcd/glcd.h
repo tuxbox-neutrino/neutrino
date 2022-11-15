@@ -63,6 +63,7 @@ class cGLCD
 		int percent_smalltext;
 		int percent_bar;
 		int percent_logo;
+		int percent_logo_width;
 		int power_state;
 		std::string Logo;
 		std::string Channel;
