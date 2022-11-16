@@ -568,6 +568,7 @@ start-block~rc_variables
 {=var-set:_rc_ax_hd61=23=}
 {=var-set:_rc_maxytec_multiboxse=24=}
 {=var-set:_rc_axas_e4hd=25=}
+{=var-set:_rc_protek_4k_uhd=26=}
 end-block~rc_variables
 
 # ------- Remote
@@ -605,9 +606,10 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~AX HD61~			{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
 		{=if-equal:{=var-get:boxtype=}~Maxytec Multibox SE 4K~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 		{=if-equal:{=var-get:boxtype=}~AXAS E4HD 4K ULTRA~	{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
+		{=if-equal:{=var-get:boxtype=}~Protek 4K UHD~		{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
-		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
+		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_dbox_philips=}~		{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
@@ -637,9 +639,10 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_ax_hd61=}~			{=include-block:Y_Blocks.txt;rc_ax_hd61=}~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_maxytec_multiboxse=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_axas_e4hd=}~		{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_protek_4k_uhd=}~		{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
 
 	{=comment:fallback~=}							{=include-block:Y_Blocks.txt;rc_cst_v1=}
-	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
+	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
 =}
 end-block~remote
 

@@ -351,7 +351,7 @@ void CFrontend::Init(void)
 	secSetTone(SEC_TONE_OFF, 20);
 	setDiseqcType((diseqc_t) config.diseqcType, true);
 	setTsidOnid(0);
-#if BOXMODEL_E4HDULTRA
+#if BOXMODEL_E4HDULTRA || BOXMODEL_PROTEK4K
 	secSetVoltage(SEC_VOLTAGE_OFF, 50);
 #endif
 	mutex.unlock();
