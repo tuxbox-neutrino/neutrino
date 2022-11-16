@@ -232,9 +232,12 @@ void CPipSetup::paint()
 	sprintf(hpos, "H: %d", height);
 
 	int mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	int mwidth = 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("W: 9999");
-	int x = (frameBuffer->getScreenWidth() - mwidth) / 2;
-	int y = (frameBuffer->getScreenHeight() - mheight * 4) / 2;
+	int mwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("W: 9999");
+
+	int w = mwidth + 2 * OFFSET_INNER_MID;
+	int h = mheight * 4;
+	int x = (frameBuffer->getScreenWidth() - w) / 2;
+	int y = (frameBuffer->getScreenHeight() - h) / 2;
 
 	if (pipVideoDecoder[0] != NULL)
 	{
@@ -242,12 +245,12 @@ void CPipSetup::paint()
 			frameBuffer->paintBoxRel(x_coord, y_coord, width, height, COL_MENUCONTENT_PLUS_0);
 	}
 
-	frameBuffer->paintBoxRel(x, y, mwidth, mheight * 4, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, y, w, h, COL_MENUCONTENT_PLUS_0);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight,     mwidth, xpos, COL_MENUCONTENT_TEXT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight * 2, mwidth, ypos, COL_MENUCONTENT_TEXT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight * 3, mwidth, wpos, COL_MENUCONTENT_TEXT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight * 4, mwidth, hpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight,     mwidth, xpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight * 2, mwidth, ypos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight * 3, mwidth, wpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight * 4, mwidth, hpos, COL_MENUCONTENT_TEXT);
 }
 
 #endif //#if ENABLE_PIP
