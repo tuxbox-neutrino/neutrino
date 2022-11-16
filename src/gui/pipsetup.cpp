@@ -26,17 +26,21 @@ CPipSetup::CPipSetup()
 {
 	frameBuffer = CFrameBuffer::getInstance();
 
-	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio) {
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio)
+	{
 		gx = &g_settings.pip_radio_x;
 		gy = &g_settings.pip_radio_y;
 		gw = &g_settings.pip_radio_width;
 		gh = &g_settings.pip_radio_height;
-	} else {
+	}
+	else
+	{
 		gx = &g_settings.pip_x;
 		gy = &g_settings.pip_y;
 		gw = &g_settings.pip_width;
 		gh = &g_settings.pip_height;
 	}
+
 	x_coord = *gx;
 	y_coord = *gy;
 	width = *gw;
@@ -44,25 +48,33 @@ CPipSetup::CPipSetup()
 
 	maxw = frameBuffer->getScreenWidth(true);
 	maxh = frameBuffer->getScreenHeight(true);
-	minw = maxw/8;
-	minh = minw*1000/1825;
+	minw = maxw / 8;
+	minh = minw * 1000 / 1825;
 }
 
 void CPipSetup::move(int x, int y, bool abs)
 {
 	int newx, newy;
 
-	if(abs) {
+	if (abs)
+	{
 		newx = x;
 		newy = y;
-	} else {
+	}
+	else
+	{
 		newx = x_coord + x;
 		newy = y_coord + y;
-		if(newx < 0) newx = 0;
-		else if((newx + width) >= maxw) newx = maxw - width;
-		if(newy < 0) newy = 0;
-		else if((newy + height) >= maxh) newy = maxh - height;
+		if (newx < 0)
+			newx = 0;
+		else if ((newx + width) >= maxw)
+			newx = maxw - width;
+		if (newy < 0)
+			newy = 0;
+		else if ((newy + height) >= maxh)
+			newy = maxh - height;
 	}
+
 	x_coord = newx;
 	y_coord = newy;
 	*gx = x_coord;
@@ -78,26 +90,33 @@ void CPipSetup::resize(int w, int h, bool abs)
 {
 	int neww, newh;
 
-	if(abs) {
+	if (abs)
+	{
 		width = w;
 		height = h;
-	} else {
-		neww = width + (maxw*w/100);
-		//newh = neww * 100 / 125;
-		newh = height + (maxh*h/100);
+	}
+	else
+	{
+		neww = width + (maxw * w / 100);
+		newh = height + (maxh * h / 100);
 
-		if(neww > maxw) neww = maxw;
-		else if(neww < minw) neww = minw;
+		if (neww > maxw)
+			neww = maxw;
+		else if (neww < minw)
+			neww = minw;
 
-		if(newh > maxh) newh = maxh;
-		else if(newh < minh) newh = minh;
-		if( (x_coord + neww) > maxw)
+		if (newh > maxh)
+			newh = maxh;
+		else if (newh < minh)
+			newh = minh;
+		if ((x_coord + neww) > maxw)
 			return;
-		if( (y_coord + newh) > maxh)
+		if ((y_coord + newh) > maxh)
 			return;
 		width = neww;
 		height = newh;
 	}
+
 	*gw = width;
 	*gh = height;
 
@@ -106,10 +125,11 @@ void CPipSetup::resize(int w, int h, bool abs)
 		pipVideoDecoder[0]->Pig(x_coord, y_coord, width, height, maxw, maxh);
 }
 
-int CPipSetup::exec(CMenuTarget* parent, const std::string &)
+int CPipSetup::exec(CMenuTarget *parent, const std::string &)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
+
 	int oldx = x_coord;
 	int oldy = y_coord;
 	int oldw = width;
@@ -128,39 +148,51 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->ShowPig(1);
 #endif
-	bool loop=true;
-	while (loop) {
+	bool loop = true;
+	while (loop)
+	{
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 
-		if ( msg <= CRCInput::RC_MaxRC )
+		if (msg <= CRCInput::RC_MaxRC)
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-		if ((msg == (neutrino_msg_t) g_settings.key_pip_setup) ||
-			(msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok)) {
-				loop = false;
-				break;
-		} else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg == CRCInput::RC_spkr)) {
+		if ((msg == (neutrino_msg_t) g_settings.key_pip_setup) || (msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok))
+		{
+			loop = false;
+			break;
+		}
+		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg == CRCInput::RC_spkr))
+		{
 			clear();
 			move(oldx, oldy, true);
 			resize(oldw, oldh, true);
 			paint();
 			if (CNeutrinoApp::getInstance()->backKey(msg))
 				loop = false;
-		} else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)) {
+		}
+		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
+		{
 			clear();
 			move(0, (msg == CRCInput::RC_up) ? -YMOVE : YMOVE);
 			paint();
-		} else if ((msg == CRCInput::RC_left) || (msg == CRCInput::RC_right)) {
+		}
+		else if ((msg == CRCInput::RC_left) || (msg == CRCInput::RC_right))
+		{
 			clear();
 			move((msg == CRCInput::RC_left) ? -XMOVE : XMOVE, 0);
 			paint();
-		} else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus)) {
+		}
+		else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
+		{
 			clear();
 			int percent = (msg == CRCInput::RC_plus) ? PERCENT : -PERCENT;
 			resize(percent, percent);
 			paint();
-		} else if (msg >  CRCInput::RC_MaxRC) {
-			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+		}
+		else if (msg >  CRCInput::RC_MaxRC)
+		{
+			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+			{
 				loop = false;
 				res = menu_return::RETURN_EXIT_ALL;
 			}
@@ -194,26 +226,28 @@ void CPipSetup::paint()
 	char wpos[30];
 	char hpos[30];
 
-	sprintf(xpos, "X: %d", x_coord );
-	sprintf(ypos, "Y: %d", y_coord );
-	sprintf(wpos, "W: %d", width );
-	sprintf(hpos, "H: %d", height );
+	sprintf(xpos, "X: %d", x_coord);
+	sprintf(ypos, "Y: %d", y_coord);
+	sprintf(wpos, "W: %d", width);
+	sprintf(hpos, "H: %d", height);
 
 	int mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	int mwidth = 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("W: 9999");
-	int x = (frameBuffer->getScreenWidth() - mwidth)/2;
-	int y = (frameBuffer->getScreenHeight() - mheight*4)/2;
+	int x = (frameBuffer->getScreenWidth() - mwidth) / 2;
+	int y = (frameBuffer->getScreenHeight() - mheight * 4) / 2;
 
 	if (pipVideoDecoder[0] != NULL)
+	{
 		if (pipVideoDecoder[0]->getBlank())
 			frameBuffer->paintBoxRel(x_coord, y_coord, width, height, COL_MENUCONTENT_PLUS_0);
+	}
 
-	frameBuffer->paintBoxRel(x, y, mwidth, mheight*4, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, y, mwidth, mheight * 4, COL_MENUCONTENT_PLUS_0);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight,   mwidth, xpos, COL_MENUCONTENT_TEXT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*2, mwidth, ypos, COL_MENUCONTENT_TEXT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*3, mwidth, wpos, COL_MENUCONTENT_TEXT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*4, mwidth, hpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight,     mwidth, xpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight * 2, mwidth, ypos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight * 3, mwidth, wpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 5, y + mheight * 4, mwidth, hpos, COL_MENUCONTENT_TEXT);
 }
 
 #endif //#if ENABLE_PIP

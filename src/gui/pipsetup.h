@@ -8,7 +8,7 @@ class CFrameBuffer;
 class CPipSetup : public CMenuTarget
 {
 	private:
-		CFrameBuffer * frameBuffer;
+		CFrameBuffer *frameBuffer;
 		int x_coord;
 		int y_coord;
 		int width;
@@ -26,6 +26,7 @@ class CPipSetup : public CMenuTarget
 		CPipSetup();
 		void move(int x, int y, bool abs = false);
 		void resize(int w, int h, bool abs = false);
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
+
 #endif
