@@ -1347,7 +1347,7 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 
 enum
 {
-	PIP_ROFF = -1,
+	PIP_NO_POS = -1,
 	PIP_UP_LEFT = 0,
 	PIP_UP_RIGHT = 1,
 	PIP_DOWN_RIGHT = 2,
