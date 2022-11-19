@@ -165,6 +165,8 @@ void hdmi_cec::ReportPhysicalAddress()
 
 void hdmi_cec::SendCECMessage(struct cec_message &txmessage, int sleeptime)
 {
+	(void) sleeptime; // avoid compiler warning
+
 	char str[txmessage.length * 6];
 
 	for (int i = 0; i < txmessage.length; i++)
@@ -548,9 +550,9 @@ void hdmi_cec::run()
 					static unsigned char pressedkey = 0;
 					char str[rxmessage.length * 6];
 
-					for (int i = 0; i < rxmessage.length; i++)
+					for (int j = 0; j < rxmessage.length; j++)
 					{
-						sprintf(str + (i * 6), "[0x%02X]", rxmessage.data[i]);
+						sprintf(str + (j * 6), "[0x%02X]", rxmessage.data[j]);
 					}
 
 					dprintf(DEBUG_NORMAL, GREEN" [CEC] received message %s to %s (0x%02X>>0x%02X) '%s' (%s)\n" NORMAL, ToString((cec_logical_address)rxmessage.initiator), rxmessage.destination == 0xf ? "all" : ToString((cec_logical_address)rxmessage.destination), rxmessage.initiator, rxmessage.destination, ToString((cec_opcode)rxmessage.opcode), str);
