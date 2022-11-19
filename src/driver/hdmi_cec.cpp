@@ -247,13 +247,9 @@ void hdmi_cec::SendAnnounce()
 	message.data[0] = CEC_OPCODE_GET_CEC_VERSION;
 	message.length = 1;
 	SendCECMessage(message);
-	SendActiveSource();
-	message.initiator = logicalAddress;
-	message.destination = CECDEVICE_BROADCAST;
-	message.data[0] = CEC_OPCODE_SET_OSD_NAME;
-	memcpy(message.data + 1, osdname, strlen(osdname));
-	message.length = strlen(osdname) + 1;
-	SendCECMessage(message);
+
+	SendActiveSource(true);
+
 	message.initiator = logicalAddress;
 	message.destination = CECDEVICE_TV;
 	message.data[0] = CEC_OPCODE_GIVE_OSD_NAME;
@@ -262,7 +258,7 @@ void hdmi_cec::SendAnnounce()
 	request_audio_status();
 }
 
-void hdmi_cec::SendActiveSource()
+void hdmi_cec::SendActiveSource(bool force)
 {
 	struct cec_message message;
 	message.destination = CECDEVICE_BROADCAST;
@@ -272,7 +268,7 @@ void hdmi_cec::SendActiveSource()
 	message.data[2] = physicalAddress[1];
 	message.length = 3;
 
-	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby && active_source)
+	if ((CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby && active_source) || force)
 		SendCECMessage(message);
 }
 
@@ -581,7 +577,7 @@ void hdmi_cec::run()
 						case CEC_OPCODE_GIVE_OSD_NAME:
 						{
 							txmessage.initiator = logicalAddress;
-							txmessage.destination = CECDEVICE_BROADCAST;
+							txmessage.destination = rxmessage.initiator;
 							txmessage.data[0] = CEC_OPCODE_SET_OSD_NAME;
 							memcpy(txmessage.data + 1, osdname, strlen(osdname));
 							txmessage.length = strlen(osdname) + 1;
@@ -715,7 +711,7 @@ void hdmi_cec::run()
 							long code = translateKey(pressedkey);
 							dprintf(DEBUG_NORMAL, GREEN"[CEC] decoded key %s (%ld)\n"NORMAL, ToString((cec_user_control_code)pressedkey), code);
 
-							if (code == KEY_POWER)
+							if (code == KEY_POWER || code == KEY_POWERON)
 							{
 								if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby)
 									g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, (neutrino_msg_data_t)"cec");
