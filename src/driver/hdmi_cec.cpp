@@ -99,11 +99,11 @@ bool hdmi_cec::SetCECMode(VIDEO_HDMI_CEC_MODE cecOnOff)
 	if (cecOnOff == VIDEO_HDMI_CEC_MODE_OFF)
 	{
 		Stop();
-		dprintf(DEBUG_NORMAL, GREEN"[CEC] switch off %s\n"NORMAL, __func__);
+		dprintf(DEBUG_NORMAL, GREEN" [CEC] switch off %s\n" NORMAL, __func__);
 		return false;
 	}
 
-	dprintf(DEBUG_NORMAL, GREEN"[CEC] switch on %s\n"NORMAL, __func__);
+	dprintf(DEBUG_NORMAL, GREEN" [CEC] switch on %s\n" NORMAL, __func__);
 
 	if (hdmiFd == -1)
 	{
@@ -138,11 +138,11 @@ void hdmi_cec::GetCECAddressInfo()
 		{
 			deviceType = addressinfo.type;
 			logicalAddress = addressinfo.logical;
-			dprintf(DEBUG_NORMAL, GREEN"[CEC] %s: detected physical address: 0x%02X:0x%02X (Type: 0x%02X/Logical: 0x%02X)\n"NORMAL, __func__, physicalAddress[0], physicalAddress[1], deviceType, logicalAddress);
+			dprintf(DEBUG_NORMAL, GREEN" [CEC] %s: detected physical address: 0x%02X:0x%02X (Type: 0x%02X/Logical: 0x%02X)\n" NORMAL, __func__, physicalAddress[0], physicalAddress[1], deviceType, logicalAddress);
 
 			if (memcmp(physicalAddress, addressinfo.physical, sizeof(physicalAddress)))
 			{
-				dprintf(DEBUG_NORMAL, YELLOW"[CEC] %s: detected physical address change: 0x%02X:0x%02X --> 0x%02X:0x%02X\n"NORMAL, __func__, physicalAddress[0], physicalAddress[1], addressinfo.physical[0], addressinfo.physical[1]);
+				dprintf(DEBUG_NORMAL, YELLOW" [CEC] %s: detected physical address change: 0x%02X:0x%02X --> 0x%02X:0x%02X\n" NORMAL, __func__, physicalAddress[0], physicalAddress[1], addressinfo.physical[0], addressinfo.physical[1]);
 				memcpy(physicalAddress, addressinfo.physical, sizeof(physicalAddress));
 				ReportPhysicalAddress();
 			}
@@ -172,7 +172,7 @@ void hdmi_cec::SendCECMessage(struct cec_message &txmessage, int sleeptime)
 		sprintf(str + (i * 6), "[0x%02X]", txmessage.data[i]);
 	}
 
-	dprintf(DEBUG_NORMAL, YELLOW"[CEC] send message %s to %s (0x%02X>>0x%02X) '%s' (%s)\n"NORMAL, ToString((cec_logical_address)txmessage.initiator), txmessage.destination == 0xf ? "all" : ToString((cec_logical_address)txmessage.destination), txmessage.initiator, txmessage.destination, ToString((cec_opcode)txmessage.data[0]), str);
+	dprintf(DEBUG_NORMAL, YELLOW" [CEC] send message %s to %s (0x%02X>>0x%02X) '%s' (%s)\n" NORMAL, ToString((cec_logical_address)txmessage.initiator), txmessage.destination == 0xf ? "all" : ToString((cec_logical_address)txmessage.destination), txmessage.initiator, txmessage.destination, ToString((cec_opcode)txmessage.data[0]), str);
 	struct cec_message_fb message;
 	message.address = txmessage.destination;
 	message.length = txmessage.length;
@@ -465,7 +465,7 @@ bool hdmi_cec::Start()
 	if (hdmiFd == -1)
 		return false;
 
-	dprintf(DEBUG_NORMAL, GREEN"[CEC] thread starting...\n"NORMAL);
+	dprintf(DEBUG_NORMAL, GREEN" [CEC] thread starting...\n" NORMAL);
 	running = true;
 	OpenThreads::Thread::setSchedulePriority(THREAD_PRIORITY_MIN);
 	return (OpenThreads::Thread::start() == 0);
@@ -498,7 +498,7 @@ void hdmi_cec::run()
 	event.events = EPOLLPRI | EPOLLIN | EPOLLOUT;
 	epoll_ctl(epollfd, EPOLL_CTL_ADD, hdmiFd, &event);
 	std::array<struct epoll_event, EPOLL_MAX_EVENTS> events;
-	dprintf(DEBUG_NORMAL, GREEN"[CEC] thread started...\n"NORMAL);
+	dprintf(DEBUG_NORMAL, GREEN" [CEC] thread started...\n" NORMAL);
 
 	while (running)
 	{
@@ -553,7 +553,7 @@ void hdmi_cec::run()
 						sprintf(str + (i * 6), "[0x%02X]", rxmessage.data[i]);
 					}
 
-					dprintf(DEBUG_NORMAL, GREEN"[CEC] received message %s to %s (0x%02X>>0x%02X) '%s' (%s)\n"NORMAL, ToString((cec_logical_address)rxmessage.initiator), rxmessage.destination == 0xf ? "all" : ToString((cec_logical_address)rxmessage.destination), rxmessage.initiator, rxmessage.destination, ToString((cec_opcode)rxmessage.opcode), str);
+					dprintf(DEBUG_NORMAL, GREEN" [CEC] received message %s to %s (0x%02X>>0x%02X) '%s' (%s)\n" NORMAL, ToString((cec_logical_address)rxmessage.initiator), rxmessage.destination == 0xf ? "all" : ToString((cec_logical_address)rxmessage.destination), rxmessage.initiator, rxmessage.destination, ToString((cec_opcode)rxmessage.opcode), str);
 
 					switch (rxmessage.opcode)
 					{
@@ -587,19 +587,19 @@ void hdmi_cec::run()
 
 						case CEC_OPCODE_FEATURE_ABORT:
 						{
-							dprintf(DEBUG_NORMAL, GREEN"[CEC] decoded message feature '%s' not supported (%s)\n"NORMAL, ToString((cec_opcode)rxmessage.data[1]), ToString((cec_error_id)rxmessage.data[2]));
+							dprintf(DEBUG_NORMAL, GREEN" [CEC] decoded message feature '%s' not supported (%s)\n" NORMAL, ToString((cec_opcode)rxmessage.data[1]), ToString((cec_error_id)rxmessage.data[2]));
 							break;
 						}
 
 						case CEC_OPCODE_SET_OSD_NAME:
 						{
-							dprintf(DEBUG_NORMAL, GREEN"[CEC] decoded message '%s' \n"NORMAL, (char *)rxmessage.data + 1);
+							dprintf(DEBUG_NORMAL, GREEN" [CEC] decoded message '%s' \n" NORMAL, (char *)rxmessage.data + 1);
 							break;
 						}
 
 						case CEC_OPCODE_REQUEST_ACTIVE_SOURCE:
 						{
-							dprintf(DEBUG_NORMAL, CYAN"[CEC] active_source=%s neutrino standby=%s\n"NORMAL, active_source ? "yes" : "no", CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby ? "yes" : "no");
+							dprintf(DEBUG_NORMAL, CYAN" [CEC] active_source=%s neutrino standby=%s\n" NORMAL, active_source ? "yes" : "no", CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby ? "yes" : "no");
 							if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby && active_source)
 									g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, (neutrino_msg_data_t)"cec");
 							SendActiveSource();
@@ -612,9 +612,9 @@ void hdmi_cec::run()
 							volume = ((rxmessage.data[1] & 0x7F) / 127.0) * 100.0;
 
 							if (muted)
-								dprintf(DEBUG_NORMAL, GREEN"[CEC] %s volume muted\n"NORMAL, ToString((cec_logical_address)rxmessage.initiator));
+								dprintf(DEBUG_NORMAL, GREEN" [CEC] %s volume muted\n" NORMAL, ToString((cec_logical_address)rxmessage.initiator));
 							else
-								dprintf(DEBUG_NORMAL, GREEN"[CEC] %s volume %d \n"NORMAL, ToString((cec_logical_address)rxmessage.initiator), volume);
+								dprintf(DEBUG_NORMAL, GREEN" [CEC] %s volume %d \n" NORMAL, ToString((cec_logical_address)rxmessage.initiator), volume);
 
 							break;
 						}
@@ -625,7 +625,7 @@ void hdmi_cec::run()
 							uint64_t iVendorId =	((uint64_t)rxmessage.data[1] << 16) +
 										((uint64_t)rxmessage.data[2] << 8) +
 										(uint64_t)rxmessage.data[3];
-							dprintf(DEBUG_NORMAL, GREEN"[CEC] decoded message '%s' (%s)\n"NORMAL, ToString((cec_opcode)rxmessage.opcode), ToString((cec_vendor_id)iVendorId));
+							dprintf(DEBUG_NORMAL, GREEN" [CEC] decoded message '%s' (%s)\n" NORMAL, ToString((cec_opcode)rxmessage.opcode), ToString((cec_vendor_id)iVendorId));
 							break;
 						}
 
@@ -644,14 +644,14 @@ void hdmi_cec::run()
 						{
 							if ((rxmessage.data[1] == CEC_POWER_STATUS_ON) || (rxmessage.data[1] == CEC_POWER_STATUS_IN_TRANSITION_STANDBY_TO_ON))
 							{
-								dprintf(DEBUG_NORMAL, GREEN"[CEC] %s reporting state on (%d)\n"NORMAL, ToString((cec_logical_address)rxmessage.initiator), rxmessage.data[1]);
+								dprintf(DEBUG_NORMAL, GREEN" [CEC] %s reporting state on (%d)\n" NORMAL, ToString((cec_logical_address)rxmessage.initiator), rxmessage.data[1]);
 
 								if (rxmessage.initiator == CECDEVICE_TV)
 									tv_off = false;
 							}
 							else
 							{
-								dprintf(DEBUG_NORMAL, GREEN"[CEC] %s reporting state off (%d)\n"NORMAL, ToString((cec_logical_address)rxmessage.initiator), rxmessage.data[1]);
+								dprintf(DEBUG_NORMAL, GREEN" [CEC] %s reporting state off (%d)\n" NORMAL, ToString((cec_logical_address)rxmessage.initiator), rxmessage.data[1]);
 
 								if (rxmessage.initiator == CECDEVICE_TV)
 									tv_off = true;
@@ -682,7 +682,7 @@ void hdmi_cec::run()
 
 							if (strcmp(msgpath, phypath) == 0)
 							{
-								dprintf(DEBUG_NORMAL, CYAN"[CEC] received streampath (%s) change to me (%s) -> wake up \n"NORMAL, msgpath, phypath);
+								dprintf(DEBUG_NORMAL, CYAN" [CEC] received streampath (%s) change to me (%s) -> wake up \n" NORMAL, msgpath, phypath);
 
 								if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby && g_settings.hdmi_cec_wakeup)
 									g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, (neutrino_msg_data_t)"cec");
@@ -692,7 +692,7 @@ void hdmi_cec::run()
 							}
 							else
 							{
-								dprintf(DEBUG_NORMAL, CYAN"[CEC] received streampath (%s) change away from me (%s) -> go to sleep\n"NORMAL, msgpath, phypath);
+								dprintf(DEBUG_NORMAL, CYAN" [CEC] received streampath (%s) change away from me (%s) -> go to sleep\n" NORMAL, msgpath, phypath);
 
 								if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby && g_settings.hdmi_cec_sleep)
 									g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, (neutrino_msg_data_t)"cec");
@@ -712,7 +712,7 @@ void hdmi_cec::run()
 						case CEC_OPCODE_USER_CONTROL_RELEASE: /* key released */
 						{
 							long code = translateKey(pressedkey);
-							dprintf(DEBUG_NORMAL, GREEN"[CEC] decoded key %s (%ld)\n"NORMAL, ToString((cec_user_control_code)pressedkey), code);
+							dprintf(DEBUG_NORMAL, GREEN" [CEC] decoded key %s (%ld)\n" NORMAL, ToString((cec_user_control_code)pressedkey), code);
 
 							if (code == KEY_POWER || code == KEY_POWERON)
 							{
@@ -737,7 +737,7 @@ void hdmi_cec::handleCode(long code, bool keypressed)
 
 	if (evd < 0)
 	{
-		dprintf(DEBUG_NORMAL, RED"[CEC] opening " RC_DEVICE " failed"NORMAL);
+		dprintf(DEBUG_NORMAL, RED" [CEC] opening " RC_DEVICE " failed" NORMAL);
 		return;
 	}
 
@@ -745,7 +745,7 @@ void hdmi_cec::handleCode(long code, bool keypressed)
 	{
 		if (rc_send(evd, code, CEC_KEY_PRESSED) < 0)
 		{
-			dprintf(DEBUG_NORMAL, RED"[CEC] writing 'KEY_PRESSED' event failed"NORMAL);
+			dprintf(DEBUG_NORMAL, RED" [CEC] writing 'KEY_PRESSED' event failed" NORMAL);
 			close(evd);
 			return;
 		}
@@ -756,7 +756,7 @@ void hdmi_cec::handleCode(long code, bool keypressed)
 	{
 		if (rc_send(evd, code, CEC_KEY_RELEASED) < 0)
 		{
-			dprintf(DEBUG_NORMAL, RED"[CEC] writing 'KEY_RELEASED' event failed"NORMAL);
+			dprintf(DEBUG_NORMAL, RED" [CEC] writing 'KEY_RELEASED' event failed" NORMAL);
 			close(evd);
 			return;
 		}
