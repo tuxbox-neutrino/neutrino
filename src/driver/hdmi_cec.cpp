@@ -268,7 +268,7 @@ void hdmi_cec::SendActiveSource(bool force)
 	message.data[2] = physicalAddress[1];
 	message.length = 3;
 
-	if ((CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby && active_source) || force)
+	if (active_source || force)
 		SendCECMessage(message);
 }
 
@@ -562,7 +562,7 @@ void hdmi_cec::run()
 							txmessage.initiator = logicalAddress;
 							txmessage.destination = rxmessage.initiator;
 							txmessage.data[0] = CEC_OPCODE_CEC_VERSION;
-							txmessage.data[1] = CEC_OP_CEC_VERSION_2_0;
+							txmessage.data[1] = CEC_OP_CEC_VERSION_1_4;
 							txmessage.length = 2;
 							SendCECMessage(txmessage);
 							break;
@@ -599,6 +599,9 @@ void hdmi_cec::run()
 
 						case CEC_OPCODE_REQUEST_ACTIVE_SOURCE:
 						{
+							dprintf(DEBUG_NORMAL, CYAN"[CEC] active_source=%s neutrino standby=%s\n"NORMAL, active_source ? "yes" : "no", CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby ? "yes" : "no");
+							if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby && active_source)
+									g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, (neutrino_msg_data_t)"cec");
 							SendActiveSource();
 							break;
 						}
