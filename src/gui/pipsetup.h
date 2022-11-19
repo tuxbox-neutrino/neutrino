@@ -13,12 +13,13 @@ class CPipSetup : public CMenuTarget
 		int y_coord;
 		int width;
 		int height;
+		int pos;
 		int maxw;
 		int maxh;
 		int minw;
 		int minh;
 
-		int *gx, *gy, *gw, *gh;
+		int *gx, *gy, *gw, *gh, *gp;
 		void paint();
 		void hide();
 		void clear();

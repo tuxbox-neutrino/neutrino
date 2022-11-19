@@ -40,11 +40,13 @@ CPipSetup::CPipSetup()
 		gw = &g_settings.pip_width;
 		gh = &g_settings.pip_height;
 	}
+	gp = &g_settings.pip_rotate_lastpos;
 
 	x_coord = *gx;
 	y_coord = *gy;
 	width = *gw;
 	height = *gh;
+	pos = *gp;
 
 	maxw = frameBuffer->getScreenWidth(true);
 	maxh = frameBuffer->getScreenHeight(true);
@@ -87,11 +89,13 @@ void CPipSetup::move(int x, int y, bool abs)
 
 void CPipSetup::rotate(int cw)
 {
-	g_settings.pip_rotate_lastpos += cw;
-	if (g_settings.pip_rotate_lastpos < PIP_UP_LEFT)
-		g_settings.pip_rotate_lastpos = PIP_DOWN_LEFT;
-	if (g_settings.pip_rotate_lastpos > PIP_DOWN_LEFT)
-		g_settings.pip_rotate_lastpos = PIP_UP_LEFT;
+	pos += cw;
+	if (pos < PIP_UP_LEFT)
+		pos = PIP_DOWN_LEFT;
+	if (pos > PIP_DOWN_LEFT)
+		pos = PIP_UP_LEFT;
+
+	*gp = pos;
 
 	printf("CPipSetup::rotate: x %d y %d\n", CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord));
 	if (pipVideoDecoder[0] != NULL)
@@ -245,17 +249,19 @@ void CPipSetup::paint()
 	char ypos[30];
 	char wpos[30];
 	char hpos[30];
+	char ppos[30];
 
 	sprintf(xpos, "X: %d", x_coord);
 	sprintf(ypos, "Y: %d", y_coord);
 	sprintf(wpos, "W: %d", width);
 	sprintf(hpos, "H: %d", height);
+	sprintf(ppos, "P: %d", pos);
 
 	int mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	int mwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("W: 9999");
 
 	int w = mwidth + 2 * OFFSET_INNER_MID;
-	int h = mheight * 4;
+	int h = mheight * 5;
 	int x = (frameBuffer->getScreenWidth() - w) / 2;
 	int y = (frameBuffer->getScreenHeight() - h) / 2;
 
@@ -271,6 +277,7 @@ void CPipSetup::paint()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight * 2, mwidth, ypos, COL_MENUCONTENT_TEXT);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight * 3, mwidth, wpos, COL_MENUCONTENT_TEXT);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight * 4, mwidth, hpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + OFFSET_INNER_MID, y + mheight * 5, mwidth, ppos, COL_MENUCONTENT_TEXT);
 }
 
 #endif //#if ENABLE_PIP
