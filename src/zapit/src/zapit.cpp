@@ -809,7 +809,8 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	pipVideoDecoder[pip]->Start(0, newchannel->getPcrPid(), newchannel->getVideoPid());
 	pip_channel_id[pip] = newchannel->getChannelID();
 
-	pipVideoDecoder[pip]->Pig(g_settings.pip_x,g_settings.pip_y,g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
+	pipVideoDecoder[pip]->Pig(CNeutrinoApp::getInstance()->pip_recalc_pos_x(g_settings.pip_x),CNeutrinoApp::getInstance()->pip_recalc_pos_y(g_settings.pip_y),g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
+
 	pipVideoDecoder[pip]->ShowPig(1);
 
 	if (!pipAudioDemux[pip]) {

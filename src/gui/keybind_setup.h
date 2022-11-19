@@ -89,6 +89,8 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 #if ENABLE_PIP
 			NKEY_PIP_CLOSE,
 			NKEY_PIP_CLOSE_AVINPUT,
+			NKEY_PIP_ROTATE_CW,
+			NKEY_PIP_ROTATE_CCW,
 			NKEY_PIP_SETUP,
 			NKEY_PIP_SWAP,
 #endif

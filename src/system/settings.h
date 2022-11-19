@@ -978,10 +978,13 @@ struct SNeutrinoSettings
 	int pip_height;
 	int pip_x;
 	int pip_y;
+
 	int pip_radio_width;
 	int pip_radio_height;
 	int pip_radio_x;
 	int pip_radio_y;
+
+	int pip_rotate_lastpos;
 #endif
 
 #if ENABLE_QUADPIP
@@ -1234,6 +1237,8 @@ struct SNeutrinoSettings
 #if ENABLE_PIP
 	int key_pip_close;
 	int key_pip_close_avinput;
+	int key_pip_rotate_cw;
+	int key_pip_rotate_ccw;
 	int key_pip_setup;
 	int key_pip_swap;
 #endif
@@ -1337,6 +1342,16 @@ const time_settings_struct_t handling_infobar_setting[SNeutrinoSettings::HANDLIN
 	{ -1,	LOCALE_TIMING_INFOBAR_RADIO,		LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR},
 	{ -1,	LOCALE_TIMING_INFOBAR_MEDIA_AUDIO,	LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR},
 	{ 6,	LOCALE_TIMING_INFOBAR_MEDIA_VIDEO,	LOCALE_MENU_HINT_OSD_BEHAVIOR_INFOBAR}
+};
+
+
+enum
+{
+	PIP_ROFF = -1,
+	PIP_UP_LEFT = 0,
+	PIP_UP_RIGHT = 1,
+	PIP_DOWN_RIGHT = 2,
+	PIP_DOWN_LEFT = 3
 };
 
 // lcdd

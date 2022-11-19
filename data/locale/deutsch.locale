@@ -520,6 +520,8 @@ extra.key_pic_mode Bildschirmformat
 extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_close_avinput Stop/Start PiP (HDMI)
+extra.key_pip_rotate_cw Bewegen im Uhrzeigensinn
+extra.key_pip_rotate_ccw Bewegen gegen Uhrzeigersinn
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
 extra.key_record Aufnahme
@@ -1448,6 +1450,8 @@ menu.hint_key_pageup Weisen Sie eine Taste für das Hochblättern zu
 menu.hint_key_pic_mode_active Die Taste für das Bildschirmformat deaktivieren/aktivieren
 menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivieren/aktivieren
 menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
+menu.hint_key_pip_rotate_cw Tastenzuordnung für PiP Bewegung im Uhrzeigersinn
+menu.hint_key_pip_rotate_ccw Tastenzuordnung für PiP Bewegung gegen den Uhrzeigersinn
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung

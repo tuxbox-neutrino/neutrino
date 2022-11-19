@@ -174,6 +174,9 @@ public:
 	bool avinput_pip;
 	void StartAVInputPiP();
 	void StopAVInputPiP();
+	int pip_recalc_pos_x(int x);
+	int pip_recalc_pos_y(int y);
+	void pip_rotate(int cw);
 #endif
 #endif
 

@@ -520,6 +520,8 @@ extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_close_avinput Stop/Start PiP (HDMI)
+extra.key_pip_rotate_cw Move clockwise
+extra.key_pip_rotate_ccw Move counter clockwise
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
 extra.key_record Record
@@ -1447,6 +1449,8 @@ menu.hint_key_pageup Assign button to show previous items page
 menu.hint_key_pic_mode_active Disable/enable key for the screen format
 menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
+menu.hint_key_pip_rotate_cw Assign button to move PiP clockwise
+menu.hint_key_pip_rotate_ccw Assign button to move PiP counter clockwise
 menu.hint_key_pip_setup Assign button to configure PiP
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deep-standby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch

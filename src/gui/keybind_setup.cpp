@@ -225,6 +225,8 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 #if ENABLE_PIP
 	{LOCALE_EXTRA_KEY_PIP_CLOSE,		&g_settings.key_pip_close,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
 	{LOCALE_EXTRA_KEY_PIP_CLOSE_AVINPUT,	&g_settings.key_pip_close_avinput,	NONEXISTANT_LOCALE /*LOCALE_MENU_HINT_KEY_PIP_CLOSE_AVINPUT*/ },
+	{LOCALE_EXTRA_KEY_PIP_ROTATE_CW,	&g_settings.key_pip_rotate_cw,		LOCALE_MENU_HINT_KEY_PIP_ROTATE_CW },
+	{LOCALE_EXTRA_KEY_PIP_ROTATE_CCW,	&g_settings.key_pip_rotate_ccw,		LOCALE_MENU_HINT_KEY_PIP_ROTATE_CCW },
 	{LOCALE_EXTRA_KEY_PIP_SETUP,		&g_settings.key_pip_setup,		LOCALE_MENU_HINT_KEY_PIP_SETUP },
 	{LOCALE_EXTRA_KEY_PIP_SWAP,		&g_settings.key_pip_swap,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
 #endif
@@ -476,6 +478,12 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	bindSettings->addItem(mf);
 	mf = new CMenuForwarder(key_settings[NKEY_PIP_SWAP].keydescription, true, keychooser[NKEY_PIP_SWAP]->getKeyName(), keychooser[NKEY_PIP_SWAP]);
 	mf->setHint("", key_settings[NKEY_PIP_SWAP].hint);
+	bindSettings->addItem(mf);
+	mf = new CMenuForwarder(key_settings[NKEY_PIP_ROTATE_CW].keydescription, true, keychooser[NKEY_PIP_ROTATE_CW]->getKeyName(), keychooser[NKEY_PIP_ROTATE_CW]);
+	mf->setHint("", key_settings[NKEY_PIP_ROTATE_CW].hint);
+	bindSettings->addItem(mf);
+	mf = new CMenuForwarder(key_settings[NKEY_PIP_ROTATE_CCW].keydescription, true, keychooser[NKEY_PIP_ROTATE_CCW]->getKeyName(), keychooser[NKEY_PIP_ROTATE_CCW]);
+	mf->setHint("", key_settings[NKEY_PIP_ROTATE_CCW].hint);
 	bindSettings->addItem(mf);
 #endif
 

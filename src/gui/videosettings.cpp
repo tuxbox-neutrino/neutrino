@@ -648,7 +648,7 @@ void CVideoSettings::initVideoSettings()
 #endif
 #if ENABLE_PIP
 	if (pipVideoDecoder[0] != NULL)
-		pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
+		pipVideoDecoder[0]->Pig(CNeutrinoApp::getInstance()->pip_recalc_pos_x(g_settings.pip_x),CNeutrinoApp::getInstance()->pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
 #endif
 }
 
