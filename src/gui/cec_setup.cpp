@@ -157,7 +157,6 @@ void CCECSetup::setCECSettings()
 #else
 	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-	videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
 	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 #endif
 }
