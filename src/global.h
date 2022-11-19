@@ -108,6 +108,11 @@ NEUTRINO_CPP CRadioText *g_Radiotext;
 class CRadioTextGUI;
 NEUTRINO_CPP CRadioTextGUI *g_RadiotextWin;
 
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+class hdmi_cec;
+NEUTRINO_CPP hdmi_cec *g_hdmicec;
+#endif
+
 #ifndef DISABLE_GUI_MOUNT
 #define ENABLE_GUI_MOUNT
 #endif

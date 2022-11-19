@@ -63,6 +63,9 @@
 #include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+#include <driver/hdmi_cec.h>
+#endif
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include "gui/psisetup.h"
@@ -467,10 +470,12 @@ int CNeutrinoApp::loadSetup(const char *fname)
 #endif
 
 	// hdmi cec
-	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0);
-	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0);
-	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0);
-	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 0);
+	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 1);
+	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 1);
+	g_settings.hdmi_cec_sleep = configfile.getInt32("hdmi_cec_sleep", 1);
+	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 1);
+	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 1);
+	g_settings.hdmi_cec_wakeup = configfile.getInt32("hdmi_cec_wakeup", 1);
 
 	// volume
 	g_settings.current_volume = configfile.getInt32("current_volume", 75);
@@ -1571,8 +1576,10 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	// hdmi cec
 	configfile.setInt32("hdmi_cec_mode", g_settings.hdmi_cec_mode);
 	configfile.setInt32("hdmi_cec_view_on", g_settings.hdmi_cec_view_on);
+	configfile.setInt32("hdmi_cec_sleep", g_settings.hdmi_cec_sleep);
 	configfile.setInt32("hdmi_cec_standby", g_settings.hdmi_cec_standby);
 	configfile.setInt32("hdmi_cec_volume", g_settings.hdmi_cec_volume);
+	configfile.setInt32("hdmi_cec_wakeup", g_settings.hdmi_cec_wakeup);
 
 	// volume
 	configfile.setInt32( "current_volume", g_settings.current_volume );
@@ -4485,6 +4492,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_ON ) {
 		if( mode != NeutrinoModes::mode_standby ) {
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+			if (data)
+				standbyModeFromCEC( true );
+			else
+#endif
 			standbyMode( true );
 		}
 		g_RCInput->clearRCMsg();
@@ -4492,6 +4504,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_OFF ) {
 		if( mode == NeutrinoModes::mode_standby ) {
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+			if (data)
+				standbyModeFromCEC( false );
+			else
+#endif
 			standbyMode( false );
 		}
 		g_RCInput->clearRCMsg();
@@ -4657,13 +4674,21 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON) {
 		if(g_settings.hdmi_cec_view_on)
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+			g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on);
+#else
 			videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on);
+#endif
 
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_STANDBY) {
 		if(g_settings.hdmi_cec_standby)
-			  videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+			g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby);
+#else
+			videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby);
+#endif
 
 		return messages_return::handled;
 	}
@@ -4934,6 +4959,9 @@ void CNeutrinoApp::tvMode( bool rezap )
 	if( mode == NeutrinoModes::mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		g_hdmicec->SetCECState(false);
+#endif
 	}
 
 #if ENABLE_PIP
@@ -5010,8 +5038,16 @@ void CNeutrinoApp::AVInputMode(bool bOnOff)
 	(void)bOnOff; // avoid compiler warning
 #endif // !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 }
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+void CNeutrinoApp::standbyModeFromCEC( bool bOnOff )
+{
+	standbyMode(bOnOff, false, true);
+}
 
+void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby, bool fromcec )
+#else
 void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
+#endif
 {
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
@@ -5059,6 +5095,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		videoDecoder->Standby(true);
 
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		if (!fromcec)
+			g_hdmicec->SetCECState(true);
+#endif
 		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(!fromDeepStandby);
 
@@ -5116,6 +5156,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		videoDecoder->Standby(false);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		if (!fromcec)
+			g_hdmicec->SetCECState(false);
+#endif
 		CEpgScan::getInstance()->Stop();
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
@@ -5352,7 +5396,11 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 //	else if (actionKey=="restart")
 //	{
+//#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+//		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+//#else
 //		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+//#endif
 //		ExitRun(CNeutrinoApp::EXIT_RESTART);
 //		returnval = menu_return::RETURN_NONE;
 //	}
@@ -5462,7 +5510,11 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if (actionKey=="restart") {
 		//usage of slots from any classes
 		OnBeforeRestart();
-
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+#else
+		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+#endif
 		//cleanup progress bar cache
 		CProgressBarCache::pbcClear();
 
@@ -5624,8 +5676,13 @@ void stop_daemons(bool stopall, bool for_flash)
 #endif
 	tuxtx_stop_subtitle();
 	printf("zapit shutdown\n");
-	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
-	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby)
+	{
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+#else
+		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+#endif
 	}
 	if(InfoClock)
 		delete InfoClock;

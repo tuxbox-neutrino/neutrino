@@ -372,8 +372,10 @@ struct SNeutrinoSettings
 	// hdmi cec
 	int hdmi_cec_mode;
 	int hdmi_cec_view_on;
+	int hdmi_cec_sleep;
 	int hdmi_cec_standby;
 	int hdmi_cec_volume;
+	int hdmi_cec_wakeup;
 
 	// volume
 	char current_volume;

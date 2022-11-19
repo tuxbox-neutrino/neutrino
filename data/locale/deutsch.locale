@@ -1300,9 +1300,11 @@ menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
 menu.hint_ca_init Konfiguration der CA-Systemhardware, CA-Modul und Kartenschächte
 menu.hint_cache_txt Startet das Zwischenspeichern des Videotextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
+menu.hint_cec_sleep CEC-Standby bei HDMI Eingangswechsel
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
-menu.hint_cec_volume Beim Betätigen der Lautstärketasten wird die Lautstärke an angeschlossenen Audiogerät reguliert
+menu.hint_cec_volume Beim Betätigen der Lautstärketasten wird die Lautstärke am angeschlossenen Audiogerät reguliert
+menu.hint_cec_wakeup CEC-Aufwachen bei HDMI Eingangswechsel
 menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_channellist_enablesdt Ermöglicht die dynamische Senderaktualisierung im laufenden Betrieb
 menu.hint_channellist_epg_align Legen Sie fest, wie der Text für das EPG in der Liste rechts vom Programmnamen ausgerichtet wird
@@ -2866,6 +2868,7 @@ videomenu.hdmi_cec_mode Receiver verwenden
 videomenu.hdmi_cec_mode_off nein
 videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR
 videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
+videomenu.hdmi_cec_sleep Box in Standby bei HDMI Eingangswechsel
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
