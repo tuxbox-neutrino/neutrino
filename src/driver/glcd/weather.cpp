@@ -53,7 +53,7 @@ int  standby_weather_fontsize;
 
 void InitWeather()
 {
-	WeatherUpdateFonts;
+	WeatherUpdateFonts();
 }
 
 void WeatherUpdateFonts()
