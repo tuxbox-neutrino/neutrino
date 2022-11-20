@@ -470,12 +470,12 @@ int CNeutrinoApp::loadSetup(const char *fname)
 #endif
 
 	// hdmi cec
-	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 1);
-	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 1);
-	g_settings.hdmi_cec_sleep = configfile.getInt32("hdmi_cec_sleep", 1);
-	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 1);
-	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 1);
-	g_settings.hdmi_cec_wakeup = configfile.getInt32("hdmi_cec_wakeup", 1);
+	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0);
+	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0);
+	g_settings.hdmi_cec_sleep = configfile.getInt32("hdmi_cec_sleep", 0);
+	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0);
+	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 0);
+	g_settings.hdmi_cec_wakeup = configfile.getInt32("hdmi_cec_wakeup", 0);
 
 	// volume
 	g_settings.current_volume = configfile.getInt32("current_volume", 75);
