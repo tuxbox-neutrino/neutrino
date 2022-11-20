@@ -518,12 +518,12 @@ extra.key_list_start Listenanfang
 extra.key_next43mode Nächstes Seitenformat
 extra.key_pic_mode Bildschirmformat
 extra.key_pic_size 4:3 Anzeigeverhalten
-extra.key_pip_close Stop/Start PiP
-extra.key_pip_close_avinput Stop/Start PiP (HDMI)
-extra.key_pip_rotate_cw Bewegen im Uhrzeigensinn
-extra.key_pip_rotate_ccw Bewegen gegen Uhrzeigersinn
+extra.key_pip_close Pip Start/Stopp
+extra.key_pip_close_avinput PiP Start/Stopp (HDMI)
+extra.key_pip_rotate_cw PiP bewegen im Uhrzeigensinn
+extra.key_pip_rotate_ccw PiP bewegen entgegen dem Uhrzeigersinn
 extra.key_pip_setup PiP Konfiguration
-extra.key_pip_swap Umschalten PiP/live
+extra.key_pip_swap PiP/Live umschalten
 extra.key_record Aufnahme
 extra.key_screenshot Screenshot
 extra.key_sleep Sleeptimer
@@ -1453,7 +1453,7 @@ menu.hint_key_pic_mode_active Die Taste für das Bildschirmformat deaktivieren/a
 menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivieren/aktivieren
 menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
 menu.hint_key_pip_rotate_cw Tastenzuordnung für PiP Bewegung im Uhrzeigersinn
-menu.hint_key_pip_rotate_ccw Tastenzuordnung für PiP Bewegung gegen den Uhrzeigersinn
+menu.hint_key_pip_rotate_ccw Tastenzuordnung für PiP Bewegung entgegen dem Uhrzeigersinn
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung

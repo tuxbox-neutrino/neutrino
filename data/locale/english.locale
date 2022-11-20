@@ -518,12 +518,12 @@ extra.key_list_start Home
 extra.key_next43mode Next aspect ratio
 extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
-extra.key_pip_close Stop/Start PiP
-extra.key_pip_close_avinput Stop/Start PiP (HDMI)
-extra.key_pip_rotate_cw Move clockwise
-extra.key_pip_rotate_ccw Move counter clockwise
-extra.key_pip_setup Configure PiP
-extra.key_pip_swap Swap PiP/live
+extra.key_pip_close PiP Start/Stop
+extra.key_pip_close_avinput PiP Start/Stop (HDMI)
+extra.key_pip_rotate_cw PiP move clockwise
+extra.key_pip_rotate_ccw PiP move counter clockwise
+extra.key_pip_setup PiP configure
+extra.key_pip_swap PiP/Live swap
 extra.key_record Record
 extra.key_screenshot Screenshot
 extra.key_sleep Sleeptimer
