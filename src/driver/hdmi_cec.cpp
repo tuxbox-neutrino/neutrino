@@ -51,7 +51,7 @@
 #define WHITE "\x1b[37m"
 #define NORMAL "\x1B[0m"
 
-#define EPOLL_WAIT_TIMEOUT (1000)
+#define EPOLL_WAIT_TIMEOUT (-1)
 #define EPOLL_MAX_EVENTS (1)
 
 #define CEC_HDMIDEV "/dev/hdmi_cec"
@@ -182,6 +182,17 @@ void hdmi_cec::SendCECMessage(struct cec_message &txmessage, int sleeptime)
 	mutex.lock();
 	msg_que.push_back(message);
 	mutex.unlock();
+
+	if (hdmiFd >= 0)
+	{
+		mutex.lock();
+
+		for (std::vector<cec_message_fb>::iterator it = msg_que.begin(); it != msg_que.end(); ++it)
+			::write(hdmiFd, &(*it), 2 + (*it).length);
+
+		msg_que.clear();
+		mutex.unlock();
+	}
 }
 
 void hdmi_cec::SetCECAutoStandby(bool state)
@@ -497,7 +508,7 @@ void hdmi_cec::run()
 	int epollfd = epoll_create1(0);
 	struct epoll_event event;
 	event.data.fd = hdmiFd;
-	event.events = EPOLLPRI | EPOLLIN | EPOLLOUT;
+	event.events = EPOLLPRI | EPOLLIN;
 	epoll_ctl(epollfd, EPOLL_CTL_ADD, hdmiFd, &event);
 	std::array<struct epoll_event, EPOLL_MAX_EVENTS> events;
 	dprintf(DEBUG_NORMAL, GREEN" [CEC] thread started...\n" NORMAL);
@@ -508,17 +519,6 @@ void hdmi_cec::run()
 
 		for (int i = 0; i < n; ++i)
 		{
-			if (events[i].events & EPOLLOUT)
-			{
-				mutex.lock();
-
-				for (std::vector<cec_message_fb>::iterator it = msg_que.begin(); it != msg_que.end(); ++it)
-					::write(events[i].data.fd, &(*it), 2 + (*it).length);
-
-				msg_que.clear();
-				mutex.unlock();
-			}
-
 			if (events[i].events & EPOLLPRI)
 			{
 				GetCECAddressInfo();
@@ -583,6 +583,19 @@ void hdmi_cec::run()
 							txmessage.data[0] = CEC_OPCODE_SET_OSD_NAME;
 							memcpy(txmessage.data + 1, osdname, strlen(osdname));
 							txmessage.length = strlen(osdname) + 1;
+							SendCECMessage(txmessage);
+							break;
+						}
+
+						case CEC_OPCODE_GIVE_DEVICE_VENDOR_ID:
+						{
+							txmessage.destination = rxmessage.initiator;
+							txmessage.initiator = rxmessage.destination;
+							txmessage.data[0] = GetResponseOpcode((cec_opcode)rxmessage.opcode);
+							txmessage.data[1] = 0x00;
+							txmessage.data[2] = 0x00;
+							txmessage.data[3] = 0x00;
+							txmessage.length = 4;
 							SendCECMessage(txmessage);
 							break;
 						}
