@@ -518,7 +518,7 @@ extra.key_list_start Listenanfang
 extra.key_next43mode Nächstes Seitenformat
 extra.key_pic_mode Bildschirmformat
 extra.key_pic_size 4:3 Anzeigeverhalten
-extra.key_pip_close Pip Start/Stopp
+extra.key_pip_close PiP Start/Stopp
 extra.key_pip_close_avinput PiP Start/Stopp (HDMI)
 extra.key_pip_rotate_cw PiP bewegen im Uhrzeigensinn
 extra.key_pip_rotate_ccw PiP bewegen entgegen dem Uhrzeigersinn
