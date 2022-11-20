@@ -1118,7 +1118,8 @@ void cGLCD::Run(void)
 					else if (Scale < 0)
 						Scale = 0;
 					char tmp_start[6] = {0};
-					tm = localtime(&info_CurrentNext.current_zeit.startzeit);
+					time_t tmp_start_time = info_CurrentNext.current_zeit.startzeit;
+					tm = localtime(&tmp_start_time);
 					snprintf(tmp_start, sizeof(tmp_start), "%02d:%02d", tm->tm_hour, tm->tm_min);
 					Start = stagingStart = tmp_start;
 				}
@@ -1126,7 +1127,8 @@ void cGLCD::Run(void)
 				if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_next)
 				{
 					char tmp_end[6] = {0};
-					tm = localtime(&info_CurrentNext.next_zeit.startzeit);
+					time_t tmp_end_time = info_CurrentNext.next_zeit.startzeit;
+					tm = localtime(&tmp_end_time);
 					snprintf(tmp_end, sizeof(tmp_end), "%02d:%02d", tm->tm_hour, tm->tm_min);
 					End = stagingEnd = tmp_end;
 				}
