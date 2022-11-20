@@ -1264,6 +1264,8 @@ struct SNeutrinoSettings
 	int mbkey_cover;
 	int mbkey_cut;
 	int mbkey_truncate;
+	int mbkey_toggle_view_cw;
+	int mbkey_toggle_view_ccw;
 
 	int mpkey_audio;
 	int mpkey_bookmark;

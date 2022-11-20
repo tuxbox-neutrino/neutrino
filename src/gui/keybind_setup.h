@@ -102,6 +102,8 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			MBKEY_COPY_SEVERAL,
 			MBKEY_CUT,
 			MBKEY_TRUNCATE,
+			MBKEY_TOGGLE_VIEW_CW,
+			MBKEY_TOGGLE_VIEW_CCW,
 			MBKEY_COVER,
 
 			KEYBINDS_COUNT

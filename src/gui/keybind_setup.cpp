@@ -238,6 +238,8 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MBKEY_COPY_SEVERAL,		&g_settings.mbkey_copy_several,		NONEXISTANT_LOCALE },
 	{LOCALE_MBKEY_CUT,			&g_settings.mbkey_cut,			NONEXISTANT_LOCALE },
 	{LOCALE_MBKEY_TRUNCATE,			&g_settings.mbkey_truncate,		NONEXISTANT_LOCALE },
+	{LOCALE_MBKEY_TOGGLE_VIEW_CW,		&g_settings.mbkey_toggle_view_cw,	NONEXISTANT_LOCALE },
+	{LOCALE_MBKEY_TOGGLE_VIEW_CCW,		&g_settings.mbkey_toggle_view_ccw,	NONEXISTANT_LOCALE },
 	{LOCALE_MBKEY_COVER,			&g_settings.mbkey_cover,		LOCALE_MENU_HINT_MBKEY_COVER },
 };
 

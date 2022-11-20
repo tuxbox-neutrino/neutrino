@@ -1239,6 +1239,8 @@ mbkey.copy_onefile Film kopieren
 mbkey.copy_several Film kopieren und teilen
 mbkey.cover Filmcover erzeugen/löschen
 mbkey.cut Film schneiden
+mbkey.toggle_view_cw Ansicht umschalten im Uhrzeigersinn
+mbkey.toggle_view_ccw Ansicht umschalten entgegen dem Uhrzeigersinn
 mbkey.truncate Film kürzen
 mdb.head Movie Database
 mdb.choose Movie Database wählen

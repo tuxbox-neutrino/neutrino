@@ -2199,26 +2199,26 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			}
 		}
 	}
+	else if (msg == (neutrino_msg_t) g_settings.mbkey_toggle_view_cw)
+	{
+		if (m_settings.browserAdditional && m_windowFocus == MB_FOCUS_BROWSER)
+			onSetFocusNext();
+		else if (show_mode != MB_SHOW_YT)
+			onSetGUIWindowNext();
+	}
+	else if (msg == (neutrino_msg_t) g_settings.mbkey_toggle_view_ccw)
+	{
+		if (m_settings.browserAdditional && m_windowFocus == MB_FOCUS_MOVIE_INFO2)
+			onSetFocusNext();
+		else if (show_mode != MB_SHOW_YT)
+			onSetGUIWindowPrev();
+	}
 	else if (CNeutrinoApp::getInstance()->backKey(msg))
 	{
 		if (m_settings.gui == MB_GUI_FILTER)
 			onSetGUIWindow(MB_GUI_MOVIE_INFO);
 		else
 			result = false;
-	}
-	else if (msg == CRCInput::RC_left)
-	{
-		if (m_windowFocus == MB_FOCUS_MOVIE_INFO2 && m_settings.browserAdditional)
-			onSetFocusNext();
-		else if (show_mode != MB_SHOW_YT)
-			onSetGUIWindowPrev();
-	}
-	else if (msg == CRCInput::RC_right)
-	{
-		if (m_windowFocus == MB_FOCUS_BROWSER && m_settings.browserAdditional)
-			onSetFocusNext();
-		else if (show_mode != MB_SHOW_YT)
-			onSetGUIWindowNext();
 	}
 	else if (msg == CRCInput::RC_green)
 	{

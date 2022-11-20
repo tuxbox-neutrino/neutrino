@@ -1266,6 +1266,8 @@ const char * locale_real_names[] =
 	"mbkey.copy_several",
 	"mbkey.cover",
 	"mbkey.cut",
+	"mbkey.toggle_view_cw",
+	"mbkey.toggle_view_ccw",
 	"mbkey.truncate",
 	"mdb.head",
 	"mdb.choose",

@@ -5775,6 +5775,8 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.mbkey_cover = tconfig->getInt32("mbkey.cover", CRCInput::RC_favorites);
 	g_settings.mbkey_cut = tconfig->getInt32("mbkey.cut", CRCInput::RC_nokey);
 	g_settings.mbkey_truncate = tconfig->getInt32("mbkey.truncate", CRCInput::RC_nokey);
+	g_settings.mbkey_toggle_view_cw = tconfig->getInt32("mbkey.toggle_view_cw", CRCInput::RC_right);
+	g_settings.mbkey_toggle_view_ccw = tconfig->getInt32("mbkey.toggle_view_ccw", CRCInput::RC_left);
 
 	g_settings.mpkey_audio = tconfig->getInt32("mpkey.audio", CRCInput::RC_green);
 	g_settings.mpkey_bookmark = tconfig->getInt32("mpkey.bookmark", CRCInput::RC_yellow);
@@ -5874,6 +5876,8 @@ void CNeutrinoApp::saveKeys(const char *fname)
 	tconfig->setInt32("mbkey.cover", g_settings.mbkey_cover);
 	tconfig->setInt32("mbkey.cut", g_settings.mbkey_cut);
 	tconfig->setInt32("mbkey.truncate", g_settings.mbkey_truncate);
+	tconfig->setInt32("mbkey.toggle_view_cw", g_settings.mbkey_toggle_view_cw);
+	tconfig->setInt32("mbkey.toggle_view_ccw", g_settings.mbkey_toggle_view_ccw);
 
 	tconfig->setInt32("mpkey.audio", g_settings.mpkey_audio);
 	tconfig->setInt32("mpkey.bookmark", g_settings.mpkey_bookmark);

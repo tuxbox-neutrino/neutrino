@@ -1238,6 +1238,8 @@ mbkey.copy_onefile Copy movie
 mbkey.copy_several Copy and split movie
 mbkey.cover Create/remove movie cover
 mbkey.cut Cut movie
+mbkey.toggle_view_cw Toggle view clockwise
+mbkey.toggle_view_ccw Toggle view counter clockwise
 mbkey.truncate Truncate movie
 mdb.head Movie database
 mdb.choose Choose movie database
