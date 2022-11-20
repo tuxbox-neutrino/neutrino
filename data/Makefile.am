@@ -15,7 +15,6 @@ SUBDIRS = \
 	weather \
 	webradio \
 	webtv \
-	y-web \
 	zapit
 
 if ENABLE_LUA
@@ -26,4 +25,9 @@ endif
 if ENABLE_GRAPHLCD
 SUBDIRS += \
 	oled
+endif
+
+if ENABLE_WEBIF
+SUBDIRS += \
+	y-web
 endif

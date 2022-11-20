@@ -156,6 +156,17 @@ AC_ARG_WITH(default-oled-theme,
 	[default_oled_theme=""])
 AC_DEFINE_UNQUOTED([DEFAULT_OLED_THEME], ["$default_oled_theme"], [Default theme for oled.])
 
+# webif content
+AC_ARG_WITH(webif,
+	AS_HELP_STRING([--without-webif], [disable installation of webif content within defined public httpd path provided by yWeb @<:@default it is enabled@:>@]),
+	[ENABLE_WEBIF="$withval"],
+	[ENABLE_WEBIF="yes"])
+AM_CONDITIONAL(ENABLE_WEBIF,test "$ENABLE_WEBIF" = "yes")
+if test "$ENABLE_WEBIF" = "yes"; then
+	AC_DEFINE(ENABLE_WEBIF, 1, [Enable installation of webif content within defined public httpd path provided by yWeb.])
+fi
+
+
 AC_MSG_CHECKING(target)
 
 if test "$TARGET" = "native"; then
