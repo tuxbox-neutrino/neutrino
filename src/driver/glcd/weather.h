@@ -28,7 +28,6 @@
 #pragma GCC diagnostic warning "-Wunused-parameter"
 #include "glcd.h"
 
-void InitWeather();
 void WeatherUpdateFonts();
 void RenderWeather(int cx, int cy, int nx, int ny, bool standby);
 void ShowWeather(bool standby);

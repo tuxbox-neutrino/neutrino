@@ -51,11 +51,6 @@ int  weather_fontsize;
 int  standby_weather_percent;
 int  standby_weather_fontsize;
 
-void InitWeather()
-{
-	WeatherUpdateFonts();
-}
-
 void WeatherUpdateFonts()
 {
 	cGLCD *cglcd = cGLCD::getInstance();
