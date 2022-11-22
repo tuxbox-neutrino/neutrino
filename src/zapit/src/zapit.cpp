@@ -707,6 +707,7 @@ bool CZapit::StopPip(int pip)
 		pipVideoDemux[pip]->Stop();
 		pipVideoDecoder[pip]->Stop();
 #if !HAVE_CST_HARDWARE
+		pipVideoDecoder[pip]->setBlank(pip);
 		pipAudioDemux[pip]->Stop();
 		pipAudioDecoder[pip]->Stop();
 #endif
