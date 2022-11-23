@@ -48,7 +48,6 @@ libneutrino_driver_a_SOURCES = \
 	screen_max.cpp \
 	screenshot.cpp \
 	shutdown_count.cpp \
-	slide.cpp \
 	streamts.cpp \
 	volume.cpp
 
@@ -61,42 +60,75 @@ libneutrino_driver_a_SOURCES += \
 	lcd4l.cpp
 endif
 
+# slide driver
+if BOXTYPE_ARMBOX
+libneutrino_driver_a_SOURCES += \
+	slide.cpp
+endif
+if BOXTYPE_MIPSBOX
+libneutrino_driver_a_SOURCES += \
+	slide.cpp
+endif
+
+# different framebuffer drivers
+if BOXTYPE_GENERIC
+libneutrino_driver_a_SOURCES += \
+	fb_accel_glfb.cpp
+endif
+
 if BOXTYPE_CST
 libneutrino_driver_a_SOURCES += \
 	fb_accel_cs_hdx.cpp
 if BOXMODEL_CST_HD2
 libneutrino_driver_a_SOURCES += \
-	fb_accel_cs_hd2.cpp \
-	vfd.cpp
+	fb_accel_cs_hd2.cpp
 else
 libneutrino_driver_a_SOURCES += \
-	fb_accel_cs_hd1.cpp \
-	vfd.cpp
+	fb_accel_cs_hd1.cpp
+endif
+
+endif
+if BOXTYPE_ARMBOX
+if ENABLE_LCD
+libneutrino_driver_a_SOURCES += \
+	fb_accel_arm.cpp
+else
+libneutrino_driver_a_SOURCES += \
+	fb_accel_arm.cpp
 endif
 endif
 
+if BOXTYPE_MIPSBOX
+libneutrino_driver_a_SOURCES += \
+	fb_accel_mips.cpp
+endif
+# end framebuffer drivers
+
+# different display drivers
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
-	fb_accel_glfb.cpp \
 	simple_display.cpp
+endif
+
+if BOXTYPE_CST
+libneutrino_driver_a_SOURCES += \
+	vfd.cpp
 endif
 
 if BOXTYPE_ARMBOX
 if ENABLE_LCD
 libneutrino_driver_a_SOURCES += \
-	fb_accel_arm.cpp \
 	lcdd.cpp
 else
 libneutrino_driver_a_SOURCES += \
-	fb_accel_arm.cpp \
 	simple_display.cpp
 endif
 endif
 
 if BOXTYPE_MIPSBOX
 libneutrino_driver_a_SOURCES += \
-	fb_accel_mips.cpp \
 	simple_display.cpp
 endif
+# end display drivers
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp
