@@ -27,11 +27,12 @@
 #include <neutrino.h>
 #include <driver/rcinput.h>
 #include <driver/slide.h>
-#include <unistd.h>
+#include <system/proc_tools.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #define MAX_HEIGHT 576
 #define MAX_WIDTH 720
@@ -54,23 +55,6 @@ COSDSlider::COSDSlider(int percent, int mode)
 COSDSlider::~COSDSlider()
 {
 	StopSlide();
-}
-
-int COSDSlider::proc_put(const char *path, char *value, int len)
-{
-	int ret, ret2;
-	int pfd = open(path, O_WRONLY);
-
-	if (pfd < 0)
-		return pfd;
-
-	ret = write(pfd, value, len);
-	ret2 = close(pfd);
-
-	if (ret2 < 0)
-		return ret2;
-
-	return ret;
 }
 
 void COSDSlider::setValue(int val)
