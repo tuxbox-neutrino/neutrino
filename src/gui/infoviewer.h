@@ -141,7 +141,6 @@ class CInfoViewer : public sigc::trackable
 	void showInfoFile();
 	void killInfobarText();
 
-	//void loop(int fadeValue, bool show_dot ,bool fadeIn);
 	void loop(bool show_dot);
 	std::string eventname;
 	void show_current_next(bool new_chan, int  epgpos);
