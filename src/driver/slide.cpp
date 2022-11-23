@@ -143,7 +143,7 @@ bool COSDSlider::SlideDone()
 {
 	bool ret = false;
 
-	if (slideOut)   // disappear
+	if (slideOut) // disappear
 	{
 		slideValue += STEPSIZE;
 
@@ -156,7 +156,7 @@ bool COSDSlider::SlideDone()
 		else
 			setValue(slideValue);
 	}
-	else     // appears
+	else // appear
 	{
 		slideValue -= STEPSIZE;
 
@@ -171,8 +171,5 @@ bool COSDSlider::SlideDone()
 			setValue(slideValue);
 	}
 
-
-
 	return ret;
 }
-

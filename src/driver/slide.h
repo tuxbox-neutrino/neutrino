@@ -27,14 +27,14 @@
 class COSDSlider
 {
 	private:
-		uint32_t	slideTimer;
-		int			slideValue;
-		bool		slideIn;
-		bool		slideOut;
-		int			proc_put(const char *path, char *value, int len);
-		void		setValue(int val);
-		int			slideMax;
-		int			slideMode;
+		uint32_t slideTimer;
+		int slideValue;
+		bool slideIn;
+		bool slideOut;
+		int proc_put(const char *path, char *value, int len);
+		void setValue(int val);
+		int slideMax;
+		int slideMode;
 
 	public:
 		COSDSlider(int percent = 100, int mode = BOTTOM2TOP);
@@ -46,6 +46,7 @@ class COSDSlider
 		bool SlideDone();
 		bool SlideInDone() { return !slideIn && !slideOut; };
 		uint32_t GetSlideTimer() { return slideTimer; };
+
 		enum
 		{
 			BEFORE_SLIDEIN  = 1,
@@ -53,6 +54,7 @@ class COSDSlider
 			BEFORE_SLIDEOUT = 3,
 			AFTER_SLIDEOUT  = 4
 		};
+
 		enum
 		{
 			MID2SIDE,
