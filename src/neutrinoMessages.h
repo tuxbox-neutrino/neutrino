@@ -176,7 +176,8 @@ struct NeutrinoMessages
 		EVT_HOTPLUG				= CRCInput::RC_WithData + 26, /* data: char */
 		EVT_FORMAT_DRIVE			= CRCInput::RC_WithData + 27, /* data: char */
 		EVT_WEBTV_ZAP_COMPLETE			= CRCInput::RC_WithData + 28, /* data: (t_channel_id *) */
-		EVT_SCAN_REPORT_FREQUENCYP		= CRCInput::RC_WithData + 29
+		EVT_SCAN_REPORT_FREQUENCYP		= CRCInput::RC_WithData + 29,
+		EVT_SLIDER				= CRCInput::RC_WithData + 30  /* data: int */
 	};
 };
 
