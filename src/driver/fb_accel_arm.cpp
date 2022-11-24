@@ -329,10 +329,8 @@ void CFbAccelARM::setBlendMode(uint8_t mode)
 /* level = 100 -> transparent, level = 0 -> nontransparent */
 void CFbAccelARM::setBlendLevel(int level)
 {
-	char buf[16];
 	int value = 255 - (level * 255 / 100);
-	int len = snprintf(buf, sizeof(buf), "%d", value);
-	proc_put("/proc/stb/video/alpha", buf, len);
+	proc_put("/proc/stb/video/alpha", value);
 }
 
 int CFbAccelARM::setMode(unsigned int nxRes, unsigned int nyRes, unsigned int nbpp)
