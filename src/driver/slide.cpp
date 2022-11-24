@@ -60,23 +60,21 @@ COSDSlider::~COSDSlider()
 void COSDSlider::setValue(int val)
 {
 	//printf("setvalue: %d\n",val);
-	char buffer[10];
+
 	if (slideMode == MID2SIDE)
 	{
 		int w = MAX_WIDTH - val;
+		proc_put_hex("/proc/stb/fb/dst_width", w);
+
 		int l = (MAX_WIDTH - w) / 2;
-		sprintf(buffer, "%x\n", w);
-		proc_put("/proc/stb/fb/dst_width", buffer, strlen(buffer));
-		sprintf(buffer, "%x\n", l);
-		proc_put("/proc/stb/fb/dst_left", buffer, strlen(buffer));
+		proc_put_hex("/proc/stb/fb/dst_left", l);
 	}
 	else
 	{
-		sprintf(buffer, "%x\n", val);
-		proc_put("/proc/stb/fb/dst_top", buffer, strlen(buffer));
+		proc_put_hex("/proc/stb/fb/dst_top", val);
 	}
-	sprintf(buffer, "%x\n", 1);
-	proc_put("/proc/stb/fb/dst_apply", buffer, strlen(buffer));
+
+	proc_put_hex("/proc/stb/fb/dst_apply", 1);
 }
 
 void COSDSlider::StartSlideIn()
