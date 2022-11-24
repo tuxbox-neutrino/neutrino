@@ -76,6 +76,18 @@ int proc_put(const char *path, bool state)
 	return proc_put(path, state ? "1" : "0", 1);
 }
 
+int proc_put_hex(const char *path, int value)
+{
+	char v[10];
+	sprintf(v, "%x\n", value);
+	return proc_put(path, v, strlen(v));
+}
+
+int proc_put_hex(const char *path, unsigned int value)
+{
+	return proc_put_hex(path, (int) value);
+}
+
 int proc_get(const char *path, char *value, const int len)
 {
 	int ret, ret2;

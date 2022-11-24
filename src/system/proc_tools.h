@@ -18,6 +18,9 @@ int proc_put(const char *path, unsigned long value);
 int proc_put(const char *path, long long value);
 int proc_put(const char *path, unsigned long long value);
 int proc_put(const char *path, bool state);
+int proc_put_hex(const char *path, int value);
+int proc_put_hex(const char *path, unsigned int value);
+
 int proc_get(const char *path, char *value, const int len);
 unsigned int proc_get_hex(const char *path);
 #endif
