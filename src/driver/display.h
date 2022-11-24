@@ -13,3 +13,19 @@
 #ifdef ENABLE_GRAPHLCD
 #include <driver/glcd/glcd.h>
 #endif
+
+
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
+
+class CDisplay
+{
+	public:
+		CDisplay(){};
+		virtual ~CDisplay(){};
+
+		virtual void showServicename(const std::string, const bool ){}; // UTF-8
+		virtual void showServicename(const std::string, int){}; // UTF-8
+};
+
+#endif

@@ -39,7 +39,7 @@
 #endif
 #include <driver/file.h>
 #endif // LCD_UPDATE
-
+#include "display.h"
 #include <configfile.h>
 #include <pthread.h>
 
@@ -132,7 +132,7 @@ typedef enum
 class CLCDPainter;
 class LcdFontRenderClass;
 
-class CLCD
+class CLCD : public CDisplay
 {
 	public:
 
@@ -244,6 +244,7 @@ class CLCD
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
 		void showVolume(const char vol, const bool perform_update = true);
+		void setVolume(const char /*vol*/){printf("#### FIXME: __function__, at __FILE__ ###\n");}; // FIXME: fake member to fix build with --enable-lcd
 		void showPercentOver(const unsigned char perc, const bool perform_update = true, const MODES m = MODE_TVRADIO);
 		void showMenuText(const int position, const char *text, const int highlight = -1, const bool utf_encoded = false);
 		void showAudioTrack(const std::string &artist, const std::string &title, const std::string &album);

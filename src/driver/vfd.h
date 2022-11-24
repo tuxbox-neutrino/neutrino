@@ -39,13 +39,13 @@
 #endif
 #include "driver/file.h"
 #endif // VFD_UPDATE
-
+#include "display.h"
 #include <pthread.h>
 #include <string>
 
 #include <cs_frontpanel.h>
 
-class CVFD
+class CVFD : public CDisplay
 {
 	public:
 
