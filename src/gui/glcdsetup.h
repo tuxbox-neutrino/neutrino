@@ -39,9 +39,9 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 		SNeutrinoGlcdTheme oldTheme;
 		int GLCD_Menu_Select_Driver();
 		CMenuForwarder *select_driver;
-		CMenuOptionNumberChooser * cdy;
-		CMenuOptionNumberChooser * csh;
-		CMenuOptionNumberChooser * csy;
+		CMenuOptionNumberChooser *cdy;
+		CMenuOptionNumberChooser *csh;
+		CMenuOptionNumberChooser *csy;
 		CGenericMenuActivate ChannelLogoActivate;
 		CGenericMenuActivate TimeActivate;
 		CGenericMenuActivate DurationActivate;
@@ -53,12 +53,14 @@ class GLCD_Menu : public CMenuTarget, public CChangeObserver
 	public:
 		GLCD_Menu();
 		void hide();
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 		bool changeNotify(const neutrino_locale_t, void *);
 		int GLCD_Menu_Settings();
 		int GLCD_Standby_Settings();
 		int GLCD_Brightness_Settings();
 		int GLCD_Theme_Settings();
 };
+
 #endif // __glcdsetup_h__
+
 #endif // ENABLE_GRAPHLCD
