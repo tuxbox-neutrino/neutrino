@@ -110,6 +110,7 @@ class hdmi_cec : public OpenThreads::Thread
 		void SendCECMessage(struct cec_message &message, int sleeptime = 250);
 		void SetCECState(bool state);
 		void ReportPhysicalAddress();
+		void Ping();
 		bool standby_cec_activ;
 		void vol_up();
 		void vol_down();

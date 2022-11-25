@@ -104,7 +104,7 @@ bool hdmi_cec::SetCECMode(VIDEO_HDMI_CEC_MODE cecOnOff)
 {
 	physicalAddress[0] = 0x10;
 	physicalAddress[1] = 0x00;
-	logicalAddress = 1;
+	logicalAddress = 0xFF;
 
 	if (cecOnOff == VIDEO_HDMI_CEC_MODE_OFF)
 	{
@@ -156,6 +156,8 @@ void hdmi_cec::GetCECAddressInfo()
 				memcpy(physicalAddress, addressinfo.physical, sizeof(physicalAddress));
 				ReportPhysicalAddress();
 			}
+			if (logicalAddress != 0xFF)
+				Ping();
 		}
 	}
 }
@@ -184,7 +186,7 @@ void hdmi_cec::SendCECMessage(struct cec_message &txmessage, int sleeptime)
 		sprintf(str + (i * 6), "[0x%02X]", txmessage.data[i]);
 	}
 
-	cecprintf(YELLOW, "send message %s to %s (0x%02X>>0x%02X) '%s' (%s)", ToString((cec_logical_address)txmessage.initiator), txmessage.destination == 0xf ? "all" : ToString((cec_logical_address)txmessage.destination), txmessage.initiator, txmessage.destination, ToString((cec_opcode)txmessage.data[0]), str);
+	cecprintf(YELLOW, "queue message to %s (0x%02X) '%s' (%s)", txmessage.destination == 0xf ? "all" : ToString((cec_logical_address)txmessage.destination), txmessage.destination, ToString((cec_opcode)txmessage.data[0]), str);
 	struct cec_message_fb message;
 	message.address = txmessage.destination;
 	message.length = txmessage.length;
@@ -193,12 +195,15 @@ void hdmi_cec::SendCECMessage(struct cec_message &txmessage, int sleeptime)
 	msg_que.push_back(message);
 	mutex.unlock();
 
-	if (hdmiFd >= 0)
+	if (hdmiFd >= 0 && running && logicalAddress != 0xFF)
 	{
 		mutex.lock();
 
 		for (std::vector<cec_message_fb>::iterator it = msg_que.begin(); it != msg_que.end(); ++it)
+		{
+			cecprintf(YELLOW, "send message %s to %s (0x%02X>>0x%02X) '%s' (%s)", ToString((cec_logical_address)logicalAddress), (*it).address == 0xf ? "all" : ToString((cec_logical_address)(*it).address), logicalAddress, (*it).address, ToString((cec_opcode)(*it).data[0]), str);
 			::write(hdmiFd, &(*it), 2 + (*it).length);
+		}
 
 		msg_que.clear();
 		mutex.unlock();
@@ -303,6 +308,16 @@ void hdmi_cec::RequestTVPowerStatus()
 	message.data[0] = CEC_OPCODE_GIVE_DEVICE_POWER_STATUS;
 	message.length = 1;
 	SendCECMessage(message);
+}
+
+void hdmi_cec::Ping()
+{
+	struct cec_message pingmessage;
+	pingmessage.initiator = logicalAddress;
+	pingmessage.destination = CECDEVICE_TV;
+	pingmessage.data[0] = CEC_OPCODE_NONE;
+	pingmessage.length = 1;
+	SendCECMessage(pingmessage);
 }
 
 long hdmi_cec::translateKey(unsigned char code)
@@ -522,6 +537,8 @@ void hdmi_cec::run()
 	epoll_ctl(epollfd, EPOLL_CTL_ADD, hdmiFd, &event);
 	std::array<struct epoll_event, EPOLL_MAX_EVENTS> events;
 	cecprintf(GREEN, "thread started...");
+
+	Ping();
 
 	while (running)
 	{
