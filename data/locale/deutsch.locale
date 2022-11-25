@@ -854,7 +854,7 @@ fsk.to_12 bis 12
 fsk.to_16 bis 16
 fsk.to_7 bis 7
 glcd.align_center zentriert
-glcd.align_channel Sender ausrichten
+glcd.align_channel Sendername ausrichten
 glcd.align_duration Sendungsdauer ausrichten
 glcd.align_end Sendungsende ausrichten
 glcd.align_epg EPG ausrichten

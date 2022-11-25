@@ -471,8 +471,6 @@ int GLCD_Menu::GLCD_Theme_Settings()
 
 	gts->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_GLCD_POSITION_SETTINGS));
 
-	gts->addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_LOGO, &t.glcd_logo,
-				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	gts->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_CHANNEL,
 				&t.glcd_channel_percent, true, 0, 100, this));
 	gts->addItem(new CMenuOptionChooser(LOCALE_GLCD_ALIGN_CHANNEL, &t.glcd_channel_align,
@@ -481,6 +479,11 @@ int GLCD_Menu::GLCD_Theme_Settings()
 				&t.glcd_channel_x_position, true, 0, oled_width, this));
 	gts->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_CHANNEL_Y_POSITION,
 				&t.glcd_channel_y_position, true, 0, oled_height, this));
+
+	gts->addItem(GenericMenuSeparator);
+
+	gts->addItem(new CMenuOptionChooser(LOCALE_GLCD_SHOW_LOGO, &t.glcd_logo,
+				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_SIZE_LOGO,
 				&t.glcd_logo_percent, t.glcd_logo, 0, 100, this);
 	gts->addItem(nc);
