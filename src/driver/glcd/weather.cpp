@@ -137,7 +137,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 				cglcd->imageShow(current_wicon, cx, cy, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
 		}
 		if (current_wtemp != "") {
-			current_wtemp += "°";
+			//current_wtemp += "°";
 			WeatherUpdateFonts();
 			if (!standby)
 				cglcd->bitmap->DrawText(cx + 5 + weather_fontsize, cy + ((weather_fontsize - font_temperature.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, current_wtemp,
@@ -153,7 +153,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 				cglcd->imageShow(next_wicon, nx, ny, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
 		}
 		if (next_wtemp != "") {
-			next_wtemp += "°";
+			//next_wtemp += "°";
 			WeatherUpdateFonts();
 			if (!standby)
 				cglcd->bitmap->DrawText(nx + 5 + weather_fontsize, ny + ((weather_fontsize - font_temperature.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, next_wtemp,
