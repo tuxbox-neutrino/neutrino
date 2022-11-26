@@ -22,9 +22,6 @@
 
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
-#include <OpenThreads/Mutex>
-#include <vector>
-
 
 typedef enum
 {
@@ -91,8 +88,6 @@ class hdmi_cec : public OpenThreads::Thread
 		bool active_source;
 		unsigned char audio_destination;
 		char osdname[14];
-		std::vector<cec_message_fb> msg_que;
-		OpenThreads::Mutex mutex;
 	protected:
 		bool running;
 	public:
@@ -107,7 +102,7 @@ class hdmi_cec : public OpenThreads::Thread
 		void SendActiveSource(bool force = false);
 		void RequestTVPowerStatus();
 		void GetCECAddressInfo();
-		void SendCECMessage(struct cec_message &message, int sleeptime = 250);
+		void SendCECMessage(struct cec_message &message);
 		void SetCECState(bool state);
 		void ReportPhysicalAddress();
 		void Ping();
