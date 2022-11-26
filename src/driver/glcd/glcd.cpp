@@ -467,66 +467,73 @@ void cGLCD::Exec()
 				ecmLocked = false;
 		}
 
+		std::string smalltext;
+
 		if (t.glcd_icon_rec_x_position)
 		{
+			smalltext = "REC";
 			if (recLocked) {
 				drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Red,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Red,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
 				drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "rec", &font_smalltext, GLCD::cColor::Gray,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
 
 		if (t.glcd_icon_mute_x_position)
 		{
+			smalltext = "MUTE";
 			if (muteLocked) {
 				drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Green,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Red,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
 				drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "mute", &font_smalltext, GLCD::cColor::Gray,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
 
 		if (t.glcd_icon_ts_x_position)
 		{
+			smalltext = "TS";
 			if (tsLocked) {
 				drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Red,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Yellow,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
 				drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "ts", &font_smalltext, GLCD::cColor::Gray,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
 		if (t.glcd_icon_timer_x_position)
 		{
+			smalltext = "TIMER";
 			if (timerLocked) {
 				drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Yellow,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Yellow,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
 				drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "timer", &font_smalltext, GLCD::cColor::Gray,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
 
 		if (t.glcd_icon_dd_x_position)
 		{
+			smalltext = "DD";
 			if (ddLocked) {
 				drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Green,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
 				drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "dd", &font_smalltext, GLCD::cColor::Gray,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
@@ -534,23 +541,25 @@ void cGLCD::Exec()
 		if (t.glcd_icon_txt_x_position)
 		{
 			if (ismediaplayer) {
+				smalltext = "SUB";
 				if (subLocked) {
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-						bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Green,
+						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 						GLCD::cColor::Transparent, true, 0, 0);
 				} else {
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-						bitmap->Width() - 1, SmalltextWidth, "sub", &font_smalltext, GLCD::cColor::Gray,
+						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 						GLCD::cColor::Transparent, true, 0, 0);
 				}
 			} else {
+				smalltext = "TXT";
 				if (txtLocked) {
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-						bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Green,
+						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 						GLCD::cColor::Transparent, true, 0, 0);
 				} else {
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
-						bitmap->Width() - 1, SmalltextWidth, "txt", &font_smalltext, GLCD::cColor::Gray,
+						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 						GLCD::cColor::Transparent, true, 0, 0);
 				}
 			}
@@ -558,13 +567,14 @@ void cGLCD::Exec()
 
 		if (t.glcd_icon_cam_x_position)
 		{
+			smalltext = "CAM";
 			if (camLocked) {
 				drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Green,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 					GLCD::cColor::Transparent, true, 0, 0);
 			} else {
 				drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
-					bitmap->Width() - 1, SmalltextWidth, "cam", &font_smalltext, GLCD::cColor::Gray,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
