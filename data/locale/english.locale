@@ -941,7 +941,7 @@ glcd.size_channel Channel height
 glcd.size_duration Event duration height
 glcd.size_end Event end height
 glcd.size_epg EPG height
-glcd.size_logo Channel logo height
+glcd.size_logo Channel logo max. height %
 glcd.size_simple_clock Simple clock height
 glcd.size_start Event start height
 glcd.size_time Time height
@@ -969,6 +969,7 @@ glcd.weather_percent Weather height
 glcd.weather_curr_x_position Weather current x-position
 glcd.weather_next_x_position Weather next x-position
 glcd.weather_y_position Weather y-position
+glcd.width_logo Channel logo max. width %
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -1295,9 +1296,11 @@ menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_ca_init Configuration of CA-system hardware, CA-module and card slots
 menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
+menu.hint_cec_sleep CEC standby when HDMI input changed
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
 menu.hint_cec_volume Pressing the volume buttons adjusts the volume on the connected audio device
+menu.hint_cec_wakeup CEC wakeup when HDMI input changed
 menu.hint_channellist_additional Show additional informations\nin main box
 menu.hint_channellist_enablesdt Enables dynamic channel updates during operation
 menu.hint_channellist_epg_align EPG event align
@@ -2860,12 +2863,14 @@ videomenu.hdmi_cec_mode Receiver to use
 videomenu.hdmi_cec_mode_off no
 videomenu.hdmi_cec_mode_recorder as Sat/Cable PVR
 videomenu.hdmi_cec_mode_tuner as Sat/Cable STB
+videomenu.hdmi_cec_sleep CEC standby when HDMI input changed
 videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_view_on Enable CEC View on
 videomenu.hdmi_cec_volume CEC volume control
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
 videomenu.hdmi_cec_vol_off off
 videomenu.hdmi_cec_vol_tv TV
+videomenu.hdmi_cec_wakeup Wakeup when HDMI input changed
 videomenu.hdmi_colorimetry Color profile
 videomenu.hdmi_colorimetry_auto auto
 videomenu.hdmi_colorimetry_bt2020ncl BT 2020 NCL
