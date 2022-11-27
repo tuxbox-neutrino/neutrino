@@ -402,15 +402,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 ;
 				break;
 			}
-#if ENABLE_YOUTUBE_PLAYER
-			case SNeutrinoSettings::ITEM_YOUTUBE:
-			{
-				keyhelper.get(&key, &icon);
-				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, !_mode_ts, NULL, neutrino, "ytplayback", key, icon);
-				menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
-				break;
-			}
-#endif
 			case SNeutrinoSettings::ITEM_FILEPLAY_VIDEO:
 			{
 				keyhelper.get(&key, &icon);

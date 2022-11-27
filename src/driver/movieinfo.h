@@ -149,13 +149,8 @@ class MI_MOVIE_INFO //MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 
 		std::string tfile;		// thumbnail/cover file name
 
-		std::string ytdate;		// youtube published
-		std::string ytid;		// youtube published
-		int ytitag;			// youtube quality profile
-
 		enum miSource {
 			UNKNOWN = 0,
-			YT,
 			NK
 		};
 		miSource source;

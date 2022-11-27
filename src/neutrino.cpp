@@ -123,7 +123,6 @@
 #include "gui/themes.h"
 #include "gui/timerlist.h"
 #include "gui/components/cc_item_progressbar.h"
-#include <system/ytcache.h>
 
 #include <hardware/audio.h>
 #include <hardware/ca.h>
@@ -1121,7 +1120,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.weather_location = configfile.getString("weather_location", WEATHER_DEFAULT_LOCATION);
 	g_settings.weather_postalcode = configfile.getString("weather_postalcode", WEATHER_DEFAULT_POSTALCODE);
 
-	g_settings.youtube_dev_id = YT_DEV_KEY;
+	g_settings.youtube_dev_id = YOUTUBE_DEV_KEY;
 #if ENABLE_YOUTUBE_KEY_MANAGE
 	g_settings.youtube_dev_id = configfile.getString("youtube_dev_id", g_settings.youtube_dev_id.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.youtube_dev_id);
 #endif
@@ -4692,7 +4691,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 {
 	bool do_exiting = true;
 	CRecordManager::getInstance()->StopAutoRecord();
-	if(CRecordManager::getInstance()->RecordingStatus() || cYTCache::getInstance()->isActive())
+	if(CRecordManager::getInstance()->RecordingStatus())
 	{
 		do_exiting = (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECORDING_QUERY, CMsgBox::mbrNo,
 					CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450, DEFAULT_TIMEOUT, true) == CMsgBox::mbrYes);
@@ -5433,7 +5432,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		ShowHintS(hints);
 	}
 #endif
-	else if (actionKey=="ytplayback" || actionKey=="tsmoviebrowser" || actionKey=="fileplayback_video" || actionKey=="fileplayback_audio")
+	else if (actionKey=="tsmoviebrowser" || actionKey=="fileplayback_video" || actionKey=="fileplayback_audio")
 	{
 		frameBuffer->Clear();
 		if (mode == NeutrinoModes::NeutrinoModes::mode_radio || mode == NeutrinoModes::NeutrinoModes::mode_webradio)

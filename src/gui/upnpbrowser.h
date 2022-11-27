@@ -28,6 +28,8 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/listhelpers.h>
 
+#include <sigc++/sigc++.h>
+
 #include <string>
 #include <sstream>
 #include <upnpclient.h>

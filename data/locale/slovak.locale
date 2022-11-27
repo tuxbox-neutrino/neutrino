@@ -1130,7 +1130,7 @@ mbkey.cut Vystrihnúť film
 mbkey.truncate Skrátiť film
 menu.back Späť
 menu.cancel Zrušiť
-menu.hint_a_pic Nastavenie prehrávača hudby, prehliadača obrázkov, WebTV, TS, YouTube
+menu.hint_a_pic Nastavenie prehrávača hudby, prehliadača obrázkov, WebTV, TS
 menu.hint_adzap Automatické prepnutie prepne späť na aktuálny kanál ak uplynie zvolený čas
 menu.hint_adzap_active Automatické prepnutie je aktívne. Novým prepnutím bude deaktivované.
 menu.hint_adzap_writedata Zapísanie dát na základe stavu funkcie automatického prepnutia do zložky /tmp/adzap.data
@@ -1401,10 +1401,10 @@ menu.hint_message_fonts Zmena veľkosti písma textu správ
 menu.hint_misc_cec HDMI-CEC voľby
 menu.hint_misc_channellist HD/Nové/Odstránené zoznamy kanálov, cyklické prepnutie
 menu.hint_misc_energy Použitie pohotovostného režimu, oneskorené vypnutie\nčasovače neaktivity
-menu.hint_misc_epg Voľby uloženia/načítania EPG, voľby ukladania EPG,\nEPG zložka uloženia
-menu.hint_misc_filebrowser Kódovanie súborového systemu, oprávnenia súboru,\nzákaz odstrániť zložky
-menu.hint_misc_general Spustenie do pohotovostného režimu, vyrovnávacia pamäť teletextu, hdd zložka doplnkov,\núroveň debugovania
-menu.hint_misc_onlineservices Konfigurácia a ovládanie služieb naživo ako sú YouTube, SHOUTCast a TMDb
+menu.hint_misc_epg Voľby uloženia/načítania EPG, voľby ukladania EPG,\nEPG priečinok uloženia
+menu.hint_misc_filebrowser Kódovanie súborového systemu, oprávnenia súboru,\nzákaz odstrániť priečinok
+menu.hint_misc_general Spustenie do pohotovostného režimu, vyrovnávacia pamäť teletextu, hdd priečinok doplnkov,\núroveň debugovania
+menu.hint_misc_onlineservices Konfigurácia a riadenie živých služieb ako TMDb, IMDb, SHOUTcast a YouTube
 menu.hint_misc_zapit Východzie TV/Radio kanály
 menu.hint_movie Prehrávanie filmov
 menu.hint_moviebrowser_fonts Zmena veľkosti písma prehliadača filmov (Moje nahrávky)
@@ -1715,8 +1715,6 @@ menu.hint_webtv_xml_auto Automatické načítanie všetkých existujúcich XML s
 menu.hint_window_size Zoznam kanálov, EPG-Infp a niektoré iné okná sú zmenšené týmto faktorom
 menu.hint_youtube_dev_id Vložte váš YouTube Dev ID. Prázdny vstup zabranuje podpore YouTube
 menu.hint_youtube_enabled Povolenie alebo zakázanie podpory YouTube
-menu.hint_ytplay Prehrávanie vybraných youtube videí
-menu.hint_ytplay_setup Konfigurácia špecifických volieb YouTube, napr. horný limit výsledkov vyhľadávania
 menu.hint_zap_cycle Pri prepínaní kanálov zotrvať v aktuálnom bukete
 menu.next Ďalej
 messagebox.back Späť
@@ -2000,7 +1998,6 @@ moviebrowser.menu_truncate Skrátiť film
 moviebrowser.option_browser Možnosti prehliadača
 moviebrowser.reload_at_start Načítanie informácie o filme pri štarte
 moviebrowser.remount_at_start Pripojiť pri štarte
-moviebrowser.scan_for_movies Hľadať filmy ...
 moviebrowser.serie_auto_create Automaticky doplniť seriály
 moviebrowser.serie_head Seriály
 moviebrowser.serie_name Zmena názvu
@@ -2036,33 +2033,9 @@ moviebrowser.truncate_failed_playing Možnosť skrátiť prehrávanie filmu.
 moviebrowser.truncating Skracovanie filmu, prosím čakajte ...
 moviebrowser.ts_only Zobraziť iba nahrávky
 moviebrowser.update_if_dest_empty_only Kopírovať len ak je cieľové miesto prázdne
-moviebrowser.use_dir Použiť zložku
-moviebrowser.use_movie_dir Použiť zložku filmov
-moviebrowser.use_rec_dir Použiť zložku nahrávania
-moviebrowser.yt_cache Stiahnuté
-moviebrowser.yt_cache_add Plánované \n%s\nsťahovanie.
-moviebrowser.yt_cancel Zrušiť všetko
-moviebrowser.yt_cancel_transfer Zrušiť sťahovanie?
-moviebrowser.yt_clear Vyčistiť
-moviebrowser.yt_completed Sťahovania ukončené
-moviebrowser.yt_concurrent_connections Súbežné spojenia
-moviebrowser.yt_error Chyba načítania youtube videa
-moviebrowser.yt_failed Chybné sťahovania
-moviebrowser.yt_history Hľadať históriu
-moviebrowser.yt_max_history Maximálna veľkosť hľadania histórie
-moviebrowser.yt_max_results Maximálny počet výsledkov
-moviebrowser.yt_most_popular Najpopulárnejšie dnes
-moviebrowser.yt_most_popular_all_time Najpopulárnejšie
-moviebrowser.yt_orderby Triediť podľa
-moviebrowser.yt_orderby.published dátum zverejnenia
-moviebrowser.yt_orderby.rating obľúbenosť
-moviebrowser.yt_orderby.relevance závažnosť
-moviebrowser.yt_orderby.viewcount sledovanosť
-moviebrowser.yt_pending Čakajúce sťahovania
-moviebrowser.yt_pref_quality Preferovaná kvalita
-moviebrowser.yt_region Región
-moviebrowser.yt_related Podobné videá
-moviebrowser.yt_search Hľadať slovo
+moviebrowser.use_dir Použiť priečinok
+moviebrowser.use_movie_dir Použiť priečinok filmov
+moviebrowser.use_rec_dir Použiť priečinok nahrávania
 moviecut.cancel Zrušiť úpravu filmu?
 movieplayer.bisection_jump Priame skoky
 movieplayer.bookmark Záložky
@@ -2094,9 +2067,9 @@ movieplayer.starting Spúšťa sa prehrávanie...
 movieplayer.titles Tituly
 movieplayer.toomanybookmarks Veľa záložiek.\nJe potrebné vymazať jednu najprv.
 movieplayer.tsplayback Prehrať TS
-movieplayer.ytplayback YouTube prehrávač
-mpkey.audio Zvuková stopa
-mpkey.bookmark Uložiť záložku
+movieplayer.zap Prepnutie nie je možné počas prehrávania videa alebo časového posunu
+mpkey.audio Zvukové stopy
+mpkey.bookmark Záložky
 mpkey.forward Dopredu
 mpkey.goto Zadať čas prehrávania
 mpkey.next_repeat_mode Ďalší opakovací režim

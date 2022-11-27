@@ -1522,7 +1522,7 @@ menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
 menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
 menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
 menu.hint_misc_general Standby-, teletext- and debuglevel-settings
-menu.hint_misc_onlineservices Configure and control online services like Weather, YouTube, SHOUTCast and TMDb
+menu.hint_misc_onlineservices Configure and control online services like Weather, TMDb, IMDb, SHOUTCast and YouTube
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_moviebrowser_fonts Change moviebrowser (My recordings) font sizes
@@ -1831,9 +1831,7 @@ menu.hint_webtv_xml_auto Auto-load all existing WebTV files from %s/ and %s/
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_xmltv_setup Configure XMLTV files with EPG data to describe TV listings
 menu.hint_youtube_dev_id Type your YouTube Dev ID. An empty input disables YouTube support
-menu.hint_youtube_enabled Enable or disable YouTube support
-menu.hint_ytplay Play selected YouTube feeds
-menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
+menu.hint_youtube_enabled Enable or disable YouTube support (for plugins)
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next
 message.frame_enable Message and hint box frames
@@ -2127,7 +2125,6 @@ moviebrowser.option_browser Browser Options
 moviebrowser.reload_at_start Reload movie info at start
 moviebrowser.remount_at_start Remount at start
 moviebrowser.scan_for_movies Scan for recordings...
-moviebrowser.scan_for_videos Scan for YT-Videos ...
 moviebrowser.serie_auto_create Serie auto create
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Change name
@@ -2166,31 +2163,6 @@ moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
 moviebrowser.use_movie_dir Use movie directory
 moviebrowser.use_rec_dir Use record directory
-moviebrowser.yt_cache Downloads
-moviebrowser.yt_cache_add Download of\n%s\nis scheduled.
-moviebrowser.yt_cancel Cancel all
-moviebrowser.yt_cancel_transfer Cancel download?
-moviebrowser.yt_clear Clear
-moviebrowser.yt_completed Completed downloads
-moviebrowser.yt_concurrent_connections Concurrent connections
-moviebrowser.yt_dl_dir YouTube download directory
-moviebrowser.yt_error Failed to load YouTube feed
-moviebrowser.yt_failed Failed downloads
-moviebrowser.yt_history Search history
-moviebrowser.yt_max_history Max search history size
-moviebrowser.yt_max_results Max results to fetch
-moviebrowser.yt_most_popular Most popular today
-moviebrowser.yt_most_popular_all_time Most popular
-moviebrowser.yt_orderby Order by
-moviebrowser.yt_orderby.published publishing date
-moviebrowser.yt_orderby.rating rating
-moviebrowser.yt_orderby.relevance relevance
-moviebrowser.yt_orderby.viewcount view count
-moviebrowser.yt_pending Pending downloads
-moviebrowser.yt_pref_quality Prefered quality
-moviebrowser.yt_region Region
-moviebrowser.yt_related Related videos
-moviebrowser.yt_search Search keyword
 moviecut.cancel Cancel movie editing?
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
@@ -2221,7 +2193,6 @@ movieplayer.starting Starting playback ...
 movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tsplayback Play TS
-movieplayer.ytplayback YouTube videoplayer
 movieplayer.zap Zap not possible while movie or timeshift playback
 mpkey.audio Audiotracks
 mpkey.bookmark Bookmarks
@@ -2976,7 +2947,7 @@ xmltv.xml.del Remove
 xmltv.xml.enter Enter
 xmltv.xml.reload Reload
 youtube.dev_id YouTube Dev ID
-youtube.enabled YouTube support
+youtube.enabled YouTube support (for plugins)
 zapit.scantype scan for services
 zapit.scantype.all all services
 zapit.scantype.radio only radio

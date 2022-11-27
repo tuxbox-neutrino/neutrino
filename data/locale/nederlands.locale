@@ -1346,7 +1346,6 @@ menu.hint_volume_pos Selecteer positie volume indicator
 menu.hint_volume_size Selecteer volume indicator hoogte
 menu.hint_webtv_setup Hier geconfigureerde WebTV-zenders zijn in de standaard zenderlijsten zichtbaar.
 menu.hint_window_size Zenderlijst, EPG-infos en andere venster worden op deze factor geschaald
-menu.hint_ytplay Video's afspelen van de populaire video website Youtube
 menu.hint_zap_cycle Tijdens het schakelen tussen kanalen in huidige favorieten lijst
 menu.next Volgende (Druk op menu om af te sluiten)
 messagebox.back Terug
@@ -1577,7 +1576,6 @@ moviebrowser.option_browser Browser Opties
 moviebrowser.reload_at_start Herlaad film informatie bij het starten
 moviebrowser.remount_at_start Herkoppelen bij het starten
 moviebrowser.scan_for_movies Films scannen ...
-moviebrowser.scan_for_videos YT-Videos scannen ...
 moviebrowser.serie_auto_create Series automatisch maken
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Verander naam
@@ -1610,30 +1608,6 @@ moviebrowser.update_if_dest_empty_only Kopieer indien doelbestemming leeg is
 moviebrowser.use_dir Gebruik directory
 moviebrowser.use_movie_dir Gebruik film directory
 moviebrowser.use_rec_dir Gebruik opname directory
-moviebrowser.yt_cache Downloads
-moviebrowser.yt_cache_add Download of\n%s\nis scheduled.
-moviebrowser.yt_cancel Alles stoppen
-moviebrowser.yt_cancel_transfer Download stoppen?
-moviebrowser.yt_clear Clear
-moviebrowser.yt_completed Volledige downloads
-moviebrowser.yt_concurrent_connections Concurrent connecties
-moviebrowser.yt_error Laden van youtube video mislukt
-moviebrowser.yt_failed Downloads mislukt
-moviebrowser.yt_history Zoekgeschiedenis
-moviebrowser.yt_max_history Maximale zoekgeschiedenis grootte
-moviebrowser.yt_max_results Maximaal aantal resultaten
-moviebrowser.yt_most_popular Meest populair
-moviebrowser.yt_most_popular_all_time Meest populair
-moviebrowser.yt_orderby Sorteren op
-moviebrowser.yt_orderby.published Datum gepubiceerd
-moviebrowser.yt_orderby.rating rating
-moviebrowser.yt_orderby.relevance relevantie
-moviebrowser.yt_orderby.viewcount weergave teller
-moviebrowser.yt_pending Lopende downloads
-moviebrowser.yt_pref_quality Gewenste kwaliteit
-moviebrowser.yt_region Regio
-moviebrowser.yt_related Gerelateerde video's
-moviebrowser.yt_search Trefwoord
 movieplayer.bookmark Markeerpunten
 movieplayer.bookmarkname Naam markeerpunt
 movieplayer.bookmarkname_hint1 Nieuwe markeerpunt
@@ -1658,7 +1632,6 @@ movieplayer.tshelp7 Ongeveer 1 minuut overslaan
 movieplayer.tshelp8 Ongeveer 5 minuten terug
 movieplayer.tshelp9 Ongeveer 5 minuten overslaan
 movieplayer.tsplayback Opname afspelen
-movieplayer.ytplayback Youtube video's
 mpkey.audio Audio track
 mpkey.bookmark Markeerpunt opslaan
 mpkey.forward Vooruit

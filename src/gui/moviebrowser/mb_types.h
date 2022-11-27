@@ -139,8 +139,7 @@ typedef struct
 typedef enum
 {
 	MB_SHOW_RECORDS,
-	MB_SHOW_FILES,
-	MB_SHOW_YT
+	MB_SHOW_FILES
 } MB_SHOW_MODE;
 
 typedef enum

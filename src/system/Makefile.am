@@ -42,8 +42,6 @@ libneutrino_system_a_SOURCES = \
 	settings.cpp \
 	stacktrace.cpp \
 	sysload.cpp \
-	ytcache.cpp \
-	ytparser.cpp \
 	setting_helpers.cpp
 #	safe_system.c
 

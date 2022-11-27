@@ -432,13 +432,6 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		moviebrowser->setMode(MB_SHOW_RECORDS);
 		//wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 	}
-#if ENABLE_YOUTUBE_PLAYER
-	else if (actionKey == "ytplayback") {
-		isMovieBrowser = true;
-		moviebrowser->setMode(MB_SHOW_YT);
-		isYT = true;
-	}
-#endif
 	else if (actionKey == "fileplayback_video") {
 		is_audio_playing = false;
 		if (filebrowser)
@@ -727,7 +720,6 @@ void CMoviePlayerGui::ClearFlags()
 	isLuaPlay = false;
 	isUPNP = false;
 	isWebChannel = false;
-	isYT = false;
 	is_file_player = false;
 	is_audio_playing = false;
 	timeshift = TSHIFT_MODE_OFF;
@@ -800,10 +792,6 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 				startposition = p_movie_info->bookmarks.start > 0 ? p_movie_info->bookmarks.start*1000 : -1;
 				printf("CMoviePlayerGui::prepareFile: file %s start %d\n", file_name.c_str(), startposition);
 			}
-		}
-		if (isYT) {
-			file_name = file->Url;
-			is_file_player = true;
 		}
 		fillPids();
 	}
@@ -1912,7 +1900,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				filelist_it = vzap_it;
 			}
 			fromInfoviewer = false;
-		} else if (timeshift == TSHIFT_MODE_OFF && !isWebChannel /* && !isYT */ && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
+		} else if (timeshift == TSHIFT_MODE_OFF && !isWebChannel && (msg == (neutrino_msg_t) g_settings.mpkey_next_repeat_mode)) {
 			repeat_mode = (repeat_mode_enum)((int)repeat_mode + 1);
 			if (repeat_mode > (int) REPEAT_ALL)
 				repeat_mode = REPEAT_OFF;
@@ -2644,7 +2632,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			if (p_movie_info->length == 0) {
 				p_movie_info->length = (float)duration / 60 / 1000 + 0.5;
 			}
-			if (!isYT && !isHTTP && !isUPNP)
+			if (!isHTTP && !isUPNP)
 				cMovieInfo.saveMovieInfo(*p_movie_info);
 			//p_movie_info->fileInfoStale(); //TODO: we might to tell the Moviebrowser that the movie info has changed, but this could cause long reload times  when reentering the Moviebrowser
 		}
@@ -2755,7 +2743,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			new_bookmark.length = play_sec - new_bookmark.pos;
 			TRACE("[mp] commercial length: %d\r\n", new_bookmark.length);
 			if (cMovieInfo.addNewBookmark(p_movie_info, new_bookmark) == true) {
-				if (!isYT && !isHTTP && !isUPNP)
+				if (!isHTTP && !isUPNP)
 					cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			}
 			new_bookmark.pos = 0;	// clear again, since this is used as flag for bookmark activity
@@ -2766,7 +2754,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			new_bookmark.pos = play_sec;
 			TRACE("[mp] loop length: %d\r\n", new_bookmark.length);
 			if (cMovieInfo.addNewBookmark(p_movie_info, new_bookmark) == true) {
-				if (!isYT && !isHTTP && !isUPNP)
+				if (!isHTTP && !isUPNP)
 					cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 				jump_not_until = play_sec + 5;	// avoid jumping for this time
 			}
@@ -2836,7 +2824,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				new_bookmark.pos = play_sec;
 				new_bookmark.length = 0;
 				if (cMovieInfo.addNewBookmark(p_movie_info, new_bookmark) == true)
-					if (!isYT && !isHTTP && !isUPNP)
+					if (!isHTTP && !isUPNP)
 						cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 				new_bookmark.pos = 0;	// clear again, since this is used as flag for bookmark activity
 			} else if (cSelectedMenuBookStart[3].selected == true) {
@@ -2853,13 +2841,13 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				/* Moviebrowser movie start bookmark */
 				p_movie_info->bookmarks.start = play_sec;
 				TRACE("[mp] New movie start pos: %d\r\n", p_movie_info->bookmarks.start);
-				if (!isYT && !isHTTP && !isUPNP)
+				if (!isHTTP && !isUPNP)
 					cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			} else if (cSelectedMenuBookStart[6].selected == true) {
 				/* Moviebrowser movie end bookmark */
 				p_movie_info->bookmarks.end = play_sec;
 				TRACE("[mp]  New movie end pos: %d\r\n", p_movie_info->bookmarks.end);
-				if (!isYT && !isHTTP && !isUPNP)
+				if (!isHTTP && !isUPNP)
 					cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			}
 		}

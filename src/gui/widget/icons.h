@@ -116,7 +116,6 @@
 #define NEUTRINO_ICON_UPDATE		"softupdate"
 #define NEUTRINO_ICON_UPNP		"upnp"
 #define NEUTRINO_ICON_VIDEO		"video"
-#define NEUTRINO_ICON_YTPLAY		"ytplay"
 
 /* volumebar */
 #define NEUTRINO_ICON_VOLUME		"volume"
@@ -164,7 +163,6 @@
 #define NEUTRINO_ICON_HINT_WEBRADIO	"hint_webradio"
 #define NEUTRINO_ICON_HINT_WEBTV	"hint_webtv"
 #define NEUTRINO_ICON_HINT_XMLTV	"hint_xmltv"
-#define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
 
 #define NEUTRINO_ICON_HINT_MB		"hint_mb"
 #define NEUTRINO_ICON_HINT_FILEPLAY	"hint_fileplay"

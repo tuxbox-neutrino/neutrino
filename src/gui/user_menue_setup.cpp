@@ -56,6 +56,7 @@
 static bool usermenu_show = true;
 static bool usermenu_show_cam = true; // FIXME -- use hwcaps?
 static bool usermenu_hide = false;
+
 struct keyvals
 {
 	const int key;
@@ -88,7 +89,6 @@ static keyvals usermenu_items[] =
 	{ SNeutrinoSettings::ITEM_USER_MENU_22,		NONEXISTANT_LOCALE,			usermenu_hide },
 	{ SNeutrinoSettings::ITEM_USER_MENU_23,		NONEXISTANT_LOCALE,			usermenu_hide },
 	{ SNeutrinoSettings::ITEM_USER_MENU_24,		NONEXISTANT_LOCALE,			usermenu_hide },
-	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK,		usermenu_show },
 	{ SNeutrinoSettings::ITEM_FILEPLAY_VIDEO,	LOCALE_MOVIEPLAYER_FILEPLAYBACK_VIDEO,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_FILEPLAY_AUDIO,	LOCALE_MOVIEPLAYER_FILEPLAYBACK_AUDIO,	usermenu_show },
 	{ SNeutrinoSettings::ITEM_AUDIOPLAYER,		LOCALE_AUDIOPLAYER_NAME,		usermenu_show },

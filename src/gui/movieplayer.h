@@ -173,7 +173,6 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isHTTP;
 	bool isUPNP;
 	bool isWebChannel;
-	bool isYT;
 	bool showStartingHint;
 	static CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO movie_info;

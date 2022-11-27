@@ -65,8 +65,7 @@ install_DATA = \
 	hint_vtxt.png \
 	hint_webradio.png \
 	hint_webtv.png \
-	hint_xmltv.png \
-	hint_ytplay.png
+	hint_xmltv.png
 
 if ENABLE_PIP
 install_DATA += \

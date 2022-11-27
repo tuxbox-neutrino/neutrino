@@ -1523,7 +1523,7 @@ menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Auss
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
 menu.hint_misc_general Standby-, Videotext- und Debuglevel-Einstellungen
-menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter, YouTube, SHOUTCast und TMDb
+menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter, TMDb, IMDb, SHOUTCast und YouTube
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
 menu.hint_moviebrowser_fonts Ändern Sie die Schriftgrößen im Moviebrowser (Meine Aufnahmen)
@@ -1832,9 +1832,7 @@ menu.hint_webtv_xml_auto Lädt automatisch alle WebTV-Dateien aus %s/ und %s/
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_xmltv_setup Hier konfigurieren Sie XMLTV-Dateien, die EPG-Daten enthalten
 menu.hint_youtube_dev_id Geben Sie die YouTube Dev ID ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
-menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung ein oder aus
-menu.hint_ytplay Wiedergabe von ausgewählten YouTube Feeds
-menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
+menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung (für Plugins) ein oder aus
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter
 message.frame_enable Rahmen für Meldungen und Hinweisfenster
@@ -2128,7 +2126,6 @@ moviebrowser.option_browser Anzeigeoptionen
 moviebrowser.reload_at_start Filminfos neu laden bei Start
 moviebrowser.remount_at_start Filmdepot verbinden bei Start
 moviebrowser.scan_for_movies Suche Aufnahmen ...
-moviebrowser.scan_for_videos Suche YT-Videos ...
 moviebrowser.serie_auto_create Serien automatisch zuordnen
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Name ändern
@@ -2167,31 +2164,6 @@ moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
-moviebrowser.yt_cache Downloads
-moviebrowser.yt_cache_add Download von\n%s\nwird eingeplant.
-moviebrowser.yt_cancel Alle abbrechen
-moviebrowser.yt_cancel_transfer Download abbrechen?
-moviebrowser.yt_clear Liste leeren
-moviebrowser.yt_completed Vollständige Downloads
-moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
-moviebrowser.yt_dl_dir Youtube download Verzeichnis
-moviebrowser.yt_error Fehler beim Laden des YouTube-Feeds
-moviebrowser.yt_failed Fehlgeschlagene Downloads
-moviebrowser.yt_history Frühere Suchen
-moviebrowser.yt_max_history Max. Anzahl früherer Suchen
-moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
-moviebrowser.yt_most_popular Beliebteste Videos heute
-moviebrowser.yt_most_popular_all_time Beliebteste Videos
-moviebrowser.yt_orderby Sortierung nach
-moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
-moviebrowser.yt_orderby.rating Bewertung
-moviebrowser.yt_orderby.relevance Relevanz
-moviebrowser.yt_orderby.viewcount Zahl der Views
-moviebrowser.yt_pending Anstehende Downloads
-moviebrowser.yt_pref_quality Bevorzugte Qualität
-moviebrowser.yt_region Region
-moviebrowser.yt_related Passende Videos
-moviebrowser.yt_search Suche nach Stichwort
 moviecut.cancel Bearbeiten des Filmes abbrechen?
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
@@ -2222,7 +2194,6 @@ movieplayer.starting Wiedergabe starten ...
 movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tsplayback TS Abspielen
-movieplayer.ytplayback YouTube-Feed Wiedergabe
 movieplayer.zap Umschalten während der Film- oder Timeshift-Wiedergabe nicht möglich
 mpkey.audio Tonspuren
 mpkey.bookmark Markierungen
@@ -2977,7 +2948,7 @@ xmltv.xml.del Entfernen
 xmltv.xml.enter Eintragen
 xmltv.xml.reload Neu laden
 youtube.dev_id YouTube Dev ID
-youtube.enabled YouTube-Unterstützung
+youtube.enabled YouTube-Unterstützung (für Plugins)
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
