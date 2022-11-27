@@ -149,12 +149,6 @@ class MI_MOVIE_INFO //MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 
 		std::string tfile;		// thumbnail/cover file name
 
-		enum miSource {
-			UNKNOWN = 0,
-			NK
-		};
-		miSource source;
-
 		void clear(void);
 		MI_MOVIE_INFO() { clear(); }
 };
