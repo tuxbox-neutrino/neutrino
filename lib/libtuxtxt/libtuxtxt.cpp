@@ -82,11 +82,3 @@ void tuxtxt_close()
 	tuxtxt_clear_cache();
 	tuxtxt_initialized=0;
 }
-
-/* Local Variables: */
-/* indent-tabs-mode:t */
-/* tab-width:3 */
-/* c-basic-offset:3 */
-/* comment-column:0 */
-/* fill-column:120 */
-/* End: */
