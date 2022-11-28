@@ -854,24 +854,22 @@ fsk.to_12 to 12
 fsk.to_16 to 16
 fsk.to_7 to 7
 glcd.align_center centered
-glcd.align_channel Channel arrangement
-glcd.align_duration Event duration arrangement
-glcd.align_end Event end arrangement
-glcd.align_epg EPG arrangement
 glcd.align_left left
 glcd.align_none none
 glcd.align_right right
-glcd.align_start Event start arrangement
-glcd.align_time Time arrangement
 glcd.background BG Picture
-glcd.bar_width Progress bar width
-glcd.bar_x_position Progress bar x-position
-glcd.bar_y_position Progress bar y-position
 glcd.brightness Brightness
-glcd.brightness_standby Brightness standby
 glcd.brightness_dim Dim
 glcd.brightness_dim_time Dim timeout
 glcd.brightness_settings Brightness
+glcd.brightness_standby Brightness standby
+glcd.channel_align Channel arrangement
+glcd.channel_size Channel height
+glcd.channel_x_position Channel x-position
+glcd.channel_y_position Channel y-position
+glcd.clock_digital_y_position Digital clock y-position
+glcd.clock_simple_size Simple clock height
+glcd.clock_simple_y_position Simple clock y-position
 glcd.color.amber Amber
 glcd.color.black Black
 glcd.color.blue Blue
@@ -893,15 +891,22 @@ glcd.color.red Red
 glcd.color.teal Teal
 glcd.color.white White
 glcd.color.yellow Yellow
-glcd.channel_x_position Channel x-position
-glcd.channel_y_position Channel y-position
-glcd.digital_clock_y_position Digital clock y-position
+glcd.color_bg Background color
+glcd.color_fg Text color
 glcd.display Display-type
+glcd.duration_align Event duration arrangement
+glcd.duration_show Event duration display
+glcd.duration_size Event duration height
 glcd.duration_x_position Event duration x-position
 glcd.duration_y_position Event duration y-position
 glcd.enable GraphLCD active
+glcd.end_align Event end arrangement
+glcd.end_show Event end display
+glcd.end_size Event end height
 glcd.end_x_position Event end x-position
 glcd.end_y_position Event end y-position
+glcd.epg_align EPG arrangement
+glcd.epg_size EPG height
 glcd.epg_x_position EPG x-position
 glcd.epg_y_position EPG y-position
 glcd.font Font
@@ -917,59 +922,54 @@ glcd.icon_ts_x_position Icon Timeshift x-position
 glcd.icon_txt_x_position Icon Radiotext x-position
 glcd.icon_y_percent Icons height
 glcd.icon_y_position Icons y-position
-glcd.logodir Channel logo directory
+glcd.logo_show Channel logo display
+glcd.logo_size Channel logo max. height %
+glcd.logo_width Channel logo max. width %
 glcd.logo_x_position Channel logo x-position
 glcd.logo_y_position Channel logo y-position
+glcd.logodir Channel logo directory
 glcd.mirror_osd Show OSD-menu on GraphLCD
 glcd.mirror_video Show video on GraphLCD
 glcd.position_settings Positions and dimensions
+glcd.progressbar_color Progress bar color
+glcd.progressbar_show Progress bar display
+glcd.progressbar_size Progress bar height
+glcd.progressbar_width Progress bar width
+glcd.progressbar_x_position Progress bar x-position
+glcd.progressbar_y_position Progress bar y-position
 glcd.restart Restart
 glcd.scroll_speed Scroll speed
-glcd.select.bar Progress bar color
-glcd.select.bg Background color
-glcd.select.fg Text color
-glcd.show_duration Event duration display
-glcd.show_end Event end display
-glcd.show_logo Channel logo display
-glcd.show_progressbar Progress bar display
-glcd.show_start Event start display
-glcd.show_time Time display
-glcd.show_weather Weather display
-glcd.simple_clock_y_position Simple clock y-position
-glcd.size_bar Progress bar height
-glcd.size_channel Channel height
-glcd.size_duration Event duration height
-glcd.size_end Event end height
-glcd.size_epg EPG height
-glcd.size_logo Channel logo max. height %
-glcd.size_simple_clock Simple clock height
-glcd.size_start Event start height
-glcd.size_time Time height
-glcd.size_time_standby Standby time height
-glcd.theme Select theme
-glcd.theme_settings Themes
-glcd.standby_analog_clock Analog clock
-glcd.standby_digital_clock Digital clock
-glcd.standby_lcd_clock LCD-clock
-glcd.standby_led_clock LED-clock
+glcd.standby_clock Time display in standby mode
+glcd.standby_clock_analog Analog clock
+glcd.standby_clock_digital Digital clock
+glcd.standby_clock_lcd LCD-clock
+glcd.standby_clock_led LED-clock
+glcd.standby_clock_simple Simple clock
 glcd.standby_settings Standby-settings
-glcd.standby_simple_clock Simple clock
 glcd.standby_weather Weather in standby mode
-glcd.standby_weather_percent Weather height
 glcd.standby_weather_curr_x_position Weather in standby mode current x-position
 glcd.standby_weather_next_x_position Weather in standby mode next x-position
+glcd.standby_weather_percent Weather height
 glcd.standby_weather_y_position Weather in standby mode y-position
+glcd.start_align Event start arrangement
+glcd.start_show Event start display
+glcd.start_size Event start height
 glcd.start_x_position Event start x-position
 glcd.start_y_position Event start y-position
-glcd.time_in_standby Time display in standby mode
+glcd.theme Select theme
+glcd.theme_settings Themes
+glcd.time_align Time arrangement
+glcd.time_show Time display
+glcd.time_size Time height
+glcd.time_size_standby Standby time height
 glcd.time_x_position Time x-position
 glcd.time_y_position Time y-position
 glcd.volume Volume
-glcd.weather_percent Weather height
 glcd.weather_curr_x_position Weather current x-position
 glcd.weather_next_x_position Weather next x-position
+glcd.weather_percent Weather height
+glcd.weather_show Weather display
 glcd.weather_y_position Weather y-position
-glcd.width_logo Channel logo max. width %
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.

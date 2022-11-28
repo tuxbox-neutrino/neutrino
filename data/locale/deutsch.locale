@@ -854,24 +854,22 @@ fsk.to_12 bis 12
 fsk.to_16 bis 16
 fsk.to_7 bis 7
 glcd.align_center zentriert
-glcd.align_channel Sendername ausrichten
-glcd.align_duration Sendungsdauer ausrichten
-glcd.align_end Sendungsende ausrichten
-glcd.align_epg EPG ausrichten
 glcd.align_left links
 glcd.align_none keine
 glcd.align_right rechts
-glcd.align_start Sendungsstart ausrichten
-glcd.align_time Uhrzeit ausrichten
 glcd.background Hintergrundbild
-glcd.bar_width Fortschrittsbalken Weite
-glcd.bar_x_position Fortschrittsbalken x-Position
-glcd.bar_y_position Fortschrittsbalken y-Position
 glcd.brightness Helligkeit
-glcd.brightness_standby Helligkeit im Standby-Modus
 glcd.brightness_dim Dimmen
 glcd.brightness_dim_time Dimmen nach
 glcd.brightness_settings Helligkeit
+glcd.brightness_standby Helligkeit im Standby-Modus
+glcd.channel_align Sendername ausrichten
+glcd.channel_size Sendername Höhe
+glcd.channel_x_position Sendername x-Position
+glcd.channel_y_position Sendername y-Position
+glcd.clock_digital_y_position Digitaluhr y-Position
+glcd.clock_simple_size Einfache Uhr Höhe
+glcd.clock_simple_y_position Einfache Uhr y-Position
 glcd.color.amber Amber
 glcd.color.black Schwarz
 glcd.color.blue Blau
@@ -893,15 +891,22 @@ glcd.color.red Rot
 glcd.color.teal Teal
 glcd.color.white Weiß
 glcd.color.yellow Gelb
-glcd.channel_x_position Sendername x-Position
-glcd.channel_y_position Sendername y-Position
-glcd.digital_clock_y_position Digitaluhr y-Position
+glcd.color_bg Hintergrundfarbe
+glcd.color_fg Textfarbe
 glcd.display Display-Typ
+glcd.duration_align Sendungsdauer ausrichten
+glcd.duration_show Sendungsdauer anzeigen
+glcd.duration_size Sendungsdauer Höhe
 glcd.duration_x_position Sendungsdauer x-Position
 glcd.duration_y_position Sendungsdauer y-Position
 glcd.enable GraphLCD aktiv
+glcd.end_align Sendungsende ausrichten
+glcd.end_show Sendungsende anzeigen
+glcd.end_size Sendungsende Höhe
 glcd.end_x_position Sendungsende x-Position
 glcd.end_y_position Sendungsende y-Position
+glcd.epg_align EPG ausrichten
+glcd.epg_size EPG Höhe
 glcd.epg_x_position EPG x-Position
 glcd.epg_y_position EPG y-Position
 glcd.font Schrift
@@ -917,59 +922,54 @@ glcd.icon_ts_x_position Icon Timeshift x-Position
 glcd.icon_txt_x_position Icon Radiotext x-Position
 glcd.icon_y_percent Icons Höhe
 glcd.icon_y_position Icons y-Position
-glcd.logodir Senderlogo-Verzeichnis
+glcd.logo_show Senderlogo anzeigen
+glcd.logo_size Senderlogo max. Höhe %
+glcd.logo_width Senderlogo max. Breite %
 glcd.logo_x_position Senderlogo x-Position
 glcd.logo_y_position Senderlogo y-Position
+glcd.logodir Senderlogo-Verzeichnis
 glcd.mirror_osd OSD-Menü auf GraphLCD anzeigen
 glcd.mirror_video Videobild auf GraphLCD anzeigen
 glcd.position_settings Positionen und Größen
+glcd.progressbar_color Fortschrittsbalken Farbe
+glcd.progressbar_show Fortschrittsbalken anzeigen
+glcd.progressbar_size Fortschrittsbalken Höhe
+glcd.progressbar_width Fortschrittsbalken Weite
+glcd.progressbar_x_position Fortschrittsbalken x-Position
+glcd.progressbar_y_position Fortschrittsbalken y-Position
 glcd.restart Neu erkennen
 glcd.scroll_speed Scroll-Geschwindigkeit
-glcd.select.bar Fortschrittsbalkenfarbe
-glcd.select.bg Hintergrundfarbe
-glcd.select.fg Textfarbe
-glcd.show_duration Sendungsdauer anzeigen
-glcd.show_end Sendungsende anzeigen
-glcd.show_logo Senderlogo anzeigen
-glcd.show_progressbar Fortschrittsbalken anzeigen
-glcd.show_start Sendungsstart anzeigen
-glcd.show_time Uhrzeit anzeigen
-glcd.show_weather Wetter anzeigen
-glcd.simple_clock_y_position Einfache Uhr y-Position
-glcd.size_bar Fortschrittsbalken Höhe
-glcd.size_channel Sendername Höhe
-glcd.size_duration Sendungsdauer Höhe
-glcd.size_end Sendungsende Höhe
-glcd.size_epg EPG Höhe
-glcd.size_logo Senderlogo max. Höhe %
-glcd.size_simple_clock Einfache Uhr Höhe
-glcd.size_start Sendungsstart Höhe
-glcd.size_time Uhrzeit Höhe
-glcd.size_time_standby Uhrzeit Höhe im Standby
-glcd.theme Theme auswählen
-glcd.theme_settings Themes
-glcd.standby_analog_clock Analoge Uhr
-glcd.standby_digital_clock Digitale Uhr
-glcd.standby_lcd_clock LCD-Uhr
-glcd.standby_led_clock LED-Uhr
+glcd.standby_clock Zeitanzeige im Standby
+glcd.standby_clock_analog Analoge Uhr
+glcd.standby_clock_digital Digitale Uhr
+glcd.standby_clock_lcd LCD-Uhr
+glcd.standby_clock_led LED-Uhr
+glcd.standby_clock_simple Einfache Uhr
 glcd.standby_settings Standby-Einstellungen
-glcd.standby_simple_clock Einfache Uhr
 glcd.standby_weather Wetter im Standby
-glcd.standby_weather_percent Wetter Höhe
 glcd.standby_weather_curr_x_position Wetter im Standby heute x-Position
 glcd.standby_weather_next_x_position Wetter im Standby morgen x-Position
+glcd.standby_weather_percent Wetter Höhe
 glcd.standby_weather_y_position Wetter im Standby y-Position
+glcd.start_align Sendungsstart ausrichten
+glcd.start_show Sendungsstart anzeigen
+glcd.start_size Sendungsstart Höhe
 glcd.start_x_position Sendungsstart x-Position
 glcd.start_y_position Sendungsstart y-Position
-glcd.time_in_standby Zeitanzeige im Standby
+glcd.theme Theme auswählen
+glcd.theme_settings Themes
+glcd.time_align Uhrzeit ausrichten
+glcd.time_show Uhrzeit anzeigen
+glcd.time_size Uhrzeit Höhe
+glcd.time_size_standby Uhrzeit Höhe im Standby
 glcd.time_x_position Uhrzeit x-Position
 glcd.time_y_position Uhrzeit y-Position
 glcd.volume Lautstärke
-glcd.weather_percent Wetter Höhe
 glcd.weather_curr_x_position Wetter heute x-Position
 glcd.weather_next_x_position Wetter morgen x-Position
+glcd.weather_percent Wetter Höhe
+glcd.weather_show Wetter anzeigen
 glcd.weather_y_position Wetter y-Position
-glcd.width_logo Senderlogo max. Breite %
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.

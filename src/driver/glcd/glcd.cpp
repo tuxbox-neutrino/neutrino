@@ -229,19 +229,19 @@ void cGLCD::Exec()
 
 	if (doStandbyTime || doStandbyWeather)
 	{
-		if (t.glcd_time_in_standby == CLOCK_ANALOG)
+		if (t.glcd_standby_clock == CLOCK_ANALOG)
 		{
 			ShowAnalogClock(tm->tm_hour, tm->tm_min, tm->tm_sec, bitmap->Width()/2, bitmap->Height()/2);
 		}
-		else if (t.glcd_time_in_standby == CLOCK_DIGITAL)
+		else if (t.glcd_standby_clock == CLOCK_DIGITAL)
 		{
 			ShowDigitalClock(tm->tm_hour, tm->tm_min);
 		}
-		else if (t.glcd_time_in_standby > CLOCK_OFF)
+		else if (t.glcd_standby_clock > CLOCK_OFF)
 		{
-			ShowSimpleClock(strftime("%H:%M", tm), t.glcd_time_in_standby);
+			ShowSimpleClock(strftime("%H:%M", tm), t.glcd_standby_clock);
 		}
-		if (t.glcd_standby_weather == 1 && t.glcd_time_in_standby != CLOCK_ANALOG)
+		if (t.glcd_standby_weather == 1 && t.glcd_standby_clock != CLOCK_ANALOG)
 		{
 			ShowWeather(true);
 		}
@@ -1198,9 +1198,9 @@ void cGLCD::StandbyMode(bool b)
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	if (cglcd)
 	{
-		if (t.glcd_time_in_standby || t.glcd_standby_weather)
+		if (t.glcd_standby_clock || t.glcd_standby_weather)
 		{
-			if (t.glcd_time_in_standby)
+			if (t.glcd_standby_clock)
 				cglcd->doStandbyTime = b;
 			else
 				cglcd->doStandbyTime = false;
