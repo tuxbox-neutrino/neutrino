@@ -371,11 +371,19 @@ int GLCD_Menu::GLCD_Standby_Settings()
 	gss->addItem(nc);
 	WeatherSBActivate.Add(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_CURR_X_POSITION, &t.glcd_standby_weather_curr_x_position, t.glcd_standby_weather, 0, oled_width, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_CURR_TEMP_X_POSITION, &t.glcd_standby_weather_curr_temp_x_position, t.glcd_standby_weather, 0, oled_width, this);
 	gss->addItem(nc);
 	WeatherSBActivate.Add(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_NEXT_X_POSITION, &t.glcd_standby_weather_next_x_position, t.glcd_standby_weather, 0, oled_width, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_CURR_ICON_X_POSITION, &t.glcd_standby_weather_curr_icon_x_position, t.glcd_standby_weather, 0, oled_width, this);
+	gss->addItem(nc);
+	WeatherSBActivate.Add(nc);
+
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_NEXT_TEMP_X_POSITION, &t.glcd_standby_weather_next_temp_x_position, t.glcd_standby_weather, 0, oled_width, this);
+	gss->addItem(nc);
+	WeatherSBActivate.Add(nc);
+
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_STANDBY_WEATHER_NEXT_ICON_X_POSITION, &t.glcd_standby_weather_next_icon_x_position, t.glcd_standby_weather, 0, oled_width, this);
 	gss->addItem(nc);
 	WeatherSBActivate.Add(nc);
 
@@ -652,11 +660,19 @@ int GLCD_Menu::GLCD_Theme_Settings()
 	gts->addItem(nc);
 	WeatherActivate.Add(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_CURR_X_POSITION, &t.glcd_weather_curr_x_position, t.glcd_weather, 0, oled_width, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_CURR_TEMP_X_POSITION, &t.glcd_weather_curr_temp_x_position, t.glcd_weather, 0, oled_width, this);
 	gts->addItem(nc);
 	WeatherActivate.Add(nc);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_NEXT_X_POSITION, &t.glcd_weather_next_x_position, t.glcd_weather, 0, oled_width, this);
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_CURR_ICON_X_POSITION, &t.glcd_weather_curr_icon_x_position, t.glcd_weather, 0, oled_width, this);
+	gts->addItem(nc);
+	WeatherActivate.Add(nc);
+
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_NEXT_TEMP_X_POSITION, &t.glcd_weather_next_temp_x_position, t.glcd_weather, 0, oled_width, this);
+	gts->addItem(nc);
+	WeatherActivate.Add(nc);
+
+	nc = new CMenuOptionNumberChooser(LOCALE_GLCD_WEATHER_NEXT_ICON_X_POSITION, &t.glcd_weather_next_icon_x_position, t.glcd_weather, 0, oled_width, this);
 	gts->addItem(nc);
 	WeatherActivate.Add(nc);
 

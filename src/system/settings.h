@@ -293,14 +293,18 @@ struct SNeutrinoGlcdTheme
 
 	int glcd_weather;
 	int glcd_weather_percent;
-	int glcd_weather_curr_x_position;
-	int glcd_weather_next_x_position;
+	int glcd_weather_curr_temp_x_position;
+	int glcd_weather_curr_icon_x_position;
+	int glcd_weather_next_temp_x_position;
+	int glcd_weather_next_icon_x_position;
 	int glcd_weather_y_position;
 
 	int glcd_standby_weather;
 	int glcd_standby_weather_percent;
-	int glcd_standby_weather_curr_x_position;
-	int glcd_standby_weather_next_x_position;
+	int glcd_standby_weather_curr_temp_x_position;
+	int glcd_standby_weather_curr_icon_x_position;
+	int glcd_standby_weather_next_temp_x_position;
+	int glcd_standby_weather_next_icon_x_position;
 	int glcd_standby_weather_y_position;
 
 	int glcd_position_settings;

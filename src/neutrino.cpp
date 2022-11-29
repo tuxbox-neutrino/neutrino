@@ -1485,6 +1485,11 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 			g_settings.channellist_epgtext_alignment = EPGTEXT_ALIGN_RIGHT_MIDDLE;
 		configfile.deleteKey("channellist_epgtext_align_right");
 	}
+	if (g_settings.version_pseudo < "20221129210000")
+	{
+		configfile.deleteKey("glcd_weather_curr_x_position");
+		configfile.deleteKey("glcd_weather_next_x_position");
+	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
 	configfile.setString("version_pseudo", g_settings.version_pseudo);

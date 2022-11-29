@@ -79,8 +79,29 @@ void WeatherUpdateFonts()
 	fonts_initialized = true;
 }
 
-void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
+void RenderWeather(bool standby)
 {
+	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
+
+	int ctx, cix, ntx, nix, y;
+
+	if (!standby)
+	{
+		ctx = t.glcd_weather_curr_temp_x_position;
+		cix = t.glcd_weather_curr_icon_x_position;
+		ntx = t.glcd_weather_next_temp_x_position;
+		nix = t.glcd_weather_next_icon_x_position;
+		y = t.glcd_weather_y_position;
+	}
+	else
+	{
+		ctx = t.glcd_standby_weather_curr_temp_x_position;
+		cix = t.glcd_standby_weather_curr_icon_x_position;
+		ntx = t.glcd_standby_weather_next_temp_x_position;
+		nix = t.glcd_standby_weather_next_icon_x_position;
+		y = t.glcd_standby_weather_y_position;
+	}
+
 	int forecast = 0; // 0 is current day
 
 	std::string current_wcity = "";
@@ -96,7 +117,7 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 	std::string next_wicon = "";
 
 	cGLCD *cglcd = cGLCD::getInstance();
-	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
+
 	if (g_settings.weather_enabled)
 	{
 		if (CWeather::getInstance()->checkUpdate(ForceUpdate))
@@ -130,50 +151,63 @@ void RenderWeather(int cx, int cy, int nx, int ny, bool standby)
 			next_wicon = st_next_wicon;
 		}
 
-		if (current_wicon != "") {
+		if ((current_wicon != "") && cix)
+		{
 			if (!standby)
-				cglcd->imageShow(current_wicon, cx, cy, weather_fontsize, weather_fontsize, false, false, false, false, false);
+				cglcd->imageShow(current_wicon, cix, y, weather_fontsize, weather_fontsize, false, false, false, false, false);
 			else
-				cglcd->imageShow(current_wicon, cx, cy, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
+				cglcd->imageShow(current_wicon, cix, y, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
 		}
-		if (current_wtemp != "") {
+		if ((current_wtemp != "") && ctx)
+		{
 			//current_wtemp += "°";
+			int current_width;
 			WeatherUpdateFonts();
 			if (!standby)
-				cglcd->bitmap->DrawText(cx + 5 + weather_fontsize, cy + ((weather_fontsize - font_temperature.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, current_wtemp,
+			{
+				current_width = font_temperature.Width(current_wtemp);
+				cglcd->bitmap->DrawText(ctx, y, cglcd->bitmap->Width() - 1, current_wtemp,
 					&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			}
 			else
-				cglcd->bitmap->DrawText(cx + 5 + standby_weather_fontsize, cy + ((standby_weather_fontsize - font_temperature_standby.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, current_wtemp,
+			{
+				current_width = font_temperature_standby.Width(current_wtemp);
+				cglcd->bitmap->DrawText(ctx, y, cglcd->bitmap->Width() - 1, current_wtemp,
 					&font_temperature_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			}
 		}
-		if (next_wicon != "") {
+
+		if ((next_wicon != "") && nix)
+		{
 			if (!standby)
-				cglcd->imageShow(next_wicon, nx, ny, weather_fontsize, weather_fontsize, false, false, false, false, false);
+				cglcd->imageShow(next_wicon, nix, y, weather_fontsize, weather_fontsize, false, false, false, false, false);
 			else
-				cglcd->imageShow(next_wicon, nx, ny, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
+				cglcd->imageShow(next_wicon, nix, y, standby_weather_fontsize, standby_weather_fontsize, false, false, false, false, false);
 		}
-		if (next_wtemp != "") {
+		if ((next_wtemp != "") && ntx)
+		{
 			//next_wtemp += "°";
+			int next_width;
 			WeatherUpdateFonts();
 			if (!standby)
-				cglcd->bitmap->DrawText(nx + 5 + weather_fontsize, ny + ((weather_fontsize - font_temperature.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, next_wtemp,
+			{
+				next_width = font_temperature.Width(next_wtemp);
+				cglcd->bitmap->DrawText(ntx, y, cglcd->bitmap->Width() - 1, next_wtemp,
 					&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			}
 			else
-				cglcd->bitmap->DrawText(nx + 5 + standby_weather_fontsize, ny + ((standby_weather_fontsize - font_temperature_standby.TotalHeight()) / 2 ), cglcd->bitmap->Width() - 1, next_wtemp,
+			{
+				next_width = font_temperature_standby.Width(next_wtemp);
+				cglcd->bitmap->DrawText(ntx, y, cglcd->bitmap->Width() - 1, next_wtemp,
 					&font_temperature_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
+			}
 		}
 	}
 }
 
 void ShowWeather(bool standby)
 {
-	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
-
-	if (!standby) {
-		RenderWeather(t.glcd_weather_curr_x_position, t.glcd_weather_y_position, t.glcd_weather_next_x_position, t.glcd_weather_y_position, standby);
-	} else {
-		RenderWeather(t.glcd_standby_weather_curr_x_position, t.glcd_standby_weather_y_position, t.glcd_standby_weather_next_x_position, t.glcd_standby_weather_y_position, standby);
-	}
+	RenderWeather(standby);
 
 	if (ForceUpdate)
 		ForceUpdate = false;

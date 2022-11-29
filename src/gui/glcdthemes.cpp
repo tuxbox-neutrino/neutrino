@@ -349,13 +349,17 @@ void CGLCDThemes::setTheme(CConfigFile &configfile)
 	configfile.setInt32("glcd_standby_clock_simple_y_position", t.glcd_standby_clock_simple_y_position);
 	configfile.setBool("glcd_weather", t.glcd_weather);
 	configfile.setInt32("glcd_weather_percent", t.glcd_weather_percent);
-	configfile.setInt32("glcd_weather_curr_x_position", t.glcd_weather_curr_x_position);
-	configfile.setInt32("glcd_weather_next_x_position", t.glcd_weather_next_x_position);
+	configfile.setInt32("glcd_weather_curr_temp_x_position", t.glcd_weather_curr_temp_x_position);
+	configfile.setInt32("glcd_weather_curr_icon_x_position", t.glcd_weather_curr_icon_x_position);
+	configfile.setInt32("glcd_weather_next_temp_x_position", t.glcd_weather_next_temp_x_position);
+	configfile.setInt32("glcd_weather_next_icon_x_position", t.glcd_weather_next_icon_x_position);
 	configfile.setInt32("glcd_weather_y_position", t.glcd_weather_y_position);
 	configfile.setInt32("glcd_standby_weather", t.glcd_standby_weather);
 	configfile.setInt32("glcd_standby_weather_percent", t.glcd_standby_weather_percent);
-	configfile.setInt32("glcd_standby_weather_curr_x_position", t.glcd_standby_weather_curr_x_position);
-	configfile.setInt32("glcd_standby_weather_next_x_position", t.glcd_standby_weather_next_x_position);
+	configfile.setInt32("glcd_standby_weather_curr_temp_x_position", t.glcd_standby_weather_curr_temp_x_position);
+	configfile.setInt32("glcd_standby_weather_curr_icon_x_position", t.glcd_standby_weather_curr_icon_x_position);
+	configfile.setInt32("glcd_standby_weather_next_temp_x_position", t.glcd_standby_weather_next_temp_x_position);
+	configfile.setInt32("glcd_standby_weather_next_icon_x_position", t.glcd_standby_weather_next_icon_x_position);
 	configfile.setInt32("glcd_standby_weather_y_position", t.glcd_standby_weather_y_position);
 	configfile.setInt32("glcd_position_settings", t.glcd_position_settings);
 }
@@ -427,13 +431,17 @@ void CGLCDThemes::getTheme(CConfigFile &configfile)
 	t.glcd_standby_clock_simple_y_position = configfile.getInt32("glcd_standby_clock_simple_y_position", 0);
 	t.glcd_weather = configfile.getBool("glcd_weather", false);
 	t.glcd_weather_percent = configfile.getInt32("glcd_weather_percent", 15);
-	t.glcd_weather_curr_x_position = configfile.getInt32("glcd_weather_curr_x_position", 0);
-	t.glcd_weather_next_x_position = configfile.getInt32("glcd_weather_next_x_position", 0);
+	t.glcd_weather_curr_temp_x_position = configfile.getInt32("glcd_weather_curr_temp_x_position", 0);
+	t.glcd_weather_curr_icon_x_position = configfile.getInt32("glcd_weather_curr_icon_x_position", 0);
+	t.glcd_weather_next_temp_x_position = configfile.getInt32("glcd_weather_next_temp_x_position", 0);
+	t.glcd_weather_next_icon_x_position = configfile.getInt32("glcd_weather_next_icon_x_position", 0);
 	t.glcd_weather_y_position = configfile.getInt32("glcd_weather_y_position", 0);
 	t.glcd_standby_weather = configfile.getInt32("glcd_standby_weather", 1);
 	t.glcd_standby_weather_percent = configfile.getInt32("glcd_standby_weather_percent", 40);
-	t.glcd_standby_weather_curr_x_position = configfile.getInt32("glcd_standby_weather_curr_x_position", 0);
-	t.glcd_standby_weather_next_x_position = configfile.getInt32("glcd_standby_weather_next_x_position", 0);
+	t.glcd_standby_weather_curr_temp_x_position = configfile.getInt32("glcd_standby_weather_curr_temp_x_position", 0);
+	t.glcd_standby_weather_curr_icon_x_position = configfile.getInt32("glcd_standby_weather_curr_icon_x_position", 0);
+	t.glcd_standby_weather_next_temp_x_position = configfile.getInt32("glcd_standby_weather_next_temp_x_position", 0);
+	t.glcd_standby_weather_next_icon_x_position = configfile.getInt32("glcd_standby_weather_next_icon_x_position", 0);
 	t.glcd_standby_weather_y_position = configfile.getInt32("glcd_standby_weather_y_position", 0);
 	t.glcd_position_settings = configfile.getInt32("glcd_position_settings", 1);
 

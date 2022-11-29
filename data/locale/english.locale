@@ -947,8 +947,10 @@ glcd.standby_clock_led LED-clock
 glcd.standby_clock_simple Simple clock
 glcd.standby_settings Standby-settings
 glcd.standby_weather Weather in standby mode
-glcd.standby_weather_curr_x_position Weather in standby mode current x-position
-glcd.standby_weather_next_x_position Weather in standby mode next x-position
+glcd.standby_weather_curr_icon_x_position Weather icon current x-position
+glcd.standby_weather_curr_temp_x_position Temperature current x-position
+glcd.standby_weather_next_icon_x_position Weather icon next x-position
+glcd.standby_weather_next_temp_x_position Temperature next x-position
 glcd.standby_weather_percent Weather height
 glcd.standby_weather_y_position Weather in standby mode y-position
 glcd.start_align Event start arrangement
@@ -965,8 +967,10 @@ glcd.time_size_standby Standby time height
 glcd.time_x_position Time x-position
 glcd.time_y_position Time y-position
 glcd.volume Volume
-glcd.weather_curr_x_position Weather current x-position
-glcd.weather_next_x_position Weather next x-position
+glcd.weather_curr_icon_x_position Weather icon current x-position
+glcd.weather_curr_temp_x_position Temperature current x-position
+glcd.weather_next_icon_x_position Weather icon next x-position
+glcd.weather_next_temp_x_position Temperature next x-position
 glcd.weather_percent Weather height
 glcd.weather_show Weather display
 glcd.weather_y_position Weather y-position

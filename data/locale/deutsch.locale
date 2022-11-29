@@ -947,8 +947,10 @@ glcd.standby_clock_led LED-Uhr
 glcd.standby_clock_simple Einfache Uhr
 glcd.standby_settings Standby-Einstellungen
 glcd.standby_weather Wetter im Standby
-glcd.standby_weather_curr_x_position Wetter im Standby heute x-Position
-glcd.standby_weather_next_x_position Wetter im Standby morgen x-Position
+glcd.standby_weather_curr_icon_x_position Wetter-Icon heute x-Position
+glcd.standby_weather_curr_temp_x_position Temperatur heute x-Position
+glcd.standby_weather_next_icon_x_position Wetter-Icon morgen x-Position
+glcd.standby_weather_next_temp_x_position Temperatur morgen x-Position
 glcd.standby_weather_percent Wetter Höhe
 glcd.standby_weather_y_position Wetter im Standby y-Position
 glcd.start_align Sendungsstart ausrichten
@@ -965,8 +967,10 @@ glcd.time_size_standby Uhrzeit Höhe im Standby
 glcd.time_x_position Uhrzeit x-Position
 glcd.time_y_position Uhrzeit y-Position
 glcd.volume Lautstärke
-glcd.weather_curr_x_position Wetter heute x-Position
-glcd.weather_next_x_position Wetter morgen x-Position
+glcd.weather_curr_icon_x_position Wetter-Icon heute x-Position
+glcd.weather_curr_temp_x_position Temperatur heute x-Position
+glcd.weather_next_icon_x_position Wetter-Icon morgen x-Position
+glcd.weather_next_temp_x_position Temperatur morgen x-Position
 glcd.weather_percent Wetter Höhe
 glcd.weather_show Wetter anzeigen
 glcd.weather_y_position Wetter y-Position
