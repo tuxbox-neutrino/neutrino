@@ -161,17 +161,14 @@ void RenderWeather(bool standby)
 		if ((current_wtemp != "") && ctx)
 		{
 			//current_wtemp += "°";
-			int current_width;
 			WeatherUpdateFonts();
 			if (!standby)
 			{
-				current_width = font_temperature.Width(current_wtemp);
 				cglcd->bitmap->DrawText(ctx, y, cglcd->bitmap->Width() - 1, current_wtemp,
 					&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 			}
 			else
 			{
-				current_width = font_temperature_standby.Width(current_wtemp);
 				cglcd->bitmap->DrawText(ctx, y, cglcd->bitmap->Width() - 1, current_wtemp,
 					&font_temperature_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 			}
@@ -187,18 +184,18 @@ void RenderWeather(bool standby)
 		if ((next_wtemp != "") && ntx)
 		{
 			//next_wtemp += "°";
-			int next_width;
+			int offset;
 			WeatherUpdateFonts();
 			if (!standby)
 			{
-				next_width = font_temperature.Width(next_wtemp);
-				cglcd->bitmap->DrawText(ntx, y, cglcd->bitmap->Width() - 1, next_wtemp,
+				offset = std::max(0, font_temperature.Width("88") - font_temperature.Width(next_wtemp));
+				cglcd->bitmap->DrawText(ntx + offset, y, cglcd->bitmap->Width() - 1, next_wtemp,
 					&font_temperature, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 			}
 			else
 			{
-				next_width = font_temperature_standby.Width(next_wtemp);
-				cglcd->bitmap->DrawText(ntx, y, cglcd->bitmap->Width() - 1, next_wtemp,
+				offset = std::max(0, font_temperature_standby.Width("88") - font_temperature_standby.Width(next_wtemp));
+				cglcd->bitmap->DrawText(ntx + offset, y, cglcd->bitmap->Width() - 1, next_wtemp,
 					&font_temperature_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 			}
 		}
