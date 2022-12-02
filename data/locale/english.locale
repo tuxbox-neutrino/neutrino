@@ -481,35 +481,35 @@ extra.dboxinfo_uptime Uptime
 extra.dboxinfo_use Use
 extra.dboxinfo_used Used
 extra.east East
-extra.fec_1_2 1/2
-extra.fec_2_3 2/3
-extra.fec_2_5 2/5
-extra.fec_3_4 3/4
-extra.fec_3_5 3/5
-extra.fec_4_5 4/5
-extra.fec_5_6 5/6
-extra.fec_7_8 7/8
-extra.fec_8_9 8/9
-extra.fec_9_10 9/10
-extra.fec_auto Auto
-extra.fec_13_45 13/45
-extra.fec_9_20 9/20
+extra.fec_11_15 11/15
 extra.fec_11_20 11/20
+extra.fec_13_18 13/18
+extra.fec_13_45 13/45
+extra.fec_1_2 1/2
+extra.fec_1_2_L 1/2L
 extra.fec_23_36 23/36
 extra.fec_25_36 25/36
-extra.fec_13_18 13/18
 extra.fec_26_45 26/45
-extra.fec_28_45 28/45
-extra.fec_7_9 7/9
-extra.fec_77_90 77/90
-extra.fec_32_45 32/45
-extra.fec_11_15 11/15
-extra.fec_1_2_L 1/2L
-extra.fec_8_15_L 8/15L
-extra.fec_3_5_L 3/5L
-extra.fec_2_3_L 2/3L
-extra.fec_5_9_L 5/9L
 extra.fec_26_45_L 26/45L
+extra.fec_28_45 28/45
+extra.fec_2_3 2/3
+extra.fec_2_3_L 2/3L
+extra.fec_2_5 2/5
+extra.fec_32_45 32/45
+extra.fec_3_4 3/4
+extra.fec_3_5 3/5
+extra.fec_3_5_L 3/5L
+extra.fec_4_5 4/5
+extra.fec_5_6 5/6
+extra.fec_5_9_L 5/9L
+extra.fec_77_90 77/90
+extra.fec_7_8 7/8
+extra.fec_7_9 7/9
+extra.fec_8_15_L 8/15L
+extra.fec_8_9 8/9
+extra.fec_9_10 9/10
+extra.fec_9_20 9/20
+extra.fec_auto Auto
 extra.key_current_transponder Current transponder
 extra.key_format_mode Video format
 extra.key_help Help
@@ -520,8 +520,8 @@ extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close PiP Start/Stop
 extra.key_pip_close_avinput PiP Start/Stop (HDMI)
-extra.key_pip_rotate_cw PiP move clockwise
 extra.key_pip_rotate_ccw PiP move counter clockwise
+extra.key_pip_rotate_cw PiP move clockwise
 extra.key_pip_setup PiP configure
 extra.key_pip_swap PiP/Live swap
 extra.key_record Record
@@ -991,9 +991,6 @@ hdd_format_failed Formating failed! Make sure device not in use, reboot and try 
 hdd_format_on_mount_failed Format device when mount failed
 hdd_format_warn All data on device will be lost! Continue with formatting?
 hdd_fs Filesystem used to format
-hdd_label Device label
-hdd_label_hint1 Enter device label and press save
-hdd_label_hint2 Only with "%s" (recording medium) the necessary folders will be written to device
 hdd_info_capacity Capacity
 hdd_info_firmware Firmware
 hdd_info_head HDD Info
@@ -1006,6 +1003,9 @@ hdd_info_sector_size Sector size
 hdd_info_serial Serial
 hdd_info_temperature Temperature
 hdd_info_unknown unknown
+hdd_label Device label
+hdd_label_hint1 Enter device label and press save
+hdd_label_hint2 Only with "%s" (recording medium) the necessary folders will be written to device
 hdd_manage Manage device
 hdd_middle Mid
 hdd_mount Mount
@@ -1045,7 +1045,6 @@ imageinfo.policy Privacy Policy
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API-Key
-imdb.enabled IMDb-Support
 imdb.data_actors Actors
 imdb.data_awards Awards
 imdb.data_boxoffice Boxoffice
@@ -1063,6 +1062,7 @@ imdb.data_title Original title
 imdb.data_votes Votes
 imdb.data_website Website
 imdb.data_writer Screenplay author
+imdb.enabled IMDb-Support
 imdb.head IMDb
 imdb.read_data Search IMDb data ...
 inetradio.autostart Internetradio auto-start
@@ -1198,6 +1198,8 @@ lua.parameter_deprecated2 Parameter
 lua.versionscheck1 Your Lua API version is too old
 lua.versionscheck2 This requires at least
 mainmenu.audioplayer Audioplayer
+mainmenu.avinputmode HDMI Input (Mode)
+mainmenu.avinputmode_pip HDMI Input (PiP)
 mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG cache
 mainmenu.games Games
@@ -1213,8 +1215,6 @@ mainmenu.reboot Reboot
 mainmenu.recording Recording
 mainmenu.recording_start Start
 mainmenu.recording_stop Stop
-mainmenu.avinputmode HDMI Input (Mode)
-mainmenu.avinputmode_pip HDMI Input (PiP)
 mainmenu.scripts Scripts
 mainmenu.service Installation (service)
 mainmenu.settings System settings
@@ -1243,11 +1243,11 @@ mbkey.copy_onefile Copy movie
 mbkey.copy_several Copy and split movie
 mbkey.cover Create/remove movie cover
 mbkey.cut Cut movie
-mbkey.toggle_view_cw Toggle view clockwise
 mbkey.toggle_view_ccw Toggle view counter clockwise
+mbkey.toggle_view_cw Toggle view clockwise
 mbkey.truncate Truncate movie
-mdb.head Movie database
 mdb.choose Choose movie database
+mdb.head Movie database
 mdb.save_poster Save poster
 mdb.save_poster_hint Save poster with "%s"
 menu.back Back
@@ -1458,8 +1458,8 @@ menu.hint_key_pageup Assign button to show previous items page
 menu.hint_key_pic_mode_active Disable/enable key for the screen format
 menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
-menu.hint_key_pip_rotate_cw Assign button to move PiP clockwise
 menu.hint_key_pip_rotate_ccw Assign button to move PiP counter clockwise
+menu.hint_key_pip_rotate_cw Assign button to move PiP clockwise
 menu.hint_key_pip_setup Assign button to configure PiP
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deep-standby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
@@ -2435,6 +2435,8 @@ recording.stop Stop recording, please wait ...
 recording.time_hour hour
 recording.time_hours hours
 recording.time_min min
+recording_type.file Direct (File)
+recording_type.off off
 recordingmenu.already_found_check Check, if title is already present
 recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
@@ -2466,8 +2468,6 @@ recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
-recording_type.file Direct (File)
-recording_type.off off
 recordtimer.announce Recording starts in a few minutes
 remotebox_add Add
 remotebox_channel_na Channel not available on Remote-Box
@@ -2797,10 +2797,10 @@ tunersetup.power 5V supply on DVB-T/T2 channels
 tunersetup.sat Satellite (DVB-S/S2)
 tunersetup.terr Terrestrial (DVB-T/T2)
 tunersetup.tunersetup Tuner setup
+unicable.freq Unicable Frequency
 unicable.lnb Unicable Input
 unicable.pin Unicable PIN
 unicable.pin_hint PIN (1 - 255) for user frequency\n0 means inactive / off
-unicable.freq Unicable Frequency
 unicable.scr Unicable SCR
 unit.decimal .
 unit.long.years years
@@ -2870,17 +2870,17 @@ videomenu.hdmi_cec_mode_tuner as Sat/Cable STB
 videomenu.hdmi_cec_sleep CEC standby when HDMI input changed
 videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_view_on Enable CEC View on
-videomenu.hdmi_cec_volume CEC volume control
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
 videomenu.hdmi_cec_vol_off off
 videomenu.hdmi_cec_vol_tv TV
+videomenu.hdmi_cec_volume CEC volume control
 videomenu.hdmi_cec_wakeup Wakeup when HDMI input changed
 videomenu.hdmi_colorimetry Color profile
 videomenu.hdmi_colorimetry_auto auto
-videomenu.hdmi_colorimetry_bt2020ncl BT 2020 NCL
 videomenu.hdmi_colorimetry_bt2020cl BT 2020 CL
-videomenu.hdmi_colorimetry_bt709 BT 709
+videomenu.hdmi_colorimetry_bt2020ncl BT 2020 NCL
 videomenu.hdmi_colorimetry_bt470 BT 470
+videomenu.hdmi_colorimetry_bt709 BT 709
 videomenu.hue Hue
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan
@@ -2906,8 +2906,8 @@ videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
 videomenu.zappingmode Zapping mode
-videomenu.zappingmode_mute Black screen
 videomenu.zappingmode_hold Hold screen
+videomenu.zappingmode_mute Black screen
 weather.api_key Weather API key (OpenWeather)
 weather.direction_e E
 weather.direction_ene ENE

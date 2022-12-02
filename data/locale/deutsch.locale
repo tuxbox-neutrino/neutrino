@@ -481,35 +481,35 @@ extra.dboxinfo_uptime Uptime
 extra.dboxinfo_use Nutzung
 extra.dboxinfo_used Benutzt
 extra.east Osten
-extra.fec_1_2 1/2
-extra.fec_2_3 2/3
-extra.fec_2_5 2/5
-extra.fec_3_4 3/4
-extra.fec_3_5 3/5
-extra.fec_4_5 4/5
-extra.fec_5_6 5/6
-extra.fec_7_8 7/8
-extra.fec_8_9 8/9
-extra.fec_9_10 9/10
-extra.fec_auto Auto
-extra.fec_13_45 13/45
-extra.fec_9_20 9/20
+extra.fec_11_15 11/15
 extra.fec_11_20 11/20
+extra.fec_13_18 13/18
+extra.fec_13_45 13/45
+extra.fec_1_2 1/2
+extra.fec_1_2_L 1/2L
 extra.fec_23_36 23/36
 extra.fec_25_36 25/36
-extra.fec_13_18 13/18
 extra.fec_26_45 26/45
-extra.fec_28_45 28/45
-extra.fec_7_9 7/9
-extra.fec_77_90 77/90
-extra.fec_32_45 32/45
-extra.fec_11_15 11/15
-extra.fec_1_2_L 1/2L
-extra.fec_8_15_L 8/15L
-extra.fec_3_5_L 3/5L
-extra.fec_2_3_L 2/3L
-extra.fec_5_9_L 5/9L
 extra.fec_26_45_L 26/45L
+extra.fec_28_45 28/45
+extra.fec_2_3 2/3
+extra.fec_2_3_L 2/3L
+extra.fec_2_5 2/5
+extra.fec_32_45 32/45
+extra.fec_3_4 3/4
+extra.fec_3_5 3/5
+extra.fec_3_5_L 3/5L
+extra.fec_4_5 4/5
+extra.fec_5_6 5/6
+extra.fec_5_9_L 5/9L
+extra.fec_77_90 77/90
+extra.fec_7_8 7/8
+extra.fec_7_9 7/9
+extra.fec_8_15_L 8/15L
+extra.fec_8_9 8/9
+extra.fec_9_10 9/10
+extra.fec_9_20 9/20
+extra.fec_auto Auto
 extra.key_current_transponder Aktueller Transponder
 extra.key_format_mode Videoformat
 extra.key_help Hilfe
@@ -520,8 +520,8 @@ extra.key_pic_mode Bildschirmformat
 extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close PiP Start/Stopp
 extra.key_pip_close_avinput PiP Start/Stopp (HDMI)
-extra.key_pip_rotate_cw PiP bewegen im Uhrzeigensinn
 extra.key_pip_rotate_ccw PiP bewegen entgegen dem Uhrzeigersinn
+extra.key_pip_rotate_cw PiP bewegen im Uhrzeigensinn
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap PiP/Live umschalten
 extra.key_record Aufnahme
@@ -991,9 +991,6 @@ hdd_format_failed Formatierung fehlgeschlagen! Stellen Sie sicher, dass der Date
 hdd_format_on_mount_failed Formatieren bei Einhänge-Fehler
 hdd_format_warn Alle Daten auf dem Datenträger werden gelöscht! Formatierung starten?
 hdd_fs Dateisystem zum formatieren
-hdd_label Datenträger-Bezeichnung
-hdd_label_hint1 Datenträger-Bezeichnung eingeben und mit Speichern übernehmen
-hdd_label_hint2 Nur bei "%s" (Aufnahme-Medium) werden die nötigen Verzeichnisse auf den Datenträger geschrieben
 hdd_info_capacity Kapazität
 hdd_info_firmware Firmware
 hdd_info_head HDD Info
@@ -1006,6 +1003,9 @@ hdd_info_sector_size Sektorengröße
 hdd_info_serial Seriennummer
 hdd_info_temperature Temperatur
 hdd_info_unknown unbekannt
+hdd_label Datenträger-Bezeichnung
+hdd_label_hint1 Datenträger-Bezeichnung eingeben und mit Speichern übernehmen
+hdd_label_hint2 Nur bei "%s" (Aufnahme-Medium) werden die nötigen Verzeichnisse auf den Datenträger geschrieben
 hdd_manage Datenträger verwalten
 hdd_middle Mittel
 hdd_mount Mount
@@ -1045,7 +1045,6 @@ imageinfo.policy Datenschutz
 imageinfo.vcs Git:
 imageinfo.version Version:
 imdb.api_key IMDb API Schlüssel
-imdb.enabled IMDb-Unterstützung
 imdb.data_actors Darsteller
 imdb.data_awards Awards
 imdb.data_boxoffice Einspielergebnis
@@ -1063,6 +1062,7 @@ imdb.data_title Originaltitel
 imdb.data_votes Stimmen
 imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
+imdb.enabled IMDb-Unterstützung
 imdb.head IMDb
 imdb.read_data Suche IMDb-Daten ...
 inetradio.autostart Internetradio Auto-Start
@@ -1198,6 +1198,8 @@ lua.parameter_deprecated2 Der Parameter
 lua.versionscheck1 Ihre Lua API Version ist zu alt
 lua.versionscheck2 Erforderlich ist mindestens
 mainmenu.audioplayer Audioplayer
+mainmenu.avinputmode HDMI-Eingang (Modus)
+mainmenu.avinputmode_pip HDMI-Eingang (PiP)
 mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
@@ -1213,8 +1215,6 @@ mainmenu.reboot Neustart
 mainmenu.recording Aufnehmen
 mainmenu.recording_start Start
 mainmenu.recording_stop Stopp
-mainmenu.avinputmode HDMI-Eingang (Modus)
-mainmenu.avinputmode_pip HDMI-Eingang (PiP)
 mainmenu.scripts Skripte
 mainmenu.service Service
 mainmenu.settings Einstellungen
@@ -1243,11 +1243,11 @@ mbkey.copy_onefile Film kopieren
 mbkey.copy_several Film kopieren und teilen
 mbkey.cover Filmcover erzeugen/löschen
 mbkey.cut Film schneiden
-mbkey.toggle_view_cw Ansicht umschalten im Uhrzeigersinn
 mbkey.toggle_view_ccw Ansicht umschalten entgegen dem Uhrzeigersinn
+mbkey.toggle_view_cw Ansicht umschalten im Uhrzeigersinn
 mbkey.truncate Film kürzen
-mdb.head Movie Database
 mdb.choose Movie Database wählen
+mdb.head Movie Database
 mdb.save_poster Bild speichern
 mdb.save_poster_hint Bild speichern mit "%s"
 menu.back Zurück
@@ -1456,8 +1456,8 @@ menu.hint_key_pageup Weisen Sie eine Taste für das Hochblättern zu
 menu.hint_key_pic_mode_active Die Taste für das Bildschirmformat deaktivieren/aktivieren
 menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivieren/aktivieren
 menu.hint_key_pip_close Tastenzuordnung für Start PiP mit aktuellem Kanal oder Stopp PiP
-menu.hint_key_pip_rotate_cw Tastenzuordnung für PiP Bewegung im Uhrzeigersinn
 menu.hint_key_pip_rotate_ccw Tastenzuordnung für PiP Bewegung entgegen dem Uhrzeigersinn
+menu.hint_key_pip_rotate_cw Tastenzuordnung für PiP Bewegung im Uhrzeigersinn
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
@@ -2433,6 +2433,8 @@ recording.stop Beende Aufnahme, bitte warten ...
 recording.time_hour Stunde
 recording.time_hours Stunden
 recording.time_min Min
+recording_type.file Direkt (Datei)
+recording_type.off aus
 recordingmenu.already_found_check Prüfe, ob Titel bereits vorhanden
 recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
@@ -2464,8 +2466,6 @@ recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
 recordingmenu.vtxt_pid Videotext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
-recording_type.file Direkt (Datei)
-recording_type.off aus
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
 remotebox_add Hinzufügen
 remotebox_channel_na Kanal auf Remote-Box nicht verfügbar
@@ -2795,10 +2795,10 @@ tunersetup.power 5V-Versorgung bei DVB-T/T2 Kanälen
 tunersetup.sat Satellit (DVB-S/S2)
 tunersetup.terr Terrestrisch (DVB-T/T2)
 tunersetup.tunersetup Tunereinstellungen
+unicable.freq Unicable Frequenz
 unicable.lnb Unicable Eingang
 unicable.pin Unicable PIN
 unicable.pin_hint PIN (1 - 255) für Benutzerfrequenz\n0 bedeutet inaktiv / aus
-unicable.freq Unicable Frequenz
 unicable.scr Unicable SCR
 unit.decimal ,
 unit.long.years Jahre
@@ -2867,16 +2867,17 @@ videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR
 videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
-videomenu.hdmi_cec_volume CEC Lautstärke Regelung
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
 videomenu.hdmi_cec_vol_off aus
 videomenu.hdmi_cec_vol_tv TV
+videomenu.hdmi_cec_volume CEC Lautstärke Regelung
+videomenu.hdmi_cec_wakeup Box aufwecken bei HDMI Eingangswechsel
 videomenu.hdmi_colorimetry Farbprofil
 videomenu.hdmi_colorimetry_auto auto
-videomenu.hdmi_colorimetry_bt2020ncl BT 2020 ncl
 videomenu.hdmi_colorimetry_bt2020cl BT 2020 cl
-videomenu.hdmi_colorimetry_bt709 BT 709
+videomenu.hdmi_colorimetry_bt2020ncl BT 2020 ncl
 videomenu.hdmi_colorimetry_bt470 BT 470
+videomenu.hdmi_colorimetry_bt709 BT 709
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan
@@ -2902,8 +2903,8 @@ videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
 videomenu.zappingmode Umschaltverhalten
-videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_hold Standbild
+videomenu.zappingmode_mute Schwarzes Bild
 weather.api_key Wetter API Schlüssel (OpenWeather)
 weather.direction_e O
 weather.direction_ene ONO
