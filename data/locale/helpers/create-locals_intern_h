@@ -1,6 +1,7 @@
 #!/bin/bash
-# usage: cut -d' ' -f1 english.locale | LC_ALL=C sort | uniq | ./helpers/create-locals_intern.h
-cat > locals_intern.h <<EOH
+# usage: cut -d' ' -f1 deutsch.locale | LC_ALL=C sort | uniq | ./helpers/create-locals_intern.h
+
+cat > locals_intern.h << EOH
 #ifndef __locals_intern__
 #define __locals_intern__
 
@@ -28,13 +29,14 @@ cat > locals_intern.h <<EOH
 const char * locale_real_names[] =
 {
 EOH
+
 printf "\t\"INTERNAL ERROR - PLEASE REPORT\"" >> locals_intern.h
 
 while read id; do
 	printf ",\n\t\"$id\"" >> locals_intern.h
 done
 
-cat >> locals_intern.h <<EOF
+cat >> locals_intern.h << EOF
 
 };
 #endif

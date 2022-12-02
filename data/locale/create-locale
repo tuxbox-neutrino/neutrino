@@ -1,0 +1,50 @@
+#!/bin/bash
+
+locale_master="deutsch.locale"
+locale="${locale_master} english.locale"
+
+check_locale() {
+	cut -d' ' -f1 ${locale_master} | LC_ALL=C sort | uniq > /tmp/${locale_master}
+	for l in ${locale}; do
+		test $l == ${locale_master} && continue
+		echo $l:
+		echo "----------------"
+		cut -d' ' -f1 $l | diff -u - /tmp/${locale_master}
+		echo
+	done
+	rm /tmp/${locale_master}
+}
+
+sort_locale() {
+	for l in ${locale}; do
+		cat ${l} | LC_ALL=C sort | uniq > ${l}.tmp
+		mv ${l}.tmp ${l}
+	done
+}
+
+create_locale_work() {
+	for l in ${locale}; do
+		helpers/create-locale-work ${l}
+	done
+}
+
+create_locals_h() {
+	cut -d' ' -f1 ${locale_master} | LC_ALL=C sort | uniq | tr [:lower:] [:upper:] | tr \. \_  | tr \- \_ | tr -d \? | \
+		helpers/create-locals_h
+	mv locals.h ../../src/system
+}
+
+create_locals_intern_h() {
+	cut -d' ' -f1 ${locale_master} | LC_ALL=C sort | uniq | \
+		helpers/create-locals_intern_h
+	mv locals_intern.h ../../src/system
+}
+
+#check_locale
+sort_locale
+create_locale_work
+create_locals_h
+create_locals_intern_h
+
+echo "Consider committing src/system/[locals.h locals_intern.h]"
+echo "and data/locale/[${locale}]"
