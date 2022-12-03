@@ -1377,6 +1377,7 @@ menu.hint_fonts Configure GUI fonts and font sizes
 menu.hint_foot_back Change GUI footer background color
 menu.hint_foot_textcolor Change GUI window footer text color
 menu.hint_games Show list of installed games
+menu.hint_glcd_support Activate/deactivate GraphLCD
 menu.hint_hdd Format and check data storage
 menu.hint_hdd_allow_set_recdir Allow to set new connected devices as a record medium
 menu.hint_hdd_apply Apply sleep/noise parameters

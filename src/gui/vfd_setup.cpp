@@ -223,17 +223,22 @@ int CVfdSetup::showSetup()
 		vfds->addItem(led_num);
 	}
 
+	CMenuItem *glcd_setup = NULL;
+#ifdef ENABLE_GRAPHLCD
+	int glcdKey = CRCInput::RC_nokey;
+	if (vfds->getItemsCount() == initial_count) // first item
+		glcdKey = CRCInput::RC_red;
+
+	GLCD_Menu glcdMenu;
+	glcd_setup = new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL, glcdKey);
+	glcd_setup->setHint(NEUTRINO_ICON_HINT_GRAPHLCD, LOCALE_MENU_HINT_GLCD_SUPPORT);
+	vfds->addItem(glcd_setup);
+#endif
+
 #ifdef ENABLE_LCD4LINUX
 	mf = new CMenuForwarder(LOCALE_LCD4L_SUPPORT, !find_executable("lcd4linux").empty(), NULL, CLCD4lSetup::getInstance(), NULL, CRCInput::RC_blue);
 	mf->setHint(NEUTRINO_ICON_HINT_LCD4LINUX, LOCALE_MENU_HINT_LCD4L_SUPPORT);
 	vfds->addItem(mf);
-#endif
-
-	CMenuItem *glcd_setup = NULL;
-#ifdef ENABLE_GRAPHLCD
-	GLCD_Menu glcdMenu;
-	glcd_setup = new CMenuForwarder(LOCALE_GLCD_HEAD, true, NULL, &glcdMenu, NULL);
-	vfds->addItem(glcd_setup);
 #endif
 
 	int res;

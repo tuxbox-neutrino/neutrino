@@ -1375,6 +1375,7 @@ menu.hint_fonts Konfigurieren Sie die Schriftart und die Schriftgrößen für di
 menu.hint_foot_back Ändern Sie die Fußleisten-Hintergrundfarbe
 menu.hint_foot_textcolor Ändern Sie die Fußleisten-Textfarbe
 menu.hint_games Zeige Liste der installierten Spiele
+menu.hint_glcd_support GraphLCD aktivieren/deaktivieren
 menu.hint_hdd Formatierung und Prüfung der Datenträger
 menu.hint_hdd_allow_set_recdir Erlaubt das sofortige Einstellen des neuen Datenträgers als Aufnahmemedium
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen

@@ -67,6 +67,11 @@ install_DATA = \
 	hint_webtv.png \
 	hint_xmltv.png
 
+if ENABLE_GRAPHLCD
+install_DATA += \
+	hint_graphlcd.png
+endif
+
 if ENABLE_PIP
 install_DATA += \
 	hint_avinputmode_pip.png
