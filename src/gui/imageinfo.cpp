@@ -601,7 +601,15 @@ void CImageInfo::hide()
 
 string CImageInfo::getYWebVersion()
 {
+	CConfigFile yConf('=', false);
+	yConf.loadConfig(CONFIGDIR "/nhttpd.conf");
+	std::string ver = yConf.getString("WebsiteMain.directory", "n/a") + "/Y_Version.txt";
+
 	CConfigFile yV('=', false);
-	yV.loadConfig(PRIVATE_HTTPDDIR "/Y_Version.txt");
-	return yV.getString("version", "n/a");
+	if (file_exists(ver.c_str()))
+	{
+		yV.loadConfig(ver);
+		return yV.getString("version", "n/a");
+	}
+	return "n/a";
 }
