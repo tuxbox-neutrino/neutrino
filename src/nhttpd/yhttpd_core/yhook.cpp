@@ -454,6 +454,7 @@ std::string CyhookHandler::outPair(std::string _key, std::string _content, bool 
 		result = outIndent() + "<" + _key + ">" + _content + "</" + _key_close + ">";
 		break;
 	case json:
+		replace(_content, "\"", "\'");
 		result = outIndent() + "\"" + _key + "\": \"" + _content + "\"";
 		if(_next)
 			result += ",";
