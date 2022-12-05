@@ -102,7 +102,7 @@ class hdmi_cec : public OpenThreads::Thread
 		void SendActiveSource(bool force = false);
 		void RequestTVPowerStatus();
 		void GetCECAddressInfo();
-		void SendCECMessage(struct cec_message &message);
+		void SendCECMessage(struct cec_message &message, int sleeptime = 250);
 		void SetCECState(bool state);
 		void ReportPhysicalAddress();
 		void Ping();

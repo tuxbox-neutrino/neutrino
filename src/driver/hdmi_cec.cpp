@@ -171,21 +171,26 @@ void hdmi_cec::ReportPhysicalAddress()
 	SendCECMessage(txmessage);
 }
 
-void hdmi_cec::SendCECMessage(struct cec_message &txmessage)
+void hdmi_cec::SendCECMessage(struct cec_message &txmessage, int sleeptime)
 {
-	char str[txmessage.length * 6];
-
-	for (int i = 0; i < txmessage.length; i++)
+	if (hdmiFd >= 0)
 	{
-		sprintf(str + (i * 6), "[0x%02X]", txmessage.data[i]);
-	}
+		char str[txmessage.length * 6];
 
-	struct cec_message_fb message;
-	message.address = txmessage.destination;
-	message.length = txmessage.length;
-	memcpy(&message.data, txmessage.data, txmessage.length);
-	if (::write(hdmiFd, &message, 2 + message.length) > 0)
+		for (int i = 0; i < txmessage.length; i++)
+		{
+			sprintf(str + (i * 6), "[0x%02X]", txmessage.data[i]);
+		}
+
+		struct cec_message_fb message;
+		message.address = txmessage.destination;
+		message.length = txmessage.length;
+		memcpy(&message.data, txmessage.data, txmessage.length);
+		if (::write(hdmiFd, &message, 2 + message.length) > 0)
 			cecprintf(YELLOW, "send message %s to %s (0x%02X>>0x%02X) '%s' (%s)", ToString((cec_logical_address)txmessage.initiator), txmessage.destination == 0xf ? "all" : ToString((cec_logical_address)txmessage.destination), txmessage.initiator, txmessage.destination, ToString((cec_opcode)txmessage.data[0]), str);
+
+		usleep(sleeptime * 1000);
+	}
 }
 
 void hdmi_cec::SetCECAutoStandby(bool state)
@@ -858,12 +863,12 @@ void hdmi_cec::send_key(unsigned char key, unsigned char destination)
 	txmessage.data[0] = CEC_OPCODE_USER_CONTROL_PRESSED;
 	txmessage.data[1] = key;
 	txmessage.length = 2;
-	SendCECMessage(txmessage);
+	SendCECMessage(txmessage, 1);
 	txmessage.destination = destination;
 	txmessage.initiator = logicalAddress;
 	txmessage.data[0] = CEC_OPCODE_USER_CONTROL_RELEASE;
 	txmessage.length = 1;
-	SendCECMessage(txmessage);
+	SendCECMessage(txmessage, 0);
 }
 
 void hdmi_cec::request_audio_status()
@@ -873,7 +878,7 @@ void hdmi_cec::request_audio_status()
 	txmessage.initiator = logicalAddress;
 	txmessage.data[0] = CEC_OPCODE_GIVE_AUDIO_STATUS;
 	txmessage.length = 1;
-	SendCECMessage(txmessage);
+	SendCECMessage(txmessage, 0);
 }
 
 void hdmi_cec::vol_up()
