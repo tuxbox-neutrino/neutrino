@@ -393,8 +393,14 @@ int CPlugins::startLuaPlugin(int number)
 #if 0
 	frameBuffer->ClearFB();
 #endif
-	videoDecoder->Pig(-1, -1, -1, -1);
-	frameBuffer->paintBackground();
+	std::string keep_bg_flag = "/tmp/.keep_background";
+	if (!file_exists(keep_bg_flag))
+	{
+		videoDecoder->Pig(-1, -1, -1, -1);
+		frameBuffer->paintBackground();
+	}
+	else
+		remove(keep_bg_flag.c_str());
 
 	return plugin_list[number].menu_return;
 }
