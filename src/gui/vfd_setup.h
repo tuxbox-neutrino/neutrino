@@ -59,4 +59,13 @@ class CVfdSetup : public CMenuTarget, CChangeObserver, CActivateObserver
 		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
+#ifdef ENABLE_LCD
+// lcd notifier
+class CLCDNotifier : public CChangeObserver
+{
+	public:
+		bool changeNotify(const neutrino_locale_t, void *Data);
+};
+#endif
+
 #endif
