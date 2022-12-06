@@ -1,5 +1,4 @@
-{=include-block:Y_Blocks.txt;head_v3=}
-<script type="text/javascript" src="/jquery/jquery.stickytableheaders.min.js"></script>
+{=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
@@ -110,7 +109,6 @@ function _show_epg()
 		}
 	}
 	show_waitbox(false);
-	jQuery('table').stickyTableHeaders();
 }
 //]]>
 </script>

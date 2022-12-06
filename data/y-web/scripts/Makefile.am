@@ -9,8 +9,3 @@ install_SCRIPTS = \
 install_SCRIPTS += \
 	Y_NAS.sh
 
-# additional
-install_SCRIPTS += \
-	\
-	Y_Plugin-control.sh \
-	Y_v3_Tools.sh

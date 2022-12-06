@@ -74,28 +74,6 @@ images_DATA += \
 	upload.png \
 	work.gif
 
-# extensions
-images_DATA += \
-	ext_add.png \
-	ext_delete.png \
-	ext_edit.png \
-	ext_error.png \
-	ext_ex.png \
-	ext_menu.png \
-	ext_mgr.png \
-	ext_normal.png \
-	ext_plugin.png \
-	ext_script.png
-
-# yWeb
-images_DATA += \
-	cancel.png \
-	colored_bar.png \
-	server_add.png \
-	server_delete.png \
-	server_edit.png \
-	server_link.png
-
 # remote controls
 imagesrcdir = $(PRIVATE_HTTPDDIR)/images/rc
 
@@ -121,4 +99,5 @@ imagesrc_DATA += \
 	rc/rc_vuplus.png \
 	rc/rc_mutant_hd60.png
 endif
+
 

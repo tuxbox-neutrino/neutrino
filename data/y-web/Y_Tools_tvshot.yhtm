@@ -1,0 +1,51 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_snapshot(){
+	loadSyncURL("/control/screenshot");
+	window.setTimeout("do_showshot();", 3500);
+}
+function do_showshot(){
+	$('statusline').hide();
+	$('buttons').show();
+	$('shot').src = "/tmp/screenshot.png?"+Math.random();
+	$('shot').show();
+}
+function do_snapshot_again(){
+	$('buttons').hide();
+	$('statusline').show();
+	window.setTimeout('do_snapshot()', 100);
+}
+function do_clearshot(){
+	$('shot').hide();
+	loadSyncURL("/control/exec?Y_Tools&tvshot_clear");
+}
+//]]>
+</script>
+</head>
+<body onload="do_snapshot();">
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">
+			{=var-set:menu={=L:bc.menue.tv_screenshot=}=}
+			{=include-block:Y_Blocks.txt;work_menu=}
+		</div>
+	</div>
+	<div class="work_box_body">
+		<div style="height:30px;">
+		<span id="buttons" style="display: none;">
+			<button name="snapshot" ytype="shot" onclick="do_snapshot_again();">{=L:bc.tv.shot=}</button>
+			<button name="clearshot" ytype="clearshot" onclick="do_clearshot();">{=L:bc.tv.delete_shot=}</button>
+		</span>
+		<span id="statusline">
+			<img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
+			{=L:bc.tv.shap_wait_text=}
+		</span>
+		</div>
+		<img id="shot" src="" style="display: none; width: 100%; margin: 1em 0"/>
+	</div>
+</div>
+</body>
+</html>

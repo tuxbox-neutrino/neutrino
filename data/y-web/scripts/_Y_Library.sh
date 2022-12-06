@@ -22,7 +22,7 @@ buildLocalIP()
 }
 
 # -----------------------------------------------------------
-# Streaming URL fuer sed
+# Streaming URL f�r sed
 # -----------------------------------------------------------
 buildStreamingURL()
 {
@@ -43,7 +43,7 @@ buildStreamingRawURL()
 }
 
 # -----------------------------------------------------------
-# Audio: Streaming URL fuer sed
+# Audio: Streaming URL f�r sed
 # -----------------------------------------------------------
 buildStreamingAudioURL()
 {
