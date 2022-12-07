@@ -309,10 +309,9 @@ start-block~start_wizard_page
 //<![CDATA[
 function do_submit()
 {
-
-		show_waitbox(true);
-		yhttpd_cache_clear("");
-		document.f.submit();
+	show_waitbox(true);
+	yhttpd_cache_clear("");
+	document.f.submit();
 }
 //]]>
 </script>
