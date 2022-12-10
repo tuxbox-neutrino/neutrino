@@ -216,6 +216,7 @@ void hdmi_cec::SetCECState(bool state)
 		SendViewOn();
 		active_source = true;
 		SendAnnounce();
+		SendActiveSource();
 	}
 }
 
