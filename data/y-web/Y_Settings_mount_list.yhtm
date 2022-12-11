@@ -12,7 +12,7 @@ function do_mount()
 			nr = i;
 	}
 	document.f.execute.value = "script:Y_Tools domount "+nr;
-	document.f.tmpl.value = "Y_Settings_umount_liste.yhtm";
+	document.f.tmpl.value = "Y_Settings_umount_list.yhtm";
 	document.f.submit();
 }
 function do_edit()
@@ -36,7 +36,7 @@ function do_edit()
 		<input type="hidden" name="execute" value=""/>
 		<button type="button" ytype="edit" title="edit mount settings" onclick="do_edit()">&Auml;ndern</button>
 		<button type="button" ytype="no" title="mount selected directory" onclick="do_mount()">Mount</button>
-		<button type="button" ytype="no" title="view unmount list" onclick='window.document.location.href="/Y_Settings_umount_liste.yhtm"'>Unmount list</button>
+		<button type="button" ytype="no" title="view unmount list" onclick='window.document.location.href="/Y_Settings_umount_list.yhtm"'>Unmount list</button>
 	</form>
 	</div>
 </div>

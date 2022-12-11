@@ -27,14 +27,14 @@ function init(){
 					{=if-empty:{=var-get:automount=}~
 					<a href="javascript:void(0)" class="disabled" title="{=L:tools.not_installed=}">{=L:tools.automount=}</a>
 					~
-					{=var-set:m_link_href=Y_Settings_automount_liste.yhtm=}
+					{=var-set:m_link_href=Y_Settings_automount_list.yhtm=}
 					{=var-set:m_link_desc==}
 					{=var-set:m_link_text={=L:tools.automount=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 					=}
 				</li>
 				<li>
-					{=var-set:m_link_href=Y_Settings_mount_liste.yhtm=}
+					{=var-set:m_link_href=Y_Settings_mount_list.yhtm=}
 					{=var-set:m_link_desc={=L:tools.mounts_desc=}=}
 					{=var-set:m_link_text={=L:tools.mounts=}=}
 					{=include-block:Y_Blocks.txt;management_link=}

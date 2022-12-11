@@ -75,10 +75,10 @@ function do_submit()
 			</tr>
 		</table>
 		<br/>
-		<input type="hidden" name="tmpl" value="Y_Settings_mount_liste.yhtm"/>
+		<input type="hidden" name="tmpl" value="Y_Settings_mount_list.yhtm"/>
 		<input type="hidden" name="execute" value="func:mount-set-values"/>
 		<button type="button" ytype="save" title="submit and save values" onClick="do_submit()">Speichern</button>
-		<button type="button" ytype="cancel" title="cancel" name="abort" onClick='window.document.location.href="/Y_Settings_mount_liste.yhtm"'>Abbrechen</button>
+		<button type="button" ytype="cancel" title="cancel" name="abort" onClick='window.document.location.href="/Y_Settings_mount_list.yhtm"'>Abbrechen</button>
 	</form>
 	</div>
 </div>

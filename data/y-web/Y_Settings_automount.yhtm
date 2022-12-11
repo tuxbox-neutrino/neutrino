@@ -110,7 +110,7 @@ function do_save2()
 
 	var _url ="/control/exec?Y_Tools&automount_setline&/var/etc/auto.net&"+mountname+"&"+mstr;
 	var res = loadSyncURL(_url);
-	window.document.location.href="/Y_Settings_automount_liste.yhtm";
+	window.document.location.href="/Y_Settings_automount_list.yhtm";
 }
 function change_type()
 {
@@ -174,7 +174,7 @@ function change_type()
 		</table>
 		<br/>
 		<button type="button" ytype="save" title="submit and save values" onClick="do_save()">Speichern</button>
-		<button type="button" ytype="cancel" title="cancel" name="abort" onClick='window.document.location.href="/Y_Settings_automount_liste.yhtm"'>Abbrechen</button>
+		<button type="button" ytype="cancel" title="cancel" name="abort" onClick='window.document.location.href="/Y_Settings_automount_list.yhtm"'>Abbrechen</button>
 	</form>
 	</div>
 </div>

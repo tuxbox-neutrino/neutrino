@@ -39,19 +39,19 @@ install_DATA =	channels.js \
 		Y_Menue.yhtm \
 		Y_neutrino_Blocks.txt \
 		Y_Refresh.yhtm \
-		Y_Settings_automount_liste.yhtm \
+		Y_Settings_automount_list.yhtm \
 		Y_Settings_automount.yhtm \
 		Y_Settings_Backup.yhtm \
 		Y_Settings_buttons.yhtm \
 		Y_Settings_glcd.yhtm \
 		Y_Settings_lcd.yhtm \
 		Y_Settings_Menue.yhtm \
-		Y_Settings_mount_liste.yhtm \
+		Y_Settings_mount_list.yhtm \
 		Y_Settings_mount.yhtm \
 		Y_Settings_neutrino_forms.yhtm \
 		Y_Settings_nhttpd.yhtm \
 		Y_Settings_personalize.yhtm \
-		Y_Settings_umount_liste.yhtm \
+		Y_Settings_umount_list.yhtm \
 		Y_Settings_video_audio.yhtm \
 		Y_Settings_wol.yhtm \
 		Y_Settings_xmltv.yhtm \
