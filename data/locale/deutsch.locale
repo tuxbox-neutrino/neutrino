@@ -2905,7 +2905,9 @@ videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
 videomenu.zappingmode Umschaltverhalten
 videomenu.zappingmode_hold Standbild
+videomenu.zappingmode_holdtilllock Standbild bis lock
 videomenu.zappingmode_mute Schwarzes Bild
+videomenu.zappingmode_mutetilllock Schwarzes Bild bis lock
 weather.api_key Wetter API Schlüssel (OpenWeather)
 weather.direction_e O
 weather.direction_ene ONO

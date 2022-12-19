@@ -2908,7 +2908,9 @@ videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
 videomenu.zappingmode Zapping mode
 videomenu.zappingmode_hold Hold screen
+videomenu.zappingmode_holdtilllock Hold screen until lock
 videomenu.zappingmode_mute Black screen
+videomenu.zappingmode_mutetilllock Black screen until lock
 weather.api_key Weather API key (OpenWeather)
 weather.direction_e E
 weather.direction_ene ENE
