@@ -1300,11 +1300,9 @@ menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_ca_init Configuration of CA-system hardware, CA-module and card slots
 menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
-menu.hint_cec_sleep CEC standby when HDMI input changed
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
 menu.hint_cec_volume Pressing the volume buttons adjusts the volume on the connected audio device
-menu.hint_cec_wakeup CEC wakeup when HDMI input changed
 menu.hint_channellist_additional Show additional informations\nin main box
 menu.hint_channellist_enablesdt Enables dynamic channel updates during operation
 menu.hint_channellist_epg_align EPG event align
@@ -2868,14 +2866,12 @@ videomenu.hdmi_cec_mode Receiver to use
 videomenu.hdmi_cec_mode_off no
 videomenu.hdmi_cec_mode_recorder as Sat/Cable PVR
 videomenu.hdmi_cec_mode_tuner as Sat/Cable STB
-videomenu.hdmi_cec_sleep CEC standby when HDMI input changed
 videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_view_on Enable CEC View on
 videomenu.hdmi_cec_vol_audiosystem Audiosystem
 videomenu.hdmi_cec_vol_off off
 videomenu.hdmi_cec_vol_tv TV
 videomenu.hdmi_cec_volume CEC volume control
-videomenu.hdmi_cec_wakeup Wakeup when HDMI input changed
 videomenu.hdmi_colorimetry Color profile
 videomenu.hdmi_colorimetry_auto auto
 videomenu.hdmi_colorimetry_bt2020cl BT 2020 CL

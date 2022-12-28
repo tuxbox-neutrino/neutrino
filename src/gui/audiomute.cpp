@@ -30,11 +30,14 @@
 #endif
 #include <global.h>
 #include <neutrino.h>
+#include <hardware/video.h>
 #include <driver/display.h>
-#include <driver/hdmi_cec.h>
 #include <gui/infoclock.h>
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
+
+#include <driver/display.h>
+
 #include <system/helpers.h>
 
 CAudioMute::CAudioMute():CComponentsPicture(0, 0, NEUTRINO_ICON_MUTED)
@@ -67,8 +70,8 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 #endif
 	neutrino->setCurrentMuted(newValue);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if (g_settings.hdmi_cec_volume && !doInit)
-		g_hdmicec->toggle_mute();
+	if (g_settings.hdmi_cec_volume)
+		hdmi_cec::getInstance()->toggle_mute();
 	else
 #endif
 	g_Zapit->muteAudio(newValue);

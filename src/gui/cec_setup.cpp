@@ -45,12 +45,9 @@
 #include <system/debug.h>
 
 #include <cs_api.h>
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#include <driver/hdmi_cec.h>
-#else
 #include <hardware/video.h>
+
 extern cVideo *videoDecoder;
-#endif
 
 CCECSetup::CCECSetup()
 {
@@ -58,8 +55,6 @@ CCECSetup::CCECSetup()
 	cec1 = NULL;
 	cec2 = NULL;
 	cec3 = NULL;
-	cec4 = NULL;
-	cec5 = NULL;
 }
 
 CCECSetup::~CCECSetup()
@@ -80,7 +75,6 @@ int CCECSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	return res;
 }
 
-#if !HAVE_ARM_HARDWARE && !HAVE_MIPS_HARDWARE
 #define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 3
 const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT] =
 {
@@ -88,7 +82,6 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_
 	{ VIDEO_HDMI_CEC_MODE_TUNER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_TUNER    },
 	{ VIDEO_HDMI_CEC_MODE_RECORDER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_RECORDER }
 };
-#endif
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #define VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT 3
@@ -107,24 +100,15 @@ int CCECSetup::showMenu()
 	cec->addIntroItems(LOCALE_VIDEOMENU_HDMI_CEC);
 
 	//cec
+	CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
+	cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
 	cec1 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON, &g_settings.hdmi_cec_view_on, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
 	cec1->setHint("", LOCALE_MENU_HINT_CEC_VIEW_ON);
 	cec2 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_STANDBY, &g_settings.hdmi_cec_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
 	cec2->setHint("", LOCALE_MENU_HINT_CEC_STANDBY);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if (g_settings.hdmi_cec_mode > 0)
-		g_settings.hdmi_cec_mode = 1;
-	CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
-	cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
-	cec3 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_WAKEUP, &g_settings.hdmi_cec_wakeup, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
-	cec3->setHint("", LOCALE_MENU_HINT_CEC_WAKEUP);
-	cec4 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_SLEEP, &g_settings.hdmi_cec_sleep, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
-	cec4->setHint("", LOCALE_MENU_HINT_CEC_SLEEP);
-	cec5 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VOLUME, &g_settings.hdmi_cec_volume, VIDEOMENU_HDMI_CEC_VOL_OPTIONS, VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
-	cec5->setHint("", LOCALE_MENU_HINT_CEC_VOLUME);
-#else
-	CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
-	cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
+	cec3 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VOLUME, &g_settings.hdmi_cec_volume, VIDEOMENU_HDMI_CEC_VOL_OPTIONS, VIDEOMENU_HDMI_CEC_VOL_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
+	cec3->setHint("", LOCALE_MENU_HINT_CEC_VOLUME);
 #endif
 
 	cec->addItem(cec_ch);
@@ -134,8 +118,6 @@ int CCECSetup::showMenu()
 	cec->addItem(cec2);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	cec->addItem(cec3);
-	cec->addItem(cec4);
-	cec->addItem(cec5);
 #endif
 
 	int res = cec->exec(NULL, "");
@@ -147,18 +129,12 @@ int CCECSetup::showMenu()
 void CCECSetup::setCECSettings()
 {
 	printf("[neutrino CEC Settings] %s init CEC settings...\n", __FUNCTION__);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if (g_hdmicec == NULL)
-		g_hdmicec = new hdmi_cec();
-	g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
-	g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-	g_hdmicec->SetAudioDestination(g_settings.hdmi_cec_volume);
-	g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
-#else
 	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
 #endif
+	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 }
 
 bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
@@ -170,43 +146,27 @@ bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/
 		cec2->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		cec3->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
-		cec4->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
-		cec5->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
 #endif
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
-#else
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
-#endif
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_STANDBY))
 	{
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
-#else
 		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
-#endif
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON))
 	{
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-#else
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-#endif
 	}
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VOLUME))
 	{
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		if (g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF)
 		{
 			g_settings.current_volume = 100;
-			g_hdmicec->SetAudioDestination(g_settings.hdmi_cec_volume);
+			videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
 		}
 #endif
 	}
-#endif
 
 	return false;
 }

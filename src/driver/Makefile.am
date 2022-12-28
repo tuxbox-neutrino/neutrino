@@ -68,15 +68,6 @@ endif
 if BOXTYPE_MIPSBOX
 libneutrino_driver_a_SOURCES += \
 	slide.cpp
-
-# hdmi-cec driver
-if BOXTYPE_ARMBOX
-libneutrino_driver_a_SOURCES += \
-	hdmi_cec.cpp
-endif
-if BOXTYPE_MIPSBOX
-libneutrino_driver_a_SOURCES += \
-	hdmi_cec.cpp
 endif
 
 # different framebuffer drivers

@@ -63,9 +63,6 @@
 #include <driver/display.h>
 #include <driver/radiotext.h>
 #include <driver/scanepg.h>
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#include <driver/hdmi_cec.h>
-#endif
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #include "gui/psisetup.h"
@@ -472,10 +469,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	// hdmi cec
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0);
 	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0);
-	g_settings.hdmi_cec_sleep = configfile.getInt32("hdmi_cec_sleep", 0);
 	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0);
 	g_settings.hdmi_cec_volume = configfile.getInt32("hdmi_cec_volume", 0);
-	g_settings.hdmi_cec_wakeup = configfile.getInt32("hdmi_cec_wakeup", 0);
 
 	// volume
 	g_settings.current_volume = configfile.getInt32("current_volume", 75);
@@ -743,8 +738,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.timezone = configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna");
 
 	// epg
-	g_settings.epg_cache = configfile.getInt32("epg_cache_time", 7);
 	g_settings.epg_dir = configfile.getString("epg_dir", "/media/sda1/epg");
+	g_settings.epg_cache = configfile.getInt32("epg_cache_time", 7);
 	g_settings.epg_extendedcache = configfile.getInt32("epg_extendedcache_time", 168);
 	g_settings.epg_max_events = configfile.getInt32("epg_max_events", 30000);
 	g_settings.epg_old_events = configfile.getInt32("epg_old_events", 1);
@@ -838,9 +833,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.streaming_port = configfile.getInt32("streaming_port", 31339);
 
 	// timeshift
+	g_settings.timeshiftdir = configfile.getString("timeshiftdir", "");
 	g_settings.timeshift_auto = configfile.getInt32("timeshift_auto", 0);
 	g_settings.timeshift_delete = configfile.getInt32("timeshift_delete", 1);
-	g_settings.timeshiftdir = configfile.getString("timeshiftdir", "");
 	g_settings.timeshift_hours = configfile.getInt32("timeshift_hours", 4 );
 	g_settings.timeshift_pause = configfile.getInt32("timeshift_pause", 1 );
 	g_settings.timeshift_temp = configfile.getInt32("timeshift_temp", 1);
@@ -891,9 +886,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	}
 
 	// ntp server for sectionsd
+	g_settings.network_ntpenable = configfile.getBool("network_ntpenable", false);
 	g_settings.network_ntpserver = configfile.getString("network_ntpserver", "0.de.pool.ntp.org");
 	g_settings.network_ntprefresh = configfile.getString("network_ntprefresh", "30");
-	g_settings.network_ntpenable = configfile.getBool("network_ntpenable", false);
 	g_settings.network_ntpatboot = configfile.getBool("network_ntpatboot", false);
 
 	// personalize
@@ -995,14 +990,14 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.movieplayer_plugin = configfile.getString("movieplayer_plugin", "---");
 
 	// screenshot
-	g_settings.auto_cover = configfile.getInt32("auto_cover", 0);
+	g_settings.screenshot_dir = configfile.getString("screenshot_dir", "/media/sda1/movies");
 	g_settings.screenshot_count = configfile.getInt32("screenshot_count", 1);
 	g_settings.screenshot_cover = configfile.getInt32("screenshot_cover", 0);
-	g_settings.screenshot_dir = configfile.getString("screenshot_dir", "/media/sda1/movies");
 	g_settings.screenshot_format = configfile.getInt32("screenshot_format", 1);
 	g_settings.screenshot_mode = configfile.getInt32("screenshot_mode", 0);
 	g_settings.screenshot_scale = configfile.getInt32("screenshot_scale", 0);
 	g_settings.screenshot_video = configfile.getInt32("screenshot_video", 1);
+	g_settings.auto_cover = configfile.getInt32("auto_cover", 0);
 
 	// screen configuration
 	int osd_res = OSDMODE_720;
@@ -1073,13 +1068,13 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		setenv("http_proxy", proxy.c_str(), 1);
 	}
 
-	g_settings.flashupdate_createimage_add_var = configfile.getInt32("flashupdate_createimage_add_var", 1);
-	g_settings.flashupdate_createimage_add_root1 = configfile.getInt32("flashupdate_createimage_add_root1", 0);
-	g_settings.flashupdate_createimage_add_uldr = configfile.getInt32("flashupdate_createimage_add_uldr", 1);
-	g_settings.flashupdate_createimage_add_u_boot = configfile.getInt32("flashupdate_createimage_add_u_boot", 0);
 	g_settings.flashupdate_createimage_add_env = configfile.getInt32("flashupdate_createimage_add_env", 0);
-	g_settings.flashupdate_createimage_add_spare = configfile.getInt32("flashupdate_createimage_add_spare", 0);
 	g_settings.flashupdate_createimage_add_kernel = configfile.getInt32("flashupdate_createimage_add_kernel", 1);
+	g_settings.flashupdate_createimage_add_root1 = configfile.getInt32("flashupdate_createimage_add_root1", 0);
+	g_settings.flashupdate_createimage_add_spare = configfile.getInt32("flashupdate_createimage_add_spare", 0);
+	g_settings.flashupdate_createimage_add_u_boot = configfile.getInt32("flashupdate_createimage_add_u_boot", 0);
+	g_settings.flashupdate_createimage_add_uldr = configfile.getInt32("flashupdate_createimage_add_uldr", 1);
+	g_settings.flashupdate_createimage_add_var = configfile.getInt32("flashupdate_createimage_add_var", 1);
 
 	g_settings.backup_dir = configfile.getString("backup_dir", "/media");
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
@@ -1154,16 +1149,16 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
 
 	// zapit setup
-	g_settings.StartChannelRadio = configfile.getString("startchannelradio", "");
-	g_settings.startchannelradio_id = configfile.getInt64("startchannelradio_id", 0);
 	g_settings.StartChannelTV = configfile.getString("startchanneltv", "");
+	g_settings.StartChannelRadio = configfile.getString("startchannelradio", "");
 	g_settings.startchanneltv_id = configfile.getInt64("startchanneltv_id", 0);
+	g_settings.startchannelradio_id = configfile.getInt64("startchannelradio_id", 0);
 	g_settings.uselastchannel = configfile.getInt32("uselastchannel", 1);
 
 	// adzap
-	g_settings.adzap_writeData = configfile.getInt32("adzap_writeData", 0);
 	g_settings.adzap_zapBackPeriod = configfile.getInt32("adzap_zapBackPeriod", 180);
 	g_settings.adzap_zapOnActivation = configfile.getInt32("adzap_zapOnActivation", 0);
+	g_settings.adzap_writeData = configfile.getInt32("adzap_writeData", 0);
 
 	// pip
 #if ENABLE_PIP
@@ -1576,10 +1571,8 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	// hdmi cec
 	configfile.setInt32("hdmi_cec_mode", g_settings.hdmi_cec_mode);
 	configfile.setInt32("hdmi_cec_view_on", g_settings.hdmi_cec_view_on);
-	configfile.setInt32("hdmi_cec_sleep", g_settings.hdmi_cec_sleep);
 	configfile.setInt32("hdmi_cec_standby", g_settings.hdmi_cec_standby);
 	configfile.setInt32("hdmi_cec_volume", g_settings.hdmi_cec_volume);
-	configfile.setInt32("hdmi_cec_wakeup", g_settings.hdmi_cec_wakeup);
 
 	// volume
 	configfile.setInt32( "current_volume", g_settings.current_volume );
@@ -1668,21 +1661,21 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	// lcd/led
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
+	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 	configfile.setInt32("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
 	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
+	configfile.setInt32("lcd_scroll", g_settings.lcd_scroll);	
 	configfile.setInt32("lcd_notify_rclock", g_settings.lcd_notify_rclock);
-	configfile.setInt32("lcd_scroll", g_settings.lcd_scroll);
 
-	configfile.setInt32("backlight_deepstandby", g_settings.backlight_deepstandby);
-	configfile.setInt32("backlight_standby", g_settings.backlight_standby);
 	configfile.setInt32("backlight_tv", g_settings.backlight_tv);
+	configfile.setInt32("backlight_standby", g_settings.backlight_standby);
+	configfile.setInt32("backlight_deepstandby", g_settings.backlight_deepstandby);
 
-	configfile.setInt32("led_blink", g_settings.led_blink);
+	configfile.setInt32("led_tv_mode", g_settings.led_tv_mode);
+	configfile.setInt32("led_standby_mode", g_settings.led_standby_mode);
 	configfile.setInt32("led_deep_mode", g_settings.led_deep_mode);
 	configfile.setInt32("led_rec_mode", g_settings.led_rec_mode);
-	configfile.setInt32("led_standby_mode", g_settings.led_standby_mode);
-	configfile.setInt32("led_tv_mode", g_settings.led_tv_mode);
-	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
+	configfile.setInt32("led_blink", g_settings.led_blink);
 
 #ifdef BOXMODEL_CST_HD2
 	configfile.setInt32("brightness", g_settings.brightness);
@@ -4492,11 +4485,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_ON ) {
 		if( mode != NeutrinoModes::mode_standby ) {
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-			if (data)
-				standbyModeFromCEC( true );
-			else
-#endif
 			standbyMode( true );
 		}
 		g_RCInput->clearRCMsg();
@@ -4504,11 +4492,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::STANDBY_OFF ) {
 		if( mode == NeutrinoModes::mode_standby ) {
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-			if (data)
-				standbyModeFromCEC( false );
-			else
-#endif
 			standbyMode( false );
 		}
 		g_RCInput->clearRCMsg();
@@ -4674,21 +4657,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON) {
 		if(g_settings.hdmi_cec_view_on)
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-			g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on);
-#else
 			videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on);
-#endif
 
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_STANDBY) {
 		if(g_settings.hdmi_cec_standby)
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-			g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby);
-#else
 			videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby);
-#endif
 
 		return messages_return::handled;
 	}
@@ -4877,10 +4852,6 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
 		cGLCD::SetBrightness(0);
 #endif
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if (exit_code == CNeutrinoApp::EXIT_SHUTDOWN)
-		g_hdmicec->SetCECState(true);
-#endif
 
 	Cleanup();
 
@@ -4963,9 +4934,6 @@ void CNeutrinoApp::tvMode( bool rezap )
 	if( mode == NeutrinoModes::mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		g_hdmicec->SetCECState(false);
-#endif
 	}
 
 #if ENABLE_PIP
@@ -5042,16 +5010,8 @@ void CNeutrinoApp::AVInputMode(bool bOnOff)
 	(void)bOnOff; // avoid compiler warning
 #endif // !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 }
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-void CNeutrinoApp::standbyModeFromCEC( bool bOnOff )
-{
-	standbyMode(bOnOff, false, true);
-}
 
-void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby, bool fromcec )
-#else
 void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
-#endif
 {
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
@@ -5099,10 +5059,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		videoDecoder->Standby(true);
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		if (!fromcec)
-			g_hdmicec->SetCECState(true);
-#endif
 		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(!fromDeepStandby);
 
@@ -5160,10 +5116,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		videoDecoder->Standby(false);
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		if (!fromcec)
-			g_hdmicec->SetCECState(false);
-#endif
 		CEpgScan::getInstance()->Stop();
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
@@ -5400,11 +5352,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 //	else if (actionKey=="restart")
 //	{
-//#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-//		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-//#else
 //		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-//#endif
 //		ExitRun(CNeutrinoApp::EXIT_RESTART);
 //		returnval = menu_return::RETURN_NONE;
 //	}
@@ -5514,11 +5462,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if (actionKey=="restart") {
 		//usage of slots from any classes
 		OnBeforeRestart();
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-#else
-		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-#endif
+
 		//cleanup progress bar cache
 		CProgressBarCache::pbcClear();
 
@@ -5682,11 +5626,7 @@ void stop_daemons(bool stopall, bool for_flash)
 	printf("zapit shutdown\n");
 	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby)
 	{
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-#else
 		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
-#endif
 	}
 	if(InfoClock)
 		delete InfoClock;

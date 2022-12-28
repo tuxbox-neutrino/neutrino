@@ -118,12 +118,7 @@ private:
 	void tvMode( bool rezap = true );
 	void radioMode( bool rezap = true );
 	void AVInputMode( bool bOnOff );
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	void standbyModeFromCEC( bool bOnOff );
-	void standbyMode( bool bOnOff, bool fromDeepStandby = false, bool fromcec = false );
-#else
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
-#endif
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void ExitRun(int can_shutdown = 0);

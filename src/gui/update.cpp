@@ -82,7 +82,8 @@
 #include <cs_api.h>
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#include <driver/hdmi_cec.h>
+#include <hardware/video.h>
+extern cVideo *videoDecoder;
 #endif
 
 #include <sys/stat.h>
@@ -375,7 +376,6 @@ bool CFlashUpdate::selectHttpImage(void)
 		}
 	}
 #endif
-
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (gotImage && (filename.substr(filename.find_last_of(".") + 1) == "tgz" || filename.substr(filename.find_last_of(".") + 1) == "zip"))
 	{
@@ -729,7 +729,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 			{
 				if (g_settings.hdmi_cec_standby)
 				{
-					g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+					videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 				}
 				std::string startup_new("/boot/");
 				startup_new += g_info.hw_caps->startup_file;

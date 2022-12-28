@@ -56,16 +56,12 @@
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#include <driver/hdmi_cec.h>
-#else
 #include <hardware/video.h>
-extern cVideo *videoDecoder;
-#endif
 
 #include <sectionsdclient/sectionsdclient.h>
 
 extern CPlugins *g_Plugins;
+extern cVideo *videoDecoder;
 
 CMiscMenue::CMiscMenue()
 {
@@ -790,20 +786,14 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void */*data*/
 		{
 			g_settings.hdmi_cec_standby = 1;
 			g_settings.hdmi_cec_view_on = 1;
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-			g_settings.hdmi_cec_mode = VIDEO_HDMI_CEC_MODE_OFF;
-		}
-		g_hdmicec->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
-		g_hdmicec->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-		g_hdmicec->SetAudioDestination(g_settings.hdmi_cec_volume);
-		g_hdmicec->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
-#else
 			g_settings.hdmi_cec_mode = VIDEO_HDMI_CEC_MODE_TUNER;
 		}
 		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		videoDecoder->SetAudioDestination(g_settings.hdmi_cec_volume);
 #endif
+		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_CHANNELLIST_ENABLESDT))
 	{
