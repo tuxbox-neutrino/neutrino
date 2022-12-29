@@ -1,0 +1,125 @@
+#
+# This list is used by git-shortlog to fix a few botched name translations
+# in the git archive, either because the author's full name was messed up
+# and/or not always written the same way, making contributions from the
+# same person appearing not to be so or badly displayed.
+# With this file it is possible with an easy way to clean up the repository
+# in combination with git-filter-repo too.
+# see https://github.com/newren/git-filter-repo
+#
+# 	$ git filter-repo -f --use-mailmap
+#
+
+Andrej Tobola <andrej.tobola+gifthub@gmail.com>
+bazi98 <bazi98@web.de>
+bazi98 <bazi98@web.de> bazi98 <fritz@example.com>
+Benny <Benny@users.noreply.github.com>
+Benny <Benny@users.noreply.github.com> Benny <>
+BPanther <bpanther_ts@hotmail.com>
+Christian Ege <k4230r6@googlemail.com>
+Christian Schuett <Gaucho316@hotmail.com>
+[CST] Bas <bas@coolstreamtech.com>
+[CST] Bas <bas@coolstreamtech.com> S.R. van Loon <bas@bvl-mbp-001.(none)>
+[CST] Focus <focus.cst@gmail.com>
+[CST] Focus <focus.cst@gmail.com> focus <focus@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+[CST] Lucian <lucian@coolstreamtech.com>
+[CST] Lucian <lucian@coolstreamtech.com> lucgas <lucgas@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+[CST] Micha <Micha.R@no-access.de>
+[CST] Nicu <popescunicolae7@hotmail.com>
+[CST] Nicu <popescunicolae7@hotmail.com> [CST]Nicu <popescunicolae7@hotmail.com>
+DboxOldie <DboxOldie@users.noreply.github.com> DboxOldie <>
+DboxOldie <DboxOldie@users.noreply.github.com> DboxOldie <dbo@ddt>
+defans <defans@bluepeercrew.us>
+defans <defans@bluepeercrew.us> snafed <snafed@bluepeercrew.us>
+defans <defans@bluepeercrew.us> svenhoefer, SatBaby, snafed <svenhoefer@svenhoefer.com>
+defans <defans@bluepeercrew.us> svenhoefer, snafed <svenhoefer@svenhoefer.com>
+Don de Deckelwech <dondede@gmx.de>
+Don de Deckelwech <dondede@gmx.de> Don-de-Deckelwech <32013899+Don-de-Deckelwech@users.noreply.github.com>
+Ezak <marc.szymkowiak91@googlemail.com>
+FlatTV <FlatTV@gmx.de> 
+FlatTV <FlatTV@gmx.de> FlatTV <FlatTV@linux-z6o4.site>
+Frankenstone <dampf_acc@online.de>
+Frankenstone <dampf_acc@online.de> Frankenstone <dampf_acc@yahoo.com>
+fred_feuerstein <fred_feuerstein@herr-der-mails.de>
+fred_feuerstein <fred_feuerstein@herr-der-mails.de> fredfeuerstein2 <fred_feuerstein@herr-der-mails.de>
+fred_feuerstein <fred_feuerstein@herr-der-mails.de> fredfeuerstein2 <52878780+fredfeuerstein2@users.noreply.github.com>
+Gaucho316 <Gaucho316@hotmail.com>
+GetAway <get-away@t-online.de>
+gixxpunk <thomas.harfmann@gmail.com>
+gixxpunk <thomas.harfmann@gmail.com> gandharva <gandharva@gmx.de>
+gixxpunk <thomas.harfmann@gmail.com> Striper <gandharva@gmx.de>
+gixxpunk <thomas.harfmann@gmail.com> striper <striper@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+gixxpunk <thomas.harfmann@gmail.com> striper <striper@gmx.de>
+Hendi <hendi48@freenet.de>
+Hendi <hendi48@freenet.de> Hendi48 <32822533+Hendi48@users.noreply.github.com>
+horsti58 <horsti58@gmx.net>
+horsti58 <horsti58@gmx.net> horsti58 <horsti58@gmx.netm>
+IngoF <ingo.fischer@arcormail.de>
+Jacek Jendrzej <overx300@gmail.com>
+Jacek Jendrzej <overx300@gmail.com> Jacek Jendrzej <crashdvb@googlemail.com>
+Jacek Jendrzej <overx300@gmail.com> Jacek Jendrzej <satbaby@kawaii.com>
+Jacek Jendrzej <overx300@gmail.com> satbaby <>
+Jacek Jendrzej <overx300@gmail.com> satbaby <crashdvb@googlemail.com>
+Jacek Jendrzej <overx300@gmail.com> satbaby <satbaby>
+Jacek Jendrzej <overx300@gmail.com> satbaby <satbaby@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+Jacek Jendrzej <overx300@gmail.com> j00zek <j00zek@ubuntu.(none)>
+Jacek Jendrzej <overx300@gmail.com> j00zek <zdzislaw22@windowslive.com>
+Janus <janus@debian>
+J. Krieg <bellum07@googlemail.com>
+J. Krieg <bellum07@googlemail.com> bellum <bellum07@googlemail.com>
+JohnnyRun <giannicarabelli@gmail.com>
+klauser <baumeister23@freenet.de>
+Knicko007 <knicko@glj.servebbs.com>
+Knicko007 <knicko@glj.servebbs.com> Knicko <knicko@glj.servebbs.com>
+limes007 <39467727+limes007@users.noreply.github.com>
+Marc Szymkowiak <marc.szymkowiak91@googlemail.com>
+Markus Volk <f_l_k@t-online.de>
+Markus Volk <f_l_k@t-online.de> flk <f_l_k@t-online.de>
+Markus Volk <f_l_k@t-online.de> Markus Volk <flk@linux.fritz.box>
+Markus Volk <f_l_k@t-online.de> MarkusVolk <f_l_k@t-online.de>
+martii <m4rtii@gmx.de>
+martii <m4rtii@gmx.de> martii <you@example.com>
+max_10 <max_10@gmx.de>
+max_10 <max_10@gmx.de> max10 <max_10@gmx.de>
+Michael Liebmann <tuxcode.bbg@gmail.com>
+Michael Liebmann <tuxcode.bbg@gmail.com> micha-bbg <micha-bbg@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+Michael Liebmann <tuxcode.bbg@gmail.com> micha-bbg <tuxcode.bbg@gmail.com>
+Michael Liebmann <tuxcode.bbg@gmail.com> micha-bbg <tuxcode.bbg@googlemail.com>
+Michael Liebmann <tuxcode.bbg@gmail.com> Michael Liebmann <micha-bbg@users.noreply.github.com>
+Michael Liebmann <tuxcode.bbg@gmail.com> M. Liebmann <git@tuxcode.de>
+Michael Liebmann <tuxcode.bbg@gmail.com> M. Liebmann <tuxcode.bbg@gmail.com>
+Michael Liebmann <tuxcode.bbg@gmail.com> [priv] M. Liebmann <git@tuxcode.de>
+Michael Liebmann <tuxcode.bbg@gmail.com> [priv] M. Liebmann <tuxcode.bbg@gmail.com>
+mrcolor <mrcolor@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+mws <mws@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+NadjaW <nadja.wilx@web.de>
+nightshad <nightshad@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+ni-visitor <neutrino.images@gmail.com>
+no@ma.il <one@localhost.(none)>
+OneOfNine <oneofnine@web.de>
+redblue.pkt <redblue.pkt@orange.pl>
+redblue.pkt <redblue.pkt@orange.pl> redblue-pkt <17146148+redblue-pkt@users.noreply.github.com>
+redblue.pkt <redblue.pkt@orange.pl> redblue-pkt <redblue-pkt@orange.pl>
+retsim01 <mrdata1972+neutrino@gmail.com>
+rhabarber1848 <rhabarber1848@web.de>
+rhabarber1848 <rhabarber1848@web.de> rhabarber1848 <rhabarber1848>
+Sascha Zelzer <sascha.zelzer@gmail.com>
+SnowHead <snowhead@spinnes-netz.de>
+Stefan Seyfried <seife@tuxbox-git.slipkontur.de>
+Stefan Seyfried <seife@tuxbox-git.slipkontur.de> seife <seife@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+Stefan Seyfried <seife@tuxbox-git.slipkontur.de> Stefan Seyfried <seife+github@b1-systems.com>
+swing99 <swing0815@googlemail.com>
+TangoCash <eric@loxat.de> Eric Loxat <eric@loxat.de>
+TangoCash <eric@loxat.de> TangoCash <DaHooD@web.de>
+TangoCash <eric@loxat.de> TangoCash <me@spamdot.com>
+Thilo Graf <dbt@novatux.de>
+Thilo Graf <dbt@novatux.de> thilo <dbt@novatux.de> 
+Thilo Graf <dbt@novatux.de> Thilo Graf <tg.pnhd@novatux.de>
+Thilo Graf <dbt@novatux.de> thilo <thilo@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+tomworld <atzeworld@msn.com>
+vanhofen <vanhofen@gmx.de>
+vanhofen <vanhofen@gmx.de> svenhoefer <svenhoefer@e54a6e83-5905-42d5-8d5c-058d10e6a962>
+vanhofen <vanhofen@gmx.de> svenhoefer <svenhoefer@svenhoefer.com>
+vanhofen <vanhofen@gmx.de> Sven Höfer <svenhoefer@svenhoefer.com>
+yjogol <yjogol2@online.de>
+yjogol <yjogol2@online.de> yjogol <yjogol@e54a6e83-5905-42d5-8d5c-058d10e6a962>
