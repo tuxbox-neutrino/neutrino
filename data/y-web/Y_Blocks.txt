@@ -415,7 +415,7 @@ start-block~frame_boxcontrol
 			~
 				{=if-equal:{=var-get:startpage=}~screenshot~Y_Tools_Screenshot.yhtm?osd=1
 				~
-					Y_blank.yhtm
+					Y_Blank.yhtm
 				=}
 			=}
 		=}
@@ -427,21 +427,21 @@ end-block~frame_boxcontrol
 # ------- Lay-Frame Tools-Menu
 start-block~frame_tools
 {=var-set:sec_menu=Y_Tools_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_Blank.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_tools
 
 # ------- Lay-Frame Settings-Menu
 start-block~frame_settings
 {=var-set:sec_menu=Y_Settings_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_Blank.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_settings
 
 # ------- Lay-Frame Extentions-Menu
 start-block~frame_ext
 {=var-set:sec_menu=Y_Ext_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_Blank.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_ext
 
