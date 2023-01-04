@@ -285,7 +285,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 	}
 
 	mSampleRate = samplerate;
-	mChannels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+	mChannels = 2; // AV_CHANNEL_LAYOUT_STEREO.nb_channels
 
 #if !HAVE_ARM_HARDWARE
 	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 16, 1);
@@ -300,11 +300,22 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 #else
 	get_packet_defaults(&rpacket);
 #endif
+#if LIBSWRESAMPLE_VERSION_INT < AV_VERSION_INT(4, 5, 100)
 	c->channel_layout = c->channel_layout ? c->channel_layout : AV_CH_LAYOUT_STEREO;
 
 	av_opt_set_int(swr, "in_channel_layout",	c->channel_layout,	0);
 	//av_opt_set_int(swr, "out_channel_layout",	c->channel_layout,	0);
 	av_opt_set_int(swr, "out_channel_layout",	AV_CH_LAYOUT_STEREO,	0);
+#else
+	if (!c->ch_layout.nb_channels) // Is this even possible?
+		c->ch_layout = AV_CHANNEL_LAYOUT_STEREO;
+
+	av_opt_set_chlayout(swr, "in_chlayout",	&c->ch_layout,	0);
+	//av_opt_set_int(swr, "out_chlayout",	c->ch_layout,	0);
+	AVChannelLayout out_chlayout = AV_CHANNEL_LAYOUT_STEREO;
+	av_opt_set_chlayout(swr, "out_chlayout",	&out_chlayout,	0);
+#endif
+
 	av_opt_set_int(swr, "in_sample_rate",		c->sample_rate,		0);
 	av_opt_set_int(swr, "out_sample_rate",		c->sample_rate,		0);
 	av_opt_set_sample_fmt(swr, "in_sample_fmt",	c->sample_fmt,          0);
@@ -532,7 +543,11 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 		if (!codec)
 			codec = avcodec_find_decoder(avc->streams[best_stream]->codecpar->codec_id);
 		samplerate = avc->streams[best_stream]->codecpar->sample_rate;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59, 24, 100)
 		mChannels = av_get_channel_layout_nb_channels(avc->streams[best_stream]->codecpar->channel_layout);
+#else
+		mChannels = avc->streams[best_stream]->codecpar->ch_layout.nb_channels;
+#endif
 #endif
 		std::stringstream ss;
 
