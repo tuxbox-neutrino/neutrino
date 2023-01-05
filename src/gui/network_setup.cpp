@@ -702,9 +702,9 @@ void CNetworkSetup::testNetworkSettings()
 	//set default testdomain
 	std::string defaultsite = "www.google.de";
 
-	//set wiki-URL and wiki-IP
-	std::string wiki_URL = "wiki.tuxbox-neutrino.org";
-	std::string wiki_IP = "93.218.207.212";
+	//set test-URL and test-IP
+	std::string test_URL = "tuxbox-neutrino.org";
+	std::string test_IP = "89.31.143.1";
 
 	//get www-domain testsite from /.version
 	CConfigFile config('\t');
@@ -761,12 +761,12 @@ void CNetworkSetup::testNetworkSettings()
 			text += std::string(g_Locale->getText(LOCALE_NETWORKMENU_NTPSERVER)) + ":\n";
 			text += offset + g_settings.network_ntpserver + " " + mypinghost(g_settings.network_ntpserver) + "\n";
 		}
-		//Wiki
-		text += wiki_URL + ":\n";
-		text += offset + "via IP (" + wiki_IP + "): " + mypinghost(wiki_IP) + "\n";
+		//Test-URL
+		text += test_URL + ":\n";
+		text += offset + "via IP (" + test_IP + "): " + mypinghost(test_IP) + "\n";
 		if (pinghost(our_nameserver) == 1)
 		{
-			text += offset + "via DNS: " + mypinghost(wiki_URL) + "\n";
+			text += offset + "via DNS: " + mypinghost(test_URL) + "\n";
 			//testsite (or defaultsite)
 			text += testsite + ":\n";
 			text += offset + "via DNS: " + mypinghost(testsite) + "\n";
