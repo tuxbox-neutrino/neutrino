@@ -704,7 +704,7 @@ void CNetworkSetup::testNetworkSettings()
 
 	//set wiki-URL and wiki-IP
 	std::string wiki_URL = "wiki.tuxbox-neutrino.org";
-	std::string wiki_IP = "81.7.17.245";
+	std::string wiki_IP = "93.218.207.212";
 
 	//get www-domain testsite from /.version
 	CConfigFile config('\t');
