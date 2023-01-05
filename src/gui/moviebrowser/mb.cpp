@@ -1188,7 +1188,7 @@ int CMovieBrowser::exec(const char* path)
 		fileInfoStale();
 	}
 
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode | NeutrinoModes::norezap);
 
 	return (res);
 }
