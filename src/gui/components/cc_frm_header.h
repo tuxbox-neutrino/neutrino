@@ -358,9 +358,9 @@ class CComponentsHeader : public CComponentsForm, public CCTextScreen, CCHeaderT
 		* @param[in]  	alignment
 		* 		@li optional alingment parameter as cc_logo_alignment_t (enum)\n
 		* 		Possible values are:\n
-		* 		CC_LOGO_RIGHT \n
-		* 		CC_LOGO_CENTER (default)\n
-		* 		CC_LOGO_RIGHT \n
+		* 		CC_LOGO_RIGHT (default)\n
+		* 		CC_LOGO_LEFT \n
+		* 		CC_LOGO_CENTER \n
 		* @param[in]  	dy
 		* 		@li optional logo height, default = -1 (auto)
 		* @note 	In auto mode, logo use full height minus inner offset but not larger than original logo height.
