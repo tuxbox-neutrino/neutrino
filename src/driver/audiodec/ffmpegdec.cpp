@@ -104,7 +104,15 @@ int CFfmpegDec::Read(void *buf, size_t buf_size)
 
 static int read_packet(void *opaque, uint8_t *buf, int buf_size)
 {
+#if LIBAVFORMAT_VERSION_MAJOR < 58
 	return ((CFfmpegDec *) opaque)->Read(buf, (size_t) buf_size);
+#else
+	// ffmpeg 4.0+: read_packet MUST return a valid AVERROR code instead of 0.
+	int len = ((CFfmpegDec *) opaque)->Read(buf, (size_t) buf_size);
+	if (len == 0)
+		return AVERROR_EOF;
+	return len;
+#endif
 }
 
 int64_t CFfmpegDec::Seek(int64_t offset, int whence)
