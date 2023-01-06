@@ -598,21 +598,21 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	// lcd/led
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
-	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
-	g_settings.lcd_notify_rclock = configfile.getInt32("lcd_notify_rclock", 1);
-	g_settings.lcd_scroll = configfile.getInt32("lcd_scroll", 1);
+	g_settings.lcd_setting_dim_time = configfile.getString("lcd_dim_time", "0");
 	g_settings.lcd_setting_dim_brightness = configfile.getInt32("lcd_dim_brightness", 0);
-	g_settings.lcd_setting_dim_time = configfile.getString("lcd_dim_time","0");
+	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0); //channel name or clock
+	g_settings.lcd_scroll = configfile.getInt32("lcd_scroll", 1);
+	g_settings.lcd_notify_rclock = configfile.getInt32("lcd_notify_rclock", 1);
 
-	g_settings.backlight_deepstandby = configfile.getInt32("backlight_deepstandby", 0);
-	g_settings.backlight_standby = configfile.getInt32("backlight_standby", 0);
 	g_settings.backlight_tv = configfile.getInt32("backlight_tv", 1);
+	g_settings.backlight_standby = configfile.getInt32("backlight_standby", 0);
+	g_settings.backlight_deepstandby = configfile.getInt32("backlight_deepstandby", 0);
 
-	g_settings.led_blink = configfile.getInt32("led_blink", 1);
+	g_settings.led_tv_mode = configfile.getInt32("led_tv_mode", 2);
+	g_settings.led_standby_mode = configfile.getInt32("led_standby_mode", 3);
 	g_settings.led_deep_mode = configfile.getInt32("led_deep_mode", 3);
 	g_settings.led_rec_mode = configfile.getInt32("led_rec_mode", 1);
-	g_settings.led_standby_mode = configfile.getInt32("led_standby_mode", 3);
-	g_settings.led_tv_mode = configfile.getInt32("led_tv_mode", 2);
+	g_settings.led_blink = configfile.getInt32("led_blink", 1);
 
 #ifdef BOXMODEL_CST_HD2
 	g_settings.brightness = configfile.getInt32("brightness", 0);
@@ -646,17 +646,16 @@ int CNeutrinoApp::loadSetup(const char *fname)
 			timer_rb.rbaddress = configfile.getString(k, "");
 			if (timer_rb.rbaddress.empty())
 				continue;
-			k = "timer_remotebox_port_" + to_string(i);
-			timer_rb.port = configfile.getInt32(k, 80);
+			k = "timer_remotebox_rbname_" + to_string(i);
+			timer_rb.rbname = configfile.getString(k, "");
+			if (timer_rb.rbname.empty())
+				timer_rb.rbname = timer_rb.rbaddress;
 			k = "timer_remotebox_user_" + to_string(i);
 			timer_rb.user = configfile.getString(k, "");
 			k = "timer_remotebox_pass_" + to_string(i);
 			timer_rb.pass = configfile.getString(k, "");
-			k = "timer_remotebox_rbname_" + to_string(i);
-			timer_rb.rbname = configfile.getString(k, "");
-			timer_rb.enabled = configfile.getBool("timer_remotebox_enabled_" + to_string(i), true);
-			if (timer_rb.rbname.empty())
-				timer_rb.rbname = timer_rb.rbaddress;
+			k = "timer_remotebox_port_" + to_string(i);
+			timer_rb.port = configfile.getInt32(k, 80);
 
 			g_settings.timer_remotebox_ip.push_back(timer_rb);
 		}
@@ -726,7 +725,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 				_lang = "French" ;
 				break;
 		}
-
 		sprintf(cfg_key, "pref_lang_%d", i);
 		g_settings.pref_lang[i] = configfile.getString(cfg_key, _lang);
 		sprintf(cfg_key, "pref_subs_%d", i);
@@ -779,18 +777,18 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	for (int i = 0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
 		std::string i_str(to_string(i));
-		g_settings.network_nfs[i].dir = configfile.getString("network_nfs_dir_" + i_str, "");
 		g_settings.network_nfs[i].ip = configfile.getString("network_nfs_ip_" + i_str, "");
+		g_settings.network_nfs[i].mac = configfile.getString("network_nfs_mac_" + i_str, "11:22:33:44:55:66");
 		g_settings.network_nfs[i].local_dir = configfile.getString("network_nfs_local_dir_" + i_str, "");
 		if (g_settings.network_nfs[i].local_dir.empty())
 			g_settings.network_nfs[i].local_dir = "/mnt/mnt" + i_str;
+		g_settings.network_nfs[i].dir = configfile.getString("network_nfs_dir_" + i_str, "");
 		g_settings.network_nfs[i].automount = configfile.getInt32("network_nfs_automount_" + i_str, 0);
-		g_settings.network_nfs[i].mac = configfile.getString("network_nfs_mac_" + i_str, "11:22:33:44:55:66");
 		g_settings.network_nfs[i].mount_options1 = configfile.getString("network_nfs_mount_options1_" + i_str, "rw,soft");
 		g_settings.network_nfs[i].mount_options2 = configfile.getString("network_nfs_mount_options2_" + i_str, "nolock");
-		g_settings.network_nfs[i].password = configfile.getString("network_nfs_password_" + i_str, "");
 		g_settings.network_nfs[i].type = configfile.getInt32("network_nfs_type_" + i_str, 0);
 		g_settings.network_nfs[i].username = configfile.getString("network_nfs_username_" + i_str, "");
+		g_settings.network_nfs[i].password = configfile.getString("network_nfs_password_" + i_str, "");
 	}
 
 	g_settings.network_nfs_audioplayerdir = configfile.getString("network_nfs_audioplayerdir", "/media/sda1/music");
@@ -836,8 +834,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.timeshiftdir = configfile.getString("timeshiftdir", "");
 	g_settings.timeshift_auto = configfile.getInt32("timeshift_auto", 0);
 	g_settings.timeshift_delete = configfile.getInt32("timeshift_delete", 1);
-	g_settings.timeshift_hours = configfile.getInt32("timeshift_hours", 4 );
-	g_settings.timeshift_pause = configfile.getInt32("timeshift_pause", 1 );
+	g_settings.timeshift_hours = configfile.getInt32("timeshift_hours", 4);
+	g_settings.timeshift_pause = configfile.getInt32("timeshift_pause", 1);
 	g_settings.timeshift_temp = configfile.getInt32("timeshift_temp", 1);
 
 	std::string timeshiftdir;
@@ -1664,7 +1662,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 	configfile.setInt32("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
 	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
-	configfile.setInt32("lcd_scroll", g_settings.lcd_scroll);	
+	configfile.setInt32("lcd_scroll", g_settings.lcd_scroll);
 	configfile.setInt32("lcd_notify_rclock", g_settings.lcd_notify_rclock);
 
 	configfile.setInt32("backlight_tv", g_settings.backlight_tv);
@@ -3404,7 +3402,8 @@ void CNeutrinoApp::RealRun()
 				}
 			}
 #endif
-			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
+			if( (msg == NeutrinoMessages::SHOW_EPG))
+			{
 				InfoClock->enableInfoClock(false);
 
 				StopSubtitles();
@@ -5579,6 +5578,7 @@ void stop_daemons(bool stopall, bool for_flash)
 		CVFD::getInstance()->ShowText("Stop daemons...");
 		g_settings.epg_scan_mode = CEpgScan::MODE_OFF;
 
+//TODO: readd flash script
 // #ifdef BOXMODEL_CST_HD2
 // 		std::string backup_flash_sh = find_executable("backup_flash.sh");
 // 		if (!backup_flash_sh.empty())
@@ -5770,8 +5770,6 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_nokey); // FIXME
 #elif BOXMODEL_VUPLUS_ALL
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_playpause);
-#elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
-	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_play);
 #else
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_pause);
 #endif
