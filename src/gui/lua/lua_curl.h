@@ -53,7 +53,7 @@ class CLuaInstCurl
 		static CLuaCurl *CurlCheckData(lua_State *L, int n);
 		static int CurlNew(lua_State *L);
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
-#if LIBCURL_VERSION_NUM < 0x072000
+#if !CURL_AT_LEAST_VERSION( 7,32,0 )
 		static int CurlProgressFunc_old(void *p, double dltotal, double dlnow, double ultotal, double ulnow);
 #endif
 		static int CurlProgressFunc(void *p, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow);

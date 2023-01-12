@@ -51,7 +51,7 @@ size_t CHTTPTool::CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *
 	return size*nmemb;
 }
 
-int CHTTPTool::show_progress( void *clientp, double dltotal, double dlnow, double /*ultotal*/, double /*ulnow*/ )
+int CHTTPTool::show_progress(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t /*ultotal*/, curl_off_t /*ulnow*/)
 {
 	CHTTPTool* hTool = ((CHTTPTool*)clientp);
 	if(hTool->statusViewer)
@@ -66,6 +66,13 @@ int CHTTPTool::show_progress( void *clientp, double dltotal, double dlnow, doubl
 	}
 	return 0;
 }
+#if !CURL_AT_LEAST_VERSION( 7,32,0 )
+int CHTTPTool::show_progress_old(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+	return show_progress(clientp, (curl_off_t)dltotal, (curl_off_t)dlnow, (curl_off_t)ultotal , (curl_off_t)ulnow);
+}
+#endif
+
 //#define DEBUG
 bool CHTTPTool::downloadFile(const std::string & URL, const char * const downloadTarget, int globalProgressEnd, int connecttimeout/*=10000*/, int timeout/*=1800*/)
 {
@@ -94,7 +101,11 @@ printf("url is %s\n", URL.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, URL.c_str() );
 		curl_easy_setopt(curl, CURLOPT_FILE, headerfile);
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, show_progress);
+#if CURL_AT_LEAST_VERSION( 7,32,0 )
+		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, show_progress);
+#else
+		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, show_progress_old);
+#endif
 		curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, this);
 		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
@@ -159,7 +170,11 @@ printf("url is %s\n", URL.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, URL.c_str() );
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &CHTTPTool::CurlWriteToString);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&retString);
-		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, show_progress);
+#if CURL_AT_LEAST_VERSION( 7,32,0 )
+		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, show_progress);
+#else
+		curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, show_progress_old);
+#endif
 		curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, this);
 		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());

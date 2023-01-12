@@ -98,7 +98,11 @@ int CLuaInstCurl::CurlProgressFunc(void *p, curl_off_t dltotal, curl_off_t dlnow
 
 	double dlSpeed;
 	long responseCode = 0;
+#if CURL_AT_LEAST_VERSION( 7,55,0 )
+	curl_easy_getinfo(_pgd->curl, CURLINFO_SPEED_DOWNLOAD_T, &dlSpeed);
+#else
 	curl_easy_getinfo(_pgd->curl, CURLINFO_SPEED_DOWNLOAD, &dlSpeed);
+#endif
 	curl_easy_getinfo(_pgd->curl, CURLINFO_RESPONSE_CODE, &responseCode);
 
 	uint32_t MUL = 0x7FFF;
@@ -124,7 +128,7 @@ int CLuaInstCurl::CurlProgressFunc(void *p, curl_off_t dltotal, curl_off_t dlnow
 	return 0;
 }
 
-#if LIBCURL_VERSION_NUM < 0x072000
+#if !CURL_AT_LEAST_VERSION( 7,32,0 )
 int CLuaInstCurl::CurlProgressFunc_old(void *p, double dltotal, double dlnow, double ultotal, double ulnow)
 {
 	return CurlProgressFunc(p, (curl_off_t)dltotal, (curl_off_t)dlnow, (curl_off_t)ultotal, (curl_off_t)ulnow);
@@ -324,7 +328,7 @@ Example:
 	if (!silent) {
 		pgd.curl = curl_handle;
 		pgd.last_dlnow = -1;
-#if LIBCURL_VERSION_NUM >= 0x072000
+#if CURL_AT_LEAST_VERSION( 7,32,0 )
 		curl_easy_setopt(curl_handle, CURLOPT_XFERINFOFUNCTION, CLuaInstCurl::CurlProgressFunc);
 		curl_easy_setopt(curl_handle, CURLOPT_XFERINFODATA, &pgd);
 #else
@@ -349,7 +353,11 @@ Example:
 	if (!silent) {
 		double dsize, dtime;
 		char *dredirect=NULL, *deffektive=NULL;
+#if CURL_AT_LEAST_VERSION( 7,55,0 )
+		curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD_T, &dsize);
+#else
 		curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
+#endif
 		curl_easy_getinfo(curl_handle, CURLINFO_TOTAL_TIME, &dtime);
 		CURLcode res1 = curl_easy_getinfo(curl_handle, CURLINFO_EFFECTIVE_URL, &deffektive);
 		CURLcode res2 = curl_easy_getinfo(curl_handle, CURLINFO_REDIRECT_URL, &dredirect);

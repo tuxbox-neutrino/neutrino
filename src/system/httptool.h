@@ -34,6 +34,7 @@
 #define __httptool__
 
 #include <gui/widget/progresswindow.h>
+#include <curl/curl.h>
 
 #include <string>
 
@@ -45,7 +46,10 @@ class CHTTPTool
 		int	iGlobalProgressBegin;
 
 		CProgressWindow*	statusViewer;
-		static int show_progress( void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+#if !CURL_AT_LEAST_VERSION( 7,32,0 )
+		static int show_progress_old(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+#endif
+		static int show_progress(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow);
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 
 	public:

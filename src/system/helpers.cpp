@@ -1866,7 +1866,11 @@ bool downloadUrl(std::string url, std::string file, std::string userAgent, unsig
 	CURLcode httpres = curl_easy_perform(curl_handle);
 
 	double dsize;
+#if CURL_AT_LEAST_VERSION( 7,55,0 )
+	curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD_T, &dsize);
+#else
 	curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
+#endif
 	curl_easy_cleanup(curl_handle);
 	fclose(fp);
 
