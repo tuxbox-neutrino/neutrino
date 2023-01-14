@@ -542,7 +542,7 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~Maxytec Multibox 4K~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 		{=if-equal:{=var-get:boxtype=}~Maxytec Multibox SE 4K~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 		{=if-equal:{=var-get:boxtype=}~AXAS E4HD 4K ULTRA~	{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
-		{=if-equal:{=var-get:boxtype=}~Protek 4K UHD~		{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
+		{=if-equal:{=var-get:boxtype=}~Protek 4K UHD~		{=include-block:Y_Blocks.txt;rc_protek_4k_uhd=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
 		=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
@@ -576,7 +576,7 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_maxytec_multibox=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_maxytec_multiboxse=}~	{=include-block:Y_Blocks.txt;rc_mutant_hd60=}~
 	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_axas_e4hd=}~		{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
-	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_protek_4k_uhd=}~		{=include-block:Y_Blocks.txt;rc_axas_e4hd=}~
+	{=if-equal:{=var-get:yfbtype=}~{=var-get:_rc_protek_4k_uhd=}~		{=include-block:Y_Blocks.txt;rc_protek_4k_uhd=}~
 
 	{=comment:fallback~=}							{=include-block:Y_Blocks.txt;rc_cst_v1=}
 	=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}=}
@@ -1424,3 +1424,59 @@ start-block~rc_axas_e4hd
 <area shape="poly" coords="43,323,63,351,55,359,55,370,58,380,61,386,41,405,35,402,29,402,20,387,17,369,19,356,23,344,26,339,36,338,45,325,45,325" alt="KEY_LEFT" href="javascript:rcsim('KEY_LEFT')" />
 </map>
 end-block~rc_axas_e4hd
+
+# --- Remote Protek 4K UHD
+start-block~rc_protek_4k_uhd
+<img src="images/rc/rc_protek_4k_uhd.png" usemap="#rc"/>
+<map name="rc" id="rc">
+<area shape="circle" coords="33,77,15" alt="KEY_POWER" href="javascript:rcsim('KEY_POWER')" />
+<area shape="circle" coords="140,77,15" alt="KEY_MUTE" href="javascript:rcsim('KEY_MUTE')" />
+<area shape="circle" coords="86,419,22" alt="KEY_OK" href="javascript:rcsim('KEY_OK')" />
+<area shape="circle" coords="28,364,15" alt="KEY_MENU" href="javascript:rcsim('KEY_MENU')" />
+<area shape="circle" coords="138,364,15" alt="KEY_HOME" href="javascript:rcsim('KEY_HOME')" />
+<area shape="circle" coords="28,474,15" alt="KEY_INFO" href="javascript:rcsim('KEY_INFO')" />
+<area shape="circle" coords="138,474,15" alt="KEY_FAVORITES" href="javascript:rcsim('KEY_FAVORITES')" />
+<area shape="rect" coords="14,100,36,120" alt="KEY_TV2" href="javascript:rcsim('KEY_TV2')" />
+<area shape="rect" coords="52,100,74,120" alt="KEY_TEXT" href="javascript:rcsim('KEY_TEXT')" />
+<area shape="rect" coords="94,100,116,120" alt="KEY_AUDIO" href="javascript:rcsim('KEY_AUDIO')" />
+<area shape="rect" coords="132,100,154,120" alt="KEY_SUBTITLE" href="javascript:rcsim('KEY_SUBTITLE')" />
+<area shape="rect" coords="14,130,50,150" alt="KEY_1" href="javascript:rcsim('KEY_1')" />
+<area shape="rect" coords="66,130,102,150" alt="KEY_2" href="javascript:rcsim('KEY_2')" />
+<area shape="rect" coords="120,130,156,150" alt="KEY_3" href="javascript:rcsim('KEY_3')" />
+<area shape="rect" coords="14,160,50,180" alt="KEY_4" href="javascript:rcsim('KEY_4')" />
+<area shape="rect" coords="66,160,102,180" alt="KEY_5" href="javascript:rcsim('KEY_5')" />
+<area shape="rect" coords="120,160,156,180" alt="KEY_6" href="javascript:rcsim('KEY_6')" />
+<area shape="rect" coords="14,190,50,210" alt="KEY_7" href="javascript:rcsim('KEY_7')" />
+<area shape="rect" coords="66,190,102,210" alt="KEY_8" href="javascript:rcsim('KEY_8')" />
+<area shape="rect" coords="120,190,156,210" alt="KEY_9" href="javascript:rcsim('KEY_9')" />
+<area shape="rect" coords="66,220,102,240" alt="KEY_0" href="javascript:rcsim('KEY_0')" />
+<area shape="rect" coords="14,220,50,240" alt="KEY_PREVIOUS" href="javascript:rcsim('KEY_PREVIOUS')" />
+<area shape="rect" coords="120,220,156,240" alt="KEY_NEXT" href="javascript:rcsim('KEY_NEXT')" />
+<area shape="rect" coords="14,502,39,526" alt="KEY_RED" href="javascript:rcsim('KEY_RED')" />
+<area shape="rect" coords="52,502,76,526" alt="KEY_GREEN" href="javascript:rcsim('KEY_GREEN')" />
+<area shape="rect" coords="94,502,116,526" alt="KEY_YELLOW" href="javascript:rcsim('KEY_YELLOW')" />
+<area shape="rect" coords="132,502,155,526" alt="KEY_BLUE" href="javascript:rcsim('KEY_BLUE')" />
+<area shape="rect" coords="15,250,45,289" alt="KEY_VOLUMEUP" href="javascript:rcsim('KEY_VOLUMEUP')" />
+<area shape="rect" coords="15,290,45,330" alt="KEY_VOLUMEDOWN" href="javascript:rcsim('KEY_VOLUMEDOWN')" />
+<area shape="rect" coords="70,250,100,289" alt="KEY_TIMER" href="javascript:rcsim('KEY_TIMER')" />
+<area shape="rect" coords="70,290,100,330" alt="KEY_EPG" href="javascript:rcsim('KEY_EPG')" />
+<area shape="rect" coords="125,250,155,289" alt="KEY_PAGEUP" href="javascript:rcsim('KEY_PAGEUP')" />
+<area shape="rect" coords="125,290,155,330" alt="KEY_PAGEDOWN" href="javascript:rcsim('KEY_PAGEDOWN')" />
+<area shape="rect" coords="15,545,45,560" alt="KEY_REWIND" href="javascript:rcsim('KEY_REWIND')" />
+<area shape="rect" coords="50,545,80,560" alt="KEY_PLAYPAUSE" href="javascript:rcsim('KEY_PLAYPAUSE')" />
+<area shape="rect" coords="85,545,115,560" alt="KEY_STOP" href="javascript:rcsim('KEY_STOP')" />
+<area shape="rect" coords="125,545,155,560" alt="KEY_FORWARD" href="javascript:rcsim('KEY_FORWARD')" />
+<area shape="rect" coords="15,570,45,585" alt="KEY_RECORD" href="javascript:rcsim('KEY_RECORD')" />
+<area shape="rect" coords="50,570,80,585" alt="KEY_PREVIOUSSONG" href="javascript:rcsim('KEY_PREVIOUSSONG')" />
+<area shape="rect" coords="85,570,115,585" alt="KEY_NEXTSONG" href="javascript:rcsim('KEY_NEXTSONG')" />
+<area shape="rect" coords="125,570,155,585" alt="KEY_PVR" href="javascript:rcsim('KEY_PVR')" />
+<area shape="rect" coords="15,592,45,607" alt="KEY_F1" href="javascript:rcsim('KEY_F1')" />
+<area shape="rect" coords="50,592,80,607" alt="KEY_F2" href="javascript:rcsim('KEY_F2')" />
+<area shape="rect" coords="85,592,115,607" alt="KEY_MEDIA" href="javascript:rcsim('KEY_MEDIA')" />
+<area shape="rect" coords="125,592,155,607" alt="KEY_HELP" href="javascript:rcsim('KEY_HELP')" />
+<area shape="circle" coords="85,364,15" alt="KEY_UP" href="javascript:rcsim('KEY_UP')" />
+<area shape="circle" coords="85,474,15" alt="KEY_DOWN" href="javascript:rcsim('KEY_DOWN')" />
+<area shape="circle" coords="138,419,15" alt="KEY_RIGHT" href="javascript:rcsim('KEY_RIGHT')" />
+<area shape="circle" coords="28,419,15" alt="KEY_LEFT" href="javascript:rcsim('KEY_LEFT')" />
+</map>
+end-block~rc_protek_4k_uhd

@@ -93,11 +93,12 @@ imagesrc_DATA += \
 	rc/rc_ax_hd61.png \
 	rc/rc_axas_e4hd.png \
 	rc/rc_mutant_hd51.png \
-	rc/rc_wwio_bre2ze4k.png \
-	rc/rc_zgemma_h7.png \
+	rc/rc_mutant_hd60.png \
 	rc/rc_osmio4k.png \
+	rc/rc_protek_4k_uhd.png \
 	rc/rc_vuplus.png \
-	rc/rc_mutant_hd60.png
+	rc/rc_wwio_bre2ze4k.png \
+	rc/rc_zgemma_h7.png
 endif
 
 
