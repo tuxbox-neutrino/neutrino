@@ -5741,8 +5741,8 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.key_format_mode_active = tconfig->getInt32("key_format_mode_active", 1);
 	g_settings.key_help = tconfig->getInt32("key_help", CRCInput::RC_help);
 	g_settings.key_lastchannel = tconfig->getInt32("key_lastchannel", CRCInput::RC_0);
-	g_settings.key_list_end = tconfig->getInt32("key_list_end", (unsigned int)CRCInput::RC_nokey);
-	g_settings.key_list_start = tconfig->getInt32("key_list_start", (unsigned int)CRCInput::RC_nokey);
+	g_settings.key_list_end = tconfig->getInt32("key_list_end", CRCInput::RC_nokey);
+	g_settings.key_list_start = tconfig->getInt32("key_list_start", CRCInput::RC_nokey);
 	g_settings.key_next43mode = tconfig->getInt32("key_next43mode", CRCInput::RC_nokey);
 	g_settings.key_pagedown = tconfig->getInt32("key_channelList_pagedown", CRCInput::RC_page_down);
 	g_settings.key_pageup = tconfig->getInt32("key_channelList_pageup", CRCInput::RC_page_up);
@@ -5760,7 +5760,7 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.key_quickzap_down = tconfig->getInt32("key_quickzap_down", CRCInput::RC_down);
 	g_settings.key_quickzap_up = tconfig->getInt32("key_quickzap_up", CRCInput::RC_up);
 	g_settings.key_record = tconfig->getInt32("key_record", CRCInput::RC_record);
-	g_settings.key_screenshot = tconfig->getInt32("key_screenshot", (unsigned int)CRCInput::RC_games);
+	g_settings.key_screenshot = tconfig->getInt32("key_screenshot", CRCInput::RC_games);
 	g_settings.key_sleep = tconfig->getInt32("key_sleep", CRCInput::RC_sleep);
 	g_settings.key_standby_off_add = tconfig->getInt32("key_standby_off_add", CRCInput::RC_ok);
 	g_settings.key_subchannel_down = tconfig->getInt32("key_subchannel_down", CRCInput::RC_left);
@@ -5776,7 +5776,7 @@ void CNeutrinoApp::loadKeys(const char *fname)
 #if BOXMODEL_HD61
 	g_settings.key_tvradio_mode = tconfig->getInt32("key_tvradio_mode", CRCInput::RC_tv);
 #else
-	g_settings.key_tvradio_mode = tconfig->getInt32("key_tvradio_mode", (unsigned int)CRCInput::RC_nokey);
+	g_settings.key_tvradio_mode = tconfig->getInt32("key_tvradio_mode", CRCInput::RC_nokey);
 #endif
 	g_settings.key_unlock = tconfig->getInt32("key_unlock", CRCInput::RC_setup);
 	g_settings.key_volumedown = tconfig->getInt32("key_volumedown", CRCInput::RC_minus);
@@ -5806,7 +5806,7 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.mpkey_pause = tconfig->getInt32("mpkey.pause", CRCInput::RC_pause);
 	g_settings.mpkey_play = tconfig->getInt32("mpkey.play", CRCInput::RC_play);
 #endif
-	g_settings.mpkey_plugin = tconfig->getInt32("mpkey.plugin", (unsigned int)CRCInput::RC_nokey);
+	g_settings.mpkey_plugin = tconfig->getInt32("mpkey.plugin", CRCInput::RC_nokey);
 	g_settings.mpkey_rewind = tconfig->getInt32("mpkey.rewind", CRCInput::RC_rewind);
 	g_settings.mpkey_stop = tconfig->getInt32("mpkey.stop", CRCInput::RC_stop);
 	g_settings.mpkey_subtitle = tconfig->getInt32("mpkey.subtitle", CRCInput::RC_sub);
