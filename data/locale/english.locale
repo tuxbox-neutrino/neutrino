@@ -1081,7 +1081,7 @@ infoviewer.waittime Waiting for time ...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, Exit aborts
 keybindingmenu.addrecord add record timer
-keybindingmenu.addremind add zapto timer
+keybindingmenu.addremind add zap-to timer
 keybindingmenu.bouquetdown bouquet back
 keybindingmenu.bouquetlist_mode Bouquetlist mode
 keybindingmenu.bouquetup next bouquet
@@ -1645,7 +1645,7 @@ menu.hint_record_timeshift_delete Delete timeshift files after timeshift stop
 menu.hint_record_timeshift_pause Start timeshift playback in paused mode
 menu.hint_record_timeshift_temp If off, timeshift started as\nany direct record
 menu.hint_record_zap Switch to channel to be recorded\nat record announce
-menu.hint_record_zap_pre_time For ZapTo timers, switch channel\nbefore event start, in minutes
+menu.hint_record_zap_pre_time For Zap-to timers, switch channel\nbefore event start, in minutes
 menu.hint_recording Recording and timeshift options\nTimers safety, audio pids options
 menu.hint_reload_channels Reload channels from flash
 menu.hint_reload_plugins Reload plugins from flash
@@ -1957,7 +1957,7 @@ miscsettings.sleeptimer Inactivity shutdown timer
 miscsettings.sleeptimer_min Sleeptimer default
 miscsettings.streaming Streaming
 miscsettings.volume Volume
-miscsettings.zapto_pre_time Zapto Start Time Correction
+miscsettings.zapto_pre_time Zap-to timer time correction
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
 motorcontrol.drive_mode Drive Mode
@@ -2466,7 +2466,7 @@ recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
 recordingmenu.vtxt_pid record teletext
-recordingmenu.zap_on_announce zap on recording announce
+recordingmenu.zap_on_announce Zap on recording announce
 recordtimer.announce Recording starts in a few minutes
 remotebox_add Add
 remotebox_channel_na Channel not available on Remote-Box

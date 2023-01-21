@@ -1957,7 +1957,7 @@ miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
 miscsettings.streaming Streaming
 miscsettings.volume Lautstärke
-miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit
+miscsettings.zapto_pre_time Umschalt-Timer-Vorlaufzeit
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
 motorcontrol.drive_mode Fahr-Modus
