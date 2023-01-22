@@ -26,6 +26,7 @@
 #endif
 #include <stdio.h>
 #include <unistd.h>
+#include <ctime>
 
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/nvod_reference_descriptor.h>
