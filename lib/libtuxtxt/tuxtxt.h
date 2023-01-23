@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <ctype.h>
+#include <pthread.h>
 
 #include <linux/fb.h>
 
