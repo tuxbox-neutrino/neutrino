@@ -1728,8 +1728,7 @@ int CTimerList::modifyTimer()
 		);
 	if (!modified && timer->eventType == CTimerd::TIMER_RECORD)
 	{
-		if (timer->recordingDir && t_old.recordingDir)
-			modified = strcmp(timer->recordingDir, t_old.recordingDir);
+		modified = strcmp(timer->recordingDir, t_old.recordingDir);
 		if (!modified)
 			modified = (
 					   t_old_apids_dflt != timer_apids_dflt
