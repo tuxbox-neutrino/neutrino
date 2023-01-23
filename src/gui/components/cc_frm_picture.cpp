@@ -43,7 +43,8 @@ void CComponentsPicture::setPicture(const std::string &name, const int &w, const
 
 void CComponentsPicture::setPicture(const char *name, const int &w, const int &h)
 {
-	setPicture(name, w, h);
+	std::string sName(name);
+	setPicture(sName, w, h);
 }
 
 std::string CComponentsPicture::getPictureName()
