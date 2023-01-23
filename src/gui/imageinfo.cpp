@@ -54,8 +54,8 @@
 #include <nhttpd/yconfig.h>
 #include <ctype.h>
 
-#define OS_RELEASE_FILE "/usr/lib/os-release"
-#define OE_IMAGE_VERSION_FILE "/etc/image-version"
+#define OS_RELEASE_FILE TARGET_ROOT "/usr/lib/os-release"
+#define OE_IMAGE_VERSION_FILE TARGET_ROOT "/etc/image-version"
 
 using namespace std;
 

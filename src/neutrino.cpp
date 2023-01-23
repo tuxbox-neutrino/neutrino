@@ -383,7 +383,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	CGLCDThemes::getInstance()->getTheme(configfile);
 
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", strcmp(g_info.hw_caps->boxvendor, "VU+") == 0 || strcmp(g_info.hw_caps->boxvendor, "AXAS") == 0 || strcmp(g_info.hw_caps->boxvendor, "Protek") == 0);
-	g_settings.glcd_logodir = configfile.getString("glcd_logodir", "/media/sda1/logos");
+	g_settings.glcd_logodir = configfile.getString("glcd_logodir", TARGET_ROOT "/media/sda1/logos");
 
 	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", GLCD_DEFAULT_BRIGHTNESS);
 	g_settings.glcd_brightness_dim = configfile.getInt32("glcd_brightness_dim", GLCD_DEFAULT_BRIGHTNESS_DIM);
@@ -403,7 +403,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 #ifdef ENABLE_LCD4LINUX
 	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support", 0);
-	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", "/media/sda1/logos");
+	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", TARGET_ROOT "/media/sda1/logos");
 	g_settings.lcd4l_display_type = configfile.getInt32("lcd4l_display_type", 0);
 	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin", 0);
 	g_settings.lcd4l_skin_radio = configfile.getInt32("lcd4l_skin_radio", 0);
@@ -736,7 +736,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.timezone = configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna");
 
 	// epg
-	g_settings.epg_dir = configfile.getString("epg_dir", "/media/sda1/epg");
+	g_settings.epg_dir = configfile.getString("epg_dir", TARGET_ROOT "/media/sda1/epg");
 	g_settings.epg_cache = configfile.getInt32("epg_cache_time", 7);
 	g_settings.epg_extendedcache = configfile.getInt32("epg_extendedcache_time", 168);
 	g_settings.epg_max_events = configfile.getInt32("epg_max_events", 30000);
@@ -791,14 +791,14 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		g_settings.network_nfs[i].password = configfile.getString("network_nfs_password_" + i_str, "");
 	}
 
-	g_settings.network_nfs_audioplayerdir = configfile.getString("network_nfs_audioplayerdir", "/media/sda1/music");
-	g_settings.network_nfs_moviedir = configfile.getString("network_nfs_moviedir", "/media/sda1/movies");
-	g_settings.network_nfs_picturedir = configfile.getString("network_nfs_picturedir", "/media/sda1/pictures");
-	g_settings.network_nfs_recordingdir = configfile.getString("network_nfs_recordingdir", "/media/sda1/movies");
-	g_settings.network_nfs_streamripperdir = configfile.getString("network_nfs_streamripperdir", "/media/sda1/music/streamripper");
+	g_settings.network_nfs_audioplayerdir = configfile.getString("network_nfs_audioplayerdir", TARGET_ROOT "/media/sda1/music");
+	g_settings.network_nfs_moviedir = configfile.getString("network_nfs_moviedir", TARGET_ROOT "/media/sda1/movies");
+	g_settings.network_nfs_picturedir = configfile.getString("network_nfs_picturedir", TARGET_ROOT "/media/sda1/pictures");
+	g_settings.network_nfs_recordingdir = configfile.getString("network_nfs_recordingdir", TARGET_ROOT "/media/sda1/movies");
+	g_settings.network_nfs_streamripperdir = configfile.getString("network_nfs_streamripperdir", TARGET_ROOT "/media/sda1/music/streamripper");
 
 	g_settings.downloadcache_dir = configfile.getString("downloadcache_dir", g_settings.network_nfs_recordingdir.c_str());
-	g_settings.logo_hdd_dir = configfile.getString("logo_hdd_dir", "/media/sda1/logos");
+	g_settings.logo_hdd_dir = configfile.getString("logo_hdd_dir", TARGET_ROOT "/media/sda1/logos");
 
 	// recording
 	g_settings.record_hours = configfile.getInt32("record_hours", 4);
@@ -977,7 +977,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.livestreamScriptPath = configfile.getString("livestreamScriptPath", WEBTVDIR);
 
 	// plugins
-	g_settings.plugin_hdd_dir = configfile.getString("plugin_hdd_dir", "/media/sda1/plugins");
+	g_settings.plugin_hdd_dir = configfile.getString("plugin_hdd_dir", TARGET_ROOT "/media/sda1/plugins");
 	g_settings.plugins_disabled = configfile.getString("plugins_disabled", "");
 	g_settings.plugins_game = configfile.getString("plugins_game", "");
 	g_settings.plugins_lua = configfile.getString("plugins_lua", "");
@@ -988,7 +988,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.movieplayer_plugin = configfile.getString("movieplayer_plugin", "---");
 
 	// screenshot
-	g_settings.screenshot_dir = configfile.getString("screenshot_dir", "/media/sda1/movies");
+	g_settings.screenshot_dir = configfile.getString("screenshot_dir", TARGET_ROOT "/media/sda1/movies");
 	g_settings.screenshot_count = configfile.getInt32("screenshot_count", 1);
 	g_settings.screenshot_cover = configfile.getInt32("screenshot_cover", 0);
 	g_settings.screenshot_format = configfile.getInt32("screenshot_format", 1);
@@ -1074,7 +1074,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.flashupdate_createimage_add_uldr = configfile.getInt32("flashupdate_createimage_add_uldr", 1);
 	g_settings.flashupdate_createimage_add_var = configfile.getInt32("flashupdate_createimage_add_var", 1);
 
-	g_settings.backup_dir = configfile.getString("backup_dir", "/media");
+	g_settings.backup_dir = configfile.getString("backup_dir", TARGET_ROOT "/media");
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
 	g_settings.update_dir_opkg = configfile.getString("update_dir_opkg", g_settings.update_dir);
 

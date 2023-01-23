@@ -9,10 +9,15 @@ AC_ARG_WITH(target,
 	[TARGET="$withval"],
 	[TARGET="native"])
 
+AC_ARG_WITH(targetroot,
+	AS_HELP_STRING([--with-targetroot=PATH], [the target root (only applicable in native mode)]),
+	[TARGET_ROOT="$withval"],
+	[TARGET_ROOT="NONE"])
+
 AC_ARG_WITH(targetprefix,
-	AS_HELP_STRING([--with-targetprefix=PATH], [prefix relative to target root (only applicable in cdk mode)]),
+	AS_HELP_STRING([--with-targetprefix=PATH], [prefix relative to target root, e.g. /usr (only applicable in cdk mode)]),
 	[TARGET_PREFIX="$withval"],
-	[TARGET_PREFIX=""])
+	[TARGET_PREFIX="NONE"])
 
 AC_ARG_WITH(debug,
 	AS_HELP_STRING([--without-debug], [disable debugging code @<:@default=no@:>@]),
@@ -163,39 +168,47 @@ AC_MSG_CHECKING(target)
 if test "$TARGET" = "native"; then
 	AC_MSG_RESULT(native)
 
+	if test "$prefix" = "NONE"; then
+		prefix=/usr/local
+	fi
+
+	if test "$TARGET_ROOT" = "NONE"; then
+		AC_MSG_ERROR([invalid targetroot, you need to specify one in native mode])
+		TARGET_ROOT=""
+	fi
+	TARGET_PREFIX=$prefix
+
 	if test "$CFLAGS" = "" -a "$CXXFLAGS" = ""; then
 		CFLAGS="-Wall -O2 -pipe $DEBUG_CFLAGS"
 		CXXFLAGS="-Wall -O2 -pipe $DEBUG_CFLAGS"
 	fi
-	if test "$prefix" = "NONE"; then
-		prefix=/usr/local
-	fi
-	targetprefix=$prefix
-	TARGET_PREFIX=$prefix
-	AC_DEFINE_UNQUOTED(TARGET_PREFIX, "$TARGET_PREFIX", [The targets prefix])
 elif test "$TARGET" = "cdk"; then
 	AC_MSG_RESULT(cdk)
 
-	if test "$CC" = "" -a "$CXX" = ""; then
-		AC_MSG_ERROR([you need to specify variables CC or CXX in cdk])
-	fi
-	if test "$CFLAGS" = "" -o "$CXXFLAGS" = ""; then
-		AC_MSG_ERROR([you need to specify variables CFLAGS and CXXFLAGS in cdk])
-	fi
 	if test "$prefix" = "NONE"; then
 		AC_MSG_ERROR([invalid prefix, you need to specify one in cdk mode])
 	fi
-	if test "$TARGET_PREFIX" != "NONE"; then
-		AC_DEFINE_UNQUOTED(TARGET_PREFIX, "$TARGET_PREFIX", [The targets prefix])
-	fi
+
+	TARGET_ROOT=""
 	if test "$TARGET_PREFIX" = "NONE"; then
 		AC_MSG_ERROR([invalid targetprefix, you need to specify one in cdk mode])
 		TARGET_PREFIX=""
 	fi
+
+	if test "$CC" = "" -a "$CXX" = ""; then
+		AC_MSG_ERROR([you need to specify variables CC or CXX in cdk mode])
+	fi
+	if test "$CFLAGS" = "" -o "$CXXFLAGS" = ""; then
+		AC_MSG_ERROR([you need to specify variables CFLAGS and CXXFLAGS in cdk mode])
+	fi
 else
 	AC_MSG_RESULT(none)
-	AC_MSG_ERROR([invalid target $TARGET, choose on from native,cdk]);
+	AC_MSG_ERROR([invalid target "$TARGET", choose "native" or "cdk"]);
 fi
+
+AC_DEFINE_UNQUOTED([TARGET], ["$TARGET"], [target for compilation])
+AC_DEFINE_UNQUOTED([TARGET_ROOT], ["$TARGET_ROOT"], [native: the target root; cdk: empty])
+AC_DEFINE_UNQUOTED([TARGET_PREFIX], ["$TARGET_PREFIX"], [native: auto-assigned path; cdk: path relative to target root])
 
 if test "$exec_prefix" = "NONE"; then
 	exec_prefix=$prefix
@@ -249,19 +262,30 @@ AC_SUBST(TARGET_$2)
 AC_DEFUN([TUXBOX_APPS_DIRECTORY], [
 AC_REQUIRE([TUXBOX_APPS])
 
+#
+# FIXME:
+# This breaks --sysconfdir= etc. switches in cdk mode.
+# Is --with-targetprefix= and the resulting ${TARGET_PREFIX} really needed?
+#
 if test "$TARGET" = "cdk"; then
 	datadir="\${prefix}/share"
-	sysconfdir="/etc"
-	localstatedir="/var"
-	libdir="\${prefix}/lib"
-	mntdir="/mnt"
 	targetdatadir="\${TARGET_PREFIX}/share"
-	targetsysconfdir="/etc"
-	targetlocalstatedir="/var"
+
+	libdir="\${prefix}/lib"
 	targetlibdir="\${TARGET_PREFIX}/lib"
+
+	sysconfdir="/etc"
+	targetsysconfdir="/etc"
+
+	localstatedir="/var"
+	targetlocalstatedir="/var"
+
+	mntdir="/mnt"
 	targetmntdir="/mnt"
+	MNTDIR=$targetmntdir
 else
-	mntdir="/mnt" # hack
+	mntdir="/mnt"
+	MNTDIR=$mntdir
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir, CONFIGDIR, localstatedir, /var, /tuxbox/config,
