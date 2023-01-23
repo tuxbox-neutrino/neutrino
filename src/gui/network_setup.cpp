@@ -794,7 +794,7 @@ int CNetworkSetup::showWlanList()
 	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width);
 	wlist.addIntroItems(LOCALE_NETWORKMENU_SSID_SCAN); //intros
 
-	char cnt[10];
+	char cnt[12];
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 

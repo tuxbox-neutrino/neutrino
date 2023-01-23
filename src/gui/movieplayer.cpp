@@ -2492,13 +2492,13 @@ void CMoviePlayerGui::selectAudioPid()
 			defpid = false;
 		}
 
-		char cnt[5];
+		char cnt[6];
 		sprintf(cnt, "%d", count);
 		CMenuForwarder * item = new CMenuForwarder(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		APIDSelector.addItem(item, defpid);
 	}
 #if HAVE_CST_HARDWARE
-	char cnt[5];
+	char cnt[6];
 	sprintf(cnt, "%d", count);
 	std::string apidtitle;
 	if (g_settings.movieplayer_select_ac3_atype0 == false)
