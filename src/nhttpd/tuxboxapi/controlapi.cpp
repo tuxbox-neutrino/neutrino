@@ -3063,6 +3063,8 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 	std::string _rec_dir = hh->ParamList["rec_dir"];
 	void *data=NULL;
 	bool standby_on = false;
+	char msg[256];
+	static_assert(EXEC_PLUGIN_NAME_MAXLEN <= sizeof(msg) && REMINDER_MESSAGE_MAXLEN <= sizeof(msg), "Timer msg size mismatch");
 	if(type == CTimerd::TIMER_RECORD)
 		announceTimeT-=120;
 	if(type == CTimerd::TIMER_STANDBY)
@@ -3091,17 +3093,15 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 	}
 	else if(type==CTimerd::TIMER_REMIND)
 	{
-		char msg[REMINDER_MESSAGE_MAXLEN];
-		memset(msg, 0, sizeof(msg));
+		memset(msg, 0, REMINDER_MESSAGE_MAXLEN);
 		strncpy(msg, hh->ParamList["msg"].c_str(),REMINDER_MESSAGE_MAXLEN-1);
-		data=msg;
+		data = msg;
 	}
 	else if(type==CTimerd::TIMER_EXEC_PLUGIN)
 	{
-		char msg[EXEC_PLUGIN_NAME_MAXLEN];
-		memset(msg, 0, sizeof(msg));
+		memset(msg, 0, EXEC_PLUGIN_NAME_MAXLEN);
 		strncpy(msg, hh->ParamList["PluginName"].c_str(),EXEC_PLUGIN_NAME_MAXLEN-1);
-		data=msg;
+		data = msg;
 	}
 	// update or add timer
 	if(hh->ParamList["update"]=="1")

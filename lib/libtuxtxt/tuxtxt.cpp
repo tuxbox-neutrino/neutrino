@@ -1740,7 +1740,7 @@ int tuxtx_main(int pid, int page, int source)
 				    subtitledelay++;
 				    // display subtitledelay
 				    PosY = StartY;
-				    char ns[10];
+				    char ns[18];
 				    SetPosX(1);
 				    sprintf(ns,"+%d    ",subtitledelay);
 				    RenderCharFB(ns[0],&atrtable[ATR_WB]);
@@ -1758,7 +1758,7 @@ int tuxtx_main(int pid, int page, int source)
 				    if (subtitledelay < 0) subtitledelay = 0;
 				    // display subtitledelay
 				    PosY = StartY;
-				    char ns[10];
+				    char ns[18];
 				    SetPosX(1);
 				    sprintf(ns,"+%d    ",subtitledelay);
 				    RenderCharFB(ns[0],&atrtable[ATR_WB]);
