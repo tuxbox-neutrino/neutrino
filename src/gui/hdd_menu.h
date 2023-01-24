@@ -65,7 +65,7 @@ class CHDDMenuHandler : public CMenuTarget
 		};
 		std::vector<hdd_s> hdd_list;
 		std::set<std::string> kernel_fs_list;
-		struct cmp_hdd_by_name: public std::binary_function <const struct hdd_s, const struct hdd_s, bool>
+		struct cmp_hdd_by_name
 		{
 			bool operator() (const struct hdd_s &c1, const struct hdd_s &c2)
 			{
