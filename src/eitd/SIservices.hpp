@@ -78,7 +78,7 @@ public:
 };
 
 // Fuer for_each
-struct printSInvodReference : public std::unary_function<class SInvodReference, void>
+struct printSInvodReference
 {
 	void operator() (const SInvodReference &ref) { ref.dump();}
 };
@@ -151,7 +151,7 @@ public:
 };
 
 // Fuer for_each
-struct printSIservice : public std::unary_function<SIservice, void>
+struct printSIservice
 {
 	void operator() (const SIservice &s) { s.dump();}
 };

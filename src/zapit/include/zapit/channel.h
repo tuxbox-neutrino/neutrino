@@ -320,7 +320,7 @@ class CZapitChannel
 		inline void	setAlternateLogo(const std::string &pLogo) { altlogo = pLogo; }
 };
 
-struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+struct CmpChannelBySat
 {
 	static bool comparetolower(const char a, const char b)
 	{
@@ -337,7 +337,7 @@ struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const
 	};
 };
 
-struct CmpChannelByFreq: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+struct CmpChannelByFreq
 {
 	static bool comparetolower(const char a, const char b)
 	{
@@ -354,7 +354,7 @@ struct CmpChannelByFreq: public std::binary_function <const CZapitChannel * cons
 	};
 };
 
-struct CmpChannelByChName: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+struct CmpChannelByChName
 {
 	static bool comparetolower(const char a, const char b)
 	{
@@ -367,7 +367,7 @@ struct CmpChannelByChName: public std::binary_function <const CZapitChannel * co
 	};
 };
 
-struct CmpChannelByChNum: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+struct CmpChannelByChNum
 {
 	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
 	{

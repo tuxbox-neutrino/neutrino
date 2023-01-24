@@ -164,13 +164,13 @@ public:
 typedef std::vector<class SIlinkage> SIlinkage_descs;
 
 // Fuer for_each
-struct printSIlinkage : public std::unary_function<class SIlinkage, void>
+struct printSIlinkage
 {
 	void operator() (const SIlinkage &l) { l.dump();}
 };
 
 // Fuer for_each
-struct saveSIlinkageXML : public std::unary_function<class SIlinkage, void>
+struct saveSIlinkageXML
 {
 	FILE *f;
 	saveSIlinkageXML(FILE *fi) { f=fi;}
@@ -240,13 +240,13 @@ class SIcomponent
 typedef std::vector <SIcomponent> SIcomponents;
 
 // Fuer for_each
-struct printSIcomponent : public std::unary_function<class SIcomponent, void>
+struct printSIcomponent
 {
 	void operator() (const SIcomponent &c) { c.dump();}
 };
 
 // Fuer for_each
-struct saveSIcomponentXML : public std::unary_function<class SIcomponent, void>
+struct saveSIcomponentXML
 {
 	FILE *f;
 	saveSIcomponentXML(FILE *fi) { f=fi;}
@@ -280,13 +280,13 @@ class SIparentalRating
 typedef std::vector <SIparentalRating> SIparentalRatings;
 
 // Fuer for_each
-struct printSIparentalRating : public std::unary_function<SIparentalRating, void>
+struct printSIparentalRating
 {
 	void operator() (const SIparentalRating &r) { r.dump();}
 };
 
 // Fuer for_each
-struct saveSIparentalRatingXML : public std::unary_function<SIparentalRating, void>
+struct saveSIparentalRatingXML
 {
 	FILE *f;
 	saveSIparentalRatingXML(FILE *fi) { f=fi;}
@@ -329,13 +329,13 @@ class SItime {
 typedef std::set <SItime, std::less<SItime> > SItimes;
 
 // Fuer for_each
-struct printSItime : public std::unary_function<SItime, void>
+struct printSItime
 {
 	void operator() (const SItime &t) { t.dump();}
 };
 
 // Fuer for_each
-struct saveSItimeXML : public std::unary_function<SItime, void>
+struct saveSItimeXML
 {
 	FILE *f;
 	saveSItimeXML(FILE *fi) { f=fi;}
@@ -570,13 +570,13 @@ class SIevent
 typedef std::vector <SIevent> SIevents;
 
 // Fuer for_each
-struct printSIevent : public std::unary_function<SIevent, void>
+struct printSIevent
 {
 	void operator() (const SIevent &e) { e.dump();}
 };
 
 // Fuer for_each
-struct saveSIeventXML : public std::unary_function<SIevent, void>
+struct saveSIeventXML
 {
 	FILE *f;
 	saveSIeventXML(FILE *fi) { f=fi;}
@@ -585,7 +585,7 @@ struct saveSIeventXML : public std::unary_function<SIevent, void>
 
 #if 0
 // Fuer for_each
-struct saveSIeventXMLwithServiceName : public std::unary_function<SIevent, void>
+struct saveSIeventXMLwithServiceName
 {
   FILE *f;
   const SIservices *s;
@@ -604,7 +604,7 @@ struct saveSIeventXMLwithServiceName : public std::unary_function<SIevent, void>
 
 #if 0
 // Fuer for_each
-struct printSIeventWithService : public std::unary_function<SIevent, void>
+struct printSIeventWithService
 {
   printSIeventWithService(const SIservices &svs) { s=&svs;}
   void operator() (const SIevent &e) {

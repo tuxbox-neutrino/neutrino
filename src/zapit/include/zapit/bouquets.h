@@ -192,7 +192,7 @@ class CBouquetManager : public OpenThreads::Thread
  * For instance all countless variants of the letter a have to be regarded as the same letter.
  */
 
-struct CmpBouquetByChName: public std::binary_function <const CZapitBouquet * const, const CZapitBouquet * const, bool>
+struct CmpBouquetByChName
 {
 	static bool comparetolower(const char a, const char b)
 		{
