@@ -1,4 +1,4 @@
-#include <sys/timeb.h>
+#include <sys/time.h>
 #include <time.h>
 #include <cstdio>
 #include <cstdarg>
@@ -34,17 +34,15 @@ FILE* Debug::set_file(char* file)
 void Debug::print(int level, const char *fmt, ...)
 {
 	va_list argp;
-	struct timeb tp;
+	struct timeval tv;
 	char buf[1024];
 	char tbuf[20];
 	int len;
-	struct tm tv;
 
 	if (level < level_) {
-		ftime(&tp);
-		localtime_r (&tp.time, &tv);
-		strftime (tbuf, 14, "%H:%M:%S", &tv);
-		len = sprintf(buf, "[ %s.%03d ] ", tbuf, tp.millitm);
+		gettimeofday(&tv, NULL);
+		strftime(tbuf, sizeof(tbuf), "%H:%M:%S", localtime(&tv.tv_sec));
+		len = sprintf(buf, "[ %s.%03ld ] ", tbuf, tv.tv_usec / 1000);
 
 		va_start(argp, fmt);
 		//vfprintf(fp_, fmt, argp);
