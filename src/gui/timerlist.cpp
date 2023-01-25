@@ -1685,7 +1685,7 @@ int CTimerList::modifyTimer()
 		if (!strlen(timer->recordingDir))
 			strncpy(timer->recordingDir, g_settings.network_nfs_recordingdir.c_str(), sizeof(timer->recordingDir) - 1);
 		timer_recordingDir = timer->recordingDir;
-		static_assert(sizeof(t_old.recordingDir) >= sizeof(timer->recordingDir));
+		static_assert(sizeof(t_old.recordingDir) >= sizeof(timer->recordingDir), "recordingDir size mismatch");
 		memcpy(t_old.recordingDir, timer->recordingDir, strlen(timer->recordingDir) + 1);
 
 		bool recDirEnabled = (g_settings.recording_type == CNeutrinoApp::RECORDING_FILE);
