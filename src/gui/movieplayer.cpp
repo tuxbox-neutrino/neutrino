@@ -2624,10 +2624,9 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 		// if we have a movie information, try to save the stop position
 		printf("CMoviePlayerGui::handleMovieBrowser: stop, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
 		if (isMovieBrowser && p_movie_info) {
-			timeb current_time;
-			ftime(&current_time);
-			p_movie_info->dateOfLastPlay = current_time.time;
-			current_time.time = time(NULL);
+			timeval current_time;
+			gettimeofday(&current_time, NULL);
+			p_movie_info->dateOfLastPlay = current_time.tv_sec;
 			p_movie_info->bookmarks.lastPlayStop = position / 1000;
 			if (p_movie_info->length == 0) {
 				p_movie_info->length = (float)duration / 60 / 1000 + 0.5;
