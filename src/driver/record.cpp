@@ -1576,7 +1576,7 @@ bool CRecordManager::ShowMenu(void)
 			if (inst->Timeshift())
 				mode_icon = NEUTRINO_ICON_MARKER_TIMESHIFT;
 
-			sprintf(cnt, "%d", i);
+			snprintf(cnt, sizeof(cnt), "%c", i);
 			//define stop key if only one record is running, otherwise define shortcuts
 			neutrino_msg_t rc_key = CRCInput::convertDigitToKey(shortcut++);
 			const char * btn_icon = NEUTRINO_ICON_BUTTON_OKAY;
