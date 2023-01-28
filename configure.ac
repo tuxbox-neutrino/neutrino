@@ -440,6 +440,26 @@ AC_ARG_WITH(default-oled-theme,
 	[default_oled_theme=""])
 AC_DEFINE_UNQUOTED([DEFAULT_OLED_THEME], ["$default_oled_theme"], [default theme for oled])
 
+AC_ARG_ENABLE(change-osd-resolution,
+	AS_HELP_STRING([--enable-change-osd-resolution], [enable to change osd resolution @<:@default=yes@:>@]]),
+	[enable_change_osd_resolution="$enableval"],
+	[enable_change_osd_resolution="yes"])
+
+# BOXMODELs that *not* allows to change osd resolution
+case "$BOXMODEL" in
+	hd1)
+		if test "$enable_change_osd_resolution" = "yes"; then
+			AC_MSG_WARN([--enable-change-osd-resolution=yes is not allowed for boxmodel $BOXMODEL])
+			enable_change_osd_resolution="no"
+		fi
+	;;
+esac
+
+if test "$enable_change_osd_resolution" = "yes"; then
+	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution])
+fi
+AM_CONDITIONAL(ENABLE_CHANGE_OSD_RESOLUTION, test "$enable_change_osd_resolution" = "yes")
+
 # webif content
 AC_ARG_WITH(webif,
 	AS_HELP_STRING([--without-webif], [disable installation of webif content within defined public httpd path provided by yWeb @<:@default it is enabled@:>@]),
