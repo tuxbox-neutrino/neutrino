@@ -124,15 +124,6 @@ if test "$enable_youtube_key_manage" = "yes" ; then
 fi
 # youtube end
 
-AC_ARG_WITH(libcoolstream-static-dir,
-	AS_HELP_STRING([--with-libcoolstream-static-dir=PATH], [path for static libcoolstream [[NONE]]]),
-	[LIBCOOLSTREAM_STATIC_DIR="$withval"],
-	[LIBCOOLSTREAM_STATIC_DIR=""])
-
-AC_ARG_ENABLE(libcoolstream-static,
-	AS_HELP_STRING([--enable-libcoolstream-static], [libcoolstream static linked for testing @<:@default=no@:>@]))
-AM_CONDITIONAL(ENABLE_LIBCOOLSTREAM_STATIC, test "$enable_libcoolstream_static" = "yes")
-
 AC_ARG_ENABLE(reschange,
 	AS_HELP_STRING([--enable-reschange], [enable to change osd resolution]),
 	AC_DEFINE(ENABLE_CHANGE_OSD_RESOLUTION, 1, [enable to change osd resolution]))

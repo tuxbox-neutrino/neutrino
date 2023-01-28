@@ -342,7 +342,7 @@ AC_ARG_ENABLE(fribidi,
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
 
 AC_ARG_WITH(stb-hal-includes,
-	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path for libstb-hal includes [[NONE]]]),
+	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path to libstb-hal includes [[NONE]]]),
 	[STB_HAL_INC="$withval"],
 	[STB_HAL_INC=""])
 
@@ -350,6 +350,15 @@ AC_ARG_WITH(stb-hal-build,
 	AS_HELP_STRING([--with-stb-hal-build=PATH], [path where libstb-hal is built [[NONE]]]),
 	[STB_HAL_LIB="-L$withval"],
 	[STB_HAL_LIB=""])
+
+AC_ARG_WITH(libcoolstream-static-dir,
+	AS_HELP_STRING([--with-libcoolstream-static-dir=PATH], [path to static libcoolstream [[NONE]]]),
+	[LIBCOOLSTREAM_STATIC_DIR="$withval"],
+	[LIBCOOLSTREAM_STATIC_DIR=""])
+
+AC_ARG_ENABLE(libcoolstream-static,
+	AS_HELP_STRING([--enable-libcoolstream-static], [libcoolstream static linked for testing @<:@default=no@:>@]))
+AM_CONDITIONAL(ENABLE_LIBCOOLSTREAM_STATIC, test "$enable_libcoolstream_static" = "yes")
 
 # BOXTYPEs that use libstb-hal
 case "$BOXTYPE" in
