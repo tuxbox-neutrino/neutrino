@@ -623,18 +623,6 @@ elif test "$BOXTYPE" = "mipsbox"; then
 	AC_DEFINE(HAVE_MIPS_HARDWARE, 1, [building for an mipsbox])
 fi
 
-# BOXTYPEs that use libstb-hal
-case "$BOXTYPE" in
-	coolstream)
-		libstb_hal=no
-	;;
-	*)
-		AC_DEFINE(HAVE_LIBSTB_HAL, 1, [use libstb-hal])
-		libstb_hal=yes
-	;;
-esac
-AM_CONDITIONAL(HAVE_LIBSTB_HAL, test "$libstb_hal" = "yes")
-
 # uclibc
 AM_CONDITIONAL(HAVE_UCLIBC, test "$targetlibdir/ld-uClibc.so.0")
 

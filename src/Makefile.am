@@ -187,7 +187,7 @@ rcsim_SOURCES = rcsim.c rcsim.h
 bin_PROGRAMS += mdev_helper
 mdev_helper_SOURCES = mdev_helper.cpp
 
-if USE_STB_HAL
+if HAVE_LIBSTB_HAL
 neutrino_LDADD += \
 	-lstb-hal
 neutrino_LDFLAGS = \

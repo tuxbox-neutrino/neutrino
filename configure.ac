@@ -351,24 +351,30 @@ AC_ARG_WITH(stb-hal-build,
 	[STB_HAL_LIB="-L$withval"],
 	[STB_HAL_LIB=""])
 
-if test "$BOXTYPE" != coolstream; then
-	AC_DEFINE(USE_STB_HAL, 1, [use libstb-hal])
+# BOXTYPEs that use libstb-hal
+case "$BOXTYPE" in
+	coolstream)
+		libstb_hal=no
+	;;
+	*)
+		libstb_hal=yes
+		AC_DEFINE(HAVE_LIBSTB_HAL, 1, [use libstb-hal])
+	;;
+esac
+AM_CONDITIONAL(HAVE_LIBSTB_HAL, test "$libstb_hal" = "yes")
+
+if test "$libstb_hal" = "yes"; then
 	if test "$STB_HAL_INC" = ""; then
 		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
 	fi
 	HWLIB_CFLAGS="-I$STB_HAL_INC"
-fi
-AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
-
-if test "$BOXTYPE" = "coolstream"; then
+else
 	if test "$BOXMODEL" = "hd1"; then
 		if test -e ${srcdir}/lib/hardware/coolstream/hd1/libcoolstream/nevis_ir.h; then
 			AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H, 1, [Define to 1 if you have the <nevis_ir.h> header file.])
 		fi
 		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd1/libcoolstream'
-	fi
-
-	if test "$BOXMODEL" = "hd2"; then
+	elif test "$BOXMODEL" = "hd2"; then
 		if test -e ${srcdir}/lib/hardware/coolstream/hd2/libcoolstream/cs_ir_generic.h; then
 			AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H, 1, [Define to 1 if you have the <cs_ir_generic.h> header file.])
 		fi
@@ -377,7 +383,6 @@ if test "$BOXTYPE" = "coolstream"; then
 		fi
 		HWLIB_CFLAGS='-I$(top_srcdir)/lib/hardware/coolstream/hd2/libcoolstream'
 	fi
-
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
 

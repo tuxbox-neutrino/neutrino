@@ -247,7 +247,7 @@ CNeutrinoApp::CNeutrinoApp()
 : configfile('\t')
 {
 	standby_pressed_at.tv_sec = 0;
-#if USE_STB_HAL
+#if HAVE_LIBSTB_HAL
 	cCA *CA = NULL;
 	if (!CA)
 	{
@@ -329,7 +329,7 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 	{"lcd_show_volume"      , DEFAULT_LCD_SHOW_VOLUME      },
 	{"lcd_autodimm"         , DEFAULT_LCD_AUTODIMM         },
 	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS }
-#if USE_STB_HAL
+#if HAVE_LIBSTB_HAL
 	,{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
 #endif
 };
