@@ -341,6 +341,30 @@ AC_ARG_ENABLE(fribidi,
 	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support]))
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
 
+# default theme
+AC_ARG_WITH(default-theme,
+	AS_HELP_STRING([--with-default-theme=THEMENAME], [default theme for gui @<:@default is empty@:>@]),
+	[default_theme="$withval"],
+	[default_theme=""])
+AC_DEFINE_UNQUOTED([DEFAULT_THEME], ["$default_theme"], [default theme for gui])
+
+# default oled theme
+AC_ARG_WITH(default-oled-theme,
+	AS_HELP_STRING([--with-default-oled-theme=THEMENAME], [default theme for oled @<:@default is empty@:>@]),
+	[default_oled_theme="$withval"],
+	[default_oled_theme=""])
+AC_DEFINE_UNQUOTED([DEFAULT_OLED_THEME], ["$default_oled_theme"], [default theme for oled])
+
+# webif content
+AC_ARG_WITH(webif,
+	AS_HELP_STRING([--without-webif], [disable installation of webif content within defined public httpd path provided by yWeb @<:@default it is enabled@:>@]),
+	[ENABLE_WEBIF="$withval"],
+	[ENABLE_WEBIF="yes"])
+AM_CONDITIONAL(ENABLE_WEBIF,test "$ENABLE_WEBIF" = "yes")
+if test "$ENABLE_WEBIF" = "yes"; then
+	AC_DEFINE(ENABLE_WEBIF, 1, [Enable installation of webif content within defined public httpd path provided by yWeb.])
+fi
+
 AC_ARG_WITH(stb-hal-includes,
 	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path to libstb-hal includes [[NONE]]]),
 	[STB_HAL_INC="$withval"],
