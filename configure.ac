@@ -196,6 +196,91 @@ AC_ARG_ENABLE(graphlcd,
 	AC_DEFINE(ENABLE_GRAPHLCD, 1, [enable GraphLCD support]))
 AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 
+# weather
+AC_ARG_WITH(weather-dev-key,
+	AS_HELP_STRING([--with-weather-dev-key=KEY], [API dev key to get data from weather data base, required for additional weather informations]),
+	[WEATHER_DEV_KEY="$withval"],
+	[WEATHER_DEV_KEY=""])
+AC_DEFINE_UNQUOTED([WEATHER_DEV_KEY], ["$WEATHER_DEV_KEY"], [API dev key to get data from weather data base, required for additional weather informations])
+
+AC_ARG_ENABLE([weather-key-manage],
+	AS_HELP_STRING([--enable-weather-key-manage], [enable manage weather api dev key via gui for additional weather informations @<:@default=yes@:>@]),
+	[enable_weather_key_manage="$enableval"],
+	[enable_weather_key_manage="yes"])
+
+if test "$enable_weather_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [enable manage weather api dev key via gui for additional weather informations])
+fi
+# weather end
+
+# tmdb
+AC_ARG_WITH(tmdb-dev-key,
+	AS_HELP_STRING([--with-tmdb-dev-key=KEY], [API dev key to get data from tmdb data base, required for additional movie informations]),
+	[TMDB_DEV_KEY="$withval"],
+	[TMDB_DEV_KEY=""])
+AC_DEFINE_UNQUOTED([TMDB_DEV_KEY], ["$TMDB_DEV_KEY"], [API dev key to get data from tmdb data base, required for additional movie informations])
+
+AC_ARG_ENABLE([tmdb-key-manage],
+	AS_HELP_STRING([--enable-tmdb-key-manage], [enable manage tmdb api dev key via gui for additional movie informations @<:@default=yes@:>@]),
+	[enable_tmdb_key_manage="$enableval"],
+	[enable_tmdb_key_manage="yes"])
+
+if test "$enable_tmdb_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_TMDB_KEY_MANAGE], 1, [enable manage tmdb api dev key via gui for additional movie informations])
+fi
+# tmdb end
+
+# omdb
+AC_ARG_WITH(omdb-api-key,
+	AS_HELP_STRING([--with-omdb-api-key=KEY], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service]),
+	[OMDB_API_KEY="$withval"],
+	[OMDB_API_KEY=""])
+AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service])
+
+AC_ARG_ENABLE([omdb-key-manage],
+	AS_HELP_STRING([--enable-omdb-key-manage], [enable manage omdb (imdb) api dev key via gui for additional movie informations @<:@default=yes@:>@]),
+	[enable_omdb_key_manage="$enableval"],
+	[enable_omdb_key_manage="yes"])
+
+if test "$enable_omdb_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [enable manage omdb (imdb) api dev key via gui for additional movie informations])
+fi
+# omdb end
+
+# shoutcast
+AC_ARG_WITH(shoutcast-dev-key,
+	AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [API dev key to get stream data lists from ShoutCast service]),
+	[SHOUTCAST_DEV_KEY="$withval"],
+	[SHOUTCAST_DEV_KEY=""])
+AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_KEY], ["$SHOUTCAST_DEV_KEY"], [API dev key to get stream data lists from ShoutCast service])
+
+AC_ARG_ENABLE([shoutcast-key-manage],
+	AS_HELP_STRING([--enable-shoutcast-key-manage], [enable manage of api dev key to get stream data lists from ShoutCast service via gui @<:@default=yes@:>@]),
+	[enable_shoutcast_key_manage="$enableval"],
+	[enable_shoutcast_key_manage="yes"])
+
+if test "$enable_shoutcast_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_SHOUTCAST_KEY_MANAGE], 1, [enable manage of api dev key to get stream data lists from ShoutCast service via gui])
+fi
+# shoutcast end
+
+# youtube
+AC_ARG_WITH(youtube-dev-key,
+	AS_HELP_STRING([--with-youtube-dev-key=KEY], [API dev key for YouTube streaming]),
+	[YOUTUBE_DEV_KEY="$withval"],
+	[YOUTUBE_DEV_KEY=""])
+AC_DEFINE_UNQUOTED([YOUTUBE_DEV_KEY], ["$YOUTUBE_DEV_KEY"], [API dev key for YouTube streaming])
+
+AC_ARG_ENABLE([youtube-key-manage],
+	AS_HELP_STRING([--enable-youtube-key-manage], [enable manage YouTube dev key via gui @<:@default=yes@:>@]),
+	[enable_youtube_key_manage="$enableval"],
+	[enable_youtube_key_manage="yes"])
+
+if test "$enable_youtube_key_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [enable manage YouTube dev key via gui])
+fi
+# youtube end
+
 AC_ARG_ENABLE(keyboard-no-rc,
 	AS_HELP_STRING([--enable-keyboard-no-rc], [enable keyboard control, disable rc control @<:@default=no@:>@]),
 	AC_DEFINE(KEYBOARD_INSTEAD_OF_REMOTE_CONTROL, 1, [enable keyboard control, disable rc control]))
