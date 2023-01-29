@@ -488,9 +488,6 @@ elif test "$BOXTYPE" = "mipsbox"; then
 	AC_DEFINE(HAVE_MIPS_HARDWARE, 1, [building for an mipsbox])
 fi
 
-# uclibc
-AM_CONDITIONAL(HAVE_UCLIBC, test "$targetlibdir/ld-uClibc.so.0")
-
 # generic
 if test "$BOXMODEL" = "generic"; then
 	AC_DEFINE(BOXMODEL_GENERIC, 1, [generic pc])

@@ -524,6 +524,9 @@ else
 	HWLIB_CFLAGS="$HWLIB_CFLAGS "'-I$(top_srcdir)/lib/hardware/coolstream'
 fi
 
+# uclibc
+AM_CONDITIONAL(HAVE_UCLIBC, $CC --version | grep -q "uclibc")
+
 # hack, so that framebuffer.h does not need to be included everywhere...
 AC_DEFINE(fb_pixel_t, uint32_t, [hack, so that framebuffer.h does not need to be included everywhere...])
 
