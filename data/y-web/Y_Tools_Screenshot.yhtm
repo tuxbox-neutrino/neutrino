@@ -8,14 +8,20 @@
 //<![CDATA[
 var enableOSD;
 var enableVideo;
+var enablePiP;
 var interval;
 
 function checkEnable() {
 	enableOSD	= (document.getElementById('checkOSD').checked == true)		? 1 : 0;
 	enableVideo	= (document.getElementById('checkVideo').checked == true)	? 1 : 0;
+	enablePiP	= (document.getElementById('checkPiP').checked == true)		? 1 : 0;
 
 	if (enableOSD == 0 && enableVideo == 0) {
 		alert("{=L:bc.screenshot.checkenable=}");
+		return false;
+	}
+	if (enableVideo == 0 && enablePiP == 1) {
+		alert(unescape("{=L:bc.screenshot.checkpip=}"));
 		return false;
 	}
 	return true;
@@ -48,12 +54,16 @@ function do_snapshot() {
 
 	if ("{=var-get:grab=}" != "")
 	{
+		var pip_opts = "";
+		if (enableVideo == 1 && enablePiP == 1)
+			pip_opts = "-x 1 ";
+
 		if (enableOSD == 1 && enableVideo == 1)
-			stb_exec_tools("fbshot grab -q -p /tmp/"+filename+".png");
+			stb_exec_tools("fbshot grab -q -p "+pip_opts+"/tmp/"+filename+".png");
+		else if (enableVideo == 1)
+			stb_exec_tools("fbshot grab -q -p -v "+pip_opts+"/tmp/"+filename+".png");
 		else if (enableOSD == 1)
 			stb_exec_tools("fbshot grab -q -p -o /tmp/"+filename+".png");
-		else if (enableVideo == 1)
-			stb_exec_tools("fbshot grab -q -p -v /tmp/"+filename+".png");
 	}
 	else if ("{=var-get:fbshot=}" != "" && enableVideo == 0)
 		stb_exec_tools("fbshot fbshot /tmp/"+filename+".png");
@@ -119,6 +129,9 @@ function do_reload(){
 				{=L:filename=}: <input type="text" value="screenshot" id="filename" size="10" />
 				OSD: <input id="checkOSD" name="checkOSD" type="checkbox" {=if-empty:{=osd=}~~checked="checked"=} />
 				TV: <input id="checkVideo" name="checkVideo" type="checkbox" {=if-empty:{=video=}~~checked="checked"=} />
+				{=if-empty:{=var-get:grab=}~~
+				PiP: <input id="checkPiP" name="checkPiP" type="checkbox" {=if-empty:{=pip=}~~checked="checked"=} />
+				=}
 				</form>
 			</div>
 			<div class="clear"></div>

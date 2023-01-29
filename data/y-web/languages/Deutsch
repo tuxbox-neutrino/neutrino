@@ -126,6 +126,7 @@ bc.screenshot.create=Schnappschuss
 bc.screenshot.delete=Schnappschuss l&ouml;schen
 bc.screenshot.wait_text=Schnappschuss wird erstellt
 bc.screenshot.checkenable=OSD und/oder TV muss aktiviert sein!
+bc.screenshot.checkpip=F%FCr PiP muss TV aktiviert sein!
 bc.screenshot.reload_desc=Reload-Intervall in Sekunden
 
 # ===== Boxcontrol - Others

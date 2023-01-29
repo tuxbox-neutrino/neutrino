@@ -126,6 +126,7 @@ bc.screenshot.create=Screenshot
 bc.screenshot.delete=Delete screenshot
 bc.screenshot.wait_text=Create screenshot
 bc.screenshot.checkenable=OSD and/or TV must be enabled!
+bc.screenshot.checkpip=PiP requires TV enabled!
 bc.screenshot.reload_desc=Reload interval in seconds
 
 # ===== Boxcontrol - Others
