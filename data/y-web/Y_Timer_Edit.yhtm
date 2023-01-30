@@ -5,7 +5,11 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function my_display(id,state) {(state)?$(id).show():$(id).hide();}
+function my_display(id, state)
+{
+	(state) ? $(id).show() : $(id).hide();
+}
+
 function focusNMark()
 {
 	document.f.ad.select();
@@ -42,10 +46,8 @@ function onApidDefChange()
 }
 function onApidChange()
 {
-	if(document.f.apst.checked == true ||
-		document.f.apal.checked == true ||
-		document.f.apac.checked == true)
-			document.f.apcf.checked=false;
+	if (document.f.apst.checked == true || document.f.apal.checked == true || document.f.apac.checked == true)
+		document.f.apcf.checked=false;
 }
 function do_submit()
 {
@@ -55,10 +57,10 @@ function do_submit()
 function obj_set_select_value(_obj_name, _value)
 {
 	var _obj = document.getElementById(_obj_name);
-	if(_obj){
-		for(i=0;i<_obj.length;i++)
-			if(_obj.options[i].value == _value)
-			
+	if (_obj)
+	{
+		for (i = 0; i < _obj.length; i++)
+			if (_obj.options[i].value == _value)
 				_obj.selectedIndex=i;
 	}
 }
@@ -66,7 +68,7 @@ function init()
 {
 	onEventChange();
 	onEventChange2();
-	var rd="{=timer_recordingDir=}";
+	var rd = "{=timer_recordingDir=}";
 	obj_set_select_value("rec_dir", rd);
 }
 //]]>
@@ -170,7 +172,6 @@ function init()
 		</table>
 		<br/>
 
-<!--		<input type="button" value="speichern" title="submit and save values" onclick="do_submit()"/>-->
 		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">{=L:save=}</button>
 		<button type="button" ytype="cancel" title="cancel" onclick='window.document.location.href="/Y_Timer_List.yhtm"'>{=L:cancel=}</button>
 	</form>
