@@ -1150,7 +1150,12 @@ end-block~neutrino_direct_recording_save_settings
 # ------- list possible directorys for records
 start-block~neutrino_list_record_dirs
 <select name="rec_dir" id="rec_dir" class="y_live_button">
-	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~open=}" selected="selected">
+	{=if-empty:{=ini-get:%(CONFIGDIR)/timerd.conf;REC_DIR_{=tid=}~open=}~~
+	<option value="{=ini-get:%(CONFIGDIR)/timerd.conf;REC_DIR_{=tid=}~cache=}" selected="selected">
+		{=ini-get:%(CONFIGDIR)/timerd.conf;REC_DIR_{=tid=}~cache=}
+	</option>
+	=}
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~open=}">
 		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~cache=}
 	</option>
 	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_0~cache=}~~
