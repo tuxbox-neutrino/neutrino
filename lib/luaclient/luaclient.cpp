@@ -30,15 +30,15 @@
 class CLuaClient : private CBasicClient
 {
 	private:
-		unsigned char   getVersion   () const { return LUACLIENT_VERSION; };
-		const    char * getSocketName() const { return LUACLIENT_UDS_NAME; };
+		unsigned char getVersion() const { return LUACLIENT_VERSION; };
+		const char *getSocketName() const { return LUACLIENT_UDS_NAME; };
 	public:
 		bool Send(const char *data, const size_t size) { return send(0, data, size);}
 		bool Recv(char *data, const size_t size) { return receive_data(data, size, true); }
 		~CLuaClient() { close_connection(); }
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	char *cmd = strrchr(argv[0], '/');
 	if (cmd)
@@ -48,7 +48,8 @@ int main(int argc, char** argv)
 	if (!strcmp(cmd, "luaclient"))
 		argv++, argc--;
 
-	if (!*argv) {
+	if (!*argv)
+	{
 		fprintf(stderr,
 			"Usage: luaclient [command [arguments ...]]\n"
 			"   or: command [arguments ...] (with command being a link to luaclient)\n");
@@ -57,7 +58,8 @@ int main(int argc, char** argv)
 
 	size_t len[argc];
 	size_t size = 0;
-	for (int i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; i++)
+	{
 		len[i] = strlen(argv[i]) + 1;
 		size += len[i];
 	}
@@ -67,7 +69,8 @@ int main(int argc, char** argv)
 	memcpy(b, &size, sizeof(size));
 	size += sizeof(size);
 	b += sizeof(size);
-	for (int i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; i++)
+	{
 		memcpy(b, argv[i], len[i]);
 		b += len[i];
 	}
@@ -78,23 +81,27 @@ int main(int argc, char** argv)
 	char *resp = NULL;
 	char *result = NULL;
 
-        if (!client.Send(data, size)) {
+	if (!client.Send(data, size))
+	{
 		fun = "Send failed";
 		goto fail;
 	}
-        if (!client.Recv((char *)&size, sizeof(size))) {
+	if (!client.Recv((char *)&size, sizeof(size)))
+	{
 		fun = "Recv (1) failed";
 		goto fail;
 	}
-		if(size)
-			result = (char*) malloc(size);
+	if (size)
+		result = (char *) malloc(size);
 
-        if (result && !client.Recv(result, size)) {
+	if (result && !client.Recv(result, size))
+	{
 		fun = "Recv (2) failed";
 		goto fail;
 	}
 
-	if (result[size - 1]) {
+	if (result[size - 1])
+	{
 		fun = "unterminated result";
 		goto fail;
 	}
@@ -105,11 +112,11 @@ int main(int argc, char** argv)
 	resp += strlen(resp) + 1;
 	if (resp < result + size)
 		fprintf(stderr, "%s", resp);
-	if(result)
+	if (result)
 		free(result);
 	exit(res);
 fail:
-	if(result)
+	if (result)
 		free(result);
 	if (fun)
 		fprintf(stderr, "luaclient: %s.\n", fun);

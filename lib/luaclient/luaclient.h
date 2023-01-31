@@ -20,6 +20,6 @@
 
 #ifndef __LUACLIENT__H__
 #define __LUACLIENT__H__
-#define LUACLIENT_UDS_NAME	"/tmp/luaclient.sock"
-#define LUACLIENT_VERSION	1
+#define LUACLIENT_UDS_NAME "/tmp/luaclient.sock"
+#define LUACLIENT_VERSION 1
 #endif
