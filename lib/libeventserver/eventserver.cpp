@@ -40,8 +40,8 @@ void CEventServer::registerEvent(const int fd)
 {
 	commandRegisterEvent msg;
 
-	int readresult= read(fd, &msg, sizeof(msg));
-	if ( readresult<= 0 )
+	int readresult = read(fd, &msg, sizeof(msg));
+	if (readresult <= 0)
 		perror("[eventserver]: read");
 //	printf("[eventserver]: read from %d %x bytes  %d/%d\n", fd, errno, readresult,  sizeof(msg));
 //	printf("[eventserver]: registered event (%d) to: %d - %s\n", msg.eventID, msg.clientID, msg.udsName);
@@ -50,7 +50,7 @@ void CEventServer::registerEvent(const int fd)
 
 void CEventServer::unRegisterEvent2(const unsigned int eventID, const unsigned int ClientID)
 {
-	eventData[eventID].erase( ClientID );
+	eventData[eventID].erase(ClientID);
 }
 
 void CEventServer::unRegisterEvent(const int fd)
@@ -60,11 +60,11 @@ void CEventServer::unRegisterEvent(const int fd)
 	unRegisterEvent2(msg.eventID, msg.clientID);
 }
 
-void CEventServer::sendEvent(const unsigned int eventID, const initiators initiatorID, const void* eventbody, const unsigned int eventbodysize)
+void CEventServer::sendEvent(const unsigned int eventID, const initiators initiatorID, const void *eventbody, const unsigned int eventbodysize)
 {
 	eventClientMap notifyClients = eventData[eventID];
 
-	for(eventClientMap::iterator pos = notifyClients.begin(); pos != notifyClients.end(); ++pos)
+	for (eventClientMap::iterator pos = notifyClients.begin(); pos != notifyClients.end(); ++pos)
 	{
 		//allen clients ein event schicken
 		eventClient client = pos->second;
@@ -73,7 +73,7 @@ void CEventServer::sendEvent(const unsigned int eventID, const initiators initia
 }
 
 
-bool CEventServer::sendEvent2Client(const unsigned int eventID, const initiators initiatorID, const eventClient* ClientData, const void* eventbody, const unsigned int eventbodysize)
+bool CEventServer::sendEvent2Client(const unsigned int eventID, const initiators initiatorID, const eventClient *ClientData, const void *eventbody, const unsigned int eventbodysize)
 {
 	struct sockaddr_un servaddr;
 	int clilen, sock_fd;
@@ -89,7 +89,7 @@ bool CEventServer::sendEvent2Client(const unsigned int eventID, const initiators
 		return false;
 	}
 
-	if(connect(sock_fd, (struct sockaddr*) &servaddr, clilen) <0 )
+	if (connect(sock_fd, (struct sockaddr *) &servaddr, clilen) < 0)
 	{
 		char errmsg[128];
 		snprintf(errmsg, 128, "[eventserver]: connect (%s)", ClientData->udsName);
@@ -106,7 +106,7 @@ bool CEventServer::sendEvent2Client(const unsigned int eventID, const initiators
 	ssize_t ignored __attribute__((unused)) = write(sock_fd, &head, sizeof(head));
 //	printf ("[eventserver]: sent 0x%x - following eventbody= %d\n", written, eventbodysize );
 
-	if(eventbodysize!=0)
+	if (eventbodysize != 0)
 	{
 		/*written = */
 		ignored = write(sock_fd, eventbody, eventbodysize);

@@ -34,9 +34,9 @@
 
 class CEventServer
 {
- public:
+	public:
 
-	enum initiators
+		enum initiators
 		{
 			INITID_CONTROLD,
 			INITID_SECTIONSD,
@@ -48,46 +48,46 @@ class CEventServer
 		};
 
 
-	struct commandRegisterEvent
-	{
-		unsigned int eventID;
-		unsigned int clientID;
-		char udsName[50];
-	};
+		struct commandRegisterEvent
+		{
+			unsigned int eventID;
+			unsigned int clientID;
+			char udsName[50];
+		};
 
-	struct commandUnRegisterEvent
-	{
-		unsigned int eventID;
-		unsigned int clientID;
-	};
+		struct commandUnRegisterEvent
+		{
+			unsigned int eventID;
+			unsigned int clientID;
+		};
 
-	struct eventHead
-	{
-		unsigned int eventID;
-		unsigned int initiatorID;
-		unsigned int dataSize;
-	};
+		struct eventHead
+		{
+			unsigned int eventID;
+			unsigned int initiatorID;
+			unsigned int dataSize;
+		};
 
-	void registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string &udsName);
-	void registerEvent(const int fd);
-	void unRegisterEvent2(const unsigned int eventID, const unsigned int ClientID);
-	void unRegisterEvent(const int fd);
-	void sendEvent(const unsigned int eventID, const initiators initiatorID, const void* eventbody = NULL, const unsigned int eventbodysize = 0);
+		void registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string &udsName);
+		void registerEvent(const int fd);
+		void unRegisterEvent2(const unsigned int eventID, const unsigned int ClientID);
+		void unRegisterEvent(const int fd);
+		void sendEvent(const unsigned int eventID, const initiators initiatorID, const void *eventbody = NULL, const unsigned int eventbodysize = 0);
 
- protected:
+	protected:
 
-	struct eventClient
-	{
-		char udsName[50];
-	};
+		struct eventClient
+		{
+			char udsName[50];
+		};
 
-	//key: ClientID                                              // Map is a Sorted Associative Container
-	typedef std::map<unsigned int, eventClient> eventClientMap;  // -> clients with lower ClientID receive events first
+		//key: ClientID                                              // Map is a Sorted Associative Container
+		typedef std::map<unsigned int, eventClient> eventClientMap;  // -> clients with lower ClientID receive events first
 
-	//key: eventID
-	std::map<unsigned int, eventClientMap> eventData;
+		//key: eventID
+		std::map<unsigned int, eventClientMap> eventData;
 
-	bool sendEvent2Client(const unsigned int eventID, const initiators initiatorID, const eventClient* ClientData, const void* eventbody = NULL, const unsigned int eventbodysize = 0);
+		bool sendEvent2Client(const unsigned int eventID, const initiators initiatorID, const eventClient *ClientData, const void *eventbody = NULL, const unsigned int eventbodysize = 0);
 
 };
 
