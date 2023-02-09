@@ -2200,13 +2200,16 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	}
 }
 #endif
+
 #ifdef ENABLE_GRAPHLCD
 void CControlAPI::GlcdScreenshotCGI(CyhookHandler *hh)
 {
-	std::string filename = "/tmp/glcdscreenshot.png";
+	std::string filename = "screenshot-glcd";
 
 	if(!hh->ParamList["name"].empty())
 		filename = hh->ParamList["name"];
+
+	filename = "/tmp/" + filename + ".png";
 
 	cGLCD *cglcd = cGLCD::getInstance();
 	if (cglcd) {
