@@ -528,8 +528,3 @@ function saveTextAsFile(content, filename, filetype)
 	}
 	downloadLink.click();
 }
-
-function glcdscreenshot(_filename)
-{
-	return loadSyncURL("/control/glcdscreenshot?name="+_filename);
-}
