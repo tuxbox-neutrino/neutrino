@@ -643,6 +643,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		int getItemId(const char *name);
 		int getItemsCount()const{return (int)items.size();};
 		CMenuItem* getItem(const uint& item_id);
+		std::vector<CMenuItem*>& getItems() {return items;}
 		virtual void paint();
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
