@@ -134,6 +134,7 @@ class CMenuItem : public  CComponentsSignals
 		void handleOptionIcon(const std::string& str_option);
 		const char* getValName(const neutrino_locale_t& Option, const char* ValName);
 	public:
+		std::string	type_name;
 		int		height;
 		bool		active, current_active;
 		bool		marked;

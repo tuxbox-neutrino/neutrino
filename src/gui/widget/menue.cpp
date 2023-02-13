@@ -68,6 +68,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	active		= current_active = Active;
 	directKey	= DirectKey;
 	isStatic	= IsStatic;
+	type_name	= "CMenuItem";
 
 	if (IconName && *IconName)
 		iconName = IconName;
@@ -2512,6 +2513,7 @@ void CMenuSeparator::init(const int& Type, const neutrino_locale_t& lText, const
 	type		= Type;
 	name		= lText;
 	nameString	= sText;
+	type_name	= "CMenuSeparator";
 }
 
 int CMenuSeparator::getHeight(void)
