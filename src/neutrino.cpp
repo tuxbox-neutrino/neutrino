@@ -3320,8 +3320,11 @@ void CNeutrinoApp::RealRun()
 
 	dprintf(DEBUG_NORMAL, "initialized everything\n");
 
-	if(g_settings.power_standby || init_cec_setting)
+	if (g_settings.power_standby || init_cec_setting || file_exists(FLAGDIR "/.power_standby"))
+	{
+		unlink(FLAGDIR "/.power_standby");
 		standbyMode(true, true);
+	}
 
 	//cCA::GetInstance()->Ready(true);
 #ifdef ENABLE_LUA
