@@ -43,6 +43,7 @@
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
 #include <gui/motorcontrol.h>
+#include <gui/webchannels_setup.h>
 #include <gui/bedit/bouqueteditor_bouquets.h>
 
 #include <gui/widget/hintbox.h>
@@ -456,13 +457,18 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		chb.paint();
 		/* save if changed, to make sure NEW/REMOVED/... flags are updated */
 		CServiceManager::getInstance()->SaveServices(true, true);
+		/* WebTV/Radio auto reload */
+		CWebChannelsSetup webchannelssetup;
+		g_settings.webtv_xml.clear();
+		webchannelssetup.webtv_xml_auto();
+		g_settings.webradio_xml.clear();
+		webchannelssetup.webradio_xml_auto();
 		/* Z->reinitChannels triggers EVT_SERVICESCHANGED and this triggers channelsInit() */
 		g_Zapit->reinitChannels();
 		chb.hide();
-		CNeutrinoApp::getInstance ()->SDTreloadChannels = false;
-		if(file_exists(CURRENTSERVICES_XML)){
+		CNeutrinoApp::getInstance()->SDTreloadChannels = false;
+		if (file_exists(CURRENTSERVICES_XML))
 			unlink(CURRENTSERVICES_XML);
-		}
 		return res;
 	}
 	else if(actionKey == "satsetup")
