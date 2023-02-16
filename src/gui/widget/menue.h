@@ -207,7 +207,7 @@ class CMenuItem : public  CComponentsSignals
 		virtual void disableByCondition(const menu_item_disable_cond_t& condition);
 		void setParentWidget(CMenuWidget* parent){parent_widget = parent;}
 		void setInfoIconRight(const char * const IconName_Info_right);
-		const char* getInfoIconRight(){return iconName_Info_right;}
+		std::string getInfoIconRight(){return std::string(iconName_Info_right);}
 
 		std::string lcd_text;
 };
