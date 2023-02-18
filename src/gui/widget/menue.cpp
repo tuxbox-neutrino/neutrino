@@ -1620,6 +1620,17 @@ void CMenuWidget::addIntroItems(neutrino_locale_t l_subhead_text, neutrino_local
 	addIntroItems(str, section_text, buttontype, brief_hint, separatorline);
 }
 
+void CMenuWidget::setSubheadText(const std::string &s_subhead_text)
+{
+	subhead_text = s_subhead_text;
+
+}
+
+void CMenuWidget::setSubheadText(neutrino_locale_t l_subhead_text)
+{
+	setSubheadText(g_Locale->getText(l_subhead_text));
+}
+
 void CMenuWidget::saveScreen()
 {
 	if(!savescreen)
