@@ -619,7 +619,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30, const mn_widget_id_t &w_index = NO_WIDGET_ID);
 		~CMenuWidget();
 		void ResetModules();
-		virtual void addItem(CMenuItem* menuItem, const bool defaultselected = false);
+		void addItem(CMenuItem* menuItem, const bool defaultselected = false);
 		
 		enum 
 		{
