@@ -1413,7 +1413,7 @@ start-block~rc_axas_e4hd
 <area shape="rect" coords="15,504,43,518" alt="KEY_REWIND" href="javascript:rcsim('KEY_REWIND')" />
 <area shape="rect" coords="48,504,76,517" alt="KEY_FORWARD" href="javascript:rcsim('KEY_FORWARD')" />
 <area shape="rect" coords="16,89,37,109" alt="KEY_HELP" href="javascript:rcsim('KEY_HELP')" />
-<area shape="rect" coords="51,89,72,110" alt="KEY_TIMER" href="javascript:rcsim('KEY_TIMER')" />
+<area shape="rect" coords="51,89,72,110" alt="KEY_PROGRAM" href="javascript:rcsim('KEY_PROGRAM')" />
 <area shape="rect" coords="86,89,107,109" alt="KEY_TV2" href="javascript:rcsim('KEY_TV2')" />
 <area shape="rect" coords="121,89,143,110" alt="KEY_AUDIO" href="javascript:rcsim('KEY_AUDIO')" />
 <area shape="rect" coords="64,225,94,252" alt="KEY_MEDIA" href="javascript:rcsim('KEY_MEDIA')" />
@@ -1458,7 +1458,7 @@ start-block~rc_protek_4k_uhd
 <area shape="rect" coords="132,502,155,526" alt="KEY_BLUE" href="javascript:rcsim('KEY_BLUE')" />
 <area shape="rect" coords="15,250,45,289" alt="KEY_VOLUMEUP" href="javascript:rcsim('KEY_VOLUMEUP')" />
 <area shape="rect" coords="15,290,45,330" alt="KEY_VOLUMEDOWN" href="javascript:rcsim('KEY_VOLUMEDOWN')" />
-<area shape="rect" coords="70,250,100,289" alt="KEY_TIMER" href="javascript:rcsim('KEY_TIMER')" />
+<area shape="rect" coords="70,250,100,289" alt="KEY_PROGRAM" href="javascript:rcsim('KEY_PROGRAM')" />
 <area shape="rect" coords="70,290,100,330" alt="KEY_EPG" href="javascript:rcsim('KEY_EPG')" />
 <area shape="rect" coords="125,250,155,289" alt="KEY_PAGEUP" href="javascript:rcsim('KEY_PAGEUP')" />
 <area shape="rect" coords="125,290,155,330" alt="KEY_PAGEDOWN" href="javascript:rcsim('KEY_PAGEDOWN')" />
