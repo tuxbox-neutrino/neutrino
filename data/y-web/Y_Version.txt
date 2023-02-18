@@ -1,3 +1,3 @@
-version=2023.1
+version=2023.2
 date=20.02.2023
 info=Neutrino-Webinterface
