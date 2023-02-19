@@ -552,8 +552,8 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			}
 
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
-			yresult += string_printf("%s&nbsp;<span class='pointer' title='%s'>%s</span>&nbsp;"
-					"<span style=\"font-size: 8pt; white-space: nowrap\">(%ld {=L:from=} %d {=L:unit.short.minute=}, %d%%)</span>"
+			yresult += string_printf("%s&nbsp;<span class='event_description' title='%s'>%s</span>&nbsp;"
+					"<span class='event_duration'>(%ld {=L:from=} %d {=L:unit.short.minute=}, %d%%)</span>"
 					, timestr.c_str()
 					, EPGInfoC.c_str()
 					, event.description.c_str()
@@ -568,7 +568,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					EPGInfoN += epg.info2;
 				}
 				timestr = timeString(currentNextInfo.next_zeit.startzeit);
-				yresult += string_printf("<br />%s&nbsp;<span class='pointer' title='%s'>%s</span>"
+				yresult += string_printf("<br />%s&nbsp;<span class='event_description' title='%s'>%s</span>"
 						, timestr.c_str()
 						, EPGInfoN.c_str()
 						, currentNextInfo.next_name.c_str());
