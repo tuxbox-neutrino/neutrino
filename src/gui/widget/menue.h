@@ -651,9 +651,13 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual const char *getName();
 		virtual void integratePlugins(int integration, const unsigned int shortcut=RC_NOKEY, bool enabled=true);
-		void setSelected(const int &Preselected){ selected = Preselected; };
 		void initSelectable();
+		void setSelected(const int &Preselected){ selected = Preselected; };
+		void setSelectedByName(const neutrino_locale_t &Locale);
+		void setSelectedByName(const std::string &Name);
 		int getSelected()const { return selected; };
+		int getSelectedByName(const neutrino_locale_t &Locale);
+		int getSelectedByName(const std::string &Name);
 		void move(int xoff, int yoff);
 		void setPos(int X, int Y);
 		int getHeight() {calcSize(); return full_height;}

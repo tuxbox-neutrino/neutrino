@@ -1786,6 +1786,35 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 		paint();
 }
 
+int CMenuWidget::getSelectedByName(const std::string& Name)
+{
+	for (size_t i = 0; i < items.size(); i++)
+		if (strcmp(items[i]->getName(), Name.c_str()) == 0)
+			return (int)i;
+	return selected;
+}
+
+int CMenuWidget::getSelectedByName(const neutrino_locale_t &Locale)
+{
+	return getSelectedByName(g_Locale->getText(Locale));
+}
+
+void CMenuWidget::setSelectedByName(const std::string& Name)
+{
+	for (size_t i = 0; i < items.size(); i++)
+	{
+		if (strcmp(items[i]->getName(), Name.c_str()) == 0)
+		{
+			selected = i;
+			return;
+		}
+	}
+}
+
+void CMenuWidget::setSelectedByName(const neutrino_locale_t &Locale)
+{
+	setSelectedByName(g_Locale->getText(Locale));
+}
 
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuOptionNumberChooser::CMenuOptionNumberChooser(	const neutrino_locale_t Name, int * const OptionValue, const bool Active,
