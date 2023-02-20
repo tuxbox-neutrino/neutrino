@@ -280,7 +280,7 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 	switch (httpStatus) {
 	case HTTP_UNAUTHORIZED:
 		result += "WWW-Authenticate: Basic realm=\"";
-		result += AUTH_NAME_MSG "\r\n";
+		result += AUTH_NAME_MSG "\"\r\n";
 		break;
 
 	case HTTP_MOVED_TEMPORARILY:
