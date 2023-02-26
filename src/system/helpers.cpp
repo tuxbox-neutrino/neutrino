@@ -690,17 +690,30 @@ time_t toEpoch(std::string &date)
 
 }
 
-std::string& str_replace(const std::string &search, const std::string &replace, std::string &text)
+/**
+ * Replaces all occurrences of a substring with another string in a given text,
+ * starting from a specified position.
+ *
+ * @param search The substring to search for.
+ * @param replace The string to replace the occurrences of `search` with.
+ * @param text The text to perform the replacement on.
+ * @param start_pos The position to start searching for `search` in `text`.
+ *            Default value is 0.
+ *
+ * @return The modified text after all replacements have been made.
+ */
+std::string &str_replace(const std::string &search, const std::string &replace, std::string &text, size_t start_pos)
 {
 	if (search.empty() || text.empty())
 		return text;
 
 	size_t searchLen = search.length();
-	while (1) {
-		size_t pos = text.find(search);
-		if (pos == std::string::npos)
-			break;
-		text.replace(pos, searchLen, replace);
+	size_t startPos = text.find(search, start_pos);
+
+	while (startPos != std::string::npos)
+	{
+		text.replace(startPos, searchLen, replace);
+		startPos = text.find(search, startPos + replace.length());
 	}
 	return text;
 }

@@ -82,7 +82,7 @@ std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
 time_t toEpoch(std::string &date);
 const char *cstr_replace(const char *search, const char *replace, const char *text);
-std::string& str_replace(const std::string &search, const std::string &replace, std::string &text);
+std::string& str_replace(const std::string &search, const std::string &replace, std::string &text, size_t start_pos = 0);
 std::string& htmlEntityDecode(std::string& text);
 const char* neutrinoMode_to_string(int mode);
 
