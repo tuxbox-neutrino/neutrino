@@ -7,7 +7,7 @@
 	Günther@tuxbox.berlios.org
 
 	Implementation of CComponent Window class.
-	Copyright (C) 2014-2017 Thilo Graf 'dbt'
+	Copyright (C) 2014-2017, 2023 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -417,6 +417,11 @@ void CMsgBox::setButtonText(const int& showed_button, const std::string& text)
 			break;
 	}
 	initButtons();
+}
+
+void CMsgBox::setButtonText(const int &showed_button, const neutrino_locale_t &Locale)
+{
+	setButtonText(showed_button, g_Locale->getText(Locale));
 }
 
 inline std::string CMsgBox::BTN_TEXT(const int& showed_button)

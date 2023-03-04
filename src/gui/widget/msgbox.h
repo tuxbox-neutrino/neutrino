@@ -328,7 +328,19 @@ class CMsgBox : public CHintBox
 		* @param[in]	text
 		* 	@li 	expects type std::string, sets the new text for button
 		*/
-		void setButtonText(const int& showed_button, const std::string& text);
+		void setButtonText(const int &showed_button, const std::string &text);
+
+		/**
+		 * Default defined button text is already predefiend with parameter 'ShowButtons' from constructor.
+		 * This member allows to define an alternate text for an already defined button,
+		 * Result values are not touched!
+		 * @param[in]	showed_button
+		 * 	@li 	expects type int
+		 * 	@see	setShowedButtons()
+		 * @param[in]	text
+		 * 	@li 	expects type neutrino_locale_t, sets the new text for button
+		 */
+		void setButtonText(const int &showed_button, const neutrino_locale_t &Locale);
 
 		/**
 		* enables background of buttons
