@@ -1440,7 +1440,7 @@ int CTestMenu::showTestMenu()
 	w_test.addKey(CRCInput::RC_red, this, "footer_key");
 	w_test.addKey(CRCInput::RC_green, this, "footer_key");
 	int res = w_test.exec(NULL, "");
-	w_hw->hide();
+
 	delete w_hw;
 	delete w_cc;
 	delete w_msg;
