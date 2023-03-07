@@ -2294,6 +2294,8 @@ opkg.messagebox.remove Remove %s?
 opkg.messagebox.size.error Not enough free memory available for this package!
 opkg.messagebox.updates.available Package update(s) available!
 opkg.success.install Install successful!\n restart of Neutrino might be required. Restart now?
+opkg.separator.packages.available available packages
+opkg.separator.packages.installed installed packages
 opkg.title Package Management
 opkg.update.check Checking for updates ...
 opkg.update.reading_lists Reading package lists ...

@@ -521,13 +521,13 @@ void COPKGManager::updateMenu()
 	}
 
 	std::vector<CMenuItem*>& items = menu->getItems();
-// 	Sorts the elements of the menu object, starting from the fifth element, because they are intro items.
-// 	The sorting is done in two steps: first, the elements are sorted based on the value of iconName_Info_right.
-// 	The values NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE, NEUTRINO_ICON_MARKER_DOWNLOAD_LATER and NEUTRINO_ICON_MARKER_DIALOG_OK
-// 	are sorted from highest to lowest priority.
-// 	If two elements have the same value for iconName_Info_right, they are sorted by their name using std::strcmp.
+	// Sorts the elements of the menu object, starting from the fifth element, because previous items are intro items.
+	// The sorting is done in two steps: first, the elements are sorted based on the value of iconName_Info_right.
+	// The values NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE, NEUTRINO_ICON_MARKER_DOWNLOAD_LATER and NEUTRINO_ICON_MARKER_DIALOG_OK
+	// are sorted from highest to lowest priority.
+	// If two elements have the same value for iconName_Info_right, they are sorted by their names.
 
-// 	We know position (5) of menu separator from we will start sort.
+	// We know position (5) of menu separator from we will start sort.
 	std::sort(items.begin() + 5, items.end(), [](CMenuItem* a, CMenuItem* b)
 	{
 		int aValue = 0, bValue = 0;
@@ -550,6 +550,19 @@ void COPKGManager::updateMenu()
 		else
 			return aValue > bValue;
 	});
+
+	// Now we have a sorted list, but we need some menu separators with text that describes what is inside the sections.
+	for (size_t i = 5; i < items.size()-1; i++)
+	{
+		if (items[i]->iconName_Info_right != NULL)
+			if (items[i]->iconName_Info_right != items[i + 1]->iconName_Info_right)
+			{
+				if (items[i + 1]->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
+					menu->insertItem(i + 1, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_AVAILABLE));
+				else
+					menu->insertItem(i + 1, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_INSTALLED));
+			}
+	}
 }
 
 bool COPKGManager::removeInfoBarTxt()
