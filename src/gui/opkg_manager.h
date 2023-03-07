@@ -83,7 +83,6 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		bool list_upgradeable_done;
 		bool installed;
 		bool expert_mode;
-		int menu_offset;
 		std::string *local_dir;
 
 		bool has_err;

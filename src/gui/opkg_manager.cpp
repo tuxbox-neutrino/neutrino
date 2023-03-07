@@ -161,7 +161,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 		return ret;
 	}
-	int selected = menu->getSelected()/* - menu_offset*/;
+	int selected = menu->getSelected();
 	string pkg_name = menu->getItem(selected)->getName();
 
 	if (expert_mode && actionKey == "rc_blue") {
@@ -768,8 +768,6 @@ int COPKGManager::showMenu()
 	}
 
 	menu->addItem(GenericMenuSeparatorLine);
-
-	menu_offset = menu->getItemsCount();
 
 	menu->addKey(CRCInput::RC_help, this, "rc_info");
 	menu->addKey(CRCInput::RC_info, this, "rc_info");
