@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2021 T. Graf 'dbt'
+	Copyright (C) 2012-2023 T. Graf 'dbt'
 
 	Adaptions:
 	Copyright (C) 2013 martii
@@ -41,24 +41,27 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
+#include "filebrowser.h"
+
 #include "widget/icons.h"
+#include "widget/keyboard_input.h"
 #include "widget/msgbox.h"
 
-#include "widget/progresswindow.h"
-#include "widget/hintbox.h"
-#include "widget/keyboard_input.h"
-#include <driver/screen_max.h>
-#include "filebrowser.h"
 #include <system/debug.h>
 #include <system/helpers.h>
-#include <unistd.h>
-#include <sys/vfs.h>
-#include <poll.h>
-#include <fcntl.h>
+
+#include <driver/screen_max.h>
+
 #include <alloca.h>
 #include <errno.h>
-#include <sys/wait.h>
+#include <fcntl.h>
 #include <fstream>
+#include <iostream>
+#include <poll.h>
+#include <sstream>
+#include <sys/vfs.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #if 1
 #define OPKG "opkg"
@@ -129,23 +132,33 @@ void COPKGManager::init(int wizard_mode)
 
 	is_wizard = wizard_mode;
 	OPKG_ERRORS();
-	width = 80;
-
+	width = 100;
+	menu = NULL;
 	pkg_map.clear();
-	list_installed_done = false;
-	list_upgradeable_done = false;
 	expert_mode = false;
 	local_dir = &g_settings.update_dir_opkg;
 	initPackagePatternLists();
 
+	hintBox = new CLoaderHint(LOCALE_OPKG_UPDATE_CHECK);
 	silent = false;
+	menu_used = false;
 	num_updates = 0;
 }
 
 COPKGManager::~COPKGManager()
 {
+	if (menu_used)
+	{
+		// TODO: Show message only if the waiting time is too long
+		hintBox->setMsgText(LOCALE_OPKG_MESSAGEBOX_PLEASE_WAIT);
+		hintBox->paint();
+		if (menu)
+			delete menu;
+	}
 	pkg_map.clear();
 	execCmd(pm_cmd[CMD_CLEAN], CShellWindow::QUIET);
+	hintBox->hide();
+	delete hintBox;
 }
 
 int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
@@ -154,57 +167,38 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 	removeInfoBarTxt();
 
-	if (actionKey.empty()) {
+	if (actionKey.empty())
+	{
 		if (parent)
 			parent->hide();
-		int ret = showMenu();
-
+		int ret = initMenu();
+		menu_used = true;
 		return ret;
 	}
+
 	int selected = menu->getSelected();
-	string pkg_name = menu->getItem(selected)->getName();
+	std::string pkg_name = std::string(menu->getItem(selected)->getName());
 
-	if (expert_mode && actionKey == "rc_blue") {
-		if (selected < 0 || selected >= (int) pkg_vec.size() || !pkg_vec[selected]->installed)
-			return menu_return::RETURN_NONE;
-
-		char loc[200];
-		snprintf(loc, sizeof(loc), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REMOVE), pkg_name.c_str());
-		if (ShowMsg(LOCALE_OPKG_TITLE, loc, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel) {
-			if (parent)
-				parent->hide();
-			execCmd(pm_cmd[CMD_REMOVE] + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
-			refreshMenu();
-		}
-		return res;
-	}
-	if (actionKey == "rc_info") {
-		for (size_t i = 0; i < pkg_vec.size(); i++)
-		{
-			if (pkg_vec[i]->name == pkg_name)
-			{
-				string infostr = getPkgInfo(pkg_name, "", pkg_vec[i]->installed);
-
-				//if available, generate a readable string for installation time
-				if (pkg_vec[i]->installed){
-					string tstr = getPkgInfo(pkg_name, "Installed-Time", true);
-					stringstream sstr(tstr);
-					time_t tval; sstr >> tval;
-					string newstr = asctime(localtime(&tval));
-					infostr = str_replace(tstr, newstr, infostr);
-				}
-				DisplayInfoMessage(infostr.c_str());
-				break;
-			}
-		}
-		return res;
-	}
-	if (actionKey == "rc_yellow") {
+	// Toggle expert mode
+	if (actionKey == "rc_yellow")
+	{
 		expert_mode = !expert_mode;
+
+		// Show message while reloading menu
+		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		hintBox->paint();
+
 		updateMenu();
+		menu->setSelectedByName(pkg_name);
+
+		// Close message
+		hintBox->hide();
 		return res;
 	}
-	if (actionKey == "rc_green") {
+
+	// Install local/3rd party package
+	if (actionKey == "rc_green")
+	{
 		if (parent)
 			parent->hide();
 
@@ -226,143 +220,215 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 				 */
 
 			*local_dir = fileBrowser.getCurrentDir();
-			refreshMenu();
+
+			// Show message while reloading package list
+			hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+			hintBox->paint();
+
+			pullPkgData();
+			updateMenu();
+
+			// Close message
+			hintBox->hide();
 		}
 		return res;
 	}
-	if(actionKey == pm_cmd[CMD_UPGRADE]) {
+
+	// Upgrade system
+	if(actionKey == "rc_red")
+	{
 		if (parent)
 			parent->hide();
-		int r = execCmd(actionKey, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
+
+		int r = execCmd(pm_cmd[CMD_UPGRADE], CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
 		if (r)
 		{
 			/* errno is never set properly, the string is totally useless.
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), strerror(errno), actionKey);
 			 */
-			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), NULL, actionKey);
+			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), NULL, pm_cmd[CMD_UPGRADE]);
 		}
 		else
 		{
 			installed = true;
 		}
-		refreshMenu();
-		/* I don't think ending up at the last package in the list is a good idea...
-		g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_up, 0);
-		 */
+
+		// Show message while reloading package list
+		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		hintBox->paint();
+
+		// Reloading package lists
+		pullPkgData();
+		updateMenu();
+
+		// Close message
+		hintBox->hide();
+
 		return res;
 	}
 
-	map<string, struct pkg>::iterator it = pkg_map.find(actionKey);
-	if (it != pkg_map.end()) {
-		if (parent)
-			parent->hide();
-		string force = "";
-		if (it->second.installed && !it->second.upgradable) {
-			char l[200];
-			snprintf(l, sizeof(l), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REINSTALL), actionKey.c_str());
-			l[sizeof(l) - 1] = 0;
-			if (ShowMsg(LOCALE_OPKG_TITLE, l, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)
-				return res;
-			force = "--force-reinstall ";
+	// Get package name for further processing
+	std::string pkg_info = getPkgInfo(pkg_name);
+
+	// Package install
+	if (actionKey == pkg_name) // actionKey = package name
+	{
+		// Initialize message to choose required action.
+		CMsgBox msgBox(pkg_info.c_str(), pkg_name.c_str());
+		msgBox.setDefaultResult(CMsgBox::mbrBack);
+
+		// We use properties of buttons and
+		// create custom alias text for buttons. This saves us unnecessary message text.
+		if (!pkg_map[pkg_name].installed)
+		{
+			// allow install
+			msgBox.setShowedButtons(CMsgBox::mbOk | CMsgBox::mbBack);
+			msgBox.setButtonText(CMsgBox::mbOk, LOCALE_OPKG_BUTTON_INSTALL);
+		}
+		else
+		{
+			// allow uninstall...
+			std::string section = pkg_map[pkg_name].section;
+			if (!expert_mode)
+			{
+				// Allow uninstall of optional packages independent of expert mode
+				if (section == "neutrino-plugin" || section == "optional")
+				{	msgBox.setShowedButtons(CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbBack);
+					msgBox.setButtonText(CMsgBox::mbNo, LOCALE_OPKG_BUTTON_UNINSTALL);
+				}
+				else
+					msgBox.setShowedButtons(CMsgBox::mbBack | CMsgBox::mbYes);
+			}
+			else
+			{
+				// Modify uninstall function with expert mode, some system packages should not be touched!
+				if (section.find(" user ") != std::string::npos)
+				{
+					// Allow uninstall with expert mode
+					msgBox.setShowedButtons(CMsgBox::mbYes | CMsgBox::mbNo | CMsgBox::mbBack);
+					msgBox.setButtonText(CMsgBox::mbNo, LOCALE_OPKG_BUTTON_UNINSTALL);
+				}
+				else
+				{
+					// Disallow uninstall with expert mode
+					msgBox.setShowedButtons(CMsgBox::mbBack | CMsgBox::mbYes);
+				}
+			}
+			msgBox.setButtonText(CMsgBox::mbYes, LOCALE_OPKG_BUTTON_REINSTALL);
 		}
 
-		//install package with size check ...cancel installation if check failed
-		installPackage(actionKey, force);
+		// Show and execute message handler.
+		msgBox.paint();
+		res = msgBox.exec();
+		msgBox.hide();
 
-		refreshMenu();
+		// Deposit message result.
+		int msg_result = msgBox.getResult();
+
+		// Evaluate return value of the message.
+		if (msg_result == CMsgBox::mbrBack)
+			// User has chosen cancel, so we must exit here.
+			return res;
+
+		// User has chosen 'yes' (alias: install)
+		if (msg_result == CMsgBox::mbrOk)
+		{
+			map<string, struct pkg>::iterator it = pkg_map.find(actionKey);
+			if (it != pkg_map.end())
+			{
+				if (parent)
+					parent->hide();
+
+				// Install package
+				installPackage(actionKey);
+			}
+		}
+		else if (msg_result == CMsgBox::mbrYes || msg_result == CMsgBox::mbrNo)
+		{
+			// User has chosen 'no' (alias: uninstall)
+			if (msg_result == CMsgBox::mbrNo)
+			{
+				std::string info = g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REMOVE);
+				size_t max_size = info.size() + pkg_name.size() + 1;
+				char loc[max_size];
+				snprintf(loc, max_size, info.c_str(), pkg_name.c_str());
+
+				if (ShowMsg(LOCALE_OPKG_TITLE, loc, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel)
+				{
+					if (parent)
+						parent->hide();
+
+					execCmd(pm_cmd[CMD_REMOVE] + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
+				}
+			}
+
+			// If user wants to reinstall, set force parameter
+			if (msg_result == CMsgBox::mbrYes)
+			{
+				// Init warn message
+				char l[200];
+				snprintf(l, sizeof(l), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REINSTALL), actionKey.c_str());
+				l[sizeof(l) - 1] = 0;
+				if (ShowMsg(LOCALE_OPKG_TITLE, l, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)
+					return res;
+
+				// Re-install package
+				installPackage(actionKey, " --force-reinstall ");
+			}
+
+		}
+
+		// Show message while reloading package list
+		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		hintBox->paint();
+
+		pullPkgData();
+		updateMenu();
+		menu->setSelectedByName(pkg_name);
+
+		// Close message
+		hintBox->hide();
+		return res;
 	}
+
+	if (actionKey == "rc_blue")
+	{
+		// Show message while update
+		hintBox->setMsgText(LOCALE_OPKG_UPDATE_CHECK);
+		hintBox->paint();
+
+		doUpdate();
+		pullPkgData();
+
+		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		updateMenu();
+
+		menu->setSelected(selected);
+
+		// Close message
+		hintBox->hide();
+
+		return res;
+	}
+
 	return res;
 }
 
-bool COPKGManager::checkSize(const string& pkg_name)
+static const struct button_label COPKGManagerFooterButtons[] =
 {
-	string pkg_file = pkg_name;
-	string plain_pkg = getBaseName(pkg_file);
-
-	//exit check size if package already installed, because of auto remove of old stuff during installation
-	if (isInstalled(plain_pkg))
-		return true;
-
-	/* this is pretty broken right now for several reasons:
-	   * space in /tmp is limited (/tmp being ramfs usually, but wasted
-	     by unpacking the archive and then untaring it instead of using a pipe
-	   * the file is downloaded for this test, then discarded and later
-	     downloaded again for installation
-	   so until a better solution is found, simply disable it.  */
-#if 0
-	//get available root fs size
-	//TODO: Check writability!
-	struct statfs root_fs;
-	statfs("/", &root_fs);
-	u_int64_t free_size = root_fs.f_bfree*root_fs.f_bsize;
-
-	/*
-	 * To calculate the required size for installation here we make a quasi-dry run,
-	 * it is a bit awkward, but relatively specific, other solutions are welcome.
-	 * We create a temporary test directory and fill it with downloaded or user uploaded package file.
-	 * Then we unpack the package and change into temporary testing directory.
-	 * The required size results from the size of generated folders and subfolders.
-	 * TODO: size of dependencies are not really considered
-	*/
-	CFileHelpers fh;
-
-	//create test pkg dir
-	string 	tmp_dest = OPKG_TEST_DIR;
-		tmp_dest += "/package";
-	fh.createDir(tmp_dest);
-
-	//change into test dir
-	chdir(OPKG_TEST_DIR);
-
-	//copy package into test dir
-	string  tmp_dest_file = OPKG_TEST_DIR;
-		tmp_dest_file += "/" + plain_pkg;
-	if(!access( pkg_file.c_str(), F_OK)) //use local package
-		fh.copyFile(pkg_file.c_str(), tmp_dest_file.c_str(), 0644);
-	else
-		execCmd(pm_cmd[CMD_DOWNLOAD] + plain_pkg); //download package
-
-	//unpack package into test dir
-	string ar = "ar -x " + plain_pkg + char(0x2a);
-	execCmd(ar);
-
-	//untar package into test directory
-	string 	untar_tar_cmd = "tar -xf ";
-		untar_tar_cmd += OPKG_TEST_DIR;
-		untar_tar_cmd += "/data.tar.gz -C " + tmp_dest;
-	execCmd(untar_tar_cmd);
-
-	//get new current required minimal size from dry run test dir
-	u_int64_t req_size = fh.getDirSize(tmp_dest);
-
-	//clean up
-	fh.removeDir(OPKG_TEST_DIR);
-
-	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [required size=%" PRId64 " (free size: %" PRId64 ")]\n", __func__, __LINE__, pkg_name.c_str(), req_size, free_size);
-	if (free_size < req_size){
-		//exit if required size too much
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%" PRId64 " (recommended: %" PRId64 ")\n", __func__, __LINE__, free_size, req_size);
-		return false;
-	}
-#endif
-	return true;
-}
-
-
-static const struct button_label COPKGManagerFooterButtons[] = {
-	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_OPKG_INSTALL_LOCAL_PACKAGE },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_OPKG_BUTTON_EXPERT_ON },
-	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_OPKG_BUTTON_INFO },
-	{ NEUTRINO_ICON_BUTTON_OKAY,	   LOCALE_OPKG_BUTTON_INSTALL }
+	{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_OPKG_UPGRADE },
+	{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_OPKG_INSTALL_LOCAL_PACKAGE },
+	{ NEUTRINO_ICON_BUTTON_YELLOW,	LOCALE_OPKG_BUTTON_EXPERT_ON },
+	{ NEUTRINO_ICON_BUTTON_BLUE,	LOCALE_OPKG_BUTTON_UPDATE_CHECK }
 };
 size_t  COPKGManagerFooterButtonCount = sizeof(COPKGManagerFooterButtons)/sizeof(COPKGManagerFooterButtons[0]);
 
-static const struct button_label COPKGManagerFooterButtonsExpert[] = {
-	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_OPKG_INSTALL_LOCAL_PACKAGE },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_OPKG_BUTTON_EXPERT_OFF },
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_OPKG_BUTTON_UNINSTALL },
-	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_OPKG_BUTTON_INFO },
-	{ NEUTRINO_ICON_BUTTON_OKAY,	   LOCALE_OPKG_BUTTON_INSTALL }
+static const struct button_label COPKGManagerFooterButtonsExpert[] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_OPKG_UPGRADE },
+	{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_OPKG_INSTALL_LOCAL_PACKAGE },
+	{ NEUTRINO_ICON_BUTTON_YELLOW,	LOCALE_OPKG_BUTTON_EXPERT_OFF },
+	{ NEUTRINO_ICON_BUTTON_BLUE,	LOCALE_OPKG_BUTTON_UPDATE_CHECK }
 };
 size_t  COPKGManagerFooterButtonCountExpert = sizeof(COPKGManagerFooterButtonsExpert)/sizeof(COPKGManagerFooterButtonsExpert[0]);
 
@@ -393,7 +459,8 @@ vector<string> COPKGManager::getPackagePatternList(opkg_pattern_list_t type)
 		list_file = OPKG_GOOD_PATTERN_LIST_FILE;
 
 	ifstream in (list_file, ios::in);
-	if (!in){
+	if (!in)
+	{
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] can't open %s, %s\n", __func__, __LINE__, OPKG_BAD_PATTERN_LIST_FILE, strerror(errno));
 		return v_ret;
 	}
@@ -439,7 +506,7 @@ bool COPKGManager::isFilteredPackage(std::string &package_name, opkg_pattern_lis
 		}
 		else if (p.substr(0, 1) == "^")
 		{ /* match at beginning */
-			if (package_name.find(p.substr(1)) == 0)
+			if (package_name.find(p.substr(1)) != std::string::npos)
 				res = true;
 		}
 		else
@@ -486,106 +553,6 @@ bool COPKGManager::isPermittedPackage(std::string &package_name)
 	return ret;
 }
 
-
-void COPKGManager::updateMenu()
-{
-	bool upgradesAvailable = false;
-	getPkgData(CMD_LIST_INSTALLED);
-	getPkgData(CMD_LIST_UPGRADEABLE);
-
-	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
-		/* this should no longer trigger at all */
-		if (!isPermittedPackage(it->second.name))
-			continue;
-
-		it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_DOWNLOAD_LATER;
-		it->second.forwarder->setActive(true);
-		if (it->second.upgradable) {
-			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE;
-			upgradesAvailable = true;
-		} else if (it->second.installed) {
-			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_DIALOG_OK;
-			it->second.forwarder->setActive(expert_mode);
-		}
-	}
-
-	upgrade_forwarder->setActive(upgradesAvailable);
-
-	if (expert_mode){
-		menu->setFooter(COPKGManagerFooterButtonsExpert, COPKGManagerFooterButtonCountExpert);
-	}
-	else if (is_wizard) {
-		menu->setSelected(2); //next-item
-	}else{
-		menu->setSelected(2); //back-item
-		menu->setFooter(COPKGManagerFooterButtons, COPKGManagerFooterButtonCount);
-	}
-
-	// Sorts the elements of the menu object, starting from the fifth element, because previous items are intro items.
-	// The sorting is done in two steps: first, the elements are sorted based on the value of iconName_Info_right.
-	// The values NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE, NEUTRINO_ICON_MARKER_DOWNLOAD_LATER and NEUTRINO_ICON_MARKER_DIALOG_OK
-	// are sorted from highest to lowest priority.
-	// If two elements have the same value for iconName_Info_right, they are sorted by their names.
-	std::vector<CMenuItem*>& items = menu->getItems();
-	// We know about start position (5) of menu separator from we will start sort, resulted by count of intro items.
-	size_t intro_items_end = 5;
-	std::sort(items.begin() + intro_items_end, items.end(), [](CMenuItem* a, CMenuItem* b)
-	{
-		int aValue = 0, bValue = 0;
-		if (a->iconName_Info_right == NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE)
-			aValue = 3;
-		else if (a->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
-			aValue = 2;
-		else if (a->iconName_Info_right == NEUTRINO_ICON_MARKER_DIALOG_OK)
-			aValue = 1;
-
-		if (b->iconName_Info_right == NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE)
-			bValue = 3;
-		else if (b->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
-			bValue = 2;
-		else if (b->iconName_Info_right == NEUTRINO_ICON_MARKER_DIALOG_OK)
-			bValue = 1;
-
-		if (aValue == bValue)
-			return strcmp(a->getName(), b->getName()) < 0;
-		else
-			return aValue > bValue;
-	});
-
-	// Now we have a sorted list, but we need some menu separators with text that describes what is inside the sections.
-	for (size_t i = intro_items_end; i > items.size(); i++)
-	{
-		if (items[i]->type_name == "CMenuSeparator")
-			menu->removeItem(i);
-	}
-
-	bool found_available, found_installed = false;
-	for (size_t i = intro_items_end; i < items.size()-1; i++)
-	{
-		if (found_available && found_installed)
-			break;
-
-		if (items[i]->iconName_Info_right != NULL)
-			if (items[i]->iconName_Info_right != items[i + 1]->iconName_Info_right)
-			{
-				if (!found_available && items[i + 1]->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
-				{
-					menu->insertItem(i + 1, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_AVAILABLE));
-					found_available = true;
-				}
-				else if (!found_installed)
-				{
-					menu->insertItem(i + 1, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_INSTALLED));
-					found_installed = true;
-				}
-			}
-	}
-
-	// Clean up last items. No separators are requierd at the end of menu.
-	if (items[items.size()-1]->type_name == "CMenuSeparator")
-		menu->removeItem(items.size()-1);
-}
-
 bool COPKGManager::removeInfoBarTxt()
 {
 	if (file_exists(INFOBAR_TXT_FILE))
@@ -625,7 +592,7 @@ void COPKGManager::setUpdateCheckResult(bool enable_message)
 {
 	std::lock_guard<std::mutex> g(opk_mutex);
 
-	checkUpdates(std::string(), enable_message);
+	checkUpdates(enable_message);
 	handleUpdateFlagFile();
 
 	if (num_updates)
@@ -649,174 +616,230 @@ void COPKGManager::handleUpdateFlagFile()
 	}
 }
 
+int COPKGManager::getNumUpdates()
+{
+	return num_updates;
+}
 
-bool COPKGManager::checkUpdates(const std::string & package_name, bool show_progress)
+bool COPKGManager::checkUpdates(bool show_progress)
 {
 	if (!hasOpkgSupport() || file_exists("/run/opkg.lock"))
 		return false;
 
 	silent = !show_progress;
-	num_updates = 0;
+
+	// Updating available package lists from configured feeds
 	doUpdate();
 
-	bool ret = false;
+	// Grab package list data into pkg_map
+	pullPkgData();
 
-	size_t i = 0;
-	CProgressWindow *status = NULL;
-
-	if (show_progress){
-		status = new CProgressWindow();
-		status->showHeader(false);
-		status->paint();
-		status->showStatusMessageUTF(g_Locale->getText(LOCALE_OPKG_UPDATE_READING_LISTS));
-		status->showStatus(25); /* after do_update, we have actually done the hardest work already */
-	}
-
-	getPkgData(CMD_LIST);
-	if (show_progress)
-		status->showStatus(50);
-	getPkgData(CMD_LIST_UPGRADEABLE);
-	if (show_progress)
-		status->showStatus(75);
-
-	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it){
-		dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update check for...%s\n", __func__, __LINE__, it->second.name.c_str());
-		if (show_progress){
-			/* showing the names only makes things *much* slower...
-			status->showStatusMessageUTF(it->second.name);
-			 */
-			status->showStatus(75 + 25*i /  pkg_map.size());
-		}
-
-		if (it->second.upgradable){
-			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update packages available for...%s\n", __func__, __LINE__, it->second.name.c_str());
-			if (!package_name.empty() && package_name == it->second.name)
-				num_updates = 1;
-			else
-				num_updates++;
-			ret = true;
-		}
-		i++;
-	}
-
-	if (show_progress){
-		status->showGlobalStatus(100);
-		status->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
-		status->hide();
-	}
-
-	if (status) {
-		delete status; status = NULL;
-	}
-#if 0
-	pkg_map.clear();
-#endif
-	return ret;
+	return num_updates > 0;
 }
 
 int COPKGManager::doUpdate()
 {
-	CHintBox *hintBox = NULL;
-
-	if (!silent ) {
-		hintBox = new CHintBox (LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_UPDATE_CHECK);
-		hintBox->paint();
-	}
-
 	int r = execCmd(pm_cmd[CMD_UPDATE], CShellWindow::QUIET);
 
-	if (hintBox){
-		hintBox->hide();
-		delete hintBox; hintBox = NULL;
-	}
-
-	if (r) {
+	if (r)
+	{
 		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
-		msg += '\n' + tmp_str;
+		msg += '\n' + terminal_str;
 		if (!silent)
+		{
 			DisplayErrorMessage(msg.c_str());
+		}
 		return r;
 	}
+
 	initPackagePatternLists();
+
 	return 0;
 }
 
-void COPKGManager::refreshMenu() {
-	list_installed_done = false,
-	list_upgradeable_done = false;
-	updateMenu();
-}
-
-int COPKGManager::showMenu()
+void COPKGManager::updateMenu()
 {
-	installed = false;
-	setUpdateCheckResult(true);
-#if 0
-	getPkgData(CMD_LIST);
-	getPkgData(CMD_LIST_UPGRADEABLE);
-#endif
+	// Reset widget, we need a clean list
+	if (!menu->getItems().empty())
+		menu->resetWidget(true);
 
-	menu = new CMenuWidget(g_Locale->getText(LOCALE_SERVICEMENU_UPDATE), NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
-	menu->addIntroItems(LOCALE_OPKG_TITLE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_BACK, CMenuWidget::BRIEF_HINT_YES);
+	// Set subhead title with short update information
+	std::string subhead_txt = !expert_mode ? g_Locale->getText(LOCALE_OPKG_TITLE) : g_Locale->getText(LOCALE_OPKG_TITLE_EXPERT_MODE);
+	if (num_updates)
+	{
+		subhead_txt += " - ";
+		subhead_txt += to_string(num_updates) + " ";
+		subhead_txt += g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE);
+	}
+	menu->setSubheadText(subhead_txt);
+
+	// Set wizard mode
 	menu->setWizardMode(is_wizard);
 
-	//upgrade all installed packages
-	std::string upd_info = to_string(num_updates) + " " + g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE);
-	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, upd_info.c_str() , this, pm_cmd[CMD_UPGRADE].c_str(), CRCInput::RC_red);
-	upgrade_forwarder->OnPaintItem.connect(sigc::bind(sigc::mem_fun(this, &COPKGManager::setUpdateStateIcon2Item), upgrade_forwarder));
-	upgrade_forwarder->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_UPGRADE);
-	menu->addItem(upgrade_forwarder);
+	// We need some vectors which contains intro items and forwarders with different package modes
+	std::vector<CMenuItem*> v_intro_items, v_upgradable, v_plugins_installed, v_plugins_not_installed, v_not_installed, v_installed;
 
-	if (!is_wizard)
+	// Create forwarders for intro items. addIntroItems() is unsuited here for this plan
+	// to assemble this widget, because we must work with each element individually.
+	// This makes it easier to assemble the items after any menu content update.
+	v_intro_items.push_back(GenericMenuSeparator);
+	v_intro_items.push_back(GenericMenuBack);
+// 	v_intro_items.push_back(GenericMenuSeparatorLine); // TODO: check if we need separator if there are no packages below, but most likely not
+
+	// Add marker for descriptive separators,
+	// only one separator is required for each package section.
+	bool not_installed_marked = false;
+	bool install_marked = false;
+	bool upgrades_marked = false;
+	bool install_marked_plugin = false;
+	bool not_install_marked_plugin = false;
+
+	// Creating forwarders with package contents
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it)
 	{
-#if 0
-		CMenuForwarder *fw = NULL;
+		/* this should no longer trigger at all */
+		if (!isPermittedPackage(it->second.name) && !it->second.upgradable)
+			continue;
 
-		//select and install local package
-		fw = new CMenuForwarder(LOCALE_OPKG_INSTALL_LOCAL_PACKAGE, true, NULL, this, "local_package", CRCInput::RC_green);
-		fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_INSTALL_LOCAL_PACKAGE);
-		menu->addItem(fw);
-#endif
-#if ENABLE_OPKG_GUI_FEED_SETUP
-		//feed setup
-		CMenuWidget feeds_menu(LOCALE_OPKG_TITLE, NEUTRINO_ICON_UPDATE, w_max (100, 10));
-		showMenuConfigFeed(&feeds_menu);
-		fw = new CMenuForwarder(LOCALE_OPKG_FEED_ADDRESSES, true, NULL, &feeds_menu, NULL, CRCInput::RC_www);
-		fw->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_FEED_ADDRESSES_EDIT);
-		menu->addItem(fw);
-#endif
+		// Create raw forwarders
+		it->second.forwarder = new CMenuForwarder(it->second.name, true, it->second.version.c_str() , this, it->second.name.c_str());
+
+		// Modify forwarder content, we fill vectors with packages in dependence of install mode and plugin status
+		if (it->second.upgradable)
+		{
+			// Here we fill vector v_upgradable with upgradable and permitted packages
+			if (!upgrades_marked)
+			{
+				// Add descriptive separator
+				v_upgradable.push_back(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_UPGRADES_AVAILABLE));
+				upgrades_marked = true;
+			}
+			// Add upgradeable packages
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE;
+			v_upgradable.push_back(it->second.forwarder);
+		}
+		else if (it->second.installed)
+		{
+			// Here we fill vectors  with installed and permitted packages
+			if (it->second.section == "neutrino-plugin")
+			{
+				// Add descriptive section separator for installed plugins
+				if (!install_marked_plugin)
+				{
+					v_plugins_installed.push_back(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_INSTALLED_PLUGINS));
+					install_marked_plugin = true;
+				}
+				// Add installed plugin package
+				v_plugins_installed.push_back(it->second.forwarder);
+			}
+			else
+			{
+				// Add descriptive section separator for other installed packages
+				if (!install_marked)
+				{
+					v_installed.push_back(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_INSTALLED));
+					install_marked = true;
+				}
+				// Add installed package
+				v_installed.push_back(it->second.forwarder);
+			}
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_DIALOG_OK;
+		}
+		else
+		{
+			if (it->second.section == "neutrino-plugin")
+			{
+				// Add descriptive section separator for available plugins
+				if (!not_install_marked_plugin)
+				{
+					v_plugins_not_installed.push_back(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_AVAILABLE_PLUGINS));
+					not_install_marked_plugin = true;
+				}
+				// Add available plugin package
+				v_plugins_not_installed.push_back(it->second.forwarder);
+			}
+			else
+			{
+				// Add descriptive section separator for other available packages
+				if (!not_installed_marked)
+				{
+					v_not_installed.push_back(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_AVAILABLE));
+					not_installed_marked = true;
+				}
+				// Add available packages
+				v_not_installed.push_back(it->second.forwarder);
+			}
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_DOWNLOAD_LATER;
+		}
+
+		// Add hints with descriptions for packages
+		it->second.forwarder->setHint("", it->second.desc);
+
+		// Add package hint to forwarder description line.
+		if (!it->second.hint.empty())
+		{
+			it->second.forwarder->setDescription(it->second.hint);
+			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_USER_BUSY;
+		}
+
+		// Here we fill the vector 'v_all_items' with all contents, which we created above.
+		std::vector<CMenuItem*> v_all_items;
+		v_all_items.reserve(v_intro_items.size() + v_upgradable.size() + v_installed.size() + v_not_installed.size()); // HINT: size of plugin vectors not relevant here
+
+		// At 1st we add intro items...
+		v_all_items.insert(v_all_items.end(), v_intro_items.begin(), v_intro_items.end());
+
+		// ... section upgradeable packages
+		v_all_items.insert(v_all_items.end(), v_upgradable.begin(), v_upgradable.end());
+
+		// ... section installed and available plugins
+		v_all_items.insert(v_all_items.end(), v_plugins_installed.begin(), v_plugins_installed.end());
+		v_all_items.insert(v_all_items.end(), v_plugins_not_installed.begin(), v_plugins_not_installed.end());
+
+		// ... all other installed and available packages
+		v_all_items.insert(v_all_items.end(), v_installed.begin(), v_installed.end());
+		v_all_items.insert(v_all_items.end(), v_not_installed.begin(), v_not_installed.end());
+
+		// Finally we move all forwarders to current menu widget
+		menu->getItems() = std::move(v_all_items);
 	}
 
-	menu->addItem(GenericMenuSeparatorLine);
-
-	menu->addKey(CRCInput::RC_help, this, "rc_info");
-	menu->addKey(CRCInput::RC_info, this, "rc_info");
+	// add footer with some buttons
 	menu->addKey(CRCInput::RC_blue, this, "rc_blue");
 	menu->addKey(CRCInput::RC_yellow, this, "rc_yellow");
 	menu->addKey(CRCInput::RC_green, this, "rc_green");
+	menu->addKey(CRCInput::RC_red, this, "rc_red");
 
-	// package list
-	pkg_vec.clear();
-	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it) {
-		/* this should no longer trigger at all */
-		if (!isPermittedPackage(it->second.name))
-			continue;
+	if (expert_mode)
+		menu->setFooter(COPKGManagerFooterButtonsExpert, COPKGManagerFooterButtonCountExpert);
+	else
+		menu->setFooter(COPKGManagerFooterButtons, COPKGManagerFooterButtonCount);
+}
 
-		it->second.forwarder = new CMenuForwarder(it->second.name, true, it->second.version.c_str() , this, it->second.name.c_str());
-		it->second.forwarder->setHint("", it->second.desc);
-		menu->addItem(it->second.forwarder);
-		pkg_vec.push_back(&it->second);
+int COPKGManager::initMenu()
+{
+	installed = false;
+
+	hintBox->paint();
+	setUpdateCheckResult(false); // without message
+
+	if (menu == NULL)
+	{
+		menu = new CMenuWidget(g_Locale->getText(LOCALE_SERVICEMENU_UPDATE), NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
+		updateMenu();
+		menu->setSelected(1); //back-item in wizard mode next-item
 	}
 
-	updateMenu();
+	hintBox->hide();
 
 	int res = menu->exec(NULL, "");
 
-	menu->hide ();
+	menu->hide();
 
 	//handling after successful installation
 	string exit_action = "";
-	if (!has_err && installed){
+	if (!has_err && installed)
+	{
 		/*
 			Show a success message only if restart/reboot is required and user should decide what to do or not.
 			NOTE: marker file should be generated by opkg package itself (eg. with preinstall scripts),
@@ -847,6 +870,7 @@ int COPKGManager::showMenu()
 	unlink("/tmp/.reboot");
 
 	delete menu;
+	menu = NULL;
 
 	if (!exit_action.empty())
 		CNeutrinoApp::getInstance()->exec(NULL, exit_action);
@@ -880,194 +904,160 @@ bool COPKGManager::hasOpkgSupport()
 	return true;
 }
 
-string COPKGManager::getInfoDir()
+void COPKGManager::pullPkgData()
 {
-	/* /opt/opkg/... is path in patched opkg, /var/lib/opkg/... is original path */
-	string dirs[] = {TARGET_PREFIX"/opt/opkg/info", TARGET_PREFIX"/var/lib/opkg/info", "/var/lib/opkg/info", "/opt/opkg/info"};
-	for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
-		if (access(dirs[i].c_str(), R_OK) == 0)
-			return dirs[i];
-		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] InfoDir [%s] not found\n", __func__, __LINE__, dirs[i].c_str());
-	}
-	return "";
-}
+	dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] current package entries = [%zu]\n", __func__, __LINE__, pkg_map.size());
 
-string COPKGManager::getPkgDetails(std::string pkgName, std::string pkgKeyword, std::string pkgDesc)
-{
-	if (pkgKeyword.empty())
+	// for better readability, we "mask" std::string::npos here
+	static const size_t npos = -1;
+
+	// STEP 1: Create a pkg map with all permitted package names
+	execCmd(pm_cmd[CMD_INFO], CShellWindow::QUIET);
+	std::istringstream ss1(terminal_str);
+	std::vector<std::string> v_lines;
+	std::string l;
+
+	// Temporarily read lines of terminal_str into vector
+	while (std::getline(ss1, l))
+		v_lines.push_back(l);
+
+	// Iterate lines and generate package map with required details
+	std::string name;
+	for (const auto &line : v_lines)
 	{
-		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] pkgKeyword for [%s] not defined, missing value in parameter pkgName\n", __func__, __LINE__, pkgName.c_str());
-		return "";
-	}
-
-	static string infoPath;
-	string res = "";
-	if (infoPath.empty())
-		infoPath = getInfoDir();
-	if (infoPath.empty())
-		return pkgDesc;
-
-	string infoFile = infoPath + "/" + pkgName + ".control";
-	if (file_exists(infoFile.c_str())) {
-		FILE* fd = fopen(infoFile.c_str(), "r");
-		if (fd == NULL)
-			return pkgDesc;
-
-		fpos_t fz;
-		fz.__pos = 0;
-		fseek(fd, 0, SEEK_END);
-		fgetpos(fd, &fz);
-		fseek(fd, 0, SEEK_SET);
-		if (fz.__pos == 0){
-			fclose(fd);
-			return pkgDesc;
-		}
-		char buf[512];
-		while (fgets(buf, sizeof(buf), fd)) {
-			if (buf[0] == ' ')
-				continue;
-			string line(buf);
-			trim(line, " ");
-			string tmp;
-			string key = pkgKeyword + ":";
-			tmp = getKeyInfo(line, key, " ");
-			if (!tmp.empty())
-				res = tmp;
-		}
-		fclose(fd);
-
-		return res;
-	}
-	return pkgDesc;
-}
-
-string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
-{
-	if (!pkgDesc.empty())
-		return pkgDesc;
-	return getPkgDetails(pkgName, "Description", pkgDesc);
-}
-
-void COPKGManager::getPkgData(const int pkg_content_id)
-{
-	dprintf(DEBUG_INFO, "[COPKGManager] [%s - %d] executing %s\n", __func__, __LINE__, pm_cmd[pkg_content_id].c_str());
-
-	switch (pkg_content_id) {
-		case CMD_LIST:
-			pkg_map.clear();
-			list_installed_done = false;
-			list_upgradeable_done = false;
-			break;
-		case CMD_LIST_INSTALLED:
-			if (list_installed_done)
-				return;
-			list_installed_done = true;
-			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it)
-				it->second.installed = false;
-			break;
-		case CMD_LIST_UPGRADEABLE:
-			if (list_upgradeable_done)
-				return;
-			list_upgradeable_done = true;
-			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it)
-				it->second.upgradable = false;
-			break;
-	}
-
-	pid_t pid = 0;
-	FILE *f = my_popen(pid, pm_cmd[pkg_content_id].c_str(), "r");
-	if (!f) {
-		showError("Internal Error", strerror(errno), pm_cmd[pkg_content_id]);
-		return;
-	}
-
-	char buf[256];
-
-	while (fgets(buf, sizeof(buf), f))
-	{
-		if (buf[0] == ' ')
-			continue; /* second, third, ... line of description will not be shown anyway */
-		std::string line(buf);
-		trim(line);
-
-		string name = getBlankPkgName(line);
-		if (name.empty())
+		if (line.empty())
 			continue;
 
-		switch (pkg_content_id) {
-			case CMD_LIST: {
-				/* do not even put "bad" packages into the list to save memory */
-				if (!isPermittedPackage(name))
-					continue;
-
-				pkg_map[name] = pkg(name, line, line);
-				map<string, struct pkg>::iterator it = pkg_map.find(name);
-				if (it != pkg_map.end())
-				{
-					it->second.name = name;
-					it->second.version = "";
-					it->second.desc = "";
-					std::string str_tmp = line, del = " - ";
-
-					size_t pos1 = str_tmp.find(del);
-					if (pos1 == std::string::npos)
-					{
-						name = str_tmp;
-					}else
-					{
-						name = str_tmp.substr(0, pos1);
-						str_tmp.erase(0, pos1 + del.length());
-
-						size_t pos2 = str_tmp.find(del);
-						if (pos2 == std::string::npos)
-						{
-							it->second.version = str_tmp;
-						}
-						else
-						{
-							it->second.version = str_tmp.substr(0, pos2);
-							it->second.desc = str_tmp.substr(pos2 + del.length());
-						}
-					}
-				}
-				break;
+		// If the line begins with "Package: ", save the package name
+		if (line.find("Package:") != npos)
+		{
+			name = line.substr(9);
+			// Add a new package to the map
+			pkg_map[name] = pkg(name);
+			pkg_map[name].installed = false;
+			pkg_map[name].upgradable = false;
+		}
+		// Add details to pkg_map
+		else if (line.find("Version: ") != npos)
+		{
+			pkg_map[name].version = line.substr(9);
+			// Save version info for neutrino into file, for usage in other classes
+			if (name == "neutrino-mp")
+			{
+				std::ofstream outfile("/tmp/.neutrino.version");
+				outfile << pkg_map[name].version;
+				outfile.close();
 			}
-			case CMD_LIST_INSTALLED: {
-				map<string, struct pkg>::iterator it = pkg_map.find(name);
-				if (it != pkg_map.end())
+		}
+		else if (line.find("Description: ") != npos)
+			pkg_map[name].desc = line.substr(13);
+		else if (line.find("Section: ") != npos)
+			pkg_map[name].section = line.substr(9);
+		else if (line.find("Priority: ") != npos)
+			pkg_map[name].priority = line.substr(10);
+		else if (line.find("Recommends: ") != npos)
+			pkg_map[name].recommends = line.substr(12);
+		else if (line.find("Status: ") != npos)
+			pkg_map[name].status = line.substr(8);
+		else if (line.find("Architecture: ") != npos)
+			pkg_map[name].architecture = line.substr(14);
+		else if (line.find("Maintainer: ") != npos)
+			pkg_map[name].maintainer = line.substr(12);
+		else if (line.find("MD5Sum: ") != npos)
+			pkg_map[name].md5sum = line.substr(9);
+		else if (line.find("Size: ") != npos)
+			pkg_map[name].size = line.substr(6);
+		else if (line.find("Filename: ") != npos)
+			pkg_map[name].filename = line.substr(10);
+		else if (line.find("Source: ") != npos)
+			pkg_map[name].source = line.substr(8);
+		else if (line.find("Homepage: ") != npos)
+			pkg_map[name].homepage = line.substr(10);
+		else if (line.find("License: ") != npos)
+			pkg_map[name].license = line.substr(9);
+		else if (line.find("Installed-Size:") != npos || line.find("Installed-Time:") != npos)
+		{
+			pkg_map[name].installed = true;
+			if (line.find("Installed-Size: ") != npos)
+				pkg_map[name].installed_size = line.substr(16);
+			if (line.find("Installed-Time: ") != npos)
+				pkg_map[name].installed_time = line.substr(16);
+		}
+
+	}
+	v_lines.clear();
+
+	// STEP 2: Create vector with all upgradable packages
+	execCmd(pm_cmd[CMD_LIST_UPGRADEABLE], CShellWindow::QUIET);
+	std::istringstream ss2(terminal_str);
+	std::vector<std::string> v_upgradeables;
+
+	// read lines with upgradeable packages from terminal_str into vector
+	l.clear();
+	while (std::getline(ss2, l))
+		v_upgradeables.push_back(l);
+
+	// reset num_updates
+	num_updates = 0;
+
+	// set upgrade mode for packages
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); ++it)
+	{
+		// Parse package name and possible hint and set upgrade flag with possibly deviating version information.
+		for (const auto &package : v_upgradeables)
+		{
+			if (!package.empty())
+			{
+				string s(package);
+
+				// Extract package name, we must ensure to get a clean package name from possible text around it.
+				s = str_replace("Not selecting", "", s);
+				s = str_replace("as installing it would break existing dependencies.", "", s);
+				s = trim(s, " ");
+
+				// Cache package name with included version text
+				string s1 = s;
+
+				// Parse pure package name
+				size_t pos1 = s.find(" ");
+				if (pos1 != npos)
+					s = s.substr(0, pos1);
+
+				// Set upgrade flag and version
+				if (s == it->second.name)
 				{
-					it->second.installed = true;
-					std::string del = " - ";
-					std::size_t delpos = line.find(del);
-					it->second.version = line.substr(delpos + del.length());
-				}
-				break;
-			}
-			case CMD_LIST_UPGRADEABLE: {
-				map<string, struct pkg>::iterator it = pkg_map.find(name);
-				if (it != pkg_map.end())
-				{
+					// Set upgrade tag
 					it->second.upgradable = true;
-					std::string del = " - ";
-					std::size_t delpos = line.find(del);
-					it->second.version = line.substr(delpos + del.length());
+
+					// Set version
+					// First we must normalize version string ...
+					s1 = trim(s1, " ");
+					s1 = str_replace(" - ", " to ", s1, s1.find(" - ")+3);
+					s1 = str_replace(" - ", " ", s1);
+
+					// ... then set version string to map
+					size_t pos2 = s1.find(' ');
+					if (pos2 != npos)
+						it->second.version = s1.substr(pos2 + 1);
+
+					// Catch possible hint(s).
+					size_t pos0 = package.find("installing it would break existing dependencies");
+					if (pos0 != npos)
+						it->second.hint = package;
+
+					// Count up num_updates
+					num_updates++;
 				}
-				break;
 			}
-			default:
-				fprintf(stderr, "%s %s %d: unrecognized content id %d\n", __file__, __func__, __LINE__, pkg_content_id);
-				break;
 		}
 	}
-
-	waitpid(pid, NULL, 0); /* beware of the zombie apocalypse! */
-
-	fclose(f);
+	v_upgradeables.clear();
 }
 
-string COPKGManager::getBlankPkgName(const string& line)
+string COPKGManager::getBlankPkgName(const string &line)
 {
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  line: %s\n", __func__, __LINE__, line.c_str());
+	std::string res = "";
 
 	//check for error relevant contents and return an empty string if found
 	size_t pos0 = line.find("Collected errors:");
@@ -1078,48 +1068,84 @@ string COPKGManager::getBlankPkgName(const string& line)
 	//split line and use name as return value
 	size_t pos1 = line.find(" ");
 	if (pos1 != string::npos)
-		return line.substr(0, pos1);
+		res = line.substr(0, pos1);
+	else
+		return "";
 
-	return "";
+	return trim(res, " ");
 }
 
-string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key, bool current_status)
+string COPKGManager::getPkgInfo(const string &pkg_name, const std::string &pkg_key)
 {
-	execCmd(pm_cmd[current_status ? CMD_STATUS : CMD_INFO] + pkg_name, CShellWindow::QUIET);
-	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
+	auto it = pkg_map.find(pkg_name);
 
-	if (pkg_key.empty()) {
-		/* When description is empty, read data from InfoDir */
-		string tmp = getKeyInfo(tmp_str, "Description:", " ");
-		if (tmp.empty()) {
-			tmp = getPkgDescription(pkg_name);
-			if (!tmp.empty()) {
-				tmp_str += (string)"\nDescription: " + tmp + "\n";
-			}
-		}
-		return tmp_str;
-	}
+	if (it == pkg_map.end())
+		return "";
 
-	return getKeyInfo(tmp_str, pkg_key, ":");
-}
+	const pkg &p = it->second;
+	string ret;
 
-string COPKGManager::getKeyInfo(const string& input, const std::string& key, const string& delimiters)
-{
-	string s = input;
-	size_t pos1 = s.find(key);
-	if (pos1 != string::npos){
-		size_t pos2 = s.find(delimiters, pos1)+ delimiters.length();
-		if (pos2 != string::npos){
-			size_t pos3 = s.find("\n", pos2);
-			if (pos3 != string::npos){
-				string ret = s.substr(pos2, pos3-pos2);
-				return trim(ret, " ");
-			}
-			else
-				dprintf(DEBUG_INFO, "[COPKGManager] [%s - %d]  Error: [key: %s] missing end of line...\n", __func__, __LINE__, key.c_str());
-		}
-	}
-	return "";
+	if (!p.version.empty())
+		if (pkg_key.empty() || pkg_key == "Version")
+			ret += "Version: " + p.version + '\n';
+
+	if (!p.desc.empty())
+		if (pkg_key.empty() || pkg_key == "Description")
+			ret += "Description: " + p.desc + '\n';
+
+	if (!p.section.empty())
+		if (pkg_key.empty() || pkg_key == "Section")
+			ret += "Section: " + p.section + '\n';
+
+	if (!p.priority.empty())
+		if (pkg_key.empty() || pkg_key == "Priority")
+			ret += "Priority: " + p.priority + '\n';
+
+	if (!p.recommends.empty())
+		if (pkg_key.empty() || pkg_key == "Recommends")
+			ret += "Recommends: " + p.recommends + '\n';
+
+	if (!p.status.empty())
+		if (pkg_key.empty() || pkg_key == "Status")
+			ret += "Status: " + p.status + '\n';
+
+	if (!p.architecture.empty())
+		if (pkg_key.empty() || pkg_key == "Architecture")
+			ret += "Architecture: " + p.architecture + '\n';
+
+	if (!p.maintainer.empty())
+		if (pkg_key.empty() || pkg_key == "Maintainer")
+			ret += "Maintainer: " + p.maintainer + '\n';
+
+	if (!p.md5sum.empty())
+		if (pkg_key.empty() || pkg_key == "MD5Sum")
+			ret += "Checksum (md5): " + p.md5sum + '\n';
+
+	if (!p.size.empty())
+		if (pkg_key.empty() || pkg_key == "Installed-Size")
+			ret += "Size: " + p.size + '\n';
+
+	if (!p.filename.empty())
+		if (pkg_key.empty() || pkg_key == "Filename")
+			ret += "Packagefile: " + p.filename + '\n';
+
+	if (!p.source.empty())
+		if (pkg_key.empty() || pkg_key == "Source")
+			ret += "Sourcefile: " + p.source + '\n';
+
+	if (!p.homepage.empty())
+		if (pkg_key.empty() || pkg_key == "Hompage")
+			ret += "Hompage: " + p.homepage + '\n';
+
+	if (!p.license.empty())
+		if (pkg_key.empty() || pkg_key == "License")
+			ret += "License: " + p.license + '\n';
+
+	if (!p.hint.empty())
+		if (pkg_key.empty() || pkg_key == "Hint")
+			ret += "\nNote: \n" + p.hint + '\n';
+
+	return ret;
 }
 
 int COPKGManager::execCmd(const char *cmdstr, int verbose_mode)
@@ -1128,7 +1154,7 @@ int COPKGManager::execCmd(const char *cmdstr, int verbose_mode)
 	string cmd = string(cmdstr);
 	int res = 0;
 	has_err = false;
-	tmp_str.clear();
+	terminal_str.clear();
 	//bool ok = true;
 
 	//create CShellWindow object
@@ -1157,8 +1183,8 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 	//use current line
 	string line = *cur_line;
 
-	//tmp_str contains all output lines and is available in the object scope of this
-	tmp_str += line + '\n';
+	//terminal_str contains all output lines and is available in the object scope of this
+	terminal_str += line + '\n';
 
 	//dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  come into shell handler with res: %d, line = %s\n", __func__, __LINE__, _res, line.c_str());
 
@@ -1167,9 +1193,10 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 	if (pos2 != string::npos)
 		has_err = true;
 
-	dprintf(DEBUG_NORMAL, "[COPKGManager:%d] %s\n", __LINE__, line.c_str());
+	dprintf(DEBUG_INFO, "[COPKGManager:%d] %s\n", __LINE__, line.c_str());
 	//check for collected errors and set res value
-	if (has_err){
+	if (has_err)
+	{
 		/* all lines printed already
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, line.c_str());
 		 */
@@ -1177,7 +1204,8 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		/*duplicate option cache: option is defined in OPKG_CONFIG_OPTIONS,
 		 * NOTE: if found first cache option in the opkg.conf file, this will be preferred and it's not really an error!
 		*/
-		if (line.find("Duplicate option cache") != string::npos){
+		if (line.find("Duplicate option cache") != string::npos)
+		{
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: %s\n", __func__, __LINE__,  line.c_str());
 			*ok = true;
 			has_err = false;
@@ -1187,7 +1215,8 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 		/*resolve_conffiles: already existent configfiles are not installed, but renamed in the same directory,
 		 * NOTE: It's not fine but not really bad. Files should be installed separate or user can change manually
 		*/
-		if (line.find("Existing conffile") != string::npos){
+		if (line.find("Existing conffile") != string::npos)
+		{
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: %s\n", __func__, __LINE__, line.c_str());
 			*ok = true;
 			has_err = false;
@@ -1195,25 +1224,29 @@ void COPKGManager::handleShellOutput(string* cur_line, int* res, bool* ok)
 			return;
 		}
 		//download error:
-		if (line.find("opkg_download:") != string::npos){
+		if (line.find("opkg_download:") != string::npos)
+		{
 			*res = OPKG_DOWNLOAD_ERR;
 			//*ok = false;
 			return;
 		}
 		//not enough space
-		if (line.find("No space left on device") != string::npos){
+		if (line.find("No space left on device") != string::npos)
+		{
 			*res = OPKG_OUT_OF_SPACE_ERR;
 			//*ok = false;
 			return;
 		}
 		//deps
-		if (line.find("satisfy_dependencies") != string::npos){
+		if (line.find("satisfy_dependencies") != string::npos)
+		{
 			*res = OPKG_UNSATISFIED_DEPS_ERR;
 			*ok = false;
 			return;
 		}
 		/* hack */
-		if (line.find("system-update: err_reset") != string::npos) {
+		if (line.find("system-update: err_reset") != string::npos)
+		{
 			*res = OPKG_SUCCESS;
 			*ok = true;
 			has_err = false;
@@ -1247,7 +1280,7 @@ void COPKGManager::showErr(int* res)
 		DisplayErrorMessage(errtest.c_str());
 }	
 
-void COPKGManager::showError(const char* local_msg, char* err_message, const string& additional_text)
+void COPKGManager::showError(const char* local_msg, char* err_message, const string &additional_text)
 {
 	string msg = local_msg ? string(local_msg) + "\n" : "";
 	if (err_message)
@@ -1258,69 +1291,44 @@ void COPKGManager::showError(const char* local_msg, char* err_message, const str
 		DisplayErrorMessage(msg.c_str());
 }
 
-bool COPKGManager::installPackage(const string& pkg_name, string options, bool force_configure)
+bool COPKGManager::installPackage(const string &pkg_name, string options, bool force_configure)
 {
-	//check package size...cancel installation if size check failed
-	if (!checkSize(pkg_name)){
-		if (!silent)
-			DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_SIZE_ERROR));
-	}
-	else{
-		string opts = " " + options + " ";
+	string opts = " " + options + " ";
 
-		int r = execCmd(pm_cmd[CMD_INSTALL] + opts + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT | CShellWindow::ACKNOWLEDGE);
-		if (r){
-			switch(r){
-				case OPKG_OUT_OF_SPACE_ERR:
-					DisplayErrorMessage("Not enough space available");
-					break;
-				case OPKG_DOWNLOAD_ERR:
-					DisplayErrorMessage("Can't download package. Check network!");
-					break;
-				case OPKG_UNSATISFIED_DEPS_ERR:{
-					int msgRet = ShowMsg("Installation", "Unsatisfied deps while installation! Try to repeat to force dependencies!", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 600, -1);
-					if (msgRet == CMsgBox::mbrYes)
-						return installPackage(pkg_name, "--force-depends");
-					break;
-				}
-				default:
-					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pm_cmd[CMD_INSTALL] + opts + pkg_name);
-					/* errno / strerror considered useless here
-					showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pm_cmd[CMD_INSTALL] + opts + pkg_name);
-					 */
+	int r = execCmd(pm_cmd[CMD_INSTALL] + opts + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT | CShellWindow::ACKNOWLEDGE);
+	if (r)
+	{
+		switch(r)
+		{
+			case OPKG_OUT_OF_SPACE_ERR:
+				DisplayErrorMessage("Not enough space available");
+				break;
+			case OPKG_DOWNLOAD_ERR:
+				DisplayErrorMessage("Can't download package. Check network!");
+				break;
+			case OPKG_UNSATISFIED_DEPS_ERR:
+			{
+				int msgRet = ShowMsg("Installation", "Unsatisfied deps while installation! Try to repeat to force dependencies!", CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 600, -1);
+				if (msgRet == CMsgBox::mbrYes)
+					return installPackage(pkg_name, "--force-depends");
+				break;
 			}
-		}else{
-			if (force_configure)
-				execCmd(pm_cmd[CMD_CONFIGURE] + getBlankPkgName(pkg_name), 0);
-			installed = true; //TODO: catch real result
+			default:
+				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pm_cmd[CMD_INSTALL] + opts + pkg_name);
+				/* errno / strerror considered useless here
+				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pm_cmd[CMD_INSTALL] + opts + pkg_name);
+					*/
 		}
+	}
+	else
+	{
+		if (force_configure)
+			execCmd(pm_cmd[CMD_CONFIGURE] + getBlankPkgName(pkg_name), 0);
+		installed = pkg_map[getBlankPkgName(pkg_name)].installed; //TODO: check this
+
 	}
 
 	return true;
-}
-
-bool COPKGManager::isInstalled(const string& pkg_name)
-{
-	string package = pkg_name;
-	package = getBaseName(package);
-
-	map<string, struct pkg>::iterator it = pkg_map.find(package);
-	if (it != pkg_map.end())
-		if (it->second.installed)
-			return true;
-	return false;
-}
-
-bool COPKGManager::isUpgradable(const string& pkg_name)
-{
-	string package = pkg_name;
-	package = getBaseName(package);
-
-	map<string, struct pkg>::iterator it = pkg_map.find(package);
-	if (it != pkg_map.end())
-		if (it->second.upgradable)
-			return true;
-	return false;
 }
 
 void COPKGManagerExtra::setUpdateStateIcon2Item(CMenuItem *item)
@@ -1333,3 +1341,5 @@ void COPKGManagerExtra::setUpdateStateIcon2Item(CMenuItem *item)
 	else
 		item->setInfoIconRight(NEUTRINO_ICON_MARKER_DIALOG_OK);
 }
+
+

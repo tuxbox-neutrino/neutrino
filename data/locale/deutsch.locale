@@ -2280,8 +2280,10 @@ nvodselector.subservice Perspektiven
 opkg.button.expert_off Standard-Modus
 opkg.button.expert_on Experten-Modus
 opkg.button.info Paket-Informationen
-opkg.button.install Paket installieren
-opkg.button.uninstall Paket entfernen
+opkg.button.install Installieren
+opkg.button.reinstall Neu installieren
+opkg.button.uninstall Deinstallieren
+opkg.button.update.check Updateprüfung
 opkg.enter.feed.address Bitte Adresse für Server-Feed oder lokalen Ordner eintragen!
 opkg.enter.feed.address.example Beispiel: http://pkg.nevis.neutrino-hd.com
 opkg.failure.install Installation fehlgeschlagen
@@ -2289,17 +2291,22 @@ opkg.failure.update Update fehlgeschlagen
 opkg.failure.upgrade Upgrade fehlgeschlagen
 opkg.feed.addresses Feed-Adressen
 opkg.install.local.package Installiere lokales Paket
+opkg.messagebox.please.wait Bitte warten...!
 opkg.messagebox.reinstall %s erneut installieren?
 opkg.messagebox.remove %s entfernen?
 opkg.messagebox.size.error Nicht genügend freier Speicher für Paketinstallation verfügbar!
 opkg.messagebox.updates.available Paket-Aktualisierung(en) verfügbar!
 opkg.success.install Installation erfolgreich!\nNeustart von Neutrino kann erforderlich sein. Jetzt neu starten?
 opkg.separator.packages.available verfügbare Pakete
-opkg.separator.packages.installed installierte Pakete
+opkg.separator.packages.available.plugins verfügbare Plugins
+opkg.separator.packages.installed installiert
+opkg.separator.packages.installed.plugins installierte Plugins
+opkg.separator.upgrades.available Aktualisierungen
 opkg.title Paketverwaltung
-opkg.update.check Prüfe auf Updates ...
-opkg.update.reading_lists Paketlisten werden eingelesen ...
-opkg.upgrade Installierte Pakete aktualisieren
+opkg.title.expert.mode Paketverwaltung - Experten-Modus
+opkg.update.check Prüfe auf Aktualisierungen...
+opkg.update.reading_lists Paketlisten werden eingelesen...
+opkg.upgrade System aktualisieren
 opkg.warning_3rdparty_packages Drittanbieter-Pakete könnten Ihr System beschädigen! Sind Sie sicher, dieses Paket zu installieren?
 options.always immer
 options.default Voreinstellungen benutzen

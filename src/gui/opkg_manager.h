@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2021 T. Graf 'dbt'
+	Copyright (C) 2012-2023 T. Graf 'dbt'
 
 	Adaptions:
 	Copyright (C) 2013 martii
@@ -30,12 +30,15 @@
 #ifndef __OPKG_MANAGER__
 #define __OPKG_MANAGER__
 
-#include <gui/widget/menue.h>
 #include <configfile.h>
-#include <string>
-#include <vector>
+
 #include <map>
 #include <mutex>
+#include <string>
+#include <vector>
+
+#include "widget/hintbox.h"
+#include "widget/menue.h"
 
 #define OPKG_MAX_FEEDS 10
 #define HAS_PKG_UPDATE_FLAGFILE  "/tmp/.has_pkg_updates"
@@ -53,23 +56,56 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 
 	private:
 		struct pkg {
-			std::string name;
-			std::string version;
-			std::string desc;
+			std::string 	name,
+					version,
+					desc,
+					section,
+					priority,
+					recommends,
+					status,
+					architecture,
+					maintainer,
+					md5sum,
+					size,
+					filename,
+					source,
+					homepage,
+					license,
+					installed_size,
+					installed_time,
+					hint;
 			bool installed;
 			bool upgradable;
 			CMenuForwarder *forwarder;
-			pkg() { }
-			pkg(std::string &_name, std::string &_version, std::string &_desc)
-			: name(_name), version(_version), desc(_desc), installed(false), upgradable(false) { }
+				pkg() { }
+				pkg(std::string &_name)
+					: name(_name),
+					version(""),
+					desc(""),
+					section(""),
+					priority(""),
+					recommends(""),
+					status(""),
+					architecture(""),
+					maintainer(""),
+					md5sum(""),
+					size(""),
+					filename(""),
+					source(""),
+					homepage(""),
+					license(""),
+					installed_size(""),
+					installed_time(""),
+					hint(""),
+					installed(false),
+					upgradable(false),
+					forwarder(NULL) { }
 		};
-		struct pkg;
 		std::map<std::string,pkg> pkg_map;
-		std::vector<pkg*> pkg_vec;
 
 		int width;
 		int is_wizard;
-		std::string tmp_str;
+		std::string terminal_str;
 		CConfigFile opkg_conf;
 		void init(int wizard_mode);
 		bool silent; // Controls some screen messages, eg, avoids unintended or disturbing messages on update checks at background.
@@ -78,12 +114,12 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		std::vector<std::string> v_bad_pattern, v_good_pattern;
 
 		CMenuWidget *menu;
-		CMenuForwarder *upgrade_forwarder;
-		bool list_installed_done;
-		bool list_upgradeable_done;
+		bool menu_used;
 		bool installed;
 		bool expert_mode;
 		std::string *local_dir;
+
+		CLoaderHint *hintBox;
 
 		bool has_err;
 		typedef struct OPKG_error_data_t
@@ -119,10 +155,8 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		int execCmd(std::string cmdstr, int verbose_mode = 0) {
 			return execCmd(cmdstr.c_str(), verbose_mode);
 		};
-		void getPkgData(const int pkg_content_id);
-		std::string getBlankPkgName(const std::string& line);
-		bool isInstalled(const std::string& pkg_name);
-		bool isUpgradable(const std::string& pkg_name);
+		void pullPkgData();
+		std::string getBlankPkgName(const std::string &line);
 
 		void handleUpdateFlagFile();
 		void initUpdateMessage(bool enable_message = true);
@@ -130,22 +164,16 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		std::mutex opk_mutex;
 
 		/*!
-		* Gets an info from opkg command info or status from a package via keywords as std::string
+		* Gets an info from from a package via keywords as std::string
 		* 1st parameter is name of package as string eg. "gdb", without file extension or version data
 		* 2nd parameter needs a keyword like:
-		* Package, Version, Depends, Status, Section, Architecture, Maintainer, MD5Sum, Size, Filename, Source, Description
+		* Version, Depends, Status, Section, Architecture, Maintainer, MD5Sum, Size, Filename, Source, Description
 		* These kewords are to find in the control package inside of the opkg package file and the package list.
-		* 3rd parameter sets the sub command status or info. For more details, take a look to the opkg commands via command line.
 		*/
-		std::string getPkgInfo(const std::string& pkg_name, const std::string& pkg_key = std::string(), bool current_status = false);
+		std::string getPkgInfo(const std::string &pkg_name, const std::string &pkg_key = "");
 
-		//Does the same like getPkgInfo(), but only for status
-		std::string getPkgStatus(const std::string& pkg_name, const std::string& pkg_key){return getPkgInfo(pkg_name, pkg_key, true);}
-
-		std::string getKeyInfo(const std::string& input, const std::string& pkg_info_key, const std::string& delimiters);
-		int showMenu();
+		int initMenu();
 		void updateMenu();
-		void refreshMenu();
 
 		typedef enum
 		{
@@ -182,13 +210,9 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		bool isGoodPackage(std::string &package_name);
 		bool isPermittedPackage(std::string &package_name);
 
-		void showError(const char* local_msg, char* err_msg = NULL, const std::string& additional_text = std::string());
+		void showError(const char* local_msg, char* err_msg = NULL, const std::string &additional_text = std::string());
 		int doUpdate();
 		void handleShellOutput(std::string* cur_line, int* res, bool* ok);
-
-		std::string getInfoDir();
-		std::string getPkgDetails(std::string pkgName, std::string pkgKeyword, std::string pkgDesc = "");
-		std::string getPkgDescription(std::string pkgName, std::string pkgDesc = "");
 
 		int num_updates;
 	public:
@@ -196,13 +220,12 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		~COPKGManager();
 
 		void setWizardMode(int mode) {is_wizard = mode;}
-		int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget* parent, const std::string &actionKey);
 		static bool hasOpkgSupport();
-		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = false);
-		int getNumUpdates(bool show_progress = false) {if (!num_updates) checkUpdates("", show_progress); return num_updates;}
+		bool checkUpdates(bool show_progress = false);
+		int getNumUpdates();
 		void setUpdateCheckResult(bool enable_message = true);
-		bool installPackage(const std::string& pkg_name, std::string options = std::string(), bool force_configure = false);
-		bool checkSize(const std::string& pkg_name);
+		bool installPackage(const std::string &pkg_name, std::string options = std::string(), bool force_configure = false);
 };
 
 #endif

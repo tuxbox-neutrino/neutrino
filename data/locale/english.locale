@@ -2280,8 +2280,10 @@ nvodselector.subservice Select subservice
 opkg.button.expert_off Standard mode
 opkg.button.expert_on Expert mode
 opkg.button.info Package information
-opkg.button.install Install package
-opkg.button.uninstall Uninstall package
+opkg.button.install Install
+opkg.button.reinstall Reinstall
+opkg.button.uninstall Uninstall
+opkg.button.update.check Update check
 opkg.enter.feed.address Please enter address for server, local folder or share!
 opkg.enter.feed.address.example Example: http://pkg.nevis.neutrino-hd.com
 opkg.failure.install Install failed
@@ -2289,17 +2291,22 @@ opkg.failure.update Update failed
 opkg.failure.upgrade Upgrade failed
 opkg.feed.addresses Feed addresses
 opkg.install.local.package Install local package
+opkg.messagebox.please.wait Please wait...!
 opkg.messagebox.reinstall Re-install %s?
 opkg.messagebox.remove Remove %s?
 opkg.messagebox.size.error Not enough free memory available for this package!
 opkg.messagebox.updates.available Package update(s) available!
-opkg.success.install Install successful!\n restart of Neutrino might be required. Restart now?
-opkg.separator.packages.available available packages
-opkg.separator.packages.installed installed packages
+opkg.success.install Install successful!\n Restart of Neutrino might be required. Restart now?
+opkg.separator.packages.available Available packages
+opkg.separator.packages.available.plugins Available plugins
+opkg.separator.packages.installed Installed
+opkg.separator.packages.installed.plugins Installed plugins
+opkg.separator.upgrades.available Updates
 opkg.title Package Management
-opkg.update.check Checking for updates ...
-opkg.update.reading_lists Reading package lists ...
-opkg.upgrade Upgrade installed packages
+opkg.title.expert.mode Package Management - Expert mode
+opkg.update.check Checking for updates...
+opkg.update.reading_lists Reading package lists...
+opkg.upgrade System update
 opkg.warning_3rdparty_packages 3rd party packages could damage your system! Are you sure install this package?
 options.always always
 options.default Reset to defaults
