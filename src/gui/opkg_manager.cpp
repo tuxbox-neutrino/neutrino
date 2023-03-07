@@ -519,6 +519,37 @@ void COPKGManager::updateMenu()
 		menu->setSelected(2); //back-item
 		menu->setFooter(COPKGManagerFooterButtons, COPKGManagerFooterButtonCount);
 	}
+
+	std::vector<CMenuItem*>& items = menu->getItems();
+// 	Sorts the elements of the menu object, starting from the fifth element, because they are intro items.
+// 	The sorting is done in two steps: first, the elements are sorted based on the value of iconName_Info_right.
+// 	The values NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE, NEUTRINO_ICON_MARKER_DOWNLOAD_LATER and NEUTRINO_ICON_MARKER_DIALOG_OK
+// 	are sorted from highest to lowest priority.
+// 	If two elements have the same value for iconName_Info_right, they are sorted by their name using std::strcmp.
+
+// 	We know position (5) of menu separator from we will start sort.
+	std::sort(items.begin() + 5, items.end(), [](CMenuItem* a, CMenuItem* b)
+	{
+		int aValue = 0, bValue = 0;
+		if (a->iconName_Info_right == NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE)
+			aValue = 3;
+		else if (a->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
+			aValue = 2;
+		else if (a->iconName_Info_right == NEUTRINO_ICON_MARKER_DIALOG_OK)
+			aValue = 1;
+
+		if (b->iconName_Info_right == NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE)
+			bValue = 3;
+		else if (b->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
+			bValue = 2;
+		else if (b->iconName_Info_right == NEUTRINO_ICON_MARKER_DIALOG_OK)
+			bValue = 1;
+
+		if (aValue == bValue)
+			return strcmp(a->getName(), b->getName()) < 0;
+		else
+			return aValue > bValue;
+	});
 }
 
 bool COPKGManager::removeInfoBarTxt()
