@@ -497,7 +497,7 @@ void COPKGManager::updateMenu()
 		if (!isPermittedPackage(it->second.name))
 			continue;
 
-		it->second.forwarder->iconName_Info_right = "";
+		it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_DOWNLOAD_LATER;
 		it->second.forwarder->setActive(true);
 		if (it->second.upgradable) {
 			it->second.forwarder->iconName_Info_right = NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE;
@@ -739,7 +739,7 @@ int COPKGManager::showMenu()
 		if (!isPermittedPackage(it->second.name))
 			continue;
 
-		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
+		it->second.forwarder = new CMenuForwarder(it->second.name, true, it->second.version.c_str() , this, it->second.name.c_str());
 		it->second.forwarder->setHint("", it->second.desc);
 		menu->addItem(it->second.forwarder);
 		pkg_vec.push_back(&it->second);
@@ -829,9 +829,16 @@ string COPKGManager::getInfoDir()
 	return "";
 }
 
-string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
+string COPKGManager::getPkgDetails(std::string pkgName, std::string pkgKeyword, std::string pkgDesc)
 {
+	if (pkgKeyword.empty())
+	{
+		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d] pkgKeyword for [%s] not defined, missing value in parameter pkgName\n", __func__, __LINE__, pkgName.c_str());
+		return "";
+	}
+
 	static string infoPath;
+	string res = "";
 	if (infoPath.empty())
 		infoPath = getInfoDir();
 	if (infoPath.empty())
@@ -853,38 +860,29 @@ string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
 			return pkgDesc;
 		}
 		char buf[512];
-		string package, version, description;
 		while (fgets(buf, sizeof(buf), fd)) {
 			if (buf[0] == ' ')
 				continue;
 			string line(buf);
 			trim(line, " ");
 			string tmp;
-			/* When pkgDesc is empty, return description only for CMD_INFO */
-			if (!pkgDesc.empty()) {
-				tmp = getKeyInfo(line, "Package:", " ");
-				if (!tmp.empty())
-					package = tmp;
-				tmp = getKeyInfo(line, "Version:", " ");
-				if (!tmp.empty())
-					version = tmp;
-			}
-			tmp = getKeyInfo(line, "Description:", " ");
+			string key = pkgKeyword + ":";
+			tmp = getKeyInfo(line, key, " ");
 			if (!tmp.empty())
-				description = tmp;
+				res = tmp;
 		}
 		fclose(fd);
 
-		if (pkgDesc.empty())
-			return description;
-
-		string desc = package + " - " + version;
-		if (!description.empty())
-			desc += " - " + description;
-
-		return desc;
+		return res;
 	}
 	return pkgDesc;
+}
+
+string COPKGManager::getPkgDescription(std::string pkgName, std::string pkgDesc)
+{
+	if (!pkgDesc.empty())
+		return pkgDesc;
+	return getPkgDetails(pkgName, "Description", pkgDesc);
 }
 
 void COPKGManager::getPkgData(const int pkg_content_id)
@@ -942,19 +940,55 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 				pkg_map[name] = pkg(name, line, line);
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
-					it->second.desc = getPkgDescription(name, line);
+				{
+					it->second.name = name;
+					it->second.version = "";
+					it->second.desc = "";
+					std::string str_tmp = line, del = " - ";
+
+					size_t pos1 = str_tmp.find(del);
+					if (pos1 == std::string::npos)
+					{
+						name = str_tmp;
+					}else
+					{
+						name = str_tmp.substr(0, pos1);
+						str_tmp.erase(0, pos1 + del.length());
+
+						size_t pos2 = str_tmp.find(del);
+						if (pos2 == std::string::npos)
+						{
+							it->second.version = str_tmp;
+						}
+						else
+						{
+							it->second.version = str_tmp.substr(0, pos2);
+							it->second.desc = str_tmp.substr(pos2 + del.length());
+						}
+					}
+				}
 				break;
 			}
 			case CMD_LIST_INSTALLED: {
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
+				{
 					it->second.installed = true;
+					std::string del = " - ";
+					std::size_t delpos = line.find(del);
+					it->second.version = line.substr(delpos + del.length());
+				}
 				break;
 			}
 			case CMD_LIST_UPGRADEABLE: {
 				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
+				{
 					it->second.upgradable = true;
+					std::string del = " - ";
+					std::size_t delpos = line.find(del);
+					it->second.version = line.substr(delpos + del.length());
+				}
 				break;
 			}
 			default:

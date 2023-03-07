@@ -188,9 +188,8 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		void handleShellOutput(std::string* cur_line, int* res, bool* ok);
 
 		std::string getInfoDir();
-		std::string getPkgDescription(std::string pkgName, std::string pkgDesc="");
-
-
+		std::string getPkgDetails(std::string pkgName, std::string pkgKeyword, std::string pkgDesc = "");
+		std::string getPkgDescription(std::string pkgName, std::string pkgDesc = "");
 
 		int num_updates;
 	public:
