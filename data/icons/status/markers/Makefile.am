@@ -3,6 +3,7 @@ installdir = $(ICONSDIR)
 install_DATA = \
 	marker_dialog_off.png \
 	marker_dialog_ok.png \
+	marker_download_later.png \
 	marker_epg.png \
 	marker_hd.png \
 	marker_hidden.png \
