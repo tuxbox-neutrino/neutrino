@@ -394,12 +394,8 @@ void CImageInfo::initGuiInfo()
 {
 	string gui_info = PACKAGE_NAME;
 #if ENABLE_PKG_MANAGEMENT
-	string pkg_name = "neutrino-mp";
-	gui_info += " (";
-	gui_info += pkg_name;
-	gui_info += " ";
-	gui_info += man.getPkgInfo(pkg_name, "Version",  true);
-	gui_info += ")";
+	if (file_exists("/tmp/.neutrino.version"))
+		gui_info += " " + CComponentsText::getTextFromFile("/tmp/.neutrino.version");
 #endif
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_GUI), config.getString("gui", gui_info)});
 
