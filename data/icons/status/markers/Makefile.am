@@ -3,6 +3,7 @@ installdir = $(ICONSDIR)
 install_DATA = \
 	marker_dialog_off.png \
 	marker_dialog_ok.png \
+	marker_dialog_ok_apply.png \
 	marker_download_later.png \
 	marker_epg.png \
 	marker_hd.png \
@@ -18,6 +19,7 @@ install_DATA = \
 	marker_streaming.png \
 	marker_timeshift.png \
 	marker_timeshift_gray.png \
+	marker_user_busy.png \
 	marker_tv.png \
 	marker_uhd.png \
 	marker_update_available.png \

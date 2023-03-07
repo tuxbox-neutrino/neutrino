@@ -307,9 +307,11 @@
 
 /* status */
 #define NEUTRINO_ICON_MARKER_DIALOG_OK		"marker_dialog_ok"
+#define NEUTRINO_ICON_MARKER_DIALOG_OK_APPLY	"marker_dialog_ok_apply"
 #define NEUTRINO_ICON_MARKER_DIALOG_OFF		"marker_dialog_off"
 #define NEUTRINO_ICON_MARKER_DOWNLOAD_LATER	"marker_download_later"
 #define NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE	"marker_update_available"
+#define NEUTRINO_ICON_MARKER_USER_BUSY		"marker_user_busy"
 
 /* activity */
 #define NEUTRINO_ICON_LOADER		"hourglass"
