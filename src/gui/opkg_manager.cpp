@@ -218,11 +218,11 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 		if (fileBrowser.exec((*local_dir).c_str()))
 		{
-			string pkg_name = fileBrowser.getSelectedFile()->Name;
-			if (!installPackage(pkg_name))
-				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pkg_name);
+			string package = fileBrowser.getSelectedFile()->Name;
+			if (!installPackage(package))
+				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, package);
 				/* errno is never set properly, the string is totally useless.
-				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
+				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), package);
 				 */
 
 			*local_dir = fileBrowser.getCurrentDir();
