@@ -161,41 +161,42 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 		return ret;
 	}
-	int selected = menu->getSelected() - menu_offset;
+	int selected = menu->getSelected()/* - menu_offset*/;
+	string pkg_name = menu->getItem(selected)->getName();
 
 	if (expert_mode && actionKey == "rc_blue") {
 		if (selected < 0 || selected >= (int) pkg_vec.size() || !pkg_vec[selected]->installed)
 			return menu_return::RETURN_NONE;
 
 		char loc[200];
-		snprintf(loc, sizeof(loc), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REMOVE), pkg_vec[selected]->name.c_str());
+		snprintf(loc, sizeof(loc), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REMOVE), pkg_name.c_str());
 		if (ShowMsg(LOCALE_OPKG_TITLE, loc, CMsgBox::mbrCancel, CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel) {
 			if (parent)
 				parent->hide();
-			execCmd(pm_cmd[CMD_REMOVE] + pkg_vec[selected]->name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
+			execCmd(pm_cmd[CMD_REMOVE] + pkg_name, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE_EVENT);
 			refreshMenu();
 		}
 		return res;
 	}
 	if (actionKey == "rc_info") {
-		if (selected < 0 || selected >= (int) pkg_vec.size()){
-			DisplayInfoMessage("No information available! Please first select a package!");
-			return menu_return::RETURN_NONE;
-		}
-		//show package info...
-		bool is_installed = pkg_vec[selected]->installed;
-		string infostr = getPkgInfo(pkg_vec[selected]->name, "", is_installed /*status or info*/);
+		for (size_t i = 0; i < pkg_vec.size(); i++)
+		{
+			if (pkg_vec[i]->name == pkg_name)
+			{
+				string infostr = getPkgInfo(pkg_name, "", pkg_vec[i]->installed);
 
-		//if available, generate a readable string for installation time
-		if (is_installed){
-			string tstr = getPkgInfo(pkg_vec[selected]->name, "Installed-Time", is_installed);
-			stringstream sstr(tstr);
-			time_t tval; sstr >> tval;
-			string newstr = asctime(localtime(&tval));
-			infostr = str_replace(tstr, newstr, infostr);
+				//if available, generate a readable string for installation time
+				if (pkg_vec[i]->installed){
+					string tstr = getPkgInfo(pkg_name, "Installed-Time", true);
+					stringstream sstr(tstr);
+					time_t tval; sstr >> tval;
+					string newstr = asctime(localtime(&tval));
+					infostr = str_replace(tstr, newstr, infostr);
+				}
+				DisplayInfoMessage(infostr.c_str());
+				break;
+			}
 		}
-
-		DisplayInfoMessage(infostr.c_str());
 		return res;
 	}
 	if (actionKey == "rc_yellow") {
