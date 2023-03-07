@@ -521,15 +521,15 @@ void COPKGManager::updateMenu()
 		menu->setFooter(COPKGManagerFooterButtons, COPKGManagerFooterButtonCount);
 	}
 
-	std::vector<CMenuItem*>& items = menu->getItems();
 	// Sorts the elements of the menu object, starting from the fifth element, because previous items are intro items.
 	// The sorting is done in two steps: first, the elements are sorted based on the value of iconName_Info_right.
 	// The values NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE, NEUTRINO_ICON_MARKER_DOWNLOAD_LATER and NEUTRINO_ICON_MARKER_DIALOG_OK
 	// are sorted from highest to lowest priority.
 	// If two elements have the same value for iconName_Info_right, they are sorted by their names.
-
-	// We know position (5) of menu separator from we will start sort.
-	std::sort(items.begin() + 5, items.end(), [](CMenuItem* a, CMenuItem* b)
+	std::vector<CMenuItem*>& items = menu->getItems();
+	// We know about start position (5) of menu separator from we will start sort, resulted by count of intro items.
+	size_t intro_items_end = 5;
+	std::sort(items.begin() + intro_items_end, items.end(), [](CMenuItem* a, CMenuItem* b)
 	{
 		int aValue = 0, bValue = 0;
 		if (a->iconName_Info_right == NEUTRINO_ICON_MARKER_UPDATE_AVAILABLE)
@@ -553,17 +553,37 @@ void COPKGManager::updateMenu()
 	});
 
 	// Now we have a sorted list, but we need some menu separators with text that describes what is inside the sections.
-	for (size_t i = 5; i < items.size()-1; i++)
+	for (size_t i = intro_items_end; i > items.size(); i++)
 	{
+		if (items[i]->type_name == "CMenuSeparator")
+			menu->removeItem(i);
+	}
+
+	bool found_available, found_installed = false;
+	for (size_t i = intro_items_end; i < items.size()-1; i++)
+	{
+		if (found_available && found_installed)
+			break;
+
 		if (items[i]->iconName_Info_right != NULL)
 			if (items[i]->iconName_Info_right != items[i + 1]->iconName_Info_right)
 			{
-				if (items[i + 1]->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
+				if (!found_available && items[i + 1]->iconName_Info_right == NEUTRINO_ICON_MARKER_DOWNLOAD_LATER)
+				{
 					menu->insertItem(i + 1, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_AVAILABLE));
-				else
+					found_available = true;
+				}
+				else if (!found_installed)
+				{
 					menu->insertItem(i + 1, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_OPKG_SEPARATOR_PACKAGES_INSTALLED));
+					found_installed = true;
+				}
 			}
 	}
+
+	// Clean up last items. No separators are requierd at the end of menu.
+	if (items[items.size()-1]->type_name == "CMenuSeparator")
+		menu->removeItem(items.size()-1);
 }
 
 bool COPKGManager::removeInfoBarTxt()
