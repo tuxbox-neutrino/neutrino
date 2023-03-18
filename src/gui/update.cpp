@@ -48,9 +48,6 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
-#if ENABLE_PKG_MANAGEMENT
-#include <gui/opkg_manager.h>
-#endif
 #include <gui/widget/menue_options.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
@@ -468,8 +465,7 @@ bool CFlashUpdate::checkVersion4Update()
 			UpdatesFilter.addFilter("zip");
 #endif
 		}
-
-		std::string filters[] = {"bin", "txt", "opk", "ipk"};
+		std::string filters[] = {"bin", "txt"};
 		for (size_t i = 0; i < sizeof(filters) / sizeof(filters[0]) ; i++)
 			UpdatesFilter.addFilter(filters[i]);
 
@@ -500,27 +496,6 @@ bool CFlashUpdate::checkVersion4Update()
 			return false;
 		}
 		hide();
-
-#if ENABLE_PKG_MANAGEMENT
-		// package install:
-		if (file_selected->getType() == CFile::FILE_PKG_PACKAGE)
-		{
-			COPKGManager opkg;
-			if (opkg.hasOpkgSupport())
-			{
-				int msgres = ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_OPKG_WARNING_3RDPARTY_PACKAGES, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE, 700);
-				if (msgres == CMsgBox::mbrYes)
-				{
-					if (!opkg.installPackage(UpdatesBrowser.getSelectedFile()->Name))
-						DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL));
-				}
-			}
-			else
-				DisplayInfoMessage(g_Locale->getText(LOCALE_MESSAGEBOX_FEATURE_NOT_SUPPORTED));
-			// !always leave here!
-			return false;
-		}
-#endif
 
 		// set internal filetype
 		char const *ptr = rindex(filename.c_str(), '.');
