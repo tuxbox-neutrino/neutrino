@@ -422,8 +422,8 @@ bool CFlashUpdate::checkVersion4Update()
 		showGlobalStatus(20);
 		hide();
 
-		versionInfo = new CFlashVersionInfo(newVersion); // Memory leak: versionInfo
-		sprintf(msg, g_Locale->getText(LOCALE_FLASHUPDATE_MSGBOX), versionInfo->getType(true), versionInfo->getVersionString(), versionInfo->getDate(), versionInfo->getTime());
+		CFlashVersionInfo versionInfo(newVersion);
+		sprintf(msg, g_Locale->getText(LOCALE_FLASHUPDATE_MSGBOX), versionInfo.getType(true), versionInfo.getVersionString(), versionInfo.getDate(), versionInfo.getTime());
 
 		if (gotImage)
 		{
@@ -431,7 +431,6 @@ bool CFlashUpdate::checkVersion4Update()
 			if ((strncmp(PACKAGE_RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
 				(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_WRONGBASE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes))
 			{
-				delete versionInfo;
 				return false;
 			}
 #endif
@@ -439,12 +438,9 @@ bool CFlashUpdate::checkVersion4Update()
 			if ((fileType != '0' /*Release*/) &&
 				(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_EXPERIMENTALIMAGE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes))
 			{
-				delete versionInfo;
 				return false;
 			}
 		}
-
-		delete versionInfo;
 	}
 	else
 	{
