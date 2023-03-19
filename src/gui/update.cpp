@@ -59,8 +59,6 @@
 
 #include <lib/libnet/libnet.h>
 
-#define SQUASHFS
-
 #include <curl/curl.h>
 #include <curl/easy.h>
 
@@ -89,7 +87,6 @@ extern int allow_flash;
 
 //#define DRYRUN
 
-//#define gTmpPath "/var/update/"
 #define gTmpPath "/tmp/"
 #define gUserAgent "neutrino/softupdater 1.0"
 
@@ -409,7 +406,6 @@ bool CFlashUpdate::checkVersion4Update()
 {
 	char msg[400];
 	CFlashVersionInfo *versionInfo;
-	neutrino_locale_t msg_body;
 	dprintf(DEBUG_NORMAL, "[update] mode is %d\n", softupdate_mode);
 	if (softupdate_mode == 1) // internet-update
 	{
@@ -426,10 +422,8 @@ bool CFlashUpdate::checkVersion4Update()
 		showGlobalStatus(20);
 		hide();
 
-		msg_body = LOCALE_FLASHUPDATE_MSGBOX;
-#ifdef SQUASHFS
 		versionInfo = new CFlashVersionInfo(newVersion); // Memory leak: versionInfo
-		sprintf(msg, g_Locale->getText(msg_body), versionInfo->getType(true), versionInfo->getVersionString(), versionInfo->getDate(), versionInfo->getTime());
+		sprintf(msg, g_Locale->getText(LOCALE_FLASHUPDATE_MSGBOX), versionInfo->getType(true), versionInfo->getVersionString(), versionInfo->getDate(), versionInfo->getTime());
 
 		if (gotImage)
 		{
@@ -451,7 +445,6 @@ bool CFlashUpdate::checkVersion4Update()
 		}
 
 		delete versionInfo;
-#endif
 	}
 	else
 	{
