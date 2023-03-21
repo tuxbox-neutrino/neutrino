@@ -161,12 +161,6 @@ void* CTimerManager::timerThread(void *arg)
 						if(event->stopTime == 0)					// if event needs no stop event
 							event->setState(CTimerd::TIMERSTATE_HASFINISHED);
 						timerManager->m_saveEvents = true;
-#ifdef ENABLE_GRAPHLCD
-						if (setTimerIcon) {
-							cGLCD::unlockIcon(cGLCD::TIMER);
-							setTimerIcon = false;
-						}
-#endif
 					}
 
 				if(event->stopTime > 0 && event->eventState == CTimerd::TIMERSTATE_ISRUNNING  )		// check if stopevent is wanted
@@ -204,6 +198,17 @@ void* CTimerManager::timerThread(void *arg)
 						break;
 				}
 			}
+#ifdef ENABLE_GRAPHLCD
+			if (setTimerIcon)
+			{
+				if (timerManager->events.begin() == timerManager->events.end()) // no timers
+				{
+					cGLCD::unlockIcon(cGLCD::TIMER);
+					setTimerIcon = false;
+				}
+			}
+#endif
+
 			pthread_mutex_unlock(&tm_eventsMutex);
 
 			// save events if requested
