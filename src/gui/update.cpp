@@ -405,7 +405,6 @@ bool CFlashUpdate::getUpdateImage(const std::string &version)
 bool CFlashUpdate::checkVersion4Update()
 {
 	char msg[400];
-	CFlashVersionInfo *versionInfo;
 	dprintf(DEBUG_NORMAL, "[update] mode is %d\n", softupdate_mode);
 	if (softupdate_mode == 1) // internet-update
 	{
