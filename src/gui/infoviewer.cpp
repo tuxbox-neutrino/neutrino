@@ -862,11 +862,11 @@ void CInfoViewer::setInfobarTimeout(int timeout_ext)
 	timeoutEnd = CRCInput::calcTimeoutEnd(timeout + timeout_ext);
 }
 
-bool CInfoViewer::showLivestreamInfo()
+void CInfoViewer::getLivestreamInfo()
 {
-	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
+	CZapitChannel *cc = CZapit::getInstance()->GetCurrentChannel();
 	bool web_mode = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
-	if (web_mode && (info_CurrentNext.current_uniqueKey == 0 && info_CurrentNext.next_uniqueKey == 0))
+	if (cc && web_mode)
 	{
 		std::string livestreamInfo1 = "";
 		std::string livestreamInfo2 = "";
@@ -986,27 +986,38 @@ bool CInfoViewer::showLivestreamInfo()
 					livestreamInfo1 += " - ";
 				livestreamInfo1 += title;
 			}
-			if(livestreamInfo2.empty())
+			if (livestreamInfo2.empty())
 			{
-				if(!icy_name.empty())
+				if (!icy_name.empty())
 					livestreamInfo2 = icy_name;
-				if(!icy_genre.empty())
-					livestreamInfo2 += icy_genre;
-				if(!icy_br.empty())
-					livestreamInfo2 += icy_br;
-				if(!icy_description.empty() && livestreamInfo2.empty())
-					livestreamInfo2 += icy_description;
+				if (!icy_genre.empty())
+					livestreamInfo2 += " " + icy_genre;
+				if (!icy_br.empty())
+					livestreamInfo2 += " " + icy_br;
+				if (!icy_description.empty() && livestreamInfo2.empty())
+					livestreamInfo2 += " " + icy_description;
 			}
 
 		}
 
-		if (livestreamInfo1 != _livestreamInfo1 || livestreamInfo2 != _livestreamInfo2)
-		{
-			display_Info(livestreamInfo1.c_str(), livestreamInfo2.c_str(), false);
+		if (livestreamInfo1 != _livestreamInfo1)
 			_livestreamInfo1 = livestreamInfo1;
+
+		if (livestreamInfo2 != _livestreamInfo2)
 			_livestreamInfo2 = livestreamInfo2;
-			infoViewerBB->showBBButtons(true /*paintFooter*/);
-		}
+	}
+}
+
+bool CInfoViewer::showLivestreamInfo()
+{
+	bool web_mode = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio);
+	if (web_mode && (info_CurrentNext.current_uniqueKey == 0 && info_CurrentNext.next_uniqueKey == 0))
+	{
+		getLivestreamInfo();
+
+		display_Info(_livestreamInfo1.c_str(), _livestreamInfo2.c_str(), false);
+		infoViewerBB->showBBButtons(true);
+
 		return true;
 	}
 	return false;
