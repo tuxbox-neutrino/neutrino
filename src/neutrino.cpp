@@ -5769,14 +5769,14 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.key_subchannel_down = tconfig->getInt32("key_subchannel_down", CRCInput::RC_left);
 	g_settings.key_subchannel_up = tconfig->getInt32("key_subchannel_up", CRCInput::RC_right);
 	g_settings.key_switchformat = tconfig->getInt32("key_switchformat", CRCInput::RC_nokey);
-#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_PROTEK4K || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_E4HDULTRA || BOXMODEL_PROTEK4K || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_nokey); // FIXME
 #elif BOXMODEL_VUPLUS_ALL
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_playpause);
 #else
 	g_settings.key_timeshift = tconfig->getInt32("key_timeshift", CRCInput::RC_pause);
 #endif
-#if BOXMODEL_HD61
+#if BOXMODEL_E4HDULTRA || BOXMODEL_PROTEK4K || BOXMODEL_HD61
 	g_settings.key_tvradio_mode = tconfig->getInt32("key_tvradio_mode", CRCInput::RC_tv);
 #else
 	g_settings.key_tvradio_mode = tconfig->getInt32("key_tvradio_mode", CRCInput::RC_nokey);
