@@ -32,6 +32,7 @@
 #include <system/helpers.h>
 #include <system/set_threadname.h>
 #include <driver/audioplay.h>
+#include <gui/infoviewer.h>
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <hardware_caps.h>
@@ -1142,6 +1143,25 @@ void cGLCD::Run(void)
 					tm = localtime(&tmp_end_time);
 					snprintf(tmp_end, sizeof(tmp_end), "%02d:%02d", tm->tm_hour, tm->tm_min);
 					End = stagingEnd = tmp_end;
+				}
+
+				if (Epg.empty() && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio))
+				{
+					g_InfoViewer->get_livestreamInfo();
+					if (g_InfoViewer->get_livestreamInfo1() == "RESOLUTION=1x1") // comes from best_bitrate_m3u8.lua
+						Epg = g_InfoViewer->get_livestreamInfo2();
+					else
+						Epg = g_InfoViewer->get_livestreamInfo1() + " " + g_InfoViewer->get_livestreamInfo2();
+					EpgWidth = font_epg.Width(Epg);
+					doScrollEpg = EpgWidth > bitmap->Width();
+					scrollEpgForward = true;
+					scrollEpgSkip = 0;
+					if (doScrollEpg)
+					{
+						scrollEpgOffset = bitmap->Width()/4;
+						EpgWidth += scrollEpgOffset;
+					} else
+						scrollEpgOffset = 0;
 				}
 			}
 		}
