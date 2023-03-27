@@ -418,8 +418,6 @@ bool CFlashUpdate::checkVersion4Update()
 
 		dprintf(DEBUG_NORMAL, "[update] internet version: %s\n", newVersion.c_str());
 
-		showLocalStatus(100);
-		showGlobalStatus(20);
 		hide();
 
 		CFlashVersionInfo versionInfo(newVersion);
@@ -428,7 +426,7 @@ bool CFlashUpdate::checkVersion4Update()
 		if (gotImage)
 		{
 #if 0
-			if ((strncmp(PACKAGE_RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
+			if ((strncmp(PACKAGE_RELEASE_CYCLE, versionInfo.getReleaseCycle(), 2) != 0) &&
 				(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_WRONGBASE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE) != CMsgBox::mbrYes))
 			{
 				return false;
