@@ -40,7 +40,7 @@
 {=func:get_timer_list {=var-get:row=}=}
 
 <tr class="timer_footer">
-	<td colspan="6"><img src="/images/blank.gif" width="1" height="1"/></td>
+	<td colspan="6"><img src="/images/blank.png" width="1" height="1"/></td>
 	<td>
 		<a href="/Y_Timer_Edit.yhtm?typ=new">
 		<img src="/images/new.png" alt="neuer Timer"/></a>

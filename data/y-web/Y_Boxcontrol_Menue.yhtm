@@ -179,8 +179,8 @@ function epg_plus_popup() {
 		<center>
 			<table class="y_text_boxcontrol_table" cellspacing="0" cellpadding="0" title="{=L:bc.menue.volumen_display=}">
 			<tr>
-			<td id="audiobar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="."/></td>
-			<td id="audiobar_right" width="0%"><img src="/images/blank.gif" height="1" width="0" alt="."/></td>
+			<td id="audiobar_left" width="100%"><img src="/images/blank.png" height="1" width="0" alt="."/></td>
+			<td id="audiobar_right" width="0%"><img src="/images/blank.png" height="1" width="0" alt="."/></td>
 			</tr>
 			</table>
 			<br/>
@@ -219,8 +219,8 @@ function epg_plus_popup() {
 			<div class="y_text_boxcontrol_div_progress">SIG <span id="sig_value"></span>%</div>
 			<table class="y_text_boxcontrol_table_progress" cellspacing="0" cellpadding="0" title="{=L:bc.menue.sig_display=}">
 			<tr>
-			<td id="sigbar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
-			<td id="sigbar_right" width="0%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			<td id="sigbar_left" width="100%"><img src="/images/blank.png" height="1" width="0" alt="." /></td>
+			<td id="sigbar_right" width="0%"><img src="/images/blank.png" height="1" width="0" alt="." /></td>
 			</tr>
 			</table>
 		</center>
@@ -228,8 +228,8 @@ function epg_plus_popup() {
 			<div class="y_text_boxcontrol_div_progress">SNR <span id="snr_value"></span>%</div>
 			<table class="y_text_boxcontrol_table_progress" cellspacing="0" cellpadding="0" title="{=L:bc.menue.snr_display=}">
 			<tr>
-			<td id="snrbar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
-			<td id="snrbar_right" width="0%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			<td id="snrbar_left" width="100%"><img src="/images/blank.png" height="1" width="0" alt="." /></td>
+			<td id="snrbar_right" width="0%"><img src="/images/blank.png" height="1" width="0" alt="." /></td>
 			</tr>
 			</table>
 		</center>
