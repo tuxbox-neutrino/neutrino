@@ -1449,6 +1449,8 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 			if (!hh->ParamList["bouquet"].empty()) {
 				// list for given bouquet
 				BouquetNr = atoi(hh->ParamList["bouquet"].c_str());
+				if (BouquetNr < 0)
+					BouquetNr = 0;
 				if (BouquetNr > 0)
 					BouquetNr--;
 				if((BouquetNr > 0) && (BouquetNr >= bsize))
