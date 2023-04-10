@@ -1044,7 +1044,6 @@ imageinfo.os System:
 imageinfo.policy Datenschutz
 imageinfo.vcs Git:
 imageinfo.version Version:
-imdb.api_key IMDb API Schlüssel
 imdb.data_actors Darsteller
 imdb.data_awards Awards
 imdb.data_boxoffice Einspielergebnis
@@ -1062,9 +1061,6 @@ imdb.data_title Originaltitel
 imdb.data_votes Stimmen
 imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
-imdb.enabled IMDb-Unterstützung
-imdb.head IMDb
-imdb.read_data Suche IMDb-Daten ...
 inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen ...
@@ -1528,7 +1524,7 @@ menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Auss
 menu.hint_misc_epg Diverse EPG-Einstellungen und Speicherverzeichnis für EPG-Daten
 menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, Startverzeichnisoptionen
 menu.hint_misc_general Standby-, Videotext- und Debuglevel-Einstellungen
-menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter, TMDb, IMDb, SHOUTCast und YouTube
+menu.hint_misc_onlineservices Konfigurieren und steuern von Online-Diensten wie Wetter, TMDb, OMDb, SHOUTCast und YouTube
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
 menu.hint_moviebrowser_fonts Ändern Sie die Schriftgrößen im Moviebrowser (Meine Aufnahmen)
@@ -1573,6 +1569,8 @@ menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der
 menu.hint_next Weiter zum nächsten Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_next_brief Weiter zum nächsten Menü
 menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
+menu.hint_omdb_api_key Geben Sie den OMDb API Schlüssel ein. Eine leere Eingabe schaltet die OMDb-Unterstützung aus
+menu.hint_omdb_enabled Schaltet die OMDb-Unterstützung (omdb.org) ein bzw. aus
 menu.hint_opkg Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_feed_addresses_edit Bearbeiten von Feed-Adressen
 menu.hint_opkg_install_local_package Paket von USB-Stick, SD, Freigabe oder lokalem Ordner installieren.
@@ -2277,6 +2275,10 @@ nvodselector.directormode Bildregie-Modus
 nvodselector.head Bildregie
 nvodselector.starttime Anfangszeit auswählen
 nvodselector.subservice Perspektiven
+omdb.api_key OMDb API Schlüssel
+omdb.enabled OMDb-Unterstützung
+omdb.head OMDb
+omdb.read_data Suche OMDb-Daten ...
 opkg.button.expert_off Standard-Modus
 opkg.button.expert_on Experten-Modus
 opkg.button.info Paket-Informationen

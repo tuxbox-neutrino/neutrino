@@ -69,7 +69,7 @@ CIMDB::~CIMDB()
 
 void CIMDB::setTitle(std::string epgtitle)
 {
-	hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_IMDB_READ_DATA);
+	hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, LOCALE_OMDB_READ_DATA);
 	hintbox->paint();
 
 	getMovieDetails(epgtitle);

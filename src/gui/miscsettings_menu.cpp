@@ -664,15 +664,15 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	ms_oservices->addItem(GenericMenuSeparator);
 
 	// omdb
-	omdb_onoff = new CMenuOptionChooser(LOCALE_IMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_omdb_api_key());
-	//omdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_ENABLED);
+	omdb_onoff = new CMenuOptionChooser(LOCALE_OMDB_ENABLED, &g_settings.omdb_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_omdb_api_key());
+	omdb_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_OMDB_ENABLED);
 	ms_oservices->addItem(omdb_onoff);
 
 #if ENABLE_OMDB_KEY_MANAGE
-	changeNotify(LOCALE_IMDB_API_KEY, NULL);
-	CKeyboardInput omdb_api_key_input(LOCALE_IMDB_API_KEY, &g_settings.omdb_api_key, 8, this);
-	CMenuForwarder *mf_om = new CMenuForwarder(LOCALE_IMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
-	//mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_IMDB_API_KEY);
+	changeNotify(LOCALE_OMDB_API_KEY, NULL);
+	CKeyboardInput omdb_api_key_input(LOCALE_OMDB_API_KEY, &g_settings.omdb_api_key, 8, this);
+	CMenuForwarder *mf_om = new CMenuForwarder(LOCALE_OMDB_API_KEY, true, omdb_api_key_short, &omdb_api_key_input);
+	mf_om ->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_OMDB_API_KEY);
 	ms_oservices->addItem(mf_om);
 #endif
 
@@ -860,7 +860,7 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void */*data*/
 			tmdb_api_key_short.clear();
 		tmdb_onoff->setActive(CApiKey::check_tmdb_api_key());
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_IMDB_API_KEY))
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_OMDB_API_KEY))
 	{
 		g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
 		if (g_settings.omdb_enabled)

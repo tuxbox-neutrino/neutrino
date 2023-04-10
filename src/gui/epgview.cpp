@@ -1184,7 +1184,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					{
 						CMsgBox msgBox(g_Locale->getText(LOCALE_MDB_CHOOSE), LOCALE_MDB_HEAD);
 						msgBox.setShowedButtons(CMsgBox::mbNo | CMsgBox::mbYes);
-						msgBox.setButtonText(CMsgBox::mbNo, g_Locale->getText(LOCALE_IMDB_HEAD));
+						msgBox.setButtonText(CMsgBox::mbNo, g_Locale->getText(LOCALE_OMDB_HEAD));
 						msgBox.setButtonText(CMsgBox::mbYes, g_Locale->getText(LOCALE_TMDB_HEAD));
 						msgBox.paint();
 						msgBox.exec();
@@ -1696,7 +1696,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool adzap, bool mp_info)
 	if (imdb_active || tmdb_active)
 		EpgButtons[UsedButtons][1].locale = LOCALE_MISCSETTINGS_EPG_HEAD;
 	else if (g_settings.omdb_enabled && !g_settings.tmdb_enabled)
-		EpgButtons[UsedButtons][1].locale = LOCALE_IMDB_HEAD;
+		EpgButtons[UsedButtons][1].locale = LOCALE_OMDB_HEAD;
 	else if (g_settings.tmdb_enabled && !g_settings.omdb_enabled)
 		EpgButtons[UsedButtons][1].locale = LOCALE_TMDB_HEAD;
 	else
