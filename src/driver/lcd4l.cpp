@@ -980,7 +980,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 	{
 		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
-			g_InfoViewer->get_livestreamInfo();
+			g_InfoViewer->init_livestreamInfo();
 			if (g_InfoViewer->get_livestreamInfo1() == "RESOLUTION=1x1") // comes from best_bitrate_m3u8.lua
 			{
 				Event = g_InfoViewer->get_livestreamInfo2();

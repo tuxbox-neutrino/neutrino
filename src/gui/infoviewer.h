@@ -206,7 +206,7 @@ class CInfoViewer : public sigc::trackable
 	int	getSwitchMode() {return zap_mode;}
 	void    resetSwitchMode() {setSwitchMode(IV_MODE_DEFAULT);}
 
-	void get_livestreamInfo() { initLiveStreamInfo(); }
+	void init_livestreamInfo() { initLiveStreamInfo(); }
 	std::string get_livestreamInfo1() { return _livestreamInfo1; }
 	std::string get_livestreamInfo2() { return _livestreamInfo2; }
 

@@ -1147,7 +1147,7 @@ void cGLCD::Run(void)
 
 				if (Epg.empty() && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio))
 				{
-					g_InfoViewer->get_livestreamInfo();
+					g_InfoViewer->init_livestreamInfo();
 					if (g_InfoViewer->get_livestreamInfo1() == "RESOLUTION=1x1") // comes from best_bitrate_m3u8.lua
 						Epg = g_InfoViewer->get_livestreamInfo2();
 					else
