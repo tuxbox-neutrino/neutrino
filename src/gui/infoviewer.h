@@ -147,7 +147,7 @@ class CInfoViewer : public sigc::trackable
 	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
 	void sendNoEpg(const t_channel_id channel_id);
-	void getLivestreamInfo();
+	void initLiveStreamInfo();
 	bool showLivestreamInfo();
 
  public:
@@ -206,7 +206,7 @@ class CInfoViewer : public sigc::trackable
 	int	getSwitchMode() {return zap_mode;}
 	void    resetSwitchMode() {setSwitchMode(IV_MODE_DEFAULT);}
 
-	void get_livestreamInfo() { getLivestreamInfo(); }
+	void get_livestreamInfo() { initLiveStreamInfo(); }
 	std::string get_livestreamInfo1() { return _livestreamInfo1; }
 	std::string get_livestreamInfo2() { return _livestreamInfo2; }
 
