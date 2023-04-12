@@ -147,7 +147,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 
 	// internet player
 	CMenuForwarder *fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, enabled, NULL, this, "inetplayer", CRCInput::RC_green);
-	fw_inet->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_INET_RADIO);
+	fw_inet->setHint(NEUTRINO_ICON_HINT_INETRADIO, LOCALE_MENU_HINT_INETRADIO);
 	personalize->addItem(multimedia_menu, fw_inet, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
 
 	// init movieplayer submenu

@@ -427,7 +427,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			{
 				keyhelper.get(&key, &icon);
 				menu_item = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, neutrino, "inetplayer", key, icon);
-				menu_item->setHint(NEUTRINO_ICON_HINT_INET_RADIO, LOCALE_MENU_HINT_INET_RADIO);
+				menu_item->setHint(NEUTRINO_ICON_HINT_INETRADIO, LOCALE_MENU_HINT_INETRADIO);
 				break;
 			}
 			case SNeutrinoSettings::ITEM_USER_MENU_29:
