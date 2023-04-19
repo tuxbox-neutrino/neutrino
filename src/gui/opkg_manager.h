@@ -30,15 +30,13 @@
 #ifndef __OPKG_MANAGER__
 #define __OPKG_MANAGER__
 
-#include <configfile.h>
+#include "widget/hintbox.h"
+#include "widget/menue.h"
 
 #include <map>
 #include <mutex>
 #include <string>
 #include <vector>
-
-#include "widget/hintbox.h"
-#include "widget/menue.h"
 
 #define OPKG_MAX_FEEDS 10
 #define HAS_PKG_UPDATE_FLAGFILE  "/tmp/.has_pkg_updates"
@@ -106,7 +104,6 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		int width;
 		int is_wizard;
 		std::string terminal_str;
-		CConfigFile opkg_conf;
 		void init(int wizard_mode);
 		bool silent; // Controls some screen messages, eg, avoids unintended or disturbing messages on update checks at background.
 

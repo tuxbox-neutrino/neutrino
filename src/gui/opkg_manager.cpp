@@ -120,7 +120,7 @@ static string pm_cmd[CMD_MAX] =
 	OPKG " clean "
 };
 
-COPKGManager::COPKGManager(int wizard_mode): opkg_conf('\t')
+COPKGManager::COPKGManager(int wizard_mode)
 {
 	init(wizard_mode);
 }
