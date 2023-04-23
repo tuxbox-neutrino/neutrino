@@ -4,81 +4,127 @@ AM_MAINTAINER_MODE
 
 AC_GNU_SOURCE
 
+AC_MSG_CHECKING(target)
 AC_ARG_WITH(target,
-	AS_HELP_STRING([--with-target=TARGET], [target for compilation [[native,cdk]]]),
+	AS_HELP_STRING([--with-target=TARGET], [Target mode for compilation, either "native" or "cdk", keep empty for native]),
 	[TARGET="$withval"],
 	[TARGET="native"])
 
+AC_MSG_CHECKING([targetroot (target system root)])
 AC_ARG_WITH(targetroot,
-	AS_HELP_STRING([--with-targetroot=PATH], [the target root (only applicable in native mode)]),
+	AS_HELP_STRING([--with-targetroot=PATH], [The target root (only applicable in native mode.]),
 	[TARGET_ROOT="$withval"],
 	[TARGET_ROOT="NONE"])
 
 AC_ARG_WITH(targetprefix,
-	AS_HELP_STRING([--with-targetprefix=PATH], [prefix relative to target root, e.g. /usr (only applicable in cdk mode)]),
+	AS_HELP_STRING([--with-targetprefix=PATH], [Prefix relative to target root, e.g. /usr (only applicable in cdk mode)]),
 	[TARGET_PREFIX="$withval"],
 	[TARGET_PREFIX="NONE"])
 
 AC_ARG_WITH(debug,
-	AS_HELP_STRING([--without-debug], [disable debugging code @<:@default=no@:>@]),
+	AS_HELP_STRING([--without-debug], [Disable debugging code @<:@default=no@:>@]),
 	[DEBUG="$withval"],
 	[DEBUG="yes"])
 
+AC_MSG_CHECKING(debug enabled)
 if test "$DEBUG" = "yes"; then
-	DEBUG_CFLAGS="-g3 -ggdb"
+	AC_MSG_RESULT([$DEBUG])
 	AC_DEFINE(DEBUG, 1, [enable debugging code])
+
+	AC_MSG_CHECKING(debug flags)
+	if test "$DEBUG_CFLAGS" = ""; then
+		DEBUG_CFLAGS="-g3 -ggdb"
+		AC_MSG_RESULT([Environment variable DEBUG_CFLAGS is not set, default debug flags will be used: $DEBUG_CFLAGS])
+	else
+		AC_MSG_RESULT([Defined by environment variable DEBUG_CFLAGS: $DEBUG_CFLAGS])
+	fi
+else
+	AC_MSG_RESULT([$DEBUG])
 fi
 
 AC_MSG_CHECKING(target)
+if test "$TARGET" = "native" || test "$TARGET" = "cdk"; then
+	AC_MSG_RESULT($TARGET)
+else
+	AC_MSG_ERROR([Invalid target '$TARGET'. Use either 'native' or 'cdk' or leave empty for native.])
+fi
 
 if test "$TARGET" = "native"; then
-	AC_MSG_RESULT(native)
-
+	AC_MSG_CHECKING(prefix)
 	if test "$prefix" = "NONE"; then
 		prefix=/usr/local
 	fi
+	AC_MSG_RESULT($prefix)
 
+	AC_MSG_CHECKING([targetroot])
 	if test "$TARGET_ROOT" = "NONE"; then
-		AC_MSG_ERROR([invalid targetroot, you need to specify one in native mode])
 		TARGET_ROOT=""
+		AC_MSG_RESULT([Is not set, use default target system root: empty])
+	else
+		AC_MSG_RESULT([user defined target system root: $TARGET_ROOT])
 	fi
-	TARGET_PREFIX=$prefix
+
+	AC_MSG_CHECKING([targetprefix])
+	if test "$TARGET_PREFIX" = "NONE"; then
+		TARGET_PREFIX=
+		AC_MSG_RESULT([Is not set, use default target prefix relative to target root: empty])
+	else
+		AC_MSG_RESULT([$TARGET_PREFIX])
+	fi
 
 	if test "$CFLAGS" = "" -a "$CXXFLAGS" = ""; then
 		CFLAGS="-Wall -O2 -pipe $DEBUG_CFLAGS"
 		CXXFLAGS="-Wall -O2 -pipe $DEBUG_CFLAGS"
 	fi
 elif test "$TARGET" = "cdk"; then
-	AC_MSG_RESULT(cdk)
-
+	AC_MSG_CHECKING(prefix in cdk mode)
 	if test "$prefix" = "NONE"; then
-		AC_MSG_ERROR([invalid prefix, you need to specify one in cdk mode])
+		AC_MSG_ERROR([$prefix invalid prefix, you need to specify one in cdk mode])
 	fi
+	AC_MSG_RESULT($prefix)
 
+	AC_MSG_CHECKING([targetroot in cdk mode])
+	OLD_TARGET_ROOT=$TARGET_ROOT
 	TARGET_ROOT=""
-	if test "$TARGET_PREFIX" = "NONE"; then
-		AC_MSG_ERROR([invalid targetprefix, you need to specify one in cdk mode])
-		TARGET_PREFIX=""
+	if test "$TARGET_ROOT" = "NONE"; then
+		AC_MSG_NOTICE([Is not set "$OLD_TARGET_ROOT", using fallback to default: empty])
+
+	else
+		AC_MSG_NOTICE([Is set to "$OLD_TARGET_ROOT", but using default: empty])
 	fi
 
+	AC_MSG_CHECKING([targetprefix in cdk mode])
+	if test "$TARGET_PREFIX" = "NONE"; then
+		TARGET_PREFIX=""
+		AC_MSG_RESULT([default target prefix relative to target root: empty])
+	else
+		AC_MSG_RESULT([user defined target prefix relative to target root: $TARGET_PREFIX])
+	fi
+
+	AC_MSG_CHECKING([gcc/g++ in cdk mode])
 	if test "$CC" = "" -a "$CXX" = ""; then
-		AC_MSG_ERROR([you need to specify variables CC or CXX in cdk mode])
+		AC_MSG_ERROR([you need to specify variables CC and CXX in cdk mode in your envirionment])
 	fi
+	AC_MSG_RESULT($CC / $CXX)
+
+	AC_MSG_CHECKING([CFLAGS and CXXFLAGS in cdk mode])
 	if test "$CFLAGS" = "" -o "$CXXFLAGS" = ""; then
-		AC_MSG_ERROR([you need to specify variables CFLAGS and CXXFLAGS in cdk mode])
+		AC_MSG_ERROR([you need to specify variables CFLAGS and CXXFLAGS in cdk mode in your envirionment])
 	fi
-else
-	AC_MSG_RESULT(none)
-	AC_MSG_ERROR([invalid target "$TARGET", choose "native" or "cdk"]);
+	AC_MSG_RESULT(CFLAGS: $CFLAGS)
+	AC_MSG_RESULT(CXXLAGS: $CXXFLAGS)
 fi
 
-AC_DEFINE_UNQUOTED([TARGET], ["$TARGET"], [target for compilation])
-AC_DEFINE_UNQUOTED([TARGET_ROOT], ["$TARGET_ROOT"], [native: the target root; cdk: empty])
-AC_DEFINE_UNQUOTED([TARGET_PREFIX], ["$TARGET_PREFIX"], [native: auto-assigned path; cdk: path relative to target root])
-
+AC_MSG_CHECKING(exec_prefix)
 if test "$exec_prefix" = "NONE"; then
 	exec_prefix=$prefix
 fi
+AC_MSG_RESULT($exec_prefix)
+
+AC_DEFINE_UNQUOTED([TARGET], ["$TARGET"], [target for compilation])
+AC_DEFINE_UNQUOTED([TARGET_ROOT], ["$TARGET_ROOT"], [root path at the target system native: the target root; cdk: empty])
+AC_DEFINE_UNQUOTED([TARGET_PREFIX], ["$TARGET_PREFIX"], [native: auto-assigned path; cdk: path relative to target root])
+
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
