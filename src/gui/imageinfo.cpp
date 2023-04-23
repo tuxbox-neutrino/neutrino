@@ -587,7 +587,6 @@ void CImageInfo::ScrollLic(bool scrollDown)
 
 void CImageInfo::hide()
 {
-	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
 	if (cc_win){
 		cc_win->kill();
 		cc_win->StopFade();
