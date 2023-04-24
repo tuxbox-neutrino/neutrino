@@ -35,10 +35,6 @@
 #include <gui/components/cc.h>
 #include <configfile.h>
 
-#if ENABLE_PKG_MANAGEMENT
-#include "opkg_manager.h"
-#endif
-
 typedef struct image_info_t
 {
 	std::string caption;
@@ -56,9 +52,6 @@ class CImageInfo : public CMenuTarget
 		int y_tmp;
 		std::vector<image_info_t> v_info;
 
-#if ENABLE_PKG_MANAGEMENT
-		COPKGManager man;
-#endif
 		void Clean();
 		void Init();
 		void InitInfoData();
