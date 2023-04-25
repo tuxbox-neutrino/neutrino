@@ -124,12 +124,14 @@ int CStartUpWizard::exec(CMenuTarget *parent, const string &/*actionKey*/)
 		// package update check
 		if (res != menu_return::RETURN_EXIT_ALL)
 		{
-			COPKGManager man(SNeutrinoSettings::WIZARD_START);
-			if (man.hasOpkgSupport())
+			if (COPKGManager::hasOpkgSupport())
 			{
 				int msg = ShowMsg(LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES, LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES_ASK_NOW, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450);
 				if (msg == CMsgBox::mbrYes)
+				{
+					COPKGManager man(SNeutrinoSettings::WIZARD_START);
 					res = man.exec(NULL, "");
+				}
 				msg = ShowMsg(LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES, LOCALE_WIZARD_MESSAGE_CHECK_FOR_UPDATES_ASK_ENABLE, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NULL, 450);
 				if (msg == CMsgBox::mbrYes)
 					g_settings.softupdate_autocheck_packages = true;
