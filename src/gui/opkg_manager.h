@@ -114,7 +114,7 @@ class COPKGManager : public CMenuTarget, public COPKGManagerExtra
 		bool expert_mode;
 		std::string *local_dir;
 
-		CLoaderHint *hintBox;
+		CLoaderHint *loadBox;
 
 		bool has_err;
 		typedef struct OPKG_error_data_t

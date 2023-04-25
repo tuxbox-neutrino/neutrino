@@ -139,7 +139,7 @@ void COPKGManager::init(int wizard_mode)
 	local_dir = &g_settings.update_dir_opkg;
 	initPackagePatternLists();
 
-	hintBox = new CLoaderHint(LOCALE_OPKG_UPDATE_CHECK);
+	loadBox = new CLoaderHint(LOCALE_OPKG_UPDATE_CHECK);
 	silent = false;
 	menu_used = false;
 	num_updates = 0;
@@ -150,15 +150,18 @@ COPKGManager::~COPKGManager()
 	if (menu_used)
 	{
 		// TODO: Show message only if the waiting time is too long
-		hintBox->setMsgText(LOCALE_OPKG_MESSAGEBOX_PLEASE_WAIT);
-		hintBox->paint();
+		loadBox->setMsgText(LOCALE_OPKG_MESSAGEBOX_PLEASE_WAIT);
+		loadBox->paint();
 		if (menu)
 			delete menu;
 	}
 	pkg_map.clear();
 	execCmd(pm_cmd[CMD_CLEAN], CShellWindow::QUIET);
-	hintBox->hide();
-	delete hintBox;
+	if (loadBox)
+	{
+		loadBox->hide();
+		delete loadBox;
+	}
 }
 
 int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
@@ -185,14 +188,14 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		expert_mode = !expert_mode;
 
 		// Show message while reloading menu
-		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
-		hintBox->paint();
+		loadBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		loadBox->paint();
 
 		updateMenu();
 		menu->setSelectedByName(pkg_name);
 
 		// Close message
-		hintBox->hide();
+		loadBox->hide();
 		return res;
 	}
 
@@ -222,14 +225,14 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 			*local_dir = fileBrowser.getCurrentDir();
 
 			// Show message while reloading package list
-			hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
-			hintBox->paint();
+			loadBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+			loadBox->paint();
 
 			pullPkgData();
 			updateMenu();
 
 			// Close message
-			hintBox->hide();
+			loadBox->hide();
 		}
 		return res;
 	}
@@ -254,15 +257,15 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		}
 
 		// Show message while reloading package list
-		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
-		hintBox->paint();
+		loadBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		loadBox->paint();
 
 		// Reloading package lists
 		pullPkgData();
 		updateMenu();
 
 		// Close message
-		hintBox->hide();
+		loadBox->hide();
 
 		return res;
 	}
@@ -379,34 +382,34 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		}
 
 		// Show message while reloading package list
-		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
-		hintBox->paint();
+		loadBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		loadBox->paint();
 
 		pullPkgData();
 		updateMenu();
 		menu->setSelectedByName(pkg_name);
 
 		// Close message
-		hintBox->hide();
+		loadBox->hide();
 		return res;
 	}
 
 	if (actionKey == "rc_blue")
 	{
 		// Show message while update
-		hintBox->setMsgText(LOCALE_OPKG_UPDATE_CHECK);
-		hintBox->paint();
+		loadBox->setMsgText(LOCALE_OPKG_UPDATE_CHECK);
+		loadBox->paint();
 
 		doUpdate();
 		pullPkgData();
 
-		hintBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
+		loadBox->setMsgText(LOCALE_OPKG_UPDATE_READING_LISTS);
 		updateMenu();
 
 		menu->setSelected(selected);
 
 		// Close message
-		hintBox->hide();
+		loadBox->hide();
 
 		return res;
 	}
@@ -820,7 +823,7 @@ int COPKGManager::initMenu()
 {
 	installed = false;
 
-	hintBox->paint();
+	loadBox->paint();
 	setUpdateCheckResult(false); // without message
 
 	if (menu == NULL)
@@ -830,7 +833,7 @@ int COPKGManager::initMenu()
 		menu->setSelected(1); //back-item in wizard mode next-item
 	}
 
-	hintBox->hide();
+	loadBox->hide();
 
 	int res = menu->exec(NULL, "");
 
