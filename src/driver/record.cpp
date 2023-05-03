@@ -363,6 +363,25 @@ bool CRecordInstance::Stop(bool remove_event)
 	return true;
 }
 
+static CZapitAudioChannel::ZapitAudioChannelType audio_type_from_apid_response(CZapitClient::responseGetAPIDs &apid)
+{
+	if (apid.is_ac3)
+		return CZapitAudioChannel::AC3;
+	if (apid.is_aac)
+		return CZapitAudioChannel::AAC;
+	if (apid.is_aache)
+		return CZapitAudioChannel::AACPLUS;
+	if (apid.is_dts)
+		return CZapitAudioChannel::DTS;
+	if (apid.is_dtshd)
+		return CZapitAudioChannel::DTSHD;
+	if (apid.is_eac3)
+		return CZapitAudioChannel::EAC3;
+	if (apid.is_lpcm)
+		return CZapitAudioChannel::LPCM;
+	return CZapitAudioChannel::MPEG;
+}
+
 bool CRecordInstance::Update()
 {
         APIDList apid_list;
@@ -413,7 +432,7 @@ bool CRecordInstance::Update()
 
 					audio_pids.AudioPid = allpids.APIDs[i].pid;
 					audio_pids.AudioPidName = allpids.APIDs[i].desc;
-					audio_pids.atype = allpids.APIDs[i].is_ac3 ? CZapitAudioChannel::AC3 : allpids.APIDs[i].is_aac ? CZapitAudioChannel::AAC : allpids.APIDs[i].is_eac3 ? CZapitAudioChannel::EAC3 : CZapitAudioChannel::MPEG;
+					audio_pids.atype = audio_type_from_apid_response(allpids.APIDs[i]);
 					audio_pids.selected = 0;
 					recMovieInfo->audioPids.push_back(audio_pids);
 				}
@@ -716,7 +735,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			if(allpids.APIDs[i].pid == it->apid) {
 				audio_pids.AudioPid = allpids.APIDs[i].pid;
 				audio_pids.AudioPidName = allpids.APIDs[i].desc;
-				audio_pids.atype = allpids.APIDs[i].is_ac3 ? CZapitAudioChannel::AC3 : allpids.APIDs[i].is_aac ? CZapitAudioChannel::AAC : allpids.APIDs[i].is_eac3 ? CZapitAudioChannel::EAC3 : CZapitAudioChannel::MPEG;
+				audio_pids.atype = audio_type_from_apid_response(allpids.APIDs[i]);
 				audio_pids.selected = (audio_pids.AudioPid == channel->getAudioPid()) ? 1 : 0;
 				recMovieInfo->audioPids.push_back(audio_pids);
 			}
@@ -727,7 +746,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		int i = 0;
 		audio_pids.AudioPid = allpids.APIDs[i].pid;
 		audio_pids.AudioPidName = allpids.APIDs[i].desc;
-		audio_pids.atype = allpids.APIDs[i].is_ac3 ? CZapitAudioChannel::AC3 : allpids.APIDs[i].is_aac ? CZapitAudioChannel::AAC : allpids.APIDs[i].is_eac3 ? CZapitAudioChannel::EAC3 : CZapitAudioChannel::MPEG;
+		audio_pids.atype = audio_type_from_apid_response(allpids.APIDs[i]);
 		audio_pids.selected = 1;
 		recMovieInfo->audioPids.push_back(audio_pids);
 	}
