@@ -49,26 +49,29 @@
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
 
-#define M3U_START_MARKER        "#EXTM3U"
-#define M3U_START_EPG_MARKER    "tvg-url="
-#define M3U_INFO_MARKER         "#EXTINF"
-#define TVG_INFO_ID_MARKER      "tvg-id="
-#define TVG_INFO_NAME_MARKER    "tvg-name="
-#define TVG_INFO_LOGO_MARKER    "tvg-logo="
-#define TVG_INFO_SCRIPT_MARKER  "tvg-script="
-#define TVG_INFO_SHIFT_MARKER   "tvg-shift="
-#define GROUP_PREFIX_MARKER     "group-prefix="
-#define GROUP_NAME_MARKER       "group-title="
+#define M3U_START_MARKER	"#EXTM3U"
+#define M3U_INFO_MARKER		"#EXTINF"
+
+#define TVG_URL_MARKER		"tvg-url="
+#define X_TVG_URL_MARKER	"x-tvg-url="
+#define TVG_ID_MARKER		"tvg-id="
+#define TVG_NAME_MARKER		"tvg-name="
+#define TVG_LOGO_MARKER		"tvg-logo="
+#define TVG_SCRIPT_MARKER	"tvg-script="
+#define TVG_SHIFT_MARKER	"tvg-shift="
+
+#define GROUP_PREFIX_MARKER	"group-prefix="
+#define GROUP_NAME_MARKER	"group-title="
 
 extern CBouquetManager *g_bouquetManager;
 extern CPictureViewer *g_PicViewer;
 
-#define GET_ATTR(node, name, fmt, arg)                                  \
-        do {                                                            \
-                const char * ptr = xmlGetAttribute(node, name);               \
-                if ((ptr == NULL) || (sscanf(ptr, fmt, &arg) <= 0))     \
-                        arg = 0;                                        \
-        }                                                               \
+#define GET_ATTR(node, name, fmt, arg)					\
+        do {								\
+                const char * ptr = xmlGetAttribute(node, name);		\
+                if ((ptr == NULL) || (sscanf(ptr, fmt, &arg) <= 0))	\
+                        arg = 0;					\
+        }								\
         while (0)
 
 /**** class CBouquet ********************************************************/
@@ -1009,10 +1012,10 @@ void CBouquetManager::loadWebchannels(int mode)
 				std::ifstream infile;
 				char cLine[1024];
 				std::string epg_url = "";
-				std::string desc = "";
 				std::string title = "";
 				std::string prefix = "";
 				std::string group = "";
+				std::string desc = "";
 				std::string epgid = "";
 				std::string alogo = "";
 				std::string script = "";
@@ -1034,9 +1037,9 @@ void CBouquetManager::loadWebchannels(int mode)
 					if (strLine.find(M3U_START_MARKER) != std::string::npos)
 					{
 						epg_url = "";
-						epg_url = ReadMarkerValue(strLine, M3U_START_EPG_MARKER);
+						epg_url = ReadMarkerValue(strLine, TVG_URL_MARKER);
 						if (epg_url.empty())
-							epg_url = ReadMarkerValue(strLine, "x-tvg-url");
+							epg_url = ReadMarkerValue(strLine, X_TVG_URL_MARKER);
 						//printf("tvg-url: %s\n", epg_url.c_str());
 						if (!epg_url.empty())
 						{
@@ -1058,6 +1061,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						prefix = "";
 						group = "";
 						desc = "";
+						epgid = "";
 						alogo = "";
 						script = "";
 
@@ -1067,12 +1071,12 @@ void CBouquetManager::loadWebchannels(int mode)
 							iColon++;
 							title = strLine.substr(iComma);
 							std::string strInfoLine = strLine.substr(iColon, --iComma - iColon);
-							desc = ReadMarkerValue(strInfoLine, TVG_INFO_NAME_MARKER);
 							prefix = ReadMarkerValue(strInfoLine, GROUP_PREFIX_MARKER);
 							group = ReadMarkerValue(strInfoLine, GROUP_NAME_MARKER);
-							epgid = ReadMarkerValue(strInfoLine, TVG_INFO_ID_MARKER);
-							alogo = ReadMarkerValue(strInfoLine, TVG_INFO_LOGO_MARKER);
-							script = ReadMarkerValue(strInfoLine, TVG_INFO_SCRIPT_MARKER);
+							desc = ReadMarkerValue(strInfoLine, TVG_NAME_MARKER);
+							epgid = ReadMarkerValue(strInfoLine, TVG_ID_MARKER);
+							alogo = ReadMarkerValue(strInfoLine, TVG_LOGO_MARKER);
+							script = ReadMarkerValue(strInfoLine, TVG_SCRIPT_MARKER);
 						}
 
 						pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
