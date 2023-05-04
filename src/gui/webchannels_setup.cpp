@@ -118,6 +118,7 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 			fileFilter.addFilter("xml");
 			fileFilter.addFilter("tv");
 			fileFilter.addFilter("m3u");
+			fileFilter.addFilter("m3u8");
 			fileBrowser.Filter = &fileFilter;
 
 			dirname = dirname.substr(0, dirname.rfind('/'));
@@ -140,6 +141,7 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		fileFilter.addFilter("xml");
 		fileFilter.addFilter("tv");
 		fileFilter.addFilter("m3u");
+		fileFilter.addFilter("m3u8");
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec(webradio ? g_settings.last_webradio_dir.c_str() : g_settings.last_webtv_dir.c_str()) == true)
 		{
