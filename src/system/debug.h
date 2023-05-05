@@ -39,12 +39,29 @@ enum
 
 void setDebugLevel( int level );
 
+#if 0
+#define dprintf(debuglevel, fmt, args...) \
+	do
+	{ \
+		if (debug >= debuglevel) \
+			printf( "[neutrino] " fmt, ## args); \
+	}
+	while(0)
+#define dperror(str) {perror("[neutrino] " str);}
+#else
+// more thread save implementation
 #define dprintf(debuglevel, fmt, args...) \
 	do { \
 		if (debug >= debuglevel) \
-			printf( "[neutrino] " fmt, ## args); \
+			fprintf(stderr, "[neutrino] " fmt, ## args); \
 	} while(0)
-#define dperror(str) {perror("[neutrino] " str);}
 
+#define dperror(str) \
+	do { \
+		char errbuf[256]; \
+		strerror_r(errno, errbuf, sizeof(errbuf)); \
+		fprintf(stderr, "[neutrino] %s: %s\n", str, errbuf); \
+	} while(0)
+#endif
 
 #endif
