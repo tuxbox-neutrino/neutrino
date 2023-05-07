@@ -61,6 +61,7 @@
 #include <driver/volume.h>
 #include <system/helpers.h>
 #include <system/debug.h>
+
 #include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 
@@ -579,9 +580,9 @@ std::string CNetAdapter::getMacAddr(void)
 bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void *Data)
 {
 	bool found = false;
-	std::string name, zone;
+	std::string name, zoneinfo, zone;
+	zoneinfo = TARGET_PREFIX "/share/zoneinfo/";
 	printf("CTZChangeNotifier::changeNotify: %s\n", (char *) Data);
-	std::string zoneinfo = TARGET_PREFIX "/share/zoneinfo/" + zone;
 
 	xmlDocPtr parser = parseXmlFile("/etc/timezone.xml");
 	if (parser != NULL)
@@ -601,10 +602,11 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void *Data)
 					const char *zptr = xmlGetAttribute(search, "zone");
 					if (zptr)
 						zone = zptr;
-					if (!access(zoneinfo.c_str(), R_OK))
+					std::string Zone = zoneinfo + zone;
+					if (!access(Zone.c_str(), R_OK))
 						found = true;
 					else
-						dprintf(DEBUG_NORMAL, "[CTZChangeNotifier] [%s - %d] %s not found\n", __func__, __LINE__, zoneinfo.c_str());
+						dprintf(DEBUG_NORMAL, "[CTZChangeNotifier] [%s - %d] %s not found\n", __func__, __LINE__, Zone.c_str());
 					break;
 				}
 			}
@@ -615,7 +617,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void *Data)
 	if (found)
 	{
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-		std::string cmd = zoneinfo;
+		std::string cmd = zoneinfo + zone;
 		printf("symlink %s to /etc/localtime\n", cmd.c_str());
 		if (unlink("/etc/localtime"))
 			perror("unlink failed");
