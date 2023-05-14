@@ -30,10 +30,8 @@
 #include <neutrino.h>
 #include "cc_base.h"
 
-using namespace std;
-
 //abstract basic class CComponents
 CComponents::CComponents()
 {
-	cc_tag			= NULL;
+	cc_tag	= NULL;
 }
