@@ -14,7 +14,11 @@ var interval;
 function checkEnable() {
 	enableOSD	= (document.getElementById('checkOSD').checked == true)		? 1 : 0;
 	enableVideo	= (document.getElementById('checkVideo').checked == true)	? 1 : 0;
+	{=if-empty:{=var-get:grab=}~
+	enablePiP	= 0;
+	~
 	enablePiP	= (document.getElementById('checkPiP').checked == true)		? 1 : 0;
+	=}
 
 	if (enableOSD == 0 && enableVideo == 0) {
 		alert("{=L:bc.screenshot.checkenable=}");
