@@ -91,6 +91,7 @@ private:
 	void GetTPChannel_IDCGI(CyhookHandler *hh);
 	void MessageCGI(CyhookHandler *hh);
 	void InfoCGI(CyhookHandler *hh);
+	void BoxInfoCGI(CyhookHandler *hh);
 	void HWInfoCGI(CyhookHandler *hh);
 	void ShutdownCGI(CyhookHandler *hh);
 	void VolumeCGI(CyhookHandler *hh);

@@ -217,6 +217,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"getdate",		&CControlAPI::GetDateCGI,		"text/plain"},
 	{"gettime",		&CControlAPI::GetTimeCGI,		"text/plain"},
 	{"info",		&CControlAPI::InfoCGI,			"text/plain"},
+	{"boxinfo",		&CControlAPI::BoxInfoCGI,		"text/plain"},
 	{"version",		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup",		&CControlAPI::ReloadNeutrinoSetupCGI,	""},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,		""},
@@ -866,6 +867,38 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 		else
 			hh->SendError();
 	}
+}
+
+void CControlAPI::BoxInfoCGI(CyhookHandler *hh)
+{
+	std::string boxinfo(g_info.hw_caps->boxvendor);
+	/*
+	   I don't know the current legal situation.
+	   So better let's change the vendor's name to CST.
+
+	   After change this, you'll have to align code in Y_Blocks.txt
+	*/
+
+	if (boxinfo.compare("Coolstream") == 0) {
+		boxinfo = "CST";
+	}
+	std::string boxname(g_info.hw_caps->boxname);
+	if (strcmp(boxname.c_str(), "Neo") == 0)
+	{
+		// detecting Neo Twin by counting frontends
+		if (CFEManager::getInstance()->getFrontendCount() > 1)
+			boxname = "Neo Twin";
+	}
+
+	boxinfo  = "vendor=" + boxinfo;
+	boxinfo += "\n";
+	boxinfo += "boxname=";
+	boxinfo += boxname;
+	boxinfo += "\n";
+	boxinfo += "boxarch=";
+	boxinfo += g_info.hw_caps->boxarch;
+
+	hh->printf("%s\n", boxinfo.c_str());
 }
 
 void CControlAPI::HWInfoCGI(CyhookHandler *hh)

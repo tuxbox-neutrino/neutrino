@@ -64,6 +64,10 @@
 		<td><a href="http://box_ip/control/info">http://box_ip/control/info</a></td>
 	</tr>
 	<tr>
+		<td><a href="#boxinfo">Box Informationen</a></td>
+		<td><a href="http://box_ip/control/info">http://box_ip/control/boxinfo</a></td>
+	</tr>
+	<tr>
 		<td><a href="#getonidsid">Aktuellen Kanal abfragen</a></td>
 		<td><a href="http://box_ip/control/getonidsid">
 		http://box_ip/control/getonidsid</a></td>
@@ -1097,6 +1101,25 @@ Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/info?nhttpd_version<br>
 2.2.1<br>
+<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="boxinfo"></a><b>Boxinfo abfragen</b></div>
+<div class="URL">Handler: http://box_ip/control/boxinfo</div>
+<br>
+<b>Parameter:</b> <br>
+<b>R&uuml;ckgabe:</b><br>
+<br>
+Es wird der Hersteller, der Boxname und die Boxarchitektur zur&uuml;ckgegeben.<br>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/boxinfo<br>
+vendor=AX<br>
+boxname=H51<br>
+boxarch=BCM7251S<br>
 <br>
 </div>
 
