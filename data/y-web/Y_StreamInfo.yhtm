@@ -59,7 +59,7 @@
 		<tr> 
 			<td class="set"><b>{=L:epg.si.frequence=}:</b></td>
 			<td>&nbsp;</td>
-			<td class="set"> <div align="left">{=tsfrequency=} ({=polarisation=})</div></td>
+			<td class="set"> <div align="left">{=tsfrequency=} {=polarisation=}</div></td>
 		</tr>
 		<tr>
 			<td class="set" colspan="3">&nbsp;</td>
