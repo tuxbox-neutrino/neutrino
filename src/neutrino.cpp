@@ -4940,9 +4940,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 
 #if ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
-#if BOXMODEL_HISILICON
-		pipVideoDecoder[0]->ShowPig(0);
-#else
+#if !BOXMODEL_HISILICON
 	{
 		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x),pip_recalc_pos_y(g_settings.pip_y),
 			g_settings.pip_width, g_settings.pip_height,
@@ -5228,9 +5226,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 
 #if ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
-#if BOXMODEL_HISILICON
-		pipVideoDecoder[0]->ShowPig(0);
-#else
+#if !BOXMODEL_HISILICON
 	{
 		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_radio_x),pip_recalc_pos_y(g_settings.pip_radio_y),
 			g_settings.pip_radio_width, g_settings.pip_radio_height,
