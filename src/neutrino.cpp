@@ -4940,11 +4940,15 @@ void CNeutrinoApp::tvMode( bool rezap )
 
 #if ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
+#if BOXMODEL_HISILICON
+		pipVideoDecoder[0]->ShowPig(0);
+#else
 	{
 		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x),pip_recalc_pos_y(g_settings.pip_y),
 			g_settings.pip_width, g_settings.pip_height,
 			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 	}
+#endif
 #endif
 #if 0
 	if(mode != NeutrinoModes::mode_ts /*&& autoshift*/) {
@@ -5224,11 +5228,15 @@ void CNeutrinoApp::radioMode( bool rezap)
 
 #if ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
+#if BOXMODEL_HISILICON
+		pipVideoDecoder[0]->ShowPig(0);
+#else
 	{
 		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_radio_x),pip_recalc_pos_y(g_settings.pip_radio_y),
 			g_settings.pip_radio_width, g_settings.pip_radio_height,
 			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 	}
+#endif
 #endif
 	CRecordManager::getInstance()->StopAutoRecord();
 
@@ -6072,8 +6080,12 @@ bool CNeutrinoApp::StartPip(const t_channel_id channel_id, int pip)
 
 	int recmode = CRecordManager::getInstance()->GetRecordMode(channel_id);
 	if ((recmode == CRecordManager::RECMODE_OFF) || (channel->getRecordDemux() != channel->getPipDemux())) {
-		if (!g_Zapit->zapTo_pip(channel_id, pip))
+		if (!g_Zapit->zapTo_pip(channel_id, pip)) {
+#if BOXMODEL_HISILICON
+			pipVideoDecoder[0]->ShowPig(0);
+#endif
 			DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
+		}
 		else
 			ret = true;
 	}
