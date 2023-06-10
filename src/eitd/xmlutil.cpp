@@ -551,11 +551,19 @@ bool readEventsFromXMLTV(std::string &epgname, int &ev_count, bool delete_after)
 				node = xmlNextNode(node);
 			}
 			node = xmlChildrenNode(programme);
+			int cnt = 1;
 			while ((node = xmlGetNextOccurence(node, "desc")))
 			{
 				const char *description = xmlGetData(node);
-				if(description != NULL)
-					e.appendExtendedText(std::string(ZapitTools::UTF8_to_Latin1("deu")), std::string(description));
+				if (description != NULL)
+				{
+					std::string desc = std::string(description);
+					std::string nline = "";
+					if (cnt > 1)
+						nline = '\n';
+					e.appendExtendedText(std::string(ZapitTools::UTF8_to_Latin1("deu")), nline + desc);
+					cnt++;
+				}
 				node = xmlNextNode(node);
 			}
 			debug(DEBUG_INFO, "XML DEBUG: %s channel 0x%012" PRIx64, chan, epgid);
