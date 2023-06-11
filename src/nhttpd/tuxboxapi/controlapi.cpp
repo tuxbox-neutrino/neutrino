@@ -954,34 +954,6 @@ void CControlAPI::RestartCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
-unsigned int revert_translate(unsigned int code)
-{
-	switch(code)
-	{
-		case RC_home:
-			return KEY_EXIT;
-		case RC_page_up:
-			return KEY_CHANNELUP;
-		case RC_page_down:
-			return KEY_CHANNELDOWN;
-#ifdef HAVE_ARM_HARDWARE
-#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
-		case RC_favorites:
-			return KEY_VIDEO;
-#endif
-		case RC_mode:
-			return KEY_SWITCHVIDEOMODE;
-		case RC_play:
-		case RC_pause:
-			return KEY_PLAYPAUSE;
-		case RC_forward:
-			return KEY_FASTFORWARD;
-#endif
-		default:
-			break;
-	}
-	return code;
-}
 
 void CControlAPI::rc_sync(int fd)
 {
@@ -1044,7 +1016,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 		hh->SendError();
 		return;
 	}
-	sendcode = revert_translate(sendcode);
+	sendcode = g_RCInput->translateRevert(sendcode);
 	if (rc_send(evd, sendcode, KEY_PRESSED) < 0) {
 		perror("writing 'KEY_PRESSED' event failed");
 		hh->SendError();

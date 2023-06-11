@@ -100,6 +100,7 @@ class CRCInput
 		bool checkdev();
 		void close();
 		int translate(int code);
+		int translate_revert(int code);
 		void calculateMaxFd(void);
 		int checkTimers();
 		bool mayRepeat(uint32_t key, bool bAllowRepeatLR = false);
@@ -239,7 +240,6 @@ class CRCInput
 		CRCInput(); //constructor - opens rc-device and starts needed threads
 		~CRCInput(); //destructor - closes rc-device
 
-
 		static bool isNumeric(const neutrino_msg_t key);
 		static int getNumericValue(const neutrino_msg_t key);
 		static unsigned int convertDigitToKey(const unsigned int digit);
@@ -268,6 +268,7 @@ class CRCInput
 
 		int messageLoop(bool anyKeyCancels = false, int timeout = -1);
 
+		int translateRevert(int c) { return translate_revert(c); };
 		void setLongPressAny(bool b) { longPressAny = b; };
 		void setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms);
 };
