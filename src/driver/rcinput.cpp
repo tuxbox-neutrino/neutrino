@@ -1778,13 +1778,6 @@ int CRCInput::translate(int code)
 		case KEY_CHANNELDOWN:
 			return RC_page_down;
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE
-		case KEY_VIDEO:
-			return RC_favorites;
-#elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
-		case KEY_VIDEO:
-			return RC_mode;
-#endif
 		case KEY_TV2:
 			return RC_tv;
 		case KEY_SWITCHVIDEOMODE:
@@ -1818,13 +1811,6 @@ int CRCInput::translate_revert(int code)
 		case RC_page_down:
 			return KEY_CHANNELDOWN;
 #ifdef HAVE_ARM_HARDWARE
-#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7 || BOXMODEL_HD60 || BOXMODEL_HD61 || BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE
-		case RC_favorites:
-			return KEY_VIDEO;
-#elif BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
-		case RC_mode:
-			return KEY_VIDEO;
-#endif
 		case RC_tv:
 			return KEY_TV2;
 		case RC_mode:
