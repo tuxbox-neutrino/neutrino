@@ -5744,7 +5744,12 @@ void CNeutrinoApp::loadKeys(const char *fname)
 	g_settings.key_channelList_cancel = tconfig->getInt32("key_channelList_cancel", CRCInput::RC_home);
 	g_settings.key_channelList_sort = tconfig->getInt32("key_channelList_sort", CRCInput::RC_blue);
 	g_settings.key_current_transponder = tconfig->getInt32("key_current_transponder", CRCInput::RC_nokey);
+#if BOXMODEL_HD51
+	g_settings.key_favorites = tconfig->getInt32("key_favorites", CRCInput::RC_video);
+#else
 	g_settings.key_favorites = tconfig->getInt32("key_favorites", CRCInput::RC_favorites);
+#endif
+
 	g_settings.key_format_mode_active = tconfig->getInt32("key_format_mode_active", 1);
 	g_settings.key_help = tconfig->getInt32("key_help", CRCInput::RC_help);
 	g_settings.key_lastchannel = tconfig->getInt32("key_lastchannel", CRCInput::RC_0);
@@ -5792,7 +5797,7 @@ void CNeutrinoApp::loadKeys(const char *fname)
 
 	g_settings.mbkey_copy_onefile = tconfig->getInt32("mbkey.copy_onefile", CRCInput::RC_nokey);
 	g_settings.mbkey_copy_several = tconfig->getInt32("mbkey.copy_several", CRCInput::RC_nokey);
-	g_settings.mbkey_cover = tconfig->getInt32("mbkey.cover", CRCInput::RC_favorites);
+	g_settings.mbkey_cover = tconfig->getInt32("mbkey.cover", g_settings.key_favorites);
 	g_settings.mbkey_cut = tconfig->getInt32("mbkey.cut", CRCInput::RC_nokey);
 	g_settings.mbkey_truncate = tconfig->getInt32("mbkey.truncate", CRCInput::RC_nokey);
 	g_settings.mbkey_toggle_view_cw = tconfig->getInt32("mbkey.toggle_view_cw", CRCInput::RC_right);
