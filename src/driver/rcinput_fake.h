@@ -73,6 +73,37 @@
 #define KEY_VOD		0x273
 #endif
 
+#ifndef KEY_BRL_DOT1
+#define KEY_BRL_DOT1	0x1f1
+#endif
+#ifndef KEY_BRL_DOT2
+#define KEY_BRL_DOT2	0x1f2
+#endif
+#ifndef KEY_BRL_DOT3
+#define KEY_BRL_DOT3	0x1f3
+#endif
+#ifndef KEY_BRL_DOT4
+#define KEY_BRL_DOT4	0x1f4
+#endif
+#ifndef KEY_BRL_DOT5
+#define KEY_BRL_DOT5	0x1f5
+#endif
+#ifndef KEY_BRL_DOT6
+#define KEY_BRL_DOT6	0x1f6
+#endif
+#ifndef KEY_BRL_DOT7
+#define KEY_BRL_DOT7	0x1f7
+#endif
+#ifndef KEY_BRL_DOT8
+#define KEY_BRL_DOT8	0x1f8
+#endif
+#ifndef KEY_BRL_DOT9
+#define KEY_BRL_DOT9	0x1f9
+#endif
+#ifndef KEY_BRL_DOT10
+#define KEY_BRL_DOT10	0x1fa
+#endif
+
 #define KEY_POWERON	KEY_FN_F1
 #define KEY_POWEROFF	KEY_FN_F2
 #define KEY_STANDBYON	KEY_FN_F3
