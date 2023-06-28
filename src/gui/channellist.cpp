@@ -2144,7 +2144,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else if (g_settings.channellist_show_numbers)
 		{
 			int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth + 5, tmp, color, fheight);
+			if (!this->historyMode || (this->historyMode && pos <= 9)) // history mode only uses digits 0..9 as hotkeys
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth + 5, tmp, color, fheight);
 		}
 		else if (!edit_state)
 		{
