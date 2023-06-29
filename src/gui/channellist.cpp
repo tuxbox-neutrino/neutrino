@@ -2024,8 +2024,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			title_offset = OFFSET_INNER_MID;
 		}
 
-		snprintf(tmp, sizeof(tmp), "%d", this->historyMode ? pos : chan->number);
-
 		CChannelEvent *p_event=NULL;
 		if (displayMode == DISPLAY_MODE_NOW)
 			p_event = &chan->currentEvent;
@@ -2130,6 +2128,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		if (paintbuttons)
 			paintButtonBar(is_available);
 
+		snprintf(tmp, sizeof(tmp), "%d", chan->number);
+
 		//channel numbers
 		if (curr == selected && move_state == beMoving)
 		{
@@ -2143,9 +2143,26 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		}
 		else if (g_settings.channellist_show_numbers)
 		{
-			int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
-			if (!this->historyMode || (this->historyMode && pos <= 9)) // history mode only uses digits 0..9 as hotkeys
+			if (this->historyMode)
+			{
+				// history mode only uses digits 0..9 as hotkeys
+				if (pos >= 0 && pos <= 9)
+				{
+					std::string h = to_string(pos);
+					//frameBuffer->getIconSize(h.c_str(), &icon_w, &icon_h);
+					frameBuffer->paintIcon(h.c_str(), x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
+				}
+				else
+				{
+					//frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &icon_w, &icon_h);
+					frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
+				}
+			}
+			else
+			{
+				int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth + 5, tmp, color, fheight);
+			}
 		}
 		else if (!edit_state)
 		{
@@ -2381,6 +2398,13 @@ void CChannelList::paintBody()
 	numwidth = std::max(icon_w, (int) numwidth);
 	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
 	numwidth = std::max(icon_w, (int) numwidth);
+
+	if (this->historyMode)
+	{
+		// we assume NEUTRINO_ICON_BUTTON_DUMMY_SMALL has the same size as NEUTRINO_ICON_BUTTON_0..9
+		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &icon_w, &icon_h);
+		numwidth = icon_w;
+	}
 
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
