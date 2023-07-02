@@ -2141,28 +2141,25 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
 			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_LOCK, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
 		}
-		else if (g_settings.channellist_show_numbers)
+		else if (this->historyMode)
 		{
-			if (this->historyMode)
+			// history mode only uses digits 0..9 as hotkeys
+			if (pos >= 0 && pos <= 9)
 			{
-				// history mode only uses digits 0..9 as hotkeys
-				if (pos >= 0 && pos <= 9)
-				{
-					std::string h = to_string(pos);
-					//frameBuffer->getIconSize(h.c_str(), &icon_w, &icon_h);
-					frameBuffer->paintIcon(h.c_str(), x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
-				}
-				else
-				{
-					//frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &icon_w, &icon_h);
-					frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
-				}
+				std::string h = to_string(pos);
+				//frameBuffer->getIconSize(h.c_str(), &icon_w, &icon_h);
+				frameBuffer->paintIcon(h.c_str(), x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
 			}
 			else
 			{
-				int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth + 5, tmp, color, fheight);
+				//frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &icon_w, &icon_h);
+				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
 			}
+		}
+		else if (g_settings.channellist_show_numbers)
+		{
+			int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth + 5, tmp, color, fheight);
 		}
 		else if (!edit_state)
 		{
