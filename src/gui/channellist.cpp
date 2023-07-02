@@ -2012,17 +2012,21 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 	if(curr < (*chanlist).size()) {
 		char chan_name[255];
+		int chan_name_offset = 0;
 		char chan_desc[255];
 		char tmp[10];
 		CZapitChannel* chan = (*chanlist)[curr];
-		int prg_offset = 0;
-		int title_offset = 0;
 		int rec_mode;
+		int pb_offset = 0;
+		int pb_width = 0;
 		if (g_settings.theme.progressbar_design_channellist != CProgressBar::PB_OFF)
 		{
-			prg_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
-			title_offset = OFFSET_INNER_MID;
+			if (edit_state || g_settings.channellist_show_numbers || this->historyMode)
+				pb_offset = OFFSET_INNER_MID;
+			pb_width = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
 		}
+		if (edit_state || g_settings.channellist_show_numbers || pb_width)
+			chan_name_offset = OFFSET_INNER_MID;
 
 		CChannelEvent *p_event=NULL;
 		if (displayMode == DISPLAY_MODE_NOW)
@@ -2133,13 +2137,13 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		//channel numbers
 		if (curr == selected && move_state == beMoving)
 		{
-			frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
+			//frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
 		}
 		else if (edit_state && chan->bLocked)
 		{
-			frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_LOCK, x + OFFSET_INNER_MID + numwidth - icon_w, ypos, fheight);
+			//frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
+			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_LOCK, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
 		}
 		else if (this->historyMode)
 		{
@@ -2156,14 +2160,10 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
 			}
 		}
-		else if (g_settings.channellist_show_numbers)
+		else if (edit_state || g_settings.channellist_show_numbers)
 		{
 			int numpos = x + OFFSET_INNER_MID + numwidth - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth + 5, tmp, color, fheight);
-		}
-		else if (!edit_state)
-		{
-			numwidth = -5;
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth, tmp, color, fheight);
 		}
 
 		if (this->historyMode && g_settings.channellist_show_numbers)
@@ -2171,9 +2171,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else
 			snprintf(chan_name, sizeof(chan_name), "%s", chan->getName().c_str());
 
-		int pb_width = prg_offset;
 		int pb_height = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getDigitHeight();
-		CProgressBar pb(x + OFFSET_INNER_MID + numwidth + title_offset, ypos + (fheight-pb_height)/2, pb_width, pb_height, COL_MENUCONTENT_PLUS_0);
+		CProgressBar pb(x + OFFSET_INNER_MID + numwidth + pb_offset, ypos + (fheight-pb_height)/2, pb_width, pb_height, COL_MENUCONTENT_PLUS_0);
 		pb.setType(CProgressBar::PB_TIMESCALE);
 		pb.setDesign(g_settings.theme.progressbar_design_channellist);
 		pb.setCornerType(0);
@@ -2188,7 +2187,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		pb.doPaintBg(false);
 
 		unsigned int chan_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(chan_name);
-		int max_name_len = width - numwidth - prg_offset - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - offset_right;
+		int max_name_len = width - OFFSET_INNER_MID - numwidth - pb_offset - pb_width - OFFSET_INNER_MID - SCROLLBAR_WIDTH - offset_right;
 		if (max_name_len < 0)
 			max_name_len = 0;
 		if ((int) chan_name_len > max_name_len)
@@ -2231,17 +2230,18 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 					struct tm *pStartZeit = localtime(&p_event->startTime);
 
 					snprintf(tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
-					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - numwidth - SCROLLBAR_WIDTH - prg_offset - 2*OFFSET_INNER_MID, tmp, ecolor, fheight);
+					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - OFFSET_INNER_MID - numwidth - pb_offset - pb_width - SCROLLBAR_WIDTH, tmp, ecolor, fheight);
 				}
 			}
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, chan_name_len, chan_name, color);
+			// name
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + pb_offset + pb_width + chan_name_offset, ypos + fheight, chan_name_len, chan_name, color);
 
 			int chan_desc_x;
 			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_BOTTOM))
 				chan_desc_x = x + width - SCROLLBAR_WIDTH - offset_right - chan_desc_len;
 			else
-				chan_desc_x = x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID + chan_name_len;
+				chan_desc_x = x + OFFSET_INNER_MID + numwidth + pb_offset + pb_width + chan_name_offset + chan_name_len;
 
 			int chan_desc_y_off;
 			if ((g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_LEFT_MIDDLE) || (g_settings.channellist_epgtext_alignment == EPGTEXT_ALIGN_RIGHT_MIDDLE))
@@ -2249,6 +2249,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			else
 				chan_desc_y_off = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getDescender() - g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getDescender();
 
+			// desc
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(chan_desc_x, ypos + fheight - chan_desc_y_off, chan_desc_len, chan_desc, dcolor);
 		}
 		else
@@ -2262,7 +2263,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				}
 			}
 			// name
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID + prg_offset + OFFSET_INNER_MID, ypos + fheight, chan_name_len, chan_name, color);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + OFFSET_INNER_MID + numwidth + pb_offset + pb_width + chan_name_offset, ypos + fheight, chan_name_len, chan_name, color);
 		}
 		if (!firstpaint && curr == selected)
 			updateVfd();
@@ -2390,11 +2391,6 @@ void CChannelList::ResetModules()
 void CChannelList::paintBody()
 {
 	int icon_w = 0, icon_h = 0;
-	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr());
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
-	numwidth = std::max(icon_w, (int) numwidth);
-	frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
-	numwidth = std::max(icon_w, (int) numwidth);
 
 	if (this->historyMode)
 	{
@@ -2402,6 +2398,16 @@ void CChannelList::paintBody()
 		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, &icon_w, &icon_h);
 		numwidth = icon_w;
 	}
+	else if (edit_state || g_settings.channellist_show_numbers)
+	{
+		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr());
+		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
+		numwidth = std::max(icon_w, (int) numwidth);
+		frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
+		numwidth = std::max(icon_w, (int) numwidth);
+	}
+	else
+		numwidth = 0;
 
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
