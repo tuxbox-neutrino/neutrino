@@ -2068,6 +2068,11 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		if (!chan->getUrl().empty())
 			webtv_icon = NEUTRINO_ICON_MARKER_STREAMING;
 
+		//set lock icon
+		const char *lock_icon = NULL;
+		if (chan->bLocked)
+			lock_icon = NEUTRINO_ICON_MARKER_LOCK;
+
 		//set scramble icon
 		const char *scramble_icon = NULL;
 		if (chan->scrambled)
@@ -2083,6 +2088,16 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		{
 			frameBuffer->getIconSize(res_icon, &icon_w, &icon_h);
 			if (frameBuffer->paintIcon(res_icon, icon_x_right - icon_w, ypos, fheight))
+			{
+				offset_right += icon_w + OFFSET_INNER_MID;
+				icon_x_right -= icon_w + OFFSET_INNER_MID;
+			}
+		}
+
+		if (lock_icon)
+		{
+			frameBuffer->getIconSize(lock_icon, &icon_w, &icon_h);
+			if (frameBuffer->paintIcon(lock_icon, icon_x_right - icon_w, ypos, fheight))
 			{
 				offset_right += icon_w + OFFSET_INNER_MID;
 				icon_x_right -= icon_w + OFFSET_INNER_MID;
@@ -2139,11 +2154,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		{
 			//frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
-		}
-		else if (edit_state && chan->bLocked)
-		{
-			//frameBuffer->getIconSize(NEUTRINO_ICON_MARKER_LOCK, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_MARKER_LOCK, x + OFFSET_INNER_MID /*+ numwidth - icon_w*/, ypos, fheight);
 		}
 		else if (this->historyMode)
 		{
