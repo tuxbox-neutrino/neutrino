@@ -2240,7 +2240,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 					struct tm *pStartZeit = localtime(&p_event->startTime);
 
 					snprintf(tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
-					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + OFFSET_INNER_MID, ypos + fheight, width - OFFSET_INNER_MID - numwidth - pb_offset - pb_width - SCROLLBAR_WIDTH, tmp, ecolor, fheight);
+					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + OFFSET_INNER_MID + numwidth + pb_offset, ypos + fheight, pb_width, tmp, ecolor, fheight);
 				}
 			}
 
