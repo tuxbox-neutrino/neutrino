@@ -2176,9 +2176,11 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos, ypos + fheight, numwidth, tmp, color, fheight);
 		}
 
+		/*
 		if (this->historyMode && g_settings.channellist_show_numbers)
 			snprintf(chan_name, sizeof(chan_name), "%d: %s", chan->number, chan->getName().c_str());
 		else
+		*/
 			snprintf(chan_name, sizeof(chan_name), "%s", chan->getName().c_str());
 
 		int pb_height = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getDigitHeight();
