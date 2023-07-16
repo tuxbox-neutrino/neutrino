@@ -981,7 +981,6 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	CMoviePlayerGui *mp = (CMoviePlayerGui *) arg;
 	printf("%s: starting... instance %p\n", __func__, mp);fflush(stdout);
 
-	int eof = 0, pos = 0;
 	unsigned char *chid = new unsigned char[sizeof(t_channel_id)];
 	*(t_channel_id*)chid = mp->movie_info.channelId;
 
@@ -999,28 +998,23 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	webtv_started = started;
 	mutex.unlock();
 
+	int eof = 0, pos = 0;
+	int eof_max = mp->isWebChannel ? 1 : 5;
+#if defined (BOXMODEL_VUPLUS_ARM)
+	eof_max = 0;
+#endif
+
 	while(webtv_started) {
 		if (mp->playback->GetPosition(mp->position, mp->duration, mp->isWebChannel)) {
 #if 0
 			printf("CMoviePlayerGui::bgPlayThread: position %d duration %d (%d)\n", mp->position, mp->duration, mp->duration-mp->position);
 #endif
 			if (pos == mp->position && mp->duration > 0)
-				if (mp->isWebChannel)
-#if defined (BOXMODEL_VUPLUS_ARM)
-					eof = 6;
-#else
-				{
-					if (eof == 5)
-						eof = 6;
-					else
-						eof = 5;
-				}
-#endif
-				else
-					eof++;
+				eof++;
 			else
 				eof = 0;
-			if (eof > 5) {
+
+			if (eof > eof_max) {
 				printf("CMoviePlayerGui::bgPlayThread: playback stopped, try to rezap...\n");
 				g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE, (neutrino_msg_data_t) chid);
 				chidused = true;
