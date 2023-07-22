@@ -61,7 +61,7 @@ public:
 	bool SetSubtitlePid(int /*pid*/){return true;}
 	bool SetSpeed(int speed);
 	bool GetSpeed(int &speed) const;
-	bool GetPosition(int &position, int &duration);
+	bool GetPosition(int &position, int &duration, bool isWebChannel = false);
 	bool GetOffset(off64_t &offset);
 	bool SetPosition(int position, bool absolute = false);
 	bool IsPlaying(void) const { return playing; }
