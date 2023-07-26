@@ -2174,6 +2174,7 @@ movieplayer.bookmarkname_hint1 New bookmark
 movieplayer.bookmarkname_hint2 Enter a name for your new bookmark
 movieplayer.chapters Chapters
 movieplayer.display_playtime Show playtime in VFD
+movieplayer.eof_cnt EOF repetitions after lost server connection (WebTV/WebRadio)
 movieplayer.fileplayback_audio Multiformat audio playback
 movieplayer.fileplayback_video Multiformat video playback
 movieplayer.head Movieplayer

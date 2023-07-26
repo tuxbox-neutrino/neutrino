@@ -2202,6 +2202,7 @@ const char * locale_real_names[] =
 	"movieplayer.bookmarkname_hint2",
 	"movieplayer.chapters",
 	"movieplayer.display_playtime",
+	"movieplayer.eof_cnt",
 	"movieplayer.fileplayback_audio",
 	"movieplayer.fileplayback_video",
 	"movieplayer.head",

@@ -1011,6 +1011,7 @@ struct SNeutrinoSettings
 	// movieplayer
 	int movieplayer_bisection_jump;
 	int movieplayer_display_playtime;
+	int movieplayer_eof_cnt;
 	int movieplayer_repeat_on;
 #if HAVE_CST_HARDWARE
 	bool movieplayer_select_ac3_atype0;

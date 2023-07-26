@@ -2174,6 +2174,7 @@ movieplayer.bookmarkname_hint1 Neues Lesezeichen
 movieplayer.bookmarkname_hint2 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.chapters Kapitel
 movieplayer.display_playtime Zeige Spielzeit im VFD/LCD
+movieplayer.eof_cnt EOF-Wiederholungen nach Serverabbruch (WebTV/WebRadio)
 movieplayer.fileplayback_audio Multiformat-Audiowiedergabe
 movieplayer.fileplayback_video Multiformat-Videowiedergabe
 movieplayer.head Movieplayer

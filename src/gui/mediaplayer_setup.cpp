@@ -133,6 +133,12 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_MOVIEPLAYER_TIMEOSD_WHILE_SEARCHING);
 	mediaSetup->addItem(mc);
 #endif
+	mediaSetup->addItem(GenericMenuSeparator);
+
+	CMenuOptionNumberChooser *ef = new CMenuOptionNumberChooser(LOCALE_MOVIEPLAYER_EOF_CNT, &g_settings.movieplayer_eof_cnt, true, 1, 10, NULL);
+//	ef->setHint("", LOCALE_MENU_HINT_MOVIEPLAYER_EOF_CNT);
+	mediaSetup->addItem(ef);
+
 	int res = mediaSetup->exec(NULL, "");
 	selected = mediaSetup->getSelected();
 	delete mediaSetup;
