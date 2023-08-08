@@ -241,7 +241,7 @@ public:
 	bool SetCECMode(VIDEO_HDMI_CEC_MODE Mode);
 	void SetCECAutoView(bool OnOff);
 	void SetCECAutoStandby(bool OnOff);
-	void ShowPicture(const char * fname);
+	bool ShowPicture(const char * fname);
 	void StopPicture();
 	void Standby(bool bOn);
 	void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);

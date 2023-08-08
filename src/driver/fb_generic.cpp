@@ -1607,13 +1607,8 @@ bool CFrameBuffer::showFrame(const std::string & filename, int fallback_mode)
 	{
 		if (videoDecoder)
 		{
-#if HAVE_CST_HARDWARE //FIXME: inside libcs no return value available
-			videoDecoder->ShowPicture(picture.c_str());
-			ret = true;
-#else
 			if (videoDecoder->ShowPicture(picture.c_str()))
 				ret = true;
-#endif
 		}
 		else
 			dprintf(DEBUG_NORMAL,"[CFrameBuffer]\[%s - %d], no videoplayer instance available\n", __func__, __LINE__);
