@@ -110,10 +110,10 @@ OpenThreads::Mutex CMoviePlayerGui::mutex;
 OpenThreads::Mutex CMoviePlayerGui::bgmutex;
 OpenThreads::Condition CMoviePlayerGui::cond;
 pthread_t CMoviePlayerGui::bgThread;
-cPlayback *CMoviePlayerGui::playback;
-bool CMoviePlayerGui::webtv_started;
-CMovieBrowser* CMoviePlayerGui::moviebrowser;
-CBookmarkManager * CMoviePlayerGui::bookmarkmanager;
+cPlayback *CMoviePlayerGui::playback = NULL;
+bool CMoviePlayerGui::webtv_started = false;
+CMovieBrowser* CMoviePlayerGui::moviebrowser = NULL;
+CBookmarkManager * CMoviePlayerGui::bookmarkmanager = NULL;
 
 CMoviePlayerGui& CMoviePlayerGui::getInstance(bool background)
 {
