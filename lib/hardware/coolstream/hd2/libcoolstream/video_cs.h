@@ -13,6 +13,7 @@
 #include <cs_frontpanel.h>
 #include <control.h>
 
+#include "playback_cs.h"
 #include "cs_types.h"
 
 #define CS_MAX_VIDEO_DECODERS 16
@@ -206,6 +207,8 @@ private:
 	cDemux			*demux;
 	int			current_video_system;
 	//
+	cPlayback	*playback_ptr;
+	//
 	int SelectAutoFormat();
 	void ScalePic();
 	cVideo(unsigned int Unit);
@@ -299,6 +302,9 @@ public:
 	void SetDemux(cDemux *Demux);
 	static cVideo *GetDecoder(unsigned int Unit);
 	bool SyncSTC(void);
+
+	// set instance of cPlayback as callback
+	void setPlaybackPtr(cPlayback *ptr);
 };
 
 #endif // __VIDEO_CS_H_

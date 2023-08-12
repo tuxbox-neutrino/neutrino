@@ -15,6 +15,7 @@
 #include <dmx_cs.h>
 #include <linux/fb.h>
 
+#include "playback_cs.h"
 #include "cs_types.h"
 
 #ifndef CS_VIDEO_PDATA
@@ -173,7 +174,8 @@ private:
 	bool			isReadScreeninfo;
 	fb_var_screeninfo	varScreeninfo;
 	fb_fix_screeninfo	fixScreeninfo;
-
+	//
+	cPlayback       *playback_ptr;
 	//
 	int SelectAutoFormat();
 	void ScalePic();
@@ -264,6 +266,9 @@ public:
 	int  fbCopy(uint32_t *mem_p, int width, int height, int dst_x, int dst_y, int src_x, int src_y, int mode);
 	int  fbFill(int sx, int sy, int width, int height, fb_pixel_t col, int mode=0);
 	void SetDemux(cDemux *Demux);
+
+	// set instance of cPlayback as callback
+	void setPlaybackPtr(cPlayback *ptr);
 };
 
 #endif // __VIDEO_CS_H_

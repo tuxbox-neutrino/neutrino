@@ -172,6 +172,9 @@ void CMoviePlayerGui::Init(void)
 
 	if (playback == NULL)
 		playback = new cPlayback(0);
+#if HAVE_CST_HARDWARE
+	videoDecoder->setPlaybackPtr(playback);
+#endif
 	if (moviebrowser == NULL)
 		moviebrowser = new CMovieBrowser();
 	if (bookmarkmanager == NULL)
