@@ -1006,8 +1006,8 @@ void cGLCD::Run(void)
 						Channel = g_Locale->getText(LOCALE_GLCD_VOLUME);
 						ChannelWidth = font_channel.Width(Channel);
 						doScrollChannel = ChannelWidth > bitmap->Width();
-						scrollChannelSkip = 0;
 						scrollChannelForward = true;
+						scrollChannelSkip = 0;
 						if (doScrollChannel) {
 							scrollChannelOffset = bitmap->Width()/4;
 							ChannelWidth += scrollChannelOffset;
@@ -1016,8 +1016,8 @@ void cGLCD::Run(void)
 							scrollChannelOffset = 0;
 					}
 					EpgWidth = 0;
-					scrollEpgSkip = 0;
 					scrollEpgForward = true;
+					scrollEpgSkip = 0;
 					Scale = g_settings.current_volume;
 					channel_id = -1;
 				}
@@ -1030,8 +1030,8 @@ void cGLCD::Run(void)
 					Epg = stagingEpg;
 					EpgWidth = font_epg.Width(Epg);
 					doScrollEpg = EpgWidth > bitmap->Width();
-					scrollEpgSkip = 0;
 					scrollEpgForward = true;
+					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{
 						scrollEpgOffset = bitmap->Width()/4;
@@ -1045,8 +1045,8 @@ void cGLCD::Run(void)
 					Channel = stagingChannel;
 					ChannelWidth = font_channel.Width(Channel);
 					doScrollChannel = ChannelWidth > bitmap->Width();
-					scrollChannelSkip = 0;
 					scrollChannelForward = true;
+					scrollChannelSkip = 0;
 					if (doScrollChannel)
 					{
 						scrollChannelOffset = bitmap->Width()/4;
@@ -1156,13 +1156,16 @@ void cGLCD::Run(void)
 #if 0 // FIXME: scroll problem, high load
 					doScrollEpg = EpgWidth > bitmap->Width();
 					scrollEpgForward = true;
+#else
+					doScrollEpg = false;
+					scrollEpgForward = false;
+#endif
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{
 						scrollEpgOffset = bitmap->Width()/4;
 						EpgWidth += scrollEpgOffset;
 					} else
-#endif
 						scrollEpgOffset = 0;
 				}
 			}
