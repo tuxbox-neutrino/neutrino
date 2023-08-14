@@ -48,7 +48,7 @@
 #include "png.h"
 #include "jpeglib.h"
 
-#define ICONSEXT	".png"
+#define ICONSEXT ".png"
 
 static const char *kDefaultConfigFile = "/etc/graphlcd.conf";
 static cGLCD *cglcd = NULL;
@@ -1069,9 +1069,17 @@ void cGLCD::Run(void)
 					{
 						Epg = g_Locale->getText(LOCALE_GLCD_VOLUME);
 						EpgWidth = font_epg.Width(Epg);
-						doScrollEpg = EpgWidth > bitmap->Width();
+						if (g_settings.glcd_scroll)
+						{
+							doScrollEpg = EpgWidth > bitmap->Width();
+							scrollEpgForward = true;
+						}
+						else
+						{
+							doScrollEpg = false;
+							scrollEpgForward = false;
+						}
 						scrollEpgSkip = 0;
-						scrollEpgForward = true;
 						if (doScrollEpg)
 						{
 							scrollEpgOffset = bitmap->Width() / 4;
@@ -1093,8 +1101,16 @@ void cGLCD::Run(void)
 					{
 						Channel = g_Locale->getText(LOCALE_GLCD_VOLUME);
 						ChannelWidth = font_channel.Width(Channel);
-						doScrollChannel = ChannelWidth > bitmap->Width();
-						scrollChannelForward = true;
+						if (g_settings.glcd_scroll)
+						{
+							doScrollChannel = ChannelWidth > bitmap->Width();
+							scrollChannelForward = true;
+						}
+						else
+						{
+							doScrollChannel = false;
+							scrollChannelForward = false;
+						}
 						scrollChannelSkip = 0;
 						if (doScrollChannel)
 						{
@@ -1118,8 +1134,16 @@ void cGLCD::Run(void)
 				{
 					Epg = stagingEpg;
 					EpgWidth = font_epg.Width(Epg);
-					doScrollEpg = EpgWidth > bitmap->Width();
-					scrollEpgForward = true;
+					if (g_settings.glcd_scroll)
+					{
+						doScrollEpg = EpgWidth > bitmap->Width();
+						scrollEpgForward = true;
+					}
+					else
+					{
+						doScrollEpg = false;
+						scrollEpgForward = false;
+					}
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{
@@ -1133,8 +1157,16 @@ void cGLCD::Run(void)
 				{
 					Channel = stagingChannel;
 					ChannelWidth = font_channel.Width(Channel);
-					doScrollChannel = ChannelWidth > bitmap->Width();
-					scrollChannelForward = true;
+					if (g_settings.glcd_scroll)
+					{
+						doScrollChannel = ChannelWidth > bitmap->Width();
+						scrollChannelForward = true;
+					}
+					else
+					{
+						doScrollChannel = false;
+						scrollChannelForward = false;
+					}
 					scrollChannelSkip = 0;
 					if (doScrollChannel)
 					{
@@ -1165,8 +1197,16 @@ void cGLCD::Run(void)
 					EpgWidth = 0;
 					Scale = 0;
 					doScrollEpg = false;
-					doScrollChannel = ChannelWidth > bitmap->Width();
-					scrollChannelForward = true;
+					if (g_settings.glcd_scroll)
+					{
+						doScrollChannel = ChannelWidth > bitmap->Width();
+						scrollChannelForward = true;
+					}
+					else
+					{
+						doScrollChannel = false;
+						scrollChannelForward = false;
+					}
 					scrollChannelSkip = 0;
 					if (doScrollChannel)
 					{
@@ -1187,8 +1227,16 @@ void cGLCD::Run(void)
 				{
 					Epg = info_CurrentNext.current_name;
 					EpgWidth = font_epg.Width(Epg);
-					doScrollEpg = EpgWidth > bitmap->Width();
-					scrollEpgForward = true;
+					if (g_settings.glcd_scroll)
+					{
+						doScrollEpg = EpgWidth > bitmap->Width();
+						scrollEpgForward = true;
+					}
+					else
+					{
+						doScrollEpg = false;
+						scrollEpgForward = false;
+					}
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{

@@ -198,13 +198,13 @@ struct SNeutrinoTheme
 
 struct timer_remotebox_item
 {
-		unsigned int port;
-		std::string user;
-		std::string pass;
-		std::string rbname;
-		std::string rbaddress;
-		bool enabled;
-		bool online;
+	unsigned int port;
+	std::string user;
+	std::string pass;
+	std::string rbname;
+	std::string rbaddress;
+	bool enabled;
+	bool online;
 };
 
 #define GLCD_DEFAULT_BRIGHTNESS 10
@@ -329,6 +329,7 @@ struct SNeutrinoSettings
 	int glcd_brightness_standby;
 	int glcd_mirror_osd;
 	int glcd_mirror_video;
+	int glcd_scroll;
 	int glcd_scroll_speed;
 	int glcd_selected_config;
 #endif

@@ -938,6 +938,7 @@ glcd.progressbar_width Progress bar width
 glcd.progressbar_x_position Progress bar x-position
 glcd.progressbar_y_position Progress bar y-position
 glcd.restart Restart
+glcd.scroll Scroll
 glcd.scroll_speed Scroll speed
 glcd.standby_clock Time display in standby mode
 glcd.standby_clock_analog Analog clock

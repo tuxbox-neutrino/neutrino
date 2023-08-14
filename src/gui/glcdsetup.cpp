@@ -315,6 +315,8 @@ int GLCD_Menu::GLCD_Menu_Settings()
 
 	gms->addItem(new CMenuForwarder(LOCALE_GLCD_BRIGHTNESS_SETTINGS, true, NULL, this, "brightness_settings", CRCInput::convertDigitToKey(shortcut++)));
 
+	gms->addItem(new CMenuOptionChooser(LOCALE_GLCD_SCROLL, &g_settings.glcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++)));
+
 	gms->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_SCROLL_SPEED, &g_settings.glcd_scroll_speed, true, 1, 63, this));
 
 	gms->addItem(new CMenuOptionChooser(LOCALE_GLCD_MIRROR_OSD, &g_settings.glcd_mirror_osd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++)));

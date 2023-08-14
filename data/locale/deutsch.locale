@@ -938,7 +938,8 @@ glcd.progressbar_width Fortschrittsbalken Weite
 glcd.progressbar_x_position Fortschrittsbalken x-Position
 glcd.progressbar_y_position Fortschrittsbalken y-Position
 glcd.restart Neu erkennen
-glcd.scroll_speed Scroll-Geschwindigkeit
+glcd.scroll Laufschrift
+glcd.scroll_speed Geschwindigkeit der Laufschrift
 glcd.standby_clock Zeitanzeige im Standby
 glcd.standby_clock_analog Analoge Uhr
 glcd.standby_clock_digital Digitale Uhr

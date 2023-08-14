@@ -965,6 +965,7 @@ const char * locale_real_names[] =
 	"glcd.progressbar_x_position",
 	"glcd.progressbar_y_position",
 	"glcd.restart",
+	"glcd.scroll",
 	"glcd.scroll_speed",
 	"glcd.standby_clock",
 	"glcd.standby_clock_analog",
