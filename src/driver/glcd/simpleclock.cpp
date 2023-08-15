@@ -20,7 +20,6 @@
         Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -53,16 +52,17 @@ void SimpleClockUpdateFonts(int mode)
 			break;
 		case cGLCD::CLOCK_SIMPLE:
 		default:
-			font = t.glcd_font
-			;
+			font = t.glcd_font;
 	}
 
 	int fontsize_time_standby = 0;
 	int percent_time_standby = std::min(t.glcd_standby_clock_simple_size, 100);
 	int fontsize_time_standby_new = percent_time_standby * cglcd->lcd->Height() / 100;
-	if (fontsize_time_standby_new != fontsize_time_standby) {
+	if (fontsize_time_standby_new != fontsize_time_standby)
+	{
 		fontsize_time_standby = fontsize_time_standby_new;
-		if (!font_time_standby.LoadFT2(font, "UTF-8", fontsize_time_standby)) {
+		if (!font_time_standby.LoadFT2(font, "UTF-8", fontsize_time_standby))
+		{
 			font_time_standby.LoadFT2(g_settings.font_file, "UTF-8", fontsize_time_standby);
 		}
 	}
@@ -74,7 +74,7 @@ void RenderSimpleClock(std::string Time, int x, int y, int mode)
 	cGLCD *cglcd = cGLCD::getInstance();
 	SNeutrinoGlcdTheme &t = g_settings.glcd_theme;
 	SimpleClockUpdateFonts(mode);
-	cglcd->bitmap->DrawText(std::max(2,(cglcd->bitmap->Width() - 4 - font_time_standby.Width(Time))/2),
+	cglcd->bitmap->DrawText(std::max(2, (cglcd->bitmap->Width() - 4 - font_time_standby.Width(Time)) / 2),
 		y, cglcd->bitmap->Width() - 1, Time,
 		&font_time_standby, cglcd->ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent);
 }

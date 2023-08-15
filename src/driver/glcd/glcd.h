@@ -138,7 +138,7 @@ class cGLCD
 			uint32_t sw, uint32_t sh,
 			uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh,
 			bool transp = false, bool maximize = false);
-		bool showImage(const std::string & filename,
+		bool showImage(const std::string &filename,
 			uint32_t sw, uint32_t sh,
 			uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh,
 			bool transp = false, bool maximize = false);
@@ -153,23 +153,26 @@ class cGLCD
 		void WakeUp();
 		static void	*TimeThread(void *);
 		void Run(void);
-		static void* Run(void *);
+		static void *Run(void *);
 		static void Lock();
 		static void Unlock();
 		bool config_mode;
 	public:
-		enum {
+		enum
+		{
 			BMP = 0,
 			JPG = 1,
 			PNG = 2,
 		};
-		enum {
+		enum
+		{
 			ALIGN_NONE = 0,
 			ALIGN_LEFT = 1,
 			ALIGN_CENTER = 2,
 			ALIGN_RIGHT = 3,
 		};
-		enum {
+		enum
+		{
 			REC = 0,
 			MUTE = 1,
 			TS = 2,
@@ -180,7 +183,8 @@ class cGLCD
 			SUB = 7,
 			CAM = 8,
 		};
-		enum {
+		enum
+		{
 			CLOCK_OFF = 0,
 			CLOCK_SIMPLE = 1,
 			CLOCK_LED = 2,
@@ -188,7 +192,7 @@ class cGLCD
 			CLOCK_DIGITAL = 4,
 			CLOCK_ANALOG = 5
 		};
-		GLCD::cDriver * lcd;
+		GLCD::cDriver *lcd;
 		GLCD::cFont font_channel;
 		GLCD::cFont font_epg;
 		GLCD::cFont font_time;
@@ -196,15 +200,15 @@ class cGLCD
 		GLCD::cFont font_start;
 		GLCD::cFont font_end;
 		GLCD::cFont font_smalltext;
-		GLCD::cBitmap * bitmap;
+		GLCD::cBitmap *bitmap;
 		cGLCD();
 		~cGLCD();
 		uint32_t ColorConvert3to1(uint32_t red, uint32_t green, uint32_t blue);
 		void DeInit();
 		void Rescan();
 		bool showProgressBarBorder(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint32_t scale, uint32_t color_border, uint32_t color_progress);
-		bool imageShow(const std::string & filename, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, bool transp = false, bool maximize = false, bool clear = false, bool center_sw = false, bool center_sh = false);
-		bool drawText(int x, int y, int xmax, int text_width, const std::string & text, const GLCD::cFont * font, uint32_t color1, uint32_t color2, bool proportional, int skipPixels, int align);
+		bool imageShow(const std::string &filename, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, bool transp = false, bool maximize = false, bool clear = false, bool center_sw = false, bool center_sh = false);
+		bool drawText(int x, int y, int xmax, int text_width, const std::string &text, const GLCD::cFont *font, uint32_t color1, uint32_t color2, bool proportional, int skipPixels, int align);
 		static cGLCD *getInstance();
 		static void lockChannel(std::string txt, std::string epg = "", int scale = 0);
 		static void unlockChannel();

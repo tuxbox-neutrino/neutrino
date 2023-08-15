@@ -1,24 +1,23 @@
 /*
-        analog clock  -   DBoxII-Project
+	analog clock  -   DBoxII-Project
 
-        Copyright (C) 2001 Steffen Hehn 'McClean',
-                      2003 thegoodguy
+	Copyright (C) 2001 Steffen Hehn 'McClean', 2003 thegoodguy
 
-        License: GPL
+	License: GPL
 
-        This program is free software; you can redistribute it and/or modify
-        it under the terms of the GNU General Public License as published by
-        the Free Software Foundation; either version 2 of the License, or
-        (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-        This program is distributed in the hope that it will be useful,
-        but WITHOUT ANY WARRANTY; without even the implied warranty of
-        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-        GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-        You should have received a copy of the GNU General Public License
-        along with this program; if not, write to the Free Software
-        Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -38,7 +37,7 @@ enum files
 	ANALOG_MIN = 2
 };
 
-const char * const file_name[] =
+const char *const file_name[] =
 {
 	"analog_clock",
 	"analog_hour",
@@ -46,7 +45,7 @@ const char * const file_name[] =
 };
 #define LCD_NUMBER_OF_FILES (sizeof(file_name)/sizeof(file_name[0]))
 
-const char * const file_path[] =
+const char *const file_path[] =
 {
 	ICONSDIR_VAR "/oled/clock/",
 	ICONSDIR "/oled/clock/"
@@ -139,14 +138,14 @@ void RenderHands(int hour, int min, int sec, int posx, int posy, int hour_size, 
 
 	mAngleInRad = ((6 * time_min) * (2 * pi / 360));
 	mAngleSave = mAngleInRad;
-	mAngleInRad -= pi/2;
+	mAngleInRad -= pi / 2;
 
 	min_x = int((dia * 0.7 * cos(mAngleInRad)));
 	min_y = int((dia * 0.7 * sin(mAngleInRad)));
 
 	hAngleInRad = ((30 * time_hour) * (2 * pi / 360));
-	hAngleInRad += mAngleSave/12;
-	hAngleInRad -= pi/2;
+	hAngleInRad += mAngleSave / 12;
+	hAngleInRad -= pi / 2;
 	hour_x = int((dia * 0.5 * cos(hAngleInRad)));
 	hour_y = int((dia * 0.5 * sin(hAngleInRad)));
 
@@ -154,11 +153,11 @@ void RenderHands(int hour, int min, int sec, int posx, int posy, int hour_size, 
 	for (int i = 0; i <= hour_size; i++)
 	{
 #if 1
-		cglcd->bitmap->DrawLine(posx-i, posy-i, posx + hour_x,posy + hour_y, GLCD::cColor::White);
-		cglcd->bitmap->DrawLine(posx+i, posy+i, posx + hour_x,posy + hour_y, GLCD::cColor::White);
+		cglcd->bitmap->DrawLine(posx - i, posy - i, posx + hour_x, posy + hour_y, GLCD::cColor::White);
+		cglcd->bitmap->DrawLine(posx + i, posy + i, posx + hour_x, posy + hour_y, GLCD::cColor::White);
 #else
-		cglcd->bitmap->DrawLine(posx-i, posy-i, posx + hour_x-i,posy + hour_y-i, t.glcd_color_fg);
-		cglcd->bitmap->DrawLine(posx+i, posy+i, posx + hour_x+i,posy + hour_y+i, t.glcd_color_fg);
+		cglcd->bitmap->DrawLine(posx - i, posy - i, posx + hour_x - i, posy + hour_y - i, t.glcd_color_fg);
+		cglcd->bitmap->DrawLine(posx + i, posy + i, posx + hour_x + i, posy + hour_y + i, t.glcd_color_fg);
 #endif
 	}
 
@@ -166,11 +165,11 @@ void RenderHands(int hour, int min, int sec, int posx, int posy, int hour_size, 
 	for (int i = 0; i <= min_size; i++)
 	{
 #if 1
-		cglcd->bitmap->DrawLine(posx-i, posy-i, posx + min_x,posy + min_y, GLCD::cColor::White);
-		cglcd->bitmap->DrawLine(posx+i, posy+i, posx + min_x,posy + min_y, GLCD::cColor::White);
+		cglcd->bitmap->DrawLine(posx - i, posy - i, posx + min_x, posy + min_y, GLCD::cColor::White);
+		cglcd->bitmap->DrawLine(posx + i, posy + i, posx + min_x, posy + min_y, GLCD::cColor::White);
 #else
-		cglcd->bitmap->DrawLine(posx-i, posy-i, posx + min_x-i,posy + min_y-i, t.glcd_color_fg);
-		cglcd->bitmap->DrawLine(posx+i, posy+i, posx + min_x+i,posy + min_y+i, t.glcd_color_fg);
+		cglcd->bitmap->DrawLine(posx - i, posy - i, posx + min_x - i, posy + min_y - i, t.glcd_color_fg);
+		cglcd->bitmap->DrawLine(posx + i, posy + i, posx + min_x + i, posy + min_y + i, t.glcd_color_fg);
 #endif
 	}
 }

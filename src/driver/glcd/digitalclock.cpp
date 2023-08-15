@@ -34,11 +34,11 @@
 
 enum digits
 {
-        TIME_ZERO = 0,
-        TIME_ONE = 1,
+	TIME_ZERO = 0,
+	TIME_ONE = 1,
 	TIME_TWO = 2,
-        TIME_THREE = 3,
-        TIME_FOUR = 4,
+	TIME_THREE = 3,
+	TIME_FOUR = 4,
 	TIME_FIVE = 5,
 	TIME_SIX = 6,
 	TIME_SEVEN = 7,
@@ -47,13 +47,13 @@ enum digits
 	TIME_DOTS = 10
 };
 
-const char * const digit_name[] =
+const char *const digit_name[] =
 {
 	"time_zero",
-        "time_one",
-        "time_two",
-        "time_three",
-        "time_four",
+	"time_one",
+	"time_two",
+	"time_three",
+	"time_four",
 	"time_five",
 	"time_six",
 	"time_seven",
@@ -63,7 +63,7 @@ const char * const digit_name[] =
 };
 #define LCD_NUMBER_OF_DIGITS (sizeof(digit_name)/sizeof(digit_name[0]))
 
-const char * const digit_path[] =
+const char *const digit_path[] =
 {
 	ICONSDIR_VAR "/oled/clock/",
 	ICONSDIR "/oled/clock/"
@@ -159,9 +159,9 @@ void ShowDigitalClock(int hour, int minute)
 	int d = 258;
 	int e = 365;
 
-	RenderTimeDigit(hour/10, a, y);
-	RenderTimeDigit(hour%10, b, y);
-	RenderDots(c ,(t.glcd_standby_weather ? (y + 35) : y));
-	RenderTimeDigit(minute/10, d, y);
-	RenderTimeDigit(minute%10, e, y);
+	RenderTimeDigit(hour / 10, a, y);
+	RenderTimeDigit(hour % 10, b, y);
+	RenderDots(c, (t.glcd_standby_weather ? (y + 35) : y));
+	RenderTimeDigit(minute / 10, d, y);
+	RenderTimeDigit(minute % 10, e, y);
 }

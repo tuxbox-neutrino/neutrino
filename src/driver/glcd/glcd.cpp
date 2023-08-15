@@ -3,7 +3,6 @@
 
 	(C) 2012-2014 by martii
 
-
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -51,11 +50,11 @@
 
 #define ICONSEXT	".png"
 
-static const char * kDefaultConfigFile = "/etc/graphlcd.conf";
+static const char *kDefaultConfigFile = "/etc/graphlcd.conf";
 static cGLCD *cglcd = NULL;
 
 extern CRemoteControl *g_RemoteControl;
-extern CPictureViewer * g_PicViewer;
+extern CPictureViewer *g_PicViewer;
 
 cGLCD::cGLCD()
 {
@@ -129,10 +128,10 @@ cGLCD::cGLCD()
 	if (!g_settings.glcd_enable)
 		doSuspend = true;
 
-	if (pthread_create (&thrGLCD, 0, cGLCD::Run, this) != 0 )
+	if (pthread_create(&thrGLCD, 0, cGLCD::Run, this) != 0)
 		fprintf(stderr, "ERROR: pthread_create(cGLCD::Init)\n");
 
-	if (pthread_create (&thrTimeThread, 0, cGLCD::TimeThread, this) != 0 )
+	if (pthread_create(&thrTimeThread, 0, cGLCD::TimeThread, this) != 0)
 		fprintf(stderr, "ERROR: pthread_create(cGLCD::TimeThread)\n");
 
 	InitAnalogClock();
@@ -184,9 +183,12 @@ uint32_t cGLCD::ColorConvert3to1(uint32_t red, uint32_t green, uint32_t blue)
 	unsigned int color_green_tmp = (static_cast<int>(green) * 2.55) + 1;
 	unsigned int color_blue_tmp = (static_cast<int>(blue) * 2.55) + 1;
 
-	uint32_t color = 0xff; color <<= 8;
-	color |= color_red_tmp; color <<= 8;
-	color |= color_green_tmp; color <<= 8;
+	uint32_t color = 0xff;
+	color <<= 8;
+	color |= color_red_tmp;
+	color <<= 8;
+	color |= color_green_tmp;
+	color <<= 8;
 	color |= color_blue_tmp;
 
 	return color;
@@ -208,13 +210,13 @@ void cGLCD::Exec()
 			GLCD::cFont font_tmp;
 
 			int fw = font_epg.Width(Epg);
-			fw = (fw == 0) ? 1: fw;
+			fw = (fw == 0) ? 1 : fw;
 			font_tmp.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg * bitmap->Width() / fw);
 			fw = font_tmp.Width(Epg);
 			int fh = font_tmp.Height(Epg);
 
-			drawText(std::max(2,(bitmap->Width() - fw)/2),
-				std::max(2,(bitmap->Height() - fh)/2), bitmap->Width(), fw, Epg,
+			drawText(std::max(2, (bitmap->Width() - fw) / 2),
+				std::max(2, (bitmap->Height() - fh) / 2), bitmap->Width(), fw, Epg,
 				&font_tmp, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, 0, ALIGN_NONE);
 
 			lcd->SetScreen(bitmap->Data(), bitmap->Width(), bitmap->Height());
@@ -232,7 +234,7 @@ void cGLCD::Exec()
 	{
 		if (t.glcd_standby_clock == CLOCK_ANALOG)
 		{
-			ShowAnalogClock(tm->tm_hour, tm->tm_min, tm->tm_sec, bitmap->Width()/2, bitmap->Height()/2);
+			ShowAnalogClock(tm->tm_hour, tm->tm_min, tm->tm_sec, bitmap->Width() / 2, bitmap->Height() / 2);
 		}
 		else if (t.glcd_standby_clock == CLOCK_DIGITAL)
 		{
@@ -325,19 +327,28 @@ void cGLCD::Exec()
 	g_PicViewer->getSize(Logo.c_str(), &icon_start_width, &icon_start_height);
 
 	if (t.glcd_logo && percent_logo &&
-		showImage(channel_id, Channel, t.glcd_logo_x_position+(bitmap->Width()-(percent_logo_width * bitmap->Width()/100))/2, t.glcd_logo_y_position, percent_logo_width * bitmap->Width()/100, percent_logo * bitmap->Height()/100, true, false)) {
+		showImage(channel_id, Channel, t.glcd_logo_x_position + (bitmap->Width() - (percent_logo_width * bitmap->Width() / 100)) / 2, t.glcd_logo_y_position, percent_logo_width * bitmap->Width() / 100, percent_logo * bitmap->Height() / 100, true, false))
+	{
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
-	} else if (percent_logo && icon_start_width && icon_start_height &&
-		doShowLcdIcon && showImage(Logo, icon_start_width, icon_start_height, t.glcd_logo_x_position, t.glcd_logo_y_position, bitmap->Width(), percent_logo * bitmap->Height()/100, true, false)) {
+	}
+	else if (percent_logo && icon_start_width && icon_start_height &&
+		doShowLcdIcon && showImage(Logo, icon_start_width, icon_start_height, t.glcd_logo_x_position, t.glcd_logo_y_position, bitmap->Width(), percent_logo * bitmap->Height() / 100, true, false))
+	{
 		doScrollChannel = false;
 		scrollChannelSkip = 0;
-	} else if (percent_channel) {
-		if (ChannelWidth) {
-			if (scrollChannelForward) {
+	}
+	else if (percent_channel)
+	{
+		if (ChannelWidth)
+		{
+			if (scrollChannelForward)
+			{
 				if (ChannelWidth - scrollChannelSkip < bitmap->Width())
 					scrollChannelForward = false;
-			} else if (scrollChannelSkip <= 0) {
+			}
+			else if (scrollChannelSkip <= 0)
+			{
 				scrollChannelSkip = 0;
 				doScrollChannel = false;
 			}
@@ -352,7 +363,8 @@ void cGLCD::Exec()
 			if (scrollChannelOffset < 0)
 				scrollChannelOffset = 0;
 
-			if (scrollChannelOffset == 0) {
+			if (scrollChannelOffset == 0)
+			{
 				if (scrollChannelForward)
 					scrollChannelSkip += g_settings.glcd_scroll_speed;
 				else
@@ -365,10 +377,13 @@ void cGLCD::Exec()
 	{
 		if (EpgWidth)
 		{
-			if (scrollEpgForward) {
+			if (scrollEpgForward)
+			{
 				if (EpgWidth - scrollEpgSkip < bitmap->Width())
 					scrollEpgForward = false;
-			} else if (scrollEpgSkip <= 0) {
+			}
+			else if (scrollEpgSkip <= 0)
+			{
 				scrollEpgSkip = 0;
 				doScrollEpg = false;
 			}
@@ -383,7 +398,8 @@ void cGLCD::Exec()
 			if (scrollEpgOffset < 0)
 				scrollEpgOffset = 0;
 
-			if (scrollEpgOffset == 0) {
+			if (scrollEpgOffset == 0)
+			{
 				if (scrollEpgForward)
 					scrollEpgSkip += g_settings.glcd_scroll_speed;
 				else
@@ -446,14 +462,15 @@ void cGLCD::Exec()
 		Lock();
 		End = stagingEnd;
 		EndWidth = font_end.Width(End);
- 		Unlock();
+		Unlock();
 
 		drawText(t.glcd_end_x_position,
 			t.glcd_end_y_position, bitmap->Width() - 1, EndWidth, End,
 			&font_end, ColorConvert3to1(t.glcd_foreground_color_red, t.glcd_foreground_color_green, t.glcd_foreground_color_blue), GLCD::cColor::Transparent, true, 0, t.glcd_end_align);
 	}
 
-	if (percent_smalltext && !doStandby) {
+	if (percent_smalltext && !doStandby)
+	{
 		Lock();
 		SmalltextWidth = font_smalltext.Width(Smalltext);
 		Unlock();
@@ -473,11 +490,14 @@ void cGLCD::Exec()
 		if (t.glcd_icon_rec_x_position)
 		{
 			smalltext = "REC";
-			if (recLocked) {
+			if (recLocked)
+			{
 				drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Red,
 					GLCD::cColor::Transparent, true, 0, 0);
-			} else {
+			}
+			else
+			{
 				drawText(t.glcd_icon_rec_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
@@ -487,11 +507,14 @@ void cGLCD::Exec()
 		if (t.glcd_icon_mute_x_position)
 		{
 			smalltext = "MUTE";
-			if (muteLocked) {
+			if (muteLocked)
+			{
 				drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Red,
 					GLCD::cColor::Transparent, true, 0, 0);
-			} else {
+			}
+			else
+			{
 				drawText(t.glcd_icon_mute_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
@@ -501,24 +524,48 @@ void cGLCD::Exec()
 		if (t.glcd_icon_ts_x_position)
 		{
 			smalltext = "TS";
-			if (tsLocked) {
+			if (tsLocked)
+			{
 				drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Yellow,
 					GLCD::cColor::Transparent, true, 0, 0);
-			} else {
+			}
+			else
+			{
 				drawText(t.glcd_icon_ts_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
 			}
 		}
+#if 0
+		if (t.glcd_icon_ecm_x_position)
+		{
+			smalltext = "ECM";
+			if (ecmLocked)
+			{
+				drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
+			else
+			{
+				drawText(t.glcd_icon_ecm_x_position, t.glcd_icons_y_position,
+					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
+					GLCD::cColor::Transparent, true, 0, 0);
+			}
+		}
+#endif
 		if (t.glcd_icon_timer_x_position)
 		{
 			smalltext = "TIMER";
-			if (timerLocked) {
+			if (timerLocked)
+			{
 				drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Yellow,
 					GLCD::cColor::Transparent, true, 0, 0);
-			} else {
+			}
+			else
+			{
 				drawText(t.glcd_icon_timer_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
@@ -528,11 +575,14 @@ void cGLCD::Exec()
 		if (t.glcd_icon_dd_x_position)
 		{
 			smalltext = "DD";
-			if (ddLocked) {
+			if (ddLocked)
+			{
 				drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 					GLCD::cColor::Transparent, true, 0, 0);
-			} else {
+			}
+			else
+			{
 				drawText(t.glcd_icon_dd_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
@@ -541,24 +591,33 @@ void cGLCD::Exec()
 
 		if (t.glcd_icon_txt_x_position)
 		{
-			if (ismediaplayer) {
+			if (ismediaplayer)
+			{
 				smalltext = "SUB";
-				if (subLocked) {
+				if (subLocked)
+				{
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 						GLCD::cColor::Transparent, true, 0, 0);
-				} else {
+				}
+				else
+				{
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 						GLCD::cColor::Transparent, true, 0, 0);
 				}
-			} else {
+			}
+			else
+			{
 				smalltext = "TXT";
-				if (txtLocked) {
+				if (txtLocked)
+				{
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 						GLCD::cColor::Transparent, true, 0, 0);
-				} else {
+				}
+				else
+				{
 					drawText(t.glcd_icon_txt_x_position, t.glcd_icons_y_position,
 						bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 						GLCD::cColor::Transparent, true, 0, 0);
@@ -569,11 +628,14 @@ void cGLCD::Exec()
 		if (t.glcd_icon_cam_x_position)
 		{
 			smalltext = "CAM";
-			if (camLocked) {
+			if (camLocked)
+			{
 				drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Green,
 					GLCD::cColor::Transparent, true, 0, 0);
-			} else {
+			}
+			else
+			{
 				drawText(t.glcd_icon_cam_x_position, t.glcd_icons_y_position,
 					bitmap->Width() - 1, SmalltextWidth, smalltext, &font_smalltext, GLCD::cColor::Gray,
 					GLCD::cColor::Transparent, true, 0, 0);
@@ -609,55 +671,69 @@ void cGLCD::updateFonts()
 	int fontsize_end_new = percent_end * cglcd->lcd->Height() / 100;
 	int fontsize_smalltext_new = percent_smalltext * cglcd->lcd->Height() / 100;
 
-	if (!fonts_initialized || (fontsize_channel_new != fontsize_channel)) {
+	if (!fonts_initialized || (fontsize_channel_new != fontsize_channel))
+	{
 		fontsize_channel = fontsize_channel_new;
-		if (!font_channel.LoadFT2(t.glcd_font, "UTF-8", fontsize_channel)) {
+		if (!font_channel.LoadFT2(t.glcd_font, "UTF-8", fontsize_channel))
+		{
 			t.glcd_font = g_settings.font_file;
 			font_channel.LoadFT2(t.glcd_font, "UTF-8", fontsize_channel);
 		}
 	}
-	if (!fonts_initialized || (fontsize_epg_new != fontsize_epg)) {
+	if (!fonts_initialized || (fontsize_epg_new != fontsize_epg))
+	{
 		fontsize_epg = fontsize_epg_new;
-		if (!font_epg.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg)) {
+		if (!font_epg.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg))
+		{
 			t.glcd_font = g_settings.font_file;
 			font_epg.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg);
 		}
 	}
-	if (!fonts_initialized || (fontsize_time_new != fontsize_time)) {
+	if (!fonts_initialized || (fontsize_time_new != fontsize_time))
+	{
 		fontsize_time = fontsize_time_new;
-		if (!font_time.LoadFT2(t.glcd_font, "UTF-8", fontsize_time)) {
+		if (!font_time.LoadFT2(t.glcd_font, "UTF-8", fontsize_time))
+		{
 			t.glcd_font = g_settings.font_file;
 			font_time.LoadFT2(t.glcd_font, "UTF-8", fontsize_time);
 		}
 	}
 
-	if (!fonts_initialized || (fontsize_duration_new != fontsize_duration)) {
+	if (!fonts_initialized || (fontsize_duration_new != fontsize_duration))
+	{
 		fontsize_duration = fontsize_duration_new;
-		if (!font_duration.LoadFT2(t.glcd_font, "UTF-8", fontsize_duration)) {
+		if (!font_duration.LoadFT2(t.glcd_font, "UTF-8", fontsize_duration))
+		{
 			t.glcd_font = g_settings.font_file;
 			font_duration.LoadFT2(t.glcd_font, "UTF-8", fontsize_duration);
 		}
 	}
 
-	if (!fonts_initialized || (fontsize_start_new != fontsize_start)) {
+	if (!fonts_initialized || (fontsize_start_new != fontsize_start))
+	{
 		fontsize_start = fontsize_start_new;
-		if (!font_start.LoadFT2(t.glcd_font, "UTF-8", fontsize_start)) {
+		if (!font_start.LoadFT2(t.glcd_font, "UTF-8", fontsize_start))
+		{
 			t.glcd_font = g_settings.font_file;
 			font_start.LoadFT2(t.glcd_font, "UTF-8", fontsize_start);
 		}
 	}
 
-	if (!fonts_initialized || (fontsize_end_new != fontsize_end)) {
+	if (!fonts_initialized || (fontsize_end_new != fontsize_end))
+	{
 		fontsize_end = fontsize_end_new;
-		if (!font_end.LoadFT2(t.glcd_font, "UTF-8", fontsize_end)) {
+		if (!font_end.LoadFT2(t.glcd_font, "UTF-8", fontsize_end))
+		{
 			t.glcd_font = g_settings.font_file;
 			font_end.LoadFT2(t.glcd_font, "UTF-8", fontsize_end);
 		}
 	}
 
-	if (!fonts_initialized || (fontsize_smalltext_new != fontsize_smalltext)) {
+	if (!fonts_initialized || (fontsize_smalltext_new != fontsize_smalltext))
+	{
 		fontsize_smalltext = fontsize_smalltext_new;
-		if (!font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext)) {
+		if (!font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext))
+		{
 			t.glcd_font = g_settings.font_file;
 			font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext);
 		}
@@ -670,7 +746,8 @@ void cGLCD::updateFonts()
 
 bool cGLCD::getBoundingBox(uint32_t *buffer, int width, int height, int &bb_x, int &bb_y, int &bb_w, int &bb_h)
 {
-	if (!width || !height) {
+	if (!width || !height)
+	{
 		bb_x = bb_y = bb_w = bb_h = 0;
 		return false;
 	}
@@ -679,7 +756,8 @@ bool cGLCD::getBoundingBox(uint32_t *buffer, int width, int height, int &bb_x, i
 	uint32_t *b = buffer;
 	for (int y = 0; y < height; y++)
 		for (int x = 0; x < width; x++, b++)
-			if (*b) {
+			if (*b)
+			{
 				y_min = y;
 				goto out1;
 			}
@@ -688,26 +766,31 @@ out1:
 	b = buffer + height * width - 1;
 	for (int y = height - 1; y_min < y; y--)
 		for (int x = 0; x < width; x++, b--)
-			if (*b) {
+			if (*b)
+			{
 				y_max = y;
 				goto out2;
 			}
 out2:
 	int x_min = width;
-	for (int x = 0; x < width; x++) {
+	for (int x = 0; x < width; x++)
+	{
 		b = buffer + x + y_min * width;
 		for (int y = y_min; y < y_max; y++, b += width)
-			if (*b) {
+			if (*b)
+			{
 				x_min = x;
 				goto out3;
 			}
 	}
 out3:
 	int x_max = x_min;
-	for (int x = width - 1; x_min < x; x--) {
+	for (int x = width - 1; x_min < x; x--)
+	{
 		b = buffer + x + y_min * width;
 		for (int y = y_min; y < y_max; y++, b += width)
-			if (*b) {
+			if (*b)
+			{
 				x_max = x;
 				goto out4;
 			}
@@ -726,7 +809,7 @@ out4:
 	return true;
 }
 
-void* cGLCD::Run(void *arg)
+void *cGLCD::Run(void *arg)
 {
 	cGLCD *me = (cGLCD *)arg;
 	me->Run();
@@ -757,7 +840,7 @@ void cGLCD::WakeUp()
 	}
 }
 
-void* cGLCD::TimeThread(void *p)
+void *cGLCD::TimeThread(void *p)
 {
 	set_threadname("cGLCD:Time");
 	((cGLCD *)p)->time_thread_started = true;
@@ -765,23 +848,23 @@ void* cGLCD::TimeThread(void *p)
 	{
 		sleep(1);
 		if (!cglcd->doExit && (
-			   cglcd->locked_countdown == true
-			|| cglcd->channelLocked == true
-			|| cglcd->timeLocked == true
-			|| cglcd->durationLocked == true
-			|| cglcd->startLocked == true
-			|| cglcd->endLocked == true
-			|| cglcd->recLocked == true
-			|| cglcd->muteLocked == true
-			|| cglcd->tsLocked == true
-			|| cglcd->ecmLocked == true
-			|| cglcd->timerLocked == true
-			|| cglcd->ddLocked == true
-			|| cglcd->txtLocked == true
-			|| cglcd->camLocked == true
-			|| cglcd->doShowVolume == true
-			|| cglcd->doMirrorOSD == true
-		))
+				cglcd->locked_countdown == true
+				|| cglcd->channelLocked == true
+				|| cglcd->timeLocked == true
+				|| cglcd->durationLocked == true
+				|| cglcd->startLocked == true
+				|| cglcd->endLocked == true
+				|| cglcd->recLocked == true
+				|| cglcd->muteLocked == true
+				|| cglcd->tsLocked == true
+				|| cglcd->ecmLocked == true
+				|| cglcd->timerLocked == true
+				|| cglcd->ddLocked == true
+				|| cglcd->txtLocked == true
+				|| cglcd->camLocked == true
+				|| cglcd->doShowVolume == true
+				|| cglcd->doMirrorOSD == true
+			))
 		{
 			cGLCD::getInstance()->CountDown();
 		}
@@ -833,9 +916,10 @@ void cGLCD::Run(void)
 				break;
 			if (!g_settings.glcd_enable)
 				continue;
-		} else
-				while ((doSuspend || doStandby || !g_settings.glcd_enable) && !doExit)
-					sem_wait(&sem);
+		}
+		else
+			while ((doSuspend || doStandby || !g_settings.glcd_enable) && !doExit)
+				sem_wait(&sem);
 
 		if (doExit)
 			break;
@@ -846,7 +930,8 @@ void cGLCD::Run(void)
 			g_settings.glcd_selected_config = 0;
 
 		lcd = GLCD::CreateDriver(GLCD::Config.driverConfigs[g_settings.glcd_selected_config].id, &GLCD::Config.driverConfigs[g_settings.glcd_selected_config]);
-		if (!lcd) {
+		if (!lcd)
+		{
 #ifdef GLCD_DEBUG
 			fprintf(stderr, "CreateDriver failed.\n");
 #endif
@@ -888,13 +973,13 @@ void cGLCD::Run(void)
 					blitFlag = false;
 					bitmap->Clear(GLCD::cColor::Black);
 					ts.tv_sec = 0; // don't wait
-					static CFrameBuffer* fb = CFrameBuffer::getInstance();
+					static CFrameBuffer *fb = CFrameBuffer::getInstance();
 					static int fb_height = fb->getScreenHeight(true);
 					static uint32_t *fbp = fb->getFrameBufferPointer();
 					int lcd_width = bitmap->Width();
 					int lcd_height = bitmap->Height();
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE ||BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
-					unsigned int fb_stride = fb->getStride()/4;
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+					unsigned int fb_stride = fb->getStride() / 4;
 					if (!showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false, false))
 					{
 #else
@@ -917,7 +1002,7 @@ void cGLCD::Run(void)
 
 			if (g_settings.glcd_mirror_video && !doStandbyTime && !doStandbyWeather)
 			{
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE ||BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
 				lcd->SetMirrorVideo(true);
 #else
 				char ws[10];
@@ -945,7 +1030,7 @@ void cGLCD::Run(void)
 				continue;
 #endif
 			}
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE ||BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
+#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
 			else
 				lcd->SetMirrorVideo(false);
 #endif
@@ -970,9 +1055,9 @@ void cGLCD::Run(void)
 			if (!doScrollChannel && !doScrollEpg)
 				sem_timedwait(&sem, &ts);
 
-			while(!sem_trywait(&sem));
+			while (!sem_trywait(&sem));
 
-			if(doRescan || doSuspend || doStandby || doExit)
+			if (doRescan || doSuspend || doStandby || doExit)
 				break;
 
 			if (doShowVolume)
@@ -987,8 +1072,9 @@ void cGLCD::Run(void)
 						doScrollEpg = EpgWidth > bitmap->Width();
 						scrollEpgSkip = 0;
 						scrollEpgForward = true;
-						if (doScrollEpg) {
-							scrollEpgOffset = bitmap->Width()/4;
+						if (doScrollEpg)
+						{
+							scrollEpgOffset = bitmap->Width() / 4;
 							EpgWidth += scrollEpgOffset;
 						}
 						else
@@ -999,7 +1085,9 @@ void cGLCD::Run(void)
 					scrollChannelForward = true;
 					Scale = g_settings.current_volume;
 					//epg_id = -1;
-				} else {
+				}
+				else
+				{
 					Epg = "";
 					if (Channel.compare(g_Locale->getText(LOCALE_GLCD_VOLUME)))
 					{
@@ -1008,8 +1096,9 @@ void cGLCD::Run(void)
 						doScrollChannel = ChannelWidth > bitmap->Width();
 						scrollChannelForward = true;
 						scrollChannelSkip = 0;
-						if (doScrollChannel) {
-							scrollChannelOffset = bitmap->Width()/4;
+						if (doScrollChannel)
+						{
+							scrollChannelOffset = bitmap->Width() / 4;
 							ChannelWidth += scrollChannelOffset;
 						}
 						else
@@ -1034,7 +1123,7 @@ void cGLCD::Run(void)
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{
-						scrollEpgOffset = bitmap->Width()/4;
+						scrollEpgOffset = bitmap->Width() / 4;
 						EpgWidth += scrollEpgOffset;
 					}
 					else
@@ -1049,7 +1138,7 @@ void cGLCD::Run(void)
 					scrollChannelSkip = 0;
 					if (doScrollChannel)
 					{
-						scrollChannelOffset = bitmap->Width()/4;
+						scrollChannelOffset = bitmap->Width() / 4;
 						ChannelWidth += scrollChannelOffset;
 					}
 					else
@@ -1060,7 +1149,7 @@ void cGLCD::Run(void)
 			}
 			else
 			{
-				CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
+				CChannelList *channelList = CNeutrinoApp::getInstance()->channelList;
 				if (!channelList)
 					continue;
 				t_channel_id new_channel_id = channelList->getActiveChannel_ChannelID();
@@ -1069,7 +1158,7 @@ void cGLCD::Run(void)
 
 				if ((new_channel_id != channel_id))
 				{
-					Channel = channelList->getActiveChannelName ();
+					Channel = channelList->getActiveChannelName();
 					ChannelWidth = font_channel.Width(Channel);
 					epg_id = channelList->getActiveChannel()->getEpgID();
 					Epg = "";
@@ -1079,8 +1168,9 @@ void cGLCD::Run(void)
 					doScrollChannel = ChannelWidth > bitmap->Width();
 					scrollChannelForward = true;
 					scrollChannelSkip = 0;
-					if (doScrollChannel) {
-						scrollChannelOffset = bitmap->Width()/4;
+					if (doScrollChannel)
+					{
+						scrollChannelOffset = bitmap->Width() / 4;
 						ChannelWidth += scrollChannelOffset;
 					}
 					else
@@ -1102,9 +1192,10 @@ void cGLCD::Run(void)
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{
-						scrollEpgOffset = bitmap->Width()/4;
+						scrollEpgOffset = bitmap->Width() / 4;
 						EpgWidth += scrollEpgOffset;
-					} else
+					}
+					else
 						scrollEpgOffset = 0;
 				}
 
@@ -1163,9 +1254,10 @@ void cGLCD::Run(void)
 					scrollEpgSkip = 0;
 					if (doScrollEpg)
 					{
-						scrollEpgOffset = bitmap->Width()/4;
+						scrollEpgOffset = bitmap->Width() / 4;
 						EpgWidth += scrollEpgOffset;
-					} else
+					}
+					else
 						scrollEpgOffset = 0;
 				}
 			}
@@ -1205,7 +1297,8 @@ void cGLCD::Run(void)
 		lcd->DeInit();
 		delete lcd;
 		lcd = NULL;
-	} while(!doExit);
+	}
+	while (!doExit);
 }
 
 void cGLCD::Update()
@@ -1335,7 +1428,7 @@ void cGLCD::Resume()
 
 void cGLCD::lockChannel(std::string c, std::string e, int s)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->Lock();
 		cglcd->channelLocked = true;
@@ -1349,7 +1442,7 @@ void cGLCD::lockChannel(std::string c, std::string e, int s)
 
 void cGLCD::unlockChannel(void)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->channelLocked = false;
 		cglcd->Update();
@@ -1358,7 +1451,7 @@ void cGLCD::unlockChannel(void)
 
 void cGLCD::lockTime(std::string t)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->Lock();
 		cglcd->timeLocked = true;
@@ -1370,7 +1463,7 @@ void cGLCD::lockTime(std::string t)
 
 void cGLCD::unlockTime(void)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->timeLocked = false;
 		cglcd->Update();
@@ -1379,7 +1472,7 @@ void cGLCD::unlockTime(void)
 
 void cGLCD::lockDuration(std::string t)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->Lock();
 		cglcd->durationLocked = true;
@@ -1391,7 +1484,7 @@ void cGLCD::lockDuration(std::string t)
 
 void cGLCD::unlockDuration(void)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->durationLocked = false;
 		cglcd->Update();
@@ -1400,7 +1493,7 @@ void cGLCD::unlockDuration(void)
 
 void cGLCD::lockStart(std::string t)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->Lock();
 		cglcd->startLocked = true;
@@ -1412,7 +1505,7 @@ void cGLCD::lockStart(std::string t)
 
 void cGLCD::unlockStart(void)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->startLocked = false;
 		cglcd->Update();
@@ -1421,7 +1514,7 @@ void cGLCD::unlockStart(void)
 
 void cGLCD::lockEnd(std::string t)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->Lock();
 		cglcd->endLocked = true;
@@ -1433,7 +1526,7 @@ void cGLCD::lockEnd(std::string t)
 
 void cGLCD::unlockEnd(void)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->endLocked = false;
 		cglcd->Update();
@@ -1442,7 +1535,7 @@ void cGLCD::unlockEnd(void)
 
 void cGLCD::lockIcon(int type)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		cglcd->Lock();
 		if (type == REC)
@@ -1470,7 +1563,7 @@ void cGLCD::lockIcon(int type)
 
 void cGLCD::unlockIcon(int type)
 {
-	if(cglcd)
+	if (cglcd)
 	{
 		if (type == REC)
 			cglcd->recLocked = false;
@@ -1497,10 +1590,12 @@ void cGLCD::unlockIcon(int type)
 bool cGLCD::showProgressBarBorder(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint32_t scale, uint32_t color_border, uint32_t color_progress)
 {
 	cglcd->bitmap->DrawRectangle(x1, y1, x1 + (x2 - x1 - 1), y2, color_border, false);
-	if (scale) {
+	if (scale)
+	{
 		cglcd->bitmap->DrawRectangle(x1 + 1, y1 + 1, x1 + (scale * (x2 - x1 - 1) / 100), y2 - 1, color_progress, true);
 		return true;
-	} else
+	}
+	else
 		return false;
 }
 
@@ -1517,7 +1612,9 @@ bool cGLCD::showImage(fb_pixel_t *s, uint32_t sw, uint32_t sh, uint32_t dx, uint
 				uint32_t dw_new = dh * bb_w / bb_h;
 				dx += (dw - dw_new) >> 1;
 				dw = dw_new;
-			} else {
+			}
+			else
+			{
 				uint32_t dh_new = dw * bb_h / bb_w;
 				dy += (dh - dh_new) >> 1;
 				dh = dh_new;
@@ -1537,7 +1634,7 @@ bool cGLCD::showImage(fb_pixel_t *s, uint32_t sw, uint32_t sh, uint32_t dx, uint
 	return false;
 }
 
-bool cGLCD::showImage(const std::string & filename, uint32_t sw, uint32_t sh, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, bool transp, bool maximize)
+bool cGLCD::showImage(const std::string &filename, uint32_t sw, uint32_t sh, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, bool transp, bool maximize)
 {
 	bool res = false;
 	if (!dw || !dh)
@@ -1562,7 +1659,7 @@ bool cGLCD::showImage(uint64_t cid, std::string cname, uint32_t dx, uint32_t dy,
 	return false;
 }
 
-bool cGLCD::imageShow(const std::string & filename, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, bool transp, bool maximize, bool clear, bool center_sw, bool center_sh)
+bool cGLCD::imageShow(const std::string &filename, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, bool transp, bool maximize, bool clear, bool center_sw, bool center_sh)
 {
 	bool ret = false;
 	int sw, sh;
@@ -1574,34 +1671,32 @@ bool cGLCD::imageShow(const std::string & filename, uint32_t dx, uint32_t dy, ui
 			cglcd->bitmap->Clear(GLCD::cColor::Black);
 		if (maximize)
 			ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) dx, (uint32_t) dy, (uint32_t) cglcd->bitmap->Width(), (uint32_t) cglcd->bitmap->Height(), transp, false);
-		else
-			if (center_sw || center_sh)
-			{
-				int move_sw = 0;
-				int move_sh = 0;
-				if (center_sw)
-					move_sw = dx - (sw / 2);
-				else
-					move_sw = dx;
-				if (center_sh)
-					move_sh = dy - (sh / 2);
-				else
-					move_sh = dy;
-				if (dw > 0 && dh > 0)
-					ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) move_sw, (uint32_t) move_sh, (uint32_t) dw, (uint32_t) dh, transp, false);
-				else
-					ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) move_sw, (uint32_t) move_sh, (uint32_t) sw, (uint32_t) sh, transp, false);
-			}
+		else if (center_sw || center_sh)
+		{
+			int move_sw = 0;
+			int move_sh = 0;
+			if (center_sw)
+				move_sw = dx - (sw / 2);
 			else
-				if (dw > 0 && dh > 0)
-					ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) dx, (uint32_t) dy, (uint32_t) dw, (uint32_t) dh, transp, false);
-				else
-					ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) dx, (uint32_t) dy, (uint32_t) sw, (uint32_t) sh, transp, false);
+				move_sw = dx;
+			if (center_sh)
+				move_sh = dy - (sh / 2);
+			else
+				move_sh = dy;
+			if (dw > 0 && dh > 0)
+				ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) move_sw, (uint32_t) move_sh, (uint32_t) dw, (uint32_t) dh, transp, false);
+			else
+				ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) move_sw, (uint32_t) move_sh, (uint32_t) sw, (uint32_t) sh, transp, false);
+		}
+		else if (dw > 0 && dh > 0)
+			ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) dx, (uint32_t) dy, (uint32_t) dw, (uint32_t) dh, transp, false);
+		else
+			ret = showImage(filename, (uint32_t) sw, (uint32_t) sh, (uint32_t) dx, (uint32_t) dy, (uint32_t) sw, (uint32_t) sh, transp, false);
 	}
 	return ret;
 }
 
-bool cGLCD::drawText(int x, int y, int xmax, int text_width, const std::string & text, const GLCD::cFont * font, uint32_t color1, uint32_t color2, bool proportional, int skipPixels, int align)
+bool cGLCD::drawText(int x, int y, int xmax, int text_width, const std::string &text, const GLCD::cFont *font, uint32_t color1, uint32_t color2, bool proportional, int skipPixels, int align)
 {
 	int z = 0;
 	int offset = 10; // px
@@ -1641,32 +1736,45 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 	if (!fd)
 		return false;
 
-	if(cglcd)
+	if (cglcd)
 		cglcd->Lock();
 
-	if (format == BMP) {
+	if (format == BMP)
+	{
 		// write bmp
 		unsigned char hdr[14 + 40];
 		int i = 0;
 #define PUT32(x) hdr[i++] = ((x)&0xFF); hdr[i++] = (((x)>>8)&0xFF); hdr[i++] = (((x)>>16)&0xFF); hdr[i++] = (((x)>>24)&0xFF);
 #define PUT16(x) hdr[i++] = ((x)&0xFF); hdr[i++] = (((x)>>8)&0xFF);
 #define PUT8(x) hdr[i++] = ((x)&0xFF);
-		PUT8('B'); PUT8('M');
-		PUT32((((xres * yres) * 3 + 3) &~ 3) + 14 + 40);
-		PUT16(0); PUT16(0); PUT32(14 + 40);
-		PUT32(40); PUT32(xres); PUT32(yres);
+		PUT8('B');
+		PUT8('M');
+		PUT32((((xres * yres) * 3 + 3) & ~ 3) + 14 + 40);
+		PUT16(0);
+		PUT16(0);
+		PUT32(14 + 40);
+		PUT32(40);
+		PUT32(xres);
+		PUT32(yres);
 		PUT16(1);
-		PUT16(output_bytes*8); // bits
-		PUT32(0); PUT32(0); PUT32(0); PUT32(0); PUT32(0); PUT32(0);
+		PUT16(output_bytes * 8); // bits
+		PUT32(0);
+		PUT32(0);
+		PUT32(0);
+		PUT32(0);
+		PUT32(0);
+		PUT32(0);
 #undef PUT32
 #undef PUT16
 #undef PUT8
 		fwrite(hdr, 1, i, fd);
 
 		int y;
-		for (y=yres-1; y>=0 ; y-=1)
+		for (y = yres - 1; y >= 0 ; y -= 1)
 			fwrite(output + (y * xres * output_bytes), xres * output_bytes, 1, fd);
-	 } else if (format == JPG) {
+	}
+	else if (format == JPG)
+	{
 		const int row_stride = xres * output_bytes;
 		// write jpg
 		if (output_bytes == 3) // swap bgr<->rgb
@@ -1693,7 +1801,7 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 			{
 				unsigned char *scanline = output + (y * row_stride);
 				int x;
-				for (x=0; x<xres; x++)
+				for (x = 0; x < xres; x++)
 				{
 					const int xs = x * 4;
 					const int xd = x * 3;
@@ -1717,7 +1825,7 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 		cinfo.in_color_space = JCS_RGB;
 		cinfo.dct_method = JDCT_IFAST;
 		jpeg_set_defaults(&cinfo);
-		jpeg_set_quality(&cinfo,jpg_quality, TRUE);
+		jpeg_set_quality(&cinfo, jpg_quality, TRUE);
 		jpeg_start_compress(&cinfo, TRUE);
 		while (cinfo.next_scanline < cinfo.image_height)
 		{
@@ -1726,7 +1834,9 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 		}
 		jpeg_finish_compress(&cinfo);
 		jpeg_destroy_compress(&cinfo);
-	 } else if (format == PNG) {
+	}
+	else if (format == PNG)
+	{
 		// write png
 		png_bytep *row_pointers;
 		png_structp png_ptr;
@@ -1736,15 +1846,15 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 		info_ptr = png_create_info_struct(png_ptr);
 		png_init_io(png_ptr, fd);
 
-		row_pointers=(png_bytep*)malloc(sizeof(png_bytep)*yres);
+		row_pointers = (png_bytep *)malloc(sizeof(png_bytep) * yres);
 
 		int y;
 		//#pragma omp parallel for shared(output)
-		for (y=0; y<yres; y++)
-			row_pointers[y]=output+(y*xres*output_bytes);
+		for (y = 0; y < yres; y++)
+			row_pointers[y] = output + (y * xres * output_bytes);
 
 		png_set_bgr(png_ptr);
-		png_set_IHDR(png_ptr, info_ptr, xres, yres, 8, ((output_bytes<4)?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_RGBA) , PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+		png_set_IHDR(png_ptr, info_ptr, xres, yres, 8, ((output_bytes < 4) ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGBA), PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 		png_set_compression_level(png_ptr, Z_BEST_SPEED);
 		png_write_info(png_ptr, info_ptr);
 		png_write_image(png_ptr, row_pointers);
@@ -1754,7 +1864,7 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 		free(row_pointers);
 	}
 
-	if(cglcd)
+	if (cglcd)
 		cglcd->Unlock();
 
 	fclose(fd);
@@ -1770,9 +1880,9 @@ void cGLCD::UpdateBrightness()
 	if (cglcd && cglcd->lcd)
 	{
 		if (timeouted && !cglcd->doStandbyTime && !cglcd->doStandbyWeather)
-			cglcd->lcd->SetBrightness((unsigned int) (dim_brightness));
+			cglcd->lcd->SetBrightness((unsigned int)(dim_brightness));
 		else
-			cglcd->lcd->SetBrightness((unsigned int) ((cglcd->doStandbyTime || cglcd->doStandbyWeather) ? g_settings.glcd_brightness_standby : g_settings.glcd_brightness));
+			cglcd->lcd->SetBrightness((unsigned int)((cglcd->doStandbyTime || cglcd->doStandbyWeather) ? g_settings.glcd_brightness_standby : g_settings.glcd_brightness));
 
 	}
 }
