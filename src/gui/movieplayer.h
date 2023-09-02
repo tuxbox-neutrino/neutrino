@@ -275,7 +275,7 @@ class CMoviePlayerGui : public CMenuTarget
 	tshift_mode timeshift;
 	void deleteTimeshift() { timeshift_deletion = true; }
 	int file_prozent;
-	cPlayback *getPlayback() { return playback; }
+	static cPlayback *getPlayback();
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="", std::string file2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; second_file_name = file2; }
 	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
 	void stopPlayBack(void);
