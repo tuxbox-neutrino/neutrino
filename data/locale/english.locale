@@ -1141,10 +1141,11 @@ lcd4l_logodir Channel logo directory
 lcd4l_screenshots Create screenshots
 lcd4l_skin Display style
 lcd4l_skin_0 Standard
-lcd4l_skin_1 Large
-lcd4l_skin_2 Small (SysInfo)
-lcd4l_skin_3 d-box2
-lcd4l_skin_4 User 4
+lcd4l_skin_1 Theme 1
+lcd4l_skin_100 User
+lcd4l_skin_2 Theme 2
+lcd4l_skin_3 Theme 3
+lcd4l_skin_4 Theme 4
 lcd4l_skin_radio Activate Radio-Style
 lcd4l_support LCD4Linux-Support
 lcd4l_support_auto automatic

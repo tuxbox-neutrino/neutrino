@@ -1141,10 +1141,11 @@ lcd4l_logodir Senderlogo-Verzeichnis
 lcd4l_screenshots Screenshots erstellen
 lcd4l_skin Display-Style
 lcd4l_skin_0 Standard
-lcd4l_skin_1 Benutzer 1
-lcd4l_skin_2 Benutzer 2
-lcd4l_skin_3 Benutzer 3
-lcd4l_skin_4 Benutzer 4
+lcd4l_skin_1 Thema 1
+lcd4l_skin_100 Benutzer
+lcd4l_skin_2 Thema 2
+lcd4l_skin_3 Thema 3
+lcd4l_skin_4 Thema 4
 lcd4l_skin_radio Radio-Style aktivieren
 lcd4l_support LCD4Linux-Unterstützung
 lcd4l_support_auto automatisch
