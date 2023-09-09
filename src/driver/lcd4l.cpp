@@ -68,7 +68,7 @@ extern CPictureViewer *g_PicViewer;
 #define LCD_ICONSDIR		TARGET_PREFIX "/share/lcd/icons/"
 #define ICONSEXT		".png"
 
-#define LOGO_DUMMY		ICONSDIR "blank.png"
+#define LOGO_DUMMY		ICONSDIR "/" "blank.png"
 
 #define BRIGHTNESS		LCD_DATADIR "brightness"
 #define BRIGHTNESS_STANDBY	LCD_DATADIR "brightness_standby"
