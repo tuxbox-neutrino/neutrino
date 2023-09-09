@@ -920,6 +920,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		switch (g_settings.lcd4l_skin)
 		{
+			case 100:
+				Layout = DisplayType + "user" + eol;
+				break;
 			case 4:
 				Layout = DisplayType + "user04" + eol;
 				break;
