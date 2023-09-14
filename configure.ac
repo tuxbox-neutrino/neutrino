@@ -684,6 +684,12 @@ data/scripts/backup_flash.sh
 data/scripts/restore_flash.sh
 ])
 
+if test "$BOXTYPE" = "generic"; then
+	AC_CONFIG_FILES([
+	data/scripts/neutrino.sh
+	])
+fi
+
 # Backup configs
 AC_CONFIG_FILES([
 data/config/settingsupdate.conf
