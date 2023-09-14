@@ -62,6 +62,8 @@ class CLCD4l
 		void	SwitchLCD4l();
 		void	RestartLCD4lScript();
 		void	ForceRun() { wait4daemon = false; }
+		void	setActionKey(const std::string ActionKey) { m_ActionKey = ActionKey; }
+		void    clearActionKey(void) { m_ActionKey.clear(); }
 
 		int	CreateFile(const char *file, std::string content = "", bool convert = false);
 		int	RemoveFile(const char *file);
@@ -84,7 +86,8 @@ class CLCD4l
 
 		// use signal/slot handlers
 		// That is helping to keep the GUI code away from code inside ./src/driver.
-		sigc::signal<void>	OnBeforeStart,
+		sigc::signal<void>
+					OnBeforeStart,
 					OnAfterStart,
 					OnBeforeStop,
 					OnAfterStop,
@@ -116,6 +119,7 @@ class CLCD4l
 		bool		GetWaitStatus() { return wait4daemon; }
 
 		// Variables
+		std::string m_ActionKey;
 		uint64_t	m_ParseID;
 		int		m_Mode;
 		int		m_ModeChannel;

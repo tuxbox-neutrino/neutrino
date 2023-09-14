@@ -105,8 +105,6 @@ const char* neutrinoMode_to_string(int mode)
 			return "MODE_UPNP";
 		case NeutrinoModes::mode_webradio:
 			return "MODE_WEBRADIO";
-		case NeutrinoModes::mode_moviebrowser:
-			return "MODE_MOVIEBROWSER";
 		case (int)NeutrinoModes::mode_mask:
 			return "MODE_MASK";
 		case (int)NeutrinoModes::norezap:

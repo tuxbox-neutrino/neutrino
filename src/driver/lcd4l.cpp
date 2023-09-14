@@ -294,6 +294,7 @@ int CLCD4l::GetMaxBrightness()
 
 void CLCD4l::Init()
 {
+	m_ActionKey = "";
 	m_ParseID	= 0;
 
 	m_Brightness	= -1;
@@ -378,8 +379,9 @@ void *CLCD4l::LCD4lProc(void *arg)
 		{
 			usleep(5 * 100 * 1000); // 0.5 sec
 			new_ParseID = PLCD4l->CompareParseID(p_ParseID);
-			if (new_ParseID || p_ParseID == NeutrinoModes::mode_audio || p_ParseID == NeutrinoModes::mode_moviebrowser)
+			if (new_ParseID || p_ParseID == NeutrinoModes::mode_audio || !PLCD4l->m_ActionKey.empty()) {
 				break;
+			}
 		}
 
 		//printf("[CLCD4l] %s: m_ParseID: %llx (new_ParseID: %d)\n", __FUNCTION__, p_ParseID, new_ParseID ? 1 : 0);
@@ -739,7 +741,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	/* ----------------------------------------------------------------- */
 
-	if (firstRun || newID || parseID == NeutrinoModes::mode_audio || parseID == NeutrinoModes::mode_ts)
+	if (firstRun || newID || parseID == NeutrinoModes::mode_audio || parseID == NeutrinoModes::mode_ts || !m_ActionKey.empty())
 	{
 		std::string Service = "";
 		int ChannelNr = 0;
@@ -749,7 +751,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		int ModeStandby	= 0;
 
-		if (m_ModeChannel)
+		if (m_ActionKey == "moviebrowser")
+		{
+			g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
+			Service = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
+		}
+		else if (m_ModeChannel)
 		{
 			if (m_ModeChannel > 1)
 				Service = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].subservice_name;
@@ -797,11 +804,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			//FIXME
 			Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 			Service = g_Locale->getText(LOCALE_MAINMENU_AVINPUTMODE);
-		}
-		else if (parseID == NeutrinoModes::mode_moviebrowser)
-		{
-			g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
-			Service = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
 		}
 		else if (parseID == NeutrinoModes::mode_ts)
 		{
@@ -979,7 +981,12 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	bool writeEvent = true;
 
-	if (m_ModeChannel)
+	if (!m_ActionKey.empty())
+	{
+		// do nothing; Event is processed in moviebrowser or other windows
+		writeEvent = false;
+	}
+	else if (m_ModeChannel)
 	{
 		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
 		{
@@ -1099,11 +1106,6 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		// TODO: Event = Bildname
 	}
 #endif
-	else if (parseID == NeutrinoModes::mode_moviebrowser)
-	{
-		// do nothing; Event is processed in moviebrowser
-		writeEvent = false;
-	}
 	else if (parseID == NeutrinoModes::mode_ts)
 	{
 		if (CMoviePlayerGui::getInstance().p_movie_info)

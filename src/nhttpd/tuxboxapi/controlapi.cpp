@@ -515,8 +515,6 @@ void CControlAPI::GetModeCGI(CyhookHandler *hh)
 			result = "upnp";
 		else if (mode == NeutrinoModes::mode_webradio)
 			result = "webradio";
-		else if (mode == NeutrinoModes::mode_moviebrowser)
-			result = "moviebrowser";
 		else
 			result = "unknown";
 	}

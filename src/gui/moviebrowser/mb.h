@@ -195,8 +195,6 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		Font* m_pcFontTitle;
 		std::string m_textTitle;
 
-		int m_LastMode;
-
 		MB_PARENTAL_LOCK m_parentalLock;
 		MB_STORAGE_TYPE m_storageType;
 
