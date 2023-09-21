@@ -22,6 +22,11 @@ SUBDIRS += \
 	luaplugins
 endif
 
+if ENABLE_LCD4LINUX
+SUBDIRS += \
+	lcd4l
+endif
+
 if ENABLE_GRAPHLCD
 SUBDIRS += \
 	oled
