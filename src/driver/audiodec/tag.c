@@ -32,8 +32,8 @@
 #endif /* INCLUDE_UNUSED_STUFF */
 # include <driver/audiodec/tag.h>
 
-# define XING_MAGIC	(('X' << 24) | ('i' << 16) | ('n' << 8) | 'g')
-# define INFO_MAGIC	(('I' << 24) | ('n' << 16) | ('f' << 8) | 'o')
+#define XING_MAGIC ((unsigned long long)('X' << 24 | 'i' << 16 | 'n' << 8 | 'g'))
+#define INFO_MAGIC ((unsigned long long)('I' << 24 | 'n' << 16 | 'f' << 8 | 'o'))
 # define LAME_MAGIC	(('L' << 24) | ('A' << 16) | ('M' << 8) | 'E')
 
 /*
