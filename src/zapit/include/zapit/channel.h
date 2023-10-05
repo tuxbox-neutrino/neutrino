@@ -303,10 +303,14 @@ class CZapitChannel
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
 		void dumpBouquetXml(FILE * fd, bool bUser);
 		void setRecordDemux(uint8_t num) { record_demux = num; };
+#ifdef ENABLE_PIP
 		void setPipDemux(uint8_t num) { pip_demux = num; };
+#endif
 		void setStreamDemux(uint8_t num) { stream_demux = num; };
 		int  getRecordDemux() { return record_demux; };
+#ifdef ENABLE_PIP
 		int  getPipDemux() { return pip_demux; };
+#endif
 		int  getStreamDemux() { return stream_demux; };
 		static t_channel_id makeChannelId(t_satellite_position sat, freq_id_t freq,
 				t_transport_stream_id tsid, t_original_network_id onid, t_service_id sid)
