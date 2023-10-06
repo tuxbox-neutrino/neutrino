@@ -755,6 +755,10 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	if (!g_info.hw_caps->can_pip)
 		return false;
 
+	if (CNeutrinoApp::getInstance()->avinput_pip) {
+		StopPip(0);
+	}
+
 	pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, pip+1);
 	pipVideoDecoder[pip]->ShowPig(0);
 	pipVideoDemux[pip] = new cDemux(pip+1);

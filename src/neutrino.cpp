@@ -5321,13 +5321,24 @@ void CNeutrinoApp::StartAVInputPiP() {
 }
 
 void CNeutrinoApp::StopAVInputPiP() {
-	if (!g_info.hw_caps->can_pip)
+	if (!g_info.hw_caps->can_pip || !avinput_pip)
 		return;
 
-	pipVideoDecoder[0]->ShowPig(0);
-	pipVideoDemux[0]->Stop();
-	pipVideoDecoder[0]->Stop();
-	pipVideoDecoder[0]->close_AVInput_Device();
+	if (pipVideoDemux[0])
+	{
+		pipVideoDemux[0]->Stop();
+		delete pipVideoDemux[0];
+		pipVideoDemux[0] = NULL;
+	}
+	if (pipVideoDecoder[0])
+	{
+		pipVideoDecoder[0]->ShowPig(0);
+		pipVideoDecoder[0]->Stop();
+		pipVideoDecoder[0]->close_AVInput_Device();
+		pipVideoDecoder[0]->closeDevice();
+		delete pipVideoDecoder[0];
+		pipVideoDecoder[0] = NULL;
+	}
 	avinput_pip = false;
 }
 #endif
