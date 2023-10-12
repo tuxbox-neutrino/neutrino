@@ -290,7 +290,6 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #endif
 			INFO("RECORD(%d): fe_num %d rec_dmx %d", mode, source, demux);
 			break;
-#ifdef ENABLE_PIP
 		case PIP:
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #ifdef DYNAMIC_DEMUX
@@ -312,7 +311,6 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #endif
 			INFO("PIP: fe_num %d dmx_src %d", source, demux);
 			break;
-#endif
 	}
 
 	oldmask = cam->getCaMask();
