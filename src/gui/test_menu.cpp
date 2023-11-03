@@ -1272,6 +1272,20 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 			y += dy;
 		}
 	}
+	else if (actionKey == "simple_box")
+	{
+		int x = 50;
+		int y = 20;
+		int dx = 1000;
+		int dy = CFrameBuffer::getInstance()->getScreenHeight(false)/20;
+		for(int col = COL_WHITE0; col <= COL_LIGHT_GRAY0; col++)
+		{
+			fb_pixel_t col_real = CFrameBuffer::getInstance()->realcolor[col];
+			CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, dy, col_real, 9, CORNER_ALL);
+
+			y += dy;
+		}
+	}
 	else if (actionKey ==  "record_count")
 	{
 		CRecInfo rv(20, 20, 120, 0);
@@ -1425,6 +1439,9 @@ int CTestMenu::showTestMenu()
 
 	// colors
 	w_test.addItem(new CMenuForwarder("Color palette", true, NULL, this, "colors"));
+
+	// simple boxes
+	w_test.addItem(new CMenuForwarder("Simple boxes", true, NULL, this, "simple_box"));
 
 	// restart gui
 	w_test.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART, true, NULL, CNeutrinoApp::getInstance(), "restart", CRCInput::RC_standby));
