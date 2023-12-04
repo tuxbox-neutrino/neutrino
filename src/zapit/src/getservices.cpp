@@ -250,6 +250,19 @@ CZapitChannel * CServiceManager::FindChannel48(const t_channel_id channel_id)
 	return NULL;
 }
 
+CZapitChannel* CServiceManager::FindChannel48Pos(const t_channel_id channel_id,
+						 const t_satellite_position pos)
+{
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		CZapitChannel *ret = &it->second;
+		if ((ret->getChannelID() & 0xFFFFFFFFFFFFULL) != (channel_id & 0xFFFFFFFFFFFFULL))
+			continue;
+		if (pos == ret->getSatellitePosition())
+			return ret;
+	}
+	return NULL;
+}
+
 /* TODO: those FindChannel* functions are naive at best. By using a different construction
  * scheme for the channel_id,they could easily be made much more efficient. Side effects would
  * need to be checked first, though */

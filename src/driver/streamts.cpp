@@ -473,7 +473,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		if (sscanf(bp, "%X:0:%X:%X:%X:%X:%X:0:0:0:", &service, &i1, &i2, &i3, &i4, &satpos) == 6)
 		{
 			tmpid = (((t_channel_id)i3) << 32) | (((t_channel_id)i4) << 16) | (t_channel_id)i2;
-			tmp_channel = CServiceManager::getInstance()->FindChannel48(tmpid);
+			tmp_channel = CServiceManager::getInstance()->FindChannel48Pos(tmpid, satpos >> 16);
 			if (tmp_channel)
 			{
 				printf("CStreamManager::Parse:E: channel_id %" PRIx64 " [%s] \n", tmp_channel->getChannelID(), tmp_channel->getName().c_str());
