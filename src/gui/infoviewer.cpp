@@ -329,13 +329,15 @@ void CInfoViewer::paintBackground(int col_NumBox)
 
 void CInfoViewer::paintHead()
 {
-	int head_x = BoxStartX+ChanWidth -1; /*Ugly: -1 to avoid background shine through round borders*/
-	int head_w = BoxEndX-head_x;
-	if (header == NULL){
+	int head_x = BoxStartX + ChanWidth - OFFSET_SHADOW; /* Ugly: -OFFSET_SHADOW to avoid background shine through round borders */
+	int head_w = BoxEndX - head_x;
+	if (header == NULL)
+	{
 		header = new CComponentsShapeSquare(head_x, ChanNameY, head_w, time_height, NULL, CC_SHADOW_RIGHT | CC_SHADOW_CORNER_TOP_RIGHT | CC_SHADOW_CORNER_BOTTOM_RIGHT);
 		header->setItemName("header");
 		header->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-	}else
+	}
+	else
 		header->setDimensionsAll(head_x, ChanNameY, head_w, time_height);
 
 	header->setColorBody(g_settings.theme.infobar_gradient_top ? COL_MENUHEAD_PLUS_0 : COL_INFOBAR_PLUS_0);
@@ -668,7 +670,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
-
 
 	paintBackground(col_NumBox);
 
