@@ -2712,29 +2712,13 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	/* work around broken drivers: when starting up with 720p50 image is pink on hd1 */
 	videoDecoder = new cVideo(VIDEO_STD_1080I50, videoDemux->getChannel(), videoDemux->getBuffer());
 	videoDecoder->SetVideoSystem(video_mode);
+	videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
 #else
-        videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+	videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+	videoDecoder->Standby(false);
+	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
 #endif
-        videoDecoder->Standby(false);
-        audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
 
-#if 0 //ENABLE_PIP
-	if (g_info.hw_caps->can_pip)
-	{
-#if HAVE_CST_HARDWARE
-		pipVideoDemux[0] = new cDemux(dnum);
-		pipVideoDemux[0]->Open(DMX_PIP_CHANNEL);
-		pipVideoDecoder[0] = new cVideo(video_mode, pipVideoDemux[0]->getChannel(), pipVideoDemux[0]->getBuffer(), 1);
-#else
-		for (unsigned i=0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
-		{
-			pipVideoDecoder[i] = new cVideo(0, NULL, NULL, i+1);
-			pipVideoDecoder[i]->ShowPig(0);
-			pipAudioDecoder[i] = new cAudio(0, NULL, NULL, i+1);
-		}
-#endif
-	}
-#endif
 #endif
 
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
