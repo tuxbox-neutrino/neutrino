@@ -691,6 +691,13 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 }
 
 #if ENABLE_PIP
+#if HAVE_CST_HARDWARE
+bool CZapit::OpenPip(int, int)
+{
+	// unused dummy for CST hardware
+	return true;
+}
+#else
 bool CZapit::OpenPip(int pip, int dnum)
 {
 	if (!g_info.hw_caps->can_pip)
@@ -720,6 +727,7 @@ bool CZapit::OpenPip(int pip, int dnum)
 	}
 	return true;
 }
+#endif
 
 bool CZapit::StopPip(int pip)
 {
@@ -784,9 +792,11 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	if (!g_info.hw_caps->can_pip)
 		return false;
 
+#if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 	if (CNeutrinoApp::getInstance()->avinput_pip) {
 		StopPip(0);
 	}
+#endif
 
 	CZapitChannel* newchannel;
 	bool transponder_change;
