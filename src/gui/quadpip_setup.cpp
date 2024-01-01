@@ -137,7 +137,7 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 		for (unsigned i = 0; i < pip_devs; i++)
 		{
 			CZapit::getInstance()->OpenPip(i);
-			usleep (100);	// delay time for zap etc.
+			usleep (150);	// delay time for zap etc.
 			if (i == 0)
 			{
 				CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(g_settings.quadpip_channel_id_window[i]);
@@ -149,7 +149,7 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 				g_Zapit->zapTo_pip(g_settings.quadpip_channel_id_window[i], i-1);
 				pipAudioDemux[i-1]->Start();
 				pipAudioDecoder[i-1]->Start();
-				usleep(50);			// delay for audio start/stop for audio later at window selection
+				usleep(150);			// delay for audio start/stop for audio later at window selection
 				pipAudioDemux[i-1]->Stop();
 				pipAudioDecoder[i-1]->Stop();
 
@@ -172,7 +172,6 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 		{
 			CCamManager::getInstance()->Stop(g_settings.quadpip_channel_id_window[i], CCamManager::PIP);
 			CZapit::getInstance()->StopPip(i);
-			g_Zapit->stopPip(i);
 		}
 		g_Zapit->Rezap();
 		aw = 0;
@@ -389,18 +388,7 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget *parent, const std::strin
 				for (unsigned i = 0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
 				{
 					CCamManager::getInstance()->Stop(g_settings.quadpip_channel_id_window[i], CCamManager::PIP);
-					if (pipVideoDemux[i])
-						pipVideoDemux[i]->Stop();
-					if (pipVideoDecoder[i])
-					{
-						pipVideoDecoder[i]->ShowPig(0);
-						pipVideoDecoder[i]->Stop();
-					}
-					if (pipAudioDemux[i])
-						pipAudioDemux[i]->Stop();
-					if (pipAudioDecoder[i])
-						pipAudioDecoder[i]->Stop();
-					g_Zapit->stopPip(i);
+					CZapit::getInstance()->StopPip(i);
 				}
 				CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(g_settings.quadpip_channel_id_window[aw]);
 				g_Zapit->Rezap();
