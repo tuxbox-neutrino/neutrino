@@ -38,7 +38,7 @@ libzapit_a_SOURCES += \
 	fastscan.cpp
 endif
 
-if ENABLE_AIT
+if ENABLE_AITSCAN
 libzapit_a_SOURCES += \
 	scanait.cpp
 endif

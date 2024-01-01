@@ -308,9 +308,9 @@ AC_ARG_ENABLE(aitscan,
 	[enable_aitscan="yes"])
 
 if test "$enable_aitscan" = "yes"; then
-	AC_DEFINE(ENABLE_AIT, 1, [enable Application Information Table support])
+	AC_DEFINE(ENABLE_AITSCAN, 1, [enable Application Information Table support])
 fi
-AM_CONDITIONAL(ENABLE_AIT, test "$enable_aitscan" = "yes")
+AM_CONDITIONAL(ENABLE_AITSCAN, test "$enable_aitscan" = "yes")
 
 AC_ARG_ENABLE(giflib,
 	AS_HELP_STRING([--enable-giflib], [use giflib instead of libungif @<:@default=no@:>@]),

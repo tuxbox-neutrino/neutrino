@@ -150,14 +150,14 @@ CZapit::CZapit()
 		pip_fe[i] = NULL;
 	}
 #endif
-#if ENABLE_AIT
+#if ENABLE_AITSCAN
 	ait = new CAit();
 #endif
 }
 
 CZapit::~CZapit()
 {
-#if ENABLE_AIT
+#if ENABLE_AITSCAN
 	delete ait;
 #endif
 	Stop();
@@ -682,7 +682,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	if (update_pmt)
 		pmt_set_update_filter(current_channel, &pmt_update_fd);
 
-#if ENABLE_AIT
+#if ENABLE_AITSCAN
 	ait->setDemux(current_channel->getRecordDemux());
 	ait->Parse(current_channel);
 #endif
@@ -2527,7 +2527,7 @@ bool CZapit::StopPlayBack(bool send_pmt, bool blank)
 	/* hack. if standby, dont blank video -> for paused timeshift */
 	videoDecoder->Stop(standby ? false : blank);
 
-#if ENABLE_AIT
+#if ENABLE_AITSCAN
 	ait->Stop();
 #endif
 #ifdef USE_VBI

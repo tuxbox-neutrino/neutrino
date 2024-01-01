@@ -115,7 +115,7 @@ void CZapitChannel::Init()
 	bUseCI = false;
 	altlogo = "";
 	epgmapper = "";
-#if ENABLE_AIT
+#if ENABLE_AITSCAN
 	aitPid = 0;
 #endif
 }
