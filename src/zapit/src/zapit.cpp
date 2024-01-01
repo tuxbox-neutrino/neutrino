@@ -691,18 +691,34 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 }
 
 #if ENABLE_PIP
-bool CZapit::OpenPip(int pip)
+bool CZapit::OpenPip(int pip, int dnum)
 {
 	if (!g_info.hw_caps->can_pip)
 		return false;
 
-	pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, pip+1);
-	pipVideoDecoder[pip]->ShowPig(0);
-	pipVideoDemux[pip] = new cDemux(pip+1);
-	pipVideoDemux[pip]->Open(DMX_VIDEO_CHANNEL);
-	pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, pip+1);
-	pipAudioDemux[pip] = new cDemux(pip+1);
-	pipAudioDemux[pip]->Open(DMX_AUDIO_CHANNEL);
+	if (dnum == -1)
+		dnum = pip + 1;
+
+	if (!pipVideoDecoder[pip])
+	{
+		pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, dnum);
+		pipVideoDecoder[pip]->ShowPig(0);
+	}
+	if (!pipVideoDemux[pip])
+	{
+		pipVideoDemux[pip] = new cDemux(dnum);
+		pipVideoDemux[pip]->Open(DMX_VIDEO_CHANNEL);
+	}
+	if (!pipAudioDecoder[pip])
+	{
+		pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, dnum);
+	}
+	if (!pipAudioDemux[pip])
+	{
+		pipAudioDemux[pip] = new cDemux(dnum);
+		pipAudioDemux[pip]->Open(DMX_AUDIO_CHANNEL);
+	}
+	return true;
 }
 
 bool CZapit::StopPip(int pip)
@@ -759,7 +775,6 @@ bool CZapit::StopPip(int pip)
 		delete pipAudioDecoder[pip];
 		pipAudioDecoder[pip] = NULL;
 	}
-
 #endif
 	return true;
 }
@@ -772,14 +787,6 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	if (CNeutrinoApp::getInstance()->avinput_pip) {
 		StopPip(0);
 	}
-
-	pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, pip+1);
-	pipVideoDecoder[pip]->ShowPig(0);
-	pipVideoDemux[pip] = new cDemux(pip+1);
-	pipVideoDemux[pip]->Open(DMX_VIDEO_CHANNEL);
-	pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, pip+1);
-	pipAudioDemux[pip] = new cDemux(pip+1);
-	pipAudioDemux[pip]->Open(DMX_AUDIO_CHANNEL);
 
 	CZapitChannel* newchannel;
 	bool transponder_change;
@@ -805,7 +812,9 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
+
 	StopPip(pip);
+
 	if (!need_lock && !SAME_TRANSPONDER(newchannel->getChannelID(), live_channel_id))
 		live_channel_id = newchannel->getChannelID();
 
@@ -851,13 +860,7 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 #endif
 
 	INFO("[pip %d] vpid %X apid %X pcr %X", pip, newchannel->getVideoPid(), newchannel->getAudioPid(), newchannel->getPcrPid());
-	if (!pipVideoDemux[pip]) {
-		pipVideoDemux[pip] = new cDemux(dnum);
-		pipVideoDemux[pip]->Open(DMX_VIDEO_CHANNEL);
-		if (!pipVideoDecoder[pip]) {
-			pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, dnum);
-		}
-	}
+	OpenPip(pip, dnum);
 
 	pipVideoDemux[pip]->SetSource(dnum, pip_fe[pip]->getNumber());
 	newchannel->setPipDemux(dnum);
@@ -869,17 +872,8 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	pipVideoDecoder[pip]->Start(0, newchannel->getPcrPid(), newchannel->getVideoPid());
 	pip_channel_id[pip] = newchannel->getChannelID();
 
-	pipVideoDecoder[pip]->Pig(CNeutrinoApp::getInstance()->pip_recalc_pos_x(g_settings.pip_x),CNeutrinoApp::getInstance()->pip_recalc_pos_y(g_settings.pip_y),g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
-
+	pipVideoDecoder[pip]->Pig(CNeutrinoApp::getInstance()->pip_recalc_pos_x(g_settings.pip_x), CNeutrinoApp::getInstance()->pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
 	pipVideoDecoder[pip]->ShowPig(1);
-
-	if (!pipAudioDemux[pip]) {
-		pipAudioDemux[pip] = new cDemux(dnum);
-		pipAudioDemux[pip]->Open(DMX_AUDIO_CHANNEL);
-		if (!pipAudioDecoder[pip]) {
-			pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, dnum);
-		}
-	}
 
 	if (newchannel->getAudioChannel())
 		pipAudioDecoder[pip]->SetStreamType(newchannel->getAudioChannel()->audioChannelType);
