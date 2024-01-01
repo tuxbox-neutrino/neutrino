@@ -721,6 +721,28 @@ bool CZapit::StopPip(int pip)
 		pipAudioDecoder[pip]->Stop();
 		pip_fe[pip] = NULL;
 		pip_channel_id[pip] = 0;
+
+		if (pipVideoDecoder[pip])
+		{
+			delete pipVideoDecoder[pip];
+			pipVideoDecoder[pip] = NULL;
+		}
+		if (pipVideoDemux[pip])
+		{
+			delete pipVideoDemux[pip];
+			pipVideoDemux[pip] = NULL;
+		}
+		if (pipAudioDecoder[pip])
+		{
+			delete pipAudioDecoder[pip];
+			pipAudioDecoder[pip] = NULL;
+		}
+		if (pipAudioDemux[pip])
+		{
+			delete pipAudioDemux[pip];
+			pipAudioDemux[pip] = NULL;
+		}
+
 		return true;
 	}
 #endif
@@ -731,6 +753,10 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 {
 	if (!g_info.hw_caps->can_pip)
 		return false;
+
+	pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, pip+1);
+	pipVideoDecoder[pip]->ShowPig(0);
+	pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, pip+1);
 
 	CZapitChannel* newchannel;
 	bool transponder_change;
@@ -2675,7 +2701,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
         videoDecoder->Standby(false);
         audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
 
-#if ENABLE_PIP
+#if 0 //ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
 	{
 #if HAVE_CST_HARDWARE

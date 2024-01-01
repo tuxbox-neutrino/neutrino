@@ -4942,7 +4942,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 		videoDecoder->Standby(false);
 	}
 
-#if ENABLE_PIP
+#if 0 //ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
 #if !BOXMODEL_HISILICON
 	{
@@ -5228,7 +5228,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 		videoDecoder->Standby(false);
 	}
 
-#if ENABLE_PIP
+#if 0 //ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
 #if !BOXMODEL_HISILICON
 	{
