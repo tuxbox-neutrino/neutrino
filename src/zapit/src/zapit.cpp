@@ -714,39 +714,42 @@ bool CZapit::StopPip(int pip)
 		INFO("[pip %d] stop %llx", pip, pip_channel_id[pip]);
 		pipVideoDecoder[pip]->ShowPig(0);
 		CCamManager::getInstance()->Stop(pip_channel_id[pip], CCamManager::PIP);
+
 		pipVideoDemux[pip]->Stop();
 		pipVideoDecoder[pip]->Stop();
 		pipVideoDecoder[pip]->setBlank(pip);
 		pipAudioDemux[pip]->Stop();
 		pipAudioDecoder[pip]->Stop();
+
 		pip_fe[pip] = NULL;
 		pip_channel_id[pip] = 0;
-
-		if (pipVideoDecoder[pip])
-		{
-			delete pipVideoDecoder[pip];
-			pipVideoDecoder[pip] = NULL;
-		}
-		if (pipVideoDemux[pip])
-		{
-			delete pipVideoDemux[pip];
-			pipVideoDemux[pip] = NULL;
-		}
-		if (pipAudioDecoder[pip])
-		{
-			delete pipAudioDecoder[pip];
-			pipAudioDecoder[pip] = NULL;
-		}
-		if (pipAudioDemux[pip])
-		{
-			delete pipAudioDemux[pip];
-			pipAudioDemux[pip] = NULL;
-		}
-
-		return true;
 	}
+
+	if (pipVideoDecoder[pip])
+	{
+		pipVideoDecoder[pip]->closeDevice();
+		delete pipVideoDecoder[pip];
+		pipVideoDecoder[pip] = NULL;
+	}
+	if (pipVideoDemux[pip])
+	{
+		delete pipVideoDemux[pip];
+		pipVideoDemux[pip] = NULL;
+	}
+	if (pipAudioDecoder[pip])
+	{
+		pipAudioDecoder[pip]->closeDevice();
+		delete pipAudioDecoder[pip];
+		pipAudioDecoder[pip] = NULL;
+	}
+	if (pipAudioDemux[pip])
+	{
+		delete pipAudioDemux[pip];
+		pipAudioDemux[pip] = NULL;
+	}
+
 #endif
-	return false;
+	return true;
 }
 
 bool CZapit::StartPip(const t_channel_id channel_id, int pip)
@@ -756,7 +759,11 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 
 	pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, pip+1);
 	pipVideoDecoder[pip]->ShowPig(0);
+	pipVideoDemux[pip] = new cDemux(pip+1);
+	pipVideoDemux[pip]->Open(DMX_VIDEO_CHANNEL);
 	pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, pip+1);
+	pipAudioDemux[pip] = new cDemux(pip+1);
+	pipAudioDemux[pip]->Open(DMX_AUDIO_CHANNEL);
 
 	CZapitChannel* newchannel;
 	bool transponder_change;
