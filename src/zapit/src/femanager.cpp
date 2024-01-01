@@ -435,7 +435,7 @@ void CFEManager::linkFrontends(bool init)
 			fe->Close();
 		}
 	}
-	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
+	for (unsigned i = 0; i < MAX_DMX_UNITS; i++) {
 		if (demuxes[i] == 0) {
 			unused_demux = i;
 			INFO("pip demux: %d", unused_demux);
@@ -693,9 +693,11 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 		int dnum = getDemux(channel->getTransponderId(), frontend->getNumber());
 		INFO("record dyn demux: %d", dnum);
 		channel->setRecordDemux(dnum);
+#ifdef ENABLE_PIP
 		INFO("pip dyn demux: %d", dnum);
 		channel->setPipDemux(dnum);
-		INFO("pip stream demux: %d", dnum);
+#endif
+		INFO("stream dyn demux: %d", dnum);
 		channel->setStreamDemux(dnum);
 		if (forrecord && !dnum) {
 			frontend = NULL;
@@ -704,7 +706,9 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 		}
 #else
 		channel->setRecordDemux(frontend->fenumber+1);
+#ifdef ENABLE_PIP
 		channel->setPipDemux(frontend->fenumber+1);
+#endif
 		channel->setStreamDemux(frontend->fenumber+1);
 #if HAVE_CST_HARDWARE
 		/* I don't know if this check is necessary on cs, but it hurts on other hardware */

@@ -67,8 +67,10 @@ CScreenSaver::CScreenSaver()
 //	status_icons	= CInfoIcons::getInstance()->getStatus();
 
 	clr.i_color	= COL_DARK_GRAY;
+#ifdef ENABLE_PIP
 	for (unsigned int i = 0; i < 3; i++)
 		pip_channel_id[i] = 0;
+#endif
 	idletime	= time(NULL);
 	force_refresh	= false;
 	thr_exit	= false;

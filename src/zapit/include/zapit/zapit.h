@@ -149,7 +149,9 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
+#ifdef ENABLE_PIP
 		t_channel_id pip_channel_id[3];
+#endif
 		t_channel_id lock_channel_id;
 		t_channel_id last_channel_id;
 		/* scan params */
@@ -157,7 +159,9 @@ class CZapit : public OpenThreads::Thread
 		fast_scan_type_t scant;
 
 		CFrontend * live_fe;
+#ifdef ENABLE_PIP
 		CFrontend * pip_fe[3];
+#endif
 
 		audio_map_t audio_map;
 		volume_map_t vol_map;
@@ -269,13 +273,17 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * GetCurrentChannel() { return current_channel; };
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
+#ifdef ENABLE_PIP
 		t_channel_id GetPipChannelID(int pip = 0) { return pip_channel_id[pip]; };
+#endif
 		t_channel_id GetLastTVChannel() { return lastChannelTV; }
 		t_channel_id GetLastRADIOChannel() { return lastChannelRadio; }
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
 		CFrontend * GetLiveFrontend() { return live_fe; };
+#ifdef ENABLE_PIP
 		CFrontend * GetPipFrontend(int pip = 0) { return pip_fe[pip]; };
+#endif
 
 		int GetPidVolume(t_channel_id channel_id, int pid, bool ac3 = false);
 		void SetPidVolume(t_channel_id channel_id, int pid, int percent);

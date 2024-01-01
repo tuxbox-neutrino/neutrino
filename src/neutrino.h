@@ -224,7 +224,7 @@ public:
 	void showInfo(void);
 	void showMainMenu(void);
 	CConfigFile* getConfigFile() {return &configfile;};
-	bool 		SDTreloadChannels;
+	bool SDTreloadChannels;
 
 	void saveEpg(int _mode);
 	void stopDaemonsForFlash();

@@ -142,11 +142,14 @@ CZapit::CZapit()
 	currentMode = 0;
 	current_volume = 100;
 	volume_percent = 0;
-	for (unsigned int i = 0; i < 3; i++)
-		pip_channel_id[i] = 0;
 	lock_channel_id = 0;
+#if ENABLE_PIP
 	for (unsigned int i = 0; i < 3; i++)
+	{
+		pip_channel_id[i] = 0;
 		pip_fe[i] = NULL;
+	}
+#endif
 #if ENABLE_AIT
 	ait = new CAit();
 #endif
