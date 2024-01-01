@@ -3245,6 +3245,15 @@ TIMER_STOP("################################## after all #######################
 	xmltv_xml_readepg();
 	xmltv_xml_auto_readepg();
 
+#if ENABLE_PIP && BOXMODEL_E4HDULTRA
+	if (g_info.hw_caps->can_pip)
+	{
+		CZapit::getInstance()->OpenPip(0);
+		usleep(100);
+		CZapit::getInstance()->StopPip(0);
+	}
+#endif
+
 	RealRun();
 	ExitRun(g_info.hw_caps->can_shutdown);
 

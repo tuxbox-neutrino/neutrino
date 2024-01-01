@@ -691,6 +691,20 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 }
 
 #if ENABLE_PIP
+bool CZapit::OpenPip(int pip)
+{
+	if (!g_info.hw_caps->can_pip)
+		return false;
+
+	pipVideoDecoder[pip] = new cVideo(0, NULL, NULL, pip+1);
+	pipVideoDecoder[pip]->ShowPig(0);
+	pipVideoDemux[pip] = new cDemux(pip+1);
+	pipVideoDemux[pip]->Open(DMX_VIDEO_CHANNEL);
+	pipAudioDecoder[pip] = new cAudio(0, NULL, NULL, pip+1);
+	pipAudioDemux[pip] = new cDemux(pip+1);
+	pipAudioDemux[pip]->Open(DMX_AUDIO_CHANNEL);
+}
+
 bool CZapit::StopPip(int pip)
 {
 	if (!g_info.hw_caps->can_pip)
