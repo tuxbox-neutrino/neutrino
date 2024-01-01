@@ -3249,6 +3249,7 @@ TIMER_STOP("################################## after all #######################
 	if (g_info.hw_caps->can_pip)
 	{
 		CZapit::getInstance()->OpenPip(0);
+		pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 		usleep(100);
 		CZapit::getInstance()->StopPip(0);
 	}
