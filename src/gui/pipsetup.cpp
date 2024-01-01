@@ -270,6 +270,8 @@ void CPipSetup::paint()
 		if (pipVideoDecoder[0]->getBlank())
 			frameBuffer->paintBoxRel(CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord), width, height, COL_MENUCONTENT_PLUS_0);
 	}
+	else
+		frameBuffer->paintBoxRel(CNeutrinoApp::getInstance()->pip_recalc_pos_x(x_coord), CNeutrinoApp::getInstance()->pip_recalc_pos_y(y_coord), width, height, COL_MENUCONTENT_PLUS_0);
 
 	frameBuffer->paintBoxRel(x, y, w, h, COL_MENUCONTENT_PLUS_0);
 
