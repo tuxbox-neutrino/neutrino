@@ -693,28 +693,34 @@ bool CZapit::StopPip(int pip)
 	if (!g_info.hw_caps->can_pip)
 		return false;
 
-#if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
-	if (CNeutrinoApp::getInstance()->avinput_pip) {
-		CNeutrinoApp::getInstance()->StopAVInputPiP();
-	}
-#endif
+#if HAVE_CST_HARDWARE
 	if (pip_channel_id[pip]) {
 		INFO("[pip %d] stop %llx", pip, pip_channel_id[pip]);
-#if !HAVE_CST_HARDWARE
-		pipVideoDecoder[pip]->ShowPig(0);
-#endif
 		CCamManager::getInstance()->Stop(pip_channel_id[pip], CCamManager::PIP);
 		pipVideoDemux[pip]->Stop();
 		pipVideoDecoder[pip]->Stop();
-#if !HAVE_CST_HARDWARE
-		pipVideoDecoder[pip]->setBlank(pip);
-		pipAudioDemux[pip]->Stop();
-		pipAudioDecoder[pip]->Stop();
-#endif
 		pip_fe[pip] = NULL;
 		pip_channel_id[pip] = 0;
 		return true;
 	}
+#else
+	if (CNeutrinoApp::getInstance()->avinput_pip) {
+		CNeutrinoApp::getInstance()->StopAVInputPiP();
+	}
+	if (pip_channel_id[pip]) {
+		INFO("[pip %d] stop %llx", pip, pip_channel_id[pip]);
+		pipVideoDecoder[pip]->ShowPig(0);
+		CCamManager::getInstance()->Stop(pip_channel_id[pip], CCamManager::PIP);
+		pipVideoDemux[pip]->Stop();
+		pipVideoDecoder[pip]->Stop();
+		pipVideoDecoder[pip]->setBlank(pip);
+		pipAudioDemux[pip]->Stop();
+		pipAudioDecoder[pip]->Stop();
+		pip_fe[pip] = NULL;
+		pip_channel_id[pip] = 0;
+		return true;
+	}
+#endif
 	return false;
 }
 
@@ -775,6 +781,13 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	}
 	if (CFEManager::getInstance()->getFrontendCount() > 1)
 		cDemux::SetSource(dnum, pip_fe[pip]->getNumber());
+
+	pipVideoDecoder[pip]->SetStreamType((VIDEO_FORMAT) newchannel->type);
+	pipVideoDemux[pip]->pesFilter(newchannel->getVideoPid());
+
+	pipVideoDecoder[pip]->Start(0, newchannel->getPcrPid(), newchannel->getVideoPid());
+	pipVideoDemux[pip]->Start();
+	pip_channel_id[pip] = channel_id;
 #else
 #ifdef DYNAMIC_DEMUX
 	int dnum = CFEManager::getInstance()->getDemux(newchannel->getTransponderId(), pip_fe[pip]->getNumber());
@@ -797,15 +810,9 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 	pipVideoDemux[pip]->SetSource(dnum, pip_fe[pip]->getNumber());
 	newchannel->setPipDemux(dnum);
 	newchannel->setRecordDemux(pip_fe[pip]->getNumber());
-#endif
 
 	pipVideoDecoder[pip]->SetStreamType((VIDEO_FORMAT) newchannel->type);
 	pipVideoDemux[pip]->pesFilter(newchannel->getVideoPid());
-#if HAVE_CST_HARDWARE
-	pipVideoDecoder[pip]->Start(0, newchannel->getPcrPid(), newchannel->getVideoPid());
-	pipVideoDemux[pip]->Start();
-	pip_channel_id[pip] = channel_id;
-#else
 	pipVideoDemux[pip]->Start();
 	pipVideoDecoder[pip]->Start(0, newchannel->getPcrPid(), newchannel->getVideoPid());
 	pip_channel_id[pip] = newchannel->getChannelID();
