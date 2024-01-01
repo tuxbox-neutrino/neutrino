@@ -1635,11 +1635,11 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				//FIXME check scanProviders.size() !
 				t_satellite_position satellitePosition = scanProviders.begin()->first;
 				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner, TP.feparams.polarization);
+				live_fe->setInput(satellitePosition, TP.feparams.frequency, TP.feparams.polarization);
 				if (TP.feparams.delsys == DVB_S)
 						TP.feparams.rolloff = ROLLOFF_35;
 				if (TP.feparams.delsys == DVB_S2)
 						TP.feparams.rolloff = ROLLOFF_AUTO;
-				live_fe->setInput(satellitePosition, TP.feparams.frequency, TP.feparams.polarization);
 				live_fe->driveToSatellitePosition(satellitePosition);
 			} else if (CFrontend::isCable(TP.feparams.delsys)) {
 				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner);
