@@ -710,42 +710,40 @@ bool CZapit::StopPip(int pip)
 	if (CNeutrinoApp::getInstance()->avinput_pip) {
 		CNeutrinoApp::getInstance()->StopAVInputPiP();
 	}
+
 	if (pip_channel_id[pip]) {
 		INFO("[pip %d] stop %llx", pip, pip_channel_id[pip]);
-		pipVideoDecoder[pip]->ShowPig(0);
 		CCamManager::getInstance()->Stop(pip_channel_id[pip], CCamManager::PIP);
-
-		pipVideoDemux[pip]->Stop();
-		pipVideoDecoder[pip]->Stop();
-		pipVideoDecoder[pip]->setBlank(pip);
-		pipAudioDemux[pip]->Stop();
-		pipAudioDecoder[pip]->Stop();
-
 		pip_fe[pip] = NULL;
 		pip_channel_id[pip] = 0;
 	}
 
+	if (pipVideoDemux[pip])
+	{
+		pipVideoDemux[pip]->Stop();
+		delete pipVideoDemux[pip];
+		pipVideoDemux[pip] = NULL;
+	}
 	if (pipVideoDecoder[pip])
 	{
+		pipVideoDecoder[pip]->ShowPig(0);
+		pipVideoDecoder[pip]->Stop();
 		pipVideoDecoder[pip]->closeDevice();
 		delete pipVideoDecoder[pip];
 		pipVideoDecoder[pip] = NULL;
 	}
-	if (pipVideoDemux[pip])
+	if (pipAudioDemux[pip])
 	{
-		delete pipVideoDemux[pip];
-		pipVideoDemux[pip] = NULL;
+		pipAudioDemux[pip]->Stop();
+		delete pipAudioDemux[pip];
+		pipAudioDemux[pip] = NULL;
 	}
 	if (pipAudioDecoder[pip])
 	{
+		pipAudioDecoder[pip]->Stop();
 		pipAudioDecoder[pip]->closeDevice();
 		delete pipAudioDecoder[pip];
 		pipAudioDecoder[pip] = NULL;
-	}
-	if (pipAudioDemux[pip])
-	{
-		delete pipAudioDemux[pip];
-		pipAudioDemux[pip] = NULL;
 	}
 
 #endif
