@@ -4922,7 +4922,7 @@ void CNeutrinoApp::saveEpg(int _mode)
 	}
 }
 
-void CNeutrinoApp::tvMode( bool rezap )
+void CNeutrinoApp::tvMode(bool rezap)
 {
 	if (mode == NeutrinoModes::mode_webradio) {
 		CMoviePlayerGui::getInstance().setLastMode(NeutrinoModes::mode_unknown);
@@ -4950,6 +4950,12 @@ void CNeutrinoApp::tvMode( bool rezap )
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
 	}
+
+#ifdef ENABLE_PIP
+	if (g_info.hw_caps->can_pip)
+		if (pipVideoDecoder[0])
+			pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+#endif
 
 #if 0
 	if(mode != NeutrinoModes::mode_ts /*&& autoshift*/) {
@@ -5018,7 +5024,7 @@ void CNeutrinoApp::AVInputMode(bool bOnOff)
 #endif // !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 }
 
-void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
+void CNeutrinoApp::standbyMode(bool bOnOff, bool fromDeepStandby)
 {
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
@@ -5205,7 +5211,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	lockStandbyCall = false;
 }
 
-void CNeutrinoApp::radioMode( bool rezap)
+void CNeutrinoApp::radioMode(bool rezap)
 {
 	//printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 	INFO("rezap %d current mode %s", rezap, neutrinoMode_to_string(mode));
@@ -5226,6 +5232,12 @@ void CNeutrinoApp::radioMode( bool rezap)
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
 	}
+
+#ifdef ENABLE_PIP
+	if (g_info.hw_caps->can_pip)
+		if (pipVideoDecoder[0])
+			pipVideoDecoder[0]->Pig(g_settings.pip_radio_x, g_settings.pip_radio_y, g_settings.pip_radio_width, g_settings.pip_radio_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+#endif
 
 	CRecordManager::getInstance()->StopAutoRecord();
 
@@ -5304,7 +5316,7 @@ void CNeutrinoApp::StartAVInputPiP() {
 	pipVideoDemux[0]->Start();
 	pipVideoDecoder[0]->Start(0, 0, 0);
 	pipVideoDecoder[0]->open_AVInput_Device();
-	pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x),pip_recalc_pos_y(g_settings.pip_y),g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
+	pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
 	pipVideoDecoder[0]->ShowPig(1);
 	avinput_pip = true;
 }
