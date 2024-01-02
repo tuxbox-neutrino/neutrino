@@ -928,8 +928,19 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 
 			framebuffer->paintBackground(); // clear screen
 
+#ifdef ENABLE_LCD4LINUX
+			if (g_settings.lcd4l_support)
+				CLCD4l::getInstance()->clearActionKey();
+#endif
+
+			// TODO: signalize running action
 			CMovieCut mc;
 			bool res = mc.copyMovie(m_movieSelectionHandler, onefile);
+
+#ifdef ENABLE_LCD4LINUX
+			if (g_settings.lcd4l_support)
+				CLCD4l::getInstance()->setActionKey("moviebrowser");
+#endif
 
 			//g_RCInput->clearRCMsg();
 			if (res == 0)
@@ -955,9 +966,19 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 
 			framebuffer->paintBackground(); // clear screen
 
+#ifdef ENABLE_LCD4LINUX
+			if (g_settings.lcd4l_support)
+				CLCD4l::getInstance()->clearActionKey();
+#endif
+
+			// TODO: signalize running action
 			CMovieCut mc;
 			bool res = mc.cutMovie(m_movieSelectionHandler);
 
+#ifdef ENABLE_LCD4LINUX
+			if (g_settings.lcd4l_support)
+				CLCD4l::getInstance()->setActionKey("moviebrowser");
+#endif
 			//g_RCInput->clearRCMsg();
 			if (!res)
 				ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_MOVIEBROWSER_CUT_FAILED, CMsgBox::mbrCancel, CMsgBox::mbCancel, NEUTRINO_ICON_ERROR);
@@ -985,8 +1006,19 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 
 					framebuffer->paintBackground(); // clear screen
 
+#ifdef ENABLE_LCD4LINUX
+					if (g_settings.lcd4l_support)
+						CLCD4l::getInstance()->clearActionKey();
+#endif
+
+					// TODO: signalize running action
 					CMovieCut mc;
 					bool res = mc.truncateMovie(m_movieSelectionHandler);
+
+#ifdef ENABLE_LCD4LINUX
+					if (g_settings.lcd4l_support)
+						CLCD4l::getInstance()->setActionKey("moviebrowser");
+#endif
 
 					//g_RCInput->clearRCMsg();
 					if (!res)
@@ -1059,6 +1091,7 @@ int CMovieBrowser::exec(const char* path)
 	if (g_settings.lcd4l_support)
 		CLCD4l::getInstance()->setActionKey("moviebrowser");
 #endif
+
 	bool loop = true;
 	bool result;
 	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER];
@@ -1155,6 +1188,7 @@ int CMovieBrowser::exec(const char* path)
 		TRACE("[mb] force reload next time\n");
 		fileInfoStale();
 	}
+
 #ifdef ENABLE_LCD4LINUX
 	if (g_settings.lcd4l_support)
 		CLCD4l::getInstance()->clearActionKey();
@@ -1610,14 +1644,21 @@ void CMovieBrowser::refreshHDDLevel(bool show)
 void CMovieBrowser::refreshLCD(void)
 {
 	if (m_vMovieInfo.empty() || m_movieSelectionHandler == NULL)
-		return;
-
+	{
+#ifdef ENABLE_LCD4LINUX
+		if (g_settings.lcd4l_support)
+			CLCD4l::getInstance()->CreateEventFile("", g_settings.lcd4l_convert);
+#endif
+		CVFD::getInstance()->showMenuText(0, "", -1, true); // UTF-8
+	}
+	else
+	{
 #ifdef ENABLE_LCD4LINUX
 		if (g_settings.lcd4l_support)
 			CLCD4l::getInstance()->CreateEventFile(m_movieSelectionHandler->epgTitle.c_str(), g_settings.lcd4l_convert);
 #endif
-
-	CVFD::getInstance()->showMenuText(0, m_movieSelectionHandler->epgTitle.c_str(), -1, true); // UTF-8
+		CVFD::getInstance()->showMenuText(0, m_movieSelectionHandler->epgTitle.c_str(), -1, true); // UTF-8
+	}
 }
 
 void CMovieBrowser::refreshFilterList(void)
