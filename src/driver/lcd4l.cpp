@@ -379,7 +379,8 @@ void *CLCD4l::LCD4lProc(void *arg)
 		{
 			usleep(5 * 100 * 1000); // 0.5 sec
 			new_ParseID = PLCD4l->CompareParseID(p_ParseID);
-			if (new_ParseID || p_ParseID == NeutrinoModes::mode_audio || !PLCD4l->m_ActionKey.empty()) {
+			if (new_ParseID || p_ParseID == NeutrinoModes::mode_audio || !PLCD4l->m_ActionKey.empty())
+			{
 				break;
 			}
 		}
@@ -753,8 +754,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 		if (m_ActionKey == "moviebrowser")
 		{
-			g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
 			Service = g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD);
+			g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
 		}
 		else if (m_ModeChannel)
 		{
@@ -763,7 +764,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			else
 				Service = g_RemoteControl->getCurrentChannelName();
 
-			g_PicViewer->GetLogoName(parseID, Service, Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
+			/*
+			   "moviebrowser_moviecut" is special.
+			   It signals the active moviebrowser with the moviebrowser logo,
+			   but handles the rest of the lcd as in tv/radio mode.
+			*/
+
+			if (m_ActionKey == "moviebrowser_moviecut")
+				g_PicViewer->GetLogoName(0, "Moviebrowser", Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
+			else
+				g_PicViewer->GetLogoName(parseID, Service, Logo, &dummy, &dummy, CPictureViewer::LCD4LINUX, true);
 
 			ChannelNr = CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber();
 		}
@@ -801,9 +811,8 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 		else if (parseID == NeutrinoModes::mode_avinput)
 		{
-			//FIXME
-			Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 			Service = g_Locale->getText(LOCALE_MAINMENU_AVINPUTMODE);
+			Logo = ICONSDIR "/" NEUTRINO_ICON_PLAY ICONSEXT;
 		}
 		else if (parseID == NeutrinoModes::mode_ts)
 		{
@@ -981,9 +990,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	bool writeEvent = true;
 
-	if (!m_ActionKey.empty())
+	if (m_ActionKey == "moviebrowser")
 	{
-		// do nothing; Event is processed in moviebrowser or other windows
+		// do nothing; Event is processed in moviebrowser
 		writeEvent = false;
 	}
 	else if (m_ModeChannel)

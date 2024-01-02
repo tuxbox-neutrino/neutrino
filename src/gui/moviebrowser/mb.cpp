@@ -930,10 +930,9 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 
 #ifdef ENABLE_LCD4LINUX
 			if (g_settings.lcd4l_support)
-				CLCD4l::getInstance()->clearActionKey();
+				CLCD4l::getInstance()->setActionKey("moviebrowser_moviecut");
 #endif
 
-			// TODO: signalize running action
 			CMovieCut mc;
 			bool res = mc.copyMovie(m_movieSelectionHandler, onefile);
 
@@ -968,10 +967,9 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 
 #ifdef ENABLE_LCD4LINUX
 			if (g_settings.lcd4l_support)
-				CLCD4l::getInstance()->clearActionKey();
+				CLCD4l::getInstance()->setActionKey("moviebrowser_moviecut");
 #endif
 
-			// TODO: signalize running action
 			CMovieCut mc;
 			bool res = mc.cutMovie(m_movieSelectionHandler);
 
@@ -1008,10 +1006,9 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 
 #ifdef ENABLE_LCD4LINUX
 					if (g_settings.lcd4l_support)
-						CLCD4l::getInstance()->clearActionKey();
+						CLCD4l::getInstance()->setActionKey("moviebrowser_moviecut");
 #endif
 
-					// TODO: signalize running action
 					CMovieCut mc;
 					bool res = mc.truncateMovie(m_movieSelectionHandler);
 
