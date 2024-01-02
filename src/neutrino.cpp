@@ -5042,6 +5042,11 @@ void CNeutrinoApp::standbyMode(bool bOnOff, bool fromDeepStandby)
 		if (FILE *f = fopen("/tmp/.standby", "w"))
 			fclose(f);
 
+#if BOXMODEL_E4HDULTRA
+		// ensure a blank screen in standby mode
+		videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, 2); // force mutetilllock
+#endif
+
 #ifdef ENABLE_GRAPHLCD
 		cGLCD::StandbyMode(true);
 #endif
@@ -5131,6 +5136,12 @@ void CNeutrinoApp::standbyMode(bool bOnOff, bool fromDeepStandby)
 		CVFD::getInstance()->ShowText("Resume ...");
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+
+#if BOXMODEL_E4HDULTRA
+		// reset to users choice
+		videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
+#endif
+
 		videoDecoder->Standby(false);
 		CEpgScan::getInstance()->Stop();
 		CSectionsdClient::CurrentNextInfo dummy;
