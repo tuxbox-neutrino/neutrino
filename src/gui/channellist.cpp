@@ -1123,16 +1123,21 @@ bool CChannelList::checkLockStatus(neutrino_msg_data_t data, bool pip)
 	zapProtection = NULL;
 
 out:
-	if (startvideo) {
-		if(pip) {
+	if (startvideo)
+	{
 #if ENABLE_PIP
-			if (CNeutrinoApp::getInstance()->StartPip((*chanlist)[selected]->getChannelID())) {
+		if (pip)
+		{
+			if (CNeutrinoApp::getInstance()->StartPip((*chanlist)[selected]->getChannelID()))
+			{
 				calcSize();
 				paintBody();
 			}
+		}
+		else
 #endif
-		} else
 			g_RemoteControl->startvideo();
+
 		return true;
 	}
 	return false;
