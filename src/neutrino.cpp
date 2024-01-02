@@ -3249,7 +3249,7 @@ TIMER_STOP("################################## after all #######################
 	if (g_info.hw_caps->can_pip)
 	{
 		CZapit::getInstance()->OpenPip(0);
-		pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 		usleep(100);
 		CZapit::getInstance()->StopPip(0);
 	}
@@ -4954,8 +4954,10 @@ void CNeutrinoApp::tvMode(bool rezap)
 
 #ifdef ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
+	{
 		if (pipVideoDecoder[0])
-			pipVideoDecoder[0]->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+			pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	}
 #endif
 
 #if 0
@@ -5236,8 +5238,10 @@ void CNeutrinoApp::radioMode(bool rezap)
 
 #ifdef ENABLE_PIP
 	if (g_info.hw_caps->can_pip)
+	{
 		if (pipVideoDecoder[0])
-			pipVideoDecoder[0]->Pig(g_settings.pip_radio_x, g_settings.pip_radio_y, g_settings.pip_radio_width, g_settings.pip_radio_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+			pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_radio_x), pip_recalc_pos_y(g_settings.pip_radio_y), g_settings.pip_radio_width, g_settings.pip_radio_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	}
 #endif
 
 	CRecordManager::getInstance()->StopAutoRecord();
@@ -6160,7 +6164,7 @@ void CNeutrinoApp::pip_rotate(int cw)
 		if (g_settings.pip_rotate_lastpos > PIP_DOWN_LEFT)
 			g_settings.pip_rotate_lastpos = PIP_UP_LEFT;
 
-		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x),pip_recalc_pos_y(g_settings.pip_y),g_settings.pip_width,g_settings.pip_height,g_settings.screen_width,g_settings.screen_height);
+		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
 	}
 }
 #endif
