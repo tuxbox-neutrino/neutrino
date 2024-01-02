@@ -161,6 +161,7 @@ int CPipSetup::exec(CMenuTarget *parent, const std::string &)
 	paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+
 #if !HAVE_CST_HARDWARE
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->ShowPig(1);
@@ -229,7 +230,8 @@ int CPipSetup::exec(CMenuTarget *parent, const std::string &)
 void CPipSetup::hide()
 {
 	frameBuffer->Clear();
-#if !HAVE_CST_HARDWARE
+
+#if 0 //!HAVE_CST_HARDWARE
 	if (pipVideoDecoder[0] != NULL)
 		pipVideoDecoder[0]->ShowPig(0);
 #endif
