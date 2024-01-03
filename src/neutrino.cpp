@@ -545,7 +545,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	}
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	g_settings.zappingmode = configfile.getInt32("zappingmode", 0);
+	g_settings.zappingmode = configfile.getInt32("zappingmode", (strcmp(g_info.hw_caps->boxmodel, "e4hdultra") == 0) ? 2 : 0);
 	g_settings.hdmi_colorimetry = configfile.getInt32("hdmi_colorimetry", 0);
 #endif
 
