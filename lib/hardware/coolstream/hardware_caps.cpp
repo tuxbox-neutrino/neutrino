@@ -48,35 +48,41 @@ hw_caps_t *get_hwcaps(void)
 	caps.force_tuner_2G = 0;
 	strcpy(caps.startup_file, "");
 	strcpy(caps.boxvendor, "Coolstream");
-	strcpy(caps.boxarch, "Nevis");
 	switch (rev) {
 	case 6:
 	case 7: // Black Stallion Edition
+		strcpy(caps.boxmodel, "nevis");
 		strcpy(caps.boxname, "HD1");
 		strcpy(caps.boxarch, "Nevis");
 		caps.force_tuner_2G = 1;
 		break;
 	case 8:
+		strcpy(caps.boxmodel, "nevis");
 		strcpy(caps.boxname, "Neo"); // see dirty part of hw_caps in neutrino.cpp
 		strcpy(caps.boxarch, "Nevis");
 		caps.force_tuner_2G = 1;
 		break;
 	case 9:
+		strcpy(caps.boxmodel, "apollo");
 		strcpy(caps.boxname, "Tank");
 		strcpy(caps.boxarch, "Apollo");
 		break;
 	case 10:
+		strcpy(caps.boxmodel, "nevis");
 		strcpy(caps.boxname, "Zee");
+		strcpy(caps.boxarch, "Nevis");
 		caps.force_tuner_2G = 1;
 		break;
 	case 11:
 		if (chip == CS_CHIP_SHINER)
 		{
+			strcpy(caps.boxmodel, "shiner");
 			strcpy(caps.boxname, "Trinity");
 			strcpy(caps.boxarch, "Shiner");
 		}
 		else
 		{
+			strcpy(caps.boxmodel, "kronos");
 			strcpy(caps.boxname, "Trinity V2");
 			strcpy(caps.boxarch, "Kronos");
 		}
@@ -84,15 +90,18 @@ hw_caps_t *get_hwcaps(void)
 		caps.display_has_statusline = 0;
 		break;
 	case 12:
+		strcpy(caps.boxmodel, "kronos");
 		strcpy(caps.boxname, "Zee2");
 		strcpy(caps.boxarch, "Kronos");
 		break;
 	case 13:
+		strcpy(caps.boxmodel, "kronos_v2");
 		strcpy(caps.boxname, "Link");
 		strcpy(caps.boxarch, "Kronos");
 		caps.display_has_statusline = 0;
 		break;
 	case 14:
+		strcpy(caps.boxmodel, "kronos_v2");
 		strcpy(caps.boxname, "Trinity Duo");
 		strcpy(caps.boxarch, "Kronos");
 		caps.display_can_set_brightness = 0;
