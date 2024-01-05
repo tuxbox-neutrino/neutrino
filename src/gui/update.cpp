@@ -83,8 +83,6 @@ extern cVideo *videoDecoder;
 
 #include <sys/stat.h>
 
-extern int allow_flash;
-
 //#define DRYRUN
 
 #define gTmpPath "/tmp/"
@@ -302,7 +300,7 @@ bool CFlashUpdate::selectHttpImage(void)
 				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
 				if (versionInfo.snapshot <= '2' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 					newfound = 1;
-				if (!allow_flash && (versionInfo.snapshot <= '2'))
+				if (versionInfo.snapshot <= '2')
 					enabled = false;
 				fileTypes[i] = versionInfo.snapshot;
 				std::string description = versionInfo.getType(true);
@@ -444,13 +442,11 @@ bool CFlashUpdate::checkVersion4Update()
 		CFileBrowser UpdatesBrowser;
 		CFileFilter UpdatesFilter;
 
-		if (allow_flash)
-		{
-			UpdatesFilter.addFilter(FILEBROWSER_UPDATE_FILTER);
+		UpdatesFilter.addFilter(FILEBROWSER_UPDATE_FILTER);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-			UpdatesFilter.addFilter("zip");
+		UpdatesFilter.addFilter("zip");
 #endif
-		}
+
 		std::string filters[] = {"bin", "txt"};
 		for (size_t i = 0; i < sizeof(filters) / sizeof(filters[0]) ; i++)
 			UpdatesFilter.addFilter(filters[i]);
@@ -496,8 +492,6 @@ bool CFlashUpdate::checkVersion4Update()
 				fileType = 'Z';
 			else if (!strcmp(ptr, "zip"))
 				fileType = 'Z';
-			else if (!allow_flash)
-				return false;
 			else
 				fileType = 0;
 			dprintf(DEBUG_NORMAL, "[update] manual file type: %s %c\n", ptr, fileType);

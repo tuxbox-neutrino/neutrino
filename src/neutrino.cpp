@@ -175,7 +175,6 @@ CTimeOSD	*FileTimeOSD;
 #include "driver/lcd4l.h"
 #endif
 
-int allow_flash = 1;
 Zapit_config zapitCfg;
 char zapit_lat[21]="#";
 char zapit_long[21]="#";
@@ -2554,11 +2553,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 	sections_debug = 1;
 
 	for(int x=1; x<argc; x++) {
-		if ((!strcmp(argv[x], "-u")) || (!strcmp(argv[x], "--enable-update"))) {
-			dprintf(DEBUG_NORMAL, "Software update enabled\n");
-			allow_flash = 1;
-		}
-		else if (((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) && (x+1 < argc)) {
+		if (((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) && (x+1 < argc)) {
 			int dl = atoi(argv[x+ 1]);
 			dprintf(DEBUG_NORMAL, "set debuglevel: %d\n", dl);
 			setDebugLevel(dl);
@@ -2596,8 +2591,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 				x++;
 		}
 		else {
-			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] "
-					      "[-v | --verbose 0..3]\n");
+			dprintf(DEBUG_NORMAL, "Usage: neutrino [-v | --verbose 0..3]\n");
 			exit(CNeutrinoApp::EXIT_ERROR);
 		}
 	}
