@@ -2552,12 +2552,10 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 	global_argv[argc] = NULL;
 
 	sections_debug = 1;
-	softupdate = false;
 
 	for(int x=1; x<argc; x++) {
 		if ((!strcmp(argv[x], "-u")) || (!strcmp(argv[x], "--enable-update"))) {
 			dprintf(DEBUG_NORMAL, "Software update enabled\n");
-			softupdate = true;
 			allow_flash = 1;
 		}
 		else if (((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) && (x+1 < argc)) {
