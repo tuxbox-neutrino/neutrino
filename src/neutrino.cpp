@@ -2551,7 +2551,8 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		global_argv[i] = strdup(argv[i]);
 	global_argv[argc] = NULL;
 
-	sections_debug = 1;
+	// set default sections debuglevel
+	sections_debug = 1; // DEBUG_NORMAL; FIXME: sections_debug is different to neutrino debug
 
 	for (int x = 1; x < argc; x++)
 	{
@@ -2568,12 +2569,12 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		}
 		else if ((!strcmp(argv[x], "-sd")))
 		{
-			int dl = 2;
+			int dl = 2; // DEBUG_INFO; FIXME: sections_debug is different to neutrino debug
 			if (x + 1 < argc)
 			{
 				if (!strcmp(argv[x + 1], "0"))
 				{
-					dl = 0;
+					dl = 0; // DEBUG_ERROR; FIXME: sections_debug is different to neutrino debug
 					x++;
 				}
 				else

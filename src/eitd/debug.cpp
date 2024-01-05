@@ -28,21 +28,22 @@
 
 int sections_debug = DEBUG_NORMAL;
 
-void printdate_ms(FILE *f) {
+void printdate_ms(FILE *f)
+{
 	timeval now;
 	gettimeofday(&now, NULL);
 	struct tm *tm = localtime(&now.tv_sec);
 	/* use strftime for that? */
-	fprintf(f, "%04d-%02d-%02d %02d:%02d:%02d.%03ld ", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec/1000);
+	fprintf(f, "%04d-%02d-%02d %02d:%02d:%02d.%03ld ", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec / 1000);
 }
 
 static int64_t last_profile_call;
 
-void showProfiling( std::string text )
+void showProfiling(std::string text)
 {
 	struct timeval tv;
 
-	gettimeofday( &tv, NULL );
+	gettimeofday(&tv, NULL);
 	int64_t now = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
 
 	int64_t tmp = now - last_profile_call;

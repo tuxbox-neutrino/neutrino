@@ -36,38 +36,38 @@ extern int sections_debug;
 
 enum
 {
-	DEBUG_ERROR	, // 0
-	DEBUG_NORMAL, // 1
-	DEBUG_INFO	, // 2
-	DEBUG_DEBUG	, // 3
+	DEBUG_ERROR,	// 0
+	DEBUG_NORMAL,	// 1
+	DEBUG_INFO,	// 2
+	DEBUG_DEBUG,	// 3
 
-	DEBUG_MODES	  // 4 count of available modes
+	DEBUG_MODES	// 4 count of available modes
 };
 
 /* dont add \n when using this */
 #define debug(debuglevel, fmt, args...) do { \
-	if (sections_debug >= debuglevel) { \
-		FILE *fs = (debuglevel == DEBUG_ERROR ? stderr : stdout); \
-		printdate_ms(fs); \
-		fprintf(fs, "[sectionsd] " fmt "\n", ## args); \
-		fflush(fs); \
-	}\
-} while (0)
+		if (sections_debug >= debuglevel) { \
+			FILE *fs = (debuglevel == DEBUG_ERROR ? stderr : stdout); \
+			printdate_ms(fs); \
+			fprintf(fs, "[sectionsd] " fmt "\n", ## args); \
+			fflush(fs); \
+		}\
+	} while (0)
 
 /* dont add \n when using this */
 #define debug_colored(debuglevel, fmt, args...) do { \
-	if (sections_debug >= debuglevel) { \
-		FILE *fs = (debuglevel == DEBUG_ERROR ? stderr : stdout); \
-		fprintf(fs, "%c[%d;%d;%dm", 0x1B, 1, 31, 40);\
-		printdate_ms(fs); \
-		fprintf(fs, "[sectionsd] " fmt, ## args); \
-		fprintf(fs, "%c[%dm\n", 0x1B, 0); \
-		fflush(fs); \
-	}\
-}  while (0)
+		if (sections_debug >= debuglevel) { \
+			FILE *fs = (debuglevel == DEBUG_ERROR ? stderr : stdout); \
+			fprintf(fs, "%c[%d;%d;%dm", 0x1B, 1, 31, 40);\
+			printdate_ms(fs); \
+			fprintf(fs, "[sectionsd] " fmt, ## args); \
+			fprintf(fs, "%c[%dm\n", 0x1B, 0); \
+			fflush(fs); \
+		}\
+	}  while (0)
 
-void printdate_ms(FILE* f);
-void showProfiling( std::string text );
+void printdate_ms(FILE *f);
+void showProfiling(std::string text);
 
 #endif /* __sectionsd__debug_h__ */
 
