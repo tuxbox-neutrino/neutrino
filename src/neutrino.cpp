@@ -235,6 +235,7 @@ CNeutrinoFonts * neutrinoFonts = NULL;
 // I don't like globals, I would have hidden them in classes,
 // but if you wanna do it so... ;)
 bool parentallocked = false;
+
 static char **global_argv;
 
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
@@ -2547,7 +2548,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 {
 	global_argv = new char *[argc+1];
 	for (int i = 0; i < argc; i++)
-		global_argv[i] = argv[i];
+		global_argv[i] = strdup(argv[i]);
 	global_argv[argc] = NULL;
 
 	sections_debug = 1;
@@ -5519,6 +5520,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 
 			for(int i = 3; i < 256; i++)
 				close(i);
+
 			execvp(global_argv[0], global_argv); // no return if successful
 
 			exit(CNeutrinoApp::EXIT_REBOOT); // should never be reached
