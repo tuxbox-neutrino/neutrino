@@ -2582,14 +2582,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		else if ((!strcmp(argv[x], "-zd"))) {
 			zapit_debug = 1;
 		}
-		else if (!strcmp(argv[x], "-r")) {
-			printf("[neutrino] WARNING: parameter -r ignored\n");
-			x++;
-			if (x < argc)
-				x++;
-			if (x < argc)
-				x++;
-		}
 		else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-v | --verbose 0..3]\n");
 			exit(CNeutrinoApp::EXIT_ERROR);
