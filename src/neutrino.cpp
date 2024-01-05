@@ -2546,32 +2546,41 @@ extern int zapit_debug;
 
 void CNeutrinoApp::CmdParser(int argc, char **argv)
 {
-	global_argv = new char *[argc+1];
+	global_argv = new char *[argc + 1];
 	for (int i = 0; i < argc; i++)
 		global_argv[i] = strdup(argv[i]);
 	global_argv[argc] = NULL;
 
 	sections_debug = 1;
 
-	for(int x=1; x<argc; x++) {
-		if (((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) && (x+1 < argc)) {
-			int dl = atoi(argv[x+ 1]);
+	for (int x = 1; x < argc; x++)
+	{
+		if (((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) && (x + 1 < argc))
+		{
+			int dl = atoi(argv[x + 1]);
 			dprintf(DEBUG_NORMAL, "set debuglevel: %d\n", dl);
 			setDebugLevel(dl);
 			x++;
 		}
-		else if ((!strcmp(argv[x], "-xd"))) {
+		else if ((!strcmp(argv[x], "-xd")))
+		{
 			cnxt_debug = 1;
 		}
-		else if ((!strcmp(argv[x], "-sd"))) {
+		else if ((!strcmp(argv[x], "-sd")))
+		{
 			int dl = 2;
-			if (x+1 < argc) {
-				if (!strcmp(argv[x+1], "0")) {
+			if (x + 1 < argc)
+			{
+				if (!strcmp(argv[x + 1], "0"))
+				{
 					dl = 0;
 					x++;
-				} else {
-					int tmp = atoi(argv[x+1]);
-					if (tmp) {
+				}
+				else
+				{
+					int tmp = atoi(argv[x + 1]);
+					if (tmp)
+					{
 						dl = tmp;
 						x++;
 					}
@@ -2580,10 +2589,12 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			dprintf(DEBUG_NORMAL, "set sections debuglevel: %d\n", dl);
 			sections_debug = dl;
 		}
-		else if ((!strcmp(argv[x], "-zd"))) {
+		else if ((!strcmp(argv[x], "-zd")))
+		{
 			zapit_debug = 1;
 		}
-		else {
+		else
+		{
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-v | --verbose 0..3]\n");
 			exit(CNeutrinoApp::EXIT_ERROR);
 		}
