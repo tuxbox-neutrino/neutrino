@@ -25,6 +25,7 @@
 #ifndef __neutrino_debug__
 #define __neutrino_debug__
 #include <zapit/debug.h>
+
 extern int debug;
 
 enum
@@ -37,19 +38,8 @@ enum
 };
 
 
-void setDebugLevel( int level );
+void setDebugLevel(int level);
 
-#if 0
-#define dprintf(debuglevel, fmt, args...) \
-	do
-	{ \
-		if (debug >= debuglevel) \
-			printf( "[neutrino] " fmt, ## args); \
-	}
-	while(0)
-#define dperror(str) {perror("[neutrino] " str);}
-#else
-// more thread save implementation
 #define dprintf(debuglevel, fmt, args...) \
 	do { \
 		if (debug >= debuglevel) \
@@ -62,6 +52,5 @@ void setDebugLevel( int level );
 		strerror_r(errno, errbuf, sizeof(errbuf)); \
 		fprintf(stderr, "[neutrino] %s: %s\n", str, errbuf); \
 	} while(0)
-#endif
 
-#endif
+#endif // __neutrino_debug__
