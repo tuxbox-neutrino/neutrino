@@ -2553,7 +2553,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 
 	sections_debug = 1;
 	softupdate = false;
-	//fromflash = false;
 
 	for(int x=1; x<argc; x++) {
 		if ((!strcmp(argv[x], "-u")) || (!strcmp(argv[x], "--enable-update"))) {
@@ -2561,10 +2560,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			softupdate = true;
 			allow_flash = 1;
 		}
-		/*else if ((!strcmp(argv[x], "-f")) || (!strcmp(argv[x], "--enable-flash"))) {
-			dprintf(DEBUG_NORMAL, "enable flash\n");
-			fromflash = true;
-		}*/
 		else if (((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) && (x+1 < argc)) {
 			int dl = atoi(argv[x+ 1]);
 			dprintf(DEBUG_NORMAL, "set debuglevel: %d\n", dl);
