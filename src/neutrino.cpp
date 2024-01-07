@@ -3514,9 +3514,6 @@ void CNeutrinoApp::RealRun()
 						StartPip(CZapit::getInstance()->GetCurrentChannelID());
 				}
 			}
-			else if (((msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) || (msg == (neutrino_msg_t) g_settings.key_pip_rotate_ccw)) && g_info.hw_caps->can_pip) {
-				(msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) ? pip_rotate(1) : pip_rotate(-1);
-			}
 #if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
 			else if ((msg == (neutrino_msg_t) g_settings.key_pip_close_avinput) && ((g_info.hw_caps->has_SCART_input) || (g_info.hw_caps->has_HDMI_input)) && g_info.hw_caps->can_pip) {
 				int boxmode = getBoxMode();
@@ -3545,6 +3542,9 @@ void CNeutrinoApp::RealRun()
 					channelList->zapTo_ChannelID(pip_channel_id);
 					StartPip(live_channel_id);
 				}
+			}
+			else if (((msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) || (msg == (neutrino_msg_t) g_settings.key_pip_rotate_ccw)) && g_info.hw_caps->can_pip) {
+				(msg == (neutrino_msg_t) g_settings.key_pip_rotate_cw) ? pip_rotate(1) : pip_rotate(-1);
 			}
 #endif
 			else if( msg == (neutrino_msg_t) g_settings.key_record /* && (mode != NeutrinoModes::mode_webtv) */) {
