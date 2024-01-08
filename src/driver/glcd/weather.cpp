@@ -105,7 +105,11 @@ void RenderWeather(bool standby)
 		y = t.glcd_standby_weather_y_position;
 	}
 
-	int forecast = 0; // 0 is current day
+	time_t _n = time(NULL);
+	struct tm *_t;
+	_t = localtime(&_n);
+
+	int forecast = _t->tm_hour < 16 ? 0 : 1; // 0 is current day; after 4pm use next day
 
 	std::string current_wcity = "";
 	std::string current_wtimestamp = "";
