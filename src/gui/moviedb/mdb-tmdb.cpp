@@ -15,8 +15,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -38,6 +37,7 @@
 #include <neutrino.h>
 #include <system/settings.h>
 #include <system/set_threadname.h>
+#include <system/debug.h>
 #include <driver/screen_max.h>
 #include <global.h>
 #include "mdb-tmdb.h"
@@ -183,14 +183,15 @@ bool CTMDB::getMovieDetails(std::string lang, bool second)
 			for (unsigned int i = 0; i < elements.size() && i < 10; i++)
 			{
 				minfo.cast +=  "  " + elements[i].get("character", "").asString() + " (" + elements[i].get("name", "").asString() + ")\n";
-				//printf("test: %s (%s)\n",elements[i].get("character","").asString().c_str(),elements[i].get("name","").asString().c_str());
+				// dprintf(DEBUG_NORMAL, "[TMDB]: %s (%s)\n", elements[i].get("character","").asString().c_str(), elements[i].get("name","").asString().c_str());
 			}
 
 			unlink(posterfile.c_str());
 			if (hasPoster())
+			{
 				getBigPoster(posterfile.c_str());
-			//printf("[TMDB]: %s (%s) %s\n %s\n %d\n",minfo.epgtitle.c_str(),minfo.original_title.c_str(),minfo.release_date.c_str(),minfo.overview.c_str(),minfo.found);
-
+				// dprintf(DEBUG_NORMAL, "[TMDB]: %s (%s) %s\n %s\n %d\n", minfo.epgtitle.c_str(), minfo.original_title.c_str(), minfo.release_date.c_str(), minfo.overview.c_str(), minfo.found);
+			}
 			return true;
 		}
 	}

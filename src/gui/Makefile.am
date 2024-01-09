@@ -13,7 +13,7 @@ version.h:
 noinst_HEADERS = version.h
 .PHONY: version.h
 
-SUBDIRS = bedit components moviebrowser widget
+SUBDIRS = bedit components moviebrowser moviedb widget
 
 if ENABLE_LUA
 SUBDIRS += lua
@@ -65,8 +65,6 @@ libneutrino_gui_a_SOURCES = \
 	infoviewer.cpp \
 	infoviewer_bb.cpp \
 	keybind_setup.cpp \
-	mdb-imdb.cpp \
-	mdb-tmdb.cpp \
 	mediaplayer.cpp \
 	mediaplayer_setup.cpp \
 	miscsettings_menu.cpp \

@@ -35,8 +35,8 @@
 
 #include <system/settings.h>
 
-#include "mdb-imdb.h"
-#include "mdb-tmdb.h"
+#include "moviedb/mdb-imdb.h"
+#include "moviedb/mdb-tmdb.h"
 #include <driver/movieinfo.h>
 #include "widget/menue.h"
 #include "widget/navibar.h"

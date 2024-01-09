@@ -51,8 +51,8 @@
 #include "mb_functions.h"
 #include "mb_help.h"
 #include <gui/filebrowser.h>
-#include <gui/mdb-imdb.h>
-#include <gui/mdb-tmdb.h>
+#include <gui/moviedb/mdb-imdb.h>
+#include <gui/moviedb/mdb-tmdb.h>
 #include <gui/epgview.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>

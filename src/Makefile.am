@@ -82,6 +82,7 @@ neutrino_LDADD = \
 	driver/movieinfo.o \
 	gui/moviebrowser/mb.o \
 	gui/libneutrino_gui2.a \
+	gui/moviedb/libneutrino_gui_moviedb.a \
 	gui/components/libneutrino_gui_components.a \
 	$(LUALIBS) \
 	eitd/libsectionsd.a \
