@@ -267,7 +267,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 				source = frontend->getNumber();
 			demux = source;
 #endif // DYNAMIC_DEMUX
-#else
+#else // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			source = channel->getStreamDemux();
 			demux = channel->getStreamDemux();
 #endif
@@ -284,13 +284,14 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 				source = frontend->getNumber();
 			demux = source;
 #endif // DYNAMIC_DEMUX
-#else
+#else // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 #endif
 			INFO("RECORD(%d): fe_num %d rec_dmx %d", mode, source, demux);
 			break;
 		case PIP:
+#if ENABLE_PIP
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #ifdef DYNAMIC_DEMUX
 			source = channel->getPipDemux();
@@ -308,8 +309,9 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 #else
 			source = channel->getRecordDemux();
 			demux = channel->getPipDemux();
-#endif
+#endif // HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 			INFO("PIP: fe_num %d dmx_src %d", source, demux);
+#endif // ENABLE_PIP
 			break;
 	}
 
