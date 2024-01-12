@@ -201,7 +201,7 @@ bool CFlashUpdate::checkOnlineVersion()
 				CFlashVersionInfo versionInfo(version);
 				newVer = versionInfo.getVersion();
 				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
-				if (versionInfo.snapshot <= '2' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
+				if (versionInfo.snapshot <= '9' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 				{
 					newfound = true;
 					dprintf(DEBUG_NORMAL, "[update] found new image\n");
@@ -298,10 +298,8 @@ bool CFlashUpdate::selectHttpImage(void)
 				CFlashVersionInfo versionInfo(versions[i]);
 				newVer = versionInfo.getVersion();
 				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
-				if (versionInfo.snapshot <= '2' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
+				if (versionInfo.snapshot <= '9' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 					newfound = 1;
-				if (versionInfo.snapshot <= '2')
-					enabled = false;
 				fileTypes[i] = versionInfo.snapshot;
 				std::string description = versionInfo.getType(true);
 				description += " ";
