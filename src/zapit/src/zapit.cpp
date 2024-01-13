@@ -744,6 +744,7 @@ bool CZapit::StopPip(int pip)
 		pip_channel_id[pip] = 0;
 		return true;
 	}
+	return false;
 #else
 	if (CNeutrinoApp::getInstance()->avinput_pip) {
 		CNeutrinoApp::getInstance()->StopAVInputPiP();
@@ -783,8 +784,8 @@ bool CZapit::StopPip(int pip)
 		delete pipAudioDecoder[pip];
 		pipAudioDecoder[pip] = NULL;
 	}
-#endif
 	return true;
+#endif
 }
 
 bool CZapit::StartPip(const t_channel_id channel_id, int pip)
@@ -2722,13 +2723,20 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	/* work around broken drivers: when starting up with 720p50 image is pink on hd1 */
 	videoDecoder = new cVideo(VIDEO_STD_1080I50, videoDemux->getChannel(), videoDemux->getBuffer());
 	videoDecoder->SetVideoSystem(video_mode);
-	videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
 #else
 	videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+#endif
 	videoDecoder->Standby(false);
 	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
-#endif
 
+#if defined ENABLE_PIP && defined HAVE_CST_HARDWARE
+	if (g_info.hw_caps->can_pip)
+	{
+		pipVideoDemux[0] = new cDemux(dnum);
+		pipVideoDemux[0]->Open(DMX_PIP_CHANNEL);
+		pipVideoDecoder[0] = new cVideo(video_mode, pipVideoDemux[0]->getChannel(), pipVideoDemux[0]->getBuffer(), 1);
+	}
+#endif
 #endif
 
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
