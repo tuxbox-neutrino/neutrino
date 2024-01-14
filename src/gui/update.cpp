@@ -283,7 +283,6 @@ bool CFlashUpdate::selectHttpImage(void)
 		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20))
 		{
 			std::ifstream in(gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME);
-			bool enabled;
 			CMenuForwarder *mf;
 			while (in >> url >> version >> md5 >> std::ws)
 			{
@@ -293,7 +292,6 @@ bool CFlashUpdate::selectHttpImage(void)
 				names.push_back(name);
 				//std::getline(in, md5);
 				md5s.push_back(md5);
-				enabled = true;
 
 				CFlashVersionInfo versionInfo(versions[i]);
 				newVer = versionInfo.getVersion();
@@ -319,7 +317,7 @@ bool CFlashUpdate::selectHttpImage(void)
 					separator = true;
 				}
 				CUpdateMenuTarget *up = new CUpdateMenuTarget(i, &selected);
-				mf = new CMenuDForwarder(descriptions[i].c_str(), enabled, names[i].c_str(), up);
+				mf = new CMenuDForwarder(descriptions[i].c_str(), true, names[i].c_str(), up);
 				//mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, "");
 				SelectionWidget.addItem(mf, i == 0); // first entry is preselected
 				i++;
