@@ -3237,7 +3237,7 @@ TIMER_STOP("################################## after all #######################
 	xmltv_xml_readepg();
 	xmltv_xml_auto_readepg();
 
-#if ENABLE_PIP && BOXMODEL_E4HDULTRA
+#if ENABLE_PIP && (BOXMODEL_E4HDULTRA || BOXMODEL_BRE2ZE4K || BOXMODEL_HD51 || BOXMODEL_H7)
 	if (g_info.hw_caps->can_pip)
 	{
 		CZapit::getInstance()->OpenPip(0);
