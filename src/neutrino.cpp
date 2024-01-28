@@ -5309,7 +5309,8 @@ void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 
 #if ENABLE_PIP
 #if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
-void CNeutrinoApp::StartAVInputPiP() {
+void CNeutrinoApp::StartAVInputPiP()
+{
 	if (!g_info.hw_caps->can_pip)
 		return;
 
@@ -5318,6 +5319,7 @@ void CNeutrinoApp::StartAVInputPiP() {
 		pipVideoDemux[0] = new cDemux(1);
 		pipVideoDemux[0]->Open(DMX_VIDEO_CHANNEL);
 	}
+
 	if (!pipVideoDecoder[0])
 		pipVideoDecoder[0] = new cVideo(0, NULL, NULL, 1);
 
@@ -5334,7 +5336,8 @@ void CNeutrinoApp::StartAVInputPiP() {
 	avinput_pip = true;
 }
 
-void CNeutrinoApp::StopAVInputPiP() {
+void CNeutrinoApp::StopAVInputPiP()
+{
 	if (!g_info.hw_caps->can_pip || !avinput_pip)
 		return;
 
@@ -6110,8 +6113,10 @@ bool CNeutrinoApp::StartPip(const t_channel_id channel_id, int pip)
 		CStreamManager::getInstance()->StopStream(channel_id);
 
 	int recmode = CRecordManager::getInstance()->GetRecordMode(channel_id);
-	if ((recmode == CRecordManager::RECMODE_OFF) || (channel->getRecordDemux() != channel->getPipDemux())) {
-		if (!g_Zapit->zapTo_pip(channel_id, pip)) {
+	if ((recmode == CRecordManager::RECMODE_OFF) || (channel->getRecordDemux() != channel->getPipDemux()))
+	{
+		if (!g_Zapit->zapTo_pip(channel_id, pip))
+		{
 #if BOXMODEL_HISILICON
 			if (pipVideoDecoder[0])
 				pipVideoDecoder[0]->ShowPig(0);
