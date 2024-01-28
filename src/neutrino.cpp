@@ -3241,7 +3241,8 @@ TIMER_STOP("################################## after all #######################
 	if (g_info.hw_caps->can_pip)
 	{
 		CZapit::getInstance()->OpenPip(0);
-		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+		if (pipVideoDecoder[0])
+			pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 		usleep(100);
 		CZapit::getInstance()->StopPip(0);
 	}
@@ -5312,20 +5313,24 @@ void CNeutrinoApp::StartAVInputPiP() {
 	if (!g_info.hw_caps->can_pip)
 		return;
 
-	if (!pipVideoDemux[0]) {
+	if (!pipVideoDemux[0])
+	{
 		pipVideoDemux[0] = new cDemux(1);
 		pipVideoDemux[0]->Open(DMX_VIDEO_CHANNEL);
-		if (!pipVideoDecoder[0]) {
-			pipVideoDecoder[0] = new cVideo(0, NULL, NULL, 1);
-		}
 	}
-	pipVideoDemux[0]->SetSource(1, 2);
-	pipVideoDecoder[0]->SetStreamType((VIDEO_FORMAT) 1);
-	pipVideoDemux[0]->Start();
-	pipVideoDecoder[0]->Start(0, 0, 0);
-	pipVideoDecoder[0]->open_AVInput_Device();
-	pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
-	pipVideoDecoder[0]->ShowPig(1);
+	if (!pipVideoDecoder[0])
+		pipVideoDecoder[0] = new cVideo(0, NULL, NULL, 1);
+
+	if (pipVideoDemux[0] && pipVideoDecoder[0])
+	{
+		pipVideoDemux[0]->SetSource(1, 2);
+		pipVideoDecoder[0]->SetStreamType((VIDEO_FORMAT) 1);
+		pipVideoDemux[0]->Start();
+		pipVideoDecoder[0]->Start(0, 0, 0);
+		pipVideoDecoder[0]->open_AVInput_Device();
+		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
+		pipVideoDecoder[0]->ShowPig(1);
+	}
 	avinput_pip = true;
 }
 
@@ -6108,7 +6113,8 @@ bool CNeutrinoApp::StartPip(const t_channel_id channel_id, int pip)
 	if ((recmode == CRecordManager::RECMODE_OFF) || (channel->getRecordDemux() != channel->getPipDemux())) {
 		if (!g_Zapit->zapTo_pip(channel_id, pip)) {
 #if BOXMODEL_HISILICON
-			pipVideoDecoder[0]->ShowPig(0);
+			if (pipVideoDecoder[0])
+				pipVideoDecoder[0]->ShowPig(0);
 #endif
 			DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
 		}
@@ -6160,7 +6166,7 @@ int CNeutrinoApp::pip_recalc_pos_y(int y)
 
 void CNeutrinoApp::pip_rotate(int cw)
 {
-	if (!pipVideoDecoder[0]->getBlank())
+	if (pipVideoDecoder[0] && !pipVideoDecoder[0]->getBlank())
 	{
 		g_settings.pip_rotate_lastpos += cw;
 		if (g_settings.pip_rotate_lastpos < PIP_UP_LEFT)
