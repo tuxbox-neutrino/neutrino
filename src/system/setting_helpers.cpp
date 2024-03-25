@@ -563,7 +563,7 @@ std::string CNetAdapter::getMacAddr(void)
 	long stat;
 	u_char addr[6];
 	stat = mac_addr_sys(addr);
-	if (0 == stat)
+	if (stat == 0)
 	{
 		std::stringstream mac_tmp;
 		for (int i = 0; i < 6; ++i)

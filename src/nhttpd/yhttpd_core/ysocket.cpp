@@ -90,7 +90,7 @@ bool CySocket::initAsSSL(void)
 		return false;
 	}
 	SSL_set_accept_state(ssl); // accept connection
-	if(1 != (SSL_set_fd(ssl, sock))) // associate socket descriptor
+	if((SSL_set_fd(ssl, sock)) != 1) // associate socket descriptor
 	if (NULL == (ssl = SSL_new(CySocket::SSL_ctx)))
 	{
 		aprintf("ySocket:SSL Error: Create SSL_new : %s\n", ERR_error_string(ERR_get_error(), NULL) );
@@ -106,7 +106,7 @@ bool CySocket::initSSL(void)
 {
 	SSL_load_error_strings(); // Load SSL Error Strings
 	SSL_library_init(); // Load SSL Library
-	if (0 == RAND_status()) // set Random
+	if (RAND_status() == 0) // set Random
 	{
 		aprintf("ySocket:SSL got no rand\n");
 		return false;
@@ -122,7 +122,7 @@ bool CySocket::initSSL(void)
 		return false;
 	}
 	if(!SSL_CA_file.empty()) // have a CA?
-	if(1 != SSL_CTX_load_verify_locations(SSL_ctx, SSL_CA_file.c_str(), NULL))
+	if(SSL_CTX_load_verify_locations(SSL_ctx, SSL_CA_file.c_str(), NULL) != 1)
 	{
 		aprintf("ySocket:SSL Error: %s CA-File:%s\n",ERR_error_string(ERR_get_error(), NULL), SSL_CA_file.c_str());
 		return false;

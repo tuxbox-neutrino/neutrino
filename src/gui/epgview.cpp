@@ -94,7 +94,7 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 			sprintf(index, "%d", nItem);
 			// Look for matching items
 			int nPos = findItem(std::string(strItem) + std::string(index), vecDescriptions);
-			if (-1 != nPos) {
+			if (nPos != -1) {
 				std::string item = std::string(vecItems[nPos]);
 				vecDescriptions.erase(vecDescriptions.begin() + nPos);
 				vecItems.erase(vecItems.begin() + nPos);
@@ -115,7 +115,7 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 	} else {	// Single string event (e.g. Director)
 		// Look for matching items
 		int nPos = findItem(strItem, vecDescriptions);
-		if (-1 != nPos) {
+		if (nPos != -1) {
 			vecDescriptions[nPos] = strLabel;
 		}
 	}
@@ -782,14 +782,14 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				if (nPosDot < epgData.info2.length() && nPosDot < epgData.info1.length()) {   // Make sure we don't overrun the buffer
 
 					// Check if the stuff after the dot equals the beginning of info2
-					if (0 == epgData.info2.find(epgData.info1.substr(nPosDot, epgData.info1.length() - nPosDot))) {
+					if (epgData.info2.find(epgData.info1.substr(nPosDot, epgData.info1.length() - nPosDot)) == 0) {
 						strEpisode = epgData.info1.substr(0, nPosDot) + "\n";
 						bHide = true;
 					}
 				}
 			}
 			// Compare strings normally if not positively found to be equal before
-			if (false == bHide && 0 == epgData.info2.find(epgData.info1)) {
+			if (false == bHide && epgData.info2.find(epgData.info1) == 0) {
 				bHide = true;
 			}
 		}

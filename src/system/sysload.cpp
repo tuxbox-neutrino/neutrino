@@ -61,7 +61,7 @@ void *cSysLoad::Run(void *arg)
 			std::string line;
 			while (getline(in, line)) {
 				unsigned long _stat_user, _stat_nice, _stat_system, _stat_idle;
-				if (4 == sscanf(line.c_str(), "cpu %lu %lu %lu %lu", &_stat_user, &_stat_nice, &_stat_system, &_stat_idle)) {
+				if (sscanf(line.c_str(), "cpu %lu %lu %lu %lu", &_stat_user, &_stat_nice, &_stat_system, &_stat_idle) == 4) {
 					unsigned long _stat_total = _stat_user + _stat_nice + _stat_system + _stat_idle;
 					if (stat_total) {
 						unsigned long div = _stat_total - stat_total;

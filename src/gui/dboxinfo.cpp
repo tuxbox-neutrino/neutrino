@@ -282,8 +282,7 @@ void CDBoxInfoWidget::paint()
 		while (fgets(buf, sizeof(buf), procmeminfo)) {
 			char unit[10];
 			*unit = 0;
-			if ((3 == sscanf(buf, "%[^:]: %llu %s", a, &v, unit))
-			 || (2 == sscanf(buf, "%[^:]: %llu", a, &v))) {
+			if ((sscanf(buf, "%[^:]: %llu %s", a, &v, unit) == 3) || (sscanf(buf, "%[^:]: %llu", a, &v) == 2)) {
 				if (*unit == 'k')
 					v <<= 10;
 				if (!strcasecmp(a, "MemTotal"))

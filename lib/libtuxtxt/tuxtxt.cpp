@@ -112,7 +112,7 @@ void gethotlist()
 			if (!fgets(line, sizeof(line), hl))
 				break;
 
-			if (1 == sscanf(line, "%x", (unsigned int*)&hotlist[maxhotlist+1]))
+			if (sscanf(line, "%x", (unsigned int*)&hotlist[maxhotlist+1]) == 1)
 			{
 				if (hotlist[maxhotlist+1] >= 0x100 && hotlist[maxhotlist+1] <= 0x899)
 				{
@@ -366,7 +366,7 @@ void dump_page()
 /* out: 18 bit triplet data, <0 if invalid number, not cached, or hamming error */
 int iTripletNumber2Data(int iONr, tstCachedPage *pstCachedPage, unsigned char* pagedata)
 {
-	if (iONr > 506 || 0 == pstCachedPage)
+	if (iONr > 506 || pstCachedPage == 0)
 		return -1;
 
 	unsigned char *p;
@@ -377,16 +377,16 @@ int iTripletNumber2Data(int iONr, tstCachedPage *pstCachedPage, unsigned char* p
 		p = pagedata + 40*(packet-1) + packetoffset + 1;
 	else if (packet <= 25)
 	{
-		if (0 == pstCachedPage->pageinfo.p24)
+		if (pstCachedPage->pageinfo.p24 == 0)
 			return -1;
 		p = pstCachedPage->pageinfo.p24 + 40*(packet-24) + packetoffset + 1;
 	}
 	else
 	{
 		int descode = packet - 26;
-		if (0 == pstCachedPage->pageinfo.ext)
+		if (pstCachedPage->pageinfo.ext == 0)
 			return -1;
-		if (0 == pstCachedPage->pageinfo.ext->p26[descode])
+		if (pstCachedPage->pageinfo.ext->p26[descode] == 0)
 			return -1;
 		p = pstCachedPage->pageinfo.ext->p26[descode] + packetoffset;	/* first byte (=designation code) is not cached */
 	}
@@ -451,7 +451,7 @@ void eval_object(int iONr, tstCachedPage *pstCachedPage,
 		}
 		iONr++;
 	}
-	while (0 == eval_triplet(iOData, pstCachedPage, pAPx, pAPy, pAPx0, pAPy0, &drcssubp, &gdrcssubp, &endcol, &attrPassive, pagedata)
+	while (eval_triplet(iOData, pstCachedPage, pAPx, pAPy, pAPx0, pAPy0, &drcssubp, &gdrcssubp, &endcol, &attrPassive, pagedata) == 0
 			 || iONr1 == iONr); /* repeat until termination reached */
 }
 
@@ -459,7 +459,7 @@ void eval_NumberedObject(int p, int s, int packet, int triplet, int high,
 								 unsigned char *pAPx, unsigned char *pAPy,
 								 unsigned char *pAPx0, unsigned char *pAPy0)
 {
-	if (!packet || 0 == tuxtxt_cache.astCachetable[p][s])
+	if (!packet || tuxtxt_cache.astCachetable[p][s] == 0)
 		return;
 	unsigned char pagedata[23*40];
 	tuxtxt_decompress_page(p, s,pagedata);
@@ -511,7 +511,7 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 		switch (iMode)
 		{
 		case 0x00:
-			if (0 == (iData>>5))
+			if ((iData>>5) == 0)
 			{
 				int newcolor = iData & 0x1f;
 				if (*endcol < 0) /* passive object */
@@ -578,7 +578,7 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 				page_atrb[offset].charset = C_G3;
 			break;
 		case 0x03:
-			if (0 == (iData>>5))
+			if ((iData>>5) == 0)
 			{
 				int newcolor = iData & 0x1f;
 				if (*endcol < 0) /* passive object */
@@ -817,7 +817,7 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 		switch (iMode)
 		{
 		case 0x00:
-			if (0 == (iData>>5))
+			if ((iData>>5) == 0)
 			{
 #if TUXTXT_DEBUG
 				if (dumpl25)
@@ -838,15 +838,15 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 				if (dumpl25)
 				{
 					printf("  AP=%d,0", RowAddress2Row(iAddress));
-					if (0 == (iData>>5))
+					if ((iData>>5) == 0)
 						printf("  FRowCol T%x#%x", (iData>>3)&0x03, iData&0x07);
-					else if (3 == (iData>>5))
+					else if ((iData>>5) == 3)
 						printf("  FRowCol++ T%x#%x", (iData>>3)&0x03, iData&0x07);
 				}
 #endif
-				if (row <= 24 && 0 == (iData>>5))
+				if (row <= 24 && (iData>>5) == 0)
 					maxrow = row;
-				else if (3 == (iData>>5))
+				else if ((iData>>5) == 3)
 					maxrow = 24;
 				else
 					maxrow = -1;
@@ -871,9 +871,9 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 			{
 				if (iAddress == 0x3f)
 					printf("  AP=0,0");
-				if (0 == (iData>>5))
+				if ((iData>>5) == 0)
 					printf("  Address Display R0 FRowCol T%x#%x", (iData>>3)&0x03, iData&0x07);
-				else if (3 == (iData>>5))
+				else if ((iData>>5) == 0)
 					printf("  Address Display R0->24 FRowCol T%x#%x", (iData>>3)&0x03, iData&0x07);
 			}
 #endif
@@ -886,9 +886,9 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 					int row = *pAPy0; // + *pAPy;
 					int maxrow;
 
-					if (row <= 24 && 0 == (iData>>5))
+					if (row <= 24 && (iData>>5) == 0)
 						maxrow = row;
-					else if (3 == (iData>>5))
+					else if ((iData>>5) == 0)
 						maxrow = 24;
 					else
 						maxrow = -1;
@@ -986,7 +986,7 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 		case 0x15:
 		case 0x16:
 		case 0x17:
-			if (0 == (iAddress & 0x08))	/* Object Definition illegal or only level 3.5 */
+			if ((iAddress & 0x08) == 0)	/* Object Definition illegal or only level 3.5 */
 				break; /* ignore */
 #if TUXTXT_DEBUG
 			if (dumpl25)
@@ -1016,7 +1016,7 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 			return 0xFF; /* termination by object definition */
 			break;
 		case 0x18:
-			if (0 == (iData & 0x10)) /* DRCS Mode reserved or only level 3.5 */
+			if ((iData & 0x10) == 0) /* DRCS Mode reserved or only level 3.5 */
 				break; /* ignore */
 #if TUXTXT_DEBUG
 			if (dumpl25)
@@ -1111,7 +1111,7 @@ void eval_l25()
 		{
 			if (p[i] == 0xff)
 				break;
-			if (0 == (i % 40))
+			if ((i % 40) == 0)
 				printf("\n%x ", i / 20);
 			putchar(number2char(p[i]));
 		}
@@ -1181,7 +1181,7 @@ void eval_l25()
 			int idata = dehamming[*ptriplet];
 			int triplet;
 
-			if (idata == 0xff || 0 == (idata & 1))	/* hamming error or no pointer data: ignore packet */
+			if (idata == 0xff || (idata & 1) == 0)	/* hamming error or no pointer data: ignore packet */
 				continue;
 			for (triplet = 1; triplet <= 12; triplet++)
 			{
@@ -1968,58 +1968,58 @@ int Init(int source)
 			if (!fgets(line, sizeof(line), conf))
 				break;
 
-			if (1 == sscanf(line, "ScreenMode16x9Normal %i", &ival))
+			if (sscanf(line, "ScreenMode16x9Normal %i", &ival) == 1)
 				screen_mode1 = ival & 1;
-			else if (1 == sscanf(line, "Brightness %i", &ival))
+			else if (sscanf(line, "Brightness %i", &ival) == 1)
 				color_mode = ival;
-			else if (1 == sscanf(line, "AutoNational %i", &ival))
+			else if (sscanf(line, "AutoNational %i", &ival) == 1)
 				auto_national = ival & 1;
-			else if (1 == sscanf(line, "NationalSubset %i", &ival))
+			else if (sscanf(line, "NationalSubset %i", &ival) == 1)
 			{
 				if (ival >= 0 && ival <= (int) MAX_NATIONAL_SUBSET)
 					national_subset = ival;
 			}
-			else if (1 == sscanf(line, "MenuLanguage %i", &ival))
+			else if (sscanf(line, "MenuLanguage %i", &ival) == 1)
 			{
 				if (ival >= 0 && ival <= MAXMENULANGUAGE)
 					menulanguage = ival;
 			}
-			else if (1 == sscanf(line, "SwapUpDown %i", &ival))
+			else if (sscanf(line, "SwapUpDown %i", &ival) == 1)
 				swapupdown = ival & 1;
-			else if (1 == sscanf(line, "ShowHexPages %i", &ival))
+			else if (sscanf(line, "ShowHexPages %i", &ival) == 1)
 				showhex = ival & 1;
-			else if (1 == sscanf(line, "Transparency %i", &ival))
+			else if (sscanf(line, "Transparency %i", &ival) == 1)
 				trans_mode = ival;
-			else if (1 == sscanf(line, "TTFWidthFactor16 %i", &ival))
+			else if (sscanf(line, "TTFWidthFactor16 %i", &ival) == 1)
 				TTFWidthFactor16 = ival;
-			else if (1 == sscanf(line, "TTFHeightFactor16 %i", &ival))
+			else if (sscanf(line, "TTFHeightFactor16 %i", &ival) == 1)
 				TTFHeightFactor16 = ival;
-			else if (1 == sscanf(line, "TTFShiftX %i", &ival))
+			else if (sscanf(line, "TTFShiftX %i", &ival) == 1)
 				TTFShiftX = ival;
-			else if (1 == sscanf(line, "TTFShiftY %i", &ival))
+			else if (sscanf(line, "TTFShiftY %i", &ival) == 1)
 				TTFShiftY = ival;
-			else if (1 == sscanf(line, "Screenmode %i", &ival))
+			else if (sscanf(line, "Screenmode %i", &ival) == 1)
 				screenmode[0] = ival;
-			else if (1 == sscanf(line, "ScreenmodeBoxed %i", &ival))
+			else if (sscanf(line, "ScreenmodeBoxed %i", &ival) == 1)
 				screenmode[1] = ival;
-			else if (1 == sscanf(line, "ShowFLOF %i", &ival))
+			else if (sscanf(line, "ShowFLOF %i", &ival) == 1)
 				showflof = ival & 1;
-			else if (1 == sscanf(line, "Show39 %i", &ival))
+			else if (sscanf(line, "Show39 %i", &ival) == 1)
 				show39 = ival & 1;
-			else if (1 == sscanf(line, "ShowLevel2p5 %i", &ival))
+			else if (sscanf(line, "ShowLevel2p5 %i", &ival) == 1)
 				showl25 = ival & 1;
-			else if (1 == sscanf(line, "DumpLevel2p5 %i", &ival))
+			else if (sscanf(line, "DumpLevel2p5 %i", &ival) == 1)
 				dumpl25 = ival & 1;
-			else if (1 == sscanf(line, "UseTTF %i", &ival))
+			else if (sscanf(line, "UseTTF %i", &ival) == 1)
 				usettf = ival & 1;
 #if 0
-			else if (1 == sscanf(line, "StartX %i", &ival))
+			else if (sscanf(line, "StartX %i", &ival) == 1)
 				sx = ival;
-			else if (1 == sscanf(line, "EndX %i", &ival))
+			else if (sscanf(line, "EndX %i", &ival) == 1)
 				ex = ival;
-			else if (1 == sscanf(line, "StartY %i", &ival))
+			else if (sscanf(line, "StartY %i", &ival) == 1)
 				sy = ival;
-			else if (1 == sscanf(line, "EndY %i", &ival))
+			else if (sscanf(line, "EndY %i", &ival) == 1)
 				ey = ival;
 #endif
 		}

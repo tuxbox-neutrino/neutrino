@@ -140,7 +140,7 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 			if (arptable) {
 				char line[120], ip[120], mac[120];
 				while (fgets(line, sizeof(line), arptable)) {
-					if (2 == sscanf(line, "%s %*s %*s %s %*[^\n]", ip, mac)) {
+					if (sscanf(line, "%s %*s %*s %s %*[^\n]", ip, mac) == 2) {
 						if (!strcmp(ip, h.c_str())) {
 							g_settings.network_nfs[nr].mac = std::string(mac);
 							break;

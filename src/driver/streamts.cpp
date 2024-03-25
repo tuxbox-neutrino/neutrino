@@ -874,7 +874,7 @@ bool CStreamStream::Open()
 	if (!headers.empty())
 		av_dict_set(&options, "headers", headers.c_str(), 0);
 
-	if (0 == strncmp(url.c_str(), "http://", 7) || 0 == strncmp(url.c_str(), "https://", 8))
+	if (strncmp(url.c_str(), "http://", 7) == 0 || strncmp(url.c_str(), "https://", 8) == 0)
 	{
 		av_dict_set(&options, "timeout", "20000000", 0); //20sec
 		av_dict_set(&options, "reconnect", "1", 0);

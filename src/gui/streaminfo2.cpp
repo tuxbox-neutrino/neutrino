@@ -1428,7 +1428,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos, bool fake)
 				{
 					col = COL_MENUCONTENTINACTIVE_TEXT;
 					int id;
-					if (1 == sscanf(casys[ca_id].substr(last_pos, pos - last_pos).c_str(), "%X", &id) && acaid == id)
+					if (sscanf(casys[ca_id].substr(last_pos, pos - last_pos).c_str(), "%X", &id) == 1 && acaid == id)
 						col = COL_MENUCONTENT_TEXT;
 				}
 				if (!fake)
