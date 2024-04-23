@@ -61,6 +61,7 @@
 #define NEUTRINO_ICON_BUTTON_DOWN	"down"
 #define NEUTRINO_ICON_BUTTON_LEFT	"left"
 
+#define NEUTRINO_ICON_BUTTON_CHECKED	"btn_checked"
 #define NEUTRINO_ICON_BUTTON_BACKWARD	"btn_backward"
 #define NEUTRINO_ICON_BUTTON_FORWARD	"btn_forward"
 #define NEUTRINO_ICON_BUTTON_PAUSE	"btn_pause"

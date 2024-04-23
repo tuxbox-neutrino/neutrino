@@ -13,6 +13,7 @@ install_DATA = \
 	9.png \
 	btn_backward.png \
 	btn_blue.png \
+	btn_checked.png \
 	btn_forward.png \
 	btn_green.png \
 	btn_option_off_active.png \
