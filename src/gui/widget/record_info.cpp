@@ -94,23 +94,23 @@ void CRecInfo::init()
 		int cur_rec_mode = crm->GetRecordMode(cur_chid);
 
 		// set 'active' icons for record mode
-		if (rec_mode == CRecordManager::RECMODE_REC)
+		if (rec_mode & CRecordManager::RECMODE_REC)
 		{
-			if (cur_rec_mode == CRecordManager::RECMODE_OFF)
+			if (cur_rec_mode & CRecordManager::RECMODE_OFF)
 				rec_icon = NEUTRINO_ICON_REC_GRAY;
 			else
 				rec_icon = NEUTRINO_ICON_REC;
 		}
-		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
 		{
 			// subtract ts
-			records--;
-			if (cur_rec_mode == CRecordManager::RECMODE_OFF)
+			//records--;
+			if (cur_rec_mode & CRecordManager::RECMODE_OFF)
 				ts_icon = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
 			else
 				ts_icon = NEUTRINO_ICON_AUTO_SHIFT;
 		}
-		else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
+		else if (rec_mode & CRecordManager::RECMODE_REC_TSHIFT)
 		{
 			rec_icon = NEUTRINO_ICON_REC;
 			ts_icon = NEUTRINO_ICON_AUTO_SHIFT;
@@ -139,7 +139,7 @@ void CRecInfo::init()
 		rv_ts_img = new CComponentsPicture(w_icon_space, 0, ts_icon, this);
 		w_ts_img = rv_ts_img->getWidth();
 		h_ts_img = rv_ts_img->getHeight();
-		w_icon_space += w_ts_img;
+		w_icon_space += w_ts_img + OFFSET_INNER_MIN;
 	}
 
 	// set font type for record count text
@@ -161,13 +161,13 @@ void CRecInfo::init()
 		rv_ts_img->setYPos(height/2 - h_ts_img/2);
 
 	// init text
-	int x_txt = w_icon_space + OFFSET_INNER_MIN;
+	int x_txt = w_icon_space;
 	rv_text = new CComponentsTextTransp(this, x_txt, 0, font_rv->getRenderWidth(s_records), height, s_records, CTextBox::RIGHT, font_rv);
 	int y_txt = height/2 - rv_text->getHeight()/2;
 	rv_text->setPos(x_txt, y_txt);
 	rv_text->doPaintBg(false);
 
 	// finally set width of record info box (if different to passed parameters or width == 0
-	int w_min = w_icon_space + OFFSET_INNER_MIN + rv_text->getWidth() + OFFSET_INNER_MIN;
+	int w_min = w_icon_space + rv_text->getWidth() + OFFSET_INNER_MIN;
 	width = std::max(w_min, width);
 }
