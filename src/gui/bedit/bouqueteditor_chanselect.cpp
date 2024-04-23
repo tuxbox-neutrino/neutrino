@@ -97,7 +97,7 @@ void CBEChannelSelectWidget::paintItem(int pos)
 	if (current < Channels.size())
 	{
 		if (isChannelInBouquet(current))
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x + OFFSET_INNER_MID, ypos, item_height);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_CHECKED, x + OFFSET_INNER_MID, ypos, item_height);
 		else
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DUMMY_SMALL, x + OFFSET_INNER_MID, ypos, item_height);
 
