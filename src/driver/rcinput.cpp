@@ -1329,7 +1329,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					}
 					continue;
 				}
-				if (ev.type == EV_SYN)
+				if (ev.type != EV_KEY)
 					continue; /* ignore... */
 				/* try to compensate for possible changes in wall clock
 				 * kernel ev.time default uses CLOCK_REALTIME, as does gettimeofday().
