@@ -106,9 +106,11 @@ int CWeatherSetup::showWeatherSetup()
 	ms_oservices->addItem(mf_we);
 #endif
 
+#if 0
 	weather_api = new CMenuOptionChooser(LOCALE_WEATHER_API_VERSION, &weather_api_version, WEATHER_API_OPTIONS, WEATHER_API_OPTION_COUNT, CApiKey::check_weather_api_key(), this);
 	mf_we->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_API_VERSION);
 	ms_oservices->addItem(weather_api);
+#endif
 
 	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
