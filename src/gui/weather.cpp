@@ -117,7 +117,7 @@ bool CWeather::GetWeatherDetails()
 	std::string lat = coords.substr(0, coords.find_first_of(','));
 	std::string lon = coords.substr(coords.find_first_of(',') + 1);
 
-	std::string data = "https://api.openweathermap.org/data/"+api+"/onecall?lat=" + lat + "&lon=" + lon + "&units=metric&lang=de&exclude=minutely,hourly,flags,alerts&appid=" + key;
+	std::string data = "https://api.openweathermap.org/data/" + api + "/onecall?lat=" + lat + "&lon=" + lon + "&units=metric&lang=de&exclude=minutely,hourly,flags,alerts&appid=" + key;
 	JSONCPP_STRING answer;
 	JSONCPP_STRING formattedErrors;
 

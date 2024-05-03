@@ -210,7 +210,7 @@ bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*dat
 			weather_api_key_short.clear();
 		weather_onoff->setActive(CApiKey::check_weather_api_key());
 	}
-	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_VERSION))
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_VERSION))
 	{
 		g_settings.weather_api_version = WEATHER_API_OPTIONS[weather_api_version].valname;
 		CWeather::getInstance()->updateApi();
