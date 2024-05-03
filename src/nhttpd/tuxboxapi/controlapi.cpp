@@ -207,6 +207,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"signal",		&CControlAPI::SignalInfoCGI,		"text/plain"},
 	{"getonidsid",		&CControlAPI::GetChannelIDCGI,		"text/plain"},
 	{"getchannelid",	&CControlAPI::GetChannelIDCGI,		""},
+	{"getchannelinfo",	&CControlAPI::GetChannelInfoCGI,	""},
 	{"getepgid",		&CControlAPI::GetEpgIDCGI,		""},
 	{"currenttpchannels",	&CControlAPI::GetTPChannel_IDCGI,	"text/plain"},
 	// boxcontrol - system
@@ -759,6 +760,37 @@ void CControlAPI::GetChannelIDCGI(CyhookHandler *hh)
 	result = hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id), true);
 	result += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id & 0xFFFFFFFFFFFFULL), false);
 	result = hh->outObject("id", result);
+	hh->SendResult(result);
+}
+
+// get actual channel_info
+void CControlAPI::GetChannelInfoCGI(CyhookHandler *hh)
+{
+	t_channel_id channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	CZapitChannel *channel = CServiceManager::getInstance()->FindChannel48(channel_id);
+
+	hh->outStart();
+	std::string result = "";
+	result = hh->outObject("name", hh->outValue(channel->getName()) + "\n");
+
+	CShortEPGData epg;
+	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
+	CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
+
+	if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
+	{
+		result += hh->outObject("title", hh->outValue(epg.title) + "\n");
+	}
+
+	CChannelEvent event;
+	NeutrinoAPI->GetChannelEvents();
+	NeutrinoAPI->GetChannelEvent(channel->getChannelID(), event);
+
+	if (event.eventID)
+	{
+		result += hh->outObject("duration", string_printf("%d/", (time(NULL) - event.startTime) / 60) + string_printf("%d\n", event.duration / 60));
+	}
+
 	hh->SendResult(result);
 }
 

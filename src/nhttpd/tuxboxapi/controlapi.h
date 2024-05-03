@@ -87,6 +87,7 @@ private:
 	void GetBouquetsxmlCGI(CyhookHandler *hh);
 	void GetUBouquetsxmlCGI(CyhookHandler *hh);
 	void GetChannelIDCGI(CyhookHandler *hh);
+	void GetChannelInfoCGI(CyhookHandler *hh);
 	void GetEpgIDCGI(CyhookHandler *hh);
 	void GetTPChannel_IDCGI(CyhookHandler *hh);
 	void MessageCGI(CyhookHandler *hh);
