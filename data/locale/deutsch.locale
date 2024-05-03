@@ -2922,6 +2922,7 @@ videomenu.zappingmode_holdtilllock Standbild bis lock
 videomenu.zappingmode_mute Schwarzes Bild
 videomenu.zappingmode_mutetilllock Schwarzes Bild bis lock
 weather.api_key Wetter API Schlüssel (OpenWeather)
+weather.api_ver Wetter API Version
 weather.direction_e O
 weather.direction_ene ONO
 weather.direction_ese OSO

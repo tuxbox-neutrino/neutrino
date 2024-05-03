@@ -2949,6 +2949,7 @@ const char * locale_real_names[] =
 	"videomenu.zappingmode_mute",
 	"videomenu.zappingmode_mutetilllock",
 	"weather.api_key",
+	"weather.api_ver",
 	"weather.direction_e",
 	"weather.direction_ene",
 	"weather.direction_ese",

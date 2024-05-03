@@ -44,7 +44,9 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 		int width, selected;
 
 		CMenuOptionChooser *weather_onoff;
+		CMenuOptionChooser *weather_api;
 		std::string weather_api_key_short;
+		int weather_api_version;
 
 		int showWeatherSetup();
 		int selectLocation();

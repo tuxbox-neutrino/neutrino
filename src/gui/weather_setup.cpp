@@ -37,11 +37,27 @@
 
 #include <system/debug.h>
 
+CMenuOptionChooser::keyval_ext WEATHER_API_OPTIONS[] =
+{
+	{ 0, NONEXISTANT_LOCALE, "2.5"	},
+	{ 1, NONEXISTANT_LOCALE, "3.0"	}
+
+};
+#define WEATHER_API_OPTION_COUNT (sizeof(WEATHER_API_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
+
 CWeatherSetup::CWeatherSetup()
 {
 	width = 40;
 	selected = -1;
-
+	weather_api_version = 0;
+	for (size_t i = 0; i < WEATHER_API_OPTION_COUNT; i++)
+	{
+		if (WEATHER_API_OPTIONS[i].valname == g_settings.weather_api_version)
+		{
+			weather_api_version = i;
+			break;
+		}
+	}
 	locations.clear();
 	loadLocations(CONFIGDIR "/weather-favorites.xml");
 	loadLocations(WEATHERDIR "/weather-locations.xml");
@@ -89,6 +105,9 @@ int CWeatherSetup::showWeatherSetup()
 	mf_we->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_API_KEY);
 	ms_oservices->addItem(mf_we);
 #endif
+
+	weather_api = new CMenuOptionChooser(LOCALE_WEATHER_API_VER, &weather_api_version, WEATHER_API_OPTIONS, WEATHER_API_OPTION_COUNT, CApiKey::check_weather_api_key(), this);
+	ms_oservices->addItem(weather_api);
 
 	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
 	mf_wl->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_LOCATION);
@@ -180,10 +199,18 @@ bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*dat
 	{
 		g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
 		if (g_settings.weather_enabled)
+		{
+			CWeather::getInstance()->updateApi();
 			weather_api_key_short = g_settings.weather_api_key.substr(0, 8) + "...";
+		}
 		else
 			weather_api_key_short.clear();
 		weather_onoff->setActive(CApiKey::check_weather_api_key());
+	}
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_VER))
+	{
+		g_settings.weather_api_version = WEATHER_API_OPTIONS[weather_api_version].valname;
+		CWeather::getInstance()->updateApi();
 	}
 	return ret;
 }

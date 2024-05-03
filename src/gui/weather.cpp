@@ -54,6 +54,7 @@ CWeather *CWeather::getInstance()
 CWeather::CWeather()
 {
 	key = g_settings.weather_api_key;
+	api = g_settings.weather_api_version;
 	v_forecast.clear();
 	last_time = 0;
 	coords = "";
@@ -78,6 +79,22 @@ void CWeather::setCoords(std::string new_coords, std::string new_city)
 	}
 }
 
+void CWeather::updateApi()
+{
+	bool force = false;
+	if (key.compare(g_settings.weather_api_key))
+	{
+		key = g_settings.weather_api_key;
+		force = true;
+	}
+	if (api.compare(g_settings.weather_api_version))
+	{
+		api = g_settings.weather_api_version;
+		force = true;
+	}
+	checkUpdate(force);
+}
+
 bool CWeather::checkUpdate(bool forceUpdate)
 {
 	time_t current_time = time(NULL);
@@ -100,7 +117,7 @@ bool CWeather::GetWeatherDetails()
 	std::string lat = coords.substr(0, coords.find_first_of(','));
 	std::string lon = coords.substr(coords.find_first_of(',') + 1);
 
-	std::string data = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&units=metric&lang=de&exclude=minutely,hourly,flags,alerts&appid=" + key;
+	std::string data = "https://api.openweathermap.org/data/"+api+"/onecall?lat=" + lat + "&lon=" + lon + "&units=metric&lang=de&exclude=minutely,hourly,flags,alerts&appid=" + key;
 	JSONCPP_STRING answer;
 	JSONCPP_STRING formattedErrors;
 
