@@ -1854,6 +1854,7 @@ const char * locale_real_names[] =
 	"menu.hint_volume_pos",
 	"menu.hint_volume_size",
 	"menu.hint_weather_api_key",
+	"menu.hint_weather_api_version",
 	"menu.hint_weather_enabled",
 	"menu.hint_weather_location",
 	"menu.hint_weather_postalcode",

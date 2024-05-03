@@ -1827,6 +1827,7 @@ menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder auss
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_weather_api_key Geben Sie den OpenWeather API Schlüssel ein. Eine leere Eingabe schaltet die Wetter-Unterstützung aus
+menu.hint_weather_api_version Wählen Sie die OpenWeather API Version
 menu.hint_weather_enabled Schaltet die Wetter-Unterstützung (openweathermap.org) ein bzw. aus
 menu.hint_weather_location Wählen Sie eine Stadt in ihrer Nähe zur Anzeige der Wetterdaten aus
 menu.hint_weather_postalcode Geben Sie ihre Postleitzahl zur Anzeige der Wetterdaten an

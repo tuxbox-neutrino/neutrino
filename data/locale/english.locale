@@ -1827,6 +1827,7 @@ menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
 menu.hint_weather_api_key Type your OpenWeather API key. An empty input disables Weather support
+menu.hint_weather_api_version Select OpenWeather API version
 menu.hint_weather_enabled Enable or disable Weather support (openweathermap.org)
 menu.hint_weather_location Select your weather location
 menu.hint_weather_postalcode Select your weather location by postal code
