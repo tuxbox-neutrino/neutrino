@@ -203,11 +203,11 @@ AC_ARG_WITH(weather-dev-key,
 	[WEATHER_DEV_KEY=""])
 AC_DEFINE_UNQUOTED([WEATHER_DEV_KEY], ["$WEATHER_DEV_KEY"], [API dev key to get data from weather data base, required for additional weather informations])
 
-AC_ARG_WITH(weather-dev-ver,
-	AS_HELP_STRING([--with-weather-dev-ver=version], [API version to get data from weather data base, required for additional weather informations]),
-	[WEATHER_DEV_VER="$withval"],
-	[WEATHER_DEV_VER=""])
-AC_DEFINE_UNQUOTED([WEATHER_DEV_VER], ["$WEATHER_DEV_VER"], [API version to get data from weather data base, required for additional weather informations])
+AC_ARG_WITH(weather-api-version,
+	AS_HELP_STRING([--with-weather-api-version=VERSION], [API version to get data from weather data base, required for additional weather informations]),
+	[WEATHER_API_VERSION="$withval"],
+	[WEATHER_API_VERSION=""])
+AC_DEFINE_UNQUOTED([WEATHER_API_VERSION], ["$WEATHER_API_VERSION"], [API version to get data from weather data base, required for additional weather informations])
 
 AC_ARG_ENABLE([weather-key-manage],
 	AS_HELP_STRING([--enable-weather-key-manage], [enable manage weather api dev key via gui for additional weather informations @<:@default=yes@:>@]),

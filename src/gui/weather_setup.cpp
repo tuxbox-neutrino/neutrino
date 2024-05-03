@@ -106,7 +106,7 @@ int CWeatherSetup::showWeatherSetup()
 	ms_oservices->addItem(mf_we);
 #endif
 
-	weather_api = new CMenuOptionChooser(LOCALE_WEATHER_API_VER, &weather_api_version, WEATHER_API_OPTIONS, WEATHER_API_OPTION_COUNT, CApiKey::check_weather_api_key(), this);
+	weather_api = new CMenuOptionChooser(LOCALE_WEATHER_API_VERSION, &weather_api_version, WEATHER_API_OPTIONS, WEATHER_API_OPTION_COUNT, CApiKey::check_weather_api_key(), this);
 	ms_oservices->addItem(weather_api);
 
 	CMenuForwarder *mf_wl = new CMenuForwarder(LOCALE_WEATHER_LOCATION, g_settings.weather_enabled, g_settings.weather_city, this, "select_location");
@@ -207,7 +207,7 @@ bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*dat
 			weather_api_key_short.clear();
 		weather_onoff->setActive(CApiKey::check_weather_api_key());
 	}
-	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_VER))
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_VERSION))
 	{
 		g_settings.weather_api_version = WEATHER_API_OPTIONS[weather_api_version].valname;
 		CWeather::getInstance()->updateApi();
