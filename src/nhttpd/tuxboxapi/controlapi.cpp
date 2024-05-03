@@ -774,22 +774,26 @@ void CControlAPI::GetChannelInfoCGI(CyhookHandler *hh)
 	result = hh->outObject("name", hh->outValue(channel->getName()) + "\n");
 
 	CShortEPGData epg;
-	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
+	CSectionsdClient::CurrentNextInfo CurrentNext;
+	CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, CurrentNext);
 
-	if (CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
+	if (CurrentNext.flags & CSectionsdClient::epgflags::has_current)
 	{
-		result += hh->outObject("title", hh->outValue(epg.title) + "\n");
+		result += hh->outObject("epg_now", hh->outValue(CurrentNext.current_name) + "\n");
+		result += hh->outObject("duration", string_printf("%d/", (abs(time(NULL) - CurrentNext.current_zeit.startzeit) + 30) / 60) + string_printf("%d\n", CurrentNext.current_zeit.dauer / 60));
+	}
+	else
+	{
+		result += hh->outObject("epg_now", "\n");
+		result += hh->outObject("duration", "0/0\n");
 	}
 
-	CChannelEvent event;
-	NeutrinoAPI->GetChannelEvents();
-	NeutrinoAPI->GetChannelEvent(channel->getChannelID(), event);
-
-	if (event.eventID)
+	if (CurrentNext.flags & CSectionsdClient::epgflags::has_next)
 	{
-		result += hh->outObject("duration", string_printf("%d/", (time(NULL) - event.startTime) / 60) + string_printf("%d\n", event.duration / 60));
+		result += hh->outObject("epg_next", hh->outValue(CurrentNext.next_name) + "\n");
 	}
+	else
+		result += hh->outObject("epg_next", "\n");
 
 	hh->SendResult(result);
 }
