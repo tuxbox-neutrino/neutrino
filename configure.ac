@@ -197,11 +197,11 @@ AC_ARG_ENABLE(graphlcd,
 AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 
 # weather
-AC_ARG_WITH(weather-dev-key,
-	AS_HELP_STRING([--with-weather-dev-key=KEY], [API dev key to get data from weather data base, required for additional weather informations]),
-	[WEATHER_DEV_KEY="$withval"],
-	[WEATHER_DEV_KEY=""])
-AC_DEFINE_UNQUOTED([WEATHER_DEV_KEY], ["$WEATHER_DEV_KEY"], [API dev key to get data from weather data base, required for additional weather informations])
+AC_ARG_WITH(weather-api-key,
+	AS_HELP_STRING([--with-weather-api-key=KEY], [API key to get data from weather data base, required for additional weather informations]),
+	[WEATHER_API_KEY="$withval"],
+	[WEATHER_API_KEY=""])
+AC_DEFINE_UNQUOTED([WEATHER_API_KEY], ["$WEATHER_API_KEY"], [API key to get data from weather data base, required for additional weather informations])
 
 AC_ARG_WITH(weather-api-version,
 	AS_HELP_STRING([--with-weather-api-version=VERSION], [API version to get data from weather data base, required for additional weather informations]),
@@ -210,12 +210,12 @@ AC_ARG_WITH(weather-api-version,
 AC_DEFINE_UNQUOTED([WEATHER_API_VERSION], ["$WEATHER_API_VERSION"], [API version to get data from weather data base, required for additional weather informations])
 
 AC_ARG_ENABLE([weather-key-manage],
-	AS_HELP_STRING([--enable-weather-key-manage], [enable manage weather api dev key via gui for additional weather informations @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-weather-key-manage], [enable manage weather api key via gui for additional weather informations @<:@default=yes@:>@]),
 	[enable_weather_key_manage="$enableval"],
 	[enable_weather_key_manage="yes"])
 
 if test "$enable_weather_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [enable manage weather api dev key via gui for additional weather informations])
+	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [enable manage weather api key via gui for additional weather informations])
 fi
 # weather end
 

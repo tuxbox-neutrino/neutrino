@@ -1112,7 +1112,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 100);
 
 	// online services
-	g_settings.weather_api_key = WEATHER_DEV_KEY;
+	g_settings.weather_api_key = WEATHER_API_KEY;
 	g_settings.weather_api_version = WEATHER_API_VERSION;
 #if ENABLE_WEATHER_KEY_MANAGE
 	g_settings.weather_api_key = configfile.getString("weather_api_key", g_settings.weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.weather_api_key);
