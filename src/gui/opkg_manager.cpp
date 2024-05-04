@@ -945,7 +945,7 @@ void COPKGManager::pullPkgData()
 		{
 			pkg_map[name].version = line.substr(9);
 			// Save version info for neutrino into file, for usage in other classes
-			if (name == "neutrino-mp")
+			if (name == "neutrino-mp" || name == "neutrino" || name == PACKAGE || name == PACKAGE_NAME || name == PACKAGE_TARNAME)
 			{
 				std::ofstream outfile("/tmp/.neutrino.version");
 				outfile << pkg_map[name].version;
