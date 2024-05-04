@@ -254,19 +254,19 @@ fi
 # omdb end
 
 # shoutcast
-AC_ARG_WITH(shoutcast-dev-key,
-	AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [API dev key to get stream data lists from ShoutCast service]),
-	[SHOUTCAST_DEV_KEY="$withval"],
-	[SHOUTCAST_DEV_KEY=""])
-AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_KEY], ["$SHOUTCAST_DEV_KEY"], [API dev key to get stream data lists from ShoutCast service])
+AC_ARG_WITH(shoutcast-dev-id,
+	AS_HELP_STRING([--with-shoutcast-dev-id=ID], [Developer ID to get stream data lists from ShoutCast API]),
+	[SHOUTCAST_DEV_ID="$withval"],
+	[SHOUTCAST_DEV_ID=""])
+AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [Developer ID to get stream data lists from ShoutCast API])
 
-AC_ARG_ENABLE([shoutcast-key-manage],
-	AS_HELP_STRING([--enable-shoutcast-key-manage], [enable manage of api dev key to get stream data lists from ShoutCast service via gui @<:@default=yes@:>@]),
-	[enable_shoutcast_key_manage="$enableval"],
-	[enable_shoutcast_key_manage="yes"])
+AC_ARG_ENABLE([shoutcast-id-manage],
+	AS_HELP_STRING([--enable-shoutcast-id-manage], [enable manage of dev id to get stream data lists from ShoutCast service via gui @<:@default=yes@:>@]),
+	[enable_shoutcast_id_manage="$enableval"],
+	[enable_shoutcast_id_manage="yes"])
 
-if test "$enable_shoutcast_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_SHOUTCAST_KEY_MANAGE], 1, [enable manage of api dev key to get stream data lists from ShoutCast service via gui])
+if test "$enable_shoutcast_id_manage" = "yes" ; then
+	AC_DEFINE([ENABLE_SHOUTCAST_ID_MANAGE], 1, [enable manage of dev id to get stream data lists from ShoutCast service via gui])
 fi
 # shoutcast end
 

@@ -1146,8 +1146,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.omdb_enabled = configfile.getInt32("omdb_enabled", 1);
 	g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
 
-	g_settings.shoutcast_dev_id = SHOUTCAST_DEV_KEY;
-#if ENABLE_SHOUTCAST_KEY_MANAGE
+	g_settings.shoutcast_dev_id = SHOUTCAST_DEV_ID;
+#if ENABLE_SHOUTCAST_ID_MANAGE
 	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id", g_settings.shoutcast_dev_id.empty() ? "XXXXXXXXXXXXXXXX" : g_settings.shoutcast_dev_id);
 #endif
 	g_settings.shoutcast_enabled = configfile.getInt32("shoutcast_enabled", 1);
@@ -2044,7 +2044,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 #endif
 	configfile.setInt32("omdb_enabled", g_settings.omdb_enabled);
 
-#if ENABLE_SHOUTCAST_KEY_MANAGE
+#if ENABLE_SHOUTCAST_ID_MANAGE
 	configfile.setString("shoutcast_dev_id", g_settings.shoutcast_dev_id);
 #endif
 	configfile.setInt32("shoutcast_enabled", g_settings.shoutcast_enabled);

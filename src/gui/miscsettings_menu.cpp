@@ -683,7 +683,7 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	shoutcast_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SHOUTCAST_ENABLED);
 	ms_oservices->addItem(shoutcast_onoff);
 
-#if ENABLE_SHOUTCAST_KEY_MANAGE
+#if ENABLE_SHOUTCAST_ID_MANAGE
 	changeNotify(LOCALE_SHOUTCAST_DEV_ID, NULL);
 	CKeyboardInput shoutcast_dev_id_input(LOCALE_SHOUTCAST_DEV_ID, &g_settings.shoutcast_dev_id, 16, this);
 	CMenuForwarder *mf_sc = new CMenuForwarder(LOCALE_SHOUTCAST_DEV_ID, true, shoutcast_dev_id_short, &shoutcast_dev_id_input);
