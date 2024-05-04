@@ -87,3 +87,7 @@ local_build_config.h
 
 ### other files that fall out of the build
 src/nhttpd/nhttpd.conf
+
+### IDE-specific settings
+# Visual Studio Code settings
+.vscode/
