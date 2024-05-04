@@ -1809,7 +1809,8 @@ menu.hint_webradio_xml_auto Automatické načítanie všetkých existujúcich s�
 menu.hint_webtv_setup Tu nakonfigurované WebTV kanály budú k dispozícii v štandartnom zozname kanálov
 menu.hint_webtv_xml_auto Automatické načítanie všetkých existujúcich XML súborov zo zložky %s/
 menu.hint_window_size Zoznam kanálov, EPG-Infp a niektoré iné okná sú zmenšené týmto faktorom
-menu.hint_youtube_dev_id Vložte váš YouTube Dev ID. Prázdny vstup zabranuje podpore YouTube
+menu.hint_xmltv_setup Nakonfigurujte súbory XMLTV s údajmi EPG na opis televíznych zoznamov
+menu.hint_youtube_api_key Zadajte vaše YouTube API key. Prázdne zadanie zabranuje podpore YouTube
 menu.hint_youtube_enabled Povolenie alebo zakázanie podpory YouTube
 menu.hint_zap_cycle Pri prepínaní kanálov zotrvať v aktuálnom bukete
 menu.next Ďalej
@@ -2892,7 +2893,13 @@ wizard.welcome_head Vitajte v sprievodcovi nastavení
 wizard.welcome_text NI-Image Informácia:\nVáš prijímač môžete pohodlne ovládať\ns webovým rozhraním pre správu časovača alebo živé vysielanie cez internetový prehliadač.\nPrístupové heslo nie je zatiaľ nastavené!\nNastavte ho za pomoci použitia príkazu "passwd" cez telnet rozhranie\nChcete pokračovať ?\nBlahoželáme k zakúpeniu CST. Nasledujúce \nkroky vás prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme vám veľa radosti s týmto prijímačom!\nĎalší krok ?
 word.from z
 word.in v
-youtube.dev_id YouTube Dev ID
+xmltv.head XMLTV
+xmltv.xml XMLTV súbory
+xmltv.xml.add Pridať
+xmltv.xml.del Odstrániť
+xmltv.xml.enter Zadať
+xmltv.xml.reload Obnoviť
+youtube.api_key YouTube API key
 youtube.enabled YouTube podpora
 zapit.scantype Vyhľadávanie kanálov
 zapit.scantype.all Všetky

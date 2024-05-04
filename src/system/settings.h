@@ -943,7 +943,7 @@ struct SNeutrinoSettings
 	std::string weather_location;
 	std::string weather_postalcode;
 
-	std::string youtube_dev_id;
+	std::string youtube_api_key;
 	int youtube_enabled;
 
 	std::string tmdb_api_key;

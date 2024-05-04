@@ -244,12 +244,12 @@ AC_ARG_WITH(omdb-api-key,
 AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service])
 
 AC_ARG_ENABLE([omdb-key-manage],
-	AS_HELP_STRING([--enable-omdb-key-manage], [enable manage omdb (imdb) api dev key via gui for additional movie informations @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-omdb-key-manage], [enable manage omdb (imdb) api key via gui for additional movie informations @<:@default=yes@:>@]),
 	[enable_omdb_key_manage="$enableval"],
 	[enable_omdb_key_manage="yes"])
 
 if test "$enable_omdb_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [enable manage omdb (imdb) api dev key via gui for additional movie informations])
+	AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [enable manage omdb (imdb) api key via gui for additional movie informations])
 fi
 # omdb end
 
@@ -271,19 +271,19 @@ fi
 # shoutcast end
 
 # youtube
-AC_ARG_WITH(youtube-dev-key,
-	AS_HELP_STRING([--with-youtube-dev-key=KEY], [API dev key for YouTube streaming]),
-	[YOUTUBE_DEV_KEY="$withval"],
-	[YOUTUBE_DEV_KEY=""])
-AC_DEFINE_UNQUOTED([YOUTUBE_DEV_KEY], ["$YOUTUBE_DEV_KEY"], [API dev key for YouTube streaming])
+AC_ARG_WITH(youtube-api-key,
+	AS_HELP_STRING([--with-youtube-api-key=KEY], [API key for YouTube streaming]),
+	[YOUTUBE_API_KEY="$withval"],
+	[YOUTUBE_API_KEY=""])
+AC_DEFINE_UNQUOTED([YOUTUBE_API_KEY], ["$YOUTUBE_API_KEY"], [API key for YouTube streaming])
 
 AC_ARG_ENABLE([youtube-key-manage],
-	AS_HELP_STRING([--enable-youtube-key-manage], [enable manage YouTube dev key via gui @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-youtube-key-manage], [enable manage YouTube api key via gui @<:@default=yes@:>@]),
 	[enable_youtube_key_manage="$enableval"],
 	[enable_youtube_key_manage="yes"])
 
 if test "$enable_youtube_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [enable manage YouTube dev key via gui])
+	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [enable manage YouTube api key via gui])
 fi
 # youtube end
 

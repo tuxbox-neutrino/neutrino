@@ -70,7 +70,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 
 		std::string tmdb_api_key_short;
 		std::string omdb_api_key_short;
-		std::string youtube_dev_id_short;
+		std::string youtube_api_key_short;
 		std::string shoutcast_dev_id_short;
 
 		int showMiscSettingsMenu();

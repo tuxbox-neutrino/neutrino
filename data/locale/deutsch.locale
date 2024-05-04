@@ -1837,7 +1837,7 @@ menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalve
 menu.hint_webtv_xml_auto Lädt automatisch alle WebTV-Dateien aus %s/ und %s/
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_xmltv_setup Hier konfigurieren Sie XMLTV-Dateien, die EPG-Daten enthalten
-menu.hint_youtube_dev_id Geben Sie die YouTube Dev ID ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
+menu.hint_youtube_api_key Geben Sie den YouTube API Schlüssel ein. Eine leere Eingabe schaltet die YouTube-Unterstützung aus
 menu.hint_youtube_enabled Schaltet die YouTube-Unterstützung (für Plugins) ein oder aus
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter
@@ -2970,7 +2970,7 @@ xmltv.xml.add Hinzufügen
 xmltv.xml.del Entfernen
 xmltv.xml.enter Eintragen
 xmltv.xml.reload Neu laden
-youtube.dev_id YouTube Dev ID
+youtube.api_key YouTube API Schlüssel
 youtube.enabled YouTube-Unterstützung (für Plugins)
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services

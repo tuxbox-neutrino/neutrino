@@ -694,15 +694,15 @@ int CMiscMenue::showMiscSettingsMenuOnlineServices()
 	ms_oservices->addItem(GenericMenuSeparator);
 
 	// youtube
-	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_dev_id());
+	youtube_onoff = new CMenuOptionChooser(LOCALE_YOUTUBE_ENABLED, &g_settings.youtube_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, CApiKey::check_youtube_api_key());
 	youtube_onoff->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_ENABLED);
 	ms_oservices->addItem(youtube_onoff);
 
 #if ENABLE_YOUTUBE_KEY_MANAGE
-	changeNotify(LOCALE_YOUTUBE_DEV_ID, NULL);
-	CKeyboardInput youtube_dev_id_input(LOCALE_YOUTUBE_DEV_ID, &g_settings.youtube_dev_id, 39, this);
-	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_DEV_ID, true, youtube_dev_id_short, &youtube_dev_id_input);
-	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_DEV_ID);
+	changeNotify(LOCALE_YOUTUBE_API_KEY, NULL);
+	CKeyboardInput youtube_api_key_input(LOCALE_YOUTUBE_API_KEY, &g_settings.youtube_api_key, 39, this);
+	CMenuForwarder *mf_yt = new CMenuForwarder(LOCALE_YOUTUBE_API_KEY, true, youtube_api_key_short, &youtube_api_key_input);
+	mf_yt->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_YOUTUBE_API_KEY);
 	ms_oservices->addItem(mf_yt);
 #endif
 
@@ -878,14 +878,14 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void */*data*/
 			shoutcast_dev_id_short.clear();
 		shoutcast_onoff->setActive(CApiKey::check_shoutcast_dev_id());
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_DEV_ID))
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_YOUTUBE_API_KEY))
 	{
-		g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
+		g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_api_key();
 		if (g_settings.youtube_enabled)
-			youtube_dev_id_short = g_settings.youtube_dev_id.substr(0, 8) + "...";
+			youtube_api_key_short = g_settings.youtube_api_key.substr(0, 8) + "...";
 		else
-			youtube_dev_id_short.clear();
-		youtube_onoff->setActive(CApiKey::check_youtube_dev_id());
+			youtube_api_key_short.clear();
+		youtube_onoff->setActive(CApiKey::check_youtube_api_key());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_STREAMING_PORT))
 	{
