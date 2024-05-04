@@ -198,92 +198,92 @@ AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 
 # weather
 AC_ARG_WITH(weather-api-key,
-	AS_HELP_STRING([--with-weather-api-key=KEY], [API key to get data from weather data base, required for additional weather informations]),
+	AS_HELP_STRING([--with-weather-api-key=KEY], [OpenWeather API key, required for additional weather informations]),
 	[WEATHER_API_KEY="$withval"],
 	[WEATHER_API_KEY=""])
-AC_DEFINE_UNQUOTED([WEATHER_API_KEY], ["$WEATHER_API_KEY"], [API key to get data from weather data base, required for additional weather informations])
+AC_DEFINE_UNQUOTED([WEATHER_API_KEY], ["$WEATHER_API_KEY"], [OpenWeather API key, required for additional weather informations])
 
 AC_ARG_WITH(weather-api-version,
-	AS_HELP_STRING([--with-weather-api-version=VERSION], [API version to get data from weather data base, required for additional weather informations]),
+	AS_HELP_STRING([--with-weather-api-version=VERSION], [OpenWeather API version]),
 	[WEATHER_API_VERSION="$withval"],
 	[WEATHER_API_VERSION=""])
-AC_DEFINE_UNQUOTED([WEATHER_API_VERSION], ["$WEATHER_API_VERSION"], [API version to get data from weather data base, required for additional weather informations])
+AC_DEFINE_UNQUOTED([WEATHER_API_VERSION], ["$WEATHER_API_VERSION"], [OpenWeather API version])
 
 AC_ARG_ENABLE([weather-key-manage],
-	AS_HELP_STRING([--enable-weather-key-manage], [enable manage weather api key via gui for additional weather informations @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-weather-key-manage], [enable manage OpenWeather API key via gui @<:@default=yes@:>@]),
 	[enable_weather_key_manage="$enableval"],
 	[enable_weather_key_manage="yes"])
 
 if test "$enable_weather_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [enable manage weather api key via gui for additional weather informations])
+	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [enable manage OpenWeather API key via gui])
 fi
 # weather end
 
 # tmdb
 AC_ARG_WITH(tmdb-api-key,
-	AS_HELP_STRING([--with-tmdb-api-key=KEY], [API key to get data from tmdb data base, required for additional movie informations]),
+	AS_HELP_STRING([--with-tmdb-api-key=KEY], [TMDb API key, required for additional movie informations]),
 	[TMDB_API_KEY="$withval"],
 	[TMDB_API_KEY=""])
-AC_DEFINE_UNQUOTED([TMDB_API_KEY], ["$TMDB_API_KEY"], [API key to get data from tmdb data base, required for additional movie informations])
+AC_DEFINE_UNQUOTED([TMDB_API_KEY], ["$TMDB_API_KEY"], [TMDb API key, required for additional movie informations])
 
 AC_ARG_ENABLE([tmdb-key-manage],
-	AS_HELP_STRING([--enable-tmdb-key-manage], [enable manage tmdb api key via gui for additional movie informations @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-tmdb-key-manage], [enable manage TMDb API key via gui @<:@default=yes@:>@]),
 	[enable_tmdb_key_manage="$enableval"],
 	[enable_tmdb_key_manage="yes"])
 
 if test "$enable_tmdb_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_TMDB_KEY_MANAGE], 1, [enable manage tmdb api key via gui for additional movie informations])
+	AC_DEFINE([ENABLE_TMDB_KEY_MANAGE], 1, [enable manage TMDb API key via gui])
 fi
 # tmdb end
 
 # omdb
 AC_ARG_WITH(omdb-api-key,
-	AS_HELP_STRING([--with-omdb-api-key=KEY], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service]),
+	AS_HELP_STRING([--with-omdb-api-key=KEY], [OMDb API key, required for additional IMDb movie informations]),
 	[OMDB_API_KEY="$withval"],
 	[OMDB_API_KEY=""])
-AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [API key to get additional epg data from omdb database at http://www.omdbapi.com, this database gets data from imdb service])
+AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [OMDb API key, required for additional IMDb movie informations])
 
 AC_ARG_ENABLE([omdb-key-manage],
-	AS_HELP_STRING([--enable-omdb-key-manage], [enable manage omdb (imdb) api key via gui for additional movie informations @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-omdb-key-manage], [enable manage OMDb API key via gui @<:@default=yes@:>@]),
 	[enable_omdb_key_manage="$enableval"],
 	[enable_omdb_key_manage="yes"])
 
 if test "$enable_omdb_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [enable manage omdb (imdb) api key via gui for additional movie informations])
+	AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [enable manage OMDb API key via gui])
 fi
 # omdb end
 
 # shoutcast
 AC_ARG_WITH(shoutcast-dev-id,
-	AS_HELP_STRING([--with-shoutcast-dev-id=ID], [Developer ID to get stream data lists from ShoutCast API]),
+	AS_HELP_STRING([--with-shoutcast-dev-id=ID], [ShoutCast Developer ID to get stream data lists]),
 	[SHOUTCAST_DEV_ID="$withval"],
 	[SHOUTCAST_DEV_ID=""])
-AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [Developer ID to get stream data lists from ShoutCast API])
+AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [ShoutCast Developer ID to get stream data lists])
 
 AC_ARG_ENABLE([shoutcast-id-manage],
-	AS_HELP_STRING([--enable-shoutcast-id-manage], [enable manage of dev id to get stream data lists from ShoutCast service via gui @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-shoutcast-id-manage], [enable manage of ShoutCast Developer ID via gui @<:@default=yes@:>@]),
 	[enable_shoutcast_id_manage="$enableval"],
 	[enable_shoutcast_id_manage="yes"])
 
 if test "$enable_shoutcast_id_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_SHOUTCAST_ID_MANAGE], 1, [enable manage of dev id to get stream data lists from ShoutCast service via gui])
+	AC_DEFINE([ENABLE_SHOUTCAST_ID_MANAGE], 1, [enable manage of ShoutCast Developer ID via gui])
 fi
 # shoutcast end
 
 # youtube
 AC_ARG_WITH(youtube-api-key,
-	AS_HELP_STRING([--with-youtube-api-key=KEY], [API key for YouTube streaming]),
+	AS_HELP_STRING([--with-youtube-api-key=KEY], [YouTube API key for streaming]),
 	[YOUTUBE_API_KEY="$withval"],
 	[YOUTUBE_API_KEY=""])
-AC_DEFINE_UNQUOTED([YOUTUBE_API_KEY], ["$YOUTUBE_API_KEY"], [API key for YouTube streaming])
+AC_DEFINE_UNQUOTED([YOUTUBE_API_KEY], ["$YOUTUBE_API_KEY"], [YouTube API key for streaming])
 
 AC_ARG_ENABLE([youtube-key-manage],
-	AS_HELP_STRING([--enable-youtube-key-manage], [enable manage YouTube api key via gui @<:@default=yes@:>@]),
+	AS_HELP_STRING([--enable-youtube-key-manage], [enable manage YouTube API key via gui @<:@default=yes@:>@]),
 	[enable_youtube_key_manage="$enableval"],
 	[enable_youtube_key_manage="yes"])
 
 if test "$enable_youtube_key_manage" = "yes" ; then
-	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [enable manage YouTube api key via gui])
+	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [enable manage YouTube API key via gui])
 fi
 # youtube end
 
