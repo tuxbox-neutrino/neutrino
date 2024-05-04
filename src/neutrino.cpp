@@ -1132,7 +1132,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
 	g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_dev_id();
 
-	g_settings.tmdb_api_key = TMDB_DEV_KEY;
+	g_settings.tmdb_api_key = TMDB_API_KEY;
 #if ENABLE_TMDB_KEY_MANAGE
 	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key", g_settings.tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.tmdb_api_key);
 #endif
