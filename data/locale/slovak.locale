@@ -1734,10 +1734,10 @@ menu.hint_selected_text Zmena farby textu označenej položky
 menu.hint_service Nastavenie tuneru, vyhľadanie služieb,\núprava buketov, aktualizácia software
 menu.hint_service_scan Automatické / manuálne vyhľadávanie staníc, FastScan, Test signálu
 menu.hint_settings Konfigurácia Neutrino-HD, sieť, zvuk, obraz, OSD a iné
-menu.hint_shoutcast_dev_id Vloženie vášho SHOUTcast Dev ID. Prázdny vstup zabranuje podpore SHOUTcast
-menu.hint_shoutcast_enabled Povolenie alebo zakázanie podpory SHOUTcast
-menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosťi bude 0
-menu.hint_shutdown Vypnutie prijímača - bez potvrdzovania
+menu.hint_shoutcast_dev_id Zadajte vaše SHOUTcast Developer ID. Prázdne zadanie zabranuje podpore SHOUTcast-u
+menu.hint_shoutcast_enabled Povolenie alebo zakázanie podpory SHOUTcast-u
+menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosti bude 0
+menu.hint_shutdown Vypnutie zariadenia - bez potvrdzovania
 menu.hint_shutdown_count Čas prepnutia prijímača z pohotovostného režimu do stavu vypnutia
 menu.hint_shutdown_rcdelay Aktivuje vypnutie prijímača, ak je tlačidlo zapnutia\nstlačené viac ako 1 sekundu
 menu.hint_shutdown_real Aktivuje pohotovostný režim\nAk je zakázané, tlačidlo zapnutia vypne prístroj
@@ -2637,7 +2637,7 @@ settings.pos_top_left vľavo hore
 settings.pos_top_right vpravo hore
 settings.restore NI-Záloha: Obnovenie nastavení
 settings.restore_warn Všetky nastavenia budú nahradené a vykoná sa reštart.\nPokračovať?
-shoutcast.dev_id SHOUTcast Dev ID
+shoutcast.dev_id SHOUTcast Developer ID
 shoutcast.enabled SHOUTcast podpora
 shutdown.recording_query Skutočne prerušiť nahrávanie?
 shutdowntimer.announce Vypnutie boxu za minútu.\nZrušiť vypnutie?

@@ -1753,7 +1753,7 @@ menu.hint_selected_text Ändern Sie die Textfarbe für ausgewählte Fensterinhal
 menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung usw.
 menu.hint_service_scan Automatischer und manueller Service Suchlauf
 menu.hint_settings Konfigurieren des Systems,\nNetzwerk, Video, Audio, OSD usw.
-menu.hint_shoutcast_dev_id Geben Sie die SHOUTcast Dev ID ein. Eine leere Eingabe schaltet die SHOUTcast-Unterstützung aus
+menu.hint_shoutcast_dev_id Geben Sie die SHOUTcast Developer ID ein. Eine leere Eingabe schaltet die SHOUTcast-Unterstützung aus
 menu.hint_shoutcast_enabled Schaltet die SHOUTcast-Unterstützung ein oder aus
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
@@ -2667,7 +2667,7 @@ settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 settings.restore System-Einstellungen wiederherstellen
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
-shoutcast.dev_id SHOUTcast Dev ID
+shoutcast.dev_id SHOUTcast Developer ID
 shoutcast.enabled SHOUTcast-Unterstützung
 shutdown.recording_query Aufnahme läuft. Trotzdem beenden?
 shutdown.timeshift_query Timeshift läuft. Trotzdem beenden?

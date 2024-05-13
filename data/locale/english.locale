@@ -1752,8 +1752,8 @@ menu.hint_selected_back Change selected item background color
 menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
 menu.hint_service_scan Auto and manual service scan
-menu.hint_settings Configure System\nNetwork, audio, video, OSD and more
-menu.hint_shoutcast_dev_id Type your SHOUTcast Dev ID. An empty input disables SHOUTcast support
+menu.hint_settings Configure System\nNetwork, audio, video, OSD etc.
+menu.hint_shoutcast_dev_id Type your SHOUTcast Developer ID. An empty input disables SHOUTcast support
 menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep-standby mode\nNo confirmation
@@ -2667,7 +2667,7 @@ settings.pos_top_left top left
 settings.pos_top_right top right
 settings.restore Restore system settings
 settings.restore_warn This will replace all settings and reboot\nContinue ?
-shoutcast.dev_id SHOUTcast Dev ID
+shoutcast.dev_id SHOUTcast Developer ID
 shoutcast.enabled SHOUTcast support
 shutdown.recording_query You really want to to stop record ?
 shutdown.timeshift_query You really want to to stop timeshift ?
