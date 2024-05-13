@@ -226,12 +226,12 @@ AC_MSG_RESULT([$result_msg])
 if test -n "$warning_msg"; then
     AC_MSG_WARN([$warning_msg])
 fi
-AC_DEFINE_UNQUOTED([WEATHER_API_KEY], ["$WEATHER_API_KEY"], [API key used for weather information])
+AC_DEFINE_UNQUOTED([WEATHER_API_KEY], ["$WEATHER_API_KEY"], [OpenWeather API key])
 
 # Configuration for used OpenWeather API version
 AC_MSG_CHECKING([for OpenWeather API version])
 AC_ARG_WITH([weather-api-version],
-    AS_HELP_STRING([--with-weather-api-version=VERSION], [Specify the version of the OpenWeather API to use]),
+    AS_HELP_STRING([--with-weather-api-version=VERSION], [Specify the OpenWeather API version]),
     [WEATHER_API_VERSION="$withval"],
     [WEATHER_API_VERSION=""])
 if test -z "$WEATHER_API_VERSION"; then
@@ -239,7 +239,7 @@ if test -z "$WEATHER_API_VERSION"; then
 else
     AC_MSG_RESULT([yes $WEATHER_API_VERSION])
 fi
-AC_DEFINE_UNQUOTED([WEATHER_API_VERSION], ["$WEATHER_API_VERSION"], [OpenWeather API key version used])
+AC_DEFINE_UNQUOTED([WEATHER_API_VERSION], ["$WEATHER_API_VERSION"], [OpenWeather API version])
 
 # Handle optional GUI managed OpenWeather API key
 AC_ARG_ENABLE([weather-key-manage],
@@ -283,9 +283,9 @@ if test -n "$warning_msg"; then
     AC_MSG_WARN([$warning_msg])
 fi
 
-AC_DEFINE_UNQUOTED([TMDB_API_KEY], ["$TMDB_API_KEY"], [API key used for TMDB services])
+AC_DEFINE_UNQUOTED([TMDB_API_KEY], ["$TMDB_API_KEY"], [TMDB API key])
 
-# Handle optional GUI managed TMDB API key
+# Handle optional GUI managed TMDb API key
 AC_ARG_ENABLE([tmdb-key-manage],
     AS_HELP_STRING([--enable-tmdb-key-manage], [Enable management of the TMDb API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
     [enable_tmdb_key_manage="$enableval"],
@@ -314,7 +314,7 @@ else
 fi
 AC_MSG_RESULT([$result_msg])
 
-AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [API key used for OMDb services])
+AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [OMDb API key])
 
 # Handle optional GUI managed OMDb API key
 AC_ARG_ENABLE([omdb-key-manage],
@@ -359,7 +359,7 @@ if test -n "$warning_msg"; then
     AC_MSG_WARN([$warning_msg])
 fi
 
-AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [Developer ID used for Shoutcast services])
+AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [Shoutcast Developer ID])
 
 # Handle optional GUI managed Shoutcast Developer ID
 AC_ARG_ENABLE([shoutcast-id-manage],
@@ -410,7 +410,7 @@ if test -n "$warning_msg"; then
     AC_MSG_WARN([$warning_msg])
 fi
 
-AC_DEFINE_UNQUOTED([YOUTUBE_API_KEY], ["$YOUTUBE_API_KEY"], [API key used for YouTube streaming])
+AC_DEFINE_UNQUOTED([YOUTUBE_API_KEY], ["$YOUTUBE_API_KEY"], [YouTube API key])
 
 # Handle optional GUI managed YouTube API key
 AC_ARG_ENABLE([youtube-key-manage],
