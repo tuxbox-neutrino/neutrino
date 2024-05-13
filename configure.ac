@@ -327,28 +327,28 @@ if test "$enable_omdb_key_manage" = "yes"; then
 fi
 ## END: OMDb API key
 
-## Shoutcast API key
-# Check and configure the Shoutcast API key
-AC_MSG_CHECKING([for Shoutcast API key])
-AC_ARG_WITH([shoutcast-api-key],
-    AS_HELP_STRING([--with-shoutcast-api-key=KEY], [Specify the Shoutcast API key for accessing streaming service information]),
+## Shoutcast Developer ID
+# Check and configure the Shoutcast Developer ID
+AC_MSG_CHECKING([for Shoutcast Develper ID])
+AC_ARG_WITH([shoutcast-dev-id],
+    AS_HELP_STRING([--with-shoutcast-dev-id=ID], [Specify the Shoutcast Developer ID for accessing streaming service information]),
     [SHOUTCAST_DEV_ID="$withval"],
     [SHOUTCAST_DEV_ID=""])
 
-# Fallback for deprecated Shoutcast API key option string, if obsolete option is specified.
+# Fallback for deprecated Shoutcast Dev key option string, if obsolete option is specified.
 warning_msg=""
 AC_ARG_WITH([shoutcast-dev-key],
-    AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [DEPRECATED: Legacy API dev key, it's obsolete, use --with-shoutcast-api-key instead]),
+    AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [DEPRECATED: Legacy API dev key, it's obsolete, use --with-shoutcast-dev-id instead]),
     [if test -z "$SHOUTCAST_DEV_ID"; then
         SHOUTCAST_DEV_ID="$withval"
-        warning_msg="Using deprecated option --with-shoutcast-dev-key. Please switch to --with-shoutcast-api-key."
+        warning_msg="Using deprecated option --with-shoutcast-dev-key. Please switch to --with-shoutcast-dev-id."
     fi])
 
-# Output the result of the Shoutcast API key check
+# Output the result of the Shoutcast Developer ID check
 if test -z "$SHOUTCAST_DEV_ID"; then
     result_msg="no"
 else
-    # Display shortened and masked Shoutcast API key
+    # Display shortened and masked Shoutcast Developer ID
     discrete_key=`echo $SHOUTCAST_DEV_ID | cut -c1-7`
     result_msg="yes [$discrete_key***]"
 fi
@@ -359,14 +359,14 @@ if test -n "$warning_msg"; then
     AC_MSG_WARN([$warning_msg])
 fi
 
-AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [API key used for Shoutcast services])
+AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [Developer ID used for Shoutcast services])
 
-# Handle optional GUI managed Shoutcast API key
+# Handle optional GUI managed Shoutcast Developer ID
 AC_ARG_ENABLE([shoutcast-id-manage],
-    AS_HELP_STRING([--enable-shoutcast-id-manage], [Enable management of the Shoutcast ID via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the ID to users!]),
+    AS_HELP_STRING([--enable-shoutcast-id-manage], [Enable management of the Shoutcast Developer ID via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the ID to users!]),
     [enable_shoutcast_id_manage="$enableval"],
     [enable_shoutcast_id_manage="no"])
-# Fallback for deprecated Shoutcast API key GUI management option, if present
+# Fallback for deprecated Shoutcast Dev key GUI management option, if present
 AC_ARG_ENABLE([shoutcast-key-manage],
     AS_HELP_STRING([--enable-shoutcast-key-manage], [DEPRECATED: Use --enable-shoutcast-id-manage instead]),
     [AC_MSG_WARN([Using deprecated option --enable-shoutcast-key-manage. Please switch to --enable-shoutcast-id-manage.])
@@ -374,10 +374,10 @@ AC_ARG_ENABLE([shoutcast-key-manage],
     [])
 
 if test "$enable_shoutcast_id_manage" = "yes"; then
-    AC_DEFINE([ENABLE_SHOUTCAST_ID_MANAGE], 1, [Enable management of the Shoutcast ID via GUI])
-    AC_MSG_WARN([Warning: Enabling GUI management for the Shoutcast ID is enabled. This may expose the ID to users!])
+    AC_DEFINE([ENABLE_SHOUTCAST_ID_MANAGE], 1, [Enable management of the Shoutcast Developer ID via GUI])
+    AC_MSG_WARN([Warning: Enabling GUI management for the Shoutcast Developer ID is enabled. This may expose the ID to users!])
 fi
-# END: Shoutcast API key
+# END: Shoutcast Developer ID
 
 ## YouTube API key
 # Check and configure the YouTube API key
