@@ -200,54 +200,54 @@ AM_CONDITIONAL(ENABLE_GRAPHLCD, test "$enable_graphlcd" = "yes")
 # Check and configure the OpenWeather API key
 AC_MSG_CHECKING([for OpenWeather API key])
 AC_ARG_WITH([weather-api-key],
-    AS_HELP_STRING([--with-weather-api-key=KEY], [Specify the OpenWeather API key for accessing weather information]),
-    [WEATHER_API_KEY="$withval"],
-    [WEATHER_API_KEY=""])
+	AS_HELP_STRING([--with-weather-api-key=KEY], [Specify the OpenWeather API key for accessing weather information]),
+	[WEATHER_API_KEY="$withval"],
+	[WEATHER_API_KEY=""])
 # Fallback to deprecated developer OpenWeather API key option string, if obsolete option is specified.
 warning_msg=""
 AC_ARG_WITH([weather-dev-key],
-    AS_HELP_STRING([--with-weather-dev-key=KEY], [DEPRECATED: Legacy API key for accessing weather information]),
-    [if test -z "$WEATHER_API_KEY"; then
-        WEATHER_API_KEY="$withval"
-        warning_msg="Using deprecated option --with-weather-dev-key. Please switch to --with-weather-api-key."
-    fi])
+	AS_HELP_STRING([--with-weather-dev-key=KEY], [DEPRECATED: Legacy API key for accessing weather information]),
+	[if test -z "$WEATHER_API_KEY"; then
+		WEATHER_API_KEY="$withval"
+		warning_msg="Using deprecated option --with-weather-dev-key. Please switch to --with-weather-api-key."
+	fi])
 
 # Output the result of the OpenWeather API key check
 if test -z "$WEATHER_API_KEY"; then
-    result_msg="no"
+	result_msg="no"
 else
-    # Display shortened and masked OpenWeather API key
-    discrete_key=`echo $WEATHER_API_KEY | cut -c1-7`
-    result_msg="yes [$discrete_key***]"
+	# Display shortened and masked OpenWeather API key
+	discrete_key=`echo $WEATHER_API_KEY | cut -c1-7`
+	result_msg="yes [$discrete_key***]"
 fi
 AC_MSG_RESULT([$result_msg])
 
 # Output the warning separately if present
 if test -n "$warning_msg"; then
-    AC_MSG_WARN([$warning_msg])
+	AC_MSG_WARN([$warning_msg])
 fi
 AC_DEFINE_UNQUOTED([WEATHER_API_KEY], ["$WEATHER_API_KEY"], [OpenWeather API key])
 
 # Configuration for used OpenWeather API version
 AC_MSG_CHECKING([for OpenWeather API version])
 AC_ARG_WITH([weather-api-version],
-    AS_HELP_STRING([--with-weather-api-version=VERSION], [Specify the OpenWeather API version]),
-    [WEATHER_API_VERSION="$withval"],
-    [WEATHER_API_VERSION=""])
+	AS_HELP_STRING([--with-weather-api-version=VERSION], [Specify the OpenWeather API version]),
+	[WEATHER_API_VERSION="$withval"],
+	[WEATHER_API_VERSION=""])
 if test -z "$WEATHER_API_VERSION"; then
-    AC_MSG_RESULT([no])
+	AC_MSG_RESULT([no])
 else
-    AC_MSG_RESULT([yes $WEATHER_API_VERSION])
+	AC_MSG_RESULT([yes $WEATHER_API_VERSION])
 fi
 AC_DEFINE_UNQUOTED([WEATHER_API_VERSION], ["$WEATHER_API_VERSION"], [OpenWeather API version])
 
 # Handle optional GUI managed OpenWeather API key
 AC_ARG_ENABLE([weather-key-manage],
-    AS_HELP_STRING([--enable-weather-key-manage], [Enable management of the OpenWeather API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
-    [enable_weather_key_manage="$enableval"],
-    [enable_weather_key_manage="no"])
+	AS_HELP_STRING([--enable-weather-key-manage], [Enable management of the OpenWeather API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
+	[enable_weather_key_manage="$enableval"],
+	[enable_weather_key_manage="no"])
 if test "$enable_weather_key_manage" = "yes"; then
-    AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [Enable management of the OpenWeather API key via GUI])
+	AC_DEFINE([ENABLE_WEATHER_KEY_MANAGE], 1, [Enable management of the OpenWeather API key via GUI])
 	AC_MSG_WARN([Warning: Enabling GUI management for OpenWeather API key is enabled. This may expose the key to users!])
 fi
 ## END: OpenWeather API key
@@ -256,43 +256,43 @@ fi
 # Check and configure the TMDb API key
 AC_MSG_CHECKING([for TMDb API key])
 AC_ARG_WITH([tmdb-api-key],
-    AS_HELP_STRING([--with-tmdb-api-key=KEY], [Specify the TMDb API key for accessing movie information]),
-    [TMDB_API_KEY="$withval"],
-    [TMDB_API_KEY=""])
+	AS_HELP_STRING([--with-tmdb-api-key=KEY], [Specify the TMDb API key for accessing movie information]),
+	[TMDB_API_KEY="$withval"],
+	[TMDB_API_KEY=""])
 # Fallback to deprecated TMDb API key option string, if obsolete option is specified.
 warning_msg=""
 AC_ARG_WITH([tmdb-dev-key],
-    AS_HELP_STRING([--with-tmdb-dev-key=KEY], [DEPRECATED: Legacy API dev key, it's obsolete, use --with-tmdb-api-key=KEY]),
-    [if test -z "$TMDB_API_KEY"; then
-        TMDB_API_KEY="$withval"
-        warning_msg="Using deprecated option --with-tmdb-dev-key. Please switch to --with-tmdb-api-key."
-    fi])
+	AS_HELP_STRING([--with-tmdb-dev-key=KEY], [DEPRECATED: Legacy API dev key, it's obsolete, use --with-tmdb-api-key=KEY]),
+	[if test -z "$TMDB_API_KEY"; then
+		TMDB_API_KEY="$withval"
+		warning_msg="Using deprecated option --with-tmdb-dev-key. Please switch to --with-tmdb-api-key."
+	fi])
 
 # Output the result of the TMDb API key check
 if test -z "$TMDB_API_KEY"; then
-    result_msg="no"
+	result_msg="no"
 else
-    # Display shortened and masked TMDb API key
-    discrete_key=`echo $TMDB_API_KEY | cut -c1-7`
-    result_msg="yes [$discrete_key***]"
+	# Display shortened and masked TMDb API key
+	discrete_key=`echo $TMDB_API_KEY | cut -c1-7`
+	result_msg="yes [$discrete_key***]"
 fi
 AC_MSG_RESULT([$result_msg])
 
 # Output the warning separately if present
 if test -n "$warning_msg"; then
-    AC_MSG_WARN([$warning_msg])
+	AC_MSG_WARN([$warning_msg])
 fi
 
 AC_DEFINE_UNQUOTED([TMDB_API_KEY], ["$TMDB_API_KEY"], [TMDB API key])
 
 # Handle optional GUI managed TMDb API key
 AC_ARG_ENABLE([tmdb-key-manage],
-    AS_HELP_STRING([--enable-tmdb-key-manage], [Enable management of the TMDb API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
-    [enable_tmdb_key_manage="$enableval"],
-    [enable_tmdb_key_manage="no"])
+	AS_HELP_STRING([--enable-tmdb-key-manage], [Enable management of the TMDb API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
+	[enable_tmdb_key_manage="$enableval"],
+	[enable_tmdb_key_manage="no"])
 if test "$enable_tmdb_key_manage" = "yes"; then
-    AC_DEFINE([ENABLE_TMDB_KEY_MANAGE], 1, [Enable management of the TMDb API key via GUI])
-    AC_MSG_WARN([Warning: Enabling GUI management for the TMDb API key is enabled. This may expose the key to users!])
+	AC_DEFINE([ENABLE_TMDB_KEY_MANAGE], 1, [Enable management of the TMDb API key via GUI])
+	AC_MSG_WARN([Warning: Enabling GUI management for the TMDb API key is enabled. This may expose the key to users!])
 fi
 ## END: TMDb API key
 
@@ -300,17 +300,17 @@ fi
 # Check and configure the OMDb API key
 AC_MSG_CHECKING([for OMDb API key])
 AC_ARG_WITH([omdb-api-key],
-    AS_HELP_STRING([--with-omdb-api-key=KEY], [Specify the OMDb API key for accessing IMDb movie information]),
-    [OMDB_API_KEY="$withval"],
-    [OMDB_API_KEY=""])
+	AS_HELP_STRING([--with-omdb-api-key=KEY], [Specify the OMDb API key for accessing IMDb movie information]),
+	[OMDB_API_KEY="$withval"],
+	[OMDB_API_KEY=""])
 
 # Output the result of the OMDb API key check
 if test -z "$OMDB_API_KEY"; then
-    result_msg="no"
+	result_msg="no"
 else
-    # Display shortened and masked OMDb API key
-    discrete_key=`echo $OMDB_API_KEY | cut -c1-7`
-    result_msg="yes [$discrete_key***]"
+	# Display shortened and masked OMDb API key
+	discrete_key=`echo $OMDB_API_KEY | cut -c1-7`
+	result_msg="yes [$discrete_key***]"
 fi
 AC_MSG_RESULT([$result_msg])
 
@@ -318,12 +318,12 @@ AC_DEFINE_UNQUOTED([OMDB_API_KEY], ["$OMDB_API_KEY"], [OMDb API key])
 
 # Handle optional GUI managed OMDb API key
 AC_ARG_ENABLE([omdb-key-manage],
-    AS_HELP_STRING([--enable-omdb-key-manage], [Enable management of the OMDb API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
-    [enable_omdb_key_manage="$enableval"],
-    [enable_omdb_key_manage="no"])
+	AS_HELP_STRING([--enable-omdb-key-manage], [Enable management of the OMDb API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
+	[enable_omdb_key_manage="$enableval"],
+	[enable_omdb_key_manage="no"])
 if test "$enable_omdb_key_manage" = "yes"; then
-    AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [Enable management of the OMDb API key via GUI])
-    AC_MSG_WARN([Warning: Enabling GUI management for the OMDb API key is enabled. This may expose the key to users!])
+	AC_DEFINE([ENABLE_OMDB_KEY_MANAGE], 1, [Enable management of the OMDb API key via GUI])
+	AC_MSG_WARN([Warning: Enabling GUI management for the OMDb API key is enabled. This may expose the key to users!])
 fi
 ## END: OMDb API key
 
@@ -331,51 +331,51 @@ fi
 # Check and configure the Shoutcast Developer ID
 AC_MSG_CHECKING([for Shoutcast Develper ID])
 AC_ARG_WITH([shoutcast-dev-id],
-    AS_HELP_STRING([--with-shoutcast-dev-id=ID], [Specify the Shoutcast Developer ID for accessing streaming service information]),
-    [SHOUTCAST_DEV_ID="$withval"],
-    [SHOUTCAST_DEV_ID=""])
+	AS_HELP_STRING([--with-shoutcast-dev-id=ID], [Specify the Shoutcast Developer ID for accessing streaming service information]),
+	[SHOUTCAST_DEV_ID="$withval"],
+	[SHOUTCAST_DEV_ID=""])
 
 # Fallback for deprecated Shoutcast Dev key option string, if obsolete option is specified.
 warning_msg=""
 AC_ARG_WITH([shoutcast-dev-key],
-    AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [DEPRECATED: Legacy API dev key, it's obsolete, use --with-shoutcast-dev-id instead]),
-    [if test -z "$SHOUTCAST_DEV_ID"; then
-        SHOUTCAST_DEV_ID="$withval"
-        warning_msg="Using deprecated option --with-shoutcast-dev-key. Please switch to --with-shoutcast-dev-id."
-    fi])
+	AS_HELP_STRING([--with-shoutcast-dev-key=KEY], [DEPRECATED: Legacy API dev key, it's obsolete, use --with-shoutcast-dev-id instead]),
+	[if test -z "$SHOUTCAST_DEV_ID"; then
+		SHOUTCAST_DEV_ID="$withval"
+		warning_msg="Using deprecated option --with-shoutcast-dev-key. Please switch to --with-shoutcast-dev-id."
+	fi])
 
 # Output the result of the Shoutcast Developer ID check
 if test -z "$SHOUTCAST_DEV_ID"; then
-    result_msg="no"
+	result_msg="no"
 else
-    # Display shortened and masked Shoutcast Developer ID
-    discrete_key=`echo $SHOUTCAST_DEV_ID | cut -c1-7`
-    result_msg="yes [$discrete_key***]"
+	# Display shortened and masked Shoutcast Developer ID
+	discrete_key=`echo $SHOUTCAST_DEV_ID | cut -c1-7`
+	result_msg="yes [$discrete_key***]"
 fi
 AC_MSG_RESULT([$result_msg])
 
 # Output the warning separately if present
 if test -n "$warning_msg"; then
-    AC_MSG_WARN([$warning_msg])
+	AC_MSG_WARN([$warning_msg])
 fi
 
 AC_DEFINE_UNQUOTED([SHOUTCAST_DEV_ID], ["$SHOUTCAST_DEV_ID"], [Shoutcast Developer ID])
 
 # Handle optional GUI managed Shoutcast Developer ID
 AC_ARG_ENABLE([shoutcast-id-manage],
-    AS_HELP_STRING([--enable-shoutcast-id-manage], [Enable management of the Shoutcast Developer ID via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the ID to users!]),
-    [enable_shoutcast_id_manage="$enableval"],
-    [enable_shoutcast_id_manage="no"])
+	AS_HELP_STRING([--enable-shoutcast-id-manage], [Enable management of the Shoutcast Developer ID via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the ID to users!]),
+	[enable_shoutcast_id_manage="$enableval"],
+	[enable_shoutcast_id_manage="no"])
 # Fallback for deprecated Shoutcast Dev key GUI management option, if present
 AC_ARG_ENABLE([shoutcast-key-manage],
-    AS_HELP_STRING([--enable-shoutcast-key-manage], [DEPRECATED: Use --enable-shoutcast-id-manage instead]),
-    [AC_MSG_WARN([Using deprecated option --enable-shoutcast-key-manage. Please switch to --enable-shoutcast-id-manage.])
-     enable_shoutcast_id_manage="$enableval"],
-    [])
+	AS_HELP_STRING([--enable-shoutcast-key-manage], [DEPRECATED: Use --enable-shoutcast-id-manage instead]),
+	[AC_MSG_WARN([Using deprecated option --enable-shoutcast-key-manage. Please switch to --enable-shoutcast-id-manage.])
+	enable_shoutcast_id_manage="$enableval"],
+	[])
 
 if test "$enable_shoutcast_id_manage" = "yes"; then
-    AC_DEFINE([ENABLE_SHOUTCAST_ID_MANAGE], 1, [Enable management of the Shoutcast Developer ID via GUI])
-    AC_MSG_WARN([Warning: Enabling GUI management for the Shoutcast Developer ID is enabled. This may expose the ID to users!])
+	AC_DEFINE([ENABLE_SHOUTCAST_ID_MANAGE], 1, [Enable management of the Shoutcast Developer ID via GUI])
+	AC_MSG_WARN([Warning: Enabling GUI management for the Shoutcast Developer ID is enabled. This may expose the ID to users!])
 fi
 # END: Shoutcast Developer ID
 
@@ -383,43 +383,43 @@ fi
 # Check and configure the YouTube API key
 AC_MSG_CHECKING([for YouTube API key])
 AC_ARG_WITH([youtube-api-key],
-    AS_HELP_STRING([--with-youtube-api-key=KEY], [Specify the YouTube API key for accessing streaming services]),
-    [YOUTUBE_API_KEY="$withval"],
-    [YOUTUBE_API_KEY=""])
+	AS_HELP_STRING([--with-youtube-api-key=KEY], [Specify the YouTube API key for accessing streaming services]),
+	[YOUTUBE_API_KEY="$withval"],
+	[YOUTUBE_API_KEY=""])
 # Fallback for deprecated developer key if no new key is specified
 warning_msg=""
 AC_ARG_WITH([youtube-dev-key],
-    AS_HELP_STRING([--with-youtube-dev-key=KEY], [DEPRECATED: Legacy API dev key, use --with-youtube-api-key instead]),
-    [if test -z "$YOUTUBE_API_KEY"; then
-        YOUTUBE_API_KEY="$withval"
-        warning_msg="Using deprecated option --with-youtube-dev-key. Please switch to --with-youtube-api-key."
-     fi])
+	AS_HELP_STRING([--with-youtube-dev-key=KEY], [DEPRECATED: Legacy API dev key, use --with-youtube-api-key instead]),
+	[if test -z "$YOUTUBE_API_KEY"; then
+		YOUTUBE_API_KEY="$withval"
+		warning_msg="Using deprecated option --with-youtube-dev-key. Please switch to --with-youtube-api-key."
+	fi])
 
 # Output the result of the YouTube API key check
 if test -z "$YOUTUBE_API_KEY"; then
-    result_msg="no"
+	result_msg="no"
 else
-    # Display shortened and masked YouTube API key
-    discrete_key=`echo $YOUTUBE_API_KEY | cut -c1-7`
-    result_msg="yes [$discrete_key***]"
+	# Display shortened and masked YouTube API key
+	discrete_key=`echo $YOUTUBE_API_KEY | cut -c1-7`
+	result_msg="yes [$discrete_key***]"
 fi
 AC_MSG_RESULT([$result_msg])
 
 # Output the warning separately if present
 if test -n "$warning_msg"; then
-    AC_MSG_WARN([$warning_msg])
+	AC_MSG_WARN([$warning_msg])
 fi
 
 AC_DEFINE_UNQUOTED([YOUTUBE_API_KEY], ["$YOUTUBE_API_KEY"], [YouTube API key])
 
 # Handle optional GUI managed YouTube API key
 AC_ARG_ENABLE([youtube-key-manage],
-    AS_HELP_STRING([--enable-youtube-key-manage], [Enable management of the YouTube API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
-    [enable_youtube_key_manage="$enableval"],
-    [enable_youtube_key_manage="no"])
+	AS_HELP_STRING([--enable-youtube-key-manage], [Enable management of the YouTube API key via a GUI @<:@default=no@:>@. Warning: Enabling this feature may expose the key to users!]),
+	[enable_youtube_key_manage="$enableval"],
+	[enable_youtube_key_manage="no"])
 if test "$enable_youtube_key_manage" = "yes"; then
-    AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [Enable management of the YouTube API key via GUI])
-    AC_MSG_WARN([Warning: Enabling GUI management for the YouTube API key is enabled. This may expose the key to users!])
+	AC_DEFINE([ENABLE_YOUTUBE_KEY_MANAGE], 1, [Enable management of the YouTube API key via GUI])
+	AC_MSG_WARN([Warning: Enabling GUI management for the YouTube API key is enabled. This may expose the key to users!])
 fi
 ## END: YouTube API key
 
