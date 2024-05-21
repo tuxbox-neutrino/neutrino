@@ -187,12 +187,13 @@
 		<transponder frequency="762000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
 	</terrestrial>
 	<terrestrial name="Koeln/Bonn (DVB-T2)" flags="5">
-		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="698000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="826000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
-		<transponder frequency="834000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />
+		<transponder frequency="514000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />		<!-- CH 26 WDR1-Sued -->
+		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" plp_id="0"/>	<!-- CH 29 ZDF -->
+		<transponder frequency="538000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" plp_id="1"/>	<!-- CH 29 freenet Connect -->
+		<transponder frequency="586000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />		<!-- CH 35 WDR2 -->
+		<transponder frequency="594000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />		<!-- CH 36 freenet TV 3 -->
+		<transponder frequency="626000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />		<!-- CH 40 freenet TV 1 -->
+		<transponder frequency="650000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />		<!-- CH 40 freenet TV 2 -->
 	</terrestrial>
 	<terrestrial name="Landshut, Passau, Pfarrkirchen (DVB-T2)" flags="5">
 		<transponder frequency="530000" bandwidth="0" constellation="6" transmission_mode="2" code_rate_HP="9" code_rate_LP="9" guard_interval="4" hierarchy="0" />	<!-- CH 28 ARD -->
