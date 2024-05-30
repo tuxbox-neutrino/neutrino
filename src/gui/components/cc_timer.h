@@ -33,6 +33,7 @@
 #include <sigc++/adaptors/retype_return.h>
 #include <thread>
 #include <mutex>
+#include <string>
 
 /**CComponentsTimer
 * 	Member of CComponents. Provides a generic timer class
