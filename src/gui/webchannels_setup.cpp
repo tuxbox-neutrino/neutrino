@@ -304,6 +304,10 @@ int CWebChannelsSetup::Show()
 			g_settings.webtv_xml = webchannels;
 		}
 		webchannels_auto();
+		if (webradio)
+			CZapit::getInstance()->SetWebRadioXML(&g_settings.webradio_xml);
+		else
+			CZapit::getInstance()->SetWebTVXML(&g_settings.webtv_xml);
 		g_Zapit->reinitChannels();
 		CNeutrinoApp::getInstance()->xmltv_xml_auto_readepg();
 		changed = false;
