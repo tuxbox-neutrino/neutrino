@@ -30,6 +30,7 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <neutrino.h>
+#include <gui/widget/msgbox.h>
 
 #include "luainstance.h"
 #include "lua_filehelpers.h"
@@ -60,6 +61,7 @@ void CLuaInstFileHelpers::LuaFileHelpersRegister(lua_State *L)
 		{ "readlink",   CLuaInstFileHelpers::FileHelpersReadlink },
 		{ "ln",         CLuaInstFileHelpers::FileHelpersLn       },
 		{ "exist",      CLuaInstFileHelpers::FileHelpersExist    },
+		{ "empty",      CLuaInstFileHelpers::FileHelpersIsEmpty  },
 		{ "__gc",       CLuaInstFileHelpers::FileHelpersDelete   },
 		{ NULL, NULL }
 	};
@@ -486,6 +488,78 @@ int CLuaInstFileHelpers::FileHelpersExist(lua_State *L)
 	return 1;
 }
 
+int CLuaInstFileHelpers::FileHelpersIsEmpty(lua_State *L)
+{
+	CLuaFileHelpers *D = FileHelpersCheckData(L, 1);
+	if (!D) return 0;
+
+	int numargs = lua_gettop(L) - 1;
+	int min_numargs = 1;
+	if (numargs < min_numargs) {
+		printf("luascript isempty: not enough arguments (%d, expected %d)\n", numargs, min_numargs);
+		lua_pushnil(L);
+		return 1;
+	}
+
+	if (!lua_isstring(L, 2)) {
+		printf("%s: argument 1 is not a string.\n", __func__);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	bool ret = false;
+	bool err = false;
+	int errLine = 0;
+	std::string errMsg = "";
+
+	const char *file = luaL_checkstring(L, 2);
+
+	if (file_exists(file)) {
+		struct stat FileInfo;
+		if (lstat(file, &FileInfo) == -1) {
+			err = true;
+			errLine = __LINE__;
+			errMsg = (std::string)strerror(errno);
+		} else if (S_ISLNK(FileInfo.st_mode)) {
+			printf("Following symlink: %s\n", file);
+			if (stat(file, &FileInfo) == -1) {
+				err = true;
+				errLine = __LINE__;
+				errMsg = "Symlink target does not exist: " + std::string(strerror(errno));
+			} else if (S_ISREG(FileInfo.st_mode)) {
+				ret = (FileInfo.st_size == 0);
+			} else {
+				err = true;
+				errLine = __LINE__;
+				errMsg = "Target of symlink is not a regular file.";
+			}
+		} else if (S_ISREG(FileInfo.st_mode)) {
+			ret = (FileInfo.st_size == 0);
+		} else {
+			err = true;
+			errLine = __LINE__;
+			errMsg = std::string(file) + " is not a regular file.";
+		}
+	} else {
+		err = true;
+		errLine = __LINE__;
+		errMsg = std::string(file) + " does not exist.";
+	}
+
+	if (err) {
+		lua_Debug ar;
+		lua_getstack(L, 1, &ar);
+		lua_getinfo(L, "Sl", &ar);
+		printf(">>> Lua script error [%s:%d] %s\n    (error from neutrino: [%s:%d])\n",
+				ar.short_src, ar.currentline, errMsg.c_str(), __path_file__, errLine);
+		DisplayErrorMessage(errMsg.c_str(), "Lua Script Error:");
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushboolean(L, ret);
+	return 1;
+}
 
 int CLuaInstFileHelpers::FileHelpersDelete(lua_State *L)
 {

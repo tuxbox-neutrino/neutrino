@@ -48,6 +48,7 @@ class CLuaInstFileHelpers
 		static int FileHelpersLn(lua_State *L);
 		static int FileHelpersExist(lua_State *L);
 		static int FileHelpersDelete(lua_State *L);
+		static int FileHelpersIsEmpty(lua_State *L);
 };
 
 #endif //_LUAFILEHELPERS_H
