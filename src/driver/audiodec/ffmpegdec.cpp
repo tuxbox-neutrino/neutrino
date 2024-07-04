@@ -573,7 +573,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 
 		if (avc->duration != int64_t(AV_NOPTS_VALUE))
 			total_time = avc->duration / int64_t(AV_TIME_BASE);
-		printf("CFfmpegDec: format %s (%s) duration %ld\n", avc->iformat->name, type_info.c_str(), total_time);
+		printf("CFfmpegDec: format %s (%s) duration %" PRId64 "\n", avc->iformat->name, type_info.c_str(), static_cast<int64_t>(total_time));
 
 		for(unsigned int i = 0; i < avc->nb_streams; i++) {
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
