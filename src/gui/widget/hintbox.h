@@ -213,7 +213,7 @@ class CHintBox : public CComponentsWindow
 		* @param[in]	Timeout as int as seconds
 		* @param[in]	enable_Timeout_Bar as bool
 		*/
-		virtual void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
+		void setTimeOut(const int& Timeout, const bool& enable_Timeout_Bar){timeout = Timeout; enable_timeout_bar = enable_Timeout_Bar;}
 
 		/**
 		 * enable/disable visualized timeout as progressbar under titlebar

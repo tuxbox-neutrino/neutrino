@@ -309,7 +309,7 @@ class CMsgBox : public CHintBox
 		* @param[in]	Timeout
 		* 	@li 	expects type int
 		*/
-		void 	setTimeOut(const int& Timeout){timeout = Timeout;};
+		void 	setTimeOut(const int& Timeout) {timeout = Timeout;}
 
 		/**
 		* enable/disable defined timeout, otherwise it will be ignored
