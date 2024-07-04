@@ -153,8 +153,7 @@ void CFlashUpdate::update_php(std::string &url, const char *type)
 	}
 }
 
-bool CFlashUpdate::checkOnlineVersion()
-{
+bool CFlashUpdate::checkOnlineVersion() {
 	CHTTPTool httpTool;
 	std::string url;
 	std::string name;
@@ -173,7 +172,7 @@ bool CFlashUpdate::checkOnlineVersion()
 	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
 	CFlashVersionInfo curInfo(versionString.c_str());
 	curVer = curInfo.getVersion();
-	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%ld)\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
+	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%" PRId64 ")\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), static_cast<int64_t>(curInfo.getDateTime()));
 
 	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
 	if (urlFile >> url)
@@ -200,7 +199,7 @@ bool CFlashUpdate::checkOnlineVersion()
 				std::getline(in, name);
 				CFlashVersionInfo versionInfo(version);
 				newVer = versionInfo.getVersion();
-				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
+				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%" PRId64 ") md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), static_cast<int64_t>(versionInfo.getDateTime()), md5.c_str(), name.c_str());
 				if (versionInfo.snapshot <= '9' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 				{
 					newfound = true;
@@ -237,7 +236,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	}
 
 	CFlashVersionInfo curInfo(versionString.c_str());
-	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%ld)\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
+	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%" PRId64 ")\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), static_cast<int64_t>(curInfo.getDateTime()));
 	curVer = curInfo.getVersion();
 
 	httpTool.setStatusViewer(this);
@@ -295,7 +294,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 				CFlashVersionInfo versionInfo(versions[i]);
 				newVer = versionInfo.getVersion();
-				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
+				dprintf(DEBUG_NORMAL, "[update] url %s version %s (%d) timestamp %s (%" PRId64 ") md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), static_cast<int64_t>(versionInfo.getDateTime()), md5.c_str(), name.c_str());
 				if (versionInfo.snapshot <= '9' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 					newfound = 1;
 				fileTypes[i] = versionInfo.snapshot;
