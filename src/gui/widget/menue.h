@@ -159,7 +159,7 @@ class CMenuItem : public  CComponentsSignals
 			used = true;
 		}
 		
-		virtual void init(const int X, const int Y, const int DX, const int OFFX);
+		void init(const int X, const int Y, const int DX, const int OFFX);
 
 		virtual int paint (bool selected = false) = 0;
 		virtual int getHeight(void);
