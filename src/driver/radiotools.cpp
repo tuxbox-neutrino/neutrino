@@ -28,7 +28,11 @@
 
 unsigned short crc16_ccitt(unsigned char *daten, int len, bool skipfirst)
 {
-	register unsigned short crc = 0xffff;
+#if __cplusplus < 201703L
+	register unsigned short crc = 0xffff; // Use register for older standards
+#else
+	unsigned short crc = 0xffff; // register keyword is not allowed in C++17 and later
+#endif
 
 	if (skipfirst) daten++;
 	while (len--) {
@@ -39,7 +43,7 @@ unsigned short crc16_ccitt(unsigned char *daten, int len, bool skipfirst)
 		crc ^= ((crc & 0xff) << 4) << 1;
 	}
 
-	 return ~(crc);
+	return ~(crc);
 }
 
 char *rtrim(char *text)
