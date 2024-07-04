@@ -36,6 +36,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <linux/input.h>
 #include <utime.h>
 #include <stdlib.h>
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
@@ -1338,7 +1339,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				 * Everything would be much easier if we could use the post-kernel 3.4
 				 * EVIOCSCLOCKID ioctl :-) */
 				struct timespec t1;
-				now_pressed = ev.time.tv_usec + ev.time.tv_sec * 1000000ULL;
+				now_pressed = ev.input_event_sec * 1000000ULL + ev.input_event_usec;
 				if (!clock_gettime(CLOCK_MONOTONIC, &t1)) {
 					struct timeval t2;
 					gettimeofday(&t2, NULL);
