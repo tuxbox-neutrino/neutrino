@@ -50,6 +50,8 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <inttypes.h>
+
 CFollowScreenings::~CFollowScreenings()
 {
 	followlist.clear();
@@ -78,12 +80,12 @@ CChannelEventList *CFollowScreenings::getFollowScreenings(void)
 
 int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
-	unsigned long a;
-	if (1 == sscanf(actionKey.c_str(), "%lu", &a)) {
+	uintmax_t a;
+	if (1 == sscanf(actionKey.c_str(), "%" SCNuMAX, &a)) {
 		int ix = 0;
 		CChannelEventList::iterator e;
 		for (e = followlist.begin(); e != followlist.end(); e++, ix++)
-			if ((time_t)a == e->startTime) {
+			if (static_cast<time_t>(a) == e->startTime) {
 				time_t start = e->startTime - (ANNOUNCETIME + 120);
 				time_t stop = e->startTime + e->duration;
 				CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(start, stop);
@@ -107,7 +109,7 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 				CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(channel_id);
 #endif
 				if (g_Timerd->addRecordTimerEvent(channel_id, e->startTime, e->startTime + e->duration, e->eventID,
-								  e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true) == -1) {
+								e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true) == -1) {
 					//FIXME -- no error handling, but this shouldn't happen ...
 				} else {
 					if (!forwarders.empty() && (followlist.size() > 1 || g_settings.timer_followscreenings == FOLLOWSCREENINGS_ALWAYS))
@@ -155,7 +157,7 @@ void CFollowScreenings::show()
 
 	if (followlist.size() == 1 && g_settings.timer_followscreenings != FOLLOWSCREENINGS_ALWAYS)
 	{
-		snprintf(actionstr, sizeof(actionstr), "%lu", followlist.front().startTime);
+		snprintf(actionstr, sizeof(actionstr), "%" PRIuMAX, static_cast<uintmax_t>(followlist.front().startTime));
 		exec(NULL, actionstr);
 	}
 	else if (followlist.size() > 1 || g_settings.timer_followscreenings == FOLLOWSCREENINGS_ALWAYS)
@@ -173,7 +175,7 @@ void CFollowScreenings::show()
 			screening_date += strftime(" %d.", tmStartZeit);
 			screening_date += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
 			screening_date += strftime(". %H:%M", tmStartZeit );
-			snprintf(actionstr, sizeof(actionstr), "%lu", e->startTime);
+			snprintf(actionstr, sizeof(actionstr), "%" PRIuMAX, static_cast<uintmax_t>(e->startTime));
 			forwarders.push_back(new CMenuForwarder(screening_date, true, NULL, this, actionstr, directKey, icon));
 			updateRightIcon(i, e->startTime, e->duration);
 			m.addItem(forwarders[i]);
