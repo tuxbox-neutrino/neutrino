@@ -4784,7 +4784,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	printf("entering off state\n");
 	mode = NeutrinoModes::mode_off;
 
-	printf("timer_minutes: %ld\n", timer_minutes);
+	printf("timer_minutes: %" PRId64 "\n", (int64_t)timer_minutes);
 	int leds = 0;
 	int bright = 0;
 #if HAVE_CST_HARDWARE
@@ -4824,14 +4824,14 @@ void CNeutrinoApp::ExitRun(int exit_code)
 			struct tm *lt = localtime(&t);
 			char date[30];
 			strftime(date, sizeof(date), "%c", lt);
-			printf("wakeup time : %s (%ld)\n", date, timer_minutes * 60);
+			printf("wakeup time : %s (%" PRId64 ")\n", date, (int64_t)(timer_minutes * 60));
 
 			proc_put("/proc/stb/fp/wakeup_time", timer_minutes * 60);
 
 			t = time(NULL);
 			lt = localtime(&t);
 			strftime(date, sizeof(date), "%c", lt);
-			printf("current time: %s (%ld)\n", date, t);
+			printf("current time: %s (%" PRId64 ")\n", date, (int64_t)t);
 
 			proc_put("/proc/stb/fp/rtc", t);
 
@@ -4846,7 +4846,7 @@ void CNeutrinoApp::ExitRun(int exit_code)
 		FILE *f = fopen("/tmp/.timer", "w");
 		if (f)
 		{
-			fprintf(f, "%ld\n", timer_minutes ? timer_minutes * 60 : 0);
+			fprintf(f, "%" PRId64 "\n", (int64_t)(timer_minutes ? timer_minutes * 60 : 0));
 			fprintf(f, "%d\n", leds);
 			fprintf(f, "%d\n", bright);
 			fclose(f);
