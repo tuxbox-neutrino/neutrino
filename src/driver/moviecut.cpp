@@ -531,7 +531,7 @@ bool CMovieCut::cutMovie(MI_MOVIE_INFO *minfo)
 		lseek64(srcfd, offset, SEEK_SET);
 	}
 	tt1 = time(0);
-	printf("CMovieCut::%s: total written %" PRId64 " tooks %ld secs end time %s", __func__, spos, tt1 - tt, ctime(&tt1));
+	printf("CMovieCut::%s: total written %" PRId64 " tooks %" PRIi64 " secs end time %s", __func__, spos, (int64_t)(tt1 - tt), ctime(&tt1));
 
 	save_info(minfo, dpart, spos, secsize);
 	retval = true;
@@ -690,14 +690,14 @@ bool CMovieCut::copyMovie(MI_MOVIE_INFO *minfo, bool onefile)
 			dstfd = -1;
 			save_info(minfo, dpart, spos, secsize);
 			time_t tt1 = time(0);
-			printf("copy: ********* %s: total written %" PRId64 " took %ld secs\n", dpart, spos, tt1 - tt);
+			printf("copy: ********* %s: total written %" PRId64 " took %" PRIi64 " secs\n", dpart, spos, (int64_t)(tt1 - tt));
 		}
 	} /* for all books */
 	if (onefile)
 	{
 		save_info(minfo, dpart, spos, secsize);
 		time_t tt1 = time(0);
-		printf("copy: ********* %s: total written %" PRId64 " took %ld secs\n", dpart, spos, tt1 - tt);
+		printf("copy: ********* %s: total written %" PRId64 " took %" PRIi64 " secs\n", dpart, spos, (int64_t)(tt1 - tt));
 	}
 	retval = true;
 ret_err:
