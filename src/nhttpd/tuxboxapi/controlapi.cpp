@@ -993,7 +993,18 @@ void CControlAPI::rc_sync(int fd)
 {
 	struct input_event ev;
 
-	gettimeofday(&ev.time, NULL);
+// Check if input_event_sec macro is defined
+#ifdef input_event_sec
+		// Use input_event_sec and input_event_usec macros if they are defined
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		ev.input_event_sec = tv.tv_sec;
+		ev.input_event_usec = tv.tv_usec;
+#else
+		// Fallback for older versions that use timeval directly
+		gettimeofday(&ev.time, NULL);
+#endif
+
 	ev.type = EV_SYN;
 	ev.code = SYN_REPORT;
 	ev.value = 0;
@@ -1794,6 +1805,7 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 	result = channelData + hh->outNext() + result;
 	return result;
 }
+
 
 //-----------------------------------------------------------------------------
 // Detailed EPG list in XML or JSON
