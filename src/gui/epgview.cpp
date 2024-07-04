@@ -811,11 +811,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// 21.07.2005 - rainerk
 	// Show extended information
-	if ( !epgData.itemDescriptions.empty() && !epgData.items.empty()) {
+	if (!epgData.itemDescriptions.empty() && !epgData.items.empty()) {
 		char line[256];
 		std::vector<std::string>::iterator description;
 		std::vector<std::string>::iterator item;
-		for (description = epgData.itemDescriptions.begin(), item = epgData.items.begin(); description != epgData.itemDescriptions.end(), item != epgData.items.end(); ++description, ++item) {
+		for (description = epgData.itemDescriptions.begin(), item = epgData.items.begin(); description != epgData.itemDescriptions.end() && item != epgData.items.end(); ++description, ++item)
+		{
 			sprintf(line, "%s: %s", (*(description)).c_str(), (*(item)).c_str());
 			processTextToArray(line);
 		}
