@@ -1779,7 +1779,7 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 		strftime(zbuffer, 20, "%d.%m.%Y", mtime);
 		prog += hh->outPair("date", std::string(zbuffer), true);
 		prog += hh->outPair("stop_sec", string_printf("%ld", eventIterator->startTime + eventIterator->duration), true);
-		long _stoptime = eventIterator->startTime + eventIterator->duration;
+		time_t _stoptime = eventIterator->startTime + eventIterator->duration;
 		mtime = localtime(&_stoptime);
 		strftime(zbuffer, 20, "%H:%M", mtime);
 		prog += hh->outPair("stop_t", std::string(zbuffer), true);
@@ -2163,7 +2163,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 			uint64_t epgid = 0;
 			time_t starttime = 0;
 			sscanf(hh->ParamList["fskid"].c_str(), "%" SCNu64 "", &epgid);
-			sscanf(hh->ParamList["starttime"].c_str(), "%lu", &starttime);
+			sscanf(hh->ParamList["starttime"].c_str(), "%lld", &starttime);
 			CEPGData longepg;
 			if (CEitManager::getInstance()->getEPGid(epgid, starttime, &longepg)) {
 				hh->printf("%u\n", longepg.fsk);
@@ -3402,7 +3402,7 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 							struct tm *mtime = gmtime(&eventIterator->startTime);
 							strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", mtime);
 							programmeTag += "start=\""+std::string(zbuffer)+"\" ";
-							long _stoptime = eventIterator->startTime + eventIterator->duration;
+							time_t _stoptime = eventIterator->startTime + eventIterator->duration;
 							mtime = gmtime(&_stoptime);
 							strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", mtime);
 							programmeTag += "stop=\""+std::string(zbuffer)+"\" ";
