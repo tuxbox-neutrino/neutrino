@@ -2128,16 +2128,14 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		int mode = NeutrinoAPI->Zapit->getMode();
 		CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 		for (; !(cit.EndOfChannels()); cit++) {
-			CZapitChannel * channel = *cit;
+			CZapitChannel *channel = *cit;
 			NeutrinoAPI->GetChannelEvent(channel->getChannelID(), event);
 			if (event.eventID) {
 				if (!isExt) {
-					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %llu %s\n", channel->getChannelID(), event.eventID, event.description.c_str());
+					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %" PRIu64 " %s\n", channel->getChannelID(), event.eventID, event.description.c_str());
 				}
 				else { // ext output
-					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %ld %u %llu %s\n", channel->getChannelID(), event.startTime, event.duration, event.eventID, event.description.c_str());
+					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %" PRIdMAX " %u %" PRIu64 " %s\n", channel->getChannelID(), static_cast<intmax_t>(event.startTime), event.duration, event.eventID, event.description.c_str());
 				}
 			}
 		}
@@ -2163,7 +2161,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 			uint64_t epgid = 0;
 			time_t starttime = 0;
 			sscanf(hh->ParamList["fskid"].c_str(), "%" SCNu64 "", &epgid);
-			sscanf(hh->ParamList["starttime"].c_str(), "%lld", &starttime);
+			sscanf(hh->ParamList["starttime"].c_str(), "%lld", reinterpret_cast<long long*>(&starttime));
 			CEPGData longepg;
 			if (CEitManager::getInstance()->getEPGid(epgid, starttime, &longepg)) {
 				hh->printf("%u\n", longepg.fsk);
@@ -2182,7 +2180,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator) {
 			CShortEPGData epg;
 			if (CEitManager::getInstance()->getEPGidShort(eventIterator->eventID, &epg)) {
-				hh->printf("%llu %ld %d\n", eventIterator->eventID, eventIterator->startTime, eventIterator->duration);
+				hh->printf("%" PRIu64 " %" PRIdMAX " %d\n", eventIterator->eventID, static_cast<intmax_t>(eventIterator->startTime), eventIterator->duration);
 				hh->printf("%s\n", epg.title.c_str());
 				hh->printf("%s\n", epg.info1.c_str());
 				hh->printf("%s\n\n", epg.info2.c_str());
