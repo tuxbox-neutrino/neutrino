@@ -377,7 +377,7 @@ class CMenuSelector : public CMenuItem
 		CMenuSelector(const char * OptionName, const bool Active , std::string & OptionValue, int* ReturnInt = NULL,int ReturnIntValue = 0);
 		int exec(CMenuTarget* parent);
 		int paint(bool selected);
-		int getHeight(void) const{return height;};
+		int getHeight(void) override {return height;};
 		bool isSelectable(void) const {	return active;}
 };
 
