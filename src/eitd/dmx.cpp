@@ -636,15 +636,15 @@ int DMX::change(const int new_filter_index, const t_channel_id new_current_servi
 		current_service = new_current_service;
 
 #ifdef DEBUG_DEMUX
-	debug(DEBUG_ERROR, "	%s: switch to filter %02x current_service %016llx", name.c_str(), filters[filter_index].filter, current_service);
+	debug(DEBUG_ERROR, "    %s: switch to filter %02x current_service %016" PRIx64, name.c_str(), filters[filter_index].filter, static_cast<uint64_t>(current_service));
 #endif
 
 	if (real_pauseCounter > 0)
 	{
-		debug(DEBUG_NORMAL, "changeDMX: for 0x%x not ignored! even though real_pauseCounter> 0 (%d)",
-		       filters[new_filter_index].filter, real_pauseCounter);
-		/* immediate_start() checks for real_pauseCounter again (and
-		   does nothing in that case), so we can just continue here. */
+		debug(DEBUG_NORMAL, "changeDMX: for 0x%x not ignored! even though real_pauseCounter > 0 (%d)",
+			filters[new_filter_index].filter, real_pauseCounter);
+		// immediate_start() checks for real_pauseCounter again (and
+		// does nothing in that case), so we can just continue here.
 	}
 
 	if (sections_debug >= DEBUG_INFO) { // friendly debug output...
@@ -653,15 +653,15 @@ int DMX::change(const int new_filter_index, const t_channel_id new_current_servi
 		if (pID == 0x39)
 			use_viasat_epg_pid = true;
 #endif
-		if((pID==0x12 || use_viasat_epg_pid) && filters[0].filter != 0x4e) { // Only EIT
-			debug(DEBUG_ERROR, "changeDMX [EIT]-> %d (0x%x/0x%x) %s (%ld seconds)",
+		if ((pID == 0x12 || use_viasat_epg_pid) && filters[0].filter != 0x4e) { // Only EIT
+			debug(DEBUG_ERROR, "changeDMX [EIT]-> %d (0x%x/0x%x) %s (%" PRId64 " seconds)",
 				new_filter_index, filters[new_filter_index].filter,
 				filters[new_filter_index].mask, dmx_filter_types[new_filter_index],
-				time_monotonic()-lastChanged);
+				static_cast<int64_t>(time_monotonic() - lastChanged));
 		} else {
-			debug(DEBUG_ERROR, "changeDMX [%x]-> %d (0x%x/0x%x) (%ld seconds)", pID,
+			debug(DEBUG_ERROR, "changeDMX [%x]-> %d (0x%x/0x%x) (%" PRId64 " seconds)", pID,
 				new_filter_index, filters[new_filter_index].filter,
-				filters[new_filter_index].mask, time_monotonic()-lastChanged);
+				filters[new_filter_index].mask, static_cast<int64_t>(time_monotonic() - lastChanged));
 		}
 	}
 
