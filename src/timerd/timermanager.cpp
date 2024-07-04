@@ -747,17 +747,17 @@ void CTimerManager::saveEventsToConfig()
 bool CTimerManager::shutdown()
 {
 	timerd_debug = 1; //FIXME
-	time_t nextAnnounceTime=0;
-	bool status=false;
+	time_t nextAnnounceTime = 0;
+	bool status = false;
 	timer_is_rec = false;
 	dprintf("stopping timermanager thread ...\n");
 
 	dprintf("Waiting for timermanager thread to terminate ...\n");
 	pthread_cancel(thrTimer);
-	pthread_join(thrTimer,NULL);
+	pthread_join(thrTimer, NULL);
 	dprintf("Timermanager thread terminated\n");
 
-	if(m_saveEvents)
+	if (m_saveEvents)
 	{
 		dprintf("shutdown: saving config\n");
 		saveEventsToConfig();
@@ -771,22 +771,22 @@ bool CTimerManager::shutdown()
 	}
 
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos != events.end();++pos)
+	for (; pos != events.end(); ++pos)
 	{
 		CTimerEvent *event = pos->second;
-		dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType, event->eventState, event->announceTime);
-		bool standby_on_timer = (event->eventType == CTimerd::TIMER_STANDBY && static_cast<CTimerEvent_Standby*>(event)->standby_on);// wakeup without CEC-on from depstanby
+		dprintf("shutdown: timer type %d state %d announceTime: %" PRId64 "\n", event->eventType, event->eventState, (int64_t)event->announceTime);
+		bool standby_on_timer = (event->eventType == CTimerd::TIMER_STANDBY && static_cast<CTimerEvent_Standby*>(event)->standby_on); // wakeup without CEC-on from deep standby
 
-		if((event->eventType == CTimerd::TIMER_RECORD ||
-			 event->eventType == CTimerd::TIMER_ZAPTO || standby_on_timer ) &&
+		if ((event->eventType == CTimerd::TIMER_RECORD ||
+			event->eventType == CTimerd::TIMER_ZAPTO || standby_on_timer) &&
 			event->eventState < CTimerd::TIMERSTATE_ISRUNNING)
 		{
-			// Wir wachen nur für Records und Zaptos und Stanby-ON wieder auf
-			if(event->announceTime < nextAnnounceTime || nextAnnounceTime==0)
+			// We wake up only for Records and Zaptos and Standby-ON
+			if (event->announceTime < nextAnnounceTime || nextAnnounceTime == 0)
 			{
-				nextAnnounceTime=event->announceTime;
-				dprintf("shutdown: nextAnnounceTime %ld\n", nextAnnounceTime);
-				if ( event->eventType == CTimerd::TIMER_RECORD || standby_on_timer )
+				nextAnnounceTime = event->announceTime;
+				dprintf("shutdown: nextAnnounceTime %" PRId64 "\n", (int64_t)nextAnnounceTime);
+				if (event->eventType == CTimerd::TIMER_RECORD || standby_on_timer)
 					timer_is_rec = true;
 				else
 					timer_is_rec = false;
@@ -795,12 +795,12 @@ bool CTimerManager::shutdown()
 	}
 
 	timer_minutes = 0;
-	if(nextAnnounceTime != 0)
+	if (nextAnnounceTime != 0)
 	{
-		timer_minutes = (nextAnnounceTime - 3*60)/60;
+		timer_minutes = (nextAnnounceTime - 3 * 60) / 60;
 	}
-	dprintf("shutdown: timeset: %d timer_minutes %ld\n", timeset, timer_minutes);
-	if(rc == 0)
+	dprintf("shutdown: timeset: %d timer_minutes %" PRId64 "\n", timeset, (int64_t)timer_minutes);
+	if (rc == 0)
 		pthread_mutex_unlock(&tm_eventsMutex);
 	return status;
 }
