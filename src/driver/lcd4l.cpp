@@ -578,7 +578,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	std::string DolbyDigital;
 	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) &&
-	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
+		(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
 		DolbyDigital = "yes";
 	else
 		DolbyDigital = g_RemoteControl->has_ac3 ? "available" : "no";
@@ -752,7 +752,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		int dummy;
 		int ModeLogo = 0;
 
-		int ModeStandby	= 0;
+		int ModeStandby = 0;
 
 		if (m_ActionKey == "moviebrowser")
 		{
@@ -767,9 +767,9 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 				Service = g_RemoteControl->getCurrentChannelName();
 
 			/*
-			   "moviebrowser_moviecut" is special.
-			   It signals the active moviebrowser with the moviebrowser logo,
-			   but handles the rest of the lcd as in tv/radio mode.
+			"moviebrowser_moviecut" is special.
+			It signals the active moviebrowser with the moviebrowser logo,
+			but handles the rest of the lcd as in tv/radio mode.
 			*/
 
 			if (m_ActionKey == "moviebrowser_moviecut")
@@ -1127,11 +1127,11 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 			{
 				Progress = 100 * done / total;
 
-				snprintf(Duration, sizeof(Duration), "%ld:%02ld/%ld:%02ld\n%ld:%02ld\n%ld:%02ld\n%ld:%02ld",
-					done / 60, done % 60, total / 60, total % 60,
-					done / 60, done % 60,
-					todo / 60, todo % 60,
-					total / 60, total % 60);
+				snprintf(Duration, sizeof(Duration), "%" PRId64 ":%02" PRId64 "/%" PRId64 ":%02" PRId64 "\n%" PRId64 ":%02" PRId64 "\n%" PRId64 ":%02" PRId64 "\n%" PRId64 ":%02" PRId64,
+					(int64_t)(done / 60), (int64_t)(done % 60), (int64_t)(total / 60), (int64_t)(total % 60),
+					(int64_t)(done / 60), (int64_t)(done % 60),
+					(int64_t)(todo / 60), (int64_t)(todo % 60),
+					(int64_t)(total / 60), (int64_t)(total % 60));
 			}
 		}
 
@@ -1308,6 +1308,7 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		}
 	}
 }
+
 
 /* ----------------------------------------------------------------- */
 
