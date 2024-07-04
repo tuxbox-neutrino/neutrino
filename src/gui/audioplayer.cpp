@@ -72,6 +72,7 @@ extern CPictureViewer * g_PicViewer;
 #include <sstream>
 #include <unistd.h>
 #include <dirent.h>
+#include <inttypes.h>
 
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -1666,10 +1667,10 @@ void CAudioPlayerGui::paintItem(int pos)
 	int ypos = m_y + m_title_height + OFFSET_SHADOW + OFFSET_INTER + m_header_height + pos*m_item_height;
 	unsigned int currpos = m_liststart + pos;
 
-	bool i_selected	= currpos == m_selected;
-	bool i_marked	= currpos == (unsigned) m_current;
-	bool i_switch	= false; //(currpos < m_playlist.size()) && (pos & 1);
-	int i_radius	= RADIUS_NONE;
+	bool i_selected = currpos == m_selected;
+	bool i_marked = currpos == (unsigned) m_current;
+	bool i_switch = false; //(currpos < m_playlist.size()) && (pos & 1);
+	int i_radius = RADIUS_NONE;
 
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
@@ -1697,13 +1698,17 @@ void CAudioPlayerGui::paintItem(int pos)
 		if (m_inetmode)
 		{
 			if (m_playlist[currpos].MetaData.total_time != 0)
-				snprintf(dura, sizeof(dura), "%ldk", m_playlist[currpos].MetaData.total_time);
+				snprintf(dura, sizeof(dura), "%" PRIdMAX "k", static_cast<intmax_t>(m_playlist[currpos].MetaData.total_time));
 		}
 		else
-			snprintf(dura, sizeof(dura), "%ld:%02ld", m_playlist[currpos].MetaData.total_time / 60, m_playlist[currpos].MetaData.total_time % 60);
+		{
+			snprintf(dura, sizeof(dura), "%" PRIdMAX ":%02" PRIdMAX,
+					static_cast<intmax_t>(m_playlist[currpos].MetaData.total_time / 60),
+					static_cast<intmax_t>(m_playlist[currpos].MetaData.total_time % 60));
+		}
 
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(dura);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + OFFSET_INNER_MID, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - 3*OFFSET_INNER_MID - w, tmp, color, m_item_height);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + OFFSET_INNER_MID, ypos + m_item_height, m_width - SCROLLBAR_WIDTH - 3 * OFFSET_INNER_MID - w, tmp, color, m_item_height);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - SCROLLBAR_WIDTH - OFFSET_INNER_MID - w, ypos + m_item_height, w, dura, color, m_item_height);
 		if (currpos == m_selected)
 		{
@@ -2329,7 +2334,7 @@ void CAudioPlayerGui::updateMetaData()
 	}
 }
 
-void CAudioPlayerGui::updateTimes(const bool force)
+void CAudioPlayerGui::updateTimes(bool force)
 {
 	if (m_state != CAudioPlayerGui::STOP)
 	{
@@ -2347,7 +2352,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 			}
 			updateTotal = true;
 		}
-		if ((m_time_played != CAudioPlayer::getInstance()->getTimePlayed()))
+		if (m_time_played != CAudioPlayer::getInstance()->getTimePlayed())
 		{
 			m_time_played = CAudioPlayer::getInstance()->getTimePlayed();
 			updatePlayed = true;
@@ -2355,9 +2360,13 @@ void CAudioPlayerGui::updateTimes(const bool force)
 		if (!CScreenSaver::getInstance()->isActive())
 		{
 			char total_time[27];
-			snprintf(total_time, sizeof(total_time), " / %ld:%02ld", m_time_total / 60, m_time_total % 60);
+			snprintf(total_time, sizeof(total_time), " / %" PRIdMAX ":%02" PRIdMAX,
+					static_cast<intmax_t>(m_time_total / 60),
+					static_cast<intmax_t>(m_time_total % 60));
 			char played_time[24];
-			snprintf(played_time, sizeof(played_time), "%ld:%02ld", m_time_played / 60, m_time_played % 60);
+			snprintf(played_time, sizeof(played_time), "%" PRIdMAX ":%02" PRIdMAX,
+					static_cast<intmax_t>(m_time_played / 60),
+					static_cast<intmax_t>(m_time_played % 60));
 
 			int w_total_time = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(total_time);
 			int w_faked_time = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("000:00");
@@ -2397,17 +2406,17 @@ void CAudioPlayerGui::updateTimes(const bool force)
 		{
 #ifdef ENABLE_GRAPHLCD
 			//glcd_duration = to_string(m_time_played / (60 * 1000)) + "/" + to_string(m_time_total / (60 * 1000));
-			glcd_duration = to_string(m_time_played/60) + ":" + to_string(m_time_played%60) + "/" + to_string(m_time_total/60) + ":" + to_string(m_time_total%60);
+			glcd_duration = to_string(m_time_played / 60) + ":" + to_string(m_time_played % 60) + "/" + to_string(m_time_total / 60) + ":" + to_string(m_time_total % 60);
 
 			time_t sTime = time(NULL);
 			sTime -= m_time_played;
 			tm_struct = localtime(&sTime);
-			glcd_start = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+			glcd_start = to_string(tm_struct->tm_hour / 10) + to_string(tm_struct->tm_hour % 10) + ":" + to_string(tm_struct->tm_min / 10) + to_string(tm_struct->tm_min % 10);
 
 			time_t eTime = time(NULL);
 			eTime += m_time_total - m_time_played;
 			tm_struct = localtime(&eTime);
-			glcd_end = to_string(tm_struct->tm_hour/10) + to_string(tm_struct->tm_hour%10) + ":" + to_string(tm_struct->tm_min/10) + to_string(tm_struct->tm_min%10);
+			glcd_end = to_string(tm_struct->tm_hour / 10) + to_string(tm_struct->tm_hour % 10) + ":" + to_string(tm_struct->tm_min / 10) + to_string(tm_struct->tm_min % 10);
 
 			glcd_position = 100 * m_time_played / m_time_total;
 
