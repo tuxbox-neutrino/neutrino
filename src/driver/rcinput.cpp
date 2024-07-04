@@ -1339,10 +1339,21 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				 * Everything would be much easier if we could use the post-kernel 3.4
 				 * EVIOCSCLOCKID ioctl :-) */
 				struct timespec t1;
-				now_pressed = ev.input_event_sec * 1000000ULL + ev.input_event_usec;
+				// Check if input_event_sec macro is defined
+				#ifdef input_event_sec
+					// Use input_event_sec and input_event_usec macros if they are defined
+					now_pressed = ev.input_event_sec * 1000000ULL + ev.input_event_usec;
+				#else
+					// Fallback for older versions that use timeval directly
+					now_pressed = ev.time.tv_sec * 1000000ULL + ev.time.tv_usec;
+				#endif
+
+				// Get the current time using clock_gettime
 				if (!clock_gettime(CLOCK_MONOTONIC, &t1)) {
 					struct timeval t2;
+					// Get the current time using gettimeofday
 					gettimeofday(&t2, NULL);
+					// Calculate now_pressed using timespec and timeval
 					now_pressed += t1.tv_sec * 1000000ULL + t1.tv_nsec / 1000;
 					now_pressed -= (t2.tv_usec + t2.tv_sec * 1000000ULL);
 				}
