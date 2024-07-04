@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+#include <cinttypes>
 #include "debug.h"
 
 int sections_debug = DEBUG_NORMAL;
@@ -34,7 +35,7 @@ void printdate_ms(FILE *f)
 	gettimeofday(&now, NULL);
 	struct tm *tm = localtime(&now.tv_sec);
 	/* use strftime for that? */
-	fprintf(f, "%04d-%02d-%02d %02d:%02d:%02d.%03ld ", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec / 1000);
+	fprintf(f, "%04d-%02d-%02d %02d:%02d:%02d.%03" PRId64 " ", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, (int64_t)(now.tv_usec / 1000));
 }
 
 static int64_t last_profile_call;
@@ -47,6 +48,6 @@ void showProfiling(std::string text)
 	int64_t now = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
 
 	int64_t tmp = now - last_profile_call;
-	printf("--> '%s' %lld.%03lld\n", text.c_str(), tmp / 1000LL, tmp % 1000LL);
+	printf("--> '%s' %" PRId64 ".%03" PRId64 "\n", text.c_str(), tmp / 1000LL, tmp % 1000LL);
 	last_profile_call = now;
 }
