@@ -27,12 +27,11 @@ nicht gespeichert werden.
 
 class CLastChannel
 {
-
 	private:
 		struct _LastCh
 		{
 			t_channel_id channel_id;
-			long int timestamp;
+			int64_t timestamp;
 			int channel_mode;
 		};
 

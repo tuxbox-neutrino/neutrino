@@ -39,35 +39,36 @@ void CLastChannel::clear (void)
 // -- Store only if channel != last channel and time store delay is large enough
 // forceStoreToLastChannels default to false
 
-void CLastChannel::store (t_channel_id channel_id)
+void CLastChannel::store(t_channel_id channel_id)
 {
 	struct timeval tv;
-	unsigned long lastTimestamp(0);
-	unsigned long timeDiff;
+	int64_t lastTimestamp(0);
+	int64_t timeDiff;
 	std::list<_LastCh>::iterator It;
 
-	gettimeofday (&tv, NULL);
+	gettimeofday(&tv, NULL);
 
 	if (!this->lastChannels.empty())
 		lastTimestamp = this->lastChannels.front().timestamp;
 
 	timeDiff = tv.tv_sec - lastTimestamp;
 
-	/* prev zap time was less than treshhold, remove prev channel */
-	if(!this->lastChannels.empty() && (timeDiff <= secs_diff_before_store))
+	/* prev zap time was less than threshold, remove prev channel */
+	if (!this->lastChannels.empty() && (timeDiff <= secs_diff_before_store))
 		this->lastChannels.pop_front();
 
 	/* push new channel to the head */
-	_LastCh newChannel = {/*channel,*/ channel_id, tv.tv_sec, CNeutrinoApp::getInstance()->GetChannelMode()};
+	_LastCh newChannel = {/*channel,*/ channel_id, static_cast<int64_t>(tv.tv_sec), CNeutrinoApp::getInstance()->GetChannelMode()};
 
 	this->lastChannels.push_front(newChannel);
 
-	/* this zap time was more than treshhold, it will stay, remove last in the list */
+	/* this zap time was more than threshold, it will stay, remove last in the list */
 	if ((timeDiff > secs_diff_before_store) && (this->lastChannels.size() > this->maxSize))
 		this->lastChannels.pop_back();
 
 	/* remove this channel at other than 0 position */
-	if(this->lastChannels.size() > 1) {
+	if (this->lastChannels.size() > 1)
+	{
 		It = this->lastChannels.begin();
 		++It;
 		for (; It != this->lastChannels.end(); ++It)
