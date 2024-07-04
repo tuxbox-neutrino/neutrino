@@ -46,7 +46,11 @@ static int   sock = -1;
 static int 
 in_checksum( u_short *buf, int len )
 {
-  register long sum = 0;
+#if __cplusplus < 201703L
+    register long sum = 0; // Use register for older standards
+#else
+    long sum = 0; // register keyword is not allowed in C++17 and later
+#endif
   u_short  answer = 0;
 
   while( len > 1 ){
