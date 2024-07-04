@@ -1765,17 +1765,17 @@ bool CCNThread::shouldSleep()
 		return true;
 
 	/* on first retry, restart the demux. I'm not sure if it is a driver bug
-	 * or a bug in our logic, but without this, I'm sometimes missing CN events
-	 * and / or the eit_version and thus the update filter will stop working */
+	* or a bug in our logic, but without this, I'm sometimes missing CN events
+	* and / or the eit_version and thus the update filter will stop working */
 	if (++eit_retry < 2) {
 		debug(DEBUG_ERROR, "%s::%s first retry (%d) -> restart demux", name.c_str(), __func__, eit_retry);
 		change(0); /* this also resets lastChanged */
 	}
 	/* ugly, this has been checked before. But timeoutsDMX can be < 0 for multiple reasons,
-	 * and only skipTime should send CNThread finally to sleep if eit_version is not found */
+	* and only skipTime should send CNThread finally to sleep if eit_version is not found */
 	time_t since = time_monotonic() - lastChanged;
 	if (since > skipTime) {
-		debug(DEBUG_ERROR, "%s::%s timed out after %lds -> going to sleep", name.c_str(), __func__, since);
+		debug(DEBUG_ERROR, "%s::%s timed out after %" PRId64 "s -> going to sleep", name.c_str(), __func__, static_cast<int64_t>(since));
 		return true;
 	}
 	/* retry */
@@ -2772,7 +2772,7 @@ bool CEitManager::getEPGidShort(t_event_id epg_id, CShortEPGData * epgdata)
 bool CEitManager::getEPGid(const t_event_id epg_id, const time_t startzeit, CEPGData * epgdata)
 {
 	bool ret = false;
-	debug(DEBUG_INFO, "Request of actual EPG for 0x%" PRIx64 " 0x%lx", epg_id, startzeit);
+	debug(DEBUG_INFO, "Request of actual EPG for 0x%" PRIx64 " 0x%" PRIx64, epg_id, static_cast<uint64_t>(startzeit));
 
 	const SIevent& evt = findSIeventForEventUniqueKey(epg_id);
 
