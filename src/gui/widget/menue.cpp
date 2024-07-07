@@ -2141,7 +2141,7 @@ void CMenuOptionChooser::setOption(const int newvalue)
 	*optionValue = newvalue;
 }
 
-int CMenuOptionChooser::getOption(void) const
+int CMenuOptionChooser::getOption(void)
 {
 	return *optionValue;
 }

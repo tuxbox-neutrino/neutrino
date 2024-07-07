@@ -259,7 +259,7 @@ class CMenuForwarder : public CMenuItem
 	const std::string *	option_string_ptr;
 	CMenuTarget *		jumpTarget;
 
-	virtual std::string getOption(void);
+	std::string getOption(void);
 
  public:
 
@@ -479,7 +479,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 		~CMenuOptionChooser();
 
 		void setOption(const int newvalue);
-		int getOption(void) const;
+		int getOption(void);
 		int getWidth(void);
 		void setOptions(const struct keyval * const Options, const unsigned Number_Of_Options);
 		void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
