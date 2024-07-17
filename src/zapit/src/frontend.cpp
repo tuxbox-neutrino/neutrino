@@ -245,13 +245,13 @@ void CFrontend::getFEInfo(void)
 			{
 				//printf("NIM SOCKET: %s\n", line.substr(line.find_first_of(":") + 2).c_str());
 #if BOXMODEL_VUPLUS_ALL
-				sprintf(info.name,"%s", line.substr(line.find_first_of(":") + 9).c_str());
-				// no hybrid for BCM3466 T2 tuner
-				if (!strncmp(line.substr(line.find_first_of("(") + 1).c_str(), "BCM3466)", 8))
-				{
-					found = false;
-					deliverySystemMask |= DVB_T2;
-				}
+			sprintf(info.name,"%s", line.substr(line.find_first_of(":") + 9).c_str());
+			// no hybrid for BCM3466 T2 tuner
+			if (!strncmp(line.substr(line.find_first_of("(") + 1).c_str(), "BCM3466)", 8))
+			{
+				found = false;
+				deliverySystemMask |= DVB_T2;
+			}
 #else
 				std::string tmp = info.name;
 				sprintf(info.name,"%s (%s)", tmp.c_str(), line.substr(line.find_first_of(":") + 2).c_str());
