@@ -1977,20 +1977,6 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 }
 #endif
 
-#if 0 // not used, saved in case we needed it
-extern bool autoshift_delete;
-bool CRecordManager::LinkTimeshift()
-{
-	if(autoshift) {
-		char buf[512];
-		autoshift = false;
-		sprintf(buf, "ln %s/* %s", timeshiftDir, g_settings.network_nfs_recordingdir);
-		system(buf);
-		autoshift_delete = true;
-	}
-}
-#endif
-
 CStreamRec::CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift, bool stream_vtxt_pid, bool stream_pmt_pid, bool stream_subtitle_pids)
 	: CRecordInstance(eventinfo, dir, timeshift, stream_vtxt_pid, stream_pmt_pid, stream_subtitle_pids)
 {
@@ -2210,12 +2196,16 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	if (url.empty())
 		return false;
 
-	std::string pretty_name,headers,dumb;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers,dumb)) {
+	std::string pretty_name,headers,url2,base_url;
+	base_url = url;
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers,url2)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}
-
+	if (!url2.empty() && url2.find("m3u8"))
+	{
+		url = base_url;
+	}
 	//av_log_set_level(AV_LOG_VERBOSE);
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 	av_register_all();
@@ -2270,7 +2260,6 @@ bool CStreamRec::Open(CZapitChannel * channel)
 #else
 	av_dump_format(ifcx, 0, ifcx->url, 0);
 #endif
-
 	std::string tsfile = std::string(filename) + ".ts";
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59, 0, 100)
 	AVOutputFormat *ofmt = av_guess_format(NULL, tsfile.c_str(), NULL);
@@ -2313,6 +2302,11 @@ bool CStreamRec::Open(CZapitChannel * channel)
 		ost->time_base = ifcx->streams[i]->time_base;
 		ost->id = stid++;
 		if (iccx->codec_type == AVMEDIA_TYPE_VIDEO) {
+			std::string width = to_string(ifcx->streams[i]->codecpar->width);
+			if(!width.empty() && !pretty_name.empty() && pretty_name.find(width,0) == std::string::npos)
+			{
+				ifcx->streams[i]->discard = AVDISCARD_ALL;
+			}
 			stream_index = i;
 		} else if (stream_index < 0)
 			stream_index = i;
@@ -2451,3 +2445,17 @@ void CStreamRec::WriteHeader(uint32_t duration)
 	} else
 		perror(tsfile.c_str());
 }
+
+#if 0 // not used, saved in case we needed it
+extern bool autoshift_delete;
+bool CRecordManager::LinkTimeshift()
+{
+if(autoshift) {
+	char buf[512];
+	autoshift = false;
+	sprintf(buf, "ln %s/* %s", timeshiftDir, g_settings.network_nfs_recordingdir);
+	system(buf);
+	autoshift_delete = true;
+	}
+}
+#endif
