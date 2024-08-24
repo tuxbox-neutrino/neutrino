@@ -52,11 +52,7 @@ CTMDB *CTMDB::getInstance()
 
 CTMDB::CTMDB()
 {
-#ifdef TMDB_API_KEY
-	key = TMDB_API_KEY;
-#else
 	key = g_settings.tmdb_api_key;
-#endif
 	posterfile = "/tmp/tmdb.jpg";
 	hintbox = NULL;
 }
