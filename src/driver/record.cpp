@@ -80,6 +80,7 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 {
 	private:
 		AVFormatContext *ifcx;
+		AVFormatContext *ifcx2;
 		AVFormatContext *ofcx;
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
 		AVBitStreamFilterContext *bsfc;
@@ -91,6 +92,11 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 		time_t time_started;
 		int  stream_index;
 
+		int videoindex_v;
+		int videoindex_out;
+		int audioindex_a;
+		int audioindex_out;
+		bool have2url;
 		void GetPids(CZapitChannel * channel);
 		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
 		bool Start();
@@ -98,6 +104,7 @@ class CStreamRec : public CRecordInstance, OpenThreads::Thread
 		void Close();
 		bool Open(CZapitChannel * channel);
 		void run();
+		void run2url();
 		void WriteHeader(uint32_t duration);
 	public:
 		CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
@@ -1977,28 +1984,16 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 }
 #endif
 
-#if 0 // not used, saved in case we needed it
-extern bool autoshift_delete;
-bool CRecordManager::LinkTimeshift()
-{
-	if(autoshift) {
-		char buf[512];
-		autoshift = false;
-		sprintf(buf, "ln %s/* %s", timeshiftDir, g_settings.network_nfs_recordingdir);
-		system(buf);
-		autoshift_delete = true;
-	}
-}
-#endif
-
 CStreamRec::CStreamRec(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift, bool stream_vtxt_pid, bool stream_pmt_pid, bool stream_subtitle_pids)
 	: CRecordInstance(eventinfo, dir, timeshift, stream_vtxt_pid, stream_pmt_pid, stream_subtitle_pids)
 {
 	ifcx = NULL;
+	ifcx2 = NULL;
 	ofcx = NULL;
+	bsfc = NULL;
 	stopped = true;
 	interrupt = false;
-	bsfc = NULL;
+	have2url = false;
 }
 
 CStreamRec::~CStreamRec()
@@ -2011,6 +2006,9 @@ void CStreamRec::Close()
 {
 	if (ifcx) {
 		avformat_close_input(&ifcx);
+	}
+	if (ifcx2) {
+		avformat_close_input(&ifcx2);
 	}
 	if (ofcx) {
 		if (ofcx->pb) {
@@ -2027,6 +2025,7 @@ void CStreamRec::Close()
 #endif
 	}
 	ifcx = NULL;
+	ifcx2 = NULL;
 	ofcx = NULL;
 	bsfc = NULL;
 }
@@ -2210,12 +2209,13 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	if (url.empty())
 		return false;
 
-	std::string pretty_name,headers,dumb;
-	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers,dumb)) {
+	std::string pretty_name,headers,url2;
+	if (!CMoviePlayerGui::getInstance(true).getLiveUrl(channel->getUrl(), channel->getScriptName(), url, pretty_name, recMovieInfo->epgInfo1, recMovieInfo->epgInfo2,headers,url2)) {
 		printf("%s: getLiveUrl() [%s] failed!\n", __FUNCTION__, url.c_str());
 		return false;
 	}
-
+	if(!url2.empty())
+		have2url = true;
 	//av_log_set_level(AV_LOG_VERBOSE);
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
 	av_register_all();
@@ -2234,6 +2234,12 @@ bool CStreamRec::Open(CZapitChannel * channel)
 		av_dict_set(&options, "reconnect", "1", 0);
 	}
 
+	if(have2url) {
+		if (avformat_open_input(&ifcx2, url2.c_str(), NULL, &options) != 0) {
+			printf("%s: Cannot open input2 [%s]!\n", __FUNCTION__, url2.c_str());
+			have2url = false;
+		}
+	}
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, url.c_str());
 		if (!headers.empty())
@@ -2297,6 +2303,7 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	ofcx->url = av_strdup(!tsfile.empty() ? tsfile.c_str() : "");
 #endif
 
+	videoindex_v = -1, videoindex_out = -1;
 	stream_index = -1;
 	int stid = 0x200;
 	for (unsigned i = 0; i < ifcx->nb_streams; i++) {
@@ -2312,10 +2319,37 @@ bool CStreamRec::Open(CZapitChannel * channel)
 		av_dict_copy(&ost->metadata, ifcx->streams[i]->metadata, 0);
 		ost->time_base = ifcx->streams[i]->time_base;
 		ost->id = stid++;
+		videoindex_out = ost->index;
 		if (iccx->codec_type == AVMEDIA_TYPE_VIDEO) {
 			stream_index = i;
+			videoindex_v = i;
 		} else if (stream_index < 0)
 			stream_index = i;
+	}
+	if(have2url) {
+		audioindex_a = -1, audioindex_out = -1;
+		for (unsigned i = 0; i < ifcx2->nb_streams; i++) {
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
+			AVCodecContext * iccx = ifcx2->streams[i]->codec;
+			AVStream *ost = avformat_new_stream(ofcx, iccx->codec);
+			avcodec_copy_context(ost->codec, iccx);
+#else
+			AVCodecParameters * iccx = ifcx2->streams[i]->codecpar;
+			AVStream *ost = avformat_new_stream(ofcx, NULL);
+			avcodec_parameters_copy(ost->codecpar, iccx);
+#endif
+			av_dict_copy(&ost->metadata, ifcx2->streams[i]->metadata, 0);
+			ost->time_base = ifcx2->streams[i]->time_base;
+			ost->id = stid++;
+			audioindex_out = ost->index;
+
+			if (iccx->codec_type == AVMEDIA_TYPE_AUDIO) {
+				audioindex_a = i;
+			}
+		}
+
+		if(audioindex_a == -1)
+			have2url = false;
 	}
 	av_log_set_level(AV_LOG_VERBOSE);
 #if (LIBAVFORMAT_VERSION_MAJOR < 58)
@@ -2352,8 +2386,11 @@ static void get_packet_defaults(AVPacket *pkt)
 
 void CStreamRec::run()
 {
+	if(have2url) {
+		run2url();
+		return;
+	}
 	AVPacket pkt;
-
 	time_t now = 0;
 	time_t tstart = time_monotonic();
 	time_started = tstart;
@@ -2428,6 +2465,132 @@ void CStreamRec::run()
 	printf("%s: Stopped.\n", __FUNCTION__);
 }
 
+void CStreamRec::run2url()
+{
+	printf("%s: Start.\n", __FUNCTION__);
+	AVPacket pkt;
+	int64_t cur_pts_v = 0, cur_pts_a = 0;
+	int frame_index = 0;
+	time_t now = 0;
+	time_t tstart = time_monotonic();
+	time_started = tstart;
+	start_time = time(0);
+	if (avformat_write_header(ofcx, NULL) < 0) {
+		printf("%s: avformat_write_header failed\n", __FUNCTION__);
+		return;
+	}
+
+	double total = 0;
+	while (1) {
+		AVFormatContext *ifmt_ctx;
+		int _stream_index = 0;
+		AVStream *in_stream, *out_stream;
+
+
+		// Get an AVPacket
+		if (av_compare_ts(cur_pts_v, ifcx->streams[videoindex_v]->time_base, cur_pts_a, ifcx2->streams[audioindex_a]->time_base) <= 0) {
+			ifmt_ctx = ifcx;
+			_stream_index = videoindex_out;
+			if (av_read_frame(ifmt_ctx, &pkt) >= 0) {
+				do {
+					if (pkt.stream_index == videoindex_v) {
+						cur_pts_v = pkt.pts;
+						break;
+					}
+				} while (av_read_frame(ifmt_ctx, &pkt) >= 0);
+			} else {
+				break;
+			}
+		} else {
+			ifmt_ctx = ifcx2;
+			_stream_index = audioindex_out;
+			if (av_read_frame(ifmt_ctx, &pkt) >= 0) {
+				do {
+					if (pkt.stream_index == audioindex_a) {
+						cur_pts_a = pkt.pts;
+						break;
+					}
+				} while (av_read_frame(ifmt_ctx, &pkt) >= 0);
+			} else {
+				break;
+			}
+
+		}
+		av_packet_make_refcounted(&pkt);
+
+		in_stream = ifmt_ctx->streams[pkt.stream_index];
+		out_stream = ofcx->streams[_stream_index];
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 25, 101)
+		AVCodecContext *codec = ifcx->streams[pkt.stream_index]->codec;
+#else
+		AVCodecParameters *codec = ifcx->streams[pkt.stream_index]->codecpar;
+#endif
+
+		if (bsfc && codec->codec_id == AV_CODEC_ID_H264) {
+			AVPacket newpkt = pkt;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
+			if (av_bitstream_filter_filter(bsfc, codec, NULL, &newpkt.data, &newpkt.size, pkt.data, pkt.size, pkt.flags & AV_PKT_FLAG_KEY) >= 0) {
+				av_packet_unref(&pkt);
+				newpkt.buf = av_buffer_create(newpkt.data, newpkt.size, av_buffer_default_free, NULL, 0);
+				pkt = newpkt;
+			}
+#else
+			int ret = av_bsf_send_packet(bsfc, &pkt);
+			if (ret < 0){
+				break;
+			}
+			ret = av_bsf_receive_packet(bsfc, &newpkt);
+			if (ret == AVERROR(EAGAIN)){
+				break;
+			}
+			if(ret != AVERROR_EOF){
+				av_packet_unref(&pkt);
+				pkt = newpkt;
+			}
+#endif
+		}
+		if (pkt.pts == AV_NOPTS_VALUE) {
+			//Write PTS
+			AVRational time_base1 = in_stream->time_base;
+			//Duration between 2 frames (us)
+			int64_t calc_duration = (double) AV_TIME_BASE / av_q2d(in_stream->r_frame_rate);
+			//Parameters
+			pkt.pts = (double) (frame_index * calc_duration) / (double) (av_q2d(time_base1) * AV_TIME_BASE);
+			pkt.dts = pkt.pts;
+			pkt.duration = (double) calc_duration / (double) (av_q2d(time_base1) * AV_TIME_BASE);
+			frame_index++;
+		}
+		/* copy packet */
+		// Convert PTS/DTS
+		pkt.pts = av_rescale_q_rnd(pkt.pts, in_stream->time_base, out_stream->time_base, (enum AVRounding) (AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+		pkt.dts = av_rescale_q_rnd(pkt.dts, in_stream->time_base, out_stream->time_base, (enum AVRounding) (AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
+		pkt.duration = av_rescale_q(pkt.duration, in_stream->time_base, out_stream->time_base);
+		pkt.pos = -1;
+		pkt.stream_index = _stream_index;
+
+		// Write
+		if (av_interleaved_write_frame(ofcx, &pkt) < 0) {
+			printf("Error muxing packet\n");
+			break;
+		}
+		av_packet_unref(&pkt);
+
+		if (now == 0)
+			WriteHeader(1000);
+		now = time_monotonic();
+		if (now - tstart > 1) {
+			tstart = now;
+			WriteHeader(total);
+		}
+	}
+
+	av_read_pause(ifcx);
+	av_read_pause(ifcx2);
+	av_write_trailer(ofcx);
+	WriteHeader(total);
+	printf("%s: Stopped.\n", __FUNCTION__);
+}
+
 typedef struct pvr_file_info
 {
 	uint32_t  uDuration;      /* Time duration in Ms */
@@ -2451,3 +2614,17 @@ void CStreamRec::WriteHeader(uint32_t duration)
 	} else
 		perror(tsfile.c_str());
 }
+
+#if 0 // not used, saved in case we needed it
+extern bool autoshift_delete;
+bool CRecordManager::LinkTimeshift()
+{
+if(autoshift) {
+	char buf[512];
+	autoshift = false;
+	sprintf(buf, "ln %s/* %s", timeshiftDir, g_settings.network_nfs_recordingdir);
+	system(buf);
+	autoshift_delete = true;
+	}
+}
+#endif
