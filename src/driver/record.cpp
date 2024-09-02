@@ -1409,11 +1409,14 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 		}
 		else if(data == check_timer) {
 			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) {
-				mutex.lock();
 				int have_err = 0;
-				for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
-					have_err |= it->second->GetStatus();
-				mutex.unlock();
+				bool locked = mutex.trylock();
+				if (!locked) {
+					have_err = 0;
+					for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
+						have_err |= it->second->GetStatus();
+					mutex.unlock();
+				}
 				//printf("%s: check status: show err %d warn %d have_err %d\n", __FUNCTION__, error_display, warn_display, have_err); //FIXME
 				if (have_err) {
 					if ((have_err & REC_STATUS_OVERFLOW) && error_display) {
