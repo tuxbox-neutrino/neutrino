@@ -191,6 +191,10 @@ void CEpgData::processTextToArray(std::string text, int screening, bool has_cove
 	std::string	aktLine = "";
 	std::string	aktWord = "";
 	int	aktWidth = 0;
+
+	if(!text.empty())
+		text = str_replace("\\n", "\n", text);
+
 	text += ' ';
 	char* text_= (char*) text.c_str();
 
