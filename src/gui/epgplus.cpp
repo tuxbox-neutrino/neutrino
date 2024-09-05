@@ -387,7 +387,13 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 		CShortEPGData shortEpgData;
 
 		bool ret = CEitManager::getInstance()->getEPGidShort(this->channelEvent.eventID, &shortEpgData);
-		this->footer->paintEventDetails(this->channelEvent.description, ret ? shortEpgData.info1 : "");
+		std::string shortepg = shortEpgData.info1;
+		if(!shortepg.empty())
+		{
+			shortepg = str_replace("\n", " ", shortepg);
+			shortepg = str_replace("\\n", " ", shortepg);
+		}
+		this->footer->paintEventDetails(this->channelEvent.description, ret ? shortepg : "");
 
 		this->timeLine->paintGrid();
 	}
