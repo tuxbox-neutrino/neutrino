@@ -835,8 +835,10 @@ void writeEventsToFile(const char *epgdir)
 		}
 		(*e)->saveXML(eventfile);
 	}
-	write_epgxml_footer(eventfile);
-	fclose(eventfile);
+	if (eventfile != NULL) {
+		write_epgxml_footer(eventfile);
+		fclose(eventfile);
+	}
 _done:
 	unlockEvents();
 	write_indexxml_footer(indexfile);
