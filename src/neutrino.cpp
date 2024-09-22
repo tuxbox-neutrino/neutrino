@@ -1116,7 +1116,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.weather_api_version = WEATHER_API_VERSION;
 #if ENABLE_WEATHER_KEY_MANAGE
 	g_settings.weather_api_key = configfile.getString("weather_api_key", g_settings.weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.weather_api_key);
-	g_settings.weather_api_version = configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "2.5" : g_settings.weather_api_version);
+	g_settings.weather_api_version = configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "3.0" : g_settings.weather_api_version);
 #endif
 	g_settings.weather_enabled = configfile.getInt32("weather_enabled", 1);
 	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
@@ -1500,6 +1500,10 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	{
 		g_settings.youtube_api_key = configfile.getString("youtube_dev_id", g_settings.youtube_api_key);
 		configfile.deleteKey("youtube_dev_id");
+	}
+	if (g_settings.version_pseudo < "20240922210000")
+	{
+		g_settings.weather_api_version = "3.0";
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;

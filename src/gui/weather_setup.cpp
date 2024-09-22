@@ -39,8 +39,8 @@
 
 CMenuOptionChooser::keyval_ext WEATHER_API_OPTIONS[] =
 {
-	{ 0, NONEXISTANT_LOCALE, "2.5"	},
-	{ 1, NONEXISTANT_LOCALE, "3.0"	}
+	{ 0, NONEXISTANT_LOCALE, "3.0"	},
+	{ 1, NONEXISTANT_LOCALE, "?.?"	} // prepared for next API version
 
 };
 #define WEATHER_API_OPTION_COUNT (sizeof(WEATHER_API_OPTIONS)/sizeof(CMenuOptionChooser::keyval_ext))
