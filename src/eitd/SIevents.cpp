@@ -518,6 +518,7 @@ void SIevent::setName(unsigned int lang, const std::string &name)
 {
 	std::string tmp = name;
 	std::replace(tmp.begin(), tmp.end(), '\n', ' ');
+	std::replace(tmp.begin(), tmp.end(), '\t', ' ');
 
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode())
 		lang = 0;
@@ -553,18 +554,26 @@ void SIevent::setText(const std::string &lang, const std::string &text)
 
 void SIevent::setText(unsigned int lang, const std::string &text)
 {
+	std::string tmp = text;
+
+	std::string::size_type index = 0;
+	while ((index = tmp.find("\\n", index)) != std::string::npos) {
+		tmp.replace(index, 2, "\n");
+		++index;
+	}
+
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode())
 		lang = 0;
 
 	for (std::list<SILangData>::iterator it = langData.begin(); it != langData.end(); ++it)
 		if (it->lang == lang) {
-			it->text[SILangData::langText] = text;
+			it->text[SILangData::langText] = tmp;
 			return;
 		}
 
 	SILangData ld;
 	ld.lang = lang;
-	ld.text[SILangData::langText] = text;
+	ld.text[SILangData::langText] = tmp;
 	langData.push_back(ld);
 }
 
@@ -587,26 +596,34 @@ void SIevent::appendExtendedText(const std::string &lang, const std::string &tex
 
 void SIevent::appendExtendedText(unsigned int lang, const std::string &text, bool append, bool endappend)
 {
+	std::string tmp = text;
+
+	std::string::size_type index = 0;
+	while ((index = tmp.find("\\n", index)) != std::string::npos) {
+		tmp.replace(index, 2, "\n");
+		++index;
+	}
+
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode())
 		lang = 0;
 
 	for (std::list<SILangData>::iterator it = langData.begin(); it != langData.end(); ++it)
 		if (it->lang == lang) {
 			if (append){
-				it->text[SILangData::langExtendedText] += text;
+				it->text[SILangData::langExtendedText] += tmp;
 				if(endappend && it->text[SILangData::langExtendedText].capacity() > it->text[SILangData::langExtendedText].size()){
 					it->text[SILangData::langExtendedText].reserve();
 				}
 			}
 			else{
-				it->text[SILangData::langExtendedText] = text;
+				it->text[SILangData::langExtendedText] = tmp;
 			}
 			return;
 		}
 
 	SILangData ld;
 	ld.lang = lang;
-	ld.text[SILangData::langExtendedText] = text;
+	ld.text[SILangData::langExtendedText] = tmp;
 	langData.push_back(ld);
 }
 
