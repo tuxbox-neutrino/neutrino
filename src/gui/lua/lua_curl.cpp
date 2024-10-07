@@ -145,6 +145,7 @@ int CLuaInstCurl::CurlDownload(lua_State *L)
 					as secund return value
 	A, userAgent	string		empty
 	P, postfields	string		empty
+	data, post-data string          empty
 	v, verbose	bool		false
 	s, silent	bool		false
 	h, header	bool		false
@@ -230,7 +231,8 @@ Example:
 	tableLookup(L, "A", userAgent) || tableLookup(L, "userAgent", userAgent);
 
 	std::string postfields = "";//specify data to POST to server
-	tableLookup(L, "P", postfields) || tableLookup(L, "postfields", postfields);
+	tableLookup(L, "P", postfields) || tableLookup(L, "postfields", postfields) ||
+	tableLookup(L, "data", postfields) || tableLookup(L, "post-data", postfields);
 
 	bool verbose = false;
 	tableLookup(L, "v", verbose) || tableLookup(L, "verbose", verbose);
