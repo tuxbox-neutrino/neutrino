@@ -517,6 +517,7 @@ void SIevent::setName(const std::string &lang, const std::string &name)
 void SIevent::setName(unsigned int lang, const std::string &name)
 {
 	std::string tmp = name;
+	std::replace(tmp.begin(), tmp.end(), '\\n', ' ');
 	std::replace(tmp.begin(), tmp.end(), '\n', ' ');
 	std::replace(tmp.begin(), tmp.end(), '\t', ' ');
 
