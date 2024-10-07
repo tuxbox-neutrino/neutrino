@@ -221,7 +221,7 @@ CZapitChannel * CServiceManager::FindChannelByName(std::string name)
 }
 
 
-CZapitChannel* CServiceManager::FindChannelByPattern(std::string pattern)
+CZapitChannel * CServiceManager::FindChannelByPattern(std::string pattern)
 {
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		//INFO("searching for %s in %s", pattern.c_str(), it->second.getName().c_str());
@@ -244,29 +244,21 @@ CZapitChannel * CServiceManager::FindCurrentChannel(const t_channel_id channel_i
 CZapitChannel * CServiceManager::FindChannel48(const t_channel_id channel_id)
 {
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if ((it->second.getChannelID() & 0xFFFFFFFFFFFFULL) == (channel_id & 0xFFFFFFFFFFFFULL))
-			return &(it->second);
+		if((it->second.getChannelID() & 0xFFFFFFFFFFFFULL) == (channel_id & 0xFFFFFFFFFFFFULL))
+			return &it->second;
 	}
 	return NULL;
 }
 
-CZapitChannel * CServiceManager::FindChannel48Pos(const t_channel_id channel_id,
-                                                 const t_satellite_position pos)
+CZapitChannel* CServiceManager::FindChannel48Pos(const t_channel_id channel_id,
+						 const t_satellite_position pos)
 {
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		CZapitChannel &channel = it->second;
-		if (CFrontend::isCable(channel.delsys))
-		{
-			if ((channel.getChannelID() & 0xFFFFFFFFFFFFULL) == (channel_id & 0xFFFFFFFFFFFFULL))
-				return &channel;
-		}
-		else
-		{
-			if ((channel.getChannelID() & 0xFFFFFFFFFFFFULL) != (channel_id & 0xFFFFFFFFFFFFULL))
-				continue;
-			if (pos == channel.getSatellitePosition())
-				return &channel;
-		}
+		CZapitChannel *ret = &it->second;
+		if ((ret->getChannelID() & 0xFFFFFFFFFFFFULL) != (channel_id & 0xFFFFFFFFFFFFULL))
+			continue;
+		if (pos == ret->getSatellitePosition())
+			return ret;
 	}
 	return NULL;
 }
