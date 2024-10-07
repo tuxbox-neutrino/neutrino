@@ -392,6 +392,7 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 		{
 			shortepg = str_replace("\n", " ", shortepg);
 			shortepg = str_replace("\\n", " ", shortepg);
+			shortepg = str_replace("\t", " ", shortepg);
 		}
 		this->footer->paintEventDetails(this->channelEvent.description, ret ? shortepg : "");
 
