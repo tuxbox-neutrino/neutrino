@@ -1699,11 +1699,11 @@ void CChannelList::paintDetails(int index)
 		}
 
 		if (!(text2.empty())) {
-			text2 = str_replace("\\n", " ", text2);
 			while ( text2.find_first_of("[ -.+*#?=!$%&/]+") == 0 )
 				text2 = text2.substr( 1 );
 			text2 = text2.substr( 0, text2.find('\n') );
-#if 0 //FIXME: to discuss, eat too much cpu time if string long enough
+#if 0
+			// FIXME: to discuss, eat too much cpu time if string long enough
 			int pos = 0;
 			while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2) > (full_width - 3*OFFSET_INNER_MID - noch_len) ) ) {
 				pos = text2.find_last_of(" ");
@@ -2766,10 +2766,6 @@ void CChannelList::processTextToArray(std::string text, int screening) // UTF-8
 	std::string	aktLine = "";
 	std::string	aktWord = "";
 	int	aktWidth = 0;
-
-	if(!text.empty())
-		text = str_replace("\\n", "\n", text);
-
 	text += ' ';
 	const char *text_= text.c_str();
 

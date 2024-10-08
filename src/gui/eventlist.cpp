@@ -878,9 +878,6 @@ void CEventList::paintDescription(int index)
 	else
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
-	if(!infozone_text.empty())
-		infozone_text = str_replace("\\n", "\n", infozone_text);
-
 	infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
 	infozone->doPaintBg(false);
 	infozone->doPaintTextBoxBg(true);

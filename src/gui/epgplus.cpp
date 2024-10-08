@@ -390,7 +390,6 @@ void EpgPlus::ChannelEventEntry::paint(bool pisSelected, bool toggleColor)
 		std::string shortepg = shortEpgData.info1;
 		if(!shortepg.empty())
 		{
-			shortepg = str_replace("\\n", " ", shortepg);
 			shortepg = str_replace("\n", " ", shortepg);
 			shortepg = str_replace("\t", " ", shortepg);
 		}
