@@ -168,14 +168,13 @@ class CInfoViewer : public sigc::trackable
 	CInfoViewer();
 	~CInfoViewer();
 
-	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
-				const std::string &g_file_epg, const std::string &g_file_epg1,
-				const int duration, const int curr_pos, const int repeat_mode, const int _zap_mode = IV_MODE_DEFAULT);
-
 	void	start();
 	void	showEpgInfo();
 	void	showTitle(CZapitChannel * channel, const bool calledFromNumZap = false, int epgpos = 0, bool forcePaintButtonBar = false);
 	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0, bool forcePaintButtonBar = false);
+	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
+				const std::string &g_file_epg, const std::string &g_file_epg1,
+				const int duration, const int curr_pos, const int repeat_mode, const int _zap_mode = IV_MODE_DEFAULT);
 	void lookAheadEPG(const int ChanNum, const std::string & Channel, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false); //alpha: fix for nvod subchannel update
 	void	killTitle();
 	void	getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info);

@@ -456,126 +456,6 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 	}
 }
 
-void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channel_Id, const std::string &Channel,
-				 const std::string &g_file_epg, const std::string &g_file_epg1,
-				 const int duration, const int curr_pos,
-				 const int repeat_mode, const int _zap_mode)
-{
-	CInfoClock::getInstance()->disableInfoClock();
-
-	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
-	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
-	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
-	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
-		isVolscale = CVolume::getInstance()->hideVolscale();
-	else
-		isVolscale = false;
-
-	check_channellogo_ca_SettingsChange();
-	aspectRatio = 0;
-	last_curr_id = last_next_id = 0;
-	showButtonBar = true;
-	fileplay = true;
-	zap_mode = _zap_mode;
-	reset_allScala();
-
-	if(!is_visible)
-		fader.StartFadeIn();
-
-	is_visible = true;
-	infoViewerBB->is_visible = true;
-
-	ChannelName = Channel;
-	t_channel_id old_channel_id = current_channel_id;
-	current_channel_id = Channel_Id;
-
-	/* showChannelLogo() changes this, so better reset it every time... */
-	ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
-
-	paintBackground(COL_INFOBAR_PLUS_0);
-
-	bool show_dot = true;
-	if (timeset)
-		clock->paint(CC_SAVE_SCREEN_NO);
-	showRecordIcon (show_dot);
-	show_dot = !show_dot;
-
-	if (!zap_mode)
-		infoViewerBB->paintshowButtonBar();
-
-	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
-	int ChannelLogoMode = 0;
-	if (g_settings.infobar_show_channellogo > 1)
-		ChannelLogoMode = showChannelLogo(current_channel_id, 0);
-	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + OFFSET_INNER_MID, ChanNameY + header_height,BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID, ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
-
-	// show_Data
-	if (CMoviePlayerGui::getInstance().file_prozent > 100)
-		CMoviePlayerGui::getInstance().file_prozent = 100;
-
-	const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
- 	char runningRest[32]; // %d can be 10 digits max...
-	snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
-	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
-
-	int speed = CMoviePlayerGui::getInstance().GetSpeed();
-	const char *playicon = NULL;
-	switch (playState) {
-	case CMoviePlayerGui::PLAY:
-		switch (repeat_mode) {
-		case CMoviePlayerGui::REPEAT_ALL:
-			playicon = NEUTRINO_ICON_PLAY_REPEAT_ALL;
-			break;
-		case CMoviePlayerGui::REPEAT_TRACK:
-			playicon = NEUTRINO_ICON_PLAY_REPEAT_TRACK;
-			break;
-		default:
-			playicon = NEUTRINO_ICON_PLAY;
-		}
-		speed = 0;
-		break;
-	case CMoviePlayerGui::PAUSE:
-		playicon = NEUTRINO_ICON_PAUSE;
-		break;
-	case CMoviePlayerGui::REW:
-		playicon = NEUTRINO_ICON_REW;
-		speed = abs(speed);
-		break;
-	case CMoviePlayerGui::FF:
-		playicon = NEUTRINO_ICON_FF;
-		speed = abs(speed);
-		break;
-	default:
-		/* NULL crashes in getIconSize, just use something */
-		playicon = NEUTRINO_ICON_BUTTON_HELP;
-		break;
-	}
-	int icon_w = 0,icon_h = 0;
-	frameBuffer->getIconSize(playicon, &icon_w, &icon_h);
-	int speedw = 0;
-	if (speed) {
-		sprintf(runningRest, "%dx", speed);
-		speedw = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest);
-		icon_w += speedw;
-	}
-	int icon_x = BoxStartX + ChanWidth / 2 - icon_w / 2;
-	int icon_y = BoxStartY + ChanHeight / 2 - icon_h / 2;
-	if (speed) {
-		int sh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
-		int sy = BoxStartY + ChanHeight/2 - sh/2 + sh;
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR_TEXT, 0, renderFlag);
-		icon_x += speedw;
-	}
-	frameBuffer->paintIcon(playicon, icon_x, icon_y);
-	showLcdPercentOver ();
-	showInfoFile();
-	loop(show_dot);
-	aspectRatio = 0;
-	fileplay = 0;
-	current_channel_id = old_channel_id;
-}
-
 void CInfoViewer::reset_allScala()
 {
 	changePB();
@@ -833,6 +713,126 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 	}
 	aspectRatio = 0;
 	fileplay = 0;
+}
+
+void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channel_Id, const std::string &Channel,
+				 const std::string &g_file_epg, const std::string &g_file_epg1,
+				 const int duration, const int curr_pos,
+				 const int repeat_mode, const int _zap_mode)
+{
+	CInfoClock::getInstance()->disableInfoClock();
+
+	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT ||
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT ||
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER ||
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
+		isVolscale = CVolume::getInstance()->hideVolscale();
+	else
+		isVolscale = false;
+
+	check_channellogo_ca_SettingsChange();
+	aspectRatio = 0;
+	last_curr_id = last_next_id = 0;
+	showButtonBar = true;
+	fileplay = true;
+	zap_mode = _zap_mode;
+	reset_allScala();
+
+	if(!is_visible)
+		fader.StartFadeIn();
+
+	is_visible = true;
+	infoViewerBB->is_visible = true;
+
+	ChannelName = Channel;
+	t_channel_id old_channel_id = current_channel_id;
+	current_channel_id = Channel_Id;
+
+	/* showChannelLogo() changes this, so better reset it every time... */
+	ChanNameX = BoxStartX + ChanWidth + OFFSET_SHADOW;
+
+	paintBackground(COL_INFOBAR_PLUS_0);
+	bool show_dot = true;
+
+	if (timeset)
+			clock->paint(CC_SAVE_SCREEN_NO);
+	showRecordIcon (show_dot);
+	show_dot = !show_dot;
+
+	if (!zap_mode)
+		infoViewerBB->paintshowButtonBar();
+
+	int renderFlag = ((g_settings.theme.infobar_gradient_top) ? Font::FULLBG : 0) | Font::IS_UTF8;
+	int ChannelLogoMode = 0;
+	if (g_settings.infobar_show_channellogo > 1)
+		ChannelLogoMode = showChannelLogo(current_channel_id, 0);
+	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + OFFSET_INNER_MID, ChanNameY + header_height,BoxEndX - (ChanNameX + 2*OFFSET_INNER_MID) - time_width - OFFSET_INNER_MID, ChannelName, COL_INFOBAR_TEXT, 0, renderFlag);
+
+	// show_Data
+	if (CMoviePlayerGui::getInstance().file_prozent > 100)
+		CMoviePlayerGui::getInstance().file_prozent = 100;
+
+	const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+	char runningRest[32]; // %d can be 10 digits max...
+	snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
+	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
+
+	int speed = CMoviePlayerGui::getInstance().GetSpeed();
+	const char *playicon = NULL;
+	switch (playState) {
+	case CMoviePlayerGui::PLAY:
+		switch (repeat_mode) {
+		case CMoviePlayerGui::REPEAT_ALL:
+			playicon = NEUTRINO_ICON_PLAY_REPEAT_ALL;
+			break;
+		case CMoviePlayerGui::REPEAT_TRACK:
+			playicon = NEUTRINO_ICON_PLAY_REPEAT_TRACK;
+			break;
+		default:
+			playicon = NEUTRINO_ICON_PLAY;
+		}
+		speed = 0;
+		break;
+	case CMoviePlayerGui::PAUSE:
+		playicon = NEUTRINO_ICON_PAUSE;
+		break;
+	case CMoviePlayerGui::REW:
+		playicon = NEUTRINO_ICON_REW;
+		speed = abs(speed);
+		break;
+	case CMoviePlayerGui::FF:
+		playicon = NEUTRINO_ICON_FF;
+		speed = abs(speed);
+		break;
+	default:
+		/* NULL crashes in getIconSize, just use something */
+		playicon = NEUTRINO_ICON_BUTTON_HELP;
+		break;
+	}
+	int icon_w = 0,icon_h = 0;
+	frameBuffer->getIconSize(playicon, &icon_w, &icon_h);
+	int speedw = 0;
+	if (speed) {
+		sprintf(runningRest, "%dx", speed);
+		speedw = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest);
+		icon_w += speedw;
+	}
+	int icon_x = BoxStartX + ChanWidth / 2 - icon_w / 2;
+	int icon_y = BoxStartY + ChanHeight / 2 - icon_h / 2;
+	if (speed) {
+		int sh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
+		int sy = BoxStartY + ChanHeight/2 - sh/2 + sh;
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR_TEXT, 0, renderFlag);
+		icon_x += speedw;
+	}
+	frameBuffer->paintIcon(playicon, icon_x, icon_y);
+	showLcdPercentOver ();
+	showInfoFile();
+	loop(show_dot);
+	aspectRatio = 0;
+	fileplay = 0;
+	current_channel_id = old_channel_id;
 }
 
 void CInfoViewer::setInfobarTimeout(int timeout_ext)
