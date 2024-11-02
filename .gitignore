@@ -91,3 +91,6 @@ src/nhttpd/nhttpd.conf
 ### IDE-specific settings
 # Visual Studio Code settings
 .vscode/
+
+### python environment fallout
+venv
