@@ -319,39 +319,36 @@ void CComponentsFooter::setButtonLabels(const struct button_label_cc * const con
 void CComponentsFooter::setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
 	//conversion for compatibility with older paintButtons() methode, find in /gui/widget/buttons.h
-	button_label_cc *buttons = new button_label_cc[label_count];
-	for (size_t i = 0; i< label_count; i++){
-		buttons[i].button = content[i].button;
-		buttons[i].locale = content[i].locale;
+	std::vector<button_label_cc> buttons;
+	buttons.reserve(label_count);
+
+	for (size_t i = 0; i < label_count; i++) {
+		button_label_cc button;
+		button.button = content[i].button;
+		button.locale = content[i].locale;
 		//NOTE: here are used default values, because old button label struct don't know about this,
 		//if it possible, don't use this methode!
-		buttons[i].directKeys.push_back(CRCInput::RC_nokey);
-		buttons[i].btn_result = -1;
-		buttons[i].btn_alias = -1;
+		button.directKeys.push_back(CRCInput::RC_nokey);
+		button.btn_result = -1;
+		button.btn_alias = -1;
+		buttons.emplace_back(std::move(button));
 	}
-	setButtonLabels(buttons, label_count, chain_width, label_width);
-	delete[] buttons;
-	buttons = NULL;
+
+	setButtonLabels(buttons.data(), buttons.size(), chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabels(const vector<button_label_cc> &v_content, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabels(const std::vector<button_label_cc> &v_content, const int &chain_width, const int &label_width)
 {
 	size_t label_count = v_content.size();
-	button_label_cc *buttons = new button_label_cc[label_count];
+	std::vector<button_label_cc> buttons;
+	buttons.reserve(label_count);
 
-	for (size_t i= 0; i< label_count; i++){
-		buttons[i].button = v_content[i].button;
-		buttons[i].text = v_content[i].text;
-		buttons[i].locale = v_content[i].locale;
-		for (size_t j= 0; j< v_content[i].directKeys.size(); j++)
-			buttons[i].directKeys.push_back(v_content[i].directKeys[j]);
-		buttons[i].btn_result = v_content[i].btn_result;
-		buttons[i].btn_alias = v_content[i].btn_alias;
+	for (size_t i = 0; i < label_count; i++) {
+		button_label_cc button = v_content[i]; // Kopiere alle Felder
+		buttons.emplace_back(std::move(button));
 	}
 
-	setButtonLabels(buttons, label_count, chain_width, label_width);
-	delete[] buttons;
-	buttons = NULL;
+	setButtonLabels(buttons.data(), buttons.size(), chain_width, label_width);
 }
 
 void CComponentsFooter::setButtonLabel(	const char *button_icon,

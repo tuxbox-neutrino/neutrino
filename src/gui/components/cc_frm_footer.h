@@ -91,7 +91,7 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 		///add button labels with string label type as content, count as size_t, chain_width as int, label width as int
 		void setButtonLabels(const struct button_label_cc * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
 		///add button labels with string label type as content, parameter 1 as vector, chain_width as int, label width as int
-		void setButtonLabels(const std::vector<button_label_cc> &v_content, const int& chain_width, const int& label_width);
+		void setButtonLabels(const std::vector<button_label_cc> &v_content, const int &chain_width, const int &label_width);
 
 		///enable/disable button frame in icon color, predefined for red, green, yellow and blue
 		void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}
