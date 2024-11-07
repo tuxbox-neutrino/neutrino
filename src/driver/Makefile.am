@@ -1,4 +1,5 @@
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64
 
 SUBDIRS = pictureviewer audiodec
 
@@ -6,7 +7,7 @@ if ENABLE_GRAPHLCD
 SUBDIRS += glcd
 endif
 
-AM_CPPFLAGS = \
+AM_CPPFLAGS += \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
