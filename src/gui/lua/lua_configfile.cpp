@@ -30,6 +30,14 @@
 #include "luainstance.h"
 #include "lua_configfile.h"
 
+#if LUA_VERSION_NUM >= 503 /* Lua 5.3 */
+
+#ifndef luaL_checkint
+#define luaL_checkint luaL_checkinteger
+#endif
+
+#endif /* Lua 5.3 */
+
 CLuaInstConfigFile* CLuaInstConfigFile::getInstance()
 {
 	static CLuaInstConfigFile* LuaInstConfigFile = NULL;

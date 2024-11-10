@@ -35,6 +35,14 @@
 #include "luainstance.h"
 #include "lua_filehelpers.h"
 
+#if LUA_VERSION_NUM >= 503 /* Lua 5.3 */
+
+#ifndef luaL_checkint
+#define luaL_checkint luaL_checkinteger
+#endif
+
+#endif /* Lua 5.3 */
+
 CLuaInstFileHelpers* CLuaInstFileHelpers::getInstance()
 {
 	static CLuaInstFileHelpers* LuaInstFileHelpers = NULL;
