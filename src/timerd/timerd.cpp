@@ -77,7 +77,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CBasicServer::send_data(connfd, &rspGetSleeptimer, sizeof(rspGetSleeptimer));
 			break;
 
-		case CTimerdMsg::CMD_GETTIMER:						// timer daten abfragen
+		case CTimerdMsg::CMD_GETTIMER:						// query timer data
 			CTimerdMsg::commandGetTimer msgGetTimer;
 			CTimerd::responseGetTimer resp;
 			CBasicServer::receive_data(connfd,&msgGetTimer, sizeof(msgGetTimer));
@@ -209,7 +209,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CTimerManager::getInstance()->unlockEvents();
 			break;
 
-		case CTimerdMsg::CMD_RESCHEDULETIMER:			// event nach vorne oder hinten schieben
+		case CTimerdMsg::CMD_RESCHEDULETIMER:			// reschedule event forward or backward
 			{
 				CBasicServer::receive_data(connfd,&msgModifyTimer, sizeof(msgModifyTimer));
 				int ret=CTimerManager::getInstance()->rescheduleEvent(msgModifyTimer.eventID,msgModifyTimer.announceTime,msgModifyTimer.alarmTime, msgModifyTimer.stopTime);
@@ -219,7 +219,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 				break;
 			}
 
-		case CTimerdMsg::CMD_MODIFYTIMER:				// neue zeiten setzen
+		case CTimerdMsg::CMD_MODIFYTIMER:				// set new times
 			{
 				CBasicServer::receive_data(connfd,&msgModifyTimer, sizeof(msgModifyTimer));
 				CTimerd::responseGetTimer data;
@@ -250,15 +250,15 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					}
 				}
 				int ret=CTimerManager::getInstance()->modifyEvent(msgModifyTimer.eventID,msgModifyTimer.announceTime,msgModifyTimer.alarmTime,
-										  msgModifyTimer.stopTime,msgModifyTimer.repeatCount,msgModifyTimer.eventRepeat,
-										  data);
+										msgModifyTimer.stopTime,msgModifyTimer.repeatCount,msgModifyTimer.eventRepeat,
+										data);
 				CTimerdMsg::responseStatus rspStatus;
 				rspStatus.status = (ret!=0);
 				CBasicServer::send_data(connfd, &rspStatus, sizeof(rspStatus));
 				break;
 			}
 
-		case CTimerdMsg::CMD_ADDTIMER:						// neuen timer hinzufuegen
+		case CTimerdMsg::CMD_ADDTIMER:						// add new timer
 			CTimerdMsg::commandAddTimer msgAddTimer;
 			CBasicServer::receive_data(connfd,&msgAddTimer, sizeof(msgAddTimer));
 
@@ -395,10 +395,10 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					CTimerdMsg::commandRemind remind;
 					CBasicServer::receive_data(connfd, &remind, sizeof(CTimerdMsg::commandRemind));
 					event = new CTimerEvent_Remind(msgAddTimer.announceTime,
-								       msgAddTimer.alarmTime,
-								       remind.message,
-								       msgAddTimer.eventRepeat,
-								       msgAddTimer.repeatCount);
+									msgAddTimer.alarmTime,
+									remind.message,
+									msgAddTimer.eventRepeat,
+									msgAddTimer.repeatCount);
 					rspAddTimer.eventID = CTimerManager::getInstance()->addEvent(event);
 					break;
 
@@ -406,10 +406,10 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					CTimerdMsg::commandExecPlugin pluginMsg;
 					CBasicServer::receive_data(connfd, &pluginMsg, sizeof(CTimerdMsg::commandExecPlugin));
 					event = new CTimerEvent_ExecPlugin(msgAddTimer.announceTime,
-									   msgAddTimer.alarmTime,
-									   pluginMsg.name,
-									   msgAddTimer.eventRepeat,
-									   msgAddTimer.repeatCount);
+									msgAddTimer.alarmTime,
+									pluginMsg.name,
+									msgAddTimer.eventRepeat,
+									msgAddTimer.repeatCount);
 					rspAddTimer.eventID = CTimerManager::getInstance()->addEvent(event);
 					break;
 				default:
@@ -419,7 +419,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CBasicServer::send_data(connfd, &rspAddTimer, sizeof(rspAddTimer));
 
 			break;
-		case CTimerdMsg::CMD_REMOVETIMER:						//	timer entfernen
+		case CTimerdMsg::CMD_REMOVETIMER:						// remove timer
 			dprintf("TIMERD: command remove\n");
 			CTimerdMsg::commandRemoveTimer msgRemoveTimer;
 			CBasicServer::receive_data(connfd,&msgRemoveTimer, sizeof(msgRemoveTimer));
@@ -427,7 +427,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CTimerManager::getInstance()->removeEvent(msgRemoveTimer.eventID);
 			break;
 
-		case CTimerdMsg::CMD_STOPTIMER:						//	timer stoppen
+		case CTimerdMsg::CMD_STOPTIMER:						// stop timer
 			dprintf("TIMERD: command stop\n");
 			CTimerdMsg::commandRemoveTimer msgStopTimer;
 			CBasicServer::receive_data(connfd,&msgStopTimer, sizeof(msgStopTimer));
@@ -435,7 +435,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CTimerManager::getInstance()->stopEvent(msgStopTimer.eventID);
 			break;
 
-		case CTimerdMsg::CMD_TIMERDAVAILABLE:					// testen ob server laeuft ;)
+		case CTimerdMsg::CMD_TIMERDAVAILABLE:					// check if server is running ;)
 			{
 				CTimerdMsg::responseAvailable rspAvailable;
 				rspAvailable.available = true;
@@ -451,21 +451,21 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 				return false;
 			}
 			break;
-		case CTimerdMsg::CMD_SETAPID:				  // apid setzen
+		case CTimerdMsg::CMD_SETAPID:				  // set apid
 			{
 				CTimerdMsg::commandSetAPid data;
 				CBasicServer::receive_data(connfd,&data, sizeof(data));
 				CTimerManager::getInstance()->modifyEvent(data.eventID , data.apids);
 			}
 			break;
-		case CTimerdMsg::CMD_SETRECSAFETY:				  // aufnahmekorrektur setzen
+		case CTimerdMsg::CMD_SETRECSAFETY:				  // set recording correction
 			{
 				CTimerdMsg::commandRecordingSafety data;
 				CBasicServer::receive_data(connfd,&data, sizeof(data));
 				CTimerManager::getInstance()->setRecordingSafety(data.pre , data.post);
 			}
 			break;
-		case CTimerdMsg::CMD_GETRECSAFETY:				  // aufnahmekorrektur lesen
+		case CTimerdMsg::CMD_GETRECSAFETY:				  // read recording correction
 			{
 				CTimerdMsg::commandRecordingSafety data;
 				CTimerManager::getInstance()->getRecordingSafety(data.pre , data.post);
