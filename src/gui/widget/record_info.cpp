@@ -71,18 +71,18 @@ void CRecInfo::init()
 	// init basic objects
 	rv_rec_img = NULL;
 	rv_ts_img = NULL;
-	CRecordManager *crm = CRecordManager::getInstance();
-	bool recordModeActive = crm->RecordingStatus();
 
 	// init text vars
 	std::string rec_icon = "";
-	std::string ts_icon  = "";
+	std::string ts_icon = "";
 	std::string s_records = "0x";
 
+	CRecordManager *crm = CRecordManager::getInstance();
+	bool recordModeActive = crm->RecordingStatus();
 	if (recordModeActive)
 	{
-		// get current channel id
-		t_channel_id cur_chid = g_RemoteControl->current_channel_id;
+		rec_icon = NEUTRINO_ICON_REC_GRAY;
+		ts_icon = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
 
 		// get current record count
 		int records = crm->GetRecordCount();
@@ -90,31 +90,22 @@ void CRecInfo::init()
 		// get global record mode
 		int rec_mode = crm->GetRecordMode();
 
+		// get current channel id
+		t_channel_id cur_chid = g_RemoteControl->current_channel_id;
+
 		// get current channel record mode
 		int cur_rec_mode = crm->GetRecordMode(cur_chid);
 
-		// set 'active' icons for record mode
-		if (rec_mode & CRecordManager::RECMODE_REC)
-		{
-			if (cur_rec_mode & CRecordManager::RECMODE_OFF)
-				rec_icon = NEUTRINO_ICON_REC_GRAY;
-			else
-				rec_icon = NEUTRINO_ICON_REC;
-		}
-		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
-		{
-			// subtract ts
-			//records--;
-			if (cur_rec_mode & CRecordManager::RECMODE_OFF)
-				ts_icon = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-			else
-				ts_icon = NEUTRINO_ICON_AUTO_SHIFT;
-		}
-		else if (rec_mode & CRecordManager::RECMODE_REC_TSHIFT)
-		{
+		// set 'active' icon for record mode
+		if (cur_rec_mode & CRecordManager::RECMODE_REC)
 			rec_icon = NEUTRINO_ICON_REC;
+
+		// set 'active' icon for timeshift mode
+		if (cur_rec_mode & CRecordManager::RECMODE_TSHIFT)
 			ts_icon = NEUTRINO_ICON_AUTO_SHIFT;
-		}
+
+		if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
+			records--; // subtract ts
 
 		s_records = to_string(records) + "x";
 	}
