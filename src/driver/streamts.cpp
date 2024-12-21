@@ -113,31 +113,48 @@ bool CStreamInstance::Stop()
 	running = false;
 	return (OpenThreads::Thread::join() == 0);
 }
-
-bool CStreamInstance::Send(ssize_t r, unsigned char * _buf)
+#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(59, 27, 100)
+bool CStreamInstance::Send(ssize_t r, const unsigned char *_buf)
+#else
+bool CStreamInstance::Send(ssize_t r,  unsigned char * _buf)
+#endif
 {
-	//OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	// lock fds for thread-safety
 	stream_fds_t cfds;
 	mutex.lock();
 	cfds = fds;
 	mutex.unlock();
+
 	int flags = 0;
 	if (cfds.size() > 1)
 		flags = MSG_DONTWAIT;
-	for (stream_fds_t::iterator it = cfds.begin(); it != cfds.end(); ++it) {
+
+	// iterate through all client sockets
+	for (auto it = cfds.begin(); it != cfds.end(); ++it)
+	{
 		int i = 10;
-		unsigned char *b = _buf ? _buf : buf;
+
+		// use a const pointer here to avoid conversion errors
+		const unsigned char *b = _buf ? _buf : buf;
 		ssize_t count = r;
-		do {
+
+		do
+		{
+			// 'send' takes a const void*, so no cast needed
 			int ret = send(*it, b, count, flags);
-			if (ret > 0) {
-				b += ret;
-				count -= ret;
+			if (ret > 0)
+			{
+				b += ret;   // move pointer further
+				count -= ret;   // reduce remaining bytes
 			}
 		} while ((count > 0) && (i-- > 0));
+
+		// if count didn't drop to zero, there was some error
 		if (count)
-			printf("send err, fd %d: (%zd from %zd)\n", *it, r-count, r);
+			printf("CStreamInstance::%s: send error, fd %d: (%zd from %zd)\n", __FUNCTION__, *it, r - count, r);
+
 	}
+
 	return true;
 }
 
@@ -803,7 +820,11 @@ CStreamStream::~CStreamStream()
 	Close();
 }
 
+#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(59, 27, 100)
+int CStreamStream::write_packet(void *opaque, const uint8_t *buffer, int buf_size)
+#else
 int CStreamStream::write_packet(void *opaque, uint8_t *buffer, int buf_size)
+#endif
 {
 	CStreamStream * st = (CStreamStream *) opaque;
 	st->Send(buf_size, buffer);
