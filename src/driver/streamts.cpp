@@ -117,32 +117,40 @@ bool CStreamInstance::Stop()
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
 bool CStreamInstance::Send(ssize_t r, const unsigned char *_buf)
 #else
-bool CStreamInstance::Send(ssize_t r,  unsigned char * _buf)
+bool CStreamInstance::Send(ssize_t r, unsigned char *_buf)
 #endif
 {
-    // OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-    stream_fds_t cfds;
-    mutex.lock();
-    cfds = fds;
-    mutex.unlock();
-    int flags = 0;
-    if (cfds.size() > 1)
-        flags = MSG_DONTWAIT;
-    for (stream_fds_t::iterator it = cfds.begin(); it != cfds.end(); ++it) {
-        int i = 10;
-        const unsigned char *b = _buf ? _buf : buf;
-        ssize_t count = r;
-        do {
-            int ret = send(*it, b, count, flags);
-            if (ret > 0) {
-                b += ret;
-                count -= ret;
-            }
-        } while ((count > 0) && (i-- > 0));
-        if (count)
-            printf("send err, fd %d: (%zd from %zd)\n", *it, r-count, r);
-    }
-    return true;
+	// lock fds for thread-safety
+	stream_fds_t cfds;
+	mutex.lock();
+	cfds = fds;
+	mutex.unlock();
+
+	int flags = 0;
+	if (cfds.size() > 1)
+		flags = MSG_DONTWAIT;
+
+	for (stream_fds_t::iterator it = cfds.begin(); it != cfds.end(); ++it)
+	{
+		int i = 10;
+		const unsigned char *b = _buf ? _buf : buf;
+		ssize_t count = r;
+
+		do
+		{
+			int ret = send(*it, b, count, flags);
+			if (ret > 0)
+			{
+				b += ret;
+				count -= ret;
+			}
+		} while ((count > 0) && (i-- > 0));
+
+		if (count)
+			printf("CStreamInstance::%s: send error, fd %d: (%zd from %zd)\n", __FUNCTION__, *it, r - count, r);
+	}
+
+	return true;
 }
 
 void CStreamInstance::Close()
