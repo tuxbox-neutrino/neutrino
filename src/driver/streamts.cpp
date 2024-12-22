@@ -113,7 +113,7 @@ bool CStreamInstance::Stop()
 	running = false;
 	return (OpenThreads::Thread::join() == 0);
 }
-#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(59, 27, 100)
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
 bool CStreamInstance::Send(ssize_t r, const unsigned char *_buf)
 #else
 bool CStreamInstance::Send(ssize_t r,  unsigned char * _buf)
@@ -820,7 +820,7 @@ CStreamStream::~CStreamStream()
 	Close();
 }
 
-#if LIBAVFORMAT_VERSION_INT > AV_VERSION_INT(59, 27, 100)
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
 int CStreamStream::write_packet(void *opaque, const uint8_t *buffer, int buf_size)
 #else
 int CStreamStream::write_packet(void *opaque, uint8_t *buffer, int buf_size)
