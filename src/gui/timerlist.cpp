@@ -1234,8 +1234,12 @@ void CTimerList::paintItem(int pos)
 		CTimerd::responseGetTimer &timer = timerlist[currpos];
 		if (timer.eventType == CTimerd::TIMER_REMOTEBOX)
 		{
-			color = COL_MENUCONTENTINACTIVE_TEXT;
-			bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
+			// mark remote timers with different text colors
+			if (i_selected || i_marked)
+				color = COL_MENUCONTENTSELECTED_TEXT_PLUS_2;
+			else
+				color = COL_MENUCONTENTINACTIVE_TEXT;
+
 		}
 		char zAlarmTime[25] = {0};
 		struct tm *alarmTime = localtime(&(timer.alarmTime));
