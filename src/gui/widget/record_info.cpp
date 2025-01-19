@@ -81,9 +81,6 @@ void CRecInfo::init()
 	bool recordModeActive = crm->RecordingStatus();
 	if (recordModeActive)
 	{
-		rec_icon = NEUTRINO_ICON_REC_GRAY;
-		ts_icon = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-
 		// get current record count
 		int records = crm->GetRecordCount();
 
@@ -97,12 +94,22 @@ void CRecInfo::init()
 		int cur_rec_mode = crm->GetRecordMode(cur_chid);
 
 		// set 'active' icon for record mode
-		if (cur_rec_mode & CRecordManager::RECMODE_REC)
-			rec_icon = NEUTRINO_ICON_REC;
+		if (rec_mode & CRecordManager::RECMODE_REC)
+		{
+			if (cur_rec_mode & CRecordManager::RECMODE_REC)
+				rec_icon = NEUTRINO_ICON_REC;
+			else
+				rec_icon = NEUTRINO_ICON_REC_GRAY;
+		}
 
 		// set 'active' icon for timeshift mode
-		if (cur_rec_mode & CRecordManager::RECMODE_TSHIFT)
-			ts_icon = NEUTRINO_ICON_AUTO_SHIFT;
+		if (rec_mode & CRecordManager::RECMODE_TSHIFT)
+		{
+			if (cur_rec_mode & CRecordManager::RECMODE_TSHIFT)
+				ts_icon = NEUTRINO_ICON_AUTO_SHIFT;
+			else
+				ts_icon = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
+		}
 
 		if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 			records--; // subtract ts
