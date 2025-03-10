@@ -69,6 +69,10 @@ class CCPicture : public CComponentsShapeSquare
 
 		void SetTransparent(const int &mode) {setBodyBGImageTranparencyMode(mode);}
 
+		///import base class methods for width and height to avoid -Woverloaded-virtual
+		using CCDraw::setWidth;
+		using CCDraw::setHeight;
+
 		///set width of object, keep_aspect = true keeps ratio related to height
 		void setWidth(const int &w, bool keep_aspect = true);
 		///set height of object, keep_aspect = true keeps ratio related to width
@@ -280,6 +284,10 @@ class CComponentsPicture : public CComponentsForm
 		* @param[in]   int mode
 		*/
 		void SetTransparent(const int &mode);
+
+		//import base class methods for width and height to avoid -Woverloaded-virtual
+		using CCDraw::setWidth;
+		using CCDraw::setHeight;
 
 		/*!
 		Sets width of object, keep_aspect = true keeps ratio related to height
