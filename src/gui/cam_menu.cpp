@@ -208,7 +208,6 @@ int CCAMMenuHandler::doMainMenu()
 			printf("CCAMMenuHandler::doMainMenu cam%d name %s\n", i, name1);
 			char tmp[32];
 			snprintf(tmp, sizeof(tmp), "ca_ci%d", i);
-
 			cammenu->addItem(new CMenuForwarder(name1, true, NULL, this, tmp, CRCInput::RC_1 + cnt++));
 			snprintf(tmp, sizeof(tmp), "ca_ci_reset%d", i);
 			cammenu->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, this, tmp));
@@ -222,6 +221,7 @@ if (i == 0) { // only for slot 0 valid - fix later
 #if BOXMODEL_VUPLUS_ALL
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_RPR, &g_settings.ci_rpr[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 #endif
+			cammenu->addItem(new CMenuOptionChooser("Operator-Profile"/*LOCALE_CI_OP*/, &g_settings.ci_op[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 			cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_SAVE_PINCODE, &g_settings.ci_save_pincode[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 }

@@ -578,6 +578,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		g_settings.ci_save_pincode[i] = configfile.getInt32(cfg_key, 0);
 		sprintf(cfg_key, "ci_pincode_%d", i);
 		g_settings.ci_pincode[i] = configfile.getString(cfg_key, "");
+		sprintf(cfg_key, "ci_op_%d", i);
+		g_settings.ci_op[i] = configfile.getInt32(cfg_key, 0);
 		sprintf(cfg_key, "ci_clock_%d", i);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 6);
@@ -1656,6 +1658,8 @@ void CNeutrinoApp::saveSetup(const char *fname)
 		configfile.setInt32(cfg_key, g_settings.ci_save_pincode[i]);
 		sprintf(cfg_key, "ci_pincode_%d", i);
 		configfile.setString(cfg_key, g_settings.ci_pincode[i]);
+		sprintf(cfg_key, "ci_op_%d", i);
+		configfile.setInt32(cfg_key, g_settings.ci_op[i]);
 		sprintf(cfg_key, "ci_clock_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_clock[i]);
 #if BOXMODEL_VUPLUS_ALL
@@ -2989,6 +2993,7 @@ TIMER_START();
 	ZapStart_arg.ci_delay = g_settings.ci_delay;
 	memcpy(ZapStart_arg.ci_rpr, g_settings.ci_rpr, sizeof(g_settings.ci_rpr));
 #endif
+	memcpy(ZapStart_arg.ci_op, g_settings.ci_op, sizeof(g_settings.ci_op));
 	ZapStart_arg.volume = g_settings.current_volume;
 	ZapStart_arg.webtv_xml = &g_settings.webtv_xml;
 	ZapStart_arg.webradio_xml = &g_settings.webradio_xml;

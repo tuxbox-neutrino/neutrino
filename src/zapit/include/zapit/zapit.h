@@ -48,6 +48,7 @@ typedef struct ZAPIT_start_arg
 	uint32_t osd_resolution;
 	int volume;
 	int ci_clock[4];
+	int ci_op[4];
 #if BOXMODEL_VUPLUS_ALL
 	int ci_delay;
 	int ci_rpr[4];

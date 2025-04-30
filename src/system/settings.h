@@ -430,6 +430,7 @@ struct SNeutrinoSettings
 	int ci_ignore_messages[4];
 	int ci_save_pincode[4];
 	std::string ci_pincode[4];
+	int ci_op[4];
 	int ci_clock[4];
 #if BOXMODEL_VUPLUS_ALL
 	int ci_rpr[4];
