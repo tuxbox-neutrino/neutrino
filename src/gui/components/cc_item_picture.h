@@ -69,9 +69,24 @@ class CCPicture : public CComponentsShapeSquare
 
 		void SetTransparent(const int &mode) {setBodyBGImageTranparencyMode(mode);}
 
-		///import base class methods for width and height to avoid -Woverloaded-virtual
+		// Compiler-compatible solution for -Woverloaded-virtual warning
+		// Modern compilers (C++11 with GCC >= 4.7) support using declarations properly
+#if defined(__cplusplus) && __cplusplus >= 201103L && \
+	!defined(__GNUC__) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+		// Import base class methods to avoid -Woverloaded-virtual
 		using CCDraw::setWidth;
 		using CCDraw::setHeight;
+#else
+		// Fallback for older compilers - explicit forwarding functions
+		virtual void setWidth(const int &w) override
+		{
+			CCDraw::setWidth(w);
+		}
+		virtual void setHeight(const int &h) override
+		{
+			CCDraw::setHeight(h);
+		}
+ #endif
 
 		///set width of object, keep_aspect = true keeps ratio related to height
 		void setWidth(const int &w, bool keep_aspect = true);
@@ -285,9 +300,25 @@ class CComponentsPicture : public CComponentsForm
 		*/
 		void SetTransparent(const int &mode);
 
-		//import base class methods for width and height to avoid -Woverloaded-virtual
+
+		// Compiler-compatible solution for -Woverloaded-virtual warning
+		// Modern compilers (C++11 with GCC >= 4.7) support using declarations properly
+#if defined(__cplusplus) && __cplusplus >= 201103L && \
+    !defined(__GNUC__) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+		// Import base class methods to avoid -Woverloaded-virtual
 		using CCDraw::setWidth;
 		using CCDraw::setHeight;
+#else
+		// Fallback for older compilers - explicit forwarding functions
+		virtual void setWidth(const int &w) override
+		{
+			CCDraw::setWidth(w);
+		}
+		virtual void setHeight(const int &h) override
+		{
+			CCDraw::setHeight(h);
+		}
+ #endif
 
 		/*!
 		Sets width of object, keep_aspect = true keeps ratio related to height
