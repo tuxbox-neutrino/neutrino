@@ -359,6 +359,7 @@ const char * locale_real_names[] =
 	"ci.mode_0",
 	"ci.mode_1",
 	"ci.mode_2",
+	"ci.op",
 	"ci.rec_zapto",
 	"ci.removed",
 	"ci.reset",

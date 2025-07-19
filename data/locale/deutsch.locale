@@ -332,6 +332,7 @@ ci.mode CI Kanäle während einer Aufnahme
 ci.mode_0 alle Kanäle
 ci.mode_1 gleicher Transponder
 ci.mode_2 keine CI Kanäle
+ci.op Operator-Profile
 ci.rec_zapto Umschalten bei Aufnahmen mit CAM
 ci.removed CAM entfernt -> Slot
 ci.reset Reset
