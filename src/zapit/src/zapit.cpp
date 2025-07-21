@@ -2816,10 +2816,12 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	}
 #endif
 
+#if HAVE_LIBSTB_HAL
 	// ci operator mode
 	for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
 		ca->SetCIOperator(ZapStart_arg->ci_op[i], i);
 	}
+#endif
 
 	ca->Start();
 
