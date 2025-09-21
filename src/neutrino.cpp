@@ -422,19 +422,19 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.mode_icons_skin = configfile.getInt32("mode_icons_skin", 0);
 	for (int i = 0 ; i < MODE_ICONS_NR_OF_ENTRIES ; i++)
 	{
-		sprintf(cfg_key, "mode_icons_flag%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "mode_icons_flag%d", i);
 		if (i == 0)
-			sprintf(cfg_value, "/tmp/tuxmail.new");
+			snprintf(cfg_value, sizeof(cfg_value), "/tmp/tuxmail.new");
 		else if	(i == 1)
-			sprintf(cfg_value, "/var/etc/.call");
+			snprintf(cfg_value, sizeof(cfg_value), "/var/etc/.call");
 		else if	(i == 2)
-			sprintf(cfg_value, "/var/etc/.srv");
+			snprintf(cfg_value, sizeof(cfg_value), "/var/etc/.srv");
 		else if	(i == 3)
-			sprintf(cfg_value, "/var/etc/.card");
+			snprintf(cfg_value, sizeof(cfg_value), "/var/etc/.card");
 		else if	(i == 4)
-			sprintf(cfg_value, "/var/etc/.update");
+			snprintf(cfg_value, sizeof(cfg_value), "/var/etc/.update");
 		else
-			strcpy(cfg_value, "");
+			cfg_value[0] = '\0';
 		g_settings.mode_icons_flag[i] = configfile.getString(cfg_key, cfg_value);
 	}
 
@@ -518,7 +518,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 	{
-		sprintf(cfg_key, "enabled_video_mode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "enabled_video_mode_%d", i);
 		g_settings.enabled_video_modes[i] = configfile.getInt32(cfg_key, 0);
 	}
 
@@ -539,7 +539,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 	{
-		sprintf(cfg_key, "enabled_auto_mode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "enabled_auto_mode_%d", i);
 		g_settings.enabled_auto_modes[i] = configfile.getInt32(cfg_key, 1);
 	}
 
@@ -572,22 +572,22 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	}
 	for (unsigned int i = 0; i < ci_slots; i++)
 	{
-		sprintf(cfg_key, "ci_ignore_messages_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_ignore_messages_%d", i);
 		g_settings.ci_ignore_messages[i] = configfile.getInt32(cfg_key, 0);
-		sprintf(cfg_key, "ci_save_pincode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_save_pincode_%d", i);
 		g_settings.ci_save_pincode[i] = configfile.getInt32(cfg_key, 0);
-		sprintf(cfg_key, "ci_pincode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_pincode_%d", i);
 		g_settings.ci_pincode[i] = configfile.getString(cfg_key, "");
-		sprintf(cfg_key, "ci_op_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_op_%d", i);
 		g_settings.ci_op[i] = configfile.getInt32(cfg_key, 0);
-		sprintf(cfg_key, "ci_clock_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_clock_%d", i);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 6);
 #else
 		g_settings.ci_clock[i] = configfile.getInt32(cfg_key, 9);
 #endif
 #if BOXMODEL_VUPLUS_ALL
-		sprintf(cfg_key, "ci_rpr_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_rpr_%d", i);
 		g_settings.ci_rpr[i] = configfile.getInt32(cfg_key, 9);
 #endif
 	}
@@ -731,9 +731,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 				_lang = "French" ;
 				break;
 		}
-		sprintf(cfg_key, "pref_lang_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "pref_lang_%d", i);
 		g_settings.pref_lang[i] = configfile.getString(cfg_key, _lang);
-		sprintf(cfg_key, "pref_subs_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "pref_subs_%d", i);
 		g_settings.pref_subs[i] = configfile.getString(cfg_key, _lang);
 	}
 	g_settings.subs_charset = configfile.getString("subs_charset", "CP1252");
@@ -1184,9 +1184,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 #if ENABLE_QUADPIP
 	for (unsigned int i = 0; i < 4; i++)
 	{
-		sprintf(cfg_key, "quadpip_channel_window_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "quadpip_channel_window_%d", i);
 		g_settings.quadpip_channel_window[i] = configfile.getString(cfg_key, "-");
-		sprintf(cfg_key, "quadpip_channel_id_window_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "quadpip_channel_id_window_%d", i);
 		g_settings.quadpip_channel_id_window[i] = configfile.getInt64(cfg_key, 0);
 	}
 #endif
@@ -1563,7 +1563,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("mode_icons_skin", g_settings.mode_icons_skin);
 	for (int i = 0 ; i < MODE_ICONS_NR_OF_ENTRIES ; i++)
 	{
-		sprintf(cfg_key, "mode_icons_flag%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "mode_icons_flag%d", i);
 		configfile.setString(cfg_key, g_settings.mode_icons_flag[i]);
 	}
 
@@ -1623,12 +1623,12 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 	{
-		sprintf(cfg_key, "enabled_video_mode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "enabled_video_mode_%d", i);
 		configfile.setInt32(cfg_key, g_settings.enabled_video_modes[i]);
 	}
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 	{
-		sprintf(cfg_key, "enabled_auto_mode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "enabled_auto_mode_%d", i);
 		configfile.setInt32(cfg_key, g_settings.enabled_auto_modes[i]);
 	}
 
@@ -1652,18 +1652,18 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	// ci-settings for each slot
 	for (unsigned int i = 0; i < cCA::GetInstance()->GetNumberCISlots(); i++)
 	{
-		sprintf(cfg_key, "ci_ignore_messages_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_ignore_messages_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_ignore_messages[i]);
-		sprintf(cfg_key, "ci_save_pincode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_save_pincode_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_save_pincode[i]);
-		sprintf(cfg_key, "ci_pincode_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_pincode_%d", i);
 		configfile.setString(cfg_key, g_settings.ci_pincode[i]);
-		sprintf(cfg_key, "ci_op_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_op_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_op[i]);
-		sprintf(cfg_key, "ci_clock_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_clock_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_clock[i]);
 #if BOXMODEL_VUPLUS_ALL
-		sprintf(cfg_key, "ci_rpr_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "ci_rpr_%d", i);
 		configfile.setInt32(cfg_key, g_settings.ci_rpr[i]);
 #endif
 	}
@@ -1774,9 +1774,9 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("auto_subs", g_settings.auto_subs);
 	for (int i = 0; i < 3; i++)
 	{
-		sprintf(cfg_key, "pref_lang_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "pref_lang_%d", i);
 		configfile.setString(cfg_key, g_settings.pref_lang[i]);
-		sprintf(cfg_key, "pref_subs_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "pref_subs_%d", i);
 		configfile.setString(cfg_key, g_settings.pref_subs[i]);
 	}
 	configfile.setString("subs_charset", g_settings.subs_charset);
@@ -1815,25 +1815,25 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	for (int i = 0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
-		sprintf(cfg_key, "network_nfs_ip_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_ip_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].ip);
-		sprintf(cfg_key, "network_nfs_mac_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_mac_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].mac);
-		sprintf(cfg_key, "network_nfs_local_dir_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_local_dir_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].local_dir);
-		sprintf(cfg_key, "network_nfs_dir_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_dir_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].dir);
-		sprintf(cfg_key, "network_nfs_automount_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_automount_%d", i);
 		configfile.setInt32(cfg_key, g_settings.network_nfs[i].automount);
-		sprintf(cfg_key, "network_nfs_mount_options1_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_mount_options1_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].mount_options1);
-		sprintf(cfg_key, "network_nfs_mount_options2_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_mount_options2_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].mount_options2);
-		sprintf(cfg_key, "network_nfs_type_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_type_%d", i);
 		configfile.setInt32(cfg_key, g_settings.network_nfs[i].type);
-		sprintf(cfg_key, "network_nfs_username_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_username_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].username);
-		sprintf(cfg_key, "network_nfs_password_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "network_nfs_password_%d", i);
 		configfile.setString(cfg_key, g_settings.network_nfs[i].password);
 	}
 
