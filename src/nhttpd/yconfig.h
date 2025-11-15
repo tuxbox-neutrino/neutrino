@@ -27,13 +27,13 @@
 //-----------------------------------------------------------------------------
 // General central Definitions <configure!>
 //-----------------------------------------------------------------------------
-#define HTTPD_VERSION 			"3.4.1"		// Webserver version  (can be overloaded)
+#define HTTPD_VERSION 			"3.5.0"		// Webserver version  (can be overloaded)
 #define YHTTPD_VERSION			"1.3.2"		// Webserver version  (Version of yhttpd-core!)
 #define IADDR_LOCAL			"127.0.0.1"	// local IP
 #define HTTPD_NAME			"yhttpd"	// Webserver name (can be overloaded)
 #define YHTTPD_NAME			"yhttpd_core"	// Webserver name (Name of yhttpd-core!)
 #define AUTH_NAME_MSG			"yhttpd"	// Name in Authentication Dialogue
-#define CONF_VERSION			4		// Version of yhttpd-conf file
+#define CONF_VERSION			5		// Version of yhttpd-conf file
 #define HTTPD_KEEPALIVE_TIMEOUT		500000		// Timeout for Keep-Alive in mircoseconds
 //=============================================================================
 // Features wanted <configure!>
@@ -88,6 +88,7 @@
 #undef HTTPD_NAME
 #define HTTPD_NAME			"nhttpd"
 #define HTTPD_STANDARD_PORT		80
+#define HTTPD_DEFAULT_HOST		"0.0.0.0"
 #define HTTPD_FALLBACK_PORT		8080
 #define HTTPD_MAX_CONNECTIONS		50
 #define HTTPD_REQUEST_LOG		"/tmp/httpd_log"

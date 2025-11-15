@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
+#include <netdb.h>
 
 // yhttpd
 #include <yhttpd.h>
@@ -163,7 +164,7 @@ void CySocket::shutdown(void) {
 		::shutdown(sock, SHUT_RDWR);
 }
 //-----------------------------------------------------------------------------
-bool CySocket::listen(int port, int max_connections) {
+bool CySocket::listen(int port, int max_connections, const std::string &bindAddress) {
 	if (sock == INVALID_SOCKET)
 		return false;
 
@@ -171,7 +172,24 @@ bool CySocket::listen(int port, int max_connections) {
 	sockaddr_in sai;
 	memset(&sai, 0, sizeof(sai));
 	sai.sin_family = AF_INET; // Protocol
-	sai.sin_addr.s_addr = htonl(INADDR_ANY); // No Filter
+	bool use_any = true;
+	if (!bindAddress.empty() && bindAddress != "0.0.0.0" && bindAddress != "*") {
+		in_addr custom_addr {};
+		if (inet_pton(AF_INET, bindAddress.c_str(), &custom_addr) == 1) {
+			sai.sin_addr = custom_addr;
+			use_any = false;
+		} else {
+			hostent *he = gethostbyname(bindAddress.c_str());
+			if (he && he->h_addrtype == AF_INET && he->h_length == sizeof(custom_addr)) {
+				memcpy(&sai.sin_addr, he->h_addr_list[0], sizeof(custom_addr));
+				use_any = false;
+			} else {
+				fprintf(stderr, "[yhttpd] Invalid bind host '%s'. Falling back to 0.0.0.0.\n", bindAddress.c_str());
+			}
+		}
+	}
+	if (use_any)
+		sai.sin_addr.s_addr = htonl(INADDR_ANY); // No Filter
 	sai.sin_port = htons(port); // Listening Port
 
 	set_reuse_port(); // Re-Use Port

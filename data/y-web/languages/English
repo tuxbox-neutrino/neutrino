@@ -266,6 +266,8 @@ set.nhttpd.client_without_authentication_desc=Client with no authentication chec
 set.nhttpd.client_without_authentication=Client without Authentication
 set.nhttpd.active_after_boot=active after boot
 set.nhttpd.port=Port
+set.nhttpd.host=Bind address
+set.nhttpd.host_desc=Interface/IP the webserver should bind to (0.0.0.0 = all, 127.0.0.1 = localhost)
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternate Web-Folder
 set.nhttpd.hosted_folder=Mounted directory
@@ -481,4 +483,3 @@ rc.key_picsize=Pic Size
 rc.key_picmode=Pic Mode
 rc.key_pos=Pos
 rc.key_recall=Recall
-

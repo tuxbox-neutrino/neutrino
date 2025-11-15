@@ -356,6 +356,17 @@ void Cyhttpd::ReadConfig(void) {
 				Config->setString("WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
 			Config->saveConfig(HTTPD_CONFIGFILE);
 		}
+		// Add Defaults for Version 5
+		if (Config->getInt32("configfile.version") < 5) {
+			if (Config->getString("WebsiteMain.host", "").empty())
+				Config->setString("WebsiteMain.host", HTTPD_DEFAULT_HOST);
+			Config->setInt32("configfile.version", CONF_VERSION);
+			Config->saveConfig(HTTPD_CONFIGFILE);
+		}
+	}
+	if (Config->getString("WebsiteMain.host", "").empty()) {
+		Config->setString("WebsiteMain.host", HTTPD_DEFAULT_HOST);
+		have_config = false;
 	}
 	// configure debugging & logging
 	if (CLogging::getInstance()->LogLevel == 0)
@@ -364,9 +375,13 @@ void Cyhttpd::ReadConfig(void) {
 		CLogging::getInstance()->setDebug(true);
 
 	// get variables
-	webserver->init(Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT), Config->getBool("webserver.threading", true));
+	const int web_port = Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT);
+	const bool use_threading = Config->getBool("webserver.threading", true);
+	const std::string web_host = Config->getString("WebsiteMain.host", HTTPD_DEFAULT_HOST);
+	webserver->init(web_port, use_threading, web_host);
 	// informational use
-	ConfigList["WebsiteMain.port"] = itoa(Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT));
+	ConfigList["WebsiteMain.port"] = itoa(web_port);
+	ConfigList["WebsiteMain.host"] = web_host;
 	ConfigList["webserver.threading"] = Config->getString("webserver.threading", "true");
 	ConfigList["configfile.version"] = Config->getInt32("configfile.version", CONF_VERSION);
 	ConfigList["server.log.loglevel"] = itoa(Config->getInt32("server.log.loglevel", 0));

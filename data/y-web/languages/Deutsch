@@ -266,6 +266,8 @@ set.nhttpd.client_without_authentication_desc=Rechner ohne Authentifikation. IP 
 set.nhttpd.client_without_authentication=Rechner ohne Authentifikation
 set.nhttpd.active_after_boot=Nach Neustart aktiv
 set.nhttpd.port=Port
+set.nhttpd.host=Bind-Adresse
+set.nhttpd.host_desc=Interface/IP für den Webserver (0.0.0.0 = alle, 127.0.0.1 = nur lokal)
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternativer Web-Ordner
 set.nhttpd.hosted_folder=Eingebundenes Verzeichnis
@@ -481,4 +483,3 @@ rc.key_picsize=Pic Size
 rc.key_picmode=Pic Mode
 rc.key_pos=Pos
 rc.key_recall=Recall
-

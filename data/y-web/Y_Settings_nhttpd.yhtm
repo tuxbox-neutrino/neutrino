@@ -78,6 +78,11 @@ function do_check_input_LogosURL()
 				</td>
 			</tr>
 			<tr>
+				<td>{=L:set.nhttpd.host=}</td>
+				<td><input type="text" name="host" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.host;0.0.0.0~cache=}" title="{=L:set.nhttpd.host_desc=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
+				</td>
+			</tr>
+			<tr>
 				<td>{=L:set.nhttpd.threading=}</td>
 				<td>
 					<input type="radio" name="threading" value="false" />{=L:off=}&nbsp;

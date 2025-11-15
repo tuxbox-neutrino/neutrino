@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
+#include <string>
 
 #include <yconfig.h>
 #include "ytypes_globals.h"
@@ -58,7 +59,7 @@ public:
 	
 	void 		close(void);					// Close Socket
 	void 		shutdown(void);					// Shutdown Socket
-	bool 		listen(int port, int max_connections);		// Listen on Port for max Slave Connections
+	bool 		listen(int port, int max_connections, const std::string &bindAddress = std::string());		// Listen on Port for max Slave Connections
 	CySocket* 	accept();					// Wait for Connection. Returns "slave" Socket
 	void 		setAddr(sockaddr_in _clientaddr);
 	std::string 	get_client_ip(void);				// Get IP from Client
