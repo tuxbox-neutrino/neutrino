@@ -39,6 +39,9 @@ int tuxtxt_get_zipsize(int p,int sp)
 }
 void tuxtxt_compress_page(int p, int sp, unsigned char* buffer)
 {
+	if (!tuxtxt_cache.receiving) {
+		return;
+	}
 	pthread_mutex_lock(&tuxtxt_cache_lock);
 	tstCachedPage* pg = tuxtxt_cache.astCachetable[p][sp];
 	if (!pg)
@@ -91,6 +94,10 @@ void tuxtxt_compress_page(int p, int sp, unsigned char* buffer)
 
 void tuxtxt_decompress_page(int p, int sp, unsigned char* buffer)
 {
+	if (!tuxtxt_cache.receiving) {
+		memset(buffer,' ',23*40);
+		return;
+	}
 	pthread_mutex_lock(&tuxtxt_cache_lock);
 	tstCachedPage* pg = tuxtxt_cache.astCachetable[p][sp];
 
@@ -573,6 +580,10 @@ void tuxtxt_allocate_cache(int magazine)
 static int stop_cache = 0;
 void *tuxtxt_CacheThread(void * /*arg*/)
 {
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][CacheThread] START: thread_id=%lu, stop_cache=%d, receiving=%d, vpid=%d\n",
+		(unsigned long)pthread_self(), stop_cache, tuxtxt_cache.receiving, tuxtxt_cache.vtxtpid);
+#endif
 	const unsigned char rev_lut[32] = {
 		0x00,0x08,0x04,0x0c, /*  upper nibble */
 		0x02,0x0a,0x06,0x0e,
@@ -1069,8 +1080,11 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		}
 		pthread_mutex_unlock(&tuxtxt_cache_biglock);
 	}
-
-	pthread_exit(NULL);
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][CacheThread] ENDE: thread_id=%lu, stop_cache=%d, receiving=%d\n",
+		(unsigned long)pthread_self(), stop_cache, tuxtxt_cache.receiving);
+#endif
+	return NULL;
 }
 /******************************************************************************
  * start_thread                                                               *
@@ -1078,6 +1092,11 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 int tuxtxt_start_thread(int source = 0);
 int tuxtxt_start_thread(int source)
 {
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][start_thread] ENTER: source=%d, vpid=%d, receiving=%d, thread_starting=%d, cache_thread=%lu, dmx=%p\n",
+		source, tuxtxt_cache.vtxtpid, tuxtxt_cache.receiving, tuxtxt_cache.thread_starting,
+		(unsigned long)tuxtxt_cache.thread_id, (void*)dmx);
+#endif
 	if (tuxtxt_cache.vtxtpid == -1)
 		return 0;
 
@@ -1100,6 +1119,10 @@ int tuxtxt_start_thread(int source)
 #endif
 	tuxtxt_cache.receiving = 1;
 	tuxtxt_cache.thread_starting = 0;
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][start_thread] EXIT: receiving=%d, cache_thread=%lu, dmx=%p\n",
+		tuxtxt_cache.receiving, (unsigned long)tuxtxt_cache.thread_id, (void*)dmx);
+#endif
 	return 1;
 }
 /******************************************************************************
@@ -1108,6 +1131,10 @@ int tuxtxt_start_thread(int source)
 
 int tuxtxt_stop_thread()
 {
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][stop_thread] ENTER: thread_id=%lu, cache_thread=%lu, dmx=%p, stop_cache=%d\n",
+		(unsigned long)pthread_self(), (unsigned long)tuxtxt_cache.thread_id, (void*)dmx, stop_cache);
+#endif
 	/* stop decode-thread */
 	if (tuxtxt_cache.thread_id != 0)
 	{
@@ -1119,20 +1146,34 @@ int tuxtxt_stop_thread()
 		}
 #endif
 		stop_cache = 1;
+#if TUXTXT_DEBUG
+		fprintf(stderr, "[tuxtxt][stop_thread] joining cache thread...\n");
+#endif
 		if (pthread_join(tuxtxt_cache.thread_id, &tuxtxt_cache.thread_result) != 0)
 		{
 			perror("TuxTxt <pthread_join>");
 			return 0;
 		}
+#if TUXTXT_DEBUG
+		fprintf(stderr, "[tuxtxt][stop_thread] joined. thread_result=%p\n", tuxtxt_cache.thread_result);
+#endif
 		tuxtxt_cache.thread_id = 0;
 	}
 	if(dmx) {
+#if TUXTXT_DEBUG
+		fprintf(stderr, "[tuxtxt][stop_thread] stopping+deleting demux %p...\n", (void*)dmx);
+#endif
 		dmx->Stop();
 		delete dmx;
 		dmx = NULL;
 	}
 #if 1//TUXTXT_DEBUG
 	printf("TuxTxt stopped service %x\n", tuxtxt_cache.vtxtpid);
+#endif
+	/* prepare for potential restart */
+	stop_cache = 0;
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][stop_thread] EXIT\n");
 #endif
 	return 1;
 }

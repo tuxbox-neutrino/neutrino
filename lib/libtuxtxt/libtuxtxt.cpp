@@ -45,14 +45,25 @@ int tuxtxt_init()
 
 int tuxtxt_stop()
 {
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][stop] ENTER: receiving=%d, thread_id=%lu, vpid=%d\n",
+		tuxtxt_cache.receiving, (unsigned long)tuxtxt_cache.thread_id, tuxtxt_cache.vtxtpid);
+#endif
 	if (!tuxtxt_cache.receiving) return 1;
 	tuxtxt_cache.receiving = 0;
-
-	return tuxtxt_stop_thread();
+	int rc = tuxtxt_stop_thread();
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][stop] EXIT rc=%d\n", rc);
+#endif
+	return rc;
 }
 
 void tuxtxt_start(int tpid, int source)
 {
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][start] ENTER: curr_vpid=%d -> new_vpid=%d, source=%d, receiving=%d, thread_starting=%d\n",
+		tuxtxt_cache.vtxtpid, tpid, source, tuxtxt_cache.receiving, tuxtxt_cache.thread_starting);
+#endif
 	if (tpid == -1)
 	{
 		printf("tuxtxt: invalid PID!\n");
@@ -71,14 +82,22 @@ void tuxtxt_start(int tpid, int source)
 	{
 		tuxtxt_start_thread(source);
 	}
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][start] EXIT: receiving=%d, thread_id=%lu, vpid=%d\n",
+		tuxtxt_cache.receiving, (unsigned long)tuxtxt_cache.thread_id, tuxtxt_cache.vtxtpid);
+#endif
 }
 
 void tuxtxt_close()
 {
 #if TUXTXT_DEBUG
 	printf ("libtuxtxt: cleaning up\n");
+	fprintf(stderr, "[tuxtxt][close] ENTER\n");
 #endif
 	tuxtxt_stop();
 	tuxtxt_clear_cache();
 	tuxtxt_initialized=0;
+#if TUXTXT_DEBUG
+	fprintf(stderr, "[tuxtxt][close] EXIT\n");
+#endif
 }
