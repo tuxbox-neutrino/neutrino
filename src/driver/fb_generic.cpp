@@ -34,6 +34,7 @@
 #include <driver/fb_accel.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/ioctl.h>
@@ -57,17 +58,71 @@
 #include <cs_api.h>
 
 #include <driver/display.h>
+#include <driver/abstime.h>
 
 extern cVideo * videoDecoder;
-
 extern CPictureViewer * g_PicViewer;
-#define ICON_CACHE_SIZE 1024*1024*2 // 2mb
 
+#define ICON_CACHE_SIZE 1024*1024*2 // 2mb
 #define BACKGROUNDIMAGEWIDTH 720
 #define LOGTAG "[fb_generic] "
 
-void CFrameBuffer::waitForIdle(const char *)
+void CFrameBuffer::waitForIdle(const char *func)
 {
+#if HAVE_ARM_HARDWARE
+/*
+ * On ARM systems (e.g. hd51) we try to wait for
+ * vertical sync before critical framebuffer operations
+ * to reduce tearing / artifacts while scrolling.
+ *
+ * This is only used when
+ *  - HAVE_ARM_HARDWARE is defined and
+ *  - FBIO_WAITFORVSYNC is provided by the kernel and
+ *  - NEUTRINO_NO_FB_VSYNC is NOT set.
+ */
+	static int vsync_state = -1; // -1: unknown, 0: disabled/unavailable, 1: active
+	static int64_t last_wait_ms = 0; // last successful (or attempted) VSYNC wait
+
+	if (vsync_state == 0)
+		return;
+
+	if (vsync_state == -1) {
+		const char *no_vsync = getenv("NEUTRINO_NO_FB_VSYNC");
+		if (no_vsync && no_vsync[0]) {
+			vsync_state = 0;
+			return;
+		}
+
+#ifdef FBIO_WAITFORVSYNC
+		vsync_state = 1;
+#else
+		vsync_state = 0;
+		return;
+#endif
+	}
+
+#ifdef FBIO_WAITFORVSYNC
+	if (fd > 0) {
+		int64_t now = time_monotonic_ms();
+		/* at most roughly once per frame block for VSYNC */
+		if (last_wait_ms && (now - last_wait_ms) < 10)
+			return;
+
+		unsigned int arg = 0;
+		if (ioctl(fd, FBIO_WAITFORVSYNC, &arg) < 0) {
+			static bool warned = false;
+			if (!warned) {
+				fprintf(stderr, LOGTAG "FBIO_WAITFORVSYNC failed [%s]\n", func ? func : "");
+				warned = true;
+			}
+			vsync_state = 0;
+		} else
+			last_wait_ms = now;
+	}
+#endif
+#else
+	(void)func;
+#endif
 }
 
 /*******************************************************************************/
@@ -102,11 +157,14 @@ CFrameBuffer::CFrameBuffer()
 	backgroundFilename = "";
 	locked = false;
 	fd  = 0;
-	tty = 0;
-	m_transparent_default = CFrameBuffer::TM_BLACK; // TM_BLACK: Transparency when black content ('pseudo' transparency)
-							// TM_NONE:  No 'pseudo' transparency
-							// TM_INI:   Transparency depends on g_settings.infobar_alpha ???
-	m_transparent	 = m_transparent_default;
+	// 	tty = 0;
+	/*
+	TM_BLACK: Transparency when black content ('pseudo' transparency)
+	TM_NONE:  No 'pseudo' transparency
+	TM_INI:   Transparency depends on g_settings.infobar_alpha ???
+	*/
+	m_transparent_default = CFrameBuffer::TM_BLACK;
+	m_transparent = m_transparent_default;
 	q_circle = NULL;
 	initQCircle();
 	corner_tl = false;
@@ -128,22 +186,40 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	static CFrameBuffer* frameBuffer = NULL;
 
 	if (!frameBuffer) {
+		const char *no_accel = getenv("NEUTRINO_NO_FB_ACCEL");
+		bool disable_all_accel = (no_accel && no_accel[0]);
+
 #if HAVE_CST_HARDWARE
+		if (!disable_all_accel) {
 #ifdef BOXMODEL_CST_HD1
-		frameBuffer = new CFbAccelCSHD1();
+			frameBuffer = new CFbAccelCSHD1();
 #endif
 #ifdef BOXMODEL_CST_HD2
-		frameBuffer = new CFbAccelCSHD2();
+		if (!frameBuffer)
+			frameBuffer = new CFbAccelCSHD2();
 #endif
+		}
 #endif
+
 #if HAVE_GENERIC_HARDWARE
-		frameBuffer = new CFbAccelGLFB();
+		if (!disable_all_accel && !frameBuffer)
+			frameBuffer = new CFbAccelGLFB();
 #endif
+
 #if HAVE_ARM_HARDWARE
-		frameBuffer = new CFbAccelARM();
+		if (!disable_all_accel && !frameBuffer) {
+			const char *no_arm = getenv("NEUTRINO_NO_ARM_ACCEL");
+			if (!no_arm || !no_arm[0]) {
+				frameBuffer = new CFbAccelARM();
+			} else {
+				printf("[neutrino] ARM framebuffer acceleration disabled by NEUTRINO_NO_ARM_ACCEL\n");
+			}
+		}
 #endif
+
 #if HAVE_MIPS_HARDWARE
-		frameBuffer = new CFbAccelMIPS();
+		if (!disable_all_accel && !frameBuffer)
+			frameBuffer = new CFbAccelMIPS();
 #endif
 		if (!frameBuffer)
 			frameBuffer = new CFrameBuffer();
@@ -234,18 +310,21 @@ CFrameBuffer::~CFrameBuffer()
 		q_circle = NULL;
 	}
 
-	if (lfb)
+	if (lfb && (lfb != (fb_pixel_t *)-1)) {
 		munmap(lfb, available);
-	lfb = NULL;
+		lfb = (fb_pixel_t *)-1;
+	}
 
-	if (virtual_fb){
+	if (virtual_fb) {
 		delete[] virtual_fb;
 		virtual_fb = NULL;
 	}
-	close(fd);
-	fd = -1;
 
-	v_fbarea.clear();
+	//v_fbarea.clear();
+	if (fd > 0) {
+		close(fd);
+		fd = -1;
+	}
 }
 
 int CFrameBuffer::getFileHandle() const
@@ -667,10 +746,25 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 
 void CFrameBuffer::paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col)
 {
-	fb_pixel_t *pos = getFrameBufferPointer() + x + swidth * y;
+	if (dy <= 0)
+		return;
 
-	for(int count=0;count<dy;count++) {
-		*(fb_pixel_t *)pos = col;
+	// clip to visible framebuffer area to avoid out-of-bounds writes
+	if (x < 0 || x >= (int)xRes)
+		return;
+
+	int y0 = y;
+	int y1 = y + dy;
+	if (y1 <= 0 || y0 >= (int)yRes)
+		return;
+	if (y0 < 0)
+		y0 = 0;
+	if (y1 > (int)yRes)
+		y1 = (int)yRes;
+
+	fb_pixel_t *pos = getFrameBufferPointer() + x + swidth * y0;
+	for (int count = 0; count < (y1 - y0); count++) {
+		*pos = col;
 		pos += swidth;
 	}
 }
@@ -686,8 +780,24 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 
 void CFrameBuffer::paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col)
 {
-	fb_pixel_t * dest = getFrameBufferPointer() + x + swidth * y;
-	for (int i = 0; i < dx; i++)
+	if (dx <= 0)
+		return;
+
+	// clip to visible framebuffer area to avoid out-of-bounds writes
+	if (y < 0 || y >= (int)yRes)
+		return;
+
+	int x0 = x;
+	int x1 = x + dx;
+	if (x1 <= 0 || x0 >= (int)xRes)
+		return;
+	if (x0 < 0)
+		x0 = 0;
+	if (x1 > (int)xRes)
+		x1 = (int)xRes;
+
+	fb_pixel_t *dest = getFrameBufferPointer() + x0 + swidth * y;
+	for (int i = 0; i < (x1 - x0); i++)
 		*(dest++) = col;
 }
 

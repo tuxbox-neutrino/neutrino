@@ -477,9 +477,23 @@ void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy
 	if(dx <1 || dy <1 )
 		return;
 
-	// do not accelerate small areas
-	if (fix.smem_start != 0 && dx > 25 && dy > 25)
-		bcm_accel_fill(fix.smem_start, screeninfo.xres, screeninfo.yres, stride,x, y, dx, dy,col);
+	// Use hardware fill only for very large areas to
+	// avoid conflicts with subsequently drawn icons.
+	// Here we only accelerate full-screen clears.
+	if (fix.smem_start != 0 && x <= 0 && y <= 0 && dx >= (int)xRes && dy >= (int)yRes)
+	{
+		// Align hardware fill to the same buffer as the CPU code:
+		fb_pixel_t *dest_base = getFrameBufferPointer();
+		if (dest_base >= lfb && dest_base < (lfb + (available / (int)sizeof(fb_pixel_t))))
+		{
+			ptrdiff_t offset_pixels = dest_base - lfb;
+			int dst_addr = fix.smem_start + (int)(offset_pixels * (ptrdiff_t)sizeof(fb_pixel_t));
+			bcm_accel_fill(dst_addr, screeninfo.xres, screeninfo.yres, stride, x, y, dx, dy, col);
+			// Full screen is already filled by hardware; just mark the area and return.
+			mark(x, y, x+dx, y+dy);
+			return;
+		}
+	}
 
 	int line = 0;
 	fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
@@ -491,8 +505,6 @@ void CFbAccelARM::paintRect(const int x, const int y, const int dx, const int dy
 		fbp += swidth;
 		line++;
 	}
-
 	mark(x, y, x+dx, y+dy);
-	//blit();
 }
 #endif

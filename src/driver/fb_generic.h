@@ -112,7 +112,7 @@ class CFrameBuffer : public sigc::trackable
 
 		std::string     iconBasePath;
 
-		int             fd, tty;
+		int             fd/*, tty*/;
 		fb_pixel_t *    lfb;
 		fb_pixel_t *    lbb;
 		int		available;

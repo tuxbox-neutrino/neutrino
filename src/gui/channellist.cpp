@@ -2606,8 +2606,8 @@ void CChannelList::paint_events(CChannelEventList &evtlist)
 	ffheight = g_Font[eventFont]->getHeight();
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
-#if ENABLE_ARM_ACC || ENABLE_MIPS_ACC
-	usleep(300); // because of CFbAccelARM/MIPS::paintRect()
+#if ENABLE_MIPS_ACC
+	usleep(300); // because of CFbAccelMIPS::paintRect()
 #endif
 
 	char startTime[10];
