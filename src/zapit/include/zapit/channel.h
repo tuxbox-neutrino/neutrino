@@ -183,7 +183,9 @@ class CZapitChannel
 		std::string			ttx_language_code;
 
 		uint8_t				record_demux;
+#ifdef ENABLE_PIP
 		uint8_t				pip_demux;
+#endif
 		uint8_t				stream_demux;
 
 		void				Init();

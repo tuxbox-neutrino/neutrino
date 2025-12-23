@@ -105,7 +105,9 @@ void CZapitChannel::Init()
 	last_unlocked_time = 0;
 	has_bouquet = false;
 	record_demux = 2;
+#ifdef ENABLE_PIP
 	pip_demux = 2;
+#endif
 	stream_demux = 2;
 	polarization = 0;
 	flags = 0;
