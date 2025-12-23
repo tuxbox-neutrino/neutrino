@@ -72,17 +72,17 @@ class CCPicture : public CComponentsShapeSquare
 		// Compiler-compatible solution for -Woverloaded-virtual warning
 		// Modern compilers (C++11 with GCC >= 4.7) support using declarations properly
 #if defined(__cplusplus) && __cplusplus >= 201103L && \
-	!defined(__GNUC__) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+	(!defined(__GNUC__) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)))
 		// Import base class methods to avoid -Woverloaded-virtual
 		using CCDraw::setWidth;
 		using CCDraw::setHeight;
 #else
 		// Fallback for older compilers - explicit forwarding functions
-		virtual void setWidth(const int &w) override
+		virtual void setWidth(const int &w)
 		{
 			CCDraw::setWidth(w);
 		}
-		virtual void setHeight(const int &h) override
+		virtual void setHeight(const int &h)
 		{
 			CCDraw::setHeight(h);
 		}
@@ -304,17 +304,17 @@ class CComponentsPicture : public CComponentsForm
 		// Compiler-compatible solution for -Woverloaded-virtual warning
 		// Modern compilers (C++11 with GCC >= 4.7) support using declarations properly
 #if defined(__cplusplus) && __cplusplus >= 201103L && \
-    !defined(__GNUC__) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+	(!defined(__GNUC__) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)))
 		// Import base class methods to avoid -Woverloaded-virtual
 		using CCDraw::setWidth;
 		using CCDraw::setHeight;
 #else
 		// Fallback for older compilers - explicit forwarding functions
-		virtual void setWidth(const int &w) override
+		virtual void setWidth(const int &w)
 		{
 			CCDraw::setWidth(w);
 		}
-		virtual void setHeight(const int &h) override
+		virtual void setHeight(const int &h)
 		{
 			CCDraw::setHeight(h);
 		}
