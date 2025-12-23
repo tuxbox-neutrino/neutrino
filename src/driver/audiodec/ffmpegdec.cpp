@@ -289,6 +289,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(57, 83, 100)
 		avcodec_close(c);
 		av_free(c);
+		c = NULL;
 #else
 		avcodec_free_context(&c);
 #endif
