@@ -95,6 +95,7 @@ typedef enum dvb_fec {
 	f3_5,
 	f4_5,
 	f9_10,
+	f6_7,
 	fNone = 15,
 	f13_45,
 	f9_20,
@@ -452,6 +453,9 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 			break;
 		case f5_6:
 			fec = FEC_5_6;
+			break;
+		case f6_7:
+			fec = FEC_6_7;
 			break;
 		case f7_8:
 			fec = FEC_7_8;
