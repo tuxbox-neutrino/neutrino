@@ -102,7 +102,7 @@ void CFrameBuffer::waitForIdle(const char *func)
 	}
 
 #ifdef FBIO_WAITFORVSYNC
-	if (fd > 0) {
+	if (fd >= 0) {
 		int64_t now = time_monotonic_ms();
 		/* at most roughly once per frame block for VSYNC */
 		if (last_wait_ms && (now - last_wait_ms) < 10)
@@ -156,7 +156,7 @@ CFrameBuffer::CFrameBuffer()
 	backupBackground = NULL;
 	backgroundFilename = "";
 	locked = false;
-	fd  = 0;
+	fd  = -1;
 	// 	tty = 0;
 	/*
 	TM_BLACK: Transparency when black content ('pseudo' transparency)
@@ -321,7 +321,7 @@ CFrameBuffer::~CFrameBuffer()
 	}
 
 	//v_fbarea.clear();
-	if (fd > 0) {
+	if (fd >= 0) {
 		close(fd);
 		fd = -1;
 	}
