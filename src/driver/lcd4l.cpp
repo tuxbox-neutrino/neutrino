@@ -170,7 +170,7 @@ void CLCD4l::StartLCD4l()
 	}
 	if (g_settings.lcd4l_support)
 	{
-		if (exec_initscript("lcd4linux", "start", "systemctl"))
+		if (exec_initscript("lcd4linux", "start", "service"))
 			OnAfterStart();
 		else
 			OnError();
@@ -193,7 +193,7 @@ void CLCD4l::StopLCD4l()
 		dprintf(DEBUG_NORMAL, "\033[32m[CLCD4l] [%s - %d] thread [%p] terminated\033[0m\n", __func__, __LINE__, thrLCD4l);
 	}
 
-	if (exec_initscript("lcd4linux", "stop", "systemctl"))
+	if (exec_initscript("lcd4linux", "stop", "service"))
 		OnAfterStop();
 	else
 		OnError();
@@ -204,7 +204,7 @@ void CLCD4l::RestartLCD4lScript()
 	OnBeforeStart();
 	if (thrLCD4l && g_settings.lcd4l_support)
 	{
-		if (exec_initscript("lcd4linux", "restart", "systemctl"))
+		if (exec_initscript("lcd4linux", "restart", "service"))
 			OnAfterStart();
 		else
 			OnError();
@@ -1436,7 +1436,6 @@ void CLCD4l::lcd4linux(int run)
 {
 	const char *lcd4lbin = "lcd4linux";
 	const char *conf = "/etc/lcd4linux.conf";
-	const std::string systemd_cmd = "systemctl";
 	std::string lcd4lbin_path = find_executable(lcd4lbin);
 	bool isPNG;
 
@@ -1468,7 +1467,7 @@ void CLCD4l::lcd4linux(int run)
 			}
 			else
 			{
-				if (exec_initscript(lcd4lbin, "start", systemd_cmd) != 0)
+				if (exec_initscript(lcd4lbin, "start", "service") != 0)
 					dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s start failed \033[0m\n", __func__, __LINE__, lcd4lbin);
 			}
 			sleep(2);
@@ -1476,14 +1475,14 @@ void CLCD4l::lcd4linux(int run)
 	}
 	else if (run == RELOAD_LCD4L)
 	{
-		if (exec_initscript(lcd4lbin, "reload", systemd_cmd) != 0)
+		if (exec_initscript(lcd4lbin, "reload", "service") != 0)
 			dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s reload failed \033[0m\n", __func__, __LINE__, lcd4lbin);
 	}
 	else
 	{
 		if (lcd4_pid)
 		{
-			if (exec_initscript(lcd4lbin, "stop", systemd_cmd) != 0)
+			if (exec_initscript(lcd4lbin, "stop", "service") != 0)
 				dprintf(DEBUG_NORMAL,"\033[33m[CLCD4l] [%s - %d] %s stop failed \033[0m\n", __func__, __LINE__, lcd4lbin);
 		}
 	}

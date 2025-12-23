@@ -516,13 +516,30 @@ bool exec_initscript(std::string script, std::string command, std::string system
 		dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: current user is not root!\n", __func__, __LINE__);
 #endif
 
-	if (find_executable(system_command.c_str()).empty())
-		dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: %s not found at system!\n", __func__, __LINE__, system_command.c_str());
+	if (system_command.empty())
+		system_command = "service";
 
-	const std::string sysctl_bin = "systemctl";
-	bool use_systemd = !find_executable(sysctl_bin.c_str()).empty();
+	std::string sys_command = system_command;
+	bool use_systemd = (sys_command == "systemctl");
 
-	std::string sys_command = use_systemd ? sysctl_bin : "service"; // fallback to 'service' if no 'systemctl' was found
+	if (find_executable(sys_command.c_str()).empty())
+	{
+		dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: %s not found at system!\n", __func__, __LINE__, sys_command.c_str());
+		if (use_systemd)
+		{
+			sys_command = "service";
+			use_systemd = false;
+			if (find_executable(sys_command.c_str()).empty())
+			{
+				dprintf(DEBUG_NORMAL,"[helpers] [%s - %d] WARNING: %s not found at system!\n", __func__, __LINE__, sys_command.c_str());
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
 	std::string cmd = command;
 	int ret = 1;
 
