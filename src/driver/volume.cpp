@@ -44,23 +44,22 @@
 #include <gui/mediaplayer.h>
 #include <zapit/zapit.h>
 
+#define VOLUME_SCRIPT CONFIGDIR "/volume.sh"
 
-#define VOLUME_SCRIPT	CONFIGDIR "/volume.sh"
-
-extern CRemoteControl * g_RemoteControl;
-extern cAudio * audioDecoder;
+extern CRemoteControl *g_RemoteControl;
+extern cAudio *audioDecoder;
 
 CVolume::CVolume()
 {
-	frameBuffer	= CFrameBuffer::getInstance();
-	volscale 	= NULL;
-	mute_ax		= 0;
-	mute_ay		= 0;
-	mute_dx		= 0;
-	mute_dy		= 0;
-	m_mode 		= CNeutrinoApp::getInstance()->getMode();
-	channel_id	= 0;
-	apid		= 0;
+	frameBuffer = CFrameBuffer::getInstance();
+	volscale = NULL;
+	mute_ax = 0;
+	mute_ay = 0;
+	mute_dx = 0;
+	mute_dy = 0;
+	m_mode = CNeutrinoApp::getInstance()->getMode();
+	channel_id = 0;
+	apid = 0;
 }
 
 CVolume::~CVolume()
@@ -68,10 +67,10 @@ CVolume::~CVolume()
 	delete volscale;
 }
 
-CVolume* CVolume::getInstance()
+CVolume *CVolume::getInstance()
 {
-	static CVolume* Volume = NULL;
-	if(!Volume)
+	static CVolume *Volume = NULL;
+	if (!Volume)
 		Volume = new CVolume();
 	return Volume;
 }
@@ -92,16 +91,19 @@ void CVolume::setVolumeExt(int vol)
 
 void CVolume::setVolume(const neutrino_msg_t key)
 {
-	if (!g_RCInput) /* don't die... */
+	if (!g_RCInput) // don't die...
 		return;
+
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	if (mode == NeutrinoModes::mode_standby)
 		return;
 
-	neutrino_msg_t msg	= key;
-	static bool do_vol = true; /* false if volume is handled by external script */
-	if (msg <= CRCInput::RC_MaxRC) {
-		if(m_mode != mode) {
+	neutrino_msg_t msg = key;
+	static bool do_vol = true; // false if volume is handled by external script
+	if (msg <= CRCInput::RC_MaxRC)
+	{
+		if (m_mode != mode)
+		{
 			m_mode = mode;
 			setVolume(msg);
 			return;
@@ -119,18 +121,20 @@ void CVolume::setVolume(const neutrino_msg_t key)
 #endif
 	int vol = g_settings.current_volume;
 
-	do {
-		if (msg <= CRCInput::RC_MaxRC) 
+	do
+	{
+		if (msg <= CRCInput::RC_MaxRC)
 		{
 			bool sub_chan_keybind = g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME
-						&& g_RemoteControl && g_RemoteControl->subChannels.size() < 1;
+				&& g_RemoteControl && g_RemoteControl->subChannels.size() < 1;
 			if ((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == (neutrino_msg_t) g_settings.key_volumedown) ||
-			    (sub_chan_keybind && (msg == CRCInput::RC_right || msg == CRCInput::RC_left))) {
+				(sub_chan_keybind && (msg == CRCInput::RC_right || msg == CRCInput::RC_left)))
+			{
 				int dir = (msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? 1 : -1;
 				if (my_system(2, VOLUME_SCRIPT, dir > 0 ? "up" : "down") == 0)
 				{
 					do_vol = false;
-					/* clear all repeated events */
+					// clear all repeated events
 					neutrino_msg_t tmp = msg;
 					while (msg == tmp)
 						g_RCInput->getMsg(&tmp, &data, 0);
@@ -145,27 +149,34 @@ void CVolume::setVolume(const neutrino_msg_t key)
 					g_settings.current_volume = hdmi_cec::getInstance()->GetVolume();
 					printf("Volume: %d\n", g_settings.current_volume);
 #endif
-				} else
+				}
+				else
 					do_vol = true;
-				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0)) {
+
+				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0))
+				{
 					hideVolscale();
-					if (do_vol) {
+					if (do_vol)
+					{
 						CAudioMute::getInstance()->AudioMute(false, true);
 						setVolume(msg);
 						return;
 					}
 				}
 
-				if (do_vol && !CNeutrinoApp::getInstance()->isMuted()) {
-					/* current_volume is char, we need signed to catch v < 0 */
+				if (do_vol && !CNeutrinoApp::getInstance()->isMuted())
+				{
+					// current_volume is char, we need signed to catch v < 0
 					int v = g_settings.current_volume;
 					v += dir * g_settings.current_volume_step;
 					if (v > 100)
 						v = 100;
-					else if (v < 1) {
+					else if (v < 1)
+					{
 						v = 0;
 						g_settings.current_volume = 0;
-						if (g_settings.show_mute_icon) {
+						if (g_settings.show_mute_icon)
+						{
 							hideVolscale();
 							CAudioMute::getInstance()->AudioMute(true, true);
 							setVolume(msg);
@@ -180,7 +191,8 @@ void CVolume::setVolume(const neutrino_msg_t key)
 			}
 			else if (CNeutrinoApp::getInstance()->backKey(msg))
 				break;
-			else {
+			else
+			{
 				g_RCInput->postMsg(msg, data);
 				break;
 			}
@@ -189,26 +201,32 @@ void CVolume::setVolume(const neutrino_msg_t key)
 				setvol(g_settings.current_volume);
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
 		}
-		else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
+		else if (msg == NeutrinoMessages::EVT_VOLCHANGED)
+		{
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
 		}
-		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::unhandled) {
+		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::unhandled)
+		{
 			g_RCInput->postMsg(msg, data);
 			break;
 		}
 
-		if (volscale) {
-			if(vol != g_settings.current_volume) {
+		if (volscale)
+		{
+			if (vol != g_settings.current_volume)
+			{
 				vol = g_settings.current_volume;
 				volscale->paint();
 			}
 		}
 
 		CVFD::getInstance()->showVolume(g_settings.current_volume);
-		if (msg != CRCInput::RC_timeout) {
-			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
+		if (msg != CRCInput::RC_timeout)
+		{
+			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 		}
-	} while (msg != CRCInput::RC_timeout);
+	}
+	while (msg != CRCInput::RC_timeout);
 
 #ifdef ENABLE_GRAPHLCD
 	cGLCD::ShowVolume(false);
@@ -219,8 +237,10 @@ void CVolume::setVolume(const neutrino_msg_t key)
 bool CVolume::hideVolscale()
 {
 	bool ret = false;
-	if (volscale) {
-		if (volscale->isPainted()) {
+	if (volscale)
+	{
+		if (volscale->isPainted())
+		{
 			volscale->hide();
 			ret = true;
 		}
@@ -232,19 +252,22 @@ bool CVolume::hideVolscale()
 
 void CVolume::showVolscale()
 {
-	if (volscale == NULL){
+	if (volscale == NULL)
+	{
 		volscale = new CVolumeBar();
 		volscale->paint();
 	}
 }
 
-bool CVolume::changeNotify(const neutrino_locale_t OptionName, void * data)
+bool CVolume::changeNotify(const neutrino_locale_t OptionName, void *data)
 {
 	bool ret = false;
-	if (ARE_LOCALES_EQUAL(OptionName, NONEXISTANT_LOCALE)) {
+	if (ARE_LOCALES_EQUAL(OptionName, NONEXISTANT_LOCALE))
+	{
 		int percent = *(int *) data;
-		int vol =  CZapit::getInstance()->GetVolume();
-		/* keep resulting volume = (vol * percent)/100 not more than 115 */
+		int vol = CZapit::getInstance()->GetVolume();
+
+		// keep resulting volume = (vol * percent)/100 not more than 115
 		if (vol * percent > 11500)
 			percent = 11500 / vol;
 

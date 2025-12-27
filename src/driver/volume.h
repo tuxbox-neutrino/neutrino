@@ -32,19 +32,19 @@ class CFramebuffer;
 class CVolume : public CChangeObserver
 {
 	private:
-		CFrameBuffer * frameBuffer;
+		CFrameBuffer *frameBuffer;
 		CVolumeBar *volscale;
 
 		int mute_ax, mute_ay, mute_dx, mute_dy;
 		int m_mode;
-		/* volume adjustment variables */
+		// volume adjustment variables
 		t_channel_id channel_id;
 		int apid;
 
 	public:
 		CVolume();
 		~CVolume();
-		static CVolume* getInstance();
+		static CVolume *getInstance();
 
 		void setvol(int vol);
 		void setVolume(const neutrino_msg_t key);
