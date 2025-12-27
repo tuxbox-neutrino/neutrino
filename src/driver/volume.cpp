@@ -199,6 +199,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 
 			if (do_vol)
 				setvol(g_settings.current_volume);
+
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
 		}
 		else if (msg == NeutrinoMessages::EVT_VOLCHANGED)
@@ -252,6 +253,11 @@ bool CVolume::hideVolscale()
 
 void CVolume::showVolscale()
 {
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+	if (g_settings.hdmi_cec_volume)
+		return;
+#endif
+
 	if (volscale == NULL)
 	{
 		volscale = new CVolumeBar();
