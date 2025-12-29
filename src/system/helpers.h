@@ -60,7 +60,7 @@ bool get_mem_usage(unsigned long &total, unsigned long &free);
 int mySleep(int sec);
 
 std::string find_executable(const char *name);
-bool exec_controlscript(std::string script);
+bool exec_controlscript(std::string script, std::string command = "");
 bool exec_initscript(std::string script, std::string command = "start", std::string system_command = "service");
 /* basically what "foo=`command`" does in the shell */
 std::string backtick(std::string command);
