@@ -44,6 +44,7 @@
 #include <gui/mediaplayer.h>
 #include <zapit/zapit.h>
 
+// VOLUME_SCRIPT should be handled as a controlscript
 #define VOLUME_SCRIPT CONFIGDIR "/volume.sh"
 
 extern CRemoteControl *g_RemoteControl;
@@ -99,7 +100,8 @@ void CVolume::setVolume(const neutrino_msg_t key)
 		return;
 
 	neutrino_msg_t msg = key;
-	static bool do_vol = true; // false if volume is handled by external script
+	static bool do_vol = true; // false if volume is handled by VOLUME_SCRIPT
+
 	if (msg <= CRCInput::RC_MaxRC)
 	{
 		if (m_mode != mode)
