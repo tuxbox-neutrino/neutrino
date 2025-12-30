@@ -43,7 +43,7 @@
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/version.h>
 
-#if DVB_API_VERSION > 5 || DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR >= 10
+#if _HAVE_DVB510
 #include <errno.h>
 #endif
 
@@ -759,7 +759,7 @@ uint16_t CFrontend::getSignalStrength(void) const
 {
 	uint16_t strength = 0;
 
-#if DVB_API_VERSION > 5 || DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR >= 10
+#if _HAVE_DVB510
 	dtv_property prop[1];
 	memset(prop, 0, sizeof(prop));
 	prop[0].cmd = DTV_STAT_SIGNAL_STRENGTH;
@@ -791,7 +791,7 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 {
 	uint16_t snr = 0;
 
-#if DVB_API_VERSION > 5 || DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR >= 10
+#if _HAVE_DVB510
 	dtv_property prop[1];
 	prop[0].cmd = DTV_STAT_CNR;
 	dtv_properties props;
@@ -1609,7 +1609,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 #if !HAVE_CST_HARDWARE
 			if (fe_can_multistream)
 			{
-#if (DVB_API_VERSION >= 5 && DVB_API_VERSION_MINOR >= 11)
+#if (DVB_API_VERSION >= 5) && (DVB_API_VERSION_MINOR >= 11)
 				p[cmdseq.num].cmd = DTV_STREAM_ID, p[cmdseq.num].u.data = feparams->plp_id,							cmdseq.num++;
 				p[cmdseq.num].cmd = DTV_SCRAMBLING_SEQUENCE_INDEX, p[cmdseq.num].u.data = feparams->pls_code,		cmdseq.num++;
 #else
