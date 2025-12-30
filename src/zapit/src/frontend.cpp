@@ -43,6 +43,10 @@
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/version.h>
 
+#if DVB_API_VERSION > 5 || DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR >= 10
+#include <errno.h>
+#endif
+
 #include <hardware_caps.h>
 
 extern transponder_list_t transponders;
@@ -303,17 +307,20 @@ void CFrontend::getFEInfo(void)
 			case SYS_DVBS2:
 			case SYS_DVBS2X:
 				deliverySystemMask |= DVB_S2;
-				printf("[fe%d/%d] add delivery system DVB-S2 (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				fe_can_multistream = info.caps & FE_CAN_MULTISTREAM;
-				if (fe_can_multistream) {
+				printf("[fe%d/%d] add delivery system DVB-S2 (delivery_system: %d / Multistream: %s)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i], fe_can_multistream ? "yes" :"no");
+				if (fe_can_multistream)
+				{
 					deliverySystemMask |= DVB_S2X;
 					printf("[fe%d/%d] add delivery system DVB-S2X (delivery_system: %d / Multistream: %s)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i], fe_can_multistream ? "yes" :"no");
 				}
 				break;
+#if _HAVE_DVB57
 			case SYS_DTMB:
 				deliverySystemMask |= DTMB;
 				printf("[fe%d/%d] add delivery system DTMB (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				break;
+#endif
 			default:
 				printf("[fe%d/%d] ERROR: delivery system unknown (delivery_system: %d)\n", adapter, fenumber, (fe_delivery_system_t)prop[0].u.buffer.data[i]);
 				continue;
@@ -751,7 +758,31 @@ uint32_t CFrontend::getBitErrorRate(void) const
 uint16_t CFrontend::getSignalStrength(void) const
 {
 	uint16_t strength = 0;
-	fop(ioctl, FE_READ_SIGNAL_STRENGTH, &strength);
+
+#if DVB_API_VERSION > 5 || DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR >= 10
+	dtv_property prop[1];
+	memset(prop, 0, sizeof(prop));
+	prop[0].cmd = DTV_STAT_SIGNAL_STRENGTH;
+	dtv_properties props;
+	props.props = prop;
+	props.num = 1;
+
+	if (fop(ioctl, FE_GET_PROPERTY, &props) < 0 && errno != ERANGE)
+	{
+		printf("%s: DTV_STAT_SIGNAL_STRENGTH failed\n", __FUNCTION__);
+	}
+	else
+	{
+		for(unsigned int i = 0; i < prop[0].u.st.len; i++)
+		{
+			if (prop[0].u.st.stat[i].scale == FE_SCALE_RELATIVE)
+				strength = prop[0].u.st.stat[i].uvalue;
+		}
+	}
+#endif
+	// fallback to old DVB API
+	if (!strength)
+		fop(ioctl, FE_READ_SIGNAL_STRENGTH, &strength);
 
 	return strength;
 }
@@ -759,7 +790,37 @@ uint16_t CFrontend::getSignalStrength(void) const
 uint16_t CFrontend::getSignalNoiseRatio(void) const
 {
 	uint16_t snr = 0;
-	fop(ioctl, FE_READ_SNR, &snr);
+
+#if DVB_API_VERSION > 5 || DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR >= 10
+	dtv_property prop[1];
+	prop[0].cmd = DTV_STAT_CNR;
+	dtv_properties props;
+	props.props = prop;
+	props.num = 1;
+
+	if (fop(ioctl, FE_GET_PROPERTY, &props) < 0 && errno != ERANGE)
+	{
+		printf("%s: DTV_STAT_CNR failed\n", __FUNCTION__);
+	}
+	else
+	{
+		for(unsigned int i = 0; i < prop[0].u.st.len; i++)
+		{
+			if (prop[0].u.st.stat[i].scale == FE_SCALE_DECIBEL)
+			{
+				snr = prop[0].u.st.stat[i].svalue / 10;
+			}
+			else if (prop[0].u.st.stat[i].scale == FE_SCALE_RELATIVE)
+			{
+				snr = prop[0].u.st.stat[i].svalue;
+			}
+		}
+	}
+#endif
+	// fallback to old DVB API
+	if (!snr)
+		fop(ioctl, FE_READ_SNR, &snr);
+
 	return snr;
 }
 
@@ -1141,6 +1202,7 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 		fec = "0";
 		break;
 #endif
+#if !HAVE_CST_HARDWARE && !HAVE_MIPS_HARDWARE
 	case FEC_13_45:
 		fec = "13/45";
 		break;
@@ -1195,6 +1257,7 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&f
 	case FEC_26_45_L:
 		fec = "26/45L";
 		break;
+#endif
 	default:
 		INFO("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
 		/* fall through */
@@ -1434,6 +1497,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		fec = FEC_NONE;
 		break;
 #endif
+#if !HAVE_CST_HARDWARE && !HAVE_MIPS_HARDWARE
 	case FEC_13_45:
 		fec = FEC_13_45;
 		break;
@@ -1488,6 +1552,7 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 	case FEC_26_45_L:
 		fec = FEC_26_45_L;
 		break;
+#endif
 	default:
 		INFO("[fe%d/%d] DEMOD: unknown FEC: %d\n", adapter, fenumber, fec_inner);
 	/* fall through */
