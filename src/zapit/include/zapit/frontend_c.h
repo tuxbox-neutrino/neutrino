@@ -159,7 +159,6 @@ class CFrontend
 		//uint32_t numDeliverySystems;
 		t_channel_id		channel_id;
 
-		FrontendParameters		getFrontend(void) const;
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
 		void				secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms);
 		void				sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const uint32_t ms);
@@ -209,7 +208,6 @@ class CFrontend
 		uint16_t			getSignalNoiseRatio(void) const;
 		uint16_t			getSignalStrength(void) const;
 		fe_status_t			getStatus(void) const;
-		uint32_t			getUncorrectedBlocks(void) const;
 		void				getDelSys(int f, int m, const char * &fec, const char * &sys, const char * &mod);
 		void				forceDelSys(int i);
 		void				getFEInfo(void);

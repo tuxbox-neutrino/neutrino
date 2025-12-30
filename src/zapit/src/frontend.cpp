@@ -749,14 +749,6 @@ fe_status_t CFrontend::getStatus(void) const
 	return (fe_status_t) (event.status & FE_HAS_LOCK);
 }
 
-#if 0
-//never used
-FrontendParameters CFrontend::getFrontend(void) const
-{
-	return currentTransponder.feparams;
-}
-#endif
-
 uint32_t CFrontend::getBitErrorRate(void) const
 {
 	uint32_t ber = 0;
@@ -835,17 +827,6 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 
 	return snr;
 }
-
-#if 0
-//never used
-uint32_t CFrontend::getUncorrectedBlocks(void) const
-{
-	uint32_t blocks = 0;
-	fop(ioctl, FE_READ_UNCORRECTED_BLOCKS, &blocks);
-
-	return blocks;
-}
-#endif
 
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
