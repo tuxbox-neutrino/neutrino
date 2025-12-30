@@ -2947,21 +2947,6 @@ void CZapit::run()
 		}
 		/* yuck, don't waste that much cpu time :) */
 		usleep(0);
-#if 0
-		static time_t stime = time(0);
-		if(!standby && !CServiceScan::getInstance()->Scanning() && current_channel) {
-			time_t curtime = time(0);
-			//FIXME check if sig_delay needed */
-			if(sig_delay && (curtime - stime) > sig_delay) {
-				stime = curtime;
-				fe_status_t status = live_fe->getStatus();
-				printf("[zapit] frontend status %d\n", status);
-				if (status != FE_HAS_LOCK) {
-					live_fe->retuneChannel();
-				}
-			}
-		}
-#endif
 	}
 
 	SaveChannelPids(current_channel);

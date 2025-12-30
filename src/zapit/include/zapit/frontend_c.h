@@ -242,7 +242,6 @@ class CFrontend
 		void				sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t command, uint8_t num_parameters, uint8_t parameter1, uint8_t parameter2, int repeat = 0);
 		void				gotoXX(t_satellite_position pos);
 		bool				tuneChannel(CZapitChannel *channel, bool nvod);
-		bool				retuneChannel(void);
 
 		t_channel_id			getChannelID(void) { return channel_id; }
 		void				setChannelID(t_channel_id ID) { channel_id = ID; }

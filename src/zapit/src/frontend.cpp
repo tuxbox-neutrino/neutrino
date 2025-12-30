@@ -2029,19 +2029,6 @@ bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 	return tuneFrequency(&transponder->second.feparams, false);
 }
 
-#if 0
-bool CFrontend::retuneChannel(void)
-{
-	mutex.lock();
-	setInput(currentSatellitePosition, currentTransponder.feparams.frequency, currentTransponder.feparams.polarization);
-	transponder_list_t::iterator transponder = transponders.find(currentTransponder.TP_id);
-	if (transponder == transponders.end())
-		return false;
-	mutex.unlock();
-	return tuneFrequency(&transponder->second.feparams, transponder->second.feparams.polarization, true);
-}
-#endif
-
 int CFrontend::tuneFrequency(FrontendParameters *feparams, bool nowait)
 {
 	transponder TP;
