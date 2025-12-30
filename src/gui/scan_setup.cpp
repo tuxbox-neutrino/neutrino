@@ -143,7 +143,6 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[] =
 	{ FEC_5_6, LOCALE_EXTRA_FEC_5_6         },
 	{ FEC_6_7, LOCALE_EXTRA_FEC_6_7         },
 	{ FEC_7_8, LOCALE_EXTRA_FEC_7_8         },
-	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO       },
 	// S2
 #if _HAVE_DVB57
 	{ FEC_2_5, LOCALE_EXTRA_FEC_2_5         },
@@ -151,9 +150,8 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[] =
 	{ FEC_3_5, LOCALE_EXTRA_FEC_3_5         },
 	{ FEC_4_5, LOCALE_EXTRA_FEC_4_5         },
 	{ FEC_8_9, LOCALE_EXTRA_FEC_8_9         },
-	{ FEC_9_10, LOCALE_EXTRA_FEC_9_10       }
+	{ FEC_9_10, LOCALE_EXTRA_FEC_9_10       },
 #if !HAVE_CST_HARDWARE && !HAVE_MIPS_HARDWARE
-	,
 	// S2X
 	{ FEC_13_45, LOCALE_EXTRA_FEC_13_45     },
 	{ FEC_9_20, LOCALE_EXTRA_FEC_9_20       },
@@ -172,8 +170,9 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[] =
 	{ FEC_3_5_L, LOCALE_EXTRA_FEC_3_5_L     },
 	{ FEC_2_3_L, LOCALE_EXTRA_FEC_2_3_L     },
 	{ FEC_5_9_L, LOCALE_EXTRA_FEC_5_9_L     },
-	{ FEC_26_45_L, LOCALE_EXTRA_FEC_26_45_L }
+	{ FEC_26_45_L, LOCALE_EXTRA_FEC_26_45_L },
 #endif
+	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO       }
 };
 #define SATSETUP_SCANTP_FEC_COUNT (sizeof(SATSETUP_SCANTP_FEC)/sizeof(CMenuOptionChooser::keyval))
 
@@ -198,13 +197,13 @@ const CMenuOptionChooser::keyval TERRSETUP_SCANTP_FEC[] =
 	{ FEC_3_4,  LOCALE_EXTRA_FEC_3_4  },
 	{ FEC_5_6,  LOCALE_EXTRA_FEC_5_6  },
 	{ FEC_7_8,  LOCALE_EXTRA_FEC_7_8  },
-	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO },
 	// DTMB ie
 #if _HAVE_DVB57
 	{ FEC_2_5,  LOCALE_EXTRA_FEC_2_5  },
 #endif
 	{ FEC_3_5,  LOCALE_EXTRA_FEC_3_5  },
-	{ FEC_4_5,  LOCALE_EXTRA_FEC_4_5  }
+	{ FEC_4_5,  LOCALE_EXTRA_FEC_4_5  },
+	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO }
 };
 #define TERRSETUP_SCANTP_FEC_COUNT (sizeof(TERRSETUP_SCANTP_FEC)/sizeof(CMenuOptionChooser::keyval))
 
