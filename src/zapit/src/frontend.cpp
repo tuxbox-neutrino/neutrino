@@ -103,7 +103,7 @@ typedef enum dvb_fec {
 	f2_5,
 #endif
 	fNone = 15
-#if BOXMODEL_VUPLUS_ARM
+#if !HAVE_CST_HARDWARE && !HAVE_MIPS_HARDWARE
 	,
 	f13_45,
 	f9_20,
@@ -514,6 +514,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		case f9_10:
 			fec = FEC_9_10;
 			break;
+#if !HAVE_CST_HARDWARE && !HAVE_MIPS_HARDWARE
 		case f13_45:
 			fec = FEC_13_45;
 			break;
@@ -568,6 +569,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, delivery_system_t
 		case f26_45_L:
 			fec = FEC_26_45_L;
 			break;
+#endif
 		default:
 			if (zapit_debug)
 				printf("no valid fec for DVB-S2/DVB-S2X set!\n");
