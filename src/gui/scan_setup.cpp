@@ -135,9 +135,17 @@ const CMenuOptionChooser::keyval TERRSETUP_SCANTP_DELSYS[TERRSETUP_SCANTP_DELSYS
 };
 
 #if BOXMODEL_VUPLUS_ARM
-#define SATSETUP_SCANTP_FEC_COUNT 28
+#if _HAVE_DVB57
+#define SATSETUP_SCANTP_FEC_COUNT 30
 #else
-#define SATSETUP_SCANTP_FEC_COUNT 10
+#define SATSETUP_SCANTP_FEC_COUNT 29
+#endif
+#else
+#if _HAVE_DVB57
+#define SATSETUP_SCANTP_FEC_COUNT 12
+#else
+#define SATSETUP_SCANTP_FEC_COUNT 11
+#endif
 #endif
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[SATSETUP_SCANTP_FEC_COUNT] =
 {
@@ -146,9 +154,13 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[SATSETUP_SCANTP_FEC_COUNT] 
 	{ FEC_2_3, LOCALE_EXTRA_FEC_2_3         },
 	{ FEC_3_4, LOCALE_EXTRA_FEC_3_4         },
 	{ FEC_5_6, LOCALE_EXTRA_FEC_5_6         },
+	{ FEC_6_7, LOCALE_EXTRA_FEC_6_7         },
 	{ FEC_7_8, LOCALE_EXTRA_FEC_7_8         },
 	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO       },
 	// S2
+#if _HAVE_DVB57
+	{ FEC_2_5, LOCALE_EXTRA_FEC_2_5         },
+#endif
 	{ FEC_3_5, LOCALE_EXTRA_FEC_3_5         },
 	{ FEC_4_5, LOCALE_EXTRA_FEC_4_5         },
 	{ FEC_8_9, LOCALE_EXTRA_FEC_8_9         },

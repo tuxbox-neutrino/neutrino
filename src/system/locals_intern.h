@@ -516,6 +516,7 @@ const char * locale_real_names[] =
 	"extra.fec_3_5",
 	"extra.fec_4_5",
 	"extra.fec_5_6",
+	"extra.fec_6_7",
 	"extra.fec_7_8",
 	"extra.fec_7_9",
 	"extra.fec_8_9",
