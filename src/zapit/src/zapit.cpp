@@ -196,7 +196,6 @@ void CZapit::SaveSettings(bool write)
 		}
 
 		configfile.setInt32("writeChannelsNames", config.writeChannelsNames);
-		configfile.setBool("makeRemainingChannelsBouquet", config.makeRemainingChannelsBouquet);
 		configfile.setInt32("feTimeout", config.feTimeout);
 		configfile.setInt32("feRetries", config.feRetries);
 
@@ -204,10 +203,6 @@ void CZapit::SaveSettings(bool write)
 		configfile.setBool("scanPids", config.scanPids);
 		configfile.setInt32("scanSDT", config.scanSDT);
 		configfile.setInt32("cam_ci", config.cam_ci);
-#if 0 // unused
-		configfile.setBool("fastZap", config.fastZap);
-		configfile.setBool("sortNames", config.sortNames);
-#endif
 
 		/* FIXME FE global */
 		configfile.setInt32("noSameFE", config.noSameFE);
@@ -339,16 +334,8 @@ void CZapit::LoadSettings()
 	lastChannelTV				= configfile.getInt64("lastChannelTV", 0);
 	last_channel_id				= configfile.getInt64("lastOTAChannel", 0);
 
-#if 0 //unused
-	config.fastZap				= configfile.getBool("fastZap", 1);
-	config.sortNames			= configfile.getBool("sortNames", 0);
-	voltageOff				= configfile.getBool("voltageOff", 0);
-#endif
 	config.saveLastChannel			= configfile.getBool("saveLastChannel", true);
 	config.writeChannelsNames		= configfile.getInt32("writeChannelsNames", CBouquetManager::BWN_EVER );
-	/* FIXME Channels renum should be done for all channels atm. TODO*/
-	//config.makeRemainingChannelsBouquet	= configfile.getBool("makeRemainingChannelsBouquet", 1);
-	config.makeRemainingChannelsBouquet	= 1;
 	config.scanPids				= configfile.getBool("scanPids", 0);
 	config.scanSDT				= configfile.getInt32("scanSDT", 0);
 	config.cam_ci				= configfile.getInt32("cam_ci", 2);

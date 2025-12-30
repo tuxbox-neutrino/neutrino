@@ -742,7 +742,6 @@ function form_init()
 //zapit
 	obj_set_radio_value('save_lastchannel', "{=ini-get:%(ZAPITDIR)/zapit.conf;saveLastChannel;true~open=}");
 	obj_set_radio_value('save_audio_pids', "{=ini-get:%(ZAPITDIR)/zapit.conf;saveAudioPIDs;false~cache=}");
-	obj_set_radio_value('bouquet_others', "{=ini-get:%(ZAPITDIR)/zapit.conf;makeRemainingChannelsBouquet;true~cache=}");
 	change_lastchannel();
 }
 
@@ -786,8 +785,7 @@ start-block~neutrino_diverse_save_settings
 {=ini-set:%(ZAPITDIR)/zapit.conf;saveAudioPIDs;{=save_audio_pids=}~open=}
 {=ini-set:%(ZAPITDIR)/zapit.conf;saveLastChannel;{=save_lastchannel=}~cache=}
 {=ini-set:%(ZAPITDIR)/zapit.conf;startChannelRadio;{=startchannel_radio=}~cache=}
-{=ini-set:%(ZAPITDIR)/zapit.conf;startChannelTV;{=startchannel_tv=}~cache=}
-{=ini-set:%(ZAPITDIR)/zapit.conf;makeRemainingChannelsBouquet;{=bouquet_others=}~save=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;startChannelTV;{=startchannel_tv=}~save=}
 end-block~neutrino_diverse_save_settings
 
 # ------- Neutrino form-data: pictureviewer -------------------------------

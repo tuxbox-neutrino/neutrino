@@ -64,11 +64,8 @@ enum {
 
 typedef struct Zapit_config {
 	int writeChannelsNames;
-	int makeRemainingChannelsBouquet;
 	int saveLastChannel;
 	int rezapTimeout;
-	int fastZap;
-	int sortNames;
 	int scanPids;
 	int scanSDT;
 	int cam_ci;
@@ -264,7 +261,6 @@ class CZapit : public OpenThreads::Thread
 		/* inlines */
 		void Abort() { abort_zapit = 1; };
 		bool Recording() { return currentMode & RECORD_MODE; };
-		bool makeRemainingChannelsBouquet() { return config.makeRemainingChannelsBouquet; };
 		int GetScanSDT() { return config.scanSDT; };
 		void SetScanSDT(int _scanSDT) { config.scanSDT = _scanSDT; };
 		bool scanPids() { return config.scanPids; };

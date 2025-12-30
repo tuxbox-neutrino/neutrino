@@ -569,8 +569,6 @@ void CBouquetManager::renumChannels(ZapitChannelList &list, int & counter, char 
 void CBouquetManager::makeRemainingChannelsBouquet(void)
 {
 	ZapitChannelList unusedChannels;
-	//FIXME services loaded before config.
-	//bool tomake = CZapit::getInstance()->makeRemainingChannelsBouquet();
 
 	/* reset channel number and has_bouquet flag */
 	CServiceManager::getInstance()->ResetChannelNumbers();
@@ -585,7 +583,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 		renumChannels((*it)->radioChannels, j, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 	}
 
-	if(/*!tomake ||*/ CServiceManager::getInstance()->GetAllUnusedChannels(unusedChannels) == false)
+	if(CServiceManager::getInstance()->GetAllUnusedChannels(unusedChannels) == false)
 		return;
 
 	sort(unusedChannels.begin(), unusedChannels.end(), CmpChannelByChName());
