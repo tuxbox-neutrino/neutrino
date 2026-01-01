@@ -1440,8 +1440,8 @@ void CLCD4l::lcd4linux(int run)
 	std::string lcd4lbin_path = find_executable(lcd4lbin);
 	bool isPNG;
 
-	chmod(conf,0x600);
-	chown(conf,0,0);
+	chown(conf, 0, 0);
+	chmod(conf, 0600);
 
 	int lcd4_pid = getpidof(lcd4lbin);
 
