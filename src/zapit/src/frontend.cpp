@@ -89,18 +89,23 @@ extern int zapit_debug;
 
 // Internal Inner FEC representation
 typedef enum dvb_fec {
-	fAuto,
-	f1_2,
-	f2_3,
-	f3_4,
-	f5_6,
-	f7_8,
-	f8_9,
-	f3_5,
-	f4_5,
-	f9_10,
-	f6_7,
-	fNone = 15,
+	fAuto = 0,
+	f1_2 = 1,
+	f2_3 = 2,
+	f3_4 = 3,
+	f5_6 = 4,
+	f7_8 = 5,
+	f8_9 = 6,
+	f3_5 = 7,
+	f4_5 = 8,
+	f9_10 = 9,
+	f6_7 = 10,
+#if _HAVE_DVB57
+	f2_5 = 11,
+#endif
+	fNone = 15
+#if !HAVE_CST_HARDWARE && !HAVE_MIPS_HARDWARE
+	,
 	f13_45,
 	f9_20,
 	f11_20,
@@ -119,6 +124,7 @@ typedef enum dvb_fec {
 	f2_3_L,
 	f5_9_L,
 	f26_45_L
+#endif
 } dvb_fec_t;
 
 static fe_sec_voltage_t unicable_lowvolt = SEC_VOLTAGE_13;
