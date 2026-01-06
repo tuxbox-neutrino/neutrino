@@ -1,0 +1,15 @@
+[
+  {
+    "name": "define_ver_micro_is_patch",
+    "patterns": {
+      "ver_major": "define\\(ver_major,\\s*\\d+\\)",
+      "ver_minor": "define\\(ver_minor,\\s*\\d+\\)",
+      "ver_micro": "define\\(ver_micro,\\s*\\d+\\)"
+    },
+    "replacements": {
+      "ver_major": "define(ver_major, {major})",
+      "ver_minor": "define(ver_minor, {minor})",
+      "ver_micro": "define(ver_micro, {patch})"
+    }
+  }
+]

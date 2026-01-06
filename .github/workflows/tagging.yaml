@@ -1,0 +1,139 @@
+name: Tagging Workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/**'
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    env:
+      GIT_AUTHOR_NAME: "Thilo Graf"
+      GIT_AUTHOR_EMAIL: "dbt@novatux.de"
+      GIT_COMMITTER_NAME: "Thilo Graf"
+      GIT_COMMITTER_EMAIL: "dbt@novatux.de"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install GitPython
+          curl -o /tmp/tagit.py https://raw.githubusercontent.com/dbt1/tagit/master/tagit.py
+          chmod +x /tmp/tagit.py
+
+      - name: Verify tagit.py download
+        run: |
+          if [ ! -f /tmp/tagit.py ]; then
+            echo "tagit.py was not downloaded!"
+            exit 1
+          fi
+
+      - name: Configure git identity
+        run: |
+          git config user.email "dbt@novatux.de"
+          git config user.name "Thilo Graf"
+          git config --global user.email "dbt@novatux.de"
+          git config --global user.name "Thilo Graf"
+
+      - name: Tagging
+        run: |
+          set -euo pipefail
+
+          ver_major=$(awk -F'[(), ]+' '/^define\(ver_major/ {print $3}' configure.ac)
+          ver_minor=$(awk -F'[(), ]+' '/^define\(ver_minor/ {print $3}' configure.ac)
+          ver_micro=$(awk -F'[(), ]+' '/^define\(ver_micro/ {print $3}' configure.ac)
+
+          for v in ver_major ver_minor ver_micro; do
+            if ! [[ ${!v} =~ ^[0-9]+$ ]]; then
+              echo "Invalid ${v} value: '${!v}'"
+              exit 1
+            fi
+          done
+
+          last_tag=$(git describe --tags --match "3.${ver_minor}*" --abbrev=0 2>/dev/null || true)
+          last_patch=0
+          if [ -n "$last_tag" ]; then
+            IFS='.' read -r _ _ last_patch <<< "$last_tag"
+            last_patch=${last_patch:-0}
+          fi
+
+          target_patch="$ver_micro"
+          if [ -n "$last_tag" ]; then
+            commits_since=$(git rev-list --count "${last_tag}..HEAD")
+
+            if [ "$ver_micro" -lt "$last_patch" ]; then
+              echo "configure.ac ver_micro (${ver_micro}) is behind last tag (${last_tag})."
+              exit 1
+            fi
+
+            if [ "$ver_micro" -le "$last_patch" ]; then
+              if [ "$commits_since" -eq 0 ]; then
+                echo "No new commits since ${last_tag}; nothing to tag."
+                exit 0
+              fi
+              target_patch=$((last_patch + 1))
+            fi
+          fi
+
+          year_short="$ver_minor"
+          if [ ${#year_short} -eq 4 ]; then
+            year_full="$year_short"
+            year_short="${year_short:2:2}"
+          else
+            year_full="20${year_short}"
+          fi
+
+          dry_args=()
+          if [ "${DRY_RUN:-0}" = "1" ]; then
+            dry_args+=(--dry-run)
+          fi
+
+          python /tmp/tagit.py \
+            -f configure.ac \
+            --scheme-file tagit-config.json \
+            --version-mode increment \
+            --tag-format "3.{minor}.{patch}" \
+            --major "$ver_major" \
+            --minor "$ver_minor" \
+            --patch "$target_patch" \
+            "${dry_args[@]}"
+
+          year_tag="${year_full}.${target_patch}"
+          if [ "${DRY_RUN:-0}" = "1" ]; then
+            if git rev-parse -q --verify "refs/tags/${year_tag}" >/dev/null; then
+              echo "Would skip existing tag: ${year_tag}"
+            else
+              echo "Would create tag: ${year_tag}"
+            fi
+          else
+            if ! git rev-parse -q --verify "refs/tags/${year_tag}" >/dev/null; then
+              git tag -a "$year_tag" -m "Release $year_tag"
+              echo "Created tag: ${year_tag}"
+            else
+              echo "Tag already exists: ${year_tag}"
+            fi
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git add configure.ac
+          git commit -m "tagging: Automatically updated tags [skip ci]" || echo "No changes to commit"
+          git push
+          git push --tags
