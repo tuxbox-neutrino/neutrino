@@ -912,7 +912,7 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	ssize_t r = read(lfd, &header, sizeof(struct rawHeader));
 	if(r <= 0)
 	{
-		close(fd);
+		close(lfd);
 		return false;
 	}
 
@@ -932,7 +932,7 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	for (int count=0; count<height; count ++ ) {
 		r = read(lfd, &pixbuf[0], width );
 		if(r <= 0){
-			close(fd);
+			close(lfd);
 			return false;
 		}
 		unsigned char *pixpos = &pixbuf[0];
@@ -1009,11 +1009,13 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		ssize_t s = read(lfd, &header, sizeof(struct rawHeader));
 		if (s < 0) {
 			perror("read");
+			close(lfd);
 			return false;
 		}
 
 		if (s < (ssize_t) sizeof(rawHeader)){
 			printf("paintIcon: error while loading icon: %s, header too small\n", newname.c_str());
+			close(lfd);
 			return false;
 		}
 
@@ -1022,6 +1024,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
 		if (!width || !height) {
 			printf("paintIcon: error while loading icon: %s, wrong dimensions (%dHx%dW)\n", newname.c_str(), height, width);
+			close(lfd);
 			return false;
 		}
 
