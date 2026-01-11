@@ -37,6 +37,7 @@
 class CLCD4lSetup : public CMenuTarget, CChangeObserver
 {
 	private:
+		bool manual_action;
 		bool lcd4l_display_type_changed;
 		int temp_lcd4l_display_type;
 		int temp_lcd4l_skin;

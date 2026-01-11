@@ -94,6 +94,7 @@ CLCD4lSetup::CLCD4lSetup()
 	width = 40;
 	hint = NULL;
 	lcd4l_display_type_changed = false;
+	manual_action = false;
 
 	sl_start = bind(mem_fun(*this, &CLCD4lSetup::showHint), "Starting lcd service...");
 	sl_stop = bind(mem_fun(*this, &CLCD4lSetup::showHint), "Stopping lcd service...");
@@ -136,8 +137,10 @@ int CLCD4lSetup::exec(CMenuTarget *parent, const std::string &actionkey)
 		return showTypeSetup();
 	}
 
+	// Set the flag so that the next action is considered manual
+	manual_action = true;
 	res = show();
-
+	manual_action = false;
 	return res;
 }
 
@@ -237,7 +240,7 @@ int CLCD4lSetup::show()
 	if(lcd_weather)
 		delete lcd_weather;
 
-	// the things to do on exit
+	// Actions to perform on exit
 
 	bool initlcd4l = false;
 
@@ -315,12 +318,16 @@ int CLCD4lSetup::showTypeSetup()
 	return typeSetup->exec(NULL, "");
 }
 
+/*	Shows the hintbox only if start/stop/restart was
+	triggered explicitly from the setup menu */
 void CLCD4lSetup::showHint(const std::string &text)
 {
 	removeHint();
-	hint = new CHint(text.c_str());
-	hint->paint();
-
+	if (manual_action) {
+		hint = new CHint(text.c_str());
+		hint->paint();
+		sleep(1);
+	}
 }
 
 void CLCD4lSetup::removeHint()
