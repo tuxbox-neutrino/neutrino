@@ -219,6 +219,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"gettime",		&CControlAPI::GetTimeCGI,		"text/plain"},
 	{"info",		&CControlAPI::InfoCGI,			"text/plain"},
 	{"boxinfo",		&CControlAPI::BoxInfoCGI,		"text/plain"},
+	{"osinfo",		&CControlAPI::OsInfoCGI,		"text/plain"},
 	{"version",		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup",		&CControlAPI::ReloadNeutrinoSetupCGI,	""},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,		""},
@@ -951,6 +952,28 @@ void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 
 	hh->printf("%s %s (%s)\nMAC:%s\n", boxvendor.c_str(), g_info.hw_caps->boxname, g_info.hw_caps->boxarch, eth_id.c_str());
 }
+
+//-----------------------------------------------------------------------------
+void CControlAPI::OsInfoCGI(CyhookHandler *hh)
+{
+	std::string result;
+	std::ifstream osrelease("/etc/os-release");
+	if (osrelease.is_open())
+	{
+		std::string line;
+		while (std::getline(osrelease, line))
+		{
+			if (!line.empty())
+				result += line + "\n";
+		}
+		osrelease.close();
+	}
+	if (result.empty())
+		hh->SendError();
+	else
+		hh->printf("%s", result.c_str());
+}
+
 //-----------------------------------------------------------------------------
 void CControlAPI::ShutdownCGI(CyhookHandler *hh)
 {

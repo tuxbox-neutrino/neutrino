@@ -65,7 +65,11 @@
 	</tr>
 	<tr>
 		<td><a href="#boxinfo">Box Informationen</a></td>
-		<td><a href="http://box_ip/control/info">http://box_ip/control/boxinfo</a></td>
+		<td><a href="http://box_ip/control/boxinfo">http://box_ip/control/boxinfo</a></td>
+	</tr>
+	<tr>
+		<td><a href="#osinfo">OS Informationen (os-release)</a></td>
+		<td><a href="http://box_ip/control/osinfo">http://box_ip/control/osinfo</a></td>
 	</tr>
 	<tr>
 		<td><a href="#getonidsid">Aktuellen Kanal abfragen</a></td>
@@ -1120,6 +1124,30 @@ Beispiel:<br>
 vendor=AX<br>
 boxname=H51<br>
 boxarch=BCM7251S<br>
+<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="osinfo"></a><b>OS-Release Informationen abfragen</b></div>
+<div class="URL">Handler: http://box_ip/control/osinfo</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>R&uuml;ckgabe:</b><br>
+<br>
+Es wird der Inhalt der Datei /etc/os-release zur&uuml;ckgegeben.<br>
+Diese enth&auml;lt Informationen zum installierten Image/Betriebssystem.<br>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/osinfo<br>
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"<br>
+NAME="Debian GNU/Linux"<br>
+VERSION_ID="13"<br>
+VERSION="13 (trixie)"<br>
+VERSION_CODENAME=trixie<br>
+ID=debian<br>
+HOME_URL="https://www.debian.org/"<br>
 <br>
 </div>
 

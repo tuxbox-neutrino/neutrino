@@ -94,6 +94,7 @@ private:
 	void InfoCGI(CyhookHandler *hh);
 	void BoxInfoCGI(CyhookHandler *hh);
 	void HWInfoCGI(CyhookHandler *hh);
+	void OsInfoCGI(CyhookHandler *hh);
 	void ShutdownCGI(CyhookHandler *hh);
 	void VolumeCGI(CyhookHandler *hh);
 	void ChannellistCGI(CyhookHandler *hh);
