@@ -47,6 +47,7 @@
 #define __RADIO_AUDIO_H
 
 #include <hardware/dmx.h>
+#include <time.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 #include <sigc++/signal.h>
@@ -77,6 +78,7 @@ private:
 	bool uecp_escape;
 	int uecp_index;
 	unsigned char uecp_buf[512];
+	time_t uecp_last_ts;
 
 	//Radiotext
 	void RadioStatusMsg(void);

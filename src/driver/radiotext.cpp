@@ -74,6 +74,19 @@ rtp_classes rtp_content;
 
 namespace {
 
+/**
+ * LATM/RDS decode path:
+ * - PES audio payload -> LATM sync (0x56, 0xe0 mask)
+ * - parse StreamMuxConfig and read LATM payload length
+ * - scan payload for Data Stream Elements (DSE) carrying UECP frames
+ * - UECP frames carry RDS MEC messages (RT/RT+), decoded by RadiotextDecode
+ *
+ * Debugging:
+ * - RADIOTEXT_VERBOSE=1..3 prints UECP/MEC details
+ * - RADIOTEXT_DUMP=1 or a path writes hex lines to /tmp/radiotext_dse.log
+ * - RADIOTEXT_DUMP_MAX limits output size (default 524288)
+ * - DSE = strict match, DSE_SCAN = heuristic scan, OTHERDATA = StreamMuxConfig other_data
+ */
 struct LatmConfig {
 	bool valid;
 	int audio_mux_version_A;
@@ -102,6 +115,7 @@ static bool latm_dump_enabled = false;
 static char latm_dump_path[256];
 static const unsigned int latm_dump_default_limit = 512 * 1024;
 static const unsigned int latm_other_dump_max = 512;
+static const unsigned int latm_uecp_timeout_sec = 5;
 
 static void latm_dump_close()
 {
@@ -205,6 +219,9 @@ static void latm_dump_write_other(const unsigned char *data, int len, uint pid)
 	latm_dump_write_line("OTHERDATA", data, len, pid);
 }
 
+/**
+ * Minimal bit reader for LATM payloads (MSB-first).
+ */
 class LatmBitReader
 {
 	public:
@@ -268,6 +285,9 @@ class LatmBitReader
 		int bitlen;
 };
 
+/**
+ * Decode LATM variable-length value (length code * 8 bits).
+ */
 static unsigned int latm_get_value(LatmBitReader &br, bool &ok)
 {
 	int length = br.getBits(2);
@@ -289,6 +309,9 @@ static unsigned int latm_get_value(LatmBitReader &br, bool &ok)
 	return value;
 }
 
+/**
+ * Read "other_data" bits from StreamMuxConfig and optionally dump them.
+ */
 static bool latm_read_other_data(LatmBitReader &br, unsigned int other_bits, uint pid)
 {
 	if (other_bits == 0)
@@ -321,6 +344,9 @@ static bool latm_read_other_data(LatmBitReader &br, unsigned int other_bits, uin
 	return true;
 }
 
+/**
+ * Skip AudioSpecificConfig to reach frame length fields.
+ */
 static bool latm_skip_audio_specific_config(LatmBitReader &br)
 {
 	int aot = br.getBits(5);
@@ -364,6 +390,9 @@ static bool latm_skip_audio_specific_config(LatmBitReader &br)
 	return true;
 }
 
+/**
+ * Parse LATM StreamMuxConfig. Only audio_mux_version_A == 0 is supported.
+ */
 static bool latm_read_stream_mux_config(LatmBitReader &br, LatmConfig &cfg, uint pid)
 {
 	int audio_mux_version = br.getBits(1);
@@ -467,6 +496,9 @@ static bool latm_read_stream_mux_config(LatmBitReader &br, LatmConfig &cfg, uint
 	return true;
 }
 
+/**
+ * Read payload length info according to frame_length_type.
+ */
 static int latm_read_payload_length_info(LatmBitReader &br, const LatmConfig &cfg)
 {
 	if (cfg.frame_length_type == 0) {
@@ -489,6 +521,9 @@ static int latm_read_payload_length_info(LatmBitReader &br, const LatmConfig &cf
 	return 0;
 }
 
+/**
+ * Validate that the remaining AudioMuxElement only contains FILL/END.
+ */
 static bool latm_tail_is_end_or_fill(LatmBitReader &br)
 {
 	while (br.bitsLeft() >= 3) {
@@ -522,6 +557,23 @@ static bool latm_tail_is_end_or_fill(LatmBitReader &br)
 	return false;
 }
 
+/**
+ * Check for UECP start byte (0xfe) inside a buffer.
+ */
+static bool latm_buffer_has_uecp_start(const unsigned char *data, int len)
+{
+	if (!data || len <= 0)
+		return false;
+	for (int i = 0; i < len; i++) {
+		if (data[i] == 0xfe)
+			return true;
+	}
+	return false;
+}
+
+/**
+ * Strict DSE search: element type 4 followed by END/FILL tail.
+ */
 static bool latm_find_strict_dse(const unsigned char *data, int len, std::vector<unsigned char> &out)
 {
 	const int total_bits = len * 8;
@@ -563,22 +615,33 @@ static bool latm_find_strict_dse(const unsigned char *data, int len, std::vector
 
 } // namespace
 
+/**
+ * Find DSE blocks in a LATM payload and feed UECP frames.
+ * Strict DSE requires an END/FILL tail; heuristic scan is used as fallback.
+ * UECP frames are only parsed if a start marker (0xfe) is present.
+ */
 bool CRadioText::latm_scan_dse(const unsigned char *data, int len)
 {
 	std::vector<unsigned char> strict;
+	bool found_dse = false;
 	if (latm_find_strict_dse(data, len, strict)) {
 		latm_dse_hits++;
+		bool strict_candidate = uecp_in_frame;
 		if (!strict.empty()) {
 			latm_dump_write_dse(strict.data(), (int)strict.size(), pid);
+			if (!strict_candidate)
+				strict_candidate = latm_buffer_has_uecp_start(strict.data(), (int)strict.size());
+		}
+		if (strict_candidate && !strict.empty()) {
+			found_dse = true;
 			if (processUecpBuffer(strict.data(), (int)strict.size())) {
 				latm_uecp_ok++;
 				return true;
 			}
+			return true;
 		}
-		return true;
 	}
 
-	bool found_dse = false;
 	const int total_bits = len * 8;
 	for (int bit = 0; bit + 16 < total_bits; bit += 8) {
 		LatmBitReader br(data, len, bit);
@@ -612,14 +675,8 @@ bool CRadioText::latm_scan_dse(const unsigned char *data, int len)
 			continue;
 		latm_dump_write_dse_scan(buf.data(), count, pid);
 		bool should_feed = uecp_in_frame;
-		if (!should_feed) {
-			for (int i = 0; i < count; i++) {
-				if (buf[i] == 0xfe) {
-					should_feed = true;
-					break;
-				}
-			}
-		}
+		if (!should_feed)
+			should_feed = latm_buffer_has_uecp_start(buf.data(), count);
 		if (!should_feed)
 			continue;
 		if (processUecpBuffer(buf.data(), count)) {
@@ -630,6 +687,9 @@ bool CRadioText::latm_scan_dse(const unsigned char *data, int len)
 	return found_dse;
 }
 
+/**
+ * Parse a LATM AudioMuxElement and extract its payload for UECP/DSE parsing.
+ */
 bool CRadioText::latm_process_frame(const unsigned char *data, int len)
 {
 	LatmBitReader br(data, len);
@@ -746,6 +806,9 @@ char* CRadioText::ptynr2string(int nr)
 	}
 }
 
+/**
+ * Locate UECP subpackets inside PES data by 0xff/0xfd delimiters.
+ */
 bool CRadioText::DividePes(unsigned char *data, int length, int *substart, int *subend)
 {
 	int i = *substart;
@@ -773,6 +836,9 @@ bool CRadioText::DividePes(unsigned char *data, int length, int *substart, int *
 	}
 }
 
+/**
+ * Parse LATM frames from PES audio payloads and feed the LATM decoder.
+ */
 bool CRadioText::processLatmFromPes(const unsigned char *data, int len)
 {
 	if (!data || len <= 0)
@@ -836,6 +902,9 @@ bool CRadioText::processLatmFromPes(const unsigned char *data, int len)
 	return latm_seen || latm_cfg.valid;
 }
 
+/**
+ * Dispatch decoded UECP frames by MEC (RT/RT+/PTY/PS/PTYN).
+ */
 void CRadioText::handleRdsMessage(unsigned char *mtext, int len)
 {
 	if (len < 9)
@@ -876,12 +945,29 @@ void CRadioText::handleRdsMessage(unsigned char *mtext, int len)
 	}
 }
 
+/**
+ * Parse UECP frames from a buffer.
+ * UECP uses 0xfe start, 0xff end, 0xfd escaping; CRC is verified.
+ * A stuck frame is reset after a short timeout to allow new starts.
+ */
 bool CRadioText::processUecpBuffer(const unsigned char *data, int len)
 {
 	if (!data || len <= 0)
 		return false;
 
 	bool decoded = false;
+	time_t now = time(NULL);
+	if (uecp_in_frame && uecp_last_ts > 0 && now > uecp_last_ts) {
+		if ((unsigned int)(now - uecp_last_ts) > latm_uecp_timeout_sec) {
+			if (S_Verbose >= 1)
+				printf("RDS-UECP: timeout reset after %ld s\n", (long)(now - uecp_last_ts));
+			uecp_in_frame = false;
+			uecp_escape = false;
+			uecp_index = -1;
+			uecp_last_ts = 0;
+		}
+	}
+
 	for (int i = 0; i < len; i++) {
 		unsigned char val = data[i];
 		if (!uecp_in_frame) {
@@ -891,6 +977,7 @@ bool CRadioText::processUecpBuffer(const unsigned char *data, int len)
 			uecp_escape = false;
 			uecp_index = -1;
 			uecp_buf[++uecp_index] = val;
+			uecp_last_ts = now;
 			continue;
 		}
 
@@ -918,10 +1005,12 @@ bool CRadioText::processUecpBuffer(const unsigned char *data, int len)
 			uecp_in_frame = false;
 			uecp_escape = false;
 			uecp_index = -1;
+			uecp_last_ts = 0;
 			continue;
 		}
 
 		uecp_buf[++uecp_index] = val;
+		uecp_last_ts = now;
 		if (val == 0xff) {
 			if (uecp_index >= 9) {
 				int frame_len = uecp_index + 1;
@@ -940,12 +1029,16 @@ bool CRadioText::processUecpBuffer(const unsigned char *data, int len)
 			uecp_in_frame = false;
 			uecp_escape = false;
 			uecp_index = -1;
+			uecp_last_ts = 0;
 		}
 	}
 
 	return decoded;
 }
 
+/**
+ * Legacy RDS PES decoder (reverse UECP extraction for non-LATM streams).
+ */
 int CRadioText::PES_Receive(unsigned char *data, int len)
 {
 	const int mframel = 263;  // max. 255(MSG)+4(ADD/SQC/MFL)+2(CRC)+2(Start/Stop) of RDS-data
@@ -1067,6 +1160,9 @@ if (i < 0) { fprintf(stderr, "RT %s: i < 0 (%d)\n", __FUNCTION__, i); break; }
 }
 
 
+/**
+ * Decode RT/RT+ elements carried in UECP messages.
+ */
 void CRadioText::RadiotextDecode(unsigned char *mtext, int len)
 {
 	static bool rtp_itoggle = false;
@@ -1351,6 +1447,9 @@ fprintf(stderr, "MEC=0x%02x DSN=0x%02x PSN=0x%02x MEL=%02d STATUS=0x%02x MFL=%02
 	}
 }
 
+/**
+ * Decode PS/PTYN text elements from UECP messages.
+ */
 void CRadioText::RDS_PsPtynDecode(bool ptyn, unsigned char *mtext, int len)
 {
 	if (len < 16) return;
@@ -1379,6 +1478,9 @@ void CRadioText::RDS_PsPtynDecode(bool ptyn, unsigned char *mtext, int len)
 	}
 }
 
+/**
+ * Emit current radiotext/RT+ info for LCD and status outputs.
+ */
 void CRadioText::RadioStatusMsg(void)
 {
 	/* announce text/items for lcdproc & other */
@@ -1457,6 +1559,7 @@ void CRadioText::init()
 	uecp_in_frame = false;
 	uecp_escape = false;
 	uecp_index = -1;
+	uecp_last_ts = 0;
 
 	latm_cfg = LatmConfig();
 	latm_pending.clear();
