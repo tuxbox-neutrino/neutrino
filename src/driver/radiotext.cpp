@@ -57,6 +57,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include <ctype.h>
+#include <vector>
 #include <config.h>
 #include <system/debug.h>
 #include <global.h>
@@ -70,6 +71,591 @@
 #include <gui/radiotext_window.h>
 
 rtp_classes rtp_content;
+
+namespace {
+
+struct LatmConfig {
+	bool valid;
+	int audio_mux_version_A;
+	int frame_length_type;
+	int frame_length;
+
+	LatmConfig()
+		: valid(false)
+		, audio_mux_version_A(0)
+		, frame_length_type(0)
+		, frame_length(0)
+	{
+	}
+};
+
+static LatmConfig latm_cfg;
+static std::vector<unsigned char> latm_pending;
+static const size_t latm_pending_max = 8192;
+static int latm_dse_hits = 0;
+static int latm_uecp_ok = 0;
+static int latm_uecp_crc_fail = 0;
+static FILE *latm_dump_fp = NULL;
+static unsigned int latm_dump_bytes = 0;
+static unsigned int latm_dump_limit = 0;
+static bool latm_dump_enabled = false;
+static char latm_dump_path[256];
+static const unsigned int latm_dump_default_limit = 512 * 1024;
+static const unsigned int latm_other_dump_max = 512;
+
+static void latm_dump_close()
+{
+	if (latm_dump_fp) {
+		fclose(latm_dump_fp);
+		latm_dump_fp = NULL;
+	}
+	latm_dump_enabled = false;
+	latm_dump_bytes = 0;
+	latm_dump_limit = 0;
+	latm_dump_path[0] = '\0';
+}
+
+static void latm_dump_setup(uint pid)
+{
+	const char *dump_env = getenv("RADIOTEXT_DUMP");
+	if (!dump_env || !*dump_env || !strcmp(dump_env, "0")) {
+		latm_dump_close();
+		return;
+	}
+
+	const char *path = dump_env;
+	if (!strcmp(dump_env, "1"))
+		path = "/tmp/radiotext_dse.log";
+
+	bool reopen = (!latm_dump_fp || strcmp(latm_dump_path, path) != 0);
+	if (reopen) {
+		latm_dump_close();
+		latm_dump_fp = fopen(path, "a");
+		if (!latm_dump_fp)
+			return;
+		strncpy(latm_dump_path, path, sizeof(latm_dump_path) - 1);
+		latm_dump_path[sizeof(latm_dump_path) - 1] = '\0';
+		setvbuf(latm_dump_fp, NULL, _IOLBF, 0);
+		latm_dump_bytes = 0;
+	}
+
+	latm_dump_enabled = true;
+	latm_dump_limit = latm_dump_default_limit;
+	const char *limit_env = getenv("RADIOTEXT_DUMP_MAX");
+	if (limit_env && *limit_env) {
+		unsigned long limit = strtoul(limit_env, NULL, 0);
+		if (limit > 0 && limit < 0x7fffffff)
+			latm_dump_limit = (unsigned int)limit;
+	}
+
+	if (latm_dump_fp) {
+		time_t now = time(NULL);
+		int wrote = fprintf(latm_dump_fp, "SESSION ts=%ld pid=0x%04x\n", (long)now, pid);
+		if (wrote > 0)
+			latm_dump_bytes += (unsigned int)wrote;
+	}
+}
+
+static void latm_dump_write_line(const char *tag, const unsigned char *data, int len, uint pid)
+{
+	if (!latm_dump_enabled || !latm_dump_fp || !data || len <= 0 || !tag || !*tag)
+		return;
+	if (latm_dump_limit && latm_dump_bytes >= latm_dump_limit)
+		return;
+
+	char line[2048];
+	time_t now = time(NULL);
+	int pos = snprintf(line, sizeof(line), "%s pid=0x%04x len=%d ts=%ld:", tag, pid, len, (long)now);
+	if (pos < 0 || pos >= (int)sizeof(line))
+		return;
+	for (int i = 0; i < len && pos + 3 < (int)sizeof(line); i++) {
+		pos += snprintf(line + pos, sizeof(line) - pos, " %02x", data[i]);
+	}
+	if (pos + 1 < (int)sizeof(line)) {
+		line[pos++] = '\n';
+		line[pos] = '\0';
+	} else {
+		line[sizeof(line) - 1] = '\0';
+	}
+
+	if (latm_dump_limit && latm_dump_bytes + (unsigned int)pos > latm_dump_limit) {
+		latm_dump_enabled = false;
+		return;
+	}
+
+	if (fwrite(line, 1, pos, latm_dump_fp) != (size_t)pos) {
+		latm_dump_enabled = false;
+		return;
+	}
+	latm_dump_bytes += (unsigned int)pos;
+}
+
+static void latm_dump_write_dse(const unsigned char *data, int len, uint pid)
+{
+	latm_dump_write_line("DSE", data, len, pid);
+}
+
+static void latm_dump_write_dse_scan(const unsigned char *data, int len, uint pid)
+{
+	latm_dump_write_line("DSE_SCAN", data, len, pid);
+}
+
+static void latm_dump_write_other(const unsigned char *data, int len, uint pid)
+{
+	latm_dump_write_line("OTHERDATA", data, len, pid);
+}
+
+class LatmBitReader
+{
+	public:
+		LatmBitReader(const unsigned char *buf, int len, int start_bit = 0)
+			: data(buf)
+			, bitpos(start_bit)
+			, bitlen(len * 8)
+		{
+		}
+
+		int bitsLeft() const
+		{
+			return bitlen - bitpos;
+		}
+
+		int getBits(int n)
+		{
+			if (n <= 0 || bitpos + n > bitlen)
+				return -1;
+			int val = 0;
+			for (int i = 0; i < n; i++) {
+				unsigned char byte = data[bitpos >> 3];
+				int shift = 7 - (bitpos & 7);
+				val = (val << 1) | ((byte >> shift) & 0x01);
+				bitpos++;
+			}
+			return val;
+		}
+
+		bool skipBits(int n)
+		{
+			if (n < 0 || bitpos + n > bitlen)
+				return false;
+			bitpos += n;
+			return true;
+		}
+
+		void byteAlign()
+		{
+			int mod = bitpos & 7;
+			if (mod)
+				bitpos += 8 - mod;
+		}
+
+		bool readBytes(unsigned char *out, int count)
+		{
+			if (count < 0 || bitpos + count * 8 > bitlen)
+				return false;
+			for (int i = 0; i < count; i++) {
+				int b = getBits(8);
+				if (b < 0)
+					return false;
+				out[i] = (unsigned char)b;
+			}
+			return true;
+		}
+
+	private:
+		const unsigned char *data;
+		int bitpos;
+		int bitlen;
+};
+
+static unsigned int latm_get_value(LatmBitReader &br, bool &ok)
+{
+	int length = br.getBits(2);
+	if (length < 0) {
+		ok = false;
+		return 0;
+	}
+	int bits = (length + 1) * 8;
+	unsigned int value = 0;
+	for (int i = 0; i < bits; i++) {
+		int bit = br.getBits(1);
+		if (bit < 0) {
+			ok = false;
+			return 0;
+		}
+		value = (value << 1) | (bit & 1);
+	}
+	ok = true;
+	return value;
+}
+
+static bool latm_read_other_data(LatmBitReader &br, unsigned int other_bits, uint pid)
+{
+	if (other_bits == 0)
+		return true;
+	if (other_bits > (unsigned int)br.bitsLeft())
+		return false;
+
+	unsigned int dump_bits = other_bits;
+	unsigned int max_bits = latm_other_dump_max * 8;
+	if (dump_bits > max_bits)
+		dump_bits = max_bits;
+	unsigned int dump_bytes = (dump_bits + 7) / 8;
+	std::vector<unsigned char> buf;
+	if (dump_bytes)
+		buf.assign(dump_bytes, 0);
+
+	for (unsigned int i = 0; i < other_bits; i++) {
+		int bit = br.getBits(1);
+		if (bit < 0)
+			return false;
+		if (i < dump_bits) {
+			unsigned int byte_index = i >> 3;
+			unsigned int bit_index = 7 - (i & 7);
+			buf[byte_index] |= (bit & 1) << bit_index;
+		}
+	}
+
+	if (dump_bytes)
+		latm_dump_write_other(buf.data(), dump_bytes, pid);
+	return true;
+}
+
+static bool latm_skip_audio_specific_config(LatmBitReader &br)
+{
+	int aot = br.getBits(5);
+	if (aot < 0)
+		return false;
+	if (aot == 31) {
+		int aot_ext = br.getBits(6);
+		if (aot_ext < 0)
+			return false;
+		aot = 32 + aot_ext;
+	}
+	int sf_index = br.getBits(4);
+	if (sf_index < 0)
+		return false;
+	if (sf_index == 0x0f) {
+		if (!br.skipBits(24))
+			return false;
+	}
+	if (br.getBits(4) < 0)
+		return false;
+	if (aot == 5 || aot == 29) {
+		int sf_ext = br.getBits(4);
+		if (sf_ext < 0)
+			return false;
+		if (sf_ext == 0x0f) {
+			if (!br.skipBits(24))
+				return false;
+		}
+		int aot2 = br.getBits(5);
+		if (aot2 < 0)
+			return false;
+		if (aot2 == 31) {
+			int aot_ext = br.getBits(6);
+			if (aot_ext < 0)
+				return false;
+			aot2 = 32 + aot_ext;
+		}
+		if (br.getBits(4) < 0)
+			return false;
+	}
+	return true;
+}
+
+static bool latm_read_stream_mux_config(LatmBitReader &br, LatmConfig &cfg, uint pid)
+{
+	int audio_mux_version = br.getBits(1);
+	if (audio_mux_version < 0)
+		return false;
+	cfg.audio_mux_version_A = 0;
+	if (audio_mux_version) {
+		cfg.audio_mux_version_A = br.getBits(1);
+		if (cfg.audio_mux_version_A < 0)
+			return false;
+	}
+
+	if (!cfg.audio_mux_version_A) {
+		if (audio_mux_version) {
+			bool ok = false;
+			latm_get_value(br, ok); // taraFullness
+			if (!ok)
+				return false;
+		}
+
+		if (br.getBits(1) < 0) // allStreamsSameTimeFraming
+			return false;
+		if (br.getBits(6) < 0) // numSubFrames
+			return false;
+		if (br.getBits(4) != 0) // numPrograms
+			return false;
+		if (br.getBits(3) != 0) // numLayer
+			return false;
+
+		if (!audio_mux_version) {
+			if (!latm_skip_audio_specific_config(br))
+				return false;
+		} else {
+			bool ok = false;
+			unsigned int asc_len = latm_get_value(br, ok);
+			if (!ok || !br.skipBits((int)asc_len))
+				return false;
+		}
+
+		cfg.frame_length_type = br.getBits(3);
+		if (cfg.frame_length_type < 0)
+			return false;
+		switch (cfg.frame_length_type) {
+		case 0:
+			if (br.getBits(8) < 0) // latmBufferFullness
+				return false;
+			break;
+		case 1:
+			cfg.frame_length = br.getBits(9);
+			if (cfg.frame_length < 0)
+				return false;
+			break;
+		case 3:
+		case 4:
+		case 5:
+			if (br.getBits(6) < 0)
+				return false;
+			break;
+		case 6:
+		case 7:
+			if (br.getBits(1) < 0)
+				return false;
+			break;
+		}
+
+		int other_data = br.getBits(1);
+		if (other_data < 0)
+			return false;
+		if (other_data) {
+			if (audio_mux_version) {
+				bool ok = false;
+				unsigned int other_bits = latm_get_value(br, ok);
+				if (!ok)
+					return false;
+				if (!latm_read_other_data(br, other_bits, pid))
+					return false;
+			} else {
+				int esc;
+				std::vector<unsigned char> buf;
+				do {
+					esc = br.getBits(1);
+					int tmp = br.getBits(8);
+					if (esc < 0 || tmp < 0)
+						return false;
+					if (buf.size() < latm_other_dump_max)
+						buf.push_back((unsigned char)tmp);
+				} while (esc);
+				if (!buf.empty())
+					latm_dump_write_other(buf.data(), (int)buf.size(), pid);
+			}
+		}
+
+		int crc_present = br.getBits(1);
+		if (crc_present < 0)
+			return false;
+		if (crc_present && br.getBits(8) < 0)
+			return false;
+	}
+
+	cfg.valid = true;
+	return true;
+}
+
+static int latm_read_payload_length_info(LatmBitReader &br, const LatmConfig &cfg)
+{
+	if (cfg.frame_length_type == 0) {
+		int mux_slot_length = 0;
+		int tmp;
+		do {
+			tmp = br.getBits(8);
+			if (tmp < 0)
+				return -1;
+			mux_slot_length += tmp;
+		} while (tmp == 255);
+		return mux_slot_length;
+	}
+	if (cfg.frame_length_type == 1)
+		return cfg.frame_length;
+	if (cfg.frame_length_type == 3 || cfg.frame_length_type == 5 || cfg.frame_length_type == 7) {
+		if (br.getBits(2) < 0)
+			return -1;
+	}
+	return 0;
+}
+
+static bool latm_tail_is_end_or_fill(LatmBitReader &br)
+{
+	while (br.bitsLeft() >= 3) {
+		int elem_type = br.getBits(3);
+		if (elem_type < 0)
+			return false;
+		if (elem_type == 7) {
+			while (br.bitsLeft() > 0) {
+				int bit = br.getBits(1);
+				if (bit < 0 || bit != 0)
+					return false;
+			}
+			return true;
+		}
+		if (elem_type != 6)
+			return false;
+		int count = br.getBits(4);
+		if (count < 0)
+			return false;
+		if (count == 15) {
+			int esc = br.getBits(8);
+			if (esc < 0)
+				return false;
+			count += esc - 1;
+		}
+		if (count < 0)
+			return false;
+		if (!br.skipBits(count * 8))
+			return false;
+	}
+	return false;
+}
+
+static bool latm_find_strict_dse(const unsigned char *data, int len, std::vector<unsigned char> &out)
+{
+	const int total_bits = len * 8;
+	for (int bit = 0; bit + 16 < total_bits; bit++) {
+		LatmBitReader br(data, len, bit);
+		int elem_type = br.getBits(3);
+		if (elem_type != 4)
+			continue;
+		if (br.getBits(4) < 0)
+			continue;
+		int align = br.getBits(1);
+		if (align < 0)
+			continue;
+		int count = br.getBits(8);
+		if (count < 0)
+			continue;
+		if (count == 255) {
+			int esc = br.getBits(8);
+			if (esc < 0)
+				continue;
+			count += esc;
+		}
+		if (count <= 0 || count > 512)
+			continue;
+		if (align)
+			br.byteAlign();
+		if (br.bitsLeft() < count * 8 + 3)
+			continue;
+		std::vector<unsigned char> buf(count);
+		if (!br.readBytes(buf.data(), count))
+			continue;
+		if (!latm_tail_is_end_or_fill(br))
+			continue;
+		out.swap(buf);
+		return true;
+	}
+	return false;
+}
+
+} // namespace
+
+bool CRadioText::latm_scan_dse(const unsigned char *data, int len)
+{
+	std::vector<unsigned char> strict;
+	if (latm_find_strict_dse(data, len, strict)) {
+		latm_dse_hits++;
+		if (!strict.empty()) {
+			latm_dump_write_dse(strict.data(), (int)strict.size(), pid);
+			if (processUecpBuffer(strict.data(), (int)strict.size())) {
+				latm_uecp_ok++;
+				return true;
+			}
+		}
+		return true;
+	}
+
+	bool found_dse = false;
+	const int total_bits = len * 8;
+	for (int bit = 0; bit + 16 < total_bits; bit += 8) {
+		LatmBitReader br(data, len, bit);
+		int elem_type = br.getBits(3);
+		if (elem_type != 4)
+			continue;
+		if (br.getBits(4) < 0)
+			continue;
+		int align = br.getBits(1);
+		if (align < 0)
+			continue;
+		int count = br.getBits(8);
+		if (count < 0)
+			continue;
+		if (count == 255) {
+			int esc = br.getBits(8);
+			if (esc < 0)
+				continue;
+			count += esc;
+		}
+		if (count <= 0 || count > 512)
+			continue;
+		latm_dse_hits++;
+		found_dse = true;
+		if (align)
+			br.byteAlign();
+		std::vector<unsigned char> buf(count);
+		if (!br.readBytes(buf.data(), count))
+			continue;
+		if (buf.empty())
+			continue;
+		latm_dump_write_dse_scan(buf.data(), count, pid);
+		bool should_feed = uecp_in_frame;
+		if (!should_feed) {
+			for (int i = 0; i < count; i++) {
+				if (buf[i] == 0xfe) {
+					should_feed = true;
+					break;
+				}
+			}
+		}
+		if (!should_feed)
+			continue;
+		if (processUecpBuffer(buf.data(), count)) {
+			latm_uecp_ok++;
+			return true;
+		}
+	}
+	return found_dse;
+}
+
+bool CRadioText::latm_process_frame(const unsigned char *data, int len)
+{
+	LatmBitReader br(data, len);
+	int use_same_mux = br.getBits(1);
+	if (use_same_mux < 0)
+		return false;
+	if (!use_same_mux) {
+		if (!latm_read_stream_mux_config(br, latm_cfg, pid))
+			return false;
+	}
+	if (!latm_cfg.valid || latm_cfg.audio_mux_version_A != 0)
+		return false;
+
+	int payload_len = latm_read_payload_length_info(br, latm_cfg);
+	if (payload_len <= 0 || br.bitsLeft() < payload_len * 8)
+		return false;
+
+	std::vector<unsigned char> payload(payload_len);
+	if (!br.readBytes(payload.data(), payload_len))
+		return false;
+
+	if (latm_scan_dse(payload.data(), payload_len))
+		return true;
+
+	return processUecpBuffer(payload.data(), payload_len);
+}
 
 // RDS rest
 bool RDS_PSShow = false;
@@ -187,14 +773,185 @@ bool CRadioText::DividePes(unsigned char *data, int length, int *substart, int *
 	}
 }
 
+bool CRadioText::processLatmFromPes(const unsigned char *data, int len)
+{
+	if (!data || len <= 0)
+		return false;
+
+	int start = 0;
+	if (len >= 9 && data[0] == 0x00 && data[1] == 0x00 && data[2] == 0x01 &&
+		(data[3] & 0xE0) == 0xC0) {
+		int header_len = data[8];
+		int payload_start = 9 + header_len;
+		if (payload_start >= len)
+			return false;
+		start = payload_start;
+	}
+
+	const unsigned char *payload = data + start;
+	int payload_len = len - start;
+	bool latm_seen = false;
+	bool latm_partial = false;
+	int frames = 0;
+	size_t keep_from = 0;
+
+	if (payload_len <= 0)
+		return false;
+
+	if (latm_pending.size() > latm_pending_max)
+		latm_pending.clear();
+	latm_pending.insert(latm_pending.end(), payload, payload + payload_len);
+
+	for (size_t i = 0; i + 3 <= latm_pending.size(); ) {
+		if (latm_pending[i] == 0x56 && (latm_pending[i + 1] & 0xE0) == 0xE0) {
+			int frame_len = (((latm_pending[i + 1] & 0x1F) << 8) | latm_pending[i + 2]) + 3;
+			if (frame_len > 3) {
+				if (i + frame_len > latm_pending.size()) {
+					latm_partial = true;
+					keep_from = i;
+					break;
+				}
+				latm_seen = true;
+				frames++;
+				latm_process_frame(&latm_pending[i + 3], frame_len - 3);
+				i += frame_len;
+				keep_from = i;
+				continue;
+			}
+		}
+		i++;
+		keep_from = i;
+	}
+
+	if (keep_from > 0 && keep_from <= latm_pending.size())
+		latm_pending.erase(latm_pending.begin(), latm_pending.begin() + keep_from);
+
+	if (latm_pending.size() > latm_pending_max)
+		latm_pending.erase(latm_pending.begin(), latm_pending.end() - latm_pending_max);
+
+	if (S_Verbose >= 2 && (latm_seen || latm_partial))
+		printf("RDS-LATM: frames %d dse %d uecp %d crc_fail %d pending %zu bytes\n",
+			frames, latm_dse_hits, latm_uecp_ok, latm_uecp_crc_fail, latm_pending.size());
+
+	return latm_seen || latm_cfg.valid;
+}
+
+void CRadioText::handleRdsMessage(unsigned char *mtext, int len)
+{
+	if (len < 9)
+		return;
+
+	int msg_len = len - 1;
+	if (msg_len < 0)
+		return;
+
+	int mec = mtext[5];
+	switch (mec) {
+	case 0x0a:
+		have_radiotext = true;
+		/* fall through */
+	case 0x46:
+		if (S_Verbose >= 2)
+			printf("(RDS-MEC '%02x') -> RadiotextDecode - %d\n", mec, msg_len);
+		RadiotextDecode(mtext, msg_len);		// Radiotext, RT+
+		break;
+	case 0x07:
+		RT_PTY = mtext[8];			// PTY
+		RT_MsgShow = true;
+		if (S_Verbose >= 1)
+			printf("RDS-PTY set to '%s'\n", ptynr2string(RT_PTY));
+		break;
+	case 0x3e:
+		if (S_Verbose >= 2)
+			printf("(RDS-MEC '%02x') -> RDS_PsPtynDecode - %d\n", mec, msg_len);
+		RDS_PsPtynDecode(true, mtext, msg_len);	// PTYN
+		break;
+	case 0x02:
+		if (S_Verbose >= 2)
+			printf("(RDS-MEC '%02x') -> RDS_PsPtynDecode - %d\n", mec, msg_len);
+		RDS_PsPtynDecode(false, mtext, msg_len);	// PS
+		break;
+	case 0xda:
+		break;
+	}
+}
+
+bool CRadioText::processUecpBuffer(const unsigned char *data, int len)
+{
+	if (!data || len <= 0)
+		return false;
+
+	bool decoded = false;
+	for (int i = 0; i < len; i++) {
+		unsigned char val = data[i];
+		if (!uecp_in_frame) {
+			if (val != 0xfe)
+				continue;
+			uecp_in_frame = true;
+			uecp_escape = false;
+			uecp_index = -1;
+			uecp_buf[++uecp_index] = val;
+			continue;
+		}
+
+		if (uecp_escape) {
+			switch (val) {
+			case 0x00:
+				val = 0xfd;
+				break;
+			case 0x01:
+				val = 0xfe;
+				break;
+			case 0x02:
+				val = 0xff;
+				break;
+			default:
+				break;
+			}
+			uecp_escape = false;
+		} else if (val == 0xfd) {
+			uecp_escape = true;
+			continue;
+		}
+
+		if (uecp_index + 1 >= (int)sizeof(uecp_buf)) {
+			uecp_in_frame = false;
+			uecp_escape = false;
+			uecp_index = -1;
+			continue;
+		}
+
+		uecp_buf[++uecp_index] = val;
+		if (val == 0xff) {
+			if (uecp_index >= 9) {
+				int frame_len = uecp_index + 1;
+				unsigned short tx_crc = (uecp_buf[frame_len - 3] << 8) + uecp_buf[frame_len - 2];
+				unsigned short crc16 = crc16_ccitt(uecp_buf, frame_len - 4, true);
+				unsigned short crc16_inv = (unsigned short)(~crc16);
+				unsigned short crc16_ns = crc16_ccitt(uecp_buf, frame_len - 4, false);
+				unsigned short crc16_ns_inv = (unsigned short)(~crc16_ns);
+				if (crc16 == tx_crc || crc16_inv == tx_crc || crc16_ns == tx_crc || crc16_ns_inv == tx_crc) {
+					handleRdsMessage(uecp_buf, frame_len);
+					decoded = true;
+				} else {
+					latm_uecp_crc_fail++;
+				}
+			}
+			uecp_in_frame = false;
+			uecp_escape = false;
+			uecp_index = -1;
+		}
+	}
+
+	return decoded;
+}
+
 int CRadioText::PES_Receive(unsigned char *data, int len)
 {
 	const int mframel = 263;  // max. 255(MSG)+4(ADD/SQC/MFL)+2(CRC)+2(Start/Stop) of RDS-data
 	static unsigned char mtext[mframel+1];
 	static bool rt_start = false, rt_bstuff=false;
 	static int index;
-	static int mec = 0;
-
 	int offset = 0;
 
 	while (true) 
@@ -268,7 +1025,6 @@ if (i < 0) { fprintf(stderr, "RT %s: i < 0 (%d)\n", __FUNCTION__, i); break; }
 								case 0x07:			// PTY
 								case 0x3e:			// PTYN
 								case 0x02:			// PS
-									mec = val;
 									break;
 								default:
 									rt_start = false;
@@ -299,31 +1055,7 @@ if (i < 0) { fprintf(stderr, "RT %s: i < 0 (%d)\n", __FUNCTION__, i); break; }
 								printf("RDS-Error: wrong CRC # calc = %04x <> transmit = %02x%02x\n", crc16, mtext[index-2], mtext[index-1]);
 							} else {
 
-							switch (mec) {
-								case 0x0a:
-								case 0x46:
-									if (S_Verbose >= 2)
-										printf("(RDS-MEC '%02x') -> RadiotextDecode - %d\n", mec, index);
-									RadiotextDecode(mtext, index);		// Radiotext, RT+
-									break;
-								case 0x07:  RT_PTY = mtext[8];			// PTY
-									RT_MsgShow = true;
-									if (S_Verbose >= 1)
-										printf("RDS-PTY set to '%s'\n", ptynr2string(RT_PTY));
-									break;
-								case 0x3e:
-									if (S_Verbose >= 2)
-										printf("(RDS-MEC '%02x') -> RDS_PsPtynDecode - %d\n", mec, index);
-									RDS_PsPtynDecode(true, mtext, index);	// PTYN
-									break;
-								case 0x02:
-									if (S_Verbose >= 2)
-										printf("(RDS-MEC '%02x') -> RDS_PsPtynDecode - %d\n", mec, index);
-									RDS_PsPtynDecode(false, mtext, index);	// PS
-									break;
-								case 0xda:
-									break;
-								}
+								handleRdsMessage(mtext, index + 1);
 							}
 						}
 					}
@@ -682,6 +1414,7 @@ CRadioText::~CRadioText(void)
 	radiotext_stop();
 	cond.broadcast();
 	OpenThreads::Thread::join();
+	latm_dump_close();
 	if (g_RadiotextWin){
 		delete g_RadiotextWin;
 		g_RadiotextWin = NULL;
@@ -721,6 +1454,20 @@ void CRadioText::init()
 
 	RT_MsgShow = false; // clear entries from old channel
 	have_radiotext	= false;
+	uecp_in_frame = false;
+	uecp_escape = false;
+	uecp_index = -1;
+
+	latm_cfg = LatmConfig();
+	latm_pending.clear();
+	latm_dse_hits = 0;
+	latm_uecp_ok = 0;
+	latm_uecp_crc_fail = 0;
+
+	const char *rt_verbose = getenv("RADIOTEXT_VERBOSE");
+	if (rt_verbose)
+		S_Verbose = atoi(rt_verbose);
+	latm_dump_setup(pid);
 }
 
 void CRadioText::radiotext_stop(void)
@@ -797,8 +1544,12 @@ void CRadioText::run()
 				usleep(10000); /* save CPU if nothing read */
 				continue;
 			}
-			if (memcmp(tmp, "\000\000\001\300", 4))
+			if (memcmp(tmp, "\000\000\001\300", 4)) {
+				mutex.lock();
+				processLatmFromPes(tmp, n);
+				mutex.unlock();
 				continue;
+			}
 			int packlen = ((tmp[4] << 8) | tmp[5]) + 6;
 
 			if (buflen < packlen) {
@@ -826,7 +1577,8 @@ void CRadioText::run()
 			if (n > 0) {
 				//printf("."); fflush(stdout);
 				mutex.lock();
-				PES_Receive(buf, n);
+				if (!processLatmFromPes(buf, n))
+					PES_Receive(buf, n);
 				mutex.unlock();
 			}
 		}

@@ -73,10 +73,19 @@ private:
 	void send_pes_packet(unsigned char *data, int len, int timestamp);
 	void ShowImage (const char *file);
 	int first_packets;
+	bool uecp_in_frame;
+	bool uecp_escape;
+	int uecp_index;
+	unsigned char uecp_buf[512];
 
 	//Radiotext
 	void RadioStatusMsg(void);
 	bool DividePes(unsigned char *data, int length, int *substart, int *subend);
+	bool latm_scan_dse(const unsigned char *data, int len);
+	bool latm_process_frame(const unsigned char *data, int len);
+	bool processLatmFromPes(const unsigned char *data, int len);
+	bool processUecpBuffer(const unsigned char *data, int len);
+	void handleRdsMessage(unsigned char *mtext, int len);
 
 	uint pid;
 
