@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <math.h>
+#include <string.h>
 
 #include <zapit/debug.h>
 #include <zapit/channel.h>
@@ -51,6 +52,13 @@ extern Zapit_config zapitCfg;
                 if (fedebug)					\
 			INFO(fmt, ##args);			\
         } while (0)
+
+static bool simulate_fe_enabled()
+{
+	const char *simulate_fe = getenv("SIMULATE_FE");
+
+	return simulate_fe && simulate_fe[0] != '\0' && strcmp(simulate_fe, "0") != 0;
+}
 
 CFeDmx::CFeDmx(int i)
 {
@@ -117,7 +125,7 @@ bool CFEManager::Init()
 
 	INFO("found %d frontends, %d demuxes", (int)femap.size(), (int)dmap.size());
 	/* for testing without a frontend, export SIMULATE_FE=1 */
-	if (femap.empty() && getenv("SIMULATE_FE")) {
+	if (femap.empty() && simulate_fe_enabled()) {
 		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
 		fe = new CFrontend(0, -1);
 		fekey = MAKE_FE_KEY(0, 0);

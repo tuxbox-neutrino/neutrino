@@ -34,6 +34,7 @@
 #include <config.h>
 #endif
 #include <sstream>
+#include <string.h>
 
 #include "channellist.h"
 
@@ -58,6 +59,13 @@
 #include "components/cc.h"
 #include "widget/stringinput.h"
 #include "widget/keyboard_input.h"
+
+static bool simulate_fe_enabled()
+{
+	const char *simulate_fe = getenv("SIMULATE_FE");
+
+	return simulate_fe && simulate_fe[0] != '\0' && strcmp(simulate_fe, "0") != 0;
+}
 #include "widget/buttons.h"
 #include "widget/icons.h"
 #include "movieplayer.h"
@@ -1209,7 +1217,7 @@ bool CChannelList::showEmptyError()
 {
 	if ((*chanlist).empty()) {
 		/* No error message when the frontend is only simulated */
-		if (!getenv("SIMULATE_FE"))
+		if (!simulate_fe_enabled())
 			DisplayErrorMessage(g_Locale->getText(LOCALE_CHANNELLIST_NONEFOUND)); // UTF-8
 		return true;
 	}

@@ -70,6 +70,7 @@
 #include "cs_api.h"
 
 #include <hardware/video.h>
+#include <string.h>
 
 #ifdef ENABLE_LCD4LINUX
 #include "driver/lcd4l.h"
@@ -78,6 +79,13 @@
 extern CRemoteControl * g_RemoteControl;
 
 extern const char * locale_real_names[];
+
+static bool simulate_fe_enabled()
+{
+	const char *simulate_fe = getenv("SIMULATE_FE");
+
+	return simulate_fe && simulate_fe[0] != '\0' && strcmp(simulate_fe, "0") != 0;
+}
 extern std::string font_file_monospace;
 extern CTimeOSD *FileTimeOSD;
 
@@ -1644,7 +1652,7 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 
 void COsdSetup::resetRadioText()
 {
-	if (getenv("SIMULATE_FE"))
+	if (simulate_fe_enabled())
 	{
 		dprintf(DEBUG_NORMAL, "\033[33m[COsdSetup][%s - %d] SIMULATE_FE is set, no radiotext function availavble \033[0m\n", __func__, __LINE__);
 		return;
