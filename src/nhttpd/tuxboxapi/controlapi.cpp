@@ -1209,6 +1209,11 @@ void CControlAPI::LogolistCGI(CyhookHandler *hh)
 
 	std::string result = "";
 	bool isFirstLine = true;
+	if (!g_bouquetManager) {
+		result = hh->outArray("logolist", result);
+		hh->SendResult(result);
+		return;
+	}
 
 	bool files = false;
 	unsigned int s = hh->ParamList.size();
@@ -2457,8 +2462,10 @@ void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 		current_channel=(current_channel>>16);
 	}
 
-	int mode = NeutrinoAPI->Zapit->getMode();
 	hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
+	if (!g_bouquetManager)
+		return;
+	int mode = NeutrinoAPI->Zapit->getMode();
 	CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
 		CZapitChannel * channel = *cit;
