@@ -40,22 +40,22 @@
 
 typedef uint64_t t_channel_id;
 
-int my_system(const char * cmd);
+int my_system(const char *cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
-FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
+FILE *my_popen(pid_t &pid, const char *cmdstring, const char *type);
 int run_pty(pid_t &pid, const char *cmdstring);
 
 void safe_strncpy(char *dest, const char *src, size_t num);
-int safe_mkdir(const char * path);
+int safe_mkdir(const char *path);
 inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
 //int mkdirhier(const char *pathname, mode_t mode = 0755);
 //inline int mkdirhier(std::string path, mode_t mode = 0755) { return mkdirhier(path.c_str(), mode); }
 off_t file_size(const char *filename);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
-int check_dir(const char * dir, bool allow_tmp = false);
-bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
+int check_dir(const char *dir, bool allow_tmp = false);
+bool get_fs_usage(const char *dir, uint64_t &btotal, uint64_t &bused, long *bsize = NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
 int mySleep(int sec);
 
@@ -65,28 +65,29 @@ bool exec_initscript(std::string script, std::string command = "start", std::str
 /* basically what "foo=`command`" does in the shell */
 std::string backtick(std::string command);
 
-bool hdd_get_standby(const char * fname);
-void hdd_flush(const char * fname);
+bool hdd_get_standby(const char *fname);
+void hdd_flush(const char *fname);
 
 std::string getPathName(std::string &path);
 std::string getBaseName(std::string &path);
 std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
 std::string getBackupSuffix();
-std::string getNowTimeStr(const char* format);
-std::string trim(std::string& str, const std::string& trimChars = " \n\r\t");
-std::string ltrim(std::string& str, const std::string& trimChars = " \n\r\t");
-std::string rtrim(std::string& str, const std::string& trimChars = " \n\r\t");
+std::string getNowTimeStr(const char *format);
+std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string ltrim(std::string &str, const std::string &trimChars = " \n\r\t");
+std::string rtrim(std::string &str, const std::string &trimChars = " \n\r\t");
 std::string cutString(const std::string str, int msgFont, const int width);
 std::string strftime(const char *format, const struct tm *tm);
 std::string strftime(const char *format, time_t when, bool gm = false);
 time_t toEpoch(std::string &date);
 const char *cstr_replace(const char *search, const char *replace, const char *text);
-std::string& str_replace(const std::string &search, const std::string &replace, std::string &text, size_t start_pos = 0);
-std::string& htmlEntityDecode(std::string& text);
-const char* neutrinoMode_to_string(int mode);
+std::string &str_replace(const std::string &search, const std::string &replace, std::string &text, size_t start_pos = 0);
+std::string &htmlEntityDecode(std::string &text);
+const char *neutrinoMode_to_string(int mode);
 
-struct helpersDebugInfo {
+struct helpersDebugInfo
+{
 	std::string msg;
 	std::string file;
 	std::string func;
@@ -99,35 +100,35 @@ class CFileHelpers
 		uint32_t FileBufMaxSize;
 		int fd1, fd2;
 
-		char* initFileBuf(char* buf, uint32_t size);
-		char* deleteFileBuf(char* buf);
+		char *initFileBuf(char *buf, uint32_t size);
+		char *deleteFileBuf(char *buf);
 		bool ConsoleQuiet;
 		helpersDebugInfo DebugInfo;
-		void setDebugInfo(const char* msg, const char* file, const char* func, int line);
+		void setDebugInfo(const char *msg, const char *file, const char *func, int line);
 		void printDebugInfo();
 
 	public:
 		CFileHelpers();
 		~CFileHelpers();
-		static CFileHelpers* getInstance();
+		static CFileHelpers *getInstance();
 
 		void clearDebugInfo();
-		void readDebugInfo(helpersDebugInfo* di);
+		void readDebugInfo(helpersDebugInfo *di);
 		void setConsoleQuiet(bool q) { ConsoleQuiet = q; };
 		bool getConsoleQuiet() { return ConsoleQuiet; };
 
-		bool cp(const char *Src, const char *Dst, const char *Flags="");
-		bool copyFile(const char *Src, const char *Dst, mode_t forceMode=0);
-		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
-		static bool createDir(std::string& Dir, mode_t mode = 0755);
-		static bool createDir(const char *Dir, mode_t mode = 0755){std::string dir = std::string(Dir);return createDir(dir, mode);}
+		bool cp(const char *Src, const char *Dst, const char *Flags = "");
+		bool copyFile(const char *Src, const char *Dst, mode_t forceMode = 0);
+		bool copyDir(const char *Src, const char *Dst, bool backupMode = false);
+		static bool createDir(std::string &Dir, mode_t mode = 0755);
+		static bool createDir(const char *Dir, mode_t mode = 0755) {std::string dir = std::string(Dir); return createDir(dir, mode);}
 		static bool removeDir(const char *Dir);
 		static uint64_t getDirSize(const char *dir);
-		static uint64_t getDirSize(const std::string& dir){return getDirSize(dir.c_str());};
+		static uint64_t getDirSize(const std::string &dir) {return getDirSize(dir.c_str());};
 };
 
 #if 0
-uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max=true);
+uint32_t GetWidth4FB_HW_ACC(const uint32_t _x, const uint32_t _w, const bool max = true);
 #endif
 
 #if __cplusplus < 201103L
@@ -150,20 +151,20 @@ inline int atoi(const std::string &s) { return atoi(s.c_str()); }
 inline int access(std::string &s, int mode) { return access(s.c_str(), mode); }
 inline int access(const std::string &s, int mode) { return access(s.c_str(), mode); }
 
-inline void cstrncpy(char *dest, const char * const src, size_t n) { n--; strncpy(dest, src, n); dest[n] = 0; }
+inline void cstrncpy(char *dest, const char *const src, size_t n) { n--; strncpy(dest, src, n); dest[n] = 0; }
 inline void cstrncpy(char *dest, const std::string &src, size_t n) { n--; strncpy(dest, src.c_str(), n); dest[n] = 0; }
 
 std::vector<std::string> split(const std::string &s, char delim);
 
-bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap);
+bool split_config_string(const std::string &str, std::map<std::string, std::string> &smap);
 
 std::string getJFFS2MountPoint(int mtdPos);
-std::string Lang2ISO639_1(std::string& lang);
+std::string Lang2ISO639_1(std::string &lang);
 std::string readLink(std::string lnk);
 
 int getpidof(const char *process);
-std::string filehash(const char * file);
-std::string get_path(const char * path);
+std::string filehash(const char *file);
+std::string get_path(const char *path);
 inline bool file_exists(const std::string file) { return file_exists(file.c_str()); }
 
 std::string readFile(std::string file);
@@ -177,7 +178,8 @@ std::string downloadUrlToRandomFile(std::string url, std::string directory = "/t
 std::string downloadUrlToLogo(std::string url, std::string directory = "/tmp", t_channel_id channel_id = 0, unsigned int timeout = 1);
 
 // curl
-struct MemoryStruct {
+struct MemoryStruct
+{
 	char *memory;
 	size_t size;
 };
