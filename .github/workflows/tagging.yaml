@@ -69,9 +69,29 @@ jobs:
             last_patch=${last_patch:-0}
           fi
 
+          dry_args=()
+          if [ "${DRY_RUN:-0}" = "1" ]; then
+            dry_args+=(--dry-run)
+          fi
+
           target_patch="$ver_micro"
           if [ -n "$last_tag" ]; then
             commits_since=$(git rev-list --count "${last_tag}..HEAD")
+
+            if [ "$commits_since" -eq 0 ] && [ "$ver_micro" -ne "$last_patch" ]; then
+              echo "configure.ac ver_micro (${ver_micro}) differs from last tag (${last_tag}); syncing version."
+              python /tmp/tagit.py \
+                -f configure.ac \
+                --scheme-file tagit-config.json \
+                --version-mode increment \
+                --tag-format "3.{minor}.{patch}" \
+                --major "$ver_major" \
+                --minor "$ver_minor" \
+                --patch "$last_patch" \
+                --no-tag \
+                "${dry_args[@]}"
+              exit 0
+            fi
 
             if [ "$ver_micro" -lt "$last_patch" ]; then
               echo "configure.ac ver_micro (${ver_micro}) is behind last tag (${last_tag})."
@@ -93,11 +113,6 @@ jobs:
             year_short="${year_short:2:2}"
           else
             year_full="20${year_short}"
-          fi
-
-          dry_args=()
-          if [ "${DRY_RUN:-0}" = "1" ]; then
-            dry_args+=(--dry-run)
           fi
 
           python /tmp/tagit.py \
