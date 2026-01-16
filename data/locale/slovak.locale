@@ -1549,6 +1549,7 @@ menu.hint_net_dropbear Použitie ssh prístupu do boxu
 menu.hint_net_ftpd Použitie prenosu súboru cez FTP
 menu.hint_net_gateway Vloženie IP adresy brány smerovača
 menu.hint_net_hostname Zmena hosťovacieho názvu prijímača
+menu.hint_net_httpd Nastavenie webového rozhrania (nhttpd)
 menu.hint_net_if Výber interface pre konfiguráciu
 menu.hint_net_ipaddress Vloženie IP adresy vášho prijímača
 menu.hint_net_mount Konfigurácia, pripojenie a odpojenie sieťových zdielaní. Podpora NFS a CIFS.
@@ -2234,6 +2235,20 @@ networkmenu.gateway Predvolená brána
 networkmenu.hostname Názov hostiteľa
 networkmenu.hostname_hint1 Vložiť hostiteľa,
 networkmenu.hostname_hint2 pre zmenu potrebný reštart
+networkmenu.httpd Webové rozhranie (nhttpd)
+networkmenu.httpd_port Port
+networkmenu.httpd_host Adresa viazania
+networkmenu.httpd_auth Autentifikácia
+networkmenu.httpd_user Používateľ
+networkmenu.httpd_pass Heslo
+networkmenu.httpd_noauth Klienti bez overenia
+networkmenu.httpd_threading Vlákna spojení
+networkmenu.httpd_loglevel Úroveň logu
+networkmenu.httpd_ssl Povoliť SSL
+networkmenu.httpd_ssl_pemfile SSL PEM súbor
+networkmenu.httpd_ssl_cafile SSL CA súbor
+networkmenu.httpd_port_invalid Neplatný port. Použite 1-65535.
+networkmenu.httpd_save_failed Nepodarilo sa uložiť nhttpd.conf
 networkmenu.inactive_network Sieť neaktívna!
 networkmenu.ipaddress IP adresa
 networkmenu.mount Úprava sieťových priečinkov (NFS / CIFS)

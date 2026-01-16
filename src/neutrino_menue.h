@@ -49,6 +49,7 @@ enum MN_WIDGET_ID
 
 	// proxysetup
 	MN_WIDGET_ID_PROXYSETUP,
+	MN_WIDGET_ID_NHTTPDSETUP,
 
 	// osd setup
 	MN_WIDGET_ID_OSDSETUP,

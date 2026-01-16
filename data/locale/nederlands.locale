@@ -1095,6 +1095,7 @@ menu.hint_net_dropbear Activeer ssh toegang naar de box
 menu.hint_net_ftpd Bestandsoverdracht via FTP inschakelen
 menu.hint_net_gateway Gateway/router IP adres invoeren
 menu.hint_net_hostname Wijzig de hostnaam van uw ontvanger
+menu.hint_net_httpd Webinterface (nhttpd) instellen
 menu.hint_net_if Selecteer interface om te configureren
 menu.hint_net_ipaddress Voer het IP adres van uw ontvanger in.
 menu.hint_net_mount Configureer, koppel of ontkoppel gedeelde netwerklocaties\n NFS en CIFS ondersteund.
@@ -1654,6 +1655,20 @@ networkmenu.gateway Standaard gateway
 networkmenu.hostname Hostnaam
 networkmenu.hostname_hint1 Hostnaam invoeren
 networkmenu.hostname_hint2 Opnieuw opstarten na wijzigingen
+networkmenu.httpd Webinterface (nhttpd)
+networkmenu.httpd_port Poort
+networkmenu.httpd_host Bind-adres
+networkmenu.httpd_auth Authenticatie
+networkmenu.httpd_user Gebruikersnaam
+networkmenu.httpd_pass Wachtwoord
+networkmenu.httpd_noauth Geen-auth clients
+networkmenu.httpd_threading Verbindings-threads
+networkmenu.httpd_loglevel Logniveau
+networkmenu.httpd_ssl SSL inschakelen
+networkmenu.httpd_ssl_pemfile SSL-PEM-bestand
+networkmenu.httpd_ssl_cafile SSL-CA-bestand
+networkmenu.httpd_port_invalid Ongeldige poort. Gebruik 1-65535.
+networkmenu.httpd_save_failed nhttpd.conf opslaan mislukt
 networkmenu.inactive_network Netwerk inactief!
 networkmenu.ipaddress IP adres
 networkmenu.mount Beheer netwerklocaties

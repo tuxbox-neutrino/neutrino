@@ -1550,6 +1550,7 @@ menu.hint_net_dropbear Aktivieren Sie SSH Zugriff zur Box
 menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Geben Sie die Gateway-Adresse des Routers ein
 menu.hint_net_hostname Ändern Sie den Hostnamen der Box
+menu.hint_net_httpd Webinterface (nhttpd) konfigurieren
 menu.hint_net_if Wählen Sie die Schnittstelle zur Konfiguration
 menu.hint_net_ipaddress Geben Sie die IP-Adresse für die Box ein
 menu.hint_net_mount Bearbeiten Sie NFS- und CIFS-Netzwerkfreigaben
@@ -2236,6 +2237,20 @@ networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname
 networkmenu.hostname_hint1 Geben sie den Hostnamen ein
 networkmenu.hostname_hint2 Eine Änderung benötigt einen Neustart
+networkmenu.httpd Webinterface (nhttpd)
+networkmenu.httpd_port Port
+networkmenu.httpd_host Bind-Adresse
+networkmenu.httpd_auth Authentifizierung
+networkmenu.httpd_user Benutzername
+networkmenu.httpd_pass Passwort
+networkmenu.httpd_noauth Ausnahmen (kein Login)
+networkmenu.httpd_threading Verbindungs-Threads
+networkmenu.httpd_loglevel Log-Level
+networkmenu.httpd_ssl SSL aktivieren
+networkmenu.httpd_ssl_pemfile SSL-PEM-Datei
+networkmenu.httpd_ssl_cafile SSL-CA-Datei
+networkmenu.httpd_port_invalid Ungültiger Port. 1-65535 verwenden.
+networkmenu.httpd_save_failed nhttpd.conf konnte nicht gespeichert werden
 networkmenu.inactive_network Netzwerk nicht aktiviert!
 networkmenu.ipaddress IP
 networkmenu.mount Netzwerkfreigaben bearbeiten

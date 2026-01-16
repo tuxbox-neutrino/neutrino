@@ -36,6 +36,7 @@
 
 #include "network_setup.h"
 #include <gui/proxyserver_setup.h>
+#include <gui/nhttpd_setup.h>
 #include <gui/nfs.h>
 
 #include <gui/widget/icons.h>
@@ -347,6 +348,7 @@ int CNetworkSetup::showNetworkSetup()
 	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
 #endif
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
+	CNhttpdSetup httpd;
 	CNetworkServiceSetup services;
 
 	//ntp submenu
@@ -368,6 +370,11 @@ int CNetworkSetup::showNetworkSetup()
 	//proxyserver submenu
 	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
+	networkSettings->addItem(mf);
+
+	// nhttpd (web interface) submenu
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD, true, NULL, &httpd, NULL, CRCInput::RC_2);
+	mf->setHint("", LOCALE_MENU_HINT_NET_HTTPD);
 	networkSettings->addItem(mf);
 #if 0
 	//services

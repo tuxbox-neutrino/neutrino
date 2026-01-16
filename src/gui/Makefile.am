@@ -73,6 +73,7 @@ libneutrino_gui_a_SOURCES = \
 	movieplayer.cpp \
 	network_service.cpp \
 	network_setup.cpp \
+	nhttpd_setup.cpp \
 	nfs.cpp \
 	osd_helpers.cpp \
 	osd_progressbar_setup.cpp \

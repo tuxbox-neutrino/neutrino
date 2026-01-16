@@ -1550,6 +1550,7 @@ menu.hint_net_dropbear Enable ssh access to the box
 menu.hint_net_ftpd Enable file transfer using FTP
 menu.hint_net_gateway Enter gateway/router IP address
 menu.hint_net_hostname Change your box hostname
+menu.hint_net_httpd Configure the web interface (nhttpd)
 menu.hint_net_if Select interface to config
 menu.hint_net_ipaddress Enter your box IP address
 menu.hint_net_mount Configure, mount and un-mount network shares\nNFS and CIFS supported
@@ -2236,6 +2237,20 @@ networkmenu.gateway Gateway
 networkmenu.hostname Hostname
 networkmenu.hostname_hint1 Enter hostname
 networkmenu.hostname_hint2 Need reboot after change
+networkmenu.httpd Web Interface (nhttpd)
+networkmenu.httpd_port Port
+networkmenu.httpd_host Bind address
+networkmenu.httpd_auth Authentication
+networkmenu.httpd_user Username
+networkmenu.httpd_pass Password
+networkmenu.httpd_noauth No-auth clients
+networkmenu.httpd_threading Connection threading
+networkmenu.httpd_loglevel Log level
+networkmenu.httpd_ssl Enable SSL
+networkmenu.httpd_ssl_pemfile SSL PEM file
+networkmenu.httpd_ssl_cafile SSL CA file
+networkmenu.httpd_port_invalid Invalid port. Use 1-65535.
+networkmenu.httpd_save_failed Failed to save nhttpd.conf
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
 networkmenu.mount Edit network shares
