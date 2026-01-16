@@ -259,8 +259,12 @@ int CNhttpdSetup::showSetup()
 		|| (orig_ssl_pemfile != ssl_pemfile)
 		|| (orig_ssl_ca_file != ssl_ca_file);
 
-	if (changed)
-		saveConfig();
+	if (changed) {
+		if (ShowMsg(LOCALE_NETWORKMENU_HTTPD, LOCALE_NETWORKMENU_APPLY_SETTINGS_NOW,
+				CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo,
+				NEUTRINO_ICON_QUESTION, width) == CMsgBox::mbrYes)
+			saveConfig();
+	}
 
 	return res;
 }
