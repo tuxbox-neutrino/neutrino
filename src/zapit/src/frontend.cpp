@@ -135,6 +135,22 @@ static fe_sec_voltage_t unicable_lowvolt = SEC_VOLTAGE_13;
 
 /*********************************************************************************************************/
 
+#if _HAVE_DVB510
+static inline bool is_dtv_stats_errno_ignored(int err)
+{
+	switch (err) {
+	case ERANGE:
+	case EPERM:
+	case ENOTTY:
+	case EOPNOTSUPP:
+	case EINVAL:
+		return true;
+	default:
+		return false;
+	}
+}
+#endif
+
 CFrontend::CFrontend(int Number, int Adapter)
 {
 	DBG("[fe%d/%d] New frontend on adapter %d\n", Adapter, Number, Adapter);
@@ -771,9 +787,15 @@ uint16_t CFrontend::getSignalStrength(void) const
 	props.props = prop;
 	props.num = 1;
 
-	if (fop(ioctl, FE_GET_PROPERTY, &props) < 0 && errno != ERANGE)
+	if (quiet_fop(ioctl, FE_GET_PROPERTY, &props) < 0)
 	{
-		printf("%s: DTV_STAT_SIGNAL_STRENGTH failed\n", __FUNCTION__);
+		int saved_errno = errno;
+		if (!is_dtv_stats_errno_ignored(saved_errno))
+		{
+			errno = saved_errno;
+			ERROR("ioctl(fd, FE_GET_PROPERTY, &props)");
+			printf("%s: DTV_STAT_SIGNAL_STRENGTH failed\n", __FUNCTION__);
+		}
 	}
 	else
 	{
@@ -802,9 +824,15 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 	props.props = prop;
 	props.num = 1;
 
-	if (fop(ioctl, FE_GET_PROPERTY, &props) < 0 && errno != ERANGE)
+	if (quiet_fop(ioctl, FE_GET_PROPERTY, &props) < 0)
 	{
-		printf("%s: DTV_STAT_CNR failed\n", __FUNCTION__);
+		int saved_errno = errno;
+		if (!is_dtv_stats_errno_ignored(saved_errno))
+		{
+			errno = saved_errno;
+			ERROR("ioctl(fd, FE_GET_PROPERTY, &props)");
+			printf("%s: DTV_STAT_CNR failed\n", __FUNCTION__);
+		}
 	}
 	else
 	{
