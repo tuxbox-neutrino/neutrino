@@ -1096,6 +1096,17 @@ menu.hint_net_ftpd Bestandsoverdracht via FTP inschakelen
 menu.hint_net_gateway Gateway/router IP adres invoeren
 menu.hint_net_hostname Wijzig de hostnaam van uw ontvanger
 menu.hint_net_httpd Webinterface (nhttpd) instellen
+menu.hint_net_httpd_auth Aanmelden verplicht voor het webinterface
+menu.hint_net_httpd_host Bind-adres of host\n(leeg of 0.0.0.0 voor alles)
+menu.hint_net_httpd_loglevel Logniveau van de webserver
+menu.hint_net_httpd_noauth Clients zonder login\n(komma-gescheiden IPs/hosts)
+menu.hint_net_httpd_pass Wachtwoord voor HTTP-authenticatie
+menu.hint_net_httpd_port TCP-poort voor het webinterface (1-65535)
+menu.hint_net_httpd_ssl HTTPS voor het webinterface inschakelen
+menu.hint_net_httpd_ssl_cafile Pad naar CA-bestand (optioneel)
+menu.hint_net_httpd_ssl_pemfile Pad naar PEM-bestand met certificaat en sleutel
+menu.hint_net_httpd_threading Verbindingen in aparte threads afhandelen
+menu.hint_net_httpd_user Gebruikersnaam voor HTTP-authenticatie
 menu.hint_net_if Selecteer interface om te configureren
 menu.hint_net_ipaddress Voer het IP adres van uw ontvanger in.
 menu.hint_net_mount Configureer, koppel of ontkoppel gedeelde netwerklocaties\n NFS en CIFS ondersteund.

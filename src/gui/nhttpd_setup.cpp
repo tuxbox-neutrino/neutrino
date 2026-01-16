@@ -1,9 +1,24 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	nhttpd setup menu - Neutrino-GUI
+	Copyright (C) 2026, Thilo Graf 'dbt'
 
 	License: GPL
+
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -155,56 +170,68 @@ int CNhttpdSetup::showSetup()
 	std::string orig_ssl_pemfile = ssl_pemfile;
 	std::string orig_ssl_ca_file = ssl_ca_file;
 
-	CMenuWidget *menu = new CMenuWidget(LOCALE_NETWORKMENU_HTTPD, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NHTTPDSETUP);
+	CMenuWidget *menu = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NHTTPDSETUP);
 	menu->addIntroItems(LOCALE_NETWORKMENU_HTTPD);
 
 	CMenuOptionNumberChooser *port_chooser = new CMenuOptionNumberChooser(LOCALE_NETWORKMENU_HTTPD_PORT, &port, true, 1, 65535);
 	port_chooser->setNumericInput(true);
+	port_chooser->setHint("", LOCALE_MENU_HINT_NET_HTTPD_PORT);
 	menu->addItem(port_chooser);
 
 	CKeyboardInput host_input(LOCALE_NETWORKMENU_HTTPD_HOST, &host);
-	menu->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_HOST, true, host, &host_input));
+	CMenuForwarder *host_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_HOST, true, host, &host_input);
+	host_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_HOST);
+	menu->addItem(host_fwd);
 
 	menu->addItem(GenericMenuSeparatorLine);
 
 	CMenuOptionChooser *auth_opt = new CMenuOptionChooser(LOCALE_NETWORKMENU_HTTPD_AUTH, &auth_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	auth_opt->setHint("", LOCALE_MENU_HINT_NET_HTTPD_AUTH);
 	menu->addItem(auth_opt);
 
 	CKeyboardInput user_input(LOCALE_NETWORKMENU_HTTPD_USER, &username);
 	CMenuForwarder *user_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_USER, auth_enabled != 0, username, &user_input);
+	user_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_USER);
 	auth_items.Add(user_fwd);
 	menu->addItem(user_fwd);
 
 	CKeyboardInput pass_input(LOCALE_NETWORKMENU_HTTPD_PASS, &password);
 	CMenuForwarder *pass_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_PASS, auth_enabled != 0, password, &pass_input);
+	pass_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_PASS);
 	auth_items.Add(pass_fwd);
 	menu->addItem(pass_fwd);
 
 	CKeyboardInput noauth_input(LOCALE_NETWORKMENU_HTTPD_NOAUTH, &no_auth_client);
 	CMenuForwarder *noauth_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_NOAUTH, auth_enabled != 0, no_auth_client, &noauth_input);
+	noauth_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_NOAUTH);
 	auth_items.Add(noauth_fwd);
 	menu->addItem(noauth_fwd);
 
 	menu->addItem(GenericMenuSeparatorLine);
 
 	CMenuOptionChooser *thread_opt = new CMenuOptionChooser(LOCALE_NETWORKMENU_HTTPD_THREADING, &threading, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	thread_opt->setHint("", LOCALE_MENU_HINT_NET_HTTPD_THREADING);
 	menu->addItem(thread_opt);
 
 	CMenuOptionChooser *loglevel_opt = new CMenuOptionChooser(LOCALE_NETWORKMENU_HTTPD_LOGLEVEL, &loglevel, HTTPD_LOGLEVEL_OPTIONS, HTTPD_LOGLEVEL_OPTION_COUNT, true);
+	loglevel_opt->setHint("", LOCALE_MENU_HINT_NET_HTTPD_LOGLEVEL);
 	menu->addItem(loglevel_opt);
 
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	menu->addItem(GenericMenuSeparatorLine);
 	CMenuOptionChooser *ssl_opt = new CMenuOptionChooser(LOCALE_NETWORKMENU_HTTPD_SSL, &ssl_enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	ssl_opt->setHint("", LOCALE_MENU_HINT_NET_HTTPD_SSL);
 	menu->addItem(ssl_opt);
 
 	CKeyboardInput pem_input(LOCALE_NETWORKMENU_HTTPD_SSL_PEMFILE, &ssl_pemfile);
 	CMenuForwarder *pem_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_SSL_PEMFILE, ssl_enabled != 0, ssl_pemfile, &pem_input);
+	pem_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_SSL_PEMFILE);
 	ssl_items.Add(pem_fwd);
 	menu->addItem(pem_fwd);
 
 	CKeyboardInput ca_input(LOCALE_NETWORKMENU_HTTPD_SSL_CA_FILE, &ssl_ca_file);
 	CMenuForwarder *ca_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_SSL_CA_FILE, ssl_enabled != 0, ssl_ca_file, &ca_input);
+	ca_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_SSL_CA_FILE);
 	ssl_items.Add(ca_fwd);
 	menu->addItem(ca_fwd);
 #endif

@@ -1551,6 +1551,17 @@ menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Geben Sie die Gateway-Adresse des Routers ein
 menu.hint_net_hostname Ändern Sie den Hostnamen der Box
 menu.hint_net_httpd Webinterface (nhttpd) konfigurieren
+menu.hint_net_httpd_auth Anmeldung für das Webinterface erzwingen
+menu.hint_net_httpd_host Bind-Adresse oder Host\n(leer oder 0.0.0.0 für alle)
+menu.hint_net_httpd_loglevel Log-Level des Webservers
+menu.hint_net_httpd_noauth Clients ohne Login\n(kommagetrennte IPs/Hosts)
+menu.hint_net_httpd_pass Passwort für die HTTP-Authentifizierung
+menu.hint_net_httpd_port TCP-Port für das Webinterface (1-65535)
+menu.hint_net_httpd_ssl HTTPS für das Webinterface aktivieren
+menu.hint_net_httpd_ssl_cafile Pfad zur CA-Datei (optional)
+menu.hint_net_httpd_ssl_pemfile Pfad zur PEM-Datei mit Zertifikat und Schlüssel
+menu.hint_net_httpd_threading Verbindungen in separaten Threads bearbeiten
+menu.hint_net_httpd_user Benutzername für die HTTP-Authentifizierung
 menu.hint_net_if Wählen Sie die Schnittstelle zur Konfiguration
 menu.hint_net_ipaddress Geben Sie die IP-Adresse für die Box ein
 menu.hint_net_mount Bearbeiten Sie NFS- und CIFS-Netzwerkfreigaben

@@ -1550,6 +1550,17 @@ menu.hint_net_ftpd Použitie prenosu súboru cez FTP
 menu.hint_net_gateway Vloženie IP adresy brány smerovača
 menu.hint_net_hostname Zmena hosťovacieho názvu prijímača
 menu.hint_net_httpd Nastavenie webového rozhrania (nhttpd)
+menu.hint_net_httpd_auth Vyžadovať prihlásenie pre webové rozhranie
+menu.hint_net_httpd_host Adresa/host pre viazanie\n(prázdne alebo 0.0.0.0 pre všetky)
+menu.hint_net_httpd_loglevel Úroveň logu webservera
+menu.hint_net_httpd_noauth Klienti bez prihlásenia\n(IP/host oddelené čiarkou)
+menu.hint_net_httpd_pass Heslo pre HTTP autentifikáciu
+menu.hint_net_httpd_port TCP port webového rozhrania (1-65535)
+menu.hint_net_httpd_ssl Povoliť HTTPS pre webové rozhranie
+menu.hint_net_httpd_ssl_cafile Cesta k CA súboru (voliteľné)
+menu.hint_net_httpd_ssl_pemfile Cesta k PEM súboru s certifikátom a kľúčom
+menu.hint_net_httpd_threading Spracovať spojenia v samostatných vláknach
+menu.hint_net_httpd_user Používateľ pre HTTP autentifikáciu
 menu.hint_net_if Výber interface pre konfiguráciu
 menu.hint_net_ipaddress Vloženie IP adresy vášho prijímača
 menu.hint_net_mount Konfigurácia, pripojenie a odpojenie sieťových zdielaní. Podpora NFS a CIFS.
