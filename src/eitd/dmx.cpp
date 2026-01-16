@@ -497,6 +497,9 @@ int DMX::immediate_start(void)
 		dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
 	}
 
+	/* this is for dmxCN only... */
+	eit_version = 0xff;
+
 	/* setfilter() only if this is no dummy filter... */
 	if (!filters.empty() && filters[filter_index].filter && filters[filter_index].mask)
 	{
@@ -505,11 +508,13 @@ int DMX::immediate_start(void)
 
 		filter[0] = filters[filter_index].filter;
 		mask[0] = filters[filter_index].mask;
-		dmx->sectionFilter(pID, filter, mask, 1);
-		//FIXME error check
+		if (!dmx->sectionFilter(pID, filter, mask, 1)) {
+			debug(DEBUG_ERROR, "	%s: DMX::immediate_start: sectionFilter failed (pid 0x%x filter 0x%02x mask 0x%02x)",
+				name.c_str(), pID, filters[filter_index].filter, filters[filter_index].mask);
+			closefd();
+			return 1;
+		}
 	}
-	/* this is for dmxCN only... */
-	eit_version = 0xff;
 	return 0;
 }
 
