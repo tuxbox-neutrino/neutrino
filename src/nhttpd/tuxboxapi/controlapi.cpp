@@ -1043,6 +1043,66 @@ void CControlAPI::SysInfoCGI(CyhookHandler *hh)
 		loadavg_file.close();
 	}
 
+	// CPU usage from /proc/stat (requires two measurements)
+	int cpu_percent = 0;
+	int cpu_cores = 0;
+	{
+		auto read_cpu_stats = []() -> std::vector<unsigned long long> {
+			std::vector<unsigned long long> stats(7, 0);
+			std::ifstream stat_file("/proc/stat");
+			if (stat_file.is_open())
+			{
+				std::string line;
+				std::getline(stat_file, line);
+				if (line.compare(0, 3, "cpu") == 0)
+				{
+					sscanf(line.c_str(), "cpu %llu %llu %llu %llu %llu %llu %llu",
+						&stats[0], &stats[1], &stats[2], &stats[3],
+						&stats[4], &stats[5], &stats[6]);
+				}
+				stat_file.close();
+			}
+			return stats;
+		};
+
+		// Count CPU cores
+		std::ifstream cpuinfo("/proc/cpuinfo");
+		if (cpuinfo.is_open())
+		{
+			std::string line;
+			while (std::getline(cpuinfo, line))
+			{
+				if (line.compare(0, 9, "processor") == 0)
+					cpu_cores++;
+			}
+			cpuinfo.close();
+		}
+		if (cpu_cores == 0)
+			cpu_cores = 1;
+
+		// First measurement
+		auto stats1 = read_cpu_stats();
+		usleep(100000); // 100ms delay
+		// Second measurement
+		auto stats2 = read_cpu_stats();
+
+		// Calculate delta: user, nice, system, idle, iowait, irq, softirq
+		unsigned long long total1 = 0, total2 = 0;
+		unsigned long long idle1 = stats1[3] + stats1[4]; // idle + iowait
+		unsigned long long idle2 = stats2[3] + stats2[4];
+		for (int i = 0; i < 7; i++)
+		{
+			total1 += stats1[i];
+			total2 += stats2[i];
+		}
+
+		unsigned long long total_delta = total2 - total1;
+		unsigned long long idle_delta = idle2 - idle1;
+
+		if (total_delta > 0)
+			cpu_percent = (int)(((total_delta - idle_delta) * 100) / total_delta);
+	}
+
 	// Memory info from /proc/meminfo
 	long mem_total = 0, mem_free = 0, mem_buffers = 0, mem_cached = 0;
 	std::ifstream meminfo("/proc/meminfo");
@@ -1229,6 +1289,7 @@ void CControlAPI::SysInfoCGI(CyhookHandler *hh)
 	hh->printf("  \"hostname\": \"%s\",\n", escapeJson(hostname).c_str());
 	hh->printf("  \"uptime\": %ld,\n", uptime_sec);
 	hh->printf("  \"load\": [%.2f, %.2f, %.2f],\n", load1, load5, load15);
+	hh->printf("  \"cpu\": {\"percent\": %d, \"cores\": %d},\n", cpu_percent, cpu_cores);
 	hh->printf("  \"processes\": {\"running\": %d, \"total\": %d},\n", processes_running, processes_total);
 	hh->printf("  \"memory\": {\n");
 	hh->printf("    \"total\": %ld,\n", mem_total);

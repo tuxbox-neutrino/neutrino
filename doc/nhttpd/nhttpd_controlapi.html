@@ -1175,6 +1175,7 @@ Alle Werte werden direkt aus /proc und /sys gelesen - ohne Shell-Overhead.<br>
 <tr><td>hostname</td><td>string</td><td>Netzwerk-Hostname des Systems</td></tr>
 <tr><td>uptime</td><td>number</td><td>Systemlaufzeit in Sekunden</td></tr>
 <tr><td>load</td><td>array</td><td>Load Average [1min, 5min, 15min]</td></tr>
+<tr><td>cpu</td><td>object</td><td>percent: aktuelle CPU-Auslastung (0-100), cores: Anzahl CPU-Kerne</td></tr>
 <tr><td>processes</td><td>object</td><td>running: laufende, total: gesamte Prozesse</td></tr>
 <tr><td>memory</td><td>object</td><td>total, used, free (in KB), percent</td></tr>
 <tr><td>disk</td><td>object</td><td>total, used, free (in KB), percent f&uuml;r /</td></tr>
@@ -1204,6 +1205,7 @@ Beispiel:<br>
   "hostname": "neutrino-box",
   "uptime": 86420,
   "load": [0.45, 0.32, 0.28],
+  "cpu": {"percent": 12, "cores": 4},
   "processes": {"running": 2, "total": 156},
   "memory": {
     "total": 2048000,
