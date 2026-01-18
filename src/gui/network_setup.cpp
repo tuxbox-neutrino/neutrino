@@ -61,6 +61,7 @@
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
+#include <system/helpers.h>
 
 #include <libnet.h>
 #include <libiw/iwscan.h>
@@ -225,7 +226,14 @@ int CNetworkSetup::showNetworkSetup()
 		free(namelist);
 
 	if(!found)
-		g_settings.ifname = "eth0";
+	{
+		if (!getDefaultNetworkInterface(g_settings.ifname, false))
+		{
+			int sel_res = showInterfaceSelectMenu();
+			if (g_settings.ifname.empty())
+				return sel_res;
+		}
+	}
 
 	CMenuForwarder * ifSelect = new CMenuForwarder(LOCALE_NETWORKMENU_SELECT_IF, ifcount > 1, g_settings.ifname, this, "select_if");
 	ifSelect->setHint("", LOCALE_MENU_HINT_NET_IF);
@@ -413,6 +421,7 @@ int CNetworkSetup::showInterfaceSelectMenu()
 	if (ifcount <= 0) {
 		if (ifcount >= 0)
 			free(namelist);
+		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_NO_INTERFACE), CMsgBox::mbrBack, CMsgBox::mbBack);
 		return res;
 	}
 

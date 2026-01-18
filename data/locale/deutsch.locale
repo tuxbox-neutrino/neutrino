@@ -2263,6 +2263,7 @@ networkmenu.httpd_ssl_cafile SSL-CA-Datei
 networkmenu.httpd_port_invalid Ungültiger Port. 1-65535 verwenden.
 networkmenu.httpd_save_failed nhttpd.conf konnte nicht gespeichert werden
 networkmenu.inactive_network Netzwerk nicht aktiviert!
+networkmenu.no_interface Keine Netzwerkschnittstelle gefunden!
 networkmenu.ipaddress IP
 networkmenu.mount Netzwerkfreigaben bearbeiten
 networkmenu.nameserver Nameserver

@@ -2204,6 +2204,73 @@ int getActivePartition()
 	return c;
 }
 
+bool getDefaultNetworkInterface(std::string &ifname, bool prefer_route)
+{
+	std::vector<std::string> ifnames;
+	DIR *dir = opendir("/sys/class/net");
+	if (!dir)
+		return !ifname.empty();
+
+	struct dirent *entry;
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (entry->d_name[0] == '.')
+			continue;
+		if (!strcmp(entry->d_name, "lo"))
+			continue;
+		ifnames.push_back(entry->d_name);
+	}
+	closedir(dir);
+
+	if (ifnames.empty())
+		return false;
+
+	if (!ifname.empty())
+	{
+		if (std::find(ifnames.begin(), ifnames.end(), ifname) != ifnames.end())
+			return true;
+		ifname.clear();
+	}
+
+	if (ifnames.size() == 1)
+	{
+		ifname = ifnames[0];
+		return true;
+	}
+
+	if (prefer_route)
+	{
+		std::ifstream in("/proc/net/route");
+		if (in.is_open())
+		{
+			std::string line;
+			if (std::getline(in, line))
+			{
+				while (std::getline(in, line))
+				{
+					char iface[64];
+					unsigned long dest = 1;
+					if (sscanf(line.c_str(), "%63s %lx", iface, &dest) == 2)
+					{
+						if (dest == 0)
+						{
+							std::string route_if = iface;
+							if (route_if != "lo" && std::find(ifnames.begin(), ifnames.end(), route_if) != ifnames.end())
+							{
+								ifname = route_if;
+								return true;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 // Why different name conventions ?
 // i put them all together here, and keep the simplest
 //name = str_replace(" ", "_", name);

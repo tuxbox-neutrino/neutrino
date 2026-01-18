@@ -198,6 +198,7 @@ bool isDigitWord(std::string str);
 time_t GetBuildTime();
 int getBoxMode();
 int getActivePartition();
+bool getDefaultNetworkInterface(std::string &ifname, bool prefer_route = true);
 
 std::string GetSpecialName(std::string NormalName);
 #endif

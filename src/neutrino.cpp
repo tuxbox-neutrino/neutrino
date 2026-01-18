@@ -795,7 +795,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 
 	// network
-	g_settings.ifname = configfile.getString("ifname", "eth0");
+	g_settings.ifname = configfile.getString("ifname", "");
+	getDefaultNetworkInterface(g_settings.ifname, false);
 
 	for (int i = 0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
