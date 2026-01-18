@@ -425,7 +425,7 @@ int CNetworkSetup::showInterfaceSelectMenu()
 		return res;
 	}
 
-	CMenuWidget menu(LOCALE_NETWORKMENU_SELECT_IF, NEUTRINO_ICON_NETWORK, width);
+	CMenuWidget menu(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width);
 	menu.addIntroItems(LOCALE_NETWORKMENU_SELECT_IF);
 
 	int select = -1;
