@@ -236,6 +236,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"boxinfo",		&CControlAPI::BoxInfoCGI,		"text/plain"},
 	{"osinfo",		&CControlAPI::OsInfoCGI,		"text/plain"},
 	{"sysinfo",		&CControlAPI::SysInfoCGI,		"application/json"},
+	{"paths",		&CControlAPI::PathsCGI,			"application/json"},
 	{"version",		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup",		&CControlAPI::ReloadNeutrinoSetupCGI,	""},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,		""},
@@ -1265,6 +1266,49 @@ void CControlAPI::SysInfoCGI(CyhookHandler *hh)
 			(i < interfaces.size() - 1) ? "," : "");
 	}
 	hh->printf("  ]\n");
+	hh->printf("}\n");
+}
+
+//-----------------------------------------------------------------------------
+// PathsCGI - return system paths as JSON
+// Example: /control/paths
+//-----------------------------------------------------------------------------
+void CControlAPI::PathsCGI(CyhookHandler *hh)
+{
+	hh->printf("{\n");
+	hh->printf("  \"configdir\": \"%s\",\n", CONFIGDIR);
+	hh->printf("  \"zapitdir\": \"%s\",\n", ZAPITDIR);
+	hh->printf("  \"datadir\": \"%s\",\n", DATADIR);
+	hh->printf("  \"datadir_var\": \"%s\",\n", DATADIR_VAR);
+	hh->printf("  \"controldir\": \"%s\",\n", CONTROLDIR);
+	hh->printf("  \"controldir_var\": \"%s\",\n", CONTROLDIR_VAR);
+	hh->printf("  \"fontdir\": \"%s\",\n", FONTDIR);
+	hh->printf("  \"fontdir_var\": \"%s\",\n", FONTDIR_VAR);
+	hh->printf("  \"libdir\": \"%s\",\n", LIBDIR);
+	hh->printf("  \"gamesdir\": \"%s\",\n", GAMESDIR);
+	hh->printf("  \"iconsdir\": \"%s\",\n", ICONSDIR);
+	hh->printf("  \"iconsdir_var\": \"%s\",\n", ICONSDIR_VAR);
+	hh->printf("  \"localedir\": \"%s\",\n", LOCALEDIR);
+	hh->printf("  \"localedir_var\": \"%s\",\n", LOCALEDIR_VAR);
+	hh->printf("  \"plugindir\": \"%s\",\n", PLUGINDIR);
+	hh->printf("  \"plugindir_var\": \"%s\",\n", PLUGINDIR_VAR);
+	hh->printf("  \"plugindir_mnt\": \"%s\",\n", PLUGINDIR_MNT);
+	hh->printf("  \"luaplugindir\": \"%s\",\n", LUAPLUGINDIR);
+	hh->printf("  \"luaplugindir_var\": \"%s\",\n", LUAPLUGINDIR_VAR);
+	hh->printf("  \"themesdir\": \"%s\",\n", THEMESDIR);
+	hh->printf("  \"themesdir_var\": \"%s\",\n", THEMESDIR_VAR);
+	hh->printf("  \"webradiodir\": \"%s\",\n", WEBRADIODIR);
+	hh->printf("  \"webradiodir_var\": \"%s\",\n", WEBRADIODIR_VAR);
+	hh->printf("  \"webtvdir\": \"%s\",\n", WEBTVDIR);
+	hh->printf("  \"webtvdir_var\": \"%s\",\n", WEBTVDIR_VAR);
+	hh->printf("  \"logodir\": \"%s\",\n", LOGODIR);
+	hh->printf("  \"logodir_var\": \"%s\",\n", LOGODIR_VAR);
+	hh->printf("  \"lcd4l_iconsdir\": \"%s\",\n", LCD4L_ICONSDIR);
+	hh->printf("  \"lcd4l_iconsdir_var\": \"%s\",\n", LCD4L_ICONSDIR_VAR);
+	hh->printf("  \"private_httpddir\": \"%s\",\n", PRIVATE_HTTPDDIR);
+	hh->printf("  \"public_httpddir\": \"%s\",\n", PUBLIC_HTTPDDIR);
+	hh->printf("  \"hosted_httpddir\": \"%s\",\n", HOSTED_HTTPDDIR);
+	hh->printf("  \"flagdir\": \"%s\"\n", FLAGDIR);
 	hh->printf("}\n");
 }
 

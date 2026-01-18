@@ -98,6 +98,7 @@ private:
 	void HWInfoCGI(CyhookHandler *hh);
 	void OsInfoCGI(CyhookHandler *hh);
 	void SysInfoCGI(CyhookHandler *hh);
+	void PathsCGI(CyhookHandler *hh);
 	void ShutdownCGI(CyhookHandler *hh);
 	void VolumeCGI(CyhookHandler *hh);
 	void ChannellistCGI(CyhookHandler *hh);

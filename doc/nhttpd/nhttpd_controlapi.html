@@ -76,6 +76,10 @@
 		<td><a href="http://box_ip/control/sysinfo">http://box_ip/control/sysinfo</a></td>
 	</tr>
 	<tr>
+		<td><a href="#paths">System-Pfade (JSON)</a></td>
+		<td><a href="http://box_ip/control/paths">http://box_ip/control/paths</a></td>
+	</tr>
+	<tr>
 		<td><a href="#getonidsid">Aktuellen Kanal abfragen</a></td>
 		<td><a href="http://box_ip/control/getonidsid">
 		http://box_ip/control/getonidsid</a></td>
@@ -1226,6 +1230,109 @@ Beispiel:<br>
     {"name": "eth0", "ip": "192.168.1.100", "mac": "00:11:22:33:44:55", "up": true},
     {"name": "wlan0", "ip": "", "mac": "66:77:88:99:aa:bb", "up": false}
   ]
+}
+</pre>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="paths"></a><b>System-Pfade abfragen (JSON)</b></div>
+<div class="URL">Handler: http://box_ip/control/paths</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit allen konfigurierten Systempfaden<br>
+<br>
+Liefert alle zur Build-Zeit konfigurierten Verzeichnispfade als JSON-Objekt.<br>
+Dies ersetzt die fr&uuml;here Praxis, Pfade &uuml;ber Build-Zeit-Platzhalter (z.B. <code>%(CONFIGDIR)</code>)<br>
+in HTML/JS-Dateien einzusetzen und erm&ouml;glicht eine saubere Laufzeit-Abfrage.<br>
+<br>
+<b>Hinweis zur Migration:</b><br>
+<div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin: 10px 0;">
+<b>Veraltet:</b> Build-Zeit-Platzhalter wie <code>%(CONFIGDIR)</code>, <code>%(LOGODIR)</code> etc. in y-web Dateien.<br>
+<b>Empfohlen:</b> Pfade zur Laufzeit &uuml;ber <code>/control/paths</code> abfragen.<br>
+<br>
+<i>Beispiel Migration:</i><br>
+<code>Alt: var configDir = "%(CONFIGDIR)";</code><br>
+<code>Neu: const paths = await fetch('/control/paths').then(r =&gt; r.json());</code><br>
+<code>&nbsp;&nbsp;&nbsp;&nbsp; const configDir = paths.configdir;</code>
+</div>
+<br>
+<b>JSON-Felder:</b><br>
+<table border="1" cellpadding="3">
+<tr><th>Feld</th><th>Beschreibung</th></tr>
+<tr><td>configdir</td><td>Konfigurations-Verzeichnis (neutrino.conf etc.)</td></tr>
+<tr><td>zapitdir</td><td>Zapit-Verzeichnis (Kanallisten)</td></tr>
+<tr><td>datadir</td><td>Daten-Verzeichnis (statische Daten)</td></tr>
+<tr><td>datadir_var</td><td>Variables Daten-Verzeichnis</td></tr>
+<tr><td>controldir</td><td>Control-Verzeichnis</td></tr>
+<tr><td>controldir_var</td><td>Variables Control-Verzeichnis</td></tr>
+<tr><td>fontdir</td><td>Schriftarten-Verzeichnis</td></tr>
+<tr><td>fontdir_var</td><td>Variables Schriftarten-Verzeichnis</td></tr>
+<tr><td>libdir</td><td>Bibliotheken-Verzeichnis</td></tr>
+<tr><td>gamesdir</td><td>Spiele-Verzeichnis</td></tr>
+<tr><td>iconsdir</td><td>Icons-Verzeichnis</td></tr>
+<tr><td>iconsdir_var</td><td>Variables Icons-Verzeichnis</td></tr>
+<tr><td>localedir</td><td>Lokalisierungs-Verzeichnis</td></tr>
+<tr><td>localedir_var</td><td>Variables Lokalisierungs-Verzeichnis</td></tr>
+<tr><td>plugindir</td><td>Plugin-Verzeichnis</td></tr>
+<tr><td>plugindir_var</td><td>Variables Plugin-Verzeichnis</td></tr>
+<tr><td>plugindir_mnt</td><td>Gemountetes Plugin-Verzeichnis</td></tr>
+<tr><td>luaplugindir</td><td>Lua-Plugin-Verzeichnis</td></tr>
+<tr><td>luaplugindir_var</td><td>Variables Lua-Plugin-Verzeichnis</td></tr>
+<tr><td>themesdir</td><td>Themes-Verzeichnis</td></tr>
+<tr><td>themesdir_var</td><td>Variables Themes-Verzeichnis</td></tr>
+<tr><td>webradiodir</td><td>Webradio-Verzeichnis</td></tr>
+<tr><td>webradiodir_var</td><td>Variables Webradio-Verzeichnis</td></tr>
+<tr><td>webtvdir</td><td>WebTV-Verzeichnis</td></tr>
+<tr><td>webtvdir_var</td><td>Variables WebTV-Verzeichnis</td></tr>
+<tr><td>logodir</td><td>Senderlogos-Verzeichnis</td></tr>
+<tr><td>logodir_var</td><td>Variables Senderlogos-Verzeichnis</td></tr>
+<tr><td>lcd4l_iconsdir</td><td>LCD4Linux Icons-Verzeichnis</td></tr>
+<tr><td>lcd4l_iconsdir_var</td><td>Variables LCD4Linux Icons-Verzeichnis</td></tr>
+<tr><td>private_httpddir</td><td>Privates HTTPD-Verzeichnis</td></tr>
+<tr><td>public_httpddir</td><td>&Ouml;ffentliches HTTPD-Verzeichnis</td></tr>
+<tr><td>hosted_httpddir</td><td>Hosted HTTPD-Verzeichnis</td></tr>
+<tr><td>flagdir</td><td>Flag-Dateien-Verzeichnis</td></tr>
+</table>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/paths<br>
+<pre>
+{
+  "configdir": "/var/tuxbox/config",
+  "zapitdir": "/var/tuxbox/config/zapit",
+  "datadir": "/usr/share/tuxbox/neutrino",
+  "datadir_var": "/var/tuxbox",
+  "controldir": "/usr/share/tuxbox/neutrino/control",
+  "controldir_var": "/var/tuxbox/control",
+  "fontdir": "/usr/share/fonts",
+  "fontdir_var": "/var/tuxbox/fonts",
+  "libdir": "/usr/lib",
+  "gamesdir": "/var/tuxbox/games",
+  "iconsdir": "/usr/share/tuxbox/neutrino/icons",
+  "iconsdir_var": "/var/tuxbox/icons",
+  "localedir": "/usr/share/tuxbox/neutrino/locale",
+  "localedir_var": "/var/tuxbox/locale",
+  "plugindir": "/usr/lib/tuxbox/plugins",
+  "plugindir_var": "/var/tuxbox/plugins",
+  "plugindir_mnt": "/mnt/plugins",
+  "luaplugindir": "/usr/share/tuxbox/neutrino/plugins",
+  "luaplugindir_var": "/var/tuxbox/plugins",
+  "themesdir": "/usr/share/tuxbox/neutrino/themes",
+  "themesdir_var": "/var/tuxbox/themes",
+  "webradiodir": "/usr/share/tuxbox/neutrino/webradio",
+  "webradiodir_var": "/var/tuxbox/webradio",
+  "webtvdir": "/usr/share/tuxbox/neutrino/webtv",
+  "webtvdir_var": "/var/tuxbox/webtv",
+  "logodir": "/usr/share/tuxbox/neutrino/icons/logo",
+  "logodir_var": "/var/tuxbox/icons/logo",
+  "lcd4l_iconsdir": "/usr/share/tuxbox/neutrino/lcd4l-icons",
+  "lcd4l_iconsdir_var": "/var/tuxbox/lcd4l-icons",
+  "private_httpddir": "/usr/share/tuxbox/neutrino/httpd",
+  "public_httpddir": "/var/tuxbox/httpd",
+  "hosted_httpddir": "/mnt/hosted",
+  "flagdir": "/var/etc"
 }
 </pre>
 </div>
