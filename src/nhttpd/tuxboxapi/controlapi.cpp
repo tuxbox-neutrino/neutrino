@@ -12,10 +12,14 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <vector>
 // system
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h> // for statfs
+#include <ifaddrs.h> // for getifaddrs
+#include <net/if.h>
+#include <arpa/inet.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <pwd.h>
@@ -231,6 +235,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"info",		&CControlAPI::InfoCGI,			"text/plain"},
 	{"boxinfo",		&CControlAPI::BoxInfoCGI,		"text/plain"},
 	{"osinfo",		&CControlAPI::OsInfoCGI,		"text/plain"},
+	{"sysinfo",		&CControlAPI::SysInfoCGI,		"application/json"},
 	{"version",		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup",		&CControlAPI::ReloadNeutrinoSetupCGI,	""},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,		""},
@@ -1005,6 +1010,262 @@ void CControlAPI::OsInfoCGI(CyhookHandler *hh)
 		hh->SendError();
 	else
 		hh->printf("%s", result.c_str());
+}
+
+//-----------------------------------------------------------------------------
+void CControlAPI::SysInfoCGI(CyhookHandler *hh)
+{
+	// Hostname
+	char hostname[HOST_NAME_MAX];
+	if (gethostname(hostname, HOST_NAME_MAX) != 0)
+		strcpy(hostname, "unknown");
+
+	// Uptime from /proc/uptime
+	long uptime_sec = 0;
+	std::ifstream uptime_file("/proc/uptime");
+	if (uptime_file.is_open())
+	{
+		double uptime_val;
+		uptime_file >> uptime_val;
+		uptime_sec = static_cast<long>(uptime_val);
+		uptime_file.close();
+	}
+
+	// Load average from /proc/loadavg
+	double load1 = 0, load5 = 0, load15 = 0;
+	int processes_running = 0, processes_total = 0;
+	std::ifstream loadavg_file("/proc/loadavg");
+	if (loadavg_file.is_open())
+	{
+		char slash;
+		loadavg_file >> load1 >> load5 >> load15 >> processes_running >> slash >> processes_total;
+		loadavg_file.close();
+	}
+
+	// Memory info from /proc/meminfo
+	long mem_total = 0, mem_free = 0, mem_buffers = 0, mem_cached = 0;
+	std::ifstream meminfo("/proc/meminfo");
+	if (meminfo.is_open())
+	{
+		std::string line;
+		while (std::getline(meminfo, line))
+		{
+			if (line.compare(0, 9, "MemTotal:") == 0)
+				sscanf(line.c_str(), "MemTotal: %ld", &mem_total);
+			else if (line.compare(0, 8, "MemFree:") == 0)
+				sscanf(line.c_str(), "MemFree: %ld", &mem_free);
+			else if (line.compare(0, 8, "Buffers:") == 0)
+				sscanf(line.c_str(), "Buffers: %ld", &mem_buffers);
+			else if (line.compare(0, 7, "Cached:") == 0)
+				sscanf(line.c_str(), "Cached: %ld", &mem_cached);
+		}
+		meminfo.close();
+	}
+	long mem_used = mem_total - mem_free - mem_buffers - mem_cached;
+	int mem_percent = (mem_total > 0) ? (int)((mem_used * 100) / mem_total) : 0;
+
+	// Disk info for root filesystem
+	long disk_total = 0, disk_free = 0, disk_used = 0;
+	int disk_percent = 0;
+	struct statfs sfs;
+	if (statfs("/", &sfs) == 0)
+	{
+		disk_total = (long)((sfs.f_blocks * sfs.f_bsize) / 1024);
+		disk_free = (long)((sfs.f_bavail * sfs.f_bsize) / 1024);
+		disk_used = disk_total - disk_free;
+		disk_percent = (disk_total > 0) ? (int)((disk_used * 100) / disk_total) : 0;
+	}
+
+	// CPU temperature from thermal zone (if available)
+	int cpu_temp = -1;
+	std::ifstream temp_file("/sys/class/thermal/thermal_zone0/temp");
+	if (temp_file.is_open())
+	{
+		int temp_milli;
+		temp_file >> temp_milli;
+		cpu_temp = temp_milli / 1000;
+		temp_file.close();
+	}
+
+	// CPU model from /proc/cpuinfo
+	std::string cpu_model;
+	std::ifstream cpuinfo("/proc/cpuinfo");
+	if (cpuinfo.is_open())
+	{
+		std::string line;
+		while (std::getline(cpuinfo, line))
+		{
+			if (line.compare(0, 10, "model name") == 0)
+			{
+				size_t pos = line.find(':');
+				if (pos != std::string::npos)
+				{
+					cpu_model = line.substr(pos + 2);
+					break;
+				}
+			}
+			// ARM/embedded systems may use "Processor" instead
+			if (line.compare(0, 9, "Processor") == 0 || line.compare(0, 8, "Hardware") == 0)
+			{
+				size_t pos = line.find(':');
+				if (pos != std::string::npos && cpu_model.empty())
+					cpu_model = line.substr(pos + 2);
+			}
+		}
+		cpuinfo.close();
+	}
+
+	// Kernel version from /proc/version
+	std::string kernel_version;
+	std::ifstream version_file("/proc/version");
+	if (version_file.is_open())
+	{
+		std::getline(version_file, kernel_version);
+		// Extract just the version number
+		size_t pos = kernel_version.find(' ');
+		if (pos != std::string::npos)
+		{
+			size_t pos2 = kernel_version.find(' ', pos + 1);
+			if (pos2 != std::string::npos)
+			{
+				size_t pos3 = kernel_version.find(' ', pos2 + 1);
+				if (pos3 != std::string::npos)
+					kernel_version = kernel_version.substr(pos2 + 1, pos3 - pos2 - 1);
+			}
+		}
+		version_file.close();
+	}
+
+	// Box info
+	std::string boxvendor(g_info.hw_caps->boxvendor);
+	std::string boxname(g_info.hw_caps->boxname);
+	std::string boxarch(g_info.hw_caps->boxarch);
+
+	// MAC address (legacy, kept for compatibility)
+	static CNetAdapter netadapter;
+	std::string mac_addr = netadapter.getMacAddr();
+
+	// Network interfaces
+	struct NetworkInterface {
+		std::string name;
+		std::string ip;
+		std::string mac;
+		bool up;
+	};
+	std::vector<NetworkInterface> interfaces;
+
+	struct ifaddrs *ifaddr, *ifa;
+	if (getifaddrs(&ifaddr) == 0)
+	{
+		for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+		{
+			if (ifa->ifa_addr == NULL)
+				continue;
+
+			// Skip loopback
+			if (strcmp(ifa->ifa_name, "lo") == 0)
+				continue;
+
+			// Check if interface already in list
+			NetworkInterface *iface = nullptr;
+			for (auto &i : interfaces)
+			{
+				if (i.name == ifa->ifa_name)
+				{
+					iface = &i;
+					break;
+				}
+			}
+
+			if (!iface)
+			{
+				interfaces.push_back({ifa->ifa_name, "", "", (ifa->ifa_flags & IFF_UP) != 0});
+				iface = &interfaces.back();
+			}
+
+			// Get IPv4 address
+			if (ifa->ifa_addr->sa_family == AF_INET)
+			{
+				char ip[INET_ADDRSTRLEN];
+				struct sockaddr_in *sa = (struct sockaddr_in *)ifa->ifa_addr;
+				inet_ntop(AF_INET, &sa->sin_addr, ip, sizeof(ip));
+				iface->ip = ip;
+			}
+
+			// Get MAC address from /sys/class/net/<iface>/address
+			if (iface->mac.empty())
+			{
+				std::string mac_path = "/sys/class/net/" + iface->name + "/address";
+				std::ifstream mac_file(mac_path);
+				if (mac_file.is_open())
+				{
+					std::getline(mac_file, iface->mac);
+					mac_file.close();
+				}
+			}
+		}
+		freeifaddrs(ifaddr);
+	}
+
+	// Escape strings for JSON
+	auto escapeJson = [](const std::string& s) -> std::string {
+		std::string result;
+		for (char c : s) {
+			switch (c) {
+				case '"': result += "\\\""; break;
+				case '\\': result += "\\\\"; break;
+				case '\n': result += "\\n"; break;
+				case '\r': result += "\\r"; break;
+				case '\t': result += "\\t"; break;
+				default: result += c;
+			}
+		}
+		return result;
+	};
+
+	// Build JSON response
+	hh->printf("{\n");
+	hh->printf("  \"hostname\": \"%s\",\n", escapeJson(hostname).c_str());
+	hh->printf("  \"uptime\": %ld,\n", uptime_sec);
+	hh->printf("  \"load\": [%.2f, %.2f, %.2f],\n", load1, load5, load15);
+	hh->printf("  \"processes\": {\"running\": %d, \"total\": %d},\n", processes_running, processes_total);
+	hh->printf("  \"memory\": {\n");
+	hh->printf("    \"total\": %ld,\n", mem_total);
+	hh->printf("    \"used\": %ld,\n", mem_used);
+	hh->printf("    \"free\": %ld,\n", mem_free + mem_buffers + mem_cached);
+	hh->printf("    \"percent\": %d\n", mem_percent);
+	hh->printf("  },\n");
+	hh->printf("  \"disk\": {\n");
+	hh->printf("    \"total\": %ld,\n", disk_total);
+	hh->printf("    \"used\": %ld,\n", disk_used);
+	hh->printf("    \"free\": %ld,\n", disk_free);
+	hh->printf("    \"percent\": %d\n", disk_percent);
+	hh->printf("  },\n");
+	if (cpu_temp >= 0)
+		hh->printf("  \"temperature\": %d,\n", cpu_temp);
+	else
+		hh->printf("  \"temperature\": null,\n");
+	hh->printf("  \"cpu_model\": \"%s\",\n", escapeJson(cpu_model).c_str());
+	hh->printf("  \"kernel\": \"%s\",\n", escapeJson(kernel_version).c_str());
+	hh->printf("  \"box\": {\n");
+	hh->printf("    \"vendor\": \"%s\",\n", escapeJson(boxvendor).c_str());
+	hh->printf("    \"name\": \"%s\",\n", escapeJson(boxname).c_str());
+	hh->printf("    \"arch\": \"%s\"\n", escapeJson(boxarch).c_str());
+	hh->printf("  },\n");
+	hh->printf("  \"mac\": \"%s\",\n", escapeJson(mac_addr).c_str());
+	hh->printf("  \"interfaces\": [\n");
+	for (size_t i = 0; i < interfaces.size(); i++)
+	{
+		const auto &iface = interfaces[i];
+		hh->printf("    {\"name\": \"%s\", \"ip\": \"%s\", \"mac\": \"%s\", \"up\": %s}%s\n",
+			escapeJson(iface.name).c_str(),
+			escapeJson(iface.ip).c_str(),
+			escapeJson(iface.mac).c_str(),
+			iface.up ? "true" : "false",
+			(i < interfaces.size() - 1) ? "," : "");
+	}
+	hh->printf("  ]\n");
+	hh->printf("}\n");
 }
 
 //-----------------------------------------------------------------------------
