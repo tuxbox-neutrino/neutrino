@@ -7,8 +7,7 @@
 	and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2009 T. Graf 'dbt'
-	Homepage: http://www.dbox2-tuning.net/
+	Copyright (C) 2009, 2026 T. Graf 'dbt'
 
 	License: GPL
 
@@ -66,6 +65,8 @@
 
 #include <libnet.h>
 #include <libiw/iwscan.h>
+#include <libconfigfile/configfile.h>
+#include <nhttpd/yconfig.h>
 
 extern int pinghost(const std::string &hostname, std::string *ip = NULL);
 
@@ -753,6 +754,11 @@ void CNetworkSetup::showCurrentNetworkSettings()
 {
 	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], show current network settings...\n", __func__, __LINE__);
 	std::string ip, mask, broadcast, router, nameserver, text;
+	CConfigFile config(',');
+	config.loadConfig(HTTPD_CONFIGFILE);
+	std::string httpd_host = config.getString("WebsiteMain.host", HTTPD_DEFAULT_HOST);
+	int httpd_port = config.getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT);
+
 	netGetIP(g_settings.ifname, ip, mask, broadcast);
 	if (ip[0] == 0)
 	{
@@ -775,6 +781,16 @@ void CNetworkSetup::showCurrentNetworkSettings()
 			+ g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ": " + nameserver + '\n'
 			+ g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY) + ": " + router;
 	}
+	text += '\n';
+	text += "nhttpd-";
+	text += g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_PORT);
+	text += ": ";
+	text += to_string(httpd_port);
+	text += '\n';
+	text += "nhttpd-";
+	text += g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_HOST);
+	text += ": ";
+	text += httpd_host;
 	text += "\n\n" + getTimeSyncSettingsText("", false);
 	ShowMsg(LOCALE_NETWORKMENU_SHOW, text, CMsgBox::mbrBack, CMsgBox::mbBack); // UTF-8
 }
