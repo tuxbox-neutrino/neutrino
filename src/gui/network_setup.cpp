@@ -33,6 +33,7 @@
 #endif
 
 #include <dirent.h>
+#include <vector>
 
 #include "network_setup.h"
 #include <gui/proxyserver_setup.h>
@@ -121,6 +122,10 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		return showWlanList();
 	}
+	else if(actionKey=="select_if")
+	{
+		return showInterfaceSelectMenu();
+	}
 	else if(actionKey=="restore")
 	{
 		int result =  	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_RESET_SETTINGS_NOW), CMsgBox::mbrNo,
@@ -208,13 +213,9 @@ int CNetworkSetup::showNetworkSetup()
 
 	int ifcount = scandir("/sys/class/net", &namelist, my_filter, alphasort);
 
-	CMenuOptionStringChooser * ifSelect = new CMenuOptionStringChooser(LOCALE_NETWORKMENU_SELECT_IF, &g_settings.ifname, ifcount > 1, this, CRCInput::RC_nokey, "", true);
-	ifSelect->setHint("", LOCALE_MENU_HINT_NET_IF);
-
 	bool found = false;
 
 	for(int i = 0; i < ifcount; i++) {
-		ifSelect->addOption(namelist[i]->d_name);
 		if(strcmp(g_settings.ifname.c_str(), namelist[i]->d_name) == 0)
 			found = true;
 		free(namelist[i]);
@@ -225,6 +226,9 @@ int CNetworkSetup::showNetworkSetup()
 
 	if(!found)
 		g_settings.ifname = "eth0";
+
+	CMenuForwarder * ifSelect = new CMenuForwarder(LOCALE_NETWORKMENU_SELECT_IF, ifcount > 1, g_settings.ifname, this, "select_if");
+	ifSelect->setHint("", LOCALE_MENU_HINT_NET_IF);
 
 	networkConfig->readConfig(g_settings.ifname);
 	readNetworkSettings();
@@ -398,6 +402,61 @@ int CNetworkSetup::showNetworkSetup()
 	delete networkSettings;
 	delete sectionsdConfigNotifier;
 	return ret;
+}
+
+int CNetworkSetup::showInterfaceSelectMenu()
+{
+	int res = menu_return::RETURN_REPAINT;
+	struct dirent **namelist;
+
+	int ifcount = scandir("/sys/class/net", &namelist, my_filter, alphasort);
+	if (ifcount <= 0) {
+		if (ifcount >= 0)
+			free(namelist);
+		return res;
+	}
+
+	CMenuWidget menu(LOCALE_NETWORKMENU_SELECT_IF, NEUTRINO_ICON_NETWORK, width);
+	menu.addIntroItems(LOCALE_NETWORKMENU_SELECT_IF);
+
+	int select = -1;
+	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+	std::vector<std::string> ifnames;
+	ifnames.reserve(ifcount);
+
+	for (int i = 0; i < ifcount; i++) {
+		ifnames.push_back(namelist[i]->d_name);
+		free(namelist[i]);
+	}
+	free(namelist);
+
+	for (size_t i = 0; i < ifnames.size(); ++i) {
+		std::string ip;
+		std::string mask;
+		std::string broadcast;
+		struct in_addr addr;
+
+		netGetIP(ifnames[i], ip, mask, broadcast);
+		if (ip.empty() || ip == "0.0.0.0" || inet_pton(AF_INET, ip.c_str(), &addr) != 1)
+			ip = "n/a";
+
+		char cnt[12];
+		sprintf(cnt, "%d", (int)i);
+
+		CMenuForwarder * item = new CMenuForwarder(ifnames[i], true, ip.c_str(), selector, cnt);
+		item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+		menu.addItem(item, ifnames[i] == g_settings.ifname);
+	}
+
+	res = menu.exec(NULL, "");
+	delete selector;
+
+	if (select >= 0 && select < (int)ifnames.size()) {
+		g_settings.ifname = ifnames[select];
+		changeNotify(LOCALE_NETWORKMENU_SELECT_IF, NULL);
+	}
+
+	return res;
 }
 
 void CNetworkSetup::showNetworkNTPSetup(CMenuWidget *menu_ntp)
