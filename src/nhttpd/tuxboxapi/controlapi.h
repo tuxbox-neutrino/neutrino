@@ -108,6 +108,7 @@ private:
 	void GetBouquetsCGI(CyhookHandler *hh);
 	void EpgCGI(CyhookHandler *hh);
 	void VersionCGI(CyhookHandler *hh);
+	void VersionsCGI(CyhookHandler *hh);
 	void ReloadNeutrinoSetupCGI(CyhookHandler *hh);
 	void ReloadPluginsCGI(CyhookHandler *hh);
 	void ReloadChannelsCGI(CyhookHandler *hh);

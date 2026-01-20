@@ -80,6 +80,10 @@
 		<td><a href="http://box_ip/control/paths">http://box_ip/control/paths</a></td>
 	</tr>
 	<tr>
+		<td><a href="#versions">Software-Versionen (JSON)</a></td>
+		<td><a href="http://box_ip/control/versions">http://box_ip/control/versions</a></td>
+	</tr>
+	<tr>
 		<td><a href="#getonidsid">Aktuellen Kanal abfragen</a></td>
 		<td><a href="http://box_ip/control/getonidsid">
 		http://box_ip/control/getonidsid</a></td>
@@ -1335,6 +1339,43 @@ Beispiel:<br>
   "public_httpddir": "/var/tuxbox/httpd",
   "hosted_httpddir": "/mnt/hosted",
   "flagdir": "/var/etc"
+}
+</pre>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="versions"></a><b>Software-Versionen abfragen (JSON)</b></div>
+<div class="URL">Handler: http://box_ip/control/versions</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit allen Software-Versionen<br>
+<br>
+<table border="1" cellspacing="0" cellpadding="3" width="50%">
+<tr><th>Feld</th><th>Beschreibung</th></tr>
+<tr><td>neutrino</td><td>Neutrino Version</td></tr>
+<tr><td>neutrino_name</td><td>Neutrino Paketname</td></tr>
+<tr><td>neutrino_git</td><td>Git-Commit (falls verf&uuml;gbar)</td></tr>
+<tr><td>api</td><td>API/nhttpd Version</td></tr>
+<tr><td>yhttpd</td><td>yhttpd-core Version</td></tr>
+<tr><td>yweb</td><td>yWeb Version</td></tr>
+<tr><td>yweb_date</td><td>yWeb Datum (falls verf&uuml;gbar)</td></tr>
+<tr><td>server</td><td>Server-String</td></tr>
+</table>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/versions<br>
+<pre>
+{
+  "neutrino": "4.62",
+  "neutrino_name": "neutrino-mp",
+  "neutrino_git": "abc1234",
+  "api": "3.6.4",
+  "yhttpd": "1.3.2",
+  "yweb": "3.1.6",
+  "yweb_date": "26.03.2023",
+  "server": "nhttpd/3.6.4 (yhttpd_core/1.3.2)"
 }
 </pre>
 </div>

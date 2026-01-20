@@ -37,6 +37,7 @@
 #include <configfile.h>
 #include <system/configure_network.h>
 #include <system/helpers.h>
+#include <system/supportinfo.h>
 #include <cs_api.h>
 #include <gui/plugins.h>//for relodplugins
 #include <neutrino.h>
@@ -238,6 +239,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"sysinfo",		&CControlAPI::SysInfoCGI,		"application/json"},
 	{"paths",		&CControlAPI::PathsCGI,			"application/json"},
 	{"version",		&CControlAPI::VersionCGI,		""},
+	{"versions",		&CControlAPI::VersionsCGI,		"application/json"},
 	{"reloadsetup",		&CControlAPI::ReloadNeutrinoSetupCGI,	""},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,		""},
 	{"reloadchannels",	&CControlAPI::ReloadChannelsCGI,	""},
@@ -2660,6 +2662,67 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 void CControlAPI::VersionCGI(CyhookHandler *hh)
 {
 	hh->SendFile(getVersionInfoPath());
+}
+//-----------------------------------------------------------------------------
+// JSON endpoint for all software versions and support info
+void CControlAPI::VersionsCGI(CyhookHandler *hh)
+{
+	// Read yWeb version from Y_Version.txt
+	// Use runtime config paths (same priority as mod_sendfile: public -> private -> hosted)
+	std::string yweb_version = "";
+	std::string yweb_date = "";
+
+	std::vector<std::string> search_paths;
+	search_paths.push_back(hh->WebserverConfigList["WebsiteMain.override_directory"]); // public
+	search_paths.push_back(hh->WebserverConfigList["WebsiteMain.directory"]);          // private
+	search_paths.push_back(hh->WebserverConfigList["WebsiteMain.hosted_directory"]);   // hosted
+
+	for (size_t i = 0; i < search_paths.size() && yweb_version.empty(); i++)
+	{
+		if (search_paths[i].empty())
+			continue;
+		std::string path = search_paths[i] + "/Y_Version.txt";
+		std::ifstream yweb_file(path);
+		if (yweb_file.is_open())
+		{
+			std::string line;
+			while (std::getline(yweb_file, line))
+			{
+				if (line.compare(0, 8, "version=") == 0)
+					yweb_version = line.substr(8);
+				else if (line.compare(0, 5, "date=") == 0)
+					yweb_date = line.substr(5);
+			}
+			yweb_file.close();
+		}
+	}
+
+	// Get support URLs from central source (shared with imageinfo GUI)
+	CSupportInfo &support = CSupportInfo::getInstance();
+
+	hh->printf("{\n");
+	hh->printf("  \"neutrino\": \"%s\",\n", PACKAGE_VERSION);
+	hh->printf("  \"neutrino_name\": \"%s\",\n", PACKAGE_NAME);
+#ifdef PACKAGE_VERSION_GIT
+	hh->printf("  \"neutrino_git\": \"%s\",\n", PACKAGE_VERSION_GIT);
+#endif
+	hh->printf("  \"api\": \"%s\",\n", HTTPD_VERSION);
+	hh->printf("  \"yhttpd\": \"%s\",\n", YHTTPD_VERSION);
+	if (!yweb_version.empty())
+	{
+		hh->printf("  \"yweb\": \"%s\",\n", yweb_version.c_str());
+		if (!yweb_date.empty())
+			hh->printf("  \"yweb_date\": \"%s\",\n", yweb_date.c_str());
+	}
+	hh->printf("  \"server\": \"%s\",\n", WEBSERVERNAME);
+	// Support URLs from CSupportInfo (central source)
+	hh->Write("  \"links\": {\n");
+	if (support.hasHomepage())
+		hh->printf("    \"homepage\": \"%s\",\n", support.getHomepage().c_str());
+	hh->printf("    \"docs\": \"%s\",\n", support.getDocs().c_str());
+	hh->printf("    \"forum\": \"%s\"\n", support.getForum().c_str());
+	hh->Write("  }\n");
+	hh->Write("}\n");
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::ReloadNeutrinoSetupCGI(CyhookHandler *hh)
