@@ -13,6 +13,7 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include <algorithm>
 // system
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1139,15 +1140,58 @@ void CControlAPI::SysInfoCGI(CyhookHandler *hh)
 		disk_percent = (disk_total > 0) ? (int)((disk_used * 100) / disk_total) : 0;
 	}
 
-	// CPU temperature from thermal zone (if available)
+	// CPU temperature from thermal zones
+	// Search for CPU package temp first (x86_pkg_temp, coretemp), then fall back to any available
 	int cpu_temp = -1;
-	std::ifstream temp_file("/sys/class/thermal/thermal_zone0/temp");
-	if (temp_file.is_open())
+	std::vector<int> core_temps;
+	std::string temp_zone_type;
+
+	for (int zone = 0; zone < 20; zone++)
 	{
+		char zone_num[8];
+		snprintf(zone_num, sizeof(zone_num), "%d", zone);
+		std::string zone_path = std::string("/sys/class/thermal/thermal_zone") + zone_num;
+		std::ifstream type_file(zone_path + "/type");
+		if (!type_file.is_open())
+			break;
+
+		std::string type;
+		std::getline(type_file, type);
+		type_file.close();
+
+		std::ifstream temp_file(zone_path + "/temp");
+		if (!temp_file.is_open())
+			continue;
+
 		int temp_milli;
 		temp_file >> temp_milli;
-		cpu_temp = temp_milli / 1000;
 		temp_file.close();
+		int temp = temp_milli / 1000;
+
+		// CPU package temperature (preferred)
+		if (type == "x86_pkg_temp" || type.find("pkg") != std::string::npos)
+		{
+			cpu_temp = temp;
+			temp_zone_type = type;
+		}
+		// Core temperatures
+		else if (type.find("core") != std::string::npos || type.find("Core") != std::string::npos)
+		{
+			core_temps.push_back(temp);
+		}
+		// Fallback: use first zone if no CPU-specific found yet
+		else if (cpu_temp < 0 && zone == 0)
+		{
+			cpu_temp = temp;
+			temp_zone_type = type;
+		}
+	}
+
+	// If no package temp but have core temps, use max core temp
+	if (cpu_temp < 0 && !core_temps.empty())
+	{
+		cpu_temp = *std::max_element(core_temps.begin(), core_temps.end());
+		temp_zone_type = "coretemp";
 	}
 
 	// CPU model from /proc/cpuinfo
