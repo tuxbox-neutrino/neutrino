@@ -2765,6 +2765,12 @@ void CControlAPI::VersionsCGI(CyhookHandler *hh)
 		hh->printf("    \"homepage\": \"%s\",\n", support.getHomepage().c_str());
 	hh->printf("    \"docs\": \"%s\",\n", support.getDocs().c_str());
 	hh->printf("    \"forum\": \"%s\"\n", support.getForum().c_str());
+	hh->Write("  },\n");
+	// Copyright from CSupportInfo (central source)
+	hh->Write("  \"copyright\": {\n");
+	hh->printf("    \"holder\": \"%s\",\n", support.getCopyrightHolder().c_str());
+	hh->printf("    \"year\": \"%s\",\n", support.getCopyrightYear().c_str());
+	hh->printf("    \"text\": \"%s\"\n", support.getCopyright().c_str());
 	hh->Write("  }\n");
 	hh->Write("}\n");
 }

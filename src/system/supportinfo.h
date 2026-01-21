@@ -74,6 +74,24 @@ class CSupportInfo
 		 */
 		bool hasHomepage() const { return !homepage.empty(); }
 
+		/**
+		 * @brief Get copyright holder name
+		 * @return Copyright holder string (e.g. "Tuxbox Project")
+		 */
+		const std::string& getCopyrightHolder() const { return copyright_holder; }
+
+		/**
+		 * @brief Get copyright year
+		 * @return Copyright year string (e.g. "2025")
+		 */
+		const std::string& getCopyrightYear() const { return copyright_year; }
+
+		/**
+		 * @brief Get formatted copyright string
+		 * @return Full copyright string (e.g. "Copyright © 2025 Tuxbox Project")
+		 */
+		std::string getCopyright() const;
+
 	private:
 		CSupportInfo();
 		~CSupportInfo() = default;
@@ -87,6 +105,8 @@ class CSupportInfo
 		std::string homepage;
 		std::string docs;
 		std::string forum;
+		std::string copyright_holder;
+		std::string copyright_year;
 };
 
 #endif // __SYSTEM_SUPPORTINFO_H__

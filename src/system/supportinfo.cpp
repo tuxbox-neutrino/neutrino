@@ -28,9 +28,11 @@
 #include <fstream>
 #include <string>
 
-// Default URLs (compile-time fallbacks)
-#define DEFAULT_DOCS_URL   "https://wiki.tuxbox-neutrino.org"
-#define DEFAULT_FORUM_URL  "https://forum.tuxbox-neutrino.org"
+// Default values (compile-time fallbacks)
+#define DEFAULT_DOCS_URL         "https://wiki.tuxbox-neutrino.org"
+#define DEFAULT_FORUM_URL        "https://forum.tuxbox-neutrino.org"
+#define DEFAULT_COPYRIGHT_HOLDER "Tuxbox Project"
+#define DEFAULT_COPYRIGHT_YEAR   "2025"
 
 // Config file paths
 #define OS_RELEASE_FILE    "/etc/os-release"
@@ -51,12 +53,19 @@ void CSupportInfo::reload()
 	loadUrls();
 }
 
+std::string CSupportInfo::getCopyright() const
+{
+	return "Copyright © " + copyright_year + " " + copyright_holder;
+}
+
 void CSupportInfo::loadUrls()
 {
 	// Set compile-time defaults
 	homepage = PACKAGE_URL;
 	docs = DEFAULT_DOCS_URL;
 	forum = DEFAULT_FORUM_URL;
+	copyright_holder = DEFAULT_COPYRIGHT_HOLDER;
+	copyright_year = DEFAULT_COPYRIGHT_YEAR;
 
 	// Helper lambda to strip quotes from os-release values
 	auto stripQuotes = [](const std::string &s) -> std::string {
