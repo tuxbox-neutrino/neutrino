@@ -314,8 +314,13 @@ int CNFSUmountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	}
 	else if(actionKey.substr(0,8)=="doumount")
 	{
-		CFSMounter::umount((actionKey.substr(9)).c_str());
-		returnval = menu_return::RETURN_EXIT;
+		CFSMounter::UMountRes res = CFSMounter::umount((actionKey.substr(9)).c_str());
+		if (res != CFSMounter::UMRES_OK) {
+			DisplayErrorMessage(mntRes2Str(res));
+			returnval = menu_return::RETURN_REPAINT;
+		} else {
+			returnval = menu_return::RETURN_EXIT;
+		}
 	}
 	else
 		returnval = menu_return::RETURN_REPAINT;
