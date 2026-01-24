@@ -23,7 +23,9 @@
 
 #ifndef __framebuffer__
 #define __framebuffer__
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 
 #include <stdint.h>
 #include <linux/fb.h>
@@ -35,7 +37,9 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 #include <sigc++/signal.h>
-// #define fb_pixel_t uint32_t
+
+// Pixel type - previously defined via config.h, now as proper typedef
+typedef uint32_t fb_pixel_t;
 
 typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 
