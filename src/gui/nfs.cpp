@@ -178,7 +178,9 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 			DisplayErrorMessage(mntRes2Str(mres));
 		}
 
-		returnval = menu_return::RETURN_EXIT;
+		returnval = (mres == CFSMounter::MRES_OK || mres == CFSMounter::MRES_FS_ALREADY_MOUNTED)
+			? menu_return::RETURN_EXIT
+			: menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey.substr(0,3)=="dir")
 	{
