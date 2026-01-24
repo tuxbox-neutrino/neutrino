@@ -39,6 +39,7 @@
 #include <gui/filebrowser.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/hintbox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/keyboard_input.h>
@@ -172,10 +173,11 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 
 		if (mres == CFSMounter::MRES_OK || mres == CFSMounter::MRES_FS_ALREADY_MOUNTED)
 			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_MOUNTED;
-		else
+		else {
 			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_NOT_MOUNTED;
+			DisplayErrorMessage(mntRes2Str(mres));
+		}
 
-		// TODO show msg in case of error
 		returnval = menu_return::RETURN_EXIT;
 	}
 	else if(actionKey.substr(0,3)=="dir")
