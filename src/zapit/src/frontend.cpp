@@ -144,6 +144,7 @@ static inline bool is_dtv_stats_errno_ignored(int err)
 	case ENOTTY:
 	case EOPNOTSUPP:
 	case EINVAL:
+	case ENOENT:  /* device unavailable (e.g. standby mode) */
 		return true;
 	default:
 		return false;
