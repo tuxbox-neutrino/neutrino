@@ -41,6 +41,7 @@ libneutrino_system_a_SOURCES = \
 	proc_tools.cpp \
 	settings.cpp \
 	stacktrace.cpp \
+	supportinfo.cpp \
 	sysload.cpp \
 	setting_helpers.cpp
 #	safe_system.c
