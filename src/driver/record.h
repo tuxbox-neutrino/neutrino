@@ -181,8 +181,8 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 
 		static CRecordManager * getInstance();
 
-		bool Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir = NULL, bool timeshift = false);
-		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false);
+		bool Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir = NULL, bool timeshift = false, bool silent = false);
+		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false, bool silent = false);
 		bool Stop(const t_channel_id channel_id); 
 		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
 		bool IsRecording(const CTimerd::RecordingStopInfo * recinfo);
@@ -190,7 +190,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool ShowMenu(void);
 		bool AskToStop(const t_channel_id channel_id, const int recid = 0);
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
-		bool StartAutoRecord();
+		bool StartAutoRecord(bool silent = false);
 		bool StopAutoRecord(bool lock = true);
 		void StopAutoTimer();
 		bool CheckRecordingId_if_Timeshift(int recid);

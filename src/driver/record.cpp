@@ -1051,7 +1051,22 @@ int CRecordManager::GetRecordMode(const t_channel_id channel_id)
 	return recmode;
 }
 
-bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, bool timeshift)
+static neutrino_locale_t recordErrorToLocale(record_error_msg_t error_msg)
+{
+	switch (error_msg) {
+		case RECORD_BUSY:
+			return LOCALE_STREAMING_BUSY;
+		case RECORD_INVALID_DIRECTORY:
+			return LOCALE_STREAMING_DIR_NOT_WRITABLE;
+		case RECORD_INVALID_CHANNEL:
+			return LOCALE_CHANNELLIST_RECORDING_NOT_POSSIBLE;
+		case RECORD_FAILURE:
+		default:
+			return LOCALE_RECORDING_FAILED;
+	}
+}
+
+bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, bool timeshift, bool silent)
 {
 	CTimerd::RecordingInfo	eventinfo;
 	CEPGData		epgData;
@@ -1076,10 +1091,10 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 	eventinfo.apids = TIMERD_APIDS_CONF;
 	eventinfo.recordingDir[0] = 0;
 
-	return Record(&eventinfo, dir, timeshift);
+	return Record(&eventinfo, dir, timeshift, silent);
 }
 
-bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir, bool timeshift)
+bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir, bool timeshift, bool silent)
 {
 	CRecordInstance * inst = NULL;
 	record_error_msg_t error_msg = RECORD_OK;
@@ -1169,25 +1184,18 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	RunStopScript();
 	RestoreNeutrino();
 
-	/* FIXME show timeshift start error or not ? */
-	//if(!timeshift)
-	{
-		//FIXME: Use better error message
-		DisplayErrorMessage(g_Locale->getText(
-				      error_msg == RECORD_BUSY ? LOCALE_STREAMING_BUSY :
-				      error_msg == RECORD_INVALID_DIRECTORY ? LOCALE_STREAMING_DIR_NOT_WRITABLE :
-				      LOCALE_STREAMING_WRITE_ERROR )); // UTF-8
-	}
+	if (!silent)
+		DisplayErrorMessage(g_Locale->getText(recordErrorToLocale(error_msg))); // UTF-8
 
 	return false;
 }
 
-bool CRecordManager::StartAutoRecord()
+bool CRecordManager::StartAutoRecord(bool silent)
 {
 	printf("%s: starting to %s\n", __FUNCTION__, TimeshiftDirectory.c_str());
 	g_RCInput->killTimer (shift_timer);
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	return Record(live_channel_id, TimeshiftDirectory.c_str(), true);
+	return Record(live_channel_id, TimeshiftDirectory.c_str(), true, silent);
 }
 
 bool CRecordManager::StopAutoRecord(bool lock)
@@ -1404,7 +1412,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 		if(data == shift_timer) {
 			shift_timer = 0;
 			if (!FindTimeshift())
-				StartAutoRecord();
+				StartAutoRecord(true);
 			return messages_return::handled;
 		}
 		else if(data == check_timer) {
@@ -1446,7 +1454,7 @@ void CRecordManager::StartTimeshift()
 		/* start temporary timeshift if enabled and not running, but dont start second record */
 		if (g_settings.timeshift_temp) {
 			if (!FindTimeshift()) {
-				res = StartAutoRecord();
+				res = StartAutoRecord(false);
 				tmode = "timeshift"; // record just started
 // 				tstarted = true;
 			}
