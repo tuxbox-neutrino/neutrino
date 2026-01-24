@@ -52,6 +52,7 @@
 #include <gui/lua/lua_api_version.h>
 #endif
 #include <nhttpd/yconfig.h>
+#include <system/supportinfo.h>
 #include <ctype.h>
 
 #define OS_RELEASE_FILE TARGET_ROOT "/usr/lib/os-release"
@@ -431,12 +432,13 @@ void CImageInfo::initKernelInfo()
 
 void CImageInfo::initSupportInfo()
 {
+	CSupportInfo &support = CSupportInfo::getInstance();
 	//www
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	config.getString("homepage", PACKAGE_URL)});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE),	support.getHomepage()});
 	//doc
-	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), config.getString("docs", "http://wiki.tuxbox-neutrino.org")});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION), support.getDocs()});
 	//support
-	v_info.push_back( {g_Locale->getText(LOCALE_IMAGEINFO_FORUM),	config.getString("forum", "http://forum.tuxbox.org")});
+	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_FORUM),	support.getForum()});
 }
 
 void CImageInfo::initAPIVersions()
