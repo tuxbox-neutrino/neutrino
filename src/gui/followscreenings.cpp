@@ -88,6 +88,7 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 			if (static_cast<time_t>(a) == e->startTime) {
 				time_t start = e->startTime - (ANNOUNCETIME + 120);
 				time_t stop = e->startTime + e->duration;
+				bool forceAdd = false;
 				CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(start, stop);
 				CTimerd::TimerList::iterator i;
 				for (i = overlappingTimers.begin(); i != overlappingTimers.end(); i++)
@@ -101,15 +102,25 @@ int CFollowScreenings::exec(CMenuTarget* /*parent*/, const std::string & actionK
 						if (!SAME_TRANSPONDER(channel_id, i->channel_id) || CZapit::getInstance()->getUseChannelFilter()) {
 							if (!askUserOnTimerConflict(start, stop, channel_id))
 								return menu_return::RETURN_REPAINT;
-							else
+							else {
+								forceAdd = true;
 								break; // show conflicts only once
+							}
 						}
 					}
 #if 0 //ch is unused
 				CZapitChannel * ch = CServiceManager::getInstance()->FindChannel(channel_id);
 #endif
-				if (g_Timerd->addRecordTimerEvent(channel_id, e->startTime, e->startTime + e->duration, e->eventID,
-								e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true) == -1) {
+				int res = g_Timerd->addRecordTimerEvent(channel_id, e->startTime, e->startTime + e->duration, e->eventID,
+								e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, forceAdd);
+				if (res == -1 && !forceAdd) {
+					if (askUserOnTimerConflict(start, stop, channel_id)) {
+						forceAdd = true;
+						res = g_Timerd->addRecordTimerEvent(channel_id, e->startTime, e->startTime + e->duration, e->eventID,
+										e->startTime, e->startTime - (ANNOUNCETIME + 120 ), apids, true, e->startTime - (ANNOUNCETIME + 120) > time(NULL), recDir, true);
+					}
+				}
+				if (res == -1) {
 					DisplayErrorMessage(g_Locale->getText(LOCALE_CHANNELLIST_RECORDING_NOT_POSSIBLE));
 					return menu_return::RETURN_REPAINT;
 				} else {
