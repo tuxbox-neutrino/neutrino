@@ -207,6 +207,7 @@ class CMoviePlayerGui : public CMenuTarget
 	static OpenThreads::Condition cond;
 	static pthread_t bgThread;
 	static bool webtv_started;
+	static bool webtv_starting;
 
 	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
@@ -262,6 +263,7 @@ class CMoviePlayerGui : public CMenuTarget
 	~CMoviePlayerGui();
 
 	static CMoviePlayerGui& getInstance(bool background = false);
+	static bool IsWebtvStarting() { return webtv_starting; }
 
 	MI_MOVIE_INFO * p_movie_info;
 	int exec(CMenuTarget* parent, const std::string & actionKey);

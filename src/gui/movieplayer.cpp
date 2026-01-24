@@ -64,6 +64,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
 #include <sys/timeb.h>
 #include <sys/mount.h>
 #include <json/json.h>
@@ -112,6 +113,7 @@ OpenThreads::Condition CMoviePlayerGui::cond;
 pthread_t CMoviePlayerGui::bgThread;
 cPlayback *CMoviePlayerGui::playback = NULL;
 bool CMoviePlayerGui::webtv_started = false;
+bool CMoviePlayerGui::webtv_starting = false;
 CMovieBrowser* CMoviePlayerGui::moviebrowser = NULL;
 CBookmarkManager * CMoviePlayerGui::bookmarkmanager = NULL;
 
@@ -992,6 +994,7 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	bool chidused = false;
 
 	mutex.lock();
+	webtv_starting = false;
 	if (!webtv_started)
 		started = false;
 	else if (!started){
@@ -1002,6 +1005,11 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	mutex.unlock();
 
 	int eof = 0, pos = 0;
+	time_t start_time = time(NULL);
+	uint64_t last_read_count = 0;
+	bool saw_read_activity = false;
+	if (mp->playback)
+		last_read_count = mp->playback->GetReadCount();
 	int eof_max = mp->isWebChannel ? g_settings.movieplayer_eof_cnt : 5;
 
 	while(webtv_started) {
@@ -1009,13 +1017,25 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 #if 0
 			printf("CMoviePlayerGui::bgPlayThread: position %d duration %d (%d)\n", mp->position, mp->duration, mp->duration-mp->position);
 #endif
-			if (pos == mp->position && mp->duration > 0)
-			{
-				eof++;
-				printf("CMoviePlayerGui::bgPlayThread: eof counter: %d\n", eof);
+			if (mp->playback) {
+				uint64_t read_count = mp->playback->GetReadCount();
+				if (read_count != last_read_count) {
+					last_read_count = read_count;
+					saw_read_activity = true;
+				}
 			}
-			else
+
+			bool allow_eof_check = (saw_read_activity || mp->position > 0 || (time(NULL) - start_time) > 10);
+			if (pos == mp->position && mp->duration > 0) {
+				if (allow_eof_check) {
+					eof++;
+					printf("CMoviePlayerGui::bgPlayThread: eof counter: %d\n", eof);
+				} else {
+					eof = 0;
+				}
+			} else {
 				eof = 0;
+			}
 
 			if (eof > eof_max) {
 				printf("CMoviePlayerGui::bgPlayThread: playback stopped, try to rezap...\n");
@@ -1028,8 +1048,10 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 		bgmutex.lock();
 		int res = cond.wait(&bgmutex, 1000);
 		bgmutex.unlock();
-		if (res == 0)
+		if (res == 0) {
+			printf("%s: wakeup/stop signal, exiting\n", __func__);
 			break;
+		}
 		mp->showSubtitle(0);
 	}
 	printf("%s: play end...\n", __func__);fflush(stdout);
@@ -1381,10 +1403,16 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->p_movie_info = &movie_info;
 
 	stopPlayBack();
+	mutex.lock();
 	webtv_started = true;
+	webtv_starting = true;
+	mutex.unlock();
 	if (pthread_create (&bgThread, 0, CMoviePlayerGui::bgPlayThread, instance_bg)) {
 		printf("ERROR: pthread_create(%s)\n", __func__);
+		mutex.lock();
 		webtv_started = false;
+		webtv_starting = false;
+		mutex.unlock();
 		return false;
 	}
 
@@ -1402,6 +1430,7 @@ void CMoviePlayerGui::stopPlayBack(void)
 		printf("%s: this %p join background thread %lx\n", __func__, this, bgThread);fflush(stdout);
 		mutex.lock();
 		webtv_started = false;
+		webtv_starting = false;
 		if(playback)
 			playback->RequestAbort();
 #ifdef ENABLE_GRAPHLCD

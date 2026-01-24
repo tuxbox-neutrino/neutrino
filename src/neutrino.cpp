@@ -3970,6 +3970,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		} else {
 			CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 			if (cc && (chid == cc->getChannelID())) {
+				if (CMoviePlayerGui::IsWebtvStarting()) {
+					delete [] (unsigned char*) data;
+					return messages_return::handled;
+				}
 				CMoviePlayerGui::getInstance().stopPlayBack();
 				if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName()))
 					delete [] (unsigned char*) data;
