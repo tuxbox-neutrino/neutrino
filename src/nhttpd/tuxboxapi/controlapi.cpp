@@ -3029,31 +3029,41 @@ void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 }
 
 //-----------------------------------------------------------------------------
+// /control/signal[?sig|snr|ber][&format=json]
+// JSON format returns all values in one response:
+// {"sig":61,"snr":83,"ber":0}
+//-----------------------------------------------------------------------------
 void CControlAPI::SignalInfoCGI(CyhookHandler *hh)
 {
 	CFrontend *frontend = CFEManager::getInstance()->getLiveFE();
 	if(frontend){
-		bool parame_empty = false;
+		unsigned int sig = frontend->getSignalStrength() & 0xFFFF;
+		sig = (sig & 0xFFFF) * 100 / 65535;
+		unsigned int snr = frontend->getSignalNoiseRatio() & 0xFFFF;
+		snr = (snr & 0xFFFF) * 100 / 65535;
+		unsigned int ber = frontend->getBitErrorRate();
 
-		if (hh->ParamList["1"].empty())
-			parame_empty = true;
+		// JSON format: return all values
+		if (hh->ParamList["format"] == "json") {
+			hh->SetHeader(HTTP_OK, "application/json");
+			hh->printf("{\"sig\":%u,\"snr\":%u,\"ber\":%u}\n", sig, snr, ber);
+			return;
+		}
+
+		// Legacy text format
+		bool parame_empty = hh->ParamList["1"].empty();
 
 		if ( parame_empty || (hh->ParamList["1"] == "sig") ){
-			unsigned int sig = frontend->getSignalStrength() & 0xFFFF;
-			sig = (sig & 0xFFFF) * 100 / 65535;
 			if (parame_empty)
 				hh->printf("SIG: ");
 			hh->printf("%3u\n", sig);
 		}
 		if ( parame_empty || (hh->ParamList["1"] == "snr") ){
-			unsigned int snr = frontend->getSignalNoiseRatio() & 0xFFFF;
-			snr = (snr & 0xFFFF) * 100 / 65535;
 			if (parame_empty)
 				hh->printf("SNR: ");
 			hh->printf("%3u\n", snr);
 		}
 		if ( parame_empty || (hh->ParamList["1"] == "ber") ){
-			unsigned int ber = frontend->getBitErrorRate();
 			if (parame_empty)
 				hh->printf("BER: ");
 			hh->printf("%3u\n", ber);
