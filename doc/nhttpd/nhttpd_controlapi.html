@@ -1056,22 +1056,30 @@ Beispiel:<br>
 <div class="title1"><a name="info"></a><b>Allgemeine Informationen abfragen</b></div>
 <div class="URL">Handler: http://box_ip/control/info</div>
 <br>
-<b>Parameter:</b> streaminfo<br>
+<b>Parameter:</b> streaminfo; optional: format=json<br>
 <b>R&uuml;ckgabe:</b><br>
 <br>
 Es werden Streaminfos zur&uuml;ckgegeben. Die Werte sind durch Enter (\n) getrennt.<br>
 <br>
-<b>R&uuml;ckgabe-Format:</b> X_res Y_res Bitrate Videoformat Framerate Audioformat<br>
+<b>R&uuml;ckgabe-Format (Text):</b> Resolution, Aspect, Framerate, Audio (je eine Zeile)<br>
 <div class="example">
-Beispiel:<br>
+Beispiel (Text):<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/info?streaminfo<br>
-480<br>
-576<br>
-997500<br>
-4:3<br>
-25<br>
-joint stereo<br>
+1920x1080<br>
+16:9<br>
+25fps<br>
+DD 5.1 (48000)<br>
+</div>
+<b>JSON-Format:</b><br>
+Mit <code>format=json</code> werden alle Werte strukturiert zur&uuml;ckgegeben:<br>
+<code>{"resolution":"1920x1080","width":1920,"height":1080,"aspect":"16:9","fps":"25fps","audio":"DD 5.1 (48000)"}</code>
+<br>
+<div class="example">
+Beispiel (JSON):<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/info?streaminfo&amp;format=json<br>
+{"resolution":"1920x1080","width":1920,"height":1080,"aspect":"16:9","fps":"25fps","audio":"DD 5.1 (48000)"}<br>
 </div>
 <b>Parameter:</b> version<br>
 <b>R&uuml;ckgabe:</b><br>

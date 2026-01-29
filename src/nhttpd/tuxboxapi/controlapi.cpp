@@ -3073,12 +3073,34 @@ void CControlAPI::SignalInfoCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
+// /control/info?streaminfo[&format=json]
+// JSON format returns structured data:
+// {"resolution":"1920x1080","width":1920,"height":1080,"aspect":"16:9","fps":"25fps","audio":"DD 5.1 (48000)"}
+//-----------------------------------------------------------------------------
 void CControlAPI::SendStreamInfo(CyhookHandler *hh)
 {
-	hh->WriteLn(NeutrinoAPI->getVideoResolutionAsString());
-	hh->WriteLn(NeutrinoAPI->getVideoAspectRatioAsString());
-	hh->WriteLn(NeutrinoAPI->getVideoFramerateAsString());
-	hh->WriteLn(NeutrinoAPI->getAudioInfoAsString());
+	std::string resolution = NeutrinoAPI->getVideoResolutionAsString();
+	std::string aspect = NeutrinoAPI->getVideoAspectRatioAsString();
+	std::string fps = NeutrinoAPI->getVideoFramerateAsString();
+	std::string audio = NeutrinoAPI->getAudioInfoAsString();
+
+	// JSON format
+	if (hh->ParamList["format"] == "json") {
+		// Parse resolution to get width and height
+		int width = 0, height = 0;
+		sscanf(resolution.c_str(), "%dx%d", &width, &height);
+
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"resolution\":\"%s\",\"width\":%d,\"height\":%d,\"aspect\":\"%s\",\"fps\":\"%s\",\"audio\":\"%s\"}\n",
+			resolution.c_str(), width, height, aspect.c_str(), fps.c_str(), audio.c_str());
+		return;
+	}
+
+	// Legacy text format
+	hh->WriteLn(resolution);
+	hh->WriteLn(aspect);
+	hh->WriteLn(fps);
+	hh->WriteLn(audio);
 }
 
 //-----------------------------------------------------------------------------
