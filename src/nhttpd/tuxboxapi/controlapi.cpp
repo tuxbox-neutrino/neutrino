@@ -3133,7 +3133,17 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 	pids.PIDs.vpid=0;
 	NeutrinoAPI->Zapit->getPIDS(pids);
 
-	hh->printf("%05u\n", pids.PIDs.vpid);
+	bool jsonFormat = (hh->ParamList["format"] == "json");
+
+	// Collect audio PID info for both JSON and text output
+	struct AudioPidInfo {
+		unsigned int pid;
+		std::string desc;
+		bool is_ac3;
+		bool is_aac;
+		bool is_eac3;
+	};
+	std::vector<AudioPidInfo> audioPids;
 
 	t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
@@ -3146,11 +3156,17 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 			{
 				if ( pids.APIDs[j].component_tag == tags[i].componentTag )
 				{
+					AudioPidInfo api;
+					api.pid = pids.APIDs[j].pid;
+					api.is_ac3 = pids.APIDs[j].is_ac3;
+					api.is_aac = pids.APIDs[j].is_aac;
+					api.is_eac3 = pids.APIDs[j].is_eac3;
+
 					if(!tags[i].component.empty())
 					{
 						if(!(isalnum(tags[i].component[0])))
 							tags[i].component=tags[i].component.substr(1,tags[i].component.length()-1);
-						hh->printf("%05u %s\n",pids.APIDs[j].pid,tags[i].component.c_str());
+						api.desc = tags[i].component;
 					}
 					else
 					{
@@ -3159,8 +3175,9 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 							std::string tmp_desc = _getISO639Description( pids.APIDs[j].desc);
 							strncpy(pids.APIDs[j].desc, tmp_desc.c_str(), DESC_MAX_LEN -1);
 						}
-						hh->printf("%05u %s %s\n",pids.APIDs[j].pid,pids.APIDs[j].desc,pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].desc,pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].desc,pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
+						api.desc = pids.APIDs[j].desc;
 					}
+					audioPids.push_back(api);
 					eit_not_ok=false;
 					break;
 				}
@@ -3176,12 +3193,52 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 			{
 				strncpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ),DESC_MAX_LEN-1 );
 			}
-			hh->printf("%05u %s %s\n",it->pid,pids.APIDs[i].desc,pids.APIDs[i].is_ac3 ? " (AC3)": pids.APIDs[i].desc,pids.APIDs[i].is_aac ? "(AAC)" : pids.APIDs[i].desc,pids.APIDs[i].is_eac3 ? "(EAC3)" : " ");
+			AudioPidInfo api;
+			api.pid = it->pid;
+			api.desc = pids.APIDs[i].desc;
+			api.is_ac3 = pids.APIDs[i].is_ac3;
+			api.is_aac = pids.APIDs[i].is_aac;
+			api.is_eac3 = pids.APIDs[i].is_eac3;
+			audioPids.push_back(api);
 			i++;
 		}
 	}
 
-	if(pids.APIDs.empty())
+	// JSON format output
+	if (jsonFormat)
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"vpid\":%u,\"apids\":[", pids.PIDs.vpid);
+
+		for (size_t i = 0; i < audioPids.size(); i++)
+		{
+			if (i > 0) hh->printf(",");
+			hh->printf("{\"pid\":%u,\"desc\":\"%s\",\"ac3\":%s,\"aac\":%s,\"eac3\":%s}",
+				audioPids[i].pid,
+				audioPids[i].desc.c_str(),
+				audioPids[i].is_ac3 ? "true" : "false",
+				audioPids[i].is_aac ? "true" : "false",
+				audioPids[i].is_eac3 ? "true" : "false");
+		}
+
+		hh->printf("],\"vtxtpid\":%u,\"pmtpid\":%u,\"pcrpid\":%u}\n",
+			pids.PIDs.vtxtpid, pids.PIDs.pmtpid, pids.PIDs.pcrpid);
+		return;
+	}
+
+	// Legacy text format output
+	hh->printf("%05u\n", pids.PIDs.vpid);
+
+	for (size_t i = 0; i < audioPids.size(); i++)
+	{
+		const char* codec = "";
+		if (audioPids[i].is_ac3) codec = " (AC3)";
+		else if (audioPids[i].is_aac) codec = " (AAC)";
+		else if (audioPids[i].is_eac3) codec = " (EAC3)";
+		hh->printf("%05u %s%s\n", audioPids[i].pid, audioPids[i].desc.c_str(), codec);
+	}
+
+	if(audioPids.empty())
 		hh->printf("0\n"); // shouldnt happen, but print at least one apid
 	if(pids.PIDs.vtxtpid)
 		hh->printf("%05u vtxt\n",pids.PIDs.vtxtpid);

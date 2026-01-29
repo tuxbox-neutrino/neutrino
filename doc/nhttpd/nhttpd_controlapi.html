@@ -783,6 +783,30 @@ oder <br>
 00104 vtxt<br>
 00100 pmt<br>
 </div>
+<b>Parameter:</b> getallpids&amp;format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit allen PIDs des aktuellen Senders<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>
+{
+  "vpid": 511,
+  "apids": [
+    {"pid": 512, "desc": "deutsch", "ac3": false, "aac": false, "eac3": false},
+    {"pid": 513, "desc": "englisch", "ac3": false, "aac": false, "eac3": false},
+    {"pid": 515, "desc": "Dolby Digital 2.0", "ac3": true, "aac": false, "eac3": false}
+  ],
+  "vtxtpid": 32,
+  "pmtpid": 101,
+  "pcrpid": 511
+}
+</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/zapto?getallpids&amp;format=json<br>
+<br>
+{"vpid":511,"apids":[{"pid":512,"desc":"deutsch","ac3":false,"aac":false,"eac3":false},{"pid":513,"desc":"englisch","ac3":false,"aac":false,"eac3":false}],"vtxtpid":32,"pmtpid":101,"pcrpid":511}<br>
+</div>
 <b>Parameter:</b> getallsubchannels<br>
 <b>R&uuml;ckgabe:</b><br>
 <br>
