@@ -2307,7 +2307,7 @@ ok<br>
 <div class="title1"><a name="signal"></a><b>Signalst&auml;rke zeigen</b></div>
 <div class="URL">Handler: http://box_ip/control/signal</div>
 <br>
-<b>Parameter:</b> keine oder sig, snr, ber<br><br>
+<b>Parameter:</b> keine oder sig, snr, ber; optional: format=json<br><br>
 <b>R&uuml;ckgabe</b>:<br>
 SIG: 100<br>
 SNR:  90<br>
@@ -2315,12 +2315,21 @@ BER:  0<br>
 <br>
 Signalst&auml;rke SIG in %, SNR in % und BER wird ausgegeben.
 Wird ein spezieller Wert als Parameter angegeben, wird keine Beschreibung ausgegeben.
+<br><br>
+<b>JSON-Format:</b><br>
+Mit <code>format=json</code> werden alle Werte in einem JSON-Objekt zur&uuml;ckgegeben:<br>
+<code>{"sig":100,"snr":90,"ber":0}</code>
 <br>
 <div class="example">
-Beispiel:<br>
+Beispiel (Text):<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/signal?sig<br>
 100<br>
+<br>
+Beispiel (JSON):<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/signal?format=json<br>
+{"sig":100,"snr":90,"ber":0}<br>
 &nbsp;</div>
 
 <!-- ----------------------------------------------------------- -->
