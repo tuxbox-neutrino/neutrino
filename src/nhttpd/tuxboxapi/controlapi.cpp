@@ -1610,6 +1610,17 @@ void CControlAPI::AudioCGI(CyhookHandler *hh)
 //-------------------------------------------------------------------------
 void CControlAPI::VolumeCGI(CyhookHandler *hh)
 {
+	// JSON format: return volume and mute status
+	if (hh->ParamList["format"] == "json")
+	{
+		unsigned int volume;
+		NeutrinoAPI->Zapit->getVolume(&volume, &volume);
+		bool muted = NeutrinoAPI->Zapit->getMuteStatus();
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"volume\":%u,\"muted\":%s}\n", volume, muted ? "true" : "false");
+		return;
+	}
+
 	if (hh->ParamList.empty()) {//without param: show actual volumen
 		unsigned int volume;
 		NeutrinoAPI->Zapit->getVolume(&volume, &volume);
