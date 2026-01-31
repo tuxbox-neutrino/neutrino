@@ -1757,7 +1757,8 @@ void CControlAPI::AudioCGI(CyhookHandler *hh)
 	if (hh->ParamList["format"] == "json")
 	{
 		int type = 0, layer = 0, freq = 0, mode = 0, bitrate = 0;
-		audioDecoder->getAudioInfo(type, layer, freq, bitrate, mode);
+		if (audioDecoder)
+			audioDecoder->getAudioInfo(type, layer, freq, bitrate, mode);
 
 		const char *codec = (type == 0) ? "MPEG" : "DD";
 		const char *mpegmodes[] = { "stereo", "joint_stereo", "dual_channel", "single_channel" };
