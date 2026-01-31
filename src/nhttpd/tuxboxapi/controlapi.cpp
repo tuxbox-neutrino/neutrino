@@ -1429,10 +1429,18 @@ void CControlAPI::PathsCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::ShutdownCGI(CyhookHandler *hh)
 {
-	if (hh->ParamList.empty())
+	bool jsonFormat = (hh->ParamList["format"] == "json");
+
+	if (hh->ParamList.empty() || jsonFormat)
 	{
 		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::SHUTDOWN, CEventServer::INITID_HTTPD);
-		hh->SendOk();
+		if (jsonFormat)
+		{
+			hh->SetHeader(HTTP_OK, "application/json");
+			hh->printf("{\"success\":true,\"action\":\"shutdown\"}\n");
+		}
+		else
+			hh->SendOk();
 	}
 	else
 		hh->SendError();
@@ -1441,10 +1449,18 @@ void CControlAPI::ShutdownCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::RebootCGI(CyhookHandler *hh)
 {
-	if (hh->ParamList.empty())
+	bool jsonFormat = (hh->ParamList["format"] == "json");
+
+	if (hh->ParamList.empty() || jsonFormat)
 	{
 		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::REBOOT, CEventServer::INITID_HTTPD);
-		hh->SendOk();
+		if (jsonFormat)
+		{
+			hh->SetHeader(HTTP_OK, "application/json");
+			hh->printf("{\"success\":true,\"action\":\"reboot\"}\n");
+		}
+		else
+			hh->SendOk();
 	}
 	else
 		hh->SendError();

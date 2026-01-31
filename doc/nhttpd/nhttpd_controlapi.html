@@ -596,6 +596,17 @@ Beispiel:<br>
 ok<br>
 <br>
 </div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Erfolgsmeldung<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"success": true, "action": "shutdown"}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/shutdown?format=json<br>
+{"success":true,"action":"shutdown"}<br>
+</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="standby"></a><b>Standby Mode</b></div>
@@ -2031,6 +2042,17 @@ Beispiel:<br>
 &gt;&gt;&gt;http://box_ip/control/reboot<br>
 ok<br>
 <br>
+</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Erfolgsmeldung<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"success": true, "action": "reboot"}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/reboot?format=json<br>
+{"success":true,"action":"reboot"}<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->
