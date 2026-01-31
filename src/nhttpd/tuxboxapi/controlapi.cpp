@@ -1081,22 +1081,57 @@ void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::OsInfoCGI(CyhookHandler *hh)
 {
-	std::string result;
 	std::ifstream osrelease("/etc/os-release");
-	if (osrelease.is_open())
+	if (!osrelease.is_open())
 	{
+		hh->SendError();
+		return;
+	}
+
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{");
 		std::string line;
+		bool first = true;
 		while (std::getline(osrelease, line))
 		{
-			if (!line.empty())
-				result += line + "\n";
+			if (line.empty() || line[0] == '#')
+				continue;
+			size_t pos = line.find('=');
+			if (pos == std::string::npos)
+				continue;
+
+			std::string key = line.substr(0, pos);
+			std::string value = line.substr(pos + 1);
+
+			// Remove quotes from value
+			if (value.length() >= 2 && value[0] == '"' && value[value.length()-1] == '"')
+				value = value.substr(1, value.length() - 2);
+
+			// Convert key to lowercase for JSON
+			std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+
+			if (!first) hh->printf(",");
+			first = false;
+			hh->printf("\"%s\":\"%s\"", key.c_str(), value.c_str());
 		}
+		hh->printf("}\n");
 		osrelease.close();
+		return;
 	}
-	if (result.empty())
-		hh->SendError();
-	else
-		hh->printf("%s", result.c_str());
+
+	// Legacy format
+	std::string result;
+	std::string line;
+	while (std::getline(osrelease, line))
+	{
+		if (!line.empty())
+			result += line + "\n";
+	}
+	osrelease.close();
+	hh->printf("%s", result.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -1661,12 +1696,30 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::AspectRatioCGI(CyhookHandler *hh)
 {
-	hh->printf("%s",(NeutrinoAPI->getVideoAspectRatioAsString()).c_str());
+	std::string ratio = NeutrinoAPI->getVideoAspectRatioAsString();
+
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"aspectratio\":\"%s\"}\n", ratio.c_str());
+		return;
+	}
+
+	hh->printf("%s", ratio.c_str());
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 {
-	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
+	// JSON format for status query
+	if (hh->ParamList["format"] == "json")
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"videoformat\":\"%s\"}\n", (NeutrinoAPI->getVideoAspectRatioAsString()).c_str());
+		return;
+	}
+
+	if (hh->ParamList["1"].empty() || hh->ParamList["1"] == "status") {
 		hh->printf("%s",(NeutrinoAPI->getVideoAspectRatioAsString()).c_str());
 		return;
 	}

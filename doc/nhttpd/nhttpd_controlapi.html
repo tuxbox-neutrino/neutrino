@@ -1308,6 +1308,15 @@ ID=debian<br>
 HOME_URL="https://www.debian.org/"<br>
 <br>
 </div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit allen os-release Feldern<br>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/osinfo?format=json<br>
+<pre>{"pretty_name":"Debian GNU/Linux 13 (trixie)","name":"Debian GNU/Linux","version_id":"13","version":"13 (trixie)","id":"debian","home_url":"https://www.debian.org/"}</pre>
+</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="sysinfo"></a><b>System-Informationen abfragen (JSON)</b></div>
@@ -1595,6 +1604,10 @@ b544000800850087 Sky Cinema+24 HD<br>
 ...<br>
 <br>
 </div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Kanalliste des aktuellen Transponders<br>
+<br>
+<pre>{"mode":"tv","channels":[{"id":"b544000800850086","name":"Sky Cinema+1 HD","number":123}]}</pre>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="get_logo"></a><b>Senderlogo-Pfad abfragen</b></div>
@@ -2255,6 +2268,10 @@ ausserhalb von yweb zu benutzen.<br>
 <b>Parameter:</b> keine<br>
 <b>R&uuml;ckgabe:</b> 4:3/16:9<br>
 <br>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt<br>
+<pre>{"aspectratio":"16:9"}</pre>
+<br>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="videoformat"></a><b>Videoformat lesen/setzen</b></div>
@@ -2262,6 +2279,10 @@ ausserhalb von yweb zu benutzen.<br>
 <br>
 <b>Parameter: </b>keine/status<br>
 <b>R&uuml;ckgabe:</b> automatic/4:3 (LB)/4:3 (PS)/16:9<br>
+<br>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt<br>
+<pre>{"videoformat":"16:9"}</pre>
 <br>
 <b>Parameter:</b> automatic/4:3-LB/4:3-PS/16:9<br>
 <b>R&uuml;ckgabe:</b> ok<br>
