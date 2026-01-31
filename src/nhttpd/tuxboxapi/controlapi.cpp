@@ -450,12 +450,19 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 {
 	if (!(hh->ParamList.empty()))
 	{
-		if (hh->ParamList["1"] == "status")	// display recoding status
+		if (hh->ParamList["1"] == "status")	// display recording status
 		{
-			if (NeutrinoAPI->Zapit->isRecordModeActive())
-				hh->WriteLn("on");
+			bool recording = NeutrinoAPI->Zapit->isRecordModeActive();
+
+			if (hh->ParamList["format"] == "json")
+			{
+				hh->SetHeader(HTTP_OK, "application/json");
+				hh->printf("{\"recording\":%s}\n", recording ? "true" : "false");
+			}
 			else
-				hh->WriteLn("off");
+			{
+				hh->WriteLn(recording ? "on" : "off");
+			}
 			return;
 		}
 
