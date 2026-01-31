@@ -146,6 +146,7 @@ private:
 	void FileCGI(CyhookHandler *hh);
 	void StatfsCGI(CyhookHandler *hh);
 	void SignalInfoCGI(CyhookHandler *hh);
+	void TunersCGI(CyhookHandler *hh);
 	void getDirCGI(CyhookHandler *hh);
 	void getMoviesCGI(CyhookHandler *hh);
 	std::string readMovies(CyhookHandler *hh, std::string path, std::string result, bool subdirs);

@@ -252,6 +252,11 @@
 		http://box_ip/control/signal</a></td>
 	</tr>
 	<tr>
+		<td><a href="#tuners">Multi-Tuner Status (JSON)</a></td>
+		<td><a href="http://box_ip/control/tuners">
+		http://box_ip/control/tuners</a></td>
+	</tr>
+	<tr>
 		<td><a href="#audio">Audio-Decoder Informationen</a></td>
 		<td><a href="http://box_ip/control/audio">
 		http://box_ip/control/audio</a></td>
@@ -2409,6 +2414,61 @@ Beispiel (JSON):<br>
 &gt;&gt;&gt;http://box_ip/control/signal?format=json<br>
 {"sig":100,"snr":90,"ber":0}<br>
 &nbsp;</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="tuners"></a><b>Multi-Tuner Status (JSON)</b></div>
+<div class="URL">Handler: http://box_ip/control/tuners</div>
+<br>
+<b>Parameter:</b> keine oder id=N (f&uuml;r einzelnen Tuner)<br><br>
+<b>R&uuml;ckgabe</b>: JSON-Objekt mit allen Tunern oder einem spezifischen Tuner<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>
+{
+  "tuners": [
+    {
+      "id": 0,
+      "name": "Tuner A",
+      "type": "DVB-S2",
+      "sig": 61,
+      "snr": 83,
+      "ber": 0,
+      "locked": true,
+      "channel": "Das Erste HD",
+      "state": "viewing"
+    },
+    {
+      "id": 1,
+      "name": "Tuner B",
+      "type": "DVB-S2",
+      "sig": 0,
+      "snr": 0,
+      "ber": 0,
+      "locked": false,
+      "channel": "",
+      "state": "idle"
+    }
+  ]
+}
+</pre>
+<b>Tuner States:</b>
+<ul>
+<li><code>viewing</code> - Tuner zeigt aktuellen Sender</li>
+<li><code>recording</code> - Tuner nimmt auf</li>
+<li><code>busy</code> - Tuner ist belegt (z.B. f&uuml;r PIP)</li>
+<li><code>idle</code> - Tuner ist frei</li>
+</ul>
+<div class="example">
+Beispiel (alle Tuner):<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/tuners<br>
+{"tuners":[{"id":0,"name":"Tuner A","type":"DVB-S2","sig":61,"snr":83,"ber":0,"locked":true,"channel":"Das Erste HD","state":"viewing"}]}<br>
+<br>
+Beispiel (einzelner Tuner):<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/tuners?id=0<br>
+{"tuners":[{"id":0,"name":"Tuner A","type":"DVB-S2","sig":61,"snr":83,"ber":0,"locked":true,"channel":"Das Erste HD","state":"viewing"}]}<br>
+</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="audio"></a><b>Audio-Decoder Informationen</b></div>

@@ -222,6 +222,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"epg",			&CControlAPI::EpgCGI,			""},
 	{"zapto",		&CControlAPI::ZaptoCGI,			"text/plain"},
 	{"signal",		&CControlAPI::SignalInfoCGI,		"text/plain"},
+	{"tuners",		&CControlAPI::TunersCGI,		"application/json"},
 	{"getonidsid",		&CControlAPI::GetChannelIDCGI,		"text/plain"},
 	{"getchannelid",	&CControlAPI::GetChannelIDCGI,		""},
 	{"getchannelinfo",	&CControlAPI::GetChannelInfoCGI,	""},
@@ -3104,6 +3105,88 @@ void CControlAPI::SignalInfoCGI(CyhookHandler *hh)
 		}
 	}else
 		hh->SendError();
+}
+
+//-----------------------------------------------------------------------------
+// /control/tuners[?id=N]
+// Returns JSON with all tuners or a specific tuner
+// {"tuners":[{"id":0,"name":"...","type":"DVB-S2","sig":61,"snr":83,"ber":0,"locked":true,"channel":"Das Erste HD","state":"viewing"}]}
+//-----------------------------------------------------------------------------
+void CControlAPI::TunersCGI(CyhookHandler *hh)
+{
+	hh->SetHeader(HTTP_OK, "application/json");
+
+	int count = CFEManager::getInstance()->getFrontendCount();
+	int requestedId = -1;
+
+	// Check if specific tuner ID requested
+	if (!hh->ParamList["id"].empty())
+		requestedId = atoi(hh->ParamList["id"].c_str());
+
+	// Get current channel info
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	CZapitChannel *live_channel = CServiceManager::getInstance()->FindChannel48(live_channel_id);
+	CFrontend *live_fe = CFEManager::getInstance()->getLiveFE();
+	bool isRecording = NeutrinoAPI->Zapit->isRecordModeActive();
+
+	hh->printf("{\"tuners\":[");
+
+	bool first = true;
+	for (int i = 0; i < count; i++)
+	{
+		if (requestedId >= 0 && requestedId != i)
+			continue;
+
+		CFrontend *fe = CFEManager::getInstance()->getFE(i);
+		if (!fe)
+			continue;
+
+		if (!first)
+			hh->printf(",");
+		first = false;
+
+		// Get signal info
+		unsigned int sig = fe->getSignalStrength() & 0xFFFF;
+		sig = (sig & 0xFFFF) * 100 / 65535;
+		unsigned int snr = fe->getSignalNoiseRatio() & 0xFFFF;
+		snr = (snr & 0xFFFF) * 100 / 65535;
+		unsigned int ber = fe->getBitErrorRate();
+
+		// Determine tuner type
+		const char *type = "Unknown";
+		if (fe->hasSat())
+			type = "DVB-S2";
+		else if (fe->hasCable())
+			type = "DVB-C";
+		else if (fe->hasTerr())
+			type = "DVB-T2";
+
+		// Determine state and channel
+		const char *state = "idle";
+		std::string channelName = "";
+		bool locked = fe->Locked();
+
+		if (fe == live_fe && live_channel)
+		{
+			channelName = live_channel->getName();
+			state = isRecording ? "recording" : "viewing";
+		}
+		else if (locked)
+		{
+			state = "busy";
+		}
+
+		hh->printf("{\"id\":%d,\"name\":\"%s\",\"type\":\"%s\",\"sig\":%u,\"snr\":%u,\"ber\":%u,\"locked\":%s,\"channel\":\"%s\",\"state\":\"%s\"}",
+			i,
+			fe->getName(),
+			type,
+			sig, snr, ber,
+			locked ? "true" : "false",
+			channelName.c_str(),
+			state);
+	}
+
+	hh->printf("]}\n");
 }
 
 //-----------------------------------------------------------------------------
