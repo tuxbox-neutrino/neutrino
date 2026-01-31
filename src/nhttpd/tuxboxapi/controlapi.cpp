@@ -60,9 +60,11 @@ extern CPictureViewer *g_PicViewer;
 // the counting seam /api/v1/system/legacy-usage answers with
 #include <httpd/compat/mount.h>
 #include <hardware/video.h>
+#include <hardware/audio.h>
 #include <zapit/femanager.h>
 
 extern cVideo * videoDecoder;
+extern cAudio * audioDecoder;
 
 extern CPlugins *g_Plugins;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
