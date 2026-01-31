@@ -330,6 +330,18 @@ Beispiel:<br>
 16d66 ZDF<br>
 <br>
 </div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Kanalliste als Array<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"mode":"tv","channels":[{"id":"16dca","name":"Das Erste","number":1},...]}</pre>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/channellist?format=json<br>
+{"mode":"tv","channels":[{"id":"16dca","name":"Das Erste","number":1},{"id":"16e29","name":"EinsExtra","number":2}]}<br>
+&nbsp;</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="epg"></a><b>EPG-Abfrage</b></div>
@@ -1970,6 +1982,18 @@ wget -O /tmp/nhttpd.res 'http://localhost/control/lcd?lock=0'<br>
 ausgef&uuml;hrt werden.<br>
 <br>
 </div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit LCD-Einstellungen<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"power":true,"brightness":255,"standby_brightness":170,"dim_brightness":0,"scroll":true}</pre>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/lcd?format=json<br>
+{"power":true,"brightness":255,"standby_brightness":170,"dim_brightness":0,"scroll":true}<br>
+&nbsp;</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="exec"></a><b>Shellscript ausf&uuml;hren</b></div>
@@ -2573,6 +2597,18 @@ Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/audio<br>
 DD CH1/CH2 (48000)<br>
+&nbsp;</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Audio-Codec-Informationen<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"codec":"DD","mode":"CH1/CH2","frequency":48000,"bitrate":0}</pre>
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/audio?format=json<br>
+{"codec":"MPEG","mode":"stereo","frequency":48000,"bitrate":192}<br>
 &nbsp;</div>
 
 <!-- ----------------------------------------------------------- -->

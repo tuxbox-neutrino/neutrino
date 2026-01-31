@@ -1698,6 +1698,28 @@ void CControlAPI::AVInputModeCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::AudioCGI(CyhookHandler *hh)
 {
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		int type = 0, layer = 0, freq = 0, mode = 0, bitrate = 0;
+		audioDecoder->getAudioInfo(type, layer, freq, bitrate, mode);
+
+		const char *codec = (type == 0) ? "MPEG" : "DD";
+		const char *mpegmodes[] = { "stereo", "joint_stereo", "dual_channel", "single_channel" };
+		const char *ddmodes[] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
+
+		const char *mode_str;
+		if (type == 0)
+			mode_str = (mode >= 0 && mode < 4) ? mpegmodes[mode] : "unknown";
+		else
+			mode_str = (mode >= 0 && mode < 8) ? ddmodes[mode] : "unknown";
+
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"codec\":\"%s\",\"mode\":\"%s\",\"frequency\":%d,\"bitrate\":%d}\n",
+			codec, mode_str, freq, bitrate);
+		return;
+	}
+
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "info") {
 		hh->printf("%s",(NeutrinoAPI->getAudioInfoAsString()).c_str());
 		return;
@@ -3122,6 +3144,19 @@ void CControlAPI::StartPluginCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::LCDAction(CyhookHandler *hh)
 {
+	// JSON format: return LCD settings
+	if (hh->ParamList["format"] == "json")
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"power\":%s,\"brightness\":%d,\"standby_brightness\":%d,\"dim_brightness\":%d,\"scroll\":%s}\n",
+			g_settings.lcd_setting[SNeutrinoSettings::LCD_POWER] ? "true" : "false",
+			g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS],
+			g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS],
+			g_settings.lcd_setting_dim_brightness,
+			g_settings.lcd_scroll ? "true" : "false");
+		return;
+	}
+
 	hh->SendOk();
 }
 
@@ -3148,6 +3183,56 @@ void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 	if(currentTP){
 		current_channel = CZapit::getInstance()->GetCurrentChannelID();
 		current_channel=(current_channel>>16);
+	}
+
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		if (!g_bouquetManager)
+		{
+			hh->printf("{\"channels\":[]}\n");
+			return;
+		}
+
+		int mode = NeutrinoAPI->Zapit->getMode();
+		CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
+
+		hh->printf("{\"mode\":\"%s\",\"channels\":[", mode == CZapitClient::MODE_RADIO ? "radio" : "tv");
+		bool first = true;
+		for (; !(cit.EndOfChannels()); cit++)
+		{
+			CZapitChannel *channel = *cit;
+			if (!currentTP || (channel->getChannelID() >> 16) == current_channel)
+			{
+				size_t pos = std::find(v.begin(), v.end(), channel->getChannelID()) - v.begin();
+				if (pos < v.size())
+					continue;
+				v.push_back(channel->getChannelID());
+
+				if (!first) hh->printf(",");
+				first = false;
+
+				// Escape channel name for JSON
+				std::string name = channel->getName();
+				std::string escaped;
+				for (size_t i = 0; i < name.length(); i++)
+				{
+					char c = name[i];
+					if (c == '"') escaped += "\\\"";
+					else if (c == '\\') escaped += "\\\\";
+					else if (c == '\n') escaped += "\\n";
+					else if (c == '\r') escaped += "\\r";
+					else if (c == '\t') escaped += "\\t";
+					else escaped += c;
+				}
+
+				hh->printf("{\"id\":\"" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "\",\"name\":\"%s\",\"number\":%d}",
+					channel->getChannelID(), escaped.c_str(), channel->number);
+			}
+		}
+		hh->printf("]}\n");
+		return;
 	}
 
 	hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
