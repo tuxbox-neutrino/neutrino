@@ -1722,7 +1722,7 @@ void CControlAPI::AudioCGI(CyhookHandler *hh)
 		return;
 	}
 
-	if (hh->ParamList.empty() || hh->ParamList["1"] == "info") {
+	if (hh->ParamList["1"].empty() || hh->ParamList["1"] == "info") {
 		hh->printf("%s",(NeutrinoAPI->getAudioInfoAsString()).c_str());
 		return;
 	}
