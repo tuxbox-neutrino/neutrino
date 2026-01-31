@@ -656,6 +656,24 @@ Beispiel:<br>
 on<br>
 <br>
 </div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Standby-Status<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"standby": true}</pre>
+oder
+<pre>{"standby": false}</pre>
+<div class="example">
+Beispiel (Status abfragen):<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/standby?format=json<br>
+{"standby":false}<br>
+<br>
+Beispiel (Standby einschalten):<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/standby?on&amp;format=json<br>
+{"success":true,"action":"standby_on"}<br>
+</div>
 <p>
 
 <!-- ----------------------------------------------------------- -->
@@ -1066,6 +1084,17 @@ Beispiel:<br>
 &gt;&gt;&gt;http://box_ip/control/getmode?channelmode<br>
 radio<br>
 <br>
+</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit aktuellem Modus<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"mode": "tv", "standby": false}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/getmode?format=json<br>
+{"mode":"tv","standby":false}<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->
@@ -2058,6 +2087,34 @@ Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/reboot?format=json<br>
 {"success":true,"action":"reboot"}<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="restart"></a><b>Neutrino neu starten</b></div>
+<div class="URL">Handler: http://box_ip/control/restart</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>R&uuml;ckgabe:</b><br>
+<br>
+Startet Neutrino neu (ohne System-Reboot).<br>
+<br>
+<b>R&uuml;ckgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/restart<br>
+ok<br>
+</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Erfolgsmeldung<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"success": true, "action": "restart"}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/restart?format=json<br>
+{"success":true,"action":"restart"}<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->

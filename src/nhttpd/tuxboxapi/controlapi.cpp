@@ -524,50 +524,63 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::GetModeCGI(CyhookHandler *hh)
 {
-	hh->outStart();
-	std::string result = "";
-	std::string key = "mode";
+	std::string modeStr = "";
+	bool isStandby = false;
 
+	// Determine current mode
 	if (hh->ParamList_exist("channelsmode") && hh->ParamList["channelsmode"] != "false")
 	{
-		key = "channelsmode";
 		int mode = NeutrinoAPI->Zapit->getMode();
 		if (mode == CZapitClient::MODE_TV)
-			result = "tv";
+			modeStr = "tv";
 		else if (mode == CZapitClient::MODE_RADIO)
-			result = "radio";
+			modeStr = "radio";
 		else
-			result = "unknown";
+			modeStr = "unknown";
 	}
 	else
 	{
 		int mode = CNeutrinoApp::getInstance()->getMode();
 		if (mode == NeutrinoModes::mode_tv)
-			result = "tv";
+			modeStr = "tv";
 		else if (mode == NeutrinoModes::mode_radio)
-			result = "radio";
+			modeStr = "radio";
 		else if (mode == NeutrinoModes::mode_avinput)
-			result = "avinput";
-		else if (mode == NeutrinoModes::mode_standby)
-			result = "standby";
+			modeStr = "avinput";
+		else if (mode == NeutrinoModes::mode_standby) {
+			modeStr = "standby";
+			isStandby = true;
+		}
 		else if (mode == NeutrinoModes::mode_audio)
-			result = "audio";
+			modeStr = "audio";
 		else if (mode == NeutrinoModes::mode_pic)
-			result = "pic";
+			modeStr = "pic";
 		else if (mode == NeutrinoModes::mode_ts)
-			result = "ts";
+			modeStr = "ts";
 		else if (mode == NeutrinoModes::mode_webtv)
-			result = "webtv";
+			modeStr = "webtv";
 		else if (mode == NeutrinoModes::mode_upnp)
-			result = "upnp";
+			modeStr = "upnp";
 		else if (mode == NeutrinoModes::mode_webradio)
-			result = "webradio";
+			modeStr = "webradio";
 		else
-			result = "unknown";
+			modeStr = "unknown";
 	}
 
-	if (!result.empty())
+	// JSON format
+	if (hh->ParamList["format"] == "json")
 	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"mode\":\"%s\",\"standby\":%s}\n", modeStr.c_str(), isStandby ? "true" : "false");
+		return;
+	}
+
+	// Legacy format (text/xml)
+	hh->outStart();
+	if (!modeStr.empty())
+	{
+		std::string result = modeStr;
+		std::string key = hh->ParamList_exist("channelsmode") ? "channelsmode" : "mode";
 		if (hh->getOutType() != plain)
 		{
 			result = hh->outPair(key, result, false);
@@ -622,7 +635,18 @@ void CControlAPI::SystemCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::StandbyCGI(CyhookHandler *hh)
 {
-	if (!(hh->ParamList.empty()))
+	bool isStandby = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby);
+	bool jsonFormat = (hh->ParamList["format"] == "json");
+
+	// JSON format: return standby status
+	if (jsonFormat && (hh->ParamList["1"].empty() || hh->ParamList["1"] == "status"))
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"standby\":%s}\n", isStandby ? "true" : "false");
+		return;
+	}
+
+	if (!(hh->ParamList.empty()) && !hh->ParamList["1"].empty())
 	{
 		bool CEC_HDMI_off = false;
 		if (!(hh->ParamList["cec"].empty())){
@@ -638,9 +662,15 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 				videoDecoder->SetCECAutoStandby(0);
 			}
 
-			if(CNeutrinoApp::getInstance()->getMode() != 4)
+			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD);
-			hh->SendOk();
+
+			if (jsonFormat) {
+				hh->SetHeader(HTTP_OK, "application/json");
+				hh->printf("{\"success\":true,\"action\":\"standby_on\"}\n");
+			} else {
+				hh->SendOk();
+			}
 
 			if(g_settings.hdmi_cec_standby && CEC_HDMI_off){//dont use CEC with standbyoff (TV off)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD);
@@ -654,23 +684,30 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 			}
 
 			NeutrinoAPI->Zapit->setStandby(false);
-			if(CNeutrinoApp::getInstance()->getMode() == 4)
+			if(CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
-			hh->SendOk();
+
+			if (jsonFormat) {
+				hh->SetHeader(HTTP_OK, "application/json");
+				hh->printf("{\"success\":true,\"action\":\"standby_off\"}\n");
+			} else {
+				hh->SendOk();
+			}
 
 			if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){//dont use CEC with view on (TV on)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON, CEventServer::INITID_HTTPD);
 			}
 		}
+		else if (hh->ParamList["1"] == "status")
+		{
+			// Legacy status query
+			hh->WriteLn(isStandby ? "on" : "off");
+		}
 		else
 			hh->SendError();
-
 	}
 	else
-		if(CNeutrinoApp::getInstance()->getMode() == 4)//mode_standby = 4
-			hh->WriteLn("on");
-		else
-			hh->WriteLn("off");
+		hh->WriteLn(isStandby ? "on" : "off");
 }
 
 //-----------------------------------------------------------------------------
@@ -1470,10 +1507,18 @@ void CControlAPI::RebootCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::RestartCGI(CyhookHandler *hh)
 {
-	if (hh->ParamList.empty())
+	bool jsonFormat = (hh->ParamList["format"] == "json");
+
+	if (hh->ParamList.empty() || jsonFormat)
 	{
 		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RESTART, CEventServer::INITID_HTTPD);
-		hh->SendOk();
+		if (jsonFormat)
+		{
+			hh->SetHeader(HTTP_OK, "application/json");
+			hh->printf("{\"success\":true,\"action\":\"restart\"}\n");
+		}
+		else
+			hh->SendOk();
 	}
 	else
 		hh->SendError();
