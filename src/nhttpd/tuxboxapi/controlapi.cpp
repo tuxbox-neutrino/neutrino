@@ -748,6 +748,18 @@ void CControlAPI::RCCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::GetDateCGI(CyhookHandler *hh)
 {
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		time_t now = time(0);
+		struct tm *t = localtime(&now);
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"date\":\"%04d-%02d-%02d\",\"day\":%d,\"month\":%d,\"year\":%d}\n",
+			t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+			t->tm_mday, t->tm_mon + 1, t->tm_year + 1900);
+		return;
+	}
+
 	if (hh->ParamList.empty())
 	{
 		std::string timestr = getNowTimeStr("%d.%m.%Y\n");
@@ -762,6 +774,18 @@ void CControlAPI::GetDateCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 {
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		time_t now = time(0);
+		struct tm *t = localtime(&now);
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"time\":\"%02d:%02d:%02d\",\"hour\":%d,\"minute\":%d,\"second\":%d,\"timestamp\":%ld}\n",
+			t->tm_hour, t->tm_min, t->tm_sec,
+			t->tm_hour, t->tm_min, t->tm_sec, now);
+		return;
+	}
+
 	if (hh->ParamList.empty())
 	{
 		std::string timestr = getNowTimeStr("%H:%M:%S\n");
@@ -993,7 +1017,7 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 
 void CControlAPI::BoxInfoCGI(CyhookHandler *hh)
 {
-	std::string boxinfo(g_info.hw_caps->boxvendor);
+	std::string vendor(g_info.hw_caps->boxvendor);
 	/*
 	   I don't know the current legal situation.
 	   So better let's change the vendor's name to CST.
@@ -1001,8 +1025,8 @@ void CControlAPI::BoxInfoCGI(CyhookHandler *hh)
 	   After change this, you'll have to align code in Y_Blocks.txt
 	*/
 
-	if (boxinfo.compare("Coolstream") == 0) {
-		boxinfo = "CST";
+	if (vendor.compare("Coolstream") == 0) {
+		vendor = "CST";
 	}
 	std::string boxname(g_info.hw_caps->boxname);
 	if (strcmp(boxname.c_str(), "Neo") == 0)
@@ -1011,14 +1035,26 @@ void CControlAPI::BoxInfoCGI(CyhookHandler *hh)
 		if (CFEManager::getInstance()->getFrontendCount() > 1)
 			boxname = "Neo Twin";
 	}
+	std::string boxarch(g_info.hw_caps->boxarch);
 
-	boxinfo  = "vendor=" + boxinfo;
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+		hh->printf("{\"vendor\":\"%s\",\"boxname\":\"%s\",\"boxarch\":\"%s\"}\n",
+			vendor.c_str(), boxname.c_str(), boxarch.c_str());
+		return;
+	}
+
+	// Legacy text format
+	std::string boxinfo;
+	boxinfo  = "vendor=" + vendor;
 	boxinfo += "\n";
 	boxinfo += "boxname=";
 	boxinfo += boxname;
 	boxinfo += "\n";
 	boxinfo += "boxarch=";
-	boxinfo += g_info.hw_caps->boxarch;
+	boxinfo += boxarch;
 
 	hh->printf("%s\n", boxinfo.c_str());
 }
@@ -1715,6 +1751,31 @@ void CControlAPI::VolumeCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::CryptCGI(CyhookHandler *hh)
 {
+	// JSON format
+	if (hh->ParamList["format"] == "json")
+	{
+		hh->SetHeader(HTTP_OK, "application/json");
+
+		CZapitChannel *channel = CZapit::getInstance()->GetCurrentChannel();
+		if (channel && !channel->camap.empty())
+		{
+			hh->printf("{\"encrypted\":true,\"caids\":[");
+			bool first = true;
+			for (casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it)
+			{
+				if (!first) hh->printf(",");
+				first = false;
+				hh->printf("%d", *it);
+			}
+			hh->printf("]}\n");
+		}
+		else
+		{
+			hh->printf("{\"encrypted\":false,\"caids\":[]}\n");
+		}
+		return;
+	}
+
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "info") {
 		hh->printf("%s",(NeutrinoAPI->getCryptInfoAsString()).c_str());
 		return;

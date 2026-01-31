@@ -1114,6 +1114,17 @@ Beispiel:<br>
 11.01.2002<br>
 <br>
 </div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Datum<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"date": "2026-01-31", "day": 31, "month": 1, "year": 2026}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/getdate?format=json<br>
+{"date":"2026-01-31","day":31,"month":1,"year":2026}<br>
+</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="gettime"></a><b>Zeit von der Box abfragen</b></div>
@@ -1143,6 +1154,17 @@ Beispiel:<br>
 &gt;&gt;&gt;http://box_ip/control/gettime?rawtime<br>
 1046804654<br>
 <br>
+</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Uhrzeit<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"time": "14:30:00", "hour": 14, "minute": 30, "second": 0, "timestamp": 1738326600}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/gettime?format=json<br>
+{"time":"14:30:00","hour":14,"minute":30,"second":0,"timestamp":1738326600}<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->
@@ -1238,6 +1260,17 @@ vendor=AX<br>
 boxname=H51<br>
 boxarch=BCM7251S<br>
 <br>
+</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Box-Informationen<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"vendor": "AX", "boxname": "H51", "boxarch": "BCM7251S"}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/boxinfo?format=json<br>
+{"vendor":"AX","boxname":"H51","boxarch":"BCM7251S"}<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->
@@ -2560,6 +2593,19 @@ Nagra:186a<br>
 Videoguard:98c<br>
 Videoguard:9c4<br>
 &nbsp;</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit Verschl&uuml;sselungs-Status und CA-IDs<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{"encrypted": true, "caids": [6192, 6211, 6240, 6250, 2444, 2500]}</pre>
+oder bei unverschl&uuml;sseltem Sender:
+<pre>{"encrypted": false, "caids": []}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/crypt?format=json<br>
+{"encrypted":true,"caids":[6192,6211,6240,6250,2444,2500]}<br>
+</div>
 
 <!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="file"></a><b>Verzeichnis-Inhalt anzeigen</b></div>
