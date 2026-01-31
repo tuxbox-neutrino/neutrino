@@ -1496,16 +1496,34 @@ Beispiel:<br>
 <b>Parameter:</b> keine<br>
 <b>R&uuml;ckgabe:</b> JSON-Objekt mit allen Software-Versionen<br>
 <br>
-<table border="1" cellspacing="0" cellpadding="3" width="50%">
+<table border="1" cellspacing="0" cellpadding="3" width="60%">
+<tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr>
+<tr><td>neutrino</td><td>string</td><td>Neutrino Version</td></tr>
+<tr><td>neutrino_name</td><td>string</td><td>Neutrino Paketname</td></tr>
+<tr><td>neutrino_git</td><td>string</td><td>Git-Commit und Branch</td></tr>
+<tr><td>api</td><td>string</td><td>API/nhttpd Version</td></tr>
+<tr><td>yhttpd</td><td>string</td><td>yhttpd-core Version</td></tr>
+<tr><td>yweb</td><td>string</td><td>yWeb Version</td></tr>
+<tr><td>yweb_date</td><td>string</td><td>yWeb Datum</td></tr>
+<tr><td>server</td><td>string</td><td>Server-String</td></tr>
+<tr><td>links</td><td>object</td><td>Support-URLs (homepage, docs, forum)</td></tr>
+<tr><td>copyright</td><td>object</td><td>Copyright-Infos (holder, year, text)</td></tr>
+</table>
+<br>
+<b>Links-Objekt:</b><br>
+<table border="1" cellspacing="0" cellpadding="3">
 <tr><th>Feld</th><th>Beschreibung</th></tr>
-<tr><td>neutrino</td><td>Neutrino Version</td></tr>
-<tr><td>neutrino_name</td><td>Neutrino Paketname</td></tr>
-<tr><td>neutrino_git</td><td>Git-Commit (falls verf&uuml;gbar)</td></tr>
-<tr><td>api</td><td>API/nhttpd Version</td></tr>
-<tr><td>yhttpd</td><td>yhttpd-core Version</td></tr>
-<tr><td>yweb</td><td>yWeb Version</td></tr>
-<tr><td>yweb_date</td><td>yWeb Datum (falls verf&uuml;gbar)</td></tr>
-<tr><td>server</td><td>Server-String</td></tr>
+<tr><td>homepage</td><td>Projekt-Homepage URL</td></tr>
+<tr><td>docs</td><td>Dokumentations-URL (Wiki)</td></tr>
+<tr><td>forum</td><td>Support-Forum URL</td></tr>
+</table>
+<br>
+<b>Copyright-Objekt:</b><br>
+<table border="1" cellspacing="0" cellpadding="3">
+<tr><th>Feld</th><th>Beschreibung</th></tr>
+<tr><td>holder</td><td>Copyright-Inhaber</td></tr>
+<tr><td>year</td><td>Copyright-Jahr</td></tr>
+<tr><td>text</td><td>Vollst&auml;ndiger Copyright-Text</td></tr>
 </table>
 <br>
 <div class="example">
@@ -1514,14 +1532,24 @@ Beispiel:<br>
 &gt;&gt;&gt;http://box_ip/control/versions<br>
 <pre>
 {
-  "neutrino": "4.62",
-  "neutrino_name": "neutrino-mp",
-  "neutrino_git": "abc1234",
+  "neutrino": "3.25.1",
+  "neutrino_name": "Tuxbox-Neutrino",
+  "neutrino_git": "2025.0-298-g5a38e02ac8 master.yweb",
   "api": "3.6.4",
   "yhttpd": "1.3.2",
-  "yweb": "3.1.6",
-  "yweb_date": "26.03.2023",
-  "server": "nhttpd/3.6.4 (yhttpd_core/1.3.2)"
+  "yweb": "4.0.0-dev",
+  "yweb_date": "21.01.2025",
+  "server": "nhttpd/3.6.4 (yhttpd_core/1.3.2)",
+  "links": {
+    "homepage": "https://github.com/tuxbox-neutrino",
+    "docs": "https://wiki.tuxbox-neutrino.org",
+    "forum": "https://forum.tuxbox-neutrino.org"
+  },
+  "copyright": {
+    "holder": "Tuxbox Project",
+    "year": "2025",
+    "text": "Copyright © 2025 Tuxbox Project"
+  }
 }
 </pre>
 </div>
