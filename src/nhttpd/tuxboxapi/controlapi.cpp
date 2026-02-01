@@ -2594,24 +2594,28 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 		//all_bouquets = true; //better, but broken
 	}
 
-	// ------ generate output ------
-	hh->outStart(true /*old mode*/);
-	std::string result = "";
-
+	// ------ validate before output ------
 	if (bouquetnr >= 0 || all_bouquets) {
 		if (!g_bouquetManager) {
 			hh->SendError();
 			return;
 		}
+		int actual_size = (int) g_bouquetManager->Bouquets.size();
+		if (bouquetnr >= 0 && !all_bouquets && bouquetnr >= actual_size) {
+			hh->SendError();
+			return;
+		}
+	}
+
+	// ------ generate output ------
+	hh->outStart(true /*old mode*/);
+	std::string result = "";
+
+	if (bouquetnr >= 0 || all_bouquets) {
 		int bouquet_size = (int) g_bouquetManager->Bouquets.size();
 		int start_bouquet = 0;
 
 		if(bouquetnr >= 0 && !all_bouquets) {
-			// Validate bouquetnr is within bounds
-			if (bouquetnr >= bouquet_size) {
-				hh->SendError();
-				return;
-			}
 			start_bouquet = bouquetnr;
 			bouquet_size = bouquetnr+1;
 		}
