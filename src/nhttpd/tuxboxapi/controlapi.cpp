@@ -889,7 +889,9 @@ void CControlAPI::GetChannelInfoCGI(CyhookHandler *hh)
 
 	CShortEPGData epg;
 	CSectionsdClient::CurrentNextInfo CurrentNext;
-	CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, CurrentNext);
+	CEitManager *eitManager = CEitManager::getInstance();
+	if (eitManager)
+		eitManager->getCurrentNextServiceKey(channel_id, CurrentNext);
 
 	if (CurrentNext.flags & CSectionsdClient::epgflags::has_current)
 	{
@@ -1969,6 +1971,7 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 	NeutrinoAPI->GetChannelEvent(channel->getChannelID(), event);
 
 	bool return_epginfo = (hh->ParamList["epginfo"] != "false");
+	CEitManager *eitManager = CEitManager::getInstance();
 
 	result += hh->outPair("isActiveChannel", (channel->getChannelID() == current_channel) ? "true" : "false", false);
 
@@ -1976,12 +1979,13 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 		int percentage = 100;
 		if (event.duration > 0)
 			percentage = 100 * (time(NULL) - event.startTime) / event.duration;
-		CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
+		if (eitManager)
+			eitManager->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
 		timestr = timeString(event.startTime);
 
 		firstEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.current_uniqueKey), true);
 		firstEPG += hh->outPair("description", hh->outValue(event.description), true);
-		if (return_epginfo && CEitManager::getInstance()->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
+		if (return_epginfo && eitManager && eitManager->getEPGidShort(currentNextInfo.current_uniqueKey, &epg))
 		{
 			firstEPG += hh->outPair("info1", hh->outValue(epg.info1), true);
 			firstEPG += hh->outPair("info2", hh->outValue(epg.info2), true);
@@ -1995,7 +1999,7 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 			timestr = timeString(currentNextInfo.next_zeit.startzeit);
 			secondEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.next_uniqueKey), true);
 			secondEPG += hh->outPair("description", hh->outValue(currentNextInfo.next_name), true);
-			if (return_epginfo && CEitManager::getInstance()->getEPGidShort(currentNextInfo.next_uniqueKey, &epg))
+			if (return_epginfo && eitManager && eitManager->getEPGidShort(currentNextInfo.next_uniqueKey, &epg))
 			{
 				secondEPG += hh->outPair("info1", hh->outValue(epg.info1), true);
 				secondEPG += hh->outPair("info2", hh->outValue(epg.info2), true);
@@ -2221,6 +2225,9 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 			const char *json_delimiter = "";
 			if (mode == CZapitClient::MODE_RADIO || mode == CZapitClient::MODE_ALL)
 				for (int i = startBouquet; i < bsize; i++) {
+					// Bounds check (defensive against concurrent modification)
+					if (i >= (int) g_bouquetManager->Bouquets.size() || !g_bouquetManager->Bouquets[i])
+						continue;
 					ZapitChannelList channels = g_bouquetManager->Bouquets[i]->radioChannels;
 					int num = 1 + g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(i);
 					int size = (int) channels.size();
@@ -2233,6 +2240,9 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 				}
 			if (mode == CZapitClient::MODE_TV || mode == CZapitClient::MODE_ALL)
 				for (int i = startBouquet; i < bsize; i++) {
+					// Bounds check (defensive against concurrent modification)
+					if (i >= (int) g_bouquetManager->Bouquets.size() || !g_bouquetManager->Bouquets[i])
+						continue;
 					ZapitChannelList channels = g_bouquetManager->Bouquets[i]->tvChannels;
 					int num = 1 + g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(i);
 					int size = (int) channels.size();
@@ -2427,6 +2437,10 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 
 	std::string bouquet;
 	for (int i = 0, size = (int) g_bouquetManager->Bouquets.size(); i < size; i++) {
+		// Bounds check (defensive against concurrent modification)
+		if (i >= (int) g_bouquetManager->Bouquets.size() || !g_bouquetManager->Bouquets[i])
+			continue;
+
 		if (!listedBouquet(i, mode, show_hidden, fav))
 			continue;
 
@@ -2481,7 +2495,9 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 	bool isFirstLine = true;
 
 	CChannelEventList eList;
-	CEitManager::getInstance()->getEventsServiceKey(epg_id, eList);
+	CEitManager *eitManager = CEitManager::getInstance();
+	if (eitManager)
+		eitManager->getEventsServiceKey(epg_id, eList);
 
 	for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator) {
 		// Skip events that end before starttime (filter out past events)
@@ -2500,13 +2516,13 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 		prog += hh->outPair("eventid", string_printf("%llu", eventIterator->eventID), true);
 		prog += hh->outPair("eventid_hex", string_printf("%llx", eventIterator->eventID), true);
 		prog += hh->outPair("start_sec", string_printf("%ld", eventIterator->startTime), true);
-		char zbuffer[25] = { 0 };
+		char zbuffer[32] = { 0 };
 		struct tm *mtime = localtime(&eventIterator->startTime);
 		if (mtime) {
-			strftime(zbuffer, 20, "%H:%M", mtime);
+			strftime(zbuffer, sizeof(zbuffer) - 1, "%H:%M", mtime);
 			prog += hh->outPair("start_t", std::string(zbuffer), true);
 			memset(zbuffer, 0, sizeof(zbuffer));
-			strftime(zbuffer, 20, "%d.%m.%Y", mtime);
+			strftime(zbuffer, sizeof(zbuffer) - 1, "%d.%m.%Y", mtime);
 			prog += hh->outPair("date", std::string(zbuffer), true);
 		} else {
 			prog += hh->outPair("start_t", std::string("--:--"), true);
@@ -2516,7 +2532,7 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 		time_t _stoptime = eventIterator->startTime + eventIterator->duration;
 		mtime = localtime(&_stoptime);
 		if (mtime) {
-			strftime(zbuffer, 20, "%H:%M", mtime);
+			strftime(zbuffer, sizeof(zbuffer) - 1, "%H:%M", mtime);
 			prog += hh->outPair("stop_t", std::string(zbuffer), true);
 		} else {
 			prog += hh->outPair("stop_t", std::string("--:--"), true);
@@ -2525,7 +2541,7 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 
 		if (!(hh->ParamList["details"].empty())) {
 			CShortEPGData epg;
-			if (CEitManager::getInstance()->getEPGidShort(eventIterator->eventID, &epg)) {
+			if (eitManager && eitManager->getEPGidShort(eventIterator->eventID, &epg)) {
 				prog += hh->outPair("info1", hh->outValue(epg.info1), true);
 				prog += hh->outPair("info2", hh->outValue(epg.info2), true);
 			}
@@ -2595,13 +2611,15 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 	}
 
 	// ------ validate before output ------
+	// Cache bouquet size once to avoid race conditions (TOCTOU)
+	int cached_bouquet_size = 0;
 	if (bouquetnr >= 0 || all_bouquets) {
 		if (!g_bouquetManager) {
 			hh->SendError();
 			return;
 		}
-		int actual_size = (int) g_bouquetManager->Bouquets.size();
-		if (bouquetnr >= 0 && !all_bouquets && bouquetnr >= actual_size) {
+		cached_bouquet_size = (int) g_bouquetManager->Bouquets.size();
+		if (bouquetnr >= 0 && !all_bouquets && bouquetnr >= cached_bouquet_size) {
 			hh->SendError();
 			return;
 		}
@@ -2612,7 +2630,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 	std::string result = "";
 
 	if (bouquetnr >= 0 || all_bouquets) {
-		int bouquet_size = (int) g_bouquetManager->Bouquets.size();
+		int bouquet_size = cached_bouquet_size;  // use cached size
 		int start_bouquet = 0;
 
 		if(bouquetnr >= 0 && !all_bouquets) {
@@ -2624,7 +2642,8 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 		int mode = NeutrinoAPI->Zapit->getMode();
 
 		for (int i = start_bouquet; i < bouquet_size; i++) {
-			if (!g_bouquetManager->Bouquets[i])
+			// Bounds check (defensive against concurrent modification)
+			if (i >= (int) g_bouquetManager->Bouquets.size() || !g_bouquetManager->Bouquets[i])
 				continue;
 			channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
 			std::string bouquet = std::string(g_bouquetManager->Bouquets[i]->bName.c_str());
@@ -2728,7 +2747,9 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 		ch_id_map[*it & 0xFFFFFFFFFFFFULL] = *it;
 	}
 
-	CEitManager::getInstance()->getEventsServiceKey(0, evtlist, search_epg_item, search_keyword, true);
+	CEitManager *eitManager = CEitManager::getInstance();
+	if (eitManager)
+		eitManager->getEventsServiceKey(0, evtlist, search_epg_item, search_keyword, true);
 
 	if (!evtlist.empty())
 	{
@@ -2762,7 +2783,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 	for (eventIterator = evtlist.begin(); eventIterator != evtlist.end(); ++eventIterator)
 	{
 		bool got_next = (eventIterator != (evtlist.end() - 1));
-		if (CEitManager::getInstance()->getEPGidShort(eventIterator->eventID, &epg))
+		if (eitManager && eitManager->getEPGidShort(eventIterator->eventID, &epg))
 		{
 			if( (eventIterator->startTime+eventIterator->duration) < u_azeit)
 				continue;
@@ -2783,7 +2804,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 					item += hh->outPair("info1", hh->outValue(epg.info1), true);
 					item += hh->outPair("info2", hh->outValue(epg.info2), true);
 				}
-				if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg))
+				if (eitManager && eitManager->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg))
 					{
 					item += hh->outPair("fsk", string_printf("%u", longepg.fsk), true);
 					genre = "";
@@ -2828,7 +2849,7 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 					if(!epg.info2.empty())
 						result += hh->outSingle(epg.info2);
 				}
-				if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
+				if (eitManager && eitManager->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 					result += hh->outSingle(string_printf("fsk:%u", longepg.fsk));
 					genre = "";
 #ifdef FULL_CONTENT_CLASSIFICATION
@@ -2910,7 +2931,8 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		uint64_t epgid = 0;
 		sscanf(hh->ParamList["eventid"].c_str(), "%" SCNu64 "", &epgid);
 		CShortEPGData epg;
-		if (CEitManager::getInstance()->getEPGidShort(epgid, &epg)) {
+		CEitManager *eitManager = CEitManager::getInstance();
+		if (eitManager && eitManager->getEPGidShort(epgid, &epg)) {
 			hh->WriteLn(epg.title);
 			hh->WriteLn(epg.info1);
 			hh->WriteLn(epg.info2);
@@ -2919,11 +2941,12 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 	else if (!hh->ParamList["eventid2fsk"].empty()) {
 		if (!hh->ParamList["starttime"].empty()) {
 			uint64_t epgid = 0;
-			time_t starttime = 0;
 			sscanf(hh->ParamList["fskid"].c_str(), "%" SCNu64 "", &epgid);
-			sscanf(hh->ParamList["starttime"].c_str(), "%lld", reinterpret_cast<long long*>(&starttime));
+			// Use strtoll for portable time_t parsing (avoids type mismatch on 32-bit systems)
+			time_t starttime = (time_t) strtoll(hh->ParamList["starttime"].c_str(), NULL, 10);
 			CEPGData longepg;
-			if (CEitManager::getInstance()->getEPGid(epgid, starttime, &longepg)) {
+			CEitManager *eitManager = CEitManager::getInstance();
+			if (eitManager && eitManager->getEPGid(epgid, starttime, &longepg)) {
 				hh->printf("%u\n", longepg.fsk);
 				return;
 			}
@@ -2935,11 +2958,13 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		t_channel_id channel_id = 0;
 		sscanf(hh->ParamList["id"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
 		CChannelEventList eList;
-		CEitManager::getInstance()->getEventsServiceKey(channel_id, eList);
+		CEitManager *eitManager = CEitManager::getInstance();
+		if (eitManager)
+			eitManager->getEventsServiceKey(channel_id, eList);
 		CChannelEventList::iterator eventIterator;
 		for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator) {
 			CShortEPGData epg;
-			if (CEitManager::getInstance()->getEPGidShort(eventIterator->eventID, &epg)) {
+			if (eitManager && eitManager->getEPGidShort(eventIterator->eventID, &epg)) {
 				hh->printf("%" PRIu64 " %" PRIdMAX " %d\n", eventIterator->eventID, static_cast<intmax_t>(eventIterator->startTime), eventIterator->duration);
 				hh->printf("%s\n", epg.title.c_str());
 				hh->printf("%s\n", epg.info1.c_str());
@@ -3154,10 +3179,12 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 			t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
 			CSectionsdClient::LinkageDescriptorList desc;
 			CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-			CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
+			CEitManager *eitManager = CEitManager::getInstance();
+			if (eitManager)
+				eitManager->getCurrentNextServiceKey(current_channel, currentNextInfo);
 
-			if (currentNextInfo.flags & CSectionsdClient::epgflags::current_has_linkagedescriptors &&
-			    CEitManager::getInstance()->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey, desc))
+			if (eitManager && currentNextInfo.flags & CSectionsdClient::epgflags::current_has_linkagedescriptors &&
+			    eitManager->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey, desc))
 			{
 				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(current_channel);
 				t_satellite_position satellitePosition = channel->getSatellitePosition();
@@ -3258,7 +3285,9 @@ void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 {
 	int pos = 0;
 	CChannelEventList eList;
-	CEitManager::getInstance()->getEventsServiceKey(channel_id, eList);
+	CEitManager *eitManager = CEitManager::getInstance();
+	if (eitManager)
+		eitManager->getEventsServiceKey(channel_id, eList);
 	CChannelEventList::iterator eventIterator;
 
 	for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator, pos++)
@@ -3546,8 +3575,10 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 
 	t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
-	if (CEitManager::getInstance()->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
+	CEitManager *eitManager = CEitManager::getInstance();
+	if (eitManager)
+		eitManager->getCurrentNextServiceKey(current_channel, currentNextInfo);
+	if (eitManager && eitManager->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
 	{
 		for (unsigned int i=0; i< tags.size(); i++)
 		{
@@ -3843,7 +3874,8 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 		std::string title = timer->epgTitle;
 		if(timer->epg_id!=0) {
 			CEPGData epgdata;
-			if (CEitManager::getInstance()->getEPGid(timer->epg_id, timer->epg_starttime, &epgdata))
+			CEitManager *eitManager = CEitManager::getInstance();
+			if (eitManager && eitManager->getEPGid(timer->epg_id, timer->epg_starttime, &epgdata))
 				title = epgdata.title;
 		}
 
@@ -4424,9 +4456,14 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 	ZapitChannelList chanlist;
 	CChannelEventList eList;
 	CChannelEventList::iterator eventIterator;
+	CEitManager *eitManager = CEitManager::getInstance();
 
-	for (unsigned int i = 0; i < g_bouquetManager->Bouquets.size(); i++)
+	int cached_bsize = (int) g_bouquetManager->Bouquets.size();
+	for (int i = 0; i < cached_bsize; i++)
 	{
+		// Bounds check (defensive against concurrent modification)
+		if (i >= (int) g_bouquetManager->Bouquets.size() || !g_bouquetManager->Bouquets[i])
+			continue;
 		g_bouquetManager->Bouquets[i]->getTvChannels(chanlist);
 
 		for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
@@ -4448,7 +4485,8 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 
 					eList.clear();
 
-					CEitManager::getInstance()->getEventsServiceKey(channel_id, eList);
+					if (eitManager)
+						eitManager->getEventsServiceKey(channel_id, eList);
 
 					if (eList.size() == 0)
 						continue;
@@ -4462,14 +4500,14 @@ void CControlAPI::xmltvepgCGI(CyhookHandler *hh)
 						{
 							programmeTag  = "programme ";
 							programmeTag += "channel=\""+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id)+"\" ";
-							char zbuffer[25] = { 0 };
+							char zbuffer[32] = { 0 };
 							struct tm mtime;
-							gmtime_r(&eventIterator->startTime, &mtime);
-							strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", &mtime);
+							if (gmtime_r(&eventIterator->startTime, &mtime))
+								strftime(zbuffer, sizeof(zbuffer) - 1, "%Y%m%d%H%M%S %z", &mtime);
 							programmeTag += "start=\""+std::string(zbuffer)+"\" ";
 							time_t _stoptime = eventIterator->startTime + eventIterator->duration;
-							gmtime_r(&_stoptime, &mtime);
-							strftime(zbuffer, 21, "%Y%m%d%H%M%S %z", &mtime);
+							if (gmtime_r(&_stoptime, &mtime))
+								strftime(zbuffer, sizeof(zbuffer) - 1, "%Y%m%d%H%M%S %z", &mtime);
 							programmeTag += "stop=\""+std::string(zbuffer)+"\" ";
 
 							programmeData  = hh->outPair("title lang=\"de\"", hh->outValue(eventIterator->description, xml_cdata), false);
@@ -4531,8 +4569,12 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 	url += to_string(g_settings.streaming_port);
 	url += "/id=";
 
-	for (unsigned int i = 0; i < g_bouquetManager->Bouquets.size(); i++)
+	int cached_bsize_m3u = (int) g_bouquetManager->Bouquets.size();
+	for (int i = 0; i < cached_bsize_m3u; i++)
 	{
+		// Bounds check (defensive against concurrent modification)
+		if (i >= (int) g_bouquetManager->Bouquets.size() || !g_bouquetManager->Bouquets[i])
+			continue;
 		ZapitChannelList chanlist;
 
 		for (int m = CZapitClient::MODE_TV; m < CZapitClient::MODE_ALL; m++)
@@ -4660,8 +4702,12 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 	if(!hh->ParamList["vlc_link"].empty())
 	{
 		write_to_file("/tmp/vlc.m3u", "#EXTM3U\n");
-		for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++)
+		int cached_bsize_vlc = (int) g_bouquetManager->Bouquets.size();
+		for (int i = 0; i < cached_bsize_vlc; i++)
 		{
+			// Bounds check (defensive against concurrent modification)
+			if (i >= (int) g_bouquetManager->Bouquets.size() || !g_bouquetManager->Bouquets[i])
+				continue;
 			ZapitChannelList chanlist;
 			if (mode == CZapitClient::MODE_RADIO)
 				g_bouquetManager->Bouquets[i]->getRadioChannels(chanlist);
