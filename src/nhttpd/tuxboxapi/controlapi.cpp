@@ -2502,16 +2502,25 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 		prog += hh->outPair("start_sec", string_printf("%ld", eventIterator->startTime), true);
 		char zbuffer[25] = { 0 };
 		struct tm *mtime = localtime(&eventIterator->startTime);
-		strftime(zbuffer, 20, "%H:%M", mtime);
-		prog += hh->outPair("start_t", std::string(zbuffer), true);
-		memset(zbuffer, 0, sizeof(zbuffer));
-		strftime(zbuffer, 20, "%d.%m.%Y", mtime);
-		prog += hh->outPair("date", std::string(zbuffer), true);
+		if (mtime) {
+			strftime(zbuffer, 20, "%H:%M", mtime);
+			prog += hh->outPair("start_t", std::string(zbuffer), true);
+			memset(zbuffer, 0, sizeof(zbuffer));
+			strftime(zbuffer, 20, "%d.%m.%Y", mtime);
+			prog += hh->outPair("date", std::string(zbuffer), true);
+		} else {
+			prog += hh->outPair("start_t", std::string("--:--"), true);
+			prog += hh->outPair("date", std::string(""), true);
+		}
 		prog += hh->outPair("stop_sec", string_printf("%ld", eventIterator->startTime + eventIterator->duration), true);
 		time_t _stoptime = eventIterator->startTime + eventIterator->duration;
 		mtime = localtime(&_stoptime);
-		strftime(zbuffer, 20, "%H:%M", mtime);
-		prog += hh->outPair("stop_t", std::string(zbuffer), true);
+		if (mtime) {
+			strftime(zbuffer, 20, "%H:%M", mtime);
+			prog += hh->outPair("stop_t", std::string(zbuffer), true);
+		} else {
+			prog += hh->outPair("stop_t", std::string("--:--"), true);
+		}
 		prog += hh->outPair("duration_min", string_printf("%d", (int) (eventIterator->duration / 60)), true);
 
 		if (!(hh->ParamList["details"].empty())) {
@@ -2573,8 +2582,9 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 	if (hh->ParamList["bouquetnr"] == "all")
 		all_bouquets = true;
 	else if (!(hh->ParamList["bouquetnr"].empty())) {
-		bouquetnr = atoi(hh->ParamList["bouquetnr"].c_str());
-		bouquetnr--;
+		int tmp = atoi(hh->ParamList["bouquetnr"].c_str());
+		if (tmp >= 1)  // bouquetnr is 1-based from API
+			bouquetnr = tmp - 1;
 	}
 
 	// fallback
@@ -2589,10 +2599,19 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 	std::string result = "";
 
 	if (bouquetnr >= 0 || all_bouquets) {
+		if (!g_bouquetManager) {
+			hh->SendError();
+			return;
+		}
 		int bouquet_size = (int) g_bouquetManager->Bouquets.size();
 		int start_bouquet = 0;
 
 		if(bouquetnr >= 0 && !all_bouquets) {
+			// Validate bouquetnr is within bounds
+			if (bouquetnr >= bouquet_size) {
+				hh->SendError();
+				return;
+			}
 			start_bouquet = bouquetnr;
 			bouquet_size = bouquetnr+1;
 		}
@@ -2601,6 +2620,8 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 		int mode = NeutrinoAPI->Zapit->getMode();
 
 		for (int i = start_bouquet; i < bouquet_size; i++) {
+			if (!g_bouquetManager->Bouquets[i])
+				continue;
 			channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
 			std::string bouquet = std::string(g_bouquetManager->Bouquets[i]->bName.c_str());
 			bouquet = encodeString(bouquet); // encode (URLencode) the bouquetname
