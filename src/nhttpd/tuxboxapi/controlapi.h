@@ -66,7 +66,7 @@ private:
 	void doNewTimer(CyhookHandler *hh);
 	std::string _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
 	std::string _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int channelNr);
-	std::string channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime);
+	std::string channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime, long starttime = -1);
 	std::string _GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel);
 
 	//yweb

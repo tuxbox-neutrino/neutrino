@@ -2457,7 +2457,7 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 //	details EPG Information for channelid
 //-----------------------------------------------------------------------------
-std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime)
+std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime, long starttime)
 {
 	std::string result = "";
 	std::string channelData = "";
@@ -2483,9 +2483,13 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 	CChannelEventList eList;
 	CEitManager::getInstance()->getEventsServiceKey(epg_id, eList);
 
-	for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator, i++) {
+	for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator) {
+		// Skip events that end before starttime (filter out past events)
+		if (starttime != -1 && (eventIterator->startTime + (long)eventIterator->duration) <= starttime)
+			continue;
 		if ((max != -1 && i >= max) || (stoptime != -1 && eventIterator->startTime >= stoptime))
 			break;
+		i++;
 		std::string prog = "";
 		if (hh->outType == plain)
 			prog += hh->outSingle("");
@@ -2548,6 +2552,11 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 	if (!(hh->ParamList["stoptime"].empty()))
 		stoptime = atol(hh->ParamList["stoptime"].c_str());
 
+	// starttime = skip events that end before this time (filter past events)
+	long starttime = -1;
+	if (!(hh->ParamList["starttime"].empty()))
+		starttime = atol(hh->ParamList["starttime"].c_str());
+
 	// determine channelid
 	t_channel_id channel_id = (t_channel_id) -1;
 	if (!(hh->ParamList["channelid"].empty())) {
@@ -2599,7 +2608,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 
 			for (int j = 0, csize = (int) channels.size(); j < csize; j++) {
 				CZapitChannel * channel = channels[j];
-				res_channels += hh->outArrayItem("channel", channelEPGformated(hh, j + 1, channel->getChannelID(), max, stoptime), j<csize-1);
+				res_channels += hh->outArrayItem("channel", channelEPGformated(hh, j + 1, channel->getChannelID(), max, stoptime, starttime), j<csize-1);
 			}
 			if(all_bouquets) {
 				res_channels = hh->outPair("number", string_printf("%d", i + 1), true) +
@@ -2613,7 +2622,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh)
 	}
 	else
 		// list one channel, no bouquetnr given
-		result = channelEPGformated(hh, 0, channel_id, max, stoptime);
+		result = channelEPGformated(hh, 0, channel_id, max, stoptime, starttime);
 
 	result = hh->outObject("epglist", result);
 
