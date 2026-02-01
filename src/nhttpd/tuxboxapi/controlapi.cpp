@@ -2837,9 +2837,10 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
  * /control/epg?search=<keywords>
  * /control/epg?eventid=<eventid>
  * /control/epg?ext
- * /control/epg?xml=true&channelid=<channelid>|channelname=<channel name>[&details=true][&max=<max items>][&stoptime=<long:stop time>]
+ * /control/epg?xml=true&channelid=<channelid>|channelname=<channel name>[&details=true][&max=<max items>][&stoptime=<long:stop time>][&starttime=<long:start time>]
  *  	details=true : Show EPG Info1 and info2
- *		stoptime : show only items until stoptime reached
+ *		stoptime : show only items until starttime >= stoptime
+ *		starttime : skip items that end before starttime (filter past events)
  * @endcode
  */
 
