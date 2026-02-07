@@ -494,7 +494,12 @@ int DMX::immediate_start(void)
 		debug_colored(DEBUG_ERROR, "	%s: open demux #%d", name.c_str(), dmx_num);
 #endif
 		dmx = new cDemux(dmx_num);
-		dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
+		if (!dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL)) {
+			debug(DEBUG_ERROR, "	%s: open demux #%d failed", name.c_str(), dmx_num);
+			delete dmx;
+			dmx = NULL;
+			return 1;
+		}
 	}
 
 	/* this is for dmxCN only... */

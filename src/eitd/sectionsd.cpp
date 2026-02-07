@@ -1506,14 +1506,17 @@ void CTimeThread::run()
 			time_ntp = true;
 			success = true;
 		} else if (dvb_time_update) {
-			if(!first_time)
-				change(1);
-			else
-				change(0);
+			if (!isOpen()) {
+				debug(DEBUG_ERROR, "%s: demux not open, skip DVB time", name.c_str());
+			} else {
+				if(!first_time)
+					change(1);
+				else
+					change(0);
 
-			debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)",
-				name.c_str(), current_service, isOpen());
-			int rc = 0;
+				debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " (isOpen %d)",
+					name.c_str(), current_service, isOpen());
+				int rc = 0;
 #if HAVE_CST_HARDWARE
 			/* libcoolstream does not like the repeated read if the dmx is not yet running
 			 * (e.g. during neutrino start) and causes strange openthreads errors which in
@@ -1540,16 +1543,17 @@ void CTimeThread::run()
 				}
 			} while (running && rc == 0 && (time_monotonic_ms() < (int64_t)timeoutInMSeconds + start));
 #endif
-			debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d",
-				name.c_str(), current_service, rc, messaging_neutrino_sets_time);
-			if (rc > 3) {
-				SIsectionTIME st(static_buf);
-				if (st.is_parsed()) {
-					dvb_time = st.getTime();
-					success = true;
-				}
-			} else
-				retry = false; /* reset bogon detector after invalid read() */
+				debug(DEBUG_ERROR, "%s: get DVB time ch 0x%012" PRIx64 " rc: %d neutrino_sets_time %d",
+					name.c_str(), current_service, rc, messaging_neutrino_sets_time);
+				if (rc > 3) {
+					SIsectionTIME st(static_buf);
+					if (st.is_parsed()) {
+						dvb_time = st.getTime();
+						success = true;
+					}
+				} else
+					retry = false; /* reset bogon detector after invalid read() */
+			}
 		}
 		/* default sleep time */
 		sleep_time = ntprefresh * 60;

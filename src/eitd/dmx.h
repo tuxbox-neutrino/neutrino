@@ -63,7 +63,7 @@ protected:
 	/* flag to check if there was section for that table, if yes, dont increase timeouts */
 	bool		seen_section;
 
-	inline bool isOpen(void) { return (dmx != NULL); }
+	inline bool isOpen(void) { return (dmx != NULL) && (dmx->getFD() >= 0); }
 
 	int immediate_start(void); /* mutex must be locked before and unlocked after this method */
 	int immediate_stop(void);  /* mutex must be locked before and unlocked after this method */
@@ -123,4 +123,3 @@ public:
 };
 
 #endif /* __sectionsd__dmx_h__ */
-
