@@ -495,7 +495,18 @@ int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t dat
 			return messages_return::handled;
 
 		bool added = it->second == "add";
-		bool mounted = is_mounted(dev.c_str());
+		bool mounted = false;
+		if (added) {
+			/* Retry: mount may not yet be visible in /proc/mounts
+			   right after the hotplug event */
+			for (int i = 0; i < 10 && !mounted; i++) {
+				mounted = is_mounted(dev.c_str());
+				if (!mounted)
+					usleep(200000);
+			}
+		} else {
+			mounted = is_mounted(dev.c_str());
+		}
 		std::string tmp = dev.substr(0, 2);
 
 		if (added && !mounted && tmp != "sr") {
