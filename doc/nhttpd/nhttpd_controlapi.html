@@ -1048,14 +1048,14 @@ ok<br>
 </div>
 
 <br>
-<b>Parameter:</b> record<br>
+<b>Parameter:</b> record=start<br>
 <b>R&uuml;ckgabe:</b><br>
 <br>
-Schaltet in den record mode. Dies beinhaltet auch das Stoppen bzw. <br>
-das Starten des sectionsd scanning, das Starten des Playback (immer)<br>
-und das Stoppen des Playback (nur bei stopplayback=true).<br>
+Startet eine Sofortaufnahme auf dem aktuellen Sender. Dies beinhaltet das Stoppen des
+sectionsd scanning, das Starten des Playback (immer) und das Stoppen des Playback
+(nur bei stopplayback=true).<br>
 <br>
-<b>R&uuml;ckgabe-Format:</b> ok / error<br>
+<b>R&uuml;ckgabe-Format:</b> ok<br>
 <div class="example">
 Beispiel:<br>
 <br>
@@ -1064,10 +1064,31 @@ ok<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/setmode?record=start&amp;stopplayback=true<br>
 ok<br>
+</div>
+<b>Parameter:</b> record=stop<br>
+<b>R&uuml;ckgabe:</b><br>
+<br>
+Stoppt die erste laufende Aufnahme (Sofortaufnahme oder Timer-Aufnahme).
+Timeshift-Aufnahmen werden dabei &uuml;bersprungen.<br>
+<br>
+Intern wird &uuml;ber <code>CRecordManager::GetRecordMap()</code> die laufende
+Aufnahme ermittelt und ein <code>RECORD_STOP</code>-Event mit der korrekten
+<code>eventID</code> und <code>channel_id</code> gesendet.<br>
+<br>
+<b>Hinweis:</b> Diese Methode stoppt die Aufnahme selbst, entfernt aber nicht
+den zugeh&ouml;rigen Timer-Eintrag aus timerd. Der Timer-Eintrag bleibt
+mit <code>state=2</code> (aktiv) zur&uuml;ck und muss ggf. separat via
+<code>/control/timer?action=remove&amp;id=X</code> entfernt werden.
+F&uuml;r Timer-basierte Aufnahmen ist das direkte Entfernen des Timers
+via <code>/control/timer?action=remove&amp;id=X</code> die bevorzugte Methode,
+da dabei sowohl die Aufnahme gestoppt als auch der Timer-Eintrag entfernt wird.<br>
+<br>
+<b>R&uuml;ckgabe-Format:</b> ok<br>
+<div class="example">
+Beispiel:<br>
 <br>
 &gt;&gt;&gt;http://box_ip/control/setmode?record=stop<br>
 ok<br>
-<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->
@@ -1927,6 +1948,76 @@ ok<br>
 &gt;&gt;&gt;http://box_ip/control/timer?action=new&amp;alDate=24.01.2006&amp;alTime=20.00&amp;stTime=20.15&amp;channel_name=Das%20Erste&amp;update=1<br>
 ok<br>
 <br>
+</div>
+<b>Parameter:</b> action=remove&amp;id=X<br>
+<b>R&uuml;ckgabe:</b><br>
+<br>
+Entfernt den Timer mit der angegebenen ID. Bei laufenden Aufnahmen (state=2, type=5/9)
+wird die Aufnahme gestoppt und der Timer-Eintrag gel&ouml;scht.
+Dies ist die bevorzugte Methode um laufende Aufnahmen zu stoppen, da sowohl der
+Aufnahme-Prozess als auch der Timer-Eintrag sauber aufger&auml;umt werden.<br>
+<br>
+<b>R&uuml;ckgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/timer?action=remove&amp;id=12345<br>
+ok<br>
+</div>
+<b>Parameter:</b> format=json<br>
+<b>R&uuml;ckgabe:</b> JSON-Objekt mit allen Timern<br>
+<br>
+Gibt die Timer-Liste im JSON-Format zur&uuml;ck. Jeder Timer enth&auml;lt
+alle Eigenschaften wie ID, Typ, Status, Zeiten, Sender und Wiederholung.<br>
+<br>
+<b>Timer-States:</b><br>
+0 = Geplant (waiting)<br>
+1 = Angek&uuml;ndigt (has_been_announced)<br>
+2 = Aktiv/Laufend (running)<br>
+3 = Beendet (has_finished)<br>
+4 = Abgebrochen (has_been_canceled)<br>
+<br>
+<b>Timer-Types:</b><br>
+1 = SHUTDOWN<br>
+3 = ZAPTO<br>
+4 = STANDBY<br>
+5 = RECORD<br>
+6 = REMIND<br>
+7 = SLEEPTIMER<br>
+8 = EXEC_PLUGIN<br>
+9 = IMMEDIATE_RECORD<br>
+<br>
+<b>R&uuml;ckgabe-Format (JSON):</b><br>
+<pre>{
+  "data": {
+    "timer": {
+      "timer": [
+        {
+          "timer_list": [
+            {
+              "id": "12345",
+              "type_number": "5",
+              "type": "Record",
+              "state": "0",
+              "repeat": { "text": "once", "count": "0" },
+              "alarm": [{ "normal": { "date": "08.02.2026", "time": "20:15" }, ... }],
+              "stop": [{ "normal": { "date": "08.02.2026", "time": "21:45" }, ... }],
+              "channel_id": "16dca",
+              "channel_name": "Das Erste HD",
+              "epg_id": "0",
+              "recording_dir": ""
+            }
+          ]
+        }
+      ]
+    }
+  }
+}</pre>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/timer?format=json<br>
+{"data":{"timer":{"timer":[{"timer_list":[...]}]}}}<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->

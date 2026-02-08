@@ -43,6 +43,7 @@
 #include <gui/plugins.h>//for relodplugins
 #include <neutrino.h>
 #include <driver/display.h>
+#include <driver/record.h>
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
 #include <src/tools/rcsim.h> // rcsim.h is located in $(top_builddir)
@@ -507,15 +508,23 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 		}
 		else if (hh->ParamList["record"] == "stop")	// stop record mode
 		{
-#if 0
-			NeutrinoAPI->Zapit->setRecordMode(false);
-			NeutrinoAPI->Sectionsd->setPauseScanning(false);
-			if (!NeutrinoAPI->Zapit->isPlayBackActive())
-				NeutrinoAPI->Zapit->startPlayBack();
-#endif
-			CTimerd::RecordingInfo recinfo;
-			recinfo.eventID = 0; // FIXME must present
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RECORD_STOP, CEventServer::INITID_HTTPD, (void *)&recinfo, sizeof(CTimerd::RecordingInfo));
+			CRecordManager * recManager = CRecordManager::getInstance();
+			if (recManager)
+			{
+				recmap_t recmap = recManager->GetRecordMap();
+				for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); ++it)
+				{
+					if (it->second->Timeshift())
+						continue;
+					CTimerd::RecordingStopInfo stopinfo;
+					stopinfo.eventID = it->second->GetRecordingId();
+					stopinfo.channel_id = it->second->GetChannelId();
+					NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RECORD_STOP,
+						CEventServer::INITID_HTTPD, (void *)&stopinfo,
+						sizeof(CTimerd::RecordingStopInfo));
+					break; // stop first non-timeshift recording
+				}
+			}
 		}
 		hh->SendOk();
 	}
