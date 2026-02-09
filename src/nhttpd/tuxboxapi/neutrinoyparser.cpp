@@ -1175,27 +1175,28 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 		return "";
 
 	t_channel_id current_channel = (cmd == "new") ? CZapit::getInstance()->GetCurrentChannelID() : timer.channel_id;
+	/* snapshot channel lists into local vectors to avoid race conditions
+	   with main thread modifying bouquets during iteration */
+	ZapitChannelList channels;
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
-	for (; !(cit.EndOfChannels()); cit++) {
-		if (((*cit)->flags & CZapitChannel::REMOVED) || (*cit)->flags & CZapitChannel::NOT_FOUND)
-			continue;
-		sel = ((*cit)->getChannelID() == current_channel) ? "selected=\"selected\"" : "";
-		hh->ParamList["program_row"] +=
-			string_printf("<option value=\""
-				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				"\" %s>%s</option>\n",
-				(*cit)->getChannelID(), sel.c_str(), (*cit)->getName().c_str());
-	}
+	for (; !(cit.EndOfChannels()); cit++)
+		channels.push_back(*cit);
 	cit = g_bouquetManager->radioChannelsBegin();
-	for (; !(cit.EndOfChannels()); cit++) {
-		if (((*cit)->flags & CZapitChannel::REMOVED) || (*cit)->flags & CZapitChannel::NOT_FOUND)
+	for (; !(cit.EndOfChannels()); cit++)
+		channels.push_back(*cit);
+
+	for (ZapitChannelList::iterator it = channels.begin(); it != channels.end(); ++it) {
+		CZapitChannel *channel = *it;
+		if (!channel)
 			continue;
-		sel = ((*cit)->getChannelID() == current_channel) ? "selected=\"selected\"" : "";
+		if ((channel->flags & CZapitChannel::REMOVED) || (channel->flags & CZapitChannel::NOT_FOUND))
+			continue;
+		sel = (channel->getChannelID() == current_channel) ? "selected=\"selected\"" : "";
 		hh->ParamList["program_row"] +=
 			string_printf("<option value=\""
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"\" %s>%s</option>\n",
-				(*cit)->getChannelID(), sel.c_str(), (*cit)->getName().c_str());
+				channel->getChannelID(), sel.c_str(), channel->getName().c_str());
 	}
 	// recordingDir
 	hh->ParamList["RECORD_DIR_MAXLEN"] = itoa(RECORD_DIR_MAXLEN-1);
