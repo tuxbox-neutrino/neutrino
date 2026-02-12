@@ -97,7 +97,7 @@ void	netGetIP(std::string &dev, std::string &ip, std::string &mask, std::string 
 	brdcast = "";
 
 	fd=socket(AF_INET,SOCK_DGRAM,0);
-	if ( !fd )
+	if ( fd < 0 )
 		return;
 
 
@@ -108,17 +108,20 @@ void	netGetIP(std::string &dev, std::string &ip, std::string &mask, std::string 
 
 	char tmp[80];
 
-	if( ioctl(fd,SIOCGIFADDR,&req) == 0 )
+	if( ioctl(fd,SIOCGIFADDR,&req) == 0 ) {
 		snprintf(tmp, sizeof(tmp),"%d.%d.%d.%d",addr[0],addr[1],addr[2],addr[3]);
-	ip = std::string(tmp);
+		ip = std::string(tmp);
+	}
 
-	if( ioctl(fd,SIOCGIFNETMASK,&req) == 0 )
+	if( ioctl(fd,SIOCGIFNETMASK,&req) == 0 ) {
 		snprintf(tmp, sizeof(tmp),"%d.%d.%d.%d",addr[0],addr[1],addr[2],addr[3]);
-	mask = std::string(tmp);
+		mask = std::string(tmp);
+	}
 
-	if( ioctl(fd,SIOCGIFBRDADDR,&req) == 0 )
+	if( ioctl(fd,SIOCGIFBRDADDR,&req) == 0 ) {
 		snprintf(tmp, sizeof(tmp),"%d.%d.%d.%d",addr[0],addr[1],addr[2],addr[3]);
-	brdcast = std::string(tmp);
+		brdcast = std::string(tmp);
+	}
 
 	close(fd);
 }
