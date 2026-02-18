@@ -1673,35 +1673,30 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 	if (!hh->ParamList["repeat"].empty())
 		repeat = atoi(hh->ParamList["repeat"].c_str());
 #endif
-#if 1
 	int evd = open(RC_DEVICE, O_RDWR);
 	if (evd < 0)
 		evd = open(RC_DEVICE_FALLBACK, O_RDWR);
-	if (evd < 0) {
-		perror("opening " RC_DEVICE " failed");
-		hh->SendError();
-		return;
-	}
-	sendcode = g_RCInput->translateRevert(sendcode);
-	if (rc_send(evd, sendcode, KEY_PRESSED) < 0) {
-		perror("writing 'KEY_PRESSED' event failed");
-		hh->SendError();
+
+	if (evd >= 0) {
+		sendcode = g_RCInput->translateRevert(sendcode);
+		if (rc_send(evd, sendcode, KEY_PRESSED) < 0) {
+			perror("writing 'KEY_PRESSED' event failed");
+			hh->SendError();
+			close(evd);
+			return;
+		}
+		rc_sync(evd);
+		if (rc_send(evd, sendcode, KEY_RELEASED) < 0) {
+			perror("writing 'KEY_RELEASED' event failed");
+			hh->SendError();
+			close(evd);
+			return;
+		}
+		rc_sync(evd);
 		close(evd);
-		return;
+	} else {
+		g_RCInput->postMsg((neutrino_msg_t) sendcode, 0);
 	}
-	rc_sync(evd);
-	if (rc_send(evd, sendcode, KEY_RELEASED) < 0) {
-		perror("writing 'KEY_RELEASED' event failed");
-		hh->SendError();
-		close(evd);
-		return;
-	}
-	rc_sync(evd);
-	close(evd);
-#else
-	/* 0 == KEY_PRESSED in rcinput.cpp */
-	g_RCInput->postMsg((neutrino_msg_t) sendcode, 0);
-#endif
 	hh->SendOk();
 }
 //-----------------------------------------------------------------------------
