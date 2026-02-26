@@ -32,7 +32,7 @@
 #define DEFAULT_DOCS_URL         "https://wiki.tuxbox-neutrino.org"
 #define DEFAULT_FORUM_URL        "https://forum.tuxbox-neutrino.org"
 #define DEFAULT_COPYRIGHT_HOLDER "Tuxbox Project"
-#define DEFAULT_COPYRIGHT_YEAR   "2025"
+#define DEFAULT_COPYRIGHT_YEAR   "2026"
 
 // Config file paths
 #define OS_RELEASE_FILE    "/etc/os-release"
