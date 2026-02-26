@@ -34,6 +34,7 @@
 
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 CConfigFile::CConfigFile(const char p_delimiter, const bool p_saveDefaults)
 {
@@ -105,8 +106,15 @@ bool CConfigFile::saveConfig(const char *const filename, char _delimiter)
 			configFile << it->first << _delimiter << it->second << std::endl;
 		}
 
-		configFile.sync();
+		configFile.flush();
 		configFile.close();
+		{
+			int syncfd = ::open(tmpname.c_str(), O_RDWR);
+			if (syncfd >= 0) {
+				::fdatasync(syncfd);
+				::close(syncfd);
+			}
+		}
 
 		chmod(tmpname.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		/* TODO: check available space? */
