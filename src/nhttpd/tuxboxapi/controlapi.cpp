@@ -264,6 +264,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	// Start skripts, plugins
 	{"startplugin",		&CControlAPI::StartPluginCGI,		"text/plain"},
 	{"exec",		&CControlAPI::ExecCGI,			"text/plain"},
+	{"cmd",			&CControlAPI::CmdCGI,			"text/plain"},
 	{"yweb",		&CControlAPI::YWebCGI,			"text/plain"},
 	// video & Audio handling
 	{"aspectratio",		&CControlAPI::AspectRatioCGI,		"text/plain"},
@@ -629,6 +630,42 @@ void CControlAPI::ExecCGI(CyhookHandler *hh)
 		hh->SetError(HTTP_NOT_FOUND);
 	else
 		hh->WriteLn(result);
+}
+
+//-----------------------------------------------------------------------------
+void CControlAPI::CmdCGI(CyhookHandler *hh)
+{
+	if (hh->ParamList.empty())
+	{
+		hh->SetError(HTTP_BAD_REQUEST);
+		return;
+	}
+
+	std::string cmd = hh->ParamList["1"];
+	for (unsigned int i = 2; i <= hh->ParamList.size(); i++)
+	{
+		std::string p = hh->ParamList[itoa(i)];
+		if (!p.empty())
+		{
+			cmd += " ";
+			cmd += p;
+		}
+	}
+
+	FILE *f = popen(cmd.c_str(), "r");
+	if (f == NULL)
+	{
+		hh->SetError(HTTP_INTERNAL_SERVER_ERROR);
+		return;
+	}
+
+	std::string result;
+	char buf[1024];
+	while (fgets(buf, sizeof(buf), f))
+		result += buf;
+	pclose(f);
+
+	hh->WriteLn(result);
 }
 
 //-----------------------------------------------------------------------------
