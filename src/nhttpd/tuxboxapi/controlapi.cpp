@@ -5062,13 +5062,15 @@ void CControlAPI::FileCGI(CyhookHandler *hh)
 				bool got_next = (f != filelist.end()-1);
 
 				std::string item = "";
+				struct stat statbuf;
+				bool have_stat = (stat(f->fullname.c_str(), &statbuf) != -1);
+
 				item += hh->outPair("name",	hh->outValue(f->name.c_str()), true);
 				item += hh->outPair("type_str",	hh->outValue(f->type_str.c_str()), true);
 				item += hh->outPair("type",	string_printf("%d", (int) f->type), true);
-				item += hh->outPair("fullname",	hh->outValue(f->fullname.c_str()), true);
+				item += hh->outPair("fullname",	hh->outValue(f->fullname.c_str()), have_stat);
 
-				struct stat statbuf;
-				if (stat(f->fullname.c_str(), &statbuf) != -1) {
+				if (have_stat) {
 					item += hh->outPair("mode", string_printf("%xld", (long) statbuf.st_mode), true);
 
 					/* Print out type, permissions, and number of links. */
