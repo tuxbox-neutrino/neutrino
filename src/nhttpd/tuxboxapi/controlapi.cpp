@@ -4891,9 +4891,9 @@ static bool config_key_is_secret(const std::string &key)
 //-------------------------------------------------------------------------
 void CControlAPI::ConfigCGI(CyhookHandler *hh)
 {
-	bool load = true;
-	CConfigFile *Config = new CConfigFile(',');
-	ConfigDataMap conf;
+	bool load = (hh->ParamList["action"] != "submit");
+	CConfigFile *Config = NULL;
+	bool own_config = false;
 	std::string config_filename = "";
 	std::string error = "";
 	std::string result = "";
@@ -4901,24 +4901,29 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 
 	hh->outStart();
 
-	if (hh->ParamList["action"] == "submit")
-		load = false;
-
-	// Para "config" describes the config type
-	if (configFileName == "neutrino")
+	// For "neutrino": use Neutrino's own configfile instance (shared with saveSetup/loadSetup)
+	if (configFileName == "neutrino") {
 		config_filename = NEUTRINO_CONFIGFILE;
-	else if (configFileName == "moviebrowser")
-		config_filename = MOVIEBROWSER_CONFIGFILE;
-	else if (configFileName == "nhttpd")
-		config_filename = HTTPD_CONFIGFILE;
-	else if (configFileName == "yweb")
-		config_filename = YWEB_CONFIGFILE;
+		Config = CNeutrinoApp::getInstance()->getConfigFile();
+	}
+	else {
+		// For nhttpd, yweb, moviebrowser: use a separate instance (disk-only)
+		own_config = true;
+		Config = new CConfigFile(',');
+		if (configFileName == "moviebrowser")
+			config_filename = MOVIEBROWSER_CONFIGFILE;
+		else if (configFileName == "nhttpd")
+			config_filename = HTTPD_CONFIGFILE;
+		else if (configFileName == "yweb")
+			config_filename = YWEB_CONFIGFILE;
 
-	if (!config_filename.empty()) {
-		Config->loadConfig(config_filename);
+		if (!config_filename.empty())
+			Config->loadConfig(config_filename);
+	}
 
+	if (Config && !config_filename.empty()) {
 		if (load) {	// get and output list
-			conf = Config->getConfigDataMap();
+			ConfigDataMap conf = Config->getConfigDataMap();
 			ConfigDataMap::iterator it, end;
 			// the separator goes before every entry but the first one written,
 			// which is not the first one in the map once that one is left out
@@ -4940,17 +4945,19 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				std::string key = it->first;
 				replace(key, "_dot_", ".");
 				replace(key, "_bind_", "-");
-				if (key != "_dc" && key != "action" && key != "format" && key != "config") {
+				if (key != "_dc" && key != "action" && key != "format" && key != "config"
+			    && !key.empty() && key.find_first_not_of("0123456789") != std::string::npos)
 					Config->setString(key, it->second);
-				}
 			}
-			if (!config_filename.empty())
+			if (configFileName == "neutrino")
+				CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
+			else if (own_config)
 				Config->saveConfig(config_filename);
 		}
 	}
 	else {
 		if(!configFileName.empty())
-			error = string_printf("no config defined for %s", (hh->ParamList["config"]).c_str());
+			error = string_printf("no config defined for %s", configFileName.c_str());
 	}
 
 	hh->WriteLn(hh->outObject("config", result));
@@ -4960,7 +4967,8 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	else
 		hh->SendError(error);
 
-	delete Config;
+	if (own_config)
+		delete Config;
 }
 
 //-----------------------------------------------------------------------------

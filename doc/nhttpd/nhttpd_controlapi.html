@@ -2862,34 +2862,24 @@ Beispiel:<br>
 <div class="URL">Handler: http://box_ip/control/config</div>
 <br>
 <b>Parameter:</b> config=neutrino oder config=nhttpd oder config=yweb; format=json oder format=xml<br><br>
-<b>R&uuml;ckgabe:</b> Gibt die entsprechende Konfigurationsdatei als plain text, oder bei entsprechender<br>
-Option (format=...) als JSON oder XML aus<br>
+<b>Lesen:</b> Gibt die entsprechende Konfiguration als plain text, oder bei entsprechender
+Option (format=...) als JSON oder XML aus.<br><br>
+<b>Schreiben:</b> action=submit&amp;key1=value1&amp;key2=value2&amp;...<br>
+Setzt die angegebenen Werte in der Konfiguration und speichert sie.<br><br>
+<b>Hinweis:</b> F&uuml;r <code>config=neutrino</code> wird Neutrinos interne Konfiguration verwendet
+(gleiche Instanz wie OSD-Men&uuml;). &Auml;nderungen werden &uuml;ber <code>saveSetup()</code> gespeichert.
+F&uuml;r <code>config=nhttpd</code> und <code>config=yweb</code> wird direkt auf die jeweilige
+Konfigurationsdatei zugegriffen.<br>
 <br>
 <div class="example">
-Beispiel:<br>
+Beispiel (Lesen):<br>
 <br>
-&gt;&gt;&gt;http://box_ip/control/config?config=neutrino<br>
-analog_mode1=770<br>
-analog_mode2=516<br>
-analog_out=1<br>
-...<br>
-<b>Parameter:</b> action=submit&amp;key1=value1&amp;key2=value2&amp;...<br><br>
-<b>R&uuml;ckgabe:</b> bearbeitete Konfigurationsdatei im ausgew&auml;hlten Format<br><br>
-<b>ACHTUNG: </b>Das Schreiben f&uuml;hrt zum Setzen von Pseudo-Werten in die Konfigurationsdatei, wie bspw:<br>
-2=config<br>
-4=action<br>
-6=analog_mode1<br>
-8=analog_mode2<br>
-Dies zerst&ouml;rt die XML-Ausgabe. Der Befehl sollte nicht verwendet werden.<br>
-Beispiel:<br>
+&gt;&gt;&gt;http://box_ip/control/config?config=neutrino&amp;format=json<br>
+{"success": "true", "data":{"config": {"analog_mode1": "770", "analog_mode2": "516", ...}}}<br>
 <br>
-&gt;&gt;&gt;http://box_ip/control/config?config=neutrino&action=submit&analog_mode1=799&analog_mode2=522&format=xml<br>
-...<br>
-&lt;config&gt;<br>
-&lt;analog_mode1&gt;799&lt;/analog_mode1&gt;<br>
-&lt;analog_mode2&gt;522&lt;/analog_mode2&gt;<br>
-&lt;analog_out&gt;1&lt;/analog_out&gt;<br>
-	...<br>
+Beispiel (Schreiben):<br>
+<br>
+&gt;&gt;&gt;http://box_ip/control/config?config=neutrino&amp;action=submit&amp;analog_mode1=799&amp;analog_mode2=522<br>
 &nbsp;</div>
 
 <!-- ----------------------------------------------------------- -->
