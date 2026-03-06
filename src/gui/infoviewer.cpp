@@ -37,6 +37,7 @@
 #endif
 #include "infoviewer.h"
 #include "infoviewer_bb.h"
+#include "zap_failure_message.h"
 
 #include <algorithm>
 
@@ -89,6 +90,40 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 }
 
 extern bool timeset;
+
+static t_channel_id getFailedChannelId(const neutrino_msg_data_t data)
+{
+	/* Protect against callers that post EVT_ZAP_FAILED without pointer payload. */
+	if (data < 4096)
+		return 0;
+
+	return *(t_channel_id *) data;
+}
+
+static int getFailureHintWidth(const std::string &text)
+{
+	int width = 430;
+
+	size_t start = 0;
+	while (start <= text.size()) {
+		size_t end = text.find('\n', start);
+		std::string line = text.substr(start, end == std::string::npos ? std::string::npos : end - start);
+		if (!line.empty()) {
+			int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(line.c_str()) + 2 * OFFSET_INNER_MID;
+			if (w > width)
+				width = w;
+		}
+		if (end == std::string::npos)
+			break;
+		start = end + 1;
+	}
+
+	int max_width = g_settings.screen_EndX - g_settings.screen_StartX - 2 * OFFSET_INNER_MID;
+	if (max_width > 0 && width > max_width)
+		width = max_width;
+
+	return width;
+}
 
 CInfoViewer::CInfoViewer ()
 	: fader(g_settings.theme.infobar_alpha)
@@ -1292,9 +1327,18 @@ void CInfoViewer::showSubchan ()
 	}
 }
 
-void CInfoViewer::showFailure ()
+void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 {
-	ShowHint (LOCALE_MESSAGEBOX_ERROR, g_Locale->getText (LOCALE_INFOVIEWER_NOTAVAILABLE), 430);
+	std::string text = g_Locale->getText(LOCALE_INFOVIEWER_NOTAVAILABLE);
+	t_channel_id current = g_RemoteControl ? g_RemoteControl->current_channel_id : 0;
+	CZapFailureInfo failure_info = CZapFailureAnalyzer::analyze(failed_channel_id, current);
+	CZapFailureMessageBuilder message_builder;
+	std::string reason = message_builder.buildReasonText(failure_info);
+	if (!reason.empty()) {
+		text += "\n";
+		text += reason;
+	}
+	ShowHint(LOCALE_MESSAGEBOX_ERROR, text.c_str(), getFailureHintWidth(text));
 }
 
 void CInfoViewer::showMotorMoving (int duration)
@@ -1414,6 +1458,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED) {
 		//chanready = 1;
 		showSNR ();
+		t_channel_id failed_channel_id = getFailedChannelId(data);
 		// show failure..!
 		CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
 #ifdef ENABLE_GRAPHLCD
@@ -1421,13 +1466,16 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 			cGLCD::lockChannel("(" + g_RemoteControl->getCurrentChannelName () + ')', "", 0);
 #endif
 		printf ("zap failed!\n");
-		showFailure ();
+		showFailure(failed_channel_id);
 		CVFD::getInstance ()->showPercentOver (255);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_FAILED) {
 		//chanready = 1;
 		showSNR ();
-		if ((*(t_channel_id *) data) == current_channel_id) {
+		t_channel_id failed_channel_id = getFailedChannelId(data);
+		if (!failed_channel_id)
+			failed_channel_id = current_channel_id;
+		if (failed_channel_id == current_channel_id) {
 			// show failure..!
 			CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
 #ifdef ENABLE_GRAPHLCD
@@ -1435,7 +1483,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				cGLCD::lockChannel("(" + g_RemoteControl->getCurrentChannelName () + ')', "", 0);
 #endif
 			printf ("zap failed!\n");
-			showFailure ();
+			showFailure(failed_channel_id);
 			CVFD::getInstance ()->showPercentOver (255);
 		}
 		return messages_return::handled;

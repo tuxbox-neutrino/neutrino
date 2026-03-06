@@ -35,6 +35,7 @@ libneutrino_system_a_SOURCES = \
 	lastchannel.cpp \
 	luaserver.cpp \
 	localize.cpp \
+	zap_failure_analyzer.cpp \
 	helpers.cpp \
 	mdb-tools.cpp \
 	ping.cpp \

@@ -482,35 +482,35 @@ extra.dboxinfo_uptime Uptime
 extra.dboxinfo_use Use
 extra.dboxinfo_used Used
 extra.east East
-extra.fec_1_2 1/2
-extra.fec_2_3 2/3
-extra.fec_2_5 2/5
-extra.fec_3_4 3/4
-extra.fec_3_5 3/5
-extra.fec_4_5 4/5
-extra.fec_5_6 5/6
-extra.fec_6_7 6/7
-extra.fec_7_8 7/8
-extra.fec_7_9 7/9
-extra.fec_8_9 8/9
-extra.fec_9_10 9/10
-extra.fec_9_20 9/20
 extra.fec_11_15 11/15
 extra.fec_11_20 11/20
 extra.fec_13_18 13/18
 extra.fec_13_45 13/45
+extra.fec_1_2 1/2
+extra.fec_1_2_L 1/2L
 extra.fec_23_36 23/36
 extra.fec_25_36 25/36
 extra.fec_26_45 26/45
-extra.fec_28_45 28/45
-extra.fec_32_45 32/45
-extra.fec_77_90 77/90
-extra.fec_1_2_L 1/2L
-extra.fec_2_3_L 2/3L
-extra.fec_3_5_L 3/5L
-extra.fec_5_9_L 5/9L
-extra.fec_8_15_L 8/15L
 extra.fec_26_45_L 26/45L
+extra.fec_28_45 28/45
+extra.fec_2_3 2/3
+extra.fec_2_3_L 2/3L
+extra.fec_2_5 2/5
+extra.fec_32_45 32/45
+extra.fec_3_4 3/4
+extra.fec_3_5 3/5
+extra.fec_3_5_L 3/5L
+extra.fec_4_5 4/5
+extra.fec_5_6 5/6
+extra.fec_5_9_L 5/9L
+extra.fec_6_7 6/7
+extra.fec_77_90 77/90
+extra.fec_7_8 7/8
+extra.fec_7_9 7/9
+extra.fec_8_15_L 8/15L
+extra.fec_8_9 8/9
+extra.fec_9_10 9/10
+extra.fec_9_20 9/20
 extra.fec_auto Auto
 extra.key_current_transponder Current transponder
 extra.key_format_mode Video format
@@ -1073,6 +1073,14 @@ infoviewer.next next
 infoviewer.nocurrent No info for current program available
 infoviewer.noepg EPG not available
 infoviewer.notavailable Channel not available
+infoviewer.notavailable.hint_check_tuner_setup Please check tuner configuration.
+infoviewer.notavailable.reason_no_active_tuner No active tuner available.
+infoviewer.notavailable.reason_no_delivery No active tuner supports this channel delivery system.
+infoviewer.notavailable.reason_no_free_tuner No free tuner is currently available.
+infoviewer.notavailable.reason_no_source_config No active tuner is configured for the selected satellite/provider.
+infoviewer.notavailable.reason_stream_start_failed Stream could not be started.
+infoviewer.notavailable.reason_tune_failed Tuning failed (no signal or transponder unavailable).
+infoviewer.notavailable.source Source: %s
 infoviewer.now now
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subchan_infobar Full infobar
@@ -2304,12 +2312,12 @@ opkg.messagebox.reinstall Re-install %s?
 opkg.messagebox.remove Remove %s?
 opkg.messagebox.size.error Not enough free memory available for this package!
 opkg.messagebox.updates.available Package update(s) available!
-opkg.success.install Install successful!\n Restart of Neutrino might be required. Restart now?
 opkg.separator.packages.available Available packages
 opkg.separator.packages.available.plugins Available plugins
 opkg.separator.packages.installed Installed
 opkg.separator.packages.installed.plugins Installed plugins
 opkg.separator.upgrades.available Updates
+opkg.success.install Install successful!\n Restart of Neutrino might be required. Restart now?
 opkg.title Package Management
 opkg.title.expert.mode Package Management - Expert mode
 opkg.update.check Checking for updates...

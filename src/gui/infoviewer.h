@@ -129,7 +129,7 @@ class CInfoViewer : public sigc::trackable
 	void showRecordIcon(const bool show);
 	void showIcon_Tuner() const;
 
-	void showFailure();
+	void showFailure(t_channel_id failed_channel_id = 0);
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();
 	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
