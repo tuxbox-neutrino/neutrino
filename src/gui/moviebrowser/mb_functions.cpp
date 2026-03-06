@@ -37,7 +37,7 @@ bool sortDirection = 0;
 
 static bool compare_to_lower(const char a, const char b)
 {
-	return tolower(a) < tolower(b);
+	return std::tolower(static_cast<unsigned char>(a)) < std::tolower(static_cast<unsigned char>(b));
 }
 
 // sort operators
@@ -67,9 +67,12 @@ static bool sortByChannel(const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
 }
 static bool sortByFileName(const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
 {
-	if (std::lexicographical_compare(a->file.getFileName().begin(), a->file.getFileName().end(), b->file.getFileName().begin(), b->file.getFileName().end(), compare_to_lower))
+	const std::string a_file_name = a->file.getFileName();
+	const std::string b_file_name = b->file.getFileName();
+
+	if (std::lexicographical_compare(a_file_name.begin(), a_file_name.end(), b_file_name.begin(), b_file_name.end(), compare_to_lower))
 		return true;
-	if (std::lexicographical_compare(b->file.getFileName().begin(), b->file.getFileName().end(), a->file.getFileName().begin(), a->file.getFileName().end(), compare_to_lower))
+	if (std::lexicographical_compare(b_file_name.begin(), b_file_name.end(), a_file_name.begin(), a_file_name.end(), compare_to_lower))
 		return false;
 	return a->file.Time < b->file.Time;
 }

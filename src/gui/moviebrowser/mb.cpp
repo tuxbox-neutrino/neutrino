@@ -184,7 +184,7 @@ void CMovieBrowser::init(void)
 
 	if (m_settings.sorting.direction >= MB_DIRECTION_MAX_NUMBER)
 		m_settings.sorting.direction = MB_DIRECTION_DOWN;
-	if (m_settings.sorting.item >= MB_INFO_MAX_NUMBER)
+	if (m_settings.sorting.item >= MB_INFO_MAX_NUMBER || sortBy[m_settings.sorting.item] == NULL)
 		m_settings.sorting.item = MB_INFO_TITLE;
 
 	if (m_settings.filter.item >= MB_INFO_MAX_NUMBER)

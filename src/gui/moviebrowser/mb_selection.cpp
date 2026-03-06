@@ -55,6 +55,10 @@ bool CMovieBrowser::onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& handl
 {
 	if (handle_list.empty())
 		return false;
+
+	if (sort_item >= MB_INFO_MAX_NUMBER || sortBy[sort_item] == NULL)
+		sort_item = MB_INFO_TITLE;
+
 	if (sortBy[sort_item] == NULL)
 		return false;
 
