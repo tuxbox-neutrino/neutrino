@@ -97,13 +97,13 @@ class CComponentsChannelLogo : public CCPicture
 		std::string channel_name;
 
 		///mode of event logo
-		bool enable_event_logo;
+		bool enable_event_logo = false;
 
 		///alternate image file, if no channel logo is available
 		std::string alt_pic_name;
 
 		///indicates that logo is available, after paint or new instance, value = false
-		bool has_logo;
+		bool has_logo = false;
 
 	public:
 		/*!
