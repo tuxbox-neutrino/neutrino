@@ -150,15 +150,12 @@ CMoviePlayerGui::~CMoviePlayerGui()
 		delete bookmarkmanager;
 		bookmarkmanager = NULL;
 	}
-	if(playback){
-		// Synchronisierte Freigabe von playback
-		if (playback) {
-			mutex.lock();
-			delete playback;
-			playback = NULL;
-			mutex.unlock();
-		}
+	if (playback) {
+		mutex.lock();
+		playback->Close();
+		delete playback;
 		playback = NULL;
+		mutex.unlock();
 	}
 	if (this == instance_mp) {
 		delete instance_bg;
