@@ -47,6 +47,7 @@ class CAit : public OpenThreads::Thread
 		bool running;
 		std::string name;
 		ApplicationInformationSectionList sections;
+		void clearSections();
 		void run();
 		bool Read();
 

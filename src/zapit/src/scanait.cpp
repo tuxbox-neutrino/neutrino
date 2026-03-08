@@ -44,6 +44,15 @@ CAit::CAit()
 	running = false;
 }
 
+void CAit::clearSections()
+{
+	ApplicationInformationSectionList::iterator it;
+	for (it = sections.begin(); it != sections.end(); ++it)
+		delete *it;
+
+	sections.clear();
+}
+
 void CAit::setDemux(int dnum)
 {
 	dmxnum = dnum;
@@ -56,6 +65,8 @@ bool CAit::Start()
 	running = true;
 
 	int ret = start();
+	if (ret != 0)
+		running = false;
 	return (ret == 0);
 }
 
@@ -80,6 +91,8 @@ void CAit::run()
 
 CAit::~CAit()
 {
+	Stop();
+	clearSections();
 }
 
 bool CAit::Read()
@@ -120,6 +133,7 @@ bool CAit::Read()
 bool CAit::Parse()
 {
 	printf("[ait] trying to parse AIT\n");
+	clearSections();
 
 	if (!Read())
 		return false;
@@ -140,6 +154,7 @@ bool CAit::Parse()
 			if (pFile)
 				fclose(pFile);
 
+			clearSections();
 			return false;
 		}
 		std::list<ApplicationInformation *>::const_iterator i = (*sit)->getApplicationInformation()->begin();
@@ -240,7 +255,7 @@ bool CAit::Parse()
 	}
 	if (pFile)
 		fclose(pFile);
-	sections.clear();
+	clearSections();
 	return true;
 }
 
