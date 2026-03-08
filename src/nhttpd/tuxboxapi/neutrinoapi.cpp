@@ -55,6 +55,16 @@ extern cAudio * audioDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CZapitClient::SatelliteList satList;
 
+// TODO: system/debug.h and yhttpd_core/ylogging.h both define dprintf/dperror
+// with incompatible signatures. This #undef workaround should be replaced by
+// proper namespacing (e.g. ndprintf/ydprintf) in both subsystems.
+#ifdef dprintf
+#undef dprintf
+#endif
+#ifdef dperror
+#undef dperror
+#endif
+
 // yhttpd
 #include <ylogging.h>
 
