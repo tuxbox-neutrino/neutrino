@@ -50,6 +50,7 @@
 //#include <string>
 #include <vector>
 #include <list>
+#include <memory>
 
 #include <gui/widget/textbox.h>
 #include <gui/widget/listframe.h>
@@ -162,7 +163,7 @@ class CMovieBrowser : public CMenuTarget, public CProgressSignals
 		lf_line_types_t m_playListLines;
 		lf_line_types_t m_FilterLines;
 
-		std::vector<MI_MOVIE_INFO> m_vMovieInfo;
+		std::vector<std::unique_ptr<MI_MOVIE_INFO>> m_vMovieInfo;
 		std::vector<MI_MOVIE_INFO*> m_vHandleBrowserList;
 		std::vector<MI_MOVIE_INFO*> m_vHandleRecordList;
 		std::vector<MI_MOVIE_INFO*> m_vHandlePlayList;

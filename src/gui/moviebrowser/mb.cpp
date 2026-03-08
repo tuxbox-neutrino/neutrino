@@ -97,11 +97,11 @@ CMovieBrowser::~CMovieBrowser()
 
 	m_dirNames.clear();
 
-	m_vMovieInfo.clear();
 	m_vHandleBrowserList.clear();
 	m_vHandleRecordList.clear();
 	m_vHandlePlayList.clear();
 	m_vHandleSerienames.clear();
+	m_vMovieInfo.clear();
 
 	clearListLines();
 
@@ -118,7 +118,7 @@ CMovieBrowser::~CMovieBrowser()
 void CMovieBrowser::clearSelection()
 {
 	for (unsigned i = 0; i < m_vMovieInfo.size(); i++)
-		m_vMovieInfo[i].marked = false;
+		m_vMovieInfo[i]->marked = false;
 
 	m_pcBrowser->clearMarked();
 	m_pcLastPlay->clearMarked();
@@ -133,11 +133,11 @@ void CMovieBrowser::fileInfoStale(void)
 	 // Also release memory buffers, since we have to reload this stuff next time anyhow
 	m_dirNames.clear();
 
-	m_vMovieInfo.clear();
 	m_vHandleBrowserList.clear();
 	m_vHandleRecordList.clear();
 	m_vHandlePlayList.clear();
 	m_vHandleSerienames.clear();
+	m_vMovieInfo.clear();
 
 	clearListLines();
 }

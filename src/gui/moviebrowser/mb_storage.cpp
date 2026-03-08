@@ -42,6 +42,7 @@
 #include "mb_constants.h"
 
 #include <global.h>
+#include <memory>
 
 #include <gui/filebrowser.h>
 #include <system/hddstat.h>
@@ -122,7 +123,12 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 
 	m_movieSelectionHandler = NULL;
 	m_dirNames.clear();
+	m_vHandleBrowserList.clear();
+	m_vHandleRecordList.clear();
+	m_vHandlePlayList.clear();
+	m_vHandleSerienames.clear();
 	m_vMovieInfo.clear();
+	m_vMovieInfo.reserve(256);
 
 	updateDir();
 
@@ -157,8 +163,8 @@ bool CMovieBrowser::gotMovie(const char *rec_title)
 	bool found = false;
 	for (unsigned int i = 0; i < m_vMovieInfo.size(); i++)
 	{
-		//dprintf(DEBUG_DEBUG, "[mb] search for %s in %s\n", rec_title, m_vMovieInfo[i].epgTitle.c_str());
-		if (strcmp(rec_title, m_vMovieInfo[i].epgTitle.c_str()) == 0)
+		//dprintf(DEBUG_DEBUG, "[mb] search for %s in %s\n", rec_title, m_vMovieInfo[i]->epgTitle.c_str());
+		if (strcmp(rec_title, m_vMovieInfo[i]->epgTitle.c_str()) == 0)
 		{
 			found = true;
 			break;
@@ -198,15 +204,15 @@ bool CMovieBrowser::addFile(CFile &file, int dirItNr)
 		return false;
 	}
 
-	MI_MOVIE_INFO movieInfo;
+	std::unique_ptr<MI_MOVIE_INFO> mi(new MI_MOVIE_INFO());
 
-	movieInfo.file = file;
-	if(!m_movieInfo.loadMovieInfo(&movieInfo)) {
-		movieInfo.channelName = std::string(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD));
-		movieInfo.epgTitle = file.getFileName();
+	mi->file = file;
+	if (!m_movieInfo.loadMovieInfo(mi.get())) {
+		mi->channelName = std::string(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD));
+		mi->epgTitle = file.getFileName();
 	}
-	movieInfo.dirItNr = dirItNr;
-	m_vMovieInfo.push_back(movieInfo);
+	mi->dirItNr = dirItNr;
+	m_vMovieInfo.push_back(std::move(mi));
 	return true;
 }
 
@@ -359,7 +365,7 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 void CMovieBrowser::loadAllMovieInfo(void)
 {
 	for (unsigned int i=0; i < m_vMovieInfo.size();i++)
-		m_movieInfo.loadMovieInfo(&(m_vMovieInfo[i]));
+		m_movieInfo.loadMovieInfo(m_vMovieInfo[i].get());
 }
 
 void CMovieBrowser::updateSerienames(void)
@@ -370,17 +376,18 @@ void CMovieBrowser::updateSerienames(void)
 	m_vHandleSerienames.clear();
 	for (unsigned int i = 0; i < m_vMovieInfo.size(); i++)
 	{
-		if (!m_vMovieInfo[i].serieName.empty())
+		MI_MOVIE_INFO *mi = m_vMovieInfo[i].get();
+		if (!mi->serieName.empty())
 		{
 			// current series name is not empty, lets see if we already have it in the list, and if not save it to the list.
 			bool found = false;
 			for (unsigned int t = 0; t < m_vHandleSerienames.size() && found == false; t++)
 			{
-				if (strcmp(m_vHandleSerienames[t]->serieName.c_str(),m_vMovieInfo[i].serieName.c_str()) == 0)
+				if (strcmp(m_vHandleSerienames[t]->serieName.c_str(), mi->serieName.c_str()) == 0)
 					found = true;
 			}
 			if (found == false)
-				m_vHandleSerienames.push_back(&m_vMovieInfo[i]);
+				m_vHandleSerienames.push_back(mi);
 		}
 	}
 	dprintf(DEBUG_DEBUG, "[mb]->updateSerienames: %d\n", (int)m_vHandleSerienames.size());
@@ -395,16 +402,17 @@ void CMovieBrowser::autoFindSerie(void)
 	// if the array is not stale, the function is left immediately
 	for (unsigned int i = 0; i < m_vMovieInfo.size(); i++)
 	{
+		MI_MOVIE_INFO *mi = m_vMovieInfo[i].get();
 		// For all movie infos, which do not have a seriename, we try to find one.
 		// We search for a movieinfo with seriename, and than we do check if the title is the same
 		// in case of same title, we assume both belongs to the same serie
-		if (m_vMovieInfo[i].serieName.empty())
+		if (mi->serieName.empty())
 		{
 			for (unsigned int t=0; t < m_vHandleSerienames.size();t++)
 			{
-				if (m_vMovieInfo[i].epgTitle == m_vHandleSerienames[t]->epgTitle)
+				if (mi->epgTitle == m_vHandleSerienames[t]->epgTitle)
 				{
-					m_vMovieInfo[i].serieName = m_vHandleSerienames[t]->serieName;
+					mi->serieName = m_vHandleSerienames[t]->serieName;
 					break; // we  found a maching serie, nothing to do else, leave for(t=0)
 				}
 			}

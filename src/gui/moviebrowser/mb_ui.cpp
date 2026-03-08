@@ -581,14 +581,15 @@ void CMovieBrowser::refreshFilterList(void)
 		{
 			for (unsigned int i = 0; i < m_vMovieInfo.size(); i++)
 			{
+				MI_MOVIE_INFO *mi = m_vMovieInfo[i].get();
 				bool found = false;
 				for (unsigned int t = 0; t < m_FilterLines.lineArray[0].v_text.size() && found == false; t++)
 				{
-					if (strcmp(m_FilterLines.lineArray[0].v_text[t].c_str(),m_vMovieInfo[i].epgInfo1.c_str()) == 0)
+					if (strcmp(m_FilterLines.lineArray[0].v_text[t].c_str(), mi->epgInfo1.c_str()) == 0)
 						found = true;
 				}
 				if (found == false)
-					m_pcFilter->addLine2Row(&m_FilterLines, 0, m_vMovieInfo[i].epgInfo1);
+					m_pcFilter->addLine2Row(&m_FilterLines, 0, mi->epgInfo1);
 			}
 		}
 		else if (m_settings.filter.item == MB_INFO_MAJOR_GENRE)
@@ -634,9 +635,9 @@ void CMovieBrowser::refreshLastPlayList(void) //P2
 	// prepare Browser list for sorting and filtering
 	for (unsigned int file = 0; file < m_vMovieInfo.size(); file++)
 	{
-		if (isParentalLock(m_vMovieInfo[file]) == false)
+		if (isParentalLock(*m_vMovieInfo[file]) == false)
 		{
-			movie_handle = &(m_vMovieInfo[file]);
+			movie_handle = m_vMovieInfo[file].get();
 			m_vHandlePlayList.push_back(movie_handle);
 		}
 	}
@@ -691,9 +692,9 @@ void CMovieBrowser::refreshLastRecordList(void) //P2
 	// prepare Browser list for sorting and filtering
 	for (unsigned int file = 0; file < m_vMovieInfo.size(); file++)
 	{
-		if (isParentalLock(m_vMovieInfo[file]) == false)
+		if (isParentalLock(*m_vMovieInfo[file]) == false)
 		{
-			movie_handle = &(m_vMovieInfo[file]);
+			movie_handle = m_vMovieInfo[file].get();
 			m_vHandleRecordList.push_back(movie_handle);
 		}
 	}
@@ -754,11 +755,11 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 	// prepare Browser list for sorting and filtering
 	for (unsigned int file=0; file < m_vMovieInfo.size(); file++)
 	{
-		if (isFiltered(m_vMovieInfo[file]) == false &&
-				isParentalLock(m_vMovieInfo[file]) == false &&
-				(m_settings.browser_serie_mode == 0 || m_vMovieInfo[file].serieName.empty() || m_settings.filter.item == MB_INFO_SERIE))
+		if (isFiltered(*m_vMovieInfo[file]) == false &&
+				isParentalLock(*m_vMovieInfo[file]) == false &&
+				(m_settings.browser_serie_mode == 0 || m_vMovieInfo[file]->serieName.empty() || m_settings.filter.item == MB_INFO_SERIE))
 		{
-			movie_handle = &(m_vMovieInfo[file]);
+			movie_handle = m_vMovieInfo[file].get();
 			m_vHandleBrowserList.push_back(movie_handle);
 		}
 	}

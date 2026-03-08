@@ -26,6 +26,10 @@
 	(C) 2016, 2026 Thilo Graf 'dbt'
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "mb_functions.h"
 
 #include <driver/movieinfo.h>

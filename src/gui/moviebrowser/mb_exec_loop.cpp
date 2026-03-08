@@ -123,7 +123,7 @@ int CMovieBrowser::exec(const char* path)
 			else if (msg == CRCInput::RC_ok)
 			{
 				for (unsigned int i = 0; i < m_vMovieInfo.size(); i++) {
-					if (m_vMovieInfo[i].marked) {
+					if (m_vMovieInfo[i]->marked) {
 						dprintf(DEBUG_DEBUG, "[mb] has selected\n");
 						res = true;
 						break;

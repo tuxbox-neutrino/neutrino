@@ -595,14 +595,17 @@ bool CMovieInfo::loadFile(CFile &file, std::string &buffer)
 	}
 
 	if (!st.st_size)
+	{
+		close(fd);
 		return false;
+	}
 
-	char buf[st.st_size];
-	if (st.st_size != read(fd, buf, st.st_size)) {
+	buffer.resize(st.st_size);
+	if (st.st_size != read(fd, &buffer[0], st.st_size)) {
 		TRACE("[mi] loadFile: cannot read (%s)\n", file.Name.c_str());
+		buffer.clear();
 		result = false;
-	} else
-		buffer = std::string(buf, st.st_size);
+	}
 
 	close(fd);
 
