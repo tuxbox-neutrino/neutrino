@@ -51,6 +51,7 @@ typedef struct audio_map_set {
 class CZapitAbsSub
 {
  public:
+	virtual ~CZapitAbsSub() = default;
     unsigned short pId;
     std::string ISO639_language_code;
     enum ZapitSubtitleType {

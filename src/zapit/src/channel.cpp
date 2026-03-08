@@ -195,12 +195,10 @@ void CZapitChannel::resetPids(void)
 
 	/*privatePid = 0;*/
 	pidsFlag = false;
-        std::vector<CZapitAbsSub *>::iterator subI;
-        for (subI = channelSubs.begin(); subI != channelSubs.end(); ++subI){
-            delete *subI;
-        }
-        channelSubs.clear();
-        currentSub = 0;
+	for (auto subI = channelSubs.begin(); subI != channelSubs.end(); ++subI)
+		delete *subI;
+	channelSubs.clear();
+	currentSub = 0;
 }
 
 unsigned char CZapitChannel::getServiceType(bool real)
