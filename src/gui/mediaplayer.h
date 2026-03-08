@@ -49,6 +49,7 @@ class CMediaPlayerMenu : public CMenuTarget
 		CMediaPlayerMenu();
 		~CMediaPlayerMenu();
 		static CMediaPlayerMenu *getInstance();
+		static void destroyInstance();
 
 		int initMenuMedia(CMenuWidget *m = NULL, CPersonalizeGui *p = NULL);
 

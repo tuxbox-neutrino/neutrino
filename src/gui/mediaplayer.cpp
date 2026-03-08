@@ -54,6 +54,8 @@
 #include <hardware/video.h>
 extern cVideo *videoDecoder;
 
+static CMediaPlayerMenu *g_mediaPlayerMenu = NULL;
+
 
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
@@ -66,14 +68,21 @@ CMediaPlayerMenu::CMediaPlayerMenu()
 
 CMediaPlayerMenu *CMediaPlayerMenu::getInstance()
 {
-	static CMediaPlayerMenu *mpm = NULL;
-
-	if (!mpm)
+	if (!g_mediaPlayerMenu)
 	{
-		mpm = new CMediaPlayerMenu();
+		g_mediaPlayerMenu = new CMediaPlayerMenu();
 		printf("[neutrino] mediaplayer menu instance created\n");
 	}
-	return mpm;
+	return g_mediaPlayerMenu;
+}
+
+void CMediaPlayerMenu::destroyInstance()
+{
+	if (g_mediaPlayerMenu)
+	{
+		delete g_mediaPlayerMenu;
+		g_mediaPlayerMenu = NULL;
+	}
 }
 
 CMediaPlayerMenu::~CMediaPlayerMenu()

@@ -83,16 +83,29 @@
 #include "driver/lcd4l.h"
 #endif
 
-extern CPictureViewer * g_PicViewer;
+extern CPictureViewer *g_PicViewer;
 
-MI_MOVIE_INFO* playing_info = NULL;
-CMovieBrowser::CMovieBrowser(): configfile ('\t')
+MI_MOVIE_INFO *playing_info = NULL;
+CMovieBrowser::CMovieBrowser(): configfile('\t')
 {
 	init();
 }
 
 CMovieBrowser::~CMovieBrowser()
 {
+	delete m_pcFilter;
+	m_pcFilter = NULL;
+	delete m_pcBrowser;
+	m_pcBrowser = NULL;
+	delete m_pcLastPlay;
+	m_pcLastPlay = NULL;
+	delete m_pcLastRecord;
+	m_pcLastRecord = NULL;
+	delete m_pcInfo1;
+	m_pcInfo1 = NULL;
+	delete m_pcInfo2;
+	m_pcInfo2 = NULL;
+
 	m_dir.clear();
 
 	m_dirNames.clear();
@@ -130,7 +143,7 @@ void CMovieBrowser::fileInfoStale(void)
 	m_file_info_stale = true;
 	m_seriename_stale = true;
 
-	 // Also release memory buffers, since we have to reload this stuff next time anyhow
+	// Also release memory buffers, since we have to reload this stuff next time anyhow
 	m_dirNames.clear();
 
 	m_vHandleBrowserList.clear();

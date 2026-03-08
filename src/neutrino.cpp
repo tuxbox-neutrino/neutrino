@@ -351,6 +351,16 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_nokey,           "",                                     "",     ""              },
 };
 
+static void clearUsermenuConfig()
+{
+	for (unsigned int i = 0; i < g_settings.usermenu.size(); ++i)
+	{
+		delete g_settings.usermenu[i];
+		g_settings.usermenu[i] = NULL;
+	}
+	g_settings.usermenu.clear();
+}
+
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
@@ -1303,12 +1313,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		g_settings.handling_infobar[i] = configfile.getInt32(locale_real_names[handling_infobar_setting[i].name], handling_infobar_setting[i].default_timing);
 
 	// usermenu -> in system/settings.h
-	for (unsigned int i = 0; i < g_settings.usermenu.size(); ++i)
-	{
-		delete g_settings.usermenu[i];
-		g_settings.usermenu[i] = NULL;
-	}
-	g_settings.usermenu.clear();
+	clearUsermenuConfig();
 	if (configfile.getString("usermenu_key_red", "").empty() ||
 		configfile.getString("usermenu_key_green", "").empty() ||
 		configfile.getString("usermenu_key_yellow", "").empty() ||
@@ -5693,6 +5698,7 @@ void stop_daemons(bool stopall, bool for_flash)
 		delete InfoClock;
 	if(FileTimeOSD)
 		delete FileTimeOSD;
+	CMediaPlayerMenu::destroyInstance();
 	delete &CMoviePlayerGui::getInstance();
 
 	CZapit::getInstance()->Stop();
@@ -5754,6 +5760,7 @@ void sighandler (int signum)
 		delete CVFD::getInstance();
 		delete SHTDCNT::getInstance();
 		stop_video();
+		clearUsermenuConfig();
 		exit(CNeutrinoApp::EXIT_NORMAL);
 	default:
 		break;
@@ -6209,6 +6216,9 @@ void CNeutrinoApp::Cleanup()
 {
 	//CLuaServer::destroyInstance();
 
+	CMediaPlayerMenu::destroyInstance();
+	clearUsermenuConfig();
+
 #ifdef EXIT_CLEANUP
 	INFO("cleanup ...");
 
@@ -6329,11 +6339,7 @@ void CNeutrinoApp::Cleanup()
 	delete g_IconFont; g_IconFont = NULL;
 
 	printf("cleanup g_settings.usermenu[]\n"); fflush(stdout);
-	for (unsigned int i = 0; i < g_settings.usermenu.size(); ++i)
-	{
-		delete g_settings.usermenu[i];
-		g_settings.usermenu[i] = NULL;
-	}
+	clearUsermenuConfig();
 
 	printf("cleanup configfile\n"); fflush(stdout);
 	configfile.clear();
