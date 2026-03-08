@@ -51,6 +51,7 @@
 #include "config.h"
 #include "cc_base.h"
 #include "cc_item.h"
+#include <cstdlib>
 #include <string>
 
 class CProgressBarCache;
@@ -88,6 +89,11 @@ class CProgressBarCache
 		void pbcPaintBoxRel(int x, int y, int dx, int dy, fb_pixel_t *pixbuf, fb_pixel_t col) const;
 		void pbcApplyGradient(fb_pixel_t *pixbuf);
 		void pbcCreateBitmaps();
+		~CProgressBarCache()
+		{
+			free(pbc_active);
+			free(pbc_passive);
+		}
 
 		CProgressBarCache(	int dy,
 					int dx,
@@ -109,7 +115,9 @@ class CProgressBarCache
 						pbc_red(R),
 						pbc_green(G),
 						pbc_yellow(Y),
-						yoff(0)
+						yoff(0),
+						pbc_active(NULL),
+						pbc_passive(NULL)
 		{
 			if (pbCache.size() > 10)
 				pbcClear();
