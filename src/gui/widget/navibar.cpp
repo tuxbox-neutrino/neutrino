@@ -97,7 +97,7 @@ void CNaviBar::initCCItems()
 	{
 		nb_lpic = new CComponentsPicture(x_off, CC_CENTERED, CFrameBuffer::getInstance()->getIconPath(NEUTRINO_ICON_BUTTON_LEFT));
 		if ((nb_lpic->getHeight() + 2 * OFFSET_INNER_MIN) > (height + 2 * OFFSET_INNER_MIN))
-			nb_lpic->setHeight(height - 2 * OFFSET_INNER_MIN);
+			nb_lpic->setHeight(height - 2 * OFFSET_INNER_MIN, true);
 		this->addCCItem(nb_lpic);
 		nb_lpic->enableSaveBg();
 	}
@@ -108,7 +108,7 @@ void CNaviBar::initCCItems()
 	{
 		nb_rpic = new CComponentsPicture(0, CC_CENTERED, CFrameBuffer::getInstance()->getIconPath(NEUTRINO_ICON_BUTTON_RIGHT));
 		if ((nb_rpic->getHeight() + 2 * OFFSET_INNER_MIN) > (height + 2 * OFFSET_INNER_MIN))
-			nb_rpic->setHeight(height - 2 * OFFSET_INNER_MIN);
+			nb_rpic->setHeight(height - 2 * OFFSET_INNER_MIN, true);
 		this->addCCItem(nb_rpic);
 		nb_rpic->enableSaveBg();
 		int x_pos = width - nb_rpic->getWidth() - x_off;

@@ -157,7 +157,7 @@ void CComponentsButton::initIcon()
 
 	int y_icon = height/2 - h_icon/2;
 
-	cc_btn_icon_obj->setHeight(h_icon);
+	cc_btn_icon_obj->setHeight(h_icon, true);
 	cc_btn_icon_obj->setYPos(y_icon);
 }
 

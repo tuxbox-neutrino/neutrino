@@ -1874,7 +1874,7 @@ void CAudioPlayerGui::paintCover()
 		m_cover_width = 0;
 		CComponentsPicture cover_object(cover_x, cover_y, 0, m_title_height - 2*OFFSET_INNER_SMALL, m_cover);
 		cover_object.SetTransparent(CFrameBuffer::TM_BLACK);
-		cover_object.setHeight(m_title_height - 2*OFFSET_INNER_SMALL);
+		cover_object.setHeight(m_title_height - 2*OFFSET_INNER_SMALL, true);
 		m_cover_width = cover_object.getWidth() + OFFSET_INNER_MID;
 		cover_object.paint();
 	}

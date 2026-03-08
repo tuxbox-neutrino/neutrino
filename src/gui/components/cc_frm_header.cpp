@@ -288,7 +288,7 @@ void CComponentsHeader::initIcon()
 	cch_icon_obj->setPicture(cch_icon_name);
 	int dx_tmp = 0, dy_tmp = 0;
 	cch_icon_obj->getRealSize(&dx_tmp, &dy_tmp);
-	cch_icon_obj->setHeight(min(height, dy_tmp));
+	cch_icon_obj->setHeight(min(height, dy_tmp), true);
 
 	cch_icon_w = cch_icon_obj->getWidth();
 
@@ -309,7 +309,7 @@ void CComponentsHeader::initLogo()
 	{
 		int dx_tmp = 0, dy_tmp = 0;
 		cch_logo_obj->getRealSize(&dx_tmp, &dy_tmp);
-		cch_logo_obj->setHeight(min(h_logo, dy_tmp));
+		cch_logo_obj->setHeight(min(h_logo, dy_tmp), true);
 
 		/* Detect next and previous items,
 		 * current item is logo item.
@@ -343,7 +343,7 @@ void CComponentsHeader::initLogo()
 		 * and adjust logo new width if required.
 		*/
 		int w_logo = min(cch_logo_obj->getWidth(), logo_space);
-		cch_logo_obj->setWidth(w_logo);
+		cch_logo_obj->setWidth(w_logo, true);
 
 		/*
 		 * Adjust logo x position depends of align parameters.

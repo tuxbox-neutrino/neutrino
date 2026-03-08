@@ -355,22 +355,22 @@ void CMovieBrowser::initMovieCover(void)
 			if (m_movieCover->getWidth() < m_movieCover->getHeight())
 				cover_w /= 2; // cover is upright, so we use just half width first
 
-			m_movieCover->setHeight(0); // force recalculation
+			m_movieCover->setHeight(0, true); // force recalculation
 dprintf(DEBUG_DEBUG, "[mb]->%s:%d m_movieCover->getHeight(): %d\n", __func__, __LINE__, m_movieCover->getHeight());
-			m_movieCover->setWidth(cover_w);
+			m_movieCover->setWidth(cover_w, true);
 			if (m_movieCover->getHeight() > movieCoverBox.iHeight/3)
-				m_movieCover->setHeight(movieCoverBox.iHeight/3); // use maximal one third of box height
+				m_movieCover->setHeight(movieCoverBox.iHeight/3, true); // use maximal one third of box height
 
 			m_movieCover->setXPos(movieCoverBox.iX + (movieCoverBox.iWidth - m_movieCover->getWidth())/2);
 			m_movieCover->setYPos(movieCoverBox.iY + OFFSET_INNER_MID);
 		}
 		else
 		{
-			m_movieCover->setWidth(0); // force recalculation
+			m_movieCover->setWidth(0, true); // force recalculation
 dprintf(DEBUG_DEBUG, "[mb]->%s:%d m_movieCover->getWidth(): %d\n", __func__, __LINE__, m_movieCover->getWidth());
-			m_movieCover->setHeight(cover_h);
+			m_movieCover->setHeight(cover_h, true);
 			if (m_movieCover->getWidth() > movieCoverBox.iWidth/3)
-				m_movieCover->setWidth(movieCoverBox.iWidth/3); // use maximal one third of box width
+				m_movieCover->setWidth(movieCoverBox.iWidth/3, true); // use maximal one third of box width
 
 			m_movieCover->setXPos(movieCoverBox.iX + movieCoverBox.iWidth - m_movieCover->getWidth() - 2*OFFSET_INNER_MID - OFFSET_SHADOW);
 			m_movieCover->setYPos(movieCoverBox.iY + (movieCoverBox.iHeight - m_movieCover->getHeight())/2);
