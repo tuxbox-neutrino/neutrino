@@ -35,6 +35,7 @@
 #include <string>
 
 class CPersonalizeGui;
+class CPictureViewerGui;
 class CMediaPlayerMenu : public CMenuTarget
 {
 	private:
@@ -42,6 +43,7 @@ class CMediaPlayerMenu : public CMenuTarget
 
 		CAudioPlayerGui *audioPlayer;
 		CAudioPlayerGui *inetPlayer;
+		CPictureViewerGui *pictureViewer;
 
 	public:
 		CMediaPlayerMenu();

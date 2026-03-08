@@ -61,6 +61,7 @@ CMediaPlayerMenu::CMediaPlayerMenu()
 
 	audioPlayer = NULL;
 	inetPlayer = NULL;
+	pictureViewer = NULL;
 }
 
 CMediaPlayerMenu *CMediaPlayerMenu::getInstance()
@@ -79,6 +80,7 @@ CMediaPlayerMenu::~CMediaPlayerMenu()
 {
 	delete audioPlayer;
 	delete inetPlayer;
+	delete pictureViewer;
 }
 
 int CMediaPlayerMenu::exec(CMenuTarget *parent, const std::string &actionKey)
@@ -178,7 +180,10 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	personalize->addItem(multimedia_menu, fw_mp, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_MPLAYER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
 
 	// pictureviewer
-	CMenuForwarder *fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue);
+	if (pictureViewer == NULL)
+		pictureViewer = new CPictureViewerGui();
+
+	CMenuForwarder *fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, pictureViewer, NULL, CRCInput::RC_blue);
 	fw_pviewer->setHint(NEUTRINO_ICON_HINT_PICVIEW, LOCALE_MENU_HINT_PICVIEW);
 	personalize->addItem(multimedia_menu, fw_pviewer, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_PVIEWER]);
 
