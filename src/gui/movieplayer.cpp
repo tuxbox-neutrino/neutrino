@@ -1951,10 +1951,13 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		}
 
 		const bool back_key = CNeutrinoApp::getInstance()->backKey(msg);
+		// If infoviewer is currently visible, back/home should close overlays first,
+		// not immediately terminate playback.
+		const bool back_key_stop = back_key && (!g_InfoViewer || !g_InfoViewer->is_visible);
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
 			g_Plugins->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
-		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_stop) || back_key) {
-			if (back_key) {
+		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_stop) || back_key_stop) {
+			if (back_key_stop) {
 				// Home/Back is often bound to zaphistory; suppress the next list-open side effect.
 				CNeutrinoApp::getInstance()->allowChannelList(false);
 				g_RCInput->clearRCMsg();
