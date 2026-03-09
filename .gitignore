@@ -94,3 +94,7 @@ src/nhttpd/nhttpd.conf
 
 ### python environment fallout
 venv
+
+# from yocto/oe
+oe-logs
+oe-workdir
