@@ -54,6 +54,8 @@
 
 #define TVG_URL_MARKER		"tvg-url="
 #define X_TVG_URL_MARKER	"x-tvg-url="
+#define URL_TVG_MARKER		"url-tvg="
+#define X_URL_TVG_MARKER	"x-url-tvg="
 #define TVG_ID_MARKER		"tvg-id="
 #define TVG_NAME_MARKER		"tvg-name="
 #define TVG_LOGO_MARKER		"tvg-logo="
@@ -1038,6 +1040,10 @@ void CBouquetManager::loadWebchannels(int mode)
 						epg_url = ReadMarkerValue(strLine, TVG_URL_MARKER);
 						if (epg_url.empty())
 							epg_url = ReadMarkerValue(strLine, X_TVG_URL_MARKER);
+						if (epg_url.empty())
+							epg_url = ReadMarkerValue(strLine, URL_TVG_MARKER);
+						if (epg_url.empty())
+							epg_url = ReadMarkerValue(strLine, X_URL_TVG_MARKER);
 						//printf("tvg-url: %s\n", epg_url.c_str());
 						if (!epg_url.empty())
 						{
