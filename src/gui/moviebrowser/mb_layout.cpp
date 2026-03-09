@@ -53,16 +53,21 @@
 
 void CMovieBrowser::clearListLines()
 {
-	for (int i = 0; i < MB_MAX_ROWS; i++)
-		m_pcBrowser->cleanupRow(&m_FilterLines, i);
+	if (m_pcBrowser)
+	{
+		for (int i = 0; i < MB_MAX_ROWS; i++)
+			m_pcBrowser->cleanupRow(&m_FilterLines, i);
+	}
 
 	m_browserListLines.Icon.clear();
 	m_browserListLines.marked.clear();
 
 	for (int i = 0; i < 3; i++)
 	{
-		m_pcLastRecord->cleanupRow(&m_recordListLines, i);
-		m_pcLastPlay->cleanupRow(&m_playListLines, i);
+		if (m_pcLastRecord)
+			m_pcLastRecord->cleanupRow(&m_recordListLines, i);
+		if (m_pcLastPlay)
+			m_pcLastPlay->cleanupRow(&m_playListLines, i);
 	}
 	m_recordListLines.marked.clear();
 	m_playListLines.marked.clear();
