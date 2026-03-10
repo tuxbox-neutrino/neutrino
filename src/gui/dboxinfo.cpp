@@ -26,7 +26,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#define _FILE_OFFSET_BITS 64
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

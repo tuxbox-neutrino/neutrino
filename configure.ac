@@ -38,6 +38,12 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 LT_INIT
 
+dnl Keep off_t consistent across all translation units, independent of local
+dnl include order and LTO unit merging.
+AS_CASE([" $CPPFLAGS "],
+	[*" -D_FILE_OFFSET_BITS=64 "*], [],
+	[CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=64"])
+
 # Set default for ARFLAGS, since autoconf does not have a macro for it.
 # This allows people to set it when running configure or make
 test -n "$ARFLAGS" || ARFLAGS="cr"

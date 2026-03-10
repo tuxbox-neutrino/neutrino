@@ -21,7 +21,10 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#define __USE_FILE_OFFSET64 1
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "filebrowser.h"
 #include <stdio.h>
 #include <global.h>

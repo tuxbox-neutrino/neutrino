@@ -64,10 +64,6 @@
 #include <system/helpers.h>
 #include <xmltree/xmlinterface.h>
 
-#ifndef __USE_FILE_OFFSET64
-//#error not using 64 bit file offsets
-#endif
-
 #define SMSKEY_TIMEOUT 2000
 
 SMSKeyInput::SMSKeyInput()

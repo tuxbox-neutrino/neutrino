@@ -32,10 +32,6 @@
 #endif
 
 #ifdef LCD_UPDATE
-// TODO Why is USE_FILE_OFFSET64 not defined, if file.h is included here????
-#ifndef __USE_FILE_OFFSET64
-#define __USE_FILE_OFFSET64 1
-#endif
 #include <driver/file.h>
 #endif // LCD_UPDATE
 #include "display.h"
