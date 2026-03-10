@@ -899,12 +899,22 @@ void CStreamStream::Close()
 	if (ofcx) {
 		if (avio_ctx) {
 			ofcx->pb = NULL;
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(57, 83, 100)
 			avio_context_free(&avio_ctx);
+#else
+			av_freep(&avio_ctx->buffer);
+			av_freep(&avio_ctx);
+#endif
 			buf = NULL;
 		}
 		avformat_free_context(ofcx);
 	} else if (avio_ctx) {
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(57, 83, 100)
 		avio_context_free(&avio_ctx);
+#else
+		av_freep(&avio_ctx->buffer);
+		av_freep(&avio_ctx);
+#endif
 		buf = NULL;
 	}
 
@@ -1013,7 +1023,12 @@ bool CStreamStream::Open()
 
 	if (avformat_alloc_output_context2(&ofcx, NULL, "mpegts", NULL) < 0) {
 		printf("%s: avformat_alloc_output_context2 failed\n", __FUNCTION__);
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(57, 83, 100)
 		avio_context_free(&avio_ctx);
+#else
+		av_freep(&avio_ctx->buffer);
+		av_freep(&avio_ctx);
+#endif
 		buf = NULL;
 		avformat_close_input(&ifcx);
 		return false;
