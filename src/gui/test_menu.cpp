@@ -534,8 +534,8 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 		form->setColorFrame(COL_WHITE);
 
 		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
-		ptmp->setWidth(28);
-		ptmp->setHeight(28);
+		ptmp->setWidth(28, true);
+		ptmp->setHeight(28, true);
 		ptmp->setColorBody(COL_BLUE);
 		ptmp->setCorner(RADIUS_MID, CORNER_TOP_LEFT);
 		form->addCCItem(ptmp);
