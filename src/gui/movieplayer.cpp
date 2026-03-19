@@ -981,7 +981,6 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 
 bool CMoviePlayerGui::StartWebtv(void)
 {
-	printf("%s: starting...\n", __func__);fflush(stdout);
 	printf("[mp-diag] %s: enter, playback=%p is_file_player=%d\n", __func__, playback, is_file_player); fflush(stdout);
 	last_read = position = duration = 0;
 
@@ -990,30 +989,39 @@ bool CMoviePlayerGui::StartWebtv(void)
 	if (videoDecoder->getBlank())
 		videoDecoder->setBlank(false);
 
-	// mutex.lock();
+	mutex.lock();
 	bool res = false;
 	if (playback) {
 		printf("[mp-diag] %s: calling Open()\n", __func__); fflush(stdout);
 		playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
-		printf("[mp-diag] %s: Open() done, calling Start() [NOTE: no mutex held!]\n", __func__); fflush(stdout);
+	}
+	mutex.unlock();
+
+	/* Start() without mutex — blocks on network I/O in libstb-hal,
+	 * releasing the mutex keeps the GUI responsive and allows
+	 * RequestAbort() from other threads. */
+	if (playback) {
+		printf("[mp-diag] %s: calling Start() [mutex released]\n", __func__); fflush(stdout);
 #if HAVE_ARM_HARDWARE
-		res = playback->Start(file_name, cookie_header, second_file_name);//url with cookies und optional second audio file
+		res = playback->Start(file_name, cookie_header, second_file_name);
 #else
-		res = playback->Start((char *) file_name.c_str(), cookie_header);//url mit cookies
+		res = playback->Start((char *) file_name.c_str(), cookie_header);
 #endif
 		printf("[mp-diag] %s: Start() returned res=%d\n", __func__, res); fflush(stdout);
-		if (res)
-				playback->SetSpeed(1);
-		if (res) {
-			getCurrentAudioName(is_file_player, currentaudioname);
-			if (is_file_player)
-				selectAutoLang();
-		}
 	} else {
 		printf("[mp-diag] %s: playback is NULL, skipping\n", __func__); fflush(stdout);
 	}
 
-	// mutex.unlock();
+	mutex.lock();
+	if (res) {
+		if (playback)
+			playback->SetSpeed(1);
+		getCurrentAudioName(is_file_player, currentaudioname);
+		if (is_file_player)
+			selectAutoLang();
+	}
+	mutex.unlock();
+
 	printf("[mp-diag] %s: exit, res=%d\n", __func__, res); fflush(stdout);
 	return res;
 }
@@ -1636,10 +1644,11 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	}
 #endif
 
+	/* Start() without mutex — blocks on I/O in libstb-hal,
+	 * releasing the mutex allows ShowStartHint thread to call
+	 * RequestAbort() when the user presses Back/Stop. */
 	bool res = false;
-	printf("[mp-diag] %s: mutex.lock for Start() [NOTE: ShowStartHint thread may try mutex.lock too]\n", __func__); fflush(stdout);
-	mutex.lock();
-	printf("[mp-diag] %s: mutex acquired, calling Start()\n", __func__); fflush(stdout);
+	printf("[mp-diag] %s: calling Start() [mutex released for abort support]\n", __func__); fflush(stdout);
 #if HAVE_ARM_HARDWARE
 	if (playback)
 		 res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration,"",second_file_name);
@@ -1648,8 +1657,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		 res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
 #endif
 	printf("[mp-diag] %s: Start() returned res=%d\n", __func__, res); fflush(stdout);
-	mutex.unlock();
-	printf("[mp-diag] %s: mutex released after Start()\n", __func__); fflush(stdout);
 	if (thrStartHint) {
 		printf("[mp-diag] %s: joining ShowStartHint thread\n", __func__); fflush(stdout);
 		showStartingHint = false;
