@@ -4,8 +4,5 @@ install_DATA = \
 	deutsch.locale \
 	english.locale
 
-unmaintained = \
-	nederlands.locale \
-	slovak.locale
-
-#install_DATA += $(unmaintained)
+install_DATA += slovak.locale
+#install_DATA += nederlands.locale
