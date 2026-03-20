@@ -2900,57 +2900,66 @@ bool channel_in_requested_list(t_channel_id * clist, t_channel_id chid, int len)
 /* was static void sendEventList(int connfd, const unsigned char serviceTyp1, const unsigned char serviceTyp2 = 0, int sendServiceName = 1, t_channel_id * chidlist = NULL, int clen = 0) */
 void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidlist, int clen)
 {
-	t_channel_id uniqueNow = 0;
-	t_channel_id uniqueOld = 0;
-	bool found_already = true;
+	// Get current system time once to avoid multiple syscalls in the loop
 	time_t azeit = time(NULL);
 
-	// showProfiling("sectionsd_getChannelEvents start");
 	readLockEvents();
 
-	/* !!! FIX ME: if the box starts on a channel where there is no EPG sent, it hangs!!!	*/
-	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
-	{
-		uniqueNow = (*e)->get_channel_id();
+	// Single pass through the global event list for maximum efficiency (O(N))
+	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
+		 e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
+		 {
+			 t_channel_id currentChid = (*e)->get_channel_id();
 
-		if (uniqueNow != uniqueOld)
-		{
-			uniqueOld = uniqueNow;
-			if (!channel_in_requested_list(chidlist, uniqueNow, clen))
-				continue;
+			 // 1. Check if this specific channel is requested by the user
+			 if (!channel_in_requested_list(chidlist, currentChid, clen))
+				 continue;
 
-			found_already = false;
-		}
+			 // 2. Look for the "Present" (currently airing) event
+			 for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
+			 {
+				 // Check if current time falls within the event start and end (start + duration)
+				 if (azeit >= t->startzeit && azeit <= (time_t)(t->startzeit + t->dauer))
+				 {
+					 // 3. Ensure we don't add duplicate entries for the same channel
+					 bool alreadyInList = false;
+					 for (CChannelEventList::iterator it = eList.begin(); it != eList.end(); ++it) {
+						 // Assuming CChannelEvent has a channelID field or similar identifier
+						 if (it->channelID == currentChid) {
+							 alreadyInList = true;
+							 break;
+						 }
+					 }
 
-		if (!found_already)
-		{
-			for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
-			{
-				if (t->startzeit <= azeit && azeit <= (long)(t->startzeit + t->dauer))
-				{
-					//TODO CChannelEvent constructor from SIevent ?
-					CChannelEvent aEvent;
-					aEvent.eventID = (*e)->uniqueKey();
-					aEvent.startTime = t->startzeit;
-					aEvent.duration = t->dauer;
-					aEvent.description = (*e)->getName();
-					if (((*e)->getText()).empty())
-						aEvent.text = (*e)->getExtendedText().substr(0, 120);
-					else
-						aEvent.text = (*e)->getText();
-					eList.push_back(aEvent);
+					 if (alreadyInList) break;
 
-					found_already = true;
-					break;
-				}
-			}
-			if(found_already && clen && (clen == (int) eList.size()))
-				break;
-		}
-	}
+					 // 4. Fill the event data structure
+					 CChannelEvent aEvent;
+					 aEvent.channelID = currentChid; // Ensure your struct supports this
+					 aEvent.eventID = (*e)->uniqueKey();
+					 aEvent.startTime = t->startzeit;
+					 aEvent.duration = t->dauer;
+					 aEvent.description = (*e)->getName();
 
-	// showProfiling("sectionsd_getChannelEvents end");
-	unlockEvents();
+					 // Use Extended Text if the primary Text field is empty
+					 if ((*e)->getText().empty())
+						 aEvent.text = (*e)->getExtendedText().substr(0, 120);
+					 else
+						 aEvent.text = (*e)->getText();
+
+					 eList.push_back(aEvent);
+
+					 // Found the current event for this channel, move to the next EPG object
+					 break;
+				 }
+			 }
+
+			 // Early exit optimization: stop if we have found events for all requested channels
+			 if (clen > 0 && (int)eList.size() >= clen)
+				 break;
+		 }
+
+		 unlockEvents();
 }
 
 /*was static void commandComponentTagsUniqueKey(int connfd, char *data, const unsigned dataLength) */
