@@ -287,9 +287,9 @@ void CComponentsItem::setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_p
 void CComponentsItem::setCenterPos(int along_mode)
 {
 	if (along_mode & CC_ALONG_X)
-		x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
+		setXPos(cc_parent ? cc_parent->getWidth()/2 - width/2 : getScreenStartX(width));
 	if (along_mode & CC_ALONG_Y)
-		y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
+		setYPos(cc_parent ? cc_parent->getHeight()/2 - height/2 : getScreenStartY(height));
 }
 
 void CComponentsItem::setHeightP(const uint8_t& h_percent)
