@@ -68,7 +68,7 @@ bool paintBoxRel0(	const int& x,
 			int shadow_mode,
 			const fb_pixel_t& color_shadow)
 {
-	return paintBoxRel(x, y, dx, dy, color_body, radius, corner_type, w_frame, CC_COLGRAD_OFF, COL_MENUCONTENT_PLUS_0, CFrameBuffer::gradientVertical, CColorGradient::normal, color_frame, shadow_mode, color_shadow);
+	return paintBoxRel(x, y, dx, dy, color_body, radius, corner_type, CC_COLGRAD_OFF, COL_MENUCONTENT_PLUS_0, CFrameBuffer::gradientVertical, CColorGradient::normal, w_frame, color_frame, shadow_mode, color_shadow);
 }
 
 bool paintTextBoxRel(	const string& text,
