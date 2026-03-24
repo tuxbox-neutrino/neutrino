@@ -255,7 +255,7 @@ bool CCDraw::enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec
 		cc_body_gradient_enable = enable_mode;
 		ret = true;
 	}
-	if (cc_body_gradient_enable == CC_COLGRAD_COL_A_2_COL_B || cc_body_gradient_enable == CC_COLGRAD_COL_B_2_COL_A)
+	if (cc_body_gradient_enable >= CC_COLGRAD_COL_A_2_COL_B)
 		set2ndColor(sec_color);
 
 	//handle direction
@@ -294,7 +294,6 @@ gradientData_t* CCDraw::getGradientData()
 	gdata->mode 		= CFrameBuffer::pbrg_noFree;
 	CColorGradient ccGradient;
 	int gsize = cc_body_gradient_direction == CFrameBuffer::gradientVertical ? height : width;
-	//TODO: add modes for direction and intensity
 	switch (cc_body_gradient_enable){
 		case  CC_COLGRAD_LIGHT_2_DARK:
 			cc_body_gradient_mode = CColorGradient::gradientLight2Dark;
@@ -303,10 +302,10 @@ gradientData_t* CCDraw::getGradientData()
 			cc_body_gradient_mode = CColorGradient::gradientDark2Light;
 			break;
 		case  CC_COLGRAD_COL_A_2_COL_B:
-			cc_body_gradient_mode = CColorGradient::gradientLight2Dark;
+			cc_body_gradient_mode = CColorGradient::gradientDark2Light;
 			break;
 		case  CC_COLGRAD_COL_B_2_COL_A:
-			cc_body_gradient_mode = CColorGradient::gradientDark2Light;
+			cc_body_gradient_mode = CColorGradient::gradientLight2Dark;
 			break;
 		case  CC_COLGRAD_COL_LIGHT_DARK_LIGHT:
 			cc_body_gradient_mode = CColorGradient::gradientLight2Dark2Light;
@@ -316,7 +315,7 @@ gradientData_t* CCDraw::getGradientData()
 			break;
 	}
 
-	if (cc_body_gradient_enable == CC_COLGRAD_COL_A_2_COL_B || cc_body_gradient_enable == CC_COLGRAD_COL_B_2_COL_A){
+	if (cc_body_gradient_enable >= CC_COLGRAD_COL_A_2_COL_B){
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], init gradient c2c)...\033[0m\n", __func__, __LINE__);
 		gdata->gradientBuf = ccGradient.gradientColorToColor(col_body,
 								cc_body_gradient_2nd_col,

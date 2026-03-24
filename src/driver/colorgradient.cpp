@@ -60,7 +60,7 @@ uint8_t CColorGradient::limitChar(int c)
 	return ret;
 }
 
-fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int /*mode*/, int /*intensity*/)
+fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity)
 {
 	if (bSize < 1)
 		return gradientBuf;
@@ -74,24 +74,45 @@ fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_
 	}
 	memset((void*)gradientBuf, '\0', _bSize * sizeof(fb_pixel_t));
 
-	int start_box = 0;
-	int end_box = bSize;
-	uint8_t tr_min = 0xFF;
-	uint8_t tr_max = 0x20;
-	float factor = (float)(tr_min - tr_max) / (float)(end_box - start_box);
+	uint8_t tr_min, tr_max;
+	switch (intensity) {
+		case light:
+			tr_min = 0xE0;
+			tr_max = 0x40;
+			break;
+		case normal:
+		default:
+			tr_min = 0xFF;
+			tr_max = 0x20;
+			break;
+	}
 
-	for (int i = start_box; i < end_box; i++) {
+	/* Swap alpha range based on mode direction */
+	if (mode == gradientLight2Dark || mode == gradientLight2Dark2Light)
+		std::swap(tr_min, tr_max);
 
+	uint8_t r = (uint8_t)((col & 0x00FF0000) >> 16);
+	uint8_t g = (uint8_t)((col & 0x0000FF00) >>  8);
+	uint8_t b = (uint8_t) (col & 0x000000FF);
+
+	int bSize1 = ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) ? (bSize + 1) / 2 : bSize;
+	float factor = (float)(tr_min - tr_max) / (float)bSize1;
+
+	for (int i = 0; i < bSize1; i++) {
 		uint8_t tr = limitChar((int)(factor * (float)i + tr_max) + 1);
-		uint8_t r  = (uint8_t)((col & 0x00FF0000) >> 16);
-		uint8_t g  = (uint8_t)((col & 0x0000FF00) >>  8);
-		uint8_t b  = (uint8_t) (col & 0x000000FF);
 
 		gradientBuf[i] = ((unsigned int)(tr << 24) & 0xFF000000) |
 			         ((r  << 16) & 0x00FF0000) |
 			         ((g  <<  8) & 0x0000FF00) |
 			         ( b         & 0x000000FF);
 	}
+
+	/* For symmetric modes, mirror the first half into the second */
+	if ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) {
+		for (int i = 0; i < bSize / 2; i++)
+			gradientBuf[bSize - i - 1] = gradientBuf[i];
+	}
+
 	return gradientBuf;
 }
 
@@ -119,7 +140,7 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 	if (intensity == extended) {
 		min_v   = v_min;
 		max_v   = v_max;
-		col_s   = s;
+		col_s   = (noSaturation) ? 0 : s;
 	}
 	else {
 		switch (intensity) {
@@ -153,7 +174,10 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 		}
 	}
 
-	int bSize1 = ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) ? bSize/2 : bSize;
+	/* Scale original saturation once; keep it constant across the gradient */
+	float scaled_s = (col_s == 0) ? 0.0f : hsv.s * ((float)col_s / (float)255);
+
+	int bSize1 = ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) ? (bSize + 1) / 2 : bSize;
 
 	int v  = start_v; int v_ = v;
 	float factor_v = ((float)end_v - (float)v) / (float)bSize1;
@@ -161,25 +185,23 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 	for (int i = 0; i < bSize1; i++) {
 		v = v_ + (int)(factor_v * (float)i);
 		hsv.v = (float)limitChar(v) / (float)255;
-		hsv.s = (float)col_s / (float)255;
+		hsv.s = scaled_s;
 		gradientBuf[i] = Hsv2SysColor(&hsv, tr);
 	}
 
+	/* For symmetric modes, mirror the first half into the second */
 	if ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) {
-		bSize1 = bSize - bSize1;
-		for (int i = 0; i < bSize1; i++) {
-			v = v_ + (int)(factor_v * (float)i);
-			hsv.v = (float)limitChar(v) / (float)255;
-			hsv.s = (float)col_s / (float)255;
-			gradientBuf[bSize-i-1] = Hsv2SysColor(&hsv, tr);
-		}
+		for (int i = 0; i < bSize / 2; i++)
+			gradientBuf[bSize - i - 1] = gradientBuf[i];
 	}
 
 	return gradientBuf;
 }
 
-fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col,fb_pixel_t end_col, fb_pixel_t *gradientBuf, int bSize, int mode, int /*intensity*/)
+fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col, fb_pixel_t end_col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity)
 {
+	if (bSize < 1)
+		return gradientBuf;
 	unsigned long _bSize = (unsigned long) bSize;
 	if (gradientBuf == NULL) {
 		gradientBuf = (fb_pixel_t*) malloc(_bSize * sizeof(fb_pixel_t));
@@ -190,13 +212,8 @@ fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col,fb_pixel_t
 	}
 	memset((void*)gradientBuf, '\0', _bSize * sizeof(fb_pixel_t));
 
-	int start_box = 0;
-	int end_box = bSize;
-
-	std::swap(start_col,end_col);
-	if (mode == gradientDark2Light){
-		std::swap(start_col,end_col);
-	}
+	if (mode == gradientLight2Dark || mode == gradientLight2Dark2Light)
+		std::swap(start_col, end_col);
 
 	uint8_t start_tr = (uint8_t)((start_col & 0xFF000000) >> 24);
 	uint8_t start_r  = (uint8_t)((start_col & 0x00FF0000) >> 16);
@@ -208,25 +225,37 @@ fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col,fb_pixel_t
 	uint8_t end_g  = (uint8_t)((end_col & 0x0000FF00) >>  8);
 	uint8_t end_b  = (uint8_t) (end_col & 0x000000FF);
 
-	float steps = (float) bSize;
+	/* Intensity controls the effective blend range */
+	float blend_start = 0.0f;
+	float blend_end   = 1.0f;
+	if (intensity == light) {
+		blend_start = 0.125f;
+		blend_end   = 0.875f;
+	}
 
-	float trStep = (float)(end_tr - start_tr) / steps;
-	float rStep = (float)(end_r - start_r) / steps;
-	float gStep = (float)(end_g - start_g) / steps;
-	float bStep = (float)(end_b - start_b) / steps;
+	int bSize1 = ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) ? (bSize + 1) / 2 : bSize;
+	float steps = (float)bSize1;
 
-	for (int i = start_box; i < end_box; i++) {
+	for (int i = 0; i < bSize1; i++) {
+		float t = blend_start + (blend_end - blend_start) * ((float)i / steps);
 
-		uint8_t tr = limitChar((int)((float)start_tr + trStep*(float)i));
-		uint8_t r  = limitChar((int)((float)start_r + rStep*(float)i));
-		uint8_t g  = limitChar((int)((float)start_g + gStep*(float)i));
-		uint8_t b  = limitChar((int)((float)start_b + bStep*(float)i));
+		uint8_t tr = limitChar((int)((float)start_tr + (float)(end_tr - start_tr) * t));
+		uint8_t r  = limitChar((int)((float)start_r  + (float)(end_r  - start_r)  * t));
+		uint8_t g  = limitChar((int)((float)start_g  + (float)(end_g  - start_g)  * t));
+		uint8_t b  = limitChar((int)((float)start_b  + (float)(end_b  - start_b)  * t));
 
 		gradientBuf[i] = ((unsigned int)(tr << 24) & 0xFF000000) |
 			         ((r  << 16) & 0x00FF0000) |
 			         ((g  <<  8) & 0x0000FF00) |
 			         ( b         & 0x000000FF);
 	}
+
+	/* For symmetric modes, mirror the first half into the second */
+	if ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) {
+		for (int i = 0; i < bSize / 2; i++)
+			gradientBuf[bSize - i - 1] = gradientBuf[i];
+	}
+
 	return gradientBuf;
 }
 
