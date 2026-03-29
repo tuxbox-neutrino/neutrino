@@ -300,11 +300,24 @@ bool CFEManager::loadSettings()
 
 void CFEManager::saveSettings(bool write)
 {
+	if (femap.empty()) {
+		WARN("frontend map is empty, skipping save of %s", FECONFIGFILE);
+		return;
+	}
+
+	const bool have_existing_config =
+		config_exist || access(FECONFIGFILE, F_OK) == 0;
+	bool has_sat_frontend = false;
+	bool has_configured_satellite = false;
+
 	configfile.clear();
 	satellite_map_t &satlist = CServiceManager::getInstance()->SatelliteList();
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
+
+		if (fe->hasSat())
+			has_sat_frontend = true;
 
 		INFO("fe%d", fe->fenumber);
 
@@ -328,6 +341,7 @@ void CFEManager::saveSettings(bool write)
 		satellite_map_t satellites = fe->getSatellites();
 		for(sat_iterator_t sit = satellites.begin(); sit != satellites.end(); ++sit) {
 			if (sit->second.configured) {
+				has_configured_satellite = true;
 				sat_iterator_t tit = satlist.find(sit->first);
 				if (tit != satlist.end())
 					sit->second.use_in_scan = tit->second.use_in_scan;
@@ -340,6 +354,11 @@ void CFEManager::saveSettings(bool write)
 		configfile.setInt32Vector(cfg_key, satList);
 	}
 	if (write && configfile.getModifiedFlag()) {
+		if (have_existing_config && has_sat_frontend &&
+		    !has_configured_satellite) {
+			WARN("no configured satellites, keeping existing %s", FECONFIGFILE);
+			return;
+		}
 		config_exist = configfile.saveConfig(FECONFIGFILE);
 		//configfile.setModifiedFlag(false);
 	}
