@@ -78,6 +78,12 @@ class CFrontend
 {
 	public:
 		typedef enum {
+			FE_OPEN_OK,
+			FE_OPEN_BUSY,
+			FE_OPEN_ABSENT,
+			FE_OPEN_UNUSABLE
+		} fe_open_result_t;
+		typedef enum {
 			FE_MODE_UNUSED,
 			FE_MODE_INDEPENDENT,
 			FE_MODE_MASTER,
@@ -157,7 +163,7 @@ class CFrontend
 		void				reset(void);
 		/* Private constructor */
 		CFrontend(int Number = 0, int Adapter = 0);
-		bool				Open(bool init = false);
+		fe_open_result_t		Open(bool init = false);
 		void				Close(void);
 		void				Init(void);
 

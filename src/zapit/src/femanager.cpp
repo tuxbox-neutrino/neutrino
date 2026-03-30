@@ -113,13 +113,19 @@ bool CFEManager::Init()
 {
 	CFrontend * fe;
 	unsigned short fekey;
+	unsigned int busy_count = 0;
+	unsigned int unusable_count = 0;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	have_sat = have_cable = have_terr = false;
+	fe_open_state.clear();
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
 			fe = new CFrontend(j, i);
-			if(fe->Open()) {
+			fekey = MAKE_FE_KEY(i, j);
+			CFrontend::fe_open_result_t open_state = fe->Open();
+			fe_open_state[fekey] = open_state;
+			if(open_state == CFrontend::FE_OPEN_OK) {
 				fekey = MAKE_FE_KEY(i, j);
 				femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
 				INFO("add fe %d", fe->fenumber);
@@ -131,20 +137,27 @@ bool CFEManager::Init()
 					have_cable = true;
 				if (fe->hasTerr())
 					have_terr = true;
-			} else
+			} else {
+				if (open_state == CFrontend::FE_OPEN_BUSY)
+					busy_count++;
+				else if (open_state == CFrontend::FE_OPEN_UNUSABLE)
+					unusable_count++;
 				delete fe;
+			}
 		}
 	}
 	for (unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		dmap.push_back(CFeDmx(i));
 
-	INFO("found %d frontends, %d demuxes", (int)femap.size(), (int)dmap.size());
+	INFO("found %d frontends, %d demuxes (%u busy, %u unusable)",
+	     (int)femap.size(), (int)dmap.size(), busy_count, unusable_count);
 	/* for testing without a frontend, export SIMULATE_FE=1 */
 	if (femap.empty() && simulate_fe_enabled()) {
 		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
 		fe = new CFrontend(0, -1);
 		fekey = MAKE_FE_KEY(0, 0);
 		femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
+		fe_open_state[fekey] = CFrontend::FE_OPEN_OK;
 		fe->Open();
 		livefe = fe;
 		have_sat = true;
@@ -569,6 +582,17 @@ CFrontend * CFEManager::getFE(int index)
 	}
 	INFO("Frontend #%d not found", index);
 	return NULL;
+}
+
+CFrontend::fe_open_result_t CFEManager::getFrontendOpenState(int adapter,
+							      int number) const
+{
+	const unsigned short key = MAKE_FE_KEY(adapter, number);
+	fe_open_state_iterator_t it = fe_open_state.find(key);
+	if (it == fe_open_state.end())
+		return CFrontend::FE_OPEN_ABSENT;
+
+	return it->second;
 }
 
 /* compare polarization and band with fe values */

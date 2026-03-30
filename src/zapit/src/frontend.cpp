@@ -27,6 +27,7 @@
 #include <sys/poll.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <errno.h>
 #include <cmath>
 #include <fstream>
 /* zapit */
@@ -42,10 +43,6 @@
 #include <driver/abstime.h>
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/version.h>
-
-#if _HAVE_DVB510
-#include <errno.h>
-#endif
 
 #include <hardware_caps.h>
 
@@ -203,10 +200,10 @@ CFrontend::~CFrontend(void)
 		Close();
 }
 
-bool CFrontend::Open(bool init)
+CFrontend::fe_open_result_t CFrontend::Open(bool init)
 {
 	if(!standby)
-		return false;
+		return FE_OPEN_OK;
 
 	char filename[128];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/frontend%d", adapter, fenumber);
@@ -218,15 +215,24 @@ bool CFrontend::Open(bool init)
 		deliverySystemMask |= DVB_S2X;
 		info.type = FE_QPSK;
 		strcpy(info.name, "dummy fe for testing DVB-S/S2/S2X");
-		return false;
+		return FE_OPEN_OK;
 	}
 
 	mutex.lock();
 	if (fd < 0) {
 		if ((fd = open(filename, O_RDWR | O_NONBLOCK | O_CLOEXEC)) < 0) {
-			ERROR(filename);
+			const int saved_errno = errno;
+			if (saved_errno == EBUSY) {
+				WARN("[fe%d/%d] %s is busy", adapter, fenumber, filename);
+			} else if (saved_errno != ENOENT && saved_errno != ENODEV) {
+				ERROR(filename);
+			}
 			mutex.unlock();
-			return false;
+			if (saved_errno == EBUSY)
+				return FE_OPEN_BUSY;
+			if (saved_errno == ENOENT || saved_errno == ENODEV)
+				return FE_OPEN_ABSENT;
+			return FE_OPEN_UNUSABLE;
 		}
 		getFEInfo();
 	}
@@ -239,7 +245,7 @@ bool CFrontend::Open(bool init)
 	if (init)
 		Init();
 
-	return true;
+	return FE_OPEN_OK;
 }
 
 void CFrontend::getFEInfo(void)

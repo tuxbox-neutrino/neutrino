@@ -50,6 +50,8 @@
 
 typedef std::map<unsigned short, CFrontend*> fe_map_t;
 typedef fe_map_t::iterator fe_map_iterator_t;
+typedef std::map<unsigned short, CFrontend::fe_open_result_t> fe_open_state_map_t;
+typedef fe_open_state_map_t::const_iterator fe_open_state_iterator_t;
 
 typedef std::map<CFrontend*, t_channel_id> fe_channel_map_t;
 typedef fe_channel_map_t::iterator fe_channel_map_iterator_t;
@@ -94,6 +96,7 @@ class CFEManager
 		} fe_fmode_t;
 	private:
 		fe_map_t		femap;
+		fe_open_state_map_t	fe_open_state;
 		fe_mode_t		mode;
 		int			enabled_count;
 		CConfigFile		configfile;
@@ -131,6 +134,8 @@ class CFEManager
 		void		Open(int _fe);
 
 		CFrontend *	getFE(int index = 0);
+		CFrontend::fe_open_result_t getFrontendOpenState(int adapter,
+							       int number) const;
 		CFrontend *	getLiveFE() { return livefe; };
 		void		setLiveFE(CFrontend * fe);
 
