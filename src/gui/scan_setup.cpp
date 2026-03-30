@@ -47,6 +47,7 @@
 #include <gui/bedit/bouqueteditor_bouquets.h>
 
 #include <gui/widget/hintbox.h>
+#include <gui/widget/msgbox.h>
 #include <gui/widget/menue_options.h>
 #include <gui/widget/stringinput.h>
 
@@ -73,6 +74,31 @@ extern char zapit_long[21];
 //sat_iterator_t sit;
 
 static const char * tuner_desc[24] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
+
+static int getFrontendDisplayIndex(int adapter, int number)
+{
+	return adapter * MAX_FE + number;
+}
+
+static std::string getFrontendDisplayName(int adapter, int number)
+{
+	char name[255];
+	const int display_index = getFrontendDisplayIndex(adapter, number);
+	const int tuner_desc_count = sizeof(tuner_desc) / sizeof(tuner_desc[0]);
+
+	if (display_index >= 0 && display_index < tuner_desc_count) {
+		snprintf(name, sizeof(name),
+			 "%s %02d: [%s] adapter%d/frontend%d",
+			 g_Locale->getText(LOCALE_SATSETUP_FE_TUNER),
+			 display_index + 1, tuner_desc[display_index], adapter, number);
+	} else {
+		snprintf(name, sizeof(name), "%s adapter%d/frontend%d",
+			 g_Locale->getText(LOCALE_SATSETUP_FE_TUNER),
+			 adapter, number);
+	}
+
+	return name;
+}
 
 const CMenuOptionChooser::keyval SCANTS_BOUQUET_OPTIONS[] =
 {
@@ -468,6 +494,21 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		printf("[neutrino] CScanSetup::%s %s, fe %d\n", __FUNCTION__, actionKey.c_str(), number);
 		return showFrontendSetup(number);
 	}
+	else if ((loc = actionKey.find("busy_frontend", 0)) != std::string::npos)
+	{
+		int adapter = -1;
+		int number = -1;
+
+		if (sscanf(actionKey.c_str(), "busy_frontend%d_%d",
+			   &adapter, &number) == 2) {
+			std::string text = getFrontendDisplayName(adapter, number);
+			text += "\n\n";
+			text += g_Locale->getText(LOCALE_SATSETUP_FE_BUSY_HINT);
+			ShowMsg(LOCALE_MESSAGEBOX_INFO, text, CMsgBox::mbrBack,
+				CMsgBox::mbBack);
+		}
+		return res;
+	}
 
 	//starting scan
 	if(actionKey == "cable") {
@@ -796,6 +837,7 @@ void CScanSetup::addScanMenuFrontendOptions(CMenuWidget *m)
 int CScanSetup::showScanMenuFrontendSetup()
 {
 	CMenuForwarder * mf;
+	bool have_busy_frontends = false;
 
 	fe_restart = false;
 	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
@@ -840,6 +882,31 @@ int CScanSetup::showScanMenuFrontendSetup()
 		setupMenu->addItem(mf);
 		if(i != 0)
 			frontendSetup = mf;
+	}
+
+	for (int adapter = 0; adapter < MAX_ADAPTERS; adapter++) {
+		for (int number = 0; number < MAX_FE; number++) {
+			if (CFEManager::getInstance()->getFrontendOpenState(adapter,
+								 number) != CFrontend::FE_OPEN_BUSY)
+				continue;
+
+			if (!have_busy_frontends) {
+				setupMenu->addItem(GenericMenuSeparatorLine);
+				have_busy_frontends = true;
+			}
+
+			const std::string name = getFrontendDisplayName(adapter,
+								      number);
+			char tmp[32];
+			snprintf(tmp, sizeof(tmp), "busy_frontend%d_%d",
+				 adapter, number);
+
+			mf = new CMenuForwarder(name, true,
+						g_Locale->getText(LOCALE_SATSETUP_FE_BUSY),
+						this, tmp);
+			mf->setHint("", LOCALE_SATSETUP_FE_BUSY_HINT);
+			setupMenu->addItem(mf);
+		}
 	}
 	addScanMenuFrontendOptions(setupMenu);
 

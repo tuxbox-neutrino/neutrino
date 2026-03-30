@@ -2551,6 +2551,8 @@ satsetup.fe_mode_link_loop Loop
 satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Unused
+satsetup.fe_busy Busy
+satsetup.fe_busy_hint This tuner is currently in use by another process and cannot be configured from this instance.
 satsetup.fe_setup Setup tuner
 satsetup.fe_tuner Tuner
 satsetup.lofh LNB High Offset
