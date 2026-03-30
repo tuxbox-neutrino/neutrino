@@ -263,7 +263,8 @@ class CFrontend
 		bool				Locked() { return usecount; };
 		satellite_map_t &		getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
-		int				getNumber() { return fenumber; };
+		int				getAdapter() const { return adapter; };
+		int				getNumber() const { return fenumber; };
 		static void			getDelSys(delivery_system_t delsys, int f, int m, const char * &fec, const char * &sys, const char * &mod);
 		fe_work_mode_t			getMode() { return femode; }
 		void				setMode(int mode) {femode = (fe_work_mode_t) mode; }

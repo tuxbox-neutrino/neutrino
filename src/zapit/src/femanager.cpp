@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 #include <set>
 
 #include <zapit/debug.h>
@@ -75,6 +76,92 @@ static bool get_frontend_key_id(const std::string &key, int &frontend_id)
 	return true;
 }
 
+static unsigned short get_frontend_runtime_key(const CFrontend *fe)
+{
+	return MAKE_FE_KEY(fe->getAdapter(), fe->getNumber());
+}
+
+static std::string get_frontend_config_key(const int adapter, const int number,
+					    const char *name)
+{
+	char cfg_key[81];
+	snprintf(cfg_key, sizeof(cfg_key), "fe%d_%d_%s", adapter, number, name);
+	return cfg_key;
+}
+
+static std::string get_frontend_legacy_config_key(const int number,
+						   const char *name)
+{
+	char cfg_key[81];
+	snprintf(cfg_key, sizeof(cfg_key), "fe%d_%s", number, name);
+	return cfg_key;
+}
+
+static std::string get_frontend_satellites_key(const int adapter,
+						 const int number)
+{
+	char cfg_key[81];
+	snprintf(cfg_key, sizeof(cfg_key), "fe%d_%d_satellites", adapter, number);
+	return cfg_key;
+}
+
+static std::string get_frontend_legacy_satellites_key(const int number)
+{
+	char cfg_key[81];
+	snprintf(cfg_key, sizeof(cfg_key), "fe%d_satellites", number);
+	return cfg_key;
+}
+
+static std::string get_frontend_position_key(const int adapter,
+					      const int number,
+					      const t_satellite_position position)
+{
+	char cfg_key[81];
+	snprintf(cfg_key, sizeof(cfg_key), "fe%d_%d_position_%d",
+		 adapter, number, position);
+	return cfg_key;
+}
+
+static std::string get_frontend_legacy_position_key(const int number,
+						     const t_satellite_position position)
+{
+	char cfg_key[81];
+	snprintf(cfg_key, sizeof(cfg_key), "fe%d_position_%d", number, position);
+	return cfg_key;
+}
+
+static bool get_frontend_runtime_key_from_config_key(const std::string &key,
+						       unsigned short &frontend_key)
+{
+	if (key.size() < 6 || key[0] != 'f' || key[1] != 'e')
+		return false;
+
+	char *adapter_end = NULL;
+	long adapter = strtol(key.c_str() + 2, &adapter_end, 10);
+	if (adapter_end == NULL || *adapter_end != '_' || adapter < 0)
+		return false;
+
+	const char *number_start = adapter_end + 1;
+	if (!isdigit((unsigned char) *number_start))
+		return false;
+
+	char *number_end = NULL;
+	long number = strtol(number_start, &number_end, 10);
+	if (number_end == NULL || *number_end != '_' || number < 0)
+		return false;
+
+	frontend_key = MAKE_FE_KEY((int) adapter, (int) number);
+	return true;
+}
+
+static bool has_config_key(CConfigFile &configfile, const std::string &key)
+{
+	static const std::string missing_key_marker("\x1d__missing__\x1d");
+
+	return configfile.getString(key, missing_key_marker) !=
+	       missing_key_marker;
+}
+
 static bool has_suffix(const std::string &value, const char *suffix)
 {
 	const size_t suffix_len = strlen(suffix);
@@ -97,25 +184,58 @@ static void restore_config_snapshot(CConfigFile &configfile,
 
 static void preserve_frontend_config(CConfigFile &configfile,
 				     const ConfigDataMap &snapshot,
-				     const std::set<int> &frontend_ids,
+				     const std::set<unsigned short> &frontend_keys,
+				     const std::set<int> &legacy_frontend_ids,
 				     bool &has_configured_satellite)
 {
-	if (frontend_ids.empty())
+	if (frontend_keys.empty() && legacy_frontend_ids.empty())
 		return;
 
 	for (ConfigDataMap::const_iterator it = snapshot.begin();
 	     it != snapshot.end(); ++it) {
+		bool keep_key = false;
+		unsigned short frontend_key = 0;
 		int frontend_id = -1;
-		if (!get_frontend_key_id(it->first, frontend_id))
-			continue;
 
-		if (frontend_ids.find(frontend_id) == frontend_ids.end())
+		if (get_frontend_runtime_key_from_config_key(it->first, frontend_key))
+			keep_key = frontend_keys.find(frontend_key) !=
+				   frontend_keys.end();
+		else if (get_frontend_key_id(it->first, frontend_id))
+			keep_key = legacy_frontend_ids.find(frontend_id) !=
+				   legacy_frontend_ids.end();
+
+		if (!keep_key)
 			continue;
 
 		configfile.setString(it->first, it->second);
 		if (has_suffix(it->first, "_satellites") && !it->second.empty())
 			has_configured_satellite = true;
 	}
+}
+
+static size_t count_preserved_frontends(const std::set<unsigned short> &frontend_keys,
+					 const std::set<int> &legacy_frontend_ids)
+{
+	size_t count = frontend_keys.size();
+
+	for (std::set<int>::const_iterator it = legacy_frontend_ids.begin();
+	     it != legacy_frontend_ids.end(); ++it) {
+		bool already_represented = false;
+
+		for (std::set<unsigned short>::const_iterator fit =
+		     frontend_keys.begin();
+		     fit != frontend_keys.end(); ++fit) {
+			if (((*fit) & 0xFF) == *it) {
+				already_represented = true;
+				break;
+			}
+		}
+
+		if (!already_represented)
+			++count;
+	}
+
+	return count;
 }
 
 CFeDmx::CFeDmx(int i)
@@ -226,22 +346,29 @@ CFEManager * CFEManager::getInstance()
 
 uint32_t CFEManager::getConfigValue(CFrontend * fe, const char * name, uint32_t defval)
 {
-	char cfg_key[81];
-	sprintf(cfg_key, "fe%d_%s", fe->fenumber, name);
-	return configfile.getInt32(cfg_key, defval);
+	const std::string cfg_key = get_frontend_config_key(fe->getAdapter(),
+							    fe->getNumber(),
+							    name);
+	if (has_config_key(configfile, cfg_key))
+		return configfile.getInt32(cfg_key, defval);
+
+	return configfile.getInt32(get_frontend_legacy_config_key(fe->getNumber(),
+								  name),
+				   defval);
 }
 
 void CFEManager::setConfigValue(CFrontend * fe, const char * name, uint32_t val)
 {
-	char cfg_key[81];
-	sprintf(cfg_key, "fe%d_%s", fe->fenumber, name);
-	configfile.setInt32(cfg_key, val);
+	configfile.setInt32(get_frontend_config_key(fe->getAdapter(),
+						    fe->getNumber(), name),
+			    val);
+	configfile.setInt32(get_frontend_legacy_config_key(fe->getNumber(), name),
+			    val);
 }
 
 #define SATCONFIG_SIZE 12
 void CFEManager::setSatelliteConfig(CFrontend * fe, sat_config_t &satconfig)
 {
-	char cfg_key[81];
 	std::vector<int> satConfig;
 
 	satConfig.push_back(satconfig.position);
@@ -257,18 +384,29 @@ void CFEManager::setSatelliteConfig(CFrontend * fe, sat_config_t &satconfig)
 	satConfig.push_back(satconfig.use_usals);
 	satConfig.push_back(satconfig.configured);
 
-	sprintf(cfg_key, "fe%d_position_%d", fe->fenumber, satconfig.position);
-	//INFO("set %s", cfg_key);
-	configfile.setInt32Vector(cfg_key, satConfig);
+	configfile.setInt32Vector(get_frontend_position_key(fe->getAdapter(),
+							    fe->getNumber(),
+							    satconfig.position),
+				  satConfig);
+	configfile.setInt32Vector(get_frontend_legacy_position_key(fe->getNumber(),
+								     satconfig.position),
+				  satConfig);
 }
 
 bool CFEManager::getSatelliteConfig(CFrontend * fe, sat_config_t &satconfig)
 {
-	char cfg_key[81];
 	int i = 1;
 
-	sprintf(cfg_key, "fe%d_position_%d", fe->fenumber, satconfig.position);
-	std::vector<int> satConfig = configfile.getInt32Vector(cfg_key);
+	const std::string cfg_key = get_frontend_position_key(fe->getAdapter(),
+							      fe->getNumber(),
+							      satconfig.position);
+	std::vector<int> satConfig;
+	if (has_config_key(configfile, cfg_key))
+		satConfig = configfile.getInt32Vector(cfg_key);
+	else
+		satConfig = configfile.getInt32Vector(
+			get_frontend_legacy_position_key(fe->getNumber(),
+							 satconfig.position));
 	//INFO("get %s: size %d", cfg_key, satConfig.size());
 	if(satConfig.size() >= SATCONFIG_SIZE) {
 		satconfig.diseqc		= satConfig[i++];
@@ -299,7 +437,7 @@ bool CFEManager::loadSettings()
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
-		INFO("load config for fe%d", fe->fenumber);
+		INFO("load config for fe%d/%d", fe->getAdapter(), fe->fenumber);
 
 		if (fe->hasSat())
 			fe_config.diseqcType	= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
@@ -325,8 +463,6 @@ bool CFEManager::loadSettings()
 		fe->setMode(getConfigValue(fe, "mode", CFrontend::FE_MODE_INDEPENDENT));
 		fe->setMaster(getConfigValue(fe, "master", 0));
 
-		char cfg_key[81];
-		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
 		satellite_map_t & satmap = fe->getSatellites();
 		satmap.clear();
 
@@ -379,6 +515,10 @@ void CFEManager::saveSettings(bool write)
 		config_exist || access(FECONFIGFILE, F_OK) == 0;
 	const ConfigDataMap existing_config = configfile.getConfigDataMap();
 	const bool existing_modified = configfile.getModifiedFlag();
+	std::set<unsigned short> current_frontend_keys;
+	std::set<unsigned short> saved_frontend_keys;
+	std::set<unsigned short> busy_frontend_keys;
+	std::set<unsigned short> preserved_busy_frontend_keys;
 	std::set<int> current_frontend_ids;
 	std::set<int> saved_frontend_ids;
 	std::set<int> busy_frontend_ids;
@@ -389,11 +529,15 @@ void CFEManager::saveSettings(bool write)
 
 	for (ConfigDataMap::const_iterator it = existing_config.begin();
 	     it != existing_config.end(); ++it) {
+		unsigned short frontend_key = 0;
 		int frontend_id = -1;
-		if (!get_frontend_key_id(it->first, frontend_id))
+		if (get_frontend_runtime_key_from_config_key(it->first, frontend_key))
+			saved_frontend_keys.insert(frontend_key);
+		else if (get_frontend_key_id(it->first, frontend_id))
+			saved_frontend_ids.insert(frontend_id);
+		else
 			continue;
 
-		saved_frontend_ids.insert(frontend_id);
 		if (has_suffix(it->first, "_satellites") &&
 		    !it->second.empty()) {
 			saved_has_configured_satellite = true;
@@ -405,7 +549,9 @@ void CFEManager::saveSettings(bool write)
 		if (it->second != CFrontend::FE_OPEN_BUSY)
 			continue;
 
-		const int frontend_id = it->first & 0xFF;
+		const unsigned short frontend_key = it->first;
+		const int frontend_id = frontend_key & 0xFF;
+		busy_frontend_keys.insert(frontend_key);
 		busy_frontend_ids.insert(frontend_id);
 	}
 
@@ -414,9 +560,10 @@ void CFEManager::saveSettings(bool write)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
+		current_frontend_keys.insert(get_frontend_runtime_key(fe));
 		current_frontend_ids.insert(fe->fenumber);
 
-		INFO("fe%d", fe->fenumber);
+		INFO("fe%d/%d", fe->getAdapter(), fe->fenumber);
 
 		setConfigValue(fe, "diseqcType", fe_config.diseqcType);
 		setConfigValue(fe, "diseqcRepeats", fe_config.diseqcRepeats);
@@ -446,13 +593,30 @@ void CFEManager::saveSettings(bool write)
 				setSatelliteConfig(fe, sit->second);
 			}
 		}
-		char cfg_key[81];
-		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
-		configfile.setInt32Vector(cfg_key, satList);
+		configfile.setInt32Vector(get_frontend_satellites_key(fe->getAdapter(),
+								     fe->getNumber()),
+					  satList);
+		configfile.setInt32Vector(
+			get_frontend_legacy_satellites_key(fe->getNumber()),
+			satList);
+	}
+
+	for (std::set<unsigned short>::const_iterator it = saved_frontend_keys.begin();
+	     it != saved_frontend_keys.end(); ++it) {
+		if (current_frontend_keys.find(*it) != current_frontend_keys.end())
+			continue;
+
+		if (busy_frontend_keys.find(*it) != busy_frontend_keys.end()) {
+			preserved_busy_frontend_keys.insert(*it);
+			continue;
+		}
+
+		missing_saved_frontend = true;
+		break;
 	}
 
 	for (std::set<int>::const_iterator it = saved_frontend_ids.begin();
-	     it != saved_frontend_ids.end(); ++it) {
+	     !missing_saved_frontend && it != saved_frontend_ids.end(); ++it) {
 		if (current_frontend_ids.find(*it) != current_frontend_ids.end())
 			continue;
 
@@ -462,13 +626,15 @@ void CFEManager::saveSettings(bool write)
 		}
 
 		missing_saved_frontend = true;
-		break;
 	}
 
-	if (!preserved_busy_frontend_ids.empty()) {
+	if (!preserved_busy_frontend_keys.empty() ||
+	    !preserved_busy_frontend_ids.empty()) {
 		INFO("preserving config for %zu busy frontends",
-		     preserved_busy_frontend_ids.size());
+		     count_preserved_frontends(preserved_busy_frontend_keys,
+						 preserved_busy_frontend_ids));
 		preserve_frontend_config(configfile, existing_config,
+					 preserved_busy_frontend_keys,
 					 preserved_busy_frontend_ids,
 					 has_configured_satellite);
 	}
