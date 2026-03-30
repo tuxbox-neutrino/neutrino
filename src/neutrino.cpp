@@ -5752,6 +5752,8 @@ void sighandler (int signum)
 	case SIGTERM:
 	case SIGINT:
 		CVFD::getInstance()->ShowText("Exiting ...");
+		CNeutrinoApp::getInstance()->OnShutDown();
+		CProgressBarCache::pbcClear();
 		delete cHddStat::getInstance();
 		delete CRecordManager::getInstance();
 		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
