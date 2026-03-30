@@ -75,6 +75,26 @@ static bool get_frontend_key_id(const std::string &key, int &frontend_id)
 	return true;
 }
 
+static bool has_suffix(const std::string &value, const char *suffix)
+{
+	const size_t suffix_len = strlen(suffix);
+
+	return value.size() >= suffix_len &&
+	       value.compare(value.size() - suffix_len, suffix_len, suffix) == 0;
+}
+
+static void restore_config_snapshot(CConfigFile &configfile,
+				    const ConfigDataMap &snapshot,
+				    const bool modified)
+{
+	configfile.clear();
+	for (ConfigDataMap::const_iterator it = snapshot.begin();
+	     it != snapshot.end(); ++it) {
+		configfile.setString(it->first, it->second);
+	}
+	configfile.setModifiedFlag(modified);
+}
+
 CFeDmx::CFeDmx(int i)
 {
 	num = i;
@@ -126,7 +146,6 @@ bool CFEManager::Init()
 			CFrontend::fe_open_result_t open_state = fe->Open();
 			fe_open_state[fekey] = open_state;
 			if(open_state == CFrontend::FE_OPEN_OK) {
-				fekey = MAKE_FE_KEY(i, j);
 				femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
 				INFO("add fe %d", fe->fenumber);
 				if(livefe == NULL)
@@ -336,6 +355,7 @@ void CFEManager::saveSettings(bool write)
 	const bool have_existing_config =
 		config_exist || access(FECONFIGFILE, F_OK) == 0;
 	const ConfigDataMap existing_config = configfile.getConfigDataMap();
+	const bool existing_modified = configfile.getModifiedFlag();
 	std::set<int> current_frontend_ids;
 	std::set<int> saved_frontend_ids;
 	bool has_configured_satellite = false;
@@ -349,7 +369,7 @@ void CFEManager::saveSettings(bool write)
 			continue;
 
 		saved_frontend_ids.insert(frontend_id);
-		if (it->first.find("_satellites") != std::string::npos &&
+		if (has_suffix(it->first, "_satellites") &&
 		    !it->second.empty()) {
 			saved_has_configured_satellite = true;
 		}
@@ -409,11 +429,15 @@ void CFEManager::saveSettings(bool write)
 		if (have_existing_config && missing_saved_frontend) {
 			WARN("frontend set is incomplete, keeping existing %s",
 			     FECONFIGFILE);
+			restore_config_snapshot(configfile, existing_config,
+					       existing_modified);
 			return;
 		}
 		if (have_existing_config && saved_has_configured_satellite &&
 		    !has_configured_satellite) {
 			WARN("no configured satellites, keeping existing %s", FECONFIGFILE);
+			restore_config_snapshot(configfile, existing_config,
+					       existing_modified);
 			return;
 		}
 		config_exist = configfile.saveConfig(FECONFIGFILE);
