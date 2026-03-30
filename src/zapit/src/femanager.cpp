@@ -95,6 +95,29 @@ static void restore_config_snapshot(CConfigFile &configfile,
 	configfile.setModifiedFlag(modified);
 }
 
+static void preserve_frontend_config(CConfigFile &configfile,
+				     const ConfigDataMap &snapshot,
+				     const std::set<int> &frontend_ids,
+				     bool &has_configured_satellite)
+{
+	if (frontend_ids.empty())
+		return;
+
+	for (ConfigDataMap::const_iterator it = snapshot.begin();
+	     it != snapshot.end(); ++it) {
+		int frontend_id = -1;
+		if (!get_frontend_key_id(it->first, frontend_id))
+			continue;
+
+		if (frontend_ids.find(frontend_id) == frontend_ids.end())
+			continue;
+
+		configfile.setString(it->first, it->second);
+		if (has_suffix(it->first, "_satellites") && !it->second.empty())
+			has_configured_satellite = true;
+	}
+}
+
 CFeDmx::CFeDmx(int i)
 {
 	num = i;
@@ -358,6 +381,8 @@ void CFEManager::saveSettings(bool write)
 	const bool existing_modified = configfile.getModifiedFlag();
 	std::set<int> current_frontend_ids;
 	std::set<int> saved_frontend_ids;
+	std::set<int> busy_frontend_ids;
+	std::set<int> preserved_busy_frontend_ids;
 	bool has_configured_satellite = false;
 	bool saved_has_configured_satellite = false;
 	bool missing_saved_frontend = false;
@@ -373,6 +398,15 @@ void CFEManager::saveSettings(bool write)
 		    !it->second.empty()) {
 			saved_has_configured_satellite = true;
 		}
+	}
+
+	for (fe_open_state_iterator_t it = fe_open_state.begin();
+	     it != fe_open_state.end(); ++it) {
+		if (it->second != CFrontend::FE_OPEN_BUSY)
+			continue;
+
+		const int frontend_id = it->first & 0xFF;
+		busy_frontend_ids.insert(frontend_id);
 	}
 
 	configfile.clear();
@@ -419,10 +453,24 @@ void CFEManager::saveSettings(bool write)
 
 	for (std::set<int>::const_iterator it = saved_frontend_ids.begin();
 	     it != saved_frontend_ids.end(); ++it) {
-		if (current_frontend_ids.find(*it) == current_frontend_ids.end()) {
-			missing_saved_frontend = true;
-			break;
+		if (current_frontend_ids.find(*it) != current_frontend_ids.end())
+			continue;
+
+		if (busy_frontend_ids.find(*it) != busy_frontend_ids.end()) {
+			preserved_busy_frontend_ids.insert(*it);
+			continue;
 		}
+
+		missing_saved_frontend = true;
+		break;
+	}
+
+	if (!preserved_busy_frontend_ids.empty()) {
+		INFO("preserving config for %zu busy frontends",
+		     preserved_busy_frontend_ids.size());
+		preserve_frontend_config(configfile, existing_config,
+					 preserved_busy_frontend_ids,
+					 has_configured_satellite);
 	}
 
 	if (write && configfile.getModifiedFlag()) {
