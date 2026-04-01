@@ -8,6 +8,16 @@ on:
         required: false
         default: false
         type: boolean
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - ".github/**"
+      - "configure.ac"
+
+concurrency:
+  group: configure-version-bump-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -27,6 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.ref_name }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -69,7 +80,16 @@ jobs:
             fi
           done
 
-          target_patch=$((ver_micro + 1))
+          anchor_tag="${ver_major}.${ver_minor}"
+          if git rev-parse -q --verify "refs/tags/${anchor_tag}" >/dev/null; then
+            commit_count=$(git rev-list --count "${anchor_tag}"..HEAD)
+            target_patch=$((commit_count + 1))
+            echo "Using anchor tag ${anchor_tag}; commits since tag: ${commit_count}"
+          else
+            target_patch=$((ver_micro + 1))
+            echo "Anchor tag ${anchor_tag} not found; falling back to ver_micro + 1"
+          fi
+
           echo "Bumping configure.ac from ${ver_major}.${ver_minor}.${ver_micro} to ${ver_major}.${ver_minor}.${target_patch}"
 
           dry_args=()
@@ -101,4 +121,4 @@ jobs:
             exit 0
           }
           git commit -m "build (ci): bump configure.ac version [skip ci]"
-          git push
+          git push origin HEAD:${GITHUB_REF_NAME}
