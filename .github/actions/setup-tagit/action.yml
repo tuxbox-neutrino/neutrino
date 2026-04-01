@@ -1,0 +1,95 @@
+name: Setup tagit
+description: Install tagit.py (pinned), configure git identity, and parse configure.ac version
+
+inputs:
+  git_user_name:
+    description: Optional git committer/author name override
+    required: false
+    default: ""
+  git_user_email:
+    description: Optional git committer/author email override
+    required: false
+    default: ""
+
+outputs:
+  ver_major:
+    description: Major version from configure.ac
+    value: ${{ steps.parse-version.outputs.ver_major }}
+  ver_minor:
+    description: Minor version from configure.ac
+    value: ${{ steps.parse-version.outputs.ver_minor }}
+  ver_micro:
+    description: Micro/patch version from configure.ac
+    value: ${{ steps.parse-version.outputs.ver_micro }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies and download tagit.py
+      shell: bash
+      env:
+        # Pin to a specific commit for supply-chain safety
+        TAGIT_COMMIT: a2411acdeecff609d1cf11d97d788f2de8bb339f
+        TAGIT_SHA256: cb62b118a3b2aaa6beab87243952ed2f9b17a1f976a4ecd98de85bb7930998e4
+      run: |
+        python -m pip install --upgrade pip
+        pip install GitPython
+        curl -fsSL "https://raw.githubusercontent.com/dbt1/tagit/${TAGIT_COMMIT}/tagit.py" \
+          -o /tmp/tagit.py
+        echo "${TAGIT_SHA256}  /tmp/tagit.py" | sha256sum -c -
+        chmod +x /tmp/tagit.py
+
+    - name: Configure git identity
+      shell: bash
+      env:
+        DEFAULT_GIT_USER_NAME: ${{ github.actor }}
+        DEFAULT_GIT_USER_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+      run: |
+        set -euo pipefail
+
+        git_user_name="${{ inputs.git_user_name }}"
+        git_user_email="${{ inputs.git_user_email }}"
+
+        if [ -z "$git_user_name" ]; then
+          git_user_name="${DEFAULT_GIT_USER_NAME:-github-actions[bot]}"
+        fi
+
+        if [ -z "$git_user_email" ]; then
+          git_user_email="${DEFAULT_GIT_USER_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}"
+        fi
+
+        git config user.name "$git_user_name"
+        git config user.email "$git_user_email"
+
+        {
+          echo "GIT_AUTHOR_NAME=$git_user_name"
+          echo "GIT_AUTHOR_EMAIL=$git_user_email"
+          echo "GIT_COMMITTER_NAME=$git_user_name"
+          echo "GIT_COMMITTER_EMAIL=$git_user_email"
+        } >> "$GITHUB_ENV"
+
+    - name: Parse configure.ac version
+      id: parse-version
+      shell: bash
+      run: |
+        set -euo pipefail
+        ver_major=$(awk -F'[(), ]+' '/^define\(ver_major/ {print $3}' configure.ac)
+        ver_minor=$(awk -F'[(), ]+' '/^define\(ver_minor/ {print $3}' configure.ac)
+        ver_micro=$(awk -F'[(), ]+' '/^define\(ver_micro/ {print $3}' configure.ac)
+
+        for v in ver_major ver_minor ver_micro; do
+          if ! [[ ${!v} =~ ^[0-9]+$ ]]; then
+            echo "::error::Invalid ${v} value: '${!v}'"
+            exit 1
+          fi
+        done
+
+        echo "ver_major=${ver_major}" >> "$GITHUB_OUTPUT"
+        echo "ver_minor=${ver_minor}" >> "$GITHUB_OUTPUT"
+        echo "ver_micro=${ver_micro}" >> "$GITHUB_OUTPUT"
+        echo "Parsed version: ${ver_major}.${ver_minor}.${ver_micro}"

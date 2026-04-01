@@ -26,10 +26,6 @@ jobs:
   bump:
     runs-on: ubuntu-latest
     env:
-      GIT_AUTHOR_NAME: "Thilo Graf"
-      GIT_AUTHOR_EMAIL: "dbt@novatux.de"
-      GIT_COMMITTER_NAME: "Thilo Graf"
-      GIT_COMMITTER_EMAIL: "dbt@novatux.de"
       DRY_RUN: ${{ inputs.dry_run }}
 
     steps:
@@ -39,46 +35,17 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref_name }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install GitPython
-          curl -o /tmp/tagit.py https://raw.githubusercontent.com/dbt1/tagit/master/tagit.py
-          chmod +x /tmp/tagit.py
-
-      - name: Verify tagit.py download
-        run: |
-          if [ ! -f /tmp/tagit.py ]; then
-            echo "tagit.py was not downloaded!"
-            exit 1
-          fi
-
-      - name: Configure git identity
-        run: |
-          git config user.email "dbt@novatux.de"
-          git config user.name "Thilo Graf"
-          git config --global user.email "dbt@novatux.de"
-          git config --global user.name "Thilo Graf"
+      - name: Setup tagit
+        id: setup
+        uses: ./.github/actions/setup-tagit
 
       - name: Bump configure.ac version
         run: |
           set -euo pipefail
 
-          ver_major=$(awk -F'[(), ]+' '/^define\(ver_major/ {print $3}' configure.ac)
-          ver_minor=$(awk -F'[(), ]+' '/^define\(ver_minor/ {print $3}' configure.ac)
-          ver_micro=$(awk -F'[(), ]+' '/^define\(ver_micro/ {print $3}' configure.ac)
-
-          for v in ver_major ver_minor ver_micro; do
-            if ! [[ ${!v} =~ ^[0-9]+$ ]]; then
-              echo "Invalid ${v} value: '${!v}'"
-              exit 1
-            fi
-          done
+          ver_major="${{ steps.setup.outputs.ver_major }}"
+          ver_minor="${{ steps.setup.outputs.ver_minor }}"
+          ver_micro="${{ steps.setup.outputs.ver_micro }}"
 
           anchor_tag="${ver_major}.${ver_minor}"
           if git rev-parse -q --verify "refs/tags/${anchor_tag}" >/dev/null; then
