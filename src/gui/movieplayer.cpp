@@ -136,7 +136,6 @@ CMoviePlayerGui::CMoviePlayerGui()
 
 CMoviePlayerGui::~CMoviePlayerGui()
 {
-	printf("[mp-diag] %s: enter, this=%p playback=%p\n", __func__, this, playback); fflush(stdout);
 	if (this == instance_mp)
 		stopPlayBack();
 	if(moviebrowser){
@@ -152,14 +151,11 @@ CMoviePlayerGui::~CMoviePlayerGui()
 		bookmarkmanager = NULL;
 	}
 	if (playback) {
-		printf("[mp-diag] %s: mutex.lock before playback delete\n", __func__); fflush(stdout);
 		mutex.lock();
-		printf("[mp-diag] %s: mutex acquired, calling Close()\n", __func__); fflush(stdout);
 		playback->Close();
 		delete playback;
 		playback = NULL;
 		mutex.unlock();
-		printf("[mp-diag] %s: playback deleted, mutex released\n", __func__); fflush(stdout);
 	}
 	if (this == instance_mp) {
 		delete instance_bg;
@@ -922,7 +918,6 @@ bool CMoviePlayerGui::SelectFile()
 void *CMoviePlayerGui::ShowStartHint(void *arg)
 {
 	set_threadname(__func__);
-	printf("[mp-diag] %s: enter, thread started\n", __func__); fflush(stdout);
 	CMoviePlayerGui *caller = (CMoviePlayerGui *)arg;
 	CHintBox *hintbox = NULL;
 	if (!caller->pretty_name.empty()) {
@@ -935,19 +930,15 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		g_RCInput->getMsg(&msg, &data, 1);
 		const bool back_key = CNeutrinoApp::getInstance()->backKey(msg);
 		if (back_key || msg == CRCInput::RC_stop) {
-			printf("[mp-diag] %s: abort key received (back=%d stop=%d)\n", __func__, back_key, msg == CRCInput::RC_stop); fflush(stdout);
 			if (back_key) {
 				// Home/Back is often bound to zaphistory; suppress the next list-open side effect.
 				CNeutrinoApp::getInstance()->allowChannelList(false);
 				g_RCInput->clearRCMsg();
 			}
-			printf("[mp-diag] %s: mutex.lock for RequestAbort\n", __func__); fflush(stdout);
 			mutex.lock();
-			printf("[mp-diag] %s: mutex acquired, playback=%p\n", __func__, caller->playback); fflush(stdout);
 			if (caller->playback)
 				caller->playback->RequestAbort();
 			mutex.unlock();
-			printf("[mp-diag] %s: RequestAbort done, mutex released\n", __func__); fflush(stdout);
 		}
 #if 0
 		else if (caller->isWebChannel) {
@@ -955,13 +946,10 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		}
 #endif
 		else if (caller->isWebChannel && ((msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down))) {
-			printf("[mp-diag] %s: quickzap abort, mutex.lock\n", __func__); fflush(stdout);
 			mutex.lock();
-			printf("[mp-diag] %s: quickzap mutex acquired, playback=%p\n", __func__, caller->playback); fflush(stdout);
 			if (caller->playback)
 				caller->playback->RequestAbort();
 			mutex.unlock();
-			printf("[mp-diag] %s: quickzap RequestAbort done\n", __func__); fflush(stdout);
 			g_RCInput->postMsg(msg, data);
 		}
 		else if (msg != NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE && msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC) {
@@ -971,7 +959,6 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
             delete[] (unsigned char*) data;
 
 	}
-	printf("[mp-diag] %s: exit, showStartingHint=%d\n", __func__, caller->showStartingHint); fflush(stdout);
 	if (hintbox != NULL) {
 		hintbox->hide();
 		delete hintbox;
@@ -981,7 +968,6 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 
 bool CMoviePlayerGui::StartWebtv(void)
 {
-	printf("[mp-diag] %s: enter, playback=%p is_file_player=%d\n", __func__, playback, is_file_player); fflush(stdout);
 	last_read = position = duration = 0;
 
 	cutNeutrino();
@@ -992,7 +978,6 @@ bool CMoviePlayerGui::StartWebtv(void)
 	mutex.lock();
 	bool res = false;
 	if (playback) {
-		printf("[mp-diag] %s: calling Open()\n", __func__); fflush(stdout);
 		playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
 	}
 	mutex.unlock();
@@ -1001,15 +986,11 @@ bool CMoviePlayerGui::StartWebtv(void)
 	 * releasing the mutex keeps the GUI responsive and allows
 	 * RequestAbort() from other threads. */
 	if (playback) {
-		printf("[mp-diag] %s: calling Start() [mutex released]\n", __func__); fflush(stdout);
 #if HAVE_ARM_HARDWARE
 		res = playback->Start(file_name, cookie_header, second_file_name);
 #else
 		res = playback->Start((char *) file_name.c_str(), cookie_header);
 #endif
-		printf("[mp-diag] %s: Start() returned res=%d\n", __func__, res); fflush(stdout);
-	} else {
-		printf("[mp-diag] %s: playback is NULL, skipping\n", __func__); fflush(stdout);
 	}
 
 	mutex.lock();
@@ -1022,7 +1003,6 @@ bool CMoviePlayerGui::StartWebtv(void)
 	}
 	mutex.unlock();
 
-	printf("[mp-diag] %s: exit, res=%d\n", __func__, res); fflush(stdout);
 	return res;
 }
 
@@ -1052,13 +1032,10 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	chid = new unsigned char[sizeof(t_channel_id)];
 	*(t_channel_id*)chid = mp->movie_info.channelId;
 
-	printf("[mp-diag] %s: calling StartWebtv()\n", __func__); fflush(stdout);
 	started = mp->StartWebtv();
 	printf("%s: started: %d\n", __func__, started);fflush(stdout);
-	printf("[mp-diag] %s: StartWebtv() returned %d, mutex.lock\n", __func__, started); fflush(stdout);
 
 	mutex.lock();
-	printf("[mp-diag] %s: mutex acquired, webtv_started=%d\n", __func__, webtv_started); fflush(stdout);
 	webtv_starting = false;
 	if (!webtv_started)
 		started = false;
@@ -1501,15 +1478,12 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 void CMoviePlayerGui::stopPlayBack(void)
 {
 	printf("%s: stopping...\n", __func__);
-	printf("[mp-diag] %s: enter, this=%p playback=%p bgThread=%lx\n", __func__, this, playback, bgThread); fflush(stdout);
 	//playback->RequestAbort();
 
 	repeat_mode = REPEAT_OFF;
 	if (bgThread) {
 		printf("%s: this %p join background thread %lx\n", __func__, this, bgThread);fflush(stdout);
-		printf("[mp-diag] %s: mutex.lock for bgThread abort\n", __func__); fflush(stdout);
 		mutex.lock();
-		printf("[mp-diag] %s: mutex acquired\n", __func__); fflush(stdout);
 		webtv_started = false;
 		webtv_starting = false;
 		if(playback)
@@ -1601,12 +1575,9 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		videoDecoder->setBlank(false);
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
-	printf("[mp-diag] %s: mutex.lock for Open()\n", __func__); fflush(stdout);
 	mutex.lock();
-	printf("[mp-diag] %s: mutex acquired, playback=%p\n", __func__, playback); fflush(stdout);
 	if (playback) {
 		playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
-		printf("[mp-diag] %s: Open() done\n", __func__); fflush(stdout);
 	}
 	mutex.unlock();
 
@@ -1648,7 +1619,6 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	 * releasing the mutex allows ShowStartHint thread to call
 	 * RequestAbort() when the user presses Back/Stop. */
 	bool res = false;
-	printf("[mp-diag] %s: calling Start() [mutex released for abort support]\n", __func__); fflush(stdout);
 #if HAVE_ARM_HARDWARE
 	if (playback)
 		 res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration,"",second_file_name);
@@ -1656,16 +1626,12 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	if (playback)
 		 res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
 #endif
-	printf("[mp-diag] %s: Start() returned res=%d\n", __func__, res); fflush(stdout);
 	if (thrStartHint) {
-		printf("[mp-diag] %s: joining ShowStartHint thread\n", __func__); fflush(stdout);
 		showStartingHint = false;
 		pthread_join(thrStartHint, NULL);
-		printf("[mp-diag] %s: ShowStartHint thread joined\n", __func__); fflush(stdout);
 	}
 
 	if (!res) {
-		printf("[mp-diag] %s: Start() failed, returning false\n", __func__); fflush(stdout);
 		repeat_mode = REPEAT_OFF;
 		return false;
 	} else {
@@ -1738,9 +1704,7 @@ bool CMoviePlayerGui::SetPosition(int pos, bool absolute)
 {
 	clearSubtitle();
 	bool res = false;
-	printf("[mp-diag] %s: mutex.lock, pos=%d abs=%d\n", __func__, pos, absolute); fflush(stdout);
 	mutex.lock();
-	printf("[mp-diag] %s: mutex acquired\n", __func__); fflush(stdout);
 	if (playback)
 		res = playback->SetPosition(pos, absolute);
 	if (is_file_player && res && speed == 0 && playstate == CMoviePlayerGui::PAUSE){
@@ -1750,7 +1714,6 @@ bool CMoviePlayerGui::SetPosition(int pos, bool absolute)
 			playback->SetSpeed(speed);
 	}
 	mutex.unlock();
-	printf("[mp-diag] %s: mutex released, res=%d\n", __func__, res); fflush(stdout);
 
 	if (res)
 		g_RCInput->postMsg(CRCInput::RC_info, 0);
@@ -2347,22 +2310,16 @@ void CMoviePlayerGui::PlayFileLoop(void)
 void CMoviePlayerGui::PlayFileEnd(bool restore)
 {
 	printf("%s: stopping, this %p thread %p\n", __func__, this, CMoviePlayerGui::bgPlayThread);fflush(stdout);
-	printf("[mp-diag] %s: enter, playback=%p\n", __func__, playback); fflush(stdout);
 	if (filelist_it == filelist.end())
 		FileTimeOSD->kill();
 	clearSubtitle();
 
-	printf("[mp-diag] %s: mutex.lock for Close()\n", __func__); fflush(stdout);
 	mutex.lock();
-	printf("[mp-diag] %s: mutex acquired, playback=%p\n", __func__, playback); fflush(stdout);
 	if (playback) {
-		printf("[mp-diag] %s: calling SetSpeed(1) + Close()\n", __func__); fflush(stdout);
 		playback->SetSpeed(1);
 		playback->Close();
-		printf("[mp-diag] %s: Close() done\n", __func__); fflush(stdout);
 	}
 	mutex.unlock();
-	printf("[mp-diag] %s: mutex released\n", __func__); fflush(stdout);
 #ifdef ENABLE_GRAPHLCD
 	if (!bgThread) {
 		glcd_channel = g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD);
