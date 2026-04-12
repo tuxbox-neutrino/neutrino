@@ -77,42 +77,32 @@ using namespace std;
 
 const char *neutrinoMode_to_string(int mode)
 {
-	std::stringstream s;
+	const char *modestr;
 
-	switch (mode)
+	switch (mode & (int)NeutrinoModes::mode_mask)
 	{
-		case NeutrinoModes::mode_unknown:
-			return "MODE_UNKOWN";
-		case NeutrinoModes::mode_tv:
-			return "MODE_TV";
-		case NeutrinoModes::mode_radio:
-			return "MODE_RADIO";
-		case NeutrinoModes::mode_avinput:
-			return "MODE_AVINPUT";
-		case NeutrinoModes::mode_standby:
-			return "MODE_STANDBY";
-		case NeutrinoModes::mode_audio:
-			return "MODE_AUDIO";
-		case NeutrinoModes::mode_pic:
-			return "MODE_PIC";
-		case NeutrinoModes::mode_ts:
-			return "MODE_TS";
-		case NeutrinoModes::mode_off:
-			return "MODE_OFF";
-		case NeutrinoModes::mode_webtv:
-			return "MODE_WEBTV";
-		case NeutrinoModes::mode_upnp:
-			return "MODE_UPNP";
-		case NeutrinoModes::mode_webradio:
-			return "MODE_WEBRADIO";
-		case (int)NeutrinoModes::mode_mask:
-			return "MODE_MASK";
-		case (int)NeutrinoModes::norezap:
-			return "NO_REZAP";
-		default:
-			s << std::hex << mode;
-			return s.str().c_str();
+		case NeutrinoModes::mode_unknown:  modestr = "MODE_UNKNOWN";  break;
+		case NeutrinoModes::mode_tv:       modestr = "MODE_TV";       break;
+		case NeutrinoModes::mode_radio:    modestr = "MODE_RADIO";    break;
+		case NeutrinoModes::mode_avinput:  modestr = "MODE_AVINPUT";  break;
+		case NeutrinoModes::mode_standby:  modestr = "MODE_STANDBY";  break;
+		case NeutrinoModes::mode_audio:    modestr = "MODE_AUDIO";    break;
+		case NeutrinoModes::mode_pic:      modestr = "MODE_PIC";      break;
+		case NeutrinoModes::mode_ts:       modestr = "MODE_TS";       break;
+		case NeutrinoModes::mode_off:      modestr = "MODE_OFF";      break;
+		case NeutrinoModes::mode_webtv:    modestr = "MODE_WEBTV";    break;
+		case NeutrinoModes::mode_upnp:     modestr = "MODE_UPNP";     break;
+		case NeutrinoModes::mode_webradio: modestr = "MODE_WEBRADIO"; break;
+		default:  modestr = "UNKNOWN_MODE";  break;
 	}
+
+	if (mode & (int)NeutrinoModes::norezap) {
+		static thread_local char flagbuf[64];
+		snprintf(flagbuf, sizeof(flagbuf), "%s | NO_REZAP", modestr);
+		return flagbuf;
+	}
+
+	return modestr;
 }
 
 int mySleep(int sec)

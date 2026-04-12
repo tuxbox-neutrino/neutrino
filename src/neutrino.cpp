@@ -4609,7 +4609,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
-		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %s rezap %d\n", neutrinoMode_to_string(data & NeutrinoModes::mode_mask), (data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
+		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %s | REZAP %d\n", neutrinoMode_to_string(data & NeutrinoModes::mode_mask), (data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
 		if((data & NeutrinoModes::mode_mask)== NeutrinoModes::mode_radio) {
 			if( mode != NeutrinoModes::mode_radio ) {
 				radioMode((data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
