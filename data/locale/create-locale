@@ -1,50 +1,144 @@
 #!/bin/bash
 
-locale_master="deutsch.locale"
-locale="${locale_master} english.locale"
+set -euo pipefail
+shopt -s nullglob
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+start_dir=$(pwd -P)
+locale_master="${script_dir}/deutsch.locale"
+locals_dir="${script_dir}/../../src/system"
+
+resolve_locale_file() {
+	local file="$1"
+
+	if [ -f "$file" ]; then
+		printf '%s\n' "$file"
+		return 0
+	fi
+
+	if [[ "$file" != /* ]] && [ -f "${start_dir}/${file}" ]; then
+		printf '%s\n' "${start_dir}/${file}"
+		return 0
+	fi
+
+	if [[ "$file" != /* ]] && [ -f "${script_dir}/${file}" ]; then
+		printf '%s\n' "${script_dir}/${file}"
+		return 0
+	fi
+
+	echo "Locale file not found: $file" >&2
+	return 1
+}
+
+if [ "$#" -gt 0 ]; then
+	locale_files=()
+	locale_labels=()
+
+	for file in "$@"; do
+		file=$(resolve_locale_file "$file")
+		locale_files+=("$file")
+		locale_labels+=("$(basename "$file")")
+	done
+else
+	locale_files=("${script_dir}"/*.locale)
+	locale_labels=()
+
+	for file in "${locale_files[@]}"; do
+		locale_labels+=("$(basename "$file")")
+	done
+fi
+
+if [ "${#locale_files[@]}" -eq 0 ]; then
+	echo "No locale files found." >&2
+	exit 1
+fi
+
+[ -f "${locale_master}" ] || {
+	echo "Master locale file not found: ${locale_master}" >&2
+	exit 1
+}
+
+check_duplicate_keys() {
+	local file="$1"
+	local duplicates
+
+	duplicates=$(awk 'NF { if (++seen[$1] == 2) print $1 }' "$file")
+	if [ -n "$duplicates" ]; then
+		echo "Duplicate locale keys in $file:" >&2
+		printf '%s\n' "$duplicates" >&2
+		return 1
+	fi
+}
+
+check_all_duplicates() {
+	local l
+
+	check_duplicate_keys "${locale_master}"
+	for l in "${locale_files[@]}"; do
+		[ "${l}" = "${locale_master}" ] && continue
+		check_duplicate_keys "$l"
+	done
+}
 
 check_locale() {
-	cut -d' ' -f1 ${locale_master} | LC_ALL=C sort | uniq > /tmp/${locale_master}
-	for l in ${locale}; do
-		test $l == ${locale_master} && continue
-		echo $l:
+	local master_keys
+	local l
+
+	master_keys=$(mktemp)
+	cut -d' ' -f1 "${locale_master}" | LC_ALL=C sort -u > "${master_keys}"
+	for l in "${locale_files[@]}"; do
+		test "${l}" = "${locale_master}" && continue
+		echo "$(basename "${l}"):"
 		echo "----------------"
-		cut -d' ' -f1 $l | diff -u - /tmp/${locale_master}
+		cut -d' ' -f1 "${l}" | diff -u - "${master_keys}"
 		echo
 	done
-	rm /tmp/${locale_master}
+	rm -f "${master_keys}"
 }
 
 sort_locale() {
-	for l in ${locale}; do
-		cat ${l} | LC_ALL=C sort | uniq > ${l}.tmp
-		mv ${l}.tmp ${l}
+	local l
+	local tmp
+
+	for l in "${locale_files[@]}"; do
+		tmp=$(mktemp "${l}.XXXXXX")
+		LC_ALL=C sort -k1,1 "${l}" > "${tmp}"
+		mv "${tmp}" "${l}"
 	done
 }
 
 create_locale_work() {
-	for l in ${locale}; do
-		helpers/create-locale-work ${l}
+	local l
+
+	for l in "${locale_files[@]}"; do
+		"${script_dir}/helpers/create-locale-work" "${l}"
 	done
 }
 
 create_locals_h() {
-	cut -d' ' -f1 ${locale_master} | LC_ALL=C sort | uniq | tr [:lower:] [:upper:] | tr \. \_  | tr \- \_ | tr -d \? | \
-		helpers/create-locals_h
-	mv locals.h ../../src/system
+	(
+		cd "${script_dir}"
+		cut -d' ' -f1 "${locale_master}" | LC_ALL=C sort -u | tr '[:lower:]' '[:upper:]' | tr '.' '_' | tr '-' '_' | tr -d '?' | \
+			"${script_dir}/helpers/create-locals_h"
+	)
+	mv "${script_dir}/locals.h" "${locals_dir}"
 }
 
 create_locals_intern_h() {
-	cut -d' ' -f1 ${locale_master} | LC_ALL=C sort | uniq | \
-		helpers/create-locals_intern_h
-	mv locals_intern.h ../../src/system
+	(
+		cd "${script_dir}"
+		cut -d' ' -f1 "${locale_master}" | LC_ALL=C sort -u | \
+			"${script_dir}/helpers/create-locals_intern_h"
+	)
+	mv "${script_dir}/locals_intern.h" "${locals_dir}"
 }
 
 #check_locale
+check_all_duplicates
 sort_locale
 create_locale_work
 create_locals_h
 create_locals_intern_h
 
 echo "Consider committing src/system/[locals.h locals_intern.h]"
-echo "and data/locale/[${locale}]"
+echo "and locale files [${locale_labels[*]}]"
