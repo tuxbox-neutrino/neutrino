@@ -272,7 +272,7 @@ clock_switch_off klok uit
 clock_switch_on klok aan
 color.gradient Kleur gradient
 color.gradient_a2b color A to B
-color.gradient_a2b color B to A
+color.gradient_b2a color B to A
 color.gradient_d2l donker tot licht
 color.gradient_dld donker licht donker
 color.gradient_l2d licht tot donker

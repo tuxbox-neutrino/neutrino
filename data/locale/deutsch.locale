@@ -2545,14 +2545,14 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fastscan_update Auto-Update
+satsetup.fe_busy Belegt
+satsetup.fe_busy_hint Dieser Tuner wird derzeit von einem anderen Prozess verwendet und kann aus dieser Instanz nicht konfiguriert werden.
 satsetup.fe_mode Tuner Modus
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
 satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Nicht genutzt
-satsetup.fe_busy Belegt
-satsetup.fe_busy_hint Dieser Tuner wird derzeit von einem anderen Prozess verwendet und kann aus dieser Instanz nicht konfiguriert werden.
 satsetup.fe_setup Tuner Einstellungen
 satsetup.fe_tuner Tuner
 satsetup.lofh LNB High Offset
