@@ -2930,6 +2930,10 @@ TIMER_START();
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
 
+	// Keep the system timezone aligned with the stored Neutrino setting
+	// before any DVB/NTP time handling starts.
+	CTZChangeNotifier().changeNotify(NONEXISTANT_LOCALE, (void *) "startup");
+
 	initialize_iso639_map();
 
 	bool show_startwizard = false;

@@ -34,6 +34,18 @@
 
 #include "SIutils.hpp"
 
+static time_t dvbTimeToEpoch(struct tm *timeinfo, bool local_time)
+{
+	if (local_time) {
+		// DVB SI timestamps are UTC. Force standard-time interpretation before
+		// applying the POSIX timezone offset so DST does not shift summer dates
+		// by an extra hour.
+		timeinfo->tm_isdst = 0;
+	}
+
+	return mktime(timeinfo) + (local_time ? -timezone : 0);
+}
+
 // Thanks to kwon
 time_t changeUTCtoCtime(const unsigned char *buffer, int local_time)
 {
@@ -74,7 +86,7 @@ time_t changeUTCtoCtime(const unsigned char *buffer, int local_time)
 		time.tm_hour, time.tm_min, time.tm_sec);
 #endif
 
-	return mktime(&time) + (local_time ? -timezone : 0);
+	return dvbTimeToEpoch(&time, local_time);
 }
 
 time_t parseDVBtime(uint16_t mjd, uint32_t bcd, bool local_time)
@@ -104,7 +116,7 @@ time_t parseDVBtime(uint16_t mjd, uint32_t bcd, bool local_time)
 	time.tm_min = (minutes >> 4) * 10 + (minutes & 0x0f);
 	time.tm_sec = (seconds >> 4) * 10 + (seconds & 0x0f);
 
-	return mktime(&time) + (local_time ? -timezone : 0);
+	return dvbTimeToEpoch(&time, local_time);
 }
 
 // Thanks to tmbinc
