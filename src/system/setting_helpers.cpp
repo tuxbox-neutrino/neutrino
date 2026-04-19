@@ -577,11 +577,23 @@ std::string CNetAdapter::getMacAddr(void)
 	}
 }
 
+static std::string getZoneinfoPath(const std::string &zone)
+{
+	const std::string standard = std::string(TARGET_PREFIX) + "/usr/share/zoneinfo/" + zone;
+	if (!access(standard.c_str(), R_OK))
+		return standard;
+
+	const std::string legacy = std::string(TARGET_PREFIX) + "/share/zoneinfo/" + zone;
+	if (!access(legacy.c_str(), R_OK))
+		return legacy;
+
+	return standard;
+}
+
 bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void *Data)
 {
 	bool found = false;
 	std::string name, zoneinfo, zone;
-	zoneinfo = TARGET_PREFIX "/share/zoneinfo/";
 	printf("CTZChangeNotifier::changeNotify: %s\n", (char *) Data);
 
 	xmlDocPtr parser = parseXmlFile("/etc/timezone.xml");
@@ -602,11 +614,11 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void *Data)
 					const char *zptr = xmlGetAttribute(search, "zone");
 					if (zptr)
 						zone = zptr;
-					std::string Zone = zoneinfo + zone;
-					if (!access(Zone.c_str(), R_OK))
+					zoneinfo = getZoneinfoPath(zone);
+					if (!access(zoneinfo.c_str(), R_OK))
 						found = true;
 					else
-						dprintf(DEBUG_NORMAL, "[CTZChangeNotifier] [%s - %d] %s not found\n", __func__, __LINE__, Zone.c_str());
+						dprintf(DEBUG_NORMAL, "[CTZChangeNotifier] [%s - %d] %s not found\n", __func__, __LINE__, zoneinfo.c_str());
 					break;
 				}
 			}
@@ -617,7 +629,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void *Data)
 	if (found)
 	{
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-		std::string cmd = zoneinfo + zone;
+		std::string cmd = zoneinfo;
 		printf("symlink %s to /etc/localtime\n", cmd.c_str());
 		if (unlink("/etc/localtime"))
 			perror("unlink failed");

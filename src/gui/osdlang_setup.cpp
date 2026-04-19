@@ -56,6 +56,22 @@
 #include <dirent.h>
 #include <eitd/sectionsd.h>
 
+namespace {
+
+std::string getZoneinfoPath(const std::string &zone)
+{
+	const std::string standard = std::string(TARGET_PREFIX) + "/usr/share/zoneinfo/" + zone;
+	if (!access(standard.c_str(), R_OK))
+		return standard;
+
+	const std::string legacy = std::string(TARGET_PREFIX) + "/share/zoneinfo/" + zone;
+	if (!access(legacy.c_str(), R_OK))
+		return legacy;
+
+	return standard;
+}
+
+}
 
 
 COsdLangSetup::COsdLangSetup(int wizard_mode)
@@ -158,7 +174,8 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 				if(zptr)
 					zone = zptr;
 				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-				if (access(TARGET_PREFIX "/share/zoneinfo/" + zone, R_OK))
+				const std::string zonefile = getZoneinfoPath(zone);
+				if (access(zonefile.c_str(), R_OK))
 					printf("[neutrino] timezone file '%s' not installed\n", zone.c_str());
 				else
 				{
