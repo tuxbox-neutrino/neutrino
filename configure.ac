@@ -520,23 +520,59 @@ AC_ARG_ENABLE(lua,
 	[enable_lua="$enableval"],
 	[enable_lua="yes"])
 
+AC_ARG_WITH([lua-provider],
+	AS_HELP_STRING([--with-lua-provider=PROVIDER],
+		[select Lua backend @<:@auto|luajit|lua; default=auto@:>@]),
+	[lua_provider="$withval"],
+	[lua_provider="auto"])
+
+case "$lua_provider" in
+	auto|luajit|lua)
+		;;
+	*)
+		AC_MSG_ERROR([invalid Lua provider '$lua_provider', use auto, luajit or lua])
+		;;
+esac
+
 if test "$enable_lua" = "yes"; then
 	AC_DEFINE(ENABLE_LUA, 1, [include Lua support])
-	PKG_CHECK_MODULES(LUA, lua, LLUA="yes", LLUA="no")
-	PKG_CHECK_MODULES(luajit, luajit, LLUAJIT="yes", LLUAJIT="no")
-		if test "x$LLUAJIT" = "xyes"; then
-			LUA_CFLAGS="$luajit_CFLAGS"
-			LUA_LIBS="$luajit_LIBS"
-			AC_DEFINE(LUA_COMPAT_5_2, 1, [needed for build with lua 5.1])
-		elif test "x$LLUA" = "xyes"; then
-			LUA_LIBS="-llua"
-			AC_DEFINE(LUA_COMPAT_5_2, 0, [needed for build with lua 5.1])
-		else
-			echo "lualib not found, assuming static lua in linker path..."
-			LUA_LIBS="-llua -ldl"
-			AC_DEFINE(STATIC_LUAPOSIX, 1, [Define to 1 for static lua build.])
-			AC_DEFINE(LUA_COMPAT_5_2, 0, [needed for build with lua 5.1])
+	PKG_CHECK_MODULES(SYSLUA, lua, HSYSLUA="yes", HSYSLUA="no")
+	PKG_CHECK_MODULES(LUAJIT, luajit, HLUAJIT="yes", HLUAJIT="no")
+
+	if test "x$lua_provider" = "xluajit"; then
+		if test "x$HLUAJIT" != "xyes"; then
+			AC_MSG_ERROR([requested Lua provider 'luajit' not found])
 		fi
+		selected_lua_provider="luajit"
+	elif test "x$lua_provider" = "xlua"; then
+		if test "x$HSYSLUA" != "xyes"; then
+			AC_MSG_ERROR([requested Lua provider 'lua' not found])
+		fi
+		selected_lua_provider="lua"
+	elif test "x$HLUAJIT" = "xyes"; then
+		selected_lua_provider="luajit"
+	elif test "x$HSYSLUA" = "xyes"; then
+		selected_lua_provider="lua"
+	else
+		selected_lua_provider="static-lua"
+	fi
+
+	if test "x$selected_lua_provider" = "xluajit"; then
+		LUA_CFLAGS="$LUAJIT_CFLAGS"
+		LUA_LIBS="$LUAJIT_LIBS"
+		AC_DEFINE(LUA_COMPAT_5_2, 1, [needed for build with lua 5.1])
+	elif test "x$selected_lua_provider" = "xlua"; then
+		LUA_CFLAGS="$SYSLUA_CFLAGS"
+		LUA_LIBS="$SYSLUA_LIBS"
+		AC_DEFINE(LUA_COMPAT_5_2, 0, [needed for build with lua 5.1])
+	else
+		AC_MSG_WARN([Lua modules not found via pkg-config, assuming static lua in linker path])
+		LUA_CFLAGS=""
+		LUA_LIBS="-llua -ldl"
+		AC_DEFINE(STATIC_LUAPOSIX, 1, [Define to 1 for static lua build.])
+		AC_DEFINE(LUA_COMPAT_5_2, 0, [needed for build with lua 5.1])
+	fi
+	AC_MSG_NOTICE([Using Lua provider: $selected_lua_provider])
 fi
 AM_CONDITIONAL(ENABLE_LUA, test "$enable_lua" = "yes")
 
