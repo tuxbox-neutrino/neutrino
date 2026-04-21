@@ -92,6 +92,43 @@
 extern CPictureViewer *g_PicViewer;
 extern cVideo *videoDecoder;
 
+static void addLuaCompatPath(lua_State *L, const char *field,
+		const char *compat_path, const char *match_token)
+{
+	lua_getglobal(L, "package");
+	if (!lua_istable(L, -1)) {
+		lua_pop(L, 1);
+		return;
+	}
+
+	lua_getfield(L, -1, field);
+	const char *current_path = lua_tostring(L, -1);
+	std::string path = current_path ? current_path : "";
+	if (path.find(match_token) == std::string::npos) {
+		if (!path.empty())
+			path += ";";
+		path += compat_path;
+		lua_pop(L, 1);
+		lua_pushlstring(L, path.c_str(), path.length());
+		lua_setfield(L, -2, field);
+	} else {
+		lua_pop(L, 1);
+	}
+
+	lua_pop(L, 1);
+}
+
+static void addLuaCompatPaths(lua_State *L)
+{
+	// Keep the existing defaults and append the long-used Lua 5.1 plugin paths.
+	addLuaCompatPath(L, "path",
+			"/usr/share/lua/5.1/?.lua;/usr/share/lua/5.1/?/init.lua",
+			"/usr/share/lua/5.1/?.lua");
+	addLuaCompatPath(L, "cpath",
+			"/usr/lib/lua/5.1/?.so;/usr/lib/lua/5.1/loadall.so",
+			"/usr/lib/lua/5.1/?.so");
+}
+
 static void set_lua_variables(lua_State *L)
 {
 	/* keyname table created with
@@ -772,6 +809,7 @@ void LuaInstRegisterFunctions(lua_State *L, bool fromThreads/*=false*/)
 		top = lua_gettop(L);
 
 	luaL_openlibs(L);
+	addLuaCompatPaths(L);
 	luaopen_table(L);
 	luaopen_io(L);
 	luaopen_string(L);
