@@ -525,7 +525,8 @@ if test "$enable_lua" = "yes"; then
 	PKG_CHECK_MODULES(LUA, lua, LLUA="yes", LLUA="no")
 	PKG_CHECK_MODULES(luajit, luajit, LLUAJIT="yes", LLUAJIT="no")
 		if test "x$LLUAJIT" = "xyes"; then
-			LUA_LIBS="-lluajit-5.1"
+			LUA_CFLAGS="$luajit_CFLAGS"
+			LUA_LIBS="$luajit_LIBS"
 			AC_DEFINE(LUA_COMPAT_5_2, 1, [needed for build with lua 5.1])
 		elif test "x$LLUA" = "xyes"; then
 			LUA_LIBS="-llua"
