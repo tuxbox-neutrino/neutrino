@@ -26,10 +26,12 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 #include <pty.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <locale.h>
 
 #include "yaft_class.h"
 #include "yaft_priv.h"
@@ -75,10 +77,9 @@ static pid_t fork_and_exec(int *master, int lines, int cols)
 	struct winsize ws;
 	ws.ws_row = lines;
 	ws.ws_col = cols;
-	/* XXX: this variables are UNUSED (man tty_ioctl),
-		but useful for calculating terminal cell size */
-	ws.ws_ypixel = 0; //CELL_HEIGHT * lines;
-	ws.ws_xpixel = 0; //CELL_WIDTH * cols;
+	/* XXX: these values are unused by tty_ioctl, but kept for completeness */
+	ws.ws_ypixel = 0;
+	ws.ws_xpixel = 0;
 
 	pid_t pid;
 	pid = forkpty(master, NULL, NULL, &ws);
@@ -104,7 +105,7 @@ static int check_fds(fd_set *fds, struct timeval *tv, int input, int master)
 	return select(master + 1, fds, NULL, NULL, tv);
 }
 
-YaFT::YaFT(const char * const *argv, int *Res, bool Paint, sigc::signal<void, std::string*, int*, bool*>func)
+YaFT::YaFT(const char * const *argv, int *Res, bool Paint, sigc::signal<void, std::string*, int*, bool*> func)
 {
 	paint = Paint;
 	yaft_argv = argv;
@@ -127,9 +128,9 @@ int YaFT::run(void)
 	exitcode = EXIT_FAILURE;
 	YaFT_p *term = new YaFT_p(paint);
 	int flags;
-	/* init */
+
 	if (setlocale(LC_ALL, "") == NULL) /* for wcwidth() */
-		logging(NORMAL, "setlocale falied\n");
+		logging(NORMAL, "setlocale failed\n");
 	if (!term->init())
 		goto init_failed;
 
@@ -140,7 +141,6 @@ int YaFT::run(void)
 	sigact.sa_flags   = SA_RESTART;
 	sigaction(SIGCHLD, &sigact, &oldact);
 
-	/* fork and exec shell */
 	if ((childpid = fork_and_exec(&term->fd, term->lines, term->cols)) < 0) {
 		logging(NORMAL, "forkpty failed\n");
 		goto exec_failed;
@@ -149,16 +149,7 @@ int YaFT::run(void)
 	child_alive = true;
 	flags = fcntl(term->fd, F_GETFL);
 	fcntl(term->fd, F_SETFL, flags | O_NONBLOCK);
-# if 0
-	fprintf(stderr, "forked child %d, command: '", childpid);
-	const char * const *p = yaft_argv;
-	while (*p) {
-		fprintf(stderr, "%s ", *p);
-		p++;
-	}
-	fprintf(stderr, "'\n");
-#endif
-	/* main loop */
+
 	while (child_alive) {
 		if (need_redraw) {
 			need_redraw = false;
@@ -178,19 +169,12 @@ int YaFT::run(void)
 				while (term->txt.size() > 1) {
 					std::string s = term->txt.front();
 					OnShellOutputLoop(&s, res, &ok);
-#if 0
-					if (res)
-						printf("[CTermWindow] [%s:%d] res=%d ok=%d\n", __func__, __LINE__, *res, ok);
-					else
-						printf("[CTermWindow] [%s:%d] res=NULL ok=%d\n", __func__, __LINE__, ok);
-#endif
-					// fprintf(stderr, "size %d '%s'\n", term->txt.size(), s.c_str());
 					term->txt.pop();
 				}
-				if (! paint)
+				if (!paint)
 					continue;
 				need_redraw = true;
-				if (/*LAZY_DRAW && */size == BUFSIZE)
+				if (size == (ssize_t) BUFSIZE)
 					continue; /* maybe more data arrives soon */
 				time_t now = time_monotonic_ms();
 				if (now - term->last_paint < 100)
@@ -201,7 +185,7 @@ int YaFT::run(void)
 		}
 	}
 	term->refresh();
-	/* get the last partial line if there was no newline. The loop should only ever run once... */
+
 	while (!term->txt.empty()) {
 		std::string s = term->txt.front();
 		OnShellOutputLoop(&s, res, &ok);

@@ -25,9 +25,11 @@
  */
 
 #include "yaft_priv.h"
+#include <cs_api.h>
 #include <driver/framebuffer.h>
 #include <driver/neutrinofonts.h>
 #include <driver/abstime.h>
+#include <cstring>
 #include <xmltree/xmlinterface.h> /* UTF8 conversion */
 
 /* parse_arg functions */
@@ -82,6 +84,7 @@ void YaFT_p::parse_arg(std::string &buf, struct parm_t *pt, int delim, int (is_v
 }
 
 extern std::string font_file_monospace;
+
 /* constructor, Paint == false means "quiet mode, just execute
  * a command but don't display anything */
 YaFT_p::YaFT_p(bool Paint)
@@ -92,11 +95,26 @@ YaFT_p::YaFT_p(bool Paint)
 	last_paint = 0;
 	fr = NULL;
 	font = NULL;
+	fontstyle = NULL;
+	screeninfo = NULL;
+	fb.buf = NULL;
+	fb.cfb = NULL;
+	fb.width = 0;
+	fb.height = 0;
+	fb.xstart = 0;
+	fb.ystart = 0;
+	fb.line_length = 0;
+	fb.screen_size = 0;
+	fb.dy_min = 0;
+	fb.dy_max = -1;
 }
 
 YaFT_p::~YaFT_p()
 {
-	/* delete NULL is fine */
+	if (fb.buf) {
+		cs_free_uncached(fb.buf);
+		fb.buf = NULL;
+	}
 	delete font; font = NULL;
 	delete fr; fr = NULL;
 }
@@ -104,16 +122,31 @@ YaFT_p::~YaFT_p()
 bool YaFT_p::init()
 {
 	fb.cfb = CFrameBuffer::getInstance();
-	fb.buf = (uint32_t *)fb.cfb->getBackBufferPointer();
 	fb.width  = fb.cfb->getScreenWidth();
 	fb.height = fb.cfb->getScreenHeight();
 	fb.xstart = fb.cfb->getScreenX();
 	fb.ystart = fb.cfb->getScreenY();
-	fb.line_length = width * sizeof(fb_pixel_t);
-	fb.screen_size = fb.line_length * fb.height;
+	fb.line_length = fb.width * sizeof(fb_pixel_t);
+	fb.screen_size = (long)fb.line_length * fb.height;
 	fb.dy_min = fb.height;
 	fb.dy_max = -1;
 	screeninfo = fb.cfb->getScreenInfo();
+
+	/*
+	 * Do not render into CFrameBuffer's raw backbuffer directly.
+	 * Some targets expose a full-screen buffer with a driver-specific pitch,
+	 * while YAFT only wants a compact surface for the visible OSD window.
+	 * Using a private linear surface avoids stride/offset mismatches on
+	 * ARM/HiSi platforms such as HD60.
+	 */
+	if (paint) {
+		fb.buf = (uint32_t *) cs_malloc_uncached((size_t)fb.width * (size_t)fb.height * sizeof(*fb.buf));
+		if (!fb.buf) {
+			logging(NORMAL, "cannot allocate %ld bytes for yaft surface\n", fb.screen_size);
+			return false;
+		}
+		memset(fb.buf, 0, (size_t)fb.width * (size_t)fb.height * sizeof(*fb.buf));
+	}
 
 	width  = fb.width;
 	height = fb.height;
@@ -159,9 +192,9 @@ bool YaFT_p::init()
 	logging(NORMAL, "terminal cols:%d lines:%d paint:%d\n", cols, lines, paint);
 
 	/* allocate memory */
-	line_dirty.reserve(lines);
-	tabstop.reserve(cols);
-	esc.buf.reserve(1024);
+	line_dirty.assign(lines, false);
+	tabstop.assign(cols, false);
+	esc.buf.reserve(BUFSIZE);
 
 	cells.clear();
 	if (paint) {
@@ -185,7 +218,7 @@ bool YaFT_p::init()
 void YaFT_p::erase_cell(int y, int x)
 {
 	struct cell_t *cellp;
-	if (! paint)
+	if (!paint)
 		return;
 
 	cellp             = &cells[y][x];
@@ -198,7 +231,7 @@ void YaFT_p::erase_cell(int y, int x)
 void YaFT_p::copy_cell(int dst_y, int dst_x, int src_y, int src_x)
 {
 	struct cell_t *dst, *src;
-	if (! paint)
+	if (!paint)
 		return;
 	dst = &cells[dst_y][dst_x];
 	src = &cells[src_y][src_x];
@@ -211,7 +244,7 @@ int YaFT_p::set_cell(int y, int x, std::string &utf8)
 	struct cell_t cell;
 	uint8_t color_tmp;
 
-	if (! paint)
+	if (!paint)
 		return 1;
 
 	cell.utf8_str = utf8;
@@ -236,10 +269,6 @@ int YaFT_p::set_cell(int y, int x, std::string &utf8)
 
 void YaFT_p::swap_lines(int i, int j)
 {
-	/* only called from scroll(), which already checks for paint before
-	if (!paint)
-		return;
-	 */
 	std::swap(cells[i], cells[j]);
 }
 
@@ -282,7 +311,7 @@ void YaFT_p::move_cursor(int y_offset, int x_offset)
 	if (y_offset > 0 && !nlseen)
 		txt.push("");
 
-	if (! paint)
+	if (!paint)
 		return;
 
 	x = cursor.x + x_offset;
@@ -351,12 +380,6 @@ void YaFT_p::addch(uint32_t code)
 	std::string str = Unicode_Character_to_UTF8(code);
 	move_cursor(0, set_cell(cursor.y, cursor.x, str));
 	txt.back().append(str);
-#if 0
-	printf(stderr, "addch 0x%04x => ", code);
-	onst char *f = str.c_str();
-	hile (*f) fprintf(stderr, "0x%02x ", *f++);
-	fprintf(stderr, "\n");
-#endif
 }
 
 void YaFT_p::reset_esc(void)
@@ -374,34 +397,16 @@ bool YaFT_p::push_esc(uint8_t ch)
 	esc.bp++;
 	esc.buf.push_back(ch);
 	if (esc.state == STATE_ESC) {
-		/* format:
-			ESC  I.......I F
-				 ' '  '/'  '0'  '~'
-			0x1B 0x20-0x2F 0x30-0x7E
-		*/
 		if ('0' <= ch && ch <= '~')        /* final char */
 			return true;
 		else if (SPACE <= ch && ch <= '/') /* intermediate char */
 			return false;
 	} else if (esc.state == STATE_CSI) {
-		/* format:
-			CSI       P.......P I.......I F
-			ESC  '['  '0'  '?'  ' '  '/'  '@'  '~'
-			0x1B 0x5B 0x30-0x3F 0x20-0x2F 0x40-0x7E
-		*/
 		if ('@' <= ch && ch <= '~')
 			return true;
 		else if (SPACE <= ch && ch <= '?')
 			return false;
 	} else {
-		/* format:
-			OSC       I.....I F
-			ESC  ']'          BEL  or ESC  '\'
-			0x1B 0x5D unknown 0x07 or 0x1B 0x5C
-			DCS       I....I  F
-			ESC  'P'          BEL  or ESC  '\'
-			0x1B 0x50 unknown 0x07 or 0x1B 0x5C
-		*/
 		if (ch == BEL || (ch == BACKSLASH
 			&& esc.bp >= 2 && esc.buf[esc.bp-2] == ESC))
 			return true;
@@ -424,7 +429,7 @@ void YaFT_p::reset_charset(void)
 void YaFT_p::reset(void)
 {
 	mode  = MODE_RESET;
-	mode |= MODE_AMRIGHT; //(MODE_CURSOR | MODE_AMRIGHT);
+	mode |= MODE_AMRIGHT;
 	wrap_occured = false;
 
 	scrollm.top    = 0;
@@ -466,18 +471,11 @@ void YaFT_p::term_die(void)
 
 void YaFT_p::parse(uint8_t *buf, int size)
 {
-	/*
-		CTRL CHARS      : 0x00 ~ 0x1F
-		ASCII(printable): 0x20 ~ 0x7E
-		CTRL CHARS(DEL) : 0x7F
-		UTF-8           : 0x80 ~ 0xFF
-	*/
 	uint8_t ch;
 
 	for (int i = 0; i < size; i++) {
 		ch = buf[i];
 		if (esc.state == STATE_RESET) {
-			/* interrupted by illegal byte */
 			if (charset.following_byte > 0 && (ch < 0x80 || ch > 0xBF)) {
 				addch(REPLACEMENT_CHAR);
 				reset_charset();
@@ -514,7 +512,7 @@ void YaFT_p::control_character(uint8_t ch)
 
 	logging(DEBUG, "ctl: %s\n", ctrl_char[ch]);
 
-	switch(ch) {
+	switch (ch) {
 	case BS:  bs(); break;
 	case HT:  tab(); break;
 	case LF:  nlseen = true;
@@ -531,24 +529,23 @@ void YaFT_p::esc_sequence(uint8_t ch)
 {
 	logging(DEBUG, "esc: ESC %s\n", esc.buf.c_str());
 
-	if (esc.bp == 1)
-	{
-		switch(ch) {
-		case '7': save_state();		break;
-		case '8': restore_state();	break;
-		case 'D': nl();			break;
-		case 'E': crnl();		break;
-		case 'H': set_tabstop();	break;
-		case 'M': reverse_nl();		break;
-		case 'Z': identify();		break;
-		case '[': enter_csi();		break;
-		case ']': enter_osc();		break;
-		case 'c': ris();		break;
-		default:			break;
+	if (esc.bp == 1) {
+		switch (ch) {
+		case '7': save_state();     break;
+		case '8': restore_state();  break;
+		case 'D': nl();             break;
+		case 'E': crnl();           break;
+		case 'H': set_tabstop();    break;
+		case 'M': reverse_nl();     break;
+		case 'Z': identify();       break;
+		case '[': enter_csi();      break;
+		case ']': enter_osc();      break;
+		case 'c': ris();            break;
+		default:                    break;
 		}
 	}
 
-	/* not reset if csi/osc/dcs seqence */
+	/* not reset if csi/osc/dcs sequence */
 	if (ch == '[' || ch == ']' || ch == 'P')
 		return;
 
@@ -567,38 +564,34 @@ void YaFT_p::csi_sequence(uint8_t ch)
 	parse_arg(csi, &parm, ';', isdigit); /* skip '[' */
 
 	switch (ch) {
-	case '@': insert_blank(&parm);	break;
-	case 'A': curs_up(&parm);	break;
-	case 'B': curs_down(&parm);	break;
-	case 'C': curs_forward(&parm);	break;
-	case 'D': curs_back(&parm);	break;
-	case 'E': curs_nl(&parm);	break;
-	case 'F': curs_pl(&parm);	break;
-	case 'G': curs_col(&parm);	break;
-	case 'H': curs_pos(&parm);	break;
-	case 'J': erase_display(&parm);	break;
-	case 'K': erase_line(&parm);	break;
-	case 'L': insert_line(&parm);	break;
-	case 'M': delete_line(&parm);	break;
-	case 'P': delete_char(&parm);	break;
-	case 'X': erase_char(&parm);	break;
-	case 'a': curs_forward(&parm);	break;
-	case 'c': device_attribute(&parm);break;
-	case 'd': curs_line(&parm);	break;
-	case 'e': curs_down(&parm);	break;
-	case 'f': curs_pos(&parm);	break;
-	case 'g': clear_tabstop(&parm);	break;
-	case 'h': set_mode(&parm);	break;
-	case 'l': reset_mode(&parm);	break;
-	case 'm': set_attr(&parm);	break;
-	case 'n': status_report(&parm);	break;
-	case 'r': set_margin(&parm);	break;
-	/* XXX: not implemented because these sequences conflict DECSLRM/DECSHTS
-	case 's': sco_save_state(&parm);break;
-	case 'u': sco_restore_state(&parm); break;
-	*/
-	case '`': curs_col(&parm);	break;
-	default: break;
+	case '@': insert_blank(&parm);      break;
+	case 'A': curs_up(&parm);           break;
+	case 'B': curs_down(&parm);         break;
+	case 'C': curs_forward(&parm);      break;
+	case 'D': curs_back(&parm);         break;
+	case 'E': curs_nl(&parm);           break;
+	case 'F': curs_pl(&parm);           break;
+	case 'G': curs_col(&parm);          break;
+	case 'H': curs_pos(&parm);          break;
+	case 'J': erase_display(&parm);     break;
+	case 'K': erase_line(&parm);        break;
+	case 'L': insert_line(&parm);       break;
+	case 'M': delete_line(&parm);       break;
+	case 'P': delete_char(&parm);       break;
+	case 'X': erase_char(&parm);        break;
+	case 'a': curs_forward(&parm);      break;
+	case 'c': device_attribute(&parm);  break;
+	case 'd': curs_line(&parm);         break;
+	case 'e': curs_down(&parm);         break;
+	case 'f': curs_pos(&parm);          break;
+	case 'g': clear_tabstop(&parm);     break;
+	case 'h': set_mode(&parm);          break;
+	case 'l': reset_mode(&parm);        break;
+	case 'm': set_attr(&parm);          break;
+	case 'n': status_report(&parm);     break;
+	case 'r': set_margin(&parm);        break;
+	case '`': curs_col(&parm);          break;
+	default:                            break;
 	}
 
 	reset_esc();
@@ -613,16 +606,6 @@ static int is_osc_parm(int c)
 		return false;
 }
 
-#if 0
-static void omit_string_terminator(char *bp, uint8_t ch)
-{
-	if (ch == BACKSLASH) /* ST: ESC BACKSLASH */
-		*(bp - 2) = '\0';
-	else                 /* ST: BEL */
-		*(bp - 1) = '\0';
-}
-#endif
-
 void YaFT_p::osc_sequence(uint8_t ch)
 {
 	int osc_mode;
@@ -632,7 +615,6 @@ void YaFT_p::osc_sequence(uint8_t ch)
 		esc.buf.resize(esc.bp - 2);
 	else                 /* ST: BEL */
 		esc.buf.resize(esc.bp - 1);
-	// omit_string_terminator(esc.bp, ch);
 
 	logging(DEBUG, "osc: OSC %s\n", esc.buf.c_str());
 
@@ -644,16 +626,10 @@ void YaFT_p::osc_sequence(uint8_t ch)
 		osc_mode = dec2num(parm.argv[0]);
 		logging(DEBUG, "osc_mode:%d\n", osc_mode);
 
-		/* XXX: disable because this functions only work 24/32bpp
-			-> support other bpp (including pseudo color) */
 		if (osc_mode == 4)
 			set_palette(&parm);
 		else if (osc_mode == 104)
 			reset_palette(&parm);
-#if 0
-		if (osc_mode == 8900)
-			glyph_width_report(&parm);
-#endif
 	}
 	reset_esc();
 }
@@ -661,14 +637,6 @@ void YaFT_p::osc_sequence(uint8_t ch)
 void YaFT_p::utf8_charset(uint8_t ch)
 {
 	if (0x80 <= ch && ch <= 0xBF) {
-		/* check illegal UTF-8 sequence
-			* ? byte sequence: first byte must be between 0xC2 ~ 0xFD
-			* 2 byte sequence: first byte must be between 0xC2 ~ 0xDF
-			* 3 byte sequence: second byte following 0xE0 must be between 0xA0 ~ 0xBF
-			* 4 byte sequence: second byte following 0xF0 must be between 0x90 ~ 0xBF
-			* 5 byte sequence: second byte following 0xF8 must be between 0x88 ~ 0xBF
-			* 6 byte sequence: second byte following 0xFC must be between 0x84 ~ 0xBF
-		*/
 		if ((charset.following_byte == 0)
 			|| (charset.following_byte == 1 && charset.count == 0 && charset.code <= 1)
 			|| (charset.following_byte == 2 && charset.count == 0 && charset.code == 0 && ch < 0xA0)
@@ -712,12 +680,6 @@ void YaFT_p::utf8_charset(uint8_t ch)
 	}
 
 	if (charset.count >= charset.following_byte) {
-		/*	illegal code point (ref: http://www.unicode.org/reports/tr27/tr27-4.html)
-			0xD800   ~ 0xDFFF : surrogate pair
-			0xFDD0   ~ 0xFDEF : noncharacter
-			0xnFFFE  ~ 0xnFFFF: noncharacter (n: 0x00 ~ 0x10)
-			0x110000 ~        : invalid (unicode U+0000 ~ U+10FFFF)
-		*/
 		if (!charset.is_valid
 			|| (0xD800 <= charset.code && charset.code <= 0xDFFF)
 			|| (0xFDD0 <= charset.code && charset.code <= 0xFDEF)
@@ -749,8 +711,8 @@ void YaFT_p::draw_line(int line)
 
 	if (fb.dy_min > line * CELL_HEIGHT)
 		fb.dy_min = line * CELL_HEIGHT;
-	if (fb.dy_max < (line+1) * CELL_HEIGHT)
-		fb.dy_max = (line+1) * CELL_HEIGHT;
+	if (fb.dy_max < (line + 1) * CELL_HEIGHT)
+		fb.dy_max = (line + 1) * CELL_HEIGHT;
 
 	for (col = 0; col < cols; col++) {
 		/* target cell */
@@ -761,14 +723,14 @@ void YaFT_p::draw_line(int line)
 		/* copy current color_pair (maybe changed) */
 		col_pair = cellp->color_pair;
 
-		/* check cursor positon */
+		/* check cursor position */
 		if ((mode & MODE_CURSOR && line == cursor.y)
 			&& col == cursor.x) {
 			col_pair.fg = DEFAULT_BG;
 			col_pair.bg = ACTIVE_CURSOR_COLOR;
 		}
 
-		/* clear background... */
+		/* clear background */
 		pixel = fb.real_palette[col_pair.bg];
 		for (h = 0; h < CELL_HEIGHT; h++) {
 			pos = col * CELL_WIDTH + (line * CELL_HEIGHT + h) * fb.width;
@@ -784,9 +746,9 @@ void YaFT_p::draw_line(int line)
 			continue;
 		int xs = col * CELL_WIDTH;
 		font->RenderString(xs, (line + 1) * CELL_HEIGHT, width - xs, cellp->utf8_str,
-				fb.real_palette[col_pair.fg], mod, Font::IS_UTF8, fb.buf, fb.width * sizeof(fb_pixel_t));
+				fb.real_palette[col_pair.fg], mod, Font::IS_UTF8, fb.buf, fb.line_length);
 	}
-	line_dirty[line] = ((mode & MODE_CURSOR) && cursor.y == line) ? true: false;
+	line_dirty[line] = ((mode & MODE_CURSOR) && cursor.y == line) ? true : false;
 }
 
 static inline int color2pixel(uint32_t color, struct fb_var_screeninfo *var)
@@ -804,7 +766,7 @@ static inline int color2pixel(uint32_t color, struct fb_var_screeninfo *var)
 /* actually update the framebuffer contents */
 void YaFT_p::refresh()
 {
-	if (! paint)
+	if (!paint)
 		return;
 
 	if (palette_modified) {
@@ -813,24 +775,21 @@ void YaFT_p::refresh()
 			fb.real_palette[i] = color2pixel(virtual_palette[i], screeninfo);
 	}
 
-	logging(DEBUG,"%s: mode %x cur: %x cursor.y %d\n", __func__, mode, MODE_CURSOR, cursor.y);
+	logging(DEBUG, "%s: mode %x cur: %x cursor.y %d\n", __func__, mode, MODE_CURSOR, cursor.y);
 	if (mode & MODE_CURSOR)
 		line_dirty[cursor.y] = true;
 
 	for (int line = 0; line < lines; line++) {
-		if (line_dirty[line]) {
+		if (line_dirty[line])
 			draw_line(line);
-		}
 	}
-#if 1
+
 	if (fb.dy_max != -1) {
 		int blit_height = fb.dy_max - fb.dy_min;
 		uint32_t *buf = fb.buf + fb.width * fb.dy_min;
 		fb.cfb->blit2FB(buf, fb.width, blit_height, fb.xstart, fb.ystart + fb.dy_min);
 	}
-#else
-	fb.cfb->blit2FB(fb.buf, fb.width, fb.height, fb.xstart, fb.ystart);
-#endif
+
 	fb.dy_min = fb.height;
 	fb.dy_max = -1;
 	last_paint = time_monotonic_ms();

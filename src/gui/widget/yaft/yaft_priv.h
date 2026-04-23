@@ -23,29 +23,35 @@
  * in all copies or substantial portions of the Software.
  */
 
+#ifndef YAFT_PRIV_H
+#define YAFT_PRIV_H
+
+#include <array>
 #include <cstddef>
 #include <queue>
 #include <map>
 #include <string>
 #include <stdint.h>
-#include <stdlib.h> /* atoi(), strtol() */
+#include <stdlib.h> /* atoi(), calloc(), free(), strtol() */
 #include <unistd.h> /* write() */
 #include <stdio.h>
 
 #include "color.h"
 
 #include <system/debug.h>
+#include <driver/fb_generic.h>
 #include <driver/fontrenderer.h>
+
+constexpr size_t BUFSIZE = 1024;
+constexpr size_t MAX_ARGS = 16;
 
 #define logging(a, message...) dprintf(DEBUG_ ## a, "YaFT: " message)
 
-const uint8_t attr_mask[] = {
+constexpr std::array<uint8_t, 8> attr_mask = {
 	0x00, 0x01, 0x00, 0x00, /* 0:none      1:bold  2:none 3:none */
-	0x02, 0x04, 0x00, 0x08, /* 4:underline 5:blink 6:none 7:reverse */
+	0x02, 0x04, 0x00, 0x08  /* 4:underline 5:blink 6:none 7:reverse */
 };
 
-#define BUFSIZE 1024
-#define MAX_ARGS 16
 struct parm_t { /* for parse_arg() */
 	int argc;
 	std::string argv[MAX_ARGS];
@@ -61,7 +67,6 @@ enum char_code {
 	BACKSLASH = 0x5C,
 };
 
-class CFrameBuffer;
 class YaFT_p
 {
 	/* color: index number of color_palette[] (see color.h) */
@@ -139,7 +144,7 @@ class YaFT_p
 
 	struct framebuffer_t {
 		int fd;                        /* file descriptor of framebuffer */
-		uint32_t *buf;                 /* copy of framebuffer */
+		uint32_t *buf;                 /* compact YAFT surface buffer */
 		uint32_t real_palette[COLORS]; /* hardware specific color palette */
 		int width, height;             /* display resolution */
 		int xstart, ystart;            /* position of the window in the framebuffer */
@@ -177,7 +182,7 @@ class YaFT_p
 	int fd;                                  /* master of pseudo terminal */
 	int cols, lines;                         /* terminal size (cell) */
 	time_t last_paint;
-	std::queue<std::string> txt;             /* contains "sanitized" (without control chars) output text */
+	std::queue<std::string> txt;             /* contains sanitized output text */
 
 	YaFT_p(bool paint = true);
 	~YaFT_p();
@@ -251,3 +256,5 @@ class YaFT_p
 	int32_t parse_color1(std::string &seq);
 	int32_t parse_color2(std::string &seq);
 };
+
+#endif // YAFT_PRIV_H

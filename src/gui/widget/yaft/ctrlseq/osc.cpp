@@ -95,17 +95,14 @@ int32_t YaFT_p::parse_color2(std::string &seq)
 		}
 	} else if (length == 6) {  /* rrggbb */
 		for (i = 0; i < 3; i++) { /* rrggbb */
-			//strncpy(buf, seq + i * 2, 2);
 			rgb[i] = 0xFF & hex2num(seq.substr(i * 2, 2));
 		}
 	} else if (length == 9) {  /* rrrgggbbb */
 		for (i = 0; i < 3; i++) {
-			//strncpy(buf, seq + i * 3, 3);
 			rgb[i] = 0xFF & hex2num(seq.substr(i * 3, 3)) * 0xFF / 0xFFF;
 		}
 	} else if (length == 12) { /* rrrrggggbbbb */
 		for (i = 0; i < 3; i++) {
-			//strncpy(buf, seq + i * 4, 4);
 			rgb[i] = 0xFF & hex2num(seq.substr(i * 4, 4)) * 0xFF / 0xFFFF;
 		}
 	} else {

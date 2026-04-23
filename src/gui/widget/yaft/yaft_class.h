@@ -7,8 +7,10 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
+
 #ifndef __yaft_class__
 #define __yaft_class__
+
 #include <string>
 #include <sigc++/signal.h>
 
@@ -23,4 +25,5 @@ class YaFT : public sigc::trackable
 	int run(); /* returns exit code */
 	sigc::signal<void, std::string*, int*, bool*> OnShellOutputLoop;
 };
+
 #endif
