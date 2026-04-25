@@ -32,17 +32,14 @@
 #include <OpenThreads/ReentrantMutex>
 
 #if BOXMODEL_VUULTIMO4K
-#define MAX_FE          24
-#define MAX_ADAPTERS    4
+#define MAX_FE 24
+#elif BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
+#define MAX_FE 16
 #else
-#if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUUNO4KSE || BOXMODEL_VUUNO4K
-#define MAX_FE          16
-#define MAX_ADAPTERS    4
-#else
-#define MAX_FE          4
-#define MAX_ADAPTERS    4
+#define MAX_FE 4
 #endif
-#endif
+
+#define MAX_ADAPTERS 4
 //#define DYNAMIC_DEMUX
 //#define MAKE_FE_KEY(adapter, number) ((adapter << 8) | (number & 0xFF))
 
