@@ -1,11 +1,12 @@
 /*
- * definition for embedding the YaFT framebuffer terminal in c++
- * (C) 2018 Stefan Seyfried
- * License: GPL-2.0+
+ * Public C++ wrapper for embedding the YAFT framebuffer terminal in
+ * Neutrino.
+ * Copyright (C) 2018 Stefan Seyfried
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Neutrino integration license: GPL-2.0-only.
+ *
+ * This integration is distributed with Neutrino under the GPL terms above,
+ * without warranty.
  */
 
 #ifndef __yaft_class__

@@ -1,26 +1,17 @@
 /*
- * yaft framebuffer terminal as C++ class for embedding in neutrino-MP
- * (C) 2018 Stefan Seyfried
- * License: GPL-2.0
+ * Private backend declarations for the YAFT framebuffer terminal integration
+ * in Neutrino.
+ * Copyright (C) 2018 Stefan Seyfried
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Neutrino integration license: GPL-2.0-only.
  *
- * private "backend" functions
- *
- * original code https://github.com/uobikiemukot/yaft
+ * This file contains declarations derived from upstream yaft
+ * (https://github.com/uobikiemukot/yaft), originally:
  * Copyright (c) 2012 haru <uobikiemukot at gmail dot com>
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to permit
- * persons to whom the Software is furnished to do so, subject to the
- * following conditions:
  *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
+ * Upstream yaft is MIT-licensed; see LICENSE in this directory for the
+ * original permission notice and warranty disclaimer. This integration is
+ * distributed with Neutrino under the GPL terms above, without warranty.
  */
 
 #ifndef YAFT_PRIV_H
