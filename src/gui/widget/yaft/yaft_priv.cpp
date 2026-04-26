@@ -396,6 +396,14 @@ bool YaFT_p::push_esc(uint8_t ch)
 	/* ref: http://www.vt100.net/docs/vt102-ug/appendixd.html */
 	esc.bp++;
 	esc.buf.push_back(ch);
+	/*
+	 * Keep escape parsing byte-class based. Unsupported sequences should be
+	 * consumed or rejected as sequences, not leak their bytes into text output.
+	 * The accepted byte ranges mirror the terminal grammar:
+	 * ESC uses intermediate bytes plus one final byte, CSI has optional
+	 * parameter/intermediate bytes plus a final byte, and OSC runs until BEL
+	 * or ST (ESC backslash).
+	 */
 	if (esc.state == STATE_ESC) {
 		if ('0' <= ch && ch <= '~')        /* final char */
 			return true;
@@ -475,7 +483,17 @@ void YaFT_p::parse(uint8_t *buf, int size)
 
 	for (int i = 0; i < size; i++) {
 		ch = buf[i];
+		/*
+		 * The parser is intentionally a small state machine. In reset state,
+		 * bytes are emitted as control characters, ASCII, or UTF-8. In escape
+		 * states, bytes are first accumulated by push_esc() until a complete
+		 * sequence can be dispatched.
+		 */
 		if (esc.state == STATE_RESET) {
+			/*
+			 * Finish a broken UTF-8 sequence before handling the current byte
+			 * so an interrupting ASCII/control byte is not dropped.
+			 */
 			if (charset.following_byte > 0 && (ch < 0x80 || ch > 0xBF)) {
 				addch(REPLACEMENT_CHAR);
 				reset_charset();
@@ -590,6 +608,10 @@ void YaFT_p::csi_sequence(uint8_t ch)
 	case 'm': set_attr(&parm);          break;
 	case 'n': status_report(&parm);     break;
 	case 'r': set_margin(&parm);        break;
+	/*
+	 * Do not add SCO CSI s/u save/restore without extending the parser to
+	 * distinguish the DEC variants that use the same final bytes.
+	 */
 	case '`': curs_col(&parm);          break;
 	default:                            break;
 	}
@@ -637,12 +659,25 @@ void YaFT_p::osc_sequence(uint8_t ch)
 void YaFT_p::utf8_charset(uint8_t ch)
 {
 	if (0x80 <= ch && ch <= 0xBF) {
-		if ((charset.following_byte == 0)
-			|| (charset.following_byte == 1 && charset.count == 0 && charset.code <= 1)
-			|| (charset.following_byte == 2 && charset.count == 0 && charset.code == 0 && ch < 0xA0)
-			|| (charset.following_byte == 3 && charset.count == 0 && charset.code == 0 && ch < 0x90)
-			|| (charset.following_byte == 4 && charset.count == 0 && charset.code == 0 && ch < 0x88)
-			|| (charset.following_byte == 5 && charset.count == 0 && charset.code == 0 && ch < 0x84))
+		/*
+		 * Continuation bytes are valid only after a matching lead byte. The
+		 * first continuation byte also rules out overlong encodings, where a
+		 * value is represented with more bytes than UTF-8 permits.
+		 */
+		const bool unexpected_continuation = (charset.following_byte == 0);
+		const bool overlong_2_byte =
+			(charset.following_byte == 1 && charset.count == 0 && charset.code <= 1);
+		const bool overlong_3_byte =
+			(charset.following_byte == 2 && charset.count == 0 && charset.code == 0 && ch < 0xA0);
+		const bool overlong_4_byte =
+			(charset.following_byte == 3 && charset.count == 0 && charset.code == 0 && ch < 0x90);
+		const bool overlong_5_byte =
+			(charset.following_byte == 4 && charset.count == 0 && charset.code == 0 && ch < 0x88);
+		const bool overlong_6_byte =
+			(charset.following_byte == 5 && charset.count == 0 && charset.code == 0 && ch < 0x84);
+
+		if (unexpected_continuation || overlong_2_byte || overlong_3_byte
+			|| overlong_4_byte || overlong_5_byte || overlong_6_byte)
 			charset.is_valid = false;
 
 		charset.code <<= 6;
@@ -680,11 +715,16 @@ void YaFT_p::utf8_charset(uint8_t ch)
 	}
 
 	if (charset.count >= charset.following_byte) {
-		if (!charset.is_valid
-			|| (0xD800 <= charset.code && charset.code <= 0xDFFF)
-			|| (0xFDD0 <= charset.code && charset.code <= 0xFDEF)
-			|| ((charset.code & 0xFFFF) == 0xFFFE || (charset.code & 0xFFFF) == 0xFFFF)
-			|| (charset.code > 0x10FFFF))
+		/*
+		 * Once all bytes are collected, reject Unicode ranges that should not
+		 * be printed even if the byte sequence itself was structurally valid.
+		 */
+		const bool surrogate = (0xD800 <= charset.code && charset.code <= 0xDFFF);
+		const bool noncharacter = (0xFDD0 <= charset.code && charset.code <= 0xFDEF)
+			|| ((charset.code & 0xFFFF) == 0xFFFE || (charset.code & 0xFFFF) == 0xFFFF);
+		const bool outside_unicode = (charset.code > 0x10FFFF);
+
+		if (!charset.is_valid || surrogate || noncharacter || outside_unicode)
 			addch(REPLACEMENT_CHAR);
 		else
 			addch(charset.code);
@@ -785,6 +825,11 @@ void YaFT_p::refresh()
 	}
 
 	if (fb.dy_max != -1) {
+		/*
+		 * draw_line() tracks the vertical dirty span in YAFT's private linear
+		 * surface. Only copy that span into the real framebuffer to avoid
+		 * unnecessary full-screen updates on slower targets.
+		 */
 		int blit_height = fb.dy_max - fb.dy_min;
 		uint32_t *buf = fb.buf + fb.width * fb.dy_min;
 		fb.cfb->blit2FB(buf, fb.width, blit_height, fb.xstart, fb.ystart + fb.dy_min);

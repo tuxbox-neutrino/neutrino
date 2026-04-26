@@ -186,6 +186,10 @@ int YaFT::run(void)
 	}
 	term->refresh();
 
+	/*
+	 * txt always keeps one open line while parsing. Flush it here so command
+	 * output without a trailing newline is still delivered to the caller.
+	 */
 	while (!term->txt.empty()) {
 		std::string s = term->txt.front();
 		OnShellOutputLoop(&s, res, &ok);
