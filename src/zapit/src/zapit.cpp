@@ -1157,6 +1157,19 @@ bool CZapit::ChangeAudioPid(uint8_t index)
 	if (!current_channel)
 		return false;
 
+	/* Restarting the decoder while playback is stopped desynchronizes
+	 * zapit state. Keep the selected audio state for the next playback
+	 * start and leave stopped decoder/demux devices untouched. */
+	if (!playing) {
+		current_channel->setAudioChannel(index);
+		CZapitAudioChannel *newAudioChannel = current_channel->getAudioChannel();
+		if (newAudioChannel)
+			SetAudioStreamType(newAudioChannel->audioChannelType);
+		printf("[zapit] change apid to 0x%x (not playing - state-only)\n",
+			current_channel->getAudioPid());
+		return true;
+	}
+
 	/* stop demux filter */
 	if (audioDemux->Stop() == false)
 		return false;
