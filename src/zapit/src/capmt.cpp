@@ -412,7 +412,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		CZapitChannel * chan = CServiceManager::getInstance()->GetCurrentChannel();
 
 		//if coming from movieplayer, disable hack
-		if(!mp && ( (!mode || (mode && !chan->scrambled)) && (!start && rmode)) ){
+		if(!mp && chan && ( (!mode || (mode && !chan->scrambled)) && (!start && rmode)) ){
 			INFO("\033[33m HACK: disabling TS\033[0m");
 			cCA::GetInstance()->SetTS(CA_DVBCI_TS_INPUT_DISABLED);
 		}

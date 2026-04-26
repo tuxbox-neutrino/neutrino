@@ -510,8 +510,9 @@ int CWebTVResolution::Show()
 	m->hide();
 	delete m;
 
-	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-			   (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv)
+			   && CZapit::getInstance()->GetCurrentChannel()
+			   && (!CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
 
 	if (livestreamResolution != g_settings.livestreamResolution && _mode_webtv)
 		RestartStream();

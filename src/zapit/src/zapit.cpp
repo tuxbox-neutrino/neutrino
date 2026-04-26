@@ -2414,6 +2414,15 @@ void CZapit::sendChannels(int connfd, const CZapitClient::channelsMode mode, con
 	internalSendChannels(connfd, &channels, 0, false);
 }
 
+/* Lookup via id — allchans.erase() paths (RemoveChannel, ReadServices
+ * updates-xml, RemoveAllChannels) can dangle a cached pointer. */
+CZapitChannel * CZapit::GetCurrentChannel()
+{
+	if (live_channel_id == 0)
+		return NULL;
+	return CServiceManager::getInstance()->FindChannel(live_channel_id);
+}
+
 bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 {
 	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);

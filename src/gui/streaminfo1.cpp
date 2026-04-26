@@ -745,7 +745,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) {
 			snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_TIMERLIST_CHANNEL));//swiped locale
 			g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_MENUCONTENT_TEXT);
-			snprintf(buf, sizeof(buf), "%s", channel->getName().c_str());
+			if (channel)
+				snprintf(buf, sizeof(buf), "%s", channel->getName().c_str());
+			else
+				buf[0] = '\0';
 			g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width2, buf, COL_MENUCONTENT_TEXT);
 		} else {
 			snprintf(buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_MOVIEBROWSER_INFO_FILE));//swiped locale
@@ -761,9 +764,11 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 		//channellogo
 		ypos+= sheight;
-		sprintf(buf, "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
-		g_Font[font_small]->RenderString(xpos, ypos, box_width, "Logo:" , COL_INFOBAR_TEXT);
-		g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
+		if (channel) {
+			sprintf(buf, "%llx.png", channel->getChannelID() & 0xFFFFFFFFFFFFULL);
+			g_Font[font_small]->RenderString(xpos, ypos, box_width, "Logo:" , COL_INFOBAR_TEXT);
+			g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width2, buf, COL_INFOBAR_TEXT);
+		}
 
 		scaling = 27000;
 	} else {

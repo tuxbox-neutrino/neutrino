@@ -141,7 +141,9 @@ bool CQuadPiPSetupNotifier::changeNotify(const neutrino_locale_t, void */*Data*/
 			if (i == 0)
 			{
 				CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(g_settings.quadpip_channel_id_window[i]);
-				CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannel()->getChannelID(), CCamManager::PLAY);
+				CZapitChannel *cc = CZapit::getInstance()->GetCurrentChannel();
+				if (cc)
+					CCamManager::getInstance()->Start(cc->getChannelID(), CCamManager::PLAY);
 			}
 			if (i >= 1 && g_settings.quadpip_channel_id_window[i] != 0)
 			{

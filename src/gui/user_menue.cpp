@@ -648,7 +648,9 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 			case SNeutrinoSettings::ITEM_NONE:
 			case SNeutrinoSettings::ITEM_BAR:
 			case SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION:
-				if (mode == NeutrinoModes::mode_webtv && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty())
+				if (mode == NeutrinoModes::mode_webtv
+					&& CZapit::getInstance()->GetCurrentChannel()
+					&& !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty())
 				{
 					if (loc == NONEXISTANT_LOCALE && !text)
 					{

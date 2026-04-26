@@ -268,7 +268,7 @@ class CZapit : public OpenThreads::Thread
 
 		void GetAudioMode(int &mode) { mode = audio_mode; }
 
-		CZapitChannel * GetCurrentChannel() { return current_channel; };
+		CZapitChannel * GetCurrentChannel();
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
 #ifdef ENABLE_PIP
 		t_channel_id GetPipChannelID(int pip = 0) { return pip_channel_id[pip]; };

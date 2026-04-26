@@ -877,7 +877,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	if (mp)
 	{
-		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio)
+		if (channel && (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv || CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio))
 		{
 			// channel
 			r.key = g_Locale->getText(LOCALE_TIMERLIST_CHANNEL);
