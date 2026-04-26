@@ -128,6 +128,11 @@ class CStreamManager : public OpenThreads::Thread
 		CZapitClient zapit;
 
 		streammap_t streams;
+		/* Counts AddClient calls currently between accept and streams-map
+		 * insert. StreamStatus treats pending setups as live so that a
+		 * standbyToStandby triggered by the previous stream's stop does
+		 * not zap the tuner away while the next stream is mid-setup. */
+		int pending_starts;
 
 		bool	Listen();
 		bool	Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend, bool &is_e2);
