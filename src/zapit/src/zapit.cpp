@@ -1154,19 +1154,22 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 
 bool CZapit::ChangeAudioPid(uint8_t index)
 {
-	if (!current_channel)
+	CZapitChannel *channel = GetCurrentChannel();
+	if (!channel)
 		return false;
+
+	current_channel = channel;
 
 	/* Restarting the decoder while playback is stopped desynchronizes
 	 * zapit state. Keep the selected audio state for the next playback
 	 * start and leave stopped decoder/demux devices untouched. */
 	if (!playing) {
-		current_channel->setAudioChannel(index);
-		CZapitAudioChannel *newAudioChannel = current_channel->getAudioChannel();
+		channel->setAudioChannel(index);
+		CZapitAudioChannel *newAudioChannel = channel->getAudioChannel();
 		if (newAudioChannel)
 			SetAudioStreamType(newAudioChannel->audioChannelType);
 		printf("[zapit] change apid to 0x%x (not playing - state-only)\n",
-			current_channel->getAudioPid());
+			channel->getAudioPid());
 		return true;
 	}
 
@@ -1179,21 +1182,21 @@ bool CZapit::ChangeAudioPid(uint8_t index)
 		return false;
 
 	/* update current channel */
-	current_channel->setAudioChannel(index);
+	channel->setAudioChannel(index);
 
 	/* set bypass mode */
-	CZapitAudioChannel *currentAudioChannel = current_channel->getAudioChannel();
+	CZapitAudioChannel *currentAudioChannel = channel->getAudioChannel();
 
 	if (!currentAudioChannel) {
 		WARN("No current audio channel");
 		return false;
 	}
 
-	printf("[zapit] change apid to 0x%x\n", current_channel->getAudioPid());
+	printf("[zapit] change apid to 0x%x\n", channel->getAudioPid());
 	SetAudioStreamType(currentAudioChannel->audioChannelType);
 
 	/* set demux filter */
-	if (audioDemux->pesFilter(current_channel->getAudioPid()) == false)
+	if (audioDemux->pesFilter(channel->getAudioPid()) == false)
 		return false;
 
 	/* start demux filter */
@@ -1581,11 +1584,14 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_REINIT_CHANNELS: {
 		// Houdini: save actual channel to restore it later, old version's channel was set to scans.conf initial channel
-		t_channel_id cid= current_channel ? current_channel->getChannelID() : 0;
+		t_channel_id cid = live_channel_id ? live_channel_id : (current_channel ? current_channel->getChannelID() : 0);
 		PrepareChannels();
 
 		current_channel = CServiceManager::getInstance()->FindChannel(cid);
-		ParsePatPmt(current_channel);//reinit pids
+		if (current_channel)
+			ParsePatPmt(current_channel);//reinit pids
+		else
+			WARN("current channel " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " not found after service reinit", cid);
 
 		SendCmdReady(connfd);
 		SendEvent(CZapitClient::EVT_SERVICES_CHANGED);

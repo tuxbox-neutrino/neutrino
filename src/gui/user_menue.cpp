@@ -195,8 +195,9 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		menu->addItem(GenericMenuSeparator);
 
 	bool _mode_ts = CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts;
+	CZapitChannel *current_channel = CZapit::getInstance()->GetCurrentChannel();
 	bool _mode_webtv = (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webtv) &&
-		(CZapit::getInstance()->GetCurrentChannel() && !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty());
+		(current_channel && !current_channel->getScriptName().empty());
 
 // 	int rec_mode = (CRecordManager::getInstance()->GetRecordMode() & CRecordManager::RECMODE_REC_TSHIFT);
 	bool timeshift = CMoviePlayerGui::getInstance().timeshift;
@@ -648,9 +649,11 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 			case SNeutrinoSettings::ITEM_NONE:
 			case SNeutrinoSettings::ITEM_BAR:
 			case SNeutrinoSettings::ITEM_LIVESTREAM_RESOLUTION:
+			{
+				CZapitChannel *current_channel = CZapit::getInstance()->GetCurrentChannel();
 				if (mode == NeutrinoModes::mode_webtv
-					&& CZapit::getInstance()->GetCurrentChannel()
-					&& !CZapit::getInstance()->GetCurrentChannel()->getScriptName().empty())
+					&& current_channel
+					&& !current_channel->getScriptName().empty())
 				{
 					if (loc == NONEXISTANT_LOCALE && !text)
 					{
@@ -680,6 +683,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active, bool retu
 					active = true;
 				}
 				continue;
+			}
 			case SNeutrinoSettings::ITEM_EPG_MISC:
 				return_title = true;
 				active = true;
