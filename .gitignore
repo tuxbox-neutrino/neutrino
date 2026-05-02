@@ -95,6 +95,9 @@ src/nhttpd/nhttpd.conf
 ### python environment fallout
 venv
 
-# from yocto/oe
+### from yocto/oe
 oe-logs
 oe-workdir
+
+### internal tool fallout
+*.locale-work
