@@ -2545,6 +2545,8 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd len SD
 satsetup.fastscan_type Typ prehľadávania
 satsetup.fastscan_update Automatická aktualizácia
+satsetup.fe_busy Obsadené
+satsetup.fe_busy_hint Tento tuner momentálne používa iný proces a z tejto inštancie ho nie je možné konfigurovať.
 satsetup.fe_mode Mód tuneru
 satsetup.fe_mode_independent Nezávislý
 satsetup.fe_mode_link_loop Prepojený [loop]
