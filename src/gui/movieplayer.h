@@ -208,6 +208,7 @@ class CMoviePlayerGui : public CMenuTarget
 	static pthread_t bgThread;
 	static bool webtv_started;
 	static bool webtv_starting;
+	static bool webtv_stopping;
 
 	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
@@ -220,6 +221,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
 	bool StartWebtv();
+	bool waitUntilPlaybackStopped(const char *reason, int timeoutMs);
 
 	void quickZap(neutrino_msg_t msg);
 	void showHelp(void);
@@ -263,7 +265,7 @@ class CMoviePlayerGui : public CMenuTarget
 	~CMoviePlayerGui();
 
 	static CMoviePlayerGui& getInstance(bool background = false);
-	static bool IsWebtvStarting() { return webtv_starting; }
+	static bool IsWebtvStarting() { return webtv_starting || webtv_stopping; }
 
 	MI_MOVIE_INFO * p_movie_info;
 	int exec(CMenuTarget* parent, const std::string & actionKey);

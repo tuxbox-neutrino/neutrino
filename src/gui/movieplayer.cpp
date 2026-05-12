@@ -104,6 +104,8 @@ extern CTimeOSD *FileTimeOSD;
 #define ISO_MOUNT_POINT "/media/iso"
 #define MUTE true
 #define NO_MUTE false
+#define WEBTV_STOP_TIMEOUT_MS 1500
+#define WEBTV_STOP_POLL_MS 10
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
 CMoviePlayerGui* CMoviePlayerGui::instance_bg = NULL;
@@ -114,6 +116,7 @@ pthread_t CMoviePlayerGui::bgThread;
 cPlayback *CMoviePlayerGui::playback = NULL;
 bool CMoviePlayerGui::webtv_started = false;
 bool CMoviePlayerGui::webtv_starting = false;
+bool CMoviePlayerGui::webtv_stopping = false;
 CMovieBrowser* CMoviePlayerGui::moviebrowser = NULL;
 CBookmarkManager * CMoviePlayerGui::bookmarkmanager = NULL;
 
@@ -1431,14 +1434,34 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 		}
 	}
 
+	mutex.lock();
+	if (webtv_starting || webtv_stopping) {
+		printf("%s: webtv transition already active, ignoring request\n", __func__);
+		mutex.unlock();
+		return true;
+	}
+	webtv_stopping = true;
+	mutex.unlock();
+
+	printf("%s: stop requested before start\n", __func__);
+	stopPlayBack();
+
+	mutex.lock();
+	webtv_starting = true;
+	mutex.unlock();
+
 	std::string realUrl;
 	std::string Url2;
 	std::string _pretty_name = name;
 	cookie_header.clear();
 	second_file_name.clear();
 	if (!getLiveUrl(file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header,Url2)) {
+		mutex.lock();
+		webtv_starting = false;
+		mutex.unlock();
 		return false;
 	}
+	printf("%s: start requested\n", __func__);
 
 	instance_bg->Cleanup();
 	instance_bg->ClearFlags();
@@ -1457,10 +1480,8 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->movie_info.channelId = chan;
 	instance_bg->p_movie_info = &movie_info;
 
-	stopPlayBack();
 	mutex.lock();
 	webtv_started = true;
-	webtv_starting = true;
 	mutex.unlock();
 	if (pthread_create (&bgThread, 0, CMoviePlayerGui::bgPlayThread, instance_bg)) {
 		printf("ERROR: pthread_create(%s)\n", __func__);
@@ -1475,6 +1496,31 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	return true;
 }
 
+bool CMoviePlayerGui::waitUntilPlaybackStopped(const char *reason, int timeoutMs)
+{
+	const int64_t start = time_monotonic_ms();
+
+	for (;;) {
+		mutex.lock();
+		const bool still_playing = playback && playback->IsPlaying();
+		mutex.unlock();
+
+		if (!still_playing)
+			break;
+
+		if (time_monotonic_ms() - start >= timeoutMs) {
+			printf("WARN: %s: timeout after %lld ms (%s)\n", __func__,
+				(long long)(time_monotonic_ms() - start), reason ? reason : "unknown");
+			return false;
+		}
+		usleep(WEBTV_STOP_POLL_MS * 1000);
+	}
+
+	printf("%s: stop completed after %lld ms (%s)\n", __func__,
+		(long long)(time_monotonic_ms() - start), reason ? reason : "unknown");
+	return true;
+}
+
 void CMoviePlayerGui::stopPlayBack(void)
 {
 	printf("%s: stopping...\n", __func__);
@@ -1482,10 +1528,12 @@ void CMoviePlayerGui::stopPlayBack(void)
 
 	repeat_mode = REPEAT_OFF;
 	if (bgThread) {
+		printf("%s: stop requested\n", __func__);
 		printf("%s: this %p join background thread %lx\n", __func__, this, bgThread);fflush(stdout);
 		mutex.lock();
 		webtv_started = false;
 		webtv_starting = false;
+		webtv_stopping = true;
 		if(playback)
 			playback->RequestAbort();
 #ifdef ENABLE_GRAPHLCD
@@ -1506,7 +1554,11 @@ void CMoviePlayerGui::stopPlayBack(void)
 		bgThread = 0;
 		livestreamInfo1.clear();
 		livestreamInfo2.clear();
+		waitUntilPlaybackStopped("webtv-stop", WEBTV_STOP_TIMEOUT_MS);
 	}
+	mutex.lock();
+	webtv_stopping = false;
+	mutex.unlock();
 	printf("%s: stopped\n", __func__);
 }
 
