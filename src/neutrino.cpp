@@ -916,6 +916,12 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	// webtv
 	g_settings.webtv_xml_auto = configfile.getInt32("webtv_xml_auto", 1);
+	g_settings.webtv_stream_restart_attempts = configfile.getInt32("webtv_stream_restart_attempts", 1);
+	if (g_settings.webtv_stream_restart_attempts < 0)
+		g_settings.webtv_stream_restart_attempts = 0;
+	if (g_settings.webtv_stream_restart_attempts > 3)
+		g_settings.webtv_stream_restart_attempts = 3;
+	g_settings.webtv_dns_diagnostics = configfile.getInt32("webtv_dns_diagnostics", 1) ? 1 : 0;
 	g_settings.webtv_xml.clear();
 	int webtv_count = configfile.getInt32("webtv_xml_count", 0);
 	if (webtv_count)
@@ -1906,6 +1912,8 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	// webtv
 	CWebChannelsSetup webchannelssetup;
 	configfile.setInt32("webtv_xml_auto", g_settings.webtv_xml_auto);
+	configfile.setInt32("webtv_stream_restart_attempts", g_settings.webtv_stream_restart_attempts);
+	configfile.setInt32("webtv_dns_diagnostics", g_settings.webtv_dns_diagnostics);
 	int webtv_count = 0;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it)
 	{
@@ -3970,6 +3978,21 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	int res = 0;
 	neutrino_msg_t msg = _msg;
+
+	if(msg == NeutrinoMessages::EVT_WEBTV_RESTART) {
+		t_channel_id chid = *(t_channel_id *) data;
+		printf("EVT_WEBTV_RESTART: %" PRIx64 "\n", chid);
+		if (mode != NeutrinoModes::mode_webtv && mode != NeutrinoModes::mode_webradio) {
+			delete [] (unsigned char*) data;
+		} else if (CMoviePlayerGui::getInstance().RestartLastWebtv(chid)) {
+			delete [] (unsigned char*) data;
+		} else {
+			if (mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_webradio)
+				videoDecoder->setBlank(true);
+			g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);
+		}
+		return messages_return::handled;
+	}
 
 	if(msg == NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *) data;

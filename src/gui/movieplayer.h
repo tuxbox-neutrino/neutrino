@@ -108,6 +108,53 @@ class CMoviePlayerGui : public CMenuTarget
 		int bandwidth;
 	} livestream_info_struct_t;
 
+	enum webtv_error_reason_t
+	{
+		WEBTV_ERROR_NONE = 0,
+		WEBTV_ERROR_NORMAL_CONNECT_FAILED,
+		WEBTV_ERROR_CONNECTION_RESET_BY_PEER,
+		WEBTV_ERROR_DNS_FAILED,
+		WEBTV_ERROR_DNS_TIMEOUT,
+		WEBTV_ERROR_DNS_BLOCKER_SUSPECTED,
+		WEBTV_ERROR_DNS_OK_CONNECTION_FAILED,
+		WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY
+	};
+
+	typedef struct webtv_request_t
+	{
+		std::string original_url;
+		std::string script;
+		std::string display_name;
+		std::string resolved_url;
+		std::string resolved_url2;
+		std::string resolved_header;
+		t_channel_id channel_id;
+		uint64_t generation;
+		int restart_attempts;
+	} webtv_request_struct_t;
+
+	typedef struct webtv_failure_t
+	{
+		bool valid;
+		webtv_error_reason_t reason;
+		t_channel_id channel_id;
+		uint64_t generation;
+		int ffmpeg_code;
+		std::string ffmpeg_message;
+		std::string host;
+		std::string address;
+	} webtv_failure_struct_t;
+
+	typedef struct webtv_dns_result_t
+	{
+		bool checked;
+		webtv_error_reason_t reason;
+		std::string host;
+		std::string address;
+		int gai_error;
+		int sys_errno;
+	} webtv_dns_result_struct_t;
+
 	std::string livestreamInfo1;
 	std::string livestreamInfo2;
 
@@ -209,6 +256,12 @@ class CMoviePlayerGui : public CMenuTarget
 	static bool webtv_started;
 	static bool webtv_starting;
 	static bool webtv_stopping;
+	static bool webtv_retry_pending;
+	static bool webtv_restart_transition;
+	static uint64_t webtv_generation;
+	static uint64_t webtv_abort_generation;
+	static webtv_request_t webtv_request;
+	static webtv_failure_t webtv_failure;
 
 	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
@@ -221,6 +274,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
 	bool StartWebtv();
+	bool checkWebtvDns(uint64_t generation, t_channel_id chan, const std::string &url, webtv_dns_result_t &dns);
 	bool waitUntilPlaybackStopped(const char *reason, int timeoutMs);
 
 	void quickZap(neutrino_msg_t msg);
@@ -252,8 +306,15 @@ class CMoviePlayerGui : public CMenuTarget
 	static void *ShowStartHint(void *arg);
 	static void* bgPlayThread(void *arg);
 	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
+	static const char *webtvErrorReasonToString(webtv_error_reason_t reason);
+	static void clearWebtvFailureLocked();
+	static void recordWebtvFailure(webtv_error_reason_t reason, t_channel_id chan, uint64_t generation, const std::string &host = "", const std::string &address = "", int ffmpeg_code = 0, const std::string &ffmpeg_message = "");
+	static bool prepareWebtvRestartLocked(t_channel_id chan, uint64_t generation);
+	static bool getPlaybackLastOpenError(int &code, std::string &message);
+	static bool classifyWebtvDnsErrorText(const std::string &text, const std::string &source_url, webtv_error_reason_t &reason, std::string &host);
 	bool selectLivestream(std::vector<livestream_info_t> &streamList, int res, livestream_info_t* info);
-	bool luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList);
+	bool luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList, std::string *error_string = NULL);
+	bool getLiveUrlDetailed(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header, std::string &url2, webtv_error_reason_t *failure_reason = NULL, std::string *failure_host = NULL, std::string *failure_message = NULL);
 #if HAVE_CST_HARDWARE
 	bool fh_mediafile_id(const char *fname);
 #endif
@@ -266,6 +327,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	static CMoviePlayerGui& getInstance(bool background = false);
 	static bool IsWebtvStarting() { return webtv_starting || webtv_stopping; }
+	static bool ConsumeWebtvFailureMessage(t_channel_id failed_channel_id, std::string &message);
 
 	MI_MOVIE_INFO * p_movie_info;
 	int exec(CMenuTarget* parent, const std::string & actionKey);
@@ -282,6 +344,7 @@ class CMoviePlayerGui : public CMenuTarget
 	static cPlayback *getPlayback();
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="", std::string file2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; second_file_name = file2; }
 	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
+	bool RestartLastWebtv(t_channel_id chan);
 	void stopPlayBack(void);
 	void stopTimeshift(void);
 	void setLastMode(int m) { m_LastMode = m; }

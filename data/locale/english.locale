@@ -2962,7 +2962,11 @@ webchannels.xml.reload Reload
 webradio.head WebRadio
 webradio.xml WebRadio files
 webradio.xml.auto Auto-load WebRadio files
+webtv.dns.blocker_suspected The stream host resolved to a block address:\n\nHost: %s\nAddress: %s\n\nThis can indicate a DNS blocker such as Pi-hole, AdGuard Home or a\nrouter filter.
+webtv.dns.diagnostics DNS diagnostics
+webtv.dns.failed DNS lookup failed for:\n%s\n\nPlease check the internet connection, DNS settings or router.
 webtv.head WebTV
+webtv.stream_restart_attempts Stream restarts after connection reset
 webtv.xml WebTV files
 webtv.xml.auto Auto-load WebTV files
 window_size Window size in %

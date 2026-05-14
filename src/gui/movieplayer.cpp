@@ -64,9 +64,15 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <ctype.h>
 #include <time.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <sys/timeb.h>
 #include <sys/mount.h>
+#include <sys/socket.h>
 #include <json/json.h>
 
 #include <hardware/video.h>
@@ -78,6 +84,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 #include <iconv.h>
 #include <system/stacktrace.h>
 
@@ -106,6 +113,9 @@ extern CTimeOSD *FileTimeOSD;
 #define NO_MUTE false
 #define WEBTV_STOP_TIMEOUT_MS 1500
 #define WEBTV_STOP_POLL_MS 10
+#define WEBTV_CONNECTION_RESET_CODE (-ECONNRESET)
+#define WEBTV_IMMEDIATE_EXIT_CODE -1414092869 /* FFmpeg AVERROR_EXIT, FourCC 'EXIT'. */
+#define WEBTV_DNS_TIMEOUT_MS 3000
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
 CMoviePlayerGui* CMoviePlayerGui::instance_bg = NULL;
@@ -117,7 +127,417 @@ cPlayback *CMoviePlayerGui::playback = NULL;
 bool CMoviePlayerGui::webtv_started = false;
 bool CMoviePlayerGui::webtv_starting = false;
 bool CMoviePlayerGui::webtv_stopping = false;
+bool CMoviePlayerGui::webtv_retry_pending = false;
+bool CMoviePlayerGui::webtv_restart_transition = false;
+uint64_t CMoviePlayerGui::webtv_generation = 0;
+uint64_t CMoviePlayerGui::webtv_abort_generation = 0;
+CMoviePlayerGui::webtv_request_t CMoviePlayerGui::webtv_request;
+CMoviePlayerGui::webtv_failure_t CMoviePlayerGui::webtv_failure;
 CMovieBrowser* CMoviePlayerGui::moviebrowser = NULL;
+
+static std::string webtvLower(const std::string &s)
+{
+	std::string ret = s;
+	std::transform(ret.begin(), ret.end(), ret.begin(),
+		[](unsigned char c) { return std::tolower(c); });
+	return ret;
+}
+
+static std::string webtvRedactUrlForLog(const std::string &url)
+{
+	size_t query = url.find('?');
+	if (query == std::string::npos)
+		return url;
+	return url.substr(0, query) + "?<redacted>";
+}
+
+static bool webtvExtractHttpHost(const std::string &url, std::string &host)
+{
+	host.clear();
+
+	std::string lower = webtvLower(url);
+	size_t scheme_end = lower.find("://");
+	if (scheme_end == std::string::npos)
+		return false;
+	std::string scheme = lower.substr(0, scheme_end);
+	if (scheme != "http" && scheme != "https")
+		return false;
+
+	size_t start = scheme_end + 3;
+	size_t end = url.find_first_of("/?#", start);
+	std::string authority = url.substr(start, end == std::string::npos ? std::string::npos : end - start);
+	size_t at = authority.rfind('@');
+	if (at != std::string::npos)
+		authority.erase(0, at + 1);
+
+	if (authority.empty())
+		return false;
+
+	if (authority[0] == '[') {
+		size_t close = authority.find(']');
+		if (close == std::string::npos || close <= 1)
+			return false;
+		host = authority.substr(1, close - 1);
+		return true;
+	}
+
+	size_t colon = authority.rfind(':');
+	if (colon != std::string::npos)
+		authority.erase(colon);
+
+	if (authority.empty())
+		return false;
+
+	host = authority;
+	return true;
+}
+
+static std::string webtvTrimHostToken(const std::string &value)
+{
+	size_t start = value.find_first_not_of(" \t\r\n\"'([<");
+	size_t end = value.find_last_not_of(" \t\r\n\"')]>,.;");
+
+	if (start == std::string::npos || end == std::string::npos || end < start)
+		return "";
+	return value.substr(start, end - start + 1);
+}
+
+static bool webtvExtractDnsHostAfterPattern(const std::string &text, const std::string &lower, const std::string &pattern, std::string &host)
+{
+	size_t pos = lower.find(pattern);
+	if (pos == std::string::npos)
+		return false;
+
+	pos += pattern.length();
+	while (pos < text.length() && isspace((unsigned char)text[pos]))
+		pos++;
+
+	size_t end = pos;
+	while (end < text.length() &&
+	       !isspace((unsigned char)text[end]) &&
+	       text[end] != '/' &&
+	       text[end] != ',' &&
+	       text[end] != ';' &&
+	       text[end] != ')' &&
+	       text[end] != ']')
+		end++;
+
+	host = webtvTrimHostToken(text.substr(pos, end - pos));
+	return !host.empty();
+}
+
+static bool webtvExtractDnsHostFromText(const std::string &text, const std::string &source_url, std::string &host)
+{
+	std::string lower = webtvLower(text);
+
+	if (webtvExtractDnsHostAfterPattern(text, lower, "could not resolve host:", host))
+		return true;
+	if (webtvExtractDnsHostAfterPattern(text, lower, "couldn't resolve host:", host))
+		return true;
+	if (webtvExtractDnsHostAfterPattern(text, lower, "resolve host:", host))
+		return true;
+
+	return webtvExtractHttpHost(source_url, host);
+}
+
+bool CMoviePlayerGui::classifyWebtvDnsErrorText(const std::string &text, const std::string &source_url, webtv_error_reason_t &reason, std::string &host)
+{
+	std::string lower = webtvLower(text);
+
+	reason = WEBTV_ERROR_NONE;
+	host.clear();
+
+	if (lower.find("resolving timed out") != std::string::npos ||
+	    lower.find("dns timeout") != std::string::npos ||
+	    lower.find("dns timed out") != std::string::npos ||
+	    (lower.find("resolve") != std::string::npos && lower.find("timed out") != std::string::npos)) {
+		reason = WEBTV_ERROR_DNS_TIMEOUT;
+	} else if (lower.find("could not resolve host") != std::string::npos ||
+		   lower.find("couldn't resolve host") != std::string::npos ||
+		   lower.find("name or service not known") != std::string::npos ||
+		   lower.find("temporary failure in name resolution") != std::string::npos ||
+		   lower.find("host not found") != std::string::npos ||
+		   lower.find("no address associated with hostname") != std::string::npos) {
+		reason = WEBTV_ERROR_DNS_FAILED;
+	}
+
+	if (reason == WEBTV_ERROR_NONE)
+		return false;
+
+	if (!webtvExtractDnsHostFromText(text, source_url, host)) {
+		reason = WEBTV_ERROR_NONE;
+		return false;
+	}
+	return true;
+}
+
+static bool webtvSockaddrToString(const struct sockaddr *sa, char *buf, size_t len)
+{
+	if (!sa || !buf || !len)
+		return false;
+
+	const void *addr = NULL;
+	if (sa->sa_family == AF_INET)
+		addr = &((const struct sockaddr_in *)sa)->sin_addr;
+	else if (sa->sa_family == AF_INET6)
+		addr = &((const struct sockaddr_in6 *)sa)->sin6_addr;
+	else
+		return false;
+
+	return inet_ntop(sa->sa_family, addr, buf, len) != NULL;
+}
+
+static bool webtvIsBlockAddress(const struct sockaddr *sa)
+{
+	if (!sa)
+		return false;
+
+	if (sa->sa_family == AF_INET) {
+		uint32_t addr = ntohl(((const struct sockaddr_in *)sa)->sin_addr.s_addr);
+		return addr == 0 || ((addr & 0xff000000) == 0x7f000000);
+	}
+	if (sa->sa_family == AF_INET6) {
+		const struct in6_addr *addr = &((const struct sockaddr_in6 *)sa)->sin6_addr;
+		return IN6_IS_ADDR_UNSPECIFIED(addr) || IN6_IS_ADDR_LOOPBACK(addr);
+	}
+	return false;
+}
+
+static bool webtvIsWeakPrivateAddress(const struct sockaddr *sa)
+{
+	if (!sa)
+		return false;
+
+	if (sa->sa_family == AF_INET) {
+		uint32_t addr = ntohl(((const struct sockaddr_in *)sa)->sin_addr.s_addr);
+		return ((addr & 0xff000000) == 0x0a000000) ||
+		       ((addr & 0xfff00000) == 0xac100000) ||
+		       ((addr & 0xffff0000) == 0xc0a80000) ||
+		       ((addr & 0xffff0000) == 0xa9fe0000);
+	}
+	if (sa->sa_family == AF_INET6) {
+		const struct in6_addr *addr = &((const struct sockaddr_in6 *)sa)->sin6_addr;
+		return (addr->s6_addr[0] & 0xfe) == 0xfc ||
+		       (addr->s6_addr[0] == 0xfe && (addr->s6_addr[1] & 0xc0) == 0x80);
+	}
+	return false;
+}
+
+struct webtv_resolver_ctx_t
+{
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+	bool done;
+	bool abandoned;
+	int ret;
+	int sys_errno;
+	struct addrinfo hints;
+	struct addrinfo *result;
+	std::string host;
+};
+
+static void webtvDestroyResolverCtx(webtv_resolver_ctx_t *ctx)
+{
+	pthread_cond_destroy(&ctx->cond);
+	pthread_mutex_destroy(&ctx->mutex);
+	delete ctx;
+}
+
+static void *webtvResolverThread(void *arg)
+{
+	webtv_resolver_ctx_t *ctx = (webtv_resolver_ctx_t *)arg;
+	struct addrinfo *result = NULL;
+	errno = 0;
+	int ret = getaddrinfo(ctx->host.c_str(), NULL, &ctx->hints, &result);
+	int sys_errno = errno;
+
+	pthread_mutex_lock(&ctx->mutex);
+	if (ctx->abandoned) {
+		pthread_mutex_unlock(&ctx->mutex);
+		if (result)
+			freeaddrinfo(result);
+		webtvDestroyResolverCtx(ctx);
+		return NULL;
+	}
+
+	ctx->ret = ret;
+	ctx->sys_errno = sys_errno;
+	ctx->result = result;
+	ctx->done = true;
+	pthread_cond_signal(&ctx->cond);
+	pthread_mutex_unlock(&ctx->mutex);
+	return NULL;
+}
+
+static int webtvGetaddrinfoWithTimeout(const std::string &host, const struct addrinfo *hints, struct addrinfo **result, int *sys_errno)
+{
+	*result = NULL;
+	*sys_errno = 0;
+
+	webtv_resolver_ctx_t *ctx = new webtv_resolver_ctx_t;
+	pthread_mutex_init(&ctx->mutex, NULL);
+	pthread_cond_init(&ctx->cond, NULL);
+	ctx->done = false;
+	ctx->abandoned = false;
+	ctx->ret = EAI_FAIL;
+	ctx->sys_errno = 0;
+	ctx->result = NULL;
+	ctx->host = host;
+	memset(&ctx->hints, 0, sizeof(ctx->hints));
+	if (hints)
+		ctx->hints = *hints;
+
+	pthread_t thread;
+	int create_ret = pthread_create(&thread, NULL, webtvResolverThread, ctx);
+	if (create_ret != 0) {
+		*sys_errno = create_ret;
+		webtvDestroyResolverCtx(ctx);
+		return EAI_SYSTEM;
+	}
+
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	ts.tv_sec += WEBTV_DNS_TIMEOUT_MS / 1000;
+	ts.tv_nsec += (WEBTV_DNS_TIMEOUT_MS % 1000) * 1000000;
+	if (ts.tv_nsec >= 1000000000) {
+		ts.tv_sec++;
+		ts.tv_nsec -= 1000000000;
+	}
+
+	pthread_mutex_lock(&ctx->mutex);
+	while (!ctx->done) {
+		int wait_ret = pthread_cond_timedwait(&ctx->cond, &ctx->mutex, &ts);
+		/* The resolver may have finished between the timeout firing and us
+		 * re-acquiring the mutex - the predicate wins over the timeout, so
+		 * re-check ctx->done before treating wait_ret as a failure. */
+		if (ctx->done)
+			break;
+		if (wait_ret != 0) {
+			ctx->abandoned = true;
+			pthread_mutex_unlock(&ctx->mutex);
+			pthread_detach(thread);
+			*sys_errno = wait_ret;
+			return wait_ret == ETIMEDOUT ? EAI_AGAIN : EAI_SYSTEM;
+		}
+	}
+
+	int ret = ctx->ret;
+	*sys_errno = ctx->sys_errno;
+	*result = ctx->result;
+	pthread_mutex_unlock(&ctx->mutex);
+	pthread_join(thread, NULL);
+	webtvDestroyResolverCtx(ctx);
+	return ret;
+}
+
+const char *CMoviePlayerGui::webtvErrorReasonToString(webtv_error_reason_t reason)
+{
+	switch (reason) {
+		case WEBTV_ERROR_NORMAL_CONNECT_FAILED:
+			return "normal_connect_failed";
+		case WEBTV_ERROR_CONNECTION_RESET_BY_PEER:
+			return "connection_reset_by_peer";
+		case WEBTV_ERROR_DNS_FAILED:
+			return "dns_failed";
+		case WEBTV_ERROR_DNS_TIMEOUT:
+			return "dns_timeout";
+		case WEBTV_ERROR_DNS_BLOCKER_SUSPECTED:
+			return "dns_blocker_suspected";
+		case WEBTV_ERROR_DNS_OK_CONNECTION_FAILED:
+			return "dns_ok_connection_failed";
+		case WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY:
+			return "user_zap_cancelled_retry";
+		case WEBTV_ERROR_NONE:
+		default:
+			return "none";
+	}
+}
+
+void CMoviePlayerGui::clearWebtvFailureLocked()
+{
+	webtv_failure.valid = false;
+	webtv_failure.reason = WEBTV_ERROR_NONE;
+	webtv_failure.channel_id = 0;
+	webtv_failure.generation = 0;
+	webtv_failure.ffmpeg_code = 0;
+	webtv_failure.ffmpeg_message.clear();
+	webtv_failure.host.clear();
+	webtv_failure.address.clear();
+}
+
+void CMoviePlayerGui::recordWebtvFailure(webtv_error_reason_t reason, t_channel_id chan, uint64_t generation, const std::string &host, const std::string &address, int ffmpeg_code, const std::string &ffmpeg_message)
+{
+	mutex.lock();
+	webtv_failure.valid = true;
+	webtv_failure.reason = reason;
+	webtv_failure.channel_id = chan;
+	webtv_failure.generation = generation;
+	webtv_failure.ffmpeg_code = ffmpeg_code;
+	webtv_failure.ffmpeg_message = ffmpeg_message;
+	webtv_failure.host = host;
+	webtv_failure.address = address;
+	mutex.unlock();
+
+	printf("[webtv] classification=%s channel=%llx generation=%llu host=%s address=%s ff_error_code=%d ff_error_msg=%s\n",
+		webtvErrorReasonToString(reason),
+		(unsigned long long)chan,
+		(unsigned long long)generation,
+		host.c_str(),
+		address.c_str(),
+		ffmpeg_code,
+		ffmpeg_message.c_str());
+}
+
+bool CMoviePlayerGui::prepareWebtvRestartLocked(t_channel_id chan, uint64_t generation)
+{
+	if (!webtv_failure.valid ||
+	    webtv_failure.reason != WEBTV_ERROR_CONNECTION_RESET_BY_PEER ||
+	    webtv_failure.channel_id != chan ||
+	    webtv_failure.generation != generation)
+		return false;
+
+	if (g_settings.webtv_stream_restart_attempts <= 0)
+		return false;
+
+	if (webtv_request.channel_id != chan || webtv_request.generation != generation) {
+		printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu\n",
+			(unsigned long long)chan, (unsigned long long)generation);
+		clearWebtvFailureLocked();
+		return false;
+	}
+
+	if (webtv_request.restart_attempts >= g_settings.webtv_stream_restart_attempts) {
+		printf("[webtv] retry limit reached channel=%llx generation=%llu attempts=%d limit=%d\n",
+			(unsigned long long)chan,
+			(unsigned long long)generation,
+			webtv_request.restart_attempts,
+			g_settings.webtv_stream_restart_attempts);
+		return false;
+	}
+
+	webtv_request.restart_attempts++;
+	webtv_retry_pending = true;
+	printf("[webtv] scheduling stream restart channel=%llx generation=%llu attempt=%d limit=%d source=%s script=%s\n",
+		(unsigned long long)chan,
+		(unsigned long long)generation,
+		webtv_request.restart_attempts,
+		g_settings.webtv_stream_restart_attempts,
+		webtvRedactUrlForLog(webtv_request.original_url).c_str(),
+		webtv_request.script.c_str());
+	return true;
+}
+
+bool CMoviePlayerGui::getPlaybackLastOpenError(int &code, std::string &message)
+{
+	code = 0;
+	message.clear();
+
+#if HAVE_LIBSTB_HAL
+	if (playback)
+		return playback->GetLastOpenError(code, message);
+#endif
+	return false;
+}
 CBookmarkManager * CMoviePlayerGui::bookmarkmanager = NULL;
 
 CMoviePlayerGui& CMoviePlayerGui::getInstance(bool background)
@@ -969,9 +1389,154 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 	return NULL;
 }
 
+bool CMoviePlayerGui::ConsumeWebtvFailureMessage(t_channel_id failed_channel_id, std::string &message)
+{
+	message.clear();
+
+	webtv_failure_t failure;
+	mutex.lock();
+	if (!webtv_failure.valid || (failed_channel_id && webtv_failure.channel_id != failed_channel_id)) {
+		mutex.unlock();
+		return false;
+	}
+	failure = webtv_failure;
+	clearWebtvFailureLocked();
+	mutex.unlock();
+
+	if (failure.reason != WEBTV_ERROR_DNS_FAILED &&
+	    failure.reason != WEBTV_ERROR_DNS_TIMEOUT &&
+	    failure.reason != WEBTV_ERROR_DNS_BLOCKER_SUSPECTED)
+		return false;
+
+	char buf[2048];
+	buf[0] = '\0';
+	if (failure.reason == WEBTV_ERROR_DNS_BLOCKER_SUSPECTED) {
+		snprintf(buf, sizeof(buf), g_Locale->getText(LOCALE_WEBTV_DNS_BLOCKER_SUSPECTED),
+			failure.host.c_str(), failure.address.c_str());
+	} else {
+		snprintf(buf, sizeof(buf), g_Locale->getText(LOCALE_WEBTV_DNS_FAILED),
+			failure.host.c_str());
+	}
+	message = buf;
+	return !message.empty();
+}
+
+bool CMoviePlayerGui::checkWebtvDns(uint64_t generation, t_channel_id chan, const std::string &url, webtv_dns_result_t &dns)
+{
+	dns.checked = false;
+	dns.reason = WEBTV_ERROR_NONE;
+	dns.host.clear();
+	dns.address.clear();
+	dns.gai_error = 0;
+	dns.sys_errno = 0;
+
+	if (!g_settings.webtv_dns_diagnostics)
+		return true;
+
+	if (!webtvExtractHttpHost(url, dns.host))
+		return true;
+
+	dns.checked = true;
+	printf("[webtv] DNS diagnostic start channel=%llx generation=%llu host=%s\n",
+		(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str());
+
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	struct addrinfo *result = NULL;
+	int sys_errno = 0;
+	int ret = webtvGetaddrinfoWithTimeout(dns.host, &hints, &result, &sys_errno);
+	dns.gai_error = ret;
+	dns.sys_errno = sys_errno;
+
+	mutex.lock();
+	bool request_current = webtv_request.generation == generation && webtv_request.channel_id == chan;
+	mutex.unlock();
+	if (!request_current) {
+		if (result)
+			freeaddrinfo(result);
+		printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu during_dns host=%s\n",
+			(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str());
+		return false;
+	}
+
+	if (ret != 0) {
+		if (ret == EAI_AGAIN && sys_errno == ETIMEDOUT)
+			dns.reason = WEBTV_ERROR_DNS_TIMEOUT;
+		else
+			dns.reason = WEBTV_ERROR_DNS_FAILED;
+
+		recordWebtvFailure(dns.reason, chan, generation, dns.host, "", 0, gai_strerror(ret));
+		return false;
+	}
+
+	bool have_usable_address = false;
+	bool have_private_hint = false;
+	std::string block_address;
+	char addrbuf[INET6_ADDRSTRLEN];
+	for (struct addrinfo *rp = result; rp; rp = rp->ai_next) {
+		if (!webtvSockaddrToString(rp->ai_addr, addrbuf, sizeof(addrbuf)))
+			continue;
+		if (dns.address.empty())
+			dns.address = addrbuf;
+
+		if (webtvIsBlockAddress(rp->ai_addr)) {
+			if (block_address.empty())
+				block_address = addrbuf;
+			continue;
+		}
+
+		if (webtvIsWeakPrivateAddress(rp->ai_addr))
+			have_private_hint = true;
+		have_usable_address = true;
+	}
+	if (result)
+		freeaddrinfo(result);
+
+	if (!block_address.empty() && !have_usable_address) {
+		dns.reason = WEBTV_ERROR_DNS_BLOCKER_SUSPECTED;
+		dns.address = block_address;
+		recordWebtvFailure(dns.reason, chan, generation, dns.host, dns.address);
+		return false;
+	}
+
+	if (have_private_hint) {
+		printf("[webtv] DNS weak hint: host=%s resolved to private/local address=%s channel=%llx generation=%llu\n",
+			dns.host.c_str(), dns.address.c_str(), (unsigned long long)chan, (unsigned long long)generation);
+	}
+
+	printf("[webtv] DNS diagnostic ok channel=%llx generation=%llu host=%s address=%s\n",
+		(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str(), dns.address.c_str());
+	return true;
+}
+
 bool CMoviePlayerGui::StartWebtv(void)
 {
 	last_read = position = duration = 0;
+
+	uint64_t request_generation = 0;
+	t_channel_id request_channel = movie_info.channelId;
+	std::string request_url = file_name;
+	mutex.lock();
+	request_generation = webtv_request.generation;
+	mutex.unlock();
+
+	webtv_dns_result_t dns;
+	if (isWebChannel && !checkWebtvDns(request_generation, request_channel, request_url, dns))
+		return false;
+
+	if (isWebChannel) {
+		mutex.lock();
+		bool request_current = webtv_request.generation == request_generation && webtv_request.channel_id == request_channel;
+		mutex.unlock();
+		if (!request_current) {
+			printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu before_start\n",
+				(unsigned long long)request_channel, (unsigned long long)request_generation);
+			return false;
+		}
+	}
 
 	cutNeutrino();
 	clearSubtitle();
@@ -1003,8 +1568,56 @@ bool CMoviePlayerGui::StartWebtv(void)
 		getCurrentAudioName(is_file_player, currentaudioname);
 		if (is_file_player)
 			selectAutoLang();
+		if (isWebChannel) {
+			webtv_request.restart_attempts = 0;
+			webtv_retry_pending = false;
+			clearWebtvFailureLocked();
+			printf("[webtv] restart counter reset after successful playback channel=%llx generation=%llu\n",
+				(unsigned long long)request_channel, (unsigned long long)request_generation);
+		}
 	}
 	mutex.unlock();
+
+	if (!res && isWebChannel) {
+		mutex.lock();
+		bool request_current = webtv_request.generation == request_generation && webtv_request.channel_id == request_channel;
+		bool abort_requested = webtv_abort_generation == request_generation;
+		mutex.unlock();
+		if (!request_current || abort_requested) {
+			int abort_code = 0;
+			std::string abort_message;
+			bool have_abort_error = abort_requested && getPlaybackLastOpenError(abort_code, abort_message);
+			printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu request_current=%d abort_requested=%d ff_error_code=%d ff_error_msg=%s\n",
+				(unsigned long long)request_channel,
+				(unsigned long long)request_generation,
+				request_current,
+				abort_requested,
+				have_abort_error ? abort_code : 0,
+				have_abort_error ? abort_message.c_str() : "");
+			recordWebtvFailure(WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY, request_channel, request_generation, dns.host, dns.address,
+				have_abort_error ? abort_code : 0, have_abort_error ? abort_message : "");
+			return false;
+		}
+
+		int ffmpeg_code = 0;
+		std::string ffmpeg_message;
+		bool have_ffmpeg_error = getPlaybackLastOpenError(ffmpeg_code, ffmpeg_message);
+		if (have_ffmpeg_error) {
+			printf("[webtv] playback error received: FF_ERROR code=%d msg=%s channel=%llx generation=%llu\n",
+				ffmpeg_code, ffmpeg_message.c_str(),
+				(unsigned long long)request_channel, (unsigned long long)request_generation);
+		}
+
+		webtv_error_reason_t reason = WEBTV_ERROR_NORMAL_CONNECT_FAILED;
+		if (have_ffmpeg_error && ffmpeg_code == WEBTV_CONNECTION_RESET_CODE)
+			reason = WEBTV_ERROR_CONNECTION_RESET_BY_PEER;
+		else if (have_ffmpeg_error && ffmpeg_code == WEBTV_IMMEDIATE_EXIT_CODE)
+			reason = WEBTV_ERROR_NORMAL_CONNECT_FAILED;
+		else if (dns.checked && dns.reason == WEBTV_ERROR_NONE)
+			reason = WEBTV_ERROR_DNS_OK_CONNECTION_FAILED;
+
+		recordWebtvFailure(reason, request_channel, request_generation, dns.host, dns.address, ffmpeg_code, ffmpeg_message);
+	}
 
 	return res;
 }
@@ -1019,6 +1632,7 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	int eof = 0, pos = 0;
 	time_t start_time = 0;
 	uint64_t last_read_count = 0;
+	uint64_t request_generation = 0;
 	bool saw_read_activity = false;
 	int eof_max = 0;
 
@@ -1034,6 +1648,9 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 
 	chid = new unsigned char[sizeof(t_channel_id)];
 	*(t_channel_id*)chid = mp->movie_info.channelId;
+	mutex.lock();
+	request_generation = webtv_request.generation;
+	mutex.unlock();
 
 	started = mp->StartWebtv();
 	printf("%s: started: %d\n", __func__, started);fflush(stdout);
@@ -1043,7 +1660,10 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	if (!webtv_started)
 		started = false;
 	else if (!started){
-		g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, (neutrino_msg_data_t) chid);
+		if (prepareWebtvRestartLocked(*(t_channel_id*)chid, request_generation))
+			g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_RESTART, (neutrino_msg_data_t) chid);
+		else
+			g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, (neutrino_msg_data_t) chid);
 		chidused = true;
 	}
 	webtv_started = started;
@@ -1125,23 +1745,32 @@ bool CMoviePlayerGui::sortStreamList(livestream_info_t info1, livestream_info_t 
 	return (info1.res1 < info2.res1);
 }
 
-bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList)
+bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList, std::string *error_string)
 {
 	CHintBox* box = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_LIVESTREAM_READ_DATA));
 	box->paint();
 
 	std::string result_code = "";
 	std::string result_string = "";
+	std::string lua_error = "";
 	std::string lua_script = script;
 
 	std::vector<std::string> args;
 	args.push_back(file);
 #ifdef ENABLE_LUA
 	CLuaInstance *lua = new CLuaInstance();
-	lua->runScript(lua_script.c_str(), &args, &result_code, &result_string);
+	lua->runScript(lua_script.c_str(), &args, &result_code, &result_string, &lua_error);
 	delete lua;
 #endif
 	if ((result_code != "0") || result_string.empty()) {
+		if (error_string) {
+			if (!lua_error.empty())
+				*error_string = lua_error;
+			else if (!result_string.empty())
+				*error_string = result_string;
+			else
+				*error_string = "empty script result";
+		}
 		if (box != NULL) {
 			box->hide();
 			delete box;
@@ -1155,6 +1784,8 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 	if (!ok) {
 		printf("Failed to parse JSON\n");
 		printf("%s\n", errMsg.c_str());
+		if (error_string)
+			*error_string = result_string.empty() ? errMsg : result_string + "\n" + errMsg;
 		if (box != NULL) {
 			box->hide();
 			delete box;
@@ -1303,10 +1934,18 @@ bool CMoviePlayerGui::selectLivestream(std::vector<livestream_info_t> &streamLis
 	return false;
 }
 
-bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header, std::string &url2)
+bool CMoviePlayerGui::getLiveUrlDetailed(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header, std::string &url2, webtv_error_reason_t *failure_reason, std::string *failure_host, std::string *failure_message)
 {
 	std::vector<livestream_info_t> liveStreamList;
 	livestream_info_t info;
+	std::string script_error;
+
+	if (failure_reason)
+		*failure_reason = WEBTV_ERROR_NONE;
+	if (failure_host)
+		failure_host->clear();
+	if (failure_message)
+		failure_message->clear();
 
 	if (script.empty()) {
 		realUrl = url;
@@ -1360,8 +1999,22 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 		printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
 		return false;
 	}
-	if (!luaGetUrl(_script, url, liveStreamList)) {
+	if (!luaGetUrl(_script, url, liveStreamList, &script_error)) {
 		printf(">>>>> [%s:%s:%d] lua script error\n", __file__, __func__, __LINE__);
+		if (!script_error.empty()) {
+			webtv_error_reason_t script_reason = WEBTV_ERROR_NONE;
+			std::string script_host;
+			if (classifyWebtvDnsErrorText(script_error, url, script_reason, script_host)) {
+				if (failure_reason)
+					*failure_reason = script_reason;
+				if (failure_host)
+					*failure_host = script_host;
+				if (failure_message)
+					*failure_message = script_error;
+				printf("[webtv] script DNS classification=%s host=%s error=%s\n",
+					webtvErrorReasonToString(script_reason), script_host.c_str(), script_error.c_str());
+			}
+		}
 		return false;
 	}
 
@@ -1400,6 +2053,11 @@ bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &scri
 	}
 #endif
 	return true;
+}
+
+bool CMoviePlayerGui::getLiveUrl(const std::string &url, const std::string &script, std::string &realUrl, std::string &_pretty_name, std::string &info1, std::string &info2, std::string &header, std::string &url2)
+{
+	return getLiveUrlDetailed(url, script, realUrl, _pretty_name, info1, info2, header, url2, NULL, NULL, NULL);
 }
 
 bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script)
@@ -1447,21 +2105,62 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	stopPlayBack();
 
 	mutex.lock();
+	bool retry_start = webtv_retry_pending &&
+			   webtv_request.channel_id == chan &&
+			   webtv_request.original_url == file &&
+			   webtv_request.script == script;
+	int restart_attempts = retry_start ? webtv_request.restart_attempts : 0;
+	webtv_generation++;
+	webtv_request = webtv_request_t();
+	webtv_request.original_url = file;
+	webtv_request.script = script;
+	webtv_request.display_name = name;
+	webtv_request.channel_id = chan;
+	webtv_request.generation = webtv_generation;
+	webtv_request.restart_attempts = restart_attempts;
+	webtv_retry_pending = false;
+	clearWebtvFailureLocked();
 	webtv_starting = true;
+	uint64_t request_generation = webtv_request.generation;
 	mutex.unlock();
+	printf("[webtv] start request accepted channel=%llx generation=%llu restart_attempts=%d source=%s script=%s display=%s\n",
+		(unsigned long long)chan,
+		(unsigned long long)request_generation,
+		restart_attempts,
+		file.c_str(),
+		script.c_str(),
+		name.c_str());
 
 	std::string realUrl;
 	std::string Url2;
 	std::string _pretty_name = name;
+	webtv_error_reason_t liveurl_failure_reason = WEBTV_ERROR_NORMAL_CONNECT_FAILED;
+	std::string liveurl_failure_host;
+	std::string liveurl_failure_message;
 	cookie_header.clear();
 	second_file_name.clear();
-	if (!getLiveUrl(file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header,Url2)) {
+	if (!getLiveUrlDetailed(file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header, Url2,
+		&liveurl_failure_reason, &liveurl_failure_host, &liveurl_failure_message)) {
 		mutex.lock();
 		webtv_starting = false;
 		mutex.unlock();
+		if (liveurl_failure_reason == WEBTV_ERROR_NONE)
+			liveurl_failure_reason = WEBTV_ERROR_NORMAL_CONNECT_FAILED;
+		recordWebtvFailure(liveurl_failure_reason, chan, request_generation, liveurl_failure_host, "", 0, liveurl_failure_message);
 		return false;
 	}
 	printf("%s: start requested\n", __func__);
+	mutex.lock();
+	webtv_request.resolved_url = realUrl;
+	webtv_request.resolved_url2 = Url2;
+	webtv_request.resolved_header = cookie_header;
+	mutex.unlock();
+	printf("[webtv] resolved stream channel=%llx generation=%llu url=%s url2=%s header=%s\n",
+		(unsigned long long)chan,
+		(unsigned long long)request_generation,
+		webtvRedactUrlForLog(realUrl).c_str(),
+		webtvRedactUrlForLog(Url2).c_str(),
+		cookie_header.empty() ? "" : "<set>");
 
 	instance_bg->Cleanup();
 	instance_bg->ClearFlags();
@@ -1496,6 +2195,66 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	return true;
 }
 
+bool CMoviePlayerGui::RestartLastWebtv(t_channel_id chan)
+{
+	std::string original_url;
+	std::string display_name;
+	std::string script;
+	uint64_t generation = 0;
+	int attempt = 0;
+
+	mutex.lock();
+	if (!webtv_retry_pending || webtv_request.channel_id != chan) {
+		printf("[webtv] classification=user_zap_cancelled_retry channel=%llx pending=%d current_channel=%llx\n",
+			(unsigned long long)chan,
+			webtv_retry_pending,
+			(unsigned long long)webtv_request.channel_id);
+		webtv_retry_pending = false;
+		clearWebtvFailureLocked();
+		mutex.unlock();
+		return true;
+	}
+	original_url = webtv_request.original_url;
+	display_name = webtv_request.display_name;
+	script = webtv_request.script;
+	generation = webtv_request.generation;
+	attempt = webtv_request.restart_attempts;
+	mutex.unlock();
+
+	CZapitChannel *cc = CZapit::getInstance()->GetCurrentChannel();
+	if (!cc || cc->getChannelID() != chan) {
+		printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu current_channel=%llx\n",
+			(unsigned long long)chan,
+			(unsigned long long)generation,
+			(unsigned long long)(cc ? cc->getChannelID() : 0));
+		mutex.lock();
+		webtv_retry_pending = false;
+		clearWebtvFailureLocked();
+		mutex.unlock();
+		return true;
+	}
+
+	if (IsWebtvStarting()) {
+		printf("[webtv] restart skipped because transition is active channel=%llx generation=%llu\n",
+			(unsigned long long)chan, (unsigned long long)generation);
+		return true;
+	}
+
+	printf("[webtv] executing stream restart channel=%llx generation=%llu attempt=%d\n",
+		(unsigned long long)chan, (unsigned long long)generation, attempt);
+	mutex.lock();
+	webtv_restart_transition = true;
+	mutex.unlock();
+	stopPlayBack();
+	bool started = PlayBackgroundStart(original_url, display_name, chan, script);
+	mutex.lock();
+	webtv_restart_transition = false;
+	if (!started)
+		webtv_retry_pending = false;
+	mutex.unlock();
+	return started;
+}
+
 bool CMoviePlayerGui::waitUntilPlaybackStopped(const char *reason, int timeoutMs)
 {
 	const int64_t start = time_monotonic_ms();
@@ -1527,6 +2286,16 @@ void CMoviePlayerGui::stopPlayBack(void)
 	//playback->RequestAbort();
 
 	repeat_mode = REPEAT_OFF;
+	mutex.lock();
+	uint64_t stopping_generation = webtv_request.generation;
+	webtv_generation++;
+	if (stopping_generation)
+		webtv_abort_generation = stopping_generation;
+	if (!webtv_restart_transition) {
+		webtv_retry_pending = false;
+		clearWebtvFailureLocked();
+	}
+	mutex.unlock();
 	if (bgThread) {
 		printf("%s: stop requested\n", __func__);
 		printf("%s: this %p join background thread %lx\n", __func__, this, bgThread);fflush(stdout);

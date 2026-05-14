@@ -1329,6 +1329,12 @@ void CInfoViewer::showSubchan ()
 
 void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 {
+	std::string webtv_failure;
+	if (CMoviePlayerGui::ConsumeWebtvFailureMessage(failed_channel_id, webtv_failure)) {
+		ShowHint(LOCALE_MESSAGEBOX_ERROR, webtv_failure.c_str(), getFailureHintWidth(webtv_failure));
+		return;
+	}
+
 	std::string text = g_Locale->getText(LOCALE_INFOVIEWER_NOTAVAILABLE);
 	t_channel_id current = g_RemoteControl ? g_RemoteControl->current_channel_id : 0;
 	CZapFailureInfo failure_info = CZapFailureAnalyzer::analyze(failed_channel_id, current);

@@ -242,6 +242,10 @@ int CWebChannelsSetup::Show()
 		oc = new CMenuOptionChooser(LOCALE_LIVESTREAM_RESOLUTION, &livestreamResolution, LIVESTREAM_RESOLUTION_OPTIONS, LIVESTREAM_RESOLUTION_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++), "", true);
 		// FIXME oc->setHint(NEUTRINO_ICON_HINT_DEFAULT, NONEXISTANT_LOCALE);
 		m->addItem(oc);
+		CMenuOptionNumberChooser *nc = new CMenuOptionNumberChooser(LOCALE_WEBTV_STREAM_RESTART_ATTEMPTS, &g_settings.webtv_stream_restart_attempts, true, 0, 3, NULL, CRCInput::convertDigitToKey(shortcut++));
+		m->addItem(nc);
+		oc = new CMenuOptionChooser(LOCALE_WEBTV_DNS_DIAGNOSTICS, &g_settings.webtv_dns_diagnostics, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+		m->addItem(oc);
 
 		m->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, webradio ? LOCALE_WEBRADIO_XML : LOCALE_WEBTV_XML));
 	}
