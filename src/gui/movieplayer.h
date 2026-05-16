@@ -117,7 +117,18 @@ class CMoviePlayerGui : public CMenuTarget
 		WEBTV_ERROR_DNS_TIMEOUT,
 		WEBTV_ERROR_DNS_BLOCKER_SUSPECTED,
 		WEBTV_ERROR_DNS_OK_CONNECTION_FAILED,
-		WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY
+		WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY,
+		WEBTV_ERROR_IMMEDIATE_EXIT,
+		WEBTV_ERROR_INVALID_DATA,
+		WEBTV_ERROR_USER_ABORT
+	};
+
+	enum webtv_abort_reason_t
+	{
+		WEBTV_ABORT_NONE = 0,
+		WEBTV_ABORT_USER_BACK_STOP,
+		WEBTV_ABORT_USER_QUICKZAP,
+		WEBTV_ABORT_STOP_PLAYBACK
 	};
 
 	typedef struct webtv_request_t
@@ -260,6 +271,7 @@ class CMoviePlayerGui : public CMenuTarget
 	static bool webtv_restart_transition;
 	static uint64_t webtv_generation;
 	static uint64_t webtv_abort_generation;
+	static webtv_abort_reason_t webtv_abort_reason;
 	static webtv_request_t webtv_request;
 	static webtv_failure_t webtv_failure;
 
@@ -307,10 +319,14 @@ class CMoviePlayerGui : public CMenuTarget
 	static void* bgPlayThread(void *arg);
 	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
 	static const char *webtvErrorReasonToString(webtv_error_reason_t reason);
+	static const char *webtvAbortReasonToString(webtv_abort_reason_t reason);
 	static void clearWebtvFailureLocked();
+	static void markWebtvAbortLocked(webtv_abort_reason_t reason);
 	static void recordWebtvFailure(webtv_error_reason_t reason, t_channel_id chan, uint64_t generation, const std::string &host = "", const std::string &address = "", int ffmpeg_code = 0, const std::string &ffmpeg_message = "");
+	static bool isWebtvSilentFailureLocked(t_channel_id chan, uint64_t generation);
 	static bool prepareWebtvRestartLocked(t_channel_id chan, uint64_t generation);
 	static bool getPlaybackLastOpenError(int &code, std::string &message);
+	static webtv_error_reason_t classifyWebtvOpenError(int code, bool dns_ok);
 	static bool classifyWebtvDnsErrorText(const std::string &text, const std::string &source_url, webtv_error_reason_t &reason, std::string &host);
 	bool selectLivestream(std::vector<livestream_info_t> &streamList, int res, livestream_info_t* info);
 	bool luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList, std::string *error_string = NULL);

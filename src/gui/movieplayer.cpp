@@ -88,6 +88,11 @@
 #include <iconv.h>
 #include <system/stacktrace.h>
 
+extern "C" {
+#include <libavutil/common.h>
+#include <libavutil/error.h>
+}
+
 #if 0
 #include <gui/infoicons.h>
 #endif
@@ -113,8 +118,6 @@ extern CTimeOSD *FileTimeOSD;
 #define NO_MUTE false
 #define WEBTV_STOP_TIMEOUT_MS 1500
 #define WEBTV_STOP_POLL_MS 10
-#define WEBTV_CONNECTION_RESET_CODE (-ECONNRESET)
-#define WEBTV_IMMEDIATE_EXIT_CODE -1414092869 /* FFmpeg AVERROR_EXIT, FourCC 'EXIT'. */
 #define WEBTV_DNS_TIMEOUT_MS 3000
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
@@ -131,6 +134,7 @@ bool CMoviePlayerGui::webtv_retry_pending = false;
 bool CMoviePlayerGui::webtv_restart_transition = false;
 uint64_t CMoviePlayerGui::webtv_generation = 0;
 uint64_t CMoviePlayerGui::webtv_abort_generation = 0;
+CMoviePlayerGui::webtv_abort_reason_t CMoviePlayerGui::webtv_abort_reason = WEBTV_ABORT_NONE;
 CMoviePlayerGui::webtv_request_t CMoviePlayerGui::webtv_request;
 CMoviePlayerGui::webtv_failure_t CMoviePlayerGui::webtv_failure;
 CMovieBrowser* CMoviePlayerGui::moviebrowser = NULL;
@@ -447,7 +451,28 @@ const char *CMoviePlayerGui::webtvErrorReasonToString(webtv_error_reason_t reaso
 			return "dns_ok_connection_failed";
 		case WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY:
 			return "user_zap_cancelled_retry";
+		case WEBTV_ERROR_IMMEDIATE_EXIT:
+			return "immediate_exit";
+		case WEBTV_ERROR_INVALID_DATA:
+			return "invalid_data";
+		case WEBTV_ERROR_USER_ABORT:
+			return "user_abort";
 		case WEBTV_ERROR_NONE:
+		default:
+			return "none";
+	}
+}
+
+const char *CMoviePlayerGui::webtvAbortReasonToString(webtv_abort_reason_t reason)
+{
+	switch (reason) {
+		case WEBTV_ABORT_USER_BACK_STOP:
+			return "user_back_stop";
+		case WEBTV_ABORT_USER_QUICKZAP:
+			return "user_quickzap";
+		case WEBTV_ABORT_STOP_PLAYBACK:
+			return "stop_playback";
+		case WEBTV_ABORT_NONE:
 		default:
 			return "none";
 	}
@@ -465,8 +490,26 @@ void CMoviePlayerGui::clearWebtvFailureLocked()
 	webtv_failure.address.clear();
 }
 
+void CMoviePlayerGui::markWebtvAbortLocked(webtv_abort_reason_t reason)
+{
+	if (!webtv_request.generation)
+		return;
+
+	if (webtv_abort_generation == webtv_request.generation && webtv_abort_reason == reason)
+		return;
+
+	webtv_abort_generation = webtv_request.generation;
+	webtv_abort_reason = reason;
+	printf("[webtv] abort marker set generation=%llu reason=%s\n",
+		(unsigned long long)webtv_abort_generation,
+		webtvAbortReasonToString(reason));
+}
+
 void CMoviePlayerGui::recordWebtvFailure(webtv_error_reason_t reason, t_channel_id chan, uint64_t generation, const std::string &host, const std::string &address, int ffmpeg_code, const std::string &ffmpeg_message)
 {
+	webtv_abort_reason_t abort_reason = WEBTV_ABORT_NONE;
+	uint64_t abort_generation = 0;
+
 	mutex.lock();
 	webtv_failure.valid = true;
 	webtv_failure.reason = reason;
@@ -476,25 +519,61 @@ void CMoviePlayerGui::recordWebtvFailure(webtv_error_reason_t reason, t_channel_
 	webtv_failure.ffmpeg_message = ffmpeg_message;
 	webtv_failure.host = host;
 	webtv_failure.address = address;
+	abort_reason = webtv_abort_reason;
+	abort_generation = webtv_abort_generation;
 	mutex.unlock();
 
-	printf("[webtv] classification=%s channel=%llx generation=%llu host=%s address=%s ff_error_code=%d ff_error_msg=%s\n",
+	printf("[webtv] classification=%s channel=%llx generation=%llu host=%s address=%s abort_generation=%llu abort_reason=%s ff_error_code=%d ff_error_msg=%s\n",
 		webtvErrorReasonToString(reason),
 		(unsigned long long)chan,
 		(unsigned long long)generation,
 		host.c_str(),
 		address.c_str(),
+		(unsigned long long)abort_generation,
+		webtvAbortReasonToString(abort_reason),
 		ffmpeg_code,
 		ffmpeg_message.c_str());
 }
 
-bool CMoviePlayerGui::prepareWebtvRestartLocked(t_channel_id chan, uint64_t generation)
+bool CMoviePlayerGui::isWebtvSilentFailureLocked(t_channel_id chan, uint64_t generation)
 {
 	if (!webtv_failure.valid ||
-	    webtv_failure.reason != WEBTV_ERROR_CONNECTION_RESET_BY_PEER ||
 	    webtv_failure.channel_id != chan ||
 	    webtv_failure.generation != generation)
 		return false;
+
+	bool silent = webtv_failure.reason == WEBTV_ERROR_USER_ABORT ||
+		      webtv_failure.reason == WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY;
+	if (silent) {
+		printf("[webtv] suppressing zap failure channel=%llx generation=%llu reason=%s abort_reason=%s\n",
+			(unsigned long long)chan,
+			(unsigned long long)generation,
+			webtvErrorReasonToString(webtv_failure.reason),
+			webtvAbortReasonToString(webtv_abort_reason));
+		clearWebtvFailureLocked();
+	}
+	return silent;
+}
+
+bool CMoviePlayerGui::prepareWebtvRestartLocked(t_channel_id chan, uint64_t generation)
+{
+	bool restartable = webtv_failure.valid &&
+			   (webtv_failure.reason == WEBTV_ERROR_CONNECTION_RESET_BY_PEER ||
+			    webtv_failure.reason == WEBTV_ERROR_INVALID_DATA);
+	if (!webtv_failure.valid ||
+	    !restartable ||
+	    webtv_failure.channel_id != chan ||
+	    webtv_failure.generation != generation)
+		return false;
+
+	if (webtv_abort_generation == generation) {
+		printf("[webtv] restart suppressed because abort marker is active channel=%llx generation=%llu abort_reason=%s\n",
+			(unsigned long long)chan,
+			(unsigned long long)generation,
+			webtvAbortReasonToString(webtv_abort_reason));
+		clearWebtvFailureLocked();
+		return false;
+	}
 
 	if (g_settings.webtv_stream_restart_attempts <= 0)
 		return false;
@@ -525,6 +604,19 @@ bool CMoviePlayerGui::prepareWebtvRestartLocked(t_channel_id chan, uint64_t gene
 		webtvRedactUrlForLog(webtv_request.original_url).c_str(),
 		webtv_request.script.c_str());
 	return true;
+}
+
+CMoviePlayerGui::webtv_error_reason_t CMoviePlayerGui::classifyWebtvOpenError(int code, bool dns_ok)
+{
+	if (code == AVERROR(ECONNRESET))
+		return WEBTV_ERROR_CONNECTION_RESET_BY_PEER;
+	if (code == AVERROR_INVALIDDATA)
+		return WEBTV_ERROR_INVALID_DATA;
+	if (code == AVERROR_EXIT)
+		return WEBTV_ERROR_IMMEDIATE_EXIT;
+	if (dns_ok)
+		return WEBTV_ERROR_DNS_OK_CONNECTION_FAILED;
+	return WEBTV_ERROR_NORMAL_CONNECT_FAILED;
 }
 
 bool CMoviePlayerGui::getPlaybackLastOpenError(int &code, std::string &message)
@@ -1359,6 +1451,8 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 				g_RCInput->clearRCMsg();
 			}
 			mutex.lock();
+			if (caller->isWebChannel)
+				markWebtvAbortLocked(WEBTV_ABORT_USER_BACK_STOP);
 			if (caller->playback)
 				caller->playback->RequestAbort();
 			mutex.unlock();
@@ -1370,6 +1464,7 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 #endif
 		else if (caller->isWebChannel && ((msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down))) {
 			mutex.lock();
+			markWebtvAbortLocked(WEBTV_ABORT_USER_QUICKZAP);
 			if (caller->playback)
 				caller->playback->RequestAbort();
 			mutex.unlock();
@@ -1459,6 +1554,7 @@ bool CMoviePlayerGui::checkWebtvDns(uint64_t generation, t_channel_id chan, cons
 			freeaddrinfo(result);
 		printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu during_dns host=%s\n",
 			(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str());
+		recordWebtvFailure(WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY, chan, generation, dns.host);
 		return false;
 	}
 
@@ -1534,6 +1630,7 @@ bool CMoviePlayerGui::StartWebtv(void)
 		if (!request_current) {
 			printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu before_start\n",
 				(unsigned long long)request_channel, (unsigned long long)request_generation);
+			recordWebtvFailure(WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY, request_channel, request_generation, dns.host, dns.address);
 			return false;
 		}
 	}
@@ -1582,19 +1679,22 @@ bool CMoviePlayerGui::StartWebtv(void)
 		mutex.lock();
 		bool request_current = webtv_request.generation == request_generation && webtv_request.channel_id == request_channel;
 		bool abort_requested = webtv_abort_generation == request_generation;
+		webtv_abort_reason_t abort_reason = webtv_abort_reason;
 		mutex.unlock();
 		if (!request_current || abort_requested) {
 			int abort_code = 0;
 			std::string abort_message;
 			bool have_abort_error = abort_requested && getPlaybackLastOpenError(abort_code, abort_message);
-			printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu request_current=%d abort_requested=%d ff_error_code=%d ff_error_msg=%s\n",
+			printf("[webtv] classification=%s channel=%llx generation=%llu request_current=%d abort_requested=%d abort_reason=%s ff_error_code=%d ff_error_msg=%s\n",
+				abort_requested ? webtvErrorReasonToString(WEBTV_ERROR_USER_ABORT) : webtvErrorReasonToString(WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY),
 				(unsigned long long)request_channel,
 				(unsigned long long)request_generation,
 				request_current,
 				abort_requested,
+				webtvAbortReasonToString(abort_reason),
 				have_abort_error ? abort_code : 0,
 				have_abort_error ? abort_message.c_str() : "");
-			recordWebtvFailure(WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY, request_channel, request_generation, dns.host, dns.address,
+			recordWebtvFailure(abort_requested ? WEBTV_ERROR_USER_ABORT : WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY, request_channel, request_generation, dns.host, dns.address,
 				have_abort_error ? abort_code : 0, have_abort_error ? abort_message : "");
 			return false;
 		}
@@ -1608,13 +1708,7 @@ bool CMoviePlayerGui::StartWebtv(void)
 				(unsigned long long)request_channel, (unsigned long long)request_generation);
 		}
 
-		webtv_error_reason_t reason = WEBTV_ERROR_NORMAL_CONNECT_FAILED;
-		if (have_ffmpeg_error && ffmpeg_code == WEBTV_CONNECTION_RESET_CODE)
-			reason = WEBTV_ERROR_CONNECTION_RESET_BY_PEER;
-		else if (have_ffmpeg_error && ffmpeg_code == WEBTV_IMMEDIATE_EXIT_CODE)
-			reason = WEBTV_ERROR_NORMAL_CONNECT_FAILED;
-		else if (dns.checked && dns.reason == WEBTV_ERROR_NONE)
-			reason = WEBTV_ERROR_DNS_OK_CONNECTION_FAILED;
+		webtv_error_reason_t reason = classifyWebtvOpenError(have_ffmpeg_error ? ffmpeg_code : 0, dns.checked && dns.reason == WEBTV_ERROR_NONE);
 
 		recordWebtvFailure(reason, request_channel, request_generation, dns.host, dns.address, ffmpeg_code, ffmpeg_message);
 	}
@@ -1662,6 +1756,10 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	else if (!started){
 		if (prepareWebtvRestartLocked(*(t_channel_id*)chid, request_generation))
 			g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_RESTART, (neutrino_msg_data_t) chid);
+		else if (isWebtvSilentFailureLocked(*(t_channel_id*)chid, request_generation)) {
+			delete [] chid;
+			chid = nullptr;
+		}
 		else
 			g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, (neutrino_msg_data_t) chid);
 		chidused = true;
@@ -2118,6 +2216,8 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	webtv_request.channel_id = chan;
 	webtv_request.generation = webtv_generation;
 	webtv_request.restart_attempts = restart_attempts;
+	webtv_abort_generation = 0;
+	webtv_abort_reason = WEBTV_ABORT_NONE;
 	webtv_retry_pending = false;
 	clearWebtvFailureLocked();
 	webtv_starting = true;
@@ -2290,7 +2390,7 @@ void CMoviePlayerGui::stopPlayBack(void)
 	uint64_t stopping_generation = webtv_request.generation;
 	webtv_generation++;
 	if (stopping_generation)
-		webtv_abort_generation = stopping_generation;
+		markWebtvAbortLocked(WEBTV_ABORT_STOP_PLAYBACK);
 	if (!webtv_restart_transition) {
 		webtv_retry_pending = false;
 		clearWebtvFailureLocked();
