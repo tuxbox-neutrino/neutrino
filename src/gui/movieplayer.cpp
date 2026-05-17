@@ -327,6 +327,48 @@ static bool webtvIsWeakPrivateAddress(const struct sockaddr *sa)
 	return false;
 }
 
+static bool webtvHostIsIpLiteral(const std::string &host, struct sockaddr_storage *ss)
+{
+	if (host.empty())
+		return false;
+
+	if (ss)
+		memset(ss, 0, sizeof(*ss));
+
+	struct in_addr v4;
+	if (inet_pton(AF_INET, host.c_str(), &v4) == 1) {
+		if (ss) {
+			struct sockaddr_in *sa = (struct sockaddr_in *)ss;
+			sa->sin_family = AF_INET;
+			sa->sin_addr = v4;
+		}
+		return true;
+	}
+
+	struct in6_addr v6;
+	if (inet_pton(AF_INET6, host.c_str(), &v6) == 1) {
+		if (ss) {
+			struct sockaddr_in6 *sa = (struct sockaddr_in6 *)ss;
+			sa->sin6_family = AF_INET6;
+			sa->sin6_addr = v6;
+		}
+		return true;
+	}
+
+	return false;
+}
+
+static bool webtvHostIsLocalhostName(const std::string &host)
+{
+	std::string lower = webtvLower(host);
+	if (!lower.empty() && lower.back() == '.')
+		lower.pop_back();
+	return lower == "localhost" ||
+	       lower == "localhost.localdomain" ||
+	       lower == "ip6-localhost" ||
+	       lower == "ip6-loopback";
+}
+
 struct webtv_resolver_ctx_t
 {
 	pthread_mutex_t mutex;
@@ -1570,6 +1612,29 @@ bool CMoviePlayerGui::checkWebtvDns(uint64_t generation, t_channel_id chan, cons
 	if (!webtvExtractHttpHost(url, dns.host))
 		return true;
 
+	struct sockaddr_storage literal_ss;
+	if (webtvHostIsIpLiteral(dns.host, &literal_ss)) {
+		dns.checked = true;
+		dns.address = dns.host;
+		const char *sub = "public";
+		const struct sockaddr *literal_sa = (const struct sockaddr *)&literal_ss;
+		if (webtvIsBlockAddress(literal_sa))
+			sub = "loopback_or_unspecified";
+		else if (webtvIsWeakPrivateAddress(literal_sa))
+			sub = "private_or_link_local";
+		printf("[webtv] classification=dns_skipped_ip_literal channel=%llx generation=%llu host=%s address=%s scope=%s\n",
+			(unsigned long long)chan, (unsigned long long)generation,
+			dns.host.c_str(), dns.address.c_str(), sub);
+		return true;
+	}
+
+	if (webtvHostIsLocalhostName(dns.host)) {
+		dns.checked = true;
+		printf("[webtv] classification=dns_skipped_localhost channel=%llx generation=%llu host=%s\n",
+			(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str());
+		return true;
+	}
+
 	dns.checked = true;
 	printf("[webtv] DNS diagnostic start channel=%llx generation=%llu host=%s\n",
 		(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str());
@@ -1638,11 +1703,12 @@ bool CMoviePlayerGui::checkWebtvDns(uint64_t generation, t_channel_id chan, cons
 	}
 
 	if (have_private_hint) {
-		printf("[webtv] DNS weak hint: host=%s resolved to private/local address=%s channel=%llx generation=%llu\n",
-			dns.host.c_str(), dns.address.c_str(), (unsigned long long)chan, (unsigned long long)generation);
+		printf("[webtv] classification=dns_private_address_info channel=%llx generation=%llu host=%s address=%s\n",
+			(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str(), dns.address.c_str());
+		return true;
 	}
 
-	printf("[webtv] DNS diagnostic ok channel=%llx generation=%llu host=%s address=%s\n",
+	printf("[webtv] classification=dns_ok channel=%llx generation=%llu host=%s address=%s\n",
 		(unsigned long long)chan, (unsigned long long)generation, dns.host.c_str(), dns.address.c_str());
 	return true;
 }
