@@ -1193,7 +1193,7 @@ ledcontroler.on.all Led1 a Led2 zap.
 ledcontroler.on.led1 Led1 zap.
 ledcontroler.on.led2 Led2 zap.
 livestream.head Online data
-livestream.read_data Načítavanie dát...
+livestream.read_data Načítava sa stream ...
 livestream.resolution Rozlíšenie
 livestream.scriptpath Script path
 lua.boolparam_deprecated1 Upozornenie!

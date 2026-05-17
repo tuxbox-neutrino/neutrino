@@ -606,6 +606,45 @@ bool CMoviePlayerGui::prepareWebtvRestartLocked(t_channel_id chan, uint64_t gene
 	return true;
 }
 
+bool CMoviePlayerGui::handleStaleWebtvStart(t_channel_id chan, uint64_t generation, const char *stage)
+{
+	CZapitChannel *current = CZapit::getInstance()->GetCurrentChannel();
+	if (!current)
+		return false;
+
+	t_channel_id current_channel = current->getChannelID();
+	if (current_channel == chan)
+		return false;
+
+	bool request_current = false;
+	mutex.lock();
+	request_current = webtv_request.generation == generation && webtv_request.channel_id == chan;
+	if (request_current) {
+		webtv_starting = false;
+		webtv_retry_pending = false;
+		clearWebtvFailureLocked();
+	}
+	mutex.unlock();
+
+	printf("[webtv] classification=user_zap_cancelled_retry channel=%llx generation=%llu current_channel=%llx request_current=%d stage=%s\n",
+		(unsigned long long)chan,
+		(unsigned long long)generation,
+		(unsigned long long)current_channel,
+		request_current,
+		stage ? stage : "");
+
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (request_current &&
+	    IS_WEBCHAN(current_channel) &&
+	    (mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_webradio)) {
+		unsigned char *chid = new unsigned char[sizeof(t_channel_id)];
+		*(t_channel_id*)chid = current_channel;
+		g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE, (neutrino_msg_data_t) chid);
+	}
+
+	return true;
+}
+
 CMoviePlayerGui::webtv_error_reason_t CMoviePlayerGui::classifyWebtvOpenError(int code, bool dns_ok)
 {
 	if (code == AVERROR(ECONNRESET))
@@ -1843,9 +1882,15 @@ bool CMoviePlayerGui::sortStreamList(livestream_info_t info1, livestream_info_t 
 	return (info1.res1 < info2.res1);
 }
 
-bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList, std::string *error_string)
+bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &file, std::vector<livestream_info_t> &streamList, std::string *error_string, const std::string &display_name)
 {
-	CHintBox* box = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_LIVESTREAM_READ_DATA));
+	std::string hint_text = g_Locale->getText(LOCALE_LIVESTREAM_READ_DATA);
+	if (!display_name.empty()) {
+		hint_text += "\n";
+		hint_text += display_name;
+	}
+
+	CHint* box = new CHint(hint_text.c_str(), true, NEUTRINO_ICON_LOADER);
 	box->paint();
 
 	std::string result_code = "";
@@ -2097,7 +2142,7 @@ bool CMoviePlayerGui::getLiveUrlDetailed(const std::string &url, const std::stri
 		printf(">>>>> [%s:%s:%d] script error\n", __file__, __func__, __LINE__);
 		return false;
 	}
-	if (!luaGetUrl(_script, url, liveStreamList, &script_error)) {
+	if (!luaGetUrl(_script, url, liveStreamList, &script_error, _pretty_name)) {
 		printf(">>>>> [%s:%s:%d] lua script error\n", __file__, __func__, __LINE__);
 		if (!script_error.empty()) {
 			webtv_error_reason_t script_reason = WEBTV_ERROR_NONE;
@@ -2241,6 +2286,8 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	second_file_name.clear();
 	if (!getLiveUrlDetailed(file, script, realUrl, _pretty_name, livestreamInfo1, livestreamInfo2, cookie_header, Url2,
 		&liveurl_failure_reason, &liveurl_failure_host, &liveurl_failure_message)) {
+		if (handleStaleWebtvStart(chan, request_generation, "resolve_failed"))
+			return true;
 		mutex.lock();
 		webtv_starting = false;
 		mutex.unlock();
@@ -2249,6 +2296,8 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 		recordWebtvFailure(liveurl_failure_reason, chan, request_generation, liveurl_failure_host, "", 0, liveurl_failure_message);
 		return false;
 	}
+	if (handleStaleWebtvStart(chan, request_generation, "resolved"))
+		return true;
 	printf("%s: start requested\n", __func__);
 	mutex.lock();
 	webtv_request.resolved_url = realUrl;

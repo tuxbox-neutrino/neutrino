@@ -1193,7 +1193,7 @@ ledcontroler.on.all LED1 und LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
 livestream.head Livestreams
-livestream.read_data Lese Daten ...
+livestream.read_data Stream wird geladen ...
 livestream.resolution Auflösung
 livestream.scriptpath Script Verzeichnis
 lua.boolparam_deprecated1 Achtung!
