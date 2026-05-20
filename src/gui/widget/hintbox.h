@@ -207,6 +207,15 @@ class CHintBox : public CComponentsWindow
 		int exec();
 
 		/**
+		* Hide window. Tears down the timeout bar first: timeout_pb is a
+		* standalone object with its own timer and is not part of v_cc_items,
+		* so the inherited hide() neither stops the timer nor removes the bar.
+		* Without this the timer could repaint the bar over the restored
+		* background and leave it stuck on screen.
+		*/
+		void hide(){ clearTimeOutBar(); CComponentsForm::hide(); }
+
+		/**
 		* Defines timeout for message window.
 		* Timeout is enabled with parameter1 = DEFAULT_TIMEOUT (-1) or any other value > 0
 		* To disable timeout use NO_TIMEOUT (0)
