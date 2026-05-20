@@ -491,6 +491,8 @@ const char *CMoviePlayerGui::webtvErrorReasonToString(webtv_error_reason_t reaso
 			return "dns_blocker_suspected";
 		case WEBTV_ERROR_DNS_OK_CONNECTION_FAILED:
 			return "dns_ok_connection_failed";
+		case WEBTV_ERROR_HTTP_SERVER_ERROR:
+			return "http_server_error";
 		case WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY:
 			return "user_zap_cancelled_retry";
 		case WEBTV_ERROR_IMMEDIATE_EXIT:
@@ -601,12 +603,25 @@ bool CMoviePlayerGui::prepareWebtvRestartLocked(t_channel_id chan, uint64_t gene
 {
 	bool restartable = webtv_failure.valid &&
 			   (webtv_failure.reason == WEBTV_ERROR_CONNECTION_RESET_BY_PEER ||
+			    webtv_failure.reason == WEBTV_ERROR_HTTP_SERVER_ERROR ||
+			    webtv_failure.reason == WEBTV_ERROR_IMMEDIATE_EXIT ||
 			    webtv_failure.reason == WEBTV_ERROR_INVALID_DATA);
 	if (!webtv_failure.valid ||
 	    !restartable ||
 	    webtv_failure.channel_id != chan ||
 	    webtv_failure.generation != generation)
 		return false;
+
+	if (webtv_failure.reason == WEBTV_ERROR_IMMEDIATE_EXIT &&
+	    (webtv_abort_generation == generation || webtv_abort_reason != WEBTV_ABORT_NONE)) {
+		printf("[webtv] restart suppressed because immediate exit has abort context channel=%llx generation=%llu abort_generation=%llu abort_reason=%s\n",
+			(unsigned long long)chan,
+			(unsigned long long)generation,
+			(unsigned long long)webtv_abort_generation,
+			webtvAbortReasonToString(webtv_abort_reason));
+		clearWebtvFailureLocked();
+		return false;
+	}
 
 	if (webtv_abort_generation == generation) {
 		printf("[webtv] restart suppressed because abort marker is active channel=%llx generation=%llu abort_reason=%s\n",
@@ -693,6 +708,8 @@ CMoviePlayerGui::webtv_error_reason_t CMoviePlayerGui::classifyWebtvOpenError(in
 		return WEBTV_ERROR_CONNECTION_RESET_BY_PEER;
 	if (code == AVERROR_INVALIDDATA)
 		return WEBTV_ERROR_INVALID_DATA;
+	if (code == AVERROR_HTTP_SERVER_ERROR)
+		return WEBTV_ERROR_HTTP_SERVER_ERROR;
 	if (code == AVERROR_EXIT)
 		return WEBTV_ERROR_IMMEDIATE_EXIT;
 	if (dns_ok)
