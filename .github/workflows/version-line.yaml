@@ -1,0 +1,83 @@
+name: Configure Version Line
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "Version year, for example 2026"
+        required: true
+        type: string
+      minor:
+        description: "Minor line within the year, for example 0"
+        required: true
+        type: string
+
+concurrency:
+  group: configure-version-line-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  start-line:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Setup tagit
+        uses: ./.github/actions/setup-tagit
+
+      - name: Start version line
+        run: |
+          set -euo pipefail
+
+          year="${{ inputs.year }}"
+          minor="${{ inputs.minor }}"
+
+          if ! [[ "$year" =~ ^20[0-9][0-9]$ ]]; then
+            echo "::error::year must be a four digit calendar year, got '${year}'"
+            exit 1
+          fi
+          if ! [[ "$minor" =~ ^[0-9]+$ ]]; then
+            echo "::error::minor must be numeric, got '${minor}'"
+            exit 1
+          fi
+
+          tag="${year}.${minor}"
+          if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
+            echo "::error::Version line tag ${tag} already exists"
+            exit 1
+          fi
+
+          before_head=$(git rev-parse HEAD)
+          python /tmp/tagit.py \
+            -f configure.ac \
+            --scheme-file tagit-config.json \
+            --version-mode increment \
+            --tag-format "{major}.{minor}.{patch}" \
+            --major "$year" \
+            --minor "$minor" \
+            --patch 0 \
+            --no-tag
+
+          after_head=$(git rev-parse HEAD)
+          if [ "$after_head" != "$before_head" ]; then
+            git reset --soft "$before_head"
+          fi
+
+          git add configure.ac
+          if ! git diff --cached --quiet; then
+            git commit -m "build (ci): start ${tag} version line [skip ci]"
+          else
+            echo "configure.ac already at ${tag}.0"
+          fi
+
+          git tag -a "$tag" -m "Start ${tag} version line"
+          git push origin HEAD:${GITHUB_REF_NAME}
+          git push origin "$tag"

@@ -1,13 +1,7 @@
-name: Configure Version Bump
+name: Configure Version Micro Bump
 
 on:
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "Run without changing configure.ac or pushing commits"
-        required: false
-        default: false
-        type: boolean
   push:
     branches:
       - master
@@ -25,8 +19,6 @@ permissions:
 jobs:
   bump:
     runs-on: ubuntu-latest
-    env:
-      DRY_RUN: ${{ inputs.dry_run }}
 
     steps:
       - name: Checkout code
@@ -39,7 +31,7 @@ jobs:
         id: setup
         uses: ./.github/actions/setup-tagit
 
-      - name: Bump configure.ac version
+      - name: Bump configure.ac micro version
         run: |
           set -euo pipefail
 
@@ -48,40 +40,33 @@ jobs:
           ver_micro="${{ steps.setup.outputs.ver_micro }}"
 
           anchor_tag="${ver_major}.${ver_minor}"
-          if git rev-parse -q --verify "refs/tags/${anchor_tag}" >/dev/null; then
-            commit_count=$(git rev-list --count "${anchor_tag}"..HEAD)
-            target_patch=$((commit_count + 1))
-            echo "Using anchor tag ${anchor_tag}; commits since tag: ${commit_count}"
-          else
-            target_patch=$((ver_micro + 1))
-            echo "Anchor tag ${anchor_tag} not found; falling back to ver_micro + 1"
+          if ! git rev-parse -q --verify "refs/tags/${anchor_tag}" >/dev/null; then
+            echo "::error::Missing version line tag ${anchor_tag}. Run the version-line workflow first."
+            exit 1
           fi
 
+          commit_count=$(git rev-list --count "${anchor_tag}"..HEAD)
+          target_patch=$((commit_count + 1))
           echo "Bumping configure.ac from ${ver_major}.${ver_minor}.${ver_micro} to ${ver_major}.${ver_minor}.${target_patch}"
 
-          dry_args=()
-          if [ "${DRY_RUN}" = "true" ]; then
-            dry_args+=(--dry-run)
-          fi
-
+          before_head=$(git rev-parse HEAD)
           python /tmp/tagit.py \
             -f configure.ac \
             --scheme-file tagit-config.json \
             --version-mode increment \
-            --tag-format "3.{minor}.{patch}" \
+            --tag-format "{major}.{minor}.{patch}" \
             --major "$ver_major" \
             --minor "$ver_minor" \
             --patch "$target_patch" \
-            --no-tag \
-            "${dry_args[@]}"
+            --no-tag
+
+          after_head=$(git rev-parse HEAD)
+          if [ "$after_head" != "$before_head" ]; then
+            git reset --soft "$before_head"
+          fi
 
       - name: Commit and push changes
         run: |
-          if [ "${DRY_RUN}" = "true" ]; then
-            echo "Dry run enabled; skipping commit and push."
-            exit 0
-          fi
-
           git add configure.ac
           git diff --cached --quiet && {
             echo "No changes to commit"
