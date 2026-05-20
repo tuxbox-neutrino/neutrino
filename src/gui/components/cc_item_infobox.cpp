@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012-2017, Thilo Graf 'dbt'
+	Copyright (C) 2012-2017, 2026, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -83,12 +83,13 @@ CComponentsInfoBox::~CComponentsInfoBox()
 {
 	if (ib_loader)
 	{
-		ib_loader->kill();
+		// No kill() here: hide() already restored the background, so killing
+		// would paint over pixels we no longer own (hole in a possible
+		// background window such as a menu).
 		delete ib_loader; ib_loader = NULL;
 	}
 	delete pic; pic = NULL;
 	delete cctext; cctext = NULL;
-
 }
 
 void CComponentsInfoBox::setPicture(const std::string& picture_name, const int& dx, const int& dy)
