@@ -49,7 +49,7 @@ jobs:
             exit 1
           fi
 
-          tag="${year}.${minor}"
+          tag="v${year}.${minor}"
           if git rev-parse -q --verify "refs/tags/${tag}" >/dev/null; then
             echo "::error::Version line tag ${tag} already exists"
             exit 1
@@ -60,7 +60,7 @@ jobs:
             -f configure.ac \
             --scheme-file tagit-config.json \
             --version-mode increment \
-            --tag-format "{major}.{minor}.{patch}" \
+            --tag-format "v{major}.{minor}.{patch}" \
             --major "$year" \
             --minor "$minor" \
             --patch 0 \
