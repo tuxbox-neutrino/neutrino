@@ -796,7 +796,6 @@ flashupdate.url_file Konfiguračný súbor
 flashupdate.versioncheck Kontrola verzie
 flashupdate.writeflash Zapísanie celého IMAGE do pamäte FLASH
 flashupdate.writeflashmtd Zapísanie jednej partície
-flashupdate.wrongbase Vaša verzia je odlišná.\nPokračovať?
 fontmenu.channellist Zoznam kanálov
 fontmenu.epg EPG
 fontmenu.eventlist Programový sprievodca

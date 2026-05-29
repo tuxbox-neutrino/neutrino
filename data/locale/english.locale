@@ -796,7 +796,6 @@ flashupdate.url_file config file
 flashupdate.versioncheck checking version
 flashupdate.writeflash Write whole image
 flashupdate.writeflashmtd Write one partition
-flashupdate.wrongbase Your Release cycle differs.\nTo continue?
 fontmenu.channellist Channellist
 fontmenu.epg EPG
 fontmenu.eventlist Eventlist

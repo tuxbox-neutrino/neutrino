@@ -640,7 +640,6 @@ flashupdate.url_file configuratie bestand
 flashupdate.versioncheck Versie controleren
 flashupdate.writeflash Schrijf gehele image
 flashupdate.writeflashmtd Schrijf een partitie one
-flashupdate.wrongbase Uw release-cyclus verschilt.\nVerder gaan?
 fontmenu.channellist Kanalenlijst
 fontmenu.epg EPG
 fontmenu.eventlist Programmalijst

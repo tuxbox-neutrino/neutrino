@@ -823,7 +823,6 @@ const char * locale_real_names[] =
 	"flashupdate.versioncheck",
 	"flashupdate.writeflash",
 	"flashupdate.writeflashmtd",
-	"flashupdate.wrongbase",
 	"fontmenu.channellist",
 	"fontmenu.epg",
 	"fontmenu.eventlist",

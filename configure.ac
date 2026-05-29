@@ -2,7 +2,6 @@
 define(ver_major, 2026)
 define(ver_minor, 0)
 define(ver_micro, 3)
-define(rel_cycle, "ver_major.ver_minor")
 
 # sync with current git
 define(ver_git, m4_esyscmd([
@@ -19,8 +18,6 @@ define(ver_date, m4_esyscmd([
 AC_INIT(Tuxbox-Neutrino,ver_major.ver_minor.ver_micro)
 AM_INIT_AUTOMAKE([nostdinc foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
-
-AC_DEFINE(PACKAGE_RELEASE_CYCLE, rel_cycle, [Release cycle information; used in update code; only relevant for flash image releases ])
 
 AC_DEFINE(PACKAGE_VERSION_MAJOR, ver_major, [Major version number])
 AC_DEFINE(PACKAGE_VERSION_MINOR, ver_minor, [Minor version number])
