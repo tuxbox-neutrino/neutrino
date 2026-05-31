@@ -3,11 +3,11 @@ description: Install tagit.py (pinned), configure git identity, and parse config
 
 inputs:
   git_user_name:
-    description: Optional git committer/author name override
+    description: Deprecated; git author and committer are fixed for workflow commits
     required: false
     default: ""
   git_user_email:
-    description: Optional git committer/author email override
+    description: Deprecated; git author and committer are fixed for workflow commits
     required: false
     default: ""
 
@@ -46,22 +46,11 @@ runs:
 
     - name: Configure git identity
       shell: bash
-      env:
-        DEFAULT_GIT_USER_NAME: ${{ github.actor }}
-        DEFAULT_GIT_USER_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
       run: |
         set -euo pipefail
 
-        git_user_name="${{ inputs.git_user_name }}"
-        git_user_email="${{ inputs.git_user_email }}"
-
-        if [ -z "$git_user_name" ]; then
-          git_user_name="${DEFAULT_GIT_USER_NAME:-github-actions[bot]}"
-        fi
-
-        if [ -z "$git_user_email" ]; then
-          git_user_email="${DEFAULT_GIT_USER_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}"
-        fi
+        git_user_name="GitHub Actions"
+        git_user_email="actions@github.com"
 
         git config user.name "$git_user_name"
         git config user.email "$git_user_email"
