@@ -570,12 +570,24 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 			if (it->devname == dev) {
 				CHintBox hintbox(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT, it->devname.c_str());
 				hintbox.paint();
+				bool want = !it->mounted;
 				if  (it->mounted)
 					umount_dev(it->devname);
 				else
 					mount_dev(it->devname);
 
-				it->mounted = is_mounted(it->devname.c_str());
+				/* Mount/umount runs async (mount.mdev -> udevadm
+				   trigger + systemd-mount --no-block); the result is
+				   not yet visible in /proc/mounts right away. Poll the
+				   target state instead of reading once, so the menu
+				   label is not stale (same pattern as EVT_HOTPLUG). */
+				bool now = it->mounted;
+				for (int i = 0; i < 15 && now != want; i++) {
+					now = is_mounted(it->devname.c_str());
+					if (now != want)
+						usleep(200000);
+				}
+				it->mounted = now;
 				it->cmf->setOption(it->mounted ? umount : mount);
 				hintbox.hide();
 				return menu_return::RETURN_REPAINT;
