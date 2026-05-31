@@ -1418,7 +1418,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 	std::string hdparm = find_executable("hdparm");
 	printf("CHDDDestExec::exec: hdparm = %s\n", hdparm.c_str());
-	if (!hdparm.empty())
+	if (hdparm.empty()) // bail out when hdparm is absent; otherwise run the loop below
 	{
 		while (n--)
 			free(namelist[n]);
