@@ -1,7 +1,7 @@
 # explicit defines for separate revision handling
 define(ver_major, 2026)
 define(ver_minor, 0)
-define(ver_micro, 0)
+define(ver_micro, 3)
 define(rel_cycle, "ver_major.ver_minor")
 
 # sync with current git
