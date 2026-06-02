@@ -272,6 +272,7 @@ class CMoviePlayerGui : public CMenuTarget
 	static bool webtv_restart_transition;
 	static uint64_t webtv_generation;
 	static uint64_t webtv_abort_generation;
+	static int64_t webtv_last_stable_playback_ms;
 	static webtv_abort_reason_t webtv_abort_reason;
 	static webtv_request_t webtv_request;
 	static webtv_failure_t webtv_failure;

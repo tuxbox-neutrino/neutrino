@@ -119,6 +119,9 @@ extern CTimeOSD *FileTimeOSD;
 #define WEBTV_STOP_TIMEOUT_MS 1500
 #define WEBTV_STOP_POLL_MS 10
 #define WEBTV_DNS_TIMEOUT_MS 3000
+#define WEBTV_STABLE_PLAYBACK_MS 15000
+#define WEBTV_ACTIVITY_GAP_MS 5000
+#define WEBTV_BUDGET_REFRESH_WINDOW_MS 60000
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
 CMoviePlayerGui* CMoviePlayerGui::instance_bg = NULL;
@@ -134,6 +137,7 @@ bool CMoviePlayerGui::webtv_retry_pending = false;
 bool CMoviePlayerGui::webtv_restart_transition = false;
 uint64_t CMoviePlayerGui::webtv_generation = 0;
 uint64_t CMoviePlayerGui::webtv_abort_generation = 0;
+int64_t CMoviePlayerGui::webtv_last_stable_playback_ms = 0;
 CMoviePlayerGui::webtv_abort_reason_t CMoviePlayerGui::webtv_abort_reason = WEBTV_ABORT_NONE;
 CMoviePlayerGui::webtv_request_t CMoviePlayerGui::webtv_request;
 CMoviePlayerGui::webtv_failure_t CMoviePlayerGui::webtv_failure;
@@ -643,12 +647,28 @@ bool CMoviePlayerGui::prepareWebtvRestartLocked(t_channel_id chan, uint64_t gene
 	}
 
 	if (webtv_request.restart_attempts >= g_settings.webtv_stream_restart_attempts) {
-		printf("[webtv] retry limit reached channel=%llx generation=%llu attempts=%d limit=%d\n",
-			(unsigned long long)chan,
-			(unsigned long long)generation,
-			webtv_request.restart_attempts,
-			g_settings.webtv_stream_restart_attempts);
-		return false;
+		int64_t now = time_monotonic_ms();
+		int64_t stable_age = webtv_last_stable_playback_ms ? now - webtv_last_stable_playback_ms : 0;
+		bool recent_stable = webtv_last_stable_playback_ms != 0 &&
+				     stable_age >= 0 &&
+				     stable_age <= WEBTV_BUDGET_REFRESH_WINDOW_MS;
+		if (recent_stable) {
+			printf("[webtv] retry budget refreshed after recent stable playback channel=%llx generation=%llu attempts=%d limit=%d last_stable_age_ms=%lld\n",
+				(unsigned long long)chan,
+				(unsigned long long)generation,
+				webtv_request.restart_attempts,
+				g_settings.webtv_stream_restart_attempts,
+				(long long)stable_age);
+			webtv_request.restart_attempts = 0;
+			webtv_last_stable_playback_ms = 0;
+		} else {
+			printf("[webtv] retry limit reached channel=%llx generation=%llu attempts=%d limit=%d\n",
+				(unsigned long long)chan,
+				(unsigned long long)generation,
+				webtv_request.restart_attempts,
+				g_settings.webtv_stream_restart_attempts);
+			return false;
+		}
 	}
 
 	webtv_request.restart_attempts++;
@@ -1850,6 +1870,8 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	uint64_t last_read_count = 0;
 	uint64_t request_generation = 0;
 	bool saw_read_activity = false;
+	int64_t activity_anchor_ms = 0;
+	int64_t last_activity_ms = 0;
 	int eof_max = 0;
 
 	if (!mp) {
@@ -1893,6 +1915,8 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 	start_time = time(NULL);
 	last_read_count = 0;
 	saw_read_activity = false;
+	activity_anchor_ms = 0;
+	last_activity_ms = 0;
 	mutex.lock();
 	if (!mp->playback) {
 		printf("%s: playback is NULL!\n", __func__);
@@ -1909,12 +1933,32 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 		mutex.lock();
 		bool playback_ok = mp->playback && mp->playback->GetPosition(mp->position, mp->duration, mp->isWebChannel);
 		if (playback_ok) {
+			bool progressed = false;
 			if (mp->playback) {
 				uint64_t read_count = mp->playback->GetReadCount();
 				if (read_count != last_read_count) {
 					last_read_count = read_count;
 					saw_read_activity = true;
+					progressed = true;
 				}
+			}
+
+			if (mp->position != pos)
+				progressed = true;
+
+			int64_t now_ms = time_monotonic_ms();
+			if (progressed) {
+				if (activity_anchor_ms == 0 ||
+				    (last_activity_ms != 0 && now_ms - last_activity_ms > WEBTV_ACTIVITY_GAP_MS))
+					activity_anchor_ms = now_ms;
+				last_activity_ms = now_ms;
+				if (mp->isWebChannel &&
+				    now_ms - activity_anchor_ms >= WEBTV_STABLE_PLAYBACK_MS)
+					webtv_last_stable_playback_ms = now_ms;
+			} else if (last_activity_ms != 0 &&
+				   now_ms - last_activity_ms > WEBTV_ACTIVITY_GAP_MS) {
+				activity_anchor_ms = 0;
+				last_activity_ms = 0;
 			}
 
 			bool allow_eof_check = (saw_read_activity || mp->position > 0 || (time(NULL) - start_time) > 10);
@@ -2336,6 +2380,8 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 			   webtv_request.original_url == file &&
 			   webtv_request.script == script;
 	int restart_attempts = retry_start ? webtv_request.restart_attempts : 0;
+	if (!retry_start)
+		webtv_last_stable_playback_ms = 0;
 	webtv_generation++;
 	webtv_request = webtv_request_t();
 	webtv_request.original_url = file;
