@@ -1317,7 +1317,31 @@ bool COPKGManager::installPackage(const string &pkg_name, string options, bool f
 				break;
 			}
 			default:
-				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pm_cmd[CMD_INSTALL] + opts + pkg_name);
+				{
+						string base = getBlankPkgName(pkg_name);
+						/*
+						   opkg can emit a "Collected errors:" block (mapped to
+						   OPKG_UNKNOWN_ERR above) even when the requested package
+						   itself was unpacked and configured - e.g. when only an
+						   optional recommended package (RRECOMMENDS) failed to
+						   install. Re-read the real package state and downgrade
+						   to a non-fatal warning in that case, so the normal
+						   success/restart handling still runs.
+						*/
+						pullPkgData();
+						if (!base.empty() && pkg_map.count(base) && pkg_map[base].installed)
+						{
+							has_err = false;
+							installed = true;
+							if (!silent)
+							{
+								string note = base + ": installed, but an optional recommended package could not be installed.";
+								ShowMsg(LOCALE_OPKG_TITLE, note.c_str(), CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO, width);
+							}
+						}
+						else
+							showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), NULL, pm_cmd[CMD_INSTALL] + opts + pkg_name);
+					}
 				/* errno / strerror considered useless here
 				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pm_cmd[CMD_INSTALL] + opts + pkg_name);
 					*/
