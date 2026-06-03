@@ -4003,14 +4003,18 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 			if (cc && (chid == cc->getChannelID())) {
 				if (CMoviePlayerGui::IsWebtvStarting()) {
+					printf("[webtv] eof rezap skipped (already starting) channel=%llx\n", (unsigned long long)chid);
 					delete [] (unsigned char*) data;
 					return messages_return::handled;
 				}
 				CMoviePlayerGui::getInstance().stopPlayBack();
-				if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName()))
+				if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
+					printf("[webtv] eof rezap restart accepted channel=%llx\n", (unsigned long long)chid);
 					delete [] (unsigned char*) data;
+				}
 				else
 				{
+					printf("[webtv] eof rezap give up -> ZAP_FAILED channel=%llx\n", (unsigned long long)chid);
 					if (mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_webradio)
 						videoDecoder->setBlank(true);
 					g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);

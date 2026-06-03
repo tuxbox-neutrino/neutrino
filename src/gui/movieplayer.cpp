@@ -1966,6 +1966,10 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 				if (allow_eof_check) {
 					eof++;
 					printf("CMoviePlayerGui::bgPlayThread: eof counter: %d\n", eof);
+					printf("[webtv] eof tick channel=%llx generation=%llu eof=%d eof_max=%d pos=%d dur=%d read_count=%llu saw_read=%d stall_ms=%lld\n",
+						(unsigned long long)(*(t_channel_id*)chid), (unsigned long long)request_generation,
+						eof, eof_max, mp->position, mp->duration, (unsigned long long)last_read_count,
+						saw_read_activity ? 1 : 0, (long long)(last_activity_ms ? now_ms - last_activity_ms : 0));
 				} else {
 					eof = 0;
 				}
@@ -1975,6 +1979,10 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 
 			if (eof > eof_max) {
 				printf("CMoviePlayerGui::bgPlayThread: playback stopped, try to rezap...\n");
+				printf("[webtv] eof rezap channel=%llx generation=%llu eof=%d eof_max=%d pos=%d dur=%d read_count=%llu stall_ms=%lld\n",
+					(unsigned long long)(*(t_channel_id*)chid), (unsigned long long)request_generation,
+					eof, eof_max, mp->position, mp->duration, (unsigned long long)last_read_count,
+					(long long)(last_activity_ms ? now_ms - last_activity_ms : 0));
 				g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE, (neutrino_msg_data_t) chid);
 				chidused = true;
 				mutex.unlock();
