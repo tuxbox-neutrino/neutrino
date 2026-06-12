@@ -345,6 +345,8 @@ class CMoviePlayerGui : public CMenuTarget
 	~CMoviePlayerGui();
 
 	static CMoviePlayerGui& getInstance(bool background = false);
+	/* Unlocked read of mutex-protected flags: only a hint to skip redundant
+	 * restarts; PlayBackgroundStart() re-checks the transition under mutex. */
 	static bool IsWebtvStarting() { return webtv_starting || webtv_stopping; }
 	static bool ConsumeWebtvFailureMessage(t_channel_id failed_channel_id, std::string &message);
 
