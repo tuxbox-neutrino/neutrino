@@ -4683,8 +4683,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 				if (cc && IS_WEBCHAN(cc->getChannelID())) {
 					CMoviePlayerGui::getInstance().stopPlayBack();
-					if (!CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName()))
-						g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);
+					if (!CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
+						/* EVT_ZAP_FAILED payload must be heap-allocated: the
+						 * RC_WithData cleanup above delete[]s it after handling. */
+						unsigned char *chid = new unsigned char[sizeof(t_channel_id)];
+						*(t_channel_id*)chid = cc->getChannelID();
+						g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, (neutrino_msg_data_t) chid);
+					}
 				}
 			}
 		}
