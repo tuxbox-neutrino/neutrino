@@ -28,6 +28,8 @@
 #include <map>
 #include <set>
 
+#include <limits.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -75,6 +77,21 @@ extern CPictureViewer *g_PicViewer;
                         arg = 0;					\
         }								\
         while (0)
+
+static std::string normalizeWebchannelSource(const std::string &source)
+{
+	if (source.empty() || source[0] != '/')
+		return source;
+
+	char resolved[PATH_MAX];
+	if (realpath(source.c_str(), resolved))
+		return resolved;
+
+	std::string normalized = source;
+	while (normalized.length() > 1 && normalized[normalized.length() - 1] == '/')
+		normalized.erase(normalized.length() - 1);
+	return normalized;
+}
 
 /**** class CBouquet ********************************************************/
 // -- servicetype 0 queries TV and Radio Channels
@@ -871,9 +888,17 @@ void CBouquetManager::loadWebchannels(int mode)
 	if (!webchannels_xml)
 		return;
 
+	std::set<std::string> loaded_sources;
 	for (std::list<std::string>::iterator it = webchannels_xml->begin(); it != webchannels_xml->end(); ++it)
 	{
 		std::string filename = (*it);
+		std::string source_key = normalizeWebchannelSource(filename);
+		if (!loaded_sources.insert(source_key).second)
+		{
+			INFO("Skipping duplicate %s source %s", (mode == MODE_WEBTV) ? "webtv" : "webradio", filename.c_str());
+			continue;
+		}
+
 		std::string extension = getFileExt(filename);
 		std::string tmp_name = randomFile(extension, LOGODIR_TMP);
 		bool remove_tmp = false;
