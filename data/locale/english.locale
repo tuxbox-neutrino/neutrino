@@ -2238,7 +2238,7 @@ networkmenu.mount Edit network shares
 networkmenu.nameserver Name server
 networkmenu.netmask Netmask
 networkmenu.ntpenable Syncronisation via
-networkmenu.ntprefresh NTP/DVB refresh
+networkmenu.ntprefresh NTP/DVB refresh (min)
 networkmenu.ntprefresh_hint1 NTP/DVB time sync in minutes
 networkmenu.ntprefresh_hint2 Need reboot or EPG reset
 networkmenu.ntpserver NTP-Server

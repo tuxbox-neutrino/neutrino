@@ -1658,7 +1658,7 @@ networkmenu.mount Beheer netwerklocaties
 networkmenu.nameserver Naamserver
 networkmenu.netmask Subnetmasker
 networkmenu.ntpenable Synchronisatie via
-networkmenu.ntprefresh NTP/DVB verversen
+networkmenu.ntprefresh NTP/DVB verversen (min)
 networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync in minuten
 networkmenu.ntprefresh_hint2 Ontvanger dient herstart te worden of EPG gereset
 networkmenu.ntpserver NTP-Server
