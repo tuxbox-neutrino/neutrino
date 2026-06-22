@@ -80,7 +80,7 @@ class CFlashVersionInfo
 	
 	char date[11];
 	char time[6];
-	char vstring[5]; // human readable version
+	char vstring[8]; // human readable version
 	int  version;
 	time_t datetime;
 	

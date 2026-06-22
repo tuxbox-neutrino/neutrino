@@ -30,6 +30,7 @@
 #include <eitd/sectionsd.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <libgen.h>
@@ -43,6 +44,28 @@
 #include <global.h>
 #include <neutrino.h>
 #include <driver/display.h>
+
+static bool flashVersionHasDigits(const std::string &value, size_t pos, size_t len)
+{
+	if (pos + len > value.size())
+		return false;
+
+	for (size_t i = pos; i < pos + len; i++)
+	{
+		if (value[i] < '0' || value[i] > '9')
+			return false;
+	}
+
+	return true;
+}
+
+static int flashVersionNumber(const std::string &value, size_t pos, size_t len)
+{
+	if (!flashVersionHasDigits(value, pos, len))
+		return 0;
+
+	return atoi(value.substr(pos, len).c_str());
+}
 
 CFlashTool::CFlashTool()
 {
@@ -460,54 +483,121 @@ void CFlashTool::reboot()
 //-----------------------------------------------------------------------------------------------------------------
 CFlashVersionInfo::CFlashVersionInfo(const std::string & _versionString)
 {
-	//SBBBYYYYMMTTHHMM -- formatsting
 	std::string versionString = _versionString;
-	/* just to make sure the string is long enough for the following code
-	 * trailing chars don't matter -- will just be ignored */
-	if (versionString.size() < 16)
-		versionString.append(16, '0');
-	// recover type
-	snapshot = versionString[0];
+	size_t typePos = std::string::npos;
+	size_t versionPos = std::string::npos;
+	size_t versionLen = 0;
+	size_t yearPos = std::string::npos;
+	size_t monthPos = std::string::npos;
+	size_t dayPos = std::string::npos;
+	size_t hourPos = std::string::npos;
+	size_t minutePos = std::string::npos;
+
+	snapshot = '?';
+	version = 0;
+	strcpy(vstring, "0.00");
+	strcpy(date, "00.00.0000");
+	strcpy(time, "00:00");
+	datetime = 0;
+
+	// Calendar-version stamp with explicit type: SYYYYMMYYYYMMDDHHMM.
+	if (versionString.size() >= 19 && flashVersionHasDigits(versionString, 1, 18))
+	{
+		typePos = 0;
+		versionPos = 1;
+		versionLen = 6;
+		yearPos = 7;
+		monthPos = 11;
+		dayPos = 13;
+		hourPos = 15;
+		minutePos = 17;
+	}
+	// Legacy: SBBBYYYYMMDDHHMM.
+	else if (versionString.size() >= 16 && flashVersionHasDigits(versionString, 1, 15))
+	{
+		typePos = 0;
+		versionPos = 1;
+		versionLen = 3;
+		yearPos = 4;
+		monthPos = 8;
+		dayPos = 10;
+		hourPos = 12;
+		minutePos = 14;
+	}
+	// Builder timestamp without encoded type: YYYYMMDDHHMM[SS].
+	else if (versionString.size() >= 12 && flashVersionHasDigits(versionString, 0, 12))
+	{
+		snapshot = '9';
+		versionPos = 0;
+		versionLen = 6;
+		yearPos = 0;
+		monthPos = 4;
+		dayPos = 6;
+		hourPos = 8;
+		minutePos = 10;
+	}
+	else
+	{
+		return;
+	}
+
+	if (typePos != std::string::npos)
+		snapshot = versionString[typePos];
 
 	// human readable version
-	vstring[0] = versionString[1];
-	vstring[1] = '.';
-	vstring[2] = versionString[2];
-	vstring[3] = versionString[3];
-	vstring[4] = 0;
+	if (versionLen == 6)
+	{
+		vstring[0] = versionString[versionPos];
+		vstring[1] = versionString[versionPos + 1];
+		vstring[2] = versionString[versionPos + 2];
+		vstring[3] = versionString[versionPos + 3];
+		vstring[4] = '.';
+		vstring[5] = versionString[versionPos + 4];
+		vstring[6] = versionString[versionPos + 5];
+		vstring[7] = 0;
+	}
+	else
+	{
+		vstring[0] = versionString[versionPos];
+		vstring[1] = '.';
+		vstring[2] = versionString[versionPos + 1];
+		vstring[3] = versionString[versionPos + 2];
+		vstring[4] = 0;
+	}
 
-	version = atoi(&versionString[1])*100 + atoi(&versionString[2])*10 + atoi(&versionString[3]);
+	version = flashVersionNumber(versionString, versionPos, versionLen);
 
 	// recover date
 	struct tm tt;
 	memset(&tt, 0, sizeof(tt));
-	date[0] = versionString[10];
-	date[1] = versionString[11];
+	date[0] = versionString[dayPos];
+	date[1] = versionString[dayPos + 1];
 	date[2] = '.';
 	tt.tm_mday = atoi(&date[0]);
 
-	date[3] = versionString[8];
-	date[4] = versionString[9];
+	date[3] = versionString[monthPos];
+	date[4] = versionString[monthPos + 1];
 	date[5] = '.';
 	tt.tm_mon = atoi(&date[3]) - 1;
 
-	date[6] = versionString[4];
-	date[7] = versionString[5];
-	date[8] = versionString[6];
-	date[9] = versionString[7];
+	date[6] = versionString[yearPos];
+	date[7] = versionString[yearPos + 1];
+	date[8] = versionString[yearPos + 2];
+	date[9] = versionString[yearPos + 3];
 	date[10] = 0;
 	tt.tm_year = atoi(&date[6]) - 1900;
 
 	// recover time stamp
-	time[0] = versionString[12];
-	time[1] = versionString[13];
+	time[0] = versionString[hourPos];
+	time[1] = versionString[hourPos + 1];
 	time[2] = ':';
 	tt.tm_hour = atoi(&time[0]);
 
-	time[3] = versionString[14];
-	time[4] = versionString[15];
+	time[3] = versionString[minutePos];
+	time[4] = versionString[minutePos + 1];
 	time[5] = 0;
 	tt.tm_min = atoi(&time[3]);
+	tt.tm_isdst = -1;
 
 	datetime = mktime(&tt);
 }
