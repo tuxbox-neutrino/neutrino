@@ -113,6 +113,10 @@ static bool messaging_zap_detected = false;
 std::string ntpserver;
 int ntprefresh;
 int ntpenable;
+static std::string chrony_applied_server;
+static bool chrony_source_state_known = false;
+static void clearManagedChronySource(const std::string &chronyc,
+				     const bool source_state_known);
 
 std::string		epg_dir("");
 
@@ -1145,10 +1149,13 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 	}
 
 	if (time_wakeup) {
+		const bool old_ntpenable = ntpenable;
 		ntpserver = (std::string)&data[sizeof(struct sectionsd::commandSetConfig)];
 		debug(DEBUG_INFO, "new network_ntpserver = %s", ntpserver.c_str());
 		ntprefresh = pmsg->network_ntprefresh;
 		ntpenable = (pmsg->network_ntpenable == 1);
+		if (old_ntpenable && !ntpenable)
+			clearManagedChronySource(find_executable("chronyc"), false);
 		if(timeset)
 			threadTIME.change(1);
 	}
@@ -1498,6 +1505,15 @@ static bool removeChronySource(void)
 	return false;
 }
 
+static void clearManagedChronySource(const std::string &chronyc,
+				     const bool source_state_known)
+{
+	if (removeChronySource() && !chronyc.empty())
+		my_system(3, chronyc.c_str(), "reload", "sources");
+	chrony_applied_server.clear();
+	chrony_source_state_known = source_state_known;
+}
+
 /* Runtime-adaptive network time. The provider is re-selected at sync
    time (chrony > ntpdate > ntpd > none) so a chronyd that is not yet reachable
    at boot does not pin Neutrino to the wrong provider. chrony stays
@@ -1512,22 +1528,17 @@ static bool doNtpTimeSync(void)
 	/* 1) chrony owns time on Tuxbox-OS: prefer it whenever chronyd is reachable */
 	const std::string chronyc = find_executable("chronyc");
 	if (!chronyc.empty() && my_system(2, chronyc.c_str(), "tracking") == 0) {
-		static std::string applied_server;
-		static bool first = true;
 		/* apply the user's server only on startup / change, not every tick */
-		if (server_ok && (first || ntpserver != applied_server)) {
+		if (server_ok && (!chrony_source_state_known || ntpserver != chrony_applied_server)) {
 			if (writeChronySource(ntpserver)) {
 				my_system(3, chronyc.c_str(), "reload", "sources");
 				my_system(2, chronyc.c_str(), "makestep");
-				applied_server = ntpserver;
+				chrony_applied_server = ntpserver;
+				chrony_source_state_known = true;
 			}
-			first = false;
 		}
-		else if (!server_ok && (first || !applied_server.empty())) {
-			if (removeChronySource())
-				my_system(3, chronyc.c_str(), "reload", "sources");
-			applied_server.clear();
-			first = false;
+		else if (!server_ok && (!chrony_source_state_known || !chrony_applied_server.empty())) {
+			clearManagedChronySource(chronyc, true);
 		}
 		debug(DEBUG_NORMAL, "NTP: chrony manages time%s",
 			server_ok ? " (neutrino source applied)" : " (image default)");
@@ -2375,6 +2386,8 @@ bool CEitManager::Start()
 	/* provider (chrony/ntpdate/ntpd) is selected at sync time, not here */
 	if (ntpenable && !ntpServerValid(ntpserver))
 		debug(DEBUG_NORMAL, "NTP: configured server empty/invalid; chrony image default is used when present");
+	else if (!ntpenable)
+		clearManagedChronySource(find_executable("chronyc"), false);
 
 	debug(DEBUG_NORMAL, "Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
