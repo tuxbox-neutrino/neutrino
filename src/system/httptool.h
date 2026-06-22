@@ -42,8 +42,10 @@ class CHTTPTool
 {
 	private:
 		std::string userAgent;
+		std::string extraHeader;
 		int	iGlobalProgressEnd;
 		int	iGlobalProgressBegin;
+		long	lastHttpCode;
 
 		CProgressWindow*	statusViewer;
 #if !CURL_AT_LEAST_VERSION( 7,32,0 )
@@ -55,6 +57,11 @@ class CHTTPTool
 	public:
 		CHTTPTool();
 		void setStatusViewer( CProgressWindow* statusview );
+		/* Set an extra HTTP header sent with the next download call, e.g.
+		 * "X-Tuxbox-Service-Key: <value>". Pass an empty string to clear. */
+		void setExtraHeader(const std::string& header);
+		/* HTTP response code of the last request (0 if none). */
+		long getLastHttpCode() const { return lastHttpCode; }
 
 		bool downloadFile( const std::string & URL, const char * const downloadTarget, int globalProgressEnd=-1, int connecttimeout=10000, int timeout=1800);
 		std::string downloadString(const std::string & URL, int globalProgressEnd=-1, int connecttimeout=10000, int timeout=1800);

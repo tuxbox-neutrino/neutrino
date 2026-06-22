@@ -35,11 +35,20 @@ CHTTPTool::CHTTPTool()
 {
 	statusViewer = NULL;
 	userAgent = "neutrino/httpdownloader";
+	extraHeader = "";
+	lastHttpCode = 0;
+	iGlobalProgressEnd = -1;
+	iGlobalProgressBegin = 0;
 }
 
 void CHTTPTool::setStatusViewer( CProgressWindow* statusview )
 {
 	statusViewer = statusview;
+}
+
+void CHTTPTool::setExtraHeader(const std::string& header)
+{
+	extraHeader = header;
 }
 
 size_t CHTTPTool::CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
@@ -79,6 +88,8 @@ bool CHTTPTool::downloadFile(const std::string & URL, const char * const downloa
 	CURL *curl;
 	CURLcode res;
 	FILE *headerfile;
+	struct curl_slist *headerList = NULL;
+	lastHttpCode = 0;
 #ifdef DEBUG
 printf("open file %s\n", downloadTarget);
 #endif
@@ -118,6 +129,11 @@ printf("url is %s\n", URL.c_str());
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
 #endif
 
+		if (!extraHeader.empty()) {
+			headerList = curl_slist_append(headerList, extraHeader.c_str());
+			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerList);
+		}
+
 		if (!g_settings.softupdate_proxyserver.empty()) {//use proxyserver
 #ifdef DEBUG
 printf("use proxyserver : %s\n", g_settings.softupdate_proxyserver.c_str());
@@ -136,7 +152,10 @@ printf("use proxyserver : %s\n", g_settings.softupdate_proxyserver.c_str());
 printf("going to download\n");
 #endif
 		res = curl_easy_perform(curl);
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &lastHttpCode);
 		curl_easy_cleanup(curl);
+		if (headerList)
+			curl_slist_free_all(headerList);
 	}
 #ifdef DEBUG
 printf("download code %d\n", res);
@@ -155,6 +174,8 @@ std::string CHTTPTool::downloadString(const std::string & URL, int globalProgres
 	CURL *curl;
 	CURLcode res;
 	std::string retString = "";
+	struct curl_slist *headerList = NULL;
+	lastHttpCode = 0;
 #ifdef DEBUG
 printf("url is %s\n", URL.c_str());
 #endif
@@ -187,6 +208,11 @@ printf("url is %s\n", URL.c_str());
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
 #endif
 
+		if (!extraHeader.empty()) {
+			headerList = curl_slist_append(headerList, extraHeader.c_str());
+			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerList);
+		}
+
 		if (!g_settings.softupdate_proxyserver.empty()) {//use proxyserver
 #ifdef DEBUG
 printf("use proxyserver : %s\n", g_settings.softupdate_proxyserver.c_str());
@@ -205,7 +231,10 @@ printf("use proxyserver : %s\n", g_settings.softupdate_proxyserver.c_str());
 printf("going to download\n");
 #endif
 		res = curl_easy_perform(curl);
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &lastHttpCode);
 		curl_easy_cleanup(curl);
+		if (headerList)
+			curl_slist_free_all(headerList);
 	}
 #ifdef DEBUG
 printf("download code %d\n", res);
