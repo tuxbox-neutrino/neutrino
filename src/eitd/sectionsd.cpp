@@ -105,10 +105,11 @@ static bool messaging_zap_detected = false;
 
 //NTP-Config
 #define CONF_FILE CONFIGDIR "/neutrino.conf"
+/* Neutrino-managed additive chrony source. The image owns
+   /etc/chrony.conf; Neutrino only drops this one source fragment and reloads
+   it, never rewriting the main config or restarting chronyd. */
+#define CHRONY_SOURCES_FILE "/etc/chrony/sources.d/neutrino.sources"
 
-std::string ntp_system_cmd_prefix = find_executable("ntpdate") + " ";
-
-std::string ntp_system_cmd;
 std::string ntpserver;
 int ntprefresh;
 int ntpenable;
@@ -1146,7 +1147,6 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 	if (time_wakeup) {
 		ntpserver = (std::string)&data[sizeof(struct sectionsd::commandSetConfig)];
 		debug(DEBUG_INFO, "new network_ntpserver = %s", ntpserver.c_str());
-		ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
 		ntprefresh = pmsg->network_ntprefresh;
 		ntpenable = (pmsg->network_ntpenable == 1);
 		if(timeset)
@@ -1455,6 +1455,103 @@ void CTimeThread::addFilters()
 	addfilter(0x73, 0xff);
 }
 
+/* Validate a user-configured NTP server (hostname / IPv4 / IPv6).
+   Whitelist only, so the value is safe to write into a chrony source file and
+   to pass as an argv element. Rejects empty, whitespace, control/newline and
+   all shell metacharacters by construction. */
+static bool ntpServerValid(const std::string &s)
+{
+	if (s.empty() || s.size() > 253)
+		return false;
+	for (size_t i = 0; i < s.size(); i++) {
+		const unsigned char c = (unsigned char) s[i];
+		const bool alnum = (c >= '0' && c <= '9') ||
+				   (c >= 'A' && c <= 'Z') ||
+				   (c >= 'a' && c <= 'z');
+		if (!(alnum || c == '.' || c == '-' || c == ':'))
+			return false;
+	}
+	return true;
+}
+
+/* (Re)write the Neutrino-managed additive chrony source fragment.
+   Server is pre-validated, so it is safe in the source file. */
+static bool writeChronySource(const std::string &server)
+{
+	FILE *f = fopen(CHRONY_SOURCES_FILE, "w");
+	if (!f) {
+		debug(DEBUG_NORMAL, "NTP: cannot write %s: %m", CHRONY_SOURCES_FILE);
+		return false;
+	}
+	fprintf(f, "# managed by neutrino; do not edit\n");
+	fprintf(f, "server %s iburst prefer\n", server.c_str());
+	fclose(f);
+	return true;
+}
+
+static bool removeChronySource(void)
+{
+	if (unlink(CHRONY_SOURCES_FILE) == 0)
+		return true;
+	if (errno != ENOENT)
+		debug(DEBUG_NORMAL, "NTP: cannot remove %s: %m", CHRONY_SOURCES_FILE);
+	return false;
+}
+
+/* Runtime-adaptive network time. The provider is re-selected at sync
+   time (chrony > ntpdate > ntpd > none) so a chronyd that is not yet reachable
+   at boot does not pin Neutrino to the wrong provider. chrony stays
+   image-managed: Neutrino only adds an additive source fragment and reloads it,
+   never rewrites chrony.conf or restarts chronyd, and never spawns ntpdate while
+   chronyd is reachable. Returns true if a network-time provider handled the
+   sync; false lets the caller fall back to DVB time. */
+static bool doNtpTimeSync(void)
+{
+	const bool server_ok = ntpServerValid(ntpserver);
+
+	/* 1) chrony owns time on Tuxbox-OS: prefer it whenever chronyd is reachable */
+	const std::string chronyc = find_executable("chronyc");
+	if (!chronyc.empty() && my_system(2, chronyc.c_str(), "tracking") == 0) {
+		static std::string applied_server;
+		static bool first = true;
+		/* apply the user's server only on startup / change, not every tick */
+		if (server_ok && (first || ntpserver != applied_server)) {
+			if (writeChronySource(ntpserver)) {
+				my_system(3, chronyc.c_str(), "reload", "sources");
+				my_system(2, chronyc.c_str(), "makestep");
+				applied_server = ntpserver;
+			}
+			first = false;
+		}
+		else if (!server_ok && (first || !applied_server.empty())) {
+			if (removeChronySource())
+				my_system(3, chronyc.c_str(), "reload", "sources");
+			applied_server.clear();
+			first = false;
+		}
+		debug(DEBUG_NORMAL, "NTP: chrony manages time%s",
+			server_ok ? " (neutrino source applied)" : " (image default)");
+		return true;
+	}
+
+	/* foreign/legacy images without chrony need a server for the one-shot tools */
+	if (server_ok) {
+		/* 2) legacy ntpdate */
+		const std::string ntpdate = find_executable("ntpdate");
+		if (!ntpdate.empty())
+			return my_system(2, ntpdate.c_str(), ntpserver.c_str()) == 0;
+
+		/* 3) legacy ntpd one-shot */
+		const std::string ntpd = find_executable("ntpd");
+		if (!ntpd.empty())
+			return my_system(5, ntpd.c_str(), "-n", "-q", "-p", ntpserver.c_str()) == 0;
+	}
+
+	/* 4) no usable network-time provider */
+	debug(DEBUG_NORMAL, "NTP: no usable provider (chrony/ntpdate/ntpd); DVB time only");
+	return false;
+}
+
 void CTimeThread::run()
 {
 #if HAVE_GENERIC_HARDWARE
@@ -1502,7 +1599,7 @@ void CTimeThread::run()
 		dvb_time = 0;
 		timediff = 0;
 
-		if (ntpenable && system( ntp_system_cmd.c_str() ) == 0) {
+		if (ntpenable && doNtpTimeSync()) {
 			time_ntp = true;
 			success = true;
 		} else if (dvb_time_update) {
@@ -2267,7 +2364,6 @@ bool CEitManager::Start()
 	ntpserver = config.network_ntpserver;
 	ntprefresh = config.network_ntprefresh;
 	ntpenable = config.network_ntpenable;
-	ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
 
 	secondsToCache = config.epg_cache *24*60L*60L; //days
 	secondsExtendedTextCache = config.epg_extendedcache*60L*60L; //hours
@@ -2276,21 +2372,13 @@ bool CEitManager::Start()
 	epg_save_frequently = config.epg_save_frequently;
 	epg_read_frequently = config.epg_read_frequently;
 
-	if (find_executable("ntpdate").empty()){
-		ntp_system_cmd_prefix = find_executable("ntpd");
-		if (!ntp_system_cmd_prefix.empty()){
-			ntp_system_cmd_prefix += " -n -q -p ";
-			ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
-		}
-		else{
-			debug(DEBUG_NORMAL, "NTP Error: time sync not possible, ntpdate/ntpd not found");
-			ntpenable = false;
-		}
-	}
+	/* provider (chrony/ntpdate/ntpd) is selected at sync time, not here */
+	if (ntpenable && !ntpServerValid(ntpserver))
+		debug(DEBUG_NORMAL, "NTP: configured server empty/invalid; chrony image default is used when present");
 
 	debug(DEBUG_NORMAL, "Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
-	debug(DEBUG_NORMAL, "NTP: %s, command %s", ntpenable ? "enabled" : "disabled", ntp_system_cmd.c_str());
+	debug(DEBUG_NORMAL, "NTP: %s (provider chrony/ntpdate/ntpd selected at sync time)", ntpenable ? "enabled" : "disabled");
 
 	xml_epg_filter = readEPGFilter();
 
