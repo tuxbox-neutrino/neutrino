@@ -718,6 +718,8 @@ void CMenuWidget::move(int xoff, int yoff)
 
 void CMenuWidget::setPos(int X, int Y)
 {
+	offx = X;
+	offy = Y;
 	x = X;
 	y = Y;
 	w_pos_mode = MENU_POS_CUSTOM;
@@ -1521,7 +1523,8 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	switch(menu_pos)
 	{
 		case MENU_POS_CUSTOM:
-			x += DETAILSLINE_WIDTH;
+			x = offx + DETAILSLINE_WIDTH;
+			y = offy;
 			break;
 		case MENU_POS_CENTER:
 			x = offx + scr_x + ((scr_w - menu_width ) >> 1 );
