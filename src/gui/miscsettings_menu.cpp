@@ -139,7 +139,11 @@ int CMiscMenue::exec(CMenuTarget *parent, const std::string &actionKey)
 	}
 	else if (actionKey == "energy")
 	{
-		return showMiscSettingsMenuEnergy();
+		return showMiscSettingsMenuEnergy(LOCALE_MISCSETTINGS_HEAD, LOCALE_MISCSETTINGS_ENERGY);
+	}
+	else if (actionKey == "energy_power")
+	{
+		return showMiscSettingsMenuEnergy(LOCALE_MAINMENU_SETTINGS, LOCALE_MISCSETTINGS_ENERGY);
 	}
 	else if (actionKey == "channellist")
 	{
@@ -419,10 +423,10 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 }
 
 // energy and shutdown settings
-int CMiscMenue::showMiscSettingsMenuEnergy()
+int CMiscMenue::showMiscSettingsMenuEnergy(neutrino_locale_t title, neutrino_locale_t sub_title)
 {
-	CMenuWidget *ms_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ENERGY);
-	ms_energy->addIntroItems(LOCALE_MISCSETTINGS_ENERGY);
+	CMenuWidget *ms_energy = new CMenuWidget(title, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ENERGY);
+	ms_energy->addIntroItems(sub_title);
 
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
 	m1->setHint("", LOCALE_MENU_HINT_SHUTDOWN_RCDELAY);
@@ -444,6 +448,14 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	ms_energy->addItem(mc);
 	ms_energy->addItem(m1);
 	ms_energy->addItem(m2);
+
+	// keep box in soft-standby while recordings are pending (deep-standby boxes only)
+	if (g_info.hw_caps->can_shutdown)
+	{
+		CMenuOptionChooser *mrec = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_BLOCK_RECORDING, &g_settings.shutdown_block_while_recording, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		mrec->setHint("", LOCALE_MENU_HINT_SHUTDOWN_BLOCK_RECORDING);
+		ms_energy->addItem(mrec);
+	}
 
 	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget(true));
 	m2->setHint("", LOCALE_MENU_HINT_INACT_TIMER);

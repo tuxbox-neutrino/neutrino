@@ -84,6 +84,7 @@ libneutrino_gui_a_SOURCES = \
 	pictureviewer_setup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
+	poweroff_menu.cpp \
 	proxyserver_setup.cpp \
 	radiotext_window.cpp \
 	rate_banner.cpp \

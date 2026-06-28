@@ -520,8 +520,10 @@ struct SNeutrinoSettings
 	int shutdown_min;
 	int shutdown_real;
 	int shutdown_real_rcdelay;
+	int shutdown_block_while_recording;
 	int sleeptimer_min;
 	int power_standby;
+	int power_off_selected; // last selected entry in power off menu (0 = first entry)
 
 	// screen saver
 	int screensaver_delay;
@@ -704,6 +706,7 @@ struct SNeutrinoSettings
 		P_MAIN_STANDBY,
 		P_MAIN_REBOOT,
 		P_MAIN_SHUTDOWN,
+		P_MAIN_POWEROFF_MENU,
 		P_MAIN_INFOMENU,
 		P_MAIN_CISETTINGS,
 

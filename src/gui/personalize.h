@@ -178,6 +178,8 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		void 	addObservedItem(CMenuWidget *widget, CMenuItem *observer_Item, CMenuItem *to_observ_Item);
 		bool 	changeNotify(const neutrino_locale_t locale= NONEXISTANT_LOCALE, void *data = NULL);
 		bool 	isObserver(CMenuWidget* widget, CMenuItem * item);
+		bool 	isObservedItem(CMenuWidget* widget, const neutrino_locale_t locale);
+		bool 	hasActiveObserver(CMenuWidget* widget, const neutrino_locale_t observed_locale, const neutrino_locale_t observer_locale = NONEXISTANT_LOCALE);
 	public:	
 		//general options for personalized items
 		enum PERSONALIZE_MODE 
@@ -270,4 +272,3 @@ const struct feat_keys_t feat_key[CPersonalizeGui::PERSONALIZE_FEAT_KEY_MAX] =
 };
 
 #endif
-

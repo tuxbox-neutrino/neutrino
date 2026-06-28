@@ -1217,6 +1217,7 @@ mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
 mainmenu.pictureviewer Picture viewer
+mainmenu.poweroff_menu Power off
 mainmenu.radiomode Radio mode
 mainmenu.reboot Reboot
 mainmenu.recording Recording
@@ -1402,7 +1403,7 @@ menu.hint_hdd_wakeup_msg Turns the messages while starting the wakeup function o
 menu.hint_head_back Change GUI title background color
 menu.hint_head_textcolor Change GUI window title text color
 menu.hint_imageinfo Information about installed software
-menu.hint_inact_timer Shutdown box after inactivity
+menu.hint_inact_timer Automatically switches the box off after it has not been used for a set number of minutes.
 menu.hint_inactive_back Change inactive item background color
 menu.hint_inactive_textcolor Change inactive item text color
 menu.hint_inetradio Internet radio
@@ -1609,6 +1610,7 @@ menu.hint_plugin_type_scripts Show scripts in usermenu at selection 'Plugin type
 menu.hint_plugin_type_tools Show tools in usermenu at selection 'Plugin types'
 menu.hint_plugins_hdd_dir Select directory to load\nplugins from
 menu.hint_power_leds Configure power-button LEDs behavior
+menu.hint_poweroff_menu Opens a submenu with power options: shutdown, standby, reboot, sleeptimer, energy settings and plugins.
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
 menu.hint_progressbar Select the options for the progressbar
@@ -1765,12 +1767,13 @@ menu.hint_settings Configure System\nNetwork, audio, video, OSD etc.
 menu.hint_shoutcast_dev_id Type your SHOUTcast Developer ID. An empty input disables SHOUTcast support
 menu.hint_shoutcast_enabled Enable or disable SHOUTcast support
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
-menu.hint_shutdown Put your box in deep-standby mode\nNo confirmation
+menu.hint_shutdown Fully shuts down the box (deep-standby, lowest power use). No confirmation.
+menu.hint_shutdown_block_recording Do not fully power down while a recording is running or scheduled. The box switches off once no recording is pending.
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
 menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
-menu.hint_sleeptimer Set timer to put your box\nin sleep mode
-menu.hint_sleeptimer_min Default setting for sleeptimer
+menu.hint_sleeptimer Switches the box to standby once after a set number of minutes.\n000 = off
+menu.hint_sleeptimer_min Default value (minutes) used to pre-fill the sleeptimer dialog. Does not arm anything itself.
 menu.hint_sms_channel If enabled, numeric buttons in channel list used to search channel in SMS style
 menu.hint_sms_movie If enabled, numeric buttons in moviebrowser used to search movie in SMS style
 menu.hint_soft_restart Restart Neutrino without reboot
@@ -1781,7 +1784,7 @@ menu.hint_softupdate_expert Separate partitions from the flash. Read and write t
 menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
 menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash
 menu.hint_softupdate_settings The local update directory and the configuration file to set
-menu.hint_standby Put receiver to sleep mode
+menu.hint_standby Puts the box into standby immediately. Quick power-on possible.
 menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
 menu.hint_subchannel_pos Select subchannels menu position
@@ -1958,6 +1961,7 @@ miscsettings.progressbar_timescale_red Red
 miscsettings.progressbar_timescale_red_green from red to green
 miscsettings.progressbar_timescale_yellow Yellow
 miscsettings.radiotext Radiotext
+miscsettings.shutdown_block_recording Protect recordings from deep-standby
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 Time (in minutes) to switch from standby
 miscsettings.shutdown_count_hint2 to deep-standby (0 = off).
@@ -2436,6 +2440,7 @@ plugintype.game Game
 plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
+poweroff.rec_protected Recordings protected
 quadpip QuadPiP
 quadpip_1 Channel 1
 quadpip_2 Channel 2

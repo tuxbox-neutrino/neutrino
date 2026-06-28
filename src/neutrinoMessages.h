@@ -77,6 +77,7 @@ struct NeutrinoMessages
 		SHOW_MAINMENU				= CRCInput::RC_Messages + 25,
 		LEAVE_ALL				= CRCInput::RC_Messages + 26,
 		RESTART					= CRCInput::RC_Messages + 27,
+		POWER_MENU				= CRCInput::RC_Messages + 28,
 
 		/* END of CRCInput::RC_Messages */
 

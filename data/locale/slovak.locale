@@ -1766,6 +1766,7 @@ menu.hint_shoutcast_dev_id Zadajte vaše SHOUTcast Dev ID. Prázdne zadanie zabr
 menu.hint_shoutcast_enabled Povolenie alebo zakázanie podpory SHOUTcat-u
 menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosti bude 0
 menu.hint_shutdown Vypnutie zariadenia - bez potvrdzovania
+menu.hint_shutdown_block_recording Prijímač sa úplne nevypne, kým prebieha nahrávanie alebo je naplánovaný časovač nahrávania. Vypne sa až vtedy, keď nečaká žiadne nahrávanie.
 menu.hint_shutdown_count Čas prepnutia prijímača z pohotovostného režimu do stavu vypnutia
 menu.hint_shutdown_rcdelay Aktivuje vypnutie prijímača, ak je tlačidlo zapnutia\nstlačené viac ako 1 sekundu
 menu.hint_shutdown_real Aktivuje pohotovostný režim\nAk je zakázané, tlačidlo zapnutia vypne prístroj
@@ -1958,6 +1959,7 @@ miscsettings.progressbar_timescale_red červená
 miscsettings.progressbar_timescale_red_green z červenej do zelenej
 miscsettings.progressbar_timescale_yellow žltá
 miscsettings.radiotext RádioText
+miscsettings.shutdown_block_recording Chrániť nahrávania pred úplným vypnutím
 miscsettings.shutdown_count Vypnúť po (min.)
 miscsettings.shutdown_count_hint1 Čas (v minútach) pre prepnutie z pohotovostného režimu
 miscsettings.shutdown_count_hint2 do režimu vypnutia prístroja (0=vypnuté)
@@ -2436,6 +2438,7 @@ plugintype.game Hra
 plugintype.lua Lua doplnok
 plugintype.script Skript
 plugintype.tool Nástroj
+poweroff.rec_protected Nahrávky chránené
 quadpip QuadPiP
 quadpip_1 Kanál 1
 quadpip_2 Kanál 2

@@ -606,10 +606,13 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 						if (is_observer)
 							changeNotify(name, (void*)p_mode);
 
-						//required for first view: check active mode of option chooser and disable if it's an observed item and item mode is set to 'not visible'
-						for (uint j = 0; j < v_observ.size(); j++)
-							if (opt->getName()== g_Locale->getText(v_observ[j].to_observ_locale) && *p_mode == PERSONALIZE_MODE_NOTVISIBLE)
-								opt->setActive(false);
+						bool active_observer = hasActiveObserver(v_item[i].widget, v_item[i].locale_name);
+						if (isObservedItem(v_item[i].widget, v_item[i].locale_name) && (*p_mode == PERSONALIZE_MODE_NOTVISIBLE || active_observer))
+						{
+							if (active_observer)
+								opt->setOption(PERSONALIZE_MODE_NOTVISIBLE);
+							opt->setActive(false);
+						}
 
 						pm->addItem(opt); //add option chooser
 					}
@@ -653,6 +656,38 @@ bool CPersonalizeGui::isObserver(CMenuWidget* widget, CMenuItem *item)
 				return true;
 		}
 	}
+	return false;
+}
+
+bool CPersonalizeGui::isObservedItem(CMenuWidget* widget, const neutrino_locale_t locale)
+{
+	for (uint i = 0; i < v_observ.size(); i++)
+		if (v_observ[i].widget == widget && v_observ[i].to_observ_locale == locale)
+			return true;
+
+	return false;
+}
+
+bool CPersonalizeGui::hasActiveObserver(CMenuWidget* widget, const neutrino_locale_t observed_locale, const neutrino_locale_t observer_locale)
+{
+	for (uint i = 0; i < v_observ.size(); i++)
+	{
+		if (v_observ[i].widget != widget || v_observ[i].to_observ_locale != observed_locale)
+			continue;
+		if (observer_locale != NONEXISTANT_LOCALE && v_observ[i].observer_locale != observer_locale)
+			continue;
+
+		for (uint j = 0; j < v_item.size(); j++)
+		{
+			if (v_item[j].widget == widget && v_item[j].locale_name == v_observ[i].observer_locale && v_item[j].personalize_mode != NULL)
+			{
+				int mode = *v_item[j].personalize_mode;
+				if (mode == PERSONALIZE_MODE_VISIBLE || mode == PERSONALIZE_MODE_PIN)
+					return true;
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -961,8 +996,14 @@ void CPersonalizeGui::addPersonalizedItems()
 					v_item[i].menuItem->current_active = (p_mode || i_mode);
 				}
 
+				/*
+				 * Runtime exclusivity is only required for the PowerOff submenu.
+				 * Other observer pairs keep their old main menu behavior.
+				*/
+				bool skip_by_observer = hasActiveObserver(v_item[i].widget, v_item[i].locale_name, LOCALE_MAINMENU_POWEROFF_MENU);
+
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next
-				if (p_mode != PERSONALIZE_MODE_NOTVISIBLE || i_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
+				if ((p_mode != PERSONALIZE_MODE_NOTVISIBLE || i_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION) && !skip_by_observer)
 				{
 					//add item
 					v_item[i].widget->addItem(v_item[i].menuItem, v_item[i].default_selected); //forwarders...
@@ -974,7 +1015,7 @@ void CPersonalizeGui::addPersonalizedItems()
 						v_item[i].widget->setNextShortcut(short_cut);
 					}
 				}
-				else if (p_mode == PERSONALIZE_MODE_NOTVISIBLE)
+				else if (p_mode == PERSONALIZE_MODE_NOTVISIBLE || skip_by_observer)
 				{
 					//allow separator as next if personalize mode was changed
 					if (p_mode != old_p_mode)

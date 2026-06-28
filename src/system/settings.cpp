@@ -57,10 +57,11 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_lua"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_settings"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_service"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
-	{"personalize_sleeptimer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_sleeptimer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, // legacy layout default; power-off submenu is opt-in
 	{"personalize_standby"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_reboot"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_shutdown"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_poweroff_menu"		, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE}, // opt-in: enable in 'personalize main menu'
 	{"personalize_infomenu_main"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_cisettings_main"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	

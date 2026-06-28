@@ -88,6 +88,7 @@
 #include "gui/osd_helpers.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
+#include "gui/personalize.h"
 #include "gui/pictureviewer.h"
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
@@ -122,6 +123,7 @@
 #endif
 #include "gui/themes.h"
 #include "gui/timerlist.h"
+#include "gui/poweroff_menu.h"
 #include "gui/components/cc_item_progressbar.h"
 
 #include <hardware/audio.h>
@@ -272,6 +274,8 @@ CNeutrinoApp::CNeutrinoApp()
 	skipShutdownTimer	= false;
 	skipSleepTimer		= false;
 	lockStandbyCall         = false;
+	deferred_deepstandby	= false;
+	deferred_recheck_timer	= 0;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	channels_changed	= false;
@@ -691,6 +695,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	// shutdown
 	g_settings.shutdown_count = configfile.getInt32("shutdown_count", 0);
+	// power-off menu: last used / default entry (standby=0, shutdown=1, reboot=2)
+	g_settings.power_off_selected = configfile.getInt32("power_off_selected", 1);
 	if (g_info.hw_caps->can_shutdown)
 	{
 		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
@@ -702,6 +708,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		g_settings.shutdown_real = false;
 	}
 	g_settings.shutdown_real_rcdelay = configfile.getBool("shutdown_real_rcdelay", false);
+	g_settings.shutdown_block_while_recording = configfile.getBool("shutdown_block_while_recording", false);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 	g_settings.power_standby = configfile.getInt32("power_standby", 0);
 
@@ -1757,9 +1764,11 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	// shutdown
 	configfile.setInt32("shutdown_count", g_settings.shutdown_count);
+	configfile.setInt32("power_off_selected", g_settings.power_off_selected);
 	configfile.setInt32("shutdown_min", g_settings.shutdown_min);
 	configfile.setBool("shutdown_real", g_settings.shutdown_real);
 	configfile.setBool("shutdown_real_rcdelay", g_settings.shutdown_real_rcdelay);
+	configfile.setBool("shutdown_block_while_recording", g_settings.shutdown_block_while_recording);
 	configfile.setInt32("sleeptimer_min", g_settings.sleeptimer_min);
 	configfile.setInt32("power_standby", g_settings.power_standby);
 
@@ -3911,6 +3920,50 @@ bool CNeutrinoApp::wakeupFromStandby(void)
 	return false;
 }
 
+/* true while a recording is running or a record timer is still pending/active.
+   Race-safe: ignores just-finished one-shot timers (HASFINISHED/TERMINATED or
+   stopTime already passed), counts scheduled/running and recurring ones. */
+bool CNeutrinoApp::hasPendingRecording(void)
+{
+	if (recordingstatus)
+		return true;
+	if (!g_Timerd)
+		return false;
+	CTimerd::TimerList tl;
+	g_Timerd->getTimerList(tl);
+	time_t now = time(NULL);
+	for (CTimerd::TimerList::iterator it = tl.begin(); it != tl.end(); ++it) {
+		if (it->eventType != CTimerd::TIMER_RECORD)
+			continue;
+		if (it->eventState == CTimerd::TIMERSTATE_HASFINISHED ||
+		    it->eventState == CTimerd::TIMERSTATE_TERMINATED)
+			continue;
+		if (it->stopTime > now)
+			return true;
+	}
+	return false;
+}
+
+/* Complete a deep-standby that was deferred because recordings were pending
+   (g_settings.shutdown_block_while_recording). Only fires once nothing is alive
+   and no record timer remains. Called from standbyToStandby() and the periodic
+   re-check timer (catches externally deleted/expired timers). */
+void CNeutrinoApp::tryDeferredDeepStandby(void)
+{
+	if (!deferred_deepstandby || mode != NeutrinoModes::mode_standby)
+		return;
+	bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
+		CStreamManager::getInstance()->StreamStatus();
+	if (alive || hasPendingRecording())
+		return;
+	deferred_deepstandby = false;
+	if (deferred_recheck_timer) {
+		g_RCInput->killTimer(deferred_recheck_timer);
+		deferred_recheck_timer = 0;
+	}
+	g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
+}
+
 void CNeutrinoApp::standbyToStandby(void)
 {
 	bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
@@ -3928,6 +3981,7 @@ void CNeutrinoApp::standbyToStandby(void)
 		g_Sectionsd->setPauseScanning(true);
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
+		tryDeferredDeepStandby();
 	}
 }
 
@@ -4081,6 +4135,12 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			}
 			return messages_return::handled;
 		}
+		if(deferred_recheck_timer && data == deferred_recheck_timer) {
+			// periodic safety re-check: resolve a deferred deep-standby once
+			// no recording/record timer remains (also catches deleted timers)
+			tryDeferredDeepStandby();
+			return messages_return::handled;
+		}
 	}
 	if (msg == NeutrinoMessages::SHOW_MAINMENU) {
 		showMainMenu();
@@ -4146,60 +4206,52 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
 		if (data == 0) {
-			neutrino_msg_t new_msg;
-
-			/* Note: pressing the power button on the dbox (not the remote control) over 1 second */
-			/*       shuts down the system even if !g_settings.shutdown_real_rcdelay (see below)  */
 			gettimeofday(&standby_pressed_at, NULL);
 
-			if ((mode != NeutrinoModes::mode_standby) && (g_settings.shutdown_real)) {
-				CRecordManager::getInstance()->StopAutoRecord();
-				if(CRecordManager::getInstance()->RecordingStatus()) {
-					new_msg = NeutrinoMessages::STANDBY_ON;
-					CTimerManager::getInstance()->wakeup = true;
-					g_RCInput->firstKey = false;
-				} else
-					new_msg = NeutrinoMessages::SHUTDOWN;
-			}
-			else {
-				new_msg = (mode == NeutrinoModes::mode_standby) ? NeutrinoMessages::STANDBY_OFF : NeutrinoMessages::STANDBY_ON;
-				//printf("standby: new msg %X\n", new_msg);
-				if ((g_settings.shutdown_real_rcdelay)) {
-					neutrino_msg_t      _msg_;
-					neutrino_msg_data_t mdata;
-					struct timeval      endtime;
-					time_t              seconds;
+			/* Power-menu visible -> open it; hidden (legacy/master) -> short press toggles
+			 * standby (rcdelay long-press still shuts down below). Same visibility signal as
+			 * the main-menu observer-anchor, so the power button matches the menu configuration. */
+			const bool power_menu_visible =
+				g_settings.personalize[SNeutrinoSettings::P_MAIN_POWEROFF_MENU] != CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE;
+			const neutrino_msg_t short_msg = power_menu_visible ? NeutrinoMessages::POWER_MENU : NeutrinoMessages::STANDBY_ON;
 
-					int timeout = g_settings.repeat_blocker;
-					int timeout1 = g_settings.repeat_genericblocker;
+			if (mode == NeutrinoModes::mode_standby) {
+				/* In standby: always wake up directly */
+				g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, 0);
+			} else if (g_settings.shutdown_real_rcdelay) {
+				/* Long-press (>=1s) -> direct shutdown as hardware emergency override.
+				 * Short press -> open power-off menu. */
+				neutrino_msg_t      _msg_;
+				neutrino_msg_data_t mdata;
+				struct timeval      endtime;
+				time_t              seconds;
+				neutrino_msg_t      new_msg = short_msg;
 
-					if (timeout1 > timeout)
-						timeout = timeout1;
+				int timeout = g_settings.repeat_blocker;
+				int timeout1 = g_settings.repeat_genericblocker;
+				if (timeout1 > timeout)
+					timeout = timeout1;
+				timeout += 500;
 
-					timeout += 500;
-					//printf("standby: timeout %d\n", timeout);
-
-					while(true) {
-						g_RCInput->getMsg_ms(&_msg_, &mdata, timeout);
-
-						//printf("standby: input msg %X\n", msg);
-						if (_msg_ == CRCInput::RC_timeout)
-							break;
-
-						gettimeofday(&endtime, NULL);
-						seconds = endtime.tv_sec - standby_pressed_at.tv_sec;
-						if (endtime.tv_usec < standby_pressed_at.tv_usec)
-							seconds--;
-						//printf("standby: input seconds %d\n", seconds);
-						if (seconds >= 1) {
-							if (_msg_ == CRCInput::RC_standby)
-								new_msg = NeutrinoMessages::SHUTDOWN;
-							break;
-						}
+				while (true) {
+					g_RCInput->getMsg_ms(&_msg_, &mdata, timeout);
+					if (_msg_ == CRCInput::RC_timeout)
+						break;
+					gettimeofday(&endtime, NULL);
+					seconds = endtime.tv_sec - standby_pressed_at.tv_sec;
+					if (endtime.tv_usec < standby_pressed_at.tv_usec)
+						seconds--;
+					if (seconds >= 1) {
+						if (_msg_ == CRCInput::RC_standby)
+							new_msg = NeutrinoMessages::SHUTDOWN;
+						break;
 					}
 				}
+				g_RCInput->postMsg(new_msg, 0);
+			} else {
+				/* Short press, no rcdelay: open power-off menu (or toggle standby in legacy mode) */
+				g_RCInput->postMsg(short_msg, 0);
 			}
-			g_RCInput->postMsg(new_msg, 0);
 			return messages_return::cancel_all | messages_return::handled;
 		}
 		return messages_return::handled;
@@ -4564,6 +4616,12 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if( mode == NeutrinoModes::mode_standby ) {
 			standbyMode( false );
 		}
+		// user woke the box -> cancel a deferred deep-standby
+		deferred_deepstandby = false;
+		if (deferred_recheck_timer) {
+			g_RCInput->killTimer(deferred_recheck_timer);
+			deferred_recheck_timer = 0;
+		}
 		g_RCInput->clearRCMsg();
 		return messages_return::handled;
 	}
@@ -4574,6 +4632,18 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(CStreamManager::getInstance()->StreamStatus())
 			skipShutdownTimer = true;
+		// Hardening: keep box in soft-standby (recording-capable) instead of
+		// deep-standby while a recording is running or a record timer is pending.
+		// Resolves automatically once nothing is pending (see tryDeferredDeepStandby).
+		if (!skipShutdownTimer && g_info.hw_caps->can_shutdown &&
+		    g_settings.shutdown_block_while_recording && hasPendingRecording()) {
+			deferred_deepstandby = true;
+			if (!deferred_recheck_timer)
+				deferred_recheck_timer = g_RCInput->addTimer(60*1000*1000, false);
+			if (mode != NeutrinoModes::mode_standby)
+				standbyMode(true);
+			return messages_return::handled;
+		}
 		if(!skipShutdownTimer) {
 			ExitRun(g_info.hw_caps->can_shutdown);
 		}
@@ -4587,6 +4657,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::REBOOT ) {
 		ExitRun(CNeutrinoApp::EXIT_REBOOT);
+	}
+	else if( msg == NeutrinoMessages::POWER_MENU ) {
+		CPowerOffMenu powerMenu;
+		powerMenu.exec(NULL, "");
 	}
 	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
 		if (mode != NeutrinoModes::mode_avinput && mode != NeutrinoModes::mode_standby) {

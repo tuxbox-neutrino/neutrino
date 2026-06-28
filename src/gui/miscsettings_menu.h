@@ -33,6 +33,10 @@
 
 #include <string>
 
+class CFanControlNotifier;
+class CCpuFreqNotifier;
+class CSectionsdConfigNotifier;
+
 class CMiscMenue : public CMenuTarget, CChangeObserver
 {
 	private:
@@ -77,7 +81,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		void showMiscSettingsMenuGeneral(CMenuWidget *ms_general);
 		void showMiscSettingsMenuEpg(CMenuWidget *ms_epg);
 		void showMiscSettingsMenuFBrowser(CMenuWidget *ms_fbrowser);
-		int showMiscSettingsMenuEnergy();
+		int showMiscSettingsMenuEnergy(neutrino_locale_t title, neutrino_locale_t sub_title);
 		int showMiscSettingsMenuChanlist();
 		int showMiscSettingsMenuOnlineServices();
 		int showMiscSettingsMenuPlugins();

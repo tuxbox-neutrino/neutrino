@@ -1286,6 +1286,7 @@ menu.hint_service_scan Tuner instellingen, service scan
 menu.hint_settings Configureer sytem\nNetwerk, audio, video, OSD en meer
 menu.hint_show_mute_icon Mute icoon weergeven wanneer volume op 0 staat.
 menu.hint_shutdown Schakel uw ontvanger in deep standby modus\n geen bevestiging
+menu.hint_shutdown_block_recording Schakelt niet volledig uit zolang een opname loopt of een opnametimer gepland is. De ontvanger schakelt pas uit als er geen opname meer wacht.
 menu.hint_shutdown_count Tijd voordat uw ontvanger in deepstand-by schakelt vanuit soft-standby modus
 menu.hint_shutdown_menu Schakel uw receiver in sleep of deep standby modus, instellen sleeptimer
 menu.hint_shutdown_rcdelay Deep standby modus inschakelen wanneer de power toets meer dan 1 seconden ingedrukt wordt.
@@ -1438,6 +1439,7 @@ miscsettings.progressbar_timescale_red rood
 miscsettings.progressbar_timescale_red_green van rood naar groen
 miscsettings.progressbar_timescale_yellow geel
 miscsettings.radiotext Radiotekst
+miscsettings.shutdown_block_recording Opnames beschermen tegen deep standby
 miscsettings.shutdown_count In stand-by, uitschakelen na
 miscsettings.shutdown_count_hint1 tijd (in minuten) om te schakelen van standby
 miscsettings.shutdown_count_hint2 naar deep standby (0 = off).
@@ -1836,6 +1838,7 @@ plugintype.game Game
 plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
+poweroff.rec_protected Opnames beschermd
 rclock.lockmsg Uw afstandsbediening wordt gedeactiveerd.\n Om de afstandsbediening te activeren \ndrukt u op de <RED> toets en <MENU> op uw afstandsbediening.
 rclock.menueadd Deactiveer afstandsbediening
 rclock.title Deactiveer afstandsbediening

@@ -1217,6 +1217,7 @@ mainmenu.mediaplayer Mediaplayer
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd EPG auslesen
 mainmenu.pictureviewer Bildbetrachter
+mainmenu.poweroff_menu Ausschalten
 mainmenu.radiomode Radio-Modus
 mainmenu.reboot Neustart
 mainmenu.recording Aufnehmen
@@ -1225,7 +1226,7 @@ mainmenu.recording_stop Stopp
 mainmenu.scripts Skripte
 mainmenu.service Service
 mainmenu.settings Einstellungen
-mainmenu.shutdown Ausschalten
+mainmenu.shutdown Herunterfahren
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
 mainmenu.tools Werkzeuge
@@ -1402,7 +1403,7 @@ menu.hint_hdd_wakeup_msg Schaltet die Benachrichtigung über den Start der Aufwe
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software
-menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten.\nDie Box geht automatisch in den Standby-Modus
+menu.hint_inact_timer Schaltet die Box automatisch ab, wenn sie eine einstellbare Zeit (Minuten) lang nicht bedient wurde.
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inetradio Internetradio
@@ -1609,6 +1610,7 @@ menu.hint_plugin_type_scripts Legt fest, ob Skripte im Benutzermenü unter der R
 menu.hint_plugin_type_tools Legt fest, ob Werkzeuge im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
 menu.hint_plugins_hdd_dir Auswahl des Verzeichnisses zum Laden der Plugins von einem externen Datenträger
 menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
+menu.hint_poweroff_menu Öffnet ein Untermenü mit Energie-Optionen: Herunterfahren, Standby, Neustart, SleepTimer, Energieverbrauch und Plugins.
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_pref_subs Wählen Sie ihre bevorzugte Untertitel-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_progressbar Wählen Sie die Optionen für die Fortschrittsbalken-Anzeige
@@ -1765,12 +1767,13 @@ menu.hint_settings Konfigurieren des Systems,\nNetzwerk, Video, Audio, OSD usw.
 menu.hint_shoutcast_dev_id Geben Sie die SHOUTcast Developer ID ein. Eine leere Eingabe schaltet die SHOUTcast-Unterstützung aus
 menu.hint_shoutcast_enabled Schaltet die SHOUTcast-Unterstützung ein oder aus
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
-menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
+menu.hint_shutdown Fährt die Box vollständig herunter (Deep-Standby, geringster Stromverbrauch). Ohne Rückfrage.
+menu.hint_shutdown_block_recording Die Box fährt nicht vollständig herunter, solange eine Aufnahme läuft oder ein Aufnahme-Timer programmiert ist. Sie schaltet erst ab, wenn keine Aufnahme mehr ansteht.
 menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn die Box im Standby-Modus ist
 menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste länger als 1 Sekunde betätigt wird
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
-menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus
-menu.hint_sleeptimer_min Voreinstellung der Zeitschaltuhr auf Ihrer Box
+menu.hint_sleeptimer Schaltet die Box einmalig nach einer einstellbaren Zeit (Minuten) in den Standby.\n000 = aus
+menu.hint_sleeptimer_min Vorgabewert (Minuten), mit dem der SleepTimer-Dialog vorbelegt wird. Schaltet selbst nichts scharf.
 menu.hint_sms_channel Wenn es aktiviert ist, können Sie die Nummern-Tasten in der Kanalliste nutzen, um im SMS-Style zu suchen
 menu.hint_sms_movie Wenn es aktiviert ist, können Sie die Nummern-Tasten im Moviebrowser nutzen, um im SMS-Style zu suchen
 menu.hint_soft_restart Neustarten der Benutzeroberfläche, ohne die Box neu zu starten
@@ -1781,7 +1784,7 @@ menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen bzw. in den
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
 menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
-menu.hint_standby Receiver in den Standby-Modus versetzen
+menu.hint_standby Versetzt die Box sofort in den Standby. Schnelles Wiedereinschalten möglich.
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate usw.
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
@@ -1958,6 +1961,7 @@ miscsettings.progressbar_timescale_red Rot
 miscsettings.progressbar_timescale_red_green von Rot nach Grün
 miscsettings.progressbar_timescale_yellow Gelb
 miscsettings.radiotext Radiotext
+miscsettings.shutdown_block_recording Aufnahmen vor Deep-Standby schützen
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
 miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
@@ -2436,6 +2440,7 @@ plugintype.game Spiel
 plugintype.lua Lua-Plugin
 plugintype.script Skript
 plugintype.tool Werkzeug
+poweroff.rec_protected Aufnahmen geschützt
 quadpip QuadPiP
 quadpip_1 Programm 1
 quadpip_2 Programm 2

@@ -94,6 +94,8 @@ private:
 	bool				skipShutdownTimer;
 	bool 				skipSleepTimer;
 	bool                            lockStandbyCall;
+	bool				deferred_deepstandby;
+	uint32_t			deferred_recheck_timer;
 	bool 				pbBlinkChange;
 	bool				channels_changed;
 	bool				favorites_changed;
@@ -233,6 +235,8 @@ public:
 	void zapTo(t_channel_id channel_id);
 	bool wakeupFromStandby(void);
 	void standbyToStandby(void);
+	bool hasPendingRecording(void);
+	void tryDeferredDeepStandby(void);
 	void lockPlayBack(bool blank = true);
 	void stopPlayBack(bool lock = false);
 	bool adjustToChannelID(const t_channel_id channel_id);
