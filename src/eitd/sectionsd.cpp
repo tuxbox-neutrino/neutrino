@@ -1481,6 +1481,16 @@ static bool ntpServerValid(const std::string &s)
 	return true;
 }
 
+/* A bare "pool" directive is only correct for an actual NTP pool name; for a
+   single host or IP, "server" is the semantically correct directive. Use a
+   conservative heuristic and treat the well-known pool.ntp.org zones as pools,
+   everything else as a single server. */
+static bool isChronyPoolName(const std::string &s)
+{
+	return s == "pool.ntp.org" ||
+	       s.find(".pool.ntp.org") != std::string::npos;
+}
+
 /* (Re)write the Neutrino-managed additive chrony source fragment.
    Server is pre-validated, so it is safe in the source file. */
 static bool writeChronySource(const std::string &server)
@@ -1491,7 +1501,8 @@ static bool writeChronySource(const std::string &server)
 		return false;
 	}
 	fprintf(f, "# managed by neutrino; do not edit\n");
-	fprintf(f, "server %s iburst prefer\n", server.c_str());
+	fprintf(f, "%s %s iburst prefer\n",
+		isChronyPoolName(server) ? "pool" : "server", server.c_str());
 	fclose(f);
 	return true;
 }
