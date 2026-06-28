@@ -899,6 +899,14 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, bAllowRepeatLR);
 
+		/* The RC layer reports RC_standby on both press (data=0) and release (data=1);
+		 * no other key delivers a release event here. A menu action bound to RC_standby
+		 * (e.g. the power menu via directKey/addKey) must only act on the press, otherwise
+		 * the release of the very key that opened the menu is immediately read by the just
+		 * opened menu and re-triggers the action (one physical press -> open + fire). */
+		if (msg == CRCInput::RC_standby && data == 1)
+			continue;
+
 		int handled= false;
 		if ( msg <= CRCInput::RC_MaxRC ) {
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -924,6 +932,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				}
 				continue;
 			}
+			bool dk_swallow = false;
 			for (unsigned int i= 0; i< items.size(); i++) {
 				CMenuItem* titem = items[i];
 				if ((titem->directKey != CRCInput::RC_nokey) && (titem->directKey == msg)) {
@@ -940,13 +949,18 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 							msg = CRCInput::RC_ok;
 						else
 							msg = CRCInput::RC_nokey;
-					} else {
-						// swallow-key...
-						handled= true;
+						dk_swallow = false;
+						break;
 					}
-					break;
+					/* Inactive item owns this DirectKey: an active item later in the list
+					 * may claim the same key (e.g. power menu vs. legacy shutdown, toggled
+					 * live via personalize), so keep searching and only swallow the key if
+					 * no active owner is found - never let an inactive item shadow an active one. */
+					dk_swallow = true;
 				}
 			}
+			if (dk_swallow)
+				handled = true;
 #if 0
 			if (msg == (uint32_t) g_settings.key_pageup)
 				msg = CRCInput::RC_page_up;
