@@ -4927,7 +4927,17 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	Cleanup();
 
 	printf("[neutrino] This is the end. Exiting with code %d\n", exit_code);
-	exit(exit_code);
+	/* Use _exit() instead of exit(): several auxiliary worker threads (nhttpd, luaserver,
+	 * streamts, CA slot-poll, sysload, ...) are still running at this point. exit() runs the
+	 * C++/library static destructors and atexit handlers - notably OpenSSL's OPENSSL_cleanup,
+	 * which frees the global CRYPTO rwlocks - while those threads keep using them, which
+	 * segfaults during shutdown/reboot (use-after-free in pthread_rwlock_wrlock via
+	 * CRYPTO_THREAD_write_lock). ExitRun() has already persisted settings and torn down the
+	 * AV/HAL subsystems above, so skipping the runtime destructor pass is safe; the kernel
+	 * reclaims the rest. fflush() preserves any buffered log output, and exit_code is passed
+	 * through unchanged so the start script still distinguishes shutdown/reboot/restart. */
+	fflush(NULL);
+	_exit(exit_code);
 }
 
 void CNeutrinoApp::saveEpg(int _mode)
