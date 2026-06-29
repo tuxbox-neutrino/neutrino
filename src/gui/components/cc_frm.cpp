@@ -75,9 +75,22 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 
 	page_scroll_mode = PG_SCROLL_M_UP_DOWN_KEY;
 
+	//item navigation: disabled by default, leaves existing dialogs unchanged
+	item_nav_mode		= ITEMNAV_M_OFF;
+	item_nav_sel_frame_col	= COL_MENUCONTENTSELECTED_PLUS_0;
+	item_nav_frame_col	= COL_FRAME_PLUS_0;
+	item_nav_sel_body_col	= COL_MENUCONTENT_PLUS_0;
+	item_nav_body_col	= COL_MENUCONTENT_PLUS_0;
+	item_nav_frame_w	= DEFAULT_SEL_FRAME_WIDTH;
+	item_nav_sel_frame_w	= DEFAULT_SEL_FRAME_WIDTH;
+
 	//connect page scroll slot
 	sigc::slot4<void, neutrino_msg_t&, neutrino_msg_data_t&, int&, bool&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
 	this->OnExec.connect(sl);
+
+	//connect item navigation slot
+	sigc::slot4<void, neutrino_msg_t&, neutrino_msg_data_t&, int&, bool&> sl_nav = sigc::mem_fun(*this, &CComponentsForm::execItemNav);
+	this->OnExec.connect(sl_nav);
 }
 
 void CComponentsForm::Init(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -174,6 +187,67 @@ void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /
 		if (msg == CRCInput::RC_right)
 			ScrollPage(SCROLL_P_UP);
 	}
+}
+
+void CComponentsForm::execItemNav(neutrino_msg_t& msg, neutrino_msg_data_t& /*data*/, int& /*res*/, bool& /*cancel_exec*/)
+{
+	if (item_nav_mode == ITEMNAV_M_OFF)
+		return;
+
+	//map pressed key to a direction: -1 = previous item, +1 = next item
+	int dir = 0;
+	if (item_nav_mode & ITEMNAV_M_UP_DOWN_KEY){
+		if (msg == CRCInput::RC_up)
+			dir = -1;
+		else if (msg == CRCInput::RC_down)
+			dir = 1;
+	}
+	if (dir == 0 && (item_nav_mode & ITEMNAV_M_LEFT_RIGHT_KEY)){
+		if (msg == CRCInput::RC_left)
+			dir = -1;
+		else if (msg == CRCInput::RC_right)
+			dir = 1;
+	}
+	if (dir == 0 || v_cc_items.empty())
+		return;
+
+	//keep selection in place if the currently selected item handles navigation keys itself
+	int cur = getSelectedItem();
+	if (cur != -1){
+		CComponentsItem *sel = v_cc_items.at(cur);
+		if (sel && sel->capturesNavKeys())
+			return;
+	}
+
+	//find the next enabled item in the requested direction; NULL/disabled items are skipped
+	const int count = (int)v_cc_items.size();
+	int start = (cur != -1) ? cur : (dir > 0 ? -1 : count);
+	int next = -1;
+	for (int i = start + dir; i >= 0 && i < count; i += dir){
+		CComponentsItem *it = v_cc_items.at(i);
+		if (it && it->isEnabled()){
+			next = i;
+			break;
+		}
+	}
+	if (next == -1 || next == cur)
+		return;
+
+	setSelectedItem(next, item_nav_sel_frame_col, item_nav_frame_col, item_nav_sel_body_col, item_nav_body_col, item_nav_frame_w, item_nav_sel_frame_w);
+
+	//only the previously and the newly selected item change visually -> repaint just those.
+	//kill() first so the changed selection frame/body is fully erased and redrawn; a plain
+	//paint() on an already painted item keeps its background/frame (is_painted guard).
+	if (cur != -1 && v_cc_items.at(cur)){
+		v_cc_items.at(cur)->kill();
+		v_cc_items.at(cur)->paint(CC_SAVE_SCREEN_NO);
+	}
+	if (v_cc_items.at(next)){
+		v_cc_items.at(next)->kill();
+		v_cc_items.at(next)->paint(CC_SAVE_SCREEN_NO);
+	}
+
+	msg = CRCInput::RC_nokey; //consume the key
 }
 
 void CComponentsForm::execExit(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec, const std::vector<neutrino_msg_t>& v_msg_list)

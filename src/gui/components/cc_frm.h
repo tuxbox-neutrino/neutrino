@@ -59,6 +59,16 @@ class CComponentsForm : public CComponentsItem
 		///enable/disable page scrolling, default enabled with page scroll mode up/down keys, see also enablePageScroll()
 		int page_scroll_mode;
 
+		///enable/disable item navigation (move selection through items), default disabled, see also enableItemNav()
+		int item_nav_mode;
+		///selection colors/frame widths used by item navigation, see setItemNavColors()
+		fb_pixel_t item_nav_sel_frame_col;
+		fb_pixel_t item_nav_frame_col;
+		fb_pixel_t item_nav_sel_body_col;
+		fb_pixel_t item_nav_body_col;
+		int item_nav_frame_w;
+		int item_nav_sel_frame_w;
+
 		///container for exit keys, default exit keys are CRCInput::RC_home, CRCInput::RC_back and CRCInput::RC_setup
 		std::vector <neutrino_msg_t> v_exit_keys;
 
@@ -218,6 +228,33 @@ class CComponentsForm : public CComponentsItem
 		///enable/disable page scroll, parameter1 default enabled for up/down keys
 		void enablePageScroll(const int& mode = PG_SCROLL_M_UP_DOWN_KEY){page_scroll_mode = mode;};
 
+		///enum item navigation modes, see enableItemNav()
+		enum
+		{
+			ITEMNAV_M_OFF			= 0,
+			ITEMNAV_M_UP_DOWN_KEY		= 1,
+			ITEMNAV_M_LEFT_RIGHT_KEY	= 2
+		};
+		///enable/disable item navigation: move the selection through the contained (enabled) items with the
+		///cursor keys, default up/down keys. Items with setNavSelf(true) keep the keys for their own navigation.
+		///NOTE: disable colliding page scroll via enablePageScroll(PG_SCROLL_M_OFF) when using the same keys.
+		void enableItemNav(const int& mode = ITEMNAV_M_UP_DOWN_KEY){item_nav_mode = mode;};
+		///set selection colors/frame widths applied while navigating items, see also setSelectedItem()
+		void setItemNavColors(	const fb_pixel_t& sel_frame_col = COL_MENUCONTENTSELECTED_PLUS_0,
+					const fb_pixel_t& frame_col = COL_FRAME_PLUS_0,
+					const fb_pixel_t& sel_body_col = COL_MENUCONTENT_PLUS_0,
+					const fb_pixel_t& body_col = COL_MENUCONTENT_PLUS_0,
+					const int& frame_w = DEFAULT_SEL_FRAME_WIDTH,
+					const int& sel_frame_w = DEFAULT_SEL_FRAME_WIDTH)
+		{
+			item_nav_sel_frame_col	= sel_frame_col;
+			item_nav_frame_col	= frame_col;
+			item_nav_sel_body_col	= sel_body_col;
+			item_nav_body_col	= body_col;
+			item_nav_frame_w	= frame_w;
+			item_nav_sel_frame_w	= sel_frame_w;
+		};
+
 		///set width of scrollbar
 		void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
 		///returns id of selected item, return value as int, returns -1: if is nothing selected
@@ -298,6 +335,9 @@ class CComponentsForm : public CComponentsItem
 
 		///exec sub method for page scroll, parameter1 neutrino_msg_t by rev
 		void execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec);
+
+		///exec sub method for item navigation (move selection through items), parameter1 neutrino_msg_t by rev
+		void execItemNav(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec);
 
 		///exec sub method for exit loop, parameters by rev
 		void execExit(	neutrino_msg_t& msg,

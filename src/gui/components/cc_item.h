@@ -49,6 +49,8 @@ class CComponentsItem : public CComponents
 		uint8_t cc_page_number;
 		///specifies that some certain operations especially eg. exec events for that item are possible, see also setFocus(), hasFocus()
 		bool cc_has_focus;
+		///property: item handles its own directional navigation keys, see setNavSelf()/capturesNavKeys()
+		bool cc_nav_self;
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
@@ -120,6 +122,13 @@ class CComponentsItem : public CComponents
 		bool isSelected(){return cc_item_selected;};
 		///get enable mode, see also setEnable() above
 		bool isEnabled(){return cc_item_enabled;};
+
+		///set whether this item handles directional navigation keys itself.
+		///A parent form with item navigation enabled (see CComponentsForm::enableItemNav())
+		///will not move the selection away while such an item is selected.
+		void setNavSelf(bool nav_self){cc_nav_self = nav_self;}
+		///returns true if this item handles its own directional navigation, see setNavSelf()
+		bool capturesNavKeys() const {return cc_nav_self;}
 
 		///get current index of item, see also attribut cc_item_index
 		int getIndex() const {return cc_item_index;};

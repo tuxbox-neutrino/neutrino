@@ -49,6 +49,7 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 	cc_item_selected 	= false;
 	cc_page_number		= 0;
 	cc_has_focus		= true;
+	cc_nav_self		= false;
 	cc_parent		= NULL;
 	initParent(parent);
 }
