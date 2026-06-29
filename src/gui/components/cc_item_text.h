@@ -61,6 +61,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		///object: CTextBox object
 		CTextBox 	* ct_textbox;
 		CBox		ct_box;
+		///status: last box geometry sent to the CTextBox object; used to force a
+		///text re-layout when the item was resized/moved without a text change
+		CBox		ct_box_old;
 		///property: font style
 		int 		ct_text_style;
 		///property: horizontal text border width (left and right)

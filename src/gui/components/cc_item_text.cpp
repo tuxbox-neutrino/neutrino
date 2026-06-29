@@ -110,6 +110,8 @@ void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;
 	ct_utf8_encoded = true;
+	//sentinel: differs from any real box, so the first initCCText() forces a layout
+	ct_box_old	= CBox(-1, -1, -1, -1);
 
 	initCCText();
 	initParent(parent);
@@ -179,6 +181,21 @@ void CComponentsText::initCCText()
 
 		//observe behavior of parent form if available
 		bool force_text_paint = ct_force_text_paint;
+
+		//A pure resize/move (without a text change) must still re-layout the
+		//textbox: CTextBox::setText() only rebuilds the line layout - and thus
+		//refreshes m_cFrameTextRel, which RIGHT/CENTER alignment depends on - when
+		//the text actually changed or when forced. setWindowPos() copies the new
+		//box into m_cFrame but never re-runs initFramesRel(), so without this an
+		//item resized or reparented after construction keeps its old box width and
+		//RIGHT/CENTER text lands at the stale position (e.g. the color chooser
+		//value labels built at width 40 and later widened). Force a re-layout
+		//whenever the box geometry sent to the CTextBox object changed.
+		if (   ct_box.iX      != ct_box_old.iX
+		    || ct_box.iY      != ct_box_old.iY
+		    || ct_box.iWidth  != ct_box_old.iWidth
+		    || ct_box.iHeight != ct_box_old.iHeight)
+			force_text_paint = true;
 #if 0 //FIXME
 		if (cc_parent){
 			//if any embedded text item was hided because of hided parent form,
@@ -189,8 +206,11 @@ void CComponentsText::initCCText()
 #endif
 		//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
 		//this is managed by CTextBox object itself
-		if (cc_allow_paint)
+		if (cc_allow_paint){
 			ct_text_sent = ct_textbox->setText(&ct_text, ct_box.iWidth, force_text_paint);
+			//remember the geometry we just handed to the textbox
+			ct_box_old = ct_box;
+		}
 
 		//set current text status, needed by textChanged()
 		if (ct_text_sent){
