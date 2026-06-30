@@ -234,12 +234,18 @@ void CComponentsText::clearCCText()
 
 bool CComponentsText::setText(const std::string& stext, const int mode, Font* font_text, const fb_pixel_t& color_text, const int& style)
 {
-	if (ct_text != stext || ct_text_mode != mode || ct_font != font_text || ct_col_text != color_text || ct_text_style != style  ){
+	//The default mode argument ~CTextBox::AUTO_WIDTH is a sentinel meaning "only
+	//change the text, keep the current text mode". Treating it as a real mode
+	//overwrites an explicitly set alignment (e.g. a RIGHT/CENTER label rebuilt as
+	//0xfffffffe with SCROLL+CENTER+RIGHT all set), which mis-aligns the text and
+	//reserves a phantom scrollbar. Keep the current mode when the sentinel is passed.
+	const bool keep_mode = (mode == ~CTextBox::AUTO_WIDTH);
+	if (ct_text != stext || (!keep_mode && ct_text_mode != mode) || ct_font != font_text || ct_col_text != color_text || ct_text_style != style  ){
 		if (ct_text != stext){
 			ct_old_text = ct_text;
 			ct_text = stext;
 		}
-		if (ct_text_mode != mode /*|| mode != ~CTextBox::AUTO_WIDTH*/)
+		if (!keep_mode && ct_text_mode != mode)
 			ct_text_mode = mode;
 		if (font_text)
 			ct_font = font_text;
