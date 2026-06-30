@@ -30,6 +30,7 @@
 #include "cc_item.h"
 #include "cc_text_screen.h"
 #include <gui/widget/textbox.h>
+#include <sigc++/connection.h>
 #include <string>
 #include <mutex>
 
@@ -77,6 +78,9 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		bool ct_text_sent;
 		///property: force sending text to the CTextBox object, false= text only sended, if text was changed, see also textChanged()
 		bool ct_force_text_paint;
+		///status: this item's own connection to the parent's OnAfterPaintBg signal,
+		///kept so it can be reconnected without dropping sibling text items
+		sigc::connection ct_after_bg_conn;
 
 		std::mutex ct_mutex;
 

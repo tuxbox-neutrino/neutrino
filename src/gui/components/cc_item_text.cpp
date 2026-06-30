@@ -306,11 +306,24 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 void CComponentsText::paintText(const bool &do_save_bg)
 {
 	if (cc_parent){
-		if(!cc_parent->OnAfterPaintBg.empty())
-			cc_parent->OnAfterPaintBg.clear();
-		//init slot to handle repaint of text if background was repainted
-		cc_parent->OnAfterPaintBg.connect(sigc::bind(sigc::mem_fun(*this, &CComponentsText::forceTextPaint), true));
+		//slot to repaint this text when the parent repaints its background.
+		//Reconnect only THIS item's slot (disconnect our previous one first to
+		//avoid duplicate connections on repeated paints) - do NOT clear the whole
+		//signal, otherwise sibling text items on the same parent lose their slot
+		//and vanish when the parent bg is repainted (e.g. several labels per row).
+		ct_after_bg_conn.disconnect();
+		ct_after_bg_conn = cc_parent->OnAfterPaintBg.connect(sigc::bind(sigc::mem_fun(*this, &CComponentsText::forceTextPaint), true));
 	}
+
+	//If a repaint of the text is forced (e.g. the parent form just repainted its
+	//background under us via OnAfterPaintBg), drop the CTextBox "already painted"
+	//state BEFORE re-sending the text. CTextBox only renders glyphs on a text
+	//change or own-bg paint and uses its frameBuffer pointer as a paint-once guard;
+	//doing this before initCCText() keeps the forced re-layout (m_old_cText="")
+	//alive so the glyphs are actually rendered after paintInit() below, instead of
+	//being consumed by a no-op paint and leaving the label blank.
+	if (ct_force_text_paint && ct_textbox)
+		ct_textbox->hide();
 
 	initCCText();
 
@@ -326,6 +339,7 @@ void CComponentsText::paintText(const bool &do_save_bg)
 	}
 
 	ct_text_sent = false;
+	ct_force_text_paint = false;
 }
 
 void CComponentsText::paint(const bool &do_save_bg)
