@@ -155,9 +155,24 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 
 		bool cc_gradient_bg_cleanup;
 
-		///rendering of framebuffer elements at once,
-		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
-		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
+		/**Renders all framebuffer elements (shadow, frame, body) of this item at once.
+		* Elements are contained in v_fbdata and must have been added with paintInit() before.
+		*
+		* Lazy-repaint contract: the very first paint draws the full background/frame; later
+		* paints of an already-painted item (is_painted==true) only refresh foreground/children
+		* and deliberately skip the background/frame, to avoid flicker. Use kill() or hide() to
+		* force a clean redraw, see those methods.
+		*
+		* Background buffering: do_save_bg is forwarded to enableSaveBg(), so passing true here
+		* arms the save-bg buffer and passing false clears it. When save-bg is armed, the pixels
+		* behind the item are snapshotted into the CC_FBDATA_TYPE_BGSCREEN layer once, on the
+		* first paint and *before* the frame/body are drawn (so the snapshot is the clean
+		* backdrop, not the item itself). hide() restores that snapshot. Because do_save_bg both
+		* selects buffering AND clears the buffer when false, an item that must stay restorable
+		* across repaints has to be repainted with paint(SaveBg()), never with CC_SAVE_SCREEN_NO.
+		* @param[in] do_save_bg true = save the backdrop for a later hide(); false = no/!clear buffer
+		* @see enableSaveBg(), hide(), kill(), CComponentsItem::paintInit()
+		*/
 		void paintFbItems(const bool &do_save_bg = true);
 
 	public:
@@ -381,14 +396,30 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 		sigc::signal<void> OnAfterPaintBg;
 
 		/*!
-		 Removes current item from screen and
-		 restore last displayed background before item was painted and
-		 ensures demage of already existing screen buffers too.
+		 Removes the current item from screen by RESTORING the real pixels that were
+		 behind it, not by painting over it. This requires that the backdrop was
+		 snapshotted first, i.e. the item was painted with save-bg enabled
+		 (enableSaveBg(true) / paint(CC_SAVE_SCREEN_YES)); the snapshot lives in the
+		 CC_FBDATA_TYPE_BGSCREEN layer. hide() blits it back over the full item area
+		 (incl. frame and shadow), then marks the item unpainted and re-arms firstPaint
+		 so the next paint redraws from scratch and re-takes a fresh snapshot.
+
+		 Prefer hide() over kill() whenever the item sits on a non-flat backdrop
+		 (live TV, body gradient, background graphic): a colour fill cannot reproduce
+		 those pixels. With no saved buffer hide() is a no-op, so it is safe to call.
+		 @see kill(), enableSaveBg(), paintFbItems()
 		*/
 		virtual void hide();
 
 		/**Erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
 		 * from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND_PLUS_0 (empty background)
+		 *
+		 * Unlike hide(), kill() does NOT restore the backdrop: it flat-fills the item's
+		 * layers (body box and, when frame_thickness>0, the frame ring) with bg_color.
+		 * That is correct and cheap on a flat menu background where bg_color equals what
+		 * is behind the item, but over a non-flat backdrop it leaves a visible coloured
+		 * band; use hide() there instead. CComponentsItem::kill() picks the parent body
+		 * colour as bg_color by default so an opaque child blends into an unselected row.
 		 *
 		 * @return void
 		 *

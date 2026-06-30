@@ -336,8 +336,24 @@ class CComponentsForm : public CComponentsItem
 		///exec sub method for page scroll, parameter1 neutrino_msg_t by rev
 		void execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec);
 
-		///exec sub method for item navigation (move selection through items), parameter1 neutrino_msg_t by rev
+		/**exec sub method for item navigation (move selection through items), parameter1 neutrino_msg_t by rev.
+		* Moves the selection to the next/previous enabled item for the configured nav keys
+		* (see enableItemNav()/setItemNavColors()), then repaints only the previously and the
+		* newly selected item via repaintItemNav(). Items with setNavSelf(true) keep the keys
+		* for their own navigation and are not moved.
+		*/
 		void execItemNav(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec);
+
+		/**Erase and repaint a single item after a selection change.
+		* The erase strategy is chosen from the item's own background-buffer mode (CCDraw::SaveBg()):
+		* an item that opts in with enableSaveBg(true) is erased with hide() (restores the real
+		* pixels behind it, so it cleans correctly over live TV / gradient / background graphic),
+		* all other items keep the historical kill() flat-fill. The repaint passes the item's own
+		* save-bg mode so the background snapshot is re-armed for the next erase.
+		* @param[in] item CComponentsItem* to erase and repaint, NULL is ignored
+		* @see CCDraw::enableSaveBg(), CCDraw::hide(), CCDraw::kill(), paintCCItems()
+		*/
+		void repaintItemNav(CComponentsItem *item);
 
 		///exec sub method for exit loop, parameters by rev
 		void execExit(	neutrino_msg_t& msg,

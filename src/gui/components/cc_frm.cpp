@@ -236,18 +236,49 @@ void CComponentsForm::execItemNav(neutrino_msg_t& msg, neutrino_msg_data_t& /*da
 	setSelectedItem(next, item_nav_sel_frame_col, item_nav_frame_col, item_nav_sel_body_col, item_nav_body_col, item_nav_frame_w, item_nav_sel_frame_w);
 
 	//only the previously and the newly selected item change visually -> repaint just those.
-	//kill() first so the changed selection frame/body is fully erased and redrawn; a plain
-	//paint() on an already painted item keeps its background/frame (is_painted guard).
-	if (cur != -1 && v_cc_items.at(cur)){
-		v_cc_items.at(cur)->kill();
-		v_cc_items.at(cur)->paint(CC_SAVE_SCREEN_NO);
-	}
-	if (v_cc_items.at(next)){
-		v_cc_items.at(next)->kill();
-		v_cc_items.at(next)->paint(CC_SAVE_SCREEN_NO);
-	}
+	//The erase strategy is chosen per item from its own background-buffer mode, see repaintItemNav().
+	if (cur != -1 && v_cc_items.at(cur))
+		repaintItemNav(v_cc_items.at(cur));
+	if (v_cc_items.at(next))
+		repaintItemNav(v_cc_items.at(next));
 
 	msg = CRCInput::RC_nokey; //consume the key
+}
+
+void CComponentsForm::repaintItemNav(CComponentsItem *item)
+{
+	if (item == NULL)
+		return;
+
+	/* Erase the old rendering of the item before repainting it with its new
+	 * selection state. Two erase strategies exist because a cc item can sit on
+	 * two very different backdrops:
+	 *
+	 *  - Flat menu background: kill() flat-fills the item area with the parent
+	 *    body colour. This is cheap and correct as long as that colour equals
+	 *    what is actually behind the item. It is the historical default and
+	 *    stays the default, so opaque menus keep their exact prior behaviour.
+	 *
+	 *  - Live / non-flat backdrop (live TV, body gradient, background graphic):
+	 *    a flat colour fill would leave a visible coloured band, and for a
+	 *    frame-only selection it would not even cover the old selection frame
+	 *    (the frame ring lies on the item edge, outside the inner body box).
+	 *    An item that opts in with enableSaveBg(true) snapshots the real pixels
+	 *    behind it on its first paint (see CCDraw::paintFbItems()); hide() blits
+	 *    that snapshot back, fully erasing the item *including* its selection
+	 *    frame. We then repaint with paint(SaveBg()): passing the item's own
+	 *    save-bg mode re-arms the snapshot for the next erase, whereas a
+	 *    CC_SAVE_SCREEN_NO repaint would drop the buffer (paint() forwards its
+	 *    argument to enableSaveBg(), which clears the buffer when disabling).
+	 *
+	 * This mirrors the hide()/paint(SaveBg()) cascade already used per child in
+	 * paintCCItems(), so navigation and full repaint stay consistent.
+	 */
+	if (item->SaveBg())
+		item->hide();
+	else
+		item->kill();
+	item->paint(item->SaveBg());
 }
 
 void CComponentsForm::execExit(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& cancel_exec, const std::vector<neutrino_msg_t>& v_msg_list)
