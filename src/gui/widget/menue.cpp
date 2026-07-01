@@ -1790,7 +1790,11 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 		footer->setWidth(width + scrollbar_width);
 		footer->setButtonLabels(fbutton_labels, fbutton_count);
 		footer_height = footer->getHeight();
-		footer_width = footer->getWidth();
+		// store the body width (excl. the scrollbar column); calcSize() does
+		// width = max(width, footer_width), so including scrollbar_width here
+		// would ratchet the menu wider on every repaint when a scrollbar is
+		// present (footer is still painted at width + scrollbar_width above)
+		footer_width = footer->getWidth() - scrollbar_width;
 	}else{
 		if (footer){
 			delete footer; footer = NULL;
