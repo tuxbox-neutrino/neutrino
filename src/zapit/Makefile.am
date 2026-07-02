@@ -45,11 +45,6 @@ libzapit_a_SOURCES += \
 	scanait.cpp
 endif
 
-if ENABLE_SOFTCSA
-libzapit_a_SOURCES += \
-	dvbapi_client.cpp
-endif
-
 bin_PROGRAMS = pzapit
 
 pzapit_SOURCES = \
