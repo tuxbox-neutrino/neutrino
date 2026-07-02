@@ -6,7 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/driver/audiodec \
 	-I$(top_srcdir)/lib \
-	-I$(top_srcdir)/src/zapit/include \
+	-I$(top_srcdir)/src/include \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \

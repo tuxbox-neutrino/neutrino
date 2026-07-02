@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/src \
-	-I$(top_srcdir)/src/zapit/include \
+	-I$(top_srcdir)/src/include \
 	@FREETYPE_CFLAGS@ \
 	@SIGC_CFLAGS@ \
 	@HWLIB_CFLAGS@
