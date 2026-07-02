@@ -52,6 +52,6 @@ pzapit_SOURCES = \
 
 pzapit_LDADD = \
 	$(top_builddir)/src/zapit/client/libzapitclient.a \
-	$(top_builddir)/lib/connection/libtuxbox-connection.a \
+	$(top_builddir)/lib/connection/libconnection.a \
 	-lOpenThreads \
 	-lpthread

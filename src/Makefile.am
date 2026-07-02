@@ -112,13 +112,13 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/sectionsdclient/libsectionsdclient.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
 	$(top_builddir)/src/zapit/client/libzapitclient.a \
-	$(top_builddir)/lib/libconfigfile/libtuxbox-configfile.a \
-	$(top_builddir)/lib/connection/libtuxbox-connection.a \
-	$(top_builddir)/lib/libeventserver/libtuxbox-eventserver.a \
-	$(top_builddir)/lib/xmltree/libtuxbox-xmltree.a \
+	$(top_builddir)/lib/libconfigfile/libconfigfile.a \
+	$(top_builddir)/lib/connection/libconnection.a \
+	$(top_builddir)/lib/libeventserver/libeventserver.a \
+	$(top_builddir)/lib/xmltree/libxmltree.a \
 	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
-	$(top_builddir)/lib/libnet/libtuxbox-net.a \
-	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
+	$(top_builddir)/lib/libnet/libnet.a \
+	$(top_builddir)/lib/libmd5sum/libmd5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \
 	$(top_builddir)/lib/libdvbsub/libdvbsub.a \
 	$(top_builddir)/lib/libiw/libiw.a \
@@ -167,7 +167,7 @@ endif
 
 if ENABLE_UPNP
 neutrino_LDADD += \
-	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a
+	$(top_builddir)/lib/libupnpclient/libupnpclient.a
 endif
 
 if BOXTYPE_CST

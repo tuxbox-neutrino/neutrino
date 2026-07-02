@@ -1,5 +1,5 @@
-noinst_LIBRARIES = libtuxbox-eventserver.a
+noinst_LIBRARIES = libeventserver.a
 
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
-libtuxbox_eventserver_a_SOURCES = eventserver.cpp
+libeventserver_a_SOURCES = eventserver.cpp

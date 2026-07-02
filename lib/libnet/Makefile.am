@@ -1,6 +1,6 @@
-noinst_LIBRARIES = libtuxbox-net.a
+noinst_LIBRARIES = libnet.a
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
-libtuxbox_net_a_SOURCES = libnet.cpp network_interfaces.cpp
+libnet_a_SOURCES = libnet.cpp network_interfaces.cpp
 

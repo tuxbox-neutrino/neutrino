@@ -9,10 +9,10 @@ endif
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
-noinst_LIBRARIES = libtuxbox-xmltree.a
+noinst_LIBRARIES = libxmltree.a
 
-libtuxbox_xmltree_a_SOURCES = xmlinterface.cpp
+libxmltree_a_SOURCES = xmlinterface.cpp
 if USE_PUGIXML
 else
-libtuxbox_xmltree_a_SOURCES += hashtab.c xmlparse.cpp xmlrole.c xmltok.c xmltree.cpp
+libxmltree_a_SOURCES += hashtab.c xmlparse.cpp xmlrole.c xmltok.c xmltree.cpp
 endif
