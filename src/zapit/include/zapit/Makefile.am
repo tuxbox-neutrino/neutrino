@@ -1,5 +1,3 @@
-SUBDIRS = client
-
 pkgincludedir = ${includedir}/tuxbox/zapit
 pkginclude_HEADERS = \
 	audio_c.h bat.h bouquets.h cam.h channel.h \
