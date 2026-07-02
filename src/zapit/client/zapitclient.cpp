@@ -1,6 +1,4 @@
 /*
- * $Header: /cvs/tuxbox/apps/dvb/zapit/lib/zapitclient.cpp,v 1.105 2004/10/27 16:08:41 lucgas Exp $ *
- *
  * Zapit client interface - DBoxII-Project
  *
  * (C) 2002 by thegoodguy <thegoodguy@berlios.de> & the DBoxII-Project
@@ -33,10 +31,10 @@
 /* libevent */
 #include <eventserver.h>
 
-#include <zapit/client/zapittypes.h>
-#include <zapit/client/zapitclient.h>
-#include <zapit/client/msgtypes.h>
-#include <zapit/client/zapittools.h>
+#include "zapittypes.h"
+#include "zapitclient.h"
+#include "msgtypes.h"
+#include "zapittools.h"
 
 #ifdef PEDANTIC_VALGRIND_SETUP
 #define VALGRIND_PARANOIA memset(&msg, 0, sizeof(msg))

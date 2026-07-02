@@ -1,6 +1,4 @@
 /*
- * $Header: /cvs/tuxbox/apps/dvb/zapit/include/zapit/client/msgtypes.h,v 1.25 2004/10/27 16:08:40 lucgas Exp $
- *
  * types used for clientlib <-> zapit communication - d-box2 linux project
  *
  * (C) 2002 by thegoodguy <thegoodguy@berlios.de>

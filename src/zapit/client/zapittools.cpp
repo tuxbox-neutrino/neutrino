@@ -1,6 +1,4 @@
 /*
- * $Header: /cvs/tuxbox/apps/dvb/zapit/lib/zapittools.cpp,v 1.3 2004/04/04 13:22:13 thegoodguy Exp $
- *
  * some tools for zapit and its clients - d-box2 linux project
  *
  * (C) 2004 by thegoodguy <thegoodguy@berlios.de>
@@ -21,8 +19,8 @@
  *
  */
 
-#include <zapit/client/zapittools.h>
 #include <string.h>
+#include "zapittools.h"
 
 namespace ZapitTools {
 

@@ -1,6 +1,4 @@
 /*
- * $Header: /cvs/tuxbox/apps/dvb/zapit/include/zapit/client/zapittools.h,v 1.1 2004/04/02 13:26:56 thegoodguy Exp $
- *
  * some tools for zapit and its clients - d-box2 linux project
  *
  * (C) 2004 by thegoodguy <thegoodguy@berlios.de>

@@ -1,6 +1,4 @@
 /*
- * $Id: zapittypes.h,v 1.23 2004/02/24 23:50:57 thegoodguy Exp $
- *
  * zapit's types which are used by the clientlib - d-box2 linux project
  *
  * (C) 2002 by thegoodguy <thegoodguy@berlios.de>

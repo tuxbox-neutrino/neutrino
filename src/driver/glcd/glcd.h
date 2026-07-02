@@ -30,7 +30,7 @@
 #include <string>
 #include <sys/types.h>
 #include <semaphore.h>
-#include <zapit/include/zapit/client/zapittypes.h>
+#include <zapit/client/zapittypes.h>
 #include <neutrinoMessages.h>
 
 #define CLAMP(x)    ((x < 0) ? 0 : ((x > 255) ? 255 : x))

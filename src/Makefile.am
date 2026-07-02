@@ -111,7 +111,7 @@ neutrino_LDADD = \
 	system/libneutrino_system.a \
 	$(top_builddir)/lib/sectionsdclient/libsectionsdclient.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
-	$(top_builddir)/src/zapit/lib/libzapitclient.a \
+	$(top_builddir)/src/zapit/client/libzapitclient.a \
 	$(top_builddir)/lib/libconfigfile/libtuxbox-configfile.a \
 	$(top_builddir)/lib/connection/libtuxbox-connection.a \
 	$(top_builddir)/lib/libeventserver/libtuxbox-eventserver.a \

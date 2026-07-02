@@ -13,7 +13,7 @@
 #include <xmltree/xmlinterface.h>
 #include <hardware/ca.h>
 
-#include "client/zapitclient.h"
+#include <zapit/client/zapitclient.h>
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
