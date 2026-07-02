@@ -103,7 +103,7 @@ neutrino_LDADD = \
 	driver/audiodec/libneutrino_driver_audiodec.a \
 	driver/libneutrino_driver_netfile.a \
 	timerd/libtimerd.a \
-	zapit/src/libzapit.a \
+	zapit/libzapit.a \
 	nhttpd/libnhttpd.a \
 	nhttpd/tuxboxapi/libnhttpd_tuxboxapi.a \
 	nhttpd/yhttpd_mods/libyhttpdmods.a \

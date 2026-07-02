@@ -37,7 +37,7 @@
 
 #include <xmltree/xmlinterface.h>
 #include <zapit/client/zapittools.h>
-#include <zapit/include/zapit/bouquets.h>
+#include <zapit/bouquets.h>
 
 #include <driver/abstime.h>
 
