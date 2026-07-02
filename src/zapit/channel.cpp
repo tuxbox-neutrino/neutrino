@@ -24,8 +24,8 @@
 
 #include <global.h>
 #include <system/helpers.h>
-#include <zapit/zapit.h>
-#include <zapit/channel.h>
+#include "zapit.h"
+#include "channel.h"
 
 extern Zapit_config zapitCfg;
 

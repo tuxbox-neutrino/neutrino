@@ -20,8 +20,8 @@
  *
  */
 
-#include <zapit/debug.h>
-#include <zapit/pat.h>
+#include "debug.h"
+#include "pat.h"
 #include <hardware/dmx.h>
 
 CPat::CPat(int dnum)

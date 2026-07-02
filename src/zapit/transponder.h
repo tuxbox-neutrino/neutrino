@@ -21,8 +21,8 @@
 #ifndef _TRANSPONDER_H_
 #define _TRANSPONDER_H_
 
-#include <zapit/types.h>
-#include <zapit/frontend_types.h>
+#include "types.h"
+#include "frontend_types.h"
 #include <string>
 #include <map>
 

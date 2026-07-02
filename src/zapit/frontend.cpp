@@ -33,13 +33,13 @@
 /* zapit */
 #include <config.h>
 #include <system/helpers.h>
-#include <zapit/debug.h>
-#include <zapit/settings.h>
-#include <zapit/getservices.h>
+#include "debug.h"
+#include "settings.h"
+#include "getservices.h"
+#include "frontend_c.h"
+#include "satconfig.h"
 #include <connection/basicserver.h>
 #include <zapit/client/msgtypes.h>
-#include <zapit/frontend_c.h>
-#include <zapit/satconfig.h>
 #include <driver/abstime.h>
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/version.h>

@@ -27,15 +27,15 @@
 #include <sys/time.h>
 
 #include <zapit/client/zapitclient.h>
-#include <zapit/debug.h>
-#include <zapit/scan.h>
-#include <zapit/settings.h>
-#include <zapit/satconfig.h>
-#include <zapit/zapit.h>
+#include "debug.h"
+#include "scan.h"
+#include "settings.h"
+#include "satconfig.h"
+#include "zapit.h"
+#include "scansdt.h"
+#include "scannit.h"
+#include "scanbat.h"
 #include <xmlinterface.h>
-#include <zapit/scansdt.h>
-#include <zapit/scannit.h>
-#include <zapit/scanbat.h>
 #include <system/set_threadname.h>
 
 //#define USE_BAT

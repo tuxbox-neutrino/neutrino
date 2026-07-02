@@ -23,10 +23,10 @@
 
 #include <inttypes.h>
 #include <configfile.h>
-#include <zapit/types.h>
-#include <zapit/settings.h>
-#include <zapit/getservices.h>
-#include <zapit/frontend_c.h>
+#include "types.h"
+#include "settings.h"
+#include "getservices.h"
+#include "frontend_c.h"
 #include <map>
 
 #include <OpenThreads/ReentrantMutex>

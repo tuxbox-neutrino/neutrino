@@ -28,10 +28,10 @@
 #include <inttypes.h>
 #include <OpenThreads/Thread>
 
-#include <zapit/types.h>
-#include <zapit/channel.h>
-#include <zapit/satconfig.h>
-#include <zapit/frontend_types.h>
+#include "types.h"
+#include "channel.h"
+#include "satconfig.h"
+#include "frontend_types.h"
 #include <map>
 
 #define FEC_S2_QPSK_BASE (fe_code_rate_t)(FEC_AUTO+1)

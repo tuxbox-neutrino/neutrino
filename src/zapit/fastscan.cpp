@@ -23,13 +23,13 @@
 #include <unistd.h>
 
 #include <zapit/client/zapitclient.h>
-#include <zapit/debug.h>
-#include <zapit/settings.h>
-#include <zapit/types.h>
-#include <zapit/dvbstring.h>
-#include <zapit/satconfig.h>
-#include <zapit/scan.h>
-#include <zapit/zapit.h>
+#include "debug.h"
+#include "settings.h"
+#include "types.h"
+#include "dvbstring.h"
+#include "satconfig.h"
+#include "scan.h"
+#include "zapit.h"
 #include <hardware/dmx.h>
 #include <math.h>
 #include <eitd/edvbstring.h>

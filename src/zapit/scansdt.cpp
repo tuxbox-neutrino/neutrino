@@ -22,20 +22,19 @@
 #include <unistd.h>
 
 /* zapit */
-#include <zapit/debug.h>
-#include <zapit/scansdt.h>
-#include <zapit/scanpmt.h>
-#include <zapit/pat.h>
-
-#include <zapit/types.h>
-#include <zapit/zapit.h>
-#include <zapit/scan.h>
+#include "debug.h"
+#include "scansdt.h"
+#include "scanpmt.h"
+#include "pat.h"
+#include "types.h"
+#include "zapit.h"
+#include "scan.h"
 #include <hardware/dmx.h>
 
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/ca_identifier_descriptor.h>
 #include <eitd/edvbstring.h>
-#include <zapit/dvbstring.h>
+#include "dvbstring.h"
 
 #define DEBUG_SDT
 //#define DEBUG_SDT_UNUSED

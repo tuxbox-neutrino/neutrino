@@ -22,13 +22,13 @@
  *
  */
 
-#include <zapit/debug.h>
-#include <zapit/zapit.h>
-#include <zapit/femanager.h>
-#include <zapit/getservices.h>
-#include <zapit/settings.h>
-#include <zapit/satconfig.h>
-#include <zapit/capmt.h>
+#include "debug.h"
+#include "zapit.h"
+#include "femanager.h"
+#include "getservices.h"
+#include "settings.h"
+#include "satconfig.h"
+#include "capmt.h"
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>

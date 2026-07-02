@@ -20,9 +20,9 @@
  */
 
 #include <stdlib.h>
-#include <zapit/transponder.h>
-#include <zapit/frontend_c.h>
-#include <zapit/debug.h>
+#include "transponder.h"
+#include "frontend_c.h"
+#include "debug.h"
 
 transponder::transponder(const transponder_id_t t_id, const FrontendParameters p_feparams)
 {

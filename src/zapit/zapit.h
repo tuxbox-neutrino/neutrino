@@ -15,12 +15,12 @@
 
 #include <zapit/client/zapitclient.h>
 
-#include <zapit/channel.h>
-#include <zapit/bouquets.h>
-#include <zapit/femanager.h>
-#include <zapit/fastscan.h>
+#include "channel.h"
+#include "bouquets.h"
+#include "femanager.h"
+#include "fastscan.h"
 #if ENABLE_AITSCAN
-#include <zapit/scanait.h>
+#include "scanait.h"
 #endif
 
 #define PAL	0

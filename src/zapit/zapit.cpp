@@ -39,21 +39,21 @@
 #endif
 
 /* zapit headers */
-#include <zapit/capmt.h>
-#include <zapit/client/msgtypes.h>
-#include <zapit/debug.h>
-#include <zapit/getservices.h>
-#include <zapit/pat.h>
-#include <zapit/scanpmt.h>
-#include <zapit/scan.h>
-//#include <zapit/fastscan.h>
-#include <zapit/scansdt.h>
-#include <zapit/settings.h>
-#include <zapit/zapit.h>
+#include "capmt.h"
+#include "client/msgtypes.h"
+#include "debug.h"
+#include "getservices.h"
+#include "pat.h"
+#include "scanpmt.h"
+#include "scan.h"
+//#include "fastscan.h"
+#include "scansdt.h"
+#include "settings.h"
+#include "zapit.h"
 #include <xmlinterface.h>
 
-#include <zapit/satconfig.h>
-#include <zapit/femanager.h>
+#include "satconfig.h"
+#include "femanager.h"
 
 #if HAVE_CST_HARDWARE
 #include <record_cs.h>

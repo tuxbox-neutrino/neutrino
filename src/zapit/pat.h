@@ -23,7 +23,7 @@
 #ifndef __zapit_pat_h__
 #define __zapit_pat_h__
 
-#include <zapit/channel.h>
+#include "channel.h"
 #include <hardware/dmx.h>
 
 #define PAT_SECTION_SIZE 1024

@@ -22,10 +22,10 @@
 #include <unistd.h>
 
 /* zapit */
-#include <zapit/settings.h>
-#include <zapit/debug.h>
-#include <zapit/scanpmt.h>
-#include <zapit/scan.h>
+#include "settings.h"
+#include "debug.h"
+#include "scanpmt.h"
+#include "scan.h"
 #include <eitd/edvbstring.h>
 #include <hardware/dmx.h>
 

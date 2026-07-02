@@ -18,11 +18,11 @@
  *
  */
 
-#include <zapit/debug.h>
-#include <zapit/getservices.h>
+#include "debug.h"
+#include "getservices.h"
+#include "scannit.h"
+#include "scan.h"
 #include <hardware/dmx.h>
-#include <zapit/scannit.h>
-#include <zapit/scan.h>
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/network_name_descriptor.h>
 #include <dvbsi++/linkage_descriptor.h>

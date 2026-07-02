@@ -29,9 +29,9 @@
 #include <list>
 #include <string>
 
-#include <zapit/femanager.h>
-#include <zapit/getservices.h>
-#include <zapit/fastscan.h>
+#include "femanager.h"
+#include "getservices.h"
+#include "fastscan.h"
 #include "bouquets.h"
 #include <OpenThreads/Thread>
 

@@ -23,11 +23,11 @@
 
 #include <stdio.h>
 /* zapit */
-#include <zapit/capmt.h>
-#include <zapit/settings.h> /* CAMD_UDS_NAME         */
-#include <zapit/getservices.h>
-#include <zapit/femanager.h>
-#include <zapit/debug.h>
+#include "capmt.h"
+#include "settings.h" /* CAMD_UDS_NAME         */
+#include "getservices.h"
+#include "femanager.h"
+#include "debug.h"
 
 #include <hardware/ca.h>
 

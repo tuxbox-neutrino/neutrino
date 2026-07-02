@@ -26,12 +26,12 @@
 
 #include <eventserver.h>
 
-#include <zapit/types.h>
+#include "types.h"
+#include "channel.h"
+#include "bouquets.h"
+#include "satconfig.h"
+#include "transponder.h"
 #include <xmltree/xmlinterface.h>
-#include <zapit/channel.h>
-#include <zapit/bouquets.h>
-#include <zapit/satconfig.h>
-#include <zapit/transponder.h>
 
 #include <map>
 #include <list>

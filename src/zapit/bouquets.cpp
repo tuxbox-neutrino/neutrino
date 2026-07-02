@@ -44,11 +44,11 @@
 #include <system/helpers.h>
 #include <system/set_threadname.h>
 
-#include <zapit/bouquets.h>
-#include <zapit/debug.h>
-#include <zapit/getservices.h>
-#include <zapit/settings.h>
-#include <zapit/zapit.h>
+#include "bouquets.h"
+#include "debug.h"
+#include "getservices.h"
+#include "settings.h"
+#include "zapit.h"
 #include <xmlinterface.h>
 
 #define M3U_START_MARKER	"#EXTM3U"

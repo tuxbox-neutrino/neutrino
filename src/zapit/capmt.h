@@ -24,9 +24,9 @@
 #define __capmt_h__
 
 #include <basicclient.h>
-#include "types.h"
 #include <OpenThreads/Mutex>
-#include <zapit/channel.h>
+#include "channel.h"
+#include "types.h"
 #include <dvbsi++/ca_program_map_section.h>
 
 #include <hardware/dmx.h>

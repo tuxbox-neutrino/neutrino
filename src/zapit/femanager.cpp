@@ -34,13 +34,13 @@
 #include <ctype.h>
 #include <set>
 
-#include <zapit/debug.h>
-#include <zapit/channel.h>
-#include <zapit/getservices.h>
-#include <zapit/zapit.h>
-#include <zapit/client/zapittools.h>
-#include <zapit/femanager.h>
-#include <zapit/capmt.h>
+#include "debug.h"
+#include "channel.h"
+#include "getservices.h"
+#include "zapit.h"
+#include "client/zapittools.h"
+#include "femanager.h"
+#include "capmt.h"
 #include <hardware/dmx.h>
 #include <OpenThreads/ScopedLock>
 
