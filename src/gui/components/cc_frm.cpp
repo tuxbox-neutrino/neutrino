@@ -116,7 +116,9 @@ int CComponentsForm::exec()
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	int res = menu_return::RETURN_REPAINT;
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(-1);
+	// use the configured menu timeout: calcTimeoutEnd(-1) would wrap to a
+	// timestamp in the past and turn the loop below into a 100 µs busy-poll
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	//allow exec loop
 	bool cancel_exec = false;
@@ -127,6 +129,10 @@ int CComponentsForm::exec()
 	while (!cancel_exec)
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+
+		//restart the timeout on user activity, like CMenuWidget does
+		if (msg <= CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		//execute connected slots
 		OnExec(msg, data, res, cancel_exec);
