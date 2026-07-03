@@ -1475,33 +1475,15 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		break;
 	case FEC_2_3:
 		fec = FEC_2_3;
-		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
-#if BOXMODEL_VUPLUS_ARM
-			pilot = PILOT_AUTO;
-#else
-			pilot = PILOT_ON;
-#endif
 		break;
 	case FEC_3_4:
 		fec = FEC_3_4;
-		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
-#if BOXMODEL_VUPLUS_ARM
-			pilot = PILOT_AUTO;
-#else
-			pilot = PILOT_ON;
-#endif
 		break;
 	case FEC_4_5:
 		fec = FEC_4_5;
 		break;
 	case FEC_5_6:
 		fec = FEC_5_6;
-		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
-#if BOXMODEL_VUPLUS_ARM
-			pilot = PILOT_AUTO;
-#else
-			pilot = PILOT_ON;
-#endif
 		break;
 	case FEC_6_7:
 		fec = FEC_6_7;
@@ -1514,12 +1496,6 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		break;
 	case FEC_3_5:
 		fec = FEC_3_5;
-		if ((getFEDeliverySystem(feparams->delsys) == SYS_DVBS2) && feparams->modulation == PSK_8)
-#if BOXMODEL_VUPLUS_ARM
-			pilot = PILOT_AUTO;
-#else
-			pilot = PILOT_ON;
-#endif
 		break;
 	case FEC_9_10:
 		fec = FEC_9_10;
