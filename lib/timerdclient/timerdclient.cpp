@@ -441,11 +441,15 @@ bool CTimerdClient::shutdown()
 {
 	send(CTimerdMsg::CMD_SHUTDOWN);
 
+	/* the received reply is what matters: it proves timerd processed
+	   CMD_SHUTDOWN and its server loop exits; response.status only says
+	   whether the manager saved its state cleanly. Without a reply (e.g.
+	   socket gone) response would stay uninitialized anyway. */
 	CTimerdMsg::responseStatus response;
-	receive_data((char*)&response, sizeof(response));
+	bool delivered = receive_data((char*)&response, sizeof(response));
 
 	close_connection();
-	return response.status;
+	return delivered;
 }
 //-------------------------------------------------------------------------
 void CTimerdClient::modifyTimerAPid(int eventid, unsigned char apids)

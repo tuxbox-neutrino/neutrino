@@ -5828,10 +5828,16 @@ void stop_daemons(bool stopall, bool for_flash)
 	printf("streaming shutdown done\n");
 	if(stopall || for_flash) {
 		printf("timerd shutdown\n");
+		/* without a delivered CMD_SHUTDOWN the timerd thread stays in its
+		   accept loop and pthread_join blocks forever (e.g. after a second
+		   instance unlinked /tmp/timerd.sock) */
+		bool timerd_stopped = false;
 		if (g_Timerd)
-			g_Timerd->shutdown();
-		if (timerd_thread_started)
+			timerd_stopped = g_Timerd->shutdown();
+		if (timerd_thread_started && timerd_stopped)
 			pthread_join(timer_thread, NULL);
+		else if (timerd_thread_started)
+			printf("timerd shutdown: no reply, not joining timer thread\n");
 		printf("timerd shutdown done\n");
 	}
 #ifndef DISABLE_SECTIONSD
