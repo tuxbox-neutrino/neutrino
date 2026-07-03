@@ -31,7 +31,7 @@ jobs:
         id: setup
         uses: ./.github/actions/setup-tagit
 
-      - name: Bump configure.ac micro version
+      - name: Bump or start monthly version line
         run: |
           set -euo pipefail
 
@@ -39,38 +39,72 @@ jobs:
           ver_minor="${{ steps.setup.outputs.ver_minor }}"
           ver_micro="${{ steps.setup.outputs.ver_micro }}"
 
-          anchor_tag="v${ver_major}.${ver_minor}"
-          if ! git rev-parse -q --verify "refs/tags/${anchor_tag}" >/dev/null; then
-            echo "::error::Missing version line tag ${anchor_tag}. Run the version-line workflow first."
-            exit 1
-          fi
+          # Calendar version line: major = year, minor = month (non-padded 1..12).
+          cur_year="$(date -u +%Y)"
+          cur_month="$(date -u +%-m)"
 
-          commit_count=$(git rev-list --count "${anchor_tag}"..HEAD)
-          target_patch=$((commit_count + 1))
-          echo "Bumping configure.ac from ${ver_major}.${ver_minor}.${ver_micro} to ${ver_major}.${ver_minor}.${target_patch}"
+          before_head="$(git rev-parse HEAD)"
 
-          before_head=$(git rev-parse HEAD)
-          python /tmp/tagit.py \
-            -f configure.ac \
-            --scheme-file tagit-config.json \
-            --version-mode increment \
-            --tag-format "v{major}.{minor}.{patch}" \
-            --major "$ver_major" \
-            --minor "$ver_minor" \
-            --patch "$target_patch" \
-            --no-tag
-
-          after_head=$(git rev-parse HEAD)
-          if [ "$after_head" != "$before_head" ]; then
-            git reset --soft "$before_head"
-          fi
-
-      - name: Commit and push changes
-        run: |
-          git add configure.ac
-          git diff --cached --quiet && {
-            echo "No changes to commit"
-            exit 0
+          # Write configure.ac to <major>.<minor>.<patch> without letting tagit tag/commit.
+          write_configure() {
+            python /tmp/tagit.py \
+              -f configure.ac \
+              --scheme-file tagit-config.json \
+              --version-mode increment \
+              --tag-format "v{major}.{minor}.{patch}" \
+              --major "$1" \
+              --minor "$2" \
+              --patch "$3" \
+              --no-tag
+            after_head="$(git rev-parse HEAD)"
+            if [ "$after_head" != "$before_head" ]; then
+              git reset --soft "$before_head"
+            fi
           }
-          git commit -m "build (ci): bump configure.ac version [skip ci]"
-          git push origin HEAD:${GITHUB_REF_NAME}
+
+          if [ "$ver_major" != "$cur_year" ] || [ "$ver_minor" != "$cur_month" ]; then
+            # A new calendar month (or year) started: begin a fresh version line.
+            new_tag="v${cur_year}.${cur_month}"
+            echo "Starting new version line ${new_tag} (was ${ver_major}.${ver_minor}.${ver_micro})"
+
+            write_configure "$cur_year" "$cur_month" 0
+
+            git add configure.ac
+            if ! git diff --cached --quiet; then
+              git commit -m "build (ci): start ${new_tag} version line [skip ci]"
+            else
+              echo "configure.ac already at ${cur_year}.${cur_month}.0"
+            fi
+
+            pushed_tag=""
+            if ! git rev-parse -q --verify "refs/tags/${new_tag}" >/dev/null; then
+              git tag -a "${new_tag}" -m "Start ${new_tag} version line"
+              pushed_tag="${new_tag}"
+            fi
+
+            git push origin HEAD:${GITHUB_REF_NAME}
+            if [ -n "${pushed_tag}" ]; then
+              git push origin "${pushed_tag}"
+            fi
+          else
+            # Same month: routine micro bump from the current line anchor.
+            anchor_tag="v${ver_major}.${ver_minor}"
+            if ! git rev-parse -q --verify "refs/tags/${anchor_tag}" >/dev/null; then
+              echo "::error::Missing version line tag ${anchor_tag}. Run the version-line workflow first."
+              exit 1
+            fi
+
+            commit_count="$(git rev-list --count "${anchor_tag}"..HEAD)"
+            target_patch="$((commit_count + 1))"
+            echo "Bumping configure.ac from ${ver_major}.${ver_minor}.${ver_micro} to ${ver_major}.${ver_minor}.${target_patch}"
+
+            write_configure "$ver_major" "$ver_minor" "$target_patch"
+
+            git add configure.ac
+            if git diff --cached --quiet; then
+              echo "No changes to commit"
+              exit 0
+            fi
+            git commit -m "build (ci): bump configure.ac version [skip ci]"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
