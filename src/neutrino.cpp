@@ -188,6 +188,10 @@ t_channel_id standby_channel_id = 0;
 //NEW
 static pthread_t timer_thread;
 static bool timerd_thread_started = false;
+/* set once teardown (ExitRun/stop_daemons) has started; checked by sighandler()
+   so a SIGTERM/SIGINT arriving during shutdown cannot run the teardown twice
+   and double-delete the singletons */
+static volatile sig_atomic_t shutdown_in_progress = 0;
 extern void *timerd_main_thread(void *data);
 extern void *nhttpd_main_thread(void *data);
 
@@ -4880,6 +4884,8 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	if (!do_exiting)
 		return;
 
+	shutdown_in_progress = 1;
+
 #if 0
 	/*
 	   For compatibility: /tmp/.reboot is not really needed anymore
@@ -5784,6 +5790,7 @@ void CNeutrinoApp::stopDaemonsForFlash()
 **************************************************************************************/
 void stop_daemons(bool stopall, bool for_flash)
 {
+	shutdown_in_progress = 1;
 	CMoviePlayerGui::getInstance().stopPlayBack();
 	if (for_flash)
 	{
@@ -5908,6 +5915,13 @@ void sighandler (int signum)
 	switch (signum) {
 	case SIGTERM:
 	case SIGINT:
+		if (shutdown_in_progress) {
+			/* teardown is already running (ExitRun or an earlier signal);
+			   running it again double-deletes the singletons */
+			fflush(NULL);
+			_exit(CNeutrinoApp::EXIT_NORMAL);
+		}
+		shutdown_in_progress = 1;
 		CVFD::getInstance()->ShowText("Exiting ...");
 		CNeutrinoApp::getInstance()->OnShutDown();
 		CProgressBarCache::pbcClear();
@@ -5920,7 +5934,10 @@ void sighandler (int signum)
 		delete SHTDCNT::getInstance();
 		stop_video();
 		clearUsermenuConfig();
-		exit(CNeutrinoApp::EXIT_NORMAL);
+		/* _exit() like at the end of ExitRun(): worker threads are still
+		   alive, the atexit/static-destructor pass would crash in them */
+		fflush(NULL);
+		_exit(CNeutrinoApp::EXIT_NORMAL);
 	default:
 		break;
 	}
