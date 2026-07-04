@@ -104,3 +104,4 @@ oe-workdir
 
 ### internal tool fallout
 *.locale-work
+doc/nhttpd/doxygen/

@@ -1,0 +1,41 @@
+/*!
+\page apiv4 Neutrino Web-API v4 (/api/v4/)
+
+\section apiv4_intro Grundlagen
+
+- Basis-URL: `http://<box>/api/v4/<endpoint>`
+- Ausgabe: immer JSON (kein `format`-Parameter noetig)
+- Fehler: HTTP-Status + JSON-Objekt
+  `{"success": "false", "error":{"msg": "..."}}`
+- Vertragsregel: additive Aenderungen innerhalb v4 erlaubt,
+  Breaking Changes erst mit /api/v5.
+- Query-Parameter sind identisch zur Legacy-API (siehe Mapping).
+
+\section apiv4_mapping Endpoint-Mapping v4 &harr; Legacy
+
+| v4-Endpoint | ersetzt/entspricht (Legacy) | Handler |
+|---|---|---|
+| `/api/v4/sysinfo` | `/control/sysinfo` | CControlAPI::SysInfoCGI |
+| `/api/v4/paths` | `/control/paths` | CControlAPI::PathsCGI |
+| `/api/v4/boxinfo` | `/control/boxinfo?format=json` | CControlAPI::BoxInfoCGI |
+| `/api/v4/signal` | `/control/signal?format=json` | CControlAPI::SignalInfoCGI |
+| `/api/v4/tuners` | `/control/tuners?format=json` | CControlAPI::TunersCGI |
+| `/api/v4/mode` | `/control/getmode?format=json` | CControlAPI::GetModeCGI |
+| `/api/v4/volume` | `/control/volume?format=json` | CControlAPI::VolumeCGI |
+| `/api/v4/bouquets` | `/control/getbouquets?format=json` | CControlAPI::GetBouquetsCGI |
+| `/api/v4/bouquet?bouquet=N` | `/control/getbouquet?bouquet=N&format=json` | CControlAPI::GetBouquetCGI |
+| `/api/v4/channel` | `/control/getchannel?format=json` | CControlAPI::GetChannelCGI |
+| `/api/v4/channellist` | `/control/channellist?format=json` | CControlAPI::ChannellistCGI |
+| `/api/v4/zapto` | `/control/zapto?format=json` | CControlAPI::ZaptoCGI |
+| `/api/v4/epg` | `/control/epg?format=json` | CControlAPI::EpgCGI |
+| `/api/v4/epgsearch` | `/control/epgsearch?format=json` | CControlAPI::EpgSearchCGI |
+| `/api/v4/timer` | `/control/timer?format=json` | CControlAPI::TimerCGI |
+| `/api/v4/config` | `/control/config?format=json` | CControlAPI::ConfigCGI |
+| `/api/v4/file` | `/control/file?format=json` | CControlAPI::FileCGI |
+| `/api/v4/statfs` | `/control/statfs?format=json` | CControlAPI::StatfsCGI |
+| `/api/v4/getdir` | `/control/getdir?format=json` | CControlAPI::getDirCGI |
+| `/api/v4/getmovies` | `/control/getmovies?format=json` | CControlAPI::getMoviesCGI |
+
+Details je Endpoint (Parameter, Beispiel-Output) stehen an den verlinkten
+Handlern (Konvention `@par nhttpd-usage` / `@par output (json)`).
+*/
