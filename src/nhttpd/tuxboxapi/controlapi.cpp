@@ -154,6 +154,7 @@ THandleStatus CControlAPI::Hook_PrepareResponse(CyhookHandler *hh)
 	if(hh->UrlData["path"] == "/control/"
 			|| hh->UrlData["path"] == "/cgi-bin/"
 			|| hh->UrlData["path"] == "/fb/"
+			|| hh->UrlData["path"] == "/api/v4/"
 	  )
 		return HANDLED_READY;
 	else
@@ -173,6 +174,8 @@ THandleStatus CControlAPI::Hook_SendResponse(CyhookHandler *hh)
 	if(hh->UrlData["path"] == "/control/"
 			|| hh->UrlData["path"] == "/cgi-bin/")
 		Execute(hh);
+	if(hh->UrlData["path"] == "/api/v4/")
+		ExecuteV4(hh);
 	if(hh->UrlData["path"] == "/fb/")		// fb-compatibility for timer-calls
 		compatibility_Timer(hh);
 //	log_level_printfX(4,"CControlAPI hook ende status:%d\n",(int)hh->status);
@@ -303,6 +306,50 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"getdir",		&CControlAPI::getDirCGI,		"+xml"},
 	{"getmovies",		&CControlAPI::getMoviesCGI,		"+xml"}
 };
+
+//-----------------------------------------------------------------------------
+// API v4 dispatcher table (/api/v4/<name>) — always JSON.
+// Reuses the existing CGI handlers; JSON is enforced in ExecuteV4().
+//-----------------------------------------------------------------------------
+const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
+{
+	{"sysinfo",		&CControlAPI::SysInfoCGI,		"application/json"},
+};
+
+//-----------------------------------------------------------------------------
+// Main Dispatcher for /api/v4/ — always JSON, own table, JSON errors
+//-----------------------------------------------------------------------------
+void CControlAPI::ExecuteV4(CyhookHandler *hh)
+{
+	std::string filename = hh->UrlData["filename"];
+	for (unsigned int i = 0; i < filename.length(); i++)
+		filename[i] = tolower(filename[i]);
+	func_req = filename;
+
+	// force JSON: reused handlers resolve outType via ParamList["format"]
+	hh->ParamList["format"] = "json";
+
+	int index = -1;
+	for (unsigned int i = 0; i < (sizeof(yCgiCallListV4)/sizeof(yCgiCallListV4[0])); i++)
+		if (func_req == yCgiCallListV4[i].func_name)
+		{
+			index = i;
+			break;
+		}
+
+	if (index == -1)
+	{
+		hh->SetHeader(HTTP_NOT_FOUND, "application/json; charset=UTF-8", HANDLED_READY);
+		hh->WriteLn("{\"success\": \"false\", \"error\":{\"msg\": \"unknown endpoint\", \"endpoint\": \"" + func_req + "\"}}");
+		return;
+	}
+
+	hh->SetHeader(HTTP_OK, yCgiCallListV4[index].mime_type);
+	hh->status = HANDLED_READY;
+	if (hh->Method == M_HEAD)
+		return;
+	(this->*yCgiCallListV4[index].pfunc)(hh);
+}
 //-----------------------------------------------------------------------------
 // The known half of /api/v1/system/legacy-usage: the dispatch table's own
 // names, in its own order, so the two cannot go out of step. Defined below

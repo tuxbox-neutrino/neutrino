@@ -223,7 +223,9 @@ TEST_CASE("the api header states the length for HEAD and appends no page to a re
 
 TEST_CASE("the legacy header is what it was", "[nhttpd]")
 {
-	CyhookHandler hh = apiHandler(M_GET, HTTP_NOT_FOUND, "ignored");
+	/* Every legacy 404 (mod_sendfile, a script error) comes with an empty
+	   body and keeps announcing a length of 0. */
+	CyhookHandler hh = apiHandler(M_GET, HTTP_NOT_FOUND, "");
 	hh.api_mode = false;
 	hh.ResponseHeaders.push_back(std::make_pair("Cache-Control", "no-store"));
 	hh.UrlData["fileext"] = "gz";
@@ -234,6 +236,19 @@ TEST_CASE("the legacy header is what it was", "[nhttpd]")
 	CHECK(countOf(header, "Cache-Control: no-cache\r\n") == 1);
 	CHECK(countOf(header, "Cache-Control: no-store") == 0);
 	CHECK(countOf(header, "Content-Encoding: gzip\r\n") == 1);
+}
+
+TEST_CASE("a legacy 404 with a body states its length", "[nhttpd]")
+{
+	/* The JSON error objects of /api/v4 are 404s with a body; a length of
+	   0 would make clients drop them. */
+	CyhookHandler hh = apiHandler(M_GET, HTTP_NOT_FOUND, "{\"x\":1}");
+	hh.api_mode = false;
+
+	const std::string header = hh.BuildHeader();
+
+	CHECK(countOf(header, "Content-Length: 7\r\n") == 1);
+	CHECK(countOf(header, "Content-Length: 0\r\n") == 0);
 }
 
 TEST_CASE("ReceiveExact reads the bytes it was promised and no more", "[nhttpd]")

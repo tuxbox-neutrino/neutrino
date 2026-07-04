@@ -29,6 +29,7 @@ private:
 		const char *mime_type;
 	} TyCgiCall;
 	const static TyCgiCall yCgiCallList[];
+	const static TyCgiCall yCgiCallListV4[];
 
 	struct FileCGI_List
 	{
@@ -159,6 +160,7 @@ protected:
 
 	void init(CyhookHandler *hh);
 	void Execute(CyhookHandler *hh);
+	void ExecuteV4(CyhookHandler *hh);
 
 public:
 	static const unsigned int PLUGIN_DIR_COUNT = 9;
