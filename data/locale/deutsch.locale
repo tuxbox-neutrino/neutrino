@@ -1550,7 +1550,7 @@ menu.hint_net_dropbear Aktivieren Sie SSH Zugriff zur Box
 menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Geben Sie die Gateway-Adresse des Routers ein
 menu.hint_net_hostname Ändern Sie den Hostnamen der Box
-menu.hint_net_httpd Webinterface (nhttpd) konfigurieren
+menu.hint_net_httpd Webserver (nhttpd) konfigurieren
 menu.hint_net_httpd_auth Anmeldung für das Webinterface erzwingen
 menu.hint_net_httpd_host Bind-Adresse oder Host\n(leer oder 0.0.0.0 für alle)
 menu.hint_net_httpd_loglevel Log-Level des Webservers
@@ -2248,7 +2248,7 @@ networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname
 networkmenu.hostname_hint1 Geben sie den Hostnamen ein
 networkmenu.hostname_hint2 Eine Änderung benötigt einen Neustart
-networkmenu.httpd Webinterface (nhttpd)
+networkmenu.httpd Webserver (nhttpd)
 networkmenu.httpd_port Port
 networkmenu.httpd_host Bind-Adresse
 networkmenu.httpd_auth Authentifizierung

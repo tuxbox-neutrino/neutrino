@@ -1550,7 +1550,7 @@ menu.hint_net_dropbear Enable ssh access to the box
 menu.hint_net_ftpd Enable file transfer using FTP
 menu.hint_net_gateway Enter gateway/router IP address
 menu.hint_net_hostname Change your box hostname
-menu.hint_net_httpd Configure the web interface (nhttpd)
+menu.hint_net_httpd Configure the web server (nhttpd)
 menu.hint_net_httpd_auth Require login for the web interface
 menu.hint_net_httpd_host Bind address or host\n(leave empty or 0.0.0.0 for all)
 menu.hint_net_httpd_loglevel Set the web server log verbosity
@@ -2248,7 +2248,7 @@ networkmenu.gateway Gateway
 networkmenu.hostname Hostname
 networkmenu.hostname_hint1 Enter hostname
 networkmenu.hostname_hint2 Need reboot after change
-networkmenu.httpd Web Interface (nhttpd)
+networkmenu.httpd Web server (nhttpd)
 networkmenu.httpd_port Port
 networkmenu.httpd_host Bind address
 networkmenu.httpd_auth Authentication

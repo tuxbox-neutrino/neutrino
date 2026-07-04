@@ -1095,7 +1095,7 @@ menu.hint_net_dropbear Activeer ssh toegang naar de box
 menu.hint_net_ftpd Bestandsoverdracht via FTP inschakelen
 menu.hint_net_gateway Gateway/router IP adres invoeren
 menu.hint_net_hostname Wijzig de hostnaam van uw ontvanger
-menu.hint_net_httpd Webinterface (nhttpd) instellen
+menu.hint_net_httpd Webserver (nhttpd) instellen
 menu.hint_net_httpd_auth Aanmelden verplicht voor het webinterface
 menu.hint_net_httpd_host Bind-adres of host\n(leeg of 0.0.0.0 voor alles)
 menu.hint_net_httpd_loglevel Logniveau van de webserver
@@ -1666,7 +1666,7 @@ networkmenu.gateway Standaard gateway
 networkmenu.hostname Hostnaam
 networkmenu.hostname_hint1 Hostnaam invoeren
 networkmenu.hostname_hint2 Opnieuw opstarten na wijzigingen
-networkmenu.httpd Webinterface (nhttpd)
+networkmenu.httpd Webserver (nhttpd)
 networkmenu.httpd_port Poort
 networkmenu.httpd_host Bind-adres
 networkmenu.httpd_auth Authenticatie
