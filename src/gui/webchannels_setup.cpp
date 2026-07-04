@@ -38,6 +38,7 @@
 #include <gui/widget/keyboard_input.h>
 #include <gui/widget/menue_options.h>
 #include <zapit/zapit.h>
+#include <zapit/bouquets.h>
 #include <neutrino_menue.h>
 #include "webchannels_setup.h"
 
@@ -46,6 +47,8 @@
 #include <set>
 #include <stdlib.h>
 #include <system/helpers.h>
+
+extern CBouquetManager *g_bouquetManager;
 
 const CMenuOptionChooser::keyval_ext LIVESTREAM_RESOLUTION_OPTIONS[] =
 {
@@ -318,6 +321,7 @@ int CWebChannelsSetup::Show()
 			CZapit::getInstance()->SetWebRadioXML(&g_settings.webradio_xml);
 		else
 			CZapit::getInstance()->SetWebTVXML(&g_settings.webtv_xml);
+		g_bouquetManager->setWebchannelsReloadReason("manual_menu");
 		g_Zapit->reinitChannels();
 		CNeutrinoApp::getInstance()->xmltv_xml_auto_readepg();
 		changed = false;

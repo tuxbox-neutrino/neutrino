@@ -2249,6 +2249,8 @@ void CControlAPI::ReloadChannelsCGI(CyhookHandler *hh)
 {
 	if(hh->ParamList["hardreload"].empty())
 		CServiceManager::getInstance()->SaveServices(true, true);
+	if (g_bouquetManager)
+		g_bouquetManager->setWebchannelsReloadReason(hh->ParamList["hardreload"].empty() ? "webif_reload" : "webif_hardreload");
 	NeutrinoAPI->Zapit->reinitChannels();
 	CNeutrinoApp::getInstance()->SDTreloadChannels = false;
 	hh->SendOk();

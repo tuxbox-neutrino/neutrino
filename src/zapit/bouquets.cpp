@@ -25,6 +25,8 @@
  *
  */
 
+#include <config.h>
+
 #include <map>
 #include <set>
 
@@ -43,6 +45,8 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <system/helpers.h>
 #include <system/set_threadname.h>
+
+#include <OpenThreads/ScopedLock>
 
 #include "bouquets.h"
 #include "debug.h"
@@ -556,6 +560,12 @@ void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 	}
 
 	CNeutrinoApp::getInstance()->g_settings_xmltv_xml_auto_clear();
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> lock(webchannels_reason_mutex);
+		webchannels_active_reason = webchannels_reload_reason;
+		webchannels_reload_reason = "reinit";
+	}
+	webchannels_failed_downloads = 0;
 	loadWebtv();
 	loadWebradio();
 	parseBouquetsXml(UBOUQUETS_XML, true);
@@ -882,26 +892,169 @@ void CBouquetManager::loadWebradio()
 	loadWebchannels(MODE_WEBRADIO);
 }
 
-void CBouquetManager::loadWebchannels(int mode)
+void CBouquetManager::setWebchannelsReloadReason(const std::string &reason)
 {
-	std::list<std::string> *webchannels_xml = (mode == MODE_WEBTV) ? CZapit::getInstance()->GetWebTVXML() : CZapit::getInstance()->GetWebRadioXML();
-	if (!webchannels_xml)
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(webchannels_reason_mutex);
+	webchannels_reload_reason = reason;
+}
+
+/*
+ * Normalize a directory path for exact comparison: resolve symlinks
+ * when possible, otherwise just strip trailing slashes.
+ */
+static std::string webchannelDirKey(const std::string &dir)
+{
+	char resolved[PATH_MAX];
+	if (realpath(dir.c_str(), resolved))
+		return resolved;
+
+	std::string normalized = dir;
+	while (normalized.length() > 1 && normalized[normalized.length() - 1] == '/')
+		normalized.erase(normalized.length() - 1);
+	return normalized;
+}
+
+/*
+ * A source entry counts as auto-dir entry only if its parent directory
+ * IS one of the auto directories; subdirectories and lookalike sibling
+ * paths stay manual sources.
+ */
+static bool isWebchannelAutoDirEntry(const std::string &entry, const std::string &dir_key0, const std::string &dir_key1)
+{
+	if (entry.empty() || entry[0] != '/')
+		return false;
+
+	std::string::size_type pos = entry.find_last_of('/');
+	if (pos == std::string::npos || pos == 0)
+		return false;
+
+	std::string parent = webchannelDirKey(entry.substr(0, pos));
+	return (parent == dir_key0) || (parent == dir_key1);
+}
+
+// same file types the WebTV/WebRadio setup menu scans (webchannels_setup.cpp)
+static int webchannelAutoFileFilter(const struct dirent *entry)
+{
+	int len = strlen(entry->d_name);
+	if (len > 3 && (
+		   (entry->d_name[len - 3] == 'x' && entry->d_name[len - 2] == 'm' && entry->d_name[len - 1] == 'l')
+		|| (entry->d_name[len - 3] == 'm' && entry->d_name[len - 2] == '3' && entry->d_name[len - 1] == 'u')
+		|| (                                 entry->d_name[len - 2] == 't' && entry->d_name[len - 1] == 'v')
+		)
+	)
+		return 1;
+	return 0;
+}
+
+/*
+ * Build the effective source list for one reload pass: manual/remote
+ * sources from the configured list plus a fresh scan of the auto
+ * directories. Works on a zapit-local list only; the GUI-owned
+ * g_settings source lists are never written here.
+ */
+static void buildWebchannelSources(int mode, std::list<std::string> &sources)
+{
+	const char *dirs[2];
+	bool auto_enabled;
+	std::list<std::string> *cfg;
+
+	if (mode == MODE_WEBTV)
+	{
+		dirs[0] = WEBTVDIR_VAR;
+		dirs[1] = WEBTVDIR;
+		auto_enabled = g_settings.webtv_xml_auto;
+		cfg = CZapit::getInstance()->GetWebTVXML();
+	}
+	else
+	{
+		dirs[0] = WEBRADIODIR_VAR;
+		dirs[1] = WEBRADIODIR;
+		auto_enabled = g_settings.webradio_xml_auto;
+		cfg = CZapit::getInstance()->GetWebRadioXML();
+	}
+
+	std::string dir_keys[2] = { webchannelDirKey(dirs[0]), webchannelDirKey(dirs[1]) };
+
+	if (cfg)
+	{
+		for (std::list<std::string>::iterator it = cfg->begin(); it != cfg->end(); ++it)
+		{
+			if (!isWebchannelAutoDirEntry(*it, dir_keys[0], dir_keys[1]))
+				sources.push_back(*it);
+		}
+	}
+
+	if (!auto_enabled)
 		return;
 
+	struct dirent **filelist;
+	char webchannel_file[1024] = {0};
+	std::set<std::string> scanned_dirs;
+	for (int i = 0; i < 2; i++)
+	{
+		/* static and var dir may collapse to the same directory */
+		if (!scanned_dirs.insert(dir_keys[i]).second)
+			continue;
+
+		int file_count = scandir(dirs[i], &filelist, webchannelAutoFileFilter, alphasort);
+		if (file_count < 0)
+			continue;
+
+		for (int count = 0; count < file_count; count++)
+		{
+			snprintf(webchannel_file, sizeof(webchannel_file), "%s/%s", dirs[i], filelist[count]->d_name);
+			if (file_size(webchannel_file))
+			{
+				/* same basename means same list, may be shipped in both
+				   auto dirs or configured manually (see webchannels_auto) */
+				bool found = false;
+				for (std::list<std::string>::iterator it = sources.begin(); it != sources.end(); ++it)
+				{
+					std::string base = *it;
+					std::string::size_type pos = base.find_last_of('/');
+					if (pos != std::string::npos)
+						base = base.substr(pos + 1);
+					found |= (base == filelist[count]->d_name);
+				}
+				if (!found)
+					sources.push_back(webchannel_file);
+			}
+			free(filelist[count]);
+		}
+		free(filelist);
+	}
+}
+
+void CBouquetManager::loadWebchannels(int mode)
+{
+	const char *tag = (mode == MODE_WEBTV) ? "webtv" : "webradio";
+	std::list<std::string> webchannels_sources;
+	buildWebchannelSources(mode, webchannels_sources);
+
+	int sources_total = 0, sources_loaded = 0, sources_failed = 0, sources_skipped = 0;
+	int sources_failed_download = 0;
+	int channels_total = 0;
+	INFO("[webchannels] reload start reason=%s mode=%s sources=%d", webchannels_active_reason.c_str(), tag, (int)webchannels_sources.size());
+
 	std::set<std::string> loaded_sources;
-	for (std::list<std::string>::iterator it = webchannels_xml->begin(); it != webchannels_xml->end(); ++it)
+	for (std::list<std::string>::iterator it = webchannels_sources.begin(); it != webchannels_sources.end(); ++it)
 	{
 		std::string filename = (*it);
+		sources_total++;
 		std::string source_key = normalizeWebchannelSource(filename);
 		if (!loaded_sources.insert(source_key).second)
 		{
-			INFO("Skipping duplicate %s source %s", (mode == MODE_WEBTV) ? "webtv" : "webradio", filename.c_str());
+			sources_skipped++;
+			INFO("Skipping duplicate %s source %s", tag, filename.c_str());
 			continue;
 		}
 
 		std::string extension = getFileExt(filename);
 		std::string tmp_name = randomFile(extension, LOGODIR_TMP);
 		bool remove_tmp = false;
+		bool ok = true;
+		const char *fail_reason = "";
+		int source_channels = 0;
 
 		if (filename.compare(0, 1, "/") == 0)
 			tmp_name = filename;
@@ -909,11 +1062,28 @@ void CBouquetManager::loadWebchannels(int mode)
 		{
 			if (::downloadUrl(filename, tmp_name))
 				remove_tmp = true;
+			else
+			{
+				ok = false;
+				fail_reason = "download";
+				sources_failed_download++;
+			}
 		}
 
-		if (!access(tmp_name.c_str(), R_OK))
+		if (ok && access(tmp_name.c_str(), R_OK))
 		{
-			INFO("Loading %s from %s ...", (mode == MODE_WEBTV) ? "webtv" : "webradio", filename.c_str());
+			ok = false;
+			fail_reason = "unreadable";
+		}
+		if (ok && !file_size(tmp_name.c_str()))
+		{
+			ok = false;
+			fail_reason = "empty";
+		}
+
+		if (ok)
+		{
+			INFO("Loading %s from %s ...", tag, filename.c_str());
 
 			// check for extension
 			bool xml = false;
@@ -927,11 +1097,21 @@ void CBouquetManager::loadWebchannels(int mode)
 			if (strcasecmp("tv", extension.c_str()) == 0)
 				e2tv = true;
 
+			if (!xml && !m3u && !e2tv)
+			{
+				ok = false;
+				fail_reason = "unknown-extension";
+			}
+
 			if (xml)
 			{
 				xmlDocPtr parser = parseXmlFile(tmp_name.c_str());
 				if (parser == NULL)
-					continue;
+				{
+					ok = false;
+					fail_reason = "xml-parse";
+					goto webchannel_done;
+				}
 
 				xmlNodePtr l0 = xmlDocGetRootElement(parser);
 				xmlNodePtr l1 = xmlChildrenNode(l0);
@@ -994,6 +1174,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							if (epg_id == 0) epg_id = chid;
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc, epg_id, script, mode);
 							CServiceManager::getInstance()->AddChannel(channel);
+							source_channels++;
 							//remapping epg_id
 							t_channel_id new_epgid = reMapEpgID(chid);
 							if(new_epgid)
@@ -1149,6 +1330,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, url, desc.c_str(), chid, script.c_str(), mode);
 								CServiceManager::getInstance()->AddChannel(channel);
+								source_channels++;
 								if (!epgid.empty()) {
 									char buf[100];
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
@@ -1268,6 +1450,7 @@ void CBouquetManager::loadWebchannels(int mode)
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, ::decodeUrl(url).c_str());
 								CZapitChannel * channel = new CZapitChannel(title.c_str(), chid, ::decodeUrl(url).c_str(), desc.c_str(), epg_id ? epg_id : chid, NULL, mode);
 								CServiceManager::getInstance()->AddChannel(channel);
+								source_channels++;
 								//remapping epg_id
 								t_channel_id new_epgid = reMapEpgID(chid);
 								if(new_epgid)
@@ -1289,9 +1472,26 @@ void CBouquetManager::loadWebchannels(int mode)
 				}
 			}
 		}
+
+webchannel_done:
+		channels_total += source_channels;
+		if (ok)
+		{
+			sources_loaded++;
+			INFO("[webchannels] loaded source=%s channels=%d", filename.c_str(), source_channels);
+		}
+		else
+		{
+			sources_failed++;
+			INFO("[webchannels] source fail reason=%s %s", fail_reason, filename.c_str());
+		}
 		if (remove_tmp)
 			remove(tmp_name.c_str());
 	}
+
+	webchannels_failed_downloads += sources_failed_download;
+	INFO("[webchannels] reload done reason=%s mode=%s sources=%d loaded=%d failed=%d skipped=%d channels=%d",
+	     webchannels_active_reason.c_str(), tag, sources_total, sources_loaded, sources_failed, sources_skipped, channels_total);
 }
 
 bool CBouquetManager::LogoStart()

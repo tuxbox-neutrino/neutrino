@@ -15,6 +15,7 @@
 #include <ctype.h>
 
 #include <OpenThreads/Thread>
+#include <OpenThreads/Mutex>
 
 #include <inttypes.h>
 #include <zapit/client/zapitclient.h>
@@ -121,8 +122,14 @@ class CBouquetManager : public OpenThreads::Thread
 		bool LogoStop();
 		bool logo_running;
 		std::list<t_channel_id> LogoList;
+		/* handover slot, written by GUI/webif threads under mutex */
+		OpenThreads::Mutex webchannels_reason_mutex;
+		std::string webchannels_reload_reason;
+		/* zapit-thread-local copy for one reload pass */
+		std::string webchannels_active_reason;
+		int webchannels_failed_downloads;
 	public:
-		CBouquetManager() { remainChannels = NULL; logo_running = false; empty = false; };
+		CBouquetManager() { remainChannels = NULL; logo_running = false; empty = false; webchannels_reload_reason = "boot"; webchannels_active_reason = "boot"; webchannels_failed_downloads = 0; };
 		~CBouquetManager();
 		bool empty;
 		class ChannelIterator
@@ -173,6 +180,8 @@ class CBouquetManager : public OpenThreads::Thread
 		void loadWebradio();
 		void loadLogos();
 		void loadWebchannels(int mode);
+		void setWebchannelsReloadReason(const std::string &reason);
+		int getWebchannelsFailedDownloads() { return webchannels_failed_downloads; }
 		std::string ReadMarkerValue(std::string strLine, const char* strMarkerName);
 		//bouquet writeChannelsNames selection options
 		enum{
