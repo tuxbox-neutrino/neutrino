@@ -6555,6 +6555,7 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 	int old_mode = lastChannelMode;
 	int new_mode = old_mode;
 	bool has_channel = false;
+	bool found_in_old_mode = false;
 	first_mode_found = -1;
 
 	if (!channelList->adjustToChannelID(channel_id))
@@ -6566,57 +6567,66 @@ bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
 		has_channel = TVfavList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_FAV;
-		if(!has_channel && old_mode == LIST_MODE_FAV)
-			new_mode = LIST_MODE_PROV;
+		if (has_channel && old_mode == LIST_MODE_FAV)
+			found_in_old_mode = true;
 
 		has_channel = TVbouquetList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_PROV;
-		if(!has_channel && old_mode == LIST_MODE_PROV)
-			new_mode = LIST_MODE_WEB;
+		if (has_channel && old_mode == LIST_MODE_PROV)
+			found_in_old_mode = true;
 
 		has_channel = TVwebList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_WEB;
-		if(!has_channel && old_mode == LIST_MODE_WEB)
-			new_mode = LIST_MODE_SAT;
+		if (has_channel && old_mode == LIST_MODE_WEB)
+			found_in_old_mode = true;
 
 		has_channel = TVsatList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_SAT;
-		if(!has_channel && old_mode == LIST_MODE_SAT)
-			new_mode = LIST_MODE_ALL;
+		if (has_channel && old_mode == LIST_MODE_SAT)
+			found_in_old_mode = true;
 
-		TVallList->adjustToChannelID(channel_id);
+		has_channel = TVallList->adjustToChannelID(channel_id);
+		if (has_channel && old_mode == LIST_MODE_ALL)
+			found_in_old_mode = true;
 	}
 	else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_radio
 			|| CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_webradio) {
 		has_channel = RADIOfavList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_FAV;
-		if(!has_channel && old_mode == LIST_MODE_FAV)
-			new_mode = LIST_MODE_PROV;
+		if (has_channel && old_mode == LIST_MODE_FAV)
+			found_in_old_mode = true;
 
 		has_channel = RADIObouquetList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_PROV;
-		if(!has_channel && old_mode == LIST_MODE_PROV)
-			new_mode = LIST_MODE_WEB;
+		if (has_channel && old_mode == LIST_MODE_PROV)
+			found_in_old_mode = true;
 
 		has_channel = RADIOwebList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_WEB;
-		if(!has_channel && old_mode == LIST_MODE_WEB)
-			new_mode = LIST_MODE_SAT;
+		if (has_channel && old_mode == LIST_MODE_WEB)
+			found_in_old_mode = true;
 
 		has_channel = RADIOsatList->adjustToChannelID(channel_id);
 		if (has_channel && first_mode_found < 0)
 			first_mode_found = LIST_MODE_SAT;
-		if(!has_channel && old_mode == LIST_MODE_SAT)
-			new_mode = LIST_MODE_ALL;
+		if (has_channel && old_mode == LIST_MODE_SAT)
+			found_in_old_mode = true;
 
-		RADIOallList->adjustToChannelID(channel_id);
+		has_channel = RADIOallList->adjustToChannelID(channel_id);
+		if (has_channel && old_mode == LIST_MODE_ALL)
+			found_in_old_mode = true;
 	}
+	/* switch to the first list mode containing the channel only when the
+	   current mode does not contain it, e.g. webtv/webradio channel after
+	   boot with channel_mode_initial forcing a non-web start mode */
+	if (!found_in_old_mode && first_mode_found >= 0)
+		new_mode = first_mode_found;
 	if(old_mode != new_mode)
 		CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
 
