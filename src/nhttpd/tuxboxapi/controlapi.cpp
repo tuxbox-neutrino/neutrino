@@ -2822,11 +2822,15 @@ void CControlAPI::SendFoundEvents(CyhookHandler *hh, bool xml_format)
 	*/
 
 	std::vector<t_channel_id> v;
-	int channel_nr = CNeutrinoApp::getInstance()->channelList->getSize(); //unique channelList TV or Radio
+	CChannelList * channelList = CNeutrinoApp::getInstance()->channelList; //unique channelList TV or Radio
+	int channel_nr = channelList ? channelList->getSize() : 0;
 	for (int channel = 0; channel < channel_nr; channel++)
 	{
-	    channel_id =  CNeutrinoApp::getInstance()->channelList->getChannelFromIndex(channel)->getChannelID();
-	    v.push_back(channel_id);
+		CZapitChannel * channel_ptr = channelList->getChannelFromIndex(channel);
+		if (!channel_ptr)
+			continue;
+		channel_id = channel_ptr->getChannelID();
+		v.push_back(channel_id);
 	}
 	std::map<t_channel_id, t_channel_id> ch_id_map;
 	std::vector<t_channel_id>::iterator it;
