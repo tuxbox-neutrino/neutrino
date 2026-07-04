@@ -697,8 +697,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	// shutdown
 	g_settings.shutdown_count = configfile.getInt32("shutdown_count", 0);
-	// power-off menu: last used / default entry (standby=0, shutdown=1, reboot=2)
-	g_settings.power_off_selected = configfile.getInt32("power_off_selected", 1);
 	if (g_info.hw_caps->can_shutdown)
 	{
 		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
@@ -713,6 +711,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.shutdown_block_while_recording = configfile.getBool("shutdown_block_while_recording", false);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 	g_settings.power_standby = configfile.getInt32("power_standby", 0);
+	// power-off menu: last used / default entry (standby=0, shutdown=1, reboot=2)
+	g_settings.power_off_selected = configfile.getInt32("power_off_selected", g_settings.shutdown_real ? 1 : 0);
 
 	// screen saver
 	g_settings.screensaver_delay = configfile.getInt32("screensaver_delay", 1);
@@ -1526,6 +1526,10 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	if (g_settings.version_pseudo < "20240922210000")
 	{
 		g_settings.weather_api_version = "3.0";
+	}
+	if (g_settings.version_pseudo < "20260704120000")
+	{
+		g_settings.power_off_selected = g_settings.shutdown_real ? 1 : 0;
 	}
 
 	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
