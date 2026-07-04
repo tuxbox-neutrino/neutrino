@@ -313,7 +313,30 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 //-----------------------------------------------------------------------------
 const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
 {
-	{"sysinfo",		&CControlAPI::SysInfoCGI,		"application/json"},
+	// system & status
+	{"sysinfo",	&CControlAPI::SysInfoCGI,	"application/json"},
+	{"paths",	&CControlAPI::PathsCGI,		"application/json"},
+	{"boxinfo",	&CControlAPI::BoxInfoCGI,	"application/json"},
+	{"signal",	&CControlAPI::SignalInfoCGI,	"application/json"},
+	{"tuners",	&CControlAPI::TunersCGI,	"application/json"},
+	{"mode",	&CControlAPI::GetModeCGI,	"application/json"},
+	{"volume",	&CControlAPI::VolumeCGI,	"application/json"},
+	// channels & bouquets
+	{"bouquets",	&CControlAPI::GetBouquetsCGI,	"application/json"},
+	{"bouquet",	&CControlAPI::GetBouquetCGI,	"application/json"},
+	{"channel",	&CControlAPI::GetChannelCGI,	"application/json"},
+	{"channellist",	&CControlAPI::ChannellistCGI,	"application/json"},
+	{"zapto",	&CControlAPI::ZaptoCGI,		"application/json"},
+	// epg & timer
+	{"epg",		&CControlAPI::EpgCGI,		"application/json"},
+	{"epgsearch",	&CControlAPI::EpgSearchCGI,	"application/json"},
+	{"timer",	&CControlAPI::TimerCGI,		"application/json"},
+	// files & config
+	{"config",	&CControlAPI::ConfigCGI,	"application/json"},
+	{"file",	&CControlAPI::FileCGI,		"application/json"},
+	{"statfs",	&CControlAPI::StatfsCGI,	"application/json"},
+	{"getdir",	&CControlAPI::getDirCGI,	"application/json"},
+	{"getmovies",	&CControlAPI::getMoviesCGI,	"application/json"},
 };
 
 //-----------------------------------------------------------------------------
@@ -349,6 +372,11 @@ void CControlAPI::ExecuteV4(CyhookHandler *hh)
 	if (hh->Method == M_HEAD)
 		return;
 	(this->*yCgiCallListV4[index].pfunc)(hh);
+	// outStart() in reused handlers resets the Content-Type for json to
+	// "text/plain"; enforce the v4 contract again, but keep any error
+	// status a handler has set via SetError().
+	if (hh->httpStatus == HTTP_OK)
+		hh->SetHeader(HTTP_OK, yCgiCallListV4[index].mime_type);
 }
 //-----------------------------------------------------------------------------
 // The known half of /api/v1/system/legacy-usage: the dispatch table's own
