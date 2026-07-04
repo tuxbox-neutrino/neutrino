@@ -96,6 +96,8 @@ private:
 	bool                            lockStandbyCall;
 	bool				deferred_deepstandby;
 	uint32_t			deferred_recheck_timer;
+	bool				webchannels_boot_check_done;
+	uint32_t			webchannels_retry_timer;
 	bool 				pbBlinkChange;
 	bool				channels_changed;
 	bool				favorites_changed;

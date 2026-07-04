@@ -276,6 +276,8 @@ CNeutrinoApp::CNeutrinoApp()
 	lockStandbyCall         = false;
 	deferred_deepstandby	= false;
 	deferred_recheck_timer	= 0;
+	webchannels_boot_check_done = false;
+	webchannels_retry_timer	= 0;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	channels_changed	= false;
@@ -2486,6 +2488,21 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	SetChannelMode(lastChannelMode);
 	CEpgScan::getInstance()->ConfigureEIT();
 
+	/* one-shot retry when remote webchannel sources failed during boot,
+	   e.g. because the network was not up yet at zapit start; local file
+	   problems cannot heal by retrying and never arm the timer */
+	if (!webchannels_boot_check_done)
+	{
+		webchannels_boot_check_done = true;
+		if (g_RCInput && g_bouquetManager && g_bouquetManager->getWebchannelsFailedDownloads() > 0)
+		{
+			printf("[neutrino] webchannels: %d remote source(s) failed at boot, scheduling one retry\n",
+			       g_bouquetManager->getWebchannelsFailedDownloads());
+			fflush(stdout);
+			webchannels_retry_timer = g_RCInput->addTimer(30*1000*1000, true);
+		}
+	}
+
 	dprintf(DEBUG_DEBUG, "\nAll bouquets-channels received\n");
 }
 
@@ -4140,6 +4157,15 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			// periodic safety re-check: resolve a deferred deep-standby once
 			// no recording/record timer remains (also catches deleted timers)
 			tryDeferredDeepStandby();
+			return messages_return::handled;
+		}
+		if(webchannels_retry_timer && data == webchannels_retry_timer) {
+			webchannels_retry_timer = 0;
+			/* an intervening reload may have fixed the sources already */
+			if (g_bouquetManager && g_bouquetManager->getWebchannelsFailedDownloads() > 0) {
+				g_bouquetManager->setWebchannelsReloadReason("boot_retry");
+				g_Zapit->reinitChannels();
+			}
 			return messages_return::handled;
 		}
 	}
