@@ -285,8 +285,8 @@
 	async function loadSysInfo() {
 		try {
 			var results = await Promise.all([
-				fetch('/control/sysinfo').then(function(r) { return r.json(); }),
-				fetch('/control/versions').then(function(r) { return r.json(); })
+				ywebApi('sysinfo'),
+				ywebApi('versions')
 			]);
 			var sys = results[0];
 			var ver = results[1];
@@ -357,10 +357,8 @@
 		if (pre.dataset.loaded) return;
 		pre.dataset.loaded = '1';
 
-		var endpoint = type === 'ps' ? '/control/cmd?ps aux' : '/control/cmd?dmesg';
 		try {
-			var res = await fetch(endpoint);
-			var text = await res.text();
+			var text = await ywebApi('cmd', type === 'ps' ? 'ps aux' : 'dmesg', {raw: true});
 			text = text.replace(/^[\s\r\n]+|[\s\r\n]+$/g, '');
 			pre.textContent = text || '(keine Ausgabe)';
 		} catch (e) {
