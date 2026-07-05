@@ -1500,9 +1500,17 @@
 		}
 	}
 
-	// Standby
-	function sendStandby() {
-		if (confirm('{=L:yw.sb.confirm=}')) apiGet('standby?on');
+	// Standby: im Standby wecken, sonst (mit Rückfrage) schlafen legen
+	async function sendStandby() {
+		try {
+			var st = await ywebApi('standby', {status: ''});
+			var inStandby = !!(st && st.standby === true);
+			if (!inStandby && !confirm('{=L:yw.sb.confirm=}')) return;
+			await ywebApi('standby', inStandby ? 'off' : 'on');
+			ywebShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
+		} catch (e) {
+			ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
+		}
 	}
 
 	// TV/Radio Mode
