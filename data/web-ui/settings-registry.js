@@ -1,7 +1,10 @@
 /*
  * Settings Registry — Central field definitions for settings.html
  * Each category has: id, label, sections with fields
- * Field types: select, bool, bool01, number, text, password
+ * Field types: select, bool, bool01, number, text, password,
+ *   info   { label, text | key }                    — readonly display
+ *   action { id, label, button, confirm?, success?, refresh?,
+ *            api: {endpoint, params, raw?} }        — v4 call button
  * Optional: showIf: {key, value} for conditional visibility
  */
 var SETTINGS_REGISTRY = [
@@ -135,6 +138,11 @@ var SETTINGS_REGISTRY = [
 	{
 		id: 'mounts',
 		label: 'Netzlaufwerke',
+		custom: true
+	},
+	{
+		id: 'plugins',
+		label: 'Plugins',
 		custom: true
 	}
 ];

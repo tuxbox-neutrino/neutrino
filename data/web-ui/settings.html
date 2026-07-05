@@ -263,7 +263,7 @@
 	</div>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/settings-registry.js?v=1"></script>
+	<script src="/settings-registry.js?v=2"></script>
 	<script src="/yweb-header.js?v=28"></script>
 	<script>
 	var configData = {};
@@ -291,9 +291,43 @@
 		return configData[k] !== undefined ? configData[k] : '';
 	}
 
+	// Action-Buttons: Registry-Felder vom Typ 'action' registrieren sich
+	// hier und feuern v4-Calls (exec, startplugin, ...) mit Toast-Feedback
+	var SETTINGS_ACTIONS = {};
+	async function runSettingsAction(aid, btn) {
+		var f = SETTINGS_ACTIONS[aid];
+		if (!f || !f.api) return;
+		if (f.confirm && !confirm(f.confirm)) return;
+		var orig = btn.textContent;
+		btn.disabled = true;
+		btn.textContent = '...';
+		try {
+			var res = await ywebApi(f.api.endpoint, f.api.params, f.api.raw ? {raw: true} : undefined);
+			ywebShowToast(f.success || 'Ausgef\u00fchrt');
+			if (f.refresh) await loadSettings();
+			if (typeof f.after === 'function') f.after(res);
+		} catch (e) {
+			ywebShowToast('Fehler: ' + e.message, true);
+		}
+		btn.disabled = false;
+		btn.textContent = orig;
+	}
+
 	function renderField(f) {
-		var val = getConfigKey(f.key);
-		var id = 'cfg_' + f.key.replace(/\./g, '__');
+		var val = f.key ? getConfigKey(f.key) : '';
+		var id = 'cfg_' + String(f.key || f.id || '').replace(/\./g, '__');
+
+		if (f.type === 'info') {
+			var text = (f.text !== undefined) ? f.text : val;
+			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+				'<span id="' + id + '" style="color:var(--pico-muted-color)">' + (text || '--') + '</span></div>';
+		}
+		if (f.type === 'action') {
+			var aid = f.id || f.label;
+			SETTINGS_ACTIONS[aid] = f;
+			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+				'<button type="button" class="yweb-btn" onclick="runSettingsAction(\'' + aid + '\', this)">' + (f.button || f.label) + '</button></div>';
+		}
 
 		if (f.type === 'select') {
 			var opts = f.options.map(function(o) {
@@ -335,6 +369,7 @@
 		if (!cat) return '';
 
 		if (cat.custom && cat.id === 'mounts') return renderMountsPanel();
+		if (cat.custom && cat.id === 'plugins') return renderPluginsPanel();
 
 		var html = makeCardHeader(cat.label);
 		cat.sections.forEach(function(sec) {
@@ -347,6 +382,64 @@
 		});
 
 		return '<div class="settings-card">' + html + '</div>';
+	}
+
+	// Plugins: Liste vom v4 plugins-Endpoint, Start via startplugin.
+	// Daemon-Steuerung (nfs/samba/... via Y_Tools-Scripts) bleibt bewusst
+	// der Legacy-Seite ueberlassen - paket-/imageabhaengig.
+	function renderPluginsPanel() {
+		setTimeout(loadPluginsPanel, 0);
+		return '<div class="settings-card">' + makeCardHeader('Plugins') +
+			'<div id="pluginsPanel"><p aria-busy="true">Lade Plugins\u2026</p></div></div>';
+	}
+
+	async function loadPluginsPanel() {
+		var el = document.getElementById('pluginsPanel');
+		if (!el) return;
+		try {
+			var data = await ywebApi('plugins');
+			var list = (data && data.plugins) || [];
+			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Installierte Plugins</div>';
+			if (list.length === 0) {
+				html += '<div class="yweb-form-row"><label>Keine Plugins installiert</label></div>';
+			} else {
+				list.forEach(function(pl) {
+					if (pl.hidden) return;
+					var desc = pl.description ? ' <small style="color:var(--pico-muted-color)">' + escapeHtml(pl.description) + '</small>' : '';
+					html += '<div class="yweb-form-row"><label>' + escapeHtml(pl.name) + desc + '</label>' +
+						'<button type="button" class="yweb-btn" onclick="startPluginByName(\'' + escapeJs(pl.name) + '\', this)">Starten</button></div>';
+				});
+			}
+			html += '</div><div class="yweb-form-section"><div class="yweb-form-section-title">Verwaltung</div>' +
+				'<div class="yweb-form-row"><label>Plugin-Liste neu einlesen</label>' +
+				'<button type="button" class="yweb-btn" onclick="reloadPluginList(this)">Neu laden</button></div></div>';
+			el.innerHTML = html;
+		} catch (e) {
+			el.innerHTML = '<div class="yweb-form-row"><label>Plugins nicht verf\u00fcgbar: ' + escapeHtml(e.message) + '</label></div>';
+		}
+	}
+
+	async function startPluginByName(name, btn) {
+		btn.disabled = true;
+		try {
+			await ywebApi('startplugin', {name: name});
+			ywebShowToast('Plugin gestartet: ' + name);
+		} catch (e) {
+			ywebShowToast('Fehler: ' + e.message, true);
+		}
+		btn.disabled = false;
+	}
+
+	async function reloadPluginList(btn) {
+		btn.disabled = true;
+		try {
+			await ywebApi('reloadplugins');
+			await loadPluginsPanel();
+			ywebShowToast('Plugin-Liste neu geladen');
+		} catch (e) {
+			ywebShowToast('Fehler: ' + e.message, true);
+		}
+		btn.disabled = false;
 	}
 
 	function renderMountsPanel() {
