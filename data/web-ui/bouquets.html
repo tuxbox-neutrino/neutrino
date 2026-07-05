@@ -492,18 +492,19 @@
 		// Load current channel and find its bouquet
 		async function loadCurrentChannel() {
 			try {
-				const data = await fetchText('/control/zapto');
+				const data = await ywebApi('zapto', null, {raw: true});
 				currentChannelId = data.trim();
 			} catch (e) {
 				console.error('Failed to load current channel:', e);
 			}
 		}
 
-		// Load logos URL from config
+		// Load logos URL from nhttpd config (json key: Tuxbox_dot_LogosURL)
 		async function loadLogosUrl() {
 			try {
-				const data = await fetchText('/control/config?nhttpd.conf&Tuxbox.LogosURL');
-				logosUrl = data.trim();
+				const resp = await ywebApi('config', {config: 'nhttpd'});
+				const cfg = resp?.data?.config || resp?.config || {};
+				logosUrl = (cfg['Tuxbox_dot_LogosURL'] || '').trim();
 			} catch (e) {
 				logosUrl = '';
 			}
@@ -622,9 +623,9 @@
 				if (bouquet) {
 					channels = await ywebFetchChannels(bouquet);
 				} else {
-					// "All channels" — special case, not cached
-					const data = await fetchText('/control/getbouquet?format=json');
-					const response = JSON.parse(data);
+					// "All channels" — channellist delivers the full list
+					// (bare bouquet requires a parameter under v4)
+					const response = await ywebApi('channellist');
 					channels = response.data?.channels || response.channels || response;
 				}
 
@@ -744,7 +745,9 @@
 			for (const ch of channels) {
 				if (signal.aborted) break;
 				try {
-					const response = await fetch(`/control/epg?format=json&channelid=${ch.id}&max=1&starttime=${now}`, { signal });
+					// direct fetch (not ywebApi): the AbortController signal must
+					// cancel in-flight EPG loads when the bouquet changes
+					const response = await fetch(`/api/v4/epg?channelid=${ch.id}&max=1&starttime=${now}`, { signal });
 					const jsonData = await response.json();
 					// Small delay between requests to not block server
 					await delay(50);
@@ -831,7 +834,7 @@
 		// Zap to channel
 		async function zapTo(channelId) {
 			try {
-				await fetchText(`/control/zapto?${channelId}`);
+				await ywebApi('zapto', String(channelId));
 				currentChannelId = channelId;
 
 				document.querySelectorAll('.yweb-channel-row').forEach(row => {
@@ -885,7 +888,7 @@
 		async function loadChannelDetail(channelId, detailEl) {
 			try {
 				const now = Math.floor(Date.now() / 1000);
-				const response = await fetchJson(`/control/epg?format=json&channelid=${channelId}&details=true&max=1&starttime=${now}`);
+				const response = await ywebApi('epg', {channelid: channelId, details: 'true', max: 1, starttime: now});
 				// API returns: { success, data: { epglist: { progData: [...] } } }
 				const progData = response?.data?.epglist?.progData || response?.epglist?.progData;
 
