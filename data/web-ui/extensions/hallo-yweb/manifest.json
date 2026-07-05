@@ -1,0 +1,7 @@
+{
+	"name": "Hallo yWeb",
+	"version": "1.0",
+	"slot": "tools",
+	"entry": "hallo.html",
+	"description": "Referenz-Erweiterung (Copy-Paste-Vorlage)"
+}

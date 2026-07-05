@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Hallo yWeb</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+</head>
+<body>
+	<div class="yweb-header-wrapper" data-page="tools"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<main style="max-width:640px;margin:0 auto;padding:1rem">
+		<div class="settings-card" style="padding:1rem">
+			<h3>Hallo yWeb!</h3>
+			<p>Diese Seite ist die <b>Referenz-Erweiterung</b>. Sie zeigt, wie eine
+			Erweiterung den yWeb-Header einbindet und Daten von der
+			<code>/api/v4/</code>-Schnittstelle liest.</p>
+			<div class="yweb-form-row"><label>Hostname</label><span id="exHost">…</span></div>
+			<div class="yweb-form-row"><label>Uptime</label><span id="exUp">…</span></div>
+			<div class="yweb-form-row"><label>Neutrino</label><span id="exVer">…</span></div>
+		</div>
+	</main>
+
+	<script src="/yweb-header.js?v=29"></script>
+	<script>
+		// Daten ausschliesslich ueber die dokumentierte v4-Flaeche holen
+		(async function() {
+			try {
+				var sys = await ywebApi('sysinfo');
+				document.getElementById('exHost').textContent = sys.hostname || '--';
+				document.getElementById('exUp').textContent = ywebFormatUptime(sys.uptime || 0);
+				var ver = await ywebApi('versions');
+				document.getElementById('exVer').textContent = ver.neutrino || '--';
+			} catch (e) {
+				document.getElementById('exHost').textContent = 'Fehler: ' + e.message;
+			}
+		})();
+		ywebInitHeader('tools');
+	</script>
+</body>
+</html>

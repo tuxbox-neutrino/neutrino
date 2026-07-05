@@ -12,6 +12,11 @@ SUBDIRS = \
 
 installdir = $(PRIVATE_HTTPDDIR)
 
+nobase_install_DATA = \
+	extensions/README.md \
+	extensions/hallo-yweb/manifest.json \
+	extensions/hallo-yweb/hallo.html
+
 install_DATA = \
 	bouquet-editor.html \
 	bouquets.html \
