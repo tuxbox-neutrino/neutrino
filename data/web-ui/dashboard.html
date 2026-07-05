@@ -1185,13 +1185,14 @@
 		}
 	}
 
-	// API Helpers
+	// API Helpers — all requests go to /api/v4/ (always JSON for json
+	// endpoints; bare zapto keeps its raw channel id output)
 	function apiGet(endpoint) {
-		return $.get('/control/' + endpoint).catch(function() { return ''; });
+		return $.get('/api/v4/' + endpoint).catch(function() { return ''; });
 	}
 
 	function apiJson(endpoint) {
-		return $.getJSON('/control/' + endpoint).catch(function() { return {}; });
+		return $.getJSON('/api/v4/' + endpoint).catch(function() { return {}; });
 	}
 
 	// Format helpers — use shared versions from yweb-header.js
@@ -1226,8 +1227,7 @@
 
 	// Load Channel Info
 	function loadChannelInfo() {
-		// Try JSON API first, fallback to legacy
-		apiJson('getchannel?format=json').done(function(data) {
+		apiJson('channel').done(function(data) {
 			if (data.success === 'true' && data.data && data.data.channel && data.data.channel[0]) {
 				var ch = data.data.channel[0];
 				var channelName = ch.name || 'Unbekannt';
@@ -1245,46 +1245,25 @@
 				$('#channel-preview').text('Kein Sender');
 			}
 		}).fail(function() {
-			// Fallback to legacy API
-			apiGet('zapto').done(function(channelId) {
-				if (!channelId || channelId.trim() === 'ok') {
-					currentChannelId = null;
-					currentChannelName = null;
-					$('#current-channel').text('Kein Sender');
-					$('#channel-preview').text('Kein Sender');
-					return;
-				}
-				channelId = channelId.trim();
-				currentChannelId = channelId;
-				apiGet('channellist').done(function(data) {
-					var lines = data.split('\n');
-					for (var i = 0; i < lines.length; i++) {
-						if (lines[i].startsWith(channelId + ' ')) {
-							var channelName = lines[i].substring(channelId.length + 1) || 'Unbekannt';
-							currentChannelName = channelName;
-							$('#current-channel').text(channelName);
-							$('#channel-preview').text(channelName);
-							break;
-						}
-					}
-				});
-				loadEpgForChannel(channelId);
-			});
+			currentChannelId = null;
+			currentChannelName = null;
+			$('#current-channel').text('Kein Sender');
+			$('#channel-preview').text('Kein Sender');
 		});
 	}
 
 	function loadEpgForChannel(channelId) {
 		if (!channelId) return;
-		$.get('/control/epg?xml=true&channelid=' + channelId + '&details=true').done(function(xml) {
+		apiJson('epg?channelid=' + channelId + '&details=true').done(function(resp) {
 			var now = Math.floor(Date.now() / 1000);
-			var progs = $(xml).find('prog');
+			var progs = (resp && resp.data && resp.data.epglist && resp.data.epglist.progData) || [];
 			var foundCurrent = false, foundNext = false;
 
-			progs.each(function() {
-				var startSec = parseInt($(this).find('start_sec').text()) || 0;
-				var stopSec = parseInt($(this).find('stop_sec').text()) || 0;
-				var desc = $(this).find('description').text() || '--';
-				var startT = $(this).find('start_t').text() || '--:--';
+			for (var i = 0; i < progs.length; i++) {
+				var startSec = parseInt(progs[i].start_sec) || 0;
+				var stopSec = parseInt(progs[i].stop_sec) || 0;
+				var desc = progs[i].description || '--';
+				var startT = progs[i].start_t || '--:--';
 
 				if (!foundCurrent && now >= startSec && now < stopSec) {
 					foundCurrent = true;
@@ -1299,9 +1278,9 @@
 				} else if (foundCurrent && !foundNext && startSec >= now) {
 					foundNext = true;
 					$('#next-epg').text(startT + ' ' + desc);
-					return false;
+					break;
 				}
-			});
+			}
 
 			if (!foundCurrent) $('#current-epg').text('Keine EPG-Daten');
 			if (!foundNext) $('#next-epg').text('--');
@@ -1441,22 +1420,9 @@
 
 	// Recording check with details
 	function checkRecording() {
-		// Try JSON API first, fallback to legacy text
-		apiJson('setmode?status&format=json').done(function(data) {
-			if (data && typeof data.recording !== 'undefined') {
+		apiJson('setmode?status').done(function(data) {
+			if (data && typeof data.recording !== 'undefined')
 				handleRecordingStatus(data.recording);
-			} else {
-				checkRecordingLegacy();
-			}
-		}).fail(function() {
-			checkRecordingLegacy();
-		});
-	}
-
-	function checkRecordingLegacy() {
-		apiGet('setmode?status').done(function(data) {
-			const isRecording = data && data.indexOf('on') !== -1;
-			handleRecordingStatus(isRecording);
 		});
 	}
 
@@ -1493,7 +1459,7 @@
 
 		if (isRecording) {
 				// Fetch timer data to get recording details
-				$.getJSON('/control/timer?format=json').done(function(response) {
+				apiJson('timer').done(function(response) {
 					const timers = ywebParseTimerList(response);
 					if (timers.length === 0) return;
 
@@ -1585,8 +1551,8 @@
 	}
 
 	function loadCurrentMode() {
-		$.get('/control/getmode?channelsmode').done(function(mode) {
-			currentMode = mode.trim().toLowerCase() === 'radio' ? 'radio' : 'tv';
+		apiJson('mode?channelsmode').done(function(data) {
+			currentMode = (data && data.mode === 'radio') ? 'radio' : 'tv';
 			updateModeUI();
 		});
 	}
@@ -1598,8 +1564,7 @@
 
 	// Load Timer list
 	function loadTimers() {
-		// Must use format=json parameter for timer API
-		$.getJSON('/control/timer?format=json').done(function(response) {
+		apiJson('timer').done(function(response) {
 			const container = $('#timer-list');
 			const now = Math.floor(Date.now() / 1000);
 
@@ -1883,9 +1848,9 @@
 		}
 	}
 
-	// Legacy: single tuner API fallback (for older Neutrino versions)
+	// Single-tuner fallback (boxes without the multi-tuner list)
 	function loadTunerStatusLegacy() {
-		apiJson('signal?format=json').done(function(data) {
+		apiJson('signal').done(function(data) {
 			if (data && typeof data.sig !== 'undefined') {
 				const tuners = [{
 					id: 0,
@@ -1899,59 +1864,20 @@
 					state: (data.sig > 0) ? 'viewing' : 'idle'
 				}];
 				renderTunerList(tuners);
-			} else {
-				loadTunerStatusLegacyText();
 			}
-		}).fail(function() {
-			loadTunerStatusLegacyText();
-		});
-	}
-
-	// Legacy text API fallback
-	function loadTunerStatusLegacyText() {
-		let sig = 0, snr = 0, ber = 0;
-		$.when(
-			apiGet('signal?sig').done(function(data) { sig = parseInt(data) || 0; }),
-			apiGet('signal?snr').done(function(data) { snr = parseInt(data) || 0; }),
-			apiGet('signal?ber').done(function(data) { ber = parseInt(data) || 0; })
-		).then(function() {
-			const tuners = [{
-				id: 0,
-				name: 'Tuner',
-				type: 'DVB',
-				sig: sig,
-				snr: snr,
-				ber: ber,
-				locked: (sig > 0),
-				channel: '',
-				state: (sig > 0) ? 'viewing' : 'idle'
-			}];
-			renderTunerList(tuners);
 		});
 	}
 
 	// Load Stream Info (Resolution, Aspect, Framerate, Audio, PIDs)
 	function loadStreamInfo() {
-		// Try JSON API first, fallback to legacy text format
-		apiJson('info?streaminfo&format=json').done(function(data) {
-			if (data && typeof data.resolution !== 'undefined') {
+		apiJson('info?streaminfo').done(function(data) {
+			if (data && typeof data.resolution !== 'undefined')
 				updateStreamInfoUI(data.resolution, data.width, data.height, data.aspect, data.fps, data.audio);
-			} else {
-				loadStreamInfoLegacy();
-			}
-		}).fail(function() {
-			loadStreamInfoLegacy();
 		});
 
-		// Fetch PIDs - try JSON API first, fallback to legacy
-		apiJson('zapto?getallpids&format=json').done(function(data) {
-			if (data && typeof data.vpid !== 'undefined') {
+		apiJson('zapto?getallpids').done(function(data) {
+			if (data && typeof data.vpid !== 'undefined')
 				updatePidsUI(data);
-			} else {
-				loadPidsLegacy();
-			}
-		}).fail(function() {
-			loadPidsLegacy();
 		});
 	}
 
@@ -1995,56 +1921,6 @@
 		pidsContainer.innerHTML = html;
 	}
 
-	// Legacy text format for PIDs (fallback for older Neutrino versions)
-	function loadPidsLegacy() {
-		apiGet('zapto?getallpids').done(function(data) {
-			const lines = data.trim().split('\n');
-			const pidsContainer = document.getElementById('stream-pids');
-			if (!pidsContainer || lines.length === 0) return;
-
-			let html = '';
-			lines.forEach(function(line) {
-				const parts = line.trim().split(/\s+/);
-				if (parts.length >= 1) {
-					const pid = parts[0];
-					let label = 'PID';
-
-					// Determine type from description
-					if (parts.length >= 2) {
-						const desc = parts.slice(1).join(' ').toLowerCase();
-						if (desc.includes('vtxt') || desc.includes('teletext')) {
-							label = 'TXT';
-						} else if (desc.includes('pmt')) {
-							label = 'PMT';
-						} else if (desc.includes('pcr')) {
-							label = 'PCR';
-						} else if (desc.includes('ac3') || desc.includes('eac3')) {
-							label = 'AC3';
-						} else if (desc.includes('aac')) {
-							label = 'AAC';
-						} else if (desc.includes('deu') || desc.includes('ger') || desc.includes('deutsch')) {
-							label = 'AUD';
-						} else if (desc.includes('eng') || desc.includes('english')) {
-							label = 'ENG';
-						} else {
-							label = 'AUD';
-						}
-					} else {
-						// First line without description is usually video PID
-						if (html === '') {
-							label = 'VID';
-						} else {
-							label = 'AUD';
-						}
-					}
-
-					html += '<span class="yweb-pid-tag"><span class="label">' + label + '</span><span class="value">' + pid + '</span></span>';
-				}
-			});
-
-			pidsContainer.innerHTML = html;
-		});
-	}
 
 	// Update stream info UI (shared by JSON and legacy)
 	function updateStreamInfoUI(resolution, width, height, aspect, fps, audio) {
@@ -2073,18 +1949,6 @@
 		$('#stream-audio').text(audio || '--');
 	}
 
-	// Legacy: text-based API (for older Neutrino versions)
-	function loadStreamInfoLegacy() {
-		apiGet('info?streaminfo').done(function(data) {
-			const lines = data.trim().split('\n');
-			if (lines.length >= 4) {
-				const resolution = lines[0].trim();
-				const heightMatch = resolution.match(/\d+x(\d+)/);
-				const height = heightMatch ? parseInt(heightMatch[1]) : 0;
-				updateStreamInfoUI(resolution, 0, height, lines[1].trim(), lines[2].trim(), lines[3].trim());
-			}
-		});
-	}
 
 	// Init
 	$(function() {
