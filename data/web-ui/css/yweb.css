@@ -1328,6 +1328,8 @@ body:not(.has-subheader) .yweb-header-spacer {
 	background: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-muted-border-color);
 	border-radius: var(--yweb-radius);
+	/* Aktions-Kachel, kein Textlink: Picos Anchor-Blau neutralisieren */
+	--pico-color: inherit;
 	color: var(--pico-color);
 	text-decoration: none;
 	font-size: var(--yweb-font-xs);
@@ -1463,7 +1465,9 @@ body:not(.has-subheader) .yweb-header-spacer {
    Unified Button Templates
    ============================================ */
 
-/* Base button - verwendet überall */
+/* Base button - verwendet überall.
+   --pico-color-Reset: Pico färbt <a> lokal primär-blau; Buttons sind
+   Aktionen, keine Textlinks → neutrale Textfarbe (Blau nur echte Links) */
 .yweb-btn {
 	display: inline-flex;
 	align-items: center;
@@ -1473,6 +1477,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	background: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-muted-border-color);
 	border-radius: var(--yweb-radius);
+	--pico-color: inherit;
 	color: var(--pico-color);
 	font-size: var(--yweb-font-xs);
 	font-weight: 500;
@@ -1486,10 +1491,32 @@ body:not(.has-subheader) .yweb-header-spacer {
 	background: var(--yweb-accent-light);
 	border-color: var(--yweb-accent);
 	color: var(--yweb-accent);
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .yweb-btn:active {
-	transform: scale(0.97);
+	transform: translateY(0);
+	box-shadow: none;
+}
+
+/* M5a: einheitliche Interaktionszustände */
+.yweb-btn:focus-visible,
+.yweb-file-btn:focus-visible {
+	outline: 2px solid var(--yweb-accent);
+	outline-offset: 2px;
+}
+
+.yweb-btn[disabled] {
+	opacity: 0.45;
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.yweb-btn, .yweb-btn:hover {
+		transition: none;
+		transform: none;
+	}
 }
 
 .yweb-btn svg {
@@ -1570,6 +1597,68 @@ body:not(.has-subheader) .yweb-header-spacer {
 [data-theme="light"] .yweb-btn.primary:hover {
 	background: var(--yweb-accent-hover);
 	color: white;
+}
+
+/* Ghost-Variante: rahmenlos für Sekundär-Aktionen — nach den
+   Theme-Overrides definiert, damit sie in beiden Themes greift */
+.yweb-btn.ghost {
+	background: transparent;
+	border-color: transparent;
+}
+
+.yweb-btn.ghost:hover {
+	border-color: var(--pico-muted-border-color);
+}
+
+/* ============================================
+   Styled File Input (M5a) — Markup:
+   <label class="yweb-file">
+     <input type="file" ...>
+     <span class="yweb-file-btn">{=L:yw.set.choose_file=}</span>
+     <span class="yweb-file-name">–</span>
+   </label>
+   ============================================ */
+.yweb-file {
+	position: relative;
+	display: inline-flex;
+	align-items: stretch;
+	border: 1px dashed var(--pico-muted-border-color);
+	border-radius: var(--yweb-radius);
+	overflow: hidden;
+	cursor: pointer;
+	max-width: 100%;
+}
+
+.yweb-file input[type="file"] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+}
+
+/* Tastatur-Fokus liegt auf dem versteckten Input → Rahmen aufs Control */
+.yweb-file:focus-within {
+	outline: 2px solid var(--yweb-accent);
+	outline-offset: 2px;
+}
+
+.yweb-file-btn {
+	background: var(--pico-card-background-color);
+	border-right: 1px solid var(--pico-muted-border-color);
+	padding: 0.4rem 0.8rem;
+	font-size: var(--yweb-font-sm);
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.yweb-file-name {
+	padding: 0.4rem 0.8rem;
+	font-size: var(--yweb-font-sm);
+	color: var(--pico-muted-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 18rem;
 }
 
 /* ============================================
@@ -2445,18 +2534,39 @@ body.yweb-remote-open {
 	box-shadow: 0 0 0 2px rgba(255,165,0,0.3);
 }
 
-/* ── Form Rows ── */
+/* ── Form Rows ──
+   M5a: festes 2-Spalten-Grid (Label | Control) statt Flex-Freiflug,
+   damit Zeilen innerhalb eines Panels bündig ausrichten */
 .yweb-form-row {
-	display: flex;
+	display: grid;
+	grid-template-columns: minmax(9rem, 38%) 1fr;
 	align-items: center;
-	gap: 0.75rem;
+	gap: 0.6rem 1rem;
 	margin-bottom: 0.4rem;
 	padding: 0.2rem 0;
+}
+.yweb-form-row > label {
+	margin: 0;
 }
 .yweb-form-row label:not(.yweb-toggle) {
 	font-size: var(--yweb-font-sm);
 	color: var(--pico-muted-color);
 	flex-shrink: 0;
+}
+/* Control-Zelle mit Mehrfachinhalt (Input+Picker, Button-Gruppen):
+   inline nebeneinander, bricht bei Platzmangel um */
+.yweb-form-row > span {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+.yweb-form-row .yweb-row-actions {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	align-items: center;
 }
 
 /* ── Form Inputs ── */
@@ -2482,6 +2592,13 @@ body.yweb-remote-open {
 	border-color: var(--yweb-accent);
 	box-shadow: 0 0 0 2px rgba(255,165,0,0.15);
 }
+/* M5a: Controls kompakt halten — Zeile bleibt lesbar, Label-Spalte trägt */
+.yweb-form-row select,
+.yweb-form-row input[type="text"],
+.yweb-form-row input[type="number"],
+.yweb-form-row input[type="password"] {
+	max-width: 300px;
+}
 
 /* ── Form Section Title ── */
 .yweb-form-section {
@@ -2504,7 +2621,7 @@ body.yweb-remote-open {
 /* ── Form Mobile Responsive ── */
 @media (max-width: 800px) {
 	.yweb-form-row {
-		flex-direction: column;
+		grid-template-columns: 1fr;
 		align-items: stretch;
 		gap: 0.2rem;
 	}
@@ -2516,13 +2633,13 @@ body.yweb-remote-open {
 	.yweb-form-row input[type="date"],
 	.yweb-form-row input[type="time"] {
 		width: 100%;
+		max-width: none;
 		flex: auto;
 	}
 	/* Toggle row: keep horizontal on mobile */
 	.yweb-form-row:has(.yweb-toggle) {
-		flex-direction: row;
+		grid-template-columns: 1fr auto;
 		align-items: center;
-		justify-content: space-between;
 	}
 }
 

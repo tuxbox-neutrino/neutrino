@@ -6,7 +6,7 @@
 	<title>yWeb - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=62">
+	<link rel="stylesheet" href="/css/yweb.css?v=63">
 	<style>
 		/* 2-column grid layout for bouquets */
 		main.yweb-bouquets-grid {

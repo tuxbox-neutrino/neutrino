@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.tools=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=62">
+	<link rel="stylesheet" href="/css/yweb.css?v=63">
 	<style>
 		.yweb-tools-grid {
 			display: grid;
@@ -29,6 +29,8 @@
 			cursor: pointer;
 			transition: var(--yweb-transition);
 			text-decoration: none;
+			/* Kachel-Titel neutral: Picos Anchor-Blau auf <a>-Karten aufheben */
+			--pico-color: inherit;
 			color: var(--pico-color);
 			border: 1px solid transparent;
 		}
