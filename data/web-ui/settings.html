@@ -504,7 +504,7 @@
 		btns.forEach(function(b) { b.disabled = true; });
 
 		try {
-			await fetch('/control/config?config=neutrino&' + params);
+			await ywebApi('config', 'config=neutrino&' + params);
 			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
 			await loadSettings();
 		} catch (e) {
@@ -516,19 +516,10 @@
 
 	async function loadSettings() {
 		try {
-			var resp = await fetch('/control/config?config=neutrino&format=json');
-			var text = await resp.text();
-			var match = text.match(/"config"\s*:\s*\{/);
-			if (match) {
-				var jsonStart = match.index + match[0].length - 1;
-				var braceCount = 0;
-				var jsonEnd = jsonStart;
-				for (var i = jsonStart; i < text.length; i++) {
-					if (text[i] === '{') braceCount++;
-					else if (text[i] === '}') { braceCount--; if (braceCount === 0) { jsonEnd = i + 1; break; } }
-				}
-				configData = JSON.parse(text.substring(jsonStart, jsonEnd));
-			}
+			// v4 liefert ein valides Envelope-Dokument - der historische
+			// Brace-Zaehler (Workaround fuer das alte Doppel-Dokument) entfaellt
+			var resp = await ywebApi('config', {config: 'neutrino'});
+			configData = (resp && resp.data && resp.data.config) || {};
 		} catch (e) {
 			document.getElementById('settingsContent').innerHTML =
 				'<div class="settings-loading">Fehler beim Laden der Einstellungen</div>';
