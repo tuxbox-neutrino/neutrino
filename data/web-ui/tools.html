@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - Tools</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		.yweb-tools-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+			gap: 1rem;
+			padding: 1.5rem;
+			max-width: 800px;
+			margin: 0 auto;
+		}
+
+		.yweb-tool-card {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 1.5rem 1rem;
+			background: var(--pico-card-background-color);
+			border-radius: var(--yweb-radius-lg);
+			box-shadow: var(--yweb-shadow);
+			cursor: pointer;
+			transition: var(--yweb-transition);
+			text-decoration: none;
+			color: var(--pico-color);
+			border: 1px solid transparent;
+		}
+
+		.yweb-tool-card:hover {
+			box-shadow: var(--yweb-shadow-hover);
+			border-color: var(--yweb-accent);
+			color: var(--yweb-accent);
+			transform: translateY(-2px);
+		}
+
+		.yweb-tool-card:active {
+			transform: scale(0.97);
+		}
+
+		.yweb-tool-card svg {
+			width: 36px;
+			height: 36px;
+			color: var(--yweb-accent);
+		}
+
+		.yweb-tool-card span {
+			font-size: 0.9rem;
+			font-weight: 600;
+		}
+
+		.yweb-tool-card small {
+			font-size: 0.7rem;
+			color: var(--pico-muted-color);
+			text-align: center;
+		}
+
+		[data-theme="light"] .yweb-tool-card {
+			border: 1px solid var(--yweb-border-subtle);
+		}
+
+		[data-theme="light"] .yweb-tool-card:hover {
+			border-color: var(--yweb-accent);
+		}
+	</style>
+</head>
+<body>
+	<div class="yweb-header-wrapper" data-page="tools"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<main>
+		<div class="yweb-tools-grid">
+			<a href="/screenshot.html" class="yweb-tool-card">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+					<circle cx="12" cy="13" r="3"/>
+				</svg>
+				<span>Screenshot</span>
+				<small>OSD/Video Aufnahme</small>
+			</a>
+
+			<a href="/files.html" class="yweb-tool-card">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+				</svg>
+				<span>Dateien</span>
+				<small>Dateiverwaltung</small>
+			</a>
+
+			<div class="yweb-tool-card" onclick="ywebShowRemote()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<rect x="7" y="2" width="10" height="20" rx="2"/>
+					<circle cx="12" cy="18" r="1"/>
+				</svg>
+				<span>Remote</span>
+				<small>Fernbedienung</small>
+			</div>
+
+			<div class="yweb-tool-card" onclick="ywebShowMessageDialog()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+				</svg>
+				<span>Nachricht</span>
+				<small>Meldung an Box senden</small>
+			</div>
+
+			<a href="/cmd.html" class="yweb-tool-card">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+				</svg>
+				<span>Shell</span>
+				<small>Kommandozeile</small>
+			</a>
+
+			<a href="/sysinfo.html" class="yweb-tool-card">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+				</svg>
+				<span>System Info</span>
+				<small>Hardware & Software</small>
+			</a>
+
+			<a href="/settings.html" class="yweb-tool-card">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+				</svg>
+				<span>Einstellungen</span>
+				<small>Video, Audio, Display</small>
+			</a>
+
+			<div class="yweb-tool-card" onclick="sendStandby()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M18.36 6.64a9 9 0 11-12.73 0"/>
+					<line x1="12" y1="2" x2="12" y2="12"/>
+				</svg>
+				<span>Standby</span>
+				<small>Box ein/ausschalten</small>
+			</div>
+
+		</div>
+	</main>
+
+	<script src="/Y_Baselib.js"></script>
+	<script src="/yweb-header.js?v=27"></script>
+	<script>
+		async function sendStandby() {
+			try {
+				var status = await fetch('/control/standby').then(function(r) { return r.text(); });
+				if (status.trim() === 'off') {
+					if (!confirm('Box in Standby versetzen?')) return;
+				}
+				await fetch('/control/standby?on');
+			} catch (e) {
+				console.error('Standby failed:', e);
+			}
+		}
+	</script>
+</body>
+</html>
