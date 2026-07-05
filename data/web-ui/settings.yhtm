@@ -680,14 +680,47 @@
 			var tv = collectXmlSources(cfg, 'webtv_xml').join('\n');
 			var radio = collectXmlSources(cfg, 'webradio_xml').join('\n');
 			el.innerHTML = '<div class="yweb-form-section"><div class="yweb-form-section-title">WebTV</div>' +
-				'<textarea id="xmltv_tv" rows="4" style="width:100%" placeholder="{=L:yw.set.xmltv_ph=}">' + escapeHtml(tv) + '</textarea></div>' +
+				'<textarea id="xmltv_tv" rows="4" style="width:100%" placeholder="{=L:yw.set.xmltv_ph=}">' + escapeHtml(tv) + '</textarea>' +
+				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label><span>' +
+				'<input type="file" id="xmltv_tv_file" accept=".xml,.m3u" style="max-width:200px"> ' +
+				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'tv\', this)">{=L:yw.fm.upload=}</button></span></div></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">WebRadio</div>' +
-				'<textarea id="xmltv_radio" rows="4" style="width:100%">' + escapeHtml(radio) + '</textarea></div>' +
+				'<textarea id="xmltv_radio" rows="4" style="width:100%">' + escapeHtml(radio) + '</textarea>' +
+				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label><span>' +
+				'<input type="file" id="xmltv_radio_file" accept=".xml,.m3u" style="max-width:200px"> ' +
+				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'radio\', this)">{=L:yw.fm.upload=}</button></span></div></div>' +
 				'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_hint=}</small></label>' +
 				'<button type="button" class="yweb-btn" onclick="saveXmltv(this)">{=L:yw.bqe.save_reload=}</button></div>';
 		} catch (e) {
 			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
 		}
+	}
+
+	// Lokale Quelldatei ins WebTV/WebRadio-Verzeichnis hochladen und ihren
+	// Pfad als neue Zeile in die passende Quellliste eintragen (Speichern
+	// aktiviert sie dann wie eine URL-Zeile). Ersetzt xmltvlist NICHT sofort.
+	async function uploadXmltv(kind, btn) {
+		var inp = document.getElementById('xmltv_' + kind + '_file');
+		var ta = document.getElementById('xmltv_' + kind);
+		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
+		btn.disabled = true;
+		try {
+			var paths = await ywebApi('paths');
+			var dir = (kind === 'tv' ? paths.webtvdir_var : paths.webradiodir_var) || paths.configdir;
+			var f = inp.files[0];
+			var fd = new FormData();
+			fd.append('file', f);
+			var up = await fetch('/api/v4/file?action=upload&path=' + encodeURIComponent(dir),
+				{method: 'POST', body: fd});
+			if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
+			var res = await up.json();
+			var savedPath = (res.data && res.data.path) || (dir + '/' + f.name);
+			if (ta && ta.value.split('\n').indexOf(savedPath) < 0)
+				ta.value = (ta.value ? ta.value.replace(/\n*$/, '\n') : '') + savedPath;
+			ywebShowToast('{=L:yw.fm.uploaded=}: ' + savedPath);
+			inp.value = '';
+		} catch (e) { ywebShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true); }
+		btn.disabled = false;
 	}
 
 	async function saveXmltv(btn) {
@@ -706,33 +739,42 @@
 	// Zapit-Upload: Kanal-/Bouquet-XML hochladen und aktivieren
 	function renderZapitUploadPanel() {
 		return '<div class="settings-card">' + makeCardHeader('Zapit-Upload', false) +
-			'<div class="yweb-form-section"><div class="yweb-form-section-title">Senderlisten-Datei einspielen</div>' +
+			'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.zapit_section=}</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.zapit_target=}</label>' +
 			'<select id="zapitTarget"><option>ubouquets.xml</option><option>bouquets.xml</option><option>services.xml</option><option>myservices.xml</option></select></div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.fm.file=}</label><span>' +
 			'<input type="file" id="zapitFile" accept=".xml" style="max-width:220px"> ' +
-			'<button type="button" class="yweb-btn" onclick="doZapitUpload(this)">Hochladen & Aktivieren</button></span></div>' +
-			'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">Nach dem Upload werden die Kanallisten neu geladen</small></label></div></div></div>';
+			'<button type="button" class="yweb-btn" onclick="doZapitUpload(this)">{=L:yw.set.zapit_btn=}</button></span></div>' +
+			'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.zapit_hint=}</small></label>' +
+			'<span id="zapitStatus" style="color:var(--pico-muted-color);font-size:0.8rem"></span></div></div></div>';
 	}
 
 	async function doZapitUpload(btn) {
 		var inp = document.getElementById('zapitFile');
 		var target = (document.getElementById('zapitTarget') || {}).value;
+		var status = document.getElementById('zapitStatus');
 		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
-		if (!confirm(target + ' wirklich ersetzen?')) return;
+		if (!confirm(target + ' {=L:yw.set.zapit_confirm=}')) return;
 		btn.disabled = true;
+		if (status) status.textContent = '{=L:yw.inst.uploading=}…';
 		try {
 			var f = inp.files[0];
 			var fd = new FormData();
 			fd.append('file', f);
 			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
-			if (!up.ok) throw new Error('Upload fehlgeschlagen');
+			if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
+			var res = await up.json();
+			var size = (res.data && res.data.size) || '?';
 			var paths = await ywebApi('paths');
 			var confdir = paths.configdir || '/var/tuxbox/config';
 			await ywebApi('exec', 'Y_Tools&exec_cmd&cp&' + encodeURIComponent('/tmp/' + f.name) + '&' + encodeURIComponent(confdir + '/zapit/' + target), {raw: true});
 			await ywebApi('reloadchannels');
-			ywebShowToast(target + ' eingespielt, Kanallisten neu geladen');
-		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
+			if (status) status.textContent = target + ' ✓ (' + size + ' B)';
+			ywebShowToast(target + ' {=L:yw.set.zapit_done=}');
+		} catch (e) {
+			if (status) status.textContent = '';
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+		}
 		btn.disabled = false;
 	}
 
