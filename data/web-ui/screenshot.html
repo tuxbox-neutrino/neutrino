@@ -474,7 +474,7 @@
 			const video = document.getElementById('checkVideo').checked ? 1 : 0;
 
 			try {
-				await fetch('/control/screenshot?name=screenshot&osd=' + osd + '&video=' + video);
+				await ywebApi('screenshot', {name: 'screenshot', osd: osd, video: video});
 				await new Promise(resolve => setTimeout(resolve, 500));
 				loading.style.display = 'none';
 				img.src = '/tmp/screenshot.png?' + Math.random();
@@ -495,7 +495,7 @@
 			placeholder.style.display = 'flex';
 
 			try {
-				await fetch('/control/cmd?rm -f /tmp/*.png');
+				await ywebApi('cmd', 'rm -f /tmp/*.png', {raw: true});
 			} catch (e) {
 				console.error('Clear failed:', e);
 			}
