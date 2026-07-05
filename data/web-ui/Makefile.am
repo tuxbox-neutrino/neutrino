@@ -65,6 +65,7 @@ install_DATA = \
 	Y_Filemgr_Edit.yhtm \
 	Y_Info_Help.yhtm \
 	Y_Info_Menue.yhtm \
+	Y_Lang.yjs \
 	Y_Live_EPG.yhtm \
 	Y_Live_EPG_Info.yhtm \
 	Y_Main.css \

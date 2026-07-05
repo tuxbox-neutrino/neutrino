@@ -1,0 +1,19 @@
+// yWeb language dictionary (server-side rendered)
+// ------------------------------------------------
+// Served through mod_yparser: every L: language token below is replaced
+// with the translation for the active language (CLanguage chain: selected
+// language -> Neutrino -> English). Beware: the parser replaces tokens
+// even inside comments. Load this BEFORE yweb-header.js; ywebL(key, en)
+// in yweb-header.js reads window.YWEB_L and falls back to its second
+// argument when a key is missing or untranslated.
+// Convention: modern-UI keys live under the yw.* prefix in
+// data/y-web/languages/<Language>. Translation values must not contain
+// double quotes.
+window.YWEB_L = {
+	"nav.dashboard": "{=L:yw.nav.dashboard=}",
+	"nav.bouquets": "{=L:yw.nav.bouquets=}",
+	"nav.epg": "{=L:yw.nav.epg=}",
+	"nav.timer": "{=L:yw.nav.timer=}",
+	"nav.settings": "{=L:yw.nav.settings=}",
+	"nav.tools": "{=L:yw.nav.tools=}"
+};

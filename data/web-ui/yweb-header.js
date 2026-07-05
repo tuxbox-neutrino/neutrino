@@ -9,6 +9,17 @@ const YWEB_CONFIG = {
 	title: 'yWeb'
 };
 
+// i18n helper: reads the server-rendered dictionary from Y_Lang.yjs
+// (window.YWEB_L, CLanguage chain incl. EN-Fallback). Second argument is
+// the English fallback for pages that do not load the dictionary and for
+// keys the server marks as missing ("# key #").
+function ywebL(key, fallbackEN) {
+	var d = window.YWEB_L;
+	var v = d && d[key];
+	if (v && v === '# yw.' + key + ' #') v = ''; // CLanguage missing-marker
+	return v || fallbackEN || key;
+}
+
 // SVG Icons for menu items
 const YWEB_ICONS = {
 	dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
@@ -91,12 +102,12 @@ const YWEB_ABOUT_HTML = `
 // Generate header HTML with optional active page
 function ywebGetHeaderHTML(activePage) {
 	const nav = YWEB_CONFIG.navigation || [
-		{ page: 'dashboard', href: '/dashboard.html', icon: 'dashboard', label: 'Dashboard' },
-		{ page: 'bouquets', href: '/bouquets.html', icon: 'bouquets', label: 'Bouquets' },
-		{ page: 'epg', href: '/epg.html', icon: 'epg', label: 'EPG' },
-		{ page: 'timer', href: '/timer.html', icon: 'timer', label: 'Timer' },
-		{ page: 'settings', href: '/settings.html', icon: 'settings', label: 'Einstellungen' },
-		{ page: 'tools', href: '/tools.html', icon: 'tools', label: 'Tools' }
+		{ page: 'dashboard', href: '/dashboard.html', icon: 'dashboard', label: ywebL('nav.dashboard', 'Dashboard') },
+		{ page: 'bouquets', href: '/bouquets.html', icon: 'bouquets', label: ywebL('nav.bouquets', 'Bouquets') },
+		{ page: 'epg', href: '/epg.html', icon: 'epg', label: ywebL('nav.epg', 'EPG') },
+		{ page: 'timer', href: '/timer.html', icon: 'timer', label: ywebL('nav.timer', 'Timer') },
+		{ page: 'settings', href: '/settings.html', icon: 'settings', label: ywebL('nav.settings', 'Settings') },
+		{ page: 'tools', href: '/tools.html', icon: 'tools', label: ywebL('nav.tools', 'Tools') }
 	];
 
 	const navItems = nav.map(item => {

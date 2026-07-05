@@ -572,3 +572,11 @@ rc.key_picsize=Pic Size
 rc.key_picmode=Pic Mode
 rc.key_pos=Pos
 rc.key_recall=Recall
+
+# ===== MODERN YWEB UI (yw.* keys, see Y_Lang.yjs)
+yw.nav.dashboard=Dashboard
+yw.nav.bouquets=Bouquets
+yw.nav.epg=EPG
+yw.nav.timer=Timer
+yw.nav.settings=Settings
+yw.nav.tools=Tools
