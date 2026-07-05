@@ -367,8 +367,7 @@ function ywebLoadHostname() {
 	if (!el) return;
 
 	// Prefer sysinfo (real hostname), fallback to boxinfo (boxname)
-	fetch('/control/sysinfo')
-		.then(response => response.json())
+	ywebApi('sysinfo')
 		.then(data => {
 			if (data && data.hostname) {
 				el.textContent = data.hostname;
@@ -380,17 +379,9 @@ function ywebLoadHostname() {
 }
 
 function ywebLoadHostnameFallback(el) {
-	fetch('/control/boxinfo')
-		.then(response => response.text())
+	ywebApi('boxinfo')
 		.then(data => {
-			const lines = data.split('\n');
-			for (const line of lines) {
-				if (line.startsWith('boxname=')) {
-					const name = line.substring(8).trim();
-					if (name) { el.textContent = name; return; }
-				}
-			}
-			el.textContent = 'neutrino';
+			el.textContent = (data && data.boxname) ? data.boxname : 'neutrino';
 		})
 		.catch(() => { el.textContent = 'neutrino'; });
 }
@@ -458,8 +449,7 @@ function ywebInitFooter() {
 	}
 
 	// Load versions from API
-	fetch('/control/versions')
-		.then(response => response.json())
+	ywebApi('versions')
 		.then(data => {
 			if (data.yweb) {
 				const el = document.getElementById('yweb-footer-version');
@@ -501,14 +491,55 @@ async function ywebFetchJson(url) {
 	return resp.json();
 }
 
+// Central /api/v4/ fetch helper — the ONLY way modern pages talk to the box.
+//   ywebApi('timer')                            -> parsed JSON payload
+//   ywebApi('timer', {action:'new', type:5})    -> envelope-checked action
+//   ywebApi('setmode', {status:''})             -> key-only query param
+//   ywebApi('cmd', 'ps', {raw:true})            -> raw text (cmd/exec/rcem)
+// Throws Error on HTTP failure or {"success":"false"} envelopes; the
+// error message carries error.msg from the box when available.
+async function ywebApi(endpoint, params, opts) {
+	opts = opts || {};
+	var url = '/api/v4/' + endpoint;
+	if (params) {
+		if (typeof params === 'string') {
+			url += '?' + params;
+		} else {
+			var q = [];
+			for (var k in params) {
+				if (!Object.prototype.hasOwnProperty.call(params, k)) continue;
+				var v = params[k];
+				q.push(v === '' || v === null || v === undefined
+					? encodeURIComponent(k)
+					: encodeURIComponent(k) + '=' + encodeURIComponent(v));
+			}
+			if (q.length) url += '?' + q.join('&');
+		}
+	}
+	var resp = await fetch(url);
+	if (!resp.ok) {
+		var errText = '';
+		try {
+			var errData = await resp.json();
+			if (errData && errData.error && errData.error.msg) errText = errData.error.msg;
+		} catch (ignore) {}
+		throw new Error(errText || (endpoint + ': HTTP ' + resp.status));
+	}
+	if (opts.raw) return resp.text();
+	var data = await resp.json();
+	if (data && data.success === 'false')
+		throw new Error((data.error && data.error.msg) ? data.error.msg : ('Fehler: ' + endpoint));
+	return data;
+}
+
 async function ywebSendKey(key) {
 	if (key === 'KEY_POWER') {
 		try {
-			var status = await fetch('/control/standby').then(function(r) { return r.text(); });
-			if (status.trim() === 'off' && !confirm('Box in Standby versetzen?')) return;
+			var st = await ywebApi('standby', {status: ''});
+			if (st && st.standby === false && !confirm('Box in Standby versetzen?')) return;
 		} catch (e) { /* ignore */ }
 	}
-	return fetch('/control/rcem?' + key);
+	return ywebApi('rcem', key, {raw: true});
 }
 
 // ═══ Remote Control Component ═══
@@ -848,8 +879,7 @@ async function ywebShowEpgModal(channelId, channelName) {
 
 	try {
 		const now = Math.floor(Date.now() / 1000);
-		const response = await fetch('/control/epg?format=json&channelid=' + channelId + '&details=true&max=2&starttime=' + now);
-		const data = await response.json();
+		const data = await ywebApi('epg', {channelid: channelId, details: 'true', max: 2, starttime: now});
 		const progData = data?.data?.epglist?.progData || data?.epglist?.progData;
 
 		if (!progData || progData.length === 0) {
@@ -950,8 +980,7 @@ async function ywebRecordEvent(channelId, channelName, startSec, stopSec) {
 		// If no EPG times provided, fetch current EPG
 		if (!startSec || !stopSec) {
 			const now = Math.floor(Date.now() / 1000);
-			const resp = await fetch('/control/epg?format=json&channelid=' + channelId + '&max=1&starttime=' + now);
-			const epg = await resp.json();
+			const epg = await ywebApi('epg', {channelid: channelId, max: 1, starttime: now});
 			const prog = epg?.data?.epglist?.progData?.[0] || epg?.epglist?.progData?.[0];
 			if (prog) {
 				startSec = parseInt(prog.start_sec || '0');
@@ -964,18 +993,11 @@ async function ywebRecordEvent(channelId, channelName, startSec, stopSec) {
 			return;
 		}
 
-		const url = '/control/timer?action=new&type=5&alarm=' + startSec + '&stop=' + stopSec + '&channel_id=' + channelId;
-		const resp = await fetch(url);
-		const text = await resp.text();
-
-		if (text.trim().toLowerCase() === 'ok') {
-			ywebShowToast('Aufnahme geplant: ' + (channelName || ''));
-		} else {
-			ywebShowToast('Fehler: ' + text.trim(), true);
-		}
+		await ywebApi('timer', {action: 'new', type: 5, alarm: startSec, stop: stopSec, channel_id: channelId});
+		ywebShowToast('Aufnahme geplant: ' + (channelName || ''));
 	} catch (e) {
 		console.error('Record failed:', e);
-		ywebShowToast('Aufnahme fehlgeschlagen', true);
+		ywebShowToast('Fehler: ' + e.message, true);
 	}
 }
 
@@ -983,18 +1005,12 @@ async function ywebRecordEvent(channelId, channelName, startSec, stopSec) {
 async function ywebStopRecording(timerId) {
 	try {
 		if (timerId) {
-			var resp = await fetch('/control/timer?action=remove&id=' + timerId);
-			var text = await resp.text();
-			if (text.trim().toLowerCase() === 'ok') {
-				ywebShowToast('Aufnahme gestoppt');
-			} else {
-				ywebShowToast('Fehler: ' + text.trim(), true);
-			}
+			await ywebApi('timer', {action: 'remove', id: timerId});
+			ywebShowToast('Aufnahme gestoppt');
 			return;
 		}
 		// No ID given: find running recording timer and remove it
-		var tResp = await fetch('/control/timer?format=json');
-		var tData = await tResp.json();
+		var tData = await ywebApi('timer');
 		var timers = ywebParseTimerList(tData);
 		var running = timers.filter(function(t) {
 			return parseInt(t.state) === 2 && (parseInt(t.type_number) === 5 || parseInt(t.type_number) === 9);
@@ -1002,34 +1018,28 @@ async function ywebStopRecording(timerId) {
 		if (running.length > 0) {
 			var id = running[0].id || running[0].eventID;
 			if (id) {
-				var rResp = await fetch('/control/timer?action=remove&id=' + id);
-				var rText = await rResp.text();
-				if (rText.trim().toLowerCase() === 'ok') {
-					ywebShowToast('Aufnahme gestoppt');
-				} else {
-					ywebShowToast('Fehler: ' + rText.trim(), true);
-				}
+				await ywebApi('timer', {action: 'remove', id: id});
+				ywebShowToast('Aufnahme gestoppt');
 				return;
 			}
 		}
 		// Fallback: try setmode stop (for immediate recordings without timer)
-		await fetch('/control/setmode?record=stop');
+		await ywebApi('setmode', {record: 'stop'});
 		// Clean up stale timer entries left by setmode stop
 		try {
-			var cResp = await fetch('/control/timer?format=json');
-			var cData = await cResp.json();
+			var cData = await ywebApi('timer');
 			var cTimers = ywebParseTimerList(cData);
 			var stale = cTimers.filter(function(t) {
 				return parseInt(t.state) === 2 && (parseInt(t.type_number) === 5 || parseInt(t.type_number) === 9);
 			});
 			for (var i = 0; i < stale.length; i++) {
 				var sid = stale[i].id || stale[i].eventID;
-				if (sid) await fetch('/control/timer?action=remove&id=' + sid);
+				if (sid) await ywebApi('timer', {action: 'remove', id: sid});
 			}
 		} catch (ignore) {}
 		ywebShowToast('Aufnahme gestoppt');
 	} catch (e) {
-		ywebShowToast('Fehler beim Stoppen', true);
+		ywebShowToast('Fehler beim Stoppen: ' + e.message, true);
 	}
 }
 
@@ -1057,11 +1067,9 @@ function ywebEpgModalUpdateRecBtn(isRecording) {
 // Check if current channel is being recorded
 async function ywebCheckRecordingForChannel(channelId) {
 	try {
-		const resp = await fetch('/control/setmode?status&format=json');
-		const data = await resp.json();
+		const data = await ywebApi('setmode', {status: ''});
 		if (!data || !data.recording) return false;
-		const tResp = await fetch('/control/timer?format=json');
-		const tData = await tResp.json();
+		const tData = await ywebApi('timer');
 		const timers = ywebParseTimerList(tData);
 		return timers.some(function(t) {
 			return (parseInt(t.state) === 2) && (parseInt(t.type_number) === 5 || parseInt(t.type_number) === 9)
@@ -1152,8 +1160,7 @@ function ywebParseTimerList(data) {
 let _ywebBouquetCache = null;
 async function ywebFetchBouquets() {
 	if (_ywebBouquetCache) return _ywebBouquetCache;
-	const resp = await fetch('/control/getbouquets?format=json');
-	const data = await resp.json();
+	const data = await ywebApi('bouquets');
 	const root = data.data || data;
 	_ywebBouquetCache = root.bouquets || [];
 	return _ywebBouquetCache;
@@ -1163,8 +1170,7 @@ async function ywebFetchBouquets() {
 let _ywebChannelCache = {};
 async function ywebFetchChannels(bouquetNr) {
 	if (_ywebChannelCache[bouquetNr]) return _ywebChannelCache[bouquetNr];
-	const resp = await fetch('/control/getbouquet?bouquet=' + bouquetNr + '&format=json');
-	const data = await resp.json();
+	const data = await ywebApi('bouquet', {bouquet: bouquetNr});
 	const root = data.data || data;
 	_ywebChannelCache[bouquetNr] = root.channels || [];
 	return _ywebChannelCache[bouquetNr];
@@ -1247,9 +1253,10 @@ async function ywebSendMessage(mode) {
 
 	var result = document.getElementById('yweb-msg-result');
 	try {
-		var res = await fetch('/control/message?' + mode + '=' + encodeURIComponent(text));
-		var answer = (await res.text()).trim();
-		result.textContent = (answer || 'Gesendet');
+		var params = {};
+		params[mode] = text;
+		await ywebApi('message', params);
+		result.textContent = 'Gesendet';
 		result.style.color = 'var(--yweb-success)';
 		input.value = '';
 		setTimeout(function() { result.textContent = '\u00a0'; result.style.color = ''; }, 2500);
@@ -1299,8 +1306,7 @@ function ywebShowAbout() {
 	if (!modal) return;
 
 	// Load data from API (versions and links)
-	fetch('/control/versions')
-		.then(response => response.json())
+	ywebApi('versions')
 		.then(data => {
 			const setEl = (id, val) => {
 				const el = document.getElementById(id);
@@ -1331,35 +1337,18 @@ function ywebShowAbout() {
 		})
 		.catch(() => {});
 
-	// Load box info (JSON API)
-	fetch('/control/boxinfo?format=json')
-		.then(response => response.json())
+	// Load box info (v4 delivers JSON natively, no legacy text fallback needed)
+	ywebApi('boxinfo')
 		.then(data => {
 			const boxEl = document.getElementById('about-box');
 			if (boxEl) boxEl.textContent = (data.vendor && data.boxname) ? data.vendor + ' ' + data.boxname : data.boxname || '--';
 			const archEl = document.getElementById('about-arch');
 			if (archEl) archEl.textContent = data.boxarch || '--';
 		})
-		.catch(() => {
-			// Fallback to legacy text API
-			fetch('/control/boxinfo').then(r => r.text()).then(text => {
-				const lines = text.split('\n');
-				let vendor = '', boxname = '', arch = '';
-				lines.forEach(line => {
-					if (line.startsWith('vendor=')) vendor = line.substring(7);
-					if (line.startsWith('boxname=')) boxname = line.substring(8);
-					if (line.startsWith('boxarch=')) arch = line.substring(8);
-				});
-				const boxEl = document.getElementById('about-box');
-				if (boxEl) boxEl.textContent = (vendor && boxname) ? vendor + ' ' + boxname : boxname || '--';
-				const archEl = document.getElementById('about-arch');
-				if (archEl) archEl.textContent = arch || '--';
-			}).catch(() => {});
-		});
+		.catch(() => {});
 
-	// Load OS info (JSON API)
-	fetch('/control/osinfo?format=json')
-		.then(response => response.json())
+	// Load OS info
+	ywebApi('osinfo')
 		.then(data => {
 			const osEl = document.getElementById('about-os');
 			if (osEl) osEl.textContent = data.pretty_name || data.name || '--';
