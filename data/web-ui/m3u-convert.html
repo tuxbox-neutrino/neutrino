@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - m3u-Konverter</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		.m3u-wrap { max-width: 920px; margin: 0 auto; padding: 1rem; }
+		.m3u-wrap textarea { width: 100%; font-family: monospace; font-size: 0.8rem; }
+		.m3u-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+		.m3u-meta label { display: flex; flex-direction: column; font-size: 0.8rem; gap: 0.2rem; }
+		.m3u-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin: 0.8rem 0; }
+	</style>
+</head>
+<body>
+	<div class="yweb-header-wrapper" data-page="tools"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<main class="m3u-wrap">
+		<div class="settings-card" style="padding:1rem">
+			<h3>m3u → WebTV-XML</h3>
+			<p style="color:var(--pico-muted-color);font-size:0.85rem">
+				Wandelt m3u-Playlisten (#EXTINF) in das <code>webtv_usr.xml</code>-Format.
+				Danach die Datei unter Einstellungen → WebTV-Quellen eintragen.</p>
+
+			<div class="yweb-form-section-title">1. Streams einfügen</div>
+			<textarea id="m3uInput" rows="9" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
+			<div class="m3u-actions">
+				<label class="yweb-btn" style="cursor:pointer">m3u-Datei laden
+					<input type="file" id="m3uFile" accept=".m3u,.m3u8,.txt" multiple style="display:none">
+				</label>
+			</div>
+
+			<div class="yweb-form-section-title">2. Metadaten</div>
+			<div class="m3u-meta">
+				<label>Titel <input id="m3uTitle" value="eigene Streams"></label>
+				<label>Beschreibung <input id="m3uDesc" value="webtv"></label>
+				<label>Genre <input id="m3uGenre" value="Movie"></label>
+				<label>Dateiname <input id="m3uName" value="webtv_usr.xml"></label>
+			</div>
+
+			<div class="m3u-actions">
+				<button type="button" class="yweb-btn" onclick="m3uConvert()">Umwandeln</button>
+				<button type="button" class="yweb-btn" onclick="m3uDownload()">Als Datei laden</button>
+				<button type="button" class="yweb-btn" onclick="m3uSaveToBox(this)">Auf Box speichern</button>
+			</div>
+
+			<div class="yweb-form-section-title">3. Ergebnis</div>
+			<textarea id="m3uOutput" rows="10" placeholder="(webtv_usr.xml erscheint hier)"></textarea>
+		</div>
+	</main>
+
+	<script src="/yweb-header.js?v=28"></script>
+	<script>
+		document.getElementById('m3uFile').addEventListener('change', function() {
+			var files = this.files;
+			var inp = document.getElementById('m3uInput');
+			var pending = files.length;
+			for (var i = 0; i < files.length; i++) {
+				var r = new FileReader();
+				r.onload = function(ev) {
+					inp.value += (inp.value ? '\n' : '') + ev.target.result;
+					if (--pending === 0) ywebShowToast(files.length + ' Datei(en) geladen');
+				};
+				r.readAsText(files[i]);
+			}
+		});
+
+		// Portierung der Y_Tools_m3uConvert-Logik: #EXTINF liefert den Namen,
+		// die Folgezeile die URL; udp://@ wird zu udp/, & wird XML-escaped
+		function m3uConvert() {
+			var lines = document.getElementById('m3uInput').value.split('\n');
+			var title = document.getElementById('m3uTitle').value;
+			var desc = document.getElementById('m3uDesc').value;
+			var genre = document.getElementById('m3uGenre').value;
+			var s = '<?xml version="1.0"?>\n<webtvs name="[' + title + '] ">\n';
+			var name = '';
+			var count = 0;
+			for (var i = 0; i < lines.length; i++) {
+				var v = lines[i].trim();
+				if (v === '') continue;
+				if (v.indexOf('#') !== -1) {
+					if (v.toUpperCase().indexOf('#EXTINF') !== -1) {
+						var ci = v.indexOf(',');
+						if (ci !== -1) name = v.substr(ci + 1);
+					}
+					continue;
+				}
+				var url = (v.toUpperCase().indexOf('UDP:') !== -1) ? v.replace('udp://@', 'udp/') : v;
+				name = name.replace(/#EXTINF:|[0-9],|-[1-9],|,/g, '').replace(/^\s+/g, '');
+				if (name === '') name = 'Kanal ' + i;
+				s += '    <webtv title="' + name + '" url="' + url +
+					'" epgid="" genre="' + genre + '" description="' + desc + '" />\n';
+				name = '';
+				count++;
+			}
+			s += '</webtvs>';
+			s = s.split('&').join('&amp;');
+			document.getElementById('m3uOutput').value = s;
+			ywebShowToast(count + ' Streams umgewandelt');
+		}
+
+		function m3uDownload() {
+			var out = document.getElementById('m3uOutput').value;
+			if (!out) { ywebShowToast('Erst umwandeln', true); return; }
+			var name = document.getElementById('m3uName').value || 'webtv_usr.xml';
+			var a = document.createElement('a');
+			a.href = URL.createObjectURL(new Blob([out], {type: 'text/xml'}));
+			a.download = name;
+			a.click();
+			URL.revokeObjectURL(a.href);
+		}
+
+		async function m3uSaveToBox(btn) {
+			var out = document.getElementById('m3uOutput').value;
+			if (!out) { ywebShowToast('Erst umwandeln', true); return; }
+			var name = document.getElementById('m3uName').value || 'webtv_usr.xml';
+			btn.disabled = true;
+			try {
+				var paths = await ywebApi('paths');
+				var target = (paths.configdir || '/var/tuxbox/config');
+				var fd = new FormData();
+				fd.append('file', new Blob([out], {type: 'text/xml'}), name);
+				var up = await fetch('/api/v4/file?action=upload&path=' + encodeURIComponent(target), {method: 'POST', body: fd});
+				if (!up.ok) throw new Error('Upload fehlgeschlagen');
+				ywebShowToast('Gespeichert: ' + target + '/' + name + ' — als Quelle eintragen!');
+			} catch (e) {
+				ywebShowToast('Fehler: ' + e.message, true);
+			}
+			btn.disabled = false;
+		}
+
+		ywebInitHeader('tools');
+	</script>
+</body>
+</html>

@@ -18,6 +18,7 @@ install_DATA = \
 	dashboard.html \
 	epg.html \
 	files.html \
+	m3u-convert.html \
 	screenshot.html \
 	settings.html \
 	settings-registry.js \
