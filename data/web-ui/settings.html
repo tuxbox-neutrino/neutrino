@@ -313,9 +313,11 @@
 		btn.textContent = orig;
 	}
 
-	function renderField(f) {
-		var val = f.key ? getConfigKey(f.key) : '';
-		var id = 'cfg_' + String(f.key || f.id || '').replace(/\./g, '__');
+	function renderField(f, opts) {
+		opts = opts || {};
+		var val = opts.get ? (opts.get(f.key) || '') : (f.key ? getConfigKey(f.key) : '');
+		var id = 'cfg_' + (opts.idPrefix || '') + String(f.key || f.id || '').replace(/\./g, '__');
+		var ext = opts.dataConfig ? ' data-extcfg="' + opts.dataConfig + '"' : '';
 
 		if (f.type === 'info') {
 			var text = (f.text !== undefined) ? f.text : val;
@@ -334,18 +336,18 @@
 				return '<option value="' + o.v + '"' + (val === o.v ? ' selected' : '') + '>' + o.l + '</option>';
 			}).join('');
 			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<select id="' + id + '" data-key="' + f.key + '">' + opts + '</select></div>';
+				'<select id="' + id + '" data-key="' + f.key + '"' + ext + '>' + opts + '</select></div>';
 		}
 		if (f.type === 'bool') {
 			var isTrue = (val === 'true' || val === '1');
 			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="true" data-off="false"' + (isTrue ? ' checked' : '') + '>' +
+				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="true" data-off="false"' + ext + (isTrue ? ' checked' : '') + '>' +
 				'<span class="yweb-toggle-slider"></span></label></div>';
 		}
 		if (f.type === 'bool01') {
 			var isOne = (val === '1');
 			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="1" data-off="0"' + (isOne ? ' checked' : '') + '>' +
+				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="1" data-off="0"' + ext + (isOne ? ' checked' : '') + '>' +
 				'<span class="yweb-toggle-slider"></span></label></div>';
 		}
 		if (f.type === 'number') {
@@ -353,15 +355,15 @@
 			if (f.min !== undefined) attrs += ' min="' + f.min + '"';
 			if (f.max !== undefined) attrs += ' max="' + f.max + '"';
 			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<input ' + attrs + ' id="' + id + '" data-key="' + f.key + '" value="' + val + '"></div>';
+				'<input ' + attrs + ' id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val + '"></div>';
 		}
 		if (f.type === 'password') {
 			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<input type="password" id="' + id + '" data-key="' + f.key + '" value="' + val.replace(/"/g, '&quot;') + '"></div>';
+				'<input type="password" id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val.replace(/"/g, '&quot;') + '"></div>';
 		}
 		// text
 		return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-			'<input type="text" id="' + id + '" data-key="' + f.key + '" value="' + val.replace(/"/g, '&quot;') + '"></div>';
+			'<input type="text" id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val.replace(/"/g, '&quot;') + '"></div>';
 	}
 
 	function renderCategory(catId) {
@@ -370,6 +372,8 @@
 
 		if (cat.custom && cat.id === 'mounts') return renderMountsPanel();
 		if (cat.custom && cat.id === 'plugins') return renderPluginsPanel();
+		if (cat.custom && cat.id === 'backup') return renderBackupPanel();
+		if (cat.config && cat.config !== 'neutrino') return renderExtConfigPanel(cat);
 
 		var html = makeCardHeader(cat.label);
 		cat.sections.forEach(function(sec) {
@@ -382,6 +386,112 @@
 		});
 
 		return '<div class="settings-card">' + html + '</div>';
+	}
+
+	// Kategorien mit eigener Config-Datei (nhttpd.conf, yWeb.conf, ...):
+	// eigener Load/Diff/Save-Zyklus gegen config=<name>, getrennt vom
+	// neutrino-Hauptformular (collectValues ignoriert data-extcfg-Felder)
+	var EXT_CONFIG_CACHE = {};
+	function renderExtConfigPanel(cat) {
+		setTimeout(function() { loadExtConfigPanel(cat); }, 0);
+		return '<div class="settings-card">' + makeCardHeader(cat.label) +
+			'<div id="extcfg-' + cat.id + '"><p aria-busy="true">Lade\u2026</p></div></div>';
+	}
+
+	async function loadExtConfigPanel(cat) {
+		var el = document.getElementById('extcfg-' + cat.id);
+		if (!el) return;
+		try {
+			var resp = await ywebApi('config', {config: cat.config});
+			var cfg = (resp && resp.data && resp.data.config) || {};
+			EXT_CONFIG_CACHE[cat.config] = cfg;
+			var get = function(key) { return cfg[String(key).replace(/\./g, '_dot_').replace(/-/g, '_bind_')] || ''; };
+			var html = '';
+			cat.sections.forEach(function(sec) {
+				html += '<div class="yweb-form-section"><div class="yweb-form-section-title">' + sec.title + '</div>';
+				sec.fields.forEach(function(f) {
+					html += renderField(f, {get: get, dataConfig: cat.config, idPrefix: cat.id + '_'});
+				});
+				html += '</div>';
+			});
+			html += '<div class="yweb-form-row"><label></label>' +
+				'<button type="button" class="yweb-btn" onclick="saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)">Speichern</button></div>';
+			el.innerHTML = html;
+		} catch (e) {
+			el.innerHTML = '<div class="yweb-form-row"><label>Nicht verf\u00fcgbar: ' + escapeHtml(e.message) + '</label></div>';
+		}
+	}
+
+	async function saveExtConfig(catId, cfgName, btn) {
+		var root = document.getElementById('extcfg-' + catId);
+		var cfg = EXT_CONFIG_CACHE[cfgName] || {};
+		var params = 'action=submit';
+		var changed = 0;
+		root.querySelectorAll('[data-key][data-extcfg]').forEach(function(el) {
+			var key = el.getAttribute('data-key');
+			var val = (el.type === 'checkbox') ? (el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off')) : el.value;
+			var ck = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+			if (val !== (cfg[ck] || '')) {
+				params += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(val);
+				changed++;
+			}
+		});
+		if (changed === 0) { ywebShowToast('Keine \u00c4nderungen'); return; }
+		btn.disabled = true;
+		try {
+			await ywebApi('config', 'config=' + cfgName + '&' + params);
+			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
+			await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }));
+		} catch (e) {
+			ywebShowToast('Fehler: ' + e.message, true);
+		}
+		btn.disabled = false;
+	}
+
+	// Backup/Restore der Einstellungen via exec-Vertrag
+	// (Y_Tools settings_backup_restore; Script echot den Archivpfad)
+	function renderBackupPanel() {
+		return '<div class="settings-card">' + makeCardHeader('Sichern & Wiederherstellen') +
+			'<div class="yweb-form-section"><div class="yweb-form-section-title">Backup</div>' +
+			'<div class="yweb-form-row"><label>Einstellungen sichern <small style="color:var(--pico-muted-color)">erzeugt ein Archiv und laedt es herunter</small></label>' +
+			'<button type="button" class="yweb-btn" onclick="doSettingsBackup(this)">Backup erstellen</button></div></div>' +
+			'<div class="yweb-form-section"><div class="yweb-form-section-title">Restore</div>' +
+			'<div class="yweb-form-row"><label>Archiv einspielen <small style="color:var(--pico-muted-color)">danach Neutrino neu starten</small></label>' +
+			'<span><input type="file" id="restoreFile" style="max-width:220px"> ' +
+			'<button type="button" class="yweb-btn" onclick="doSettingsRestore(this)">Wiederherstellen</button></span></div></div></div>';
+	}
+
+	async function doSettingsBackup(btn) {
+		btn.disabled = true;
+		try {
+			var out = (await ywebApi('exec', 'Y_Tools&settings_backup_restore&backup', {raw: true})).trim();
+			var file = out.split('\n').pop().trim();
+			if (file.indexOf('/') !== 0) throw new Error(out || 'kein Archiv erzeugt');
+			ywebShowToast('Backup: ' + file);
+			window.location.href = '/api/v4/file?action=download&path=' + encodeURIComponent(file);
+		} catch (e) {
+			ywebShowToast('Backup fehlgeschlagen: ' + e.message, true);
+		}
+		btn.disabled = false;
+	}
+
+	async function doSettingsRestore(btn) {
+		var inp = document.getElementById('restoreFile');
+		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('Keine Datei gewaehlt', true); return; }
+		if (!confirm('Einstellungen wirklich ueberschreiben?')) return;
+		btn.disabled = true;
+		try {
+			var f = inp.files[0];
+			var fd = new FormData();
+			fd.append('file', f);
+			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
+			if (!up.ok) throw new Error('Upload fehlgeschlagen');
+			var out = await ywebApi('exec', 'Y_Tools&exec_cmd&restore.sh&' + encodeURIComponent('/tmp/' + f.name), {raw: true});
+			ywebShowToast('Restore: ' + (out.trim() || 'ausgefuehrt - bitte Neutrino neu starten'));
+		} catch (e) {
+			ywebShowToast('Restore fehlgeschlagen: ' + e.message, true);
+		}
+		btn.disabled = false;
 	}
 
 	// Plugins: Liste vom v4 plugins-Endpoint, Start via startplugin.
@@ -566,10 +676,10 @@
 		var panel = document.querySelector('.settings-panel.active');
 		if (!panel) return values;
 
-		panel.querySelectorAll('select[data-key], input[type="text"][data-key], input[type="number"][data-key], input[type="password"][data-key]').forEach(function(el) {
+		panel.querySelectorAll('select[data-key]:not([data-extcfg]), input[type="text"][data-key]:not([data-extcfg]), input[type="number"][data-key]:not([data-extcfg]), input[type="password"][data-key]:not([data-extcfg])').forEach(function(el) {
 			values[el.getAttribute('data-key')] = el.value;
 		});
-		panel.querySelectorAll('input[type="checkbox"][data-key]').forEach(function(el) {
+		panel.querySelectorAll('input[type="checkbox"][data-key]:not([data-extcfg])').forEach(function(el) {
 			values[el.getAttribute('data-key')] = el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off');
 		});
 		return values;

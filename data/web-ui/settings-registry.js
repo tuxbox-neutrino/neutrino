@@ -144,5 +144,62 @@ var SETTINGS_REGISTRY = [
 		id: 'plugins',
 		label: 'Plugins',
 		custom: true
+	},
+	{
+		id: 'backup',
+		label: 'Sichern',
+		custom: true
+	},
+	{
+		id: 'nhttpd',
+		label: 'Webserver',
+		config: 'nhttpd',
+		sections: [
+			{
+				title: 'Zugriff',
+				fields: [
+					{ key: 'mod_auth.authenticate', label: 'Passwortschutz', type: 'bool' },
+					{ key: 'mod_auth.username', label: 'Benutzer', type: 'text' },
+					{ key: 'mod_auth.password', label: 'Passwort', type: 'password' },
+					{ key: 'mod_auth.no_auth_client', label: 'Ohne Login (IP-Prefix)', type: 'text' },
+					{ key: 'WebsiteMain.port', label: 'Port', type: 'number', min: 1, max: 65535 }
+				]
+			},
+			{
+				title: 'Inhalte',
+				fields: [
+					{ key: 'WebsiteMain.override_directory', label: 'Override-Verzeichnis', type: 'text' },
+					{ key: 'WebsiteMain.hosted_directory', label: 'Hosted-Verzeichnis', type: 'text' },
+					{ key: 'Tuxbox.DisplayLogos', label: 'Senderlogos anzeigen', type: 'bool' },
+					{ key: 'Tuxbox.LogosURL', label: 'Logos-URL/-Pfad', type: 'text' },
+					{ key: 'webserver.threading', label: 'Threading', type: 'bool' },
+					{ key: 'mod_sendfile.sendAll', label: 'Alle Dateitypen senden', type: 'bool' }
+				]
+			}
+		]
+	},
+	{
+		id: 'yweb',
+		label: 'yWeb',
+		config: 'yweb',
+		sections: [
+			{
+				title: 'Oberflaeche',
+				fields: [
+					{ key: 'start_page', label: 'Startseite', type: 'text' },
+					{ key: 'yweb_box_name', label: 'Box-Name', type: 'text' },
+					{ key: 'yweb_box_color', label: 'Box-Farbe', type: 'text' }
+				]
+			},
+			{
+				title: 'Screenshot & Steuerung',
+				fields: [
+					{ key: 'screenshot_timeout', label: 'Screenshot-Timeout (Sek.)', type: 'number', min: 0 },
+					{ key: 'screenshot_rc', label: 'Screenshot per RC-Taste', type: 'text' },
+					{ key: 'fb', label: 'Framebuffer-Modus', type: 'text' },
+					{ key: 'management_ip', label: 'Management-IP', type: 'text' }
+				]
+			}
+		]
 	}
 ];
