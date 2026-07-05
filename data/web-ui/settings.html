@@ -520,7 +520,7 @@
 		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Gefundene Erweiterungen</div>';
 		exts.forEach(function(m) {
 			html += '<div class="yweb-form-row"><label>' + escapeHtml(m.name) +
-				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') + ' — <a href="' + m.url + '">' + escapeHtml(m.entry) + '</a></small></label><span>' +
+				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') + ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a></small></label><span>' +
 				'<select id="extslot_' + m.dir + '" style="margin:0 0.4rem 0 0;padding:0.2rem;height:auto;width:auto">' +
 				['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
 					return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
@@ -833,7 +833,7 @@
 	}
 
 	function renderMountFields(i, isCifs) {
-		var g = function(k) { return getConfigKey('network_nfs_' + k + '_' + i); };
+		var g = function(k) { return escapeHtml(getConfigKey('network_nfs_' + k + '_' + i)); };
 		var id = function(k) { return 'cfg_network_nfs_' + k + '_' + i; };
 		var dk = function(k) { return 'network_nfs_' + k + '_' + i; };
 

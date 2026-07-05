@@ -788,11 +788,12 @@ function ywebCloseRemote(event) {
 	document.body.classList.remove('yweb-remote-open');
 }
 
+// Also escapes quotes so the result is safe in attribute values.
 function escapeHtml(text) {
 	if (!text) return '';
 	const div = document.createElement('div');
 	div.textContent = text;
-	return div.innerHTML;
+	return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function escapeJs(text) {
