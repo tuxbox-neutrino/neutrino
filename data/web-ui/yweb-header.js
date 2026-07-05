@@ -1427,7 +1427,9 @@ async function ywebDiscoverExtensions() {
 			var isDir = (e.type_str === 'dir' || e.type === 4 || e.type === '4');
 			if (!isDir || !e.name || e.name.charAt(0) === '.') continue;
 			try {
-				var mResp = await fetch('/extensions/' + encodeURIComponent(e.name) + '/manifest.json');
+				// no-cache: revalidieren, sonst ueberlebt ein altes Manifest
+				// im Browser-Cache jede Aenderung auf der Box
+				var mResp = await fetch('/extensions/' + encodeURIComponent(e.name) + '/manifest.json', {cache: 'no-cache'});
 				if (!mResp.ok) continue;
 				var m = await mResp.json();
 				if (!m || !m.name || !m.entry) continue;
