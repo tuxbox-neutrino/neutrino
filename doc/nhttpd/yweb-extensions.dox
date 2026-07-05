@@ -1,0 +1,53 @@
+/*!
+\page ywebext yWeb-Erweiterungen (Manifest, Slots, Schaltung)
+
+\section ywebext_intro Mechanismus
+
+Das moderne yWeb laedt Erweiterungen deklarativ aus
+`<webroot>/extensions/<name>/manifest.json` — kein Patchen von Kernseiten.
+Der Loader lebt in `data/y-web/yweb-header.js` (`ywebDiscoverExtensions` /
+`ywebInjectExtensions`) und laeuft beim Seiten-Init jeder modernen Seite.
+
+\section ywebext_manifest Manifest-Schema
+
+\code{.json}
+{
+	"name": "Meine Erweiterung",
+	"version": "1.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"description": "Untertitel fuer Kachel/Karte"
+}
+\endcode
+
+- `slot`: `nav` (Hauptnavigation) | `tools` (Kachel im Tools-Grid) |
+  `dashboard` (Karte) | `page` (nur Direktaufruf/Verwaltung)
+- `entry`: Einstiegsdatei relativ zum Erweiterungsordner; URL-Schema
+  `/extensions/<ordner>/<entry>`
+
+\section ywebext_gating Config-Schaltung (yWeb.conf)
+
+- `ext_<ordner>_enabled` = `0|1` — Erweiterungen sind standardmaessig AUS
+  (Opt-in), verwaltet ueber Einstellungen → Erweiterungen.
+- `ext_<ordner>_slot` — optionaler Slot-Override.
+- Achtung Encoding: die Config-Ausgabe von CControlAPI::ConfigCGI encodiert
+  `-` als `_bind_` und `.` als `_dot_`; Clients muessen beim LESEN die
+  encodierte Form verwenden (Submit nimmt die rohe Form an).
+
+\section ywebext_rules Vertragsregeln
+
+- Erweiterungen nutzen ausschliesslich die dokumentierte \ref apiv4
+  "/api/v4/-Flaeche" (inkl. exec-Vertrag fuer Script-Aktionen) — keine
+  Abhaengigkeiten auf Kern-Interna.
+- Der Ordnername ist der stabile Schluessel (Config-Keys, URLs) und darf
+  nach Veroeffentlichung nicht wechseln.
+- Fehlt das `extensions/`-Verzeichnis, bleibt der Loader still (kein
+  Fehler).
+
+\section ywebext_ref Referenz & Einsteiger-Doku
+
+- Referenz-Erweiterung: `data/y-web/extensions/hallo-yweb/` (Tools-Kachel +
+  Seite, liest `sysinfo`/`versions` via `ywebApi`).
+- Einsteiger-Anleitung ("Erweiterung in 10 Minuten"):
+  `data/y-web/extensions/README.md`.
+*/

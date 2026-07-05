@@ -109,4 +109,10 @@ relevante stabile Funktionsnamen:
 Verfuegbarkeit ist Paket-abhaengig (yWeb-Scripts installiert?); Clients
 muessen mit Fehlern/leerer Ausgabe degradieren. Fuer alles andere gilt die
 JSON-Flaeche oben.
+
+\section apiv4_ext Erweiterungen
+
+Das moderne yWeb ist ueber einen Manifest-/Slot-Mechanismus erweiterbar;
+Erweiterungen konsumieren ausschliesslich diese v4-Flaeche.
+Details: \ref ywebext "yWeb-Erweiterungen".
 */
