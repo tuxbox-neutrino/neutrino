@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.tools=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=61">
+	<link rel="stylesheet" href="/css/yweb.css?v=62">
 	<style>
 		.yweb-tools-grid {
 			display: grid;
@@ -180,7 +180,7 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=5"></script>
-	<script src="/yweb-header.js?v=36"></script>
+	<script src="/yweb-header.js?v=37"></script>
 	<script>
 		async function bcAction(label, endpoint, params, confirmText) {
 			if (confirmText && !confirm(confirmText)) return;

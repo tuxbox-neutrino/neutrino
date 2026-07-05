@@ -419,6 +419,22 @@ body:not(.has-subheader) .yweb-header-spacer {
 	height: 1rem;
 }
 
+/* Language button: globe + active language code (EN/DE/...) so the
+   switcher is recognizable and not mistaken for a second theme icon. */
+.yweb-lang-btn {
+	width: auto;
+	gap: 0.25rem;
+	padding-left: 0.4rem;
+	padding-right: 0.4rem;
+}
+
+.yweb-lang-code {
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	line-height: 1;
+}
+
 @media (max-width: 480px) {
 	/* Mobile menu backdrop */
 	.yweb-menu-backdrop {

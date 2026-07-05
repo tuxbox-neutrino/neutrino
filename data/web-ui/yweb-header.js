@@ -130,11 +130,12 @@ function ywebGetHeaderHTML(activePage) {
 		<div class="yweb-header-right">
 			<span class="yweb-hostname" id="yweb-hostname">--</span>
 			<span class="yweb-clock" id="yweb-clock">--:--</span>
-			<button class="yweb-theme-toggle" onclick="ywebToggleLangMenu(event)" title="${ywebL('lang.title', 'Language')}">
+			<button class="yweb-theme-toggle yweb-lang-btn" onclick="ywebToggleLangMenu(event)" title="${ywebL('lang.title', 'Language')}">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<circle cx="12" cy="12" r="9" stroke-width="2"/>
 					<path stroke-width="2" d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
 				</svg>
+				<span class="yweb-lang-code">${ywebActiveLangLabel()}</span>
 			</button>
 			<button class="yweb-theme-toggle" onclick="ywebToggleTheme()" title="Theme wechseln">
 				<svg id="yweb-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -171,6 +172,24 @@ function ywebSetTheme(theme) {
 // ═══ Sprachwechsler ═══
 // Sprachliste kommt aus Y_Lang.yjs (window.YWEB_LANGS_HTML, yparsed
 // option-Liste des languages/-Verzeichnisses, aktive Sprache selected)
+// Kuerzel der aktiven Sprache fuer den Header-Button (EN, DE, ...).
+// Der Globus allein war nicht als Sprachumschalter erkennbar; das aktive
+// Kuerzel daneben macht den Button eindeutig. Bekannte Sprachen werden auf
+// ihr ISO-Kuerzel gemappt, unbekannte auf die ersten zwei Buchstaben.
+function ywebActiveLangLabel() {
+	var langs = ywebGetLanguages();
+	var name = '';
+	for (var i = 0; i < langs.length; i++)
+		if (langs[i].active) { name = langs[i].name; break; }
+	if (!name && langs.length) name = langs[0].name;
+	if (!name) return '';
+	var codes = {
+		English: 'EN', Deutsch: 'DE', Czech: 'CS', Polski: 'PL',
+		Slovak: 'SK', Portuguese: 'PT'
+	};
+	return codes[name] || name.slice(0, 2).toUpperCase();
+}
+
 function ywebGetLanguages() {
 	var langs = [];
 	if (!window.YWEB_LANGS_HTML) return langs;
