@@ -5119,12 +5119,25 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			error = string_printf("no config defined for %s", configFileName.c_str());
 	}
 
-	hh->WriteLn(hh->outObject("config", result));
-
-	if (error.empty())
-		hh->SendResult(result);
+	if (hh->outType == json)
+	{
+		// json: emit ONE valid document with the v4 envelope; the historic
+		// double output (bare outObject line plus SendResult block) was no
+		// parseable json at all and forced clients into manual parsing
+		if (error.empty())
+			hh->SendResult(hh->outObject("config", result));
+		else
+			hh->SendError(error);
+	}
 	else
-		hh->SendError(error);
+	{
+		hh->WriteLn(hh->outObject("config", result));
+
+		if (error.empty())
+			hh->SendResult(result);
+		else
+			hh->SendError(error);
+	}
 
 	if (own_config)
 		delete Config;
