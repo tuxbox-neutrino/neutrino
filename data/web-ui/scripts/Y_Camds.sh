@@ -8,7 +8,7 @@ BNAME=${0##*/}
 case "$1" in
 	start)
 		echo "[$BNAME] softcamd-start"
-		/etc/init.d/camd reset >/dev/console
+		/etc/init.d/camd start >/dev/console
 	;;
 	stop)
 		echo "[$BNAME] softcamd-stop" 
