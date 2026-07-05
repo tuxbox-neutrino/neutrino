@@ -48,8 +48,19 @@ directory=Verzeichnis
 filename=Dateiname
 restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 automatic=automatisch
+unknown=unbekannt
 show=zeigen
 hide=verstecken
+edit=Bearbeiten
+remove=L&ouml;schen
+create=Anlegen
+start=Start
+stop=Stopp
+reset=Reset
+reload=Neu laden
+configure=Konfigurieren
+dblclick=Doppelklick erforderlich
+infopage=Infoseite
 
 # ===== Dates
 date.su=So
@@ -73,6 +84,7 @@ main.info=Info
 main.info_desc=Information &uuml;ber das yWeb, Version
 main.remote_full_desc=Fernbedienung & OSD Vollbild
 main.stream_to_vlc_client_desc=Live TV direkt im VLC Client
+main.ni=yWeb Tools
 
 # ===== Boxcontrol Menue
 bc.menue.bouquets_desc=Sender ausw&auml;hlen
@@ -83,8 +95,6 @@ bc.menue.messages_desc=Nachricht an die Box senden
 bc.menue.messages=Nachrichten
 bc.menue.remote_desc=Fernbedienung
 bc.menue.remote=Fernbedienung
-bc.menue.glcd_screenshot_desc=GLCD Screenshot erstellen
-bc.menue.glcd_screenshot=GLCD Screenshot
 bc.menue.screenshot=Screenshot
 
 bc.menue.decrease_volume=Lautst&auml;rke verringern
@@ -129,6 +139,14 @@ bc.screenshot.checkenable=OSD und/oder TV muss aktiviert sein!
 bc.screenshot.checkpip=F%FCr PiP muss TV aktiviert sein!
 bc.screenshot.reload_desc=Reload-Intervall in Sekunden
 
+# ===== Boxcontrol - PZapit
+bc.pzapit=PZapit
+bc.pzapit.title=PZapit-Steuerung
+bc.pzapit.resolution=Aufl&ouml;sung
+bc.pzapit.43mode=4:3 Anzeigeverhalten
+bc.pzapit.channellists=Kanallisten
+bc.pzapit.tuner=Tuner
+
 # ===== Boxcontrol - Others
 bc.channels=Sender
 
@@ -154,6 +172,7 @@ ext.update_install=Aktualisierung / Installation
 ext.site=Site
 ext.refresh_now=Einstellungen gespeichert. Menues werden aktualisiert.
 ext.ext_saved=Erweiterungseinstellungen gespeichert
+ext.tag=Markierung
 
 # ===== Bouquet
 bou.bouquet=Bouquet
@@ -185,6 +204,7 @@ epg.set_timer_zap=Umschalt-Timer gesetzt
 
 # ===== EPG Streaminfo
 epg.si.streaminfo=Streaminfo
+epg.si.url=URL
 epg.si.resolution=Aufl&ouml;sung
 epg.si.ratio=Verh&auml;ltnis
 epg.si.fps=Bildrate
@@ -266,8 +286,6 @@ set.nhttpd.client_without_authentication_desc=Rechner ohne Authentifikation. IP 
 set.nhttpd.client_without_authentication=Rechner ohne Authentifikation
 set.nhttpd.active_after_boot=Nach Neustart aktiv
 set.nhttpd.port=Port
-set.nhttpd.host=Bind-Adresse
-set.nhttpd.host_desc=Interface/IP für den Webserver (0.0.0.0 = alle, 127.0.0.1 = nur lokal)
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternativer Web-Ordner
 set.nhttpd.hosted_folder=Eingebundenes Verzeichnis
@@ -297,7 +315,8 @@ set.yweb.box_color_desc=Farbe der Box Bezeichnung im Top-Menue. z.B. 2188e0 eing
 set.yweb.box_color=Farbe
 set.yweb.start_page=Startseite
 set.yweb.remote=Fernbedienung
-set.yweb.screenshot_rc=FB im Screenshot-Men&uuml;
+set.yweb.screenshot_rc=FB auf Screenshot-Seite
+set.yweb.screenshot_timeout=Screenshot-Timeout
 
 # ===== Settings Picture viewer
 set.pv.pictureviewer=Bildbetrachter
@@ -332,6 +351,48 @@ set.settings.warning=Sichern &amp; Wiederherstellen ist nur bei einem gleichen I
 # ===== Settings XMLTV
 set.xmltv.header=XMLTV Einstellungen
 
+# ===== Settings Plugins
+set.plugins=Plugin-Steuerung
+set.plugins.title=Plugins und Services verwalten
+
+set.plugin-tools.fcm-addr=Telefonbuch bearbeiten
+set.plugin-tools.pat-rules=Regeln bearbeiten
+set.plugin-tools.epgscan-dat=Transponderliste bearbeiten
+set.plugin-tools.rssreader-conf=RSS-Feeds bearbeiten
+set.plugin-tools.2webtvxmlurls-conf=WebTV-URLs bearbeiten
+
+set.plugins_hide=Plugins verstecken
+set.plugins_hide.title=Plugins anzeigen und verstecken
+
+# ===== Settings Infoicons
+set.infoicons=Infoicons
+set.infoicons.title=Infoicons-Steuerung
+set.infoicons.flagfile-control=Benachrichtigungs-Einstellungen
+set.infoicons.flagfiles=Benachrichtigungs-Dateien
+set.infoicons.static=Statisch
+set.infoicons.popup=Als Popup
+set.infoicons.infoviewer=Mit Infoviewer
+
+# ===== Settings camds
+set.camds=Softcams
+set.camds.title=Softcam-Steuerung
+
+set.camd-tools=Werkzeuge f&uuml;r
+set.camd-tools.line=----------------------------------
+set.camd-tools.ecminfo=ECM-Informationen
+set.camd-tools.countcards=Verf&uuml;gbare Karten z&auml;hlen
+set.camd-tools.sc01info=Kartendaten aus Slot1
+set.camd-tools.sc02info=Kartendaten aus Slot2
+set.camd-tools.shareinfo=CS-Informationen
+set.camd-tools.shareonl=Online-Share-Informationen
+set.camd-tools.mginfo=CS-Informationen
+set.camd-tools.cccamdinfo=CCCamd Verbindungen
+set.camd-tools.pidinfo=PID-Informationen
+set.camd-tools.mgshareinfo=NewCamd Verbindungen
+set.camd-tools.oscamversion=Allgemeine Informationen
+set.camd-tools.ncamversion=Allgemeine Informationen
+set.camd-tools.doscamversion=Allgemeine Informationen
+
 # ===== Tools Info
 tools.info.show_messages=Kernel Meldungen
 tools.info.processes=Prozesse
@@ -353,6 +414,29 @@ tools.yinstaller.not_determine=Kann freien Speicherplatz nicht ermitteln.
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-Datei
 tools.yinstaller.upload_install=hochladen und installieren
+
+# ===== Tools NetFS
+tools.netfs=NetFS
+tools.netfs.0=fstab
+tools.netfs.1=auto.net
+tools.netfs.title=NetFS-Steuerung
+tools.netfs.entrys=NetFS-Eintr&auml;ge
+tools.netfs.restart_menu=Das NetFS-Men&uuml; wird nun erneut gestartet
+tools.netfs.mount_all=Alle einh&auml;ngen
+tools.netfs.umount_all=Alle aush&auml;ngen
+tools.netfs.mount=Einh&auml;ngen
+tools.netfs.umount=Aush&auml;ngen
+tools.netfs.type=Typ
+tools.netfs.ip=Entfernte IP-Adresse
+tools.netfs.dir=Entferntes Verzeichnis
+tools.netfs.user=Benutzername
+tools.netfs.password=Passwort
+tools.netfs.options=Optionen
+tools.netfs.dump=Dump
+tools.netfs.pass=Pass
+tools.netfs.local_dir=Lokales Verzeichnis
+tools.netfs.active=Eintrag aktiv
+tools.netfs.autofs_restart=autofs neu starten
 
 # ===== Tools
 tools.automount=AutoMounts
@@ -383,7 +467,7 @@ live.timer_edit.alarm_date=Alarm-Datum
 live.timer_edit.time=Zeit
 live.timer_edit.stop_date=Stop-Datum
 live.timer_edit.repeat=Wiederholung
-live.timer_edit.repeat1=Wiederholungen (0 = unbegrenzt)
+live.timer_edit.repeatings=Wiederholungen<br>(0 = unbegrenzt)
 live.timer_edit.weekdays.format=(Mo-So, X=Timer)
 live.timer_edit.weekdays=Wochentage
 live.timer_edit.values=Werte
@@ -424,7 +508,12 @@ live.timer-sync.status=Status
 
 # ===== INFO
 info.help=Hilfe
-info.About=&uuml;ber
+info.about_yweb=&Uuml;ber yWeb
+info.about_image=&Uuml;ber Image
+info.about.your_image=Dein Image
+info.about.actual_image=Aktuelles Image
+info.about.image_upd_no=Kein Update verf&uuml;gbar
+info.about.image_upd_yes=Update verf&uuml;gbar
 info.check_for_updates=Auf Updates pr&uuml;fen
 info.your_version=Deine Version
 info.actual_version=Aktuelle Version

@@ -48,8 +48,19 @@ directory=Directory
 filename=Filename
 restriced_by_management_ip=restricted by ManagementIP
 automatic=automatically
+unknown=unknown
 show=show
 hide=hide
+edit=Edit
+remove=Remove
+create=Create
+start=Start
+stop=Stop
+reset=Reset
+reload=Reload
+configure=Configure
+dblclick=Doubleclick required
+infopage=Infopage
 
 # ===== Dates
 date.su=Su
@@ -73,6 +84,7 @@ main.info=Info
 main.info_desc=Information about yWeb, Updates
 main.remote_full_desc=Remote & OSD full
 main.stream_to_vlc_client_desc=Stream to VLC Client
+main.ni=yWeb Tools
 
 # ===== Boxcontrol Menue
 bc.menue.bouquets_desc=Switch channels
@@ -83,8 +95,6 @@ bc.menue.messages_desc=send Messages to box
 bc.menue.messages=Messages
 bc.menue.remote_desc=Web-based Remote Control
 bc.menue.remote=Remote
-bc.menue.glcd_screenshot_desc=take a GLCD screenshot
-bc.menue.glcd_screenshot=GLCD Screenshot
 bc.menue.screenshot=Screenshot
 
 bc.menue.decrease_volume=decrease volumen
@@ -129,6 +139,14 @@ bc.screenshot.checkenable=OSD and/or TV must be enabled!
 bc.screenshot.checkpip=PiP requires TV enabled!
 bc.screenshot.reload_desc=Reload interval in seconds
 
+# ===== Boxcontrol - PZapit
+bc.pzapit=PZapit
+bc.pzapit.title=PZapit-Control
+bc.pzapit.resolution=Resolution
+bc.pzapit.43mode=4:3 mode
+bc.pzapit.channellists=Channellists
+bc.pzapit.tuner=Tuner
+
 # ===== Boxcontrol - Others
 bc.channels=Channels
 
@@ -136,7 +154,7 @@ bc.channels=Channels
 ext.installer_updater=Installer/Updater
 ext.uninstaller=Extensions Uninstaller
 ext.search_for_ext=Search for Extensions ...
-ext.installed_extensions=installed extensions
+ext.installed_extensions=Installed extensions
 ext.type=Type
 ext.extension=Extension
 ext.version=Version
@@ -154,6 +172,7 @@ ext.update_install=update/install
 ext.site=Site
 ext.refresh_now=Settings saved. Refreshing Menue now.
 ext.ext_saved=Extensions Settings saved
+ext.tag=Tag
 
 # ===== Bouquet
 bou.bouquet=Bouquet
@@ -185,6 +204,7 @@ epg.set_timer_zap=Set switch to channel. Done.
 
 # ===== EPG Streaminfo
 epg.si.streaminfo=Streaminfo
+epg.si.url=URL
 epg.si.resolution=Resolution
 epg.si.ratio=Aspect Ratio
 epg.si.fps=Frames per second
@@ -266,8 +286,6 @@ set.nhttpd.client_without_authentication_desc=Client with no authentication chec
 set.nhttpd.client_without_authentication=Client without Authentication
 set.nhttpd.active_after_boot=active after boot
 set.nhttpd.port=Port
-set.nhttpd.host=Bind address
-set.nhttpd.host_desc=Interface/IP the webserver should bind to (0.0.0.0 = all, 127.0.0.1 = localhost)
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternate Web-Folder
 set.nhttpd.hosted_folder=Mounted directory
@@ -297,7 +315,8 @@ set.yweb.box_color_desc=Box Name color in Top-Menue. e.g. enter 2188e0 without #
 set.yweb.box_color=Color
 set.yweb.start_page=Start page
 set.yweb.remote=Remote
-set.yweb.screenshot_rc=RC in screenshot menu
+set.yweb.screenshot_rc=RC in screenshot page
+set.yweb.screenshot_timeout=Screenshot timeout
 
 # ===== Settings Picture viewer
 set.pv.pictureviewer=Pictureviewer
@@ -332,6 +351,48 @@ set.settings.warning=Backup & Restore is only useful for the same image with the
 # ===== Settings XMLTV
 set.xmltv.header=XMLTV Settings
 
+# ===== Settings Plugins
+set.plugins=Plugincontrol
+set.plugins.title=Manage plugins and services
+
+set.plugin-tools.fcm-addr=Edit Phonebook
+set.plugin-tools.pat-rules=Edit Rules
+set.plugin-tools.epgscan-dat=Edit Transponderlist
+set.plugin-tools.rssreader-conf=Edit RSS-Feeds
+set.plugin-tools.2webtvxmlurls-conf=Edit WebTV-URLs
+
+set.plugins_hide=Hide plugins
+set.plugins_hide.title=Show and hide plugins
+
+# ===== Settings Infoicons
+set.infoicons=Infoicons
+set.infoicons.title=Infoicons-Control
+set.infoicons.flagfile-control=Flag-Control
+set.infoicons.flagfiles=Flag-Files
+set.infoicons.static=Static
+set.infoicons.popup=As a popup
+set.infoicons.infoviewer=With Infoviewer
+
+# ===== Settings camds
+set.camds=Softcams
+set.camds.title=Softcam-Control
+
+set.camd-tools=Tools for
+set.camd-tools.line=----------------------------------
+set.camd-tools.ecminfo=ECM-Informations
+set.camd-tools.countcards=Count available cards
+set.camd-tools.sc01info=Card-details from slot1
+set.camd-tools.sc02info=Card-details from slot2
+set.camd-tools.shareinfo=CS-Informations
+set.camd-tools.shareonl=Online-Share-Informations
+set.camd-tools.mginfo=CS-Informations
+set.camd-tools.cccamdinfo=CCCamd Lines
+set.camd-tools.pidinfo=PID-Informations
+set.camd-tools.mgshareinfo=NewCamd Lines
+set.camd-tools.oscamversion=Common Informations
+set.camd-tools.ncamversion=Common Informations
+set.camd-tools.doscamversion=Common Informations
+
 # ===== Tools Info
 tools.info.show_messages=Kernel Messages
 tools.info.processes=Processes
@@ -353,6 +414,29 @@ tools.yinstaller.not_determine=Can not determine free space.
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-File
 tools.yinstaller.upload_install=upload and install
+
+# ===== Tools NetFS
+tools.netfs=NetFS
+tools.netfs.0=fstab
+tools.netfs.1=auto.net
+tools.netfs.title=NetFS-Control
+tools.netfs.entrys=NetFS-Entrys
+tools.netfs.restart_menu=The NetFS-Menu will restart now
+tools.netfs.mount_all=Mount all
+tools.netfs.umount_all=Unmount all
+tools.netfs.mount=Mount
+tools.netfs.umount=Unmount
+tools.netfs.type=Typ
+tools.netfs.ip=Remote IP-Adress
+tools.netfs.dir=Remote directory
+tools.netfs.user=Username
+tools.netfs.password=Password
+tools.netfs.options=Options
+tools.netfs.dump=Dump
+tools.netfs.pass=Pass
+tools.netfs.local_dir=Local directory
+tools.netfs.active=Entry active
+tools.netfs.autofs_restart=Restart autofs
 
 # ===== Tools
 tools.automount=AutoMounts
@@ -383,7 +467,7 @@ live.timer_edit.alarm_date=Alarm date
 live.timer_edit.time=Time
 live.timer_edit.stop_date=Stop date
 live.timer_edit.repeat=Repeat
-live.timer_edit.repeat1=Repeat (0 = unlimited)
+live.timer_edit.repeatings=Repeat<br>(0 = unlimited)
 live.timer_edit.weekdays.format=(Mo-Su, X=Timer)
 live.timer_edit.weekdays=Weekdays
 live.timer_edit.values=Values
@@ -424,7 +508,12 @@ live.timer-sync.status=Status
 
 # ===== INFO
 info.help=Help
-info.About=About
+info.about_yweb=About yWeb
+info.about=About Image
+info.about.your_image=Your Image
+info.about.actual_image=Current Image
+info.about.image_upd_no=No update available
+info.about.image_upd_yes=Update available
 info.check_for_updates=Check for Updates
 info.your_version=Your Version
 info.actual_version=Actual Version
