@@ -941,3 +941,7 @@ yw.wiz.welcome=Welcome to yWeb
 yw.wiz.intro=Choose your language and start page to get going.
 yw.wiz.start_page=Start page
 yw.wiz.finish=Get started
+yw.picker.title=Choose folder
+yw.picker.choose_folder=Choose this folder
+yw.picker.not_readable=Directory not readable
+yw.picker.empty=empty

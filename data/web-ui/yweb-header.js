@@ -905,6 +905,77 @@ function ywebCloseModal(id) {
 	document.body.style.overflow = '';
 }
 
+// ═══ Verzeichnis-/Datei-Picker (nutzt FileCGI action=list) ═══
+// Elternpfad von p (POSIX), '/' bleibt '/'
+function ywebParentPath(p) {
+	if (!p || p === '/') return '/';
+	p = p.replace(/\/+$/, '');
+	var i = p.lastIndexOf('/');
+	return i <= 0 ? '/' : p.substring(0, i);
+}
+
+var _ywebPickerState = null;
+
+// ywebShowPathPicker(startPath, onPick, opts)
+//   onPick(path) erhaelt den gewaehlten Ordner (oder mit opts.filesToo:true
+//   auch eine Datei). opts.filesToo zeigt zusaetzlich Dateien an.
+function ywebShowPathPicker(startPath, onPick, opts) {
+	opts = opts || {};
+	_ywebPickerState = {onPick: onPick, filesToo: !!opts.filesToo, path: startPath || '/'};
+	ywebModal('yweb-picker', ywebL('picker.title', 'Choose folder'),
+		'<div id="yweb-picker-crumb" style="font-size:0.8rem;color:var(--pico-muted-color);margin-bottom:0.5rem;word-break:break-all"></div>' +
+		'<ul id="yweb-picker-list" style="list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto"></ul>' +
+		'<div class="yweb-form-row" style="margin-top:0.8rem"><label></label>' +
+		'<button type="button" class="yweb-btn primary" onclick="ywebPickerChoose()">' +
+		ywebL('picker.choose_folder', 'Choose this folder') + '</button></div>');
+	ywebPickerLoad(_ywebPickerState.path);
+}
+
+async function ywebPickerLoad(path) {
+	var listEl = document.getElementById('yweb-picker-list');
+	var crumbEl = document.getElementById('yweb-picker-crumb');
+	if (!listEl) return;
+	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + ywebL('msg.loading', 'Loading...') + '</li>';
+	var data;
+	try {
+		data = await ywebApi('file', {action: 'list', path: path});
+	} catch (e) {
+		ywebShowToast(ywebL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
+		return;
+	}
+	_ywebPickerState.path = path;
+	if (crumbEl) crumbEl.textContent = path;
+	var entries = (data.data && data.data.filelist) || data.filelist || [];
+	var html = '';
+	if (path !== '/')
+		html += '<li><button type="button" class="yweb-btn" style="width:100%;text-align:left;border:none" ' +
+			'onclick="ywebPickerLoad(' + JSON.stringify(ywebParentPath(path)).replace(/"/g, '&quot;') + ')">↑ ..</button></li>';
+	entries.forEach(function(e) {
+		if (!e.name || e.name === '.' || e.name === '..') return;
+		var isDir = (e.type_str === 'dir' || e.type === 4 || e.type === '4');
+		if (!isDir && !_ywebPickerState.filesToo) return;
+		var full = e.fullname || (path.replace(/\/+$/, '') + '/' + e.name);
+		var arg = JSON.stringify(full).replace(/"/g, '&quot;');
+		var icon = isDir ? '📁' : '📄';
+		var action = isDir ? 'ywebPickerLoad(' + arg + ')' : 'ywebPickerPickFile(' + arg + ')';
+		html += '<li><button type="button" class="yweb-btn" style="width:100%;text-align:left;border:none" onclick="' + action + '">' +
+			icon + ' ' + escapeHtml(e.name) + '</button></li>';
+	});
+	listEl.innerHTML = html || '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + ywebL('picker.empty', 'empty') + '</li>';
+}
+
+function ywebPickerChoose() {
+	var st = _ywebPickerState;
+	ywebCloseModal('yweb-picker');
+	if (st && typeof st.onPick === 'function') st.onPick(st.path);
+}
+
+function ywebPickerPickFile(full) {
+	var st = _ywebPickerState;
+	ywebCloseModal('yweb-picker');
+	if (st && typeof st.onPick === 'function') st.onPick(full);
+}
+
 // EPG Info Modal HTML Template
 const YWEB_EPG_MODAL_HTML = `
 <div class="yweb-epg-modal-backdrop" id="ywebEpgModal" onclick="ywebCloseEpgModal(event)">

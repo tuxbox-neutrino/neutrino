@@ -260,8 +260,8 @@ var SETTINGS_REGISTRY = [
 			{
 				title: ywebL('reg.content', 'Content'),
 				fields: [
-					{ key: 'WebsiteMain.override_directory', label: ywebL('reg.override_dir', 'Override directory'), type: 'text' },
-					{ key: 'WebsiteMain.hosted_directory', label: ywebL('reg.hosted_dir', 'Hosted directory'), type: 'text' },
+					{ key: 'WebsiteMain.override_directory', label: ywebL('reg.override_dir', 'Override directory'), type: 'text', picker: true },
+					{ key: 'WebsiteMain.hosted_directory', label: ywebL('reg.hosted_dir', 'Hosted directory'), type: 'text', picker: true },
 					{ key: 'Tuxbox.DisplayLogos', label: ywebL('reg.show_logos', 'Show channel logos'), type: 'bool' },
 					{ key: 'Tuxbox.LogosURL', label: ywebL('reg.logos_url', 'Logos URL/path'), type: 'text' },
 					{ key: 'webserver.threading', label: 'Threading', type: 'bool' },

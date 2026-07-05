@@ -262,9 +262,9 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=2"></script>
-	<script src="/yweb-header.js?v=35"></script>
-	<script src="/settings-registry.js?v=4"></script>
+	<script src="/Y_Lang.yjs?v=3"></script>
+	<script src="/yweb-header.js?v=36"></script>
+	<script src="/settings-registry.js?v=5"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -378,9 +378,26 @@
 			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
 				'<input type="password" id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val.replace(/"/g, '&quot;') + '"></div>';
 		}
-		// text
-		return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-			'<input type="text" id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val.replace(/"/g, '&quot;') + '"></div>';
+		// text — optional mit Verzeichnis-Picker (f.picker: true)
+		var pick = '';
+		if (f.picker) {
+			var pstart = val || '/';
+			pick = ' <button type="button" class="yweb-btn" title="' + ywebL('picker.title', 'Choose folder') +
+				'" onclick="ywebPickInto(\'' + id + '\', \'' + escapeJs(pstart) + '\')">' + FOLDER_ICON + '</button>';
+		}
+		return '<div class="yweb-form-row"><label>' + f.label + '</label><span>' +
+			'<input type="text" id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
+	}
+
+	// kleines Ordner-Icon fuer Picker-Buttons
+	var FOLDER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>';
+
+	// Picker oeffnen und Ergebnis in das Textfeld schreiben
+	function ywebPickInto(inputId, startPath) {
+		ywebShowPathPicker(startPath, function(p) {
+			var el = document.getElementById(inputId);
+			if (el) { el.value = p; el.dispatchEvent(new Event('change')); }
+		});
 	}
 
 	function renderCategory(catId) {
@@ -841,8 +858,9 @@
 			'<input type="text" id="' + id('ip') + '" data-key="' + dk('ip') + '" value="' + g('ip') + '"></div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_dir=}</label>' +
 			'<input type="text" id="' + id('dir') + '" data-key="' + dk('dir') + '" value="' + g('dir') + '"></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_local=}</label>' +
-			'<input type="text" id="' + id('local_dir') + '" data-key="' + dk('local_dir') + '" value="' + g('local_dir') + '"></div>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_local=}</label><span>' +
+			'<input type="text" id="' + id('local_dir') + '" data-key="' + dk('local_dir') + '" value="' + g('local_dir') + '">' +
+			' <button type="button" class="yweb-btn" title="{=L:yw.picker.title=}" onclick="ywebPickInto(\'' + id('local_dir') + '\', \'' + (getConfigKey('network_nfs_local_dir_' + i) || '/media') + '\')">' + FOLDER_ICON + '</button></span></div>' +
 			'<div class="yweb-form-row"><label>Auto-Mount</label>' +
 			'<label class="yweb-toggle"><input type="checkbox" id="' + id('automount') + '" data-key="' + dk('automount') + '" data-on="1" data-off="0"' + (g('automount') === '1' ? ' checked' : '') + '>' +
 			'<span class="yweb-toggle-slider"></span></label></div>' +

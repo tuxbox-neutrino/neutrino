@@ -941,3 +941,7 @@ yw.wiz.welcome=Willkommen bei yWeb
 yw.wiz.intro=Sprache und Startseite wählen und loslegen.
 yw.wiz.start_page=Startseite
 yw.wiz.finish=Loslegen
+yw.picker.title=Ordner wählen
+yw.picker.choose_folder=Diesen Ordner wählen
+yw.picker.not_readable=Verzeichnis nicht lesbar
+yw.picker.empty=leer

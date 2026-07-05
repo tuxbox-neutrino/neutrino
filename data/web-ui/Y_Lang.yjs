@@ -117,7 +117,13 @@ window.YWEB_L = {
 	"si.network": "{=L:yw.si.network=}",
 	// Sprachwechsler (yweb-header.js)
 	"lang.title": "{=L:yw.lang.title=}",
-	"lang.none": "{=L:yw.lang.none=}"
+	"lang.none": "{=L:yw.lang.none=}",
+	// Verzeichnis-Picker (yweb-header.js)
+	"picker.title": "{=L:yw.picker.title=}",
+	"picker.choose_folder": "{=L:yw.picker.choose_folder=}",
+	"picker.not_readable": "{=L:yw.picker.not_readable=}",
+	"picker.empty": "{=L:yw.picker.empty=}",
+	"msg.loading": "{=L:yw.msg.loading=}"
 };
 
 // Installierte Sprachen als option-Liste (aktive Sprache selected);

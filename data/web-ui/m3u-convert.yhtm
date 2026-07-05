@@ -53,8 +53,8 @@
 		</div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=2"></script>
-	<script src="/yweb-header.js?v=35"></script>
+	<script src="/Y_Lang.yjs?v=3"></script>
+	<script src="/yweb-header.js?v=36"></script>
 	<script>
 		document.getElementById('m3uFile').addEventListener('change', function() {
 			var files = this.files;
