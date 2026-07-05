@@ -262,12 +262,12 @@
 		async function sendStandby() {
 			try {
 				var st = await ywebApi('standby', {status: ''});
-				if (st && st.standby === false) {
-					if (!confirm('Box in Standby versetzen?')) return;
-				}
-				await ywebApi('standby', 'on');
+				var inStandby = !!(st && st.standby === true);
+				if (!inStandby && !confirm('Box in Standby versetzen?')) return;
+				await ywebApi('standby', inStandby ? 'off' : 'on');
+				ywebShowToast(inStandby ? 'Box wird aufgeweckt' : 'Box geht in Standby');
 			} catch (e) {
-				console.error('Standby failed:', e);
+				ywebShowToast('Standby fehlgeschlagen: ' + e.message, true);
 			}
 		}
 	</script>
