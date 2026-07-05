@@ -8,14 +8,11 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=60">
 	<style>
-		/* No <main> tag (yweb-header.js breaks it) — need explicit min-height for sticky footer */
-		body { min-height: 100vh; }
-
-		/* Layout — flex-grow pushes footer to bottom */
+		/* Layout as <main>: inherits the global main rule (flex:1,
+		   min-height:0, overflow:auto) so long content scrolls and the
+		   footer stays below, like every other page */
 		.yweb-settings-layout {
 			display: flex;
-			flex-grow: 1;
-			width: 100%;
 			max-width: 920px;
 			margin: 0 auto;
 			padding: 1rem;
@@ -250,7 +247,7 @@
 		<select id="mobileCategorySelect" onchange="switchCategory(this.value)"></select>
 	</div>
 
-	<div class="yweb-settings-layout">
+	<main class="yweb-settings-layout">
 		<!-- Sidebar -->
 		<div class="yweb-settings-sidebar">
 			<nav id="settingsSidebar"></nav>
@@ -260,7 +257,7 @@
 		<div class="yweb-settings-content" id="settingsContent">
 			<div class="settings-loading">{=L:yw.set.loading=}</div>
 		</div>
-	</div>
+	</main>
 
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
@@ -278,18 +275,26 @@
 	// generischen ExtConfig-Zyklus gegen config=<name>, Default yweb)
 	var EXT_SETTINGS_CATS = {};
 
-	function makeCardHeader(label) {
+	// withSave=true blendet den Karten-Kopf-Speichern-Button ein, der
+	// saveSettings() (config=neutrino) ausloest. Panels mit eigener
+	// Config-Datei/eigenem Save (ExtConfig, Backup, WoL, XMLTV, Plugins,
+	// Mounts, Zapit-Upload, Erweiterungen) rufen mit withSave=false auf —
+	// sonst wuerde ihr Kopf-Button faelschlich das neutrino-Formular
+	// speichern (bzw. gar nichts, weil sie keine neutrino-Felder haben).
+	function makeCardHeader(label, withSave) {
 		var d = document.createElement('div');
 		d.className = 'settings-card-header';
 		var h = document.createElement('h3');
 		h.textContent = label;
 		d.appendChild(h);
-		var b = document.createElement('button');
-		b.className = 'btn-save';
-		b.title = '{=L:yw.bqe.save=}';
-		b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/><\/svg>';
-		b.onclick = saveSettings;
-		d.appendChild(b);
+		if (withSave !== false) {
+			var b = document.createElement('button');
+			b.className = 'btn-save';
+			b.title = '{=L:yw.bqe.save=}';
+			b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/><\/svg>';
+			b.onclick = saveSettings;
+			d.appendChild(b);
+		}
 		return d.outerHTML;
 	}
 
@@ -411,7 +416,7 @@
 	var EXT_CONFIG_CACHE = {};
 	function renderExtConfigPanel(cat) {
 		setTimeout(function() { loadExtConfigPanel(cat); }, 0);
-		return '<div class="settings-card">' + makeCardHeader(cat.label) +
+		return '<div class="settings-card">' + makeCardHeader(cat.label, false) +
 			'<div id="extcfg-' + cat.id + '"><p aria-busy="true">{=L:yw.msg.loading=}</p></div></div>';
 	}
 
@@ -472,7 +477,7 @@
 	// Backup/Restore der Einstellungen via exec-Vertrag
 	// (Y_Tools settings_backup_restore; Script echot den Archivpfad)
 	function renderBackupPanel() {
-		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.backup_title=}') +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.backup_title=}', false) +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Backup</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.backup_label=} <small style="color:var(--pico-muted-color)">{=L:yw.set.backup_hint=}</small></label>' +
 			'<button type="button" class="yweb-btn" onclick="doSettingsBackup(this)">{=L:yw.set.backup_btn=}</button></div></div>' +
@@ -519,7 +524,7 @@
 	// Slot-Override (persistiert in config=yweb, Loader in yweb-header.js)
 	function renderExtensionsPanel() {
 		setTimeout(loadExtensionsPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.ext_title=}') +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.ext_title=}', false) +
 			'<div id="extPanel"><p aria-busy="true">{=L:yw.set.ext_search=}</p></div></div>';
 	}
 
@@ -572,7 +577,7 @@
 	// via exec-Vertrag (ether-wake auf der Box)
 	function renderWolPanel() {
 		setTimeout(loadWolPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN') +
+		return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN', false) +
 			'<div id="wolPanel"><p aria-busy="true">Lade…</p></div></div>';
 	}
 
@@ -636,7 +641,7 @@
 	// laedt die Kanallisten neu (reloadchannels-Trichter, vgl. WORK-147)
 	function renderXmltvPanel() {
 		setTimeout(loadXmltvPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.xmltv_title=}') +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.xmltv_title=}', false) +
 			'<div id="xmltvPanel"><p aria-busy="true">Lade…</p></div></div>';
 	}
 
@@ -683,7 +688,7 @@
 
 	// Zapit-Upload: Kanal-/Bouquet-XML hochladen und aktivieren
 	function renderZapitUploadPanel() {
-		return '<div class="settings-card">' + makeCardHeader('Zapit-Upload') +
+		return '<div class="settings-card">' + makeCardHeader('Zapit-Upload', false) +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Senderlisten-Datei einspielen</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.zapit_target=}</label>' +
 			'<select id="zapitTarget"><option>ubouquets.xml</option><option>bouquets.xml</option><option>services.xml</option><option>myservices.xml</option></select></div>' +
@@ -744,7 +749,7 @@
 	// der Legacy-Seite ueberlassen - paket-/imageabhaengig.
 	function renderPluginsPanel() {
 		setTimeout(loadPluginsPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('Plugins') +
+		return '<div class="settings-card">' + makeCardHeader('Plugins', false) +
 			'<div id="pluginsPanel"><p aria-busy="true">{=L:yw.set.plugins_loading=}</p></div></div>';
 	}
 
@@ -798,7 +803,7 @@
 	}
 
 	function renderMountsPanel() {
-		var html = makeCardHeader('Netzlaufwerke');
+		var html = makeCardHeader('Netzlaufwerke', false);
 		html += '<div class="yweb-form-row"><label>Alle konfigurierten Mounts</label>' +
 			'<button type="button" class="yweb-btn" onclick="doMountAction(-1, \'do_mount_all\', this)">Alle mounten</button></div>';
 		var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
