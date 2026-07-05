@@ -764,7 +764,12 @@ void CControlAPI::CmdCGI(CyhookHandler *hh)
 	}
 
 	std::string cmd = hh->ParamList["1"];
-	for (unsigned int i = 2; i <= hh->ParamList.size(); i++)
+	// Cache the size once. hh->ParamList is a std::map, so operator[] inserts
+	// a default entry for every missing numeric key; re-evaluating size() in
+	// the loop condition made it grow together with i, so the loop never
+	// terminated. Mirror the bounded pattern already used by ExecCGI().
+	unsigned int len = hh->ParamList.size();
+	for (unsigned int i = 2; i <= len; i++)
 	{
 		std::string p = hh->ParamList[itoa(i)];
 		if (!p.empty())
