@@ -1,0 +1,2512 @@
+/**
+ * yWeb Modern UI - Custom Styles
+ * Built on top of Pico CSS
+ * Percentage-based responsive layout
+ */
+
+/* ============================================
+   CSS Custom Properties (Theme Variables)
+   ============================================ */
+:root {
+	/* Brand colors */
+	--yweb-accent: #fd6d13;
+	--yweb-accent-hover: #e55a00;
+	--yweb-accent-light: rgba(253, 109, 19, 0.15);
+
+	/* Text on accent (for buttons, active states) */
+	--yweb-on-accent: #ffffff;
+
+	/* Status colors */
+	--yweb-success: #2ecc71;
+	--yweb-warning: #f1c40f;
+	--yweb-danger: #e74c3c;
+	--yweb-recording: #e74c3c;
+
+	/* Theme-adaptive colors (dark mode defaults) */
+	--yweb-text-primary: #e5e5e5;
+	--yweb-text-secondary: #9ca3af;
+	--yweb-text-muted: #6b7280;
+	--yweb-bg-elevated: rgba(255, 255, 255, 0.05);
+	--yweb-border-subtle: rgba(255, 255, 255, 0.1);
+
+	/* Spacing - using relative units */
+	--yweb-gap: 0.8%;
+	--yweb-card-padding: 3%;
+
+	/* Border radius */
+	--yweb-radius: 0.4rem;
+	--yweb-radius-lg: 0.6rem;
+
+	/* Shadows */
+	--yweb-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	--yweb-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+
+	/* Transitions */
+	--yweb-transition: 0.2s ease;
+
+	/* Font sizes - relative to viewport */
+	--yweb-font-xs: clamp(0.6rem, 1.5vw, 0.75rem);
+	--yweb-font-sm: clamp(0.7rem, 1.8vw, 0.85rem);
+	--yweb-font-base: clamp(0.8rem, 2vw, 1rem);
+	--yweb-font-lg: clamp(1rem, 2.5vw, 1.25rem);
+	--yweb-font-xl: clamp(1.1rem, 3vw, 1.5rem);
+}
+
+/* Light theme - override variables */
+[data-theme="light"] {
+	--yweb-accent-light: rgba(253, 109, 19, 0.12);
+	--yweb-on-accent: #1a1a1a;
+	--yweb-text-primary: #1a1a1a;
+	--yweb-text-secondary: #4b5563;
+	--yweb-text-muted: #6b7280;
+	--yweb-bg-elevated: #f3f4f6;
+	--yweb-border-subtle: #e5e7eb;
+	--yweb-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--yweb-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Light theme component overrides - using centralized variables */
+[data-theme="light"] .yweb-theme-toggle {
+	color: var(--yweb-text-secondary);
+}
+
+[data-theme="light"] .yweb-theme-toggle:hover {
+	background: var(--yweb-bg-elevated);
+	color: var(--yweb-text-primary);
+}
+
+[data-theme="light"] .yweb-action-btn {
+	background: var(--yweb-bg-elevated);
+	border-color: var(--yweb-border-subtle);
+	color: var(--yweb-text-secondary);
+}
+
+[data-theme="light"] .yweb-action-btn:hover {
+	background: var(--yweb-accent-light);
+	border-color: var(--yweb-accent);
+	color: var(--yweb-accent);
+}
+
+[data-theme="light"] .yweb-card {
+	border: 1px solid var(--yweb-border-subtle);
+}
+
+[data-theme="light"] .yweb-info-label {
+	color: var(--yweb-text-secondary);
+}
+
+[data-theme="light"] .yweb-nav-links a {
+	color: var(--yweb-text-primary);
+	font-weight: 500;
+}
+
+[data-theme="light"] .yweb-nav-links a:hover {
+	color: var(--yweb-accent);
+}
+
+[data-theme="light"] .yweb-nav-links a.active {
+	color: var(--yweb-accent);
+	font-weight: 600;
+}
+
+[data-theme="light"] .yweb-clock {
+	color: var(--yweb-text-secondary);
+	font-weight: 500;
+}
+
+[data-theme="light"] .yweb-hostname {
+	color: var(--yweb-accent);
+	font-weight: 600;
+}
+
+[data-theme="light"] .yweb-logo span {
+	color: var(--yweb-text-primary);
+}
+
+[data-theme="light"] .yweb-card-title {
+	color: var(--yweb-text-primary);
+}
+
+[data-theme="light"] .yweb-card-header {
+	border-bottom-color: var(--yweb-border-subtle);
+}
+
+[data-theme="light"] .yweb-footer {
+	color: var(--yweb-text-secondary);
+	border-top-color: var(--yweb-border-subtle);
+}
+
+[data-theme="light"] .yweb-footer a {
+	color: var(--yweb-accent);
+}
+
+/* Light theme - Bouquets channel buttons */
+[data-theme="light"] .yweb-channel-btn {
+	background: #f0f2f5;
+	border: 1px solid #d0d7de;
+	color: #24292f;
+}
+
+[data-theme="light"] .yweb-channel-btn:hover {
+	background: var(--yweb-accent);
+	border-color: var(--yweb-accent);
+	color: white;
+}
+
+[data-theme="light"] .yweb-channel-btn svg {
+	stroke: currentColor;
+}
+
+/* Light theme - Bouquets dropdown */
+[data-theme="light"] .yweb-bouquet-dropdown {
+	background: #fff;
+	border-color: #d0d7de;
+	color: #24292f;
+}
+
+[data-theme="light"] .yweb-bouquet-dropdown:focus {
+	border-color: var(--yweb-accent);
+	box-shadow: 0 0 0 2px rgba(253, 109, 19, 0.2);
+}
+
+/* Light theme - Channel row */
+[data-theme="light"] .yweb-channel-row {
+	border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .yweb-channel-row:hover {
+	background: #f8f9fa;
+}
+
+[data-theme="light"] .yweb-channel-row.current {
+	background: rgba(253, 109, 19, 0.08);
+}
+
+/* Light theme - Remote control buttons (see Remote Control section below) */
+
+/* Light theme - EPG buttons and elements */
+[data-theme="light"] .yweb-epg-btn {
+	background: #f0f2f5;
+	border-color: #d0d7de;
+	color: #24292f;
+}
+
+[data-theme="light"] .yweb-epg-btn:hover {
+	background: #e0e0e0;
+	border-color: var(--yweb-accent);
+}
+
+[data-theme="light"] .yweb-epg-select {
+	background: #fff;
+	border-color: #d0d7de;
+	color: #24292f;
+}
+
+/* Light theme - Subheader */
+[data-theme="light"] .yweb-subheader {
+	background: #f6f8fa;
+	border-bottom-color: #e5e7eb;
+}
+
+/* Light theme - Header */
+[data-theme="light"] .yweb-header {
+	background: #fff;
+	border-bottom-color: #e5e7eb;
+}
+
+/* ============================================
+   Base Layout
+   ============================================ */
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+body {
+	height: 100vh;
+	height: 100dvh; /* Dynamic viewport height for mobile browsers */
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	overflow: hidden; /* Prevent body scroll, content scrolls in main */
+}
+
+main {
+	flex: 1;
+	width: 100%;
+	padding: 0.5%;
+	min-height: 0; /* Allow shrinking in flex container */
+	overflow: auto; /* Main area scrolls if content exceeds */
+}
+
+/* ============================================
+   Header / Navigation - Flexibles Layout
+   ============================================ */
+
+/* Wrapper für beide Header - ermöglicht flexibles Stacking */
+.yweb-header-wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+}
+
+.yweb-header {
+	background: var(--pico-card-background-color);
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	padding: 0.5rem 1.5%;
+	width: 100%;
+}
+
+/* Sub-Header Template - für Seiten mit zusätzlichem Header */
+.yweb-subheader {
+	background: var(--pico-card-sectioning-background-color);
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	padding: 0.4rem 1.5%;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+}
+
+/* Spacer - unsichtbares Element das den Platz für die fixed Header reserviert */
+.yweb-header-spacer {
+	flex-shrink: 0;
+}
+
+/* Fallback für Seiten ohne JavaScript-berechneten Spacer */
+body.has-subheader .yweb-header-spacer {
+	height: 5.5rem; /* Geschätzte Höhe für Header + Subheader */
+}
+
+body:not(.has-subheader) .yweb-header-spacer {
+	height: 2.8rem; /* Geschätzte Höhe für nur Header */
+}
+
+.yweb-header nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	width: 100%;
+}
+
+.yweb-logo {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-weight: 700;
+	font-size: var(--yweb-font-sm);
+	color: var(--yweb-accent);
+	text-decoration: none;
+	flex-shrink: 0;
+}
+
+.yweb-logo img {
+	height: clamp(18px, 2.5vw, 24px);
+	width: auto;
+}
+
+.yweb-logo span {
+	display: inline;
+}
+
+/* hide text when logo image is present
+   (img is removed via onerror if logo doesn't exist) */
+.yweb-logo img + span {
+	display: none;
+}
+
+.yweb-nav-links {
+	display: flex;
+	gap: 0.3rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+}
+
+.yweb-nav-links a {
+	display: flex;
+	align-items: center;
+	padding: 0.2rem 0.5rem;
+	border-radius: var(--yweb-radius);
+	color: var(--pico-color);
+	text-decoration: none;
+	transition: var(--yweb-transition);
+	font-size: var(--yweb-font-xs);
+	white-space: nowrap;
+}
+
+.yweb-nav-links a:hover,
+.yweb-nav-links a.active {
+	background: var(--yweb-accent-light);
+	color: var(--yweb-accent);
+}
+
+.yweb-header-right {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-shrink: 0;
+}
+
+.yweb-clock {
+	font-family: var(--pico-font-family-monospace);
+	font-size: var(--yweb-font-xs);
+	color: var(--pico-muted-color);
+}
+
+.yweb-hostname {
+	color: var(--yweb-accent);
+	font-weight: 600;
+	font-size: var(--yweb-font-xs);
+}
+
+/* Hamburger menu for mobile */
+.yweb-menu-toggle {
+	display: none;
+	background: none;
+	border: none;
+	padding: 0.3rem;
+	cursor: pointer;
+	color: var(--pico-color);
+	border-radius: var(--yweb-radius);
+	transition: background 0.2s ease;
+}
+
+.yweb-menu-toggle:hover {
+	background: var(--yweb-accent-light);
+}
+
+.yweb-menu-toggle svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+/* Light mode: ensure hamburger is visible */
+[data-theme="light"] .yweb-menu-toggle {
+	color: #333;
+}
+
+[data-theme="light"] .yweb-menu-toggle:hover {
+	background: rgba(0, 0, 0, 0.08);
+}
+
+/* Theme toggle button */
+.yweb-theme-toggle {
+	background: none;
+	border: none;
+	padding: 0.2rem;
+	cursor: pointer;
+	color: var(--pico-color);
+	border-radius: var(--yweb-radius);
+	transition: var(--yweb-transition);
+	display: flex;
+	align-items: center;
+}
+
+.yweb-theme-toggle:hover {
+	background: var(--pico-card-sectioning-background-color);
+}
+
+.yweb-theme-toggle svg {
+	width: 1rem;
+	height: 1rem;
+}
+
+@media (max-width: 480px) {
+	/* Mobile menu backdrop */
+	.yweb-menu-backdrop {
+		display: none;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(6px);
+		z-index: 97;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.yweb-menu-backdrop.open {
+		display: block;
+		opacity: 1;
+	}
+
+	/* Slide-in drawer menu */
+	.yweb-nav-links {
+		display: flex !important;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 280px;
+		height: 100vh;
+		height: 100dvh;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: stretch;
+		background: var(--pico-background-color);
+		padding: 0;
+		margin: 0;
+		z-index: 99;
+		box-shadow: 4px 0 32px rgba(0, 0, 0, 0.3);
+		overflow-y: auto;
+		overflow-x: hidden;
+		transform: translateX(-100%);
+		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		will-change: transform;
+	}
+
+	.yweb-nav-links.open {
+		transform: translateX(0);
+	}
+
+	/* Swipe handle indicator on right edge */
+	.yweb-nav-links::after {
+		content: '';
+		position: absolute;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 4px;
+		height: 48px;
+		background: var(--pico-muted-border-color);
+		border-radius: 2px 0 0 2px;
+		opacity: 0.5;
+		transition: opacity 0.2s ease, height 0.2s ease;
+	}
+
+	.yweb-nav-links:hover::after,
+	.yweb-nav-links.open::after {
+		opacity: 0.8;
+		height: 64px;
+	}
+
+	/* Menu header area - compact design like Thunderbird */
+	.yweb-menu-header {
+		display: flex !important;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 0.75rem;
+		background: transparent;
+		border-bottom: 1px solid var(--pico-muted-border-color);
+		flex-shrink: 0;
+	}
+
+	.yweb-menu-header .yweb-menu-logo {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--pico-color);
+	}
+
+	.yweb-menu-header .yweb-menu-logo img {
+		width: 28px;
+		height: 28px;
+		object-fit: contain;
+		border-radius: 6px;
+	}
+
+	/* Menu close button - minimal */
+	.yweb-menu-close {
+		width: 32px;
+		height: 32px;
+		min-width: 32px;
+		display: flex !important;
+		align-items: center;
+		justify-content: center;
+		background: transparent;
+		border: none;
+		color: var(--pico-muted-color);
+		cursor: pointer;
+		border-radius: 8px;
+		transition: all 0.15s ease;
+		padding: 0;
+		margin: 0;
+	}
+
+	.yweb-menu-close:hover {
+		background: var(--pico-muted-border-color);
+		color: var(--pico-color);
+	}
+
+	.yweb-menu-close:active {
+		transform: scale(0.95);
+	}
+
+	.yweb-menu-close svg {
+		width: 18px;
+		height: 18px;
+		stroke: currentColor;
+		stroke-width: 2;
+	}
+
+	/* Remove ::before pseudo element */
+	.yweb-nav-links::before {
+		display: none;
+	}
+
+	/* Menu items container - compact like Thunderbird */
+	.yweb-nav-links li {
+		width: 100%;
+		padding: 0.15rem 0.5rem;
+	}
+
+	/* Menu items with icons - compact pill style */
+	.yweb-nav-links a {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.6rem 0.75rem;
+		font-size: 0.9rem;
+		color: var(--pico-color);
+		text-decoration: none;
+		transition: all 0.15s ease;
+		border-radius: 8px;
+		margin: 0;
+	}
+
+	.yweb-nav-links a svg {
+		width: 20px;
+		height: 20px;
+		opacity: 0.5;
+		flex-shrink: 0;
+		transition: opacity 0.15s ease;
+	}
+
+	.yweb-nav-links a span {
+		font-weight: 500;
+	}
+
+	.yweb-nav-links a:hover {
+		background: var(--pico-muted-border-color);
+	}
+
+	.yweb-nav-links a:hover svg {
+		opacity: 0.8;
+	}
+
+	/* Active item - pill style like Thunderbird */
+	.yweb-nav-links a.active {
+		background: var(--yweb-accent);
+		color: var(--yweb-on-accent);
+		font-weight: 600;
+	}
+
+	.yweb-nav-links a.active svg {
+		opacity: 1;
+		color: var(--yweb-on-accent);
+	}
+
+	/* Hamburger toggle button */
+	.yweb-menu-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 10px;
+		transition: all 0.2s ease;
+	}
+
+	.yweb-menu-toggle:hover {
+		background: var(--yweb-accent-light);
+	}
+
+	.yweb-menu-toggle:active {
+		transform: scale(0.95);
+	}
+
+	.yweb-menu-toggle svg {
+		width: 1.4rem;
+		height: 1.4rem;
+	}
+
+	.yweb-header-right {
+		gap: 0.3rem;
+	}
+
+	.yweb-hostname {
+		display: none;
+	}
+
+	/* Edge swipe indicator (left edge of screen) */
+	.yweb-edge-swipe {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 20px;
+		height: 100vh;
+		height: 100dvh;
+		z-index: 96;
+		background: transparent;
+	}
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.yweb-footer {
+	flex-shrink: 0; /* Don't shrink footer */
+	text-align: center;
+	padding: 0.5rem 1rem;
+	font-size: 0.75rem;
+	color: var(--pico-muted-color);
+	border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.yweb-footer a {
+	color: var(--yweb-accent);
+	text-decoration: none;
+}
+
+.yweb-footer a:hover {
+	text-decoration: underline;
+}
+
+/* ============================================
+   About Modal
+   ============================================ */
+.yweb-modal-backdrop {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	z-index: 1000;
+	justify-content: center;
+	align-items: center;
+}
+
+.yweb-modal-backdrop.open {
+	display: flex;
+}
+
+.yweb-modal {
+	background: var(--pico-card-background-color);
+	border-radius: var(--yweb-radius-lg);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+	max-width: 480px;
+	width: 90%;
+	max-height: 85vh;
+	overflow-y: auto;
+	animation: modalSlideIn 0.2s ease;
+}
+
+@keyframes modalSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Compact popover for inline forms (e.g. message send) */
+.yweb-popover {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 1001;
+	background: var(--pico-card-background-color);
+	border: 1px solid var(--yweb-border-subtle);
+	border-radius: var(--yweb-radius-lg);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+	padding: 1.8rem 1.25rem 1rem;
+	width: min(360px, 90vw);
+	animation: modalSlideIn 0.15s ease;
+}
+
+.yweb-popover.open {
+	display: block;
+}
+
+.yweb-popover-close {
+	position: absolute;
+	top: 0.25rem;
+	right: 0.25rem;
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	line-height: 1;
+	padding: 0.2rem 0.4rem;
+	color: var(--pico-muted-color);
+	cursor: pointer;
+	margin: 0;
+	width: auto;
+}
+
+.yweb-popover form {
+	margin-bottom: 0;
+}
+
+.yweb-popover input {
+	margin-bottom: 0.5rem;
+}
+
+.yweb-popover-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.yweb-popover-actions small {
+	flex: 1;
+	font-size: 0.75rem;
+	min-height: 1em;
+}
+
+.yweb-popover-actions button {
+	padding: 0.25rem 0.75rem;
+	font-size: 0.8rem;
+	margin: 0;
+	width: auto;
+	--pico-font-size: 0.8rem;
+}
+
+.yweb-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.25rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.yweb-modal-header h3 {
+	margin: 0;
+	font-size: 1.1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.yweb-modal-header img {
+	height: 32px;
+	width: auto;
+	object-fit: contain;
+}
+
+.yweb-modal-close {
+	background: none;
+	border: none;
+	color: var(--pico-muted-color);
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 50%;
+	transition: var(--yweb-transition);
+}
+
+.yweb-modal-close:hover {
+	background: var(--pico-card-sectioning-background-color);
+	color: var(--pico-color);
+}
+
+.yweb-modal-close svg {
+	width: 20px;
+	height: 20px;
+}
+
+.yweb-modal-body {
+	padding: 1.25rem;
+}
+
+.yweb-modal-footer {
+	display: flex;
+	gap: 0.5rem;
+	justify-content: flex-end;
+	padding: 0.8rem 1rem;
+	border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.yweb-modal-footer button {
+	padding: 0.45rem 1.2rem;
+	border-radius: var(--yweb-radius);
+	border: 1px solid var(--pico-muted-border-color);
+	background: var(--pico-card-sectioning-background-color);
+	color: var(--pico-color);
+	cursor: pointer;
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-modal-footer .btn-primary {
+	background: var(--yweb-accent);
+	border-color: var(--yweb-accent);
+	color: white;
+}
+
+.yweb-modal-footer .btn-primary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* ============================================
+   Confirm Dialog
+   ============================================ */
+.yweb-confirm-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+
+.yweb-confirm-dialog {
+	background: var(--pico-card-background-color);
+	border-radius: var(--yweb-radius);
+	padding: 1.5rem;
+	max-width: 400px;
+	width: 90%;
+	box-shadow: var(--yweb-shadow);
+}
+
+.yweb-confirm-dialog h4 {
+	margin: 0 0 0.5rem;
+	font-size: 1rem;
+}
+
+.yweb-confirm-dialog p {
+	margin: 0 0 1rem;
+	color: var(--pico-muted-color);
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-confirm-actions {
+	display: flex;
+	gap: 0.5rem;
+	justify-content: flex-end;
+}
+
+.yweb-confirm-actions button {
+	padding: 0.4rem 1rem;
+	border-radius: var(--yweb-radius);
+	border: 1px solid var(--pico-muted-border-color);
+	background: var(--pico-card-sectioning-background-color);
+	color: var(--pico-color);
+	cursor: pointer;
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-confirm-actions .confirm-delete {
+	background: var(--yweb-danger, #ef4444);
+	border-color: var(--yweb-danger, #ef4444);
+	color: white;
+}
+
+.yweb-about-section {
+	margin-bottom: 1.25rem;
+}
+
+.yweb-about-section:last-child {
+	margin-bottom: 0;
+}
+
+.yweb-about-section h4 {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	color: var(--pico-muted-color);
+	margin: 0 0 0.5rem 0;
+	letter-spacing: 0.05em;
+}
+
+.yweb-about-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.5rem 1rem;
+	font-size: 0.85rem;
+}
+
+.yweb-about-label {
+	color: var(--pico-muted-color);
+}
+
+.yweb-about-value {
+	font-weight: 500;
+	text-align: right;
+}
+
+.yweb-about-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.yweb-about-links a {
+	color: var(--yweb-accent);
+	text-decoration: none;
+	font-size: 0.85rem;
+}
+
+.yweb-about-links a:hover {
+	text-decoration: underline;
+}
+
+.yweb-about-legal {
+	font-size: 0.75rem;
+	color: var(--pico-muted-color);
+	line-height: 1.5;
+}
+
+.yweb-about-legal p {
+	margin: 0 0 0.5rem 0;
+}
+
+.yweb-about-legal a {
+	color: var(--yweb-accent);
+}
+
+/* ============================================
+   EPG Info Modal
+   ============================================ */
+.yweb-epg-modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1100;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.yweb-epg-modal-backdrop.open {
+	opacity: 1;
+	visibility: visible;
+}
+
+.yweb-epg-modal {
+	background: var(--pico-card-background-color);
+	border-radius: var(--yweb-radius-lg);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+	width: 90%;
+	max-width: 500px;
+	max-height: 85vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	transform: scale(0.95);
+	transition: transform 0.2s ease;
+}
+
+.yweb-epg-modal-backdrop.open .yweb-epg-modal {
+	transform: scale(1);
+}
+
+.yweb-epg-modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 1.25rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.yweb-epg-modal-header h3 {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-epg-modal-body {
+	padding: 1.25rem;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.yweb-epg-current {
+	margin-bottom: 1rem;
+}
+
+.yweb-epg-title {
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.yweb-epg-time {
+	font-size: 0.85rem;
+	color: var(--yweb-accent);
+	margin-bottom: 0.5rem;
+}
+
+.yweb-epg-progress {
+	height: 4px;
+	background: var(--pico-muted-border-color);
+	border-radius: 2px;
+	overflow: hidden;
+	margin-bottom: 0.75rem;
+}
+
+.yweb-epg-progress-bar {
+	height: 100%;
+	background: var(--yweb-accent);
+	transition: width 0.3s ease;
+}
+
+.yweb-epg-description {
+	font-size: 0.9rem;
+	color: var(--pico-muted-color);
+	line-height: 1.5;
+	white-space: pre-line;
+}
+
+.yweb-epg-next {
+	padding-top: 1rem;
+	border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.yweb-epg-next-label {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	color: var(--pico-muted-color);
+	letter-spacing: 0.05em;
+	margin-bottom: 0.25rem;
+}
+
+.yweb-epg-next-title {
+	font-weight: 500;
+	margin-bottom: 0.15rem;
+}
+
+.yweb-epg-next-time {
+	font-size: 0.85rem;
+	color: var(--pico-muted-color);
+}
+
+.yweb-epg-modal-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	padding: 1rem 1.25rem;
+	border-top: 1px solid var(--pico-muted-border-color);
+}
+
+/* Modal footer buttons use existing .yweb-btn styles */
+.yweb-epg-modal-footer .yweb-btn {
+	padding: 0.4rem 1rem;
+	font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+	.yweb-epg-modal-footer {
+		justify-content: stretch;
+		gap: 0.4rem;
+		padding: 0.75rem 1rem;
+	}
+	.yweb-epg-modal-footer .yweb-btn {
+		flex: 1;
+		padding: 0.5rem 0.25rem;
+		font-size: 0.8rem;
+		text-align: center;
+		justify-content: center;
+	}
+}
+
+/* ============================================
+   Dashboard Grid - Percentage Based
+   ============================================ */
+.yweb-dashboard {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.8%;
+	padding: 0.5%;
+	width: 100%;
+}
+
+@media (max-width: 1100px) {
+	.yweb-dashboard {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 600px) {
+	.yweb-dashboard {
+		grid-template-columns: 1fr;
+		gap: 2%;
+		padding: 2%;
+	}
+}
+
+/* ============================================
+   Cards / Widgets
+   ============================================ */
+.yweb-card {
+	background: var(--pico-card-background-color);
+	border-radius: var(--yweb-radius-lg);
+	box-shadow: var(--yweb-shadow);
+	overflow: hidden;
+	transition: var(--yweb-transition);
+	min-width: 0; /* Prevent grid blowout */
+}
+
+.yweb-card:hover {
+	box-shadow: var(--yweb-shadow-hover);
+}
+
+.yweb-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	gap: 0.5rem;
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-card-title {
+	margin: 0;
+	font-size: inherit;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.yweb-card-title svg {
+	width: 16px;
+	height: 16px;
+	color: var(--yweb-accent);
+	flex-shrink: 0;
+}
+
+.yweb-card-body {
+	padding: 0.5rem 0.75rem;
+}
+
+.yweb-card-footer {
+	padding: 2% 3%;
+	border-top: 1px solid var(--pico-muted-border-color);
+	background: var(--pico-card-sectioning-background-color);
+	font-size: var(--yweb-font-xs);
+}
+
+/* ============================================
+   Status Widget
+   ============================================ */
+.yweb-status {
+	text-align: center;
+}
+
+.yweb-status-channel {
+	font-size: var(--yweb-font-xl);
+	font-weight: 700;
+	color: var(--pico-h2-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-channel-footer {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 0.5rem;
+	text-align: center;
+}
+
+.yweb-channel-footer .yweb-next-epg {
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-channel-footer .yweb-channel-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	justify-content: center;
+	width: 100%;
+}
+
+/* Channel action buttons - placeholder, actual styles at end of file */
+
+.yweb-status-epg {
+	color: var(--pico-muted-color);
+	font-size: var(--yweb-font-sm);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-status-progress {
+	margin-top: 0.5rem;
+}
+
+.yweb-status-progress progress {
+	width: 100%;
+	height: 4px;
+}
+
+.yweb-status-time {
+	display: flex;
+	justify-content: space-between;
+	font-size: var(--yweb-font-xs);
+	color: var(--pico-muted-color);
+	margin-top: 0.2rem;
+}
+
+/* Recording indicator */
+.yweb-recording {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.15rem 0.5rem;
+	background: var(--yweb-danger);
+	color: white;
+	border-radius: 1rem;
+	font-size: var(--yweb-font-xs);
+	font-weight: 600;
+	animation: yweb-pulse 1.5s infinite;
+}
+
+@keyframes yweb-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.6; }
+}
+
+/* ============================================
+   Quick Actions
+   ============================================ */
+.yweb-actions {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 3%;
+}
+
+.yweb-action-btn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 8% 4%;
+	background: var(--pico-card-sectioning-background-color);
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--yweb-radius);
+	color: var(--pico-color);
+	text-decoration: none;
+	font-size: var(--yweb-font-xs);
+	transition: var(--yweb-transition);
+	cursor: pointer;
+}
+
+.yweb-action-btn:hover {
+	background: var(--yweb-accent-light);
+	border-color: var(--yweb-accent);
+	color: var(--yweb-accent);
+}
+
+.yweb-action-btn svg {
+	width: clamp(18px, 4vw, 24px);
+	height: clamp(18px, 4vw, 24px);
+}
+
+/* ============================================
+   Info List
+   ============================================ */
+.yweb-info-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.yweb-info-list li {
+	display: grid;
+	grid-template-columns: 35% 65%;
+	gap: 2%;
+	padding: 0.4rem 0;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	font-size: var(--yweb-font-xs);
+}
+
+.yweb-info-list li:last-child {
+	border-bottom: none;
+}
+
+.yweb-info-label {
+	color: var(--pico-muted-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-info-value {
+	font-weight: 500;
+	text-align: right;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ============================================
+   Bouquet / Channel List
+   ============================================ */
+.yweb-channel-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.yweb-channel-item {
+	display: flex;
+	align-items: center;
+	gap: 2%;
+	padding: 2%;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	cursor: pointer;
+	transition: var(--yweb-transition);
+}
+
+.yweb-channel-item:hover {
+	background: var(--yweb-accent-light);
+}
+
+.yweb-channel-item.active {
+	background: var(--yweb-accent-light);
+	border-left: 3px solid var(--yweb-accent);
+}
+
+.yweb-channel-logo {
+	width: 8%;
+	min-width: 30px;
+	max-width: 40px;
+	aspect-ratio: 1;
+	object-fit: contain;
+	background: var(--pico-card-sectioning-background-color);
+	border-radius: 4px;
+}
+
+.yweb-channel-name {
+	flex: 1;
+	font-weight: 500;
+	font-size: var(--yweb-font-sm);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-channel-epg {
+	font-size: var(--yweb-font-xs);
+	color: var(--pico-muted-color);
+}
+
+/* ============================================
+   Theme Toggle
+   ============================================ */
+.yweb-theme-toggle {
+	background: none;
+	border: none;
+	padding: 0.3rem;
+	cursor: pointer;
+	color: var(--pico-color);
+	border-radius: var(--yweb-radius);
+	transition: var(--yweb-transition);
+}
+
+.yweb-theme-toggle:hover {
+	background: var(--pico-card-sectioning-background-color);
+}
+
+.yweb-theme-toggle svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* Note: Footer styles are defined earlier in this file */
+
+/* ============================================
+   Unified Button Templates
+   ============================================ */
+
+/* Base button - verwendet überall */
+.yweb-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.25rem;
+	padding: 0.3rem 0.5rem;
+	background: var(--pico-card-sectioning-background-color);
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--yweb-radius);
+	color: var(--pico-color);
+	font-size: var(--yweb-font-xs);
+	font-weight: 500;
+	cursor: pointer;
+	transition: var(--yweb-transition);
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.yweb-btn:hover {
+	background: var(--yweb-accent-light);
+	border-color: var(--yweb-accent);
+	color: var(--yweb-accent);
+}
+
+.yweb-btn:active {
+	transform: scale(0.97);
+}
+
+.yweb-btn svg {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+}
+
+/* Button Varianten */
+.yweb-btn.primary {
+	background: var(--yweb-accent);
+	border-color: var(--yweb-accent);
+	color: white;
+}
+
+.yweb-btn.primary:hover {
+	background: var(--yweb-accent-hover);
+	border-color: var(--yweb-accent-hover);
+	color: white;
+}
+
+.yweb-btn.danger {
+	background: var(--yweb-danger);
+	border-color: var(--yweb-danger);
+	color: white;
+}
+
+.yweb-btn.sm {
+	padding: 0.2rem 0.4rem;
+	font-size: calc(var(--yweb-font-xs) * 0.9);
+}
+
+.yweb-btn.sm svg {
+	width: 12px;
+	height: 12px;
+}
+
+.yweb-btn.lg {
+	padding: 0.5rem 0.8rem;
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-btn.lg svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* Button mit Label das auf Mobil versteckt wird */
+.yweb-btn .btn-label {
+	display: none;
+}
+
+@media (min-width: 800px) {
+	.yweb-btn .btn-label {
+		display: inline;
+	}
+}
+
+/* Light theme buttons */
+[data-theme="light"] .yweb-btn {
+	background: #e9ecef;
+	border-color: #ced4da;
+	color: #212529;
+}
+
+[data-theme="light"] .yweb-btn:hover {
+	background: var(--yweb-accent-light);
+	border-color: var(--yweb-accent);
+	color: var(--yweb-accent);
+}
+
+[data-theme="light"] .yweb-btn.primary {
+	background: var(--yweb-accent);
+	border-color: var(--yweb-accent);
+	color: white;
+}
+
+[data-theme="light"] .yweb-btn.primary:hover {
+	background: var(--yweb-accent-hover);
+	color: white;
+}
+
+/* ============================================
+   Unified Toolbar Template
+   ============================================ */
+.yweb-toolbar {
+	display: flex;
+	gap: 0.4rem;
+	padding: 0.4rem 0.6rem;
+	background: var(--pico-card-background-color);
+	border-radius: var(--yweb-radius);
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.yweb-toolbar-spacer {
+	flex: 1;
+}
+
+[data-theme="light"] .yweb-toolbar {
+	background: #fff;
+	border: 1px solid #e5e7eb;
+}
+
+/* ============================================
+   Unified Select/Dropdown Template
+   ============================================ */
+.yweb-select {
+	padding: 0.3rem 0.5rem;
+	background: var(--pico-card-sectioning-background-color);
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--yweb-radius);
+	color: var(--pico-color);
+	font-size: var(--yweb-font-xs);
+	cursor: pointer;
+	transition: var(--yweb-transition);
+}
+
+.yweb-select:focus {
+	border-color: var(--yweb-accent);
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(253, 109, 19, 0.2);
+}
+
+[data-theme="light"] .yweb-select {
+	background: #fff;
+	border-color: #ced4da;
+	color: #212529;
+}
+
+/* ============================================
+   Unified Panel Template
+   ============================================ */
+.yweb-panel {
+	background: var(--pico-card-background-color);
+	border-radius: var(--yweb-radius-lg);
+	box-shadow: var(--yweb-shadow);
+	overflow: hidden;
+}
+
+.yweb-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.6rem 0.8rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	font-size: var(--yweb-font-sm);
+	font-weight: 600;
+}
+
+.yweb-panel-header svg {
+	width: 18px;
+	height: 18px;
+	color: var(--yweb-accent);
+}
+
+.yweb-panel-title {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.yweb-panel-body {
+	padding: 0.8rem;
+}
+
+[data-theme="light"] .yweb-panel {
+	border: 1px solid #e5e7eb;
+}
+
+/* ============================================
+   Unified List Row Template
+   ============================================ */
+.yweb-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.yweb-list-row {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 0.5rem 0.8rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	transition: var(--yweb-transition);
+}
+
+.yweb-list-row:last-child {
+	border-bottom: none;
+}
+
+.yweb-list-row:hover {
+	background: var(--yweb-accent-light);
+}
+
+.yweb-list-row.active {
+	background: var(--yweb-accent-light);
+	border-left: 3px solid var(--yweb-accent);
+}
+
+.yweb-list-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.yweb-list-title {
+	font-weight: 500;
+	font-size: var(--yweb-font-sm);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-list-subtitle {
+	font-size: var(--yweb-font-xs);
+	color: var(--pico-muted-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-list-actions {
+	display: flex;
+	gap: 0.3rem;
+	flex-shrink: 0;
+}
+
+[data-theme="light"] .yweb-list-row {
+	border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .yweb-list-row:hover {
+	background: #f8f9fa;
+}
+
+/* ============================================
+   Unified Icon Placeholder
+   ============================================ */
+.yweb-icon-placeholder {
+	width: 40px;
+	height: 30px;
+	background: var(--pico-card-sectioning-background-color);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--pico-muted-color);
+	font-size: var(--yweb-font-xs);
+	flex-shrink: 0;
+}
+
+.yweb-icon-placeholder img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	border-radius: 4px;
+}
+
+/* ============================================
+   Button Group
+   ============================================ */
+.yweb-btn-group {
+	display: flex;
+	gap: 0.3rem;
+}
+
+.yweb-btn-group .yweb-btn {
+	border-radius: 0;
+}
+
+.yweb-btn-group .yweb-btn:first-child {
+	border-radius: var(--yweb-radius) 0 0 var(--yweb-radius);
+}
+
+.yweb-btn-group .yweb-btn:last-child {
+	border-radius: 0 var(--yweb-radius) var(--yweb-radius) 0;
+}
+
+.yweb-btn-group .yweb-btn:only-child {
+	border-radius: var(--yweb-radius);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.yweb-text-center { text-align: center; }
+.yweb-text-muted { color: var(--pico-muted-color); }
+.yweb-text-accent { color: var(--yweb-accent); }
+.yweb-text-success { color: var(--yweb-success); }
+.yweb-text-warning { color: var(--yweb-warning); }
+.yweb-text-danger { color: var(--yweb-danger); }
+
+.yweb-truncate {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-hidden { display: none !important; }
+
+@media (max-width: 700px) {
+	.yweb-hide-mobile { display: none !important; }
+}
+
+@media (min-width: 701px) {
+	.yweb-hide-desktop { display: none !important; }
+}
+
+/* ============================================
+   Pull-to-Refresh (Mobile)
+   ============================================ */
+.yweb-pull-indicator {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	background: var(--pico-background-color);
+	color: var(--pico-muted-color);
+	font-size: 0.8rem;
+	z-index: 9999;
+	transform: translateY(-50px);
+	transition: transform 0.2s ease;
+	pointer-events: none;
+}
+
+.yweb-pull-icon {
+	width: 20px;
+	height: 20px;
+	transition: transform 0.1s ease;
+}
+
+.yweb-pull-icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+.yweb-pull-indicator.ready {
+	color: var(--yweb-accent);
+}
+
+.yweb-pull-indicator.ready .yweb-pull-icon {
+	transform: rotate(180deg) !important;
+}
+
+.yweb-pull-indicator.refreshing .yweb-pull-icon {
+	animation: yweb-spin 0.8s linear infinite;
+}
+
+@keyframes yweb-spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+/* ── Shared empty state ── */
+.yweb-empty {
+	text-align: center;
+	padding: 3rem;
+	color: var(--pico-muted-color);
+}
+
+/* ── Mobile card indicator (dots) ── */
+.yweb-card-indicator {
+	display: none;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
+	background: var(--pico-card-background-color);
+	border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.yweb-card-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--pico-muted-border-color);
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+.yweb-card-dot.active {
+	background: var(--yweb-accent);
+	transform: scale(1.2);
+}
+
+.yweb-card-dot:hover {
+	background: var(--yweb-accent);
+	opacity: 0.7;
+}
+
+/* ── Card preview (mobile collapsed state) ── */
+.yweb-card-preview {
+	display: none;
+	font-size: 0.75rem;
+	color: var(--pico-muted-color);
+	font-weight: 400;
+	margin-left: auto;
+	margin-right: 0.3rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 45%;
+}
+
+/* ============================================
+   Remote Control (shared component)
+   Scoped to .yweb-remote (panel) and
+   #yweb-remote-modal (modal wrapper)
+   ============================================ */
+
+/* ── Remote panel ── */
+.yweb-remote {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+	max-width: 320px;
+	margin: 0 auto;
+	padding: 0.5rem 0;
+}
+
+/* ── Base button ── */
+.yweb-remote .yweb-rc-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: 12px;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 0.85rem;
+	font-weight: 500;
+	transition: transform 0.12s, box-shadow 0.12s;
+	-webkit-tap-highlight-color: transparent;
+	user-select: none;
+	min-width: 44px;
+	min-height: 36px;
+}
+
+[data-theme="dark"] .yweb-remote .yweb-rc-btn {
+	background: #2c2f38;
+	color: #ddd;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+html:not([data-theme="dark"]) .yweb-remote .yweb-rc-btn {
+	background: #e2e3e8;
+	color: #1a1a1a;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.yweb-remote .yweb-rc-btn:active {
+	transform: scale(0.94);
+	box-shadow: 0 0 1px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .yweb-remote .yweb-rc-btn:active { background: #3a3d47; }
+html:not([data-theme="dark"]) .yweb-remote .yweb-rc-btn:active { background: #d0d1d8; }
+
+.yweb-remote .yweb-rc-btn svg {
+	width: 20px;
+	height: 20px;
+}
+
+/* ── Power / Mute row ── */
+.yweb-remote .yweb-rc-top {
+	display: flex;
+	justify-content: space-between;
+}
+
+.yweb-remote .yweb-rc-power,
+.yweb-remote .yweb-rc-top > .yweb-rc-btn {
+	width: 52px;
+	height: 40px;
+}
+
+.yweb-remote .yweb-rc-power svg,
+.yweb-remote .yweb-rc-top > .yweb-rc-btn svg {
+	width: 22px;
+	height: 22px;
+}
+
+.yweb-remote .yweb-rc-power {
+	color: #e44 !important;
+}
+
+[data-theme="dark"] .yweb-remote .yweb-rc-power {
+	background: rgba(228, 68, 68, 0.18);
+	box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(228,68,68,0.15);
+}
+
+html:not([data-theme="dark"]) .yweb-remote .yweb-rc-power {
+	background: rgba(228, 68, 68, 0.1);
+	box-shadow: 0 2px 4px rgba(228,68,68,0.15), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* ── Core thumb zone (VOL | D-Pad | CH) ── */
+.yweb-remote .yweb-rc-core {
+	display: grid;
+	grid-template-columns: 56px 1fr 56px;
+	align-items: center;
+	justify-items: center;
+	gap: 0.25rem;
+}
+
+.yweb-remote .yweb-rc-rocker {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0;
+}
+
+.yweb-remote .yweb-rc-rocker-label {
+	font-size: 0.6rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	margin-bottom: 4px;
+}
+
+[data-theme="dark"] .yweb-remote .yweb-rc-rocker-label { color: #777; }
+html:not([data-theme="dark"]) .yweb-remote .yweb-rc-rocker-label { color: #999; }
+
+.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-top,
+.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-bot {
+	width: 64px;
+	height: 36px;
+	font-size: 1.2rem;
+	font-weight: 700;
+	border-radius: 0;
+}
+
+.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-top {
+	border-radius: 12px 12px 2px 2px;
+}
+
+.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-bot {
+	border-radius: 2px 2px 12px 12px;
+	margin-top: 2px;
+}
+
+/* ── D-Pad ── */
+.yweb-remote .yweb-rc-dpad {
+	display: grid;
+	grid-template-columns: 44px 56px 44px;
+	grid-template-rows: 34px 48px 34px;
+	gap: 3px;
+	justify-content: center;
+	justify-items: center;
+	align-items: center;
+	padding: 8px;
+	border-radius: 50%;
+	width: 176px;
+	margin: 0 auto;
+}
+
+[data-theme="dark"] .yweb-remote .yweb-rc-dpad {
+	background: rgba(255,255,255,0.04);
+}
+
+html:not([data-theme="dark"]) .yweb-remote .yweb-rc-dpad {
+	background: rgba(0,0,0,0.035);
+}
+
+.yweb-remote .yweb-rc-arrow {
+	width: 100%;
+	height: 100%;
+	border-radius: 10px;
+}
+
+.yweb-remote .yweb-rc-arrow svg {
+	width: 22px;
+	height: 22px;
+}
+
+.yweb-remote .yweb-rc-ok {
+	width: 52px;
+	height: 44px;
+	border-radius: 50%;
+	font-size: 1rem;
+	font-weight: 800;
+	color: #fff !important;
+	letter-spacing: 0.02em;
+}
+
+[data-theme="dark"] .yweb-remote .yweb-rc-ok {
+	background: #1b84e0;
+	box-shadow: 0 3px 10px rgba(27,132,224,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
+	background: #1a7fd4;
+	box-shadow: 0 3px 10px rgba(26,127,212,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+.yweb-remote .yweb-rc-ok:active {
+	box-shadow: 0 1px 4px rgba(27,132,224,0.3);
+}
+
+/* ── Navigation + Function rows ── */
+.yweb-remote .yweb-rc-nav {
+	display: flex;
+	gap: 5px;
+}
+
+.yweb-remote .yweb-rc-func {
+	flex: 1;
+	height: 36px;
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+}
+
+/* ── Color buttons ── */
+.yweb-remote .yweb-rc-colors {
+	display: flex;
+	gap: 5px;
+}
+
+.yweb-remote .yweb-rc-color {
+	flex: 1;
+	height: 8px;
+	border-radius: 4px;
+	border: none;
+	min-width: 0;
+	cursor: pointer;
+	box-shadow: none !important;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.yweb-remote .yweb-rc-red { background: #e53935; }
+.yweb-remote .yweb-rc-green { background: #43a047; }
+.yweb-remote .yweb-rc-yellow { background: #fdd835; }
+.yweb-remote .yweb-rc-blue { background: #1e88e5; }
+
+.yweb-remote .yweb-rc-color:active {
+	filter: brightness(1.3);
+	transform: scale(0.95);
+}
+
+/* ── Sheet trigger (123 button) ── */
+.yweb-remote .yweb-rc-sheet-trigger {
+	width: 100%;
+	height: 36px;
+	font-size: 0.9rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+}
+
+/* ── Bottom sheet overlay (mobile) ── */
+.yweb-rc-sheet-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1200;
+	display: none;
+	align-items: flex-end;
+	justify-content: center;
+	overscroll-behavior: none;
+}
+
+.yweb-rc-sheet {
+	width: 100%;
+	max-width: 360px;
+	max-height: 70vh;
+	overflow-y: auto;
+	overscroll-behavior-y: contain;
+	border-radius: 16px 16px 0 0;
+	padding: 0.75rem 1rem 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	animation: ywebSheetSlideUp 0.25s ease;
+}
+
+[data-theme="dark"] .yweb-rc-sheet { background: #1e2028; }
+html:not([data-theme="dark"]) .yweb-rc-sheet { background: #ffffff; }
+
+.yweb-rc-sheet-handle {
+	width: 48px;
+	height: 5px;
+	border-radius: 3px;
+	margin: 4px auto;
+	padding: 10px 0;
+	background-clip: content-box;
+	cursor: grab;
+	touch-action: none;
+}
+
+[data-theme="dark"] .yweb-rc-sheet-handle { background-color: #666; }
+html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
+
+/* Sheet color buttons: taller for better touch */
+.yweb-rc-sheet .yweb-rc-colors { gap: 8px; }
+.yweb-rc-sheet .yweb-rc-color { height: 16px; border-radius: 8px; }
+
+@keyframes ywebSheetSlideUp {
+	from { transform: translateY(100%); }
+	to   { transform: translateY(0); }
+}
+
+/* ── Desktop: show sheet content inline ── */
+@media (min-width: 769px) {
+	.yweb-remote .yweb-rc-sheet-trigger {
+		display: none;
+	}
+	.yweb-remote .yweb-rc-sheet-backdrop {
+		display: flex;
+		position: static;
+		inset: auto;
+		background: none;
+		z-index: auto;
+		align-items: stretch;
+		flex-direction: column;
+	}
+	.yweb-rc-sheet {
+		max-width: none;
+		max-height: none;
+		border-radius: 0;
+		padding: 0;
+		animation: none;
+		gap: 0.5rem;
+	}
+	[data-theme="dark"] .yweb-rc-sheet { background: transparent; }
+	html:not([data-theme="dark"]) .yweb-rc-sheet { background: transparent; }
+	.yweb-rc-sheet-handle {
+		display: none;
+	}
+	.yweb-rc-sheet .yweb-rc-colors { gap: 5px; }
+	.yweb-rc-sheet .yweb-rc-color { height: 8px; border-radius: 4px; }
+}
+
+/* ── Numpad (inside sheet) ── */
+.yweb-rc-sheet .yweb-rc-numpad {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 5px;
+}
+
+.yweb-rc-sheet .yweb-rc-numpad .yweb-rc-btn {
+	height: 48px;
+	font-size: 1.2rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+/* ── Media controls ── */
+.yweb-remote .yweb-rc-media {
+	display: flex;
+	gap: 5px;
+}
+
+.yweb-remote .yweb-rc-media .yweb-rc-btn {
+	flex: 1;
+	height: 36px;
+}
+
+.yweb-remote .yweb-rc-media .yweb-rc-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* ── Remote row helper ── */
+.yweb-remote .yweb-rc-row {
+	display: flex;
+}
+
+/* ============================================
+   Remote Modal (#yweb-remote-modal)
+   ============================================ */
+body.yweb-remote-open {
+	overflow: hidden;
+}
+
+.yweb-remote-backdrop {
+	display: none;
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	z-index: 1100;
+	justify-content: center;
+	align-items: center;
+}
+
+.yweb-remote-dialog {
+	background: var(--pico-card-background-color);
+	border-radius: var(--yweb-radius-lg);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+	max-width: 320px;
+	width: 90%;
+	max-height: 90vh;
+	overflow: hidden;
+	animation: modalSlideIn 0.2s ease;
+	display: flex;
+	flex-direction: column;
+}
+
+.yweb-remote-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	font-weight: 600;
+	font-size: 0.95rem;
+}
+
+.yweb-remote-modal-header span {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.yweb-remote-modal-header svg {
+	width: 18px;
+	height: 18px;
+}
+
+.yweb-remote-dialog .yweb-remote {
+	flex: 1;
+	min-height: 0;
+	justify-content: center;
+	padding: 0.5rem 1rem 1rem;
+	overflow: visible;
+}
+
+/* Mobile fullscreen */
+@media (max-width: 768px) {
+	.yweb-remote-dialog {
+		max-width: none;
+		width: 100%;
+		height: 100dvh;
+		max-height: none;
+		border-radius: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.yweb-remote-dialog .yweb-remote {
+		flex: 1;
+		justify-content: center;
+		gap: 0.5rem;
+		max-width: 320px;
+		padding: 0.5rem 1rem 1rem;
+		overflow: visible;
+	}
+}
+
+/* ============================================
+   Channel Action Buttons (must be at end to override)
+   ============================================ */
+.yweb-channel-actions .yweb-action-btn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.25rem;
+	flex: 1;
+	max-width: 7rem;
+	min-width: 3rem;
+	height: 3.2rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.75rem;
+	font-family: inherit;
+	color: var(--pico-muted-color);
+	text-decoration: none;
+	background: var(--pico-card-sectioning-background-color);
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--yweb-radius);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.yweb-channel-actions .yweb-action-btn svg {
+	width: 1.25rem;
+	height: 1.25rem;
+	stroke: var(--yweb-accent);
+	flex-shrink: 0;
+}
+
+.yweb-channel-actions .yweb-action-btn span {
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.yweb-channel-actions .yweb-action-btn:hover {
+	border-color: var(--yweb-accent);
+	color: var(--yweb-accent);
+	text-decoration: none;
+}
+
+.yweb-channel-actions .yweb-action-btn:active {
+	transform: scale(0.95);
+}
+
+/* ============================================
+   Shared Form Components
+   Toggle switch, form rows, form inputs
+   Used by: settings.html, timer.html, etc.
+   ============================================ */
+
+/* ── Toggle Switch ── */
+.yweb-toggle {
+	position: relative;
+	display: inline-block !important;
+	width: 2.6rem !important;
+	height: 1.4rem;
+	min-width: 2.6rem;
+	flex: none;
+	cursor: pointer;
+}
+.yweb-toggle input {
+	opacity: 0;
+	width: 0 !important;
+	height: 0 !important;
+	position: absolute;
+}
+.yweb-toggle-slider {
+	position: absolute;
+	inset: 0;
+	background: var(--pico-muted-border-color);
+	border-radius: 0.7rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.yweb-toggle-slider::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.15rem;
+	width: 1.1rem;
+	height: 1.1rem;
+	background: #fff;
+	border-radius: 50%;
+	transition: transform 0.2s;
+}
+.yweb-toggle input:checked + .yweb-toggle-slider {
+	background: var(--yweb-accent);
+}
+.yweb-toggle input:checked + .yweb-toggle-slider::before {
+	transform: translateX(1.2rem);
+}
+.yweb-toggle input:focus-visible + .yweb-toggle-slider {
+	box-shadow: 0 0 0 2px rgba(255,165,0,0.3);
+}
+
+/* ── Form Rows ── */
+.yweb-form-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.4rem;
+	padding: 0.2rem 0;
+}
+.yweb-form-row label:not(.yweb-toggle) {
+	font-size: var(--yweb-font-sm);
+	color: var(--pico-muted-color);
+	flex-shrink: 0;
+}
+
+/* ── Form Inputs ── */
+.yweb-form-row select,
+.yweb-form-row input[type="text"],
+.yweb-form-row input[type="number"],
+.yweb-form-row input[type="password"],
+.yweb-form-row input[type="date"],
+.yweb-form-row input[type="time"] {
+	padding: 0.3rem 0.5rem !important;
+	border-radius: var(--yweb-radius);
+	border: 1px solid var(--pico-muted-border-color);
+	background: var(--pico-background-color);
+	color: var(--pico-color);
+	font-size: var(--yweb-font-sm);
+	margin-bottom: 0 !important;
+	height: auto !important;
+	line-height: 1.4;
+}
+.yweb-form-row select:focus,
+.yweb-form-row input:focus {
+	outline: none;
+	border-color: var(--yweb-accent);
+	box-shadow: 0 0 0 2px rgba(255,165,0,0.15);
+}
+
+/* ── Form Section Title ── */
+.yweb-form-section {
+	margin-bottom: 1.2rem;
+}
+.yweb-form-section:last-of-type {
+	margin-bottom: 0;
+}
+.yweb-form-section-title {
+	font-size: var(--yweb-font-xs);
+	color: var(--yweb-accent);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-weight: 600;
+	margin-bottom: 0.6rem;
+	padding-bottom: 0.3rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+/* ── Form Mobile Responsive ── */
+@media (max-width: 800px) {
+	.yweb-form-row {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.2rem;
+	}
+	.yweb-form-row label:not(.yweb-toggle) { min-width: unset; }
+	.yweb-form-row select,
+	.yweb-form-row input[type="text"],
+	.yweb-form-row input[type="number"],
+	.yweb-form-row input[type="password"],
+	.yweb-form-row input[type="date"],
+	.yweb-form-row input[type="time"] {
+		width: 100%;
+		flex: auto;
+	}
+	/* Toggle row: keep horizontal on mobile */
+	.yweb-form-row:has(.yweb-toggle) {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+}
+
