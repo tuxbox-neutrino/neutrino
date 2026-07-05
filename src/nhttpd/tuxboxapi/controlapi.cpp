@@ -337,6 +337,20 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
 	{"statfs",	&CControlAPI::StatfsCGI,	"application/json"},
 	{"getdir",	&CControlAPI::getDirCGI,	"application/json"},
 	{"getmovies",	&CControlAPI::getMoviesCGI,	"application/json"},
+	// system, power, mode & input
+	{"standby",	&CControlAPI::StandbyCGI,	"application/json"},
+	{"shutdown",	&CControlAPI::ShutdownCGI,	"application/json"},
+	{"reboot",	&CControlAPI::RebootCGI,	"application/json"},
+	{"restart",	&CControlAPI::RestartCGI,	"application/json"},
+	{"getdate",	&CControlAPI::GetDateCGI,	"application/json"},
+	{"gettime",	&CControlAPI::GetTimeCGI,	"application/json"},
+	{"info",	&CControlAPI::InfoCGI,		"application/json"},
+	{"versions",	&CControlAPI::VersionsCGI,	"application/json"},
+	{"osinfo",	&CControlAPI::OsInfoCGI,	"application/json"},
+	{"setmode",	&CControlAPI::SetModeCGI,	"application/json"},
+	{"message",	&CControlAPI::MessageCGI,	"application/json"},
+	{"rc",		&CControlAPI::RCCGI,		"application/json"},
+	{"rcem",	&CControlAPI::RCEmCGI,		"application/json"},
 };
 
 //-----------------------------------------------------------------------------

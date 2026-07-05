@@ -55,6 +55,19 @@
 | `/api/v4/statfs` | `/control/statfs?format=json` | CControlAPI::StatfsCGI |
 | `/api/v4/getdir` | `/control/getdir?format=json` | CControlAPI::getDirCGI |
 | `/api/v4/getmovies` | `/control/getmovies?format=json` | CControlAPI::getMoviesCGI |
+| `/api/v4/standby` | `/control/standby?format=json` | CControlAPI::StandbyCGI |
+| `/api/v4/shutdown` | `/control/shutdown?format=json` | CControlAPI::ShutdownCGI |
+| `/api/v4/reboot` | `/control/reboot?format=json` | CControlAPI::RebootCGI |
+| `/api/v4/restart` | `/control/restart?format=json` | CControlAPI::RestartCGI |
+| `/api/v4/getdate` | `/control/getdate?format=json` | CControlAPI::GetDateCGI |
+| `/api/v4/gettime` | `/control/gettime?format=json` | CControlAPI::GetTimeCGI |
+| `/api/v4/info` | `/control/info` | CControlAPI::InfoCGI |
+| `/api/v4/versions` | `/control/versions` | CControlAPI::VersionsCGI |
+| `/api/v4/osinfo` | `/control/osinfo?format=json` | CControlAPI::OsInfoCGI |
+| `/api/v4/setmode` | `/control/setmode?format=json` | CControlAPI::SetModeCGI |
+| `/api/v4/message` | `/control/message` (Envelope statt `ok`) | CControlAPI::MessageCGI |
+| `/api/v4/rc` | `/control/rc` (Envelope statt `ok`) | CControlAPI::RCCGI |
+| `/api/v4/rcem` | `/control/rcem` (Envelope statt `ok`) | CControlAPI::RCEmCGI |
 
 Details je Endpoint (Parameter, Beispiel-Output) stehen an den verlinkten
 Handlern (Konvention `@par nhttpd-usage` / `@par output (json)`).
