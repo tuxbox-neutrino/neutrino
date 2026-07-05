@@ -106,7 +106,7 @@ function ywebGetHeaderHTML(activePage) {
 		{ page: 'bouquets', href: '/bouquets.yhtm', icon: 'bouquets', label: ywebL('nav.bouquets', 'Bouquets') },
 		{ page: 'epg', href: '/epg.yhtm', icon: 'epg', label: ywebL('nav.epg', 'EPG') },
 		{ page: 'timer', href: '/timer.yhtm', icon: 'timer', label: ywebL('nav.timer', 'Timer') },
-		{ page: 'settings', href: '/settings.html', icon: 'settings', label: ywebL('nav.settings', 'Settings') },
+		{ page: 'settings', href: '/settings.yhtm', icon: 'settings', label: ywebL('nav.settings', 'Settings') },
 		{ page: 'tools', href: '/tools.yhtm', icon: 'tools', label: ywebL('nav.tools', 'Tools') }
 	];
 

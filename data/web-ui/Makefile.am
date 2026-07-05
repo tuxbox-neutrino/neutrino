@@ -28,7 +28,7 @@ install_DATA = \
 	files.yhtm \
 	m3u-convert.yhtm \
 	screenshot.yhtm \
-	settings.html \
+	settings.yhtm \
 	settings-registry.js \
 	sysinfo.yhtm \
 	timer.yhtm \

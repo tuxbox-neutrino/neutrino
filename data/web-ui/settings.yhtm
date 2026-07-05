@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>yWeb - Einstellungen</title>
+	<title>yWeb - {=L:yw.nav.settings=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=59">
@@ -258,7 +258,7 @@
 
 		<!-- Content -->
 		<div class="yweb-settings-content" id="settingsContent">
-			<div class="settings-loading">Lade Einstellungen...</div>
+			<div class="settings-loading">{=L:yw.set.loading=}</div>
 		</div>
 	</div>
 
@@ -284,7 +284,7 @@
 		d.appendChild(h);
 		var b = document.createElement('button');
 		b.className = 'btn-save';
-		b.title = 'Speichern';
+		b.title = '{=L:yw.bqe.save=}';
 		b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/><\/svg>';
 		b.onclick = saveSettings;
 		d.appendChild(b);
@@ -312,7 +312,7 @@
 			if (f.refresh) await loadSettings();
 			if (typeof f.after === 'function') f.after(res);
 		} catch (e) {
-			ywebShowToast('Fehler: ' + e.message, true);
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 		btn.textContent = orig;
@@ -410,7 +410,7 @@
 	function renderExtConfigPanel(cat) {
 		setTimeout(function() { loadExtConfigPanel(cat); }, 0);
 		return '<div class="settings-card">' + makeCardHeader(cat.label) +
-			'<div id="extcfg-' + cat.id + '"><p aria-busy="true">Lade\u2026</p></div></div>';
+			'<div id="extcfg-' + cat.id + '"><p aria-busy="true">{=L:yw.msg.loading=}</p></div></div>';
 	}
 
 	async function loadExtConfigPanel(cat) {
@@ -434,10 +434,10 @@
 			// Reine Action-/Info-Panels haben nichts zu speichern
 			if (savable > 0)
 				html += '<div class="yweb-form-row"><label></label>' +
-					'<button type="button" class="yweb-btn" onclick="saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)">Speichern</button></div>';
+					'<button type="button" class="yweb-btn" onclick="saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)">{=L:yw.bqe.save=}</button></div>';
 			el.innerHTML = html;
 		} catch (e) {
-			el.innerHTML = '<div class="yweb-form-row"><label>Nicht verf\u00fcgbar: ' + escapeHtml(e.message) + '</label></div>';
+			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
 		}
 	}
 
@@ -455,14 +455,14 @@
 				changed++;
 			}
 		});
-		if (changed === 0) { ywebShowToast('Keine \u00c4nderungen'); return; }
+		if (changed === 0) { ywebShowToast('{=L:yw.set.nochanges=}'); return; }
 		btn.disabled = true;
 		try {
 			await ywebApi('config', 'config=' + cfgName + '&' + params);
 			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
 			await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
 		} catch (e) {
-			ywebShowToast('Fehler: ' + e.message, true);
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
@@ -470,14 +470,14 @@
 	// Backup/Restore der Einstellungen via exec-Vertrag
 	// (Y_Tools settings_backup_restore; Script echot den Archivpfad)
 	function renderBackupPanel() {
-		return '<div class="settings-card">' + makeCardHeader('Sichern & Wiederherstellen') +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.backup_title=}') +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Backup</div>' +
-			'<div class="yweb-form-row"><label>Einstellungen sichern <small style="color:var(--pico-muted-color)">erzeugt ein Archiv und laedt es herunter</small></label>' +
-			'<button type="button" class="yweb-btn" onclick="doSettingsBackup(this)">Backup erstellen</button></div></div>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.backup_label=} <small style="color:var(--pico-muted-color)">{=L:yw.set.backup_hint=}</small></label>' +
+			'<button type="button" class="yweb-btn" onclick="doSettingsBackup(this)">{=L:yw.set.backup_btn=}</button></div></div>' +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Restore</div>' +
-			'<div class="yweb-form-row"><label>Archiv einspielen <small style="color:var(--pico-muted-color)">danach Neutrino neu starten</small></label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.restore_label=} <small style="color:var(--pico-muted-color)">{=L:yw.set.restore_hint=}</small></label>' +
 			'<span><input type="file" id="restoreFile" style="max-width:220px"> ' +
-			'<button type="button" class="yweb-btn" onclick="doSettingsRestore(this)">Wiederherstellen</button></span></div></div></div>';
+			'<button type="button" class="yweb-btn" onclick="doSettingsRestore(this)">{=L:yw.set.restore_btn=}</button></span></div></div></div>';
 	}
 
 	async function doSettingsBackup(btn) {
@@ -485,19 +485,19 @@
 		try {
 			var out = (await ywebApi('exec', 'Y_Tools&settings_backup_restore&backup', {raw: true})).trim();
 			var file = out.split('\n').pop().trim();
-			if (file.indexOf('/') !== 0) throw new Error(out || 'kein Archiv erzeugt');
+			if (file.indexOf('/') !== 0) throw new Error(out || '{=L:yw.set.no_archive=}');
 			ywebShowToast('Backup: ' + file);
 			window.location.href = '/api/v4/file?action=download&path=' + encodeURIComponent(file);
 		} catch (e) {
-			ywebShowToast('Backup fehlgeschlagen: ' + e.message, true);
+			ywebShowToast('{=L:yw.set.backup_fail=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
 
 	async function doSettingsRestore(btn) {
 		var inp = document.getElementById('restoreFile');
-		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('Keine Datei gewaehlt', true); return; }
-		if (!confirm('Einstellungen wirklich ueberschreiben?')) return;
+		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
+		if (!confirm('{=L:yw.set.restore_confirm=}')) return;
 		btn.disabled = true;
 		try {
 			var f = inp.files[0];
@@ -506,9 +506,9 @@
 			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
 			if (!up.ok) throw new Error('Upload fehlgeschlagen');
 			var out = await ywebApi('exec', 'Y_Tools&exec_cmd&restore.sh&' + encodeURIComponent('/tmp/' + f.name), {raw: true});
-			ywebShowToast('Restore: ' + (out.trim() || 'ausgefuehrt - bitte Neutrino neu starten'));
+			ywebShowToast('Restore: ' + (out.trim() || '{=L:yw.set.restore_done=}'));
 		} catch (e) {
-			ywebShowToast('Restore fehlgeschlagen: ' + e.message, true);
+			ywebShowToast('{=L:yw.set.restore_fail=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
@@ -517,8 +517,8 @@
 	// Slot-Override (persistiert in config=yweb, Loader in yweb-header.js)
 	function renderExtensionsPanel() {
 		setTimeout(loadExtensionsPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('Erweiterungen') +
-			'<div id="extPanel"><p aria-busy="true">Suche Erweiterungen…</p></div></div>';
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.ext_title=}') +
+			'<div id="extPanel"><p aria-busy="true">{=L:yw.set.ext_search=}</p></div></div>';
 	}
 
 	async function loadExtensionsPanel() {
@@ -527,15 +527,15 @@
 		_ywebExtensions = null; // Discovery-Cache invalidieren
 		var exts = await ywebDiscoverExtensions();
 		if (!exts.length) {
-			el.innerHTML = '<div class="yweb-form-row"><label>Keine Erweiterungen gefunden ' +
+			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.ext_none=} ' +
 				'<small style="color:var(--pico-muted-color)">Verzeichnis: &lt;webroot&gt;/extensions/&lt;name&gt;/manifest.json — siehe README</small></label></div>';
 			return;
 		}
-		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Gefundene Erweiterungen</div>';
+		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.ext_found=}</div>';
 		exts.forEach(function(m) {
 			html += '<div class="yweb-form-row"><label>' + escapeHtml(m.name) +
 				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
-				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — nur Einstellungen') + '</small></label><span>' +
+				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — {=L:yw.set.ext_settings_only=}') + '</small></label><span>' +
 				'<select id="extslot_' + m.dir + '" style="margin:0 0.4rem 0 0;padding:0.2rem;height:auto;width:auto">' +
 				['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
 					return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
@@ -544,7 +544,7 @@
 				'<span class="yweb-toggle-slider"></span></label></span></div>';
 		});
 		html += '</div><div class="yweb-form-row"><label></label>' +
-			'<button type="button" class="yweb-btn" onclick="saveExtensions(this)">Speichern</button></div>';
+			'<button type="button" class="yweb-btn" onclick="saveExtensions(this)">{=L:yw.bqe.save=}</button></div>';
 		el.innerHTML = html;
 	}
 
@@ -560,9 +560,9 @@
 		btn.disabled = true;
 		try {
 			await ywebApi('config', 'config=yweb&' + params);
-			ywebShowToast('Gespeichert — Seite neu laden zum Anwenden');
+			ywebShowToast('{=L:yw.set.ext_saved=}');
 			await loadExtensionsPanel();
-		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;
 	}
 
@@ -581,30 +581,30 @@
 			var resp = await ywebApi('config', {config: 'yweb'});
 			var cfg = (resp && resp.data && resp.data.config) || {};
 			EXT_CONFIG_CACHE['yweb'] = cfg;
-			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Geräte</div>';
+			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.wol_devices=}</div>';
 			for (var i = 1; i <= 3; i++) {
-				html += '<div class="yweb-form-row"><label>Gerät ' + i + '</label><span>' +
-					'<input type="text" id="wol_desc_' + i + '" placeholder="Beschreibung" style="max-width:140px" value="' + (cfg['wol_desc_' + i] || '') + '"> ' +
+				html += '<div class="yweb-form-row"><label>{=L:yw.set.wol_device=} ' + i + '</label><span>' +
+					'<input type="text" id="wol_desc_' + i + '" placeholder="{=L:yw.m3u.desc=}" style="max-width:140px" value="' + (cfg['wol_desc_' + i] || '') + '"> ' +
 					'<input type="text" id="wol_mac_' + i + '" placeholder="aa:bb:cc:dd:ee:ff" style="max-width:160px" value="' + (cfg['wol_mac_' + i] || '') + '"> ' +
-					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">Wecken</button></span></div>';
+					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">{=L:yw.set.wol_wake=}</button></span></div>';
 			}
 			html += '</div><div class="yweb-form-row"><label></label>' +
-				'<button type="button" class="yweb-btn" onclick="wolSave(this)">Speichern</button></div>';
+				'<button type="button" class="yweb-btn" onclick="wolSave(this)">{=L:yw.bqe.save=}</button></div>';
 			el.innerHTML = html;
 		} catch (e) {
-			el.innerHTML = '<div class="yweb-form-row"><label>Nicht verfügbar: ' + escapeHtml(e.message) + '</label></div>';
+			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
 		}
 	}
 
 	async function wolWake(i, btn) {
 		var mac = (document.getElementById('wol_mac_' + i) || {}).value || '';
-		if (!mac.trim()) { ywebShowToast('Keine MAC-Adresse', true); return; }
+		if (!mac.trim()) { ywebShowToast('{=L:yw.set.wol_nomac=}', true); return; }
 		btn.disabled = true;
 		try {
 			await ywebApi('exec', 'Y_Tools&wol&' + encodeURIComponent(mac.trim()), {raw: true});
-			ywebShowToast('Wake-on-LAN gesendet: ' + mac.trim());
+			ywebShowToast('{=L:yw.set.wol_sent=}: ' + mac.trim());
 		} catch (e) {
-			ywebShowToast('Fehler: ' + e.message, true);
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
@@ -619,13 +619,13 @@
 				if (v !== (cfg[k] || '')) { params += '&' + k + '=' + encodeURIComponent(v); changed++; }
 			});
 		}
-		if (!changed) { ywebShowToast('Keine Änderungen'); return; }
+		if (!changed) { ywebShowToast('{=L:yw.set.nochanges=}'); return; }
 		btn.disabled = true;
 		try {
 			await ywebApi('config', 'config=yweb&' + params);
-			ywebShowToast('Gespeichert');
+			ywebShowToast('{=L:yw.m3u.saved=}');
 			await loadWolPanel();
-		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;
 	}
 
@@ -634,7 +634,7 @@
 	// laedt die Kanallisten neu (reloadchannels-Trichter, vgl. WORK-147)
 	function renderXmltvPanel() {
 		setTimeout(loadXmltvPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('WebTV/WebRadio-Quellen') +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.xmltv_title=}') +
 			'<div id="xmltvPanel"><p aria-busy="true">Lade…</p></div></div>';
 	}
 
@@ -656,26 +656,26 @@
 			var tv = collectXmlSources(cfg, 'webtv_xml').join('\n');
 			var radio = collectXmlSources(cfg, 'webradio_xml').join('\n');
 			el.innerHTML = '<div class="yweb-form-section"><div class="yweb-form-section-title">WebTV</div>' +
-				'<textarea id="xmltv_tv" rows="4" style="width:100%" placeholder="eine URL/Datei pro Zeile">' + escapeHtml(tv) + '</textarea></div>' +
+				'<textarea id="xmltv_tv" rows="4" style="width:100%" placeholder="{=L:yw.set.xmltv_ph=}">' + escapeHtml(tv) + '</textarea></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">WebRadio</div>' +
 				'<textarea id="xmltv_radio" rows="4" style="width:100%">' + escapeHtml(radio) + '</textarea></div>' +
-				'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">Speichern ersetzt die Quelllisten und laedt die Kanallisten neu</small></label>' +
-				'<button type="button" class="yweb-btn" onclick="saveXmltv(this)">Speichern & Neu laden</button></div>';
+				'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_hint=}</small></label>' +
+				'<button type="button" class="yweb-btn" onclick="saveXmltv(this)">{=L:yw.bqe.save_reload=}</button></div>';
 		} catch (e) {
-			el.innerHTML = '<div class="yweb-form-row"><label>Nicht verfügbar: ' + escapeHtml(e.message) + '</label></div>';
+			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
 		}
 	}
 
 	async function saveXmltv(btn) {
 		var tv = (document.getElementById('xmltv_tv') || {}).value || '';
 		var radio = (document.getElementById('xmltv_radio') || {}).value || '';
-		if (!confirm('Quelllisten ersetzen und Kanallisten neu laden?')) return;
+		if (!confirm('{=L:yw.set.xmltv_confirm=}')) return;
 		btn.disabled = true;
 		try {
 			await ywebApi('xmltvlist', {webtv: tv, webradio: radio});
 			await ywebApi('reloadchannels');
-			ywebShowToast('Quellen gespeichert, Kanallisten neu geladen');
-		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+			ywebShowToast('{=L:yw.set.xmltv_saved=}');
+		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;
 	}
 
@@ -683,9 +683,9 @@
 	function renderZapitUploadPanel() {
 		return '<div class="settings-card">' + makeCardHeader('Zapit-Upload') +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Senderlisten-Datei einspielen</div>' +
-			'<div class="yweb-form-row"><label>Ziel</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.zapit_target=}</label>' +
 			'<select id="zapitTarget"><option>ubouquets.xml</option><option>bouquets.xml</option><option>services.xml</option><option>myservices.xml</option></select></div>' +
-			'<div class="yweb-form-row"><label>Datei</label><span>' +
+			'<div class="yweb-form-row"><label>{=L:yw.fm.file=}</label><span>' +
 			'<input type="file" id="zapitFile" accept=".xml" style="max-width:220px"> ' +
 			'<button type="button" class="yweb-btn" onclick="doZapitUpload(this)">Hochladen & Aktivieren</button></span></div>' +
 			'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">Nach dem Upload werden die Kanallisten neu geladen</small></label></div></div></div>';
@@ -694,7 +694,7 @@
 	async function doZapitUpload(btn) {
 		var inp = document.getElementById('zapitFile');
 		var target = (document.getElementById('zapitTarget') || {}).value;
-		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('Keine Datei gewaehlt', true); return; }
+		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
 		if (!confirm(target + ' wirklich ersetzen?')) return;
 		btn.disabled = true;
 		try {
@@ -708,20 +708,20 @@
 			await ywebApi('exec', 'Y_Tools&exec_cmd&cp&' + encodeURIComponent('/tmp/' + f.name) + '&' + encodeURIComponent(confdir + '/zapit/' + target), {raw: true});
 			await ywebApi('reloadchannels');
 			ywebShowToast(target + ' eingespielt, Kanallisten neu geladen');
-		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;
 	}
 
 	async function doMountUnmount(i, btn) {
 		var inp = document.getElementById('cfg_network_nfs_local_dir_' + i);
 		var dir = inp ? inp.value.trim() : '';
-		if (!dir) { ywebShowToast('Kein Mountpoint gesetzt', true); return; }
+		if (!dir) { ywebShowToast('{=L:yw.set.no_mountpoint=}', true); return; }
 		btn.disabled = true;
 		try {
 			var out = (await ywebApi('exec', 'Y_Tools&dounmount&' + encodeURIComponent(dir), {raw: true})).trim();
 			ywebShowToast(out || ('Getrennt: ' + dir));
 		} catch (e) {
-			ywebShowToast('Fehler: ' + e.message, true);
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
@@ -732,7 +732,7 @@
 			var out = (await ywebApi('exec', 'Y_Tools&' + action + (i >= 0 ? '&' + i : ''), {raw: true})).trim();
 			ywebShowToast(out || 'Ausgefuehrt');
 		} catch (e) {
-			ywebShowToast('Fehler: ' + e.message, true);
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
@@ -743,7 +743,7 @@
 	function renderPluginsPanel() {
 		setTimeout(loadPluginsPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('Plugins') +
-			'<div id="pluginsPanel"><p aria-busy="true">Lade Plugins\u2026</p></div></div>';
+			'<div id="pluginsPanel"><p aria-busy="true">{=L:yw.set.plugins_loading=}</p></div></div>';
 	}
 
 	async function loadPluginsPanel() {
@@ -754,7 +754,7 @@
 			var list = (data && data.plugins) || [];
 			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Installierte Plugins</div>';
 			if (list.length === 0) {
-				html += '<div class="yweb-form-row"><label>Keine Plugins installiert</label></div>';
+				html += '<div class="yweb-form-row"><label>{=L:yw.set.plugins_none=}</label></div>';
 			} else {
 				list.forEach(function(pl) {
 					if (pl.hidden) return;
@@ -764,11 +764,11 @@
 				});
 			}
 			html += '</div><div class="yweb-form-section"><div class="yweb-form-section-title">Verwaltung</div>' +
-				'<div class="yweb-form-row"><label>Plugin-Liste neu einlesen</label>' +
+				'<div class="yweb-form-row"><label>{=L:yw.set.plugins_reload=}</label>' +
 				'<button type="button" class="yweb-btn" onclick="reloadPluginList(this)">Neu laden</button></div></div>';
 			el.innerHTML = html;
 		} catch (e) {
-			el.innerHTML = '<div class="yweb-form-row"><label>Plugins nicht verf\u00fcgbar: ' + escapeHtml(e.message) + '</label></div>';
+			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.plugins_notavail=}: ' + escapeHtml(e.message) + '</label></div>';
 		}
 	}
 
@@ -776,9 +776,9 @@
 		btn.disabled = true;
 		try {
 			await ywebApi('startplugin', {name: name});
-			ywebShowToast('Plugin gestartet: ' + name);
+			ywebShowToast('{=L:yw.set.plugin_started=}: ' + name);
 		} catch (e) {
-			ywebShowToast('Fehler: ' + e.message, true);
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
@@ -790,7 +790,7 @@
 			await loadPluginsPanel();
 			ywebShowToast('Plugin-Liste neu geladen');
 		} catch (e) {
-			ywebShowToast('Fehler: ' + e.message, true);
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
 		btn.disabled = false;
 	}
@@ -805,7 +805,7 @@
 			var dir = getConfigKey('network_nfs_dir_' + i);
 			var local = getConfigKey('network_nfs_local_dir_' + i);
 			var typeVal = getConfigKey('network_nfs_type_' + i);
-			var summary = ip ? (ip + ':' + dir + ' \u2192 ' + local) : 'nicht konfiguriert';
+			var summary = ip ? (ip + ':' + dir + ' \u2192 ' + local) : '{=L:yw.set.mnt_unconfigured=}';
 			var isCifs = (typeVal === '1');
 
 			html += '<div class="mount-slot" id="mount-slot-' + i + '">' +
@@ -825,35 +825,35 @@
 		var id = function(k) { return 'cfg_network_nfs_' + k + '_' + i; };
 		var dk = function(k) { return 'network_nfs_' + k + '_' + i; };
 
-		return '<div class="yweb-form-row"><label>Typ</label>' +
+		return '<div class="yweb-form-row"><label>{=L:yw.tm.type=}</label>' +
 			'<select id="' + id('type') + '" data-key="' + dk('type') + '" onchange="onMountTypeChange(' + i + ')">' +
 			'<option value="0"' + (g('type') !== '1' ? ' selected' : '') + '>NFS</option>' +
 			'<option value="1"' + (g('type') === '1' ? ' selected' : '') + '>CIFS</option>' +
 			'</select></div>' +
-			'<div class="yweb-form-row"><label>Server-IP</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_ip=}</label>' +
 			'<input type="text" id="' + id('ip') + '" data-key="' + dk('ip') + '" value="' + g('ip') + '"></div>' +
-			'<div class="yweb-form-row"><label>Server-Verzeichnis</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_dir=}</label>' +
 			'<input type="text" id="' + id('dir') + '" data-key="' + dk('dir') + '" value="' + g('dir') + '"></div>' +
-			'<div class="yweb-form-row"><label>Lokaler Mountpoint</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_local=}</label>' +
 			'<input type="text" id="' + id('local_dir') + '" data-key="' + dk('local_dir') + '" value="' + g('local_dir') + '"></div>' +
 			'<div class="yweb-form-row"><label>Auto-Mount</label>' +
 			'<label class="yweb-toggle"><input type="checkbox" id="' + id('automount') + '" data-key="' + dk('automount') + '" data-on="1" data-off="0"' + (g('automount') === '1' ? ' checked' : '') + '>' +
 			'<span class="yweb-toggle-slider"></span></label></div>' +
-			'<div class="yweb-form-row"><label>Mount-Optionen 1</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_opts=} 1</label>' +
 			'<input type="text" id="' + id('mount_options1') + '" data-key="' + dk('mount_options1') + '" value="' + g('mount_options1') + '"></div>' +
-			'<div class="yweb-form-row"><label>Mount-Optionen 2</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_opts=} 2</label>' +
 			'<input type="text" id="' + id('mount_options2') + '" data-key="' + dk('mount_options2') + '" value="' + g('mount_options2') + '"></div>' +
-			'<div class="yweb-form-row"><label>MAC-Adresse</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_mac=}</label>' +
 			'<input type="text" id="' + id('mac') + '" data-key="' + dk('mac') + '" value="' + g('mac') + '"></div>' +
 			'<div class="cifs-fields' + (isCifs ? ' visible' : '') + '" id="cifs-' + i + '">' +
-			'<div class="yweb-form-row"><label>Benutzer</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_user=}</label>' +
 			'<input type="text" id="' + id('username') + '" data-key="' + dk('username') + '" value="' + g('username') + '"></div>' +
-			'<div class="yweb-form-row"><label>Passwort</label>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_pass=}</label>' +
 			'<input type="password" id="' + id('password') + '" data-key="' + dk('password') + '" value="' + g('password') + '"></div>' +
 			'</div>' +
-			'<div class="yweb-form-row"><label>Aktionen</label><span>' +
-			'<button type="button" class="yweb-btn" onclick="doMountAction(' + i + ', \'domount\', this)">Mounten</button> ' +
-			'<button type="button" class="yweb-btn" onclick="doMountUnmount(' + i + ', this)">Trennen</button></span></div>';
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_actions=}</label><span>' +
+			'<button type="button" class="yweb-btn" onclick="doMountAction(' + i + ', \'domount\', this)">{=L:yw.set.mnt_mount=}</button> ' +
+			'<button type="button" class="yweb-btn" onclick="doMountUnmount(' + i + ', this)">{=L:yw.set.mnt_umount=}</button></span></div>';
 	}
 
 	function toggleMount(i) {
@@ -956,7 +956,7 @@
 		}
 
 		if (changed === 0) {
-			ywebShowToast('Keine \u00c4nderungen');
+			ywebShowToast('{=L:yw.set.nochanges=}');
 			return;
 		}
 
@@ -968,7 +968,7 @@
 			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
 			await loadSettings();
 		} catch (e) {
-			ywebShowToast('Fehler beim Speichern', true);
+			ywebShowToast('{=L:yw.tm.save_fail=}', true);
 		}
 
 		btns.forEach(function(b) { b.disabled = false; });
@@ -982,7 +982,7 @@
 			configData = (resp && resp.data && resp.data.config) || {};
 		} catch (e) {
 			document.getElementById('settingsContent').innerHTML =
-				'<div class="settings-loading">Fehler beim Laden der Einstellungen</div>';
+				'<div class="settings-loading">{=L:yw.set.load_fail=}</div>';
 			return;
 		}
 
