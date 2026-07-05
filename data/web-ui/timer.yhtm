@@ -623,7 +623,7 @@
 					</svg>
 					Filter
 				</h3>
-				<span class="yweb-card-preview" id="filterPreview">Alle</span>
+				<span class="yweb-card-preview" id="filterPreview">{=L:yw.tm.all=}</span>
 			</header>
 			<div class="yweb-card-body">
 				<ul class="yweb-filter-list" id="filterList">
@@ -634,17 +634,17 @@
 							<line x1="2" y1="12" x2="22" y2="12"/>
 							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
 						</svg>
-						<span class="yweb-filter-name">Alle</span>
+						<span class="yweb-filter-name">{=L:yw.tm.all=}</span>
 						<span class="yweb-filter-count" id="count-all">0</span>
 					</li>
 					<li class="yweb-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
 						<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
-						<span class="yweb-filter-name">Aufnahme</span>
+						<span class="yweb-filter-name">{=L:yw.bc.recording=}</span>
 						<span class="yweb-filter-count" id="count-type-5">0</span>
 					</li>
 					<li class="yweb-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="yweb-filter-name">Umschalten</span>
+						<span class="yweb-filter-name">{=L:yw.tm.zap=}</span>
 						<span class="yweb-filter-count" id="count-type-3">0</span>
 					</li>
 					<li class="yweb-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
@@ -654,23 +654,23 @@
 					</li>
 					<li class="yweb-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-						<span class="yweb-filter-name">Erinnerung</span>
+						<span class="yweb-filter-name">{=L:yw.tm.remind=}</span>
 						<span class="yweb-filter-count" id="count-type-6">0</span>
 					</li>
 					<li class="yweb-filter-group-label">Status</li>
 					<li class="yweb-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
-						<span class="yweb-filter-name">Geplant</span>
+						<span class="yweb-filter-name">{=L:yw.tm.planned=}</span>
 						<span class="yweb-filter-count" id="count-state-scheduled">0</span>
 					</li>
 					<li class="yweb-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="yweb-filter-name">Aktiv</span>
+						<span class="yweb-filter-name">{=L:yw.tm.active=}</span>
 						<span class="yweb-filter-count" id="count-state-running">0</span>
 					</li>
 					<li class="yweb-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-						<span class="yweb-filter-name">Abgelaufen</span>
+						<span class="yweb-filter-name">{=L:yw.tm.expired=}</span>
 						<span class="yweb-filter-count" id="count-state-finished">0</span>
 					</li>
 				</ul>
@@ -698,7 +698,7 @@
 			</header>
 			<div class="yweb-card-body">
 				<ul class="yweb-timer-grid-list" id="timerList">
-					<li aria-busy="true">Lade Timer...</li>
+					<li aria-busy="true">{=L:yw.tm.loading=}</li>
 				</ul>
 			</div>
 		</article>
@@ -837,8 +837,8 @@
 			countEl.textContent = timers.length + ' Timer';
 
 			if (timers.length === 0) {
-				list.innerHTML = '<li class="yweb-empty">Keine Timer gefunden</li>';
-				previewEl.textContent = 'Keine Timer';
+				list.innerHTML = '<li class="yweb-empty">{=L:yw.tm.none_found=}</li>';
+				previewEl.textContent = '{=L:yw.dash.no_timers_short=}';
 				return;
 			}
 
@@ -921,60 +921,60 @@
 						</div>
 						<div class="yweb-timer-actions" onclick="event.stopPropagation()">
 						${state < 2 ? `
-							<button class="yweb-btn yweb-btn-edit" onclick="editTimer('${timerId}')" title="Timer bearbeiten">
+							<button class="yweb-btn yweb-btn-edit" onclick="editTimer('${timerId}')" title="{=L:yw.tm.edit_title=}">
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 									<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
 									<path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
 								</svg>
-								<span class="btn-label">Bearbeiten</span>
+								<span class="btn-label">{=L:yw.tm.edit=}</span>
 							</button>
 						` : ''}
 						${state === 2 && (typeNum === 5 || typeNum === 9) ? `
-							<button class="yweb-btn yweb-btn-stop" onclick="stopRecording('${timerId}', '${escapeJs(title)}')" title="Aufnahme stoppen">
+							<button class="yweb-btn yweb-btn-stop" onclick="stopRecording('${timerId}', '${escapeJs(title)}')" title="{=L:yw.dash.record_stop=}">
 								<svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--yweb-danger,#ef4444)">
 									<rect x="6" y="6" width="12" height="12" rx="1"/>
 								</svg>
-								<span class="btn-label">Stoppen</span>
+								<span class="btn-label">{=L:yw.tm.stop=}</span>
 							</button>
 						` : `
-							<button class="yweb-btn" onclick="deleteTimer('${timerId}', '${escapeJs(title)}')" title="Timer löschen">
+							<button class="yweb-btn" onclick="deleteTimer('${timerId}', '${escapeJs(title)}')" title="{=L:yw.tm.delete_title=}">
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 									<polyline points="3,6 5,6 21,6"/>
 									<path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/>
 								</svg>
-								<span class="btn-label">Löschen</span>
+								<span class="btn-label">{=L:yw.fm.delete=}</span>
 							</button>
 						`}
 						</div>
 					</div>
 					<div class="yweb-timer-detail" id="detail-${timerId}">
 						<div class="yweb-timer-detail-grid">
-							<span class="yweb-timer-detail-label">Typ:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.tm.type=}:</span>
 							<span class="yweb-timer-detail-value">${TIMER_TYPE_LABELS[typeNum] || type}</span>
 							<span class="yweb-timer-detail-label">Status:</span>
 							<span class="yweb-timer-detail-value">${stateLabel}</span>
 							<span class="yweb-timer-detail-label">Start:</span>
 							<span class="yweb-timer-detail-value">${alarm.text || '--'}</span>
 							${stop.text ? `
-							<span class="yweb-timer-detail-label">Ende:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.tm.end=}:</span>
 							<span class="yweb-timer-detail-value">${stop.text}</span>
 							` : ''}
 							${announceData.text ? `
-							<span class="yweb-timer-detail-label">Ankündigung:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.tm.announce=}:</span>
 							<span class="yweb-timer-detail-value">${announceData.text}</span>
 							` : ''}
-							<span class="yweb-timer-detail-label">Wiederholung:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.tm.repeat=}:</span>
 							<span class="yweb-timer-detail-value">${escapeHtml(repeatText)}${repeatCount && repeatCount !== '-' ? ' (' + repeatCount + ')' : ''}</span>
 							${channel ? `
-							<span class="yweb-timer-detail-label">Sender:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.dash.channels=}:</span>
 							<span class="yweb-timer-detail-value">${escapeHtml(channel)}</span>
 							` : ''}
 							${channelId ? `
-							<span class="yweb-timer-detail-label">Sender-ID:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.tm.channel_id=}:</span>
 							<span class="yweb-timer-detail-value">${channelId}</span>
 							` : ''}
 							${recDir ? `
-							<span class="yweb-timer-detail-label">Aufnahme-Ordner:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.tm.rec_dir=}:</span>
 							<span class="yweb-timer-detail-value">${escapeHtml(recDir)}</span>
 							` : ''}
 							${epgId && epgId !== '0x0' ? `
@@ -982,7 +982,7 @@
 							<span class="yweb-timer-detail-value">${epgId}</span>
 							` : ''}
 							${timer.message ? `
-							<span class="yweb-timer-detail-label">Nachricht:</span>
+							<span class="yweb-timer-detail-label">{=L:yw.tools.message=}:</span>
 							<span class="yweb-timer-detail-value">${escapeHtml(timer.message)}</span>
 							` : ''}
 							${timer.plugin ? `
@@ -1021,8 +1021,8 @@
 
 		// Stop a running recording — uses shared ywebShowConfirm()
 		function stopRecording(id, title) {
-			ywebShowConfirm('Aufnahme stoppen',
-				'Aufnahme "' + escapeHtml(title) + '" wirklich stoppen?',
+			ywebShowConfirm('{=L:yw.dash.record_stop=}',
+				'{=L:yw.bc.recording=} "' + escapeHtml(title) + '" {=L:yw.tm.stop_confirm=}',
 				'Stoppen',
 				async function() {
 					await ywebStopRecording(id);
@@ -1032,9 +1032,9 @@
 
 		// Delete timer — uses shared ywebShowConfirm()
 		function deleteTimer(id, title) {
-			ywebShowConfirm('Timer löschen',
-				'Timer "' + escapeHtml(title) + '" wirklich löschen?',
-				'Löschen',
+			ywebShowConfirm('{=L:yw.tm.delete_title=}',
+				'Timer "' + escapeHtml(title) + '" {=L:yw.fm.delete_confirm=}',
+				'{=L:yw.fm.delete=}',
 				async function() {
 					await ywebApi('timer', {action: 'remove', id: id});
 					await loadTimers();
@@ -1098,7 +1098,7 @@
 
 			return `
 			<div class="yweb-modal-header">
-				<h3 id="timerModalTitle">Neuer Timer</h3>
+				<h3 id="timerModalTitle">{=L:yw.tm.new=}</h3>
 				<button class="yweb-modal-close" onclick="closeTimerModal()">
 					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
 				</button>
@@ -1106,12 +1106,12 @@
 			<div class="yweb-modal-body">
 				<div class="yweb-form-section">
 					<div class="yweb-form-row">
-						<label for="tmType">Typ</label>
+						<label for="tmType">{=L:yw.tm.type=}</label>
 						<select id="tmType" onchange="onTimerTypeChange()">
-							<option value="5">Aufnahme</option>
-							<option value="3">Umschalten</option>
+							<option value="5">{=L:yw.bc.recording=}</option>
+							<option value="3">{=L:yw.tm.zap=}</option>
 							<option value="4">Standby</option>
-							<option value="6">Erinnerung</option>
+							<option value="6">{=L:yw.tm.remind=}</option>
 							<option value="7">Sleeptimer</option>
 							<option value="8">Plugin</option>
 							<option value="1">Shutdown</option>
@@ -1129,7 +1129,7 @@
 						</div>
 					</div>
 					<div class="yweb-form-row" id="tmStopRow">
-						<label for="tmStDate">Ende</label>
+						<label for="tmStDate">{=L:yw.tm.end=}</label>
 						<div class="yweb-time-group">
 							<input type="date" id="tmStDate" value="${stopDate}">
 							<input type="time" id="tmStTime" value="${stopTime}">
@@ -1138,21 +1138,21 @@
 				</div>
 
 				<div class="yweb-form-section">
-					<div class="yweb-form-section-title">Wiederholung</div>
+					<div class="yweb-form-section-title">{=L:yw.tm.repeat=}</div>
 					<div class="yweb-form-row">
-						<label for="tmRepeat">Modus</label>
+						<label for="tmRepeat">{=L:yw.bqe.mode=}</label>
 						<select id="tmRepeat" onchange="onRepeatChange()">
-							<option value="0">Einmalig</option>
-							<option value="1">Täglich</option>
-							<option value="2">Wöchentlich</option>
-							<option value="3">Zweiwöchentlich</option>
-							<option value="4">Vierwöchentlich</option>
-							<option value="5">Monatlich</option>
-							<option value="256">Wochentage</option>
+							<option value="0">{=L:yw.tm.once=}</option>
+							<option value="1">{=L:yw.tm.daily=}</option>
+							<option value="2">{=L:yw.tm.weekly=}</option>
+							<option value="3">{=L:yw.tm.biweekly=}</option>
+							<option value="4">{=L:yw.tm.fourweekly=}</option>
+							<option value="5">{=L:yw.tm.monthly=}</option>
+							<option value="256">{=L:yw.tm.weekdays=}</option>
 						</select>
 					</div>
 					<div class="yweb-form-row yweb-form-hidden" id="tmWeekdaysRow">
-						<label>Tage</label>
+						<label>{=L:yw.tm.days=}</label>
 						<div class="yweb-form-weekdays">
 							<label><input type="checkbox" name="tmWd" value="256"><span>Mo</span></label>
 							<label><input type="checkbox" name="tmWd" value="512"><span>Di</span></label>
@@ -1164,8 +1164,8 @@
 						</div>
 					</div>
 					<div class="yweb-form-row yweb-form-hidden" id="tmRepcountRow">
-						<label for="tmRepcount">Anzahl</label>
-						<input type="number" id="tmRepcount" min="0" max="999" value="0" placeholder="0 = unbegrenzt">
+						<label for="tmRepcount">{=L:yw.tm.count=}</label>
+						<input type="number" id="tmRepcount" min="0" max="999" value="0" placeholder="{=L:yw.tm.unlimited=}">
 					</div>
 				</div>
 
@@ -1178,7 +1178,7 @@
 						</select>
 					</div>
 					<div class="yweb-form-row">
-						<label for="tmChannel">Sender</label>
+						<label for="tmChannel">{=L:yw.dash.channels=}</label>
 						<select id="tmChannel">
 							<option value="">Bouquet wählen...</option>
 						</select>
@@ -1188,25 +1188,25 @@
 				<div class="yweb-form-section" id="tmRecordSection">
 					<div class="yweb-form-section-title">Aufnahme-Optionen</div>
 					<div class="yweb-form-row">
-						<label for="tmRecDir">Ordner</label>
+						<label for="tmRecDir">{=L:yw.fm.folder=}</label>
 						<select id="tmRecDir">
 							<option value="">Standard</option>
 						</select>
 					</div>
 					<div class="yweb-form-check">
 						<input type="checkbox" id="tmRecSafety" checked>
-						<label for="tmRecSafety">Aufnahmekorrektur (Vor-/Nachlauf)</label>
+						<label for="tmRecSafety">{=L:yw.tm.safety=}</label>
 					</div>
 					<div class="yweb-form-check">
 						<input type="checkbox" id="tmAutoAdjust">
-						<label for="tmAutoAdjust">Automatisch an EPG anpassen</label>
+						<label for="tmAutoAdjust">{=L:yw.tm.auto_adjust=}</label>
 					</div>
 				</div>
 
 				<div class="yweb-form-section yweb-form-hidden" id="tmStandbySection">
 					<div class="yweb-form-section-title">Standby</div>
 					<div class="yweb-form-row">
-						<label>Modus</label>
+						<label>{=L:yw.bqe.mode=}</label>
 						<select id="tmStandbyOn">
 							<option value="1">Einschalten</option>
 							<option value="0">Ausschalten</option>
@@ -1217,7 +1217,7 @@
 				<div class="yweb-form-section yweb-form-hidden" id="tmMessageSection">
 					<div class="yweb-form-section-title">Erinnerung</div>
 					<div class="yweb-form-row">
-						<label for="tmMessage">Nachricht</label>
+						<label for="tmMessage">{=L:yw.tools.message=}</label>
 						<input type="text" id="tmMessage" maxlength="30" placeholder="Nachricht eingeben...">
 					</div>
 				</div>
@@ -1231,8 +1231,8 @@
 				</div>
 			</div>
 			<div class="yweb-modal-footer">
-				<button onclick="closeTimerModal()">Abbrechen</button>
-				<button class="btn-primary" id="tmSubmitBtn" onclick="submitTimer()">Speichern</button>
+				<button onclick="closeTimerModal()">{=L:yw.tm.cancel=}</button>
+				<button class="btn-primary" id="tmSubmitBtn" onclick="submitTimer()">{=L:yw.bqe.save=}</button>
 			</div>`;
 		}
 
@@ -1260,7 +1260,7 @@
 			if (editData) {
 				timerModalEditId = editData.id;
 				document.getElementById('timerModalTitle').textContent = 'Timer bearbeiten';
-				document.getElementById('tmSubmitBtn').textContent = 'Ändern';
+				document.getElementById('tmSubmitBtn').textContent = '{=L:yw.tm.change=}';
 				populateEditData(editData);
 			}
 
@@ -1385,20 +1385,20 @@
 
 			// Validate
 			if (!alDate || !alTime) {
-				ywebShowToast('Bitte Startzeit angeben', true);
+				ywebShowToast('{=L:yw.tm.need_start=}', true);
 				return;
 			}
 
 			var needsStop = (type === '5');
 			if (needsStop && (!stDate || !stTime)) {
-				ywebShowToast('Bitte Endzeit angeben', true);
+				ywebShowToast('{=L:yw.tm.need_end=}', true);
 				return;
 			}
 
 			var needsChannel = (type === '5' || type === '3');
 			var channelId = document.getElementById('tmChannel') ? document.getElementById('tmChannel').value : '';
 			if (needsChannel && !channelId) {
-				ywebShowToast('Bitte Sender wählen', true);
+				ywebShowToast('{=L:yw.tm.need_channel=}', true);
 				return;
 			}
 
@@ -1473,11 +1473,11 @@
 			try {
 				await ywebApi('timer', params);
 				closeTimerModal();
-				ywebShowToast(timerModalEditId ? 'Timer geändert' : 'Timer erstellt');
+				ywebShowToast(timerModalEditId ? '{=L:yw.tm.changed=}' : '{=L:yw.tm.created=}');
 				await loadTimers();
 			} catch (e) {
-				ywebShowToast('Fehler beim Speichern: ' + e.message, true);
-				btn.textContent = timerModalEditId ? 'Ändern' : 'Speichern';
+				ywebShowToast('{=L:yw.tm.save_fail=}: ' + e.message, true);
+				btn.textContent = timerModalEditId ? '{=L:yw.tm.change=}' : '{=L:yw.bqe.save=}';
 				btn.disabled = false;
 			}
 		}
@@ -1486,7 +1486,7 @@
 		function editTimer(timerId) {
 			var timer = allTimers.find(function(t) { return t.id == timerId; });
 			if (!timer) {
-				ywebShowToast('Timer nicht gefunden', true);
+				ywebShowToast('{=L:yw.tm.not_found=}', true);
 				return;
 			}
 
@@ -1543,8 +1543,10 @@
 					'once': '0', 'daily': '1', 'weekly': '2', 'biweekly': '3',
 					'fourweekly': '4', 'monthly': '5', 'byeventdescription': '6'
 				};
-				// Try to resolve template tags
-				var m = repText.match(/\{=L:timerlist\.repeat\.(\w+)=\}/);
+				// Try to resolve template tags. The pattern is concatenated so
+				// this yparsed file never contains a literal token opener —
+				// the parser would otherwise eat the regex source itself.
+				var m = repText.match(new RegExp('\\{' + '=L:timerlist\\.repeat\\.(\\w+)' + '=' + '\\}'));
 				var repKey = m ? m[1] : repText.toLowerCase();
 				var repVal = repMap[repKey];
 				if (repVal !== undefined) {

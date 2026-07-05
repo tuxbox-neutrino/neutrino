@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>yWeb - m3u-Konverter</title>
+	<title>yWeb - {=L:yw.tools.m3u=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=59">
@@ -23,33 +23,33 @@
 		<div class="settings-card" style="padding:1rem">
 			<h3>m3u → WebTV-XML</h3>
 			<p style="color:var(--pico-muted-color);font-size:0.85rem">
-				Wandelt m3u-Playlisten (#EXTINF) in das <code>webtv_usr.xml</code>-Format.
-				Danach die Datei unter Einstellungen → WebTV-Quellen eintragen.</p>
+				{=L:yw.m3u.intro1=} <code>webtv_usr.xml</code>.
+				{=L:yw.m3u.intro2=}</p>
 
-			<div class="yweb-form-section-title">1. Streams einfügen</div>
+			<div class="yweb-form-section-title">1. {=L:yw.m3u.step1=}</div>
 			<textarea id="m3uInput" rows="9" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
 			<div class="m3u-actions">
-				<label class="yweb-btn" style="cursor:pointer">m3u-Datei laden
+				<label class="yweb-btn" style="cursor:pointer">{=L:yw.m3u.load_file=}
 					<input type="file" id="m3uFile" accept=".m3u,.m3u8,.txt" multiple style="display:none">
 				</label>
 			</div>
 
-			<div class="yweb-form-section-title">2. Metadaten</div>
+			<div class="yweb-form-section-title">2. {=L:yw.m3u.step2=}</div>
 			<div class="m3u-meta">
-				<label>Titel <input id="m3uTitle" value="eigene Streams"></label>
-				<label>Beschreibung <input id="m3uDesc" value="webtv"></label>
+				<label>{=L:yw.m3u.title=} <input id="m3uTitle" value="{=L:yw.m3u.title_default=}"></label>
+				<label>{=L:yw.m3u.desc=} <input id="m3uDesc" value="webtv"></label>
 				<label>Genre <input id="m3uGenre" value="Movie"></label>
-				<label>Dateiname <input id="m3uName" value="webtv_usr.xml"></label>
+				<label>{=L:yw.m3u.filename=} <input id="m3uName" value="webtv_usr.xml"></label>
 			</div>
 
 			<div class="m3u-actions">
-				<button type="button" class="yweb-btn" onclick="m3uConvert()">Umwandeln</button>
-				<button type="button" class="yweb-btn" onclick="m3uDownload()">Als Datei laden</button>
-				<button type="button" class="yweb-btn" onclick="m3uSaveToBox(this)">Auf Box speichern</button>
+				<button type="button" class="yweb-btn" onclick="m3uConvert()">{=L:yw.m3u.convert=}</button>
+				<button type="button" class="yweb-btn" onclick="m3uDownload()">{=L:yw.m3u.download=}</button>
+				<button type="button" class="yweb-btn" onclick="m3uSaveToBox(this)">{=L:yw.m3u.save_box=}</button>
 			</div>
 
-			<div class="yweb-form-section-title">3. Ergebnis</div>
-			<textarea id="m3uOutput" rows="10" placeholder="(webtv_usr.xml erscheint hier)"></textarea>
+			<div class="yweb-form-section-title">3. {=L:yw.m3u.step3=}</div>
+			<textarea id="m3uOutput" rows="10" placeholder="{=L:yw.m3u.out_ph=}"></textarea>
 		</div>
 	</main>
 
@@ -106,7 +106,7 @@
 
 		function m3uDownload() {
 			var out = document.getElementById('m3uOutput').value;
-			if (!out) { ywebShowToast('Erst umwandeln', true); return; }
+			if (!out) { ywebShowToast('{=L:yw.m3u.convert_first=}', true); return; }
 			var name = document.getElementById('m3uName').value || 'webtv_usr.xml';
 			var a = document.createElement('a');
 			a.href = URL.createObjectURL(new Blob([out], {type: 'text/xml'}));
@@ -117,7 +117,7 @@
 
 		async function m3uSaveToBox(btn) {
 			var out = document.getElementById('m3uOutput').value;
-			if (!out) { ywebShowToast('Erst umwandeln', true); return; }
+			if (!out) { ywebShowToast('{=L:yw.m3u.convert_first=}', true); return; }
 			var name = document.getElementById('m3uName').value || 'webtv_usr.xml';
 			btn.disabled = true;
 			try {
@@ -127,9 +127,9 @@
 				fd.append('file', new Blob([out], {type: 'text/xml'}), name);
 				var up = await fetch('/api/v4/file?action=upload&path=' + encodeURIComponent(target), {method: 'POST', body: fd});
 				if (!up.ok) throw new Error('Upload fehlgeschlagen');
-				ywebShowToast('Gespeichert: ' + target + '/' + name + ' — als Quelle eintragen!');
+				ywebShowToast('{=L:yw.m3u.saved=}: ' + target + '/' + name + ' — {=L:yw.m3u.add_source=}');
 			} catch (e) {
-				ywebShowToast('Fehler: ' + e.message, true);
+				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			}
 			btn.disabled = false;
 		}

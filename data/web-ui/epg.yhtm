@@ -360,10 +360,10 @@
 		<!-- Toolbar - kompakt in einer Zeile -->
 		<div class="yweb-toolbar yweb-epg-toolbar">
 			<select class="yweb-select" id="bouquetSelect">
-				<option value="">Bouquets...</option>
+				<option value="">{=L:yw.nav.bouquets=}...</option>
 			</select>
 			<select class="yweb-select" id="timeSelect"></select>
-			<button class="yweb-btn primary" onclick="loadEpg()" title="Aktualisieren">
+			<button class="yweb-btn primary" onclick="loadEpg()" title="{=L:yw.si.refresh=}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polyline points="23,4 23,10 17,10"/>
 					<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
@@ -377,7 +377,7 @@
 
 		<!-- EPG Grid -->
 		<div class="yweb-epg-grid" id="epgGrid">
-			<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)">Lade EPG-Daten...</p>
+			<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.epg.loading=}</p>
 		</div>
 	</main>
 
@@ -401,25 +401,25 @@
 				<div class="yweb-epg-modal-desc" id="modalDesc">-</div>
 			</div>
 			<div class="yweb-epg-modal-footer">
-				<button class="yweb-btn" onclick="zapNow()" title="Jetzt auf diesen Sender schalten">
+				<button class="yweb-btn" onclick="zapNow()" title="{=L:yw.epg.zap_title=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polygon points="5,3 19,12 5,21"/>
 					</svg>
-					Zappen
+					{=L:yw.epg.zap=}
 				</button>
-				<button class="yweb-btn" onclick="setTimerZap()" title="Timer zum Umschalten setzen">
+				<button class="yweb-btn" onclick="setTimerZap()" title="{=L:yw.epg.timer_zap_title=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="10"/>
 						<polyline points="12,6 12,12 16,14"/>
 					</svg>
 					Timer
 				</button>
-				<button class="yweb-btn primary" onclick="setTimerRec()" title="Aufnahme-Timer setzen">
+				<button class="yweb-btn primary" onclick="setTimerRec()" title="{=L:yw.epg.timer_rec_title=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="10"/>
 						<circle cx="12" cy="12" r="3" fill="currentColor"/>
 					</svg>
-					Aufnahme
+					{=L:yw.bc.recording=}
 				</button>
 			</div>
 		</div>
@@ -476,7 +476,7 @@
 					select.appendChild(option);
 				});
 			} catch (e) {
-				select.innerHTML = '<option>Fehler beim Laden</option>';
+				select.innerHTML = '<option>{=L:yw.epg.load_fail=}</option>';
 				console.error('Failed to load bouquets:', e);
 			}
 		}
@@ -499,7 +499,7 @@
 		// Load EPG data
 		async function loadEpg() {
 			const grid = document.getElementById('epgGrid');
-			grid.innerHTML = '<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)">Lade EPG-Daten...</p>';
+			grid.innerHTML = '<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.epg.loading=}</p>';
 
 			currentBouquet = document.getElementById('bouquetSelect').value;
 			currentStartTime = parseInt(document.getElementById('timeSelect').value);
@@ -560,7 +560,7 @@
 		// Build channel row
 		async function buildChannelRow(channel, startTime, stopTime) {
 			let html = '<div class="yweb-epg-row">';
-			html += `<div class="yweb-epg-channel-name" onclick="zapTo('${channel.id}')" title="Umschalten auf ${escapeHtml(channel.name)}">`;
+			html += `<div class="yweb-epg-channel-name" onclick="zapTo('${channel.id}')" title="{=L:yw.epg.zap_to=} ${escapeHtml(channel.name)}">`;
 			// Show logo if available, otherwise text
 			if (channel.logo) {
 				html += `<img class="yweb-epg-channel-logo" src="${channel.logo}" alt="${escapeHtml(channel.name)}" onerror="this.outerHTML='<span>${escapeHtml(channel.name)}</span>'">`;
@@ -671,7 +671,7 @@
 			if (prog.info2) {
 				desc += (desc ? '\n\n' : '') + prog.info2;
 			}
-			document.getElementById('modalDesc').textContent = desc || 'Keine Beschreibung verfuegbar';
+			document.getElementById('modalDesc').textContent = desc || '{=L:yw.epg.no_desc=}';
 
 			document.getElementById('epgModal').classList.add('open');
 		}
@@ -688,11 +688,11 @@
 
 			try {
 				await ywebApi('timer', {action: 'new', alarm: selectedProgram.start, stop: selectedProgram.stop, channel_id: selectedProgram.channelId, type: 5});
-				alert('Aufnahme-Timer gesetzt!');
+				alert('{=L:yw.epg.timer_rec_set=}');
 				closeModal();
 				loadEpg();
 			} catch (e) {
-				alert('Fehler beim Setzen des Timers');
+				alert('{=L:yw.epg.timer_fail=}');
 				console.error('Timer error:', e);
 			}
 		}
@@ -703,11 +703,11 @@
 
 			try {
 				await ywebApi('timer', {action: 'new', alarm: selectedProgram.start, channel_id: selectedProgram.channelId, type: 3});
-				alert('Umschalt-Timer gesetzt!');
+				alert('{=L:yw.epg.timer_zap_set=}');
 				closeModal();
 				loadEpg();
 			} catch (e) {
-				alert('Fehler beim Setzen des Timers');
+				alert('{=L:yw.epg.timer_fail=}');
 				console.error('Timer error:', e);
 			}
 		}

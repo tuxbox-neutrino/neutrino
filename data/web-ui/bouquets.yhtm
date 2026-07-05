@@ -448,7 +448,7 @@
 			</header>
 			<div class="yweb-card-body">
 				<ul class="yweb-bouquet-list" id="bouquetList">
-					<li aria-busy="true">Lade Bouquets...</li>
+					<li aria-busy="true">{=L:yw.bq.loading_bouquets=}</li>
 				</ul>
 			</div>
 		</article>
@@ -461,14 +461,14 @@
 						<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
 						<polyline points="17,2 12,7 7,2"/>
 					</svg>
-					<span id="currentBouquetName">Sender</span>
+					<span id="currentBouquetName">{=L:yw.dash.channels=}</span>
 				</h3>
 				<span class="yweb-card-preview" id="channelPreview">--</span>
 				<span class="yweb-channel-count" id="channelCount"></span>
 			</header>
 			<div class="yweb-card-body">
 				<ul class="yweb-channel-grid" id="channelList">
-					<li aria-busy="true">Lade Sender...</li>
+					<li aria-busy="true">{=L:yw.bq.loading_channels=}</li>
 				</ul>
 			</div>
 		</article>
@@ -552,7 +552,7 @@
 						<line x1="2" y1="12" x2="22" y2="12"/>
 						<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
 					</svg>
-					<span class="yweb-bouquet-name">Alle Sender</span>
+					<span class="yweb-bouquet-name">{=L:yw.bq.all_channels=}</span>
 				</li>
 			`;
 
@@ -609,11 +609,11 @@
 			const list = document.getElementById('channelList');
 			const countEl = document.getElementById('channelCount');
 			const titleEl = document.getElementById('currentBouquetName');
-			list.innerHTML = '<li aria-busy="true">Lade Sender...</li>';
+			list.innerHTML = '<li aria-busy="true">{=L:yw.bq.loading_channels=}</li>';
 
 			// Update title
 			if (bouquet === '') {
-				titleEl.textContent = 'Alle Sender';
+				titleEl.textContent = '{=L:yw.bq.all_channels=}';
 			} else {
 				const bq = bouquetsData.find(b => String(b.number) === String(bouquet));
 				titleEl.textContent = bq ? bq.name : 'Sender';
@@ -633,7 +633,7 @@
 				countEl.textContent = `${channels.length} Sender`;
 
 				if (channels.length === 0) {
-					list.innerHTML = '<li class="yweb-empty">Keine Sender gefunden</li>';
+					list.innerHTML = '<li class="yweb-empty">{=L:yw.bq.no_channels=}</li>';
 					return;
 				}
 
@@ -657,13 +657,13 @@
 									<div class="yweb-channel-progress"><div class="yweb-channel-progress-bar"></div></div>
 								</div>
 								<div class="yweb-channel-actions" onclick="event.stopPropagation()">
-									<button class="yweb-btn" onclick="zapTo('${ch.id}')" title="Umschalten">
+									<button class="yweb-btn" onclick="zapTo('${ch.id}')" title="{=L:yw.bq.zap_title=}">
 										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<polygon points="5,3 19,12 5,21"/>
 										</svg>
-										<span class="btn-label">Zappen</span>
+										<span class="btn-label">{=L:yw.epg.zap=}</span>
 									</button>
-									<button class="yweb-btn" onclick="showEpg('${ch.id}', '${escapeJs(ch.name)}')" title="Sendungsinfo">
+									<button class="yweb-btn" onclick="showEpg('${ch.id}', '${escapeJs(ch.name)}')" title="{=L:yw.dash.epg_info=}">
 										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<circle cx="12" cy="12" r="10"/>
 											<line x1="12" y1="16" x2="12" y2="12"/>
@@ -671,13 +671,13 @@
 										</svg>
 										<span class="btn-label">Info</span>
 									</button>
-									<button class="yweb-btn" onclick="ywebRecordEvent('${ch.id}', '${escapeJs(ch.name)}')" title="Sendung aufnehmen" style="color:var(--yweb-danger,#ef4444)">
+									<button class="yweb-btn" onclick="ywebRecordEvent('${ch.id}', '${escapeJs(ch.name)}')" title="{=L:yw.bq.rec_title=}" style="color:var(--yweb-danger,#ef4444)">
 										<svg viewBox="0 0 24 24" fill="currentColor">
 											<circle cx="12" cy="12" r="8"/>
 										</svg>
 										<span class="btn-label">Rec</span>
 									</button>
-									<button class="yweb-btn" onclick="ywebStreamChannel('${ch.id}', '${escapeJs(ch.name)}')" title="Stream starten">
+									<button class="yweb-btn" onclick="ywebStreamChannel('${ch.id}', '${escapeJs(ch.name)}')" title="{=L:yw.bq.stream_title=}">
 										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
 											<polygon points="12,15 17,21 7,21"/>
@@ -894,7 +894,7 @@
 				const progData = response?.data?.epglist?.progData || response?.epglist?.progData;
 
 				if (!progData || progData.length === 0) {
-					detailEl.innerHTML = '<div class="yweb-channel-detail-content">Keine EPG-Daten verfügbar</div>';
+					detailEl.innerHTML = '<div class="yweb-channel-detail-content">{=L:yw.bq.no_epg=}</div>';
 					return;
 				}
 
@@ -921,7 +921,7 @@
 				if (desc) {
 					html += `<div class="yweb-channel-detail-desc">${escapeHtml(desc)}</div>`;
 				} else {
-					html += `<div class="yweb-channel-detail-desc" style="font-style: italic; color: var(--pico-muted-color);">Keine Beschreibung verfügbar</div>`;
+					html += `<div class="yweb-channel-detail-desc" style="font-style: italic; color: var(--pico-muted-color);">{=L:yw.epg.no_desc=}</div>`;
 				}
 
 				detailEl.innerHTML = `<div class="yweb-channel-detail-content">${html}</div>`;

@@ -20,18 +20,18 @@ nobase_install_DATA = \
 	extensions/infoicons/manifest.json
 
 install_DATA = \
-	bouquet-editor.html \
-	bouquets.html \
+	bouquet-editor.yhtm \
+	bouquets.yhtm \
 	cmd.yhtm \
 	dashboard.yhtm \
-	epg.html \
+	epg.yhtm \
 	files.yhtm \
-	m3u-convert.html \
+	m3u-convert.yhtm \
 	screenshot.yhtm \
 	settings.html \
 	settings-registry.js \
 	sysinfo.yhtm \
-	timer.html \
+	timer.yhtm \
 	tools.yhtm \
 	extensions.txt \
 	favicon.ico \

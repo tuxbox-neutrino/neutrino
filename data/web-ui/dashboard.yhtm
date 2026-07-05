@@ -965,13 +965,13 @@
 							</svg>
 							<span>Rec</span>
 						</button>
-						<a href="/epg.html" class="yweb-action-btn" title="{=L:yw.dash.epg_plus=}">
+						<a href="/epg.yhtm" class="yweb-action-btn" title="{=L:yw.dash.epg_plus=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
 							</svg>
 							<span>EPGPlus</span>
 						</a>
-						<a href="bouquets.html" class="yweb-action-btn" title="{=L:yw.dash.to_channels=}">
+						<a href="bouquets.yhtm" class="yweb-action-btn" title="{=L:yw.dash.to_channels=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M4 6h16M4 12h16M4 18h16"/>
 							</svg>
@@ -1092,7 +1092,7 @@
 				</div>
 				<footer class="yweb-card-footer yweb-channel-footer">
 					<div class="yweb-channel-actions">
-						<a href="/timer.html" class="yweb-action-btn" title="{=L:yw.dash.all_timers=}">
+						<a href="/timer.yhtm" class="yweb-action-btn" title="{=L:yw.dash.all_timers=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>
 							</svg>

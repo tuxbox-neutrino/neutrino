@@ -103,9 +103,9 @@ const YWEB_ABOUT_HTML = `
 function ywebGetHeaderHTML(activePage) {
 	const nav = YWEB_CONFIG.navigation || [
 		{ page: 'dashboard', href: '/dashboard.yhtm', icon: 'dashboard', label: ywebL('nav.dashboard', 'Dashboard') },
-		{ page: 'bouquets', href: '/bouquets.html', icon: 'bouquets', label: ywebL('nav.bouquets', 'Bouquets') },
-		{ page: 'epg', href: '/epg.html', icon: 'epg', label: ywebL('nav.epg', 'EPG') },
-		{ page: 'timer', href: '/timer.html', icon: 'timer', label: ywebL('nav.timer', 'Timer') },
+		{ page: 'bouquets', href: '/bouquets.yhtm', icon: 'bouquets', label: ywebL('nav.bouquets', 'Bouquets') },
+		{ page: 'epg', href: '/epg.yhtm', icon: 'epg', label: ywebL('nav.epg', 'EPG') },
+		{ page: 'timer', href: '/timer.yhtm', icon: 'timer', label: ywebL('nav.timer', 'Timer') },
 		{ page: 'settings', href: '/settings.html', icon: 'settings', label: ywebL('nav.settings', 'Settings') },
 		{ page: 'tools', href: '/tools.yhtm', icon: 'tools', label: ywebL('nav.tools', 'Tools') }
 	];
