@@ -166,6 +166,11 @@ var SETTINGS_REGISTRY = [
 		custom: true
 	},
 	{
+		id: 'extensions',
+		label: 'Erweiterungen',
+		custom: true
+	},
+	{
 		id: 'backup',
 		label: 'Sichern',
 		custom: true
