@@ -373,6 +373,10 @@
 		if (cat.custom && cat.id === 'mounts') return renderMountsPanel();
 		if (cat.custom && cat.id === 'plugins') return renderPluginsPanel();
 		if (cat.custom && cat.id === 'backup') return renderBackupPanel();
+		if (cat.custom && cat.id === 'wol') return renderWolPanel();
+		if (cat.custom && cat.id === 'xmltv') return renderXmltvPanel();
+		if (cat.custom && cat.id === 'zapitupload') return renderZapitUploadPanel();
+		if (cat.custom && cat.id === 'camds') return renderCamdsPanel();
 		if (cat.config && cat.config !== 'neutrino') return renderExtConfigPanel(cat);
 
 		var html = makeCardHeader(cat.label);
@@ -494,6 +498,204 @@
 		btn.disabled = false;
 	}
 
+	// Wake-on-LAN: MAC/Beschreibung in yWeb.conf (config=yweb), Wecken
+	// via exec-Vertrag (ether-wake auf der Box)
+	function renderWolPanel() {
+		setTimeout(loadWolPanel, 0);
+		return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN') +
+			'<div id="wolPanel"><p aria-busy="true">Lade…</p></div></div>';
+	}
+
+	async function loadWolPanel() {
+		var el = document.getElementById('wolPanel');
+		if (!el) return;
+		try {
+			var resp = await ywebApi('config', {config: 'yweb'});
+			var cfg = (resp && resp.data && resp.data.config) || {};
+			EXT_CONFIG_CACHE['yweb'] = cfg;
+			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Geräte</div>';
+			for (var i = 1; i <= 3; i++) {
+				html += '<div class="yweb-form-row"><label>Gerät ' + i + '</label><span>' +
+					'<input type="text" id="wol_desc_' + i + '" placeholder="Beschreibung" style="max-width:140px" value="' + (cfg['wol_desc_' + i] || '') + '"> ' +
+					'<input type="text" id="wol_mac_' + i + '" placeholder="aa:bb:cc:dd:ee:ff" style="max-width:160px" value="' + (cfg['wol_mac_' + i] || '') + '"> ' +
+					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">Wecken</button></span></div>';
+			}
+			html += '</div><div class="yweb-form-row"><label></label>' +
+				'<button type="button" class="yweb-btn" onclick="wolSave(this)">Speichern</button></div>';
+			el.innerHTML = html;
+		} catch (e) {
+			el.innerHTML = '<div class="yweb-form-row"><label>Nicht verfügbar: ' + escapeHtml(e.message) + '</label></div>';
+		}
+	}
+
+	async function wolWake(i, btn) {
+		var mac = (document.getElementById('wol_mac_' + i) || {}).value || '';
+		if (!mac.trim()) { ywebShowToast('Keine MAC-Adresse', true); return; }
+		btn.disabled = true;
+		try {
+			await ywebApi('exec', 'Y_Tools&wol&' + encodeURIComponent(mac.trim()), {raw: true});
+			ywebShowToast('Wake-on-LAN gesendet: ' + mac.trim());
+		} catch (e) {
+			ywebShowToast('Fehler: ' + e.message, true);
+		}
+		btn.disabled = false;
+	}
+
+	async function wolSave(btn) {
+		var cfg = EXT_CONFIG_CACHE['yweb'] || {};
+		var params = 'action=submit';
+		var changed = 0;
+		for (var i = 1; i <= 3; i++) {
+			['wol_desc_' + i, 'wol_mac_' + i].forEach(function(k) {
+				var v = (document.getElementById(k) || {}).value || '';
+				if (v !== (cfg[k] || '')) { params += '&' + k + '=' + encodeURIComponent(v); changed++; }
+			});
+		}
+		if (!changed) { ywebShowToast('Keine Änderungen'); return; }
+		btn.disabled = true;
+		try {
+			await ywebApi('config', 'config=yweb&' + params);
+			ywebShowToast('Gespeichert');
+			await loadWolPanel();
+		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		btn.disabled = false;
+	}
+
+	// XMLTV/WebChannels-Quellen: eine URL pro Zeile; Speichern setzt die
+	// Listen via xmltvlist (ACHTUNG: leere Textarea leert die Liste) und
+	// laedt die Kanallisten neu (reloadchannels-Trichter, vgl. WORK-147)
+	function renderXmltvPanel() {
+		setTimeout(loadXmltvPanel, 0);
+		return '<div class="settings-card">' + makeCardHeader('WebTV/WebRadio-Quellen') +
+			'<div id="xmltvPanel"><p aria-busy="true">Lade…</p></div></div>';
+	}
+
+	function collectXmlSources(cfg, base) {
+		var out = [];
+		if (cfg[base]) out.push(cfg[base]);
+		var count = parseInt(cfg[base + '_count']) || 0;
+		for (var i = 1; i <= count; i++)
+			if (cfg[base + '_' + i]) out.push(cfg[base + '_' + i]);
+		return out;
+	}
+
+	async function loadXmltvPanel() {
+		var el = document.getElementById('xmltvPanel');
+		if (!el) return;
+		try {
+			var resp = await ywebApi('config', {config: 'neutrino'});
+			var cfg = (resp && resp.data && resp.data.config) || {};
+			var tv = collectXmlSources(cfg, 'webtv_xml').join('\n');
+			var radio = collectXmlSources(cfg, 'webradio_xml').join('\n');
+			el.innerHTML = '<div class="yweb-form-section"><div class="yweb-form-section-title">WebTV</div>' +
+				'<textarea id="xmltv_tv" rows="4" style="width:100%" placeholder="eine URL/Datei pro Zeile">' + escapeHtml(tv) + '</textarea></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">WebRadio</div>' +
+				'<textarea id="xmltv_radio" rows="4" style="width:100%">' + escapeHtml(radio) + '</textarea></div>' +
+				'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">Speichern ersetzt die Quelllisten und laedt die Kanallisten neu</small></label>' +
+				'<button type="button" class="yweb-btn" onclick="saveXmltv(this)">Speichern & Neu laden</button></div>';
+		} catch (e) {
+			el.innerHTML = '<div class="yweb-form-row"><label>Nicht verfügbar: ' + escapeHtml(e.message) + '</label></div>';
+		}
+	}
+
+	async function saveXmltv(btn) {
+		var tv = (document.getElementById('xmltv_tv') || {}).value || '';
+		var radio = (document.getElementById('xmltv_radio') || {}).value || '';
+		if (!confirm('Quelllisten ersetzen und Kanallisten neu laden?')) return;
+		btn.disabled = true;
+		try {
+			await ywebApi('xmltvlist', {webtv: tv, webradio: radio});
+			await ywebApi('reloadchannels');
+			ywebShowToast('Quellen gespeichert, Kanallisten neu geladen');
+		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		btn.disabled = false;
+	}
+
+	// Zapit-Upload: Kanal-/Bouquet-XML hochladen und aktivieren
+	function renderZapitUploadPanel() {
+		return '<div class="settings-card">' + makeCardHeader('Zapit-Upload') +
+			'<div class="yweb-form-section"><div class="yweb-form-section-title">Senderlisten-Datei einspielen</div>' +
+			'<div class="yweb-form-row"><label>Ziel</label>' +
+			'<select id="zapitTarget"><option>ubouquets.xml</option><option>bouquets.xml</option><option>services.xml</option><option>myservices.xml</option></select></div>' +
+			'<div class="yweb-form-row"><label>Datei</label><span>' +
+			'<input type="file" id="zapitFile" accept=".xml" style="max-width:220px"> ' +
+			'<button type="button" class="yweb-btn" onclick="doZapitUpload(this)">Hochladen & Aktivieren</button></span></div>' +
+			'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">Nach dem Upload werden die Kanallisten neu geladen</small></label></div></div></div>';
+	}
+
+	async function doZapitUpload(btn) {
+		var inp = document.getElementById('zapitFile');
+		var target = (document.getElementById('zapitTarget') || {}).value;
+		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('Keine Datei gewaehlt', true); return; }
+		if (!confirm(target + ' wirklich ersetzen?')) return;
+		btn.disabled = true;
+		try {
+			var f = inp.files[0];
+			var fd = new FormData();
+			fd.append('file', f);
+			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
+			if (!up.ok) throw new Error('Upload fehlgeschlagen');
+			var paths = await ywebApi('paths');
+			var confdir = paths.configdir || '/var/tuxbox/config';
+			await ywebApi('exec', 'Y_Tools&exec_cmd&cp&' + encodeURIComponent('/tmp/' + f.name) + '&' + encodeURIComponent(confdir + '/zapit/' + target), {raw: true});
+			await ywebApi('reloadchannels');
+			ywebShowToast(target + ' eingespielt, Kanallisten neu geladen');
+		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		btn.disabled = false;
+	}
+
+	// Camds: Start/Stop/Reset via Y_Camds-Script (paket-/imageabhaengig;
+	// ohne Script liefern die Buttons den Fehlertext des exec-Vertrags)
+	function renderCamdsPanel() {
+		var camds = ['oscam', 'ncam', 'cccam', 'mgcamd', 'gbox', 'doscam'];
+		var html = makeCardHeader('CAM-Daemons') +
+			'<div class="yweb-form-section"><div class="yweb-form-section-title">Steuerung <small style="color:var(--pico-muted-color)">verfuegbar nur mit installierten Camd-Scripts</small></div>';
+		camds.forEach(function(c) {
+			html += '<div class="yweb-form-row"><label>' + c + '</label><span>' +
+				'<button type="button" class="yweb-btn" onclick="camdAction(\'' + c + '_start\', this)">Start</button> ' +
+				'<button type="button" class="yweb-btn" onclick="camdAction(\'' + c + '_stop\', this)">Stop</button> ' +
+				'<button type="button" class="yweb-btn" onclick="camdAction(\'' + c + '_reset\', this)">Reset</button></span></div>';
+		});
+		html += '</div>';
+		return '<div class="settings-card">' + html + '</div>';
+	}
+
+	async function camdAction(fn, btn) {
+		btn.disabled = true;
+		try {
+			var out = (await ywebApi('exec', 'Y_Camds&' + fn, {raw: true})).trim();
+			ywebShowToast(out || (fn + ' ausgefuehrt'));
+		} catch (e) {
+			ywebShowToast('Nicht verfuegbar: ' + e.message, true);
+		}
+		btn.disabled = false;
+	}
+
+	async function doMountUnmount(i, btn) {
+		var inp = document.getElementById('cfg_network_nfs_local_dir_' + i);
+		var dir = inp ? inp.value.trim() : '';
+		if (!dir) { ywebShowToast('Kein Mountpoint gesetzt', true); return; }
+		btn.disabled = true;
+		try {
+			var out = (await ywebApi('exec', 'Y_Tools&dounmount&' + encodeURIComponent(dir), {raw: true})).trim();
+			ywebShowToast(out || ('Getrennt: ' + dir));
+		} catch (e) {
+			ywebShowToast('Fehler: ' + e.message, true);
+		}
+		btn.disabled = false;
+	}
+
+	async function doMountAction(i, action, btn) {
+		btn.disabled = true;
+		try {
+			var out = (await ywebApi('exec', 'Y_Tools&' + action + (i >= 0 ? '&' + i : ''), {raw: true})).trim();
+			ywebShowToast(out || 'Ausgefuehrt');
+		} catch (e) {
+			ywebShowToast('Fehler: ' + e.message, true);
+		}
+		btn.disabled = false;
+	}
+
 	// Plugins: Liste vom v4 plugins-Endpoint, Start via startplugin.
 	// Daemon-Steuerung (nfs/samba/... via Y_Tools-Scripts) bleibt bewusst
 	// der Legacy-Seite ueberlassen - paket-/imageabhaengig.
@@ -554,6 +756,8 @@
 
 	function renderMountsPanel() {
 		var html = makeCardHeader('Netzlaufwerke');
+		html += '<div class="yweb-form-row"><label>Alle konfigurierten Mounts</label>' +
+			'<button type="button" class="yweb-btn" onclick="doMountAction(-1, \'do_mount_all\', this)">Alle mounten</button></div>';
 		var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
 		for (var i = 0; i < 8; i++) {
 			var ip = getConfigKey('network_nfs_ip_' + i);
@@ -605,7 +809,10 @@
 			'<input type="text" id="' + id('username') + '" data-key="' + dk('username') + '" value="' + g('username') + '"></div>' +
 			'<div class="yweb-form-row"><label>Passwort</label>' +
 			'<input type="password" id="' + id('password') + '" data-key="' + dk('password') + '" value="' + g('password') + '"></div>' +
-			'</div>';
+			'</div>' +
+			'<div class="yweb-form-row"><label>Aktionen</label><span>' +
+			'<button type="button" class="yweb-btn" onclick="doMountAction(' + i + ', \'domount\', this)">Mounten</button> ' +
+			'<button type="button" class="yweb-btn" onclick="doMountUnmount(' + i + ', this)">Trennen</button></span></div>';
 	}
 
 	function toggleMount(i) {
