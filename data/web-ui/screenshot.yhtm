@@ -334,7 +334,7 @@
 						<rect x="7" y="2" width="10" height="20" rx="2"/>
 						<circle cx="12" cy="18" r="1"/>
 					</svg>
-					Fernbedienung
+					{=L:yw.tools.remote_sub=}
 				</h3>
 			</header>
 			<div class="yweb-card-body" id="remoteContainer"></div>
@@ -366,7 +366,7 @@
 								<polyline points="3,6 5,6 21,6"/>
 								<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
 							</svg>
-							<span class="btn-label">Löschen</span>
+							<span class="btn-label">{=L:yw.shot.clear=}</span>
 						</button>
 						<button class="yweb-btn" onclick="doGlcdSnapshot(this)" id="btnGlcd" style="display:none">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -407,9 +407,9 @@
 						<circle cx="8.5" cy="8.5" r="1.5"/>
 						<polyline points="21,15 16,10 5,21"/>
 					</svg>
-					<span>Klicke auf "Screenshot" um ein Bild aufzunehmen</span>
+					<span>{=L:yw.shot.hint=}</span>
 				</div>
-				<p id="loading" aria-busy="true" style="display:none;padding:2rem;text-align:center;color:var(--pico-muted-color)">Screenshot wird erstellt...</p>
+				<p id="loading" aria-busy="true" style="display:none;padding:2rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.shot.busy=}</p>
 				<img id="screenshot" src="" alt="Screenshot" style="display:none">
 			</div>
 		</article>
@@ -457,7 +457,7 @@
 			const video = document.getElementById('checkVideo').checked;
 
 			if (!osd && !video) {
-				alert('Bitte OSD oder Video auswaehlen!');
+				alert('{=L:yw.shot.select=}');
 				return false;
 			}
 			return true;
@@ -511,7 +511,7 @@
 				img.style.display = 'block';
 				document.getElementById('placeholder').style.display = 'none';
 			} catch (e) {
-				ywebShowToast('GLCD-Screenshot fehlgeschlagen: ' + e.message, true);
+				ywebShowToast('{=L:yw.shot.glcdfail=}: ' + e.message, true);
 			}
 			btn.disabled = false;
 		}

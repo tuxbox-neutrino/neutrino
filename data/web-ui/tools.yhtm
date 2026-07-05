@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>yWeb - Tools</title>
+	<title>yWeb - {=L:yw.nav.tools=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=59">
@@ -76,21 +76,21 @@
 
 	<main>
 		<div class="yweb-tools-grid">
-			<a href="/screenshot.html" class="yweb-tool-card">
+			<a href="/screenshot.yhtm" class="yweb-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
 					<circle cx="12" cy="13" r="3"/>
 				</svg>
 				<span>Screenshot</span>
-				<small>OSD/Video Aufnahme</small>
+				<small>{=L:yw.tools.screenshot_sub=}</small>
 			</a>
 
 			<a href="/files.html" class="yweb-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
 				</svg>
-				<span>Dateien</span>
-				<small>Dateiverwaltung</small>
+				<span>{=L:yw.tools.files=}</span>
+				<small>{=L:yw.tools.files_sub=}</small>
 			</a>
 
 			<div class="yweb-tool-card" onclick="ywebShowRemote()">
@@ -99,15 +99,15 @@
 					<circle cx="12" cy="18" r="1"/>
 				</svg>
 				<span>Remote</span>
-				<small>Fernbedienung</small>
+				<small>{=L:yw.tools.remote_sub=}</small>
 			</div>
 
 			<div class="yweb-tool-card" onclick="ywebShowMessageDialog()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
 				</svg>
-				<span>Nachricht</span>
-				<small>Meldung an Box senden</small>
+				<span>{=L:yw.tools.message=}</span>
+				<small>{=L:yw.tools.message_sub=}</small>
 			</div>
 
 			<a href="/cmd.html" class="yweb-tool-card">
@@ -115,7 +115,7 @@
 					<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
 				</svg>
 				<span>Shell</span>
-				<small>Kommandozeile</small>
+				<small>{=L:yw.tools.shell_sub=}</small>
 			</a>
 
 			<a href="/sysinfo.html" class="yweb-tool-card">
@@ -123,15 +123,15 @@
 					<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
 				</svg>
 				<span>System Info</span>
-				<small>Hardware & Software</small>
+				<small>{=L:yw.tools.sysinfo_sub=}</small>
 			</a>
 
 			<a href="/settings.html" class="yweb-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
 				</svg>
-				<span>Einstellungen</span>
-				<small>Video, Audio, Display</small>
+				<span>{=L:yw.nav.settings=}</span>
+				<small>{=L:yw.tools.settings_sub=}</small>
 			</a>
 
 			<div class="yweb-tool-card" onclick="showBoxControl()">
@@ -139,7 +139,7 @@
 					<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="14" y1="10" x2="18" y2="10"/><line x1="14" y1="14" x2="18" y2="14"/>
 				</svg>
 				<span>Boxcontrol</span>
-				<small>Neustart, Aufnahme, Tuner</small>
+				<small>{=L:yw.tools.boxcontrol_sub=}</small>
 			</div>
 
 			<div class="yweb-tool-card" onclick="showInstaller()">
@@ -147,23 +147,23 @@
 					<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
 				</svg>
 				<span>Installer</span>
-				<small>Paket hochladen & installieren</small>
+				<small>{=L:yw.tools.installer_sub=}</small>
 			</div>
 
 			<a href="/bouquet-editor.html" class="yweb-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
 				</svg>
-				<span>Bouquet-Editor</span>
-				<small>Bouquets & Kanaele verwalten</small>
+				<span>{=L:yw.tools.bqedit=}</span>
+				<small>{=L:yw.tools.bqedit_sub=}</small>
 			</a>
 
 			<a href="/m3u-convert.html" class="yweb-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
 				</svg>
-				<span>m3u-Konverter</span>
-				<small>Playlist zu WebTV-XML</small>
+				<span>{=L:yw.tools.m3u=}</span>
+				<small>{=L:yw.tools.m3u_sub=}</small>
 			</a>
 
 			<div class="yweb-tool-card" onclick="sendStandby()">
@@ -172,7 +172,7 @@
 					<line x1="12" y1="2" x2="12" y2="12"/>
 				</svg>
 				<span>Standby</span>
-				<small>Box ein/ausschalten</small>
+				<small>{=L:yw.tools.standby_sub=}</small>
 			</div>
 
 		</div>
@@ -186,76 +186,76 @@
 			if (confirmText && !confirm(confirmText)) return;
 			try {
 				await ywebApi(endpoint, params);
-				ywebShowToast(label + ' ausgef\u00fchrt');
+				ywebShowToast(label + ' {=L:yw.msg.executed=}');
 			} catch (e) {
-				ywebShowToast('Fehler: ' + e.message, true);
+				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			}
 		}
 
 		async function bcExec(label, args) {
 			try {
 				var out = (await ywebApi('exec', args, {raw: true})).trim();
-				ywebShowToast(out || (label + ' ausgef\u00fchrt'));
+				ywebShowToast(out || (label + ' {=L:yw.msg.executed=}'));
 			} catch (e) {
-				ywebShowToast(label + ' nicht verf\u00fcgbar: ' + e.message, true);
+				ywebShowToast(label + ' {=L:yw.msg.notavail=}: ' + e.message, true);
 			}
 		}
 
 		async function showBoxControl() {
 			var body =
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">Box</div>' +
-				'<div class="yweb-form-row"><label>Neutrino-GUI neu starten</label><button type="button" class="yweb-btn" onclick="bcAction(\'Neustart GUI\', \'restart\', null, \'GUI wirklich neu starten?\')">Neustart GUI</button></div>' +
-				'<div class="yweb-form-row"><label>Box neu starten</label><button type="button" class="yweb-btn" onclick="bcAction(\'Reboot\', \'reboot\', null, \'Box wirklich neu starten?\')">Reboot</button></div>' +
-				'<div class="yweb-form-row"><label>Box ausschalten</label><button type="button" class="yweb-btn" onclick="bcAction(\'Shutdown\', \'shutdown\', null, \'Box wirklich ausschalten?\')">Ausschalten</button></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">Aufnahme <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
-				'<div class="yweb-form-row"><label>Sofortaufnahme</label><span>' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'Aufnahme-Start\', \'setmode\', {record: \'start\'})">Start</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'Aufnahme-Stop\', \'setmode\', {record: \'stop\'})">Stop</button></span></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">Fernbedienung</div>' +
-				'<div class="yweb-form-row"><label>RC an der Box</label><span>' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'RC sperren\', \'rc\', \'lock\')">Sperren</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'RC entsperren\', \'rc\', \'unlock\')">Entsperren</button></span></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">Zapit <small style="color:var(--pico-muted-color)">scriptabh\u00e4ngig</small></div>' +
-				'<div class="yweb-form-row"><label>Aufl\u00f6sung</label><span>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.restart_gui=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.restart_btn=}\', \'restart\', null, \'{=L:yw.bc.restart_confirm=}\')">{=L:yw.bc.restart_btn=}</button></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.reboot=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'Reboot\', \'reboot\', null, \'{=L:yw.bc.reboot_confirm=}\')">Reboot</button></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.shutdown=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'Shutdown\', \'shutdown\', null, \'{=L:yw.bc.shutdown_confirm=}\')">{=L:yw.bc.shutdown_btn=}</button></div></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.bc.recording=} <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.instant_rec=}</label><span>' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Start\', \'setmode\', {record: \'start\'})">Start</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Stop\', \'setmode\', {record: \'stop\'})">Stop</button></span></div></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.tools.remote_sub=}</div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.rc_at_box=}</label><span>' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.lock=}\', \'rc\', \'lock\')">{=L:yw.bc.lock=}</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.unlock=}\', \'rc\', \'unlock\')">{=L:yw.bc.unlock=}</button></span></div></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">Zapit <small style="color:var(--pico-muted-color)">{=L:yw.bc.script_dep=}</small></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.resolution=}</label><span>' +
 				'<button type="button" class="yweb-btn" onclick="bcExec(\'1080\', \'Y_Tools&resolution&1080\')">1080</button> ' +
 				'<button type="button" class="yweb-btn" onclick="bcExec(\'720\', \'Y_Tools&resolution&720\')">720</button> ' +
 				'<button type="button" class="yweb-btn" onclick="bcExec(\'PAL\', \'Y_Tools&resolution&pal\')">PAL</button></span></div>' +
-				'<div class="yweb-form-row"><label>Kanallisten neu laden</label><button type="button" class="yweb-btn" onclick="bcAction(\'Reload\', \'reloadchannels\', null)">Neu laden</button></div>' +
-				'<div class="yweb-form-row"><label>Tuner-Reset</label><button type="button" class="yweb-btn" onclick="bcExec(\'Tuner-Reset\', \'Y_Tools&reset_tuner\')">Reset</button></div></div>';
+				'<div class="yweb-form-row"><label>{=L:yw.bc.reload_channels=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.reload=}\', \'reloadchannels\', null)">{=L:yw.bc.reload=}</button></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.tuner_reset=}</label><button type="button" class="yweb-btn" onclick="bcExec(\'{=L:yw.bc.tuner_reset=}\', \'Y_Tools&reset_tuner\')">Reset</button></div></div>';
 			ywebModal('bcModal', 'Boxcontrol', body);
 			try {
 				var st = await ywebApi('setmode', {status: ''});
 				var el = document.getElementById('bcRecState');
-				if (el) el.textContent = (st && st.recording) ? '\u2022 Aufnahme l\u00e4uft' : '\u2022 keine Aufnahme';
+				if (el) el.textContent = (st && st.recording) ? '\u2022 {=L:yw.bc.rec_running=}' : '\u2022 {=L:yw.bc.rec_none=}';
 			} catch (e) {}
 		}
 
 		function showInstaller() {
 			var body =
-				'<div class="yweb-form-row"><label>Paket (.tar/.ipk)</label><span>' +
+				'<div class="yweb-form-row"><label>{=L:yw.inst.file=}</label><span>' +
 				'<input type="file" id="instFile" style="max-width:220px"> ' +
-				'<button type="button" class="yweb-btn" onclick="doInstall(this)">Installieren</button></span></div>' +
+				'<button type="button" class="yweb-btn" onclick="doInstall(this)">{=L:yw.inst.install=}</button></span></div>' +
 				'<pre id="instOut" style="max-height:220px;overflow:auto;background:var(--pico-card-sectioning-background-color);padding:0.5rem;border-radius:4px">\u00a0</pre>';
-			ywebModal('instModal', 'Paket-Installer', body);
+			ywebModal('instModal', '{=L:yw.inst.title=}', body);
 		}
 
 		async function doInstall(btn) {
 			var inp = document.getElementById('instFile');
 			var out = document.getElementById('instOut');
-			if (!inp || !inp.files || !inp.files.length) { ywebShowToast('Keine Datei gew\u00e4hlt', true); return; }
+			if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
 			btn.disabled = true;
-			out.textContent = 'Lade hoch\u2026';
+			out.textContent = '{=L:yw.inst.uploading=}\u2026';
 			try {
 				var f = inp.files[0];
 				var fd = new FormData();
 				fd.append('file', f);
 				var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
-				if (!up.ok) throw new Error('Upload fehlgeschlagen');
-				out.textContent = 'Installiere\u2026';
+				if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
+				out.textContent = '{=L:yw.inst.installing=}\u2026';
 				var res = (await ywebApi('exec', 'Y_Tools&installer&' + encodeURIComponent('/tmp/' + f.name), {raw: true})).trim();
-				out.textContent = res || 'installer ohne Ausgabe (Script vorhanden?)';
+				out.textContent = res || '{=L:yw.inst.noout=}';
 			} catch (e) {
-				out.textContent = 'Fehler: ' + e.message;
+				out.textContent = '{=L:yw.msg.error=}: ' + e.message;
 			}
 			btn.disabled = false;
 		}
@@ -264,11 +264,11 @@
 			try {
 				var st = await ywebApi('standby', {status: ''});
 				var inStandby = !!(st && st.standby === true);
-				if (!inStandby && !confirm('Box in Standby versetzen?')) return;
+				if (!inStandby && !confirm('{=L:yw.sb.confirm=}')) return;
 				await ywebApi('standby', inStandby ? 'off' : 'on');
-				ywebShowToast(inStandby ? 'Box wird aufgeweckt' : 'Box geht in Standby');
+				ywebShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
 			} catch (e) {
-				ywebShowToast('Standby fehlgeschlagen: ' + e.message, true);
+				ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
 			}
 		}
 	</script>

@@ -27,12 +27,12 @@ install_DATA = \
 	epg.html \
 	files.html \
 	m3u-convert.html \
-	screenshot.html \
+	screenshot.yhtm \
 	settings.html \
 	settings-registry.js \
 	sysinfo.html \
 	timer.html \
-	tools.html \
+	tools.yhtm \
 	extensions.txt \
 	favicon.ico \
 	index.html \

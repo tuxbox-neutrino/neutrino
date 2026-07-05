@@ -107,7 +107,7 @@ function ywebGetHeaderHTML(activePage) {
 		{ page: 'epg', href: '/epg.html', icon: 'epg', label: ywebL('nav.epg', 'EPG') },
 		{ page: 'timer', href: '/timer.html', icon: 'timer', label: ywebL('nav.timer', 'Timer') },
 		{ page: 'settings', href: '/settings.html', icon: 'settings', label: ywebL('nav.settings', 'Settings') },
-		{ page: 'tools', href: '/tools.html', icon: 'tools', label: ywebL('nav.tools', 'Tools') }
+		{ page: 'tools', href: '/tools.yhtm', icon: 'tools', label: ywebL('nav.tools', 'Tools') }
 	];
 
 	const navItems = nav.map(item => {
