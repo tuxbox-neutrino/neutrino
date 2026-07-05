@@ -118,6 +118,21 @@ window.YWEB_L = {
 	// Sprachwechsler (yweb-header.js)
 	"lang.title": "{=L:yw.lang.title=}",
 	"lang.none": "{=L:yw.lang.none=}",
+	// settings-registry.js (M4e: SRS + System)
+	"reg.srs": "{=L:yw.reg.srs=}",
+	"reg.srs_enable": "{=L:yw.reg.srs_enable=}",
+	"reg.srs_algo": "{=L:yw.reg.srs_algo=}",
+	"reg.srs_light": "{=L:yw.reg.srs_light=}",
+	"reg.srs_normal": "{=L:yw.reg.srs_normal=}",
+	"reg.srs_heavy": "{=L:yw.reg.srs_heavy=}",
+	"reg.srs_ref_volume": "{=L:yw.reg.srs_ref_volume=}",
+	"reg.srs_nmgr": "{=L:yw.reg.srs_nmgr=}",
+	"reg.system": "{=L:yw.reg.system=}",
+	"reg.cpu_fan": "{=L:yw.reg.cpu_fan=}",
+	"reg.cpufreq": "{=L:yw.reg.cpufreq=}",
+	"reg.cpufreq_hint": "{=L:yw.reg.cpufreq_hint=}",
+	"reg.standby_cpufreq": "{=L:yw.reg.standby_cpufreq=}",
+	"reg.fan_speed": "{=L:yw.reg.fan_speed=}",
 	// Verzeichnis-Picker (yweb-header.js)
 	"picker.title": "{=L:yw.picker.title=}",
 	"picker.choose_folder": "{=L:yw.picker.choose_folder=}",

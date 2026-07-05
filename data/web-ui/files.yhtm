@@ -598,7 +598,7 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=3"></script>
+	<script src="/Y_Lang.yjs?v=4"></script>
 	<script src="/yweb-header.js?v=36"></script>
 	<script>
 		// State

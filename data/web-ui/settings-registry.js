@@ -74,6 +74,16 @@ var SETTINGS_REGISTRY = [
 					{ key: 'audiochannel_up_down_enable', label: ywebL('reg.audio_ch_selectable', 'Audio channel selectable'), type: 'bool' },
 					{ key: 'audio_left_right_selectable', label: ywebL('reg.lr_selectable', 'Left/right selectable'), type: 'bool' }
 				]
+			},
+			{
+				title: ywebL('reg.srs', 'SRS TruVolume'),
+				fields: [
+					{ key: 'srs_enable', label: ywebL('reg.srs_enable', 'SRS enabled'), type: 'bool01' },
+					{ key: 'srs_algo', label: ywebL('reg.srs_algo', 'SRS mode'), type: 'select',
+					  options: [{v:'0',l: ywebL('reg.srs_light', 'light')},{v:'1',l: ywebL('reg.srs_normal', 'normal')},{v:'2',l: ywebL('reg.srs_heavy', 'heavy')}] },
+					{ key: 'srs_ref_volume', label: ywebL('reg.srs_ref_volume', 'Reference volume'), type: 'number', min: 0, max: 100 },
+					{ key: 'srs_nmgr_enable', label: ywebL('reg.srs_nmgr', 'Volume manager'), type: 'bool01' }
+				]
 			}
 		]
 	},
@@ -131,6 +141,21 @@ var SETTINGS_REGISTRY = [
 					{ key: 'hdmi_cec_standby', label: 'TV Standby', type: 'bool01' },
 					{ key: 'hdmi_cec_volume', label: ywebL('reg.volume', 'Volume'), type: 'select',
 					  options: [{v:'0',l: ywebL('reg.off', 'Off')},{v:'1',l:'Audiosystem'},{v:'2',l:'TV'}] }
+				]
+			}
+		]
+	},
+	{
+		id: 'system',
+		label: ywebL('reg.system', 'System'),
+		sections: [
+			{
+				title: ywebL('reg.cpu_fan', 'CPU and fan (box dependent)'),
+				fields: [
+					{ key: 'cpufreq', label: ywebL('reg.cpufreq', 'CPU frequency (MHz)'), type: 'number', min: 0,
+					  hint: ywebL('reg.cpufreq_hint', '0 keeps the default; box dependent') },
+					{ key: 'standby_cpufreq', label: ywebL('reg.standby_cpufreq', 'Standby CPU frequency (MHz)'), type: 'number', min: 0 },
+					{ key: 'fan_speed', label: ywebL('reg.fan_speed', 'Fan speed'), type: 'number', min: 0, max: 15 }
 				]
 			}
 		]

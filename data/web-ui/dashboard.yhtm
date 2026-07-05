@@ -1172,7 +1172,7 @@
 	</footer>
 
 	<script src="/jquery/jquery.min.js"></script>
-	<script src="/Y_Lang.yjs?v=3"></script>
+	<script src="/Y_Lang.yjs?v=4"></script>
 	<script src="/yweb-header.js?v=36"></script>
 	<script>
 	// Current channel tracking for EPG info
