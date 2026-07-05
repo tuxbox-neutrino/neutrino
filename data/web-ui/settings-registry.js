@@ -146,9 +146,122 @@ var SETTINGS_REGISTRY = [
 		custom: true
 	},
 	{
+		id: 'wol',
+		label: 'Wake-on-LAN',
+		custom: true
+	},
+	{
+		id: 'xmltv',
+		label: 'WebTV-Quellen',
+		custom: true
+	},
+	{
+		id: 'zapitupload',
+		label: 'Zapit-Upload',
+		custom: true
+	},
+	{
+		id: 'camds',
+		label: 'CAM-Daemons',
+		custom: true
+	},
+	{
 		id: 'backup',
 		label: 'Sichern',
 		custom: true
+	},
+	{
+		id: 'personalize',
+		label: 'Personalisierung',
+		sections: [
+			{
+				title: 'PIN',
+				fields: [
+					{ key: 'personalize_pincode', label: 'PIN-Code', type: 'password' },
+					{ key: 'personalize_pinstatus', label: 'PIN aktiv', type: 'bool01' }
+				]
+			},
+			{
+				title: 'Menuepunkte (Sichtbarkeit)',
+				fields: [
+					{ key: 'personalize_settings', label: 'Einstellungen', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_service', label: 'Service', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_audio', label: 'Audio', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_video', label: 'Video', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_network', label: 'Netzwerk', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_recording', label: 'Aufnahme', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_mediaplayer', label: 'Mediaplayer', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_games', label: 'Spiele', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_scants', label: 'Sendersuche', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_misc', label: 'Verschiedenes', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_sleeptimer', label: 'Sleeptimer', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_reboot', label: 'Reboot', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_restart', label: 'Neustart GUI', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_shutdown', label: 'Ausschalten', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_bluebutton', label: 'Blaue Taste', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] },
+					{ key: 'personalize_redbutton', label: 'Rote Taste', type: 'select',
+					  options: [{v:'0',l:'Versteckt'},{v:'1',l:'Sichtbar'},{v:'2',l:'PIN-geschuetzt'}] }
+				]
+			}
+		]
+	},
+	{
+		id: 'buttons',
+		label: 'Tasten',
+		sections: [
+			{
+				title: 'Tastenbelegung (RC-Keycodes)',
+				fields: [
+					{ key: 'bouquetlist_mode', label: 'Bouquetlisten-Modus', type: 'select',
+					  options: [{v:'0',l:'Bouquets'},{v:'1',l:'Kanaele'}] },
+					{ key: 'key_tvradio_mode', label: 'TV/Radio-Umschaltung', type: 'number', min: 0 },
+					{ key: 'key_lastchannel', label: 'Letzter Kanal', type: 'number', min: 0 },
+					{ key: 'key_zaphistory', label: 'Zap-Historie', type: 'number', min: 0 },
+					{ key: 'key_bouquet_up', label: 'Bouquet hoch', type: 'number', min: 0 },
+					{ key: 'key_bouquet_down', label: 'Bouquet runter', type: 'number', min: 0 },
+					{ key: 'key_quickzap_up', label: 'Quickzap hoch', type: 'number', min: 0 },
+					{ key: 'key_quickzap_down', label: 'Quickzap runter', type: 'number', min: 0 },
+					{ key: 'key_subchannel_up', label: 'Subkanal hoch', type: 'number', min: 0 },
+					{ key: 'key_subchannel_down', label: 'Subkanal runter', type: 'number', min: 0 }
+				]
+			}
+		]
+	},
+	{
+		id: 'infoicons',
+		label: 'Info-Icons',
+		sections: [
+			{
+				title: 'Status-Icons',
+				fields: [
+					{ key: 'mode_icons', label: 'Icons aktiv', type: 'bool01' },
+					{ key: 'mode_icons_background', label: 'Hintergrund', type: 'bool01' },
+					{ key: 'mode_icons_flag0', label: 'Icon-Datei 0', type: 'text' },
+					{ key: 'mode_icons_flag1', label: 'Icon-Datei 1', type: 'text' },
+					{ key: 'mode_icons_flag2', label: 'Icon-Datei 2', type: 'text' },
+					{ key: 'mode_icons_flag3', label: 'Icon-Datei 3', type: 'text' },
+					{ key: 'mode_icons_flag4', label: 'Icon-Datei 4', type: 'text' },
+					{ key: 'mode_icons_flag5', label: 'Icon-Datei 5', type: 'text' },
+					{ key: 'mode_icons_flag6', label: 'Icon-Datei 6', type: 'text' },
+					{ key: 'mode_icons_flag7', label: 'Icon-Datei 7', type: 'text' }
+				]
+			}
+		]
 	},
 	{
 		id: 'nhttpd',
