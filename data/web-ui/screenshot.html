@@ -368,6 +368,12 @@
 							</svg>
 							<span class="btn-label">Löschen</span>
 						</button>
+						<button class="yweb-btn" onclick="doGlcdSnapshot(this)" id="btnGlcd" style="display:none">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<rect x="2" y="7" width="20" height="10" rx="2"/>
+							</svg>
+							<span class="btn-label">GLCD</span>
+						</button>
 					</div>
 
 					<div class="yweb-screenshot-options">
@@ -484,6 +490,29 @@
 				loading.style.display = 'none';
 				placeholder.style.display = 'flex';
 			}
+		}
+
+		// GLCD nur anbieten, wenn der Endpoint im Build existiert
+		// (HEAD-Registrierungscheck: 404 = ohne GraphLCD gebaut)
+		(async function() {
+			try {
+				var r = await fetch('/api/v4/glcdscreenshot', {method: 'HEAD'});
+				if (r.ok) document.getElementById('btnGlcd').style.display = '';
+			} catch (e) {}
+		})();
+
+		async function doGlcdSnapshot(btn) {
+			btn.disabled = true;
+			try {
+				await ywebApi('glcdscreenshot', {name: 'glcdshot'});
+				var img = document.getElementById('screenshot');
+				img.src = '/tmp/glcdshot.png?' + Math.random();
+				img.style.display = 'block';
+				document.getElementById('placeholder').style.display = 'none';
+			} catch (e) {
+				ywebShowToast('GLCD-Screenshot fehlgeschlagen: ' + e.message, true);
+			}
+			btn.disabled = false;
 		}
 
 		async function doClear() {
