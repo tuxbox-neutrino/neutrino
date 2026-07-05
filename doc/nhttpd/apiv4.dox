@@ -42,7 +42,7 @@
 | `/api/v4/tuners` | `/control/tuners?format=json` | CControlAPI::TunersCGI |
 | `/api/v4/mode` | `/control/getmode?format=json` | CControlAPI::GetModeCGI |
 | `/api/v4/volume` | `/control/volume?format=json` | CControlAPI::VolumeCGI |
-| `/api/v4/bouquets` | `/control/getbouquets?format=json` | CControlAPI::GetBouquetsCGI |
+| `/api/v4/bouquets` | `/control/getbouquets?format=json` (`showempty=true` listet auch leere Bouquets, fuer den Editor) | CControlAPI::GetBouquetsCGI |
 | `/api/v4/bouquet?bouquet=N` | `/control/getbouquet?bouquet=N&format=json` | CControlAPI::GetBouquetCGI |
 | `/api/v4/channel` | `/control/getchannel?format=json` | CControlAPI::GetChannelCGI |
 | `/api/v4/channellist` | `/control/channellist?format=json` | CControlAPI::ChannellistCGI |
@@ -76,6 +76,14 @@
 | `/api/v4/xmltvlist` | `/control/xmltvlist` | CControlAPI::xmltvlistCGI |
 | `/api/v4/screenshot` | `/control/screenshot` (nur mit `SCREENSHOT`-Build) | CControlAPI::ScreenshotCGI |
 | `/api/v4/glcdscreenshot` | `/control/glcdscreenshot` (nur mit GraphLCD-Build) | CControlAPI::GlcdScreenshotCGI |
+| `/api/v4/setbouquet` | `/control/setbouquet` (Envelope) | CControlAPI::setBouquetCGI |
+| `/api/v4/savebouquet` | `/control/savebouquet` (Envelope) | CControlAPI::saveBouquetCGI |
+| `/api/v4/movebouquet` | `/control/movebouquet` (Envelope) | CControlAPI::moveBouquetCGI |
+| `/api/v4/deletebouquet` | `/control/deletebouquet` (Envelope) | CControlAPI::deleteBouquetCGI |
+| `/api/v4/addbouquet` | `/control/addbouquet` (Envelope) | CControlAPI::addBouquetCGI |
+| `/api/v4/renamebouquet` | `/control/renamebouquet` (Envelope) | CControlAPI::renameBouquetCGI |
+| `/api/v4/changebouquet` | `/control/changebouquet` (Envelope) | CControlAPI::changeBouquetCGI |
+| `/api/v4/updatebouquet` | `/control/updatebouquet` (Envelope) | CControlAPI::updateBouquetCGI |
 
 Details je Endpoint (Parameter, Beispiel-Output) stehen an den verlinkten
 Handlern (Konvention `@par nhttpd-usage` / `@par output (json)`).
