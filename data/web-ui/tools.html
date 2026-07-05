@@ -179,23 +179,8 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/yweb-header.js?v=29"></script>
+	<script src="/yweb-header.js?v=30"></script>
 	<script>
-		function ywebModal(id, title, bodyHtml) {
-			var m = document.getElementById(id);
-			if (m) { m.classList.add('open'); return m; }
-			m = document.createElement('div');
-			m.id = id;
-			m.className = 'yweb-epg-modal open';
-			m.innerHTML = '<div class="yweb-epg-modal-content" style="max-width:560px">' +
-				'<div class="yweb-epg-modal-header"><h3 class="yweb-epg-modal-title">' + title + '</h3>' +
-				'<button type="button" class="yweb-epg-modal-close" onclick="document.getElementById(\'' + id + '\').classList.remove(\'open\')">\u00d7</button></div>' +
-				'<div class="yweb-epg-modal-body">' + bodyHtml + '</div></div>';
-			m.onclick = function(e) { if (e.target === m) m.classList.remove('open'); };
-			document.body.appendChild(m);
-			return m;
-		}
-
 		async function bcAction(label, endpoint, params, confirmText) {
 			if (confirmText && !confirm(confirmText)) return;
 			try {

@@ -800,6 +800,36 @@ function escapeJs(text) {
 	return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
+// Generic modal on the EPG-modal backdrop pattern. Reuses the element
+// per id and replaces title/body on every call (reset on reopen).
+function ywebModal(id, title, bodyHtml) {
+	var backdrop = document.getElementById(id);
+	if (!backdrop) {
+		backdrop = document.createElement('div');
+		backdrop.id = id;
+		backdrop.className = 'yweb-epg-modal-backdrop';
+		backdrop.innerHTML = '<div class="yweb-epg-modal" onclick="event.stopPropagation()">' +
+			'<div class="yweb-epg-modal-header"><h3></h3>' +
+			_ywebCloseBtn('ywebCloseModal(\'' + id + '\')') + '</div>' +
+			'<div class="yweb-epg-modal-body"></div></div>';
+		backdrop.addEventListener('click', function(e) {
+			if (e.target === backdrop) ywebCloseModal(id);
+		});
+		document.body.appendChild(backdrop);
+	}
+	backdrop.querySelector('.yweb-epg-modal-header h3').textContent = title;
+	backdrop.querySelector('.yweb-epg-modal-body').innerHTML = bodyHtml;
+	backdrop.classList.add('open');
+	document.body.style.overflow = 'hidden';
+	return backdrop;
+}
+
+function ywebCloseModal(id) {
+	var backdrop = document.getElementById(id);
+	if (backdrop) backdrop.classList.remove('open');
+	document.body.style.overflow = '';
+}
+
 // EPG Info Modal HTML Template
 const YWEB_EPG_MODAL_HTML = `
 <div class="yweb-epg-modal-backdrop" id="ywebEpgModal" onclick="ywebCloseEpgModal(event)">
