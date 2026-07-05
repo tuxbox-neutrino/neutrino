@@ -1,19 +1,33 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>yWeb</title>
-<script src="/jquery/jquery.min.js"></script>
-<script>
-jQuery.get("/etc/hostname", function(data) {
-	jQuery('html head').find('title').text(data);
-});
-</script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb</title>
+	<link rel="icon" href="/favicon/favicon.ico">
 </head>
-<frameset cols="*,1300,*" frameborder="0" framespacing="0">
-	<frame name="top_left" src="Y_Dyn_Pages.yhtm?page=page_frame_rest" marginwidth="0" marginheight="0" frameborder="0" border="0"/>
-	<frame name="top_main" src="Y_Dyn_Pages.yhtm?page=frame_main" scrolling="no" frameborder="0" style="width:1300px;height:100%" border="0"/>
-	<frame name="top_right" src="Y_Dyn_Pages.yhtm?page=page_frame_rest" marginwidth="0" marginheight="0" frameborder="0" border="0"/>
-</frameset>
+<body>
+	<noscript><a href="/dashboard.yhtm">yWeb</a></noscript>
+	<script>
+		// First run (yWeb.conf startup != true) -> setup wizard,
+		// otherwise jump to the configured start page. Any error
+		// falls back to the dashboard so the UI is always reachable.
+		(function () {
+			var fallback = '/dashboard.yhtm';
+			fetch('/api/v4/config?config=yweb')
+				.then(function (r) { return r.json(); })
+				.then(function (data) {
+					var cfg = (data && data.data && data.data.config) || {};
+					if (cfg.startup !== 'true') {
+						location.replace('/wizard.yhtm');
+						return;
+					}
+					var page = cfg.start_page || 'dashboard.yhtm';
+					if (page.charAt(0) !== '/') page = '/' + page;
+					location.replace(page);
+				})
+				.catch(function () { location.replace(fallback); });
+		})();
+	</script>
+</body>
 </html>

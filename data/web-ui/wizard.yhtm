@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - {=L:yw.wiz.title=}</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=60">
+	<style>
+		.wiz-wrap {
+			max-width: 26rem;
+			margin: 3rem auto;
+			padding: 1.5rem;
+		}
+		.wiz-wrap h1 {
+			font-size: 1.4rem;
+			margin-bottom: 0.3rem;
+		}
+		.wiz-wrap p.sub {
+			color: var(--pico-muted-color);
+			margin-bottom: 1.5rem;
+		}
+		.wiz-wrap label {
+			display: block;
+			margin-bottom: 0.3rem;
+			font-weight: 600;
+		}
+		.wiz-wrap select {
+			width: 100%;
+			margin-bottom: 1.2rem;
+		}
+	</style>
+</head>
+<body>
+	<main class="wiz-wrap settings-card">
+		<h1>{=L:yw.wiz.welcome=}</h1>
+		<p class="sub">{=L:yw.wiz.intro=}</p>
+
+		<label for="wizLang">{=L:yw.lang.title=}</label>
+		<select id="wizLang">{=func:get_languages_as_dropdown=}</select>
+
+		<label for="wizPage">{=L:yw.wiz.start_page=}</label>
+		<select id="wizPage">
+			<option value="dashboard.yhtm">{=L:yw.nav.dashboard=}</option>
+			<option value="bouquets.yhtm">{=L:yw.nav.bouquets=}</option>
+			<option value="epg.yhtm">{=L:yw.nav.epg=}</option>
+			<option value="timer.yhtm">{=L:yw.nav.timer=}</option>
+			<option value="tools.yhtm">{=L:yw.nav.tools=}</option>
+			<option value="settings.yhtm">{=L:yw.nav.settings=}</option>
+		</select>
+
+		<button type="button" class="yweb-btn primary" id="wizGo" style="width:100%" onclick="wizFinish(this)">{=L:yw.wiz.finish=}</button>
+	</main>
+
+	<script src="/Y_Baselib.js"></script>
+	<script>
+		// Remember the active language so we only switch when it changes
+		// (switching triggers a webserver config reload on the box).
+		var wizStartLang = (function () {
+			var s = document.getElementById('wizLang');
+			for (var i = 0; i < s.options.length; i++)
+				if (s.options[i].selected) return s.options[i].value;
+			return s.value;
+		})();
+
+		async function wizFinish(btn) {
+			btn.disabled = true;
+			var lang = document.getElementById('wizLang').value;
+			var page = document.getElementById('wizPage').value;
+			try {
+				await fetch('/api/v4/config?config=yweb&action=submit&startup=true&start_page=' +
+					encodeURIComponent(page));
+				if (lang && lang !== wizStartLang)
+					await fetch('/set-lang.yhtm?' + encodeURIComponent(lang), {cache: 'no-store'});
+				location.href = '/' + page;
+			} catch (e) {
+				btn.disabled = false;
+			}
+		}
+	</script>
+</body>
+</html>

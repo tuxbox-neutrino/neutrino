@@ -37,6 +37,8 @@ install_DATA = \
 	extensions.txt \
 	favicon.ico \
 	index.html \
+	index_legacy.html \
+	wizard.yhtm \
 	robots.txt \
 	Y_About_Image.yhtm \
 	Y_About_yWeb.yhtm \
