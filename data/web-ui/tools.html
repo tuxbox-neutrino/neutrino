@@ -134,6 +134,30 @@
 				<small>Video, Audio, Display</small>
 			</a>
 
+			<div class="yweb-tool-card" onclick="showBoxControl()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="14" y1="10" x2="18" y2="10"/><line x1="14" y1="14" x2="18" y2="14"/>
+				</svg>
+				<span>Boxcontrol</span>
+				<small>Neustart, Aufnahme, Tuner</small>
+			</div>
+
+			<div class="yweb-tool-card" onclick="showInstaller()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+				</svg>
+				<span>Installer</span>
+				<small>Paket hochladen & installieren</small>
+			</div>
+
+			<a href="/m3u-convert.html" class="yweb-tool-card">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
+				</svg>
+				<span>m3u-Konverter</span>
+				<small>Playlist zu WebTV-XML</small>
+			</a>
+
 			<div class="yweb-tool-card" onclick="sendStandby()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M18.36 6.64a9 9 0 11-12.73 0"/>
@@ -149,6 +173,99 @@
 	<script src="/Y_Baselib.js"></script>
 	<script src="/yweb-header.js?v=28"></script>
 	<script>
+		function ywebModal(id, title, bodyHtml) {
+			var m = document.getElementById(id);
+			if (m) { m.classList.add('open'); return m; }
+			m = document.createElement('div');
+			m.id = id;
+			m.className = 'yweb-epg-modal open';
+			m.innerHTML = '<div class="yweb-epg-modal-content" style="max-width:560px">' +
+				'<div class="yweb-epg-modal-header"><h3 class="yweb-epg-modal-title">' + title + '</h3>' +
+				'<button type="button" class="yweb-epg-modal-close" onclick="document.getElementById(\'' + id + '\').classList.remove(\'open\')">\u00d7</button></div>' +
+				'<div class="yweb-epg-modal-body">' + bodyHtml + '</div></div>';
+			m.onclick = function(e) { if (e.target === m) m.classList.remove('open'); };
+			document.body.appendChild(m);
+			return m;
+		}
+
+		async function bcAction(label, endpoint, params, confirmText) {
+			if (confirmText && !confirm(confirmText)) return;
+			try {
+				await ywebApi(endpoint, params);
+				ywebShowToast(label + ' ausgef\u00fchrt');
+			} catch (e) {
+				ywebShowToast('Fehler: ' + e.message, true);
+			}
+		}
+
+		async function bcExec(label, args) {
+			try {
+				var out = (await ywebApi('exec', args, {raw: true})).trim();
+				ywebShowToast(out || (label + ' ausgef\u00fchrt'));
+			} catch (e) {
+				ywebShowToast(label + ' nicht verf\u00fcgbar: ' + e.message, true);
+			}
+		}
+
+		async function showBoxControl() {
+			var body =
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">Box</div>' +
+				'<div class="yweb-form-row"><label>Neutrino-GUI neu starten</label><button type="button" class="yweb-btn" onclick="bcAction(\'Neustart GUI\', \'restart\', null, \'GUI wirklich neu starten?\')">Neustart GUI</button></div>' +
+				'<div class="yweb-form-row"><label>Box neu starten</label><button type="button" class="yweb-btn" onclick="bcAction(\'Reboot\', \'reboot\', null, \'Box wirklich neu starten?\')">Reboot</button></div>' +
+				'<div class="yweb-form-row"><label>Box ausschalten</label><button type="button" class="yweb-btn" onclick="bcAction(\'Shutdown\', \'shutdown\', null, \'Box wirklich ausschalten?\')">Ausschalten</button></div></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">Aufnahme <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
+				'<div class="yweb-form-row"><label>Sofortaufnahme</label><span>' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'Aufnahme-Start\', \'setmode\', {record: \'start\'})">Start</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'Aufnahme-Stop\', \'setmode\', {record: \'stop\'})">Stop</button></span></div></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">Fernbedienung</div>' +
+				'<div class="yweb-form-row"><label>RC an der Box</label><span>' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'RC sperren\', \'rc\', \'lock\')">Sperren</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'RC entsperren\', \'rc\', \'unlock\')">Entsperren</button></span></div></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">Zapit <small style="color:var(--pico-muted-color)">scriptabh\u00e4ngig</small></div>' +
+				'<div class="yweb-form-row"><label>Aufl\u00f6sung</label><span>' +
+				'<button type="button" class="yweb-btn" onclick="bcExec(\'1080\', \'Y_Tools&resolution&1080\')">1080</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcExec(\'720\', \'Y_Tools&resolution&720\')">720</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcExec(\'PAL\', \'Y_Tools&resolution&pal\')">PAL</button></span></div>' +
+				'<div class="yweb-form-row"><label>Kanallisten neu laden</label><button type="button" class="yweb-btn" onclick="bcAction(\'Reload\', \'reloadchannels\', null)">Neu laden</button></div>' +
+				'<div class="yweb-form-row"><label>Tuner-Reset</label><button type="button" class="yweb-btn" onclick="bcExec(\'Tuner-Reset\', \'Y_Tools&reset_tuner\')">Reset</button></div></div>';
+			ywebModal('bcModal', 'Boxcontrol', body);
+			try {
+				var st = await ywebApi('setmode', {status: ''});
+				var el = document.getElementById('bcRecState');
+				if (el) el.textContent = (st && st.recording) ? '\u2022 Aufnahme l\u00e4uft' : '\u2022 keine Aufnahme';
+			} catch (e) {}
+		}
+
+		function showInstaller() {
+			var body =
+				'<div class="yweb-form-row"><label>Paket (.tar/.ipk)</label><span>' +
+				'<input type="file" id="instFile" style="max-width:220px"> ' +
+				'<button type="button" class="yweb-btn" onclick="doInstall(this)">Installieren</button></span></div>' +
+				'<pre id="instOut" style="max-height:220px;overflow:auto;background:var(--pico-card-sectioning-background-color);padding:0.5rem;border-radius:4px">\u00a0</pre>';
+			ywebModal('instModal', 'Paket-Installer', body);
+		}
+
+		async function doInstall(btn) {
+			var inp = document.getElementById('instFile');
+			var out = document.getElementById('instOut');
+			if (!inp || !inp.files || !inp.files.length) { ywebShowToast('Keine Datei gew\u00e4hlt', true); return; }
+			btn.disabled = true;
+			out.textContent = 'Lade hoch\u2026';
+			try {
+				var f = inp.files[0];
+				var fd = new FormData();
+				fd.append('file', f);
+				var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
+				if (!up.ok) throw new Error('Upload fehlgeschlagen');
+				out.textContent = 'Installiere\u2026';
+				var res = (await ywebApi('exec', 'Y_Tools&installer&' + encodeURIComponent('/tmp/' + f.name), {raw: true})).trim();
+				out.textContent = res || 'installer ohne Ausgabe (Script vorhanden?)';
+			} catch (e) {
+				out.textContent = 'Fehler: ' + e.message;
+			}
+			btn.disabled = false;
+		}
+
 		async function sendStandby() {
 			try {
 				var st = await ywebApi('standby', {status: ''});
