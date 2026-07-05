@@ -264,7 +264,7 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/settings-registry.js?v=2"></script>
-	<script src="/yweb-header.js?v=28"></script>
+	<script src="/yweb-header.js?v=29"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -377,6 +377,7 @@
 		if (cat.custom && cat.id === 'xmltv') return renderXmltvPanel();
 		if (cat.custom && cat.id === 'zapitupload') return renderZapitUploadPanel();
 		if (cat.custom && cat.id === 'camds') return renderCamdsPanel();
+		if (cat.custom && cat.id === 'extensions') return renderExtensionsPanel();
 		if (cat.config && cat.config !== 'neutrino') return renderExtConfigPanel(cat);
 
 		var html = makeCardHeader(cat.label);
@@ -495,6 +496,58 @@
 		} catch (e) {
 			ywebShowToast('Restore fehlgeschlagen: ' + e.message, true);
 		}
+		btn.disabled = false;
+	}
+
+	// Erweiterungs-Verwaltung: entdeckte Manifeste mit Enable-Toggle und
+	// Slot-Override (persistiert in config=yweb, Loader in yweb-header.js)
+	function renderExtensionsPanel() {
+		setTimeout(loadExtensionsPanel, 0);
+		return '<div class="settings-card">' + makeCardHeader('Erweiterungen') +
+			'<div id="extPanel"><p aria-busy="true">Suche Erweiterungen…</p></div></div>';
+	}
+
+	async function loadExtensionsPanel() {
+		var el = document.getElementById('extPanel');
+		if (!el) return;
+		_ywebExtensions = null; // Discovery-Cache invalidieren
+		var exts = await ywebDiscoverExtensions();
+		if (!exts.length) {
+			el.innerHTML = '<div class="yweb-form-row"><label>Keine Erweiterungen gefunden ' +
+				'<small style="color:var(--pico-muted-color)">Verzeichnis: &lt;webroot&gt;/extensions/&lt;name&gt;/manifest.json — siehe README</small></label></div>';
+			return;
+		}
+		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Gefundene Erweiterungen</div>';
+		exts.forEach(function(m) {
+			html += '<div class="yweb-form-row"><label>' + escapeHtml(m.name) +
+				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') + ' — <a href="' + m.url + '">' + escapeHtml(m.entry) + '</a></small></label><span>' +
+				'<select id="extslot_' + m.dir + '" style="margin:0 0.4rem 0 0;padding:0.2rem;height:auto;width:auto">' +
+				['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
+					return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
+				}).join('') + '</select>' +
+				'<label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
+				'<span class="yweb-toggle-slider"></span></label></span></div>';
+		});
+		html += '</div><div class="yweb-form-row"><label></label>' +
+			'<button type="button" class="yweb-btn" onclick="saveExtensions(this)">Speichern</button></div>';
+		el.innerHTML = html;
+	}
+
+	async function saveExtensions(btn) {
+		var exts = await ywebDiscoverExtensions();
+		var params = 'action=submit';
+		exts.forEach(function(m) {
+			var ena = document.getElementById('extena_' + m.dir);
+			var slot = document.getElementById('extslot_' + m.dir);
+			params += '&ext_' + m.dir + '_enabled=' + (ena && ena.checked ? '1' : '0');
+			if (slot) params += '&ext_' + m.dir + '_slot=' + slot.value;
+		});
+		btn.disabled = true;
+		try {
+			await ywebApi('config', 'config=yweb&' + params);
+			ywebShowToast('Gespeichert — Seite neu laden zum Anwenden');
+			await loadExtensionsPanel();
+		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
 		btn.disabled = false;
 	}
 
