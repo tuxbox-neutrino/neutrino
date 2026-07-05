@@ -2,22 +2,22 @@
 {=var-set:fbshot={=find-exec:fbshot=}=}
 
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript" src="/prototype.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+{=include-block:Y_Blocks.txt;js_jquery=}
+{=include-block:Y_Blocks.txt;js_jquery_ui=}
+<script src="/Y_Baselib.js"></script>
+<script>
 var enableOSD;
 var enableVideo;
 var enablePiP;
 var interval;
 
 function checkEnable() {
-	enableOSD	= (document.getElementById('checkOSD').checked == true)		? 1 : 0;
-	enableVideo	= (document.getElementById('checkVideo').checked == true)	? 1 : 0;
+	enableOSD	= (id('checkOSD').checked == true)	? 1 : 0;
+	enableVideo	= (id('checkVideo').checked == true)	? 1 : 0;
 	{=if-empty:{=var-get:grab=}~
 	enablePiP	= 0;
 	~
-	enablePiP	= (document.getElementById('checkPiP').checked == true)		? 1 : 0;
+	enablePiP	= (id('checkPiP').checked == true)	? 1 : 0;
 	=}
 
 	if (enableOSD == 0 && enableVideo == 0) {
@@ -30,29 +30,31 @@ function checkEnable() {
 	}
 	return true;
 }
+
 function rcsim(_key) {
-	if(!checkEnable()) return;
+	if (!checkEnable()) return;
 
 	if(_key == "KEY_POWER"){
 		var __result = trim(loadSyncURL("/control/standby"));
 		if (__result == "off")	{
-			if(confirm("{=L:bc.control.shutdown.ask=}") != true)
+			if (confirm("{=L:bc.control.shutdown.ask=}") != true)
 			return;
 		}
 	}
 	loadSyncURL("/control/rcem?" + _key);
 	window.setTimeout("do_snapshot()", 750);
 }
-function do_snapshot() {
-	if(!checkEnable()) return;
 
-	$('shot').hide();
-	$('shot').src = "";
-	$('buttons').hide();
-	$('status').show();
+function do_snapshot() {
+	if (!checkEnable()) return;
+
+	jQuery('#shot').hide();
+	jQuery('#shot').attr("src", "");
+	jQuery('#buttons').hide();
+	jQuery('#status').show();
 
 	var filename = "screenshot";
-	if (id("filename").value != "") {
+	if (id('filename').value != "") {
 		filename = id("filename").value;
 	}
 
@@ -76,50 +78,49 @@ function do_snapshot() {
 
 	do_showshot(filename);	
 }
+
 function do_showshot(_filename) {
 	if (_filename == "")
 		_filename = "screenshot";
 
-	$('status').hide();
-	$('buttons').show();
-	$('shot').src = "/tmp/"+_filename+".png?"+Math.random();
-	$('shot').show();
+	jQuery('#status').hide();
+	jQuery('#buttons').show();
+	jQuery('#shot').attr("src", "/tmp/"+_filename+".png?" + Math.random());
+	jQuery('#shot').show();
 }
-function do_clearshot(){
-	$('shot').hide();
-	$('shot').src = "";
+
+function do_clearshot() {
+	jQuery('#shot').hide();
+	jQuery('#shot').attr("src", "");
 
 	loadSyncURL("/control/exec?Y_Tools&screenshot_clear");
 }
-function do_switchrc(){
-	if (id('remote').style.display == 'none')
-		$('remote').show();
-	else
-		$('remote').hide();
 
-	do_switchrc_txt();
+function do_switchrc() {
+	jQuery('#remote').toggle('slide', {direction: 'left'}, 'slow', function() {
+		do_switchrc_txt();
+	});
 }
 
 function do_switchrc_txt(){
 	if (id('remote').style.display == 'none')
-		$('switchrc').update("{=L:bc.control.remote=} {=L:show=}");
+		jQuery('#switchrc').text("{=L:bc.control.remote=} {=L:show=}");
 	else
-		$('switchrc').update("{=L:bc.control.remote=} {=L:hide=}");
+		jQuery('#switchrc').text("{=L:bc.control.remote=} {=L:hide=}");
 }
 
 function do_reload(){
-	if (document.getElementById("checkReload").checked)
-		interval = setInterval(do_snapshot, document.getElementById("inputReload").value + "000");
+	if (id('checkReload').checked)
+		interval = setInterval(do_snapshot, id('inputReload').value + "000");
 	else
 		clearInterval(interval);
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="do_switchrc_txt(); do_snapshot();">
 <div class="work_box" id="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url==}{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="screenshot_header">
 		<div id="buttons" style="display: block">
@@ -140,13 +141,13 @@ function do_reload(){
 			</div>
 			<div class="clear"></div>
 			<div class="right">
-				Reload: <input type="number" value="15" id="inputReload" min="1" max="180" title="{=L:bc.screenshot.reload_desc=}" disabled /> <input id="checkReload" name="checkReload" type="checkbox" />
+				Reload: <input type="number" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;screenshot_timeout;15=}" id="inputReload" min="1" max="180" title="{=L:bc.screenshot.reload_desc=}" disabled /> <input id="checkReload" name="checkReload" type="checkbox" />
 			</div>
 			<div class="clear"></div>
 		</div>
 		<div id="status" style="display: none">
-				<img src="/images/wait.gif" alt="{=L:bc.screenshot.wait_text=}"/>
-				{=L:bc.screenshot.wait_text=}
+			<img src="/images/wait.gif" alt="{=L:bc.screenshot.wait_text=}"/>
+			{=L:bc.screenshot.wait_text=}
 		</div>
 		</div>
 		<table cellpadding="0" class="screenshot">
@@ -162,13 +163,13 @@ function do_reload(){
 	</div>
 </div>
 <script>
-document.getElementById('checkReload').onclick = function() {
+id('checkReload').onclick = function() {
 	if (this.checked ) {
-		interval = setInterval(do_snapshot, document.getElementById("inputReload").value + "000");
-		document.getElementById("inputReload").disabled = false;
+		interval = setInterval(do_snapshot, id("inputReload").value + "000");
+		id("inputReload").disabled = false;
 	} else {
 		clearInterval(interval);
-		document.getElementById("inputReload").disabled = true;
+		id("inputReload").disabled = true;
 	}
 };
 </script>

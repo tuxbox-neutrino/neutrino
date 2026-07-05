@@ -68,8 +68,6 @@ function show_epg_item(_index){
 	$("d_channel_id").update(epg_data[_index][6]);
 	var logo =epg_data[_index][7];
 	$('d_logo').update( (logo!="")?"<img class=\"channel_logos\" src=\""+logo+"\">":"" );
-	//var imdb_link = '<a target="_blank" class="exlink" href="http://german.imdb.com/find?s=all&q='+(epg_data[_index][0]).gsub(" ","+")+'">IMDb</a>';
-	//$('d_lookup').update(imdb_link);
 
 	var off=$('epg_plus').cumulativeScrollOffset();
 	//alert(off.inspect());
@@ -270,7 +268,7 @@ function build_time_list(_delta){
 /*init call*/
 function epg_plus_init(_display_logos){
 	g_display_logos = _display_logos;
-	window.onresize=epg_plus_calc_dimensions;
+	window.onresize = epg_plus_calc_dimensions();
 	build_time_list(0);
 }
 

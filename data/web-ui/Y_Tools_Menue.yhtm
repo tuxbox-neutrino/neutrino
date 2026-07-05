@@ -1,19 +1,19 @@
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/prototype.js"></script>
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript" src="/Y_yweb.js"></script>
-<script type="text/javascript">
+{=include-block:Y_Blocks.txt;js_prototype=}
+<script src="/Y_Baselib.js"></script>
+<script src="/Y_yWeb.js"></script>
+<script>
 function cmd_popup(){
 	window.open('Y_Tools_Cmd.yhtm','cmd','width=720,height=470,resizable=yes');
 }
 function init(){
-	add_yExtensions('tools', 'secmenu_tools');
-	add_yExtensions('expert', 'secmenu_expert');
-	add_yExtensions('yweb', 'secmenu_yweb');
+	add_yExtensions('tools_general', 'secmenu_tools_general');
+	add_yExtensions('tools_expert', 'secmenu_tools_expert');
+	add_yExtensions('tools_yweb', 'secmenu_tools_yweb');
 }
 </script>
-</head>
-{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~1~=}=}
+{=include-block:Y_Blocks.txt;head_close=}
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip2=}~1~=}=}
 {=var-set:automount={=find-exec:automount=}=}
 {=var-set:ether-wake={=find-exec:ether-wake=}=}
 <body onload="init()">
@@ -22,7 +22,8 @@ function init(){
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec_section">{=L:main.tools=}</div>
 		<div class="y_menu_sec">
-			<ul id="secmenu_tools">
+			<ul id="secmenu_tools_general">
+				{=comment:disable automounter~
 				<li>
 					{=if-empty:{=var-get:automount=}~
 					<a href="javascript:void(0)" class="disabled" title="{=L:tools.not_installed=}">{=L:tools.automount=}</a>
@@ -33,12 +34,32 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 					=}
 				</li>
+				=}
 				<li>
 					{=var-set:m_link_href=Y_Settings_mount_list.yhtm=}
 					{=var-set:m_link_desc={=L:tools.mounts_desc=}=}
 					{=var-set:m_link_text={=L:tools.mounts=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
+				<li>
+					{=var-set:m_desc={=L:tools.netfs=}=}
+					{=var-set:m_text={=L:tools.netfs=}=}
+					{=include-block:Y_Blocks.txt;management_text=}
+				</li>
+				<ul>
+					<li>
+						{=var-set:m_link_href=Y_Tools_NetFS_init.yhtm?mount_type=0&mount_type_s=fstab=}
+						{=var-set:m_link_desc=fstab-{=L:tools.mounts=}=}
+						{=var-set:m_link_text=/var/etc/fstab=}
+						{=include-block:Y_Blocks.txt;management_link=}
+					</li>
+					<li>
+						{=var-set:m_link_href=Y_Tools_NetFS_init.yhtm?mount_type=1&mount_type_s=automount=}
+						{=var-set:m_link_desc={=L:tools.automount=}=}
+						{=var-set:m_link_text=/var/etc/auto.net=}
+						{=include-block:Y_Blocks.txt;management_link=}
+					</li>
+				</ul>
 				<li>
 					{=var-set:m_link_href=Y_Filemgr.yhtm=}
 					{=var-set:m_link_desc={=L:tools.filemgr_desc=}=}
@@ -55,11 +76,17 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 					=}
 				</li>
+				<li>
+					{=var-set:m_link_href=Y_Tools_m3uConvert.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text=m3uConvert=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">{=L:tools.expert=}</div>
 		<div class="y_menu_sec">
-			<ul id="secmenu_expert">
+			<ul id="secmenu_tools_expert">
 				<li>
 					<a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">{=L:main.info=}</a>
 				</li>
@@ -68,22 +95,24 @@ function init(){
 					{=var-set:m_link_desc==}
 					{=var-set:m_link_text={=L:tools.command_shell=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
-					<a class="y_menu_popup_link" title="{=L:tools.command_shell=} (popup)" href="javascript:cmd_popup()"><img src="/images/popup.png"/></a>
+					<a title="{=L:tools.command_shell=} (popup)" href="javascript:cmd_popup()" class="y_menu_popup_link" ><img src="/images/popup.png"/></a>
 				</li>
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">yWeb</div>
 		<div class="y_menu_sec">
-			<ul id="secmenu_yweb">
+			<ul id="secmenu_tools_yweb">
 				<li>
 					<a target="work" href="Y_Tools_Check_Install.yhtm">{=L:tools.check_install=}</a>
 				</li>
+				{=comment:disable yInstaller~
 				<li>
 					{=var-set:m_link_href=Y_Tools_Installer.yhtm=}
 					{=var-set:m_link_desc==}
 					{=var-set:m_link_text=yInstaller=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
+				=}
 			</ul>
 		</div>
 	</div>

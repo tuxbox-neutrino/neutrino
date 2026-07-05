@@ -1,0 +1,3 @@
+start-block~edit_save_settings
+{=file-action:{=file=};add;{=editfile=}=}
+end-block~edit_save_settings

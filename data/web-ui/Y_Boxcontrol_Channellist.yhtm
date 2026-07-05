@@ -1,8 +1,7 @@
 {=include-block:Y_Blocks.txt;head_no_charset=}
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="/Y_Baselib.js"></script>
+<script>
 function do_zap(channelid) {
 	stb_zapto(channelid);
 	window.location.reload();
@@ -20,11 +19,15 @@ function do_stream(channelid, channelname)
 	saveTextAsFile(plist, title, type);
 }
 function do_streaminfo() {
-	window.open("Y_StreamInfo.yhtm", "stream", "width=400");
+	window.open("Y_StreamInfo.yhtm", "stream", "width=520");
 }
-//]]>
 </script>
-</head>
+<style>
+.work_box_body {
+	padding-right: 0;
+}
+</style>
+{=include-block:Y_Blocks.txt;head_close=}
 <body class="iframe">
 <table class="bouquetitemlist">
 {=func:get_bouquets_with_epg {=bouquet=}=}

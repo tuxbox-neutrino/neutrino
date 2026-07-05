@@ -1,21 +1,20 @@
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript" src="/prototype.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+{=include-block:Y_Blocks.txt;js_jquery=}
+<script src="/Y_Baselib.js"></script>
+<script>
 function do_start(){
-	$('statusline').show();
+	jQuery('#statusline').show();
 	do_check();
 }
 function do_stop(){
-	$('statusline').hide();
+	jQuery('#statusline').hide();
 }
 /*sLog*/
 var sLog_body;
 var sLog_line_number;
 function sLog_init(){
 	sLog_line_number = 0;
-	sLog_body=document.getElementById("slog_list");
+	sLog_body=id("slog_list");
 }
 function sLog_clear(){
 	while(sLog_body.childNodes.length > 0)	{
@@ -39,9 +38,6 @@ function sLog_addRow(_body, state, action_text, state_text){
 	y_add_text_cell_to_row(mycurrent_row, "state_text", state_text);
 }
 /*check*/
-function wiki_url(_page){
-	return "<a href=\"https://wiki.tuxbox-neutrino.org/wiki/"+_page+"\" target='_blank'><b>[Help]<\/b><\/a>"
-}
 function do_check(){
 	sLog_init();
 	sLog_clear();
@@ -62,18 +58,16 @@ function do_check(){
 	=}
 	{=if-equal:{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=}~80~~
 		sLog_addRow(sLog_body, "yellow",
-		"WebServer: not set to Standard-Port. Actual: {=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=} "+wiki_url("Neutrino:yWeb:Settings#WebServer"), "notice");
+		"WebServer: not set to Standard-Port. Actual: {=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80=}", "notice");
 	=}
 	/*settings*/
-	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=}~~
+	{=if-empty:{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip=}~~
 		sLog_addRow(sLog_body, "yellow",
-		"Settings: Management IP(1) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}. "
-		+wiki_url("Neutrino:yWeb:Settings#yWeb"), "notice");
+		"Settings: Management IP(1) is set to {=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}.", "notice");
 	=}
-	{=if-empty:{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~~
+	{=if-empty:{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip2=}~~
 		sLog_addRow(sLog_body, "yellow",
-		"Settings: Management IP(2) is set to {=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}. "
-		+wiki_url("Neutrino:yWeb:Settings#yWeb"), "notice");
+		"Settings: Management IP(2) is set to {=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}.", "notice");
 	=}
 
 	/*programs*/
@@ -105,14 +99,12 @@ function do_check(){
 
 	do_stop();
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body>
 <div class="work_box">
-	<div class="work_box_head">
-		<div class="work_box_head_h2">
-		{=var-set:help_url=Help-Tools-Check_Install=}{=var-set:menu={=L:tools.check_install=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:menu={=L:tools.check_install=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<br />
 		<div id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
@@ -132,10 +124,8 @@ function do_check(){
 		</form>
 	</div>
 </div>
-<script type="text/javascript">
-//<![CDATA[
+<script>
 	window.setTimeout("do_start();",500);
-//]]>
 </script>
 </body>
 </html>

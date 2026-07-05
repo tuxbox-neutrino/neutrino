@@ -1,24 +1,25 @@
-{=var-set:cancache=yPConf=}
+{=var-set:cancache=yPSettings=}
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/prototype.js"></script>
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript" src="/Y_yweb.js"></script>
-<script type="text/javascript">
+{=include-block:Y_Blocks.txt;js_prototype=}
+<script src="/Y_Baselib.js"></script>
+<script src="/Y_yWeb.js"></script>
+<script>
 function init(){
-	add_yExtensions('settings_general', 'secmenu_general');
-	add_yExtensions('settings_neutrino', 'secmenu_neutrino');
-	add_yExtensions('settings_plugins', 'secmenu_plugins');
+	add_yExtensions('settings_general', 'secmenu_settings_general');
+	add_yExtensions('settings_neutrino', 'secmenu_settings_neutrino');
+	add_yExtensions('settings_camds', 'secmenu_settings_camds');
+	add_yExtensions('settings_plugins', 'secmenu_settings_plugins');
 }
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="init()">
-{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~1~=}=}
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip2=}~1~=}=}
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>{=L:main.settings=}</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec_section">{=L:general=}</div>
 		<div class="y_menu_sec">
-			<ul id="secmenu_general">
+			<ul id="secmenu_settings_general">
 				<li>
 					{=var-set:m_link_href=Y_Settings_yWeb.yhtm=}
 					{=var-set:m_link_text=yWeb=}
@@ -43,7 +44,7 @@ function init(){
 		</div>
 		<div class="y_menu_sec_section">{=L:neutrino=}</div>
 		<div class="y_menu_sec">
-			<ul id="secmenu_neutrino">
+			<ul id="secmenu_settings_neutrino">
 				<li>
 					{=var-set:m_link_href=Y_Boxcontrol_Bouquet_Editor_Main.yhtm=}
 					{=var-set:m_link_text={=L:set.menue.bouquet_editor=}=}
@@ -79,6 +80,16 @@ function init(){
 					{=var-set:m_link_text={=L:set.menue.pictureviewer=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_xmltv.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.xmltv=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_Infoicons.yhtm=}
+					{=var-set:m_link_text={=L:set.infoicons=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 				{=if-equal:{=ini-get:%(CONFIGDIR)/neutrino.conf;glcd_enable;0=}~1~
 				<li>
 					{=var-set:m_link_href=Y_Settings_glcd.yhtm=}
@@ -103,11 +114,6 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>
-					{=var-set:m_link_href=Y_Settings_xmltv.yhtm=}
-					{=var-set:m_link_text={=L:set.menue.xmltv=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				<li>
 					{=var-set:m_link_href=Y_Settings_buttons.yhtm=}
 					{=var-set:m_link_text={=L:set.menue.key_settings=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
@@ -125,10 +131,28 @@ function init(){
 				-->
 			</ul>
 		</div>
+		<div class="y_menu_sec_section">{=L:set.camds=}</div>
+		<div class="y_menu_sec">
+			<ul id="secmenu_settings_camds">
+				<li>
+					{=var-set:m_link_href=Y_Settings_Camds.yhtm=}
+					{=var-set:m_link_text={=L:set.camds=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+			</ul>
+		</div>
 		<div class="y_menu_sec_section">{=L:plugins=}</div>
 		<div class="y_menu_sec">
-			<ul id="secmenu_plugins">
+			<ul id="secmenu_settings_plugins">
 				<li>
+					{=var-set:m_link_href=Y_Settings_Plugins.yhtm=}
+					{=var-set:m_link_text={=L:set.plugins=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_Plugins_hide.yhtm=}
+					{=var-set:m_link_text={=L:set.plugins_hide=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 			</ul>
 		</div>

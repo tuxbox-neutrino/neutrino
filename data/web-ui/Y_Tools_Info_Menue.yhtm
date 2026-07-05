@@ -1,18 +1,10 @@
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
-function goUrl(_url){
-	var res = loadSyncURL(_url);
-	id("out").innerHTML = res;
-}
-//]]>
-</script>
-</head>
+<script src="/Y_Baselib.js"></script>
+{=include-block:Y_Blocks.txt;head_close=}
 <body>
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-Info=}{=var-set:menu=Info=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		<div class="work_box_head_h2">{=var-set:menu=Info=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form action="">
 		<table  class="y_invisible_table" cellpadding="5" width="100%">

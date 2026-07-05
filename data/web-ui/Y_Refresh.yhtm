@@ -1,13 +1,11 @@
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript">
-//<![CDATA[
+<script>
 function do_onload()
 {
 	top.location.href="/";
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="do_onload()">
 refreshing...
 </body>

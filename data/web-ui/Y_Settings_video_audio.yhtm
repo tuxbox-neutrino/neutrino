@@ -1,13 +1,12 @@
 {=include-block:Y_Blocks.txt;management_check_top=}
 {=include-block:Y_Blocks.txt;head=}
 
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="/Y_Baselib.js"></script>
+<script>
 function do_init()
 {
 	var val = "";
-//video
+	//video
 	val = "{=ini-get:%(CONFIGDIR)/controld.conf;videooutput;1~open=}";
 		document.f.videooutput.selectedIndex = val;
 	obj_set_radio_value('vcroutput', "{=ini-get:%(CONFIGDIR)/controld.conf;vcroutput;0~cache=}");
@@ -25,7 +24,7 @@ function do_init()
 	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;video_csync;0~cache=}"
 		document.f.video_csync.value = val;
 	obj_set_radio_value('vcr_AutoSwitch', "{=ini-get:%(CONFIGDIR)/neutrino.conf;vcr_AutoSwitch;true~cache=}");
-//audio
+	//audio
 	val = "{=ini-get:%(CONFIGDIR)/neutrino.conf;audio_AnalogMode;0~cache=}";
 		document.f.audio_AnalogMode.selectedIndex = val;
 	obj_set_radio_value('audiochannel_up_down_enable', "{=ini-get:%(CONFIGDIR)/neutrino.conf;audiochannel_up_down_enable;false~cache=}");
@@ -53,14 +52,13 @@ function do_submit()
 		document.f.submit();
 	}
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="do_init()">
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Video-Audio=}{=var-set:menu=Video und Audio Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=Video und Audio Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -171,9 +169,9 @@ function do_submit()
 		</table>
 		<br/>
 		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;video_audio_save_settings;nix"/>
-		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>&nbsp;
-		<button type="button" ytype="refresh" onclick="stb_reload_neutrino()">reload Neutrino</button>&nbsp;
-		<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(* diese Einstellungen sind nur lesbar)
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
+		&nbsp;
+		<button type="button" ytype="refresh" onclick="stb_reload_neutrino()">reload Neutrino</button>
 	</form>
 	</div>
 </div>

@@ -1,16 +1,15 @@
-{=var-set:cancache=yPConf=}
+{=var-set:cancache=yPInfo=}
 {=include-block:Y_Blocks.txt;head=}
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Info-Hilfe=}{=var-set:menu={=L:info.help=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:info.help=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<ul>
 		<li><a href="https://wiki.tuxbox-neutrino.org/wiki/Tuxbox-Neutrino" class="exlink" title="User guide for Neutrino" target="_blank">Tuxbox-Wiki Neutrino Help</a></li>
 		<li><a href="https://wiki.tuxbox-neutrino.org/wiki/Neutrino:yWeb" class="exlink" title="yWeb Help from Tuxbox Wiki" target="_blank">Tuxbox-Wiki yWeb Help</a></li>
-		<li><a href="https://forum.tuxbox-neutrino.org/forum/" class="exlink" title="Tuxbox Dicussion Forum" target="_blank">Tuxbox Forum</a></li>
-		<li><a href="http://tuxbox-neutrino.org" class="exlink" title="Tuxbox-Neutrino developers" target="_blank">Sources</a></li>
+		<li><a href="https://github.com/tuxbox-neutrino" class="exlink" title="Tuxbox-Neutrino Sources" target="_blank">Tuxbox-Neutrino Sources</a></li>
 	</ul>
 	</div>
 </div>

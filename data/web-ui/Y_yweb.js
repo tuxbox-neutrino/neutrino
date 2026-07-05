@@ -58,14 +58,14 @@ Object.extend(Y.yweb.prototype, {
 /* main instance */
 if (window == top.top_main.prim_menu) {
 	var yweb = new Y.yweb();
-	yweb.require_prototype("1.6");
+	yweb.require_prototype("1.7.3");
 }
 else 
 	if(top.top_main.prim_menu && top.top_main.prim_menu.yweb)
 		var yweb = top.top_main.prim_menu.yweb;
 	else { // should not happen!
 		var yweb = new Y.yweb();
-		yweb.require_prototype("1.6");
+		yweb.require_prototype("1.7.3");
 	}
 	
 /* n/m= type, menuitem, desc, file, tag, version, url, yweb_version, info_url
@@ -76,7 +76,7 @@ else
 /* Class Y.extension */
 Y.extension = new Class.create();
 Object.extend(Y.extension.prototype, {
-	ext_version: 1, /* ver of Y.extention*/
+	ext_version: 1, /* ver of Y.extension*/
 	conf_version: 2,/* ver of local conf file */
 	upd_version: 2, /* ver of upd file */
 	file: "",

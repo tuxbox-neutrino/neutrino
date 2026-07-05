@@ -281,7 +281,7 @@ function obj_enable(_obj_name, _disable)
 function show_obj(_obj_name, _show)
 {
 	var __obj = document.getElementById(_obj_name);
-	__obj.style.visibility= (_show) ? "visible" : "hidden";
+	__obj.style.visibility = (_show) ? "visible" : "hidden";
 }
 
 function display_obj(_obj_name, _display)
@@ -527,4 +527,41 @@ function saveTextAsFile(content, filename, filetype)
 		document.body.appendChild(downloadLink);
 	}
 	downloadLink.click();
+}
+
+function goUrl(_url)
+{
+	var res = trim(loadSyncURL(_url));
+	switch(res)
+	{
+		case "1": res = "on"; break;
+		case "0": res = "off"; break;
+	}
+	var out = document.getElementById("out");
+	if (out)
+		out.innerHTML = res;
+}
+
+function goPort(_port)
+{
+	if (_port == "")
+		return;
+	var host = self.location.href;
+	var pos1 = host.indexOf('//');
+	var temp = host.substring(pos1 + 2, host.length);
+	var pos2 = temp.indexOf('/');
+	var host = host.substring(0, pos1 + 2 + pos2);
+	window.open(host + ":" + _port, "_blank");
+}
+
+function Y_Tools(_cmd, _tout){
+	var out = document.getElementById("out");
+	if (out)
+		out.innerHTML = "";
+	show_waitbox(true);
+	goUrl("/control/exec?Y_Tools&" + _cmd);
+	if (typeof(_tout) == "undefined")
+		show_waitbox(false);
+	else
+		window.setTimeout("document.location.reload()", _tout);
 }

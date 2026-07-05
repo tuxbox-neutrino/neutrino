@@ -1,45 +1,34 @@
-{=var-set:cancache=yPyes=}
+{=var-set:cancache=yPDefault=}
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript" src="/prototype.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+{=include-block:Y_Blocks.txt;js_jquery=}
+<script src="/Y_Baselib.js"></script>
+<script>
 function goConfirmUrl(_meld, _url){
 	if (confirm(_meld)==true) goUrl(_url);
 }
-function goUrl(_url){
-	var res = trim(loadSyncURL(_url));
-	switch(res){
-		case "1": res="on"; break;
-		case "0": res="off"; break;
-	}
-	$("out").update(res);
-}
 function set_btn_standby(){
 	var res = trim(loadSyncURL("/control/standby"));
-	var color = "red";
+	var color = "gray";
 	switch(res){
 		case "off": color = "green"; break;
+		case "on":  color = "red";   break;
 	}
-	$("btn_standby").setStyle({borderColor: color});
+	id('btn_standby').style.borderColor = color;
 }
 function standby(_standby){
-	var _cec = (document.getElementById('checkCEC').checked == true) ? "on" : "off";
+	var _cec = (id('checkCEC').checked == true) ? "on" : "off";
 	goUrl("/control/standby?"+_standby+"&cec="+_cec);
 }
 function init() {
 	set_btn_standby();
+	window.setInterval("set_btn_standby();", 5000);
 }
-function get_data() {
-	set_btn_standby();
-}
-//]]>
 </script>
-</head>
-<body>
+{=include-block:Y_Blocks.txt;head_close=}
+<body onload="init()">
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Control=}{=var-set:menu={=L:bc.menue.control=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bc.menue.control=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form action="">
 		<table class="y_invisible_table" cellpadding="5" width="100%">
@@ -108,15 +97,13 @@ function get_data() {
 </div>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Control=}{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:answer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="out"></div>
 	</div>
 </div>
-<script type="text/javascript">
-//<![CDATA[
+<script>
 	init();
 	window.setInterval("get_data();",5000);
-//]]>
 </body>
 </html>

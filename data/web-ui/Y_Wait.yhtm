@@ -1,6 +1,6 @@
-{=var-set:cancache=yPyes=}
+{=var-set:cancache=yPDefault=}
 {=include-block:Y_Blocks.txt;head=}
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body>
 <br/>
 <table class="y_wait_box_visible" cellpadding="8">

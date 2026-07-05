@@ -1,17 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>yWeb</title>
-<script type="text/javascript">
-//<![CDATA[
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("GET", "/etc/hostname", false);
-	xmlhttp.send();
-	if (xmlhttp.status == 200)
-		document.title = xmlhttp.responseText;
-//]]>
+<script src="/jquery/jquery.min.js"></script>
+<script>
+jQuery.get("/etc/hostname", function(data) {
+	jQuery('html head').find('title').text(data);
+});
 </script>
 </head>
 <frameset cols="*,1300,*" frameborder="0" framespacing="0">

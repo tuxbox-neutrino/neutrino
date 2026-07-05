@@ -1,9 +1,8 @@
 {=include-block:Y_Blocks.txt;rc_variables=}
 {=include-block:Y_Blocks.txt;management_check_top=}
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="/Y_Baselib.js"></script>
+<script>
 function do_submit(){
 	show_waitbox(true);
 	do_reload = false;
@@ -27,7 +26,7 @@ function do_submit(){
 	}
 }
 function do_init(){
-	var val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;0~open=}";
+	var val = "{=ini-get:%(CONFIGDIR)/yWeb.conf;fb;0~open=}";
 	var cst = (loadSyncURL("/control/info?hwinfo").indexOf("CST") > -1);
 	var fb_options = document.f.fb.getElementsByTagName("option");
 	for (var i = 0; i < fb_options.length; i++)
@@ -43,8 +42,8 @@ function do_init(){
 				fb_options[i].disabled = true;
 		}
 	}
-	obj_set_radio_value('screenshot_rc', "{=ini-get:%(CONFIGDIR)/Y-Web.conf;screenshot_rc;false~cache=}");
-	val = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;start_page;bouquets~cache=}";
+	obj_set_radio_value('screenshot_rc', "{=ini-get:%(CONFIGDIR)/yWeb.conf;screenshot_rc;false~cache=}");
+	val = "{=ini-get:%(CONFIGDIR)/yWeb.conf;start_page;bouquets~cache=}";
 	var sel=4;
 	switch(val){
 		case "bouquets": sel=0; break;
@@ -53,16 +52,14 @@ function do_init(){
 		case "screenshot": sel=3; break;
 	}
 	document.f.start_page.selectedIndex = sel;
-	style_old = "{=ini-get:%(CONFIGDIR)/Y-Web.conf;style~cache=}";
-
-	if ("{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}" == "${HOSTNAME}") {
+	style_old = "{=ini-get:%(CONFIGDIR)/yWeb.conf;style~cache=}";
+	if ("{=ini-get:%(CONFIGDIR)/yWeb.conf;yweb_box_name=}" == "${HOSTNAME}") {
 		document.f.hostname.checked = true;
 		document.f.yweb_box_name.value = "${HOSTNAME}";
 		document.f.yweb_box_name.readOnly = true;
 		document.f.yweb_box_name.style.color='#aaaaaa'
 	}
 }
-//NI
 function do_switch_hostname()
 {
 	if(document.f.hostname.checked == true)
@@ -79,69 +76,81 @@ function do_switch_hostname()
 		document.f.yweb_box_name.focus();
 	}
 }
-//]]>
 </script>
-<style type="text/css">
+<style>
 input[type="text"],
 select {
 	width: 220px;
 }
 </style>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="do_init()">
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-yWeb=}{=var-set:menu=yWeb=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=yWeb=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" class="y_form_table">
 			<tr><td class="y_form_header" colspan="4">{=L:set.yweb.management_IPs=}</td></tr>
 			<tr>
 				<td>IP 1</td>
-				<td colspan="3"><input type="text" name="managementIP" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
+				<td colspan="3"><input type="text" name="managementIP" size="15" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>IP 2</td>
-				<td colspan="3"><input type="text" name="managementIP2" size="15" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
+				<td colspan="3"><input type="text" name="managementIP2" size="15" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip2=}" title="{=L:set.yweb.enter_ip_desc=}"/></td>
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:set.yweb.wake_on_lan=}</td></tr>
 			<tr>
 				<td>MAC 1</td>
-				<td><input type="text" name="wol_mac_1" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_1=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
+				<td><input type="text" name="wol_mac_1" size="17" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;wol_mac_1=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
 				<td>{=L:set.yweb.description=}</td>
-				<td><input type="text" name="wol_desc_1" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_1=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
+				<td><input type="text" name="wol_desc_1" size="17" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;wol_desc_1=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>MAC 2</td>
-				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_2=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
+				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;wol_mac_2=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
 				<td>{=L:set.yweb.description=}</td>
-				<td><input type="text" name="wol_desc_2" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_2=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
+				<td><input type="text" name="wol_desc_2" size="17" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;wol_desc_2=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>MAC 3</td>
-				<td><input type="text" name="wol_mac_3" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_mac_3=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
+				<td><input type="text" name="wol_mac_3" size="17" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;wol_mac_3=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
 				<td>{=L:set.yweb.description=}</td>
-				<td><input type="text" name="wol_desc_3" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;wol_desc_3=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
+				<td><input type="text" name="wol_desc_3" size="17" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;wol_desc_3=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:set.yweb.box_tag=}</td></tr>
 			<tr>
 				<td>{=L:set.yweb.box_tag=}</td>
-				<td colspan="3"><input type="text" name="yweb_box_name" size="17" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_name=}"
+				<td colspan="3"><input type="text" name="yweb_box_name" size="17" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;yweb_box_name=}"
 					title="{=L:set.yweb.box_tag_desc=}"/>
-					<!-- //NI -->
 					<input type="checkbox" name="hostname" value="Hostname" onclick="do_switch_hostname()"/> Hostname
 				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.yweb.box_color=}</td>
-				<td colspan="3"><input type="text" name="yweb_box_color" size="8" value="{=ini-get:%(CONFIGDIR)/Y-Web.conf;yweb_box_color=}"
+				<td colspan="3"><input type="text" name="yweb_box_color" size="8" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;yweb_box_color=}"
 					title="{=L:set.yweb.box_color_desc=}"/></td>
+			</tr>
+			<tr><td class="y_form_header" colspan="4">{=L:bc.menue.screenshot=}</td></tr>
+			<tr>
+				<td>{=L:set.yweb.screenshot_rc=}</td>
+				<td colspan="3">
+					<input type="radio" name="screenshot_rc" value="false" />{=L:off=}&nbsp;
+					<input type="radio" name="screenshot_rc" value="true" />{=L:on=}
+				</td>
+			</tr>
+			<tr>
+				<td>{=L:set.yweb.screenshot_timeout=}</td>
+				<td colspan="3">
+					<input type="number" name="screenshot_timeout" size="3" min="0" max="180" value="{=ini-get:%(CONFIGDIR)/yWeb.conf;screenshot_timeout;15=}" title="{=L:set.yweb.screenshot_timeout=}"/>
+				</td>
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:others=}</td></tr>
 			<tr>
 				<td>{=L:set.yweb.remote=}</td>
-				<td>
+				<td colspan="3">
 					<select name="fb" title="{=L:remote=}">
 						<option value="{=var-get:_rc_dbox_philips=}">d-Box Philips</option>
 						<option value="{=var-get:_rc_dbox_nokia_old=}">d-Box Nokia (alt)</option>
@@ -158,6 +167,7 @@ select {
 						<option value="{=var-get:_rc_ax_hd60=}">AX HD60</option>
 						<option value="{=var-get:_rc_ax_hd61=}">AX HD61</option>
 						<option value="{=var-get:_rc_axas_e4hd=}">E4HD 4K Ultra</option>
+						<option value="{=var-get:_rc_protek_4k_uhd=}">Protek 4K UHD</option>
 						<option value="{=var-get:_rc_mutant_hd51=}">Mutant HD51</option>
 						<option value="{=var-get:_rc_mutant_hd60=}">Mutant HD60</option>
 						<option value="{=var-get:_rc_maxytec_multibox=}">Mayxtec Multibox 4K</option>
@@ -174,11 +184,6 @@ select {
 						<option value="{=var-get:_rc_vuplus_duo=}">VU+ Duo</option>
 					</select>
 				</td>
-				<td>{=L:set.yweb.screenshot_rc=}</td>
-				<td>
-					<input type="radio" name="screenshot_rc" value="false" />{=L:off=}&nbsp;
-					<input type="radio" name="screenshot_rc" value="true" />{=L:on=}
-				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.yweb.start_page=}</td>
@@ -194,7 +199,7 @@ select {
 			</tr>
 			<tr>
 				<td>Styles</td>
-				<td>
+				<td colspan="3">
 					<select name="style" title="Style">
 						{=script:Y_Tools style_get=}
 					</select>

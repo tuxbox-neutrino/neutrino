@@ -2,9 +2,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
 <meta http-equiv="cache-control" content="no-cache" />
 <meta http-equiv="expires" content="0" />
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="/Y_Baselib.js"></script>
+<script>
 var gurl= "";
 var gurl_last= "";
 function hide_forms(){
@@ -96,9 +95,8 @@ function do_rename(){
 	else
 		alert("{=L:bou.no_bouquet_name=}!");
 }
-//]]>
 </script>
-<style type="text/css">
+<style>
 .fly_form
 {
 	visibility: hidden;
@@ -106,17 +104,17 @@ function do_rename(){
 	position: absolute;
 	left: 100px;
 	top: 100px;
-	border: 1px solid #2188e0;
+	border: 1px solid #606060;
 	border-collapse: collapse;
 	background-color: white;
 	padding: 1em;
 }
 </style>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Bouquet-Editor=}{=var-set:menu={=L:set.menue.bouquet_editor=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.menue.bouquet_editor=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="add" class="fly_form">
 			<form name="add" accept-charset="UTF-8" action="">

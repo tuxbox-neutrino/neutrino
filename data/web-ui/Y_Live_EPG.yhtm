@@ -1,7 +1,8 @@
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+{=include-block:Y_Blocks.txt;js_jquery=}
+<script src="/jquery/jquery.stickytableheaders.min.js"></script>
+<script src="/Y_Baselib.js"></script>
+<script>
 /*sLog*/
 var sLog_body;
 var sLog_line_number;
@@ -109,10 +110,10 @@ function _show_epg()
 		}
 	}
 	show_waitbox(false);
+	jQuery('table').stickyTableHeaders();
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="show_epg()" class="iframe">
 {=var-set:wait_text={=L:epg.get_epg=}=}{=include-block:Y_Blocks.txt;snip_show_wait=}
 	<table id="epglist" class="y_invisible_table" cellpadding="4" cellspacing="0" width="100%">

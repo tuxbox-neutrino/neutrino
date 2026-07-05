@@ -1,13 +1,12 @@
 {=func:set_timer_form {=typ=} {=tid=}=}
 {=include-block:Y_Blocks.txt;head_no_charset=}
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
-<script type="text/javascript" src="/prototype.js"></script>
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+{=include-block:Y_Blocks.txt;js_jquery=}
+<script src="/Y_Baselib.js"></script>
+<script>
 function my_display(id, state)
 {
-	(state) ? $(id).show() : $(id).hide();
+	jQuery('#'+id).toggle(state);
 }
 
 function focusNMark()
@@ -15,6 +14,7 @@ function focusNMark()
 	document.f.ad.select();
 	document.f.ad.focus();
 }
+
 function onEventChange()
 {
 	tType=document.f.type.value;
@@ -28,6 +28,7 @@ function onEventChange()
 	my_display("ValuesRow",(tType != "1" && tType!="7"));
 	focusNMark();
 }
+
 function onEventChange2()
 {
 	tType=document.f.rep.value;
@@ -37,26 +38,29 @@ function onEventChange2()
 
 function onApidDefChange()
 {
-	if(document.f.apcf.checked == true)
+	if (document.f.apcf.checked == true)
 	{
 		document.f.apst.checked=false;
 		document.f.apal.checked=false;
 		document.f.apac.checked=false;
 	}
 }
+
 function onApidChange()
 {
 	if (document.f.apst.checked == true || document.f.apal.checked == true || document.f.apac.checked == true)
 		document.f.apcf.checked=false;
 }
+
 function do_submit()
 {
-		show_waitbox(true);
-		document.f.submit();
+	show_waitbox(true);
+	document.f.submit();
 }
+
 function obj_set_select_value(_obj_name, _value)
 {
-	var _obj = document.getElementById(_obj_name);
+	var _obj = id(_obj_name);
 	if (_obj)
 	{
 		for (i = 0; i < _obj.length; i++)
@@ -64,6 +68,7 @@ function obj_set_select_value(_obj_name, _value)
 				_obj.selectedIndex=i;
 	}
 }
+
 function init()
 {
 	onEventChange();
@@ -71,14 +76,13 @@ function init()
 	var rd = "{=timer_recordingDir=}";
 	obj_set_select_value("rec_dir", rd);
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="init()">
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Live_Timer-Timer=}{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 
 	<form method="get" class="y_form" name="f" action="/fb/timer.stb">
@@ -112,7 +116,6 @@ function init()
 				&nbsp;:&nbsp;<input type="text" name="smi" value="{=stop_min=}" size="2" maxlength="2"/>
 				</td>
 			</tr>
-
 			<tr>
 				<td>{=L:live.timer_edit.repeat=}</td>
 				<td><select name="rep" onchange="onEventChange2();">
@@ -121,7 +124,7 @@ function init()
 				</td>
 			</tr>
 			<tr id="repcountRow" style="display:none;">
-				<td>{=L:live.timer_edit.repeat1=}</td>
+				<td>{=L:live.timer_edit.repeatings=}</td>
 				<td><input type="text" name="repcount" id="repcount" value="{=timer_repeatCount=}" size="4" maxlength="3"/>
 				</td>
 			</tr>
@@ -166,7 +169,7 @@ function init()
 			<tr id="RecDirRow" style="display:none">
 				<td>{=L:live.timer_edit.rec_dir=}:</td>
 				<td>
-				{=include-block:Y_neutrino_Blocks.txt;neutrino_list_record_dirs=}
+				{=include-block:Y_Blocks_Neutrino.txt;neutrino_list_record_dirs=}
 				</td>
 			</tr>
 		</table>

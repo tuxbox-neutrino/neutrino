@@ -1,12 +1,10 @@
-{=var-set:extension={=if-file-exists:%(CONFIGDIR)/extentions.txt~%(CONFIGDIR)/extentions.txt~{=if-file-exists:%(PUBLIC_HTTPDDIR)/extentions.txt~%(PUBLIC_HTTPDDIR)/extentions.txt~%(PRIVATE_HTTPDDIR)/extentions.txt=}=}=}
-{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/Y-Web.conf;management_ip2=}~1~=}=}
+{=var-set:extension={=if-file-exists:%(CONFIGDIR)/extensions.txt~%(CONFIGDIR)/extensions.txt~{=if-file-exists:%(PUBLIC_HTTPDDIR)/extensions.txt~%(PUBLIC_HTTPDDIR)/extensions.txt~%(PRIVATE_HTTPDDIR)/extensions.txt=}=}=}
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip2=}~1~=}=}
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/prototype.js"></script>
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript" src="/Y_yweb.js"></script>
-<script type="text/javascript">
-//<![CDATA[
-
+{=include-block:Y_Blocks.txt;js_prototype=}
+<script src="/Y_Baselib.js"></script>
+<script src="/Y_yWeb.js"></script>
+<script>
 function build_menu(){
 //	ext.read_items();
 	var ext_normal=ext.select_type("n");
@@ -21,9 +19,8 @@ function build_menu(){
 		y_add_li_to_ul(id("ext_management"),"ext",item);
 	});
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="build_menu()">
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>{=L:main.extensions=}</h2></div>

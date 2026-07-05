@@ -1,0 +1,75 @@
+# ------- Lay-HEAD
+start-block~head
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta name="author" content="Tuxbox Project">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="Thu, 01 Jan 1970 00:00:00 GMT" />
+<title>yWeb</title>
+<link rel="stylesheet" type="text/css" href="/Y_Main.css" />
+<link rel="stylesheet" type="text/css" href="/Y_NI.css" />
+<link rel="stylesheet" type="text/css" href="/Y_Dist.css" />
+<link rel="stylesheet" type="text/css" href="/Y_User.css" />
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript" src="/Y_NIlib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+	// Clear y-Cache in our pages
+	yhttpd_cache_clear('');
+//]]>
+</script>
+{=include-block:Y_NI_Blocks.txt;include_jquery=}
+end-block~head
+
+# ------- Include jQuery
+start-block~include_jquery
+<script type="text/javascript" src="/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+	// Use jQuery via jQuery(...)
+	jQuery.noConflict();
+//]]>
+</script>
+end-block~include_jquery
+
+# ------- NetFS
+start-block~netfs_local_dir
+{=var-set:local_dir_{=var-get:nr=}={=ini-get:%(CONFIGDIR)/neutrino.conf;netfs_{=mount_type_s=}_local_dir_{=var-get:nr=}~open=}=}
+end-block~netfs_local_dir
+
+start-block~netfs_is_mount
+{=var-set:is_mount_{=var-get:nr=}={=script:Y_NI_Tools is_mount {=if-equal:{=mount_type=}~1~/mnt/autofs/~=}{=var-get:local_dir_{=var-get:nr=}=}=}=}
+end-block~netfs_is_mount
+
+start-block~netfs_table_row
+		<tr class="list">
+			<td>
+				<img src="/images/{=if-equal:{=var-get:is_mount_{=var-get:nr=}=}~true~check_green~x_red=}.png" class="status">
+				{=var-get:local_dir_{=var-get:nr=}=}
+			</td>
+			<td>
+				<a href="/Y_NI_NetFS-edit.yhtm?nr={=var-get:nr=}&mount_type={=mount_type=}&mount_type_s={=mount_type_s=}" title="{=L:ni.edit=}">
+					<img src="/images/modify.png">
+				</a>
+				{=if-equal:{=mount_type=}~0~
+				{=if-equal:{=var-get:is_mount_{=var-get:nr=}=}~false~
+				<a href="javascript:Y_NI_Tools('do_mount {=var-get:local_dir_{=var-get:nr=}=}', 5000);" title="{=L:ni.netfs-control.mount=}">
+					<img src="/images/server_add.png">
+				</a>
+				<img src="/images/blank.png">
+				~
+				<img src="/images/blank.png">
+				<a href="javascript:Y_NI_Tools('do_umount {=var-get:local_dir_{=var-get:nr=}=}', 5000);" title="{=L:ni.netfs-control.umount=}">
+					<img src="/images/server_delete.png">
+				</a>
+				=}
+				~
+				=}
+			</td>
+		</tr>
+end-block~netfs_table_row

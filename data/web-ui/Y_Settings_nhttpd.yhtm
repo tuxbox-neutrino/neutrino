@@ -2,9 +2,8 @@
 {=var-set:default_password=ni=}
 {=include-block:Y_Blocks.txt;management_check_top=}
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="/Y_Baselib.js"></script>
+<script>
 function form_init()
 {
 	obj_set_radio_value('authenticate', "{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.authenticate;false=}");
@@ -16,7 +15,7 @@ function form_init()
 }
 function do_submit()
 {
-	if(document.f.authpassword.value.length < 5)
+	if(document.f.authpassword.value.length < 2)
 		alert("{=L:set.nhttpd.check_password=}");
 	else
 	if(document.f.port.value == "")
@@ -34,14 +33,13 @@ function do_check_input_LogosURL()
 	else
 		document.f.Tuxbox_LogosURL.readOnly = true;
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body onload="form_init()">
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-WebServer=}{=var-set:menu={=L:set.nhttpd.webserver=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.nhttpd.webserver=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" width="100%">
@@ -75,11 +73,6 @@ function do_check_input_LogosURL()
 			<tr>
 				<td>{=L:set.nhttpd.port=}</td>
 				<td><input type="text" name="port" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.port;80~cache=}" title="{=L:set.nhttpd.port=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.nhttpd.host=}</td>
-				<td><input type="text" name="host" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;WebsiteMain.host;0.0.0.0~cache=}" title="{=L:set.nhttpd.host_desc=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
 				</td>
 			</tr>
 			<tr>

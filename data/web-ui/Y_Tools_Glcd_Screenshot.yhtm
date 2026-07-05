@@ -13,8 +13,8 @@ function do_snapshot() {
 	$('buttons').hide();
 	$('status').show();
 
-	var filename = "screenshot-glcd";
-	if (id('filename').value != "") {
+	var filename = "glcdscreenshot";
+	if (id("filename").value != "") {
 		filename = id("filename").value;
 	}
 
@@ -24,7 +24,7 @@ function do_snapshot() {
 }
 function do_showshot(_filename) {
 	if (_filename == "")
-		_filename = "screenshot-glcd";
+		_filename = "glcdscreenshot";
 
 	$('status').hide();
 	$('buttons').show();
@@ -50,7 +50,7 @@ function do_reload(){
 <body onload="do_snapshot();">
 <div class="work_box" id="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url==}{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="screenshot_header">
 		<div id="buttons" style="display: block">
@@ -60,7 +60,7 @@ function do_reload(){
 			</div>
 			<div class="right">
 				<form onsubmit="do_snapshot(); return false">
-				{=L:filename=}: <input type="text" value="screenshot-glcd" id="filename" size="12" />
+				{=L:filename=}: <input type="text" value="glcdscreenshot" id="filename" size="10" />
 				</form>
 			</div>
 			<div class="clear"></div>

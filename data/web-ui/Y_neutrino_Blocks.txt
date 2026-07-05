@@ -43,7 +43,7 @@ end-block~neutrino_form_submit
 start-block~neutrino_form-data_record
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Aufnahme=}{=var-set:menu={=L:set.menue.recording=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.menue.recording=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -218,7 +218,7 @@ end-block~neutrino_record_save_settings
 start-block~neutrino_form-data_movieplayer
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Movieplayer=}{=var-set:menu={=L:set.menue.movieplayer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.menue.movieplayer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -264,7 +264,7 @@ end-block~neutrino_movieplayer_save_settings
 start-block~neutrino_form-data_parental
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Jugendschutz=}{=var-set:menu={=L:set.menue.parental=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.menue.parental=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -340,7 +340,7 @@ end-block~neutrino_parental_save_settings
 start-block~neutrino_form-data_epg
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-EPG=}{=var-set:menu={=L:set.menue.epg=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.menue.epg=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi" class="y_form">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -474,7 +474,7 @@ end-block~neutrino_epg_save_settings
 start-block~neutrino_form-data_diverse
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Diverse=}{=var-set:menu=Diverse Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=Diverse Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi" class="y_form">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -742,6 +742,7 @@ function form_init()
 //zapit
 	obj_set_radio_value('save_lastchannel', "{=ini-get:%(ZAPITDIR)/zapit.conf;saveLastChannel;true~open=}");
 	obj_set_radio_value('save_audio_pids', "{=ini-get:%(ZAPITDIR)/zapit.conf;saveAudioPIDs;false~cache=}");
+	obj_set_radio_value('bouquet_others', "{=ini-get:%(ZAPITDIR)/zapit.conf;makeRemainingChannelsBouquet;true~cache=}");
 	change_lastchannel();
 }
 
@@ -785,14 +786,15 @@ start-block~neutrino_diverse_save_settings
 {=ini-set:%(ZAPITDIR)/zapit.conf;saveAudioPIDs;{=save_audio_pids=}~open=}
 {=ini-set:%(ZAPITDIR)/zapit.conf;saveLastChannel;{=save_lastchannel=}~cache=}
 {=ini-set:%(ZAPITDIR)/zapit.conf;startChannelRadio;{=startchannel_radio=}~cache=}
-{=ini-set:%(ZAPITDIR)/zapit.conf;startChannelTV;{=startchannel_tv=}~save=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;startChannelTV;{=startchannel_tv=}~cache=}
+{=ini-set:%(ZAPITDIR)/zapit.conf;makeRemainingChannelsBouquet;{=bouquet_others=}~save=}
 end-block~neutrino_diverse_save_settings
 
 # ------- Neutrino form-data: pictureviewer -------------------------------
 start-block~neutrino_form-data_pictureviewer
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Bildbetrachter=}{=var-set:menu={=L:set.pv.pictureviewer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.pv.pictureviewer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -854,7 +856,7 @@ end-block~neutrino_pictureviewer_save_settings
 start-block~neutrino_form-data_audioplayer
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Audioplayer=}{=var-set:menu={=L:set.ap.audioplayer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:set.ap.audioplayer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -969,7 +971,7 @@ end-block~neutrino_audioplayer_save_settings
 start-block~neutrino_form-data_direct_recording
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Direktaufnahme=}{=var-set:menu=Direktaufnahme=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu=Direktaufnahme=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -1148,12 +1150,7 @@ end-block~neutrino_direct_recording_save_settings
 # ------- list possible directorys for records
 start-block~neutrino_list_record_dirs
 <select name="rec_dir" id="rec_dir" class="y_live_button">
-	{=if-empty:{=ini-get:%(CONFIGDIR)/timerd.conf;REC_DIR_{=tid=}~open=}~~
-	<option value="{=ini-get:%(CONFIGDIR)/timerd.conf;REC_DIR_{=tid=}~cache=}" selected="selected">
-		{=ini-get:%(CONFIGDIR)/timerd.conf;REC_DIR_{=tid=}~cache=}
-	</option>
-	=}
-	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~open=}">
+	<option value="{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~open=}" selected="selected">
 		{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_recordingdir~cache=}
 	</option>
 	{=if-empty:{=ini-get:%(CONFIGDIR)/neutrino.conf;network_nfs_local_dir_0~cache=}~~

@@ -1,19 +1,17 @@
 {=include-block:Y_Blocks.txt;head=}
-<script type="text/javascript" src="/Y_Baselib.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+<script src="/Y_Baselib.js"></script>
+<script>
 function check_updates()
 {
 	loadSyncURL("/control/exec?Y_Tools&get_update_version");
 	location.reload();
 }
-//]]>
 </script>
-</head>
+{=include-block:Y_Blocks.txt;head_close=}
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Info-Auf_Updates_pruefen=}{=var-set:menu={=L:info.check_for_updates=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:menu={=L:info.check_for_updates=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<table border="0" cellpadding="2" cellspacing="4">
 		<tr>
@@ -22,7 +20,7 @@ function check_updates()
 				<p>
 				{=ini-get:Y_Version.txt;version=}<br/>
 				{=ini-get:Y_Version.txt;date=}<br/>
-				{=ini-get:Y_Version.txt;type=}<br/><br/>
+				</br>
 				{=ini-get:Y_Version.txt;info=}<br/>
 				</p>
 			</td>
@@ -31,7 +29,7 @@ function check_updates()
 				<p>
 				{=ini-get:/tmp/version.txt;version=}<br/>
 				{=ini-get:/tmp/version.txt;date=}<br/>
-				{=ini-get:/tmp/version.txt;type=}<br/><br/>
+				</br>
 				{=ini-get:/tmp/version.txt;info=}<br/>
 				{=if-empty:{=ini-get:/tmp/version.txt;url=}~~
 				<a href="{=ini-get:/tmp/version.txt;url=}" target="_blank">{=L:download=}</a><br/>
@@ -43,5 +41,8 @@ function check_updates()
 		</table>
 	</div>
 </div>
+<script>
+	loadSyncURL("/control/exec?Y_Tools&rm_update_version");
+</script>
 </body>
 </html>

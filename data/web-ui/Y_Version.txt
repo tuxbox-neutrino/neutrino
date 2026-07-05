@@ -1,3 +1,3 @@
 version=2023.2
-date=20.02.2023
-info=Neutrino-Webinterface
+date=21.01.2025
+info=Tuxbox-Neutrino Webinterface
