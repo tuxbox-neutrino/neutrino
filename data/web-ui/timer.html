@@ -726,8 +726,7 @@
 			const list = document.getElementById('timerList');
 
 			try {
-				const text = await fetchText('/control/timer?format=json');
-				const response = JSON.parse(text);
+				const response = await ywebApi('timer');
 
 				allTimers = ywebParseTimerList(response);
 				updateFilterCounts();
@@ -1036,7 +1035,7 @@
 				'Timer "' + escapeHtml(title) + '" wirklich löschen?',
 				'Löschen',
 				async function() {
-					await fetchText('/control/timer?action=remove&id=' + id);
+					await ywebApi('timer', {action: 'remove', id: id});
 					await loadTimers();
 				});
 		}
@@ -1355,8 +1354,7 @@
 			if (!sel) return;
 			try {
 				if (!cachedRecDirs) {
-					var resp = await fetch('/control/getdir?dir=allmoviedirs&subdirs=true&format=json');
-					var data = await resp.json();
+					var data = await ywebApi('getdir', {dir: 'allmoviedirs', subdirs: 'true'});
 					var root = data.data || data;
 					var items = root.dirs || [];
 					cachedRecDirs = [];
@@ -1472,19 +1470,12 @@
 			btn.disabled = true;
 
 			try {
-				var resp = await fetch('/control/timer?' + params);
-				var text = await resp.text();
-				if (text.trim().toLowerCase() === 'ok') {
-					closeTimerModal();
-					ywebShowToast(timerModalEditId ? 'Timer geändert' : 'Timer erstellt');
-					await loadTimers();
-				} else {
-					ywebShowToast('Fehler: ' + text.trim(), true);
-					btn.textContent = timerModalEditId ? 'Ändern' : 'Speichern';
-					btn.disabled = false;
-				}
+				await ywebApi('timer', params);
+				closeTimerModal();
+				ywebShowToast(timerModalEditId ? 'Timer geändert' : 'Timer erstellt');
+				await loadTimers();
 			} catch (e) {
-				ywebShowToast('Fehler beim Speichern', true);
+				ywebShowToast('Fehler beim Speichern: ' + e.message, true);
 				btn.textContent = timerModalEditId ? 'Ändern' : 'Speichern';
 				btn.disabled = false;
 			}
