@@ -650,7 +650,7 @@
 
 			// Load paths from API
 			try {
-				const paths = await ywebFetchJson('/control/paths');
+				const paths = await ywebApi('paths');
 				if (paths.configdir) quickDirs.push({ name: 'Config', path: paths.configdir });
 				if (paths.plugindir) quickDirs.push({ name: 'Plugins', path: paths.plugindir });
 			} catch (e) {
@@ -659,7 +659,7 @@
 
 			// Load recording dirs
 			try {
-				const data = await ywebFetchJson('/control/getdir?format=json');
+				const data = await ywebApi('getdir');
 				const dirs = data.dirs || data;
 				if (Array.isArray(dirs)) {
 					dirs.forEach(d => {
@@ -733,7 +733,7 @@
 			title.textContent = dirName;
 
 			try {
-				const data = await ywebFetchJson('/control/file?action=list&path=' + encodeURIComponent(currentPath) + '&format=json');
+				const data = await ywebApi('file', {action: 'list', path: currentPath});
 				const files = data?.data?.filelist || data?.filelist || [];
 
 				// Sort: directories first, then alphabetical
@@ -781,7 +781,7 @@
 
 					// Download (files only)
 					if (!isDir) {
-						html += '<a class="yweb-btn" href="/control/file?action=download&path=' + encodeURIComponent(fullpath) + '" download title="Herunterladen">' + ICONS.download + '</a>';
+						html += '<a class="yweb-btn" href="/api/v4/file?action=download&path=' + encodeURIComponent(fullpath) + '" download title="Herunterladen">' + ICONS.download + '</a>';
 					}
 
 					// Rename
@@ -819,11 +819,15 @@
 
 		async function loadDiskInfo() {
 			try {
-				const data = await ywebFetchJson('/control/statfs?format=json&dir=' + encodeURIComponent(currentPath));
-				const total = parseInt(data.Total_bytes) || 0;
-				const free = parseInt(data.Free_bytes) || 0;
-				const used = parseInt(data.Used_bytes) || 0;
-				const pct = data.Use_percentage || '';
+				const data = await ywebApi('statfs', {dir: currentPath});
+				// statfs delivers raw f_* fields (the old Total_bytes keys
+				// never existed in this payload, the card was silently dead)
+				const st = data?.data?.statfs || {};
+				const bsize = parseInt(st.f_bsize) || 0;
+				const total = (parseInt(st.f_blocks) || 0) * bsize;
+				const free = (parseInt(st.f_bavail) || 0) * bsize;
+				const used = total - free;
+				const pct = total > 0 ? Math.round(used * 100 / total) + '%' : '';
 
 				if (total > 0) {
 					document.getElementById('diskInfo').textContent = formatFileSize(free) + ' frei / ' + formatFileSize(total) + ' (' + pct + ')';
@@ -850,8 +854,7 @@
 		async function doDelete(fullpath, isDir) {
 			try {
 				const action = isDir ? 'filemgr_rmdir' : 'filemgr_rm';
-				const url = '/y/cgi?execute=script:Y_NAS%20' + action + '%20' + encodeURIComponent(fullpath);
-				await fetch(url);
+				await ywebApi('exec', 'Y_NAS&' + action + '&' + encodeURIComponent(fullpath), {raw: true});
 				ywebShowToast('Gelöscht');
 				refreshDir();
 			} catch (e) {
@@ -906,8 +909,7 @@
 				const dir = fullpath.substring(0, fullpath.lastIndexOf('/'));
 				const oldPath = fullpath;
 				const newPath = dir + '/' + newName;
-				const url = '/y/cgi?execute=script:Y_NAS%20filemgr_ren%20' + encodeURIComponent(oldPath) + '%20' + encodeURIComponent(newPath);
-				await fetch(url);
+				await ywebApi('exec', 'Y_NAS&filemgr_ren&' + encodeURIComponent(oldPath) + '&' + encodeURIComponent(newPath), {raw: true});
 				ywebShowToast('Umbenannt');
 				refreshDir();
 			} catch (e) {
@@ -941,8 +943,7 @@
 
 			try {
 				const path = normPath(currentPath + '/' + name);
-				const url = '/y/cgi?execute=script:Y_NAS%20filemgr_mkdir%20' + encodeURIComponent(path);
-				await fetch(url);
+				await ywebApi('exec', 'Y_NAS&filemgr_mkdir&' + encodeURIComponent(path), {raw: true});
 				hideNewFolderInput();
 				ywebShowToast('Ordner erstellt');
 				refreshDir();
@@ -974,7 +975,7 @@
 				formData.append('file', file);
 
 				const xhr = new XMLHttpRequest();
-				xhr.open('POST', '/control/file?action=upload&path=' + encodeURIComponent(currentPath));
+				xhr.open('POST', '/api/v4/file?action=upload&path=' + encodeURIComponent(currentPath));
 
 				xhr.upload.onprogress = function(e) {
 					if (e.lengthComputable) {
