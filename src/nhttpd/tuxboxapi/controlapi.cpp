@@ -351,6 +351,19 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
 	{"message",	&CControlAPI::MessageCGI,	"application/json"},
 	{"rc",		&CControlAPI::RCCGI,		"application/json"},
 	{"rcem",	&CControlAPI::RCEmCGI,		"application/json"},
+	// scripts, plugins & media
+	{"exec",	&CControlAPI::ExecCGI,		"text/plain"},
+	{"cmd",		&CControlAPI::CmdCGI,		"text/plain"},
+	{"startplugin",	&CControlAPI::StartPluginCGI,	"application/json"},
+	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,	"application/json"},
+	{"reloadchannels",	&CControlAPI::ReloadChannelsCGI,	"application/json"},
+	{"xmltvlist",	&CControlAPI::xmltvlistCGI,	"application/json"},
+#ifdef SCREENSHOT
+	{"screenshot",	&CControlAPI::ScreenshotCGI,	"application/json"},
+#endif
+#ifdef ENABLE_GRAPHLCD
+	{"glcdscreenshot",	&CControlAPI::GlcdScreenshotCGI,	"application/json"},
+#endif
 };
 
 //-----------------------------------------------------------------------------

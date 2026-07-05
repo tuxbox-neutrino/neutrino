@@ -68,6 +68,14 @@
 | `/api/v4/message` | `/control/message` (Envelope statt `ok`) | CControlAPI::MessageCGI |
 | `/api/v4/rc` | `/control/rc` (Envelope statt `ok`) | CControlAPI::RCCGI |
 | `/api/v4/rcem` | `/control/rcem` (Envelope statt `ok`) | CControlAPI::RCEmCGI |
+| `/api/v4/exec` | `/control/exec` — **Roh-Text, kein JSON** | CControlAPI::ExecCGI |
+| `/api/v4/cmd` | `/control/cmd` — **Roh-Text, kein JSON** | CControlAPI::CmdCGI |
+| `/api/v4/startplugin` | `/control/startplugin` (Envelope) | CControlAPI::StartPluginCGI |
+| `/api/v4/reloadplugins` | `/control/reloadplugins` (Envelope) | CControlAPI::ReloadPluginsCGI |
+| `/api/v4/reloadchannels` | `/control/reloadchannels` (Envelope) | CControlAPI::ReloadChannelsCGI |
+| `/api/v4/xmltvlist` | `/control/xmltvlist` | CControlAPI::xmltvlistCGI |
+| `/api/v4/screenshot` | `/control/screenshot` (nur mit `SCREENSHOT`-Build) | CControlAPI::ScreenshotCGI |
+| `/api/v4/glcdscreenshot` | `/control/glcdscreenshot` (nur mit GraphLCD-Build) | CControlAPI::GlcdScreenshotCGI |
 
 Details je Endpoint (Parameter, Beispiel-Output) stehen an den verlinkten
 Handlern (Konvention `@par nhttpd-usage` / `@par output (json)`).
