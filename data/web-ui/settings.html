@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - Einstellungen</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		/* No <main> tag (yweb-header.js breaks it) — need explicit min-height for sticky footer */
+		body { min-height: 100vh; }
+
+		/* Layout — flex-grow pushes footer to bottom */
+		.yweb-settings-layout {
+			display: flex;
+			flex-grow: 1;
+			width: 100%;
+			max-width: 920px;
+			margin: 0 auto;
+			padding: 1rem;
+			gap: 1.2rem;
+		}
+
+		/* Sidebar */
+		.yweb-settings-sidebar {
+			width: 180px;
+			flex-shrink: 0;
+			position: sticky;
+			top: 4.5rem;
+			align-self: flex-start;
+			max-height: calc(100vh - 5rem);
+			overflow-y: auto;
+			overflow-x: hidden;
+			display: block;
+		}
+		#settingsSidebar {
+			display: block;
+		}
+		#settingsSidebar button {
+			display: block;
+			width: 100%;
+			text-align: left;
+			padding: 0.5rem 0.75rem;
+			font-size: var(--yweb-font-sm);
+			color: var(--pico-muted-color);
+			background: none;
+			border: none;
+			border-left: 3px solid transparent;
+			border-radius: 0;
+			cursor: pointer;
+			transition: var(--yweb-transition);
+			margin: 0;
+		}
+		#settingsSidebar button:hover {
+			color: var(--pico-color);
+			background: rgba(255,255,255,0.03);
+		}
+		#settingsSidebar button.active {
+			color: var(--yweb-accent);
+			border-left-color: var(--yweb-accent);
+			font-weight: 600;
+			background: rgba(255,165,0,0.06);
+		}
+
+		/* Mobile category dropdown */
+		.yweb-settings-mobile-nav {
+			display: none;
+			padding: 0.75rem 1rem 0;
+		}
+		.yweb-settings-mobile-nav select {
+			width: 100%;
+			padding: 0.5rem !important;
+			font-size: var(--yweb-font-sm);
+			margin-bottom: 0 !important;
+			height: auto !important;
+			border-radius: var(--yweb-radius);
+			border: 1px solid var(--pico-muted-border-color);
+			background: var(--pico-card-background-color);
+			color: var(--pico-color);
+		}
+
+		/* Content area */
+		.yweb-settings-content {
+			flex: 1;
+			min-width: 0;
+		}
+
+		/* Panels */
+		.settings-panel {
+			display: none;
+		}
+		.settings-panel.active {
+			display: block;
+		}
+		.settings-card {
+			background: var(--pico-card-background-color);
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--yweb-radius);
+			padding: 1.2rem;
+		}
+		.settings-card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 1rem;
+			padding-bottom: 0.6rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+		}
+		.settings-card-header h3 {
+			margin: 0;
+			font-size: var(--yweb-font-base);
+			font-weight: 600;
+			color: var(--pico-color);
+		}
+
+		/* Settings-specific form overrides */
+		.settings-card .yweb-form-row label:not(.yweb-toggle) {
+			min-width: 10rem;
+		}
+		.settings-card .yweb-form-row select,
+		.settings-card .yweb-form-row input[type="text"],
+		.settings-card .yweb-form-row input[type="number"],
+		.settings-card .yweb-form-row input[type="password"] {
+			width: 16rem;
+			flex: none;
+		}
+		.settings-card .yweb-form-row input[type="number"] {
+			width: 6rem;
+		}
+
+		/* Save button — icon only */
+		.btn-save {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 2rem;
+			height: 2rem;
+			border-radius: var(--yweb-radius);
+			border: none;
+			background: var(--yweb-accent);
+			color: #fff;
+			cursor: pointer;
+			transition: var(--yweb-transition);
+			flex-shrink: 0;
+		}
+		.btn-save svg {
+			width: 1.1rem !important;
+			height: 1.1rem !important;
+			min-width: 1.1rem;
+			overflow: visible;
+			flex-shrink: 0;
+		}
+		.btn-save:hover {
+			opacity: 0.9;
+			box-shadow: 0 2px 8px rgba(255,165,0,0.3);
+		}
+		.btn-save:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+		/* Mobile: sticky save bar at bottom */
+		.yweb-settings-save-mobile {
+			display: none;
+		}
+
+		/* Mount slots */
+		.mount-slot {
+			background: var(--pico-background-color);
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--yweb-radius);
+			margin-bottom: 0.5rem;
+			overflow: hidden;
+		}
+		.mount-slot-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0.6rem 0.85rem;
+			cursor: pointer;
+			font-size: var(--yweb-font-sm);
+			color: var(--pico-color);
+			transition: var(--yweb-transition);
+		}
+		.mount-slot-header:hover {
+			background: rgba(255,255,255,0.03);
+		}
+		.mount-slot-header .slot-summary {
+			color: var(--pico-muted-color);
+			font-size: var(--yweb-font-xs);
+			margin-left: 0.5rem;
+		}
+		.mount-slot-header svg {
+			width: 16px;
+			height: 16px;
+			transition: transform 0.2s;
+			flex-shrink: 0;
+			color: var(--pico-muted-color);
+		}
+		.mount-slot.open > .mount-slot-header svg {
+			transform: rotate(180deg);
+		}
+		.mount-slot-body {
+			display: none;
+			padding: 0.6rem 0.85rem 0.85rem;
+			border-top: 1px solid var(--pico-muted-border-color);
+		}
+		.mount-slot.open > .mount-slot-body {
+			display: block;
+		}
+		.cifs-fields {
+			display: none;
+		}
+		.cifs-fields.visible {
+			display: block;
+		}
+
+		/* Loading */
+		.settings-loading {
+			text-align: center;
+			padding: 3rem;
+			color: var(--pico-muted-color);
+		}
+
+		/* Mobile — settings-specific overrides (form-row mobile handled by yweb.css) */
+		@media (max-width: 800px) {
+			.yweb-settings-sidebar { display: none; }
+			.yweb-settings-mobile-nav { display: block; }
+			.yweb-settings-layout { padding: 0.5rem; }
+			.settings-card { padding: 0.8rem; }
+			.settings-card .yweb-form-row select,
+			.settings-card .yweb-form-row input[type="text"],
+			.settings-card .yweb-form-row input[type="number"],
+			.settings-card .yweb-form-row input[type="password"] {
+				width: 100%;
+				flex: auto;
+			}
+			.yweb-settings-save-mobile {
+				display: none;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="yweb-header-wrapper" data-page="settings"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<!-- Mobile category selector -->
+	<div class="yweb-settings-mobile-nav">
+		<select id="mobileCategorySelect" onchange="switchCategory(this.value)"></select>
+	</div>
+
+	<div class="yweb-settings-layout">
+		<!-- Sidebar -->
+		<div class="yweb-settings-sidebar">
+			<nav id="settingsSidebar"></nav>
+		</div>
+
+		<!-- Content -->
+		<div class="yweb-settings-content" id="settingsContent">
+			<div class="settings-loading">Lade Einstellungen...</div>
+		</div>
+	</div>
+
+	<script src="/Y_Baselib.js"></script>
+	<script src="/settings-registry.js?v=1"></script>
+	<script src="/yweb-header.js?v=27"></script>
+	<script>
+	var configData = {};
+	var originalValues = {};
+	var activeCategory = '';
+	var renderedPanels = {};
+
+	function makeCardHeader(label) {
+		var d = document.createElement('div');
+		d.className = 'settings-card-header';
+		var h = document.createElement('h3');
+		h.textContent = label;
+		d.appendChild(h);
+		var b = document.createElement('button');
+		b.className = 'btn-save';
+		b.title = 'Speichern';
+		b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/><\/svg>';
+		b.onclick = saveSettings;
+		d.appendChild(b);
+		return d.outerHTML;
+	}
+
+	function getConfigKey(key) {
+		var k = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+		return configData[k] !== undefined ? configData[k] : '';
+	}
+
+	function renderField(f) {
+		var val = getConfigKey(f.key);
+		var id = 'cfg_' + f.key.replace(/\./g, '__');
+
+		if (f.type === 'select') {
+			var opts = f.options.map(function(o) {
+				return '<option value="' + o.v + '"' + (val === o.v ? ' selected' : '') + '>' + o.l + '</option>';
+			}).join('');
+			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+				'<select id="' + id + '" data-key="' + f.key + '">' + opts + '</select></div>';
+		}
+		if (f.type === 'bool') {
+			var isTrue = (val === 'true' || val === '1');
+			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="true" data-off="false"' + (isTrue ? ' checked' : '') + '>' +
+				'<span class="yweb-toggle-slider"></span></label></div>';
+		}
+		if (f.type === 'bool01') {
+			var isOne = (val === '1');
+			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="1" data-off="0"' + (isOne ? ' checked' : '') + '>' +
+				'<span class="yweb-toggle-slider"></span></label></div>';
+		}
+		if (f.type === 'number') {
+			var attrs = 'type="number"';
+			if (f.min !== undefined) attrs += ' min="' + f.min + '"';
+			if (f.max !== undefined) attrs += ' max="' + f.max + '"';
+			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+				'<input ' + attrs + ' id="' + id + '" data-key="' + f.key + '" value="' + val + '"></div>';
+		}
+		if (f.type === 'password') {
+			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+				'<input type="password" id="' + id + '" data-key="' + f.key + '" value="' + val.replace(/"/g, '&quot;') + '"></div>';
+		}
+		// text
+		return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+			'<input type="text" id="' + id + '" data-key="' + f.key + '" value="' + val.replace(/"/g, '&quot;') + '"></div>';
+	}
+
+	function renderCategory(catId) {
+		var cat = SETTINGS_REGISTRY.find(function(c) { return c.id === catId; });
+		if (!cat) return '';
+
+		if (cat.custom && cat.id === 'mounts') return renderMountsPanel();
+
+		var html = makeCardHeader(cat.label);
+		cat.sections.forEach(function(sec) {
+			html += '<div class="yweb-form-section">';
+			html += '<div class="yweb-form-section-title">' + sec.title + '</div>';
+			sec.fields.forEach(function(f) {
+				html += renderField(f);
+			});
+			html += '</div>';
+		});
+
+		return '<div class="settings-card">' + html + '</div>';
+	}
+
+	function renderMountsPanel() {
+		var html = makeCardHeader('Netzlaufwerke');
+		var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+		for (var i = 0; i < 8; i++) {
+			var ip = getConfigKey('network_nfs_ip_' + i);
+			var dir = getConfigKey('network_nfs_dir_' + i);
+			var local = getConfigKey('network_nfs_local_dir_' + i);
+			var typeVal = getConfigKey('network_nfs_type_' + i);
+			var summary = ip ? (ip + ':' + dir + ' \u2192 ' + local) : 'nicht konfiguriert';
+			var isCifs = (typeVal === '1');
+
+			html += '<div class="mount-slot" id="mount-slot-' + i + '">' +
+				'<div class="mount-slot-header" onclick="toggleMount(' + i + ')">' +
+				'<span>Slot ' + i + ' <span class="slot-summary">' + summary + '</span></span>' + chevron +
+				'</div>' +
+				'<div class="mount-slot-body">' +
+				renderMountFields(i, isCifs) +
+				'</div></div>';
+		}
+
+		return '<div class="settings-card">' + html + '</div>';
+	}
+
+	function renderMountFields(i, isCifs) {
+		var g = function(k) { return getConfigKey('network_nfs_' + k + '_' + i); };
+		var id = function(k) { return 'cfg_network_nfs_' + k + '_' + i; };
+		var dk = function(k) { return 'network_nfs_' + k + '_' + i; };
+
+		return '<div class="yweb-form-row"><label>Typ</label>' +
+			'<select id="' + id('type') + '" data-key="' + dk('type') + '" onchange="onMountTypeChange(' + i + ')">' +
+			'<option value="0"' + (g('type') !== '1' ? ' selected' : '') + '>NFS</option>' +
+			'<option value="1"' + (g('type') === '1' ? ' selected' : '') + '>CIFS</option>' +
+			'</select></div>' +
+			'<div class="yweb-form-row"><label>Server-IP</label>' +
+			'<input type="text" id="' + id('ip') + '" data-key="' + dk('ip') + '" value="' + g('ip') + '"></div>' +
+			'<div class="yweb-form-row"><label>Server-Verzeichnis</label>' +
+			'<input type="text" id="' + id('dir') + '" data-key="' + dk('dir') + '" value="' + g('dir') + '"></div>' +
+			'<div class="yweb-form-row"><label>Lokaler Mountpoint</label>' +
+			'<input type="text" id="' + id('local_dir') + '" data-key="' + dk('local_dir') + '" value="' + g('local_dir') + '"></div>' +
+			'<div class="yweb-form-row"><label>Auto-Mount</label>' +
+			'<label class="yweb-toggle"><input type="checkbox" id="' + id('automount') + '" data-key="' + dk('automount') + '" data-on="1" data-off="0"' + (g('automount') === '1' ? ' checked' : '') + '>' +
+			'<span class="yweb-toggle-slider"></span></label></div>' +
+			'<div class="yweb-form-row"><label>Mount-Optionen 1</label>' +
+			'<input type="text" id="' + id('mount_options1') + '" data-key="' + dk('mount_options1') + '" value="' + g('mount_options1') + '"></div>' +
+			'<div class="yweb-form-row"><label>Mount-Optionen 2</label>' +
+			'<input type="text" id="' + id('mount_options2') + '" data-key="' + dk('mount_options2') + '" value="' + g('mount_options2') + '"></div>' +
+			'<div class="yweb-form-row"><label>MAC-Adresse</label>' +
+			'<input type="text" id="' + id('mac') + '" data-key="' + dk('mac') + '" value="' + g('mac') + '"></div>' +
+			'<div class="cifs-fields' + (isCifs ? ' visible' : '') + '" id="cifs-' + i + '">' +
+			'<div class="yweb-form-row"><label>Benutzer</label>' +
+			'<input type="text" id="' + id('username') + '" data-key="' + dk('username') + '" value="' + g('username') + '"></div>' +
+			'<div class="yweb-form-row"><label>Passwort</label>' +
+			'<input type="password" id="' + id('password') + '" data-key="' + dk('password') + '" value="' + g('password') + '"></div>' +
+			'</div>';
+	}
+
+	function toggleMount(i) {
+		document.getElementById('mount-slot-' + i).classList.toggle('open');
+	}
+
+	function onMountTypeChange(i) {
+		var sel = document.getElementById('cfg_network_nfs_type_' + i);
+		var cifsDiv = document.getElementById('cifs-' + i);
+		if (sel && cifsDiv) {
+			if (sel.value === '1') cifsDiv.classList.add('visible');
+			else cifsDiv.classList.remove('visible');
+		}
+	}
+
+	function buildNavigation() {
+		var sidebarHtml = '';
+		var mobileHtml = '';
+
+		SETTINGS_REGISTRY.forEach(function(cat) {
+			sidebarHtml += '<button data-cat="' + cat.id + '"' +
+				(cat.id === activeCategory ? ' class="active"' : '') +
+				' onclick="switchCategory(\'' + cat.id + '\')">' + cat.label + '</button>';
+			mobileHtml += '<option value="' + cat.id + '"' +
+				(cat.id === activeCategory ? ' selected' : '') + '>' + cat.label + '</option>';
+		});
+
+		document.getElementById('settingsSidebar').innerHTML = sidebarHtml;
+		document.getElementById('mobileCategorySelect').innerHTML = mobileHtml;
+	}
+
+	function switchCategory(catId) {
+		if (activeCategory === catId && document.getElementById('panel-' + catId)) return;
+		activeCategory = catId;
+
+		// Update hash without triggering hashchange
+		history.replaceState(null, '', '#' + catId);
+
+		// Update sidebar active state
+		document.querySelectorAll('#settingsSidebar button').forEach(function(btn) {
+			btn.classList.toggle('active', btn.getAttribute('data-cat') === catId);
+		});
+
+		// Update mobile select
+		var mobileSelect = document.getElementById('mobileCategorySelect');
+		if (mobileSelect) mobileSelect.value = catId;
+
+		// Show/hide panels — lazy render on first visit
+		var content = document.getElementById('settingsContent');
+		var panels = content.querySelectorAll('.settings-panel');
+		panels.forEach(function(p) { p.classList.remove('active'); });
+
+		var panel = document.getElementById('panel-' + catId);
+		if (!panel) {
+			// First visit: render and insert
+			panel = document.createElement('div');
+			panel.className = 'settings-panel';
+			panel.id = 'panel-' + catId;
+			panel.innerHTML = renderCategory(catId);
+			content.appendChild(panel);
+			renderedPanels[catId] = true;
+		}
+		panel.classList.add('active');
+	}
+
+	function collectValues() {
+		var values = {};
+		var panel = document.querySelector('.settings-panel.active');
+		if (!panel) return values;
+
+		panel.querySelectorAll('select[data-key], input[type="text"][data-key], input[type="number"][data-key], input[type="password"][data-key]').forEach(function(el) {
+			values[el.getAttribute('data-key')] = el.value;
+		});
+		panel.querySelectorAll('input[type="checkbox"][data-key]').forEach(function(el) {
+			values[el.getAttribute('data-key')] = el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off');
+		});
+		return values;
+	}
+
+	async function saveSettings() {
+		var values = collectValues();
+		var params = 'action=submit';
+		var changed = 0;
+
+		for (var key in values) {
+			var origKey = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+			if (values[key] !== (configData[origKey] || '')) {
+				params += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(values[key]);
+				changed++;
+			}
+		}
+
+		if (changed === 0) {
+			ywebShowToast('Keine \u00c4nderungen');
+			return;
+		}
+
+		var btns = document.querySelectorAll('.btn-save');
+		btns.forEach(function(b) { b.disabled = true; });
+
+		try {
+			await fetch('/control/config?config=neutrino&' + params);
+			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
+			await loadSettings();
+		} catch (e) {
+			ywebShowToast('Fehler beim Speichern', true);
+		}
+
+		btns.forEach(function(b) { b.disabled = false; });
+	}
+
+	async function loadSettings() {
+		try {
+			var resp = await fetch('/control/config?config=neutrino&format=json');
+			var text = await resp.text();
+			var match = text.match(/"config"\s*:\s*\{/);
+			if (match) {
+				var jsonStart = match.index + match[0].length - 1;
+				var braceCount = 0;
+				var jsonEnd = jsonStart;
+				for (var i = jsonStart; i < text.length; i++) {
+					if (text[i] === '{') braceCount++;
+					else if (text[i] === '}') { braceCount--; if (braceCount === 0) { jsonEnd = i + 1; break; } }
+				}
+				configData = JSON.parse(text.substring(jsonStart, jsonEnd));
+			}
+		} catch (e) {
+			document.getElementById('settingsContent').innerHTML =
+				'<div class="settings-loading">Fehler beim Laden der Einstellungen</div>';
+			return;
+		}
+
+		originalValues = Object.assign({}, configData);
+
+		// Clear cached panels — config changed
+		renderedPanels = {};
+		document.getElementById('settingsContent').innerHTML = '';
+
+		// Determine active category from hash or default to first
+		var hash = location.hash.replace('#', '');
+		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; });
+		var targetCategory = validCat ? hash : SETTINGS_REGISTRY[0].id;
+
+		activeCategory = '';
+		buildNavigation();
+		switchCategory(targetCategory);
+	}
+
+	// Hash navigation
+	window.addEventListener('hashchange', function() {
+		var hash = location.hash.replace('#', '');
+		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; });
+		if (validCat) switchCategory(hash);
+	});
+
+	loadSettings();
+	</script>
+</body>
+</html>
