@@ -3,8 +3,8 @@
 # Tools (yjogol)
 # -----------------------------------------------------------
 
-if echo "$@" | grep -q "%20"; then
-	$0 ${@//%20/ }
+if echo "$*" | grep -q "%20"; then
+	$0 $(echo "$*" | sed 's/%20/ /g')
 	exit
 fi
 
@@ -50,7 +50,7 @@ style_get()
 		else
 			sel=""
 		fi
-		opt="<option value='$style' $sel>${style//_/ }</option>"
+		opt="<option value='$style' $sel>$(echo "$style" | tr '_' ' ')</option>"
 		html_option_list="$html_option_list $opt"
 	done
 	echo "$html_option_list"
@@ -652,8 +652,8 @@ case "$action" in
 	;;
 	mtd_space)
 		df | while read filesystem blocks used available percent mounted ; do
-			case ${fs:0:3} in
-				mtd)
+			case "$filesystem" in
+				mtd*)
 					echo "$filesystem" "$blocks" "$used" "$available" "$percent" "$mounted"
 					break
 				;;
@@ -704,7 +704,7 @@ case "$action" in
 		df ${MTPT} | while read fs total used free used_percent mtpt; do
 			case ${mtpt} in
 				${MTPT})
-					used_percent=${used_percent//\%/}
+					used_percent=${used_percent%\%}
 					free_percent=$(($free*100/$total))
 					total=$(($total/1024))
 					used=$(($used/1024))
@@ -748,10 +748,10 @@ case "$action" in
 	;;
 	get_mtd_info)
 		while read dev size erasesize name; do
-			case ${dev:0:3} in
-				mtd)
+			case "$dev" in
+				mtd*)
 					test "$1" = "dev" && printf "%s<br/>" "$dev"
-					test "$1" = "name" && printf "%s<br/>" "${name//\"/}"
+					test "$1" = "name" && printf "%s<br/>" "$(echo "$name" | tr -d '"')"
 				;;
 			esac
 		done < /proc/mtd
@@ -823,7 +823,7 @@ case "$action" in
 			CAM=GBOX.NET
 		fi
 		V=$(vinfo $CAM $y_path_varbin/$1)
-		printf "%s" "${V//keine Informationen gefunden/}"
+		printf "%s" "$V" | sed 's/keine Informationen gefunden//g'
 	;;
 
 	# syntax	file2msg file "short-description" (maketable)
