@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - Screenshot</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		/* 2-column grid: Remote (auto) + Screenshot (flex) */
+		.yweb-screenshot-grid {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			grid-template-rows: minmax(0, 1fr);
+			gap: 0.5rem;
+			padding: 0.5rem;
+			max-width: 1400px;
+			margin: 0 auto;
+			height: calc(100dvh - 5rem);
+		}
+
+		/* Screenshot card fills available space */
+		.yweb-screenshot-grid #card-screenshot {
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+		}
+
+		/* ── Toolbar ── */
+		.yweb-screenshot-toolbar {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			align-items: center;
+		}
+
+		.yweb-screenshot-actions {
+			display: flex;
+			gap: 0.4rem;
+		}
+
+		.yweb-screenshot-options {
+			display: flex;
+			gap: 1rem;
+			align-items: center;
+			margin-left: auto;
+		}
+
+		/* ── Toggle Switch (pill container) ── */
+		.yweb-toggle-pill {
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+			cursor: pointer;
+			font-size: var(--yweb-font-sm);
+			white-space: nowrap;
+			padding: 0.3rem 0.5rem;
+			border-radius: 999px;
+		}
+
+		[data-theme="dark"] .yweb-toggle-pill { background: rgba(255,255,255,0.06); }
+		html:not([data-theme="dark"]) .yweb-toggle-pill { background: rgba(0,0,0,0.05); }
+
+		.yweb-toggle-pill input { display: none; }
+
+		.yweb-toggle-track {
+			width: 36px;
+			height: 20px;
+			border-radius: 10px;
+			position: relative;
+			transition: background 0.2s;
+			flex-shrink: 0;
+		}
+
+		/* Off-state: high contrast for both themes */
+		[data-theme="dark"] .yweb-toggle-track { background: #555; }
+		html:not([data-theme="dark"]) .yweb-toggle-track { background: #b0b0b0; }
+
+		.yweb-toggle-track::after {
+			content: '';
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background: white;
+			position: absolute;
+			top: 2px;
+			left: 2px;
+			transition: transform 0.2s;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+		}
+
+		.yweb-toggle-pill input:checked + .yweb-toggle-track {
+			background: var(--yweb-accent);
+		}
+
+		.yweb-toggle-pill input:checked + .yweb-toggle-track::after {
+			transform: translateX(16px);
+		}
+
+		/* ── Reload group (same pill style as toggles) ── */
+		.yweb-reload-group {
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+			margin-left: auto;
+			padding: 0.3rem 0.5rem;
+			border-radius: 999px;
+			font-size: var(--yweb-font-sm);
+		}
+
+		[data-theme="dark"] .yweb-reload-group { background: rgba(255,255,255,0.06); }
+		html:not([data-theme="dark"]) .yweb-reload-group { background: rgba(0,0,0,0.05); }
+
+		.yweb-reload-group .yweb-toggle-pill {
+			background: none;
+			padding: 0;
+		}
+
+		/* Borderless inline input */
+		.yweb-reload-group input[type="number"] {
+			all: unset;
+			box-sizing: border-box;
+			width: 2ch;
+			font-size: inherit;
+			font-family: inherit;
+			color: inherit;
+			text-align: center;
+			-moz-appearance: textfield;
+			opacity: 0.7;
+		}
+
+		.yweb-reload-group input[type="number"]:disabled { opacity: 0.3; }
+
+		.yweb-reload-group input[type="number"]:focus { opacity: 1; }
+
+		.yweb-reload-group input[type="number"]::-webkit-inner-spin-button,
+		.yweb-reload-group input[type="number"]::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		.yweb-reload-group .yweb-unit {
+			font-size: inherit;
+			opacity: 0.5;
+		}
+
+		/* ── Screenshot display area ── */
+		.yweb-screenshot-display {
+			position: relative;
+			flex: 1;
+			min-height: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0.5rem;
+			background: var(--pico-card-sectioning-background-color);
+			border-radius: 0 0 var(--yweb-radius-lg) var(--yweb-radius-lg);
+		}
+
+		.yweb-screenshot-display img {
+			max-width: 100%;
+			max-height: 100%;
+			object-fit: contain;
+			display: block;
+		}
+
+		.yweb-screenshot-placeholder {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1rem;
+			color: var(--pico-muted-color);
+		}
+
+		.yweb-screenshot-placeholder svg {
+			width: 64px;
+			height: 64px;
+			opacity: 0.5;
+		}
+
+		/* ── Remote card ── */
+		.yweb-screenshot-grid #card-remote {
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+		}
+
+		.yweb-screenshot-grid #card-remote .yweb-card-body {
+			flex: 1;
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		/* ── Mobile: single column + accordion ── */
+		@media (max-width: 768px) {
+			.yweb-screenshot-grid {
+				grid-template-columns: 1fr;
+				grid-template-rows: auto auto;
+				height: auto;
+				gap: 0.4rem;
+			}
+
+			/* Accordion header */
+			.yweb-screenshot-grid .yweb-card-header {
+				cursor: pointer;
+				position: relative;
+				padding-right: 2rem;
+			}
+
+			.yweb-screenshot-grid .yweb-card-header::after {
+				content: '\25BC';
+				position: absolute;
+				right: 0.5rem;
+				top: 50%;
+				transform: translateY(-50%);
+				font-size: 0.55rem;
+				color: var(--pico-muted-color);
+				transition: transform 0.2s ease;
+				pointer-events: none;
+			}
+
+			.yweb-screenshot-grid .yweb-card.expanded .yweb-card-header::after {
+				transform: translateY(-50%) rotate(180deg);
+			}
+
+			/* Hide body + display when collapsed */
+			.yweb-screenshot-grid .yweb-card:not(.expanded) .yweb-card-body,
+			.yweb-screenshot-grid .yweb-card:not(.expanded) .yweb-screenshot-display {
+				display: none;
+			}
+
+			/* Screenshot display on mobile */
+			.yweb-screenshot-display {
+				min-height: 200px;
+			}
+
+			/* Toolbar: vertical stack on mobile */
+			.yweb-screenshot-toolbar {
+				flex-direction: column;
+				gap: 1rem;
+			}
+
+			/* Buttons: full width, larger touch targets */
+			.yweb-screenshot-actions {
+				width: 100%;
+				gap: 0.6rem;
+			}
+
+			.yweb-screenshot-actions .yweb-btn {
+				flex: 1;
+				padding: 0.7rem 0.75rem;
+				font-size: var(--yweb-font-base);
+			}
+
+			.yweb-screenshot-actions .yweb-btn svg {
+				width: 20px;
+				height: 20px;
+			}
+
+			.yweb-screenshot-actions .yweb-btn .btn-label {
+				display: inline;
+			}
+
+			/* Options: 2x2 grid on mobile */
+			.yweb-screenshot-options {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 0.75rem 1rem;
+				align-items: center;
+				width: 100%;
+				margin-left: 0;
+			}
+
+			/* Reload group: second row */
+			.yweb-reload-group {
+				grid-column: 1 / -1;
+				margin-left: 0;
+				justify-self: start;
+				padding: 0.4rem 0.75rem;
+				font-size: var(--yweb-font-base);
+			}
+
+			/* Larger toggles for touch */
+			.yweb-toggle-pill {
+				font-size: var(--yweb-font-base);
+				gap: 0.5rem;
+				padding: 0.4rem 0.75rem;
+			}
+
+			.yweb-toggle-track {
+				width: 44px;
+				height: 24px;
+			}
+
+			.yweb-toggle-track::after {
+				width: 20px;
+				height: 20px;
+			}
+
+			.yweb-toggle-pill input:checked + .yweb-toggle-track::after {
+				transform: translateX(20px);
+			}
+
+			.yweb-reload-group input[type="number"] {
+				width: 2.5ch;
+			}
+
+			/* Remote card: natural height on mobile */
+			.yweb-screenshot-grid #card-remote {
+				min-height: auto;
+				overflow: visible;
+			}
+
+			.yweb-screenshot-grid #card-remote .yweb-card-body {
+				flex: none;
+				overflow: visible;
+			}
+		}
+	</style>
+</head>
+<body>
+	<!-- Header wird dynamisch von yweb-header.js generiert -->
+	<div class="yweb-header-wrapper" data-page="tools"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<!-- Main Content -->
+	<main class="yweb-screenshot-grid">
+		<!-- Remote Card (left) -->
+		<article class="yweb-card" id="card-remote">
+			<header class="yweb-card-header" onclick="toggleCard('card-remote')">
+				<h3 class="yweb-card-title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<rect x="7" y="2" width="10" height="20" rx="2"/>
+						<circle cx="12" cy="18" r="1"/>
+					</svg>
+					Fernbedienung
+				</h3>
+			</header>
+			<div class="yweb-card-body" id="remoteContainer"></div>
+		</article>
+
+		<!-- Screenshot Card (right) -->
+		<article class="yweb-card" id="card-screenshot">
+			<header class="yweb-card-header" onclick="toggleCard('card-screenshot')">
+				<h3 class="yweb-card-title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+						<circle cx="12" cy="13" r="4"/>
+					</svg>
+					Screenshot
+				</h3>
+			</header>
+			<div class="yweb-card-body">
+				<div class="yweb-screenshot-toolbar">
+					<div class="yweb-screenshot-actions">
+						<button class="yweb-btn primary" onclick="doSnapshot()" id="btnSnapshot">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+								<circle cx="12" cy="13" r="4"/>
+							</svg>
+							<span class="btn-label">Screenshot</span>
+						</button>
+						<button class="yweb-btn" onclick="doClear()">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<polyline points="3,6 5,6 21,6"/>
+								<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+							</svg>
+							<span class="btn-label">Löschen</span>
+						</button>
+					</div>
+
+					<div class="yweb-screenshot-options">
+						<label class="yweb-toggle-pill">
+							<input type="checkbox" id="checkOSD" checked>
+							<span class="yweb-toggle-track"></span>
+							<span>OSD</span>
+						</label>
+						<label class="yweb-toggle-pill">
+							<input type="checkbox" id="checkVideo" checked>
+							<span class="yweb-toggle-track"></span>
+							<span>Video</span>
+						</label>
+						<div class="yweb-reload-group">
+							<label class="yweb-toggle-pill">
+								<input type="checkbox" id="checkReload">
+								<span class="yweb-toggle-track"></span>
+								<span>Reload</span>
+							</label>
+							<input type="number" id="inputReload" value="15" min="1" max="180" disabled>
+							<span class="yweb-unit">s</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="yweb-screenshot-display" id="screenshotDisplay">
+				<div class="yweb-screenshot-placeholder" id="placeholder">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+						<circle cx="8.5" cy="8.5" r="1.5"/>
+						<polyline points="21,15 16,10 5,21"/>
+					</svg>
+					<span>Klicke auf "Screenshot" um ein Bild aufzunehmen</span>
+				</div>
+				<p id="loading" aria-busy="true" style="display:none;padding:2rem;text-align:center;color:var(--pico-muted-color)">Screenshot wird erstellt...</p>
+				<img id="screenshot" src="" alt="Screenshot" style="display:none">
+			</div>
+		</article>
+	</main>
+
+	<script src="/Y_Baselib.js"></script>
+	<script src="/yweb-header.js?v=27"></script>
+	<script>
+		let reloadInterval = null;
+
+		// Inject shared remote template
+		document.getElementById('remoteContainer').innerHTML = ywebGetRemoteHTML({
+			onKey: 'rcsim',
+			id: 'screenshotRemote'
+		});
+		ywebInitRemoteRepeat('screenshotRemote');
+
+		// Mobile accordion (shared)
+		ywebInitMobileAccordion({
+			cardOrder: ['card-remote', 'card-screenshot'],
+			storageKey: 'yweb-screenshot-card',
+			defaultCard: 'card-screenshot',
+			breakpoint: 768,
+			containerSelector: '.yweb-screenshot-grid',
+			mode: 'expanded'
+		});
+
+		// Remote Control Simulation (key press + optional auto-screenshot)
+		async function rcsim(key) {
+			if (!checkEnable()) return;
+			try {
+				await ywebSendKey(key);
+				if (document.getElementById('checkReload').checked) {
+					setTimeout(doSnapshot, 750);
+				}
+			} catch (e) {
+				console.error('RC command failed:', e);
+			}
+		}
+
+		// Screenshot functions
+		function checkEnable() {
+			const osd = document.getElementById('checkOSD').checked;
+			const video = document.getElementById('checkVideo').checked;
+
+			if (!osd && !video) {
+				alert('Bitte OSD oder Video auswaehlen!');
+				return false;
+			}
+			return true;
+		}
+
+		async function doSnapshot() {
+			if (!checkEnable()) return;
+
+			// Mobile: show screenshot card
+			selectCard('card-screenshot');
+
+			const placeholder = document.getElementById('placeholder');
+			const loading = document.getElementById('loading');
+			const img = document.getElementById('screenshot');
+
+			placeholder.style.display = 'none';
+			img.style.display = 'none';
+			loading.style.display = 'flex';
+
+			const osd = document.getElementById('checkOSD').checked ? 1 : 0;
+			const video = document.getElementById('checkVideo').checked ? 1 : 0;
+
+			try {
+				await fetch('/control/screenshot?name=screenshot&osd=' + osd + '&video=' + video);
+				await new Promise(resolve => setTimeout(resolve, 500));
+				loading.style.display = 'none';
+				img.src = '/tmp/screenshot.png?' + Math.random();
+				img.style.display = 'block';
+			} catch (e) {
+				console.error('Screenshot failed:', e);
+				loading.style.display = 'none';
+				placeholder.style.display = 'flex';
+			}
+		}
+
+		async function doClear() {
+			const img = document.getElementById('screenshot');
+			const placeholder = document.getElementById('placeholder');
+
+			img.style.display = 'none';
+			img.src = '';
+			placeholder.style.display = 'flex';
+
+			try {
+				await fetch('/control/cmd?rm -f /tmp/*.png');
+			} catch (e) {
+				console.error('Clear failed:', e);
+			}
+		}
+
+		// Reload toggle
+		document.getElementById('checkReload').addEventListener('change', function() {
+			var input = document.getElementById('inputReload');
+			input.disabled = !this.checked;
+
+			if (this.checked) {
+				var interval = parseInt(input.value) * 1000;
+				reloadInterval = setInterval(doSnapshot, interval);
+			} else {
+				clearInterval(reloadInterval);
+				reloadInterval = null;
+			}
+		});
+
+		// Initialize
+		doSnapshot();
+	</script>
+</body>
+</html>

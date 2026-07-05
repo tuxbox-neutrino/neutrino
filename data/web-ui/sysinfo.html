@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - System Info</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		.sysinfo-content {
+			padding: 0.5rem 1rem;
+		}
+
+		.sysinfo-cards {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1rem;
+		}
+
+		.sysinfo-card {
+			background: var(--pico-card-background-color);
+			border-radius: var(--yweb-radius-lg);
+			box-shadow: var(--yweb-shadow);
+			overflow: hidden;
+		}
+
+		[data-theme="light"] .sysinfo-card {
+			border: 1px solid var(--yweb-border-subtle);
+		}
+
+		.sysinfo-card-header {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.75rem 1rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			font-weight: 600;
+			font-size: 0.9rem;
+		}
+
+		.sysinfo-card-header svg {
+			width: 1.1rem;
+			height: 1.1rem;
+			color: var(--yweb-accent);
+			flex-shrink: 0;
+		}
+
+		.sysinfo-card-body {
+			padding: 0.75rem 1rem;
+		}
+
+		.sysinfo-grid {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 0.25rem 1rem;
+			align-items: center;
+		}
+
+		.sysinfo-label {
+			font-size: 0.82rem;
+			color: var(--pico-muted-color);
+			white-space: nowrap;
+		}
+
+		.sysinfo-value {
+			font-size: 0.82rem;
+			font-weight: 500;
+			word-break: break-word;
+		}
+
+		.sysinfo-bar {
+			height: 6px;
+			background: var(--pico-muted-border-color);
+			border-radius: 3px;
+			margin-bottom: 0.15rem;
+		}
+
+		.sysinfo-bar-fill {
+			height: 100%;
+			background: var(--yweb-accent);
+			border-radius: 3px;
+			transition: width 0.3s ease;
+		}
+
+		.sysinfo-value small {
+			font-size: 0.75rem;
+			color: var(--pico-muted-color);
+			font-weight: 400;
+		}
+
+		.sysinfo-card-wide {
+			grid-column: 1 / -1;
+		}
+
+		.sysinfo-iface {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 0.5rem 0;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			font-size: 0.82rem;
+		}
+
+		.sysinfo-iface:last-child {
+			border-bottom: none;
+		}
+
+		.sysinfo-iface-name {
+			font-weight: 600;
+			min-width: 6rem;
+		}
+
+		.sysinfo-iface-status {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		.sysinfo-iface-status.up { background: var(--yweb-success, #22c55e); }
+		.sysinfo-iface-status.down { background: var(--pico-muted-color); }
+
+		.sysinfo-iface-detail {
+			color: var(--pico-muted-color);
+		}
+
+		/* Erweitert section */
+		.sysinfo-details {
+			margin-top: 1rem;
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--yweb-radius);
+			background: var(--pico-card-background-color);
+			box-shadow: var(--yweb-shadow);
+		}
+
+		[data-theme="light"] .sysinfo-details {
+			border: 1px solid var(--yweb-border-subtle);
+		}
+
+		.sysinfo-details summary {
+			padding: 0.6rem 1rem;
+			font-size: 0.85rem;
+			font-weight: 600;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.sysinfo-details summary:hover {
+			color: var(--yweb-accent);
+		}
+
+		.sysinfo-pre {
+			margin: 0;
+			padding: 0.75rem 1rem;
+			font-size: 0.7rem;
+			line-height: 1.4;
+			max-height: 400px;
+			overflow: auto;
+			background: var(--pico-card-sectioning-background-color);
+			border-top: 1px solid var(--pico-muted-border-color);
+			white-space: pre;
+		}
+
+		/* Toolbar */
+		.sysinfo-toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 0.5rem;
+			margin-bottom: 1rem;
+		}
+
+		@media (max-width: 600px) {
+			.sysinfo-cards {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="yweb-header-wrapper" data-page="tools"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<main class="sysinfo-content">
+		<div class="sysinfo-toolbar">
+			<button class="yweb-btn primary" onclick="loadSysInfo()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+				Aktualisieren
+			</button>
+		</div>
+
+		<div class="sysinfo-cards" id="sysinfo-cards">
+			<!-- Hardware -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+					Hardware
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-hw">
+						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Speicher -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
+					Speicher
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-mem">
+						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- System -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+					System
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-sys">
+						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Software -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+					Software
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-sw">
+						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+			<!-- Netzwerk -->
+			<div class="sysinfo-card sysinfo-card-wide">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+					Netzwerk
+				</div>
+				<div class="sysinfo-card-body" id="sysinfo-net">
+					<span class="sysinfo-label">Lade...</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Erweitert -->
+		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'ps')">
+			<summary>Prozessliste</summary>
+			<pre class="sysinfo-pre" id="sysinfo-ps">Lade...</pre>
+		</details>
+
+		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'dmesg')">
+			<summary>Kernel-Log</summary>
+			<pre class="sysinfo-pre" id="sysinfo-dmesg">Lade...</pre>
+		</details>
+	</main>
+
+	<script src="/Y_Baselib.js"></script>
+	<script src="/yweb-header.js?v=27"></script>
+	<script>
+	function row(label, value) {
+		return '<span class="sysinfo-label">' + label + '</span><span class="sysinfo-value">' + value + '</span>';
+	}
+
+	function bar(label, percent, text) {
+		return '<span class="sysinfo-label">' + label + '</span>' +
+			'<span class="sysinfo-value">' +
+				'<div class="sysinfo-bar"><div class="sysinfo-bar-fill" style="width:' + percent + '%"></div></div>' +
+				'<small>' + text + ' (' + percent + '%)</small>' +
+			'</span>';
+	}
+
+	async function loadSysInfo() {
+		try {
+			var results = await Promise.all([
+				fetch('/control/sysinfo').then(function(r) { return r.json(); }),
+				fetch('/control/versions').then(function(r) { return r.json(); })
+			]);
+			var sys = results[0];
+			var ver = results[1];
+
+			// Hardware
+			var hw = '';
+			if (sys.cpu_model) hw += row('CPU', sys.cpu_model);
+			hw += row('Kerne', sys.cpu.cores);
+			hw += row('Auslastung', sys.cpu.percent + '%');
+			if (sys.temperature !== null && sys.temperature !== undefined)
+				hw += row('Temperatur', sys.temperature + '°C');
+			if (sys.box) hw += row('Box', sys.box.vendor + ' ' + sys.box.name + ' (' + sys.box.arch + ')');
+			document.getElementById('sysinfo-hw').innerHTML = hw;
+
+			// Speicher
+			var mem = '';
+			if (sys.memory)
+				mem += bar('RAM', sys.memory.percent, ywebFormatKB(sys.memory.used) + ' / ' + ywebFormatKB(sys.memory.total));
+			if (sys.disk)
+				mem += bar('Disk', sys.disk.percent, ywebFormatKB(sys.disk.free) + ' frei von ' + ywebFormatKB(sys.disk.total));
+			document.getElementById('sysinfo-mem').innerHTML = mem;
+
+			// System
+			var s = '';
+			s += row('Hostname', sys.hostname);
+			s += row('Uptime', ywebFormatUptime(sys.uptime));
+			s += row('Kernel', sys.kernel);
+			if (sys.load) s += row('Load', sys.load[0].toFixed(2) + ' / ' + sys.load[1].toFixed(2) + ' / ' + sys.load[2].toFixed(2));
+			if (sys.processes) s += row('Prozesse', sys.processes.running + ' aktiv / ' + sys.processes.total + ' gesamt');
+			document.getElementById('sysinfo-sys').innerHTML = s;
+
+			// Software
+			var sw = '';
+			if (ver.neutrino) {
+				var nv = ver.neutrino_name ? ver.neutrino_name + ' ' + ver.neutrino : ver.neutrino;
+				if (ver.neutrino_git) nv += ' (' + ver.neutrino_git.substring(0, 8) + ')';
+				sw += row('Neutrino', nv);
+			}
+			if (ver.yweb) sw += row('yWeb', ver.yweb);
+			if (ver.api) sw += row('API', ver.api);
+			if (ver.server) sw += row('Server', ver.server);
+			document.getElementById('sysinfo-sw').innerHTML = sw;
+
+			// Netzwerk
+			var net = '';
+			if (sys.interfaces && sys.interfaces.length) {
+				for (var i = 0; i < sys.interfaces.length; i++) {
+					var iface = sys.interfaces[i];
+					net += '<div class="sysinfo-iface">' +
+						'<span class="sysinfo-iface-status ' + (iface.up ? 'up' : 'down') + '"></span>' +
+						'<span class="sysinfo-iface-name">' + iface.name + '</span>' +
+						'<span>' + (iface.ip || '–') + '</span>' +
+						'<span class="sysinfo-iface-detail">' + (iface.mac || '') + '</span>' +
+					'</div>';
+				}
+			} else {
+				net = '<span class="sysinfo-label">Keine Interfaces</span>';
+			}
+			document.getElementById('sysinfo-net').innerHTML = net;
+		} catch (e) {
+			document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--yweb-danger)">Fehler: ' + e.message + '</span>';
+		}
+	}
+
+	async function sysInfoToggle(details, type) {
+		if (!details.open) return;
+		var pre = details.querySelector('pre');
+		if (pre.dataset.loaded) return;
+		pre.dataset.loaded = '1';
+
+		var endpoint = type === 'ps' ? '/control/cmd?ps aux' : '/control/cmd?dmesg';
+		try {
+			var res = await fetch(endpoint);
+			var text = await res.text();
+			text = text.replace(/^[\s\r\n]+|[\s\r\n]+$/g, '');
+			pre.textContent = text || '(keine Ausgabe)';
+		} catch (e) {
+			pre.textContent = 'Fehler: ' + e.message;
+		}
+	}
+
+	loadSysInfo();
+	</script>
+</body>
+</html>
