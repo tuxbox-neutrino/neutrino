@@ -117,6 +117,7 @@ private:
 	void GlcdScreenshotCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
 	void StartPluginCGI(CyhookHandler *hh);
+	void PluginsCGI(CyhookHandler *hh);
 	void LCDAction(CyhookHandler *hh);
 	void YWebCGI(CyhookHandler *hh);
 	void RebootCGI(CyhookHandler *hh);

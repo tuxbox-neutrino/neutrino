@@ -71,6 +71,7 @@
 | `/api/v4/exec` | `/control/exec` — **Roh-Text, kein JSON** | CControlAPI::ExecCGI |
 | `/api/v4/cmd` | `/control/cmd` — **Roh-Text, kein JSON** | CControlAPI::CmdCGI |
 | `/api/v4/startplugin` | `/control/startplugin` (Envelope) | CControlAPI::StartPluginCGI |
+| `/api/v4/plugins` | `/control/plugins` (NEU: Plugin-Liste `{"plugins":[{number,name,type,description,hidden}]}`) | CControlAPI::PluginsCGI |
 | `/api/v4/reloadplugins` | `/control/reloadplugins` (Envelope) | CControlAPI::ReloadPluginsCGI |
 | `/api/v4/reloadchannels` | `/control/reloadchannels` (Envelope) | CControlAPI::ReloadChannelsCGI |
 | `/api/v4/xmltvlist` | `/control/xmltvlist` | CControlAPI::xmltvlistCGI |

@@ -266,6 +266,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"rcem",		&CControlAPI::RCEmCGI,			"text/plain"},
 	// Start skripts, plugins
 	{"startplugin",		&CControlAPI::StartPluginCGI,		"text/plain"},
+	{"plugins",		&CControlAPI::PluginsCGI,		"application/json"},
 	{"exec",		&CControlAPI::ExecCGI,			"text/plain"},
 	{"cmd",			&CControlAPI::CmdCGI,			"text/plain"},
 	{"yweb",		&CControlAPI::YWebCGI,			"text/plain"},
@@ -355,6 +356,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
 	{"exec",	&CControlAPI::ExecCGI,		"text/plain"},
 	{"cmd",		&CControlAPI::CmdCGI,		"text/plain"},
 	{"startplugin",	&CControlAPI::StartPluginCGI,	"application/json"},
+	{"plugins",	&CControlAPI::PluginsCGI,	"application/json"},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,	"application/json"},
 	{"reloadchannels",	&CControlAPI::ReloadChannelsCGI,	"application/json"},
 	{"xmltvlist",	&CControlAPI::xmltvlistCGI,	"application/json"},
@@ -3236,6 +3238,35 @@ void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
 
 	g_Plugins->loadPlugins();
 	hh->SendOk();
+}
+
+//-----------------------------------------------------------------------------
+// List available plugins
+// Example: /control/plugins?format=json  /api/v4/plugins
+//-----------------------------------------------------------------------------
+void CControlAPI::PluginsCGI(CyhookHandler *hh)
+{
+	hh->SetHeader(HTTP_OK, "application/json");
+
+	if (g_Plugins == NULL)
+	{
+		hh->SendError("no plugins available");
+		return;
+	}
+
+	hh->printf("{\"plugins\":[");
+	int count = g_Plugins->getNumberOfPlugins();
+	for (int i = 0; i < count; i++)
+	{
+		hh->printf("%s{\"number\":%d,\"name\":\"%s\",\"type\":%d,\"description\":\"%s\",\"hidden\":%s}",
+			(i > 0) ? "," : "",
+			i,
+			json_convert_string(g_Plugins->getName(i)).c_str(),
+			g_Plugins->getType(i),
+			json_convert_string(g_Plugins->getDescription(i)).c_str(),
+			g_Plugins->isHidden(i) ? "true" : "false");
+	}
+	hh->printf("]}\n");
 }
 
 void CControlAPI::ReloadChannelsCGI(CyhookHandler *hh)
