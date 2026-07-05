@@ -88,4 +88,25 @@
 
 Details je Endpoint (Parameter, Beispiel-Output) stehen an den verlinkten
 Handlern (Konvention `@par nhttpd-usage` / `@par output (json)`).
+
+\section apiv4_scriptops Script-driven operations (exec-Vertrag)
+
+Einige Operationen bleiben bewusst shell-getrieben und laufen ueber
+`GET /api/v4/exec?Y_Tools&<funktion>[&<arg>...]` (Roh-Text-Ausgabe).
+Die Funktionen liegen in `data/y-web/scripts/Y_Tools.sh` (yWeb-Paket);
+relevante stabile Funktionsnamen:
+
+| Funktion | Zweck |
+|---|---|
+| `domount <nr>` / `dounmount <dir>` | NFS/CIFS-Eintrag mounten / unmounten |
+| `do_mount_all` | alle konfigurierten Netz-Mounts mounten |
+| `automount_getline` / `automount_setline` | autofs-Zeilen lesen/schreiben |
+| `wol <mac>` | Wake-on-LAN (ether-wake) |
+| `settings_backup_restore backup\|restore` | Config-Backup erzeugen / einspielen |
+| `installer` | hochgeladenes Paket installieren |
+| `zapit_upload <datei>` | Kanal-/Bouquet-XML einspielen |
+
+Verfuegbarkeit ist Paket-abhaengig (yWeb-Scripts installiert?); Clients
+muessen mit Fehlern/leerer Ausgabe degradieren. Fuer alles andere gilt die
+JSON-Flaeche oben.
 */
