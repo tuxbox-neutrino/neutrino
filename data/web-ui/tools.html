@@ -151,11 +151,11 @@
 	<script>
 		async function sendStandby() {
 			try {
-				var status = await fetch('/control/standby').then(function(r) { return r.text(); });
-				if (status.trim() === 'off') {
+				var st = await ywebApi('standby', {status: ''});
+				if (st && st.standby === false) {
 					if (!confirm('Box in Standby versetzen?')) return;
 				}
-				await fetch('/control/standby?on');
+				await ywebApi('standby', 'on');
 			} catch (e) {
 				console.error('Standby failed:', e);
 			}
