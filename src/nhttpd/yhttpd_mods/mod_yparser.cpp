@@ -746,22 +746,47 @@ std::string CyParser::func_change_httpd(CyhookHandler *hh, std::string para) {
 //-------------------------------------------------------------------------
 // y-func : get_header_data
 //-------------------------------------------------------------------------
+// A yWeb language is only offered in the switcher once it carries the
+// modern UI keys (yw.* namespace). We probe for a stable sentinel key so
+// that legacy-only language files -- which fall back to English for the
+// whole modern interface -- do not clutter the language menu. As soon as
+// a language file gains the modern keys it appears automatically; see
+// data/y-web/languages/README.md for the translation workflow.
+static bool yweb_language_has_modern_keys(const std::string &path) {
+	static const std::string sentinel = "yw.nav.dashboard=";
+	std::ifstream in(path.c_str());
+	if (!in.is_open())
+		return false;
+	std::string line;
+	while (std::getline(in, line))
+		if (line.compare(0, sentinel.size(), sentinel) == 0)
+			return true;
+	return false;
+}
+
 std::string CyParser::func_get_languages_as_dropdown(CyhookHandler *,
 		std::string para) {
 	std::string yresult, sel;
 	DIR *d;
 
 	std::string act_language = CLanguage::getInstance()->language;
-	d = opendir((CLanguage::getInstance()->language_dir).c_str());
+	std::string lang_dir = CLanguage::getInstance()->language_dir;
+	d = opendir(lang_dir.c_str());
 	if (d != NULL) {
 		struct dirent *dir;
 		while ((dir = readdir(d))) {
 			if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
 				continue;
 			if (dir->d_type != DT_DIR) {
-				sel = (act_language == std::string(dir->d_name)) ? "selected=\"selected\"" : "";
+				std::string name = dir->d_name;
+				// Hide legacy-only languages, but always keep the active
+				// one so the switcher still reflects the current state.
+				if (name != act_language
+						&& !yweb_language_has_modern_keys(lang_dir + "/" + name))
+					continue;
+				sel = (act_language == name) ? "selected=\"selected\"" : "";
 				yresult += string_printf("<option value=%s %s>%s</option>",
-						dir->d_name, sel.c_str(), (encodeString(std::string(dir->d_name))).c_str());
+						name.c_str(), sel.c_str(), (encodeString(name)).c_str());
 				if(para != "nonl")
 					yresult += "\n";
 			}
