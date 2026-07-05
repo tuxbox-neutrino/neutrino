@@ -139,7 +139,7 @@
 	var cmdPrompt = '$';
 
 	// Fetch hostname for realistic prompt
-	fetch('/control/sysinfo').then(function(r) { return r.json(); }).then(function(sys) {
+	ywebApi('sysinfo').then(function(sys) {
 		if (sys.hostname) {
 			cmdPrompt = sys.hostname + ':~$';
 			document.getElementById('cmd-prompt-label').textContent = cmdPrompt;
@@ -170,8 +170,7 @@
 		cmdAppend('<span class="cmd-prompt">' + escapeHtml(cmdPrompt) + ' </span>' + escapeHtml(cmd) + '\n');
 
 		try {
-			var res = await fetch('/control/cmd?' + encodeURIComponent(cmd));
-			var text = await res.text();
+			var text = await ywebApi('cmd', encodeURIComponent(cmd), {raw: true});
 			text = text.replace(/^[\s\r\n]+|[\s\r\n]+$/g, '');
 			if (text) {
 				cmdAppend(escapeHtml(text) + '\n');
