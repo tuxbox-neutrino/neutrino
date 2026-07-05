@@ -11,6 +11,26 @@
   Breaking Changes erst mit /api/v5.
 - Query-Parameter sind identisch zur Legacy-API (siehe Mapping).
 
+\section apiv4_envelope Antwort-Envelope
+
+- **Lese-Endpoints** liefern ihre Nutzdaten wie dokumentiert, in der Regel
+  als `{"success": "true", "data":{...}}` (identisch zur bekannten
+  `format=json`-Ausgabe der Legacy-API).
+- **Aktions-Endpoints** (Timer anlegen/loeschen, zapto, Bouquet-Verben,
+  Power-Verben, ...) antworten mit dem einheitlichen Envelope:
+  - Erfolg: `{"success": "true"}`
+  - Fehler: `{"success": "false"}` bzw.
+    `{"success": "false", "error":{"msg": "<text>"}}`
+- **Unbekannter Endpoint:** HTTP 404 +
+  `{"success": "false", "error":{"msg": "unknown endpoint", "endpoint": "<name>"}}`
+- Endpoints mit Roh-Ausgabe (z.B. `exec`, `cmd`) sind in der Mapping-Tabelle
+  als `text/plain` markiert und liefern KEIN JSON.
+- Hinweis `timer`: Aktionen (`action=new|modify|remove`, `get=...`) werden
+  unter v4 trotz erzwungenem JSON ausgefuehrt und mit dem Envelope
+  quittiert; ohne Aktions-Parameter liefert `timer` die Liste.
+- Hinweis `epgsearch`: ohne `search`-Parameter antwortet v4 mit dem
+  Fehler-Envelope `{"success": "false"}` (wie Legacy plain mit `error`).
+
 \section apiv4_mapping Endpoint-Mapping v4 &harr; Legacy
 
 | v4-Endpoint | ersetzt/entspricht (Legacy) | Handler |

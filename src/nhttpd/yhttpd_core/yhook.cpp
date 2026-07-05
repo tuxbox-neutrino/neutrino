@@ -36,6 +36,7 @@ CyhookHandler::CyhookHandler()
 	Method = M_UNKNOWN;
 	httpStatus = HTTP_NIL;
 	outType = plain;
+	outTypeForced = false;
 	nonPair = false;
 	LastModified=0;
 	// the request reader answers before session_init() runs; these must
@@ -242,6 +243,8 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 	ContentLength = 0;
 	LastModified = (time_t) - 1;
 	keep_alive = _keep_alive;
+	outType = plain;
+	outTypeForced = false;
 	HookVarList.clear();
 }
 
@@ -467,6 +470,10 @@ void CyhookHandler::printf(const char *fmt, ...) {
 }
 //-----------------------------------------------------------------------------
 TOutType CyhookHandler::getOutType() {
+	// api v4 presets the output type without touching ParamList, so
+	// parameter-driven detection must not override it
+	if (outTypeForced)
+		return outType;
 	TOutType _outType = plain;
 	if(!(ParamList.empty())) {
 		if ((ParamList.find("format") != ParamList.end() && ParamList["format"] == "json")

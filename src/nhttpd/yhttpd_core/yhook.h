@@ -259,6 +259,7 @@ public:
 
 	int _outIndent;
 	TOutType outType;			// Outputtpe = plain (default)|xml|json
+	bool outTypeForced;			// outType preset by dispatcher (api v4), getOutType() keeps it
 	TOutType outStart(bool single = false);
 	TOutType getOutType();
 	std::string outIndent();
