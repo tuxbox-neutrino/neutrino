@@ -34,6 +34,42 @@ extensions/
 | `slot` | Andockpunkt: `nav` (Hauptnavigation), `tools` (Kachel im Tools-Grid), `dashboard` (Karte), `page` (nur Direktaufruf) |
 | `entry` | Einstiegsdatei relativ zum Erweiterungsordner |
 | `description` | optionaler Untertitel |
+| `settings` | optional: eigene Kategorie unter Einstellungen (siehe unten) |
+
+### Optional: eigene Einstellungs-Kategorie (`settings`)
+
+Eine aktivierte Erweiterung mit `settings`-Block bekommt eine eigene
+Kategorie in der Einstellungs-Seitenleiste. Die Felder sind deklarativ
+(gleiches Schema wie die Kern-Registry) und werden generisch geladen,
+verglichen und gespeichert — kein eigener JS-Code nötig:
+
+```json
+"settings": {
+	"label": "Meine Erweiterung",
+	"config": "yweb",
+	"sections": [
+		{ "title": "Abschnitt", "fields": [
+			{ "key": "meine_option", "label": "Option", "type": "text" },
+			{ "key": "mein_schalter", "label": "Schalter", "type": "bool01" },
+			{ "type": "action", "id": "mein-knopf", "label": "Aktion",
+			  "button": "Los", "api": { "endpoint": "exec",
+			  "params": "MeinScript&aktion", "raw": true },
+			  "success": "Ausgefuehrt" }
+		] }
+	]
+}
+```
+
+| Feld | Bedeutung |
+|------|-----------|
+| `label` | Kategoriename in der Seitenleiste (Default: `name`) |
+| `config` | Ziel-Config fuer `key`-Felder: `yweb` (Default), `neutrino`, `nhttpd` |
+| `sections[].fields[]` | Feldtypen `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
+
+`key`-Felder werden in der gewaehlten Config-Datei persistiert;
+`action`-Felder feuern einen v4-Call (typisch `exec` auf ein Script);
+ohne `success`-Text erscheint die Script-Ausgabe als Toast-Feedback.
+Referenz: [`hallo-yweb/manifest.json`](hallo-yweb/manifest.json).
 
 ## 3. Seite schreiben (`index.html`)
 

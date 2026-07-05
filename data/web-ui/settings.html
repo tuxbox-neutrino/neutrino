@@ -270,6 +270,10 @@
 	var originalValues = {};
 	var activeCategory = '';
 	var renderedPanels = {};
+	// Aktivierte Erweiterungen mit settings-Definition im Manifest werden
+	// als eigene Kategorien eingeblendet (id 'ext-<dir>', Panel ueber den
+	// generischen ExtConfig-Zyklus gegen config=<name>, Default yweb)
+	var EXT_SETTINGS_CATS = {};
 
 	function makeCardHeader(label) {
 		var d = document.createElement('div');
@@ -303,7 +307,7 @@
 		btn.textContent = '...';
 		try {
 			var res = await ywebApi(f.api.endpoint, f.api.params, f.api.raw ? {raw: true} : undefined);
-			ywebShowToast(f.success || 'Ausgef\u00fchrt');
+			ywebShowToast(f.success || (typeof res === 'string' && res.trim()) || 'Ausgef\u00fchrt');
 			if (f.refresh) await loadSettings();
 			if (typeof f.after === 'function') f.after(res);
 		} catch (e) {
@@ -367,6 +371,7 @@
 	}
 
 	function renderCategory(catId) {
+		if (EXT_SETTINGS_CATS[catId]) return renderExtConfigPanel(EXT_SETTINGS_CATS[catId]);
 		var cat = SETTINGS_REGISTRY.find(function(c) { return c.id === catId; });
 		if (!cat) return '';
 
@@ -412,15 +417,19 @@
 			EXT_CONFIG_CACHE[cat.config] = cfg;
 			var get = function(key) { return cfg[String(key).replace(/\./g, '_dot_').replace(/-/g, '_bind_')] || ''; };
 			var html = '';
+			var savable = 0;
 			cat.sections.forEach(function(sec) {
 				html += '<div class="yweb-form-section"><div class="yweb-form-section-title">' + sec.title + '</div>';
 				sec.fields.forEach(function(f) {
+					if (f.key && f.type !== 'info' && f.type !== 'action') savable++;
 					html += renderField(f, {get: get, dataConfig: cat.config, idPrefix: cat.id + '_'});
 				});
 				html += '</div>';
 			});
-			html += '<div class="yweb-form-row"><label></label>' +
-				'<button type="button" class="yweb-btn" onclick="saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)">Speichern</button></div>';
+			// Reine Action-/Info-Panels haben nichts zu speichern
+			if (savable > 0)
+				html += '<div class="yweb-form-row"><label></label>' +
+					'<button type="button" class="yweb-btn" onclick="saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)">Speichern</button></div>';
 			el.innerHTML = html;
 		} catch (e) {
 			el.innerHTML = '<div class="yweb-form-row"><label>Nicht verf\u00fcgbar: ' + escapeHtml(e.message) + '</label></div>';
@@ -446,7 +455,7 @@
 		try {
 			await ywebApi('config', 'config=' + cfgName + '&' + params);
 			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
-			await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }));
+			await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
 		} catch (e) {
 			ywebShowToast('Fehler: ' + e.message, true);
 		}
@@ -893,6 +902,15 @@
 				(cat.id === activeCategory ? ' selected' : '') + '>' + cat.label + '</option>';
 		});
 
+		Object.keys(EXT_SETTINGS_CATS).forEach(function(cid) {
+			var cat = EXT_SETTINGS_CATS[cid];
+			sidebarHtml += '<button data-cat="' + cat.id + '"' +
+				(cat.id === activeCategory ? ' class="active"' : '') +
+				' onclick="switchCategory(\'' + cat.id + '\')">' + escapeHtml(cat.label) + '</button>';
+			mobileHtml += '<option value="' + cat.id + '"' +
+				(cat.id === activeCategory ? ' selected' : '') + '>' + escapeHtml(cat.label) + '</option>';
+		});
+
 		document.getElementById('settingsSidebar').innerHTML = sidebarHtml;
 		document.getElementById('mobileCategorySelect').innerHTML = mobileHtml;
 	}
@@ -991,13 +1009,29 @@
 
 		originalValues = Object.assign({}, configData);
 
+		// Aktivierte Erweiterungen mit settings-Definition als Kategorien
+		EXT_SETTINGS_CATS = {};
+		try {
+			_ywebExtensions = null; // frisch entdecken (Enable kann sich geaendert haben)
+			(await ywebDiscoverExtensions()).forEach(function(m) {
+				if (!m.enabled || !m.settings || !m.settings.sections) return;
+				var cid = 'ext-' + m.dir;
+				EXT_SETTINGS_CATS[cid] = {
+					id: cid,
+					label: m.settings.label || m.name,
+					config: m.settings.config || 'yweb',
+					sections: m.settings.sections
+				};
+			});
+		} catch (ignore) {}
+
 		// Clear cached panels — config changed
 		renderedPanels = {};
 		document.getElementById('settingsContent').innerHTML = '';
 
 		// Determine active category from hash or default to first
 		var hash = location.hash.replace('#', '');
-		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; });
+		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; }) || EXT_SETTINGS_CATS[hash];
 		var targetCategory = validCat ? hash : SETTINGS_REGISTRY[0].id;
 
 		activeCategory = '';
@@ -1008,7 +1042,7 @@
 	// Hash navigation
 	window.addEventListener('hashchange', function() {
 		var hash = location.hash.replace('#', '');
-		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; });
+		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; }) || EXT_SETTINGS_CATS[hash];
 		if (validCat) switchCategory(hash);
 	});
 

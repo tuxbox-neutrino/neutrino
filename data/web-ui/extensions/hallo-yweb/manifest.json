@@ -3,5 +3,31 @@
 	"version": "1.0",
 	"slot": "tools",
 	"entry": "hallo.html",
-	"description": "Referenz-Erweiterung (Copy-Paste-Vorlage)"
+	"description": "Referenz-Erweiterung (Copy-Paste-Vorlage)",
+	"settings": {
+		"label": "Hallo yWeb",
+		"config": "yweb",
+		"sections": [
+			{
+				"title": "Demo-Einstellungen (persistiert in yWeb.conf)",
+				"fields": [
+					{ "key": "hallo_yweb_text", "label": "Begruessungstext", "type": "text" },
+					{ "key": "hallo_yweb_flag", "label": "Demo-Schalter", "type": "bool01" }
+				]
+			},
+			{
+				"title": "Demo-Aktion (exec-Vertrag)",
+				"fields": [
+					{
+						"type": "action",
+						"id": "hallo-yweb-hostname",
+						"label": "Hostname der Box abfragen",
+						"button": "Abfragen",
+						"api": { "endpoint": "exec", "params": "Y_Tools&get_hostname", "raw": true },
+						"success": "Hostname abgefragt"
+					}
+				]
+			}
+		]
+	}
 }
