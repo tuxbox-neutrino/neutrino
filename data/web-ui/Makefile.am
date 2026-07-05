@@ -13,6 +13,7 @@ SUBDIRS = \
 installdir = $(PRIVATE_HTTPDDIR)
 
 install_DATA = \
+	bouquet-editor.html \
 	bouquets.html \
 	cmd.html \
 	dashboard.html \

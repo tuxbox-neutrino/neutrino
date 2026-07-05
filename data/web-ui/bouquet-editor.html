@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - Bouquet-Editor</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		.bqe-wrap { max-width: 1180px; margin: 0 auto; padding: 0.8rem; }
+		.bqe-grid { display: grid; grid-template-columns: 300px 1fr 1fr; gap: 0.8rem; }
+		.bqe-pane { background: var(--pico-card-background-color); border-radius: var(--yweb-radius); padding: 0.6rem; display: flex; flex-direction: column; min-height: 420px; }
+		.bqe-pane h4 { margin: 0 0 0.5rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; }
+		.bqe-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; max-height: calc(100vh - 300px); }
+		.bqe-list li { display: flex; align-items: center; gap: 0.35rem; padding: 0.28rem 0.4rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
+		.bqe-list li:hover { background: rgba(255,255,255,0.04); }
+		.bqe-list li.sel { background: rgba(255,165,0,0.12); outline: 1px solid var(--yweb-accent); }
+		.bqe-list li .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; }
+		.bqe-mini { background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0 0.35rem; font-size: 0.75rem; line-height: 1.5; }
+		.bqe-mini:hover { color: var(--yweb-accent); border-color: var(--yweb-accent); }
+		.bqe-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.8rem; }
+		.bqe-search { flex: 1; min-width: 140px; }
+		.bqe-search input { width: 100%; padding: 0.3rem 0.5rem !important; height: auto !important; margin: 0 !important; font-size: 0.8rem; }
+		.bqe-dirty { color: var(--yweb-accent); font-size: 0.75rem; display: none; }
+		.bqe-dirty.on { display: inline; }
+		@media (max-width: 900px) { .bqe-grid { grid-template-columns: 1fr; } .bqe-pane { min-height: 240px; } }
+	</style>
+</head>
+<body>
+	<div class="yweb-header-wrapper" data-page="tools"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<main class="bqe-wrap">
+		<div class="bqe-toolbar">
+			<label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem">Modus
+				<select id="bqeMode" onchange="bqeReloadAll()" style="margin:0;padding:0.2rem 0.4rem;height:auto">
+					<option value="TV">TV</option>
+					<option value="RADIO">Radio</option>
+				</select>
+			</label>
+			<button type="button" class="yweb-btn" onclick="bqeAddBouquet()">Neues Bouquet</button>
+			<span class="bqe-dirty" id="bqeDirty">&#9679; ungespeicherte Aenderungen</span>
+			<span style="flex:1"></span>
+			<button type="button" class="yweb-btn" onclick="bqeSave(this)">Speichern</button>
+			<button type="button" class="yweb-btn primary" onclick="bqeSaveReload(this)">Speichern &amp; Neu laden</button>
+		</div>
+
+		<div class="bqe-grid">
+			<div class="bqe-pane">
+				<h4>Bouquets <small id="bqeBqCount" style="color:var(--pico-muted-color)"></small></h4>
+				<ul class="bqe-list" id="bqeBouquets"></ul>
+			</div>
+			<div class="bqe-pane">
+				<h4><span id="bqeChTitle">Kanaele</span>
+					<button type="button" class="bqe-mini" onclick="bqeApplyChannels(this)" title="Kanalliste dieses Bouquets uebernehmen">Uebernehmen</button></h4>
+				<ul class="bqe-list" id="bqeChannels"></ul>
+			</div>
+			<div class="bqe-pane">
+				<h4>Alle Kanaele <span class="bqe-search"><input id="bqeFilter" placeholder="suchen…" oninput="bqeRenderAll()"></span></h4>
+				<ul class="bqe-list" id="bqeAll"></ul>
+			</div>
+		</div>
+		<p style="color:var(--pico-muted-color);font-size:0.75rem;margin-top:0.6rem">
+			Hinweis: Umbenennungen werden erst nach „Speichern &amp; Neu laden" in den Listen sichtbar.
+			Kanal-Aenderungen je Bouquet mit „Uebernehmen" anwenden, dann Speichern.</p>
+	</main>
+
+	<script src="/yweb-header.js?v=28"></script>
+	<script>
+		var bqeBouquets = [];      // {number, name, hidden?, locked?}
+		var bqeSelected = null;    // number des gewaehlten Bouquets
+		var bqeChan = [];          // Arbeitskopie der Bouquet-Kanaele [{id,name}]
+		var bqeAllChan = [];       // alle Kanaele des Modus
+		var bqeChanDirty = false;
+
+		function esc(t) { return escapeHtml(String(t == null ? '' : t)); }
+		function setDirty(d) {
+			bqeChanDirty = d;
+			document.getElementById('bqeDirty').classList.toggle('on', d);
+		}
+
+		async function bqeReloadAll() {
+			await Promise.all([bqeLoadBouquets(), bqeLoadAllChannels()]);
+			if (bqeSelected !== null) await bqeLoadChannels(bqeSelected);
+		}
+
+		async function bqeLoadBouquets() {
+			var mode = document.getElementById('bqeMode').value;
+			try {
+				var resp = await ywebApi('bouquets', {showempty: 'true', mode: mode});
+				var root = resp.data || resp;
+				bqeBouquets = root.bouquets || [];
+			} catch (e) { bqeBouquets = []; ywebShowToast('Bouquets: ' + e.message, true); }
+			bqeRenderBouquets();
+		}
+
+		async function bqeLoadAllChannels() {
+			var mode = document.getElementById('bqeMode').value;
+			try {
+				var resp = await ywebApi('channellist', {mode: mode});
+				bqeAllChan = (resp.data || resp).channels || [];
+			} catch (e) { bqeAllChan = []; }
+			bqeRenderAll();
+		}
+
+		async function bqeLoadChannels(nr) {
+			var mode = document.getElementById('bqeMode').value;
+			try {
+				var resp = await ywebApi('bouquet', {bouquet: nr, mode: mode});
+				bqeChan = ((resp.data || resp).channels || []).map(function(c) { return {id: c.id, name: c.name}; });
+			} catch (e) { bqeChan = []; }
+			setDirty(false);
+			bqeRenderChannels();
+		}
+
+		function bqeRenderBouquets() {
+			var ul = document.getElementById('bqeBouquets');
+			document.getElementById('bqeBqCount').textContent = bqeBouquets.length + '';
+			var html = '';
+			bqeBouquets.forEach(function(b) {
+				var nr = parseInt(b.number);
+				html += '<li class="' + (nr === bqeSelected ? 'sel' : '') + '" onclick="bqeSelect(' + nr + ')">' +
+					'<span class="nm">' + nr + ' ' + esc(b.name) + '</span>' +
+					'<span class="flags">' + (b.hidden === 'true' ? '&#128683;' : '') + (b.locked === 'true' ? '&#128274;' : '') + '</span>' +
+					'<button type="button" class="bqe-mini" title="hoch" onclick="event.stopPropagation();bqeMove(' + nr + ', \'up\')">&#9650;</button>' +
+					'<button type="button" class="bqe-mini" title="runter" onclick="event.stopPropagation();bqeMove(' + nr + ', \'down\')">&#9660;</button>' +
+					'<button type="button" class="bqe-mini" title="umbenennen" onclick="event.stopPropagation();bqeRename(' + nr + ', \'' + escapeJs(b.name) + '\')">&#9998;</button>' +
+					'<button type="button" class="bqe-mini" title="ein-/ausblenden" onclick="event.stopPropagation();bqeToggle(' + nr + ', \'' + (b.hidden === 'true' ? 'show' : 'hide') + '\')">&#128065;</button>' +
+					'<button type="button" class="bqe-mini" title="sperren/entsperren" onclick="event.stopPropagation();bqeToggle(' + nr + ', \'' + (b.locked === 'true' ? 'unlock' : 'lock') + '\')">&#128273;</button>' +
+					'<button type="button" class="bqe-mini" title="loeschen" onclick="event.stopPropagation();bqeDelete(' + nr + ', \'' + escapeJs(b.name) + '\')">&#10005;</button>' +
+					'</li>';
+			});
+			ul.innerHTML = html || '<li style="color:var(--pico-muted-color)">keine Bouquets</li>';
+		}
+
+		function bqeRenderChannels() {
+			var ul = document.getElementById('bqeChannels');
+			document.getElementById('bqeChTitle').textContent =
+				bqeSelected === null ? 'Kanaele' : ('Kanaele in #' + bqeSelected + ' (' + bqeChan.length + ')');
+			var html = '';
+			bqeChan.forEach(function(c, i) {
+				html += '<li><span class="nm">' + esc(c.name) + '</span>' +
+					'<button type="button" class="bqe-mini" onclick="bqeChMove(' + i + ', -1)">&#9650;</button>' +
+					'<button type="button" class="bqe-mini" onclick="bqeChMove(' + i + ', 1)">&#9660;</button>' +
+					'<button type="button" class="bqe-mini" title="entfernen" onclick="bqeChRemove(' + i + ')">&#10005;</button></li>';
+			});
+			ul.innerHTML = html || '<li style="color:var(--pico-muted-color)">' +
+				(bqeSelected === null ? 'Bouquet links waehlen' : 'leer') + '</li>';
+		}
+
+		function bqeRenderAll() {
+			var f = (document.getElementById('bqeFilter').value || '').toLowerCase();
+			var inBq = {};
+			bqeChan.forEach(function(c) { inBq[c.id] = true; });
+			var html = '';
+			var shown = 0;
+			for (var i = 0; i < bqeAllChan.length && shown < 400; i++) {
+				var c = bqeAllChan[i];
+				if (f && String(c.name).toLowerCase().indexOf(f) === -1) continue;
+				shown++;
+				html += '<li><span class="nm">' + esc(c.name) + '</span>' +
+					(inBq[c.id] ? '<span class="flags">im Bouquet</span>' :
+					'<button type="button" class="bqe-mini" title="hinzufuegen" onclick="bqeChAdd(\'' + escapeJs(c.id) + '\', \'' + escapeJs(c.name) + '\')">&#65291;</button>') +
+					'</li>';
+			}
+			document.getElementById('bqeAll').innerHTML = html || '<li style="color:var(--pico-muted-color)">keine Treffer</li>';
+		}
+
+		async function bqeSelect(nr) {
+			bqeSelected = nr;
+			bqeRenderBouquets();
+			await bqeLoadChannels(nr);
+			bqeRenderAll();
+		}
+
+		// ---- Kanal-Operationen (lokale Arbeitskopie, dann changebouquet)
+		function bqeChMove(i, d) {
+			var j = i + d;
+			if (j < 0 || j >= bqeChan.length) return;
+			var t = bqeChan[i]; bqeChan[i] = bqeChan[j]; bqeChan[j] = t;
+			setDirty(true); bqeRenderChannels();
+		}
+		function bqeChRemove(i) {
+			bqeChan.splice(i, 1);
+			setDirty(true); bqeRenderChannels(); bqeRenderAll();
+		}
+		function bqeChAdd(id, name) {
+			if (bqeSelected === null) { ywebShowToast('Erst Bouquet waehlen', true); return; }
+			bqeChan.push({id: id, name: name});
+			setDirty(true); bqeRenderChannels(); bqeRenderAll();
+		}
+
+		async function bqeApplyChannels(btn) {
+			if (bqeSelected === null) { ywebShowToast('Kein Bouquet gewaehlt', true); return; }
+			btn.disabled = true;
+			try {
+				var ids = bqeChan.map(function(c) { return c.id; }).join(',');
+				await ywebApi('changebouquet', {selected: bqeSelected, bchannels: ids});
+				setDirty(false);
+				ywebShowToast('Kanalliste uebernommen - Speichern nicht vergessen');
+			} catch (e) {
+				ywebShowToast('Fehler: ' + e.message, true);
+			}
+			btn.disabled = false;
+		}
+
+		// ---- Bouquet-Operationen
+		async function bqeAddBouquet() {
+			var name = prompt('Name des neuen Bouquets:');
+			if (!name) return;
+			try {
+				await ywebApi('addbouquet', {name: name});
+				ywebShowToast('Bouquet angelegt');
+				await bqeLoadBouquets();
+			} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		}
+
+		async function bqeRename(nr, oldName) {
+			var name = prompt('Neuer Name:', oldName);
+			if (!name || name === oldName) return;
+			try {
+				await ywebApi('renamebouquet', {selected: nr, nameto: name});
+				ywebShowToast('Umbenannt - sichtbar nach Speichern & Neu laden');
+			} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		}
+
+		async function bqeMove(nr, dir) {
+			try {
+				await ywebApi('movebouquet', {selected: nr, action: dir});
+				if (bqeSelected === nr) bqeSelected += (dir === 'up' ? -1 : 1);
+				await bqeLoadBouquets();
+			} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		}
+
+		async function bqeToggle(nr, action) {
+			try {
+				await ywebApi('setbouquet', {selected: nr, action: action});
+				await bqeLoadBouquets();
+			} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+		}
+
+		function bqeDelete(nr, name) {
+			ywebShowConfirm('Bouquet loeschen', 'Bouquet "' + esc(name) + '" wirklich loeschen?', 'Loeschen',
+				async function() {
+					await ywebApi('deletebouquet', {selected: nr});
+					if (bqeSelected === nr) { bqeSelected = null; bqeChan = []; bqeRenderChannels(); }
+					await bqeLoadBouquets();
+					ywebShowToast('Geloescht - Speichern nicht vergessen');
+				});
+		}
+
+		async function bqeSave(btn) {
+			btn.disabled = true;
+			try {
+				await ywebApi('savebouquet');
+				ywebShowToast('Bouquets gespeichert');
+			} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+			btn.disabled = false;
+		}
+
+		async function bqeSaveReload(btn) {
+			btn.disabled = true;
+			try {
+				await ywebApi('savebouquet');
+				await ywebApi('reloadchannels');
+				ywebShowToast('Gespeichert & neu geladen');
+				await bqeReloadAll();
+			} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
+			btn.disabled = false;
+		}
+
+		ywebInitHeader('tools');
+		bqeReloadAll();
+	</script>
+</body>
+</html>
