@@ -6,7 +6,7 @@
 	<title>yWeb - Screenshot</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<link rel="stylesheet" href="/css/yweb.css?v=60">
 	<style>
 		/* 2-column grid: Remote (auto) + Screenshot (flex) */
 		.yweb-screenshot-grid {
@@ -416,8 +416,8 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=1"></script>
-	<script src="/yweb-header.js?v=34"></script>
+	<script src="/Y_Lang.yjs?v=2"></script>
+	<script src="/yweb-header.js?v=35"></script>
 	<script>
 		let reloadInterval = null;
 

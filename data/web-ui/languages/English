@@ -934,3 +934,5 @@ yw.reg.volume_step=Volume step
 yw.reg.webtv_sources=WebTV sources
 yw.reg.zap_history=Zap history
 yw.reg.zap_mode=Zapping mode
+yw.lang.title=Language
+yw.lang.none=No languages installed

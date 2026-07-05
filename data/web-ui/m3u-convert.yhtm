@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.m3u=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<link rel="stylesheet" href="/css/yweb.css?v=60">
 	<style>
 		.m3u-wrap { max-width: 920px; margin: 0 auto; padding: 1rem; }
 		.m3u-wrap textarea { width: 100%; font-family: monospace; font-size: 0.8rem; }
@@ -53,8 +53,8 @@
 		</div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=1"></script>
-	<script src="/yweb-header.js?v=34"></script>
+	<script src="/Y_Lang.yjs?v=2"></script>
+	<script src="/yweb-header.js?v=35"></script>
 	<script>
 		document.getElementById('m3uFile').addEventListener('change', function() {
 			var files = this.files;

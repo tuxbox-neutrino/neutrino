@@ -130,6 +130,12 @@ function ywebGetHeaderHTML(activePage) {
 		<div class="yweb-header-right">
 			<span class="yweb-hostname" id="yweb-hostname">--</span>
 			<span class="yweb-clock" id="yweb-clock">--:--</span>
+			<button class="yweb-theme-toggle" onclick="ywebToggleLangMenu(event)" title="${ywebL('lang.title', 'Language')}">
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<circle cx="12" cy="12" r="9" stroke-width="2"/>
+					<path stroke-width="2" d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
+				</svg>
+			</button>
 			<button class="yweb-theme-toggle" onclick="ywebToggleTheme()" title="Theme wechseln">
 				<svg id="yweb-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
@@ -160,6 +166,63 @@ function ywebSetTheme(theme) {
 	document.documentElement.setAttribute('data-theme', theme);
 	localStorage.setItem('yweb-theme', theme);
 	ywebUpdateThemeIcon(theme);
+}
+
+// ═══ Sprachwechsler ═══
+// Sprachliste kommt aus Y_Lang.yjs (window.YWEB_LANGS_HTML, yparsed
+// option-Liste des languages/-Verzeichnisses, aktive Sprache selected)
+function ywebGetLanguages() {
+	var langs = [];
+	if (!window.YWEB_LANGS_HTML) return langs;
+	var sel = document.createElement('select');
+	sel.innerHTML = window.YWEB_LANGS_HTML;
+	for (var i = 0; i < sel.options.length; i++)
+		langs.push({name: sel.options[i].value, active: sel.options[i].hasAttribute('selected')});
+	return langs;
+}
+
+function ywebToggleLangMenu(ev) {
+	ev.stopPropagation();
+	var menu = document.getElementById('yweb-lang-menu');
+	if (menu) { menu.remove(); return; }
+	var langs = ywebGetLanguages();
+	if (!langs.length) {
+		ywebShowToast(ywebL('lang.none', 'No languages installed'), true);
+		return;
+	}
+	menu = document.createElement('div');
+	menu.id = 'yweb-lang-menu';
+	menu.className = 'yweb-lang-menu';
+	langs.forEach(function(l) {
+		var b = document.createElement('button');
+		b.type = 'button';
+		b.textContent = l.name;
+		if (l.active) b.classList.add('active');
+		b.onclick = function() { ywebSetLanguage(l.name); };
+		menu.appendChild(b);
+	});
+	var r = ev.currentTarget.getBoundingClientRect();
+	menu.style.top = (r.bottom + 4) + 'px';
+	menu.style.right = Math.max(4, window.innerWidth - r.right) + 'px';
+	document.body.appendChild(menu);
+	setTimeout(function() {
+		document.addEventListener('click', function close() {
+			document.removeEventListener('click', close);
+			var m = document.getElementById('yweb-lang-menu');
+			if (m) m.remove();
+		});
+	}, 0);
+}
+
+async function ywebSetLanguage(lang) {
+	try {
+		// set-lang.yhtm ruft set_language: schreibt nhttpd.conf und
+		// laedt die Sprachdateien im Webserver neu; danach Reload
+		await fetch('/set-lang.yhtm?' + encodeURIComponent(lang), {cache: 'no-store'});
+		location.reload();
+	} catch (e) {
+		ywebShowToast('Error: ' + e.message, true);
+	}
 }
 
 function ywebToggleTheme() {

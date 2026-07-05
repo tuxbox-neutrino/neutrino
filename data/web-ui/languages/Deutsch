@@ -934,3 +934,5 @@ yw.reg.volume_step=Lautstärke-Stufe
 yw.reg.webtv_sources=WebTV-Quellen
 yw.reg.zap_history=Zap-Historie
 yw.reg.zap_mode=Umschaltmodus
+yw.lang.title=Sprache
+yw.lang.none=Keine Sprachen installiert

@@ -28,6 +28,7 @@ install_DATA = \
 	files.yhtm \
 	m3u-convert.yhtm \
 	screenshot.yhtm \
+	set-lang.yhtm \
 	settings.yhtm \
 	settings-registry.js \
 	sysinfo.yhtm \

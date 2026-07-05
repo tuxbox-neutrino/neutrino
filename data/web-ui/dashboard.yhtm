@@ -9,7 +9,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<link rel="stylesheet" href="/css/yweb.css?v=60">
 	<style>
 	/* Dashboard Grid */
 	.yweb-dashboard {
@@ -1172,8 +1172,8 @@
 	</footer>
 
 	<script src="/jquery/jquery.min.js"></script>
-	<script src="/Y_Lang.yjs?v=1"></script>
-	<script src="/yweb-header.js?v=34"></script>
+	<script src="/Y_Lang.yjs?v=2"></script>
+	<script src="/yweb-header.js?v=35"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;

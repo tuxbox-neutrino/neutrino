@@ -114,5 +114,12 @@ window.YWEB_L = {
 	"set.ext_title": "{=L:yw.set.ext_title=}",
 	"set.mnt_pass": "{=L:yw.set.mnt_pass=}",
 	"set.mnt_user": "{=L:yw.set.mnt_user=}",
-	"si.network": "{=L:yw.si.network=}"
+	"si.network": "{=L:yw.si.network=}",
+	// Sprachwechsler (yweb-header.js)
+	"lang.title": "{=L:yw.lang.title=}",
+	"lang.none": "{=L:yw.lang.none=}"
 };
+
+// Installierte Sprachen als option-Liste (aktive Sprache selected);
+// der Header baut daraus das Sprachwechsler-Menue
+window.YWEB_LANGS_HTML = '{=func:get_languages_as_dropdown nonl=}';
