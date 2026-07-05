@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#181c25">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<title>yWeb Dashboard</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+	/* Dashboard Grid */
+	.yweb-dashboard {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 0.6rem;
+		padding: 0.5rem;
+	}
+
+	/* Consistent Card Headers */
+	.yweb-card .yweb-card-header {
+		min-height: 2.2rem;
+		padding: 0.4rem 0.6rem;
+	}
+
+	.yweb-card .yweb-card-title {
+		font-size: 0.85rem;
+	}
+
+	.yweb-card .yweb-card-body {
+		padding: 0.5rem 0.6rem;
+	}
+
+	.yweb-card .yweb-card-footer {
+		padding: 0.35rem 0.6rem;
+		font-size: 0.7rem;
+	}
+
+	/* Metric gauges - thinner strokes */
+	.yweb-metrics {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.3rem;
+	}
+
+	.yweb-gauge {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 0.3rem 0.2rem;
+	}
+
+	.yweb-gauge-ring {
+		position: relative;
+		width: 52px;
+		height: 52px;
+	}
+
+	.yweb-gauge-ring svg {
+		transform: rotate(-90deg);
+		width: 100%;
+		height: 100%;
+	}
+
+	.yweb-gauge-ring circle {
+		fill: none;
+		stroke-width: 4;
+	}
+
+	.yweb-gauge-ring .bg {
+		stroke: var(--pico-muted-border-color);
+	}
+
+	.yweb-gauge-ring .fg {
+		stroke: var(--yweb-accent);
+		stroke-linecap: round;
+		transition: stroke-dashoffset 0.6s ease;
+	}
+
+	.yweb-gauge-ring .fg.ok { stroke: var(--yweb-success); }
+	.yweb-gauge-ring .fg.warning { stroke: var(--yweb-warning); }
+	.yweb-gauge-ring .fg.danger { stroke: var(--yweb-danger); }
+
+	.yweb-gauge-value {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		font-size: 0.72rem;
+		font-weight: 600;
+	}
+
+	.yweb-gauge-label {
+		font-size: 0.65rem;
+		color: var(--pico-muted-color);
+		margin-top: 0.15rem;
+	}
+
+	.yweb-gauge-sub {
+		font-size: 0.58rem;
+		color: var(--pico-muted-color);
+		opacity: 0.85;
+	}
+
+	/* System info in footer */
+	.yweb-sys-footer {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.yweb-sys-footer-item {
+		display: flex;
+		gap: 0.25rem;
+	}
+
+	.yweb-sys-footer-label {
+		color: var(--pico-muted-color);
+	}
+
+	.yweb-sys-footer-value {
+		font-weight: 500;
+	}
+
+	/* Network list - compact */
+	.yweb-net-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		max-height: 180px;
+		overflow-y: auto;
+	}
+
+	.yweb-net-item {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.3rem 0.4rem;
+		background: var(--pico-card-sectioning-background-color);
+		border-radius: var(--yweb-radius);
+		font-size: 0.7rem;
+	}
+
+	.yweb-net-icon {
+		width: 22px;
+		height: 22px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--yweb-accent-light);
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.yweb-net-icon svg {
+		width: 12px;
+		height: 12px;
+		color: var(--yweb-accent);
+	}
+
+	.yweb-net-info {
+		flex: 1;
+		min-width: 0;
+		line-height: 1.2;
+	}
+
+	.yweb-net-name {
+		font-weight: 600;
+		font-size: 0.68rem;
+	}
+
+	.yweb-net-ip {
+		color: var(--pico-muted-color);
+		font-family: var(--pico-font-family-monospace);
+		font-size: 0.62rem;
+	}
+
+	.yweb-net-mac {
+		color: var(--pico-muted-color);
+		font-family: var(--pico-font-family-monospace);
+		font-size: 0.55rem;
+		opacity: 0.7;
+	}
+
+	.yweb-net-status {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--yweb-danger);
+		flex-shrink: 0;
+	}
+
+	.yweb-net-status.up {
+		background: var(--yweb-success);
+	}
+
+	/* Hostname in network card header (scoped to avoid overriding header hostname) */
+	#net-hostname {
+		font-size: 0.75rem;
+		color: var(--pico-muted-color);
+	}
+
+	/* Temperature in header */
+	.yweb-temp {
+		display: flex;
+		align-items: center;
+		gap: 0.2rem;
+		font-size: 0.8rem;
+	}
+
+	.yweb-temp-icon {
+		color: var(--yweb-warning);
+		width: 14px;
+		height: 14px;
+	}
+
+	.yweb-temp-value {
+		font-weight: 600;
+	}
+
+	.yweb-temp-value.hot {
+		color: var(--yweb-danger);
+	}
+
+	/* TV/Radio Mode Switch */
+	.yweb-mode-switch {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.75rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid var(--yweb-border);
+	}
+
+	.yweb-mode-current {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.4rem 0.7rem;
+		background: var(--yweb-accent-light);
+		border-radius: 6px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--yweb-text);
+	}
+
+	.yweb-mode-current svg {
+		width: 16px;
+		height: 16px;
+		color: var(--yweb-primary);
+	}
+
+	.yweb-mode-switch-btn {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.3rem;
+		padding: 0.5rem 0.3rem;
+		background: var(--pico-card-sectioning-background-color);
+		border: 1px solid var(--pico-muted-border-color);
+		border-radius: var(--yweb-radius);
+		color: var(--pico-color);
+		font-size: 0.65rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.yweb-mode-switch-btn svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	.yweb-mode-switch-btn:hover {
+		background: var(--yweb-accent-light);
+		border-color: var(--yweb-accent);
+		color: var(--yweb-accent);
+	}
+
+	[data-theme="light"] .yweb-mode-switch-btn {
+		background: #f8f9fa;
+		border-color: #dee2e6;
+		color: #495057;
+	}
+
+	[data-theme="light"] .yweb-mode-switch-btn:hover {
+		background: var(--yweb-accent-light);
+		border-color: var(--yweb-accent);
+		color: var(--yweb-accent);
+	}
+
+	/* Actions grid - 3 columns */
+	.yweb-actions {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.4rem;
+	}
+
+	.yweb-action-btn {
+		padding: 0.5rem 0.3rem;
+		font-size: 0.65rem;
+	}
+
+	.yweb-action-btn svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	/* Timer list - compact */
+	.yweb-timer-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		max-height: 180px;
+		overflow-y: auto;
+	}
+
+	.yweb-timer-item {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.3rem 0.4rem;
+		background: var(--pico-card-sectioning-background-color);
+		border-radius: var(--yweb-radius);
+		font-size: 0.7rem;
+	}
+
+	.yweb-timer-icon {
+		width: 22px;
+		height: 22px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--yweb-accent-light);
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	.yweb-timer-icon svg {
+		width: 12px;
+		height: 12px;
+		color: var(--yweb-accent);
+	}
+
+	.yweb-timer-icon.record {
+		background: rgba(239, 68, 68, 0.15);
+	}
+
+	.yweb-timer-icon.record svg {
+		color: var(--yweb-danger);
+	}
+
+	.yweb-timer-info {
+		flex: 1;
+		min-width: 0;
+		line-height: 1.2;
+	}
+
+	.yweb-timer-title {
+		font-weight: 600;
+		font-size: 0.68rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.yweb-timer-channel {
+		color: var(--pico-muted-color);
+		font-size: 0.62rem;
+	}
+
+	.yweb-timer-time {
+		text-align: right;
+		flex-shrink: 0;
+		line-height: 1.2;
+	}
+
+	.yweb-timer-date {
+		font-weight: 600;
+		font-size: 0.65rem;
+	}
+
+	.yweb-timer-hour {
+		color: var(--pico-muted-color);
+		font-size: 0.62rem;
+	}
+
+	.yweb-timer-empty {
+		color: var(--pico-muted-color);
+		text-align: center;
+		padding: 1rem;
+		font-size: 0.75rem;
+	}
+
+	/* Running recording in timer card */
+	.yweb-timer-item.running {
+		background: rgba(239, 68, 68, 0.08);
+		border: 1px solid rgba(239, 68, 68, 0.2);
+	}
+
+	.yweb-timer-item.running .yweb-timer-icon {
+		background: rgba(239, 68, 68, 0.15);
+	}
+
+	.yweb-timer-item.running .yweb-timer-icon svg {
+		color: var(--yweb-danger);
+		animation: yweb-pulse 1.5s ease-in-out infinite;
+	}
+
+	.yweb-timer-item.running .yweb-timer-remaining {
+		color: var(--yweb-danger);
+		font-weight: 600;
+		font-size: 0.65rem;
+		white-space: nowrap;
+	}
+
+	/* Dashboard channel card: 4 buttons need flexible sizing */
+	.yweb-channel-footer .yweb-channel-actions .yweb-action-btn {
+		min-width: 0;
+	}
+
+	/* Rec button in channel card */
+	.yweb-channel-footer .yweb-rec-btn {
+		color: var(--yweb-danger);
+	}
+
+	.yweb-channel-footer .yweb-rec-btn.recording {
+		animation: yweb-pulse 1.5s ease-in-out infinite;
+	}
+
+	/* Recording info banner */
+	.yweb-rec-info {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.4rem 0.6rem;
+		background: rgba(239, 68, 68, 0.1);
+		border-top: 1px solid rgba(239, 68, 68, 0.2);
+		font-size: 0.7rem;
+	}
+
+	.yweb-rec-icon {
+		color: var(--yweb-danger);
+		animation: yweb-pulse 1.5s ease-in-out infinite;
+	}
+
+.yweb-rec-details {
+		flex: 1;
+		min-width: 0;
+		line-height: 1.3;
+	}
+
+	.yweb-rec-title {
+		font-weight: 600;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.yweb-rec-channel {
+		color: var(--pico-muted-color);
+		font-size: 0.62rem;
+	}
+
+	.yweb-rec-time {
+		text-align: right;
+		font-weight: 600;
+		color: var(--yweb-danger);
+		white-space: nowrap;
+	}
+
+	/* Tuner Signal Widget */
+	.yweb-tuner {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+
+	.yweb-signal-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.yweb-signal-label {
+		width: 32px;
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: var(--pico-muted-color);
+		flex-shrink: 0;
+	}
+
+	.yweb-signal-bar-container {
+		flex: 1;
+		height: 10px;
+		background: var(--pico-muted-border-color);
+		border-radius: 5px;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.yweb-signal-bar {
+		height: 100%;
+		border-radius: 5px;
+		transition: width 0.5s ease, background 0.3s ease;
+		width: 0%;
+	}
+
+	.yweb-signal-bar.excellent {
+		background: linear-gradient(90deg, #22c55e, #16a34a);
+	}
+
+	.yweb-signal-bar.good {
+		background: linear-gradient(90deg, #84cc16, #22c55e);
+	}
+
+	.yweb-signal-bar.moderate {
+		background: linear-gradient(90deg, #eab308, #84cc16);
+	}
+
+	.yweb-signal-bar.poor {
+		background: linear-gradient(90deg, #f97316, #eab308);
+	}
+
+	.yweb-signal-bar.bad {
+		background: linear-gradient(90deg, #ef4444, #f97316);
+	}
+
+	.yweb-signal-value {
+		width: 40px;
+		text-align: right;
+		font-size: 0.72rem;
+		font-weight: 600;
+		flex-shrink: 0;
+	}
+
+	.yweb-signal-value.excellent { color: #22c55e; }
+	.yweb-signal-value.good { color: #84cc16; }
+	.yweb-signal-value.moderate { color: #eab308; }
+	.yweb-signal-value.poor { color: #f97316; }
+	.yweb-signal-value.bad { color: #ef4444; }
+
+	/* BER special styling (lower is better) */
+	.yweb-ber-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding-top: 0.3rem;
+		border-top: 1px solid var(--pico-muted-border-color);
+	}
+
+	.yweb-ber-value {
+		font-family: var(--pico-font-family-monospace);
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.yweb-ber-value.ok { color: #22c55e; }
+	.yweb-ber-value.warning { color: #eab308; }
+	.yweb-ber-value.error { color: #ef4444; }
+
+	.yweb-tuner-icon {
+		display: flex;
+		align-items: center;
+		gap: 0.3rem;
+	}
+
+	.yweb-tuner-icon svg {
+		width: 14px;
+		height: 14px;
+		color: var(--pico-muted-color);
+	}
+
+	/* Multi-Tuner List */
+	.yweb-tuner-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
+	}
+
+	.yweb-tuner-item {
+		background: var(--pico-card-sectionning-background-color);
+		border-radius: 8px;
+		padding: 0.7rem;
+		border: 1px solid var(--pico-muted-border-color);
+	}
+
+	.yweb-tuner-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.5rem;
+		gap: 0.5rem;
+	}
+
+	.yweb-tuner-name {
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--pico-color);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		flex: 1;
+	}
+
+	.yweb-tuner-type {
+		font-size: 0.65rem;
+		font-weight: 600;
+		padding: 0.15rem 0.4rem;
+		border-radius: 4px;
+		background: var(--pico-primary-background);
+		color: var(--pico-primary-inverse);
+		flex-shrink: 0;
+	}
+
+	.yweb-tuner-state {
+		font-size: 0.65rem;
+		font-weight: 600;
+		padding: 0.15rem 0.4rem;
+		border-radius: 4px;
+		flex-shrink: 0;
+	}
+
+	.yweb-tuner-state.viewing {
+		background: #22c55e;
+		color: white;
+	}
+
+	.yweb-tuner-state.recording {
+		background: #ef4444;
+		color: white;
+		animation: yweb-pulse 1.5s infinite;
+	}
+
+	.yweb-tuner-state.busy {
+		background: #f97316;
+		color: white;
+	}
+
+	.yweb-tuner-state.idle {
+		background: var(--pico-muted-border-color);
+		color: var(--pico-muted-color);
+	}
+
+.yweb-tuner-channel {
+		font-size: 0.7rem;
+		color: var(--pico-muted-color);
+		margin-bottom: 0.5rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.yweb-tuner-channel:empty {
+		display: none;
+	}
+
+	.yweb-tuner-signals {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.yweb-tuner-signal {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+
+	.yweb-tuner-signal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.yweb-tuner-signal-label {
+		font-size: 0.6rem;
+		font-weight: 600;
+		color: var(--pico-muted-color);
+	}
+
+	.yweb-tuner-signal-value {
+		font-size: 0.65rem;
+		font-weight: 600;
+	}
+
+	.yweb-tuner-signal-bar {
+		height: 4px;
+		background: var(--pico-muted-border-color);
+		border-radius: 2px;
+		overflow: hidden;
+	}
+
+	.yweb-tuner-signal-fill {
+		height: 100%;
+		border-radius: 2px;
+		transition: width 0.5s ease;
+	}
+
+	/* Stream Info Widget */
+	.yweb-stream-info {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.5rem;
+	}
+
+	.yweb-stream-item {
+		display: flex;
+		flex-direction: column;
+		padding: 0.4rem 0.5rem;
+		background: var(--pico-card-sectioning-background-color);
+		border-radius: var(--yweb-radius);
+	}
+
+	.yweb-stream-label {
+		font-size: 0.6rem;
+		color: var(--pico-muted-color);
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+	}
+
+	.yweb-stream-value {
+		font-size: 0.78rem;
+		font-weight: 600;
+		font-family: var(--pico-font-family-monospace);
+	}
+
+	.yweb-stream-value.hd {
+		color: #22c55e;
+	}
+
+	.yweb-stream-value.sd {
+		color: #eab308;
+	}
+
+	.yweb-pids {
+		grid-column: span 2;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+		padding-top: 0.4rem;
+		border-top: 1px solid var(--pico-muted-border-color);
+	}
+
+	.yweb-pid-tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.2rem;
+		padding: 0.15rem 0.4rem;
+		background: var(--yweb-accent-light);
+		border-radius: 3px;
+		font-size: 0.6rem;
+		font-family: var(--pico-font-family-monospace);
+	}
+
+	.yweb-pid-tag .label {
+		color: var(--pico-muted-color);
+		font-weight: 500;
+	}
+
+	.yweb-pid-tag .value {
+		color: var(--yweb-accent);
+		font-weight: 600;
+	}
+
+	/* Mobile Accordion */
+	@media (max-width: 768px) {
+		.yweb-card-indicator {
+			display: flex;
+		}
+
+		.yweb-dashboard {
+			gap: 0.4rem;
+		}
+
+		.yweb-card {
+			margin-bottom: 0;
+		}
+
+		.yweb-card-header {
+			cursor: pointer;
+			position: relative;
+			padding-right: 2rem;
+		}
+
+		.yweb-card .yweb-card-title {
+			font-size: 0.9rem;
+		}
+
+		/* Show preview only when collapsed on mobile */
+		.yweb-card:not(.expanded) .yweb-card-preview {
+			display: inline-block;
+			margin-right: 0.8rem;
+		}
+
+		/* Hide other header elements when collapsed to make room for preview */
+		.yweb-card:not(.expanded) .yweb-temp,
+		.yweb-card:not(.expanded) #net-hostname,
+		.yweb-card:not(.expanded) .yweb-tuner-icon,
+		.yweb-card:not(.expanded) .yweb-recording {
+			display: none;
+		}
+
+		/* Ensure right-side elements don't overlap with chevron */
+		.yweb-card-header > *:last-child:not(.yweb-card-title) {
+			margin-right: 0.8rem;
+			flex-shrink: 0;
+		}
+
+		.yweb-card-header::after {
+			content: '▼';
+			position: absolute;
+			right: 0.5rem;
+			top: 50%;
+			transform: translateY(-50%);
+			font-size: 0.55rem;
+			color: var(--pico-muted-color);
+			transition: transform 0.2s ease;
+			pointer-events: none;
+		}
+
+		.yweb-card.expanded .yweb-card-header::after {
+			transform: translateY(-50%) rotate(180deg);
+		}
+
+		.yweb-card-body,
+		.yweb-card-footer,
+		.yweb-rec-info {
+			display: none;
+		}
+
+		.yweb-card.expanded .yweb-card-body,
+		.yweb-card.expanded .yweb-card-footer,
+		.yweb-card.expanded .yweb-rec-info {
+			display: block;
+		}
+
+		/* Smooth height animation */
+		.yweb-card-body {
+			overflow: hidden;
+		}
+	}
+	</style>
+</head>
+<body>
+	<!-- Header wird dynamisch von yweb-header.js generiert -->
+	<div class="yweb-header-wrapper" data-page="dashboard"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<main>
+		<div class="yweb-dashboard">
+			<!-- Quick Actions -->
+			<article class="yweb-card expanded" id="card-actions">
+				<header class="yweb-card-header" onclick="toggleCard('card-actions')">
+					<h3 class="yweb-card-title">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+						</svg>
+						Schnellzugriff
+					</h3>
+					<span id="actions-preview" class="yweb-card-preview">--</span>
+				</header>
+				<div class="yweb-card-body">
+					<div class="yweb-mode-switch" id="mode-switch">
+						<span class="yweb-mode-current" id="mode-current">
+							<svg id="mode-current-icon-tv" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+							</svg>
+							<svg id="mode-current-icon-radio" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728M9 12a3 3 0 106 0 3 3 0 00-6 0z"/>
+							</svg>
+							<span id="mode-current-text">TV</span>
+						</span>
+						<button class="yweb-mode-switch-btn" id="mode-switch-btn" onclick="switchMode()">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+							</svg>
+							<span id="mode-switch-text">Zu Radio wechseln</span>
+						</button>
+					</div>
+					<div class="yweb-actions">
+						<a href="/screenshot.html" class="yweb-action-btn">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+							</svg>
+							Screenshot
+						</a>
+<a href="/files.html" class="yweb-action-btn">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+							</svg>
+							Dateien
+						</a>
+						<button class="yweb-action-btn" onclick="ywebShowMessageDialog()">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+							</svg>
+							Nachricht
+						</button>
+						<button class="yweb-action-btn" onclick="ywebShowRemote()">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+								<rect x="7" y="2" width="10" height="20" rx="2"/>
+								<circle cx="12" cy="18" r="1"/>
+							</svg>
+							Remote
+						</button>
+						<button class="yweb-action-btn" onclick="sendStandby()">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z"/>
+							</svg>
+							Standby
+						</button>
+					</div>
+				</div>
+			</article>
+
+			<!-- Current Channel -->
+			<article class="yweb-card" id="card-channel">
+				<header class="yweb-card-header" onclick="toggleCard('card-channel')">
+					<h3 class="yweb-card-title">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+						</svg>
+						Aktueller Sender
+					</h3>
+					<span id="channel-preview" class="yweb-card-preview">--</span>
+					<span id="rec-indicator" class="yweb-recording yweb-hidden"><svg viewBox="0 0 12 12" fill="currentColor" style="width:0.55rem;height:0.55rem"><circle cx="6" cy="6" r="5"/></svg> REC</span>
+				</header>
+				<div class="yweb-card-body yweb-status">
+					<div class="yweb-status-channel" id="current-channel" onclick="showCurrentEpgInfo()" style="cursor:pointer" title="Sendungsinfo">Lade...</div>
+					<div class="yweb-status-epg" id="current-epg">--</div>
+					<div class="yweb-status-progress">
+						<progress id="epg-progress" value="0" max="100"></progress>
+						<div class="yweb-status-time">
+							<span id="epg-start">--:--</span>
+							<span id="epg-end">--:--</span>
+						</div>
+					</div>
+				</div>
+				<div id="rec-info" class="yweb-rec-info yweb-hidden">
+					<span class="yweb-rec-icon">●</span>
+					<div class="yweb-rec-details">
+						<div class="yweb-rec-title" id="rec-title">--</div>
+						<div class="yweb-rec-channel" id="rec-channel">--</div>
+					</div>
+					<div class="yweb-rec-time" id="rec-remaining">--:--</div>
+				</div>
+				<footer class="yweb-card-footer yweb-channel-footer">
+					<div class="yweb-next-epg">Nächste: <span id="next-epg">--</span></div>
+					<div class="yweb-channel-actions">
+						<button type="button" class="yweb-action-btn" onclick="showCurrentEpgInfo()" title="Sendungsinfo">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
+							</svg>
+							<span>Info</span>
+						</button>
+						<button type="button" class="yweb-action-btn yweb-rec-btn" id="rec-btn" onclick="toggleRecording()" title="Aufnehmen">
+							<svg viewBox="0 0 24 24" fill="currentColor">
+								<circle cx="12" cy="12" r="8"/>
+							</svg>
+							<span>Rec</span>
+						</button>
+						<a href="/epg.html" class="yweb-action-btn" title="EPG Plus Programm&uuml;bersicht">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+							</svg>
+							<span>EPGPlus</span>
+						</a>
+						<a href="bouquets.html" class="yweb-action-btn" title="Zur Senderliste">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M4 6h16M4 12h16M4 18h16"/>
+							</svg>
+							<span>Sender</span>
+						</a>
+					</div>
+				</footer>
+			</article>
+
+			<!-- System Metrics -->
+			<article class="yweb-card" id="card-system">
+				<header class="yweb-card-header" onclick="toggleCard('card-system')">
+					<h3 class="yweb-card-title">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+						</svg>
+						System
+					</h3>
+					<span id="system-preview" class="yweb-card-preview">--</span>
+					<div class="yweb-temp" id="sys-temp">
+						<svg class="yweb-temp-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+						</svg>
+						<span class="yweb-temp-value" id="temp-value">--</span>
+					</div>
+				</header>
+				<div class="yweb-card-body">
+					<div class="yweb-metrics" onclick="location.href='/sysinfo.html'" style="cursor:pointer" title="System-Details anzeigen">
+						<div class="yweb-gauge">
+							<div class="yweb-gauge-ring">
+								<svg viewBox="0 0 36 36">
+									<circle class="bg" cx="18" cy="18" r="16"></circle>
+									<circle class="fg" id="gauge-cpu" cx="18" cy="18" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle>
+								</svg>
+								<span class="yweb-gauge-value" id="cpu-percent">--%</span>
+							</div>
+							<span class="yweb-gauge-label">CPU</span>
+							<span class="yweb-gauge-sub" id="cpu-load">--</span>
+						</div>
+						<div class="yweb-gauge">
+							<div class="yweb-gauge-ring">
+								<svg viewBox="0 0 36 36">
+									<circle class="bg" cx="18" cy="18" r="16"></circle>
+									<circle class="fg" id="gauge-ram" cx="18" cy="18" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle>
+								</svg>
+								<span class="yweb-gauge-value" id="ram-percent">--%</span>
+							</div>
+							<span class="yweb-gauge-label">RAM</span>
+							<span class="yweb-gauge-sub" id="ram-info">--</span>
+						</div>
+						<div class="yweb-gauge">
+							<div class="yweb-gauge-ring">
+								<svg viewBox="0 0 36 36">
+									<circle class="bg" cx="18" cy="18" r="16"></circle>
+									<circle class="fg" id="gauge-disk" cx="18" cy="18" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle>
+								</svg>
+								<span class="yweb-gauge-value" id="disk-percent">--%</span>
+							</div>
+							<span class="yweb-gauge-label">Disk</span>
+							<span class="yweb-gauge-sub" id="disk-info">--</span>
+						</div>
+					</div>
+				</div>
+				<footer class="yweb-card-footer">
+					<div class="yweb-sys-footer">
+						<div class="yweb-sys-footer-item">
+							<span class="yweb-sys-footer-label">Up:</span>
+							<span class="yweb-sys-footer-value" id="sys-uptime">--</span>
+						</div>
+						<div class="yweb-sys-footer-item">
+							<span class="yweb-sys-footer-label">Box:</span>
+							<span class="yweb-sys-footer-value" id="sys-box">--</span>
+						</div>
+						<div class="yweb-sys-footer-item">
+							<span class="yweb-sys-footer-label">Kernel:</span>
+							<span class="yweb-sys-footer-value" id="sys-kernel">--</span>
+						</div>
+					</div>
+				</footer>
+			</article>
+
+			<!-- Network -->
+			<article class="yweb-card" id="card-network">
+				<header class="yweb-card-header" onclick="toggleCard('card-network')">
+					<h3 class="yweb-card-title">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+						</svg>
+						Netzwerk
+					</h3>
+					<span id="network-preview" class="yweb-card-preview">--</span>
+					<span class="yweb-hostname" id="net-hostname">--</span>
+				</header>
+				<div class="yweb-card-body">
+					<div class="yweb-net-list" id="net-interfaces">
+						<div class="yweb-net-item">
+							<span class="yweb-text-muted">Lade...</span>
+						</div>
+					</div>
+				</div>
+			</article>
+
+			<!-- Timer -->
+			<article class="yweb-card" id="card-timer">
+				<header class="yweb-card-header" onclick="toggleCard('card-timer')">
+					<h3 class="yweb-card-title">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+						</svg>
+						Nächste Timer
+					</h3>
+					<span id="timer-preview" class="yweb-card-preview">--</span>
+				</header>
+				<div class="yweb-card-body">
+					<div class="yweb-timer-list" id="timer-list">
+						<div class="yweb-timer-empty">Lade...</div>
+					</div>
+				</div>
+				<footer class="yweb-card-footer yweb-channel-footer">
+					<div class="yweb-channel-actions">
+						<a href="/timer.html" class="yweb-action-btn" title="Alle Timer anzeigen">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>
+							</svg>
+							<span>Timerliste</span>
+						</a>
+					</div>
+				</footer>
+			</article>
+
+			<!-- Tuner Status -->
+			<article class="yweb-card" id="card-tuner">
+				<header class="yweb-card-header" onclick="toggleCard('card-tuner')">
+					<h3 class="yweb-card-title">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+						</svg>
+						Tuner
+					</h3>
+					<span id="tuner-preview" class="yweb-card-preview">--</span>
+					<div class="yweb-tuner-icon" id="tuner-status-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+						</svg>
+					</div>
+				</header>
+				<div class="yweb-card-body">
+					<div class="yweb-tuner-list" id="tuner-list">
+						<!-- Tuners will be dynamically inserted here -->
+					</div>
+				</div>
+			</article>
+
+			<!-- Stream Info -->
+			<article class="yweb-card" id="card-stream">
+				<header class="yweb-card-header" onclick="toggleCard('card-stream')">
+					<h3 class="yweb-card-title">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
+						</svg>
+						Stream Info
+					</h3>
+					<span id="stream-preview" class="yweb-card-preview">--</span>
+				</header>
+				<div class="yweb-card-body">
+					<div class="yweb-stream-info">
+						<div class="yweb-stream-item">
+							<span class="yweb-stream-label">Auflösung</span>
+							<span class="yweb-stream-value" id="stream-resolution">--</span>
+						</div>
+						<div class="yweb-stream-item">
+							<span class="yweb-stream-label">Format</span>
+							<span class="yweb-stream-value" id="stream-aspect">--</span>
+						</div>
+						<div class="yweb-stream-item">
+							<span class="yweb-stream-label">Framerate</span>
+							<span class="yweb-stream-value" id="stream-fps">--</span>
+						</div>
+						<div class="yweb-stream-item">
+							<span class="yweb-stream-label">Audio</span>
+							<span class="yweb-stream-value" id="stream-audio">--</span>
+						</div>
+						<div class="yweb-pids" id="stream-pids">
+							<!-- PIDs werden dynamisch geladen -->
+						</div>
+					</div>
+				</div>
+			</article>
+		</div>
+		<!-- Mobile Card Indicator -->
+		<div class="yweb-card-indicator" id="card-indicator"></div>
+	</main>
+
+	<footer class="yweb-footer">
+		yWeb <span id="yweb-version">--</span> ·
+		<a href="#" onclick="ywebShowAbout(); return false;">Über</a> ·
+		<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
+	</footer>
+
+	<script src="/jquery/jquery.min.js"></script>
+	<script src="/yweb-header.js?v=27"></script>
+	<script>
+	// Current channel tracking for EPG info
+	let currentChannelId = null;
+	let currentChannelName = null;
+
+	// Show EPG info for current channel
+	function showCurrentEpgInfo() {
+		if (currentChannelId && currentChannelName) {
+			ywebShowEpgModal(currentChannelId, currentChannelName);
+		}
+	}
+
+	// API Helpers
+	function apiGet(endpoint) {
+		return $.get('/control/' + endpoint).catch(function() { return ''; });
+	}
+
+	function apiJson(endpoint) {
+		return $.getJSON('/control/' + endpoint).catch(function() { return {}; });
+	}
+
+	// Format helpers — use shared versions from yweb-header.js
+	var formatKB = ywebFormatKB;
+	var formatUptime = ywebFormatUptime;
+
+	// Update gauge - circumference = 2 * PI * 16 = 100.5
+	function updateGauge(id, percent, colorClass) {
+		const circumference = 100.5;
+		const offset = circumference - (percent / 100 * circumference);
+		const gauge = document.getElementById(id);
+		if (gauge) {
+			gauge.setAttribute('stroke-dashoffset', offset);
+			gauge.classList.remove('ok', 'warning', 'danger');
+			if (colorClass) {
+				gauge.classList.add(colorClass);
+			} else {
+				// Default: percentage-based coloring
+				if (percent >= 90) gauge.classList.add('danger');
+				else if (percent >= 70) gauge.classList.add('warning');
+				else gauge.classList.add('ok');
+			}
+		}
+	}
+
+	// Get color class for CPU load (not percentage-based)
+	function getCpuColorClass(load) {
+		if (load >= 4.0) return 'danger';   // Very high load
+		if (load >= 2.0) return 'warning';  // Moderate load
+		return 'ok';                         // Normal
+	}
+
+	// Load Channel Info
+	function loadChannelInfo() {
+		// Try JSON API first, fallback to legacy
+		apiJson('getchannel?format=json').done(function(data) {
+			if (data.success === 'true' && data.data && data.data.channel && data.data.channel[0]) {
+				var ch = data.data.channel[0];
+				var channelName = ch.name || 'Unbekannt';
+				var channelId = ch.id;
+				// Store for EPG info button
+				currentChannelId = channelId;
+				currentChannelName = channelName;
+				$('#current-channel').text(channelName);
+				$('#channel-preview').text(channelName);
+				loadEpgForChannel(channelId);
+			} else {
+				currentChannelId = null;
+				currentChannelName = null;
+				$('#current-channel').text('Kein Sender');
+				$('#channel-preview').text('Kein Sender');
+			}
+		}).fail(function() {
+			// Fallback to legacy API
+			apiGet('zapto').done(function(channelId) {
+				if (!channelId || channelId.trim() === 'ok') {
+					currentChannelId = null;
+					currentChannelName = null;
+					$('#current-channel').text('Kein Sender');
+					$('#channel-preview').text('Kein Sender');
+					return;
+				}
+				channelId = channelId.trim();
+				currentChannelId = channelId;
+				apiGet('channellist').done(function(data) {
+					var lines = data.split('\n');
+					for (var i = 0; i < lines.length; i++) {
+						if (lines[i].startsWith(channelId + ' ')) {
+							var channelName = lines[i].substring(channelId.length + 1) || 'Unbekannt';
+							currentChannelName = channelName;
+							$('#current-channel').text(channelName);
+							$('#channel-preview').text(channelName);
+							break;
+						}
+					}
+				});
+				loadEpgForChannel(channelId);
+			});
+		});
+	}
+
+	function loadEpgForChannel(channelId) {
+		if (!channelId) return;
+		$.get('/control/epg?xml=true&channelid=' + channelId + '&details=true').done(function(xml) {
+			var now = Math.floor(Date.now() / 1000);
+			var progs = $(xml).find('prog');
+			var foundCurrent = false, foundNext = false;
+
+			progs.each(function() {
+				var startSec = parseInt($(this).find('start_sec').text()) || 0;
+				var stopSec = parseInt($(this).find('stop_sec').text()) || 0;
+				var desc = $(this).find('description').text() || '--';
+				var startT = $(this).find('start_t').text() || '--:--';
+
+				if (!foundCurrent && now >= startSec && now < stopSec) {
+					foundCurrent = true;
+					$('#current-epg').text(desc);
+					var duration = stopSec - startSec;
+					var elapsed = now - startSec;
+					var pct = Math.min(100, Math.max(0, Math.round(100 * elapsed / duration)));
+					$('#epg-progress').val(pct);
+					var sd = new Date(startSec * 1000), ed = new Date(stopSec * 1000);
+					$('#epg-start').text(ywebFormatTime(sd));
+					$('#epg-end').text(ywebFormatTime(ed));
+				} else if (foundCurrent && !foundNext && startSec >= now) {
+					foundNext = true;
+					$('#next-epg').text(startT + ' ' + desc);
+					return false;
+				}
+			});
+
+			if (!foundCurrent) $('#current-epg').text('Keine EPG-Daten');
+			if (!foundNext) $('#next-epg').text('--');
+		}).fail(function() {
+			$('#current-epg').text('--');
+		});
+	}
+
+	// Load System Info
+	function loadSystemInfo() {
+		apiJson('sysinfo').done(function(data) {
+			if (!data) return;
+
+			// Uptime
+			$('#sys-uptime').text(formatUptime(data.uptime || 0));
+
+			// Temperature
+			if (data.temperature !== null && data.temperature !== undefined) {
+				$('#temp-value').text(data.temperature + '°C')
+					.toggleClass('hot', data.temperature >= 70);
+			} else {
+				$('#sys-temp').hide();
+			}
+
+			// CPU - show real CPU usage percentage
+			if (data.cpu && data.cpu.percent !== undefined) {
+				const pct = data.cpu.percent;
+				$('#cpu-percent').text(pct + '%');
+				$('#cpu-load').text(data.cpu.cores + ' Kerne');
+				updateGauge('gauge-cpu', pct);
+			} else if (data.load && data.load.length >= 1) {
+				// Fallback to load average if cpu.percent not available
+				const load1 = data.load[0];
+				const gaugeFill = Math.min(100, Math.round(load1 * 12.5));
+				$('#cpu-percent').text(load1.toFixed(2));
+				$('#cpu-load').text('1m Load');
+				updateGauge('gauge-cpu', gaugeFill, getCpuColorClass(load1));
+			}
+
+			// Memory - show used/total
+			if (data.memory) {
+				const pct = data.memory.percent || 0;
+				$('#ram-percent').text(pct + '%');
+				$('#ram-info').text(formatKB(data.memory.used) + '/' + formatKB(data.memory.total));
+				updateGauge('gauge-ram', pct);
+			}
+
+			// Disk - show free/total
+			if (data.disk) {
+				const pct = data.disk.percent || 0;
+				$('#disk-percent').text(pct + '%');
+				$('#disk-info').text(formatKB(data.disk.free) + ' frei');
+				updateGauge('gauge-disk', pct);
+			}
+
+			// System preview for collapsed mobile view
+			let sysPreviewParts = [];
+			if (data.temperature !== null && data.temperature !== undefined) {
+				sysPreviewParts.push(data.temperature + '°C');
+			}
+			if (data.cpu && data.cpu.percent !== undefined) {
+				sysPreviewParts.push('CPU ' + data.cpu.percent + '%');
+			}
+			if (data.memory && data.memory.percent !== undefined) {
+				sysPreviewParts.push('RAM ' + data.memory.percent + '%');
+			}
+			$('#system-preview').text(sysPreviewParts.join(' · ') || '--');
+
+			// Box name from hostname (sysinfo gives real hostname)
+			if (data.box && data.box.name) {
+				$('#sys-box').text(data.box.name);
+			} else {
+				$('#sys-box').text(data.hostname);
+			}
+
+			// Kernel - short version
+			if (data.kernel) {
+				const k = data.kernel.split(' ')[0] || data.kernel;
+				$('#sys-kernel').text(k);
+			}
+
+			// Hostname in network card header
+			if (data.hostname) {
+				$('#net-hostname').text(data.hostname);
+			}
+
+			// Network interfaces - filter to show only relevant ones
+			if (data.interfaces && data.interfaces.length > 0) {
+				let html = '';
+				// Filter: only interfaces with IP or physical interfaces
+				const relevant = data.interfaces.filter(function(iface) {
+					// Skip veth (docker), br- without IP
+					if (iface.name.startsWith('veth')) return false;
+					if (iface.name.startsWith('br-') && !iface.ip) return false;
+					return true;
+				}).slice(0, 6); // Max 6
+
+				// Network preview - show primary IP
+				const primaryNet = relevant.find(function(i) {
+					return i.ip && /^(eth|en)/.test(i.name);
+				}) || relevant.find(function(i) { return i.ip; });
+				if (primaryNet && primaryNet.ip) {
+					$('#network-preview').text(primaryNet.ip);
+				}
+
+				relevant.forEach(function(iface) {
+					const isWlan = /^(wlan|wl)/.test(iface.name);
+					const icon = isWlan ?
+						'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>' :
+						'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>';
+					const macStr = iface.mac ? iface.mac.toUpperCase() : '';
+
+					html += '<div class="yweb-net-item">' +
+						'<div class="yweb-net-icon">' + icon + '</div>' +
+						'<div class="yweb-net-info">' +
+							'<div class="yweb-net-name">' + iface.name + '</div>' +
+							'<div class="yweb-net-ip">' + (iface.ip || 'keine IP') + '</div>' +
+							(macStr ? '<div class="yweb-net-mac">' + macStr + '</div>' : '') +
+						'</div>' +
+						'<div class="yweb-net-status ' + (iface.up ? 'up' : '') + '"></div>' +
+					'</div>';
+				});
+				$('#net-interfaces').html(html || '<div class="yweb-text-muted">Keine Interfaces</div>');
+			}
+		});
+
+		// Software versions from API
+		apiJson('versions').done(function(data) {
+			if (data) {
+				if (data.yweb) $('#yweb-version').text(data.yweb);
+				if (data.api) $('#api-version').text(data.api);
+				if (data.copyright && data.copyright.text)
+					$('#yweb-footer-copyright').text(data.copyright.text);
+			}
+		});
+	}
+
+	// Recording check with details
+	function checkRecording() {
+		// Try JSON API first, fallback to legacy text
+		apiJson('setmode?status&format=json').done(function(data) {
+			if (data && typeof data.recording !== 'undefined') {
+				handleRecordingStatus(data.recording);
+			} else {
+				checkRecordingLegacy();
+			}
+		}).fail(function() {
+			checkRecordingLegacy();
+		});
+	}
+
+	function checkRecordingLegacy() {
+		apiGet('setmode?status').done(function(data) {
+			const isRecording = data && data.indexOf('on') !== -1;
+			handleRecordingStatus(isRecording);
+		});
+	}
+
+	// Toggle recording from dashboard Rec button
+	function toggleRecording() {
+		const btn = document.getElementById('rec-btn');
+		if (!btn) return;
+		if (btn.classList.contains('recording')) {
+			ywebStopRecording();
+			btn.classList.remove('recording');
+			btn.querySelector('span').textContent = 'Rec';
+			btn.title = 'Aufnehmen';
+			setTimeout(function() { checkRecording(); loadTimers(); }, 1500);
+		} else {
+			// Record current event on current channel
+			ywebRecordEvent(currentChannelId, currentChannelName);
+			// Refresh recording status + timer card after API has processed
+			setTimeout(function() { checkRecording(); loadTimers(); }, 1500);
+			setTimeout(function() { checkRecording(); loadTimers(); }, 4000);
+		}
+	}
+
+	function handleRecordingStatus(isRecording) {
+		$('#rec-indicator').toggleClass('yweb-hidden', !isRecording);
+		$('#rec-info').toggleClass('yweb-hidden', !isRecording);
+
+		// Update Rec/Stop button state
+		const recBtn = document.getElementById('rec-btn');
+		if (recBtn) {
+			recBtn.classList.toggle('recording', !!isRecording);
+			recBtn.querySelector('span').textContent = isRecording ? 'Stop' : 'Rec';
+			recBtn.title = isRecording ? 'Aufnahme stoppen' : 'Aufnehmen';
+		}
+
+		if (isRecording) {
+				// Fetch timer data to get recording details
+				$.getJSON('/control/timer?format=json').done(function(response) {
+					const timers = ywebParseTimerList(response);
+					if (timers.length === 0) return;
+
+					// Find running recording (state == 2, type_number == 5 or 9)
+					const running = timers.find(function(t) {
+						const state = parseInt(t.state) || 0;
+						const typeNum = parseInt(t.type_number) || 0;
+						return state === 2 && (typeNum === 5 || typeNum === 9);
+					});
+
+					if (running) {
+						const title = running.title || running.channel_name || 'Aufnahme';
+						const channel = running.channel_name || '';
+
+						// Calculate remaining time from stop time
+						const now = Math.floor(Date.now() / 1000);
+						let remaining = '--:--';
+						if (running.stop && Array.isArray(running.stop) && running.stop[0]) {
+							const stopSec = parseInt(running.stop[0].digits) || 0;
+							if (stopSec > now) {
+								const remSec = stopSec - now;
+								const remMin = Math.floor(remSec / 60);
+								const remHr = Math.floor(remMin / 60);
+								if (remHr > 0) {
+									remaining = remHr + 'h ' + (remMin % 60) + 'm';
+								} else {
+									remaining = remMin + ' min';
+								}
+							}
+						}
+
+						$('#rec-title').text(title);
+						$('#rec-channel').text(channel);
+						$('#rec-remaining').text(remaining);
+					}
+			});
+		}
+	}
+
+	// Standby
+	function sendStandby() {
+		if (confirm('In Standby wechseln?')) apiGet('standby?on');
+	}
+
+	// TV/Radio Mode
+	var currentMode = 'tv';
+
+	function switchMode() {
+		const newMode = currentMode === 'tv' ? 'radio' : 'tv';
+
+		// Disable button during switch
+		$('#mode-switch-btn').prop('disabled', true).css('opacity', '0.6');
+
+		// Send API request
+		apiGet('setmode?' + newMode).done(function() {
+			currentMode = newMode;
+			updateModeUI();
+			// Refresh data after mode switch
+			setTimeout(function() {
+				loadChannelInfo();
+				loadStreamInfo();
+				$('#mode-switch-btn').prop('disabled', false).css('opacity', '1');
+			}, 1500);
+		}).fail(function() {
+			$('#mode-switch-btn').prop('disabled', false).css('opacity', '1');
+		});
+	}
+
+	function updateModeUI() {
+		const isRadio = currentMode === 'radio';
+
+		// Update current mode display
+		$('#mode-current-text').text(isRadio ? 'Radio' : 'TV');
+		$('#mode-current-icon-tv').toggle(!isRadio);
+		$('#mode-current-icon-radio').toggle(isRadio);
+
+		// Update switch button text
+		$('#mode-switch-text').text(isRadio ? 'Zu TV wechseln' : 'Zu Radio wechseln');
+
+		// Actions preview - show current mode
+		$('#actions-preview').text(isRadio ? 'Radio-Modus' : 'TV-Modus');
+
+		// In radio mode: clear video-specific fields
+		if (isRadio) {
+			$('#stream-resolution').text('--').removeClass('hd sd');
+			$('#stream-fps').text('--');
+			$('#stream-preview').text('Radio');
+		}
+	}
+
+	function loadCurrentMode() {
+		$.get('/control/getmode?channelsmode').done(function(mode) {
+			currentMode = mode.trim().toLowerCase() === 'radio' ? 'radio' : 'tv';
+			updateModeUI();
+		});
+	}
+
+	// Timer icons: use shared ywebGetTimerIconHtml() with dashboard-specific CSS class
+	function getTimerIcon(type) {
+		return ywebGetTimerIconHtml(type, 'yweb-timer-icon');
+	}
+
+	// Load Timer list
+	function loadTimers() {
+		// Must use format=json parameter for timer API
+		$.getJSON('/control/timer?format=json').done(function(response) {
+			const container = $('#timer-list');
+			const now = Math.floor(Date.now() / 1000);
+
+			const timers = ywebParseTimerList(response);
+
+			if (timers.length === 0) {
+				container.html('<div class="yweb-timer-empty">Keine Timer programmiert</div>');
+				$('#timer-preview').text('Keine Timer');
+				return;
+			}
+
+			// Timer helpers: use shared yweb* functions from yweb-header.js
+			const getAlarm = ywebGetTimerAlarm;
+			const getTimerType = ywebGetTimerType;
+			const getStopSec = ywebGetTimerStopSec;
+
+			// Separate running recordings (state=2, type 5 or 9) from future timers
+			const runningRecs = timers.filter(function(t) {
+				const state = parseInt(t.state) || 0;
+				const typeNum = parseInt(t.type_number) || 0;
+				return state === 2 && (typeNum === 5 || typeNum === 9);
+			});
+
+			// Filter future scheduled timers (exclude running ones)
+			const maxScheduled = 3 - runningRecs.length;
+			const futureTimers = timers.filter(function(t) {
+				const state = parseInt(t.state) || 0;
+				if (state === 2) return false; // Skip running
+				const alarm = getAlarm(t);
+				const alarmSec = alarm.digits ? parseInt(alarm.digits) : 0;
+				return alarmSec > now;
+			}).sort(function(a, b) {
+				const aTime = parseInt(getAlarm(a).digits) || 0;
+				const bTime = parseInt(getAlarm(b).digits) || 0;
+				return aTime - bTime;
+			}).slice(0, Math.max(maxScheduled, 1));
+
+			if (runningRecs.length === 0 && futureTimers.length === 0) {
+				container.html('<div class="yweb-timer-empty">Keine Timer programmiert</div>');
+				$('#timer-preview').text('Keine Timer');
+				return;
+			}
+
+			// Timer preview
+			if (runningRecs.length > 0) {
+				$('#timer-preview').text('● Aufnahme läuft');
+			} else {
+				const nextAlarm = getAlarm(futureTimers[0]);
+				$('#timer-preview').text((nextAlarm.date || '') + ' ' + (nextAlarm.time || ''));
+			}
+
+			let html = '';
+
+			// Running recordings first
+			runningRecs.forEach(function(timer) {
+				const title = timer.title || timer.channel_name || 'Aufnahme';
+				const channel = timer.channel_name || '';
+				const stopSec = getStopSec(timer);
+				let remaining = '';
+				if (stopSec > now) {
+					const remSec = stopSec - now;
+					const remMin = Math.floor(remSec / 60);
+					const remHr = Math.floor(remMin / 60);
+					remaining = remHr > 0 ? remHr + 'h ' + (remMin % 60) + 'm' : remMin + ' min';
+				}
+
+				html += '<div class="yweb-timer-item running">' +
+					'<div class="yweb-timer-icon record"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg></div>' +
+					'<div class="yweb-timer-info">' +
+						'<div class="yweb-timer-title">' + title + '</div>' +
+						(channel ? '<div class="yweb-timer-channel">' + channel + '</div>' : '') +
+					'</div>' +
+					(remaining ? '<div class="yweb-timer-remaining">' + remaining + '</div>' : '') +
+				'</div>';
+			});
+
+			// Scheduled timers
+			futureTimers.forEach(function(timer) {
+				const type = getTimerType(timer);
+				const title = timer.title || timer.channel_name || type;
+				const channel = timer.channel_name || '';
+				const alarm = getAlarm(timer);
+
+				html += '<div class="yweb-timer-item">' +
+					getTimerIcon(type) +
+					'<div class="yweb-timer-info">' +
+						'<div class="yweb-timer-title">' + title + '</div>' +
+						(channel ? '<div class="yweb-timer-channel">' + channel + '</div>' : '') +
+					'</div>' +
+					'<div class="yweb-timer-time">' +
+						'<div class="yweb-timer-date">' + (alarm.date || '--') + '</div>' +
+						'<div class="yweb-timer-hour">' + (alarm.time || '--:--') + '</div>' +
+					'</div>' +
+				'</div>';
+			});
+
+			container.html(html);
+		}).fail(function() {
+			$('#timer-list').html('<div class="yweb-timer-empty">Timer nicht verfügbar</div>');
+			$('#timer-preview').text('--');
+		});
+	}
+
+	// Signal quality class based on percentage
+	function getSignalQuality(percent) {
+		if (percent >= 80) return 'excellent';
+		if (percent >= 60) return 'good';
+		if (percent >= 40) return 'moderate';
+		if (percent >= 20) return 'poor';
+		return 'bad';
+	}
+
+	// BER quality class (lower is better)
+	function getBerQuality(ber) {
+		if (ber === 0) return 'ok';
+		if (ber < 100) return 'ok';
+		if (ber < 1000) return 'warning';
+		return 'error';
+	}
+
+	// Update signal bar
+	function updateSignalBar(barId, valueId, percent) {
+		const bar = document.getElementById(barId);
+		const value = document.getElementById(valueId);
+		const quality = getSignalQuality(percent);
+
+		if (bar) {
+			bar.style.width = percent + '%';
+			bar.className = 'yweb-signal-bar ' + quality;
+		}
+		if (value) {
+			value.textContent = percent + '%';
+			value.className = 'yweb-signal-value ' + quality;
+		}
+	}
+
+	// Load Tuner Status using Multi-Tuner API
+	function loadTunerStatus() {
+		// Try new multi-tuner API first
+		apiJson('tuners').done(function(data) {
+			if (data && data.tuners && data.tuners.length > 0) {
+				renderTunerList(data.tuners);
+			} else {
+				// Fallback to legacy single-tuner API
+				loadTunerStatusLegacy();
+			}
+		}).fail(function() {
+			loadTunerStatusLegacy();
+		});
+	}
+
+	// Render multi-tuner list
+	function renderTunerList(tuners) {
+		const container = document.getElementById('tuner-list');
+		if (!container) return;
+
+		let html = '';
+		let activeTuners = 0;
+		let totalSig = 0;
+		let totalSnr = 0;
+
+		tuners.forEach(function(tuner) {
+			const sig = Math.min(100, tuner.sig || 0);
+			const snr = Math.min(100, tuner.snr || 0);
+			const sigQuality = getSignalQuality(sig);
+			const snrQuality = getSignalQuality(snr);
+			const sigColor = getSignalColor(sig);
+			const snrColor = getSignalColor(snr);
+
+			// Short name for tuner
+			let shortName = tuner.name || 'Tuner ' + tuner.id;
+			if (shortName.length > 25) {
+				shortName = shortName.substring(0, 22) + '...';
+			}
+
+			// State label translation
+			const stateLabels = {
+				'viewing': 'Live',
+				'recording': 'REC',
+				'busy': 'Busy',
+				'idle': 'Idle'
+			};
+			const stateLabel = stateLabels[tuner.state] || tuner.state;
+
+			// Track active tuners for preview
+			if (tuner.state !== 'idle') {
+				activeTuners++;
+				totalSig += sig;
+				totalSnr += snr;
+			}
+
+			html += '<div class="yweb-tuner-item">';
+			html += '<div class="yweb-tuner-header">';
+			html += '<span class="yweb-tuner-name" title="' + (tuner.name || '') + '">' + shortName + '</span>';
+			html += '<span class="yweb-tuner-type">' + (tuner.type || 'DVB') + '</span>';
+			html += '<span class="yweb-tuner-state ' + tuner.state + '">' + stateLabel + '</span>';
+			html += '</div>';
+
+			if (tuner.channel) {
+				html += '<div class="yweb-tuner-channel">' + tuner.channel + '</div>';
+			}
+
+			html += '<div class="yweb-tuner-signals">';
+
+			// SIG bar
+			html += '<div class="yweb-tuner-signal">';
+			html += '<div class="yweb-tuner-signal-header">';
+			html += '<span class="yweb-tuner-signal-label">SIG</span>';
+			html += '<span class="yweb-tuner-signal-value" style="color:' + sigColor + '">' + sig + '%</span>';
+			html += '</div>';
+			html += '<div class="yweb-tuner-signal-bar">';
+			html += '<div class="yweb-tuner-signal-fill" style="width:' + sig + '%;background:' + sigColor + '"></div>';
+			html += '</div>';
+			html += '</div>';
+
+			// SNR bar
+			html += '<div class="yweb-tuner-signal">';
+			html += '<div class="yweb-tuner-signal-header">';
+			html += '<span class="yweb-tuner-signal-label">SNR</span>';
+			html += '<span class="yweb-tuner-signal-value" style="color:' + snrColor + '">' + snr + '%</span>';
+			html += '</div>';
+			html += '<div class="yweb-tuner-signal-bar">';
+			html += '<div class="yweb-tuner-signal-fill" style="width:' + snr + '%;background:' + snrColor + '"></div>';
+			html += '</div>';
+			html += '</div>';
+
+			html += '</div>'; // signals
+			html += '</div>'; // tuner-item
+		});
+
+		container.innerHTML = html;
+
+		// Update preview and icon
+		updateTunerPreview(tuners, activeTuners, totalSig, totalSnr);
+	}
+
+	// Get signal color for inline styles
+	function getSignalColor(percent) {
+		if (percent >= 80) return '#22c55e';
+		if (percent >= 60) return '#84cc16';
+		if (percent >= 40) return '#eab308';
+		if (percent >= 20) return '#f97316';
+		return '#ef4444';
+	}
+
+	// Update tuner card preview and icon
+	function updateTunerPreview(tuners, activeTuners, totalSig, totalSnr) {
+		const previewEl = document.getElementById('tuner-preview');
+		const iconEl = document.getElementById('tuner-status-icon');
+
+		// Preview text
+		if (previewEl) {
+			if (activeTuners > 0) {
+				const avgSig = Math.round(totalSig / activeTuners);
+				const avgSnr = Math.round(totalSnr / activeTuners);
+				previewEl.textContent = activeTuners + '/' + tuners.length + ' aktiv';
+			} else {
+				previewEl.textContent = tuners.length + ' Tuner';
+			}
+		}
+
+		// Icon color based on active tuner status
+		if (iconEl) {
+			const svg = iconEl.querySelector('svg');
+			if (svg) {
+				if (activeTuners > 0) {
+					const avgSig = totalSig / activeTuners;
+					const avgSnr = totalSnr / activeTuners;
+					const avgQuality = (avgSig + avgSnr) / 2;
+					if (avgQuality >= 60) {
+						svg.style.color = '#22c55e';
+					} else if (avgQuality >= 40) {
+						svg.style.color = '#eab308';
+					} else {
+						svg.style.color = '#ef4444';
+					}
+				} else {
+					svg.style.color = 'var(--pico-muted-color)';
+				}
+			}
+		}
+	}
+
+	// Legacy: single tuner API fallback (for older Neutrino versions)
+	function loadTunerStatusLegacy() {
+		apiJson('signal?format=json').done(function(data) {
+			if (data && typeof data.sig !== 'undefined') {
+				const tuners = [{
+					id: 0,
+					name: 'Tuner',
+					type: 'DVB',
+					sig: data.sig || 0,
+					snr: data.snr || 0,
+					ber: data.ber || 0,
+					locked: (data.sig > 0),
+					channel: '',
+					state: (data.sig > 0) ? 'viewing' : 'idle'
+				}];
+				renderTunerList(tuners);
+			} else {
+				loadTunerStatusLegacyText();
+			}
+		}).fail(function() {
+			loadTunerStatusLegacyText();
+		});
+	}
+
+	// Legacy text API fallback
+	function loadTunerStatusLegacyText() {
+		let sig = 0, snr = 0, ber = 0;
+		$.when(
+			apiGet('signal?sig').done(function(data) { sig = parseInt(data) || 0; }),
+			apiGet('signal?snr').done(function(data) { snr = parseInt(data) || 0; }),
+			apiGet('signal?ber').done(function(data) { ber = parseInt(data) || 0; })
+		).then(function() {
+			const tuners = [{
+				id: 0,
+				name: 'Tuner',
+				type: 'DVB',
+				sig: sig,
+				snr: snr,
+				ber: ber,
+				locked: (sig > 0),
+				channel: '',
+				state: (sig > 0) ? 'viewing' : 'idle'
+			}];
+			renderTunerList(tuners);
+		});
+	}
+
+	// Load Stream Info (Resolution, Aspect, Framerate, Audio, PIDs)
+	function loadStreamInfo() {
+		// Try JSON API first, fallback to legacy text format
+		apiJson('info?streaminfo&format=json').done(function(data) {
+			if (data && typeof data.resolution !== 'undefined') {
+				updateStreamInfoUI(data.resolution, data.width, data.height, data.aspect, data.fps, data.audio);
+			} else {
+				loadStreamInfoLegacy();
+			}
+		}).fail(function() {
+			loadStreamInfoLegacy();
+		});
+
+		// Fetch PIDs - try JSON API first, fallback to legacy
+		apiJson('zapto?getallpids&format=json').done(function(data) {
+			if (data && typeof data.vpid !== 'undefined') {
+				updatePidsUI(data);
+			} else {
+				loadPidsLegacy();
+			}
+		}).fail(function() {
+			loadPidsLegacy();
+		});
+	}
+
+	// Update PIDs UI from JSON data
+	function updatePidsUI(data) {
+		const pidsContainer = document.getElementById('stream-pids');
+		if (!pidsContainer) return;
+
+		let html = '';
+
+		// Video PID
+		if (data.vpid) {
+			html += '<span class="yweb-pid-tag"><span class="label">VID</span><span class="value">' + data.vpid + '</span></span>';
+		}
+
+		// Audio PIDs
+		if (data.apids && data.apids.length > 0) {
+			data.apids.forEach(function(apid) {
+				let label = 'AUD';
+				if (apid.ac3 || apid.eac3) label = 'AC3';
+				else if (apid.aac) label = 'AAC';
+				else if (apid.desc) {
+					const desc = apid.desc.toLowerCase();
+					if (desc.includes('eng') || desc.includes('english')) label = 'ENG';
+				}
+				html += '<span class="yweb-pid-tag"><span class="label">' + label + '</span><span class="value">' + apid.pid + '</span></span>';
+			});
+		}
+
+		// Special PIDs
+		if (data.vtxtpid) {
+			html += '<span class="yweb-pid-tag"><span class="label">TXT</span><span class="value">' + data.vtxtpid + '</span></span>';
+		}
+		if (data.pmtpid) {
+			html += '<span class="yweb-pid-tag"><span class="label">PMT</span><span class="value">' + data.pmtpid + '</span></span>';
+		}
+		if (data.pcrpid) {
+			html += '<span class="yweb-pid-tag"><span class="label">PCR</span><span class="value">' + data.pcrpid + '</span></span>';
+		}
+
+		pidsContainer.innerHTML = html;
+	}
+
+	// Legacy text format for PIDs (fallback for older Neutrino versions)
+	function loadPidsLegacy() {
+		apiGet('zapto?getallpids').done(function(data) {
+			const lines = data.trim().split('\n');
+			const pidsContainer = document.getElementById('stream-pids');
+			if (!pidsContainer || lines.length === 0) return;
+
+			let html = '';
+			lines.forEach(function(line) {
+				const parts = line.trim().split(/\s+/);
+				if (parts.length >= 1) {
+					const pid = parts[0];
+					let label = 'PID';
+
+					// Determine type from description
+					if (parts.length >= 2) {
+						const desc = parts.slice(1).join(' ').toLowerCase();
+						if (desc.includes('vtxt') || desc.includes('teletext')) {
+							label = 'TXT';
+						} else if (desc.includes('pmt')) {
+							label = 'PMT';
+						} else if (desc.includes('pcr')) {
+							label = 'PCR';
+						} else if (desc.includes('ac3') || desc.includes('eac3')) {
+							label = 'AC3';
+						} else if (desc.includes('aac')) {
+							label = 'AAC';
+						} else if (desc.includes('deu') || desc.includes('ger') || desc.includes('deutsch')) {
+							label = 'AUD';
+						} else if (desc.includes('eng') || desc.includes('english')) {
+							label = 'ENG';
+						} else {
+							label = 'AUD';
+						}
+					} else {
+						// First line without description is usually video PID
+						if (html === '') {
+							label = 'VID';
+						} else {
+							label = 'AUD';
+						}
+					}
+
+					html += '<span class="yweb-pid-tag"><span class="label">' + label + '</span><span class="value">' + pid + '</span></span>';
+				}
+			});
+
+			pidsContainer.innerHTML = html;
+		});
+	}
+
+	// Update stream info UI (shared by JSON and legacy)
+	function updateStreamInfoUI(resolution, width, height, aspect, fps, audio) {
+		// In radio mode: only show audio, hide video-specific info
+		if (currentMode === 'radio') {
+			$('#stream-resolution').text('--').removeClass('hd sd');
+			$('#stream-aspect').text('--');
+			$('#stream-fps').text('--');
+			$('#stream-preview').text('Radio');
+		} else {
+			const resEl = document.getElementById('stream-resolution');
+			if (resEl) {
+				resEl.textContent = resolution || '--';
+				resEl.classList.remove('hd', 'sd');
+				if (height > 0) {
+					resEl.classList.add(height >= 720 ? 'hd' : 'sd');
+					const badge = height >= 720 ? 'HD' : 'SD';
+					$('#stream-preview').text(resolution + ' ' + badge);
+				} else {
+					$('#stream-preview').text(resolution || '--');
+				}
+			}
+			$('#stream-aspect').text(aspect || '--');
+			$('#stream-fps').text(fps || '--');
+		}
+		$('#stream-audio').text(audio || '--');
+	}
+
+	// Legacy: text-based API (for older Neutrino versions)
+	function loadStreamInfoLegacy() {
+		apiGet('info?streaminfo').done(function(data) {
+			const lines = data.trim().split('\n');
+			if (lines.length >= 4) {
+				const resolution = lines[0].trim();
+				const heightMatch = resolution.match(/\d+x(\d+)/);
+				const height = heightMatch ? parseInt(heightMatch[1]) : 0;
+				updateStreamInfoUI(resolution, 0, height, lines[1].trim(), lines[2].trim(), lines[3].trim());
+			}
+		});
+	}
+
+	// Init
+	$(function() {
+		ywebInitMobileAccordion({
+			cardOrder: ['card-actions', 'card-channel', 'card-system', 'card-network', 'card-timer', 'card-tuner', 'card-stream'],
+			storageKey: 'yweb-active-card',
+			defaultCard: 'card-actions',
+			breakpoint: 768,
+			indicatorId: 'card-indicator',
+			containerSelector: '.yweb-dashboard',
+			mode: 'expanded'
+		});
+
+		loadCurrentMode();
+		loadChannelInfo();
+		loadSystemInfo();
+		checkRecording();
+		loadTimers();
+		loadTunerStatus();
+		loadStreamInfo();
+
+		setInterval(loadChannelInfo, 30000);
+		setInterval(loadSystemInfo, 30000);
+		setInterval(checkRecording, 10000);
+		setInterval(loadTimers, 60000);
+		setInterval(loadTunerStatus, 5000);
+		setInterval(loadStreamInfo, 30000);
+
+		// Register pull-to-refresh callback
+		if (typeof ywebSetRefreshCallback === 'function') {
+			ywebSetRefreshCallback(function() {
+				loadChannelInfo();
+				loadSystemInfo();
+				checkRecording();
+				loadTimers();
+				loadTunerStatus();
+				loadStreamInfo();
+				return new Promise(resolve => setTimeout(resolve, 800));
+			});
+		}
+	});
+	</script>
+</body>
+</html>
