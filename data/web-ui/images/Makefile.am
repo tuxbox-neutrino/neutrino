@@ -1,15 +1,18 @@
-imagesdir = $(PRIVATE_HTTPDDIR)/images
+SUBDIRS = rc
 
-images_DATA = \
+installdir = $(PRIVATE_HTTPDDIR)/images
+
+install_DATA = \
 	accept.png \
 	alert.gif \
 	arrowdown.png \
 	arrowleft.png \
 	arrowright.png \
 	arrowup.png \
-	audiobar.png \
 	blank.png \
+	cancel.png \
 	check_green.png \
+	colored_bar.png \
 	comment.png \
 	cross.png \
 	elist.png \
@@ -21,6 +24,7 @@ images_DATA = \
 	key.png \
 	live.png \
 	lock.png \
+	logo.png \
 	modify.png \
 	new.png \
 	ok.gif \
@@ -33,16 +37,20 @@ images_DATA = \
 	rename.gif \
 	save.png \
 	saveall.png \
+	server_add.png \
+	server_delete.png \
+	server_edit.png \
+	server_link.png \
 	snapshot.png \
 	stream.png \
 	streaminfo.png \
 	time_add.png \
 	time_down.png \
 	time_up.png \
-	tux-yweb.png \
 	unlock.png \
 	visible.png \
 	vlc.png \
+	volumebar.png \
 	volumedown.png \
 	volumemute.png \
 	volumeunmute.png \
@@ -54,7 +62,7 @@ images_DATA = \
 	zap.png
 
 # file manager
-images_DATA += \
+install_DATA += \
 	chmod.png \
 	copy.gif \
 	cut.png \
@@ -74,31 +82,15 @@ images_DATA += \
 	upload.png \
 	work.gif
 
-# remote controls
-imagesrcdir = $(PRIVATE_HTTPDDIR)/images/rc
-
-imagesrc_DATA = \
-	rc/rc_cst_v1.jpg \
-	rc/rc_cst_v2.png \
-	rc/rc_cst_v3.png \
-	rc/rc_cst_v4.png \
-	rc/rc_cst_v5.png \
-	rc/rc_cst_v6.png \
-	rc/rc_dbox_nokia_old.png \
-	rc/rc_dbox_philips.png
-
-if ! BOXTYPE_CST
-imagesrc_DATA += \
-	rc/rc_ax_hd51.png \
-	rc/rc_ax_hd61.png \
-	rc/rc_axas_e4hd.png \
-	rc/rc_mutant_hd51.png \
-	rc/rc_mutant_hd60.png \
-	rc/rc_osmio4k.png \
-	rc/rc_protek_4k_uhd.png \
-	rc/rc_vuplus.png \
-	rc/rc_wwio_bre2ze4k.png \
-	rc/rc_zgemma_h7.png
-endif
-
-
+# extensions
+install_DATA += \
+	ext_add.png \
+	ext_delete.png \
+	ext_edit.png \
+	ext_error.png \
+	ext_ex.png \
+	ext_menu.png \
+	ext_mgr.png \
+	ext_normal.png \
+	ext_plugin.png \
+	ext_script.png
