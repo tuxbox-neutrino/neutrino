@@ -1444,7 +1444,12 @@ async function ywebDiscoverExtensions() {
 	return _ywebExtensions;
 }
 
+var _ywebExtInjected = false;
+
 async function ywebInjectExtensions(pageName) {
+	// Nur einmal pro Seitenaufruf injizieren, egal ueber welchen Init-Pfad
+	if (_ywebExtInjected) return;
+	_ywebExtInjected = true;
 	var exts = await ywebDiscoverExtensions();
 	exts.forEach(function(m) {
 		if (!m.enabled) return;
@@ -1705,6 +1710,14 @@ function ywebInit() {
 
 		// Initialize pull-to-refresh
 		ywebInitPullRefresh();
+
+		// Erweiterungen in die Slots dieser Seite injizieren (async, still).
+		// Host-Seiten booten ueber diesen Pfad, nicht ueber ywebInitHeader.
+		if (typeof ywebInjectExtensions === 'function') {
+			setTimeout(function() {
+				ywebInjectExtensions(headerWrapper ? headerWrapper.dataset.page : null);
+			}, 0);
+		}
 	}
 }
 
