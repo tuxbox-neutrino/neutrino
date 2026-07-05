@@ -70,9 +70,9 @@ buildStreamingAudioRawURL()
 y_format_message_html()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Dist.css'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_User.css'></head>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_Main.css'>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_Dist.css'>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_User.css'></head>"
 	tmp="$tmp <body><div class='work_box'><div class='work_box_head'><div class='work_box_head_h2'>Results</div></div><div class='work_box_body' style='overflow:auto'>"
 	tmp="$tmp <pre>\n$msg\n</pre></div></div></body></html>"
 	
@@ -83,9 +83,9 @@ y_format_message_html()
 y_format_message_html2()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Dist.css'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_User.css'></head>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_Main.css'>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_Dist.css'>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_User.css'></head>"
 	tmp="$tmp <body><div class='work_box'><div class='work_box_head'><div class='work_box_head_h2'>Results</div></div><div class='work_box_body'>"
 	tmp="$tmp $msg</div></div></body></html>"
 	echo "$tmp"
@@ -94,9 +94,9 @@ y_format_message_html2()
 y_format_message_html_plain()
 {
 	tmp="<html><head><meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Main.css'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_Dist.css'>"
-	tmp="$tmp <link rel='stylesheet' type='text/css' href='/Y_User.css'></head>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_Main.css'>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_Dist.css'>"
+	tmp="$tmp <link rel='stylesheet' href='/Y_User.css'></head>"
 	tmp="$tmp <body>$msg</body></html>"
 	echo "$tmp"
 }
@@ -205,12 +205,12 @@ msg_popup()
 }
 
 # -----------------------------------------------------------
-# create Y_Web.conf if does not exists
+# create yWeb.conf if does not exists
 # -----------------------------------------------------------
-check_Y_Web_conf()
+check_yWeb_conf()
 {
-	if ! [ -e $y_config_Y_Web ]
+	if ! [ -e $y_config_yWeb ]
 	then
-		echo "skin=Tuxbox"  >$y_config_Y_Web
+		echo "skin=dark" > $y_config_yWeb
 	fi
 }
