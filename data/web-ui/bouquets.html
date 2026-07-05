@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - Bouquets</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		/* 2-column grid layout for bouquets */
+		main.yweb-bouquets-grid {
+			display: grid;
+			grid-template-columns: 280px 1fr;
+			gap: 0.6rem;
+			padding: 0.5rem;
+			/* Override global main scroll - cards scroll internally */
+			overflow: hidden;
+		}
+
+		@media (max-width: 800px) {
+			main.yweb-bouquets-grid {
+				grid-template-columns: 1fr;
+				grid-template-rows: auto 1fr; /* Bouquets fixed, channels flex */
+			}
+		}
+
+		/* Compact card headers for both cards */
+		.yweb-bouquet-card .yweb-card-header,
+		.yweb-channel-card .yweb-card-header {
+			padding: 0.4rem 0.6rem;
+			min-height: auto;
+		}
+
+		.yweb-bouquet-card .yweb-card-title,
+		.yweb-channel-card .yweb-card-title {
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-bouquet-card .yweb-card-title svg,
+		.yweb-channel-card .yweb-card-title svg {
+			width: 14px;
+			height: 14px;
+		}
+
+		/* Bouquet List Card */
+		.yweb-bouquet-card {
+			display: flex;
+			flex-direction: column;
+			min-height: 0; /* Allow card to shrink in grid */
+			overflow: hidden;
+		}
+
+		.yweb-bouquet-card .yweb-card-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 0;
+			position: relative;
+			min-height: 0; /* Allow body to shrink */
+		}
+
+		.yweb-bouquet-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		.yweb-bouquet-item {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.5rem 0.7rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			cursor: pointer;
+			transition: var(--yweb-transition);
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-bouquet-item:last-child {
+			border-bottom: none;
+		}
+
+		.yweb-bouquet-item:hover {
+			background: var(--yweb-accent-light);
+		}
+
+		.yweb-bouquet-item.active {
+			background: var(--yweb-accent-light);
+			border-left: 3px solid var(--yweb-accent);
+			color: var(--yweb-accent);
+			font-weight: 600;
+		}
+
+		.yweb-bouquet-item svg {
+			width: 16px;
+			height: 16px;
+			color: var(--pico-muted-color);
+			flex-shrink: 0;
+		}
+
+		.yweb-bouquet-item.active svg {
+			color: var(--yweb-accent);
+		}
+
+		.yweb-bouquet-name {
+			flex: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.yweb-bouquet-count {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			background: var(--pico-card-sectioning-background-color);
+			padding: 0.1rem 0.4rem;
+			border-radius: 10px;
+		}
+
+		.yweb-bouquet-item.active .yweb-bouquet-count {
+			background: var(--yweb-accent);
+			color: white;
+		}
+
+		/* Channel List Card */
+		.yweb-channel-card {
+			display: flex;
+			flex-direction: column;
+			min-height: 0; /* Allow card to shrink in grid */
+			overflow: hidden;
+		}
+
+		.yweb-channel-card .yweb-card-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 0;
+			position: relative;
+			min-height: 0; /* Allow body to shrink */
+		}
+
+		.yweb-channel-grid {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		.yweb-channel-row {
+			display: flex;
+			flex-direction: column;
+			padding: 0.5rem 0.8rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			transition: var(--yweb-transition);
+			cursor: pointer;
+		}
+
+		.yweb-channel-main {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+			width: 100%;
+		}
+
+		.yweb-channel-row:hover {
+			background: var(--yweb-accent-light);
+		}
+
+		.yweb-channel-row.current {
+			background: var(--yweb-accent-light);
+			border-left: 3px solid var(--yweb-accent);
+		}
+
+		.yweb-channel-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.yweb-channel-name {
+			font-weight: 500;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-channel-epg {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.yweb-channel-progress {
+			width: 100%;
+			height: 3px;
+			margin-top: 4px;
+			background: var(--pico-muted-border-color);
+			border-radius: 2px;
+			overflow: hidden;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.yweb-channel-progress.active {
+			opacity: 1;
+		}
+
+		.yweb-channel-progress-bar {
+			height: 100%;
+			background: linear-gradient(90deg, var(--yweb-accent), var(--yweb-accent-hover));
+			border-radius: 2px;
+			transition: width 0.5s ease;
+		}
+
+		.yweb-channel-actions {
+			display: flex;
+			gap: 0.3rem;
+			flex-shrink: 0;
+		}
+
+		/* Channel count in header */
+		.yweb-channel-count {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			font-weight: normal;
+		}
+
+		/* Mobile Accordion */
+		@media (max-width: 800px) {
+			.yweb-bouquets-grid {
+				display: flex;
+				flex-direction: column;
+				gap: 0.4rem;
+				overflow: auto;
+			}
+
+			.yweb-card-indicator {
+				display: flex;
+			}
+
+			.yweb-bouquet-card,
+			.yweb-channel-card {
+				flex: none;
+				max-height: none;
+				min-height: auto;
+			}
+
+			.yweb-bouquet-card .yweb-card-header,
+			.yweb-channel-card .yweb-card-header {
+				cursor: pointer;
+				position: relative;
+				padding-right: 2rem;
+			}
+
+			.yweb-bouquet-card .yweb-card-title,
+			.yweb-channel-card .yweb-card-title {
+				font-size: 0.9rem;
+			}
+
+			/* Show preview only when collapsed */
+			.yweb-card.collapsed .yweb-card-preview {
+				display: inline-block;
+			}
+
+			/* Hide channel count when collapsed */
+			.yweb-card.collapsed .yweb-channel-count {
+				display: none;
+			}
+
+			/* Chevron indicator */
+			.yweb-bouquet-card .yweb-card-header::after,
+			.yweb-channel-card .yweb-card-header::after {
+				content: '▼';
+				position: absolute;
+				right: 0.5rem;
+				top: 50%;
+				transform: translateY(-50%);
+				font-size: 0.55rem;
+				color: var(--pico-muted-color);
+				transition: transform 0.2s ease;
+				pointer-events: none;
+			}
+
+			/* Chevron rotated when not collapsed (= expanded) */
+			.yweb-card:not(.collapsed) .yweb-card-header::after {
+				transform: translateY(-50%) rotate(180deg);
+			}
+
+			/* Mobile: show card body by default (graceful fallback without JS) */
+			.yweb-bouquet-card .yweb-card-body,
+			.yweb-channel-card .yweb-card-body {
+				display: block;
+				max-height: 60dvh;
+				overflow-y: auto;
+			}
+
+			/* Hide body when JS has initialized and card is collapsed */
+			.yweb-card.collapsed .yweb-card-body {
+				display: none;
+			}
+
+			.yweb-channel-row {
+				padding: 0.4rem 0.6rem;
+			}
+
+			.yweb-channel-main {
+				gap: 0.4rem;
+			}
+
+			.yweb-icon-placeholder {
+				width: 36px;
+				height: 26px;
+			}
+
+			.yweb-channel-actions {
+				gap: 0.2rem;
+				flex-wrap: wrap;
+				justify-content: flex-end;
+			}
+
+			.yweb-channel-actions .yweb-btn {
+				padding: 0.25rem 0.35rem;
+			}
+
+			.yweb-channel-actions .yweb-btn svg {
+				width: 13px;
+				height: 13px;
+			}
+		}
+
+		[data-theme="light"] .yweb-channel-row {
+			border-bottom-color: #e5e7eb;
+		}
+
+		[data-theme="light"] .yweb-channel-row:hover {
+			background: #f8f9fa;
+		}
+
+		[data-theme="light"] .yweb-bouquet-item {
+			border-bottom-color: #e5e7eb;
+		}
+
+		[data-theme="light"] .yweb-bouquet-item:hover {
+			background: #f8f9fa;
+		}
+
+		/* Expandable Channel Row Detail */
+		.yweb-channel-detail {
+			width: 100%;
+			max-height: 0;
+			overflow: hidden;
+			transition: max-height 0.3s ease, padding 0.3s ease;
+			padding: 0;
+			margin-top: 0.5rem;
+			background: var(--pico-card-sectioning-background-color);
+			border-radius: var(--yweb-radius);
+		}
+
+		.yweb-channel-row.row-expanded .yweb-channel-detail {
+			max-height: 500px;
+			padding: 0.8rem 1rem;
+			overflow-y: auto;
+		}
+
+		.yweb-channel-detail-loading {
+			font-size: 0.85rem;
+			color: var(--pico-muted-color);
+			font-style: italic;
+		}
+
+		.yweb-channel-detail-content {
+			font-size: 0.9rem;
+			line-height: 1.6;
+			color: var(--pico-color);
+		}
+
+		.yweb-channel-detail-time {
+			font-size: 0.8rem;
+			color: var(--pico-muted-color);
+			margin-bottom: 0.5rem;
+		}
+
+		.yweb-channel-detail-title {
+			font-weight: 600;
+			font-size: 1rem;
+			color: var(--yweb-accent);
+			margin-bottom: 0.5rem;
+		}
+
+		.yweb-channel-detail-desc {
+			font-size: 0.9rem;
+			line-height: 1.6;
+			white-space: pre-wrap;
+			word-wrap: break-word;
+		}
+
+		/* Expand indicator on row */
+		.yweb-channel-row .yweb-expand-icon {
+			width: 14px;
+			height: 14px;
+			color: var(--pico-muted-color);
+			flex-shrink: 0;
+			transition: transform 0.2s ease;
+		}
+
+		.yweb-channel-row.row-expanded .yweb-expand-icon {
+			transform: rotate(180deg);
+		}
+
+		@media (max-width: 800px) {
+			.yweb-channel-detail {
+				margin-top: 0.4rem;
+			}
+
+			.yweb-channel-row.row-expanded .yweb-channel-detail {
+				max-height: 60vh;
+				padding: 0.7rem 0.8rem;
+			}
+
+			.yweb-channel-detail-content {
+				font-size: 0.95rem;
+			}
+
+			.yweb-channel-detail-desc {
+				font-size: 0.95rem;
+				line-height: 1.7;
+			}
+		}
+	</style>
+</head>
+<body>
+	<!-- Header wird dynamisch von yweb-header.js generiert -->
+	<div class="yweb-header-wrapper" data-page="bouquets"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<!-- Main Content: 2-Column Grid -->
+	<main class="yweb-bouquets-grid">
+		<!-- Bouquet List Card -->
+		<article class="yweb-card yweb-bouquet-card" id="card-bouquets">
+			<header class="yweb-card-header" onclick="toggleCard('card-bouquets')">
+				<h3 class="yweb-card-title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M3 6h18M3 12h18M3 18h18"/>
+					</svg>
+					Bouquets
+				</h3>
+				<span class="yweb-card-preview" id="bouquetPreview">--</span>
+			</header>
+			<div class="yweb-card-body">
+				<ul class="yweb-bouquet-list" id="bouquetList">
+					<li aria-busy="true">Lade Bouquets...</li>
+				</ul>
+			</div>
+		</article>
+
+		<!-- Channel List Card -->
+		<article class="yweb-card yweb-channel-card" id="card-channels">
+			<header class="yweb-card-header" onclick="toggleCard('card-channels')">
+				<h3 class="yweb-card-title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
+						<polyline points="17,2 12,7 7,2"/>
+					</svg>
+					<span id="currentBouquetName">Sender</span>
+				</h3>
+				<span class="yweb-card-preview" id="channelPreview">--</span>
+				<span class="yweb-channel-count" id="channelCount"></span>
+			</header>
+			<div class="yweb-card-body">
+				<ul class="yweb-channel-grid" id="channelList">
+					<li aria-busy="true">Lade Sender...</li>
+				</ul>
+			</div>
+		</article>
+
+		<!-- Mobile Card Indicator -->
+		<div class="yweb-card-indicator" id="cardIndicator"></div>
+	</main>
+
+	<script src="/Y_Baselib.js"></script>
+	<script src="/yweb-header.js?v=27"></script>
+	<script>
+		let currentChannelId = null;
+		let currentBouquetNumber = null;
+		let logosUrl = '';
+		let bouquetsData = [];
+
+		// API Helpers — use shared functions from yweb-header.js
+		const fetchText = ywebFetchText;
+		const fetchJson = ywebFetchJson;
+
+		// Load current channel and find its bouquet
+		async function loadCurrentChannel() {
+			try {
+				const data = await fetchText('/control/zapto');
+				currentChannelId = data.trim();
+			} catch (e) {
+				console.error('Failed to load current channel:', e);
+			}
+		}
+
+		// Load logos URL from config
+		async function loadLogosUrl() {
+			try {
+				const data = await fetchText('/control/config?nhttpd.conf&Tuxbox.LogosURL');
+				logosUrl = data.trim();
+			} catch (e) {
+				logosUrl = '';
+			}
+		}
+
+		// Load bouquets and find the one containing current channel
+		async function loadBouquets() {
+			const list = document.getElementById('bouquetList');
+			try {
+				bouquetsData = await ywebFetchBouquets();
+
+				// Find bouquet containing current channel
+				let foundBouquet = null;
+				if (currentChannelId) {
+					for (const b of bouquetsData) {
+						try {
+							const channels = await ywebFetchChannels(b.number);
+							if (channels.some(ch => ch.id === currentChannelId)) {
+								foundBouquet = b.number;
+								break;
+							}
+						} catch (e) {
+							// Ignore errors for individual bouquet checks
+						}
+					}
+				}
+
+				renderBouquetList(foundBouquet || (bouquetsData[0]?.number || ''));
+			} catch (e) {
+				console.error('Failed to load bouquets:', e);
+				list.innerHTML = '<li class="yweb-empty">Fehler beim Laden der Bouquets</li>';
+			}
+		}
+
+		// Render bouquet list
+		function renderBouquetList(activeBouquet) {
+			const list = document.getElementById('bouquetList');
+
+			// Add "Alle Sender" option
+			let html = `
+				<li class="yweb-bouquet-item${activeBouquet === '' ? ' active' : ''}" onclick="selectBouquet('')">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="10"/>
+						<line x1="2" y1="12" x2="22" y2="12"/>
+						<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+					</svg>
+					<span class="yweb-bouquet-name">Alle Sender</span>
+				</li>
+			`;
+
+			bouquetsData.forEach(b => {
+				const isActive = String(activeBouquet) === String(b.number);
+				html += `
+					<li class="yweb-bouquet-item${isActive ? ' active' : ''}" onclick="selectBouquet('${b.number}')" data-bouquet="${b.number}">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<polygon points="5,3 19,12 5,21"/>
+						</svg>
+						<span class="yweb-bouquet-name">${escapeHtml(b.name)}</span>
+					</li>
+				`;
+			});
+
+			list.innerHTML = html;
+			currentBouquetNumber = activeBouquet;
+
+			// Scroll to active bouquet in container
+			setTimeout(() => {
+				const activeItem = list.querySelector('.yweb-bouquet-item.active');
+				if (activeItem) {
+					scrollToElementInContainer(activeItem, list);
+				}
+			}, 200);
+
+			// Update preview for mobile
+			updateBouquetPreview();
+
+			// Load channels for active bouquet
+			loadChannels(activeBouquet);
+		}
+
+		// Select bouquet
+		function selectBouquet(bouquet) {
+			// Update active state in bouquet list
+			document.querySelectorAll('.yweb-bouquet-item').forEach(item => {
+				const itemBouquet = item.dataset.bouquet || '';
+				item.classList.toggle('active', itemBouquet === bouquet || (bouquet === '' && !item.dataset.bouquet));
+			});
+
+			currentBouquetNumber = bouquet;
+			updateBouquetPreview();
+			loadChannels(bouquet);
+
+			// Mobile: auto-switch to channel card for better UX
+			if (window.innerWidth <= 800) {
+				selectCard('card-channels');
+			}
+		}
+
+		// Load channels
+		async function loadChannels(bouquet) {
+			const list = document.getElementById('channelList');
+			const countEl = document.getElementById('channelCount');
+			const titleEl = document.getElementById('currentBouquetName');
+			list.innerHTML = '<li aria-busy="true">Lade Sender...</li>';
+
+			// Update title
+			if (bouquet === '') {
+				titleEl.textContent = 'Alle Sender';
+			} else {
+				const bq = bouquetsData.find(b => String(b.number) === String(bouquet));
+				titleEl.textContent = bq ? bq.name : 'Sender';
+			}
+
+			try {
+				let channels;
+				if (bouquet) {
+					channels = await ywebFetchChannels(bouquet);
+				} else {
+					// "All channels" — special case, not cached
+					const data = await fetchText('/control/getbouquet?format=json');
+					const response = JSON.parse(data);
+					channels = response.data?.channels || response.channels || response;
+				}
+
+				countEl.textContent = `${channels.length} Sender`;
+
+				if (channels.length === 0) {
+					list.innerHTML = '<li class="yweb-empty">Keine Sender gefunden</li>';
+					return;
+				}
+
+				let html = '';
+				channels.forEach(ch => {
+					const isCurrent = ch.id === currentChannelId;
+					const logoId = ch.logo || ch.id;
+
+					html += `
+						<li class="yweb-channel-row${isCurrent ? ' current' : ''}" data-id="${ch.id}" onclick="toggleChannelDetail(event, '${ch.id}')">
+							<div class="yweb-channel-main">
+								<div class="yweb-icon-placeholder" data-logo="${logoId}">
+									${logosUrl ? `<img src="${logosUrl}/${logoId}.png" onerror="this.style.display='none'" alt="">` : 'TV'}
+								</div>
+								<svg class="yweb-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<polyline points="6,9 12,15 18,9"/>
+								</svg>
+								<div class="yweb-channel-info">
+									<div class="yweb-channel-name">${escapeHtml(ch.name)}</div>
+									<div class="yweb-channel-epg"></div>
+									<div class="yweb-channel-progress"><div class="yweb-channel-progress-bar"></div></div>
+								</div>
+								<div class="yweb-channel-actions" onclick="event.stopPropagation()">
+									<button class="yweb-btn" onclick="zapTo('${ch.id}')" title="Umschalten">
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<polygon points="5,3 19,12 5,21"/>
+										</svg>
+										<span class="btn-label">Zappen</span>
+									</button>
+									<button class="yweb-btn" onclick="showEpg('${ch.id}', '${escapeJs(ch.name)}')" title="Sendungsinfo">
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<circle cx="12" cy="12" r="10"/>
+											<line x1="12" y1="16" x2="12" y2="12"/>
+											<line x1="12" y1="8" x2="12.01" y2="8"/>
+										</svg>
+										<span class="btn-label">Info</span>
+									</button>
+									<button class="yweb-btn" onclick="ywebRecordEvent('${ch.id}', '${escapeJs(ch.name)}')" title="Sendung aufnehmen" style="color:var(--yweb-danger,#ef4444)">
+										<svg viewBox="0 0 24 24" fill="currentColor">
+											<circle cx="12" cy="12" r="8"/>
+										</svg>
+										<span class="btn-label">Rec</span>
+									</button>
+									<button class="yweb-btn" onclick="ywebStreamChannel('${ch.id}', '${escapeJs(ch.name)}')" title="Stream starten">
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
+											<polygon points="12,15 17,21 7,21"/>
+										</svg>
+										<span class="btn-label">Stream</span>
+									</button>
+								</div>
+							</div>
+							<div class="yweb-channel-detail" id="detail-${ch.id}">
+								<div class="yweb-channel-detail-loading">Tippen zum Laden der Sendungsinfo...</div>
+							</div>
+						</li>
+					`;
+				});
+
+				list.innerHTML = html;
+
+				// Scroll to current channel in container (after layout is complete)
+				setTimeout(() => {
+					const currentRow = list.querySelector('.current');
+					if (currentRow) {
+						const cardBody = list.parentElement;
+						if (cardBody) {
+							const rowTop = currentRow.offsetTop;
+							const cardBodyHeight = cardBody.clientHeight;
+							const rowHeight = currentRow.offsetHeight;
+							const scrollTo = rowTop - (cardBodyHeight / 2) + (rowHeight / 2);
+							cardBody.scrollTop = Math.max(0, scrollTo);
+						}
+					}
+				}, 300);
+
+				// Update preview for mobile
+				updateChannelPreview();
+
+				// Load EPG info after delay (let server settle first)
+				setTimeout(() => loadEpgInfo(channels), 1000);
+			} catch (e) {
+				list.innerHTML = '<li class="yweb-empty">Fehler beim Laden der Sender</li>';
+				console.error('Failed to load channels:', e);
+			}
+		}
+
+		// Store EPG timing data for progress updates
+		const epgTimingData = {};
+		let progressUpdateInterval = null;
+		let epgLoadController = null;
+
+		// Abort background EPG loading
+		function abortEpgLoading() {
+			if (epgLoadController) {
+				epgLoadController.abort();
+				epgLoadController = null;
+			}
+		}
+
+		// Small delay helper
+		const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+		// Load EPG info for channels (JSON API) - low priority background task
+		async function loadEpgInfo(channels) {
+			abortEpgLoading();
+			epgLoadController = new AbortController();
+			const signal = epgLoadController.signal;
+			const now = Math.floor(Date.now() / 1000);
+			for (const ch of channels) {
+				if (signal.aborted) break;
+				try {
+					const response = await fetch(`/control/epg?format=json&channelid=${ch.id}&max=1&starttime=${now}`, { signal });
+					const jsonData = await response.json();
+					// Small delay between requests to not block server
+					await delay(50);
+					// API returns: { success, data: { epglist: { progData: [...] } } }
+					const progData = jsonData?.data?.epglist?.progData || jsonData?.epglist?.progData;
+					if (!progData || progData.length === 0) continue;
+
+					const prog = progData[0];
+					const desc = prog.description || '';
+					const startT = prog.start_t || '';
+					const stopT = prog.stop_t || '';
+					const startSec = parseInt(prog.start_sec || '0');
+					const stopSec = parseInt(prog.stop_sec || '0');
+
+					if (!desc) continue;
+
+					const row = document.querySelector(`.yweb-channel-row[data-id="${ch.id}"]`);
+					if (row) {
+						const epgEl = row.querySelector('.yweb-channel-epg');
+						if (epgEl) {
+							epgEl.textContent = `${startT}-${stopT} ${desc}`;
+						}
+
+						// Store timing data and update progress
+						if (startSec && stopSec && stopSec > startSec) {
+							epgTimingData[ch.id] = { startSec, stopSec };
+							updateChannelProgress(ch.id, startSec, stopSec);
+						}
+					}
+				} catch (e) {
+					// Ignore EPG errors for individual channels
+				}
+			}
+
+			// Start progress update timer if not running
+			startProgressUpdateTimer();
+		}
+
+		// Update progress bar for a single channel
+		function updateChannelProgress(channelId, startSec, stopSec) {
+			const row = document.querySelector(`.yweb-channel-row[data-id="${channelId}"]`);
+			if (!row) return;
+
+			const progressContainer = row.querySelector('.yweb-channel-progress');
+			const progressBar = row.querySelector('.yweb-channel-progress-bar');
+			if (!progressContainer || !progressBar) return;
+
+			const now = Math.floor(Date.now() / 1000);
+			const duration = stopSec - startSec;
+			const elapsed = now - startSec;
+			const percent = Math.min(100, Math.max(0, (elapsed / duration) * 100));
+
+			progressBar.style.width = percent + '%';
+			progressContainer.classList.add('active');
+		}
+
+		// Update all progress bars periodically
+		function updateAllProgress() {
+			const now = Math.floor(Date.now() / 1000);
+			for (const [channelId, timing] of Object.entries(epgTimingData)) {
+				// Skip if event has ended
+				if (now >= timing.stopSec) {
+					delete epgTimingData[channelId];
+					continue;
+				}
+				updateChannelProgress(channelId, timing.startSec, timing.stopSec);
+			}
+		}
+
+		// Start timer for progress updates
+		function startProgressUpdateTimer() {
+			if (progressUpdateInterval) return;
+			progressUpdateInterval = setInterval(updateAllProgress, 30000); // Update every 30 seconds
+		}
+
+		// Stop timer when leaving page
+		function stopProgressUpdateTimer() {
+			if (progressUpdateInterval) {
+				clearInterval(progressUpdateInterval);
+				progressUpdateInterval = null;
+			}
+		}
+
+		// Zap to channel
+		async function zapTo(channelId) {
+			try {
+				await fetchText(`/control/zapto?${channelId}`);
+				currentChannelId = channelId;
+
+				document.querySelectorAll('.yweb-channel-row').forEach(row => {
+					row.classList.toggle('current', row.dataset.id === channelId);
+				});
+			} catch (e) {
+				console.error('Failed to zap:', e);
+			}
+		}
+
+		// Show EPG Info Modal (uses shared modal from yweb-header.js)
+		function showEpg(channelId, channelName) {
+			abortEpgLoading();
+			ywebShowEpgModal(channelId, channelName);
+		}
+
+		// Toggle channel detail expansion
+		async function toggleChannelDetail(event, channelId) {
+			// Don't toggle if clicking on buttons
+			if (event.target.closest('.yweb-channel-actions')) return;
+
+			// Abort background EPG loading to prioritize this request
+			abortEpgLoading();
+
+			const row = document.querySelector(`.yweb-channel-row[data-id="${channelId}"]`);
+			if (!row) return;
+
+			const isExpanded = row.classList.contains('row-expanded');
+			const detailEl = document.getElementById(`detail-${channelId}`);
+
+			if (isExpanded) {
+				// Collapse
+				row.classList.remove('row-expanded');
+			} else {
+				// Collapse other expanded rows
+				document.querySelectorAll('.yweb-channel-row.row-expanded').forEach(r => {
+					r.classList.remove('row-expanded');
+				});
+
+				// Expand this row
+				row.classList.add('row-expanded');
+
+				// Load detail if not already loaded
+				if (detailEl && detailEl.querySelector('.yweb-channel-detail-loading')) {
+					await loadChannelDetail(channelId, detailEl);
+				}
+			}
+		}
+
+		// Load detailed EPG info for a channel (JSON API)
+		async function loadChannelDetail(channelId, detailEl) {
+			try {
+				const now = Math.floor(Date.now() / 1000);
+				const response = await fetchJson(`/control/epg?format=json&channelid=${channelId}&details=true&max=1&starttime=${now}`);
+				// API returns: { success, data: { epglist: { progData: [...] } } }
+				const progData = response?.data?.epglist?.progData || response?.epglist?.progData;
+
+				if (!progData || progData.length === 0) {
+					detailEl.innerHTML = '<div class="yweb-channel-detail-content">Keine EPG-Daten verfügbar</div>';
+					return;
+				}
+
+				const prog = progData[0];
+				const title = prog.description || '';
+				let info1 = prog.info1 || '';
+				const info2 = prog.info2 || '';
+
+				// Remove duplicate title from info1 (first line often repeats the title)
+				if (info1 && title) {
+					const lines = info1.split('\n');
+					if (lines[0].trim() === title.trim()) {
+						lines.shift();
+						info1 = lines.join('\n').trim();
+					}
+				}
+
+				// Build description from info1 and info2
+				let desc = info1;
+				if (info2) desc += (desc ? '\n\n' : '') + info2;
+
+				let html = '';
+				// Only show description - title is already visible in the channel row
+				if (desc) {
+					html += `<div class="yweb-channel-detail-desc">${escapeHtml(desc)}</div>`;
+				} else {
+					html += `<div class="yweb-channel-detail-desc" style="font-style: italic; color: var(--pico-muted-color);">Keine Beschreibung verfügbar</div>`;
+				}
+
+				detailEl.innerHTML = `<div class="yweb-channel-detail-content">${html}</div>`;
+			} catch (e) {
+				console.error('Failed to load channel detail:', e);
+				detailEl.innerHTML = '<div class="yweb-channel-detail-content">Fehler beim Laden</div>';
+			}
+		}
+
+		// Scroll element into view within its scrollable container
+		function scrollToElementInContainer(element, listElement) {
+			if (!element) return;
+
+			// Simple approach: use scrollIntoView with block: 'nearest' first,
+			// then manually adjust to center if needed
+			const scrollParent = listElement ? listElement.parentElement : null;
+
+			if (scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight) {
+				// Container is scrollable - calculate position manually
+				const containerTop = scrollParent.getBoundingClientRect().top;
+				const elementTop = element.getBoundingClientRect().top;
+				const relativeTop = elementTop - containerTop + scrollParent.scrollTop;
+				const centerPosition = relativeTop - (scrollParent.clientHeight / 2) + (element.offsetHeight / 2);
+
+				scrollParent.scrollTop = Math.max(0, centerPosition);
+			} else {
+				// Fallback to scrollIntoView
+				element.scrollIntoView({ block: 'center', behavior: 'instant' });
+			}
+		}
+
+		// ===== Mobile Accordion =====
+
+		// Update preview text
+		function updateBouquetPreview() {
+			const preview = document.getElementById('bouquetPreview');
+			if (preview && bouquetsData.length > 0) {
+				const active = bouquetsData.find(b => String(b.number) === String(currentBouquetNumber));
+				preview.textContent = active ? active.name : `${bouquetsData.length} Bouquets`;
+			}
+		}
+
+		function updateChannelPreview() {
+			const preview = document.getElementById('channelPreview');
+			const count = document.getElementById('channelCount');
+			if (preview) {
+				// Show current channel name or count
+				const currentRow = document.querySelector('.yweb-channel-row.current .yweb-channel-name');
+				if (currentRow) {
+					preview.textContent = currentRow.textContent;
+				} else if (count) {
+					preview.textContent = count.textContent;
+				}
+			}
+		}
+
+		// Initialize
+		Promise.all([loadCurrentChannel(), loadLogosUrl()]).then(() => loadBouquets());
+
+		// Setup mobile accordion
+		document.addEventListener('DOMContentLoaded', function() {
+			ywebInitMobileAccordion({
+				cardOrder: ['card-bouquets', 'card-channels'],
+				storageKey: 'yweb-bouquets-card',
+				defaultCard: 'card-channels',
+				breakpoint: 800,
+				indicatorId: 'cardIndicator',
+				containerSelector: '.yweb-bouquets-grid',
+				mode: 'collapsed'
+			});
+		});
+
+		// Custom pull-to-refresh for bouquets page
+		// Check if expanded card's body is at top before allowing refresh
+		function isAtScrollTop() {
+			const expandedCard = document.querySelector('.yweb-card:not(.collapsed)');
+			if (expandedCard) {
+				const cardBody = expandedCard.querySelector('.yweb-card-body');
+				if (cardBody && cardBody.scrollTop > 5) {
+					return false; // Card body is scrolled, don't trigger pull-to-refresh
+				}
+			}
+			// Also check main container
+			const main = document.querySelector('.yweb-bouquets-grid');
+			if (main && main.scrollTop > 5) {
+				return false;
+			}
+			return true;
+		}
+
+		// Register pull-to-refresh callback with custom scroll check
+		if (typeof ywebSetRefreshCallback === 'function') {
+			ywebSetRefreshCallback(function() {
+				if (!isAtScrollTop()) return Promise.resolve(); // Don't refresh if scrolled
+				return loadBouquets();
+			});
+		}
+
+		// Override the global scroll check for this page
+		if (typeof window.ywebIsAtScrollTop === 'undefined') {
+			window.ywebIsAtScrollTop = isAtScrollTop;
+		}
+	</script>
+</body>
+</html>

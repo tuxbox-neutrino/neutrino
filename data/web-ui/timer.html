@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - Timer</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=59">
+	<style>
+		/* 2-column grid layout for timer */
+		main.yweb-timer-grid {
+			display: grid;
+			grid-template-columns: 220px 1fr;
+			gap: 0.6rem;
+			padding: 0.5rem;
+			overflow: hidden;
+		}
+
+		@media (max-width: 800px) {
+			main.yweb-timer-grid {
+				grid-template-columns: 1fr;
+				grid-template-rows: auto 1fr;
+			}
+		}
+
+		/* Compact card headers */
+		.yweb-filter-card .yweb-card-header,
+		.yweb-timerlist-card .yweb-card-header {
+			padding: 0.4rem 0.6rem;
+			min-height: auto;
+		}
+
+		.yweb-filter-card .yweb-card-title,
+		.yweb-timerlist-card .yweb-card-title {
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-filter-card .yweb-card-title svg,
+		.yweb-timerlist-card .yweb-card-title svg {
+			width: 14px;
+			height: 14px;
+		}
+
+		/* Filter Card */
+		.yweb-filter-card {
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		.yweb-filter-card .yweb-card-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 0;
+			position: relative;
+			min-height: 0;
+		}
+
+		.yweb-filter-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		.yweb-filter-group-label {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			padding: 0.5rem 0.7rem 0.2rem;
+			font-weight: 600;
+		}
+
+		.yweb-filter-item {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.45rem 0.7rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			cursor: pointer;
+			transition: var(--yweb-transition);
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-filter-item:last-child {
+			border-bottom: none;
+		}
+
+		.yweb-filter-item:hover {
+			background: var(--yweb-accent-light);
+		}
+
+		.yweb-filter-item.active {
+			background: var(--yweb-accent-light);
+			border-left: 3px solid var(--yweb-accent);
+			color: var(--yweb-accent);
+			font-weight: 600;
+		}
+
+		.yweb-filter-item svg {
+			width: 16px;
+			height: 16px;
+			color: var(--pico-muted-color);
+			flex-shrink: 0;
+		}
+
+		.yweb-filter-item.active svg {
+			color: var(--yweb-accent);
+		}
+
+		.yweb-filter-name {
+			flex: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.yweb-filter-count {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			background: var(--pico-card-sectioning-background-color);
+			padding: 0.1rem 0.4rem;
+			border-radius: 10px;
+			min-width: 1.4em;
+			text-align: center;
+		}
+
+		.yweb-filter-item.active .yweb-filter-count {
+			background: var(--yweb-accent);
+			color: white;
+		}
+
+		/* Timer List Card */
+		.yweb-timerlist-card {
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		.yweb-timerlist-card .yweb-card-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 0;
+			position: relative;
+			min-height: 0;
+		}
+
+		.yweb-timer-grid-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		/* Timer Row */
+		.yweb-timer-row {
+			display: flex;
+			flex-direction: column;
+			padding: 0.5rem 0.8rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			transition: var(--yweb-transition);
+			cursor: pointer;
+		}
+
+		.yweb-timer-row:hover {
+			background: var(--yweb-accent-light);
+		}
+
+		.yweb-timer-row.state-running {
+			border-left: 3px solid var(--yweb-accent);
+		}
+
+		.yweb-timer-row.state-finished {
+			opacity: 0.5;
+		}
+
+		.yweb-timer-main {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+			width: 100%;
+		}
+
+		/* Timer type icon */
+		.yweb-timer-type-icon {
+			width: 28px;
+			height: 28px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: var(--yweb-accent-light);
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		.yweb-timer-type-icon svg {
+			width: 14px;
+			height: 14px;
+			color: var(--yweb-accent);
+		}
+
+		.yweb-timer-type-icon.record {
+			background: rgba(239, 68, 68, 0.15);
+		}
+
+		.yweb-timer-type-icon.record svg {
+			color: var(--yweb-danger, #ef4444);
+		}
+
+		/* Expand chevron */
+		.yweb-timer-expand-icon {
+			width: 14px;
+			height: 14px;
+			color: var(--pico-muted-color);
+			flex-shrink: 0;
+			transition: transform 0.2s ease;
+		}
+
+		.yweb-timer-row.row-expanded .yweb-timer-expand-icon {
+			transform: rotate(180deg);
+		}
+
+		/* Timer info */
+		.yweb-timer-row-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.yweb-timer-row-title {
+			font-weight: 500;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-timer-row-meta {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+			flex-wrap: wrap;
+		}
+
+		.yweb-timer-row-channel {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		/* Time display */
+		.yweb-timer-row-time {
+			text-align: right;
+			flex-shrink: 0;
+			line-height: 1.3;
+		}
+
+		.yweb-timer-row-date {
+			font-weight: 600;
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-timer-row-hours {
+			color: var(--pico-muted-color);
+			font-size: var(--yweb-font-xs);
+		}
+
+		/* Badges */
+		.yweb-timer-badge {
+			font-size: 0.6rem;
+			padding: 0.1rem 0.35rem;
+			border-radius: 8px;
+			white-space: nowrap;
+			font-weight: 600;
+		}
+
+		.yweb-timer-badge-repeat {
+			background: var(--yweb-accent-light);
+			color: var(--yweb-accent);
+		}
+
+		.yweb-timer-badge-state {
+			background: var(--pico-card-sectioning-background-color);
+			color: var(--pico-muted-color);
+		}
+
+		.yweb-timer-badge-state.running {
+			background: rgba(34, 197, 94, 0.15);
+			color: #22c55e;
+			animation: yweb-pulse 2s ease-in-out infinite;
+		}
+
+		.yweb-timer-badge-state.finished {
+			background: var(--pico-card-sectioning-background-color);
+			color: var(--pico-muted-color);
+		}
+
+		/* Timer actions */
+		.yweb-timer-actions {
+			display: flex;
+			gap: 0.3rem;
+			flex-shrink: 0;
+		}
+
+		/* Expandable detail */
+		.yweb-timer-detail {
+			width: 100%;
+			max-height: 0;
+			overflow: hidden;
+			transition: max-height 0.3s ease, padding 0.3s ease;
+			padding: 0;
+			margin-top: 0.5rem;
+			background: var(--pico-card-sectioning-background-color);
+			border-radius: var(--yweb-radius);
+		}
+
+		.yweb-timer-row.row-expanded .yweb-timer-detail {
+			max-height: 400px;
+			padding: 0.8rem 1rem;
+			overflow-y: auto;
+		}
+
+		.yweb-timer-detail-grid {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 0.3rem 0.8rem;
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-timer-detail-label {
+			color: var(--pico-muted-color);
+			white-space: nowrap;
+		}
+
+		.yweb-timer-detail-value {
+			word-break: break-all;
+		}
+
+		/* Timer count in header */
+		.yweb-timer-count {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			font-weight: normal;
+		}
+
+		/* Mobile Accordion */
+		@media (max-width: 800px) {
+			.yweb-timer-grid {
+				display: flex;
+				flex-direction: column;
+				gap: 0.4rem;
+				overflow: auto;
+			}
+
+			.yweb-card-indicator {
+				display: flex;
+			}
+
+			.yweb-filter-card,
+			.yweb-timerlist-card {
+				flex: none;
+				max-height: none;
+				min-height: auto;
+			}
+
+			.yweb-filter-card .yweb-card-header,
+			.yweb-timerlist-card .yweb-card-header {
+				cursor: pointer;
+				position: relative;
+				padding-right: 2rem;
+			}
+
+			.yweb-filter-card .yweb-card-title,
+			.yweb-timerlist-card .yweb-card-title {
+				font-size: 0.9rem;
+			}
+
+			.yweb-card.collapsed .yweb-card-preview {
+				display: inline-block;
+			}
+
+			.yweb-card.collapsed .yweb-timer-count {
+				display: none;
+			}
+
+			/* Chevron indicator */
+			.yweb-filter-card .yweb-card-header::after,
+			.yweb-timerlist-card .yweb-card-header::after {
+				content: '▼';
+				position: absolute;
+				right: 0.5rem;
+				top: 50%;
+				transform: translateY(-50%);
+				font-size: 0.55rem;
+				color: var(--pico-muted-color);
+				transition: transform 0.2s ease;
+				pointer-events: none;
+			}
+
+			.yweb-card:not(.collapsed) .yweb-card-header::after {
+				transform: translateY(-50%) rotate(180deg);
+			}
+
+			.yweb-filter-card .yweb-card-body,
+			.yweb-timerlist-card .yweb-card-body {
+				display: block;
+				max-height: 60dvh;
+				overflow-y: auto;
+			}
+
+			.yweb-card.collapsed .yweb-card-body {
+				display: none;
+			}
+
+			.yweb-timer-row {
+				padding: 0.4rem 0.6rem;
+			}
+
+			.yweb-timer-main {
+				gap: 0.4rem;
+			}
+
+			.yweb-timer-actions {
+				gap: 0.2rem;
+			}
+
+			.yweb-timer-actions .yweb-btn {
+				padding: 0.25rem 0.35rem;
+			}
+
+			.yweb-timer-actions .yweb-btn svg {
+				width: 13px;
+				height: 13px;
+			}
+
+			.yweb-timer-detail {
+				margin-top: 0.4rem;
+			}
+
+			.yweb-timer-row.row-expanded .yweb-timer-detail {
+				max-height: 60vh;
+				padding: 0.7rem 0.8rem;
+			}
+		}
+
+		[data-theme="light"] .yweb-timer-row {
+			border-bottom-color: #e5e7eb;
+		}
+
+		[data-theme="light"] .yweb-timer-row:hover {
+			background: #f8f9fa;
+		}
+
+		[data-theme="light"] .yweb-filter-item {
+			border-bottom-color: #e5e7eb;
+		}
+
+		[data-theme="light"] .yweb-filter-item:hover {
+			background: #f8f9fa;
+		}
+
+		/* Confirm dialog styles moved to yweb.css */
+
+		.yweb-btn-stop {
+			color: var(--yweb-danger, #ef4444) !important;
+		}
+
+		.yweb-btn-stop .btn-label {
+			color: var(--yweb-danger, #ef4444);
+		}
+
+		/* Timer Modal — inherits base styles from yweb.css (.yweb-modal-*)
+		   Uses .yweb-modal-backdrop.open class (added by JS) for display.
+		   Only timer-specific overrides here, scoped to #timerModalBackdrop. */
+		#timerModalBackdrop .yweb-modal {
+			max-width: 520px;
+			width: 94%;
+			max-height: 90dvh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#timerModalBackdrop .yweb-modal-header {
+			padding: 0.8rem 1rem;
+		}
+
+		#timerModalBackdrop .yweb-modal-header h3 {
+			font-size: 1rem;
+		}
+
+		#timerModalBackdrop .yweb-modal-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 0.8rem 1rem;
+		}
+
+		/* Timer-specific form overrides (base styles from yweb.css) */
+		#timerModalBackdrop .yweb-form-section {
+			margin-bottom: 0.8rem;
+		}
+		#timerModalBackdrop .yweb-form-section-title {
+			color: var(--pico-muted-color);
+			letter-spacing: 0.05em;
+			margin-bottom: 0.4rem;
+			padding-bottom: 0.2rem;
+		}
+		#timerModalBackdrop .yweb-form-row {
+			gap: 0.5rem;
+			margin-bottom: 0.5rem;
+			padding: 0;
+		}
+		#timerModalBackdrop .yweb-form-row label {
+			min-width: 5.5rem;
+		}
+		#timerModalBackdrop .yweb-form-row select,
+		#timerModalBackdrop .yweb-form-row input {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.yweb-form-row .yweb-time-group {
+			display: flex;
+			gap: 0.4rem;
+			flex: 1;
+		}
+
+		.yweb-form-row .yweb-time-group input {
+			flex: 1;
+		}
+
+		.yweb-form-check {
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+			margin-bottom: 0.3rem;
+			font-size: var(--yweb-font-sm);
+		}
+
+		.yweb-form-check input[type="checkbox"] {
+			width: 1rem;
+			height: 1rem;
+			accent-color: var(--yweb-accent);
+		}
+
+		.yweb-form-weekdays {
+			display: flex;
+			gap: 0.25rem;
+			flex-wrap: wrap;
+		}
+
+		.yweb-form-weekdays label {
+			min-width: auto;
+			display: flex;
+			align-items: center;
+			gap: 0.15rem;
+			padding: 0.2rem 0.4rem;
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--yweb-radius);
+			cursor: pointer;
+			font-size: var(--yweb-font-xs);
+			transition: var(--yweb-transition);
+		}
+
+		.yweb-form-weekdays input:checked + span {
+			color: var(--yweb-accent);
+		}
+
+		.yweb-form-weekdays input {
+			display: none;
+		}
+
+		.yweb-form-weekdays label:has(input:checked) {
+			border-color: var(--yweb-accent);
+			background: var(--yweb-accent-light);
+		}
+
+		.yweb-form-hidden {
+			display: none !important;
+		}
+
+		/* Timer edit button */
+		.yweb-btn-edit {
+			color: var(--yweb-accent, #3b82f6);
+		}
+
+		.yweb-btn-edit .btn-label {
+			color: var(--yweb-accent, #3b82f6);
+		}
+
+		@media (max-width: 800px) {
+			#timerModalBackdrop .yweb-modal {
+				width: 98%;
+				max-height: 95dvh;
+			}
+
+			#timerModalBackdrop .yweb-form-row {
+				flex-wrap: wrap;
+			}
+
+			#timerModalBackdrop .yweb-form-row label {
+				min-width: 100%;
+				margin-bottom: 0.1rem;
+			}
+		}
+	</style>
+</head>
+<body>
+	<!-- Header generated by yweb-header.js -->
+	<div class="yweb-header-wrapper" data-page="timer"></div>
+	<div class="yweb-header-spacer"></div>
+
+	<!-- Main Content: 2-Column Grid -->
+	<main class="yweb-timer-grid">
+		<!-- Filter Card -->
+		<article class="yweb-card yweb-filter-card" id="card-filter">
+			<header class="yweb-card-header" onclick="toggleCard('card-filter')">
+				<h3 class="yweb-card-title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>
+					</svg>
+					Filter
+				</h3>
+				<span class="yweb-card-preview" id="filterPreview">Alle</span>
+			</header>
+			<div class="yweb-card-body">
+				<ul class="yweb-filter-list" id="filterList">
+					<li class="yweb-filter-group-label">Typ</li>
+					<li class="yweb-filter-item active" data-filter="all" onclick="setFilter('all')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<circle cx="12" cy="12" r="10"/>
+							<line x1="2" y1="12" x2="22" y2="12"/>
+							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+						</svg>
+						<span class="yweb-filter-name">Alle</span>
+						<span class="yweb-filter-count" id="count-all">0</span>
+					</li>
+					<li class="yweb-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
+						<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
+						<span class="yweb-filter-name">Aufnahme</span>
+						<span class="yweb-filter-count" id="count-type-5">0</span>
+					</li>
+					<li class="yweb-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
+						<span class="yweb-filter-name">Umschalten</span>
+						<span class="yweb-filter-count" id="count-type-3">0</span>
+					</li>
+					<li class="yweb-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.364 5.636a9 9 0 11-12.728 12.728 9 9 0 0112.728-12.728zM12 3v4"/></svg>
+						<span class="yweb-filter-name">Standby</span>
+						<span class="yweb-filter-count" id="count-type-4">0</span>
+					</li>
+					<li class="yweb-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+						<span class="yweb-filter-name">Erinnerung</span>
+						<span class="yweb-filter-count" id="count-type-6">0</span>
+					</li>
+					<li class="yweb-filter-group-label">Status</li>
+					<li class="yweb-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+						<span class="yweb-filter-name">Geplant</span>
+						<span class="yweb-filter-count" id="count-state-scheduled">0</span>
+					</li>
+					<li class="yweb-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
+						<span class="yweb-filter-name">Aktiv</span>
+						<span class="yweb-filter-count" id="count-state-running">0</span>
+					</li>
+					<li class="yweb-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+						<span class="yweb-filter-name">Abgelaufen</span>
+						<span class="yweb-filter-count" id="count-state-finished">0</span>
+					</li>
+				</ul>
+				<div style="padding:0.5rem 0.8rem 0;">
+					<button class="yweb-btn" onclick="openTimerModal()" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;width:100%;padding:0.5rem;font-size:0.75rem;cursor:pointer;">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><path d="M12 5v14m-7-7h14"/></svg>
+						Neuer Timer
+					</button>
+				</div>
+			</div>
+		</article>
+
+		<!-- Timer List Card -->
+		<article class="yweb-card yweb-timerlist-card" id="card-timers">
+			<header class="yweb-card-header" onclick="toggleCard('card-timers')">
+				<h3 class="yweb-card-title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="9"/>
+						<path d="M12 6v6l4 2"/>
+					</svg>
+					<span id="timerListTitle">Timer</span>
+				</h3>
+				<span class="yweb-card-preview" id="timerPreview">--</span>
+				<span class="yweb-timer-count" id="timerCount"></span>
+			</header>
+			<div class="yweb-card-body">
+				<ul class="yweb-timer-grid-list" id="timerList">
+					<li aria-busy="true">Lade Timer...</li>
+				</ul>
+			</div>
+		</article>
+
+		<!-- Mobile Card Indicator -->
+		<div class="yweb-card-indicator" id="cardIndicator"></div>
+	</main>
+
+	<script src="/Y_Baselib.js"></script>
+	<script src="/yweb-header.js?v=27"></script>
+	<script>
+		let allTimers = [];
+		let currentFilter = 'all';
+
+		// API: use shared ywebFetchText() from yweb-header.js
+		const fetchText = ywebFetchText;
+
+		// Timer constants and helpers: use shared YWEB_TIMER_* from yweb-header.js
+		// Local aliases for brevity in template strings
+		const TIMER_TYPE_LABELS = YWEB_TIMER_TYPE_LABELS;
+		const TIMER_STATE_LABELS = YWEB_TIMER_STATE_LABELS;
+
+		// Load timers from API
+		async function loadTimers() {
+			const list = document.getElementById('timerList');
+
+			try {
+				const text = await fetchText('/control/timer?format=json');
+				const response = JSON.parse(text);
+
+				allTimers = ywebParseTimerList(response);
+				updateFilterCounts();
+				renderTimerList();
+			} catch (e) {
+				console.error('Failed to load timers:', e);
+				list.innerHTML = '<li class="yweb-empty">Timer nicht verfügbar</li>';
+			}
+		}
+
+		// Update filter counts
+		function updateFilterCounts() {
+			const counts = { all: allTimers.length };
+
+			allTimers.forEach(t => {
+				const typeNum = parseInt(t.type_number) || 0;
+				const state = parseInt(t.state) || 0;
+
+				// Type counts
+				const typeKey = 'type-' + typeNum;
+				counts[typeKey] = (counts[typeKey] || 0) + 1;
+				// Also count immediate record under record
+				if (typeNum === 9) {
+					counts['type-5'] = (counts['type-5'] || 0) + 1;
+				}
+
+				// State counts
+				if (state <= 1) {
+					counts['state-scheduled'] = (counts['state-scheduled'] || 0) + 1;
+				} else if (state === 2) {
+					counts['state-running'] = (counts['state-running'] || 0) + 1;
+				} else {
+					counts['state-finished'] = (counts['state-finished'] || 0) + 1;
+				}
+			});
+
+			// Update count badges
+			document.querySelectorAll('.yweb-filter-count').forEach(el => {
+				const key = el.id.replace('count-', '');
+				el.textContent = counts[key] || 0;
+			});
+		}
+
+		// Filter timers
+		function getFilteredTimers() {
+			if (currentFilter === 'all') return allTimers;
+
+			return allTimers.filter(t => {
+				const typeNum = parseInt(t.type_number) || 0;
+				const state = parseInt(t.state) || 0;
+
+				if (currentFilter.startsWith('type-')) {
+					const filterType = parseInt(currentFilter.split('-')[1]);
+					if (filterType === 5) return typeNum === 5 || typeNum === 9;
+					return typeNum === filterType;
+				}
+
+				if (currentFilter === 'state-scheduled') return state <= 1;
+				if (currentFilter === 'state-running') return state === 2;
+				if (currentFilter === 'state-finished') return state >= 3;
+
+				return true;
+			});
+		}
+
+		// Set active filter
+		function setFilter(filter) {
+			currentFilter = filter;
+
+			document.querySelectorAll('.yweb-filter-item').forEach(item => {
+				item.classList.toggle('active', item.dataset.filter === filter);
+			});
+
+			// Update filter preview for mobile
+			const activeItem = document.querySelector('.yweb-filter-item.active .yweb-filter-name');
+			const preview = document.getElementById('filterPreview');
+			if (activeItem && preview) preview.textContent = activeItem.textContent;
+
+			renderTimerList();
+
+			// Mobile: auto-switch to timer list
+			if (window.innerWidth <= 800) {
+				selectCard('card-timers');
+			}
+		}
+
+		// Render timer list
+		function renderTimerList() {
+			const list = document.getElementById('timerList');
+			const countEl = document.getElementById('timerCount');
+			const previewEl = document.getElementById('timerPreview');
+			const timers = getFilteredTimers();
+
+			// Sort: running first, then by alarm time (nearest first)
+			timers.sort((a, b) => {
+				const stateA = parseInt(a.state) || 0;
+				const stateB = parseInt(b.state) || 0;
+				// Running timers first
+				if (stateA === 2 && stateB !== 2) return -1;
+				if (stateB === 2 && stateA !== 2) return 1;
+				// Then by alarm time
+				const timeA = parseInt(ywebGetTimerAlarm(a).digits) || 0;
+				const timeB = parseInt(ywebGetTimerAlarm(b).digits) || 0;
+				return timeA - timeB;
+			});
+
+			countEl.textContent = timers.length + ' Timer';
+
+			if (timers.length === 0) {
+				list.innerHTML = '<li class="yweb-empty">Keine Timer gefunden</li>';
+				previewEl.textContent = 'Keine Timer';
+				return;
+			}
+
+			// Preview: next upcoming timer
+			const now = Math.floor(Date.now() / 1000);
+			const nextTimer = timers.find(t => {
+				const alarm = ywebGetTimerAlarm(t);
+				return (parseInt(alarm.digits) || 0) > now;
+			});
+			if (nextTimer) {
+				const alarm = ywebGetTimerAlarm(nextTimer);
+				previewEl.textContent = (alarm.date || '') + ' ' + (alarm.time || '');
+			} else {
+				previewEl.textContent = timers.length + ' Timer';
+			}
+
+			let html = '';
+			timers.forEach(timer => {
+				const type = ywebGetTimerType(timer);
+				const typeNum = parseInt(timer.type_number) || 0;
+				const state = parseInt(timer.state) || 0;
+				const title = timer.title || timer.channel_name || TIMER_TYPE_LABELS[typeNum] || type;
+				const channel = timer.channel_name || '';
+				const alarm = ywebGetTimerAlarm(timer);
+				const stop = ywebGetTimerStop(timer);
+				const timerId = timer.id;
+
+				// State class
+				let stateClass = '';
+				if (state === 2) stateClass = ' state-running';
+				else if (state >= 3) stateClass = ' state-finished';
+
+				// Repeat badge
+				let repeatBadge = '';
+				const resolvedRepeat = ywebResolveRepeatText(timer.repeat ? timer.repeat.text : '');
+				if (resolvedRepeat && resolvedRepeat !== 'Einmalig') {
+					repeatBadge = `<span class="yweb-timer-badge yweb-timer-badge-repeat">${escapeHtml(resolvedRepeat)}</span>`;
+				}
+
+				// State badge
+				let stateBadge = '';
+				const stateLabel = TIMER_STATE_LABELS[state] || '';
+				if (state === 2) {
+					stateBadge = `<span class="yweb-timer-badge yweb-timer-badge-state running">${stateLabel}</span>`;
+				} else if (state >= 3) {
+					stateBadge = `<span class="yweb-timer-badge yweb-timer-badge-state finished">${stateLabel}</span>`;
+				}
+
+				// Time display
+				const alarmTime = alarm.time || '--:--';
+				const stopTime = stop.time || '';
+				const timeRange = stopTime ? `${alarmTime} - ${stopTime}` : alarmTime;
+
+				// Detail data
+				const announceData = Array.isArray(timer.announce) && timer.announce.length > 0 ? timer.announce[0] : {};
+				const repeatText = ywebResolveRepeatText(timer.repeat ? timer.repeat.text : '');
+				const repeatCount = timer.repeat ? (timer.repeat.count || '') : '';
+				const recDir = timer.recording_dir || '';
+				const channelId = timer.channel_id || '';
+				const epgId = timer.epg_id || '';
+
+				html += `
+				<li class="yweb-timer-row${stateClass}" data-id="${timerId}" onclick="toggleTimerDetail(event, '${timerId}')">
+					<div class="yweb-timer-main">
+						${ywebGetTimerIconHtml(type)}
+						<svg class="yweb-timer-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<polyline points="6,9 12,15 18,9"/>
+						</svg>
+						<div class="yweb-timer-row-info">
+							<div class="yweb-timer-row-title">${escapeHtml(title)}</div>
+							<div class="yweb-timer-row-meta">
+								${channel ? `<span class="yweb-timer-row-channel">${escapeHtml(channel)}</span>` : ''}
+								${repeatBadge}
+								${stateBadge}
+							</div>
+						</div>
+						<div class="yweb-timer-row-time">
+							<div class="yweb-timer-row-date">${alarm.date || '--'}</div>
+							<div class="yweb-timer-row-hours">${timeRange}</div>
+						</div>
+						<div class="yweb-timer-actions" onclick="event.stopPropagation()">
+						${state < 2 ? `
+							<button class="yweb-btn yweb-btn-edit" onclick="editTimer('${timerId}')" title="Timer bearbeiten">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+									<path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+								</svg>
+								<span class="btn-label">Bearbeiten</span>
+							</button>
+						` : ''}
+						${state === 2 && (typeNum === 5 || typeNum === 9) ? `
+							<button class="yweb-btn yweb-btn-stop" onclick="stopRecording('${timerId}', '${escapeJs(title)}')" title="Aufnahme stoppen">
+								<svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--yweb-danger,#ef4444)">
+									<rect x="6" y="6" width="12" height="12" rx="1"/>
+								</svg>
+								<span class="btn-label">Stoppen</span>
+							</button>
+						` : `
+							<button class="yweb-btn" onclick="deleteTimer('${timerId}', '${escapeJs(title)}')" title="Timer löschen">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<polyline points="3,6 5,6 21,6"/>
+									<path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/>
+								</svg>
+								<span class="btn-label">Löschen</span>
+							</button>
+						`}
+						</div>
+					</div>
+					<div class="yweb-timer-detail" id="detail-${timerId}">
+						<div class="yweb-timer-detail-grid">
+							<span class="yweb-timer-detail-label">Typ:</span>
+							<span class="yweb-timer-detail-value">${TIMER_TYPE_LABELS[typeNum] || type}</span>
+							<span class="yweb-timer-detail-label">Status:</span>
+							<span class="yweb-timer-detail-value">${stateLabel}</span>
+							<span class="yweb-timer-detail-label">Start:</span>
+							<span class="yweb-timer-detail-value">${alarm.text || '--'}</span>
+							${stop.text ? `
+							<span class="yweb-timer-detail-label">Ende:</span>
+							<span class="yweb-timer-detail-value">${stop.text}</span>
+							` : ''}
+							${announceData.text ? `
+							<span class="yweb-timer-detail-label">Ankündigung:</span>
+							<span class="yweb-timer-detail-value">${announceData.text}</span>
+							` : ''}
+							<span class="yweb-timer-detail-label">Wiederholung:</span>
+							<span class="yweb-timer-detail-value">${escapeHtml(repeatText)}${repeatCount && repeatCount !== '-' ? ' (' + repeatCount + ')' : ''}</span>
+							${channel ? `
+							<span class="yweb-timer-detail-label">Sender:</span>
+							<span class="yweb-timer-detail-value">${escapeHtml(channel)}</span>
+							` : ''}
+							${channelId ? `
+							<span class="yweb-timer-detail-label">Sender-ID:</span>
+							<span class="yweb-timer-detail-value">${channelId}</span>
+							` : ''}
+							${recDir ? `
+							<span class="yweb-timer-detail-label">Aufnahme-Ordner:</span>
+							<span class="yweb-timer-detail-value">${escapeHtml(recDir)}</span>
+							` : ''}
+							${epgId && epgId !== '0x0' ? `
+							<span class="yweb-timer-detail-label">EPG-ID:</span>
+							<span class="yweb-timer-detail-value">${epgId}</span>
+							` : ''}
+							${timer.message ? `
+							<span class="yweb-timer-detail-label">Nachricht:</span>
+							<span class="yweb-timer-detail-value">${escapeHtml(timer.message)}</span>
+							` : ''}
+							${timer.plugin ? `
+							<span class="yweb-timer-detail-label">Plugin:</span>
+							<span class="yweb-timer-detail-value">${escapeHtml(timer.plugin)}</span>
+							` : ''}
+							<span class="yweb-timer-detail-label">Timer-ID:</span>
+							<span class="yweb-timer-detail-value">${timerId}</span>
+						</div>
+					</div>
+				</li>`;
+			});
+
+			list.innerHTML = html;
+		}
+
+		// Toggle timer detail expansion
+		function toggleTimerDetail(event, timerId) {
+			if (event.target.closest('.yweb-timer-actions')) return;
+
+			const row = event.target.closest('.yweb-timer-row');
+			if (!row) return;
+
+			const wasExpanded = row.classList.contains('row-expanded');
+
+			// Collapse all other rows
+			document.querySelectorAll('.yweb-timer-row.row-expanded').forEach(r => {
+				r.classList.remove('row-expanded');
+			});
+
+			// Toggle this row
+			if (!wasExpanded) {
+				row.classList.add('row-expanded');
+			}
+		}
+
+		// Stop a running recording — uses shared ywebShowConfirm()
+		function stopRecording(id, title) {
+			ywebShowConfirm('Aufnahme stoppen',
+				'Aufnahme "' + escapeHtml(title) + '" wirklich stoppen?',
+				'Stoppen',
+				async function() {
+					await ywebStopRecording(id);
+					setTimeout(loadTimers, 1000);
+				});
+		}
+
+		// Delete timer — uses shared ywebShowConfirm()
+		function deleteTimer(id, title) {
+			ywebShowConfirm('Timer löschen',
+				'Timer "' + escapeHtml(title) + '" wirklich löschen?',
+				'Löschen',
+				async function() {
+					await fetchText('/control/timer?action=remove&id=' + id);
+					await loadTimers();
+				});
+		}
+
+		// Initialize
+		loadTimers();
+
+		// Auto-refresh every 60 seconds
+		setInterval(loadTimers, 60000);
+
+		// Setup mobile accordion
+		document.addEventListener('DOMContentLoaded', function() {
+			ywebInitMobileAccordion({
+				cardOrder: ['card-filter', 'card-timers'],
+				storageKey: 'yweb-timer-card',
+				defaultCard: 'card-timers',
+				breakpoint: 800,
+				indicatorId: 'cardIndicator',
+				containerSelector: '.yweb-timer-grid',
+				mode: 'collapsed'
+			});
+		});
+
+		// Pull-to-refresh
+		function isAtScrollTop() {
+			const expandedCard = document.querySelector('.yweb-card:not(.collapsed)');
+			if (expandedCard) {
+				const cardBody = expandedCard.querySelector('.yweb-card-body');
+				if (cardBody && cardBody.scrollTop > 5) return false;
+			}
+			const main = document.querySelector('.yweb-timer-grid');
+			if (main && main.scrollTop > 5) return false;
+			return true;
+		}
+
+		if (typeof ywebSetRefreshCallback === 'function') {
+			ywebSetRefreshCallback(function() {
+				if (!isAtScrollTop()) return Promise.resolve();
+				return loadTimers();
+			});
+		}
+
+		if (typeof window.ywebIsAtScrollTop === 'undefined') {
+			window.ywebIsAtScrollTop = isAtScrollTop;
+		}
+
+		// ===== Timer Modal =====
+		let timerModalEditId = null;
+		let cachedRecDirs = null;
+
+		function buildTimerModalHtml() {
+			const now = new Date();
+			const todayStr = ywebFormatDateInput(now);
+			const nowTime = ywebFormatTime(now);
+			// Default stop: +2 hours
+			const stop = new Date(now.getTime() + 2 * 3600000);
+			const stopDate = ywebFormatDateInput(stop);
+			const stopTime = ywebFormatTime(stop);
+
+			return `
+			<div class="yweb-modal-header">
+				<h3 id="timerModalTitle">Neuer Timer</h3>
+				<button class="yweb-modal-close" onclick="closeTimerModal()">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+				</button>
+			</div>
+			<div class="yweb-modal-body">
+				<div class="yweb-form-section">
+					<div class="yweb-form-row">
+						<label for="tmType">Typ</label>
+						<select id="tmType" onchange="onTimerTypeChange()">
+							<option value="5">Aufnahme</option>
+							<option value="3">Umschalten</option>
+							<option value="4">Standby</option>
+							<option value="6">Erinnerung</option>
+							<option value="7">Sleeptimer</option>
+							<option value="8">Plugin</option>
+							<option value="1">Shutdown</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="yweb-form-section">
+					<div class="yweb-form-section-title">Zeiten</div>
+					<div class="yweb-form-row">
+						<label for="tmAlDate">Start</label>
+						<div class="yweb-time-group">
+							<input type="date" id="tmAlDate" value="${todayStr}">
+							<input type="time" id="tmAlTime" value="${nowTime}">
+						</div>
+					</div>
+					<div class="yweb-form-row" id="tmStopRow">
+						<label for="tmStDate">Ende</label>
+						<div class="yweb-time-group">
+							<input type="date" id="tmStDate" value="${stopDate}">
+							<input type="time" id="tmStTime" value="${stopTime}">
+						</div>
+					</div>
+				</div>
+
+				<div class="yweb-form-section">
+					<div class="yweb-form-section-title">Wiederholung</div>
+					<div class="yweb-form-row">
+						<label for="tmRepeat">Modus</label>
+						<select id="tmRepeat" onchange="onRepeatChange()">
+							<option value="0">Einmalig</option>
+							<option value="1">Täglich</option>
+							<option value="2">Wöchentlich</option>
+							<option value="3">Zweiwöchentlich</option>
+							<option value="4">Vierwöchentlich</option>
+							<option value="5">Monatlich</option>
+							<option value="256">Wochentage</option>
+						</select>
+					</div>
+					<div class="yweb-form-row yweb-form-hidden" id="tmWeekdaysRow">
+						<label>Tage</label>
+						<div class="yweb-form-weekdays">
+							<label><input type="checkbox" name="tmWd" value="256"><span>Mo</span></label>
+							<label><input type="checkbox" name="tmWd" value="512"><span>Di</span></label>
+							<label><input type="checkbox" name="tmWd" value="1024"><span>Mi</span></label>
+							<label><input type="checkbox" name="tmWd" value="2048"><span>Do</span></label>
+							<label><input type="checkbox" name="tmWd" value="4096"><span>Fr</span></label>
+							<label><input type="checkbox" name="tmWd" value="8192"><span>Sa</span></label>
+							<label><input type="checkbox" name="tmWd" value="16384"><span>So</span></label>
+						</div>
+					</div>
+					<div class="yweb-form-row yweb-form-hidden" id="tmRepcountRow">
+						<label for="tmRepcount">Anzahl</label>
+						<input type="number" id="tmRepcount" min="0" max="999" value="0" placeholder="0 = unbegrenzt">
+					</div>
+				</div>
+
+				<div class="yweb-form-section" id="tmChannelSection">
+					<div class="yweb-form-section-title">Sender</div>
+					<div class="yweb-form-row">
+						<label for="tmBouquet">Bouquet</label>
+						<select id="tmBouquet" onchange="onBouquetChange()">
+							<option value="">Laden...</option>
+						</select>
+					</div>
+					<div class="yweb-form-row">
+						<label for="tmChannel">Sender</label>
+						<select id="tmChannel">
+							<option value="">Bouquet wählen...</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="yweb-form-section" id="tmRecordSection">
+					<div class="yweb-form-section-title">Aufnahme-Optionen</div>
+					<div class="yweb-form-row">
+						<label for="tmRecDir">Ordner</label>
+						<select id="tmRecDir">
+							<option value="">Standard</option>
+						</select>
+					</div>
+					<div class="yweb-form-check">
+						<input type="checkbox" id="tmRecSafety" checked>
+						<label for="tmRecSafety">Aufnahmekorrektur (Vor-/Nachlauf)</label>
+					</div>
+					<div class="yweb-form-check">
+						<input type="checkbox" id="tmAutoAdjust">
+						<label for="tmAutoAdjust">Automatisch an EPG anpassen</label>
+					</div>
+				</div>
+
+				<div class="yweb-form-section yweb-form-hidden" id="tmStandbySection">
+					<div class="yweb-form-section-title">Standby</div>
+					<div class="yweb-form-row">
+						<label>Modus</label>
+						<select id="tmStandbyOn">
+							<option value="1">Einschalten</option>
+							<option value="0">Ausschalten</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="yweb-form-section yweb-form-hidden" id="tmMessageSection">
+					<div class="yweb-form-section-title">Erinnerung</div>
+					<div class="yweb-form-row">
+						<label for="tmMessage">Nachricht</label>
+						<input type="text" id="tmMessage" maxlength="30" placeholder="Nachricht eingeben...">
+					</div>
+				</div>
+
+				<div class="yweb-form-section yweb-form-hidden" id="tmPluginSection">
+					<div class="yweb-form-section-title">Plugin</div>
+					<div class="yweb-form-row">
+						<label for="tmPlugin">Name</label>
+						<input type="text" id="tmPlugin" maxlength="30" placeholder="Plugin-Name">
+					</div>
+				</div>
+			</div>
+			<div class="yweb-modal-footer">
+				<button onclick="closeTimerModal()">Abbrechen</button>
+				<button class="btn-primary" id="tmSubmitBtn" onclick="submitTimer()">Speichern</button>
+			</div>`;
+		}
+
+		function openTimerModal(editData) {
+			timerModalEditId = null;
+			var backdrop = document.createElement('div');
+			backdrop.className = 'yweb-modal-backdrop open';
+			backdrop.id = 'timerModalBackdrop';
+			backdrop.onclick = function(e) {
+				if (e.target === backdrop) closeTimerModal();
+			};
+
+			var modal = document.createElement('div');
+			modal.className = 'yweb-modal';
+			modal.innerHTML = buildTimerModalHtml();
+			backdrop.appendChild(modal);
+			document.body.appendChild(backdrop);
+
+			// Load data
+			loadBouquets();
+			loadRecordDirs();
+			onTimerTypeChange();
+
+			// If editing, populate fields
+			if (editData) {
+				timerModalEditId = editData.id;
+				document.getElementById('timerModalTitle').textContent = 'Timer bearbeiten';
+				document.getElementById('tmSubmitBtn').textContent = 'Ändern';
+				populateEditData(editData);
+			}
+
+			// Keyboard shortcut
+			backdrop.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') closeTimerModal();
+			});
+		}
+
+		function closeTimerModal() {
+			var backdrop = document.getElementById('timerModalBackdrop');
+			if (backdrop) backdrop.remove();
+			timerModalEditId = null;
+		}
+
+		function onTimerTypeChange() {
+			var type = document.getElementById('tmType').value;
+			var isRecord = (type === '5');
+			var needsChannel = (type === '5' || type === '3');
+			var needsStop = (type === '5');
+			var isStandby = (type === '4');
+			var isRemind = (type === '6');
+			var isPlugin = (type === '8');
+			var isSleep = (type === '7');
+			var isShutdown = (type === '1');
+
+			toggle('tmStopRow', needsStop);
+			toggle('tmChannelSection', needsChannel);
+			toggle('tmRecordSection', isRecord);
+			toggle('tmStandbySection', isStandby);
+			toggle('tmMessageSection', isRemind);
+			toggle('tmPluginSection', isPlugin);
+		}
+
+		function toggle(id, show) {
+			var el = document.getElementById(id);
+			if (el) {
+				if (show) el.classList.remove('yweb-form-hidden');
+				else el.classList.add('yweb-form-hidden');
+			}
+		}
+
+		function onRepeatChange() {
+			var rep = document.getElementById('tmRepeat').value;
+			var isWeekdays = (parseInt(rep) >= 256);
+			var hasRepeat = (rep !== '0');
+			toggle('tmWeekdaysRow', isWeekdays);
+			toggle('tmRepcountRow', hasRepeat);
+		}
+
+		// Bouquet/Channel cascade — uses shared ywebFetchBouquets/ywebFetchChannels
+		async function loadBouquets() {
+			var sel = document.getElementById('tmBouquet');
+			if (!sel) return;
+			try {
+				var bouquets = await ywebFetchBouquets();
+				sel.innerHTML = '<option value="">-- Bouquet wählen --</option>';
+				bouquets.forEach(function(b) {
+					sel.innerHTML += '<option value="' + escapeHtml(b.number) + '">' + escapeHtml(b.name) + '</option>';
+				});
+			} catch (e) {
+				sel.innerHTML = '<option value="">Fehler beim Laden</option>';
+			}
+		}
+
+		async function onBouquetChange() {
+			var bouquetNr = document.getElementById('tmBouquet').value;
+			var sel = document.getElementById('tmChannel');
+			if (!sel) return;
+			if (!bouquetNr) {
+				sel.innerHTML = '<option value="">Bouquet wählen...</option>';
+				return;
+			}
+			sel.innerHTML = '<option value="">Laden...</option>';
+			try {
+				var channels = await ywebFetchChannels(bouquetNr);
+				sel.innerHTML = '';
+				channels.forEach(function(ch) {
+					sel.innerHTML += '<option value="' + escapeHtml(ch.id) + '">' + escapeHtml(ch.name) + '</option>';
+				});
+				if (channels.length === 0) {
+					sel.innerHTML = '<option value="">Keine Sender</option>';
+				}
+			} catch (e) {
+				sel.innerHTML = '<option value="">Fehler beim Laden</option>';
+			}
+		}
+
+		// Recording directories
+		async function loadRecordDirs() {
+			var sel = document.getElementById('tmRecDir');
+			if (!sel) return;
+			try {
+				if (!cachedRecDirs) {
+					var resp = await fetch('/control/getdir?dir=allmoviedirs&subdirs=true&format=json');
+					var data = await resp.json();
+					var root = data.data || data;
+					var items = root.dirs || [];
+					cachedRecDirs = [];
+					items.forEach(function(item) {
+						if (item.dir) cachedRecDirs.push(item.dir);
+					});
+				}
+				sel.innerHTML = '<option value="">Standard</option>';
+				cachedRecDirs.forEach(function(dir) {
+					sel.innerHTML += '<option value="' + escapeHtml(dir) + '">' + escapeHtml(dir) + '</option>';
+				});
+			} catch (e) {
+				// keep default option
+			}
+		}
+
+		// Submit timer
+		async function submitTimer() {
+			var btn = document.getElementById('tmSubmitBtn');
+			if (!btn) return;
+
+			var type = document.getElementById('tmType').value;
+			var alDate = document.getElementById('tmAlDate').value;
+			var alTime = document.getElementById('tmAlTime').value;
+			var stDate = document.getElementById('tmStDate').value;
+			var stTime = document.getElementById('tmStTime').value;
+
+			// Validate
+			if (!alDate || !alTime) {
+				ywebShowToast('Bitte Startzeit angeben', true);
+				return;
+			}
+
+			var needsStop = (type === '5');
+			if (needsStop && (!stDate || !stTime)) {
+				ywebShowToast('Bitte Endzeit angeben', true);
+				return;
+			}
+
+			var needsChannel = (type === '5' || type === '3');
+			var channelId = document.getElementById('tmChannel') ? document.getElementById('tmChannel').value : '';
+			if (needsChannel && !channelId) {
+				ywebShowToast('Bitte Sender wählen', true);
+				return;
+			}
+
+			// Build API URL
+			// Convert date/time to API format: DD.MM.YYYY and HH.MM
+			var alParts = alDate.split('-');
+			var alDateFmt = alParts[2] + '.' + alParts[1] + '.' + alParts[0]; // DD.MM.YYYY
+			var alTimeFmt = alTime.replace(':', '.'); // HH.MM
+
+			var params = 'action=' + (timerModalEditId ? 'modify' : 'new');
+			if (timerModalEditId) params += '&id=' + timerModalEditId;
+			params += '&type=' + type;
+			params += '&alDate=' + encodeURIComponent(alDateFmt);
+			params += '&alTime=' + encodeURIComponent(alTimeFmt);
+
+			if (needsStop && stDate && stTime) {
+				var stParts = stDate.split('-');
+				var stDateFmt = stParts[2] + '.' + stParts[1] + '.' + stParts[0];
+				var stTimeFmt = stTime.replace(':', '.');
+				params += '&stDate=' + encodeURIComponent(stDateFmt);
+				params += '&stTime=' + encodeURIComponent(stTimeFmt);
+			}
+
+			if (needsChannel && channelId) {
+				params += '&channel_id=' + encodeURIComponent(channelId);
+			}
+
+			// Repeat
+			var rep = document.getElementById('tmRepeat').value;
+			if (parseInt(rep) >= 256) {
+				// Weekdays: sum checked values
+				var wdSum = 0;
+				document.querySelectorAll('input[name="tmWd"]:checked').forEach(function(cb) {
+					wdSum += parseInt(cb.value);
+				});
+				if (wdSum === 0) wdSum = 256; // default Monday if nothing checked
+				params += '&rep=' + wdSum;
+			} else {
+				params += '&rep=' + rep;
+			}
+
+			var repcount = document.getElementById('tmRepcount') ? document.getElementById('tmRepcount').value : '0';
+			if (rep !== '0' && repcount && repcount !== '0') {
+				params += '&repcount=' + repcount;
+			}
+
+			// Type-specific parameters
+			if (type === '5') {
+				var recDir = document.getElementById('tmRecDir') ? document.getElementById('tmRecDir').value : '';
+				if (recDir) params += '&rec_dir=' + encodeURIComponent(recDir);
+				if (document.getElementById('tmRecSafety') && document.getElementById('tmRecSafety').checked) {
+					params += '&rs=1';
+				}
+				if (document.getElementById('tmAutoAdjust') && document.getElementById('tmAutoAdjust').checked) {
+					params += '&aj=1';
+				}
+			} else if (type === '4') {
+				var sbon = document.getElementById('tmStandbyOn') ? document.getElementById('tmStandbyOn').value : '1';
+				params += '&sbon=' + sbon;
+			} else if (type === '6') {
+				var msg = document.getElementById('tmMessage') ? document.getElementById('tmMessage').value : '';
+				if (msg) params += '&msg=' + encodeURIComponent(msg);
+			} else if (type === '8') {
+				var plugin = document.getElementById('tmPlugin') ? document.getElementById('tmPlugin').value : '';
+				if (plugin) params += '&PluginName=' + encodeURIComponent(plugin);
+			}
+
+			// Submit
+			btn.textContent = '...';
+			btn.disabled = true;
+
+			try {
+				var resp = await fetch('/control/timer?' + params);
+				var text = await resp.text();
+				if (text.trim().toLowerCase() === 'ok') {
+					closeTimerModal();
+					ywebShowToast(timerModalEditId ? 'Timer geändert' : 'Timer erstellt');
+					await loadTimers();
+				} else {
+					ywebShowToast('Fehler: ' + text.trim(), true);
+					btn.textContent = timerModalEditId ? 'Ändern' : 'Speichern';
+					btn.disabled = false;
+				}
+			} catch (e) {
+				ywebShowToast('Fehler beim Speichern', true);
+				btn.textContent = timerModalEditId ? 'Ändern' : 'Speichern';
+				btn.disabled = false;
+			}
+		}
+
+		// Edit timer: extract data from allTimers and open modal
+		function editTimer(timerId) {
+			var timer = allTimers.find(function(t) { return t.id == timerId; });
+			if (!timer) {
+				ywebShowToast('Timer nicht gefunden', true);
+				return;
+			}
+
+			var alarm = ywebGetTimerAlarm(timer);
+			var stop = ywebGetTimerStop(timer);
+
+			openTimerModal({
+				id: timerId,
+				type: parseInt(timer.type_number) || 5,
+				alarm: alarm,
+				stop: stop,
+				channel_id: timer.channel_id || '',
+				channel_name: timer.channel_name || '',
+				repeat: timer.repeat || {},
+				recording_dir: timer.recording_dir || '',
+				message: timer.message || '',
+				plugin: timer.plugin || '',
+				state: parseInt(timer.state) || 0
+			});
+		}
+
+		function populateEditData(data) {
+			// Type
+			var typeSel = document.getElementById('tmType');
+			if (typeSel) {
+				typeSel.value = String(data.type);
+				// Type 9 (immediate record) maps to type 5 for editing
+				if (data.type === 9) typeSel.value = '5';
+				onTimerTypeChange();
+			}
+
+			// Alarm date/time: alarm is { normal: { date, time }, safety: {...} }
+			if (data.alarm) {
+				var aNormal = data.alarm.normal || data.alarm;
+				var aDate = parseTimerDate(aNormal.date);
+				var aTime = parseTimerTime(aNormal.time);
+				if (aDate) document.getElementById('tmAlDate').value = aDate;
+				if (aTime) document.getElementById('tmAlTime').value = aTime;
+			}
+
+			// Stop date/time
+			if (data.stop) {
+				var sNormal = data.stop.normal || data.stop;
+				var sDate = parseTimerDate(sNormal.date);
+				var sTime = parseTimerTime(sNormal.time);
+				if (sDate) document.getElementById('tmStDate').value = sDate;
+				if (sTime) document.getElementById('tmStTime').value = sTime;
+			}
+
+			// Repeat
+			if (data.repeat) {
+				var repText = data.repeat.text || '';
+				var repMap = {
+					'once': '0', 'daily': '1', 'weekly': '2', 'biweekly': '3',
+					'fourweekly': '4', 'monthly': '5', 'byeventdescription': '6'
+				};
+				// Try to resolve template tags
+				var m = repText.match(/\{=L:timerlist\.repeat\.(\w+)=\}/);
+				var repKey = m ? m[1] : repText.toLowerCase();
+				var repVal = repMap[repKey];
+				if (repVal !== undefined) {
+					document.getElementById('tmRepeat').value = repVal;
+				} else if (parseInt(repText) >= 256) {
+					// Weekdays encoded
+					document.getElementById('tmRepeat').value = '256';
+					var wdVal = parseInt(repText);
+					document.querySelectorAll('input[name="tmWd"]').forEach(function(cb) {
+						cb.checked = (wdVal & parseInt(cb.value)) !== 0;
+					});
+				}
+				onRepeatChange();
+
+				if (data.repeat.count && data.repeat.count !== '-' && data.repeat.count !== '0') {
+					var rcEl = document.getElementById('tmRepcount');
+					if (rcEl) rcEl.value = data.repeat.count;
+				}
+			}
+
+			// Channel: select correct bouquet and channel
+			if (data.channel_id) {
+				selectChannelById(data.channel_id, data.channel_name);
+			}
+
+			// Recording dir
+			if (data.recording_dir) {
+				// Will be set after dirs load; use a small delay
+				setTimeout(function() {
+					var sel = document.getElementById('tmRecDir');
+					if (sel) sel.value = data.recording_dir;
+				}, 500);
+			}
+
+			// Message
+			if (data.message) {
+				var msgEl = document.getElementById('tmMessage');
+				if (msgEl) msgEl.value = data.message;
+			}
+
+			// Plugin
+			if (data.plugin) {
+				var plEl = document.getElementById('tmPlugin');
+				if (plEl) plEl.value = data.plugin;
+			}
+		}
+
+		// Parse "DD.MM.YYYY" to "YYYY-MM-DD" for input[type=date]
+		function parseTimerDate(dateStr) {
+			if (!dateStr) return '';
+			var parts = dateStr.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+			if (parts) return parts[3] + '-' + parts[2] + '-' + parts[1];
+			return '';
+		}
+
+		// Parse "HH:MM" to "HH:MM" for input[type=time]
+		function parseTimerTime(timeStr) {
+			if (!timeStr) return '';
+			var parts = timeStr.match(/(\d{2}):(\d{2})/);
+			if (parts) return parts[1] + ':' + parts[2];
+			return '';
+		}
+
+		// Select channel by ID: find which bouquet it belongs to
+		async function selectChannelById(channelId, channelName) {
+			await loadBouquets();
+			var bouquets = await ywebFetchBouquets();
+			if (!bouquets || bouquets.length === 0) return;
+
+			// Try each bouquet to find the channel
+			for (var i = 0; i < bouquets.length; i++) {
+				var bNr = bouquets[i].number;
+				try {
+					var channels = await ywebFetchChannels(bNr);
+				} catch (e) {
+					continue;
+				}
+				var found = channels.find(function(ch) {
+					return ch.id === channelId;
+				});
+				if (found) {
+					var bSel = document.getElementById('tmBouquet');
+					if (bSel) bSel.value = bNr;
+					await onBouquetChange();
+					var cSel = document.getElementById('tmChannel');
+					if (cSel) cSel.value = channelId;
+					return;
+				}
+			}
+
+			// Fallback: if not found in any bouquet, add it manually
+			if (channelId) {
+				var cSel = document.getElementById('tmChannel');
+				if (cSel) {
+					cSel.innerHTML = '<option value="' + escapeHtml(channelId) + '" selected>' +
+						escapeHtml(channelName || channelId) + '</option>';
+				}
+			}
+		}
+	</script>
+</body>
+</html>
