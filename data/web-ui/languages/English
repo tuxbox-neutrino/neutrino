@@ -965,3 +965,5 @@ yw.reg.cpufreq=CPU frequency (MHz)
 yw.reg.cpufreq_hint=0 keeps the default; box dependent
 yw.reg.standby_cpufreq=Standby CPU frequency (MHz)
 yw.reg.fan_speed=Fan speed
+yw.reg.start_volume_hint=-1 keeps the last volume
+yw.reg.override_dir_hint=files here override the default web root

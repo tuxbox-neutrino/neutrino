@@ -965,3 +965,5 @@ yw.reg.cpufreq=CPU-Frequenz (MHz)
 yw.reg.cpufreq_hint=0 behält den Standard; boxabhängig
 yw.reg.standby_cpufreq=Standby-CPU-Frequenz (MHz)
 yw.reg.fan_speed=Lüfterdrehzahl
+yw.reg.start_volume_hint=-1 merkt sich die letzte Lautstärke
+yw.reg.override_dir_hint=Dateien hier überschreiben das Standard-Webroot

@@ -133,6 +133,8 @@ window.YWEB_L = {
 	"reg.cpufreq_hint": "{=L:yw.reg.cpufreq_hint=}",
 	"reg.standby_cpufreq": "{=L:yw.reg.standby_cpufreq=}",
 	"reg.fan_speed": "{=L:yw.reg.fan_speed=}",
+	"reg.start_volume_hint": "{=L:yw.reg.start_volume_hint=}",
+	"reg.override_dir_hint": "{=L:yw.reg.override_dir_hint=}",
 	// Verzeichnis-Picker (yweb-header.js)
 	"picker.title": "{=L:yw.picker.title=}",
 	"picker.choose_folder": "{=L:yw.picker.choose_folder=}",

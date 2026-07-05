@@ -68,7 +68,7 @@ var SETTINGS_REGISTRY = [
 				title: ywebL('reg.volume', 'Volume'),
 				fields: [
 					{ key: 'current_volume_step', label: ywebL('reg.volume_step', 'Volume step'), type: 'number', min: 1, max: 25 },
-					{ key: 'start_volume', label: ywebL('reg.start_volume', 'Start volume'), type: 'number', min: -1, max: 100 },
+					{ key: 'start_volume', label: ywebL('reg.start_volume', 'Start volume'), type: 'number', min: -1, max: 100, hint: ywebL('reg.start_volume_hint', '-1 keeps the last volume') },
 					{ key: 'audio_volume_percent_ac3', label: ywebL('reg.ac3_vol', 'AC3 volume (%)'), type: 'number', min: 0, max: 100 },
 					{ key: 'audio_volume_percent_pcm', label: ywebL('reg.pcm_vol', 'PCM volume (%)'), type: 'number', min: 0, max: 100 },
 					{ key: 'audiochannel_up_down_enable', label: ywebL('reg.audio_ch_selectable', 'Audio channel selectable'), type: 'bool' },
@@ -285,7 +285,7 @@ var SETTINGS_REGISTRY = [
 			{
 				title: ywebL('reg.content', 'Content'),
 				fields: [
-					{ key: 'WebsiteMain.override_directory', label: ywebL('reg.override_dir', 'Override directory'), type: 'text', picker: true },
+					{ key: 'WebsiteMain.override_directory', label: ywebL('reg.override_dir', 'Override directory'), type: 'text', picker: true, hint: ywebL('reg.override_dir_hint', 'files here override the default web root') },
 					{ key: 'WebsiteMain.hosted_directory', label: ywebL('reg.hosted_dir', 'Hosted directory'), type: 'text', picker: true },
 					{ key: 'Tuxbox.DisplayLogos', label: ywebL('reg.show_logos', 'Show channel logos'), type: 'bool' },
 					{ key: 'Tuxbox.LogosURL', label: ywebL('reg.logos_url', 'Logos URL/path'), type: 'text' },

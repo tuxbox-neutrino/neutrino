@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.settings=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=60">
+	<link rel="stylesheet" href="/css/yweb.css?v=61">
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
@@ -262,9 +262,9 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=4"></script>
+	<script src="/Y_Lang.yjs?v=5"></script>
 	<script src="/yweb-header.js?v=36"></script>
-	<script src="/settings-registry.js?v=6"></script>
+	<script src="/settings-registry.js?v=7"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -331,6 +331,13 @@
 		// Leeren Wert mit dem Feld-Default vorbelegen (Key noch nie gesetzt)
 		if ((val === '' || val === undefined) && f.default !== undefined)
 			val = String(f.default);
+		// Optionaler (i)-Infotext: an das Label anhaengen (native title-Tooltip),
+		// ohne die einzelnen Feldzweige anzufassen
+		if (f.hint) {
+			var fh = {}; for (var k in f) fh[k] = f[k];
+			fh.label = f.label + ' <span class="yweb-hint" title="' + escapeHtml(f.hint) + '">&#9432;</span>';
+			f = fh;
+		}
 		var id = 'cfg_' + (opts.idPrefix || '') + String(f.key || f.id || '').replace(/\./g, '__');
 		var ext = opts.dataConfig ? ' data-extcfg="' + opts.dataConfig + '"' : '';
 
