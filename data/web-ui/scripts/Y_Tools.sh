@@ -806,8 +806,8 @@ case "$action" in
 	ncamstop)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh ncam_stop;;
 	ncamstart)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh ncam_start;;
 	ncamreset)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh ncam_reset;;
-	cccamstop)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh ccccam_stop;;
-	cccamstart)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh ccccam_start;;
+	cccamstop)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh cccam_stop;;
+	cccamstart)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh cccam_start;;
 	cccamreset)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh cccam_reset;;
 	doscamstop)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh doscam_stop;;
 	doscamstart)	%(PRIVATE_HTTPDDIR)/scripts/Y_Camds.sh doscam_start;;
