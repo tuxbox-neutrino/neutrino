@@ -1432,13 +1432,16 @@ async function ywebDiscoverExtensions() {
 				var mResp = await fetch('/extensions/' + encodeURIComponent(e.name) + '/manifest.json', {cache: 'no-cache'});
 				if (!mResp.ok) continue;
 				var m = await mResp.json();
-				if (!m || !m.name || !m.entry) continue;
+				if (!m || !m.name) continue;
+				// entry ist Pflicht, ausser die Erweiterung liefert nur
+				// eine Einstellungs-Kategorie (settings-only, keine Seite)
+				if (!m.entry && !(m.settings && m.settings.sections)) continue;
 				m.dir = e.name;
 				// Config-Ausgabe encodiert '-' als _bind_ (ConfigCGI)
 				var ckBase = ('ext_' + m.dir).replace(/-/g, '_bind_');
 				m.enabled = (yCfg[ckBase + '_enabled'] === '1');
 				m.slot = yCfg[ckBase + '_slot'] || m.slot || 'tools';
-				m.url = '/extensions/' + m.dir + '/' + m.entry;
+				m.url = m.entry ? ('/extensions/' + m.dir + '/' + m.entry) : '';
 				_ywebExtensions.push(m);
 			} catch (ignore) {}
 		}
@@ -1454,7 +1457,7 @@ async function ywebInjectExtensions(pageName) {
 	_ywebExtInjected = true;
 	var exts = await ywebDiscoverExtensions();
 	exts.forEach(function(m) {
-		if (!m.enabled) return;
+		if (!m.enabled || !m.url) return; // settings-only hat keine Seite
 		if (m.slot === 'nav') {
 			var ul = document.querySelector('.yweb-nav-links');
 			if (ul) {

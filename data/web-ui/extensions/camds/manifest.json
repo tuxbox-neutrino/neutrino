@@ -1,0 +1,215 @@
+{
+	"name": "CAM-Daemons",
+	"version": "1.0",
+	"slot": "page",
+	"description": "Start/Stop/Reset fuer CAM-Daemons (Y_Camds-Script)",
+	"settings": {
+		"label": "CAM-Daemons",
+		"config": "yweb",
+		"sections": [
+			{
+				"title": "Steuerung (verfuegbar nur mit installierten Camd-Scripts)",
+				"fields": [
+					{
+						"type": "action",
+						"label": "oscam",
+						"actions": [
+							{
+								"id": "camds-oscam-start",
+								"button": "Start",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&oscam_start",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-oscam-stop",
+								"button": "Stop",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&oscam_stop",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-oscam-reset",
+								"button": "Reset",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&oscam_reset",
+									"raw": true
+								}
+							}
+						]
+					},
+					{
+						"type": "action",
+						"label": "ncam",
+						"actions": [
+							{
+								"id": "camds-ncam-start",
+								"button": "Start",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&ncam_start",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-ncam-stop",
+								"button": "Stop",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&ncam_stop",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-ncam-reset",
+								"button": "Reset",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&ncam_reset",
+									"raw": true
+								}
+							}
+						]
+					},
+					{
+						"type": "action",
+						"label": "cccam",
+						"actions": [
+							{
+								"id": "camds-cccam-start",
+								"button": "Start",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&cccam_start",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-cccam-stop",
+								"button": "Stop",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&cccam_stop",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-cccam-reset",
+								"button": "Reset",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&cccam_reset",
+									"raw": true
+								}
+							}
+						]
+					},
+					{
+						"type": "action",
+						"label": "mgcamd",
+						"actions": [
+							{
+								"id": "camds-mgcamd-start",
+								"button": "Start",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&mgcamd_start",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-mgcamd-stop",
+								"button": "Stop",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&mgcamd_stop",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-mgcamd-reset",
+								"button": "Reset",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&mgcamd_reset",
+									"raw": true
+								}
+							}
+						]
+					},
+					{
+						"type": "action",
+						"label": "gbox",
+						"actions": [
+							{
+								"id": "camds-gbox-start",
+								"button": "Start",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&gbox_start",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-gbox-stop",
+								"button": "Stop",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&gbox_stop",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-gbox-reset",
+								"button": "Reset",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&gbox_reset",
+									"raw": true
+								}
+							}
+						]
+					},
+					{
+						"type": "action",
+						"label": "doscam",
+						"actions": [
+							{
+								"id": "camds-doscam-start",
+								"button": "Start",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&doscam_start",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-doscam-stop",
+								"button": "Stop",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&doscam_stop",
+									"raw": true
+								}
+							},
+							{
+								"id": "camds-doscam-reset",
+								"button": "Reset",
+								"api": {
+									"endpoint": "exec",
+									"params": "Y_Camds&doscam_reset",
+									"raw": true
+								}
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

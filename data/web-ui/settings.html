@@ -263,8 +263,8 @@
 	</div>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/settings-registry.js?v=2"></script>
-	<script src="/yweb-header.js?v=32"></script>
+	<script src="/settings-registry.js?v=3"></script>
+	<script src="/yweb-header.js?v=33"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -329,10 +329,15 @@
 				'<span id="' + id + '" style="color:var(--pico-muted-color)">' + (text || '--') + '</span></div>';
 		}
 		if (f.type === 'action') {
-			var aid = f.id || f.label;
-			SETTINGS_ACTIONS[aid] = f;
-			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<button type="button" class="yweb-btn" onclick="runSettingsAction(\'' + aid + '\', this)">' + (f.button || f.label) + '</button></div>';
+			// Einzel-Action oder Button-Gruppe (f.actions) in einer Zeile
+			var acts = f.actions || [f];
+			var btns = '';
+			acts.forEach(function(a) {
+				var aid = a.id || a.label || f.label;
+				SETTINGS_ACTIONS[aid] = a;
+				btns += '<button type="button" class="yweb-btn" onclick="runSettingsAction(\'' + aid + '\', this)">' + (a.button || a.label || f.label) + '</button> ';
+			});
+			return '<div class="yweb-form-row"><label>' + f.label + '</label><span>' + btns.trim() + '</span></div>';
 		}
 
 		if (f.type === 'select') {
@@ -381,7 +386,6 @@
 		if (cat.custom && cat.id === 'wol') return renderWolPanel();
 		if (cat.custom && cat.id === 'xmltv') return renderXmltvPanel();
 		if (cat.custom && cat.id === 'zapitupload') return renderZapitUploadPanel();
-		if (cat.custom && cat.id === 'camds') return renderCamdsPanel();
 		if (cat.custom && cat.id === 'extensions') return renderExtensionsPanel();
 		if (cat.config && cat.config !== 'neutrino') return renderExtConfigPanel(cat);
 
@@ -529,7 +533,8 @@
 		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Gefundene Erweiterungen</div>';
 		exts.forEach(function(m) {
 			html += '<div class="yweb-form-row"><label>' + escapeHtml(m.name) +
-				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') + ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a></small></label><span>' +
+				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
+				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — nur Einstellungen') + '</small></label><span>' +
 				'<select id="extslot_' + m.dir + '" style="margin:0 0.4rem 0 0;padding:0.2rem;height:auto;width:auto">' +
 				['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
 					return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
@@ -703,33 +708,6 @@
 			await ywebApi('reloadchannels');
 			ywebShowToast(target + ' eingespielt, Kanallisten neu geladen');
 		} catch (e) { ywebShowToast('Fehler: ' + e.message, true); }
-		btn.disabled = false;
-	}
-
-	// Camds: Start/Stop/Reset via Y_Camds-Script (paket-/imageabhaengig;
-	// ohne Script liefern die Buttons den Fehlertext des exec-Vertrags)
-	function renderCamdsPanel() {
-		var camds = ['oscam', 'ncam', 'cccam', 'mgcamd', 'gbox', 'doscam'];
-		var html = makeCardHeader('CAM-Daemons') +
-			'<div class="yweb-form-section"><div class="yweb-form-section-title">Steuerung <small style="color:var(--pico-muted-color)">verfuegbar nur mit installierten Camd-Scripts</small></div>';
-		camds.forEach(function(c) {
-			html += '<div class="yweb-form-row"><label>' + c + '</label><span>' +
-				'<button type="button" class="yweb-btn" onclick="camdAction(\'' + c + '_start\', this)">Start</button> ' +
-				'<button type="button" class="yweb-btn" onclick="camdAction(\'' + c + '_stop\', this)">Stop</button> ' +
-				'<button type="button" class="yweb-btn" onclick="camdAction(\'' + c + '_reset\', this)">Reset</button></span></div>';
-		});
-		html += '</div>';
-		return '<div class="settings-card">' + html + '</div>';
-	}
-
-	async function camdAction(fn, btn) {
-		btn.disabled = true;
-		try {
-			var out = (await ywebApi('exec', 'Y_Camds&' + fn, {raw: true})).trim();
-			ywebShowToast(out || (fn + ' ausgefuehrt'));
-		} catch (e) {
-			ywebShowToast('Nicht verfuegbar: ' + e.message, true);
-		}
 		btn.disabled = false;
 	}
 

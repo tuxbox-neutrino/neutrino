@@ -14,8 +14,10 @@ installdir = $(PRIVATE_HTTPDDIR)
 
 nobase_install_DATA = \
 	extensions/README.md \
+	extensions/camds/manifest.json \
 	extensions/hallo-yweb/manifest.json \
-	extensions/hallo-yweb/hallo.html
+	extensions/hallo-yweb/hallo.html \
+	extensions/infoicons/manifest.json
 
 install_DATA = \
 	bouquet-editor.html \

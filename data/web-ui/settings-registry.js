@@ -161,11 +161,6 @@ var SETTINGS_REGISTRY = [
 		custom: true
 	},
 	{
-		id: 'camds',
-		label: 'CAM-Daemons',
-		custom: true
-	},
-	{
 		id: 'extensions',
 		label: 'Erweiterungen',
 		custom: true
@@ -243,27 +238,6 @@ var SETTINGS_REGISTRY = [
 					{ key: 'key_quickzap_down', label: 'Quickzap runter', type: 'number', min: 0 },
 					{ key: 'key_subchannel_up', label: 'Subkanal hoch', type: 'number', min: 0 },
 					{ key: 'key_subchannel_down', label: 'Subkanal runter', type: 'number', min: 0 }
-				]
-			}
-		]
-	},
-	{
-		id: 'infoicons',
-		label: 'Info-Icons',
-		sections: [
-			{
-				title: 'Status-Icons',
-				fields: [
-					{ key: 'mode_icons', label: 'Icons aktiv', type: 'bool01' },
-					{ key: 'mode_icons_background', label: 'Hintergrund', type: 'bool01' },
-					{ key: 'mode_icons_flag0', label: 'Icon-Datei 0', type: 'text' },
-					{ key: 'mode_icons_flag1', label: 'Icon-Datei 1', type: 'text' },
-					{ key: 'mode_icons_flag2', label: 'Icon-Datei 2', type: 'text' },
-					{ key: 'mode_icons_flag3', label: 'Icon-Datei 3', type: 'text' },
-					{ key: 'mode_icons_flag4', label: 'Icon-Datei 4', type: 'text' },
-					{ key: 'mode_icons_flag5', label: 'Icon-Datei 5', type: 'text' },
-					{ key: 'mode_icons_flag6', label: 'Icon-Datei 6', type: 'text' },
-					{ key: 'mode_icons_flag7', label: 'Icon-Datei 7', type: 'text' }
 				]
 			}
 		]
