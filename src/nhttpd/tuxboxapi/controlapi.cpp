@@ -5105,6 +5105,12 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			}
 		}
 		else { // set values and save list
+			// neutrino: saveSetup() rewrites every g_settings-backed key
+			// from RAM, so flushing has to happen BEFORE the submitted
+			// values go into the shared instance — the old order silently
+			// clobbered every submitted key g_settings knows about.
+			if (configFileName == "neutrino")
+				CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 			for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it) {
 				std::string key = it->first;
 				replace(key, "_dot_", ".");
@@ -5113,8 +5119,11 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			    && !key.empty() && key.find_first_not_of("0123456789") != std::string::npos)
 					Config->setString(key, it->second);
 			}
-			if (configFileName == "neutrino")
-				CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
+			if (configFileName == "neutrino") {
+				Config->saveConfig(config_filename);
+				// apply on the GUI thread; same path as /control/reloadsetup
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD);
+			}
 			else if (own_config)
 				Config->saveConfig(config_filename);
 		}
