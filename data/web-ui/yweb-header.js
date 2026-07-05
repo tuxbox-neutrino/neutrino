@@ -102,7 +102,7 @@ const YWEB_ABOUT_HTML = `
 // Generate header HTML with optional active page
 function ywebGetHeaderHTML(activePage) {
 	const nav = YWEB_CONFIG.navigation || [
-		{ page: 'dashboard', href: '/dashboard.html', icon: 'dashboard', label: ywebL('nav.dashboard', 'Dashboard') },
+		{ page: 'dashboard', href: '/dashboard.yhtm', icon: 'dashboard', label: ywebL('nav.dashboard', 'Dashboard') },
 		{ page: 'bouquets', href: '/bouquets.html', icon: 'bouquets', label: ywebL('nav.bouquets', 'Bouquets') },
 		{ page: 'epg', href: '/epg.html', icon: 'epg', label: ywebL('nav.epg', 'EPG') },
 		{ page: 'timer', href: '/timer.html', icon: 'timer', label: ywebL('nav.timer', 'Timer') },
@@ -118,7 +118,7 @@ function ywebGetHeaderHTML(activePage) {
 	return `
 <header class="yweb-header">
 	<nav>
-		<a href="/dashboard.html" class="yweb-logo">
+		<a href="/dashboard.yhtm" class="yweb-logo">
 			<img src="${YWEB_CONFIG.logo}" alt="" onerror="this.remove()">
 			<span>${YWEB_CONFIG.title}</span>
 		</a>
@@ -1847,7 +1847,7 @@ function selectCard(cardId) {
 		card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 	}
 }
-/* dashboard.html uses navigateToCard — alias */
+/* dashboard.yhtm uses navigateToCard — alias */
 var navigateToCard = selectCard;
 
 function buildCardIndicator() {

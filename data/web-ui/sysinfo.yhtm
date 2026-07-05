@@ -187,7 +187,7 @@
 		<div class="sysinfo-toolbar">
 			<button class="yweb-btn primary" onclick="loadSysInfo()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-				Aktualisieren
+				{=L:yw.si.refresh=}
 			</button>
 		</div>
 
@@ -200,7 +200,7 @@
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-hw">
-						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -209,11 +209,11 @@
 			<div class="sysinfo-card">
 				<div class="sysinfo-card-header">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
-					Speicher
+					{=L:yw.si.memory=}
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-mem">
-						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -226,7 +226,7 @@
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sys">
-						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -239,7 +239,7 @@
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sw">
-						<span class="sysinfo-label">Lade...</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -247,23 +247,23 @@
 			<div class="sysinfo-card sysinfo-card-wide">
 				<div class="sysinfo-card-header">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-					Netzwerk
+					{=L:yw.si.network=}
 				</div>
 				<div class="sysinfo-card-body" id="sysinfo-net">
-					<span class="sysinfo-label">Lade...</span>
+					<span class="sysinfo-label">{=L:yw.msg.loading=}</span>
 				</div>
 			</div>
 		</div>
 
 		<!-- Erweitert -->
 		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'ps')">
-			<summary>Prozessliste</summary>
-			<pre class="sysinfo-pre" id="sysinfo-ps">Lade...</pre>
+			<summary>{=L:yw.si.processes_list=}</summary>
+			<pre class="sysinfo-pre" id="sysinfo-ps">{=L:yw.msg.loading=}</pre>
 		</details>
 
 		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'dmesg')">
-			<summary>Kernel-Log</summary>
-			<pre class="sysinfo-pre" id="sysinfo-dmesg">Lade...</pre>
+			<summary>{=L:yw.si.kernel_log=}</summary>
+			<pre class="sysinfo-pre" id="sysinfo-dmesg">{=L:yw.msg.loading=}</pre>
 		</details>
 	</main>
 
@@ -295,10 +295,10 @@
 			// Hardware
 			var hw = '';
 			if (sys.cpu_model) hw += row('CPU', sys.cpu_model);
-			hw += row('Kerne', sys.cpu.cores);
-			hw += row('Auslastung', sys.cpu.percent + '%');
+			hw += row('{=L:yw.si.cores=}', sys.cpu.cores);
+			hw += row('{=L:yw.si.load=}', sys.cpu.percent + '%');
 			if (sys.temperature !== null && sys.temperature !== undefined)
-				hw += row('Temperatur', sys.temperature + '°C');
+				hw += row('{=L:yw.si.temperature=}', sys.temperature + '°C');
 			if (sys.box) hw += row('Box', sys.box.vendor + ' ' + sys.box.name + ' (' + sys.box.arch + ')');
 			document.getElementById('sysinfo-hw').innerHTML = hw;
 
@@ -307,7 +307,7 @@
 			if (sys.memory)
 				mem += bar('RAM', sys.memory.percent, ywebFormatKB(sys.memory.used) + ' / ' + ywebFormatKB(sys.memory.total));
 			if (sys.disk)
-				mem += bar('Disk', sys.disk.percent, ywebFormatKB(sys.disk.free) + ' frei von ' + ywebFormatKB(sys.disk.total));
+				mem += bar('Disk', sys.disk.percent, ywebFormatKB(sys.disk.free) + ' {=L:yw.si.free_of=} ' + ywebFormatKB(sys.disk.total));
 			document.getElementById('sysinfo-mem').innerHTML = mem;
 
 			// System
@@ -316,7 +316,7 @@
 			s += row('Uptime', ywebFormatUptime(sys.uptime));
 			s += row('Kernel', sys.kernel);
 			if (sys.load) s += row('Load', sys.load[0].toFixed(2) + ' / ' + sys.load[1].toFixed(2) + ' / ' + sys.load[2].toFixed(2));
-			if (sys.processes) s += row('Prozesse', sys.processes.running + ' aktiv / ' + sys.processes.total + ' gesamt');
+			if (sys.processes) s += row('{=L:yw.si.processes=}', sys.processes.running + ' {=L:yw.si.active=} / ' + sys.processes.total + ' {=L:yw.si.total=}');
 			document.getElementById('sysinfo-sys').innerHTML = s;
 
 			// Software
@@ -344,11 +344,11 @@
 					'</div>';
 				}
 			} else {
-				net = '<span class="sysinfo-label">Keine Interfaces</span>';
+				net = '<span class="sysinfo-label">{=L:yw.si.no_ifaces=}</span>';
 			}
 			document.getElementById('sysinfo-net').innerHTML = net;
 		} catch (e) {
-			document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--yweb-danger)">Fehler: ' + e.message + '</span>';
+			document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--yweb-danger)">{=L:yw.msg.error=}: ' + e.message + '</span>';
 		}
 	}
 
@@ -363,7 +363,7 @@
 			text = text.replace(/^[\s\r\n]+|[\s\r\n]+$/g, '');
 			pre.textContent = text || '(keine Ausgabe)';
 		} catch (e) {
-			pre.textContent = 'Fehler: ' + e.message;
+			pre.textContent = '{=L:yw.msg.error=}: ' + e.message;
 		}
 	}
 

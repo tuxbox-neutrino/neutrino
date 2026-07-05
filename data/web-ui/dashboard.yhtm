@@ -860,7 +860,7 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
 						</svg>
-						Schnellzugriff
+						{=L:yw.dash.quick=}
 					</h3>
 					<span id="actions-preview" class="yweb-card-preview">--</span>
 				</header>
@@ -879,7 +879,7 @@
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
 							</svg>
-							<span id="mode-switch-text">Zu Radio wechseln</span>
+							<span id="mode-switch-text">{=L:yw.dash.to_radio=}</span>
 						</button>
 					</div>
 					<div class="yweb-actions">
@@ -890,17 +890,17 @@
 							</svg>
 							Screenshot
 						</a>
-<a href="/files.html" class="yweb-action-btn">
+<a href="/files.yhtm" class="yweb-action-btn">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
 							</svg>
-							Dateien
+							{=L:yw.tools.files=}
 						</a>
 						<button class="yweb-action-btn" onclick="ywebShowMessageDialog()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
 							</svg>
-							Nachricht
+							{=L:yw.tools.message=}
 						</button>
 						<button class="yweb-action-btn" onclick="ywebShowRemote()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -926,13 +926,13 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
 						</svg>
-						Aktueller Sender
+						{=L:yw.dash.current_channel=}
 					</h3>
 					<span id="channel-preview" class="yweb-card-preview">--</span>
 					<span id="rec-indicator" class="yweb-recording yweb-hidden"><svg viewBox="0 0 12 12" fill="currentColor" style="width:0.55rem;height:0.55rem"><circle cx="6" cy="6" r="5"/></svg> REC</span>
 				</header>
 				<div class="yweb-card-body yweb-status">
-					<div class="yweb-status-channel" id="current-channel" onclick="showCurrentEpgInfo()" style="cursor:pointer" title="Sendungsinfo">Lade...</div>
+					<div class="yweb-status-channel" id="current-channel" onclick="showCurrentEpgInfo()" style="cursor:pointer" title="{=L:yw.dash.epg_info=}">{=L:yw.msg.loading=}</div>
 					<div class="yweb-status-epg" id="current-epg">--</div>
 					<div class="yweb-status-progress">
 						<progress id="epg-progress" value="0" max="100"></progress>
@@ -953,29 +953,29 @@
 				<footer class="yweb-card-footer yweb-channel-footer">
 					<div class="yweb-next-epg">Nächste: <span id="next-epg">--</span></div>
 					<div class="yweb-channel-actions">
-						<button type="button" class="yweb-action-btn" onclick="showCurrentEpgInfo()" title="Sendungsinfo">
+						<button type="button" class="yweb-action-btn" onclick="showCurrentEpgInfo()" title="{=L:yw.dash.epg_info=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
 							</svg>
 							<span>Info</span>
 						</button>
-						<button type="button" class="yweb-action-btn yweb-rec-btn" id="rec-btn" onclick="toggleRecording()" title="Aufnehmen">
+						<button type="button" class="yweb-action-btn yweb-rec-btn" id="rec-btn" onclick="toggleRecording()" title="{=L:yw.dash.record=}">
 							<svg viewBox="0 0 24 24" fill="currentColor">
 								<circle cx="12" cy="12" r="8"/>
 							</svg>
 							<span>Rec</span>
 						</button>
-						<a href="/epg.html" class="yweb-action-btn" title="EPG Plus Programm&uuml;bersicht">
+						<a href="/epg.html" class="yweb-action-btn" title="{=L:yw.dash.epg_plus=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
 							</svg>
 							<span>EPGPlus</span>
 						</a>
-						<a href="bouquets.html" class="yweb-action-btn" title="Zur Senderliste">
+						<a href="bouquets.html" class="yweb-action-btn" title="{=L:yw.dash.to_channels=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M4 6h16M4 12h16M4 18h16"/>
 							</svg>
-							<span>Sender</span>
+							<span>{=L:yw.dash.channels=}</span>
 						</a>
 					</div>
 				</footer>
@@ -999,7 +999,7 @@
 					</div>
 				</header>
 				<div class="yweb-card-body">
-					<div class="yweb-metrics" onclick="location.href='/sysinfo.html'" style="cursor:pointer" title="System-Details anzeigen">
+					<div class="yweb-metrics" onclick="location.href='/sysinfo.yhtm'" style="cursor:pointer" title="{=L:yw.dash.sys_details=}">
 						<div class="yweb-gauge">
 							<div class="yweb-gauge-ring">
 								<svg viewBox="0 0 36 36">
@@ -1060,7 +1060,7 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
 						</svg>
-						Netzwerk
+						{=L:yw.si.network=}
 					</h3>
 					<span id="network-preview" class="yweb-card-preview">--</span>
 					<span class="yweb-hostname" id="net-hostname">--</span>
@@ -1068,7 +1068,7 @@
 				<div class="yweb-card-body">
 					<div class="yweb-net-list" id="net-interfaces">
 						<div class="yweb-net-item">
-							<span class="yweb-text-muted">Lade...</span>
+							<span class="yweb-text-muted">{=L:yw.msg.loading=}</span>
 						</div>
 					</div>
 				</div>
@@ -1081,22 +1081,22 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
 						</svg>
-						Nächste Timer
+						{=L:yw.dash.next_timers=}
 					</h3>
 					<span id="timer-preview" class="yweb-card-preview">--</span>
 				</header>
 				<div class="yweb-card-body">
 					<div class="yweb-timer-list" id="timer-list">
-						<div class="yweb-timer-empty">Lade...</div>
+						<div class="yweb-timer-empty">{=L:yw.msg.loading=}</div>
 					</div>
 				</div>
 				<footer class="yweb-card-footer yweb-channel-footer">
 					<div class="yweb-channel-actions">
-						<a href="/timer.html" class="yweb-action-btn" title="Alle Timer anzeigen">
+						<a href="/timer.html" class="yweb-action-btn" title="{=L:yw.dash.all_timers=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>
 							</svg>
-							<span>Timerliste</span>
+							<span>{=L:yw.dash.timer_list=}</span>
 						</a>
 					</div>
 				</footer>
@@ -1139,7 +1139,7 @@
 				<div class="yweb-card-body">
 					<div class="yweb-stream-info">
 						<div class="yweb-stream-item">
-							<span class="yweb-stream-label">Auflösung</span>
+							<span class="yweb-stream-label">{=L:yw.bc.resolution=}</span>
 							<span class="yweb-stream-value" id="stream-resolution">--</span>
 						</div>
 						<div class="yweb-stream-item">
@@ -1283,7 +1283,7 @@
 				}
 			}
 
-			if (!foundCurrent) $('#current-epg').text('Keine EPG-Daten');
+			if (!foundCurrent) $('#current-epg').text('{=L:yw.dash.no_epg=}');
 			if (!foundNext) $('#next-epg').text('--');
 		}).fail(function() {
 			$('#current-epg').text('--');
@@ -1455,7 +1455,7 @@
 		if (recBtn) {
 			recBtn.classList.toggle('recording', !!isRecording);
 			recBtn.querySelector('span').textContent = isRecording ? 'Stop' : 'Rec';
-			recBtn.title = isRecording ? 'Aufnahme stoppen' : 'Aufnehmen';
+			recBtn.title = isRecording ? '{=L:yw.dash.record_stop=}' : '{=L:yw.dash.record=}';
 		}
 
 		if (isRecording) {
@@ -1472,7 +1472,7 @@
 					});
 
 					if (running) {
-						const title = running.title || running.channel_name || 'Aufnahme';
+						const title = running.title || running.channel_name || '{=L:yw.bc.recording=}';
 						const channel = running.channel_name || '';
 
 						// Calculate remaining time from stop time
@@ -1502,7 +1502,7 @@
 
 	// Standby
 	function sendStandby() {
-		if (confirm('In Standby wechseln?')) apiGet('standby?on');
+		if (confirm('{=L:yw.sb.confirm=}')) apiGet('standby?on');
 	}
 
 	// TV/Radio Mode
@@ -1538,10 +1538,10 @@
 		$('#mode-current-icon-radio').toggle(isRadio);
 
 		// Update switch button text
-		$('#mode-switch-text').text(isRadio ? 'Zu TV wechseln' : 'Zu Radio wechseln');
+		$('#mode-switch-text').text(isRadio ? '{=L:yw.dash.to_tv=}' : '{=L:yw.dash.to_radio=}');
 
 		// Actions preview - show current mode
-		$('#actions-preview').text(isRadio ? 'Radio-Modus' : 'TV-Modus');
+		$('#actions-preview').text(isRadio ? '{=L:yw.dash.radio_mode=}' : '{=L:yw.dash.tv_mode=}');
 
 		// In radio mode: clear video-specific fields
 		if (isRadio) {
@@ -1572,8 +1572,8 @@
 			const timers = ywebParseTimerList(response);
 
 			if (timers.length === 0) {
-				container.html('<div class="yweb-timer-empty">Keine Timer programmiert</div>');
-				$('#timer-preview').text('Keine Timer');
+				container.html('<div class="yweb-timer-empty">{=L:yw.dash.no_timers=}</div>');
+				$('#timer-preview').text('{=L:yw.dash.no_timers_short=}');
 				return;
 			}
 
@@ -1604,14 +1604,14 @@
 			}).slice(0, Math.max(maxScheduled, 1));
 
 			if (runningRecs.length === 0 && futureTimers.length === 0) {
-				container.html('<div class="yweb-timer-empty">Keine Timer programmiert</div>');
-				$('#timer-preview').text('Keine Timer');
+				container.html('<div class="yweb-timer-empty">{=L:yw.dash.no_timers=}</div>');
+				$('#timer-preview').text('{=L:yw.dash.no_timers_short=}');
 				return;
 			}
 
 			// Timer preview
 			if (runningRecs.length > 0) {
-				$('#timer-preview').text('● Aufnahme läuft');
+				$('#timer-preview').text('● {=L:yw.bc.rec_running=}');
 			} else {
 				const nextAlarm = getAlarm(futureTimers[0]);
 				$('#timer-preview').text((nextAlarm.date || '') + ' ' + (nextAlarm.time || ''));
@@ -1621,7 +1621,7 @@
 
 			// Running recordings first
 			runningRecs.forEach(function(timer) {
-				const title = timer.title || timer.channel_name || 'Aufnahme';
+				const title = timer.title || timer.channel_name || '{=L:yw.bc.recording=}';
 				const channel = timer.channel_name || '';
 				const stopSec = getStopSec(timer);
 				let remaining = '';

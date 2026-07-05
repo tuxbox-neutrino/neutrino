@@ -22,15 +22,15 @@ nobase_install_DATA = \
 install_DATA = \
 	bouquet-editor.html \
 	bouquets.html \
-	cmd.html \
-	dashboard.html \
+	cmd.yhtm \
+	dashboard.yhtm \
 	epg.html \
-	files.html \
+	files.yhtm \
 	m3u-convert.html \
 	screenshot.yhtm \
 	settings.html \
 	settings-registry.js \
-	sysinfo.html \
+	sysinfo.yhtm \
 	timer.html \
 	tools.yhtm \
 	extensions.txt \

@@ -113,9 +113,9 @@
 				Shell
 			</span>
 			<span class="spacer"></span>
-			<button class="yweb-btn" onclick="cmdClear()" title="Ausgabe leeren">
+			<button class="yweb-btn" onclick="cmdClear()" title="{=L:yw.cmd.clear_title=}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:0.9rem;height:0.9rem"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-				Leeren
+				{=L:yw.cmd.clear=}
 			</button>
 		</div>
 
@@ -123,8 +123,8 @@
 
 		<div class="cmd-input-row">
 			<span class="cmd-prompt-label" id="cmd-prompt-label">$</span>
-			<input type="text" id="cmd-input" placeholder="Befehl eingeben..." autofocus>
-			<button class="yweb-btn primary" onclick="cmdExec()" title="Ausführen">
+			<input type="text" id="cmd-input" placeholder="{=L:yw.cmd.placeholder=}" autofocus>
+			<button class="yweb-btn primary" onclick="cmdExec()" title="{=L:yw.cmd.run=}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><polygon points="5 3 19 12 5 21 5 3"/></svg>
 			</button>
 		</div>
@@ -177,7 +177,7 @@
 				cmdAppend(escapeHtml(text) + '\n');
 			}
 		} catch (e) {
-			cmdAppend('<span class="cmd-error">Fehler: ' + escapeHtml(e.message) + '</span>\n');
+			cmdAppend('<span class="cmd-error">{=L:yw.msg.error=}: ' + escapeHtml(e.message) + '</span>\n');
 		}
 	}
 

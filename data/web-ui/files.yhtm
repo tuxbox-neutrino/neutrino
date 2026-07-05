@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>yWeb - Dateien</title>
+	<title>yWeb - {=L:yw.tools.files=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=59">
@@ -496,7 +496,7 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
 					</svg>
-					Verzeichnisse
+					{=L:yw.fm.dirs=}
 				</h3>
 				<span class="yweb-card-preview" id="sidebarPreview">--</span>
 			</header>
@@ -513,7 +513,7 @@
 						<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
 						<polyline points="14,2 14,8 20,8"/>
 					</svg>
-					<span id="fileListTitle">Dateien</span>
+					<span id="fileListTitle">{=L:yw.tools.files=}</span>
 				</h3>
 				<span class="yweb-card-preview" id="filesPreview">--</span>
 			</header>
@@ -523,15 +523,15 @@
 
 			<!-- Toolbar -->
 			<div class="yweb-files-toolbar">
-				<button class="yweb-btn" onclick="showNewFolderInput()" title="Neuer Ordner">
+				<button class="yweb-btn" onclick="showNewFolderInput()" title="{=L:yw.fm.new_folder=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 						<line x1="12" y1="11" x2="12" y2="17"/>
 						<line x1="9" y1="14" x2="15" y2="14"/>
 					</svg>
-					<span class="btn-label">Ordner</span>
+					<span class="btn-label">{=L:yw.fm.folder=}</span>
 				</button>
-				<button class="yweb-btn" onclick="toggleUpload()" title="Hochladen">
+				<button class="yweb-btn" onclick="toggleUpload()" title="{=L:yw.fm.upload=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
 						<polyline points="17,8 12,3 7,8"/>
@@ -539,7 +539,7 @@
 					</svg>
 					<span class="btn-label">Upload</span>
 				</button>
-				<button class="yweb-btn" onclick="refreshDir()" title="Aktualisieren">
+				<button class="yweb-btn" onclick="refreshDir()" title="{=L:yw.si.refresh=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polyline points="23,4 23,10 17,10"/>
 						<path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
@@ -554,7 +554,7 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--yweb-accent);flex-shrink:0">
 					<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 				</svg>
-				<input type="text" id="newFolderName" placeholder="Ordnername..." onkeydown="handleNewFolderKey(event)">
+				<input type="text" id="newFolderName" placeholder="{=L:yw.fm.folder_name=}" onkeydown="handleNewFolderKey(event)">
 				<button class="yweb-btn primary" onclick="createFolder()" style="padding:0.25rem 0.5rem">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
 						<polyline points="20,6 9,17 4,12"/>
@@ -576,7 +576,7 @@
 						<polyline points="17,8 12,3 7,8"/>
 						<line x1="12" y1="3" x2="12" y2="15"/>
 					</svg>
-					<div>Datei hierher ziehen oder <a href="#" onclick="document.getElementById('fileInput').click(); return false;">auswählen</a></div>
+					<div>{=L:yw.fm.drop_here=} <a href="#" onclick="document.getElementById('fileInput').click(); return false;">{=L:yw.fm.choose=}</a></div>
 					<input type="file" id="fileInput" style="display:none" onchange="uploadFile(this.files[0])">
 				</div>
 				<div class="yweb-upload-progress" id="uploadProgress">
@@ -588,7 +588,7 @@
 			<!-- File list -->
 			<div class="yweb-card-body">
 				<ul class="yweb-file-list" id="fileList">
-					<li aria-busy="true" style="padding:1rem;text-align:center">Lade...</li>
+					<li aria-busy="true" style="padding:1rem;text-align:center">{=L:yw.msg.loading=}</li>
 				</ul>
 			</div>
 		</article>
@@ -726,7 +726,7 @@
 			updatePreviews();
 
 			const list = document.getElementById('fileList');
-			list.innerHTML = '<li aria-busy="true" style="padding:1rem;text-align:center">Lade...</li>';
+			list.innerHTML = '<li aria-busy="true" style="padding:1rem;text-align:center">{=L:yw.msg.loading=}</li>';
 
 			// Update title
 			const title = document.getElementById('fileListTitle');
@@ -758,7 +758,7 @@
 				}
 
 				if (files.length === 0 && currentPath === '/') {
-					html += '<li style="padding:1rem;text-align:center;color:var(--pico-muted-color)">Verzeichnis ist leer</li>';
+					html += '<li style="padding:1rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.fm.empty=}</li>';
 				}
 
 				files.forEach(f => {
@@ -782,19 +782,19 @@
 
 					// Download (files only)
 					if (!isDir) {
-						html += '<a class="yweb-btn" href="/api/v4/file?action=download&path=' + encodeURIComponent(fullpath) + '" download title="Herunterladen">' + ICONS.download + '</a>';
+						html += '<a class="yweb-btn" href="/api/v4/file?action=download&path=' + encodeURIComponent(fullpath) + '" download title="{=L:yw.fm.download=}">' + ICONS.download + '</a>';
 					}
 
 					// Rename
-					html += '<button class="yweb-btn" onclick="startRename(\'' + escapeJs(fullpath) + '\', \'' + escapeJs(f.name) + '\')" title="Umbenennen">' + ICONS.rename + '</button>';
+					html += '<button class="yweb-btn" onclick="startRename(\'' + escapeJs(fullpath) + '\', \'' + escapeJs(f.name) + '\')" title="{=L:yw.fm.rename=}">' + ICONS.rename + '</button>';
 
 					// Delete
-					html += '<button class="yweb-btn" onclick="deleteItem(\'' + escapeJs(fullpath) + '\', \'' + escapeJs(f.name) + '\', ' + isDir + ')" title="Löschen" style="color:var(--yweb-danger)">' + ICONS.delete + '</button>';
+					html += '<button class="yweb-btn" onclick="deleteItem(\'' + escapeJs(fullpath) + '\', \'' + escapeJs(f.name) + '\', ' + isDir + ')" title="{=L:yw.fm.delete=}" style="color:var(--yweb-danger)">' + ICONS.delete + '</button>';
 
 					html += '</div></li>';
 				});
 
-				list.innerHTML = html || '<li style="padding:1rem;text-align:center;color:var(--pico-muted-color)">Verzeichnis ist leer</li>';
+				list.innerHTML = html || '<li style="padding:1rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.fm.empty=}</li>';
 
 				// Load disk info
 				loadDiskInfo();
@@ -843,9 +843,9 @@
 		// Delete
 		function deleteItem(fullpath, name, isDir) {
 			ywebShowConfirm(
-				'Löschen',
-				(isDir ? 'Ordner' : 'Datei') + ' "' + name + '" wirklich löschen?',
-				'Löschen',
+				'{=L:yw.fm.delete=}',
+				(isDir ? '{=L:yw.fm.folder=}' : '{=L:yw.fm.file=}') + ' "' + name + '" {=L:yw.fm.delete_confirm=}',
+				'{=L:yw.fm.delete=}',
 				function() {
 					doDelete(fullpath, isDir);
 				}
@@ -856,10 +856,10 @@
 			try {
 				const action = isDir ? 'filemgr_rmdir' : 'filemgr_rm';
 				await ywebApi('exec', 'Y_NAS&' + action + '&' + encodeURIComponent(fullpath), {raw: true});
-				ywebShowToast('Gelöscht');
+				ywebShowToast('{=L:yw.fm.deleted=}');
 				refreshDir();
 			} catch (e) {
-				ywebShowToast('Fehler beim Löschen: ' + e.message, true);
+				ywebShowToast('{=L:yw.fm.delete_fail=}: ' + e.message, true);
 			}
 		}
 
@@ -911,10 +911,10 @@
 				const oldPath = fullpath;
 				const newPath = dir + '/' + newName;
 				await ywebApi('exec', 'Y_NAS&filemgr_ren&' + encodeURIComponent(oldPath) + '&' + encodeURIComponent(newPath), {raw: true});
-				ywebShowToast('Umbenannt');
+				ywebShowToast('{=L:yw.fm.renamed=}');
 				refreshDir();
 			} catch (e) {
-				ywebShowToast('Fehler beim Umbenennen: ' + e.message, true);
+				ywebShowToast('{=L:yw.fm.rename_fail=}: ' + e.message, true);
 			}
 		}
 
@@ -946,10 +946,10 @@
 				const path = normPath(currentPath + '/' + name);
 				await ywebApi('exec', 'Y_NAS&filemgr_mkdir&' + encodeURIComponent(path), {raw: true});
 				hideNewFolderInput();
-				ywebShowToast('Ordner erstellt');
+				ywebShowToast('{=L:yw.fm.folder_created=}');
 				refreshDir();
 			} catch (e) {
-				ywebShowToast('Fehler: ' + e.message, true);
+				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			}
 		}
 
@@ -968,7 +968,7 @@
 			const status = document.getElementById('uploadStatus');
 
 			progress.classList.add('active');
-			status.textContent = 'Hochladen: ' + file.name;
+			status.textContent = '{=L:yw.fm.uploading=}: ' + file.name;
 			bar.value = 0;
 
 			try {
@@ -987,22 +987,22 @@
 				await new Promise((resolve, reject) => {
 					xhr.onload = function() {
 						if (xhr.status >= 200 && xhr.status < 300) resolve();
-						else reject(new Error('Upload fehlgeschlagen: ' + xhr.status));
+						else reject(new Error('{=L:yw.inst.upfail=}: ' + xhr.status));
 					};
 					xhr.onerror = reject;
 					xhr.send(formData);
 				});
 
-				status.textContent = 'Fertig: ' + file.name;
-				ywebShowToast('Hochgeladen: ' + file.name);
+				status.textContent = '{=L:yw.fm.done=}: ' + file.name;
+				ywebShowToast('{=L:yw.fm.uploaded=}: ' + file.name);
 				setTimeout(() => {
 					progress.classList.remove('active');
 					document.getElementById('uploadArea').classList.remove('active');
 				}, 2000);
 				refreshDir();
 			} catch (e) {
-				status.textContent = 'Fehler: ' + e.message;
-				ywebShowToast('Upload-Fehler: ' + e.message, true);
+				status.textContent = '{=L:yw.msg.error=}: ' + e.message;
+				ywebShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true);
 			}
 
 			// Reset file input
