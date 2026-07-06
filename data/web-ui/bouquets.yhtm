@@ -6,7 +6,7 @@
 	<title>yWeb - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=63">
+	<link rel="stylesheet" href="/css/yweb.css?v=64">
 	<style>
 		/* 2-column grid layout for bouquets */
 		main.yweb-bouquets-grid {
@@ -44,105 +44,8 @@
 		}
 
 		/* Bouquet List Card */
-		.yweb-bouquet-card {
-			display: flex;
-			flex-direction: column;
-			min-height: 0; /* Allow card to shrink in grid */
-			overflow: hidden;
-		}
 
-		.yweb-bouquet-card .yweb-card-body {
-			flex: 1;
-			overflow-y: auto;
-			padding: 0;
-			position: relative;
-			min-height: 0; /* Allow body to shrink */
-		}
 
-		.yweb-bouquet-list {
-			list-style: none;
-			margin: 0;
-			padding: 0;
-		}
-
-		.yweb-bouquet-item {
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
-			padding: 0.5rem 0.7rem;
-			border-bottom: 1px solid var(--pico-muted-border-color);
-			cursor: pointer;
-			transition: var(--yweb-transition);
-			font-size: var(--yweb-font-sm);
-		}
-
-		.yweb-bouquet-item:last-child {
-			border-bottom: none;
-		}
-
-		.yweb-bouquet-item:hover {
-			background: var(--yweb-accent-light);
-		}
-
-		.yweb-bouquet-item.active {
-			background: var(--yweb-accent-light);
-			border-left: 3px solid var(--yweb-accent);
-			color: var(--yweb-accent);
-			font-weight: 600;
-		}
-
-		.yweb-bouquet-item svg {
-			width: 16px;
-			height: 16px;
-			color: var(--pico-muted-color);
-			flex-shrink: 0;
-		}
-
-		.yweb-bouquet-item.active svg {
-			color: var(--yweb-accent);
-		}
-
-		.yweb-bouquet-name {
-			flex: 1;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-		}
-
-		.yweb-bouquet-count {
-			font-size: var(--yweb-font-xs);
-			color: var(--pico-muted-color);
-			background: var(--pico-card-sectioning-background-color);
-			padding: 0.1rem 0.4rem;
-			border-radius: 10px;
-		}
-
-		.yweb-bouquet-item.active .yweb-bouquet-count {
-			background: var(--yweb-accent);
-			color: white;
-		}
-
-		/* Channel List Card */
-		.yweb-channel-card {
-			display: flex;
-			flex-direction: column;
-			min-height: 0; /* Allow card to shrink in grid */
-			overflow: hidden;
-		}
-
-		.yweb-channel-card .yweb-card-body {
-			flex: 1;
-			overflow-y: auto;
-			padding: 0;
-			position: relative;
-			min-height: 0; /* Allow body to shrink */
-		}
-
-		.yweb-channel-grid {
-			list-style: none;
-			margin: 0;
-			padding: 0;
-		}
 
 		.yweb-channel-row {
 			display: flex;
@@ -336,13 +239,6 @@
 			background: #f8f9fa;
 		}
 
-		[data-theme="light"] .yweb-bouquet-item {
-			border-bottom-color: #e5e7eb;
-		}
-
-		[data-theme="light"] .yweb-bouquet-item:hover {
-			background: #f8f9fa;
-		}
 
 		/* Expandable Channel Row Detail */
 		.yweb-channel-detail {
@@ -436,7 +332,7 @@
 	<!-- Main Content: 2-Column Grid -->
 	<main class="yweb-bouquets-grid">
 		<!-- Bouquet List Card -->
-		<article class="yweb-card yweb-bouquet-card" id="card-bouquets">
+		<article class="yweb-card yweb-panel-card yweb-bouquet-card" id="card-bouquets">
 			<header class="yweb-card-header" onclick="toggleCard('card-bouquets')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -447,14 +343,14 @@
 				<span class="yweb-card-preview" id="bouquetPreview">--</span>
 			</header>
 			<div class="yweb-card-body">
-				<ul class="yweb-bouquet-list" id="bouquetList">
+				<ul class="yweb-plain-list yweb-bouquet-list" id="bouquetList">
 					<li aria-busy="true">{=L:yw.bq.loading_bouquets=}</li>
 				</ul>
 			</div>
 		</article>
 
 		<!-- Channel List Card -->
-		<article class="yweb-card yweb-channel-card" id="card-channels">
+		<article class="yweb-card yweb-panel-card yweb-channel-card" id="card-channels">
 			<header class="yweb-card-header" onclick="toggleCard('card-channels')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -467,7 +363,7 @@
 				<span class="yweb-channel-count" id="channelCount"></span>
 			</header>
 			<div class="yweb-card-body">
-				<ul class="yweb-channel-grid" id="channelList">
+				<ul class="yweb-plain-list yweb-channel-grid" id="channelList">
 					<li aria-busy="true">{=L:yw.bq.loading_channels=}</li>
 				</ul>
 			</div>
@@ -546,24 +442,24 @@
 
 			// Add "Alle Sender" option
 			let html = `
-				<li class="yweb-bouquet-item${activeBouquet === '' ? ' active' : ''}" onclick="selectBouquet('')">
+				<li class="yweb-nav-item yweb-bouquet-item${activeBouquet === '' ? ' active' : ''}" onclick="selectBouquet('')">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="10"/>
 						<line x1="2" y1="12" x2="22" y2="12"/>
 						<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
 					</svg>
-					<span class="yweb-bouquet-name">{=L:yw.bq.all_channels=}</span>
+					<span class="yweb-nav-name yweb-bouquet-name">{=L:yw.bq.all_channels=}</span>
 				</li>
 			`;
 
 			bouquetsData.forEach(b => {
 				const isActive = String(activeBouquet) === String(b.number);
 				html += `
-					<li class="yweb-bouquet-item${isActive ? ' active' : ''}" onclick="selectBouquet('${b.number}')" data-bouquet="${b.number}">
+					<li class="yweb-nav-item yweb-bouquet-item${isActive ? ' active' : ''}" onclick="selectBouquet('${b.number}')" data-bouquet="${b.number}">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<polygon points="5,3 19,12 5,21"/>
 						</svg>
-						<span class="yweb-bouquet-name">${escapeHtml(b.name)}</span>
+						<span class="yweb-nav-name yweb-bouquet-name">${escapeHtml(b.name)}</span>
 					</li>
 				`;
 			});

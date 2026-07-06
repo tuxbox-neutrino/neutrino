@@ -6,7 +6,7 @@
 	<title>yWeb - Timer</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=63">
+	<link rel="stylesheet" href="/css/yweb.css?v=64">
 	<style>
 		/* 2-column grid layout for timer */
 		main.yweb-timer-grid {
@@ -43,26 +43,6 @@
 		}
 
 		/* Filter Card */
-		.yweb-filter-card {
-			display: flex;
-			flex-direction: column;
-			min-height: 0;
-			overflow: hidden;
-		}
-
-		.yweb-filter-card .yweb-card-body {
-			flex: 1;
-			overflow-y: auto;
-			padding: 0;
-			position: relative;
-			min-height: 0;
-		}
-
-		.yweb-filter-list {
-			list-style: none;
-			margin: 0;
-			padding: 0;
-		}
 
 		.yweb-filter-group-label {
 			font-size: var(--yweb-font-xs);
@@ -73,86 +53,18 @@
 			font-weight: 600;
 		}
 
+		/* Abweichungen von .yweb-nav-item/.yweb-nav-count (yweb.css) */
 		.yweb-filter-item {
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
 			padding: 0.45rem 0.7rem;
-			border-bottom: 1px solid var(--pico-muted-border-color);
-			cursor: pointer;
-			transition: var(--yweb-transition);
-			font-size: var(--yweb-font-sm);
-		}
-
-		.yweb-filter-item:last-child {
-			border-bottom: none;
-		}
-
-		.yweb-filter-item:hover {
-			background: var(--yweb-accent-light);
-		}
-
-		.yweb-filter-item.active {
-			background: var(--yweb-accent-light);
-			border-left: 3px solid var(--yweb-accent);
-			color: var(--yweb-accent);
-			font-weight: 600;
-		}
-
-		.yweb-filter-item svg {
-			width: 16px;
-			height: 16px;
-			color: var(--pico-muted-color);
-			flex-shrink: 0;
-		}
-
-		.yweb-filter-item.active svg {
-			color: var(--yweb-accent);
-		}
-
-		.yweb-filter-name {
-			flex: 1;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
 		}
 
 		.yweb-filter-count {
-			font-size: var(--yweb-font-xs);
-			color: var(--pico-muted-color);
-			background: var(--pico-card-sectioning-background-color);
-			padding: 0.1rem 0.4rem;
-			border-radius: 10px;
 			min-width: 1.4em;
 			text-align: center;
 		}
 
-		.yweb-filter-item.active .yweb-filter-count {
-			background: var(--yweb-accent);
-			color: white;
-		}
-
 		/* Timer List Card */
-		.yweb-timerlist-card {
-			display: flex;
-			flex-direction: column;
-			min-height: 0;
-			overflow: hidden;
-		}
 
-		.yweb-timerlist-card .yweb-card-body {
-			flex: 1;
-			overflow-y: auto;
-			padding: 0;
-			position: relative;
-			min-height: 0;
-		}
-
-		.yweb-timer-grid-list {
-			list-style: none;
-			margin: 0;
-			padding: 0;
-		}
 
 		/* Timer Row */
 		.yweb-timer-row {
@@ -454,13 +366,6 @@
 			background: #f8f9fa;
 		}
 
-		[data-theme="light"] .yweb-filter-item {
-			border-bottom-color: #e5e7eb;
-		}
-
-		[data-theme="light"] .yweb-filter-item:hover {
-			background: #f8f9fa;
-		}
 
 		/* Confirm dialog styles moved to yweb.css */
 
@@ -615,7 +520,7 @@
 	<!-- Main Content: 2-Column Grid -->
 	<main class="yweb-timer-grid">
 		<!-- Filter Card -->
-		<article class="yweb-card yweb-filter-card" id="card-filter">
+		<article class="yweb-card yweb-panel-card yweb-filter-card" id="card-filter">
 			<header class="yweb-card-header" onclick="toggleCard('card-filter')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -626,52 +531,52 @@
 				<span class="yweb-card-preview" id="filterPreview">{=L:yw.tm.all=}</span>
 			</header>
 			<div class="yweb-card-body">
-				<ul class="yweb-filter-list" id="filterList">
+				<ul class="yweb-plain-list yweb-filter-list" id="filterList">
 					<li class="yweb-filter-group-label">Typ</li>
-					<li class="yweb-filter-item active" data-filter="all" onclick="setFilter('all')">
+					<li class="yweb-nav-item yweb-filter-item active" data-filter="all" onclick="setFilter('all')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<circle cx="12" cy="12" r="10"/>
 							<line x1="2" y1="12" x2="22" y2="12"/>
 							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
 						</svg>
-						<span class="yweb-filter-name">{=L:yw.tm.all=}</span>
-						<span class="yweb-filter-count" id="count-all">0</span>
+						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.all=}</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-all">0</span>
 					</li>
-					<li class="yweb-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
+					<li class="yweb-nav-item yweb-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
 						<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
-						<span class="yweb-filter-name">{=L:yw.bc.recording=}</span>
-						<span class="yweb-filter-count" id="count-type-5">0</span>
+						<span class="yweb-nav-name yweb-filter-name">{=L:yw.bc.recording=}</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-type-5">0</span>
 					</li>
-					<li class="yweb-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
+					<li class="yweb-nav-item yweb-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="yweb-filter-name">{=L:yw.tm.zap=}</span>
-						<span class="yweb-filter-count" id="count-type-3">0</span>
+						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.zap=}</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-type-3">0</span>
 					</li>
-					<li class="yweb-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
+					<li class="yweb-nav-item yweb-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.364 5.636a9 9 0 11-12.728 12.728 9 9 0 0112.728-12.728zM12 3v4"/></svg>
-						<span class="yweb-filter-name">Standby</span>
-						<span class="yweb-filter-count" id="count-type-4">0</span>
+						<span class="yweb-nav-name yweb-filter-name">Standby</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-type-4">0</span>
 					</li>
-					<li class="yweb-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
+					<li class="yweb-nav-item yweb-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-						<span class="yweb-filter-name">{=L:yw.tm.remind=}</span>
-						<span class="yweb-filter-count" id="count-type-6">0</span>
+						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.remind=}</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-type-6">0</span>
 					</li>
 					<li class="yweb-filter-group-label">Status</li>
-					<li class="yweb-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
+					<li class="yweb-nav-item yweb-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
-						<span class="yweb-filter-name">{=L:yw.tm.planned=}</span>
-						<span class="yweb-filter-count" id="count-state-scheduled">0</span>
+						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.planned=}</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-state-scheduled">0</span>
 					</li>
-					<li class="yweb-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
+					<li class="yweb-nav-item yweb-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="yweb-filter-name">{=L:yw.tm.active=}</span>
-						<span class="yweb-filter-count" id="count-state-running">0</span>
+						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.active=}</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-state-running">0</span>
 					</li>
-					<li class="yweb-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
+					<li class="yweb-nav-item yweb-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-						<span class="yweb-filter-name">{=L:yw.tm.expired=}</span>
-						<span class="yweb-filter-count" id="count-state-finished">0</span>
+						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.expired=}</span>
+						<span class="yweb-nav-count yweb-filter-count" id="count-state-finished">0</span>
 					</li>
 				</ul>
 				<div style="padding:0.5rem 0.8rem 0;">
@@ -684,7 +589,7 @@
 		</article>
 
 		<!-- Timer List Card -->
-		<article class="yweb-card yweb-timerlist-card" id="card-timers">
+		<article class="yweb-card yweb-panel-card yweb-timerlist-card" id="card-timers">
 			<header class="yweb-card-header" onclick="toggleCard('card-timers')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -697,7 +602,7 @@
 				<span class="yweb-timer-count" id="timerCount"></span>
 			</header>
 			<div class="yweb-card-body">
-				<ul class="yweb-timer-grid-list" id="timerList">
+				<ul class="yweb-plain-list yweb-timer-grid-list" id="timerList">
 					<li aria-busy="true">{=L:yw.tm.loading=}</li>
 				</ul>
 			</div>

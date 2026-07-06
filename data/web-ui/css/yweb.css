@@ -1662,6 +1662,98 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 /* ============================================
+   Panel-Navigation (M5e) — geteilte Bausteine der Panel-Seiten
+   (bouquets, timer, files): Spalten-Karte mit scrollendem Body,
+   Listen-Reset und Sidebar-Navigationszeile. Reiner Umzug der
+   vorher je Seite duplizierten Blöcke — visueller No-Op.
+   ============================================ */
+.yweb-panel-card {
+	display: flex;
+	flex-direction: column;
+	min-height: 0; /* Karte darf im Grid schrumpfen */
+	overflow: hidden;
+}
+
+.yweb-panel-card .yweb-card-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 0;
+	position: relative;
+	min-height: 0;
+}
+
+.yweb-plain-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.yweb-nav-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.7rem;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+	cursor: pointer;
+	transition: var(--yweb-transition);
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-nav-item:last-child {
+	border-bottom: none;
+}
+
+.yweb-nav-item:hover {
+	background: var(--yweb-accent-light);
+}
+
+.yweb-nav-item.active {
+	background: var(--yweb-accent-light);
+	border-left: 3px solid var(--yweb-accent);
+	color: var(--yweb-accent);
+	font-weight: 600;
+}
+
+.yweb-nav-item svg {
+	width: 16px;
+	height: 16px;
+	color: var(--pico-muted-color);
+	flex-shrink: 0;
+}
+
+.yweb-nav-item.active svg {
+	color: var(--yweb-accent);
+}
+
+.yweb-nav-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.yweb-nav-count {
+	font-size: var(--yweb-font-xs);
+	color: var(--pico-muted-color);
+	background: var(--pico-card-sectioning-background-color);
+	padding: 0.1rem 0.4rem;
+	border-radius: 10px;
+}
+
+.yweb-nav-item.active .yweb-nav-count {
+	background: var(--yweb-accent);
+	color: white;
+}
+
+[data-theme="light"] .yweb-nav-item {
+	border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .yweb-nav-item:hover {
+	background: #f8f9fa;
+}
+
+/* ============================================
    Unified Toolbar Template
    ============================================ */
 .yweb-toolbar {
