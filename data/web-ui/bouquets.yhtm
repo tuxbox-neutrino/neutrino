@@ -6,7 +6,7 @@
 	<title>yWeb - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=64">
+	<link rel="stylesheet" href="/css/yweb.css?v=65">
 	<style>
 		/* 2-column grid layout for bouquets */
 		main.yweb-bouquets-grid {
@@ -26,22 +26,6 @@
 		}
 
 		/* Compact card headers for both cards */
-		.yweb-bouquet-card .yweb-card-header,
-		.yweb-channel-card .yweb-card-header {
-			padding: 0.4rem 0.6rem;
-			min-height: auto;
-		}
-
-		.yweb-bouquet-card .yweb-card-title,
-		.yweb-channel-card .yweb-card-title {
-			font-size: var(--yweb-font-sm);
-		}
-
-		.yweb-bouquet-card .yweb-card-title svg,
-		.yweb-channel-card .yweb-card-title svg {
-			width: 14px;
-			height: 14px;
-		}
 
 		/* Bouquet List Card */
 
@@ -332,7 +316,7 @@
 	<!-- Main Content: 2-Column Grid -->
 	<main class="yweb-bouquets-grid">
 		<!-- Bouquet List Card -->
-		<article class="yweb-card yweb-panel-card yweb-bouquet-card" id="card-bouquets">
+		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-bouquet-card" id="card-bouquets">
 			<header class="yweb-card-header" onclick="toggleCard('card-bouquets')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -350,7 +334,7 @@
 		</article>
 
 		<!-- Channel List Card -->
-		<article class="yweb-card yweb-panel-card yweb-channel-card" id="card-channels">
+		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-channel-card" id="card-channels">
 			<header class="yweb-card-header" onclick="toggleCard('card-channels')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

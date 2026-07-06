@@ -1753,6 +1753,22 @@ body:not(.has-subheader) .yweb-header-spacer {
 	background: #f8f9fa;
 }
 
+/* Kompakter Karten-Kopf (M5e) — schlanke Panel-Karten der
+   Listen-Seiten; Werte vorher je Seite dupliziert */
+.yweb-card-sm .yweb-card-header {
+	padding: 0.4rem 0.6rem;
+	min-height: auto;
+}
+
+.yweb-card-sm .yweb-card-title {
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-card-sm .yweb-card-title svg {
+	width: 14px;
+	height: 14px;
+}
+
 /* ============================================
    Unified Toolbar Template
    ============================================ */

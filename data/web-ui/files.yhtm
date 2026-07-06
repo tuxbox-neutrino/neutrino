@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.files=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=64">
+	<link rel="stylesheet" href="/css/yweb.css?v=65">
 	<style>
 		/* 2-column grid layout */
 		main.yweb-files-grid {
@@ -25,19 +25,6 @@
 		}
 
 		/* Compact card headers */
-		.yweb-files-grid .yweb-card-header {
-			padding: 0.4rem 0.6rem;
-			min-height: auto;
-		}
-
-		.yweb-files-grid .yweb-card-title {
-			font-size: var(--yweb-font-sm);
-		}
-
-		.yweb-files-grid .yweb-card-title svg {
-			width: 14px;
-			height: 14px;
-		}
 
 		/* Sidebar card */
 
@@ -401,7 +388,7 @@
 	<!-- Main Content: 2-Column Grid -->
 	<main class="yweb-files-grid">
 		<!-- Sidebar Card -->
-		<article class="yweb-card yweb-panel-card yweb-sidebar-card" id="card-sidebar">
+		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-sidebar-card" id="card-sidebar">
 			<header class="yweb-card-header" onclick="toggleCard('card-sidebar')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -417,7 +404,7 @@
 		</article>
 
 		<!-- File List Card -->
-		<article class="yweb-card yweb-panel-card yweb-filelist-card" id="card-files">
+		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-filelist-card" id="card-files">
 			<header class="yweb-card-header" onclick="toggleCard('card-files')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

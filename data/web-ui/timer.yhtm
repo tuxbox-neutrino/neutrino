@@ -6,7 +6,7 @@
 	<title>yWeb - Timer</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=64">
+	<link rel="stylesheet" href="/css/yweb.css?v=65">
 	<style>
 		/* 2-column grid layout for timer */
 		main.yweb-timer-grid {
@@ -25,22 +25,6 @@
 		}
 
 		/* Compact card headers */
-		.yweb-filter-card .yweb-card-header,
-		.yweb-timerlist-card .yweb-card-header {
-			padding: 0.4rem 0.6rem;
-			min-height: auto;
-		}
-
-		.yweb-filter-card .yweb-card-title,
-		.yweb-timerlist-card .yweb-card-title {
-			font-size: var(--yweb-font-sm);
-		}
-
-		.yweb-filter-card .yweb-card-title svg,
-		.yweb-timerlist-card .yweb-card-title svg {
-			width: 14px;
-			height: 14px;
-		}
 
 		/* Filter Card */
 
@@ -520,7 +504,7 @@
 	<!-- Main Content: 2-Column Grid -->
 	<main class="yweb-timer-grid">
 		<!-- Filter Card -->
-		<article class="yweb-card yweb-panel-card yweb-filter-card" id="card-filter">
+		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-filter-card" id="card-filter">
 			<header class="yweb-card-header" onclick="toggleCard('card-filter')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -589,7 +573,7 @@
 		</article>
 
 		<!-- Timer List Card -->
-		<article class="yweb-card yweb-panel-card yweb-timerlist-card" id="card-timers">
+		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-timerlist-card" id="card-timers">
 			<header class="yweb-card-header" onclick="toggleCard('card-timers')">
 				<h3 class="yweb-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
