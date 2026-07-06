@@ -157,39 +157,29 @@
 			width: 6rem;
 		}
 
-		/* Save button — icon only */
-		.btn-save {
-			display: inline-flex;
+		/* M5c: zentrale Dirty-State-Save-Leiste am Fuß der Content-Spalte.
+		   Klebt beim Scrollen am unteren Rand und wirkt über der Karte
+		   wie deren Fuß (gleicher Hintergrund, border-top als Trenner) */
+		.settings-save-bar {
+			display: flex;
+			gap: 0.5rem;
 			align-items: center;
-			justify-content: center;
-			width: 2rem;
-			height: 2rem;
-			border-radius: var(--yweb-radius);
-			border: none;
-			background: var(--yweb-accent);
-			color: #fff;
-			cursor: pointer;
-			transition: var(--yweb-transition);
-			flex-shrink: 0;
+			justify-content: flex-end;
+			border-top: 1px solid var(--pico-muted-border-color);
+			padding: 0.7rem 1rem;
+			position: sticky;
+			bottom: 0;
+			background: var(--pico-card-background-color);
+			border-radius: 0 0 var(--yweb-radius) var(--yweb-radius);
 		}
-		.btn-save svg {
-			width: 1.1rem !important;
-			height: 1.1rem !important;
-			min-width: 1.1rem;
-			overflow: visible;
-			flex-shrink: 0;
-		}
-		.btn-save:hover {
-			opacity: 0.9;
-			box-shadow: 0 2px 8px rgba(255,165,0,0.3);
-		}
-		.btn-save:disabled {
-			opacity: 0.5;
-			cursor: not-allowed;
-		}
-		/* Mobile: sticky save bar at bottom */
-		.yweb-settings-save-mobile {
+		/* hidden-Attribut muss gegen das display:flex gewinnen */
+		.settings-save-bar[hidden] {
 			display: none;
+		}
+		.settings-save-bar .note {
+			margin-right: auto;
+			color: var(--pico-muted-color);
+			font-size: var(--yweb-font-sm);
 		}
 
 		/* Mount slots */
@@ -263,9 +253,6 @@
 				width: 100%;
 				flex: auto;
 			}
-			.yweb-settings-save-mobile {
-				display: none;
-			}
 		}
 	</style>
 </head>
@@ -285,9 +272,18 @@
 			<nav id="settingsSidebar"></nav>
 		</div>
 
-		<!-- Content -->
-		<div class="yweb-settings-content" id="settingsContent">
-			<div class="settings-loading">{=L:yw.set.loading=}</div>
+		<!-- Content: Panels + zentrale Save-Leiste (M5c) -->
+		<div class="yweb-settings-content">
+			<div id="settingsContent">
+				<div class="settings-loading">{=L:yw.set.loading=}</div>
+			</div>
+			<div id="settingsSaveBar" class="settings-save-bar" hidden>
+				<span class="note"><b id="saveBarCount">0</b> {=L:yw.set.unsaved=}</span>
+				<button type="button" class="yweb-btn ghost" onclick="discardSettings()">{=L:yw.set.discard=}</button>
+				<button type="button" class="yweb-btn primary" onclick="saveSettings()">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>{=L:yw.bqe.save=}
+				</button>
+			</div>
 		</div>
 	</main>
 
@@ -307,26 +303,16 @@
 	// generischen ExtConfig-Zyklus gegen config=<name>, Default yweb)
 	var EXT_SETTINGS_CATS = {};
 
-	// withSave=true blendet den Karten-Kopf-Speichern-Button ein, der
-	// saveSettings() (config=neutrino) ausloest. Panels mit eigener
-	// Config-Datei/eigenem Save (ExtConfig, Backup, WoL, XMLTV, Plugins,
-	// Mounts, Zapit-Upload, Erweiterungen) rufen mit withSave=false auf —
-	// sonst wuerde ihr Kopf-Button faelschlich das neutrino-Formular
-	// speichern (bzw. gar nichts, weil sie keine neutrino-Felder haben).
-	function makeCardHeader(label, withSave) {
+	// M5c: Karten-Kopf ist reiner Titel — gespeichert wird zentral über
+	// die Dirty-State-Leiste (#settingsSaveBar) am Fuß der Content-Spalte;
+	// Panels mit eigener Config-Datei (ExtConfig, Erweiterungen, WoL, ...)
+	// behalten ihren eigenen Save-Button im Panel-Inhalt.
+	function makeCardHeader(label) {
 		var d = document.createElement('div');
 		d.className = 'settings-card-header';
 		var h = document.createElement('h3');
 		h.textContent = label;
 		d.appendChild(h);
-		if (withSave !== false) {
-			var b = document.createElement('button');
-			b.className = 'btn-save';
-			b.title = '{=L:yw.bqe.save=}';
-			b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/><\/svg>';
-			b.onclick = saveSettings;
-			d.appendChild(b);
-		}
 		return d.outerHTML;
 	}
 
@@ -434,6 +420,20 @@
 	// kleines Ordner-Icon fuer Picker-Buttons
 	var FOLDER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>';
 
+	// M5c: 14px-Icon-Wrapper fuer Panel-Buttons (Optik wie Save-Leiste)
+	function sIcon(paths) {
+		return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + paths + '<\/svg>';
+	}
+	var SAVE_ICON = sIcon('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>');
+
+	// Rechtsbuendiger Save-Button fuer Panels mit eigenem Config-Zyklus
+	// (ExtConfig, Erweiterungen, WoL) — Optik wie die zentrale Save-Leiste
+	function makePanelSaveRow(onclick, label) {
+		return '<div class="yweb-row-actions" style="justify-content:flex-end;margin-top:0.6rem">' +
+			'<button type="button" class="yweb-btn primary" onclick="' + onclick + '">' +
+			SAVE_ICON + (label || '{=L:yw.bqe.save=}') + '</button></div>';
+	}
+
 	// Picker oeffnen und Ergebnis in das Textfeld schreiben
 	function ywebPickInto(inputId, startPath) {
 		ywebShowPathPicker(startPath, function(p) {
@@ -475,7 +475,7 @@
 	var EXT_CONFIG_CACHE = {};
 	function renderExtConfigPanel(cat) {
 		setTimeout(function() { loadExtConfigPanel(cat); }, 0);
-		return '<div class="settings-card">' + makeCardHeader(cat.label, false) +
+		return '<div class="settings-card">' + makeCardHeader(cat.label) +
 			'<div id="extcfg-' + cat.id + '"><p aria-busy="true">{=L:yw.msg.loading=}</p></div></div>';
 	}
 
@@ -499,8 +499,7 @@
 			});
 			// Reine Action-/Info-Panels haben nichts zu speichern
 			if (savable > 0)
-				html += '<div class="yweb-form-row"><label></label>' +
-					'<button type="button" class="yweb-btn" onclick="saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)">{=L:yw.bqe.save=}</button></div>';
+				html += makePanelSaveRow('saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)');
 			el.innerHTML = html;
 		} catch (e) {
 			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
@@ -536,7 +535,7 @@
 	// Backup/Restore der Einstellungen via exec-Vertrag
 	// (Y_Tools settings_backup_restore; Script echot den Archivpfad)
 	function renderBackupPanel() {
-		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.backup_title=}', false) +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.backup_title=}') +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Backup</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.backup_label=} <small style="color:var(--pico-muted-color)">{=L:yw.set.backup_hint=}</small></label>' +
 			'<button type="button" class="yweb-btn" onclick="doSettingsBackup(this)">{=L:yw.set.backup_btn=}</button></div></div>' +
@@ -583,7 +582,7 @@
 	// Slot-Override (persistiert in config=yweb, Loader in yweb-header.js)
 	function renderExtensionsPanel() {
 		setTimeout(loadExtensionsPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.ext_title=}', false) +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.ext_title=}') +
 			'<div id="extPanel"><p aria-busy="true">{=L:yw.set.ext_search=}</p></div></div>';
 	}
 
@@ -609,8 +608,7 @@
 				'<label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
 				'<span class="yweb-toggle-slider"></span></label></span></div>';
 		});
-		html += '</div><div class="yweb-form-row"><label></label>' +
-			'<button type="button" class="yweb-btn" onclick="saveExtensions(this)">{=L:yw.bqe.save=}</button></div>';
+		html += '</div>' + makePanelSaveRow('saveExtensions(this)');
 		el.innerHTML = html;
 	}
 
@@ -636,7 +634,7 @@
 	// via exec-Vertrag (ether-wake auf der Box)
 	function renderWolPanel() {
 		setTimeout(loadWolPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN', false) +
+		return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN') +
 			'<div id="wolPanel"><p aria-busy="true">Lade…</p></div></div>';
 	}
 
@@ -654,8 +652,7 @@
 					'<input type="text" id="wol_mac_' + i + '" placeholder="aa:bb:cc:dd:ee:ff" style="max-width:160px" value="' + (cfg['wol_mac_' + i] || '') + '"> ' +
 					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">{=L:yw.set.wol_wake=}</button></span></div>';
 			}
-			html += '</div><div class="yweb-form-row"><label></label>' +
-				'<button type="button" class="yweb-btn" onclick="wolSave(this)">{=L:yw.bqe.save=}</button></div>';
+			html += '</div>' + makePanelSaveRow('wolSave(this)');
 			el.innerHTML = html;
 		} catch (e) {
 			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
@@ -700,7 +697,7 @@
 	// laedt die Kanallisten neu (reloadchannels-Trichter, vgl. WORK-147)
 	function renderXmltvPanel() {
 		setTimeout(loadXmltvPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.xmltv_title=}', false) +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.xmltv_title=}') +
 			'<div id="xmltvPanel"><p aria-busy="true">Lade…</p></div></div>';
 	}
 
@@ -780,7 +777,7 @@
 
 	// Zapit-Upload: Kanal-/Bouquet-XML hochladen und aktivieren
 	function renderZapitUploadPanel() {
-		return '<div class="settings-card">' + makeCardHeader('Zapit-Upload', false) +
+		return '<div class="settings-card">' + makeCardHeader('Zapit-Upload') +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.zapit_section=}</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.zapit_target=}</label>' +
 			'<select id="zapitTarget"><option>ubouquets.xml</option><option>bouquets.xml</option><option>services.xml</option><option>myservices.xml</option></select></div>' +
@@ -850,7 +847,7 @@
 	// der Legacy-Seite ueberlassen - paket-/imageabhaengig.
 	function renderPluginsPanel() {
 		setTimeout(loadPluginsPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('Plugins', false) +
+		return '<div class="settings-card">' + makeCardHeader('Plugins') +
 			'<div id="pluginsPanel"><p aria-busy="true">{=L:yw.set.plugins_loading=}</p></div></div>';
 	}
 
@@ -904,7 +901,7 @@
 	}
 
 	function renderMountsPanel() {
-		var html = makeCardHeader('Netzlaufwerke', false);
+		var html = makeCardHeader('Netzlaufwerke');
 		html += '<div class="yweb-form-row"><label>Alle konfigurierten Mounts</label>' +
 			'<button type="button" class="yweb-btn" onclick="doMountAction(-1, \'do_mount_all\', this)">Alle mounten</button></div>';
 		var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
@@ -1052,18 +1049,52 @@
 		panel.classList.add('active');
 	}
 
+	// M5c: sammelt über ALLE gerenderten Panels (nicht nur das aktive) —
+	// gecachte Panels behalten ungespeicherte Eingaben beim Kategorie-
+	// Wechsel, und die zentrale Save-Leiste speichert sie alle zusammen
 	function collectValues() {
 		var values = {};
-		var panel = document.querySelector('.settings-panel.active');
-		if (!panel) return values;
+		var content = document.getElementById('settingsContent');
+		if (!content) return values;
 
-		panel.querySelectorAll('select[data-key]:not([data-extcfg]), input[type="text"][data-key]:not([data-extcfg]), input[type="number"][data-key]:not([data-extcfg]), input[type="password"][data-key]:not([data-extcfg])').forEach(function(el) {
+		content.querySelectorAll('select[data-key]:not([data-extcfg]), input[type="text"][data-key]:not([data-extcfg]), input[type="number"][data-key]:not([data-extcfg]), input[type="password"][data-key]:not([data-extcfg])').forEach(function(el) {
 			values[el.getAttribute('data-key')] = el.value;
 		});
-		panel.querySelectorAll('input[type="checkbox"][data-key]:not([data-extcfg])').forEach(function(el) {
+		content.querySelectorAll('input[type="checkbox"][data-key]:not([data-extcfg])').forEach(function(el) {
 			values[el.getAttribute('data-key')] = el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off');
 		});
 		return values;
+	}
+
+	// Dirty-Zähler für die Save-Leiste: gleiche Diff-Logik wie
+	// saveSettings (String-Vergleich gegen configData)
+	function ywebCountDirty() {
+		var values = collectValues();
+		var dirty = 0;
+		for (var key in values) {
+			var origKey = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+			if (values[key] !== (configData[origKey] || '')) dirty++;
+		}
+		return dirty;
+	}
+
+	function ywebUpdateSaveBar() {
+		var bar = document.getElementById('settingsSaveBar');
+		if (!bar) return;
+		var n = ywebCountDirty();
+		document.getElementById('saveBarCount').textContent = n;
+		bar.hidden = (n === 0);
+	}
+
+	// Verwerfen: alle Panel-Caches wegwerfen und aktive Kategorie aus
+	// configData neu rendern (die übrigen rendern beim nächsten Besuch)
+	function discardSettings() {
+		renderedPanels = {};
+		document.querySelectorAll('#settingsContent .settings-panel').forEach(function(p) { p.remove(); });
+		var cat = activeCategory;
+		activeCategory = '';
+		switchCategory(cat);
+		ywebUpdateSaveBar();
 	}
 
 	async function saveSettings() {
@@ -1084,7 +1115,7 @@
 			return;
 		}
 
-		var btns = document.querySelectorAll('.btn-save');
+		var btns = document.querySelectorAll('#settingsSaveBar .yweb-btn');
 		btns.forEach(function(b) { b.disabled = true; });
 
 		try {
@@ -1140,6 +1171,7 @@
 		activeCategory = '';
 		buildNavigation();
 		switchCategory(targetCategory);
+		ywebUpdateSaveBar();
 	}
 
 	// Hash navigation
@@ -1148,6 +1180,11 @@
 		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; }) || EXT_SETTINGS_CATS[hash];
 		if (validCat) switchCategory(hash);
 	});
+
+	// M5c: Dirty-State live verfolgen (Delegation — Panels werden lazy
+	// gerendert und gecacht, der Listener auf dem Container sieht alles)
+	document.getElementById('settingsContent').addEventListener('input', ywebUpdateSaveBar);
+	document.getElementById('settingsContent').addEventListener('change', ywebUpdateSaveBar);
 
 	loadSettings();
 	</script>
