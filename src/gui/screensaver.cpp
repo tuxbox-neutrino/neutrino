@@ -119,6 +119,19 @@ void CScreenSaver::thrExit()
 
 void CScreenSaver::Start()
 {
+	// Lifecycle invariant: Start(), Stop() and thrExit() are only ever called
+	// from the main (UI) thread (event loop, movie-/audioplayer, shutdown/
+	// restart signals), so the transitions need no mutex. Only the worker
+	// thread runs concurrently, and it is synchronized via the atomic thr_exit.
+	// If an off-main-thread caller is ever added, serialize these transitions.
+
+	// Idempotent: if the saver is already running, skip the side effects below.
+	// A second Start() would re-disable the mute icon, re-block InfoClock and -
+	// worst - overwrite the saved pip_channel_id (now 0), so the single Stop()
+	// afterwards could no longer restore PIP.
+	if (thrScreenSaver)
+		return;
+
 	if (!OnBeforeStart.empty())
 		OnBeforeStart();
 
@@ -164,9 +177,7 @@ void CScreenSaver::Start()
 		dprintf(DEBUG_NORMAL, "[%s] %s: starting thread\n", __file__, __func__);
 		thr_exit = false;
 		thrScreenSaver = new std::thread(ScreenSaverPrg, this);
-		std::string tn = "screen_saver";
-		set_threadname(tn.c_str());
-		dprintf(DEBUG_NORMAL, "\033[32m[CScreenSaver] [%s - %d] thread [%p] [%s] started\033[0m\n", __func__, __LINE__, thrScreenSaver, tn.c_str());
+		dprintf(DEBUG_NORMAL, "\033[32m[CScreenSaver] [%s - %d] thread [%p] started\033[0m\n", __func__, __LINE__, thrScreenSaver);
 	}
 
 	if (!OnAfterStart.empty())
@@ -214,6 +225,10 @@ void CScreenSaver::Stop()
 
 void CScreenSaver::ScreenSaverPrg(CScreenSaver *scr)
 {
+	// prctl(PR_SET_NAME) names the calling thread, so this must run inside the
+	// worker itself - not in Start() on the main thread.
+	set_threadname("screen_saver");
+
 	scr->m_frameBuffer->Clear();
 
 	if (g_settings.screensaver_timeout)
@@ -231,10 +246,9 @@ void CScreenSaver::ScreenSaverPrg(CScreenSaver *scr)
 			corr = 10;
 #endif
 			int t = 1000 / corr * g_settings.screensaver_timeout; // sleep and exit handle
-			while (t > 0)
+			while (t > 0 && !scr->thr_exit)
 			{
-				if (!scr->thr_exit)
-					this_thread::sleep_for(std::chrono::milliseconds(1));
+				this_thread::sleep_for(std::chrono::milliseconds(1));
 				t--;
 
 				if (scr->force_refresh) // NOTE: Do we really need this ?

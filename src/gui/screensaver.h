@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 #include "gui/components/cc.h"
+#include <atomic>
 #include <mutex>
 #include <thread>
 
@@ -41,13 +42,17 @@ class CScreenSaver : public sigc::trackable
 
 		std::thread	*thrScreenSaver;
 		static void	ScreenSaverPrg(CScreenSaver *scr);
-		bool thr_exit;
+		// thr_exit is written by the main thread (Start/Stop/thrExit) and read
+		// by the worker (ScreenSaverPrg); atomic to avoid a data race and to
+		// stop the compiler treating the exit loop as invariant.
+		std::atomic<bool> thr_exit;
 		std::mutex	scr_mutex;
 
 		std::vector<std::string> v_bg_files;
 		unsigned int 	index;
 		t_channel_id	pip_channel_id[3];
-		bool		force_refresh;
+		// force_refresh is set from the main thread and polled by the worker.
+		std::atomic<bool> force_refresh;
 		bool		status_mute;
 		uint 		seed[6];
 
