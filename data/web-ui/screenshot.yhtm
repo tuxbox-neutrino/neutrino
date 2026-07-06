@@ -457,7 +457,7 @@
 			const video = document.getElementById('checkVideo').checked;
 
 			if (!osd && !video) {
-				alert('{=L:yw.shot.select=}');
+				ywebShowToast('{=L:yw.shot.select=}', true);
 				return false;
 			}
 			return true;
