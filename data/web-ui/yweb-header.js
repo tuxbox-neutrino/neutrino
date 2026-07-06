@@ -1396,7 +1396,7 @@ function ywebShowConfirm(title, message, confirmLabel, onConfirm) {
 			'<h4>' + title + '</h4>' +
 			'<p>' + message + '</p>' +
 			'<div class="yweb-confirm-actions">' +
-				'<button class="confirm-cancel">Abbrechen</button>' +
+				'<button class="confirm-cancel">' + ywebL('msg.cancel', 'Cancel') + '</button>' +
 				'<button class="confirm-delete">' + confirmLabel + '</button>' +
 			'</div>' +
 		'</div>';
@@ -1410,11 +1410,58 @@ function ywebShowConfirm(title, message, confirmLabel, onConfirm) {
 			backdrop.remove();
 		} catch (e) {
 			console.error('Confirm action failed:', e);
-			btn.textContent = 'Fehler';
+			btn.textContent = ywebL('msg.error', 'Error');
 			setTimeout(function() { backdrop.remove(); }, 1500);
 		}
 	};
 	document.body.appendChild(backdrop);
+}
+
+// Prompt dialog — shared: Textfeld mit OK/Abbrechen im Look des
+// Confirm-Dialogs, Ersatz fuer natives prompt(). onOk(value) darf
+// async sein; Enter bestaetigt, Escape/Backdrop bricht ab.
+function ywebShowPrompt(title, label, value, onOk) {
+	var backdrop = document.createElement('div');
+	backdrop.className = 'yweb-confirm-backdrop';
+	backdrop.onclick = function(e) {
+		if (e.target === backdrop) backdrop.remove();
+	};
+	backdrop.innerHTML =
+		'<div class="yweb-confirm-dialog">' +
+			'<h4></h4>' +
+			'<label class="yweb-prompt-label"></label>' +
+			'<input type="text" class="yweb-prompt-input" maxlength="255">' +
+			'<div class="yweb-confirm-actions">' +
+				'<button class="confirm-cancel">' + ywebL('msg.cancel', 'Cancel') + '</button>' +
+				'<button class="confirm-ok">OK</button>' +
+			'</div>' +
+		'</div>';
+	backdrop.querySelector('h4').textContent = title;
+	var lab = backdrop.querySelector('.yweb-prompt-label');
+	if (label) lab.textContent = label; else lab.remove();
+	var inp = backdrop.querySelector('.yweb-prompt-input');
+	inp.value = value || '';
+	var ok = async function(btn) {
+		if (!inp.value.trim()) { inp.focus(); return; }
+		btn.disabled = true;
+		try {
+			await onOk(inp.value.trim());
+			backdrop.remove();
+		} catch (e) {
+			console.error('Prompt action failed:', e);
+			btn.textContent = ywebL('msg.error', 'Error');
+			setTimeout(function() { backdrop.remove(); }, 1500);
+		}
+	};
+	backdrop.querySelector('.confirm-cancel').onclick = function() { backdrop.remove(); };
+	backdrop.querySelector('.confirm-ok').onclick = function() { ok(this); };
+	inp.onkeydown = function(e) {
+		if (e.key === 'Enter') ok(backdrop.querySelector('.confirm-ok'));
+		if (e.key === 'Escape') backdrop.remove();
+	};
+	document.body.appendChild(backdrop);
+	inp.focus();
+	inp.select();
 }
 
 // Message popover — send ticker or popup messages to the box

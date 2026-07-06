@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.files=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=65">
+	<link rel="stylesheet" href="/css/yweb.css?v=66">
 	<style>
 		/* 2-column grid layout */
 		main.yweb-files-grid {
@@ -496,8 +496,8 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=7"></script>
-	<script src="/yweb-header.js?v=39"></script>
+	<script src="/Y_Lang.yjs?v=8"></script>
+	<script src="/yweb-header.js?v=40"></script>
 	<script>
 		// State
 		let currentPath = '/';

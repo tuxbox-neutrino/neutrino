@@ -920,6 +920,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-radius: var(--yweb-radius);
 	border: 1px solid var(--pico-muted-border-color);
 	background: var(--pico-card-sectioning-background-color);
+	/* Picos button-Regel setzt lokal --pico-color auf primary-inverse
+	   (weiss) — auf hellem Grund unsichtbar; auf Textfarbe zuruecksetzen */
+	--pico-color: inherit;
 	color: var(--pico-color);
 	cursor: pointer;
 	font-size: var(--yweb-font-sm);
@@ -929,6 +932,26 @@ body:not(.has-subheader) .yweb-header-spacer {
 	background: var(--yweb-danger, #ef4444);
 	border-color: var(--yweb-danger, #ef4444);
 	color: white;
+}
+
+/* Bestaetigen-Variante des Prompt-Dialogs (ywebShowPrompt) —
+   Akzent statt Danger, gleiche Geometrie wie confirm-delete */
+.yweb-confirm-actions .confirm-ok {
+	background: var(--yweb-accent);
+	border-color: var(--yweb-accent);
+	color: white;
+}
+
+.yweb-confirm-dialog .yweb-prompt-label {
+	display: block;
+	margin-bottom: 0.3rem;
+	color: var(--pico-muted-color);
+	font-size: var(--yweb-font-sm);
+}
+
+.yweb-confirm-dialog .yweb-prompt-input {
+	width: 100%;
+	margin: 0 0 1rem;
 }
 
 .yweb-about-section {
