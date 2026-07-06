@@ -233,6 +233,34 @@
 			display: block;
 		}
 
+		/* M5c: Erweiterungen als 3-Spalten-Tabelle (Name | Slot | Aktiv) */
+		.ext-grid {
+			display: grid;
+			grid-template-columns: 1fr 140px 52px;
+			gap: 0.45rem 0.75rem;
+			align-items: center;
+		}
+		.ext-grid .ext-grid-head {
+			font-size: var(--yweb-font-xs);
+			color: var(--pico-muted-color);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			font-weight: 600;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			padding-bottom: 0.3rem;
+		}
+		.ext-grid select {
+			width: 100%;
+			margin: 0;
+			padding: 0.2rem 0.4rem !important;
+			height: auto !important;
+			font-size: var(--yweb-font-sm);
+		}
+		.ext-grid .ext-name {
+			font-size: var(--yweb-font-sm);
+			min-width: 0;
+		}
+
 		/* Loading */
 		.settings-loading {
 			text-align: center;
@@ -425,11 +453,35 @@
 		return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + paths + '<\/svg>';
 	}
 	var SAVE_ICON = sIcon('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>');
+	var DL_ICON = sIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>');
+	var UP_ICON = sIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>');
+	var PLAY_ICON = sIcon('<polygon points="5 3 19 12 5 21 5 3"/>');
+	var REFRESH_ICON = sIcon('<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>');
+	var ZAP_ICON = sIcon('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>');
+	var MOUNT_ICON = sIcon('<line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/>');
+	var EJECT_ICON = sIcon('<path d="M12 5l7 9H5l7-9z"/><line x1="5" y1="19" x2="19" y2="19"/>');
+	var RESTORE_ICON = sIcon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>');
+
+	// Markup-Helfer: gestyltes Datei-Control (.yweb-file aus yweb.css);
+	// der gewählte Dateiname landet via onchange in .yweb-file-name
+	function makeFileControl(inputId, accept) {
+		return '<label class="yweb-file"><input type="file" id="' + inputId + '"' +
+			(accept ? ' accept="' + accept + '"' : '') + ' onchange="ywebFileName(this)">' +
+			'<span class="yweb-file-btn">{=L:yw.set.choose_file=}</span>' +
+			'<span class="yweb-file-name">&ndash;</span></label>';
+	}
+	function ywebFileName(inp) {
+		var box = inp.closest('.yweb-file');
+		var n = box && box.querySelector('.yweb-file-name');
+		if (n) n.textContent = (inp.files && inp.files.length) ? inp.files[0].name : '–';
+	}
 
 	// Rechtsbuendiger Save-Button fuer Panels mit eigenem Config-Zyklus
-	// (ExtConfig, Erweiterungen, WoL) — Optik wie die zentrale Save-Leiste
+	// (ExtConfig, Erweiterungen, WoL) — Optik wie die zentrale Save-Leiste.
+	// display:flex inline, weil .yweb-row-actions nur innerhalb von
+	// .yweb-form-row automatisch flext (hier steht die Zeile solo)
 	function makePanelSaveRow(onclick, label) {
-		return '<div class="yweb-row-actions" style="justify-content:flex-end;margin-top:0.6rem">' +
+		return '<div class="yweb-row-actions" style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:0.6rem">' +
 			'<button type="button" class="yweb-btn primary" onclick="' + onclick + '">' +
 			SAVE_ICON + (label || '{=L:yw.bqe.save=}') + '</button></div>';
 	}
@@ -538,11 +590,12 @@
 		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.backup_title=}') +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Backup</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.backup_label=} <small style="color:var(--pico-muted-color)">{=L:yw.set.backup_hint=}</small></label>' +
-			'<button type="button" class="yweb-btn" onclick="doSettingsBackup(this)">{=L:yw.set.backup_btn=}</button></div></div>' +
+			'<span class="yweb-row-actions">' +
+			'<button type="button" class="yweb-btn primary" onclick="doSettingsBackup(this)">' + DL_ICON + '{=L:yw.set.backup_btn=}</button></span></div></div>' +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Restore</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.restore_label=} <small style="color:var(--pico-muted-color)">{=L:yw.set.restore_hint=}</small></label>' +
-			'<span><input type="file" id="restoreFile" style="max-width:220px"> ' +
-			'<button type="button" class="yweb-btn" onclick="doSettingsRestore(this)">{=L:yw.set.restore_btn=}</button></span></div></div></div>';
+			'<span class="yweb-row-actions">' + makeFileControl('restoreFile') +
+			'<button type="button" class="yweb-btn danger" onclick="doSettingsRestore(this)">' + RESTORE_ICON + '{=L:yw.set.restore_btn=}</button></span></div></div></div>';
 	}
 
 	async function doSettingsBackup(btn) {
@@ -559,10 +612,22 @@
 		btn.disabled = false;
 	}
 
-	async function doSettingsRestore(btn) {
+	// M5c: Bestätigung im geteilten ywebModal statt confirm() — die
+	// destruktive Aktion bekommt einen klaren Danger-Bestätigungsknopf
+	function doSettingsRestore(btn) {
 		var inp = document.getElementById('restoreFile');
 		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
-		if (!confirm('{=L:yw.set.restore_confirm=}')) return;
+		ywebModal('restoreConfirmModal', '{=L:yw.set.restore_btn=}',
+			'<p>{=L:yw.set.restore_confirm=}<br><small style="color:var(--pico-muted-color)">' +
+			escapeHtml(inp.files[0].name) + '</small></p>' +
+			'<div class="yweb-row-actions" style="justify-content:flex-end">' +
+			'<button type="button" class="yweb-btn ghost" onclick="ywebCloseModal(\'restoreConfirmModal\')">{=L:yw.tm.cancel=}</button>' +
+			'<button type="button" class="yweb-btn danger" onclick="ywebRestoreGo(this)">' + RESTORE_ICON + '{=L:yw.set.restore_btn=}</button></div>');
+	}
+
+	async function ywebRestoreGo(btn) {
+		var inp = document.getElementById('restoreFile');
+		if (!inp || !inp.files || !inp.files.length) return;
 		btn.disabled = true;
 		try {
 			var f = inp.files[0];
@@ -572,6 +637,7 @@
 			if (!up.ok) throw new Error('Upload fehlgeschlagen');
 			var out = await ywebApi('exec', 'Y_Tools&exec_cmd&restore.sh&' + encodeURIComponent('/tmp/' + f.name), {raw: true});
 			ywebShowToast('Restore: ' + (out.trim() || '{=L:yw.set.restore_done=}'));
+			ywebCloseModal('restoreConfirmModal');
 		} catch (e) {
 			ywebShowToast('{=L:yw.set.restore_fail=}: ' + e.message, true);
 		}
@@ -596,19 +662,25 @@
 				'<small style="color:var(--pico-muted-color)">Verzeichnis: &lt;webroot&gt;/extensions/&lt;name&gt;/manifest.json — siehe README</small></label></div>';
 			return;
 		}
-		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.ext_found=}</div>';
+		// M5c: 3-Spalten-Grid mit Kopfzeile statt frei fließender Zeilen —
+		// Slot-Selects und Toggles aller Erweiterungen fluchten spaltenweise
+		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.ext_found=}</div>' +
+			'<div class="ext-grid">' +
+			'<div class="ext-grid-head">{=L:yw.set.ext_col_ext=}</div>' +
+			'<div class="ext-grid-head">Slot</div>' +
+			'<div class="ext-grid-head">{=L:yw.set.ext_col_on=}</div>';
 		exts.forEach(function(m) {
-			html += '<div class="yweb-form-row"><label>' + escapeHtml(m.name) +
+			html += '<div class="ext-name">' + escapeHtml(m.name) +
 				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
-				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — {=L:yw.set.ext_settings_only=}') + '</small></label><span>' +
-				'<select id="extslot_' + m.dir + '" style="margin:0 0.4rem 0 0;padding:0.2rem;height:auto;width:auto">' +
+				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — {=L:yw.set.ext_settings_only=}') + '</small></div>' +
+				'<div><select id="extslot_' + m.dir + '">' +
 				['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
 					return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
-				}).join('') + '</select>' +
-				'<label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
-				'<span class="yweb-toggle-slider"></span></label></span></div>';
+				}).join('') + '</select></div>' +
+				'<div><label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
+				'<span class="yweb-toggle-slider"></span></label></div>';
 		});
-		html += '</div>' + makePanelSaveRow('saveExtensions(this)');
+		html += '</div></div>' + makePanelSaveRow('saveExtensions(this)');
 		el.innerHTML = html;
 	}
 
@@ -650,7 +722,7 @@
 				html += '<div class="yweb-form-row"><label>{=L:yw.set.wol_device=} ' + i + '</label><span>' +
 					'<input type="text" id="wol_desc_' + i + '" placeholder="{=L:yw.m3u.desc=}" style="max-width:140px" value="' + (cfg['wol_desc_' + i] || '') + '"> ' +
 					'<input type="text" id="wol_mac_' + i + '" placeholder="aa:bb:cc:dd:ee:ff" style="max-width:160px" value="' + (cfg['wol_mac_' + i] || '') + '"> ' +
-					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">{=L:yw.set.wol_wake=}</button></span></div>';
+					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">' + ZAP_ICON + '{=L:yw.set.wol_wake=}</button></span></div>';
 			}
 			html += '</div>' + makePanelSaveRow('wolSave(this)');
 			el.innerHTML = html;
@@ -720,16 +792,17 @@
 			var radio = collectXmlSources(cfg, 'webradio_xml').join('\n');
 			el.innerHTML = '<div class="yweb-form-section"><div class="yweb-form-section-title">WebTV</div>' +
 				'<textarea id="xmltv_tv" rows="4" style="width:100%" placeholder="{=L:yw.set.xmltv_ph=}">' + escapeHtml(tv) + '</textarea>' +
-				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label><span>' +
-				'<input type="file" id="xmltv_tv_file" accept=".xml,.m3u" style="max-width:200px"> ' +
-				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'tv\', this)">{=L:yw.fm.upload=}</button></span></div></div>' +
+				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label>' +
+				'<span class="yweb-row-actions">' + makeFileControl('xmltv_tv_file', '.xml,.m3u') +
+				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'tv\', this)">' + UP_ICON + '{=L:yw.fm.upload=}</button></span></div></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">WebRadio</div>' +
 				'<textarea id="xmltv_radio" rows="4" style="width:100%">' + escapeHtml(radio) + '</textarea>' +
-				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label><span>' +
-				'<input type="file" id="xmltv_radio_file" accept=".xml,.m3u" style="max-width:200px"> ' +
-				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'radio\', this)">{=L:yw.fm.upload=}</button></span></div></div>' +
+				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label>' +
+				'<span class="yweb-row-actions">' + makeFileControl('xmltv_radio_file', '.xml,.m3u') +
+				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'radio\', this)">' + UP_ICON + '{=L:yw.fm.upload=}</button></span></div></div>' +
 				'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_hint=}</small></label>' +
-				'<button type="button" class="yweb-btn" onclick="saveXmltv(this)">{=L:yw.bqe.save_reload=}</button></div>';
+				'<span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn primary" onclick="saveXmltv(this)">' + SAVE_ICON + '{=L:yw.bqe.save_reload=}</button></span></div>';
 		} catch (e) {
 			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
 		}
@@ -781,9 +854,9 @@
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.zapit_section=}</div>' +
 			'<div class="yweb-form-row"><label>{=L:yw.set.zapit_target=}</label>' +
 			'<select id="zapitTarget"><option>ubouquets.xml</option><option>bouquets.xml</option><option>services.xml</option><option>myservices.xml</option></select></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.fm.file=}</label><span>' +
-			'<input type="file" id="zapitFile" accept=".xml" style="max-width:220px"> ' +
-			'<button type="button" class="yweb-btn" onclick="doZapitUpload(this)">{=L:yw.set.zapit_btn=}</button></span></div>' +
+			'<div class="yweb-form-row"><label>{=L:yw.fm.file=}</label>' +
+			'<span class="yweb-row-actions">' + makeFileControl('zapitFile', '.xml') +
+			'<button type="button" class="yweb-btn primary" onclick="doZapitUpload(this)">' + UP_ICON + '{=L:yw.set.zapit_btn=}</button></span></div>' +
 			'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.zapit_hint=}</small></label>' +
 			'<span id="zapitStatus" style="color:var(--pico-muted-color);font-size:0.8rem"></span></div></div></div>';
 	}
@@ -865,12 +938,14 @@
 					if (pl.hidden) return;
 					var desc = pl.description ? ' <small style="color:var(--pico-muted-color)">' + escapeHtml(pl.description) + '</small>' : '';
 					html += '<div class="yweb-form-row"><label>' + escapeHtml(pl.name) + desc + '</label>' +
-						'<button type="button" class="yweb-btn" onclick="startPluginByName(\'' + escapeJs(pl.name) + '\', this)">Starten</button></div>';
+						'<span class="yweb-row-actions">' +
+						'<button type="button" class="yweb-btn" onclick="startPluginByName(\'' + escapeJs(pl.name) + '\', this)">' + PLAY_ICON + '{=L:yw.set.plugins_start=}</button></span></div>';
 				});
 			}
 			html += '</div><div class="yweb-form-section"><div class="yweb-form-section-title">Verwaltung</div>' +
 				'<div class="yweb-form-row"><label>{=L:yw.set.plugins_reload=}</label>' +
-				'<button type="button" class="yweb-btn" onclick="reloadPluginList(this)">Neu laden</button></div></div>';
+				'<span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn" onclick="reloadPluginList(this)">' + REFRESH_ICON + '{=L:yw.set.plugins_reload_btn=}</button></span></div></div>';
 			el.innerHTML = html;
 		} catch (e) {
 			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.plugins_notavail=}: ' + escapeHtml(e.message) + '</label></div>';
@@ -903,7 +978,8 @@
 	function renderMountsPanel() {
 		var html = makeCardHeader('Netzlaufwerke');
 		html += '<div class="yweb-form-row"><label>Alle konfigurierten Mounts</label>' +
-			'<button type="button" class="yweb-btn" onclick="doMountAction(-1, \'do_mount_all\', this)">Alle mounten</button></div>';
+			'<span class="yweb-row-actions">' +
+			'<button type="button" class="yweb-btn primary" onclick="doMountAction(-1, \'do_mount_all\', this)">' + MOUNT_ICON + '{=L:yw.set.mnt_mount_all=}</button></span></div>';
 		var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
 		for (var i = 0; i < 8; i++) {
 			var ip = getConfigKey('network_nfs_ip_' + i);
@@ -957,9 +1033,9 @@
 			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_pass=}</label>' +
 			'<input type="password" id="' + id('password') + '" data-key="' + dk('password') + '" value="' + g('password') + '"></div>' +
 			'</div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_actions=}</label><span>' +
-			'<button type="button" class="yweb-btn" onclick="doMountAction(' + i + ', \'domount\', this)">{=L:yw.set.mnt_mount=}</button> ' +
-			'<button type="button" class="yweb-btn" onclick="doMountUnmount(' + i + ', this)">{=L:yw.set.mnt_umount=}</button></span></div>';
+			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_actions=}</label><span class="yweb-row-actions">' +
+			'<button type="button" class="yweb-btn" onclick="doMountAction(' + i + ', \'domount\', this)">' + MOUNT_ICON + '{=L:yw.set.mnt_mount=}</button> ' +
+			'<button type="button" class="yweb-btn" onclick="doMountUnmount(' + i + ', this)">' + EJECT_ICON + '{=L:yw.set.mnt_umount=}</button></span></div>';
 	}
 
 	function toggleMount(i) {
