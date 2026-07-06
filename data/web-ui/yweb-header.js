@@ -856,7 +856,7 @@ function ywebShowRemote(opts) {
 		var html = '<div class="yweb-remote-backdrop" id="yweb-remote-modal" onclick="ywebCloseRemote(event)">' +
 			'<div class="yweb-remote-dialog" onclick="event.stopPropagation()">' +
 				'<div class="yweb-remote-modal-header">' +
-					'<span>' + YWEB_ICONS.remote + ' Fernbedienung</span>' +
+					'<span>' + YWEB_ICONS.remote + ' ' + ywebL('tools.remote_sub', 'Remote control') + '</span>' +
 					_ywebCloseBtn('ywebCloseRemote()') +
 				'</div>' +
 				ywebGetRemoteHTML({ id: 'yweb-remote-modal-panel', onKey: onKey }) +
@@ -922,6 +922,14 @@ function ywebCloseModal(id) {
 	var backdrop = document.getElementById(id);
 	if (backdrop) backdrop.classList.remove('open');
 	document.body.style.overflow = '';
+}
+
+// Companion des geteilten .yweb-file-Controls (yweb.css): zeigt den
+// gewaehlten Dateinamen im Control an — onchange="ywebFileName(this)"
+function ywebFileName(inp) {
+	var box = inp.closest('.yweb-file');
+	var n = box && box.querySelector('.yweb-file-name');
+	if (n) n.textContent = (inp.files && inp.files.length) ? inp.files[0].name : '–';
 }
 
 // ═══ Verzeichnis-/Datei-Picker (nutzt FileCGI action=list) ═══
@@ -1420,11 +1428,11 @@ function ywebShowMessageDialog() {
 	pop.innerHTML =
 		'<button type="button" class="yweb-popover-close" onclick="document.getElementById(\'yweb-message-pop\').classList.remove(\'open\')" aria-label="Close">\u00d7</button>' +
 		'<form onsubmit="return false">' +
-			'<input type="text" id="yweb-msg-text" placeholder="Nachricht eingeben\u2026" maxlength="255">' +
+			'<input type="text" id="yweb-msg-text" placeholder="' + ywebL('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
 			'<div class="yweb-popover-actions">' +
 				'<small id="yweb-msg-result">\u00a0</small>' +
-				'<button type="button" class="outline" onclick="ywebSendMessage(\'nmsg\')">Nachricht</button>' +
-				'<button type="button" onclick="ywebSendMessage(\'popup\')">Popup</button>' +
+				'<button type="button" class="yweb-btn" onclick="ywebSendMessage(\'nmsg\')">' + ywebL('tools.message', 'Message') + '</button>' +
+				'<button type="button" class="yweb-btn primary" onclick="ywebSendMessage(\'popup\')">Popup</button>' +
 			'</div>' +
 		'</form>';
 	document.body.appendChild(pop);

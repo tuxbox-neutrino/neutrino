@@ -585,6 +585,7 @@ yw.tools.files=Files
 yw.tools.files_sub=File manager
 yw.tools.remote_sub=Remote control
 yw.tools.message=Message
+yw.tools.message_ph=Enter message…
 yw.tools.message_sub=Send a message to the box
 yw.tools.shell_sub=Command line
 yw.tools.sysinfo_sub=Hardware and software

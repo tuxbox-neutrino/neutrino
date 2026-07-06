@@ -121,6 +121,10 @@ window.YWEB_L = {
 	"set.mnt_pass": "{=L:yw.set.mnt_pass=}",
 	"set.mnt_user": "{=L:yw.set.mnt_user=}",
 	"si.network": "{=L:yw.si.network=}",
+	// Tools-Dialoge (yweb-header.js: Nachricht-Popover, Remote-Titel)
+	"tools.message": "{=L:yw.tools.message=}",
+	"tools.message_ph": "{=L:yw.tools.message_ph=}",
+	"tools.remote_sub": "{=L:yw.tools.remote_sub=}",
 	// Sprachwechsler (yweb-header.js)
 	"lang.title": "{=L:yw.lang.title=}",
 	"lang.none": "{=L:yw.lang.none=}",

@@ -181,9 +181,22 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=6"></script>
-	<script src="/yweb-header.js?v=37"></script>
+	<script src="/Y_Lang.yjs?v=7"></script>
+	<script src="/yweb-header.js?v=38"></script>
 	<script>
+		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
+		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst
+		// ohne Icon
+		function sIcon(p) { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '<\/svg>'; }
+		var I_REFRESH = sIcon('<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>');
+		var I_ROTATE = sIcon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>');
+		var I_POWER = sIcon('<path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>');
+		var I_REC = sIcon('<circle cx="12" cy="12" r="7"/>');
+		var I_STOP = sIcon('<rect x="6" y="6" width="12" height="12" rx="1"/>');
+		var I_LOCK = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>');
+		var I_UNLOCK = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>');
+		var I_INSTALL = sIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>');
+
 		async function bcAction(label, endpoint, params, confirmText) {
 			if (confirmText && !confirm(confirmText)) return;
 			try {
@@ -206,24 +219,29 @@
 		async function showBoxControl() {
 			var body =
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">Box</div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.restart_gui=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.restart_btn=}\', \'restart\', null, \'{=L:yw.bc.restart_confirm=}\')">{=L:yw.bc.restart_btn=}</button></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.reboot=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'Reboot\', \'reboot\', null, \'{=L:yw.bc.reboot_confirm=}\')">Reboot</button></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.shutdown=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'Shutdown\', \'shutdown\', null, \'{=L:yw.bc.shutdown_confirm=}\')">{=L:yw.bc.shutdown_btn=}</button></div></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.restart_gui=}</label><span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.restart_btn=}\', \'restart\', null, \'{=L:yw.bc.restart_confirm=}\')">' + I_REFRESH + '{=L:yw.bc.restart_btn=}</button></span></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.reboot=}</label><span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn danger" onclick="bcAction(\'Reboot\', \'reboot\', null, \'{=L:yw.bc.reboot_confirm=}\')">' + I_ROTATE + 'Reboot</button></span></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.shutdown=}</label><span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn danger" onclick="bcAction(\'Shutdown\', \'shutdown\', null, \'{=L:yw.bc.shutdown_confirm=}\')">' + I_POWER + '{=L:yw.bc.shutdown_btn=}</button></span></div></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.bc.recording=} <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.instant_rec=}</label><span>' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Start\', \'setmode\', {record: \'start\'})">Start</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Stop\', \'setmode\', {record: \'stop\'})">Stop</button></span></div></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.instant_rec=}</label><span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Start\', \'setmode\', {record: \'start\'})">' + I_REC + 'Start</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Stop\', \'setmode\', {record: \'stop\'})">' + I_STOP + 'Stop</button></span></div></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.tools.remote_sub=}</div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.rc_at_box=}</label><span>' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.lock=}\', \'rc\', \'lock\')">{=L:yw.bc.lock=}</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.unlock=}\', \'rc\', \'unlock\')">{=L:yw.bc.unlock=}</button></span></div></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.rc_at_box=}</label><span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.lock=}\', \'rc\', \'lock\')">' + I_LOCK + '{=L:yw.bc.lock=}</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.unlock=}\', \'rc\', \'unlock\')">' + I_UNLOCK + '{=L:yw.bc.unlock=}</button></span></div></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">Zapit <small style="color:var(--pico-muted-color)">{=L:yw.bc.script_dep=}</small></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.resolution=}</label><span>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.resolution=}</label><span class="yweb-row-actions">' +
 				'<button type="button" class="yweb-btn" onclick="bcExec(\'1080\', \'Y_Tools&resolution&1080\')">1080</button> ' +
 				'<button type="button" class="yweb-btn" onclick="bcExec(\'720\', \'Y_Tools&resolution&720\')">720</button> ' +
 				'<button type="button" class="yweb-btn" onclick="bcExec(\'PAL\', \'Y_Tools&resolution&pal\')">PAL</button></span></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.reload_channels=}</label><button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.reload=}\', \'reloadchannels\', null)">{=L:yw.bc.reload=}</button></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.tuner_reset=}</label><button type="button" class="yweb-btn" onclick="bcExec(\'{=L:yw.bc.tuner_reset=}\', \'Y_Tools&reset_tuner\')">Reset</button></div></div>';
+				'<div class="yweb-form-row"><label>{=L:yw.bc.reload_channels=}</label><span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.reload=}\', \'reloadchannels\', null)">' + I_REFRESH + '{=L:yw.bc.reload=}</button></span></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.bc.tuner_reset=}</label><span class="yweb-row-actions">' +
+				'<button type="button" class="yweb-btn" onclick="bcExec(\'{=L:yw.bc.tuner_reset=}\', \'Y_Tools&reset_tuner\')">' + I_ROTATE + 'Reset</button></span></div></div>';
 			ywebModal('bcModal', 'Boxcontrol', body);
 			try {
 				var st = await ywebApi('setmode', {status: ''});
@@ -234,9 +252,12 @@
 
 		function showInstaller() {
 			var body =
-				'<div class="yweb-form-row"><label>{=L:yw.inst.file=}</label><span>' +
-				'<input type="file" id="instFile" style="max-width:220px"> ' +
-				'<button type="button" class="yweb-btn" onclick="doInstall(this)">{=L:yw.inst.install=}</button></span></div>' +
+				'<div class="yweb-form-row"><label>{=L:yw.inst.file=}</label>' +
+				'<span class="yweb-row-actions">' +
+				'<label class="yweb-file"><input type="file" id="instFile" onchange="ywebFileName(this)">' +
+				'<span class="yweb-file-btn">{=L:yw.set.choose_file=}</span>' +
+				'<span class="yweb-file-name">&ndash;</span></label>' +
+				'<button type="button" class="yweb-btn primary" onclick="doInstall(this)">' + I_INSTALL + '{=L:yw.inst.install=}</button></span></div>' +
 				'<pre id="instOut" style="max-height:220px;overflow:auto;background:var(--pico-card-sectioning-background-color);padding:0.5rem;border-radius:4px">\u00a0</pre>';
 			ywebModal('instModal', '{=L:yw.inst.title=}', body);
 		}

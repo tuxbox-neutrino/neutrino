@@ -585,6 +585,7 @@ yw.tools.files=Dateien
 yw.tools.files_sub=Dateiverwaltung
 yw.tools.remote_sub=Fernbedienung
 yw.tools.message=Nachricht
+yw.tools.message_ph=Nachricht eingeben…
 yw.tools.message_sub=Meldung an Box senden
 yw.tools.shell_sub=Kommandozeile
 yw.tools.sysinfo_sub=Hardware und Software

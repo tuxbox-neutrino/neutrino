@@ -318,8 +318,8 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=6"></script>
-	<script src="/yweb-header.js?v=37"></script>
+	<script src="/Y_Lang.yjs?v=7"></script>
+	<script src="/yweb-header.js?v=38"></script>
 	<script src="/settings-registry.js?v=8"></script>
 	<script>
 	var configData = {};
@@ -470,11 +470,7 @@
 			'<span class="yweb-file-btn">{=L:yw.set.choose_file=}</span>' +
 			'<span class="yweb-file-name">&ndash;</span></label>';
 	}
-	function ywebFileName(inp) {
-		var box = inp.closest('.yweb-file');
-		var n = box && box.querySelector('.yweb-file-name');
-		if (n) n.textContent = (inp.files && inp.files.length) ? inp.files[0].name : '–';
-	}
+	// ywebFileName (onchange-Companion des Controls) liefert yweb-header.js
 
 	// Rechtsbuendiger Save-Button fuer Panels mit eigenem Config-Zyklus
 	// (ExtConfig, Erweiterungen, WoL) — Optik wie die zentrale Save-Leiste.

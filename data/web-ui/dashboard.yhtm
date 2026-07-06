@@ -1199,8 +1199,8 @@
 	</footer>
 
 	<script src="/jquery/jquery.min.js"></script>
-	<script src="/Y_Lang.yjs?v=6"></script>
-	<script src="/yweb-header.js?v=37"></script>
+	<script src="/Y_Lang.yjs?v=7"></script>
+	<script src="/yweb-header.js?v=38"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;
