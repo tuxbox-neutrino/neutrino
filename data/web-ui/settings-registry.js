@@ -7,9 +7,31 @@
  *            api: {endpoint, params, raw?} }        — v4 call button
  * Optional: showIf: {key, value} for conditional visibility
  */
+// M5b: Sidebar-Gruppen — Reihenfolge = Anzeige-Reihenfolge der Sidebar.
+// Jede Registry-Kategorie traegt group:'<id>'; Extension-Kategorien
+// (EXT_SETTINGS_CATS) defaulten in buildNavigation() auf 'ext'.
+var SETTINGS_GROUPS = [
+	{ id: 'av',   label: ywebL('set.grp_av', 'Picture & Sound') },
+	{ id: 'disp', label: ywebL('set.grp_disp', 'Displays') },
+	{ id: 'sys',  label: ywebL('set.grp_sys', 'System') },
+	{ id: 'net',  label: ywebL('set.grp_net', 'Network & Sources') },
+	{ id: 'ui',   label: ywebL('set.grp_ui', 'User interface') },
+	{ id: 'ext',  label: ywebL('set.grp_ext', 'Extensions') }
+];
+
+// 13x13-Sidebar-Icons (feather-artig, stroke=currentColor erbt den
+// Button-Zustand muted/aktiv)
+function regIcon(paths) {
+	return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+}
+// Fallback fuer Kategorien ohne eigenes Icon (Extension-Kategorien)
+var SETTINGS_DEFAULT_ICON = regIcon('<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>');
+
 var SETTINGS_REGISTRY = [
 	{
 		id: 'video',
+		group: 'av',
+		icon: regIcon('<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>'),
 		label: 'Video',
 		sections: [
 			{
@@ -37,6 +59,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'audio',
+		group: 'av',
+		icon: regIcon('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'),
 		label: 'Audio',
 		sections: [
 			{
@@ -89,6 +113,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'lcd',
+		group: 'disp',
+		icon: regIcon('<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>'),
 		label: 'LCD',
 		sections: [
 			{
@@ -113,6 +139,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'glcd',
+		group: 'disp',
+		icon: regIcon('<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'),
 		label: 'GLCD',
 		sections: [
 			{
@@ -130,6 +158,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'cec',
+		group: 'av',
+		icon: regIcon('<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>'),
 		label: 'HDMI/CEC',
 		sections: [
 			{
@@ -147,6 +177,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'system',
+		group: 'sys',
+		icon: regIcon('<rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>'),
 		label: ywebL('reg.system', 'System'),
 		sections: [
 			{
@@ -162,41 +194,57 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'mounts',
+		group: 'net',
+		icon: regIcon('<line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/>'),
 		label: ywebL('reg.mounts', 'Network mounts'),
 		custom: true
 	},
 	{
 		id: 'plugins',
+		group: 'ext',
+		icon: regIcon('<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>'),
 		label: 'Plugins',
 		custom: true
 	},
 	{
 		id: 'wol',
+		group: 'net',
+		icon: regIcon('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'),
 		label: 'Wake-on-LAN',
 		custom: true
 	},
 	{
 		id: 'xmltv',
+		group: 'net',
+		icon: regIcon('<path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><line x1="2" y1="20" x2="2.01" y2="20"/>'),
 		label: ywebL('reg.webtv_sources', 'WebTV sources'),
 		custom: true
 	},
 	{
 		id: 'zapitupload',
+		group: 'sys',
+		icon: regIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'),
 		label: 'Zapit-Upload',
 		custom: true
 	},
 	{
 		id: 'extensions',
+		group: 'ext',
+		icon: regIcon('<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>'),
 		label: ywebL('set.ext_title', 'Extensions'),
 		custom: true
 	},
 	{
 		id: 'backup',
+		group: 'sys',
+		icon: regIcon('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>'),
 		label: ywebL('reg.backup', 'Backup'),
 		custom: true
 	},
 	{
 		id: 'personalize',
+		group: 'ui',
+		icon: regIcon('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
 		label: ywebL('reg.personalize', 'Personalization'),
 		sections: [
 			{
@@ -247,6 +295,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'buttons',
+		group: 'ui',
+		icon: regIcon('<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'),
 		label: ywebL('reg.keys', 'Keys'),
 		sections: [
 			{
@@ -269,6 +319,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'nhttpd',
+		group: 'sys',
+		icon: regIcon('<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>'),
 		label: 'Webserver',
 		config: 'nhttpd',
 		sections: [
@@ -297,6 +349,8 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'yweb',
+		group: 'sys',
+		icon: regIcon('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'),
 		label: 'yWeb',
 		config: 'yweb',
 		sections: [

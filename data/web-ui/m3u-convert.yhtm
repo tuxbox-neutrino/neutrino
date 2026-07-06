@@ -53,7 +53,7 @@
 		</div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=5"></script>
+	<script src="/Y_Lang.yjs?v=6"></script>
 	<script src="/yweb-header.js?v=37"></script>
 	<script>
 		document.getElementById('m3uFile').addEventListener('change', function() {

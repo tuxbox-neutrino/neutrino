@@ -10,18 +10,17 @@
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
-		   footer stays below, like every other page */
+		   footer stays below, like every other page.
+		   M5b: randlos wie bouquets/timer — keine Zentrierung mehr */
 		.yweb-settings-layout {
 			display: flex;
-			max-width: 920px;
-			margin: 0 auto;
-			padding: 1rem;
-			gap: 1.2rem;
+			gap: 0.5rem;
+			padding: 0.5rem;
 		}
 
-		/* Sidebar */
+		/* Sidebar — Panel-Karte in der Optik von bouquets/timer */
 		.yweb-settings-sidebar {
-			width: 180px;
+			width: 230px;
 			flex-shrink: 0;
 			position: sticky;
 			top: 4.5rem;
@@ -29,17 +28,42 @@
 			max-height: calc(100vh - 5rem);
 			overflow-y: auto;
 			overflow-x: hidden;
-			display: block;
+			background: var(--pico-card-background-color);
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--yweb-radius);
+		}
+		.settings-nav-head {
+			padding: 0.5rem 0.85rem;
+			font-size: var(--yweb-font-sm);
+			font-weight: 600;
+			color: var(--pico-color);
+			border-bottom: 1px solid var(--pico-muted-border-color);
 		}
 		#settingsSidebar {
 			display: block;
+			padding: 0.1rem 0 0.25rem;
+		}
+		/* Gruppen-Zwischentitel (Optik wie .yweb-form-section-title).
+		   Kompakte Zeilen: alle 6 Gruppen + 17 Einträge müssen bis
+		   900px Fensterhöhe ohne Sidebar-Scroll sichtbar sein */
+		#settingsSidebar .grp {
+			padding: 0.4rem 0.75rem 0.15rem;
+			font-size: var(--yweb-font-xs);
+			color: var(--yweb-accent);
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			font-weight: 600;
+			line-height: 1.2;
 		}
 		#settingsSidebar button {
-			display: block;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
 			width: 100%;
 			text-align: left;
-			padding: 0.5rem 0.75rem;
+			padding: 0.3rem 0.75rem;
 			font-size: var(--yweb-font-sm);
+			line-height: 1.2;
 			color: var(--pico-muted-color);
 			background: none;
 			border: none;
@@ -48,6 +72,9 @@
 			cursor: pointer;
 			transition: var(--yweb-transition);
 			margin: 0;
+		}
+		#settingsSidebar button svg {
+			flex-shrink: 0;
 		}
 		#settingsSidebar button:hover {
 			color: var(--pico-color);
@@ -77,10 +104,14 @@
 			color: var(--pico-color);
 		}
 
-		/* Content area */
+		/* Content area — Karte füllt die Restbreite, der Formular-Inhalt
+		   bleibt für die Lesbarkeit auf 720px begrenzt */
 		.yweb-settings-content {
 			flex: 1;
 			min-width: 0;
+		}
+		.settings-card > :not(.settings-card-header) {
+			max-width: 720px;
 		}
 
 		/* Panels */
@@ -250,6 +281,7 @@
 	<main class="yweb-settings-layout">
 		<!-- Sidebar -->
 		<div class="yweb-settings-sidebar">
+			<div class="settings-nav-head">{=L:yw.nav.settings=}</div>
 			<nav id="settingsSidebar"></nav>
 		</div>
 
@@ -262,9 +294,9 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=5"></script>
+	<script src="/Y_Lang.yjs?v=6"></script>
 	<script src="/yweb-header.js?v=37"></script>
-	<script src="/settings-registry.js?v=7"></script>
+	<script src="/settings-registry.js?v=8"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -946,25 +978,40 @@
 		}
 	}
 
+	// M5b: Sidebar nach SETTINGS_GROUPS gruppiert (Zwischentitel + Icon je
+	// Kategorie), Mobile-Select mit <optgroup> je Gruppe. Registry-Labels
+	// sind vertrauenswürdige Konstanten (dürfen Entities enthalten) und
+	// bleiben roh; Extension-Labels kommen aus Manifesten und werden escapt.
 	function buildNavigation() {
 		var sidebarHtml = '';
 		var mobileHtml = '';
+		var groups = {};
+		SETTINGS_GROUPS.forEach(function(g) { groups[g.id] = []; });
 
 		SETTINGS_REGISTRY.forEach(function(cat) {
-			sidebarHtml += '<button data-cat="' + cat.id + '"' +
-				(cat.id === activeCategory ? ' class="active"' : '') +
-				' onclick="switchCategory(\'' + cat.id + '\')">' + cat.label + '</button>';
-			mobileHtml += '<option value="' + cat.id + '"' +
-				(cat.id === activeCategory ? ' selected' : '') + '>' + cat.label + '</option>';
+			(groups[cat.group] || groups.ext).push({cat: cat, esc: false});
 		});
-
 		Object.keys(EXT_SETTINGS_CATS).forEach(function(cid) {
 			var cat = EXT_SETTINGS_CATS[cid];
-			sidebarHtml += '<button data-cat="' + cat.id + '"' +
-				(cat.id === activeCategory ? ' class="active"' : '') +
-				' onclick="switchCategory(\'' + cat.id + '\')">' + escapeHtml(cat.label) + '</button>';
-			mobileHtml += '<option value="' + cat.id + '"' +
-				(cat.id === activeCategory ? ' selected' : '') + '>' + escapeHtml(cat.label) + '</option>';
+			(groups[cat.group] || groups.ext).push({cat: cat, esc: true});
+		});
+
+		SETTINGS_GROUPS.forEach(function(g) {
+			var entries = groups[g.id];
+			if (!entries.length) return;
+			sidebarHtml += '<div class="grp">' + g.label + '</div>';
+			mobileHtml += '<optgroup label="' + escapeHtml(g.label) + '">';
+			entries.forEach(function(e) {
+				var label = e.esc ? escapeHtml(e.cat.label) : e.cat.label;
+				var icon = e.cat.icon || SETTINGS_DEFAULT_ICON;
+				sidebarHtml += '<button data-cat="' + e.cat.id + '"' +
+					(e.cat.id === activeCategory ? ' class="active"' : '') +
+					' onclick="switchCategory(\'' + e.cat.id + '\')">' + icon +
+					'<span>' + label + '</span></button>';
+				mobileHtml += '<option value="' + e.cat.id + '"' +
+					(e.cat.id === activeCategory ? ' selected' : '') + '>' + label + '</option>';
+			});
+			mobileHtml += '</optgroup>';
 		});
 
 		document.getElementById('settingsSidebar').innerHTML = sidebarHtml;
