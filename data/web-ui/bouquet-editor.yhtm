@@ -8,36 +8,53 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=66">
 	<style>
-		.bqe-wrap { max-width: 1180px; margin: 0 auto; padding: 0.8rem; }
+		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
+		   Breite, die drei Panels fuellen die Viewport-Hoehe */
+		.bqe-wrap { max-width: none; margin: 0; padding: 0.8rem 1.2rem; }
 		.bqe-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.8rem; }
 		.bqe-mode { display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; }
 		.bqe-mode select { margin: 0; padding: 0.2rem 0.4rem; height: auto; }
 		.bqe-dirty { display: none; align-items: center; gap: 0.3rem; color: var(--yweb-accent); border: 1px solid var(--yweb-accent); border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.75rem; }
 		.bqe-dirty.on { display: inline-flex; }
-		.bqe-grid { display: grid; grid-template-columns: 300px 1fr 1fr; gap: 0.8rem; }
-		.bqe-pane { min-height: 420px; }
-		.bqe-pane .yweb-card-body { max-height: calc(100vh - 300px); padding: 0.25rem 0.3rem; }
+		.bqe-grid { display: grid; grid-template-columns: minmax(260px, 320px) 1fr 1fr; gap: 0.8rem; }
+		.bqe-pane { min-height: 320px; height: calc(100dvh - 200px); }
+		.bqe-pane .yweb-card-body { padding: 0.25rem 0.3rem; }
 		.bqe-pane .yweb-card-title small { color: var(--pico-muted-color); font-weight: 400; }
-		.bqe-list li { display: flex; align-items: center; gap: 0.35rem; padding: 0.28rem 0.4rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
+		/* Kompakte Zeilen: Picos li-Margin und die button-margin-bottom
+		   (1rem!) neutralisieren, sonst blaehen Zeilen mit Knoepfen auf
+		   ~51px auf; Ziel ~30px */
+		.bqe-list li { display: flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.22rem 0.4rem; border-radius: 4px; font-size: 0.78rem; line-height: 1.3; cursor: pointer; }
 		.bqe-list li:hover { background: rgba(255,255,255,0.04); }
 		[data-theme="light"] .bqe-list li:hover { background: rgba(0,0,0,0.05); }
 		.bqe-list li.sel { background: rgba(255,165,0,0.12); outline: 1px solid var(--yweb-accent); }
 		.bqe-list li .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; }
+		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; font-variant-numeric: tabular-nums; }
+		.bqe-list li .flags svg { width: 11px; height: 11px; vertical-align: -1px; }
 		.bqe-list li.bqe-empty { color: var(--pico-muted-color); cursor: default; }
-		.bqe-mini { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.75rem; line-height: 1.5; }
+		.bqe-mini { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; margin: 0; background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.75rem; line-height: 1.5; }
 		.bqe-mini:hover { color: var(--yweb-accent); border-color: var(--yweb-accent); }
 		.bqe-mini svg { width: 12px; height: 12px; flex-shrink: 0; }
+		.bqe-mini.attn { color: #fff; background: var(--yweb-accent); border-color: var(--yweb-accent); }
 		/* Bouquet-Zeilen: Aktionen erst bei Hover bzw. Auswahl zeigen,
-		   sonst frisst die Knopfleiste die 300px-Spalte auf und die
-		   Namen trunkieren zu "1…" (Touch: Tap waehlt aus → Aktionen) */
+		   sonst frisst die Knopfleiste die Spalte auf und die Namen
+		   trunkieren zu "1…" (Touch: Tap waehlt aus → Aktionen) */
 		#bqeBouquets li .bqe-mini { display: none; }
 		#bqeBouquets li:hover .bqe-mini,
 		#bqeBouquets li.sel .bqe-mini { display: inline-flex; }
+		/* Drag & Drop: Einfuegelinie oben/unten, Ziel-Rahmen der Liste */
+		.bqe-list li[draggable="true"] { cursor: grab; }
+		.bqe-list li[draggable="true"]:active { cursor: grabbing; }
+		.bqe-list li.drop-top { box-shadow: inset 0 2px 0 var(--yweb-accent); }
+		.bqe-list li.drop-bottom { box-shadow: inset 0 -2px 0 var(--yweb-accent); }
+		#bqeChannels.drop-hover { outline: 1px dashed var(--yweb-accent); outline-offset: -2px; border-radius: 4px; }
 		.bqe-search { flex: 1; min-width: 140px; }
 		.bqe-search input { width: 100%; padding: 0.3rem 0.5rem !important; height: auto !important; margin: 0 !important; font-size: 0.8rem; }
 		.bqe-hint { color: var(--pico-muted-color); font-size: 0.75rem; margin-top: 0.6rem; }
-		@media (max-width: 900px) { .bqe-grid { grid-template-columns: 1fr; } .bqe-pane { min-height: 240px; } }
+		@media (max-width: 900px) {
+			.bqe-grid { grid-template-columns: 1fr; }
+			.bqe-pane { min-height: 240px; height: auto; }
+			.bqe-pane .yweb-card-body { max-height: calc(100vh - 300px); }
+		}
 	</style>
 </head>
 <body>
@@ -93,14 +110,14 @@
 						</svg>
 						<span id="bqeChTitle">{=L:yw.bqe.channels=}</span>
 					</h3>
-					<button type="button" class="bqe-mini" onclick="bqeApplyChannels(this)" title="{=L:yw.bqe.apply_title=}">
+					<button type="button" class="bqe-mini" id="bqeApplyBtn" onclick="bqeApplyChannels(this)" title="{=L:yw.bqe.apply_title=}">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<polyline points="20 6 9 17 4 12"/>
 						</svg>
 						{=L:yw.bqe.apply=}</button>
 				</header>
 				<div class="yweb-card-body">
-					<ul class="yweb-plain-list bqe-list" id="bqeChannels"></ul>
+					<ul class="yweb-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
 				</div>
 			</article>
 			<article class="yweb-card yweb-panel-card yweb-card-sm bqe-pane">
@@ -109,7 +126,7 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
 						</svg>
-						{=L:yw.bqe.all_channels=}
+						{=L:yw.bqe.all_channels=} <small id="bqeAllCount"></small>
 					</h3>
 					<span class="bqe-search"><input id="bqeFilter" placeholder="{=L:yw.bqe.search=}" oninput="bqeRenderAll()"></span>
 				</header>
@@ -142,15 +159,19 @@
 		var I_KEY = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>');
 		var I_X = sIcon('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>');
 		var I_PLUS = sIcon('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>');
+		var I_EYEOFF = sIcon('<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>');
 
 		function setDirty(d) {
 			bqeChanDirty = d;
 			document.getElementById('bqeDirty').classList.toggle('on', d);
+			// Uebernehmen hervorheben, solange die Arbeitskopie abweicht
+			document.getElementById('bqeApplyBtn').classList.toggle('attn', d);
 		}
 
 		async function bqeReloadAll() {
 			await Promise.all([bqeLoadBouquets(), bqeLoadAllChannels()]);
 			if (bqeSelected !== null) await bqeLoadChannels(bqeSelected);
+			else bqeRenderChannels(); // Leerzustand "Bouquet links waehlen"
 		}
 
 		async function bqeLoadBouquets() {
@@ -190,7 +211,7 @@
 				var nr = parseInt(b.number);
 				html += '<li class="' + (nr === bqeSelected ? 'sel' : '') + '" onclick="bqeSelect(' + nr + ')">' +
 					'<span class="nm">' + nr + ' ' + esc(b.name) + '</span>' +
-					'<span class="flags">' + (b.hidden === 'true' ? '&#128683;' : '') + (b.locked === 'true' ? '&#128274;' : '') + '</span>' +
+					'<span class="flags">' + (b.hidden === 'true' ? I_EYEOFF : '') + (b.locked === 'true' ? I_KEY : '') + '</span>' +
 					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_up=}" onclick="event.stopPropagation();bqeMove(' + nr + ', \'up\')">' + I_UP + '</button>' +
 					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_down=}" onclick="event.stopPropagation();bqeMove(' + nr + ', \'down\')">' + I_DOWN + '</button>' +
 					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_rename=}" onclick="event.stopPropagation();bqeRename(' + nr + ', \'' + escapeJs(b.name) + '\')">' + I_EDIT + '</button>' +
@@ -208,13 +229,16 @@
 				bqeSelected === null ? '{=L:yw.bqe.channels=}' : ('{=L:yw.bqe.channels=} #' + bqeSelected + ' (' + bqeChan.length + ')');
 			var html = '';
 			bqeChan.forEach(function(c, i) {
-				html += '<li><span class="nm">' + esc(c.name) + '</span>' +
+				html += '<li draggable="true" ondragstart="bqeDragMove(event, ' + i + ')"' +
+					' ondragover="bqeRowOver(event, ' + i + ')" ondragleave="bqeRowLeave(event)" ondrop="bqeRowDrop(event, ' + i + ')">' +
+					'<span class="flags">' + (i + 1) + '</span>' +
+					'<span class="nm">' + esc(c.name) + '</span>' +
 					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_up=}" onclick="bqeChMove(' + i + ', -1)">' + I_UP + '</button>' +
 					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_down=}" onclick="bqeChMove(' + i + ', 1)">' + I_DOWN + '</button>' +
 					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_remove=}" onclick="bqeChRemove(' + i + ')">' + I_X + '</button></li>';
 			});
 			ul.innerHTML = html || '<li class="bqe-empty">' +
-				(bqeSelected === null ? '{=L:yw.bqe.pick_left=}' : '{=L:yw.bqe.empty=}') + '</li>';
+				(bqeSelected === null ? '{=L:yw.bqe.pick_left=}' : '{=L:yw.bqe.empty_drop=}') + '</li>';
 		}
 
 		function bqeRenderAll() {
@@ -223,15 +247,25 @@
 			bqeChan.forEach(function(c) { inBq[c.id] = true; });
 			var html = '';
 			var shown = 0;
-			for (var i = 0; i < bqeAllChan.length && shown < 400; i++) {
+			var hits = 0;
+			for (var i = 0; i < bqeAllChan.length; i++) {
 				var c = bqeAllChan[i];
 				if (f && String(c.name).toLowerCase().indexOf(f) === -1) continue;
+				hits++;
+				if (shown >= 400) continue; // Rest nur zaehlen
 				shown++;
-				html += '<li><span class="nm">' + esc(c.name) + '</span>' +
+				var idj = escapeJs(c.id), nmj = escapeJs(c.name);
+				html += '<li draggable="true" ondragstart="bqeDragAdd(event, \'' + idj + '\', \'' + nmj + '\')"' +
+					' ondblclick="bqeChAdd(\'' + idj + '\', \'' + nmj + '\')">' +
+					'<span class="nm">' + esc(c.name) + '</span>' +
 					(inBq[c.id] ? '<span class="flags">{=L:yw.bqe.in_bouquet=}</span>' :
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_add=}" onclick="bqeChAdd(\'' + escapeJs(c.id) + '\', \'' + escapeJs(c.name) + '\')">' + I_PLUS + '</button>') +
+					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_add=}" onclick="bqeChAdd(\'' + idj + '\', \'' + nmj + '\')">' + I_PLUS + '</button>') +
 					'</li>';
 			}
+			if (hits > shown)
+				html += '<li class="bqe-empty">+' + (hits - shown) + ' {=L:yw.bqe.more_hits=}</li>';
+			document.getElementById('bqeAllCount').textContent =
+				f ? (hits + '/' + bqeAllChan.length) : String(bqeAllChan.length);
 			document.getElementById('bqeAll').innerHTML = html || '<li class="bqe-empty">{=L:yw.bqe.no_hits=}</li>';
 		}
 
@@ -241,6 +275,95 @@
 			await bqeLoadChannels(nr);
 			bqeRenderAll();
 		}
+
+		// ---- Drag & Drop: Kanaele im Bouquet sortieren und aus
+		// "Alle Kanaele" herueberziehen (Arbeitskopie; Uebernehmen +
+		// Speichern persistieren). Knoepfe bleiben als Touch-Fallback.
+		var bqeDrag = null; // {type:'move', from} | {type:'add', id, name}
+
+		function bqeDragMove(e, i) {
+			bqeDrag = { type: 'move', from: i };
+			e.dataTransfer.effectAllowed = 'move';
+			try { e.dataTransfer.setData('text/plain', 'bqe'); } catch (err) {}
+		}
+
+		function bqeDragAdd(e, id, name) {
+			bqeDrag = { type: 'add', id: id, name: name };
+			e.dataTransfer.effectAllowed = 'copy';
+			try { e.dataTransfer.setData('text/plain', 'bqe'); } catch (err) {}
+		}
+
+		function bqeDropOk() {
+			return bqeDrag && (bqeDrag.type === 'move' || bqeSelected !== null);
+		}
+
+		function bqeRowOver(e, i) {
+			if (!bqeDropOk()) return;
+			e.preventDefault();
+			e.stopPropagation();
+			var r = e.currentTarget.getBoundingClientRect();
+			var below = (e.clientY - r.top) > r.height / 2;
+			e.currentTarget.classList.toggle('drop-top', !below);
+			e.currentTarget.classList.toggle('drop-bottom', below);
+			e.dataTransfer.dropEffect = bqeDrag.type === 'move' ? 'move' : 'copy';
+		}
+
+		function bqeRowLeave(e) {
+			e.currentTarget.classList.remove('drop-top', 'drop-bottom');
+		}
+
+		function bqeRowDrop(e, i) {
+			if (!bqeDropOk()) return;
+			e.preventDefault();
+			e.stopPropagation();
+			var r = e.currentTarget.getBoundingClientRect();
+			var below = (e.clientY - r.top) > r.height / 2;
+			e.currentTarget.classList.remove('drop-top', 'drop-bottom');
+			bqeInsertAt(below ? i + 1 : i);
+		}
+
+		function bqeListOver(e) {
+			if (!bqeDropOk()) return;
+			e.preventDefault();
+			e.currentTarget.classList.add('drop-hover');
+			e.dataTransfer.dropEffect = bqeDrag.type === 'move' ? 'move' : 'copy';
+		}
+
+		function bqeListLeave(e) {
+			if (e.target === e.currentTarget)
+				e.currentTarget.classList.remove('drop-hover');
+		}
+
+		function bqeListDrop(e) {
+			if (!bqeDropOk()) return;
+			e.preventDefault();
+			e.currentTarget.classList.remove('drop-hover');
+			bqeInsertAt(bqeChan.length); // freier Bereich = ans Ende
+		}
+
+		function bqeInsertAt(idx) {
+			if (bqeDrag.type === 'move') {
+				var it = bqeChan.splice(bqeDrag.from, 1)[0];
+				if (idx > bqeDrag.from) idx--;
+				bqeChan.splice(idx, 0, it);
+			} else {
+				var id = bqeDrag.id;
+				if (bqeChan.some(function(c) { return c.id === id; })) { bqeDrag = null; return; }
+				bqeChan.splice(idx, 0, { id: bqeDrag.id, name: bqeDrag.name });
+			}
+			bqeDrag = null;
+			setDirty(true);
+			bqeRenderChannels();
+			bqeRenderAll();
+		}
+
+		document.addEventListener('dragend', function() {
+			bqeDrag = null;
+			document.querySelectorAll('.drop-top, .drop-bottom').forEach(function(el) {
+				el.classList.remove('drop-top', 'drop-bottom');
+			});
+			document.getElementById('bqeChannels').classList.remove('drop-hover');
+		});
 
 		// ---- Kanal-Operationen (lokale Arbeitskopie, dann changebouquet)
 		function bqeChMove(i, d) {
