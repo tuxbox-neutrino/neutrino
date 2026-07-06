@@ -1200,7 +1200,7 @@
 
 	<script src="/jquery/jquery.min.js"></script>
 	<script src="/Y_Lang.yjs?v=7"></script>
-	<script src="/yweb-header.js?v=38"></script>
+	<script src="/yweb-header.js?v=39"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;
@@ -1986,33 +1986,10 @@
 	}
 
 
-	// M5d: Restreihen-Balancer — verteilt die 12 Grid-Tracks so, dass die
-	// letzte Reihe die Breite auffuellt (Kartenzahl ist variabel, weil
-	// Erweiterungen mit Slot 'dashboard' asynchron dazukommen).
-	// Idempotent; unterhalb 1100px uebernehmen die Media-Queries.
+	// M5d: Restreihen-Balancer — Logik lebt seit N2a geteilt in
+	// yweb-header.js (ywebBalanceGrid), Tools nutzt sie ebenfalls.
 	function ywebBalanceDashboard() {
-		var grid = document.querySelector('.yweb-dashboard');
-		if (!grid) return;
-		var cards = Array.prototype.filter.call(grid.children, function(c) {
-			return c.offsetParent !== null; // nur sichtbare zaehlen
-		});
-		if (window.innerWidth <= 1100) {
-			cards.forEach(function(c) {
-				c.classList.remove('dash-wide');
-				c.style.removeProperty('--dash-span');
-			});
-			return;
-		}
-		var per = Math.max(2, Math.min(6, Math.floor(window.innerWidth / 300)));
-		var span = Math.floor(12 / per);          // Grundspan
-		var rest = cards.length % per;            // Karten in letzter Reihe
-		cards.forEach(function(c, i) {
-			var s = span;
-			if (rest && i >= cards.length - rest)
-				s = Math.floor(12 / rest);        // letzte Reihe fuellt auf
-			c.style.setProperty('--dash-span', s);
-			c.classList.toggle('dash-wide', s >= 6);
-		});
+		ywebBalanceGrid('.yweb-dashboard', {wideClass: 'dash-wide'});
 	}
 
 	// Init

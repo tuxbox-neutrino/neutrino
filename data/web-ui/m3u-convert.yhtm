@@ -54,7 +54,7 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=7"></script>
-	<script src="/yweb-header.js?v=38"></script>
+	<script src="/yweb-header.js?v=39"></script>
 	<script>
 		document.getElementById('m3uFile').addEventListener('change', function() {
 			var files = this.files;

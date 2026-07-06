@@ -17,6 +17,20 @@
 			margin: 0 auto;
 		}
 
+		/* N2a: Desktop verteilt wie das Dashboard — 12 Tracks, der shared
+		   Balancer (ywebBalanceGrid) setzt --dash-span je Kachel; darunter
+		   bleibt das auto-fill-Layout unangetastet */
+		@media (min-width: 1101px) {
+			.yweb-tools-grid {
+				grid-template-columns: repeat(12, 1fr);
+				max-width: none;
+			}
+
+			.yweb-tools-grid .yweb-tool-card {
+				grid-column: span var(--dash-span, 4);
+			}
+		}
+
 		.yweb-tool-card {
 			display: flex;
 			flex-direction: column;
@@ -78,40 +92,6 @@
 
 	<main>
 		<div class="yweb-tools-grid">
-			<a href="/screenshot.yhtm" class="yweb-tool-card">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-					<circle cx="12" cy="13" r="3"/>
-				</svg>
-				<span>Screenshot</span>
-				<small>{=L:yw.tools.screenshot_sub=}</small>
-			</a>
-
-			<a href="/files.yhtm" class="yweb-tool-card">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-				</svg>
-				<span>{=L:yw.tools.files=}</span>
-				<small>{=L:yw.tools.files_sub=}</small>
-			</a>
-
-			<div class="yweb-tool-card" onclick="ywebShowRemote()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<rect x="7" y="2" width="10" height="20" rx="2"/>
-					<circle cx="12" cy="18" r="1"/>
-				</svg>
-				<span>Remote</span>
-				<small>{=L:yw.tools.remote_sub=}</small>
-			</div>
-
-			<div class="yweb-tool-card" onclick="ywebShowMessageDialog()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-				</svg>
-				<span>{=L:yw.tools.message=}</span>
-				<small>{=L:yw.tools.message_sub=}</small>
-			</div>
-
 			<a href="/cmd.yhtm" class="yweb-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
@@ -126,14 +106,6 @@
 				</svg>
 				<span>System Info</span>
 				<small>{=L:yw.tools.sysinfo_sub=}</small>
-			</a>
-
-			<a href="/settings.yhtm" class="yweb-tool-card">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-				</svg>
-				<span>{=L:yw.nav.settings=}</span>
-				<small>{=L:yw.tools.settings_sub=}</small>
 			</a>
 
 			<div class="yweb-tool-card" onclick="showBoxControl()">
@@ -168,21 +140,12 @@
 				<small>{=L:yw.tools.m3u_sub=}</small>
 			</a>
 
-			<div class="yweb-tool-card" onclick="sendStandby()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M18.36 6.64a9 9 0 11-12.73 0"/>
-					<line x1="12" y1="2" x2="12" y2="12"/>
-				</svg>
-				<span>Standby</span>
-				<small>{=L:yw.tools.standby_sub=}</small>
-			</div>
-
 		</div>
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=7"></script>
-	<script src="/yweb-header.js?v=38"></script>
+	<script src="/yweb-header.js?v=39"></script>
 	<script>
 		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
 		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst
@@ -283,17 +246,15 @@
 			btn.disabled = false;
 		}
 
-		async function sendStandby() {
-			try {
-				var st = await ywebApi('standby', {status: ''});
-				var inStandby = !!(st && st.standby === true);
-				if (!inStandby && !confirm('{=L:yw.sb.confirm=}')) return;
-				await ywebApi('standby', inStandby ? 'off' : 'on');
-				ywebShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
-			} catch (e) {
-				ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
-			}
+		// N2a: Kacheln in Dashboard-Verteilung packen (Erweiterungen mit
+		// Slot 'tools' kommen asynchron dazu, daher MutationObserver)
+		function balanceTools() {
+			ywebBalanceGrid('.yweb-tools-grid', {even: true});
 		}
+		balanceTools();
+		window.addEventListener('resize', balanceTools);
+		new MutationObserver(balanceTools)
+			.observe(document.querySelector('.yweb-tools-grid'), {childList: true});
 	</script>
 </body>
 </html>

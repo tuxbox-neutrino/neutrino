@@ -1899,6 +1899,58 @@ function ywebInit() {
 }
 
 /* ============================================
+   Grid-Balancer (shared, 12-Track-Raster)
+   ============================================ */
+
+/**
+ * Restreihen-Balancer: verteilt Karten eines 12-Track-Grids so, dass
+ * jede Reihe die Breite fuellt (Kartenzahl variabel, Erweiterungen
+ * injizieren asynchron). Idempotent; unterhalb des Breakpoints
+ * uebernehmen die Media-Queries der Seite. Das Grid braucht
+ * `grid-template-columns: repeat(12, 1fr)` und auf den Karten
+ * `grid-column: span var(--dash-span, 4)`.
+ * @param {string} selector - CSS-Selektor des Grids
+ * @param {Object} [opts]
+ * @param {number} [opts.cardMin=300] - Ziel-Kartenbreite fuer Karten/Reihe
+ * @param {number} [opts.maxPer=6] - Deckel Karten je Reihe (span >= 2)
+ * @param {number} [opts.breakpoint=1100] - darunter Spans entfernen
+ * @param {string} [opts.wideClass] - Klasse fuer Karten ab span >= 6
+ * @param {boolean} [opts.even] - Reihen glatt teilen, wenn die
+ *        Kartenzahl es hergibt (verhindert gestreckte Restreihen)
+ */
+function ywebBalanceGrid(selector, opts) {
+	opts = opts || {};
+	var grid = document.querySelector(selector);
+	if (!grid) return;
+	var cards = Array.prototype.filter.call(grid.children, function(c) {
+		return c.offsetParent !== null; // nur sichtbare zaehlen
+	});
+	if (window.innerWidth <= (opts.breakpoint || 1100)) {
+		cards.forEach(function(c) {
+			if (opts.wideClass) c.classList.remove(opts.wideClass);
+			c.style.removeProperty('--dash-span');
+		});
+		return;
+	}
+	var per = Math.max(2, Math.min(opts.maxPer || 6,
+		Math.floor(window.innerWidth / (opts.cardMin || 300))));
+	if (opts.even) {
+		var p = per;
+		while (p > 2 && cards.length % p) p--;
+		if (cards.length % p === 0) per = p; // nur wenn glatt aufgeht
+	}
+	var span = Math.floor(12 / per);          // Grundspan
+	var rest = cards.length % per;            // Karten in letzter Reihe
+	cards.forEach(function(c, i) {
+		var s = span;
+		if (rest && i >= cards.length - rest)
+			s = Math.floor(12 / rest);        // letzte Reihe fuellt auf
+		c.style.setProperty('--dash-span', s);
+		if (opts.wideClass) c.classList.toggle(opts.wideClass, s >= 6);
+	});
+}
+
+/* ============================================
    Mobile Accordion (shared card toggle/swipe)
    ============================================ */
 var _ywebAcc = null; /* accordion config */
