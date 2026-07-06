@@ -10,8 +10,10 @@
 	<style>
 		.m3u-wrap { max-width: 920px; margin: 0 auto; padding: 1rem; }
 		.m3u-wrap textarea { width: 100%; font-family: monospace; font-size: 0.8rem; }
-		.m3u-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+		.m3u-intro { color: var(--pico-muted-color); font-size: 0.85rem; }
+		.m3u-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.6rem; }
 		.m3u-meta label { display: flex; flex-direction: column; font-size: 0.8rem; gap: 0.2rem; }
+		.m3u-meta input { margin-bottom: 0; }
 		.m3u-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin: 0.8rem 0; }
 	</style>
 </head>
@@ -20,55 +22,85 @@
 	<div class="yweb-header-spacer"></div>
 
 	<main class="m3u-wrap">
-		<div class="settings-card" style="padding:1rem">
-			<h3>m3u → WebTV-XML</h3>
-			<p style="color:var(--pico-muted-color);font-size:0.85rem">
-				{=L:yw.m3u.intro1=} <code>webtv_usr.xml</code>.
-				{=L:yw.m3u.intro2=}</p>
+		<article class="yweb-card yweb-card-sm">
+			<header class="yweb-card-header">
+				<h3 class="yweb-card-title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
+					</svg>
+					m3u &rarr; WebTV-XML
+				</h3>
+			</header>
+			<div class="yweb-card-body">
+				<p class="m3u-intro">
+					{=L:yw.m3u.intro1=} <code>webtv_usr.xml</code>.
+					{=L:yw.m3u.intro2=}</p>
 
-			<div class="yweb-form-section-title">1. {=L:yw.m3u.step1=}</div>
-			<textarea id="m3uInput" rows="9" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
-			<div class="m3u-actions">
-				<label class="yweb-btn" style="cursor:pointer">{=L:yw.m3u.load_file=}
-					<input type="file" id="m3uFile" accept=".m3u,.m3u8,.txt" multiple style="display:none">
-				</label>
+				<div class="yweb-form-section-title">1. {=L:yw.m3u.step1=}</div>
+				<textarea id="m3uInput" rows="9" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
+				<div class="m3u-actions">
+					<label class="yweb-file">
+						<input type="file" id="m3uFile" accept=".m3u,.m3u8,.txt" multiple onchange="m3uFiles(this)">
+						<span class="yweb-file-btn">{=L:yw.m3u.load_file=}</span>
+						<span class="yweb-file-name">&ndash;</span>
+					</label>
+				</div>
+
+				<div class="yweb-form-section-title">2. {=L:yw.m3u.step2=}</div>
+				<div class="m3u-meta">
+					<label>{=L:yw.m3u.title=} <input id="m3uTitle" value="{=L:yw.m3u.title_default=}"></label>
+					<label>{=L:yw.m3u.desc=} <input id="m3uDesc" value="webtv"></label>
+					<label>Genre <input id="m3uGenre" value="Movie"></label>
+					<label>{=L:yw.m3u.filename=} <input id="m3uName" value="webtv_usr.xml"></label>
+				</div>
+
+				<div class="m3u-actions">
+					<button type="button" class="yweb-btn primary" onclick="m3uConvert()">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
+						</svg>
+						{=L:yw.m3u.convert=}</button>
+					<button type="button" class="yweb-btn" onclick="m3uDownload()">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+						</svg>
+						{=L:yw.m3u.download=}</button>
+					<button type="button" class="yweb-btn" onclick="m3uSaveToBox(this)">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>
+						</svg>
+						{=L:yw.m3u.save_box=}</button>
+				</div>
+
+				<div class="yweb-form-section-title">3. {=L:yw.m3u.step3=}</div>
+				<textarea id="m3uOutput" rows="10" placeholder="{=L:yw.m3u.out_ph=}"></textarea>
 			</div>
-
-			<div class="yweb-form-section-title">2. {=L:yw.m3u.step2=}</div>
-			<div class="m3u-meta">
-				<label>{=L:yw.m3u.title=} <input id="m3uTitle" value="{=L:yw.m3u.title_default=}"></label>
-				<label>{=L:yw.m3u.desc=} <input id="m3uDesc" value="webtv"></label>
-				<label>Genre <input id="m3uGenre" value="Movie"></label>
-				<label>{=L:yw.m3u.filename=} <input id="m3uName" value="webtv_usr.xml"></label>
-			</div>
-
-			<div class="m3u-actions">
-				<button type="button" class="yweb-btn" onclick="m3uConvert()">{=L:yw.m3u.convert=}</button>
-				<button type="button" class="yweb-btn" onclick="m3uDownload()">{=L:yw.m3u.download=}</button>
-				<button type="button" class="yweb-btn" onclick="m3uSaveToBox(this)">{=L:yw.m3u.save_box=}</button>
-			</div>
-
-			<div class="yweb-form-section-title">3. {=L:yw.m3u.step3=}</div>
-			<textarea id="m3uOutput" rows="10" placeholder="{=L:yw.m3u.out_ph=}"></textarea>
-		</div>
+		</article>
 	</main>
 
 	<script src="/Y_Lang.yjs?v=7"></script>
 	<script src="/yweb-header.js?v=39"></script>
 	<script>
-		document.getElementById('m3uFile').addEventListener('change', function() {
-			var files = this.files;
+		// .yweb-file-Companion: bei Mehrfachauswahl Anzahl statt Namen zeigen
+		function m3uFiles(sel) {
+			var files = sel.files;
+			if (files.length > 1) {
+				sel.closest('.yweb-file').querySelector('.yweb-file-name').textContent =
+					files.length + ' {=L:yw.m3u.files=}';
+			} else {
+				ywebFileName(sel);
+			}
 			var inp = document.getElementById('m3uInput');
 			var pending = files.length;
 			for (var i = 0; i < files.length; i++) {
 				var r = new FileReader();
 				r.onload = function(ev) {
 					inp.value += (inp.value ? '\n' : '') + ev.target.result;
-					if (--pending === 0) ywebShowToast(files.length + ' Datei(en) geladen');
+					if (--pending === 0) ywebShowToast(files.length + ' {=L:yw.m3u.loaded=}');
 				};
 				r.readAsText(files[i]);
 			}
-		});
+		}
 
 		// Portierung der Y_Tools_m3uConvert-Logik: #EXTINF liefert den Namen,
 		// die Folgezeile die URL; udp://@ wird zu udp/, & wird XML-escaped
@@ -92,7 +124,7 @@
 				}
 				var url = (v.toUpperCase().indexOf('UDP:') !== -1) ? v.replace('udp://@', 'udp/') : v;
 				name = name.replace(/#EXTINF:|[0-9],|-[1-9],|,/g, '').replace(/^\s+/g, '');
-				if (name === '') name = 'Kanal ' + i;
+				if (name === '') name = '{=L:yw.m3u.channel=} ' + i;
 				s += '    <webtv title="' + name + '" url="' + url +
 					'" epgid="" genre="' + genre + '" description="' + desc + '" />\n';
 				name = '';
@@ -101,7 +133,7 @@
 			s += '</webtvs>';
 			s = s.split('&').join('&amp;');
 			document.getElementById('m3uOutput').value = s;
-			ywebShowToast(count + ' Streams umgewandelt');
+			ywebShowToast(count + ' {=L:yw.m3u.converted=}');
 		}
 
 		function m3uDownload() {
@@ -126,7 +158,7 @@
 				var fd = new FormData();
 				fd.append('file', new Blob([out], {type: 'text/xml'}), name);
 				var up = await fetch('/api/v4/file?action=upload&path=' + encodeURIComponent(target), {method: 'POST', body: fd});
-				if (!up.ok) throw new Error('Upload fehlgeschlagen');
+				if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
 				ywebShowToast('{=L:yw.m3u.saved=}: ' + target + '/' + name + ' — {=L:yw.m3u.add_source=}');
 			} catch (e) {
 				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
