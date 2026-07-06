@@ -11,12 +11,39 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=63">
 	<style>
-	/* Dashboard Grid */
+	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
+	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
+	   Gap/Padding bleiben beim Ist (Mobil unangetastet). */
 	.yweb-dashboard {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		grid-template-columns: repeat(12, 1fr);
+		grid-auto-flow: dense;
 		gap: 0.6rem;
 		padding: 0.5rem;
+	}
+	.yweb-dashboard > .yweb-card {
+		grid-column: span var(--dash-span, 4);
+		min-width: 0;
+	}
+	@media (max-width: 1100px) {
+		.yweb-dashboard > .yweb-card { grid-column: span 6 !important; }
+	}
+	@media (max-width: 700px) {
+		.yweb-dashboard > .yweb-card { grid-column: span 12 !important; }
+	}
+	/* Breit gespannte Karten (letzte Reihe): Stream-Kacheln fließen
+	   horizontal und teilen sich die Breite, statt "leer breit" zu
+	   wirken; die PID-Chips wandern als volle Zeile darunter */
+	.yweb-card.dash-wide .yweb-stream-info {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.yweb-card.dash-wide .yweb-stream-item {
+		flex: 1 1 160px;
+		min-width: 0;
+	}
+	.yweb-card.dash-wide .yweb-pids {
+		flex-basis: 100%;
 	}
 
 	/* Consistent Card Headers */
@@ -1959,6 +1986,35 @@
 	}
 
 
+	// M5d: Restreihen-Balancer — verteilt die 12 Grid-Tracks so, dass die
+	// letzte Reihe die Breite auffuellt (Kartenzahl ist variabel, weil
+	// Erweiterungen mit Slot 'dashboard' asynchron dazukommen).
+	// Idempotent; unterhalb 1100px uebernehmen die Media-Queries.
+	function ywebBalanceDashboard() {
+		var grid = document.querySelector('.yweb-dashboard');
+		if (!grid) return;
+		var cards = Array.prototype.filter.call(grid.children, function(c) {
+			return c.offsetParent !== null; // nur sichtbare zaehlen
+		});
+		if (window.innerWidth <= 1100) {
+			cards.forEach(function(c) {
+				c.classList.remove('dash-wide');
+				c.style.removeProperty('--dash-span');
+			});
+			return;
+		}
+		var per = Math.max(2, Math.min(6, Math.floor(window.innerWidth / 300)));
+		var span = Math.floor(12 / per);          // Grundspan
+		var rest = cards.length % per;            // Karten in letzter Reihe
+		cards.forEach(function(c, i) {
+			var s = span;
+			if (rest && i >= cards.length - rest)
+				s = Math.floor(12 / rest);        // letzte Reihe fuellt auf
+			c.style.setProperty('--dash-span', s);
+			c.classList.toggle('dash-wide', s >= 6);
+		});
+	}
+
 	// Init
 	$(function() {
 		ywebInitMobileAccordion({
@@ -1978,6 +2034,13 @@
 		loadTimers();
 		loadTunerStatus();
 		loadStreamInfo();
+
+		// M5d: initial packen, bei Resize neu, und wenn Karten dazukommen
+		// oder verschwinden (Extension-Injektion laeuft nach ywebInit)
+		ywebBalanceDashboard();
+		window.addEventListener('resize', ywebBalanceDashboard);
+		new MutationObserver(ywebBalanceDashboard)
+			.observe(document.querySelector('.yweb-dashboard'), {childList: true});
 
 		setInterval(loadChannelInfo, 30000);
 		setInterval(loadSystemInfo, 30000);
