@@ -383,24 +383,26 @@ int CNetworkSetup::showNetworkSetup()
 
 	showNetworkNTPSetup(&ntp);
 
-	//proxyserver submenu
-	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_blue);
-	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
-	networkSettings->addItem(mf);
-
 #ifdef ENABLE_GUI_MOUNT
 	//nfs mount submenu
-	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_0);
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
 	networkSettings->addItem(mf);
 	showNetworkNFSMounts(&networkmounts);
 #endif
+
+	//proxyserver submenu
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0);
+	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
+	networkSettings->addItem(mf);
+
 #if 0
 	//services
 	mf = new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1);
 	mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
 	networkSettings->addItem(mf);
 #endif
+
 	int ret = 0;
 	networkSettings->setFooter(CNetworkSetupFooterButtons, CNetworkSetupFooterButtonCount);
 	networkSettings->addKey(CRCInput::RC_1, this, "networktest");
