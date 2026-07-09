@@ -51,34 +51,40 @@ static std::string recordingProtectionOption(void)
 int CPowerOffMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 {
 	// Sub-actions: menu item was selected, now execute the action
-	if (actionKey == "standby") {
+	if (actionKey == "standby")
+	{
 		g_settings.power_off_selected = 0;
 		g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
 		return menu_return::RETURN_EXIT_ALL;
 	}
-	if (actionKey == "shutdown") {
+	if (actionKey == "shutdown")
+	{
 		g_settings.power_off_selected = 1;
 		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 		return menu_return::RETURN_EXIT_ALL;
 	}
-	if (actionKey == "reboot") {
+	if (actionKey == "reboot")
+	{
 		g_settings.power_off_selected = 2;
 		g_RCInput->postMsg(NeutrinoMessages::REBOOT, 0);
 		return menu_return::RETURN_EXIT_ALL;
 	}
-	if (actionKey == "sleeptimer") {
+	if (actionKey == "sleeptimer")
+	{
 		// permanent=false: arm a one-shot countdown (box → standby after N min)
 		CSleepTimerWidget *st = new CSleepTimerWidget;
 		st->exec(NULL, "");
 		delete st;
 		return menu_return::RETURN_REPAINT;
 	}
-	if (actionKey == "energy") {
+	if (actionKey == "energy")
+	{
 		// open the full energy/shutdown settings menu (also reachable via extended settings)
 		CMiscMenue misc;
 		return misc.exec(parent, "energy_power");
 	}
-	if (actionKey == "last") {
+	if (actionKey == "last")
+	{
 		// RC_standby fallback: trigger the remembered default entry, so
 		// Main menu → RC_standby → RC_standby reaches the last-used function with two presses.
 		// Single source of truth: g_settings.power_off_selected (standby=0/shutdown=1/reboot=2).
@@ -120,7 +126,8 @@ int CPowerOffMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 
 	// --- Standby – RC_green ---
 	// Only shown when not already in standby mode.
-	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) {
+	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby)
+	{
 		const char *marker = (g_settings.power_off_selected == 0) ? NEUTRINO_ICON_BUTTON_POWER : NULL;
 		CMenuForwarder *fw = new CMenuForwarder(LOCALE_MAINMENU_STANDBY,
 			true, NULL, this, "standby", CRCInput::RC_green, NULL, marker);
@@ -129,7 +136,8 @@ int CPowerOffMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	}
 
 	// --- Deep-Standby / Shutdown – RC_red ---
-	if (g_info.hw_caps->can_shutdown) {
+	if (g_info.hw_caps->can_shutdown)
+	{
 		const char *marker = (g_settings.power_off_selected == 1) ? NEUTRINO_ICON_BUTTON_POWER : NULL;
 		CMenuForwarder *fw = new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN,
 			true, NULL, this, "shutdown", CRCInput::RC_red, NULL, marker);
@@ -160,7 +168,8 @@ int CPowerOffMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	// addIntroItems() inserts separator+back+separator before the power items,
 	// so setSelected(conceptual_index) would land on intro items instead.
 	{
-		static const neutrino_locale_t preselect_locs[3] = {
+		static const neutrino_locale_t preselect_locs[3] =
+		{
 			LOCALE_MAINMENU_STANDBY, LOCALE_MAINMENU_SHUTDOWN, LOCALE_MAINMENU_REBOOT
 		};
 		int p = g_settings.power_off_selected;
@@ -173,14 +182,20 @@ int CPowerOffMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	int res = m.exec(NULL, "");
 	// Update remembered position when user pressed Back (not an action):
 	// map the actual item index back to conceptual index 0/1/2 by name.
-	if (res != menu_return::RETURN_EXIT_ALL) {
+	if (res != menu_return::RETURN_EXIT_ALL)
+	{
 		int sel = m.getSelected();
-		if (sel >= 0 && sel < m.getItemsCount()) {
+		if (sel >= 0 && sel < m.getItemsCount())
+		{
 			const char *name = m.getItem(sel)->getName();
-			if (name) {
-				if      (strcmp(name, g_Locale->getText(LOCALE_MAINMENU_STANDBY))  == 0) g_settings.power_off_selected = 0;
-				else if (strcmp(name, g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN)) == 0) g_settings.power_off_selected = 1;
-				else if (strcmp(name, g_Locale->getText(LOCALE_MAINMENU_REBOOT))   == 0) g_settings.power_off_selected = 2;
+			if (name)
+			{
+				if (strcmp(name, g_Locale->getText(LOCALE_MAINMENU_STANDBY))  == 0)
+					g_settings.power_off_selected = 0;
+				else if (strcmp(name, g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN)) == 0)
+					g_settings.power_off_selected = 1;
+				else if (strcmp(name, g_Locale->getText(LOCALE_MAINMENU_REBOOT))   == 0)
+					g_settings.power_off_selected = 2;
 				// else: plugin or unknown entry – keep current value
 			}
 		}
@@ -202,7 +217,7 @@ int CPowerOffDirect::exec(CMenuTarget * /*parent*/, const std::string & /*action
 // Live option-string for the main-menu 'Herunterfahren' forwarder (built once
 // in InitMenuMain): getOption() falls back to getValue() on every repaint, so
 // the protection status stays current without rebuilding the menu.
-std::string& CPowerOffDirect::getValue(void)
+std::string &CPowerOffDirect::getValue(void)
 {
 	valueStringTmp = recordingProtectionOption();
 	return valueStringTmp;

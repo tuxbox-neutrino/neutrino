@@ -39,8 +39,8 @@
  */
 class CPowerOffMenu : public CMenuTarget
 {
-public:
-	int exec(CMenuTarget *parent, const std::string &actionKey);
+	public:
+		int exec(CMenuTarget *parent, const std::string &actionKey);
 };
 
 /*
@@ -50,9 +50,9 @@ public:
  */
 class CPowerOffDirect : public CMenuTarget
 {
-public:
-	int exec(CMenuTarget *parent, const std::string &actionKey);
-	std::string& getValue(void);
+	public:
+		int exec(CMenuTarget *parent, const std::string &actionKey);
+		std::string &getValue(void);
 };
 
 #endif // __poweroff_menu_h__
