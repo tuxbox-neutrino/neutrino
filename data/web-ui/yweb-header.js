@@ -42,7 +42,7 @@ function _ywebCloseBtn(onclick) {
 const YWEB_FOOTER_HTML = `
 <footer class="yweb-footer">
 	yWeb <span id="yweb-footer-version">--</span> ·
-	<a href="#" onclick="ywebShowAbout(); return false;">Über</a> ·
+	<a href="#" onclick="ywebShowAbout(); return false;">${ywebL('about.link', 'About')}</a> ·
 	<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
 </footer>
 `;
@@ -137,7 +137,7 @@ function ywebGetHeaderHTML(activePage) {
 				</svg>
 				<span class="yweb-lang-code">${ywebActiveLangLabel()}</span>
 			</button>
-			<button class="yweb-theme-toggle" onclick="ywebToggleTheme()" title="Theme wechseln">
+			<button class="yweb-theme-toggle" onclick="ywebToggleTheme()" title="${ywebL('theme.toggle', 'Toggle theme')}">
 				<svg id="yweb-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
 				</svg>
@@ -624,7 +624,7 @@ async function ywebApi(endpoint, params, opts) {
 	if (opts.raw) return resp.text();
 	var data = await resp.json();
 	if (data && data.success === 'false')
-		throw new Error((data.error && data.error.msg) ? data.error.msg : ('Fehler: ' + endpoint));
+		throw new Error((data.error && data.error.msg) ? data.error.msg : (ywebL('msg.error', 'Error') + ': ' + endpoint));
 	return data;
 }
 
@@ -632,7 +632,12 @@ async function ywebSendKey(key) {
 	if (key === 'KEY_POWER') {
 		try {
 			var st = await ywebApi('standby', {status: ''});
-			if (st && st.standby === false && !confirm('Box in Standby versetzen?')) return;
+			if (st && st.standby === false) {
+				// Rueckfrage als yweb-Dialog statt nativem confirm()
+				ywebShowConfirm('Standby', ywebL('sb.confirm', 'Put the box into standby?'), 'Standby',
+					function() { return ywebApi('rcem', key, {raw: true}); }, {variant: 'ok'});
+				return;
+			}
 		} catch (e) { /* ignore */ }
 	}
 	return ywebApi('rcem', key, {raw: true});
@@ -1089,7 +1094,7 @@ async function ywebShowEpgModal(channelId, channelName) {
 		const progData = data?.data?.epglist?.progData || data?.epglist?.progData;
 
 		if (!progData || progData.length === 0) {
-			titleEl.textContent = 'Keine EPG-Daten verfügbar';
+			titleEl.textContent = ywebL('epg.nodata', 'No EPG data available');
 			return;
 		}
 
@@ -1135,7 +1140,7 @@ async function ywebShowEpgModal(channelId, channelName) {
 			nextSection.style.display = 'block';
 		}
 	} catch (e) {
-		titleEl.textContent = 'Fehler beim Laden';
+		titleEl.textContent = ywebL('msg.load_fail', 'Loading failed');
 		console.error('Failed to load EPG:', e);
 	}
 
@@ -1195,15 +1200,15 @@ async function ywebRecordEvent(channelId, channelName, startSec, stopSec) {
 		}
 
 		if (!startSec || !stopSec) {
-			ywebShowToast('Keine EPG-Daten verfügbar', true);
+			ywebShowToast(ywebL('epg.nodata', 'No EPG data available'), true);
 			return;
 		}
 
 		await ywebApi('timer', {action: 'new', type: 5, alarm: startSec, stop: stopSec, channel_id: channelId});
-		ywebShowToast('Aufnahme geplant: ' + (channelName || ''));
+		ywebShowToast(ywebL('rec.planned', 'Recording scheduled') + ': ' + (channelName || ''));
 	} catch (e) {
 		console.error('Record failed:', e);
-		ywebShowToast('Fehler: ' + e.message, true);
+		ywebShowToast(ywebL('msg.error', 'Error') + ': ' + e.message, true);
 	}
 }
 
@@ -1212,7 +1217,7 @@ async function ywebStopRecording(timerId) {
 	try {
 		if (timerId) {
 			await ywebApi('timer', {action: 'remove', id: timerId});
-			ywebShowToast('Aufnahme gestoppt');
+			ywebShowToast(ywebL('rec.stopped', 'Recording stopped'));
 			return;
 		}
 		// No ID given: find running recording timer and remove it
@@ -1225,7 +1230,7 @@ async function ywebStopRecording(timerId) {
 			var id = running[0].id || running[0].eventID;
 			if (id) {
 				await ywebApi('timer', {action: 'remove', id: id});
-				ywebShowToast('Aufnahme gestoppt');
+				ywebShowToast(ywebL('rec.stopped', 'Recording stopped'));
 				return;
 			}
 		}
@@ -1243,9 +1248,9 @@ async function ywebStopRecording(timerId) {
 				if (sid) await ywebApi('timer', {action: 'remove', id: sid});
 			}
 		} catch (ignore) {}
-		ywebShowToast('Aufnahme gestoppt');
+		ywebShowToast(ywebL('rec.stopped', 'Recording stopped'));
 	} catch (e) {
-		ywebShowToast('Fehler beim Stoppen: ' + e.message, true);
+		ywebShowToast(ywebL('rec.stop_fail', 'Stop failed') + ': ' + e.message, true);
 	}
 }
 
@@ -1266,7 +1271,7 @@ function ywebEpgModalUpdateRecBtn(isRecording) {
 	const btn = document.getElementById('ywebEpgRecBtn');
 	if (!btn) return;
 	const label = btn.querySelector('span');
-	if (label) label.textContent = isRecording ? 'Aufnahme stoppen' : 'Aufnehmen';
+	if (label) label.textContent = isRecording ? ywebL('rec.stop', 'Stop recording') : ywebL('rec.start', 'Record');
 	btn.style.animation = isRecording ? 'yweb-pulse 1.5s infinite' : '';
 }
 
@@ -1284,30 +1289,39 @@ async function ywebCheckRecordingForChannel(channelId) {
 	} catch (e) { return false; }
 }
 
-// Timer constants — shared across all pages
+// Timer constants — shared across all pages. Interne Typnamen (EN,
+// stabil fuer Logik); Anzeige-Labels kommen lokalisiert via ywebL —
+// Y_Lang.yjs ist vor dieser Datei geladen, daher sind die Konstanten
+// hier bereits uebersetzt.
 const YWEB_TIMER_TYPES = {
 	1: 'Shutdown', 2: 'Nextprogram', 3: 'Zapto', 4: 'Standby',
 	5: 'Record', 6: 'Remind', 7: 'Sleeptimer', 8: 'Plugin', 9: 'Immediate Record'
 };
 
 const YWEB_TIMER_TYPE_LABELS = {
-	1: 'Shutdown', 3: 'Umschalten', 4: 'Standby',
-	5: 'Aufnahme', 6: 'Erinnerung', 7: 'Sleeptimer', 8: 'Plugin', 9: 'Sofortaufnahme'
+	1: ywebL('timer.type.1', 'Shutdown'), 3: ywebL('timer.type.3', 'Zap'),
+	4: ywebL('timer.type.4', 'Standby'), 5: ywebL('timer.type.5', 'Record'),
+	6: ywebL('timer.type.6', 'Reminder'), 7: ywebL('timer.type.7', 'Sleep timer'),
+	8: ywebL('timer.type.8', 'Plugin'), 9: ywebL('timer.type.9', 'Instant record')
 };
 
 const YWEB_TIMER_STATE_LABELS = {
-	0: 'Geplant', 1: 'Angekündigt', 2: 'Aktiv', 3: 'Beendet', 4: 'Abgebrochen'
+	0: ywebL('timer.state.0', 'Scheduled'), 1: ywebL('timer.state.1', 'Announced'),
+	2: ywebL('timer.state.2', 'Active'), 3: ywebL('timer.state.3', 'Finished'),
+	4: ywebL('timer.state.4', 'Cancelled')
 };
 
 const YWEB_REPEAT_LABELS = {
-	'once': 'Einmalig', 'daily': 'Täglich', 'weekly': 'Wöchentlich',
-	'biweekly': 'Zweiwöchentlich', 'fourweekly': 'Vierwöchentlich',
-	'monthly': 'Monatlich', 'byeventdescription': 'Nach Beschreibung'
+	'once': ywebL('timer.rep.once', 'Once'), 'daily': ywebL('timer.rep.daily', 'Daily'),
+	'weekly': ywebL('timer.rep.weekly', 'Weekly'), 'biweekly': ywebL('timer.rep.biweekly', 'Every 2 weeks'),
+	'fourweekly': ywebL('timer.rep.fourweekly', 'Every 4 weeks'),
+	'monthly': ywebL('timer.rep.monthly', 'Monthly'), 'byeventdescription': ywebL('timer.rep.bydesc', 'By description')
 };
 
 // Timer helper functions — shared across all pages
 function ywebGetTimerType(timer) {
-	return YWEB_TIMER_TYPES[parseInt(timer.type_number) || 0] || 'Timer';
+	var n = parseInt(timer.type_number) || 0;
+	return YWEB_TIMER_TYPE_LABELS[n] || YWEB_TIMER_TYPES[n] || 'Timer';
 }
 
 function ywebGetTimerAlarm(timer) {
@@ -1385,7 +1399,10 @@ async function ywebFetchChannels(bouquetNr) {
 // Confirm dialog — shared across all pages
 // Returns a Promise that resolves when confirmed, rejects when cancelled
 // onConfirm: async function(btn) — called when user clicks confirm, btn shows loading state
-function ywebShowConfirm(title, message, confirmLabel, onConfirm) {
+// opts.variant 'ok': Akzent-Knopf fuer nicht-destruktive Rueckfragen
+// (Standby, Neustart-Frage o.ae.); Default bleibt rot (destruktiv)
+function ywebShowConfirm(title, message, confirmLabel, onConfirm, opts) {
+	var confirmClass = (opts && opts.variant === 'ok') ? 'confirm-ok' : 'confirm-delete';
 	var backdrop = document.createElement('div');
 	backdrop.className = 'yweb-confirm-backdrop';
 	backdrop.onclick = function(e) {
@@ -1397,11 +1414,11 @@ function ywebShowConfirm(title, message, confirmLabel, onConfirm) {
 			'<p>' + message + '</p>' +
 			'<div class="yweb-confirm-actions">' +
 				'<button class="confirm-cancel">' + ywebL('msg.cancel', 'Cancel') + '</button>' +
-				'<button class="confirm-delete">' + confirmLabel + '</button>' +
+				'<button class="' + confirmClass + '">' + confirmLabel + '</button>' +
 			'</div>' +
 		'</div>';
 	backdrop.querySelector('.confirm-cancel').onclick = function() { backdrop.remove(); };
-	backdrop.querySelector('.confirm-delete').onclick = async function() {
+	backdrop.querySelector('.' + confirmClass).onclick = async function() {
 		var btn = this;
 		btn.textContent = '...';
 		btn.disabled = true;
@@ -1514,7 +1531,7 @@ async function ywebSendMessage(mode) {
 		input.value = '';
 		setTimeout(function() { result.textContent = '\u00a0'; result.style.color = ''; }, 2500);
 	} catch (e) {
-		result.textContent = 'Fehler: ' + e.message;
+		result.textContent = ywebL('msg.error', 'Error') + ': ' + e.message;
 		result.style.color = 'var(--yweb-danger)';
 	}
 }
@@ -1579,7 +1596,7 @@ function ywebShowAbout() {
 					html += '<a href="' + data.links.docs + '" target="_blank">Dokumentation</a>';
 				if (data.links.forum)
 					html += '<a href="' + data.links.forum + '" target="_blank">Forum</a>';
-				linksEl.innerHTML = html || '<span class="yweb-about-label">Keine Links verfügbar</span>';
+				linksEl.innerHTML = html || '<span class="yweb-about-label">' + ywebL('about.no_links', 'No links available') + '</span>';
 			}
 
 			// Update copyright from API

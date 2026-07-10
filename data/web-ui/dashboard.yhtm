@@ -9,7 +9,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=67">
+	<link rel="stylesheet" href="/css/yweb.css?v=68">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -1189,8 +1189,8 @@
 	</footer>
 
 	<script src="/jquery/jquery.min.js"></script>
-	<script src="/Y_Lang.yjs?v=8"></script>
-	<script src="/yweb-header.js?v=40"></script>
+	<script src="/Y_Lang.yjs?v=9"></script>
+	<script src="/yweb-header.js?v=41"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;
@@ -1517,14 +1517,26 @@
 		}
 	}
 
-	// Standby: im Standby wecken, sonst (mit Rückfrage) schlafen legen
+	// Standby: im Standby wecken, sonst (mit Rückfrage als yweb-Dialog
+	// statt nativem confirm) schlafen legen
+	async function toggleStandby(inStandby) {
+		try {
+			await ywebApi('standby', inStandby ? 'off' : 'on');
+			ywebShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
+		} catch (e) {
+			ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
+		}
+	}
+
 	async function sendStandby() {
 		try {
 			var st = await ywebApi('standby', {status: ''});
 			var inStandby = !!(st && st.standby === true);
-			if (!inStandby && !confirm('{=L:yw.sb.confirm=}')) return;
-			await ywebApi('standby', inStandby ? 'off' : 'on');
-			ywebShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
+			if (!inStandby) {
+				ywebShowConfirm('Standby', '{=L:yw.sb.confirm=}', 'Standby', function() { return toggleStandby(false); }, {variant: 'ok'});
+				return;
+			}
+			await toggleStandby(true);
 		} catch (e) {
 			ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
 		}

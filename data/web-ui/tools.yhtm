@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.tools=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=67">
+	<link rel="stylesheet" href="/css/yweb.css?v=68">
 	<style>
 		.yweb-tools-grid {
 			display: grid;
@@ -144,8 +144,8 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=8"></script>
-	<script src="/yweb-header.js?v=40"></script>
+	<script src="/Y_Lang.yjs?v=9"></script>
+	<script src="/yweb-header.js?v=41"></script>
 	<script>
 		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
 		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst
@@ -160,14 +160,23 @@
 		var I_UNLOCK = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>');
 		var I_INSTALL = sIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>');
 
-		async function bcAction(label, endpoint, params, confirmText) {
-			if (confirmText && !confirm(confirmText)) return;
+		async function bcDo(label, endpoint, params) {
 			try {
 				await ywebApi(endpoint, params);
 				ywebShowToast(label + ' {=L:yw.msg.executed=}');
 			} catch (e) {
 				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			}
+		}
+
+		// Rueckfrage als yweb-Dialog statt nativem confirm(); der
+		// Bestaetigen-Knopf wiederholt den Aktionsnamen (label)
+		function bcAction(label, endpoint, params, confirmText) {
+			if (confirmText) {
+				ywebShowConfirm(label, confirmText, label, function() { return bcDo(label, endpoint, params); });
+				return;
+			}
+			return bcDo(label, endpoint, params);
 		}
 
 		async function bcExec(label, args) {

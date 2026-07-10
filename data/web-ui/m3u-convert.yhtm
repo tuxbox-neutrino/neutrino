@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.m3u=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=67">
+	<link rel="stylesheet" href="/css/yweb.css?v=68">
 	<style>
 		.m3u-wrap { max-width: 920px; margin: 0 auto; padding: 1rem; }
 		.m3u-wrap textarea { width: 100%; font-family: monospace; font-size: 0.8rem; }
@@ -78,8 +78,8 @@
 		</article>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=8"></script>
-	<script src="/yweb-header.js?v=40"></script>
+	<script src="/Y_Lang.yjs?v=9"></script>
+	<script src="/yweb-header.js?v=41"></script>
 	<script>
 		// .yweb-file-Companion: bei Mehrfachauswahl Anzahl statt Namen zeigen
 		function m3uFiles(sel) {

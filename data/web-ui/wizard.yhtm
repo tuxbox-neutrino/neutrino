@@ -6,7 +6,12 @@
 	<title>yWeb - {=L:yw.wiz.title=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=67">
+	<link rel="stylesheet" href="/css/yweb.css?v=68">
+	<script>
+		// Gespeichertes Theme anwenden — der Wizard laedt kein
+		// yweb-header.js und blieb sonst immer dunkel
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
 	<style>
 		.wiz-wrap {
 			max-width: 26rem;
@@ -33,7 +38,9 @@
 	</style>
 </head>
 <body>
-	<main class="wiz-wrap settings-card">
+	<!-- yweb-card statt settings-card: letztere ist settings.yhtm-lokal
+	     und hier wirkungslos — die Karte war randlos/unsichtbar -->
+	<main class="wiz-wrap yweb-card">
 		<h1>{=L:yw.wiz.welcome=}</h1>
 		<p class="sub">{=L:yw.wiz.intro=}</p>
 

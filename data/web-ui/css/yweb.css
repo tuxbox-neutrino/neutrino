@@ -20,6 +20,7 @@
 	--yweb-success: #2ecc71;
 	--yweb-warning: #f1c40f;
 	--yweb-danger: #e74c3c;
+	--yweb-danger-hover: #c0392b;
 	--yweb-recording: #e74c3c;
 
 	/* Theme-adaptive colors (dark mode defaults) */
@@ -886,7 +887,10 @@ body:not(.has-subheader) .yweb-header-spacer {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 1000;
+	/* Ueber ALLEN Modal-Ebenen (modal 1000, epg-modal 1100, sheet/
+	   lang-menu 1200): Confirm/Prompt wird auch aus offenen Modalen
+	   heraus aufgerufen und lag sonst unsichtbar dahinter */
+	z-index: 1300;
 }
 
 .yweb-confirm-dialog {
@@ -1579,6 +1583,14 @@ body:not(.has-subheader) .yweb-header-spacer {
 	color: white;
 }
 
+/* Eigener Hover: der generische .yweb-btn:hover faerbt sonst
+   destruktive Knoepfe akzent-orange um */
+.yweb-btn.danger:hover {
+	background: var(--yweb-danger-hover);
+	border-color: var(--yweb-danger-hover);
+	color: white;
+}
+
 .yweb-btn.sm {
 	padding: 0.2rem 0.4rem;
 	font-size: calc(var(--yweb-font-xs) * 0.9);
@@ -1631,6 +1643,20 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 [data-theme="light"] .yweb-btn.primary:hover {
 	background: var(--yweb-accent-hover);
+	color: white;
+}
+
+/* danger braucht wie primary einen Light-Override, sonst gewinnt
+   der spaeter definierte graue Light-Basisknopf (gleiche Spezifitaet) */
+[data-theme="light"] .yweb-btn.danger {
+	background: var(--yweb-danger);
+	border-color: var(--yweb-danger);
+	color: white;
+}
+
+[data-theme="light"] .yweb-btn.danger:hover {
+	background: var(--yweb-danger-hover);
+	border-color: var(--yweb-danger-hover);
 	color: white;
 }
 

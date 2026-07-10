@@ -153,7 +153,42 @@ window.YWEB_L = {
 	"msg.loading": "{=L:yw.msg.loading=}",
 	// Confirm-/Prompt-Dialoge (yweb-header.js)
 	"msg.cancel": "{=L:yw.msg.cancel=}",
-	"msg.error": "{=L:yw.msg.error=}"
+	"msg.error": "{=L:yw.msg.error=}",
+	"msg.load_fail": "{=L:yw.msg.load_fail=}",
+	// Standby-Rueckfrage der RC-Komponente (yweb-header.js)
+	"sb.confirm": "{=L:yw.sb.confirm=}",
+	// Header/EPG-Modal/About (yweb-header.js)
+	"theme.toggle": "{=L:yw.theme.toggle=}",
+	"epg.nodata": "{=L:yw.epg.nodata=}",
+	"about.link": "{=L:yw.about.link=}",
+	"about.no_links": "{=L:yw.about.no_links=}",
+	// Aufnahme-Aktionen (yweb-header.js)
+	"rec.planned": "{=L:yw.rec.planned=}",
+	"rec.stopped": "{=L:yw.rec.stopped=}",
+	"rec.stop_fail": "{=L:yw.rec.stop_fail=}",
+	"rec.stop": "{=L:yw.rec.stop=}",
+	"rec.start": "{=L:yw.rec.start=}",
+	// Timer-Anzeige-Labels (yweb-header.js, Maps)
+	"timer.type.1": "{=L:yw.timer.type.1=}",
+	"timer.type.3": "{=L:yw.timer.type.3=}",
+	"timer.type.4": "{=L:yw.timer.type.4=}",
+	"timer.type.5": "{=L:yw.timer.type.5=}",
+	"timer.type.6": "{=L:yw.timer.type.6=}",
+	"timer.type.7": "{=L:yw.timer.type.7=}",
+	"timer.type.8": "{=L:yw.timer.type.8=}",
+	"timer.type.9": "{=L:yw.timer.type.9=}",
+	"timer.state.0": "{=L:yw.timer.state.0=}",
+	"timer.state.1": "{=L:yw.timer.state.1=}",
+	"timer.state.2": "{=L:yw.timer.state.2=}",
+	"timer.state.3": "{=L:yw.timer.state.3=}",
+	"timer.state.4": "{=L:yw.timer.state.4=}",
+	"timer.rep.once": "{=L:yw.timer.rep.once=}",
+	"timer.rep.daily": "{=L:yw.timer.rep.daily=}",
+	"timer.rep.weekly": "{=L:yw.timer.rep.weekly=}",
+	"timer.rep.biweekly": "{=L:yw.timer.rep.biweekly=}",
+	"timer.rep.fourweekly": "{=L:yw.timer.rep.fourweekly=}",
+	"timer.rep.monthly": "{=L:yw.timer.rep.monthly=}",
+	"timer.rep.bydesc": "{=L:yw.timer.rep.bydesc=}"
 };
 
 // Installierte Sprachen als option-Liste (aktive Sprache selected);
