@@ -6,7 +6,7 @@
 	<title>yWeb - Timer</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=66">
+	<link rel="stylesheet" href="/css/yweb.css?v=67">
 	<style>
 		/* 2-column grid layout for timer */
 		main.yweb-timer-grid {
@@ -56,6 +56,7 @@
 			flex-direction: column;
 			padding: 0.5rem 0.8rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
+			border-left: 3px solid transparent;
 			transition: var(--yweb-transition);
 			cursor: pointer;
 		}
@@ -65,7 +66,7 @@
 		}
 
 		.yweb-timer-row.state-running {
-			border-left: 3px solid var(--yweb-accent);
+			border-left-color: var(--yweb-accent);
 		}
 
 		.yweb-timer-row.state-finished {

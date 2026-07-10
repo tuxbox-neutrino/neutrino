@@ -6,7 +6,7 @@
 	<title>yWeb - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=66">
+	<link rel="stylesheet" href="/css/yweb.css?v=67">
 	<style>
 		/* 2-column grid layout for bouquets */
 		main.yweb-bouquets-grid {
@@ -36,6 +36,7 @@
 			flex-direction: column;
 			padding: 0.5rem 0.8rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
+			border-left: 3px solid transparent;
 			transition: var(--yweb-transition);
 			cursor: pointer;
 		}
@@ -53,7 +54,7 @@
 
 		.yweb-channel-row.current {
 			background: var(--yweb-accent-light);
-			border-left: 3px solid var(--yweb-accent);
+			border-left-color: var(--yweb-accent);
 		}
 
 		.yweb-channel-info {

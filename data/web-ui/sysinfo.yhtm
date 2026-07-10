@@ -6,7 +6,7 @@
 	<title>yWeb - System Info</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=66">
+	<link rel="stylesheet" href="/css/yweb.css?v=67">
 	<style>
 		.sysinfo-content {
 			padding: 0.5rem 1rem;
@@ -29,25 +29,28 @@
 			border: 1px solid var(--yweb-border-subtle);
 		}
 
+		/* Kopfmasse wie .yweb-card-header (yweb.css) — gleiche Hoehe
+		   und Titelgroesse wie auf allen anderen Seiten */
 		.sysinfo-card-header {
 			display: flex;
 			align-items: center;
 			gap: 0.5rem;
-			padding: 0.75rem 1rem;
+			padding: 0.4rem 0.75rem;
+			min-height: 2.4rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
 			font-weight: 600;
-			font-size: 0.9rem;
+			font-size: var(--yweb-font-sm);
 		}
 
 		.sysinfo-card-header svg {
-			width: 1.1rem;
-			height: 1.1rem;
+			width: 16px;
+			height: 16px;
 			color: var(--yweb-accent);
 			flex-shrink: 0;
 		}
 
 		.sysinfo-card-body {
-			padding: 0.75rem 1rem;
+			padding: 0.5rem 0.75rem;
 		}
 
 		.sysinfo-grid {

@@ -9,7 +9,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=66">
+	<link rel="stylesheet" href="/css/yweb.css?v=67">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -44,16 +44,6 @@
 	}
 	.yweb-card.dash-wide .yweb-pids {
 		flex-basis: 100%;
-	}
-
-	/* Consistent Card Headers */
-	.yweb-card .yweb-card-header {
-		min-height: 2.2rem;
-		padding: 0.4rem 0.6rem;
-	}
-
-	.yweb-card .yweb-card-title {
-		font-size: 0.85rem;
 	}
 
 	.yweb-card .yweb-card-body {

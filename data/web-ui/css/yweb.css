@@ -1213,10 +1213,21 @@ body:not(.has-subheader) .yweb-header-spacer {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0.5rem 0.75rem;
+	padding: 0.4rem 0.75rem;
+	/* Einheitliche Kopfhoehe fuer alle Karten — Koepfe mit Buttons/
+	   Suchfeld und reine Titel-Koepfe enden sonst unterschiedlich hoch */
+	min-height: 2.4rem;
 	border-bottom: 1px solid var(--pico-muted-border-color);
 	gap: 0.5rem;
 	font-size: var(--yweb-font-sm);
+}
+
+/* Bedienelemente im Kartenkopf duerfen die Kopfhoehe nicht aufblaehen */
+.yweb-card-header .yweb-btn,
+.yweb-card-header button,
+.yweb-card-header input,
+.yweb-card-header select {
+	margin: 0;
 }
 
 .yweb-card-title {
@@ -1423,6 +1434,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	gap: 2%;
 	padding: 2%;
 	border-bottom: 1px solid var(--pico-muted-border-color);
+	border-left: 3px solid transparent;
 	cursor: pointer;
 	transition: var(--yweb-transition);
 }
@@ -1433,7 +1445,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 .yweb-channel-item.active {
 	background: var(--yweb-accent-light);
-	border-left: 3px solid var(--yweb-accent);
+	border-left-color: var(--yweb-accent);
 }
 
 .yweb-channel-logo {
@@ -1717,6 +1729,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 	gap: 0.5rem;
 	padding: 0.5rem 0.7rem;
 	border-bottom: 1px solid var(--pico-muted-border-color);
+	/* Markierungsbreite immer reservieren, sonst springt der
+	   Inhalt bei Auswahl 3px nach rechts */
+	border-left: 3px solid transparent;
 	cursor: pointer;
 	transition: var(--yweb-transition);
 	font-size: var(--yweb-font-sm);
@@ -1732,7 +1747,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 .yweb-nav-item.active {
 	background: var(--yweb-accent-light);
-	border-left: 3px solid var(--yweb-accent);
+	border-left-color: var(--yweb-accent);
 	color: var(--yweb-accent);
 	font-weight: 600;
 }
@@ -1780,7 +1795,6 @@ body:not(.has-subheader) .yweb-header-spacer {
    Listen-Seiten; Werte vorher je Seite dupliziert */
 .yweb-card-sm .yweb-card-header {
 	padding: 0.4rem 0.6rem;
-	min-height: auto;
 }
 
 .yweb-card-sm .yweb-card-title {
@@ -1895,6 +1909,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	gap: 0.6rem;
 	padding: 0.5rem 0.8rem;
 	border-bottom: 1px solid var(--pico-muted-border-color);
+	border-left: 3px solid transparent;
 	transition: var(--yweb-transition);
 }
 
@@ -1908,7 +1923,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 .yweb-list-row.active {
 	background: var(--yweb-accent-light);
-	border-left: 3px solid var(--yweb-accent);
+	border-left-color: var(--yweb-accent);
 }
 
 .yweb-list-content {

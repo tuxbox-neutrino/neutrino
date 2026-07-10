@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.bqedit=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=66">
+	<link rel="stylesheet" href="/css/yweb.css?v=67">
 	<style>
 		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */
@@ -22,8 +22,10 @@
 		.bqe-pane .yweb-card-title small { color: var(--pico-muted-color); font-weight: 400; }
 		/* Kompakte Zeilen: Picos li-Margin und die button-margin-bottom
 		   (1rem!) neutralisieren, sonst blaehen Zeilen mit Knoepfen auf
-		   ~51px auf; Ziel ~30px */
-		.bqe-list li { display: flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.22rem 0.4rem; border-radius: 4px; font-size: 0.78rem; line-height: 1.3; cursor: pointer; }
+		   ~51px auf; Ziel ~30px. min-height haelt Zeilen ohne sichtbare
+		   Knoepfe gleich hoch — sonst waechst die Zeile bei Hover/
+		   Auswahl (Knoepfe erscheinen) und die Liste verrutscht */
+		.bqe-list li { display: flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.22rem 0.4rem; min-height: 1.85rem; border-radius: 4px; font-size: 0.78rem; line-height: 1.3; cursor: pointer; }
 		.bqe-list li:hover { background: rgba(255,255,255,0.04); }
 		[data-theme="light"] .bqe-list li:hover { background: rgba(0,0,0,0.05); }
 		.bqe-list li.sel { background: rgba(255,165,0,0.12); outline: 1px solid var(--yweb-accent); }
@@ -48,7 +50,9 @@
 		.bqe-list li.drop-bottom { box-shadow: inset 0 -2px 0 var(--yweb-accent); }
 		#bqeChannels.drop-hover { outline: 1px dashed var(--yweb-accent); outline-offset: -2px; border-radius: 4px; }
 		.bqe-search { flex: 1; min-width: 140px; }
-		.bqe-search input { width: 100%; padding: 0.3rem 0.5rem !important; height: auto !important; margin: 0 !important; font-size: 0.8rem; }
+		/* Flach genug fuer die 2.4rem-Kopfhoehe (yweb.css), sonst ist
+		   dieses Panel hoeher als seine Nachbarn */
+		.bqe-search input { width: 100%; padding: 0.15rem 0.5rem !important; height: auto !important; margin: 0 !important; font-size: 0.8rem; line-height: 1.2; }
 		.bqe-hint { color: var(--pico-muted-color); font-size: 0.75rem; margin-top: 0.6rem; }
 		@media (max-width: 900px) {
 			.bqe-grid { grid-template-columns: 1fr; }
