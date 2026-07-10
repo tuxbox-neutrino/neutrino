@@ -255,7 +255,8 @@ void CCDraw::setFrameThickness(const int& thickness)
 
 bool CCDraw::enableColBodyGradient(const int& enable_mode, const fb_pixel_t& sec_color, const int& direction)
 {
-	if (cc_body_gradient_enable == enable_mode && cc_body_gradient_direction == direction)
+	if (cc_body_gradient_enable == enable_mode && cc_body_gradient_direction == direction
+		&& (enable_mode < CC_COLGRAD_COL_A_2_COL_B || cc_body_gradient_2nd_col == sec_color))
 		return false;
 	dprintf(DEBUG_DEBUG, "\033[33m[CCDraw]\t[%s - %d], change gradient mode: current=[%d] new=[%d] direction=[%d]\033[0m\n", __func__, __LINE__, cc_body_gradient_enable, enable_mode, direction);
 	bool ret = false;
