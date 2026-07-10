@@ -968,7 +968,7 @@
 					<div class="yweb-rec-time" id="rec-remaining">--:--</div>
 				</div>
 				<footer class="yweb-card-footer yweb-channel-footer">
-					<div class="yweb-next-epg">Nächste: <span id="next-epg">--</span></div>
+					<div class="yweb-next-epg">{=L:yw.dash.next_prog=}: <span id="next-epg">--</span></div>
 					<div class="yweb-channel-actions">
 						<button type="button" class="yweb-action-btn" onclick="showCurrentEpgInfo()" title="{=L:yw.dash.epg_info=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1259,14 +1259,14 @@
 			} else {
 				currentChannelId = null;
 				currentChannelName = null;
-				$('#current-channel').text('Kein Sender');
-				$('#channel-preview').text('Kein Sender');
+				$('#current-channel').text('{=L:yw.dash.no_channel=}');
+				$('#channel-preview').text('{=L:yw.dash.no_channel=}');
 			}
 		}).fail(function() {
 			currentChannelId = null;
 			currentChannelName = null;
-			$('#current-channel').text('Kein Sender');
-			$('#channel-preview').text('Kein Sender');
+			$('#current-channel').text('{=L:yw.dash.no_channel=}');
+			$('#channel-preview').text('{=L:yw.dash.no_channel=}');
 		});
 	}
 
@@ -1421,7 +1421,7 @@
 						'<div class="yweb-net-status ' + (iface.up ? 'up' : '') + '"></div>' +
 					'</div>';
 				});
-				$('#net-interfaces').html(html || '<div class="yweb-text-muted">Keine Interfaces</div>');
+				$('#net-interfaces').html(html || '<div class="yweb-text-muted">{=L:yw.si.no_ifaces=}</div>');
 			}
 		});
 
@@ -1701,7 +1701,7 @@
 
 			container.html(html);
 		}).fail(function() {
-			$('#timer-list').html('<div class="yweb-timer-empty">Timer nicht verfügbar</div>');
+			$('#timer-list').html('<div class="yweb-timer-empty">{=L:yw.timer.unavail=}</div>');
 			$('#timer-preview').text('--');
 		});
 	}

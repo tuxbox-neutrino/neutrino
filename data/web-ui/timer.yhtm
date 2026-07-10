@@ -567,7 +567,7 @@
 				<div style="padding:0.5rem 0.8rem 0;">
 					<button class="yweb-btn" onclick="openTimerModal()" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;width:100%;padding:0.5rem;font-size:0.75rem;cursor:pointer;">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><path d="M12 5v14m-7-7h14"/></svg>
-						Neuer Timer
+						{=L:yw.timer.new=}
 					</button>
 				</div>
 			</div>
@@ -624,7 +624,7 @@
 				renderTimerList();
 			} catch (e) {
 				console.error('Failed to load timers:', e);
-				list.innerHTML = '<li class="yweb-empty">Timer nicht verfügbar</li>';
+				list.innerHTML = '<li class="yweb-empty">{=L:yw.timer.unavail=}</li>';
 			}
 		}
 
@@ -1060,17 +1060,17 @@
 				</div>
 
 				<div class="yweb-form-section" id="tmChannelSection">
-					<div class="yweb-form-section-title">Sender</div>
+					<div class="yweb-form-section-title">{=L:yw.msg.channel=}</div>
 					<div class="yweb-form-row">
 						<label for="tmBouquet">Bouquet</label>
 						<select id="tmBouquet" onchange="onBouquetChange()">
-							<option value="">Laden...</option>
+							<option value="">{=L:yw.msg.loading=}</option>
 						</select>
 					</div>
 					<div class="yweb-form-row">
 						<label for="tmChannel">{=L:yw.dash.channels=}</label>
 						<select id="tmChannel">
-							<option value="">Bouquet wählen...</option>
+							<option value="">{=L:yw.timer.choose_bq=}</option>
 						</select>
 					</div>
 				</div>
@@ -1207,12 +1207,12 @@
 			if (!sel) return;
 			try {
 				var bouquets = await ywebFetchBouquets();
-				sel.innerHTML = '<option value="">-- Bouquet wählen --</option>';
+				sel.innerHTML = '<option value="">{=L:yw.timer.choose_bq=}</option>';
 				bouquets.forEach(function(b) {
 					sel.innerHTML += '<option value="' + escapeHtml(b.number) + '">' + escapeHtml(b.name) + '</option>';
 				});
 			} catch (e) {
-				sel.innerHTML = '<option value="">Fehler beim Laden</option>';
+				sel.innerHTML = '<option value="">{=L:yw.msg.load_fail=}</option>';
 			}
 		}
 
@@ -1221,10 +1221,10 @@
 			var sel = document.getElementById('tmChannel');
 			if (!sel) return;
 			if (!bouquetNr) {
-				sel.innerHTML = '<option value="">Bouquet wählen...</option>';
+				sel.innerHTML = '<option value="">{=L:yw.timer.choose_bq=}</option>';
 				return;
 			}
-			sel.innerHTML = '<option value="">Laden...</option>';
+			sel.innerHTML = '<option value="">{=L:yw.msg.loading=}</option>';
 			try {
 				var channels = await ywebFetchChannels(bouquetNr);
 				sel.innerHTML = '';
@@ -1232,10 +1232,10 @@
 					sel.innerHTML += '<option value="' + escapeHtml(ch.id) + '">' + escapeHtml(ch.name) + '</option>';
 				});
 				if (channels.length === 0) {
-					sel.innerHTML = '<option value="">Keine Sender</option>';
+					sel.innerHTML = '<option value="">{=L:yw.bq.no_channels=}</option>';
 				}
 			} catch (e) {
-				sel.innerHTML = '<option value="">Fehler beim Laden</option>';
+				sel.innerHTML = '<option value="">{=L:yw.msg.load_fail=}</option>';
 			}
 		}
 

@@ -515,7 +515,7 @@
 
 				// Build time header
 				let html = '<div class="yweb-epg-time-header">';
-				html += '<div class="yweb-epg-channel-header">Sender</div>';
+				html += '<div class="yweb-epg-channel-header">{=L:yw.msg.channel=}</div>';
 				html += '<div class="yweb-epg-times">';
 
 				for (let i = 0; i < numSlots; i++) {
@@ -552,7 +552,7 @@
 				grid.innerHTML = html;
 
 			} catch (e) {
-				grid.innerHTML = '<p class="yweb-empty">Fehler beim Laden der EPG-Daten</p>';
+				grid.innerHTML = '<p class="yweb-empty">{=L:yw.epg.load_fail=}</p>';
 				console.error('Failed to load EPG:', e);
 			}
 		}

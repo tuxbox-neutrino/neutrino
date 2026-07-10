@@ -698,7 +698,7 @@
 				loadDiskInfo();
 			} catch (e) {
 				console.error('Failed to load directory:', e);
-				list.innerHTML = '<li style="padding:1rem;text-align:center;color:var(--yweb-danger)">Fehler beim Laden: ' + escapeHtml(e.message) + '</li>';
+				list.innerHTML = '<li style="padding:1rem;text-align:center;color:var(--yweb-danger)">{=L:yw.msg.load_fail=}: ' + escapeHtml(e.message) + '</li>';
 			}
 		}
 

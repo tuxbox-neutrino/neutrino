@@ -417,7 +417,7 @@
 				renderBouquetList(foundBouquet || (bouquetsData[0]?.number || ''));
 			} catch (e) {
 				console.error('Failed to load bouquets:', e);
-				list.innerHTML = '<li class="yweb-empty">Fehler beim Laden der Bouquets</li>';
+				list.innerHTML = '<li class="yweb-empty">{=L:yw.msg.load_fail=}</li>';
 			}
 		}
 
@@ -497,7 +497,7 @@
 				titleEl.textContent = '{=L:yw.bq.all_channels=}';
 			} else {
 				const bq = bouquetsData.find(b => String(b.number) === String(bouquet));
-				titleEl.textContent = bq ? bq.name : 'Sender';
+				titleEl.textContent = bq ? bq.name : '{=L:yw.dash.channels=}';
 			}
 
 			try {
@@ -511,7 +511,7 @@
 					channels = response.data?.channels || response.channels || response;
 				}
 
-				countEl.textContent = `${channels.length} Sender`;
+				countEl.textContent = `${channels.length} {=L:yw.bq.channels_unit=}`;
 
 				if (channels.length === 0) {
 					list.innerHTML = '<li class="yweb-empty">{=L:yw.bq.no_channels=}</li>';
@@ -568,7 +568,7 @@
 								</div>
 							</div>
 							<div class="yweb-channel-detail" id="detail-${ch.id}">
-								<div class="yweb-channel-detail-loading">Tippen zum Laden der Sendungsinfo...</div>
+								<div class="yweb-channel-detail-loading">{=L:yw.bq.tap_info=}</div>
 							</div>
 						</li>
 					`;
@@ -597,7 +597,7 @@
 				// Load EPG info after delay (let server settle first)
 				setTimeout(() => loadEpgInfo(channels), 1000);
 			} catch (e) {
-				list.innerHTML = '<li class="yweb-empty">Fehler beim Laden der Sender</li>';
+				list.innerHTML = '<li class="yweb-empty">{=L:yw.msg.load_fail=}</li>';
 				console.error('Failed to load channels:', e);
 			}
 		}
@@ -808,7 +808,7 @@
 				detailEl.innerHTML = `<div class="yweb-channel-detail-content">${html}</div>`;
 			} catch (e) {
 				console.error('Failed to load channel detail:', e);
-				detailEl.innerHTML = '<div class="yweb-channel-detail-content">Fehler beim Laden</div>';
+				detailEl.innerHTML = '<div class="yweb-channel-detail-content">{=L:yw.msg.load_fail=}</div>';
 			}
 		}
 
