@@ -130,14 +130,27 @@ int CComponentsForm::exec()
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
+		//note the timeout before the slots run: they may consume msg
+		//(e.g. set RC_nokey) while deciding what to do with their values
+		bool is_timeout = (msg == CRCInput::RC_timeout);
+
 		//restart the timeout on user activity, like CMenuWidget does
-		if (msg <= CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
+		if (msg <= CRCInput::RC_MaxRC)
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		//execute connected slots
 		OnExec(msg, data, res, cancel_exec);
 		//exit loop
 		execExit(msg, data, res, cancel_exec, v_exit_keys);
+
+		//menu timeout closes the form, like CMenuWidget, after the slots
+		//had their chance to react; without a guaranteed exit the expired
+		//deadline would degrade getMsgAbsoluteTimeout() to its 100 µs
+		//minimum and the loop would busy-poll
+		if (is_timeout) {
+			cancel_exec = EXIT;
+			continue;
+		}
 
 		if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 		{
