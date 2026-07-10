@@ -5917,8 +5917,9 @@ void sighandler (int signum)
 	case SIGINT:
 		if (shutdown_in_progress) {
 			/* teardown is already running (ExitRun or an earlier signal);
-			   running it again double-deletes the singletons */
-			fflush(NULL);
+			   running it again double-deletes the singletons. Only
+			   async-signal-safe calls here: fflush() could deadlock on
+			   a stdio lock held by the interrupted thread. */
 			_exit(CNeutrinoApp::EXIT_NORMAL);
 		}
 		shutdown_in_progress = 1;
