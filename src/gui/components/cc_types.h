@@ -122,8 +122,8 @@ typedef enum
 	CC_COLGRAD_DARK_2_LIGHT,	//changed
 	CC_COLGRAD_COL_A_2_COL_B,	//gradient from color A to color B
 	CC_COLGRAD_COL_B_2_COL_A,	//gradient from color B to color A
-	CC_COLGRAD_COL_LIGHT_DARK_LIGHT,//gradient from color A to B to A
-	CC_COLGRAD_COL_DARK_LIGHT_DARK,	//gradient from color B to A to B
+	CC_COLGRAD_COL_LIGHT_DARK_LIGHT,//one color shaded light-dark-light
+	CC_COLGRAD_COL_DARK_LIGHT_DARK,	//one color shaded dark-light-dark
 
 	CC_COLGRAD_TYPES
 }COLOR_GRADIENT_TYPES;

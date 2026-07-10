@@ -307,18 +307,19 @@ gradientData_t* CCDraw::getGradientData()
 		case  CC_COLGRAD_COL_B_2_COL_A:
 			cc_body_gradient_mode = CColorGradient::gradientLight2Dark;
 			break;
-		/* in gradientColorToColor() the Light2Dark* modes swap the two
-		   colors, so A-B-A needs the non-swapping Dark2Light2Dark mode
-		   and B-A-B the swapping Light2Dark2Light mode */
+		/* the symmetric modes shade the body color itself
+		   (light-dark-light / dark-light-dark) via gradientOneColor;
+		   a color-to-color A-B-A blend is invisible whenever the two
+		   theme colors are similar, which the default themes are */
 		case  CC_COLGRAD_COL_LIGHT_DARK_LIGHT:
-			cc_body_gradient_mode = CColorGradient::gradientDark2Light2Dark;
+			cc_body_gradient_mode = CColorGradient::gradientLight2Dark2Light;
 			break;
 		case  CC_COLGRAD_COL_DARK_LIGHT_DARK:
-			cc_body_gradient_mode = CColorGradient::gradientLight2Dark2Light;
+			cc_body_gradient_mode = CColorGradient::gradientDark2Light2Dark;
 			break;
 	}
 
-	if (cc_body_gradient_enable >= CC_COLGRAD_COL_A_2_COL_B){
+	if (cc_body_gradient_enable == CC_COLGRAD_COL_A_2_COL_B || cc_body_gradient_enable == CC_COLGRAD_COL_B_2_COL_A){
 		dprintf(DEBUG_INFO, "\033[33m[CCDraw]\t[%s - %d], init gradient c2c)...\033[0m\n", __func__, __LINE__);
 		gdata->gradientBuf = ccGradient.gradientColorToColor(col_body,
 								cc_body_gradient_2nd_col,
