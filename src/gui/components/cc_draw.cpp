@@ -307,11 +307,14 @@ gradientData_t* CCDraw::getGradientData()
 		case  CC_COLGRAD_COL_B_2_COL_A:
 			cc_body_gradient_mode = CColorGradient::gradientLight2Dark;
 			break;
+		/* in gradientColorToColor() the Light2Dark* modes swap the two
+		   colors, so A-B-A needs the non-swapping Dark2Light2Dark mode
+		   and B-A-B the swapping Light2Dark2Light mode */
 		case  CC_COLGRAD_COL_LIGHT_DARK_LIGHT:
-			cc_body_gradient_mode = CColorGradient::gradientLight2Dark2Light;
+			cc_body_gradient_mode = CColorGradient::gradientDark2Light2Dark;
 			break;
 		case  CC_COLGRAD_COL_DARK_LIGHT_DARK:
-			cc_body_gradient_mode = CColorGradient::gradientDark2Light2Dark;
+			cc_body_gradient_mode = CColorGradient::gradientLight2Dark2Light;
 			break;
 	}
 

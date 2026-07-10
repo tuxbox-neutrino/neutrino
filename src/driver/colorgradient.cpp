@@ -22,6 +22,8 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
+
+#include <algorithm>
 #endif
 #include <global.h>
 #include <neutrino.h>
@@ -180,7 +182,8 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 	int bSize1 = ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) ? (bSize + 1) / 2 : bSize;
 
 	int v  = start_v; int v_ = v;
-	float factor_v = ((float)end_v - (float)v) / (float)bSize1;
+	/* interpolate over bSize1 - 1 steps so the last pixel reaches end_v */
+	float factor_v = ((float)end_v - (float)v) / (float)std::max(bSize1 - 1, 1);
 
 	for (int i = 0; i < bSize1; i++) {
 		v = v_ + (int)(factor_v * (float)i);
@@ -234,7 +237,9 @@ fb_pixel_t* CColorGradient::gradientColorToColor(fb_pixel_t start_col, fb_pixel_
 	}
 
 	int bSize1 = ((mode == gradientDark2Light2Dark) || (mode == gradientLight2Dark2Light)) ? (bSize + 1) / 2 : bSize;
-	float steps = (float)bSize1;
+	/* interpolate over bSize1 - 1 steps so the last pixel reaches end_col
+	   (for symmetric modes: the mirror point reaches the middle color) */
+	float steps = (float)std::max(bSize1 - 1, 1);
 
 	for (int i = 0; i < bSize1; i++) {
 		float t = blend_start + (blend_end - blend_start) * ((float)i / steps);
