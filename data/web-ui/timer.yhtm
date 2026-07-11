@@ -8,10 +8,13 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=69">
 	<style>
-		/* 2-column grid layout for timer */
+		/* 2-column grid layout for timer. Filterspalte bemisst sich am
+		   laengsten Eintrag (Labels sind lokalisiert und verschieden
+		   lang — fix 220px schnitt die deutschen Namen ab), Deckel
+		   18rem; Mobile-Branch unten bleibt einspaltig wie gehabt */
 		main.yweb-timer-grid {
 			display: grid;
-			grid-template-columns: 220px 1fr;
+			grid-template-columns: fit-content(18rem) 1fr;
 			gap: 0.6rem;
 			padding: 0.5rem;
 			overflow: hidden;
