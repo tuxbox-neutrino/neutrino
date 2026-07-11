@@ -300,6 +300,15 @@ do_cmd()
 # -----------------------------------------------------------
 do_installer()
 {
+	# modern callers (installer extension, /api/v4 upload) pass the
+	# uploaded archive as parameter (the dispatcher shifts the case
+	# word away); legacy pages keep relying on the fixed upload.tmp
+	# path written by the old upload handler
+	if [ -n "$1" ] && [ -s "$1" ]
+	then
+		y_upload_file="$1"
+	fi
+
 	# clean up
 	if [ -s "$y_out_html" ]
 	then
