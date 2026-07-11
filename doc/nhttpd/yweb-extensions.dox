@@ -1,5 +1,7 @@
 /*!
-\page ywebext yWeb-Erweiterungen (Manifest, Slots, Schaltung)
+\page ywebext yWeb-Erweiterungen (Manifest, Slots, Schaltung, Verwaltung)
+
+English version: \ref ywebext_en
 
 \section ywebext_intro Mechanismus
 
@@ -13,7 +15,7 @@ Der Loader lebt in `data/y-web/yweb-header.js` (`ywebDiscoverExtensions` /
 \code{.json}
 {
 	"name": "Meine Erweiterung",
-	"version": "1.0",
+	"version": "1.0.0",
 	"slot": "tools",
 	"entry": "index.html",
 	"description": "Untertitel fuer Kachel/Karte"
@@ -24,6 +26,8 @@ Der Loader lebt in `data/y-web/yweb-header.js` (`ywebDiscoverExtensions` /
   `dashboard` (Karte) | `page` (nur Direktaufruf/Verwaltung)
 - `entry`: Einstiegsdatei relativ zum Erweiterungsordner; URL-Schema
   `/extensions/<ordner>/<entry>`
+- `version`: kanonische Version der Erweiterung (semantisch
+  `major.minor.patch`, siehe \ref ywebext_repos)
 
 \section ywebext_gating Config-Schaltung (yWeb.conf)
 
@@ -34,20 +38,277 @@ Der Loader lebt in `data/y-web/yweb-header.js` (`ywebDiscoverExtensions` /
   `-` als `_bind_` und `.` als `_dot_`; Clients muessen beim LESEN die
   encodierte Form verwenden (Submit nimmt die rohe Form an).
 
-\section ywebext_rules Vertragsregeln
+\section ywebext_lang Sprachpakete (languages/)
 
-- Erweiterungen nutzen ausschliesslich die dokumentierte \ref apiv4
-  "/api/v4/-Flaeche" (inkl. exec-Vertrag fuer Script-Aktionen) — keine
-  Abhaengigkeiten auf Kern-Interna.
-- Der Ordnername ist der stabile Schluessel (Config-Keys, URLs) und darf
-  nach Veroeffentlichung nicht wechseln.
-- Fehlt das `extensions/`-Verzeichnis, bleibt der Loader still (kein
-  Fehler).
+Erweiterungen lokalisieren sich selbst ueber flache JSON-Woerterbuecher
+`<ordner>/languages/<Sprache>.json` (Dateiname wie die Kern-Sprachdatei,
+z.B. `English.json`, `Deutsch.json`). Helfer in `yweb-header.js`:
+
+- `ywebActiveLangName()` — aktiver Sprachname (aus der Dropdown-Liste,
+  Fallback `English`).
+- `ywebExtLangLoad(dir)` — laedt das Woerterbuch der aktiven Sprache
+  (`cache: no-cache`, pro Seitenaufruf gecacht); fehlendes Paket ist
+  KEIN Fehler (leeres Objekt).
+- `ywebExtL(dir, key, fallbackEN)` — Lookup mit englischem
+  Inline-Fallback; es gibt bewusst keinen Zweit-Fetch auf English.json.
+
+Konventionen:
+- Reserved Keys `manifest.name` / `manifest.description` uebersetzen
+  Name/Untertitel ueberall (Nav, Kachel, Dashboard, Verwaltung); die
+  Discovery laedt das Paket fuer aktivierte Erweiterungen automatisch.
+- Manifest-Strings (settings-`label`, Section-`title`, Feld-`label`,
+  `button`, `success`) mit Praefix `L:` werden aus dem Paket aufgeloest
+  (`"label": "L:settings.greeting"`); Literale bleiben gueltig.
+- Seiten-Muster: beim Init `await ywebExtLangLoad('<ordner>')`, Texte via
+  `ywebExtL`; Englisch steht inline im Markup und ist der Fallback.
+- Englisch + Deutsch immer paarig pflegen (gleiche Keysets).
+
+\section ywebext_manager Verwaltung: Installieren / Aktualisieren / Deinstallieren
+
+Einstellungen → Erweiterungen verwaltet den Lebenszyklus; Backend ist
+`data/y-web/scripts/Y_Extensions.sh` ueber den exec-Vertrag:
+
+- `install_archive </tmp/f.tar.gz>` — Upload-Weg der UI
+  (`/api/v4/file?action=upload&path=/tmp`, dann exec).
+- `install_url <url>` — Download auf der Box (wget), dann wie Archive.
+  Ein Update ist eine erneute Installation: der Ordner wird ersetzt,
+  Config-Keys (Enable/Slot, Einstellungen) ueberleben.
+- `uninstall <ordner>` — entfernt Ordner + mitgelieferte Scripts; die UI
+  blankt danach `ext_<ordner>_enabled`/`_slot` (die Config-API kann keine
+  Keys loeschen; leere Werte sind inerte Reste).
+- `fetch_index <url>` — Fallback fuer den Update-Check, wenn der Browser
+  den Index nicht direkt laden darf (CORS/Netz).
+
+Update-Check: expliziter Knopf (kein Auto-Fetch externer URLs);
+vergleicht installierte Versionen numerisch gegen die gehostete
+index.json. Default-URL ist der Raw-Link des Meta-Repos
+`tuxbox-neutrino/yweb-extensions`; ueberschreibbar per yWeb.conf-Key
+`ext_index_url` (z.B. lokaler Spiegel).
+
+\section ywebext_tarball tar.gz-Vertrag
+
+Y_Extensions.sh erzwingt beim Installieren:
+
+- genau EIN Top-Level-Ordner; Name = Erweiterungs-Schluessel, Muster
+  `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
+- `manifest.json` im Ordner ist Pflicht;
+- absolute Pfade oder `..`-Komponenten im Archiv werden abgewiesen;
+- Shell-Scripts in `<ordner>/scripts/*.sh` werden nach
+  `<webroot>/scripts/` kopiert (Uninstall entfernt sie wieder) —
+  eindeutige Namen verwenden (Beispiel `Y_Camds.sh`).
+
+Bau-Kommando (identisch im Release-Workflow):
+\code{.sh}
+mkdir -p /tmp/stage/<ordner> && \
+rsync -a --exclude .git --exclude .github ./ /tmp/stage/<ordner>/ && \
+tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
+\endcode
+
+\section ywebext_index index.json (Update-Index)
+
+\code{.json}
+{"updated": "2026-07-11", "extensions": [
+  {"dir": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
+   "tarball": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/latest/download/m3u-converter.tar.gz",
+   "info": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter"}
+]}
+\endcode
+
+`releases/latest/download/<dir>.tar.gz` ist eine stabile URL unabhaengig
+vom Tag-Namen; `version` haelt der Release-Workflow synchron zur
+manifest.json der Erweiterung.
+
+\section ywebext_repos Repo-Vorlage und Versionierung
+
+Offizielle Erweiterungen leben in eigenen Repos
+`github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
+m3u-converter, camds, infoicons, hallo-yweb); Index + Doku + Vorlagen im
+Meta-Repo `yweb-extensions`. Repo-Layout:
+
+\code{.unparsed}
+yweb-extension-<name>/
+├── manifest.json            (kanonische Version)
+├── <entry>.html             (entfaellt bei settings-only)
+├── languages/English.json + Deutsch.json
+├── scripts/*.sh             (optional, siehe tar.gz-Vertrag)
+├── README.md + README.de.md, LICENSE (GPL-2.0)
+└── .github/workflows/{version-bump,version-line}.yaml
+\endcode
+
+Versionierung semantisch `v<major>.<minor>.<patch>`: version-line
+(manuell) setzt `<maj>.<min>.0` und erzeugt das annotierte Anker-Tag
+`v<maj>.<min>`; version-bump errechnet bei jedem Push auf `main` den
+Patch als `git rev-list --count v<maj>.<min>..HEAD + 1` (jq auf
+manifest.json), taggt, baut den Tarball und veroeffentlicht das Release
+im selben Job (GITHUB_TOKEN-Pushes triggern keine Folge-Workflows).
+Erweiterungs-Seiten referenzieren Kern-Assets (`/css/yweb.css`,
+`/Y_Lang.yjs`, `/yweb-header.js`) OHNE `?v=`-Parameter — sie koennen
+Kern-Bumps nicht tracken.
 
 \section ywebext_ref Referenz & Einsteiger-Doku
 
-- Referenz-Erweiterung: `data/y-web/extensions/hallo-yweb/` (Tools-Kachel +
-  Seite, liest `sysinfo`/`versions` via `ywebApi`).
+- Referenz-Erweiterung: `data/y-web/extensions/hallo-yweb/` (gebuendelte
+  Kopie; Quelle der Wahrheit ist das Repo yweb-extension-hallo-yweb).
 - Einsteiger-Anleitung ("Erweiterung in 10 Minuten"):
-  `data/y-web/extensions/README.md`.
+  `data/y-web/extensions/README.md` (englisch) bzw. `README.de.md`
+  (deutsch).
+*/
+
+/*!
+\page ywebext_en yWeb extensions (manifest, slots, gating, manager)
+
+Deutsche Fassung: \ref ywebext
+
+\section ywebext_en_intro Mechanism
+
+Modern yWeb loads extensions declaratively from
+`<webroot>/extensions/<name>/manifest.json` — no patching of core pages.
+The loader lives in `data/y-web/yweb-header.js`
+(`ywebDiscoverExtensions` / `ywebInjectExtensions`) and runs on page
+init of every modern page.
+
+\section ywebext_en_manifest Manifest schema
+
+\code{.json}
+{
+	"name": "My Extension",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"description": "Subtitle for tile/card"
+}
+\endcode
+
+- `slot`: `nav` (main navigation) | `tools` (tile in the tools grid) |
+  `dashboard` (card) | `page` (direct URL/manager only)
+- `entry`: entry file relative to the extension folder; URL scheme
+  `/extensions/<folder>/<entry>`
+- `version`: canonical extension version (semantic
+  `major.minor.patch`, see \ref ywebext_en_repos)
+
+\section ywebext_en_gating Config gating (yWeb.conf)
+
+- `ext_<folder>_enabled` = `0|1` — extensions are OFF by default
+  (opt-in), managed via Settings → Extensions.
+- `ext_<folder>_slot` — optional slot override.
+- Encoding caveat: the config output of CControlAPI::ConfigCGI encodes
+  `-` as `_bind_` and `.` as `_dot_`; clients must READ the encoded
+  form (submit accepts the raw form).
+
+\section ywebext_en_lang Language packs (languages/)
+
+Extensions localize themselves through flat JSON dictionaries
+`<folder>/languages/<Language>.json` (named like the core language
+file, e.g. `English.json`, `Deutsch.json`). Helpers in
+`yweb-header.js`:
+
+- `ywebActiveLangName()` — active language name (from the dropdown
+  data, fallback `English`).
+- `ywebExtLangLoad(dir)` — fetches the active language's dictionary
+  (`cache: no-cache`, cached per page view); a missing pack is NOT an
+  error (empty object).
+- `ywebExtL(dir, key, fallbackEN)` — lookup with the English inline
+  fallback; there is deliberately no second fetch of English.json.
+
+Conventions:
+- Reserved keys `manifest.name` / `manifest.description` translate
+  name/subtitle everywhere (nav, tile, dashboard, manager); discovery
+  loads the pack automatically for enabled extensions.
+- Manifest strings (settings `label`, section `title`, field `label`,
+  `button`, `success`) prefixed with `L:` resolve from the pack
+  (`"label": "L:settings.greeting"`); literals stay valid.
+- Page pattern: at init `await ywebExtLangLoad('<folder>')`, texts via
+  `ywebExtL`; English lives inline in the markup and doubles as the
+  fallback.
+- Always keep English + German in step (identical keysets).
+
+\section ywebext_en_manager Manager: install / update / uninstall
+
+Settings → Extensions manages the lifecycle; the backend is
+`data/y-web/scripts/Y_Extensions.sh` through the exec contract:
+
+- `install_archive </tmp/f.tar.gz>` — the UI upload path
+  (`/api/v4/file?action=upload&path=/tmp`, then exec).
+- `install_url <url>` — download on the box (wget), then like archive.
+  An update is a re-install: the folder is replaced, config keys
+  (enable/slot, settings) survive.
+- `uninstall <folder>` — removes folder + shipped scripts; the UI then
+  blanks `ext_<folder>_enabled`/`_slot` (the config API cannot delete
+  keys; empty values are inert leftovers).
+- `fetch_index <url>` — fallback for the update check when the browser
+  may not fetch the index directly (CORS/network).
+
+Update check: explicit button (no automatic external fetches);
+compares installed versions numerically against the hosted index.json.
+The default URL is the raw link of the `tuxbox-neutrino/yweb-extensions`
+meta repo; overridable via the yWeb.conf key `ext_index_url` (e.g. a
+local mirror).
+
+\section ywebext_en_tarball tar.gz contract
+
+Y_Extensions.sh enforces on install:
+
+- exactly ONE top-level folder; its name is the extension key, pattern
+  `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
+- `manifest.json` inside the folder is mandatory;
+- archives with absolute paths or `..` components are rejected;
+- shell scripts in `<folder>/scripts/*.sh` are copied to
+  `<webroot>/scripts/` (uninstall removes them again) — use unique
+  names (example `Y_Camds.sh`).
+
+Build command (identical in the release workflow):
+\code{.sh}
+mkdir -p /tmp/stage/<folder> && \
+rsync -a --exclude .git --exclude .github ./ /tmp/stage/<folder>/ && \
+tar -czf <folder>.tar.gz -C /tmp/stage <folder>
+\endcode
+
+\section ywebext_en_index index.json (update index)
+
+\code{.json}
+{"updated": "2026-07-11", "extensions": [
+  {"dir": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
+   "tarball": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/latest/download/m3u-converter.tar.gz",
+   "info": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter"}
+]}
+\endcode
+
+`releases/latest/download/<dir>.tar.gz` is a stable URL independent of
+the tag name; `version` is kept in sync with the extension's
+manifest.json by its release workflow.
+
+\section ywebext_en_repos Repo template and versioning
+
+Official extensions live in their own repos
+`github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
+m3u-converter, camds, infoicons, hallo-yweb); index + docs + templates
+in the `yweb-extensions` meta repo. Repo layout:
+
+\code{.unparsed}
+yweb-extension-<name>/
+├── manifest.json            (canonical version)
+├── <entry>.html             (omitted for settings-only)
+├── languages/English.json + Deutsch.json
+├── scripts/*.sh             (optional, see tar.gz contract)
+├── README.md + README.de.md, LICENSE (GPL-2.0)
+└── .github/workflows/{version-bump,version-line}.yaml
+\endcode
+
+Semantic versioning `v<major>.<minor>.<patch>`: version-line (manual)
+sets `<maj>.<min>.0` and creates the annotated anchor tag
+`v<maj>.<min>`; version-bump computes the patch on every push to
+`main` as `git rev-list --count v<maj>.<min>..HEAD + 1` (jq on
+manifest.json), tags, builds the tarball and publishes the release in
+the same job (GITHUB_TOKEN pushes trigger no follow-up workflows).
+Extension pages reference core assets (`/css/yweb.css`, `/Y_Lang.yjs`,
+`/yweb-header.js`) WITHOUT `?v=` parameters — they cannot track core
+bumps.
+
+\section ywebext_en_ref Reference & getting-started docs
+
+- Reference extension: `data/y-web/extensions/hallo-yweb/` (bundled
+  copy; the source of truth is the yweb-extension-hallo-yweb repo).
+- Getting-started guide ("an extension in 10 minutes"):
+  `data/y-web/extensions/README.md` (English) or `README.de.md`
+  (German).
 */
