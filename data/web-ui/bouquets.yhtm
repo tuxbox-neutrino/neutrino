@@ -8,10 +8,13 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=69">
 	<style>
-		/* 2-column grid layout for bouquets */
+		/* 2-column grid layout for bouquets. Bouquetspalte bemisst
+		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —
+		   extrem lange Bouquetnamen ellipsen weiterhin; Mobile-Branch
+		   unten bleibt einspaltig wie gehabt */
 		main.yweb-bouquets-grid {
 			display: grid;
-			grid-template-columns: 280px 1fr;
+			grid-template-columns: fit-content(22rem) 1fr;
 			gap: 0.6rem;
 			padding: 0.5rem;
 			/* Override global main scroll - cards scroll internally */
