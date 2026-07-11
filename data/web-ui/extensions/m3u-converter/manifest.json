@@ -1,0 +1,7 @@
+{
+	"name": "m3u Converter",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "m3u-convert.html",
+	"description": "Playlist to WebTV XML"
+}
