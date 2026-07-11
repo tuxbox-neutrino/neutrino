@@ -238,10 +238,10 @@
 			display: block;
 		}
 
-		/* M5c: Erweiterungen als 3-Spalten-Tabelle (Name | Slot | Aktiv) */
+		/* Extensions as a 4-column table (name | slot | active | action) */
 		.ext-grid {
 			display: grid;
-			grid-template-columns: 1fr 140px 52px;
+			grid-template-columns: 1fr 140px 52px auto;
 			gap: 0.45rem 0.75rem;
 			align-items: center;
 		}
@@ -264,6 +264,33 @@
 		.ext-grid .ext-name {
 			font-size: var(--yweb-font-sm);
 			min-width: 0;
+		}
+		.ext-grid .ext-actions {
+			display: flex;
+			gap: 0.35rem;
+			justify-content: flex-end;
+		}
+		.ext-grid .ext-actions .yweb-btn {
+			padding: 0.25rem 0.5rem;
+			font-size: var(--yweb-font-xs);
+		}
+		/* update badge next to the extension name after a manual check */
+		.ext-badge {
+			display: inline-block;
+			padding: 0.05rem 0.45rem;
+			border-radius: 999px;
+			font-size: var(--yweb-font-xs);
+			font-weight: 600;
+			background: var(--pico-primary);
+			color: var(--pico-primary-inverse);
+			margin-left: 0.4rem;
+			vertical-align: middle;
+		}
+		@media (max-width: 600px) {
+			.ext-grid {
+				grid-template-columns: minmax(0, 1fr) 90px 44px auto;
+				gap: 0.4rem 0.4rem;
+			}
 		}
 
 		/* Loading */
@@ -466,6 +493,7 @@
 	var MOUNT_ICON = sIcon('<line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/>');
 	var EJECT_ICON = sIcon('<path d="M12 5l7 9H5l7-9z"/><line x1="5" y1="19" x2="19" y2="19"/>');
 	var RESTORE_ICON = sIcon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>');
+	var TRASH_ICON = sIcon('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>');
 
 	// Markup-Helfer: gestyltes Datei-Control (.yweb-file aus yweb.css);
 	// der gewählte Dateiname landet via onchange in .yweb-file-name
@@ -645,44 +673,194 @@
 		btn.disabled = false;
 	}
 
-	// Erweiterungs-Verwaltung: entdeckte Manifeste mit Enable-Toggle und
-	// Slot-Override (persistiert in config=yweb, Loader in yweb-header.js)
+	// Extension manager: discovered manifests with enable toggle, slot
+	// override (persisted in config=yweb, loader in yweb-header.js) and
+	// install/update/uninstall via the Y_Extensions.sh exec contract
 	function renderExtensionsPanel() {
 		setTimeout(loadExtensionsPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.ext_title=}') +
 			'<div id="extPanel"><p aria-busy="true">{=L:yw.set.ext_search=}</p></div></div>';
 	}
 
+	// dir -> {version, tarball} filled by an explicit update check
+	var _extUpdates = {};
+
 	async function loadExtensionsPanel() {
 		var el = document.getElementById('extPanel');
 		if (!el) return;
 		_ywebExtensions = null; // Discovery-Cache invalidieren
 		var exts = await ywebDiscoverExtensions();
+		var html = '';
 		if (!exts.length) {
-			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.ext_none=} ' +
+			html = '<div class="yweb-form-row"><label>{=L:yw.set.ext_none=} ' +
 				'<small style="color:var(--pico-muted-color)">Verzeichnis: &lt;webroot&gt;/extensions/&lt;name&gt;/manifest.json — siehe README</small></label></div>';
-			return;
+		} else {
+			// 4-column grid with a header row — slot selects, toggles and
+			// action buttons of all extensions align per column
+			html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.ext_found=}</div>' +
+				'<div class="ext-grid">' +
+				'<div class="ext-grid-head">{=L:yw.set.ext_col_ext=}</div>' +
+				'<div class="ext-grid-head">Slot</div>' +
+				'<div class="ext-grid-head">{=L:yw.set.ext_col_on=}</div>' +
+				'<div class="ext-grid-head" style="text-align:right">{=L:yw.set.ext_col_action=}</div>';
+			exts.forEach(function(m) {
+				var upd = _extUpdates[m.dir];
+				html += '<div class="ext-name">' + escapeHtml(m.name) +
+					(upd ? '<span class="ext-badge">v' + escapeHtml(upd.version) + '</span>' : '') +
+					' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
+					(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — {=L:yw.set.ext_settings_only=}') + '</small></div>' +
+					'<div><select id="extslot_' + m.dir + '">' +
+					['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
+						return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
+					}).join('') + '</select></div>' +
+					'<div><label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
+					'<span class="yweb-toggle-slider"></span></label></div>' +
+					'<div class="ext-actions">' +
+					(upd ? '<button type="button" class="yweb-btn primary" title="{=L:yw.set.extup_avail=}" onclick="extUpdate(\'' + m.dir + '\', this)">' +
+						DL_ICON + 'v' + escapeHtml(upd.version) + '</button>' : '') +
+					'<button type="button" class="yweb-btn danger" title="{=L:yw.set.extuninst_btn=}" onclick="extUninstall(\'' + m.dir + '\')">' + TRASH_ICON + '</button>' +
+					'</div>';
+			});
+			html += '</div></div>' + makePanelSaveRow('saveExtensions(this)');
 		}
-		// M5c: 3-Spalten-Grid mit Kopfzeile statt frei fließender Zeilen —
-		// Slot-Selects und Toggles aller Erweiterungen fluchten spaltenweise
-		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.ext_found=}</div>' +
-			'<div class="ext-grid">' +
-			'<div class="ext-grid-head">{=L:yw.set.ext_col_ext=}</div>' +
-			'<div class="ext-grid-head">Slot</div>' +
-			'<div class="ext-grid-head">{=L:yw.set.ext_col_on=}</div>';
-		exts.forEach(function(m) {
-			html += '<div class="ext-name">' + escapeHtml(m.name) +
-				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
-				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — {=L:yw.set.ext_settings_only=}') + '</small></div>' +
-				'<div><select id="extslot_' + m.dir + '">' +
-				['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
-					return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
-				}).join('') + '</select></div>' +
-				'<div><label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
-				'<span class="yweb-toggle-slider"></span></label></div>';
-		});
-		html += '</div></div>' + makePanelSaveRow('saveExtensions(this)');
+		// install/update row — also shown when no extension is installed
+		html += '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.extinst_section=}</div>' +
+			'<div class="yweb-form-row"><label>{=L:yw.set.extinst_label=}</label>' +
+			'<span class="yweb-row-actions">' +
+			'<button type="button" class="yweb-btn primary" onclick="extInstallDialog()">' + UP_ICON + '{=L:yw.set.extinst_btn=}</button>' +
+			'<button type="button" class="yweb-btn" onclick="extCheckUpdates(this)">' + REFRESH_ICON + '{=L:yw.set.extup_check=}</button>' +
+			'</span></div></div>';
 		el.innerHTML = html;
+	}
+
+	// install dialog: tar.gz upload OR direct URL (both go through the
+	// same Y_Extensions.sh backend; update = re-install)
+	function extInstallDialog() {
+		ywebModal('extInstallModal', '{=L:yw.set.extinst_title=}',
+			'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.extinst_file=}</div>' +
+			'<div class="yweb-form-row"><label>tar.gz</label><span class="yweb-row-actions">' +
+			makeFileControl('extInstFile', '.tar.gz,.tgz') +
+			'<button type="button" class="yweb-btn primary" onclick="extInstallUpload(this)">' + UP_ICON + '{=L:yw.set.extinst_btn=}</button></span></div></div>' +
+			'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.extinst_url=}</div>' +
+			'<div class="yweb-form-row"><label>URL</label><span class="yweb-row-actions">' +
+			'<input type="url" id="extInstUrl" placeholder="https://…/extension.tar.gz" style="min-width:240px">' +
+			'<button type="button" class="yweb-btn" onclick="extInstallUrl(this)">' + DL_ICON + '{=L:yw.set.extinst_btn=}</button></span></div></div>');
+	}
+
+	// the script echoes "ok: <dir> <version>" as last line on success
+	function extScriptResult(out) {
+		var lines = String(out || '').split('\n').filter(function(l) { return l.trim(); });
+		return lines.length ? lines[lines.length - 1].trim() : '';
+	}
+
+	async function extInstallUpload(btn) {
+		var inp = document.getElementById('extInstFile');
+		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
+		btn.disabled = true;
+		try {
+			var f = inp.files[0];
+			var fd = new FormData();
+			fd.append('file', f);
+			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
+			if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
+			var out = extScriptResult(await ywebApi('exec', 'Y_Extensions&install_archive&' + encodeURIComponent('/tmp/' + f.name), {raw: true}));
+			if (out.indexOf('ok:') !== 0) throw new Error(out || '{=L:yw.set.extinst_fail=}');
+			ywebShowToast('{=L:yw.set.extinst_ok=}: ' + out.slice(3).trim());
+			ywebCloseModal('extInstallModal');
+			await loadExtensionsPanel();
+		} catch (e) { ywebShowToast('{=L:yw.set.extinst_fail=}: ' + e.message, true); }
+		btn.disabled = false;
+	}
+
+	async function extInstallUrl(btn) {
+		var url = (document.getElementById('extInstUrl') || {}).value || '';
+		if (!url.trim()) { ywebShowToast('{=L:yw.set.extinst_nourl=}', true); return; }
+		btn.disabled = true;
+		try {
+			var out = extScriptResult(await ywebApi('exec', 'Y_Extensions&install_url&' + encodeURIComponent(url.trim()), {raw: true}));
+			if (out.indexOf('ok:') !== 0) throw new Error(out || '{=L:yw.set.extinst_fail=}');
+			ywebShowToast('{=L:yw.set.extinst_ok=}: ' + out.slice(3).trim());
+			ywebCloseModal('extInstallModal');
+			await loadExtensionsPanel();
+		} catch (e) { ywebShowToast('{=L:yw.set.extinst_fail=}: ' + e.message, true); }
+		btn.disabled = false;
+	}
+
+	function extUninstall(dir) {
+		var m = (_ywebExtensions || []).filter(function(x) { return x.dir === dir; })[0];
+		var name = m ? m.name : dir;
+		ywebShowConfirm('{=L:yw.set.extuninst_btn=}', name + ' — {=L:yw.set.extuninst_confirm=}',
+			'{=L:yw.set.extuninst_btn=}', async function() {
+			try {
+				var out = extScriptResult(await ywebApi('exec', 'Y_Extensions&uninstall&' + encodeURIComponent(dir), {raw: true}));
+				if (out.indexOf('ok:') !== 0) throw new Error(out || dir);
+				// blank the config keys — the config API cannot delete keys;
+				// empty values are inert (documented residue)
+				await ywebApi('config', 'config=yweb&action=submit&ext_' + dir + '_enabled=&ext_' + dir + '_slot=');
+				delete _extUpdates[dir];
+				ywebShowToast('{=L:yw.set.extuninst_ok=}: ' + name);
+				await loadExtensionsPanel();
+			} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
+		});
+	}
+
+	// update check is an explicit user action (no automatic calls to
+	// external URLs); index URL overridable via yweb key ext_index_url
+	var EXT_INDEX_DEFAULT = 'https://raw.githubusercontent.com/tuxbox-neutrino/yweb-extensions/master/index.json';
+
+	function extVerNewer(a, b) {
+		var pa = String(a || '').split('.'), pb = String(b || '').split('.');
+		for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+			var na = parseInt(pa[i], 10) || 0, nb = parseInt(pb[i], 10) || 0;
+			if (na !== nb) return na > nb;
+		}
+		return false;
+	}
+
+	async function extCheckUpdates(btn) {
+		btn.disabled = true;
+		try {
+			var resp = await ywebApi('config', {config: 'yweb'});
+			var cfg = (resp && resp.data && resp.data.config) || {};
+			var url = cfg['ext_index_url'] || EXT_INDEX_DEFAULT;
+			var idx = null;
+			try {
+				var r = await fetch(url, {cache: 'no-cache'});
+				if (!r.ok) throw new Error('http ' + r.status);
+				idx = await r.json();
+			} catch (eFetch) {
+				// CORS/network fallback: let the box fetch the index
+				idx = JSON.parse(await ywebApi('exec', 'Y_Extensions&fetch_index&' + encodeURIComponent(url), {raw: true}));
+			}
+			var exts = await ywebDiscoverExtensions();
+			_extUpdates = {};
+			var found = 0;
+			((idx && idx.extensions) || []).forEach(function(e) {
+				exts.forEach(function(m) {
+					if (m.dir === e.dir && e.tarball && extVerNewer(e.version, m.version)) {
+						_extUpdates[m.dir] = {version: e.version, tarball: e.tarball};
+						found++;
+					}
+				});
+			});
+			ywebShowToast(found ? ('{=L:yw.set.extup_avail=}: ' + found) : '{=L:yw.set.extup_none=}');
+			await loadExtensionsPanel();
+		} catch (e) { ywebShowToast('{=L:yw.set.extup_fail=}: ' + e.message, true); }
+		btn.disabled = false;
+	}
+
+	async function extUpdate(dir, btn) {
+		var u = _extUpdates[dir];
+		if (!u) return;
+		btn.disabled = true;
+		try {
+			var out = extScriptResult(await ywebApi('exec', 'Y_Extensions&install_url&' + encodeURIComponent(u.tarball), {raw: true}));
+			if (out.indexOf('ok:') !== 0) throw new Error(out || '{=L:yw.set.extinst_fail=}');
+			delete _extUpdates[dir];
+			ywebShowToast('{=L:yw.set.extinst_ok=}: ' + out.slice(3).trim());
+			await loadExtensionsPanel();
+		} catch (e) { ywebShowToast('{=L:yw.set.extinst_fail=}: ' + e.message, true); }
+		btn.disabled = false;
 	}
 
 	async function saveExtensions(btn) {

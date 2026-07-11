@@ -134,6 +134,43 @@ automatisch in der Liste → Schalter aktivieren, optional den Slot
 Technisch: die Schaltung liegt in `yWeb.conf`
 (`ext_<ordnername>_enabled=1`, optional `ext_<ordnername>_slot=...`).
 
+## 5. Installieren / Aktualisieren / Deinstallieren (Verwaltung)
+
+Einstellungen → **Erweiterungen** verwaltet auch den Lebenszyklus
+(Backend: `scripts/Y_Extensions.sh` über den `exec`-Vertrag):
+
+- **Installieren**: `tar.gz`-Archiv hochladen oder eine Download-URL
+  einfügen (z.B. ein GitHub-Release-Asset). Ein Update ist einfach die
+  erneute Installation derselben Erweiterung — der Ordner wird ersetzt,
+  alle Config-Keys (Enable/Slot und Erweiterungs-Einstellungen)
+  überleben.
+- **Updates prüfen**: expliziter Knopf; vergleicht die installierten
+  Versionen gegen eine gehostete `index.json`
+  (Default: das Repository `tuxbox-neutrino/yweb-extensions`,
+  überschreibbar per `yWeb.conf`-Key `ext_index_url`). Verfügbare
+  Updates zeigen Badge und Update-Knopf in der Zeile.
+- **Deinstallieren**: Zeilen-Knopf mit Bestätigung. Entfernt den
+  Erweiterungsordner und die mitgelieferten Skripte; die
+  `ext_<ordner>_*`-Config-Keys werden geleert (die Config-API kann
+  keine Keys löschen — leere Werte sind inerte Reste).
+
+### Packaging-Vertrag (`<ordner>.tar.gz`)
+
+- Das Archiv enthält **genau einen Top-Level-Ordner**; sein Name ist
+  der Erweiterungs-Schlüssel (`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`) und er
+  muss `manifest.json` enthalten.
+- Es entpackt nach `<webroot>/extensions/<ordner>/`.
+- Shell-Skripte in `<ordner>/scripts/*.sh` werden bei der Installation
+  nach `<webroot>/scripts/` kopiert (für `exec`-/`action`-Felder
+  verfügbar) und bei der Deinstallation entfernt — eindeutig benennen.
+- Bau-Kommando (nutzen auch die Release-Workflows):
+
+```sh
+mkdir -p /tmp/stage/<ordner> && \
+rsync -a --exclude .git --exclude .github ./ /tmp/stage/<ordner>/ && \
+tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
+```
+
 ## Regeln
 
 - Keine Abhängigkeiten auf Kern-Interna — nur die dokumentierte

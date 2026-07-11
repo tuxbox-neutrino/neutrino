@@ -135,6 +135,42 @@ reload the page.
 Technically the switch lives in `yWeb.conf`
 (`ext_<foldername>_enabled=1`, optionally `ext_<foldername>_slot=...`).
 
+## 5. Install / update / uninstall (manager)
+
+Settings → **Extensions** also manages the lifecycle
+(backend: `scripts/Y_Extensions.sh` via the `exec` contract):
+
+- **Install**: upload a `tar.gz` archive, or paste a download URL
+  (e.g. a GitHub release asset). An update is simply installing the
+  same extension again — the folder is replaced, all config keys
+  (enable/slot and extension settings) survive.
+- **Check for updates**: explicit button; compares the installed
+  versions against a hosted `index.json`
+  (default: the `tuxbox-neutrino/yweb-extensions` repository,
+  overridable via the `yWeb.conf` key `ext_index_url`). Available
+  updates show a badge and an update button in the row.
+- **Uninstall**: row button with confirmation. Removes the extension
+  folder and the scripts it shipped; the `ext_<folder>_*` config keys
+  are blanked (the config API cannot delete keys — empty values are
+  inert leftovers).
+
+### Packaging contract (`<folder>.tar.gz`)
+
+- The archive contains **exactly one top-level folder**; its name is
+  the extension key (`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`) and it must
+  contain `manifest.json`.
+- It unpacks to `<webroot>/extensions/<folder>/`.
+- Shell scripts in `<folder>/scripts/*.sh` are copied to
+  `<webroot>/scripts/` on install (available for `exec`/`action`
+  fields) and removed on uninstall — name them uniquely.
+- Build command (used by the release workflows):
+
+```sh
+mkdir -p /tmp/stage/<folder> && \
+rsync -a --exclude .git --exclude .github ./ /tmp/stage/<folder>/ && \
+tar -czf <folder>.tar.gz -C /tmp/stage <folder>
+```
+
 ## Rules
 
 - No dependencies on core internals — only the documented
