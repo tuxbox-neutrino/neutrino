@@ -163,6 +163,14 @@ Einstellungen → **Erweiterungen** verwaltet auch den Lebenszyklus
 - Shell-Skripte in `<ordner>/scripts/*.sh` werden bei der Installation
   nach `<webroot>/scripts/` kopiert (für `exec`-/`action`-Felder
   verfügbar) und bei der Deinstallation entfernt — eindeutig benennen.
+- Skripte werden **unverändert** kopiert — Build-Zeit-Platzhalter wie
+  `%(PRIVATE_HTTPDDIR)` werden *nicht* expandiert (das passiert nur
+  beim `make install` des Kerns). Geteilte Libraries stattdessen über
+  den Skript-Pfad finden:
+  ```sh
+  SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+  [ -r "$SCRIPTDIR/_Y_Globals.sh" ] && . "$SCRIPTDIR/_Y_Globals.sh"
+  ```
 - Bau-Kommando (nutzen auch die Release-Workflows):
 
 ```sh

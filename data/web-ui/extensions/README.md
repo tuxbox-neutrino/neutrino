@@ -163,6 +163,14 @@ Settings → **Extensions** also manages the lifecycle
 - Shell scripts in `<folder>/scripts/*.sh` are copied to
   `<webroot>/scripts/` on install (available for `exec`/`action`
   fields) and removed on uninstall — name them uniquely.
+- Scripts are copied **verbatim** — build-time placeholders like
+  `%(PRIVATE_HTTPDDIR)` are *not* expanded (that only happens during
+  the core's `make install`). Locate shared libraries from the script
+  path instead:
+  ```sh
+  SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+  [ -r "$SCRIPTDIR/_Y_Globals.sh" ] && . "$SCRIPTDIR/_Y_Globals.sh"
+  ```
 - Build command (used by the release workflows):
 
 ```sh
