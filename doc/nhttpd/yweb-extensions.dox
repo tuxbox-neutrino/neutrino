@@ -96,6 +96,10 @@ Y_Extensions.sh erzwingt beim Installieren:
 - Shell-Scripts in `<ordner>/scripts/*.sh` werden nach
   `<webroot>/scripts/` kopiert (Uninstall entfernt sie wieder) —
   eindeutige Namen verwenden (Beispiel `Y_Camds.sh`).
+- Scripts werden UNVERAENDERT kopiert: Build-Zeit-Platzhalter wie
+  `%(PRIVATE_HTTPDDIR)` werden nicht expandiert (das macht nur das
+  make install des Kerns) — Libraries via `$0`-Pfad sourcen
+  (`SCRIPTDIR=$(cd -- "$(dirname -- "$0")" && pwd)`).
 
 Bau-Kommando (identisch im Release-Workflow):
 \code{.sh}
@@ -255,6 +259,10 @@ Y_Extensions.sh enforces on install:
 - shell scripts in `<folder>/scripts/*.sh` are copied to
   `<webroot>/scripts/` (uninstall removes them again) — use unique
   names (example `Y_Camds.sh`).
+- scripts are copied VERBATIM: build-time placeholders like
+  `%(PRIVATE_HTTPDDIR)` are not expanded (only the core's
+  make install does that) — source libraries via the `$0` path
+  (`SCRIPTDIR=$(cd -- "$(dirname -- "$0")" && pwd)`).
 
 Build command (identical in the release workflow):
 \code{.sh}
