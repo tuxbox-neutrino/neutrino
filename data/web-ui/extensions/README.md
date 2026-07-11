@@ -178,3 +178,13 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 - The folder name is the stable key (config keys, URL
   `/extensions/<folder>/...`) — do not change it after publication.
 - Extensions are **off** by default (opt-in by the user).
+
+## Official extensions
+
+The official extensions live in their own versioned repositories
+under `github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
+m3u-converter, camds, infoicons, hallo-yweb) and are installable
+through the manager; the update index lives in the
+`yweb-extensions` meta repository. Only **hallo-yweb** additionally
+stays bundled here as an offline copy-paste example — its repository
+is the source of truth.

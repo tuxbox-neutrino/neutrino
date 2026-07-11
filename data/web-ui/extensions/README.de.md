@@ -178,3 +178,13 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 - Der Ordnername ist der stabile Schlüssel (Config-Keys, URL
   `/extensions/<ordner>/...`) — nach der Veröffentlichung nicht ändern.
 - Erweiterungen sind standardmäßig **aus** (Opt-in durch den Nutzer).
+
+## Offizielle Erweiterungen
+
+Die offiziellen Erweiterungen leben in eigenen versionierten
+Repositories unter `github.com/tuxbox-neutrino/yweb-extension-<name>`
+(installer, m3u-converter, camds, infoicons, hallo-yweb) und sind über
+die Verwaltung installierbar; der Update-Index liegt im Meta-Repository
+`yweb-extensions`. Nur **hallo-yweb** bleibt zusätzlich hier gebündelt
+als Offline-Copy-Paste-Beispiel — sein Repository ist die Quelle der
+Wahrheit.
