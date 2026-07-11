@@ -899,7 +899,7 @@
 			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.wol_devices=}</div>';
 			for (var i = 1; i <= 3; i++) {
 				html += '<div class="yweb-form-row"><label>{=L:yw.set.wol_device=} ' + i + '</label><span>' +
-					'<input type="text" id="wol_desc_' + i + '" placeholder="{=L:yw.m3u.desc=}" style="max-width:140px" value="' + (cfg['wol_desc_' + i] || '') + '"> ' +
+					'<input type="text" id="wol_desc_' + i + '" placeholder="{=L:yw.set.wol_desc_ph=}" style="max-width:140px" value="' + (cfg['wol_desc_' + i] || '') + '"> ' +
 					'<input type="text" id="wol_mac_' + i + '" placeholder="aa:bb:cc:dd:ee:ff" style="max-width:160px" value="' + (cfg['wol_mac_' + i] || '') + '"> ' +
 					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">' + ZAP_ICON + '{=L:yw.set.wol_wake=}</button></span></div>';
 			}
@@ -937,7 +937,7 @@
 		btn.disabled = true;
 		try {
 			await ywebApi('config', 'config=yweb&' + params);
-			ywebShowToast('{=L:yw.m3u.saved=}');
+			ywebShowToast('{=L:yw.msg.saved=}');
 			await loadWolPanel();
 		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;

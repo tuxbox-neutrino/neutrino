@@ -29,7 +29,6 @@ install_DATA = \
 	dashboard.yhtm \
 	epg.yhtm \
 	files.yhtm \
-	m3u-convert.yhtm \
 	screenshot.yhtm \
 	set-lang.yhtm \
 	settings.yhtm \
