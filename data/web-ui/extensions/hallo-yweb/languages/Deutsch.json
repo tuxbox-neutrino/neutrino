@@ -1,0 +1,18 @@
+{
+	"manifest.name": "Hallo yWeb",
+	"manifest.description": "Referenz-Erweiterung (Copy-Paste-Vorlage)",
+	"settings.label": "Hallo yWeb",
+	"settings.section_demo": "Demo-Einstellungen (persistiert in yWeb.conf)",
+	"settings.greeting": "Begrüßungstext",
+	"settings.flag": "Demo-Schalter",
+	"settings.section_action": "Demo-Aktion (exec-Vertrag)",
+	"settings.hostname": "Hostname der Box abfragen",
+	"settings.hostname_btn": "Abfragen",
+	"settings.hostname_ok": "Hostname abgefragt",
+	"page.title": "Hallo yWeb!",
+	"page.intro": "Diese Seite ist die Referenz-Erweiterung. Sie zeigt, wie eine Erweiterung den yWeb-Header einbindet, Daten von der /api/v4/-Schnittstelle liest und sich über ihr eigenes Sprachpaket (languages/*.json) lokalisiert.",
+	"page.hostname": "Hostname",
+	"page.uptime": "Laufzeit",
+	"page.neutrino": "Neutrino",
+	"page.error": "Fehler"
+}

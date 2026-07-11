@@ -1,30 +1,30 @@
 {
-	"name": "Hallo yWeb",
+	"name": "Hello yWeb",
 	"version": "1.0",
 	"slot": "tools",
 	"entry": "hallo.html",
-	"description": "Referenz-Erweiterung (Copy-Paste-Vorlage)",
+	"description": "Reference extension (copy-paste template)",
 	"settings": {
-		"label": "Hallo yWeb",
+		"label": "L:settings.label",
 		"config": "yweb",
 		"sections": [
 			{
-				"title": "Demo-Einstellungen (persistiert in yWeb.conf)",
+				"title": "L:settings.section_demo",
 				"fields": [
-					{ "key": "hallo_yweb_text", "label": "Begruessungstext", "type": "text" },
-					{ "key": "hallo_yweb_flag", "label": "Demo-Schalter", "type": "bool01" }
+					{ "key": "hallo_yweb_text", "label": "L:settings.greeting", "type": "text" },
+					{ "key": "hallo_yweb_flag", "label": "L:settings.flag", "type": "bool01" }
 				]
 			},
 			{
-				"title": "Demo-Aktion (exec-Vertrag)",
+				"title": "L:settings.section_action",
 				"fields": [
 					{
 						"type": "action",
 						"id": "hallo-yweb-hostname",
-						"label": "Hostname der Box abfragen",
-						"button": "Abfragen",
+						"label": "L:settings.hostname",
+						"button": "L:settings.hostname_btn",
 						"api": { "endpoint": "exec", "params": "Y_Tools&get_hostname", "raw": true },
-						"success": "Hostname abgefragt"
+						"success": "L:settings.hostname_ok"
 					}
 				]
 			}

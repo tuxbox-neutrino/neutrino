@@ -200,6 +200,41 @@ function ywebGetLanguages() {
 	return langs;
 }
 
+// ═══ Per-extension language packs ═══
+// Extensions ship their own dictionaries as flat JSON:
+// <ext>/languages/<Language>.json — named like the core language file
+// (English.json, Deutsch.json, ...). English texts live inline in the
+// markup/manifest as fallback; there is deliberately no second fetch
+// of English.json. Reserved keys manifest.name/manifest.description
+// localize tile/nav/manager (hook in ywebDiscoverExtensions).
+var _ywebExtLang = {};
+
+function ywebActiveLangName() {
+	var langs = ywebGetLanguages();
+	for (var i = 0; i < langs.length; i++)
+		if (langs[i].active) return langs[i].name;
+	return 'English';
+}
+
+async function ywebExtLangLoad(dir) {
+	if (_ywebExtLang[dir]) return _ywebExtLang[dir];
+	var dict = {};
+	try {
+		var resp = await fetch('/extensions/' + encodeURIComponent(dir) +
+			'/languages/' + encodeURIComponent(ywebActiveLangName()) + '.json',
+			{cache: 'no-cache'});
+		if (resp.ok) dict = (await resp.json()) || {};
+	} catch (ignore) {} // a missing language pack is NOT an error
+	_ywebExtLang[dir] = dict;
+	return dict;
+}
+
+function ywebExtL(dir, key, fallbackEN) {
+	var d = _ywebExtLang[dir];
+	var v = d && d[key];
+	return v || fallbackEN || key;
+}
+
 function ywebToggleLangMenu(ev) {
 	ev.stopPropagation();
 	var menu = document.getElementById('yweb-lang-menu');
@@ -1678,6 +1713,13 @@ async function ywebDiscoverExtensions() {
 				m.enabled = (yCfg[ckBase + '_enabled'] === '1');
 				m.slot = yCfg[ckBase + '_slot'] || m.slot || 'tools';
 				m.url = m.entry ? ('/extensions/' + m.dir + '/' + m.entry) : '';
+				// Load the language pack for enabled extensions only;
+				// reserved keys translate name/description
+				if (m.enabled) {
+					var xl = await ywebExtLangLoad(m.dir);
+					if (xl['manifest.name']) m.name = xl['manifest.name'];
+					if (xl['manifest.description']) m.description = xl['manifest.description'];
+				}
 				_ywebExtensions.push(m);
 			} catch (ignore) {}
 		}

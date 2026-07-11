@@ -1,103 +1,144 @@
-# yWeb-Erweiterung in 10 Minuten
+# A yWeb extension in 10 minutes
 
-Das moderne yWeb lädt Erweiterungen automatisch aus diesem Verzeichnis.
-Eine Erweiterung ist **ein Ordner mit einem Manifest** — kein Patchen von
-Kernseiten, kein Build nötig.
+*Deutsche Fassung: [README.de.md](README.de.md)*
 
-## 1. Ordner anlegen
+Modern yWeb loads extensions automatically from this directory.
+An extension is **a folder with a manifest** — no patching of core
+pages, no build required.
 
-Auf der Box (Webroot, z.B. `/share/tuxbox/neutrino/httpd/`):
+## 1. Create a folder
+
+On the box (webroot, e.g. `/share/tuxbox/neutrino/httpd/`):
 
 ```
 extensions/
-└── meine-erweiterung/
+└── my-extension/
     ├── manifest.json
     └── index.html
 ```
 
-## 2. Manifest schreiben (`manifest.json`)
+## 2. Write the manifest (`manifest.json`)
 
 ```json
 {
-	"name": "Meine Erweiterung",
+	"name": "My Extension",
 	"version": "1.0",
 	"slot": "tools",
 	"entry": "index.html",
-	"description": "Kurze Beschreibung fuer die Kachel"
+	"description": "Short subtitle for the tile"
 }
 ```
 
-| Feld | Bedeutung |
+| Field | Meaning |
 |------|-----------|
-| `name` | Anzeigename (Nav-Link, Kachel, Verwaltung) |
-| `version` | frei, wird in der Verwaltung angezeigt |
-| `slot` | Andockpunkt: `nav` (Hauptnavigation), `tools` (Kachel im Tools-Grid), `dashboard` (Karte), `page` (nur Direktaufruf) |
-| `entry` | Einstiegsdatei relativ zum Erweiterungsordner |
-| `description` | optionaler Untertitel |
-| `settings` | optional: eigene Kategorie unter Einstellungen (siehe unten) |
+| `name` | Display name (nav link, tile, manager) |
+| `version` | free-form, shown in the manager |
+| `slot` | Attachment point: `nav` (main navigation), `tools` (tile in the tools grid), `dashboard` (card), `page` (direct URL only) |
+| `entry` | Entry file relative to the extension folder |
+| `description` | optional subtitle |
+| `settings` | optional: own category under Settings (see below) |
 
-### Optional: eigene Einstellungs-Kategorie (`settings`)
+### Optional: own settings category (`settings`)
 
-Eine aktivierte Erweiterung mit `settings`-Block bekommt eine eigene
-Kategorie in der Einstellungs-Seitenleiste. Die Felder sind deklarativ
-(gleiches Schema wie die Kern-Registry) und werden generisch geladen,
-verglichen und gespeichert — kein eigener JS-Code nötig:
+An enabled extension with a `settings` block gets its own category in
+the settings sidebar. Fields are declarative (same schema as the core
+registry) and are loaded, diffed and saved generically — no custom JS
+needed:
 
 ```json
 "settings": {
-	"label": "Meine Erweiterung",
+	"label": "My Extension",
 	"config": "yweb",
 	"sections": [
-		{ "title": "Abschnitt", "fields": [
-			{ "key": "meine_option", "label": "Option", "type": "text" },
-			{ "key": "mein_schalter", "label": "Schalter", "type": "bool01" },
-			{ "type": "action", "id": "mein-knopf", "label": "Aktion",
-			  "button": "Los", "api": { "endpoint": "exec",
-			  "params": "MeinScript&aktion", "raw": true },
-			  "success": "Ausgefuehrt" }
+		{ "title": "Section", "fields": [
+			{ "key": "my_option", "label": "Option", "type": "text" },
+			{ "key": "my_switch", "label": "Switch", "type": "bool01" },
+			{ "type": "action", "id": "my-button", "label": "Action",
+			  "button": "Go", "api": { "endpoint": "exec",
+			  "params": "MyScript&action", "raw": true },
+			  "success": "Done" }
 		] }
 	]
 }
 ```
 
-| Feld | Bedeutung |
+| Field | Meaning |
 |------|-----------|
-| `label` | Kategoriename in der Seitenleiste (Default: `name`) |
-| `config` | Ziel-Config fuer `key`-Felder: `yweb` (Default), `neutrino`, `nhttpd` |
-| `sections[].fields[]` | Feldtypen `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
+| `label` | Category name in the sidebar (default: `name`) |
+| `config` | Target config for `key` fields: `yweb` (default), `neutrino`, `nhttpd` |
+| `sections[].fields[]` | Field types `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
 
-`key`-Felder werden in der gewaehlten Config-Datei persistiert;
-`action`-Felder feuern einen v4-Call (typisch `exec` auf ein Script);
-ohne `success`-Text erscheint die Script-Ausgabe als Toast-Feedback.
-Referenz: [`hallo-yweb/manifest.json`](hallo-yweb/manifest.json).
+`key` fields are persisted in the chosen config file; `action` fields
+fire a v4 call (typically `exec` on a script); without a `success` text
+the script output is shown as toast feedback.
+Reference: [`hallo-yweb/manifest.json`](hallo-yweb/manifest.json).
 
-## 3. Seite schreiben (`index.html`)
+### Optional: own language pack (`languages/`)
 
-Kopiervorlage: [`hallo-yweb/hallo.html`](hallo-yweb/hallo.html). Kernpunkte:
+An extension can localize itself — flat JSON dictionaries per language,
+named like the core language files:
 
-- yWeb-Header/Nav einbinden:
+```
+my-extension/
+├── manifest.json
+├── index.html
+└── languages/
+    ├── English.json
+    └── Deutsch.json
+```
+
+```json
+{
+	"manifest.name": "My Extension",
+	"manifest.description": "Tile subtitle",
+	"settings.greeting": "Greeting text",
+	"page.title": "Hello!"
+}
+```
+
+- **Reserved keys** `manifest.name` / `manifest.description` translate
+  name and subtitle wherever the extension attaches
+  (nav, tile, dashboard, manager).
+- **Manifest strings** (settings `label`, section `title`, field
+  `label`, `button`, `success`) are translated when their value starts
+  with `L:`: `"label": "L:settings.greeting"` → key `settings.greeting`
+  from the language pack. Values without `L:` stay literals.
+- **On your own pages**: at init `await ywebExtLangLoad('<folder>')`,
+  then `ywebExtL('<folder>', 'page.title', 'Hello!')` — the third
+  parameter is the English fallback, which also lives inline in the
+  markup. Only the active language is fetched (no second fetch of
+  English).
+- Always keep English + German in step; identical keysets.
+
+Reference: [`hallo-yweb/languages/`](hallo-yweb/languages/).
+
+## 3. Write the page (`index.html`)
+
+Copy template: [`hallo-yweb/hallo.html`](hallo-yweb/hallo.html). Key points:
+
+- Embed the yWeb header/nav:
   `<div class="yweb-header-wrapper" data-page="tools"></div>` +
   `<script src="/yweb-header.js"></script>` + `ywebInitHeader('tools');`
-- Styling: Pico CSS + `/css/yweb.css` verlinken — fertige Klassen
-  (`settings-card`, `yweb-form-row`, `yweb-btn`) nutzen.
-- **Daten nur über `/api/v4/`** holen, am einfachsten mit dem Helfer:
+- Styling: link Pico CSS + `/css/yweb.css` — use the ready-made classes
+  (`yweb-card`, `yweb-form-row`, `yweb-btn`).
+- **Fetch data only through `/api/v4/`**, easiest via the helper:
   `var sys = await ywebApi('sysinfo');`
-  Referenz aller Endpoints: Doxygen-Seite „Neutrino Web-API v4"
-  (`doc/nhttpd/apiv4.dox` im Quellbaum).
+  Reference of all endpoints: Doxygen page "Neutrino Web-API v4"
+  (`doc/nhttpd/apiv4.dox` in the source tree).
 
-## 4. Aktivieren
+## 4. Enable
 
-Einstellungen → **Erweiterungen**: die neue Erweiterung erscheint
-automatisch in der Liste → Schalter aktivieren, optional den Slot
-ändern → Speichern → Seite neu laden.
+Settings → **Extensions**: the new extension shows up automatically in
+the list → enable the switch, optionally change the slot → save →
+reload the page.
 
-Technisch: die Schaltung liegt in `yWeb.conf`
-(`ext_<ordnername>_enabled=1`, optional `ext_<ordnername>_slot=...`).
+Technically the switch lives in `yWeb.conf`
+(`ext_<foldername>_enabled=1`, optionally `ext_<foldername>_slot=...`).
 
-## Regeln
+## Rules
 
-- Keine Abhängigkeiten auf Kern-Interna — nur die dokumentierte
-  `/api/v4/`-Fläche (plus `exec`-Vertrag für Script-Aktionen).
-- Der Ordnername ist der stabile Schlüssel (Config-Keys, URL
-  `/extensions/<ordner>/...`) — nach der Veröffentlichung nicht ändern.
-- Erweiterungen sind standardmäßig **aus** (Opt-in durch den Nutzer).
+- No dependencies on core internals — only the documented
+  `/api/v4/` surface (plus the `exec` contract for script actions).
+- The folder name is the stable key (config keys, URL
+  `/extensions/<folder>/...`) — do not change it after publication.
+- Extensions are **off** by default (opt-in by the user).

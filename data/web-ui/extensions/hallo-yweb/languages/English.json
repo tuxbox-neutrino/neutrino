@@ -1,0 +1,18 @@
+{
+	"manifest.name": "Hello yWeb",
+	"manifest.description": "Reference extension (copy-paste template)",
+	"settings.label": "Hello yWeb",
+	"settings.section_demo": "Demo settings (persisted in yWeb.conf)",
+	"settings.greeting": "Greeting text",
+	"settings.flag": "Demo switch",
+	"settings.section_action": "Demo action (exec contract)",
+	"settings.hostname": "Query box hostname",
+	"settings.hostname_btn": "Query",
+	"settings.hostname_ok": "Hostname queried",
+	"page.title": "Hello yWeb!",
+	"page.intro": "This page is the reference extension. It shows how an extension embeds the yWeb header, reads data from the /api/v4/ interface and localizes itself with its own language pack (languages/*.json).",
+	"page.hostname": "Hostname",
+	"page.uptime": "Uptime",
+	"page.neutrino": "Neutrino",
+	"page.error": "Error"
+}

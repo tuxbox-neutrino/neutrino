@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Hallo yWeb</title>
+	<title>Hello yWeb</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=69">
@@ -13,22 +13,34 @@
 	<div class="yweb-header-spacer"></div>
 
 	<main style="max-width:640px;margin:0 auto;padding:1rem">
-		<div class="settings-card" style="padding:1rem">
-			<h3>Hallo yWeb!</h3>
-			<p>Diese Seite ist die <b>Referenz-Erweiterung</b>. Sie zeigt, wie eine
-			Erweiterung den yWeb-Header einbindet und Daten von der
-			<code>/api/v4/</code>-Schnittstelle liest.</p>
-			<div class="yweb-form-row"><label>Hostname</label><span id="exHost">…</span></div>
-			<div class="yweb-form-row"><label>Uptime</label><span id="exUp">…</span></div>
-			<div class="yweb-form-row"><label>Neutrino</label><span id="exVer">…</span></div>
+		<div class="yweb-card" style="padding:1rem">
+			<h3 id="exTitle">Hello yWeb!</h3>
+			<p id="exIntro">This page is the reference extension. It shows how an
+			extension embeds the yWeb header, reads data from the
+			<code>/api/v4/</code> interface and localizes itself with its own
+			language pack (<code>languages/*.json</code>).</p>
+			<div class="yweb-form-row"><label id="exHostLabel">Hostname</label><span id="exHost">…</span></div>
+			<div class="yweb-form-row"><label id="exUpLabel">Uptime</label><span id="exUp">…</span></div>
+			<div class="yweb-form-row"><label id="exVerLabel">Neutrino</label><span id="exVer">…</span></div>
 		</div>
 	</main>
 
 	<script src="/Y_Lang.yjs?v=9"></script>
-	<script src="/yweb-header.js?v=41"></script>
+	<script src="/yweb-header.js?v=42"></script>
 	<script>
-		// Daten ausschliesslich ueber die dokumentierte v4-Flaeche holen
+		// i18n pattern: load the extension's language pack, then set texts
+		// via ywebExtL(dir, key, fallbackEN) — English lives inline in the
+		// markup and doubles as the fallback.
 		(async function() {
+			await ywebExtLangLoad('hallo-yweb');
+			var L = function(k, en) { return ywebExtL('hallo-yweb', k, en); };
+			document.getElementById('exTitle').textContent = L('page.title', 'Hello yWeb!');
+			document.getElementById('exIntro').textContent = L('page.intro', document.getElementById('exIntro').textContent);
+			document.getElementById('exHostLabel').textContent = L('page.hostname', 'Hostname');
+			document.getElementById('exUpLabel').textContent = L('page.uptime', 'Uptime');
+			document.getElementById('exVerLabel').textContent = L('page.neutrino', 'Neutrino');
+
+			// Fetch data exclusively through the documented v4 surface
 			try {
 				var sys = await ywebApi('sysinfo');
 				document.getElementById('exHost').textContent = sys.hostname || '--';
@@ -36,7 +48,7 @@
 				var ver = await ywebApi('versions');
 				document.getElementById('exVer').textContent = ver.neutrino || '--';
 			} catch (e) {
-				document.getElementById('exHost').textContent = 'Fehler: ' + e.message;
+				document.getElementById('exHost').textContent = L('page.error', 'Error') + ': ' + e.message;
 			}
 		})();
 		ywebInitHeader('tools');

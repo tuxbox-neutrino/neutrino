@@ -324,7 +324,7 @@
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=9"></script>
-	<script src="/yweb-header.js?v=41"></script>
+	<script src="/yweb-header.js?v=42"></script>
 	<script src="/settings-registry.js?v=8"></script>
 	<script>
 	var configData = {};
@@ -1220,7 +1220,22 @@
 
 		originalValues = Object.assign({}, configData);
 
-		// Aktivierte Erweiterungen mit settings-Definition als Kategorien
+		// Enabled extensions with a settings definition become categories.
+		// Manifest strings prefixed with "L:" are resolved from the
+		// extension's language pack (ywebExtL; discovery already loads the
+		// dictionary for enabled extensions) — literals stay valid.
+		function resolveExtL(dir, node) {
+			if (typeof node === 'string')
+				return node.indexOf('L:') === 0 ? ywebExtL(dir, node.slice(2), node) : node;
+			if (Array.isArray(node))
+				return node.map(function(n) { return resolveExtL(dir, n); });
+			if (node && typeof node === 'object') {
+				var out = {};
+				Object.keys(node).forEach(function(k) { out[k] = resolveExtL(dir, node[k]); });
+				return out;
+			}
+			return node;
+		}
 		EXT_SETTINGS_CATS = {};
 		try {
 			_ywebExtensions = null; // frisch entdecken (Enable kann sich geaendert haben)
@@ -1229,9 +1244,9 @@
 				var cid = 'ext-' + m.dir;
 				EXT_SETTINGS_CATS[cid] = {
 					id: cid,
-					label: m.settings.label || m.name,
+					label: resolveExtL(m.dir, m.settings.label || m.name),
 					config: m.settings.config || 'yweb',
-					sections: m.settings.sections
+					sections: resolveExtL(m.dir, m.settings.sections)
 				};
 			});
 		} catch (ignore) {}

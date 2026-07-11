@@ -147,7 +147,7 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=9"></script>
-	<script src="/yweb-header.js?v=41"></script>
+	<script src="/yweb-header.js?v=42"></script>
 	<script>
 		var bqeBouquets = [];      // {number, name, hidden?, locked?}
 		var bqeSelected = null;    // number des gewaehlten Bouquets
