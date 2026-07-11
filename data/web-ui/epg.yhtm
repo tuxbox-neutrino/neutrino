@@ -6,7 +6,7 @@
 	<title>yWeb - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=68">
+	<link rel="stylesheet" href="/css/yweb.css?v=69">
 	<style>
 		.yweb-epg-container {
 			padding: 0.3rem;

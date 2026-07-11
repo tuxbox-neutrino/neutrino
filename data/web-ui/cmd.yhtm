@@ -6,7 +6,7 @@
 	<title>yWeb - Shell</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=68">
+	<link rel="stylesheet" href="/css/yweb.css?v=69">
 	<style>
 		.cmd-content {
 			padding: 0.5rem 1rem;

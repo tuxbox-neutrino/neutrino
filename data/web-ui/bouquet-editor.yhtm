@@ -6,14 +6,18 @@
 	<title>yWeb - {=L:yw.tools.bqedit=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=68">
+	<link rel="stylesheet" href="/css/yweb.css?v=69">
 	<style>
 		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */
 		.bqe-wrap { max-width: none; margin: 0; padding: 0.8rem 1.2rem; }
 		.bqe-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.8rem; }
-		.bqe-mode { display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; }
-		.bqe-mode select { margin: 0; padding: 0.2rem 0.4rem; height: auto; }
+		/* Modus-Select auf .yweb-btn-Metrik (Schrift/Padding/Hoehe),
+		   sonst steht die Leiste nicht auf einer Linie: Pico gibt dem
+		   select 1rem-Schrift + Margins → 4px hoeher und 7px tiefer
+		   zentriert als die Speichern-Buttons daneben */
+		.bqe-mode { display: flex; align-items: center; gap: 0.3rem; margin: 0; font-size: var(--yweb-font-xs); }
+		.bqe-mode select { margin: 0; padding: 0.3rem 0.5rem; height: auto; font-size: var(--yweb-font-xs); line-height: normal; border-radius: var(--yweb-radius); }
 		.bqe-dirty { display: none; align-items: center; gap: 0.3rem; color: var(--yweb-accent); border: 1px solid var(--yweb-accent); border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.75rem; }
 		.bqe-dirty.on { display: inline-flex; }
 		.bqe-grid { display: grid; grid-template-columns: minmax(260px, 320px) 1fr 1fr; gap: 0.8rem; }

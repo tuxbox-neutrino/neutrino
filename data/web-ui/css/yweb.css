@@ -1512,6 +1512,10 @@ body:not(.has-subheader) .yweb-header-spacer {
 	align-items: center;
 	justify-content: center;
 	gap: 0.25rem;
+	/* Picos button-margin (1rem unten) neutralisieren: Flex/Grid
+	   zentrieren die Margin-Box — Buttons standen sonst in jeder
+	   Leiste sichtbar zu hoch (Toolbar, Kartenkoepfe, Dialoge) */
+	margin: 0;
 	padding: 0.3rem 0.5rem;
 	background: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-muted-border-color);
