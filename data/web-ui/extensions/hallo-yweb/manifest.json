@@ -1,6 +1,6 @@
 {
 	"name": "Hello yWeb",
-	"version": "1.0",
+	"version": "1.0.0",
 	"slot": "tools",
 	"entry": "hallo.html",
 	"description": "Reference extension (copy-paste template)",
