@@ -18,14 +18,19 @@
 			padding: 0.5rem;
 		}
 
-		/* Sidebar — Panel-Karte in der Optik von bouquets/timer */
+		/* Sidebar — Panel-Karte in der Optik von bouquets/timer.
+		   sticky-Offset bezieht sich auf den Scroller <main> (liegt
+		   schon unter dem Header), nicht aufs Fenster: 4.5rem drueckte
+		   die Sidebar bei hohen Panels sichtbar nach unten (Audio,
+		   Tasten, ...), bei kurzen klemmte der Containing Block sie
+		   oben fest — Menue sprang je nach gewaehltem Eintrag */
 		.yweb-settings-sidebar {
 			width: 230px;
 			flex-shrink: 0;
 			position: sticky;
-			top: 4.5rem;
+			top: 0;
 			align-self: flex-start;
-			max-height: calc(100vh - 5rem);
+			max-height: calc(100vh - 7rem);
 			overflow-y: auto;
 			overflow-x: hidden;
 			background: var(--pico-card-background-color);
