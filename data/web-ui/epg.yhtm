@@ -8,6 +8,24 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=70">
 	<style>
+		/* Program tile colors. These used to be hard-coded dark slate
+		   values, which left dark text on a dark tile in the light theme.
+		   Both themes now define their own surface, and text on the accent
+		   uses the shared --yweb-on-accent token instead of plain white. */
+		:root {
+			--epg-prog-bg: #2a3a4a;
+			--epg-prog-border: #3a4a5a;
+			--epg-prog-rest: #3a5a6a;
+			--epg-row-hover: rgba(255, 255, 255, 0.02);
+		}
+
+		[data-theme="light"] {
+			--epg-prog-bg: #e8eef5;
+			--epg-prog-border: #c3d0de;
+			--epg-prog-rest: #cbd8e6;
+			--epg-row-hover: rgba(0, 0, 0, 0.03);
+		}
+
 		.yweb-epg-container {
 			padding: 0.3rem;
 			max-width: 100%;
@@ -59,7 +77,8 @@
 			padding: 0.4rem 0.5rem;
 			font-weight: 600;
 			font-size: 0.7rem;
-			color: var(--pico-muted-color);
+			/* muted is too faint for 11px labels in the light theme */
+			color: var(--yweb-text-secondary);
 			border-right: 1px solid var(--pico-muted-border-color);
 			flex-shrink: 0;
 		}
@@ -78,7 +97,7 @@
 			font-size: 0.7rem;
 			font-weight: 500;
 			border-right: 1px solid var(--pico-muted-border-color);
-			color: var(--pico-muted-color);
+			color: var(--yweb-text-secondary);
 		}
 
 		/* Channel rows */
@@ -94,7 +113,7 @@
 		}
 
 		.yweb-epg-row:hover {
-			background: rgba(255,255,255,0.02);
+			background: var(--epg-row-hover);
 		}
 
 		.yweb-epg-channel-name {
@@ -141,8 +160,8 @@
 			position: absolute;
 			top: 2px;
 			bottom: 2px;
-			background: #2a3a4a;
-			border: 1px solid #3a4a5a;
+			background: var(--epg-prog-bg);
+			border: 1px solid var(--epg-prog-border);
 			border-radius: 3px;
 			padding: 2px 6px;
 			overflow: hidden;
@@ -158,7 +177,7 @@
 		.yweb-epg-program:hover {
 			background: var(--yweb-accent);
 			border-color: var(--yweb-accent);
-			color: white;
+			color: var(--yweb-on-accent);
 			z-index: 5;
 			box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 		}
@@ -168,10 +187,10 @@
 			background: linear-gradient(to right,
 				var(--yweb-accent) 0%,
 				var(--yweb-accent) var(--progress, 0%),
-				#3a5a6a var(--progress, 0%),
-				#3a5a6a 100%);
+				var(--epg-prog-rest) var(--progress, 0%),
+				var(--epg-prog-rest) 100%);
 			border-color: var(--yweb-accent);
-			color: white;
+			color: var(--yweb-on-accent);
 		}
 
 		.yweb-epg-program.timer-rec {
