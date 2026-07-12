@@ -258,14 +258,14 @@ int CNetworkSetup::showNetworkSetup()
 	CMenuWidget *networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP);
 	networkSettings->setWizardMode(is_wizard);
 
-	sectionsdConfigNotifier = NULL;
 	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
 #ifdef ENABLE_GUI_MOUNT
 	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
 #endif
+
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
 	CNhttpdSetup httpd;
-	CNetworkServiceSetup services;
+	//CNetworkServiceSetup services;
 	CMenuForwarder *mf = NULL;
 
 	//apply button
@@ -325,6 +325,23 @@ int CNetworkSetup::showNetworkSetup()
 	mf->setHint("", LOCALE_MENU_HINT_NET_HTTPD);
 	networkSettings->addItem(mf);
 
+	//ntp submenu
+	sectionsdConfigNotifier = new CSectionsdConfigNotifier;
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow);
+	mf->setHint("", LOCALE_MENU_HINT_NET_NTP);
+	networkSettings->addItem(mf);
+
+	showNetworkNTPSetup(&ntp);
+
+#ifdef ENABLE_GUI_MOUNT
+	//nfs mount submenu
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue);
+	mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
+	networkSettings->addItem(mf);
+
+	showNetworkNFSMounts(&networkmounts);
+#endif
+
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
 	if (ifcount)
@@ -375,22 +392,6 @@ int CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem(m5);	//nameserver
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
-	//ntp submenu
-	sectionsdConfigNotifier = new CSectionsdConfigNotifier;
-	mf = new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, &ntp, NULL, CRCInput::RC_yellow);
-	mf->setHint("", LOCALE_MENU_HINT_NET_NTP);
-	networkSettings->addItem(mf);
-
-	showNetworkNTPSetup(&ntp);
-
-#ifdef ENABLE_GUI_MOUNT
-	//nfs mount submenu
-	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue);
-	mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
-	networkSettings->addItem(mf);
-	showNetworkNFSMounts(&networkmounts);
-#endif
-
 	//proxyserver submenu
 	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
