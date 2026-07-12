@@ -74,6 +74,8 @@ CNetworkSetup::CNetworkSetup(int wizard_mode)
 {
 	networkConfig = CNetworkConfig::getInstance();
 
+	sectionsdConfigNotifier = NULL;
+
 	is_wizard = wizard_mode;
 
 	width = 40;
