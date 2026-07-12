@@ -17,17 +17,16 @@
 			margin: 0 auto;
 		}
 
-		/* N2a: Desktop verteilt wie das Dashboard — 12 Tracks, der shared
-		   Balancer (ywebBalanceGrid) setzt --dash-span je Kachel; darunter
-		   bleibt das auto-fill-Layout unangetastet */
+		/* Desktop: fixed-width tiles, centered rows. Stays clean for any
+		   card count (incl. async-injected extension tiles) without the
+		   12-track JS balancer, which left spare tracks whenever the
+		   per-row count did not divide 12 (e.g. 5 cards). Below the
+		   breakpoint the auto-fill layout stays untouched. */
 		@media (min-width: 1101px) {
 			.yweb-tools-grid {
-				grid-template-columns: repeat(12, 1fr);
+				grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+				justify-content: center;
 				max-width: none;
-			}
-
-			.yweb-tools-grid .yweb-tool-card {
-				grid-column: span var(--dash-span, 4);
 			}
 		}
 
@@ -204,16 +203,6 @@
 				if (el) el.textContent = (st && st.recording) ? '\u2022 {=L:yw.bc.rec_running=}' : '\u2022 {=L:yw.bc.rec_none=}';
 			} catch (e) {}
 		}
-
-		// N2a: Kacheln in Dashboard-Verteilung packen (Erweiterungen mit
-		// Slot 'tools' kommen asynchron dazu, daher MutationObserver)
-		function balanceTools() {
-			ywebBalanceGrid('.yweb-tools-grid', {even: true});
-		}
-		balanceTools();
-		window.addEventListener('resize', balanceTools);
-		new MutationObserver(balanceTools)
-			.observe(document.querySelector('.yweb-tools-grid'), {childList: true});
 	</script>
 </body>
 </html>
