@@ -4,10 +4,12 @@
 # (C) 2011 Stefan Seyfried
 # License: GPL v2
 #
-# usage: sh ./rcsim_h-creation.sh > rcsim.h
+# usage: sh ./rcsim_h-creation.sh top_srcdir > rcsim.h
 
-rcinput_fake_h="../driver/rcinput_fake.h"
-rcinput_h="../driver/rcinput.h"
+top_srcdir=$1
+
+rcinput_fake_h="$top_srcdir/src/driver/rcinput_fake.h"
+rcinput_h="$top_srcdir/src/driver/rcinput.h"
 
 cat << EOF
 // rcsim.h - automatically created from rcinput.h and rcinput_fake.h

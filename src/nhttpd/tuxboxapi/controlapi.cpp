@@ -39,7 +39,7 @@
 #include <driver/display.h>
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
-#include <tools/rcsim.h>
+#include <src/tools/rcsim.h> // rcsim.h is located in $(top_builddir)
 #include <driver/pictureviewer/pictureviewer.h>
 extern CPictureViewer *g_PicViewer;
 

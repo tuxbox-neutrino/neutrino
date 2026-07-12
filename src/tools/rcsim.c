@@ -58,7 +58,7 @@ enum initiators
 	INITID_GENERIC_INPUT_EVENT_PROVIDER
 };
 
-#include "rcsim.h"
+#include <src/tools/rcsim.h> // rcsim.h is located in $(top_builddir)
 
 void usage(char *n)
 {

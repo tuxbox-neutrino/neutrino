@@ -11,9 +11,8 @@ AM_CPPFLAGS = \
 	@HWLIB_CFLAGS@
 
 BUILT_SOURCES = rcsim.h
-# ugly: this is in the source tree, but belongs into the build dir :-(
 rcsim.h: $(top_srcdir)/src/driver/rcinput.h $(top_srcdir)/src/driver/rcinput_fake.h $(srcdir)/rcsim_h-creation.sh
-	pushd $(srcdir) && sh ./rcsim_h-creation.sh > $@
+	sh $(srcdir)/rcsim_h-creation.sh $(top_srcdir) > $@
 
 bin_PROGRAMS = rcsim
 rcsim_SOURCES = rcsim.c rcsim.h
