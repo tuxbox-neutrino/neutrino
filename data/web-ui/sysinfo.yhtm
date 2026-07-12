@@ -309,7 +309,15 @@
 			var mem = '';
 			if (sys.memory)
 				mem += bar('RAM', sys.memory.percent, ywebFormatKB(sys.memory.used) + ' / ' + ywebFormatKB(sys.memory.total));
-			if (sys.disk)
+			// One bar per mounted storage filesystem; older backends only
+			// deliver the single root-fs "disk" object
+			if (sys.disks && sys.disks.length) {
+				for (var d = 0; d < sys.disks.length; d++) {
+					var dsk = sys.disks[d];
+					var dlabel = (dsk.mount === '/') ? 'Disk /' : escapeHtml(dsk.mount);
+					mem += bar(dlabel, dsk.percent, ywebFormatKB(dsk.free) + ' {=L:yw.si.free_of=} ' + ywebFormatKB(dsk.total));
+				}
+			} else if (sys.disk)
 				mem += bar('Disk', sys.disk.percent, ywebFormatKB(sys.disk.free) + ' {=L:yw.si.free_of=} ' + ywebFormatKB(sys.disk.total));
 			document.getElementById('sysinfo-mem').innerHTML = mem;
 
