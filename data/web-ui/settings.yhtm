@@ -262,10 +262,30 @@
 			text-transform: uppercase;
 			letter-spacing: 0.05em;
 			font-weight: 600;
-			border-bottom: 1px solid var(--pico-muted-border-color);
-			padding-bottom: 0.3rem;
+			padding-bottom: 0.1rem;
+		}
+		.ext-grid .ext-grid-head.center { text-align: center; }
+		.ext-grid .ext-grid-head.right { text-align: right; }
+		/* one continuous rule under the header row — per-cell borders
+		   would break at the column gaps */
+		.ext-grid-rule {
+			grid-column: 1 / -1;
+			height: 1px;
+			background: var(--pico-muted-border-color);
+			margin-top: -0.25rem;
+		}
+		/* centers toggles under their header and kills the inline-block
+		   baseline gap that pushed them off the row center */
+		.ext-cell-center {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			align-self: stretch;
 		}
 		.ext-grid select {
+			/* block kills the inline baseline gap inside the plain cell
+			   div, so the row centers on the select height */
+			display: block;
 			width: 100%;
 			margin: 0;
 			padding: 0.2rem 0.4rem !important;
@@ -713,8 +733,9 @@
 				'<div class="ext-grid">' +
 				'<div class="ext-grid-head">{=L:yw.set.ext_col_ext=}</div>' +
 				'<div class="ext-grid-head">Slot</div>' +
-				'<div class="ext-grid-head">{=L:yw.set.ext_col_on=}</div>' +
-				'<div class="ext-grid-head" style="text-align:right">{=L:yw.set.ext_col_action=}</div>';
+				'<div class="ext-grid-head center">{=L:yw.set.ext_col_on=}</div>' +
+				'<div class="ext-grid-head right">{=L:yw.set.ext_col_action=}</div>' +
+				'<div class="ext-grid-rule"></div>';
 			exts.forEach(function(m) {
 				var upd = _extUpdates[m.dir];
 				html += '<div class="ext-name">' + escapeHtml(m.name) +
@@ -725,7 +746,7 @@
 					['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
 						return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
 					}).join('') + '</select></div>' +
-					'<div><label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
+					'<div class="ext-cell-center"><label class="yweb-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
 					'<span class="yweb-toggle-slider"></span></label></div>' +
 					'<div class="ext-actions">' +
 					(upd ? '<button type="button" class="yweb-btn primary" title="{=L:yw.set.extup_avail=}" onclick="extUpdate(\'' + m.dir + '\', this)">' +
