@@ -39,7 +39,7 @@
 #include <driver/display.h>
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
-#include <rcsim.h>
+#include <tools/rcsim.h>
 #include <driver/pictureviewer/pictureviewer.h>
 extern CPictureViewer *g_PicViewer;
 

@@ -4,20 +4,23 @@
 # (C) 2011 Stefan Seyfried
 # License: GPL v2
 #
-# usage: sh ./create_rcsim_h.sh > rcsim.h
+# usage: sh ./rcsim_h-creation.sh > rcsim.h
+
+rcinput_fake_h="../driver/rcinput_fake.h"
+rcinput_h="../driver/rcinput.h"
 
 cat << EOF
-// rcsim.h - automatically created from driver/rcinput.h and driver/rcinput_fake.h
+// rcsim.h - automatically created from rcinput.h and rcinput_fake.h
 
 EOF
 
-cat driver/rcinput_fake.h
+cat $rcinput_fake_h
 
 cat << EOF
 
 enum {
 EOF
-sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/s/^[[:space:]]*/	/p' driver/rcinput.h
+sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/s/^[[:space:]]*/	/p' $rcinput_h
 cat << EOF
 };
 
@@ -34,7 +37,7 @@ struct key{
 
 static const struct key keyname[] = {
 EOF
-sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/ s/^.*=[[:space:]]*\(KEY_.*\),.*/	{ "\1",		\1 },/p' driver/rcinput.h
+sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/ s/^.*=[[:space:]]*\(KEY_.*\),.*/	{ "\1",		\1 },/p' $rcinput_h
 cat << EOF
 	/* to stay backward compatible */
 	{ "KEY_SETUP",		KEY_MENU },

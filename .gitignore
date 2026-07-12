@@ -66,17 +66,18 @@ go_*
 
 ### binaries that fall out of the build
 lib/sectionsdclient/sectionsdcontrol
-src/drivertool
-src/dt
-src/mdev_helper
 src/neutrino
-src/rcsim
-src/zapit/src/pzapit
-src/zapit/src/udpstreampes
+src/tools/drivertool
+src/tools/dt
+src/tools/mdev_helper
+src/tools/rcsim
+src/tools/shutdown_helper
+src/zapit/pzapit
+src/zapit/udpstreampes
 
 ### header files that fall out of the build
-src/rcsim.h
 src/gui/version.h
+src/tools/rcsim.h
 local_build_config.h
 
 ### system generated stuff
