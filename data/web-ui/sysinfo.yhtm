@@ -29,6 +29,23 @@
 			border: 1px solid var(--yweb-border-subtle);
 		}
 
+		/* Card the page was jumped to (e.g. #network from the dashboard):
+		   accent ring that fades out once it has been seen */
+		.sysinfo-card.sysinfo-card-target {
+			outline: 2px solid var(--yweb-accent);
+			outline-offset: 2px;
+			animation: sysinfo-target-fade 2.4s ease-out forwards;
+		}
+
+		.sysinfo-card:focus {
+			outline: none;
+		}
+
+		@keyframes sysinfo-target-fade {
+			0%, 60% { outline-color: var(--yweb-accent); }
+			100% { outline-color: transparent; }
+		}
+
 		/* Kopfmasse wie .yweb-card-header (yweb.css) — gleiche Hoehe
 		   und Titelgroesse wie auf allen anderen Seiten */
 		.sysinfo-card-header {
@@ -247,7 +264,7 @@
 				</div>
 			</div>
 			<!-- Netzwerk -->
-			<div class="sysinfo-card sysinfo-card-wide">
+			<div class="sysinfo-card sysinfo-card-wide" id="network" tabindex="-1">
 				<div class="sysinfo-card-header">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
 					{=L:yw.si.network=}
@@ -271,7 +288,7 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=10"></script>
+	<script src="/Y_Lang.yjs?v=11"></script>
 	<script src="/yweb-header.js?v=42"></script>
 	<script>
 	function row(label, value) {
@@ -361,6 +378,20 @@
 		} catch (e) {
 			document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--yweb-danger)">{=L:yw.msg.error=}: ' + e.message + '</span>';
 		}
+		revealHashTarget();
+	}
+
+	// Jump to the card named in the URL hash (the dashboard network card
+	// links here as #network). Runs after the data has been rendered, so
+	// the browser scrolls to the filled card rather than the empty one.
+	function revealHashTarget() {
+		var id = location.hash.slice(1);
+		if (!id) return;
+		var card = document.getElementById(id);
+		if (!card || !card.classList.contains('sysinfo-card')) return;
+		card.scrollIntoView({block: 'center', behavior: 'smooth'});
+		card.classList.add('sysinfo-card-target');
+		card.focus({preventScroll: true});
 	}
 
 	async function sysInfoToggle(details, type) {

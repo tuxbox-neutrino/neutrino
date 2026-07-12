@@ -682,6 +682,7 @@ yw.dash.epg_plus=EPG Plus Programmübersicht
 yw.dash.to_channels=Zur Senderliste
 yw.dash.channels=Sender
 yw.dash.sys_details=System-Details anzeigen
+yw.dash.net_details=Netzwerk-Details anzeigen
 yw.dash.all_timers=Alle Timer anzeigen
 yw.dash.next_timers=Nächste Timer
 yw.dash.timer_list=Timerliste

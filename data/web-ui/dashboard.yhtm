@@ -1112,7 +1112,7 @@
 					<span class="yweb-hostname" id="net-hostname">--</span>
 				</header>
 				<div class="yweb-card-body">
-					<div class="yweb-net-list" id="net-interfaces">
+					<div class="yweb-net-list" id="net-interfaces" onclick="location.href='/sysinfo.yhtm#network'" style="cursor:pointer" title="{=L:yw.dash.net_details=}">
 						<div class="yweb-net-item">
 							<span class="yweb-text-muted">{=L:yw.msg.loading=}</span>
 						</div>
@@ -1218,7 +1218,7 @@
 	</footer>
 
 	<script src="/jquery/jquery.min.js"></script>
-	<script src="/Y_Lang.yjs?v=10"></script>
+	<script src="/Y_Lang.yjs?v=11"></script>
 	<script src="/yweb-header.js?v=42"></script>
 	<script>
 	// Current channel tracking for EPG info
