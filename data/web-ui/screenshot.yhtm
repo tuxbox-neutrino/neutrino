@@ -6,7 +6,7 @@
 	<title>yWeb - Screenshot</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=69">
+	<link rel="stylesheet" href="/css/yweb.css?v=70">
 	<style>
 		/* 2-column grid: Remote (auto) + Screenshot (flex) */
 		.yweb-screenshot-grid {
@@ -91,7 +91,9 @@
 		}
 
 		.yweb-toggle-pill input:checked + .yweb-toggle-track {
+			/* softened accent, same treatment as .yweb-toggle in yweb.css */
 			background: var(--yweb-accent);
+			background: color-mix(in srgb, var(--yweb-accent) 62%, var(--pico-card-background-color));
 		}
 
 		.yweb-toggle-pill input:checked + .yweb-toggle-track::after {
@@ -281,25 +283,12 @@
 				font-size: var(--yweb-font-base);
 			}
 
-			/* Larger toggles for touch */
+			/* Touch: the pill padding provides the target size, the
+			   track keeps the shared 36x20 geometry */
 			.yweb-toggle-pill {
 				font-size: var(--yweb-font-base);
 				gap: 0.5rem;
 				padding: 0.4rem 0.75rem;
-			}
-
-			.yweb-toggle-track {
-				width: 44px;
-				height: 24px;
-			}
-
-			.yweb-toggle-track::after {
-				width: 20px;
-				height: 20px;
-			}
-
-			.yweb-toggle-pill input:checked + .yweb-toggle-track::after {
-				transform: translateX(20px);
 			}
 
 			.yweb-reload-group input[type="number"] {
