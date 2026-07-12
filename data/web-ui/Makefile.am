@@ -54,7 +54,6 @@ install_DATA = \
 	Y_Boxcontrol_Menue.yhtm \
 	Y_Boxcontrol_Messages.yhtm \
 	Y_Boxcontrol_PZapit.yhtm \
-	Y_Dist.css \
 	Y_Dyn_Pages.yhtm \
 	Y_EPG.js \
 	Y_EPG_Plus.yhtm \
