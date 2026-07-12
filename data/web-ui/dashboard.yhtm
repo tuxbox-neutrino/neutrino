@@ -161,6 +161,35 @@
 		font-size: 0.7rem;
 	}
 
+	/* Desktop: the card is stretched to its grid row, so let the
+	   interface list claim the full card body instead of stopping at a
+	   fixed 180px and leaving the lower half of the card empty. Rows
+	   share the free height; the cap keeps a lone interface from
+	   ballooning into one giant row. */
+	@media (min-width: 769px) {
+		#card-network {
+			display: flex;
+			flex-direction: column;
+		}
+
+		#card-network .yweb-card-body {
+			flex: 1;
+			min-height: 0;
+			display: flex;
+		}
+
+		#card-network .yweb-net-list {
+			flex: 1;
+			min-height: 0;
+			max-height: none;
+		}
+
+		#card-network .yweb-net-item {
+			flex: 1 1 auto;
+			max-height: 5rem;
+		}
+	}
+
 	.yweb-net-icon {
 		width: 22px;
 		height: 22px;
