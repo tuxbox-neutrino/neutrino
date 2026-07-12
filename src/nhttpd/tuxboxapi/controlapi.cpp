@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/vfs.h> // for statfs
+#include <mntent.h> // for getmntent
 #include <ifaddrs.h> // for getifaddrs
 #include <net/if.h>
 #include <arpa/inet.h>
@@ -1433,6 +1434,56 @@ void CControlAPI::SysInfoCGI(CyhookHandler *hh)
 		disk_percent = (disk_total > 0) ? (int)((disk_used * 100) / disk_total) : 0;
 	}
 
+	// All mounted storage filesystems: real block devices, flash
+	// filesystems and network mounts. Pseudo filesystems and duplicate
+	// mounts of the same device (bind mounts) are skipped. 64-bit sizes
+	// so disks >2TB survive on 32-bit boxes.
+	struct SysDiskInfo
+	{
+		std::string device;
+		std::string mount;
+		std::string fstype;
+		long long total;
+		long long used;
+		long long free;
+		int percent;
+	};
+	std::vector<SysDiskInfo> disks;
+	FILE *mtab = setmntent("/proc/mounts", "r");
+	if (mtab)
+	{
+		struct mntent *mnt;
+		while ((mnt = getmntent(mtab)) != NULL)
+		{
+			std::string fsname = mnt->mnt_fsname;
+			std::string fstype = mnt->mnt_type;
+			bool is_dev = (fsname.compare(0, 5, "/dev/") == 0);
+			bool is_flash = (fstype == "ubifs" || fstype == "jffs2" || fstype == "yaffs2");
+			bool is_net = (fstype == "nfs" || fstype == "nfs4" || fstype == "cifs" || fstype == "smb3");
+			bool is_root = (strcmp(mnt->mnt_dir, "/") == 0);
+			if (!is_dev && !is_flash && !is_net && !is_root)
+				continue;
+			bool seen = false;
+			for (size_t i = 0; i < disks.size() && !seen; i++)
+				seen = (disks[i].device == fsname);
+			if (seen)
+				continue;
+			struct statfs dfs;
+			if (statfs(mnt->mnt_dir, &dfs) != 0 || dfs.f_blocks == 0)
+				continue;
+			SysDiskInfo d;
+			d.device = fsname;
+			d.mount = mnt->mnt_dir;
+			d.fstype = fstype;
+			d.total = (long long)(((unsigned long long)dfs.f_blocks * dfs.f_bsize) / 1024);
+			d.free = (long long)(((unsigned long long)dfs.f_bavail * dfs.f_bsize) / 1024);
+			d.used = d.total - d.free;
+			d.percent = (d.total > 0) ? (int)((d.used * 100) / d.total) : 0;
+			disks.push_back(d);
+		}
+		endmntent(mtab);
+	}
+
 	// CPU temperature from thermal zones
 	// Search for CPU package temp first (x86_pkg_temp, coretemp), then fall back to any available
 	int cpu_temp = -1;
@@ -1642,6 +1693,18 @@ void CControlAPI::SysInfoCGI(CyhookHandler *hh)
 	hh->printf("    \"free\": %ld,\n", disk_free);
 	hh->printf("    \"percent\": %d\n", disk_percent);
 	hh->printf("  },\n");
+	hh->printf("  \"disks\": [\n");
+	for (size_t i = 0; i < disks.size(); i++)
+	{
+		const SysDiskInfo &d = disks[i];
+		hh->printf("    {\"device\": \"%s\", \"mount\": \"%s\", \"fstype\": \"%s\", \"total\": %lld, \"used\": %lld, \"free\": %lld, \"percent\": %d}%s\n",
+			escapeJson(d.device).c_str(),
+			escapeJson(d.mount).c_str(),
+			escapeJson(d.fstype).c_str(),
+			d.total, d.used, d.free, d.percent,
+			(i < disks.size() - 1) ? "," : "");
+	}
+	hh->printf("  ],\n");
 	if (cpu_temp >= 0)
 		hh->printf("  \"temperature\": %d,\n", cpu_temp);
 	else
