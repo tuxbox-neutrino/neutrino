@@ -416,7 +416,7 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=9"></script>
+	<script src="/Y_Lang.yjs?v=10"></script>
 	<script src="/yweb-header.js?v=42"></script>
 	<script>
 		let reloadInterval = null;

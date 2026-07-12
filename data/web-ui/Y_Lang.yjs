@@ -86,6 +86,7 @@ window.YWEB_L = {
 	"reg.personalize": "{=L:yw.reg.personalize=}",
 	"reg.pin_active": "{=L:yw.reg.pin_active=}",
 	"reg.pin_protected": "{=L:yw.reg.pin_protected=}",
+	"reg.plugins": "{=L:yw.reg.plugins=}",
 	"reg.progress": "{=L:yw.reg.progress=}",
 	"reg.quickzap_down": "{=L:yw.reg.quickzap_down=}",
 	"reg.quickzap_up": "{=L:yw.reg.quickzap_up=}",

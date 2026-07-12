@@ -350,9 +350,9 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=9"></script>
+	<script src="/Y_Lang.yjs?v=10"></script>
 	<script src="/yweb-header.js?v=42"></script>
-	<script src="/settings-registry.js?v=8"></script>
+	<script src="/settings-registry.js?v=9"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -1099,7 +1099,7 @@
 	// der Legacy-Seite ueberlassen - paket-/imageabhaengig.
 	function renderPluginsPanel() {
 		setTimeout(loadPluginsPanel, 0);
-		return '<div class="settings-card">' + makeCardHeader('Plugins') +
+		return '<div class="settings-card">' + makeCardHeader('{=L:yw.reg.plugins=}') +
 			'<div id="pluginsPanel"><p aria-busy="true">{=L:yw.set.plugins_loading=}</p></div></div>';
 	}
 
