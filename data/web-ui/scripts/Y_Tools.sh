@@ -1045,32 +1045,6 @@ case "$action" in
 		printf "%s" "$S"
 	;;
 
-	# plugins
-	p_fcm_start)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh fcm_start;;
-	p_fcm_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh fcm_stop;;
-	p_nfs_start)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh nfs_start;;
-	p_nfs_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh nfs_stop;;
-	p_samba_start)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh samba_start;;
-	p_samba_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh samba_stop;;
-	p_tuxcald_start)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh tuxcald_start;;
-	p_tuxcald_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh tuxcald_stop;;
-	p_tuxmaild_start)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh tuxmaild_start;;
-	p_tuxmaild_stop)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh tuxmaild_stop;;
-	p_inadyn_start)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh inadyn_start;;
-	p_inadyn_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh inadyn_stop;;
-	p_dropbear_start)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh dropbear_start;;
-	p_dropbear_stop)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh dropbear_stop;;
-	p_ushare_start)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh ushare_start;;
-	p_ushare_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh ushare_stop;;
-	p_djmount_start)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh djmount_start;;
-	p_djmount_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh djmount_stop;;
-	p_minidlna_start)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh minidlna_start;;
-	p_minidlna_stop)	%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh minidlna_stop;;
-	p_xupnpd_start)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh xupnpd_start;;
-	p_xupnpd_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh xupnpd_stop;;
-	p_crond_start)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh crond_start;;
-	p_crond_stop)		%(PRIVATE_HTTPDDIR)/scripts/Y_Plugins.sh crond_stop;;
-
 	# plugins show/hide
 	p_show)
 		PLUGIN=$1
