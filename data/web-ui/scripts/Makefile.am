@@ -5,5 +5,4 @@ install_SCRIPTS = \
 	_Y_Library.sh \
 	Y_Extensions.sh \
 	Y_NAS.sh \
-	Y_Plugins.sh \
 	Y_Tools.sh
