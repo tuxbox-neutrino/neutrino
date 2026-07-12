@@ -92,20 +92,31 @@
 			background: rgba(255,165,0,0.06);
 		}
 
-		/* Mobile category dropdown */
+		/* Mobile category dropdown — replaces the sidebar below 800px.
+		   background-color (NOT the background shorthand) keeps Pico's
+		   chevron icon, so the select is recognizable as a dropdown */
 		.yweb-settings-mobile-nav {
 			display: none;
 			padding: 0.75rem 1rem 0;
+			align-items: center;
+			gap: 0.6rem;
+		}
+		.yweb-settings-mobile-nav > svg {
+			flex: none;
+			width: 18px;
+			height: 18px;
+			color: var(--yweb-accent);
 		}
 		.yweb-settings-mobile-nav select {
+			flex: 1;
 			width: 100%;
-			padding: 0.5rem !important;
+			padding: 0.5rem 2.5rem 0.5rem 0.75rem !important;
 			font-size: var(--yweb-font-sm);
 			margin-bottom: 0 !important;
 			height: auto !important;
 			border-radius: var(--yweb-radius);
 			border: 1px solid var(--pico-muted-border-color);
-			background: var(--pico-card-background-color);
+			background-color: var(--pico-card-background-color);
 			color: var(--pico-color);
 		}
 
@@ -303,7 +314,7 @@
 		/* Mobile — settings-specific overrides (form-row mobile handled by yweb.css) */
 		@media (max-width: 800px) {
 			.yweb-settings-sidebar { display: none; }
-			.yweb-settings-mobile-nav { display: block; }
+			.yweb-settings-mobile-nav { display: flex; }
 			.yweb-settings-layout { padding: 0.5rem; }
 			.settings-card { padding: 0.8rem; }
 			.settings-card .yweb-form-row select,
@@ -322,7 +333,8 @@
 
 	<!-- Mobile category selector -->
 	<div class="yweb-settings-mobile-nav">
-		<select id="mobileCategorySelect" onchange="switchCategory(this.value)"></select>
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+		<select id="mobileCategorySelect" onchange="switchCategory(this.value)" aria-label="{=L:yw.nav.settings=}"></select>
 	</div>
 
 	<main class="yweb-settings-layout">
