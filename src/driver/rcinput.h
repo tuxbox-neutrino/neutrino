@@ -119,7 +119,7 @@ class CRCInput
 		static const neutrino_msg_t RC_WithData = 0xA0000000;
 		enum
 		{
-			/* RC_0 should be the first entry. See src/create_rcsim_h.sh */
+			/* RC_0 should be the first entry. See src/tools/rcsim_h-creation.sh */
 
 			RC_0		= KEY_0,
 			RC_1		= KEY_1,
@@ -228,7 +228,7 @@ class CRCInput
 			RC_analog_on	= KEY_ANALOGON,
 			RC_analog_off	= KEY_ANALOGOFF,
 
-			/* RC_analog_off should be the last entry. See src/create_rcsim_h.sh */
+			/* RC_analog_off should be the last entry. See src/tools/rcsim_h-creation.sh */
 
 			RC_timeout	= 0xFFFFFFFF,
 			RC_nokey	= RC_NOKEY
