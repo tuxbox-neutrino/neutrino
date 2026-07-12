@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
 
 BUILT_SOURCES = rcsim.h
 rcsim.h: $(top_srcdir)/src/driver/rcinput.h $(top_srcdir)/src/driver/rcinput_fake.h $(srcdir)/rcsim_h-creation.sh
-	sh $(srcdir)/rcsim_h-creation.sh $(top_srcdir) > $@
+	sh "$(srcdir)/rcsim_h-creation.sh" "$(top_srcdir)" > $@.tmp && mv $@.tmp $@
 
 bin_PROGRAMS = rcsim
 rcsim_SOURCES = rcsim.c rcsim.h
