@@ -752,6 +752,16 @@ std::string CyParser::func_change_httpd(CyhookHandler *hh, std::string para) {
 // whole modern interface -- do not clutter the language menu. As soon as
 // a language file gains the modern keys it appears automatically; see
 // data/y-web/languages/README.md for the translation workflow.
+// Language files are named after the language itself and carry no
+// extension (English, Deutsch, ...). Everything else in the directory is
+// build or documentation material -- README.md even documents the key
+// format and would otherwise pass the modern-keys probe below.
+static bool yweb_is_language_file(const std::string &name) {
+	if (name.find('.') != std::string::npos)
+		return false;
+	return name.compare(0, 8, "Makefile") != 0;
+}
+
 static bool yweb_language_has_modern_keys(const std::string &path) {
 	static const std::string sentinel = "yw.nav.dashboard=";
 	std::ifstream in(path.c_str());
@@ -779,6 +789,8 @@ std::string CyParser::func_get_languages_as_dropdown(CyhookHandler *,
 				continue;
 			if (dir->d_type != DT_DIR) {
 				std::string name = dir->d_name;
+				if (!yweb_is_language_file(name))
+					continue;
 				// Hide legacy-only languages, but always keep the active
 				// one so the switcher still reflects the current state.
 				if (name != act_language
