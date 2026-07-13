@@ -42,9 +42,11 @@
 		/* Pico stretches form controls to full width, which blew both
 		   selects up and shoved the buttons against the right edge. Size
 		   them by content instead: bouquet names need room, the time is
-		   always "HH:MM". */
+		   always "HH:MM". Vertical padding matches .yweb-btn so selects
+		   and buttons share one control height; buttons themselves keep
+		   the shared component size (no local shrinking). */
 		.yweb-epg-toolbar .yweb-select {
-			padding: 0.2rem 0.4rem;
+			padding: 0.3rem 0.5rem;
 			width: auto;
 			min-width: 0;
 		}
@@ -57,15 +59,6 @@
 		.yweb-epg-toolbar #timeSelect {
 			flex: 0 0 auto;
 			padding-right: 1.6rem;
-		}
-
-		.yweb-epg-toolbar .yweb-btn {
-			padding: 0.2rem 0.4rem;
-		}
-
-		.yweb-epg-toolbar .yweb-btn svg {
-			width: 12px;
-			height: 12px;
 		}
 
 		/* EPG Grid */
@@ -402,12 +395,12 @@
 				<button class="yweb-btn" onclick="changeTime(-2)" title="-2 Stunden">&lt; -2h</button>
 				<button class="yweb-btn" onclick="changeTime(2)" title="+2 Stunden">+2h &gt;</button>
 			</div>
-			<div class="yweb-toolbar-spacer"></div>
-			<button class="yweb-btn primary" onclick="loadEpg()" title="{=L:yw.si.refresh=}">
+			<button class="yweb-btn primary" onclick="loadEpg()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polyline points="23,4 23,10 17,10"/>
 					<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
 				</svg>
+				{=L:yw.si.refresh=}
 			</button>
 		</div>
 
