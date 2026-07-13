@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.files=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=71">
+	<link rel="stylesheet" href="/css/yweb.css?v=72">
 	<style>
 		/* 2-column grid layout */
 		main.yweb-files-grid {

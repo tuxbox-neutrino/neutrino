@@ -1862,6 +1862,10 @@ body:not(.has-subheader) .yweb-header-spacer {
    Unified Select/Dropdown Template
    ============================================ */
 .yweb-select {
+	/* Wie bei .yweb-btn: Picos Form-Margin (1rem unten) neutralisieren.
+	   Flex/Grid zentrieren die Margin-Box — Selects standen sonst neben
+	   Buttons derselben Zeile sichtbar zu hoch (EPG-Toolbar). */
+	margin: 0;
 	padding: 0.3rem 0.5rem;
 	background: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-muted-border-color);
