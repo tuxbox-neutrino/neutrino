@@ -6,7 +6,7 @@
 	<title>yWeb - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=70">
+	<link rel="stylesheet" href="/css/yweb.css?v=71">
 	<style>
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.
@@ -39,9 +39,24 @@
 			flex-wrap: nowrap;
 		}
 
+		/* Pico stretches form controls to full width, which blew both
+		   selects up and shoved the buttons against the right edge. Size
+		   them by content instead: bouquet names need room, the time is
+		   always "HH:MM". */
 		.yweb-epg-toolbar .yweb-select {
 			padding: 0.2rem 0.4rem;
+			width: auto;
 			min-width: 0;
+		}
+
+		.yweb-epg-toolbar #bouquetSelect {
+			flex: 0 1 16rem;
+		}
+
+		/* keep room for Pico's dropdown chevron on the narrow select */
+		.yweb-epg-toolbar #timeSelect {
+			flex: 0 0 auto;
+			padding-right: 1.6rem;
 		}
 
 		.yweb-epg-toolbar .yweb-btn {
@@ -382,16 +397,18 @@
 				<option value="">{=L:yw.nav.bouquets=}...</option>
 			</select>
 			<select class="yweb-select" id="timeSelect"></select>
+			<!-- the time nav belongs next to the time it shifts -->
+			<div class="yweb-btn-group">
+				<button class="yweb-btn" onclick="changeTime(-2)" title="-2 Stunden">&lt; -2h</button>
+				<button class="yweb-btn" onclick="changeTime(2)" title="+2 Stunden">+2h &gt;</button>
+			</div>
+			<div class="yweb-toolbar-spacer"></div>
 			<button class="yweb-btn primary" onclick="loadEpg()" title="{=L:yw.si.refresh=}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polyline points="23,4 23,10 17,10"/>
 					<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
 				</svg>
 			</button>
-			<div class="yweb-btn-group">
-				<button class="yweb-btn" onclick="changeTime(-2)" title="-2 Stunden">&lt; -2h</button>
-				<button class="yweb-btn" onclick="changeTime(2)" title="+2 Stunden">+2h &gt;</button>
-			</div>
 		</div>
 
 		<!-- EPG Grid -->

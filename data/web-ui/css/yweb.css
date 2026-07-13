@@ -2017,13 +2017,19 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* ============================================
    Button Group
    ============================================ */
+/* Segmented control: the buttons share flat inner edges, so they must
+   sit flush — a gap would leave those square corners floating. */
 .yweb-btn-group {
 	display: flex;
-	gap: 0.3rem;
+	gap: 0;
 }
 
 .yweb-btn-group .yweb-btn {
 	border-radius: 0;
+}
+
+.yweb-btn-group .yweb-btn + .yweb-btn {
+	margin-left: -1px;
 }
 
 .yweb-btn-group .yweb-btn:first-child {
