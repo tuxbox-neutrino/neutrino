@@ -255,12 +255,19 @@ var SETTINGS_REGISTRY = [
 				]
 			},
 			{
+				// ACCESS-Eintraege: immer sichtbar, die Option steuert nur die
+				// PIN-Abfrage (personalize.h: 0 = ohne, 2 = mit PIN)
+				title: ywebL('pers.access', 'Access options'),
+				fields: [
+					{ key: 'personalize_settings', type: 'access',
+					  label: ywebL('nav.settings', 'Settings') + ' ' + ywebL('pers.pinstatus', 'Require PIN') },
+					{ key: 'personalize_service', type: 'access',
+					  label: 'Service ' + ywebL('pers.pinstatus', 'Require PIN') }
+				]
+			},
+			{
 				title: ywebL('reg.menu_visibility', 'Menu items (visibility)'),
 				fields: [
-					{ key: 'personalize_settings', label: ywebL('nav.settings', 'Settings'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_service', label: 'Service', type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
 					{ key: 'personalize_audio', label: 'Audio', type: 'select',
 					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
 					{ key: 'personalize_video', label: 'Video', type: 'select',
@@ -284,11 +291,16 @@ var SETTINGS_REGISTRY = [
 					{ key: 'personalize_restart', label: ywebL('bc.restart_btn', 'Restart GUI'), type: 'select',
 					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
 					{ key: 'personalize_shutdown', label: ywebL('bc.shutdown_btn', 'Power off'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_bluebutton', label: ywebL('reg.key_blue', 'Blue key'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_redbutton', label: ywebL('reg.key_red', 'Red key'), type: 'select',
 					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] }
+				]
+			},
+			{
+				// Farbtasten des Benutzermenues: ACTIVE-Domaene (an/aus),
+				// keine Sichtbarkeit (settings.cpp:38-41)
+				title: ywebL('pers.usermenu', 'User menu'),
+				fields: [
+					{ key: 'personalize_redbutton', label: ywebL('reg.key_red', 'Red key'), type: 'bool01' },
+					{ key: 'personalize_bluebutton', label: ywebL('reg.key_blue', 'Blue key'), type: 'bool01' }
 				]
 			}
 		]

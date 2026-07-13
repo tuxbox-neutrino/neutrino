@@ -1035,3 +1035,10 @@ yw.timer.choose_bq=Choose bouquet...
 yw.bq.channels_unit=channels
 yw.dash.next_prog=Next
 yw.bq.tap_info=Tap to load programme info...
+
+# Personalization — texts mirror Neutrino's own locale (personalize.*)
+yw.pers.access=Access options
+yw.pers.pinstatus=Require PIN
+yw.pers.no=No
+yw.pers.yes=Yes
+yw.pers.usermenu=User menu

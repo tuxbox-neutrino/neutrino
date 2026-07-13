@@ -1035,3 +1035,10 @@ yw.timer.choose_bq=Bouquet wählen...
 yw.bq.channels_unit=Sender
 yw.dash.next_prog=Nächste
 yw.bq.tap_info=Tippen zum Laden der Sendungsinfo...
+
+# Personalisierung — Texte wie in Neutrinos Locale (personalize.*)
+yw.pers.access=Zugangsoptionen
+yw.pers.pinstatus=mit PIN
+yw.pers.no=nein
+yw.pers.yes=ja
+yw.pers.usermenu=Benutzermenü

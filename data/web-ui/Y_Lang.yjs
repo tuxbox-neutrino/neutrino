@@ -21,6 +21,10 @@ window.YWEB_L = {
 	"bc.restart_btn": "{=L:yw.bc.restart_btn=}",
 	"bc.shutdown_btn": "{=L:yw.bc.shutdown_btn=}",
 	"bqe.channels": "{=L:yw.bqe.channels=}",
+	// Personalisierung (Texte wie in Neutrinos personalize.*-Locale)
+	"pers.access": "{=L:yw.pers.access=}",
+	"pers.pinstatus": "{=L:yw.pers.pinstatus=}",
+	"pers.usermenu": "{=L:yw.pers.usermenu=}",
 	"reg.ac3_vol": "{=L:yw.reg.ac3_vol=}",
 	"reg.access": "{=L:yw.reg.access=}",
 	"reg.all": "{=L:yw.reg.all=}",

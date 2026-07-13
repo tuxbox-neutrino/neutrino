@@ -382,9 +382,9 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=11"></script>
+	<script src="/Y_Lang.yjs?v=12"></script>
 	<script src="/yweb-header.js?v=42"></script>
-	<script src="/settings-registry.js?v=9"></script>
+	<script src="/settings-registry.js?v=10"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -513,6 +513,18 @@
 			}).join('');
 			return row + '<label>' + f.label + '</label>' +
 				'<select id="' + id + '" data-key="' + f.key + '"' + ext + dis + '>' + opts + '</select></div>';
+		}
+		// ACCESS-Domaene (personalize.h): nur 0 = ohne PIN und 2 = mit PIN.
+		// Der Eintrag ist immer sichtbar (personalize.cpp:1006), die 0 heisst
+		// hier also NICHT 'ausgeblendet'. Zur Laufzeit wertet Neutrino nur die
+		// 2 aus (personalize.cpp:961) — jeder andere Wert bedeutet 'ohne PIN'.
+		if (f.type === 'access') {
+			var pin = (val === '2');
+			return row + '<label>' + f.label + '</label>' +
+				'<select id="' + id + '" data-key="' + f.key + '"' + ext + dis + '>' +
+				'<option value="0"' + (pin ? '' : ' selected') + '>{=L:yw.pers.no=}</option>' +
+				'<option value="2"' + (pin ? ' selected' : '') + '>{=L:yw.pers.yes=}</option>' +
+				'</select></div>';
 		}
 		if (f.type === 'bool') {
 			var isTrue = (val === 'true' || val === '1');
@@ -1473,6 +1485,26 @@
 		btns.forEach(function(b) { b.disabled = false; });
 	}
 
+	// ACCESS-Keys tragen in der Config teils noch die 1 aus der Sichtbarkeits-
+	// Domaene (personalize_settingsmager, personalize_media_movieplayer haben
+	// sie sogar als Default, settings.cpp:69/99). Neutrino behandelt alles
+	// ausser der 2 als 'ohne PIN' — hier gleichziehen, sonst meldet der
+	// Dirty-Vergleich gegen das gerenderte Feld sofort eine Aenderung, die der
+	// Nutzer nie gemacht hat. Geschrieben wird deswegen trotzdem nichts:
+	// saveSettings schickt nur echte Diffs.
+	function normalizeAccessKeys() {
+		SETTINGS_REGISTRY.forEach(function(cat) {
+			(cat.sections || []).forEach(function(sec) {
+				sec.fields.forEach(function(f) {
+					if (f.type !== 'access' || !f.key) return;
+					var k = f.key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+					if (configData[k] !== undefined && configData[k] !== '2')
+						configData[k] = '0';
+				});
+			});
+		});
+	}
+
 	async function loadSettings() {
 		try {
 			// v4 liefert ein valides Envelope-Dokument - der historische
@@ -1485,6 +1517,7 @@
 			return;
 		}
 
+		normalizeAccessKeys();
 		originalValues = Object.assign({}, configData);
 
 		// Enabled extensions with a settings definition become categories.
