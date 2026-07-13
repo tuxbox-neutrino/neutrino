@@ -19,6 +19,45 @@ var SETTINGS_GROUPS = [
 	{ id: 'ext',  label: ywebL('set.grp_ext', 'Extensions') }
 ];
 
+// Personalisierung — die Wertedomaenen aus src/gui/personalize.h:185-231.
+// Welche Domaene ein Eintrag hat, entscheidet in Neutrino das item_mode-
+// Argument von personalize.addItem(): SHOW_AS_ITEM_OPTION -> MODE,
+// SHOW_AS_ACCESS_OPTION -> ACCESS. Jeder Key deklariert sie hier genau einmal.
+var PERS_MODE_OPTS = [                                  // PERSONALIZE_MODE
+	{ v: '0', l: ywebL('pers.notvisible', 'Not Visible') },
+	{ v: '1', l: ywebL('pers.visible', 'Visible') },
+	{ v: '2', l: ywebL('pers.pin', 'PIN') }
+];
+var PERS_KEY_OPTS = [                                   // PERSONALIZE_FEAT_KEY
+	{ v: '0', l: ywebL('pers.col_red', 'red') },
+	{ v: '1', l: ywebL('pers.col_green', 'green') },
+	{ v: '2', l: ywebL('pers.col_yellow', 'yellow') },
+	{ v: '3', l: ywebL('pers.col_blue', 'blue') },
+	{ v: '4', l: ywebL('pers.col_auto', 'auto') }
+];
+
+// MODE-Eintrag; dep = Key des Observers, der diesen Eintrag sperrt, sobald
+// er selbst sichtbar oder PIN-geschuetzt ist (personalize.cpp:604-616)
+function persMode(key, label, dep) {
+	var f = { key: 'personalize_' + key, label: label, type: 'select', options: PERS_MODE_OPTS };
+	if (dep)
+		f.disabledIf = { key: 'personalize_' + dep, unless: '0' };
+	return f;
+}
+// ACCESS-Eintrag: immer sichtbar, die Option steuert nur die PIN-Abfrage.
+// Beschriftung wie in Neutrino: '<Eintrag> mit PIN' (personalize.cpp:626-628)
+function persAccess(key, label) {
+	return { key: 'personalize_' + key, type: 'access',
+		 label: label + ' ' + ywebL('pers.pinstatus', 'Require PIN') };
+}
+function persBool(key, label) {                         // PERSONALIZE_ACTIVE_MODE
+	return { key: 'personalize_' + key, label: label, type: 'bool01' };
+}
+function persFeatKey(key, label) {
+	return { key: 'personalize_feat_key_' + key, label: label,
+		 type: 'select', options: PERS_KEY_OPTS };
+}
+
 // 13x13-Sidebar-Icons (feather-artig, stroke=currentColor erbt den
 // Button-Zustand muted/aktiv)
 function regIcon(paths) {
@@ -246,61 +285,134 @@ var SETTINGS_REGISTRY = [
 		group: 'ui',
 		icon: regIcon('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
 		label: ywebL('reg.personalize', 'Personalization'),
+		// Gruppen und Reihenfolge wie Neutrinos Menuebaum (neutrino_menue.cpp:
+		// 137-506, mediaplayer.cpp:150-207, personalize.cpp:463-532).
+		// requireKeys: Neutrino schreibt beim Speichern immer die volle
+		// Key-Tabelle (neutrino.cpp:1920) — fehlt ein Key in der Config, kennt
+		// diese Box ihn nicht (ENABLE_PIP, ENABLE_UPNP, HAVE_CST_HARDWARE) und
+		// das Feld entfaellt.
+		// Nicht angeboten, weil im C++ wirkungslos: personalize_media_menu
+		// (nirgends ausgewertet), personalize_tools und personalize_scripts
+		// (Menuepunkte stehen in #if 0, neutrino_menue.cpp:198-222).
+		requireKeys: true,
 		sections: [
 			{
-				title: 'PIN',
-				fields: [
-					{ key: 'personalize_pincode', label: 'PIN-Code', type: 'password' },
-					{ key: 'personalize_pinstatus', label: ywebL('reg.pin_active', 'PIN active'), type: 'bool01' }
-				]
-			},
-			{
-				// ACCESS-Eintraege: immer sichtbar, die Option steuert nur die
-				// PIN-Abfrage (personalize.h: 0 = ohne, 2 = mit PIN)
 				title: ywebL('pers.access', 'Access options'),
+				collapsible: true, open: true,
 				fields: [
-					{ key: 'personalize_settings', type: 'access',
-					  label: ywebL('nav.settings', 'Settings') + ' ' + ywebL('pers.pinstatus', 'Require PIN') },
-					{ key: 'personalize_service', type: 'access',
-					  label: 'Service ' + ywebL('pers.pinstatus', 'Require PIN') }
+					persBool('pinstatus', ywebL('pers.pin_in_use', 'PIN access for personalize setup')),
+					{ key: 'personalize_pincode', label: ywebL('pers.pincode', 'Personalization PIN'),
+					  type: 'password', pattern: '[0-9]{4}', maxlength: 4 }
 				]
 			},
 			{
-				title: ywebL('reg.menu_visibility', 'Menu items (visibility)'),
+				title: ywebL('pers.grp_main', 'Main menu'),
+				collapsible: true,
 				fields: [
-					{ key: 'personalize_audio', label: 'Audio', type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_video', label: 'Video', type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_network', label: ywebL('si.network', 'Network'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_recording', label: ywebL('bc.recording', 'Recording'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_mediaplayer', label: 'Mediaplayer', type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_games', label: ywebL('reg.games', 'Games'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_scants', label: ywebL('reg.channel_search', 'Channel search'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_misc', label: ywebL('reg.misc', 'Miscellaneous'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_sleeptimer', label: 'Sleeptimer', type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_reboot', label: 'Reboot', type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_restart', label: ywebL('bc.restart_btn', 'Restart GUI'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] },
-					{ key: 'personalize_shutdown', label: ywebL('bc.shutdown_btn', 'Power off'), type: 'select',
-					  options: [{v:'0',l: ywebL('reg.hidden', 'Hidden')},{v:'1',l: ywebL('reg.visible', 'Visible')},{v:'2',l: ywebL('reg.pin_protected', 'PIN protected')}] }
+					persMode('tv_radio_mode', ywebL('pers.tv_radio_mode', 'TV-Radio switch')),
+					persMode('tv_mode', ywebL('pers.tv_mode', 'TV-Mode'), 'tv_radio_mode'),
+					persMode('radio_mode', ywebL('pers.radio_mode', 'Radio mode'), 'tv_radio_mode'),
+					persMode('timer', ywebL('pers.timer', 'Timer list')),
+					persMode('media', ywebL('pers.media', 'Media')),
+					persMode('avinput', ywebL('pers.avinput', 'HDMI Input (Mode)')),
+					persMode('avinput_pip', ywebL('pers.avinput_pip', 'HDMI Input (PiP)')),
+					persMode('games', ywebL('pers.games', 'Games')),
+					persMode('lua', ywebL('pers.lua', 'Lua Plugins')),
+					persAccess('settings', ywebL('pers.settings', 'System settings')),
+					persAccess('service', ywebL('pers.service', 'Installation (service)')),
+					persMode('poweroff_menu', ywebL('pers.poweroff_menu', 'Power off')),
+					persMode('sleeptimer', ywebL('pers.sleeptimer', 'Sleeptimer'), 'poweroff_menu'),
+					persMode('reboot', ywebL('pers.reboot', 'Reboot'), 'poweroff_menu'),
+					persMode('standby', ywebL('pers.standby', 'Standby'), 'poweroff_menu'),
+					persMode('shutdown', ywebL('pers.shutdown', 'Shutdown (Deep-standby)'), 'poweroff_menu'),
+					persMode('infomenu_main', ywebL('pers.infomenu', 'Information')),
+					persMode('cisettings_main', ywebL('pers.cisettings', 'Conditional access'))
 				]
 			},
 			{
-				// Farbtasten des Benutzermenues: ACTIVE-Domaene (an/aus),
-				// keine Sichtbarkeit (settings.cpp:38-41)
+				title: ywebL('pers.grp_settings', 'Settings menu'),
+				collapsible: true,
+				fields: [
+					persAccess('settingsmager', ywebL('pers.settingsmager', 'Manage settings')),
+					persMode('misc', ywebL('pers.misc', 'Extended settings')),
+					persMode('video', ywebL('pers.video', 'Video')),
+					persMode('audio', ywebL('pers.audio', 'Audio')),
+					persMode('parentallock', ywebL('pers.parentallock', 'Parental lock')),
+					persMode('network', ywebL('pers.network', 'Network')),
+					persMode('recording', ywebL('pers.recording', 'Recording')),
+					persMode('osdlang', ywebL('pers.osdlang', 'Language and timezone')),
+					persMode('osd', ywebL('pers.osd', 'OSD')),
+					persMode('vfd', ywebL('pers.vfd', 'Front-Panel')),
+					persMode('drives', ywebL('pers.drives', 'Data storage')),
+					persMode('cisettings_settings', ywebL('pers.cisettings', 'Conditional access')),
+					persMode('keybindings', ywebL('pers.keybindings', 'Key setup')),
+					persMode('mediaplayer', ywebL('pers.mediaplayer', 'Multimedia'))
+				]
+			},
+			{
+				title: ywebL('pers.grp_service', 'Service menu'),
+				collapsible: true,
+				fields: [
+					persMode('tuner', ywebL('pers.tuner', 'Setup tuner')),
+					persMode('scants', ywebL('pers.scants', 'Servicescan')),
+					persMode('reload_channels', ywebL('pers.reload_channels', 'Reload channel lists')),
+					persMode('bouquet_edit', ywebL('pers.bouquet_edit', 'Bouquet editor')),
+					persMode('reset_channels', ywebL('pers.reset_channels', 'Delete channels')),
+					persMode('restart', ywebL('pers.restart', 'Soft restart')),
+					persMode('reload_plugins', ywebL('pers.reload_plugins', 'Reload plugins')),
+					persMode('infomenu_service', ywebL('pers.infomenu', 'Information')),
+					persMode('softupdate', ywebL('pers.softupdate', 'Software Update'))
+				]
+			},
+			{
+				title: ywebL('pers.grp_media', 'Multimedia'),
+				collapsible: true,
+				fields: [
+					persMode('media_audio', ywebL('pers.media_audio', 'Audioplayer')),
+					persMode('media_intetplay', ywebL('pers.media_intetplay', 'Internetradio')),
+					persAccess('media_movieplayer', ywebL('pers.media_movieplayer', 'Mediaplayer')),
+					persMode('media_pviewer', ywebL('pers.media_pviewer', 'Picture viewer')),
+					persMode('media_upnp', ywebL('pers.media_upnp', 'UPnP browser'))
+				]
+			},
+			{
+				title: ywebL('pers.grp_mplayer', 'Mediaplayer'),
+				collapsible: true,
+				fields: [
+					persMode('mplayer_mbrowser', ywebL('pers.mplayer_mbrowser', 'My recordings')),
+					persMode('mplayer_fileplay_video', ywebL('pers.mplayer_video', 'Multiformat video playback')),
+					persMode('mplayer_fileplay_audio', ywebL('pers.mplayer_audio', 'Multiformat audio playback'))
+				]
+			},
+			{
+				// Farbtasten: ACTIVE-Domaene (an/aus), keine Sichtbarkeit
+				// (settings.cpp:38-41, personalize.cpp:485)
 				title: ywebL('pers.usermenu', 'User menu'),
+				collapsible: true,
 				fields: [
-					{ key: 'personalize_redbutton', label: ywebL('reg.key_red', 'Red key'), type: 'bool01' },
-					{ key: 'personalize_bluebutton', label: ywebL('reg.key_blue', 'Blue key'), type: 'bool01' }
+					persBool('redbutton', ywebL('pers.btn_red', 'User menu red')),
+					persBool('greenbutton', ywebL('pers.btn_green', 'User menu green')),
+					persBool('yellowbutton', ywebL('pers.btn_yellow', 'User menu yellow')),
+					persBool('bluebutton', ywebL('pers.btn_blue', 'User menu blue')),
+					persBool('usermenu_show_cancel', ywebL('pers.show_cancel', 'Show Cancel button')),
+					persBool('usermenu_plugin_type_games', ywebL('pers.plugin_games', 'Games')),
+					persBool('usermenu_plugin_type_tools', ywebL('pers.plugin_tools', 'Tools')),
+					persBool('usermenu_plugin_type_scripts', ywebL('pers.plugin_scripts', 'Scripts')),
+					persBool('usermenu_plugin_type_lua', ywebL('pers.plugin_lua', 'Lua Plugins'))
+				]
+			},
+			{
+				// Neutrino wertet diese Keys zur Laufzeit aus (user_menue.cpp:
+				// 323-365), bietet dafuer aber kein Menue an — yWeb schon.
+				title: ywebL('pers.grp_featkey', 'Feature keys'),
+				collapsible: true,
+				fields: [
+					{ type: 'info', label: ywebL('pers.featkey_label', 'Note'),
+					  text: ywebL('pers.featkey_note', 'Neutrino has no menu for these keys; yWeb offers them in addition.') },
+					persFeatKey('fav', ywebL('pers.feat_fav', 'add channel to favorites')),
+					persFeatKey('timerlist', ywebL('pers.feat_timerlist', 'Timer list')),
+					persFeatKey('vtxt', ywebL('pers.feat_vtxt', 'Videotext')),
+					persFeatKey('rclock', ywebL('pers.feat_rclock', 'Lock remote control'))
 				]
 			}
 		]

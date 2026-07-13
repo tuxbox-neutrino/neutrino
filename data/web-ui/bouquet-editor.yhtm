@@ -146,7 +146,7 @@
 		<p class="bqe-hint">{=L:yw.bqe.hint=}</p>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=12"></script>
+	<script src="/Y_Lang.yjs?v=13"></script>
 	<script src="/yweb-header.js?v=42"></script>
 	<script>
 		var bqeBouquets = [];      // {number, name, hidden?, locked?}

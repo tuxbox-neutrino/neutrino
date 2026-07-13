@@ -382,9 +382,9 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=12"></script>
+	<script src="/Y_Lang.yjs?v=13"></script>
 	<script src="/yweb-header.js?v=42"></script>
-	<script src="/settings-registry.js?v=10"></script>
+	<script src="/settings-registry.js?v=11"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -411,6 +411,10 @@
 	function getConfigKey(key) {
 		var k = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
 		return configData[k] !== undefined ? configData[k] : '';
+	}
+
+	function hasConfigKey(key) {
+		return configData[key.replace(/\./g, '_dot_').replace(/-/g, '_bind_')] !== undefined;
 	}
 
 	// Action-Buttons: Registry-Felder vom Typ 'action' registrieren sich
@@ -624,10 +628,15 @@
 
 		var html = makeCardHeader(cat.label);
 		cat.sections.forEach(function(sec) {
-			// Feldliste zuerst bauen: renderField darf '' liefern (Key fehlt in
-			// der Config), damit die Zaehlung in der Kopfzeile ehrlich bleibt
+			// Feldliste zuerst bauen, damit die Zaehlung in der Kopfzeile die
+			// tatsaechlich gerenderten Felder nennt. cat.requireKeys blendet
+			// Felder aus, deren Key die Box nicht kennt: Neutrino schreibt beim
+			// Speichern immer die volle Tabelle (neutrino.cpp:1920), ein
+			// fehlender Key heisst also 'nicht einkompiliert' (ENABLE_PIP,
+			// ENABLE_UPNP, HAVE_CST_HARDWARE).
 			var body = '', n = 0;
 			sec.fields.forEach(function(f) {
+				if (cat.requireKeys && f.key && !hasConfigKey(f.key)) return;
 				var fh = renderField(f);
 				if (fh) { body += fh; n++; }
 			});
@@ -1485,21 +1494,30 @@
 		btns.forEach(function(b) { b.disabled = false; });
 	}
 
-	// ACCESS-Keys tragen in der Config teils noch die 1 aus der Sichtbarkeits-
-	// Domaene (personalize_settingsmager, personalize_media_movieplayer haben
-	// sie sogar als Default, settings.cpp:69/99). Neutrino behandelt alles
-	// ausser der 2 als 'ohne PIN' — hier gleichziehen, sonst meldet der
-	// Dirty-Vergleich gegen das gerenderte Feld sofort eine Aenderung, die der
-	// Nutzer nie gemacht hat. Geschrieben wird deswegen trotzdem nichts:
-	// saveSettings schickt nur echte Diffs.
-	function normalizeAccessKeys() {
+	// Werte, die ausserhalb der Domaene ihres Feldes liegen, auf den Wert
+	// ziehen, den das Feld ohnehin anzeigt. Ohne das meldet der Dirty-Vergleich
+	// beim ersten Rendern eine Aenderung, die der Nutzer nie gemacht hat — und
+	// der naechste Save schriebe sie fest.
+	//   - access: Neutrino wertet nur die 2 aus (personalize.cpp:961), alles
+	//     andere heisst 'ohne PIN'. personalize_settingsmager und
+	//     personalize_media_movieplayer haben sogar die 1 als Default
+	//     (settings.cpp:69/99).
+	//   - select: ein nicht angebotener Wert zeigt im Browser die erste Option.
+	// Geschrieben wird dadurch nichts: saveSettings schickt nur echte Diffs.
+	function normalizeDomains() {
 		SETTINGS_REGISTRY.forEach(function(cat) {
 			(cat.sections || []).forEach(function(sec) {
 				sec.fields.forEach(function(f) {
-					if (f.type !== 'access' || !f.key) return;
+					if (!f.key) return;
 					var k = f.key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
-					if (configData[k] !== undefined && configData[k] !== '2')
-						configData[k] = '0';
+					var val = configData[k];
+					if (val === undefined) return;
+					if (f.type === 'access') {
+						if (val !== '2') configData[k] = '0';
+					} else if (f.type === 'select' && f.options) {
+						var known = f.options.some(function(o) { return o.v === val; });
+						if (!known) configData[k] = f.options[0].v;
+					}
 				});
 			});
 		});
@@ -1517,7 +1535,7 @@
 			return;
 		}
 
-		normalizeAccessKeys();
+		normalizeDomains();
 		originalValues = Object.assign({}, configData);
 
 		// Enabled extensions with a settings definition become categories.
