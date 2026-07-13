@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.settings=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=72">
+	<link rel="stylesheet" href="/css/yweb.css?v=73">
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
@@ -435,6 +435,32 @@
 		btn.textContent = orig;
 	}
 
+	// Hinweis fuer Felder, die ein uebergeordneter Eintrag sperrt (disabledIf)
+	var DEP_HINT = '{=L:yw.set.dep_locked=}';
+
+	// Aktueller Wert eines Keys: bevorzugt das bereits gerenderte Formularfeld
+	// (traegt eine noch ungespeicherte Aenderung), sonst die geladene Config
+	function getLiveValue(key) {
+		var el = document.querySelector('#settingsContent [data-key="' + key + '"]:not([data-extcfg])');
+		if (!el) return getConfigKey(key);
+		if (el.type === 'checkbox')
+			return el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off');
+		return el.value;
+	}
+
+	// disabledIf: {key, unless} — beobachtete Felder sperren, solange der
+	// Observer nicht auf dem Freigabewert steht. Der Observer kann in
+	// derselben Gruppe stehen, darum nach jeder Aenderung neu bewerten.
+	function ywebApplyDeps() {
+		document.querySelectorAll('#settingsContent .yweb-form-row[data-dep-key]').forEach(function(r) {
+			var off = getLiveValue(r.getAttribute('data-dep-key')) !== r.getAttribute('data-dep-unless');
+			r.classList.toggle('is-disabled', off);
+			if (off) r.setAttribute('title', DEP_HINT);
+			else r.removeAttribute('title');
+			r.querySelectorAll('select, input').forEach(function(el) { el.disabled = off; });
+		});
+	}
+
 	function renderField(f, opts) {
 		opts = opts || {};
 		var val = opts.get ? (opts.get(f.key) || '') : (f.key ? getConfigKey(f.key) : '');
@@ -451,9 +477,22 @@
 		var id = 'cfg_' + (opts.idPrefix || '') + String(f.key || f.id || '').replace(/\./g, '__');
 		var ext = opts.dataConfig ? ' data-extcfg="' + opts.dataConfig + '"' : '';
 
+		// Observer-Abhaengigkeit: Zeile wird gerendert, aber gesperrt, solange
+		// der beobachtete Key nicht den Freigabewert traegt. Kein Zwangsschreiben
+		// des Werts — Neutrino ignoriert den Key in dem Fall ohnehin.
+		var dis = '';
+		var row = '<div class="yweb-form-row">';
+		if (f.disabledIf) {
+			var off = getLiveValue(f.disabledIf.key) !== String(f.disabledIf.unless);
+			dis = off ? ' disabled' : '';
+			row = '<div class="yweb-form-row' + (off ? ' is-disabled' : '') + '"' +
+				' data-dep-key="' + f.disabledIf.key + '" data-dep-unless="' + f.disabledIf.unless + '"' +
+				(off ? ' title="' + escapeHtml(DEP_HINT) + '"' : '') + '>';
+		}
+
 		if (f.type === 'info') {
 			var text = (f.text !== undefined) ? f.text : val;
-			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
+			return row + '<label>' + f.label + '</label>' +
 				'<span id="' + id + '" style="color:var(--pico-muted-color)">' + (text || '--') + '</span></div>';
 		}
 		if (f.type === 'action') {
@@ -465,38 +504,40 @@
 				SETTINGS_ACTIONS[aid] = a;
 				btns += '<button type="button" class="yweb-btn" onclick="runSettingsAction(\'' + aid + '\', this)">' + (a.button || a.label || f.label) + '</button> ';
 			});
-			return '<div class="yweb-form-row"><label>' + f.label + '</label><span>' + btns.trim() + '</span></div>';
+			return row + '<label>' + f.label + '</label><span>' + btns.trim() + '</span></div>';
 		}
 
 		if (f.type === 'select') {
 			var opts = f.options.map(function(o) {
 				return '<option value="' + o.v + '"' + (val === o.v ? ' selected' : '') + '>' + o.l + '</option>';
 			}).join('');
-			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<select id="' + id + '" data-key="' + f.key + '"' + ext + '>' + opts + '</select></div>';
+			return row + '<label>' + f.label + '</label>' +
+				'<select id="' + id + '" data-key="' + f.key + '"' + ext + dis + '>' + opts + '</select></div>';
 		}
 		if (f.type === 'bool') {
 			var isTrue = (val === 'true' || val === '1');
-			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="true" data-off="false"' + ext + (isTrue ? ' checked' : '') + '>' +
+			return row + '<label>' + f.label + '</label>' +
+				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="true" data-off="false"' + ext + dis + (isTrue ? ' checked' : '') + '>' +
 				'<span class="yweb-toggle-slider"></span></label></div>';
 		}
 		if (f.type === 'bool01') {
 			var isOne = (val === '1');
-			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="1" data-off="0"' + ext + (isOne ? ' checked' : '') + '>' +
+			return row + '<label>' + f.label + '</label>' +
+				'<label class="yweb-toggle"><input type="checkbox" id="' + id + '" data-key="' + f.key + '" data-on="1" data-off="0"' + ext + dis + (isOne ? ' checked' : '') + '>' +
 				'<span class="yweb-toggle-slider"></span></label></div>';
 		}
 		if (f.type === 'number') {
 			var attrs = 'type="number"';
 			if (f.min !== undefined) attrs += ' min="' + f.min + '"';
 			if (f.max !== undefined) attrs += ' max="' + f.max + '"';
-			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<input ' + attrs + ' id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val + '"></div>';
+			return row + '<label>' + f.label + '</label>' +
+				'<input ' + attrs + ' id="' + id + '" data-key="' + f.key + '"' + ext + dis + ' value="' + val + '"></div>';
 		}
 		if (f.type === 'password') {
-			return '<div class="yweb-form-row"><label>' + f.label + '</label>' +
-				'<input type="password" id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val.replace(/"/g, '&quot;') + '"></div>';
+			var pattr = f.pattern ? ' pattern="' + f.pattern + '"' : '';
+			if (f.maxlength) pattr += ' maxlength="' + f.maxlength + '"';
+			return row + '<label>' + f.label + '</label>' +
+				'<input type="password" id="' + id + '" data-key="' + f.key + '"' + ext + dis + pattr + ' value="' + val.replace(/"/g, '&quot;') + '"></div>';
 		}
 		// text — optional mit Verzeichnis-Picker (f.picker: true)
 		var pick = '';
@@ -505,8 +546,8 @@
 			pick = ' <button type="button" class="yweb-btn" title="' + ywebL('picker.title', 'Choose folder') +
 				'" onclick="ywebPickInto(\'' + id + '\', \'' + escapeJs(pstart) + '\')">' + FOLDER_ICON + '</button>';
 		}
-		return '<div class="yweb-form-row"><label>' + f.label + '</label><span>' +
-			'<input type="text" id="' + id + '" data-key="' + f.key + '"' + ext + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
+		return row + '<label>' + f.label + '</label><span>' +
+			'<input type="text" id="' + id + '" data-key="' + f.key + '"' + ext + dis + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
 	}
 
 	// kleines Ordner-Icon fuer Picker-Buttons
@@ -571,12 +612,27 @@
 
 		var html = makeCardHeader(cat.label);
 		cat.sections.forEach(function(sec) {
-			html += '<div class="yweb-form-section">';
-			html += '<div class="yweb-form-section-title">' + sec.title + '</div>';
+			// Feldliste zuerst bauen: renderField darf '' liefern (Key fehlt in
+			// der Config), damit die Zaehlung in der Kopfzeile ehrlich bleibt
+			var body = '', n = 0;
 			sec.fields.forEach(function(f) {
-				html += renderField(f);
+				var fh = renderField(f);
+				if (fh) { body += fh; n++; }
 			});
-			html += '</div>';
+			if (!n) return;
+
+			// Kategorien mit vielen Gruppen (Personalisierung) klappen ihre
+			// Sections auf; ohne sec.collapsible bleibt das flache Layout
+			if (sec.collapsible) {
+				html += '<details class="yweb-form-group"' + (sec.open ? ' open' : '') + '>' +
+					'<summary><span class="yweb-form-group-title">' + sec.title + '</span>' +
+					'<span class="yweb-form-group-count">' + n + '</span></summary>' +
+					'<div class="yweb-form-group-body">' + body + '</div></details>';
+			} else {
+				html += '<div class="yweb-form-section">' +
+					'<div class="yweb-form-section-title">' + sec.title + '</div>' +
+					body + '</div>';
+			}
 		});
 
 		return '<div class="settings-card">' + html + '</div>';
@@ -1488,6 +1544,8 @@
 	// gerendert und gecacht, der Listener auf dem Container sieht alles)
 	document.getElementById('settingsContent').addEventListener('input', ywebUpdateSaveBar);
 	document.getElementById('settingsContent').addEventListener('change', ywebUpdateSaveBar);
+	// Observer-Felder (disabledIf) folgen ihrem uebergeordneten Eintrag
+	document.getElementById('settingsContent').addEventListener('change', ywebApplyDeps);
 
 	loadSettings();
 	</script>

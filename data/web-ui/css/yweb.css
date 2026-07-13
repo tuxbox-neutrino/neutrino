@@ -2813,6 +2813,75 @@ body.yweb-remote-open {
 	border-bottom: 1px solid var(--pico-muted-border-color);
 }
 
+/* ── Form Group (aufklappbare Section) ──
+   Fuer Kategorien mit vielen Gruppen (Personalisierung): eine Gruppe je
+   Untermenue, per <details> auf-/zuklappbar. Chevron und Klapp-Animation
+   liefert Pico; die Summary-Farbe laeuft ueber Picos eigene Accordion-
+   Variablen, sonst ueberschreibt Picos [open]>summary-Regel den Akzent. */
+.yweb-form-group {
+	--pico-accordion-close-summary-color: var(--yweb-accent);
+	--pico-accordion-open-summary-color: var(--yweb-accent);
+	margin-bottom: 0.5rem;
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--yweb-radius);
+	background: var(--pico-background-color);
+}
+[data-theme="light"] .yweb-form-group {
+	border-color: var(--yweb-border-subtle);
+}
+.yweb-form-group > summary {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.7rem;
+	font-size: var(--yweb-font-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	cursor: pointer;
+	user-select: none;
+}
+.yweb-form-group[open] > summary {
+	margin-bottom: 0;
+	border-bottom: 1px solid var(--pico-muted-border-color);
+}
+[data-theme="light"] .yweb-form-group[open] > summary {
+	border-bottom-color: var(--yweb-border-subtle);
+}
+.yweb-form-group > summary:hover {
+	background: var(--pico-card-background-color);
+}
+.yweb-form-group-count {
+	margin-left: auto;
+	padding: 0.05rem 0.4rem;
+	border-radius: 999px;
+	background: var(--pico-muted-border-color);
+	color: var(--pico-muted-color);
+	font-size: 0.65rem;
+	font-weight: 600;
+	letter-spacing: 0;
+}
+.yweb-form-group-body {
+	padding: 0.7rem;
+}
+.yweb-form-group-body .yweb-form-row:last-child {
+	margin-bottom: 0;
+}
+
+/* Vom uebergeordneten Eintrag gesperrte Zeile (renderField/disabledIf):
+   Control traegt disabled (Picos Optik), das Label dimmt mit */
+.yweb-form-row.is-disabled > label:not(.yweb-toggle) {
+	opacity: 0.55;
+}
+.yweb-form-row.is-disabled select:disabled,
+.yweb-form-row.is-disabled input:disabled {
+	cursor: not-allowed;
+}
+.yweb-form-row.is-disabled .yweb-toggle {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
 /* ── Form Mobile Responsive ── */
 @media (max-width: 800px) {
 	.yweb-form-row {

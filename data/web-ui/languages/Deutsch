@@ -794,6 +794,7 @@ yw.set.loading=Lade Einstellungen...
 yw.set.load_fail=Fehler beim Laden der Einstellungen
 yw.set.notavail=Nicht verfügbar
 yw.set.nochanges=Keine Änderungen
+yw.set.dep_locked=Wird vom übergeordneten Eintrag gesteuert — ohne Wirkung, solange dieser aktiv ist
 yw.set.backup_title=Sichern und Wiederherstellen
 yw.set.backup_label=Einstellungen sichern
 yw.set.backup_hint=erzeugt ein Archiv und lädt es herunter
