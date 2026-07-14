@@ -216,5 +216,11 @@ void CComponentsInfoBox::paint(const bool &do_save_bg)
 	cctext->allowPaint(cc_allow_paint);
 	cctext->paint(CC_SAVE_SCREEN_NO);
 
+	//An infobox without own bg, shadow and frame paints no fb layer at all, so
+	//paintFbItems() never marks it as painted; do it here like paintText() does,
+	//otherwise parent forms skip the hide()/repaint cycle for this item forever.
+	if (cc_allow_paint)
+		is_painted = true;
+
 	OnAfterPaintInfo();
 }
