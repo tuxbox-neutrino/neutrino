@@ -362,12 +362,11 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=13"></script>
+	<script src="/Y_Lang.yjs?v=14"></script>
 	<script src="/yweb-header.js?v=42"></script>
 	<script>
 		let currentChannelId = null;
 		let currentBouquetNumber = null;
-		let logosUrl = '';
 		let bouquetsData = [];
 
 		// API Helpers — use shared functions from yweb-header.js
@@ -381,17 +380,6 @@
 				currentChannelId = data.trim();
 			} catch (e) {
 				console.error('Failed to load current channel:', e);
-			}
-		}
-
-		// Load logos URL from nhttpd config (json key: Tuxbox_dot_LogosURL)
-		async function loadLogosUrl() {
-			try {
-				const resp = await ywebApi('config', {config: 'nhttpd'});
-				const cfg = resp?.data?.config || resp?.config || {};
-				logosUrl = (cfg['Tuxbox_dot_LogosURL'] || '').trim();
-			} catch (e) {
-				logosUrl = '';
 			}
 		}
 
@@ -524,13 +512,12 @@
 				let html = '';
 				channels.forEach(ch => {
 					const isCurrent = ch.id === currentChannelId;
-					const logoId = ch.logo || ch.id;
 
 					html += `
 						<li class="yweb-channel-row${isCurrent ? ' current' : ''}" data-id="${ch.id}" onclick="toggleChannelDetail(event, '${ch.id}')">
 							<div class="yweb-channel-main">
-								<div class="yweb-icon-placeholder" data-logo="${logoId}">
-									${logosUrl ? `<img src="${logosUrl}/${logoId}.png" onerror="this.style.display='none'" alt="">` : 'TV'}
+								<div class="yweb-icon-placeholder" data-logo="${ch.id}">
+									${ch.logo ? `<img src="${ch.logo}" onerror="this.parentNode.textContent='TV'" alt="">` : 'TV'}
 								</div>
 								<svg class="yweb-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 									<polyline points="6,9 12,15 18,9"/>
@@ -863,7 +850,7 @@
 		}
 
 		// Initialize
-		Promise.all([loadCurrentChannel(), loadLogosUrl()]).then(() => loadBouquets());
+		loadCurrentChannel().then(() => loadBouquets());
 
 		// Setup mobile accordion
 		document.addEventListener('DOMContentLoaded', function() {

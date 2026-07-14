@@ -463,8 +463,6 @@ var SETTINGS_REGISTRY = [
 				fields: [
 					{ key: 'WebsiteMain.override_directory', label: ywebL('reg.override_dir', 'Override directory'), type: 'text', picker: true, hint: ywebL('reg.override_dir_hint', 'files here override the default web root') },
 					{ key: 'WebsiteMain.hosted_directory', label: ywebL('reg.hosted_dir', 'Hosted directory'), type: 'text', picker: true },
-					{ key: 'Tuxbox.DisplayLogos', label: ywebL('reg.show_logos', 'Show channel logos'), type: 'bool' },
-					{ key: 'Tuxbox.LogosURL', label: ywebL('reg.logos_url', 'Logos URL/path'), type: 'text' },
 					{ key: 'webserver.threading', label: 'Threading', type: 'bool' },
 					{ key: 'mod_sendfile.sendAll', label: ywebL('reg.send_all_types', 'Send all file types'), type: 'bool' }
 				]
