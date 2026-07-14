@@ -310,7 +310,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 };
 
 //-----------------------------------------------------------------------------
-// API v4 dispatcher table (/api/v4/<name>) — always JSON.
+// API v4 dispatcher table (/api/v4/<name>) — JSON, except for the entries that
+// carry a non-json mime type: exec and cmd return raw text, logo returns a raw
+// image and picks its content type itself (empty mime type = handler decides).
 // Reuses the existing CGI handlers; JSON is enforced in ExecuteV4().
 //-----------------------------------------------------------------------------
 const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
@@ -329,6 +331,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
 	{"channel",	&CControlAPI::GetChannelCGI,	"application/json"},
 	{"channellist",	&CControlAPI::ChannellistCGI,	"application/json"},
 	{"zapto",	&CControlAPI::ZaptoCGI,		"application/json"},
+	{"logo",	&CControlAPI::LogoCGI,		""},
 	// epg & timer
 	{"epg",		&CControlAPI::EpgCGI,		"application/json"},
 	{"epgsearch",	&CControlAPI::EpgSearchCGI,	"application/json"},
@@ -423,7 +426,9 @@ void CControlAPI::ExecuteV4(CyhookHandler *hh)
 	// outStart() in reused handlers resets the Content-Type for json to
 	// "text/plain"; enforce the v4 contract again, but keep any error
 	// status a handler has set via SetError().
-	if (hh->httpStatus == HTTP_OK)
+	// Entries with an empty mime type deliver binary content and have set
+	// their own content type — do not overwrite it here.
+	if (hh->httpStatus == HTTP_OK && yCgiCallListV4[index].mime_type[0] != '\0')
 		hh->SetHeader(HTTP_OK, yCgiCallListV4[index].mime_type);
 }
 //-----------------------------------------------------------------------------
@@ -2265,7 +2270,13 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 		result += hh->outPair("epg_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getEpgID()), true);
 		result += hh->outPair("short_epg_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getEpgID() & 0xFFFFFFFFFFFFULL), true);
 		result += hh->outPair("name", hh->outValue(channel->getName()), true);
-		result += hh->outPair("logo", hh->outValue(NeutrinoAPI->getLogoFile(channel->getChannelID())), false);
+		// api v4 hands out the logo endpoint, never a filesystem path; the
+		// legacy /control/ routes keep the resolved path they always had.
+		// outTypeForced is request local and only set by ExecuteV4().
+		std::string logo = NeutrinoAPI->getLogoFile(channel->getChannelID());
+		if (hh->outTypeForced && !logo.empty())
+			logo = string_printf("/api/v4/logo?id=" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID());
+		result += hh->outPair("logo", hh->outValue(logo), false);
 		if (bouquetNr > -1)
 		{
 			result += hh->outNext();
@@ -5066,6 +5077,88 @@ static bool config_key_is_secret(const std::string &key)
 		|| key.find("_token") != std::string::npos;
 }
 
+//-------------------------------------------------------------------------
+/** Send the channel logo as an image (api v4).
+ *
+ * Unlike get_logo, which returns the resolved path as text, this delivers the
+ * file itself and picks the content type from the file extension. That also
+ * covers .svg, which mod_sendfile has no mime type for.
+ *
+ * @param hh CyhookHandler
+ *
+ * @par nhttpd-usage
+ * @code
+ * /api/v4/logo[?id=<channel_id>]
+ * @endcode
+ *
+ * Without id the current channel is used. 404 means "no logo resolvable" — the
+ * channel itself is not looked up.
+ *
+ * @par output
+ * @code
+ * the image, as image/png, image/jpeg, image/gif or image/svg+xml
+ * @endcode
+ */
+void CControlAPI::LogoCGI(CyhookHandler *hh)
+{
+	t_channel_id channel_id = 0;
+	if (hh->ParamList["id"].empty())
+		channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	else
+		sscanf(hh->ParamList["id"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
+
+	std::string logo = NeutrinoAPI->getLogoFile(channel_id);
+	struct stat statbuf;
+	if (logo.empty() || stat(logo.c_str(), &statbuf) != 0 || !S_ISREG(statbuf.st_mode))
+	{
+		hh->SetHeader(HTTP_NOT_FOUND, "application/json; charset=UTF-8", HANDLED_READY);
+		hh->WriteLn("{\"success\": \"false\", \"error\":{\"msg\": \"no logo\"}}");
+		return;
+	}
+
+	hh->ContentLength = statbuf.st_size;
+	hh->LastModified = statbuf.st_mtime;
+	hh->RangeStart = 0;
+	hh->RangeEnd = hh->ContentLength - 1;
+
+	std::string mime = "application/octet-stream";
+	std::string ext = getFileExt(logo);
+	std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+	if (ext == "png")
+		mime = "image/png";
+	else if (ext == "jpg" || ext == "jpeg")
+		mime = "image/jpeg";
+	else if (ext == "gif")
+		mime = "image/gif";
+	else if (ext == "svg")
+		mime = "image/svg+xml";
+
+	// BuildHeader() announces Accept-Ranges for HANDLED_SENDFILE, so honour a
+	// Range request. Note that mod_sendfile only switches to 206 when
+	// RangeStart is non-zero, which would answer "bytes=0-9" with a 200 —
+	// every satisfiable range gets a 206 here.
+	HttpResponseType status = HTTP_OK;
+	if (!hh->HeaderList["Range"].empty())
+	{
+		const char *range = hh->HeaderList["Range"].c_str();
+		long long start = 0, end = (long long) hh->ContentLength - 1;
+		if (((sscanf(range, "bytes=%lld-%lld", &start, &end) != 2)
+		  && (sscanf(range, "bytes=%lld-", &start) != 1))
+		 || start < 0 || start > end || end > (long long) hh->ContentLength - 1)
+		{
+			// no body: BuildHeader() forces Content-Length: 0 for 416 anyway
+			hh->SetHeader(HTTP_REQUEST_RANGE_NOT_SATISFIABLE, mime, HANDLED_READY);
+			return;
+		}
+		hh->RangeStart = (off_t) start;
+		hh->RangeEnd = (off_t) end;
+		status = HTTP_PARTIAL_CONTENT;
+	}
+
+	// set the status last: SetHeader() would otherwise reset 206 back to 200
+	hh->SetHeader(status, mime);
+	hh->SendFile(logo);
+}
 //-------------------------------------------------------------------------
 /** Get Config File or save values to given config file
  * @param hh CyhookHandler

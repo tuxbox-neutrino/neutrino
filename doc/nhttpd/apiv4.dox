@@ -4,7 +4,9 @@
 \section apiv4_intro Grundlagen
 
 - Basis-URL: `http://<box>/api/v4/<endpoint>`
-- Ausgabe: immer JSON (kein `format`-Parameter noetig)
+- Ausgabe: JSON (kein `format`-Parameter noetig). Ausnahmen sind in der
+  Mapping-Tabelle markiert: `exec` und `cmd` liefern Roh-Text, `logo` liefert
+  ein Bild. Fehler liefern auch dort JSON.
 - Fehler: HTTP-Status + JSON-Objekt
   `{"success": "false", "error":{"msg": "..."}}`
 - Vertragsregel: additive Aenderungen innerhalb v4 erlaubt,
@@ -24,7 +26,8 @@
 - **Unbekannter Endpoint:** HTTP 404 +
   `{"success": "false", "error":{"msg": "unknown endpoint", "endpoint": "<name>"}}`
 - Endpoints mit Roh-Ausgabe (z.B. `exec`, `cmd`) sind in der Mapping-Tabelle
-  als `text/plain` markiert und liefern KEIN JSON.
+  als `text/plain` markiert und liefern KEIN JSON. `logo` liefert entsprechend
+  Binaerdaten (siehe \ref apiv4_logo).
 - Hinweis `timer`: Aktionen (`action=new|modify|remove`, `get=...`) werden
   unter v4 trotz erzwungenem JSON ausgefuehrt und mit dem Envelope
   quittiert; ohne Aktions-Parameter liefert `timer` die Liste.
@@ -47,6 +50,7 @@
 | `/api/v4/channel` | `/control/getchannel?format=json` | CControlAPI::GetChannelCGI |
 | `/api/v4/channellist` | `/control/channellist?format=json` | CControlAPI::ChannellistCGI |
 | `/api/v4/zapto` | `/control/zapto?format=json` | CControlAPI::ZaptoCGI |
+| `/api/v4/logo?id=<channel_id>` | `/control/get_logo` — **Bild, kein JSON** (Legacy liefert nur den Pfad als Text) | CControlAPI::LogoCGI |
 | `/api/v4/epg` | `/control/epg?format=json` | CControlAPI::EpgCGI |
 | `/api/v4/epgsearch` | `/control/epgsearch?format=json` | CControlAPI::EpgSearchCGI |
 | `/api/v4/timer` | `/control/timer?format=json` | CControlAPI::TimerCGI |
@@ -88,6 +92,32 @@
 
 Details je Endpoint (Parameter, Beispiel-Output) stehen an den verlinkten
 Handlern (Konvention `@par nhttpd-usage` / `@par output (json)`).
+
+\section apiv4_logo Senderlogos
+
+`GET /api/v4/logo?id=<channel_id>` liefert das Logo als Bild — `image/png`,
+`image/jpeg`, `image/gif` oder `image/svg+xml`, je nach gefundener Datei. Ohne
+`id` wird der aktuelle Sender genommen. Der Endpoint setzt den Content-Type
+selbst und deckt damit auch `.svg` ab, wofuer `mod_sendfile` keinen Mime-Typ
+kennt.
+
+Aufgeloest wird ueber CPictureViewer::GetLogoName(), also mit der ueblichen
+Suchreihenfolge (`logo_hdd_dir` &rarr; `LOGODIR_VAR` &rarr; `LOGODIR`; Sendername,
+Short-ID, E2-Picon-Namen). Clients brauchen deshalb keine eigene Pfadlogik.
+
+- **404** bedeutet "kein Logo aufloesbar", NICHT "Sender unbekannt": es findet
+  kein Sender-Lookup statt. Der Body ist das uebliche Fehler-JSON.
+- **Ranges** werden unterstuetzt (206 mit `Content-Range`, 416 bei
+  unerfuellbarer Range).
+- **HEAD** wird vom v4-Dispatcher vor dem Handler beendet und liefert daher
+  weder Content-Type noch Content-Length. Fuer `<img>` ohne Belang, beim Testen
+  aber `GET` verwenden.
+
+Das Feld `logo` in `bouquet`/`channel` ist unter v4 **diese URL** (bzw. `""`,
+wenn kein Logo existiert) und **nie** ein Dateisystempfad — es gibt damit genau
+einen Weg zum Logo. Die Legacy-Routen unter `/control/` liefern dort weiterhin
+den aufgeloesten Pfad. Das ist eine Praezisierung des v4-Vertrags, die noch vor
+dem v4-Release erfolgt ist; danach waere sie nur ueber /api/v5 zu haben.
 
 \section apiv4_scriptops Script-driven operations (exec-Vertrag)
 

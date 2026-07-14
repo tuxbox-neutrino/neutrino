@@ -144,6 +144,7 @@ private:
 	void build_live_url(CyhookHandler *hh);
 	void build_playlist(CyhookHandler *hh);
 	void logoCGI(CyhookHandler *hh);
+	void LogoCGI(CyhookHandler *hh);
 	void ConfigCGI(CyhookHandler *hh);
 	void FileCGI(CyhookHandler *hh);
 	void StatfsCGI(CyhookHandler *hh);
