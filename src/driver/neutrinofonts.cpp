@@ -446,8 +446,20 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
    (*font)->RenderString(...)
 
 */
+void CNeutrinoFonts::ensureValidDynSize(int &dx, int &dy)
+{
+	(void)dx;
+	// dy is the required font height (getDynFontSize() starts with dy/1.6);
+	// an unset/0/negative height yields a NULL or degenerate font and would
+	// crash the many unchecked "*getDynFont(...)" callers.
+	Font *def_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	if (dy <= 0)
+		dy = def_font ? def_font->getHeight() : 30;
+}
+
 Font **CNeutrinoFonts::getDynFont(int &dx, int &dy, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/, int share/*=FONT_ID_SHARE*/)
 {
+	ensureValidDynSize(dx, dy);
 	if (share > FONT_ID_SHARE)
 		return getDynFontWithID(dx, dy, text, style, share);
 	else
@@ -488,7 +500,8 @@ Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int 
 		ret = &(v_dyn_fonts[f_id].font);
 	}
 	else
-		return NULL;
+		// invalid FontID: fall back to a shared font instead of returning NULL
+		return getDynFontShare(dx, dy, text, style);
 
 	dy = (*ret)->getHeight();
 	if (!text.empty())
@@ -523,8 +536,7 @@ void CNeutrinoFonts::deleteDynFontExtAll()
 
 Font *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::string text/*=""*/, int style/*=FONT_STYLE_REGULAR*/)
 {
-	if ((dx <= 0) && (dy <= 0))
-		return NULL;
+	ensureValidDynSize(dx, dy);
 	if ((fontDescr.name.empty()) || (fontDescr.filename.empty()))
 		SetupNeutrinoFonts();
 	if (g_dynFontRenderer == NULL)
@@ -550,7 +562,8 @@ Font *CNeutrinoFonts::getDynFontExt(int &dx, int &dy, unsigned int f_id, std::st
 		ret = v_dyn_fonts_ext[f_id].font;
 	}
 	else
-		return NULL;
+		// invalid FontID: fall back to a shared font instead of returning NULL
+		return *getDynFontShare(dx, dy, text, style);
 
 	dy = ret->getHeight();
 	if (!text.empty())

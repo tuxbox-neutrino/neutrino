@@ -1257,7 +1257,10 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	// infoclock
 	g_settings.mode_clock = configfile.getInt32("mode_clock", 0);
 	g_settings.infoClockBackground = configfile.getInt32("infoClockBackground", 0);
-	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", 30);
+	const int infoclock_fontsize_default = 30;
+	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", infoclock_fontsize_default);
+	if (g_settings.infoClockFontSize <= 0)
+		g_settings.infoClockFontSize = infoclock_fontsize_default;
 	g_settings.infoClockSeconds = configfile.getInt32("infoClockSeconds", 0);
 
 	// volume gui

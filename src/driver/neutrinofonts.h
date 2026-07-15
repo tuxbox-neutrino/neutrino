@@ -87,6 +87,7 @@ class CNeutrinoFonts
 		void refreshDynFont(int dx, int dy, std::string text, int style, int index, bool isShare);
 		int getFontHeight(Font* fnt);
 		int getDynFontSize(int dx, int dy, std::string text, int style);
+		void ensureValidDynSize(int &dx, int &dy);
 		Font **getDynFontShare(int &dx, int &dy, std::string text, int style);
 		Font **getDynFontWithID(int &dx, int &dy, std::string text, int style, unsigned int f_id);
 		void clearDynFontStruct(dyn_font_t* f);
