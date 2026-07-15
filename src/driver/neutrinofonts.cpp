@@ -356,6 +356,9 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 {
 	int dynSize	= dy/1.6;
 	if (dx == 0) dx = CFrameBuffer::getInstance()->getScreenWidth(true);
+	// Never create or return a zero/negative-size font: dy/1.6 truncates to 0
+	// for a very small dy (e.g. dy == 1). Clamp before the first getFont().
+	if (dynSize < 1) dynSize = 1;
 
 	if (!vDynSize.empty()) {
 		for (size_t i = 0; i < vDynSize.size(); i++) {
@@ -382,12 +385,23 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 		if (text.empty()) tmpText = "x";
 		_width = dynFont->getRenderWidth(tmpText);
 		if ((_height > dy) || (_width > dx)) {
-			if (dynFlag){
+			if (dynFlag) {
+				// grew one step too far: step back to the last size
+				// that still fit and stop.
 				dynSize--;
-			}else{
-				if (debug)
-					printf("##### [%s] Specified size (dx=%d, dy=%d) too small, use minimal font size.\n", __FUNCTION__, dx, dy);
+				break;
 			}
+			// The first candidate (dy/1.6) already overflows the box.
+			// Keep shrinking until it fits -- but never below 1, and do
+			// not return the oversized candidate. If even size 1 overflows
+			// (a degenerately small dy), return it; the caller then writes
+			// dy back to the real font height ("box must grow").
+			if (dynSize > 1) {
+				dynSize--;
+				continue;
+			}
+			if (debug)
+				printf("##### [%s] Specified size (dx=%d, dy=%d) too small, use minimal font size.\n", __FUNCTION__, dx, dy);
 			break;
 		}
 		else if ((_height < dy) || (_width < dx)) {
@@ -448,10 +462,16 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 */
 void CNeutrinoFonts::ensureValidDynSize(int &dx, int &dy)
 {
-	(void)dx;
-	// dy is the required font height (getDynFontSize() starts with dy/1.6);
-	// an unset/0/negative height yields a NULL or degenerate font and would
-	// crash the many unchecked "*getDynFont(...)" callers.
+	// dx is the max text width, dy the required font height (getDynFontSize()
+	// starts with dy/1.6). Normalise both here, by reference and before the
+	// dispatch, so the correction reaches every path and the caller's box:
+	//  - dx <= 0 means "auto width"; clamp it to the screen width so a
+	//    negative width does not make every candidate overflow. (Passing dx
+	//    by value into getDynFontSize() would not write this back.)
+	//  - an unset/0/negative height yields a NULL or degenerate font and
+	//    would crash the many unchecked "*getDynFont(...)" callers.
+	if (dx <= 0)
+		dx = CFrameBuffer::getInstance()->getScreenWidth(true);
 	Font *def_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	if (dy <= 0)
 		dy = def_font ? def_font->getHeight() : 30;
