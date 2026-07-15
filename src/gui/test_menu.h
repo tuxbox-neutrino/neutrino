@@ -63,6 +63,9 @@ class CTestMenu : public CMenuTarget
 		void showCCTests(CMenuWidget *widget);
 		void showMsgTests(CMenuWidget *widget);
 		void showSeparatorTypes(CMenuWidget *widget);
+		void showFontTests(CMenuWidget *widget);
+		int showFontMetrics();
+		int showFontFitter();
 		void showRecords();
 		void handleShellOutput(std::string *line, int *, bool *);
 	public:

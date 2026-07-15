@@ -37,6 +37,7 @@
 #include <neutrino_menue.h>
 #include <driver/display.h>
 #include <driver/fontrenderer.h>
+#include <driver/neutrinofonts.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>
 
@@ -79,6 +80,74 @@ const struct button_label TestButtons[/*TestButtonsCount*/] =
 	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_MESSAGEBOX_INFO	},
 	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_STRINGINPUT_CLEAR	}
 };
+
+// --- font stress test helpers -------------------------------------------
+//
+// IMPORTANT: these diagnostics must NOT touch global font state. Changing
+// g_settings.font_scaling and calling SetupFonts() rebuilds the regular
+// renderer and every g_Font[] object (FONTSETUP_NEUTRINO_FONT_INST); other
+// code keeps raw g_Font* pointers alive (e.g. the running-clock test), so
+// that would dangle them -> use-after-free. The scaling comparison is done
+// with LOCAL renderers instead (a renderer's DPI == 72*font_scaling/100), so
+// nothing global is mutated. Safe global live font switching is the job of
+// the later rebind-hardening round, not of this panel.
+namespace {
+	struct font_scale_preset_t { int sx, sy; const char *name; };
+	const font_scale_preset_t kFontScalePresets[4] = {
+		{ 100, 100, "100/100" },
+		{ 150, 150, "150/150" },
+		{ 150, 100, "150/100 aniso" },
+		{ 200, 200, "200/200" }
+	};
+
+	struct font_metric_t { int size, height, width; bool ok; };
+
+	// Measure a font of nominal `size` rendered through a private renderer at
+	// the given DPI (= font_scaling), reading the same TTF the UI uses. No
+	// global state is created, changed or deleted. The Font is destroyed
+	// before its renderer, so no pointer outlives its owner.
+	font_metric_t measureLocal(int scx, int scy, int size, const std::string &text)
+	{
+		font_metric_t m = { size, 0, 0, false };
+		const std::string &file = g_settings.font_file;
+		if (file.empty())
+			return m;
+		FBFontRenderClass r(72 * scx / 100, 72 * scy / 100);
+		const char *style = r.AddFont(file.c_str());
+		std::string family = r.getFamily(file.c_str());
+		if (family.empty() || style == NULL)
+			return m;
+		Font *f = r.getFont(family.c_str(), style, size);
+		if (f) {
+			m.height = f->getHeight();
+			m.width  = f->getRenderWidth(text);
+			m.ok     = true;
+			delete f; // must go before r's destructor
+		}
+		return m;
+	}
+
+	// RAII: snapshot the whole OSD on entry and restore it on exit, so the
+	// full-screen diagnostic paint leaves no stale pixels behind (these views
+	// paint raw, not via a self-clearing cc-window).
+	struct CScreenSaver {
+		CFrameBuffer *fb;
+		int w, h;
+		fb_pixel_t *buf;
+		CScreenSaver() {
+			fb = CFrameBuffer::getInstance();
+			w  = (int)fb->getScreenWidth(true);
+			h  = (int)fb->getScreenHeight(true);
+			buf = new fb_pixel_t[(size_t)w * h];
+			fb->SaveScreen(0, 0, w, h, buf);
+		}
+		~CScreenSaver() {
+			fb->RestoreScreen(0, 0, w, h, buf);
+			fb->blit();
+			delete[] buf;
+		}
+	};
+}
 
 
 CTestMenu::CTestMenu()
@@ -1294,8 +1363,270 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 		rv.hide();
 		return res;
 	}
+	else if (actionKey == "font_metrics")
+	{
+		// return the view's own code so RC_home/shutdown propagate; a plain
+		// RETURN_REPAINT lands back in the "Font tests" submenu
+		return showFontMetrics();
+	}
+	else if (actionKey == "font_fitter")
+	{
+		return showFontFitter();
+	}
 
 	return showTestMenu();
+}
+
+void CTestMenu::showFontTests(CMenuWidget *widget)
+{
+	widget->addIntroItems("dynFont stress tests");
+	widget->addItem(new CMenuForwarder("dynFont vs. normal (metrics)", true, NULL, this, "font_metrics"));
+	widget->addItem(new CMenuForwarder("Fitter / overflow", true, NULL, this, "font_fitter"));
+}
+
+int CTestMenu::showFontMetrics()
+{
+	CFrameBuffer *fb = CFrameBuffer::getInstance();
+	CScreenSaver saver;
+	int res = menu_return::RETURN_REPAINT;
+
+	// ascenders, descenders and a diacritic on purpose: gjpqy reach below the
+	// baseline, Ä above the cap height -- the extent must cover both
+	const std::string text = "Beispiel gjpqy Äg 123 WWWiii";
+	const int nomSize = 30; // fixed nominal size compared across scalings
+	const int sx  = g_settings.screen_StartX;
+	const int sy  = g_settings.screen_StartY;
+	const int ex  = g_settings.screen_EndX;
+	const int ey  = g_settings.screen_EndY;
+	const int W   = ex - sx;
+	const int pad = OFFSET_INNER_MID;
+
+	if (W < 900 || (ey - sy) < 300) {
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, "OSD area too small for the font metrics view (needs about 900x300).", CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
+		return res;
+	}
+
+	Font *tf = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	Font *bf = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	const int fH   = bf->getHeight();
+	const int rowH = fH + 12;
+
+	// dynFont always renders at 72/72 DPI regardless of font_scaling -- that
+	// is the bug being shown, so its metric is the 100/100 value, frozen.
+	font_metric_t dyn = measureLocal(100, 100, nomSize, text);
+
+	fb->paintBoxRel(sx, sy, W, ey - sy, COL_MENUCONTENT_PLUS_0);
+	const int hh = tf->getHeight() + 12;
+	fb->paintBoxRel(sx, sy, W, hh, COL_MENUHEAD_PLUS_0);
+	tf->RenderString(sx + pad, sy + tf->getHeight() + 4, W - 2 * pad, "Font metrics: dynFont vs. normal (local renderers, no live change)", COL_MENUHEAD_TEXT);
+	int y = sy + hh + pad;
+
+	char line[224];
+	snprintf(line, sizeof(line), "nominal size %d, measured per font_scaling via a private renderer (DPI = 72*scaling/100)", nomSize);
+	bf->RenderString(sx + pad, y + fH, W - 2 * pad, line, COL_MENUCONTENT_TEXT);
+	y += rowH;
+
+	const int cScale = sx + pad;
+	const int cNorm  = sx + pad + 260;
+	const int cDyn   = cNorm + 220;
+	const int cDelta = cDyn + 220;
+	bf->RenderString(cScale, y + fH, 250, "font_scaling",  COL_MENUCONTENT_TEXT);
+	bf->RenderString(cNorm,  y + fH, 210, "normal width",  COL_MENUCONTENT_TEXT);
+	bf->RenderString(cDyn,   y + fH, 210, "dynFont width", COL_MENUCONTENT_TEXT);
+	bf->RenderString(cDelta, y + fH, 210, "delta",         COL_MENUCONTENT_TEXT);
+	y += rowH;
+
+	char v[48];
+	for (int i = 0; i < 4; i++) {
+		font_metric_t n = measureLocal(kFontScalePresets[i].sx, kFontScalePresets[i].sy, nomSize, text);
+		int delta = (n.ok && dyn.ok) ? (n.width - dyn.width) : 0;
+		if (delta != 0)
+			fb->paintBoxRel(cScale - pad / 2, y, (cDelta + 210) - (cScale - pad / 2), rowH, COL_MENUCONTENT_PLUS_1);
+		bf->RenderString(cScale, y + fH, 250, kFontScalePresets[i].name, COL_MENUCONTENT_TEXT);
+		snprintf(v, sizeof(v), "%d px", n.width);   bf->RenderString(cNorm,  y + fH, 210, v, COL_MENUCONTENT_TEXT);
+		snprintf(v, sizeof(v), "%d px", dyn.width); bf->RenderString(cDyn,   y + fH, 210, v, COL_MENUCONTENT_TEXT);
+		snprintf(v, sizeof(v), "%+d px", delta);    bf->RenderString(cDelta, y + fH, 210, v, delta ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
+		y += rowH;
+	}
+	y += pad;
+	bf->RenderString(sx + pad, y + fH, W - 2 * pad, "normal width grows with font_scaling (stretches when X != Y); dynFont stays frozen at 72/72 DPI, so the delta grows.", COL_MENUCONTENT_TEXT);
+	y += rowH + pad;
+
+	if (y + fH + 8 <= ey - pad) {
+		bf->RenderString(sx + pad, y + fH, 250, "live sample:", COL_MENUCONTENT_TEXT);
+		int bx = sx + pad + 260, bw = ex - pad - bx, bh = fH + 8;
+		fb->paintBoxRel(bx, y, bw, bh, COL_MENUCONTENT_PLUS_1);
+		bf->RenderString(bx + 6, y + fH, bw - 12, text, COL_MENUCONTENT_TEXT);
+	}
+	fb->blit();
+
+	neutrino_msg_t msg;
+	neutrino_msg_data_t data;
+	bool loop = true;
+	while (loop) {
+		g_RCInput->getMsg(&msg, &data, 100);
+		if (msg == CRCInput::RC_ok || msg == CRCInput::RC_home || CNeutrinoApp::getInstance()->backKey(msg))
+			loop = false;
+		else if (msg == CRCInput::RC_standby || CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// hand power-off / list-mode back to the main loop: repost and unwind
+			// so we never enter standby with the diagnostic view still on screen
+			g_RCInput->postMsg(msg, 0);
+			loop = false;
+			res = menu_return::RETURN_EXIT_ALL;
+		}
+		else if (msg == CRCInput::RC_timeout)
+			; // keep the static view up
+		else if (msg > CRCInput::RC_MaxRC) {
+			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all) {
+				loop = false;
+				res = menu_return::RETURN_EXIT_ALL;
+			}
+		}
+	}
+	return res;
+}
+
+int CTestMenu::showFontFitter()
+{
+	CFrameBuffer *fb = CFrameBuffer::getInstance();
+	CScreenSaver saver;
+	int res = menu_return::RETURN_REPAINT;
+
+	// regression cases match the driver fixes: dy=1 exercises the former
+	// size-0 path (floor = 1), dx<0 the ensureValidDynSize() width clamp,
+	// the small box shows sizes < 14 still returned; gjpqy/Ä stress extent
+	struct fit_case_t { int dx, dy; const char *text; const char *desc; };
+	static const fit_case_t cases[] = {
+		{  20, 12, "A very long caption that will not fit into a narrow box", "extreme narrow (width clips)" },
+		{ 300,  1, "tiny gjpqy",                                              "dy=1 (floor test)" },
+		{ -50, 40, "negative width gjpqy Äg",                                 "dx<0 (auto width)" },
+		{ 300, 18, "small box gjpqy Äg",                                      "small fitting box (<14 ok)" },
+		{ 260, 40, "Aufnahme wird gestartet, bitte warten...",               "long DE caption" },
+		{ 200, 40, "",                                                        "empty text (height only)" }
+	};
+	const int NCASES = (int)(sizeof(cases) / sizeof(cases[0]));
+
+	const int sx  = g_settings.screen_StartX;
+	const int sy  = g_settings.screen_StartY;
+	const int ex  = g_settings.screen_EndX;
+	const int ey  = g_settings.screen_EndY;
+	const int W   = ex - sx;
+	const int pad = OFFSET_INNER_MID;
+
+	if (W < 700 || (ey - sy) < 260) {
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, "OSD area too small for the font fitter view (needs about 700x260).", CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_INFO);
+		return res;
+	}
+
+	// The key hints live in a real cc footer instead of a plain text line -- it
+	// doubles as a reference for embedding buttons (see the "footer" demo in
+	// exec()): button_label_cc carries free text, the older button_label struct
+	// only locales. Sits below the content region the page repaint wipes, so it
+	// is painted exactly once and needs no kill()/repaint per page.
+	CComponentsFooter navFooter(sx, sy, W, 0 /*default height for sizeMode*/);
+	navFooter.setButtonFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_FOOT]);
+	std::vector<button_label_cc> btns;
+	button_label_cc btn;
+	btn.button = NEUTRINO_ICON_BUTTON_UP;	btn.text = "prev case";	btns.push_back(btn);
+	btn.button = NEUTRINO_ICON_BUTTON_DOWN;	btn.text = "next case";	btns.push_back(btn);
+	btn.button = NEUTRINO_ICON_BUTTON_OKAY;	btn.text = "exit";	btns.push_back(btn);
+	navFooter.setButtonLabels(btns, W, W / (int)btns.size());
+	const int ftH = navFooter.getHeight();
+	navFooter.setYPos(ey - ftH);
+	// the enclosing CScreenSaver already owns the backdrop -> no per-item save-bg
+	navFooter.paint(CC_SAVE_SCREEN_NO);
+
+	int cur = 0, shown = -1;
+	bool loop = true;
+	neutrino_msg_t msg;
+	neutrino_msg_data_t data;
+	while (loop) {
+		if (cur != shown) {
+			Font *tf = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+			Font *bf = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+			const int fH = bf->getHeight();
+			const int cy = ey - ftH;	// content region ends above the footer
+			const int bottom = cy - pad;
+
+			fb->paintBoxRel(sx, sy, W, cy - sy, COL_MENUCONTENT_PLUS_0);
+			const int hh = tf->getHeight() + 12;
+			fb->paintBoxRel(sx, sy, W, hh, COL_MENUHEAD_PLUS_0);
+			tf->RenderString(sx + pad, sy + tf->getHeight() + 4, W - 2 * pad, "Font fitter: getDynFont() box vs. result", COL_MENUHEAD_TEXT);
+			int y = sy + hh + pad;
+
+			char hdr[128];
+			snprintf(hdr, sizeof(hdr), "case %d / %d", cur + 1, NCASES);
+			bf->RenderString(sx + pad, y + fH, W - 2 * pad, hdr, COL_MENUCONTENT_TEXT);
+			y += fH + pad;
+
+			int reqx = cases[cur].dx, reqy = cases[cur].dy;
+			int dx = reqx, dy = reqy;
+			std::string t = cases[cur].text;
+			Font *f = *CNeutrinoFonts::getInstance()->getDynFont(dx, dy, t);
+			int retSize = f->getSize();
+
+			bool grow  = (dy > reqy);
+			bool wclip = (reqx > 0 && dx > reqx);
+			const char *status = grow ? "BOX MUST GROW" : (wclip ? "WIDTH CLIPPED" : "fit");
+			bool warn = grow || wclip;
+
+			bf->RenderString(sx + pad, y + fH, W - 2 * pad, cases[cur].desc, COL_MENUCONTENT_TEXT);
+			y += fH + 6;
+			char l1[160];
+			snprintf(l1, sizeof(l1), "requested box:   %d x %d", reqx, reqy);
+			bf->RenderString(sx + pad, y + fH, W - 2 * pad, l1, COL_MENUCONTENT_TEXT);
+			y += fH + 4;
+			char l2[160];
+			snprintf(l2, sizeof(l2), "getDynFont():    size %d   ->   %d x %d", retSize, dx, dy);
+			bf->RenderString(sx + pad, y + fH, W - 2 * pad, l2, COL_MENUCONTENT_TEXT);
+			y += fH + 8;
+
+			int stw = bf->getRenderWidth(status) + 16;
+			fb->paintBoxRel(sx + pad, y, stw, fH + 6, warn ? COL_MENUCONTENTSELECTED_PLUS_0 : COL_MENUCONTENT_PLUS_1);
+			bf->RenderString(sx + pad + 8, y + fH, stw - 16, status, warn ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
+			y += fH + 6 + pad;
+
+			// visual: grey requested bar over the returned panel with the text
+			const int bx = sx + pad;
+			const int maxW = ex - pad - bx;
+			int reqBarH = (reqy > 0) ? (reqy < 6 ? 6 : (reqy > 24 ? 24 : reqy)) : 6;
+			int reqW = (reqx > 0) ? (reqx > maxW ? maxW : reqx) : maxW;
+			if (y + reqBarH + dy + 8 <= bottom) {
+				fb->paintBoxRel(bx, y, reqW, reqBarH, COL_MENUCONTENT_PLUS_4);
+				y += reqBarH + 2;
+				int panelW = (dx > maxW) ? maxW : dx;
+				fb->paintBoxRel(bx, y, panelW, dy + 6, COL_MENUCONTENT_PLUS_1);
+				if (!t.empty())
+					f->RenderString(bx + 2, y + dy, panelW - 4, t, COL_MENUCONTENT_TEXT);
+			}
+			fb->blit();
+			shown = cur;
+		}
+
+		g_RCInput->getMsg(&msg, &data, 100);
+		if (msg == CRCInput::RC_up)
+			cur = (cur + NCASES - 1) % NCASES;
+		else if (msg == CRCInput::RC_down)
+			cur = (cur + 1) % NCASES;
+		else if (msg == CRCInput::RC_ok || msg == CRCInput::RC_home || CNeutrinoApp::getInstance()->backKey(msg))
+			loop = false;
+		else if (msg == CRCInput::RC_standby || CNeutrinoApp::getInstance()->listModeKey(msg)) {
+			// hand power-off / list-mode back to the main loop: repost and unwind
+			// so we never enter standby with the diagnostic view still on screen
+			g_RCInput->postMsg(msg, 0);
+			loop = false;
+			res = menu_return::RETURN_EXIT_ALL;
+		}
+		else if (msg == CRCInput::RC_timeout)
+			; // keep
+		else if (msg > CRCInput::RC_MaxRC) {
+			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all) {
+				loop = false;
+				res = menu_return::RETURN_EXIT_ALL;
+			}
+		}
+	}
+	return res;
 }
 
 void CTestMenu::showRecords()
@@ -1411,6 +1742,11 @@ int CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarder(w_cc->getName(), true, NULL, w_cc));
 	showCCTests(w_cc);
 
+	// font stress tests
+	CMenuWidget *w_font = new CMenuWidget("Font tests", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
+	w_test.addItem(new CMenuForwarder(w_font->getName(), true, NULL, w_font));
+	showFontTests(w_font);
+
 	// buildinfo
 	CMenuForwarder *f_bi = new CMenuForwarder(LOCALE_BUILDINFO_MENU, true, NULL, new CBuildInfo());
 	f_bi->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
@@ -1461,6 +1797,7 @@ int CTestMenu::showTestMenu()
 	delete w_hw;
 	delete w_cc;
 	delete w_msg;
+	delete w_font;
 	// exit
 	return res;
 }
