@@ -6,7 +6,7 @@
 	<title>yWeb - System Info</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=76">
+	<link rel="stylesheet" href="/css/yweb.css?v=77">
 	<style>
 		.sysinfo-content {
 			padding: 0.5rem 1rem;
@@ -139,7 +139,7 @@
 			flex-shrink: 0;
 		}
 
-		.sysinfo-iface-status.up { background: var(--yweb-success, #22c55e); }
+		.sysinfo-iface-status.up { background: var(--yweb-success); }
 		.sysinfo-iface-status.down { background: var(--pico-muted-color); }
 
 		.sysinfo-iface-detail {

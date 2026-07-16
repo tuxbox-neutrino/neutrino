@@ -30,7 +30,6 @@
 	/* Theme-adaptive colors (dark mode defaults) */
 	--yweb-text-primary: #e5e5e5;
 	--yweb-text-secondary: #9ca3af;
-	--yweb-text-muted: #6b7280;
 	--yweb-bg-elevated: rgba(255, 255, 255, 0.05);
 	--yweb-border-subtle: rgba(255, 255, 255, 0.1);
 
@@ -64,7 +63,6 @@
 	--yweb-on-accent: #1a1a1a;
 	--yweb-text-primary: #1a1a1a;
 	--yweb-text-secondary: #4b5563;
-	--yweb-text-muted: #6b7280;
 	--yweb-bg-elevated: #f3f4f6;
 	--yweb-border-subtle: #e5e7eb;
 	--yweb-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -946,8 +944,8 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 .yweb-confirm-actions .confirm-delete {
-	background: var(--yweb-danger, #ef4444);
-	border-color: var(--yweb-danger, #ef4444);
+	background: var(--yweb-danger);
+	border-color: var(--yweb-danger);
 	color: white;
 }
 
@@ -982,9 +980,10 @@ body:not(.has-subheader) .yweb-header-spacer {
 .yweb-about-section h4 {
 	font-size: 0.7rem;
 	text-transform: uppercase;
-	color: var(--pico-muted-color);
+	color: var(--yweb-accent);
+	font-weight: 600;
 	margin: 0 0 0.5rem 0;
-	letter-spacing: 0.05em;
+	letter-spacing: 0.08em;
 }
 
 .yweb-about-grid {
@@ -1142,7 +1141,8 @@ body:not(.has-subheader) .yweb-header-spacer {
 	font-size: 0.7rem;
 	text-transform: uppercase;
 	color: var(--pico-muted-color);
-	letter-spacing: 0.05em;
+	font-weight: 600;
+	letter-spacing: 0.08em;
 	margin-bottom: 0.25rem;
 }
 

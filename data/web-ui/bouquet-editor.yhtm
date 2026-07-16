@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.bqedit=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=76">
+	<link rel="stylesheet" href="/css/yweb.css?v=77">
 	<style>
 		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */

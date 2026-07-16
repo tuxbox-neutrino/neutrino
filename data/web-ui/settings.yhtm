@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.settings=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=76">
+	<link rel="stylesheet" href="/css/yweb.css?v=77">
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
@@ -260,7 +260,7 @@
 			font-size: var(--yweb-font-xs);
 			color: var(--pico-muted-color);
 			text-transform: uppercase;
-			letter-spacing: 0.05em;
+			letter-spacing: 0.08em;
 			font-weight: 600;
 			padding-bottom: 0.1rem;
 		}

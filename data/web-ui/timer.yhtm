@@ -6,7 +6,7 @@
 	<title>yWeb - Timer</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=76">
+	<link rel="stylesheet" href="/css/yweb.css?v=77">
 	<style>
 		/* 2-column grid layout for timer. Filterspalte bemisst sich am
 		   laengsten Eintrag (Labels sind lokalisiert und verschieden
@@ -106,7 +106,7 @@
 		}
 
 		.yweb-timer-type-icon.record svg {
-			color: var(--yweb-danger, #ef4444);
+			color: var(--yweb-danger);
 		}
 
 		/* Expand chevron */
@@ -189,7 +189,7 @@
 
 		.yweb-timer-badge-state.running {
 			background: rgba(34, 197, 94, 0.15);
-			color: #22c55e;
+			color: var(--yweb-success);
 			animation: yweb-pulse 2s ease-in-out infinite;
 		}
 
@@ -358,11 +358,11 @@
 		/* Confirm dialog styles moved to yweb.css */
 
 		.yweb-btn-stop {
-			color: var(--yweb-danger, #ef4444) !important;
+			color: var(--yweb-danger) !important;
 		}
 
 		.yweb-btn-stop .btn-label {
-			color: var(--yweb-danger, #ef4444);
+			color: var(--yweb-danger);
 		}
 
 		/* Timer Modal — inherits base styles from yweb.css (.yweb-modal-*)
@@ -824,7 +824,7 @@
 						` : ''}
 						${state === 2 && (typeNum === 5 || typeNum === 9) ? `
 							<button class="yweb-btn yweb-btn-stop" onclick="stopRecording('${timerId}', '${escapeJs(title)}')" title="{=L:yw.dash.record_stop=}">
-								<svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--yweb-danger,#ef4444)">
+								<svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--yweb-danger)">
 									<rect x="6" y="6" width="12" height="12" rx="1"/>
 								</svg>
 								<span class="btn-label">{=L:yw.tm.stop=}</span>
