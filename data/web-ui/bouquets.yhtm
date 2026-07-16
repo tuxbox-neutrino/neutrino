@@ -6,7 +6,7 @@
 	<title>yWeb - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=78">
+	<link rel="stylesheet" href="/css/yweb.css?v=79">
 	<style>
 		/* 2-column grid layout for bouquets. Bouquetspalte bemisst
 		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —
@@ -199,8 +199,21 @@
 			}
 
 			.yweb-icon-placeholder {
-				width: 36px;
-				height: 26px;
+				width: 44px;
+				height: 30px;
+			}
+
+			/* Mobile: wenn ein Logo geladen ist, traegt es die Zeile allein —
+			   der Textname faellt weg (das Logo hat den Namen als alt), das
+			   Logo bekommt den freigewordenen Platz. Faellt das Logo aus
+			   (onerror entfernt .has-logo), erscheint der Name wieder. */
+			.yweb-channel-row.has-logo .yweb-icon-placeholder {
+				width: 88px;
+				height: 40px;
+			}
+
+			.yweb-channel-row.has-logo .yweb-channel-name {
+				display: none;
 			}
 
 			.yweb-channel-actions {
@@ -514,10 +527,10 @@
 					const isCurrent = ch.id === currentChannelId;
 
 					html += `
-						<li class="yweb-channel-row${isCurrent ? ' current' : ''}" data-id="${ch.id}" onclick="toggleChannelDetail(event, '${ch.id}')">
+						<li class="yweb-channel-row${isCurrent ? ' current' : ''}${ch.logo ? ' has-logo' : ''}" data-id="${ch.id}" onclick="toggleChannelDetail(event, '${ch.id}')">
 							<div class="yweb-channel-main">
 								<div class="yweb-icon-placeholder" data-logo="${ch.id}">
-									${ch.logo ? `<img src="${ch.logo}" onerror="this.parentNode.textContent='TV'" alt="">` : 'TV'}
+									${ch.logo ? `<img src="${ch.logo}" onerror="this.closest('li').classList.remove('has-logo');this.parentNode.textContent='TV'" alt="${escapeHtml(ch.name)}">` : 'TV'}
 								</div>
 								<svg class="yweb-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 									<polyline points="6,9 12,15 18,9"/>

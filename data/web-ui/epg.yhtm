@@ -6,7 +6,7 @@
 	<title>yWeb - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=78">
+	<link rel="stylesheet" href="/css/yweb.css?v=79">
 	<style>
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.
@@ -150,9 +150,17 @@
 		}
 
 		.yweb-epg-channel-logo {
-			max-width: 80px;
-			max-height: 28px;
+			max-width: 92px;
+			max-height: 32px;
 			object-fit: contain;
+		}
+
+		/* Logos sind fuer dunkle OSDs gezeichnet — im Light-Theme eine
+		   dunkle Kachel unterlegen (wie .yweb-icon-placeholder) */
+		[data-theme="light"] .yweb-epg-channel-logo {
+			background: #1e242e;
+			border-radius: 4px;
+			padding: 2px 4px;
 		}
 
 		.yweb-epg-programs {

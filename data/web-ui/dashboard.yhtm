@@ -9,7 +9,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=78">
+	<link rel="stylesheet" href="/css/yweb.css?v=79">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -1256,7 +1256,23 @@
 				// Store for EPG info button
 				currentChannelId = channelId;
 				currentChannelName = channelName;
-				$('#current-channel').text(channelName);
+				// Logo (api v4) neben dem Namen; bricht der Load, bleibt
+				// nur der Name stehen. DOM statt HTML-String: der Name
+				// kommt ungefiltert aus der Senderliste.
+				var chEl = document.getElementById('current-channel');
+				chEl.textContent = '';
+				if (ch.logo) {
+					var logoImg = document.createElement('img');
+					logoImg.className = 'yweb-status-channel-logo';
+					logoImg.src = ch.logo;
+					logoImg.alt = '';
+					logoImg.onerror = function() { this.remove(); };
+					chEl.appendChild(logoImg);
+				}
+				var nameEl = document.createElement('span');
+				nameEl.className = 'yweb-status-channel-name';
+				nameEl.textContent = channelName;
+				chEl.appendChild(nameEl);
 				$('#channel-preview').text(channelName);
 				loadEpgForChannel(channelId);
 			} else {

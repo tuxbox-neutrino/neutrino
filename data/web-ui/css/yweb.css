@@ -1288,8 +1288,34 @@ body:not(.has-subheader) .yweb-header-spacer {
 	font-weight: 700;
 	color: var(--pico-h2-color);
 	overflow: hidden;
-	text-overflow: ellipsis;
 	white-space: nowrap;
+	/* Logo ueber dem Namen: nebeneinander ellipste der Name schon bei
+	   "Das Erste HD" — vertikal hat die Karte Luft, horizontal nicht */
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+	min-width: 0;
+}
+
+.yweb-status-channel-logo {
+	height: 2.2rem;
+	max-width: 8rem;
+	object-fit: contain;
+}
+
+/* wie bei den Listen-Logos: dunkle Kachel im Light-Theme, sonst sind
+   weisse Wordmarks auf der hellen Karte unsichtbar */
+[data-theme="light"] .yweb-status-channel-logo {
+	background: #1e242e;
+	border-radius: var(--yweb-radius);
+	padding: 0.2rem 0.4rem;
+}
+
+.yweb-status-channel-name {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .yweb-channel-footer {
@@ -2023,8 +2049,10 @@ textarea:focus-visible {
    Unified Icon Placeholder
    ============================================ */
 .yweb-icon-placeholder {
-	width: 40px;
-	height: 30px;
+	/* wide enough for wordmark logos (arte, tagesschau24) — 40px
+	   squeezed them illegibly small */
+	width: 72px;
+	height: 40px;
 	background: var(--pico-card-sectioning-background-color);
 	border-radius: 4px;
 	display: flex;
@@ -2040,6 +2068,14 @@ textarea:focus-visible {
 	height: 100%;
 	object-fit: contain;
 	border-radius: 4px;
+}
+
+/* Senderlogos sind fuer dunkle TV-OSDs gezeichnet (weisse Wordmarks) —
+   im Light-Theme bleibt die Logo-Kachel deshalb dunkel, sonst sind
+   Das Erste/zdf_neo & Co. unsichtbar */
+[data-theme="light"] .yweb-icon-placeholder {
+	background: #1e242e;
+	color: #9ca3af;
 }
 
 /* ============================================
