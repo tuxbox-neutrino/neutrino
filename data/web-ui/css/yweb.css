@@ -1307,17 +1307,28 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 /* wie bei den Listen-Logos: dunkle Kachel im Light-Theme, sonst sind
-   weisse Wordmarks auf der hellen Karte unsichtbar */
+   weisse Wordmarks auf der hellen Karte unsichtbar; weicher Schatten
+   nimmt der Kachelkante die Haerte */
 [data-theme="light"] .yweb-status-channel-logo {
 	background: #1e242e;
 	border-radius: var(--yweb-radius);
 	padding: 0.2rem 0.4rem;
+	box-shadow: 0 2px 10px rgba(30, 36, 46, 0.35);
 }
 
 .yweb-status-channel-name {
 	max-width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+/* Traegt das Logo die Karte, tritt der Textname deutlich zurueck —
+   Logo plus voller XL-Name wirkt ueberfrachtet. Die Klasse setzt das
+   Dashboard-JS; bricht der Logo-Load, nimmt es sie wieder weg. */
+.yweb-status-channel.has-logo .yweb-status-channel-name {
+	font-size: var(--yweb-font-base);
+	font-weight: 600;
+	color: var(--pico-color);
 }
 
 .yweb-channel-footer {
@@ -2063,6 +2074,9 @@ textarea:focus-visible {
 	color: var(--pico-muted-color);
 	font-size: var(--yweb-font-xs);
 	flex-shrink: 0;
+	/* weicher Verlauf statt harter Kachelkante — faellt vor allem auf
+	   dem hellen Grund und auf der akzentuierten selektierten Zeile auf */
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
 }
 
 .yweb-icon-placeholder img {
@@ -2078,6 +2092,7 @@ textarea:focus-visible {
 [data-theme="light"] .yweb-icon-placeholder {
 	background: #1e242e;
 	color: #9ca3af;
+	box-shadow: 0 2px 10px rgba(30, 36, 46, 0.35);
 }
 
 /* ============================================

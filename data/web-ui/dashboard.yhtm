@@ -9,7 +9,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=80">
+	<link rel="stylesheet" href="/css/yweb.css?v=81">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -1261,12 +1261,18 @@
 				// kommt ungefiltert aus der Senderliste.
 				var chEl = document.getElementById('current-channel');
 				chEl.textContent = '';
+				// mit Logo tritt der Textname zurueck (has-logo verkleinert
+				// ihn); bricht der Logo-Load, kommt die volle Groesse wieder
+				chEl.classList.toggle('has-logo', !!ch.logo);
 				if (ch.logo) {
 					var logoImg = document.createElement('img');
 					logoImg.className = 'yweb-status-channel-logo';
 					logoImg.src = ch.logo;
 					logoImg.alt = '';
-					logoImg.onerror = function() { this.remove(); };
+					logoImg.onerror = function() {
+						chEl.classList.remove('has-logo');
+						this.remove();
+					};
 					chEl.appendChild(logoImg);
 				}
 				var nameEl = document.createElement('span');
@@ -1278,13 +1284,13 @@
 			} else {
 				currentChannelId = null;
 				currentChannelName = null;
-				$('#current-channel').text('{=L:yw.dash.no_channel=}');
+				$('#current-channel').removeClass('has-logo').text('{=L:yw.dash.no_channel=}');
 				$('#channel-preview').text('{=L:yw.dash.no_channel=}');
 			}
 		}).fail(function() {
 			currentChannelId = null;
 			currentChannelName = null;
-			$('#current-channel').text('{=L:yw.dash.no_channel=}');
+			$('#current-channel').removeClass('has-logo').text('{=L:yw.dash.no_channel=}');
 			$('#channel-preview').text('{=L:yw.dash.no_channel=}');
 		});
 	}
