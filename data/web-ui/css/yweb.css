@@ -2727,6 +2727,25 @@ body.yweb-remote-open {
 	box-shadow: 0 0 0 2px rgba(255,165,0,0.3);
 }
 
+/* Toggle with a text label: the switch itself is a fixed 36x20 control,
+   so the label lives in this wrapper next to it. The <input> nests in
+   the wrapping <label>, so clicking the text toggles the box and the
+   text is the accessible name. No pill background — the canonical switch
+   carries the whole affordance. */
+.yweb-toggle-field {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	cursor: pointer;
+	font-size: var(--yweb-font-sm);
+	white-space: nowrap;
+	padding: 0.3rem 0.5rem;
+	margin: 0;
+}
+.yweb-toggle-text {
+	line-height: 1;
+}
+
 /* ── Form Rows ──
    M5a: festes 2-Spalten-Grid (Label | Control) statt Flex-Freiflug,
    damit Zeilen innerhalb eines Panels bündig ausrichten */

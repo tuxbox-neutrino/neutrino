@@ -6,7 +6,7 @@
 	<title>yWeb - Screenshot</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=74">
+	<link rel="stylesheet" href="/css/yweb.css?v=75">
 	<style>
 		/* 2-column grid: Remote (auto) + Screenshot (flex) */
 		.yweb-screenshot-grid {
@@ -47,58 +47,8 @@
 			margin-left: auto;
 		}
 
-		/* ── Toggle Switch (pill container) ── */
-		.yweb-toggle-pill {
-			display: flex;
-			align-items: center;
-			gap: 0.4rem;
-			cursor: pointer;
-			font-size: var(--yweb-font-sm);
-			white-space: nowrap;
-			padding: 0.3rem 0.5rem;
-			border-radius: 999px;
-		}
-
-		[data-theme="dark"] .yweb-toggle-pill { background: rgba(255,255,255,0.06); }
-		html:not([data-theme="dark"]) .yweb-toggle-pill { background: rgba(0,0,0,0.05); }
-
-		.yweb-toggle-pill input { display: none; }
-
-		.yweb-toggle-track {
-			width: 36px;
-			height: 20px;
-			border-radius: 10px;
-			position: relative;
-			transition: background 0.2s;
-			flex-shrink: 0;
-		}
-
-		/* Off-state: high contrast for both themes */
-		[data-theme="dark"] .yweb-toggle-track { background: #555; }
-		html:not([data-theme="dark"]) .yweb-toggle-track { background: #b0b0b0; }
-
-		.yweb-toggle-track::after {
-			content: '';
-			width: 16px;
-			height: 16px;
-			border-radius: 50%;
-			background: white;
-			position: absolute;
-			top: 2px;
-			left: 2px;
-			transition: transform 0.2s;
-			box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-		}
-
-		.yweb-toggle-pill input:checked + .yweb-toggle-track {
-			/* softened accent, same treatment as .yweb-toggle in yweb.css */
-			background: var(--yweb-accent);
-			background: color-mix(in srgb, var(--yweb-accent) 62%, var(--pico-card-background-color));
-		}
-
-		.yweb-toggle-pill input:checked + .yweb-toggle-track::after {
-			transform: translateX(16px);
-		}
+		/* Toggle switch + label now use the shared .yweb-toggle /
+		   .yweb-toggle-slider / .yweb-toggle-field from yweb.css. */
 
 		/* ── Reload group (same pill style as toggles) ── */
 		.yweb-reload-group {
@@ -114,7 +64,7 @@
 		[data-theme="dark"] .yweb-reload-group { background: rgba(255,255,255,0.06); }
 		html:not([data-theme="dark"]) .yweb-reload-group { background: rgba(0,0,0,0.05); }
 
-		.yweb-reload-group .yweb-toggle-pill {
+		.yweb-reload-group .yweb-toggle-field {
 			background: none;
 			padding: 0;
 		}
@@ -283,9 +233,9 @@
 				font-size: var(--yweb-font-base);
 			}
 
-			/* Touch: the pill padding provides the target size, the
-			   track keeps the shared 36x20 geometry */
-			.yweb-toggle-pill {
+			/* Touch: the field padding provides the target size, the
+			   switch keeps the shared 36x20 geometry */
+			.yweb-toggle-field {
 				font-size: var(--yweb-font-base);
 				gap: 0.5rem;
 				padding: 0.4rem 0.75rem;
@@ -366,21 +316,27 @@
 					</div>
 
 					<div class="yweb-screenshot-options">
-						<label class="yweb-toggle-pill">
-							<input type="checkbox" id="checkOSD" checked>
-							<span class="yweb-toggle-track"></span>
-							<span>OSD</span>
+						<label class="yweb-toggle-field">
+							<span class="yweb-toggle">
+								<input type="checkbox" id="checkOSD" checked>
+								<span class="yweb-toggle-slider"></span>
+							</span>
+							<span class="yweb-toggle-text">OSD</span>
 						</label>
-						<label class="yweb-toggle-pill">
-							<input type="checkbox" id="checkVideo" checked>
-							<span class="yweb-toggle-track"></span>
-							<span>Video</span>
+						<label class="yweb-toggle-field">
+							<span class="yweb-toggle">
+								<input type="checkbox" id="checkVideo" checked>
+								<span class="yweb-toggle-slider"></span>
+							</span>
+							<span class="yweb-toggle-text">Video</span>
 						</label>
 						<div class="yweb-reload-group">
-							<label class="yweb-toggle-pill">
-								<input type="checkbox" id="checkReload">
-								<span class="yweb-toggle-track"></span>
-								<span>Reload</span>
+							<label class="yweb-toggle-field">
+								<span class="yweb-toggle">
+									<input type="checkbox" id="checkReload">
+									<span class="yweb-toggle-slider"></span>
+								</span>
+								<span class="yweb-toggle-text">Reload</span>
 							</label>
 							<input type="number" id="inputReload" value="15" min="1" max="180" disabled>
 							<span class="yweb-unit">s</span>
