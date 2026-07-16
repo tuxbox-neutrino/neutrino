@@ -1508,7 +1508,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.yweb-btn:active {
+.yweb-btn:active,
+.yweb-action-btn:active,
+.yweb-mode-switch-btn:active {
 	transform: translateY(0);
 	box-shadow: none;
 }
@@ -1555,7 +1557,9 @@ textarea:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.yweb-btn, .yweb-btn:hover {
+	.yweb-btn, .yweb-btn:hover,
+	.yweb-action-btn, .yweb-action-btn:hover,
+	.yweb-mode-switch-btn, .yweb-mode-switch-btn:hover {
 		transition: none;
 		transform: none;
 	}
@@ -1894,9 +1898,12 @@ textarea:focus-visible {
 }
 
 .yweb-select:focus {
+	/* accent border as field cue; the shared themed outline above
+	   provides the keyboard ring — don't suppress it, and drop the
+	   old low-contrast alpha glow */
 	border-color: var(--yweb-accent);
-	outline: none;
-	box-shadow: 0 0 0 2px rgba(253, 109, 19, 0.2);
+	box-shadow: none;
+	--pico-box-shadow: none;
 }
 
 [data-theme="light"] .yweb-select {

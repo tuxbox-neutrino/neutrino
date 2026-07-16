@@ -6,7 +6,7 @@
 	<title>yWeb - Screenshot</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=77">
+	<link rel="stylesheet" href="/css/yweb.css?v=78">
 	<style>
 		/* 2-column grid: Remote (auto) + Screenshot (flex) */
 		.yweb-screenshot-grid {
