@@ -1300,7 +1300,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 .yweb-status-channel-logo {
 	height: 2.2rem;
-	max-width: 8rem;
+	/* breit genug fuer 8:1-Bannerlogos (Sky), sonst schrumpfen sie
+	   auf Streifenhoehe */
+	max-width: 10rem;
 	object-fit: contain;
 }
 

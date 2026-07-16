@@ -6,7 +6,7 @@
 	<title>yWeb - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=79">
+	<link rel="stylesheet" href="/css/yweb.css?v=80">
 	<style>
 		/* 2-column grid layout for bouquets. Bouquetspalte bemisst
 		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —
@@ -58,6 +58,15 @@
 		.yweb-channel-row.current {
 			background: var(--yweb-accent-light);
 			border-left-color: var(--yweb-accent);
+		}
+
+		/* Die Logo-Packs bestehen fast nur aus Breitbannern (ZDF 2.8:1
+		   bis Sky 8.4:1) — in der kompakten 72px-Kachel skaliert contain
+		   ueber die Breite und laesst 8:1-Banner auf ~9px Resthoehe
+		   schrumpfen. Mit Logo bekommt die Kachel deshalb Bannerbreite;
+		   ohne Logo bleibt der schmale TV-Fallback. */
+		.yweb-channel-row.has-logo .yweb-icon-placeholder {
+			width: 160px;
 		}
 
 		.yweb-channel-info {
@@ -208,7 +217,7 @@
 			   Logo bekommt den freigewordenen Platz. Faellt das Logo aus
 			   (onerror entfernt .has-logo), erscheint der Name wieder. */
 			.yweb-channel-row.has-logo .yweb-icon-placeholder {
-				width: 88px;
+				width: 140px;
 				height: 40px;
 			}
 

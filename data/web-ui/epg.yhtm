@@ -6,7 +6,7 @@
 	<title>yWeb - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=79">
+	<link rel="stylesheet" href="/css/yweb.css?v=80">
 	<style>
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.
@@ -161,6 +161,21 @@
 			background: #1e242e;
 			border-radius: 4px;
 			padding: 2px 4px;
+		}
+
+		/* Desktop: breitere Senderspalte, sonst schrumpfen Banner-Logos
+		   (Sky, 8:1) auf Streifenhoehe; Mobile behaelt die 100px, dort
+		   zaehlt jede Programmspalten-Breite */
+		@media (min-width: 769px) {
+			.yweb-epg-channel-header,
+			.yweb-epg-channel-name {
+				min-width: 150px;
+				width: 150px;
+			}
+
+			.yweb-epg-channel-logo {
+				max-width: 138px;
+			}
 		}
 
 		.yweb-epg-programs {
