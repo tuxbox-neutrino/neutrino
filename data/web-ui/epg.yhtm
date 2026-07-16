@@ -6,7 +6,7 @@
 	<title>yWeb - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=75">
+	<link rel="stylesheet" href="/css/yweb.css?v=76">
 	<style>
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.

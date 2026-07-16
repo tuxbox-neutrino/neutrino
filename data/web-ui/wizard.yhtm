@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.wiz.title=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=75">
+	<link rel="stylesheet" href="/css/yweb.css?v=76">
 	<script>
 		// Gespeichertes Theme anwenden — der Wizard laedt kein
 		// yweb-header.js und blieb sonst immer dunkel
