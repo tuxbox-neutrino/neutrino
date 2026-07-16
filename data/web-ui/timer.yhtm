@@ -6,7 +6,7 @@
 	<title>yWeb - Timer</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=73">
+	<link rel="stylesheet" href="/css/yweb.css?v=74">
 	<style>
 		/* 2-column grid layout for timer. Filterspalte bemisst sich am
 		   laengsten Eintrag (Labels sind lokalisiert und verschieden
@@ -476,11 +476,11 @@
 
 		/* Timer edit button */
 		.yweb-btn-edit {
-			color: var(--yweb-accent, #3b82f6);
+			color: var(--yweb-accent);
 		}
 
 		.yweb-btn-edit .btn-label {
-			color: var(--yweb-accent, #3b82f6);
+			color: var(--yweb-accent);
 		}
 
 		@media (max-width: 800px) {

@@ -9,7 +9,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=73">
+	<link rel="stylesheet" href="/css/yweb.css?v=74">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -299,44 +299,18 @@
 		color: var(--yweb-primary);
 	}
 
+	/* Layout-only delta; colour/frame/hover/focus/light come from the
+	   shared .yweb-btn base in yweb.css (loaded before this style). */
 	.yweb-mode-switch-btn {
 		flex: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		gap: 0.3rem;
 		padding: 0.5rem 0.3rem;
-		background: var(--pico-card-sectioning-background-color);
-		border: 1px solid var(--pico-muted-border-color);
-		border-radius: var(--yweb-radius);
-		color: var(--pico-color);
 		font-size: 0.65rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: all 0.2s ease;
 	}
 
 	.yweb-mode-switch-btn svg {
 		width: 18px;
 		height: 18px;
-	}
-
-	.yweb-mode-switch-btn:hover {
-		background: var(--yweb-accent-light);
-		border-color: var(--yweb-accent);
-		color: var(--yweb-accent);
-	}
-
-	[data-theme="light"] .yweb-mode-switch-btn {
-		background: #f8f9fa;
-		border-color: #dee2e6;
-		color: #495057;
-	}
-
-	[data-theme="light"] .yweb-mode-switch-btn:hover {
-		background: var(--yweb-accent-light);
-		border-color: var(--yweb-accent);
-		color: var(--yweb-accent);
 	}
 
 	/* Actions grid - 3 columns */

@@ -12,6 +12,10 @@
 	--yweb-accent: #fd6d13;
 	--yweb-accent-hover: #e55a00;
 	--yweb-accent-light: rgba(253, 109, 19, 0.15);
+	/* Focus outline colour — theme-dependent for 3:1 contrast: plain
+	   accent clears 3:1 on the dark form background, the darker hover
+	   accent is needed on the light one (see [data-theme="light"]). */
+	--yweb-focus-color: var(--yweb-accent);
 
 	/* Text on accent (for buttons, active states) */
 	--yweb-on-accent: #ffffff;
@@ -56,6 +60,7 @@
 /* Light theme - override variables */
 [data-theme="light"] {
 	--yweb-accent-light: rgba(253, 109, 19, 0.12);
+	--yweb-focus-color: var(--yweb-accent-hover);
 	--yweb-on-accent: #1a1a1a;
 	--yweb-text-primary: #1a1a1a;
 	--yweb-text-secondary: #4b5563;
@@ -72,7 +77,7 @@
 }
 
 [data-theme="light"] .yweb-theme-toggle:hover {
-	background: var(--yweb-bg-elevated);
+	background: var(--yweb-accent-light);
 	color: var(--yweb-text-primary);
 }
 
@@ -395,14 +400,16 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 [data-theme="light"] .yweb-menu-toggle:hover {
-	background: rgba(0, 0, 0, 0.08);
+	background: var(--yweb-accent-light);
 }
 
-/* Theme toggle button */
+/* Theme toggle button — single definition (the former duplicate near
+   the button templates has been removed; its winning padding/svg size
+   are folded in here so the rendering is unchanged). */
 .yweb-theme-toggle {
 	background: none;
 	border: none;
-	padding: 0.2rem;
+	padding: 0.3rem;
 	cursor: pointer;
 	color: var(--pico-color);
 	border-radius: var(--yweb-radius);
@@ -412,12 +419,12 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 .yweb-theme-toggle:hover {
-	background: var(--pico-card-sectioning-background-color);
+	background: var(--yweb-accent-light);
 }
 
 .yweb-theme-toggle svg {
-	width: 1rem;
-	height: 1rem;
+	width: 18px;
+	height: 18px;
 }
 
 /* Language button: globe + active language code (EN/DE/...) so the
@@ -553,7 +560,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	}
 
 	.yweb-menu-close:hover {
-		background: var(--pico-muted-border-color);
+		background: var(--yweb-accent-light);
 		color: var(--pico-color);
 	}
 
@@ -769,6 +776,12 @@ body:not(.has-subheader) .yweb-header-spacer {
 	cursor: pointer;
 	margin: 0;
 	width: auto;
+	border-radius: var(--yweb-radius);
+	transition: var(--yweb-transition);
+}
+
+.yweb-popover-close:hover {
+	background: var(--yweb-accent-light);
 }
 
 .yweb-popover form {
@@ -832,7 +845,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 .yweb-modal-close:hover {
-	background: var(--pico-card-sectioning-background-color);
+	background: var(--yweb-accent-light);
 	color: var(--pico-color);
 }
 
@@ -1357,34 +1370,8 @@ body:not(.has-subheader) .yweb-header-spacer {
 	gap: 3%;
 }
 
-.yweb-action-btn {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.3rem;
-	padding: 8% 4%;
-	background: var(--pico-card-sectioning-background-color);
-	border: 1px solid var(--pico-muted-border-color);
-	border-radius: var(--yweb-radius);
-	/* Aktions-Kachel, kein Textlink: Picos Anchor-Blau neutralisieren */
-	--pico-color: inherit;
-	color: var(--pico-color);
-	text-decoration: none;
-	font-size: var(--yweb-font-xs);
-	transition: var(--yweb-transition);
-	cursor: pointer;
-}
-
-.yweb-action-btn:hover {
-	background: var(--yweb-accent-light);
-	border-color: var(--yweb-accent);
-	color: var(--yweb-accent);
-}
-
-.yweb-action-btn svg {
-	width: clamp(18px, 4vw, 24px);
-	height: clamp(18px, 4vw, 24px);
-}
+/* .yweb-action-btn is now driven by the shared .yweb-btn base; only its
+   layout delta remains, defined just after that base (see above). */
 
 /* ============================================
    Info List
@@ -1476,29 +1463,8 @@ body:not(.has-subheader) .yweb-header-spacer {
 	color: var(--pico-muted-color);
 }
 
-/* ============================================
-   Theme Toggle
-   ============================================ */
-.yweb-theme-toggle {
-	background: none;
-	border: none;
-	padding: 0.3rem;
-	cursor: pointer;
-	color: var(--pico-color);
-	border-radius: var(--yweb-radius);
-	transition: var(--yweb-transition);
-}
-
-.yweb-theme-toggle:hover {
-	background: var(--pico-card-sectioning-background-color);
-}
-
-.yweb-theme-toggle svg {
-	width: 18px;
-	height: 18px;
-}
-
 /* Note: Footer styles are defined earlier in this file */
+/* Note: .yweb-theme-toggle is defined once, near the header icon buttons */
 
 /* ============================================
    Unified Button Templates
@@ -1507,7 +1473,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* Base button - verwendet überall.
    --pico-color-Reset: Pico färbt <a> lokal primär-blau; Buttons sind
    Aktionen, keine Textlinks → neutrale Textfarbe (Blau nur echte Links) */
-.yweb-btn {
+.yweb-btn,
+.yweb-action-btn,
+.yweb-mode-switch-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1530,7 +1498,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 	text-decoration: none;
 }
 
-.yweb-btn:hover {
+.yweb-btn:hover,
+.yweb-action-btn:hover,
+.yweb-mode-switch-btn:hover {
 	background: var(--yweb-accent-light);
 	border-color: var(--yweb-accent);
 	color: var(--yweb-accent);
@@ -1543,14 +1513,29 @@ body:not(.has-subheader) .yweb-header-spacer {
 	box-shadow: none;
 }
 
-/* M5a: einheitliche Interaktionszustände */
+/* M5a: einheitliche Interaktionszustände — eine geteilte Fokus-Regel für
+   alle Buttons und rahmenlosen Icon-Buttons. Flache, komma-getrennte
+   Selektorliste (kein CSS-Nesting: yWeb hat keinen Build-Step). Field-
+   Selektoren treten in Area B derselben Liste bei. box-shadow/--pico-box-
+   shadow: none unterdrückt Picos blauen Fokus-Schatten. */
 .yweb-btn:focus-visible,
-.yweb-file-btn:focus-visible {
-	outline: 2px solid var(--yweb-accent);
+.yweb-file-btn:focus-visible,
+.yweb-action-btn:focus-visible,
+.yweb-mode-switch-btn:focus-visible,
+.yweb-menu-toggle:focus-visible,
+.yweb-theme-toggle:focus-visible,
+.yweb-menu-close:focus-visible,
+.yweb-popover-close:focus-visible,
+.yweb-modal-close:focus-visible {
+	outline: 2px solid var(--yweb-focus-color);
 	outline-offset: 2px;
+	box-shadow: none;
+	--pico-box-shadow: none;
 }
 
-.yweb-btn[disabled] {
+.yweb-btn[disabled],
+.yweb-action-btn[disabled],
+.yweb-mode-switch-btn[disabled] {
 	opacity: 0.45;
 	pointer-events: none;
 }
@@ -1566,6 +1551,20 @@ body:not(.has-subheader) .yweb-header-spacer {
 	width: 14px;
 	height: 14px;
 	flex-shrink: 0;
+}
+
+/* Quick-Action tile — layout-only delta on top of the shared button
+   base above (colour/frame/hover/focus/light come from there). Must
+   sit AFTER the base so its column direction and tile padding win. */
+.yweb-action-btn {
+	flex-direction: column;
+	gap: 0.3rem;
+	padding: 8% 4%;
+}
+
+.yweb-action-btn svg {
+	width: clamp(18px, 4vw, 24px);
+	height: clamp(18px, 4vw, 24px);
 }
 
 /* Button Varianten */
@@ -1627,13 +1626,17 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 /* Light theme buttons */
-[data-theme="light"] .yweb-btn {
+[data-theme="light"] .yweb-btn,
+[data-theme="light"] .yweb-action-btn,
+[data-theme="light"] .yweb-mode-switch-btn {
 	background: #e9ecef;
 	border-color: #ced4da;
 	color: #212529;
 }
 
-[data-theme="light"] .yweb-btn:hover {
+[data-theme="light"] .yweb-btn:hover,
+[data-theme="light"] .yweb-action-btn:hover,
+[data-theme="light"] .yweb-mode-switch-btn:hover {
 	background: var(--yweb-accent-light);
 	border-color: var(--yweb-accent);
 	color: var(--yweb-accent);
@@ -1703,7 +1706,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 /* Tastatur-Fokus liegt auf dem versteckten Input → Rahmen aufs Control */
 .yweb-file:focus-within {
-	outline: 2px solid var(--yweb-accent);
+	outline: 2px solid var(--yweb-focus-color);
 	outline-offset: 2px;
 }
 
@@ -2625,6 +2628,10 @@ body.yweb-remote-open {
 /* ============================================
    Channel Action Buttons (must be at end to override)
    ============================================ */
+/* Contextual JS-injected variant — keep only the geometry deltas; the
+   higher specificity here would otherwise re-assert the general tile
+   padding, so it must stay explicit. Colour/frame/hover now come from
+   the shared .yweb-btn base. */
 .yweb-channel-actions .yweb-action-btn {
 	display: flex;
 	flex-direction: column;
@@ -2638,10 +2645,7 @@ body.yweb-remote-open {
 	padding: 0.5rem 0.75rem;
 	font-size: 0.75rem;
 	font-family: inherit;
-	color: var(--pico-muted-color);
 	text-decoration: none;
-	background: var(--pico-card-sectioning-background-color);
-	border: 1px solid var(--pico-muted-border-color);
 	border-radius: var(--yweb-radius);
 	cursor: pointer;
 	transition: all 0.15s ease;
@@ -2657,12 +2661,6 @@ body.yweb-remote-open {
 .yweb-channel-actions .yweb-action-btn span {
 	line-height: 1;
 	white-space: nowrap;
-}
-
-.yweb-channel-actions .yweb-action-btn:hover {
-	border-color: var(--yweb-accent);
-	color: var(--yweb-accent);
-	text-decoration: none;
 }
 
 .yweb-channel-actions .yweb-action-btn:active {

@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.settings=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=73">
+	<link rel="stylesheet" href="/css/yweb.css?v=74">
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
@@ -82,14 +82,14 @@
 			flex-shrink: 0;
 		}
 		#settingsSidebar button:hover {
-			color: var(--pico-color);
-			background: rgba(255,255,255,0.03);
+			color: var(--yweb-accent);
+			background: var(--yweb-accent-light);
 		}
 		#settingsSidebar button.active {
 			color: var(--yweb-accent);
 			border-left-color: var(--yweb-accent);
 			font-weight: 600;
-			background: rgba(255,165,0,0.06);
+			background: var(--yweb-accent-light);
 		}
 
 		/* Mobile category dropdown — replaces the sidebar below 800px.

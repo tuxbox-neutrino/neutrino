@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.tools.bqedit=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=73">
+	<link rel="stylesheet" href="/css/yweb.css?v=74">
 	<style>
 		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */
@@ -32,7 +32,7 @@
 		.bqe-list li { display: flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.22rem 0.4rem; min-height: 1.85rem; border-radius: 4px; font-size: 0.78rem; line-height: 1.3; cursor: pointer; }
 		.bqe-list li:hover { background: rgba(255,255,255,0.04); }
 		[data-theme="light"] .bqe-list li:hover { background: rgba(0,0,0,0.05); }
-		.bqe-list li.sel { background: rgba(255,165,0,0.12); outline: 1px solid var(--yweb-accent); }
+		.bqe-list li.sel { background: var(--yweb-accent-light); outline: 1px solid var(--yweb-accent); }
 		.bqe-list li .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; font-variant-numeric: tabular-nums; }
 		.bqe-list li .flags svg { width: 11px; height: 11px; vertical-align: -1px; }
