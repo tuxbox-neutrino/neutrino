@@ -771,25 +771,29 @@ function ywebGetRemoteHTML(opts) {
 			iconBtn('', 'KEY_STOP', 'Stop', '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>') +
 		'</div>' +
 
-		/* Sheet trigger */
-		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="Numpad" onclick="ywebToggleRcSheet(\'' + id + '\')">123</button>' +
+		/* Zone E: Colour keys (always visible) */
+		'<div class="yweb-rc-row yweb-rc-colors">' +
+			'<button type="button" class="yweb-rc-color yweb-rc-red" onclick="' + onKey + "('KEY_RED')\" title=\"Rot\" aria-label=\"Rot\"></button>" +
+			'<button type="button" class="yweb-rc-color yweb-rc-green" onclick="' + onKey + "('KEY_GREEN')\" title=\"Gruen\" aria-label=\"Gruen\"></button>" +
+			'<button type="button" class="yweb-rc-color yweb-rc-yellow" onclick="' + onKey + "('KEY_YELLOW')\" title=\"Gelb\" aria-label=\"Gelb\"></button>" +
+			'<button type="button" class="yweb-rc-color yweb-rc-blue" onclick="' + onKey + "('KEY_BLUE')\" title=\"Blau\" aria-label=\"Blau\"></button>" +
+		'</div>' +
 
-		/* Bottom sheet */
+		/* Zone F: EPG / Text / Fav / Timer (always visible) */
+		'<div class="yweb-rc-row yweb-rc-nav">' +
+			btn('yweb-rc-func', 'KEY_EPG', 'EPG') +
+			btn('yweb-rc-func', 'KEY_TEXT', 'Text') +
+			btn('yweb-rc-func', 'KEY_FAVORITES', ywebL('rc.fav', 'Fav')) +
+			btn('yweb-rc-func', 'KEY_TIME', ywebL('rc.time', 'Timer')) +
+		'</div>' +
+
+		/* Numpad trigger — reveals the numpad sheet on every viewport */
+		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="Numpad" aria-expanded="false" onclick="ywebToggleRcSheet(\'' + id + '\')">123</button>' +
+
+		/* Numpad sheet (bottom sheet on mobile, inline panel on desktop) */
 		'<div class="yweb-rc-sheet-backdrop" id="' + id + '-sheet" onclick="ywebToggleRcSheet(\'' + id + '\')">' +
 			'<div class="yweb-rc-sheet" onclick="event.stopPropagation()">' +
 				'<div class="yweb-rc-sheet-handle"></div>' +
-				'<div class="yweb-rc-row yweb-rc-colors">' +
-					'<button type="button" class="yweb-rc-color yweb-rc-red" onclick="' + onKey + "('KEY_RED')\" title=\"Rot\" aria-label=\"Rot\"></button>" +
-					'<button type="button" class="yweb-rc-color yweb-rc-green" onclick="' + onKey + "('KEY_GREEN')\" title=\"Gruen\" aria-label=\"Gruen\"></button>" +
-					'<button type="button" class="yweb-rc-color yweb-rc-yellow" onclick="' + onKey + "('KEY_YELLOW')\" title=\"Gelb\" aria-label=\"Gelb\"></button>" +
-					'<button type="button" class="yweb-rc-color yweb-rc-blue" onclick="' + onKey + "('KEY_BLUE')\" title=\"Blau\" aria-label=\"Blau\"></button>" +
-				'</div>' +
-				'<div class="yweb-rc-row yweb-rc-nav">' +
-					btn('yweb-rc-func', 'KEY_EPG', 'EPG') +
-					btn('yweb-rc-func', 'KEY_TEXT', 'Text') +
-					btn('yweb-rc-func', 'KEY_FAVORITES', ywebL('rc.fav', 'Fav')) +
-					btn('yweb-rc-func', 'KEY_TIME', ywebL('rc.time', 'Timer')) +
-				'</div>' +
 				'<div class="yweb-rc-numpad">' +
 					btn('', 'KEY_1', '1') + btn('', 'KEY_2', '2') + btn('', 'KEY_3', '3') +
 					btn('', 'KEY_4', '4') + btn('', 'KEY_5', '5') + btn('', 'KEY_6', '6') +
@@ -802,21 +806,26 @@ function ywebGetRemoteHTML(opts) {
 	'</div>';
 }
 
-/* Bottom sheet toggle (mobile only, desktop shows inline via CSS) */
+/* Numpad sheet toggle. Works on every viewport: a bottom sheet on
+   mobile, an inline panel on desktop (CSS decides the presentation via
+   the media query; the JS only flips display). */
 function ywebToggleRcSheet(id) {
-	if (window.innerWidth > 768) return;
 	var backdrop = document.getElementById(id + '-sheet');
 	if (!backdrop) return;
+	var root = document.getElementById(id);
+	var trigger = root ? root.querySelector('.yweb-rc-sheet-trigger') : null;
 
 	var isOpen = backdrop.style.display === 'flex';
 	if (isOpen) {
 		backdrop.style.display = 'none';
+		if (trigger) trigger.setAttribute('aria-expanded', 'false');
 		if (backdrop._escHandler) {
 			document.removeEventListener('keydown', backdrop._escHandler);
 			backdrop._escHandler = null;
 		}
 	} else {
 		backdrop.style.display = 'flex';
+		if (trigger) trigger.setAttribute('aria-expanded', 'true');
 		backdrop._escHandler = function(e) {
 			if (e.key === 'Escape') ywebToggleRcSheet(id);
 		};

@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.tools=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=83">
+	<link rel="stylesheet" href="/css/yweb.css?v=84">
 	<style>
 		.yweb-tools-grid {
 			display: grid;
@@ -128,7 +128,7 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=15"></script>
-	<script src="/yweb-header.js?v=46"></script>
+	<script src="/yweb-header.js?v=47"></script>
 	<script>
 		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
 		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst

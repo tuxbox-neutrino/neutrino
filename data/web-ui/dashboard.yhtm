@@ -9,7 +9,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=83">
+	<link rel="stylesheet" href="/css/yweb.css?v=84">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -1193,7 +1193,7 @@
 
 	<script src="/jquery/jquery.min.js"></script>
 	<script src="/Y_Lang.yjs?v=15"></script>
-	<script src="/yweb-header.js?v=46"></script>
+	<script src="/yweb-header.js?v=47"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;

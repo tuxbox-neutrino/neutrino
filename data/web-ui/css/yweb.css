@@ -2343,6 +2343,9 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-pressed {
 .yweb-remote .yweb-rc-btn svg {
 	width: 20px;
 	height: 20px;
+	/* Without this, flex squishes the icon to its content width - the
+	   left/right D-pad chevrons collapsed to a 2px sliver. */
+	flex-shrink: 0;
 }
 
 /* ── Power / Mute row ── */
@@ -2582,10 +2585,6 @@ html:not([data-theme="dark"]) .yweb-rc-sheet { background: #ffffff; }
 [data-theme="dark"] .yweb-rc-sheet-handle { background-color: #666; }
 html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 
-/* Sheet color buttons: taller for better touch */
-.yweb-rc-sheet .yweb-rc-colors { gap: 8px; }
-.yweb-rc-sheet .yweb-rc-color { height: 16px; border-radius: 8px; }
-
 @keyframes ywebSheetSlideUp {
 	from { transform: translateY(100%); }
 	to   { transform: translateY(0); }
@@ -2600,21 +2599,20 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 	.yweb-remote .yweb-rc-dpad {
 		grid-template-rows: 44px 56px 44px;
 	}
-	/* 16px visible bar, 44px real hitbox (border-box sizing) */
-	.yweb-rc-sheet .yweb-rc-color {
+	/* Colour keys: 16px visible bar, 44px real hitbox (border-box) */
+	.yweb-remote .yweb-rc-colors { gap: 8px; }
+	.yweb-remote .yweb-rc-color {
 		height: 44px;
 		padding-block: 14px;
 		background-clip: content-box;
 	}
 }
 
-/* ── Desktop: show sheet content inline ── */
+/* ── Desktop: the numpad sheet opens as an inline panel, not a fixed
+      bottom sheet. The 123 trigger stays visible; JS flips display, so
+      these overrides only take effect once the sheet is open. ── */
 @media (min-width: 769px) {
-	.yweb-remote .yweb-rc-sheet-trigger {
-		display: none;
-	}
 	.yweb-remote .yweb-rc-sheet-backdrop {
-		display: flex;
 		position: static;
 		inset: auto;
 		background: none;
@@ -2635,8 +2633,6 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 	.yweb-rc-sheet-handle {
 		display: none;
 	}
-	.yweb-rc-sheet .yweb-rc-colors { gap: 5px; }
-	.yweb-rc-sheet .yweb-rc-color { height: 8px; border-radius: 4px; }
 }
 
 /* ── Numpad (inside sheet) ── */
@@ -2732,7 +2728,9 @@ body.yweb-remote-open {
 	min-height: 0;
 	justify-content: center;
 	padding: 0.5rem 1rem 1rem;
-	overflow: visible;
+	/* Scroll rather than clip when the numpad sheet is opened inline on
+	   a short desktop window. */
+	overflow-y: auto;
 }
 
 /* Mobile fullscreen */
