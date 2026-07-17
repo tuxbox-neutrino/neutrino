@@ -2755,7 +2755,11 @@ body.yweb-remote-open {
 .yweb-remote-dialog .yweb-remote {
 	flex: 1;
 	min-height: 0;
+	/* "safe" avoids the flexbox scroll trap: content taller than the
+	   panel (e.g. a hardware skin) starts at the top and stays fully
+	   scrollable; shorter content still centers (mobile full screen). */
 	justify-content: center;
+	justify-content: safe center;
 	padding: 0.5rem 1rem 1rem;
 	/* Scroll rather than clip when the numpad sheet is opened inline on
 	   a short desktop window. */

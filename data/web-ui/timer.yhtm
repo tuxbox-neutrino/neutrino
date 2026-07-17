@@ -6,7 +6,7 @@
 	<title>yWeb - Timer</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=85">
+	<link rel="stylesheet" href="/css/yweb.css?v=86">
 	<style>
 		/* 2-column grid layout for timer. Filterspalte bemisst sich am
 		   laengsten Eintrag (Labels sind lokalisiert und verschieden
