@@ -6,7 +6,7 @@
 	<title>yWeb - {=L:yw.nav.settings=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=84">
+	<link rel="stylesheet" href="/css/yweb.css?v=85">
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
@@ -383,7 +383,7 @@
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=15"></script>
-	<script src="/yweb-header.js?v=47"></script>
+	<script src="/yweb-header.js?v=48"></script>
 	<script src="/settings-registry.js?v=12"></script>
 	<script>
 	var configData = {};

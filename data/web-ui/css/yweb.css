@@ -2540,6 +2540,21 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
 	font-size: 0.9rem;
 	font-weight: 700;
 	letter-spacing: 0.08em;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+}
+
+.yweb-remote .yweb-rc-sheet-trigger svg {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+	transition: transform 0.15s ease;
+}
+
+.yweb-remote .yweb-rc-sheet-trigger[aria-expanded="true"] svg {
+	transform: rotate(180deg);
 }
 
 /* ── Bottom sheet overlay (mobile) ── */
@@ -2633,6 +2648,13 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 	.yweb-rc-sheet-handle {
 		display: none;
 	}
+	/* Compact numpad on desktop: pointer targets need less height than
+	   touch, and the open sheet must fit the 90vh modal. One class
+	   deeper than the base rule below, which follows this block. */
+	.yweb-remote .yweb-rc-sheet .yweb-rc-numpad .yweb-rc-btn {
+		height: 40px;
+		font-size: 1.05rem;
+	}
 }
 
 /* ── Numpad (inside sheet) ── */
@@ -2700,6 +2722,13 @@ body.yweb-remote-open {
 	animation: modalSlideIn 0.2s ease;
 	display: flex;
 	flex-direction: column;
+}
+
+/* The modal host div is only a re-render anchor for skin swaps; keep it
+   transparent for layout so the dialog's flex/scroll chain reaches the
+   .yweb-remote panel (otherwise the open numpad clips at 90vh). */
+#yweb-remote-modal-host {
+	display: contents;
 }
 
 .yweb-remote-modal-header {

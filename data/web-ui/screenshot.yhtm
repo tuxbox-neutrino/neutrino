@@ -6,7 +6,7 @@
 	<title>yWeb - Screenshot</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=84">
+	<link rel="stylesheet" href="/css/yweb.css?v=85">
 	<style>
 		/* 2-column grid: Remote (auto) + Screenshot (flex) */
 		.yweb-screenshot-grid {
@@ -141,7 +141,10 @@
 		.yweb-screenshot-grid #card-remote .yweb-card-body {
 			flex: 1;
 			min-height: 0;
-			overflow: hidden;
+			/* Scroll instead of clipping when the numpad is opened and
+			   the remote outgrows the card */
+			overflow-y: auto;
+			overflow-x: hidden;
 		}
 
 		/* ── Mobile: single column + accordion ── */
@@ -362,7 +365,7 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=15"></script>
-	<script src="/yweb-header.js?v=47"></script>
+	<script src="/yweb-header.js?v=48"></script>
 	<script>
 		let reloadInterval = null;
 

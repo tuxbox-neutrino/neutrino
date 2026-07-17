@@ -788,7 +788,9 @@ function ywebGetRemoteHTML(opts) {
 		'</div>' +
 
 		/* Numpad trigger — reveals the numpad sheet on every viewport */
-		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="Numpad" aria-expanded="false" onclick="ywebToggleRcSheet(\'' + id + '\')">123</button>' +
+		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="Numpad" aria-expanded="false" onclick="ywebToggleRcSheet(\'' + id + '\')">123' +
+			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false"><polyline points="6 9 12 15 18 9"/></svg>' +
+		'</button>' +
 
 		/* Numpad sheet (bottom sheet on mobile, inline panel on desktop) */
 		'<div class="yweb-rc-sheet-backdrop" id="' + id + '-sheet" onclick="ywebToggleRcSheet(\'' + id + '\')">' +
@@ -826,6 +828,9 @@ function ywebToggleRcSheet(id) {
 	} else {
 		backdrop.style.display = 'flex';
 		if (trigger) trigger.setAttribute('aria-expanded', 'true');
+		/* Desktop: the sheet is an inline region inside a scrolling
+		   panel (modal body / card body) - bring it into view */
+		if (window.innerWidth > 768) backdrop.scrollIntoView({ block: 'nearest' });
 		backdrop._escHandler = function(e) {
 			if (e.key === 'Escape') ywebToggleRcSheet(id);
 		};
