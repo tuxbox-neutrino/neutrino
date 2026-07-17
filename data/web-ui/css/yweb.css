@@ -2314,14 +2314,21 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-btn:active { background: #d0
 }
 
 /* ── Power / Mute row ── */
-.yweb-remote .yweb-rc-top {
-	display: flex;
-	justify-content: space-between;
+/* Compound selector: the generic .yweb-rc-row {display:flex} helper is
+   declared later in the file and would win at equal specificity. */
+.yweb-remote .yweb-rc-row.yweb-rc-top {
+	display: grid;
+	grid-template-columns: 56px 1fr 56px;
+	justify-items: center;
+}
+
+.yweb-remote .yweb-rc-top > .yweb-rc-btn:last-child {
+	grid-column: 3;
 }
 
 .yweb-remote .yweb-rc-power,
 .yweb-remote .yweb-rc-top > .yweb-rc-btn {
-	width: 52px;
+	width: 56px;
 	height: 40px;
 }
 
@@ -2348,7 +2355,9 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-power {
 /* ── Core thumb zone (VOL | D-Pad | CH) ── */
 .yweb-remote .yweb-rc-core {
 	display: grid;
-	grid-template-columns: 56px 1fr 56px;
+	/* minmax(0,…) drops the fr track's min-content floor so the D-pad
+	   cannot push the outer 56px columns past the panel edges */
+	grid-template-columns: 56px minmax(0, 1fr) 56px;
 	align-items: center;
 	justify-items: center;
 	gap: 0.25rem;
@@ -2374,7 +2383,7 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-rocker-label { color: #999; 
 
 .yweb-remote .yweb-rc-rocker .yweb-rc-rocker-top,
 .yweb-remote .yweb-rc-rocker .yweb-rc-rocker-bot {
-	width: 64px;
+	width: 56px;
 	height: 36px;
 	font-size: 1.2rem;
 	font-weight: 700;
@@ -2399,9 +2408,9 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-rocker-label { color: #999; 
 	justify-content: center;
 	justify-items: center;
 	align-items: center;
-	padding: 8px;
-	border-radius: 50%;
-	width: 176px;
+	padding: 4px;
+	border-radius: 42px;
+	width: max-content;
 	margin: 0 auto;
 }
 
@@ -2548,6 +2557,23 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 @keyframes ywebSheetSlideUp {
 	from { transform: translateY(100%); }
 	to   { transform: translateY(0); }
+}
+
+/* ── Mobile: touch targets at least 44px ── */
+@media (max-width: 768px) {
+	.yweb-remote .yweb-rc-btn {
+		min-height: 44px;
+	}
+	/* Arrow buttons fill their grid track, so the track must grow too */
+	.yweb-remote .yweb-rc-dpad {
+		grid-template-rows: 44px 56px 44px;
+	}
+	/* 16px visible bar, 44px real hitbox (border-box sizing) */
+	.yweb-rc-sheet .yweb-rc-color {
+		height: 44px;
+		padding-block: 14px;
+		background-clip: content-box;
+	}
 }
 
 /* ── Desktop: show sheet content inline ── */

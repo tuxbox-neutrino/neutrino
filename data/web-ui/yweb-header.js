@@ -778,6 +778,8 @@ function ywebGetRemoteHTML(opts) {
 				'<div class="yweb-rc-row yweb-rc-nav">' +
 					btn('yweb-rc-func', 'KEY_EPG', 'EPG') +
 					btn('yweb-rc-func', 'KEY_TEXT', 'Text') +
+					btn('yweb-rc-func', 'KEY_FAVORITES', ywebL('rc.fav', 'Fav')) +
+					btn('yweb-rc-func', 'KEY_TIME', ywebL('rc.time', 'Timer')) +
 				'</div>' +
 				'<div class="yweb-rc-numpad">' +
 					btn('', 'KEY_1', '1') + btn('', 'KEY_2', '2') + btn('', 'KEY_3', '3') +

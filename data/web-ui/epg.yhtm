@@ -6,7 +6,7 @@
 	<title>yWeb - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=81">
+	<link rel="stylesheet" href="/css/yweb.css?v=82">
 	<style>
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.
@@ -480,8 +480,8 @@
 	</div>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=14"></script>
-	<script src="/yweb-header.js?v=43"></script>
+	<script src="/Y_Lang.yjs?v=15"></script>
+	<script src="/yweb-header.js?v=44"></script>
 	<script>
 		// Configuration
 		const MINUTES_PER_SLOT = 30;

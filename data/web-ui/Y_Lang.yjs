@@ -203,6 +203,9 @@ window.YWEB_L = {
 	"tools.message": "{=L:yw.tools.message=}",
 	"tools.message_ph": "{=L:yw.tools.message_ph=}",
 	"tools.remote_sub": "{=L:yw.tools.remote_sub=}",
+	// Remote control buttons (yweb-header.js)
+	"rc.fav": "{=L:yw.rc.fav=}",
+	"rc.time": "{=L:yw.rc.time=}",
 	// Sprachwechsler (yweb-header.js)
 	"lang.title": "{=L:yw.lang.title=}",
 	"lang.none": "{=L:yw.lang.none=}",

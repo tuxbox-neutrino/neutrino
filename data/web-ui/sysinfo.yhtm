@@ -6,7 +6,7 @@
 	<title>yWeb - System Info</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=81">
+	<link rel="stylesheet" href="/css/yweb.css?v=82">
 	<style>
 		.sysinfo-content {
 			padding: 0.5rem 1rem;
@@ -288,8 +288,8 @@
 	</main>
 
 	<script src="/Y_Baselib.js"></script>
-	<script src="/Y_Lang.yjs?v=14"></script>
-	<script src="/yweb-header.js?v=43"></script>
+	<script src="/Y_Lang.yjs?v=15"></script>
+	<script src="/yweb-header.js?v=44"></script>
 	<script>
 	function row(label, value) {
 		return '<span class="sysinfo-label">' + label + '</span><span class="sysinfo-value">' + value + '</span>';
