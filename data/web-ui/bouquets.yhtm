@@ -6,7 +6,7 @@
 	<title>yWeb - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=86">
+	<link rel="stylesheet" href="/css/yweb.css?v=87">
 	<style>
 		/* 2-column grid layout for bouquets. Bouquetspalte bemisst
 		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —

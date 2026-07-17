@@ -2437,14 +2437,16 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-rocker-label { color: #999; 
 /* ── D-Pad ── */
 .yweb-remote .yweb-rc-dpad {
 	display: grid;
+	/* Rows mirror the columns so the pad is a square: every arrow is
+	   the same shape (rotated 90deg) and 50% radius yields a circle. */
 	grid-template-columns: 44px 56px 44px;
-	grid-template-rows: 34px 48px 34px;
+	grid-template-rows: 44px 56px 44px;
 	gap: 3px;
 	justify-content: center;
 	justify-items: center;
 	align-items: center;
-	padding: 4px;
-	border-radius: 42px;
+	padding: 6px;
+	border-radius: 50%;
 	width: max-content;
 	margin: 0 auto;
 }
@@ -2469,8 +2471,9 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-dpad {
 }
 
 .yweb-remote .yweb-rc-ok {
-	width: 52px;
-	height: 44px;
+	/* True circle filling the 56px center cell (was a 52x44 ellipse) */
+	width: 56px;
+	height: 56px;
 	border-radius: 50%;
 	font-size: 1rem;
 	font-weight: 800;
