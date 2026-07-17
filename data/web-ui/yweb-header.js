@@ -916,7 +916,16 @@ function ywebCloseRemote(event) {
 	if (modal) {
 		modal.style.display = 'none';
 		var sheet = modal.querySelector('.yweb-rc-sheet-backdrop');
-		if (sheet) sheet.style.display = 'none';
+		if (sheet) {
+			/* Clear the inline style instead of forcing display:none - the
+			   desktop media query shows this block inline via display:flex,
+			   and an inline none would stick on reopen (modal node persists). */
+			sheet.style.display = '';
+			if (sheet._escHandler) {
+				document.removeEventListener('keydown', sheet._escHandler);
+				sheet._escHandler = null;
+			}
+		}
 	}
 	document.body.classList.remove('yweb-remote-open');
 }

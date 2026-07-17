@@ -497,7 +497,7 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=14"></script>
-	<script src="/yweb-header.js?v=42"></script>
+	<script src="/yweb-header.js?v=43"></script>
 	<script>
 		// State
 		let currentPath = '/';

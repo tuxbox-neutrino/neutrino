@@ -289,7 +289,7 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=14"></script>
-	<script src="/yweb-header.js?v=42"></script>
+	<script src="/yweb-header.js?v=43"></script>
 	<script>
 	function row(label, value) {
 		return '<span class="sysinfo-label">' + label + '</span><span class="sysinfo-value">' + value + '</span>';

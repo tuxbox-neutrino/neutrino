@@ -128,7 +128,7 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=14"></script>
-	<script src="/yweb-header.js?v=42"></script>
+	<script src="/yweb-header.js?v=43"></script>
 	<script>
 		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
 		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst
