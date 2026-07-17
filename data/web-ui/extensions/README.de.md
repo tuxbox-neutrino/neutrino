@@ -35,8 +35,12 @@ extensions/
 | `version` | frei, wird in der Verwaltung angezeigt |
 | `slot` | Andockpunkt: `nav` (Hauptnavigation), `tools` (Kachel im Tools-Grid), `dashboard` (Karte), `page` (nur Direktaufruf) |
 | `entry` | Einstiegsdatei relativ zum Erweiterungsordner |
+| `entry_js` | optional: Laufzeit-Skript, wird auf jeder modernen Seite geladen (siehe unten) |
 | `description` | optionaler Untertitel |
 | `settings` | optional: eigene Kategorie unter Einstellungen (siehe unten) |
+
+Mindestens eines von `entry`, `entry_js` oder `settings.sections` muss
+vorhanden sein, sonst wird das Manifest ignoriert.
 
 ### Optional: eigene Einstellungs-Kategorie (`settings`)
 
@@ -110,6 +114,50 @@ meine-erweiterung/
 - Englisch + Deutsch immer paarig pflegen; gleiche Keysets.
 
 Referenz: [`hallo-yweb/languages/`](hallo-yweb/languages/).
+
+### Optional: Laufzeit-Skript (`entry_js`)
+
+Für jede *aktivierte* Erweiterung, deren Manifest eine
+`entry_js`-Datei nennt, lädt jede moderne Seite
+`<script src="/extensions/<ordner>/<entry_js>?v=<version>">` —
+unabhängig vom `slot` (der Slot regelt nur die UI-Verlinkung; ein
+Manifest *nur* mit `entry_js` ist gültig). Die Skripte werden in
+alphabetischer Ordner-Reihenfolge mit `async=false` eingefügt, die
+Ausführungsreihenfolge ist also deterministisch. Es gibt **keine
+Timing-Garantie** relativ zum Seiten-Code: Hooks registrieren, nicht
+pollen.
+
+Der wichtigste Hook ist der **Fernbedienungs-Skin-Renderer** — ein
+hardware-spezifisches Layout für die Bildschirm-Fernbedienung:
+
+```js
+// skin.js — Manifest: { "name": "…", "version": "1.0", "entry_js": "skin.js" }
+ywebRegisterRemoteRenderer(function (opts) {
+	return '<div class="yweb-remote" id="' + opts.id +
+		'" data-rc-onkey="' + opts.onKey + '">' +
+		'<button type="button" class="yweb-rc-btn" ' +
+			'onclick="' + opts.onKey + "('KEY_OK')\">OK</button>" +
+		'</div>';
+});
+```
+
+Vertrag:
+
+- Genau ein Wurzelelement mit `id=opts.id` und
+  `data-rc-onkey=opts.onKey` zurückgeben; `opts.onKey` ist der **Name**
+  einer globalen Funktion, die einen `KEY_*`-String entgegennimmt.
+- Gültige Key-Namen stammen aus der generierten `rcsim.h`-Tabelle
+  (Quelle: `src/driver/rcinput.h`); Achtung: **`KEY_TIME`** (nicht
+  `KEY_TIMER`) und `KEY_FAVORITES`.
+- Echte `<button type="button">`-Elemente verwenden; reine Icon-Tasten
+  brauchen `aria-label`, Inline-SVGs `aria-hidden="true"`. Tasten
+  melden sich mit `data-rc-repeat="1"` + `data-rc-key="KEY_…"` für
+  Auto-Repeat und Press-Feedback an.
+- Nie `YWEB_CONFIG.remoteRenderer` direkt setzen —
+  `ywebRegisterRemoteRenderer()` rendert auch Instanzen neu, die vor
+  dem Skript-Load gebaut wurden (offene Modals bleiben offen). Sind
+  zwei Skins aktiv, gewinnt der alphabetisch spätere Ordner (mit
+  console-Warnung).
 
 ## 3. Seite schreiben (`index.html`)
 

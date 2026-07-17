@@ -35,8 +35,12 @@ extensions/
 | `version` | free-form, shown in the manager |
 | `slot` | Attachment point: `nav` (main navigation), `tools` (tile in the tools grid), `dashboard` (card), `page` (direct URL only) |
 | `entry` | Entry file relative to the extension folder |
+| `entry_js` | optional: runtime script, loaded on every modern page (see below) |
 | `description` | optional subtitle |
 | `settings` | optional: own category under Settings (see below) |
+
+At least one of `entry`, `entry_js` or `settings.sections` must be
+present, otherwise the manifest is ignored.
 
 ### Optional: own settings category (`settings`)
 
@@ -111,6 +115,49 @@ my-extension/
 - Always keep English + German in step; identical keysets.
 
 Reference: [`hallo-yweb/languages/`](hallo-yweb/languages/).
+
+### Optional: runtime script (`entry_js`)
+
+For every *enabled* extension whose manifest names an `entry_js` file,
+every modern page loads
+`<script src="/extensions/<folder>/<entry_js>?v=<version>">` —
+independent of the `slot` (the slot only governs UI links; a manifest
+with *only* `entry_js` is valid). Scripts are injected in alphabetical
+folder order with `async=false`, so execution order is deterministic.
+There is **no timing guarantee** relative to page code: register hooks,
+don't poll.
+
+The primary hook is the **remote control skin renderer** — a
+hardware-specific layout for the on-screen remote:
+
+```js
+// skin.js — manifest: { "name": "…", "version": "1.0", "entry_js": "skin.js" }
+ywebRegisterRemoteRenderer(function (opts) {
+	return '<div class="yweb-remote" id="' + opts.id +
+		'" data-rc-onkey="' + opts.onKey + '">' +
+		'<button type="button" class="yweb-rc-btn" ' +
+			'onclick="' + opts.onKey + "('KEY_OK')\">OK</button>" +
+		'</div>';
+});
+```
+
+Contract:
+
+- Return a single root element with `id=opts.id` and
+  `data-rc-onkey=opts.onKey`; `opts.onKey` is the **name** of a global
+  function taking a `KEY_*` string.
+- Valid key names come from the generated `rcsim.h` table (source:
+  `src/driver/rcinput.h`); note **`KEY_TIME`** (not `KEY_TIMER`) and
+  `KEY_FAVORITES`.
+- Use real `<button type="button">` elements; icon-only keys need
+  `aria-label`, inline SVGs `aria-hidden="true"`. Buttons opt into
+  auto-repeat and press feedback via `data-rc-repeat="1"` +
+  `data-rc-key="KEY_…"`.
+- Never set `YWEB_CONFIG.remoteRenderer` directly —
+  `ywebRegisterRemoteRenderer()` also re-renders instances that were
+  built before the script loaded (open modals stay open). If two skins
+  are active, the alphabetically later folder wins (with a console
+  warning).
 
 ## 3. Write the page (`index.html`)
 

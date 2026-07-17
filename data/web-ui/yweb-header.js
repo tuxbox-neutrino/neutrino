@@ -683,13 +683,21 @@ async function ywebSendKey(key) {
 /**
  * Returns generic remote control HTML.
  * @param {Object} [opts]
- * @param {string} [opts.onKey='ywebSendKey'] - Callback function name for key presses
- * @param {string} [opts.id='yweb-remote'] - Container element ID
+ * @param {string} [opts.onKey='ywebSendKey'] - Global function NAME called with a KEY_* string
+ * @param {string} [opts.id='yweb-remote'] - id of the returned root element
  *
- * Custom renderer interface:
- *   Set YWEB_CONFIG.remoteRenderer = function(opts) { return '<html>'; }
- *   to replace the generic remote with hardware-specific graphics (image maps).
- *   The renderer receives the same opts object and should call opts.onKey for buttons.
+ * Custom renderer contract (hardware-specific remote skins):
+ *   Register with ywebRegisterRemoteRenderer(function(opts) { return html; })
+ *   from an extension runtime script (manifest key entry_js) - never set
+ *   YWEB_CONFIG.remoteRenderer directly, the register call also re-renders
+ *   already-built instances (registration timing is not guaranteed).
+ *   The returned HTML must have a single root element with id=opts.id and
+ *   data-rc-onkey=opts.onKey. Buttons call the opts.onKey global with a
+ *   valid KEY_* name (generated rcsim.h table; note KEY_TIME, not
+ *   KEY_TIMER). Opt into auto-repeat/press feedback via data-rc-repeat +
+ *   data-rc-key attributes. Use real <button type="button"> elements with
+ *   aria-labels on icon-only keys and aria-hidden SVGs.
+ *   See extensions/README.md for a minimal renderer example.
  */
 function ywebGetRemoteHTML(opts) {
 	opts = opts || {};
@@ -909,6 +917,64 @@ function ywebInitRemoteRepeat(containerId) {
 	});
 }
 
+/* Registry of rendered remote instances, keyed by HOST element id (the
+   wrapper the remote is rendered into; opts.id names the inner root).
+   Lets a late-registered skin renderer replace existing instances. */
+var _ywebRemoteInstances = {};
+
+function ywebRenderRemote(hostId, opts) {
+	var host = document.getElementById(hostId);
+	if (!host) {
+		delete _ywebRemoteInstances[hostId];
+		return;
+	}
+	opts = opts || {};
+	host.innerHTML = ywebGetRemoteHTML(opts);
+	ywebInitRemoteRepeat(opts.id || 'yweb-remote');
+	_ywebRemoteInstances[hostId] = opts;
+}
+
+/**
+ * Registers a hardware-specific remote skin renderer (see the contract
+ * at ywebGetRemoteHTML). Last registration wins; already-rendered
+ * instances are re-rendered in place, an open remote modal stays open.
+ */
+function ywebRegisterRemoteRenderer(fn) {
+	if (YWEB_CONFIG.remoteRenderer && YWEB_CONFIG.remoteRenderer !== fn)
+		console.warn('yweb: remote renderer already registered - overwriting (last one wins)');
+	YWEB_CONFIG.remoteRenderer = fn;
+
+	var modal = document.getElementById('yweb-remote-modal');
+	if (modal && getComputedStyle(modal).display !== 'none') {
+		/* Open modal: swap the panel in place; scroll lock and dialog
+		   stay untouched. Restore focus if it sat in the replaced tree. */
+		ywebRenderRemote('yweb-remote-modal-host',
+			_ywebRemoteInstances['yweb-remote-modal-host'] ||
+			{ id: 'yweb-remote-modal-panel', onKey: _ywebRemoteModalOnKey || 'ywebSendKey' });
+		if (!modal.contains(document.activeElement)) {
+			var closeBtn = modal.querySelector('.yweb-modal-close');
+			if (closeBtn) closeBtn.focus();
+		}
+	} else if (modal) {
+		/* Closed modal: drop it so the next open builds with the skin */
+		if (modal._keyHandler) document.removeEventListener('keydown', modal._keyHandler);
+		modal.remove();
+		_ywebRemoteModalOnKey = null;
+		delete _ywebRemoteInstances['yweb-remote-modal-host'];
+	}
+
+	/* Re-render all remaining registered instances (covers the
+	   screenshot page, whose remote is built before async discovery) */
+	Object.keys(_ywebRemoteInstances).forEach(function(hostId) {
+		if (hostId === 'yweb-remote-modal-host') return;
+		if (!document.getElementById(hostId)) {
+			delete _ywebRemoteInstances[hostId];
+			return;
+		}
+		ywebRenderRemote(hostId, _ywebRemoteInstances[hostId]);
+	});
+}
+
 // Remote Modal
 var _ywebRemoteModalOnKey = null;
 
@@ -921,6 +987,7 @@ function ywebShowRemote(opts) {
 	if (modal && _ywebRemoteModalOnKey !== onKey) {
 		if (modal._keyHandler) document.removeEventListener('keydown', modal._keyHandler);
 		modal.remove();
+		delete _ywebRemoteInstances['yweb-remote-modal-host'];
 		modal = null;
 	}
 
@@ -932,12 +999,12 @@ function ywebShowRemote(opts) {
 					'<span id="yweb-remote-modal-title">' + YWEB_ICONS.remote + ' ' + ywebL('tools.remote_sub', 'Remote control') + '</span>' +
 					_ywebCloseBtn('ywebCloseRemote()') +
 				'</div>' +
-				ywebGetRemoteHTML({ id: 'yweb-remote-modal-panel', onKey: onKey }) +
+				'<div id="yweb-remote-modal-host"></div>' +
 			'</div>' +
 		'</div>';
 		document.body.insertAdjacentHTML('beforeend', html);
 		modal = document.getElementById('yweb-remote-modal');
-		ywebInitRemoteRepeat('yweb-remote-modal-panel');
+		ywebRenderRemote('yweb-remote-modal-host', { id: 'yweb-remote-modal-panel', onKey: onKey });
 	}
 	modal._opener = document.activeElement;
 	modal.style.display = 'flex';
@@ -1802,9 +1869,10 @@ async function ywebDiscoverExtensions() {
 				if (!mResp.ok) continue;
 				var m = await mResp.json();
 				if (!m || !m.name) continue;
-				// entry ist Pflicht, ausser die Erweiterung liefert nur
-				// eine Einstellungs-Kategorie (settings-only, keine Seite)
-				if (!m.entry && !(m.settings && m.settings.sections)) continue;
+				// entry is mandatory unless the extension only ships a
+				// settings category (settings-only) or only a runtime
+				// script (script-only, entry_js)
+				if (!m.entry && !m.entry_js && !(m.settings && m.settings.sections)) continue;
 				m.dir = e.name;
 				// Config-Ausgabe encodiert '-' als _bind_ (ConfigCGI)
 				var ckBase = ('ext_' + m.dir).replace(/-/g, '_bind_');
@@ -1832,6 +1900,23 @@ async function ywebInjectExtensions(pageName) {
 	if (_ywebExtInjected) return;
 	_ywebExtInjected = true;
 	var exts = await ywebDiscoverExtensions();
+
+	// Runtime scripts (entry_js): loaded for every enabled extension on
+	// every modern page, independent of slot/url (the slot only governs
+	// UI links). async=false keeps execution in insertion order; sorting
+	// by dir makes the registration order deterministic, so last-wins
+	// between two skins does not depend on network timing.
+	exts.slice().sort(function(a, b) {
+		return a.dir < b.dir ? -1 : (a.dir > b.dir ? 1 : 0);
+	}).forEach(function(m) {
+		if (!m.enabled || !m.entry_js) return;
+		var s = document.createElement('script');
+		s.async = false;
+		s.src = '/extensions/' + encodeURIComponent(m.dir) + '/' +
+			encodeURIComponent(m.entry_js) + '?v=' + encodeURIComponent(m.version || '0');
+		document.head.appendChild(s);
+	});
+
 	exts.forEach(function(m) {
 		if (!m.enabled || !m.url) return; // settings-only hat keine Seite
 		if (m.slot === 'nav') {

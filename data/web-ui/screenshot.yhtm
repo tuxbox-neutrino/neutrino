@@ -362,16 +362,16 @@
 
 	<script src="/Y_Baselib.js"></script>
 	<script src="/Y_Lang.yjs?v=15"></script>
-	<script src="/yweb-header.js?v=45"></script>
+	<script src="/yweb-header.js?v=46"></script>
 	<script>
 		let reloadInterval = null;
 
-		// Inject shared remote template
-		document.getElementById('remoteContainer').innerHTML = ywebGetRemoteHTML({
+		// Inject shared remote template; registering via the host keeps
+		// this instance replaceable by a late-loaded skin renderer
+		ywebRenderRemote('remoteContainer', {
 			onKey: 'rcsim',
 			id: 'screenshotRemote'
 		});
-		ywebInitRemoteRepeat('screenshotRemote');
 
 		// Mobile accordion (shared)
 		ywebInitMobileAccordion({
