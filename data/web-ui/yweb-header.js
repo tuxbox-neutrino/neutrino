@@ -33,8 +33,8 @@ const YWEB_ICONS = {
 
 // Shared modal close button
 function _ywebCloseBtn(onclick) {
-	return '<button class="yweb-modal-close" onclick="' + onclick + '">' +
-		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
+	return '<button type="button" class="yweb-modal-close" aria-label="Close" onclick="' + onclick + '">' +
+		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
 	'</button>';
 }
 
@@ -701,13 +701,14 @@ function ywebGetRemoteHTML(opts) {
 	}
 
 	function btn(cls, key, label, extra) {
-		return '<button class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + (label || key) + '"' + (extra || '') + '>' + label + '</button>';
+		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + (label || key) + '"' + (extra || '') + '>' + label + '</button>';
 	}
 	function iconBtn(cls, key, title, svg, extra) {
-		return '<button class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + title + '"' + (extra || '') + '>' + svg + '</button>';
+		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + title + '" aria-label="' + title + '"' + (extra || '') + '>' +
+			svg.replace('<svg ', '<svg aria-hidden="true" focusable="false" ') + '</button>';
 	}
 	function repBtn(cls, key, label) {
-		return '<button class="yweb-rc-btn ' + cls + '" title="' + (label || key) + '" data-rc-repeat="1" data-rc-key="' + key + '">' + label + '</button>';
+		return '<button type="button" class="yweb-rc-btn ' + cls + '" title="' + (label || key) + '" data-rc-repeat="1" data-rc-key="' + key + '">' + label + '</button>';
 	}
 
 	var svgUp = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>';
@@ -763,17 +764,17 @@ function ywebGetRemoteHTML(opts) {
 		'</div>' +
 
 		/* Sheet trigger */
-		'<button class="yweb-rc-btn yweb-rc-sheet-trigger" onclick="ywebToggleRcSheet(\'' + id + '\')">123</button>' +
+		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="Numpad" onclick="ywebToggleRcSheet(\'' + id + '\')">123</button>' +
 
 		/* Bottom sheet */
 		'<div class="yweb-rc-sheet-backdrop" id="' + id + '-sheet" onclick="ywebToggleRcSheet(\'' + id + '\')">' +
 			'<div class="yweb-rc-sheet" onclick="event.stopPropagation()">' +
 				'<div class="yweb-rc-sheet-handle"></div>' +
 				'<div class="yweb-rc-row yweb-rc-colors">' +
-					'<button class="yweb-rc-color yweb-rc-red" onclick="' + onKey + "('KEY_RED')\" title=\"Rot\"></button>" +
-					'<button class="yweb-rc-color yweb-rc-green" onclick="' + onKey + "('KEY_GREEN')\" title=\"Gruen\"></button>" +
-					'<button class="yweb-rc-color yweb-rc-yellow" onclick="' + onKey + "('KEY_YELLOW')\" title=\"Gelb\"></button>" +
-					'<button class="yweb-rc-color yweb-rc-blue" onclick="' + onKey + "('KEY_BLUE')\" title=\"Blau\"></button>" +
+					'<button type="button" class="yweb-rc-color yweb-rc-red" onclick="' + onKey + "('KEY_RED')\" title=\"Rot\" aria-label=\"Rot\"></button>" +
+					'<button type="button" class="yweb-rc-color yweb-rc-green" onclick="' + onKey + "('KEY_GREEN')\" title=\"Gruen\" aria-label=\"Gruen\"></button>" +
+					'<button type="button" class="yweb-rc-color yweb-rc-yellow" onclick="' + onKey + "('KEY_YELLOW')\" title=\"Gelb\" aria-label=\"Gelb\"></button>" +
+					'<button type="button" class="yweb-rc-color yweb-rc-blue" onclick="' + onKey + "('KEY_BLUE')\" title=\"Blau\" aria-label=\"Blau\"></button>" +
 				'</div>' +
 				'<div class="yweb-rc-row yweb-rc-nav">' +
 					btn('yweb-rc-func', 'KEY_EPG', 'EPG') +
@@ -843,10 +844,39 @@ function ywebToggleRcSheet(id) {
 	}
 }
 
-/* Long-press auto-repeat for VOL/CH buttons */
+/* Long-press auto-repeat for VOL/CH buttons + visual press feedback */
 function ywebInitRemoteRepeat(containerId) {
 	var container = document.getElementById(containerId);
 	if (!container) return;
+
+	/* Delegated press feedback: pointerdown-driven class, because a quick
+	   tap's :active phase is too short to be visible on touch. Purely
+	   visual - never sends a key. */
+	if (!container._pressInit) {
+		container._pressInit = true;
+		container.addEventListener('pointerdown', function(e) {
+			var el = e.target.closest('.yweb-rc-btn, .yweb-rc-color');
+			if (!el || !container.contains(el)) return;
+			if (e.pointerType === 'touch' && navigator.vibrate) navigator.vibrate(10);
+			/* Restart-safe: cancel the previous removal hooks before
+			   re-triggering, then force a reflow so the animation restarts. */
+			if (el._pressTimer) { clearTimeout(el._pressTimer); el._pressTimer = null; }
+			if (el._pressEnd) { el.removeEventListener('animationend', el._pressEnd); el._pressEnd = null; }
+			el.classList.remove('yweb-rc-pressed');
+			void el.offsetWidth;
+			el.classList.add('yweb-rc-pressed');
+			var clear = function() {
+				el.classList.remove('yweb-rc-pressed');
+				if (el._pressTimer) { clearTimeout(el._pressTimer); el._pressTimer = null; }
+				if (el._pressEnd) { el.removeEventListener('animationend', el._pressEnd); el._pressEnd = null; }
+			};
+			el._pressEnd = clear;
+			el.addEventListener('animationend', clear, { once: true });
+			/* Fallback for prefers-reduced-motion, where animationend never fires */
+			el._pressTimer = setTimeout(clear, 250);
+		});
+	}
+
 	var onKeyName = container.getAttribute('data-rc-onkey');
 	if (!onKeyName) return;
 	var fn = window[onKeyName];
@@ -889,6 +919,7 @@ function ywebShowRemote(opts) {
 
 	// Rebuild modal if onKey changed
 	if (modal && _ywebRemoteModalOnKey !== onKey) {
+		if (modal._keyHandler) document.removeEventListener('keydown', modal._keyHandler);
 		modal.remove();
 		modal = null;
 	}
@@ -896,9 +927,9 @@ function ywebShowRemote(opts) {
 	if (!modal) {
 		_ywebRemoteModalOnKey = onKey;
 		var html = '<div class="yweb-remote-backdrop" id="yweb-remote-modal" onclick="ywebCloseRemote(event)">' +
-			'<div class="yweb-remote-dialog" onclick="event.stopPropagation()">' +
+			'<div class="yweb-remote-dialog" role="dialog" aria-modal="true" aria-labelledby="yweb-remote-modal-title" onclick="event.stopPropagation()">' +
 				'<div class="yweb-remote-modal-header">' +
-					'<span>' + YWEB_ICONS.remote + ' ' + ywebL('tools.remote_sub', 'Remote control') + '</span>' +
+					'<span id="yweb-remote-modal-title">' + YWEB_ICONS.remote + ' ' + ywebL('tools.remote_sub', 'Remote control') + '</span>' +
 					_ywebCloseBtn('ywebCloseRemote()') +
 				'</div>' +
 				ywebGetRemoteHTML({ id: 'yweb-remote-modal-panel', onKey: onKey }) +
@@ -908,8 +939,56 @@ function ywebShowRemote(opts) {
 		modal = document.getElementById('yweb-remote-modal');
 		ywebInitRemoteRepeat('yweb-remote-modal-panel');
 	}
+	modal._opener = document.activeElement;
 	modal.style.display = 'flex';
 	document.body.classList.add('yweb-remote-open');
+
+	/* ESC with sheet priority + Tab focus trap. Registered before any
+	   sheet ESC handler, so on Escape the sheet is closed here first and
+	   its own listener is removed mid-dispatch (never runs for the same
+	   event). The standalone remote (screenshot page) keeps relying on
+	   the sheet's own handler. */
+	if (!modal._keyHandler) {
+		modal._keyHandler = function(e) {
+			if (e.key === 'Escape') {
+				var sheet = document.getElementById('yweb-remote-modal-panel-sheet');
+				if (sheet && sheet.style.display === 'flex') {
+					ywebToggleRcSheet('yweb-remote-modal-panel');
+					return;
+				}
+				ywebCloseRemote();
+				return;
+			}
+			if (e.key === 'Tab') {
+				var items = Array.prototype.filter.call(
+					modal.querySelectorAll('button'),
+					function(b) { return b.getClientRects().length > 0; });
+				if (!items.length) return;
+				/* Programmatic focus() does not trigger :focus-visible, so
+				   the ring would vanish exactly at the wrap point; mark the
+				   target with a class that joins the focus-ring selector. */
+				var kbdFocus = function(el) {
+					el.focus();
+					el.classList.add('yweb-rc-kbd-focus');
+					el.addEventListener('blur', function() {
+						el.classList.remove('yweb-rc-kbd-focus');
+					}, { once: true });
+				};
+				var first = items[0];
+				var last = items[items.length - 1];
+				if (e.shiftKey && document.activeElement === first) {
+					e.preventDefault();
+					kbdFocus(last);
+				} else if (!e.shiftKey && (document.activeElement === last || !modal.contains(document.activeElement))) {
+					e.preventDefault();
+					kbdFocus(first);
+				}
+			}
+		};
+		document.addEventListener('keydown', modal._keyHandler);
+	}
+	var closeBtn = modal.querySelector('.yweb-modal-close');
+	if (closeBtn) closeBtn.focus();
 }
 
 function ywebCloseRemote(event) {
@@ -928,6 +1007,14 @@ function ywebCloseRemote(event) {
 				sheet._escHandler = null;
 			}
 		}
+		if (modal._keyHandler) {
+			document.removeEventListener('keydown', modal._keyHandler);
+			modal._keyHandler = null;
+		}
+		if (modal._opener && typeof modal._opener.focus === 'function') {
+			modal._opener.focus();
+		}
+		modal._opener = null;
 	}
 	document.body.classList.remove('yweb-remote-open');
 }

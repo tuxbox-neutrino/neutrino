@@ -1568,6 +1568,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 .yweb-menu-close:focus-visible,
 .yweb-popover-close:focus-visible,
 .yweb-modal-close:focus-visible,
+.yweb-remote .yweb-rc-btn:focus-visible,
+.yweb-rc-color:focus-visible,
+.yweb-rc-kbd-focus,
 input[type=text]:focus-visible,
 input[type=search]:focus-visible,
 input[type=number]:focus-visible,
@@ -2307,6 +2310,35 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-btn {
 
 [data-theme="dark"] .yweb-remote .yweb-rc-btn:active { background: #3a3d47; }
 html:not([data-theme="dark"]) .yweb-remote .yweb-rc-btn:active { background: #d0d1d8; }
+
+/* ── Press feedback (JS-driven .yweb-rc-pressed; :active stays as the
+      no-JS fallback) ── */
+@keyframes ywebRcPress {
+	0% { transform: scale(1); }
+	40% { transform: scale(0.94); }
+	100% { transform: scale(1); }
+}
+
+.yweb-remote .yweb-rc-pressed {
+	animation: ywebRcPress 0.15s ease-out;
+}
+
+[data-theme="dark"] .yweb-remote .yweb-rc-pressed {
+	box-shadow: 0 0 10px rgba(27, 132, 224, 0.55);
+}
+
+html:not([data-theme="dark"]) .yweb-remote .yweb-rc-pressed {
+	box-shadow: 0 0 10px rgba(26, 127, 212, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.yweb-remote .yweb-rc-pressed {
+		/* Static tint instead of the scale animation; works on the color
+		   keys and the themed OK button without clobbering their colors */
+		animation: none;
+		filter: brightness(1.25);
+	}
+}
 
 .yweb-remote .yweb-rc-btn svg {
 	width: 20px;
