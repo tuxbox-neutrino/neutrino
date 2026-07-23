@@ -2955,8 +2955,15 @@ bool is_wakeup()
 	return wakeup;
 }
 
+/* defined together with the other exit-action helpers just above ExitRun() */
+static void clear_exit_action(void);
+
 int CNeutrinoApp::run(int argc, char **argv)
 {
+	/* Drop any action file left over from a previous crashed run, so no stale
+	 * request can trigger a shutdown/reboot after this fresh start. */
+	clear_exit_action();
+
 	neutrino_start_time = time_monotonic();
 
 	exec_controlscript(NEUTRINO_APP_START_SCRIPT);
@@ -4875,6 +4882,82 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 extern time_t timer_minutes;//timermanager.cpp
 extern bool timer_is_rec;//timermanager.cpp
 
+/*
+ * Shutdown-action channel for the start script.
+ *
+ * Historically Neutrino signalled the follow-up action (power off, reboot,
+ * restart) only through its process exit status. That overloads a value every
+ * generic tool in the chain (make, "set -e", systemd, CI) reads as pass/fail.
+ * The action now travels in a small action file holding a single token; the
+ * numeric exit status only carries the legacy code as a fallback for old start
+ * scripts that still read $?.
+ */
+#define NEUTRINO_EXIT_ACTION_DEFAULT "/tmp/neutrino.exit-action"
+
+static const char *exit_action_file(void)
+{
+	const char *env = getenv("NEUTRINO_EXIT_ACTION_FILE");
+	if (env != NULL && *env != '\0')
+		return env;
+	return NEUTRINO_EXIT_ACTION_DEFAULT;
+}
+
+static const char *exit_action_name(int exit_code)
+{
+	switch (exit_code)
+	{
+		case CNeutrinoApp::EXIT_NORMAL:		return "none";
+		case CNeutrinoApp::EXIT_SHUTDOWN:	return "poweroff";
+		case CNeutrinoApp::EXIT_REBOOT:		return "reboot";
+		case CNeutrinoApp::EXIT_RESTART:	return "restart";
+		default:				return NULL;
+	}
+}
+
+static void clear_exit_action(void)
+{
+	unlink(exit_action_file());
+}
+
+static void write_exit_action(int exit_code)
+{
+	const char *action = exit_action_name(exit_code);
+	if (action == NULL)
+	{
+		/* EXIT_ERROR or an unknown code: request no action and leave no
+		 * stale file behind that a later run could act on. */
+		clear_exit_action();
+		return;
+	}
+	const char *path = exit_action_file();
+	FILE *f = fopen(path, "w");
+	if (f == NULL)
+	{
+		perror(path);
+		return;
+	}
+	fprintf(f, "%s\n", action);
+	fclose(f);
+}
+
+/*
+ * Whether the numeric exit status still encodes the shutdown action. Default is
+ * the legacy behaviour; NEUTRINO_EXIT_CODES=posix makes any clean shutdown
+ * return 0 and reserves a non-zero status for real errors.
+ */
+static bool legacy_exit_codes(void)
+{
+	const char *mode = getenv("NEUTRINO_EXIT_CODES");
+	if (mode == NULL || *mode == '\0')
+		return true;
+	if (strcmp(mode, "posix") == 0)
+		return false;
+	if (strcmp(mode, "legacy") == 0)
+		return true;
+	fprintf(stderr, "[neutrino] unknown NEUTRINO_EXIT_CODES='%s', using 'legacy'\n", mode);
+	return true;
+}
+
 void CNeutrinoApp::ExitRun(int exit_code)
 {
 	bool do_exiting = true;
@@ -5040,7 +5123,17 @@ void CNeutrinoApp::ExitRun(int exit_code)
 
 	Cleanup();
 
-	printf("[neutrino] This is the end. Exiting with code %d\n", exit_code);
+	/* Hand the follow-up action to the start script through the action file. In
+	 * posix mode a clean shutdown then returns 0; a real error (EXIT_ERROR) or an
+	 * unknown code keeps its non-zero status in both modes. */
+	write_exit_action(exit_code);
+	int status = exit_code;
+	if (!legacy_exit_codes() && exit_action_name(exit_code) != NULL)
+		status = CNeutrinoApp::EXIT_NORMAL;
+
+	const char *action = exit_action_name(exit_code);
+	printf("[neutrino] This is the end. Exiting with code %d (action: %s)\n",
+		status, action != NULL ? action : "none");
 	/* Use _exit() instead of exit(): several auxiliary worker threads (nhttpd, luaserver,
 	 * streamts, CA slot-poll, sysload, ...) are still running at this point. exit() runs the
 	 * C++/library static destructors and atexit handlers - notably OpenSSL's OPENSSL_cleanup,
@@ -5048,10 +5141,11 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	 * segfaults during shutdown/reboot (use-after-free in pthread_rwlock_wrlock via
 	 * CRYPTO_THREAD_write_lock). ExitRun() has already persisted settings and torn down the
 	 * AV/HAL subsystems above, so skipping the runtime destructor pass is safe; the kernel
-	 * reclaims the rest. fflush() preserves any buffered log output, and exit_code is passed
-	 * through unchanged so the start script still distinguishes shutdown/reboot/restart. */
+	 * reclaims the rest. fflush() preserves any buffered log output; the shutdown action was
+	 * already written to the action file above, and status carries the legacy exit code only
+	 * when NEUTRINO_EXIT_CODES=legacy. */
 	fflush(NULL);
-	_exit(exit_code);
+	_exit(status);
 }
 
 void CNeutrinoApp::saveEpg(int _mode)

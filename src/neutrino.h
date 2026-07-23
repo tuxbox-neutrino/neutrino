@@ -57,12 +57,19 @@ class CScanSettings;
 class CNeutrinoApp : public CMenuTarget, CChangeObserver, public sigc::trackable
 {
 public:
-	enum // Neutrino's exit codes to be handled in it's start script
+	/*
+	 * Shutdown action requested from ExitRun(). The follow-up action
+	 * (power off, reboot, ...) is primarily handed to the start script via an
+	 * action file (see write_exit_action() in neutrino.cpp); the numeric value
+	 * below is only kept as a legacy exit-code fallback for old start scripts.
+	 */
+	enum
 	{
 		EXIT_ERROR = -1,
 		EXIT_NORMAL = 0,	// g_info.hw_caps->can_shutdown == 0
 		EXIT_SHUTDOWN = 1,	// g_info.hw_caps->can_shutdown == 1
-		EXIT_REBOOT = 2
+		EXIT_REBOOT = 2,
+		EXIT_RESTART = 3
 	};
 
 	enum
