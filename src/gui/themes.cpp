@@ -600,12 +600,17 @@ void CThemes::move_userDir()
 			for (int count = 0; count < n; count++)
 			{
 				const char *file = themelist[count]->d_name;
-				if (strcmp(file, ".") == 0 || strcmp(file, "..") == 0)
-					continue;
-				const char *dest = ((std::string)USERDIR + "/" + file).c_str();
-				const char *target = ((std::string)THEMESDIR_VAR + "/" + file).c_str();
-				printf("[neutrino theme] moving %s to %s\n", dest, target);
-				rename(dest, target);
+				if (strcmp(file, ".") != 0 && strcmp(file, "..") != 0)
+				{
+					// keep the paths in objects that outlive the call: taking
+					// c_str() off a temporary leaves rename() with two
+					// pointers into memory that is already gone
+					std::string dest = (std::string)USERDIR + "/" + file;
+					std::string target = (std::string)THEMESDIR_VAR + "/" + file;
+					printf("[neutrino theme] moving %s to %s\n", dest.c_str(), target.c_str());
+					rename(dest.c_str(), target.c_str());
+				}
+				// the skipped "." and ".." entries were leaked before
 				free(themelist[count]);
 			}
 			free(themelist);
