@@ -200,10 +200,18 @@ bool CCDraw::applyColChanges()
 
 bool CCDraw::hasChanges()
 {
-	if (applyPosChanges() || applyDimChanges() || applyColChanges())
-		return true;
+	/* No short-circuit here: each apply*() call also brings its *_old values
+	 * up to date, so every group after the first one that reports a change
+	 * used to be skipped and went on comparing against values that no longer
+	 * describe what was collected into v_fbdata. A later paint that sets such
+	 * a value back to what the skipped tracker still holds then finds no
+	 * change, and the collected layers are painted again.
+	 */
+	bool pos = applyPosChanges();
+	bool dim = applyDimChanges();
+	bool col = applyColChanges();
 
-	return false;
+	return pos || dim || col;
 }
 
 void CCDraw::setXPos(const int& xpos)
