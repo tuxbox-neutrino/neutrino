@@ -229,8 +229,6 @@ void CImageInfo::ShowWindow()
 		footer->setButtonLabels(v_buttons, 0, footer->getWidth()/v_buttons.size());
 
 		btn_red = footer->getButtonLabel(0);
-		btn_red->setButtonTextColor(COL_MENUFOOT_TEXT);
-		btn_red->setColBodyGradient(CC_COLGRAD_OFF);
 
 		btn_green = footer->getButtonLabel(1);
 // 		btn_green->allowPaint(!policy_txt.empty());

@@ -342,18 +342,6 @@ class CMsgBox : public CHintBox
 		 */
 		void setButtonText(const int &showed_button, const neutrino_locale_t &Locale);
 
-		/**
-		* enables background of buttons
-		* @param[in]	enable
-		* 	@li 	expects type bool, default = true
-		*/
-		void enableButtonBg(bool enable = true);
-
-		/**
-		* disables background of buttons
-		*/
-		void disableButtonBg(){enableButtonBg(false);}
-
 // 		bool	setText(const std::string* newText);
 };
 

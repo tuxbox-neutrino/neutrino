@@ -231,7 +231,6 @@ void CMsgBox::initButtons()
 	}
 
 	ccw_footer->setButtonLabels(v_buttons, 0, 125);
-	ccw_footer->getButtonChainObject()->setColorBody(col_body);
 
 	//show buttons with background and shadow
 	ccw_footer->enableButtonBg(btn_enable_bg);

@@ -104,7 +104,6 @@ void CTermWindow::showResult()
 			int xpos = frameBuffer->getScreenWidth() - b_width;
 			int ypos = frameBuffer->getScreenHeight() - b_height;
 			CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
-			btn.setColorBody(COL_MENUCONTENT_PLUS_0);
 			btn.paint(false);
 		}
 
