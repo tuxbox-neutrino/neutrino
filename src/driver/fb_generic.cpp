@@ -1101,6 +1101,12 @@ void CFrameBuffer::clearIconCache()
 		cs_free_uncached(it->second.data);
 	}
 	icon_cache.clear();
+	/* The accounted bytes go with the entries. Without this the counter kept
+	 * the bytes of everything it had just freed, so it only ever climbed while
+	 * the map started over empty. Once the gap to ICON_CACHE_SIZE was smaller
+	 * than an icon, that icon was no longer cached and every paint re-read it
+	 * from disk. */
+	cache_size = 0;
 }
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
