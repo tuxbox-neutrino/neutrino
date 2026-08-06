@@ -43,6 +43,7 @@ CCDraw::CCDraw() : COSDFader(g_settings.theme.menu_Content_alpha)
 	height	= height_old	= CC_HEIGHT_MIN;
 	width	= width_old	= CC_WIDTH_MIN;
 
+	col_body = col_body_old 	= COL_MENUCONTENT_PLUS_0;
 	col_body_std			= COL_MENUCONTENT_PLUS_0;
 	col_body_sel			= COL_MENUCONTENTSELECTED_PLUS_0;
 	col_body_sec			= COL_MENUCONTENTINACTIVE_PLUS_0;
