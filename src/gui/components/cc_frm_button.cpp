@@ -123,6 +123,12 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_btn_text_obj = NULL;
 	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
 	cc_btn_font	= NULL;
+	/* Once resolved (initCaption, or a dynFont for a tight button) the font is
+	 * kept, and every paint dereferences it. SetupFonts() deletes and replaces
+	 * every g_Font[] object and rebuilds the dynamic fonts, so a button that
+	 * outlives that - in a persistent dialog, or a footer button of one - has to
+	 * let go of the pointer and resolve again. */
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsButton::resetButtonFont));
 	cc_btn_icon	= icon_name;
 	cc_btn_text	= caption;
 	cc_directKeys.push_back(CRCInput::RC_nokey);

@@ -161,6 +161,11 @@ void CComponentsWindow::init(	const int& x_pos, const int& y_pos, const int& w, 
 	ccw_body	= NULL;
 	ccw_footer	= NULL;
 	ccw_button_font	= g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
+	/* SetupFonts() deletes and replaces every g_Font[] object, and a window can
+	 * outlive that (persistent dialogs are kept by their menu). The cached font
+	 * would then be freed memory, handed to the footer by the next initFooter().
+	 * Same reason CComponentsHeader listens to this signal. */
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsWindow::resetButtonFont));
 
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;

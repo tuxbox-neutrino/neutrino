@@ -357,6 +357,14 @@ class CComponentsWindow : public CComponentsForm, CCHeaderTypes
 		void setWindowFooterFont(Font* font_type){ccw_button_font = font_type;}
 
 		/**
+		* Re-resolves the footer button font after SetupFonts() replaced g_Font[].
+		* Connected to OnAfterSetupFonts, because the cached pointer would be
+		* freed memory afterwards. A font set via setWindowFooterFont() is
+		* dropped here: it came from the same replaced table.
+		*/
+		void resetButtonFont(){ccw_button_font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];}
+
+		/**
 		* Gets a pointer to the internal left side bar object, use this to get access to left sidebar properities
 		* @return	CComponentsFrmChain*
 		*/

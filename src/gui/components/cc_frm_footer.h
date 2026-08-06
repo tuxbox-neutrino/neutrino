@@ -137,6 +137,9 @@ class CComponentsFooter : public CComponentsHeader, public CCButtonSelect
 
 		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
 		void setButtonFont(Font* font){ccf_btn_font = font;};
+		///re-resolve the button text font after SetupFonts() replaced g_Font[]:
+		///the cached pointer (also one set via setButtonFont) is freed memory then
+		void resetButtonFont(){ccf_btn_font = g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];};
 
 		///this is a nearly methode similar with the older button handler find in gui/widget/buttons.h, some parameters are different, but require minimalized input
 		///this member sets some basic parameters and will paint concurrently on execute, explicit call of paint() is not required

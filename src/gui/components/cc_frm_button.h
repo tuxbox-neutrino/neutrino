@@ -175,6 +175,9 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
 		void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
+		///drop the cached font after SetupFonts() replaced g_Font[]; initCaption()
+		///resolves it again on the next paint (it does that whenever it is NULL)
+		void resetButtonFont(){cc_btn_font = NULL;};
 
 		///reinitialize items
 		void Refresh(){initCCBtnItems();};

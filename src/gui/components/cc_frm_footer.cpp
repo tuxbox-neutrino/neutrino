@@ -83,6 +83,12 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 	//init default button text font
 	ccf_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_BUTTON_TEXT];
+	/* A footer can outlive a font change (persistent dialogs are kept by their
+	 * menu), and SetupFonts() deletes and replaces every g_Font[] object. The
+	 * cached pointer is dereferenced by initButtonContainer() on every
+	 * setButtonLabels(), so it has to be re-resolved - like
+	 * CComponentsHeader::resetFont() does for the header fonts. */
+	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CComponentsFooter::resetButtonFont));
 
 	shadow		= shadow_mode;
 	ccf_enable_button_shadow 	= false ;
