@@ -26,6 +26,9 @@
 
 #define SIZE_TS_PKT		188
 #define TS_DATA_LEN		184
+/* genpsi() writes the PAT as packet 0 and the PMT as packet 1, so the PMT
+   always starts one transport packet into the file */
+#define OFS_PMT_PKT		SIZE_TS_PKT
 #define OFS_HDR_2		5
 #define OFS_PMT_DATA		13
 #define OFS_STREAM_TAB		17
@@ -482,5 +485,29 @@ int CGenPsi::genpsi(int fd)
 	fdatasync(fd);
 	return 1;
 
+}
+
+int CGenPsi::genpsi_pmt(int fd)
+{
+	uint8_t   buffer[SIZE_TS_PKT];
+
+	build_pmt(buffer);
+
+	/*
+	 * Overwrite the PMT packet genpsi() put right behind the PAT. The
+	 * positioned write leaves the recorder's append offset alone, so a running
+	 * recording keeps growing the same file. One 188 byte packet stays inside a
+	 * single page, so a concurrent timeshift reader sees either the old or the
+	 * new PMT, never a torn one.
+	 *
+	 * No fdatasync() on purpose: this runs under the record manager lock, and a
+	 * device flush barrier would stall the whole record manager on slow USB or
+	 * network storage. Page cache coherence covers the concurrent reader,
+	 * normal writeback covers durability long before playback reopens the file.
+	 */
+	if (pwrite(fd, buffer, SIZE_TS_PKT, OFS_PMT_PKT) != (ssize_t)SIZE_TS_PKT)
+		return 0;
+
+	return 1;
 }
 

@@ -49,6 +49,7 @@ extern "C" {
 
 class CFrontend;
 class CZapitChannel;
+class CGenPsi;
 
 //FIXME
 enum record_error_msg_t
@@ -80,7 +81,21 @@ class CRecordInstance
 		bool		StreamVTxtPid;
 		bool		StreamSubtitlePids;
 		bool		StreamPmtPid;
+		/*
+		 * What a pid in apids[] is being recorded as. Captured while the pid
+		 * list is built, never derived from the pid value later: on radio the
+		 * pcr commonly shares the audio pid, so a value based guess would drop
+		 * the only audio stream.
+		 */
+		enum apid_role_t
+		{
+			APID_ROLE_AUDIO = 0,
+			APID_ROLE_PCR,
+			APID_ROLE_TELETEXT,
+			APID_ROLE_DVBSUB
+		};
 		unsigned short	apids[REC_MAX_APIDS];
+		unsigned char	apid_roles[REC_MAX_APIDS];
 		unsigned int	numpids;
 		CZapitClient::responseGetPIDs allpids;
 		int		recording_id;
@@ -98,6 +113,11 @@ class CRecordInstance
 		virtual void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
 		record_error_msg_t Start(CZapitChannel * channel);
 		const char * GetAudioPidLang(CZapitChannel * channel, unsigned short pid);
+		const char * GetDvbSubPidLang(CZapitChannel * channel, unsigned short pid);
+		void CollectRecordPids(CZapitChannel * channel);
+		void AddAudioPidToPsi(CGenPsi & psi, CZapitChannel * channel, unsigned short pid);
+		void AddRecordPidsToPsi(CGenPsi & psi, CZapitChannel * channel);
+		void RefreshFilePmt(CZapitChannel * channel);
 		void ProcessAPIDnames();
 		void FilterPids(APIDList & apid_list);
 		record_error_msg_t MakeFileName(CZapitChannel * channel);

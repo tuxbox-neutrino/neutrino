@@ -63,5 +63,8 @@ class CGenPsi
 		CGenPsi();
 		void addPid(uint16_t pid,uint16_t pidtype, short isAC3, const char *data = NULL);
 		int genpsi(int fd);
+		/* Rewrite only the PMT packet in place, for a recording whose stream
+		   set changed after the PAT/PMT were written. */
+		int genpsi_pmt(int fd);
 };
 #endif

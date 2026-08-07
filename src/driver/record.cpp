@@ -230,6 +230,171 @@ const char * CRecordInstance::GetAudioPidLang(CZapitChannel * channel, unsigned 
 	return NULL;
 }
 
+/*
+ * Resolve the ISO639 language code of a recorded DVB subtitle pid.
+ */
+const char * CRecordInstance::GetDvbSubPidLang(CZapitChannel * channel, unsigned short pid)
+{
+	for (int i = 0; i < (int)channel->getSubtitleCount(); ++i) {
+		CZapitAbsSub * s = channel->getChannelSub(i);
+		if (s->thisSubType != CZapitAbsSub::DVB)
+			continue;
+
+		CZapitDVBSub * sd = reinterpret_cast<CZapitDVBSub*>(s);
+		if (sd->pId != pid)
+			continue;
+
+		/* addPid() copies exactly three bytes */
+		if (sd->ISO639_language_code.size() >= 3)
+			return sd->ISO639_language_code.c_str();
+		break;
+	}
+	return NULL;
+}
+
+/*
+ * Build the list of pids this recording captures, together with the role each
+ * pid is captured as. Order and the REC_MAX_APIDS limits are what the recorder
+ * and the embedded PMT both build on, so both have to stay exactly as they are.
+ */
+void CRecordInstance::CollectRecordPids(CZapitChannel * channel)
+{
+	numpids = 0;
+
+	if (allpids.PIDs.vpid != 0) {
+		if (allpids.PIDs.pcrpid && (allpids.PIDs.pcrpid != allpids.PIDs.vpid)) {
+			apid_roles[numpids] = APID_ROLE_PCR;
+			apids[numpids++] = allpids.PIDs.pcrpid;
+		}
+	}
+	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
+		apid_roles[numpids] = APID_ROLE_AUDIO;
+		apids[numpids++] = recMovieInfo->audioPids[i].AudioPid;
+
+		if (numpids >= REC_MAX_APIDS)
+			break;
+	}
+	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0) && (numpids < REC_MAX_APIDS)) {
+		apid_roles[numpids] = APID_ROLE_TELETEXT;
+		apids[numpids++] = allpids.PIDs.vtxtpid;
+	}
+	if (StreamSubtitlePids) {
+		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
+			CZapitAbsSub* s = channel->getChannelSub(i);
+			if (s->thisSubType == CZapitAbsSub::DVB) {
+				if(i>9)//max sub pids
+					break;
+				if (numpids >= REC_MAX_APIDS)
+					break;
+
+				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
+				apid_roles[numpids] = APID_ROLE_DVBSUB;
+				apids[numpids++] = sd->pId;
+			}
+		}
+	}
+}
+
+void CRecordInstance::AddAudioPidToPsi(CGenPsi & psi, CZapitChannel * channel, unsigned short pid)
+{
+	/* AUDIO_PIDS::atype is a plain int holding a ZapitAudioChannelType */
+	int atype = CZapitAudioChannel::MPEG;
+
+	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
+		if (recMovieInfo->audioPids[i].AudioPid == pid) {
+			atype = recMovieInfo->audioPids[i].atype;
+			break;
+		}
+	}
+	/*
+	 * The audioPids index is no channel audio index: FillMovieInfo() builds the
+	 * list from the apid list FilterPids() produced, so both run apart as soon
+	 * as anything was filtered. atype belongs to this pid already, the language
+	 * has to be looked up by pid.
+	 */
+	const char * lang = GetAudioPidLang(channel, pid);
+
+	switch (atype) {
+		case CZapitAudioChannel::EAC3:
+			psi.addPid(pid, EN_TYPE_AUDIO_EAC3, 0, lang);
+			break;
+		case CZapitAudioChannel::AAC:
+			psi.addPid(pid, EN_TYPE_AUDIO_AAC, 0, lang);
+			break;
+		case CZapitAudioChannel::AACPLUS:
+			psi.addPid(pid, EN_TYPE_AUDIO_AACP, 0, lang);
+			break;
+		default:
+			psi.addPid(pid, EN_TYPE_AUDIO, (atype == CZapitAudioChannel::AC3), lang);
+			break;
+	}
+}
+
+/*
+ * Declare every stream this recording captures. Driven by apids[]/apid_roles[],
+ * so the PMT can never claim a stream that is not being recorded, and the fixed
+ * ten entry buckets in CGenPsi can not overflow.
+ */
+void CRecordInstance::AddRecordPidsToPsi(CGenPsi & psi, CZapitChannel * channel)
+{
+	/*
+	 * Video first: addPid() sets pcrpid = vpid for the video types, so an
+	 * explicit pcr has to be declared after it. A radio recording (vpid == 0)
+	 * declares no pcr at all.
+	 */
+	if (allpids.PIDs.vpid != 0) {
+		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType == CHANNEL_MPEG4 ? EN_TYPE_AVC : recMovieInfo->VideoType == CHANNEL_HEVC ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
+		if (allpids.PIDs.pcrpid && (allpids.PIDs.pcrpid != allpids.PIDs.vpid))
+			psi.addPid(allpids.PIDs.pcrpid, EN_TYPE_PCR, 0);
+	}
+
+	for (unsigned int i = 0; i < numpids; i++) {
+		switch (apid_roles[i]) {
+			case APID_ROLE_PCR:
+				/* already declared above */
+				break;
+			case APID_ROLE_TELETEXT:
+				psi.addPid(apids[i], EN_TYPE_TELTEX, 0, channel->getTeletextLang());
+				break;
+			case APID_ROLE_DVBSUB:
+				psi.addPid(apids[i], EN_TYPE_DVBSUB, 0, GetDvbSubPidLang(channel, apids[i]));
+				break;
+			case APID_ROLE_AUDIO:
+			default:
+				AddAudioPidToPsi(psi, channel, apids[i]);
+				break;
+		}
+	}
+}
+
+/*
+ * Refresh the PMT embedded at the start of a running recording.
+ *
+ * PAT and PMT are written once when the recording starts. When the stream set
+ * changes afterwards, the embedded PMT keeps listing only the pids known back
+ * then; on playback the file player meets the late stream out of band, grows
+ * its stream set mid file and loses the seek time base, which snaps seeks and
+ * audio track switches back to the start.
+ */
+void CRecordInstance::RefreshFilePmt(CZapitChannel * channel)
+{
+	CGenPsi psi;
+
+	AddRecordPidsToPsi(psi, channel);
+
+	std::string tsfile = std::string(filename) + ".ts";
+	int fd = open(tsfile.c_str(), O_WRONLY | O_LARGEFILE | O_CLOEXEC);
+	if (fd < 0) {
+		perror(tsfile.c_str());
+		return;
+	}
+	int ok = psi.genpsi_pmt(fd);
+	close(fd);
+
+	if (!ok)
+		printf("%s: rewriting in-file PMT of %s failed\n", __FUNCTION__, tsfile.c_str());
+}
+
 record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 {
 	time_t msg_start_time = time(0);
@@ -252,62 +417,8 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	SaveXml();
 
 	CGenPsi psi;
-	numpids = 0;
-	if (allpids.PIDs.vpid != 0){
-		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType == CHANNEL_MPEG4 ? EN_TYPE_AVC : recMovieInfo->VideoType == CHANNEL_HEVC ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
-		if (allpids.PIDs.pcrpid && (allpids.PIDs.pcrpid != allpids.PIDs.vpid)) {
-			psi.addPid(allpids.PIDs.pcrpid, EN_TYPE_PCR, 0);
-			apids[numpids++]=allpids.PIDs.pcrpid;
-		}
-	}
-	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
-		unsigned short apid = recMovieInfo->audioPids[i].AudioPid;
-		apids[numpids++] = apid;
-		/*
-		 * The audioPids index is no channel audio index: FillMovieInfo() builds
-		 * the list from the apid list FilterPids() produced, so both run apart
-		 * as soon as anything was filtered. atype belongs to this pid already,
-		 * the language has to be looked up by pid.
-		 */
-		const char * lang = GetAudioPidLang(channel, apid);
-		switch (recMovieInfo->audioPids[i].atype) {
-			case CZapitAudioChannel::EAC3:
-				psi.addPid(apid, EN_TYPE_AUDIO_EAC3, 0, lang);
-				break;
-			case CZapitAudioChannel::AAC:
-				psi.addPid(apid, EN_TYPE_AUDIO_AAC, 0, lang);
-				break;
-			case CZapitAudioChannel::AACPLUS:
-				psi.addPid(apid, EN_TYPE_AUDIO_AACP, 0, lang);
-				break;
-			default:
-				psi.addPid(apid, EN_TYPE_AUDIO, (recMovieInfo->audioPids[i].atype == CZapitAudioChannel::AC3), lang);
-				break;
-		}
-
-		if (numpids >= REC_MAX_APIDS)
-			break;
-	}
-	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0) && (numpids < REC_MAX_APIDS)){
-		apids[numpids++] = allpids.PIDs.vtxtpid;
-		psi.addPid(allpids.PIDs.vtxtpid, EN_TYPE_TELTEX, 0, channel->getTeletextLang());
-	}
-	if (StreamSubtitlePids){
-		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
-			CZapitAbsSub* s = channel->getChannelSub(i);
-			if (s->thisSubType == CZapitAbsSub::DVB) {
-				if(i>9)//max sub pids
-					break;
-				if (numpids >= REC_MAX_APIDS)
-					break;
-
-				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
-				apids[numpids++] = sd->pId;
-				psi.addPid( sd->pId, EN_TYPE_DVBSUB, 0, sd->ISO639_language_code.c_str() );
-			}
-		}
-
-	}
+	CollectRecordPids(channel);
+	AddRecordPidsToPsi(psi, channel);
 	psi.genpsi(fd);
 
 #if 0
@@ -460,8 +571,10 @@ bool CRecordInstance::Update()
 		if(!found) {
 			update = true;
 			printf("%s: apid %x not found in recording pids\n", __FUNCTION__, it->apid);
-			if (numpids < REC_MAX_APIDS)
+			if (numpids < REC_MAX_APIDS) {
+				apid_roles[numpids] = APID_ROLE_AUDIO;
 				apids[numpids++] = it->apid;
+			}
 
 			record->AddPid(it->apid);
 			for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
@@ -481,6 +594,9 @@ bool CRecordInstance::Update()
 		printf("%s: no update needed\n", __FUNCTION__);
 		return false;
 	}
+
+	/* the recording now carries a stream the embedded PMT does not declare */
+	RefreshFilePmt(channel);
 
 	SaveXml();
 	CCamManager::getInstance()->Start(channel_id, CCamManager::RECORD, true);
