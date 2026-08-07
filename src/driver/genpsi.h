@@ -17,7 +17,7 @@
  along with this program; if not, write to the Free Software Foundation,
  Inc., 675 Mass Ave, Cambridge MA 02139, USA.
 
- Mit diesem Programm koennen Neutrino TS Streams für das Abspielen unter Enigma gepatched werden 
+ This patches Neutrino TS streams for playback under Enigma.
  */
 #ifndef __genpsi_h__
 #define __genpsi_h__
