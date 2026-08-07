@@ -3,26 +3,49 @@ export PATH=${PATH}:/var/bin:/var/plugins
 
 # Simple Neutrino start script
 
-# Neutrino's exit codes
-ERROR=-1
-NORMAL=0
-SHUTDOWN=1
-REBOOT=2
+# Follow-up action after Neutrino exits (power off / reboot / restart).
+#
+# Neutrino writes the requested action as a single token into an action file.
+# Older builds instead encode it in the exit status (1=poweroff, 2=reboot,
+# 3=restart); we fall back to that when no action file is present, so any mix
+# of old/new binary and old/new start script keeps working.
 
-echo "Starting Neutrino"
+ACTION_FILE="${NEUTRINO_EXIT_ACTION_FILE:-/tmp/neutrino.exit-action}"
 
 cd /tmp
-/bin/neutrino >/dev/null 2>&1; RET=$?
-sync
 
-echo "Neutrino exited with exit code $RET"
+while true; do
+	# Drop a stale action file from a crashed earlier run before starting.
+	rm -f "$ACTION_FILE"
 
-if [ $RET -eq $NORMAL ]; then
-	# do nothing
-elif [ $RET -eq $SHUTDOWN ]; then
-	poweroff
-elif [ $RET -eq $REBOOT ]; then
-	reboot
-else # $RET -eq $ERROR
-	reboot -f
-fi
+	echo "Starting Neutrino"
+	/bin/neutrino >/dev/null 2>&1; RET=$?
+	sync
+	echo "Neutrino exited with exit code $RET"
+
+	ACTION=""
+	if [ -r "$ACTION_FILE" ]; then
+		read -r ACTION < "$ACTION_FILE"
+		rm -f "$ACTION_FILE"
+	fi
+
+	if [ -z "$ACTION" ]; then
+		# Legacy fallback: the exit status carries the action.
+		case "$RET" in
+			0) ACTION=none ;;
+			1) ACTION=poweroff ;;
+			2) ACTION=reboot ;;
+			3) ACTION=restart ;;
+			*) ACTION=panic ;;
+		esac
+	fi
+
+	case "$ACTION" in
+		none)     break ;;
+		poweroff) poweroff; break ;;
+		reboot)   reboot; break ;;
+		restart)  continue ;;
+		panic)    echo "Neutrino died, rebooting"; reboot -f; break ;;
+		*)        echo "unknown exit action '$ACTION', ignoring"; break ;;
+	esac
+done
