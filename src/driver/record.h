@@ -97,6 +97,7 @@ class CRecordInstance
 		virtual void GetPids(CZapitChannel * channel);
 		virtual void FillMovieInfo(CZapitChannel * channel, APIDList & apid_list);
 		record_error_msg_t Start(CZapitChannel * channel);
+		const char * GetAudioPidLang(CZapitChannel * channel, unsigned short pid);
 		void ProcessAPIDnames();
 		void FilterPids(APIDList & apid_list);
 		record_error_msg_t MakeFileName(CZapitChannel * channel);

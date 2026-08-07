@@ -207,6 +207,29 @@ int CRecordInstance::GetStatus()
 }
 
 
+/*
+ * Resolve the ISO639 language code of a recorded audio pid.
+ *
+ * The channel keeps the raw three letter code, while allpids.APIDs[].desc has
+ * already been expanded to a display name by ProcessAPIDnames(), so the code
+ * has to come from the channel. Returns NULL when the pid is unknown to the
+ * channel or carries no usable code; addPid() then writes "unk".
+ */
+const char * CRecordInstance::GetAudioPidLang(CZapitChannel * channel, unsigned short pid)
+{
+	for (unsigned char j = 0; j < channel->getAudioChannelCount(); j++) {
+		if (channel->getAudioPid(j) != pid)
+			continue;
+
+		CZapitAudioChannel * ac = channel->getAudioChannel(j);
+		/* addPid() copies exactly three bytes */
+		if (ac && ac->description.size() >= 3)
+			return ac->description.c_str();
+		break;
+	}
+	return NULL;
+}
+
 record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 {
 	time_t msg_start_time = time(0);
@@ -238,19 +261,27 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		}
 	}
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
-		apids[numpids++] = recMovieInfo->audioPids[i].AudioPid;
-		switch (channel->getAudioChannel(i)->audioChannelType) {
+		unsigned short apid = recMovieInfo->audioPids[i].AudioPid;
+		apids[numpids++] = apid;
+		/*
+		 * The audioPids index is no channel audio index: FillMovieInfo() builds
+		 * the list from the apid list FilterPids() produced, so both run apart
+		 * as soon as anything was filtered. atype belongs to this pid already,
+		 * the language has to be looked up by pid.
+		 */
+		const char * lang = GetAudioPidLang(channel, apid);
+		switch (recMovieInfo->audioPids[i].atype) {
 			case CZapitAudioChannel::EAC3:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_EAC3, 0, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(apid, EN_TYPE_AUDIO_EAC3, 0, lang);
 				break;
 			case CZapitAudioChannel::AAC:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AAC, 0, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(apid, EN_TYPE_AUDIO_AAC, 0, lang);
 				break;
 			case CZapitAudioChannel::AACPLUS:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO_AACP, 0, channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(apid, EN_TYPE_AUDIO_AACP, 0, lang);
 				break;
 			default:
-				psi.addPid(recMovieInfo->audioPids[i].AudioPid, EN_TYPE_AUDIO, (recMovieInfo->audioPids[i].atype == CZapitAudioChannel::AC3), channel->getAudioChannel(i)->description.c_str());
+				psi.addPid(apid, EN_TYPE_AUDIO, (recMovieInfo->audioPids[i].atype == CZapitAudioChannel::AC3), lang);
 				break;
 		}
 
