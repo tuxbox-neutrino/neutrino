@@ -541,6 +541,7 @@ int CPlugins::getPluginIntegration(int integration)
 		case PLUGIN_INTEGRATION_INFORMATION:
 		case PLUGIN_INTEGRATION_SOFTWARE_MANAGE:
 		case PLUGIN_INTEGRATION_POWER:
+		case PLUGIN_INTEGRATION_NETWORK:
 			return integration;
 		default:
 			return PLUGIN_INTEGRATION_DISABLED;

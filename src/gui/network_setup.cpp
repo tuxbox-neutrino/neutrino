@@ -57,6 +57,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
+#include <plugin.h>
 
 #include <driver/screen_max.h>
 
@@ -405,6 +406,9 @@ int CNetworkSetup::showNetworkSetup()
 	mf->setHint("", LOCALE_MENU_HINT_NET_SERVICES);
 	networkSettings->addItem(mf);
 #endif
+
+	//plugins registered with PLUGIN_INTEGRATION_NETWORK
+	networkSettings->integratePlugins(PLUGIN_INTEGRATION_NETWORK);
 
 	int ret = 0;
 	networkSettings->setFooter(CNetworkSetupFooterButtons, CNetworkSetupFooterButtonCount);
