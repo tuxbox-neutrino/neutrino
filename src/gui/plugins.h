@@ -83,6 +83,7 @@ class CPlugins
 		bool plugin_exists(const std::string &filename);
 		int find_plugin(const std::string &filename);
 		CPlugins::p_type_t getPluginType(int type);
+		int getPluginIntegration(int integration);
 		neutrino_msg_t getPluginKey(std::string key = "auto");
 
 	public:

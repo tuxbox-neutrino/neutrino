@@ -249,7 +249,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		}
 		else if (cmd == "integration")
 		{
-			plugin_data->integration = atoi(parm);
+			plugin_data->integration = getPluginIntegration(atoi(parm));
 		}
 		else if (cmd == "shellwindow")
 		{
@@ -521,6 +521,29 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 			return P_TYPE_LUA;
 		default:
 			return P_TYPE_DISABLED;
+	}
+}
+
+/*
+ * An integration value this build does not know would make the plugin
+ * invisible: integratePlugins() only matches exact values and the plugin
+ * list only shows PLUGIN_INTEGRATION_DISABLED. Fall back to the list so a
+ * plugin built for a newer menu slot stays reachable.
+ */
+int CPlugins::getPluginIntegration(int integration)
+{
+	switch (integration)
+	{
+		case PLUGIN_INTEGRATION_MAIN:
+		case PLUGIN_INTEGRATION_MULTIMEDIA:
+		case PLUGIN_INTEGRATION_SETTING:
+		case PLUGIN_INTEGRATION_SERVICE:
+		case PLUGIN_INTEGRATION_INFORMATION:
+		case PLUGIN_INTEGRATION_SOFTWARE_MANAGE:
+		case PLUGIN_INTEGRATION_POWER:
+			return integration;
+		default:
+			return PLUGIN_INTEGRATION_DISABLED;
 	}
 }
 
