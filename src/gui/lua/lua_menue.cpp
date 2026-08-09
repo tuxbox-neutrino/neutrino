@@ -101,6 +101,13 @@ CLuaMenu *CLuaInstMenu::MenuCheck(lua_State *L, int n)
 	return *(CLuaMenu **) luaL_checkudata(L, n, "menu");
 }
 
+/* Items are keyed by the id MenuAddItem handed out to the script. */
+static CMenuItem *getMenuItem(CLuaMenu *D, lua_Integer id)
+{
+	itemmap_iterator_t it = D->itemmap.find(id);
+	return (it == D->itemmap.end()) ? NULL : it->second;
+}
+
 CLuaMenu::CLuaMenu()
 {
 	m      = NULL;
@@ -530,13 +537,7 @@ int CLuaInstMenu::MenuSetActive(lua_State *L)
 	lua_Integer id;	tableLookup(L, "item", id);
 	bool activ;	tableLookup(L, "activ", activ);
 
-	CMenuItem* item = NULL;
-	for (itemmap_iterator_t it = D->itemmap.begin(); it != D->itemmap.end(); ++it) {
-		if (it->first == id) {
-			item = it->second;
-			break;
-		}
-	}
+	CMenuItem *item = getMenuItem(D, id);
 	if (item)
 		item->setActive(activ);
 	return 0;
@@ -551,13 +552,7 @@ int CLuaInstMenu::MenuSetName(lua_State *L)
 	lua_Integer id;		tableLookup(L, "item", id);
 	std::string name;	tableLookup(L, "name", name);
 
-	CMenuItem* item = NULL;
-	for (itemmap_iterator_t it = D->itemmap.begin(); it != D->itemmap.end(); ++it) {
-		if (it->first == id) {
-			item = it->second;
-			break;
-		}
-	}
+	CMenuItem *item = getMenuItem(D, id);
 	if (item)
 		item->setName(name);
 	return 0;
@@ -602,13 +597,7 @@ int CLuaInstMenu::MenuSetValue(lua_State *L)
 	lua_Integer id;		tableLookup(L, "item", id);
 	std::string value;	tableLookup(L, "value", value);
 
-	CMenuItem* item = NULL;
-	for (itemmap_iterator_t it = D->itemmap.begin(); it != D->itemmap.end(); ++it) {
-		if (it->first == id) {
-			item = it->second;
-			break;
-		}
-	}
+	CMenuItem *item = getMenuItem(D, id);
 	if (item)
 		static_cast<CMenuForwarder*>(item)->setOption(value);
 	return 0;
@@ -622,13 +611,7 @@ int CLuaInstMenu::MenuPaintItem(lua_State *L)
 
 	lua_Integer id;		tableLookup(L, "item", id);
 
-	CMenuItem* item = NULL;
-	for (itemmap_iterator_t it = D->itemmap.begin(); it != D->itemmap.end(); ++it) {
-		if (it->first == id) {
-			item = it->second;
-			break;
-		}
-	}
+	CMenuItem *item = getMenuItem(D, id);
 	if (item)
 		item->paint();
 	return 0;
