@@ -102,7 +102,7 @@ CLuaMenu *CLuaInstMenu::MenuCheck(lua_State *L, int n)
 }
 
 /* Items are keyed by the id MenuAddItem handed out to the script. */
-static CMenuItem *getMenuItem(CLuaMenu *D, lua_Integer id)
+static CLuaMenuItem *getMenuItem(CLuaMenu *D, lua_Integer id)
 {
 	itemmap_iterator_t it = D->itemmap.find(id);
 	return (it == D->itemmap.end()) ? NULL : it->second;
@@ -353,6 +353,7 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 
 	tableLookup(L, "name", b->name);
 	std::string type; tableLookup(L, "type", type);
+	b->type = type;
 	if (type == "back") {
 		D->m->addItem(GenericMenuBack);
 	} else if (type == "next") {
@@ -445,6 +446,7 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 					kext[j].value = NONEXISTANT_LOCALE;
 					kext[j].valname = strdup(val?val:"ERROR");
 					D->tofree.push_back((void *)kext[j].valname);
+					b->options.push_back(luamenu_option_t(kext[j].key, kext[j].valname));
 					if (!strcmp(value.c_str(), kext[j].valname))
 						b->int_val = kext[j].key;
 					j++;
@@ -503,7 +505,8 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 
 	if (mi) {
 		lua_Integer id = D->itemmap.size() + 1;
-		D->itemmap.insert(itemmap_pair_t(id, mi));
+		b->mi = mi;
+		D->itemmap.insert(itemmap_pair_t(id, b));
 		lua_pushinteger(L, id);
 	} else
 		lua_pushnil(L);
@@ -537,9 +540,9 @@ int CLuaInstMenu::MenuSetActive(lua_State *L)
 	lua_Integer id;	tableLookup(L, "item", id);
 	bool activ;	tableLookup(L, "activ", activ);
 
-	CMenuItem *item = getMenuItem(D, id);
+	CLuaMenuItem *item = getMenuItem(D, id);
 	if (item)
-		item->setActive(activ);
+		item->mi->setActive(activ);
 	return 0;
 }
 
@@ -552,9 +555,9 @@ int CLuaInstMenu::MenuSetName(lua_State *L)
 	lua_Integer id;		tableLookup(L, "item", id);
 	std::string name;	tableLookup(L, "name", name);
 
-	CMenuItem *item = getMenuItem(D, id);
+	CLuaMenuItem *item = getMenuItem(D, id);
 	if (item)
-		item->setName(name);
+		item->mi->setName(name);
 	return 0;
 }
 
@@ -597,7 +600,7 @@ int CLuaInstMenu::MenuSetValue(lua_State *L)
 	lua_Integer id;		tableLookup(L, "item", id);
 	std::string value;	tableLookup(L, "value", value);
 
-	CMenuItem *item = getMenuItem(D, id);
+	CLuaMenuItem *item = getMenuItem(D, id);
 	if (!item)
 		return 0;
 
@@ -608,11 +611,33 @@ int CLuaInstMenu::MenuSetValue(lua_State *L)
 	 * casting one of them would write through a pointer to an unrelated
 	 * type. Ask the item itself which family it belongs to.
 	 */
-	if (item->isMenueOptionChooser()) {
-		fprintf(stderr, "[CLuaInstMenu::%s:%d] setValue is not supported for chooser items\n", __func__, __LINE__);
+	if (!item->mi->isMenueOptionChooser()) {
+		static_cast<CMenuForwarder*>(item->mi)->setOption(value);
 		return 0;
 	}
-	static_cast<CMenuForwarder*>(item)->setOption(value);
+
+	/*
+	 * A chooser paints from the value this binding owns and handed to the
+	 * widget as a pointer, so writing it here does what setOption() would
+	 * do. The change observer is deliberately left alone: this corrects
+	 * the script's own display, it is not a user interaction, and
+	 * notifying would call back into the script.
+	 */
+	if (item->type == "chooser") {
+		for (unsigned int i = 0; i < item->options.size(); i++) {
+			if (item->options[i].second == value) {
+				item->int_val = item->options[i].first;
+				return 0;
+			}
+		}
+		fprintf(stderr, "[CLuaInstMenu::%s:%d] setValue: no option named '%s'\n", __func__, __LINE__, value.c_str());
+	} else if (item->type == "numeric") {
+		item->int_val = atoi(value.c_str());
+	} else if (item->type == "string") {
+		item->str_val = value;
+	} else {
+		fprintf(stderr, "[CLuaInstMenu::%s:%d] setValue: unhandled item type '%s'\n", __func__, __LINE__, item->type.c_str());
+	}
 	return 0;
 }
 
@@ -624,8 +649,8 @@ int CLuaInstMenu::MenuPaintItem(lua_State *L)
 
 	lua_Integer id;		tableLookup(L, "item", id);
 
-	CMenuItem *item = getMenuItem(D, id);
+	CLuaMenuItem *item = getMenuItem(D, id);
 	if (item)
-		item->paint();
+		item->mi->paint();
 	return 0;
 }

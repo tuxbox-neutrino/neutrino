@@ -23,10 +23,16 @@
 #ifndef _LUAMENUE_H
 #define _LUAMENUE_H
 
+/* key and displayed text of one option of a "chooser" item */
+typedef std::pair<int, std::string> luamenu_option_t;
+
 struct CLuaMenuItem {
 	int int_val;
 	std::string str_val;
 	std::string name;
+	std::string type;			/* item type as named by the script */
+	std::vector<luamenu_option_t> options;	/* "chooser" only */
+	CMenuItem *mi;
 };
 
 class CLuaMenuChangeObserver : public CChangeObserver
@@ -35,8 +41,8 @@ class CLuaMenuChangeObserver : public CChangeObserver
 		bool changeNotify(lua_State *, const std::string &, const std::string &, void *);
 };
 
-typedef std::pair<lua_Integer, CMenuItem*> itemmap_pair_t;
-typedef std::map<lua_Integer, CMenuItem*> itemmap_t;
+typedef std::pair<lua_Integer, CLuaMenuItem*> itemmap_pair_t;
+typedef std::map<lua_Integer, CLuaMenuItem*> itemmap_t;
 typedef itemmap_t::iterator itemmap_iterator_t;
 
 class CLuaMenu
