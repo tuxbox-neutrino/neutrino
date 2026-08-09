@@ -598,8 +598,21 @@ int CLuaInstMenu::MenuSetValue(lua_State *L)
 	std::string value;	tableLookup(L, "value", value);
 
 	CMenuItem *item = getMenuItem(D, id);
-	if (item)
-		static_cast<CMenuForwarder*>(item)->setOption(value);
+	if (!item)
+		return 0;
+
+	/*
+	 * setOption() belongs to CMenuForwarder and the cast to it cannot be
+	 * checked at runtime, this directory is built with -fno-rtti. The
+	 * chooser family are siblings of CMenuForwarder, not subclasses, so
+	 * casting one of them would write through a pointer to an unrelated
+	 * type. Ask the item itself which family it belongs to.
+	 */
+	if (item->isMenueOptionChooser()) {
+		fprintf(stderr, "[CLuaInstMenu::%s:%d] setValue is not supported for chooser items\n", __func__, __LINE__);
+		return 0;
+	}
+	static_cast<CMenuForwarder*>(item)->setOption(value);
 	return 0;
 }
 
