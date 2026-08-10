@@ -65,7 +65,12 @@ CNFSMountGui::CNFSMountGui()
 	m_nfs_sup = CFSMounter::FS_UNPROBED;
 	m_cifs_sup = CFSMounter::FS_UNPROBED;
 	m_lufs_sup = CFSMounter::FS_UNPROBED;
-	
+
+	mountMenuWPtr = NULL;
+	menu_offset = 0;
+	for (int i = 0; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
+		mountMenuEntry[i] = NULL;
+
 	width = 50;
 }
 
@@ -88,6 +93,32 @@ std::string CNFSMountGui::getEntryString(int i)
 		+ ")";
 }
 
+/*
+	Rebuild the visible state of list item i from the settings.
+
+	The text goes through setOption() on purpose. CMenuForwarder::init() keeps a
+	pointer to the caller's string when it is not empty, but copies it when it
+	is. An item that was built from an empty string therefore never looks at
+	that string again, so exactly the entry the user has just filled in stays
+	blank until the list is rebuilt. setOption() always copies and behaves the
+	same in both cases.
+
+	The items themselves belong to the CMenuWidget in menu(), which lives on the
+	stack and deletes them when it returns. mountMenuEntry[] is therefore only
+	valid while that menu runs; menu() clears it afterwards and the NULL check
+	below keeps that contract enforced rather than merely assumed.
+*/
+void CNFSMountGui::updateMountEntry(int i)
+{
+	if (i < 0 || i >= NETWORK_NFS_NR_OF_ENTRIES || mountMenuEntry[i] == NULL)
+		return;
+
+	mountMenuEntry[i]->setOption(ZapitTools::UTF8_to_Latin1(getEntryString(i)));
+	mountMenuEntry[i]->iconName = CFSMounter::isMounted(g_settings.network_nfs[i].local_dir)
+		? NEUTRINO_ICON_MOUNTED
+		: NEUTRINO_ICON_NOT_MOUNTED;
+}
+
 int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 {
 	//printf("exec: %s\n", actionKey.c_str());
@@ -107,14 +138,12 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	if (actionKey.empty())
 	{
 		parent->hide();
-		for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
-		{
-			m_entry[i] = getEntryString(i);
-		}
 		returnval = menu();
 	}
 	else if(actionKey == "rc_spkr")
 	{
+		if (mountMenuWPtr == NULL)
+			return returnval;
 		int i = mountMenuWPtr->getSelected() - menu_offset;
 		if (i > -1 && i < NETWORK_NFS_NR_OF_ENTRIES) {
 			g_settings.network_nfs[i].ip = "";
@@ -127,8 +156,7 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 			g_settings.network_nfs[i].mount_options1 = "ro,soft,udp";
 			g_settings.network_nfs[i].mount_options2 = "nolock,rsize=8192,wsize=8192";
 			g_settings.network_nfs[i].mac = "11:22:33:44:55:66";
-			m_entry[i] = getEntryString(i);
-			ISO_8859_1_entry[i] = ZapitTools::UTF8_to_Latin1(m_entry[i]);
+			updateMountEntry(i);
 		}
 	}
 	else if(actionKey.substr(0,10)=="refreshMAC")
@@ -155,12 +183,9 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	else if(actionKey.substr(0,10)=="mountentry")
 	{
 		parent->hide();
-		returnval = menuEntry(actionKey[10]-'0');
-		for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
-		{
-			m_entry[i] = getEntryString(i);
-			ISO_8859_1_entry[i] = ZapitTools::UTF8_to_Latin1(m_entry[i]);
-		}
+		int nr = actionKey[10]-'0';
+		returnval = menuEntry(nr);
+		updateMountEntry(nr);
 	}
 	else if(actionKey.substr(0,7)=="domount")
 	{
@@ -171,12 +196,9 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 				  g_settings.network_nfs[nr].username, g_settings.network_nfs[nr].password,
 				  g_settings.network_nfs[nr].mount_options1, g_settings.network_nfs[nr].mount_options2);
 
-		if (mres == CFSMounter::MRES_OK || mres == CFSMounter::MRES_FS_ALREADY_MOUNTED)
-			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_MOUNTED;
-		else {
-			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_NOT_MOUNTED;
+		updateMountEntry(nr);
+		if (mres != CFSMounter::MRES_OK && mres != CFSMounter::MRES_FS_ALREADY_MOUNTED)
 			DisplayErrorMessage(mntRes2Str(mres));
-		}
 
 		returnval = (mres == CFSMounter::MRES_OK || mres == CFSMounter::MRES_FS_ALREADY_MOUNTED)
 			? menu_return::RETURN_EXIT
@@ -203,21 +225,20 @@ int CNFSMountGui::menu()
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
 		sprintf(s2,"mountentry%d",i);
-		ISO_8859_1_entry[i] = ZapitTools::UTF8_to_Latin1(m_entry[i]);
-		mountMenuEntry[i] = new CMenuForwarder("", true, ISO_8859_1_entry[i], this, s2);
+		mountMenuEntry[i] = new CMenuForwarder("", true, NULL, this, s2);
 		if (!i)
 			menu_offset = mountMenuW.getItemsCount();
-		
-		if (CFSMounter::isMounted(g_settings.network_nfs[i].local_dir))
-		{
-			mountMenuEntry[i]->iconName = NEUTRINO_ICON_MOUNTED;
-		} else
-		{
-			mountMenuEntry[i]->iconName = NEUTRINO_ICON_NOT_MOUNTED;
-		}
+
+		updateMountEntry(i);
 		mountMenuW.addItem(mountMenuEntry[i]);
 	}
 	int ret=mountMenuW.exec(this,"");
+
+	/* mountMenuW is about to go out of scope and takes its items with it */
+	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
+		mountMenuEntry[i] = NULL;
+	mountMenuWPtr = NULL;
+
 	return ret;
 }
 
