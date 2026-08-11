@@ -88,6 +88,15 @@ class CNFSSmallMenu : public CNFSMountGui
 		int exec( CMenuTarget* parent, const std::string & actionKey );
 };
 
+/*
+	Appends a read-only list of the network shares that are mounted right now,
+	each with the entry it belongs to or a note that it came from elsewhere.
+	Adds nothing at all when there is no network mount.
+
+	Call it while building a menu, not once at startup: it is a snapshot.
+*/
+void showActiveNetworkShares(CMenuWidget *menu);
+
 const char * mntRes2Str(CFSMounter::MountRes res);
 const char * mntRes2Str(CFSMounter::UMountRes res);
 

@@ -138,7 +138,16 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	if (actionKey.empty())
 	{
 		parent->hide();
+		const unsigned int generation = CFSMounter::getMountGeneration();
 		returnval = menu();
+		/*
+			Our caller shows a list of the active shares that it built once, on
+			entering. Mounting something here makes that list wrong, and it is
+			only repainted, not rebuilt. Leaving it as well is the honest
+			answer: the next visit reads /proc/mounts again.
+		*/
+		if (generation != CFSMounter::getMountGeneration())
+			returnval = menu_return::RETURN_EXIT;
 	}
 	else if(actionKey == "rc_spkr")
 	{
@@ -331,7 +340,11 @@ int CNFSUmountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	if (actionKey.empty())
 	{
 		parent->hide();
+		const unsigned int generation = CFSMounter::getMountGeneration();
 		returnval = menu();
+		/* see CNFSMountGui::exec(): an unmount invalidates the caller's list */
+		if (generation != CFSMounter::getMountGeneration())
+			returnval = menu_return::RETURN_EXIT;
 	}
 	else if(actionKey.substr(0,8)=="doumount")
 	{
@@ -377,6 +390,35 @@ int CNFSUmountGui::menu()
 
 
 
+void showActiveNetworkShares(CMenuWidget *menu)
+{
+	CFSMounter::MountInfos mounts;
+	CFSMounter::getMountedFS(mounts);
+	if (mounts.empty())
+		return;
+
+	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_NFS_ACTIVE_SHARES));
+
+	for (CFSMounter::MountInfos::const_iterator it = mounts.begin(); it != mounts.end(); ++it)
+	{
+		const int entry = CFSMounter::getMountEntry(*it);
+		std::string origin;
+		if (entry == CFSMounter::MOUNT_ENTRY_NONE)
+			origin = g_Locale->getText(LOCALE_NFS_MOUNT_EXTERN);
+		else
+			origin = std::string(g_Locale->getText(LOCALE_NFS_MOUNT_ENTRY)) + " " + to_string(entry + 1);
+
+		/* Inactive: the mount and umount entries above are where one acts.
+		   The origin goes into the option column rather than into a hint,
+		   because an inactive item never takes the focus a hint needs. */
+		CMenuForwarder *share = new CMenuForwarder(it->type + "  " + it->device, false);
+		share->setOption(origin);
+		share->setDescription("-> " + it->mountPoint);
+		share->iconName = NEUTRINO_ICON_MOUNTED;
+		menu->addItem(share);
+	}
+}
+
 int CNFSSmallMenu::exec( CMenuTarget* parent, const std::string & actionKey )
 {
 	if (actionKey.empty())
@@ -390,17 +432,25 @@ int CNFSSmallMenu::exec( CMenuTarget* parent, const std::string & actionKey )
 		sm_menu.addItem(remount_fwd);
 		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, & mountGui));
 		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, &umountGui));
+		showActiveNetworkShares(&sm_menu);
 		return sm_menu.exec(parent, actionKey);
 	}
 	else if(actionKey.substr(0,7) == "remount")
 	{
+		bool changed = false;
+		const unsigned int generation = CFSMounter::getMountGeneration();
+
 		//umount automount dirs
 		for(int i = 0; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
 		{
 			if(g_settings.network_nfs[i].automount)
-				umount2(g_settings.network_nfs[i].local_dir.c_str(),MNT_FORCE);
+				changed |= (umount2(g_settings.network_nfs[i].local_dir.c_str(),MNT_FORCE) == 0);
 		}
 		CFSMounter::automount();
+
+		/* like the two submenus above: the share list we came from is stale now */
+		if (changed || generation != CFSMounter::getMountGeneration())
+			return menu_return::RETURN_EXIT;
 		return menu_return::RETURN_REPAINT;
 	}
 	return menu_return::RETURN_REPAINT;

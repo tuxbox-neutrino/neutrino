@@ -2289,6 +2289,7 @@ networkmenu.ssid_scan_error Keine WLAN-Netzwerke gefunden.
 networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht ...
 networkmenu.test Netzwerk testen
 neutrino_starting %s %s wird gestartet ...
+nfs.active_shares Aktive Freigaben
 nfs.alreadymounted Verzeichnis bereits gemountet.
 nfs.automount Beim Start mounten
 nfs.dir Verzeichnis/Freigabe
@@ -2297,6 +2298,8 @@ nfs.localdir lokales Verzeichnis
 nfs.mac MAC-Adresse
 nfs.mac_refresh MAC-Adresse feststellen
 nfs.mount Netzwerk Verzeichnis mounten
+nfs.mount_entry Eintrag
+nfs.mount_extern extern
 nfs.mount_options Mount-Optionen
 nfs.mounterror Mount-Fehler
 nfs.mounterror_notsup Dateisystemtyp wird nicht unterstützt.

@@ -114,6 +114,10 @@ class CFSMounter
 
 		/* the device as it appears in /proc/mounts once we mounted it */
 		static std::string getDeviceString(const FSType fstype, const std::string &ip, const std::string &dir);
+
+		/* bumped by every successful mount() and umount(), so a menu can tell
+		   whether the list it is showing has been overtaken by its own actions */
+		static unsigned int getMountGeneration();
 };
 
 bool in_proc_filesystems(const char *const fsname);

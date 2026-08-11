@@ -2289,6 +2289,7 @@ networkmenu.ssid_scan_error No WLAN networks are found.
 networkmenu.ssid_scan_wait WLAN network scan in progress ...
 networkmenu.test Test network now
 neutrino_starting %s %s starting ...
+nfs.active_shares Active shares
 nfs.alreadymounted Directory already mounted
 nfs.automount Mount on startup
 nfs.dir Directory/Share
@@ -2297,6 +2298,8 @@ nfs.localdir Local dir
 nfs.mac MAC address
 nfs.mac_refresh Look up MAC address
 nfs.mount Mount network volume
+nfs.mount_entry Entry
+nfs.mount_extern external
 nfs.mount_options Mount options
 nfs.mounterror Mount error
 nfs.mounterror_notsup Filesystem type not supported

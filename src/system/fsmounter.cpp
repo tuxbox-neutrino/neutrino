@@ -108,6 +108,14 @@ bool insert_modules(const CFSMounter::FSType fstype)
 
 bool nfs_mounted_once = false;
 
+/* see CFSMounter::getMountGeneration() */
+static unsigned int g_mount_generation = 0;
+
+unsigned int CFSMounter::getMountGeneration()
+{
+	return g_mount_generation;
+}
+
 bool remove_modules(const CFSMounter::FSType fstype)
 {
 	if (fstype == CFSMounter::NFS)
@@ -379,6 +387,7 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 		printf("[CFSMounter] FS mount error: \"%s\"\n", cmd.c_str());
 		return (retcode == ETIMEDOUT) ? MRES_TIMEOUT : MRES_UNKNOWN;
 	}
+	g_mount_generation++;
 	return MRES_OK;
 
 }
@@ -408,6 +417,7 @@ CFSMounter::UMountRes CFSMounter::umount(const char *const dir)
 		{
 			return UMRES_ERR;
 		}
+		g_mount_generation++;
 	}
 	else
 	{

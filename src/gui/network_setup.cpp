@@ -133,6 +133,12 @@ int CNetworkSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		return showInterfaceSelectMenu();
 	}
+#ifdef ENABLE_GUI_MOUNT
+	else if (actionKey == "networkmounts")
+	{
+		return showNetworkNFSMounts();
+	}
+#endif
 	else if (actionKey == "restore")
 	{
 		int result =  	ShowMsg(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_RESET_SETTINGS_NOW), CMsgBox::mbrNo,
@@ -262,9 +268,6 @@ int CNetworkSetup::showNetworkSetup()
 	networkSettings->setWizardMode(is_wizard);
 
 	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
-#ifdef ENABLE_GUI_MOUNT
-	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
-#endif
 
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
 	CNhttpdSetup httpd;
@@ -337,12 +340,10 @@ int CNetworkSetup::showNetworkSetup()
 	showNetworkNTPSetup(&ntp);
 
 #ifdef ENABLE_GUI_MOUNT
-	//nfs mount submenu
-	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue);
+	//nfs mount submenu, built when it is entered
+	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, this, "networkmounts", CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
 	networkSettings->addItem(mf);
-
-	showNetworkNFSMounts(&networkmounts);
 #endif
 
 	networkSettings->addItem(GenericMenuSeparatorLine);
@@ -514,15 +515,26 @@ void CNetworkSetup::showNetworkNTPSetup(CMenuWidget *menu_ntp)
 }
 
 #ifdef ENABLE_GUI_MOUNT
-void CNetworkSetup::showNetworkNFSMounts(CMenuWidget *menu_nfs)
+/*
+	Built on entering, not once with the network menu around it. The list of
+	active shares below is a snapshot of /proc/mounts, and a snapshot taken
+	when the network menu opened would already be stale by the time the user
+	arrives here.
+*/
+int CNetworkSetup::showNetworkNFSMounts()
 {
-	menu_nfs->addIntroItems(LOCALE_NETWORKMENU_MOUNT);
+	CMenuWidget menu_nfs(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
+	menu_nfs.addIntroItems(LOCALE_NETWORKMENU_MOUNT);
 	CMenuForwarder *mf = new CMenuDForwarder(LOCALE_NFS_MOUNT, true, NULL, new CNFSMountGui(), NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_NET_NFS_MOUNT);
-	menu_nfs->addItem(mf);
+	menu_nfs.addItem(mf);
 	mf = new CMenuDForwarder(LOCALE_NFS_UMOUNT, true, NULL, new CNFSUmountGui(), NULL, CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_NET_NFS_UMOUNT);
-	menu_nfs->addItem(mf);
+	menu_nfs.addItem(mf);
+
+	showActiveNetworkShares(&menu_nfs);
+
+	return menu_nfs.exec(NULL, "");
 }
 #endif
 
