@@ -82,6 +82,9 @@ class CFSMounter
 
 		typedef std::vector<CFSMounter::MountInfo> MountInfos;
 
+		/* getMountEntry(): the mount belongs to nobody we know */
+		static const int MOUNT_ENTRY_NONE = -1;
+
 	private:
 		/*
 			FS_Support m_nfs_sup;
@@ -101,6 +104,16 @@ class CFSMounter
 		   the question is "is anything on that directory", not "is it ours" */
 		static void getMounts(MountInfos &fs);
 		static FS_Support fsSupported(const FSType fs, const bool keep_modules = false);
+
+		/* index of the g_settings.network_nfs entry that describes this mount,
+		   MOUNT_ENTRY_NONE if it was made outside Neutrino */
+		static int getMountEntry(const MountInfo &mi);
+
+		/* the mount in infos that currently holds local_dir, NULL if free */
+		static const MountInfo *findMountPoint(const MountInfos &infos, const std::string &local_dir);
+
+		/* the device as it appears in /proc/mounts once we mounted it */
+		static std::string getDeviceString(const FSType fstype, const std::string &ip, const std::string &dir);
 };
 
 bool in_proc_filesystems(const char *const fsname);

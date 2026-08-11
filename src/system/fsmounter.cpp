@@ -156,11 +156,48 @@ CFSMounter::FS_Support CFSMounter::fsSupported(const CFSMounter::FSType fstype, 
 	return CFSMounter::FS_UNSUPPORTED;
 }
 
+std::string CFSMounter::getDeviceString(const FSType fstype, const std::string &ip, const std::string &dir)
+{
+	switch (fstype)
+	{
+		case NFS:
+			return ip + ":" + dir;
+		case CIFS:
+			return "//" + ip + "/" + dir;
+		case LUFS:
+			/* lufsd has no remote device, it always registers as "none" */
+			return "none";
+	}
+	return "";
+}
+
+/*
+	The settings hold whatever the user typed, /proc/mounts holds a resolved
+	path. Returns the resolved form, or an empty string when the directory does
+	not exist, in which case nothing can be mounted on it either. isMounted()
+	judges the same way, and the two must agree: otherwise an entry could end up
+	with a "not mounted" icon and an "in use" marker at the same time.
+*/
+static std::string resolve_mount_point(const std::string &local_dir)
+{
+	if (local_dir.empty())
+		return "";
+
+#ifdef PATH_MAX
+	char buf[PATH_MAX];
+#else
+	char buf[4096];
+#endif
+	if (realpath(local_dir.c_str(), buf) == NULL)
+		return "";
+	return std::string(buf);
+}
+
 /*
 	/proc/mounts writes space, tab, newline and backslash as an octal escape, so
-	a CIFS share like //nas/My Documents arrives as //nas/My\040Documents. Left
-	as it is, that string matches neither the device we would build for it nor
-	the directory we would hand to umount2().
+	a CIFS share like //nas/My Documents arrives with a \040 in place of the
+	space. As it stands that string matches neither the device we would build
+	for it nor the directory we would hand to umount2().
 */
 static std::string unescape_mount_field(const std::string &field)
 {
@@ -277,18 +314,14 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 	if (fstype == NFS)
 	{
 		cmd = "mount -t nfs ";
-		cmd += ip;
-		cmd += ':';
-		cmd += dir;
+		cmd += getDeviceString(NFS, ip, dir);
 		cmd += ' ';
 		cmd += local_dir;
 	}
 	else if (fstype == CIFS)
 	{
-		cmd = "mount -t cifs //";
-		cmd += ip;
-		cmd += '/';
-		cmd += dir;
+		cmd = "mount -t cifs ";
+		cmd += getDeviceString(CIFS, ip, dir);
 		cmd += ' ';
 		cmd += local_dir;
 		cmd += " -o username=";
@@ -409,6 +442,50 @@ static bool is_network_fs(const std::string &type)
 	return type == "nfs" || type == "nfs4"
 		|| type == "cifs" || type == "smb3"
 		|| type == "lufs";
+}
+
+/*
+	An active mount is ours when it is exactly what one of the configured
+	entries describes: same remote device and same mount point. Matching the
+	device alone would claim a share that somebody else mounted somewhere else,
+	and the entry's own icon would then contradict the claim, because that icon
+	only ever looks at the mount point.
+
+	LUFS needs no exception: it registers as "none", which is exactly what
+	getDeviceString() builds for it, so the plain comparison holds. Skipping the
+	comparison for LUFS would credit any foreign mount on that directory to the
+	entry and swallow its "in use" warning.
+*/
+int CFSMounter::getMountEntry(const MountInfo &mi)
+{
+	for (int i = 0; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
+	{
+		if (g_settings.network_nfs[i].local_dir.empty())
+			continue;
+
+		if (mi.mountPoint != resolve_mount_point(g_settings.network_nfs[i].local_dir))
+			continue;
+
+		if (mi.device == getDeviceString((FSType) g_settings.network_nfs[i].type,
+						 g_settings.network_nfs[i].ip,
+						 g_settings.network_nfs[i].dir))
+			return i;
+	}
+	return MOUNT_ENTRY_NONE;
+}
+
+const CFSMounter::MountInfo *CFSMounter::findMountPoint(const MountInfos &infos, const std::string &local_dir)
+{
+	const std::string mount_point = resolve_mount_point(local_dir);
+	if (mount_point.empty())
+		return NULL;
+
+	for (MountInfos::const_iterator it = infos.begin(); it != infos.end(); ++it)
+	{
+		if (it->mountPoint == mount_point)
+			return &(*it);
+	}
+	return NULL;
 }
 
 void CFSMounter::getMounts(MountInfos &info)
