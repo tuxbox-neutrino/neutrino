@@ -97,6 +97,9 @@ class CFSMounter
 		static bool automount();
 		static CFSMounter::UMountRes umount(const char *const dir = NULL);
 		static void getMountedFS(MountInfos &fs);
+		/* every mount except tmpfs, which never carries a share; use this when
+		   the question is "is anything on that directory", not "is it ours" */
+		static void getMounts(MountInfos &fs);
 		static FS_Support fsSupported(const FSType fs, const bool keep_modules = false);
 };
 

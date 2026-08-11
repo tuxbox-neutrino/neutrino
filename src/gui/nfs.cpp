@@ -329,26 +329,24 @@ int CNFSUmountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 }
 int CNFSUmountGui::menu()
 {
-	int count = 0;
 	CFSMounter::MountInfos infos;
 	CMenuWidget umountMenu(LOCALE_NFS_UMOUNT, NEUTRINO_ICON_NETWORK, width);
 	umountMenu.addIntroItems();
+	/* getMountedFS() already reports network mounts only; filtering by type a
+	   second time here just adds a place that gets forgotten when a new type
+	   shows up. */
 	CFSMounter::getMountedFS(infos);
 	for (CFSMounter::MountInfos::const_iterator it = infos.begin();
 	     it != infos.end();++it)
 	{
-		if(it->type == "nfs" || it->type == "cifs" || it->type == "lufs")
-		{
-			count++;
-			std::string s1 = it->device;
-			s1 += " -> ";
-			s1 += it->mountPoint;
-			std::string s2 = "doumount ";
-			s2 += it->mountPoint;
-			CMenuForwarder *forwarder = new CMenuForwarder(s1, true, NULL, this, s2.c_str());
-			forwarder->iconName = NEUTRINO_ICON_MOUNTED;
-			umountMenu.addItem(forwarder);
-		}
+		std::string s1 = it->device;
+		s1 += " -> ";
+		s1 += it->mountPoint;
+		std::string s2 = "doumount ";
+		s2 += it->mountPoint;
+		CMenuForwarder *forwarder = new CMenuForwarder(s1, true, NULL, this, s2.c_str());
+		forwarder->iconName = NEUTRINO_ICON_MOUNTED;
+		umountMenu.addItem(forwarder);
 	}
 	if( !infos.empty() )
 		return umountMenu.exec(this,"");

@@ -156,6 +156,35 @@ CFSMounter::FS_Support CFSMounter::fsSupported(const CFSMounter::FSType fstype, 
 	return CFSMounter::FS_UNSUPPORTED;
 }
 
+/*
+	/proc/mounts writes space, tab, newline and backslash as an octal escape, so
+	a CIFS share like //nas/My Documents arrives as //nas/My\040Documents. Left
+	as it is, that string matches neither the device we would build for it nor
+	the directory we would hand to umount2().
+*/
+static std::string unescape_mount_field(const std::string &field)
+{
+	std::string out;
+	out.reserve(field.size());
+
+	for (size_t i = 0; i < field.size(); i++)
+	{
+		if (field[i] == '\\' && i + 3 < field.size()
+			&& field[i + 1] >= '0' && field[i + 1] <= '3'
+			&& field[i + 2] >= '0' && field[i + 2] <= '7'
+			&& field[i + 3] >= '0' && field[i + 3] <= '7')
+		{
+			out += (char)(((field[i + 1] - '0') << 6)
+					| ((field[i + 2] - '0') << 3)
+					|  (field[i + 3] - '0'));
+			i += 3;
+		}
+		else
+			out += field[i];
+	}
+	return out;
+}
+
 bool CFSMounter::isMounted(const std::string &local_dir)
 {
 	std::ifstream in;
@@ -177,6 +206,9 @@ bool CFSMounter::isMounted(const std::string &local_dir)
 	{
 		MountInfo mi;
 		in >> mi.device >> mi.mountPoint >> mi.type;
+		/* discard the remaining fields before any early exit, otherwise the
+		   next iteration reads them as if they were a new record */
+		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 		if (mi.type == "tmpfs")
 			continue;
@@ -185,7 +217,6 @@ bool CFSMounter::isMounted(const std::string &local_dir)
 		{
 			return true;
 		}
-		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	return false;
 }
@@ -369,7 +400,18 @@ CFSMounter::UMountRes CFSMounter::umount(const char *const dir)
 	return res;
 }
 
-void CFSMounter::getMountedFS(MountInfos &info)
+/* /proc/mounts names the filesystem type the kernel actually used, and nfs4 and
+   smb3 are types of their own, not aliases of nfs and cifs. Both are the common
+   case on current kernels, so a filter that only knows the old names hides them
+   from every caller. */
+static bool is_network_fs(const std::string &type)
+{
+	return type == "nfs" || type == "nfs4"
+		|| type == "cifs" || type == "smb3"
+		|| type == "lufs";
+}
+
+void CFSMounter::getMounts(MountInfos &info)
 {
 	std::ifstream in("/proc/mounts", std::ifstream::in);
 
@@ -378,11 +420,29 @@ void CFSMounter::getMountedFS(MountInfos &info)
 		MountInfo mi;
 		in >> mi.device >> mi.mountPoint >> mi.type;
 		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		if (mi.type == "nfs" || mi.type == "cifs" || mi.type == "lufs")
+
+		/* the last read fails at end of file and leaves the fields empty */
+		if (mi.mountPoint.empty() || mi.type == "tmpfs")
+			continue;
+
+		mi.device = unescape_mount_field(mi.device);
+		mi.mountPoint = unescape_mount_field(mi.mountPoint);
+		info.push_back(mi);
+	}
+}
+
+void CFSMounter::getMountedFS(MountInfos &info)
+{
+	MountInfos mounts;
+	getMounts(mounts);
+
+	for (MountInfos::const_iterator it = mounts.begin(); it != mounts.end(); ++it)
+	{
+		if (is_network_fs(it->type))
 		{
-			info.push_back(mi);
+			info.push_back(*it);
 			printf("[CFSMounter] mounted fs: dev: %s, mp: %s, type: %s\n",
-			       mi.device.c_str(), mi.mountPoint.c_str(), mi.type.c_str());
+			       it->device.c_str(), it->mountPoint.c_str(), it->type.c_str());
 		}
 	}
 }
