@@ -2286,14 +2286,19 @@ networkmenu.ssid_scan_error Nenájdené WLAN siete
 networkmenu.ssid_scan_wait Prebieha hľadanie WLAN sietí
 networkmenu.test Test siete
 neutrino_starting %s %s štartuje ...
+nfs.active_shares Aktívne pripojenia
 nfs.alreadymounted Priečinok je už pripojený
 nfs.automount Pripojiť pri spustení
 nfs.dir Priečinok / Zdielanie
 nfs.ip IP servera NFS/CIFS
 nfs.localdir Lokálny priečinok
+nfs.localdir_in_use obsadený
+nfs.localdir_in_use_by Lokálny priečinok je už pripojený z:
 nfs.mac MAC adresa
 nfs.mac_refresh vyhľadať MAC adresu
 nfs.mount Pripojiť sieťový priečinok
+nfs.mount_entry Položka
+nfs.mount_extern externé
 nfs.mount_options Možnosti pripojenia
 nfs.mounterror Chyba pripojenia
 nfs.mounterror_notsup Nepodporovaný súborový systém

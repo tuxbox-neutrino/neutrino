@@ -1706,12 +1706,17 @@ networkmenu.ssid_scan_error Geen WLAN netwerken gevonden.
 networkmenu.ssid_scan_wait WLAN netwerk scan is bezig...
 networkmenu.test Netwerktest uitvoeren
 neutrino_starting %s %s starting ...
+nfs.active_shares Actieve koppelingen
 nfs.alreadymounted directory reeds gekoppeld
 nfs.automount Koppelen tijdens het opstarten
 nfs.dir directory/locatie
 nfs.ip Server IP
 nfs.localdir lokale directory
+nfs.localdir_in_use in gebruik
+nfs.localdir_in_use_by De lokale directory is reeds gekoppeld door:
 nfs.mount Netwerk volume koppelen
+nfs.mount_entry Item
+nfs.mount_extern extern
 nfs.mount_options Koppel opties
 nfs.mounterror mount foutmelding
 nfs.mounterror_notsup Bestandssysteem niet ondersteund
