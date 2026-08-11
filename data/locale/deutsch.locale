@@ -2295,6 +2295,8 @@ nfs.automount Beim Start mounten
 nfs.dir Verzeichnis/Freigabe
 nfs.ip Server IP
 nfs.localdir lokales Verzeichnis
+nfs.localdir_in_use belegt
+nfs.localdir_in_use_by Das lokale Verzeichnis ist bereits eingehängt von:
 nfs.mac MAC-Adresse
 nfs.mac_refresh MAC-Adresse feststellen
 nfs.mount Netzwerk Verzeichnis mounten

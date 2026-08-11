@@ -105,6 +105,10 @@ class CFSMounter
 		static void getMounts(MountInfos &fs);
 		static FS_Support fsSupported(const FSType fs, const bool keep_modules = false);
 
+		/* bumped by every successful mount() and umount(), so a menu can tell
+		   whether the list it is showing has been overtaken by its own actions */
+		static unsigned int getMountGeneration();
+
 		/* index of the g_settings.network_nfs entry that describes this mount,
 		   MOUNT_ENTRY_NONE if it was made outside Neutrino */
 		static int getMountEntry(const MountInfo &mi);
@@ -114,10 +118,6 @@ class CFSMounter
 
 		/* the device as it appears in /proc/mounts once we mounted it */
 		static std::string getDeviceString(const FSType fstype, const std::string &ip, const std::string &dir);
-
-		/* bumped by every successful mount() and umount(), so a menu can tell
-		   whether the list it is showing has been overtaken by its own actions */
-		static unsigned int getMountGeneration();
 };
 
 bool in_proc_filesystems(const char *const fsname);

@@ -46,6 +46,7 @@ class CNFSMountGui : public CMenuTarget
 	int menuEntry(int nr);
 
 	std::string getEntryString(int i);
+	void updateMountEntry(int i, const CFSMounter::MountInfos &mounts);
 	void updateMountEntry(int i);
 
 	CMenuWidget *mountMenuWPtr;

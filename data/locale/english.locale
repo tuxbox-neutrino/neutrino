@@ -2295,6 +2295,8 @@ nfs.automount Mount on startup
 nfs.dir Directory/Share
 nfs.ip Server IP
 nfs.localdir Local dir
+nfs.localdir_in_use in use
+nfs.localdir_in_use_by The local directory is already mounted by:
 nfs.mac MAC address
 nfs.mac_refresh Look up MAC address
 nfs.mount Mount network volume

@@ -2322,6 +2322,8 @@ const char * locale_real_names[] =
 	"nfs.dir",
 	"nfs.ip",
 	"nfs.localdir",
+	"nfs.localdir_in_use",
+	"nfs.localdir_in_use_by",
 	"nfs.mac",
 	"nfs.mac_refresh",
 	"nfs.mount",

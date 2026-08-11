@@ -203,9 +203,9 @@ static std::string resolve_mount_point(const std::string &local_dir)
 
 /*
 	/proc/mounts writes space, tab, newline and backslash as an octal escape, so
-	a CIFS share like //nas/My Documents arrives with a \040 in place of the
-	space. As it stands that string matches neither the device we would build
-	for it nor the directory we would hand to umount2().
+	a CIFS share like //nas/My Documents arrives as //nas/My\040Documents. Left
+	as it is, that string matches neither the device we would build for it nor
+	the directory we would hand to umount2().
 */
 static std::string unescape_mount_field(const std::string &field)
 {

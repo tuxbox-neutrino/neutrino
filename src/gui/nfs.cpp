@@ -108,15 +108,47 @@ std::string CNFSMountGui::getEntryString(int i)
 	valid while that menu runs; menu() clears it afterwards and the NULL check
 	below keeps that contract enforced rather than merely assumed.
 */
-void CNFSMountGui::updateMountEntry(int i)
+void CNFSMountGui::updateMountEntry(int i, const CFSMounter::MountInfos &mounts)
 {
 	if (i < 0 || i >= NETWORK_NFS_NR_OF_ENTRIES || mountMenuEntry[i] == NULL)
 		return;
 
-	mountMenuEntry[i]->setOption(ZapitTools::UTF8_to_Latin1(getEntryString(i)));
-	mountMenuEntry[i]->iconName = CFSMounter::isMounted(g_settings.network_nfs[i].local_dir)
+	std::string text = getEntryString(i);
+	std::string hint;
+
+	/*
+		Icon and warning come from the same lookup on purpose. The icon answers
+		"is anything mounted there", so the list must cover every filesystem
+		type, not just network ones. Otherwise a local disk on the target
+		directory would disable "mount now" while the row explained nothing.
+	*/
+	const CFSMounter::MountInfo *holder = CFSMounter::findMountPoint(mounts, g_settings.network_nfs[i].local_dir);
+
+	/*
+		Warn before the fact when that mount is not this entry's own.
+		CFSMounter::mount() refuses such a mount anyway, but only after the
+		attempt and without naming who holds the path. This adds no second lock,
+		just the missing piece of information.
+	*/
+	if (!text.empty() && holder != NULL && CFSMounter::getMountEntry(*holder) != i)
+	{
+		text += "  ";
+		text += g_Locale->getText(LOCALE_NFS_LOCALDIR_IN_USE);
+		hint = std::string(g_Locale->getText(LOCALE_NFS_LOCALDIR_IN_USE_BY)) + " " + holder->device;
+	}
+
+	mountMenuEntry[i]->setOption(ZapitTools::UTF8_to_Latin1(text));
+	mountMenuEntry[i]->setHint("", hint);
+	mountMenuEntry[i]->iconName = (holder != NULL)
 		? NEUTRINO_ICON_MOUNTED
 		: NEUTRINO_ICON_NOT_MOUNTED;
+}
+
+void CNFSMountGui::updateMountEntry(int i)
+{
+	CFSMounter::MountInfos mounts;
+	CFSMounter::getMounts(mounts);
+	updateMountEntry(i, mounts);
 }
 
 int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
@@ -231,6 +263,10 @@ int CNFSMountGui::menu()
 	mountMenuW.addKey(CRCInput::RC_spkr, this, "rc_spkr");
 	char s2[12];
 
+	/* one look at /proc/mounts for all eight entries */
+	CFSMounter::MountInfos mounts;
+	CFSMounter::getMounts(mounts);
+
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
 		sprintf(s2,"mountentry%d",i);
@@ -238,7 +274,7 @@ int CNFSMountGui::menu()
 		if (!i)
 			menu_offset = mountMenuW.getItemsCount();
 
-		updateMountEntry(i);
+		updateMountEntry(i, mounts);
 		mountMenuW.addItem(mountMenuEntry[i]);
 	}
 	int ret=mountMenuW.exec(this,"");
