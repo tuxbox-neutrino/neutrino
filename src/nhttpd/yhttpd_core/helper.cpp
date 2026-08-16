@@ -8,10 +8,15 @@
 #include <cstdlib> 		// calloc and free prototypes.
 #include <cstring>		// str* and memset prototypes.
 #include <cstdarg>
+#include <cerrno>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/syscall.h>
+#include <sys/wait.h>
 
 // yhttpd
 #include <yconfig.h>
@@ -398,9 +403,92 @@ std::string json_convert_string(std::string s) {
 }
 #endif // 0
 
+// Start file with the prepared argv in dir and collect its stdout.
+// argv and shargv are built by the caller so that the child only makes
+// async-signal-safe calls between fork() and execv() (getdtablesize() is a
+// getrlimit() wrapper and safe in practice).
+// Returns false when fork()/pipe() failed, i.e. no child ran at all. A child
+// that could not exec reports itself through an empty result, exactly as the
+// previous popen() based version did.
+static bool yRunNoShell(const std::string &file, const std::string &dir,
+		char *const argv[], char *const shargv[], std::string &out) {
+	int fd[2];
+	// O_CLOEXEC: without it a fork() in any other thread inherits our write
+	// end and keeps it open, so the read loop below would not see EOF until
+	// that unrelated child exits. popen() gave the same guarantee for its
+	// own pipes, so plain pipe() here would be a regression.
+	if (pipe2(fd, O_CLOEXEC) != 0)
+		return false;
+
+	pid_t pid = fork();
+	if (pid < 0) {
+		int err = errno; // keep it: close() may set errno on success
+		close(fd[0]);
+		close(fd[1]);
+		errno = err;
+		return false;
+	}
+
+	if (pid == 0) { // child
+		close(fd[0]); // the child only writes
+		if (fd[1] == STDOUT_FILENO) {
+			// already in place, but must survive execv()
+			int flags = fcntl(fd[1], F_GETFD);
+			if (flags < 0 || fcntl(fd[1], F_SETFD, flags & ~FD_CLOEXEC) < 0)
+				_exit(127);
+		} else {
+			if (dup2(fd[1], STDOUT_FILENO) < 0) // dup2 clears FD_CLOEXEC
+				_exit(127);
+			// close_range() below starts at 3 and would leave a write end
+			// behind that happened to land on fd 2
+			close(fd[1]);
+		}
+		// Do not leak the listening socket, open client connections or
+		// driver handles into the script; ysocket.cpp creates them without
+		// SOCK_CLOEXEC, so O_CLOEXEC on our own pipe does not cover them.
+		// close_range() does this in one call - the fallback loop costs a
+		// syscall per possible descriptor, which is tens of milliseconds
+		// per script once RLIMIT_NOFILE is large (524288 on a PC build).
+#if defined(SYS_close_range)
+		if (syscall(SYS_close_range, 3U, ~0U, 0U) != 0)
+#endif
+		{
+			int maxfd = getdtablesize();
+			for (int i = 3; i < maxfd; i++)
+				close(i);
+		}
+		if (chdir(dir.c_str()) != 0)
+			_exit(127);
+		execv(file.c_str(), argv);
+		// popen() handed everything to /bin/sh, so a script without a
+		// shebang used to run. Keep that working, but through argv rather
+		// than a shell command line, so nothing is re-interpreted.
+		if (errno == ENOEXEC)
+			execv("/bin/sh", shargv);
+		_exit(127);
+	}
+
+	close(fd[1]);
+	const size_t readblocklen = 1024; // chunk size, not an output limit
+	char buf[readblocklen];
+	for (;;) {
+		ssize_t n = read(fd[0], buf, readblocklen);
+		if (n > 0)
+			out.append(buf, (size_t) n);
+		else if (n == 0 || errno != EINTR) // EINTR: keep reading, do not truncate
+			break;
+	}
+	close(fd[0]);
+
+	while (waitpid(pid, NULL, 0) < 0 && errno == EINTR)
+		;
+	return true;
+}
+
 std::string yExecuteScript(std::string cmd) {
 	std::string script, para, result;
 	bool found = false;
+	bool launch_failed = false;
 
 	//aprintf("%s: %s\n", __func__, cmd.c_str());
 
@@ -415,31 +503,91 @@ std::string yExecuteScript(std::string cmd) {
 	std::string fullfilename;
 	script += ".sh"; //add script extension
 
-	char cwd[255];
-	getcwd(cwd, 254);
+	// Build the argument vector here instead of handing the whole command
+	// line to a shell. The parameters come straight from the HTTP query
+	// string; going through popen() meant /bin/sh split the words but also
+	// interpreted metacharacters in them.
+	// Quotes still group and are removed, because Y_Tools_Cmd.yhtm wraps the
+	// typed command in '...' and relied on the shell to undo that. Grouping
+	// is not execution: everything else stays literal, so ';', '|', '$(...)'
+	// and friends reach the script as plain text. Unquoted parameters split
+	// exactly as before - note this does not make paths with spaces work,
+	// since the file manager pages never quote and the scripts re-split
+	// with an unquoted $* anyway.
+	std::vector<std::string> args;
+	size_t a = 0;
+	while (a < para.length()) {
+		a = para.find_first_not_of(" \t", a);
+		if (a == std::string::npos)
+			break;
+		std::string arg;
+		while (a < para.length() && para[a] != ' ' && para[a] != '\t') {
+			char q = para[a];
+			if (q != '\'' && q != '"') {
+				arg += para[a++];
+				continue;
+			}
+			size_t closepos = para.find(q, a + 1);
+			if (closepos == std::string::npos) {
+				// Unbalanced: keep the character literally. Swallowing the
+				// rest would merge the following parameters into this one,
+				// and a lone apostrophe is ordinary in a file name
+				// ("Bob's stuff"). /bin/sh used to reject the whole call.
+				arg += para[a++];
+				continue;
+			}
+			arg += para.substr(a + 1, closepos - (a + 1));
+			a = closepos + 1;
+		}
+		args.push_back(arg);
+	}
+
 	for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT && !found; i++) {
 		fullfilename = CControlAPI::PLUGIN_DIRS[i] + "/" + script;
-		FILE *test = fopen(fullfilename.c_str(), "r"); // use fopen: popen does not work
-		if (test != NULL) {
-			fclose(test);
-			chdir(CControlAPI::PLUGIN_DIRS[i].c_str());
-			FILE *f = popen((fullfilename + " " + para).c_str(), "r"); //execute
-			if (f != NULL) {
-				found = true;
+		// X_OK instead of readability: a script without the execute bit was
+		// counted as found and then returned silently empty output
+		if (access(fullfilename.c_str(), X_OK) != 0)
+			continue;
 
-				char output[1024];
-				while (fgets(output, 1024, f)) // get script output
-					result += output;
-				pclose(f);
-			}
+		// build argv before fork() so the child allocates nothing
+		std::vector<char *> argv;
+		argv.reserve(args.size() + 2);
+		argv.push_back(const_cast<char *>(fullfilename.c_str()));
+		for (size_t k = 0; k < args.size(); k++)
+			argv.push_back(const_cast<char *>(args[k].c_str()));
+		argv.push_back(NULL);
+
+		// same list for the ENOEXEC fallback, prefixed with the shell
+		char shname[] = "sh";
+		std::vector<char *> shargv;
+		shargv.reserve(argv.size() + 1);
+		shargv.push_back(shname);
+		shargv.insert(shargv.end(), argv.begin(), argv.end());
+
+		// the child chdir()s itself; the old code changed the working
+		// directory of the whole threaded process for the call's duration
+		// A failed fork()/pipe() means resource exhaustion, not "wrong
+		// directory": stop instead of running a same-named script from a
+		// later one.
+		if (!yRunNoShell(fullfilename, CControlAPI::PLUGIN_DIRS[i], &argv[0], &shargv[0], result)) {
+			// say what really happened; the script was there, we just
+			// could not start it
+			printf("%s: cannot start %s: %s\n", __func__, fullfilename.c_str(), strerror(errno));
+			launch_failed = true;
+			break;
 		}
+		found = true;
 	}
-	chdir(cwd);
 
 	if (!found) {
-		printf("%s: script %s not found in:\n", __func__, script.c_str());
-		for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT; i++) {
-			printf("\t%s\n", CControlAPI::PLUGIN_DIRS[i].c_str());
+		// only a real lookup miss gets the search-path dump - printing it
+		// after a resource failure would send an operator hunting for a
+		// file that is not missing at all
+		if (!launch_failed) {
+			printf("%s: script %s not found in:\n", __func__, script.c_str());
+			for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT; i++) {
+				printf("\t%s\n", CControlAPI::PLUGIN_DIRS[i].c_str());
+			}
 		}
 		result = "error";
 	}
