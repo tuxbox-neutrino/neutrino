@@ -1307,7 +1307,71 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		CHourGlass hg;
 		hg.paint();
-		sleep(10);
+
+		/* Ten seconds of animation, but waiting for messages instead of
+		 * sleeping through them. A blind sleep() leaves the GUI thread deaf:
+		 * every key is only queued and acted on once it wakes up, so the demo
+		 * cannot be left and looks like a hung box rather than a demo.
+		 * The polling demos further down keep their view up until a key comes;
+		 * this one is meant to end by itself, so the deadline is absolute and
+		 * RC_timeout leaves the loop. That test has to come first: being larger
+		 * than RC_MaxRC, RC_timeout would otherwise go to the application, come
+		 * back unclaimed and then be dropped rather than posted back - and with
+		 * the deadline already passed the next call hands it straight over
+		 * again, so the demo would spin at full CPU instead of ending. */
+		neutrino_msg_t msg;
+		neutrino_msg_data_t data;
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(10);
+		bool loop = true;
+		while (loop) {
+			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
+			/* RC_standby is reported on press (data=0) and on release (data=1),
+			 * and no other key delivers a release here. Without this the release
+			 * would run into the branch below and be reposted as a press, so
+			 * letting go of the key would read as a request to power off.
+			 * CMenuWidget skips it for a related reason. */
+			if (msg == CRCInput::RC_standby && data == 1)
+				continue;
+			if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_ok
+					|| msg == CRCInput::RC_home || CNeutrinoApp::getInstance()->backKey(msg))
+				loop = false;
+			else if (msg == CRCInput::RC_standby || CNeutrinoApp::getInstance()->listModeKey(msg)) {
+				// hand power-off / list-mode back to the main loop: repost and unwind
+				// so we never enter standby with the hourglass still on screen
+				g_RCInput->postMsg(msg, 0);
+				loop = false;
+				res = menu_return::RETURN_EXIT_ALL;
+			}
+			else {
+				/* Everything else goes to the application. What it handles - volume,
+				 * mute - works without leaving the demo. What it does not know is put
+				 * back and ends the demo, the way CHintBox does it: reading a key out
+				 * of the queue and dropping it would lose it for good, where even the
+				 * plain sleep() at least left it queued for afterwards. This is also
+				 * where the long-press variants (msg | RC_Repeat) arrive, as far as
+				 * the tests above do not already cover them.
+				 * Keys only, though: an event nobody claimed - a finished SI scan, a
+				 * timer that belongs to no one - says nothing about what the user
+				 * wants and would end the demo at an arbitrary moment. Those are
+				 * dropped here; with sleep() they stayed queued for whichever loop
+				 * read next - the enclosing menu, which hands them to handleMsg()
+				 * and ignores what comes back, exactly as here. */
+				int handled = CNeutrinoApp::getInstance()->handleMsg(msg, data);
+				if (handled & messages_return::cancel_all) {
+					loop = false;
+					res = menu_return::RETURN_EXIT_ALL;
+				}
+				else if ((handled & messages_return::unhandled) && msg <= CRCInput::RC_MaxRC) {
+					g_RCInput->postMsg(msg, data);
+					loop = false;
+				}
+			}
+		}
+		/* Stop the animation before restoring the background. It is painted from
+		 * its own timer thread, and a tick landing between hide() and the join in
+		 * ~CHourGlass would put the icon back on top of what was just restored -
+		 * the same reason CComponentsInfoBox stops its loader on OnBeforeHide. */
+		hg.stop();
 		hg.hide();
 		return res;
 	}
