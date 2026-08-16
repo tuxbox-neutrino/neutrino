@@ -11,7 +11,7 @@ function do_submit()
 		var app="false";
 		if(document.f.appendx.checked == true)
 			app="true";
-		_url="/control/exec?Y_Tools&cmd&"+document.f.pwd.value +"&"+app+"&'"+ document.f.cmd.value +"'";
+		_url="/control/exec?Y_Tools&cmd&"+document.f.pwd.value +"&"+app+"&"+ document.f.cmd.value;
 		out.location.href = _url;
 		document.f.cmd.value="";
 	}
