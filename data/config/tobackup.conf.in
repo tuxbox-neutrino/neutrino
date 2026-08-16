@@ -1,6 +1,48 @@
 # enter stuff you want to backup here.
 # one file or directory per line
+# prefix entries with "-" to exclude them from broader directory backups
+# wildcard entries are allowed for file patterns
 #
+# @CONFIGDIR@/tuxtxt/			# an example for a complete directory
 # /var/etc/rcS.local			# an example for a single file
-# /var/tuxbox/config/tuxtxt/		# an example for a complete directory
-/var/tuxbox/config/			# old default
+
+@CONFIGDIR@/tobackup.conf
+@CONFIGDIR@/settingsupdate.conf
+@CONFIGDIR@/neutrino.conf
+@CONFIGDIR@/nhttpd.conf
+@CONFIGDIR@/encoding.conf
+@CONFIGDIR@/epglanguages.conf
+@CONFIGDIR@/scan.conf
+@CONFIGDIR@/timerd.conf
+@CONFIGDIR@/weather-favorites.xml
+@CONFIGDIR@/cables.xml
+@CONFIGDIR@/providermap.xml
+@CONFIGDIR@/radio-favorites.xml
+@CONFIGDIR@/radio-stations.xml
+@CONFIGDIR@/satellites.xml
+@CONFIGDIR@/terrestrial.xml
+@CONFIGDIR@/EPGscan.conf
+@CONFIGDIR@/shellexec.conf
+@CONFIGDIR@/stb-startup.conf
+@CONFIGDIR@/auto-record-cleaner.*
+@CONFIGDIR@/pr-auto-timer.*
+@CONFIGDIR@/tuxcal/
+@CONFIGDIR@/tuxmail/
+@CONFIGDIR@/tuxtxt/tuxtxt2.conf
+@CONFIGDIR@/tuxwetter/tuxwetter.conf
+@CONFIGDIR@/tuxwetter/tuxwetter.mcfg
+@ZAPITDIR@/
+@WEBRADIODIR_VAR@/webradio_usr.xml
+@WEBTVDIR_VAR@/webtv_usr.xml
+/var/tuxbox/flex/flex_usr.conf
+/var/tuxbox/plugins/*.cfg
+/var/tuxbox/plugins/*.conf
+/etc/exports
+/etc/hostname
+/etc/hosts
+/etc/network/interfaces
+/etc/profile.local
+/etc/rc.local
+/etc/samba/smb.conf
+
+## additional personal backups below this line
