@@ -257,9 +257,12 @@ do_cmd()
 	app="$2"
 	shift 2
 
-	if [ "$1" = "cd" ]
+	# Only a plain "cd <dir>" takes the shortcut. Anything longer still goes
+	# to the shell, otherwise everything after the directory would be
+	# dropped without a word (e.g. "cd /etc; echo hi").
+	if [ "$1" = "cd" ] && [ $# -eq 2 ]
 	then
-		cd $2
+		cd "$2"
 	else
 		tmp=`$*` #Execute command
 	fi
