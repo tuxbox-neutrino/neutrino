@@ -503,43 +503,32 @@ std::string yExecuteScript(std::string cmd) {
 	std::string fullfilename;
 	script += ".sh"; //add script extension
 
+	// The script name arrives from the same query string as the parameters.
+	// Keep it a bare name so it cannot walk out of the plugin directories.
+	if (script.find('/') != std::string::npos) {
+		printf("%s: refused script name with a path separator: %s\n",
+			__func__, script.c_str());
+		return "error";
+	}
+
 	// Build the argument vector here instead of handing the whole command
 	// line to a shell. The parameters come straight from the HTTP query
 	// string; going through popen() meant /bin/sh split the words but also
-	// interpreted metacharacters in them.
-	// Quotes still group and are removed, because Y_Tools_Cmd.yhtm wraps the
-	// typed command in '...' and relied on the shell to undo that. Grouping
-	// is not execution: everything else stays literal, so ';', '|', '$(...)'
-	// and friends reach the script as plain text. Unquoted parameters split
-	// exactly as before - note this does not make paths with spaces work,
-	// since the file manager pages never quote and the scripts re-split
-	// with an unquoted $* anyway.
+	// interpreted metacharacters in them. Splitting on whitespace only means
+	// ';', '|', '$(...)' and quotes all reach the script as plain text, so an
+	// apostrophe in a file name survives instead of being eaten as a quote.
+	// Callers encode their parameters, so a space still separates arguments.
 	std::vector<std::string> args;
 	size_t a = 0;
 	while (a < para.length()) {
 		a = para.find_first_not_of(" \t", a);
 		if (a == std::string::npos)
 			break;
-		std::string arg;
-		while (a < para.length() && para[a] != ' ' && para[a] != '\t') {
-			char q = para[a];
-			if (q != '\'' && q != '"') {
-				arg += para[a++];
-				continue;
-			}
-			size_t closepos = para.find(q, a + 1);
-			if (closepos == std::string::npos) {
-				// Unbalanced: keep the character literally. Swallowing the
-				// rest would merge the following parameters into this one,
-				// and a lone apostrophe is ordinary in a file name
-				// ("Bob's stuff"). /bin/sh used to reject the whole call.
-				arg += para[a++];
-				continue;
-			}
-			arg += para.substr(a + 1, closepos - (a + 1));
-			a = closepos + 1;
-		}
-		args.push_back(arg);
+		size_t e = para.find_first_of(" \t", a);
+		if (e == std::string::npos)
+			e = para.length();
+		args.push_back(para.substr(a, e - a));
+		a = e;
 	}
 
 	for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT && !found; i++) {
@@ -572,7 +561,10 @@ std::string yExecuteScript(std::string cmd) {
 		if (!yRunNoShell(fullfilename, CControlAPI::PLUGIN_DIRS[i], &argv[0], &shargv[0], result)) {
 			// say what really happened; the script was there, we just
 			// could not start it
-			printf("%s: cannot start %s: %s\n", __func__, fullfilename.c_str(), strerror(errno));
+			// errno number rather than strerror(): nhttpd serves requests in
+			// threads, and strerror() hands out a shared static buffer
+			printf("%s: cannot start %s: errno %d\n", __func__,
+				fullfilename.c_str(), errno);
 			launch_failed = true;
 			break;
 		}
