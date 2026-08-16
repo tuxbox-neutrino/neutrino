@@ -299,6 +299,14 @@ class CCDraw : public COSDFader, public CComponentsSignals, public CCTypes
 
 		///returns paint mode, true=item was painted
 		bool isPainted();
+		/**returns true if this item reserves the area of its saved background
+		 * against painters in other threads. True for an item that sits on the
+		 * screen on its own, because its hide() is what restores those pixels.
+		 * Embedded items say false - their background belongs to the parent
+		 * form, see CComponentsItem.
+		 * @see		CFrameBuffer::addOverlay()
+		*/
+		virtual bool claimsBackgroundArea(){return true;}
 		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form, returns true, if mode has changed, also cleans screnn buffer
 		bool doPaintBg(const bool &do_paint);
 		///allows paint frame around body, default true , NOTE: ignored if frame width = 0

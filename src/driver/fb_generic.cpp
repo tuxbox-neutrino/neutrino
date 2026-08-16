@@ -2149,6 +2149,70 @@ void CFrameBuffer::mark(int , int , int , int )
 {
 }
 
+void CFrameBuffer::addOverlay(const void *owner, int x, int y, int dx, int dy)
+{
+	/* An empty or inverted rectangle covers nothing, and keeping it would only
+	 * produce an entry that never matches anything sensible. */
+	if (dx <= 0 || dy <= 0)
+		return;
+
+	std::lock_guard<std::mutex> lock(overlays_mutex);
+
+	for (size_t i = 0; i < overlays.size(); i++) {
+		if (overlays[i].owner == owner) {
+			overlays[i].x1 = x;
+			overlays[i].y1 = y;
+			overlays[i].x2 = x + dx;
+			overlays[i].y2 = y + dy;
+			return;
+		}
+	}
+
+	overlay_t o;
+	o.owner = owner;
+	o.x1 = x;
+	o.y1 = y;
+	o.x2 = x + dx;
+	o.y2 = y + dy;
+	overlays.push_back(o);
+}
+
+void CFrameBuffer::removeOverlay(const void *owner)
+{
+	std::lock_guard<std::mutex> lock(overlays_mutex);
+
+	for (size_t i = 0; i < overlays.size(); i++) {
+		if (overlays[i].owner == owner) {
+			overlays.erase(overlays.begin() + i);
+			return;
+		}
+	}
+}
+
+bool CFrameBuffer::isObscured(int x, int y, int dx, int dy)
+{
+	/* nothing to cover */
+	if (dx <= 0 || dy <= 0)
+		return false;
+
+	std::lock_guard<std::mutex> lock(overlays_mutex);
+
+	if (overlays.empty())
+		return false;
+
+	const int x2 = x + dx;
+	const int y2 = y + dy;
+
+	for (size_t i = 0; i < overlays.size(); i++) {
+		const overlay_t &o = overlays[i];
+		/* rectangles that share no area are irrelevant */
+		if (o.x2 <= x || o.x1 >= x2 || o.y2 <= y || o.y1 >= y2)
+			continue;
+		return true;
+	}
+	return false;
+}
+
 uint32_t CFrameBuffer::getWidth4FB_HW_ACC(const uint32_t /*x*/, const uint32_t w, const bool /*max*/)
 {
 	return w;

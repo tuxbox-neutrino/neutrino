@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 #include <sigc++/signal.h>
@@ -89,6 +90,15 @@ class CFrameBuffer : public sigc::trackable
 
 		CFrameBuffer();
 		OpenThreads::Mutex mutex;
+
+		/* see addOverlay()/removeOverlay()/isObscured() */
+		struct overlay_t
+		{
+			const void *owner;
+			int x1, y1, x2, y2;
+		};
+		std::vector<overlay_t> overlays;
+		std::mutex overlays_mutex;
 
 		struct rgbData
 		{
@@ -294,6 +304,39 @@ class CFrameBuffer : public sigc::trackable
 		virtual void blitBox2FB(const fb_pixel_t* boxBuf, const uint32_t& width, const uint32_t& height, const uint32_t& xoff, const uint32_t& yoff);
 
 		virtual void mark(int x, int y, int dx, int dy);
+
+		/**
+		 * Registry of overlays that saved the screen underneath themselves.
+		 *
+		 * Such an overlay restores those pixels when it disappears, so anything
+		 * painted into that area meanwhile is thrown away again. Painters that
+		 * run in their own thread - the channel list's EPG painter, clocks -
+		 * cannot see the overlay and would keep drawing into it. They ask
+		 * isObscured() first and skip the paint; the next update draws normally
+		 * once the overlay is gone.
+		 */
+		void addOverlay(const void *owner, int x, int y, int dx, int dy);
+		void removeOverlay(const void *owner);
+		bool isObscured(int x, int y, int dx, int dy);
+
+		/**
+		 * Serialises the two halves of that protocol against each other.
+		 *
+		 * On its own isObscured() only answers for the moment it is asked: a
+		 * foreign painter could see "not covered", then have an overlay snapshot
+		 * the area, and paint afterwards - straight into the snapshot's back.
+		 * The same applies at the other end, between restoring the pixels and
+		 * dropping the registry entry. Both sides therefore hold this lock
+		 * across their whole sequence: snapshot and register, restore and
+		 * deregister, check and paint.
+		 *
+		 * It has to be recursive: the paint primitives inside those sequences
+		 * run through checkFbArea(), which is not a passive test - it paints or
+		 * hides the mute icon, and that is a cc component whose hide() takes
+		 * this very lock again, on the same thread.
+		 */
+		std::recursive_mutex overlay_paint_mutex;
+
 		virtual int scale2Res(int size) { return size; };
 		virtual bool fullHdAvailable() { return false; };
 		virtual void setOsdResolutions();

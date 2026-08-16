@@ -134,6 +134,10 @@ private:
 	int			previous_channellist_additional;
 
 	int			paint_events_index;
+	/* set by the EPG thread when it skipped a paint because something was
+	 * covering the infozone, read by the list loop to make up for it. Both
+	 * sides hold CFrameBuffer::overlay_paint_mutex while touching it. */
+	bool			paint_events_deferred;
 	sem_t			paint_events_sem;
 	pthread_t		paint_events_thr;
 	pthread_mutex_t		paint_events_mutex;

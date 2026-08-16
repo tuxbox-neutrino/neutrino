@@ -148,6 +148,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	descMode = false; // always start with event list
 
 	paint_events_index = -2;
+	paint_events_deferred = false;
 	CFrameBuffer::getInstance()->OnAfterSetPallette.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
 	CNeutrinoApp::getInstance()->OnAfterSetupFonts.connect(sigc::mem_fun(this, &CChannelList::ResetModules));
 }
@@ -641,6 +642,12 @@ int CChannelList::show()
 	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 	CInfoClock::getInstance()->ClearDisplay();
+	/* Before paint(), not after: paint() already wakes the EPG thread, and if
+	 * that thread has to skip its paint we must not drop the note it leaves. */
+	{
+		std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
+		paint_events_deferred = false;
+	}
 	paint();
 
 	int oldselected = selected;
@@ -653,6 +660,28 @@ int CChannelList::show()
 	bool loop=true;
 	bool dont_hide = false;
 	while (loop) {
+		/* Something covering the infozone made a paint of it get skipped. Being
+		 * back in the loop usually means whatever put it there is gone, but not
+		 * always - a timer thread can hold one up - so the area is checked
+		 * again below rather than assumed free. The note is written by the EPG
+		 * thread and by showdescription(), so read and clear it under the lock
+		 * they set it under. */
+		bool repaint_events = false;
+		{
+			std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
+			/* Check everything that can stop the repaint before clearing the
+			 * note - clearing it for a repaint that then does not happen would
+			 * lose it for good. */
+			if (paint_events_deferred
+				&& selected < (*chanlist).size()
+				&& !frameBuffer->isObscured(x + width, y + theight + pig_height, infozone_width, infozone_height)) {
+				paint_events_deferred = false;
+				repaint_events = true;
+			}
+		}
+		if (repaint_events)
+			paintAdditionals(selected);
+
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
@@ -2611,6 +2640,23 @@ void CChannelList::paint_events()
 
 void CChannelList::paint_events(CChannelEventList &evtlist)
 {
+	/* This runs in its own thread, so it cannot see what the GUI thread has put
+	 * on screen meanwhile. If an overlay saved the pixels underneath itself here
+	 * - a hint box while a WebTV stream is being resolved, for instance - then
+	 * everything we paint now is thrown away again when that overlay restores
+	 * its background, and the infozone is left showing the previous channel's
+	 * EPG. Skip the paint and let the list loop make up for it once the overlay
+	 * is gone.
+	 * The check and the painting below share one lock with the overlay side, so
+	 * an overlay cannot appear in between and snapshot a half-painted infozone. */
+	std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
+
+	if (frameBuffer->isObscured(x + width, y + theight + pig_height, infozone_width, infozone_height)) {
+		paint_events_deferred = true;
+		dprintf(DEBUG_INFO, "[CChannelList] %s: infozone is covered, skipping EPG paint\n", __func__);
+		return;
+	}
+
 	ffheight = g_Font[eventFont]->getHeight();
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
@@ -2747,6 +2793,21 @@ void CChannelList::showdescription(int index)
 		processTextToArray(g_Locale->getText(LOCALE_EPGVIEWER_NODETAILED)); // UTF-8
 	else
 		processTextToArray(strEpisode + epgData.info2); // UTF-8
+
+	/* Same area and the same reasoning as in paint_events(): this runs in the
+	 * GUI thread, but an overlay can be put up from a timer thread, and then
+	 * everything painted here would be discarded again by its hide().
+	 * The lock starts here and not at the top of the function on purpose -
+	 * gathering the EPG data above takes a read lock inside the EIT manager
+	 * that the parser thread holds while inserting, and holding a
+	 * framebuffer-wide lock across that would stall every other painter. */
+	std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
+
+	if (frameBuffer->isObscured(x + width, y + theight + pig_height, infozone_width, infozone_height)) {
+		paint_events_deferred = true;
+		dprintf(DEBUG_INFO, "[CChannelList] %s: infozone is covered, skipping description paint\n", __func__);
+		return;
+	}
 
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 	for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)

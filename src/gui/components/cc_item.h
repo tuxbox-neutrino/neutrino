@@ -77,6 +77,8 @@ class CComponentsItem : public CComponents
 		CComponentsForm* getParent() const {return cc_parent;};
 		///property: returns true if item is added to a form
 		bool isAdded();
+		///an embedded item's background belongs to its parent form, see CCDraw::claimsBackgroundArea()
+		bool claimsBackgroundArea(){return cc_parent == NULL;}
 		///indicates wether item has focus
 		bool hasFocus() const {return cc_has_focus;}
 		///set or unset focus of item, stand alone items without parent have always set focus to true, inside of a parent form object, always the last added item has focus

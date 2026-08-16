@@ -96,6 +96,9 @@ CCDraw::~CCDraw()
 	if(cc_draw_timer){
 		delete cc_draw_timer; cc_draw_timer = NULL;
 	}
+	/* Nothing is reserving those pixels any more - and the registry must not
+	 * keep a pointer to an object that is going away. */
+	frameBuffer->removeOverlay(this);
 	clearFbData();
 }
 
@@ -368,6 +371,10 @@ bool CCDraw::clearSavedScreen()
 			}
 		}
 	}
+	/* Without a saved background there is nothing left to restore, so this item
+	 * has no reason to keep other painters out of that area. */
+	if (ret)
+		frameBuffer->removeOverlay(this);
 	return ret;
 }
 
@@ -429,6 +436,9 @@ bool CCDraw::clearScreenBuffer()
 	}
 	if (clearFbGradientData())
 		ret = true;
+
+	/* see clearSavedScreen(): no snapshot, no claim on that area */
+	frameBuffer->removeOverlay(this);
 
 	firstPaint = true;
 	return ret;
@@ -547,7 +557,22 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 			* background.
 			*/
 			if (v_fbdata.at(i).fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
+				/* Taking the snapshot and claiming the area must be one step for
+				 * a painter in another thread: it asks isObscured() under the
+				 * same lock, so it either sees the claim and stays away, or it
+				 * has finished before the snapshot is taken. Without the lock it
+				 * could pass the check here and paint right afterwards - into a
+				 * background that hide() then writes back over it. */
+				std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
 				v_fbdata.at(i).pixbuf = getScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy);
+				/* Only an item that sits on the screen by itself claims its
+				 * area. An embedded child's background belongs to its parent
+				 * form, which restores the whole region anyway - and a child
+				 * outlives its own paint, so its claim could stay behind and
+				 * block that area for good. */
+				if (claimsBackgroundArea())
+					frameBuffer->addOverlay(this, v_fbdata.at(i).x, v_fbdata.at(i).y,
+								v_fbdata.at(i).dx, v_fbdata.at(i).dy);
 				break;
 			}
 		}
@@ -748,16 +773,30 @@ bool CCDraw::isPainted()
 void CCDraw::hide()
 {
 	OnBeforeHide();
-	//restore saved screen background of item if available
-	for(size_t i =0; i< v_fbdata.size() ;i++) {
-		if (v_fbdata.at(i).fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
-			if (v_fbdata.at(i).pixbuf) {
-				//restore screen from backround layer
-				frameBuffer->waitForIdle("CCDraw::hide()");
-				frameBuffer->RestoreScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, v_fbdata.at(i).pixbuf);
-				v_fbdata.at(i).is_painted = false;
+	{
+		/* The area stays claimed until the old pixels are back on screen.
+		 * Deregistering first would let a painter in another thread slip in
+		 * between - its work would be overwritten by the restore below.
+		 * The lock ends before OnAfterHide() so that foreign slot code, which
+		 * may wait on something else, does not run with a framebuffer-wide lock
+		 * held. Note this is a best effort, not a guarantee: reached through a
+		 * paint primitive - checkFbArea() hiding the mute icon - this very
+		 * method runs inside an outer holder of the same lock, and then its
+		 * signals fire under it too. Harmless because the lock is recursive,
+		 * see CFrameBuffer::overlay_paint_mutex. */
+		std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
+		//restore saved screen background of item if available
+		for(size_t i =0; i< v_fbdata.size() ;i++) {
+			if (v_fbdata.at(i).fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
+				if (v_fbdata.at(i).pixbuf) {
+					//restore screen from backround layer
+					frameBuffer->waitForIdle("CCDraw::hide()");
+					frameBuffer->RestoreScreen(v_fbdata.at(i).x, v_fbdata.at(i).y, v_fbdata.at(i).dx, v_fbdata.at(i).dy, v_fbdata.at(i).pixbuf);
+					v_fbdata.at(i).is_painted = false;
+				}
 			}
 		}
+		frameBuffer->removeOverlay(this);
 	}
 	firstPaint = true;
 	is_painted = false;
@@ -773,43 +812,67 @@ void CCDraw::kill(const fb_pixel_t& bg_color, const int& corner_radius, const in
 	if (fblayer_type & ~CC_FBDATA_TYPES)
 		layers = CC_FBDATA_TYPES;
 
-	for(size_t i =0; i< v_fbdata.size() ;i++){
-		if (v_fbdata.at(i).fbdata_type & layers){
+	/* Painting over the item and giving its area up is one step, held against
+	 * painters in other threads for the same reason hide() does it: one of them
+	 * could otherwise pass its check in the gap and have its work erased by the
+	 * loop below, with nothing noting that a repaint is owed.
+	 * The claim is dropped only for a kill() that takes the whole item down. A
+	 * partial one (killShadow()) leaves it on screen with its background still
+	 * valid, so the area stays reserved.
+	 * The saved background survives either way: kill() deliberately leaves the
+	 * BGSCREEN layer alone (CC_FBDATA_TYPES does not contain it), and
+	 * CComponentsDetailsLine relies on that - its paint() starts with hide() to
+	 * clear its previous position. That leaves one narrow gap: a hide() right
+	 * after a kill(), with no paint() in between, restores the old snapshot over
+	 * an area nobody was keeping free. That is how it behaved before this
+	 * protocol existed; the alternative - keeping the claim - would reserve the
+	 * area of every killed item until it is destroyed, and some live for the
+	 * whole session.
+	 * The lock ends before OnAfterKill(), see hide() for that reasoning. */
+	{
+		std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
+		const bool whole_item = (layers == CC_FBDATA_TYPES);
 
-			int r = 0;
+		for(size_t i =0; i< v_fbdata.size() ;i++){
+			if (v_fbdata.at(i).fbdata_type & layers){
 
-			if (corner_radius > -1){
-				r = v_fbdata.at(i).r;
-				if (corner_radius != v_fbdata.at(i).r)
-					r = corner_radius;
-			}
+				int r = 0;
 
-			if (v_fbdata.at(i).dx > 0 && v_fbdata.at(i).dy > 0){
-				if (v_fbdata.at(i).fbdata_type & (CC_FBDATA_TYPE_BOX | CC_FBDATA_TYPE_SHADOW_BOX) && v_fbdata.at(i).enabled){
-					frameBuffer->paintBoxRel(v_fbdata.at(i).x,
-								v_fbdata.at(i).y,
-								v_fbdata.at(i).dx,
-								v_fbdata.at(i).dy,
-								bg_color,
-								r,
-								v_fbdata.at(i).rtype);
+				if (corner_radius > -1){
+					r = v_fbdata.at(i).r;
+					if (corner_radius != v_fbdata.at(i).r)
+						r = corner_radius;
 				}
-				if (v_fbdata.at(i).fbdata_type & CC_FBDATA_TYPE_FRAME){
-					if (v_fbdata.at(i).frame_thickness)
-							frameBuffer->paintBoxFrame(v_fbdata.at(i).x,
-										v_fbdata.at(i).y,
-										v_fbdata.at(i).dx,
-										v_fbdata.at(i).dy,
-										v_fbdata.at(i).frame_thickness,
-										bg_color,
-										v_fbdata.at(i).r,
-										v_fbdata.at(i).rtype);
-					}
-			}else
-				dprintf(DEBUG_DEBUG, "\033[33m[CCDraw]\t[%s - %d] WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata.at(i).dx, v_fbdata.at(i).dy );
 
-			v_fbdata.at(i).is_painted = false;
+				if (v_fbdata.at(i).dx > 0 && v_fbdata.at(i).dy > 0){
+					if (v_fbdata.at(i).fbdata_type & (CC_FBDATA_TYPE_BOX | CC_FBDATA_TYPE_SHADOW_BOX) && v_fbdata.at(i).enabled){
+						frameBuffer->paintBoxRel(v_fbdata.at(i).x,
+									v_fbdata.at(i).y,
+									v_fbdata.at(i).dx,
+									v_fbdata.at(i).dy,
+									bg_color,
+									r,
+									v_fbdata.at(i).rtype);
+					}
+					if (v_fbdata.at(i).fbdata_type & CC_FBDATA_TYPE_FRAME){
+						if (v_fbdata.at(i).frame_thickness)
+								frameBuffer->paintBoxFrame(v_fbdata.at(i).x,
+											v_fbdata.at(i).y,
+											v_fbdata.at(i).dx,
+											v_fbdata.at(i).dy,
+											v_fbdata.at(i).frame_thickness,
+											bg_color,
+											v_fbdata.at(i).r,
+											v_fbdata.at(i).rtype);
+						}
+				}else
+					dprintf(DEBUG_DEBUG, "\033[33m[CCDraw]\t[%s - %d] WARNING! render with bad dimensions [dx = %d dy = %d]\033[0m\n", __func__, __LINE__, v_fbdata.at(i).dx, v_fbdata.at(i).dy );
+
+				v_fbdata.at(i).is_painted = false;
+			}
 		}
+		if (whole_item)
+			frameBuffer->removeOverlay(this);
 	}
 
 	firstPaint = true;

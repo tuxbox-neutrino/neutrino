@@ -46,6 +46,29 @@ class CAudioMute : public CComponentsPicture
 		void enableMuteIcon(bool enable);
 
 		bool getStatus(void) { return do_paint_mute_icon; }
+
+		/**The mute icon deliberately does NOT reserve its area against other
+		 * painters, and this is a trade-off, not a claim that it is safe.
+		 *
+		 * Reserving it would be worse: the icon sits in the top right corner and
+		 * stays there for as long as the box is muted, so it could permanently
+		 * stop the channel list from drawing its EPG infozone - an area that is
+		 * never given back, which the deferred-repaint path cannot recover from
+		 * either.
+		 *
+		 * Not reserving it leaves the icon on the older mechanism,
+		 * CFrameBuffer::checkFbArea(), which takes it down before a foreign
+		 * paint and puts it back afterwards. That mechanism guards itself with a
+		 * plain fb_no_check flag rather than a lock, so with two threads painting
+		 * it can still miss a paint and restore a stale icon background. That
+		 * race predates this protocol, but note it does get a wider window:
+		 * fb_no_check stays set across CAudioMute::hide(), and that call can now
+		 * wait for overlay_paint_mutex - for as long as another thread is
+		 * painting under it. While it waits, other painters skip the icon
+		 * handling. The result is a stale mute icon, nothing more.
+		 * @see		CFrameBuffer::addOverlay()
+		*/
+		bool claimsBackgroundArea(){return false;}
 };
 
 #endif // __CAUDIOMUTE__

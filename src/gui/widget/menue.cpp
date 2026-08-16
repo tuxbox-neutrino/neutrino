@@ -727,6 +727,8 @@ void CMenuWidget::setPos(int X, int Y)
 
 CMenuWidget::~CMenuWidget()
 {
+	/* the registry must not keep a pointer to an object that is going away */
+	frameBuffer->removeOverlay(this);
 	resetWidget(true);
 	ResetModules();
 }
@@ -1168,6 +1170,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	if (background) {
 		delete[] background;
 		background = NULL;
+		/* no snapshot left to restore, so nothing is reserved any more */
+		frameBuffer->removeOverlay(this);
 	}
 
 	fader.StopFade();
@@ -1424,6 +1428,18 @@ void CMenuWidget::paint()
 			ResetModules();
 	}
 
+	/* saveScreen() runs once per exec(), but the menu goes down and comes back
+	 * up in between - entering a submenu starts with parent->hide(), and coming
+	 * back repaints. hide() gave the area back, so claim it again here: the
+	 * saved background is still the one restoreScreen() will write back, over
+	 * exactly this rectangle, so anything painted into it meanwhile would be
+	 * lost. Under the lock like every other change to the registry, so a painter
+	 * cannot be halfway through its check while we claim. */
+	if (savescreen && background) {
+		std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
+		frameBuffer->addOverlay(this, saveScreen_x, saveScreen_y, saveScreen_width, saveScreen_height);
+	}
+
 	if (CInfoClock::getInstance()->isRun())
 		CInfoClock::getInstance()->block();
 
@@ -1663,15 +1679,28 @@ void CMenuWidget::saveScreen()
 	saveScreen_y = y;
 	saveScreen_x = x;
 	background = new fb_pixel_t [saveScreen_height * saveScreen_width];
-	if(background)
+	if(background) {
+		/* Same protocol as the cc components use: taking the snapshot and
+		 * claiming the area is one step, so a painter running in another
+		 * thread - the channel list paints its EPG infozone that way, and the
+		 * context menu can sit right on top of it - either stays away or has
+		 * finished before we save. Otherwise restoreScreen() would put the old
+		 * pixels back over its work. */
+		std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
 		frameBuffer->SaveScreen(saveScreen_x, saveScreen_y, saveScreen_width, saveScreen_height, background);
+		frameBuffer->addOverlay(this, saveScreen_x, saveScreen_y, saveScreen_width, saveScreen_height);
+	}
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
-		if(savescreen)
+		if(savescreen) {
+			/* the area stays claimed until the old pixels are back, see saveScreen() */
+			std::lock_guard<std::recursive_mutex> lock(frameBuffer->overlay_paint_mutex);
 			frameBuffer->RestoreScreen(saveScreen_x, saveScreen_y, saveScreen_width, saveScreen_height, background);
+			frameBuffer->removeOverlay(this);
+		}
 	}
 }
 
@@ -1681,6 +1710,7 @@ void CMenuWidget::enableSaveScreen(bool enable)
 	if (!enable && background) {
 		delete[] background;
 		background = NULL;
+		frameBuffer->removeOverlay(this);
 		saveScreen_width = 0;
 		saveScreen_height = 0;
 		saveScreen_y = 0;
