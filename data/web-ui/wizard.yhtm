@@ -60,7 +60,6 @@
 		<button type="button" class="yweb-btn primary" id="wizGo" style="width:100%" onclick="wizFinish(this)">{=L:yw.wiz.finish=}</button>
 	</main>
 
-	<script src="/Y_Baselib.js"></script>
 	<script>
 		// Remember the active language so we only switch when it changes
 		// (switching triggers a webserver config reload on the box).
