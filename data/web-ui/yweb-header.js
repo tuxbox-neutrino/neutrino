@@ -1898,7 +1898,7 @@ async function ywebDiscoverExtensions() {
 				var ckBase = ('ext_' + m.dir).replace(/-/g, '_bind_');
 				m.enabled = (yCfg[ckBase + '_enabled'] === '1');
 				m.slot = yCfg[ckBase + '_slot'] || m.slot || 'tools';
-				m.url = m.entry ? ('/extensions/' + m.dir + '/' + m.entry) : '';
+				m.url = m.entry ? ('/extensions/' + encodeURIComponent(m.dir) + '/' + encodeURIComponent(m.entry)) : '';
 				// Load the language pack for enabled extensions only;
 				// reserved keys translate name/description
 				if (m.enabled) {
@@ -1943,7 +1943,7 @@ async function ywebInjectExtensions(pageName) {
 			var ul = document.querySelector('.yweb-nav-links');
 			if (ul) {
 				var li = document.createElement('li');
-				li.innerHTML = '<a href="' + m.url + '" data-page="ext-' + m.dir + '">' + escapeHtml(m.name) + '</a>';
+				li.innerHTML = '<a href="' + escapeHtml(m.url) + '" data-page="ext-' + escapeHtml(m.dir) + '">' + escapeHtml(m.name) + '</a>';
 				ul.appendChild(li);
 			}
 		} else if (m.slot === 'tools') {
@@ -1962,7 +1962,7 @@ async function ywebInjectExtensions(pageName) {
 				var card = document.createElement('div');
 				card.className = 'yweb-card';
 				card.innerHTML = '<h3>' + escapeHtml(m.name) + '</h3>' +
-					'<p><a href="' + m.url + '">' + escapeHtml(m.description || ywebL('ext.open', 'Open extension')) + '</a></p>';
+					'<p><a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.description || ywebL('ext.open', 'Open extension')) + '</a></p>';
 				dash.appendChild(card);
 			}
 		}
