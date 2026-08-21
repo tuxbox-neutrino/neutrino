@@ -1411,10 +1411,11 @@
 			}
 			setText('system-preview', sysPreviewParts.join(' · ') || '--');
 
-			// Box name from hostname (sysinfo gives real hostname)
+			// Box name from hostname (sysinfo gives real hostname);
+			// keep the previous text when neither field is present
 			if (data.box && data.box.name) {
 				setText('sys-box', data.box.name);
-			} else {
+			} else if (data.hostname) {
 				setText('sys-box', data.hostname);
 			}
 
