@@ -708,15 +708,21 @@ function ywebGetRemoteHTML(opts) {
 		return YWEB_CONFIG.remoteRenderer(opts);
 	}
 
-	function btn(cls, key, label, extra) {
-		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + (label || key) + '"' + (extra || '') + '>' + label + '</button>';
+	function btn(cls, key, label, title) {
+		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + escapeHtml(title || label || key) + '">' + escapeHtml(label) + '</button>';
 	}
-	function iconBtn(cls, key, title, svg, extra) {
-		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + title + '" aria-label="' + title + '"' + (extra || '') + '>' +
+	function iconBtn(cls, key, title, svg) {
+		var t = escapeHtml(title);
+		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + t + '" aria-label="' + t + '">' +
 			svg.replace('<svg ', '<svg aria-hidden="true" focusable="false" ') + '</button>';
 	}
-	function repBtn(cls, key, label) {
-		return '<button type="button" class="yweb-rc-btn ' + cls + '" title="' + (label || key) + '" data-rc-repeat="1" data-rc-key="' + key + '">' + label + '</button>';
+	function repBtn(cls, key, label, title) {
+		var t = escapeHtml(title || label || key);
+		return '<button type="button" class="yweb-rc-btn ' + cls + '" title="' + t + '" aria-label="' + t + '" data-rc-repeat="1" data-rc-key="' + key + '">' + escapeHtml(label) + '</button>';
+	}
+	function colorBtn(cls, key, title) {
+		var t = escapeHtml(title);
+		return '<button type="button" class="yweb-rc-color ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + t + '" aria-label="' + t + '"></button>';
 	}
 
 	var svgUp = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>';
@@ -730,65 +736,65 @@ function ywebGetRemoteHTML(opts) {
 
 		/* Zone A: Power / Mute */
 		'<div class="yweb-rc-row yweb-rc-top">' +
-			iconBtn('yweb-rc-power', 'KEY_POWER', 'Power', svgPower) +
-			iconBtn('', 'KEY_MUTE', 'Mute', svgMute) +
+			iconBtn('yweb-rc-power', 'KEY_POWER', ywebL('rc.power', 'Power'), svgPower) +
+			iconBtn('', 'KEY_MUTE', ywebL('rc.mute', 'Mute'), svgMute) +
 		'</div>' +
 
 		/* Zone B: Core thumb zone (VOL | D-Pad | CH) */
 		'<div class="yweb-rc-core">' +
 			'<div class="yweb-rc-rocker">' +
 				'<span class="yweb-rc-rocker-label">VOL</span>' +
-				repBtn('yweb-rc-rocker-top', 'KEY_VOLUMEUP', '+') +
-				repBtn('yweb-rc-rocker-bot', 'KEY_VOLUMEDOWN', '\u2212') +
+				repBtn('yweb-rc-rocker-top', 'KEY_VOLUMEUP', '+', ywebL('rc.vol_up', 'Volume up')) +
+				repBtn('yweb-rc-rocker-bot', 'KEY_VOLUMEDOWN', '\u2212', ywebL('rc.vol_down', 'Volume down')) +
 			'</div>' +
 			'<div class="yweb-rc-dpad">' +
-				'<div></div>' + iconBtn('yweb-rc-arrow', 'KEY_UP', 'Up', svgUp) + '<div></div>' +
-				iconBtn('yweb-rc-arrow', 'KEY_LEFT', 'Left', svgLeft) +
-				btn('yweb-rc-ok', 'KEY_OK', 'OK') +
-				iconBtn('yweb-rc-arrow', 'KEY_RIGHT', 'Right', svgRight) +
-				'<div></div>' + iconBtn('yweb-rc-arrow', 'KEY_DOWN', 'Down', svgDown) + '<div></div>' +
+				'<div></div>' + iconBtn('yweb-rc-arrow', 'KEY_UP', ywebL('rc.up', 'Up'), svgUp) + '<div></div>' +
+				iconBtn('yweb-rc-arrow', 'KEY_LEFT', ywebL('rc.left', 'Left'), svgLeft) +
+				btn('yweb-rc-ok', 'KEY_OK', 'OK', ywebL('rc.ok', 'OK')) +
+				iconBtn('yweb-rc-arrow', 'KEY_RIGHT', ywebL('rc.right', 'Right'), svgRight) +
+				'<div></div>' + iconBtn('yweb-rc-arrow', 'KEY_DOWN', ywebL('rc.down', 'Down'), svgDown) + '<div></div>' +
 			'</div>' +
 			'<div class="yweb-rc-rocker">' +
 				'<span class="yweb-rc-rocker-label">CH</span>' +
-				repBtn('yweb-rc-rocker-top', 'KEY_PAGEUP', '+') +
-				repBtn('yweb-rc-rocker-bot', 'KEY_PAGEDOWN', '\u2212') +
+				repBtn('yweb-rc-rocker-top', 'KEY_PAGEUP', '+', ywebL('rc.ch_up', 'Channel up')) +
+				repBtn('yweb-rc-rocker-bot', 'KEY_PAGEDOWN', '\u2212', ywebL('rc.ch_down', 'Channel down')) +
 			'</div>' +
 		'</div>' +
 
 		/* Zone C: Navigation */
 		'<div class="yweb-rc-row yweb-rc-nav">' +
-			btn('yweb-rc-func', 'KEY_EXIT', 'Back') +
-			btn('yweb-rc-func', 'KEY_HOME', 'Home') +
-			btn('yweb-rc-func', 'KEY_SETUP', 'Menu') +
-			btn('yweb-rc-func', 'KEY_HELP', 'Info') +
+			btn('yweb-rc-func', 'KEY_EXIT', 'Back', ywebL('rc.back', 'Back')) +
+			btn('yweb-rc-func', 'KEY_HOME', 'Home', ywebL('rc.home', 'Home')) +
+			btn('yweb-rc-func', 'KEY_SETUP', 'Menu', ywebL('rc.menu', 'Menu')) +
+			btn('yweb-rc-func', 'KEY_HELP', 'Info', ywebL('rc.info', 'Info')) +
 		'</div>' +
 
 		/* Zone D: Media */
 		'<div class="yweb-rc-row yweb-rc-media">' +
-			iconBtn('', 'KEY_REWIND', 'Rewind', '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4"/><polygon points="14 20 4 12 14 4"/></svg>') +
-			iconBtn('', 'KEY_PLAY', 'Play', '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>') +
-			iconBtn('', 'KEY_FORWARD', 'Forward', '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20"/><polygon points="10 4 20 12 10 20"/></svg>') +
-			iconBtn('', 'KEY_STOP', 'Stop', '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>') +
+			iconBtn('', 'KEY_REWIND', ywebL('rc.rewind', 'Rewind'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4"/><polygon points="14 20 4 12 14 4"/></svg>') +
+			iconBtn('', 'KEY_PLAY', ywebL('rc.play', 'Play'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>') +
+			iconBtn('', 'KEY_FORWARD', ywebL('rc.forward', 'Forward'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20"/><polygon points="10 4 20 12 10 20"/></svg>') +
+			iconBtn('', 'KEY_STOP', ywebL('rc.stop', 'Stop'), '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>') +
 		'</div>' +
 
 		/* Zone E: Colour keys (always visible) */
 		'<div class="yweb-rc-row yweb-rc-colors">' +
-			'<button type="button" class="yweb-rc-color yweb-rc-red" onclick="' + onKey + "('KEY_RED')\" title=\"Rot\" aria-label=\"Rot\"></button>" +
-			'<button type="button" class="yweb-rc-color yweb-rc-green" onclick="' + onKey + "('KEY_GREEN')\" title=\"Gruen\" aria-label=\"Gruen\"></button>" +
-			'<button type="button" class="yweb-rc-color yweb-rc-yellow" onclick="' + onKey + "('KEY_YELLOW')\" title=\"Gelb\" aria-label=\"Gelb\"></button>" +
-			'<button type="button" class="yweb-rc-color yweb-rc-blue" onclick="' + onKey + "('KEY_BLUE')\" title=\"Blau\" aria-label=\"Blau\"></button>" +
+			colorBtn('yweb-rc-red', 'KEY_RED', ywebL('rc.red', 'Red')) +
+			colorBtn('yweb-rc-green', 'KEY_GREEN', ywebL('rc.green', 'Green')) +
+			colorBtn('yweb-rc-yellow', 'KEY_YELLOW', ywebL('rc.yellow', 'Yellow')) +
+			colorBtn('yweb-rc-blue', 'KEY_BLUE', ywebL('rc.blue', 'Blue')) +
 		'</div>' +
 
 		/* Zone F: EPG / Text / Fav / Timer (always visible) */
 		'<div class="yweb-rc-row yweb-rc-nav">' +
-			btn('yweb-rc-func', 'KEY_EPG', 'EPG') +
-			btn('yweb-rc-func', 'KEY_TEXT', 'Text') +
+			btn('yweb-rc-func', 'KEY_EPG', 'EPG', ywebL('rc.epg', 'EPG')) +
+			btn('yweb-rc-func', 'KEY_TEXT', 'Text', ywebL('rc.text', 'Teletext')) +
 			btn('yweb-rc-func', 'KEY_FAVORITES', ywebL('rc.fav', 'Fav')) +
 			btn('yweb-rc-func', 'KEY_TIME', ywebL('rc.time', 'Timer')) +
 		'</div>' +
 
 		/* Numpad trigger — reveals the numpad sheet on every viewport */
-		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="Numpad" aria-expanded="false" onclick="ywebToggleRcSheet(\'' + id + '\')">123' +
+		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="' + escapeHtml(ywebL('rc.numpad', 'Numpad')) + '" aria-expanded="false" onclick="ywebToggleRcSheet(\'' + id + '\')">123' +
 			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false"><polyline points="6 9 12 15 18 9"/></svg>' +
 		'</button>' +
 

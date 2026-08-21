@@ -479,8 +479,8 @@
 		</div>
 	</div>
 
-	<script src="/Y_Lang.yjs?v=15"></script>
-	<script src="/yweb-header.js?v=48"></script>
+	<script src="/Y_Lang.yjs?v=16"></script>
+	<script src="/yweb-header.js?v=49"></script>
 	<script>
 		// Configuration
 		const MINUTES_PER_SLOT = 30;
