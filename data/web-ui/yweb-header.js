@@ -1290,7 +1290,7 @@ async function ywebShowEpgModal(channelId, channelName) {
 
 	// Store channel info for action buttons
 	ywebEpgModalChannelId = channelId;
-	ywebEpgModalChannelName = channelName || 'Sendung';
+	ywebEpgModalChannelName = channelName || ywebL('epg.programme', 'Programme');
 	ywebEpgModalStartSec = 0;
 	ywebEpgModalStopSec = 0;
 
@@ -1953,7 +1953,7 @@ async function ywebInjectExtensions(pageName) {
 				a.href = m.url;
 				a.className = 'yweb-tool-card';
 				a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4.5 4.4 1 6.6-5.5-3-5.5 3 1-6.6L3 9l6-1z"/></svg>' +
-					'<span>' + escapeHtml(m.name) + '</span><small>' + escapeHtml(m.description || 'Erweiterung') + '</small>';
+					'<span>' + escapeHtml(m.name) + '</span><small>' + escapeHtml(m.description || ywebL('ext.extension', 'Extension')) + '</small>';
 				grid.appendChild(a);
 			}
 		} else if (m.slot === 'dashboard') {
@@ -1962,7 +1962,7 @@ async function ywebInjectExtensions(pageName) {
 				var card = document.createElement('div');
 				card.className = 'yweb-card';
 				card.innerHTML = '<h3>' + escapeHtml(m.name) + '</h3>' +
-					'<p><a href="' + m.url + '">' + escapeHtml(m.description || 'Erweiterung oeffnen') + '</a></p>';
+					'<p><a href="' + m.url + '">' + escapeHtml(m.description || ywebL('ext.open', 'Open extension')) + '</a></p>';
 				dash.appendChild(card);
 			}
 		}

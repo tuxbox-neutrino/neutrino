@@ -728,7 +728,7 @@
 				const pct = total > 0 ? Math.round(used * 100 / total) + '%' : '';
 
 				if (total > 0) {
-					document.getElementById('diskInfo').textContent = formatFileSize(free) + ' frei / ' + formatFileSize(total) + ' (' + pct + ')';
+					document.getElementById('diskInfo').textContent = formatFileSize(free) + ' {=L:yw.fm.free=} / ' + formatFileSize(total) + ' (' + pct + ')';
 				}
 			} catch (e) {
 				// ignore

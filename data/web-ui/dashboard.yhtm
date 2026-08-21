@@ -1187,7 +1187,7 @@
 
 	<footer class="yweb-footer">
 		yWeb <span id="yweb-version">--</span> ·
-		<a href="#" onclick="ywebShowAbout(); return false;">Über</a> ·
+		<a href="#" onclick="ywebShowAbout(); return false;">{=L:yw.about.link=}</a> ·
 		<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
 	</footer>
 
@@ -1352,7 +1352,7 @@
 			if (data.cpu && data.cpu.percent !== undefined) {
 				const pct = data.cpu.percent;
 				$('#cpu-percent').text(pct + '%');
-				$('#cpu-load').text(data.cpu.cores + ' Kerne');
+				$('#cpu-load').text(data.cpu.cores + ' {=L:yw.dash.cores=}');
 				updateGauge('gauge-cpu', pct);
 			} else if (data.load && data.load.length >= 1) {
 				// Fallback to load average if cpu.percent not available
@@ -1375,7 +1375,7 @@
 			if (data.disk) {
 				const pct = data.disk.percent || 0;
 				$('#disk-percent').text(pct + '%');
-				$('#disk-info').text(formatKB(data.disk.free) + ' frei');
+				$('#disk-info').text(formatKB(data.disk.free) + ' {=L:yw.dash.free=}');
 				updateGauge('gauge-disk', pct);
 			}
 
@@ -1440,7 +1440,7 @@
 						'<div class="yweb-net-icon">' + icon + '</div>' +
 						'<div class="yweb-net-info">' +
 							'<div class="yweb-net-name">' + iface.name + '</div>' +
-							'<div class="yweb-net-ip">' + (iface.ip || 'keine IP') + '</div>' +
+							'<div class="yweb-net-ip">' + (iface.ip || '{=L:yw.dash.no_ip=}') + '</div>' +
 							(macStr ? '<div class="yweb-net-mac">' + macStr + '</div>' : '') +
 						'</div>' +
 						'<div class="yweb-net-status ' + (iface.up ? 'up' : '') + '"></div>' +

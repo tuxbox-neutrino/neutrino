@@ -713,7 +713,7 @@
 		btn.disabled = true;
 		try {
 			await ywebApi('config', 'config=' + cfgName + '&' + params);
-			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
+			ywebShowToast(changed + ' ' + (changed > 1 ? '{=L:yw.set.saved_many=}' : '{=L:yw.set.saved_one=}'));
 			await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
 		} catch (e) {
 			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
@@ -801,7 +801,7 @@
 		var html = '';
 		if (!exts.length) {
 			html = '<div class="yweb-form-row"><label>{=L:yw.set.ext_none=} ' +
-				'<small style="color:var(--pico-muted-color)">Verzeichnis: &lt;webroot&gt;/extensions/&lt;name&gt;/manifest.json — siehe README</small></label></div>';
+				'<small style="color:var(--pico-muted-color)">{=L:yw.set.ext_dir_hint=}</small></label></div>';
 		} else {
 			// 4-column grid with a header row — slot selects, toggles and
 			// action buttons of all extensions align per column
@@ -1256,7 +1256,7 @@
 		try {
 			await ywebApi('reloadplugins');
 			await loadPluginsPanel();
-			ywebShowToast('Plugin-Liste neu geladen');
+			ywebShowToast('{=L:yw.set.plugins_reloaded=}');
 		} catch (e) {
 			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
@@ -1484,7 +1484,7 @@
 
 		try {
 			await ywebApi('config', 'config=neutrino&' + params);
-			ywebShowToast(changed + ' Einstellung' + (changed > 1 ? 'en' : '') + ' gespeichert');
+			ywebShowToast(changed + ' ' + (changed > 1 ? '{=L:yw.set.saved_many=}' : '{=L:yw.set.saved_one=}'));
 			await loadSettings();
 		} catch (e) {
 			ywebShowToast('{=L:yw.tm.save_fail=}', true);
