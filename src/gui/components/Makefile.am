@@ -37,6 +37,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_frm_slider.cpp \
 	cc_frm_window.cpp \
 	cc_input_buffer.cpp \
+	cc_input_field.cpp \
 	cc_item.cpp \
 	cc_item_infobox.cpp \
 	cc_item_picture.cpp \
