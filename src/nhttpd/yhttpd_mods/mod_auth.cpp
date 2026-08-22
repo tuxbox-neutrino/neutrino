@@ -41,8 +41,8 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 				"text-align:center}h1{font-size:1.3rem}p{color:#8891a4}"
 				"a{color:#fd6d13}</style></head><body><main>"
 				"<h1>Logged out &mdash; Abgemeldet</h1>"
-				"<p>Dismiss the login prompt with Cancel/Esc.<br>"
-				"Den Anmeldedialog mit Abbrechen/Esc schlie&szlig;en.</p>"
+				"<p>The browser will ask for the login again on the next access.<br>"
+				"Der Browser fragt beim n&auml;chsten Zugriff erneut nach der Anmeldung.</p>"
 				"<p><a href=\"/\">Log in again &mdash; Erneut anmelden</a></p>"
 				"</main></body></html>");
 			return HANDLED_ERROR;
