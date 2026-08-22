@@ -48,7 +48,19 @@ std::string CCInputBuffer::utf8ToGlyph(const char *&text)
 		{
 			text++;
 			if (((*text) & 0xc0) != 0x80)
+			{
+				/* Not a continuation byte - the sequence ends
+				 * early. Step back so this function always
+				 * leaves the pointer ON the last consumed
+				 * byte: the caller advances by one itself, and
+				 * without the step back that advance would
+				 * jump over this byte - past the terminator
+				 * when a truncated lead byte ends the string,
+				 * and while (*cursor) would then read beyond
+				 * the buffer. */
+				text--;
 				break;
+			}
 			glyph += *text;
 		}
 	}
