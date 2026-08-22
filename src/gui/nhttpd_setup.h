@@ -42,9 +42,12 @@ class CNhttpdSetup : public CMenuTarget, public CChangeObserver
 		std::string host;
 		std::string username;
 		std::string password;
+		std::string password_mask;
 		std::string no_auth_client;
 		std::string ssl_pemfile;
 		std::string ssl_ca_file;
+
+		CMenuForwarder *pass_fwd;
 
 		CGenericMenuActivate auth_items;
 		CGenericMenuActivate ssl_items;

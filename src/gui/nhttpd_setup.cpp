@@ -65,6 +65,7 @@ CNhttpdSetup::CNhttpdSetup()
 	, no_auth_client("")
 	, ssl_pemfile(SSL_PEMFILE)
 	, ssl_ca_file(SSL_CA_FILE)
+	, pass_fwd(NULL)
 {
 }
 
@@ -96,6 +97,8 @@ void CNhttpdSetup::loadConfig()
 	username = config.getString("mod_auth.username", AUTHUSER);
 	password = config.getString("mod_auth.password", AUTHPASSWORD);
 	no_auth_client = config.getString("mod_auth.no_auth_client", "");
+	// fixed-width mask so the menu neither shows the password nor its length
+	password_mask = password.empty() ? "" : "********";
 
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	ssl_enabled = config.getBool("WebsiteMain.ssl", false) ? 1 : 0;
@@ -147,6 +150,12 @@ bool CNhttpdSetup::changeNotify(const neutrino_locale_t OptionName, void * /*Dat
 {
 	if (OptionName == LOCALE_NETWORKMENU_HTTPD_AUTH)
 		auth_items.Activate(auth_enabled != 0);
+	else if (OptionName == LOCALE_NETWORKMENU_HTTPD_PASS)
+	{
+		password_mask = password.empty() ? "" : "********";
+		if (pass_fwd)
+			pass_fwd->setOption(password_mask);
+	}
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	else if (OptionName == LOCALE_NETWORKMENU_HTTPD_SSL)
 		ssl_items.Activate(ssl_enabled != 0);
@@ -195,10 +204,12 @@ int CNhttpdSetup::showSetup()
 	auth_items.Add(user_fwd);
 	menu->addItem(user_fwd);
 
-	CKeyboardInput pass_input(LOCALE_NETWORKMENU_HTTPD_PASS, &password);
+	CKeyboardInput pass_input(LOCALE_NETWORKMENU_HTTPD_PASS, &password, 0, this);
 	pass_input.setMasked(true);
-	/* no text of its own: the row shows the masked value of the input */
-	CMenuForwarder *pass_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_PASS, auth_enabled != 0, NULL, &pass_input);
+	// masked copy as option: CMenuForwarder binds empty options by value,
+	// so updates go through setOption() in changeNotify()
+	pass_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_PASS, auth_enabled != 0, password_mask, &pass_input);
+	pass_fwd->setOption(password_mask);
 	pass_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_PASS);
 	auth_items.Add(pass_fwd);
 	menu->addItem(pass_fwd);
@@ -245,6 +256,7 @@ int CNhttpdSetup::showSetup()
 
 	int res = menu->exec(NULL, "");
 	delete menu;
+	pass_fwd = NULL;
 
 	auth_items.Clear();
 	ssl_items.Clear();
