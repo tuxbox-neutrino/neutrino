@@ -277,12 +277,15 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 	result = string_printf(HTTP_PROTOCOL " %d %s\r\nContent-Type: %s\r\n", httpStatus, responseString, ResponseMimeType.c_str());
 	log_level_printf(2, "Response: HTTP/1.1 %d %s\r\nContent-Type: %s\r\n", httpStatus, responseString, ResponseMimeType.c_str());
 
-	switch (httpStatus) {
-	case HTTP_UNAUTHORIZED:
+	// 401 must still run through the default arm below: it carries the
+	// header terminator, Connection and Content-Length — without them the
+	// response is malformed and any 401 body is undefined behaviour
+	if (httpStatus == HTTP_UNAUTHORIZED) {
 		result += "WWW-Authenticate: Basic realm=\"";
 		result += AUTH_NAME_MSG "\"\r\n";
-		break;
+	}
 
+	switch (httpStatus) {
 	case HTTP_MOVED_TEMPORARILY:
 	case HTTP_MOVED_PERMANENTLY:
 		// Status HTTP_*_TEMPORARILY (redirection)
@@ -318,7 +321,8 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 		if (UrlData["fileext"] == "gz")
 			result += "Content-Encoding: gzip\r\n";
 		// content-len, last-modified
-		if (httpStatus == HTTP_NOT_MODIFIED || httpStatus == HTTP_NOT_FOUND || httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE)
+		if (httpStatus == HTTP_NOT_MODIFIED || httpStatus == HTTP_NOT_FOUND || httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE
+				|| (httpStatus == HTTP_UNAUTHORIZED && GetContentLength() == 0))
 			result += "Content-Length: 0\r\n";
 		else if (GetContentLength() > 0) {
 			time_t mod_time = time(NULL);
