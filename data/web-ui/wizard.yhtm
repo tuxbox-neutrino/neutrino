@@ -35,12 +35,46 @@
 			width: 100%;
 			margin-bottom: 1.2rem;
 		}
+		.wiz-wrap .wiz-check {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			font-weight: 600;
+			margin-bottom: 1.2rem;
+		}
+		.wiz-wrap .wiz-pw-row {
+			display: flex;
+			gap: 0.4rem;
+			align-items: center;
+			margin-bottom: 1.2rem;
+		}
+		.wiz-wrap .wiz-pw-row input {
+			flex: 1;
+			margin-bottom: 0;
+		}
+		.wiz-wrap .wiz-actions {
+			display: flex;
+			gap: 0.6rem;
+		}
+		.wiz-wrap .wiz-actions .yweb-btn {
+			flex: 1;
+		}
+		.wiz-wrap .wiz-err {
+			display: block;
+			color: var(--pico-del-color);
+			margin-bottom: 1rem;
+		}
+		.wiz-wrap .wiz-note {
+			display: block;
+			color: var(--pico-muted-color);
+			margin-bottom: 1rem;
+		}
 	</style>
 </head>
 <body>
 	<!-- yweb-card statt settings-card: letztere ist settings.yhtm-lokal
 	     und hier wirkungslos — die Karte war randlos/unsichtbar -->
-	<main class="wiz-wrap yweb-card">
+	<main class="wiz-wrap yweb-card" id="wizCardBasics">
 		<h1>{=L:yw.wiz.welcome=}</h1>
 		<p class="sub">{=L:yw.wiz.intro=}</p>
 
@@ -57,10 +91,60 @@
 			<option value="settings.yhtm">{=L:yw.nav.settings=}</option>
 		</select>
 
-		<button type="button" class="yweb-btn primary" id="wizGo" style="width:100%" onclick="wizFinish(this)">{=L:yw.wiz.finish=}</button>
+		<button type="button" class="yweb-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)">{=L:yw.wiz.next=}</button>
+	</main>
+
+	<main class="wiz-wrap yweb-card" id="wizCardLogin" hidden>
+		<h1>{=L:yw.wiz.login_title=}</h1>
+		<p class="sub" id="wizLoginIntro">{=L:yw.wiz.login_intro=}</p>
+
+		<label class="wiz-check"><input type="checkbox" id="wizAuth" role="switch">{=L:yw.wiz.login_enable=}</label>
+
+		<label for="wizUser">{=L:yw.wiz.login_user=}</label>
+		<input type="text" id="wizUser" autocomplete="username" value="root" style="margin-bottom:1.2rem">
+
+		<label for="wizPass">{=L:yw.wiz.login_pass=}</label>
+		<div class="wiz-pw-row">
+			<input type="password" id="wizPass" autocomplete="new-password">
+			<button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass', this)"></button>
+		</div>
+
+		<label for="wizPass2">{=L:yw.wiz.login_pass2=}</label>
+		<div class="wiz-pw-row">
+			<input type="password" id="wizPass2" autocomplete="new-password">
+			<button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass2', this)"></button>
+		</div>
+
+		<!-- Fehlerelement existiert vorab im DOM, sonst wird nichts angesagt -->
+		<small class="wiz-err" id="wizErr" role="status" tabindex="-1" hidden></small>
+		<small class="wiz-note">{=L:yw.wiz.login_note=}</small>
+
+		<div class="wiz-actions">
+			<button type="button" class="yweb-btn ghost" id="wizSkip" onclick="wizLoginDone()">{=L:yw.wiz.login_skip=}</button>
+			<button type="button" class="yweb-btn primary" onclick="wizLoginSave(this)">{=L:yw.wiz.login_save=}</button>
+		</div>
 	</main>
 
 	<script>
+		// Auge-Icons lokal: die Wizard-Seite laedt yweb-header.js bewusst nicht
+		var WIZ_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+		var WIZ_EYEOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+		document.querySelectorAll('.wiz-pw-row .yweb-btn').forEach(function(b) { b.innerHTML = WIZ_EYE; });
+
+		function wizTogglePw(id, btn) {
+			var el = document.getElementById(id);
+			var show = el.type === 'password';
+			el.type = show ? 'text' : 'password';
+			btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+			btn.innerHTML = show ? WIZ_EYEOFF : WIZ_EYE;
+		}
+
+		var wizParams = new URLSearchParams(location.search);
+		var wizForced = wizParams.get('forced') === '1';
+		var wizLoginOnly = wizParams.get('step') === 'login';
+		var wizTarget = 'dashboard.yhtm';
+		var wizPwWasDefault = false;
+
 		// Remember the active language so we only switch when it changes
 		// (switching triggers a webserver config reload on the box).
 		var wizStartLang = (function () {
@@ -70,19 +154,86 @@
 			return s.value;
 		})();
 
-		async function wizFinish(btn) {
+		async function wizLoadLogin() {
+			try {
+				var resp = await fetch('/api/v4/config?config=nhttpd&format=json');
+				var data = await resp.json();
+				var cfg = (data && data.data && data.data.config) || {};
+				document.getElementById('wizAuth').checked = cfg['mod_auth_dot_authenticate'] === 'true';
+				document.getElementById('wizUser').value = cfg['mod_auth_dot_username'] || 'root';
+				wizPwWasDefault = cfg['mod_auth_dot_password_default'] === 'true';
+			} catch (e) {}
+		}
+
+		function wizShowLogin() {
+			document.getElementById('wizCardBasics').hidden = true;
+			document.getElementById('wizCardLogin').hidden = false;
+			if (wizForced) {
+				document.getElementById('wizLoginIntro').textContent = '{=L:yw.wiz.login_forced=}';
+				document.getElementById('wizAuth').checked = true;
+				document.getElementById('wizSkip').hidden = true;
+			}
+		}
+
+		async function wizNext(btn) {
 			btn.disabled = true;
 			var lang = document.getElementById('wizLang').value;
-			var page = document.getElementById('wizPage').value;
+			wizTarget = document.getElementById('wizPage').value;
 			try {
 				await fetch('/api/v4/config?config=yweb&action=submit&startup=true&start_page=' +
-					encodeURIComponent(page));
+					encodeURIComponent(wizTarget));
 				if (lang && lang !== wizStartLang)
 					await fetch('/set-lang.yhtm?' + encodeURIComponent(lang), {cache: 'no-store'});
-				location.href = '/' + page;
+				wizShowLogin();
 			} catch (e) {
 				btn.disabled = false;
 			}
+		}
+
+		function wizError(msg) {
+			var el = document.getElementById('wizErr');
+			el.hidden = false;
+			el.textContent = msg;
+			el.focus();
+		}
+
+		function wizLoginDone() {
+			// Gate-Cache verwerfen, damit die naechste Seite frisch prueft
+			try { sessionStorage.removeItem('yweb-pwgate'); } catch (e) {}
+			location.href = wizForced ? '/' : '/' + wizTarget;
+		}
+
+		async function wizLoginSave(btn) {
+			var auth = document.getElementById('wizAuth').checked;
+			var user = document.getElementById('wizUser').value;
+			var pw = document.getElementById('wizPass').value;
+			var pw2 = document.getElementById('wizPass2').value;
+			if (pw !== pw2) { wizError('{=L:yw.wiz.login_mismatch=}'); return; }
+			// Login aktiv, aber weiterhin nur das Werkspasswort: nicht speichern
+			if (auth && !pw && (wizForced || wizPwWasDefault)) { wizError('{=L:yw.wiz.login_needpw=}'); return; }
+			btn.disabled = true;
+			var params = 'config=nhttpd&action=submit' +
+				'&' + encodeURIComponent('mod_auth.authenticate') + '=' + (auth ? 'true' : 'false') +
+				'&' + encodeURIComponent('mod_auth.username') + '=' + encodeURIComponent(user);
+			if (pw)
+				params += '&' + encodeURIComponent('mod_auth.password') + '=' + encodeURIComponent(pw);
+			try {
+				await fetch('/api/v4/config?' + params);
+				wizLoginDone();
+			} catch (e) {
+				btn.disabled = false;
+				wizError(e.message || 'error');
+			}
+		}
+
+		if (wizLoginOnly) {
+			wizShowLogin();
+			wizLoadLogin().then(function() {
+				// forced haelt den Schalter an; sonst Ist-Zustand anzeigen
+				if (wizForced) document.getElementById('wizAuth').checked = true;
+			});
+		} else {
+			wizLoadLogin();
 		}
 	</script>
 </body>
