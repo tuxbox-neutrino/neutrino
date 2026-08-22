@@ -2752,8 +2752,13 @@ streaming.write_error The recording was aborted,\nsince an error occured during 
 stringinput.backspace Backspace
 stringinput.caps Upper/lower
 stringinput.clear clear all
+stringinput.empty_not_allowed Input must not be empty.
 stringinput.insert Insert
+stringinput.layout Layout
+stringinput.maxchars_reached Maximum number of characters reached.
 stringinput.save Save
+stringinput.save_failed Input cannot be saved.
+stringinput.space Space
 subtitles.charset Charset
 subtitles.head Subtitles
 subtitles.stop Stop subtitles

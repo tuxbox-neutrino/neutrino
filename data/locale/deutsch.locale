@@ -2752,8 +2752,13 @@ streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim
 stringinput.backspace Rücklöschen
 stringinput.caps Groß/Klein
 stringinput.clear Alles löschen
+stringinput.empty_not_allowed Eingabe darf nicht leer sein.
 stringinput.insert Einfügen
+stringinput.layout Layout
+stringinput.maxchars_reached Maximale Zeichenzahl erreicht.
 stringinput.save Speichern
+stringinput.save_failed Eingabe kann nicht gespeichert werden.
+stringinput.space Leerzeichen
 subtitles.charset Zeichensatz
 subtitles.head Untertitel
 subtitles.stop Untertitel aus
