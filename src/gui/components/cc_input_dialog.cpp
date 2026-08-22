@@ -141,26 +141,18 @@ int getInputFieldHeight(Font *font)
 	return std::max(CFrameBuffer::getInstance()->scale2Res(40),
 			glyph_h + 2 * vertical_pad + 2 * FRAME_WIDTH_MIN);
 }
-
-int getInputHintHeight(Font *font)
-{
-	const int font_h = font ? font->getHeight() : 0;
-
-	return std::max(CFrameBuffer::getInstance()->scale2Res(72),
-			2 * font_h + CFrameBuffer::getInstance()->scale2Res(16));
-}
 }
 
-CCTextInputDialog::CCTextInputDialog(const std::string &title,
-	std::string *value,
-	CChangeObserver *observ,
-	const std::string &icon)
+CCInputDialogBase::CCInputDialogBase(const int &w,
+	const int &h,
+	const std::string &caption,
+	const std::string &icon_name)
 	: CComponentsWindow(CC_CENTERED,
 		  CC_CENTERED,
-		  getInputDialogWidth(),
-		  getInputDialogMinHeight(),
-		  title,
-		  icon,
+		  w,
+		  h,
+		  caption,
+		  icon_name,
 		  NULL,
 		  CC_SHADOW_ON,
 		  COL_FRAME_PLUS_0,
@@ -169,6 +161,33 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 		  HINTBOX_DEFAULT_FRAME_WIDTH)
 {
 	cc_item_type.id = CC_ITEMTYPE_FRM_INPUT_DIALOG;
+
+	corner_rad = RADIUS_LARGE;
+	setWindowHeaderColor(COL_MENUHEAD_PLUS_0);
+	setWindowHeaderTextColor(COL_MENUHEAD_TEXT);
+	setWindowFooterColor(COL_MENUFOOT_PLUS_0);
+	setWindowHeaderButtons(CComponentsHeader::CC_BTN_EXIT);
+	enableShadow();
+	Refresh();
+}
+
+int CCInputDialogBase::getDialogHintHeight(Font *font)
+{
+	const int font_h = font ? font->getHeight() : 0;
+
+	return std::max(CFrameBuffer::getInstance()->scale2Res(72),
+			2 * font_h + CFrameBuffer::getInstance()->scale2Res(16));
+}
+
+CCTextInputDialog::CCTextInputDialog(const std::string &title,
+	std::string *value,
+	CChangeObserver *observ,
+	const std::string &icon)
+	: CCInputDialogBase(getInputDialogWidth(),
+		  getInputDialogMinHeight(),
+		  title,
+		  icon)
+{
 	cc_item_type.name = "cc_input_dialog";
 
 	cid_value = value;
@@ -188,21 +207,13 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 	cid_field_col_body_focus = getInputFieldBodyFocusColor();
 	cid_field_col_placeholder = getInputFieldPlaceholderColor();
 
-	corner_rad = RADIUS_LARGE;
-	setWindowHeaderColor(COL_MENUHEAD_PLUS_0);
-	setWindowHeaderTextColor(COL_MENUHEAD_TEXT);
-	setWindowFooterColor(COL_MENUFOOT_PLUS_0);
-	setWindowHeaderButtons(CComponentsHeader::CC_BTN_EXIT);
-	enableShadow();
-	Refresh();
-
 	initDialogItems();
 	applyDialogStyle();
 	initFooterButtons();
 	layoutDialogItems();
 }
 
-void CCTextInputDialog::applyDialogStyle()
+void CCInputDialogBase::applyDialogStyle()
 {
 	col_body_std = COL_MENUCONTENT_PLUS_1;
 	ccw_col_footer = COL_MENUFOOT_PLUS_0;
@@ -248,7 +259,7 @@ void CCTextInputDialog::initDialogItems()
 	Font *hint_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 	Font *input_font = getInputDialogFieldFont(body_w,
 			getFieldFontReference());
-	const int hint_h = getInputHintHeight(hint_font);
+	const int hint_h = CCInputDialogBase::getDialogHintHeight(hint_font);
 	const int field_h = getInputFieldHeight(input_font);
 	const int field_x = pad + field_inset;
 	const int field_w = std::max(0, body_w - 2 * field_inset);
@@ -310,7 +321,7 @@ void CCTextInputDialog::layoutDialogItems()
 	const int field_x = pad + field_inset;
 	const int field_w = std::max(0, body_w - 2 * field_inset);
 	const int hint_h = !has_hint ? 0 :
-		getInputHintHeight(hint_font);
+		CCInputDialogBase::getDialogHintHeight(hint_font);
 	const int field_h = getInputFieldHeight(input_font);
 	const int body_content_h = pad + hint_h +
 		(has_hint ? gap : 0) + field_h + pad;
@@ -347,7 +358,7 @@ void CCTextInputDialog::layoutDialogItems()
 	cid_field->setDimensionsAll(field_x, field_y, field_w, field_h);
 }
 
-void CCTextInputDialog::initFooterButtons()
+void CCInputDialogBase::initFooterButtons()
 {
 	std::vector<button_label_cc> buttons(4);
 
@@ -378,7 +389,7 @@ void CCTextInputDialog::initFooterButtons()
 		CFrameBuffer::getInstance()->scale2Res(220));
 }
 
-int CCTextInputDialog::sendButtonKey(neutrino_msg_t msg)
+int CCInputDialogBase::sendButtonKey(neutrino_msg_t msg)
 {
 	CComponentsFrmChain *container = getFooterObject()->getButtonChainObject();
 	if (!container)

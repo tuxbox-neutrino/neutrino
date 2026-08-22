@@ -22,9 +22,19 @@
 
 class CChangeObserver;
 
-class CCTextInputDialog : public CMenuTarget, public CComponentsWindow
+/**
+ * Shared skeleton of the modern input dialogs: window chrome, the four
+ * footer buttons and the key dispatch that turns a keypress into one of
+ * their results.
+ *
+ * Everything a dialog with input fields needs before it has any fields.
+ * Derived classes add their body items and their own message loop; the
+ * base has neither, and deliberately no exec().
+ */
+class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 {
 	public:
+		///result values carried by the shared footer buttons
 		enum button_result_t
 		{
 			RES_SAVE = 0,
@@ -33,6 +43,27 @@ class CCTextInputDialog : public CMenuTarget, public CComponentsWindow
 			RES_CANCEL
 		};
 
+	protected:
+		CCInputDialogBase(const int &w,
+			const int &h,
+			const std::string &caption,
+			const std::string &icon_name);
+
+		///applies header, body and footer colours; call again after every Refresh()
+		void applyDialogStyle();
+
+		///fills the footer with save/delete/clear/cancel and their direct keys
+		void initFooterButtons();
+
+		///returns the button_result_t a key belongs to, or -1 if no button claims it
+		int sendButtonKey(neutrino_msg_t msg);
+
+		///height of the hint line above the input area
+		static int getDialogHintHeight(Font *font);
+};
+
+class CCTextInputDialog : public CCInputDialogBase
+{
 	private:
 		std::string *cid_value;
 		CChangeObserver *cid_observ;
@@ -55,17 +86,14 @@ class CCTextInputDialog : public CMenuTarget, public CComponentsWindow
 		fb_pixel_t cid_field_col_body_focus;
 		fb_pixel_t cid_field_col_placeholder;
 
-		void applyDialogStyle();
 		void applyFieldStyle();
 		void initDialogItems();
 		void layoutDialogItems();
-		void initFooterButtons();
 		void syncDialogState();
 		std::string getFieldFontReference() const;
 		std::string getVisibleHintText() const;
 		void clearInlineError();
 		void showInlineError(const std::string &text);
-		int sendButtonKey(neutrino_msg_t msg);
 		bool confirmDiscard() const;
 		bool save();
 
