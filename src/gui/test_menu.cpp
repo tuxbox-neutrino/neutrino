@@ -217,7 +217,7 @@ std::string makeInputDialogSaveText(const std::string &label,
 		"\"";
 }
 
-int execCCTextInputTest(bool password_mode = false)
+int execCCTextInputTest(bool password_mode = false, bool with_keyboard = false)
 {
 	std::string sample_text =
 		std::string(g_Locale->getText(LOCALE_EPGPLUS_REMIND)) +
@@ -230,6 +230,7 @@ int execCCTextInputTest(bool password_mode = false)
 
 	std::string value = sample_text;
 	CCTextInputDialog dialog(password_mode ? "Passwort eingeben" :
+		with_keyboard ? "Text mit Tastatur eingeben" :
 		"Text eingeben",
 		&value);
 
@@ -242,6 +243,15 @@ int execCCTextInputTest(bool password_mode = false)
 		dialog.setMaxChars(64);
 		dialog.enablePasswordMode(true);
 	}
+	else if (with_keyboard)
+	{
+		dialog.setHintText("Runter springt in die Tastatur, OK tippt das "
+			"markierte Zeichen, Hoch in der obersten Reihe "
+			"geht zurueck ins Feld. Blau schaltet Gross/Klein, "
+			"Menue das Layout. Rot speichert von beiden Seiten.");
+		dialog.setPlaceholder("Kleinbuchstaben und Umlaute testen...");
+		dialog.setMaxChars(128);
+	}
 	else
 	{
 		dialog.setHintText("Freie Texteingabe ohne feste Slot-Grenze. "
@@ -250,6 +260,9 @@ int execCCTextInputTest(bool password_mode = false)
 		dialog.setPlaceholder("Text eingeben...");
 		dialog.setMaxChars(128);
 	}
+
+	if (with_keyboard)
+		dialog.enableOnScreenKeyboard(true);
 	dialog.setAllowEmpty(false);
 
 	const int res = dialog.exec(NULL, "");
@@ -1673,6 +1686,10 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		return execCCTextInputTest(false);
 	}
+	else if (actionKey == "cc_text_input_keyboard")
+	{
+		return execCCTextInputTest(false, true);
+	}
 	else if (actionKey == "cc_text_input_password")
 	{
 		return execCCTextInputTest(true);
@@ -2653,6 +2670,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarder("CCTextInput Dialog", true, NULL, this, "cc_text_input"));
+	widget->addItem(new CMenuForwarder("CCTextInput Dialog with Keyboard", true, NULL, this, "cc_text_input_keyboard"));
 	widget->addItem(new CMenuForwarder("CCTextInput Password Dialog", true, NULL, this, "cc_text_input_password"));
 	widget->addItem(new CMenuForwarder("CC Multi Field Form Phase 0", true, NULL, this, "cc_multi_field_form_phase0"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
