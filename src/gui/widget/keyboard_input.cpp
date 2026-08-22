@@ -136,9 +136,7 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	hintText_1 = HintText_1;
 	hintText_2 = HintText_2;
 	inputString = NULL;
-	layout = NULL;
 	selected = 0;
-	caps = 0;
 	srow = scol = 0;
 	focus = FOCUS_STRING;
 	force_saveScreen = false;
@@ -236,44 +234,89 @@ void CKeyboardInput::init()
 	changed = false;
 }
 
-void CKeyboardInput::setLayout()
+CKeyboardLayoutData::CKeyboardLayoutData()
 {
-	if (layout != NULL)
+	kld_index = 0;
+	kld_caps = 0;
+	kld_initialized = false;
+}
+
+size_t CKeyboardLayoutData::getLayoutCount()
+{
+	return LAYOUT_COUNT;
+}
+
+void CKeyboardLayoutData::initByLocale(const std::string &locale)
+{
+	if (kld_initialized)
 		return;
 
-	layout = &keyboards[0];
-	keyboard = layout->keys[caps];
-	for(unsigned i = 0; i < LAYOUT_COUNT; i++) {
-		if (keyboards[i].locale == g_settings.language) {
-			layout = &keyboards[i];
-			keyboard = layout->keys[caps];
+	kld_initialized = true;
+	kld_index = 0;
+	for (size_t i = 0; i < LAYOUT_COUNT; i++) {
+		if (keyboards[i].locale == locale) {
+			kld_index = i;
 			return;
 		}
 	}
 }
 
+void CKeyboardLayoutData::nextLayout()
+{
+	kld_initialized = true;
+	kld_index++;
+	if (kld_index >= LAYOUT_COUNT)
+		kld_index = 0;
+}
+
+void CKeyboardLayoutData::toggleCaps()
+{
+	kld_caps = kld_caps ? 0 : 1;
+}
+
+void CKeyboardLayoutData::setCaps(const bool &caps)
+{
+	kld_caps = caps ? 1 : 0;
+}
+
+const std::string &CKeyboardLayoutData::glyphAt(const int &row, const int &column) const
+{
+	static const std::string none;
+
+	if (row < 0 || row >= KEY_ROWS || column < 0 || column >= KEY_COLUMNS)
+		return none;
+
+	return keyboards[kld_index].keys[kld_caps][row][column];
+}
+
+const std::string &CKeyboardLayoutData::getLayoutName() const
+{
+	return keyboards[kld_index].name;
+}
+
+const std::string &CKeyboardLayoutData::getLayoutLocale() const
+{
+	return keyboards[kld_index].locale;
+}
+
+void CKeyboardInput::setLayout()
+{
+	layout.initByLocale(g_settings.language);
+}
+
 void CKeyboardInput::switchLayout()
 {
-	unsigned i;
-	for (i = 0; i < LAYOUT_COUNT; i++) {
-		if (layout == &keyboards[i])
-			break;
-	}
-	i++;
-	if (i >= LAYOUT_COUNT)
-		i = 0;
-	layout = &keyboards[i];
-	keyboard = layout->keys[caps];
+	layout.nextLayout();
 	paintFooter();
 	paintKeyboard();
 }
 
 void CKeyboardInput::NormalKeyPressed()
 {
-	if (keyboard[srow][scol].empty())
+	if (layout.glyphAt(srow, scol).empty())
 		return;
 
-	inputString->at(selected) = keyboard[srow][scol];
+	inputString->at(selected) = layout.glyphAt(srow, scol);
 	if (selected < (inputSize - 1))
 	{
 		selected++;
@@ -294,8 +337,7 @@ void CKeyboardInput::clearString()
 
 void CKeyboardInput::switchCaps()
 {
-	caps = caps ? 0 : 1;
-	keyboard = layout->keys[caps];
+	layout.toggleCaps();
 	paintKeyboard();
 }
 
@@ -611,7 +653,7 @@ int CKeyboardInput::paintFooter(bool show)
 		{ NEUTRINO_ICON_BUTTON_BLUE    , LOCALE_STRINGINPUT_CAPS     , NULL,                  0, false },
 		{ NEUTRINO_ICON_BUTTON_BACKWARD, LOCALE_STRINGINPUT_BACKSPACE, NULL,                  0, false },
 		{ NEUTRINO_ICON_BUTTON_MENU    , NONEXISTANT_LOCALE          , NULL,                  0, false },
-		{ layout->locale.c_str()       , NONEXISTANT_LOCALE          , layout->name.c_str() , 0, false }
+		{ layout.getLayoutLocale().c_str(), NONEXISTANT_LOCALE       , layout.getLayoutName().c_str(), 0, false }
 	};
 
 	int cnt = (sizeof(footerButtons)/sizeof(struct button_label_ext));
@@ -701,10 +743,10 @@ void CKeyboardInput::paintKey(int row, int column)
 	frameBuffer->paintBoxRel(xpos, ypos, key_w, key_h, bgcolor, radius);
 	frameBuffer->paintBoxFrame(xpos, ypos, key_w, key_h, KEY_FRAME_WIDTH, COL_FRAME_PLUS_0, radius);
 
-	if (keyboard[row][column].empty())
+	if (layout.glyphAt(row, column).empty())
 		return;
 
-	std::string &s = keyboard[row][column];
+	const std::string &s = layout.glyphAt(row, column);
 	int ch_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(s);
 	int ch_h = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	int ch_x = xpos + key_w/2 - ch_w/2;

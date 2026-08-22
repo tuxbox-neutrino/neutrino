@@ -31,15 +31,7 @@
 #include <string>
 #include <sigc++/signal.h>
 
-#define KEY_ROWS 4
-#define KEY_COLUMNS 14
-
-struct keyboard_layout
-{
-        std::string name;
-        std::string locale;
-        std::string (*keys)[KEY_ROWS][KEY_COLUMNS];
-};
+#include "keyboard_layout.h"
 
 class CFrameBuffer;
 class CInputString
@@ -88,9 +80,7 @@ class CKeyboardInput : public CMenuTarget,  public sigc::trackable
 			FOCUS_STRING
 		};
 		int focus;
-		int caps;
-		struct keyboard_layout *layout;
-		std::string (*keyboard)[KEY_COLUMNS];
+		CKeyboardLayoutData layout;
 		CInputString * inputString;
 
 		std::string  title;

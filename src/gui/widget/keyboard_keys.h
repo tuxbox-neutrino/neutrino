@@ -21,6 +21,9 @@
 */
 
 
+#ifndef __KEYBOARD_KEYS_H__
+#define __KEYBOARD_KEYS_H__
+
 static std::string keys_english[2][KEY_ROWS][KEY_COLUMNS] =
 {
 	{
@@ -53,9 +56,11 @@ static std::string keys_deutsch[2][KEY_ROWS][KEY_COLUMNS] =
 	}
 };
 
-struct keyboard_layout keyboards[] =
+static struct keyboard_layout keyboards[] =
 {
 	{ "English", "english", keys_english },
 	{ "Deutsch", "deutsch", keys_deutsch }
 };
 #define LAYOUT_COUNT (sizeof(keyboards)/sizeof(struct keyboard_layout))
+
+#endif /* __KEYBOARD_KEYS_H__ */
