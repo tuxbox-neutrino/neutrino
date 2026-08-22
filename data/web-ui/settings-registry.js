@@ -454,7 +454,8 @@ var SETTINGS_REGISTRY = [
 					{ key: 'mod_auth.authenticate', label: ywebL('reg.auth', 'Password protection'), type: 'bool' },
 					{ key: 'mod_auth.username', label: ywebL('set.mnt_user', 'User'), type: 'text' },
 					{ key: 'mod_auth.password', label: ywebL('set.mnt_pass', 'Password'), type: 'password' },
-					{ key: 'mod_auth.no_auth_client', label: ywebL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text' },
+					{ key: 'mod_auth.no_auth_client', label: ywebL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
+					  hint: ywebL('reg.noauth_client_hint', 'matching addresses never see the login; local access (127.0.0.1) is always exempt') },
 					{ key: 'WebsiteMain.port', label: 'Port', type: 'number', min: 1, max: 65535 }
 				]
 			},

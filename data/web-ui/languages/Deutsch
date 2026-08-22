@@ -971,6 +971,7 @@ yw.reg.mounts=Netzlaufwerke
 yw.reg.mute=Stumm
 yw.reg.mute_until_lock=Stumm bis Lock
 yw.reg.noauth_client=Ohne Login (IP-Prefix)
+yw.reg.noauth_client_hint=Passende Adressen sehen nie den Login; lokaler Zugriff (127.0.0.1) ist immer ausgenommen
 yw.reg.off=Aus
 yw.reg.on=Ein
 yw.reg.output=Ausgabe

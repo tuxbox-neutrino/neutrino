@@ -386,9 +386,9 @@
 
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
-	<script src="/Y_Lang.yjs?v=17"></script>
+	<script src="/Y_Lang.yjs?v=18"></script>
 	<script src="/yweb-header.js?v=51"></script>
-	<script src="/settings-registry.js?v=12"></script>
+	<script src="/settings-registry.js?v=13"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};

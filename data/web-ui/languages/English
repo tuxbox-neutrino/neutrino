@@ -971,6 +971,7 @@ yw.reg.mounts=Network mounts
 yw.reg.mute=Mute
 yw.reg.mute_until_lock=Mute until lock
 yw.reg.noauth_client=Without login (IP prefix)
+yw.reg.noauth_client_hint=matching addresses never see the login; local access (127.0.0.1) is always exempt
 yw.reg.off=Off
 yw.reg.on=On
 yw.reg.output=Output
