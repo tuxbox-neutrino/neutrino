@@ -5,6 +5,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>yWeb</title>
 	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: yweb-header.js runs
+		// too late, and some pages never load it at all.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
+	<style>
+		/* This page loads no stylesheet, so paint the canvas here — the
+		   redirect waits for a request and would flash white otherwise.
+		   Colors match Pico's --pico-background-color. */
+		:root { color-scheme: dark; background: #13171f; }
+		:root[data-theme="light"] { color-scheme: light; background: #fff; }
+	</style>
 </head>
 <body>
 	<noscript><a href="/dashboard.yhtm">yWeb</a></noscript>

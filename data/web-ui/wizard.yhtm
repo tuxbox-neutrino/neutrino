@@ -5,13 +5,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>yWeb - {=L:yw.wiz.title=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
-	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=87">
 	<script>
-		// Gespeichertes Theme anwenden — der Wizard laedt kein
-		// yweb-header.js und blieb sonst immer dunkel
+		// Apply the stored theme before first paint: yweb-header.js runs
+		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=87">
 	<style>
 		.wiz-wrap {
 			max-width: 26rem;

@@ -168,6 +168,13 @@ Copy template: [`hallo-yweb/hallo.html`](hallo-yweb/hallo.html). Key points:
   `<script src="/yweb-header.js"></script>` + `ywebInitHeader('tools');`
 - Styling: link Pico CSS + `/css/yweb.css` — use the ready-made classes
   (`yweb-card`, `yweb-form-row`, `yweb-btn`).
+- Apply the theme **before** those stylesheets, otherwise the page paints
+  dark first and then jumps to the user's theme:
+  ```html
+  <script>
+  try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+  </script>
+  ```
 - **Fetch data only through `/api/v4/`**, easiest via the helper:
   `var sys = await ywebApi('sysinfo');`
   Reference of all endpoints: Doxygen page "Neutrino Web-API v4"
