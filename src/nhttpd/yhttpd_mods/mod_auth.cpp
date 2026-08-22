@@ -25,8 +25,30 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	if (CyhookHandler::isApiTarget(hh->UrlData["url"]))
 		return HANDLED_CONTINUE;
 
-	// dont check local calls or calls from NoAuthClient
 	if (authenticate) {
+		// basic auth has no logout; answering 401 to a top-level
+		// navigation is the only way to make browsers drop their
+		// cached credentials, so /logout does that unconditionally
+		if (hh->UrlData["url"] == "/logout") {
+			hh->SetHeader(HTTP_UNAUTHORIZED, "text/html; charset=UTF-8");
+			hh->Write(
+				"<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+				"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+				"<title>yWeb - Logout</title>"
+				"<style>body{margin:0;display:flex;min-height:100vh;align-items:center;"
+				"justify-content:center;font-family:system-ui,sans-serif;"
+				"background:#11191f;color:#dce3e8}main{max-width:24rem;padding:2rem;"
+				"text-align:center}h1{font-size:1.3rem}p{color:#8891a4}"
+				"a{color:#fd6d13}</style></head><body><main>"
+				"<h1>Logged out &mdash; Abgemeldet</h1>"
+				"<p>Dismiss the login prompt with Cancel/Esc.<br>"
+				"Den Anmeldedialog mit Abbrechen/Esc schlie&szlig;en.</p>"
+				"<p><a href=\"/\">Log in again &mdash; Erneut anmelden</a></p>"
+				"</main></body></html>");
+			return HANDLED_ERROR;
+		}
+
+		// dont check local calls or calls from NoAuthClient
 		if ((hh->UrlData["clientaddr"]).find(IADDR_LOCAL) > 0
 			&& (no_auth_client.empty() || (hh->UrlData["clientaddr"]).compare(no_auth_client) != 0))
 		{
