@@ -56,6 +56,7 @@ Basic attributes and member functions for component sub classes
 #include "cc_input_buffer.h"
 #include "cc_input_field.h"
 #include "cc_input_dialog.h"
+#include "cc_frm_input_row.h"
 
 
 #endif /*__N_COMPONENTS__*/
