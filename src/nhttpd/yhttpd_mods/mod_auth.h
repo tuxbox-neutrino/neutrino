@@ -5,12 +5,15 @@
 #ifndef __yhttpd_mod_auth_h__
 #define __yhttpd_mod_auth_h__
 
+#include <ctime>
+#include <map>
 #include <yhook.h>
 class CmAuth: public Cyhook {
 public:
 	bool authenticate;
 	CmAuth() {
 		authenticate = false;
+		session_timeout = 0;
 	}
 	;
 	~CmAuth() {
@@ -29,5 +32,23 @@ protected:
 	std::string username;
 	std::string password;
 	std::string no_auth_client;
+
+	// cookie sessions (browser login). The hook object is a singleton
+	// while every connection runs in its own thread, so all access to
+	// "sessions" is serialized by a mutex in mod_auth.cpp.
+	std::map<std::string, time_t> sessions;	// token -> expiry
+	int session_timeout;
+
+	bool CheckSession(CyhookHandler *hh);
+	std::string CreateSession(void);
+	void DropSession(const std::string &token);
+	void ClearSessions(void);
+
+	static std::string GetHeader(CyhookHandler *hh, const std::string &name);
+	static std::string GetSessionCookie(CyhookHandler *hh);
+	static bool IsBrowserNavigation(CyhookHandler *hh);
+	static std::string SanitizeNext(std::string next);
+	static std::string MintToken(void);
+	static std::string UrlEncode(const std::string &s);
 };
 #endif // __yhttpd_mod_auth_h__

@@ -709,6 +709,12 @@ std::string CyParser::func_get_request_data(CyhookHandler *hh, std::string para)
 // y-func : get_header_data
 //-------------------------------------------------------------------------
 std::string CyParser::func_get_header_data(CyhookHandler *hh, std::string para) {
+	// never hand credentials to templates: the Cookie carries the
+	// session token, Authorization the Basic credentials. HeaderList
+	// keys keep the client's capitalization, so match case-insensitively.
+	if (strcasecmp(para.c_str(), "Cookie") == 0
+			|| strcasecmp(para.c_str(), "Authorization") == 0)
+		return "empty";
 	return hh->HeaderList[para];
 }
 //-------------------------------------------------------------------------

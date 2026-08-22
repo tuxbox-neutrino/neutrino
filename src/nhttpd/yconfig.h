@@ -104,6 +104,7 @@
 
 #define AUTHUSER			"root"
 #define AUTHPASSWORD			"tuxbox"
+#define AUTH_SESSION_TIMEOUT		86400	// browser session lifetime in seconds (sliding)
 
 #define HTTPD_CONFIGDIR			CONFIGDIR
 #define HTTPD_CONFIGFILE		HTTPD_CONFIGDIR"/nhttpd.conf"
