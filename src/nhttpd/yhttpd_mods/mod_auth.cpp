@@ -49,11 +49,25 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 		}
 
 		// dont check local calls or calls from NoAuthClient
+		// (a leading address prefix, e.g. "192.168.1." — the UIs have
+		// always advertised it as a prefix)
 		if ((hh->UrlData["clientaddr"]).find(IADDR_LOCAL) > 0
-			&& (no_auth_client.empty() || (hh->UrlData["clientaddr"]).compare(no_auth_client) != 0))
+			&& (no_auth_client.empty() || (hh->UrlData["clientaddr"]).compare(0, no_auth_client.length(), no_auth_client) != 0))
 		{
 			if (!CheckAuth(hh)) {
-				hh->SetError(HTTP_UNAUTHORIZED);
+				hh->SetHeader(HTTP_UNAUTHORIZED, "text/html; charset=UTF-8");
+				hh->Write(
+					"<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+					"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+					"<title>yWeb - Login</title>"
+					"<style>body{margin:0;display:flex;min-height:100vh;align-items:center;"
+					"justify-content:center;font-family:system-ui,sans-serif;"
+					"background:#11191f;color:#dce3e8}main{max-width:24rem;padding:2rem;"
+					"text-align:center}h1{font-size:1.3rem}p{color:#8891a4}"
+					"a{color:#fd6d13}</style></head><body><main>"
+					"<h1>Login required &mdash; Anmeldung erforderlich</h1>"
+					"<p><a href=\"/\">Try again &mdash; Erneut versuchen</a></p>"
+					"</main></body></html>");
 				status = HANDLED_ERROR;
 			}
 		}
