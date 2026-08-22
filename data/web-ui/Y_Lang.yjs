@@ -266,6 +266,7 @@ window.YWEB_L = {
 	"sb.confirm": "{=L:yw.sb.confirm=}",
 	// Header/EPG-Modal/About (yweb-header.js)
 	"theme.toggle": "{=L:yw.theme.toggle=}",
+	"hdr.logout": "{=L:yw.hdr.logout=}",
 	"epg.nodata": "{=L:yw.epg.nodata=}",
 	"about.link": "{=L:yw.about.link=}",
 	"epg.programme": "{=L:yw.epg.programme=}",

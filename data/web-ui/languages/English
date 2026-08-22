@@ -1050,6 +1050,7 @@ yw.reg.start_volume_hint=-1 keeps the last volume
 yw.reg.override_dir_hint=files here override the default web root
 yw.msg.load_fail=Loading failed
 yw.theme.toggle=Toggle theme
+yw.hdr.logout=Log out
 yw.epg.nodata=No EPG data available
 yw.about.no_links=No links available
 yw.rec.planned=Recording scheduled

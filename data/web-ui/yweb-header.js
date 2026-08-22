@@ -145,6 +145,13 @@ function ywebGetHeaderHTML(activePage) {
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
 				</svg>
 			</button>
+			<button class="yweb-theme-toggle" id="yweb-logout-btn" hidden onclick="ywebLogout()" aria-label="${ywebL('hdr.logout', 'Log out')}" title="${ywebL('hdr.logout', 'Log out')}">
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+					<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="16 17 21 12 16 7"/>
+					<line stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="21" y1="12" x2="9" y2="12"/>
+				</svg>
+			</button>
 			<button class="yweb-menu-toggle" onclick="ywebToggleMenu()" aria-label="Menü">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -564,15 +571,45 @@ function ywebInitHeader(pageName) {
 // weil Basic-Auth stateless ist. wizard.yhtm laedt dieses Skript nicht,
 // eine Redirect-Schleife ist damit ausgeschlossen.
 function ywebCheckDefaultPassword() {
-	try { if (sessionStorage.getItem('yweb-pwgate') === 'ok') return; } catch (e) {}
+	// Sentinel gesetzt: Fetch sparen, Logout-Button aus dem beim ersten
+	// Load gemerkten Auth-Zustand schalten
+	try {
+		if (sessionStorage.getItem('yweb-pwgate') === 'ok') {
+			ywebUpdateLogoutBtn(sessionStorage.getItem('yweb-authed') === 'true');
+			return;
+		}
+	} catch (e) {}
 	ywebApi('config', {config: 'nhttpd'}).then(function(resp) {
 		var cfg = (resp && resp.data && resp.data.config) || {};
-		if (cfg['mod_auth_dot_authenticate'] === 'true' && cfg['mod_auth_dot_password_default'] === 'true') {
+		var authed = cfg['mod_auth_dot_authenticate'] === 'true';
+		ywebUpdateLogoutBtn(authed);
+		if (authed && cfg['mod_auth_dot_password_default'] === 'true') {
 			location.replace('/wizard.yhtm?step=login&forced=1');
 			return;
 		}
-		try { sessionStorage.setItem('yweb-pwgate', 'ok'); } catch (e) {}
+		try {
+			sessionStorage.setItem('yweb-pwgate', 'ok');
+			sessionStorage.setItem('yweb-authed', authed ? 'true' : 'false');
+		} catch (e) {}
 	}).catch(function() {});
+}
+
+function ywebUpdateLogoutBtn(show) {
+	var btn = document.getElementById('yweb-logout-btn');
+	if (btn) btn.hidden = !show;
+}
+
+// /logout antwortet immer 401 -> Top-Level-Navigation dorthin laesst den
+// Browser die gecachten Basic-Auth-Credentials verwerfen. Der Vorab-Fetch
+// mit Bogus-Credentials raeumt in manchen Browsern schon promptlos.
+function ywebLogout() {
+	try {
+		sessionStorage.removeItem('yweb-pwgate');
+		sessionStorage.removeItem('yweb-authed');
+	} catch (e) {}
+	fetch('/logout', { headers: { 'Authorization': 'Basic ' + btoa('log:out') } })
+		.catch(function() {})
+		.then(function() { location.href = '/logout'; });
 }
 
 // Update spacer height based on actual header dimensions

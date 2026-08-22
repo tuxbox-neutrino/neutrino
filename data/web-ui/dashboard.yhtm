@@ -1195,8 +1195,8 @@
 		<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
 	</footer>
 
-	<script src="/Y_Lang.yjs?v=16"></script>
-	<script src="/yweb-header.js?v=50"></script>
+	<script src="/Y_Lang.yjs?v=17"></script>
+	<script src="/yweb-header.js?v=51"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;

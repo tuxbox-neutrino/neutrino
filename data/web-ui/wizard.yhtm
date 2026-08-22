@@ -199,7 +199,10 @@
 
 		function wizLoginDone() {
 			// Gate-Cache verwerfen, damit die naechste Seite frisch prueft
-			try { sessionStorage.removeItem('yweb-pwgate'); } catch (e) {}
+			try {
+				sessionStorage.removeItem('yweb-pwgate');
+				sessionStorage.removeItem('yweb-authed');
+			} catch (e) {}
 			location.href = wizForced ? '/' : '/' + wizTarget;
 		}
 

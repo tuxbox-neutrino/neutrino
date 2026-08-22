@@ -386,8 +386,8 @@
 
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
-	<script src="/Y_Lang.yjs?v=16"></script>
-	<script src="/yweb-header.js?v=50"></script>
+	<script src="/Y_Lang.yjs?v=17"></script>
+	<script src="/yweb-header.js?v=51"></script>
 	<script src="/settings-registry.js?v=12"></script>
 	<script>
 	var configData = {};
@@ -750,6 +750,14 @@
 		btn.disabled = true;
 		try {
 			await ywebApi('config', 'config=' + cfgName + '&' + params);
+			// Auth-Zustand kann sich geaendert haben: Gate/Logout-Button
+			// beim naechsten Seitenload neu bewerten
+			if (cfgName === 'nhttpd') {
+				try {
+					sessionStorage.removeItem('yweb-pwgate');
+					sessionStorage.removeItem('yweb-authed');
+				} catch (e2) {}
+			}
 			ywebShowToast(changed + ' ' + (changed > 1 ? '{=L:yw.set.saved_many=}' : '{=L:yw.set.saved_one=}'));
 			await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
 		} catch (e) {

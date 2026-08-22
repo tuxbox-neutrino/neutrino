@@ -1050,6 +1050,7 @@ yw.reg.start_volume_hint=-1 merkt sich die letzte Lautstärke
 yw.reg.override_dir_hint=Dateien hier überschreiben das Standard-Webroot
 yw.msg.load_fail=Fehler beim Laden
 yw.theme.toggle=Theme wechseln
+yw.hdr.logout=Abmelden
 yw.epg.nodata=Keine EPG-Daten verfügbar
 yw.about.no_links=Keine Links verfügbar
 yw.rec.planned=Aufnahme geplant
