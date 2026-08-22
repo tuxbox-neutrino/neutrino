@@ -61,6 +61,17 @@ class CThemes : public CMenuTarget, CColorSetupNotifier, public sigc::trackable
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		void setTheme(CConfigFile &configfile);
 		void getTheme(CConfigFile &configfile);
+
+		/**
+		 * Reduces a user supplied theme name to something that can be
+		 * written into THEMESDIR_VAR without leaving it, and returns
+		 * an empty string when nothing usable is left.
+		 *
+		 * Only sanitising, no policy: whether a name is allowed - taken
+		 * by a shipped theme, already present, reserved - is the
+		 * caller's decision.
+		 */
+		static std::string sanitizeThemeName(const std::string &name);
 };
 
 #endif

@@ -173,6 +173,38 @@ void CThemes::initThemesMenu(CMenuWidget &themes)
 		OnAfterSelectTheme.connect(sigc::bind(sigc::mem_fun(this, &CThemes::markSelectedTheme), &themes));
 }
 
+std::string CThemes::sanitizeThemeName(const std::string &name)
+{
+	/* Drop what must not reach a path: a '/' would write the theme
+	 * outside THEMESDIR_VAR, control characters would make the file
+	 * name unreadable in the selector. */
+	std::string clean;
+	for (size_t i = 0; i < name.size(); i++) {
+		const char c = name[i];
+		if (c == '/' || (unsigned char)c < 0x20)
+			continue;
+		clean += c;
+	}
+
+	const size_t first = clean.find_first_not_of(' ');
+	const size_t last = clean.find_last_not_of(' ');
+	if (first == std::string::npos)
+		clean.clear();
+	else
+		clean = clean.substr(first, last - first + 1);
+
+	/* A typed ".theme" belongs to the file name, not to the theme name.
+	 * Kept, it would write <name>.theme.theme, while initThemesMenu()
+	 * cuts a listed file at its ".theme" suffix - the menu entry would
+	 * then address <name>.theme and the saved file be unreachable. */
+	const std::string suffix = FILE_SUFFIX;
+	if (clean.size() >= suffix.size() &&
+	    clean.compare(clean.size() - suffix.size(), suffix.size(), suffix) == 0)
+		clean.erase(clean.size() - suffix.size());
+
+	return clean;
+}
+
 int CThemes::Show()
 {
 	move_userDir();
@@ -210,8 +242,9 @@ int CThemes::Show()
 
 	int res = themes.exec(NULL, "");
 
-	if (!file_name.empty()) {
-		saveFile(((std::string)THEMESDIR_VAR + "/" + file_name + FILE_SUFFIX).c_str());
+	const std::string clean_name = sanitizeThemeName(file_name);
+	if (!clean_name.empty()) {
+		saveFile(((std::string)THEMESDIR_VAR + "/" + clean_name + FILE_SUFFIX).c_str());
 	}
 
 	if (hasThemeChanged) {
