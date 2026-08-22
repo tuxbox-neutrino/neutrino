@@ -195,8 +195,10 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 	cid_observ = observ;
 	cid_hint = NULL;
 	cid_field = NULL;
+	cid_keyboard = NULL;
 	cid_field_font_reference.clear();
 	cid_password_mode = false;
+	cid_enable_keyboard = false;
 	cid_allow_empty = true;
 	cid_saved = false;
 	cid_max_chars = 0;
@@ -301,6 +303,33 @@ void CCTextInputDialog::initDialogItems()
 	addWindowItem(cid_field);
 }
 
+void CCTextInputDialog::createKeyboard()
+{
+	if (cid_keyboard || !cid_field)
+		return;
+
+	cid_keyboard = new CComponentsKeyboard(cid_field->getXPos(),
+		cid_field->getYPos() + cid_field->getHeight(),
+		cid_field->getWidth(),
+		0);
+	cid_keyboard->setBuffer(&cid_buffer);
+	cid_keyboard->setKeyColors(cid_field_col_body, cid_field_col_text);
+
+	/* One buffer, two views on it: the keyboard writes glyphs, the field
+	 * redraws them. Both signals feed paths that already exist, so a key
+	 * from the keyboard and a key from the remote end in exactly the same
+	 * place. */
+	cid_keyboard->OnAfterKey.connect(
+		sigc::mem_fun(*this, &CCTextInputDialog::refreshField));
+	cid_keyboard->OnKeyRejected.connect(
+		sigc::mem_fun(*this, &CCTextInputDialog::showMaxCharsError));
+	cid_keyboard->OnLeaveTop.connect(
+		sigc::mem_fun(*this, &CCTextInputDialog::focusFieldFromKeyboard));
+
+	addWindowItem(cid_keyboard);
+	layoutDialogItems();
+}
+
 void CCTextInputDialog::layoutDialogItems()
 {
 	if (!cid_hint || !cid_field)
@@ -323,8 +352,22 @@ void CCTextInputDialog::layoutDialogItems()
 	const int hint_h = !has_hint ? 0 :
 		CCInputDialogBase::getDialogHintHeight(hint_font);
 	const int field_h = getInputFieldHeight(input_font);
+	int keyboard_h = 0;
+	if (cid_keyboard)
+	{
+		/* Four rows push the dialog to roughly 600-650 px. On a small
+		 * OSD that can leave the safe area, so the keyboard is asked
+		 * whether it still fits and falls back to smaller keys. */
+		const int screen_h = CFrameBuffer::getInstance()->getScreenHeight(true);
+		const int budget = screen_h - header_h - footer_h - pad - hint_h -
+			(has_hint ? gap : 0) - field_h - gap - pad -
+			2 * fr_thickness;
+		cid_keyboard->setCompactMode(cid_keyboard->needsCompactMode(budget));
+		keyboard_h = cid_keyboard->getPreferredHeight();
+	}
 	const int body_content_h = pad + hint_h +
-		(has_hint ? gap : 0) + field_h + pad;
+		(has_hint ? gap : 0) + field_h +
+		(cid_keyboard ? gap + keyboard_h : 0) + pad;
 	const int target_h = std::max(getInputDialogMinHeight(),
 			header_h + footer_h + body_content_h +
 			2 * fr_thickness);
@@ -356,6 +399,15 @@ void CCTextInputDialog::layoutDialogItems()
 	cid_field->setCaretWidth(getInputDialogCaretWidth(input_font));
 	cid_field->setPadding(getInputFieldPaddingX(), getInputFieldPaddingY());
 	cid_field->setDimensionsAll(field_x, field_y, field_w, field_h);
+
+	if (cid_keyboard)
+	{
+		cid_keyboard->setDimensionsAll(field_x,
+			field_y + field_h + gap,
+			field_w,
+			keyboard_h);
+		cid_keyboard->refreshLayout();
+	}
 }
 
 void CCInputDialogBase::initFooterButtons()
@@ -415,6 +467,11 @@ void CCTextInputDialog::syncDialogState()
 	cid_field->setPasswordMode(cid_password_mode);
 	cid_field->setPlaceholder(cid_placeholder);
 	cid_field->setFieldFocus(true);
+	if (cid_keyboard)
+	{
+		cid_keyboard->setBuffer(&cid_buffer);
+		cid_keyboard->setKeyFocus(false);
+	}
 	cid_field->setErrorState(false);
 	cid_error_text.clear();
 	layoutDialogItems();
@@ -465,6 +522,37 @@ bool CCTextInputDialog::confirmDiscard() const
 			LOCALE_MESSAGEBOX_DISCARD,
 			CMsgBox::mbrYes,
 			CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel;
+}
+
+void CCTextInputDialog::showMaxCharsError()
+{
+	cid_field->setErrorState(true);
+	showInlineError(g_Locale->getText(LOCALE_STRINGINPUT_MAXCHARS_REACHED));
+	cid_field->paint(false);
+}
+
+void CCTextInputDialog::focusFieldFromKeyboard()
+{
+	setFieldFocus(true);
+}
+
+void CCTextInputDialog::refreshField()
+{
+	cid_field->ensureCursorVisible();
+	cid_field->paint(false);
+	CVFD::getInstance()->showMenuText(1,
+		cid_buffer.getText().c_str(),
+		cid_buffer.getCursor() + 1);
+}
+
+void CCTextInputDialog::setFieldFocus(const bool &focused)
+{
+	if (!cid_keyboard)
+		return;
+
+	cid_field->setFieldFocus(focused);
+	cid_keyboard->setKeyFocus(!focused);
+	cid_field->paint(false);
 }
 
 bool CCTextInputDialog::save()
@@ -558,6 +646,17 @@ void CCTextInputDialog::enablePasswordMode(bool enable)
 		cid_field->setPasswordMode(enable);
 }
 
+void CCTextInputDialog::enableOnScreenKeyboard(bool enable)
+{
+	cid_enable_keyboard = enable;
+
+	/* The dialog is constructed and configured in one breath, so this
+	 * setter has to build the keyboard itself: initDialogItems() ran in
+	 * the constructor, long before a caller could reach this. */
+	if (cid_enable_keyboard)
+		createKeyboard();
+}
+
 std::string &CCTextInputDialog::getValue(void)
 {
 	if (!cid_value)
@@ -611,6 +710,14 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 
 		bool state_changed = false;
 
+		/* 0. On-screen keyboard, only while it has focus. It refuses
+		 * the footer keys itself, so save, delete, clear and cancel
+		 * still reach the layers below. Repaint runs through the
+		 * OnAfterKey slot. */
+		if (cid_keyboard && cid_keyboard->hasKeyFocus() &&
+			cid_keyboard->handleMsg(msg))
+			continue;
+
 		/* 1. Cursor navigation (explicit, not button-dispatched) */
 		if (msg == CRCInput::RC_left)
 		{
@@ -625,6 +732,12 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 			clearInlineError();
 			cid_buffer.moveRight();
 			state_changed = true;
+		}
+		else if (msg == CRCInput::RC_down && cid_keyboard)
+		{
+			cid_field->setErrorState(false);
+			clearInlineError();
+			setFieldFocus(false);
 		}
 		else if (msg == CRCInput::RC_page_up)
 		{
@@ -714,12 +827,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 					if (cid_buffer.insert(glyph))
 						state_changed = true;
 					else
-					{
-						cid_field->setErrorState(true);
-						showInlineError(g_Locale->getText(
-								LOCALE_STRINGINPUT_MAXCHARS_REACHED));
-						cid_field->paint(false);
-					}
+						showMaxCharsError();
 				}
 				/* 4. System messages */
 				else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) &
@@ -732,13 +840,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 		}
 
 		if (state_changed)
-		{
-			cid_field->ensureCursorVisible();
-			cid_field->paint(false);
-			CVFD::getInstance()->showMenuText(1,
-				cid_buffer.getText().c_str(),
-				cid_buffer.getCursor() + 1);
-		}
+			refreshField();
 	}
 
 	if (!cid_saved && cid_value)

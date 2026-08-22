@@ -14,6 +14,7 @@
 #include "cc_frm_window.h"
 #include "cc_input_buffer.h"
 #include "cc_input_field.h"
+#include "cc_frm_keyboard.h"
 #include "cc_item_text.h"
 
 #include <gui/widget/menue_target.h>
@@ -70,11 +71,13 @@ class CCTextInputDialog : public CCInputDialogBase
 		CCInputBuffer cid_buffer;
 		CComponentsText *cid_hint;
 		CCInputField *cid_field;
+		CComponentsKeyboard *cid_keyboard;
 		std::string cid_hint_text;
 		std::string cid_error_text;
 		std::string cid_placeholder;
 		std::string cid_field_font_reference;
 		bool cid_password_mode;
+		bool cid_enable_keyboard;
 		bool cid_allow_empty;
 		bool cid_saved;
 		size_t cid_max_chars;
@@ -88,10 +91,15 @@ class CCTextInputDialog : public CCInputDialogBase
 
 		void applyFieldStyle();
 		void initDialogItems();
+		void createKeyboard();
 		void layoutDialogItems();
 		void syncDialogState();
 		std::string getFieldFontReference() const;
 		std::string getVisibleHintText() const;
+		void refreshField();
+		void showMaxCharsError();
+		void focusFieldFromKeyboard();
+		void setFieldFocus(const bool &focused);
 		void clearInlineError();
 		void showInlineError(const std::string &text);
 		bool confirmDiscard() const;
@@ -125,6 +133,18 @@ class CCTextInputDialog : public CCInputDialogBase
 		 */
 		void setValidator(const sigc::slot<bool, const std::string &, std::string &> &validator);
 		void enablePasswordMode(bool enable = true);
+
+		/**
+		 * Shows a keyboard below the input field.
+		 *
+		 * Not cosmetic: CRCInput::getUnicodeValue() only knows upper
+		 * case letters, so without it lower case and umlauts cannot be
+		 * entered at all. Call before exec().
+		 *
+		 * While the keyboard has focus, OK inserts the focused glyph
+		 * instead of saving. Red still saves.
+		 */
+		void enableOnScreenKeyboard(bool enable = true);
 
 		int exec(CMenuTarget *parent, const std::string &actionKey);
 		void hide();
