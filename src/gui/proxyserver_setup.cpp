@@ -38,11 +38,43 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include <gui/widget/stringinput.h>
-#include <gui/widget/keyboard_input.h>
+#include <gui/components/cc_input_dialog.h>
 
 #include <driver/screen_max.h>
 #include <system/debug.h>
+
+namespace
+{
+std::string makeDialogHint(const neutrino_locale_t hint1,
+	const neutrino_locale_t hint2)
+{
+	std::string hint = g_Locale->getText(hint1);
+	const std::string hint_extra = g_Locale->getText(hint2);
+
+	if (!hint_extra.empty())
+	{
+		if (!hint.empty())
+			hint += "\n";
+		hint += hint_extra;
+	}
+
+	return hint;
+}
+
+void initProxyTextDialog(CCTextInputDialog &dialog,
+	const neutrino_locale_t title,
+	const neutrino_locale_t hint1,
+	const neutrino_locale_t hint2,
+	const bool password_mode = false)
+{
+	dialog.setHintText(makeDialogHint(hint1, hint2));
+	dialog.setPlaceholder(g_Locale->getText(title));
+	if (title == LOCALE_FLASHUPDATE_PROXYSERVER)
+		dialog.setFieldFontReference("server.example.org:8080");
+	if (password_mode)
+		dialog.enablePasswordMode(true);
+}
+}
 
 
 CProxySetup::CProxySetup(const neutrino_locale_t title, const char * const IconName )
@@ -81,18 +113,52 @@ int CProxySetup::showProxySetup()
 	neutrino_locale_t subtitle = (menue_title == LOCALE_FLASHUPDATE_PROXYSERVER_SEP ? NONEXISTANT_LOCALE : LOCALE_FLASHUPDATE_PROXYSERVER_SEP);
 	mn->addIntroItems(subtitle);
 
-	CKeyboardInput softUpdate_proxy(LOCALE_FLASHUPDATE_PROXYSERVER, &g_settings.softupdate_proxyserver, 0, NULL, NULL, LOCALE_FLASHUPDATE_PROXYSERVER_HINT1, LOCALE_FLASHUPDATE_PROXYSERVER_HINT2);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER, true, g_settings.softupdate_proxyserver, &softUpdate_proxy, NULL, CRCInput::RC_red);
+	CCTextInputDialog softUpdate_proxy(
+		g_Locale->getText(LOCALE_FLASHUPDATE_PROXYSERVER),
+		&g_settings.softupdate_proxyserver);
+	initProxyTextDialog(softUpdate_proxy,
+		LOCALE_FLASHUPDATE_PROXYSERVER,
+		LOCALE_FLASHUPDATE_PROXYSERVER_HINT1,
+		LOCALE_FLASHUPDATE_PROXYSERVER_HINT2);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER,
+		true,
+		NULL,
+		&softUpdate_proxy,
+		NULL,
+		CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXYSERVER);
 	mn->addItem(mf);
 
-	CKeyboardInput softUpdate_proxyuser(LOCALE_FLASHUPDATE_PROXYUSERNAME, &g_settings.softupdate_proxyusername, 0, NULL, NULL, LOCALE_FLASHUPDATE_PROXYUSERNAME_HINT1, LOCALE_FLASHUPDATE_PROXYUSERNAME_HINT2);
-	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYUSERNAME, true, g_settings.softupdate_proxyusername, &softUpdate_proxyuser, NULL, CRCInput::RC_green);
+	CCTextInputDialog softUpdate_proxyuser(
+		g_Locale->getText(LOCALE_FLASHUPDATE_PROXYUSERNAME),
+		&g_settings.softupdate_proxyusername);
+	initProxyTextDialog(softUpdate_proxyuser,
+		LOCALE_FLASHUPDATE_PROXYUSERNAME,
+		LOCALE_FLASHUPDATE_PROXYUSERNAME_HINT1,
+		LOCALE_FLASHUPDATE_PROXYUSERNAME_HINT2);
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYUSERNAME,
+		true,
+		NULL,
+		&softUpdate_proxyuser,
+		NULL,
+		CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXYUSER);
 	mn->addItem(mf);
 
-	CKeyboardInput softUpdate_proxypass(LOCALE_FLASHUPDATE_PROXYPASSWORD, &g_settings.softupdate_proxypassword, 0, NULL, NULL, LOCALE_FLASHUPDATE_PROXYPASSWORD_HINT1, LOCALE_FLASHUPDATE_PROXYPASSWORD_HINT2);
-	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYPASSWORD, true, g_settings.softupdate_proxypassword, &softUpdate_proxypass, NULL, CRCInput::RC_yellow);
+	CCTextInputDialog softUpdate_proxypass(
+		g_Locale->getText(LOCALE_FLASHUPDATE_PROXYPASSWORD),
+		&g_settings.softupdate_proxypassword);
+	initProxyTextDialog(softUpdate_proxypass,
+		LOCALE_FLASHUPDATE_PROXYPASSWORD,
+		LOCALE_FLASHUPDATE_PROXYPASSWORD_HINT1,
+		LOCALE_FLASHUPDATE_PROXYPASSWORD_HINT2,
+		true);
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYPASSWORD,
+		true,
+		NULL,
+		&softUpdate_proxypass,
+		NULL,
+		CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXYPASS);
 	mn->addItem(mf);
 
