@@ -211,7 +211,18 @@ void CComponentsKeyboard::applyKeyStates()
 		for (int c = 0; c < columns; c++)
 		{
 			const bool selected = ck_has_focus && r == ck_row && c == ck_column;
-			ck_keys[r][c]->setSelected(selected);
+			/* Every colour is passed explicitly: the defaults of
+			 * setSelected() would put the global menu colours and a
+			 * 3px frame on every key and so undo setKeyColors() on
+			 * each focus move. Focus shows as a frame; the body keeps
+			 * the configured key colour in both states. */
+			ck_keys[r][c]->setSelected(selected,
+				COL_MENUCONTENTSELECTED_PLUS_0,
+				ck_col_key_body,
+				ck_col_key_body,
+				ck_col_key_body,
+				0,
+				2);
 		}
 	}
 }
