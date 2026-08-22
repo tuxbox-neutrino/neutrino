@@ -26,9 +26,19 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 		return HANDLED_CONTINUE;
 
 	if (authenticate) {
+		// local calls and NoAuthClient matches (a leading address
+		// prefix, e.g. "192.168.1." — the UIs have always advertised
+		// it as a prefix) never see the login
+		const std::string &clientaddr = hh->UrlData["clientaddr"];
+		bool exempt = (clientaddr.find(IADDR_LOCAL) == 0)
+			|| (!no_auth_client.empty() && clientaddr.compare(0, no_auth_client.length(), no_auth_client) == 0);
+
 		// basic auth has no logout; answering 401 to a top-level
 		// navigation is the only way to make browsers drop their
-		// cached credentials, so /logout does that unconditionally
+		// cached credentials, so /logout does that unconditionally.
+		// An exempt client gets told why logging out changes nothing
+		// for it; the concrete exception list is never disclosed here
+		// (this page is reachable without credentials).
 		if (hh->UrlData["url"] == "/logout") {
 			hh->SetHeader(HTTP_UNAUTHORIZED, "text/html; charset=UTF-8");
 			hh->Write(
@@ -37,22 +47,37 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 				"<title>yWeb - Logout</title>"
 				"<style>body{margin:0;display:flex;min-height:100vh;align-items:center;"
 				"justify-content:center;font-family:system-ui,sans-serif;"
-				"background:#11191f;color:#dce3e8}main{max-width:24rem;padding:2rem;"
+				"background:#11191f;color:#dce3e8}main{max-width:26rem;padding:2rem;"
 				"text-align:center}h1{font-size:1.3rem}p{color:#8891a4}"
-				"a{color:#fd6d13}</style></head><body><main>"
-				"<h1>Logged out &mdash; Abgemeldet</h1>"
-				"<p>The browser will ask for the login again on the next access.<br>"
-				"Der Browser fragt beim n&auml;chsten Zugriff erneut nach der Anmeldung.</p>"
-				"<p><a href=\"/\">Log in again &mdash; Erneut anmelden</a></p>"
-				"</main></body></html>");
+				"a{color:#fd6d13}small{color:#667}</style></head><body><main>");
+			if (exempt) {
+				hh->Write(
+					"<h1>No login required &mdash; Kein Login erforderlich</h1>"
+					"<p>This device is exempt (local access or configured address"
+					" range), the web interface opens without a login &mdash;"
+					" logging out has no effect here. Change this under Settings"
+					" &rarr; Webserver.<br>"
+					"Dieses Ger&auml;t ist ausgenommen (lokaler Zugriff oder"
+					" konfigurierter Adressbereich); das Webinterface &ouml;ffnet"
+					" ohne Anmeldung &mdash; Abmelden hat hier keine Wirkung."
+					" &Auml;nderbar unter Einstellungen &rarr; Webserver.</p>"
+					"<p><a href=\"/\">Continue &mdash; Weiter</a></p>");
+			} else {
+				hh->Write(
+					"<h1>Logged out &mdash; Abgemeldet</h1>"
+					"<p>The browser will ask for the login again on the next access.<br>"
+					"Der Browser fragt beim n&auml;chsten Zugriff erneut nach der Anmeldung.</p>"
+					"<p><a href=\"/\">Log in again &mdash; Erneut anmelden</a></p>"
+					"<p><small>Devices on the exception list keep access without a login"
+					" (Settings &rarr; Webserver).<br>Ger&auml;te auf der Ausnahmeliste"
+					" behalten Zugriff ohne Anmeldung (Einstellungen &rarr; Webserver)."
+					"</small></p>");
+			}
+			hh->Write("</main></body></html>");
 			return HANDLED_ERROR;
 		}
 
-		// dont check local calls or calls from NoAuthClient
-		// (a leading address prefix, e.g. "192.168.1." — the UIs have
-		// always advertised it as a prefix)
-		if ((hh->UrlData["clientaddr"]).find(IADDR_LOCAL) > 0
-			&& (no_auth_client.empty() || (hh->UrlData["clientaddr"]).compare(0, no_auth_client.length(), no_auth_client) != 0))
+		if (!exempt)
 		{
 			if (!CheckAuth(hh)) {
 				hh->SetHeader(HTTP_UNAUTHORIZED, "text/html; charset=UTF-8");
