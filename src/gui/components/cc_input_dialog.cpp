@@ -181,6 +181,7 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 	cid_allow_empty = true;
 	cid_saved = false;
 	cid_max_chars = 0;
+	cid_filter_mode = CCInputBuffer::FILTER_FREE;
 	cid_field_col_text = getInputFieldTextColor();
 	cid_field_col_frame = getInputFieldFrameColor();
 	cid_field_col_body = getInputFieldBodyColor();
@@ -397,6 +398,7 @@ void CCTextInputDialog::syncDialogState()
 {
 	cid_buffer.setMaxChars(cid_max_chars);
 	cid_buffer.setAllowEmpty(cid_allow_empty);
+	cid_buffer.setFilterMode(cid_filter_mode);
 	cid_field->setBuffer(&cid_buffer);
 	applyFieldStyle();
 	cid_field->setPasswordMode(cid_password_mode);
@@ -466,6 +468,20 @@ bool CCTextInputDialog::save()
 		return false;
 	}
 
+	if (!cid_validator.empty())
+	{
+		std::string reason;
+		if (!cid_validator(cid_buffer.getText(), reason))
+		{
+			cid_field->setErrorState(true);
+			showInlineError(reason.empty() ?
+				g_Locale->getText(LOCALE_STRINGINPUT_SAVE_FAILED) :
+				reason);
+			cid_field->paint(false);
+			return false;
+		}
+	}
+
 	if (cid_value)
 		*cid_value = cid_buffer.getText();
 
@@ -511,6 +527,17 @@ void CCTextInputDialog::setAllowEmpty(bool allow_empty)
 {
 	cid_allow_empty = allow_empty;
 	cid_buffer.setAllowEmpty(allow_empty);
+}
+
+void CCTextInputDialog::setFilterMode(CCInputBuffer::input_filter_mode_t mode)
+{
+	cid_filter_mode = mode;
+	cid_buffer.setFilterMode(mode);
+}
+
+void CCTextInputDialog::setValidator(const sigc::slot<bool, const std::string &, std::string &> &validator)
+{
+	cid_validator = validator;
 }
 
 void CCTextInputDialog::enablePasswordMode(bool enable)
