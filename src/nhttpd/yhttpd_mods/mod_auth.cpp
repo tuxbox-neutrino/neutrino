@@ -67,7 +67,10 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 					"<h1>Logged out &mdash; Abgemeldet</h1>"
 					"<p>The browser will ask for the login again on the next access.<br>"
 					"Der Browser fragt beim n&auml;chsten Zugriff erneut nach der Anmeldung.</p>"
-					"<p><a href=\"/\">Log in again &mdash; Erneut anmelden</a></p>"
+					// unique query per click: a cached / would satisfy the
+					// navigation without a request and no login prompt appears
+					"<p><a href=\"/\" onclick=\"this.href='/?r='+Date.now()\">"
+					"Log in again &mdash; Erneut anmelden</a></p>"
 					"<p><small>Devices on the exception list keep access without a login"
 					" (Settings &rarr; Webserver).<br>Ger&auml;te auf der Ausnahmeliste"
 					" behalten Zugriff ohne Anmeldung (Einstellungen &rarr; Webserver)."
@@ -91,7 +94,10 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 					"text-align:center}h1{font-size:1.3rem}p{color:#8891a4}"
 					"a{color:#fd6d13}</style></head><body><main>"
 					"<h1>Login required &mdash; Anmeldung erforderlich</h1>"
-					"<p><a href=\"/\">Try again &mdash; Erneut versuchen</a></p>"
+					// unique query per click: a cached / would satisfy the
+					// navigation without a request and no login prompt appears
+					"<p><a href=\"/\" onclick=\"this.href='/?r='+Date.now()\">"
+					"Try again &mdash; Erneut versuchen</a></p>"
 					"</main></body></html>");
 				status = HANDLED_ERROR;
 			}
