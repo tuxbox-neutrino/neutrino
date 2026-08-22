@@ -396,6 +396,12 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 			} else
 				result += string_printf("Content-Length: %lld\r\n", GetContentLength());
 		}
+		// hook-set cookie; cleared after emission because BuildHeader can
+		// run more than once per response (see the do/while in yresponse)
+		if (!(HookVarList["Set-Cookie"]).empty()) {
+			result += "Set-Cookie: " + HookVarList["Set-Cookie"] + "\r\n";
+			HookVarList["Set-Cookie"] = "";
+		}
 		result += "\r\n"; // End of Header
 		break;
 	}
