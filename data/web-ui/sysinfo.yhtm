@@ -292,8 +292,8 @@
 		</details>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=18"></script>
-	<script src="/yweb-header.js?v=51"></script>
+	<script src="/Y_Lang.yjs?v=19"></script>
+	<script src="/yweb-header.js?v=52"></script>
 	<script>
 	function row(label, value) {
 		return '<span class="sysinfo-label">' + label + '</span><span class="sysinfo-value">' + value + '</span>';

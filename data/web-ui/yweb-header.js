@@ -607,9 +607,9 @@ function ywebLogout() {
 		sessionStorage.removeItem('yweb-pwgate');
 		sessionStorage.removeItem('yweb-authed');
 	} catch (e) {}
-	fetch('/logout', { headers: { 'Authorization': 'Basic ' + btoa('log:out') } })
-		.catch(function() {})
-		.then(function() { location.href = '/logout'; });
+	// the session logout is deterministic; the server clears the cookie
+	// and 401s any remaining Basic credentials on /logout itself
+	location.href = '/logout';
 }
 
 // Update spacer height based on actual header dimensions
