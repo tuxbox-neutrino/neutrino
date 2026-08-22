@@ -27,6 +27,7 @@ install_DATA = \
 	dashboard.yhtm \
 	epg.yhtm \
 	files.yhtm \
+	login.yhtm \
 	screenshot.yhtm \
 	set-lang.yhtm \
 	settings.yhtm \

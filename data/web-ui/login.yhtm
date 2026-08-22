@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>yWeb - {=L:yw.login.title=}</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: yweb-header.js runs
+		// too late, and some pages never load it at all.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/yweb.css?v=87">
+	<style>
+		.login-wrap {
+			max-width: 26rem;
+			margin: 3rem auto;
+			padding: 1.5rem;
+		}
+		.login-wrap h1 {
+			font-size: 1.4rem;
+			margin-bottom: 0.3rem;
+		}
+		.login-wrap p.sub {
+			color: var(--pico-muted-color);
+			margin-bottom: 1.5rem;
+		}
+		.login-wrap label {
+			display: block;
+			margin-bottom: 0.3rem;
+			font-weight: 600;
+		}
+		.login-wrap input[type=text] {
+			width: 100%;
+			margin-bottom: 1.2rem;
+		}
+		.login-wrap .login-pw-row {
+			display: flex;
+			gap: 0.4rem;
+			align-items: center;
+			margin-bottom: 1.2rem;
+		}
+		.login-wrap .login-pw-row input {
+			flex: 1;
+			margin-bottom: 0;
+		}
+		.login-wrap .login-err {
+			display: block;
+			color: var(--pico-del-color);
+			margin-bottom: 1rem;
+		}
+		.login-wrap .login-note {
+			display: block;
+			color: var(--pico-muted-color);
+			margin-bottom: 1rem;
+		}
+	</style>
+</head>
+<body>
+	<main class="login-wrap yweb-card">
+		<h1>{=L:yw.login.title=}</h1>
+		<p class="sub">{=L:yw.login.intro=}</p>
+
+		<!-- Must stay a plain form post: the server matches the request
+		     content type "application/x-www-form-urlencoded" exactly, a
+		     fetch() with a charset suffix would not be parsed. -->
+		<form method="post" action="/login">
+			<label for="loginUser">{=L:yw.login.user=}</label>
+			<input type="text" id="loginUser" name="username" autocomplete="username" autofocus>
+
+			<label for="loginPass">{=L:yw.login.pass=}</label>
+			<div class="login-pw-row">
+				<input type="password" id="loginPass" name="password" autocomplete="current-password">
+				<button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="loginTogglePw('loginPass', this)"></button>
+			</div>
+
+			<input type="hidden" id="loginNext" name="next" value="/">
+
+			<!-- Both notes exist in the DOM up front, so role=status is
+			     announced when they are unhidden. -->
+			<small class="login-err" id="loginErr" role="status" tabindex="-1" hidden>{=L:yw.login.failed=}</small>
+			<small class="login-note" id="loginOut" role="status" hidden>{=L:yw.login.out=}</small>
+
+			<button type="submit" class="yweb-btn primary" style="width:100%">{=L:yw.login.submit=}</button>
+		</form>
+	</main>
+
+	<script>
+		// Local eye icons: this page deliberately does not load yweb-header.js
+		var LOGIN_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+		var LOGIN_EYEOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+		document.querySelectorAll('.login-pw-row .yweb-btn').forEach(function(b) { b.innerHTML = LOGIN_EYE; });
+
+		function loginTogglePw(id, btn) {
+			var el = document.getElementById(id);
+			var show = el.type === 'password';
+			el.type = show ? 'text' : 'password';
+			btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+			btn.innerHTML = show ? LOGIN_EYEOFF : LOGIN_EYE;
+		}
+
+		var loginParams = new URLSearchParams(location.search);
+		var loginNext = loginParams.get('next') || '/';
+		// Server-side sanitizing is authoritative; this only avoids
+		// carrying obvious junk through the form roundtrip.
+		if (loginNext.charAt(0) !== '/' || loginNext.charAt(1) === '/')
+			loginNext = '/';
+		document.getElementById('loginNext').value = loginNext;
+
+		if (loginParams.get('err') === '1') {
+			var err = document.getElementById('loginErr');
+			err.hidden = false;
+			err.focus();
+		}
+		if (loginParams.get('out') === '1')
+			document.getElementById('loginOut').hidden = false;
+	</script>
+</body>
+</html>
