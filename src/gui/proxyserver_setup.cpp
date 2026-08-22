@@ -69,6 +69,11 @@ void initProxyTextDialog(CCTextInputDialog &dialog,
 {
 	dialog.setHintText(makeDialogHint(hint1, hint2));
 	dialog.setPlaceholder(g_Locale->getText(title));
+
+	/* Without the keyboard none of these three fields can be filled in:
+	 * CRCInput::getUnicodeValue() only produces upper case, and a proxy
+	 * host name, a user name and a password all need lower case. */
+	dialog.enableOnScreenKeyboard(true);
 	if (title == LOCALE_FLASHUPDATE_PROXYSERVER)
 		dialog.setFieldFontReference("server.example.org:8080");
 	if (password_mode)
