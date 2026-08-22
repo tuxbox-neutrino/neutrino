@@ -41,6 +41,10 @@
 #include <driver/screen_max.h>
 #include <system/debug.h>
 
+#include <algorithm>
+#include <deque>
+#include <vector>
+
 #include <system/helpers.h>
 #include <cs_api.h>
 
@@ -52,6 +56,8 @@
 
 #include "buildinfo.h"
 #include "color_custom.h"
+#include "components/cc_frm_input_row.h"
+#include "components/cc_input_dialog.h"
 #include "components/cc_timer.h"
 #include "rate_banner.h"
 #include "scan.h"
@@ -196,6 +202,753 @@ CTestMenu::~CTestMenu()
 void CTestMenu::handleShellOutput(std::string *line, int *, bool *)
 {
 	fprintf(stderr, "%s: %s\n", __func__, line->c_str());
+}
+
+namespace
+{
+std::string makeInputDialogSaveText(const std::string &label,
+	const std::string &value)
+{
+	return label +
+		" (" +
+		to_string(value.size()) +
+		" Zeichen):\n\"" +
+		value +
+		"\"";
+}
+
+int execCCTextInputTest(bool password_mode = false)
+{
+	std::string sample_text =
+		std::string(g_Locale->getText(LOCALE_EPGPLUS_REMIND)) +
+		" " +
+		Unicode_Character_to_UTF8(0x00C4) +
+		" " +
+		Unicode_Character_to_UTF8(0x00B0);
+	if (password_mode)
+		sample_text = "S3cr3t " + sample_text;
+
+	std::string value = sample_text;
+	CCTextInputDialog dialog(password_mode ? "Passwort eingeben" :
+		"Text eingeben",
+		&value);
+
+	if (password_mode)
+	{
+		dialog.setHintText("Maskierte Texteingabe. Die MsgBox nach dem "
+			"Speichern zeigt den unmaskierten "
+			"Zielstring fuer den Test.");
+		dialog.setPlaceholder("Passwort eingeben...");
+		dialog.setMaxChars(64);
+		dialog.enablePasswordMode(true);
+	}
+	else
+	{
+		dialog.setHintText("Freie Texteingabe ohne feste Slot-Grenze. "
+			"Links/Rechts bewegt den Cursor, Gruen "
+			"loescht am Cursor, Gelb leert das Feld.");
+		dialog.setPlaceholder("Text eingeben...");
+		dialog.setMaxChars(128);
+	}
+	dialog.setAllowEmpty(false);
+
+	const int res = dialog.exec(NULL, "");
+
+	if (res == menu_return::RETURN_REPAINT)
+	{
+		ShowMsg(password_mode ? "CCTextInput Password Dialog" :
+			"CCTextInput Dialog",
+			makeInputDialogSaveText(password_mode ?
+				"Gespeicherter Passwort-Text" :
+				"Gespeicherter Text",
+				value),
+			CMsgBox::mbrBack,
+			CMsgBox::mbBack,
+			NEUTRINO_ICON_INFO);
+	}
+
+	return res;
+}
+
+int getMultiFieldDialogWidth()
+{
+	CFrameBuffer *fb = CFrameBuffer::getInstance();
+	const int screen_w = fb->getScreenWidth(true);
+	const int preferred_w = std::max(fb->scale2Res(860), screen_w * 68 / 100);
+
+	return std::min(screen_w - 2 * OFFSET_INNER_MID, preferred_w);
+}
+
+int getMultiFieldDialogPad()
+{
+	return std::max(OFFSET_INNER_MID,
+			CFrameBuffer::getInstance()->scale2Res(18));
+}
+
+int getMultiFieldRowGap()
+{
+	return std::max(OFFSET_INNER_SMALL,
+			CFrameBuffer::getInstance()->scale2Res(12));
+}
+
+struct multi_field_phase0_entry_t
+{
+	std::string label;
+	std::string *target;
+	std::string original_value;
+	CComponentsInputRow *row;
+
+	multi_field_phase0_entry_t()
+	{
+		target = NULL;
+		row = NULL;
+	}
+};
+
+class CCMultiFieldPhase0Dialog : public CCInputDialogBase
+{
+	private:
+		std::deque<multi_field_phase0_entry_t> md_entries;
+		std::vector<size_t> md_focus_order;
+		CComponentsText *md_hint;
+		std::string md_hint_text;
+		std::string md_error_text;
+		int md_active_index;
+		bool md_saved;
+
+		void initHint()
+		{
+			const int pad = getMultiFieldDialogPad();
+			const int body_w = getBodyObject()->getWidth() - 2 * pad;
+			Font *hint_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+
+			md_hint = new CComponentsText(pad,
+				pad,
+				body_w,
+				CCInputDialogBase::getDialogHintHeight(hint_font),
+				"",
+				CTextBox::AUTO_WIDTH |
+				CTextBox::AUTO_HIGH,
+				hint_font,
+				CComponentsText::FONT_STYLE_REGULAR,
+				NULL,
+				CC_SHADOW_OFF,
+				COL_MENUCONTENT_TEXT_PLUS_1);
+			md_hint->doPaintBg(false);
+			md_hint->doPaintTextBoxBg(false);
+			addWindowItem(md_hint);
+		}
+
+		void addEntry(const std::string &label,
+			std::string *target,
+			const std::string &placeholder,
+			const bool password_mode = false,
+			const bool allow_empty = true,
+			const size_t max_chars = 0)
+		{
+			const int pad = getMultiFieldDialogPad();
+			const int body_w = getBodyObject()->getWidth() - 2 * pad;
+
+			md_entries.push_back(multi_field_phase0_entry_t());
+			multi_field_phase0_entry_t &entry = md_entries.back();
+			entry.label = label;
+			entry.target = target;
+			entry.original_value = target ? *target : "";
+
+			entry.row = new CComponentsInputRow(pad,
+				pad,
+				body_w,
+				0);
+			entry.row->setLabelText(label);
+			entry.row->setPlaceholder(placeholder);
+			entry.row->setText(entry.original_value);
+			entry.row->setPasswordMode(password_mode);
+			entry.row->setAllowEmpty(allow_empty);
+			entry.row->setMaxChars(max_chars);
+			addWindowItem(entry.row);
+
+			md_focus_order.push_back(md_entries.size() - 1);
+		}
+
+		void layoutEntries()
+		{
+			if (!md_hint)
+				return;
+
+			const int pad = getMultiFieldDialogPad();
+			const int gap = getMultiFieldRowGap();
+			int body_w = getBodyObject()->getWidth() - 2 * pad;
+			Font *hint_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
+			const int hint_h = CCInputDialogBase::getDialogHintHeight(hint_font);
+			const int header_h = getHeaderObject() ? getHeaderObject()->getHeight() : 0;
+			const int footer_h = getFooterObject() ? getFooterObject()->getHeight() : 0;
+			int body_content_h = pad + hint_h + gap;
+
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				if (!md_entries[i].row)
+					continue;
+
+				md_entries[i].row->setWidth(body_w);
+				md_entries[i].row->refreshLayout();
+				body_content_h += md_entries[i].row->getHeight() + gap;
+			}
+
+			const int target_h = header_h + footer_h + body_content_h +
+				2 * fr_thickness;
+
+			if (height != target_h)
+			{
+				height = target_h;
+				setCenterPos(CC_ALONG_X | CC_ALONG_Y);
+				Refresh();
+				applyDialogStyle();
+			}
+
+			setCenterPos(CC_ALONG_X | CC_ALONG_Y);
+			body_w = getBodyObject()->getWidth() - 2 * pad;
+			int y_pos = pad;
+
+			md_hint->setTextFont(hint_font);
+			md_hint->setDimensionsAll(pad, y_pos, body_w, hint_h);
+			md_hint->setText(md_error_text.empty() ? md_hint_text : md_error_text,
+				CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
+				hint_font,
+				md_error_text.empty() ?
+				COL_MENUCONTENT_TEXT_PLUS_1 :
+				COL_RED);
+			y_pos += hint_h + gap;
+
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				multi_field_phase0_entry_t &entry = md_entries[i];
+				if (!entry.row)
+					continue;
+
+				entry.row->setDimensionsAll(pad,
+					y_pos,
+					body_w,
+					entry.row->getPreferredHeight());
+				entry.row->refreshLayout();
+				y_pos += entry.row->getHeight() + gap;
+			}
+		}
+
+		multi_field_phase0_entry_t *getActiveEntry()
+		{
+			if (md_active_index < 0 ||
+				md_active_index >= (int) md_focus_order.size())
+				return NULL;
+
+			return &md_entries[md_focus_order[md_active_index]];
+		}
+
+		const multi_field_phase0_entry_t *getActiveEntry() const
+		{
+			if (md_active_index < 0 ||
+				md_active_index >= (int) md_focus_order.size())
+				return NULL;
+
+			return &md_entries[md_focus_order[md_active_index]];
+		}
+
+		void updateStatusText()
+		{
+			if (!md_hint)
+				return;
+
+			const bool has_error = !md_error_text.empty();
+			md_hint->setText(has_error ? md_error_text : md_hint_text,
+				CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH,
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO],
+				has_error ? COL_RED :
+				COL_MENUCONTENT_TEXT_PLUS_1);
+		}
+
+		void clearInlineError()
+		{
+			if (md_error_text.empty())
+				return;
+
+			md_error_text.clear();
+			updateStatusText();
+			if (md_hint)
+				md_hint->paint(false);
+		}
+
+		void showInlineError(const std::string &text)
+		{
+			md_error_text = text;
+			updateStatusText();
+			if (md_hint)
+				md_hint->paint(false);
+		}
+
+		void clearFieldErrors()
+		{
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				if (md_entries[i].row)
+					md_entries[i].row->setErrorState(false);
+			}
+		}
+
+		void updateVfd() const
+		{
+			const multi_field_phase0_entry_t *entry = getActiveEntry();
+			if (!entry || !entry->row)
+				return;
+
+			CVFD::getInstance()->showMenuText(1,
+				entry->row->getText().c_str(),
+				entry->row->getBufferObject()->getCursor() + 1);
+		}
+
+		bool isDirty() const
+		{
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				if (md_entries[i].row &&
+					md_entries[i].row->getText() != md_entries[i].original_value)
+					return true;
+			}
+
+			return false;
+		}
+
+		int findFocusIndexForEntry(const size_t entry_index) const
+		{
+			for (size_t i = 0; i < md_focus_order.size(); i++)
+			{
+				if (md_focus_order[i] == entry_index)
+					return i;
+			}
+
+			return -1;
+		}
+
+		bool confirmDiscard() const
+		{
+			return ShowMsg(ccw_caption,
+					LOCALE_MESSAGEBOX_DISCARD,
+					CMsgBox::mbrYes,
+					CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel;
+		}
+
+		void focusField(int index)
+		{
+			if (md_focus_order.empty())
+				return;
+
+			const int count = md_focus_order.size();
+			if (index < 0)
+				index = count - 1;
+			else if (index >= count)
+				index = 0;
+
+			if (md_active_index == index)
+			{
+				multi_field_phase0_entry_t *entry = getActiveEntry();
+				if (!entry || !entry->row || !entry->row->getFieldObject())
+					return;
+
+				getBodyObject()->setSelectedItem(entry->row,
+					COL_MENUCONTENTSELECTED_PLUS_0,
+					COL_FRAME_PLUS_0,
+					COL_MENUCONTENT_PLUS_0,
+					COL_MENUCONTENT_PLUS_0,
+					0,
+					0);
+				entry->row->setFocus(true);
+				entry->row->setFieldFocus(true);
+				entry->row->ensureCursorVisible();
+				entry->row->getFieldObject()->paint(false);
+				updateVfd();
+				return;
+			}
+
+			multi_field_phase0_entry_t *old_entry = getActiveEntry();
+			if (old_entry && old_entry->row && old_entry->row->getFieldObject())
+			{
+				old_entry->row->setFieldFocus(false);
+				old_entry->row->getFieldObject()->paint(false);
+			}
+
+			md_active_index = index;
+
+			multi_field_phase0_entry_t *new_entry = getActiveEntry();
+			if (!new_entry || !new_entry->row || !new_entry->row->getFieldObject())
+				return;
+
+			getBodyObject()->setSelectedItem(new_entry->row,
+				COL_MENUCONTENTSELECTED_PLUS_0,
+				COL_FRAME_PLUS_0,
+				COL_MENUCONTENT_PLUS_0,
+				COL_MENUCONTENT_PLUS_0,
+				0,
+				0);
+			new_entry->row->setFocus(true);
+			new_entry->row->setFieldFocus(true);
+			new_entry->row->ensureCursorVisible();
+			new_entry->row->getFieldObject()->paint(false);
+			updateVfd();
+		}
+
+		bool save()
+		{
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				multi_field_phase0_entry_t &entry = md_entries[i];
+				if (!entry.row || !entry.row->getBufferObject()->isAcceptable())
+				{
+					const int focus_index = findFocusIndexForEntry(i);
+
+					clearFieldErrors();
+					if (focus_index >= 0)
+						focusField(focus_index);
+					if (entry.row && entry.row->getFieldObject())
+					{
+						entry.row->setErrorState(true);
+						entry.row->getFieldObject()->paint(false);
+					}
+
+					showInlineError(entry.label +
+						": " +
+						g_Locale->getText(
+							LOCALE_STRINGINPUT_EMPTY_NOT_ALLOWED));
+					return false;
+				}
+			}
+
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				if (md_entries[i].target && md_entries[i].row)
+					*md_entries[i].target = md_entries[i].row->getText();
+			}
+
+			md_saved = true;
+			return true;
+		}
+
+	public:
+		CCMultiFieldPhase0Dialog(std::string *server,
+			std::string *user,
+			std::string *password,
+			std::string *note)
+			: CCInputDialogBase(getMultiFieldDialogWidth(),
+				  CFrameBuffer::getInstance()->scale2Res(560),
+				  "Mehrfeld-Form Phase 0",
+				  NEUTRINO_ICON_EDIT)
+		{
+			cc_item_type.name = "cc_multi_field_phase0_dialog";
+
+			md_hint = NULL;
+			md_active_index = -1;
+			md_saved = false;
+			md_hint_text = "Phase 0 Test: Hoch/Runter wechselt Feld, "
+				"Links/Rechts bewegt den Cursor. Rot/OK "
+				"speichert, Gruen loescht am Cursor oder "
+				"links davon, Gelb leert das aktive Feld.";
+			md_focus_order.reserve(4);
+			applyDialogStyle();
+			initHint();
+			addEntry("Proxy-Server",
+				server,
+				"server.example.org:8080",
+				false,
+				false,
+				255);
+			addEntry("Proxy-Benutzer",
+				user,
+				"Benutzername",
+				false,
+				true,
+				64);
+			addEntry("Proxy-Passwort",
+				password,
+				"Passwort",
+				true,
+				true,
+				64);
+			addEntry("Notiz",
+				note,
+				"Freitext fuer Cursor- und UTF-8-Test",
+				false,
+				true,
+				96);
+			initFooterButtons();
+			layoutEntries();
+			updateStatusText();
+		}
+
+		virtual ~CCMultiFieldPhase0Dialog()
+		{
+		}
+
+		bool didSave() const
+		{
+			return md_saved;
+		}
+
+		std::string getSummaryText() const
+		{
+			std::string out;
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				const multi_field_phase0_entry_t &entry = md_entries[i];
+				if (!out.empty())
+					out += "\n";
+				out += entry.label +
+					" (" +
+					to_string(entry.target ?
+						entry.target->size() :
+						(entry.row ?
+							entry.row->getBufferObject()->size() :
+							0)) +
+					"):\n\"" +
+					(entry.target ? *entry.target :
+						(entry.row ?
+							entry.row->getText() :
+							std::string())) +
+					"\"";
+			}
+			return out;
+		}
+
+		int exec(CMenuTarget *parent, const std::string & /*actionKey*/)
+		{
+			neutrino_msg_t msg = CRCInput::RC_nokey;
+			neutrino_msg_data_t data = 0;
+			int res = menu_return::RETURN_REPAINT;
+
+			if (parent)
+				parent->hide();
+
+			md_saved = false;
+			md_error_text.clear();
+			updateStatusText();
+			clearFieldErrors();
+			paint();
+			focusField(0);
+
+			uint64_t timeoutEnd =
+				CRCInput::calcTimeoutEnd(
+					g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+
+			bool loop = true;
+			while (loop)
+			{
+				g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
+
+				if (msg <= CRCInput::RC_MaxRC)
+					timeoutEnd = CRCInput::calcTimeoutEnd(
+							g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+
+				multi_field_phase0_entry_t *entry = getActiveEntry();
+				CCInputBuffer *buffer =
+					entry && entry->row ?
+					entry->row->getBufferObject() :
+					NULL;
+				CCInputField *field =
+					entry && entry->row ?
+					entry->row->getFieldObject() :
+					NULL;
+				bool state_changed = false;
+
+				if (msg == CRCInput::RC_up)
+				{
+					clearFieldErrors();
+					clearInlineError();
+					focusField(md_active_index - 1);
+				}
+				else if (msg == CRCInput::RC_down)
+				{
+					clearFieldErrors();
+					clearInlineError();
+					focusField(md_active_index + 1);
+				}
+				else if (msg == CRCInput::RC_left && buffer)
+				{
+					clearFieldErrors();
+					clearInlineError();
+					buffer->moveLeft();
+					state_changed = true;
+				}
+				else if (msg == CRCInput::RC_right && buffer)
+				{
+					clearFieldErrors();
+					clearInlineError();
+					buffer->moveRight();
+					state_changed = true;
+				}
+				else if (msg == CRCInput::RC_page_up && buffer)
+				{
+					clearFieldErrors();
+					clearInlineError();
+					buffer->moveHome();
+					state_changed = true;
+				}
+				else if (msg == CRCInput::RC_page_down && buffer)
+				{
+					clearFieldErrors();
+					clearInlineError();
+					buffer->moveEnd();
+					state_changed = true;
+				}
+				else if ((msg == CRCInput::RC_backspace ||
+						msg == CRCInput::RC_rewind) && buffer)
+				{
+					clearFieldErrors();
+					clearInlineError();
+					if (buffer->backspace())
+						state_changed = true;
+				}
+				else if (msg == CRCInput::RC_timeout)
+				{
+					if (isDirty() && !confirmDiscard())
+					{
+						paint(false);
+						focusField(md_active_index);
+						continue;
+					}
+
+					loop = false;
+					res = menu_return::RETURN_EXIT_REPAINT;
+				}
+				else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+				{
+					continue;
+				}
+				else
+				{
+					int btn_res = sendButtonKey(msg);
+					if (btn_res >= 0 && entry)
+					{
+						switch (btn_res)
+						{
+							case CCInputDialogBase::RES_SAVE:
+								if (save())
+									loop = false;
+								break;
+							case CCInputDialogBase::RES_DELETE:
+								clearFieldErrors();
+								clearInlineError();
+								if (buffer &&
+									(buffer->erase() ||
+										buffer->backspace()))
+									state_changed = true;
+								break;
+							case CCInputDialogBase::RES_CLEAR:
+								clearFieldErrors();
+								clearInlineError();
+								if (buffer)
+								{
+									buffer->clear();
+									state_changed = true;
+								}
+								break;
+							case CCInputDialogBase::RES_CANCEL:
+								if (isDirty() && !confirmDiscard())
+								{
+									paint(false);
+									focusField(md_active_index);
+									break;
+								}
+								loop = false;
+								res = menu_return::RETURN_EXIT_REPAINT;
+								break;
+						}
+					}
+					else
+					{
+						std::string glyph;
+						const char *unicode_value =
+							CRCInput::getUnicodeValue(msg);
+						if (unicode_value && *unicode_value)
+							glyph = unicode_value;
+						else if (CRCInput::isNumeric(msg))
+							glyph = std::string(
+									1,
+									'0' +
+									CRCInput::getNumericValue(msg));
+
+						if (!glyph.empty() && buffer)
+						{
+							clearFieldErrors();
+							clearInlineError();
+							if (buffer->insert(glyph))
+								state_changed = true;
+							else
+							{
+								if (entry->row)
+									entry->row->setErrorState(true);
+								if (field)
+									field->paint(false);
+								showInlineError(
+									entry->label +
+									": " +
+									g_Locale->getText(
+										LOCALE_STRINGINPUT_MAXCHARS_REACHED));
+							}
+						}
+						else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) &
+							messages_return::cancel_all)
+						{
+							loop = false;
+							res = menu_return::RETURN_EXIT_ALL;
+						}
+					}
+				}
+
+				if (state_changed && field)
+				{
+					if (entry->row)
+						entry->row->ensureCursorVisible();
+					field->paint(false);
+					updateVfd();
+				}
+			}
+
+			hide();
+			return res;
+		}
+
+		void hide()
+		{
+			// Stop caret blinkers before the parent window hides child items.
+			for (size_t i = 0; i < md_entries.size(); i++)
+			{
+				if (md_entries[i].row && md_entries[i].row->getFieldObject())
+					md_entries[i].row->getFieldObject()->hide();
+			}
+
+			CComponentsWindow::hide();
+		}
+};
+
+int execCCMultiFieldPhase0Test()
+{
+	std::string server = "proxy.example.org:8080";
+	std::string user = "dbt";
+	std::string password = "S3cr3t";
+	std::string note = std::string("Ä Ö Ü ") +
+		Unicode_Character_to_UTF8(0x00B0) +
+		" Cursor-Test";
+
+	CCMultiFieldPhase0Dialog dialog(&server, &user, &password, &note);
+	const int res = dialog.exec(NULL, "");
+
+	if (res == menu_return::RETURN_REPAINT && dialog.didSave())
+	{
+		ShowMsg("CC Multi Field Form Phase 0",
+			dialog.getSummaryText(),
+			CMsgBox::mbrBack,
+			CMsgBox::mbBack,
+			NEUTRINO_ICON_INFO);
+	}
+
+	return res;
+}
 }
 
 int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
@@ -915,6 +1668,18 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 		delete iconform;
 		iconform = NULL;
 		return res;
+	}
+	else if (actionKey == "cc_text_input")
+	{
+		return execCCTextInputTest(false);
+	}
+	else if (actionKey == "cc_text_input_password")
+	{
+		return execCCTextInputTest(true);
+	}
+	else if (actionKey == "cc_multi_field_form_phase0")
+	{
+		return execCCMultiFieldPhase0Test();
 	}
 	else if (actionKey == "window")
 	{
@@ -1887,6 +2652,9 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Header", true, NULL, this, "header"));
 	widget->addItem(new CMenuForwarder("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
+	widget->addItem(new CMenuForwarder("CCTextInput Dialog", true, NULL, this, "cc_text_input"));
+	widget->addItem(new CMenuForwarder("CCTextInput Password Dialog", true, NULL, this, "cc_text_input_password"));
+	widget->addItem(new CMenuForwarder("CC Multi Field Form Phase 0", true, NULL, this, "cc_multi_field_form_phase0"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
 	widget->addItem(new CMenuForwarder("Text-Extended", true, NULL, this, "text_ext"));
 	widget->addItem(new CMenuForwarder("Blinking Extended Text", true, NULL, this, "blinking_text_ext"));
