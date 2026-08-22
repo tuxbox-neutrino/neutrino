@@ -70,6 +70,7 @@ extern cAudio * audioDecoder;
 
 extern CPlugins *g_Plugins;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
+extern void yhttpd_reload_config();
 
 #if HAVE_CST_HARDWARE
 #ifndef RC_DEVICE
@@ -5280,8 +5281,13 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				// apply on the GUI thread; same path as /control/reloadsetup
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD);
 			}
-			else if (own_config)
+			else if (own_config) {
 				Config->saveConfig(config_filename);
+				// pick up new auth credentials without a restart,
+				// same as the legacy do_reload_httpd_config block
+				if (configFileName == "nhttpd")
+					yhttpd_reload_config();
+			}
 		}
 	}
 	else {
