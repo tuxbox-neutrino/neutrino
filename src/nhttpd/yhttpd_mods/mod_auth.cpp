@@ -67,10 +67,12 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 					"<h1>Logged out &mdash; Abgemeldet</h1>"
 					"<p>The browser will ask for the login again on the next access.<br>"
 					"Der Browser fragt beim n&auml;chsten Zugriff erneut nach der Anmeldung.</p>"
-					// unique query per click: a cached / would satisfy the
-					// navigation without a request and no login prompt appears
+					// must navigate away — reloading /logout would 401 forever;
+					// the unique query defeats the cached /
 					"<p><a href=\"/\" onclick=\"this.href='/?r='+Date.now()\">"
 					"Log in again &mdash; Erneut anmelden</a></p>"
+					"<p><small>No login dialog? Reload the next page (F5).<br>"
+					"Kein Anmeldedialog? N&auml;chste Seite neu laden (F5).</small></p>"
 					"<p><small>Devices on the exception list keep access without a login"
 					" (Settings &rarr; Webserver).<br>Ger&auml;te auf der Ausnahmeliste"
 					" behalten Zugriff ohne Anmeldung (Einstellungen &rarr; Webserver)."
@@ -94,10 +96,13 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 					"text-align:center}h1{font-size:1.3rem}p{color:#8891a4}"
 					"a{color:#fd6d13}</style></head><body><main>"
 					"<h1>Login required &mdash; Anmeldung erforderlich</h1>"
-					// unique query per click: a cached / would satisfy the
-					// navigation without a request and no login prompt appears
-					"<p><a href=\"/\" onclick=\"this.href='/?r='+Date.now()\">"
+					// a reload is the one gesture that re-arms the prompt when
+					// the browser's auth-dialog abuse limit kicked in after
+					// repeated cancels (e.g. Firefox); plain / without JS
+					"<p><a href=\"/\" onclick=\"location.reload();return false\">"
 					"Try again &mdash; Erneut versuchen</a></p>"
+					"<p><small>No login dialog? Reload the page (F5).<br>"
+					"Kein Anmeldedialog? Seite neu laden (F5).</small></p>"
 					"</main></body></html>");
 				status = HANDLED_ERROR;
 			}
