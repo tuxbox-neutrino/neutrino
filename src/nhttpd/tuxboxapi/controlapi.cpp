@@ -5260,6 +5260,19 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				result += hh->outPair(key, it->second, false);
 				first = false;
 			}
+			if (configFileName == "nhttpd") {
+				// derived status bits only — the password itself is never
+				// delivered; emitted unconditionally because a missing key
+				// means the compiled-in default applies
+				std::string pw = Config->getString("mod_auth.password", AUTHPASSWORD);
+				bool pw_set = !Config->getString("mod_auth.password", "").empty();
+				bool pw_default = (pw == "tuxbox" || pw == "coolstream" || pw == "ni");
+				if (!result.empty())
+					result += hh->outNext();
+				result += hh->outPair("mod_auth_dot_password_set", pw_set ? "true" : "false", false);
+				result += hh->outNext();
+				result += hh->outPair("mod_auth_dot_password_default", pw_default ? "true" : "false", false);
+			}
 		}
 		else { // set values and save list
 			// neutrino: saveSetup() rewrites every g_settings-backed key
