@@ -556,8 +556,9 @@
 		if (f.type === 'password') {
 			var pattr = f.pattern ? ' pattern="' + f.pattern + '"' : '';
 			if (f.maxlength) pattr += ' maxlength="' + f.maxlength + '"';
-			return row + '<label>' + f.label + '</label>' +
-				'<input type="password" id="' + id + '" data-key="' + f.key + '"' + ext + dis + pattr + ' value="' + val.replace(/"/g, '&quot;') + '"></div>';
+			return row + '<label>' + f.label + '</label><span>' +
+				'<input type="password" id="' + id + '" data-key="' + f.key + '"' + ext + dis + pattr + ' autocomplete="new-password" value="' + val.replace(/"/g, '&quot;') + '">' +
+				' <button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="togglePwField(\'' + id + '\', this)">' + EYE_ICON + '</button></span></div>';
 		}
 		// text — optional mit Verzeichnis-Picker (f.picker: true)
 		var pick = '';
@@ -572,6 +573,20 @@
 
 	// kleines Ordner-Icon fuer Picker-Buttons
 	var FOLDER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>';
+
+	// Auge-Icons fuer Passwortfelder (Feather-Geometrie wie bouquet-editor)
+	var EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+	var EYEOFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+	// Konstanter Button-Name, Zustand via aria-pressed (a11y-Regel)
+	function togglePwField(id, btn) {
+		var el = document.getElementById(id);
+		if (!el) return;
+		var show = el.type === 'password';
+		el.type = show ? 'text' : 'password';
+		btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+		btn.innerHTML = show ? EYEOFF_ICON : EYE_ICON;
+	}
 
 	// M5c: 14px-Icon-Wrapper fuer Panel-Buttons (Optik wie Save-Leiste)
 	function sIcon(paths) {
@@ -695,6 +710,23 @@
 			if (savable > 0)
 				html += makePanelSaveRow('saveExtConfig(\'' + cat.id + '\', \'' + cat.config + '\', this)');
 			el.innerHTML = html;
+			// Passwort-Status unter dem (bewusst immer leeren) Passwortfeld:
+			// der Server liefert nur die abgeleiteten Bits, nie das Passwort
+			if (cat.config === 'nhttpd') {
+				var pwEl = el.querySelector('#cfg_' + cat.id + '_mod_auth__password');
+				var pwDef = cfg['mod_auth_dot_password_default'] === 'true';
+				var pwSet = cfg['mod_auth_dot_password_set'] === 'true';
+				var pwMsg = pwDef ? '{=L:yw.set.pw_default=}' : (pwSet ? '{=L:yw.set.pw_isset=}' : '');
+				var pwRow = pwEl ? pwEl.closest('.yweb-form-row') : null;
+				if (pwRow && pwMsg) {
+					var note = document.createElement('div');
+					note.className = 'yweb-form-row';
+					note.innerHTML = '<label></label><small id="pw-status-note" style="color:' +
+						(pwDef ? 'var(--pico-del-color)' : 'var(--pico-muted-color)') + '">' + pwMsg + '</small>';
+					pwRow.insertAdjacentElement('afterend', note);
+					pwEl.setAttribute('aria-describedby', 'pw-status-note');
+				}
+			}
 		} catch (e) {
 			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
 		}
