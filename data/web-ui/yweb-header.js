@@ -553,6 +553,26 @@ function ywebInitHeader(pageName) {
 	// Erweiterungen in die Slots dieser Seite injizieren (async, still)
 	if (typeof ywebInjectExtensions === 'function')
 		setTimeout(function() { ywebInjectExtensions(pageName); }, 0);
+
+	ywebCheckDefaultPassword();
+}
+
+// Default-Passwort-Gate: aktiver Login mit Werkspasswort ist faktisch
+// ungeschuetzt (root:tuxbox ist oeffentlich bekannt). Einmal pro Session
+// pruefen und zum Wizard-Login-Schritt umleiten — Analogie zum
+// must_change_password-Gate des Online-Update-Portals, hier clientseitig,
+// weil Basic-Auth stateless ist. wizard.yhtm laedt dieses Skript nicht,
+// eine Redirect-Schleife ist damit ausgeschlossen.
+function ywebCheckDefaultPassword() {
+	try { if (sessionStorage.getItem('yweb-pwgate') === 'ok') return; } catch (e) {}
+	ywebApi('config', {config: 'nhttpd'}).then(function(resp) {
+		var cfg = (resp && resp.data && resp.data.config) || {};
+		if (cfg['mod_auth_dot_authenticate'] === 'true' && cfg['mod_auth_dot_password_default'] === 'true') {
+			location.replace('/wizard.yhtm?step=login&forced=1');
+			return;
+		}
+		try { sessionStorage.setItem('yweb-pwgate', 'ok'); } catch (e) {}
+	}).catch(function() {});
 }
 
 // Update spacer height based on actual header dimensions
@@ -2204,6 +2224,8 @@ function ywebInit() {
 				ywebInjectExtensions(headerWrapper ? headerWrapper.dataset.page : null);
 			}, 0);
 		}
+
+		ywebCheckDefaultPassword();
 	}
 }
 

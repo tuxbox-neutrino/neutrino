@@ -152,7 +152,7 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=16"></script>
-	<script src="/yweb-header.js?v=49"></script>
+	<script src="/yweb-header.js?v=50"></script>
 	<script>
 		var bqeBouquets = [];      // {number, name, hidden?, locked?}
 		var bqeSelected = null;    // number des gewaehlten Bouquets
