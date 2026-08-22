@@ -38,6 +38,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_frm_window.cpp \
 	cc_input_buffer.cpp \
 	cc_frm_input_row.cpp \
+	cc_frm_keyboard.cpp \
 	cc_input_dialog.cpp \
 	cc_input_field.cpp \
 	cc_item.cpp \
