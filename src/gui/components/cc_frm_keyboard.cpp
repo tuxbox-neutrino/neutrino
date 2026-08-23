@@ -288,6 +288,15 @@ void CComponentsKeyboard::setLayoutByLocale(const std::string &locale)
 	ck_layout = CKeyboardLayoutData();
 	ck_layout.initByLocale(locale);
 	refreshLayout();
+
+	/* Same structural-change rule as toggleLayout(): every caption
+	 * changed, so a painted keyboard must redraw or the old glyphs
+	 * stay visible while OK already inserts from the new table. */
+	if (isPainted())
+	{
+		kill();
+		paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 void CComponentsKeyboard::toggleCaps()
