@@ -820,6 +820,11 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 				{
 					if (isDirty() && !confirmDiscard())
 					{
+						/* Same trap as in the dialog: RC_timeout is
+						 * above RC_MaxRC, the deadline was never
+						 * renewed and the prompt would loop. */
+						timeoutEnd = CRCInput::calcTimeoutEnd(
+							g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 						paint(false);
 						focusField(md_active_index);
 						continue;
