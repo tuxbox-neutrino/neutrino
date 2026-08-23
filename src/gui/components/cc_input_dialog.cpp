@@ -909,6 +909,16 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 						if (cid_keyboard)
 						{
 							cid_keyboard->toggleLayout();
+							/* The rebuilt chain is re-centered
+							 * around the new layout name and the
+							 * old container drops without its
+							 * pixels; a plain repaint would skip
+							 * paintInit() on the painted footer.
+							 * Kill it first, in its own colour -
+							 * a parented kill() would flash the
+							 * window body colour instead. */
+							if (getFooterObject())
+								getFooterObject()->kill(COL_MENUFOOT_PLUS_0, true);
 							initFooterButtons(cid_keyboard->getLayoutName());
 							if (getFooterObject())
 								getFooterObject()->paint(false);
