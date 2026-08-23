@@ -55,6 +55,8 @@ class CComponentsKeyboard : public CComponentsForm
 		bool ck_has_focus;
 		bool ck_compact;
 		fb_pixel_t ck_col_key_body;
+		///true once the keyboard was really painted, see paint()
+		bool ck_on_screen;
 		fb_pixel_t ck_col_key_text;
 
 		int getKeyGap() const;
@@ -94,6 +96,11 @@ class CComponentsKeyboard : public CComponentsForm
 		 * footer, which owns caps and layout switch and keeps its
 		 * caption in step.
 		 */
+		/**Paint and remember that the keyboard reached the screen:
+		* the framework's is_painted stays false across this child
+		* tree, so repaint guards use this flag instead.*/
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
+
 		bool handleMsg(const neutrino_msg_t &msg);
 
 		void setKeyFocus(const bool &focused = true);

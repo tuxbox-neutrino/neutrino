@@ -44,6 +44,7 @@ CComponentsKeyboard::CComponentsKeyboard(const int &x_pos,
 	ck_has_focus = false;
 	ck_compact = false;
 	ck_col_key_body = COL_MENUCONTENT_PLUS_3;
+	ck_on_screen = false;
 	ck_col_key_text = COL_MENUCONTENT_TEXT;
 
 	ck_layout.initByLocale(g_settings.language);
@@ -254,7 +255,18 @@ void CComponentsKeyboard::repaintKey(const int &row, const int &column)
 		return;
 	if (column < 0 || column >= (int) ck_keys[row].size())
 		return;
-	if (!isPainted())
+	/* Judge by the KEY, not by this form: paintFbItems() sets
+	 * is_painted only when the item itself drew an fb layer, and a
+	 * form can end up without one - then its flag stays false forever
+	 * while its children are all on screen, and this guard would
+	 * swallow every focus repaint. The keys are opaque and track
+	 * their own state correctly. */
+	/* Own bookkeeping instead of isPainted(): is_painted stays false
+	 * for the keys and for this form although everything is visibly
+	 * on screen - the fb layer accounting never marks them. The flag
+	 * only has to keep pre-paint focus changes from drawing at unset
+	 * positions, so it is set once by paint() and never goes back. */
+	if (!ck_on_screen)
 		return;
 
 	/* Only the two keys that changed, not the whole keyboard: the key is
@@ -299,6 +311,12 @@ void CComponentsKeyboard::setKeyColors(const fb_pixel_t &color_body, const fb_pi
 	applyKeyStates();
 }
 
+void CComponentsKeyboard::paint(const bool &do_save_bg)
+{
+	CComponentsForm::paint(do_save_bg);
+	ck_on_screen = true;
+}
+
 void CComponentsKeyboard::setKeyFocus(const bool &focused)
 {
 	if (ck_has_focus == focused)
@@ -322,7 +340,7 @@ void CComponentsKeyboard::setLayoutByLocale(const std::string &locale)
 	/* Same structural-change rule as toggleLayout(): every caption
 	 * changed, so a painted keyboard must redraw or the old glyphs
 	 * stay visible while OK already inserts from the new table. */
-	if (isPainted())
+	if (ck_on_screen)
 	{
 		kill();
 		paint(CC_SAVE_SCREEN_NO);
@@ -336,7 +354,7 @@ void CComponentsKeyboard::toggleCaps()
 
 	/* Every caption changed, so this is a structural change and the whole
 	 * container is repainted - unlike a focus move, which touches two keys. */
-	if (isPainted())
+	if (ck_on_screen)
 	{
 		kill();
 		paint(CC_SAVE_SCREEN_NO);
@@ -348,7 +366,7 @@ void CComponentsKeyboard::toggleLayout()
 	ck_layout.nextLayout();
 	refreshLayout();
 
-	if (isPainted())
+	if (ck_on_screen)
 	{
 		kill();
 		paint(CC_SAVE_SCREEN_NO);
