@@ -558,7 +558,7 @@
 			if (f.maxlength) pattr += ' maxlength="' + f.maxlength + '"';
 			return row + '<label>' + f.label + '</label><span>' +
 				'<input type="password" id="' + id + '" data-key="' + f.key + '"' + ext + dis + pattr + ' autocomplete="new-password" value="' + val.replace(/"/g, '&quot;') + '">' +
-				' <button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="togglePwField(\'' + id + '\', this)">' + EYE_ICON + '</button></span></div>';
+				' <button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="togglePwField(\'' + id + '\', this)">' + EYEOFF_ICON + '</button></span></div>';
 		}
 		// text — optional mit Verzeichnis-Picker (f.picker: true)
 		var pick = '';
@@ -578,14 +578,15 @@
 	var EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 	var EYEOFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 
-	// Konstanter Button-Name, Zustand via aria-pressed (a11y-Regel)
+	// Konstanter Button-Name, Zustand via aria-pressed (a11y-Regel).
+	// The icon mirrors the state: crossed-out eye while masked.
 	function togglePwField(id, btn) {
 		var el = document.getElementById(id);
 		if (!el) return;
 		var show = el.type === 'password';
 		el.type = show ? 'text' : 'password';
 		btn.setAttribute('aria-pressed', show ? 'true' : 'false');
-		btn.innerHTML = show ? EYEOFF_ICON : EYE_ICON;
+		btn.innerHTML = show ? EYE_ICON : EYEOFF_ICON;
 	}
 
 	// M5c: 14px-Icon-Wrapper fuer Panel-Buttons (Optik wie Save-Leiste)
