@@ -145,7 +145,10 @@ class CCTextInputDialog : public CCInputDialogBase
 		 * entered at all. Call before exec().
 		 *
 		 * While the keyboard has focus, OK inserts the focused glyph
-		 * instead of saving. Red still saves.
+		 * instead of saving. Red still saves. The dialog starts on
+		 * the keyboard when the field is empty; an existing value
+		 * keeps the field focused so left/right edit it at once -
+		 * down (or up) hands the focus to the keys.
 		 */
 		void enableOnScreenKeyboard(bool enable = true);
 

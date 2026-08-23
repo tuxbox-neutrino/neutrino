@@ -245,10 +245,13 @@ int execCCTextInputTest(bool password_mode = false, bool with_keyboard = false)
 	}
 	else if (with_keyboard)
 	{
-		dialog.setHintText("Runter springt in die Tastatur, OK tippt das "
-			"markierte Zeichen, Hoch in der obersten Reihe "
-			"geht zurueck ins Feld. Blau schaltet Gross/Klein, "
-			"Menue das Layout. Rot speichert von beiden Seiten.");
+		dialog.setHintText("Der Fokus startet im Feld, weil ein Wert "
+			"vorbelegt ist; bei leerem Feld startet er auf der "
+			"Tastatur. Runter oder Hoch wechselt in die Tastatur, "
+			"OK tippt das markierte Zeichen, Hoch in der obersten "
+			"Reihe geht zurueck ins Feld. Blau schaltet "
+			"Gross/Klein, Menue das Layout. Rot speichert von "
+			"beiden Seiten.");
 		dialog.setPlaceholder("Kleinbuchstaben und Umlaute testen...");
 		dialog.setMaxChars(128);
 	}

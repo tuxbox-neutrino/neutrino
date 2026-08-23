@@ -501,12 +501,17 @@ void CCTextInputDialog::syncDialogState()
 	applyFieldStyle();
 	cid_field->setPasswordMode(cid_password_mode);
 	cid_field->setPlaceholder(cid_placeholder);
-	cid_field->setFieldFocus(true);
+	/* Empty field: start on the keyboard, typing is what comes next.
+	 * An existing value keeps the field focused, so left/right edit
+	 * the text at once - the keyboard would swallow both. */
+	bool field_focus = true;
 	if (cid_keyboard)
 	{
 		cid_keyboard->setBuffer(&cid_buffer);
-		cid_keyboard->setKeyFocus(false);
+		field_focus = !cid_buffer.getText().empty();
+		cid_keyboard->setKeyFocus(!field_focus);
 	}
+	cid_field->setFieldFocus(field_focus);
 	cid_field->setErrorState(false);
 	cid_error_text.clear();
 	layoutDialogItems();
@@ -822,8 +827,11 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 			cid_buffer.moveRight();
 			state_changed = true;
 		}
-		else if (msg == CRCInput::RC_down && cid_keyboard)
+		else if ((msg == CRCInput::RC_down || msg == CRCInput::RC_up) &&
+			cid_keyboard)
 		{
+			/* up is the counterpart to OnLeaveTop - without it the
+			 * field would be a dead end for that direction */
 			cid_field->setErrorState(false);
 			clearInlineError();
 			setFieldFocus(false);
