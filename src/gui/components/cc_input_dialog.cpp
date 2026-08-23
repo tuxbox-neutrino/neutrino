@@ -985,11 +985,5 @@ void CCTextInputDialog::hide()
 {
 	if (cid_field)
 		cid_field->hide();
-	/* The window restores the whole area itself; the keyboard only
-	 * has to know that it is gone, or the next exec()'s focus sync
-	 * would repaint a key onto the hidden dialog (dialog objects are
-	 * reused, see proxyserver_setup). */
-	if (cid_keyboard)
-		cid_keyboard->markOffScreen();
 	CComponentsWindow::hide();
 }

@@ -258,8 +258,8 @@ void CComponentsKeyboard::repaintKey(const int &row, const int &column)
 	 * allowPaint(true), and CCDraw::allowPaint() clears is_painted as
 	 * a side effect - so the whole child tree of a painted dialog
 	 * always reads as unpainted. The flag keeps focus changes from
-	 * drawing at unset positions: paint() sets it, the dialog's
-	 * hide() clears it via markOffScreen(). */
+	 * drawing at unset positions: paint() sets it, hide() clears
+	 * it - the window's hide() cascades down to here. */
 	if (!ck_on_screen)
 		return;
 

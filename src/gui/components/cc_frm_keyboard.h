@@ -102,11 +102,12 @@ class CComponentsKeyboard : public CComponentsForm
 		* tree, so repaint guards use this flag instead.*/
 		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES);
 
-		/**The window's hide() does not cascade to its children - the
-		* dialog tells the keyboard explicitly that it left the screen,
-		* so the next exec()'s focus sync cannot repaint a key onto a
-		* hidden dialog.*/
-		void markOffScreen(){ck_on_screen = false;};
+		/**The window's hide() cascades to its children but resets no
+		* state - this override remembers that the keyboard left the
+		* screen, so the next exec()'s focus sync cannot repaint a key
+		* onto a hidden dialog (dialog objects are reused, see
+		* proxyserver_setup).*/
+		void hide(){CComponentsForm::hide(); ck_on_screen = false;};
 		///true while the keyboard is part of the painted dialog
 		bool isOnScreen() const {return ck_on_screen;};
 
