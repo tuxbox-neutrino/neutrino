@@ -153,7 +153,7 @@ void CComponentsKeyboard::buildKeys()
 			 * the key would never be cleaned up. */
 			key->doPaintBg(true);
 			key->setColorBody(ck_col_key_body);
-			key->setButtonTextColor(ck_col_key_text);
+			key->setButtonTextColor(ck_col_key_text, ck_col_key_text);
 			key->setCorner(RADIUS_SMALL, CORNER_ALL);
 			keys.push_back(key);
 		}
@@ -264,7 +264,7 @@ void CComponentsKeyboard::setKeyColors(const fb_pixel_t &color_body, const fb_pi
 		for (size_t c = 0; c < ck_keys[r].size(); c++)
 		{
 			ck_keys[r][c]->setColorBody(ck_col_key_body);
-			ck_keys[r][c]->setButtonTextColor(ck_col_key_text);
+			ck_keys[r][c]->setButtonTextColor(ck_col_key_text, ck_col_key_text);
 		}
 	}
 }
