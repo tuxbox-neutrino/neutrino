@@ -102,7 +102,12 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 			hh->SendRedirect("/login.yhtm?out=1");
 			return HANDLED_REDIRECTION;
 		}
-		hh->SetHeader(HTTP_UNAUTHORIZED, "text/html; charset=UTF-8");
+		// the exempt explanation page is purely informational — there
+		// are no credentials to drop, and a 401 would make the browser
+		// pop its native login dialog first (BuildHeader attaches the
+		// Basic challenge to every 401)
+		hh->SetHeader(exempt ? HTTP_OK : HTTP_UNAUTHORIZED,
+				"text/html; charset=UTF-8");
 		hh->Write(
 			"<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
 			"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
