@@ -260,6 +260,18 @@ void CCInputField::ensureCursorVisible()
 			break;
 		if_viewport_start++;
 	}
+
+	/* And back to the left: deleting walks the cursor down onto the
+	 * viewport edge, and a start that only ever grows would leave the
+	 * field empty while the buffer still holds text. Pull the window
+	 * left again as long as one more glyph fits. */
+	while (if_viewport_start > 0)
+	{
+		const std::string wider = getDisplayRange(if_viewport_start - 1, cursor);
+		if (if_font->getRenderWidth(wider) + if_caret_width > content_w)
+			break;
+		if_viewport_start--;
+	}
 }
 
 void CCInputField::paint(const bool &do_save_bg)
