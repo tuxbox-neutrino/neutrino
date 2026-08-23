@@ -381,10 +381,9 @@ bool CComponentsKeyboard::handleMsg(const neutrino_msg_t &msg)
 	if (!ck_has_focus)
 		return false;
 
-	/* Red, green, yellow, home and back drive the dialog footer. They must
-	 * pass through even while the keyboard has focus, or save, delete,
-	 * clear and cancel become unreachable from here. Blue and setup are
-	 * not taken by the footer and switch caps and layout. */
+	/* Every color and action key falls through to the dialog footer -
+	 * including blue and setup: the footer owns caps and layout switch
+	 * now, so its caption stays true no matter which side has focus. */
 	switch (msg)
 	{
 		case CRCInput::RC_left:
@@ -406,12 +405,6 @@ bool CComponentsKeyboard::handleMsg(const neutrino_msg_t &msg)
 			return true;
 		case CRCInput::RC_ok:
 			insertFocusedGlyph();
-			return true;
-		case CRCInput::RC_blue:
-			toggleCaps();
-			return true;
-		case CRCInput::RC_setup:
-			toggleLayout();
 			return true;
 		default:
 			break;

@@ -89,10 +89,10 @@ class CComponentsKeyboard : public CComponentsForm
 		 * Consumes a key when the keyboard has focus, returns false
 		 * otherwise so the caller can go on dispatching.
 		 *
-		 * Red, green, yellow, home and back are never consumed: they
-		 * belong to the dialog footer and must reach it even while the
-		 * keyboard has focus. Blue and setup are free there and switch
-		 * caps and layout here.
+		 * Only navigation and OK are consumed. Every color and action
+		 * key - blue and setup included - falls through to the dialog
+		 * footer, which owns caps and layout switch and keeps its
+		 * caption in step.
 		 */
 		bool handleMsg(const neutrino_msg_t &msg);
 

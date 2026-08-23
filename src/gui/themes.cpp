@@ -200,12 +200,6 @@ std::string CThemes::sanitizeThemeName(const std::string &name)
 	else
 		clean = clean.substr(first, last - first + 1);
 
-	/* A name of nothing but dots would become a hidden file ("." saves
-	 * "..theme") and a selector entry that reads as punctuation. Treat
-	 * it like an empty name. */
-	if (clean.find_first_not_of('.') == std::string::npos)
-		clean.clear();
-
 	/* A typed ".theme" belongs to the file name, not to the theme name.
 	 * Kept, it would write <name>.theme.theme, while initThemesMenu()
 	 * cuts a listed file at its ".theme" suffix - the menu entry would
@@ -214,6 +208,12 @@ std::string CThemes::sanitizeThemeName(const std::string &name)
 	if (clean.size() >= suffix.size() &&
 	    clean.compare(clean.size() - suffix.size(), suffix.size(), suffix) == 0)
 		clean.erase(clean.size() - suffix.size());
+
+	/* A name of nothing but dots would become a hidden file ("..theme" strips
+	 * down to ".") and a selector entry that reads as punctuation. Treat
+	 * it like an empty name. */
+	if (clean.find_first_not_of('.') == std::string::npos)
+		clean.clear();
 
 	return clean;
 }
