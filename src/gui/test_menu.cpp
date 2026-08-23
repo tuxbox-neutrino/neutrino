@@ -490,7 +490,10 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 				/* Transparent text with no save-screen: a bare
 				 * paint() draws over the old glyphs. kill()
 				 * erases to the body color first. */
-				md_hint->kill();
+				/* CComponentsText::kill() hides the base overload and
+				 * would fill with transparent COL_BACKGROUND - pass the
+				 * body color explicitly. */
+				md_hint->kill(getBodyObject()->getColorBody());
 				md_hint->paint(false);
 			}
 		}
@@ -501,7 +504,10 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 			updateStatusText();
 			if (md_hint)
 			{
-				md_hint->kill();
+				/* CComponentsText::kill() hides the base overload and
+				 * would fill with transparent COL_BACKGROUND - pass the
+				 * body color explicitly. */
+				md_hint->kill(getBodyObject()->getColorBody());
 				md_hint->paint(false);
 			}
 		}
@@ -554,8 +560,14 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 			return -1;
 		}
 
-		bool confirmDiscard() const
+		bool confirmDiscard()
 		{
+			/* Disarm the caret of the focused row: its timer thread
+			 * would keep painting through the modal message box. */
+			multi_field_phase0_entry_t *entry = getActiveEntry();
+			if (entry && entry->row && entry->row->getFieldObject())
+				entry->row->getFieldObject()->cancelCaretBlink();
+
 			return ShowMsg(ccw_caption,
 					LOCALE_MESSAGEBOX_DISCARD,
 					CMsgBox::mbrYes,
