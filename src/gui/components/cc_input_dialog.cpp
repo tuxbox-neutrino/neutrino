@@ -667,6 +667,10 @@ void CCTextInputDialog::enableOnScreenKeyboard(bool enable)
 		return;
 
 	setFieldFocus(true);
+	/* Erase before removing: removeCCItem() deletes the object, and a
+	 * deleted keyboard cannot clean its own pixels off the screen. */
+	if (cid_keyboard->isPainted())
+		cid_keyboard->kill();
 	getBodyObject()->removeCCItem(cid_keyboard);
 	cid_keyboard = NULL;
 	layoutDialogItems();
