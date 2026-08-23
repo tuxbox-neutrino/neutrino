@@ -147,11 +147,9 @@ void CComponentsKeyboard::buildKeys()
 			CComponentsButton *key = new CComponentsButton(0, 0,
 				getKeyWidth(width), getKeyHeight(),
 				getKeyCaption(r, c), "", row);
-			/* Keys stay opaque as well. With doPaintBg(false) an item
-			 * without frame or shadow paints no fb layer at all, so
-			 * paintFbItems() never sets is_painted and the erase guard
-			 * "if (isPainted()) hide();" in paintCCItems() never fires -
-			 * the key would never be cleaned up. */
+			/* Keys stay opaque as well: the filled selection pair
+			 * needs a painted body, and repaintKey()'s kill() then
+			 * erases the key to the row colour before repainting. */
 			key->doPaintBg(true);
 			key->setColorBody(ck_col_key_body);
 			key->setButtonTextColor(ck_col_key_text,
@@ -255,17 +253,13 @@ void CComponentsKeyboard::repaintKey(const int &row, const int &column)
 		return;
 	if (column < 0 || column >= (int) ck_keys[row].size())
 		return;
-	/* Judge by the KEY, not by this form: paintFbItems() sets
-	 * is_painted only when the item itself drew an fb layer, and a
-	 * form can end up without one - then its flag stays false forever
-	 * while its children are all on screen, and this guard would
-	 * swallow every focus repaint. The keys are opaque and track
-	 * their own state correctly. */
-	/* Own bookkeeping instead of isPainted(): is_painted stays false
-	 * for the keys and for this form although everything is visibly
-	 * on screen - the fb layer accounting never marks them. The flag
-	 * only has to keep pre-paint focus changes from drawing at unset
-	 * positions, so it is set once by paint() and never goes back. */
+	/* Own bookkeeping instead of isPainted(): after every parent
+	 * paint, paintCCItems() restores each child's visibility via
+	 * allowPaint(true), and CCDraw::allowPaint() clears is_painted as
+	 * a side effect - so the whole child tree of a painted dialog
+	 * always reads as unpainted. The flag keeps focus changes from
+	 * drawing at unset positions: paint() sets it, the dialog's
+	 * hide() clears it via markOffScreen(). */
 	if (!ck_on_screen)
 		return;
 
