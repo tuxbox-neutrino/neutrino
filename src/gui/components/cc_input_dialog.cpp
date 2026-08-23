@@ -234,9 +234,6 @@ void CCInputDialogBase::applyDialogStyle()
 		getFooterObject()->setColorBody(COL_MENUFOOT_PLUS_0);
 		getFooterObject()->doPaintBg(true);
 		getFooterObject()->enableButtonBg(true);
-		getFooterObject()->enableButtonShadow(CC_SHADOW_ON,
-			OFFSET_SHADOW / 2,
-			true);
 		getFooterObject()->ButtonsOnTop(true);
 	}
 }
