@@ -103,7 +103,7 @@ class CCTextInputDialog : public CCInputDialogBase
 		void setFieldFocus(const bool &focused);
 		void clearInlineError();
 		void showInlineError(const std::string &text);
-		bool confirmDiscard() const;
+		bool confirmDiscard();
 		bool save();
 
 	public:

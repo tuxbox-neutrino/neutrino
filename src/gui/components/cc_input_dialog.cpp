@@ -362,7 +362,13 @@ void CCTextInputDialog::layoutDialogItems()
 		const int budget = screen_h - header_h - footer_h - pad - hint_h -
 			(has_hint ? gap : 0) - field_h - gap - pad -
 			2 * fr_thickness;
-		cid_keyboard->setCompactMode(cid_keyboard->needsCompactMode(budget));
+		/* Latch, never bounce: needsCompactMode() measures in the
+		 * CURRENT mode, so once compact fits the budget the answer
+		 * flips back and the keyboard would toggle on every layout
+		 * pass. Fonts cannot change within this dialog's life, so
+		 * compact only ever switches on. */
+		if (cid_keyboard->needsCompactMode(budget))
+			cid_keyboard->setCompactMode(true);
 		keyboard_h = cid_keyboard->getPreferredHeight();
 	}
 	const int body_content_h = pad + hint_h +
@@ -534,12 +540,23 @@ void CCTextInputDialog::showInlineError(const std::string &text)
 	paint(false);
 }
 
-bool CCTextInputDialog::confirmDiscard() const
+bool CCTextInputDialog::confirmDiscard()
 {
-	return ShowMsg(ccw_caption,
+	/* The caret blinks from its own timer thread and would keep
+	 * painting and restoring its snapshot right through the modal
+	 * message box. Disarm it first; when the user stays, the repaint
+	 * of the field arms it again. */
+	cid_field->cancelCaretBlink();
+
+	const bool discard = ShowMsg(ccw_caption,
 			LOCALE_MESSAGEBOX_DISCARD,
 			CMsgBox::mbrYes,
 			CMsgBox::mbYes | CMsgBox::mbCancel) != CMsgBox::mbrCancel;
+
+	if (!discard)
+		cid_field->paint(false);
+
+	return discard;
 }
 
 void CCTextInputDialog::showMaxCharsError()

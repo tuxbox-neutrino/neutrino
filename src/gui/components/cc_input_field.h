@@ -40,7 +40,6 @@ class CCInputField : public CComponentsItem
 		fb_pixel_t if_col_body;
 		fb_pixel_t if_col_body_focus;
 
-		void cancelCaretBlink(bool keep_on_screen = false);
 		void initCaret(const int &x_pos, const int &caret_h);
 		void syncFieldColors();
 		int getContentWidth() const;
@@ -77,6 +76,14 @@ class CCInputField : public CComponentsItem
 			const fb_pixel_t &color_body_focus);
 		void setPlaceholderColor(const fb_pixel_t &color);
 		void setCaretWidth(const int &caret_width);
+
+		/**
+		 * Stops the caret's blink timer. The owner calls this before a
+		 * modal prompt paints over the field: the timer thread would
+		 * keep flipping the caret and restoring its stale snapshot
+		 * right through the box. The next paint() arms it again.
+		 */
+		void cancelCaretBlink(bool keep_on_screen = false);
 		void setPadding(const int &x_pad, const int &y_pad);
 		void ensureCursorVisible();
 
