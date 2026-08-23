@@ -116,6 +116,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	append_x_offset = OFFSET_INTER;
 	append_y_offset = 0;
 	corner_rad	= RADIUS_SMALL;
+	cc_btn_fixed_width = false;
 	
 	cc_btn_text_col = cc_btn_text_std_col = cc_btn_text_sel_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_ENABLED : COL_MENUFOOT_TEXT;
 	cc_btn_text_disable_col = cc_body_gradient_enable ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
@@ -216,7 +217,8 @@ void CComponentsButton::initCaption()
 				width = dx_tmp;
 			}else{
 				int diff = dx_tmp - width;
-				width -= diff;
+				if (!cc_btn_fixed_width)
+					width -= diff;
 				w_cap -= diff;
 			}
 			tmp_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_text);
@@ -262,7 +264,7 @@ void CComponentsButton::initCaption()
 	w_required 	+= x_offset + w_frame;
 
 	//dynamic width
-	if (w_required > width){
+	if (w_required > width && !cc_btn_fixed_width){
 		dprintf(DEBUG_INFO, "[CComponentsButton]   [%s - %d] width of button (%s) will be changed: defined width=%d, required width=%d\n", __func__, __LINE__, cc_btn_text.c_str(), width, w_required);
 		width = max(w_required, width);
 	}

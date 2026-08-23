@@ -156,6 +156,10 @@ void CComponentsKeyboard::buildKeys()
 			key->setButtonTextColor(ck_col_key_text,
 				COL_MENUCONTENTSELECTED_TEXT);
 			key->setCorner(RADIUS_SMALL, CORNER_ALL);
+			/* The locale caption of the space key never fits a 14
+			 * column grid cell; without a fixed width every paint
+			 * would shrink the key and shift the row. */
+			key->enableFixedWidth();
 			keys.push_back(key);
 		}
 		ck_keys.push_back(keys);

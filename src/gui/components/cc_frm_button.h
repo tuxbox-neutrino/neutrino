@@ -79,6 +79,8 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 
 		///property: text color
 		fb_pixel_t cc_btn_text_col, cc_btn_text_disable_col, cc_btn_text_std_col, cc_btn_text_sel_col;
+		///keep the defined width, see enableFixedWidth()
+		bool cc_btn_fixed_width;
 		///object: text font
 		Font* cc_btn_font;
 		///object: dynamic font object handler
@@ -139,6 +141,15 @@ class CComponentsButton : public CComponentsFrmChain, public CCTextScreen
 						cc_btn_text_sel_col 	= sel_caption_color;
 						cc_btn_text_disable_col = dis_caption_color;
 					};
+
+		/**Keep the defined width: initCaption() re-measures the
+		* caption on every paint and would resize the button in both
+		* directions. With fixed width enabled only the caption is
+		* adapted (dynamic font), the cell of a grid stays.
+		* @param[in]  enable
+		* 	@li bool, default = true
+		*/
+		void enableFixedWidth(bool enable = true){cc_btn_fixed_width = enable;};
 
 		/**Member to modify background behavior of embeded caption object.
 		* @param[in]  mode
