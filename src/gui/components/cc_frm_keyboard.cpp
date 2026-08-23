@@ -153,7 +153,8 @@ void CComponentsKeyboard::buildKeys()
 			 * the key would never be cleaned up. */
 			key->doPaintBg(true);
 			key->setColorBody(ck_col_key_body);
-			key->setButtonTextColor(ck_col_key_text, ck_col_key_text);
+			key->setButtonTextColor(ck_col_key_text,
+				COL_MENUCONTENTSELECTED_TEXT);
 			key->setCorner(RADIUS_SMALL, CORNER_ALL);
 			keys.push_back(key);
 		}
@@ -211,26 +212,34 @@ void CComponentsKeyboard::applyKeyStates()
 		for (int c = 0; c < columns; c++)
 		{
 			const bool selected = ck_has_focus && r == ck_row && c == ck_column;
-			/* Every colour is passed explicitly: the defaults of
-			 * setSelected() would put the global menu colours and a
-			 * 3px frame on every key and so undo setKeyColors() on
-			 * each focus move. Focus shows as a frame; the body keeps
-			 * the configured key colour in both states. */
+			/* Focus shows as the theme's selected pair - a filled
+			 * highlight like everywhere else in the menus. A frame
+			 * alone has no guaranteed contrast: the key body is the
+			 * field body colour, and on dark themes the selection
+			 * frame colour sits right next to it, which left the
+			 * focus invisible. Every colour is passed explicitly:
+			 * the defaults of setSelected() would put the global
+			 * menu colours and a 3px frame on every key and so undo
+			 * setKeyColors() on each focus move. */
+			const fb_pixel_t body = selected ?
+				COL_MENUCONTENTSELECTED_PLUS_0 : ck_col_key_body;
 			ck_keys[r][c]->setSelected(selected,
 				COL_MENUCONTENTSELECTED_PLUS_0,
 				ck_col_key_body,
-				ck_col_key_body,
+				body,
 				ck_col_key_body,
 				0,
-				2);
+				0);
 			/* setSelected() hard-wires the SECONDARY body color, and
 			 * paintInit() picks exactly that one for a selected child
 			 * whose parent row has no focus - which after buildKeys()
 			 * is every row but the last, since setFocus(true) clears
 			 * the flag of all siblings. Pin all three body states. */
-			ck_keys[r][c]->setColorBody(ck_col_key_body,
-				ck_col_key_body,
-				ck_col_key_body);
+			ck_keys[r][c]->setColorBody(body,
+				body,
+				body);
+			ck_keys[r][c]->setButtonTextColor(ck_col_key_text,
+				COL_MENUCONTENTSELECTED_TEXT);
 		}
 	}
 }
@@ -274,7 +283,8 @@ void CComponentsKeyboard::setKeyColors(const fb_pixel_t &color_body, const fb_pi
 			ck_keys[r][c]->setColorBody(ck_col_key_body,
 				ck_col_key_body,
 				ck_col_key_body);
-			ck_keys[r][c]->setButtonTextColor(ck_col_key_text, ck_col_key_text);
+			ck_keys[r][c]->setButtonTextColor(ck_col_key_text,
+				COL_MENUCONTENTSELECTED_TEXT);
 		}
 	}
 
