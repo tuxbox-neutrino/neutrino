@@ -286,6 +286,42 @@ int execCCTextInputTest(bool password_mode = false, bool with_keyboard = false)
 	return res;
 }
 
+int execCCTextInputEmptyTest()
+{
+	/* Mirrors the persistent binding in proxyserver_setup: the same
+	 * dialog object serves every activation, so the second open has
+	 * to come up clean although the first one set the keyboard's
+	 * screen flag. Heap on purpose - a static object would run its
+	 * destructor after the framebuffer classes are gone. */
+	static std::string value;
+	static CCTextInputDialog *dialog = NULL;
+	if (!dialog)
+	{
+		dialog = new CCTextInputDialog("Text mit Tastatur (leer)", &value);
+		dialog->setHintText("Das Feld startet leer, der Fokus auf der "
+			"Tastatur - OK tippt sofort. Nach Speichern und "
+			"erneutem Oeffnen startet der Fokus im Feld; dieses "
+			"Szenario nutzt dabei dasselbe Dialogobjekt wie beim "
+			"ersten Aufruf (Wiederverwendung wie im Proxy-Setup).");
+		dialog->setPlaceholder("Leer starten, sofort tippen...");
+		dialog->setMaxChars(128);
+		dialog->enableOnScreenKeyboard(true);
+	}
+
+	const int res = dialog->exec(NULL, "");
+
+	if (res == menu_return::RETURN_REPAINT)
+	{
+		ShowMsg("CCTextInput Empty Dialog",
+			makeInputDialogSaveText("Gespeicherter Text", value),
+			CMsgBox::mbrBack,
+			CMsgBox::mbBack,
+			NEUTRINO_ICON_INFO);
+	}
+
+	return res;
+}
+
 int getMultiFieldDialogWidth()
 {
 	CFrameBuffer *fb = CFrameBuffer::getInstance();
@@ -1724,6 +1760,10 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		return execCCTextInputTest(false, true);
 	}
+	else if (actionKey == "cc_text_input_empty")
+	{
+		return execCCTextInputEmptyTest();
+	}
 	else if (actionKey == "cc_text_input_password")
 	{
 		return execCCTextInputTest(true);
@@ -2705,6 +2745,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarder("CCTextInput Dialog", true, NULL, this, "cc_text_input"));
 	widget->addItem(new CMenuForwarder("CCTextInput Dialog with Keyboard", true, NULL, this, "cc_text_input_keyboard"));
+	widget->addItem(new CMenuForwarder("CCTextInput Dialog with Keyboard (empty)", true, NULL, this, "cc_text_input_empty"));
 	widget->addItem(new CMenuForwarder("CCTextInput Password Dialog", true, NULL, this, "cc_text_input_password"));
 	widget->addItem(new CMenuForwarder("CC Multi Field Form Phase 0", true, NULL, this, "cc_multi_field_form_phase0"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
