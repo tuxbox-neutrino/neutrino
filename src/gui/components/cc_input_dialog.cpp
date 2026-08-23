@@ -517,6 +517,9 @@ void CCTextInputDialog::clearInlineError()
 		return;
 
 	cid_error_text.clear();
+	/* The frame goes with the text: the remote paths reset it next to
+	 * their clear call, the keyboard path arrives only here. */
+	cid_field->setErrorState(false);
 	layoutDialogItems();
 	paint(false);
 }
@@ -557,6 +560,16 @@ void CCTextInputDialog::focusFieldFromKeyboard()
 	setFieldFocus(true);
 }
 
+std::string CCTextInputDialog::getVfdText() const
+{
+	/* The field masks a password on screen; the VFD line has to do the
+	 * same or the secret scrolls over the front display in clear text. */
+	if (cid_password_mode)
+		return std::string(cid_buffer.size(), '*');
+
+	return cid_buffer.getText();
+}
+
 void CCTextInputDialog::refreshField()
 {
 	/* A glyph made it into the buffer, so a standing rejection notice
@@ -566,7 +579,7 @@ void CCTextInputDialog::refreshField()
 	cid_field->ensureCursorVisible();
 	cid_field->paint(false);
 	CVFD::getInstance()->showMenuText(1,
-		cid_buffer.getText().c_str(),
+		getVfdText().c_str(),
 		cid_buffer.getCursor() + 1);
 }
 
@@ -737,7 +750,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 	paint();
 
 	CVFD::getInstance()->showMenuText(1,
-		cid_buffer.getText().c_str(),
+		getVfdText().c_str(),
 		cid_buffer.getCursor() + 1);
 
 	uint64_t timeoutEnd =

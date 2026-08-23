@@ -96,6 +96,7 @@ class CCTextInputDialog : public CCInputDialogBase
 		void syncDialogState();
 		std::string getFieldFontReference() const;
 		std::string getVisibleHintText() const;
+		std::string getVfdText() const;
 		void refreshField();
 		void showMaxCharsError();
 		void focusFieldFromKeyboard();
