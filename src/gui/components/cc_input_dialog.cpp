@@ -654,7 +654,22 @@ void CCTextInputDialog::enableOnScreenKeyboard(bool enable)
 	 * setter has to build the keyboard itself: initDialogItems() ran in
 	 * the constructor, long before a caller could reach this. */
 	if (cid_enable_keyboard)
+	{
 		createKeyboard();
+		return;
+	}
+
+	/* Symmetric on the way out: without this an already created
+	 * keyboard stayed in the body and the message loop kept feeding
+	 * it, so disabling was a flag with no effect. Focus goes back to
+	 * the field first - removeCCItem() deletes the item. */
+	if (!cid_keyboard)
+		return;
+
+	setFieldFocus(true);
+	getBodyObject()->removeCCItem(cid_keyboard);
+	cid_keyboard = NULL;
+	layoutDialogItems();
 }
 
 std::string &CCTextInputDialog::getValue(void)
