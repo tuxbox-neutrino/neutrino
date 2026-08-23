@@ -271,10 +271,18 @@ void CComponentsKeyboard::setKeyColors(const fb_pixel_t &color_body, const fb_pi
 	{
 		for (size_t c = 0; c < ck_keys[r].size(); c++)
 		{
-			ck_keys[r][c]->setColorBody(ck_col_key_body);
+			ck_keys[r][c]->setColorBody(ck_col_key_body,
+				ck_col_key_body,
+				ck_col_key_body);
 			ck_keys[r][c]->setButtonTextColor(ck_col_key_text, ck_col_key_text);
 		}
 	}
+
+	/* Re-pin the per-state colors: without this the single-argument
+	 * defaults above would survive only because the current caller
+	 * happens to run a layout pass right after - an ordering nobody
+	 * guarantees. */
+	applyKeyStates();
 }
 
 void CComponentsKeyboard::setKeyFocus(const bool &focused)
