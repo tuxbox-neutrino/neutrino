@@ -538,6 +538,10 @@ void CCTextInputDialog::focusFieldFromKeyboard()
 
 void CCTextInputDialog::refreshField()
 {
+	/* A glyph made it into the buffer, so a standing rejection notice
+	 * no longer describes the state. The remote paths clear it at
+	 * every accepted key; the keyboard path arrives here. */
+	clearInlineError();
 	cid_field->ensureCursorVisible();
 	cid_field->paint(false);
 	CVFD::getInstance()->showMenuText(1,
