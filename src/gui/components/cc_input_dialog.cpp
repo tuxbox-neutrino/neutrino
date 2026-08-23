@@ -327,6 +327,7 @@ void CCTextInputDialog::createKeyboard()
 		sigc::mem_fun(*this, &CCTextInputDialog::focusFieldFromKeyboard));
 
 	addWindowItem(cid_keyboard);
+	initFooterButtons(cid_keyboard->getLayoutName());
 	layoutDialogItems();
 }
 
@@ -431,9 +432,12 @@ void CCTextInputDialog::layoutDialogItems()
 		paint(CC_SAVE_SCREEN_YES);
 }
 
-void CCInputDialogBase::initFooterButtons()
+void CCInputDialogBase::initFooterButtons(const std::string &layout_name)
 {
-	std::vector<button_label_cc> buttons(4);
+	/* With an on-screen keyboard the footer also names blue and setup:
+	 * the legacy keyboard showed caps and the layout name there, and a
+	 * key that is not written down might as well not exist. */
+	std::vector<button_label_cc> buttons(layout_name.empty() ? 4 : 6);
 
 	buttons[0].button = NEUTRINO_ICON_BUTTON_RED;
 	buttons[0].locale = LOCALE_STRINGINPUT_SAVE;
@@ -456,6 +460,19 @@ void CCInputDialogBase::initFooterButtons()
 	buttons[3].btn_result = RES_CANCEL;
 	buttons[3].directKeys.push_back(CRCInput::RC_home);
 	buttons[3].directKeys.push_back(CRCInput::RC_back);
+
+	if (!layout_name.empty())
+	{
+		buttons[4].button = NEUTRINO_ICON_BUTTON_BLUE;
+		buttons[4].locale = LOCALE_STRINGINPUT_CAPS;
+		buttons[4].btn_result = RES_CAPS;
+		buttons[4].directKeys.push_back(CRCInput::RC_blue);
+
+		buttons[5].button = NEUTRINO_ICON_BUTTON_MENU;
+		buttons[5].text = layout_name;
+		buttons[5].btn_result = RES_LAYOUT;
+		buttons[5].directKeys.push_back(CRCInput::RC_setup);
+	}
 
 	getFooterObject()->setButtonLabels(buttons,
 		CFrameBuffer::getInstance()->scale2Res(20),
@@ -705,14 +722,12 @@ void CCTextInputDialog::enableOnScreenKeyboard(bool enable)
 {
 	cid_enable_keyboard = enable;
 
-	/* The dialog is constructed and configured in one breath, so this
-	 * setter has to build the keyboard itself: initDialogItems() ran in
-	 * the constructor, long before a caller could reach this. */
+	/* Enabling only records the wish: dialogs are often built while a
+	 * menu is assembled, and three keyboards of 56 keys each would be
+	 * constructed before the user opens a single field. exec() builds
+	 * the keyboard on entry instead. */
 	if (cid_enable_keyboard)
-	{
-		createKeyboard();
 		return;
-	}
 
 	/* Symmetric on the way out: without this an already created
 	 * keyboard stayed in the body and the message loop kept feeding
@@ -758,6 +773,9 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 		parent->hide();
 
 	const std::string original_value = cid_value ? *cid_value : "";
+
+	if (cid_enable_keyboard && !cid_keyboard)
+		createKeyboard();
 
 	cid_saved = false;
 	cid_buffer.setText(original_value);
@@ -852,13 +870,12 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 			loop = false;
 			res = menu_return::RETURN_EXIT_REPAINT;
 		}
-		else if (CNeutrinoApp::getInstance()->listModeKey(msg))
-		{
-			continue;
-		}
 		else
 		{
-			/* 2. Action dispatch via footer buttons */
+			/* 2. Action dispatch via footer buttons. listModeKey() is
+			 * checked only after this, like every legacy input widget
+			 * does: key_favorites is freely bindable, and bound to a
+			 * footer color it must not swallow save or cancel. */
 			int btn_res = sendButtonKey(msg);
 			if (btn_res >= 0)
 			{
@@ -887,7 +904,24 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 						loop = false;
 						res = menu_return::RETURN_EXIT_REPAINT;
 						break;
+					case RES_CAPS:
+						if (cid_keyboard)
+							cid_keyboard->toggleCaps();
+						break;
+					case RES_LAYOUT:
+						if (cid_keyboard)
+						{
+							cid_keyboard->toggleLayout();
+							initFooterButtons(cid_keyboard->getLayoutName());
+							if (getFooterObject())
+								getFooterObject()->paint(false);
+						}
+						break;
 				}
+			}
+			else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+			{
+				continue;
 			}
 			else
 			{

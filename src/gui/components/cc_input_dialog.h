@@ -41,7 +41,9 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 			RES_SAVE = 0,
 			RES_DELETE,
 			RES_CLEAR,
-			RES_CANCEL
+			RES_CANCEL,
+			RES_CAPS,
+			RES_LAYOUT
 		};
 
 	protected:
@@ -54,7 +56,7 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 		void applyDialogStyle();
 
 		///fills the footer with save/delete/clear/cancel and their direct keys
-		void initFooterButtons();
+		void initFooterButtons(const std::string &layout_name = std::string());
 
 		///returns the button_result_t a key belongs to, or -1 if no button claims it
 		int sendButtonKey(neutrino_msg_t msg);
