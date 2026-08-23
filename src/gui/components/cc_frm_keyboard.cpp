@@ -281,6 +281,11 @@ void CComponentsKeyboard::setKeyFocus(const bool &focused)
 
 void CComponentsKeyboard::setLayoutByLocale(const std::string &locale)
 {
+	/* initByLocale() refuses to run twice so that it cannot undo a
+	 * manual layout switch - but this here IS an explicit switch. A
+	 * fresh state object gets past that guard without a second API;
+	 * caps starts over, which is what a layout change means. */
+	ck_layout = CKeyboardLayoutData();
 	ck_layout.initByLocale(locale);
 	refreshLayout();
 }
