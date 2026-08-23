@@ -223,6 +223,14 @@ void CComponentsKeyboard::applyKeyStates()
 				ck_col_key_body,
 				0,
 				2);
+			/* setSelected() hard-wires the SECONDARY body color, and
+			 * paintInit() picks exactly that one for a selected child
+			 * whose parent row has no focus - which after buildKeys()
+			 * is every row but the last, since setFocus(true) clears
+			 * the flag of all siblings. Pin all three body states. */
+			ck_keys[r][c]->setColorBody(ck_col_key_body,
+				ck_col_key_body,
+				ck_col_key_body);
 		}
 	}
 }
