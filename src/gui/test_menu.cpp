@@ -859,10 +859,6 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 					loop = false;
 					res = menu_return::RETURN_EXIT_REPAINT;
 				}
-				else if (CNeutrinoApp::getInstance()->listModeKey(msg))
-				{
-					continue;
-				}
 				else
 				{
 					int btn_res = sendButtonKey(msg);
@@ -902,6 +898,10 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 								res = menu_return::RETURN_EXIT_REPAINT;
 								break;
 						}
+					}
+					else if (CNeutrinoApp::getInstance()->listModeKey(msg))
+					{
+						continue;
 					}
 					else
 					{
