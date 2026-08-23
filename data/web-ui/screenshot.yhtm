@@ -368,7 +368,7 @@
 		</article>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=19"></script>
+	<script src="/Y_Lang.yjs?v=20"></script>
 	<script src="/yweb-header.js?v=52"></script>
 	<script>
 		let reloadInterval = null;
