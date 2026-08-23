@@ -140,7 +140,14 @@ void CThemes::initThemesMenu(CMenuWidget &themes)
 			for(int count=0;count<n;count++)
 			{
 				char *file = themelist[count]->d_name;
-				char *pos = strstr(file, ".theme");
+				/* Only a trailing ".theme" marks a theme file, and only that
+				 * suffix may be cut: cutting at the FIRST ".theme" listed
+				 * "foo.theme.theme" as the entry "foo", whose action key then
+				 * addressed the missing (or foreign) file "foo.theme". */
+				const size_t name_len = strlen(file);
+				const size_t suffix_len = strlen(FILE_SUFFIX);
+				char *pos = (name_len > suffix_len && strcmp(file + name_len - suffix_len, FILE_SUFFIX) == 0)
+					? file + name_len - suffix_len : NULL;
 				if(pos != NULL)
 				{
 					if ( p == 0 && hasCVSThemes == false ) {
