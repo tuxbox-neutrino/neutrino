@@ -13,76 +13,134 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/yweb.css?v=87">
 	<style>
+		/* Compact centered auth card after the portal login pattern.
+		   yweb.css already makes body a column flexbox with main{flex:1}
+		   — undo the stretch and the fixed height so the card sizes to
+		   its content; margin:auto centers it and still allows
+		   scrolling to the top on tiny viewports. */
+		body {
+			height: auto;
+			min-height: 100vh;
+			min-height: 100dvh;
+			overflow: auto;
+			margin: 0;
+			display: flex;
+			flex-direction: column;
+			padding: 24px;
+			background-color: var(--pico-background-color);
+			background-image: radial-gradient(circle at 12% -10%, var(--yweb-accent-light), transparent 55%);
+		}
 		.login-wrap {
-			max-width: 26rem;
-			margin: 3rem auto;
-			padding: 1.5rem;
+			flex: 0 0 auto;
+			margin: auto;
+			width: 100%;
+			max-width: 420px;
+			padding: 36px;
 		}
 		.login-wrap h1 {
-			font-size: 1.4rem;
-			margin-bottom: 0.3rem;
+			font-size: 1.3rem;
+			margin-bottom: 0.4rem;
 		}
 		.login-wrap p.sub {
 			color: var(--pico-muted-color);
-			margin-bottom: 1.5rem;
+			margin-bottom: 20px;
 		}
-		.login-wrap label {
-			display: block;
-			margin-bottom: 0.3rem;
-			font-weight: 600;
-		}
-		.login-wrap input[type=text] {
-			width: 100%;
-			margin-bottom: 1.2rem;
-		}
-		.login-wrap .login-pw-row {
+		.login-wrap form {
 			display: flex;
-			gap: 0.4rem;
-			align-items: center;
-			margin-bottom: 1.2rem;
+			flex-direction: column;
+			gap: 12px;
 		}
-		.login-wrap .login-pw-row input {
-			flex: 1;
+		.login-field {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+		.login-field label {
+			font-size: 0.85em;
+			font-weight: 500;
+			color: var(--pico-muted-color);
 			margin-bottom: 0;
 		}
-		.login-wrap .login-err {
-			display: block;
-			color: var(--pico-del-color);
-			margin-bottom: 1rem;
+		.login-wrap input[type=text],
+		.login-wrap input[type=password] {
+			padding: 9px 12px;
+			font-size: 1rem;
+			height: auto;
+			margin-bottom: 0;
 		}
-		.login-wrap .login-note {
-			display: block;
-			color: var(--pico-muted-color);
-			margin-bottom: 1rem;
+		.login-pw-row {
+			display: flex;
+			gap: 0.4rem;
+			align-items: stretch;
+		}
+		.login-pw-row input {
+			flex: 1;
+			min-width: 0;
+		}
+		.login-pw-row .yweb-btn {
+			padding: 0 0.7rem;
+		}
+		.login-flash {
+			padding: 12px 16px;
+			border-radius: 8px;
+			border: 1px solid transparent;
+			font-weight: 500;
+			font-size: 0.9rem;
+			margin: 0;
+		}
+		/* focused programmatically for the announcement; the tinted
+		   banner itself is the visual indicator, it is not interactive */
+		.login-flash:focus {
+			outline: none;
+		}
+		.login-flash.err {
+			background: rgba(231, 76, 60, 0.12);
+			border-color: rgba(231, 76, 60, 0.35);
+			color: var(--yweb-danger);
+		}
+		.login-flash.out {
+			background: var(--yweb-bg-elevated);
+			border-color: var(--yweb-border-subtle);
+			color: var(--pico-color);
+		}
+		.login-wrap button[type=submit] {
+			width: 100%;
+			padding: 9px 18px;
+			font-size: 0.95rem;
+			margin-top: 4px;
 		}
 	</style>
 </head>
 <body>
 	<main class="login-wrap yweb-card">
-		<h1>{=L:yw.login.title=}</h1>
+		<h1>yWeb</h1>
 		<p class="sub">{=L:yw.login.intro=}</p>
 
 		<!-- Must stay a plain form post: the server matches the request
 		     content type "application/x-www-form-urlencoded" exactly, a
 		     fetch() with a charset suffix would not be parsed. -->
 		<form method="post" action="/login">
-			<label for="loginUser">{=L:yw.login.user=}</label>
-			<input type="text" id="loginUser" name="username" autocomplete="username" autofocus>
+			<!-- Both notes exist in the DOM up front, so role=status is
+			     announced when they are unhidden. -->
+			<div class="login-flash err" id="loginErr" role="status" tabindex="-1" hidden>{=L:yw.login.failed=}</div>
+			<div class="login-flash out" id="loginOut" role="status" hidden>{=L:yw.login.out=}</div>
 
-			<label for="loginPass">{=L:yw.login.pass=}</label>
-			<div class="login-pw-row">
-				<input type="password" id="loginPass" name="password" autocomplete="current-password">
-				<button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="loginTogglePw('loginPass', this)"></button>
+			<div class="login-field">
+				<label for="loginUser">{=L:yw.login.user=}</label>
+				<input type="text" id="loginUser" name="username" autocomplete="username" autofocus>
+			</div>
+
+			<div class="login-field">
+				<label for="loginPass">{=L:yw.login.pass=}</label>
+				<div class="login-pw-row">
+					<input type="password" id="loginPass" name="password" autocomplete="current-password">
+					<button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="loginTogglePw('loginPass', this)"></button>
+				</div>
 			</div>
 
 			<input type="hidden" id="loginNext" name="next" value="/">
 
-			<!-- Both notes exist in the DOM up front, so role=status is
-			     announced when they are unhidden. -->
-			<small class="login-err" id="loginErr" role="status" tabindex="-1" hidden>{=L:yw.login.failed=}</small>
-			<small class="login-note" id="loginOut" role="status" hidden>{=L:yw.login.out=}</small>
-
-			<button type="submit" class="yweb-btn primary" style="width:100%">{=L:yw.login.submit=}</button>
+			<button type="submit" class="yweb-btn primary">{=L:yw.login.submit=}</button>
 		</form>
 	</main>
 
