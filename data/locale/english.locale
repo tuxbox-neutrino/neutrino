@@ -2751,10 +2751,10 @@ streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.backspace Backspace
 stringinput.caps Upper/lower
+stringinput.char_not_allowed Character not allowed here.
 stringinput.clear clear all
 stringinput.empty_not_allowed Input must not be empty.
 stringinput.insert Insert
-stringinput.layout Layout
 stringinput.maxchars_reached Maximum number of characters reached.
 stringinput.save Save
 stringinput.save_failed Input cannot be saved.

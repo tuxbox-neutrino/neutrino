@@ -372,8 +372,18 @@ void CCTextInputDialog::layoutDialogItems()
 			header_h + footer_h + body_content_h +
 			2 * fr_thickness);
 
+	bool geometry_changed = false;
 	if (height != target_h)
 	{
+		/* A painted window must give its pixels back before it moves:
+		 * paintForm() skips paintInit() while is_painted stands, so
+		 * frame, body and shadow would keep the old geometry - the
+		 * color chooser documents the same trap for its own resize.
+		 * hide() restores the saved backdrop; the repaint at the end
+		 * of this layout pass re-arms it at the new place. */
+		geometry_changed = isPainted();
+		if (geometry_changed)
+			hide();
 		height = target_h;
 		setCenterPos(CC_ALONG_X | CC_ALONG_Y);
 		Refresh();
@@ -408,6 +418,11 @@ void CCTextInputDialog::layoutDialogItems()
 			keyboard_h);
 		cid_keyboard->refreshLayout();
 	}
+
+	/* Only after every child sits at its new place: the first paint of
+	 * the resized window saves the backdrop it now really covers. */
+	if (geometry_changed)
+		paint(CC_SAVE_SCREEN_YES);
 }
 
 void CCInputDialogBase::initFooterButtons()
@@ -527,7 +542,13 @@ bool CCTextInputDialog::confirmDiscard() const
 void CCTextInputDialog::showMaxCharsError()
 {
 	cid_field->setErrorState(true);
-	showInlineError(g_Locale->getText(LOCALE_STRINGINPUT_MAXCHARS_REACHED));
+	/* insert() refuses for two reasons and does not say which; the
+	 * buffer state does. Only a really full buffer is "max chars" -
+	 * anything else was the filter. */
+	if (cid_max_chars && cid_buffer.size() >= cid_max_chars)
+		showInlineError(g_Locale->getText(LOCALE_STRINGINPUT_MAXCHARS_REACHED));
+	else
+		showInlineError(g_Locale->getText(LOCALE_STRINGINPUT_CHAR_NOT_ALLOWED));
 	cid_field->paint(false);
 }
 
@@ -788,7 +809,15 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 		{
 			if (cid_buffer.getText() != original_value &&
 				!confirmDiscard())
+			{
+				/* RC_timeout is above RC_MaxRC, so the renewal at
+				 * the loop head never ran - without a fresh
+				 * deadline the next getMsgAbsoluteTimeout() fires
+				 * immediately and the discard prompt loops. */
+				timeoutEnd = CRCInput::calcTimeoutEnd(
+					g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
+			}
 
 			loop = false;
 			res = menu_return::RETURN_EXIT_REPAINT;

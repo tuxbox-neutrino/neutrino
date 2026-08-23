@@ -2751,10 +2751,10 @@ streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen 
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.backspace Rücklöschen
 stringinput.caps Groß/Klein
+stringinput.char_not_allowed Zeichen ist hier nicht erlaubt.
 stringinput.clear Alles löschen
 stringinput.empty_not_allowed Eingabe darf nicht leer sein.
 stringinput.insert Einfügen
-stringinput.layout Layout
 stringinput.maxchars_reached Maximale Zeichenzahl erreicht.
 stringinput.save Speichern
 stringinput.save_failed Eingabe kann nicht gespeichert werden.
