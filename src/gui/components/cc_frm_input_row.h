@@ -59,6 +59,7 @@ class CComponentsInputRow : public CComponentsForm
 		void setText(const std::string &text);
 		const std::string &getText() const;
 		void setPasswordMode(bool enabled = true);
+		bool isPasswordMode() const {return cir_password_mode;}
 		void setAllowEmpty(bool allow_empty = true);
 		void setMaxChars(size_t max_chars);
 		void setFilterMode(CCInputBuffer::input_filter_mode_t mode);

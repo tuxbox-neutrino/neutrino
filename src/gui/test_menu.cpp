@@ -486,7 +486,13 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 			md_error_text.clear();
 			updateStatusText();
 			if (md_hint)
+			{
+				/* Transparent text with no save-screen: a bare
+				 * paint() draws over the old glyphs. kill()
+				 * erases to the body color first. */
+				md_hint->kill();
 				md_hint->paint(false);
+			}
 		}
 
 		void showInlineError(const std::string &text)
@@ -494,7 +500,10 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 			md_error_text = text;
 			updateStatusText();
 			if (md_hint)
+			{
+				md_hint->kill();
 				md_hint->paint(false);
+			}
 		}
 
 		void clearFieldErrors()
@@ -512,8 +521,13 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 			if (!entry || !entry->row)
 				return;
 
+			/* Same rule the dialog enforces: the field masks a
+			 * password, so the front display must not spell it. */
+			const std::string vfd_text = entry->row->isPasswordMode()
+				? std::string(entry->row->getBufferObject()->size(), '*')
+				: entry->row->getText();
 			CVFD::getInstance()->showMenuText(1,
-				entry->row->getText().c_str(),
+				vfd_text.c_str(),
 				entry->row->getBufferObject()->getCursor() + 1);
 		}
 
