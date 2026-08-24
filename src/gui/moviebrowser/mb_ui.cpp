@@ -76,6 +76,17 @@ void CMovieBrowser::hide(void)
 	if (m_detailsLine){
 		delete m_detailsLine; m_detailsLine = NULL;
 	}
+	/* Painting the cover with a saved background reserves its area against
+	 * painters in other threads; the reservation ends when the item hides, is
+	 * destroyed or drops its snapshot. Unlike the two items above the cover
+	 * survives this call - it caches the decoded image for the next visit - so
+	 * nothing else here takes it down, and a reservation left behind can keep
+	 * the channel list from painting its EPG infozone. Hiding also puts the
+	 * saved pixels back, which is why this belongs above the paintBackground()
+	 * below.
+	 * @see		CFrameBuffer::addOverlay()
+	 */
+	hideMovieCover();
 	old_EpgId = 0;
 	old_ChannelName.clear();
 	framebuffer->paintBackground();
