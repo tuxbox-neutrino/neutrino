@@ -480,14 +480,26 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 
 void CComponentsForm::removeCCItem(CComponentsItem* cc_Item)
 {
-	uint id = getCCItemId(cc_Item);	
-	removeCCItem(id);
+	/* getCCItemId() answers -1 for anything that is not in this form, and
+	 * handing that on as the unsigned id indexes vector::at() far out of
+	 * range and terminates the program. Nothing to remove is not an
+	 * error - say so and return. */
+	int id = getCCItemId(cc_Item);
+	if (id < 0){
+		dprintf(DEBUG_INFO, "[CComponentsForm]  %s cc_Item is not in this form, nothing to remove\n", __func__);
+		return;
+	}
+	removeCCItem((uint)id);
 }
 
 void CComponentsForm::removeCCItem(const std::string &item_name)
 {
-	uint id = getCCItemId(item_name);
-	removeCCItem(id);
+	int id = getCCItemId(item_name);
+	if (id < 0){
+		dprintf(DEBUG_INFO, "[CComponentsForm]  %s no cc_Item named '%s' in this form, nothing to remove\n", __func__, item_name.c_str());
+		return;
+	}
+	removeCCItem((uint)id);
 }
 
 void CComponentsForm::exchangeCCItem(const uint& cc_item_id_a, const uint& cc_item_id_b)

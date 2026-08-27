@@ -59,11 +59,25 @@ class CComponentsKeyboard : public CComponentsForm
 		///the dialog clears it via markOffScreen()
 		bool ck_on_screen;
 		fb_pixel_t ck_col_key_text;
+		///widest caption of the current page, and the space key caption
+		///it was measured with; dropped when the page changes
+		mutable std::string ck_widest_caption;
+		mutable std::string ck_widest_for_space;
 
-		int getKeyGap() const;
-		int getKeyHeight() const;
+		int getKeyGap(const bool &compact) const;
+		int getKeyHeight(const bool &compact) const;
 		int getKeyWidth(const int &w) const;
-		std::string getKeyCaption(const int &row, const int &column) const;
+		std::string getSpaceCaption(Font *key_font) const;
+		std::string getWidestCaption(const std::string &space_caption) const;
+		Font *getFittedKeyFont(const int &key_w,
+			const int &key_h,
+			const int &gap,
+			const std::string &space_caption) const;
+		bool applyKeyFace(const int &row,
+			const int &column,
+			const std::string &space_caption,
+			const bool &space_icon_ok);
+		void onAfterSetupFonts();
 		void buildKeys();
 		void applyKeyStates();
 		void repaintKey(const int &row, const int &column);
@@ -128,8 +142,14 @@ class CComponentsKeyboard : public CComponentsForm
 		 * Height this keyboard wants, frame included. Independent of the
 		 * width: the row and column counts are fixed by the layout tables,
 		 * so only the font decides how tall a key has to be.
+		 *
+		 * The parameter asks for a mode rather than for the current one,
+		 * so that needsCompactMode() can answer for the roomy layout
+		 * without switching modes to find out.
 		 */
-		int getPreferredHeight() const;
+		int getPreferredHeight(const bool &compact) const;
+		///the height for the mode the keyboard is actually in
+		int getPreferredHeight() const {return getPreferredHeight(ck_compact);};
 
 		///true when getPreferredHeight() does not fit into max_h
 		bool needsCompactMode(const int &max_h) const;

@@ -360,13 +360,15 @@ void CCTextInputDialog::layoutDialogItems()
 		const int budget = screen_h - header_h - footer_h - pad - hint_h -
 			(has_hint ? gap : 0) - field_h - gap - pad -
 			2 * fr_thickness;
-		/* Latch, never bounce: needsCompactMode() measures in the
-		 * CURRENT mode, so once compact fits the budget the answer
-		 * flips back and the keyboard would toggle on every layout
-		 * pass. Fonts cannot change within this dialog's life, so
-		 * compact only ever switches on. */
-		if (cid_keyboard->needsCompactMode(budget))
-			cid_keyboard->setCompactMode(true);
+		/* Set both ways, not latched on: needsCompactMode() answers
+		 * for the roomy layout whatever mode the keyboard is in, so
+		 * the answer no longer flips once compact has made it fit and
+		 * the toggling this used to guard against cannot happen. It
+		 * has to be able to switch back - fonts DO change within this
+		 * dialog's life, the keyboard follows OnAfterSetupFonts, and a
+		 * latch would leave it cramped for the rest of the session
+		 * after the user lowered the font sizes again. */
+		cid_keyboard->setCompactMode(cid_keyboard->needsCompactMode(budget));
 		keyboard_h = cid_keyboard->getPreferredHeight();
 	}
 	const int body_content_h = pad + hint_h +

@@ -145,8 +145,13 @@ void CComponentsButton::initIcon()
 	//init cch_icon_obj only if an icon available
 	if (cc_btn_icon.empty())
 	{
+		/* removeCCItem(), not delete: the picture added itself to this
+		 * form's item list through initParent(), and a plain delete would
+		 * leave that entry dangling for the next paint. Only reachable
+		 * since a button can drop an icon it once had - the keyboard's
+		 * space key does exactly that when its icon becomes unusable. */
 		if (cc_btn_icon_obj)
-			delete cc_btn_icon_obj;
+			removeCCItem(cc_btn_icon_obj);
 		cc_btn_icon_obj = NULL;
 		return;
 	}
@@ -161,6 +166,23 @@ void CComponentsButton::initIcon()
 
 	int h_icon = height-2*fr_thickness - 2*OFFSET_INNER_MIN;
 	h_icon = min(h_icon, dy_tmp);
+
+	/* The picture keeps its aspect ratio, so the height clamp alone does
+	 * not bound the width. A dynamic button grows around its icon in
+	 * initCaption(), but a fixed-width button (grid cell) cannot - there
+	 * a wide icon would overflow the cell, so shrink it further until
+	 * the resulting width fits. */
+	if (cc_btn_fixed_width && width > 0 && dx_tmp > 0 && dy_tmp > 0)
+	{
+		/* max(1, ...) rather than a "only when there is room" guard: a
+		 * cell too narrow for the paddings is exactly where an unclamped
+		 * icon would spill into its neighbour, so that case must clamp
+		 * hardest, not be skipped. */
+		int w_max = max(1, width - 2*fr_thickness - 2*OFFSET_INNER_MIN);
+		int w_icon = dx_tmp * h_icon / dy_tmp;
+		if (w_icon > w_max)
+			h_icon = max(1, h_icon * w_max / w_icon);
+	}
 
 	int y_icon = height/2 - h_icon/2;
 
@@ -180,8 +202,10 @@ void CComponentsButton::initCaption()
 			addCCItem(cc_btn_text_obj);
 		}
 	}else{
+		/* Same reason as in initIcon(): the label was added to this
+		 * form's item list, so it has to leave through removeCCItem(). */
 		if (cc_btn_text_obj){
-			delete cc_btn_text_obj;
+			removeCCItem(cc_btn_text_obj);
 			cc_btn_text_obj = NULL;
 		}
 	}
