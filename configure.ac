@@ -1,7 +1,7 @@
 # explicit defines for separate revision handling
 define(ver_major, 2026)
 define(ver_minor, 8)
-define(ver_micro, 45)
+define(ver_micro, 92)
 
 # sync with current git
 define(ver_git, m4_esyscmd([
