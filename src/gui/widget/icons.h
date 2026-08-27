@@ -300,6 +300,8 @@
 
 #define NEUTRINO_ICON_NUMERIC_PAD	"numericpad"
 
+#define NEUTRINO_ICON_KEY_SPACE		"key_space"
+
 #define NEUTRINO_ICON_STAR_ON		"star-on"
 #define NEUTRINO_ICON_STAR_OFF		"star-off"
 
