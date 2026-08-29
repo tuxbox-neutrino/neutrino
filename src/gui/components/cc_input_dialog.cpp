@@ -445,8 +445,8 @@ void CCInputDialogBase::initFooterButtons(const std::string &layout_name)
 	buttons[0].directKeys.push_back(CRCInput::RC_ok);
 
 	buttons[1].button = NEUTRINO_ICON_BUTTON_GREEN;
-	buttons[1].locale = LOCALE_FILEBROWSER_DELETE;
-	buttons[1].btn_result = RES_DELETE;
+	buttons[1].locale = LOCALE_STRINGINPUT_BACKSPACE;
+	buttons[1].btn_result = RES_BACKSPACE;
 	buttons[1].directKeys.push_back(CRCInput::RC_green);
 
 	buttons[2].button = NEUTRINO_ICON_BUTTON_YELLOW;
@@ -492,6 +492,28 @@ int CCInputDialogBase::sendButtonKey(neutrino_msg_t msg)
 	}
 
 	return -1;
+}
+
+bool CCInputDialogBase::applyBufferResult(int btn_res, CCInputBuffer *buffer)
+{
+	if (!buffer)
+		return false;
+
+	switch (btn_res)
+	{
+		case RES_BACKSPACE:
+			return buffer->backspace();
+		case RES_CLEAR:
+			/* clear() returns void and would report a change even on
+			 * an empty buffer - the contract says "changed", so ask
+			 * first instead of repainting for nothing. */
+			if (buffer->empty())
+				return false;
+			buffer->clear();
+			return true;
+		default:
+			return false;
+	}
 }
 
 void CCTextInputDialog::syncDialogState()
@@ -807,7 +829,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 		bool state_changed = false;
 
 		/* 0. On-screen keyboard, only while it has focus. It refuses
-		 * the footer keys itself, so save, delete, clear and cancel
+		 * the footer keys itself, so save, backspace, clear and cancel
 		 * still reach the layers below. Repaint runs through the
 		 * OnAfterKey slot. */
 		if (cid_keyboard && cid_keyboard->hasKeyFocus() &&
@@ -855,9 +877,14 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 		else if (msg == CRCInput::RC_backspace ||
 			msg == CRCInput::RC_rewind)
 		{
+			/* The hard key twin of the green footer button, kept for
+			 * the keyboards and remotes that carry one. Routed through
+			 * the same shared method rather than calling backspace()
+			 * again: two spellings of one action are how the footer
+			 * results drifted apart in the first place. */
 			cid_field->setErrorState(false);
 			clearInlineError();
-			if (cid_buffer.backspace())
+			if (applyBufferResult(RES_BACKSPACE, &cid_buffer))
 				state_changed = true;
 		}
 		else if (msg == CRCInput::RC_timeout)
@@ -892,18 +919,6 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 						if (save())
 							loop = false;
 						break;
-					case RES_DELETE:
-						cid_field->setErrorState(false);
-						clearInlineError();
-						if (cid_buffer.erase())
-							state_changed = true;
-						break;
-					case RES_CLEAR:
-						cid_field->setErrorState(false);
-						clearInlineError();
-						cid_buffer.clear();
-						state_changed = true;
-						break;
 					case RES_CANCEL:
 						if (cid_buffer.getText() != original_value &&
 							!confirmDiscard())
@@ -933,6 +948,19 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 							if (getFooterObject())
 								getFooterObject()->paint(false);
 						}
+						break;
+					default:
+						/* Every result this dialog does not name is
+						 * the base's to interpret. Naming them here
+						 * would put the label in one place and the
+						 * effect in another again - and a dialog that
+						 * forgot a label would show a footer button
+						 * that does nothing, which is the defect this
+						 * whole change came from. */
+						cid_field->setErrorState(false);
+						clearInlineError();
+						if (applyBufferResult(btn_res, &cid_buffer))
+							state_changed = true;
 						break;
 				}
 			}

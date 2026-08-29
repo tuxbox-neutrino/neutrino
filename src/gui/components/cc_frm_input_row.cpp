@@ -267,6 +267,11 @@ void CComponentsInputRow::setErrorState(bool enabled)
 		cir_field->setErrorState(enabled);
 }
 
+bool CComponentsInputRow::getErrorState() const
+{
+	return cir_field ? cir_field->getErrorState() : false;
+}
+
 void CComponentsInputRow::setLabelColor(const fb_pixel_t &color)
 {
 	cir_label_col = color;

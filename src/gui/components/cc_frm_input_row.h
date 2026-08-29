@@ -65,6 +65,8 @@ class CComponentsInputRow : public CComponentsForm
 		void setFilterMode(CCInputBuffer::input_filter_mode_t mode);
 		void setFieldFocus(bool focused = true);
 		void setErrorState(bool enabled = true);
+		///true while the row's field has its error frame set
+		bool getErrorState() const;
 		void setLabelColor(const fb_pixel_t &color);
 		void setFieldColors(const fb_pixel_t &color_text,
 			const fb_pixel_t &color_frame,

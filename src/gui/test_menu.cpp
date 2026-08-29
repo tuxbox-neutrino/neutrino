@@ -259,7 +259,7 @@ int execCCTextInputTest(bool password_mode = false, bool with_keyboard = false)
 	{
 		dialog.setHintText("Freie Texteingabe ohne feste Slot-Grenze. "
 			"Links/Rechts bewegt den Cursor, Gruen "
-			"loescht am Cursor, Gelb leert das Feld.");
+			"loescht links vom Cursor, Gelb leert das Feld.");
 		dialog.setPlaceholder("Text eingeben...");
 		dialog.setMaxChars(128);
 	}
@@ -551,13 +551,30 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 			}
 		}
 
-		void clearFieldErrors()
+		/**
+		 * Drops every error frame and says whether one stood.
+		 *
+		 * The frame is model state that only paint() takes off the
+		 * screen, and applyBufferResult() reports the buffer, not the
+		 * frame - so a caller that clears both has to learn about
+		 * both, or a clear on an already empty field leaves a stale
+		 * frame behind.
+		 */
+		bool clearFieldErrors()
 		{
+			bool cleared = false;
+
 			for (size_t i = 0; i < md_entries.size(); i++)
 			{
-				if (md_entries[i].row)
+				if (md_entries[i].row &&
+					md_entries[i].row->getErrorState())
+				{
 					md_entries[i].row->setErrorState(false);
+					cleared = true;
+				}
 			}
+
+			return cleared;
 		}
 
 		void updateVfd() const
@@ -725,8 +742,8 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 			md_saved = false;
 			md_hint_text = "Phase 0 Test: Hoch/Runter wechselt Feld, "
 				"Links/Rechts bewegt den Cursor. Rot/OK "
-				"speichert, Gruen loescht am Cursor oder "
-				"links davon, Gelb leert das aktive Feld.";
+				"speichert, Gruen loescht links vom "
+				"Cursor, Gelb leert das aktive Feld.";
 			md_focus_order.reserve(4);
 			applyDialogStyle();
 			initHint();
@@ -876,9 +893,14 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 				else if ((msg == CRCInput::RC_backspace ||
 						msg == CRCInput::RC_rewind) && buffer)
 				{
-					clearFieldErrors();
+					/* Same shared definition as the green footer
+					 * button - see CCInputDialogBase. */
+					if (clearFieldErrors())
+						state_changed = true;
 					clearInlineError();
-					if (buffer->backspace())
+					if (applyBufferResult(
+							CCInputDialogBase::RES_BACKSPACE,
+							buffer))
 						state_changed = true;
 				}
 				else if (msg == CRCInput::RC_timeout)
@@ -909,23 +931,6 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 								if (save())
 									loop = false;
 								break;
-							case CCInputDialogBase::RES_DELETE:
-								clearFieldErrors();
-								clearInlineError();
-								if (buffer &&
-									(buffer->erase() ||
-										buffer->backspace()))
-									state_changed = true;
-								break;
-							case CCInputDialogBase::RES_CLEAR:
-								clearFieldErrors();
-								clearInlineError();
-								if (buffer)
-								{
-									buffer->clear();
-									state_changed = true;
-								}
-								break;
 							case CCInputDialogBase::RES_CANCEL:
 								if (isDirty() && !confirmDiscard())
 								{
@@ -935,6 +940,19 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 								}
 								loop = false;
 								res = menu_return::RETURN_EXIT_REPAINT;
+								break;
+							default:
+								/* Everything the shared footer owns
+								 * and this dialog does not name. Both
+								 * halves can call for a repaint, so
+								 * both are asked: the buffer may be
+								 * untouched while an error frame still
+								 * has to come off the screen. */
+								if (clearFieldErrors())
+									state_changed = true;
+								clearInlineError();
+								if (applyBufferResult(btn_res, buffer))
+									state_changed = true;
 								break;
 						}
 					}

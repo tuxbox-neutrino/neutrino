@@ -69,6 +69,8 @@ class CCInputField : public CComponentsItem
 		void setPasswordMode(bool enabled = true);
 		void setFieldFocus(bool focused = true);
 		void setErrorState(bool enabled = true);
+		///true while the error frame is set - paint() reads this
+		bool getErrorState() const {return if_error_state;}
 		void setFont(Font *font);
 		void setColors(const fb_pixel_t &color_text,
 			const fb_pixel_t &color_frame,

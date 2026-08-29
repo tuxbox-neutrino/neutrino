@@ -39,7 +39,8 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 		enum button_result_t
 		{
 			RES_SAVE = 0,
-			RES_DELETE,
+			///removes the glyph BEFORE the cursor, not the one under it
+			RES_BACKSPACE,
 			RES_CLEAR,
 			RES_CANCEL,
 			RES_CAPS,
@@ -55,11 +56,35 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 		///applies header, body and footer colours; call again after every Refresh()
 		void applyDialogStyle();
 
-		///fills the footer with save/delete/clear/cancel and their direct keys
+		///fills the footer with save/backspace/clear/cancel and their direct keys
 		void initFooterButtons(const std::string &layout_name = std::string());
 
 		///returns the button_result_t a key belongs to, or -1 if no button claims it
 		int sendButtonKey(neutrino_msg_t msg);
+
+		/**
+		 * Applies a buffer editing button result to the given buffer.
+		 *
+		 * Lives here, not in the loops: initFooterButtons() writes the
+		 * labels, so this writes what they do. A derived dialog that
+		 * takes the shared footer must take these results with it, or
+		 * its green key says one thing and does another - which is
+		 * exactly how RES_BACKSPACE and RES_CLEAR drifted apart between
+		 * the two dialogs that existed when this was added.
+		 *
+		 * Opt-in, not enforced: the base deliberately has no exec(), so
+		 * a dialog that builds its own footer stands outside this.
+		 *
+		 * Returns true when the BUFFER changed - not whether the
+		 * field needs a repaint. The two part company as soon as a
+		 * caller also drops an error frame, which is model state that
+		 * only paint() takes off the screen: such a caller has to ask
+		 * both halves and repaint when either says yes.
+		 *
+		 * Results this does not own - save, cancel, caps, layout -
+		 * return false and stay the caller's business.
+		 */
+		bool applyBufferResult(int btn_res, CCInputBuffer *buffer);
 
 		///height of the hint line above the input area
 		static int getDialogHintHeight(Font *font);
