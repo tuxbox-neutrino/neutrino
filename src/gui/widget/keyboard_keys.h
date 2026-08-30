@@ -58,8 +58,8 @@ static std::string keys_deutsch[2][KEY_ROWS][KEY_COLUMNS] =
 
 static struct keyboard_layout keyboards[] =
 {
-	{ "English", "english", keys_english },
-	{ "Deutsch", "deutsch", keys_deutsch }
+	{ "QWERTY", "english", keys_english },
+	{ "QWERTZ", "deutsch", keys_deutsch }
 };
 #define LAYOUT_COUNT (sizeof(keyboards)/sizeof(struct keyboard_layout))
 
