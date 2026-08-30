@@ -156,6 +156,7 @@ int CLuaInstCurl::CurlDownload(lua_State *L)
 	followRedir	bool		true
 	maxRedirs	number		20
 	httpheader	table		empty
+	redirectOnly	bool		false
 */
 
 /*
@@ -277,6 +278,9 @@ Example:
 	lua_Integer maxRedirs = 20;
 	tableLookup(L, "maxRedirs", maxRedirs);
 
+	bool redirectOnly = false;
+	tableLookup(L, "redirectOnly", redirectOnly);
+
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
 	if (toFile) {
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, NULL);
@@ -286,6 +290,7 @@ Example:
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &CLuaInstCurl::CurlWriteToString);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&retString);
 	}
+
 	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1L);
 	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, (long)(4*connectTimeout));
 	curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, (long)connectTimeout);
@@ -352,6 +357,7 @@ Example:
 		printf("\e[?25h"); /* cursor on */
 	printf("\n");
 
+	std::string redirectUrl;
 	std::string msg;
 	if (!silent) {
 		double dsize, dtime;
@@ -379,6 +385,9 @@ Example:
 			std::string tmp2 = url;
 			if (trim(tmp1, " /") != trim(tmp2, " /"))
 				msg += std::string("\n	    effektive url: ") + deffektive;
+
+			if (redirectOnly)
+				redirectUrl = deffektive;
 		}
 		if ((res2 == CURLE_OK) && dredirect)
 			msg += std::string("\n	      redirect to: ") + dredirect;
@@ -397,6 +406,12 @@ Example:
 			unlink(outputfile.c_str());
 		lua_pushinteger(L, LUA_CURL_ERR_CURL);
 		lua_pushstring(L, errMsg);
+		return 2;
+	}
+
+	if (redirectOnly && !redirectUrl.empty()) {
+		lua_pushinteger(L, LUA_CURL_OK);
+		lua_pushstring(L, redirectUrl.c_str());
 		return 2;
 	}
 
