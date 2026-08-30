@@ -32,6 +32,7 @@ class CCInputField : public CComponentsItem
 		int if_caret_width;
 		bool if_password_mode;
 		bool if_focused;
+		bool if_caret_unfocused;
 		bool if_error_state;
 		fb_pixel_t if_col_text;
 		fb_pixel_t if_col_placeholder;
@@ -86,6 +87,25 @@ class CCInputField : public CComponentsItem
 		 * right through the box. The next paint() arms it again.
 		 */
 		void cancelCaretBlink(bool keep_on_screen = false);
+
+		/**
+		 * Keeps the caret on screen while the field has no key focus.
+		 *
+		 * For a field that stays the editing target when another item
+		 * takes the keys - the single-field dialog hands them to its
+		 * on-screen keyboard, yet green and the typed glyphs still
+		 * land at the cursor. The caret then paints once, without the
+		 * blink timer: blinking says "type here", a standing caret
+		 * says "this is where edits land". The old code hid the caret
+		 * wholesale on focus loss because a timer-driven one could
+		 * not simply be left running - it keeps flipping pixels over
+		 * whatever paints on top.
+		 *
+		 * Off by default: in a multi-field form an unfocused row is
+		 * inactive, and a caret in every row would say six things at
+		 * once.
+		 */
+		void enableUnfocusedCaret(bool enable = true);
 		void setPadding(const int &x_pad, const int &y_pad);
 		void ensureCursorVisible();
 

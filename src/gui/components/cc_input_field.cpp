@@ -65,6 +65,7 @@ CCInputField::CCInputField(const int &x_pos,
 	if_caret_width = std::max(2, FRAME_WIDTH_MIN * 2);
 	if_password_mode = false;
 	if_focused = false;
+	if_caret_unfocused = false;
 	if_error_state = false;
 	if_col_text = color_text;
 	if_col_placeholder = COL_MENUCONTENTINACTIVE_TEXT;
@@ -95,11 +96,16 @@ void CCInputField::cancelCaretBlink(bool keep_on_screen)
 	if_caret = NULL;
 }
 
+void CCInputField::enableUnfocusedCaret(bool enable)
+{
+	if_caret_unfocused = enable;
+}
+
 void CCInputField::initCaret(const int &x_pos, const int &caret_h)
 {
 	cancelCaretBlink(false);
 
-	if (!if_focused || caret_h <= 0)
+	if ((!if_focused && !if_caret_unfocused) || caret_h <= 0)
 		return;
 
 	if_caret = new CComponentsShapeSquare(x_pos,
@@ -348,11 +354,20 @@ void CCInputField::paint(const bool &do_save_bg)
 					std::max(content_x, content_end - if_caret_width));
 	}
 
-	if (if_focused)
+	if (if_focused || if_caret_unfocused)
 	{
 		initCaret(caret_x, caret_h);
 		if (if_caret)
-			if_caret->paintBlink(500);
+		{
+			if (if_focused)
+				if_caret->paintBlink(500);
+			else
+				/* One static frame over the saved backdrop - the
+				 * same call cancelBlink(keep_on_screen) uses, so
+				 * the next cancelCaretBlink() restores the pixels
+				 * underneath whether a timer ran or not. */
+				if_caret->paint1();
+		}
 	}
 
 	if (if_error_state)

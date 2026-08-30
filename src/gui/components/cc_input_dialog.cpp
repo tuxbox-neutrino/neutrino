@@ -295,6 +295,10 @@ void CCTextInputDialog::initDialogItems()
 	cid_field->setPlaceholderColor(cid_field_col_placeholder);
 	cid_field->setCaretWidth(getInputDialogCaretWidth(input_font));
 	cid_field->setPadding(getInputFieldPaddingX(), getInputFieldPaddingY());
+	/* The one field of this dialog stays the editing target even while
+	 * the on-screen keyboard takes the keys - without this the cursor
+	 * keeps acting where nothing marks it. */
+	cid_field->enableUnfocusedCaret(true);
 
 	addWindowItem(cid_hint);
 	addWindowItem(cid_field);
