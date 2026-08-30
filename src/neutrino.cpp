@@ -762,6 +762,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.subs_charset = configfile.getString("subs_charset", "CP1252");
 
 	g_settings.language = configfile.getString("language", "");
+	g_settings.keyboard_layout = configfile.getString("keyboard_layout", "");
 	g_settings.timezone = configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna");
 
 	// epg
@@ -1816,6 +1817,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setString("subs_charset", g_settings.subs_charset);
 
 	configfile.setString("language", g_settings.language);
+	configfile.setString("keyboard_layout", g_settings.keyboard_layout);
 	configfile.setString("timezone", g_settings.timezone);
 
 	// epg

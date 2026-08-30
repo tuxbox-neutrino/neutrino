@@ -550,6 +550,7 @@ struct SNeutrinoSettings
 	std::string subs_charset;
 
 	std::string language;
+	std::string keyboard_layout;
 	std::string timezone;
 
 	// epg

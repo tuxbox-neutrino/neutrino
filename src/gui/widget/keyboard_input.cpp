@@ -261,6 +261,23 @@ void CKeyboardLayoutData::initByLocale(const std::string &locale)
 	}
 }
 
+void CKeyboardLayoutData::initByPreference(const std::string &preferred, const std::string &fallback)
+{
+	initByLocale(hasLocale(preferred) ? preferred : fallback);
+}
+
+bool CKeyboardLayoutData::hasLocale(const std::string &locale)
+{
+	if (locale.empty())
+		return false;
+
+	for (size_t i = 0; i < LAYOUT_COUNT; i++) {
+		if (keyboards[i].locale == locale)
+			return true;
+	}
+	return false;
+}
+
 void CKeyboardLayoutData::nextLayout()
 {
 	kld_initialized = true;
@@ -301,12 +318,15 @@ const std::string &CKeyboardLayoutData::getLayoutLocale() const
 
 void CKeyboardInput::setLayout()
 {
-	layout.initByLocale(g_settings.language);
+	layout.initByPreference(g_settings.keyboard_layout, g_settings.language);
 }
 
 void CKeyboardInput::switchLayout()
 {
 	layout.nextLayout();
+	/* A switch by hand pins the layout: every later dialog starts
+	 * here instead of at the OSD language, across restarts too. */
+	g_settings.keyboard_layout = layout.getLayoutLocale();
 	paintFooter();
 	paintKeyboard();
 }

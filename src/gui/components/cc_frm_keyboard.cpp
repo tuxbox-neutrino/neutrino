@@ -61,7 +61,7 @@ CComponentsKeyboard::CComponentsKeyboard(const int &x_pos,
 	ck_widest_caption.clear();
 	ck_widest_for_space.clear();
 
-	ck_layout.initByLocale(g_settings.language);
+	ck_layout.initByPreference(g_settings.keyboard_layout, g_settings.language);
 
 	doPaintBg(true);
 	buildKeys();
@@ -586,6 +586,9 @@ void CComponentsKeyboard::toggleCaps()
 void CComponentsKeyboard::toggleLayout()
 {
 	ck_layout.nextLayout();
+	/* A switch by hand pins the layout: every later dialog starts
+	 * here instead of at the OSD language, across restarts too. */
+	g_settings.keyboard_layout = ck_layout.getLayoutLocale();
 	ck_widest_caption.clear();
 	refreshLayout();
 

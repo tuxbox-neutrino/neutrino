@@ -53,6 +53,17 @@ class CKeyboardLayoutData
 		 */
 		void initByLocale(const std::string &locale);
 
+		/**
+		 * Picks the preferred locale when it names a known layout,
+		 * the fallback otherwise. The preferred value comes from the
+		 * user pinning a layout by hand, so an empty or stale entry
+		 * must not beat the fallback's locale match.
+		 */
+		void initByPreference(const std::string &preferred, const std::string &fallback);
+
+		///true when a layout with this locale exists in the tables
+		static bool hasLocale(const std::string &locale);
+
 		///advances to the next layout, wrapping around
 		void nextLayout();
 
