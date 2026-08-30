@@ -77,6 +77,22 @@ class CCInputField : public CComponentsItem
 			const fb_pixel_t &color_frame,
 			const fb_pixel_t &color_body,
 			const fb_pixel_t &color_body_focus);
+		/**
+		 * Colour of the placeholder, i.e. the hint shown while the
+		 * buffer is empty.
+		 *
+		 * Defaults to COL_MENUCONTENTINACTIVE_TEXT, the OSD's colour
+		 * for "not active here" - the same one a disabled menu entry
+		 * uses. It is a value each theme sets in its own right, which
+		 * is the point: reach for a *_TEXT_PLUS_n neighbour of the text
+		 * colour instead and the hint is tied to the text at a fixed
+		 * distance that no theme can widen. setPalette() derives those
+		 * slots from one base with fixed brightness offsets - for the
+		 * dark family -52 and -60, so those two neighbours sit at most
+		 * 8 of 255 steps apart and collapse onto the same value on a
+		 * dark base. That is how this field once ended up with a
+		 * placeholder nobody could tell from the typed text.
+		 */
 		void setPlaceholderColor(const fb_pixel_t &color);
 		void setCaretWidth(const int &caret_width);
 

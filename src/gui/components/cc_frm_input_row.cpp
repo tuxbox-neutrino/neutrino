@@ -135,11 +135,11 @@ CComponentsInputRow::CComponentsInputRow(const int &x_pos,
 	cir_field_font_reference.clear();
 	cir_password_mode = false;
 	cir_label_col = COL_MENUCONTENT_TEXT_PLUS_1;
-	cir_field_col_text = COL_MENUCONTENTDARK_TEXT_PLUS_1;
+	cir_field_col_text = COL_MENUCONTENTDARK_TEXT;
 	cir_field_col_frame = COL_FRAME_PLUS_0;
 	cir_field_col_body = COL_MENUCONTENTDARK_PLUS_0;
 	cir_field_col_body_focus = COL_MENUCONTENTDARK_PLUS_2;
-	cir_field_col_placeholder = COL_MENUCONTENTDARK_TEXT_PLUS_2;
+	cir_field_col_placeholder = COL_MENUCONTENTINACTIVE_TEXT;
 
 	doPaintBg(false);
 	enableFrame(false, 0);

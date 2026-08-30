@@ -75,7 +75,7 @@ int getInputFieldGlyphHeight(Font *font)
 
 fb_pixel_t getInputFieldTextColor()
 {
-	return COL_MENUCONTENTDARK_TEXT_PLUS_1;
+	return COL_MENUCONTENTDARK_TEXT;
 }
 
 fb_pixel_t getInputFieldFrameColor()
@@ -95,7 +95,7 @@ fb_pixel_t getInputFieldBodyFocusColor()
 
 fb_pixel_t getInputFieldPlaceholderColor()
 {
-	return COL_MENUCONTENTDARK_TEXT_PLUS_2;
+	return COL_MENUCONTENTINACTIVE_TEXT;
 }
 
 Font *getInputDialogDynFont(int max_w,
