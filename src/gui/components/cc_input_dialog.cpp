@@ -897,7 +897,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 				 * deadline the next getMsgAbsoluteTimeout() fires
 				 * immediately and the discard prompt loops. */
 				timeoutEnd = CRCInput::calcTimeoutEnd(
-					g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+						g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}
 

@@ -121,7 +121,7 @@ class CComponentsKeyboard : public CComponentsForm
 		* screen, so the next exec()'s focus sync cannot repaint a key
 		* onto a hidden dialog (dialog objects are reused, see
 		* proxyserver_setup).*/
-		void hide(){CComponentsForm::hide(); ck_on_screen = false;};
+		void hide() {CComponentsForm::hide(); ck_on_screen = false;};
 		///true while the keyboard is part of the painted dialog
 		bool isOnScreen() const {return ck_on_screen;};
 

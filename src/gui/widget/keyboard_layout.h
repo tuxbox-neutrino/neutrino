@@ -23,9 +23,9 @@
 
 struct keyboard_layout
 {
-        std::string name;
-        std::string locale;
-        std::string (*keys)[KEY_ROWS][KEY_COLUMNS];
+	std::string name;
+	std::string locale;
+	std::string(*keys)[KEY_ROWS][KEY_COLUMNS];
 };
 
 /**
