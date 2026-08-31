@@ -229,9 +229,9 @@ int CNhttpdSetup::showSetup()
 	ssl_items.Add(pem_fwd);
 	menu->addItem(pem_fwd);
 
-	CKeyboardInput ca_input(LOCALE_NETWORKMENU_HTTPD_SSL_CA_FILE, &ssl_ca_file);
-	CMenuForwarder *ca_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_SSL_CA_FILE, ssl_enabled != 0, ssl_ca_file, &ca_input);
-	ca_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_SSL_CA_FILE);
+	CKeyboardInput ca_input(LOCALE_NETWORKMENU_HTTPD_SSL_CAFILE, &ssl_ca_file);
+	CMenuForwarder *ca_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_SSL_CAFILE, ssl_enabled != 0, ssl_ca_file, &ca_input);
+	ca_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_SSL_CAFILE);
 	ssl_items.Add(ca_fwd);
 	menu->addItem(ca_fwd);
 #endif

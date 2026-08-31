@@ -2249,25 +2249,25 @@ networkmenu.hostname Hostname
 networkmenu.hostname_hint1 Geben sie den Hostnamen ein
 networkmenu.hostname_hint2 Eine Änderung benötigt einen Neustart
 networkmenu.httpd Webserver (nhttpd)
-networkmenu.httpd_port Port
-networkmenu.httpd_host Bind-Adresse
 networkmenu.httpd_auth Authentifizierung
-networkmenu.httpd_user Benutzername
-networkmenu.httpd_pass Passwort
-networkmenu.httpd_noauth Ausnahmen (kein Login)
-networkmenu.httpd_threading Verbindungs-Threads
+networkmenu.httpd_host Bind-Adresse
 networkmenu.httpd_loglevel Log-Level
-networkmenu.httpd_ssl SSL aktivieren
-networkmenu.httpd_ssl_pemfile SSL-PEM-Datei
-networkmenu.httpd_ssl_cafile SSL-CA-Datei
+networkmenu.httpd_noauth Ausnahmen (kein Login)
+networkmenu.httpd_pass Passwort
+networkmenu.httpd_port Port
 networkmenu.httpd_port_invalid Ungültiger Port. 1-65535 verwenden.
 networkmenu.httpd_save_failed nhttpd.conf konnte nicht gespeichert werden
+networkmenu.httpd_ssl SSL aktivieren
+networkmenu.httpd_ssl_cafile SSL-CA-Datei
+networkmenu.httpd_ssl_pemfile SSL-PEM-Datei
+networkmenu.httpd_threading Verbindungs-Threads
+networkmenu.httpd_user Benutzername
 networkmenu.inactive_network Netzwerk nicht aktiviert!
-networkmenu.no_interface Keine Netzwerkschnittstelle gefunden!
 networkmenu.ipaddress IP
 networkmenu.mount Netzwerkfreigaben bearbeiten
 networkmenu.nameserver Nameserver
 networkmenu.netmask Netzmaske
+networkmenu.no_interface Keine Netzwerkschnittstelle gefunden!
 networkmenu.ntpenable Zeit per INet synchronisieren
 networkmenu.ntprefresh NTP/DVB-Aktualisierung (min)
 networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync [min]
