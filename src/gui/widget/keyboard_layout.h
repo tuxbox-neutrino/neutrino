@@ -61,6 +61,15 @@ class CKeyboardLayoutData
 		 */
 		void initByPreference(const std::string &preferred, const std::string &fallback);
 
+		/**
+		 * The locale initByPreference() would pick: the preferred one
+		 * when it names a known layout, else the fallback when it
+		 * does, else the first table's locale. One place decides, so
+		 * a caller can ask "would this change anything" before paying
+		 * for a rebuild.
+		 */
+		static std::string resolveLocale(const std::string &preferred, const std::string &fallback);
+
 		///true when a layout with this locale exists in the tables
 		static bool hasLocale(const std::string &locale);
 

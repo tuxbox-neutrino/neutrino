@@ -568,6 +568,20 @@ void CComponentsKeyboard::setLayoutByLocale(const std::string &locale)
 	}
 }
 
+bool CComponentsKeyboard::applyLayoutPreference()
+{
+	/* Resolved first and compared cheaply: entering a dialog whose
+	 * layout already matches the pin must not pay for a rebuild, and
+	 * must not reset caps either. */
+	const std::string target = CKeyboardLayoutData::resolveLocale(
+			g_settings.keyboard_layout, g_settings.language);
+	if (target == ck_layout.getLayoutLocale())
+		return false;
+
+	setLayoutByLocale(target);
+	return true;
+}
+
 void CComponentsKeyboard::toggleCaps()
 {
 	ck_layout.toggleCaps();

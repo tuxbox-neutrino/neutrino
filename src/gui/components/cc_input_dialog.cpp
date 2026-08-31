@@ -806,6 +806,11 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 
 	if (cid_enable_keyboard && !cid_keyboard)
 		createKeyboard();
+	else if (cid_keyboard && cid_keyboard->applyLayoutPreference())
+		/* A layout pinned in another dialog since the last run: the
+		 * grid follows above, the footer still names the old one.
+		 * Rebuilt before paint(), so no painted chain needs a kill. */
+		initFooterButtons(cid_keyboard->getLayoutName());
 
 	cid_saved = false;
 	cid_buffer.setText(original_value);

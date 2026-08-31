@@ -263,7 +263,16 @@ void CKeyboardLayoutData::initByLocale(const std::string &locale)
 
 void CKeyboardLayoutData::initByPreference(const std::string &preferred, const std::string &fallback)
 {
-	initByLocale(hasLocale(preferred) ? preferred : fallback);
+	initByLocale(resolveLocale(preferred, fallback));
+}
+
+std::string CKeyboardLayoutData::resolveLocale(const std::string &preferred, const std::string &fallback)
+{
+	if (hasLocale(preferred))
+		return preferred;
+	if (hasLocale(fallback))
+		return fallback;
+	return keyboards[0].locale;
 }
 
 bool CKeyboardLayoutData::hasLocale(const std::string &locale)
@@ -318,6 +327,13 @@ const std::string &CKeyboardLayoutData::getLayoutLocale() const
 
 void CKeyboardInput::setLayout()
 {
+	/* Runs on every exec(), and the pin (or the OSD language) wins on
+	 * entry - a long-lived dialog object must show a layout pinned in
+	 * another dialog since its last run. The fresh state object gets
+	 * past the init guard; re-applying cannot undo a manual switch,
+	 * because a switch pins itself the moment it happens. Caps starts
+	 * over with it, which is what entering a dialog means. */
+	layout = CKeyboardLayoutData();
 	layout.initByPreference(g_settings.keyboard_layout, g_settings.language);
 }
 

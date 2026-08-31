@@ -131,6 +131,17 @@ class CComponentsKeyboard : public CComponentsForm
 		bool hasKeyFocus() const {return ck_has_focus;}
 
 		void setLayoutByLocale(const std::string &locale);
+
+		/**
+		 * Re-resolves the pinned layout (or the OSD language) and
+		 * switches to it when it differs from the current one - the
+		 * dialog-entry counterpart to the constructor's init, for
+		 * keyboard objects that outlive one dialog run. Returns true
+		 * when the layout actually changed, so the caller knows the
+		 * footer label needs a rebuild.
+		 */
+		bool applyLayoutPreference();
+
 		void toggleCaps();
 		void toggleLayout();
 		std::string getLayoutName() const {return ck_layout.getLayoutName();}
