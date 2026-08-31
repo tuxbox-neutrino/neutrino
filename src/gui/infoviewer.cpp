@@ -1377,14 +1377,16 @@ void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 		return;
 	}
 
-	/* mbrBack as the constructor's default result, not via setDefaultResult():
-	   the preselection is computed in initButtons(), which setButtonText()
-	   runs again afterwards, so a default set later never reaches the footer.
-	   It matters -- the preselected button is the one a reflex OK press hits,
-	   and that one must not be the way into a settings menu. */
+	/* The default result goes through the constructor, not setDefaultResult():
+	   the preselection is computed in initButtons(), and setButtonText() runs
+	   that again afterwards, so a default set later never reaches the footer.
+	   mbrOk, so the preselected button is the one carrying the OK glyph -- a
+	   box whose OK key does something other than the button labelled OK would
+	   be worse than no button at all. Walking into the tuner setup by accident
+	   costs a Back press and changes nothing on its own. */
 	CMsgBox msgBox(text.c_str(), g_Locale->getText(LOCALE_MESSAGEBOX_ERROR),
 		       DEFAULT_HEADER_ICON, NULL, getFailureHintWidth(text),
-		       MSGBOX_MIN_HEIGHT, CMsgBox::mbOk | CMsgBox::mbBack, CMsgBox::mbrBack);
+		       MSGBOX_MIN_HEIGHT, CMsgBox::mbOk | CMsgBox::mbBack, CMsgBox::mbrOk);
 	msgBox.setButtonText(CMsgBox::mbOk, LOCALE_SATSETUP_FE_SETUP);
 	/* Bounded on purpose. CMsgBox::exec() drops every message it does not
 	   recognise once its footer has a selected button -- unlike CHintBox,
@@ -1394,7 +1396,9 @@ void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 	   recording timers and standby. DEFAULT_TIMEOUT is the same static-message
 	   timing every other message box in the application uses. */
 	msgBox.setTimeOut(DEFAULT_TIMEOUT);
-	msgBox.enableDefaultResultOnTimeOut(true);
+	/* Deliberately not enableDefaultResultOnTimeOut(): a timeout then yields
+	   mbrTimeout, which is neither result below, so an unattended box closes
+	   without opening anything. */
 	// paint() before exec(): exec() enters the message loop without painting,
 	// and its very first key press scrolls a text box that does not exist yet.
 	msgBox.paint();
