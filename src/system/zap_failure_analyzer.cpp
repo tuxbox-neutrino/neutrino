@@ -118,12 +118,22 @@ CZapFailureInfo CZapFailureAnalyzer::analyze(t_channel_id failed_channel_id, t_c
 			   it. deliverySystemMask survives the Close() that linkFrontends()
 			   does to unused frontends -- it is filled in CFEManager::Init(),
 			   before any mode is known, and nothing clears it. */
-			if (!info.has_disabled_matching_tuner && frontendServesDelivery(fe, channel->delsys))
+			if (frontendServesDelivery(fe, channel->delsys))
 			{
-				info.has_disabled_matching_tuner = true;
-				info.disabled_adapter = fe->getAdapter();
-				info.disabled_number = fe->getNumber();
-				info.disabled_tuner_needs_source = !frontendHasSource(fe, position);
+				const bool needs_source = !frontendHasSource(fe, position);
+				/* Prefer one that only has to be switched on. Naming a
+				   frontend that also needs its satellite assigned, while
+				   another next to it is ready to go, sends the user the
+				   longer way round for no reason. */
+				const bool better = !info.has_disabled_matching_tuner
+					|| (info.disabled_tuner_needs_source && !needs_source);
+				if (better)
+				{
+					info.has_disabled_matching_tuner = true;
+					info.disabled_adapter = fe->getAdapter();
+					info.disabled_number = fe->getNumber();
+					info.disabled_tuner_needs_source = needs_source;
+				}
 			}
 			continue;
 		}
@@ -137,7 +147,14 @@ CZapFailureInfo CZapFailureAnalyzer::analyze(t_channel_id failed_channel_id, t_c
 
 		if (!frontendServesDelivery(fe, channel->delsys))
 		{
-			if (frontendIsRightKind(fe, channel->delsys))
+			/* Only when the tuner genuinely cannot do this standard. A hybrid
+			   the user pinned to another reception path also fails
+			   frontendServesDelivery(), but claiming it "does not handle the
+			   standard" would be false and would hide the real remedy, which
+			   is to undo the pin. That case keeps the generic wording, which
+			   already ends in "check the tuner configuration". */
+			if (!fe->supportsDelivery(channel->delsys)
+				&& frontendIsRightKind(fe, channel->delsys))
 				info.active_kind_without_delivery = true;
 			continue;
 		}
