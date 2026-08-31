@@ -1073,13 +1073,17 @@ infoviewer.nocurrent No info for current program available
 infoviewer.noepg EPG not available
 infoviewer.notavailable Channel not available
 infoviewer.notavailable.hint_check_tuner_setup Please check tuner configuration.
+infoviewer.notavailable.needs_reception This channel needs: %s
 infoviewer.notavailable.reason_no_active_tuner No active tuner available.
 infoviewer.notavailable.reason_no_delivery No active tuner supports this channel delivery system.
 infoviewer.notavailable.reason_no_free_tuner No free tuner is currently available.
 infoviewer.notavailable.reason_no_source_config No active tuner is configured for the selected satellite/provider.
+infoviewer.notavailable.reason_no_standard No active tuner handles this channel's transmission standard.
 infoviewer.notavailable.reason_stream_start_failed Stream could not be started.
 infoviewer.notavailable.reason_tune_failed Tuning failed (no signal or transponder unavailable).
 infoviewer.notavailable.source Source: %s
+infoviewer.notavailable.tuner_disabled %s could receive this channel, but is set to "%s".
+infoviewer.notavailable.tuner_disabled_source %s could receive this channel, but is set to "%s" and has no satellite assigned yet.
 infoviewer.now now
 infoviewer.subchan_disp_pos Subchannel display
 infoviewer.subchan_infobar Full infobar

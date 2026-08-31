@@ -1073,13 +1073,17 @@ infoviewer.nocurrent Keine Info zu laufendem Programm
 infoviewer.noepg Keine EPG-Information verfügbar
 infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar
 infoviewer.notavailable.hint_check_tuner_setup Bitte prüfen Sie die Tuner-Konfiguration.
+infoviewer.notavailable.needs_reception Dieser Sender braucht: %s
 infoviewer.notavailable.reason_no_active_tuner Kein aktiver Tuner verfügbar.
 infoviewer.notavailable.reason_no_delivery Kein aktiver Tuner unterstützt den Empfangsweg dieses Senders.
 infoviewer.notavailable.reason_no_free_tuner Zurzeit ist kein freier Tuner verfügbar.
 infoviewer.notavailable.reason_no_source_config Für den gewählten Satelliten/Provider ist kein aktiver Tuner konfiguriert.
+infoviewer.notavailable.reason_no_standard Kein aktiver Tuner beherrscht den Übertragungsstandard dieses Senders.
 infoviewer.notavailable.reason_stream_start_failed Stream konnte nicht gestartet werden.
 infoviewer.notavailable.reason_tune_failed Tuning fehlgeschlagen (kein Signal oder Transponder nicht verfügbar).
 infoviewer.notavailable.source Quelle: %s
+infoviewer.notavailable.tuner_disabled %s könnte diesen Sender empfangen, steht aber auf "%s".
+infoviewer.notavailable.tuner_disabled_source %s könnte diesen Sender empfangen, steht aber auf "%s" und hat den Satelliten noch nicht zugeordnet.
 infoviewer.now Jetzt
 infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subchan_infobar Infobar
