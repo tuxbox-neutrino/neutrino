@@ -910,8 +910,15 @@ int CScanSetup::showScanMenuFrontendSetup()
 	std::string zapit_long_str;
 
 	if (CFEManager::getInstance()->haveSat()) {
-		sprintf(zapit_lat, "%02.6f", zapitCfg.gotoXXLatitude);
-		sprintf(zapit_long, "%02.6f", zapitCfg.gotoXXLongitude);
+		/* zapit_lat is char[21]; %02.6f of an unchecked double can need 300+
+		 * characters. snprintf bounds it, and a value that does not fit is
+		 * shown as 0 rather than truncated into a plausible wrong number. */
+		int written = snprintf(zapit_lat, sizeof(zapit_lat), "%02.6f", zapitCfg.gotoXXLatitude);
+		if (written < 0 || written >= (int) sizeof(zapit_lat))
+			snprintf(zapit_lat, sizeof(zapit_lat), "%02.6f", 0.0);
+		written = snprintf(zapit_long, sizeof(zapit_long), "%02.6f", zapitCfg.gotoXXLongitude);
+		if (written < 0 || written >= (int) sizeof(zapit_long))
+			snprintf(zapit_long, sizeof(zapit_long), "%02.6f", 0.0);
 		zapit_lat_str = std::string(zapit_lat);
 		zapit_long_str = std::string(zapit_long);
 
@@ -948,8 +955,17 @@ int CScanSetup::showScanMenuFrontendSetup()
 
 	int res = setupMenu->exec(NULL, "");
 
-	strncpy(zapit_lat, zapit_lat_str.c_str(), sizeof(zapit_lat)-1);
-	strncpy(zapit_long, zapit_long_str.c_str(), sizeof(zapit_long)-1);
+	/* Only meaningful when the rotor block above filled the strings: without
+	 * a sat frontend they are empty, and copying that over the "#" sentinel
+	 * would make saveScanSetup() run strtod("") and zero both coordinates.
+	 * strncpy does not terminate a full-length copy, and saveScanSetup()
+	 * runs strtod over these buffers -- terminate explicitly. */
+	if (CFEManager::getInstance()->haveSat()) {
+		strncpy(zapit_lat, zapit_lat_str.c_str(), sizeof(zapit_lat)-1);
+		zapit_lat[sizeof(zapit_lat)-1] = '\0';
+		strncpy(zapit_long, zapit_long_str.c_str(), sizeof(zapit_long)-1);
+		zapit_long[sizeof(zapit_long)-1] = '\0';
+	}
 
 	delete setupMenu;
 	if (fe_restart) {
