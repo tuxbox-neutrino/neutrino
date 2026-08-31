@@ -1362,19 +1362,50 @@ void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 		return;
 	}
 
+	/* This runs inside a message loop, and both the box and the menu it can
+	   open pump that loop themselves -- another failed zap arrives there and
+	   lands back here. A second box on top of the first would also re-enter
+	   the CScanSetup singleton, whose menu state lives in members: the outer
+	   run would then finish with the inner run's frontend number. One at a
+	   time; a repeat while one is open gets the plain hint. */
+	/* Function-local rather than a member: CInfoViewer is a singleton and the
+	   GUI is single-threaded, so this is the same one flag with one place to
+	   initialise it instead of two. */
+	static bool in_failure_dialog = false;
+	if (in_failure_dialog) {
+		ShowHint(LOCALE_MESSAGEBOX_ERROR, text.c_str(), getFailureHintWidth(text));
+		return;
+	}
+
+	/* mbrBack as the constructor's default result, not via setDefaultResult():
+	   the preselection is computed in initButtons(), which setButtonText()
+	   runs again afterwards, so a default set later never reaches the footer.
+	   It matters -- the preselected button is the one a reflex OK press hits,
+	   and that one must not be the way into a settings menu. */
 	CMsgBox msgBox(text.c_str(), g_Locale->getText(LOCALE_MESSAGEBOX_ERROR),
-		       DEFAULT_HEADER_ICON, NULL, getFailureHintWidth(text));
-	msgBox.setShowedButtons(CMsgBox::mbOk | CMsgBox::mbBack);
+		       DEFAULT_HEADER_ICON, NULL, getFailureHintWidth(text),
+		       MSGBOX_MIN_HEIGHT, CMsgBox::mbOk | CMsgBox::mbBack, CMsgBox::mbrBack);
 	msgBox.setButtonText(CMsgBox::mbOk, LOCALE_SATSETUP_FE_SETUP);
-	msgBox.setDefaultResult(CMsgBox::mbrBack);
+	/* Bounded on purpose. CMsgBox::exec() drops every message it does not
+	   recognise once its footer has a selected button -- unlike CHintBox,
+	   which forwards to CNeutrinoApp::handleMsg and reposts what it cannot
+	   use. A box that opens unattended, say at boot with a misconfigured
+	   tuner, must therefore not be able to sit there forever swallowing
+	   recording timers and standby. DEFAULT_TIMEOUT is the same static-message
+	   timing every other message box in the application uses. */
+	msgBox.setTimeOut(DEFAULT_TIMEOUT);
+	msgBox.enableDefaultResultOnTimeOut(true);
 	// paint() before exec(): exec() enters the message loop without painting,
 	// and its very first key press scrolls a text box that does not exist yet.
 	msgBox.paint();
+
+	in_failure_dialog = true;
 	msgBox.exec();
 	msgBox.hide();
 
 	if (msgBox.getResult() == CMsgBox::mbrOk)
 		CScanSetup::getInstance()->exec(NULL, "setup_frontend");
+	in_failure_dialog = false;
 }
 
 void CInfoViewer::showMotorMoving (int duration)
