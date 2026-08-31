@@ -3171,9 +3171,16 @@ TIMER_START();
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
-	/* later on, we'll crash anyway, so tell about it. */
-	if (! zapit_init)
-		DisplayErrorMessage("Zapit initialization failed. This is a fatal error, sorry.");
+	if (! zapit_init) {
+		/* Zapit stays down for this session either way, but the two causes
+		 * deserve different words: a machine without a usable tuner is the
+		 * normal case for the PC build and merely loses live TV, while a
+		 * failed socket or thread is a real defect worth an error box. */
+		if (CFEManager::getInstance()->getFrontendCount() == 0)
+			DisplayInfoMessage(g_Locale->getText(LOCALE_ZAPIT_NO_TUNER));
+		else
+			DisplayErrorMessage(g_Locale->getText(LOCALE_ZAPIT_INIT_FAILED));
+	}
 
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);

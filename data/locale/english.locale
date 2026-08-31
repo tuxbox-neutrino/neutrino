@@ -3029,6 +3029,8 @@ xmltv.xml.enter Enter
 xmltv.xml.reload Reload
 youtube.api_key YouTube API key
 youtube.enabled YouTube support (for plugins)
+zapit.init_failed Channel management could not be started. TV and radio will not work in this session.
+zapit.no_tuner No usable tuner was found. Live TV is not available; everything else keeps working. Tuner and channel search settings can be revisited once a tuner is connected.
 zapit.scantype scan for services
 zapit.scantype.all all services
 zapit.scantype.radio only radio

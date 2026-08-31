@@ -2277,6 +2277,8 @@ wizard.welcome_head Welkom in de installatie wizard
 wizard.welcome_text De volgende stappen helpen u met de eerste instellingen van uw Coolstream.\nBelangrijk: Uw Coolstream kan eenvoudig bediend worden\nd.m.v de web-interface voor timer management of live TV via uw Web browser.\nMaak het niet bereikbaar voor onveilige netwerken!\nWilt u doorgaan?
 word.from Van
 word.in in
+zapit.init_failed Het kanaalbeheer kon niet worden gestart. TV en radio werken niet in deze sessie.
+zapit.no_tuner Er is geen bruikbare tuner gevonden. Live-tv is niet beschikbaar; al het andere blijft werken. Tuner- en zoekinstellingen kunnen later worden ingesteld zodra een tuner is aangesloten.
 zapit.scantype Wat voor kanalen wilt u zoeken?
 zapit.scantype.all Alle services
 zapit.scantype.radio Alleen radio

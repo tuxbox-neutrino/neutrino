@@ -3017,6 +3017,8 @@ xmltv.xml.enter Zadať
 xmltv.xml.reload Obnoviť
 youtube.api_key YouTube API kľúč
 youtube.enabled YouTube podpora (pre doplnky)
+zapit.init_failed Správu kanálov sa nepodarilo spustiť. TV a rádio nebudú v tejto relácii fungovať.
+zapit.no_tuner Nenašiel sa použiteľný tuner. Živé televízne vysielanie nie je k dispozícii; všetko ostatné funguje ďalej. Nastavenia tunera a vyhľadávania možno doplniť, keď bude tuner pripojený.
 zapit.scantype Vyhľadávanie kanálov
 zapit.scantype.all Všetky
 zapit.scantype.radio Len Rádio

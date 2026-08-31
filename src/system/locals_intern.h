@@ -3056,6 +3056,8 @@ const char * locale_real_names[] =
 	"xmltv.xml.reload",
 	"youtube.api_key",
 	"youtube.enabled",
+	"zapit.init_failed",
+	"zapit.no_tuner",
 	"zapit.scantype",
 	"zapit.scantype.all",
 	"zapit.scantype.radio",
