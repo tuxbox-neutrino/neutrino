@@ -58,6 +58,8 @@
 #include <gui/color_custom.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
+#include <gui/widget/msgbox.h>
+#include <gui/scan_setup.h>
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
 #include <gui/infoclock.h>
@@ -1344,7 +1346,35 @@ void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 		text += "\n";
 		text += reason;
 	}
-	ShowHint(LOCALE_MESSAGEBOX_ERROR, text.c_str(), getFailureHintWidth(text));
+
+	/* A tuner that is merely switched off is two menus away from working
+	   again, and a hint box neither waits for the user nor offers the way
+	   there -- it closes itself after a few seconds. So the two reasons that
+	   mean "the tuner configuration is wrong" get a box that waits and can
+	   take the user straight to it; everything else stays a hint, because
+	   there is nothing to go and do. */
+	const bool configuration_fault =
+		   failure_info.reason == CZapFailureInfo::REASON_NO_ACTIVE_TUNER
+		|| failure_info.reason == CZapFailureInfo::REASON_NO_DELIVERY;
+
+	if (!configuration_fault) {
+		ShowHint(LOCALE_MESSAGEBOX_ERROR, text.c_str(), getFailureHintWidth(text));
+		return;
+	}
+
+	CMsgBox msgBox(text.c_str(), g_Locale->getText(LOCALE_MESSAGEBOX_ERROR),
+		       DEFAULT_HEADER_ICON, NULL, getFailureHintWidth(text));
+	msgBox.setShowedButtons(CMsgBox::mbOk | CMsgBox::mbBack);
+	msgBox.setButtonText(CMsgBox::mbOk, LOCALE_SATSETUP_FE_SETUP);
+	msgBox.setDefaultResult(CMsgBox::mbrBack);
+	// paint() before exec(): exec() enters the message loop without painting,
+	// and its very first key press scrolls a text box that does not exist yet.
+	msgBox.paint();
+	msgBox.exec();
+	msgBox.hide();
+
+	if (msgBox.getResult() == CMsgBox::mbrOk)
+		CScanSetup::getInstance()->exec(NULL, "setup_frontend");
 }
 
 void CInfoViewer::showMotorMoving (int duration)
