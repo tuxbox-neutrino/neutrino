@@ -42,6 +42,7 @@
 
 #include <gui/scan.h>
 #include <gui/scan_setup.h>
+#include <gui/frontend_label.h>
 #include <gui/motorcontrol.h>
 #include <gui/bedit/bouqueteditor_bouquets.h>
 
@@ -851,15 +852,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 		char tmp[32];
 		snprintf(tmp, sizeof(tmp), "config_frontend%d", i);
 
-		char name[255];
-		snprintf(name, sizeof(name), "%s %02d: [%s] %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), i+1,
-				tuner_desc[i],
-				  fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
-				: fe->hasSat()   ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
-				: fe->hasTerr()  ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
-				: fe->hasCable() ? g_Locale->getText(LOCALE_SCANTS_ACTCABLE)
-				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
-				fe->getName());
+		const std::string name = getFrontendLabel(i);
 
 		neutrino_msg_t key = CRCInput::RC_nokey;
 		if (i == 0)
