@@ -29,14 +29,19 @@ static const char *tuner_desc[24] =
 	"M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X"
 };
 
+const char *getFrontendLetter(int index)
+{
+	const int desc_count = (int)(sizeof(tuner_desc) / sizeof(tuner_desc[0]));
+	return (index >= 0 && index < desc_count) ? tuner_desc[index] : "";
+}
+
 std::string getFrontendLabel(int index)
 {
 	CFrontend *fe = CFEManager::getInstance()->getFE(index);
 	if (fe == NULL)
 		return "";
 
-	const int desc_count = (int)(sizeof(tuner_desc) / sizeof(tuner_desc[0]));
-	const char *desc = (index >= 0 && index < desc_count) ? tuner_desc[index] : "";
+	const char *desc = getFrontendLetter(index);
 
 	const char *kind =
 		fe->isHybrid() ? g_Locale->getText(LOCALE_SCANTS_ACTHYBRID)
@@ -67,4 +72,25 @@ std::string getFrontendLabelForDevice(int adapter, int number)
 	}
 
 	return "";
+}
+
+std::string getBusyFrontendName(int adapter, int number)
+{
+	char name[255];
+	const int display_index = adapter * MAX_FE + number;
+	const char *desc = getFrontendLetter(display_index);
+
+	if (desc[0] != '\0')
+	{
+		snprintf(name, sizeof(name), "%s %02d: [%s] adapter%d/frontend%d",
+			g_Locale->getText(LOCALE_SATSETUP_FE_TUNER),
+			display_index + 1, desc, adapter, number);
+	}
+	else
+	{
+		snprintf(name, sizeof(name), "%s adapter%d/frontend%d",
+			g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), adapter, number);
+	}
+
+	return name;
 }

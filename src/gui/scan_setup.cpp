@@ -74,33 +74,6 @@ extern char zapit_long[21];
 //static int all_usals = 1;
 //sat_iterator_t sit;
 
-static const char * tuner_desc[24] = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
-
-static int getFrontendDisplayIndex(int adapter, int number)
-{
-	return adapter * MAX_FE + number;
-}
-
-static std::string getFrontendDisplayName(int adapter, int number)
-{
-	char name[255];
-	const int display_index = getFrontendDisplayIndex(adapter, number);
-	const int tuner_desc_count = sizeof(tuner_desc) / sizeof(tuner_desc[0]);
-
-	if (display_index >= 0 && display_index < tuner_desc_count) {
-		snprintf(name, sizeof(name),
-			 "%s %02d: [%s] adapter%d/frontend%d",
-			 g_Locale->getText(LOCALE_SATSETUP_FE_TUNER),
-			 display_index + 1, tuner_desc[display_index], adapter, number);
-	} else {
-		snprintf(name, sizeof(name), "%s adapter%d/frontend%d",
-			 g_Locale->getText(LOCALE_SATSETUP_FE_TUNER),
-			 adapter, number);
-	}
-
-	return name;
-}
-
 const CMenuOptionChooser::keyval SCANTS_BOUQUET_OPTIONS[] =
 {
 	{ CZapitClient::BM_DELETEBOUQUETS        , LOCALE_SCANTS_BOUQUET_ERASE     },
@@ -498,7 +471,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		if (sscanf(actionKey.c_str(), "busy_frontend%d_%d",
 			   &adapter, &number) == 2) {
-			std::string text = getFrontendDisplayName(adapter, number);
+			std::string text = getBusyFrontendName(adapter, number);
 			text += "\n\n";
 			text += g_Locale->getText(LOCALE_SATSETUP_FE_BUSY_HINT);
 			ShowMsg(LOCALE_MESSAGEBOX_INFO, text, CMsgBox::mbrBack,
@@ -884,7 +857,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 				have_busy_frontends = true;
 			}
 
-			const std::string name = getFrontendDisplayName(adapter,
+			const std::string name = getBusyFrontendName(adapter,
 								      number);
 			char tmp[32];
 			snprintf(tmp, sizeof(tmp), "busy_frontend%d_%d",
@@ -1024,7 +997,7 @@ int CScanSetup::showFrontendSetup(int number)
 	dmode = fe_config.diseqcType;
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %02d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), number+1, tuner_desc[number], fe->getName());
+	snprintf(name, sizeof(name), "%s %02d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), number+1, getFrontendLetter(number), fe->getName());
 
 	CMenuWidget * setupMenu = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	setupMenu->setSelected(feselected);
@@ -1264,7 +1237,7 @@ int CScanSetup::showScanMenuLnbSetup()
 	CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %02d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_SATELLITE), fenumber+1, tuner_desc[fenumber], fe->getName());
+	snprintf(name, sizeof(name), "%s %02d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_SATELLITE), fenumber+1, getFrontendLetter(fenumber), fe->getName());
 
 	CMenuWidget * sat_setup = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	sat_setup->addIntroItems();
@@ -1429,7 +1402,7 @@ int CScanSetup::showScanMenuSatFind()
 
 	r_system = ALL_SAT;
 
-	snprintf(name, sizeof(name), "%s %02d: [%s] %s", g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), fenumber+1, tuner_desc[fenumber], fe->getName());
+	snprintf(name, sizeof(name), "%s %02d: [%s] %s", g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), fenumber+1, getFrontendLetter(fenumber), fe->getName());
 
 	CMenuWidget* sat_findMenu = new CMenuWidget(name /*LOCALE_MOTORCONTROL_HEAD*/, NEUTRINO_ICON_SETTINGS, width);
 	sat_findMenu->setSelected(selected);

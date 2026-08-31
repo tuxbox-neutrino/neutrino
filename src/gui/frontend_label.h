@@ -24,4 +24,19 @@ std::string getFrontendLabel(int index);
    matches -- the caller then has nothing to name and must say so differently. */
 std::string getFrontendLabelForDevice(int adapter, int number);
 
+/* The name used for a frontend that is *not* in the frontend manager's map --
+   a busy one, held by another process. It cannot be numbered like the list
+   above, because that numbering comes from the map this frontend is missing
+   from; it says adapter and frontend instead. Kept apart from
+   getFrontendLabel() on purpose: the two number differently, and pretending
+   otherwise would put two different tuners under one number. */
+std::string getBusyFrontendName(int adapter, int number);
+
+/* The letter a tuner is shown with, "" when the index is beyond the alphabet
+   in use. Exposed so the menus that compose their own headings do not each
+   keep a copy of the table; they index it differently from the tuner list
+   (by frontend number, not by the manager's index), which is why they cannot
+   simply call getFrontendLabel(). */
+const char *getFrontendLetter(int index);
+
 #endif
