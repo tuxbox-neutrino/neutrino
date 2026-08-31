@@ -21,6 +21,7 @@ class CZapFailureMessageBuilder
 		std::string formatLocaleText(neutrino_locale_t loc, const std::string &arg) const;
 		std::string formatLocaleText(neutrino_locale_t loc, const std::string &first, const std::string &second) const;
 		std::string getReceptionName(delivery_system_t delsys) const;
+		std::string buildReceptionText(const CZapFailureInfo &failure_info) const;
 		std::string buildDisabledTunerText(const CZapFailureInfo &failure_info) const;
 		std::string buildTunerSetupAdvice(const CZapFailureInfo &failure_info) const;
 

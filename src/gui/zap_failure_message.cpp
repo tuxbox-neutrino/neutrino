@@ -76,6 +76,22 @@ std::string CZapFailureMessageBuilder::getReceptionName(delivery_system_t delsys
 	return "";
 }
 
+/* What the channel needs, on its own line. Both configuration reasons carry it:
+   somebody whose tuners are all switched off has exactly as much use for
+   knowing which kind to switch on as somebody whose enabled one is the wrong
+   kind. */
+std::string CZapFailureMessageBuilder::buildReceptionText(const CZapFailureInfo &failure_info) const
+{
+	if (!failure_info.has_delsys)
+		return "";
+
+	const std::string reception = getReceptionName(failure_info.delsys);
+	if (reception.empty())
+		return "";
+
+	return "\n" + formatLocaleText(LOCALE_INFOVIEWER_NOTAVAILABLE_NEEDS_RECEPTION, reception);
+}
+
 /* The one sentence that turns a correct diagnosis into something the user can
    act on: a tuner for this channel exists and is merely switched off. It names
    the tuner the way the tuner list does, and quotes the mode the way the mode
@@ -128,6 +144,7 @@ std::string CZapFailureMessageBuilder::buildReasonText(const CZapFailureInfo &fa
 		case CZapFailureInfo::REASON_NO_ACTIVE_TUNER:
 		{
 			std::string reason = g_Locale->getText(LOCALE_INFOVIEWER_NOTAVAILABLE_REASON_NO_ACTIVE_TUNER);
+			reason += buildReceptionText(failure_info);
 			reason += buildTunerSetupAdvice(failure_info);
 			return reason;
 		}
@@ -141,16 +158,7 @@ std::string CZapFailureMessageBuilder::buildReasonText(const CZapFailureInfo &fa
 					? LOCALE_INFOVIEWER_NOTAVAILABLE_REASON_NO_STANDARD
 					: LOCALE_INFOVIEWER_NOTAVAILABLE_REASON_NO_DELIVERY);
 
-			if (failure_info.has_delsys)
-			{
-				const std::string reception = getReceptionName(failure_info.delsys);
-				if (!reception.empty())
-				{
-					reason += "\n";
-					reason += formatLocaleText(LOCALE_INFOVIEWER_NOTAVAILABLE_NEEDS_RECEPTION, reception);
-				}
-			}
-
+			reason += buildReceptionText(failure_info);
 			reason += buildTunerSetupAdvice(failure_info);
 			return reason;
 		}
