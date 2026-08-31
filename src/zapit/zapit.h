@@ -69,7 +69,6 @@ typedef struct Zapit_config {
 	int scanPids;
 	int scanSDT;
 	int cam_ci;
-	int useGotoXX;
 	/* FE common */
 	int feTimeout;
 	int feRetries;
@@ -115,6 +114,10 @@ class CZapit : public OpenThreads::Thread
 		OpenThreads::ReentrantMutex	mutex;
 		OpenThreads::Mutex zapit_mutex;
 		bool started;
+		/* LoadSettings() ran at least once -- the gate SaveSettings()
+		 * checks, because 'started' is already false again during the
+		 * thread's own teardown save */
+		bool settings_loaded;
 		bool event_mode;
 		bool firstzap;
 		bool playing;
@@ -253,6 +256,12 @@ class CZapit : public OpenThreads::Thread
 		void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
 		void SetConfig(Zapit_config * Cfg);
 		void GetConfig(Zapit_config &Cfg);
+		/* the single place the built-in defaults live; LoadSettings() reads
+		 * the file over the top of them, so both callers agree by construction */
+		void SetConfigDefaults();
+		/* rejects values no configuration could have meant; every input
+		 * (file, GUI, socket) passes through it */
+		void SanitiseConfig();
 
 		virtual void SendEvent(const unsigned int eventID, const void* eventbody = NULL, const unsigned int eventbodysize = 0);
 

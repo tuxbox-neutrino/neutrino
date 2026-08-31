@@ -24,6 +24,9 @@
  */
 
 /* system headers */
+#include <cctype>
+#include <cerrno>
+#include <cmath>
 #include <fcntl.h>
 #include <sys/poll.h>
 #include <sys/ioctl.h>
@@ -127,7 +130,6 @@ CZapit::CZapit()
 {
 	started = false;
 	pmt_update_fd = -1;
-	//volume_left = 0, volume_right = 0;
 	audio_mode = 0;
 	mosd = 0;
 	aspectratio = 0;
@@ -143,6 +145,27 @@ CZapit::CZapit()
 	current_volume = 100;
 	volume_percent = 0;
 	lock_channel_id = 0;
+	/* Everything below is only ever assigned by LoadSettings(), PrepareChannels()
+	 * or a path further down Start() -- and Start() returns early when no frontend
+	 * could be opened (see "no frontend found?" below), which leaves the object
+	 * half built while the GUI keeps talking to it. current_channel was the worst
+	 * of them: SaveSettings() dereferences it, so pressing "next" in the start
+	 * wizard's tuner page segfaulted on a PC without a tuner. */
+	current_channel = NULL;
+	eventServer = NULL;
+	settings_loaded = false;
+	live_fe = NULL;
+	video_mode = 0;
+	volume_percent_ac3 = 0;
+	volume_percent_pcm = 0;
+	diseqcType = NO_DISEQC;
+	live_channel_id = 0;
+	last_channel_id = 0;
+	lastChannelRadio = 0;
+	lastChannelTV = 0;
+	abort_zapit = 0;
+	current_is_nvod = false;
+	SetConfigDefaults();
 #if ENABLE_PIP
 	for (unsigned int i = 0; i < 3; i++)
 	{
@@ -172,12 +195,26 @@ CZapit * CZapit::getInstance()
 
 void CZapit::SendEvent(const unsigned int eventID, const void* eventbody, const unsigned int eventbodysize)
 {
-	if(event_mode)
+	if(event_mode && eventServer)
 		eventServer->sendEvent(eventID, CEventServer::INITID_ZAPIT, eventbody, eventbodysize);
 }
 
 void CZapit::SaveSettings(bool write)
 {
+	/* Start() gives up before LoadSettings() when it found no usable frontend,
+	 * so nothing here was ever read from the file. Writing now would put
+	 * whatever the members happen to hold into zapit.conf, where it outlives
+	 * the session -- rezapTimeout alone turns a bad value into a sleep() of
+	 * years on every rezap. Say nothing rather than save nonsense.
+	 * Deliberately NOT keyed on 'started': the thread's own teardown save at
+	 * the end of run() executes after Stop() already cleared that flag, and
+	 * a failed socket setup bails out of Start() after LoadSettings() ran --
+	 * both hold real state that must still be written. */
+	if (!settings_loaded) {
+		INFO("zapit settings were never loaded, not saving them");
+		return;
+	}
+
 	if (current_channel) {
 		if ((currentMode & RADIO_MODE))
 			lastChannelRadio = current_channel->getChannelID();
@@ -206,11 +243,21 @@ void CZapit::SaveSettings(bool write)
 
 		/* FIXME FE global */
 		configfile.setInt32("noSameFE", config.noSameFE);
-		char tempd[12];
-		sprintf(tempd, "%3.6f", config.gotoXXLatitude);
-		configfile.setString("gotoXXLatitude", tempd);
-		sprintf(tempd, "%3.6f", config.gotoXXLongitude);
-		configfile.setString("gotoXXLongitude", tempd);
+		/* -180..180 with six decimals needs 12 characters; 32 leaves room for
+		 * a value the sanitiser somehow missed, and the snprintf result is
+		 * checked rather than trusted -- a truncated coordinate written to the
+		 * file would come back as a plausible wrong one. */
+		char tempd[32];
+		int written = snprintf(tempd, sizeof(tempd), "%3.6f", config.gotoXXLatitude);
+		if (written > 0 && written < (int) sizeof(tempd))
+			configfile.setString("gotoXXLatitude", tempd);
+		else
+			WARN("gotoXXLatitude %f does not format, not saving it", config.gotoXXLatitude);
+		written = snprintf(tempd, sizeof(tempd), "%3.6f", config.gotoXXLongitude);
+		if (written > 0 && written < (int) sizeof(tempd))
+			configfile.setString("gotoXXLongitude", tempd);
+		else
+			WARN("gotoXXLongitude %f does not format, not saving it", config.gotoXXLongitude);
 
 		configfile.setInt32("gotoXXLaDirection", config.gotoXXLaDirection);
 		configfile.setInt32("gotoXXLoDirection", config.gotoXXLoDirection);
@@ -324,37 +371,172 @@ void CZapit::ClearVolumeMap()
 	SetVolumePercent(volume_percent_pcm);
 }
 
+/* Reading a coordinate back is the one place a configuration file can hand us a
+ * value that is not a number at all. strtod() signals "parsed nothing" only
+ * through its end pointer and overflow only through errno, so a plain
+ * strtod(text, NULL) turns both "banana" and "1e400" into something that looks
+ * like a coordinate. Ask it properly, and keep the default when it cannot say. */
+static double zapit_parse_double(const std::string &text, double fallback, const char *key)
+{
+	const char *begin = text.c_str();
+	char *end = NULL;
+
+	errno = 0;
+	double value = strtod(begin, &end);
+	/* trailing junk ("48.1oops") must not pass as 48.1 -- only whitespace
+	 * may follow the number. All of it, not just blanks: a CRLF-edited
+	 * file leaves a '\r' on the value, and that is still a valid entry. */
+	while (end && isspace((unsigned char)*end))
+		end++;
+	if (end == begin || *end != '\0' || errno == ERANGE || !std::isfinite(value)) {
+		WARN("%s: '%s' is not a usable number, keeping %f", key, text.c_str(), fallback);
+		return fallback;
+	}
+	return value;
+}
+
+/* Deliberately NOT the menu's bounds. scan_setup.cpp offers 6..100 for feTimeout,
+ * but nothing in the runtime says a hand-written 150 is invalid, and silently
+ * trimming somebody's configuration is its own kind of damage. These are sanity
+ * limits: they catch a value that cannot have been meant, and let everything else
+ * through untouched. */
+static bool zapit_sane_int(const char *key, int &value, int low, int high, int fallback)
+{
+	if (value >= low && value <= high)
+		return false;
+
+	WARN("%s=%d out of range [%d..%d], using %d", key, value, low, high, fallback);
+	value = fallback;
+	return true;
+}
+
+static bool zapit_sane_double(const char *key, double &value, double limit, double fallback)
+{
+	if (std::isfinite(value) && value >= -limit && value <= limit)
+		return false;
+
+	WARN("%s=%f out of range, using %f", key, value, fallback);
+	value = fallback;
+	return true;
+}
+
+/* The built-in defaults, in one place. LoadSettings() calls this first and then
+ * reads the configuration file over the top, so the fallbacks it passes to the
+ * getters are these very values -- there is no second list to keep in step. The
+ * constructor calls it too, which is what makes the struct defined even when
+ * Start() never gets as far as LoadSettings(). */
+static void zapit_config_defaults(Zapit_config &cfg)
+{
+	cfg.saveLastChannel		= true;
+	cfg.writeChannelsNames		= CBouquetManager::BWN_EVER;
+	cfg.scanPids			= 0;
+	cfg.scanSDT			= 0;
+	cfg.cam_ci			= 2;
+	cfg.rezapTimeout		= 1;
+
+	cfg.feTimeout			= 40;
+	cfg.feRetries			= 1;
+	cfg.noSameFE			= 0;
+	cfg.highVoltage			= 0;
+
+	cfg.gotoXXLatitude		= 0.0;
+	cfg.gotoXXLongitude		= 0.0;
+	cfg.gotoXXLaDirection		= 1;
+	cfg.gotoXXLoDirection		= 0;
+	cfg.repeatUsals			= 0;
+
+	cfg.motorRotationSpeed		= 18; // default: 1.8 degrees per second
+}
+
+void CZapit::SetConfigDefaults()
+{
+	zapit_config_defaults(config);
+}
+
+/* Every way a value gets into config -- the file, the menu, the socket -- runs
+ * through here. A tuner-less start used to copy indeterminate memory into
+ * zapit.conf, and the damage outlived the session: rezapTimeout became a sleep()
+ * measured in years, feTimeout a poll() that never returns. Catching it on the
+ * way out is not enough, because a file written by an older build is already out
+ * there. */
+void CZapit::SanitiseConfig()
+{
+	Zapit_config defaults;
+	zapit_config_defaults(defaults);
+
+	zapit_sane_int("saveLastChannel", config.saveLastChannel, 0, 1, defaults.saveLastChannel);
+	zapit_sane_int("writeChannelsNames", config.writeChannelsNames,
+		       CBouquetManager::BWN_NEVER, CBouquetManager::BWN_EVER, defaults.writeChannelsNames);
+	zapit_sane_int("scanPids", config.scanPids, 0, 1, defaults.scanPids);
+	zapit_sane_int("scanSDT", config.scanSDT, 0, 2, defaults.scanSDT);
+	zapit_sane_int("cam_ci", config.cam_ci, 0, 2, defaults.cam_ci);
+	/* seconds slept on every rezap (see ZapIt): an hour is already absurd */
+	zapit_sane_int("rezapTimeout", config.rezapTimeout, 0, 3600, defaults.rezapTimeout);
+	/* hundredths of a second, fed to poll() as feTimeout*100 ms; 36000 is an hour */
+	zapit_sane_int("feTimeout", config.feTimeout, 1, 36000, defaults.feTimeout);
+	zapit_sane_int("feRetries", config.feRetries, 0, 1000, defaults.feRetries);
+	zapit_sane_int("noSameFE", config.noSameFE, 0, 1, defaults.noSameFE);
+	zapit_sane_int("highVoltage", config.highVoltage, 0, 1, defaults.highVoltage);
+	zapit_sane_int("gotoXXLaDirection", config.gotoXXLaDirection, 0, 1, defaults.gotoXXLaDirection);
+	zapit_sane_int("gotoXXLoDirection", config.gotoXXLoDirection, 0, 1, defaults.gotoXXLoDirection);
+	zapit_sane_int("repeatUsals", config.repeatUsals, 0, 100, defaults.repeatUsals);
+	/* divisor in CFrontend::setSatellitePosition; 0 is handled there, negative is not */
+	zapit_sane_int("motorRotationSpeed", config.motorRotationSpeed, 0, 1000, defaults.motorRotationSpeed);
+
+	/* The direction lives in gotoXXLaDirection/gotoXXLoDirection, so these two
+	 * carry an amount -- 180 is a generous bound for either, not a domain clamp. */
+	zapit_sane_double("gotoXXLatitude", config.gotoXXLatitude, 180.0, defaults.gotoXXLatitude);
+	zapit_sane_double("gotoXXLongitude", config.gotoXXLongitude, 180.0, defaults.gotoXXLongitude);
+}
+
 void CZapit::LoadSettings()
 {
-	if (!configfile.loadConfig(ZAPITCONFIGFILE))
+	/* Defaults first, so a key missing from the file lands on the documented
+	 * value rather than on whatever the previous load left behind. */
+	SetConfigDefaults();
+
+	if (!configfile.loadConfig(ZAPITCONFIGFILE)) {
 		WARN("%s not found", ZAPITCONFIGFILE);
+		/* loadConfig() keeps its in-memory map on failure. After a factory
+		 * reset deletes the file and calls us again, the getters below would
+		 * resurrect every stale value over the fresh defaults -- so the reset
+		 * would not reset. Clearing here is local to zapit; the 47 other
+		 * CConfigFile users keep their contract. */
+		configfile.clear();
+	}
 
 	live_channel_id				= configfile.getInt64("lastChannel", 0);
 	lastChannelRadio			= configfile.getInt64("lastChannelRadio", 0);
 	lastChannelTV				= configfile.getInt64("lastChannelTV", 0);
 	last_channel_id				= configfile.getInt64("lastOTAChannel", 0);
 
-	config.saveLastChannel			= configfile.getBool("saveLastChannel", true);
-	config.writeChannelsNames		= configfile.getInt32("writeChannelsNames", CBouquetManager::BWN_EVER );
-	config.scanPids				= configfile.getBool("scanPids", 0);
-	config.scanSDT				= configfile.getInt32("scanSDT", 0);
-	config.cam_ci				= configfile.getInt32("cam_ci", 2);
-	config.rezapTimeout			= configfile.getInt32("rezapTimeout", 1);
+	config.saveLastChannel			= configfile.getBool("saveLastChannel", config.saveLastChannel);
+	config.writeChannelsNames		= configfile.getInt32("writeChannelsNames", config.writeChannelsNames);
+	config.scanPids				= configfile.getBool("scanPids", config.scanPids);
+	config.scanSDT				= configfile.getInt32("scanSDT", config.scanSDT);
+	config.cam_ci				= configfile.getInt32("cam_ci", config.cam_ci);
+	config.rezapTimeout			= configfile.getInt32("rezapTimeout", config.rezapTimeout);
 
-	config.feTimeout			= configfile.getInt32("feTimeout", 40);
-	config.feRetries			= configfile.getInt32("feRetries", 1);
-	config.noSameFE				= configfile.getInt32("noSameFE", 0);
-	config.highVoltage			= configfile.getBool("highVoltage", 0);
+	config.feTimeout			= configfile.getInt32("feTimeout", config.feTimeout);
+	config.feRetries			= configfile.getInt32("feRetries", config.feRetries);
+	config.noSameFE				= configfile.getInt32("noSameFE", config.noSameFE);
+	config.highVoltage			= configfile.getBool("highVoltage", config.highVoltage);
 
-	config.gotoXXLatitude			= strtod(configfile.getString("gotoXXLatitude", "0.0").c_str(), NULL);
-	config.gotoXXLongitude			= strtod(configfile.getString("gotoXXLongitude", "0.0").c_str(), NULL);
-	config.gotoXXLaDirection		= configfile.getInt32("gotoXXLaDirection", 1);
-	config.gotoXXLoDirection		= configfile.getInt32("gotoXXLoDirection", 0);
-	config.repeatUsals			= configfile.getInt32("repeatUsals", 0);
+	config.gotoXXLatitude			= zapit_parse_double(configfile.getString("gotoXXLatitude", "0.0"),
+							config.gotoXXLatitude, "gotoXXLatitude");
+	config.gotoXXLongitude			= zapit_parse_double(configfile.getString("gotoXXLongitude", "0.0"),
+							config.gotoXXLongitude, "gotoXXLongitude");
+	config.gotoXXLaDirection		= configfile.getInt32("gotoXXLaDirection", config.gotoXXLaDirection);
+	config.gotoXXLoDirection		= configfile.getInt32("gotoXXLoDirection", config.gotoXXLoDirection);
+	config.repeatUsals			= configfile.getInt32("repeatUsals", config.repeatUsals);
 
 	/* FIXME FE specific, to be removed */
 	diseqcType				= (diseqc_t)configfile.getInt32("diseqcType", NO_DISEQC);
-	config.motorRotationSpeed		= configfile.getInt32("motorRotationSpeed", 18); // default: 1.8 degrees per second
+	config.motorRotationSpeed		= configfile.getInt32("motorRotationSpeed", config.motorRotationSpeed);
+
+	/* an older build wrote indeterminate memory into this file; heal it here,
+	 * with a WARN per field, instead of running on it (WORK-222) */
+	SanitiseConfig();
 
 	printf("[zapit.cpp] diseqc type = %d\n", diseqcType);
 
@@ -363,6 +545,8 @@ void CZapit::LoadSettings()
 
 	LoadAudioMap();
 	LoadVolumeMap();
+
+	settings_loaded = true;
 }
 
 void CZapit::ConfigFrontend()
@@ -3037,6 +3221,11 @@ void CZapit::SetConfig(Zapit_config * Cfg)
 	printf("[zapit] %s...\n", __FUNCTION__);
 
 	config = *Cfg;
+	/* the GUI binds menu items straight into a copy of this struct -- same
+	 * gate as LoadSettings (the socket path for it is compiled out) */
+	SanitiseConfig();
+	/* hand the healed values back, or the caller keeps showing the bad ones */
+	*Cfg = config;
 
 	SaveSettings(true);
 	ConfigFrontend();
