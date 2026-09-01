@@ -4106,8 +4106,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 					delete [] (unsigned char*) data;
 					return messages_return::handled;
 				}
-				CMoviePlayerGui::getInstance().stopPlayBack();
-				if (CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
+				if (CMoviePlayerGui::getInstance().RestartBackground(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
 					printf("[webtv] eof rezap restart accepted channel=%llx\n", (unsigned long long)chid);
 					delete [] (unsigned char*) data;
 				}
@@ -4122,6 +4121,24 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				delete [] (unsigned char*) data;
 		}
 		return messages_return::handled;
+	}
+	if (msg == NeutrinoMessages::EVT_ZAP_FAILED &&
+	    (mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_webradio) &&
+	    data >= 4096 && CZapit::getInstance()->GetCurrentChannelID() == *(t_channel_id *) data &&
+	    !CMoviePlayerGui::IsWebtvActive()) {
+		/* Terminal webtv failure: the player thread ends with
+		 * PlayFileEnd(false) and no longer restores. Stop here on the
+		 * GUI thread so exactly one restore runs - mode back to the
+		 * last DVB mode, zapit unlocked - as it did before the thread
+		 * stopped restoring. After a give-up path that already
+		 * restored, the mode has left webtv and this branch is not
+		 * taken; a repeated stop would be a no-op anyway.
+		 * The channel check keeps a stale failure of a previous zap from
+		 * stopping the stream the user has moved on to, and the activity
+		 * check does the same for a queued failure of an older start of
+		 * this very channel while a newer start is already under way.
+		 * No return: the infoviewer still shows the failure. */
+		CMoviePlayerGui::getInstance().stopPlayBack(true /* keep_webtv_failure */);
 	}
 	if (mode == NeutrinoModes::mode_webtv && msg == NeutrinoMessages::EVT_SUBT_MESSAGE) {
 		CMoviePlayerGui::getInstance(true).showSubtitle(data);
@@ -4810,8 +4827,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			if ((data & NeutrinoModes::norezap) != NeutrinoModes::norezap) {
 				CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 				if (cc && IS_WEBCHAN(cc->getChannelID())) {
-					CMoviePlayerGui::getInstance().stopPlayBack();
-					if (!CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
+					if (!CMoviePlayerGui::getInstance().RestartBackground(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
 						/* EVT_ZAP_FAILED payload must be heap-allocated: the
 						 * RC_WithData cleanup above delete[]s it after handling. */
 						unsigned char *chid = new unsigned char[sizeof(t_channel_id)];

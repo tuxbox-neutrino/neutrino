@@ -1777,7 +1777,8 @@ bool CMoviePlayerGui::StartWebtv(void)
 		}
 	}
 
-	cutNeutrino();
+	/* cutNeutrino() runs in PlayBackgroundStart() on the GUI thread now -
+	 * mode changes are app logic and must not come from this thread */
 	clearSubtitle();
 	if (videoDecoder->getBlank())
 		videoDecoder->setBlank(false);
@@ -1895,20 +1896,27 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 
 	mutex.lock();
 	webtv_starting = false;
-	if (!webtv_started)
-		started = false;
-	else if (!started){
-		if (prepareWebtvRestartLocked(*(t_channel_id*)chid, request_generation))
-			g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_RESTART, (neutrino_msg_data_t) chid);
-		else if (isWebtvSilentFailureLocked(*(t_channel_id*)chid, request_generation)) {
-			delete [] chid;
-			chid = nullptr;
+	{
+		/* Update the state before any failure event is posted: the GUI
+		 * thread's terminal-failure stop asks IsWebtvActive(), and a
+		 * message posted while webtv_started still reads true would be
+		 * wrongly dismissed as stale. */
+		bool was_started = webtv_started;
+		if (!was_started)
+			started = false;
+		webtv_started = started;
+		if (was_started && !started) {
+			if (prepareWebtvRestartLocked(*(t_channel_id*)chid, request_generation))
+				g_RCInput->postMsg(NeutrinoMessages::EVT_WEBTV_RESTART, (neutrino_msg_data_t) chid);
+			else if (isWebtvSilentFailureLocked(*(t_channel_id*)chid, request_generation)) {
+				delete [] chid;
+				chid = nullptr;
+			}
+			else
+				g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, (neutrino_msg_data_t) chid);
+			chidused = true;
 		}
-		else
-			g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, (neutrino_msg_data_t) chid);
-		chidused = true;
 	}
-	webtv_started = started;
 	mutex.unlock();
 
 	eof = 0; pos = 0;
@@ -2004,7 +2012,9 @@ void* CMoviePlayerGui::bgPlayThread(void *arg)
 		mutex.unlock();
 	}
 	printf("%s: play end...\n", __func__);fflush(stdout);
-	if (mp) mp->PlayFileEnd();
+	/* restore runs in stopPlayBack() on the GUI thread, after the join -
+	 * this thread must not execute CHANGEMODE app logic */
+	if (mp) mp->PlayFileEnd(false);
 
 bgplaythread_exit:
 	if (chid != nullptr && !chidused)
@@ -2465,6 +2475,11 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	instance_bg->movie_info.channelId = chan;
 	instance_bg->p_movie_info = &movie_info;
 
+	/* The mode change is app logic and belongs to the GUI thread; a repeated
+	 * cut during a restart transition is a no-op ('playing' guards it), so
+	 * m_LastMode keeps the mode from before the very first cut. */
+	instance_bg->cutNeutrino();
+
 	mutex.lock();
 	webtv_started = true;
 	mutex.unlock();
@@ -2474,11 +2489,50 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 		webtv_started = false;
 		webtv_starting = false;
 		mutex.unlock();
+		instance_bg->restoreNeutrino();
 		return false;
 	}
 
 	printf("%s: this %p started, thread %lx\n", __func__, this, bgThread);fflush(stdout);
 	return true;
+}
+
+bool CMoviePlayerGui::IsWebtvActive()
+{
+	mutex.lock();
+	bool active = webtv_starting || webtv_stopping || webtv_started;
+	mutex.unlock();
+	return active;
+}
+
+/* One stop+start as a single transition: stopPlayBack() then skips the
+ * restore and the following cut is a no-op, so the mode does not bounce
+ * webtv -> tv (with a DVB start/stop in between) -> webtv on every stream
+ * reload. That bounce blanked the video layer around whatever the OSD was
+ * showing - a grey screen around an open menu on the boxes. */
+bool CMoviePlayerGui::RestartBackground(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script)
+{
+	mutex.lock();
+	webtv_restart_transition = true;
+	mutex.unlock();
+	stopPlayBack();
+	bool started = PlayBackgroundStart(file, name, chan, script);
+	mutex.lock();
+	webtv_restart_transition = false;
+	/* Judge by the actual player state, not by the return value: a
+	 * parallel stop can turn the start into a reported "stale success"
+	 * with no thread behind it, and then the cut would stand forever. */
+	/* webtv_stopping counts as active: that stopper owns the restore */
+	bool player_active = webtv_starting || webtv_stopping || webtv_started;
+	mutex.unlock();
+	/* The stop above skipped the restore because a start was to follow.
+	 * If that start died synchronously - resolver error, parental lock -
+	 * the cut from the previous stream would stand forever: mode webtv,
+	 * zapit locked. Give the mode back right here on the caller's
+	 * thread; after a successful cut-less transition this is a no-op. */
+	if (!player_active)
+		instance_bg->restoreNeutrino();
+	return started;
 }
 
 bool CMoviePlayerGui::RestartLastWebtv(t_channel_id chan)
@@ -2528,13 +2582,8 @@ bool CMoviePlayerGui::RestartLastWebtv(t_channel_id chan)
 
 	printf("[webtv] executing stream restart channel=%llx generation=%llu attempt=%d\n",
 		(unsigned long long)chan, (unsigned long long)generation, attempt);
+	bool started = RestartBackground(original_url, display_name, chan, script);
 	mutex.lock();
-	webtv_restart_transition = true;
-	mutex.unlock();
-	stopPlayBack();
-	bool started = PlayBackgroundStart(original_url, display_name, chan, script);
-	mutex.lock();
-	webtv_restart_transition = false;
 	if (!started)
 		webtv_retry_pending = false;
 	mutex.unlock();
@@ -2566,7 +2615,7 @@ bool CMoviePlayerGui::waitUntilPlaybackStopped(const char *reason, int timeoutMs
 	return true;
 }
 
-void CMoviePlayerGui::stopPlayBack(void)
+void CMoviePlayerGui::stopPlayBack(bool keep_webtv_failure)
 {
 	printf("%s: stopping...\n", __func__);
 	//playback->RequestAbort();
@@ -2579,7 +2628,10 @@ void CMoviePlayerGui::stopPlayBack(void)
 		markWebtvAbortLocked(WEBTV_ABORT_STOP_PLAYBACK);
 	if (!webtv_restart_transition) {
 		webtv_retry_pending = false;
-		clearWebtvFailureLocked();
+		/* the terminal-failure stop must not eat the failure details
+		 * before the infoviewer showed them */
+		if (!keep_webtv_failure)
+			clearWebtvFailureLocked();
 	}
 	mutex.unlock();
 	if (bgThread) {
@@ -2610,6 +2662,16 @@ void CMoviePlayerGui::stopPlayBack(void)
 		livestreamInfo1.clear();
 		livestreamInfo2.clear();
 		waitUntilPlaybackStopped("webtv-stop", WEBTV_STOP_TIMEOUT_MS);
+		/* The thread ended without restoring (PlayFileEnd(false)). During a
+		 * restart transition the next PlayBackgroundStart() follows at once:
+		 * skipping the restore here avoids briefly switching back to DVB
+		 * (mode change plus zapit start/stop) for every stream reload, which
+		 * blanks the video layer around whatever the OSD is showing. */
+		mutex.lock();
+		bool defer_restore = webtv_restart_transition;
+		mutex.unlock();
+		if (!defer_restore)
+			instance_bg->restoreNeutrino();
 	}
 	mutex.lock();
 	webtv_stopping = false;

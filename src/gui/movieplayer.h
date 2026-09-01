@@ -348,6 +348,10 @@ class CMoviePlayerGui : public CMenuTarget
 	/* Unlocked read of mutex-protected flags: only a hint to skip redundant
 	 * restarts; PlayBackgroundStart() re-checks the transition under mutex. */
 	static bool IsWebtvStarting() { return webtv_starting || webtv_stopping; }
+	/* a webtv stream is starting, stopping or running - a queued terminal
+	 * failure that meets this is stale (or already being handled) and
+	 * must not trigger a second stop; reads the state under the mutex */
+	static bool IsWebtvActive();
 	static bool ConsumeWebtvFailureMessage(t_channel_id failed_channel_id, std::string &message);
 
 	MI_MOVIE_INFO * p_movie_info;
@@ -365,8 +369,9 @@ class CMoviePlayerGui : public CMenuTarget
 	static cPlayback *getPlayback();
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="", std::string file2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; second_file_name = file2; }
 	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
+	bool RestartBackground(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
 	bool RestartLastWebtv(t_channel_id chan);
-	void stopPlayBack(void);
+	void stopPlayBack(bool keep_webtv_failure = false);
 	void stopTimeshift(void);
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);

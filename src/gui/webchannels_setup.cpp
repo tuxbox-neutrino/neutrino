@@ -572,8 +572,8 @@ void CWebTVResolution::RestartStream()
 	CZapitChannel *cc = CZapit::getInstance()->GetCurrentChannel();
 	if (cc && IS_WEBCHAN(cc->getChannelID()))
 	{
-		CMoviePlayerGui::getInstance().stopPlayBack();
-		CMoviePlayerGui::getInstance().PlayBackgroundStart(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName());
+		/* one transition, no DVB bounce in between - see RestartBackground() */
+		CMoviePlayerGui::getInstance().RestartBackground(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName());
 	}
 }
 
