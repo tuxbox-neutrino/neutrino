@@ -328,7 +328,11 @@ class CFrameBuffer : public sigc::trackable
 		 * The same applies at the other end, between restoring the pixels and
 		 * dropping the registry entry. Both sides therefore hold this lock
 		 * across their whole sequence: snapshot and register, restore and
-		 * deregister, check and paint.
+		 * deregister, check and paint. A removeOverlay() that has no
+		 * restore to pair with - a destructor, clearSavedScreen(),
+		 * clearScreenBuffer(), enableSaveScreen(false) - is a plain
+		 * release and does not need the lock: there is no second half a
+		 * painter could slip in between.
 		 *
 		 * It has to be recursive: the paint primitives inside those sequences
 		 * run through checkFbArea(), which is not a passive test - it paints or
