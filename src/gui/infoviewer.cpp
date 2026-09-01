@@ -1388,14 +1388,23 @@ void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 		       DEFAULT_HEADER_ICON, NULL, getFailureHintWidth(text),
 		       MSGBOX_MIN_HEIGHT, CMsgBox::mbOk | CMsgBox::mbBack, CMsgBox::mbrOk);
 	msgBox.setButtonText(CMsgBox::mbOk, LOCALE_SATSETUP_FE_SETUP);
-	/* Bounded on purpose. CMsgBox::exec() drops every message it does not
-	   recognise once its footer has a selected button -- unlike CHintBox,
-	   which forwards to CNeutrinoApp::handleMsg and reposts what it cannot
-	   use. A box that opens unattended, say at boot with a misconfigured
-	   tuner, must therefore not be able to sit there forever swallowing
-	   recording timers and standby. DEFAULT_TIMEOUT is the same static-message
-	   timing every other message box in the application uses. */
-	msgBox.setTimeOut(DEFAULT_TIMEOUT);
+	/* Bounded on purpose. CMsgBox::exec() does not merely delay the messages
+	   it does not recognise, it loses them: once its footer has a selected
+	   button, the branch that forwards to CNeutrinoApp::handleMsg is
+	   unreachable, so a recording timer that fires while the box is up simply
+	   does not start and a standby press does nothing. CHintBox, which this
+	   replaced, forwards and reposts. A box that opens unattended -- at boot
+	   with a misconfigured tuner, or on a timer zap -- must therefore not be
+	   able to sit there indefinitely.
+
+	   The static-message timing is the same one every other message box uses,
+	   but it is user-settable down to 0, and 0 means no timeout at all. That
+	   is a sensible choice for a box somebody opened themselves; it is not one
+	   for a box that opens on its own, so it is floored here. The remaining
+	   loss during the timeout is a defect in CMsgBox itself and affects every
+	   user of it; carried separately. */
+	const int static_timing = g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES];
+	msgBox.setTimeOut(static_timing > 0 ? static_timing : 60);
 	/* Deliberately not enableDefaultResultOnTimeOut(): a timeout then yields
 	   mbrTimeout, which is neither result below, so an unattended box closes
 	   without opening anything. */
