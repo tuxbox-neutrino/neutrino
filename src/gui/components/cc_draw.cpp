@@ -570,7 +570,11 @@ void CCDraw::paintFbItems(const bool &do_save_bg)
 				 * form, which restores the whole region anyway - and a child
 				 * outlives its own paint, so its claim could stay behind and
 				 * block that area for good. */
-				if (claimsBackgroundArea())
+				/* Without a snapshot there is nothing hide() could restore, so
+				 * do not reserve the area either - and clearSavedScreen() only
+				 * releases a claim when a pixel buffer exists, so this claim
+				 * would outlive enableSaveBg(false) until the next hide(). */
+				if (v_fbdata.at(i).pixbuf && claimsBackgroundArea())
 					frameBuffer->addOverlay(this, v_fbdata.at(i).x, v_fbdata.at(i).y,
 								v_fbdata.at(i).dx, v_fbdata.at(i).dy);
 				break;
