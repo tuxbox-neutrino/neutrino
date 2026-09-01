@@ -1083,7 +1083,7 @@ infoviewer.notavailable.reason_stream_start_failed Stream konnte nicht gestartet
 infoviewer.notavailable.reason_tune_failed Tuning fehlgeschlagen (kein Signal oder Transponder nicht verfügbar).
 infoviewer.notavailable.source Quelle: %s
 infoviewer.notavailable.tuner_disabled %s könnte diesen Sender empfangen, steht aber auf "%s".
-infoviewer.notavailable.tuner_disabled_source %s könnte diesen Sender empfangen, steht aber auf "%s" und hat den Satelliten noch nicht zugeordnet.
+infoviewer.notavailable.tuner_disabled_source %s könnte diesen Sender empfangen, steht aber auf "%s", und ihm ist noch kein Satellit zugeordnet.
 infoviewer.now Jetzt
 infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subchan_infobar Infobar
