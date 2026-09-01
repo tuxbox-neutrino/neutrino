@@ -355,6 +355,16 @@ int CMsgBox::exec()
 				}
 			}
 		}
+		/* FIXME: this chain is mutually exclusive and should not be. Any box
+		   that has buttons also has a selected button object, so the if below
+		   is taken and none of the three else-if branches ever runs -- above
+		   all not the one forwarding to CNeutrinoApp::handleMsg. Button keys
+		   still work, the direct-key loop above handles them; everything else
+		   is dropped rather than delayed, so a recording timer that fires
+		   while the box is up does not start and standby does nothing.
+		   CHintBox::exec() forwards such messages and reposts them, this
+		   should do the same. Until it does, a caller can only bound the
+		   damage by giving the box a timeout. */
 		//***action button 'ok' handled with selected button and its predefined result***
 		if (ccw_footer->getSelectedButtonObject())
 		{

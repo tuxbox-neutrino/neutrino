@@ -1401,8 +1401,8 @@ void CInfoViewer::showFailure(t_channel_id failed_channel_id)
 	   but it is user-settable down to 0, and 0 means no timeout at all. That
 	   is a sensible choice for a box somebody opened themselves; it is not one
 	   for a box that opens on its own, so it is floored here. The remaining
-	   loss during the timeout is a defect in CMsgBox itself and affects every
-	   user of it; carried separately. */
+	   loss during the timeout is a defect in CMsgBox::exec() itself and
+	   affects every user of it; it is marked there. */
 	const int static_timing = g_settings.timing[SNeutrinoSettings::TIMING_STATIC_MESSAGES];
 	msgBox.setTimeOut(static_timing > 0 ? static_timing : 60);
 	/* Deliberately not enableDefaultResultOnTimeOut(): a timeout then yields
