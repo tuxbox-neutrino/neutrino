@@ -93,6 +93,14 @@ extern "C" {
 #include <libavutil/error.h>
 }
 
+/* The shared stream input core lives in libstb-hal, so coolstream builds
+ * cannot see it -- same gating as record.cpp and streamts.cpp. It
+ * provides the failure classification, the URL redaction and the source
+ * description used below; the historic code stays in the #else arms. */
+#if HAVE_LIBSTB_HAL
+#include <gui/webtv_failure_map.h>
+#endif
+
 #if 0
 #include <gui/infoicons.h>
 #endif
@@ -153,11 +161,85 @@ static std::string webtvLower(const std::string &s)
 
 static std::string webtvRedactUrlForLog(const std::string &url)
 {
+#if HAVE_LIBSTB_HAL
+	/* One redaction for the whole stack. Deliberate difference to the
+	 * block below: a bare trailing '?' is kept verbatim by the core
+	 * (nothing to hide), where the old code reported it as redacted. */
+	std::string out(url.size() + sizeof(STREAMINPUT_REDACTED_MARKER), '\0');
+	out.resize(streaminput_redact_url(url.c_str(), &out[0], out.size()));
+	return out;
+#else
 	size_t query = url.find('?');
 	if (query == std::string::npos)
 		return url;
 	return url.substr(0, query) + "?<redacted>";
+#endif
 }
+
+#if HAVE_LIBSTB_HAL
+/* Legacy adapter: the resolver contract (url, url2, opaque header blob
+ * -- livestream_info_t, unchanged for plugins) described as a
+ * stream_source_t. This is the seam the shared core reads from. The
+ * player's Start() keeps its string arguments until it takes the source
+ * directly, so today the description feeds the resolve log; later
+ * consumers take it from here. The protocol describes url (url2 is the
+ * separate audio file of the same source). Caller frees with
+ * streaminput_source_free(). */
+static bool webtvDescribeSource(const std::string &url, const std::string &url2, const std::string &header, stream_source_t &src)
+{
+	streaminput_source_init(&src);
+	if (streaminput_source_set_url(&src, url.c_str()) < 0 ||
+	    streaminput_source_set_url2(&src, url2.c_str()) < 0 ||
+	    streaminput_source_set_headers(&src, header.c_str()) < 0) {
+		streaminput_source_free(&src);
+		return false;
+	}
+	/* everything the resolver hands the web player is live playback */
+	src.live = 1;
+	return true;
+}
+
+/* protocol= and live= for the resolve log, read from the described
+ * source. The failure arm exists for allocation failure only; it still
+ * names the protocol (detection needs no memory) and says so. */
+static std::string webtvSourceLogFields(const std::string &url, const std::string &url2, const std::string &header)
+{
+	stream_source_t source;
+	std::string fields = "protocol=";
+	if (webtvDescribeSource(url, url2, header, source)) {
+		fields += streaminput_protocol_name(source.protocol);
+		fields += source.live ? " live=1" : " live=0";
+		streaminput_source_free(&source);
+	} else {
+		fields += streaminput_protocol_name(streaminput_detect_protocol(url.c_str()));
+		fields += " described=0";
+	}
+	return fields;
+}
+
+/* What the shared core calls the failure, for the log -- finer than the
+ * app's own enum (timed-out, http-4xx, unsupported-protocol ...) and the
+ * same vocabulary record/streamts and streamprobe use. Without a
+ * transport error code (DNS, resolver and user-abort failures, which the
+ * core cannot classify by design) the field says so instead of "none",
+ * which would read as "no failure" on a failure line. */
+static const char *webtvCoreFailureClassName(int ffmpeg_code)
+{
+	if (ffmpeg_code >= 0)
+		return "n/a";
+	return streaminput_failure_class_name(streaminput_classify_averror(ffmpeg_code));
+}
+#else
+static std::string webtvSourceLogFields(const std::string &, const std::string &, const std::string &)
+{
+	return "protocol=n/a live=n/a";
+}
+
+static const char *webtvCoreFailureClassName(int)
+{
+	return "n/a";
+}
+#endif
 
 static bool webtvExtractHttpHost(const std::string &url, std::string &host)
 {
@@ -571,8 +653,9 @@ void CMoviePlayerGui::recordWebtvFailure(webtv_error_reason_t reason, t_channel_
 	abort_generation = webtv_abort_generation;
 	mutex.unlock();
 
-	printf("[webtv] classification=%s channel=%llx generation=%llu host=%s address=%s abort_generation=%llu abort_reason=%s ff_error_code=%d ff_error_msg=%s\n",
+	printf("[webtv] classification=%s class=%s channel=%llx generation=%llu host=%s address=%s abort_generation=%llu abort_reason=%s ff_error_code=%d ff_error_msg=%s\n",
 		webtvErrorReasonToString(reason),
+		webtvCoreFailureClassName(ffmpeg_code),
 		(unsigned long long)chan,
 		(unsigned long long)generation,
 		host.c_str(),
@@ -724,6 +807,30 @@ bool CMoviePlayerGui::handleStaleWebtvStart(t_channel_id chan, uint64_t generati
 
 CMoviePlayerGui::webtv_error_reason_t CMoviePlayerGui::classifyWebtvOpenError(int code, bool dns_ok)
 {
+#if HAVE_LIBSTB_HAL
+	/* The shared core names what happened; the table in
+	 * webtv_failure_map.h decides what the app calls it, and the build
+	 * repo's shell suite pins that table against the live core. The enum
+	 * is frozen and drives the restart decision (prepareWebtvRestartLocked),
+	 * so every row reproduces the historic chain bit for bit: a class the
+	 * app has no word for falls through to the DNS-qualified connect
+	 * failure, exactly as the old chain did for every code it did not
+	 * list. Widening the restart set is a separate decision, not a side
+	 * effect of this mapping. The finer class itself is logged by
+	 * recordWebtvFailure(). */
+	switch (webtv_map_core_failure(code)) {
+		case WEBTV_MAP_RESET_BY_PEER:
+			return WEBTV_ERROR_CONNECTION_RESET_BY_PEER;
+		case WEBTV_MAP_HTTP_SERVER_ERROR:
+			return WEBTV_ERROR_HTTP_SERVER_ERROR;
+		case WEBTV_MAP_IMMEDIATE_EXIT:
+			return WEBTV_ERROR_IMMEDIATE_EXIT;
+		case WEBTV_MAP_INVALID_DATA:
+			return WEBTV_ERROR_INVALID_DATA;
+		case WEBTV_MAP_FALLTHROUGH:
+			break;
+	}
+#else
 	if (code == AVERROR(ECONNRESET))
 		return WEBTV_ERROR_CONNECTION_RESET_BY_PEER;
 	if (code == AVERROR_INVALIDDATA)
@@ -732,6 +839,7 @@ CMoviePlayerGui::webtv_error_reason_t CMoviePlayerGui::classifyWebtvOpenError(in
 		return WEBTV_ERROR_HTTP_SERVER_ERROR;
 	if (code == AVERROR_EXIT)
 		return WEBTV_ERROR_IMMEDIATE_EXIT;
+#endif
 	if (dns_ok)
 		return WEBTV_ERROR_DNS_OK_CONNECTION_FAILED;
 	return WEBTV_ERROR_NORMAL_CONNECT_FAILED;
@@ -2451,9 +2559,10 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 	webtv_request.resolved_url2 = Url2;
 	webtv_request.resolved_header = cookie_header;
 	mutex.unlock();
-	printf("[webtv] resolved stream channel=%llx generation=%llu url=%s url2=%s header=%s\n",
+	printf("[webtv] resolved stream channel=%llx generation=%llu %s url=%s url2=%s header=%s\n",
 		(unsigned long long)chan,
 		(unsigned long long)request_generation,
+		webtvSourceLogFields(realUrl, Url2, cookie_header).c_str(),
 		webtvRedactUrlForLog(realUrl).c_str(),
 		webtvRedactUrlForLog(Url2).c_str(),
 		cookie_header.empty() ? "" : "<set>");
