@@ -70,6 +70,13 @@ extern "C" {
 #endif
 }
 
+/* The shared stream input core lives in libstb-hal, so coolstream builds
+ * cannot see it -- their HWLIB_CFLAGS point at lib/hardware/coolstream
+ * only. Same gating as version_hal.h in gui/imageinfo.cpp. */
+#if HAVE_LIBSTB_HAL
+#include <streaminput_ffmpeg.h>
+#endif
+
 #if (LIBAVCODEC_VERSION_MAJOR > 55)
 #define	av_free_packet av_packet_unref
 #else
@@ -2383,7 +2390,12 @@ bool CStreamRec::Open(CZapitChannel * channel)
 	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
 
 	AVDictionary *options = NULL;
-	if (!headers.empty())//add cookies
+#if HAVE_LIBSTB_HAL
+	if (streaminput_apply_policy(url.c_str(), headers.c_str(), STREAM_PROFILE_RECORD, &options) < 0)
+		printf("%s: input policy incomplete, opening with what could be set\n", __FUNCTION__);
+#else
+	/* No libstb-hal, no shared core: the historic block, value for value. */
+	if (!headers.empty())
 		av_dict_set(&options, "headers", headers.c_str(), 0);
 
 	if (strncmp(url.c_str(), "http://", 7) == 0 || strncmp(url.c_str(), "https://", 8) == 0)
@@ -2391,7 +2403,13 @@ bool CStreamRec::Open(CZapitChannel * channel)
 		av_dict_set(&options, "timeout", "20000000", 0); //20sec
 		av_dict_set(&options, "reconnect", "1", 0);
 	}
+#endif
 
+	/* Both opens share one dictionary. avformat_open_input() takes the options
+	 * it recognizes out of it, so url2 (opened first) consumes headers/timeout/
+	 * reconnect and the primary open below sees only the leftovers. That is how
+	 * this has always worked; changing it alters what FFmpeg does with the
+	 * primary input, so it is handled separately -- see WORK-239. */
 	if(have2url) {
 		if (avformat_open_input(&ifcx2, url2.c_str(), NULL, &options) != 0) {
 			printf("%s: Cannot open input2 [%s]!\n", __FUNCTION__, url2.c_str());

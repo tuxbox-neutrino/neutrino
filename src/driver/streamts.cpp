@@ -59,6 +59,11 @@
 #include <system/set_threadname.h>
 #include <gui/movieplayer.h>
 #include <cs_api.h>
+/* libstb-hal only; coolstream builds keep the historic block below.
+ * Same gating as version_hal.h in gui/imageinfo.cpp. */
+#if HAVE_LIBSTB_HAL
+#include <streaminput_ffmpeg.h>
+#endif
 
 #if (LIBAVCODEC_VERSION_MAJOR > 55)
 #define	av_free_packet av_packet_unref
@@ -980,6 +985,11 @@ bool CStreamStream::Open()
 	printf("%s: Open input [%s]....\n", __FUNCTION__, url.c_str());
 
 	AVDictionary *options = NULL;
+#if HAVE_LIBSTB_HAL
+	if (streaminput_apply_policy(url.c_str(), headers.c_str(), STREAM_PROFILE_RECORD, &options) < 0)
+		printf("%s: input policy incomplete, opening with what could be set\n", __FUNCTION__);
+#else
+	/* No libstb-hal, no shared core: the historic block, value for value. */
 	if (!headers.empty())
 		av_dict_set(&options, "headers", headers.c_str(), 0);
 
@@ -988,6 +998,7 @@ bool CStreamStream::Open()
 		av_dict_set(&options, "timeout", "20000000", 0); //20sec
 		av_dict_set(&options, "reconnect", "1", 0);
 	}
+#endif
 
 	if (avformat_open_input(&ifcx, url.c_str(), NULL, &options) != 0) {
 		printf("%s: Cannot open input [%s]!\n", __FUNCTION__, channel->getUrl().c_str());
