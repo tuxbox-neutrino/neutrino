@@ -4101,18 +4101,24 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		} else {
 			CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 			if (cc && (chid == cc->getChannelID())) {
+				/* Four places post this event: zapit's same-channel stop
+				 * rezap and its normal zap to a webtv channel, the
+				 * cancelled-retry path, and the eof watchdog. Only the
+				 * watchdog posts because of an EOF, and it logs that
+				 * reason itself before posting -- so name what happens
+				 * here, not a cause this handler cannot know. */
 				if (CMoviePlayerGui::IsWebtvStarting()) {
-					printf("[webtv] eof rezap skipped (already starting) channel=%llx\n", (unsigned long long)chid);
+					printf("[webtv] zap complete: already starting, skipped channel=%llx\n", (unsigned long long)chid);
 					delete [] (unsigned char*) data;
 					return messages_return::handled;
 				}
 				if (CMoviePlayerGui::getInstance().RestartBackground(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
-					printf("[webtv] eof rezap restart accepted channel=%llx\n", (unsigned long long)chid);
+					printf("[webtv] zap complete: restart accepted channel=%llx\n", (unsigned long long)chid);
 					delete [] (unsigned char*) data;
 				}
 				else
 				{
-					printf("[webtv] eof rezap give up -> ZAP_FAILED channel=%llx\n", (unsigned long long)chid);
+					printf("[webtv] zap complete: playback start failed -> ZAP_FAILED channel=%llx\n", (unsigned long long)chid);
 					if (mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_webradio)
 						videoDecoder->setBlank(true);
 					g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_FAILED, data);
