@@ -21,7 +21,7 @@
 
 #define STREAMPROBE_VERSION_MAJOR 1
 #define STREAMPROBE_VERSION_MINOR 0
-#define STREAMPROBE_VERSION_PATCH 0
+#define STREAMPROBE_VERSION_PATCH 1
 
 /* Two levels, or the macro names end up in the string instead of their
  * values. */
