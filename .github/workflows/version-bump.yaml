@@ -21,6 +21,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # branches: under push: does not constrain workflow_dispatch -- without
+      # this, a manual run commits and pushes to whatever branch it was
+      # started on. A red run says so; a skipped job would only look like
+      # nothing happened.
+      - name: Refuse to run off master
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "::error::This workflow commits a version and only runs on master (got ${GITHUB_REF})."
+          exit 1
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
