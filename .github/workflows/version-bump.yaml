@@ -8,6 +8,14 @@ on:
     paths-ignore:
       - ".github/**"
       - "configure.ac"
+      # streamprobe has its own version line and its own workflow; a push
+      # that touches nothing but the tool must not move configure.ac. The
+      # glob is deliberately broader than that workflow's trigger: it has
+      # to cover the version header too, and ** so a subdirectory, should
+      # the tool ever grow one, stays covered. One consequence: a month with
+      # nothing but streamprobe pushes never starts its version line; the
+      # next app push opens the then-current month instead.
+      - "src/tools/streamprobe**"
 
 concurrency:
   group: configure-version-bump-${{ github.ref }}
@@ -72,6 +80,27 @@ jobs:
             fi
           }
 
+          # The push can lose a race: to streamprobe-version.yaml on a push
+          # that touched both the app and the tool (that workflow needs no
+          # tagit setup and is well ahead by the time this one pushes), or
+          # to a human. A rebase is enough here -- the micro is a count
+          # derived from history, and if the tip moved by one in between,
+          # the next run corrects it.
+          push_with_rebase() {
+            local attempt=1
+            until git push origin "HEAD:${GITHUB_REF_NAME}"; do
+              if [ "$attempt" -ge 5 ]; then
+                echo "::error::Could not push after ${attempt} attempts"
+                return 1
+              fi
+              echo "Push rejected (attempt ${attempt}); rebasing onto the new tip"
+              sleep $((attempt * 3))
+              git fetch origin "${GITHUB_REF_NAME}"
+              git rebase "origin/${GITHUB_REF_NAME}"
+              attempt=$((attempt + 1))
+            done
+          }
+
           if [ "$ver_major" != "$cur_year" ] || [ "$ver_minor" != "$cur_month" ]; then
             # A new calendar month (or year) started: begin a fresh version line.
             new_tag="v${cur_year}.${cur_month}"
@@ -86,15 +115,13 @@ jobs:
               echo "configure.ac already at ${cur_year}.${cur_month}.0"
             fi
 
-            pushed_tag=""
+            push_with_rebase
+
+            # Tagged after the push, so a rebase in there cannot leave the
+            # tag on a commit that was never pushed.
             if ! git rev-parse -q --verify "refs/tags/${new_tag}" >/dev/null; then
               git tag -a "${new_tag}" -m "Start ${new_tag} version line"
-              pushed_tag="${new_tag}"
-            fi
-
-            git push origin HEAD:${GITHUB_REF_NAME}
-            if [ -n "${pushed_tag}" ]; then
-              git push origin "${pushed_tag}"
+              git push origin "${new_tag}"
             fi
           else
             # Same month: routine micro bump from the current line anchor.
@@ -116,5 +143,5 @@ jobs:
               exit 0
             fi
             git commit -m "build (ci): bump configure.ac version [skip ci]"
-            git push origin HEAD:${GITHUB_REF_NAME}
+            push_with_rebase
           fi

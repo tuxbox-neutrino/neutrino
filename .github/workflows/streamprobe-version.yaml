@@ -1,0 +1,157 @@
+name: streamprobe Version Bump
+
+# streamprobe carries its own SemVer line in src/tools/streamprobe_version.h,
+# separate from the calendar line configure.ac keeps for neutrino. This
+# workflow moves it when -- and only when -- the tool itself changed.
+#
+# Why the two writers do not step on each other:
+#   - The trigger lists the tool's sources, not the version header, so a
+#     header pushed on its own -- a minor or major set by hand -- starts no
+#     run. Pushed together with a source change it is bumped once more on
+#     top; the dispatch below is the intended way to set a minor or major.
+#   - version-bump.yaml ignores src/tools/streamprobe** -- the broad glob --
+#     so a streamprobe-only push leaves configure.ac alone.
+#   - Pushes made with GITHUB_TOKEN start no workflow runs, and [skip ci] in
+#     the commit message is the second layer for the day someone pushes the
+#     bot's commit on with a PAT.
+#   - There is deliberately no concurrency group. A group holds at most one
+#     pending run and evicts it when another run queues, and an evicted run
+#     can never make up its bump -- unlike configure.ac's derived count, a
+#     lost patch here would stay lost. So every run executes, and the push
+#     below re-reads the tip and recomputes whenever it lost a race, be it
+#     to version-bump on a push that touched both, or to a human.
+#
+# This deliberately does not use ./.github/actions/setup-tagit: that action
+# parses configure.ac and fails when that file is malformed, which would tie
+# the tool's version to a file it has nothing to do with -- and it fetches
+# python plus a helper script to change one integer. A sed does the job.
+
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: "Which component to bump (push events always bump patch)"
+        required: true
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+  push:
+    branches:
+      - master
+    paths:
+      # ** so a subdirectory, should the tool ever grow one, stays covered.
+      - "src/tools/streamprobe**.c"
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      # branches: under push: does not constrain workflow_dispatch -- without
+      # this, a manual run commits and pushes to whatever branch it was
+      # started on. A red run says so; a skipped job would only look like
+      # nothing happened.
+      - name: Refuse to run off master
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "::error::This workflow commits a version and only runs on master (got ${GITHUB_REF})."
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # No tags are involved, so the tip is enough.
+          fetch-depth: 1
+          ref: ${{ github.ref_name }}
+
+      - name: Bump streamprobe version
+        env:
+          LEVEL: ${{ inputs.level || 'patch' }}
+          HDR: src/tools/streamprobe_version.h
+        run: |
+          set -euo pipefail
+
+          # Same identity the setup-tagit action uses, kept in step by hand.
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          read_field() {
+            awk -v f="$1" '$1 == "#define" && $2 == f { print $3 }' "$HDR"
+          }
+          write_field() {
+            sed -i -E "s/^(#define $1[[:space:]]+)[0-9]+\$/\\1$2/" "$HDR"
+          }
+
+          # Reads the header as it is now, computes the target, writes it,
+          # reads it back and commits. Every failure ends the run red: after
+          # a validated read there is no legitimate "nothing to do" -- the
+          # number always moves -- so a header that does not read back as
+          # written is a broken write, not a no-op. Called again after a
+          # rejected push, against the refreshed tip; it carries nothing over
+          # from the previous call.
+          bump_and_commit() {
+            local major minor patch v want got
+            major="$(read_field STREAMPROBE_VERSION_MAJOR)"
+            minor="$(read_field STREAMPROBE_VERSION_MINOR)"
+            patch="$(read_field STREAMPROBE_VERSION_PATCH)"
+            # No leading zeros: bash reads 08 as octal, and the arithmetic
+            # below would then die with an expansion error -- which, unlike
+            # a failed command, does not trip errexit at the call site. The
+            # header stays untouched, the push is a no-op, the run is green.
+            for v in major minor patch; do
+              if ! [[ ${!v} =~ ^(0|[1-9][0-9]*)$ ]]; then
+                echo "::error::Invalid ${v} in ${HDR}: '${!v}'"
+                exit 1
+              fi
+            done
+
+            case "$LEVEL" in
+              patch) patch=$((patch + 1)) ;;
+              minor) minor=$((minor + 1)); patch=0 ;;
+              major) major=$((major + 1)); minor=0; patch=0 ;;
+              *) echo "::error::Unknown level '${LEVEL}'"; exit 1 ;;
+            esac
+            want="${major}.${minor}.${patch}"
+
+            write_field STREAMPROBE_VERSION_MAJOR "$major"
+            write_field STREAMPROBE_VERSION_MINOR "$minor"
+            write_field STREAMPROBE_VERSION_PATCH "$patch"
+            got="$(read_field STREAMPROBE_VERSION_MAJOR).$(read_field STREAMPROBE_VERSION_MINOR).$(read_field STREAMPROBE_VERSION_PATCH)"
+            if [ "$got" != "$want" ]; then
+              echo "::error::Wrote ${want} but ${HDR} reads back ${got}"
+              exit 1
+            fi
+
+            git add "$HDR"
+            # The run URL is provenance, and it is also what keeps two runs
+            # apart: two of them starting from the same tip in the same
+            # second would otherwise build byte-identical commits, and the
+            # second push would then say "Everything up-to-date" and exit 0
+            # -- a lost bump with a green run. The attempt is in there too, so
+            # the reasoning does not have to cover re-runs of one run.
+            git commit -m "build (ci): bump streamprobe version to ${want} [skip ci]" \
+              -m "Run: ${GITHUB_SERVER_URL:-https://github.com}/${GITHUB_REPOSITORY:-}/actions/runs/${GITHUB_RUN_ID:-0}/attempts/${GITHUB_RUN_ATTEMPT:-1}"
+            echo "streamprobe ${want}"
+          }
+
+          bump_and_commit
+
+          attempt=1
+          until git push origin "HEAD:${GITHUB_REF_NAME}"; do
+            if [ "$attempt" -ge 5 ]; then
+              echo "::error::Could not push after ${attempt} attempts"
+              exit 1
+            fi
+            echo "Push rejected (attempt ${attempt}); re-reading the tip"
+            sleep $((attempt * 3))
+            git fetch origin "${GITHUB_REF_NAME}"
+            git reset --hard "origin/${GITHUB_REF_NAME}"
+            bump_and_commit
+            attempt=$((attempt + 1))
+          done
