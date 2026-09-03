@@ -262,6 +262,27 @@ void CMsgBox::enableDefaultResultOnTimeOut(bool enable)
 	enable_timeout_result = enable;
 }
 
+CComponentsButton* CMsgBox::getButtonByDirectKey(const neutrino_msg_t& msg)
+{
+	if (!ccw_footer || !ccw_footer->getButtonChainObject())
+		return NULL;
+
+	CComponentsButton *found = NULL;
+	for (size_t i = 0; i < ccw_footer->getButtonChainObject()->size(); i++)
+	{
+		CComponentsButton *btn_action = ccw_footer->getButtonLabel(i);
+		if (btn_action && btn_action->hasButtonDirectKey(msg))
+			found = btn_action;
+	}
+	return found;
+}
+
+CMsgBox::msg_result_t CMsgBox::getBackResult()
+{
+	CComponentsButton *btn_back = getButtonByDirectKey(CRCInput::RC_back);
+	return btn_back ? (msg_result_t)btn_back->getButtonResult() : mbrCancel;
+}
+
 int CMsgBox::exec()
 {
 	neutrino_msg_t      msg;
@@ -288,97 +309,163 @@ int CMsgBox::exec()
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
-
 		//***timeout result***
-		if (msg == CRCInput::RC_timeout && timeout > 0)
+		if (msg == CRCInput::RC_timeout)
 		{
-			result = enable_timeout_result ? default_result : mbrTimeout;
-			loop = false;
-		}
-		//***navi buttons for scroll***
-		else if (msg == CRCInput::RC_up )
-		{
-			scroll_up();
-		}
-		else if (msg == CRCInput::RC_down)
-		{
-			scroll_down();
-		}
-		//***navi buttons for button selection***
-		else if(msg == CRCInput::RC_right || msg == CRCInput::RC_left)
-		{
-			if (msg == CRCInput::RC_right)
-				ccw_footer->SetSelectedButton(selected+1);
-			else
-				ccw_footer->SetSelectedButton(selected-1);
-
-			if (ccw_footer->getSelectedButtonObject())
+			if (timeout > 0)
 			{
-				mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
-				selected = ccw_footer->getSelectedButton();
-
-				//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
-				if (ccw_footer->getButtonChainObject()->size()>1)
-					refreshFoot();
-
-				//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
-				if (timeout > 0)
-				{
-					if(timeout_pb)
-						timeout_pb->setValues(0, timeout);
-					timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
-				}
-				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
+				result = enable_timeout_result ? default_result : mbrTimeout;
+				loop = false;
 			}
 		}
-
-		//***action buttons without preselection***
-		for (size_t i = 0; i< ccw_footer->getButtonChainObject()->size(); i++)
+		//***no key: nothing to do, but it must not reach the application either***
+		else if (msg == CRCInput::RC_nokey)
 		{
-			CComponentsButton* btn_action = ccw_footer->getButtonLabel(i);
-			if (btn_action)
+		}
+		/* Everything above the key range belongs to the application: timers,
+		   events and the messages other components send. The box has nothing to
+		   do with them and must not swallow them -- CNeutrinoApp::handleMsg is
+		   also the only place that frees the payload a message carries. Both
+		   sentinels above are numerically greater than RC_MaxRC, which is why
+		   they are taken out of the way first. */
+		else if (msg > CRCInput::RC_MaxRC)
+		{
+			/* The bar is a timer that paints every 100ms, and handleMsg may
+			   paint, may block and may end the process (SHUTDOWN reaches
+			   ExitRun, which clears the progress bar cache and repaints the
+			   framebuffer before it exits). Stop it for the duration. */
+			clearTimeOutBar();
+
+			int handled = CNeutrinoApp::getInstance()->handleMsg(msg, data);
+
+			if (handled & messages_return::cancel_all)
 			{
-				if (btn_action->hasButtonDirectKey(msg))
+				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d]  messages_return::cancel_all\033[0m\n", __func__, __LINE__);
+				result = getBackResult();
+				res  = menu_return::RETURN_EXIT_ALL;
+				loop = false;
+			}
+			else
+			{
+				/* handleMsg opens dialogs of its own for several messages and
+				   still returns unhandled for some of them, so its return value
+				   does not say whether the screen was touched. A CMenuWidget
+				   does not save its background by default and erases its area
+				   when it hides, so repaint unconditionally. A plain paint()
+				   would only refresh the foreground; hide() resets the paint
+				   state so the following paint draws the box in full. */
+				hide();
+				paint(SaveBg());
+
+				/* The time the application spent is not the user's, so the
+				   deadline starts over. Without this the bar would restart full
+				   while the old deadline had long expired. */
+				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+				if (timeout > 0)
+					initTimeOutBar();
+			}
+		}
+		/* A remote-control key. It belongs to this dialog: what the box knows it
+		   consumes, the rest it drops. Handing a key on would open the channel
+		   list or a menu on top of the box, and would let a key nobody meant for
+		   this dialog answer it. */
+		else
+		{
+			/* Last match wins, as it always has. Note that the similar helper
+			   in cc_input_dialog.cpp takes the FIRST match; the two must not be
+			   unified. In the package dialog a button labelled "uninstall"
+			   carries RC_back as well, and first-match would make Back
+			   uninstall. */
+			CComponentsButton *btn_direct = getButtonByDirectKey(msg);
+
+			//***navi buttons for scroll***
+			if (msg == CRCInput::RC_up )
+			{
+				scroll_up();
+			}
+			else if (msg == CRCInput::RC_down)
+			{
+				scroll_down();
+			}
+			//***navi buttons for button selection***
+			else if(msg == CRCInput::RC_right || msg == CRCInput::RC_left)
+			{
+				if (msg == CRCInput::RC_right)
+					ccw_footer->SetSelectedButton(selected+1);
+				else
+					ccw_footer->SetSelectedButton(selected-1);
+
+				if (ccw_footer->getSelectedButtonObject())
 				{
-					result = (msg_result_t)btn_action->getButtonResult();
+					mb_show_button = ccw_footer->getSelectedButtonObject()->getButtonAlias();
+					selected = ccw_footer->getSelectedButton();
+
+					//***refresh buttons only if we have more than one button, this avoids unnecessary repaints with possible flicker effects***
+					if (ccw_footer->getButtonChainObject()->size()>1)
+						refreshFoot();
+
+					//***refresh timeout on any pressed navi key! This resets current timeout end to initial value***
+					if (timeout > 0)
+					{
+						if(timeout_pb)
+							timeout_pb->setValues(0, timeout);
+						timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+					}
+					dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
+				}
+			}
+			/* 'ok' takes the selected button, and falls back to a button that
+			   carries it as a direct key when nothing is selected -- all buttons
+			   can be disabled. It is never handed on: handleMsg opens the channel
+			   list on RC_ok, on top of this box. */
+			else if (msg == CRCInput::RC_ok)
+			{
+				CComponentsButton *btn_ok = ccw_footer->getSelectedButtonObject();
+				if (!btn_ok || btn_ok->getButtonAlias() != mb_show_button)
+					btn_ok = btn_direct;
+				if (btn_ok)
+				{
+					result = (msg_result_t)btn_ok->getButtonResult();
 					dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 					loop = false;
 				}
 			}
-		}
-		/* FIXME: this chain is mutually exclusive and should not be. Any box
-		   that has buttons also has a selected button object, so the if below
-		   is taken and none of the three else-if branches ever runs -- above
-		   all not the one forwarding to CNeutrinoApp::handleMsg. Button keys
-		   still work, the direct-key loop above handles them; everything else
-		   is dropped rather than delayed, so a recording timer that fires
-		   while the box is up does not start and standby does nothing.
-		   CHintBox::exec() forwards such messages and reposts them, this
-		   should do the same. Until it does, a caller can only bound the
-		   damage by giving the box a timeout. */
-		//***action button 'ok' handled with selected button and its predefined result***
-		if (ccw_footer->getSelectedButtonObject())
-		{
-			if ((msg == CRCInput::RC_ok) && (ccw_footer->getSelectedButtonObject()->getButtonAlias() == mb_show_button))
+			//***action buttons without preselection***
+			else if (btn_direct)
 			{
-				result = (msg_result_t)ccw_footer->getSelectedButtonObject()->getButtonResult();
+				result = (msg_result_t)btn_direct->getButtonResult();
+				dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d] result = %d, mb_show_button = %d\033[0m\n", __func__, __LINE__, result, mb_show_button);
 				loop = false;
 			}
-		}
-		//***action button 'home' or 'back' with general cancel result***
-		else if (CNeutrinoApp::getInstance()->backKey(msg)) {
-			result = mbrCancel;
-			loop = false;
-		}
-		//***ignore***
-		else if (CNeutrinoApp::getInstance()->listModeKey(msg)){
-			// do nothing //TODO: if passed rc messages are ignored rc messaages: has no effect here too!!
-		}
-		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
-		{
-			dprintf(DEBUG_INFO, "\033[32m[CMsgBox]   [%s - %d]  messages_return::cancel_all\033[0m\n", __func__, __LINE__);
-			res  = menu_return::RETURN_EXIT_ALL;
-			loop = false;
+			//***action button 'home' or 'back' with general cancel result***
+			else if (CNeutrinoApp::getInstance()->backKey(msg))
+			{
+				result = mbrCancel;
+				loop = false;
+			}
+			/* Switching the box off, or waking it up, must not be blocked by a
+			   dialog -- a box left standing in standby used to eat the wake-up
+			   key too. Reposted rather than handled here, the way CMenuWidget
+			   does it: rcinput sends a release for the standby key as a message
+			   of its own, and handling the press inside the box would leave that
+			   release for the caller, which reposts it as a fresh press and
+			   leaves standby again. data != 0 is that release. */
+			else if (msg == CRCInput::RC_standby
+				|| msg == CRCInput::RC_power_off
+				|| msg == CRCInput::RC_standby_on
+				|| msg == CRCInput::RC_standby_off
+				|| msg == (neutrino_msg_t) g_settings.key_power_off)
+			{
+				if (data == 0)
+				{
+					g_RCInput->postMsg(msg, data);
+					result = getBackResult();
+					res  = menu_return::RETURN_EXIT_ALL;
+					loop = false;
+				}
+			}
+			/* Any other key: dropped. This also covers the list-mode keys the
+			   old chain named explicitly and then ignored. */
 		}
 	}
 

@@ -124,6 +124,11 @@ class CMsgBox : public CHintBox
 		bool btn_enable_bg;
 
 		void initButtons();
+
+		///returns the last footer button that carries msg as a direct key, NULL if none
+		CComponentsButton* getButtonByDirectKey(const neutrino_msg_t& msg);
+		///returns the result the back key would yield on this box, used when the application ends it
+		msg_result_t getBackResult();
 	public:
 		/**CMsgBox Constructor
 		* @param[in]	Text
@@ -260,7 +265,14 @@ class CMsgBox : public CHintBox
 		virtual ~CMsgBox(){};
 		/**
 		* exec caller
-		* @return	int
+		* @return	int, menu_return::RETURN_REPAINT, or RETURN_EXIT_ALL when the
+		* 		application ended the box (a system wide abort, or one of the
+		* 		standby keys, which are reposted for the caller). In that case
+		* 		getResult() yields what the back key of this box would have.
+		* @note		Remote control keys belong to the box: what it has no button
+		* 		for is dropped. Everything above the key range is handed to
+		* 		CNeutrinoApp::handleMsg, which is also what frees the payload of
+		* 		a message that carries one.
 		*/
 		int exec();
 
