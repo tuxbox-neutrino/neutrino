@@ -37,6 +37,11 @@
  * compile against libavutil may include this -- see the header. */
 #include <streaminput_ffmpeg.h>
 
+#include "streamprobe_version.h"
+
+#ifndef PACKAGE_NAME
+#define PACKAGE_NAME "Tuxbox-Neutrino"
+#endif
 #ifndef PACKAGE_VERSION
 #define PACKAGE_VERSION "unknown"
 #endif
@@ -269,6 +274,13 @@ static char *redact_dup(const char *url, int show)
 	return out;
 }
 
+/* The tool version says which streamprobe; the neutrino version says
+ * which tree it was cut from. A bug report needs both. */
+static void version_line(FILE *out)
+{
+	fprintf(out, "streamprobe %s (%s %s)\n", STREAMPROBE_VERSION, PACKAGE_NAME, PACKAGE_VERSION);
+}
+
 static void print_version(void)
 {
 	unsigned rt[3];
@@ -284,7 +296,7 @@ static void print_version(void)
 	bt[1] = LIBAVCODEC_VERSION_INT;
 	bt[2] = LIBAVUTIL_VERSION_INT;
 
-	printf("streamprobe %s\n", PACKAGE_VERSION);
+	version_line(stdout);
 	for (i = 0; i < 3; i++)
 	{
 		printf("%s runtime %u.%u.%u build %u.%u.%u%s\n", names[i],
@@ -421,6 +433,12 @@ static void parse_args(int argc, char **argv, opt_t *o)
 	memset(o, 0, sizeof(*o));
 	o->repeat = 1;
 	o->log_level = AV_LOG_QUIET;
+
+	/* Called with nothing at all: say what this binary is before the usage
+	 * error does. It goes to stderr like that error, so a failed run still
+	 * leaves stdout empty. */
+	if (argc == 1)
+		version_line(stderr);
 
 	for (i = 1; i < argc; i++)
 	{
@@ -1236,7 +1254,11 @@ static void report_json(const opt_t *o, const stream_source_t *src, const char *
 
 	fputs("{\n", stdout);
 	fputs("  \"tool\": \"streamprobe\",\n", stdout);
-	printf("  \"tool_version\": \"%s\",\n", PACKAGE_VERSION);
+	fputs("  \"tool_version\": ", stdout);
+	json_str(STREAMPROBE_VERSION);
+	fputs(",\n  \"neutrino_version\": ", stdout);
+	json_str(PACKAGE_VERSION);
+	fputs(",\n", stdout);
 	fputs("  \"libav\": {\n", stdout);
 	json_lib("avformat", avformat_version(), LIBAVFORMAT_VERSION_INT);
 	fputs(",\n", stdout);

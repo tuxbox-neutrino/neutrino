@@ -25,7 +25,7 @@ mdev_helper_SOURCES = mdev_helper.cpp
 # coolstream builds have no libstb-hal and therefore no core at all.
 if HAVE_LIBSTB_HAL
 bin_PROGRAMS += streamprobe
-streamprobe_SOURCES = streamprobe.c
+streamprobe_SOURCES = streamprobe.c streamprobe_version.h
 # The first per-program flags in this directory. A named _CPPFLAGS replaces
 # AM_CPPFLAGS instead of adding to it, so it is pulled back in explicitly --
 # @HWLIB_CFLAGS@ inside it is what finds streaminput.h.
