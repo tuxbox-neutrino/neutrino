@@ -295,15 +295,6 @@ int CMsgBox::exec()
 			result = enable_timeout_result ? default_result : mbrTimeout;
 			loop = false;
 		}
-#if 0
-		else if (((msg == CRCInput::RC_timeout && timeout > 0) ||
-			  (msg  == (neutrino_msg_t)g_settings.key_channelList_cancel)) &&
-			  (mb_show_button & (mbCancel | mbBack)))
-		{
-			result = (mb_show_button & mbCancel) ? mbrCancel : (mb_show_button & mbOk) ? mbrOk: mbrBack;
-			loop   = false;
-		}
-#endif
 		//***navi buttons for scroll***
 		else if (msg == CRCInput::RC_up )
 		{
