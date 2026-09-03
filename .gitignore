@@ -72,6 +72,7 @@ src/tools/dt
 src/tools/mdev_helper
 src/tools/rcsim
 src/tools/shutdown_helper
+src/tools/streamprobe
 src/zapit/pzapit
 src/zapit/udpstreampes
 
