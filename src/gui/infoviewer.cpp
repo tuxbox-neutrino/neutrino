@@ -392,6 +392,24 @@ void CInfoViewer::paintHead()
 	header_height = header->getHeight();
 }
 
+/* Drop both background snapshots an infobar text item keeps.
+   CComponentsTextTransp enables the CTextBox text save screen, and the items
+   are painted with CC_SAVE_SCREEN_YES, so a second snapshot lives in the
+   CCDraw BGSCREEN layer. display_Info() hides each item before re-setting its
+   text, and hide() restores the CCDraw one - so clearing only the CTextBox
+   buffer leaves a snapshot that was taken over the previous body and blits it
+   back over the freshly painted one. Over a flat body that is invisible; over
+   a gradient it shows as a patch that does not match its surroundings. */
+static void dropInfoTextBackgrounds(CComponentsTextTransp *txt)
+{
+	if (txt == NULL)
+		return;
+
+	if (txt->getCTextBoxObject())
+		txt->getCTextBoxObject()->clearScreenBuffer();
+	txt->clearSavedScreen();
+}
+
 void CInfoViewer::paintBody()
 {
 	int h_body = InfoHeightY - header_height - OFFSET_SHADOW;
@@ -408,16 +426,13 @@ void CInfoViewer::paintBody()
 		body = new CComponentsShapeSquare(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
 		body->setItemName("body");
 	} else {
-		if (txt_curr_event && txt_curr_start && txt_curr_rest &&
-				txt_next_event && txt_next_start && txt_next_in) {
-			if (h_body != body->getHeight() || y_body != body->getYPos()){
-				txt_curr_start->getCTextBoxObject()->clearScreenBuffer();
-				txt_curr_event->getCTextBoxObject()->clearScreenBuffer();
-				txt_curr_rest->getCTextBoxObject()->clearScreenBuffer();
-				txt_next_start->getCTextBoxObject()->clearScreenBuffer();
-				txt_next_event->getCTextBoxObject()->clearScreenBuffer();
-				txt_next_in->getCTextBoxObject()->clearScreenBuffer();
-			}
+		if (h_body != body->getHeight() || y_body != body->getYPos()){
+			dropInfoTextBackgrounds(txt_curr_start);
+			dropInfoTextBackgrounds(txt_curr_event);
+			dropInfoTextBackgrounds(txt_curr_rest);
+			dropInfoTextBackgrounds(txt_next_start);
+			dropInfoTextBackgrounds(txt_next_event);
+			dropInfoTextBackgrounds(txt_next_in);
 		}
 		body->setDimensionsAll(ChanInfoX, y_body, BoxEndX-ChanInfoX, h_body);
 	}
