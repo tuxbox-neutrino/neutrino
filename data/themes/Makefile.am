@@ -2,6 +2,7 @@ SUBDIRS = \
 	Neutrino-3.0/icons/buttons \
 	Grey-3.0/icons/buttons \
 	Grey-Blue/icons/buttons \
+	Meridian/icons/buttons \
 	Olive-3.0/icons/buttons
 
 installdir = $(THEMESDIR)
@@ -16,6 +17,7 @@ install_DATA = \
 	Grey.theme \
 	Grey-3.0.theme \
 	Grey-Blue.theme \
+	Meridian.theme \
 	MonoChrom.theme \
 	Neutrino-3.0.theme \
 	Olive.theme \
