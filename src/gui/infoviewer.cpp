@@ -292,6 +292,13 @@ void CInfoViewer::initClock()
 	if (clock == NULL){
 		clock = new CComponentsFrmClock();
 		clock->setItemName("clock");
+		/* Repaint only the segments whose character actually changed. Without
+		   this the clock re-renders all of its segments once per second, and
+		   every re-render erases the segment before drawing it. On accelerated
+		   framebuffers the erased state can reach the panel on its own refresh
+		   cycle, which shows up as a flickering clock. The same setting is used
+		   for header clocks, see CComponentsHeader::initClock(). */
+		clock->disableForceSegmentPaint();
 		clock->setClockFormat("%H:%M", "%H %M");
 	}
 

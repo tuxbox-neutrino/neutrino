@@ -56,6 +56,11 @@ void CInfoClock::initCCLockItems()
 	paint_bg = g_settings.infoClockBackground;
 	cc_item_type.name 	= "info_clock";
 
+	/* Repaint only the segments whose character actually changed, like header
+	   clocks do. Repainting every segment each second erases and redraws all of
+	   them, which flickers on accelerated framebuffers. */
+	disableForceSegmentPaint();
+
 	//use current theme colors
 	setColorAll(COL_FRAME_PLUS_0, COL_MENUCONTENT_PLUS_0, COL_SHADOW_PLUS_0);
 
