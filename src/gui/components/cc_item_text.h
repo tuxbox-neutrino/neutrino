@@ -76,7 +76,7 @@ class CComponentsText : public CCTextScreen, public CComponentsItem
 		bool ct_utf8_encoded;
 		///status: current text string is sent to CTextBox object
 		bool ct_text_sent;
-		///property: force sending text to the CTextBox object, false= text only sended, if text was changed, see also textChanged()
+		///property: force sending text to the CTextBox object, false= text is only sent if it was changed
 		bool ct_force_text_paint;
 		///status: this item's own connection to the parent's OnAfterPaintBg signal,
 		///kept so it can be reconnected without dropping sibling text items

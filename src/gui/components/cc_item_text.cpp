@@ -212,7 +212,7 @@ void CComponentsText::initCCText()
 			ct_box_old = ct_box;
 		}
 
-		//set current text status, needed by textChanged()
+		//remember the text and color that were sent to the CTextBox object
 		if (ct_text_sent){
 			ct_old_text 	= ct_text;
 			ct_old_col_text = ct_col_text;

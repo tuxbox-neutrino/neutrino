@@ -47,9 +47,6 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 {
 	private:
 		void ShowTime();
-#if 0
-		bool may_blit;
-#endif
 	protected:
 		CComponentsTimer *cl_timer;
 
@@ -193,10 +190,6 @@ class CComponentsFrmClock : public CComponentsForm, public CCTextScreen
 
 		///slot for timer event, reserved for ShowTime()
 		sigc::slot0<void> cl_sl_show;
-#if 0
-		///enable/disable automatic blitting
-		void setBlit(bool _may_blit = true) { may_blit = _may_blit; }
-#endif
 };
 
 #endif

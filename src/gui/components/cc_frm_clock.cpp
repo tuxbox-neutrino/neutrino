@@ -94,9 +94,6 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos,
 	//set default running clock properties
 	cl_interval	= interval_seconds * 1000;
 	cl_timer 	= NULL;
-#if 0
-	may_blit		= true;
-#endif
 
 	//general init
 	initCCLockItems();
@@ -272,16 +269,7 @@ void CComponentsFrmClock::initCCLockItems()
 		lbl->doPaintTextBoxBg(paint_bg);
 		bool save_txt_screen = cc_txt_save_screen || (!paint_bg || cc_body_gradient_enable);
 		lbl->enableTboxSaveScreen(save_txt_screen);
-#if 0
-		//use matching height for digits for better vertical centerring into form
-		CTextBox* ctb = lbl->getCTextBoxObject();
-		if (ctb)
-			ctb->setFontUseDigitHeight();
 
-		//ensure paint of text and label bg on changed text or painted form background
-		bool force_txt_and_bg = (lbl->textChanged() || paint_bg);
-		lbl->forceTextPaint(force_txt_and_bg);
-#endif
 		//set xpos and width of item (segment)
 		lbl->setWidth(w_tmp);
 		x_tmp += lbl->getWidth();//w_tmp;
