@@ -322,7 +322,22 @@ int CMsgBox::exec()
 		else if (msg == CRCInput::RC_nokey)
 		{
 		}
-		/* Everything above the key range belongs to the application: timers,
+		/* A timer tick belongs to whoever armed the timer and says nothing
+		   about the screen: the infobar's second timer, for one, fires every
+		   second for as long as the infobar stands under this box. Hand it
+		   on the way CMenuWidget does, but neither repaint nor restart the
+		   deadline for it -- doing so made the box flicker once a second
+		   and kept it from ever timing out. */
+		else if (msg == NeutrinoMessages::EVT_TIMER)
+		{
+			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+			{
+				result = getBackResult();
+				res  = menu_return::RETURN_EXIT_ALL;
+				loop = false;
+			}
+		}
+		/* Everything else above the key range belongs to the application:
 		   events and the messages other components send. The box has nothing to
 		   do with them and must not swallow them -- CNeutrinoApp::handleMsg is
 		   also the only place that frees the payload a message carries. Both
