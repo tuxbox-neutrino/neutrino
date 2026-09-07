@@ -97,6 +97,81 @@ static std::string normalizeWebchannelSource(const std::string &source)
 	return normalized;
 }
 
+/* Which variant of a list is this? Packaging installs two variants of
+   the same list side by side and marks which is which - preferably by
+   saying so in the file, as provider="providerA" on the root element.
+
+   Falling back to the file name keeps lists working that state nothing:
+   packaging also renames them (sport.xml -> sport-by-providerA.xml), and
+   whatever follows the last "-by-" in the stem serves as the tag. That
+   is a convention both sides must agree on, which is why the attribute
+   exists; a file using some other naming scheme simply has no tag, and
+   its bouquet keeps merging as before.
+
+   Either way the tag is free-form, matched against no list of known
+   names. Telling two providers apart is the common case, not a
+   condition: a user's own sport-by-mine.xml is treated exactly the same
+   and needs no registration. Remote sources never carry a tag. */
+static std::string webchannelSourceTag(xmlNodePtr root, const std::string &source)
+{
+	if (source.empty() || source[0] != '/')
+		return "";
+
+	const char *declared = root ? xmlGetAttribute(root, "provider") : NULL;
+	if (declared && *declared)
+		return declared;
+
+	std::string path = source;
+	std::string base = getBaseName(path);
+	std::string stem = getFileName(base);
+
+	std::string::size_type pos = stem.rfind("-by-");
+	if (pos == std::string::npos)
+		return "";
+
+	return stem.substr(pos + 4);
+}
+
+/* Which distinct source tags declare a bouquet of a given name? Only
+   sources that the following load will really use may vote, so remote
+   ones (which packaging never renames) and duplicates stay out. An
+   untagged local file votes as the empty tag: it never gets a suffix
+   itself, but it does make an otherwise unambiguous name ambiguous. */
+static void collectWebchannelSourceTags(int mode, const std::list<std::string> &sources,
+	std::map<std::string, std::set<std::string> > &tags_by_name)
+{
+	std::set<std::string> seen;
+	for (std::list<std::string>::const_iterator it = sources.begin(); it != sources.end(); ++it)
+	{
+		std::string filename = (*it);
+		if (filename.empty() || filename[0] != '/')
+			continue;
+		if (!seen.insert(normalizeWebchannelSource(filename)).second)
+			continue;
+
+		std::string extension = getFileExt(filename);
+		if (strcasecmp("xml", extension.c_str()) != 0)
+			continue;
+		if (access(filename.c_str(), R_OK) || !file_size(filename.c_str()))
+			continue;
+
+		xmlDocPtr parser = parseXmlFile(filename.c_str());
+		if (parser == NULL)
+			continue;
+
+		xmlNodePtr l0 = xmlDocGetRootElement(parser);
+		/* a root without children yields no bouquet later on */
+		if (l0 && xmlChildrenNode(l0))
+		{
+			const char *name = xmlGetAttribute(l0, "name");
+			if (!name)
+				name = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
+			tags_by_name[name].insert(webchannelSourceTag(l0, filename));
+		}
+		xmlFreeDoc(parser);
+	}
+}
+
 /**** class CBouquet ********************************************************/
 // -- servicetype 0 queries TV and Radio Channels
 CZapitChannel* CZapitBouquet::getChannelByChannelID(const t_channel_id channel_id, const unsigned char serviceType)
@@ -1031,6 +1106,9 @@ void CBouquetManager::loadWebchannels(int mode)
 	std::list<std::string> webchannels_sources;
 	buildWebchannelSources(mode, webchannels_sources);
 
+	std::map<std::string, std::set<std::string> > tags_by_name;
+	collectWebchannelSourceTags(mode, webchannels_sources, tags_by_name);
+
 	int sources_total = 0, sources_loaded = 0, sources_failed = 0, sources_skipped = 0;
 	int sources_failed_download = 0;
 	int channels_total = 0;
@@ -1121,7 +1199,25 @@ void CBouquetManager::loadWebchannels(int mode)
 					const char *prov = xmlGetAttribute(l0, "name");
 					if (!prov)
 						prov = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
-					pbouquet = addBouquetIfNotExist(prov);
+
+					/* Bouquets are merged by name, so two sources of the
+					   same list end up indistinguishable. Name them apart,
+					   but only where they really collide - a name only one
+					   source declares stays as its author wrote it. */
+					std::string bouquet_name = prov;
+					std::string source_tag = webchannelSourceTag(l0, filename);
+					if (!source_tag.empty())
+					{
+						std::map<std::string, std::set<std::string> >::const_iterator tit =
+							tags_by_name.find(bouquet_name);
+						if (tit != tags_by_name.end() && tit->second.size() > 1)
+						{
+							bouquet_name += " (" + source_tag + ")";
+							INFO("[webchannels] %s: bouquet \"%s\" from %s", tag, bouquet_name.c_str(), filename.c_str());
+						}
+					}
+
+					pbouquet = addBouquetIfNotExist(bouquet_name);
 					if (mode == MODE_WEBTV)
 						pbouquet->bWebtv = true;
 					else
@@ -1161,7 +1257,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						CZapitBouquet* gbouquet = pbouquet;
 						if (genre)
 						{
-							std::string bname = prov ? std::string(std::string(prov) + " ") + genre : genre;
+							std::string bname = bouquet_name + " " + genre;
 							gbouquet = addBouquetIfNotExist(bname);
 							if (mode == MODE_WEBTV)
 								gbouquet->bWebtv = true;
