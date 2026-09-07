@@ -318,6 +318,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void enableOsdElements(bool mute);
 	void disableOsdElements(bool mute);
 	static void *ShowStartHint(void *arg);
+	static void liveUrlHintToggle(bool script_ui_open, void *hint);
 	static void* bgPlayThread(void *arg);
 	static bool sortStreamList(livestream_info_t info1, livestream_info_t info2);
 	static const char *webtvErrorReasonToString(webtv_error_reason_t reason);

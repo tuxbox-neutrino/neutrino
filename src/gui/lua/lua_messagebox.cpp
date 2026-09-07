@@ -153,7 +153,9 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 	else
 		text_mode = DEFAULT_MSGBOX_TEXT_MODE;
 
+	CLuaInstance::scriptUiOpen();
 	int res = ShowMsg(name, text, (CMsgBox::msg_result_t) default_button, (CMsgBox::button_define_t) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout, text_mode);
+	CLuaInstance::scriptUiClose();
 
 	tmp = "cancel";
 	for (int i = 0; mbr[i].name; i++)

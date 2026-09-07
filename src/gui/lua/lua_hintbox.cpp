@@ -129,6 +129,7 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 	int timeout = -1;
 	if (lua_isnumber(L, -1))
 		timeout = (int) lua_tonumber(L, -1);
+	CLuaInstance::scriptUiOpen();
 	D->b->paint();
 
 	// copied from gui/widget/hintbox.cpp
@@ -172,5 +173,6 @@ int CLuaInstHintbox::HintboxExec(lua_State *L)
 		}
 	}
 	D->b->hide();
+	CLuaInstance::scriptUiClose();
 	return 0;
 }

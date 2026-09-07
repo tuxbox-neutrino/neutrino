@@ -518,8 +518,10 @@ int CLuaInstMenu::MenuExec(lua_State *L)
 {
 	CLuaMenu *D = MenuCheck(L, 1);
 	if (!D) return 0;
+	CLuaInstance::scriptUiOpen();
 	D->m->exec(NULL, "");
 	D->m->hide();
+	CLuaInstance::scriptUiClose();
 	return 0;
 }
 

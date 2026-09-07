@@ -2130,6 +2130,17 @@ bgplaythread_exit:
 	pthread_exit(NULL);
 }
 
+void CMoviePlayerGui::liveUrlHintToggle(bool script_ui_open, void *hint)
+{
+	CHint *box = (CHint *)hint;
+	if (!box)
+		return;
+	if (script_ui_open)
+		box->hide();
+	else
+		box->paint();
+}
+
 bool CMoviePlayerGui::sortStreamList(livestream_info_t info1, livestream_info_t info2)
 {
 	return (info1.res1 < info2.res1);
@@ -2145,6 +2156,10 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 
 	CHint* box = new CHint(hint_text.c_str(), true, NEUTRINO_ICON_LOADER);
 	box->paint();
+	/* the hint covers the data fetch only: while the script shows a
+	 * menu or message of its own, the hint and its loader animation
+	 * would otherwise keep painting over it */
+	CLuaInstance::setScriptUiListener(&CMoviePlayerGui::liveUrlHintToggle, box);
 
 	std::string result_code = "";
 	std::string result_string = "";
@@ -2158,6 +2173,7 @@ bool CMoviePlayerGui::luaGetUrl(const std::string &script, const std::string &fi
 	lua->runScript(lua_script.c_str(), &args, &result_code, &result_string, &lua_error);
 	delete lua;
 #endif
+	CLuaInstance::setScriptUiListener(NULL, NULL);
 	if ((result_code != "0") || result_string.empty()) {
 		if (error_string) {
 			if (!lua_error.empty())

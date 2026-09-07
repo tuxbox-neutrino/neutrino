@@ -32,6 +32,7 @@
 #include <gui/widget/msgbox.h>
 
 #include <gui/movieplayer.h>
+#include <pthread.h>
 #include <driver/neutrinofonts.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <driver/fontrenderer.h>
@@ -633,6 +634,35 @@ CLuaInstance::~CLuaInstance()
 	lua_setglobal(lua, #NAME);
 
 /* Run the given script. */
+static void (*script_ui_cb)(bool, void *) = NULL;
+static void *script_ui_cb_data = NULL;
+static pthread_t script_ui_thread;
+static int script_ui_depth = 0;
+
+void CLuaInstance::setScriptUiListener(void (*cb)(bool open, void *data), void *data)
+{
+	script_ui_cb = cb;
+	script_ui_cb_data = data;
+	script_ui_thread = pthread_self();
+	script_ui_depth = 0;
+}
+
+void CLuaInstance::scriptUiOpen()
+{
+	if (!script_ui_cb || !pthread_equal(pthread_self(), script_ui_thread))
+		return;
+	if (script_ui_depth++ == 0)
+		script_ui_cb(true, script_ui_cb_data);
+}
+
+void CLuaInstance::scriptUiClose()
+{
+	if (!script_ui_cb || !pthread_equal(pthread_self(), script_ui_thread))
+		return;
+	if (script_ui_depth > 0 && --script_ui_depth == 0)
+		script_ui_cb(false, script_ui_cb_data);
+}
+
 void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *argv, std::string *result_code, std::string *result_string, std::string *error_string)
 {
 	// luaL_dofile(lua, fileName);
