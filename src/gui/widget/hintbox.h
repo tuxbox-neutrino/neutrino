@@ -241,8 +241,14 @@ class CHintBox : public CComponentsWindow
 		* init or unload visualized timeout as progressbar under titlebar
 		* @param[in]	do_init
 		* 	@li	type bool, default = true
+		* @param[in]	start_ticks
+		* 	@li	type int, default = -1: the bar starts at the beginning.
+		* 	@li	>= 0: the bar resumes at this many 100 ms ticks, for a box
+		* 		that was taken down and painted again while its deadline
+		* 		kept running. Applied before the bar's timer starts, so the
+		* 		first tick already shows the resumed position.
 		*/
-		void initTimeOutBar(bool do_init = true);
+		void initTimeOutBar(bool do_init = true, int start_ticks = -1);
 
 		/**
 		* unload visualized timeout as progressbar

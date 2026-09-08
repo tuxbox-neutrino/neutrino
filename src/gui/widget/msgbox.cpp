@@ -34,6 +34,7 @@
 
 #include "msgbox.h"
 #include <system/debug.h>
+#include <driver/abstime.h>
 #include <system/settings.h>
 
 #define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX )
@@ -349,6 +350,7 @@ int CMsgBox::exec()
 			   paint, may block and may end the process (SHUTDOWN reaches
 			   ExitRun, which clears the progress bar cache and repaints the
 			   framebuffer before it exits). Stop it for the duration. */
+			uint64_t t_app = time_monotonic_us();
 			clearTimeOutBar();
 
 			int handled = CNeutrinoApp::getInstance()->handleMsg(msg, data);
@@ -372,12 +374,33 @@ int CMsgBox::exec()
 				hide();
 				paint(SaveBg());
 
-				/* The time the application spent is not the user's, so the
-				   deadline starts over. Without this the bar would restart full
-				   while the old deadline had long expired. */
-				timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
+				/* The deadline is the caller's, not the application's. The
+				   application is credited with the time it spent here, no more.
+				   Restarting the deadline instead kept a box from ever timing
+				   out in live TV: the infoviewer keeps a repeating 60 s LCD
+				   timer armed, the inactivity shutdown box runs 60 s as well,
+				   and a repeating timer is re-armed from the moment it fired --
+				   always a few milliseconds ahead of a deadline restarted after
+				   handleMsg. The tick won that race every round, the bar
+				   started over just before it ran out, and the machine never
+				   went to standby. */
+				timeoutEnd += time_monotonic_us() - t_app;
+
+				/* The bar comes back where it was, on the ticks' own scale of
+				   10 per second. Signed 64-bit on purpose: timeout * 1000000
+				   overflows int from 2148 s on, and the remaining time can be
+				   negative, since a message already queued is still delivered
+				   after the deadline has passed. */
 				if (timeout > 0)
-					initTimeOutBar();
+				{
+					int64_t remaining = (int64_t)timeoutEnd - (int64_t)time_monotonic_us();
+					int64_t ticks = ((int64_t)timeout * 1000000 - remaining) / 100000;
+					if (ticks < 0)
+						ticks = 0;
+					if (ticks > 10 * (int64_t)timeout)
+						ticks = 10 * (int64_t)timeout;
+					initTimeOutBar(true, (int)ticks);
+				}
 			}
 		}
 		/* A remote-control key. It belongs to this dialog: what the box knows it

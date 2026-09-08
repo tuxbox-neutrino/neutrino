@@ -206,7 +206,7 @@ CHintBox::~CHintBox()
 	clearTimeOutBar();
 }
 
-void CHintBox::initTimeOutBar(bool do_init)
+void CHintBox::initTimeOutBar(bool do_init, int start_ticks)
 {
 	if (!do_init)
 	{
@@ -233,7 +233,10 @@ void CHintBox::initTimeOutBar(bool do_init)
 				timeout_pb->setType(CProgressBar::PB_TIMESCALE);
 			}
 			timeout_pb->setDimensionsAll(ccw_body->getRealXPos(), ccw_body->getRealYPos(), ccw_body->getWidth(), TIMEOUT_BAR_HEIGHT);
-			timeout_pb->setValues(timeout/10, timeout);
+			/* The scale is the one the ticks use, 10 per second, so a resumed
+			   position is shown right from the first tick -- which fires the
+			   moment the timer starts, not after its first interval. */
+			timeout_pb->setValues(start_ticks < 0 ? timeout/10 : start_ticks, 10*timeout);
 			if (!timeout_pb_timer) {
 				timeout_pb_timer = new CComponentsTimer(100);
 				const string tn = cc_item_type.name + ":" + timeout_pb->getItemName() + ":";
