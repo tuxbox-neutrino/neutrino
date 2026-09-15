@@ -46,8 +46,18 @@ noinst_LIBRARIES = libhttpd.a
 
 libhttpd_a_SOURCES = \
 	ep/ep_channels.cpp \
+	ep/ep_config.cpp \
 	ep/ep_daemons.cpp \
+	ep/ep_epg.cpp \
+	ep/ep_netfs.cpp \
+	ep/ep_osd.cpp \
+	ep/ep_plugins.cpp \
+	ep/ep_recordings.cpp \
+	ep/ep_settings.cpp \
+	ep/ep_storage.cpp \
 	ep/ep_system.cpp \
+	ep/ep_timers.cpp \
+	ep/ep_tuner.cpp \
 	http.cpp \
 	json.cpp \
 	nhttpd_bridge.cpp \
