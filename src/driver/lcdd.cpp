@@ -146,9 +146,12 @@ void CLCD::count_down()
 
 void CLCD::wake_up()
 {
-	if (atoi(g_settings.lcd_setting_dim_time.c_str()) > 0)
+	/* Copied under the lock, because this runs on the display's own thread and
+	   the box's loop assigns to the same member from a screen. */
+	int dim_time = atoi(settingsText(g_settings.lcd_setting_dim_time).c_str());
+	if (dim_time > 0)
 	{
-		timeout_cnt = atoi(g_settings.lcd_setting_dim_time.c_str());
+		timeout_cnt = dim_time;
 		setlcdparameter();
 	}
 }
@@ -273,7 +276,7 @@ void CLCD::setlcdparameter(void)
 		return;
 
 	last_toggle_state_power = g_settings.lcd_setting[SNeutrinoSettings::LCD_POWER];
-	int dim_time = atoi(g_settings.lcd_setting_dim_time);
+	int dim_time = atoi(settingsText(g_settings.lcd_setting_dim_time));
 	int dim_brightness = g_settings.lcd_setting_dim_brightness;
 	bool timeouted = (dim_time > 0) && (timeout_cnt == 0);
 	int brightness, power = 0;

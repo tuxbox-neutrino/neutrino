@@ -335,7 +335,7 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget *parent, const std::strin
 		unsigned int cnr = 0;
 		t_channel_id channel_id = 0;
 		sscanf(&(actionKey[4]), "%u|%" SCNx64 "", &cnr, &channel_id);
-		g_settings.quadpip_channel_window[wn] = actionKey.substr(actionKey.find_first_of("#") + 1);
+		setSettingsText(g_settings.quadpip_channel_window[wn], actionKey.substr(actionKey.find_first_of("#") + 1));
 		g_settings.quadpip_channel_id_window[wn] = channel_id;
 
 		// leave bouquet/channel menu and show a refreshed menu with current channel(s)
@@ -351,7 +351,7 @@ int CQuadPiPSetupSelectChannelWidget::exec(CMenuTarget *parent, const std::strin
 	{
 		for (unsigned i = 0; i < pip_devs; i++)
 		{
-			g_settings.quadpip_channel_window[i] = "-";
+			setSettingsText(g_settings.quadpip_channel_window[i], "-");
 			g_settings.quadpip_channel_id_window[i] = 0;
 		}
 	}

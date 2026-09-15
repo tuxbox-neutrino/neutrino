@@ -43,6 +43,8 @@
 
 #include <hardware_caps.h>
 
+#include <OpenThreads/Mutex>
+
 #include <string>
 #include <list>
 
@@ -309,6 +311,83 @@ struct SNeutrinoGlcdTheme
 
 	int glcd_position_settings;
 };
+
+/* The text settings of the struct below, and the one lock they are written and
+   read under.
+
+   The box's own loop writes nearly all of them: every screen that changes one
+   runs on it, and so does the layer that carries a written setting in from a
+   request. It is far from the only reader. A request is answered on one of the
+   web server's threads and copies what it answers with, and the threads that
+   drive the front display copy the paths they read from. Assigning to a
+   std::string frees the buffer such a copy is reading, which is a fault in the
+   reader and not in the writer, and neither side can see the other coming.
+
+   One lock for all of them rather than one each. What it covers is a single
+   assignment or a single copy and never a file read, a mount or a screen, so a
+   reader waits for the length of a memcpy and the loop is never held.
+
+   A read on the loop takes nothing where the loop is the only writer, because
+   such a read races with nobody; holding every read in the GUI would put this
+   around code that draws. The city and the coordinates of the weather are read
+   through the lock on the loop as well, as a precaution: only the loop writes
+   them here, and the fetch the display threads run works on copies of its own.
+
+   Every read off the loop is to go through settingsText, which answers with a
+   copy: a reference or a c_str handed out from under the lock would outlive
+   it, and the next write frees what it points at. The strings of the GLCD
+   theme and the members of the containers named at the setters below are
+   still read bare. */
+class CSettingsTextGuard
+{
+	public:
+		CSettingsTextGuard() { mutex().lock(); }
+		~CSettingsTextGuard() { mutex().unlock(); }
+
+		/* Held inside the function rather than beside it, so this header
+		   carries no object of its own. */
+		static OpenThreads::Mutex &mutex()
+		{
+			static OpenThreads::Mutex guard;
+			return guard;
+		}
+
+	private:
+		CSettingsTextGuard(const CSettingsTextGuard &);
+		CSettingsTextGuard & operator=(const CSettingsTextGuard &);
+};
+
+/* Every writer of a text setting in the tree is to go through one of these
+   three. Not yet: the strings of the GLCD theme, which the GLCD thread writes
+   as well, and the members of the containers among the settings - the
+   std::list members, of which nhttpd's xmltv list request rewrites three and
+   every load of the bouquets, on the box's loop as well as on the channel
+   daemon's thread and the scan's, empties and refills xmltv_xml_auto, and the
+   usermenu entries, whose elements the loop replaces whole. */
+inline void setSettingsText(std::string &field, const std::string &value)
+{
+	CSettingsTextGuard lock;
+	field = value;
+}
+
+inline void appendSettingsText(std::string &field, const std::string &value)
+{
+	CSettingsTextGuard lock;
+	field += value;
+}
+
+inline void clearSettingsText(std::string &field)
+{
+	CSettingsTextGuard lock;
+	field.clear();
+}
+
+// For a reader that is not on the box's own loop.
+inline std::string settingsText(const std::string &field)
+{
+	CSettingsTextGuard lock;
+	return field;
+}
 
 struct SNeutrinoSettings
 {

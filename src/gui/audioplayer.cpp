@@ -1559,7 +1559,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 #endif
 		//store last dir
 		if (g_settings.network_nfs_audioplayerdir.size() > m_Path.size() && g_settings.network_nfs_audioplayerdir != m_Path.c_str())
-			g_settings.network_nfs_audioplayerdir = m_Path;
+			setSettingsText(g_settings.network_nfs_audioplayerdir, m_Path);
 
 		result = true;
 	}

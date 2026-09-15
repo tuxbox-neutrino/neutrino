@@ -76,7 +76,7 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileBrowser b;
 		b.Dir_Mode=true;
 		if (b.exec(g_settings.network_nfs_audioplayerdir.c_str()))
-			g_settings.network_nfs_audioplayerdir = b.getSelectedFile()->Name;
+			setSettingsText(g_settings.network_nfs_audioplayerdir, b.getSelectedFile()->Name);
 		return res;
 	}
 
@@ -85,7 +85,7 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileBrowser b;
 		b.Dir_Mode=true;
 		if (b.exec(g_settings.network_nfs_streamripperdir.c_str()))
-			g_settings.network_nfs_streamripperdir = b.getSelectedFile()->Name;
+			setSettingsText(g_settings.network_nfs_streamripperdir, b.getSelectedFile()->Name);
 		return res;
 	}
 

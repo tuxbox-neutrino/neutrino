@@ -147,9 +147,13 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 {
 	if (CRCInput::isNumeric(key))
 	{	
+		/* The string a screen edits here is often one the box is running on,
+		   and a request answered on another thread copies those. Every change
+		   that can move the buffer is published under the lock those reads
+		   take. A character written in place cannot move it and is left. */
 		std::string tmp_value = *valueString;
 		if (selected >= (int)valueString->length())
-			valueString->append(selected - valueString->length() + 1, ' ');
+			setSettingsText(*valueString, *valueString + std::string(selected - valueString->length() + 1, ' '));
 		valueString->at(selected) = validchars[CRCInput::getNumericValue(key)];
 		int current_value = atoi(*valueString);
 		int tmp = current_value;
@@ -160,7 +164,7 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 			else if (current_value >= upper_bound)
 				current_value = upper_bound - 1;
 			if (tmp != current_value)
-				*valueString = to_string(current_value).substr(0, size);
+				setSettingsText(*valueString, to_string(current_value).substr(0, size));
 		}
 		if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 			if (selected < (size - 1))
@@ -176,7 +180,7 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 			else
 				paintChar(selected);
 		}else{
-			*valueString = tmp_value;
+			setSettingsText(*valueString, tmp_value);
 		}
 	}
 }
@@ -219,7 +223,7 @@ void CStringInput::keyYellowPressed()
 {
 	if(lower_bound == -1 || upper_bound == -1){
 		selected=0;
-		valueString->assign(valueString->length(), ' ');
+		setSettingsText(*valueString, std::string(valueString->length(), ' '));
 		for(int i=0 ; i < size ; i++)
 			paintChar(i);
 	}
@@ -259,7 +263,7 @@ void CStringInput::keyUpPressed()
 		else if (current_value >= upper_bound)
 			current_value = upper_bound - 1;
 		if (tmp != current_value)
-			*valueString = to_string(current_value).substr(0, size);
+			setSettingsText(*valueString, to_string(current_value).substr(0, size));
 	}
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		if (tmp != current_value)
@@ -270,7 +274,7 @@ void CStringInput::keyUpPressed()
 		else
 			paintChar(selected);
 	}else{
-		*valueString = tmp_value;
+		setSettingsText(*valueString, tmp_value);
 	}
 }
 
@@ -300,7 +304,7 @@ void CStringInput::keyDownPressed()
 		else if (current_value >= upper_bound)
 			current_value = upper_bound - 1;
 		if (tmp != current_value)
-			*valueString = to_string(current_value).substr(0, size);
+			setSettingsText(*valueString, to_string(current_value).substr(0, size));
 	}
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		if (tmp != current_value)
@@ -311,7 +315,7 @@ void CStringInput::keyDownPressed()
 		else
 			paintChar(selected);
 	}else{
-		*valueString = tmp_value;
+		setSettingsText(*valueString, tmp_value);
 	}
 }
 
@@ -390,7 +394,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		parent->hide();
 
 	if (size > (int) valueString->length())
-		valueString->append(size - valueString->length(), ' ');
+		setSettingsText(*valueString, *valueString + std::string(size - valueString->length(), ' '));
 
 	if (pixBuf)
 		delete[] pixBuf;
@@ -489,13 +493,18 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg==CRCInput::RC_timeout))
 		{
 			std::string tmp_name = name == NONEXISTANT_LOCALE ? head : g_Locale->getText(name);
-			if ((trim (*valueString) != trim(oldval)) &&
+			// Copies: trim() cuts the string it is handed, and the question is
+			// what the two hold, not what trimming leaves behind in the member
+			// the input still edits.
+			std::string edited = *valueString;
+			std::string before = oldval;
+			if ((trim(edited) != trim(before)) &&
 			     (ShowMsg(tmp_name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbCancel) == CMsgBox::mbrCancel)) {
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				continue;
 			}
 
-			*valueString = oldval;
+			setSettingsText(*valueString, oldval);
 			loop=false;
 			res = menu_return::RETURN_EXIT_REPAINT;
 		}
@@ -530,7 +539,10 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	} else
 		hide();
 
-	*valueString = trim (*valueString);
+	/* trim shortens what it is handed and then answers with the rest, so it is
+	   given a copy: the member itself changes once, under the lock. */
+	std::string trimmed = *valueString;
+	setSettingsText(*valueString, trim(trimmed));
 
         if ( (observ) && (msg==CRCInput::RC_ok) )
         {
@@ -793,7 +805,7 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 		parent->hide();
 
 	if (size > (int) valueString->length())
-		valueString->append(size - valueString->length(), ' ');
+		setSettingsText(*valueString, *valueString + std::string(size - valueString->length(), ' '));
 
 	paint();
 
@@ -850,7 +862,10 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 
 	hide();
 
-	*valueString = trim (*valueString);
+	/* trim shortens what it is handed and then answers with the rest, so it is
+	   given a copy: the member itself changes once, under the lock. */
+	std::string trimmed = *valueString;
+	setSettingsText(*valueString, trim(trimmed));
 
 	if ( (observ) && (msg==CRCInput::RC_ok) )
 	{

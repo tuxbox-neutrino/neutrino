@@ -254,14 +254,14 @@ int CUserMenuSetup::showSetup()
 	int items_end = ums->getItemsCount();
 
 	const char *delim = "";
-	g_settings.usermenu[button]->items = "";
+	setSettingsText(g_settings.usermenu[button]->items, "");
 	std::string none = to_string(SNeutrinoSettings::ITEM_NONE);
 	for (int count = item_offset; count < items_end; count++)
 	{
 		std::string lk = keys[static_cast<CMenuOptionStringChooser *>(ums->getItem(count))->getOptionValue()];
 		if (lk == none)
 			continue;
-		g_settings.usermenu[button]->items += delim + lk;
+		appendSettingsText(g_settings.usermenu[button]->items, delim + lk);
 		delim = ",";
 	}
 
@@ -285,7 +285,7 @@ void CUserMenuSetup::checkButtonName()
 		if (!g_settings.usermenu[button]->title.empty())
 		{
 			//DisplayInfoMessage(g_Locale->getText(LOCALE_USERMENU_MSG_WARNING_NO_ITEMS));
-			g_settings.usermenu[button]->title = "";
+			setSettingsText(g_settings.usermenu[button]->title, "");
 		}
 		// exit function
 		return;
@@ -296,7 +296,7 @@ void CUserMenuSetup::checkButtonName()
 	if (used_items == 1)
 	{
 		bool dummy;
-		g_settings.usermenu[button]->title = CUserMenu::getUserMenuButtonName(button, dummy);
+		setSettingsText(g_settings.usermenu[button]->title, CUserMenu::getUserMenuButtonName(button, dummy));
 	}
 #endif
 
@@ -306,7 +306,7 @@ void CUserMenuSetup::checkButtonName()
 		msg += g_Locale->getText(usermenu[button].def_name);
 		DisplayInfoMessage(msg.c_str());
 
-		g_settings.usermenu[button]->title = g_Locale->getText(usermenu[button].def_name);
+		setSettingsText(g_settings.usermenu[button]->title, g_Locale->getText(usermenu[button].def_name));
 	}
 }
 

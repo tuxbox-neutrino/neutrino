@@ -75,7 +75,7 @@ int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileBrowser b;
 		b.Dir_Mode=true;
 		if (b.exec(g_settings.network_nfs_picturedir.c_str()))
-			g_settings.network_nfs_picturedir = b.getSelectedFile()->Name;
+			setSettingsText(g_settings.network_nfs_picturedir, b.getSelectedFile()->Name);
 		return res;
 	}
 

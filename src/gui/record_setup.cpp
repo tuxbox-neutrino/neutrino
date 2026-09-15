@@ -123,13 +123,13 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				if(newdir != g_settings.network_nfs_recordingdir)
 				{
 					printf("New timeshift != rec dir\n");
-					g_settings.timeshiftdir = b.getSelectedFile()->Name;
+					setSettingsText(g_settings.timeshiftdir, b.getSelectedFile()->Name);
 					timeshiftDir = g_settings.timeshiftdir;
 				}
 				else
 				{
 					timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
-					g_settings.timeshiftdir = newdir;
+					setSettingsText(g_settings.timeshiftdir, newdir);
 					safe_mkdir(timeshiftDir.c_str());
 					printf("New timeshift == rec dir\n");
 				}

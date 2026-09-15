@@ -502,7 +502,7 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 			if ((time_monotonic() - last_ask) < 10) {
 				acount++;
 				if (acount > 4)
-					g_settings.ci_pincode[curslot].clear();
+					clearSettingsText(g_settings.ci_pincode[curslot]);
 			} else {
 				last_ask = time_monotonic();
 				acount = 0;
@@ -511,7 +511,7 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 			CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str(), &ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
 			Inquiry->exec(NULL, "");
 			delete Inquiry;
-			g_settings.ci_pincode[curslot] = ENQAnswer;
+			setSettingsText(g_settings.ci_pincode[curslot], ENQAnswer);
 		}
 
 		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer.c_str());
@@ -653,7 +653,7 @@ bool CCAMMenuHandler::changeNotify(const neutrino_locale_t OptionName, void * Da
 		if (!enabled) {
 			for (unsigned int i = 0; i < ca->GetNumberCISlots(); i++) {
 				printf("CCAMMenuHandler::changeNotify: clear saved pincode[%d]\n", i);
-				g_settings.ci_pincode[i].clear();
+				clearSettingsText(g_settings.ci_pincode[i]);
 			}
 		}
 	}

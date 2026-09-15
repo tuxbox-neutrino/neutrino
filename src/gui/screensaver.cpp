@@ -292,7 +292,9 @@ bool CScreenSaver::ReadDir()
 	if (show_audiocover)
 		d = COVERDIR_TMP;
 	else
-		d = g_settings.screensaver_dir;
+		/* Copied under the lock: this runs on the screen saver's own thread and
+		   the box's loop assigns to the same member from a screen. */
+		d = settingsText(g_settings.screensaver_dir);
 	if (d.length() > 1)
 	{
 		// remove trailing slash

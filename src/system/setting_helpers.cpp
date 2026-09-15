@@ -501,13 +501,13 @@ int CMoviePluginChangeExec::exec(CMenuTarget *parent, const std::string &actionK
 
 	if (actionKey == "---")
 	{
-		g_settings.movieplayer_plugin = actionKey;
+		setSettingsText(g_settings.movieplayer_plugin, actionKey);
 	}
 	else
 	{
 		int sel = atoi(actionKey.c_str());
 		if (sel >= 0)
-			g_settings.movieplayer_plugin = g_Plugins->getName(sel);
+			setSettingsText(g_settings.movieplayer_plugin, g_Plugins->getName(sel));
 	}
 
 	return menu_return::RETURN_EXIT;

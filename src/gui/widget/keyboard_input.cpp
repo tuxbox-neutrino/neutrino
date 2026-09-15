@@ -342,7 +342,7 @@ void CKeyboardInput::switchLayout()
 	layout.nextLayout();
 	/* A switch by hand pins the layout: every later dialog starts
 	 * here instead of at the OSD language, across restarts too. */
-	g_settings.keyboard_layout = layout.getLayoutLocale();
+	setSettingsText(g_settings.keyboard_layout, layout.getLayoutLocale());
 	paintFooter();
 	paintKeyboard();
 }
@@ -655,7 +655,10 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 	} else
 		hide();
 
-	*valueString = inputString->getValue();
+	/* The string a screen edits here is often one the box is running on, and a
+	   request answered on another thread copies those, so it is published under
+	   the lock those reads take. */
+	setSettingsText(*valueString, inputString->getValue());
 
 	delete inputString;
 	inputString = NULL;

@@ -47,6 +47,10 @@ class CWeatherSetup : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser *weather_api;
 		std::string weather_api_key_short;
 		int weather_api_version;
+		/* The city as the location item shows it. The item keeps the address of
+		   this string, and the accessor answers with a temporary, so the page
+		   holds its own copy and refreshes it whenever it changes the location. */
+		std::string city_shown;
 
 		int showWeatherSetup();
 		int selectLocation();

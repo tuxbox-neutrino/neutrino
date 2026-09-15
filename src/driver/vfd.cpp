@@ -154,8 +154,11 @@ void CVFD::count_down() {
 void CVFD::wake_up() {
 	if(fd < 0) return;
 
-	if (atoi(g_settings.lcd_setting_dim_time.c_str()) > 0) {
-		timeout_cnt = atoi(g_settings.lcd_setting_dim_time.c_str());
+	/* Copied under the lock, because this runs on the display's own thread and
+	   the box's loop assigns to the same member from a screen. */
+	int dim_time = atoi(settingsText(g_settings.lcd_setting_dim_time).c_str());
+	if (dim_time > 0) {
+		timeout_cnt = dim_time;
 		g_settings.lcd_setting_dim_brightness > -1 ?
 			setBrightness(g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS]) : setPower(1);
 	}

@@ -523,10 +523,7 @@ class CMenuOptionStringChooser : public CMenuItem
 		void sortOptions();
 		int exec(CMenuTarget* parent);
 		int isMenueOptionChooser(void) const{return 1;}
-		void setOptionValue(std::string &val) {
-			if (!optionValuePtr) optionValuePtr = &optionValue;
-			*optionValuePtr = val;
-		}
+		void setOptionValue(std::string &val);
 		std::string getOptionValue() { return *optionValuePtr; }
 		sigc::signal<void> OnAfterChangeOption;
 		void rememberLastItem(bool remember = true) {hold_last_item = remember;}

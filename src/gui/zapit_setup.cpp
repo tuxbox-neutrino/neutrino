@@ -149,12 +149,12 @@ int CSelectChannelWidget::exec(CMenuTarget *parent, const std::string &actionKey
 
 		if (strncmp(actionKey.c_str(), "ZCT:", 4) == 0) // tv
 		{
-			g_settings.StartChannelTV = actionKey.substr(actionKey.find_first_of("#") + 1);
+			setSettingsText(g_settings.StartChannelTV, actionKey.substr(actionKey.find_first_of("#") + 1));
 			g_settings.startchanneltv_id = channel_id;
 		}
 		else if (strncmp(actionKey.c_str(), "ZCR:", 4) == 0) // radio
 		{
-			g_settings.StartChannelRadio = actionKey.substr(actionKey.find_first_of("#") + 1);
+			setSettingsText(g_settings.StartChannelRadio, actionKey.substr(actionKey.find_first_of("#") + 1));
 			g_settings.startchannelradio_id = channel_id;
 		}
 

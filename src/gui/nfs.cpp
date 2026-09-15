@@ -187,16 +187,16 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 			return returnval;
 		int i = mountMenuWPtr->getSelected() - menu_offset;
 		if (i > -1 && i < NETWORK_NFS_NR_OF_ENTRIES) {
-			g_settings.network_nfs[i].ip = "";
-			g_settings.network_nfs[i].dir = "";
-			g_settings.network_nfs[i].local_dir = "";
+			setSettingsText(g_settings.network_nfs[i].ip, "");
+			setSettingsText(g_settings.network_nfs[i].dir, "");
+			setSettingsText(g_settings.network_nfs[i].local_dir, "");
 			g_settings.network_nfs[i].automount = 0;
 			g_settings.network_nfs[i].type = 0;
-			g_settings.network_nfs[i].username = "";
-			g_settings.network_nfs[i].password = "";
-			g_settings.network_nfs[i].mount_options1 = "ro,soft,udp";
-			g_settings.network_nfs[i].mount_options2 = "nolock,rsize=8192,wsize=8192";
-			g_settings.network_nfs[i].mac = "11:22:33:44:55:66";
+			setSettingsText(g_settings.network_nfs[i].username, "");
+			setSettingsText(g_settings.network_nfs[i].password, "");
+			setSettingsText(g_settings.network_nfs[i].mount_options1, "ro,soft,udp");
+			setSettingsText(g_settings.network_nfs[i].mount_options2, "nolock,rsize=8192,wsize=8192");
+			setSettingsText(g_settings.network_nfs[i].mac, "11:22:33:44:55:66");
 			updateMountEntry(i);
 		}
 	}
@@ -212,7 +212,7 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 				while (fgets(line, sizeof(line), arptable)) {
 					if (sscanf(line, "%s %*s %*s %s %*[^\n]", ip, mac) == 2) {
 						if (!strcmp(ip, h.c_str())) {
-							g_settings.network_nfs[nr].mac = std::string(mac);
+							setSettingsText(g_settings.network_nfs[nr].mac, std::string(mac));
 							break;
 						}
 					}

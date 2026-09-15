@@ -63,7 +63,7 @@ void SimpleClockUpdateFonts(int mode)
 		fontsize_time_standby = fontsize_time_standby_new;
 		if (!font_time_standby.LoadFT2(font, "UTF-8", fontsize_time_standby))
 		{
-			font_time_standby.LoadFT2(g_settings.font_file, "UTF-8", fontsize_time_standby);
+			font_time_standby.LoadFT2(settingsText(g_settings.font_file), "UTF-8", fontsize_time_standby);
 		}
 	}
 }

@@ -602,7 +602,7 @@ void CComponentsKeyboard::toggleLayout()
 	ck_layout.nextLayout();
 	/* A switch by hand pins the layout: every later dialog starts
 	 * here instead of at the OSD language, across restarts too. */
-	g_settings.keyboard_layout = ck_layout.getLayoutLocale();
+	setSettingsText(g_settings.keyboard_layout, ck_layout.getLayoutLocale());
 	ck_widest_caption.clear();
 	refreshLayout();
 

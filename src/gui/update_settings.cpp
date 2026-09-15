@@ -119,7 +119,7 @@ int CUpdateSettings::exec(CMenuTarget *parent, const std::string &actionKey)
 		fileFilter.addFilter("urls");
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec("/var/etc") == true)
-			g_settings.softupdate_url_file = fileBrowser.getSelectedFile()->Name;
+			setSettingsText(g_settings.softupdate_url_file, fileBrowser.getSelectedFile()->Name);
 
 		return res;
 	}

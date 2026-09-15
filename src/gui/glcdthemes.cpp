@@ -96,7 +96,7 @@ int CGLCDThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			} 
 			else
 				readFile(((std::string)THEMESDIR + "/oled/" + themeFile + FILE_SUFFIX).c_str());
-			g_settings.glcd_theme_name = themeFile;
+			setSettingsText(g_settings.glcd_theme_name, themeFile);
 		}
 		OnAfterSelectTheme();
 		CFrameBuffer::getInstance()->clearIconCache();
@@ -230,7 +230,7 @@ void CGLCDThemes::rememberOldTheme(bool remember)
 		oldTheme_name = g_settings.glcd_theme_name;
 	} else {
 		t = oldTheme;
-		g_settings.glcd_theme_name = oldTheme_name;
+		setSettingsText(g_settings.glcd_theme_name, oldTheme_name);
 
 		changeNotify(NONEXISTANT_LOCALE, NULL);
 		hasThemeChanged = false;
@@ -263,9 +263,9 @@ void CGLCDThemes::saveFile(const char *themename)
 
 bool CGLCDThemes::applyDefaultTheme()
 {
-	g_settings.glcd_theme_name = DEFAULT_OLED_THEME;
+	setSettingsText(g_settings.glcd_theme_name, DEFAULT_OLED_THEME);
 	if (g_settings.glcd_theme_name.empty())
-		g_settings.glcd_theme_name = "Default";
+		setSettingsText(g_settings.glcd_theme_name, "Default");
 	std::string default_theme = THEMESDIR "/oled/" + g_settings.glcd_theme_name + ".otheme";
 	if(themefile.loadConfig(default_theme)){
 		getTheme(themefile);

@@ -313,17 +313,22 @@ printf("url is %s\n", currentUrl.c_str());
 				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerList);
 			}
 
-			if (!g_settings.softupdate_proxyserver.empty()) {//use proxyserver
+			/* Copied under the lock: the online update check reaches this on a
+			   thread of its own, and the box's loop assigns to the same members
+			   from a screen. */
+			const std::string proxy = settingsText(g_settings.softupdate_proxyserver);
+			if (!proxy.empty()) {//use proxyserver
 #ifdef DEBUG
-printf("use proxyserver : %s\n", g_settings.softupdate_proxyserver.c_str());
+printf("use proxyserver : %s\n", proxy.c_str());
 #endif
-				curl_easy_setopt(curl, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+				curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
 
-				if (!g_settings.softupdate_proxyusername.empty()) {//use auth
+				const std::string proxyuser = settingsText(g_settings.softupdate_proxyusername);
+				if (!proxyuser.empty()) {//use auth
 					//printf("use proxyauth\n");
-					std::string tmp = g_settings.softupdate_proxyusername;
+					std::string tmp = proxyuser;
 					tmp += ":";
-					tmp += g_settings.softupdate_proxypassword;
+					tmp += settingsText(g_settings.softupdate_proxypassword);
 					curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, tmp.c_str());
 				}
 			}
@@ -420,17 +425,22 @@ printf("url is %s\n", currentUrl.c_str());
 				curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerList);
 			}
 
-			if (!g_settings.softupdate_proxyserver.empty()) {//use proxyserver
+			/* Copied under the lock: nhttpd reaches this on one of the web
+			   server's threads and the box's loop assigns to the same members
+			   from a screen. */
+			const std::string proxy = settingsText(g_settings.softupdate_proxyserver);
+			if (!proxy.empty()) {//use proxyserver
 #ifdef DEBUG
-printf("use proxyserver : %s\n", g_settings.softupdate_proxyserver.c_str());
+printf("use proxyserver : %s\n", proxy.c_str());
 #endif
-				curl_easy_setopt(curl, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+				curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str());
 
-				if (!g_settings.softupdate_proxyusername.empty()) {//use auth
+				const std::string proxyuser = settingsText(g_settings.softupdate_proxyusername);
+				if (!proxyuser.empty()) {//use auth
 					//printf("use proxyauth\n");
-					std::string tmp = g_settings.softupdate_proxyusername;
+					std::string tmp = proxyuser;
 					tmp += ":";
-					tmp += g_settings.softupdate_proxypassword;
+					tmp += settingsText(g_settings.softupdate_proxypassword);
 					curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, tmp.c_str());
 				}
 			}

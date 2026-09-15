@@ -2401,6 +2401,16 @@ void CMenuOptionStringChooser::sortOptions()
 	sort(options.begin(), options.end());
 }
 
+/* The value this chooser points at is usually a text setting, which a request
+   answered on another thread copies, so every write of it here stands under the
+   lock those reads take. Out of line because the header this belongs to does not
+   carry the settings struct. */
+void CMenuOptionStringChooser::setOptionValue(std::string &val)
+{
+	if (!optionValuePtr) optionValuePtr = &optionValue;
+	setSettingsText(*optionValuePtr, val);
+}
+
 int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 {
 	bool wantsRepaint = false;
@@ -2428,7 +2438,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 		menu->exec(NULL, "");
 		ret = menu_return::RETURN_REPAINT;
 		if(select >= 0 && optionValuePtr)
-			*optionValuePtr = options[select];
+			setSettingsText(*optionValuePtr, options[select]);
 		delete menu; menu = NULL;
 		delete selector; selector = NULL;
 	} else {
@@ -2437,11 +2447,11 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 			if (optionValuePtr && (options[count] == *optionValuePtr)) {
 				if(msg == CRCInput::RC_left) {
 					if(count > 0)
-						*optionValuePtr = options[(count - 1) % options.size()];
+						setSettingsText(*optionValuePtr, options[(count - 1) % options.size()]);
 					else
-						*optionValuePtr = options[options.size() - 1];
+						setSettingsText(*optionValuePtr, options[options.size() - 1]);
 				} else
-					*optionValuePtr = options[(count + 1) % options.size()];
+					setSettingsText(*optionValuePtr, options[(count + 1) % options.size()]);
 				//wantsRepaint = true;
 				break;
 			}

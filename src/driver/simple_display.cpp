@@ -140,9 +140,12 @@ void CLCD::wake_up()
 		|| g_info.hw_caps->display_type == HW_DISPLAY_LED_ONLY
 	)
 	{
-		if (atoi(g_settings.lcd_setting_dim_time.c_str()) > 0)
+		/* Copied under the lock, because this runs on the display's own thread
+		   and the box's loop assigns to the same member from a screen. */
+		int dim_time = atoi(settingsText(g_settings.lcd_setting_dim_time).c_str());
+		if (dim_time > 0)
 		{
-			timeout_cnt = atoi(g_settings.lcd_setting_dim_time.c_str());
+			timeout_cnt = dim_time;
 			if (g_settings.lcd_setting_dim_brightness > -1)
 				setBrightness(g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS]);
 			else
@@ -655,7 +658,7 @@ void CLCD::ShowDiskLevel()
 {
 	int percent = 0;
 	uint64_t t, u;
-	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
+	if (get_fs_usage(settingsText(g_settings.network_nfs_recordingdir).c_str(), t, u))
 	{
 		percent = (int)((u * 100ULL) / t);
 		printf("CLCD::%s %d\n", __func__, percent);

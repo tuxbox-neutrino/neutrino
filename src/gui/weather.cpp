@@ -275,8 +275,8 @@ bool CWeather::FindCoords(std::string postalcode, std::string country)
 
 	float lat = DataValues["lat"].asFloat();
 	float lon = DataValues["lon"].asFloat();
-	g_settings.weather_city = DataValues["name"].asString();
-	g_settings.weather_location = to_string(lat) + "," + to_string(lon);
+	setSettingsText(g_settings.weather_city, DataValues["name"].asString());
+	setSettingsText(g_settings.weather_location, to_string(lat) + "," + to_string(lon));
 	return true;
 }
 

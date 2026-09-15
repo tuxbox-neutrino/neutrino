@@ -174,7 +174,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		if (access(g_settings.font_file.c_str(), F_OK)) {
 			if (!access(FONTDIR"/neutrino.ttf", F_OK)) {
 				fontDescr.filename = FONTDIR"/neutrino.ttf";
-				g_settings.font_file = fontDescr.filename;
+				setSettingsText(g_settings.font_file, fontDescr.filename);
 			}
 			else {
 				fprintf( stderr,"[CNeutrinoFonts] [%s - %d] font file [%s] not found\n neutrino exit\n", __func__, __LINE__, FONTDIR"/neutrino.ttf");

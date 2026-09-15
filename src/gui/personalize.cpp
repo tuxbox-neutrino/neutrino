@@ -385,36 +385,36 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 
 	int res = pMenu->exec(NULL, "");
 	if (show_pluginmenu) {
-		g_settings.plugins_disabled = "";
-		g_settings.plugins_game = "";
-		g_settings.plugins_tool = "";
-		g_settings.plugins_script = "";
-		g_settings.plugins_lua = "";
+		setSettingsText(g_settings.plugins_disabled, "");
+		setSettingsText(g_settings.plugins_game, "");
+		setSettingsText(g_settings.plugins_tool, "");
+		setSettingsText(g_settings.plugins_script, "");
+		setSettingsText(g_settings.plugins_lua, "");
 		for (int i = 0; i < pcount; i++) {
 			if (pltype[i] & CPlugins::P_TYPE_DISABLED) {
 				if (!g_settings.plugins_disabled.empty())
-					g_settings.plugins_disabled += ",";
-				g_settings.plugins_disabled +=  g_Plugins->getFileName(i);
+					appendSettingsText(g_settings.plugins_disabled, ",");
+				appendSettingsText(g_settings.plugins_disabled, g_Plugins->getFileName(i));
 				g_Plugins->setType(i, CPlugins::P_TYPE_DISABLED);
 			} else if (pltype[i] & CPlugins::P_TYPE_GAME) {
 				if (!g_settings.plugins_game.empty())
-					g_settings.plugins_game += ",";
-				g_settings.plugins_game +=  g_Plugins->getFileName(i);
+					appendSettingsText(g_settings.plugins_game, ",");
+				appendSettingsText(g_settings.plugins_game, g_Plugins->getFileName(i));
 				g_Plugins->setType(i, CPlugins::P_TYPE_GAME);
 			} else if (pltype[i] & CPlugins::P_TYPE_TOOL) {
 				if (!g_settings.plugins_tool.empty())
-					g_settings.plugins_tool += ",";
-				g_settings.plugins_tool +=  g_Plugins->getFileName(i);
+					appendSettingsText(g_settings.plugins_tool, ",");
+				appendSettingsText(g_settings.plugins_tool, g_Plugins->getFileName(i));
 				g_Plugins->setType(i, CPlugins::P_TYPE_TOOL);
 			} else if (pltype[i] & CPlugins::P_TYPE_SCRIPT) {
 				if (!g_settings.plugins_script.empty())
-					g_settings.plugins_script += ",";
-				g_settings.plugins_script +=  g_Plugins->getFileName(i);
+					appendSettingsText(g_settings.plugins_script, ",");
+				appendSettingsText(g_settings.plugins_script, g_Plugins->getFileName(i));
 				g_Plugins->setType(i, CPlugins::P_TYPE_SCRIPT);
 			} else if (pltype[i] & CPlugins::P_TYPE_LUA) {
 				if (!g_settings.plugins_lua.empty())
-					g_settings.plugins_lua += ",";
-				g_settings.plugins_lua +=  g_Plugins->getFileName(i);
+					appendSettingsText(g_settings.plugins_lua, ",");
+				appendSettingsText(g_settings.plugins_lua, g_Plugins->getFileName(i));
 				g_Plugins->setType(i, CPlugins::P_TYPE_LUA);
 			}
 		}

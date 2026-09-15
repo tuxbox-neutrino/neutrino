@@ -123,7 +123,7 @@ int CKeybindSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		{
 			fileBrowser.Dir_Mode = true;
 			if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
-				g_settings.backup_dir = fileBrowser.getSelectedFile()->Name;
+				setSettingsText(g_settings.backup_dir, fileBrowser.getSelectedFile()->Name);
 			else
 				return res;
 		}

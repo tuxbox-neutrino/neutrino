@@ -207,7 +207,7 @@ int GLCD_Menu::exec(CMenuTarget *parent, const std::string &actionKey)
 		g_settings.glcd_brightness = GLCD_DEFAULT_BRIGHTNESS;
 		g_settings.glcd_brightness_standby = GLCD_DEFAULT_BRIGHTNESS_STANDBY;
 		g_settings.glcd_brightness_dim = GLCD_DEFAULT_BRIGHTNESS_DIM;
-		g_settings.glcd_brightness_dim_time = GLCD_DEFAULT_BRIGHTNESS_DIM_TIME;
+		setSettingsText(g_settings.glcd_brightness_dim_time, GLCD_DEFAULT_BRIGHTNESS_DIM_TIME);
 		cglcd->UpdateBrightness();
 		return res;
 	}

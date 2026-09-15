@@ -452,7 +452,7 @@ void CHDDMenuHandler::setRecordPath(std::string &dev)
 	in_menu = false;
 	int res = ShowMsg(LOCALE_RECORDINGMENU_DEFDIR, LOCALE_HDD_SET_RECDIR, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
 	if(res == CMsgBox::mbrYes) {
-		g_settings.network_nfs_recordingdir = newpath;
+		setSettingsText(g_settings.network_nfs_recordingdir, newpath);
 		CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
 		if(g_settings.timeshiftdir.empty())
 		{

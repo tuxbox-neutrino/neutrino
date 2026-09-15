@@ -676,7 +676,7 @@ void cGLCD::updateFonts()
 		fontsize_channel = fontsize_channel_new;
 		if (!font_channel.LoadFT2(t.glcd_font, "UTF-8", fontsize_channel))
 		{
-			t.glcd_font = g_settings.font_file;
+			t.glcd_font = settingsText(g_settings.font_file);
 			font_channel.LoadFT2(t.glcd_font, "UTF-8", fontsize_channel);
 		}
 	}
@@ -685,7 +685,7 @@ void cGLCD::updateFonts()
 		fontsize_epg = fontsize_epg_new;
 		if (!font_epg.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg))
 		{
-			t.glcd_font = g_settings.font_file;
+			t.glcd_font = settingsText(g_settings.font_file);
 			font_epg.LoadFT2(t.glcd_font, "UTF-8", fontsize_epg);
 		}
 	}
@@ -694,7 +694,7 @@ void cGLCD::updateFonts()
 		fontsize_time = fontsize_time_new;
 		if (!font_time.LoadFT2(t.glcd_font, "UTF-8", fontsize_time))
 		{
-			t.glcd_font = g_settings.font_file;
+			t.glcd_font = settingsText(g_settings.font_file);
 			font_time.LoadFT2(t.glcd_font, "UTF-8", fontsize_time);
 		}
 	}
@@ -704,7 +704,7 @@ void cGLCD::updateFonts()
 		fontsize_duration = fontsize_duration_new;
 		if (!font_duration.LoadFT2(t.glcd_font, "UTF-8", fontsize_duration))
 		{
-			t.glcd_font = g_settings.font_file;
+			t.glcd_font = settingsText(g_settings.font_file);
 			font_duration.LoadFT2(t.glcd_font, "UTF-8", fontsize_duration);
 		}
 	}
@@ -714,7 +714,7 @@ void cGLCD::updateFonts()
 		fontsize_start = fontsize_start_new;
 		if (!font_start.LoadFT2(t.glcd_font, "UTF-8", fontsize_start))
 		{
-			t.glcd_font = g_settings.font_file;
+			t.glcd_font = settingsText(g_settings.font_file);
 			font_start.LoadFT2(t.glcd_font, "UTF-8", fontsize_start);
 		}
 	}
@@ -724,7 +724,7 @@ void cGLCD::updateFonts()
 		fontsize_end = fontsize_end_new;
 		if (!font_end.LoadFT2(t.glcd_font, "UTF-8", fontsize_end))
 		{
-			t.glcd_font = g_settings.font_file;
+			t.glcd_font = settingsText(g_settings.font_file);
 			font_end.LoadFT2(t.glcd_font, "UTF-8", fontsize_end);
 		}
 	}
@@ -734,7 +734,7 @@ void cGLCD::updateFonts()
 		fontsize_smalltext = fontsize_smalltext_new;
 		if (!font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext))
 		{
-			t.glcd_font = g_settings.font_file;
+			t.glcd_font = settingsText(g_settings.font_file);
 			font_smalltext.LoadFT2(t.glcd_font, "UTF-8", fontsize_smalltext);
 		}
 	}
@@ -831,7 +831,9 @@ void cGLCD::CountDown()
 
 void cGLCD::WakeUp()
 {
-	int tmp = atoi(g_settings.glcd_brightness_dim_time.c_str());
+	/* Copied under the lock, because this runs on the display's own thread and
+	   the box's loop assigns to the same member from a screen. */
+	int tmp = atoi(settingsText(g_settings.glcd_brightness_dim_time).c_str());
 	if (tmp > 0)
 	{
 		timeout_cnt = (unsigned int)tmp;
@@ -1921,7 +1923,7 @@ bool cGLCD::dumpBuffer(fb_pixel_t *s, int format, const char *filename)
 
 void cGLCD::UpdateBrightness()
 {
-	int dim_time = atoi(g_settings.glcd_brightness_dim_time.c_str());
+	int dim_time = atoi(settingsText(g_settings.glcd_brightness_dim_time).c_str());
 	int dim_brightness = g_settings.glcd_brightness_dim;
 	bool timeouted = (dim_time > 0) && (timeout_cnt == 0);
 

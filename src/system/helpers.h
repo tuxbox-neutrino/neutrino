@@ -53,6 +53,42 @@ inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
 //inline int mkdirhier(std::string path, mode_t mode = 0755) { return mkdirhier(path.c_str(), mode); }
 off_t file_size(const char *filename);
 bool file_exists(const char *filename);
+
+/* A file written over is half written for as long as the writing lasts, and a
+   write that stops partway leaves it that way for whoever reads it next. This
+   writes beside the file instead and puts what it wrote in the file's place in
+   one step, so a reader sees either all of the new content or all of the old.
+   file() is what the caller writes into and commit() is the only way anything
+   replaces anything; every other way out leaves the file that was there and
+   takes the side file away again. */
+class CAtomicFileWriter
+{
+	public:
+		explicit CAtomicFileWriter(const std::string &path, mode_t file_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		~CAtomicFileWriter();
+
+		/* The name the bytes go to before they take the file's place. Reachable
+		   so that a caller who has to know whether one write is already running
+		   can ask rather than spell the name a second time, and a second
+		   spelling is one that can drift from the one actually opened. Only
+		   the constructor asks here. */
+		static std::string sideNameFor(const std::string &path);
+
+		// Null when the side file could not be opened at all.
+		FILE *file() const { return fh; }
+
+		bool commit() __attribute__((warn_unused_result));
+
+	private:
+		CAtomicFileWriter(const CAtomicFileWriter &);
+		CAtomicFileWriter &operator=(const CAtomicFileWriter &);
+
+		std::string target;
+		std::string sidecar;
+		mode_t      mode;
+		FILE       *fh;
+};
+
 void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char *dir, bool allow_tmp = false);
 bool get_fs_usage(const char *dir, uint64_t &btotal, uint64_t &bused, long *bsize = NULL);

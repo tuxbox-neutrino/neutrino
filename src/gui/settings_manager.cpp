@@ -76,7 +76,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
 		{
-			g_settings.backup_dir = fileBrowser.getCurrentDir();
+			setSettingsText(g_settings.backup_dir, fileBrowser.getCurrentDir());
 			std::string new_config = fileBrowser.getSelectedFile()->Name.c_str();
 			CNeutrinoApp::getInstance()->loadSetup(new_config.c_str());
 			CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier;
@@ -100,7 +100,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		{
 			fileBrowser.Dir_Mode = true;
 			if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
-				g_settings.backup_dir = fileBrowser.getSelectedFile()->Name;
+				setSettingsText(g_settings.backup_dir, fileBrowser.getSelectedFile()->Name);
 			else
 				return res;
 		}
@@ -129,7 +129,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		{
 			fileBrowser.Dir_Mode = true;
 			if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
-				g_settings.backup_dir = fileBrowser.getSelectedFile()->Name;
+				setSettingsText(g_settings.backup_dir, fileBrowser.getSelectedFile()->Name);
 			else
 				return res;
 		}
@@ -161,7 +161,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec(g_settings.backup_dir.c_str()) == true)
 		{
-			g_settings.backup_dir = fileBrowser.getCurrentDir();
+			setSettingsText(g_settings.backup_dir, fileBrowser.getCurrentDir());
 			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
 			if(result == CMsgBox::mbrYes)
 			{

@@ -135,9 +135,9 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 			{
 				f->setName(fileBrowser.getSelectedFile()->Name);
 				if (webradio)
-					g_settings.last_webradio_dir = dirname;
+					setSettingsText(g_settings.last_webradio_dir, dirname);
 				else
-					g_settings.last_webtv_dir = dirname;
+					setSettingsText(g_settings.last_webtv_dir, dirname);
 				changed = true;
 			}
 		}
@@ -157,9 +157,9 @@ int CWebChannelsSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 			std::string s = fileBrowser.getSelectedFile()->Name;
 			m->addItem(new CMenuForwarder(s, true, NULL, this, "c"));
 			if (webradio)
-				g_settings.last_webradio_dir = s.substr(0, s.rfind('/')).c_str();
+				setSettingsText(g_settings.last_webradio_dir, s.substr(0, s.rfind('/')).c_str());
 			else
-				g_settings.last_webtv_dir = s.substr(0, s.rfind('/')).c_str();
+				setSettingsText(g_settings.last_webtv_dir, s.substr(0, s.rfind('/')).c_str());
 			changed = true;
 		}
 		return res;

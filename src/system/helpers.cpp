@@ -140,9 +140,100 @@ bool file_exists(const char *filename)
 	}
 }
 
+/* Beside the file and not under /tmp, because putting the side file in the
+   file's place is a rename and a rename only works within one filesystem: the
+   configuration directory is its own on the box, so a side file elsewhere
+   could never be moved into it. */
+std::string CAtomicFileWriter::sideNameFor(const std::string &path)
+{
+	return path + ".new";
+}
+
+CAtomicFileWriter::CAtomicFileWriter(const std::string &path, mode_t file_mode)
+	: target(path), sidecar(sideNameFor(path)), mode(file_mode), fh(NULL)
+{
+	/* Opened rather than fopen'd for the two flags a mode string cannot say.
+	   O_NOFOLLOW, because the side name sits in the same directory as the file
+	   and is derived rather than given: something planted there as a link would
+	   otherwise be followed and this would write through it to wherever it
+	   pointed, which is the one way a write meant for one directory lands in
+	   another. And the create mode, so that the bytes are never readable by
+	   anyone else while they are still arriving; what the file ends up carrying
+	   is set by the commit, just before it takes the name. */
+	const int fd = open(sidecar.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_NOFOLLOW | O_CLOEXEC, S_IRUSR | S_IWUSR);
+	if (fd < 0)
+	{
+		perror(sidecar.c_str());
+		return;
+	}
+	fh = fdopen(fd, "w");
+	if (fh == NULL)
+	{
+		perror(sidecar.c_str());
+		close(fd);
+	}
+}
+
+CAtomicFileWriter::~CAtomicFileWriter()
+{
+	if (fh != NULL)
+	{
+		fclose(fh);
+		fh = NULL;
+	}
+	// Emptied by commit(), which has put the side file in place or removed it.
+	if (!sidecar.empty())
+		unlink(sidecar.c_str());
+}
+
+bool CAtomicFileWriter::commit()
+{
+	if (fh == NULL)
+		return false;
+
+	/* Three questions about the one write, because a write can fail at three
+	   removes: what the stream already knows went wrong, what is still in its
+	   buffer and has not reached the kernel, and what the close reports, which
+	   is where a write the kernel put off surfaces. The order matters: a sync
+	   asked before the flush syncs a file the buffered half has not reached. */
+	bool ok = (ferror(fh) == 0);
+	if (ok && fflush(fh) != 0)
+		ok = false;
+	if (ok && fdatasync(fileno(fh)) != 0)
+		ok = false;
+	if (fclose(fh) != 0)
+		ok = false;
+	fh = NULL;
+
+	// Set here rather than on the file afterwards, so that the file never
+	// exists under the name callers read with a mode nobody asked for.
+	if (ok && chmod(sidecar.c_str(), mode) != 0)
+		ok = false;
+
+	if (!ok)
+	{
+		perror(sidecar.c_str());
+		unlink(sidecar.c_str());
+		sidecar.clear();
+		return false;
+	}
+
+	if (rename(sidecar.c_str(), target.c_str()) != 0)
+	{
+		perror(target.c_str());
+		unlink(sidecar.c_str());
+		sidecar.clear();
+		return false;
+	}
+
+	sidecar.clear();
+	return true;
+}
+
 void  wakeup_hdd(const char *hdd_dir)
 {
 #if 0
+	bool msg = false;
 	CHintBox loadBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_HDD_WAKEUP_START));
 
 	if (!g_settings.hdd_wakeup_msg)
@@ -1933,12 +2024,17 @@ bool getUrl(std::string &url, std::string &answer, std::string userAgent, unsign
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
-	if (!g_settings.softupdate_proxyserver.empty())
+	/* Copied under the lock: the weather fetch reaches this from the front
+	   display threads, and the box's loop assigns to the same members from a
+	   screen. */
+	const std::string proxy = settingsText(g_settings.softupdate_proxyserver);
+	if (!proxy.empty())
 	{
-		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if (!g_settings.softupdate_proxyusername.empty())
+		curl_easy_setopt(curl_handle, CURLOPT_PROXY, proxy.c_str());
+		const std::string proxyuser = settingsText(g_settings.softupdate_proxyusername);
+		if (!proxyuser.empty())
 		{
-			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			std::string tmp = proxyuser + ":" + settingsText(g_settings.softupdate_proxypassword);
 			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
 		}
 	}
@@ -1980,12 +2076,18 @@ bool downloadUrl(std::string url, std::string file, std::string userAgent, unsig
 	curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, false);
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, userAgent.c_str());
 
-	if (!g_settings.softupdate_proxyserver.empty())
+	/* Copied under the lock: the logo lookup of the web server and of the display
+	   threads, the channel daemon's web channel download and the XMLTV import
+	   reach this off the box's loop, and the box's loop assigns to the same
+	   members from a screen. */
+	const std::string proxy = settingsText(g_settings.softupdate_proxyserver);
+	if (!proxy.empty())
 	{
-		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if (!g_settings.softupdate_proxyusername.empty())
+		curl_easy_setopt(curl_handle, CURLOPT_PROXY, proxy.c_str());
+		const std::string proxyuser = settingsText(g_settings.softupdate_proxyusername);
+		if (!proxyuser.empty())
 		{
-			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			std::string tmp = proxyuser + ":" + settingsText(g_settings.softupdate_proxypassword);
 			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
 		}
 	}

@@ -403,8 +403,10 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 
 	std::string EOL = "\n";
 
-	std::string font = g_settings.font_file;
-	font += EOL + g_settings.font_file_monospace;
+	/* Copied under the lock, because this runs on the display's own thread and
+	   the box's loop assigns to the same members from a screen. */
+	std::string font = settingsText(g_settings.font_file);
+	font += EOL + settingsText(g_settings.font_file_monospace);
 
 	if (m_font.compare(font))
 	{
