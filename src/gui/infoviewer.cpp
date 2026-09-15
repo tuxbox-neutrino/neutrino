@@ -1691,7 +1691,12 @@ void CInfoViewer::showSNR()
 	   TODO: decouple this  */
 	if (g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6)
 	{
-		if (!IS_WEBCHAN(current_channel_id) && !fileplay)
+		/* No tuner means no transponder to report on, and getLiveFE() is
+		 * NULL then. The PC build runs that way by design, so treat it like
+		 * the webchannel case below, which already skips frequency and
+		 * signal display. */
+		CFrontend *live_fe = CFEManager::getInstance()->getLiveFE();
+		if (live_fe && !IS_WEBCHAN(current_channel_id) && !fileplay)
 		{
 			int y_freq = 2 * g_SignalFont->getHeight();
 			if (!g_settings.infobar_sat_display)
@@ -1703,12 +1708,12 @@ void CInfoViewer::showSNR()
 				newfreq = false;
 				std::string polarisation = "";
 
-				if (CFrontend::isSat(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
-					polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
+				if (CFrontend::isSat(live_fe->getCurrentDeliverySystem()))
+					polarisation = transponder::pol(live_fe->getPolarization());
 
-				int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
+				int frequency = live_fe->getFrequency();
 				int freqfactor = 1000;
-				if (CFrontend::isTerr(CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem()))
+				if (CFrontend::isTerr(live_fe->getCurrentDeliverySystem()))
 					freqfactor = 1000000;
 				snprintf(freq, sizeof(freq), "%d.%d MHz %s", frequency / freqfactor, frequency % freqfactor, polarisation.c_str());
 
@@ -1730,7 +1735,7 @@ void CInfoViewer::showSNR()
 				sigbox->doPaintBg(false);
 				sigbox->enableTboxSaveScreen(numbox->getColBodyGradientMode());
 			}
-			sigbox->setFrontEnd(CFEManager::getInstance()->getLiveFE());
+			sigbox->setFrontEnd(live_fe);
 			sigbox->paint(CC_SAVE_SCREEN_NO);
 		}
 		else if (IS_WEBCHAN(current_channel_id))

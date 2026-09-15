@@ -1622,7 +1622,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 #endif
 #if 0
 	case CZapitMessages::CMD_GET_CURRENT_SATELLITE_POSITION: {
-		int32_t currentSatellitePosition = current_channel ? current_channel->getSatellitePosition() : live_fe->getCurrentSatellitePosition();
+		int32_t currentSatellitePosition = current_channel ? current_channel->getSatellitePosition() : (live_fe ? live_fe->getCurrentSatellitePosition() : 0);
 		CBasicServer::send_data(connfd, &currentSatellitePosition, sizeof(currentSatellitePosition));
 		break;
 	}
@@ -1675,15 +1675,22 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 			//msgCurrentServiceInfo.pmt_version = (current_channel->getCaPmt() != NULL) ? current_channel->getCaPmt()->version_number : 0xff;
 			msgCurrentServiceInfo.pmt_version = current_channel->getPmtVersion();
 			msgCurrentServiceInfo.pcrpid = current_channel->getPcrPid();
-			msgCurrentServiceInfo.tsfrequency = live_fe->getFrequency();
-			msgCurrentServiceInfo.rate = live_fe->getRate();
-			msgCurrentServiceInfo.fec = live_fe->getCFEC();
+			/* Without a live frontend there is no transponder to report,
+			 * and the struct was memset above, so the transponder fields
+			 * stay at zero; only the fallbacks below fill in the code rate
+			 * and the polarisation. This tree does not start the daemon
+			 * without a frontend, so here this only guards. */
+			if (live_fe) {
+				msgCurrentServiceInfo.tsfrequency = live_fe->getFrequency();
+				msgCurrentServiceInfo.rate = live_fe->getRate();
+				msgCurrentServiceInfo.fec = live_fe->getCFEC();
+			}
 			msgCurrentServiceInfo.vtype = current_channel->type;
 			//msgCurrentServiceInfo.diseqc = current_channel->getDiSEqC();
 		}
 		if(!msgCurrentServiceInfo.fec)
 			msgCurrentServiceInfo.fec = (fe_code_rate)3;
-		if (CFrontend::isSat(live_fe->getCurrentDeliverySystem()))
+		if (live_fe && CFrontend::isSat(live_fe->getCurrentDeliverySystem()))
 			msgCurrentServiceInfo.polarisation = live_fe->getPolarization();
 		else
 			msgCurrentServiceInfo.polarisation = 2;
@@ -1694,7 +1701,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_GET_DELIVERY_SYSTEM: {
 		CZapitMessages::responseDeliverySystem response;
 		VALGRIND_PARANOIA(response);
-		response.system = live_fe->getCurrentDeliverySystem();
+		response.system = live_fe ? live_fe->getCurrentDeliverySystem() : UNKNOWN_DS;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	}
@@ -3182,7 +3189,13 @@ void CZapit::run()
 #endif
 	delete pcrDemux;
 	delete pmtDemux;
+	/* Cleared as well as freed, so that a reader which checks it after the
+	   teardown finds it gone. None does here yet: the web server runs detached
+	   and is never stopped, and its audio info reads the decoder without a
+	   check. The pointers around it are global in the same way and are left
+	   as they are, because none of them has a reader that outlives this. */
 	delete audioDecoder;
+	audioDecoder = NULL;
 	delete audioDemux;
 #if ENABLE_PIP
 	for (unsigned i=0; i < (unsigned int) g_info.hw_caps->pip_devs; i++)
