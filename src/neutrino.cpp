@@ -2271,6 +2271,55 @@ void CNeutrinoApp::saveSetup(const char *fname)
 **************************************************************************************/
 extern CBouquetManager *g_bouquetManager;
 
+static void clearBouquetChannels(CBouquetList *list)
+{
+	if (!list)
+		return;
+	for (unsigned int i = 0; i < list->Bouquets.size(); i++)
+		list->Bouquets[i]->channelList->ClearChannelList();
+}
+
+/* Called from PrepareChannels() once the services have been read again - on
+   the zapit thread, or on the main loop from CZapit::Start() and the start
+   wizard - after CServiceManager has destroyed every CZapitChannel it owned.
+   Each list below holds borrowed raw pointers into that map and nothing binds
+   their lifetime to it, so from that moment until channelsInit() has built the
+   lists again everything they hold names a freed object. Emptying them costs a
+   reader that arrives in the window nothing it would not also see on a box
+   whose bouquets are empty, which is a state every one of these lists reaches
+   anyway. The set is the one channelsInit() deletes and creates again, so a
+   list added there belongs here too. */
+void CNeutrinoApp::invalidateChannelLists()
+{
+	/* Under the channel manager's own lock, although nothing here touches the
+	   channel map: what is emptied are the lists whose readers hold that lock
+	   while they walk them, and a walk and this running at once is a reader
+	   asking a list its length and then indexing a list that has none.
+
+	   Safe to take from the thread that calls this: the read of the services
+	   above it has already given the lock back, and nothing below reaches into
+	   the channel manager, whose lock is not recursive. */
+	CServiceManager::ChannelGuard guard;
+
+	/* channelList is only ever an alias of one of these two */
+	if (TVchannelList)
+		TVchannelList->ClearChannelList();
+	if (RADIOchannelList)
+		RADIOchannelList->ClearChannelList();
+
+	clearBouquetChannels(TVbouquetList);
+	clearBouquetChannels(TVsatList);
+	clearBouquetChannels(TVfavList);
+	clearBouquetChannels(TVallList);
+	clearBouquetChannels(TVwebList);
+	clearBouquetChannels(RADIObouquetList);
+	clearBouquetChannels(RADIOsatList);
+	clearBouquetChannels(RADIOfavList);
+	clearBouquetChannels(RADIOallList);
+	clearBouquetChannels(RADIOwebList);
+	clearBouquetChannels(AllFavBouquetList);
+}
+
 void CNeutrinoApp::channelsInit(bool bOnly)
 {
 	CBouquet* tmp;

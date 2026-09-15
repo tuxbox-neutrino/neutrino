@@ -212,6 +212,7 @@ public:
 	time_t getStartTime() { return neutrino_start_time; }
 
 	bool isMuted() {return current_muted; }
+	void invalidateChannelLists();
 	void setCurrentMuted(int m) { current_muted = m; }
 	int recordingstatus;
 	void MakeSectionsdConfig(CSectionsdClient::epg_config& config);

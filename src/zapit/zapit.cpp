@@ -1453,8 +1453,11 @@ bool CZapit::PrepareChannels()
 	}
 	INFO("LoadServices: success");
 
-	if(CNeutrinoApp::getInstance()->channelList)
-		CNeutrinoApp::getInstance()->channelList->ClearChannelList();
+	/* LoadServices above has destroyed every CZapitChannel. The application's
+	   channel and bouquet lists hold borrowed pointers into what it destroyed
+	   and are only rebuilt once the main loop gets to EVT_SERVICES_CHANGED, so
+	   empty all of them here rather than only the one currently on screen. */
+	CNeutrinoApp::getInstance()->invalidateChannelLists();
 
 	g_bouquetManager->loadBouquets();
 	g_bouquetManager->empty = false;
