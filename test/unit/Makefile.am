@@ -83,6 +83,8 @@ coreapi_tests_SOURCES = \
 	nhttpd/test_bridge.cpp \
 	httpd/test_openapi.cpp \
 	httpd/test_openapi_basic.cpp \
+	httpd/test_router.cpp \
+	httpd/test_httpjson.cpp \
 	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
 	support/helperstubs.cpp
