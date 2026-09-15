@@ -398,19 +398,19 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	parentallocked = !access(NEUTRINO_PARENTALLOCKED_FILE, R_OK);
 
 	// theme/color options
-	g_settings.theme_name = configfile.getString("theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_NAME : "");
+	setSettingsText(g_settings.theme_name, configfile.getString("theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_NAME : ""));
 	CThemes::getInstance()->getTheme(configfile);
 
 #ifdef ENABLE_GRAPHLCD
-	g_settings.glcd_theme_name = configfile.getString("glcd_theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_OLED_NAME : "");
+	setSettingsText(g_settings.glcd_theme_name, configfile.getString("glcd_theme_name", !access(NEUTRINO_SETTINGS_FILE, F_OK) ? MIGRATE_THEME_OLED_NAME : ""));
 	CGLCDThemes::getInstance()->getTheme(configfile);
 
 	g_settings.glcd_enable = configfile.getInt32("glcd_enable", g_info.hw_caps->display_type == HW_DISPLAY_GFX);
-	g_settings.glcd_logodir = configfile.getString("glcd_logodir", TARGET_ROOT "/media/sda1/logos");
+	setSettingsText(g_settings.glcd_logodir, configfile.getString("glcd_logodir", TARGET_ROOT "/media/sda1/logos"));
 
 	g_settings.glcd_brightness = configfile.getInt32("glcd_brightness", GLCD_DEFAULT_BRIGHTNESS);
 	g_settings.glcd_brightness_dim = configfile.getInt32("glcd_brightness_dim", GLCD_DEFAULT_BRIGHTNESS_DIM);
-	g_settings.glcd_brightness_dim_time = configfile.getString("glcd_brightness_dim_time", GLCD_DEFAULT_BRIGHTNESS_DIM_TIME);
+	setSettingsText(g_settings.glcd_brightness_dim_time, configfile.getString("glcd_brightness_dim_time", GLCD_DEFAULT_BRIGHTNESS_DIM_TIME));
 	g_settings.glcd_brightness_standby = configfile.getInt32("glcd_brightness_standby", GLCD_DEFAULT_BRIGHTNESS_STANDBY);
 	g_settings.glcd_mirror_osd = configfile.getInt32("glcd_mirror_osd", 0);
 	g_settings.glcd_mirror_video = configfile.getInt32("glcd_mirror_video", 0);
@@ -427,7 +427,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 #ifdef ENABLE_LCD4LINUX
 	g_settings.lcd4l_support = configfile.getInt32("lcd4l_support", 0);
-	g_settings.lcd4l_logodir = configfile.getString("lcd4l_logodir", TARGET_ROOT "/media/sda1/logos");
+	setSettingsText(g_settings.lcd4l_logodir, configfile.getString("lcd4l_logodir", TARGET_ROOT "/media/sda1/logos"));
 	g_settings.lcd4l_display_type = configfile.getInt32("lcd4l_display_type", 0);
 	g_settings.lcd4l_skin = configfile.getInt32("lcd4l_skin", 0);
 	g_settings.lcd4l_skin_radio = configfile.getInt32("lcd4l_skin_radio", 0);
@@ -455,7 +455,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 			snprintf(cfg_value, sizeof(cfg_value), "/var/etc/.update");
 		else
 			cfg_value[0] = '\0';
-		g_settings.mode_icons_flag[i] = configfile.getString(cfg_key, cfg_value);
+		setSettingsText(g_settings.mode_icons_flag[i], configfile.getString(cfg_key, cfg_value));
 	}
 
 
@@ -597,7 +597,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		snprintf(cfg_key, sizeof(cfg_key), "ci_save_pincode_%d", i);
 		g_settings.ci_save_pincode[i] = configfile.getInt32(cfg_key, 0);
 		snprintf(cfg_key, sizeof(cfg_key), "ci_pincode_%d", i);
-		g_settings.ci_pincode[i] = configfile.getString(cfg_key, "");
+		setSettingsText(g_settings.ci_pincode[i], configfile.getString(cfg_key, ""));
 		snprintf(cfg_key, sizeof(cfg_key), "ci_op_%d", i);
 		g_settings.ci_op[i] = configfile.getInt32(cfg_key, 0);
 		snprintf(cfg_key, sizeof(cfg_key), "ci_clock_%d", i);
@@ -624,7 +624,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	// lcd/led
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
-	g_settings.lcd_setting_dim_time = configfile.getString("lcd_dim_time", "0");
+	setSettingsText(g_settings.lcd_setting_dim_time, configfile.getString("lcd_dim_time", "0"));
 	g_settings.lcd_setting_dim_brightness = configfile.getInt32("lcd_dim_brightness", 0);
 	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0); //channel name or clock
 	g_settings.lcd_scroll = configfile.getInt32("lcd_scroll", 1);
@@ -720,7 +720,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	// screen saver
 	g_settings.screensaver_delay = configfile.getInt32("screensaver_delay", 1);
-	g_settings.screensaver_dir = configfile.getString("screensaver_dir", ICONSDIR "/screensaver");
+	setSettingsText(g_settings.screensaver_dir, configfile.getString("screensaver_dir", ICONSDIR "/screensaver"));
 	g_settings.screensaver_mode = configfile.getInt32("screensaver_mode", CScreenSaver::SCR_MODE_CLOCK);
 	g_settings.screensaver_mode_text = configfile.getInt32("screensaver_mode_text", CScreenSaver::SCR_MODE_TEXT_ON);
 	g_settings.screensaver_random = configfile.getInt32("screensaver_random", 0);
@@ -755,18 +755,18 @@ int CNeutrinoApp::loadSetup(const char *fname)
 				break;
 		}
 		snprintf(cfg_key, sizeof(cfg_key), "pref_lang_%d", i);
-		g_settings.pref_lang[i] = configfile.getString(cfg_key, _lang);
+		setSettingsText(g_settings.pref_lang[i], configfile.getString(cfg_key, _lang));
 		snprintf(cfg_key, sizeof(cfg_key), "pref_subs_%d", i);
-		g_settings.pref_subs[i] = configfile.getString(cfg_key, _lang);
+		setSettingsText(g_settings.pref_subs[i], configfile.getString(cfg_key, _lang));
 	}
-	g_settings.subs_charset = configfile.getString("subs_charset", "CP1252");
+	setSettingsText(g_settings.subs_charset, configfile.getString("subs_charset", "CP1252"));
 
-	g_settings.language = configfile.getString("language", "");
-	g_settings.keyboard_layout = configfile.getString("keyboard_layout", "");
-	g_settings.timezone = configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna");
+	setSettingsText(g_settings.language, configfile.getString("language", ""));
+	setSettingsText(g_settings.keyboard_layout, configfile.getString("keyboard_layout", ""));
+	setSettingsText(g_settings.timezone, configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna"));
 
 	// epg
-	g_settings.epg_dir = configfile.getString("epg_dir", TARGET_ROOT "/media/sda1/epg");
+	setSettingsText(g_settings.epg_dir, configfile.getString("epg_dir", TARGET_ROOT "/media/sda1/epg"));
 	g_settings.epg_cache = configfile.getInt32("epg_cache_time", 7);
 	g_settings.epg_extendedcache = configfile.getInt32("epg_extendedcache_time", 168);
 	g_settings.epg_max_events = configfile.getInt32("epg_max_events", 30000);
@@ -802,34 +802,34 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 
 	// network
-	g_settings.ifname = configfile.getString("ifname", "");
+	setSettingsText(g_settings.ifname, configfile.getString("ifname", ""));
 	getDefaultNetworkInterface(g_settings.ifname, false);
 
 	for (int i = 0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
 		std::string i_str(to_string(i));
-		g_settings.network_nfs[i].ip = configfile.getString("network_nfs_ip_" + i_str, "");
-		g_settings.network_nfs[i].mac = configfile.getString("network_nfs_mac_" + i_str, "11:22:33:44:55:66");
-		g_settings.network_nfs[i].local_dir = configfile.getString("network_nfs_local_dir_" + i_str, "");
+		setSettingsText(g_settings.network_nfs[i].ip, configfile.getString("network_nfs_ip_" + i_str, ""));
+		setSettingsText(g_settings.network_nfs[i].mac, configfile.getString("network_nfs_mac_" + i_str, "11:22:33:44:55:66"));
+		setSettingsText(g_settings.network_nfs[i].local_dir, configfile.getString("network_nfs_local_dir_" + i_str, ""));
 		if (g_settings.network_nfs[i].local_dir.empty())
-			g_settings.network_nfs[i].local_dir = "/mnt/mnt" + i_str;
-		g_settings.network_nfs[i].dir = configfile.getString("network_nfs_dir_" + i_str, "");
+			setSettingsText(g_settings.network_nfs[i].local_dir, "/mnt/mnt" + i_str);
+		setSettingsText(g_settings.network_nfs[i].dir, configfile.getString("network_nfs_dir_" + i_str, ""));
 		g_settings.network_nfs[i].automount = configfile.getInt32("network_nfs_automount_" + i_str, 0);
-		g_settings.network_nfs[i].mount_options1 = configfile.getString("network_nfs_mount_options1_" + i_str, "rw,soft");
-		g_settings.network_nfs[i].mount_options2 = configfile.getString("network_nfs_mount_options2_" + i_str, "nolock");
+		setSettingsText(g_settings.network_nfs[i].mount_options1, configfile.getString("network_nfs_mount_options1_" + i_str, "rw,soft"));
+		setSettingsText(g_settings.network_nfs[i].mount_options2, configfile.getString("network_nfs_mount_options2_" + i_str, "nolock"));
 		g_settings.network_nfs[i].type = configfile.getInt32("network_nfs_type_" + i_str, 0);
-		g_settings.network_nfs[i].username = configfile.getString("network_nfs_username_" + i_str, "");
-		g_settings.network_nfs[i].password = configfile.getString("network_nfs_password_" + i_str, "");
+		setSettingsText(g_settings.network_nfs[i].username, configfile.getString("network_nfs_username_" + i_str, ""));
+		setSettingsText(g_settings.network_nfs[i].password, configfile.getString("network_nfs_password_" + i_str, ""));
 	}
 
-	g_settings.network_nfs_audioplayerdir = configfile.getString("network_nfs_audioplayerdir", TARGET_ROOT "/media/sda1/music");
-	g_settings.network_nfs_moviedir = configfile.getString("network_nfs_moviedir", TARGET_ROOT "/media/sda1/movies");
-	g_settings.network_nfs_picturedir = configfile.getString("network_nfs_picturedir", TARGET_ROOT "/media/sda1/pictures");
-	g_settings.network_nfs_recordingdir = configfile.getString("network_nfs_recordingdir", TARGET_ROOT "/media/sda1/movies");
-	g_settings.network_nfs_streamripperdir = configfile.getString("network_nfs_streamripperdir", TARGET_ROOT "/media/sda1/music/streamripper");
+	setSettingsText(g_settings.network_nfs_audioplayerdir, configfile.getString("network_nfs_audioplayerdir", TARGET_ROOT "/media/sda1/music"));
+	setSettingsText(g_settings.network_nfs_moviedir, configfile.getString("network_nfs_moviedir", TARGET_ROOT "/media/sda1/movies"));
+	setSettingsText(g_settings.network_nfs_picturedir, configfile.getString("network_nfs_picturedir", TARGET_ROOT "/media/sda1/pictures"));
+	setSettingsText(g_settings.network_nfs_recordingdir, configfile.getString("network_nfs_recordingdir", TARGET_ROOT "/media/sda1/movies"));
+	setSettingsText(g_settings.network_nfs_streamripperdir, configfile.getString("network_nfs_streamripperdir", TARGET_ROOT "/media/sda1/music/streamripper"));
 
-	g_settings.downloadcache_dir = configfile.getString("downloadcache_dir", g_settings.network_nfs_recordingdir.c_str());
-	g_settings.logo_hdd_dir = configfile.getString("logo_hdd_dir", TARGET_ROOT "/media/sda1/logos");
+	setSettingsText(g_settings.downloadcache_dir, configfile.getString("downloadcache_dir", g_settings.network_nfs_recordingdir.c_str()));
+	setSettingsText(g_settings.logo_hdd_dir, configfile.getString("logo_hdd_dir", TARGET_ROOT "/media/sda1/logos"));
 
 	// recording
 	g_settings.record_hours = configfile.getInt32("record_hours", 4);
@@ -841,7 +841,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32("recording_choose_direct_rec_dir", 0);
 	g_settings.recording_epg_for_end = configfile.getBool("recording_epg_for_end", true);
 	g_settings.recording_epg_for_filename = configfile.getBool("recording_epg_for_filename", true);
-	g_settings.recording_filename_template = configfile.getString("recordingmenu.filename_template", "%C_%T_%d_%t");
+	setSettingsText(g_settings.recording_filename_template, configfile.getString("recordingmenu.filename_template", "%C_%T_%d_%t"));
 	g_settings.recording_save_in_channeldir = configfile.getBool("recording_save_in_channeldir", false);
 // 	g_settings.recording_fill_warning = configfile.getInt32("recording_fill_warning", 95);
 	g_settings.recording_slow_warning = configfile.getBool("recording_slow_warning", true);
@@ -862,7 +862,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.streaming_port = configfile.getInt32("streaming_port", 31339);
 
 	// timeshift
-	g_settings.timeshiftdir = configfile.getString("timeshiftdir", "");
+	setSettingsText(g_settings.timeshiftdir, configfile.getString("timeshiftdir", ""));
 	g_settings.timeshift_auto = configfile.getInt32("timeshift_auto", 0);
 	g_settings.timeshift_delete = configfile.getInt32("timeshift_delete", 1);
 	g_settings.timeshift_hours = configfile.getInt32("timeshift_hours", 4);
@@ -916,14 +916,14 @@ int CNeutrinoApp::loadSetup(const char *fname)
 
 	// ntp server for sectionsd
 	g_settings.network_ntpenable = configfile.getBool("network_ntpenable", false);
-	g_settings.network_ntpserver = configfile.getString("network_ntpserver", "0.de.pool.ntp.org");
-	g_settings.network_ntprefresh = configfile.getString("network_ntprefresh", "30");
+	setSettingsText(g_settings.network_ntpserver, configfile.getString("network_ntpserver", "0.de.pool.ntp.org"));
+	setSettingsText(g_settings.network_ntprefresh, configfile.getString("network_ntprefresh", "30"));
 	g_settings.network_ntpatboot = configfile.getBool("network_ntpatboot", false);
 
 	// personalize
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++) // settings.h, settings.cpp
 		g_settings.personalize[i] = configfile.getInt32(personalize_settings[i].personalize_settings_name, personalize_settings[i].personalize_default_val);
-	g_settings.personalize_pincode = configfile.getString("personalize_pincode", "0000");
+	setSettingsText(g_settings.personalize_pincode, configfile.getString("personalize_pincode", "0000"));
 
 	// widget settings
 	g_settings.widget_fade = false;
@@ -956,7 +956,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		if (file_size(webtv_xml.c_str()))
 			g_settings.webtv_xml.push_back(webtv_xml);
 	}
-	g_settings.last_webtv_dir = configfile.getString("last_webtv_dir", WEBTVDIR_VAR);
+	setSettingsText(g_settings.last_webtv_dir, configfile.getString("last_webtv_dir", WEBTVDIR_VAR));
 
 	CWebChannelsSetup webchannelssetup;
 	webchannelssetup.webtv_xml_auto();
@@ -988,7 +988,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		if (file_size(webradio_xml.c_str()))
 			g_settings.webradio_xml.push_back(webradio_xml);
 	}
-	g_settings.last_webradio_dir = configfile.getString("last_webradio_dir", WEBRADIODIR_VAR);
+	setSettingsText(g_settings.last_webradio_dir, configfile.getString("last_webradio_dir", WEBRADIODIR_VAR));
 
 	webchannelssetup.webradio_xml_auto();
 #endif
@@ -1011,21 +1011,21 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.xmltv_xml_auto.clear();
 
 	g_settings.livestreamResolution = configfile.getInt32("livestreamResolution", 1920);
-	g_settings.livestreamScriptPath = configfile.getString("livestreamScriptPath", WEBTVDIR);
+	setSettingsText(g_settings.livestreamScriptPath, configfile.getString("livestreamScriptPath", WEBTVDIR));
 
 	// plugins
-	g_settings.plugin_hdd_dir = configfile.getString("plugin_hdd_dir", TARGET_ROOT "/media/sda1/plugins");
-	g_settings.plugins_disabled = configfile.getString("plugins_disabled", "");
-	g_settings.plugins_game = configfile.getString("plugins_game", "");
-	g_settings.plugins_lua = configfile.getString("plugins_lua", "");
-	g_settings.plugins_script = configfile.getString("plugins_script", "");
-	g_settings.plugins_tool = configfile.getString("plugins_tool", "");
+	setSettingsText(g_settings.plugin_hdd_dir, configfile.getString("plugin_hdd_dir", TARGET_ROOT "/media/sda1/plugins"));
+	setSettingsText(g_settings.plugins_disabled, configfile.getString("plugins_disabled", ""));
+	setSettingsText(g_settings.plugins_game, configfile.getString("plugins_game", ""));
+	setSettingsText(g_settings.plugins_lua, configfile.getString("plugins_lua", ""));
+	setSettingsText(g_settings.plugins_script, configfile.getString("plugins_script", ""));
+	setSettingsText(g_settings.plugins_tool, configfile.getString("plugins_tool", ""));
 
 	// default plugin for movieplayer
-	g_settings.movieplayer_plugin = configfile.getString("movieplayer_plugin", "---");
+	setSettingsText(g_settings.movieplayer_plugin, configfile.getString("movieplayer_plugin", "---"));
 
 	// screenshot
-	g_settings.screenshot_dir = configfile.getString("screenshot_dir", TARGET_ROOT "/media/sda1/movies");
+	setSettingsText(g_settings.screenshot_dir, configfile.getString("screenshot_dir", TARGET_ROOT "/media/sda1/movies"));
 	g_settings.screenshot_count = configfile.getInt32("screenshot_count", 1);
 	g_settings.screenshot_cover = configfile.getInt32("screenshot_cover", 0);
 	g_settings.screenshot_format = configfile.getInt32("screenshot_format", 1);
@@ -1080,7 +1080,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.softupdate_mode = configfile.getInt32("softupdate_mode", 1);
 	g_settings.apply_kernel = configfile.getBool("apply_kernel", false);
 	g_settings.apply_settings = configfile.getBool("apply_settings", false);
-	g_settings.softupdate_url_file = configfile.getString("softupdate_url_file", "/var/etc/update.urls");
+	setSettingsText(g_settings.softupdate_url_file, configfile.getString("softupdate_url_file", "/var/etc/update.urls"));
 #if ENABLE_EXTUPDATE
 	g_settings.softupdate_name_mode_apply = configfile.getInt32("softupdate_name_mode_apply", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
 	g_settings.softupdate_name_mode_backup = configfile.getInt32("softupdate_name_mode_backup", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
@@ -1088,9 +1088,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.softupdate_name_mode_apply = 0;
 	g_settings.softupdate_name_mode_backup = 0;
 #endif
-	g_settings.softupdate_proxyserver = configfile.getString("softupdate_proxyserver", "");
-	g_settings.softupdate_proxyusername = configfile.getString("softupdate_proxyusername", "");
-	g_settings.softupdate_proxypassword = configfile.getString("softupdate_proxypassword", "");
+	setSettingsText(g_settings.softupdate_proxyserver, configfile.getString("softupdate_proxyserver", ""));
+	setSettingsText(g_settings.softupdate_proxyusername, configfile.getString("softupdate_proxyusername", ""));
+	setSettingsText(g_settings.softupdate_proxypassword, configfile.getString("softupdate_proxypassword", ""));
 
 	if (g_settings.softupdate_proxyserver.empty())
 		unsetenv("http_proxy");
@@ -1111,9 +1111,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.flashupdate_createimage_add_uldr = configfile.getInt32("flashupdate_createimage_add_uldr", 1);
 	g_settings.flashupdate_createimage_add_var = configfile.getInt32("flashupdate_createimage_add_var", 1);
 
-	g_settings.backup_dir = configfile.getString("backup_dir", TARGET_ROOT "/media");
-	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
-	g_settings.update_dir_opkg = configfile.getString("update_dir_opkg", g_settings.update_dir);
+	setSettingsText(g_settings.backup_dir, configfile.getString("backup_dir", TARGET_ROOT "/media"));
+	setSettingsText(g_settings.update_dir, configfile.getString("update_dir", "/tmp"));
+	setSettingsText(g_settings.update_dir_opkg, configfile.getString("update_dir_opkg", g_settings.update_dir));
 
 	// parentallock
 	if (!parentallocked)
@@ -1127,15 +1127,15 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		g_settings.parentallock_lockage = 18;
 	}
 	g_settings.parentallock_defaultlocked = configfile.getInt32("parentallock_defaultlocked", 0);
-	g_settings.parentallock_pincode = configfile.getString("parentallock_pincode", "0000");
+	setSettingsText(g_settings.parentallock_pincode, configfile.getString("parentallock_pincode", "0000"));
 	g_settings.parentallock_zaptime = configfile.getInt32("parentallock_zaptime", 60);
 
 	// fonts
-	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
-	g_settings.font_file_monospace = configfile.getString("font_file_monospace", FONTDIR"/tuxtxt.ttf");
+	setSettingsText(g_settings.font_file, configfile.getString("font_file", FONTDIR"/neutrino.ttf"));
+	setSettingsText(g_settings.font_file_monospace, configfile.getString("font_file_monospace", FONTDIR"/tuxtxt.ttf"));
 	if (access(g_settings.font_file_monospace, F_OK) != 0)
 	{
-		g_settings.font_file_monospace = FONTDIR "/tuxtxt.ttf";
+		setSettingsText(g_settings.font_file_monospace, FONTDIR "/tuxtxt.ttf");
 		configfile.setUnknownKeyQueryedFlag(true); // force saving config
 	}
 	font_file_monospace = g_settings.font_file_monospace.c_str();
@@ -1144,50 +1144,50 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.font_scaling_y = configfile.getInt32("font_scaling_y", 100);
 
 	// online services
-	g_settings.weather_api_key = WEATHER_API_KEY;
-	g_settings.weather_api_version = WEATHER_API_VERSION;
+	setSettingsText(g_settings.weather_api_key, WEATHER_API_KEY);
+	setSettingsText(g_settings.weather_api_version, WEATHER_API_VERSION);
 #if ENABLE_WEATHER_KEY_MANAGE
-	g_settings.weather_api_key = configfile.getString("weather_api_key", g_settings.weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.weather_api_key);
-	g_settings.weather_api_version = configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "3.0" : g_settings.weather_api_version);
+	setSettingsText(g_settings.weather_api_key, configfile.getString("weather_api_key", g_settings.weather_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.weather_api_key));
+	setSettingsText(g_settings.weather_api_version, configfile.getString("weather_api_version", g_settings.weather_api_version.empty() ? "3.0" : g_settings.weather_api_version));
 #endif
 	g_settings.weather_enabled = configfile.getInt32("weather_enabled", 1);
 	g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
 
-	g_settings.weather_city = configfile.getString("weather_city", WEATHER_DEFAULT_CITY);
-	g_settings.weather_location = configfile.getString("weather_location", WEATHER_DEFAULT_LOCATION);
-	g_settings.weather_postalcode = configfile.getString("weather_postalcode", WEATHER_DEFAULT_POSTALCODE);
+	setSettingsText(g_settings.weather_city, configfile.getString("weather_city", WEATHER_DEFAULT_CITY));
+	setSettingsText(g_settings.weather_location, configfile.getString("weather_location", WEATHER_DEFAULT_LOCATION));
+	setSettingsText(g_settings.weather_postalcode, configfile.getString("weather_postalcode", WEATHER_DEFAULT_POSTALCODE));
 
-	g_settings.youtube_api_key = YOUTUBE_API_KEY;
+	setSettingsText(g_settings.youtube_api_key, YOUTUBE_API_KEY);
 #if ENABLE_YOUTUBE_KEY_MANAGE
-	g_settings.youtube_api_key = configfile.getString("youtube_api_key", g_settings.youtube_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.youtube_api_key);
+	setSettingsText(g_settings.youtube_api_key, configfile.getString("youtube_api_key", g_settings.youtube_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.youtube_api_key));
 #endif
 	g_settings.youtube_enabled = configfile.getInt32("youtube_enabled", 1);
 	g_settings.youtube_enabled = g_settings.youtube_enabled && CApiKey::check_youtube_api_key();
 
-	g_settings.tmdb_api_key = TMDB_API_KEY;
+	setSettingsText(g_settings.tmdb_api_key, TMDB_API_KEY);
 #if ENABLE_TMDB_KEY_MANAGE
-	g_settings.tmdb_api_key = configfile.getString("tmdb_api_key", g_settings.tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.tmdb_api_key);
+	setSettingsText(g_settings.tmdb_api_key, configfile.getString("tmdb_api_key", g_settings.tmdb_api_key.empty() ? "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" : g_settings.tmdb_api_key));
 #endif
 	g_settings.tmdb_enabled = configfile.getInt32("tmdb_enabled", 1);
 	g_settings.tmdb_enabled = g_settings.tmdb_enabled && CApiKey::check_tmdb_api_key();
 
-	g_settings.omdb_api_key = OMDB_API_KEY;
+	setSettingsText(g_settings.omdb_api_key, OMDB_API_KEY);
 #if ENABLE_OMDB_KEY_MANAGE
-	g_settings.omdb_api_key = configfile.getString("omdb_api_key", g_settings.omdb_api_key.empty() ? "XXXXXXXX" : g_settings.omdb_api_key);
+	setSettingsText(g_settings.omdb_api_key, configfile.getString("omdb_api_key", g_settings.omdb_api_key.empty() ? "XXXXXXXX" : g_settings.omdb_api_key));
 #endif
 	g_settings.omdb_enabled = configfile.getInt32("omdb_enabled", 1);
 	g_settings.omdb_enabled = g_settings.omdb_enabled && CApiKey::check_omdb_api_key();
 
-	g_settings.shoutcast_dev_id = SHOUTCAST_DEV_ID;
+	setSettingsText(g_settings.shoutcast_dev_id, SHOUTCAST_DEV_ID);
 #if ENABLE_SHOUTCAST_ID_MANAGE
-	g_settings.shoutcast_dev_id = configfile.getString("shoutcast_dev_id", g_settings.shoutcast_dev_id.empty() ? "XXXXXXXXXXXXXXXX" : g_settings.shoutcast_dev_id);
+	setSettingsText(g_settings.shoutcast_dev_id, configfile.getString("shoutcast_dev_id", g_settings.shoutcast_dev_id.empty() ? "XXXXXXXXXXXXXXXX" : g_settings.shoutcast_dev_id));
 #endif
 	g_settings.shoutcast_enabled = configfile.getInt32("shoutcast_enabled", 1);
 	g_settings.shoutcast_enabled = g_settings.shoutcast_enabled && CApiKey::check_shoutcast_dev_id();
 
 	// zapit setup
-	g_settings.StartChannelTV = configfile.getString("startchanneltv", "");
-	g_settings.StartChannelRadio = configfile.getString("startchannelradio", "");
+	setSettingsText(g_settings.StartChannelTV, configfile.getString("startchanneltv", ""));
+	setSettingsText(g_settings.StartChannelRadio, configfile.getString("startchannelradio", ""));
 	g_settings.startchanneltv_id = configfile.getInt64("startchanneltv_id", 0);
 	g_settings.startchannelradio_id = configfile.getInt64("startchannelradio_id", 0);
 	g_settings.uselastchannel = configfile.getInt32("uselastchannel", 1);
@@ -1216,7 +1216,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	for (unsigned int i = 0; i < 4; i++)
 	{
 		snprintf(cfg_key, sizeof(cfg_key), "quadpip_channel_window_%d", i);
-		g_settings.quadpip_channel_window[i] = configfile.getString(cfg_key, "-");
+		setSettingsText(g_settings.quadpip_channel_window[i], configfile.getString(cfg_key, "-"));
 		snprintf(cfg_key, sizeof(cfg_key), "quadpip_channel_id_window_%d", i);
 		g_settings.quadpip_channel_id_window[i] = configfile.getInt64(cfg_key, 0);
 	}
@@ -1381,7 +1381,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		}
 	}
 
-	g_settings.version_pseudo = configfile.getString("version_pseudo", "19700101000000");
+	setSettingsText(g_settings.version_pseudo, configfile.getString("version_pseudo", "19700101000000"));
 
 	loadKeys();
 
@@ -1509,9 +1509,9 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	}
 	if (g_settings.version_pseudo < "20220130200000")
 	{
-		g_settings.font_file_monospace = configfile.getString("ttx_font_file", FONTDIR"/tuxtxt.ttf");
+		setSettingsText(g_settings.font_file_monospace, configfile.getString("ttx_font_file", FONTDIR"/tuxtxt.ttf"));
 		if (access(g_settings.font_file_monospace, F_OK) != 0)
-			g_settings.font_file_monospace = FONTDIR "/tuxtxt.ttf";
+			setSettingsText(g_settings.font_file_monospace, FONTDIR "/tuxtxt.ttf");
 		configfile.deleteKey("ttx_font_file");
 	}
 	if (g_settings.version_pseudo < "20220506230000")
@@ -1528,19 +1528,19 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 	}
 	if (g_settings.version_pseudo < "20240405210000")
 	{
-		g_settings.youtube_api_key = configfile.getString("youtube_dev_id", g_settings.youtube_api_key);
+		setSettingsText(g_settings.youtube_api_key, configfile.getString("youtube_dev_id", g_settings.youtube_api_key));
 		configfile.deleteKey("youtube_dev_id");
 	}
 	if (g_settings.version_pseudo < "20240922210000")
 	{
-		g_settings.weather_api_version = "3.0";
+		setSettingsText(g_settings.weather_api_version, "3.0");
 	}
 	if (g_settings.version_pseudo < "20260704120000")
 	{
 		g_settings.power_off_selected = g_settings.shutdown_real ? 1 : 0;
 	}
 
-	g_settings.version_pseudo = NEUTRINO_VERSION_PSEUDO;
+	setSettingsText(g_settings.version_pseudo, NEUTRINO_VERSION_PSEUDO);
 	configfile.setString("version_pseudo", g_settings.version_pseudo);
 }
 
@@ -2070,8 +2070,8 @@ void CNeutrinoApp::saveSetup(const char *fname)
 #endif
 	configfile.setInt32("weather_enabled", g_settings.weather_enabled);
 
-	configfile.setString("weather_city", g_settings.weather_city);
-	configfile.setString("weather_location", g_settings.weather_location);
+	configfile.setString("weather_city", settingsText(g_settings.weather_city));
+	configfile.setString("weather_location", settingsText(g_settings.weather_location));
 	configfile.setString("weather_postalcode", g_settings.weather_postalcode);
 
 #if ENABLE_YOUTUBE_KEY_MANAGE
@@ -3050,20 +3050,20 @@ TIMER_START();
 	CLocaleManager::loadLocale_ret_t loadLocale_ret = g_Locale->loadLocale(g_settings.language.c_str());
 	if (loadLocale_ret == CLocaleManager::NO_SUCH_LOCALE)
 	{
-		g_settings.language = "english";
+		setSettingsText(g_settings.language, "english");
 		g_Locale->loadLocale(g_settings.language.c_str());
 		show_startwizard = true;
 	}
 
 	// default usermenu titles correspond to gui/user_menue_setup.h:struct usermenu_props_t usermenu
 	if (g_settings.usermenu[0]->title.empty() && !g_settings.usermenu[0]->items.empty())
-		g_settings.usermenu[0]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_RED);
+		setSettingsText(g_settings.usermenu[0]->title, g_Locale->getText(LOCALE_USERMENU_TITLE_RED));
 	if (g_settings.usermenu[1]->title.empty() && !g_settings.usermenu[1]->items.empty())
-		g_settings.usermenu[1]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_GREEN);
+		setSettingsText(g_settings.usermenu[1]->title, g_Locale->getText(LOCALE_USERMENU_TITLE_GREEN));
 	if (g_settings.usermenu[2]->title.empty() && !g_settings.usermenu[2]->items.empty())
-		g_settings.usermenu[2]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_YELLOW);
+		setSettingsText(g_settings.usermenu[2]->title, g_Locale->getText(LOCALE_USERMENU_TITLE_YELLOW));
 	if (g_settings.usermenu[3]->title.empty() && !g_settings.usermenu[3]->items.empty())
-		g_settings.usermenu[3]->title = g_Locale->getText(LOCALE_USERMENU_TITLE_BLUE);
+		setSettingsText(g_settings.usermenu[3]->title, g_Locale->getText(LOCALE_USERMENU_TITLE_BLUE));
 
 	/* setup GUI */
 	neutrinoFonts = CNeutrinoFonts::getInstance();
@@ -3361,7 +3361,7 @@ TIMER_START();
 	CFileHelpers::createDir(PUBLIC_HTTPDDIR);
 	CFileHelpers::createDir(PUBLIC_HTTPDDIR "/logo");
 #endif
-	CWeather::getInstance()->setCoords(g_settings.weather_location, g_settings.weather_city);
+	CWeather::getInstance()->setCoords(settingsText(g_settings.weather_location), settingsText(g_settings.weather_city));
 
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);

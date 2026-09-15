@@ -124,7 +124,7 @@ void CControlAPI::init(CyhookHandler *hh)
 		PLUGIN_DIRS[2]=PLUGIN_DIRS[3]=hh->WebserverConfigList["WebsiteMain.directory"];
 		PLUGIN_DIRS[3].append("/scripts");
 		PLUGIN_DIRS[4]=GAMESDIR;
-		PLUGIN_DIRS[5]=g_settings.plugin_hdd_dir;
+		PLUGIN_DIRS[5]=settingsText(g_settings.plugin_hdd_dir);
 		PLUGIN_DIRS[6]=PLUGINDIR_MNT;
 		PLUGIN_DIRS[7]=PLUGINDIR_VAR;
 		PLUGIN_DIRS[8]=PLUGINDIR;
@@ -4157,7 +4157,7 @@ void CControlAPI::getDirCGI(CyhookHandler *hh)
 
 	//Shows the neutrino recording dir
 	if (hh->ParamList["dir"] == "recordingdir" || hh->ParamList["dir"] == "allmoviedirs" ) {
-		item += hh->outPair("dir", hh->outValue(g_settings.network_nfs_recordingdir), false);
+		item += hh->outPair("dir", hh->outValue(settingsText(g_settings.network_nfs_recordingdir)), false);
 		if(isFirstLine) {
 			isFirstLine = false;
 		}
@@ -4166,7 +4166,7 @@ void CControlAPI::getDirCGI(CyhookHandler *hh)
 		}
 		result += hh->outArrayItem("item", item, false);
 		if (hh->ParamList["subdirs"] == "true") {
-			result = getSubdirectories(hh, g_settings.network_nfs_recordingdir, result);
+			result = getSubdirectories(hh, settingsText(g_settings.network_nfs_recordingdir), result);
 		}
 	}
 
@@ -4262,7 +4262,7 @@ void CControlAPI::getMoviesCGI(CyhookHandler *hh) {
 
 	//Shows all movies in the recordingdir
 	if (hh->ParamList["dir"] == "recordingdir" || hh->ParamList["dir"] == "allmoviedirs" ) {
-		result = readMovies(hh, g_settings.network_nfs_recordingdir, result, subdirs);
+		result = readMovies(hh, settingsText(g_settings.network_nfs_recordingdir), result, subdirs);
 	}
 
 	//Shows movie from a given path

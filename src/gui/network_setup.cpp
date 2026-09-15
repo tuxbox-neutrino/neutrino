@@ -486,7 +486,7 @@ int CNetworkSetup::showInterfaceSelectMenu()
 
 	if (select >= 0 && select < (int)ifnames.size())
 	{
-		g_settings.ifname = ifnames[select];
+		setSettingsText(g_settings.ifname, ifnames[select]);
 		changeNotify(LOCALE_NETWORKMENU_SELECT_IF, NULL);
 	}
 
@@ -712,7 +712,7 @@ int  CNetworkSetup::saveChangesDialog()
 //restores settings
 void CNetworkSetup::restoreNetworkSettings()
 {
-	g_settings.ifname = old_ifname;
+	setSettingsText(g_settings.ifname, old_ifname);
 	networkConfig->readConfig(g_settings.ifname);//FIXME ?
 
 	mac_addr			= networkConfig->mac_addr;
