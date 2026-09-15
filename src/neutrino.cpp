@@ -3897,7 +3897,8 @@ _repeat:
 		hintBox.paint();
 
 		if (favorites_changed) {
-			g_bouquetManager->saveUBouquets();
+			if (!g_bouquetManager->saveUBouquets())
+				printf("[neutrino] the user bouquets were not written\n");
 			if (!channels_init)
 				CEpgScan::getInstance()->ConfigureEIT();
 		}
@@ -3905,8 +3906,8 @@ _repeat:
 		if (channels_changed)
 			CServiceManager::getInstance()->SaveServices(true);
 
-		if (bouquets_changed)
-			g_bouquetManager->saveBouquets();
+		if (bouquets_changed && !g_bouquetManager->saveBouquets())
+			printf("[neutrino] the bouquets were not written\n");
 
 		if (channels_init) {
 			g_bouquetManager->renumServices();

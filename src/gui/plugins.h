@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include <OpenThreads/Mutex>
+
 class CFrameBuffer;
 class CPlugins
 {
@@ -75,6 +77,10 @@ class CPlugins
 		int number_of_plugins;
 		int sindex;
 		std::vector<plugin> plugin_list;
+		/* loadPlugins throws the list away and builds it again while other
+		 * threads walk it by index, and every accessor below hands out a
+		 * pointer into a string it holds. */
+		OpenThreads::Mutex plugin_list_mutex;
 		std::string plugin_dir;
 		std::string scriptOutput;
 
@@ -91,6 +97,25 @@ class CPlugins
 		~CPlugins();
 
 		void loadPlugins();
+
+		/* Held for the whole of a walk of the list by anybody not on the
+		 * thread that rebuilds it. The accessors below hand out pointers into
+		 * strings the list owns, so it has to cover the reading of what they
+		 * return as well as the call. loadPlugins takes it for itself and must
+		 * not be called under it. */
+		void LockPlugins() { plugin_list_mutex.lock(); }
+		void UnlockPlugins() { plugin_list_mutex.unlock(); }
+
+		class PluginGuard
+		{
+			public:
+				PluginGuard(CPlugins *p) : owner(p) { owner->LockPlugins(); }
+				~PluginGuard() { owner->UnlockPlugins(); }
+			private:
+				PluginGuard(const PluginGuard &);
+				PluginGuard & operator=(const PluginGuard &);
+				CPlugins *owner;
+		};
 
 		void setPluginDir(const std::string &dir) { plugin_dir = dir; }
 
@@ -110,7 +135,7 @@ class CPlugins
 		inline       neutrino_msg_t getKey            (const int number) const { return plugin_list[number].key               ; }
 
 		void setType(const int number, int t) { plugin_list[number].type = (CPlugins::p_type_t) t; }
-		bool overrideType(plugin *plugin_data, std::string &setting, p_type type);
+		bool overrideType(plugin *plugin_data, const std::string &setting, p_type type);
 
 		int startPlugin(int number);				// start plugins by number
 		int startPlugin(const char *const filename);		// start plugins by filename

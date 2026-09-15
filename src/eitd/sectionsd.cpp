@@ -2890,12 +2890,13 @@ bool CEitManager::getEPGid(const t_event_id epg_id, const time_t startzeit, CEPG
 	bool ret = false;
 	debug(DEBUG_INFO, "Request of actual EPG for 0x%" PRIx64 " 0x%" PRIx64, epg_id, static_cast<uint64_t>(startzeit));
 
-	const SIevent& evt = findSIeventForEventUniqueKey(epg_id);
-
 	epgdata->itemDescriptions.clear();
 	epgdata->items.clear();
 
 	readLockEvents();
+	// The reference points into the event map, so it must not be taken before the lock.
+	const SIevent& evt = findSIeventForEventUniqueKey(epg_id);
+
 	if (evt.service_id != 0) { // Event found
 		SItimes::iterator t = evt.times.begin();
 

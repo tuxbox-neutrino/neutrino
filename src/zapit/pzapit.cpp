@@ -576,8 +576,9 @@ int main (int argc, char** argv)
 
 	if (savebouquets)
 	{
-		zapit.saveBouquets();
-		return 0;
+		/* The exit status is all a script calling this can read, and it was
+		   zero whatever became of the files. */
+		return zapit.saveBouquets() ? 0 : 1;
 	}
 
 	if (show_satellites)

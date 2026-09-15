@@ -766,8 +766,14 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	live_fe = fe;
 	CFEManager::getInstance()->setLiveFE(live_fe);
 
-	if(!forupdate && current_channel)
+	/* Under the channel lock: this clears the pids and flags that the logo
+	   lookup's copy reads under it. The audio tracks and the subtitle list it
+	   deletes are walked without the lock by the stream server, the
+	   recorder, the front display, nhttpd and the GUI. */
+	if(!forupdate && current_channel) {
+		CServiceManager::ChannelGuard guard;
 		current_channel->resetPids();
+	}
 
 	current_channel = newchannel;
 
@@ -1998,7 +2004,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CBasicServer::receive_data(connfd, &msgRenameBouquet, sizeof(msgRenameBouquet)); // bouquet & channel number are already starting at 0!
 		char * name = CBasicServer::receive_string(connfd);
 		if (msgRenameBouquet.bouquet < g_bouquetManager->Bouquets.size()) {
-			g_bouquetManager->Bouquets[msgRenameBouquet.bouquet]->Name = name;
+			g_bouquetManager->Bouquets[msgRenameBouquet.bouquet]->setName(name);
 			g_bouquetManager->Bouquets[msgRenameBouquet.bouquet]->bUser = true;
 		}
 		CBasicServer::delete_string(name);
@@ -2095,7 +2101,6 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CZapitMessages::commandBoolean msgBoolean;
 		CBasicServer::receive_data(connfd, &msgBoolean, sizeof(msgBoolean));
 
-		SendCmdReady(connfd);
 #if 0
 		//if (msgBoolean.truefalse)
 		if(list_changed) {
@@ -2103,8 +2108,20 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		} else
 			SendEvent(CZapitClient::EVT_BOUQUETS_CHANGED);
 #endif
-		g_bouquetManager->saveBouquets();
-		g_bouquetManager->saveUBouquets();
+		/* Both files every time and not the first one only: the caller asked
+		   for the lists it has to be saved, and stopping after a failure would
+		   leave the other one older than the list it belongs to. */
+		CZapitMessages::responseGeneralTrueFalse responseSaved;
+		responseSaved.status = g_bouquetManager->saveBouquets();
+		if (!g_bouquetManager->saveUBouquets())
+			responseSaved.status = false;
+
+		/* Answered here rather than before the writing, because a reply sent
+		   first can say no more than that the command arrived, and whether it
+		   arrived was never the question. Everything below stays behind the
+		   reply in the order it always ran in. */
+		CBasicServer::send_data(connfd, &responseSaved, sizeof(responseSaved));
+
 		g_bouquetManager->renumServices();
 		//SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 		SendEvent(CZapitClient::EVT_BOUQUETS_CHANGED);

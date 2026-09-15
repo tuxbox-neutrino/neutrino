@@ -345,6 +345,12 @@ void CZapitClient::getPIDS(responseGetPIDs& pids)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	send(CZapitMessages::CMD_GETPIDS);
 
+	// Every caller already treats 0 as "no such pid" for the fields in here
+	// (vpid included, set to 0 by callers before this runs). Zeroing before
+	// the read gives a short or failed read that same defined answer instead
+	// of whatever this thread's stack held, and a full read overwrites all
+	// of it regardless.
+	memset(&(pids.PIDs), 0, sizeof(pids.PIDs));
 	CBasicClient::receive_data((char* )&(pids.PIDs), sizeof(pids.PIDs));
 
 	pids.APIDs.clear();
@@ -887,18 +893,18 @@ void CZapitClient::getFESignal (struct responseFESignal &f)
 /***********************************************/
 
 /* adds bouquet at the end of the bouquetlist  */
-void CZapitClient::addBouquet(const char * const name)
+bool CZapitClient::addBouquet(const char * const name)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	if (send(CZapitMessages::CMD_BQ_ADD_BOUQUET))
-		send_string(name);
+	const bool sent = send(CZapitMessages::CMD_BQ_ADD_BOUQUET) && send_string(name);
 
 	close_connection();
+	return sent;
 }
 
 /* moves a bouquet from one position to another */
 /* bouquets are numbered starting at 0 */
-void CZapitClient::moveBouquet(const unsigned int bouquet, const unsigned int newPos)
+bool CZapitClient::moveBouquet(const unsigned int bouquet, const unsigned int newPos)
 {
 	CZapitMessages::commandMoveBouquet msg;
 	VALGRIND_PARANOIA;
@@ -907,13 +913,14 @@ void CZapitClient::moveBouquet(const unsigned int bouquet, const unsigned int ne
 	msg.newPos = newPos;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_MOVE_BOUQUET, (char*)&msg, sizeof(msg));
+	const bool sent = send(CZapitMessages::CMD_BQ_MOVE_BOUQUET, (char*)&msg, sizeof(msg));
 	close_connection();
+	return sent;
 }
 
 /* deletes a bouquet with all its channels*/
 /* bouquets are numbered starting at 0 */
-void CZapitClient::deleteBouquet(const unsigned int bouquet)
+bool CZapitClient::deleteBouquet(const unsigned int bouquet)
 {
 	CZapitMessages::commandDeleteBouquet msg;
 	VALGRIND_PARANOIA;
@@ -921,14 +928,15 @@ void CZapitClient::deleteBouquet(const unsigned int bouquet)
 	msg.bouquet = bouquet;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_DELETE_BOUQUET, (char*)&msg, sizeof(msg));
+	const bool sent = send(CZapitMessages::CMD_BQ_DELETE_BOUQUET, (char*)&msg, sizeof(msg));
 
 	close_connection();
+	return sent;
 }
 
 /* assigns new name to bouquet */
 /* bouquets are numbered starting at 0 */
-void CZapitClient::renameBouquet(const unsigned int bouquet, const char * const newName)
+bool CZapitClient::renameBouquet(const unsigned int bouquet, const char * const newName)
 {
 	CZapitMessages::commandRenameBouquet msg;
 	VALGRIND_PARANOIA;
@@ -936,10 +944,11 @@ void CZapitClient::renameBouquet(const unsigned int bouquet, const char * const 
 	msg.bouquet = bouquet;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	if (send(CZapitMessages::CMD_BQ_RENAME_BOUQUET, (char*)&msg, sizeof(msg)))
-		send_string(newName);
+	const bool sent = send(CZapitMessages::CMD_BQ_RENAME_BOUQUET, (char*)&msg, sizeof(msg)) &&
+			  send_string(newName);
 
 	close_connection();
+	return sent;
 }
 
 // -- check if Bouquet-Name exists
@@ -1002,7 +1011,7 @@ void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsig
 /* same channels can be in more than one bouquet */
 /* bouquets can contain both tv and radio channels */
 /* bouquets are numbered starting at 0 */
-void CZapitClient::addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id)
+bool CZapitClient::addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id)
 {
 	CZapitMessages::commandAddChannelToBouquet msg;
 	VALGRIND_PARANOIA;
@@ -1011,14 +1020,15 @@ void CZapitClient::addChannelToBouquet(const unsigned int bouquet, const t_chann
 	msg.channel_id = channel_id;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_ADD_CHANNEL_TO_BOUQUET, (char*)&msg, sizeof(msg));
+	const bool sent = send(CZapitMessages::CMD_BQ_ADD_CHANNEL_TO_BOUQUET, (char*)&msg, sizeof(msg));
 
 	close_connection();
+	return sent;
 }
 
 /* removes a channel from specified bouquet */
 /* bouquets are numbered starting at 0 */
-void CZapitClient::removeChannelFromBouquet(const unsigned int bouquet, const t_channel_id channel_id)
+bool CZapitClient::removeChannelFromBouquet(const unsigned int bouquet, const t_channel_id channel_id)
 {
 	CZapitMessages::commandRemoveChannelFromBouquet msg;
 	VALGRIND_PARANOIA;
@@ -1027,14 +1037,15 @@ void CZapitClient::removeChannelFromBouquet(const unsigned int bouquet, const t_
 	msg.channel_id = channel_id;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_REMOVE_CHANNEL_FROM_BOUQUET, (char*)&msg, sizeof(msg));
+	const bool sent = send(CZapitMessages::CMD_BQ_REMOVE_CHANNEL_FROM_BOUQUET, (char*)&msg, sizeof(msg));
 
 	close_connection();
+	return sent;
 }
 
 /* set a bouquet's lock-state*/
 /* bouquets are numbered starting at 0 */
-void CZapitClient::setBouquetLock(const unsigned int bouquet, const bool b)
+bool CZapitClient::setBouquetLock(const unsigned int bouquet, const bool b)
 {
 	CZapitMessages::commandBouquetState msg;
 	VALGRIND_PARANOIA;
@@ -1043,14 +1054,15 @@ void CZapitClient::setBouquetLock(const unsigned int bouquet, const bool b)
 	msg.state   = b;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_SET_LOCKSTATE, (char*)&msg, sizeof(msg));
+	const bool sent = send(CZapitMessages::CMD_BQ_SET_LOCKSTATE, (char*)&msg, sizeof(msg));
 
 	close_connection();
+	return sent;
 }
 
 /* set a bouquet's hidden-state*/
 /* bouquets are numbered starting at 0 */
-void CZapitClient::setBouquetHidden(const unsigned int bouquet, const bool hidden)
+bool CZapitClient::setBouquetHidden(const unsigned int bouquet, const bool hidden)
 {
 	CZapitMessages::commandBouquetState msg;
 	VALGRIND_PARANOIA;
@@ -1059,35 +1071,44 @@ void CZapitClient::setBouquetHidden(const unsigned int bouquet, const bool hidde
 	msg.state   = hidden;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_SET_HIDDENSTATE, (char*)&msg, sizeof(msg));
+	const bool sent = send(CZapitMessages::CMD_BQ_SET_HIDDENSTATE, (char*)&msg, sizeof(msg));
 	close_connection();
+	return sent;
 }
 
 /* renums the channellist, means gives the channels new numbers */
 /* based on the bouquet order and their order within bouquets */
 /* necessarily after bouquet editing operations*/
-void CZapitClient::renumChannellist()
+bool CZapitClient::renumChannellist()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_RENUM_CHANNELLIST);
+	const bool sent = send(CZapitMessages::CMD_BQ_RENUM_CHANNELLIST);
 	close_connection();
+	return sent;
 }
 
 
 /* saves current bouquet configuration to bouquets.xml*/
-void CZapitClient::saveBouquets(const bool saveall)
+bool CZapitClient::saveBouquets(const bool saveall)
 {
 	CZapitMessages::commandBoolean msg;
 	VALGRIND_PARANOIA;
 	msg.truefalse = saveall;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS, (char*)&msg, sizeof(msg));
+	const bool written = send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS, (char*)&msg, sizeof(msg));
 
-	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	/* The one command here the daemon answers, and what it answers is whether
+	   the two files came out of it, not that the command was read. Both legs
+	   are made in the order they always were: a receive on a connection a
+	   failed send has already closed comes back at once and waits for nothing.
+	   An answer that never arrived leaves the struct as its constructor left
+	   it, which is the same no as a daemon that could not write. */
+	CZapitMessages::responseGeneralTrueFalse response;
+	const bool answered = CBasicClient::receive_data((char* )&response, sizeof(response));
 
 	close_connection();
+	return written && answered && response.status;
 }
 
 void CZapitClient::setStandby(const bool enable)

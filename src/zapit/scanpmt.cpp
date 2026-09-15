@@ -101,6 +101,27 @@ bool CPmt::Parse(CZapitChannel * const channel)
 
 	DBG("[pmt] pcr pid: old 0x%x new 0x%x\n", channel->getPcrPid(), pmt.getPcrPid());
 
+	/* Everything below rewrites what the channel holds rather than the map it
+	   sits in: resetPids deletes every audio track and the subtitle list,
+	   setRawPmt deletes the table, and the two CA containers are assigned
+	   whole. Threads other than this one read those. The logo lookup's copy
+	   of the channel reads the two CA containers under the channel lock, and
+	   with them the teletext language and the pids and flags set below, so
+	   this takes it too; the copy leaves the tracks, the subtitles and the
+	   table behind. The stream server, the CAM manager, the recorder, the
+	   front display, nhttpd and the GUI read what this rewrites without it.
+	   Whoever holds the lock first is waited for.
+
+	   Held across the parse and not around each write: a copy taken between
+	   the reset and the end of the parse would carry the pids and the CA
+	   containers half rewritten. Nothing in here reaches the channel
+	   manager, so there is nothing for this to take twice.
+
+	   Taken here and not around CPmt::Parse: that one reads the table off the
+	   demux first, which waits on the transponder and would hold this lock for
+	   as long as that takes. */
+	CServiceManager::ChannelGuard guard;
+
 	channel->resetPids();
 
 	channel->setPmtVersion(pmt.getVersionNumber());

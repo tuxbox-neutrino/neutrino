@@ -143,11 +143,21 @@ void CPlugins::scanDir(const char *dir)
 void CPlugins::loadPlugins()
 {
 	frameBuffer = CFrameBuffer::getInstance();
+
+	/* Held from the clear to the sort, because in between the list is not one
+	   a reader could be told anything true out of: empty, then growing with
+	   every directory, then in an order that is not the one it ends in. A
+	   reader on another thread waits that long, which is the directories being
+	   read; the thread that rebuilds it waits for nothing. */
+	PluginGuard guard(this);
+
 	number_of_plugins = 0;
 	plugin_list.clear();
 	sindex = 100;
 	scanDir(GAMESDIR);
-	scanDir(g_settings.plugin_hdd_dir.c_str());
+	/* Copied under the lock: a request for a plugin list is answered on one of
+	   the web server's threads and has this rebuilt from there. */
+	scanDir(settingsText(g_settings.plugin_hdd_dir).c_str());
 	scanDir(PLUGINDIR_MNT);
 	scanDir(PLUGINDIR_VAR);
 	scanDir(PLUGINDIR);
@@ -160,7 +170,7 @@ CPlugins::~CPlugins()
 	plugin_list.clear();
 }
 
-bool CPlugins::overrideType(plugin *plugin_data, std::string &setting, p_type type)
+bool CPlugins::overrideType(plugin *plugin_data, const std::string &setting, p_type type)
 {
 	if (!setting.empty())
 	{
@@ -217,7 +227,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		{
 			plugin_data->key = getPluginKey(parm);
 		}
-		else if (cmd == "name." + g_settings.language)
+		else if (cmd == "name." + settingsText(g_settings.language))
 		{
 			plugin_data->name = parm;
 		}
@@ -226,7 +236,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 			if (plugin_data->name.empty())
 				plugin_data->name = parm;
 		}
-		else if (cmd == "desc." + g_settings.language)
+		else if (cmd == "desc." + settingsText(g_settings.language))
 		{
 			plugin_data->description = parm;
 		}
@@ -294,11 +304,11 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		}
 	}
 
-	overrideType(plugin_data, g_settings.plugins_disabled, P_TYPE_DISABLED) ||
-	overrideType(plugin_data, g_settings.plugins_game, P_TYPE_GAME) ||
-	overrideType(plugin_data, g_settings.plugins_tool, P_TYPE_TOOL) ||
-	overrideType(plugin_data, g_settings.plugins_script, P_TYPE_SCRIPT) ||
-	overrideType(plugin_data, g_settings.plugins_lua, P_TYPE_LUA);
+	overrideType(plugin_data, settingsText(g_settings.plugins_disabled), P_TYPE_DISABLED) ||
+	overrideType(plugin_data, settingsText(g_settings.plugins_game), P_TYPE_GAME) ||
+	overrideType(plugin_data, settingsText(g_settings.plugins_tool), P_TYPE_TOOL) ||
+	overrideType(plugin_data, settingsText(g_settings.plugins_script), P_TYPE_SCRIPT) ||
+	overrideType(plugin_data, settingsText(g_settings.plugins_lua), P_TYPE_LUA);
 
 	return !reject;
 }

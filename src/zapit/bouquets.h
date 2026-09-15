@@ -74,18 +74,40 @@ class CZapitBouquet
 		bUseCI = false;
 	}
 
+	/* A rename by the user has to move both names at once. Name is the
+	   identity the bouquet is written to file under and the one
+	   existsBouquet compares a new name against; bName is what every list
+	   on screen prints, and it only ever differs from Name for the two
+	   built in bouquets whose caption comes from the locale. Leaving bName
+	   behind lets a second bouquet be created under the caption the renamed
+	   one still shows. */
+	void setName(const std::string &name)
+	{
+		Name = name;
+		bName = name;
+	}
+
+	/* The three below change the length of one of the two lists this holds,
+	   and threads other than the one calling walk those lists under the
+	   channel manager's lock, so each takes it. Their Locked forms are for a
+	   caller that already holds it; taking it twice would stop the thread. */
 	void addService(CZapitChannel* newChannel);
+	void addServiceLocked(CZapitChannel* newChannel);
 
 	void removeService(CZapitChannel* oldChannel);
+	void removeServiceLocked(CZapitChannel* oldChannel);
 	void removeService(const t_channel_id channel_id, unsigned char serviceType = ST_RESERVED) { removeService(getChannelByChannelID(channel_id, serviceType)); }
 
 	void moveService (const unsigned int oldPosition, const unsigned int newPosition, const unsigned char serviceType);
+	void moveServiceLocked (const unsigned int oldPosition, const unsigned int newPosition, const unsigned char serviceType);
 
 #if 0
 	size_t recModeRadioSize(const transponder_id_t transponder_id);
 	size_t recModeTVSize   (const transponder_id_t transponder_id);
 #endif
 	CZapitChannel* getChannelByChannelID(const t_channel_id channel_id, const unsigned char serviceType = ST_RESERVED);
+	// Reorders both lists in place, which is a walk of them seeing one order
+	// or the other and never a length that is not there.
 	void sortBouquet(void);
 	void sortBouquetByNumber(void);
 	bool getTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
@@ -108,9 +130,12 @@ class CBouquetManager : public OpenThreads::Thread
 		void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);
 		void writeChannels(FILE * bouq_fd, ZapitChannelList &list, bool bUser);
 		void writeBouquet(FILE * bouq_fd, uint32_t i, bool bUser);
+		bool writeBouquetFile(const char * const filename, bool userBouquets) __attribute__((warn_unused_result));
 		//remap epg_id
 		std::map<t_channel_id, t_channel_id> EpgIDMapping;
 		std::map<t_channel_id, std::string> EpgXMLMapping;
+		// Caller holds the channel manager's lock.
+		void deleteBouquetLocked(const CZapitBouquet* bouquet);
 		void readEPGMapping();
 		t_channel_id reMapEpgID(t_channel_id channelid);
 		std::string reMapEpgXML(t_channel_id channelid);
@@ -155,8 +180,11 @@ class CBouquetManager : public OpenThreads::Thread
 
 		BouquetList Bouquets;
 
-		void saveBouquets(void);
-		void saveUBouquets(void);
+		/* Whether the file the next start reads was written. The overload
+		   below is a different thing under the same name: it moves scanned
+		   bouquets into the list this manager holds and writes nothing. */
+		bool saveBouquets(void) __attribute__((warn_unused_result));
+		bool saveUBouquets(void) __attribute__((warn_unused_result));
 		void saveBouquets(const CZapitClient::bouquetMode bouquetMode, const char * const providerName, t_satellite_position satellitePosition = INVALID_SAT_POSITION);
 		void loadBouquets(bool ignoreBouquetFile = false);
 		void renumServices();

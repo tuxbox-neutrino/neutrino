@@ -209,17 +209,28 @@ CZapitChannel* CZapitBouquet::getChannelByChannelID(const t_channel_id channel_i
 
 void CZapitBouquet::sortBouquet(void)
 {
+	CServiceManager::ChannelGuard guard;
 	sort(tvChannels.begin(), tvChannels.end(), CmpChannelByChName());
 	sort(radioChannels.begin(), radioChannels.end(), CmpChannelByChName());
 }
 
 void CZapitBouquet::sortBouquetByNumber(void)
 {
+	CServiceManager::ChannelGuard guard;
 	sort(tvChannels.begin(), tvChannels.end(), CmpChannelByChNum());
 	sort(radioChannels.begin(), radioChannels.end(), CmpChannelByChNum());
 }
 
+/* The channel manager's lock, because what this changes is the length of a list
+   that threads other than this one walk. The whole set of these is named where
+   they are declared. */
 void CZapitBouquet::addService(CZapitChannel* newChannel)
+{
+	CServiceManager::ChannelGuard guard;
+	addServiceLocked(newChannel);
+}
+
+void CZapitBouquet::addServiceLocked(CZapitChannel* newChannel)
 {
 	switch (newChannel->getServiceType())
 	{
@@ -238,6 +249,12 @@ void CZapitBouquet::addService(CZapitChannel* newChannel)
 }
 
 void CZapitBouquet::removeService(CZapitChannel* oldChannel)
+{
+	CServiceManager::ChannelGuard guard;
+	removeServiceLocked(oldChannel);
+}
+
+void CZapitBouquet::removeServiceLocked(CZapitChannel* oldChannel)
 {
 	if (oldChannel != NULL) {
 		ZapitChannelList* channels = &tvChannels;
@@ -260,6 +277,12 @@ void CZapitBouquet::removeService(CZapitChannel* oldChannel)
 }
 
 void CZapitBouquet::moveService(const unsigned int oldPosition, const unsigned int newPosition, const unsigned char serviceType)
+{
+	CServiceManager::ChannelGuard guard;
+	moveServiceLocked(oldPosition, newPosition, serviceType);
+}
+
+void CZapitBouquet::moveServiceLocked(const unsigned int oldPosition, const unsigned int newPosition, const unsigned char serviceType)
 {
 	ZapitChannelList* channels = &tvChannels;
 	switch (serviceType) {
@@ -382,19 +405,27 @@ void CBouquetManager::writeBouquet(FILE * bouq_fd, uint32_t i, bool /* bUser */)
 }
 
 /**** class CBouquetManager *************************************************/
-void CBouquetManager::saveBouquets(void)
+/* The file is replaced in one step rather than written over, because what a
+   half written one costs is not the failed save: it is the next start, which
+   reads whatever is lying there and takes a truncated list for the whole list.
+   Whether the file is now the one just written is what this answers. */
+bool CBouquetManager::writeBouquetFile(const char * const filename, const bool userBouquets)
 {
-	FILE * bouq_fd;
+	CAtomicFileWriter out(filename);
 
-	printf("CBouquetManager::saveBouquets: %s\n", BOUQUETS_XML);
-	bouq_fd = fopen(BOUQUETS_XML, "w");
-	if (!bouq_fd) {
-		perror(BOUQUETS_XML);
-		return;
-	}
+	FILE * bouq_fd = out.file();
+	if (bouq_fd == NULL)
+		return false;
+
 	fprintf(bouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit api=\"4\">\n");
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
-		if (Bouquets[i] != remainChannels) {
+		if (Bouquets[i] == remainChannels)
+			continue;
+		if (userBouquets) {
+			if (Bouquets[i]->bUser) {
+				writeBouquet(bouq_fd, i, true);
+			}
+		} else {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
 			if(!Bouquets[i]->bUser && !Bouquets[i]->bWebtv && !Bouquets[i]->bWebradio) {
 				writeBouquet(bouq_fd, i,false);
@@ -402,33 +433,20 @@ void CBouquetManager::saveBouquets(void)
 		}
 	}
 	fprintf(bouq_fd, "</zapit>\n");
-	fdatasync(fileno(bouq_fd));
-	fclose(bouq_fd);
-	chmod(BOUQUETS_XML, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+	return out.commit();
 }
 
-void CBouquetManager::saveUBouquets(void)
+bool CBouquetManager::saveBouquets(void)
 {
-	FILE * ubouq_fd;
+	printf("CBouquetManager::saveBouquets: %s\n", BOUQUETS_XML);
+	return writeBouquetFile(BOUQUETS_XML, false);
+}
 
+bool CBouquetManager::saveUBouquets(void)
+{
 	printf("CBouquetManager::saveUBouquets: %s\n", UBOUQUETS_XML);
-	ubouq_fd = fopen(UBOUQUETS_XML, "w");
-	if (!ubouq_fd) {
-		perror(BOUQUETS_XML);
-		return;
-	}
-	fprintf(ubouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit api=\"4\">\n");
-	for (unsigned int i = 0; i < Bouquets.size(); i++) {
-		if (Bouquets[i] != remainChannels) {
-			if(Bouquets[i]->bUser) {
-				writeBouquet(ubouq_fd, i, true);
-			}
-		}
-	}
-	fprintf(ubouq_fd, "</zapit>\n");
-	fdatasync(fileno(ubouq_fd));
-	fclose(ubouq_fd);
-	chmod(UBOUQUETS_XML, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	return writeBouquetFile(UBOUQUETS_XML, true);
 }
 
 void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, const char * const providerName, t_satellite_position satellitePosition)
@@ -494,6 +512,9 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 
 void CBouquetManager::sortBouquets(void)
 {
+	// Reorders the vector in place. Under the lock all the same, because a
+	// walk of it beside a sort reads entries that have already moved.
+	CServiceManager::ChannelGuard guard;
 	sort(Bouquets.begin(), Bouquets.end(), CmpBouquetByChName());
 }
 
@@ -715,6 +736,9 @@ void CBouquetManager::renumServices()
 	remainChannels = NULL;
 #endif
 	if(remainChannels) {
+		// The two lists a reader may be walking, emptied. Under the lock for
+		// the reason every other change of their length is.
+		CServiceManager::ChannelGuard guard;
 		remainChannels->tvChannels.clear();
 		remainChannels->radioChannels.clear();
 	}
@@ -734,6 +758,13 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	newBouquet->satellitePosition = INVALID_SAT_POSITION;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
+	/* From here down the vector itself changes, and both forms of that move
+	   what is already in it: an insert shifts the tail and either may take a
+	   longer block and copy the lot into it. Threads other than this one walk
+	   the vector under the channel manager's lock, so it is taken here. Only
+	   around the change, the bouquet above being this thread's own until it
+	   goes in. */
+	CServiceManager::ChannelGuard guard;
 	if(ub) {
 		BouquetList::iterator it;
 		if (to_begin) {
@@ -749,13 +780,22 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	return newBouquet;
 }
 
+/* Both forms take the lock and neither calls the other, because the lock is not
+   one a thread may take twice. What they share is the body below it. */
 void CBouquetManager::deleteBouquet(const unsigned int id)
 {
+	CServiceManager::ChannelGuard guard;
 	if (id < Bouquets.size() && Bouquets[id] != remainChannels)
-		deleteBouquet(Bouquets[id]);
+		deleteBouquetLocked(Bouquets[id]);
 }
 
 void CBouquetManager::deleteBouquet(const CZapitBouquet* bouquet)
+{
+	CServiceManager::ChannelGuard guard;
+	deleteBouquetLocked(bouquet);
+}
+
+void CBouquetManager::deleteBouquetLocked(const CZapitBouquet* bouquet)
 {
 	if (bouquet != NULL) {
 		BouquetList::iterator it = find(Bouquets.begin(), Bouquets.end(), bouquet);
@@ -889,7 +929,9 @@ bool CBouquetManager::existsChannelInBouquet( unsigned int bq_id, const t_channe
 	bool     status = false;
 	CZapitChannel  *ch = NULL;
 
-	if (bq_id <= Bouquets.size()) {
+	// An id equal to the size is one past the last bouquet, so the comparison
+	// has to be the strict one every other bounds check here uses.
+	if (bq_id < Bouquets.size()) {
 		// query TV-Channels  && Radio channels
 		ch = Bouquets[bq_id]->getChannelByChannelID(channel_id, 0);
 		if (ch)  status = true;
@@ -899,6 +941,7 @@ bool CBouquetManager::existsChannelInBouquet( unsigned int bq_id, const t_channe
 
 void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int newId)
 {
+	CServiceManager::ChannelGuard guard;
 	if ((oldId < Bouquets.size()) && (newId < Bouquets.size())) {
 		BouquetList::iterator it = Bouquets.begin();
 
@@ -914,8 +957,16 @@ void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int n
 
 void CBouquetManager::clearAll(bool user)
 {
+	/* Outside the lock: this waits for the logo thread to finish what it is
+	   downloading, and that thread reads the channel map. */
 	LogoStop();
 	LogoList.clear();
+
+	/* This is the destruction a reader on another thread must never be inside
+	   of: every bouquet the walk below frees is one such a reader may be
+	   holding, and the vector is emptied under it. Threads that walk it hold
+	   the channel manager's lock, so it is taken here for the whole of it. */
+	CServiceManager::ChannelGuard guard;
 
 	BouquetList tmplist;
 	for (unsigned int i =0; i < Bouquets.size(); i++) {
@@ -933,6 +984,9 @@ void CBouquetManager::clearAll(bool user)
 
 void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
 {
+	// Frees bouquets and writes the vector again, which is what clearAll does
+	// and is held against readers for the same reason.
+	CServiceManager::ChannelGuard guard;
 	BouquetList tmplist;
 	for (unsigned int i =0; i < Bouquets.size(); i++) {
 		if (satellitePosition == Bouquets[i]->satellitePosition) {

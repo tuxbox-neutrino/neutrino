@@ -121,7 +121,21 @@ typedef std::set<int> casys_pids_t;
 typedef casys_map_t::iterator casys_map_iterator_t;
 typedef casys_pids_t::iterator casys_pids_iterator_t;
 
-class CZapitChannel
+/* pname borrows the name buffer of the bouquet the channel sits in, so a copy
+ * of the channel must not carry it. Held in a base of its own because the
+ * member is public and read on live channels all over the tree, which a copy
+ * with no name still has to compile against. */
+class CZapitChannelProvider
+{
+	public:
+		char *				pname;
+
+		CZapitChannelProvider() : pname(NULL) {}
+		CZapitChannelProvider(const CZapitChannelProvider &) : pname(NULL) {}
+		CZapitChannelProvider & operator=(const CZapitChannelProvider &) { pname = NULL; return *this; }
+};
+
+class CZapitChannel : public CZapitChannelProvider
 {
 	private:
 		/* channel name */
@@ -139,9 +153,26 @@ class CZapitChannel
 		std::string desc;
 		std::string altlogo;
 
-		/* pids of this channel */
-		std::vector <CZapitAbsSub* > channelSubs;
-		std::vector <CZapitAudioChannel *> audioChannels;
+		/* The channel deletes the subtitle, audio and PMT allocations, so a
+		 * copy must not take them over. Grouped into a member with its own
+		 * copy operations, which keeps the ones the compiler writes for the
+		 * channel correct whatever is added to the class later. A copy
+		 * therefore carries every other member - the metadata, the pids,
+		 * the flags and the CA containers - but none of these allocations. */
+		struct owned_t
+		{
+			std::vector <CZapitAbsSub *> channelSubs;
+			std::vector <CZapitAudioChannel *> audioChannels;
+			unsigned char *			rawPmt;
+			int				pmtLen;
+
+			owned_t() : rawPmt(NULL), pmtLen(0) {}
+			owned_t(const owned_t &) : rawPmt(NULL), pmtLen(0) {}
+			/* Drops what the target held, so an assigned channel ends up
+			 * in the same state a constructed copy does. */
+			owned_t & operator=(const owned_t &other);
+		};
+		owned_t				owned;
 
 		unsigned short			pcrPid;
 		unsigned short			pmtPid;
@@ -173,8 +204,6 @@ class CZapitChannel
 
 		/* the conditional access program map table of this channel */
 		//CCaPmt * 			caPmt;
-		unsigned char			* rawPmt;
-		int				pmtLen;
 		uint8_t				pmt_version;
 
 		/* from neutrino CChannel class */
@@ -215,7 +244,6 @@ class CZapitChannel
 		int				type;
 		t_channel_id			channel_id;
 		unsigned char			scrambled;
-		char *				pname;
 		bool				has_bouquet;
 		uint8_t				polarization;
 		int				flags;
@@ -250,7 +278,7 @@ class CZapitChannel
 		const std::string&	getUrl(void)			const { return url; }
 		const std::string&	getDesc(void)			const { return desc; }
 		t_satellite_position	getSatellitePosition(void)	const { return satellitePosition; }
-		unsigned char 		getAudioChannelCount(void)	{ return (unsigned char) audioChannels.size(); }
+		unsigned char 		getAudioChannelCount(void)	{ return (unsigned char) owned.audioChannels.size(); }
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
 		unsigned short		getPmtPid(void)			{ return pmtPid; }
 #if ENABLE_AITSCAN
@@ -263,7 +291,7 @@ class CZapitChannel
 		unsigned short		getPreAudioPid(void)		{ return audioPid; }
 		bool			getPidsFlag(void)		{ return pidsFlag; }
 		//CCaPmt *		getCaPmt(void)			{ return caPmt; }
-		unsigned char *		getRawPmt(int &len)		{ len = pmtLen; return rawPmt; };
+		unsigned char *		getRawPmt(int &len)		{ len = owned.pmtLen; return owned.rawPmt; };
 		uint8_t			getPmtVersion(void)		{ return pmt_version; };
 
 		CZapitAudioChannel * 	getAudioChannel(unsigned char index = 0xFF);
@@ -276,7 +304,7 @@ class CZapitChannel
 		void setServiceType(const unsigned char pserviceType)	{ serviceType = pserviceType; }
 		inline void setName(const std::string &pName)            { name = pName; }
 		inline void setUserName(const std::string &pName)            { uname = pName; }
-		void setAudioChannel(unsigned char pAudioChannel)	{ if (pAudioChannel < audioChannels.size()) currentAudioChannel = pAudioChannel; }
+		void setAudioChannel(unsigned char pAudioChannel)	{ if (pAudioChannel < owned.audioChannels.size()) currentAudioChannel = pAudioChannel; }
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
 #if ENABLE_AITSCAN
@@ -298,7 +326,7 @@ class CZapitChannel
 
 		void addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id);
 
-		size_t getSubtitleCount() const { return channelSubs.size(); };
+		size_t getSubtitleCount() const { return owned.channelSubs.size(); };
 		CZapitAbsSub* getChannelSub(int index = -1);
 		int getChannelSubIndex(void);
 		void setChannelSub(int subIdx);

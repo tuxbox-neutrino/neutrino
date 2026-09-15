@@ -439,19 +439,30 @@ class CZapitClient:public CBasicClient
 	/*					*/
 	/****************************************/
 
+	/* Each of the ten below hands one command to the channel daemon and says
+	   whether it got there. A command that was never written is not a change,
+	   and while these answered nothing at all a caller could not tell the two
+	   apart: with the daemon's socket gone the box goes on running and a web
+	   request was answered as done while the bouquet list stood still.
+
+	   True says the daemon was reached, not that it did what was asked. Only
+	   the save at the end of the list is acknowledged, so every caller reads
+	   its work back either way. Nothing changes for a caller that ignores the
+	   answer, which is every caller these had before. */
+
 	/* adds bouquet at the end of the bouquetlist*/
-	void addBouquet(const char * const name); // UTF-8 encoded
+	bool addBouquet(const char * const name); // UTF-8 encoded
 
 	/* moves a bouquet from one position to another */
 	/* bouquets are numbered starting at 0 */
-	void moveBouquet(const unsigned int bouquet, const unsigned int newPos);
+	bool moveBouquet(const unsigned int bouquet, const unsigned int newPos);
 	/* deletes a bouquet with all its channels */
 	/* bouquets are numbered starting at 0 */
-	void deleteBouquet(const unsigned int bouquet);
+	bool deleteBouquet(const unsigned int bouquet);
 
 	/* assigns new name to bouquet*/
 	/* bouquets are numbered starting at 0 */
-	void renameBouquet(const unsigned int bouquet, const char * const newName); // UTF-8 encoded
+	bool renameBouquet(const unsigned int bouquet, const char * const newName); // UTF-8 encoded
 
 	/* moves a channel of a bouquet from one position to another, channel lists begin at position=1*/
 	/* bouquets are numbered starting at 0 */
@@ -473,27 +484,28 @@ class CZapitClient:public CBasicClient
 	/* same channels can be in more than one bouquet */
 	/* bouquets can contain both tv and radio channels */
 	/* bouquets are numbered starting at 0 */
-	void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
+	bool addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
 
 	/* removes a channel from specified bouquet */
 	/* bouquets are numbered starting at 0 */
-	void removeChannelFromBouquet(const unsigned int bouquet, const t_channel_id channel_id);
+	bool removeChannelFromBouquet(const unsigned int bouquet, const t_channel_id channel_id);
 
 	/* set a bouquet's lock-state*/
 	/* bouquets are numbered starting at 0 */
-	void setBouquetLock(const unsigned int bouquet, const bool lock);
+	bool setBouquetLock(const unsigned int bouquet, const bool lock);
 
 	/* set a bouquet's hidden-state*/
 	/* bouquets are numbered starting at 0 */
-	void setBouquetHidden(const unsigned int bouquet, const bool hidden);
+	bool setBouquetHidden(const unsigned int bouquet, const bool hidden);
 
 	/* renums the channellist, means gives the channels new numbers */
 	/* based on the bouquet order and their order within bouquets */
 	/* necessarily after bouquet editing operations*/
-	void renumChannellist();
+	bool renumChannellist();
 
 	/* saves current bouquet configuration to bouquets.xml */
-	void saveBouquets(const bool saveall = false);
+	/* answers whether the daemon wrote both files, not whether it was asked */
+	bool saveBouquets(const bool saveall = false) __attribute__((warn_unused_result));
 
 	/****************************************/
 	/*					*/

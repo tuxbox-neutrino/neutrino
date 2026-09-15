@@ -92,8 +92,8 @@ void CZapitChannel::Init()
 {
 	uname = DEFAULT_CH_UNAME;
 	//caPmt = NULL;
-	rawPmt = NULL;
-	pmtLen = 0;
+	owned.rawPmt = NULL;
+	owned.pmtLen = 0;
 	type = 0;
 	number = 0;
 	scrambled = 0;
@@ -122,6 +122,25 @@ void CZapitChannel::Init()
 #endif
 }
 
+CZapitChannel::owned_t & CZapitChannel::owned_t::operator=(const owned_t &other)
+{
+	if (this == &other)
+		return *this;
+
+	for (std::vector<CZapitAbsSub *>::iterator sI = channelSubs.begin(); sI != channelSubs.end(); ++sI)
+		delete *sI;
+	channelSubs.clear();
+
+	for (std::vector<CZapitAudioChannel *>::iterator aI = audioChannels.begin(); aI != audioChannels.end(); ++aI)
+		delete *aI;
+	audioChannels.clear();
+
+	delete [] rawPmt;
+	rawPmt = NULL;
+	pmtLen = 0;
+	return *this;
+}
+
 CZapitChannel::~CZapitChannel(void)
 {
 //printf("DEL CHANNEL %s %x subs %d\n", name.c_str(), (int) this, getSubtitleCount());
@@ -137,9 +156,9 @@ CZapitAudioChannel *CZapitChannel::getAudioChannel(unsigned char index)
 	CZapitAudioChannel *retval = NULL;
 
 	if ((index == 0xFF) && (currentAudioChannel < getAudioChannelCount()))
-		retval = audioChannels[currentAudioChannel];
+		retval = owned.audioChannels[currentAudioChannel];
 	else if (index < getAudioChannelCount())
-		retval = audioChannels[index];
+		retval = owned.audioChannels[index];
 
 	return retval;
 }
@@ -149,9 +168,9 @@ unsigned short CZapitChannel::getAudioPid(unsigned char index)
 	unsigned short retval = 0;
 
 	if ((index == 0xFF) && (currentAudioChannel < getAudioChannelCount()))
-		retval = audioChannels[currentAudioChannel]->pid;
+		retval = owned.audioChannels[currentAudioChannel]->pid;
 	else if (index < getAudioChannelCount())
-		retval = audioChannels[index]->pid;
+		retval = owned.audioChannels[index]->pid;
 
 	return retval;
 }
@@ -160,7 +179,7 @@ int CZapitChannel::addAudioChannel(const unsigned short pid, const CZapitAudioCh
 {
 	std::vector <CZapitAudioChannel *>::iterator aI;
 
-	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI)
+	for (aI = owned.audioChannels.begin(); aI != owned.audioChannels.end(); ++aI)
 		if ((* aI)->pid == pid) {
 			(* aI)->description = description;
                         (* aI)->audioChannelType = audioChannelType;
@@ -172,7 +191,7 @@ int CZapitChannel::addAudioChannel(const unsigned short pid, const CZapitAudioCh
 	tmp->audioChannelType = audioChannelType;
 	tmp->description = description;
 	tmp->componentTag = componentTag;
-	audioChannels.push_back(tmp);
+	owned.audioChannels.push_back(tmp);
 	return 0;
 }
 
@@ -180,11 +199,11 @@ void CZapitChannel::resetPids(void)
 {
 	std::vector<CZapitAudioChannel *>::iterator aI;
 
-	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI) {
+	for (aI = owned.audioChannels.begin(); aI != owned.audioChannels.end(); ++aI) {
 		delete *aI;
 	}
 
-	audioChannels.clear();
+	owned.audioChannels.clear();
 	currentAudioChannel = 0;
 
 	pcrPid = 0;
@@ -195,9 +214,9 @@ void CZapitChannel::resetPids(void)
 
 	/*privatePid = 0;*/
 	pidsFlag = false;
-	for (auto subI = channelSubs.begin(); subI != channelSubs.end(); ++subI)
+	for (auto subI = owned.channelSubs.begin(); subI != owned.channelSubs.end(); ++subI)
 		delete *subI;
-	channelSubs.clear();
+	owned.channelSubs.clear();
 	currentSub = 0;
 }
 
@@ -267,7 +286,7 @@ void CZapitChannel::addTTXSubtitle(const unsigned int pid, const std::string lan
 
 printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCode.c_str(), mag_nr, page_number);
 	std::vector<CZapitAbsSub*>::iterator subI;
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
+	for (subI=owned.channelSubs.begin(); subI!=owned.channelSubs.end();++subI){
 		if ((*subI)->thisSubType==CZapitAbsSub::TTX){
 			tmpSub=reinterpret_cast<CZapitTTXSub*>(*subI);
 			if (tmpSub->ISO639_language_code == langCode) {
@@ -287,7 +306,7 @@ printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCod
 		tmpSub=oldSub;
 	} else {
 		tmpSub = new CZapitTTXSub();
-		channelSubs.push_back(tmpSub);
+		owned.channelSubs.push_back(tmpSub);
 	}
 	tmpSub->pId=pid;
 	tmpSub->ISO639_language_code=langCode;
@@ -302,7 +321,7 @@ void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string lan
 	CZapitDVBSub* tmpSub = 0;
 	std::vector<CZapitAbsSub*>::iterator subI;
 printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n", pid, langCode.c_str(), composition_page_id, ancillary_page_id);
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
+	for (subI=owned.channelSubs.begin(); subI!=owned.channelSubs.end();++subI){
 		if ((*subI)->thisSubType==CZapitAbsSub::DVB){
 			tmpSub=reinterpret_cast<CZapitDVBSub*>(*subI);
 			if (tmpSub->ISO639_language_code==langCode) {
@@ -324,7 +343,7 @@ printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n
 		tmpSub = oldSub;
 	} else {
 		tmpSub = new CZapitDVBSub();
-		channelSubs.push_back(tmpSub);
+		owned.channelSubs.push_back(tmpSub);
 	}
 
 	tmpSub->pId=pid;
@@ -339,10 +358,10 @@ CZapitAbsSub* CZapitChannel::getChannelSub(int index)
     CZapitAbsSub* retval = NULL;
 
     if ((index < 0) && (currentSub < getSubtitleCount())){
-        retval = channelSubs[currentSub];
+        retval = owned.channelSubs[currentSub];
     } else {
         if ((index >= 0) && (index < (int)getSubtitleCount())) {
-            retval = channelSubs[index];
+            retval = owned.channelSubs[index];
         }
     }
     return retval;
@@ -351,7 +370,7 @@ CZapitAbsSub* CZapitChannel::getChannelSub(int index)
 //never used
 void CZapitChannel::setChannelSub(int subIdx)
 {
-    if (subIdx < (int)channelSubs.size()){
+    if (subIdx < (int)owned.channelSubs.size()){
         currentSub=subIdx;
     }
 }
@@ -372,10 +391,10 @@ void CZapitChannel::setCaPmt(CCaPmt *pCaPmt)
 
 void CZapitChannel::setRawPmt(unsigned char * pmt, int len)
 {
-	if(rawPmt)
-		delete[] rawPmt;
-	rawPmt = pmt;
-	pmtLen = len;
+	if(owned.rawPmt)
+		delete[] owned.rawPmt;
+	owned.rawPmt = pmt;
+	owned.pmtLen = len;
 }
 
 void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)

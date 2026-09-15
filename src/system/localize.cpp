@@ -38,6 +38,8 @@
 #include <system/localize.h>
 #include <system/locals_intern.h>
 
+#include <OpenThreads/ScopedLock>
+
 #include <cstring>
 #include <fstream>
 #include <string>
@@ -113,6 +115,15 @@ const char * path[2] = { LOCALEDIR_VAR, LOCALEDIR };
 
 CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const locale, bool asdefault)
 {
+	/* From here to the end, because between the free below and the last entry
+	   being written the table points partly into a block that has gone. Held
+	   against getString and against nothing else: a reader on another thread
+	   is safe only through getString, which waits for one string copy, and
+	   getText is not held. Here no caller off the loop asks getString yet.
+	   Reading the file inside is what such a caller would wait for, and a
+	   language is loaded when somebody changes it. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(catalog_mutex);
+
 	FILE * fd = NULL;
 	char ** loadData = asdefault ? defaultData : localeData;
 
@@ -251,9 +262,33 @@ const char * CLocaleManager::getText(const neutrino_locale_t keyName) const
 	return localeData[keyName];
 }
 
+/* A copy, taken with the lock held, which is the whole of what makes this one
+   safe to ask from a thread other than the one that loads a language. */
 std::string CLocaleManager::getString(const neutrino_locale_t keyName) const
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(catalog_mutex);
 	return (std::string) localeData[keyName];
+}
+
+/* The way back from the name a locale is written under to the value the screens
+   pass around. Against the untranslated names and not the loaded ones, so the
+   answer does not move with the language.
+
+   Here because nothing outside this file can see the table: it is defined in a
+   header, and a second translation unit including it would carry a second copy.
+   Linear over a few thousand entries, which is what a caller holding a name
+   rather than a value asks for at most once per setting it applies. */
+neutrino_locale_t CLocaleManager::getLocale(const char * const name)
+{
+	if (name == NULL)
+		return NONEXISTANT_LOCALE;
+
+	// From one, because entry nought is the answer for a name nothing has.
+	for (unsigned int i = 1; i < sizeof(locale_real_names)/sizeof(const char *); i++)
+		if (strcmp(name, locale_real_names[i]) == 0)
+			return (neutrino_locale_t) i;
+
+	return NONEXISTANT_LOCALE;
 }
 
 static const neutrino_locale_t locale_weekday[7] =

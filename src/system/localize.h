@@ -39,6 +39,8 @@
 #include <string>
 #include <map>
 
+#include <OpenThreads/Mutex>
+
 void initialize_iso639_map(void);
 const char * getISO639Description(const char * const iso);
 extern std::map<std::string, std::string> iso639;
@@ -54,7 +56,14 @@ class CLocaleManager
 
 		char * localeDataMem;
 		char * defaultDataMem;
-		
+
+		/* Loading a language frees the block every entry in the table points
+		 * into and writes the whole table again. getString copies under this
+		 * so a caller on another thread cannot be handed a pointer into what
+		 * is being freed. getText hands the pointer itself over and is not
+		 * held: what it is safe by is being called from the loop that loads. */
+		mutable OpenThreads::Mutex catalog_mutex;
+
 	public:
 		enum loadLocale_ret_t
 			{
@@ -68,9 +77,18 @@ class CLocaleManager
 
 		loadLocale_ret_t loadLocale(const char * const locale, bool asdefault = false);
 
+		/* The pointer itself, which stays this manager's. Only safe on the
+		 * thread that loads a language; anywhere else getString is the one to
+		 * ask. */
 		const char * getText(const neutrino_locale_t keyName) const;
+		// A copy taken under the lock, which is what a thread other than the
+		// loop's may ask for.
 		std::string getString(const neutrino_locale_t keyName) const;
 		std::string getTextAsString(const neutrino_locale_t keyName) const {return (static_cast<std::string>(getText(keyName)));}
+
+		// NONEXISTANT_LOCALE for a name nothing is written under, which is
+		// what a caller has to tell from a locale it can pass on.
+		static neutrino_locale_t getLocale (const char * const name);
 
 		static neutrino_locale_t getMonth  (const struct tm * struct_tm_p);
 		static neutrino_locale_t getMonth  (const int mon);

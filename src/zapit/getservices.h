@@ -33,8 +33,12 @@
 #include "transponder.h"
 #include <xmltree/xmlinterface.h>
 
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
+
 #include <map>
 #include <list>
+#include <vector>
 
 extern transponder_list_t transponders;
 
@@ -81,6 +85,16 @@ class CServiceManager
 		service_number_map_t radio_numbers;
 		bool services_changed;
 
+		/* Web and GUI threads read the three channel maps while zapit
+		 * rebuilds them. */
+		OpenThreads::Mutex channels_mutex;
+
+		/* LoadServices has an entry point on the zapit thread and one on the
+		 * GUI thread, and the scan lists it reads first are outside
+		 * channels_mutex. Taken by that function alone, and always before
+		 * channels_mutex. */
+		OpenThreads::Mutex service_load_mutex;
+
 		bool keep_numbers;
 		bool have_numbers;
 		bool dup_numbers;
@@ -95,6 +109,9 @@ class CServiceManager
 		void ParseSatTransponders(delivery_system_t delsys, xmlNodePtr search, t_satellite_position satellitePosition);
 
 		bool LoadScanXml(delivery_system_t delsys);
+
+		/* Callers already hold channels_mutex. */
+		bool AddChannelLocked(CZapitChannel * &channel);
 
 		void WriteSatHeader(FILE * fd, sat_config_t &config);
 		void WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
@@ -139,6 +156,29 @@ class CServiceManager
 		CZapitChannel * GetCurrentChannel(void);
 
 		std::string GetServiceName(t_channel_id channel_id);
+
+		/* Every accessor that hands out a pointer into a channel map stays
+		 * unlocked, because the whole GUI holds such pointers across calls.
+		 * Whoever keeps one has to hold this for as long as it is used.
+		 * CopyChannel takes it itself and must not be called under it. */
+		void LockChannels() { channels_mutex.lock(); }
+		void UnlockChannels() { channels_mutex.unlock(); }
+
+		class ChannelGuard
+		{
+			public:
+				ChannelGuard() { CServiceManager::getInstance()->LockChannels(); }
+				~ChannelGuard() { CServiceManager::getInstance()->UnlockChannels(); }
+			private:
+				ChannelGuard(const ChannelGuard &);
+				ChannelGuard & operator=(const ChannelGuard &);
+		};
+
+		/* Snapshots, so a caller cannot keep a pointer into a map that the
+		 * next channel reload frees. A copied channel carries the pids, the
+		 * flags and the CA containers, but no audio tracks, subtitles or
+		 * PMT, see CZapitChannel::owned_t. */
+		bool CopyChannel(const t_channel_id channel_id, CZapitChannel &out);
 
 		tallchans* GetAllChannels(){ return &allchans; };
 		bool GetAllRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);

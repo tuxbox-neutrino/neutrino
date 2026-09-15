@@ -87,8 +87,8 @@ int CFavorites::addChannelToFavorites(bool show_list)
 		status |= 2;
 	}
 
-	if (status)
-		g_Zapit->saveBouquets();
+	if (status && !g_Zapit->saveBouquets())
+		printf("[favorites] the bouquet files were not written\n");
 
 	return status;
 }

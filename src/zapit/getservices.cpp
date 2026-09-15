@@ -92,7 +92,7 @@ xmlDocPtr CServiceManager::ScanXml()
 	return scanInputParser;
 }
 #endif
-bool CServiceManager::AddChannel(CZapitChannel * &channel)
+bool CServiceManager::AddChannelLocked(CZapitChannel * &channel)
 {
 	channel_insert_res_t ret = allchans.insert (
 		channel_pair_t (channel->getChannelID(), *channel));
@@ -103,8 +103,15 @@ bool CServiceManager::AddChannel(CZapitChannel * &channel)
 	return ret.second;
 }
 
+bool CServiceManager::AddChannel(CZapitChannel * &channel)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+	return AddChannelLocked(channel);
+}
+
 bool CServiceManager::AddCurrentChannel(CZapitChannel * &channel)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
 	channel_insert_res_t ret = curchans.insert (
 			channel_pair_t (channel->getChannelID(), *channel));
 	delete channel;
@@ -114,6 +121,7 @@ bool CServiceManager::AddCurrentChannel(CZapitChannel * &channel)
 
 bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
 	t_service_id          service_id = channel->getServiceId();
 	t_original_network_id original_network_id = channel->getOriginalNetworkId();
 	t_transport_stream_id transport_stream_id = channel->getTransportStreamId();
@@ -133,6 +141,7 @@ bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 
 void CServiceManager::ResetChannelNumbers(bool bouquets, bool numbers)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 #if 0 /* force to get free numbers if there are any */
 		if(have_numbers) {
@@ -156,19 +165,24 @@ void CServiceManager::ResetChannelNumbers(bool bouquets, bool numbers)
 
 void CServiceManager::RemoveChannel(const t_channel_id channel_id)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
 	allchans.erase(channel_id);
 	services_changed = true;
 }
 
 void CServiceManager::RemoveAllChannels()
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
 	allchans.clear();
 }
 
 void CServiceManager::RemovePosition(t_satellite_position satellitePosition)
 {
-	INFO("delete %d, size before: %zd", satellitePosition, allchans.size());
+	/* Read before the lock, which does not cover it: a plain member of CZapit. */
 	t_channel_id live_id = CZapit::getInstance()->GetCurrentChannelID();
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+	INFO("delete %d, size before: %zd", satellitePosition, allchans.size());
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end();) {
 		if (it->second.getSatellitePosition() == satellitePosition && live_id != it->first)
 			allchans.erase(it++);
@@ -188,6 +202,7 @@ void CServiceManager::RemoveNVODChannels()
 #endif
 void CServiceManager::RemoveCurrentChannels()
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
 	curchans.clear();
 }
 
@@ -386,6 +401,7 @@ bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transpon
 
 std::string CServiceManager::GetServiceName(t_channel_id channel_id)
 {
+        OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
         channel_map_iterator_t it = allchans.find(channel_id);
         if (it != allchans.end())
                 return it->second.getName();
@@ -574,7 +590,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				channel_numbers->insert(number);
 		}
 
-		bool ret = AddChannel(channel);
+		bool ret = AddChannelLocked(channel);
 		//printf("INS CHANNEL %s %x\n", name.c_str(), (int) &ret.first->second);
 		if(ret == false) {
 			printf("[zapit] duplicate channel %s id %" PRIx64 " freq %d (old %s at %d)\n",
@@ -904,42 +920,68 @@ bool CServiceManager::LoadScanXml(delivery_system_t delsys)
 
 bool CServiceManager::LoadServices(bool only_current)
 {
+	/* Two threads reach this, and the phase below runs before the map is
+	 * locked, so without this they would rebuild the scan lists into each
+	 * other. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> load_lock(service_load_mutex);
+
+#if !HAVE_GENERIC_HARDWARE
+	/* Reading services.xml needs no tuner, and the three frontend queries
+	 * further down only decide which scan lists to add, so the PC build does
+	 * not refuse here. In this tree CZapit::Start() stops without a frontend
+	 * before this is reached, so for now that changes nothing. */
 	if(CFEManager::getInstance()->getLiveFE() == NULL)
 		return false;
+#endif
 
 	xmlDocPtr parser;
 	service_count = 0;
 	printf("[zapit] Loading services, channel size %d ..\n", (int)sizeof(CZapitChannel));
 
+	TIMER_START();
+
+	/* Outside the lock: the scan lists write only the satellite positions,
+	 * their transponders, their own parser handle and the fake position
+	 * counters, and no method that takes the lock reads any of those.
+	 * Readers keep seeing the whole old map for as long as this takes. */
+	if(!only_current) {
+		fake_tid = fake_nid = 0;
+		fake_t_pos = 0xE11;
+		fake_c_pos = 0xF01;
+
+		if (CFEManager::getInstance()->haveSat()) {
+			INFO("Loading satellites...");
+			LoadScanXml(ALL_SAT);
+		}
+
+		if (CFEManager::getInstance()->haveCable()) {
+			INFO("Loading cables...");
+			LoadScanXml(ALL_CABLE);
+		}
+
+		if (CFEManager::getInstance()->haveTerr()) {
+			INFO("Loading terrestrial...");
+			LoadScanXml(ALL_TERR);
+		}
+	}
+
+	/* Held from the clear to the end of the parse, so a reader never sees the
+	 * map half rebuilt. Every reader on this lock stalls for that long, which
+	 * is services.xml, the updates file and the provider map off the flash
+	 * filesystem. Parsing into a second map instead would need the number
+	 * sets and the service counter swapped with it, so it is not a local
+	 * change. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+
 	if(only_current)
 		goto do_current;
 
-	TIMER_START();
 	allchans.clear();
 	transponders.clear();
 	tv_numbers.clear();
 	radio_numbers.clear();
 	have_numbers = false;
 	dup_numbers = false;
-
-	fake_tid = fake_nid = 0;
-	fake_t_pos = 0xE11;
-	fake_c_pos = 0xF01;
-
-	if (CFEManager::getInstance()->haveSat()) {
-		INFO("Loading satellites...");
-		LoadScanXml(ALL_SAT);
-	}
-
-	if (CFEManager::getInstance()->haveCable()) {
-		INFO("Loading cables...");
-		LoadScanXml(ALL_CABLE);
-	}
-
-	if (CFEManager::getInstance()->haveTerr()) {
-		INFO("Loading terrestrial...");
-		LoadScanXml(ALL_TERR);
-	}
 
 	parser = parseXmlFile(SERVICES_XML);
 	if (parser != NULL) {
@@ -1135,6 +1177,14 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed, bool no_deleted
 
 bool CServiceManager::CopyCurrentServices(transponder_id_t tpid)
 {
+	/* The channel map is written here: entries added, names replaced and flags
+	   set. It runs on the thread that watches the service tables, which finds
+	   one changed transponder now and then on a box nobody has touched, and
+	   readers on other threads walk the map under this lock. Nothing below
+	   reaches back into this manager, so there is nothing for it to take
+	   twice. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+
 	channel_map_iterator_t aI;
 	bool updated = false;
 
@@ -1451,11 +1501,24 @@ bool CServiceManager::IsChannelTVChannel(const t_channel_id channel_id)
 void CServiceManager::SetCIFilter()
 {
 	bool enable = false;
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if (it->second.bUseCI) {
-			enable = true;
-			break;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+		for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+			if (it->second.bUseCI) {
+				enable = true;
+				break;
+			}
 		}
 	}
 	CCamManager::getInstance()->EnableChannelFilter(enable);
+}
+
+bool CServiceManager::CopyChannel(const t_channel_id channel_id, CZapitChannel &out)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+	channel_map_iterator_t it = allchans.find(channel_id);
+	if (it == allchans.end())
+		return false;
+	out = it->second;
+	return true;
 }

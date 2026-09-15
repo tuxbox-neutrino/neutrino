@@ -4,6 +4,7 @@
 #include "pictureviewer.h"
 #include <gui/movieplayer.h>
 #include <eitd/sectionsd.h>
+#include <zapit/getservices.h>
 #include "pv_config.h"
 #include <system/debug.h>
 #include <system/helpers.h>
@@ -549,6 +550,10 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	std::vector<std::string> v_file;
 	bool got_logo = false;
 
+	/* Copied under the lock: a request for a channel logo is answered on one of
+	   the web server's threads and the box's loop assigns to this from a screen. */
+	const std::string logodir = settingsText(g_settings.logo_hdd_dir);
+
 	// create eventname for eventlogos; Note: We don't process channellogos if any eventlogo was found.
 	std::string EventName = "";
 	int mode = CNeutrinoApp::getInstance()->getMode();
@@ -578,22 +583,22 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		{
 			case LCD4LINUX:
 #ifdef ENABLE_LCD4LINUX
-				v_path.push_back(g_settings.lcd4l_logodir);
+				v_path.push_back(settingsText(g_settings.lcd4l_logodir));
 #endif
 				break;
 			case GRAPHLCD:
 #ifdef ENABLE_GRAPHLCD
-				v_path.push_back(g_settings.glcd_logodir);
+				v_path.push_back(settingsText(g_settings.glcd_logodir));
 #endif
 				break;
 			case NOPE:
 			default:
 				break;
 		}
-		v_path.push_back(g_settings.logo_hdd_dir);
-		if (g_settings.logo_hdd_dir != LOGODIR_VAR)
+		v_path.push_back(logodir);
+		if (logodir != LOGODIR_VAR)
 			v_path.push_back(LOGODIR_VAR);
-		if (g_settings.logo_hdd_dir != LOGODIR)
+		if (logodir != LOGODIR)
 			v_path.push_back(LOGODIR);
 
 		EventName = GetSpecialName(EventName);
@@ -634,19 +639,32 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 	char e2filename2[255];
 	e2filename2[0] = '\0';
 
-	CZapitChannel * cc = NULL;
-	if (ChannelID && CNeutrinoApp::getInstance()->channelList)
-		cc = CNeutrinoApp::getInstance()->channelList->getChannel(ChannelID);
+	/* A copy taken under the service manager's own lock, and not a pointer out
+	   of the application's channel list. That list is a vector of borrowed
+	   pointers which the main loop deletes and builds again whenever the
+	   channels are read in, and this search is reached from the web server's
+	   threads as well, where a walk of it names freed objects. The two values
+	   read below are plain members, so a copy carries both.
 
-	if (cc)
+	   It also finds a channel the list on screen does not hold, a radio one
+	   while the box is in television mode among them. That adds two more file
+	   names built out of that channel's own identifier, so a channel can be
+	   found a picture it already had lying there and none can be given another
+	   channel's, and it lets the alternate logo be downloaded for such a channel
+	   and written back to it. */
+	CZapitChannel cc(std::string(), 0, 0, 0, 0);
+	const bool have_channel = ChannelID &&
+		CServiceManager::getInstance()->CopyChannel((t_channel_id) ChannelID, cc);
+
+	if (have_channel)
 	{
 		// create E2 filename1
 		snprintf(e2filename1, sizeof(e2filename1), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
-		         (u_int) cc->getServiceType(true),
+		         (u_int) cc.getServiceType(true),
 		         (u_int) ChannelID & 0xFFFF,
 		         (u_int) (ChannelID >> 32) & 0xFFFF,
 		         (u_int) (ChannelID >> 16) & 0xFFFF,
-		         (u_int) cc->getSatellitePosition());
+		         (u_int) cc.getSatellitePosition());
 
 		// create E2 filename2
 		snprintf(e2filename2, sizeof(e2filename2), "1_0_%X_%X_%X_%X_%X0000_0_0_0",
@@ -654,7 +672,7 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		         (u_int) ChannelID & 0xFFFF,
 		         (u_int) (ChannelID >> 32) & 0xFFFF,
 		         (u_int) (ChannelID >> 16) & 0xFFFF,
-		         (u_int) cc->getSatellitePosition());
+		         (u_int) cc.getSatellitePosition());
 	}
 
 	// add neccessary file masks to v_file
@@ -680,13 +698,13 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 				case LCD4LINUX:
 #ifdef ENABLE_LCD4LINUX
 					// process g_settings.lcd4l_logodir
-					v_path.push_back(g_settings.lcd4l_logodir + "/" + v_file[f] + fileType[i]);
+					v_path.push_back(settingsText(g_settings.lcd4l_logodir) + "/" + v_file[f] + fileType[i]);
 #endif
 					break;
 				case GRAPHLCD:
 #ifdef ENABLE_GRAPHLCD
 					// process g_settings.glcd_logodir
-					v_path.push_back(g_settings.glcd_logodir + "/" + v_file[f] + fileType[i]);
+					v_path.push_back(settingsText(g_settings.glcd_logodir) + "/" + v_file[f] + fileType[i]);
 #endif
 					break;
 				case NOPE:
@@ -694,12 +712,12 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 					break;
 			}
 			// process g_settings.logo_hdd_dir
-			v_path.push_back(g_settings.logo_hdd_dir + "/" + v_file[f] + fileType[i]);
+			v_path.push_back(logodir + "/" + v_file[f] + fileType[i]);
 			// process LOGODIR_VAR
-			if (g_settings.logo_hdd_dir != LOGODIR_VAR)
+			if (logodir != LOGODIR_VAR)
 				v_path.push_back(std::string(LOGODIR_VAR) + "/" + v_file[f] + fileType[i]);
 			// process LOGODIR
-			if (g_settings.logo_hdd_dir != LOGODIR)
+			if (logodir != LOGODIR)
 				v_path.push_back(std::string(LOGODIR) + "/" + v_file[f] + fileType[i]);
 		}
 
@@ -718,15 +736,27 @@ bool CPictureViewer::GetLogoName(const uint64_t &ChannelID, const std::string &C
 		}
 
 		// "alternate_logos" is a helper string from zapit/src/bouquets.cpp
-		if (cc && (name.compare("alternate_logos") != 0) && !got_logo)
+		if (have_channel && (name.compare("alternate_logos") != 0) && !got_logo)
 		{
-			if (!cc->getAlternateLogo().empty())
+			if (!cc.getAlternateLogo().empty())
 			{
-				std::string lname = downloadUrlToLogo(cc->getAlternateLogo(), LOGODIR_TMP, cc->getChannelID());
+				/* Outside every lock: this fetches the picture over the
+				   network, and a channel lock held across that would stop the
+				   box for as long as the far end takes. */
+				std::string lname = downloadUrlToLogo(cc.getAlternateLogo(), LOGODIR_TMP, cc.getChannelID());
 				if (width && height)
 					getSize(lname.c_str(), width, height);
 				name = lname;
-				cc->setAlternateLogo(lname);
+
+				/* Written back to where the channel really sits, the copy above
+				   being this thread's own. Looked up again rather than kept as
+				   a pointer, because the channels may have been read in while
+				   the download ran. */
+				CServiceManager::ChannelGuard guard;
+				CZapitChannel *live =
+					CServiceManager::getInstance()->FindChannel((t_channel_id) ChannelID);
+				if (live)
+					live->setAlternateLogo(lname);
 				return true;
 			}
 		}
