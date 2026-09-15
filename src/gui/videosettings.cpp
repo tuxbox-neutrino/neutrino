@@ -63,6 +63,10 @@
 #include <cs_api.h>
 #include <hardware/video.h>
 
+#include <coreapi/base/deps.h>
+
+#include <cstring>
+
 #ifdef BOXMODEL_CST_HD2
 #include <cnxtfb.h>
 #endif
@@ -338,6 +342,185 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 };
 #endif
 
+/* What this screen offers for the three settings whose set of values the box
+   decides rather than the source: the video modes, which are a table per box
+   model with the ones that model cannot draw marked out, and the two analog
+   outputs, whose table is picked by a revision read at run time.
+
+   Written once and read twice, by the screen below and by the settings layer
+   through the seam at the foot of this file. A second copy of these conditions
+   would be right for one box model and quietly wrong for the next, which is
+   exactly the failure nothing running would report: the box would refuse a mode
+   a frontend offered, or take one it cannot show. */
+
+// The modes this box has, out of the table for its model. into holds at least
+// VIDEOMENU_VIDEOMODE_OPTION_COUNT of them, which is every row of that table.
+static unsigned videoModeOptions(CMenuOptionChooser::keyval_ext *into)
+{
+	unsigned count = 0;
+	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+	{
+		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key == -1)
+			continue;
+		into[count] = VIDEOMENU_VIDEOMODE_OPTIONS[i];
+		count++;
+	}
+	return count;
+}
+
+/* Which item the box offers for an analog output and out of which table. The
+   item is part of the answer because the three the screen can draw carry three
+   different labels and only one of them is drawn on any box, so which table it
+   is and which item it belongs to are one decision and not two. */
+enum analog_item
+{
+	ANALOG_ITEM_NONE,
+	ANALOG_ITEM_MODE,
+	ANALOG_ITEM_SCART,
+	ANALOG_ITEM_CINCH
+};
+
+struct analog_offer
+{
+	analog_item                       item;
+	const CMenuOptionChooser::keyval *table;
+	unsigned                          count;
+	// The wording under the item, which one of the arms has never set and which
+	// the settings layer does not read at all.
+	neutrino_locale_t                 hint;
+};
+
+static analog_offer analogMode1Offer()
+{
+	analog_offer offer = { ANALOG_ITEM_NONE, NULL, 0, NONEXISTANT_LOCALE };
+	const unsigned int system_rev = cs_get_revision();
+
+	if (system_rev == 0x06)
+	{
+		offer.item = ANALOG_ITEM_MODE;
+		offer.table = VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS;
+		offer.count = VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT;
+		offer.hint = LOCALE_MENU_HINT_VIDEO_ANALOG_MODE;
+	}
+	else if (system_rev > 0x06)
+	{
+#if defined(BOXMODEL_CST_HD2) && defined(ANALOG_MODE)
+		offer.item = ANALOG_ITEM_MODE;
+		offer.table = VIDEOMENU_VIDEOSIGNAL_HD2_OPTIONS;
+		offer.count = VIDEOMENU_VIDEOSIGNAL_HD2_OPTION_COUNT;
+		offer.hint = LOCALE_MENU_HINT_VIDEO_ANALOG_MODE;
+#else
+		if (system_rev != 10)
+		{
+			offer.item = ANALOG_ITEM_SCART;
+			offer.table = VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS;
+			offer.count = VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT;
+			offer.hint = LOCALE_MENU_HINT_VIDEO_SCART_MODE;
+		}
+#endif
+	}
+#ifndef BOXMODEL_CST_HD2
+	else if (g_info.hw_caps->has_SCART)
+	{
+		offer.item = ANALOG_ITEM_SCART;
+		offer.table = VIDEOMENU_VIDEOSIGNAL_TD_OPTIONS;
+		offer.count = VIDEOMENU_VIDEOSIGNAL_TD_OPTION_COUNT;
+	}
+#endif
+
+	return offer;
+}
+
+static analog_offer analogMode2Offer()
+{
+	analog_offer offer = { ANALOG_ITEM_NONE, NULL, 0, NONEXISTANT_LOCALE };
+
+#if !(defined(BOXMODEL_CST_HD2) && defined(ANALOG_MODE))
+	if (cs_get_revision() > 0x06)
+	{
+		offer.item = ANALOG_ITEM_CINCH;
+		offer.table = VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS;
+		offer.count = VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT;
+		offer.hint = LOCALE_MENU_HINT_VIDEO_CINCH_MODE;
+	}
+#endif
+
+	return offer;
+}
+
+/* The same three sets, answered for the settings layer. Reached upwards, as an
+   applier is, because these lists are this screen's and that layer may not
+   reach into a screen.
+
+   The names are what a row asks under and are held to this list as text by
+   test/unit/scan/check-choices.sh, so a row asking under a name nothing here
+   answers stops the build rather than offering a setting with no values on
+   the box.
+
+   The text is what a person reads and not a name for the catalog. The video
+   modes carry no locale at all, "1080p 50Hz" among them, and the analog tables
+   carry one each, so both are turned into text here and a caller gets one
+   shape. */
+class CVideoSettingChoices : public coreapi::SettingChoices
+{
+	public:
+		coreapi::Status values(const char *name,
+				       std::vector<coreapi::SettingChoice> &out) const
+		{
+			if (name == NULL)
+				return coreapi::Status::NotFound;
+
+			if (strcmp(name, "video_mode") == 0)
+			{
+				CMenuOptionChooser::keyval_ext modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
+				const unsigned count = videoModeOptions(modes);
+				for (unsigned i = 0; i < count; i++)
+				{
+					coreapi::SettingChoice one;
+					one.value = modes[i].key;
+					one.label = modes[i].valname;
+					out.push_back(one);
+				}
+				return coreapi::Status::Ok;
+			}
+
+			if (strcmp(name, "analog_mode1") == 0)
+				return fill(analogMode1Offer(), out);
+			if (strcmp(name, "analog_mode2") == 0)
+				return fill(analogMode2Offer(), out);
+
+			return coreapi::Status::NotFound;
+		}
+
+	private:
+		/* An item this box does not offer at all answers with nothing, which is
+		   what leaves the setting closed to a write: a box with no SCART socket
+		   has no analog mode to put on it. */
+		static coreapi::Status fill(const analog_offer &offer,
+					    std::vector<coreapi::SettingChoice> &out)
+		{
+			for (unsigned i = 0; i < offer.count; i++)
+			{
+				coreapi::SettingChoice one;
+				one.value = offer.table[i].key;
+				one.label = g_Locale->getText(offer.table[i].value);
+				out.push_back(one);
+			}
+			return coreapi::Status::Ok;
+		}
+};
+
+static CVideoSettingChoices g_video_setting_choices;
+
+/* Put in front of the settings layer once at start-up, from the same place the
+   appliers are registered, and not when this screen is first opened: a frontend
+   asks what a setting offers whether or not anybody has ever stood in front of
+   the television. */
+void installVideoSettingChoices()
+{
+	coreapi::setSettingChoices(&g_video_setting_choices);
+}
+
 #define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 3
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOFORMAT_OPTIONS[VIDEOMENU_VIDEOFORMAT_OPTION_COUNT] =
 {
@@ -392,39 +575,35 @@ int CVideoSettings::showVideoSetup()
 	videosetup->setWizardMode(is_wizard);
 
 	CMenuOptionChooser::keyval_ext vmode_options[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
-	int vmode_option_count = 0;
-	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
-	{
-		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key == -1)
-			continue;
-		vmode_options[vmode_option_count] = VIDEOMENU_VIDEOMODE_OPTIONS[i];
-		vmode_option_count++;
-	}
+	int vmode_option_count = (int) videoModeOptions(vmode_options);
 
-	// analog options
-	unsigned int system_rev = cs_get_revision();
+	// analog options, out of the one place that says which item this box offers
+	// and which table it draws from
 	CMenuOptionChooser *vs_analg_ch = NULL;
 	CMenuOptionChooser *vs_scart_ch = NULL;
 	CMenuOptionChooser *vs_chinch_ch = NULL;
-	if (system_rev == 0x06)
+	const analog_offer analog1 = analogMode1Offer();
+	if (analog1.item == ANALOG_ITEM_MODE)
+		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, analog1.table, analog1.count, true, this);
+	else if (analog1.item == ANALOG_ITEM_SCART)
+		vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, analog1.table, analog1.count, true, this);
+
+	// One arm has never carried a hint, so an item without one is not an item
+	// whose hint went missing here.
+	if (analog1.hint != NONEXISTANT_LOCALE)
 	{
-		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT, true, this);
-		vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
+		if (vs_analg_ch != NULL)
+			vs_analg_ch->setHint("", analog1.hint);
+		else if (vs_scart_ch != NULL)
+			vs_scart_ch->setHint("", analog1.hint);
 	}
-	else if (system_rev > 0x06)
+
+	const analog_offer analog2 = analogMode2Offer();
+	if (analog2.item == ANALOG_ITEM_CINCH)
 	{
-#if defined(BOXMODEL_CST_HD2) && defined(ANALOG_MODE)
-		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD2_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD2_OPTION_COUNT, true, this);
-		vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
-#else
-		if (system_rev != 10)
-		{
-			vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this);
-			vs_scart_ch->setHint("", LOCALE_MENU_HINT_VIDEO_SCART_MODE);
-		}
-		vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this);
-		vs_chinch_ch->setHint("", LOCALE_MENU_HINT_VIDEO_CINCH_MODE);
-#endif
+		vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, analog2.table, analog2.count, true, this);
+		if (analog2.hint != NONEXISTANT_LOCALE)
+			vs_chinch_ch->setHint("", analog2.hint);
 	}
 #ifndef BOXMODEL_CST_HD2
 	else if (g_info.hw_caps->has_SCART)
@@ -454,7 +633,7 @@ int CVideoSettings::showVideoSetup()
 	CAutoModeNotifier anotify;
 	CMenuForwarder *vs_videomodes_fw = NULL;
 	// dbdr options only on COOLSTREAM
-	if (system_rev != 0x01)
+	if (cs_get_revision() != 0x01)
 	{
 		vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
 		vs_dbdropt_ch->setHint("", LOCALE_MENU_HINT_VIDEO_DBDR);

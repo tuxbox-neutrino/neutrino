@@ -9,6 +9,12 @@ enum {
 	OSDMODE_1080 = 1
 };
 
+/* Hands the settings layer the size the box draws its own screen at. The value
+   that survives a save is the copy this object keeps and not the member of the
+   settings named after it, so nothing but this answers for the setting. Called
+   once at start-up. */
+void installOsdResolutionSource();
+
 class COsdHelpers : public sigc::trackable
 {
 	private:

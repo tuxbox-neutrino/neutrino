@@ -134,6 +134,10 @@ struct NeutrinoMessages
 
 		/* sectionsd */
 		EVT_RELOAD_XMLTV			= CRCInput::RC_Events + 63,
+		APPLY_SETTINGS				= CRCInput::RC_Messages + 29,
+		EVT_RELOAD_PLUGINS			= CRCInput::RC_Events + 64,
+		EVT_START_TIMESHIFT			= CRCInput::RC_Events + 65,
+		EVT_STOP_TIMESHIFT			= CRCInput::RC_Events + 66,
 
 		/* END of CRCInput::RC_Events */
 

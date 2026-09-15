@@ -28,6 +28,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <coreapi/channels.h>
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/components/cc.h>
@@ -552,8 +553,26 @@ void CBEBouquetWidget::saveChanges()
 	CHintBox hintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVINGCHANGES), 480); // UTF-8
 	hintBox.paint();
 	if (!g_Zapit->saveBouquets())
+	const bool saved = g_Zapit->saveBouquets();
+	if (!saved)
 		printf("[bouqueteditor] saving the bouquet files failed\n");
+
+	/* Whoever is reading this box over the network holds the list this editor
+	   has just changed, and nothing else on the way out of here would tell
+	   them. Said whether or not the files came out, because what a reader is
+	   holding is the list the box is running, and that one changed either way.
+
+	   Still under the box that says it is saving, because it waits for the
+	   channel stack to have finished numbering the lists again, and that is
+	   part of the saving rather than something after it. */
+	(void) coreapi::channels::announceBouquetsChanged();
+
 	hintBox.hide();
+
+	// The editor closes after this, so a viewer who is not told here is told
+	// nowhere: what was moved or renamed is in the running list and in no file.
+	if (!saved)
+		DisplayErrorMessage(g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVEFAILED));
 }
 
 void CBEBouquetWidget::discardChanges()

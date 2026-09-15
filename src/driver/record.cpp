@@ -64,6 +64,7 @@
 #include <eitd/sectionsd.h>
 #include <timerdclient/timerdclient.h>
 #include <cs_api.h>
+#include <coreapi/base/messagebridge.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -144,6 +145,12 @@ CRecordInstance::CRecordInstance(const CTimerd::RecordingInfo * const eventinfo,
 	epg_time = eventinfo->epg_starttime;
 	apidmode = eventinfo->apids;
 	recording_id = eventinfo->eventID;
+	/*
+	 * An id here means the daemon fired a timer it already held, which is a
+	 * scheduled recording; none means the box was asked to record now and the
+	 * timer that carries the end time is made further down.
+	 */
+	from_timer = (eventinfo->eventID != 0);
 
         if (apidmode == TIMERD_APIDS_CONF)
                 apidmode = g_settings.recording_audio_pids_default;
@@ -1281,6 +1288,14 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 {
 	CRecordInstance * inst = NULL;
 	record_error_msg_t error_msg = RECORD_OK;
+	/* Which recording was taken up, read out while the map still holds it and
+	   announced further down with the lock given back: by then another thread
+	   may have stopped this one and deleted it. Not derived from the error
+	   code either, because two of the ways out of the block below leave that
+	   at ok without having started anything: one files the request as pending
+	   and the other finds no tuner for it. */
+	int started_id = 0;
+	bool started = false;
 	/* for now, empty eventinfo.recordingDir means this is direct record, FIXME better way ?
 	 * neutrino check if this channel_id already recording, may be not needed */
 	bool direct_record = timeshift || strlen(eventinfo->recordingDir) == 0;
@@ -1313,6 +1328,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		if(error_msg == RECORD_OK) {
 			g_Zapit->setRecordMode(true);
 			recmap.insert(recmap_pair_t(inst->GetRecordingId(), inst));
+			started = true;
+			started_id = inst->GetRecordingId();
 			if(timeshift)
 				autoshift = true;
 		} else {
@@ -1328,6 +1345,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			error_msg = inst->Record();
 			if(error_msg == RECORD_OK) {
 				recmap.insert(recmap_pair_t(inst->GetRecordingId(), inst));
+				started = true;
+				started_id = inst->GetRecordingId();
 				if(timeshift)
 					autoshift = true;
 #if 0
@@ -1359,6 +1378,9 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		/* set flag to show record error if any */
 		error_display = true;
 		warn_display = true;
+		if (started)
+			coreapi::publishRecordingStarted(eventinfo->channel_id,
+							 (uint32_t) started_id);
 		return true;
 	}
 
@@ -1450,6 +1472,40 @@ bool CRecordManager::RecordingStatus(const t_channel_id channel_id)
 	return ret;
 }
 
+void CRecordManager::GetRunningRecordings(std::vector<rec_running_t> &out)
+{
+	out.clear();
+
+	mutex.lock();
+	for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+		CRecordInstance * inst = it->second;
+
+		rec_running_t one;
+		one.recording_id = inst->GetRecordingId();
+		one.channel_id = inst->GetChannelId();
+		one.epg_title = inst->GetEpgTitle();
+		one.start_time = inst->GetStartTime();
+		/*
+		 * The name an instance keeps is the recording without its extension;
+		 * what is on the disc is that name with the one every recording here
+		 * is written under.
+		 */
+		one.file = std::string(inst->GetFileName()) + ".ts";
+		one.timeshift = inst->Timeshift();
+		one.from_timer = inst->FromTimer();
+		out.push_back(one);
+	}
+	mutex.unlock();
+}
+
+bool CRecordManager::TimeshiftRunning()
+{
+	mutex.lock();
+	bool running = (FindTimeshift() != NULL);
+	mutex.unlock();
+	return running;
+}
+
 bool CRecordManager::TimeshiftOnly()
 {
 	mutex.lock();
@@ -1479,6 +1535,11 @@ bool CRecordManager::SameTransponder(const t_channel_id channel_id)
 
 void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 {
+	/* Read before any of it happens: Stop() puts the number back to nought and
+	   the instance is gone by the end of this. */
+	const int stopped_id = inst->GetRecordingId();
+	const t_channel_id stopped_channel = inst->GetChannelId();
+
 	/* first erase - then stop, because Stop() reset recording_id to 0 */
 	recmap.erase(inst->GetRecordingId());
 	inst->Stop(remove_event);
@@ -1487,6 +1548,12 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 		autoshift = false;
 
 	delete inst;
+
+	/* Every way into this holds this manager's lock, so the announcement is
+	   made under it. The bus hands the event to its subscribers there and
+	   then, and a subscriber is already held to taking what it needs and
+	   returning at once rather than going back to ask the box anything. */
+	coreapi::publishRecordingStopped(stopped_channel, (uint32_t) stopped_id);
 }
 
 bool CRecordManager::Stop(const t_channel_id channel_id)

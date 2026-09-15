@@ -1,4 +1,3 @@
-SUBDIRS = tools zapit gui daemonc driver system eitd timerd nhttpd
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 
@@ -92,6 +91,7 @@ neutrino_LDADD = \
 	gui/moviedb/libneutrino_gui_moviedb.a \
 	gui/components/libneutrino_gui_components.a \
 	$(LUALIBS) \
+	coreapi/libcoreapi.a \
 	eitd/libsectionsd.a \
 	gui/volumebar.o \
 	driver/libneutrino_driver.a \

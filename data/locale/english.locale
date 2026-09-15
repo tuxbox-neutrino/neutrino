@@ -237,6 +237,7 @@ bouqueteditor.newbouquetname New name
 bouqueteditor.rename Rename
 bouqueteditor.return ready
 bouqueteditor.savechanges? Do you want to save the changes?
+bouqueteditor.savefailed The changes could not be saved.
 bouqueteditor.savingchanges Saving changes. Please wait ...
 bouqueteditor.switch add/remove
 bouqueteditor.switchmode TV/Radio

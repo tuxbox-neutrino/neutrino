@@ -77,6 +77,61 @@ static bool          saved_orig_termio = false;
 static bool input_stopped = false;
 static struct timespec devinput_mtime = { 0, 0 };
 
+// A pointer to a string literal, so moving it costs nothing before main and
+// leaving it alone costs nothing at all.
+static const char *event_socket_path = NEUTRINO_UDS_NAME;
+
+const char *currentEventSocketPath()
+{
+	return event_socket_path;
+}
+
+void setEventSocketPathForTest(const char *path)
+{
+	event_socket_path = path;
+}
+
+/* The node open() below adds to whatever /dev/input holds, and the only one it
+   adds on a build with no input hardware. A key put in from outside is written
+   to it through the list below rather than to a path written down a second
+   time somewhere else: a key written to a node nobody has open is a key
+   nothing acts on. */
+static const char *loop_input_node = "/tmp/neutrino.input";
+
+void setInjectedKeyNodeForTest(const char *path)
+{
+	loop_input_node = path;
+}
+
+/* Where a key put in from outside goes, most likely first. Which nodes a box
+   carries is a question about the box and is answered out of what the build
+   was made for, as every such question here is. The loop opens the whole of
+   /dev/input where there is one, so any of those is read back; the node above
+   closes the list because it is the one the loop always has, and on a build
+   that reads no /dev/input at all it is the only one there is. */
+std::vector<std::string> injectedKeyNodes()
+{
+	std::vector<std::string> out;
+#if HAVE_CST_HARDWARE
+	out.push_back("/dev/input/nevis_ir");
+	out.push_back("/dev/input/event0");
+#elif BOXMODEL_H7
+	out.push_back("/dev/input/event2");
+	out.push_back("/dev/input/event1");
+#elif BOXMODEL_MULTIBOX || BOXMODEL_MULTIBOXSE || BOXMODEL_OSMIO4K || BOXMODEL_OSMIO4KPLUS
+	out.push_back("/dev/input/event0");
+	out.push_back("/dev/input/event1");
+#elif !HAVE_GENERIC_HARDWARE
+	out.push_back("/dev/input/event1");
+	out.push_back("/dev/input/event0");
+#endif
+	out.push_back(loop_input_node);
+	return out;
+}
+
+static unsigned int _start_ms = 0;
+static unsigned int _repeat_ms = 0;
+
 #ifdef RCDEBUG
 #define d_printf printf
 #else
@@ -123,9 +178,9 @@ CRCInput::CRCInput()
 	int    clilen;
 	memset(&servaddr, 0, sizeof(struct sockaddr_un));
 	servaddr.sun_family = AF_UNIX;
-	cstrncpy(servaddr.sun_path, NEUTRINO_UDS_NAME, sizeof(servaddr.sun_path));
+	cstrncpy(servaddr.sun_path, currentEventSocketPath(), sizeof(servaddr.sun_path));
 	clilen = sizeof(servaddr.sun_family) + strlen(servaddr.sun_path);
-	unlink(NEUTRINO_UDS_NAME);
+	unlink(currentEventSocketPath());
 
 	//network-setup
 	if ((fd_event = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
@@ -247,7 +302,8 @@ void CRCInput::open(bool recheck)
 	}
 	closedir(dir);
 #endif
-	id.path = "/tmp/neutrino.input";
+	setKeyRepeatDelay(0, 0);
+	id.path = loop_input_node;
 	if (! checkpath(id)) {
 		id.fd = ::open(id.path.c_str(), O_RDWR|O_NONBLOCK|O_CLOEXEC);
 		if (id.fd == -1) {
@@ -971,6 +1027,18 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg = NeutrinoMessages::EVT_START_PLUGIN;
 								*data = (unsigned long) p;
 								dont_delete_p = true;
+								break;
+							case NeutrinoMessages::EVT_RELOAD_PLUGINS :
+								*msg = NeutrinoMessages::EVT_RELOAD_PLUGINS;
+								*data = 0;
+								break;
+							case NeutrinoMessages::EVT_START_TIMESHIFT :
+								*msg = NeutrinoMessages::EVT_START_TIMESHIFT;
+								*data = 0;
+								break;
+							case NeutrinoMessages::EVT_STOP_TIMESHIFT :
+								*msg = NeutrinoMessages::EVT_STOP_TIMESHIFT;
+								*data = 0;
 								break;
 							case NeutrinoMessages::LOCK_RC :
 								*msg = NeutrinoMessages::LOCK_RC;
@@ -1880,7 +1948,7 @@ void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 		--it;
 		int fd = (*it).fd;
 		std::string path = (*it).path;
-		if (path == "/tmp/neutrino.input")
+		if (path == loop_input_node)
 			continue; /* setting repeat rate does not work here */
 #ifdef BOXMODEL_CST_HD1
 		/* this is ugly, but the driver does not support anything advanced... */

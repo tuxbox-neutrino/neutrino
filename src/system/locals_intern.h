@@ -264,6 +264,7 @@ const char * locale_real_names[] =
 	"bouqueteditor.rename",
 	"bouqueteditor.return",
 	"bouqueteditor.savechanges?",
+	"bouqueteditor.savefailed",
 	"bouqueteditor.savingchanges",
 	"bouqueteditor.switch",
 	"bouqueteditor.switchmode",

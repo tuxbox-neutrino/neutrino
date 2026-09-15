@@ -55,6 +55,18 @@
 #include <driver/neutrino_msg_t.h>
 #include <driver/rcinput_fake.h>
 
+/* Which nodes a key put in from outside has to be written to for the loop
+   below to read it back, the likeliest first. Answered here because this is
+   where the nodes the loop opens are decided, and a writer keeping its own
+   list would be a second answer to one question: a build with no input
+   hardware reads a single file and no /dev/input node at all, and a key
+   written to an event node there is a key nobody reads.
+
+   Not an environment variable, for the reason the event socket path above is
+   not one. */
+std::vector<std::string> injectedKeyNodes();
+void setInjectedKeyNodeForTest(const char *path);
+
 class CRCInput
 {
 	private:

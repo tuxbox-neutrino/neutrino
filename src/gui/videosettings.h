@@ -33,6 +33,12 @@
 #include <gui/widget/menue.h>
 #include <string>
 
+/* Hands the settings layer the three sets this screen builds as it opens: the
+   video modes and the two analog outputs. Their tables are this screen's and
+   that layer may not reach into a screen, so the answer is registered from here
+   rather than reached for from there. Called once at start-up. */
+void installVideoSettingChoices();
+
 class CFrameBuffer;
 class CVideoSettings : public CMenuWidget, CChangeObserver
 {

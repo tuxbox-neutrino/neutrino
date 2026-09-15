@@ -237,6 +237,7 @@ bouqueteditor.newbouquetname Neuer Name
 bouqueteditor.rename Umbenennen
 bouqueteditor.return Fertig
 bouqueteditor.savechanges? Sollen die Änderungen gespeichert werden?
+bouqueteditor.savefailed Die Änderungen konnten nicht gespeichert werden.
 bouqueteditor.savingchanges Änderungen werden gespeichert. Bitte warten ...
 bouqueteditor.switch Kanal aufnehmen/entfernen
 bouqueteditor.switchmode TV/Radio

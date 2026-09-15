@@ -625,6 +625,11 @@ AC_ARG_ENABLE(fribidi,
 	AC_DEFINE(ENABLE_FRIBIDI, 1, [enable fribidi support]))
 AM_CONDITIONAL(ENABLE_FRIBIDI, test "$enable_fribidi" = "yes")
 
+AC_ARG_ENABLE(unit-tests,
+	AS_HELP_STRING([--enable-unit-tests],[build host-side unit tests, native builds only]),
+	,[enable_unit_tests=no])
+AM_CONDITIONAL(ENABLE_UNIT_TESTS, test "$enable_unit_tests" = "yes")
+
 # default theme
 AC_ARG_WITH(default-theme,
 	AS_HELP_STRING([--with-default-theme=THEMENAME], [default theme for gui @<:@default is empty@:>@]),
@@ -858,6 +863,9 @@ src/gui/moviedb/Makefile
 src/gui/moviebrowser/Makefile
 src/gui/widget/Makefile
 src/gui/widget/yaft/Makefile
+src/coreapi/Makefile
+test/Makefile
+test/unit/Makefile
 src/nhttpd/Makefile
 src/nhttpd/tuxboxapi/Makefile
 src/nhttpd/yhttpd_core/Makefile

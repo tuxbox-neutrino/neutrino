@@ -33,6 +33,7 @@
 
 #include <gui/favorites.h>
 
+#include <coreapi/channels.h>
 #include <gui/bouquetlist.h>
 #include <gui/channellist.h>
 #include <gui/widget/hintbox.h>
@@ -89,6 +90,24 @@ int CFavorites::addChannelToFavorites(bool show_list)
 
 	if (status && !g_Zapit->saveBouquets())
 		printf("[favorites] saving the bouquet files failed\n");
+	if (status)
+	{
+		const bool saved = g_Zapit->saveBouquets();
+		if (!saved)
+
+		/* A favourite added here changes the same list a page over the network
+		   is holding, and the box says nothing about it by itself. Ahead of
+		   the message below, because that one stands until the viewer takes it
+		   away and nothing behind it would be reached in the meantime. */
+		(void) coreapi::channels::announceBouquetsChanged();
+
+		/* The channel is in the favourites the box is running on either way.
+		   What a failure costs is the next start, which finds the list without
+		   it, and that is worth saying before the viewer walks away believing
+		   otherwise. */
+		if (!saved)
+			DisplayErrorMessage(g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVEFAILED));
+	}
 
 	return status;
 }

@@ -26,6 +26,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <vector>
 
 #include <timerdclient/timerdtypes.h>
 
@@ -102,6 +103,14 @@ class CRecordInstance
 		CZapitClient::responseGetPIDs allpids;
 		int		recording_id;
 		bool		autoshift;
+		/*
+		 * Whether the timer daemon already held a timer for this recording
+		 * when it was built. Captured here because it stops being readable a
+		 * moment later: a recording begun without one is given one as soon as
+		 * it starts, to carry its end time, and from then on the two look
+		 * alike from the outside.
+		 */
+		bool		from_timer;
 
 		std::string	Directory;
 		char		filename[FILENAMEBUFFERSIZE];
@@ -142,12 +151,32 @@ class CRecordInstance
 		MI_MOVIE_INFO * GetMovieInfo(void) { return recMovieInfo; };
 		void GetRecordString(std::string& str, std::string &dur);
 		const char * GetFileName() { return filename; };
+		time_t GetStartTime(void) { return start_time; };
+		bool FromTimer(void) { return from_timer; };
 		bool Timeshift() { return autoshift; };
 		int tshift_mode;
 		void SetStopMessage(const char* text) {rec_stop_msg = text;} ;
 		int  GetStatus();
 
 		CFrontend *	frontend;
+};
+
+/*
+ * One running recording, copied out of the instance that is taking it, for a
+ * reader that is not the thread the record manager runs on. The instances
+ * themselves may not leave: the map holding them is rebuilt whenever a
+ * recording starts or stops, and an instance is deleted the moment it does, so
+ * a pointer taken out of it names something that can be gone before it is read.
+ */
+struct rec_running_t
+{
+	int		recording_id;
+	t_channel_id	channel_id;
+	std::string	epg_title;
+	time_t		start_time;
+	std::string	file;
+	bool		timeshift;
+	bool		from_timer;
 };
 
 typedef std::pair<int, CRecordInstance*> recmap_pair_t;
@@ -241,6 +270,19 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		int  handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 		// mimic old behavior for start/stop menu option chooser, still actual ?
 		int GetRecordCount() { return recmap.size(); };
+		/*
+		 * Every running recording as plain values, taken while the lock is
+		 * held. GetRecordMap() above cannot answer this from another thread:
+		 * it copies the map without the lock and the copy holds pointers into
+		 * instances the neutrino thread may be deleting.
+		 */
+		void GetRunningRecordings(std::vector<rec_running_t> &out);
+		/*
+		 * Whether one of the running recordings is the shift. Asked before
+		 * starting one, because starting a second shift of the same channel is
+		 * not something the manager turns down on its own.
+		 */
+		bool TimeshiftRunning();
 		void StartTimeshift();
 		int GetRecordMode(const t_channel_id channel_id=0);
 		CRecordInstance* getRecordInstance(std::string file);

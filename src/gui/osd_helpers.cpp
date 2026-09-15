@@ -17,9 +17,50 @@
 
 #include <hardware/video.h>
 
+#include <coreapi/base/deps.h>
+
 extern CInfoClock *InfoClock;
 extern CTimeOSD *FileTimeOSD;
 extern cVideo *videoDecoder;
+
+namespace
+{
+/* The size the box draws its own screen at, handed to the settings layer.
+   Registered from here because this object is where the value that survives a
+   save is kept and where the act that changes the size lives; the layer below
+   may not reach into a screen's own object.
+
+   What is read and written is g_settings_osd_resolution_save and not
+   g_settings.osd_resolution: the save writes that copy, src/neutrino.cpp:2026,
+   and changeOsdResolution can force the running value down to the smaller size
+   while the copy keeps what was chosen, :64 and :100 below. */
+class CRealOsdResolution : public coreapi::OsdResolutionSource
+{
+	public:
+		coreapi::Status read(int &mode) const
+		{
+			mode = COsdHelpers::getInstance()->g_settings_osd_resolution_save;
+			return coreapi::Status::Ok;
+		}
+
+		coreapi::Status write(int mode)
+		{
+			/* Both, and in this order, because that is what the setup screen
+			   does, src/gui/osd_setup.cpp:1604: the copy is what the next save
+			   writes, and the call is what the box is drawing at now. */
+			COsdHelpers::getInstance()->g_settings_osd_resolution_save = mode;
+			COsdHelpers::getInstance()->changeOsdResolution((uint32_t) mode);
+			return coreapi::Status::Ok;
+		}
+};
+
+CRealOsdResolution g_real_osd_resolution;
+} // anonymous namespace
+
+void installOsdResolutionSource()
+{
+	coreapi::setOsdResolutionSource(&g_real_osd_resolution);
+}
 
 COsdHelpers::COsdHelpers()
 {

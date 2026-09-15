@@ -55,6 +55,9 @@
 #include <driver/framebuffer.h>
 #include <driver/neutrinofonts.h>
 #include <driver/rcinput.h>
+#include <coreapi/channels.h>
+#include <coreapi/base/deps.h>
+#include <coreapi/base/messagebridge.h>
 #include <driver/shutdown_count.h>
 #include <driver/record.h>
 #include <driver/screenshot.h>
@@ -3260,6 +3263,44 @@ TIMER_START();
 
 	dvbsub_init();
 
+	// Has to stay above every thread started below, because the facade aborts
+	// on a caller that finds no source installed, and refuses every settings
+	// read until the store is handed over.
+	coreapi::installRealChannelSource();
+	coreapi::installRealEpgSource();
+	coreapi::installRealTimerSource();
+	coreapi::installRealCommandSink();
+	coreapi::installRealSystemSource();
+	coreapi::installRealTunerSource();
+	/* Made here, on this thread, rather than left to whoever asks for it
+	   first: what makes it is not written for two askers at once, and from the
+	   line below onwards the askers include the web layer's own workers. */
+	CRCLock::getInstance();
+	coreapi::installRealInputDevice();
+	coreapi::installRealScreenshotSource();
+	coreapi::installRealLogoSource();
+	coreapi::installRealPluginSource();
+	coreapi::installRealRecordingSource();
+	coreapi::installRealEventSink();
+	coreapi::installRealSettingsSource(&g_settings, saveNeutrinoSettings);
+	// g_Locale is already loaded well above this line; the accessor reads it
+	// fresh on every call, so nothing here binds it to the language in effect
+	// at this particular moment.
+	coreapi::installRealLocaleSource();
+	// The timer daemon holds the two safety times, and the members named after
+	// them in the settings are the setup screen's own buffer, so nothing but
+	// this answers what a recording really starts and stops on.
+	coreapi::installRealRecordingSafetySource();
+	// Above the threads for the same reason, and below the store because a
+	// setting is applied only after it has reached the values.
+	registerSettingsAppliers();
+	// The sets of values the video screen builds as it opens, which the layer
+	// is asked for rather than carrying a copy of.
+	installVideoSettingChoices();
+	// The size the box draws at, which is kept beside the settings rather than
+	// in them: the save writes that copy and not the member.
+	installOsdResolutionSource();
+
 	pthread_t nhttpd_thread;
 	if (!pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL))
 		pthread_detach (nhttpd_thread);
@@ -4191,8 +4232,124 @@ bool CNeutrinoApp::backKey(const neutrino_msg_t msg)
 	return false;
 }
 
+static bool saveNeutrinoSettings()
+{
+	CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
+	return true;
+}
+
+// Declared by the facade, which cannot reach the class that holds the mode.
+int coreapi::applicationMode()
+{
+	return CNeutrinoApp::getInstance()->getMode();
+}
+
+// The same, for the flag that says the box is ignoring its remote control.
+bool coreapi::remoteControlLocked()
+{
+	return CRCLock::getInstance()->isLocked() != 0;
+}
+
+// The same again, for the mute. This is the flag CAudioMute::AudioMute writes,
+// so it is what both the mute command and the mute key leave behind.
+bool coreapi::audioMuted()
+{
+	return CNeutrinoApp::getInstance()->isMuted();
+}
+
+// The same again, for the flag that says the box still owes its user the
+// question whether a channel list it noticed a change in should be read again.
+void coreapi::clearPendingChannelReload()
+{
+	CNeutrinoApp::getInstance()->SDTreloadChannels = false;
+}
+
+// The same again, for the plugins: what holds them is a class this program has
+// and the facade may not reach.
+coreapi::Status coreapi::boxPlugins(coreapi::PluginList &out)
+{
+	out.clear();
+	// A build that got this far without one has no list to answer out of,
+	// which is not the same answer as a box carrying no plugins.
+	if (g_Plugins == NULL)
+		return coreapi::Status::NotSupported;
+
+	/* This is reached from the web server's threads while the main loop may be
+	   reading the plugin directories again, which throws the list away and
+	   builds it. Held across the whole walk, because every accessor below
+	   hands back a pointer into a string the list owns. */
+	CPlugins::PluginGuard guard(g_Plugins);
+
+	const int count = g_Plugins->getNumberOfPlugins();
+	for (int i = 0; i < count; i++)
+	{
+		coreapi::PluginInfo one;
+		// What the box starts it by, which is the name of its files.
+		one.name = g_Plugins->getFileName(i);
+		one.title = g_Plugins->getName(i);
+		one.description = g_Plugins->getDescription(i);
+		switch (g_Plugins->getType(i))
+		{
+			case CPlugins::P_TYPE_DISABLED: one.kind = coreapi::PluginKind::Disabled; break;
+			case CPlugins::P_TYPE_GAME:     one.kind = coreapi::PluginKind::Game; break;
+			case CPlugins::P_TYPE_TOOL:     one.kind = coreapi::PluginKind::Tool; break;
+			case CPlugins::P_TYPE_SCRIPT:   one.kind = coreapi::PluginKind::Script; break;
+			case CPlugins::P_TYPE_LUA:      one.kind = coreapi::PluginKind::Lua; break;
+			default:                        one.kind = coreapi::PluginKind::Unknown; break;
+		}
+		one.hidden = g_Plugins->isHidden(i);
+		// Where the flag above lives, so that writing it does not mean a
+		// second search of the plugin directories from the other side.
+		one.config = g_Plugins->getCfgFile(i);
+		out.push_back(one);
+	}
+	return coreapi::Status::Ok;
+}
+
+/* The same again, for what the box is recording: what holds it is a class this
+   program has and the facade may not reach.
+
+   Ok whatever it finds, and an empty list for a box recording nothing. There is
+   no answer here for a program without a record manager, because there is no
+   such program: the manager is made on the first ask and the first ask is part
+   of starting up, long before anything can reach this.
+
+   The values are taken while the manager holds its own lock, which is what
+   this is for. The map behind them is rebuilt whenever a recording starts or
+   stops, and an instance is deleted the moment one does, so a reader on any
+   other thread has to be handed copies rather than pointers.
+
+   How large each file is is not read here. That is a question for the
+   filesystem, and asking it from inside that lock would hold the thread the
+   box records on for as long as a disc takes to answer. */
+coreapi::Status coreapi::boxRecordings(coreapi::RecordingList &out)
+{
+	out.clear();
+
+	std::vector<rec_running_t> running;
+	CRecordManager::getInstance()->GetRunningRecordings(running);
+
+	out.reserve(running.size());
+	for (size_t i = 0; i < running.size(); i++)
+	{
+		coreapi::RecordingInfo one;
+		one.id = (uint32_t) running[i].recording_id;
+		one.channel_id = running[i].channel_id;
+		one.title = running[i].epg_title;
+		one.start = running[i].start_time;
+		one.path = running[i].file;
+		one.timeshift = running[i].timeshift;
+		one.from_timer = running[i].from_timer;
+		out.push_back(one);
+	}
+	return coreapi::Status::Ok;
+}
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
+	/* Ahead of everything below, because the branches that follow return early
+	   and free the payload as they go. */
+	coreapi::publishFromMessage(_msg, data);
+
 	int res = 0;
 	neutrino_msg_t msg = _msg;
 
@@ -4795,6 +4952,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 		else
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::APPLY_SETTINGS) {
+		coreapi::applyPendingSettings();
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::RELOAD_SETUP ) {
