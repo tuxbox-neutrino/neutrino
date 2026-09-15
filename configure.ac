@@ -866,6 +866,7 @@ src/gui/widget/yaft/Makefile
 src/coreapi/Makefile
 test/Makefile
 test/unit/Makefile
+src/httpd/Makefile
 src/nhttpd/Makefile
 src/nhttpd/tuxboxapi/Makefile
 src/nhttpd/yhttpd_core/Makefile
