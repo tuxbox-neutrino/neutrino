@@ -27,9 +27,23 @@
 #define __basicsocket__
 
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
-bool send_data(int fd, const void * data, const size_t size, const timeval timeout);
-bool receive_data(int fd, void * data, const size_t size, const timeval timeout);
+/* A deadline is an absolute moment on CLOCK_MONOTONIC past which no wait may go
+   on. It exists because the timeout beside it bounds one wait and not one
+   exchange: both calls below wait once per chunk, so a peer that delivers a
+   byte just inside every timeout holds the caller for as long as it likes.
+   A null deadline is what every caller passed before this existed and leaves
+   the old behaviour exactly as it was. */
+
+/* What is left of the deadline, as a span a select may wait for. False when
+   nothing is left, which is the caller's cue to give up rather than wait once
+   more. A clock that cannot be read answers true with the span untouched, so a
+   failing clock costs the ceiling rather than the exchange. */
+bool deadline_left(const struct timespec * deadline, timeval & left);
+
+bool send_data(int fd, const void * data, const size_t size, const timeval timeout, const struct timespec * deadline = 0);
+bool receive_data(int fd, void * data, const size_t size, const timeval timeout, const struct timespec * deadline = 0);
 
 #endif

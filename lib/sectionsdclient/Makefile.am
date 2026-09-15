@@ -18,4 +18,6 @@ bin_PROGRAMS = sectionsdcontrol
 sectionsdcontrol_SOURCES = sectionsdcontrol.cpp
 sectionsdcontrol_LDADD = \
 	libsectionsdclient.a \
-	$(top_builddir)/lib/connection/libconnection.a
+	$(top_builddir)/lib/connection/libconnection.a \
+	-lOpenThreads \
+	-lpthread

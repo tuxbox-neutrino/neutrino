@@ -28,8 +28,16 @@
 #ifndef __libevent__
 #define __libevent__
 
+#include <stdint.h>
+
 #include <string>
 #include <map>
+
+/* The longest one send holds its sender, connection and both writes together.
+   A client that has not taken the event by then loses it; the sender keeps its
+   thread. Declared here because a caller cannot otherwise know what sending an
+   event can cost it. */
+#define EVENT_SEND_TIMEOUT_MS 300
 
 /* The largest body a receiver reads. Every event this tree sends is a few
    hundred bytes at most; the bound is for a header whose size no event could

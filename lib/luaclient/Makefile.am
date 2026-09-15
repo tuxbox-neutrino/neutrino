@@ -10,4 +10,6 @@ bin_PROGRAMS = luaclient
 
 luaclient_SOURCES = luaclient.cpp
 luaclient_LDADD = \
-	$(top_builddir)/lib/connection/libconnection.a
+	$(top_builddir)/lib/connection/libconnection.a \
+	-lOpenThreads \
+	-lpthread
