@@ -1,0 +1,60 @@
+# How much of the program the suite actually compares, one line per figure.
+#
+# Every case that walks a generated table ends by saying what it compared, and
+# this is what those numbers are held to. A run that compares fewer has either
+# stopped reading the source or is reading a tree something was taken out of; a
+# run that compares more has either gained a row or gained a reader. Both fail,
+# because a number allowed to rise unremarked can fall back unremarked.
+#
+# What the run measured is written to counts.actual beside the binary. Putting
+# that file here is the whole of the edit, so a change to coverage is one diff
+# to read rather than a constant to lower in each of several cases.
+# The flash of the smallest box is what this stands in for, and it stands in
+# badly: the buildsystem's own check-image-size weighs the real image, and a
+# build that will not fit fails there whatever this says. Raised to the
+# measured figure rather than defended.
+# web bytes the pages may cost gzipped	786432
+acted options matched to a declared row	27
+acted options whose row writes another member	5
+answer members narrower than free text	35
+applier sections registered	9
+bounds compared against a screen	30
+bounds read off the screens	47
+bounds read with both ends resolved	45
+choice value names compared	181
+choices compared against a screen	54
+chooser call sites read	208
+chooser call sites read whole	191
+conditions checked	34
+defaults compared against the program	249
+error codes the header declares	139
+fields the bound scan read	46
+fields the chooser scan read	204
+fields with a stated label	93
+flags compared against a screen	120
+groups the document declares	19
+key to field pairs read out of the program	430
+keys an applier lists	36
+keys compared against what the program reads	371
+keys read anywhere in the tree	732
+keys whose default the scan can compare	292
+labels compared against a chooser	189
+labels compared against a number chooser	31
+labels compared against a stated field	83
+labels compared against the locale names	342
+labels stated beside a field	97
+listed keys compared against the table	26
+locale names the program has	3187
+options an applier or its notifier branches on	50
+parameters the document describes	128
+refusals the header names	13
+routes the document describes	97
+rows an applier acts on	26
+rows compared against the load and save pass	368
+rows in a section with an applier	309
+rows this build links	376
+rows whose set of values the box decides	3
+rows whose value is not in the settings file	5
+shapes the document files against a route	46
+statuses the enum declares	8
+web files the page installs	130

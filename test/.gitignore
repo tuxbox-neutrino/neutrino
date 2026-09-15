@@ -1,0 +1,3 @@
+coreapi_tests
+*.o
+.deps/
