@@ -117,6 +117,11 @@ class CRCInput
 		static const neutrino_msg_t RC_Events   = 0x80000000;
 		static const neutrino_msg_t RC_Messages = 0x90000000;
 		static const neutrino_msg_t RC_WithData = 0xA0000000;
+		/* One class past the one above, and the exclusive end of the numbers
+		   whose data word is a block somebody has to free. Named because the
+		   queue frees a refused payload by that range and readers outside this
+		   file have to be able to ask the same question the same way. */
+		static const neutrino_msg_t RC_WithDataEnd = 0xB0000000;
 		enum
 		{
 			/* RC_0 should be the first entry. See src/tools/rcsim_h-creation.sh */
@@ -276,7 +281,7 @@ class CRCInput
 		void getMsg(neutrino_msg_t *msg, neutrino_msg_data_t *data, int Timeout, bool bAllowRepeatLR = false);         // get message, timeout in 1/10 secs
 		void getMsg_ms(neutrino_msg_t *msg, neutrino_msg_data_t *data, int Timeout, bool bAllowRepeatLR = false);      // get message, timeout in msecs
 		void getMsg_us(neutrino_msg_t *msg, neutrino_msg_data_t *data, uint64_t Timeout, bool bAllowRepeatLR = false); // get message, timeout in µsecs
-		void postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority = true);            // push message back into buffer
+		bool postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority = true);            // push message back into buffer, false if the queue would not take it
 		void clearRCMsg();
 
 		int messageLoop(bool anyKeyCancels = false, int timeout = -1);

@@ -1174,7 +1174,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 							default:
 								printf("[neutrino] event INITID_ZAPIT - unknown eventID 0x%x\n",  emsg.eventID );
 						}
-						if (((*msg) >= CRCInput::RC_WithData) && ((*msg) < CRCInput::RC_WithData + 0x10000000))
+						if (((*msg) >= CRCInput::RC_WithData) && ((*msg) < CRCInput::RC_WithDataEnd))
 						{
 							*data         = (neutrino_msg_data_t) p;
 							dont_delete_p = true;
@@ -1505,7 +1505,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	}
 }
 
-void CRCInput::postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority)
+bool CRCInput::postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority)
 {
 //	printf("postMsg %x %x %d\n", msg, data, Priority );
 
@@ -1513,10 +1513,19 @@ void CRCInput::postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data,
 	buf.msg  = msg;
 	buf.data = data;
 
-	if (Priority)
-		write(fd_pipe_high_priority[1], &buf, sizeof(buf));
-	else
-		write(fd_pipe_low_priority[1], &buf, sizeof(buf));
+	const int fd = Priority ? fd_pipe_high_priority[1] : fd_pipe_low_priority[1];
+
+	if (write(fd, &buf, sizeof(buf)) == (ssize_t) sizeof(buf))
+		return true;
+
+	printf("[rcinput] postMsg: queue refused msg 0x%lx: %s\n", msg, strerror(errno));
+
+	/* A record this small never lands in a pipe by halves, so a short count
+	   means nothing arrived and the reader will not free the payload. */
+	if (msg >= RC_WithData && msg < RC_WithDataEnd)
+		delete[] (unsigned char *) data;
+
+	return false;
 }
 
 
