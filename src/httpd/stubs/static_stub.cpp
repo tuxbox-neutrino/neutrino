@@ -115,6 +115,13 @@ bool weightAboveZero(const std::string &value)
 
 // Whether the weight written beside a coding allows it, and a coding with no
 // weight beside it carries a full one.
+/* Whether a name is the stored form of another one. Written once because two
+   places ask it and a guard spelled out twice is a guard that drifts. */
+bool namesStoredForm(const std::string &name)
+{
+	return name.size() > 3 && name.compare(name.size() - 3, 3, ".gz") == 0;
+}
+
 bool weightAllows(const std::string &params)
 {
 	size_t at = 0;
@@ -174,6 +181,70 @@ bool acceptsGzip(const std::string &accept_encoding)
 	if (named)
 		return named_ok && !named_refused;
 	return star_ok;
+}
+
+const char *contentTypeFor(const std::string &filename)
+{
+	std::string name = filename;
+
+	const size_t slash = name.rfind('/');
+	if (slash != std::string::npos)
+		name = name.substr(slash + 1);
+
+	// The stored form is how the file is kept and not what it holds, so the
+	// extension that decides the type is the one underneath it.
+	if (namesStoredForm(name))
+		name = name.substr(0, name.size() - 3);
+
+	const size_t dot = name.rfind('.');
+	// Position zero is a name that begins with a dot rather than a name with an
+	// extension, and it has no stem for the extension to belong to.
+	if (dot == std::string::npos || dot == 0 || dot + 1 >= name.size())
+		return "application/octet-stream";
+
+	const std::string ext = name.substr(dot + 1);
+
+	struct Row
+	{
+		const char *ext;
+		const char *type;
+	};
+	/* What the frontend ships and what a plugin is likely to drop beside it. No
+	   charset travels with any of them: a document says its own encoding and a type
+	   here that said otherwise would be the one thing a page cannot overrule. */
+	static const Row table[] =
+	{
+		{ "html",        "text/html" },
+		{ "htm",         "text/html" },
+		{ "js",          "text/javascript" },
+		{ "mjs",         "text/javascript" },
+		{ "css",         "text/css" },
+		{ "json",        "application/json" },
+		{ "map",         "application/json" },
+		{ "webmanifest", "application/manifest+json" },
+		{ "xml",         "application/xml" },
+		{ "txt",         "text/plain" },
+		{ "svg",         "image/svg+xml" },
+		{ "png",         "image/png" },
+		{ "jpg",         "image/jpeg" },
+		{ "jpeg",        "image/jpeg" },
+		{ "gif",         "image/gif" },
+		{ "webp",        "image/webp" },
+		{ "ico",         "image/vnd.microsoft.icon" },
+		{ "woff2",       "font/woff2" },
+		{ "woff",        "font/woff" },
+		{ "ttf",         "font/ttf" },
+		{ "wasm",        "application/wasm" }
+	};
+
+	for (size_t i = 0; i < sizeof(table) / sizeof(table[0]); ++i)
+	{
+		// Without regard to case, because what a type says is what the bytes
+		// are and not how somebody typed the name of the file holding them.
+		if (equalsNoCase(ext, table[i].ext))
+			return table[i].type;
+	}
+	return "application/octet-stream";
 }
 
 } // namespace httpd

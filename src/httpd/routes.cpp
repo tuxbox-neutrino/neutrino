@@ -61,7 +61,18 @@ const RouteTable *const kTables[] = {
 	// Slice 1 on nhttpd: the two tables the bridge proves itself on, and the
 	// document that describes them. The others follow table by table.
 	&channelsTable,
+	&epgTable,
+	&settingsTable,
 	&systemTable,
+	&storageTable,
+	&netfsTable,
+	&timersTable,
+	&osdTable,
+	&daemonsTable,
+	&tunerTable,
+	&pluginsTable,
+	&configTable,
+	&recordingsTable,
 	&openapi::openapiTable,
 };
 
