@@ -1197,7 +1197,8 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 				       time_t epg_starttime, unsigned char apids,
 				       CTimerd::CTimerEventRepeat evrepeat,
 				       uint32_t repeatcount, const std::string &recDir,
-				       bool _recordingSafety, bool _autoAdjustToEPG) :
+				       bool _recordingSafety, bool _autoAdjustToEPG,
+				       const std::string &epg_title) :
 	CTimerEvent(getEventType(), announce_Time, alarm_Time, stop_Time, evrepeat, repeatcount)
 {
 	eventInfo.epg_id = epg_id;
@@ -1208,13 +1209,20 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 	eventInfo.recordingSafety = _recordingSafety;
 
 	recordingDir = recDir;
-	epgTitle="";
+	epgTitle=epg_title;
+	epgTitleGiven = !epgTitle.empty();
 	autoAdjustToEPG = _autoAdjustToEPG;
 	recordingSafety = _recordingSafety;
-	CShortEPGData epgdata;
-	if (CEitManager::getInstance()->getEPGidShort(epg_id, &epgdata))
-		epgTitle=epgdata.title;
-
+	/* The guide names the recording where nobody else did. Everything made
+	   on the box arrives here without a name and is named from the guide as
+	   it always was; a name that came in with the timer stays, because it is
+	   the only name a programme the guide does not carry has. */
+	if(!epgTitleGiven)
+	{
+		CShortEPGData epgdata;
+		if (CEitManager::getInstance()->getEPGidShort(epg_id, &epgdata))
+			epgTitle=epgdata.title;
+	}
 }
 //------------------------------------------------------------
 CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
@@ -1240,6 +1248,11 @@ CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
 
 	epgTitle = config->getString("EPG_TITLE_"+id);
 	dprintf("read EPG_TITLE_%s %s (%p)\n",id.c_str(),epgTitle.c_str(),&epgTitle);
+
+	// Absent from every file written before this was kept, and false there is
+	// what those timers were: named by the guide and renamed by it since.
+	epgTitleGiven = config->getBool("EPG_TITLE_GIVEN_"+id);
+	dprintf("read EPG_TITLE_GIVEN_%s %d\n",id.c_str(),epgTitleGiven);
 
 	recordingSafety = config->getInt32("RECORDING_SAFETY_"+id, true);
 	dprintf("read RECORDING_SAFETY_%s %d\n",id.c_str(), recordingSafety);
@@ -1317,6 +1330,9 @@ void CTimerEvent_Record::saveToConfig(CConfigFile *config)
 	config->setString("EPG_TITLE_"+id,epgTitle);
 	dprintf("set EPG_TITLE_%s to %s (%p)\n",id.c_str(),epgTitle.c_str(), &epgTitle);
 
+	config->setBool("EPG_TITLE_GIVEN_"+id, epgTitleGiven);
+	dprintf("set EPG_TITLE_GIVEN_%s to %d\n",id.c_str(), epgTitleGiven);
+
 	config->setInt32("RECORDING_SAFETY_"+id, recordingSafety);
 	dprintf("set RECORDING_SAFETY_%s to %d\n",id.c_str(), recordingSafety);
 
@@ -1329,7 +1345,10 @@ void CTimerEvent_Record::Reschedule()
 	// clear epg_id on reschedule
 	eventInfo.epg_id = 0;
 	eventInfo.epg_starttime = 0;
-	epgTitle="";
+	// A name of the guide's belongs to the occurrence that has passed and the
+	// next one gets its own. A name the timer was handed belongs to the timer.
+	if(!epgTitleGiven)
+		epgTitle="";
 	CTimerEvent::Reschedule();
 	getEpgId();
 }
@@ -1350,7 +1369,12 @@ void CTimerEvent_Record::getEpgId()
 			break;
 		}
 	}
-	if(eventInfo.epg_id != 0)
+	/* Reached on every read of the timer list, on every announcement and at
+	   the moment the recording begins, so this is where a name that came in
+	   with the timer would be replaced by the guide's within a second of the
+	   timer being made. Everything made on the box leaves the flag false and
+	   is named from the guide here exactly as before. */
+	if(eventInfo.epg_id != 0 && !epgTitleGiven)
 	{
 		CShortEPGData epgdata;
 		if (CEitManager::getInstance()->getEPGidShort(eventInfo.epg_id, &epgdata))

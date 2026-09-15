@@ -41,6 +41,14 @@ class CTimerdClient:private CBasicClient
 	virtual unsigned char   getVersion   () const;
 	virtual const          char * getSocketName() const;
 
+	/* The Unlocked variants leave the request guard to the caller, so that a
+	   guarded method can compose several exchanges. The guard is not recursive. */
+	bool getTimerListUnlocked(CTimerd::TimerList &timerlist);
+	void getRecordingSafetyUnlocked(int &pre, int &post);
+	bool checkDoubleUnlocked(CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime, time_t stoptime,
+				 CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount);
+	CTimerd::TimerList getOverlappingTimersUnlocked(time_t& announcetime, time_t& stoptime);
+
  public:
 		virtual ~CTimerdClient() {};
 		enum events
@@ -71,10 +79,18 @@ class CTimerdClient:private CBasicClient
 		int addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, time_t alarmtime,time_t announcetime = 0, time_t stoptime = 0,
 				   CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 0, bool forceadd=true);
 
-		void removeTimerEvent( int evId);	// remove timer event
+		/* False when the command did not go out. The daemon answers a removal
+		   with nothing, so this says the socket took it and nothing more. */
+		bool removeTimerEvent( int evId);	// remove timer event
 		void stopTimerEvent( int evId);	// set timer state to stoped (rescedule on demand)
 
-		void getTimerList( CTimerd::TimerList &timerlist);		// returns the list of all timers
+		/* False when the answer was cut short. The daemon says how many timers
+		   it is about to send, so a read that stops early is a list that is
+		   missing timers rather than a box with fewer of them, and the two
+		   have to be told apart by anyone deciding whether a timer exists.
+		   Timers the daemon has finished with are left out of the list either
+		   way, so its length is not the count it announced. */
+		bool getTimerList( CTimerd::TimerList &timerlist);		// returns the list of all timers
 		void getTimer( CTimerd::responseGetTimer &timer, unsigned timerID);		// returns specified timer
 
 		// modify existing timer event
@@ -84,7 +100,8 @@ class CTimerdClient:private CBasicClient
 
 		bool modifyRecordTimerEvent(int eventid, time_t announcetime, time_t alarmtime, time_t stoptime, CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount, const char * const recordingdir);
 
-		void modifyTimerAPid(int eventid, unsigned char apids);
+		// False when the command did not go out, as in removeTimerEvent.
+		bool modifyTimerAPid(int eventid, unsigned char apids);
 
 		// set existing sleeptimer to new times or create new sleeptimer with these times
 		int setSleeptimer(time_t announcetime, time_t alarmtime, int timerid = 0);

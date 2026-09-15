@@ -117,6 +117,12 @@ class CTimerEvent_Record : public CTimerEvent
 	CTimerd::EventInfo eventInfo;
 	std::string recordingDir;
 	std::string epgTitle;
+	/* Whether the name above is one the timer was handed rather than one
+	   read out of the guide. Everything made on the box is made without a
+	   name and leaves this false, so the guide names those exactly as it
+	   always has; a name that came in with the timer is the one thing the
+	   guide cannot know better and is left alone wherever this is true. */
+	bool epgTitleGiven;
 	bool recordingSafety;
 	bool autoAdjustToEPG;
 	CTimerEvent_Record(time_t announceTime, time_t alarmTime, time_t stopTime,
@@ -126,7 +132,12 @@ class CTimerEvent_Record : public CTimerEvent
 			   unsigned char apids = TIMERD_APIDS_STD,
 			   CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
 			   uint32_t repeatcount = 1, const std::string &recDir = "",
-			   bool _recordingSafety = true, bool _autoAdjustToEPG = true);
+			   bool _recordingSafety = true, bool _autoAdjustToEPG = true,
+			   /* What the caller named the recording. Last and with a
+			      default so that the callers which have no name to give,
+			      which is every one of them but the one that takes a
+			      timer over the network, read exactly as they did. */
+			   const std::string &epg_title = "");
 	CTimerEvent_Record(CConfigFile *config, int iId);
 	virtual ~CTimerEvent_Record(){};
 	virtual CTimerd::CTimerEventTypes getEventType(void) const { return CTimerd::TIMER_RECORD; };

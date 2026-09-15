@@ -111,9 +111,15 @@ class CTimerd
 		class RecordingInfo : public EventInfo
 			{
 			public:
-				RecordingInfo(){};
+				/* The two texts begin empty rather than holding whatever the
+				   stack left there. Every sender fills the directory and only
+				   some fill the title, so an unwritten title has to read as no
+				   title at all and not as a text nobody put there. */
+				RecordingInfo(){ recordingDir[0] = 0; epgTitle[0] = 0; };
 				RecordingInfo(EventInfo& e)
 					{
+						recordingDir[0] = 0;
+						epgTitle[0] = 0;
 						apids = e.apids;
 						channel_id = e.channel_id;
 						epg_id = e.epg_id;

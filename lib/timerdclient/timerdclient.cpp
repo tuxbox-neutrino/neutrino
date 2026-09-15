@@ -48,6 +48,8 @@ const          char * CTimerdClient::getSocketName() const
 
 void CTimerdClient::registerEvent(unsigned int eventID, unsigned int clientID, const char * const udsName)
 {
+	RequestGuard guard(*this);
+
 	CEventServer::commandRegisterEvent msg2;
 	VALGRIND_PARANOIA(msg2);
 
@@ -64,6 +66,8 @@ void CTimerdClient::registerEvent(unsigned int eventID, unsigned int clientID, c
 
 void CTimerdClient::unRegisterEvent(unsigned int eventID, unsigned int clientID)
 {
+	RequestGuard guard(*this);
+
 	CEventServer::commandUnRegisterEvent msg2;
 	VALGRIND_PARANOIA(msg2);
 
@@ -100,6 +104,8 @@ int CTimerdClient::setSleeptimer(time_t announcetime, time_t alarmtime, int time
 
 int CTimerdClient::getSleeptimerID()
 {
+	RequestGuard guard(*this);
+
 	send(CTimerdMsg::CMD_GETSLEEPTIMER);
 	CTimerdMsg::responseGetSleeptimer response;
 	if(!receive_data((char*)&response, sizeof(CTimerdMsg::responseGetSleeptimer)))
@@ -126,7 +132,15 @@ int CTimerdClient::getSleepTimerRemaining()
 }
 //-------------------------------------------------------------------------
 
-void CTimerdClient::getTimerList(CTimerd::TimerList &timerlist)
+bool CTimerdClient::getTimerList(CTimerd::TimerList &timerlist)
+{
+	RequestGuard guard(*this);
+
+	return getTimerListUnlocked(timerlist);
+}
+//-------------------------------------------------------------------------
+
+bool CTimerdClient::getTimerListUnlocked(CTimerd::TimerList &timerlist)
 {
         CTimerdMsg::generalInteger responseInteger;
 	CTimerd::responseGetTimer  response;
@@ -135,22 +149,36 @@ void CTimerdClient::getTimerList(CTimerd::TimerList &timerlist)
 
 	timerlist.clear();
 
-        if (CBasicClient::receive_data((char* )&responseInteger, sizeof(responseInteger)))
-        {
-                while (responseInteger.number-- > 0)
-                {
-                        if (CBasicClient::receive_data((char*)&response, sizeof(response)))
-				if (response.eventState != CTimerd::TIMERSTATE_TERMINATED)
-					timerlist.push_back(response);
-                };
-        }
+	/* The count is the only thing that says how long the answer is, so a read
+	   that stops before it has been consumed leaves a list that looks like a
+	   box with fewer timers. Reported rather than left to be guessed at. */
+        if (!CBasicClient::receive_data((char* )&responseInteger, sizeof(responseInteger)))
+	{
+		close_connection();
+		return false;
+	}
+
+	bool whole = true;
+	while (responseInteger.number-- > 0)
+	{
+		if (!CBasicClient::receive_data((char*)&response, sizeof(response)))
+		{
+			whole = false;
+			break;
+		}
+		if (response.eventState != CTimerd::TIMERSTATE_TERMINATED)
+			timerlist.push_back(response);
+	}
 
 	close_connection();
+	return whole;
 }
 //-------------------------------------------------------------------------
 
 void CTimerdClient::getTimer( CTimerd::responseGetTimer &timer, unsigned timerID)
 {
+	RequestGuard guard(*this);
+
 	send(CTimerdMsg::CMD_GETTIMER, (char*)&timerID, sizeof(timerID));
 
 	CTimerd::responseGetTimer response;
@@ -172,6 +200,8 @@ bool CTimerdClient::modifyTimerEvent(int eventid, time_t announcetime, time_t al
 {
 	// set new time values for event eventid
 
+	RequestGuard guard(*this);
+
 	CTimerdMsg::commandModifyTimer msgModifyTimer;
 	VALGRIND_PARANOIA(msgModifyTimer);
 	msgModifyTimer.eventID = eventid;
@@ -186,10 +216,14 @@ bool CTimerdClient::modifyTimerEvent(int eventid, time_t announcetime, time_t al
 		send_data((char*)data,datalen);
 
 	CTimerdMsg::responseStatus response;
-	receive_data((char*)&response, sizeof(response));
+	/* The daemon answers whether it found the event, and a read that failed
+	   leaves nothing worth reading, so both are reported rather than an
+	   unconditional yes. Same shape as rescheduleTimerEvent below. */
+	if (!receive_data((char*)&response, sizeof(response)))
+		response.status = false;
 
 	close_connection();
-	return true;
+	return response.status;
 }
 //-------------------------------------------------------------------------
 
@@ -211,6 +245,8 @@ bool CTimerdClient::rescheduleTimerEvent(int eventid, time_t diff)
 
 bool CTimerdClient::rescheduleTimerEvent(int eventid, time_t announcediff, time_t alarmdiff, time_t stopdiff)
 {
+	RequestGuard guard(*this);
+
 	CTimerdMsg::commandModifyTimer msgModifyTimer;
 	VALGRIND_PARANOIA(msgModifyTimer);
 	msgModifyTimer.eventID = eventid;
@@ -249,11 +285,19 @@ int CTimerdClient::addTimerEvent( CTimerEventTypes evType, void* data , int min,
 bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime,
 				  CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount)
 {
+	RequestGuard guard(*this);
+
+	return checkDoubleUnlocked(evType, data, announcetime, alarmtime, stoptime, evrepeat, repeatcount);
+}
+//-------------------------------------------------------------------------
+bool CTimerdClient::checkDoubleUnlocked(CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime,
+					CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount)
+{
 	if (evType != CTimerd::TIMER_RECORD && evType != CTimerd::TIMER_ZAPTO)
 		return false;//skip check not zap and record timer
 
 	CTimerd::TimerList timerlist;
-	getTimerList(timerlist);
+	getTimerListUnlocked(timerlist);
 	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end();++it)
 	{
 		if ( (it->eventType == CTimerd::TIMER_RECORD || it->eventType == CTimerd::TIMER_ZAPTO ) &&
@@ -291,14 +335,18 @@ bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void* data, ti
 int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime,
 				  CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount,bool forceadd)
 {
-	if(checkDouble(evType, data, announcetime,  alarmtime, stoptime, evrepeat,  repeatcount))//check if timer is add double
+	/* held across the two queries as well, so that the check and the add
+	   cannot be split by a second caller */
+	RequestGuard guard(*this);
+
+	if(checkDoubleUnlocked(evType, data, announcetime,  alarmtime, stoptime, evrepeat,  repeatcount))//check if timer is add double
 		return -1;
 
 	if (!forceadd)
 	{
 		//printf("[CTimerdClient] checking for overlapping timers\n");
 		CTimerd::TimerList overlappingTimer;
-		overlappingTimer = getOverlappingTimers(alarmtime, stoptime);
+		overlappingTimer = getOverlappingTimersUnlocked(alarmtime, stoptime);
 		if (!overlappingTimer.empty())
 		{
 			// timerd starts eventID at 0 so we can return -1
@@ -345,6 +393,13 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		tri.recordingSafety = ri->recordingSafety;
 		tri.autoAdjustToEPG = ri->autoAdjustToEPG;
 		strncpy(tri.recordingDir, ri->recordingDir, RECORD_DIR_MAXLEN);
+		/* The block on the wire has carried a title field all along and
+		   nothing was ever written into it, so the only name a recording
+		   timer could get was the one the daemon looked up in the guide.
+		   A caller that names the recording itself means that name, and a
+		   programme the guide does not carry has no other. */
+		strncpy(tri.epgTitle, ri->epgTitle, EPG_TITLE_MAXLEN - 1);
+		tri.epgTitle[EPG_TITLE_MAXLEN - 1] = 0;
 		length = sizeof( CTimerd::TransferRecordingInfo);
 		data = &tri;
 	}
@@ -371,28 +426,37 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		send_data((char*)data, length);
 
 	CTimerdMsg::responseAddTimer response;
-	receive_data((char*)&response, sizeof(response));
+	/* A read that failed part way through has already written into this and
+	   would otherwise be returned as an id. The daemon numbers from one, so
+	   zero cannot be mistaken for one of its answers. */
+	if (!receive_data((char*)&response, sizeof(response)))
+		response.eventID = 0;
 	close_connection();
 	
 	return( response.eventID);
 }
 //-------------------------------------------------------------------------
 
-void CTimerdClient::removeTimerEvent( int evId)
+bool CTimerdClient::removeTimerEvent( int evId)
 {
+	RequestGuard guard(*this);
+
 	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
 	VALGRIND_PARANOIA(msgRemoveTimer);
 
 	msgRemoveTimer.eventID  = evId;
 
-	send(CTimerdMsg::CMD_REMOVETIMER, (char*) &msgRemoveTimer, sizeof(msgRemoveTimer));
+	bool sent = send(CTimerdMsg::CMD_REMOVETIMER, (char*) &msgRemoveTimer, sizeof(msgRemoveTimer));
 
 	close_connection();  
+	return sent;
 }
 //-------------------------------------------------------------------------
 
 bool CTimerdClient::isTimerdAvailable()
 {
+	RequestGuard guard(*this);
+
 	if(!send(CTimerdMsg::CMD_TIMERDAVAILABLE))
 		return false;
 
@@ -405,13 +469,22 @@ bool CTimerdClient::isTimerdAvailable()
 
 CTimerd::TimerList CTimerdClient::getOverlappingTimers(time_t& startTime, time_t& stopTime)
 {
+	RequestGuard guard(*this);
+
+	return getOverlappingTimersUnlocked(startTime, stopTime);
+}
+
+//-------------------------------------------------------------------------
+
+CTimerd::TimerList CTimerdClient::getOverlappingTimersUnlocked(time_t& startTime, time_t& stopTime)
+{
 	CTimerd::TimerList timerlist; 
 	CTimerd::TimerList overlapping;
 	int timerPre;
 	int timerPost;
 
-	getTimerList(timerlist);
-	getRecordingSafety(timerPre,timerPost);
+	getTimerListUnlocked(timerlist);
+	getRecordingSafetyUnlocked(timerPre,timerPost);
 
 	for (CTimerd::TimerList::iterator it = timerlist.begin();
 	     it != timerlist.end();++it)
@@ -439,6 +512,8 @@ CTimerd::TimerList CTimerdClient::getOverlappingTimers(time_t& startTime, time_t
 
 bool CTimerdClient::shutdown()
 {
+	RequestGuard guard(*this);
+
 	send(CTimerdMsg::CMD_SHUTDOWN);
 
 	/* the received reply is what matters: it proves timerd processed
@@ -452,19 +527,24 @@ bool CTimerdClient::shutdown()
 	return delivered;
 }
 //-------------------------------------------------------------------------
-void CTimerdClient::modifyTimerAPid(int eventid, unsigned char apids)
+bool CTimerdClient::modifyTimerAPid(int eventid, unsigned char apids)
 {
+	RequestGuard guard(*this);
+
 	CTimerdMsg::commandSetAPid data;
 	VALGRIND_PARANOIA(data);
 	data.eventID=eventid;
 	data.apids = apids;
-	send(CTimerdMsg::CMD_SETAPID, (char*) &data, sizeof(data)); 
+	bool sent = send(CTimerdMsg::CMD_SETAPID, (char*) &data, sizeof(data));
 	close_connection();
+	return sent;
 }
 
 //-------------------------------------------------------------------------
 void CTimerdClient::setRecordingSafety(int pre, int post)
 {
+	RequestGuard guard(*this);
+
 	CTimerdMsg::commandRecordingSafety data;
 	VALGRIND_PARANOIA(data);
 	data.pre = pre;
@@ -475,6 +555,14 @@ void CTimerdClient::setRecordingSafety(int pre, int post)
 
 //-------------------------------------------------------------------------
 void CTimerdClient::getRecordingSafety(int &pre, int &post)
+{
+	RequestGuard guard(*this);
+
+	getRecordingSafetyUnlocked(pre, post);
+}
+
+//-------------------------------------------------------------------------
+void CTimerdClient::getRecordingSafetyUnlocked(int &pre, int &post)
 {
 	send(CTimerdMsg::CMD_GETRECSAFETY);
 	CTimerdMsg::commandRecordingSafety data;
@@ -538,6 +626,8 @@ void CTimerdClient::setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, std::string
 //-------------------------------------------------------------------------
 void CTimerdClient::stopTimerEvent( int evId)
 {
+	RequestGuard guard(*this);
+
 	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
 	VALGRIND_PARANOIA(msgRemoveTimer);
 

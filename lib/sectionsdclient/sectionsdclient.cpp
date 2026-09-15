@@ -83,6 +83,8 @@ bool CSectionsdClient::send(const unsigned char command, const char* data, const
 
 void CSectionsdClient::registerEvent(const unsigned int eventID, const unsigned int clientID, const char * const udsName)
 {
+	RequestGuard guard(*this);
+
 	CEventServer::commandRegisterEvent msg2;
 	VALGRIND_PARANOIA(msg2);
 
@@ -98,6 +100,8 @@ void CSectionsdClient::registerEvent(const unsigned int eventID, const unsigned 
 
 void CSectionsdClient::unRegisterEvent(const unsigned int eventID, const unsigned int clientID)
 {
+	RequestGuard guard(*this);
+
 	CEventServer::commandUnRegisterEvent msg2;
 	VALGRIND_PARANOIA(msg2);
 
@@ -111,6 +115,8 @@ void CSectionsdClient::unRegisterEvent(const unsigned int eventID, const unsigne
 
 bool CSectionsdClient::getIsTimeSet()
 {
+	RequestGuard guard(*this);
+
 	sectionsd::responseIsTimeSet rmsg;
 
 	if (send(sectionsd::getIsTimeSet))
@@ -129,6 +135,8 @@ bool CSectionsdClient::getIsTimeSet()
 
 void CSectionsdClient::setPauseScanning(const bool doPause)
 {
+	RequestGuard guard(*this);
+
 	int PauseIt = (doPause) ? 1 : 0;
 
 	send(sectionsd::pauseScanning, (char*)&PauseIt, sizeof(PauseIt));
@@ -139,6 +147,8 @@ void CSectionsdClient::setPauseScanning(const bool doPause)
 
 bool CSectionsdClient::getIsScanningActive()
 {
+	RequestGuard guard(*this);
+
 	int scanning;
 
 	if (send(sectionsd::getIsScanningActive))
@@ -157,6 +167,8 @@ bool CSectionsdClient::getIsScanningActive()
 
 void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bool requestEvent, int dnum)
 {
+	RequestGuard guard(*this);
+
 	sectionsd::commandSetServiceChanged msg;
 	VALGRIND_PARANOIA(msg);
 
@@ -172,6 +184,8 @@ void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bo
 
 void CSectionsdClient::setServiceStopped()
 {
+	RequestGuard guard(*this);
+
 	send(sectionsd::serviceStopped);
 
 	readResponse();
@@ -180,6 +194,8 @@ void CSectionsdClient::setServiceStopped()
 
 void CSectionsdClient::freeMemory()
 {
+	RequestGuard guard(*this);
+
 	send(sectionsd::freeMemory);
 
 	readResponse();
@@ -188,6 +204,8 @@ void CSectionsdClient::freeMemory()
 
 void CSectionsdClient::readSIfromXML(const char * epgxmlname)
 {
+	RequestGuard guard(*this);
+
 	send(sectionsd::readSIfromXML, (char*) epgxmlname, strlen(epgxmlname));
 
 	readResponse();
@@ -196,6 +214,8 @@ void CSectionsdClient::readSIfromXML(const char * epgxmlname)
 
 void CSectionsdClient::readSIfromXMLTV(const char * url)
 {
+	RequestGuard guard(*this);
+
 	send(sectionsd::readSIfromXMLTV, (char*) url, strlen(url));
 
 	readResponse();
@@ -204,6 +224,8 @@ void CSectionsdClient::readSIfromXMLTV(const char * url)
 
 void CSectionsdClient::writeSI2XML(const char * epgxmlname)
 {
+	RequestGuard guard(*this);
+
 	send(sectionsd::writeSI2XML, (char*) epgxmlname, strlen(epgxmlname));
 
 	readResponse();
@@ -212,6 +234,8 @@ void CSectionsdClient::writeSI2XML(const char * epgxmlname)
 
 void CSectionsdClient::setConfig(const epg_config config)
 {
+	RequestGuard guard(*this);
+
 	sectionsd::commandSetConfig *msg;
 	char* pData = new char[sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1 + config.epg_dir.length() + 1];
 	msg = (sectionsd::commandSetConfig *)pData;
@@ -237,6 +261,8 @@ void CSectionsdClient::setConfig(const epg_config config)
 
 void CSectionsdClient::dumpStatus()
 {
+	RequestGuard guard(*this);
+
 	send(sectionsd::dumpStatusinformation);
 	close_connection();
 }
