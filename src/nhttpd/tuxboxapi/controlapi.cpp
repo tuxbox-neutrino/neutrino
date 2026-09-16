@@ -1699,6 +1699,27 @@ void CControlAPI::GetChannelCGI(CyhookHandler *hh)
  * @endcode
  */
 //-------------------------------------------------------------------------
+// Is bouquet i part of the requested listing? Used twice per bouquet: once for
+// the bouquet itself and once to look ahead for the array separator.
+static bool listedBouquet(int i, int mode, bool show_hidden, bool fav)
+{
+	CZapitBouquet *b = g_bouquetManager->Bouquets[i];
+	unsigned int channel_count = 0;
+
+	switch (mode) {
+		case CZapitClient::MODE_RADIO:
+			channel_count = b->radioChannels.size();
+			break;
+		case CZapitClient::MODE_TV:
+			channel_count = b->tvChannels.size();
+			break;
+		case CZapitClient::MODE_ALL:
+			channel_count = b->radioChannels.size() + b->tvChannels.size();
+	}
+	return channel_count && (!b->bHidden || show_hidden) && (!fav || b->bUser);
+}
+
+//-------------------------------------------------------------------------
 void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 {
 	bool show_hidden = true;
@@ -1727,31 +1748,28 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
  
 	std::string bouquet;
 	for (int i = 0, size = (int) g_bouquetManager->Bouquets.size(); i < size; i++) {
+		if (!listedBouquet(i, mode, show_hidden, fav))
+			continue;
+
+		/* The separator belongs after the last *listed* bouquet, not after the
+		   last one in Bouquets. Filtered-out entries at the end of the list
+		   would otherwise leave a trailing comma and break the json. */
+		bool has_next = false;
+		for (int j = i + 1; j < size && !has_next; j++)
+			has_next = listedBouquet(j, mode, show_hidden, fav);
+
 		std::string item = "";
-		unsigned int channel_count = 0;
-		switch (mode) {
-			case CZapitClient::MODE_RADIO:
-				channel_count = g_bouquetManager->Bouquets[i]->radioChannels.size();
-				break;
-			case CZapitClient::MODE_TV:
-				channel_count = g_bouquetManager->Bouquets[i]->tvChannels.size();
-				break;
-			case CZapitClient::MODE_ALL:
-				channel_count = g_bouquetManager->Bouquets[i]->radioChannels.size() + g_bouquetManager->Bouquets[i]->tvChannels.size();
+		bouquet = std::string(g_bouquetManager->Bouquets[i]->bName.c_str());
+		if (encode)
+			bouquet = encodeString(bouquet); // encode (URLencode) the bouquetname
+		if (outType == plain)
+			item = string_printf("%u", i + 1) + " " + bouquet + "\n";
+		else
+		{
+			item = hh->outPair("number", string_printf("%u", i + 1), true);
+			item += hh->outPair("name", bouquet, false);
 		}
-		if (channel_count && (!g_bouquetManager->Bouquets[i]->bHidden || show_hidden) && (!fav || g_bouquetManager->Bouquets[i]->bUser)) {
-			bouquet = std::string(g_bouquetManager->Bouquets[i]->bName.c_str());
-			if (encode)
-				bouquet = encodeString(bouquet); // encode (URLencode) the bouquetname
-			if (outType == plain)
-				item = string_printf("%u", i + 1) + " " + bouquet + "\n";
-			else
-			{
-				item = hh->outPair("number", string_printf("%u", i + 1), true);
-				item += hh->outPair("name", bouquet, false);
-			}
-			result += hh->outArrayItem("bouquet", item, (i < size-1));
-		}
+		result += hh->outArrayItem("bouquet", item, has_next);
 	}
 	result = hh->outArray("bouquets", result);
 
