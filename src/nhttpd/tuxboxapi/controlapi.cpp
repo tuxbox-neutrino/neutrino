@@ -1402,6 +1402,28 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 	return result;
 }
 //-------------------------------------------------------------------------
+// mode=tv|radio|all for the bouquet calls. /control/getmode answers in lower
+// case, so accept any spelling instead of silently falling back. Zapit reports
+// MODE_CURRENT while neither tv nor radio is active - callers count channels
+// per mode and would come up empty on it, so never hand that out.
+static int requestedChannelsMode(CyhookHandler *hh, int fallback)
+{
+	std::string mode = hh->ParamList["mode"];
+	std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
+
+	if (mode == "tv")
+		return CZapitClient::MODE_TV;
+	if (mode == "radio")
+		return CZapitClient::MODE_RADIO;
+	if (mode == "all")
+		return CZapitClient::MODE_ALL;
+
+	if (fallback == CZapitClient::MODE_TV || fallback == CZapitClient::MODE_RADIO || fallback == CZapitClient::MODE_ALL)
+		return fallback;
+	return CZapitClient::MODE_TV;
+}
+
+//-------------------------------------------------------------------------
 /** List all channels for given bouquet (or all) or show actual bouquet number
  * @param hh CyhookHandler
  *
@@ -1409,7 +1431,7 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
  * Get bouquet list (all) oder filtered to a given bouquet number
  * Option epg=true for actual and next epg data for each channel
  * @code
- * /control/getbouquet?[bouquet=<bouquet number>][&mode=TV|RADIO][&epg=true[&epginfo=false]]
+ * /control/getbouquet?[bouquet=<bouquet number>][&mode=tv|radio|all][&epg=true[&epginfo=false]]
  * @endcode
  * Get the actual used bouquet number
  * @code
@@ -1500,14 +1522,7 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 
 	std::string result = "";
 	if (!(hh->ParamList.empty())) {
-		int mode = NeutrinoAPI->Zapit->getMode();
-
-		if (hh->ParamList["mode"].compare("TV") == 0)
-			mode = CZapitClient::MODE_TV;
-		else if (hh->ParamList["mode"].compare("RADIO") == 0)
-			mode = CZapitClient::MODE_RADIO;
-		else if (hh->ParamList["mode"].compare("all") == 0)
-			mode = CZapitClient::MODE_ALL;
+		int mode = requestedChannelsMode(hh, NeutrinoAPI->Zapit->getMode());
 
 		// Get Bouquet Number. First matching current channel
 		if (hh->ParamList["1"] == "actual") {
@@ -1642,7 +1657,7 @@ void CControlAPI::GetChannelCGI(CyhookHandler *hh)
  *
  * @par nhttpd-usage
  * @code
- * /control/getbouquets?[showhidden=true|false][&encode=true|false][&format=|xml|json]
+ * /control/getbouquets?[showhidden=true|false][&encode=true|false][&mode=tv|radio|all][&format=|xml|json]
  *
  * @endcode
  * @par
@@ -1738,14 +1753,8 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 	if (hh->ParamList["fav"] == "true")
 		fav = true;
 
-	int mode = NeutrinoAPI->Zapit->getMode();
-	if (hh->ParamList["mode"].compare("all") == 0)
-		mode = CZapitClient::MODE_ALL;
-	else if (hh->ParamList["mode"].compare("TV") == 0)
-		mode = CZapitClient::MODE_TV;
-	else if (hh->ParamList["mode"].compare("RADIO") == 0)
-		mode = CZapitClient::MODE_RADIO;
- 
+	int mode = requestedChannelsMode(hh, NeutrinoAPI->Zapit->getMode());
+
 	std::string bouquet;
 	for (int i = 0, size = (int) g_bouquetManager->Bouquets.size(); i < size; i++) {
 		if (!listedBouquet(i, mode, show_hidden, fav))
