@@ -1776,7 +1776,7 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 		else
 		{
 			item = hh->outPair("number", string_printf("%u", i + 1), true);
-			item += hh->outPair("name", bouquet, false);
+			item += hh->outPair("name", hh->outValue(bouquet), false);
 		}
 		result += hh->outArrayItem("bouquet", item, has_next);
 	}
