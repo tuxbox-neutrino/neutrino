@@ -1743,6 +1743,12 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 
 	TOutType outType = hh->outStart();
 
+	if (!g_bouquetManager) {
+		result = hh->outArray("bouquets", result);
+		hh->SendResult(result);
+		return;
+	}
+
 	if (hh->ParamList["showhidden"] == "false")
 		show_hidden = false;
 
