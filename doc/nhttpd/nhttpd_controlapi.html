@@ -1258,7 +1258,8 @@ Beispiel:<br>
 <div class="title1"><a name="getbouquets"></a><b>Bouquetlist abfragen</b></div>
 <div class="URL">Handler: http://box_ip/control/getbouquets</div>
 <br>
-<b>Parameter:</b> <br>
+<b>Parameter:</b> optional: mode=tv | radio | all, fav=true (nur eigene Bouquets),
+showhidden=false, encode=true, format=xml | json<br>
 <b>R&uuml;ckgabe:</b><br>
 <br>
 Es werden alle Bouquets zur&uuml;ckgegeben.<br>
@@ -1277,8 +1278,8 @@ Beispiel:<br>
 <div class="title1"><a name="getbouquet"></a><b>Bouquet abfragen</b></div>
 <div class="URL">Handler: http://box_ip/control/getbouquet</div>
 <br>
-<b>Parameter:</b> bouquet=Bouquet Nr. und mode=TV | RADIO oder actual und 
-mode=TV | RADIO optional: xml=true<br>
+<b>Parameter:</b> bouquet=Bouquet Nr. und mode=tv | radio | all (Schreibweise beliebig) oder actual und
+mode=tv | radio | all (Schreibweise beliebig) optional: xml=true<br>
 <b>R&uuml;ckgabe:</b><br>
 <br>
 Es werden alle Sender des Bouquets zur&uuml;ckgegeben. Bei Angabe des Parameters actual, wird das erste<br>
