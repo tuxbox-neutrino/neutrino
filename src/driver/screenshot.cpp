@@ -71,7 +71,6 @@ CScreenShot::CScreenShot(const std::string &fname, screenshot_format_t fmt)
 	extra_osd = false;
 	scs_thread = 0;
 	pthread_mutex_init(&thread_mutex, NULL);
-	pthread_mutex_init(&getData_mutex, NULL);
 #endif // SCREENSHOT_INTERNAL
 }
 
@@ -79,7 +78,6 @@ CScreenShot::~CScreenShot()
 {
 #if SCREENSHOT_INTERNAL
 	pthread_mutex_destroy(&thread_mutex);
-	pthread_mutex_destroy(&getData_mutex);
 #endif // SCREENSHOT_INTERNAL
 //	printf("[CScreenShot::%s:%d] thread: %p\n", __func__, __LINE__, this);
 }
@@ -174,6 +172,11 @@ bool CScreenShot::mergeOsdScreen(uint32_t dx, uint32_t dy, fb_pixel_t* osdData)
 /* try to get video frame data in ARGB format, restore GXA state */
 bool CScreenShot::GetData()
 {
+	/* No lock of this object's own here any more. Every capture builds its own
+	   CScreenShot, so a member mutex was never reached by two threads and
+	   guarded nothing. What two captures at once do share is the framebuffer,
+	   and the lock for that is the framebuffer's own, taken below where its flag
+	   is put down. */
 #ifdef BOXMODEL_CST_HD2
 	/* Workaround for broken osd screenshot with new fb driver and 1280x720 resolution */
 	CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
@@ -184,7 +187,13 @@ bool CScreenShot::GetData()
 		_yres = yres = 720;
 		get_osd      = false;
 		extra_osd    = true;
-		screenBuf    = new fb_pixel_t[_xres*_yres*sizeof(fb_pixel_t)];
+		/* One element per pixel and not one per byte: the count used to
+		   multiply the pixels by the size of one of them again and asked the
+		   allocator for four times the picture. Zeroed, because SaveScreen
+		   below returns without writing a byte while the framebuffer is
+		   inactive, and mergeOsdScreen then blends whatever this process last
+		   left in that memory into a picture that goes out over the network. */
+		screenBuf    = new fb_pixel_t[_xres * _yres]();
 		if (screenBuf == NULL) {
 			printf("[CScreenShot::%s:%d] memory error\n", __func__, __LINE__);
 			return false;
@@ -196,10 +205,15 @@ bool CScreenShot::GetData()
 #endif
 
 	bool res = false;
-	pthread_mutex_lock(&getData_mutex);
 
 #ifdef BOXMODEL_CST_HD1
-	CFrameBuffer::getInstance()->setActive(false);
+	/* The capture below has the video hardware convert the live picture into the
+	   framebuffer, so the drawing code is held off it for the length of that.
+	   The guard puts the flag back to what it found rather than to true: a blind
+	   true would overwrite the false standby set and leave the box drawing over
+	   a screen it had blanked. That restore is why no setActive stands at the
+	   bottom of this function any more. */
+	CFrameBuffer::HardwareDraw hardware_drawing;
 #endif
 	if (videoDecoder->getBlank())
 		get_video = false;
@@ -209,7 +223,6 @@ bool CScreenShot::GetData()
 		pixel_data = (uint8_t*)cs_malloc_uncached(memSize);
 		if (pixel_data == NULL) {
 			printf("[CScreenShot::%s:%d] memory error\n", __func__, __LINE__);
-			pthread_mutex_unlock(&getData_mutex);
 			return false;
 		}
 		memset(pixel_data, 0, memSize);
@@ -226,9 +239,7 @@ bool CScreenShot::GetData()
 	 * so setup GXA back */
 	CFrameBuffer::getInstance()->setupGXA();
 	CFrameBuffer::getInstance()->add_gxa_sync_marker();
-	CFrameBuffer::getInstance()->setActive(true);
 #endif
-	pthread_mutex_unlock(&getData_mutex);
 	if (!res) {
 		printf("[CScreenShot::%s:%d] GetScreenImage failed\n", __func__, __LINE__);
 		return false;
@@ -279,6 +290,10 @@ void* CScreenShot::initThread(void *arg)
 /* thread function to save data asynchroniosly. delete itself after saving */
 void CScreenShot::runThread()
 {
+	/* Named here and not in Start(). Start() runs on whichever thread asked for
+	   the capture, and naming there renamed that one: a screenshot taken with a
+	   key left the box's main thread called n:screenshot. */
+	set_threadname("n:screenshot");
 	pthread_mutex_lock(&thread_mutex);
 	printf("[CScreenShot::%s:%d] save to %s format %d\n", __func__, __LINE__, filename.c_str(), format);
 
@@ -298,7 +313,6 @@ void CScreenShot::cleanupThread(void *arg)
 /* start ::run in new thread to save file in selected format */
 bool CScreenShot::Start()
 {
-	set_threadname("n:screenshot");
 	bool ret = false;
 	if (GetData())
 		ret = startThread();

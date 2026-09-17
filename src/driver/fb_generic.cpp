@@ -400,6 +400,20 @@ void CFrameBuffer::setActive(bool enable)
 	active = enable;
 }
 
+CFrameBuffer::HardwareDraw::HardwareDraw()
+	: fb(CFrameBuffer::getInstance()), was_active(false)
+{
+	fb->mutex.lock();
+	was_active = fb->active;
+	fb->active = false;
+}
+
+CFrameBuffer::HardwareDraw::~HardwareDraw()
+{
+	fb->active = was_active;
+	fb->mutex.unlock();
+}
+
 t_fb_var_screeninfo *CFrameBuffer::getScreenInfo()
 {
 	return &screeninfo;

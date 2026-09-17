@@ -207,6 +207,27 @@ class CFrameBuffer : public sigc::trackable
 
 		bool getActive() const;                     // is framebuffer active?
 		void setActive(bool enable);                     // is framebuffer active?
+
+		/* Holds the drawing code off the framebuffer while the video hardware
+		   reads or writes it behind that code's back, which is what
+		   CFbAccelCSHDx::fbCopy and ::fbFill do by hand. Two things a caller
+		   doing it by hand keeps getting wrong: the flag is a bare bool and not
+		   a count, so putting it back to true rather than to what it held
+		   overwrites the false standby set and leaves the box drawing over a
+		   blanked screen; and the lock is what keeps a second such call from
+		   reading the flag while this one has it down. */
+		class HardwareDraw
+		{
+			public:
+				HardwareDraw();
+				~HardwareDraw();
+
+			private:
+				CFrameBuffer *fb;
+				bool was_active;
+				HardwareDraw(const HardwareDraw &);
+				HardwareDraw &operator=(const HardwareDraw &);
+		};
 		virtual void setupGXA() { return; };             // reinitialize stuff
 		virtual void add_gxa_sync_marker() { return; };
 		virtual bool needAlign4Blit() { return false; };

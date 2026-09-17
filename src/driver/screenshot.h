@@ -57,7 +57,6 @@ class CScreenShot
 		FILE *fd;
 		pthread_t  scs_thread;
 		pthread_mutex_t thread_mutex;
-		pthread_mutex_t getData_mutex;
 
 		bool GetData();
 		bool OpenFile();
