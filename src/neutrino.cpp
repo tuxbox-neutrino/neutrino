@@ -5555,18 +5555,65 @@ void CNeutrinoApp::saveEpg(int _mode)
 			if ((msg == CRCInput::RC_timeout) || (msg == NeutrinoMessages::EVT_SI_FINISHED))
 			{
 				//printf("Msg %x timeout %d EVT_SI_FINISHED %x\n", msg, CRCInput::RC_timeout, NeutrinoMessages::EVT_SI_FINISHED);
-				CVFD::getInstance()->Clear();
-				// do we really have to change VFD-mode here again?
-				CVFD::getInstance()->setMode((_mode == NeutrinoModes::mode_standby) ? CVFD::MODE_STANDBY : CVFD::MODE_SHUTDOWN);
 				delete [] (unsigned char*) data;
 				break;
 			}
-			else if (_mode == NeutrinoModes::mode_standby)
+
+			/* A wake goes back on the queue and the wait ends here. Answered from
+			   inside, it would reach the call that leaves standby while the call
+			   that enters it is still running, and lockStandbyCall turns that
+			   into nothing at all: the key was swallowed and the box ignored its
+			   power button for as long as the guide took to write, which from the
+			   outside is a broken box. Put back rather than remembered, so the
+			   caller finishes putting the box into standby and the main loop
+			   wakes it the ordinary way a moment later, through the one path that
+			   leaves standby whole.
+
+			   These two names and no keys. Every key that wakes a box in standby,
+			   the added one from the settings among them, is turned into one of
+			   them by handleMsg below and comes round on the next pass, so the
+			   list of keys is not written out a second time here.
+
+			   Only for the caller that is entering standby. The other one is the
+			   shutdown, where the wait has to run out: the process ends after it,
+			   and a wait cut short there is a half written file.
+
+			   What ends is the wait and not the writing. The guide daemon answers
+			   the request before it starts writing and does the writing on a
+			   thread of its own, so it runs on either way and says so when it is
+			   done, to a main loop that has nothing to do with the answer. */
+			const bool wake = (msg == NeutrinoMessages::STANDBY_OFF ||
+					   msg == NeutrinoMessages::STANDBY_TOGGLE) &&
+					  (_mode == NeutrinoModes::mode_standby);
+			/* Handed on unchanged where the queue would not take it back, which
+			   is what happened to it before and no worse. */
+			if (wake && g_RCInput->postMsg(msg, data))
+				break;
+
+			/* The argument here and not the live mode: it says which caller this
+			   is, and only the standby one may let keys through. The shutdown
+			   caller leaves the box in whatever mode it was in, so a live read
+			   would start answering keys while the box is being torn down. */
+			if (_mode == NeutrinoModes::mode_standby)
 			{
 				printf("wait for epg saving, msg %x \n", (int) msg);
 				handleMsg(msg, data);
 			}
 		}
+
+		CVFD::getInstance()->Clear();
+		/* Read off the live mode, not off the argument. The loop above hands keys
+		   to handleMsg for up to two minutes and one of them can wake the box,
+		   which leaves the argument naming a standby the box has already left;
+		   the front display then said standby while the box was running. A box
+		   woken in there had its display put on the running mode by the wakeup,
+		   and the Clear() above just wiped that, so it goes back. */
+		if (mode == NeutrinoModes::mode_standby)
+			CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
+		else if (_mode == NeutrinoModes::mode_standby)
+			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		else
+			CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 	}
 }
 
@@ -5752,6 +5799,44 @@ void CNeutrinoApp::standbyMode(bool bOnOff, bool fromDeepStandby)
 			if(g_settings.epg_save && !fromDeepStandby && g_settings.epg_save_standby) {
 				saveEpg(NeutrinoModes::mode_standby);
 			}
+		}
+
+		/* The call above answers the remote control for up to two minutes, and a
+		   zap timer or a mode change arriving in there takes the box out of
+		   standby behind this function's back. Not through the call that leaves
+		   standby, which lockStandbyCall keeps out for as long as this one is
+		   running, but through tvMode, radioMode and the assignments beside them,
+		   which none of that guard reaches. Everything below puts the rest of the
+		   standby state on, the blanking of the framebuffer among it, and applied
+		   to a box that is running again it is what leaves the front display
+		   saying standby, every paint dropped and a screenshot half drawn.
+
+		   So it is not applied. Each line below is a standby only setting whose
+		   counterpart was never reached, which is the whole of what is needed
+		   there; what does need undoing is what this function did on the way in
+		   and the mode change did not, which is the block here, and every call in
+		   it is the one the leaving path makes for the same thing. The script
+		   that runs on leaving standby is deliberately not among them: the one
+		   that runs on entering it stands below and never ran. */
+		if (mode != NeutrinoModes::mode_standby) {
+			INFO("woken to %s while the guide was being written, standby dropped",
+				neutrinoMode_to_string(mode));
+#if BOXMODEL_E4HDULTRA
+			videoDecoder->SetControl(VIDEO_CONTROL_ZAPPING_MODE, g_settings.zappingmode);
+#endif
+#ifdef ENABLE_GRAPHLCD
+			cGLCD::Resume();
+			cGLCD::StandbyMode(false);
+#endif
+			videoDecoder->Standby(false);
+			CZapit::getInstance()->EnablePlayback(true);
+			g_Zapit->setStandby(false);
+			g_Sectionsd->setPauseScanning(false);
+			if (access("/tmp/.standby", F_OK) == 0)
+				unlink("/tmp/.standby");
+			StartSubtitles();
+			lockStandbyCall = false;
+			return;
 		}
 
 		CVFD::getInstance()->Clear();
@@ -7088,7 +7173,12 @@ void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 			if (fhintbox){
 				fhintbox->hide(); delete fhintbox;
 			}
-			if (standby)
+			/* The live mode and not the argument. The scan above can run for
+			   minutes, and a box woken while it ran would be left with a front
+			   display saying standby. The argument still decides everything
+			   above, where it says which caller this is rather than what the box
+			   is doing now. */
+			if (mode == NeutrinoModes::mode_standby)
 				CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 		}
 	}
