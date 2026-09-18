@@ -1657,6 +1657,27 @@ void CControlAPI::GetChannelCGI(CyhookHandler *hh)
 }
 
 //-------------------------------------------------------------------------
+// Is bouquet i part of the requested listing? Used twice per bouquet: once for
+// the bouquet itself and once to look ahead for the array separator.
+static bool listedBouquet(int i, int mode, bool show_hidden, bool fav)
+{
+	CZapitBouquet *b = g_bouquetManager->Bouquets[i];
+	unsigned int channel_count = 0;
+
+	switch (mode) {
+		case CZapitClient::MODE_RADIO:
+			channel_count = b->radioChannels.size();
+			break;
+		case CZapitClient::MODE_TV:
+			channel_count = b->tvChannels.size();
+			break;
+		case CZapitClient::MODE_ALL:
+			channel_count = b->radioChannels.size() + b->tvChannels.size();
+	}
+	return channel_count && (!b->bHidden || show_hidden) && (!fav || b->bUser);
+}
+
+//-------------------------------------------------------------------------
 /** Return all bouquets
  * @param hh CyhookHandler
  *
@@ -1718,27 +1739,6 @@ void CControlAPI::GetChannelCGI(CyhookHandler *hh)
  * </bouquets>
  * @endcode
  */
-//-------------------------------------------------------------------------
-// Is bouquet i part of the requested listing? Used twice per bouquet: once for
-// the bouquet itself and once to look ahead for the array separator.
-static bool listedBouquet(int i, int mode, bool show_hidden, bool fav)
-{
-	CZapitBouquet *b = g_bouquetManager->Bouquets[i];
-	unsigned int channel_count = 0;
-
-	switch (mode) {
-		case CZapitClient::MODE_RADIO:
-			channel_count = b->radioChannels.size();
-			break;
-		case CZapitClient::MODE_TV:
-			channel_count = b->tvChannels.size();
-			break;
-		case CZapitClient::MODE_ALL:
-			channel_count = b->radioChannels.size() + b->tvChannels.size();
-	}
-	return channel_count && (!b->bHidden || show_hidden) && (!fav || b->bUser);
-}
-
 //-------------------------------------------------------------------------
 void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 {
