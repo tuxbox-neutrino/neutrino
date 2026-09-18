@@ -30,6 +30,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libgen.h>
+#if HAVE_GENERIC_HARDWARE
+#include <mntent.h>
+#include <sstream>
+#endif
 
 #include <gui/dboxinfo.h>
 
@@ -51,6 +55,9 @@
 #include <system/sysload.h>
 #include <system/helpers.h>
 #include <map>
+#if HAVE_GENERIC_HARDWARE
+#include <vector>
+#endif
 #include <iostream>
 #include <fstream>
 
@@ -207,6 +214,62 @@ void CDBoxInfoWidget::hide()
 
 static std::string bytes2string(uint64_t bytes, bool binary = true);
 
+#if HAVE_GENERIC_HARDWARE
+struct generic_mount_t
+{
+	std::string source;
+	std::string target;
+	std::string type;
+	std::string options;
+};
+
+static bool pathUsesMount(const std::string &path, const std::string &mountpoint)
+{
+	if (mountpoint == "/")
+		return !path.empty() && path[0] == '/';
+
+	return path.compare(0, mountpoint.size(), mountpoint) == 0
+	    && (path.size() == mountpoint.size() || path[mountpoint.size()] == '/');
+}
+
+static bool isLocalKernelFilesystem(const std::string &type)
+{
+	static const char *local_filesystems[] = {
+		"ext2", "ext3", "ext4", "xfs", "btrfs", "zfs", "overlay",
+		"tmpfs", "vfat", "exfat", "ntfs3", "f2fs", "jfs", "reiserfs",
+		"ubifs", "squashfs", "iso9660", "udf", "bcachefs"
+	};
+
+	for (size_t i = 0; i < sizeof(local_filesystems) / sizeof(local_filesystems[0]); ++i) {
+		if (type == local_filesystems[i])
+			return true;
+	}
+
+	return false;
+}
+
+static std::string decodeMountField(const std::string &field)
+{
+	std::string decoded;
+	decoded.reserve(field.size());
+
+	for (size_t i = 0; i < field.size(); ++i) {
+		if (field[i] == '\\' && i + 3 < field.size()
+		 && field[i + 1] >= '0' && field[i + 1] <= '7'
+		 && field[i + 2] >= '0' && field[i + 2] <= '7'
+		 && field[i + 3] >= '0' && field[i + 3] <= '7') {
+			decoded += static_cast<char>(((field[i + 1] - '0') << 6)
+				+ ((field[i + 2] - '0') << 3) + (field[i + 3] - '0'));
+			i += 3;
+		} else {
+			decoded += field[i];
+		}
+	}
+
+	return decoded;
+}
+#endif
+
 static std::string bytes2string(uint64_t bytes, bool binary)
 {
 	uint64_t b = bytes;
@@ -307,6 +370,67 @@ void CDBoxInfoWidget::paint()
 	std::ifstream in;
 
 	std::map<std::string,bool> mounts;
+
+#if HAVE_GENERIC_HARDWARE
+	std::vector<generic_mount_t> mount_entries;
+	FILE *mount_table = setmntent("/proc/mounts", "r");
+	if (mount_table) {
+		char *mount_line = NULL;
+		size_t mount_line_size = 0;
+		while (getline(&mount_line, &mount_line_size, mount_table) >= 0) {
+			std::istringstream parser(mount_line);
+			generic_mount_t mount_entry = {
+				"", "", "", ""
+			};
+			if (!(parser >> mount_entry.source >> mount_entry.target
+			      >> mount_entry.type >> mount_entry.options))
+				continue;
+			mount_entry.source = decodeMountField(mount_entry.source);
+			mount_entry.target = decodeMountField(mount_entry.target);
+			mount_entry.type = decodeMountField(mount_entry.type);
+			mount_entry.options = decodeMountField(mount_entry.options);
+			mount_entries.push_back(mount_entry);
+		}
+		free(mount_line);
+		endmntent(mount_table);
+	}
+
+	std::vector<generic_mount_t> effective_mounts;
+	for (std::vector<generic_mount_t>::const_iterator it = mount_entries.begin(); it != mount_entries.end(); ++it) {
+		// A later entry at the same target, or at one of its ancestors, hides
+		// this mount. A child mounted after an overlay or ZFS root remains
+		// visible because the root entry precedes it.
+		bool hidden = false;
+		for (std::vector<generic_mount_t>::const_iterator later = it + 1; later != mount_entries.end(); ++later) {
+			if (pathUsesMount(it->target, later->target)) {
+				hidden = true;
+				break;
+			}
+		}
+		if (hidden)
+			continue;
+
+		effective_mounts.push_back(*it);
+	}
+
+	std::string recording_mount;
+	for (std::vector<generic_mount_t>::const_iterator it = effective_mounts.begin(); it != effective_mounts.end(); ++it) {
+		if (pathUsesMount(g_settings.network_nfs_recordingdir, it->target)
+		 && it->target.size() > recording_mount.size())
+			recording_mount = it->target;
+	}
+
+	for (std::vector<generic_mount_t>::const_iterator it = effective_mounts.begin(); it != effective_mounts.end(); ++it) {
+		if (!isLocalKernelFilesystem(it->type))
+			continue;
+		mounts[it->target] = (it->target == recording_mount);
+	}
+
+	for (std::map<std::string, bool>::const_iterator it = mounts.begin(); it != mounts.end(); ++it) {
+		int icon_space = it->second ? 10 + icon_w : 0;
+		nameWidth = std::max(nameWidth, fm->getRenderWidth(it->first, true) + icon_space + 10);
+	}
+#else
 	in.open("/proc/mounts");
 	if (in.is_open()) {
 		struct stat rec_st;
@@ -339,6 +463,7 @@ void CDBoxInfoWidget::paint()
 		}
 		in.close();
 	}
+#endif
 	int satWidth = nameWidth;
 	for (int i = 0; i < frontend_count; i++) {
 		CFrontend *fe = CFEManager::getInstance()->getFE(i);
