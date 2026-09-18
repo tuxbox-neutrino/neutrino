@@ -454,8 +454,11 @@ std::string CyhookHandler::outPair(std::string _key, std::string _content, bool 
 		result = outIndent() + "<" + _key + ">" + _content + "</" + _key_close + ">";
 		break;
 	case json:
-		replace(_content, "\"", "\'");
-		result = outIndent() + "\"" + _key + "\": \"" + _content + "\"";
+		/* The value is escaped here and only here. outValue() passes json
+		   through untouched, so a caller that used it does not get escaped
+		   twice: the quote escape lost its backslash partner and the whole
+		   document stopped parsing. */
+		result = outIndent() + "\"" + _key + "\": \"" + json_convert_string(_content) + "\"";
 		if(_next)
 			result += ",";
 		break;
@@ -545,9 +548,10 @@ std::string CyhookHandler::outValue(std::string _content, bool _xml_cdata) {
 	std::string result = "";
 	switch (outType) {
 	case xml:
-		if (_xml_cdata)
+		/* A CDATA section cannot carry "]]>" - fall back to entities for it. */
+		if (_xml_cdata && _content.find("]]>") == std::string::npos)
 		{
-			result = "<![CDATA[" + _content + "]]>";;
+			result = "<![CDATA[" + _content + "]]>";
 		}
 		else
 		{
@@ -555,7 +559,9 @@ std::string CyhookHandler::outValue(std::string _content, bool _xml_cdata) {
 		}
 		break;
 	case json:
-		result = json_convert_string(_content);
+		/* Escaping happens in outPair(), so that callers with and without
+		   outValue() end up with exactly one pass. */
+		result = _content;
 		break;
 
 	default:
