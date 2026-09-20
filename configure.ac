@@ -644,12 +644,12 @@ AM_CONDITIONAL(ENABLE_CHANGE_OSD_RESOLUTION, test "$enable_change_osd_resolution
 
 # webif content
 AC_ARG_WITH(webif,
-	AS_HELP_STRING([--without-webif], [disable installation of webif content within defined public httpd path provided by yWeb @<:@default it is enabled@:>@]),
+	AS_HELP_STRING([--without-webif], [disable installation of the web interface into the private httpd path @<:@default it is enabled@:>@]),
 	[ENABLE_WEBIF="$withval"],
 	[ENABLE_WEBIF="yes"])
 AM_CONDITIONAL(ENABLE_WEBIF,test "$ENABLE_WEBIF" = "yes")
 if test "$ENABLE_WEBIF" = "yes"; then
-	AC_DEFINE(ENABLE_WEBIF, 1, [Enable installation of webif content within defined public httpd path provided by yWeb.])
+	AC_DEFINE(ENABLE_WEBIF, 1, [Enable installation of the web interface into the private httpd path.])
 fi
 
 AC_ARG_WITH(stb-hal-includes,
@@ -801,11 +801,11 @@ data/themes/Olive-3.0/icons/buttons/Makefile
 data/weather/Makefile
 data/webradio/Makefile
 data/webtv/Makefile
-data/y-web/Makefile
-data/y-web/images/Makefile
-data/y-web/languages/Makefile
-data/y-web/scripts/Makefile
-data/y-web/styles/Makefile
+data/web-ui/Makefile
+data/web-ui/images/Makefile
+data/web-ui/languages/Makefile
+data/web-ui/scripts/Makefile
+data/web-ui/styles/Makefile
 data/zapit/Makefile
 lib/Makefile
 lib/connection/Makefile

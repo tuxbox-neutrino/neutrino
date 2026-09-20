@@ -34,5 +34,5 @@ endif
 
 if ENABLE_WEBIF
 SUBDIRS += \
-	y-web
+	web-ui
 endif
