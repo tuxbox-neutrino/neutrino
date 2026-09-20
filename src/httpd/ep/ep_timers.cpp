@@ -137,6 +137,9 @@ const FieldDesc kTimerFields[] = {
 		"where a recording is written, empty for wherever the box records"),
 };
 
+/* The two flags the creation takes are not among them. The daemon's answer for a
+   timer carries neither, so a member for either would read false on every timer
+   whatever was asked for, which is a member that states a thing nobody knows. */
 const Schema kTimerSchema = { "timer", HTTPD_FIELDS(kTimerFields) };
 
 const FieldDesc kTimerListFields[] = {
@@ -264,6 +267,12 @@ Response createTimer(const Request &r)
 	t.epg_start = r.asTime("epg_start");
 	t.standby_on = r.asBool("standby_on");
 	t.recording_dir = r.asString("recording_dir");
+	/* Both off unless asked for, because a caller that named a start and a stop
+	   named the window it wants: either of these makes the daemon file the timer
+	   at times other than the ones that were sent, and a later read answers those
+	   and not these. The kinds that carry no recording ignore them. */
+	t.recording_safety = r.asBool("recording_safety");
+	t.auto_adjust = r.asBool("auto_adjust");
 
 	/* Every rule about what a timer may be is the layer below's: a kind it does
 	   not build, a recording with no channel, a recording that ends no later
@@ -326,7 +335,10 @@ Response changeTimer(const Request &r)
 
 	/* The kind and the channel are not offered and are not written over. The
 	   daemon's protocol carries no way to move either, so a route that took
-	   them would be one that answered ok and changed neither. */
+	   them would be one that answered ok and changed neither. The two flags the
+	   creation takes are left out for that same reason: the change command
+	   carries times, repeat and a directory and nothing else, and the daemon
+	   applies both flags when the timer is built. */
 	coreapi::Result<void> done = coreapi::timers::modify(t);
 	if (!done.ok())
 		return problemFor(done.error());
@@ -404,6 +416,10 @@ const Param kCreateParams[] = {
 	HTTPD_BODY("epg_start", ParamType::Time, "when that entry begins"),
 	HTTPD_BODY("standby_on", ParamType::Bool, "whether the box goes to standby with it"),
 	HTTPD_BODY_TEXT("recording_dir", "where a recording is written", 1024),
+	HTTPD_BODY("recording_safety", ParamType::Bool,
+		"whether the box widens a recording by the margins it is set to, starting it earlier and stopping it later"),
+	HTTPD_BODY("auto_adjust", ParamType::Bool,
+		"whether the box moves a recording onto the guide's own times for the programme it covers, which it does only where the box is set up for it"),
 };
 
 /* The id is in the path and everything else is in the body, and every one of
