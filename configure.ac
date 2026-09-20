@@ -643,14 +643,16 @@ fi
 AM_CONDITIONAL(ENABLE_CHANGE_OSD_RESOLUTION, test "$enable_change_osd_resolution" = "yes")
 
 # webif content
+#
+# This only selects whether the bundled web interface below data/web-ui is
+# installed into the private httpd path. The web server itself is always built
+# and started; leaving the content out is meant for images that install the
+# web interface from a separate package into the very same path.
 AC_ARG_WITH(webif,
-	AS_HELP_STRING([--without-webif], [disable installation of the web interface into the private httpd path @<:@default it is enabled@:>@]),
+	AS_HELP_STRING([--without-webif], [disable installation of the bundled web interface into the private httpd path @<:@default it is enabled@:>@]),
 	[ENABLE_WEBIF="$withval"],
 	[ENABLE_WEBIF="yes"])
 AM_CONDITIONAL(ENABLE_WEBIF,test "$ENABLE_WEBIF" = "yes")
-if test "$ENABLE_WEBIF" = "yes"; then
-	AC_DEFINE(ENABLE_WEBIF, 1, [Enable installation of the web interface into the private httpd path.])
-fi
 
 AC_ARG_WITH(stb-hal-includes,
 	AS_HELP_STRING([--with-stb-hal-includes=PATH], [path to libstb-hal includes [[NONE]]]),
