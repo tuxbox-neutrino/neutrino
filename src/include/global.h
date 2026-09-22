@@ -30,6 +30,7 @@
 #endif
 
 #define IMAGE_VERSION_FILE TARGET_ROOT "/.version"
+#define IMAGE_METADATA_FILE TARGET_ROOT "/etc/image-version"
 
 #define NEUTRINO_SETTINGS_FILE CONFIGDIR "/neutrino.conf"
 #define NEUTRINO_SCAN_SETTINGS_FILE CONFIGDIR "/scan.conf"

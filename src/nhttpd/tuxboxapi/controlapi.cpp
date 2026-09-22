@@ -99,6 +99,14 @@ extern CBouquetManager *g_bouquetManager;
 //=============================================================================
 std::string CControlAPI::PLUGIN_DIRS[PLUGIN_DIR_COUNT];
 
+static const char *getVersionInfoPath()
+{
+	if (access(IMAGE_METADATA_FILE, R_OK) == 0)
+		return IMAGE_METADATA_FILE;
+
+	return IMAGE_VERSION_FILE;
+}
+
 //=============================================================================
 // constructor und destructor
 //=============================================================================
@@ -897,7 +905,7 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 		if (hh->ParamList["1"] == "streaminfo")		// print streaminfo
 			SendStreamInfo(hh);
 		else if (hh->ParamList["1"] == "version")	// send version file
-			hh->SendFile(IMAGE_VERSION_FILE);
+			hh->SendFile(getVersionInfoPath());
 		else if (hh->ParamList["1"] == "httpdversion")	// print httpd version typ (just for compatibility)
 			hh->Write("3");
 		else if (hh->ParamList["1"] == "nhttpd_version")// print nhttpd version
@@ -2265,7 +2273,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::VersionCGI(CyhookHandler *hh)
 {
-	hh->SendFile(IMAGE_VERSION_FILE);
+	hh->SendFile(getVersionInfoPath());
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::ReloadNeutrinoSetupCGI(CyhookHandler *hh)

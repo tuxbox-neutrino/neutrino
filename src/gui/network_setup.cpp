@@ -868,9 +868,10 @@ void CNetworkSetup::testNetworkSettings()
 	std::string test_URL = "tuxbox-neutrino.org";
 	std::string test_IP = "89.31.143.1";
 
-	//get www-domain testsite from /.version
+	// get testsite from image metadata, fallback to legacy /.version
 	CConfigFile config('\t');
-	config.loadConfig(IMAGE_VERSION_FILE);
+	if (!config.loadConfig(IMAGE_METADATA_FILE))
+		config.loadConfig(IMAGE_VERSION_FILE);
 	testsite = config.getString("homepage", defaultsite);
 	testsite.replace(0, testsite.find("www", 0), "");
 
