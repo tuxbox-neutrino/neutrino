@@ -79,6 +79,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_browserplay.cpp \
 	coreapi/test_settingsfields.cpp \
 	nhttpd/test_yhttpd_api.cpp \
+	nhttpd/test_bridge.cpp \
 	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
 	support/helperstubs.cpp
@@ -114,6 +115,7 @@ coreapi_tests_SOURCES = \
 # does with a daemon that answers short drives that code and not a copy; it needs
 # the connection library after it.
 coreapi_tests_LDADD = \
+	$(top_builddir)/src/httpd/libhttpd.a \
 	$(top_builddir)/src/coreapi/libcoreapi.a \
 	$(top_builddir)/src/nhttpd/yhttpd_core/libyhttpd.a \
 	$(top_builddir)/lib/xmltree/libxmltree.a \

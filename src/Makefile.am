@@ -92,7 +92,6 @@ neutrino_LDADD = \
 	gui/moviedb/libneutrino_gui_moviedb.a \
 	gui/components/libneutrino_gui_components.a \
 	$(LUALIBS) \
-	coreapi/libcoreapi.a \
 	eitd/libsectionsd.a \
 	gui/volumebar.o \
 	driver/libneutrino_driver.a \
@@ -104,6 +103,8 @@ neutrino_LDADD = \
 	nhttpd/tuxboxapi/libnhttpd_tuxboxapi.a \
 	nhttpd/yhttpd_mods/libyhttpdmods.a \
 	nhttpd/yhttpd_core/libyhttpd.a \
+	httpd/libhttpd.a \
+	coreapi/libcoreapi.a \
 	system/libneutrino_system.a \
 	$(top_builddir)/lib/sectionsdclient/libsectionsdclient.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \

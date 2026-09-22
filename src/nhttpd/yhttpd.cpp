@@ -18,6 +18,7 @@
 #include <ylogging.h>
 #include <ylanguage.h>
 #include <yhook.h>
+#include <httpd/nhttpd_bridge.h>
 
 #ifdef Y_CONFIG_USE_YPARSER
 #include <mod_yparser.h>
@@ -37,6 +38,7 @@ CStringList Cyhttpd::ConfigList;
 #ifdef Y_CONFIG_USE_AUTHHOOK
 #include <mod_auth.h>
 static CmAuth *auth = NULL;
+static CApiBridge *api_bridge = NULL;
 #endif
 
 #ifdef Y_CONFIG_USE_WEBLOG
@@ -249,6 +251,22 @@ void Cyhttpd::hooks_attach() {
 	CyhookHandler::attach(auth);
 #endif
 
+	// The REST layer: behind auth, before every hook that claims a URL by
+	// its extension. Attached only when its tables pass their own check;
+	// a server that would answer from broken tables is worse than one that
+	// says so once at start and serves the rest.
+	{
+		std::string why;
+		if (CApiBridge::routesOk(&why)) {
+			CApiBridge::registerPrefixes();
+			api_bridge = new CApiBridge();
+			CyhookHandler::attach(api_bridge);
+		} else {
+			api_bridge = NULL;
+			aprintf("yhttpd: the REST layer is not attached: %s\n", why.c_str());
+		}
+	}
+
 #ifdef CONFIG_SYSTEM_TUXBOX
 	NeutrinoAPI = new CNeutrinoAPI();
 	CyhookHandler::attach(NeutrinoAPI->NeutrinoYParser);
@@ -281,6 +299,12 @@ void Cyhttpd::hooks_detach() {
 	CyhookHandler::detach(auth);
 	delete auth;
 #endif
+
+	if (api_bridge) {
+		CyhookHandler::detach(api_bridge);
+		delete api_bridge;
+		api_bridge = NULL;
+	}
 
 #ifdef CONFIG_SYSTEM_TUXBOX
 	CyhookHandler::detach(NeutrinoAPI->NeutrinoYParser);

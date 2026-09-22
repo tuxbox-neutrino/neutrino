@@ -50,6 +50,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_system.cpp \
 	http.cpp \
 	json.cpp \
+	nhttpd_bridge.cpp \
 	doc/openapi.cpp \
 	request.cpp \
 	router.cpp \
@@ -69,6 +70,7 @@ noinst_HEADERS = \
 	http.h \
 	json.h \
 	netmatch.h \
+	nhttpd_bridge.h \
 	doc/openapi.h \
 	router.h \
 	schema.h \
