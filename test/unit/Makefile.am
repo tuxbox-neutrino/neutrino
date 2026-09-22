@@ -33,6 +33,7 @@ AM_CPPFLAGS = \
 	-DCOREAPI_ENUM_SCRIPT='"$(srcdir)/scan/extract-enum.sh"' \
 	-DCOREAPI_COUNTS_FILE='"$(srcdir)/support/counts.txt"' \
 	-DCOREAPI_COUNTS_ACTUAL='"$(abs_builddir)/counts.actual"' \
+	-DHTTPD_OPENAPI_DUMP='"$(abs_builddir)/openapi.json"' \
 	@HWLIB_CFLAGS@
 
 AUTOMAKE_OPTIONS = subdir-objects
@@ -80,6 +81,8 @@ coreapi_tests_SOURCES = \
 	coreapi/test_settingsfields.cpp \
 	nhttpd/test_yhttpd_api.cpp \
 	nhttpd/test_bridge.cpp \
+	httpd/test_openapi.cpp \
+	httpd/test_openapi_basic.cpp \
 	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
 	support/helperstubs.cpp
@@ -142,9 +145,11 @@ TESTS = $(check_PROGRAMS)
 # so a case whose only check sits behind a loop nobody enters reads as green. The
 # flag has to follow the program name and the harness puts what it is handed in
 # front of it, hence the shell.
-LOG_COMPILER = $(SHELL) -c 'exec "$$0" -w NoAssertions'
+# support/run-tests.sh carries -w NoAssertions and the exclusions this tree
+# needs, one line each with what brings the case back.
+LOG_COMPILER = $(SHELL) $(srcdir)/support/run-tests.sh
 
-EXTRA_DIST = support/catch.hpp support/fakes.h support/rcfixture.h support/counts.h support/counts.txt \
+EXTRA_DIST = support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/counts.h support/counts.txt \
 	scan/extract-enum.sh support/merge-counts.sh \
 	scan/check-hook.sh scan/check-fieldtypes.sh \
 	scan/check-hardware.sh scan/check-appliers.sh scan/check-denominator.sh \
@@ -182,9 +187,9 @@ EXTRA_DIST = support/catch.hpp support/fakes.h support/rcfixture.h support/count
 # layer under test reads it. A file that has never been written is not one the
 # recorded dependencies can bring into being, so it is asked for rather than left
 # to the order the directories are built in.
-BUILT_SOURCES = $(top_builddir)/src/tools/rcsim.h settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
+BUILT_SOURCES = $(top_builddir)/src/tools/rcsim.h openapi.json settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
 	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt
-CLEANFILES = settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
+CLEANFILES = openapi.json settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
 	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt \
 	counts.actual
 
@@ -239,6 +244,15 @@ settings-applied.txt: FORCE
 # on its own does not.
 $(top_builddir)/src/tools/rcsim.h:
 	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/tools rcsim.h >/dev/null
+
+# The document the server answers with, written out by the target that owns it
+# and read here so that the two are held to being the same bytes. Made through
+# that target rather than copied from wherever it was last left, because the
+# file is what a client's types come out of and one built before the change
+# under test would pass a check it should fail.
+openapi.json: FORCE
+	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/httpd openapi.json >/dev/null
+	@cp -f $(top_builddir)/src/httpd/openapi.json $@.tmp && mv -f $@.tmp $@ || { rm -f $@.tmp $@; exit 1; }
 
 FORCE:
 .PHONY: FORCE

@@ -1630,8 +1630,8 @@ TEST_CASE("the target that writes the document out writes the bytes the route an
 	   server that is not there. */
 	ShippedRoutes shipped;
 
-	const std::string written = readWholeFile(NI_WEB_OPENAPI_DUMP);
-	INFO(NI_WEB_OPENAPI_DUMP);
+	const std::string written = readWholeFile(HTTPD_OPENAPI_DUMP);
+	INFO(HTTPD_OPENAPI_DUMP);
 	REQUIRE_FALSE(written.empty());
 	REQUIRE(written == openapi::document());
 }
