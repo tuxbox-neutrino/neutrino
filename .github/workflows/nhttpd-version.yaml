@@ -2,28 +2,49 @@ name: nhttpd Version Bump
 
 # nhttpd carries its own SemVer line in HTTPD_VERSION (src/nhttpd/yconfig.h),
 # separate from the calendar line configure.ac keeps for neutrino. This
-# workflow moves it when -- and only when -- the webserver itself changed.
+# workflow moves it when -- and only when -- the webserver *core* changed.
+# The Web-API under tuxboxapi/ is deliberately not part of that; the trigger
+# below says why, and what it costs.
 #
 # Unlike streamprobe, neutrino's configure.ac line deliberately keeps moving
 # on the same push: nhttpd is not a standalone tool but is linked into the
 # neutrino binary (src/Makefile.am pulls in libnhttpd.a and the three
-# libraries below it), so a webserver fix does change what neutrino ships.
-# version-bump.yaml therefore gets no ignore glob for src/nhttpd -- both
-# workflows run on the same push and both push a commit. That race is
-# expected and handled: this one re-reads the tip and recomputes, the other
-# rebases its derived count.
+# libraries below it, libnhttpd_tuxboxapi.a among them), so a webserver fix
+# -- Web-API included -- does change what neutrino ships. version-bump.yaml
+# therefore gets no ignore glob for src/nhttpd. On a core push both workflows
+# run and both push a commit; that race is expected and handled: this one
+# re-reads the tip and recomputes, the other rebases its derived count. On a
+# tuxboxapi-only push only version-bump.yaml runs, and there is no race --
+# which is also the only number that still moves for such a push.
 #
 # The loop this could otherwise close, and the three layers that stop it:
 #   - The version lives in yconfig.h, which sits inside the watched tree --
 #     unlike streamprobe, whose header sits beside the trigger rather than
 #     in it. So yconfig.h is excluded from the trigger below: a push that
 #     touches nothing else -- a minor or major set by hand, or a mime-type
-#     added -- starts no run. Pushed together with any other nhttpd change
-#     it is bumped once more on top; the dispatch below is the intended way
-#     to set a minor or major, and to catch up a yconfig.h-only change.
+#     added -- starts no run. Pushed together with a core change it is
+#     bumped once more on top. Pushed together with nothing but tuxboxapi/
+#     files, however, every path of that push is excluded and no run starts
+#     at all -- 33cfbe96a, which added /control/osinfo, had exactly that
+#     shape. The dispatch below is the intended way to set a minor or major,
+#     and the only way to catch either case up.
 #   - Pushes made with GITHUB_TOKEN start no workflow runs.
 #   - The skip token in the commit message is the third layer, for the day
 #     someone pushes the bot's commit on with a PAT.
+#
+# Two things the trigger cannot promise, and one it must not be confused with:
+#   - GitHub evaluates paths against the whole push, and gives up on large
+#     ones: past 1000 commits or a diff timeout every run starts regardless
+#     of the filter, and past 3000 changed files a core hit can fall outside
+#     the evaluated list and start none. So the rule below is "almost
+#     always", not "always". A run that seems to contradict it at that size
+#     is the platform, not a bug here.
+#   - The trigger now overlaps what YHTTPD_VERSION (yconfig.h) covers, since
+#     yhttpd_core/ is in it -- but it is wider: yhttpd_mods/, yhttpd.cpp,
+#     nhttpd.conf.in, Makefile.am and any future subdirectory count too, and
+#     all of them move HTTPD_VERSION. That is intended: HTTPD_VERSION is the
+#     Neutrino integration's line, YHTTPD_VERSION the upstream core's, and
+#     the latter stays hand-set.
 #
 # There is deliberately no concurrency group. A group holds at most one
 # pending run and evicts it when another run queues, and an evicted run can
@@ -52,12 +73,33 @@ on:
     branches:
       - master
     paths:
-      # The whole tree, tuxboxapi included: the Web-API has no version line
-      # of its own yet, and HTTPD_VERSION is what the box reports for all of
-      # it. Carving tuxboxapi out belongs with the day it gets its own.
+      # The core tree. tuxboxapi/ is carved out below, and the honest reason
+      # is noise, not a clean component boundary: what drops out are real
+      # Web-API bugfixes (ca577b2a4, c706869c3, 596734c10), not strays. The
+      # deciding number is that of the 12 nhttpd pushes in the last 24 months
+      # only 4 touched the core -- so two thirds of this line's movement came
+      # from a subtree whose changes it cannot actually describe.
+      #
+      # What that costs, so nobody has to rediscover it:
+      #   - Nothing moves for a Web-API change any more, while controlapi.cpp
+      #     still answers /control/info?nhttpd_version with HTTPD_VERSION and
+      #     src/gui/imageinfo.cpp still prints it under "API".
+      #   - Through WEBSERVERNAME (yconfig.h) the same number goes out in
+      #     every HTTP Server: header (yhttpd_core/yhook.cpp), the start log,
+      #     mod_yparser and mod_weblog. After a tuxboxapi-only push all of
+      #     them keep claiming a version whose behaviour has moved on.
+      #   - data/y-web/Y_Tools_Check_Install.yhtm reads that value and
+      #     compares it against a minimum. It is not display-only.
+      # The fix for all three is the Web-API's own version line, which does
+      # not exist yet (WORK-252). Until it does, this is a deliberate debt,
+      # and workflow_dispatch is the only way to pay it off.
       - "src/nhttpd/**"
-      # Must stay last -- path filters are read in order and the final match
-      # wins. See the loop note above.
+      # Both exclusions must stay after every positive pattern: filters are
+      # read in order and the last match for a file wins. Appending a new
+      # positive pattern below either of them would pull the excluded paths
+      # back in -- including tuxboxapi/, which is why "keep yconfig.h last"
+      # is no longer the rule. New positive patterns go above this comment.
+      - "!src/nhttpd/tuxboxapi/**"
       - "!src/nhttpd/yconfig.h"
 
 permissions:
