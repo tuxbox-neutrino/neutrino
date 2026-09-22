@@ -1367,6 +1367,7 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 	   credential: a client turns a parameter into an argument its caller fills in and
 	   a scheme into the one place it keeps a credential, and the router drops this
 	   name out of the query before it compares what a route declares. */
+#ifndef HTTPD_AUTH_LEGACY_BASIC
 	j.key(kQueryTokenScheme);
 	j.beginObject();
 	j.key("type");
@@ -1376,6 +1377,7 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 	j.key("name");
 	j.value(queryTokenName());
 	j.endObject();
+#endif
 	j.endObject();
 
 	j.key("responses");
