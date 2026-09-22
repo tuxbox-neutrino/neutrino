@@ -32,6 +32,7 @@
 #include "yconnection.h"
 #include "helper.h"
 #include "yhook.h"
+#include "ysocket.h"
 
 //=============================================================================
 // Constructor & Destructor
@@ -80,7 +81,10 @@ bool CWebserverRequest::HandleRequest(void) {
 	// An API target takes its own path: the methods beyond GET/POST/HEAD,
 	// a bounded raw body, a header read that waits for the whole header.
 	// Everything else below is the legacy path and is left as it was.
-	if (CyhookHandler::isApiTarget(UrlData["target"]))
+	// Classified on the decoded url, which is what the bridge claims on; the
+	// router gets the target as written (UrlData["target"]) and decides for
+	// itself what an escape in it means.
+	if (CyhookHandler::isApiTarget(UrlData["url"]))
 		return HandleApiRequest();
 
 	if (Connection->Method == M_GET || Connection->Method == M_HEAD) {
@@ -259,6 +263,12 @@ void CWebserverRequest::analyzeURL(std::string url) {
 bool CWebserverRequest::HandlePost() {
 	//read header: line by line
 	std::string raw_header = "", tmp_line = "";
+	// FIXME: a peer that closes before the empty line makes ReceiveLine()
+	// hand back one byte it never received (isValid false, bytes_gotten
+	// stepped once), so this loop never sees an empty line and grows
+	// raw_header until the box is out of memory. Left as it is here on
+	// purpose: the legacy path is byte-identical by contract (WORK-291);
+	// the API path reads its header through readApiHeader() instead.
 	do {
 		tmp_line = Connection->sock->ReceiveLine();
 		if (tmp_line.empty()) // Socket empty
@@ -618,6 +628,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 // 413; one that stops arriving ends at the deadline with 408.
 //-----------------------------------------------------------------------------
 #define API_BODY_LIMIT		(1024 * 1024)
+#define API_HEADER_LIMIT	(64 * 1024)
 #define API_BODY_TIMEOUT_MS	10000
 
 bool CWebserverRequest::HandleApiRequest() {
@@ -629,39 +640,29 @@ bool CWebserverRequest::HandleApiRequest() {
 		return false;
 	}
 
-	std::string raw_header = "", tmp_line = "";
-	do {
-		tmp_line = Connection->sock->ReceiveLine();
-		if (tmp_line.empty()) {
-			log_level_printf(1, "HandleApiRequest: (Header) End of line not found: %s\n", strerror(errno));
-			Connection->Response.SendError(HTTP_BAD_REQUEST);
-			Connection->RequestCanceled = true;
-			return false;
-		}
-		raw_header.append(tmp_line);
-	} while (tmp_line != "\r\n");
-	ParseHeader(raw_header);
-
-	if (Connection->Method != M_POST && Connection->Method != M_PUT)
-		return true;
-
-	long long length = 0;
-	switch (apiContentLength(raw_header, length)) {
-	case BODY_BAD:
+	std::string raw_header;
+	if (!readApiHeader(*Connection->sock, raw_header, API_HEADER_LIMIT, API_BODY_TIMEOUT_MS)) {
+		log_level_printf(1, "HandleApiRequest: header not read whole: %s\n", strerror(errno));
 		Connection->Response.SendError(HTTP_BAD_REQUEST);
 		Connection->RequestCanceled = true;
 		return false;
-	case BODY_NONE:
-		return true;
-	case BODY_OK:
-		break;
 	}
-	if (length > API_BODY_LIMIT) {
+	ParseHeader(raw_header);
+
+	long long length = 0;
+	switch (apiBodyDecision(Connection->Method, raw_header, length)) {
+	case API_BODY_BAD:
+		Connection->Response.SendError(HTTP_BAD_REQUEST);
+		Connection->RequestCanceled = true;
+		return false;
+	case API_BODY_NONE:
+		return true;
+	case API_BODY_TOO_LARGE:
 		RawBodyTooLarge = true;
 		return true;
+	case API_BODY_READ:
+		break;
 	}
-	if (length == 0)
-		return true;
 
 	std::string expect = string_tolower(header_value(HeaderList, "Expect"));
 	if (expect.find("100-continue") != std::string::npos)
@@ -714,4 +715,42 @@ CWebserverRequest::ApiBody CWebserverRequest::apiContentLength(const std::string
 		return BODY_NONE;
 	length = value;
 	return BODY_OK;
+}
+
+//-----------------------------------------------------------------------------
+// The header off the socket: everything up to the empty line and nothing
+// past it, bounded in bytes and in time. EOF before the empty line is a
+// refusal; the line reader would otherwise hand back a byte that was never
+// received, again and again.
+//-----------------------------------------------------------------------------
+bool CWebserverRequest::readApiHeader(CySocket &sock, std::string &raw_header, size_t limit, int timeout_ms) {
+	std::string rest;
+	if (!sock.ReceiveUntil("\r\n\r\n", rest, limit, timeout_ms))
+		return false;
+	// the reader's contract is "each line, the empty one last", which is
+	// what the line-by-line legacy path produced
+	raw_header = rest;
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// The decision about a body, per method. GET, HEAD and DELETE carry none
+// here: one declared on them is refused rather than read or skipped, since
+// a body left on the socket is the next thing somebody reads.
+//-----------------------------------------------------------------------------
+CWebserverRequest::ApiBodyDecision CWebserverRequest::apiBodyDecision(THttp_Method method, const std::string &raw_header, long long &length) {
+	length = 0;
+	long long declared = 0;
+	const ApiBody framing = apiContentLength(raw_header, declared);
+	if (framing == BODY_BAD)
+		return API_BODY_BAD;
+	const bool takes_body = (method == M_POST || method == M_PUT);
+	if (framing == BODY_NONE || declared == 0)
+		return API_BODY_NONE;
+	if (!takes_body)
+		return API_BODY_BAD;
+	if (declared > API_BODY_LIMIT)
+		return API_BODY_TOO_LARGE;
+	length = declared;
+	return API_BODY_READ;
 }

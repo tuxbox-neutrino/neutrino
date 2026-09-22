@@ -290,3 +290,63 @@ TEST_CASE("a file answer is read into the body and the descriptor is closed", "[
 	CHECK(fcntl(fd, F_GETFD) == -1);
 	unlink(name);
 }
+
+TEST_CASE("the bridge and the request reader classify the same targets", "[bridge]")
+{
+	Attached a;
+	const char *urls[] = {
+		"/api/v1", "/api/v1/system/info", "/api/openapi.json", "/api/openapi.json/x",
+		"/api/v10/x", "/api/v4/bouquets", "/api/v1.html", "/control/getversion", "/", "/api",
+	};
+	for (size_t i = 0; i < sizeof(urls) / sizeof(urls[0]); i++)
+	{
+		Handler h(M_GET, urls[i]);
+		INFO(urls[i]);
+		CHECK(CApiBridge::claims(&h.hh) == CyhookHandler::isApiTarget(urls[i]));
+	}
+	// what the reader saw undecoded and the bridge sees decoded agree because
+	// both look at the decoded url
+	Handler enc(M_GET, "/%61pi/v1/system/info");
+	enc.hh.UrlData["url"] = "/api/v1/system/info";
+	CHECK(CApiBridge::claims(&enc.hh));
+	CHECK(CyhookHandler::isApiTarget(enc.hh.UrlData["url"]));
+}
+
+TEST_CASE("a file answer this server cannot carry is refused and the descriptor closed", "[bridge]")
+{
+	Attached a;
+	char name[] = "/tmp/test_bridge_XXXXXX";
+
+	SECTION("a file past the ceiling is not read")
+	{
+		int fd = mkstemp(name);
+		REQUIRE(fd >= 0);
+		httpd::Response r;
+		r.code = 200;
+		r.content_type = "video/mp2t";
+		r.fd = fd;
+		r.length = (uint64_t) 9 << 20;
+		Handler h(M_GET, "/api/v1/recordings/1");
+		CApiBridge::answerWith(&h.hh, r);
+		CHECK(h.hh.httpStatus == HTTP_INTERNAL_SERVER_ERROR);
+		CHECK(h.hh.yresult.find("\"status\":500") != std::string::npos);
+		CHECK(fcntl(fd, F_GETFD) == -1);
+		unlink(name);
+	}
+	SECTION("a file shorter than it said is not answered as whole")
+	{
+		int fd = mkstemp(name);
+		REQUIRE(fd >= 0);
+		REQUIRE(write(fd, "abc", 3) == 3);
+		httpd::Response r;
+		r.code = 200;
+		r.content_type = "image/png";
+		r.fd = fd;
+		r.length = 10;
+		Handler h(M_GET, "/api/v1/channels/1/logo");
+		CApiBridge::answerWith(&h.hh, r);
+		CHECK(h.hh.httpStatus == HTTP_INTERNAL_SERVER_ERROR);
+		CHECK(fcntl(fd, F_GETFD) == -1);
+		unlink(name);
+	}
+}

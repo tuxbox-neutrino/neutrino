@@ -12,6 +12,7 @@
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <poll.h>
+#include <time.h>
 #include <sys/time.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -527,6 +528,14 @@ std::string CySocket::ReceiveLine() {
 }
 
 //-----------------------------------------------------------------------------
+// A clock a stepped system time cannot move: deadlines are measured on it.
+//-----------------------------------------------------------------------------
+static long long monotonicMillis() {
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (long long) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+//-----------------------------------------------------------------------------
 // Exactly length bytes, with a deadline. Read() rather than recv() so an SSL
 // socket takes the same path; poll() on the descriptor is what bounds the
 // wait, and a body that stops short fails at the deadline instead of holding
@@ -540,14 +549,10 @@ bool CySocket::ReceiveExact(std::string &out, size_t length, int timeout_ms) {
 		return false;
 	out.reserve(length);
 
-	struct timeval started;
-	gettimeofday(&started, NULL);
+	const long long started = monotonicMillis();
 	char buffer[16384];
 	while (out.size() < length) {
-		struct timeval now;
-		gettimeofday(&now, NULL);
-		long long elapsed = (long long)(now.tv_sec - started.tv_sec) * 1000 + (now.tv_usec - started.tv_usec) / 1000;
-		long long remaining = (long long) timeout_ms - elapsed;
+		long long remaining = (long long) timeout_ms - (monotonicMillis() - started);
 		if (remaining <= 0)
 			return false;
 
@@ -599,4 +604,71 @@ bool CySocket::SendAll(const char *data, size_t length) {
 		done += (size_t) sent;
 	}
 	return true;
+}
+//-----------------------------------------------------------------------------
+// Up to the terminator and not past it. The socket is peeked and only what
+// belongs to this read is taken, so what follows (a body) stays where the
+// next reader expects it. Not for an SSL socket, where a peek sees the
+// record and not the bytes; SSL is compiled out of this build.
+//-----------------------------------------------------------------------------
+bool CySocket::ReceiveUntil(const char *terminator, std::string &out, size_t limit, int timeout_ms) {
+	out.clear();
+	if (!isValid || !isOpened)
+		return false;
+	const size_t tlen = strlen(terminator);
+	if (tlen == 0)
+		return true;
+
+	const long long started = monotonicMillis();
+	char buffer[4096];
+	for (;;) {
+		long long remaining = (long long) timeout_ms - (monotonicMillis() - started);
+		if (remaining <= 0)
+			return false;
+		struct pollfd p;
+		p.fd = sock;
+		p.events = POLLIN;
+		p.revents = 0;
+		int ready = poll(&p, 1, (int) remaining);
+		if (ready < 0 && errno == EINTR)
+			continue;
+		if (ready <= 0)
+			return false;
+
+		ssize_t peeked = recv(sock, buffer, sizeof(buffer), MSG_PEEK);
+		if (peeked < 0 && errno == EINTR)
+			continue;
+		if (peeked <= 0) {
+			isValid = false;
+			return false;
+		}
+
+		// the terminator may straddle what was kept and what was peeked
+		const size_t kept = out.size();
+		const size_t back = (kept >= tlen - 1) ? tlen - 1 : kept;
+		std::string window = out.substr(kept - back) + std::string(buffer, (size_t) peeked);
+		const size_t hit = window.find(terminator);
+		size_t take;
+		if (hit != std::string::npos)
+			take = hit + tlen - back;
+		else
+			take = (size_t) peeked;
+		if (kept + take > limit)
+			return false;
+
+		size_t done = 0;
+		while (done < take) {
+			ssize_t n = recv(sock, buffer, take - done, 0);
+			if (n < 0 && errno == EINTR)
+				continue;
+			if (n <= 0) {
+				isValid = false;
+				return false;
+			}
+			out.append(buffer, (size_t) n);
+			done += (size_t) n;
+		}
+		if (hit != std::string::npos)
+			return true;
+	}
 }

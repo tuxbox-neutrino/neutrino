@@ -43,9 +43,10 @@ curl -s -D "$T/h3" -o "$T/b3" "$BASE/api/v1/nothing"
 curl -s -D "$T/h4" -o /dev/null -X DELETE "$BASE/api/v1/system/info"
 [ "`status $T/h4`" = 405 ] && echo "`hdr $T/h4 allow`" | grep -q GET && pass "DELETE -> 405 with Allow" || fail "DELETE status `status $T/h4` allow `hdr $T/h4 allow`"
 
-# 5. PUT with JSON body is dispatched (router answers, not 501)
+# 5. PUT with an empty JSON body is dispatched: the router refuses the
+#    missing member with 400, which no legacy path and no 501 would say
 curl -s -D "$T/h5" -o "$T/b5" -X PUT -H 'Content-Type: application/json' -d '{}' "$BASE/api/v1/bouquets/0/name"
-s5=`status $T/h5`; [ "$s5" != 501 ] && [ "$s5" != 404 ] && pass "PUT reaches the router ($s5)" || fail "PUT status $s5"
+[ "`status $T/h5`" = 400 ] && grep -q '"status":400' "$T/b5" && pass "PUT reaches the router (400 problem)" || fail "PUT status `status $T/h5`"
 
 # 6. raw query reaches the router
 curl -s -D "$T/h6" -o "$T/b6" "$BASE/api/v1/channels?x=%ZZ"

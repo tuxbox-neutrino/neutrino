@@ -33,6 +33,10 @@ CyhookHandler::CyhookHandler()
 	outType = plain;
 	nonPair = false;
 	LastModified=0;
+	// the request reader answers before session_init() runs; these must
+	// read as the legacy defaults then
+	api_mode = false;
+	RawBodyTooLarge = false;
 }
 
 CyhookHandler::~CyhookHandler()
@@ -721,7 +725,8 @@ std::string CyhookHandler::BuildApiHeader() {
 
 	char timeStr[80];
 	time_t timer = time(0);
-	strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&timer));
+	struct tm now_tm;
+	strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime_r(&timer, &now_tm));
 	result += "Server: " WEBSERVERNAME "\r\n";
 	result += string_printf("Date: %s\r\n", timeStr);
 	result += "Connection: close\r\n";

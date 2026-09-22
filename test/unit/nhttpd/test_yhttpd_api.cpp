@@ -267,3 +267,88 @@ TEST_CASE("the api body reader refuses what it cannot frame", "[nhttpd]")
 	CHECK(CWebserverRequest::apiContentLength("Content-Length: 5\r\nTransfer-Encoding: chunked\r\n\r\n", len) == CWebserverRequest::BODY_BAD);
 	CHECK(CWebserverRequest::apiContentLength("Content-Length: 99999999999999999999\r\n\r\n", len) == CWebserverRequest::BODY_BAD);
 }
+
+TEST_CASE("a handler that never saw session_init builds the legacy header", "[nhttpd]")
+{
+	// The request reader answers 501/400 before SendResponse() and before
+	// session_init(); what it sends must be the legacy header.
+	CyhookHandler hh;
+	hh.Method = M_PUT;
+	hh.SetHeader(HTTP_NOT_IMPLEMENTED, "text/html");
+	const std::string header = hh.BuildHeader();
+	CHECK(countOf(header, "Cache-Control: no-cache\r\n") == 1);
+	CHECK(countOf(header, "HTTP/1.0 501 ") == 1);
+	CHECK_FALSE(hh.api_mode);
+	CHECK_FALSE(hh.RawBodyTooLarge);
+}
+
+TEST_CASE("the api header reader stops at the empty line, at EOF, at the limit and at the deadline", "[nhttpd]")
+{
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket s(fd[0]);
+	s.isOpened = true;
+	s.isValid = true;
+	std::string raw;
+
+	SECTION("a whole header, and the body stays on the socket")
+	{
+		const char *req = "Host: box\r\nContent-Length: 2\r\n\r\nxy";
+		REQUIRE(write(fd[1], req, strlen(req)) == (ssize_t) strlen(req));
+		CHECK(CWebserverRequest::readApiHeader(s, raw, 65536, 1000));
+		CHECK(raw == "Host: box\r\nContent-Length: 2\r\n\r\n");
+		char rest[2];
+		CHECK(read(fd[0], rest, 2) == 2);
+	}
+	SECTION("EOF before the empty line is a refusal, not a loop")
+	{
+		REQUIRE(write(fd[1], "Host: box\r\n", 11) == 11);
+		close(fd[1]);
+		fd[1] = -1;
+		const long long t0 = millisNow();
+		CHECK_FALSE(CWebserverRequest::readApiHeader(s, raw, 65536, 5000));
+		CHECK(millisNow() - t0 < 1000);
+	}
+	SECTION("a header past the limit is a refusal")
+	{
+		std::string big = "X-Long: " + std::string(70000, 'a') + "\r\n\r\n";
+		std::thread writer([&big, fd]() { (void) write(fd[1], big.data(), big.size()); });
+		CHECK_FALSE(CWebserverRequest::readApiHeader(s, raw, 65536, 5000));
+		close(fd[0]);
+		writer.join();
+	}
+	SECTION("a peer that stops mid-header meets the deadline")
+	{
+		REQUIRE(write(fd[1], "Host: box\r\n", 11) == 11);
+		const long long t0 = millisNow();
+		CHECK_FALSE(CWebserverRequest::readApiHeader(s, raw, 65536, 300));
+		const long long took = millisNow() - t0;
+		CHECK(took >= 200);
+		CHECK(took < 3000);
+	}
+	if (fd[1] >= 0)
+		close(fd[1]);
+	s.close();
+}
+
+TEST_CASE("what to do about a body is decided per method before a byte is read", "[nhttpd]")
+{
+	long long len = -1;
+	using R = CWebserverRequest;
+
+	CHECK(R::apiBodyDecision(M_GET, "Host: b\r\n\r\n", len) == R::API_BODY_NONE);
+	CHECK(R::apiBodyDecision(M_DELETE, "Host: b\r\n\r\n", len) == R::API_BODY_NONE);
+	CHECK(R::apiBodyDecision(M_POST, "Host: b\r\n\r\n", len) == R::API_BODY_NONE);
+
+	CHECK(R::apiBodyDecision(M_POST, "Content-Length: 10\r\n\r\n", len) == R::API_BODY_READ);
+	CHECK(len == 10);
+	CHECK(R::apiBodyDecision(M_PUT, "content-length: 0\r\n\r\n", len) == R::API_BODY_NONE);
+	CHECK(R::apiBodyDecision(M_POST, "Content-Length: 2097152\r\n\r\n", len) == R::API_BODY_TOO_LARGE);
+
+	// a body on a method that takes none is refused, not skipped
+	CHECK(R::apiBodyDecision(M_GET, "Content-Length: 5\r\n\r\n", len) == R::API_BODY_BAD);
+	CHECK(R::apiBodyDecision(M_HEAD, "Transfer-Encoding: chunked\r\n\r\n", len) == R::API_BODY_BAD);
+	CHECK(R::apiBodyDecision(M_DELETE, "Content-Length: 1\r\n\r\n", len) == R::API_BODY_BAD);
+	CHECK(R::apiBodyDecision(M_POST, "Transfer-Encoding: chunked\r\n\r\n", len) == R::API_BODY_BAD);
+	CHECK(R::apiBodyDecision(M_POST, "Content-Length: 1\r\nContent-Length: 2\r\n\r\n", len) == R::API_BODY_BAD);
+}

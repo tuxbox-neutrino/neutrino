@@ -8,7 +8,9 @@
  * The source's webconfig.cpp reads a configuration file of its own server:
  * port, credentials, proxies, and whether channel logos are handed out.
  * On nhttpd the server is configured by nhttpd.conf and the routes are
- * told the one value they read, channel_logos. The rest of the struct
+ * told the one value they read, channel_logos, which is on: nhttpd serves
+ * the logos it finds and the route answers 404 where there is none. The
+ * rest of the struct
  * keeps its declared shape, value-initialised, so a route that reads a
  * field this tree does not set gets a defined answer.
  */
@@ -29,11 +31,6 @@ const WebConfig &config()
 {
 	static WebConfig current = defaultWebConfig();
 	return current;
-}
-
-void setChannelLogos(bool on)
-{
-	const_cast<WebConfig &>(config()).channel_logos = on;
 }
 
 } // namespace httpd

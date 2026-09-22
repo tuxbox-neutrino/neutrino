@@ -50,14 +50,6 @@ httpd::Method methodOf(THttp_Method m)
 	}
 }
 
-bool underPrefix(const std::string &path, const char *prefix)
-{
-	const size_t n = std::strlen(prefix);
-	if (path.size() == n)
-		return path.compare(0, n, prefix) == 0;
-	return path.size() > n && path.compare(0, n, prefix) == 0 && path[n] == '/';
-}
-
 void takeProblem(CyhookHandler *hh, int code, coreapi::ErrorCode why, const char *detail)
 {
 	httpd::Response p = httpd::problemResponse(code, why, detail);
@@ -70,17 +62,43 @@ void takeProblem(CyhookHandler *hh, int code, coreapi::ErrorCode why, const char
 	hh->status = HANDLED_READY;
 }
 
-// After a throw. Nothing here allocates on purpose beyond what the string
-// assignments must; the document itself is a literal.
+// After a throw. The document is a literal, but a string assignment can
+// still throw on a box out of memory, and a throw out of a handler is not
+// caught by the block it sits in. So: try, and if even that fails, abort
+// the answer without allocating -- the transport writes nothing and closes.
 void takeFixedFailure(CyhookHandler *hh)
 {
-	hh->api_mode = true;
-	hh->httpStatus = HTTP_INTERNAL_SERVER_ERROR;
-	hh->ResponseMimeType = httpd::problemContentType();
-	hh->ResponseHeaders.clear();
-	hh->yresult = httpd::fixedProblem();
-	hh->status = HANDLED_READY;
+	try
+	{
+		hh->api_mode = true;
+		hh->httpStatus = HTTP_INTERNAL_SERVER_ERROR;
+		hh->ResponseHeaders.clear();
+		hh->ResponseMimeType = httpd::problemContentType();
+		hh->yresult = httpd::fixedProblem();
+		hh->status = HANDLED_READY;
+	}
+	catch (...)
+	{
+		hh->status = HANDLED_ABORT;
+	}
 }
+
+// The descriptor of a file answer is the bridge's from the moment the
+// Response arrived; whatever path leaves answerWith(), including a throw
+// out of a string assignment, closes it once.
+struct HeldDescriptor
+{
+	int fd;
+	explicit HeldDescriptor(int f) : fd(f) {}
+	~HeldDescriptor()
+	{
+		if (fd >= 0)
+			close(fd);
+	}
+private:
+	HeldDescriptor(const HeldDescriptor &);
+	HeldDescriptor &operator=(const HeldDescriptor &);
+};
 
 bool readWhole(int fd, size_t length, std::string &out)
 {
@@ -140,11 +158,13 @@ void CApiBridge::registerPrefixes()
 
 bool CApiBridge::claims(const CyhookHandler *hh)
 {
+	// The one predicate the request reader used, on the one string it used
+	// (the decoded url): what the core read as an API request is what this
+	// hook answers, and nothing else reaches the legacy hooks.
 	CStringList::const_iterator it = hh->UrlData.find("url");
 	if (it == hh->UrlData.end())
 		return false;
-	const std::string &url = it->second;
-	return underPrefix(url, kPrefixApi) || url == kPrefixDoc;
+	return CyhookHandler::isApiTarget(it->second);
 }
 
 THandleStatus CApiBridge::Hook_PrepareResponse(CyhookHandler *hh)
@@ -205,14 +225,13 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 
 void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 {
-	const int fd = r.fd;
+	HeldDescriptor held(r.fd);
+	const int fd = held.fd;
 
 	const bool is_stream = !r.stream_argv.empty() || !r.relay_url.empty()
 	                       || r.content_type == "text/event-stream";
 	if (r.code == 200 && is_stream)
 	{
-		if (fd >= 0)
-			close(fd);
 		takeProblem(hh, 501, coreapi::ErrorCode::NoSuchMethod,
 		            "this server does not carry a stream yet");
 		return;
@@ -228,13 +247,11 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 	{
 		if (r.length > kFileCeiling)
 		{
-			close(fd);
 			takeProblem(hh, 500, coreapi::ErrorCode::BoxUnreadable,
 			            "the file is larger than this server hands out in one answer");
 			return;
 		}
 		const bool ok = readWhole(fd, (size_t) r.length, hh->yresult);
-		close(fd);
 		if (!ok)
 		{
 			takeProblem(hh, 500, coreapi::ErrorCode::BoxUnreadable,
