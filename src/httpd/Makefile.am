@@ -17,6 +17,7 @@ AM_CXXFLAGS = -std=c++11 -fno-rtti -fexceptions -Wall -Wextra -Werror=missing-fi
 # empty legacy-usage list, which is the truth of this build.
 AM_CPPFLAGS = \
 	-DDISABLE_LEGACY_API \
+	-DHTTPD_AUTH_LEGACY_BASIC \
 	-I$(top_builddir) \
 	-I$(srcdir) \
 	-I$(top_srcdir) \

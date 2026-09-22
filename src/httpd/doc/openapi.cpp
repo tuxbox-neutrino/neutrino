@@ -2,6 +2,7 @@
  * openapi.cpp - the OpenAPI document, built from the route tables
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,7 +101,14 @@ const size_t kBuildReserve = 256 * 1024;
    caller may leave empty, which is why it is written as optional below. */
 bool needsCsrfHeader(const Endpoint &ep)
 {
+#ifdef HTTPD_AUTH_LEGACY_BASIC
+	/* nhttpd bridge, until the session layer arrives: access is HTTP Basic,
+	   there is no cookie, and so nothing a second token would protect. */
+	(void) ep;
+	return false;
+#else
 	return ep.auth != AuthLevel::Public && ep.method != Get && ep.method != Options;
+#endif
 }
 
 /* The name of the member an operation is written under, which the format spells in
@@ -998,6 +1006,18 @@ void appendOperation(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &
 	j.beginArray();
 	if (ep.auth != AuthLevel::Public)
 	{
+#ifdef HTTPD_AUTH_LEGACY_BASIC
+		/* nhttpd bridge: the one credential this build takes. The session and
+		   bearer schemes below return with the session layer. */
+		j.beginObject();
+		j.key("basic");
+		j.beginArray();
+		j.endArray();
+		j.endObject();
+	}
+	if (false)
+	{
+#else
 		j.beginObject();
 		j.key("session");
 		j.beginArray();
@@ -1008,6 +1028,7 @@ void appendOperation(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &
 		j.beginArray();
 		j.endArray();
 		j.endObject();
+#endif
 		/* Named only where the row says the route takes one, and so absent from
 		   every other route in this document. A scheme named everywhere would tell
 		   a client it may put a credential in the address of any route it likes,
@@ -1302,6 +1323,27 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 
 	j.key("securitySchemes");
 	j.beginObject();
+#ifdef HTTPD_AUTH_LEGACY_BASIC
+	/* nhttpd bridge, until the session layer arrives: what nhttpd checks is
+	   HTTP Basic against its own nhttpd.conf, for every path it serves, and
+	   only when mod_auth.authenticate is on; with it off every route here is
+	   open to whoever reaches the box, as /control has always been. The
+	   document says so rather than naming credentials nobody can present. */
+	j.key("basic");
+	j.beginObject();
+	j.key("type");
+	j.value("http");
+	j.key("scheme");
+	j.value("basic");
+	if (with_descriptions)
+	{
+		j.key("description");
+		j.value("nhttpd's own Basic authentication (mod_auth in nhttpd.conf), "
+			"when it is switched on; with it off every route is open to "
+			"any caller that reaches the box, as /control is");
+	}
+	j.endObject();
+#else
 	j.key("session");
 	j.beginObject();
 	j.key("type");
@@ -1318,6 +1360,7 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 	j.key("scheme");
 	j.value("bearer");
 	j.endObject();
+#endif
 	/* The third, and the one a generated client would otherwise have no way of
 	   presenting: a token in the query, for the routes whose row says they take one.
 	   Stated as a scheme and never as a parameter, which is what says it is a
