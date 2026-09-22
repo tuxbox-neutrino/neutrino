@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="STYLESHEET" type="text/css" href="yhttpd.css"/>
+<title>REST API v1 on nhttpd</title>
+</head>
+<body>
+<h1>REST API v1 on nhttpd</h1><hr>
+
+<h2>What it is</h2>
+<p>
+Beside the control API under <code>/control/</code>, nhttpd answers a
+described, versioned REST API under <code>/api/v1/</code>. The routes, their
+parameters and their answers are declared as data in <code>src/httpd/ep/</code>;
+the router in <code>src/httpd/router.cpp</code> binds and checks a request
+against those declarations, and the OpenAPI 3.1 document at
+<code>/api/openapi.json</code> is written out of the same tables, so the
+description cannot drift from what is served. The layer is taken over
+unchanged, as compatible forks carry it; the server beneath it is nhttpd,
+not the dedicated server of those forks, and <code>/control/</code> stays what it was, byte for byte.
+</p>
+
+<h2>Addresses</h2>
+<table border="0">
+<tr><td><code>GET /api/openapi.json</code></td><td>the document; gzipped when the caller's <code>Accept-Encoding</code> takes it</td></tr>
+<tr><td><code>/api/v1/system/...</code></td><td>the box, standby, reboot, shutdown, restart, the daemons</td></tr>
+<tr><td><code>/api/v1/channels...</code>, <code>/api/v1/bouquets...</code>, <code>/api/v1/zap</code>, <code>/api/v1/mode</code></td><td>the channel lists, the bouquets and their editing, the logos</td></tr>
+</table>
+<p>
+What each route takes and answers is in the document; read it from the box or
+build it without one: <code>make -C src/httpd openapi-dump</code> writes the
+same bytes the route answers. The remaining tables known from compatible forks (EPG, timers,
+recordings, settings, storage, plugins, tuner, stream) follow table by table.
+</p>
+
+<h2>Answers</h2>
+<p>
+JSON, by length. A refusal is an RFC 9457 problem document
+(<code>application/problem+json</code>) with <code>type</code>,
+<code>title</code>, <code>status</code> and <code>detail</code>; the router
+answers 404 for a path it has no route for, 405 with <code>Allow</code> for a
+method the path does not take, 400 for a parameter or body it will not bind,
+501 for a method nhttpd cannot name. Every answer carries
+<code>Cache-Control: no-store</code>, <code>X-Content-Type-Options: nosniff</code>
+and <code>Vary: Cookie, Authorization</code>. Answers are HTTP/1.0 with
+<code>Connection: close</code>, like everything nhttpd sends.
+</p>
+
+<h2>Requests</h2>
+<p>
+GET, HEAD, POST, PUT and DELETE. A POST or PUT body is JSON, read by its
+<code>Content-Length</code> up to 1 MiB; above that the request is refused
+with 413 before a byte is read. A body the server cannot frame (two differing
+lengths, a length that is not a number, any <code>Transfer-Encoding</code>) is
+400; one that stops arriving is 408 after ten seconds. <code>100 Continue</code>
+is sent only when the client asks for it with <code>Expect</code>.
+OPTIONS and PATCH are not read by nhttpd yet and answer 501.
+</p>
+
+<h2>Access</h2>
+<p>
+What nhttpd checks: its own Basic authentication (<code>mod_auth</code> in
+<code>nhttpd.conf</code>), for every path it serves, and only when
+<code>mod_auth.authenticate</code> is on. With it off every route here is open
+to any caller that reaches the box, as <code>/control/</code> has always been.
+The document says exactly that (scheme <code>basic</code>); the levels the
+routes declare (read, write, system) are recorded in the document as
+<code>x-auth-level</code> and start to be enforced with the session layer.
+</p>
+
+<h2>What is not there yet</h2>
+<ul>
+<li>the event stream (<code>/api/v1/events</code>): nhttpd has no streaming
+answer path; a route that would answer with a stream is refused with 501</li>
+<li>files above 8 MiB: a file answer is read whole into the body; larger ones
+wait for a descriptor path in nhttpd</li>
+<li>sessions, tokens, per-route levels: the session layer</li>
+<li>the remaining route tables</li>
+</ul>
+
+<h2>Where things are</h2>
+<table border="0">
+<tr><td><code>src/httpd/</code></td><td>the layer: declarations, router, generator, route modules, stubs standing in for the dedicated server of compatible forks</td></tr>
+<tr><td><code>src/httpd/nhttpd_bridge.cpp</code></td><td>the hook that hands nhttpd's requests to the layer and its answers back</td></tr>
+<tr><td><code>src/nhttpd/yhttpd_core/</code></td><td>what the core grew for it: the API namespace (<code>registerApiPrefix</code>), the API body reader, the api-mode header, exact socket I/O</td></tr>
+<tr><td><code>test/unit/httpd/</code>, <code>test/unit/nhttpd/</code></td><td>the tests: the generator against the dump, the bridge with a filled hook handler, the core pieces over a socket pair</td></tr>
+<tr><td><code>test/unit/support/run-tests.sh</code></td><td>runs the suite; names the imported cases this tree cannot pass yet, and why</td></tr>
+</table>
+</body>
+</html>
