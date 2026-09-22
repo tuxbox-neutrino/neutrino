@@ -1,4 +1,4 @@
-SUBDIRS = tools zapit gui daemonc driver system eitd timerd coreapi nhttpd
+SUBDIRS = tools zapit gui daemonc driver system eitd timerd coreapi httpd nhttpd
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 

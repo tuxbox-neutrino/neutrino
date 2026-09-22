@@ -1,5 +1,17 @@
+/*
+ * descriptor.cpp - a file handed over as an open descriptor
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Thilo Graf
+ *
+ * License: GPL-2.0-or-later
+ *
+ * Taken as written from the source's server.cpp, where it sat beside the
+ * transport; the function itself names no transport, and the routes that
+ * answer with a file call it from libhttpd.a.
+ */
+
+#include "httpd/endpoint.h"
 
 #include <cstring>
 

@@ -1,5 +1,18 @@
+/*
+ * static_stub.cpp - the one thing the document asks the static file server
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Thilo Graf
+ *
+ * License: GPL-2.0-or-later
+ *
+ * The source's static.cpp serves its pages; nhttpd serves ours. What the
+ * OpenAPI route still needs from it is the reading of Accept-Encoding,
+ * so the document can go out gzipped where the caller takes it. The
+ * function and its helpers are taken as written.
+ */
+
+#include "httpd/static.h"
 
 #include <string>
 
@@ -42,6 +55,9 @@ std::string trimmed(const std::string &s)
 	return s.substr(from, to - from);
 }
 
+/* One element of a comma- or semicolon-separated header, from at onward;
+   at is moved past it. The separator is a parameter because the two levels
+   of one header are separated differently. */
 bool nextElement(const std::string &list, char separator, size_t &at, std::string &out)
 {
 	if (at > list.size())
@@ -61,6 +77,9 @@ bool nextElement(const std::string &list, char separator, size_t &at, std::strin
 	return true;
 }
 
+/* A q-weight that is above zero. The grammar allows three decimals and
+   nothing else, and anything outside it answers no: guessing the other
+   way sends a body the caller cannot unpack. */
 bool weightAboveZero(const std::string &value)
 {
 	if (value.empty())

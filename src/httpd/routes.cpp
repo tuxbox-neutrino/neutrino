@@ -22,9 +22,7 @@
 
 #include "endpoint.h"
 #include "endpoints.h"
-#include "events.h"
 #include "doc/openapi.h"
-#include "webtv.h"
 
 #include <cstddef>
 
@@ -60,24 +58,10 @@ const RouteTable *installed = NULL;
    The same reasoning rules out a list sized from a count another unit hands over,
    which is why a module states a whole table and not an array and a count. */
 const RouteTable *const kTables[] = {
+	// Slice 1 on nhttpd: the two tables the bridge proves itself on, and the
+	// document that describes them. The others follow table by table.
 	&channelsTable,
-	&epgTable,
-	&settingsTable,
 	&systemTable,
-	&webserverTable,
-	&storageTable,
-	&netfsTable,
-	&eventsTable,
-	&authTable,
-	&timersTable,
-	&osdTable,
-	&daemonsTable,
-	&tunerTable,
-	&pluginsTable,
-	&configTable,
-	&streamTable,
-	&webtvTable,
-	&recordingsTable,
 	&openapi::openapiTable,
 };
 
