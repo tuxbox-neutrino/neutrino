@@ -77,6 +77,12 @@ public:
 	std::string 	ReceiveBlock();					// receive a Block. Look at length
 	unsigned int	ReceiveFileGivenLength(int filed, unsigned int _length); // Receive File of given length
 	std::string 	ReceiveLine();					// receive until "\n"
+	// Exactly length bytes into out, or false: the peer closed, an error, or
+	// timeout_ms passed without them. Bytes beyond length stay on the socket.
+	bool		ReceiveExact(std::string &out, size_t length, int timeout_ms);
+	// Every byte of data, or false after the peer went away. Send() alone
+	// reports a partial write as success.
+	bool		SendAll(const char *data, size_t length);
 
 protected:
 	long 		BytesSend;					// Bytes send over Socket

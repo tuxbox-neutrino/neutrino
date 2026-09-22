@@ -198,6 +198,10 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 	HeaderList = _HeaderList;
 	WebserverConfigList = _ConfigList;
 	Method = _Method;
+	RawBody.clear();
+	RawBodyTooLarge = false;
+	api_mode = false;
+	ResponseHeaders.clear();
 	status = HANDLED_NONE;
 	httpStatus = HTTP_OK;
 	ContentLength = 0;
@@ -260,6 +264,9 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 //				extension-header = message-header
 //=============================================================================
 std::string CyhookHandler::BuildHeader(bool cache) {
+	if (api_mode)
+		return BuildApiHeader();
+
 	std::string result = "";
 
 	const char *responseString = "";
@@ -647,4 +654,90 @@ void CyhookHandler::SendResult(std::string _content) {
 		break;
 	}
 	WriteLn(result);
+}
+
+//=============================================================================
+// API namespace
+//=============================================================================
+std::vector<std::string> CyhookHandler::ApiPrefixes;
+
+void CyhookHandler::registerApiPrefix(const std::string &prefix) {
+	if (prefix.empty() || prefix[0] != '/')
+		return;
+	for (size_t i = 0; i < ApiPrefixes.size(); i++)
+		if (ApiPrefixes[i] == prefix)
+			return;
+	ApiPrefixes.push_back(prefix);
+}
+
+void CyhookHandler::clearApiPrefixes() {
+	ApiPrefixes.clear();
+}
+
+bool CyhookHandler::isApiTarget(const std::string &raw_target) {
+	const std::string path = raw_target.substr(0, raw_target.find('?'));
+	for (size_t i = 0; i < ApiPrefixes.size(); i++) {
+		const std::string &p = ApiPrefixes[i];
+		if (path == p)
+			return true;
+		if (path.size() > p.size() && path.compare(0, p.size(), p) == 0 && path[p.size()] == '/')
+			return true;
+	}
+	return false;
+}
+
+//=============================================================================
+// Header for an API answer: status line, the hook's own headers, the true
+// length. What the legacy header decides from the URL or from the status
+// (gzip by file extension, no-cache by default, a page for a redirect, a
+// zero length for 404) is not decided here; the hook said what it wants.
+//=============================================================================
+std::string CyhookHandler::BuildApiHeader() {
+	const char *responseString = "";
+	for (unsigned int i = 0; i < (sizeof(httpResponseNames) / sizeof(httpResponseNames[0])); i++)
+		if (httpResponseNames[i].type == httpStatus) {
+			responseString = httpResponseNames[i].name;
+			break;
+		}
+
+	std::string result = string_printf(HTTP_PROTOCOL " %d %s\r\n", httpStatus, responseString);
+	log_level_printf(2, "Response (api): %d %s\n", httpStatus, responseString);
+
+	if (!ResponseMimeType.empty())
+		result += "Content-Type: " + ResponseMimeType + "\r\n";
+
+	bool has_auth = false, has_location = false;
+	for (size_t i = 0; i < ResponseHeaders.size(); i++) {
+		if (strcasecmp(ResponseHeaders[i].first.c_str(), "WWW-Authenticate") == 0)
+			has_auth = true;
+		if (strcasecmp(ResponseHeaders[i].first.c_str(), "Location") == 0)
+			has_location = true;
+	}
+	if (httpStatus == HTTP_UNAUTHORIZED && !has_auth)
+		result += "WWW-Authenticate: Basic realm=\"" AUTH_NAME_MSG "\"\r\n";
+	if ((httpStatus == HTTP_MOVED_PERMANENTLY || httpStatus == HTTP_MOVED_TEMPORARILY
+			|| httpStatus == HTTP_TEMPORARY_REDIRECT) && !has_location && !NewURL.empty())
+		result += "Location: " + NewURL + "\r\n";
+
+	char timeStr[80];
+	time_t timer = time(0);
+	strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&timer));
+	result += "Server: " WEBSERVERNAME "\r\n";
+	result += string_printf("Date: %s\r\n", timeStr);
+	result += "Connection: close\r\n";
+
+	for (size_t i = 0; i < ResponseHeaders.size(); i++) {
+		const char *name = ResponseHeaders[i].first.c_str();
+		// the transport owns these
+		if (strcasecmp(name, "Content-Length") == 0 || strcasecmp(name, "Content-Type") == 0
+				|| strcasecmp(name, "Connection") == 0 || strcasecmp(name, "Transfer-Encoding") == 0)
+			continue;
+		if (ResponseHeaders[i].first.empty())
+			continue;
+		result += ResponseHeaders[i].first + ": " + ResponseHeaders[i].second + "\r\n";
+	}
+	// HEAD included: the length is that of the answer a GET would carry
+	result += string_printf("Content-Length: %lld\r\n", (long long) yresult.length());
+	result += "\r\n";
+	return result;
 }

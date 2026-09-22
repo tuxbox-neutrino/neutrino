@@ -50,6 +50,8 @@
 #include <unistd.h>
 // C++
 #include <string>
+#include <vector>
+#include <utility>
 #include <list>
 // yhttpd
 #include <yconfig.h>
@@ -122,6 +124,7 @@ class CyhookHandler
 {
 protected:
 	static THookList HookList;
+	static std::vector<std::string> ApiPrefixes;
 public:
 	CyhookHandler();
 	~CyhookHandler();
@@ -138,6 +141,13 @@ public:
 	time_t 		LastModified;		// Last Modified Time of Item to send / -1 dynamic content
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;
+	// API answer mode. Set by a hook that answers a registered API prefix:
+	// BuildHeader then writes the hook's own ResponseHeaders and the true
+	// body length and skips every legacy heuristic (file-extension gzip,
+	// the no-cache default, the redirect page). Off, the header is what it
+	// always was, byte for byte.
+	bool		api_mode;
+	std::vector<std::pair<std::string, std::string> > ResponseHeaders;
 	bool		cached;			// cached by mod_cache
 	bool		nonPair;
 
@@ -148,6 +158,19 @@ public:
 	CStringList 	WebserverConfigList;	// Reference (writable) to ConfigList
 	CStringList 	HookVarList;		// Variables in Hook-Handling passing to other Hooks
 	THttp_Method 	Method;			// HTTP Method (requested)
+	// Raw request body of an API target (see registerApiPrefix); empty for
+	// everything else. RawBodyTooLarge says the body was refused unread.
+	std::string	RawBody;
+	bool		RawBodyTooLarge;
+
+	// The API namespace. Targets under a registered prefix get the methods
+	// beyond GET/POST/HEAD, a bounded raw body and api_mode answers; every
+	// other target takes the unchanged legacy path. A prefix matches the
+	// target exactly or as a directory (prefix followed by '/'); the query
+	// is not part of the match.
+	static void	registerApiPrefix(const std::string &prefix);
+	static void	clearApiPrefixes();
+	static bool	isApiTarget(const std::string &raw_target);
 
 	// hook slot handler
 	static void 	attach(Cyhook *yh)	// attach a Hook-Class to HookHandler
@@ -182,6 +205,7 @@ public:
 		{return (status==HANDLED_SENDFILE)?ContentLength : (off_t)yresult.length();}
 	// output methods
 	std::string BuildHeader(bool cache = false);
+	std::string BuildApiHeader();
 	void addResult(const std::string& result) 	{yresult += result;}
 	void addResult(const std::string& result, THandleStatus _status)
 						{yresult += result; status = _status;}

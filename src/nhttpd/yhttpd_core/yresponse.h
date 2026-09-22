@@ -42,8 +42,9 @@ public:
 	void printf(const char *fmt, ...);
 	bool Write(char const *text);
 	bool WriteLn(char const *text);
-	bool Write(const std::string &text) { return Write(text.c_str()); }
-	bool WriteLn(const std::string &text) { return WriteLn(text.c_str()); }
+	// by length: an answer may carry zero bytes (an image, a gzip document)
+	bool Write(const std::string &text) { return WriteData(text.data(), (long) text.size()); }
+	bool WriteLn(const std::string &text) { return Write(text) && WriteData("\r\n", 2); }
 
 	// Headers
 	void SendError(HttpResponseType responseType) {SendHeader(responseType, false, "text/html");}

@@ -583,3 +583,14 @@ std::string yExecuteScript(std::string cmd) {
 	}
 	return result;
 }
+
+//-----------------------------------------------------------------------------
+// Request header by name, case-insensitive
+//-----------------------------------------------------------------------------
+std::string header_value(const CStringList &headers, const char *name)
+{
+	for (CStringList::const_iterator it = headers.begin(); it != headers.end(); ++it)
+		if (strcasecmp(it->first.c_str(), name) == 0)
+			return it->second;
+	return "";
+}

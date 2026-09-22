@@ -31,11 +31,13 @@
 #include "yrequest.h"
 #include "yconnection.h"
 #include "helper.h"
+#include "yhook.h"
 
 //=============================================================================
 // Constructor & Destructor
 //=============================================================================
 CWebserverRequest::CWebserverRequest(CWebserver *pWebserver) {
+	RawBodyTooLarge = false;
 	Webserver = pWebserver;
 	CWebserverRequest();
 	Connection=NULL;
@@ -74,6 +76,12 @@ bool CWebserverRequest::HandleRequest(void) {
 	UrlData["startline"] = start_line;
 	if (!ParseStartLine(start_line))
 		return false;
+
+	// An API target takes its own path: the methods beyond GET/POST/HEAD,
+	// a bounded raw body, a header read that waits for the whole header.
+	// Everything else below is the legacy path and is left as it was.
+	if (CyhookHandler::isApiTarget(UrlData["target"]))
+		return HandleApiRequest();
 
 	if (Connection->Method == M_GET || Connection->Method == M_HEAD) {
 		//read header (speed up: read rest of request in blockmode)
@@ -121,6 +129,7 @@ bool CWebserverRequest::ParseStartLine(std::string start_line) {
 	log_level_printf(8, "<ParseStartLine>: line: %s\n", start_line.c_str());
 	if (ySplitString(start_line, " ", method, tmp)) {
 		if (ySplitStringLast(tmp, " ", url, Connection->httprotocol)) {
+			UrlData["target"] = url; // as written, undecoded, with query
 			analyzeURL(url);
 			UrlData["httprotocol"] = Connection->httprotocol;
 			// determine http Method
@@ -599,4 +608,110 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 		}
 	}
 	return content_len;
+}
+
+//-----------------------------------------------------------------------------
+// API target: header line by line until the empty line, then the body for
+// POST and PUT by declared length and nothing else. TRACE stays what it is
+// everywhere. A body this server will not frame ends the request with 400;
+// one above the ceiling is not read and left for the hook to refuse with
+// 413; one that stops arriving ends at the deadline with 408.
+//-----------------------------------------------------------------------------
+#define API_BODY_LIMIT		(1024 * 1024)
+#define API_BODY_TIMEOUT_MS	10000
+
+bool CWebserverRequest::HandleApiRequest() {
+	RawBody.clear();
+	RawBodyTooLarge = false;
+
+	if (Connection->Method == M_TRACE) {
+		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
+		return false;
+	}
+
+	std::string raw_header = "", tmp_line = "";
+	do {
+		tmp_line = Connection->sock->ReceiveLine();
+		if (tmp_line.empty()) {
+			log_level_printf(1, "HandleApiRequest: (Header) End of line not found: %s\n", strerror(errno));
+			Connection->Response.SendError(HTTP_BAD_REQUEST);
+			Connection->RequestCanceled = true;
+			return false;
+		}
+		raw_header.append(tmp_line);
+	} while (tmp_line != "\r\n");
+	ParseHeader(raw_header);
+
+	if (Connection->Method != M_POST && Connection->Method != M_PUT)
+		return true;
+
+	long long length = 0;
+	switch (apiContentLength(raw_header, length)) {
+	case BODY_BAD:
+		Connection->Response.SendError(HTTP_BAD_REQUEST);
+		Connection->RequestCanceled = true;
+		return false;
+	case BODY_NONE:
+		return true;
+	case BODY_OK:
+		break;
+	}
+	if (length > API_BODY_LIMIT) {
+		RawBodyTooLarge = true;
+		return true;
+	}
+	if (length == 0)
+		return true;
+
+	std::string expect = string_tolower(header_value(HeaderList, "Expect"));
+	if (expect.find("100-continue") != std::string::npos)
+		Connection->Response.Write("HTTP/1.1 100 Continue\r\n\r\n");
+
+	if (!Connection->sock->ReceiveExact(RawBody, (size_t) length, API_BODY_TIMEOUT_MS)) {
+		log_level_printf(1, "HandleApiRequest: body of %lld bytes did not arrive\n", length);
+		Connection->Response.SendError(HTTP_REQUEST_TIMEOUT);
+		Connection->RequestCanceled = true;
+		return false;
+	}
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// The body framing a raw header declares. Read from the raw text and not
+// from HeaderList, which keeps one value per name: a second Content-Length
+// with a different value has to be seen to be refused.
+//-----------------------------------------------------------------------------
+CWebserverRequest::ApiBody CWebserverRequest::apiContentLength(const std::string &raw_header, long long &length) {
+	length = 0;
+	bool seen = false;
+	long long value = 0;
+	size_t at = 0;
+	while (at < raw_header.size()) {
+		size_t eol = raw_header.find("\r\n", at);
+		std::string line = raw_header.substr(at, eol == std::string::npos ? std::string::npos : eol - at);
+		at = (eol == std::string::npos) ? raw_header.size() : eol + 2;
+		size_t colon = line.find(':');
+		if (colon == std::string::npos)
+			continue;
+		std::string name = string_tolower(trim(line.substr(0, colon)));
+		std::string text = trim(line.substr(colon + 1));
+		if (name == "transfer-encoding")
+			return BODY_BAD;
+		if (name != "content-length")
+			continue;
+		if (text.empty() || text.size() > 18)
+			return BODY_BAD;
+		for (size_t i = 0; i < text.size(); i++)
+			if (text[i] < '0' || text[i] > '9')
+				return BODY_BAD;
+		long long parsed = strtoll(text.c_str(), NULL, 10);
+		if (seen && parsed != value)
+			return BODY_BAD;
+		seen = true;
+		value = parsed;
+	}
+	if (!seen)
+		return BODY_NONE;
+	length = value;
+	return BODY_OK;
 }

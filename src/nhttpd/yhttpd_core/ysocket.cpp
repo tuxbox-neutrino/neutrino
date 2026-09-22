@@ -11,6 +11,9 @@
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
+#include <poll.h>
+#include <sys/time.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -521,4 +524,79 @@ std::string CySocket::ReceiveLine() {
 	result.assign(buffer, bytes_gotten);
 
 	return result;
+}
+
+//-----------------------------------------------------------------------------
+// Exactly length bytes, with a deadline. Read() rather than recv() so an SSL
+// socket takes the same path; poll() on the descriptor is what bounds the
+// wait, and a body that stops short fails at the deadline instead of holding
+// the connection thread for good.
+//-----------------------------------------------------------------------------
+bool CySocket::ReceiveExact(std::string &out, size_t length, int timeout_ms) {
+	out.clear();
+	if (length == 0)
+		return true;
+	if (!isValid || !isOpened)
+		return false;
+	out.reserve(length);
+
+	struct timeval started;
+	gettimeofday(&started, NULL);
+	char buffer[16384];
+	while (out.size() < length) {
+		struct timeval now;
+		gettimeofday(&now, NULL);
+		long long elapsed = (long long)(now.tv_sec - started.tv_sec) * 1000 + (now.tv_usec - started.tv_usec) / 1000;
+		long long remaining = (long long) timeout_ms - elapsed;
+		if (remaining <= 0)
+			return false;
+
+		struct pollfd p;
+		p.fd = sock;
+		p.events = POLLIN;
+		p.revents = 0;
+		int ready = poll(&p, 1, (int) remaining);
+		if (ready < 0 && errno == EINTR)
+			continue;
+		if (ready <= 0)
+			return false;
+
+		size_t want = length - out.size();
+		if (want > sizeof(buffer))
+			want = sizeof(buffer);
+		int got = Read(buffer, (unsigned int) want);
+		if (got < 0 && errno == EINTR)
+			continue;
+		if (got <= 0) {
+			isValid = false;
+			return false;
+		}
+		out.append(buffer, (size_t) got);
+	}
+	return true;
+}
+//-----------------------------------------------------------------------------
+// Every byte, or the reason it could not be: send(2) may take part of a
+// buffer and the old callers took that for the whole.
+//-----------------------------------------------------------------------------
+bool CySocket::SendAll(const char *data, size_t length) {
+	size_t done = 0;
+	while (done < length) {
+		size_t chunk = length - done;
+		if (chunk > (1u << 20))
+			chunk = (1u << 20);
+		int sent = Send(data + done, (unsigned int) chunk);
+		if (sent < 0) {
+			if (errno == EINTR)
+				continue;
+			isValid = false;
+			return false;
+		}
+		if (sent == 0) {
+			isValid = false;
+			return false;
+		}
+		done += (size_t) sent;
+	}
+	return true;
 }

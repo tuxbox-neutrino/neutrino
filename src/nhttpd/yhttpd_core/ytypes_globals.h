@@ -35,6 +35,7 @@ typedef enum
 	HTTP_NO_CONTENT 		= 204,
 	HTTP_RESET_CONTENT 		= 205, // not used
 	HTTP_PARTIAL_CONTENT 		= 206, // not used
+	HTTP_MULTI_STATUS		= 207, // api answers
 	HTTP_MULTIBLE_CHOICES 		= 300, // not used
 	HTTP_MOVED_PERMANENTLY 		= 301,
 	HTTP_MOVED_TEMPORARILY 		= 302,
@@ -60,6 +61,7 @@ typedef enum
 	HTTP_UNSUPPORTED_MEDIA_TYPE 	= 415, // not used
 	HTTP_REQUEST_RANGE_NOT_SATISFIABLE= 416, // not used
 	HTTP_EXPECTAION_FAILED 		= 417, // not used
+	HTTP_TOO_MANY_REQUESTS		= 429, // api answers
 	HTTP_INTERNAL_SERVER_ERROR 	= 500,
 	HTTP_NOT_IMPLEMENTED 		= 501,
 	HTTP_BAD_GATEWAY 		= 502, // not used
@@ -85,6 +87,7 @@ static const HttpEnumString httpResponseNames[] = {
 	{ HTTP_NO_CONTENT, 			"No Content", 			"" 		},
 	{ HTTP_RESET_CONTENT, 			"Reset Content", 		"" 		},
 	{ HTTP_PARTIAL_CONTENT, 		"Partial Content", 		"" 		},
+	{ HTTP_MULTI_STATUS,			"Multi-Status",			""		},
 	{ HTTP_MULTIBLE_CHOICES, 		"Multiple Choices", 		"" 		},
 	{ HTTP_MOVED_PERMANENTLY, 		"Moved Permanently", 		"" 		},
 	{ HTTP_MOVED_TEMPORARILY, 		"Moved Temporarily", 		"" 		},
@@ -110,6 +113,7 @@ static const HttpEnumString httpResponseNames[] = {
 	{ HTTP_UNSUPPORTED_MEDIA_TYPE, 		"Unsupported Media Type", 	""		},
 	{ HTTP_REQUEST_RANGE_NOT_SATISFIABLE,	"Requested range not satisfiable", ""		},
 	{ HTTP_EXPECTAION_FAILED, 		"Expectation Failed", 		""		},
+	{ HTTP_TOO_MANY_REQUESTS,		"Too Many Requests",		""		},
 	{ HTTP_INTERNAL_SERVER_ERROR,		"Internal Server Error", 	"Internal Server Error" },
 	{ HTTP_NOT_IMPLEMENTED, 		"Not Implemented", 		"The requested method is not recognized by this server." },
 	{ HTTP_BAD_GATEWAY, 			"Bad Gateway", 			""		},

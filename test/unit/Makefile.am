@@ -13,6 +13,8 @@ AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/nhttpd \
+	-I$(top_srcdir)/src/nhttpd/yhttpd_core \
 	-I$(top_srcdir)/src/include \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/connection \
@@ -76,6 +78,8 @@ coreapi_tests_SOURCES = \
 	coreapi/test_settingsappliers.cpp \
 	coreapi/test_browserplay.cpp \
 	coreapi/test_settingsfields.cpp \
+	nhttpd/test_yhttpd_api.cpp \
+	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
 	support/helperstubs.cpp
 
@@ -111,6 +115,7 @@ coreapi_tests_SOURCES = \
 # the connection library after it.
 coreapi_tests_LDADD = \
 	$(top_builddir)/src/coreapi/libcoreapi.a \
+	$(top_builddir)/src/nhttpd/yhttpd_core/libyhttpd.a \
 	$(top_builddir)/lib/xmltree/libxmltree.a \
 	$(top_builddir)/src/system/helpers.o \
 	$(top_builddir)/src/system/debug.o \

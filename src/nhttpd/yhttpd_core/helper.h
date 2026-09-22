@@ -53,4 +53,9 @@ static inline bool isControlCharacter(char ch) { return ch > 0 && ch <= 0x1F;}
 //-----------------------------------------------------------------------------
 std::string yExecuteScript(std::string cmd);
 
+// Value of a request header by name, compared without regard to case: the
+// parser keeps names as the client wrote them, and clients write them as
+// they please. Empty when the header is absent.
+std::string header_value(const CStringList &headers, const char *name);
+
 #endif /* __yhttpd_helper_h__ */

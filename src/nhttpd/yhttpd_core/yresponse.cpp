@@ -60,6 +60,8 @@ bool CWebserverResponse::SendResponse() {
 	Connection->HookHandler.session_init(Connection->Request.ParameterList,
 			Connection->Request.UrlData, (Connection->Request.HeaderList),
 			(Cyhttpd::ConfigList), Connection->Method, Connection->keep_alive);
+	Connection->HookHandler.RawBody = Connection->Request.RawBody;
+	Connection->HookHandler.RawBodyTooLarge = Connection->Request.RawBodyTooLarge;
 	//--------------------------------------------------------------
 	// HOOK Handling Loop [ PREPARE response hook ]
 	// Checking and Preperation: Auth, static, cache, ...
@@ -170,7 +172,7 @@ void CWebserverResponse::SendHeader(HttpResponseType responseType, bool cache,
 bool CWebserverResponse::WriteData(char const * data, long length) {
 	if (Connection->RequestCanceled)
 		return false;
-	if (Connection->sock->Send(data, length) == -1) {
+	if (!Connection->sock->SendAll(data, (size_t) length)) {
 		log_level_printf(1, "response canceled: %s\n", strerror(errno));
 		Connection->RequestCanceled = true;
 		return false;
