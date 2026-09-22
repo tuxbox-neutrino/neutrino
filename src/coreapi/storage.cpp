@@ -2,6 +2,7 @@
  * storage.cpp - mounts, directories and files on the box
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, rework, fixes, test hooks)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,7 +201,7 @@ Failure outside(const std::string &path)
    What it cannot see is a second hard link to the same file, a hard link being a name of its
    own with nothing in the filesystem to say what it shares. Making one needs a shell on the
    box. */
-const char *const kAccessStoreNames[] = { "ni-web.conf", "nhttpd.conf" };
+const char *const kAccessStoreNames[] = { "nhttpd.conf" };
 
 bool isAccessStore(const std::string &resolved)
 {

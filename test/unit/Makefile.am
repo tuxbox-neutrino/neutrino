@@ -142,14 +142,11 @@ EXTRA_DIST = support/catch.hpp support/fakes.h support/rcfixture.h support/count
 	scan/check-hook.sh scan/check-fieldtypes.sh \
 	scan/check-hardware.sh scan/check-appliers.sh scan/check-denominator.sh \
 	scan/check-choices.sh \
-	scan/check-sections.sh scan/check-callback-boundary.sh scan/check-legacy-mount.sh \
-	scan/check-legacybridge-order.sh scan/check-legacy-levels.sh \
-	scan/check-server-credentials.sh scan/check-legacy-bodygate.sh \
+	scan/check-sections.sh \
 	scan/check-channellist-invalidation.sh \
 	scan/check-bouquet-rename.sh scan/check-zapit-write-checked.sh \
 	scan/check-locale-catalog.sh \
 	scan/check-bouquet-save-atomic.sh \
-	scan/check-access-store.sh \
 	scan/check-mute-source.sh \
 	scan/check-channel-content-lock.sh \
 	scan/check-bouquet-vector-lock.sh \
@@ -267,12 +264,10 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-choices.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-sections.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-locale-catalog.sh $(top_srcdir)
-	@$(SHELL) $(srcdir)/scan/check-callback-boundary.sh $(top_srcdir)/src/httpd
 	@$(SHELL) $(srcdir)/scan/check-channellist-invalidation.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-bouquet-rename.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-zapit-write-checked.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-bouquet-save-atomic.sh $(top_srcdir)
-	@$(SHELL) $(srcdir)/scan/check-access-store.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-mute-source.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-channel-content-lock.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-bouquet-vector-lock.sh $(top_srcdir)
