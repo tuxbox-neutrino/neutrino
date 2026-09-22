@@ -39,7 +39,8 @@ player	neither the audio player nor the picture viewer setup screen has a notifi
 network	the one notifier its rows have ends in a request the shared client answers by ending the process
 parental	the screen has no notifier
 weather	the screen notifier writes through a menu item pointer of its own page
-hdd	the one notifier there is bound to a local of the screen and to no setting'
+hdd	the one notifier there is bound to a local of the screen and to no setting
+osd	this tree has no infoicons and its OSD screen applies through its own notifier, so the imported applier was dropped'
 
 # Below this the scan is not reading the tables any more. The tree held sixteen
 # sections when this was written.
