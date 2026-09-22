@@ -2,6 +2,7 @@
  * settingstable_osd.cpp - on screen display settings, one row per field
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -364,12 +365,6 @@ const Descriptor kOsd[] =
 		COREAPI_NUMBER_FIELD(show_menu_hints)
 	},
 	// src/neutrino.cpp:1284 src/gui/osd_setup.cpp:1244
-	{
-		"show_menu_hints_line", ValueType::Bool, "osd",
-		"settings.menu_hints_line", "menu.hint_menu_hints_line",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(show_menu_hints_line)
-	},
 
 	// channel logos
 	// src/neutrino.cpp:840 src/gui/osd_setup.cpp:1276
@@ -410,21 +405,9 @@ const Descriptor kOsd[] =
 		COREAPI_NUMBER_FIELD(infobar_buttons_usertitle)
 	},
 	// src/neutrino.cpp:1310 src/gui/osd_setup.cpp:1314
-	{
-		"infobar_analogclock", ValueType::Bool, "osd",
-		"miscsettings.infobar_analogclock", "menu.hint_infobar_analogclock",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(infobar_analogclock)
-	},
 	// The screen offers this one only where the weather is switched on, which
 	// is a key another section declares and a condition cannot name yet.
 	// src/neutrino.cpp:1325 src/gui/osd_setup.cpp:1319
-	{
-		"infobar_weather", ValueType::Bool, "osd",
-		"miscsettings.infobar_weather", "menu.hint_infobar_weather",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(infobar_weather)
-	},
 	// src/neutrino.cpp:1319 src/gui/osd_setup.cpp:1326
 	{
 		"infobar_show_channellogo", ValueType::Enum, "osd",
@@ -466,12 +449,6 @@ const Descriptor kOsd[] =
 		COREAPI_NUMBER_FIELD(infobar_casystem_frame)
 	},
 	// src/neutrino.cpp:469 src/gui/osd_setup.cpp:1362
-	{
-		"show_ecm_pos", ValueType::Enum, "osd",
-		"ecminfo_show", "menu.hint_infobar_ecminfo",
-		0, 0, COREAPI_VALUES(kEcmPos), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(show_ecm_pos)
-	},
 	// src/neutrino.cpp:1322 src/gui/osd_setup.cpp:1369
 	{
 		"infobar_show_sysfs_hdd", ValueType::Bool, "osd",
@@ -940,12 +917,6 @@ const Descriptor kOsd[] =
 	   as it was and the line does not follow. The infobar reads it,
 	   src/gui/infoviewer_bb.cpp. */
 	// src/neutrino.cpp:468
-	{
-		"show_ecm", ValueType::Bool, "osd",
-		NULL, NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(show_ecm)
-	},
 	/* Whether the infobar carries the channel description,
 	   src/gui/infoviewer.cpp. No item names it. */
 	// src/neutrino.cpp:1318

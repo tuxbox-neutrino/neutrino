@@ -18,6 +18,7 @@ SRC="$1"
 # Below this the scan is not reading the headers any more. The tree held 479
 # names when this was written, out of 480 the headers give, the one dropped
 # being a name three of them give three different values.
+FLOOR=300
 
 tmp=`mktemp -d`
 trap 'rm -rf "$tmp"' EXIT

@@ -45,7 +45,6 @@ class CVfdSetup : public CMenuTarget, CChangeObserver, CActivateObserver
 		int showBrightnessSetup();
 		void showLedSetup(CMenuWidget *mn_led_widget);
 		void showBacklightSetup(CMenuWidget *mn_led_widget);
-		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
 		virtual void activateNotify(const neutrino_locale_t OptionName);
 		int brightness;
 		int brightnessstandby;
@@ -54,6 +53,7 @@ class CVfdSetup : public CMenuTarget, CChangeObserver, CActivateObserver
 		bool vfd_enabled;
 
 	public:
+		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data); // probe: exposed for the coreapi settings applier
 		CVfdSetup();
 		~CVfdSetup();
 		int exec(CMenuTarget *parent, const std::string &actionKey);

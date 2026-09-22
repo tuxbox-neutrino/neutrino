@@ -20,7 +20,6 @@
 #include <system/setting_helpers.h>
 
 #include <gui/cam_menu.h>
-#include <gui/infoicons.h>
 #include <gui/keybind_setup.h>
 #include <gui/record_setup.h>
 #include <gui/update_settings.h>
@@ -171,18 +170,6 @@ const AppliedSetting kDisplayRows[] =
 #endif
 };
 
-/* The one row of this section anything has to be told about, and the only
-   applier here that is not a screen's notifier: the setup screen's own
-   changeNotify does nothing but turn menu items of that screen on and off, and
-   those items do not exist while nobody is standing in the menu.
-
-   The skin beside it is not listed because the drawing reads it again on every
-   pass, which is every five seconds. */
-const AppliedSetting kOsdRows[] =
-{
-	{ "mode_icons", LOCALE_INFOICONS_MODEICON },
-};
-
 #define COREAPI_APPLIED(a) (a), (sizeof(a) / sizeof((a)[0]))
 } // anonymous namespace
 
@@ -222,9 +209,6 @@ CUpdateSettingsApplier::CUpdateSettingsApplier()
 
 CDisplaySettingsApplier::CDisplaySettingsApplier()
 	: CSectionSettingsApplier(COREAPI_APPLIED(kDisplayRows)) {}
-
-COsdSettingsApplier::COsdSettingsApplier()
-	: CSectionSettingsApplier(COREAPI_APPLIED(kOsdRows)) {}
 
 // The value is not handed over because this notifier does not take one: it
 // reads the program's settings, and the write has reached them before this runs.
@@ -343,37 +327,6 @@ bool CDisplaySettingsApplier::applyOption(const char *, neutrino_locale_t option
 	return true;
 }
 
-/* Started and stopped here rather than through enableInfoIcons, which is what
-   the copied interface calls. That one begins by reading the very setting this
-   has just changed and does nothing once it reads nought, so asking it to stop
-   the drawing after the setting says the drawing is off stops nothing. The
-   screen's own switch avoids that by stopping the drawing before it clears the
-   setting, and an applier runs the other way round.
-
-   Neither is given the word to put on the screen: nobody is standing in front of
-   the box when a setting is written from outside it. */
-bool COsdSettingsApplier::applyOption(const char *key, neutrino_locale_t option)
-{
-	int value = 0;
-
-	switch (option)
-	{
-		case LOCALE_INFOICONS_MODEICON:
-		{
-			if (!numberOf(key, value))
-				return false;
-
-			if (value != 0)
-				CInfoIcons::getInstance()->StartIcons();
-			else
-				CInfoIcons::getInstance()->StopIcons();
-			return true;
-		}
-		default:
-			return false;
-	}
-}
-
 // One object and one name for as long as the program runs, because the registry
 // keeps both pointers rather than copying them.
 static CAudioSettingsApplier audio_settings_applier;
@@ -384,7 +337,6 @@ static CKeybindingsSettingsApplier keybindings_settings_applier;
 static CRecordingSettingsApplier recording_settings_applier;
 static CUpdateSettingsApplier update_settings_applier;
 static CDisplaySettingsApplier display_settings_applier;
-static COsdSettingsApplier osd_settings_applier;
 
 namespace
 {
@@ -404,7 +356,6 @@ const Registration kAppliers[] =
 	{ "recording",   &recording_settings_applier },
 	{ "update",      &update_settings_applier },
 	{ "display",     &display_settings_applier },
-	{ "osd",         &osd_settings_applier },
 };
 }
 

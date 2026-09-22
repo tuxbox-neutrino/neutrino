@@ -605,12 +605,6 @@ int CVideoSettings::showVideoSetup()
 		if (analog2.hint != NONEXISTANT_LOCALE)
 			vs_chinch_ch->setHint("", analog2.hint);
 	}
-#ifndef BOXMODEL_CST_HD2
-	else if (g_info.hw_caps->has_SCART)
-	{
-		vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TD_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TD_OPTION_COUNT, true, this);
-	}
-#endif
 
 	// 4:3 mode
 	CMenuOptionChooser *vs_43mode_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_43MODE, &g_settings.video_43mode, videomenu_43mode_options, true, this);

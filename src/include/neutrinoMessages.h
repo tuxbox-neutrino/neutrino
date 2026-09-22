@@ -134,8 +134,11 @@ struct NeutrinoMessages
 
 		/* sectionsd */
 		EVT_RELOAD_XMLTV			= CRCInput::RC_Events + 63,
+		/* settings written from outside the menus (coreapi), applied on the loop's own thread */
 		APPLY_SETTINGS				= CRCInput::RC_Messages + 29,
+		/* from the web layer, read on the loop's own thread so the plugin list is not rebuilt under the screens */
 		EVT_RELOAD_PLUGINS			= CRCInput::RC_Events + 64,
+		/* from the web layer: starting and ending the shift allocates a tuner and moves the live channel */
 		EVT_START_TIMESHIFT			= CRCInput::RC_Events + 65,
 		EVT_STOP_TIMESHIFT			= CRCInput::RC_Events + 66,
 

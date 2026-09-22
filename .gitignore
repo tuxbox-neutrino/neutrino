@@ -19,6 +19,7 @@ autom4te.cache
 /install-sh
 /missing
 /stamp-h*
+/test-driver
 
 ### https://www.gnu.org/software/libtool/
 /libtool

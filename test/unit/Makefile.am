@@ -28,20 +28,14 @@ AM_CPPFLAGS = \
 	-DCOREAPI_APPLIED_FILE='"$(abs_builddir)/settings-applied.txt"' \
 	-DCOREAPI_ERRORCODES_FILE='"$(abs_builddir)/errorcodes.txt"' \
 	-DCOREAPI_STATUSES_FILE='"$(abs_builddir)/statuses.txt"' \
-	-DHTTPD_CODES_FILE='"$(abs_builddir)/httpcodes.txt"' \
 	-DCOREAPI_ENUM_SCRIPT='"$(srcdir)/scan/extract-enum.sh"' \
 	-DCOREAPI_COUNTS_FILE='"$(srcdir)/support/counts.txt"' \
 	-DCOREAPI_COUNTS_ACTUAL='"$(abs_builddir)/counts.actual"' \
-	-DNI_WEB_OLD_CONF='"$(top_srcdir)/src/httpd/nhttpd.conf.in"' \
-	-DNI_WEB_PAGE_DIR='"$(top_srcdir)/data/ni-web"' \
-	-DNI_WEB_OPENAPI_DUMP='"$(abs_builddir)/openapi.json"' \
-	@MHD_CFLAGS@ \
 	@HWLIB_CFLAGS@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
 if USE_PUGIXML
-PUGIXML_LIBS = -lpugixml
 endif
 
 check_PROGRAMS = coreapi_tests
@@ -68,11 +62,6 @@ coreapi_tests_SOURCES = \
 	coreapi/test_commandsink.cpp \
 	coreapi/test_postpayload.cpp \
 	coreapi/test_system.cpp \
-	coreapi/test_tuner.cpp \
-	coreapi/test_plugins.cpp \
-	coreapi/test_recordings.cpp \
-	coreapi/test_rc.cpp \
-	coreapi/test_screenshot.cpp \
 	coreapi/test_shellcontract.cpp \
 	system/test_mysystem.cpp \
 	coreapi/test_storage.cpp \
@@ -85,45 +74,8 @@ coreapi_tests_SOURCES = \
 	coreapi/test_settingschoices.cpp \
 	coreapi/test_settingstable.cpp \
 	coreapi/test_settingsappliers.cpp \
-	httpd/test_server.cpp \
-	support/test_httpclient.cpp \
-	coreapi/test_httpstatus.cpp \
-	httpd/test_httpjson.cpp \
-	httpd/test_router.cpp \
-	httpd/test_serverbridge.cpp \
-	httpd/test_credentials.cpp \
-	httpd/test_auth.cpp \
-	httpd/test_netmatch.cpp \
-	httpd/test_webconfig.cpp \
-	httpd/test_static.cpp \
-	httpd/test_apppaths.cpp \
-	coreapi/test_sse.cpp \
-	coreapi/test_endpoints_read.cpp \
-	coreapi/test_endpoints_write.cpp \
-	httpd/test_openapi.cpp \
-	httpd/compat/test_compat_serializer.cpp \
-	httpd/compat/test_compat_query.cpp \
-	httpd/compat/test_compat_hook.cpp \
-	httpd/compat/test_compat_legacyconfig.cpp \
-	httpd/compat/test_compat_mount.cpp \
-	httpd/compat/test_compat_levels.cpp \
-	httpd/compat/test_compat_usage.cpp \
-	coreapi/test_filebody.cpp \
-	coreapi/test_requesthost.cpp \
-	httpd/test_xmltv.cpp \
-	coreapi/test_logos.cpp \
-	coreapi/test_channelreload.cpp \
-	coreapi/test_rawconfig.cpp \
-	coreapi/test_infoicons.cpp \
-	coreapi/test_streaming.cpp \
-	httpd/test_webtv.cpp \
-	httpd/test_byterange.cpp \
 	coreapi/test_browserplay.cpp \
-	coreapi/test_browserstream.cpp \
-	coreapi/test_storagefile.cpp \
-	coreapi/test_storageroots.cpp \
 	coreapi/test_settingsfields.cpp \
-	support/httpclient.cpp \
 	support/counts.cpp \
 	support/helperstubs.cpp
 
@@ -158,7 +110,6 @@ coreapi_tests_SOURCES = \
 # does with a daemon that answers short drives that code and not a copy; it needs
 # the connection library after it.
 coreapi_tests_LDADD = \
-	$(top_builddir)/src/httpd/libhttpd.a \
 	$(top_builddir)/src/coreapi/libcoreapi.a \
 	$(top_builddir)/lib/xmltree/libxmltree.a \
 	$(top_builddir)/src/system/helpers.o \
@@ -174,8 +125,6 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/lib/connection/libconnection.a \
 	-lOpenThreads \
 	-lcurl \
-	@MHD_LIBS@ \
-	$(PUGIXML_LIBS) \
 	-lcrypto \
 	-lz \
 	-lpthread
@@ -188,7 +137,7 @@ TESTS = $(check_PROGRAMS)
 # front of it, hence the shell.
 LOG_COMPILER = $(SHELL) -c 'exec "$$0" -w NoAssertions'
 
-EXTRA_DIST = support/catch.hpp support/fakes.h support/rcfixture.h support/counts.h support/counts.txt support/httpclient.h \
+EXTRA_DIST = support/catch.hpp support/fakes.h support/rcfixture.h support/counts.h support/counts.txt \
 	scan/extract-enum.sh support/merge-counts.sh \
 	scan/check-hook.sh scan/check-fieldtypes.sh \
 	scan/check-hardware.sh scan/check-appliers.sh scan/check-denominator.sh \
@@ -228,10 +177,10 @@ EXTRA_DIST = support/catch.hpp support/fakes.h support/rcfixture.h support/count
 # layer under test reads it. A file that has never been written is not one the
 # recorded dependencies can bring into being, so it is asked for rather than left
 # to the order the directories are built in.
-BUILT_SOURCES = $(top_builddir)/src/tools/rcsim.h openapi.json settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
-	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt httpcodes.txt
-CLEANFILES = openapi.json settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
-	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt httpcodes.txt \
+BUILT_SOURCES = $(top_builddir)/src/tools/rcsim.h settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
+	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt
+CLEANFILES = settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
+	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt \
 	counts.actual
 
 # The members each of the two enums declares, so that a walk of one in the suite
@@ -249,9 +198,6 @@ statuses.txt: FORCE
 # domain status and back is walked rather than transcribed. The floor is under
 # what the header holds today and above what a scan that stopped matching would
 # print.
-httpcodes.txt: FORCE
-	@$(SHELL) $(srcdir)/scan/extract-httpcodes.sh $(top_srcdir)/src/httpd/http.h 12 > $@.tmp && mv -f $@.tmp $@ || { rm -f $@.tmp $@; exit 1; }
-
 settings-pairs.txt: FORCE
 	@$(SHELL) $(srcdir)/scan/extract-pairs.sh $(top_srcdir)/src/neutrino.cpp $(top_srcdir)/src > $@.tmp && mv -f $@.tmp $@ || { rm -f $@.tmp $@; exit 1; }
 
@@ -289,10 +235,6 @@ settings-applied.txt: FORCE
 $(top_builddir)/src/tools/rcsim.h:
 	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/tools rcsim.h >/dev/null
 
-openapi.json: FORCE
-	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/httpd openapi.json >/dev/null
-	@cp -f $(top_builddir)/src/httpd/openapi.json $@.tmp && mv -f $@.tmp $@ || { rm -f $@.tmp $@; exit 1; }
-
 FORCE:
 .PHONY: FORCE
 
@@ -316,12 +258,6 @@ check-local: check-TESTS
 	@orphan=`cd $(srcdir) && find . -name 'test_*.cpp' | sed 's|^\./||' | sort | while read f; do \
 		case " $(coreapi_tests_SOURCES) " in *" $$f "*) ;; *) echo $$f;; esac; done`; \
 	test -z "$$orphan" || { echo "not in coreapi_tests_SOURCES: $$orphan" >&2; exit 1; }
-	@$(SHELL) $(srcdir)/scan/check-hook.sh $(top_srcdir)/src/neutrino.cpp
-	@$(SHELL) $(srcdir)/scan/check-legacy-mount.sh $(top_srcdir)/src/neutrino.cpp
-	@$(SHELL) $(srcdir)/scan/check-legacybridge-order.sh $(top_srcdir)/src/httpd/compat/legacybridge.cpp
-	@$(SHELL) $(srcdir)/scan/check-legacy-levels.sh $(top_srcdir)/src/httpd/compat/controlapi.cpp $(top_srcdir)/src/httpd/compat/levels.cpp
-	@$(SHELL) $(srcdir)/scan/check-server-credentials.sh $(top_srcdir)/src/httpd/server.cpp
-	@$(SHELL) $(srcdir)/scan/check-legacy-bodygate.sh $(top_srcdir)/src/httpd/server.cpp
 	@$(SHELL) $(srcdir)/scan/check-fieldtypes.sh "$(CXX)" $(DEFS) $(AM_CPPFLAGS) $(AM_CXXFLAGS) -I$(top_srcdir)/src/coreapi
 	@$(SHELL) $(srcdir)/scan/check-hardware.sh "$(CXX)" $(top_builddir)/config.h $(top_srcdir)/src/coreapi/settings \
 		$(DEFS) $(AM_CPPFLAGS) $(AM_CXXFLAGS) -I$(top_srcdir)/src/coreapi

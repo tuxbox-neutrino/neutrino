@@ -2,6 +2,7 @@
  * test_timers.cpp - tests for timers
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -806,7 +807,6 @@ TEST_CASE("a recording timer carries the name it was given to the daemon", "[tim
 	asked.apids = TIMERD_APIDS_CONF;
 	asked.recordingSafety = false;
 	asked.autoAdjustToEPG = false;
-	asked.channel_ci = false;
 	asked.eventID = 0;
 	std::strcpy(asked.recordingDir, "/media/sda1/movies");
 	std::strcpy(asked.epgTitle, "Tatort");
@@ -844,7 +844,6 @@ TEST_CASE("a recording timer with no name of its own sends none", "[timers][ipc]
 	asked->apids = TIMERD_APIDS_CONF;
 	asked->recordingSafety = false;
 	asked->autoAdjustToEPG = false;
-	asked->channel_ci = false;
 	asked->eventID = 0;
 	std::strcpy(asked->recordingDir, "/media/sda1/movies");
 

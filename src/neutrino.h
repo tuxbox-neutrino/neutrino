@@ -214,6 +214,8 @@ public:
 	time_t getStartTime() { return neutrino_start_time; }
 
 	bool isMuted() {return current_muted; }
+
+	void registerSettingsAppliers(); // one settings applier per section for the coreapi settings layer
 	/* lock_held: the caller holds the channel lock, the full reload does */
 	void invalidateChannelLists(bool lock_held = false);
 	void setCurrentMuted(int m) { current_muted = m; }

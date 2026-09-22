@@ -58,6 +58,9 @@
 #include <coreapi/channels.h>
 #include <coreapi/base/deps.h>
 #include <coreapi/base/messagebridge.h>
+#include <gui/settings_appliers.h>
+
+static bool saveNeutrinoSettings();
 #include <driver/shutdown_count.h>
 #include <driver/record.h>
 #include <driver/screenshot.h>
@@ -4955,6 +4958,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::APPLY_SETTINGS) {
+		// Settings written from outside, put into g_settings on the thread that reads them
 		coreapi::applyPendingSettings();
 		return messages_return::handled;
 	}

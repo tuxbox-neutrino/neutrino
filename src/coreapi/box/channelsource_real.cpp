@@ -2,6 +2,7 @@
  * channelsource_real.cpp - channel source backed by the running zapit client
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -867,7 +868,6 @@ class RealTimerSource : public TimerSource
 			e.apids           = eventApids(t);
 			e.recordingSafety = t.recording_safety;
 			e.autoAdjustToEPG = t.auto_adjust;
-			e.channel_ci      = false;
 		}
 
 		// Truncates rather than refuses, because the daemon's field is the

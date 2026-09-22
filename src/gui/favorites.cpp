@@ -88,12 +88,11 @@ int CFavorites::addChannelToFavorites(bool show_list)
 		status |= 2;
 	}
 
-	if (status && !g_Zapit->saveBouquets())
-		printf("[favorites] saving the bouquet files failed\n");
 	if (status)
 	{
 		const bool saved = g_Zapit->saveBouquets();
 		if (!saved)
+			printf("[favorites] saving the bouquet files failed\n");
 
 		/* A favourite added here changes the same list a page over the network
 		   is holding, and the box says nothing about it by itself. Ahead of
