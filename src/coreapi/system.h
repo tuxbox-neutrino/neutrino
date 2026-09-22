@@ -42,6 +42,10 @@ Result<BoxInfo> info();
 // transport's ceiling and not a wait: a loop too busy to take the command inside
 // that loses it and the call answers Internal rather than holding the caller.
 Result<void> standby(bool on);
+
+// Said once the box has gone into standby or come out of it. Asking is not
+// going: a request can be refused, and one can be dropped half way.
+void announceStandby(bool on);
 Result<void> reboot();
 Result<void> shutdown();
 Result<void> restart();

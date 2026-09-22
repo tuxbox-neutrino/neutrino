@@ -24,6 +24,7 @@
 #include "coreapi/base/errors.h"
 
 #include "coreapi/base/deps.h"
+#include "coreapi/base/eventbus.h"
 
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
@@ -46,6 +47,14 @@ Result<BoxInfo> info()
 Result<void> standby(bool on)
 {
 	return postEvent(on ? BoxEvent::StandbyOn : BoxEvent::StandbyOff);
+}
+
+void announceStandby(bool on)
+{
+	Event e;
+	e.type = EventType::Standby;
+	e.value = on ? 1 : 0;
+	EventBus::instance().publish(e);
 }
 
 Result<void> reboot() { return postEvent(BoxEvent::Reboot); }

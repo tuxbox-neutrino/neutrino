@@ -112,17 +112,9 @@ void publishFromMessage(const neutrino_msg_t msg, const neutrino_msg_data_t data
 			value = (int)(data & NeutrinoModes::mode_mask);
 			break;
 
-		/* The state is in the message. Some senders put a reason string in
-		   data, so it is not a number to read. */
-		case NeutrinoMessages::STANDBY_ON:
-			type = EventType::Standby;
-			value = 1;
-			break;
-
-		case NeutrinoMessages::STANDBY_OFF:
-			type = EventType::Standby;
-			value = 0;
-			break;
+		/* STANDBY_ON and STANDBY_OFF say nothing here: they are the wish, and
+		   the box may refuse it or drop it half way. It says what happened
+		   instead, once it has (system::announceStandby). */
 
 		// the level itself, widened from the char that crossed the socket
 		case NeutrinoMessages::EVT_SET_VOLUME:

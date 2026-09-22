@@ -88,6 +88,7 @@ TEST_CASE("list splits on radio rather than on a single service kind", "[channel
 	Result<ChannelList> tv = channels::list(true);
 	REQUIRE(tv.ok());
 	REQUIRE(tv.value().size() == 2);
+	// Neither carries a number, so the name settles it: see the ordering cases.
 	REQUIRE(tv.value()[0].name == ERSTE_NAME);
 	REQUIRE(tv.value()[1].name == "Tagesschau24 Livestream");
 	// The list the source filled, not a copy of it.
@@ -96,9 +97,93 @@ TEST_CASE("list splits on radio rather than on a single service kind", "[channel
 	Result<ChannelList> radio = channels::list(false);
 	REQUIRE(radio.ok());
 	REQUIRE(radio.value().size() == 2);
-	REQUIRE(radio.value()[0].name == "Deutschlandfunk Kultur");
-	REQUIRE(radio.value()[1].name == "ByteFM Hamburg Livestream");
+	REQUIRE(radio.value()[0].name == "ByteFM Hamburg Livestream");
+	REQUIRE(radio.value()[1].name == "Deutschlandfunk Kultur");
 	REQUIRE((const void *) &radio.value()[0] == fake.last_buffer);
+}
+
+/* The order the whole listing answers in. The box keeps its channels in a map
+   on the identifier, so what a reader got was identifier order and the numbers
+   it draws came out scattered: 540, 529, 528, 549. */
+TEST_CASE("the whole listing answers in the order the box numbers its channels", "[channels]")
+{
+	FakeChannelSource fake;
+	ChannelInfo a = mk(ERSTE, "Zweites", ServiceKind::Tv);
+	a.number = 12;
+	ChannelInfo b = mk(ZDF, "Erstes", ServiceKind::Tv);
+	b.number = 3;
+	ChannelInfo c = mk(DLF, "Drittes", ServiceKind::Tv);
+	c.number = 540;
+	fake.channels.push_back(a);
+	fake.channels.push_back(b);
+	fake.channels.push_back(c);
+	InstalledChannelSource installed_source(&fake);
+
+	Result<ChannelList> tv = channels::list(true);
+	REQUIRE(tv.ok());
+	REQUIRE(tv.value().size() == 3);
+	REQUIRE(tv.value()[0].number == 3);
+	REQUIRE(tv.value()[1].number == 12);
+	REQUIRE(tv.value()[2].number == 540);
+}
+
+/* Nought means the box holds no place for the channel, so it sorts behind every
+   channel that has one rather than ahead of all of them. */
+TEST_CASE("a channel the box gives no number goes last and not first", "[channels]")
+{
+	FakeChannelSource fake;
+	ChannelInfo none = mk(ERSTE, "Ohne Nummer", ServiceKind::Tv);
+	ChannelInfo one = mk(ZDF, "Mit Nummer", ServiceKind::Tv);
+	one.number = 7;
+	fake.channels.push_back(none);
+	fake.channels.push_back(one);
+	InstalledChannelSource installed_source(&fake);
+
+	Result<ChannelList> tv = channels::list(true);
+	REQUIRE(tv.ok());
+	REQUIRE(tv.value().size() == 2);
+	REQUIRE(tv.value()[0].name == "Mit Nummer");
+	REQUIRE(tv.value()[1].name == "Ohne Nummer");
+}
+
+/* Two channels of one number is a file that named one twice. The order still
+   has to be the same on two readings, or a cursor walks a row twice or never. */
+TEST_CASE("two channels of one number keep a steady order", "[channels]")
+{
+	FakeChannelSource fake;
+	ChannelInfo later = mk(ERSTE, "Zweiter", ServiceKind::Tv);
+	later.number = 5;
+	ChannelInfo first = mk(ZDF, "Erster", ServiceKind::Tv);
+	first.number = 5;
+	fake.channels.push_back(later);
+	fake.channels.push_back(first);
+	InstalledChannelSource installed_source(&fake);
+
+	Result<ChannelList> tv = channels::list(true);
+	REQUIRE(tv.ok());
+	REQUIRE(tv.value().size() == 2);
+	REQUIRE(tv.value()[0].name == "Erster");
+	REQUIRE(tv.value()[1].name == "Zweiter");
+}
+
+/* A bouquet's own order is what the box draws and what somebody dragging rows
+   about has just set, so it is not sorted at all. */
+TEST_CASE("a bouquet keeps the order the box holds it in", "[channels]")
+{
+	FakeChannelSource fake;
+	ChannelInfo high = mk(ERSTE, "Hohe Nummer", ServiceKind::Tv);
+	high.number = 900;
+	ChannelInfo low = mk(ZDF, "Kleine Nummer", ServiceKind::Tv);
+	low.number = 2;
+	fake.bouquet_members[1].push_back(high);
+	fake.bouquet_members[1].push_back(low);
+	InstalledChannelSource installed_source(&fake);
+
+	Result<ChannelList> members = channels::bouquetChannels(1);
+	REQUIRE(members.ok());
+	REQUIRE(members.value().size() == 2);
+	REQUIRE(members.value()[0].number == 900);
+	REQUIRE(members.value()[1].number == 2);
 }
 
 TEST_CASE("an unreadable channel list names itself", "[channels]")

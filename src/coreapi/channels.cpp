@@ -23,6 +23,7 @@
 #include "coreapi/base/deps.h"
 #include "coreapi/base/eventbus.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <string>
@@ -43,6 +44,47 @@ namespace channels
 // The status always comes from the source, so one cause cannot become two
 // answers on the way out. Only the code and the wording are this layer's.
 
+/* THE ORDER THE WHOLE LIST IS ANSWERED IN, and why it is not the one the box
+   keeps it in.
+
+   The box holds its channels in a map keyed on the identifier, so reading them
+   out gives them in identifier order, which is a sixty-four bit number nobody
+   sees. A reader gets the numbers it does show scattered through the list:
+   540, 529, 528, 549, 653. It looks like no order at all, and it made both the
+   list of every channel and the picker a timer is written with unusable for
+   finding anything.
+
+   So they come out by the number the box draws beside them. Every present
+   channel has one: the bouquets are numbered in their own order first, and
+   what no bouquet holds is swept into one last bouquet, sorted by name, and
+   numbered after them (CBouquetManager::makeRemainingChannelsBouquet).
+
+   Sorted here and not where they are read, because the box adapter is not
+   linked into the tests and an order is a promise a reader holds this layer to.
+
+   Only this listing. A bouquet's own listing keeps the bouquet's order, which
+   is what the box draws and what a person dragging rows about has just set.
+
+   A nought would sort ahead of everything, so it goes last instead: it means
+   the box holds no place for the channel, not that it holds the first. */
+void byNumberThenName(ChannelList &all)
+{
+	std::stable_sort(all.begin(), all.end(),
+		[](const ChannelInfo &a, const ChannelInfo &b)
+		{
+			if ((a.number == 0) != (b.number == 0))
+				return b.number == 0;
+			if (a.number != b.number)
+				return a.number < b.number;
+			// Two channels of one number is the box having kept numbers from a
+			// file that named one twice. The name keeps the order steady across
+			// two readings so that a cursor walks the list once.
+			if (a.name != b.name)
+				return a.name < b.name;
+			return a.id < b.id;
+		});
+}
+
 Result<ChannelList> list(bool tv)
 {
 	ChannelList out;
@@ -50,6 +92,7 @@ Result<ChannelList> list(bool tv)
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::ChannelListUnavailable,
 			    "the channel list could not be read");
+	byNumberThenName(out);
 	return ok(std::move(out));
 }
 

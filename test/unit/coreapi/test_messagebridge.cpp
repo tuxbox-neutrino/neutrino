@@ -30,6 +30,7 @@
 
 #include "coreapi/base/eventbus.h"
 #include "coreapi/base/messagebridge.h"
+#include "coreapi/system.h"
 
 using namespace coreapi;
 
@@ -126,15 +127,28 @@ TEST_CASE("a mode change reports the mode without the rezap flag", "[messagebrid
 	REQUIRE(c.seen[0].value == NeutrinoModes::mode_radio);
 }
 
-/* One sender puts a reason string in data, so the two messages have to be told
-   apart by the message and not by what they carry. */
-TEST_CASE("standby reports its direction from the message", "[messagebridge]")
+/* Asking for standby is not going into it: a request can be refused and one
+   can be dropped half way. The box says what happened instead. */
+TEST_CASE("asking for standby is not an event", "[messagebridge]")
 {
 	Collector c;
 	EventBus::instance().subscribe(&c);
 
 	publishFromMessage(NeutrinoMessages::STANDBY_ON, (neutrino_msg_data_t) "cec");
 	publishFromMessage(NeutrinoMessages::STANDBY_OFF, 0);
+
+	EventBus::instance().unsubscribe(&c);
+
+	REQUIRE(c.seen.empty());
+}
+
+TEST_CASE("the box says which way it went once it has", "[messagebridge]")
+{
+	Collector c;
+	EventBus::instance().subscribe(&c);
+
+	coreapi::system::announceStandby(true);
+	coreapi::system::announceStandby(false);
 
 	EventBus::instance().unsubscribe(&c);
 
