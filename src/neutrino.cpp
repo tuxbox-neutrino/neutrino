@@ -4844,6 +4844,17 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
+	else if (msg == NeutrinoMessages::EVT_START_TIMESHIFT) {
+		/* The same act as the timeshift key. Writing the file alone leaves the
+		   picture on live, which is a recording and not a shift. No player
+		   where there is no live picture, and none on top of one playing. */
+		if (g_RemoteControl->is_video_started && !CMoviePlayerGui::getInstance().Playing())
+			CRecordManager::getInstance()->StartTimeshift();
+		else if (!CRecordManager::getInstance()->TimeshiftRunning())
+			CRecordManager::getInstance()->StartAutoRecord(true);
+		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+		return messages_return::handled;
+	}
 	else if (msg == NeutrinoMessages::EVT_STOP_TIMESHIFT) {
 		/* Not the same as ending that recording by its number: this also stops
 		   the box from starting the next shift on its own, which is what makes
