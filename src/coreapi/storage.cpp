@@ -201,7 +201,7 @@ Failure outside(const std::string &path)
    What it cannot see is a second hard link to the same file, a hard link being a name of its
    own with nothing in the filesystem to say what it shares. Making one needs a shell on the
    box. */
-const char *const kAccessStoreNames[] = { "nhttpd.conf" };
+const char *const kAccessStoreNames[] = { "ni-web.conf", "nhttpd.conf" };
 
 bool isAccessStore(const std::string &resolved)
 {

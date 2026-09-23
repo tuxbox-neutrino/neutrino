@@ -44,7 +44,21 @@ S1='~"the groups are declared in the order somebody meets this box in"'
 S5=''
 if [ "`id -u`" != 0 ]; then
 	S5='~"a name under a directory too long to spell is still read"'
+	# same class: the scope case writes its probe under /mnt, which the
+	# shipped-roots rule pins it to and only root may write to here.
+	S5=$S5'~"a credential for part of the box reaches that part and no other root"'
 fi
+
+# Two builds, one truth, two places it is read from. The known half of
+# legacy-usage is levels.h at compile time upstream and CControlAPI's
+# dispatch table at run time here, and this binary carries no dispatcher;
+# the wire check pins the seeded table with its zeros (check-v1 section 15).
+S8='~"the counter for the copied surface is a route in every build"'
+# The kernel-chosen-port case starts the real daemon, which this binary
+# cannot carry (the seam's hands are the program's); the wire check reads
+# the really-bound port off the running box (section 18), and the bridge
+# case beside it pins boundPort()'s reading.
+S9='~"the server says the port it is really answering on"'
 
 # The answer-then-restart seam is wired to the real nhttpd (the two hands
 # in yhttpd.cpp, installed by neutrino.cpp) - which is exactly why these
@@ -59,6 +73,6 @@ S7='~"a reload that cannot read the file leaves the server on what it had"'
 # would otherwise hold the suite for ever, and a run that is killed says so
 # with timeout's own exit code instead of hanging silently.
 if command -v timeout >/dev/null 2>&1; then
-	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7" "$@"
+	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7$S8$S9" "$@"
 fi
-exec "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7" "$@"
+exec "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7$S8$S9" "$@"

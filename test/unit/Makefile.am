@@ -81,6 +81,8 @@ coreapi_tests_SOURCES = \
 	coreapi/test_settingsappliers.cpp \
 	coreapi/test_browserplay.cpp \
 	coreapi/test_settingsfields.cpp \
+	coreapi/test_endpoints_read.cpp \
+	coreapi/test_endpoints_write.cpp \
 	system/test_mysystem_local.cpp \
 	nhttpd/test_yhttpd_api.cpp \
 	nhttpd/test_bridge.cpp \
@@ -169,6 +171,7 @@ EXTRA_DIST = support/catch.hpp support/run-tests.sh support/fakes.h support/rcfi
 	scan/check-bouquet-rename.sh scan/check-zapit-write-checked.sh \
 	scan/check-locale-catalog.sh \
 	scan/check-bouquet-save-atomic.sh \
+	scan/check-access-store.sh \
 	scan/check-mute-source.sh \
 	scan/check-channel-content-lock.sh \
 	scan/check-bouquet-vector-lock.sh \
@@ -314,6 +317,7 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-bouquet-rename.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-zapit-write-checked.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-bouquet-save-atomic.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-access-store.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-mute-source.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-channel-content-lock.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-bouquet-vector-lock.sh $(top_srcdir)
