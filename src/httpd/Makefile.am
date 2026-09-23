@@ -132,8 +132,22 @@ check-no-constructors: $(noinst_LIBRARIES)
 		esac; \
 	done
 
-.PHONY: check-sources check-no-constructors
-all-local: check-sources check-no-constructors
+# A member of an answer that states the whole of what it can be, held to the
+# code that writes it (the scan's own head says how). The row is beside the
+# handler and so is the naming function the row has to agree with, and the
+# comparison is over the two of them.
+#
+# The comment blanker is the suite's, named across rather than copied. A word
+# behind // has to count as absent in both halves of the comparison, and a
+# second reader of C comments in this tree would be a second thing that can be
+# wrong about one.
+check-answer-sets:
+	@$(SHELL) $(srcdir)/check-answer-sets.sh $(srcdir) $(top_srcdir)/test/unit/scan/strip-comments.awk
+
+.PHONY: check-sources check-no-constructors check-answer-sets
+all-local: check-sources check-no-constructors check-answer-sets
+
+EXTRA_DIST = check-answer-sets.sh
 
 # The document without a server: the same tables, the same bytes. Built on
 # request (make openapi-dump), used by the unit tests and by the type
