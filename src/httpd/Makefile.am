@@ -33,6 +33,7 @@ AM_CPPFLAGS = \
 	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@AVFORMAT_CFLAGS@ \
+	@CURL_CFLAGS@ \
 	@LUA_CFLAGS@
 
 AUTOMAKE_OPTIONS = subdir-objects
@@ -63,9 +64,11 @@ libhttpd_a_SOURCES = \
 	ep/ep_tuner.cpp \
 	ep/ep_webserver.cpp \
 	ep/ep_webui.cpp \
+	ep/ep_webtv.cpp \
 	byterange.cpp \
 	carry.cpp \
 	credentials.cpp \
+	hlsrewrite.cpp \
 	http.cpp \
 	json.cpp \
 	login_bridge.cpp \
@@ -81,7 +84,8 @@ libhttpd_a_SOURCES = \
 	stubs/legacy_usage.cpp \
 	stubs/server_nhttpd.cpp \
 	stubs/static_stub.cpp \
-	webconfig.cpp
+	webconfig.cpp \
+	webtv.cpp
 
 noinst_HEADERS = \
 	auth.h \
@@ -92,6 +96,7 @@ noinst_HEADERS = \
 	endpoint.h \
 	endpoints.h \
 	events.h \
+	hlsrewrite.h \
 	randomsource.h \
 	http.h \
 	json.h \
@@ -105,7 +110,8 @@ noinst_HEADERS = \
 	server_control.h \
 	static.h \
 	status.h \
-	webconfig.h
+	webconfig.h \
+	webtv.h
 
 # Every source in the directory is in a list, or the build says which is not.
 check-sources:
