@@ -9,7 +9,7 @@
 #               page.txt) to compare header+body byte for byte
 #
 # Prints one line per check, PASS or FAIL, and exits non-zero on any FAIL.
-# Needs curl, gzip, cmp.
+# Needs curl, gzip, cmp and python3 (for the raw-socket cases).
 
 BASE="$1"; DOC="$2"; BEFORE="$3"
 [ -n "$BASE" ] && [ -f "$DOC" ] || { echo "usage: $0 <base-url> <openapi.json> [before-dir]" >&2; exit 2; }
@@ -68,22 +68,50 @@ head -c 2097152 /dev/zero | tr '\0' 'a' > "$T/big"
 curl -s -D "$T/h9" -o "$T/b9" -X POST -H 'Content-Type: application/json' -H 'Expect:' --data-binary "@$T/big" "$BASE/api/v1/system/standby" 2>/dev/null
 [ "`status $T/h9`" = 413 ] && pass "2 MiB body -> 413" || fail "2 MiB body status `status $T/h9`"
 
-# 10. half a body meets the deadline (about 10 s), not a hang
-start=`date +%s`
-printf 'POST /api/v1/system/standby HTTP/1.0\r\nContent-Length: 100\r\nContent-Type: application/json\r\n\r\n{"on"' | timeout 30 nc -q 25 `echo "$BASE" | sed 's#https\?://##; s#:.*##'` `echo "$BASE" | sed 's#.*:##'` > "$T/h10" 2>/dev/null
-took=`expr \`date +%s\` - $start`
-grep -q ' 408 ' "$T/h10" && [ "$took" -lt 20 ] && pass "half body -> 408 after ${took}s" || fail "half body: `head -1 $T/h10 | tr -d '\r'` after ${took}s"
+# raw-socket helper: send bytes, print the status line and how the peer
+# ended the exchange (EOF, RESET, TIMEOUT) and the seconds it took
+raw() {
+	python3 - "$BASE" "$1" "$2" <<'PYEOF'
+import socket, sys, time
+base, req, wait = sys.argv[1], sys.argv[2].encode().decode('unicode_escape').encode(), float(sys.argv[3])
+host = base.split('://', 1)[-1].split(':')[0]; port = int(base.rsplit(':', 1)[-1])
+t0 = time.time()
+s = socket.create_connection((host, port), timeout=wait)
+s.sendall(req)
+data, note = b'', 'EOF'
+try:
+	while True:
+		c = s.recv(4096)
+		if not c: break
+		data += c
+except ConnectionResetError: note = 'RESET'
+except socket.timeout: note = 'TIMEOUT'
+s.close()
+print((data.split(b'\r\n', 1)[0].decode(errors='replace') if data else '(nothing)') + ' ' + note + ' %ds' % int(time.time() - t0))
+PYEOF
+}
 
-# 11. legacy untouched
-curl -s -D "$T/h11" -o /dev/null -X PUT "$BASE/control/standby"
-[ "`status $T/h11`" = 501 ] && pass "PUT /control/standby -> 501 as before" || fail "PUT /control status `status $T/h11`"
-curl -s -D "$T/h12" -o /dev/null -X PUT "$BASE/x"
-[ "`status $T/h12`" = 501 ] && pass "PUT /x -> 501 as before" || fail "PUT /x status `status $T/h12`"
-curl -s -D "$T/h13" -o /dev/null -X TRACE "$BASE/api/v1/system/info"
-[ "`status $T/h13`" = 501 ] && pass "TRACE -> 501" || fail "TRACE status `status $T/h13`"
-curl -s -o "$T/gv" "$BASE/control/getversion"; [ -s "$T/gv" ] && pass "/control/getversion answers" || fail "/control/getversion empty"
+# 10. half a body meets the deadline (about 10 s), not a hang
+r10=`raw 'POST /api/v1/system/standby HTTP/1.0\r\nContent-Length: 100\r\nContent-Type: application/json\r\n\r\n{"on"' 30`
+echo "$r10" | grep -q ' 408 ' && [ "`echo "$r10" | awk '{print $NF}' | tr -d s`" -lt 20 ] && pass "half body -> 408 ($r10)" || fail "half body: $r10"
+
+# 11. legacy untouched: PUT/DELETE/TRACE outside the API are refused before
+#     any hook runs. nhttpd has always answered these with a 501 line and an
+#     immediate close without reading the rest of the request, which every
+#     client sees as a reset; so the check is "a 501 line or a reset, and
+#     never an answer from a hook".
+for m in 'PUT /control/version' 'PUT /x' 'TRACE /api/v1/system/info'; do
+	r=`raw "$m HTTP/1.0\r\nHost: box\r\nAccept: */*\r\n\r\n" 10`
+	case "$r" in
+		*" 501 "*|"(nothing) RESET"*) pass "$m refused before any hook ($r)";;
+		*) fail "$m: $r";;
+	esac
+done
+# (measured on the unchanged code: even a bare request line ends in a reset,
+#  because the empty line after it is never read before the close)
+curl -s -o "$T/gv" "$BASE/control/version"; [ -s "$T/gv" ] && pass "/control/version answers" || fail "/control/version empty"
 if [ -n "$BEFORE" ] && [ -d "$BEFORE" ]; then
-	for f in control-getbouquets control-getversion page; do
+	for f in control-getbouquets control-version page; do
 		[ -f "$BEFORE/$f.url" ] || continue
 		curl -s -D "$T/$f.h" -o "$T/$f.b" "$BASE`cat $BEFORE/$f.url`"
 		grep -vi '^date:' "$T/$f.h" > "$T/$f.hh"; grep -vi '^date:' "$BEFORE/$f.h" > "$T/$f.hb"

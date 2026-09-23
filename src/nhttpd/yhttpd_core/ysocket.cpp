@@ -672,3 +672,41 @@ bool CySocket::ReceiveUntil(const char *terminator, std::string &out, size_t lim
 			return true;
 	}
 }
+//-----------------------------------------------------------------------------
+// Read and drop length bytes under a deadline.
+//-----------------------------------------------------------------------------
+bool CySocket::Discard(size_t length, int timeout_ms) {
+	if (length == 0)
+		return true;
+	if (!isValid || !isOpened)
+		return false;
+	const long long started = monotonicMillis();
+	char buffer[16384];
+	size_t done = 0;
+	while (done < length) {
+		long long remaining = (long long) timeout_ms - (monotonicMillis() - started);
+		if (remaining <= 0)
+			return false;
+		struct pollfd p;
+		p.fd = sock;
+		p.events = POLLIN;
+		p.revents = 0;
+		int ready = poll(&p, 1, (int) remaining);
+		if (ready < 0 && errno == EINTR)
+			continue;
+		if (ready <= 0)
+			return false;
+		size_t want = length - done;
+		if (want > sizeof(buffer))
+			want = sizeof(buffer);
+		int got = Read(buffer, (unsigned int) want);
+		if (got < 0 && errno == EINTR)
+			continue;
+		if (got <= 0) {
+			isValid = false;
+			return false;
+		}
+		done += (size_t) got;
+	}
+	return true;
+}

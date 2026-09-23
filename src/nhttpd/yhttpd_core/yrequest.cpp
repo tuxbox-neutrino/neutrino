@@ -629,6 +629,9 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 //-----------------------------------------------------------------------------
 #define API_BODY_LIMIT		(1024 * 1024)
 #define API_HEADER_LIMIT	(64 * 1024)
+// How much of a refused body is still read and dropped, so the 413 reaches
+// the caller instead of a reset. Past this the caller is left with the reset.
+#define API_DRAIN_CAP		(16 * 1024 * 1024)
 #define API_BODY_TIMEOUT_MS	10000
 
 bool CWebserverRequest::HandleApiRequest() {
@@ -658,7 +661,10 @@ bool CWebserverRequest::HandleApiRequest() {
 	case API_BODY_NONE:
 		return true;
 	case API_BODY_TOO_LARGE:
+		// answered 413 by the hook; drained first, because a close with the
+		// body still unread resets the connection and takes the answer with it
 		RawBodyTooLarge = true;
+		Connection->sock->Discard((size_t)(length > API_DRAIN_CAP ? API_DRAIN_CAP : length), API_BODY_TIMEOUT_MS);
 		return true;
 	case API_BODY_READ:
 		break;
@@ -749,8 +755,10 @@ CWebserverRequest::ApiBodyDecision CWebserverRequest::apiBodyDecision(THttp_Meth
 		return API_BODY_NONE;
 	if (!takes_body)
 		return API_BODY_BAD;
-	if (declared > API_BODY_LIMIT)
+	if (declared > API_BODY_LIMIT) {
+		length = declared;
 		return API_BODY_TOO_LARGE;
+	}
 	length = declared;
 	return API_BODY_READ;
 }

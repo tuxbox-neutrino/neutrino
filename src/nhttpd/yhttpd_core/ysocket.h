@@ -84,6 +84,10 @@ public:
 	// more (the socket is peeked, then read exactly), or false: EOF, an
 	// error, more than limit bytes without it, or timeout_ms passed.
 	bool		ReceiveUntil(const char *terminator, std::string &out, size_t limit, int timeout_ms);
+	// length bytes read and dropped, or false: the peer closed, an error, or
+	// timeout_ms passed first. A refusal that closes on unread bytes turns
+	// into a reset on the way to the peer; this is what makes it readable.
+	bool		Discard(size_t length, int timeout_ms);
 	// Every byte of data, or false after the peer went away. Send() alone
 	// reports a partial write as success.
 	bool		SendAll(const char *data, size_t length);

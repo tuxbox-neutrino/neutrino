@@ -51,11 +51,15 @@ and <code>Vary: Cookie, Authorization</code>. Answers are HTTP/1.0 with
 <p>
 GET, HEAD, POST, PUT and DELETE. A POST or PUT body is JSON, read by its
 <code>Content-Length</code> up to 1 MiB; above that the request is refused
-with 413 before a byte is read. A body the server cannot frame (two differing
+with 413, and the body is read and dropped (up to 16 MiB) so the refusal
+reaches the caller instead of a reset. A body the server cannot frame (two differing
 lengths, a length that is not a number, any <code>Transfer-Encoding</code>) is
 400; one that stops arriving is 408 after ten seconds. <code>100 Continue</code>
 is sent only when the client asks for it with <code>Expect</code>.
-OPTIONS and PATCH are not read by nhttpd yet and answer 501.
+OPTIONS and PATCH are not read by nhttpd yet and answer 501. Outside the
+API namespace nhttpd refuses PUT, DELETE and TRACE as it always has: a 501
+line and a close without reading the rest of the request, which a client
+sees as a reset.
 </p>
 
 <h2>Access</h2>

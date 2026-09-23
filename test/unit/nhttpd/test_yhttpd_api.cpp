@@ -352,3 +352,42 @@ TEST_CASE("what to do about a body is decided per method before a byte is read",
 	CHECK(R::apiBodyDecision(M_POST, "Transfer-Encoding: chunked\r\n\r\n", len) == R::API_BODY_BAD);
 	CHECK(R::apiBodyDecision(M_POST, "Content-Length: 1\r\nContent-Length: 2\r\n\r\n", len) == R::API_BODY_BAD);
 }
+
+TEST_CASE("Discard swallows a body that was refused so the refusal can be read", "[nhttpd]")
+{
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket s(fd[0]);
+	s.isOpened = true;
+	s.isValid = true;
+
+	SECTION("the declared bytes go, the byte after them stays")
+	{
+		std::string body(200000, 'b');
+		body += 'X';
+		std::thread writer([&body, fd]() { (void) write(fd[1], body.data(), body.size()); });
+		CHECK(s.Discard(200000, 2000));
+		writer.join();
+		char rest = 0;
+		CHECK(read(fd[0], &rest, 1) == 1);
+		CHECK(rest == 'X');
+	}
+	SECTION("a peer that stops sending meets the deadline")
+	{
+		REQUIRE(write(fd[1], "ab", 2) == 2);
+		const long long t0 = millisNow();
+		CHECK_FALSE(s.Discard(10, 200));
+		CHECK(millisNow() - t0 >= 150);
+		CHECK(millisNow() - t0 < 3000);
+	}
+	SECTION("a peer that closes is done")
+	{
+		REQUIRE(write(fd[1], "ab", 2) == 2);
+		close(fd[1]);
+		fd[1] = -1;
+		CHECK_FALSE(s.Discard(10, 2000));
+	}
+	if (fd[1] >= 0)
+		close(fd[1]);
+	s.close();
+}
