@@ -109,9 +109,11 @@ for m in 'PUT /control/version' 'PUT /x' 'TRACE /api/v1/system/info'; do
 done
 # (measured on the unchanged code: even a bare request line ends in a reset,
 #  because the empty line after it is never read before the close)
-curl -s -o "$T/gv" "$BASE/control/version"; [ -s "$T/gv" ] && pass "/control/version answers" || fail "/control/version empty"
+# (/control/version serves a file the PC runtime does not have, so its body
+#  is empty there; getmode always answers with one)
+curl -s -o "$T/gm" "$BASE/control/getmode"; [ -s "$T/gm" ] && pass "/control/getmode answers" || fail "/control/getmode empty"
 if [ -n "$BEFORE" ] && [ -d "$BEFORE" ]; then
-	for f in control-getbouquets control-version page; do
+	for f in control-getbouquets control-getmode page; do
 		[ -f "$BEFORE/$f.url" ] || continue
 		curl -s -D "$T/$f.h" -o "$T/$f.b" "$BASE`cat $BEFORE/$f.url`"
 		grep -vi '^date:' "$T/$f.h" > "$T/$f.hh"; grep -vi '^date:' "$BEFORE/$f.h" > "$T/$f.hb"
