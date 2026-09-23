@@ -6,11 +6,11 @@
  * License: GPL-2.0-or-later
  *
  * What test_openapi.cpp checks against the source's full table set is checked
- * here against the three tables this tree ships, and the auth the document
- * has to state until the session layer arrives: nhttpd's Basic, on every
- * route above Public, with no second token anywhere. The excluded cases of
- * the imported test are listed in support/run-tests.sh; each assertion here
- * is the part of one of them that holds for this slice.
+ * here against the tables this tree ships. The Basic interim case this file
+ * carried until the session layer arrived is gone with the interim: the
+ * imported cases for the schemes and the second token run again, and what
+ * stays here is the part the source's own cases cannot state for this tree -
+ * the group order with the tables still out, and the one whole-body route.
  */
 
 #include "support/catch.hpp"
@@ -48,56 +48,17 @@ std::vector<std::string> keysOf(const Json::Value &v)
 
 } // namespace
 
-TEST_CASE("the document names nhttpd's Basic and nothing a caller cannot present", "[openapi-basic]")
-{
-	const Json::Value doc = shipped();
-	const Json::Value schemes = doc["components"]["securitySchemes"];
-	REQUIRE(schemes.isObject());
-	REQUIRE(schemes.getMemberNames().size() == 1);
-	REQUIRE(schemes.isMember("basic"));
-	CHECK(schemes["basic"]["type"].asString() == "http");
-	CHECK(schemes["basic"]["scheme"].asString() == "basic");
-	CHECK(schemes["basic"]["description"].asString().find("mod_auth") != std::string::npos);
-
-	const Json::Value paths = doc["paths"];
-	size_t guarded = 0, open = 0;
-	for (Json::ValueConstIterator p = paths.begin(); p != paths.end(); ++p)
-	{
-		for (Json::ValueConstIterator op = p->begin(); op != p->end(); ++op)
-		{
-			CHECK_FALSE(op->isMember("x-csrf-header"));
-			const Json::Value params = (*op)["parameters"];
-			for (Json::ArrayIndex i = 0; i < params.size(); i++)
-				CHECK(params[i]["name"].asString() != "X-CSRF-Token");
-
-			const Json::Value sec = (*op)["security"];
-			REQUIRE(sec.isArray());
-			if ((*op)["x-auth-level"].asString() == "public")
-			{
-				CHECK(sec.size() == 0);
-				open++;
-				continue;
-			}
-			REQUIRE(sec.size() == 1);
-			REQUIRE(sec[0].isMember("basic"));
-			guarded++;
-		}
-	}
-	CHECK(guarded > 0);
-	CHECK(open == 0);
-}
-
 TEST_CASE("the groups of this slice are declared in the order somebody meets this box in", "[openapi-basic]")
 {
 	/* The order the generator states (doc/openapi.cpp, the list above the
 	   tags: sign in, see what is on, change what the box does, the document
-	   last), with the four groups this tree does not serve yet left out:
-	   auth, stream, webtv and webserver. The source's own case for the full
-	   order comes back with the last of them. */
+	   last), with the three groups this tree does not serve yet left out:
+	   stream, webtv and webserver. The source's own case for the full order
+	   comes back with the last of them. */
 	static const char *const meant[] = {
-		"channels", "epg", "timers", "recordings", "osd", "settings", "system",
-		"daemons", "storage", "netfs", "tuner", "plugins", "config", "events",
-		"openapi",
+		"auth", "channels", "epg", "timers", "recordings", "osd", "settings",
+		"system", "daemons", "storage", "netfs", "tuner", "plugins", "config",
+		"events", "openapi",
 	};
 	const size_t count = sizeof(meant) / sizeof(meant[0]);
 

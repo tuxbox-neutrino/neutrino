@@ -17,7 +17,6 @@ AM_CXXFLAGS = -std=c++11 -fno-rtti -fexceptions -Wall -Wextra -Werror=missing-fi
 # the counting seam behind /api/v1/system/legacy-usage (compat/mount.h is
 # this tree's bridge header, stubs/legacy_usage.cpp its counts).
 AM_CPPFLAGS = \
-	-DHTTPD_AUTH_LEGACY_BASIC \
 	-I$(top_builddir) \
 	-I$(srcdir) \
 	-I$(top_srcdir) \
@@ -46,6 +45,7 @@ noinst_LIBRARIES = libhttpd.a
 
 libhttpd_a_SOURCES = \
 	auth.cpp \
+	ep/ep_auth.cpp \
 	ep/ep_channels.cpp \
 	ep/ep_config.cpp \
 	ep/ep_daemons.cpp \

@@ -15,6 +15,27 @@
 BASE="$1"; DOC="$2"; BEFORE="$3"
 [ -n "$BASE" ] && [ -f "$DOC" ] || { echo "usage: $0 <base-url> <openapi.json> [before-dir]" >&2; exit 2; }
 T=`mktemp -d`; trap 'rm -rf "$T"' EXIT
+
+# The box asks for a login since slice 3: reads pass from the lan, writes
+# carry the session and its second token. The credentials default to the
+# dev instance's (migrated out of its nhttpd.conf) and come from the
+# environment for any other box.
+AUTH_USER="${CHECKV1_USER:-root}"
+AUTH_PASS="${CHECKV1_PASS:-root}"
+curl -s -c "$T/jar" -D "$T/hl" -o "$T/bl" -H 'Content-Type: application/json' \
+	-d "{\"user\":\"$AUTH_USER\",\"password\":\"$AUTH_PASS\"}" "$BASE/api/v1/login"
+SID=`awk '$6 == "ni-web-session" {print $7}' "$T/jar" | tail -1`
+CSRF_H=`python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d.get("csrf_header",""))' "$T/bl" 2>/dev/null`
+CSRF_V=`python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d.get("csrf",""))' "$T/bl" 2>/dev/null`
+if [ -n "$SID" ] && [ -n "$CSRF_H" ] && [ -n "$CSRF_V" ]; then
+	pass "login: session and second token issued"
+else
+	fail "login: `head -1 $T/hl | tr -d '\r'` body `cat $T/bl`"
+	echo "failures: $fails"; exit 1
+fi
+AUTH_C="Cookie: ni-web-session=$SID"
+AUTH_X="$CSRF_H: $CSRF_V"
+export CV1_SID="$SID" CV1_CSRF_H="$CSRF_H" CV1_CSRF_V="$CSRF_V"
 fails=0
 pass() { echo "PASS $1"; }
 fail() { echo "FAIL $1"; fails=`expr $fails + 1`; }
@@ -46,7 +67,7 @@ curl -s -D "$T/h4" -o /dev/null -X DELETE "$BASE/api/v1/system/info"
 
 # 5. PUT with an empty JSON body is dispatched: the router refuses the
 #    missing member with 400, which no legacy path and no 501 would say
-curl -s -D "$T/h5" -o "$T/b5" -X PUT -H 'Content-Type: application/json' -d '{}' "$BASE/api/v1/bouquets/0/name"
+curl -s -D "$T/h5" -o "$T/b5" -X PUT -H "$AUTH_C" -H "$AUTH_X" -H 'Content-Type: application/json' -d '{}' "$BASE/api/v1/bouquets/0/name"
 [ "`status $T/h5`" = 400 ] && grep -q '"status":400' "$T/b5" && pass "PUT reaches the router (400 problem)" || fail "PUT status `status $T/h5`"
 
 # 6. raw query reaches the router
@@ -101,7 +122,7 @@ echo "$r10" | grep -q ' 408 ' && [ "`echo "$r10" | awk '{print $NF}' | tr -d s`"
 #     immediate close without reading the rest of the request, which every
 #     client sees as a reset; so the check is "a 501 line or a reset, and
 #     never an answer from a hook".
-for m in 'PUT /control/version' 'PUT /x' 'TRACE /api/v1/system/info'; do
+for m in 'PUT /control/version' 'PUT /x' 'PATCH /control/version' 'TRACE /api/v1/system/info'; do
 	r=`raw "$m HTTP/1.0\r\nHost: box\r\nAccept: */*\r\n\r\n" 10`
 	case "$r" in
 		*" 501 "*|"(nothing) RESET"*) pass "$m refused before any hook ($r)";;
@@ -145,26 +166,26 @@ done
 #     run also proves the descriptor path is binary-safe end to end.
 RF="/tmp/check-v1-range.$$"
 python3 -c "import sys,os; sys.stdout.buffer.write(os.urandom(100000))" > "$RF"
-curl -s -D "$T/h13" -o "$T/b13" "$BASE/api/v1/storage/file?path=$RF"
+curl -s -H "$AUTH_C" -D "$T/h13" -o "$T/b13" "$BASE/api/v1/storage/file?path=$RF"
 if [ "`status $T/h13`" = 200 ]; then
 	cmp -s "$RF" "$T/b13" && [ "`hdr $T/h13 content-length`" = 100000 ] \
 		&& pass "storage file served whole, bytes identical" \
 		|| fail "storage file differs or wrong length (`hdr $T/h13 content-length`)"
 
-	curl -s -H 'Range: bytes=1000-1999' -D "$T/h13a" -o "$T/b13a" "$BASE/api/v1/storage/file?path=$RF"
+	curl -s -H "$AUTH_C" -H 'Range: bytes=1000-1999' -D "$T/h13a" -o "$T/b13a" "$BASE/api/v1/storage/file?path=$RF"
 	dd if="$RF" bs=1 skip=1000 count=1000 2>/dev/null > "$T/want13a"
 	[ "`status $T/h13a`" = 206 ] && [ "`hdr $T/h13a content-range`" = "bytes 1000-1999/100000" ] \
 		&& cmp -s "$T/b13a" "$T/want13a" \
 		&& pass "range inside -> 206 with the stretch" \
 		|| fail "range inside: `status $T/h13a` `hdr $T/h13a content-range`"
 
-	curl -s -H 'Range: bytes=99000-' -D "$T/h13b" -o "$T/b13b" "$BASE/api/v1/storage/file?path=$RF"
+	curl -s -H "$AUTH_C" -H 'Range: bytes=99000-' -D "$T/h13b" -o "$T/b13b" "$BASE/api/v1/storage/file?path=$RF"
 	[ "`status $T/h13b`" = 206 ] && [ "`hdr $T/h13b content-length`" = 1000 ] \
 		&& [ "`hdr $T/h13b content-range`" = "bytes 99000-99999/100000" ] \
 		&& pass "open-ended range -> 206 to the end" \
 		|| fail "open-ended range: `status $T/h13b` `hdr $T/h13b content-range`"
 
-	curl -s -H 'Range: bytes=100000-' -D "$T/h13c" -o "$T/b13c" "$BASE/api/v1/storage/file?path=$RF"
+	curl -s -H "$AUTH_C" -H 'Range: bytes=100000-' -D "$T/h13c" -o "$T/b13c" "$BASE/api/v1/storage/file?path=$RF"
 	[ "`status $T/h13c`" = 416 ] && [ "`hdr $T/h13c content-range`" = "bytes */100000" ] \
 		&& grep -q '"status":416' "$T/b13c" \
 		&& pass "range past the end -> 416 problem with the length" \
@@ -176,7 +197,7 @@ import socket, sys
 base, path = sys.argv[1], sys.argv[2]
 host = base.split('://', 1)[-1].split(':')[0]; port = int(base.rsplit(':', 1)[-1])
 s = socket.create_connection((host, port), timeout=15)
-s.sendall(("HEAD /api/v1/storage/file?path=%s HTTP/1.0\r\nRange: bytes=1000-1999\r\n\r\n" % path).encode())
+s.sendall(("HEAD /api/v1/storage/file?path=" + path + " HTTP/1.0\r\nCookie: ni-web-session=" + __import__("os").environ.get("CV1_SID", "") + "\r\nRange: bytes=1000-1999\r\n\r\n").encode())
 data = b''
 while True:
 	c = s.recv(4096)
@@ -235,8 +256,11 @@ def get_volume():
 	                               base + '/api/v1/osd/volume'], timeout=15)
 	return json.loads(out)['percent']
 def put_volume(value):
+	import os
 	code = subprocess.check_output(['curl', '-s', '-o', '/dev/null',
 		'-w', '%{http_code}', '--max-time', '10', '-X', 'PUT',
+		'-H', 'Cookie: ni-web-session=' + os.environ.get('CV1_SID', ''),
+		'-H', os.environ.get('CV1_CSRF_H', 'X-CSRF-Token') + ': ' + os.environ.get('CV1_CSRF_V', ''),
 		'-H', 'Content-Type: application/json',
 		'-d', '{"percent":%d}' % value, base + '/api/v1/osd/volume'],
 		timeout=15)
@@ -372,6 +396,99 @@ PYEOF
 case "$r15" in
 	PASS*) pass "legacy-usage: seeded table, driven count, stranger remembered";;
 	*) fail "legacy-usage: $r15";;
+esac
+
+# 16. the gate on the wire: a write with nothing is refused, a wrong login
+# is refused the same way, a session mutation needs its second token, and
+# a closed session is worth nothing any more
+curl -s -D "$T/h16a" -o /dev/null -X PUT -H 'Content-Type: application/json' -d '{"percent":50}' "$BASE/api/v1/osd/volume"
+[ "`status $T/h16a`" = 403 ] && pass "write without a credential -> 403" || fail "bare write status `status $T/h16a`"
+
+curl -s -D "$T/h16b" -o /dev/null -H 'Content-Type: application/json' \
+	-d "{\"user\":\"$AUTH_USER\",\"password\":\"definitely-wrong\"}" "$BASE/api/v1/login"
+[ "`status $T/h16b`" = 401 ] && pass "wrong password -> 401" || fail "wrong password status `status $T/h16b`"
+
+curl -s -D "$T/h16c" -o /dev/null -X PUT -H "$AUTH_C" -H 'Content-Type: application/json' -d '{"percent":50}' "$BASE/api/v1/osd/volume"
+[ "`status $T/h16c`" = 403 ] && pass "cookie without the second token -> 403" || fail "csrf-less write status `status $T/h16c`"
+
+curl -s -D "$T/h16d" -o "$T/b16d" -H "$AUTH_C" "$BASE/api/v1/session"
+[ "`status $T/h16d`" = 200 ] && grep -q "\"user\":\"$AUTH_USER\"" "$T/b16d" && pass "session answers its owner" || fail "session: `status $T/h16d` `cat $T/b16d`"
+
+# a second session, closed again, so the main one stays for the sections above
+curl -s -c "$T/jar2" -o "$T/bl2" -H 'Content-Type: application/json' \
+	-d "{\"user\":\"$AUTH_USER\",\"password\":\"$AUTH_PASS\"}" "$BASE/api/v1/login"
+SID2=`awk '$6 == "ni-web-session" {print $7}' "$T/jar2" | tail -1`
+C2H=`python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["csrf_header"])' "$T/bl2"`
+C2V=`python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["csrf"])' "$T/bl2"`
+curl -s -D "$T/h16e" -o /dev/null -X POST -H "Cookie: ni-web-session=$SID2" -H "$C2H: $C2V" "$BASE/api/v1/logout"
+curl -s -D "$T/h16f" -o /dev/null -X PUT -H "Cookie: ni-web-session=$SID2" -H "$C2H: $C2V" -H 'Content-Type: application/json' -d '{"percent":50}' "$BASE/api/v1/osd/volume"
+[ "`status $T/h16e`" = 204 ] && [ "`status $T/h16f`" = 403 ] && pass "logout ends the session (`status $T/h16e`, then `status $T/h16f`)" || fail "logout: `status $T/h16e` then `status $T/h16f`"
+
+# 17. the scoped media token, end to end: minted over the session, read as
+# the one credential in an address, and held to the media roots
+r17=`python3 - "$BASE" <<'PYEOF'
+import json, os, subprocess, sys, tempfile
+base = sys.argv[1]
+sid = os.environ.get('CV1_SID', '')
+csrf_h = os.environ.get('CV1_CSRF_H', 'X-CSRF-Token')
+csrf_v = os.environ.get('CV1_CSRF_V', '')
+auth = ['-H', 'Cookie: ni-web-session=' + sid, '-H', csrf_h + ': ' + csrf_v]
+def curl(args):
+	return subprocess.check_output(['curl', '-s', '--max-time', '10'] + args, timeout=15)
+def recordingdir():
+	d = json.loads(curl([base + '/api/v1/settings/recording']))
+	for item in d.get('items', []):
+		if item.get('id') == 'network_nfs_recordingdir':
+			return item.get('value', '')
+	return ''
+def point_at(path):
+	code = subprocess.check_output(['curl', '-s', '-o', '/dev/null', '-w', '%{http_code}',
+		'--max-time', '10', '-X', 'PATCH', '-H', 'Content-Type: application/json',
+		'-d', json.dumps({'network_nfs_recordingdir': path}),
+		base + '/api/v1/settings/recording'] + auth, timeout=15)
+	return code.strip() in (b'200', b'202', b'204')
+# The recording directory is read first and put back whatever happens: the
+# scope admits it because somebody set it by hand, which is exactly what
+# this section does, through the same surface a person would use.
+before = recordingdir()
+if not before:
+	print('FAIL media token: the recording directory could not be read')
+	sys.exit(0)
+probe_dir = tempfile.mkdtemp(prefix='check-v1-media-')
+name = os.path.join(probe_dir, 'probe.ts')
+moved = False
+try:
+	with open(name, 'wb') as f:
+		f.write(b'0123456789abcdef')
+	if not point_at(probe_dir):
+		print('FAIL media token: the recording directory would not move')
+		sys.exit(0)
+	moved = True
+	minted = json.loads(curl(['-X', 'POST'] + auth + [base + '/api/v1/token/media']))
+	token = minted.get('token', '')
+	if not token:
+		print('FAIL media token: nothing minted: %s' % minted)
+		sys.exit(0)
+	got = curl([base + '/api/v1/storage/file?path=' + name + '&token=' + token])
+	if got != b'0123456789abcdef':
+		print('FAIL media token: file read back %r' % got[:64])
+		sys.exit(0)
+	bare = subprocess.check_output(['curl', '-s', '-o', '/dev/null', '-w', '%{http_code}',
+		'--max-time', '10', base + '/api/v1/storage/file?path=' + name], timeout=15)
+	if bare.strip() != b'403':
+		print('FAIL media token: tokenless read answered %s' % bare)
+		sys.exit(0)
+	print('PASS')
+finally:
+	if moved and not point_at(before):
+		print('FAIL media token: the recording directory could not be put back to %s' % before)
+	os.unlink(name)
+	os.rmdir(probe_dir)
+PYEOF
+`
+case "$r17" in
+	PASS) pass "media token: minted, reads the file, tokenless is refused";;
+	*) fail "media token: $r17";;
 esac
 
 echo "failures: $fails"

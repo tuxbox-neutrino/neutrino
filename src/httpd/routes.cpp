@@ -70,6 +70,7 @@ const RouteTable *const kTables[] = {
 	&storageTable,
 	&netfsTable,
 	&eventsTable,
+	&authTable,
 	&timersTable,
 	&osdTable,
 	&daemonsTable,

@@ -33,15 +33,9 @@ shift
 
 HIDDEN='~[.]'
 
-# the four tables still out (auth, stream, webtv, webserver; the
-# case counts all nineteen groups):
+# the three tables still out (stream, webtv, webserver; the case counts
+# all nineteen groups):
 S1='~"the groups are declared in the order somebody meets this box in"'
-# slice 3 (the session layer; the case reads the bound of the login
-# route's password):
-S2='~"the bounds and the sets a row declares are the ones the document states"'
-# slice 3 (the session layer; until then the document says Basic, see
-# test/unit/httpd/test_openapi_basic.cpp):
-S4='~"what a caller has to present is stated\, and the second token is named where it is wanted"'
 
 # Environment, not code: the case hands a file to owner 1234:5678, which needs
 # CAP_CHOWN. On a box the suite runs as root and the case runs with it; on an
@@ -63,6 +57,6 @@ S7='~"a reload that cannot read the file leaves the server on what it had"'
 # would otherwise hold the suite for ever, and a run that is killed says so
 # with timeout's own exit code instead of hanging silently.
 if command -v timeout >/dev/null 2>&1; then
-	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4$S5$S6$S7" "$@"
+	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7" "$@"
 fi
-exec "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4$S5$S6$S7" "$@"
+exec "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7" "$@"
