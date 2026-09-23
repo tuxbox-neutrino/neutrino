@@ -18,7 +18,8 @@ nobase_install_DATA = \
 	extensions/hallo-yweb/manifest.json \
 	extensions/hallo-yweb/hallo.html \
 	extensions/hallo-yweb/languages/English.json \
-	extensions/hallo-yweb/languages/Deutsch.json
+	extensions/hallo-yweb/languages/Deutsch.json \
+	swagger/index.html
 
 install_DATA = \
 	bouquet-editor.yhtm \
