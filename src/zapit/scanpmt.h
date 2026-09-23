@@ -43,6 +43,7 @@ class CPmt
 		~CPmt();
 
 		bool Parse(CZapitChannel * const channel);
+		bool ParseInternal(CZapitChannel * const channel);
 		bool haveCaSys(int pmtpid, int service_id);
 };
 

@@ -97,6 +97,11 @@ bool CPmt::Parse(CZapitChannel * const channel)
 	if(!Read(channel->getPmtPid(), channel->getServiceId()))
 		return false;
 
+	return ParseInternal(channel);
+}
+
+bool CPmt::ParseInternal(CZapitChannel * const channel)
+{
 	ProgramMapSection pmt(buffer);
 
 	DBG("[pmt] pcr pid: old 0x%x new 0x%x\n", channel->getPcrPid(), pmt.getPcrPid());
