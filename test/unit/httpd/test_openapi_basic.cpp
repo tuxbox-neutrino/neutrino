@@ -87,15 +87,25 @@ TEST_CASE("the document names nhttpd's Basic and nothing a caller cannot present
 	CHECK(open == 0);
 }
 
-TEST_CASE("the groups of this slice are declared in the order the tables are named", "[openapi-basic]")
+TEST_CASE("the groups of this slice are declared in the order somebody meets this box in", "[openapi-basic]")
 {
+	/* The order the generator states (doc/openapi.cpp, the list above the
+	   tags: sign in, see what is on, change what the box does, the document
+	   last), with the five groups this tree does not serve yet left out:
+	   auth, events, stream, webtv and webserver. The source's own case for the
+	   full order comes back with the last of them. */
+	static const char *const meant[] = {
+		"channels", "epg", "timers", "recordings", "osd", "settings", "system",
+		"daemons", "storage", "netfs", "tuner", "plugins", "config", "openapi",
+	};
+	const size_t count = sizeof(meant) / sizeof(meant[0]);
+
 	const Json::Value doc = shipped();
 	const Json::Value tags = doc["tags"];
 	REQUIRE(tags.isArray());
-	REQUIRE(tags.size() == 3);
-	CHECK(tags[0]["name"].asString() == "channels");
-	CHECK(tags[1]["name"].asString() == "system");
-	CHECK(tags[2]["name"].asString() == "openapi");
+	REQUIRE(tags.size() == count);
+	for (size_t i = 0; i < count; ++i)
+		CHECK(tags[(Json::ArrayIndex) i]["name"].asString() == meant[i]);
 }
 
 TEST_CASE("the one route of this slice that takes a whole body says so", "[openapi-basic]")

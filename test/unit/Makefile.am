@@ -189,7 +189,7 @@ EXTRA_DIST = support/catch.hpp support/run-tests.sh support/fakes.h support/rcfi
 # to the order the directories are built in.
 BUILT_SOURCES = $(top_builddir)/src/tools/rcsim.h openapi.json settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
 	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt
-CLEANFILES = openapi.json settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
+CLEANFILES = openapi.json api.d.ts.tmp settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
 	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt \
 	counts.actual
 
@@ -257,6 +257,20 @@ openapi.json: FORCE
 FORCE:
 .PHONY: FORCE
 
+# The TypeScript shapes a page reads are written out of the document by
+# The source's generator, taken as written. It refuses a document naming fewer
+# than forty addresses or twenty shapes, so it only became runnable with the
+# tables of slice 2a. Run where node is and said to be skipped where it is
+# not: a box build carries no node, and a check that has not run is not a
+# check that passed.
+check-api-types: openapi.json
+	@if command -v node >/dev/null 2>&1; then \
+		node $(top_srcdir)/test/web/openapi-types.js openapi.json api.d.ts.tmp && rm -f api.d.ts.tmp; \
+	else \
+		echo "check-api-types: no node on this host, the type generator was not run"; \
+	fi
+.PHONY: check-api-types
+
 # check-narrowing.sh is shipped beside these and is deliberately not run here.
 # It drives the two guards in the router that compare a value with itself
 # narrowed to a long, and where a long is eight bytes the compiler removes them:
@@ -298,3 +312,4 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-standby-abort.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-standby-wake.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-zap-standby.sh $(top_srcdir)
+	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
