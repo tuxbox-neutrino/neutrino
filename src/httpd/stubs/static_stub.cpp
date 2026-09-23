@@ -7,9 +7,11 @@
  * License: GPL-2.0-or-later
  *
  * The source's static.cpp serves its pages; nhttpd serves ours. What the
- * OpenAPI route still needs from it is the reading of Accept-Encoding,
- * so the document can go out gzipped where the caller takes it. The
- * function and its helpers are taken as written.
+ * routes still need from it is the reading of Accept-Encoding, so the
+ * OpenAPI document can go out gzipped where the caller takes it, and
+ * the naming of a content type from a file name, which the storage
+ * routes put on the files they hand out. The functions and their
+ * helpers are taken as written.
  */
 
 #include "httpd/static.h"
