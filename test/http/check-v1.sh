@@ -6,7 +6,8 @@
 #   openapi.json the document the dump tool wrote from the same build
 #   before-dir  optional: directory with legacy answers captured before the
 #               change (control-getbouquets.txt, control-getversion.txt,
-#               page.txt) to compare header+body byte for byte
+#               page.txt) to compare header+body byte for byte, the
+#               three time headers excepted
 #
 # Prints one line per check, PASS or FAIL, and exits non-zero on any FAIL.
 # Needs curl, gzip, cmp and python3 (for the raw-socket cases).
@@ -116,7 +117,9 @@ if [ -n "$BEFORE" ] && [ -d "$BEFORE" ]; then
 	for f in control-getbouquets control-getmode page; do
 		[ -f "$BEFORE/$f.url" ] || continue
 		curl -s -D "$T/$f.h" -o "$T/$f.b" "$BASE`cat $BEFORE/$f.url`"
-		grep -vi '^date:' "$T/$f.h" > "$T/$f.hh"; grep -vi '^date:' "$BEFORE/$f.h" > "$T/$f.hb"
+		# Date is now; Last-Modified is now for a dynamic answer; Expires is now
+		# plus a day for a cached page. Everything else has to match.
+		grep -viE '^(date|last-modified|expires):' "$T/$f.h" > "$T/$f.hh"; grep -viE '^(date|last-modified|expires):' "$BEFORE/$f.h" > "$T/$f.hb"
 		cmp -s "$T/$f.hh" "$T/$f.hb" && cmp -s "$T/$f.b" "$BEFORE/$f.b" && pass "legacy $f byte-identical" || fail "legacy $f differs"
 	done
 fi
