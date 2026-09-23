@@ -135,6 +135,7 @@ neutrino_LDADD = \
 	-lutil \
 	-lOpenThreads \
 	-lrt -lpthread \
+	-lcrypto \
 	-lz
 
 # LCD display

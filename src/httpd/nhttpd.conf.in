@@ -1,0 +1,42 @@
+# The configuration of a web server that is no longer part of this tree, and
+# the one thing of that server's that had to stay behind.
+#
+# A box upgraded from an older image still has the file this template installed,
+# and the first start after the upgrade reads it for the address, the user name,
+# the password and the port that box was reached on. That reading is
+# src/httpd/webconfig.cpp; what holds it to the real shape of the file is this
+# template, which the suite hands it in place of a transcription, so a line the
+# migration cannot carry is found here rather than on somebody's box.
+#
+# Nothing generates this any more and nothing installs it. The three names
+# between at signs below are what the build used to substitute; they stand for
+# directories and carry no separator, so a reader passes them on as values the
+# way it passes on any other.
+#
+# It stays for as long as boxes come here from images that had that server,
+# which is years, and it is not the place to describe anything this program
+# does. The server's own settings are ni-web.conf.
+Language.directory=languages
+Language.selected=Deutsch
+Tuxbox.LogosURL=@TARGET_PUBLIC_HTTPDDIR@/logo
+WebsiteMain.directory=@TARGET_PRIVATE_HTTPDDIR@
+WebsiteMain.override_directory=@TARGET_PUBLIC_HTTPDDIR@
+WebsiteMain.port=80
+WebsiteMain.host=0.0.0.0
+WebsiteMain.hosted_directory=@TARGET_HOSTED_HTTPDDIR@
+configfile.version=5
+mod_auth.authenticate=false
+mod_auth.no_auth_client=
+mod_auth.password=ni
+mod_auth.username=root
+mod_cache.cache_directory=/tmp/.cache
+mod_sendfile.mime_types=htm:text/html,html:text/html,xml:text/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/bmp,css:text/css,js:text/plain,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:application/octet-stream,tar:application/octet-stream,gz:text/x-gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/avi,mp3:audio/mpeg,ogg:audio/ogg
+mod_weblog.log_format=
+mod_weblog.logfile=/tmp/yhttpd.log
+server.chroot=
+server.group_name=
+server.log.loglevel=0
+server.no_keep-alive_ips=
+server.user_name=
+webserver.threading=false
+webserver.websites=WebsiteMain

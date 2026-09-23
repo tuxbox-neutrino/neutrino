@@ -45,6 +45,7 @@ endif
 noinst_LIBRARIES = libhttpd.a
 
 libhttpd_a_SOURCES = \
+	auth.cpp \
 	ep/ep_channels.cpp \
 	ep/ep_config.cpp \
 	ep/ep_daemons.cpp \
@@ -59,28 +60,32 @@ libhttpd_a_SOURCES = \
 	ep/ep_timers.cpp \
 	ep/ep_tuner.cpp \
 	byterange.cpp \
+	credentials.cpp \
 	http.cpp \
 	json.cpp \
+	netmatch.cpp \
 	nhttpd_bridge.cpp \
 	doc/openapi.cpp \
 	request.cpp \
 	router.cpp \
 	routes.cpp \
 	status.cpp \
-	stubs/auth_names.cpp \
 	stubs/descriptor.cpp \
 	events.cpp \
 	stubs/legacy_usage.cpp \
+	stubs/server_nhttpd.cpp \
 	stubs/static_stub.cpp \
-	stubs/webconfig_stub.cpp
+	webconfig.cpp
 
 noinst_HEADERS = \
 	auth.h \
 	byterange.h \
 	compat/mount.h \
+	credentials.h \
 	endpoint.h \
 	endpoints.h \
 	events.h \
+	randomsource.h \
 	http.h \
 	json.h \
 	netmatch.h \
@@ -147,7 +152,12 @@ check-answer-sets:
 .PHONY: check-sources check-no-constructors check-answer-sets
 all-local: check-sources check-no-constructors check-answer-sets
 
-EXTRA_DIST = check-answer-sets.sh
+# nhttpd.conf.in is the old server's configuration template. Here it is not
+# a leftover: nhttpd is alive and this is the shape of its file, which the
+# migration reader (webconfig.cpp) reads a box's credentials and port out of
+# on the first start without a ni-web.conf. The suite holds the reader to
+# this template (NI_WEB_OLD_CONF).
+EXTRA_DIST = check-answer-sets.sh nhttpd.conf.in
 
 # The document without a server: the same tables, the same bytes. Built on
 # request (make openapi-dump), used by the unit tests and by the type

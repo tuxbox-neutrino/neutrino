@@ -34,6 +34,7 @@ AM_CPPFLAGS = \
 	-DCOREAPI_COUNTS_FILE='"$(srcdir)/support/counts.txt"' \
 	-DCOREAPI_COUNTS_ACTUAL='"$(abs_builddir)/counts.actual"' \
 	-DHTTPD_OPENAPI_DUMP='"$(abs_builddir)/openapi.json"' \
+	-DNI_WEB_OLD_CONF='"$(top_srcdir)/src/httpd/nhttpd.conf.in"' \
 	@HWLIB_CFLAGS@
 
 AUTOMAKE_OPTIONS = subdir-objects
@@ -88,7 +89,10 @@ coreapi_tests_SOURCES = \
 	httpd/test_router.cpp \
 	httpd/test_httpjson.cpp \
 	httpd/test_byterange.cpp \
+	httpd/test_credentials.cpp \
 	httpd/test_legacy_usage.cpp \
+	httpd/test_netmatch.cpp \
+	httpd/test_webconfig.cpp \
 	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
 	support/helperstubs.cpp

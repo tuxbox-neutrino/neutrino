@@ -33,6 +33,23 @@
 #define IMAGE_METADATA_FILE TARGET_ROOT "/etc/image-version"
 
 #define NEUTRINO_SETTINGS_FILE CONFIGDIR "/neutrino.conf"
+/* Beside the program's own settings and not inside them, because what is in it
+   is a credential and a policy about who may reach the box, which the settings
+   file is copied over and rewritten wholesale on every save. Absent on a box
+   nobody has configured, and the API layer then runs on what it declares as
+   its own defaults. */
+#define NI_WEB_SETTINGS_FILE CONFIGDIR "/ni-web.conf"
+/* nhttpd's own file. In the source's tree this names a removed server's leftover;
+   here nhttpd is alive, owns and keeps writing it. The migration reader
+   (src/httpd/webconfig.cpp) reads it once, on the first start without a
+   ni-web.conf, for the address, the user name, the password and the port -
+   so the API layer starts with the credentials this box already has - and
+   that reader never writes it.
+
+   Named beside the file above because the two are one question asked twice,
+   and because the storage layer refuses to hand out either of them; the check
+   that holds those two lists together reads both names from here. */
+#define NI_WEB_OLD_SETTINGS_FILE CONFIGDIR "/nhttpd.conf"
 #define NEUTRINO_SCAN_SETTINGS_FILE CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE DATADIR "/neutrino/.plocked"
 

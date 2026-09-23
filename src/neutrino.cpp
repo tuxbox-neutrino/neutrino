@@ -60,6 +60,7 @@
 #include <coreapi/settings/settings.h>
 #include <coreapi/base/deps.h>
 #include <coreapi/base/messagebridge.h>
+#include <httpd/webconfig.h>
 #include <gui/settings_appliers.h>
 
 static bool saveNeutrinoSettings();
@@ -3313,6 +3314,24 @@ TIMER_START();
 	// The size the box draws at, which is kept beside the settings rather than
 	// in them: the save writes that copy and not the member.
 	installOsdResolutionSource();
+
+	/* First, because the file read below is the one this writes. A box with
+	 * no file of its own gets one here on every start until it has one: with
+	 * the user name and the password out of nhttpd's own file where there is
+	 * one to carry, the password hashed rather than copied, and with the
+	 * login the image ships otherwise. Unlike the source's tree nothing moves
+	 * here - nhttpd stays the server and keeps its port - so the file seeds
+	 * the API layer's credentials and policy, not a relocation. */
+	if (httpd::ensureConfigFile(NI_WEB_OLD_SETTINGS_FILE, NI_WEB_SETTINGS_FILE))
+		printf("[neutrino] ni-web configuration written to %s\n", NI_WEB_SETTINGS_FILE);
+
+	/* The file is read for what it says and its absence is not a failure: a
+	 * box that had neither file has none, and the API layer then runs on
+	 * what it declares as its own defaults. A file that is there and
+	 * unreadable leaves the same defaults in effect and says so on the
+	 * standard error. Before the webserver thread, so no request is ever
+	 * answered against a configuration that is still being replaced. */
+	httpd::load(NI_WEB_SETTINGS_FILE);
 
 	pthread_t nhttpd_thread;
 	if (!pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL))
