@@ -26,12 +26,27 @@ not the dedicated server of those forks, and <code>/control/</code> stays what i
 <tr><td><code>GET /api/openapi.json</code></td><td>the document; gzipped when the caller's <code>Accept-Encoding</code> takes it</td></tr>
 <tr><td><code>/api/v1/system/...</code></td><td>the box, standby, reboot, shutdown, restart, the daemons</td></tr>
 <tr><td><code>/api/v1/channels...</code>, <code>/api/v1/bouquets...</code>, <code>/api/v1/zap</code>, <code>/api/v1/mode</code></td><td>the channel lists, the bouquets and their editing, the logos</td></tr>
+<tr><td><code>/api/v1/epg...</code></td><td>the guide: what is on, a channel's schedule, a search</td></tr>
+<tr><td><code>/api/v1/timers...</code>, <code>/api/v1/recordings...</code></td><td>the timers and their making, what has been recorded</td></tr>
+<tr><td><code>/api/v1/osd...</code></td><td>volume, mute, messages on the screen, the remote's keys</td></tr>
+<tr><td><code>/api/v1/settings...</code></td><td>the declared settings, their schema, reading and writing them</td></tr>
+<tr><td><code>/api/v1/storage...</code></td><td>mounts, directories, the files on them, network shares</td></tr>
+<tr><td><code>/api/v1/tuner...</code>, <code>/api/v1/plugins...</code>, <code>/api/v1/config...</code></td><td>the signal, the plugins, the configuration files</td></tr>
 </table>
 <p>
 What each route takes and answers is in the document; read it from the box or
 build it without one: <code>make -C src/httpd openapi-dump</code> writes the
-same bytes the route answers. The remaining tables known from compatible forks (EPG, timers,
-recordings, settings, storage, plugins, tuner, stream) follow table by table.
+same bytes the route answers. Fourteen of the nineteen tables known from compatible forks are served;
+the five that lean on the dedicated server of compatible forks (the event stream, sessions, the
+stream and web-TV relays, the server's own start and stop) follow with the
+transport work each needs.
+</p>
+<p>
+The TypeScript shapes of the API are written out of the document by
+<code>test/web/openapi-types.js</code>, taken over unchanged, as compatible forks ship it:
+<code>node test/web/openapi-types.js openapi.json api.d.ts</code>. Nothing
+generated is committed; a page that wants the types runs the generator against
+the document its build produced.
 </p>
 
 <h2>Answers</h2>
@@ -79,8 +94,11 @@ routes declare (read, write, system) are recorded in the document as
 answer path; a route that would answer with a stream is refused with 501</li>
 <li>files above 8 MiB: a file answer is read whole into the body; larger ones
 wait for a descriptor path in nhttpd</li>
-<li>sessions, tokens, per-route levels: the session layer</li>
-<li>the remaining route tables</li>
+<li>sessions, tokens, per-route levels: the session layer, and with it the
+auth table and the webserver table, as compatible forks have them</li>
+<li>the stream and web-TV relays (<code>/api/v1/stream...</code>,
+<code>/api/v1/webtv...</code>): they hand a long-lived connection to a
+program or a remote server, which is the same streaming path as the events</li>
 </ul>
 
 <h2>Where things are</h2>
