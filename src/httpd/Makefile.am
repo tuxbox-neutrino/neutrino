@@ -59,6 +59,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_recordings.cpp \
 	ep/ep_settings.cpp \
 	ep/ep_storage.cpp \
+	ep/ep_stream.cpp \
 	ep/ep_system.cpp \
 	ep/ep_timers.cpp \
 	ep/ep_tuner.cpp \
@@ -71,6 +72,7 @@ libhttpd_a_SOURCES = \
 	hlsrewrite.cpp \
 	http.cpp \
 	json.cpp \
+	livestream.cpp \
 	login_bridge.cpp \
 	netmatch.cpp \
 	nhttpd_bridge.cpp \
@@ -100,6 +102,7 @@ noinst_HEADERS = \
 	randomsource.h \
 	http.h \
 	json.h \
+	livestream.h \
 	login_bridge.h \
 	netmatch.h \
 	nhttpd_bridge.h \

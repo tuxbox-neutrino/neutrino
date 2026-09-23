@@ -98,6 +98,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_settingstable.cpp \
 	coreapi/test_settingsappliers.cpp \
 	coreapi/test_browserplay.cpp \
+	coreapi/test_streaming.cpp \
 	coreapi/test_settingsfields.cpp \
 	coreapi/test_endpoints_read.cpp \
 	coreapi/test_endpoints_write.cpp \
