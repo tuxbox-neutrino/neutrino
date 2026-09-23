@@ -58,6 +58,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_system.cpp \
 	ep/ep_timers.cpp \
 	ep/ep_tuner.cpp \
+	byterange.cpp \
 	http.cpp \
 	json.cpp \
 	nhttpd_bridge.cpp \
@@ -74,6 +75,7 @@ libhttpd_a_SOURCES = \
 
 noinst_HEADERS = \
 	auth.h \
+	byterange.h \
 	endpoint.h \
 	endpoints.h \
 	events.h \
