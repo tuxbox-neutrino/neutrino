@@ -124,5 +124,20 @@ if [ -n "$BEFORE" ] && [ -d "$BEFORE" ]; then
 	done
 fi
 
+# 12. one read route per group slice 2a added: each answers JSON with the
+#     API headers, or a problem the router built (netfs and config take a
+#     name, so a missing one has to come back as the router's 404/400 and
+#     never as anything nhttpd made up). daemons has no read route.
+for r in epg?channel=0 settings/schema storage/mounts timers osd/volume tuner/signal plugins recordings 'storage/netfs/none' 'config/none'; do
+	curl -s -D "$T/h12" -o "$T/b12" "$BASE/api/v1/$r"
+	st=`status $T/h12`
+	ct=`hdr $T/h12 content-type`
+	case "$st:$ct" in
+		200:application/json*|4*:application/problem+json*) pass "/api/v1/$r -> $st $ct";;
+		*) fail "/api/v1/$r -> $st $ct";;
+	esac
+	[ "`count $T/h12 cache-control`" = 1 ] || fail "/api/v1/$r cache-control count"
+done
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]
