@@ -4844,6 +4844,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
+	else if (msg == NeutrinoMessages::EVT_STOP_TIMESHIFT) {
+		/* Not the same as ending that recording by its number: this also stops
+		   the box from starting the next shift on its own, which is what makes
+		   it the end of shifting rather than the end of one file. */
+		CRecordManager::getInstance()->StopAutoRecord();
+		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+		return messages_return::handled;
+	}
 	else if (msg == NeutrinoMessages::EVT_STREAM_START) {
 		printf("NeutrinoMessages::EVT_STREAM_START\n");
 		wakeupFromStandby();
@@ -5190,6 +5198,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if( mode == NeutrinoModes::mode_avinput ) {
 			AVInputMode( false );
 		}
+	}
+	else if (msg == NeutrinoMessages::EVT_RELOAD_PLUGINS) {
+		/* Here and not at whatever asked for it: the list this rebuilds is the
+		   one the screens draw from, and the screens are drawn from this
+		   thread. */
+		if (g_Plugins)
+			g_Plugins->loadPlugins();
+		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_START_PLUGIN) {
 		/* A request from outside (web interface, timer) reaches this also
