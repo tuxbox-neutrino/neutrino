@@ -105,6 +105,9 @@ Result<std::vector<SettingChoice> > choices(const std::string &key);
    itself did and is the whole reason this exists. */
 bool resolveLabel(const char *key, std::string &out);
 
+// Called once changed settings are saved, from a menu or a write alike.
+void announceSettingsChanged();
+
 } // namespace settings
 } // namespace coreapi
 

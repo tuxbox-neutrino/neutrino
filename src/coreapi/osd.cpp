@@ -22,6 +22,7 @@
 #include "coreapi/base/errors.h"
 
 #include "coreapi/base/deps.h"
+#include "coreapi/base/eventbus.h"
 
 #include <cstdio>
 #include <utility>
@@ -84,6 +85,14 @@ Result<void> setVolume(int percent)
 	return postEvent(BoxEvent::SetVolume, &value, sizeof(value));
 }
 
+void announceVolume(int percent)
+{
+	Event e;
+	e.type = EventType::Volume;
+	e.value = percent;
+	EventBus::instance().publish(e);
+}
+
 Result<bool> muted()
 {
 	bool out = false;
@@ -98,6 +107,14 @@ Result<void> setMuted(bool on)
 {
 	char value = on ? 1 : 0;
 	return postEvent(BoxEvent::SetMute, &value, sizeof(value));
+}
+
+void announceMute(bool on)
+{
+	Event e;
+	e.type = EventType::Mute;
+	e.value = on ? 1 : 0;
+	EventBus::instance().publish(e);
 }
 
 namespace

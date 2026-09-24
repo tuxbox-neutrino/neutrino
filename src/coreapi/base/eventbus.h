@@ -35,7 +35,7 @@ enum class EventType
 	Zap, Mode, Standby, Volume, Mute,
 	RecordStart, RecordStop,
 	TimerChanged, EpgUpdated,
-	BouquetsChanged
+	BouquetsChanged, SettingsChanged
 };
 
 // A value type by construction: the message payloads this is fed from are

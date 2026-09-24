@@ -81,6 +81,10 @@ struct NeutrinoMessages
 		/* Posted by the last string input to close, when a message that puts
 		   values into the settings waited for the inputs (CStringInputOpen). */
 		STRING_INPUTS_CLOSED			= CRCInput::RC_Messages + 31,
+		APPLY_SETTINGS				= CRCInput::RC_Messages + 29,
+
+		// timerd's own list changed, whoever caused it
+		EVT_TIMERLIST_CHANGED			= CRCInput::RC_Messages + 30,
 
 		/* END of CRCInput::RC_Messages */
 
@@ -134,11 +138,14 @@ struct NeutrinoMessages
 
 		/* sectionsd */
 		EVT_RELOAD_XMLTV			= CRCInput::RC_Events + 63,
-		/* settings written from outside the menus (coreapi), applied on the loop's own thread */
-		APPLY_SETTINGS				= CRCInput::RC_Messages + 29,
-		/* from the web layer, read on the loop's own thread so the plugin list is not rebuilt under the screens */
+
+		/* from nhttpd, read on the loop's own thread so that the list the
+		   screens draw from is not rebuilt under them */
 		EVT_RELOAD_PLUGINS			= CRCInput::RC_Events + 64,
-		/* from the web layer: starting and ending the shift allocates a tuner and moves the live channel */
+
+		/* from nhttpd, read on the loop's own thread because starting and
+		   ending the shift allocates a tuner and moves the live channel, which
+		   is work only the thread that owns those may do */
 		EVT_START_TIMESHIFT			= CRCInput::RC_Events + 65,
 		EVT_STOP_TIMESHIFT			= CRCInput::RC_Events + 66,
 

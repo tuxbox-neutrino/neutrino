@@ -59,8 +59,14 @@ Result<int> volume();
 // not fit one arrives as a different volume rather than as the loudest.
 Result<void> setVolume(int percent);
 
+// Called where the level is applied, whoever asked for it.
+void announceVolume(int percent);
+
 Result<bool> muted();
 Result<void> setMuted(bool on);
+
+// Called where the mute flag changes, whoever asked for it.
+void announceMute(bool on);
 
 /* Above every name the box's own table carries, with room for the ones it gains
    later, and here rather than at the route so that a longer name is turned away

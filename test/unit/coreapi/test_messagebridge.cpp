@@ -30,6 +30,7 @@
 
 #include "coreapi/base/eventbus.h"
 #include "coreapi/base/messagebridge.h"
+#include "coreapi/osd.h"
 #include "coreapi/system.h"
 
 using namespace coreapi;
@@ -159,12 +160,26 @@ TEST_CASE("the box says which way it went once it has", "[messagebridge]")
 	REQUIRE(c.seen[1].value == 0);
 }
 
-TEST_CASE("a volume change reports the level", "[messagebridge]")
+// The wish, as with standby: the handset never sends either message.
+TEST_CASE("asking to set the volume or the mute is not an event", "[messagebridge]")
 {
 	Collector c;
 	EventBus::instance().subscribe(&c);
 
 	publishFromMessage(NeutrinoMessages::EVT_SET_VOLUME, 42);
+	publishFromMessage(NeutrinoMessages::EVT_SET_MUTE, 1);
+
+	EventBus::instance().unsubscribe(&c);
+
+	REQUIRE(c.seen.empty());
+}
+
+TEST_CASE("the box says what the level became once it has", "[messagebridge]")
+{
+	Collector c;
+	EventBus::instance().subscribe(&c);
+
+	coreapi::osd::announceVolume(42);
 
 	EventBus::instance().unsubscribe(&c);
 
@@ -177,13 +192,13 @@ TEST_CASE("a volume change reports the level", "[messagebridge]")
    the silence draws a box at fifty seven per cent that is making no sound, and
    a second browser turning the sound off is a change nothing on the first one
    reports. */
-TEST_CASE("a mute reports the state that was asked for", "[messagebridge]")
+TEST_CASE("the box says what the mute became once it has", "[messagebridge]")
 {
 	Collector c;
 	EventBus::instance().subscribe(&c);
 
-	publishFromMessage(NeutrinoMessages::EVT_SET_MUTE, 1);
-	publishFromMessage(NeutrinoMessages::EVT_SET_MUTE, 0);
+	coreapi::osd::announceMute(true);
+	coreapi::osd::announceMute(false);
 
 	EventBus::instance().unsubscribe(&c);
 
@@ -245,6 +260,19 @@ TEST_CASE("each recording that begins and ends says which one it was", "[message
 	REQUIRE(c.seen[2].type == EventType::RecordStop);
 	REQUIRE(c.seen[2].channel_id == 0x2b66);
 	REQUIRE(c.seen[2].value == 7);
+}
+
+TEST_CASE("timerd's list-changed event reports without a payload", "[messagebridge]")
+{
+	Collector c;
+	EventBus::instance().subscribe(&c);
+
+	publishFromMessage(NeutrinoMessages::EVT_TIMERLIST_CHANGED, 0);
+
+	EventBus::instance().unsubscribe(&c);
+
+	REQUIRE(c.seen.size() == 1);
+	REQUIRE(c.seen[0].type == EventType::TimerChanged);
 }
 
 /* EVT_TIMER is the expiry of a timer the remote control layer holds, one of

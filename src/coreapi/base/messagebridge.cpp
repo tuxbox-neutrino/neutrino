@@ -114,33 +114,21 @@ void publishFromMessage(const neutrino_msg_t msg, const neutrino_msg_data_t data
 
 		/* STANDBY_ON and STANDBY_OFF say nothing here: they are the wish, and
 		   the box may refuse it or drop it half way. It says what happened
-		   instead, once it has (system::announceStandby). */
+		   instead, once it has (system::announceStandby).
 
-		// the level itself, widened from the char that crossed the socket
-		case NeutrinoMessages::EVT_SET_VOLUME:
-			type = EventType::Volume;
-			value = (int) data;
-			break;
-
-		/* The state that was asked for, in the same char the level crosses in.
-		   Read here and not from the box, because this runs ahead of the branch
-		   that applies the message and what the box holds now is still the state
-		   before it.
-
-		   The mute key of the handset is not this message. It reaches the loop
-		   as RC_mute and is a toggle, so what it leaves behind is not in the
-		   message and there is nothing here to publish; what a reader misses by
-		   that is a mute made at the box itself. */
-		case NeutrinoMessages::EVT_SET_MUTE:
-			type = EventType::Mute;
-			value = (int) data;
-			break;
+		   EVT_SET_VOLUME and EVT_SET_MUTE are wishes as well, and the handset
+		   never sends them (osd::announceVolume, osd::announceMute). */
 
 		/* EVT_RECORDMODE is deliberately not here. It says whether the box is
 		   recording at all and not which recording, and the zapit side sends it
 		   only where that answer changes, so a second recording starting and a
 		   first of two ending carry no message. What the stream says about
 		   recordings comes from the two calls below instead. */
+
+		// Carries no id: a reader rereads the whole list.
+		case NeutrinoMessages::EVT_TIMERLIST_CHANGED:
+			type = EventType::TimerChanged;
+			break;
 
 		default:
 			return;

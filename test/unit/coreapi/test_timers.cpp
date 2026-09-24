@@ -82,11 +82,8 @@ struct Recorder : public Subscriber
 
 } // anonymous namespace
 
-/* Nothing the message loop sends says a timer changed, so a reader that keeps
-   timers has no way to learn that another reader changed one. The announcement
-   is made where the change is known to have been taken, and it has to carry
-   which timer it was. */
-TEST_CASE("a timer that was taken is announced", "[timers]")
+// timerd announces every change itself (test_messagebridge.cpp).
+TEST_CASE("a timer written through coreapi announces nothing on its own", "[timers]")
 {
 	FakeTimerSource fake;
 	InstalledTimerSource installed(&fake);
@@ -94,19 +91,15 @@ TEST_CASE("a timer that was taken is announced", "[timers]")
 
 	Result<uint32_t> created = timers::create(goodRecording());
 	REQUIRE(created.ok());
-	REQUIRE(listener.countOf(EventType::TimerChanged) == 1);
-	REQUIRE(listener.seen.back().value == (int) created.value());
 
 	TimerInfo changed = goodRecording();
 	changed.id = created.value();
 	changed.stop = 4000;
 	REQUIRE(timers::modify(changed).ok());
-	REQUIRE(listener.countOf(EventType::TimerChanged) == 2);
-	REQUIRE(listener.seen.back().value == (int) created.value());
 
 	REQUIRE(timers::remove(created.value()).ok());
-	REQUIRE(listener.countOf(EventType::TimerChanged) == 3);
-	REQUIRE(listener.seen.back().value == (int) created.value());
+
+	REQUIRE(listener.countOf(EventType::TimerChanged) == 0);
 }
 
 TEST_CASE("a change the box did not take is not announced", "[timers]")

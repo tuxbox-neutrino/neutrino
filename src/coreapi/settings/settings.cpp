@@ -22,6 +22,7 @@
 
 #include "coreapi/base/deps.h"
 #include "coreapi/base/errors.h"
+#include "coreapi/base/eventbus.h"
 #include "settingstable.h"
 
 #include <vector>
@@ -461,6 +462,13 @@ bool resolveLabel(const char *key, std::string &out)
 	if (key == NULL)
 		return false;
 	return localeSource().text(key, out) == Status::Ok;
+}
+
+void announceSettingsChanged()
+{
+	Event e;
+	e.type = EventType::SettingsChanged;
+	EventBus::instance().publish(e);
 }
 
 } // namespace settings

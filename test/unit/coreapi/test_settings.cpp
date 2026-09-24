@@ -21,6 +21,7 @@
 #include "support/catch.hpp"
 #include "coreapi/settings/settings.h"
 #include "coreapi/base/deps.h"
+#include "coreapi/base/eventbus.h"
 #include "coreapi/settings/settingsfield.h"
 #include "coreapi/settings/settingstable.h"
 #include "support/fakes.h"
@@ -1618,4 +1619,28 @@ TEST_CASE("resolveLabel is false, not the key, for a name the installed catalog 
 	// back as itself, only as false with nothing written.
 	REQUIRE_FALSE(settings::resolveLabel("videomenu.videoformat_XYZ", out));
 	CHECK(out == "unchanged");
+}
+
+namespace
+{
+
+struct SettingsWatcher : public Subscriber
+{
+	std::vector<Event> seen;
+
+	SettingsWatcher() { EventBus::instance().subscribe(this); }
+
+	void onEvent(const Event &e) { seen.push_back(e); }
+};
+
+} // anonymous namespace
+
+TEST_CASE("announceSettingsChanged puts one SettingsChanged event on the bus", "[settings]")
+{
+	SettingsWatcher watch;
+
+	settings::announceSettingsChanged();
+
+	REQUIRE(watch.seen.size() == 1);
+	REQUIRE(watch.seen[0].type == EventType::SettingsChanged);
 }
