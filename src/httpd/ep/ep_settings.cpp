@@ -249,11 +249,11 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 			   what makes true. A schema entry is not the compiler, so this still asks, and answers
 			   the one way a resolve that somehow failed could be told apart from one that held:
 			   leaving the field out rather than answering a choice with its key. */
-			std::string label;
-			if (coreapi::settings::resolveLabel(d.values[i].label_key, label))
+			std::string text;
+			if (coreapi::settings::resolveLabel(d.values[i].label_key, text))
 			{
 				j.key("label");
-				j.value(label);
+				j.value(text);
 			}
 			j.endObject();
 		}
