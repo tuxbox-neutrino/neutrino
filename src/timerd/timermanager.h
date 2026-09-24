@@ -248,6 +248,7 @@ public:
 	static CTimerManager* getInstance();
 
 	CEventServer* getEventServer() {return eventServer;};
+	void announceListChanged();
 	int addEvent(CTimerEvent*,bool save = true);
 	bool removeEvent(int eventID);
 	bool stopEvent(int eventID);

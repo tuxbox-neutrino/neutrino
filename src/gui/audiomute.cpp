@@ -30,6 +30,7 @@
 #endif
 #include <global.h>
 #include <neutrino.h>
+#include <coreapi/osd.h>
 #include <hardware/video.h>
 #include <driver/display.h>
 #include <gui/infoclock.h>
@@ -69,6 +70,9 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 		cGLCD::unlockIcon(cGLCD::MUTE);
 #endif
 	neutrino->setCurrentMuted(newValue);
+	// Also called to reassert the state already in force.
+	if (doInit)
+		coreapi::osd::announceMute(newValue);
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	if (g_settings.hdmi_cec_volume)
 		hdmi_cec::getInstance()->toggle_mute();

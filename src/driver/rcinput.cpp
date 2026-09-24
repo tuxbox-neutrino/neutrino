@@ -1343,6 +1343,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
+							case CTimerdClient::EVT_TIMERLIST_CHANGED :
+								*msg = NeutrinoMessages::EVT_TIMERLIST_CHANGED;
+								*data = 0;
+								break;
 							default :
 								printf("[neutrino] event INITID_TIMERD - unknown eventID 0x%x\n",  emsg.eventID );
 
