@@ -91,12 +91,13 @@ TEST_CASE("the groups of this slice are declared in the order somebody meets thi
 {
 	/* The order the generator states (doc/openapi.cpp, the list above the
 	   tags: sign in, see what is on, change what the box does, the document
-	   last), with the five groups this tree does not serve yet left out:
-	   auth, events, stream, webtv and webserver. The source's own case for the
-	   full order comes back with the last of them. */
+	   last), with the four groups this tree does not serve yet left out:
+	   auth, stream, webtv and webserver. The source's own case for the full
+	   order comes back with the last of them. */
 	static const char *const meant[] = {
 		"channels", "epg", "timers", "recordings", "osd", "settings", "system",
-		"daemons", "storage", "netfs", "tuner", "plugins", "config", "openapi",
+		"daemons", "storage", "netfs", "tuner", "plugins", "config", "events",
+		"openapi",
 	};
 	const size_t count = sizeof(meant) / sizeof(meant[0]);
 

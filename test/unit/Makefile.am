@@ -62,6 +62,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_bouquetorder.cpp \
 	coreapi/test_epg.cpp \
 	coreapi/test_timers.cpp \
+	coreapi/test_sse.cpp \
 	coreapi/test_commandsink.cpp \
 	coreapi/test_postpayload.cpp \
 	coreapi/test_system.cpp \

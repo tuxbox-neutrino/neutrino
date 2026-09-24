@@ -22,6 +22,7 @@
 
 #include "endpoint.h"
 #include "endpoints.h"
+#include "events.h"
 #include "doc/openapi.h"
 
 #include <cstddef>
@@ -59,15 +60,16 @@ const RouteTable *installed = NULL;
    which is why a module states a whole table and not an array and a count. */
 const RouteTable *const kTables[] = {
 	/* On nhttpd, in the source's order, leaving out the tables that need the
-	   server the source put beneath them: events (a long-lived stream), auth
-	   (sessions), stream and webtv (the relays) and webserver (the server's
-	   own start and stop). Those follow with the transport work they need. */
+	   server the source put beneath them: auth (sessions), stream and webtv
+	   (the relays) and webserver (the server's own start and stop). Those
+	   follow with the transport work they need. */
 	&channelsTable,
 	&epgTable,
 	&settingsTable,
 	&systemTable,
 	&storageTable,
 	&netfsTable,
+	&eventsTable,
 	&timersTable,
 	&osdTable,
 	&daemonsTable,

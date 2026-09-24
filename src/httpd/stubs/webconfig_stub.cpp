@@ -24,13 +24,33 @@ WebConfig defaultWebConfig()
 {
 	WebConfig c = WebConfig();
 	c.channel_logos = true;
+	/* The one other value a route reads: how many event streams this server
+	   carries at once. The source's shipped default; value-initialised it would
+	   be nought, which is a ceiling of none and a stream route that answers
+	   nothing but 503. Eight of nhttpd's fifty connection threads may sit in
+	   a stream for as long as a reader stays - a bound, not a reservation. */
+	c.sse_max_streams = 8;
 	return c;
 }
 
-const WebConfig &config()
+namespace
+{
+WebConfig &held()
 {
 	static WebConfig current = defaultWebConfig();
 	return current;
+}
+} // namespace
+
+const WebConfig &config()
+{
+	return held();
+}
+
+// The seam the suite uses, same shape as the source's webconfig.cpp.
+void setConfigForTest(const WebConfig &c)
+{
+	held() = c;
 }
 
 } // namespace httpd

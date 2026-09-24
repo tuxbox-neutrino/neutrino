@@ -48,7 +48,7 @@ locale names the program has	3187
 options an applier or its notifier branches on	50
 parameters the document describes	128
 refusals the header names	13
-routes the document describes	97
+routes the document describes	98
 rows an applier acts on	26
 rows compared against the load and save pass	368
 rows in a section with an applier	309

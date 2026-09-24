@@ -32,16 +32,14 @@ shift
 
 HIDDEN='~[.]'
 
-# the five tables still out (events, auth, stream, webtv, webserver; the
+# the four tables still out (auth, stream, webtv, webserver; the
 # case counts all nineteen groups):
 S1='~"the groups are declared in the order somebody meets this box in"'
 # slice 3 (the session layer; the case reads the bound of the login
 # route's password):
 S2='~"the bounds and the sets a row declares are the ones the document states"'
-# slice 2 (the event stream):
-S3='~"the route that answers with a stream says so rather than saying nothing"'
 # slice 3 (the session layer; until then the document says Basic, see
 # test/unit/httpd/test_openapi_basic.cpp):
 S4='~"what a caller has to present is stated\, and the second token is named where it is wanted"'
 
-exec "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S3$S4" "$@"
+exec "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4" "$@"

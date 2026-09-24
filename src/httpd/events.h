@@ -28,10 +28,10 @@
 #include <cstddef>
 #include <string>
 
-/* Declared rather than included, so this header costs the library's headers nothing:
-   the only thing wanted from it here is a connection to hand back to the transport,
-   and the file that does hand it back includes the library anyway. */
-struct MHD_Connection;
+/* DELIBERATE DRIFT from the source's events.h (see events.cpp's head): nhttpd
+   carries a stream on the thread of the connection it arrived on, so what a
+   caller hands over is the socket's descriptor and a write function, not a
+   library connection. Everything else in this header is as written. */
 
 namespace httpd
 {
@@ -114,10 +114,32 @@ enum Opened
 	StreamFailed
 };
 
-/* Attaches a stream to this connection, carrying over the media type and the headers
-   the handler wrote. Called from the access handler and from nowhere else, the library
-   allowing a response to be queued for a live connection only from there. */
-Opened openStream(struct MHD_Connection *connection, const Response &r, Response &refusal);
+/* The registration a caller holds between opening a stream and pumping it.
+   Opaque: what is behind it belongs to this file's lock. */
+typedef void *StreamHandle;
+
+/* One block of the stream, handed to the caller's socket. Answers false when
+   the peer did not take it, which ends the stream. Called with no lock of
+   this file's held. */
+typedef bool (*StreamWrite)(void *ctx, const char *bytes, size_t n);
+
+/* Registers a stream on this descriptor: the seat is counted and the opening
+   frames are seeded before this answers, so a caller that writes its header
+   next cannot lose an event published in between. On StreamOpened the handle
+   is the caller's to spend, on exactly one of two calls: pumpStream(), or
+   closeStream() for a stream whose header never made it out. The descriptor
+   itself stays the caller's; it is named here only so a reaped stream can be
+   shut down under a blocked send. */
+Opened openStream(int fd, StreamHandle &out, Response &refusal);
+
+/* Runs the stream on the calling thread until it ends: waits beside the
+   lock, draws what is pending in blocks, and hands each block to write. Ends
+   on a refused write, over the ceiling, or when the stream is closed, and
+   gives the registration back on every way out. */
+void pumpStream(StreamHandle h, StreamWrite write, void *ctx);
+
+// Gives back a registration that was never pumped.
+void closeStream(StreamHandle h);
 
 /* How long one stream may be silent before a comment frame is sent down it, measured
    per stream from whatever last went into it and not from a clock the whole server

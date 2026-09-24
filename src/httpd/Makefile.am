@@ -69,7 +69,7 @@ libhttpd_a_SOURCES = \
 	status.cpp \
 	stubs/auth_names.cpp \
 	stubs/descriptor.cpp \
-	stubs/events_stub.cpp \
+	events.cpp \
 	stubs/static_stub.cpp \
 	stubs/webconfig_stub.cpp
 
