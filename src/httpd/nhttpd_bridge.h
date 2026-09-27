@@ -29,6 +29,26 @@ namespace httpd
 struct Response;
 }
 
+namespace nhttpd_bridge
+{
+/* What the transport does with a whole-file answer of a known length once
+   the request's Range header (raw value, empty for none) is read against
+   it: the code to state, the stretch to send, and the Content-Range line
+   where one belongs. Only a 200 takes ranges - everything else sends the
+   whole file under its own code, which is what the source's server does. A 416
+   sends no file at all; the caller answers with a problem document that
+   carries content_range, so a caller that asked past the end can work out
+   what to ask for without fetching anything. */
+struct FdPlan
+{
+	int code;
+	uint64_t offset;
+	uint64_t length;
+	std::string content_range;
+};
+FdPlan planFdAnswer(int code, uint64_t file_length, const std::string &range_header);
+}
+
 class CApiBridge : public Cyhook
 {
 public:

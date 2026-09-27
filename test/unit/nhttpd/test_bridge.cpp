@@ -265,7 +265,7 @@ TEST_CASE("an answer shape nhttpd cannot carry yet is refused as 501 by the brid
 	CHECK(e.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
 }
 
-TEST_CASE("a file answer is read into the body and the descriptor is closed", "[bridge]")
+TEST_CASE("a file answer hands the descriptor to the transport", "[bridge]")
 {
 	Attached a;
 	char name[] = "/tmp/test_bridge_XXXXXX";
@@ -284,10 +284,15 @@ TEST_CASE("a file answer is read into the body and the descriptor is closed", "[
 	CApiBridge::answerWith(&h.hh, r);
 	CHECK(h.hh.httpStatus == HTTP_OK);
 	CHECK(h.hh.ResponseMimeType == "image/png");
-	REQUIRE(h.hh.yresult.size() == sizeof(bytes));
-	CHECK(h.hh.yresult[3] == '\0');
-	// the descriptor was handed over and is closed now
-	CHECK(fcntl(fd, F_GETFD) == -1);
+	CHECK(h.hh.status == HANDLED_SENDFD);
+	CHECK(h.hh.yresult.empty());
+	REQUIRE(h.hh.SendFd == fd);
+	CHECK(h.hh.SendFdOffset == 0);
+	CHECK(h.hh.SendFdLength == (off_t) sizeof(bytes));
+	// still open: the transport sends it and closes it
+	CHECK(fcntl(fd, F_GETFD) != -1);
+	close(h.hh.SendFd);
+	h.hh.SendFd = -1;
 	unlink(name);
 }
 
@@ -312,41 +317,128 @@ TEST_CASE("the bridge and the request reader classify the same targets", "[bridg
 	CHECK(CyhookHandler::isApiTarget(enc.hh.UrlData["url"]));
 }
 
-TEST_CASE("a file answer this server cannot carry is refused and the descriptor closed", "[bridge]")
+TEST_CASE("a file past the old ceiling is handed over, not refused", "[bridge]")
 {
 	Attached a;
 	char name[] = "/tmp/test_bridge_XXXXXX";
+	int fd = mkstemp(name);
+	REQUIRE(fd >= 0);
+	httpd::Response r;
+	r.code = 200;
+	r.content_type = "video/mp2t";
+	r.fd = fd;
+	r.length = (uint64_t) 9 << 20;
+	Handler h(M_GET, "/api/v1/recordings/1");
+	CApiBridge::answerWith(&h.hh, r);
+	CHECK(h.hh.httpStatus == HTTP_OK);
+	CHECK(h.hh.status == HANDLED_SENDFD);
+	CHECK(h.hh.SendFdLength == (off_t) ((uint64_t) 9 << 20));
+	CHECK(fcntl(fd, F_GETFD) != -1);
+	close(h.hh.SendFd);
+	h.hh.SendFd = -1;
+	unlink(name);
+}
 
-	SECTION("a file past the ceiling is not read")
+TEST_CASE("a ranged ask against a file answer", "[bridge]")
+{
+	Attached a;
+	char name[] = "/tmp/test_bridge_XXXXXX";
+	int fd = mkstemp(name);
+	REQUIRE(fd >= 0);
+	REQUIRE(write(fd, "0123456", 7) == 7);
+	lseek(fd, 0, SEEK_SET);
+
+	httpd::Response r;
+	REQUIRE(httpd::answerFromDescriptor(r, fd));
+	r.code = 200;
+	r.content_type = "image/png";
+
+	SECTION("a stretch inside the file is 206 and the stretch")
 	{
-		int fd = mkstemp(name);
-		REQUIRE(fd >= 0);
-		httpd::Response r;
-		r.code = 200;
-		r.content_type = "video/mp2t";
-		r.fd = fd;
-		r.length = (uint64_t) 9 << 20;
-		Handler h(M_GET, "/api/v1/recordings/1");
-		CApiBridge::answerWith(&h.hh, r);
-		CHECK(h.hh.httpStatus == HTTP_INTERNAL_SERVER_ERROR);
-		CHECK(h.hh.yresult.find("\"status\":500") != std::string::npos);
-		CHECK(fcntl(fd, F_GETFD) == -1);
-		unlink(name);
-	}
-	SECTION("a file shorter than it said is not answered as whole")
-	{
-		int fd = mkstemp(name);
-		REQUIRE(fd >= 0);
-		REQUIRE(write(fd, "abc", 3) == 3);
-		httpd::Response r;
-		r.code = 200;
-		r.content_type = "image/png";
-		r.fd = fd;
-		r.length = 10;
 		Handler h(M_GET, "/api/v1/channels/1/logo");
+		h.hh.HeaderList["Range"] = "bytes=2-4";
 		CApiBridge::answerWith(&h.hh, r);
-		CHECK(h.hh.httpStatus == HTTP_INTERNAL_SERVER_ERROR);
+		CHECK(h.hh.httpStatus == HTTP_PARTIAL_CONTENT);
+		CHECK(h.hh.status == HANDLED_SENDFD);
+		CHECK(h.hh.SendFdOffset == 2);
+		CHECK(h.hh.SendFdLength == 3);
+		bool found = false;
+		for (size_t i = 0; i < h.hh.ResponseHeaders.size(); i++)
+			if (h.hh.ResponseHeaders[i].first == "Content-Range"
+					&& h.hh.ResponseHeaders[i].second == "bytes 2-4/7")
+				found = true;
+		CHECK(found);
+		close(h.hh.SendFd);
+		h.hh.SendFd = -1;
+	}
+	SECTION("a stretch past the end is a problem document and the file is closed")
+	{
+		Handler h(M_GET, "/api/v1/channels/1/logo");
+		h.hh.HeaderList["Range"] = "bytes=7-";
+		CApiBridge::answerWith(&h.hh, r);
+		CHECK(h.hh.httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE);
+		CHECK(h.hh.status == HANDLED_READY);
+		CHECK(h.hh.SendFd == -1);
+		CHECK(h.hh.yresult.find("\"status\":416") != std::string::npos);
+		bool found = false;
+		for (size_t i = 0; i < h.hh.ResponseHeaders.size(); i++)
+			if (h.hh.ResponseHeaders[i].first == "Content-Range"
+					&& h.hh.ResponseHeaders[i].second == "bytes */7")
+				found = true;
+		CHECK(found);
 		CHECK(fcntl(fd, F_GETFD) == -1);
-		unlink(name);
+	}
+	unlink(name);
+}
+
+TEST_CASE("a whole-file answer takes one range where the caller asked", "[bridge]")
+{
+	using nhttpd_bridge::FdPlan;
+
+	SECTION("no header: the whole file under its own code")
+	{
+		FdPlan p = nhttpd_bridge::planFdAnswer(200, 10, "");
+		CHECK(p.code == 200);
+		CHECK(p.offset == 0);
+		CHECK(p.length == 10);
+		CHECK(p.content_range.empty());
+	}
+	SECTION("a stretch inside is 206 with the stretch")
+	{
+		FdPlan p = nhttpd_bridge::planFdAnswer(200, 10, "bytes=3-6");
+		CHECK(p.code == 206);
+		CHECK(p.offset == 3);
+		CHECK(p.length == 4);
+		CHECK(p.content_range == "bytes 3-6/10");
+	}
+	SECTION("an open end runs to the end of the file")
+	{
+		FdPlan p = nhttpd_bridge::planFdAnswer(200, 10, "bytes=6-");
+		CHECK(p.code == 206);
+		CHECK(p.offset == 6);
+		CHECK(p.length == 4);
+		CHECK(p.content_range == "bytes 6-9/10");
+	}
+	SECTION("a suffix longer than the file is the file, said as a stretch")
+	{
+		FdPlan p = nhttpd_bridge::planFdAnswer(200, 10, "bytes=-20");
+		CHECK(p.code == 206);
+		CHECK(p.offset == 0);
+		CHECK(p.length == 10);
+		CHECK(p.content_range == "bytes 0-9/10");
+	}
+	SECTION("a stretch past the end is refused with the length")
+	{
+		FdPlan p = nhttpd_bridge::planFdAnswer(200, 10, "bytes=10-");
+		CHECK(p.code == 416);
+		CHECK(p.content_range == "bytes */10");
+	}
+	SECTION("an answer that is not a 200 is sent whole, range unread")
+	{
+		FdPlan p = nhttpd_bridge::planFdAnswer(500, 10, "bytes=3-6");
+		CHECK(p.code == 500);
+		CHECK(p.offset == 0);
+		CHECK(p.length == 10);
+		CHECK(p.content_range.empty());
 	}
 }

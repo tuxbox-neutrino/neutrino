@@ -8,6 +8,7 @@
 
 #include "nhttpd_bridge.h"
 
+#include "httpd/byterange.h"
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
 #include "httpd/router.h"
@@ -28,11 +29,6 @@
 
 namespace
 {
-
-// The most of a file answer that is read into memory and sent as a body.
-// Logos and config documents are kilobytes; anything larger waits for a
-// descriptor path in nhttpd.
-const size_t kFileCeiling = 8u << 20;
 
 const char kPrefixApi[] = "/api/v1";
 const char kPrefixDoc[] = "/api/openapi.json";
@@ -95,38 +91,71 @@ struct HeldDescriptor
 		if (fd >= 0)
 			close(fd);
 	}
+	// hands the descriptor on; whoever took it closes it
+	int take()
+	{
+		int taken = fd;
+		fd = -1;
+		return taken;
+	}
 private:
 	HeldDescriptor(const HeldDescriptor &);
 	HeldDescriptor &operator=(const HeldDescriptor &);
 };
 
-bool readWhole(int fd, size_t length, std::string &out)
+/* The two spellings a Content-Range has, written once so no two sites can
+   disagree about the syntax, as compatible forks do in their server. Cast
+   to the widest the format has: the values are sixty four bits wide. */
+std::string sentRange(uint64_t first, uint64_t last, uint64_t length)
 {
-	out.clear();
-	out.reserve(length);
-	if (lseek(fd, 0, SEEK_SET) == (off_t) -1)
-		return false;
-	char buf[65536];
-	while (out.size() < length)
-	{
-		size_t want = length - out.size();
-		if (want > sizeof(buf))
-			want = sizeof(buf);
-		ssize_t n = read(fd, buf, want);
-		if (n < 0)
-		{
-			if (errno == EINTR)
-				continue;
-			return false;
-		}
-		if (n == 0)
-			break;
-		out.append(buf, (size_t) n);
-	}
-	return out.size() == length;
+	char buf[96];
+	std::snprintf(buf, sizeof(buf), "bytes %llu-%llu/%llu",
+	              (unsigned long long) first, (unsigned long long) last,
+	              (unsigned long long) length);
+	return std::string(buf);
+}
+
+std::string noSuchRange(uint64_t length)
+{
+	char buf[64];
+	std::snprintf(buf, sizeof(buf), "bytes */%llu", (unsigned long long) length);
+	return std::string(buf);
 }
 
 } // namespace
+
+namespace nhttpd_bridge
+{
+
+FdPlan planFdAnswer(int code, uint64_t file_length, const std::string &range_header)
+{
+	FdPlan plan;
+	plan.code = code;
+	plan.offset = 0;
+	plan.length = file_length;
+	if (code != 200)
+		return plan;
+
+	uint64_t first = 0;
+	uint64_t last = 0;
+	const httpd::RangeAnswer asked = httpd::byteRangeOf(range_header, file_length, first, last);
+	if (asked == httpd::RangeAnswer::Partial)
+	{
+		plan.code = 206;
+		plan.offset = first;
+		plan.length = last - first + 1;
+		plan.content_range = sentRange(first, last, file_length);
+	}
+	else if (asked == httpd::RangeAnswer::Unsatisfiable)
+	{
+		plan.code = 416;
+		plan.length = 0;
+		plan.content_range = noSuchRange(file_length);
+	}
+	return plan;
+}
+
+} // namespace nhttpd_bridge
 
 CApiBridge::CApiBridge()
 {
@@ -245,22 +274,35 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 
 	if (fd >= 0)
 	{
-		if (r.length > kFileCeiling)
+		/* The file is not read here: the descriptor, the first byte and the
+		   count go to the transport (HANDLED_SENDFD), which writes the header
+		   with the stretch's length and sends the bytes out of the file. One
+		   stretch where the caller asked for one, and here rather than at a
+		   handler, for the same reason compatible forks hold it at the door of
+		   their server: a route that worked the arithmetic out itself would be
+		   the one a caller cannot resume a download from. */
+		const nhttpd_bridge::FdPlan plan = nhttpd_bridge::planFdAnswer(
+				r.code, r.length, header_value(hh->HeaderList, "Range"));
+		if (plan.code == 416)
 		{
-			takeProblem(hh, 500, coreapi::ErrorCode::BoxUnreadable,
-			            "the file is larger than this server hands out in one answer");
+			// the problem document is the body; held closes the file
+			takeProblem(hh, 416, coreapi::ErrorCode::RangeOutsideFile,
+			            "the stretch that was asked for is not in this file");
+			hh->ResponseHeaders.push_back(std::make_pair(
+					std::string("Content-Range"), plan.content_range));
 			return;
 		}
-		const bool ok = readWhole(fd, (size_t) r.length, hh->yresult);
-		if (!ok)
-		{
-			takeProblem(hh, 500, coreapi::ErrorCode::BoxUnreadable,
-			            "the file could not be read whole");
-			return;
-		}
+		if (!plan.content_range.empty())
+			hh->ResponseHeaders.push_back(std::make_pair(
+					std::string("Content-Range"), plan.content_range));
+		hh->httpStatus = (HttpResponseType) plan.code;
+		hh->SendFd = held.take();
+		hh->SendFdOffset = (off_t) plan.offset;
+		hh->SendFdLength = (off_t) plan.length;
+		hh->status = HANDLED_SENDFD;
+		return;
 	}
-	else
-		hh->yresult = r.body;
 
+	hh->yresult = r.body;
 	hh->status = HANDLED_READY;
 }
