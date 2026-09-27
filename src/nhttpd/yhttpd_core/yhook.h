@@ -80,6 +80,7 @@ typedef enum
 	HANDLED_SENDFILE,		// Set new URL and Send File
 	HANDLED_REWRITE,		// Set new URL and call Hooks again
 	HANDLED_CONTINUE,		// handled but go on
+	HANDLED_SENDFD,			// Send the hook's descriptor (api_mode)
 
 } THandleStatus;
 typedef std::list<Cyhook *> THookList;
@@ -138,6 +139,14 @@ public:
 	off_t		ContentLength;		// Length of Response Body
 	off_t		RangeStart;		// Start of range, used for sendfile only
 	off_t		RangeEnd;		// End of range, used for sendfile only
+	// A file the answer is (HANDLED_SENDFD): the transport writes the header
+	// with SendFdLength as the length, sends that many bytes from SendFdOffset
+	// out of SendFd unless the method is HEAD, and closes the descriptor.
+	// Owned here from the moment a hook writes it; session_init closes a
+	// leftover one, so an aborted exchange leaks nothing.
+	int		SendFd;			// answer body from this descriptor, -1 = none
+	off_t		SendFdOffset;		// first byte to send
+	off_t		SendFdLength;		// how many bytes to send
 	time_t 		LastModified;		// Last Modified Time of Item to send / -1 dynamic content
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;

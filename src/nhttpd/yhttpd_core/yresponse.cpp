@@ -107,6 +107,24 @@ bool CWebserverResponse::SendResponse() {
 				return false;
 
 			Connection->HookHandler.Hooks_SendResponse();
+			if (Connection->HookHandler.status == HANDLED_SENDFD) {
+				// An answer that is a file: header with the stretch's length,
+				// then the bytes straight out of the descriptor. The handler
+				// owns the descriptor; it is closed here on every path, and
+				// session_init would catch one an aborted exchange left.
+				int filed = Connection->HookHandler.SendFd;
+				Write(Connection->HookHandler.BuildHeader());
+				bool sent = true;
+				if (Connection->Method != M_HEAD)
+					sent = Connection->sock->SendFile(filed,
+							Connection->HookHandler.SendFdOffset,
+							Connection->HookHandler.SendFdLength);
+				if (!sent)
+					Connection->RequestCanceled = true;
+				close(filed);
+				Connection->HookHandler.SendFd = -1;
+				return sent;
+			}
 			if ((Connection->HookHandler.status == HANDLED_READY)
 					|| (Connection->HookHandler.status == HANDLED_CONTINUE)) {
 				log_level_printf(2, "Response Hook Output. Status:%d\n", Connection->HookHandler.status);

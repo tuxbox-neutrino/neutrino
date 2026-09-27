@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <strings.h>
+#include <unistd.h>
 
 // UTF8 convert
 #include <zapit/zapit.h>
@@ -24,6 +25,9 @@ CyhookHandler::CyhookHandler()
 	ContentLength = 0;
 	RangeStart = 0;
 	RangeEnd = -1;
+	SendFd = -1;
+	SendFdOffset = 0;
+	SendFdLength = 0;
 	cached = false;
 	keep_alive = 0;
 	_outIndent = 0;
@@ -205,6 +209,12 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 	RawBody.clear();
 	RawBodyTooLarge = false;
 	api_mode = false;
+	// a descriptor a broken-off exchange left behind
+	if (SendFd >= 0)
+		close(SendFd);
+	SendFd = -1;
+	SendFdOffset = 0;
+	SendFdLength = 0;
 	ResponseHeaders.clear();
 	status = HANDLED_NONE;
 	httpStatus = HTTP_OK;
@@ -741,8 +751,10 @@ std::string CyhookHandler::BuildApiHeader() {
 			continue;
 		result += ResponseHeaders[i].first + ": " + ResponseHeaders[i].second + "\r\n";
 	}
-	// HEAD included: the length is that of the answer a GET would carry
-	result += string_printf("Content-Length: %lld\r\n", (long long) yresult.length());
+	// HEAD included: the length is that of the answer a GET would carry.
+	// An answer that is a file states the stretch of it the transport sends.
+	result += string_printf("Content-Length: %lld\r\n",
+			(SendFd >= 0) ? (long long) SendFdLength : (long long) yresult.length());
 	result += "\r\n";
 	return result;
 }

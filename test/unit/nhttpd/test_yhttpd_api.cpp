@@ -20,6 +20,7 @@
 #include "ysocket.h"
 #include "ytypes_globals.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <thread>
@@ -389,5 +390,69 @@ TEST_CASE("Discard swallows a body that was refused so the refusal can be read",
 	}
 	if (fd[1] >= 0)
 		close(fd[1]);
+	s.close();
+}
+
+TEST_CASE("the api header states a descriptor's length, not the body's", "[nhttpd]")
+{
+	CyhookHandler hh = apiHandler(M_GET, HTTP_OK, "");
+	hh.SendFd = 0;
+	hh.SendFdLength = 1234;
+	std::string header = hh.BuildHeader();
+	CHECK(header.find("Content-Length: 1234\r\n") != std::string::npos);
+
+	CyhookHandler head = apiHandler(M_HEAD, HTTP_OK, "");
+	head.SendFd = 0;
+	head.SendFdLength = 77;
+	CHECK(head.BuildHeader().find("Content-Length: 77\r\n") != std::string::npos);
+}
+
+TEST_CASE("a fresh session carries no descriptor", "[nhttpd]")
+{
+	CyhookHandler hh;
+	CHECK(hh.SendFd == -1);
+	hh.SendFd = 0;
+	hh.SendFdLength = 5;
+	CStringList none, config;
+	hh.session_init(none, none, none, config, M_GET, false);
+	CHECK(hh.SendFd == -1);
+	CHECK(hh.SendFdLength == 0);
+}
+
+TEST_CASE("SendFile hands the asked stretch out of the file", "[nhttpd]")
+{
+	char path[] = "/tmp/ytest-sendfile-XXXXXX";
+	int filed = mkstemp(path);
+	REQUIRE(filed >= 0);
+	unlink(path);
+	REQUIRE(write(filed, "0123456789", 10) == 10);
+
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket s(fd[0]);
+	s.isOpened = true;
+	s.isValid = true;
+
+	char buf[16] = { 0 };
+	SECTION("a window inside the file")
+	{
+		CHECK(s.SendFile(filed, 3, 4));
+		REQUIRE(read(fd[1], buf, sizeof(buf)) == 4);
+		CHECK(std::string(buf, 4) == "3456");
+	}
+	SECTION("no size means from the offset to the end")
+	{
+		CHECK(s.SendFile(filed, 6, -1));
+		REQUIRE(read(fd[1], buf, sizeof(buf)) == 4);
+		CHECK(std::string(buf, 4) == "6789");
+	}
+	SECTION("a window that is the whole file")
+	{
+		CHECK(s.SendFile(filed, 0, 10));
+		REQUIRE(read(fd[1], buf, sizeof(buf)) == 10);
+		CHECK(std::string(buf, 10) == "0123456789");
+	}
+	close(fd[1]);
+	close(filed);
 	s.close();
 }

@@ -340,7 +340,8 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 		return false;
 	// does not work with SSL !!!
 	struct stat st;
-	fstat(filed, &st);
+	if (fstat(filed, &st) != 0)
+		return false;
 	off_t left = st.st_size - start;
 	off_t written = 0;
 	if (size > -1 && size < left)
@@ -352,6 +353,8 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 	while (left > 0) {
 		// split sendfile() transfer to smaller chunks to reduce memory-mapping requirements
 		if((written = ::sendfile(sock, filed, &start, std::min((off_t) 0x8000000LL, left))) == -1) {
+			if (errno == EINTR)
+				continue;
 			if (errno != EPIPE)
 				perror("sendfile failed");
 			if (errno != EINVAL)
@@ -372,12 +375,21 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 		::lseek(filed, start, SEEK_SET);
 
 		char sbuf[65536];
-		while (left && (written = read(filed, sbuf, std::min((off_t) sizeof(sbuf), left))) > 0) {
-			if (Send(sbuf, written) < 0) {
+		for (;;) {
+			written = read(filed, sbuf, std::min((off_t) sizeof(sbuf), left));
+			if (written < 0 && errno == EINTR)
+				continue;
+			if (written < 0)
+				return false;
+			if (written == 0 || left == 0)
+				break;
+			// all of what was read, not whatever one send took
+			if (!SendAll(sbuf, (size_t) written)) {
 				if (errno != EPIPE)
 					perror("send failed");
 				return false;
 			}
+			BytesSend += written;
 			left -= written;
 		}
 	}
