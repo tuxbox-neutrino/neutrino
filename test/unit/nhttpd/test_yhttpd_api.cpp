@@ -26,6 +26,7 @@
 #include <thread>
 #include <vector>
 
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -395,28 +396,41 @@ TEST_CASE("Discard swallows a body that was refused so the refusal can be read",
 
 TEST_CASE("the api header states a descriptor's length, not the body's", "[nhttpd]")
 {
+	// a descriptor the test owns, never the process's own 0
+	int fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
+	REQUIRE(fd >= 0);
+
 	CyhookHandler hh = apiHandler(M_GET, HTTP_OK, "");
-	hh.SendFd = 0;
+	hh.SendFd = fd;
 	hh.SendFdLength = 1234;
 	std::string header = hh.BuildHeader();
 	CHECK(header.find("Content-Length: 1234\r\n") != std::string::npos);
 
 	CyhookHandler head = apiHandler(M_HEAD, HTTP_OK, "");
-	head.SendFd = 0;
+	head.SendFd = fd;
 	head.SendFdLength = 77;
 	CHECK(head.BuildHeader().find("Content-Length: 77\r\n") != std::string::npos);
+
+	hh.SendFd = -1;
+	head.SendFd = -1;
+	close(fd);
 }
 
 TEST_CASE("a fresh session carries no descriptor", "[nhttpd]")
 {
+	int fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
+	REQUIRE(fd >= 0);
+
 	CyhookHandler hh;
 	CHECK(hh.SendFd == -1);
-	hh.SendFd = 0;
+	hh.SendFd = fd;
 	hh.SendFdLength = 5;
 	CStringList none, config;
 	hh.session_init(none, none, none, config, M_GET, false);
 	CHECK(hh.SendFd == -1);
 	CHECK(hh.SendFdLength == 0);
+	// and the descriptor it held was really closed, not merely forgotten
+	CHECK(fcntl(fd, F_GETFD) == -1);
 }
 
 TEST_CASE("SendFile hands the asked stretch out of the file", "[nhttpd]")
