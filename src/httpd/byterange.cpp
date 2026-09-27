@@ -94,6 +94,7 @@ RangeAnswer byteRangeOf(const std::string &header, uint64_t length,
 	uint64_t from = 0;
 	uint64_t to = 0;
 	bool have_from = false;
+	bool empty_suffix = false;
 
 	if (at < header.size() && header[at] == '-')
 	{
@@ -104,10 +105,17 @@ RangeAnswer byteRangeOf(const std::string &header, uint64_t length,
 		uint64_t suffix = 0;
 		if (!digitsAt(header, at, suffix))
 			return RangeAnswer::Whole;
+		/* The refusal for a suffix of no bytes waits below, behind the check
+		   that the header holds nothing further: a second stretch or trailing
+		   junk after it makes the header one this does not read, and that is
+		   the whole file, not a refusal. */
 		if (suffix == 0 || length == 0)
-			return RangeAnswer::Unsatisfiable;
-		from = (suffix >= length) ? 0 : length - suffix;
-		to = length - 1;
+			empty_suffix = true;
+		else
+		{
+			from = (suffix >= length) ? 0 : length - suffix;
+			to = length - 1;
+		}
 	}
 	else
 	{
@@ -144,6 +152,8 @@ RangeAnswer byteRangeOf(const std::string &header, uint64_t length,
 	if (at != header.size())
 		return RangeAnswer::Whole;
 
+	if (empty_suffix)
+		return RangeAnswer::Unsatisfiable;
 	if (have_from && (length == 0 || from >= length))
 		return RangeAnswer::Unsatisfiable;
 	if (to >= length)

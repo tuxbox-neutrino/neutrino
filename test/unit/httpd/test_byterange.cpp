@@ -241,3 +241,26 @@ TEST_CASE("a stretch of a file larger than four bytes of length is read whole", 
 	REQUIRE(first == 5368709120ULL);
 	REQUIRE(last == 5368709220ULL);
 }
+
+/* Added here rather than upstream: the three cases the suffix branch's early
+   refusal used to skip past the trailing-content check. Candidates to offer
+   upstream with the fix in byterange.cpp. */
+TEST_CASE("an empty suffix does not shadow what follows it", "[byterange]")
+{
+	uint64_t first = kUntouched;
+	uint64_t last = kUntouched;
+	SECTION("a second stretch after it is still more than one stretch")
+	{
+		REQUIRE(read("bytes=-0,0-1", kLength, first, last) == RangeAnswer::Whole);
+	}
+	SECTION("trailing junk after it is still a header this does not read")
+	{
+		REQUIRE(read("bytes=-0junk", kLength, first, last) == RangeAnswer::Whole);
+	}
+	SECTION("alone it is still the refusal it was")
+	{
+		REQUIRE(read("bytes=-0", kLength, first, last) == RangeAnswer::Unsatisfiable);
+	}
+	REQUIRE(first == kUntouched);
+	REQUIRE(last == kUntouched);
+}
