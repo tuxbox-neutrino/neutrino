@@ -383,13 +383,13 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 				return false;
 			if (written == 0 || left == 0)
 				break;
-			// all of what was read, not whatever one send took
+			// all of what was read, not whatever one send took; Send()
+			// inside SendAll() already counts the bytes
 			if (!SendAll(sbuf, (size_t) written)) {
 				if (errno != EPIPE)
 					perror("send failed");
 				return false;
 			}
-			BytesSend += written;
 			left -= written;
 		}
 	}
