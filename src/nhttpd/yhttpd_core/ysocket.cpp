@@ -354,6 +354,11 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 				return false;
 			break;
 		} else {
+			// EOF before the length the fstat above promised: the file was
+			// truncated while it was being sent. Zero forever, not progress;
+			// without this the loop spins on it.
+			if (written == 0)
+				return false;
 			BytesSend += written;
 			left -= written;
 		}
