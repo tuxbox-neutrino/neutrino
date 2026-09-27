@@ -139,5 +139,66 @@ for r in epg?channel=0 settings/schema storage/mounts timers osd/volume tuner/si
 	[ "`count $T/h12 cache-control`" = 1 ] || fail "/api/v1/$r cache-control count"
 done
 
+# 13. a file answer comes out of its descriptor, one stretch of it where the
+#     caller asked for one. /tmp is one of the shipped storage roots, so a
+#     file written here is one the box will serve; random bytes, so the same
+#     run also proves the descriptor path is binary-safe end to end.
+RF="/tmp/check-v1-range.$$"
+python3 -c "import sys,os; sys.stdout.buffer.write(os.urandom(100000))" > "$RF"
+curl -s -D "$T/h13" -o "$T/b13" "$BASE/api/v1/storage/file?path=$RF"
+if [ "`status $T/h13`" = 200 ]; then
+	cmp -s "$RF" "$T/b13" && [ "`hdr $T/h13 content-length`" = 100000 ] \
+		&& pass "storage file served whole, bytes identical" \
+		|| fail "storage file differs or wrong length (`hdr $T/h13 content-length`)"
+
+	curl -s -H 'Range: bytes=1000-1999' -D "$T/h13a" -o "$T/b13a" "$BASE/api/v1/storage/file?path=$RF"
+	dd if="$RF" bs=1 skip=1000 count=1000 2>/dev/null > "$T/want13a"
+	[ "`status $T/h13a`" = 206 ] && [ "`hdr $T/h13a content-range`" = "bytes 1000-1999/100000" ] \
+		&& cmp -s "$T/b13a" "$T/want13a" \
+		&& pass "range inside -> 206 with the stretch" \
+		|| fail "range inside: `status $T/h13a` `hdr $T/h13a content-range`"
+
+	curl -s -H 'Range: bytes=99000-' -D "$T/h13b" -o "$T/b13b" "$BASE/api/v1/storage/file?path=$RF"
+	[ "`status $T/h13b`" = 206 ] && [ "`hdr $T/h13b content-length`" = 1000 ] \
+		&& [ "`hdr $T/h13b content-range`" = "bytes 99000-99999/100000" ] \
+		&& pass "open-ended range -> 206 to the end" \
+		|| fail "open-ended range: `status $T/h13b` `hdr $T/h13b content-range`"
+
+	curl -s -H 'Range: bytes=100000-' -D "$T/h13c" -o "$T/b13c" "$BASE/api/v1/storage/file?path=$RF"
+	[ "`status $T/h13c`" = 416 ] && [ "`hdr $T/h13c content-range`" = "bytes */100000" ] \
+		&& grep -q '"status":416' "$T/b13c" \
+		&& pass "range past the end -> 416 problem with the length" \
+		|| fail "range past end: `status $T/h13c` `hdr $T/h13c content-range`"
+
+	# at the socket, so a body after the blank line cannot hide from the check
+	r13d=`python3 - "$BASE" "$RF" <<'PYEOF'
+import socket, sys
+base, path = sys.argv[1], sys.argv[2]
+host = base.split('://', 1)[-1].split(':')[0]; port = int(base.rsplit(':', 1)[-1])
+s = socket.create_connection((host, port), timeout=15)
+s.sendall(("HEAD /api/v1/storage/file?path=%s HTTP/1.0\r\nRange: bytes=1000-1999\r\n\r\n" % path).encode())
+data = b''
+while True:
+	c = s.recv(4096)
+	if not c: break
+	data += c
+s.close()
+head, sep, rest = data.partition(b'\r\n\r\n')
+status = data.split(b'\r\n', 1)[0].decode(errors='replace')
+# the last header line's \r\n is part of the separator; put one back
+ok = sep and not rest and b' 206 ' in data.split(b'\r\n', 1)[0] and b'Content-Length: 1000\r\n' in head + b'\r\n'
+print(('PASS' if ok else 'FAIL') + ' ' + status + ' body=%d' % len(rest))
+PYEOF
+`
+	case "$r13d" in
+		PASS*) pass "HEAD with range: the stretch's headers, no body ($r13d)";;
+		*) fail "HEAD with range: $r13d";;
+	esac
+else
+	# the instance runs in a container whose /tmp is not this one
+	fail "storage file not served (status `status $T/h13`), range checks did not run"
+fi
+rm -f "$RF"
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]

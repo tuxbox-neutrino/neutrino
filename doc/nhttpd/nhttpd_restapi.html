@@ -61,6 +61,15 @@ method the path does not take, 400 for a parameter or body it will not bind,
 and <code>Vary: Cookie, Authorization</code>. Answers are HTTP/1.0 with
 <code>Connection: close</code>, like everything nhttpd sends.
 </p>
+<p>
+An answer that is a file (a channel picture, a stored file, later a recording)
+is sent straight out of its descriptor, whatever its size, and takes one
+<code>Range</code>: a stretch inside the file is 206 with a
+<code>Content-Range</code>, a header nothing can be made of is the whole file,
+and a stretch the file does not hold is a 416 problem document whose
+<code>Content-Range: bytes */length</code> says what there is to ask for.
+<code>HEAD</code> answers with the stretch's headers and no body.
+</p>
 
 <h2>Requests</h2>
 <p>
@@ -92,8 +101,6 @@ routes declare (read, write, system) are recorded in the document as
 <ul>
 <li>the event stream (<code>/api/v1/events</code>): nhttpd has no streaming
 answer path; a route that would answer with a stream is refused with 501</li>
-<li>files above 8 MiB: a file answer is read whole into the body; larger ones
-wait for a descriptor path in nhttpd</li>
 <li>sessions, tokens, per-route levels: the session layer, and with it the
 auth table and the webserver table, as compatible forks have them</li>
 <li>the stream and web-TV relays (<code>/api/v1/stream...</code>,
