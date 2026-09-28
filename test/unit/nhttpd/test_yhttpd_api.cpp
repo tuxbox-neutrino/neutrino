@@ -19,6 +19,7 @@
 #include "yrequest.h"
 #include "ysocket.h"
 #include "ytypes_globals.h"
+#include "ywebserver.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -469,4 +470,25 @@ TEST_CASE("SendFile hands the asked stretch out of the file", "[nhttpd]")
 	close(fd[1]);
 	close(filed);
 	s.close();
+}
+
+TEST_CASE("a connection the server cannot take is answered and closed", "[nhttpd]")
+{
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket *s = new CySocket(fd[0]);
+	s->isOpened = true;
+	s->isValid = true;
+
+	CWebserver::refuse_connection(s); // takes the socket: answers, closes, deletes
+
+	std::string got;
+	char buf[256];
+	ssize_t n;
+	while ((n = read(fd[1], buf, sizeof(buf))) > 0)
+		got.append(buf, (size_t) n);
+	CHECK(n == 0); // EOF: the server side is really closed
+	CHECK(got.find("HTTP/1.0 503 ") == 0);
+	CHECK(got.find("Connection: close\r\n") != std::string::npos);
+	close(fd[1]);
 }
