@@ -82,7 +82,12 @@ public:
 				{conf_no_keep_alive_ips=_conf_no_keep_alive_ips;}
 	bool 		run(void);				// Start the Webserver
 	void 		stop(void)				// Stop the Webserver
-				{terminate=true;}; 
+				{terminate=true;};
+	// Answer a connection the server cannot take (no worker slot, no
+	// thread) with a bare 503 line and close it. Takes the socket: it is
+	// closed and deleted whichever way the send goes. One small write on
+	// a fresh socket cannot block the accept thread.
+	static void	refuse_connection(CySocket *sock);
 
 	// public for WebTread
 	void 		clear_Thread_List_Number(int number);	// Set Entry(number)to NULL in Threadlist 

@@ -212,10 +212,15 @@ bool CWebserver::run(void) {
 					FD_CLR(SocketList[slot]->get_socket(), &master); // remove from master set
 					SocketList[slot]->handling = true; // prepares for thread-handling
 					if(!handle_connection(SocketList[slot]))// handle this activity
-					{ // Can not handle more threads
-						char httpstr[]=HTTP_PROTOCOL " 503 Service Unavailable\r\n\r\n";
-						SocketList[slot]->Send(httpstr, strlen(httpstr));
-						SL_CloseSocketBySlot(slot);
+					{
+						/* handle_connection owns the socket on failure now:
+						   it has answered 503, closed and deleted it. What is
+						   left here is this list's own bookkeeping - touching
+						   the object again would be a use after free. (This
+						   branch is compiled out, see Y_CONFIG_FEATURE_KEEP_ALIVE
+						   in yconfig.h; kept consistent for the day it is not.) */
+						SocketList[slot] = NULL;
+						open_connections--;
 					}
 				}
 			}
@@ -408,6 +413,14 @@ void CWebserver::clear_Thread_List_Number(int number) {
 // A new Connection is established to newSock. Create a (threaded) Connection
 // and handle the Request.
 //-----------------------------------------------------------------------------
+void CWebserver::refuse_connection(CySocket *sock) {
+	static const char refusal[] =
+		"HTTP/1.0 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+	sock->Send(refusal, sizeof(refusal) - 1);
+	sock->close();
+	delete sock;
+}
+
 bool CWebserver::handle_connection(CySocket *newSock) {
 	void *WebThread(void *args); //forward declaration
 
@@ -415,6 +428,7 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 	TWebserverConnectionArgs *newConn = new TWebserverConnectionArgs;
 	if (!newConn) {
 		dperror("CWebserver TWebserverConnectionArgs error!\n");
+		refuse_connection(newSock);
 		return false;
 	}
 	newConn->ySock = newSock;
@@ -441,21 +455,35 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 		{
 			dperror("Maximum Connection-Threads reached\n");
 			pthread_mutex_unlock( &mutex );
+			// the caller gets nothing back to clean up: the socket and
+			// the arguments end here, and the client sees a 503, not a
+			// connection that hangs until its own timeout
+			delete newConn;
+			refuse_connection(newSock);
 			return false;
 		}
 		newConn->thread_number = index; //remember Index of Thread slot (for clean up)
 
-		// Create an orphan Thread. It is not joinable anymore
-		pthread_mutex_unlock( &mutex );
-
-		// start connection Thread
+		// Create an orphan Thread. It is not joinable anymore.
+		// The id is written into the slot while the mutex is held: a worker
+		// that ends at once clears its slot under the same mutex, and a
+		// clear that came before pthread_create wrote the id would leave
+		// the slot taken for good.
 		if(pthread_create(&Connection_Thread_List[index], &attr, WebThread, (void *)newConn) != 0)
+		{
 			dperror("Could not create Connection-Thread\n");
+			Connection_Thread_List[index] = (pthread_t)NULL;
+			pthread_mutex_unlock( &mutex );
+			delete newConn;
+			refuse_connection(newSock);
+			return false;
+		}
+		pthread_mutex_unlock( &mutex );
 	}
 	else // non threaded
 #endif
 	WebThread((void *) newConn);
-	return ((index != -1) || !is_threading);
+	return true;
 }
 //-------------------------------------------------------------------------
 // Webserver-Thread for each connection
