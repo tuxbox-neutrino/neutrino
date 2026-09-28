@@ -53,6 +53,21 @@ a <code>Retry-After</code>. A peer that stops reading is dropped once its
 backlog passes a quarter megabyte rather than buffered forever.
 </p>
 <p>
+The settings the tables declare are this tree's: a row is only there when
+this program loads the key and something reads the member, and a declared
+default is the one this program falls back to. Rows that compatible forks declare for features
+this tree has stilled are carried in <code>settingsundeclared.cpp</code> with their
+reasons instead of being served.
+</p>
+<p>
+<code>GET /api/v1/system/legacy-usage</code> answers with real counts:
+nhttpd's own <code>/control/</code> dispatcher (CControlAPI) seeds the known
+names and counts every name it is asked for, missing ones included, so the
+route answers the question it exists for - whether everything has moved off
+the copied surface. Counted behind nhttpd's authentication: a caller the
+password gate turned away is not in the counts.
+</p>
+<p>
 The TypeScript shapes of the API are written out of the document by
 <code>test/web/openapi-types.js</code>, taken over unchanged, as compatible forks ship it:
 <code>node test/web/openapi-types.js openapi.json api.d.ts</code>. Nothing

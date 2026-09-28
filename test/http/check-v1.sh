@@ -325,5 +325,46 @@ case "$r14" in
 	*) fail "event stream: $r14";;
 esac
 
+# 15. legacy-usage answers with real counts: the known table stands at start
+# in dispatcher order, a driven name counts what we drove, and a name nobody
+# registered is remembered as itself. getmode is the probe because reading
+# the box's mode changes nothing on it.
+r15=`python3 - "$BASE" <<'PYEOF'
+import json, subprocess, sys, time
+base = sys.argv[1]
+def usage():
+	out = subprocess.check_output(['curl', '-s', '--max-time', '10',
+	                               base + '/api/v1/system/legacy-usage'], timeout=15)
+	return json.loads(out)['items']
+def hit(name):
+	subprocess.check_output(['curl', '-s', '-o', '/dev/null', '--max-time', '10',
+	                         base + '/control/' + name], timeout=15)
+fails = []
+before = usage()
+if not before:
+	print('FAIL the list is empty, the dispatcher seeded nothing')
+	sys.exit(0)
+if before[0]['name'] != 'getservicesxml':
+	fails.append('first name is %r, not the dispatch table head' % before[0]['name'])
+counts = dict((i['name'], i['calls']) for i in before)
+if 'getmode' not in counts:
+	fails.append('getmode is not in the known table')
+was = counts.get('getmode', 0)
+hit('getmode'); hit('getmode')
+stranger = 'no-such-command-%d' % int(time.time())
+hit(stranger)
+after = dict((i['name'], i['calls']) for i in usage())
+if after.get('getmode', 0) < was + 2:
+	fails.append('getmode counted %s, expected at least %s' % (after.get('getmode'), was + 2))
+if after.get(stranger, 0) != 1:
+	fails.append('the unknown name %s is not remembered with one call' % stranger)
+print('PASS' if not fails else 'FAIL ' + '; '.join(fails))
+PYEOF
+`
+case "$r15" in
+	PASS*) pass "legacy-usage: seeded table, driven count, stranger remembered";;
+	*) fail "legacy-usage: $r15";;
+esac
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]
