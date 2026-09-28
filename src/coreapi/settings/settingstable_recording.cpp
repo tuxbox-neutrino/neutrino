@@ -159,19 +159,18 @@ const Descriptor kRecording[] =
 		COREAPI_NUMBER_FIELD(recording_already_found_check)
 	},
 	// src/neutrino.cpp:855 src/gui/record_setup.cpp:224
+	// Local resolution: this fork falls back to the warning being on, not the source's off.
 	{
 		"recording_slow_warning", ValueType::Bool, "recording",
 		"recordingmenu.slow_warn", "menu.hint_record_slow_warn",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
+		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(recording_slow_warning)
 	},
-	// Per cent of the disc. src/neutrino.cpp:854 src/gui/record_setup.cpp:229
-	{
-		"recording_fill_warning", ValueType::Int, "recording",
-		"recordingmenu.fill_warn", "menu.hint_record_fill_warn",
-		75, 99, NULL, 0, 95, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(recording_fill_warning)
-	},
+	/* Local resolution: the source declares recording_fill_warning here (per cent
+	   of the disc before a warning). This fork stilled that option in 2021 -
+	   load and save are commented out in src/neutrino.cpp and no screen offers
+	   it - so the member is carried in settingsundeclared.cpp instead and is a
+	   port candidate if the feature returns (WORK-114). */
 	// src/neutrino.cpp:856 src/gui/record_setup.cpp:235
 	{
 		"recording_startstop_msg", ValueType::Bool, "recording",

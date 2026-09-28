@@ -1067,6 +1067,11 @@ imdb.data_website Webseite
 imdb.data_writer Drehbuchautor
 inetradio.autostart Internetradio Auto-Start
 inetradio.name Internetradio
+infoicons_infoviewer mit Infoviewer
+infoicons_modeicon Infoicons
+infoicons_popup nur bei Statusänderungen
+infoicons_skin Anzeige der Infoicons
+infoicons_static permanent
 infoviewer.epgnotload Informationen noch nicht geladen ...
 infoviewer.epgwait Warte auf EPG-Informationen ...
 infoviewer.motor_moving Antennenpositionierung
@@ -1434,6 +1439,8 @@ menu.hint_infobar_setup Wählen Sie die Anzeigeoptionen für die Infobar aus
 menu.hint_infobar_textcolor Ändern Sie die Textfarbe für die Infobar
 menu.hint_infobar_tuner Zeigt den aktiven Tuner als Nummernicon
 menu.hint_infoclock_setup Wählen Sie die Anzeigeoptionen für die Info Uhr
+menu.hint_infoicons_modeicon Infoicons aktivieren/deaktivieren
+menu.hint_infoicons_skin Anzeigeverhalten der Infoicons
 menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte Kanalnummern zugewiesen
 menu.hint_key_addrecord Weisen Sie eine Taste für das Starten und Markieren von Aufnahmen im EPG zu
 menu.hint_key_addremind Weisen Sie eine Taste für das Umschalten im EPG über den Timer zu

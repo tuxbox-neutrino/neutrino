@@ -276,10 +276,11 @@ const Descriptor kOsd[] =
 		COREAPI_NUMBER_FIELD(radiotext_enable)
 	},
 	// src/neutrino.cpp:1327 src/gui/osd_setup.cpp:716
+	// Local resolution: this fork falls back to the message being on, not the source's off.
 	{
 		"scrambled_message", ValueType::Bool, "osd",
 		"extra.scrambled_message", "menu.hint_scrambled_message",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
+		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(scrambled_message)
 	},
 	// src/neutrino.cpp:938 src/gui/osd_setup.cpp:762
@@ -335,17 +336,19 @@ const Descriptor kOsd[] =
 	},
 	// Per cent of the size each font is configured at.
 	// src/neutrino.cpp:1151 src/gui/osd_setup.cpp:307
+	// Local resolution: this fork falls back to 100 per cent, not the source's 105.
 	{
 		"font_scaling_x", ValueType::Int, "osd",
 		"fontmenu.scaling_x", "fontmenu.scaling_x_hint2",
-		50, 200, NULL, 0, 105, NULL, false, false, COREAPI_ALWAYS,
+		50, 200, NULL, 0, 100, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(font_scaling_x)
 	},
 	// src/neutrino.cpp:1152 src/gui/osd_setup.cpp:313
+	// Local resolution: this fork falls back to 100 per cent, not the source's 105.
 	{
 		"font_scaling_y", ValueType::Int, "osd",
 		"fontmenu.scaling_y", "fontmenu.scaling_y_hint2",
-		50, 200, NULL, 0, 105, NULL, false, false, COREAPI_ALWAYS,
+		50, 200, NULL, 0, 100, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(font_scaling_y)
 	},
 
@@ -409,10 +412,11 @@ const Descriptor kOsd[] =
 	// is a key another section declares and a condition cannot name yet.
 	// src/neutrino.cpp:1325 src/gui/osd_setup.cpp:1319
 	// src/neutrino.cpp:1319 src/gui/osd_setup.cpp:1326
+	// Local resolution: this fork falls back to mode 3, not the source's 5.
 	{
 		"infobar_show_channellogo", ValueType::Enum, "osd",
 		"miscsettings.infobar_disp", "menu.hint_infobar_logo",
-		0, 0, COREAPI_VALUES(kInfobarDisp), 5, NULL, false, false, COREAPI_ALWAYS,
+		0, 0, COREAPI_VALUES(kInfobarDisp), 3, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(infobar_show_channellogo)
 	},
 	// src/neutrino.cpp:1316 src/gui/osd_setup.cpp:1332
@@ -423,10 +427,11 @@ const Descriptor kOsd[] =
 		COREAPI_NUMBER_FIELD(infobar_sat_display)
 	},
 	// src/neutrino.cpp:1312 src/gui/osd_setup.cpp:1341
+	// Local resolution: this fork falls back to the mini display, not the source's full one.
 	{
 		"infobar_casystem_display", ValueType::Enum, "osd",
 		"miscsettings.infobar_casystem_display", "menu.hint_infobar_casys",
-		0, 0, COREAPI_VALUES(kCaSystem), 0, NULL, false, false, COREAPI_ALWAYS,
+		0, 0, COREAPI_VALUES(kCaSystem), 2, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(infobar_casystem_display)
 	},
 	// Both halves of this one are behind #if 0: the menu item that would set it
@@ -442,18 +447,20 @@ const Descriptor kOsd[] =
 		COREAPI_NUMBER_FIELD(infobar_casystem_dotmatrix)
 	},
 	// src/neutrino.cpp:1314 src/gui/osd_setup.cpp:1355
+	// Local resolution: this fork falls back to the frame being on, not the source's off.
 	{
 		"infobar_casystem_frame", ValueType::Bool, "osd",
 		"miscsettings.infobar_casystem_frame", "menu.hint_infobar_casys_frame",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kCaSystemDrawn),
+		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_CONDITIONS(kCaSystemDrawn),
 		COREAPI_NUMBER_FIELD(infobar_casystem_frame)
 	},
 	// src/neutrino.cpp:469 src/gui/osd_setup.cpp:1362
 	// src/neutrino.cpp:1322 src/gui/osd_setup.cpp:1369
+	// Local resolution: this fork falls back to the gauge being shown, not the source's off.
 	{
 		"infobar_show_sysfs_hdd", ValueType::Bool, "osd",
 		"miscsettings.infobar_show_sysfs_hdd", "menu.hint_infobar_filesys",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
+		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(infobar_show_sysfs_hdd)
 	},
 	// src/neutrino.cpp:660 src/gui/osd_setup.cpp:1374
@@ -487,10 +494,11 @@ const Descriptor kOsd[] =
 		COREAPI_NUMBER_FIELD(infobar_show_dd_available)
 	},
 	// src/neutrino.cpp:1315 src/gui/osd_setup.cpp:1408
+	// Local resolution: this fork falls back to position 1, not the source's 2.
 	{
 		"infobar_progressbar", ValueType::Enum, "osd",
 		"miscsettings.progressbar_infobar_position", "menu.hint_progressbar_infobar_position",
-		0, 0, COREAPI_VALUES(kProgressbarInfobarPos), 2, NULL, false, false, COREAPI_ALWAYS,
+		0, 0, COREAPI_VALUES(kProgressbarInfobarPos), 1, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(infobar_progressbar)
 	},
 
@@ -748,13 +756,14 @@ const Descriptor kOsd[] =
 		COREAPI_CONDITIONS(kSkinNotInfoviewer),
 		COREAPI_NUMBER_FIELD(mode_icons)
 	},
-	// src/neutrino.cpp:448 src/gui/infoicons_setup.cpp:204
-	{
-		"mode_icons_background", ValueType::Bool, "osd",
-		"infoicons_background", "menu.hint_infoicons_background",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(mode_icons_background)
-	},
+	/* Local resolution: the source declares mode_icons_background here. In this
+	   fork the icons' drawing code is stilled (#if 0) and the osd module
+	   reads only mode and skin (src/coreapi/osd.cpp), so nothing reads this
+	   member and a row would offer a switch that changes nothing. The two
+	   rows above stay: the osd module is their reader, and the shipped
+	   /api/v1/osd/infoicons route acts on them. The member is carried in
+	   settingsundeclared.cpp and is a port candidate if the feature returns
+	   (WORK-114). */
 	/* The corners of the drawn area, four of them for each pairing of an OSD
 	   resolution and a preset. The screen is a widget the viewer drags rather
 	   than a menu, src/gui/screensetup.cpp:198-249, so all sixteen share the

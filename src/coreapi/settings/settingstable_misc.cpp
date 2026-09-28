@@ -2,6 +2,7 @@
  * settingstable_misc.cpp - miscellaneous settings, one row per field
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -501,10 +502,12 @@ const Descriptor kMisc[] =
 	   holds the value as three digits of text, src/gui/sleeptimer.cpp:68. The
 	   loader reads it only where the box can switch itself off. */
 	// src/neutrino.cpp:713 src/gui/sleeptimer.cpp:68
+	/* Local resolution: this fork falls back to 180 minutes of inactivity
+	   before the box switches itself off, not the source's 0 (never). */
 	{
 		"shutdown_min", ValueType::Int, "misc",
 		"sleeptimerbox.title2", NULL,
-		0, 999, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
+		0, 999, NULL, 0, 180, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(shutdown_min)
 	},
 	/* Which of the three the power menu did last, standby, off or restart,

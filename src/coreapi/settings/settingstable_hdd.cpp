@@ -29,9 +29,16 @@ namespace
 
 /* The hard disk section, off src/gui/hdd_menu.cpp. That screen is the disk
    manager the service menu opens rather than a settings screen, and everything
-   else it binds is a device it found at run time, which is why only these seven
-   are here. The two sleep values reach the disk through the screen's own apply
-   item, src/gui/hdd_menu.cpp:818. */
+   else it binds is a device it found at run time, which is why only these three
+   are here.
+
+   Local resolution: the source declares four more (hdd_format_on_mount_failed,
+   hdd_wakeup, hdd_wakeup_msg, hdd_allow_set_recdir). This fork stilled those
+   options in 2021 - their load and save lines are commented out in
+   src/neutrino.cpp and no screen of this tree offers them - so a row here
+   would declare a key nothing reads. They are carried in
+   settingsundeclared.cpp instead and are port candidates if the feature
+   returns (WORK-114). */
 
 /* How long the disk waits before it spins down, src/gui/hdd_menu.cpp:823. The
    last three are not minutes: the driver reads them as its own codes. */
@@ -70,10 +77,11 @@ const Descriptor kHdd[] =
 		COREAPI_NUMBER_FIELD(hdd_fs)
 	},
 	// src/neutrino.cpp:658 src/gui/hdd_menu.cpp:823
+	// Local resolution: this fork falls back to 120 (ten minutes), not the source's 60.
 	{
 		"hdd_sleep", ValueType::Enum, "hdd",
 		"hdd_sleep", "menu.hint_hdd_sleep",
-		0, 0, COREAPI_VALUES(kHddSleep), 60, NULL, false, false, COREAPI_ALWAYS,
+		0, 0, COREAPI_VALUES(kHddSleep), 120, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(hdd_sleep)
 	},
 	/* The screen offers this one only where the box found a full hdparm,
@@ -85,34 +93,6 @@ const Descriptor kHdd[] =
 		"hdd_noise", "menu.hint_hdd_noise",
 		0, 0, COREAPI_VALUES(kHddNoise), 254, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(hdd_noise)
-	},
-	// src/neutrino.cpp:661 src/gui/hdd_menu.cpp:851
-	{
-		"hdd_format_on_mount_failed", ValueType::Bool, "hdd",
-		"hdd_format_on_mount_failed", "menu.hint_hdd_format_on_mount_failed",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdd_format_on_mount_failed)
-	},
-	// src/neutrino.cpp:662 src/gui/hdd_menu.cpp:854
-	{
-		"hdd_wakeup", ValueType::Bool, "hdd",
-		"hdd_wakeup", "menu.hint_hdd_wakeup",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdd_wakeup)
-	},
-	// src/neutrino.cpp:663 src/gui/hdd_menu.cpp:857
-	{
-		"hdd_wakeup_msg", ValueType::Bool, "hdd",
-		"hdd_wakeup_msg", "menu.hint_hdd_wakeup_msg",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdd_wakeup_msg)
-	},
-	// src/neutrino.cpp:664 src/gui/hdd_menu.cpp:861
-	{
-		"hdd_allow_set_recdir", ValueType::Bool, "hdd",
-		"hdd_allow_set_recdir", "menu.hint_hdd_allow_set_recdir",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdd_allow_set_recdir)
 	},
 };
 

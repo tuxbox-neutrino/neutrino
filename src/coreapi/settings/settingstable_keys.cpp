@@ -2,6 +2,7 @@
  * settingstable_keys.cpp - key binding settings, one row per field
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -540,14 +541,12 @@ const Descriptor kSettings[] =
 		0, 0, COREAPI_ENUM(kLeftRightKeyTv), 1, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mode_left_right_key_tv)
 	},
-	// Minutes, and zero is what the screen offers as off.
-	// src/neutrino.cpp:1250 src/gui/keybind_setup.cpp:567
-	{
-		"movieplayer_bisection_jump", ValueType::Int, "keybindings",
-		"movieplayer.bisection_jump", "menu.hint_movieplayer_bisection_jump",
-		0, 10, NULL, 0, 5, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(movieplayer_bisection_jump)
-	},
+	/* Local resolution: the source declares movieplayer_bisection_jump here
+	   (minutes, zero for off). This fork stilled the whole feature - the
+	   player's jump code and the screen's item both sit in #if 0 and load and
+	   save are commented out in src/neutrino.cpp - so a row would declare a
+	   key nothing reads. The member is carried in settingsundeclared.cpp and
+	   is a port candidate if the feature returns (WORK-114). */
 	/* The three below sit on the same screen and are loaded and saved beside
 	   the keybindings, which is why they are here and not with the other
 	   options: the program loads them in the same pass. */

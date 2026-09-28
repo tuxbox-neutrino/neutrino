@@ -73,10 +73,11 @@ const Descriptor kNetwork[] =
 
 	// time
 	// src/neutrino.cpp:926 src/gui/network_setup.cpp:505
+	// Local resolution: this fork falls back to NTP being off, not the source's on.
 	{
 		"network_ntpenable", ValueType::Enum, "network",
 		"networkmenu.ntpenable", "menu.hint_net_ntpenable",
-		0, 0, COREAPI_VALUES(kNtpEnable), 1, NULL, false, false, COREAPI_ALWAYS,
+		0, 0, COREAPI_VALUES(kNtpEnable), 0, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(network_ntpenable)
 	},
 	// src/neutrino.cpp:927 src/gui/network_setup.cpp:501

@@ -1067,6 +1067,11 @@ imdb.data_website Website
 imdb.data_writer Screenplay author
 inetradio.autostart Internetradio auto-start
 inetradio.name Internetradio
+infoicons_infoviewer with Infoviewer
+infoicons_modeicon Infoicons
+infoicons_popup only on state changes
+infoicons_skin Infoicons skin
+infoicons_static permanent
 infoviewer.epgnotload EPG not loaded ...
 infoviewer.epgwait waiting for EPG ...
 infoviewer.motor_moving Antenna positioning
@@ -1434,6 +1439,8 @@ menu.hint_infobar_setup Configure infobar options
 menu.hint_infobar_textcolor Change infobar text color
 menu.hint_infobar_tuner Show active tuner number icon
 menu.hint_infoclock_setup Configure info clock GUI options
+menu.hint_infoicons_modeicon Activate/deactivate Infoicons
+menu.hint_infoicons_skin Infoicons modes
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
 menu.hint_key_addrecord Assign button to add record timer\nfrom event list
 menu.hint_key_addremind Assign button to add zap timer\nfrom event list

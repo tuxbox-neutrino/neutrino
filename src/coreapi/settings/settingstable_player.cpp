@@ -151,13 +151,13 @@ const Descriptor kSettings[] =
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(movieplayer_display_playtime)
 	},
-	// src/neutrino.cpp:1257 src/gui/mediaplayer_setup.cpp:132
-	{
-		"movieplayer_timeosd_while_searching", ValueType::Bool, "player",
-		"movieplayer.timeosd_while_searching", "menu.hint_movieplayer_timeosd_while_searching",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(movieplayer_timeosd_while_searching)
-	},
+	/* Local resolution: the source declares movieplayer_timeosd_while_searching
+	   here. In this fork the key is loaded and saved but nothing reads the
+	   member - the player has no use of it and the screen's item sits in
+	   #if 0 (src/gui/mediaplayer_setup.cpp:131) - so a row would offer a
+	   setting the box does nothing with. The member is carried in
+	   settingsundeclared.cpp and is a port candidate if the feature returns
+	   (WORK-114). */
 	// How many times the end of a file has to be seen before the player stops.
 	// src/neutrino.cpp:1252 src/gui/mediaplayer_setup.cpp:138
 	{

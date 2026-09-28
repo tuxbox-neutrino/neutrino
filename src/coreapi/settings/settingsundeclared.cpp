@@ -2,6 +2,7 @@
  * settingsundeclared.cpp - settings present in the file but absent from the table
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +68,31 @@ const UndeclaredSetting kUndeclared[] =
 	// and a row would still offer a setting the box does nothing with.
 	{ "the shipped web page writes the key and no consumer reads the member",
 	  COREAPI_NUMBER_FIELD(recording_epg_for_filename) },
+
+	/* Options this fork stilled in 2021: load and save are commented out in
+	   src/neutrino.cpp and no screen of this tree offers them, so a row would
+	   declare a key nothing reads. The source declares all five; they are port
+	   candidates if the feature returns (WORK-114). */
+	{ "stilled in this fork, load and save commented out",
+	  COREAPI_NUMBER_FIELD(recording_fill_warning) },
+	{ "stilled in this fork, load and save commented out",
+	  COREAPI_NUMBER_FIELD(hdd_format_on_mount_failed) },
+	{ "stilled in this fork, load and save commented out",
+	  COREAPI_NUMBER_FIELD(hdd_wakeup) },
+	{ "stilled in this fork, load and save commented out",
+	  COREAPI_NUMBER_FIELD(hdd_wakeup_msg) },
+	{ "stilled in this fork, load and save commented out",
+	  COREAPI_NUMBER_FIELD(hdd_allow_set_recdir) },
+	{ "stilled in this fork: the player's jump code, the screen's item and the load are all off",
+	  COREAPI_NUMBER_FIELD(movieplayer_bisection_jump) },
+
+	/* Loaded and saved, but nothing reads the members: the screens that
+	   offered them sit in #if 0 and no other consumer exists in this tree.
+	   Port candidates if the features return (WORK-114). */
+	{ "loaded and saved, and no consumer reads the member",
+	  COREAPI_NUMBER_FIELD(movieplayer_timeosd_while_searching) },
+	{ "loaded and saved, and no consumer reads the member: the osd module reads only mode and skin",
+	  COREAPI_NUMBER_FIELD(mode_icons_background) },
 
 	// A written value cannot reach anything.
 	// src/neutrino.cpp:1331
