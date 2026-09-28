@@ -472,9 +472,19 @@ int my_system(int argc, const char *arg, ...)
 			_exit(ret); // terminate c h i l d proces s only
 		default: /* parent returns to calling process */
 			ret = 0;
-			waitpid(pid, &childExit, 0);
-			if (WEXITSTATUS(childExit) != 0)
-				ret = (signed char)WEXITSTATUS(childExit);
+			/* A background child is not waited for: a background call
+			   ignores SIGCHLD, so the kernel reaps the child by itself, and
+			   waitpid() would block until the child has ended and then fail
+			   with ECHILD.
+			   The ignored disposition is not put back, so from then on no
+			   wait in this process gets an exit status: a my_system() in the
+			   foreground answers 0, and pclose() cannot tell one either. */
+			if (!background)
+			{
+				waitpid(pid, &childExit, 0);
+				if (WEXITSTATUS(childExit) != 0)
+					ret = (signed char)WEXITSTATUS(childExit);
+			}
 			break;
 	}
 	va_end(args);
