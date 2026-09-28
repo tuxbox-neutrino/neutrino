@@ -80,6 +80,11 @@ void knowName(const char *name)
 
 void record(const std::string &name)
 {
+	// The same gate knowName holds: a blank /control/ carries no name, and
+	// a nameless row would spend one of the bounded unknown seats on it.
+	if (name.empty())
+		return;
+
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(usageLock());
 
 	std::vector<Usage> &k = knownUsage();

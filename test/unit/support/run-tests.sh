@@ -15,12 +15,13 @@
 #
 # The list only ever shrinks. When a table lands, its lines go.
 #
-# Because every run through here is a selection, the runner's own coverage
-# count comparison (support/counts.cpp) does not run. It decides nothing
-# today: the comparison only speaks once every case passes, and the eight
-# table-versus-program findings carried from the probe (WORK-286) fail
-# before it. When those are settled, counts.txt is regenerated for this
-# tree and the comparison comes back with the last exclusion here.
+# Because every run through here is a selection - the ~[.] line below is
+# itself a spec - the coverage count comparison (support/counts.cpp) never
+# runs through this runner, whatever else the list loses. It speaks on a
+# deliberate bare run of the binary, where hidden cases stay out on their
+# own; counts.txt was regenerated from exactly such a run (2026-09-28,
+# four expected reds: the three slice-3 cases and, unprivileged, the chown
+# case), and the first green bare run verifies it whole.
 #
 # ~[.] comes first. A hidden case runs only when a spec names it, and Catch2
 # reads any spec, exclusions included, as one that may: without this line the

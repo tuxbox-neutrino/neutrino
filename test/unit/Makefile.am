@@ -80,6 +80,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_settingsappliers.cpp \
 	coreapi/test_browserplay.cpp \
 	coreapi/test_settingsfields.cpp \
+	system/test_mysystem_local.cpp \
 	nhttpd/test_yhttpd_api.cpp \
 	nhttpd/test_bridge.cpp \
 	httpd/test_openapi.cpp \

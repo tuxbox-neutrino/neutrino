@@ -104,6 +104,17 @@ TEST_CASE("seeding the same name twice does not add a second seat", "[legacyusag
 	REQUIRE(all.size() == 3);
 }
 
+TEST_CASE("a nameless ask takes no seat", "[legacyusage]")
+{
+	CleanSlate slate;
+	seedThree();
+
+	httpd::compat::record("");
+
+	const std::vector<Usage> all = httpd::compat::usage();
+	REQUIRE(all.size() == 3);
+}
+
 TEST_CASE("asking for ever new names cannot grow the answer past the bound", "[legacyusage]")
 {
 	CleanSlate slate;

@@ -32,6 +32,9 @@ fields the bound scan read	45
 fields the chooser scan read	195
 fields with a stated label	93
 flags compared against a screen	113
+# The one carried line: its recorder is the runner-excluded ordering case
+# (slice 3 brings the four missing tables and the case back). Every other
+# figure is measured from this tree's own whole run.
 groups the document declares	19
 key to field pairs read out of the program	419
 keys an applier lists	35
@@ -47,7 +50,6 @@ listed keys compared against the table	25
 locale names the program has	3058
 options an applier or its notifier branches on	49
 parameters the document describes	112
-refusals the header names	13
 routes the document describes	84
 rows an applier acts on	25
 rows compared against the load and save pass	353
@@ -56,5 +58,3 @@ rows this build links	361
 rows whose set of values the box decides	3
 rows whose value is not in the settings file	5
 shapes the document files against a route	40
-statuses the enum declares	8
-web files the page installs	130

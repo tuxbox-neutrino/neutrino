@@ -21,6 +21,12 @@
  * turned away never reaches the module that counts. These counts are
  * the demand that reached CControlAPI, on /control/ and its /cgi-bin/
  * alias alike.
+ *
+ * And the known table is CControlAPI's own dispatch list, around
+ * seventy-two names and build-dependent (two entries are conditional),
+ * not the seventy-four of the source's level table. Where a verbatim row
+ * description speaks of seventy-four (ep_system.cpp), that is the source's
+ * prose about the source's table; the listing itself is always this box's.
  */
 
 #ifndef __httpd_compat_mount_h__

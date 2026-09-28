@@ -351,13 +351,21 @@ if 'getmode' not in counts:
 	fails.append('getmode is not in the known table')
 was = counts.get('getmode', 0)
 hit('getmode'); hit('getmode')
-stranger = 'no-such-command-%d' % int(time.time())
+# One reserved probe name, not a fresh one per run: the unknown list is
+# bounded (200 seats, kept until restart), so a name minted every run would
+# spend a seat each time and starve the box after enough runs. The delta
+# keeps this honest across repeats and parallel runs alike.
+stranger = 'check-v1-probe'
+stranger_was = counts.get(stranger, 0)
 hit(stranger)
 after = dict((i['name'], i['calls']) for i in usage())
 if after.get('getmode', 0) < was + 2:
 	fails.append('getmode counted %s, expected at least %s' % (after.get('getmode'), was + 2))
-if after.get(stranger, 0) != 1:
-	fails.append('the unknown name %s is not remembered with one call' % stranger)
+if after.get(stranger, 0) < stranger_was + 1:
+	if stranger not in after and len(after) >= len(counts) and stranger_was == 0:
+		fails.append('the probe name found no seat (unknown list full? %d names)' % len(after))
+	else:
+		fails.append('the unknown name %s did not count up' % stranger)
 print('PASS' if not fails else 'FAIL ' + '; '.join(fails))
 PYEOF
 `
