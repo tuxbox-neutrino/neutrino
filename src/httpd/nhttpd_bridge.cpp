@@ -45,6 +45,7 @@ httpd::Method methodOf(THttp_Method m)
 		case M_POST:   return httpd::Post;
 		case M_PUT:    return httpd::Put;
 		case M_DELETE: return httpd::Delete;
+		case M_PATCH:  return httpd::Patch;
 		case M_HEAD:   return httpd::Head;
 		default:       return httpd::UnknownMethod;
 	}

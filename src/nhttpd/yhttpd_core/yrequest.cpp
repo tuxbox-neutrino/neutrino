@@ -101,9 +101,10 @@ bool CWebserverRequest::HandleRequest(void) {
 		}
 		ParseHeader(tmp_line);
 	}
-	// Other Methods
+	// Other Methods. PATCH sits here with PUT: outside the API it is refused
+	// the way PUT always was, and the API branch above never reaches this.
 	if (Connection->Method == M_DELETE || Connection->Method == M_PUT
-			|| Connection->Method == M_TRACE) {
+			|| Connection->Method == M_TRACE || Connection->Method == M_PATCH) {
 		//todo: implement
 		aprintf("HTTP Method not implemented :%d\n", Connection->Method);
 		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
@@ -143,6 +144,7 @@ bool CWebserverRequest::ParseStartLine(std::string start_line) {
 			else if (method.compare("PUT") == 0)	Connection->Method = M_PUT;
 			else if (method.compare("DELETE") == 0)	Connection->Method = M_DELETE;
 			else if (method.compare("TRACE") == 0)	Connection->Method = M_TRACE;
+			else if (method.compare("PATCH") == 0)	Connection->Method = M_PATCH;
 			else {
 				log_level_printf(1, "Unknown Method or invalid request\n");
 				Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
@@ -750,7 +752,7 @@ CWebserverRequest::ApiBodyDecision CWebserverRequest::apiBodyDecision(THttp_Meth
 	const ApiBody framing = apiContentLength(raw_header, declared);
 	if (framing == BODY_BAD)
 		return API_BODY_BAD;
-	const bool takes_body = (method == M_POST || method == M_PUT);
+	const bool takes_body = (method == M_POST || method == M_PUT || method == M_PATCH);
 	if (framing == BODY_NONE || declared == 0)
 		return API_BODY_NONE;
 	if (!takes_body)

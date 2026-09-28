@@ -252,6 +252,19 @@ TEST_CASE("a JSON body reaches the router and a malformed one is refused there",
 	httpd::forgetApiTokens();
 }
 
+TEST_CASE("PATCH is a method the bridge can name", "[bridge]")
+{
+	Attached a;
+
+	// Wrong path on purpose: the router's 404 proves the method arrived as
+	// itself, where an unnamed method would have been the 501 below. The
+	// one PATCH route this tree serves writes settings and needs the box;
+	// the wire check drives it for real (check-v1.sh section 17).
+	Handler h(M_PATCH, "/api/v1/no-such-thing", "{}");
+	REQUIRE(a.bridge.Hook_SendResponse(&h.hh) == HANDLED_READY);
+	CHECK(h.hh.httpStatus == HTTP_NOT_FOUND);
+}
+
 TEST_CASE("a method nhttpd cannot name is 501 from the router", "[bridge]")
 {
 	Attached a;

@@ -131,7 +131,8 @@ typedef enum
 	M_HEAD,
 	M_PUT,
 	M_DELETE,
-	M_TRACE
+	M_TRACE,
+	M_PATCH
 } THttp_Method;
 
 // Date Format RFC 1123
