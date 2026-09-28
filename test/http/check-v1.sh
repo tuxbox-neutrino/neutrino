@@ -542,11 +542,41 @@ if not fails:
 		back = move(new_port, old_port)
 		if back:
 			fails.append('MOVE BACK FAILED, instance may sit on %d: %s' % (new_port, back))
+if not fails:
+	# An address nhttpd cannot carry (AF_INET only): the answer promises a
+	# restart, and the box comes back where it was instead of nowhere. The
+	# bind in the file is put back afterwards over the same route.
+	answer = json.loads(curl(['-X', 'PUT', '-H', 'Content-Type: application/json',
+		'-d', json.dumps({'bind': '::1'})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)]))
+	if not answer.get('caller', {}).get('restarting'):
+		fails.append('the v6 bind was not even tried: %s' % answer.get('caller'))
+	else:
+		came_back = False
+		for i in range(50):
+			time.sleep(0.3)
+			try:
+				if webserver_on(old_port).get('port') == old_port:
+					came_back = True
+					break
+			except Exception:
+				continue
+		if not came_back:
+			fails.append('BOX DID NOT COME BACK on %d after a v6 bind' % old_port)
+		else:
+			answer = json.loads(curl(['-X', 'PUT', '-H', 'Content-Type: application/json',
+				'-d', json.dumps({'bind': '0.0.0.0'})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)]))
+			for i in range(50):
+				time.sleep(0.3)
+				try:
+					if webserver_on(old_port).get('bind') == '0.0.0.0':
+						break
+				except Exception:
+					continue
 print('PASS' if not fails else 'FAIL ' + '; '.join(fails))
 PYEOF
 `
 case "$r18" in
-	PASS*) pass "webserver table: truth read, port moved and moved back, session survived";;
+	PASS*) pass "webserver table: truth, port moved and back, v6 bind refused safely";;
 	*) fail "webserver table: $r18";;
 esac
 

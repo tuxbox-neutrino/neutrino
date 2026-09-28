@@ -97,31 +97,38 @@ void * nhttpd_main_thread(void *) {
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	aprintf("Webserver %s tid %ld\n", WEBSERVERNAME, syscall(__NR_gettid));
-	yhttpd = new Cyhttpd();
+	Cyhttpd *fresh = new Cyhttpd();
+	__atomic_store_n(&yhttpd, fresh, __ATOMIC_SEQ_CST);
 	//CLogging::getInstance()->setDebug(true);
 	//CLogging::getInstance()->LogLevel = 9;
-	if (!yhttpd) {
+	if (!fresh) {
 		aprintf("Error initializing WebServer\n");
 		return (void *) EXIT_FAILURE;
 	}
 	/* we pthread_cancel this thread from the main thread, but still want to clean up */
-	pthread_cleanup_push(thread_cleanup, yhttpd);
+	pthread_cleanup_push(thread_cleanup, fresh);
 #ifndef Y_CONFIG_FEATURE_THREADING
-	yhttpd->flag_threading_off = true;
+	fresh->flag_threading_off = true;
 #endif
 
-	yhttpd->hooks_attach();
-	yhttpd->ReadConfig();
-	if (yhttpd->Configure()) {
+	fresh->hooks_attach();
+	fresh->ReadConfig();
+	if (fresh->Configure()) {
 		// Start Webserver: fork ist if not in debug mode
 		aprintf("Webserver starting...\n");
 		dprintf("Start in Debug-Mode\n"); // non forked debugging loop
 
-		yhttpd->run();
+		fresh->run();
 	}
 	pthread_cleanup_pop(0);
-	delete yhttpd;
-	yhttpd = NULL;
+	/* Only its own instance: with the start guard below two servers never
+	   coexist, and this line keeps even a surprised sleeper from deleting
+	   a successor's instance under it. */
+	Cyhttpd *mine = __atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST);
+	if (mine != NULL &&
+	    __atomic_compare_exchange_n(&yhttpd, &mine, (Cyhttpd *) NULL, false,
+	                                __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+		delete mine;
 
 	aprintf("Main end\n");
 	return (void *) EXIT_SUCCESS;
@@ -223,10 +230,9 @@ void Cyhttpd::run() {
 	if (webserver) {
 		if (flag_threading_off)
 			webserver->is_threading = false;
-		// what the API layer's boundPort() answers with (server seam)
-		httpd::setBoundPortFromBridge(atoi(ConfigList["WebsiteMain.port"].c_str()));
+		// the webserver itself reports the bound port to the API layer's
+		// seam, after a successful listen and fallback included
 		webserver->run();
-		httpd::setBoundPortFromBridge(0);
 		stop_webserver();
 	} else
 		aprintf("Error initializing WebServer\n");
@@ -505,17 +511,52 @@ void Cyhttpd::stop_run() {
 //=============================================================================
 extern void *nhttpd_main_thread(void *);
 
+static int nhttpd_server_start_once(int port, const char *bind, bool second_chance);
+
 int nhttpd_server_start(int port, const char *bind) {
-	/* The file first: this server reads nhttpd.conf and nothing else, and
-	   the one place a moved port survives a restart is that file. Written
-	   through the same reader ReadConfig uses. */
+	return nhttpd_server_start_once(port, bind, false);
+}
+
+static int nhttpd_server_start_once(int port, const char *bind, bool second_chance) {
+	/* Never two: a start beside a living server would put two accept
+	   loops on overlapping state (the hooks and this file's globals are
+	   shared). The stop before this call is what ends the old one; where
+	   it did not finish, the honest answer is that no new server came
+	   up - the old one is still answering where it was. */
+	if (__atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) != NULL) {
+		aprintf("nhttpd_server_start: the old server has not finished stopping\n");
+		return 0;
+	}
+
+	/* What this server can actually listen on: nhttpd's socket is AF_INET
+	   (ysocket.cpp), so an address of the other family, legal as it is in
+	   ni-web.conf, is one this box cannot come up on. Refused before the
+	   file is touched, and the server comes back on what nhttpd.conf
+	   already says - reachable where it was, which beats a box that
+	   answers nowhere until somebody edits a file. The GET answers the
+	   port that really bound, so the caller can see where it landed. */
 	CConfigFile conf(',');
 	conf.loadConfig(HTTPD_CONFIGFILE);
-	conf.setInt32("WebsiteMain.port", port);
-	conf.setString("WebsiteMain.host", (bind != NULL) ? bind : "0.0.0.0");
-	if (!conf.saveConfig(HTTPD_CONFIGFILE)) {
-		aprintf("nhttpd_server_start: cannot write %s\n", HTTPD_CONFIGFILE);
-		return 0;
+	const int old_port = conf.getInt32("WebsiteMain.port", port);
+	const std::string old_host = conf.getString("WebsiteMain.host", "0.0.0.0");
+	struct in_addr v4_probe;
+	const bool carriable = (bind == NULL) || (strcmp(bind, "0.0.0.0") == 0) ||
+	                       (inet_pton(AF_INET, bind, &v4_probe) == 1);
+	if (!carriable) {
+		aprintf("nhttpd_server_start: %s is not an address this server can "
+		        "listen on (AF_INET only); coming back on what %s says\n",
+		        bind, HTTPD_CONFIGFILE);
+		port = conf.getInt32("WebsiteMain.port", port);
+	} else {
+		/* The file first: this server reads nhttpd.conf and nothing else,
+		   and the one place a moved port survives a restart is that file.
+		   Written through the same reader ReadConfig uses. */
+		conf.setInt32("WebsiteMain.port", port);
+		conf.setString("WebsiteMain.host", (bind != NULL) ? bind : "0.0.0.0");
+		if (!conf.saveConfig(HTTPD_CONFIGFILE)) {
+			aprintf("nhttpd_server_start: cannot write %s\n", HTTPD_CONFIGFILE);
+			return 0;
+		}
 	}
 
 	pthread_t nhttpd_thread;
@@ -528,8 +569,12 @@ int nhttpd_server_start(int port, const char *bind) {
 	   address is the wildcard, on the address itself otherwise; bounded, so
 	   a port the kernel refused answers nought instead of holding the
 	   reload runner forever. */
-	const char *probe = (bind == NULL || strcmp(bind, "0.0.0.0") == 0 ||
-	                     strcmp(bind, "::") == 0) ? "127.0.0.1" : bind;
+	/* Where the listener is asked for: the address that is actually in
+	   effect - the old file's where the asked-for one was refused. */
+	std::string effective = carriable ? std::string((bind != NULL) ? bind : "0.0.0.0")
+	                                  : conf.getString("WebsiteMain.host", "0.0.0.0");
+	const char *probe = (effective == "0.0.0.0" || effective.empty())
+	                    ? "127.0.0.1" : effective.c_str();
 	for (int i = 0; i < 100; i++) {
 		usleep(100 * 1000);
 		int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -548,20 +593,36 @@ int nhttpd_server_start(int port, const char *bind) {
 		if (ok == 0)
 			return port;
 	}
+
+	/* Nothing came up on what was asked for. Before this is reported, one
+	   try on what was in effect before: a caller was promised a restart,
+	   and a box answering where it used to beats a box answering nowhere.
+	   Only where the file was rewritten - the refused-address path above
+	   never touched it - and only once. */
+	if (carriable && !second_chance) {
+		aprintf("nhttpd_server_start: nothing answers on %d, going back to "
+		        "port %d\n", port, old_port);
+		conf.setInt32("WebsiteMain.port", old_port);
+		conf.setString("WebsiteMain.host", old_host.c_str());
+		conf.saveConfig(HTTPD_CONFIGFILE);
+		return nhttpd_server_start_once(old_port, old_host.c_str(), true);
+	}
 	return 0;
 }
 
 bool nhttpd_server_stop(void) {
-	if (yhttpd == NULL)
+	Cyhttpd *running = __atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST);
+	if (running == NULL)
 		return true;
-	yhttpd->stop_run();
+	running->stop_run();
 	/* The thread carries its own teardown (hooks, events, the delete) and
 	   nulls the instance last. Bounded: a teardown that wedges is reported
-	   as a stop that did not finish rather than waited on forever. */
+	   as a stop that did not finish rather than waited on forever - and
+	   the start guard then refuses a second server beside the sleeper. */
 	for (int i = 0; i < 100; i++) {
-		if (yhttpd == NULL)
+		if (__atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) == NULL)
 			return true;
 		usleep(100 * 1000);
 	}
-	return yhttpd == NULL;
+	return __atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) == NULL;
 }

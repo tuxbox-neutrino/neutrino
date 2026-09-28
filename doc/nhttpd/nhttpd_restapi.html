@@ -36,10 +36,38 @@ not the dedicated server of those forks, and <code>/control/</code> stays what i
 <p>
 What each route takes and answers is in the document; read it from the box or
 build it without one: <code>make -C src/httpd openapi-dump</code> writes the
-same bytes the route answers. Fifteen of the nineteen tables known from compatible forks are served,
-the event stream among them; the four that lean on the dedicated server of compatible forks
-(sessions, the stream and web-TV relays, the server's own start and stop)
-follow with the transport work each needs.
+same bytes the route answers. Seventeen of the nineteen tables known from compatible forks are
+served, sessions, the event stream and the server's own table among them;
+the two relay tables (stream, web-TV) follow with the transport work they
+need.
+</p>
+<p>
+Since slice 3 the box asks for a login. <code>POST /api/v1/login</code>
+takes <code>{"user","password"}</code> - the pair migrated out of
+nhttpd.conf on the first start - and answers the session cookie
+(HttpOnly, SameSite=Lax) with the CSRF header's name and value beside it;
+every request that changes something carries the cookie and that second
+token. Readers on the networks <code>lan_read</code> names (as shipped: the
+loopbacks, the RFC1918 ranges and the ULA prefix fc00::/7) read without
+presenting anything; everyone else is
+answered 403, deliberately never a 401 that would put a browser's Basic
+popup in front of the login. Programs present a configured token as
+<code>Authorization: Bearer</code> instead; an address may carry the
+scoped media token (<code>POST /api/v1/token/media</code>) as
+<code>?token=</code>, worth the media roots and nothing else. This is
+the flow that boxes with a compatible fork speak for remote timers, so such a box can
+drive this box's timers over <code>/api/v1</code>.
+</p>
+<p>
+<code>GET /api/v1/system/webserver</code> answers where this server
+really answers - the port is the one nhttpd bound - and the PUT moves
+it: the answer says first what the change means for the caller (the
+address under the new port, whether a restart is coming), then the
+webserver thread is stopped, the layer's configuration reloaded, the port and address
+written into nhttpd.conf and the thread started again. Sessions survive
+the move; the program is not restarted. nhttpd also speaks
+<code>PATCH</code> now (the settings section write), refused outside
+<code>/api/</code> exactly as PUT always was.
 </p>
 <p>
 <code>GET /api/v1/events</code> is the box's own events as they happen

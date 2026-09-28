@@ -132,6 +132,10 @@ bool CWebserver::run(void) {
 			return false;
 		}
 	}
+	/* What the API layer's boundPort() answers with: said only once
+	   something really listens, and with the port that really bound -
+	   the fallback above included - never the one the file asked for. */
+	httpd::setBoundPortFromBridge((int) port);
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
 
 	// initialize values for select
@@ -248,6 +252,7 @@ bool CWebserver::run(void) {
 		handle_connection(newConnectionSock);
 	}
 #endif
+	httpd::setBoundPortFromBridge(0);
 	return true;
 }
 //=============================================================================

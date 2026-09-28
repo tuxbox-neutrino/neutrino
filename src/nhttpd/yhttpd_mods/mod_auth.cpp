@@ -19,8 +19,10 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	// from this module's own credentials). Basic in front of it would put a
 	// second password prompt before /api/v1/login and keep every browser in
 	// a popup no page can style. /control and the pages stay behind this
-	// module as they always were.
-	if (hh->UrlData["path"].compare(0, 5, "/api/") == 0)
+	// module as they always were. The same predicate the request reader
+	// and the bridge classify with, so the three cannot disagree about
+	// what is an API target.
+	if (CyhookHandler::isApiTarget(hh->UrlData["url"]))
 		return HANDLED_CONTINUE;
 
 	// dont check local calls or calls from NoAuthClient

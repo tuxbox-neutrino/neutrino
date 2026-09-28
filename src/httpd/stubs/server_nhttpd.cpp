@@ -49,10 +49,18 @@ bool (*stop_hand)(void) = 0;
    being stopped: stopping from there would be the server waiting for a
    thread that is waiting for the server. Detached like every connection
    thread; the path travels as an owned copy. */
+/* One reload at a time, in the order they were asked for. Two answers
+   whose reloads ran side by side would be two stops racing one start -
+   and the second reader of the same final file is idempotent anyway, so
+   waiting is all the ordering this needs. */
+pthread_mutex_t reload_lock = PTHREAD_MUTEX_INITIALIZER;
+
 void *reloadRunner(void *arg)
 {
 	std::string *path = (std::string *) arg;
+	pthread_mutex_lock(&reload_lock);
 	reloadAndRestart(*path);
+	pthread_mutex_unlock(&reload_lock);
 	delete path;
 	return 0;
 }

@@ -33,8 +33,8 @@ shift
 
 HIDDEN='~[.]'
 
-# the three tables still out (stream, webtv, webserver; the case counts
-# all nineteen groups):
+# the two tables still out (stream, webtv; the case counts all nineteen
+# groups):
 S1='~"the groups are declared in the order somebody meets this box in"'
 
 # Environment, not code: the case hands a file to owner 1234:5678, which needs

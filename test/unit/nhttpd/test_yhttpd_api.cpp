@@ -20,6 +20,7 @@
 #include "ysocket.h"
 #include "ytypes_globals.h"
 #include "ywebserver.h"
+#include <httpd/server_control.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -33,6 +34,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
 namespace {
@@ -75,6 +77,68 @@ CyhookHandler apiHandler(THttp_Method method, HttpResponseType code, const std::
 }
 
 } // namespace
+
+TEST_CASE("stop alone ends an idle accept loop", "[nhttpd]")
+{
+	/* The restart seam stops a webserver that may be serving nobody, and a
+	   stop that only raises a flag leaves the thread in accept() until a
+	   client happens to knock (the review's zombie: a second server comes
+	   up beside it and the sleeper's epilogue later tears the living one
+	   down). So stop() itself has to wake the loop, and this pins it: no
+	   connection is ever made after stop, and the loop still ends. */
+	// is_threading is static; put back what the cases after this expect.
+	const bool threading_was = CWebserver::is_threading;
+	CWebserver ws;
+	int port = 34611;
+	ws.init((unsigned) port, false, "127.0.0.1");
+
+	pthread_t runner;
+	struct Runner
+	{
+		static void *run(void *arg)
+		{
+			((CWebserver *) arg)->run();
+			return NULL;
+		}
+	};
+	REQUIRE(pthread_create(&runner, NULL, &Runner::run, &ws) == 0);
+
+	// Up means answering: wait until the listener stands.
+	bool up = false;
+	for (int i = 0; i < 100 && !up; i++)
+	{
+		usleep(50 * 1000);
+		int fd = socket(AF_INET, SOCK_STREAM, 0);
+		REQUIRE(fd >= 0);
+		struct sockaddr_in to;
+		std::memset(&to, 0, sizeof(to));
+		to.sin_family = AF_INET;
+		to.sin_port = htons((unsigned short) port);
+		to.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		if (connect(fd, (struct sockaddr *) &to, sizeof(to)) == 0)
+			up = true;
+		close(fd);
+	}
+	REQUIRE(up);
+
+	// Give the loop time to finish with the probe connection and sit back
+	// down in accept: the stop below must find it waiting, not working.
+	usleep(300 * 1000);
+
+	// The accept loop is idle again (the probe connection above was taken
+	// and refused or handled). Stop, and nobody knocks after this line.
+	ws.stop();
+
+	struct timespec until;
+	clock_gettime(CLOCK_REALTIME, &until);
+	until.tv_sec += 3;
+	const int joined = pthread_timedjoin_np(runner, NULL, &until);
+	if (joined != 0)
+		pthread_cancel(runner);
+	CWebserver::is_threading = threading_was;
+	httpd::setBoundPortFromBridge(0);
+	REQUIRE(joined == 0);
+}
 
 TEST_CASE("an api prefix matches the raw target only where it was registered", "[nhttpd]")
 {

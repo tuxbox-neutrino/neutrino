@@ -82,7 +82,11 @@ public:
 				{conf_no_keep_alive_ips=_conf_no_keep_alive_ips;}
 	bool 		run(void);				// Start the Webserver
 	void 		stop(void)				// Stop the Webserver
-				{terminate=true;};
+				/* and wake it: accept() blocks, and a flag alone
+				   waits for a client that may never knock. The
+				   shutdown makes accept return, the loop reads the
+				   flag, and an idle server ends like a busy one. */
+				{terminate=true; listenSocket.shutdown();};
 	// Answer a connection the server cannot take (no worker slot, no
 	// thread) with a bare 503 line and close it. Takes the socket: it is
 	// closed and deleted whichever way the send goes. One small write on
