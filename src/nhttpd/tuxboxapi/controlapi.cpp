@@ -51,6 +51,8 @@ extern CPictureViewer *g_PicViewer;
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
+// the counting seam /api/v1/system/legacy-usage answers with
+#include <httpd/compat/mount.h>
 #include <hardware/video.h>
 #include <zapit/femanager.h>
 
@@ -113,6 +115,7 @@ static const char *getVersionInfoPath()
 CControlAPI::CControlAPI(CNeutrinoAPI *_NeutrinoAPI)
 {
 	NeutrinoAPI = _NeutrinoAPI;
+	seedLegacyUsage();
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::init(CyhookHandler *hh)
@@ -287,6 +290,18 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"getmovies",		&CControlAPI::getMoviesCGI,		"+xml"}
 };
 //-----------------------------------------------------------------------------
+// The known half of /api/v1/system/legacy-usage: the dispatch table's own
+// names, in its own order, so the two cannot go out of step. Defined below
+// the table because sizeof needs its completed type; called from the
+// constructor so the full listing stands before the first request.
+// knowName is idempotent under its own lock.
+//-----------------------------------------------------------------------------
+void CControlAPI::seedLegacyUsage(void)
+{
+	for (unsigned int i = 0; i < (sizeof(yCgiCallList) / sizeof(yCgiCallList[0])); i++)
+		httpd::compat::knowName(yCgiCallList[i].func_name);
+}
+//-----------------------------------------------------------------------------
 // Main Dispatcher
 //-----------------------------------------------------------------------------
 void CControlAPI::Execute(CyhookHandler *hh)
@@ -300,6 +315,11 @@ void CControlAPI::Execute(CyhookHandler *hh)
 		filename[i] = tolower(filename[i]);
 
 	func_req = filename;
+
+	// Counted before the lookup decides whether anything answers, so the
+	// demand a name has seen is what /api/v1/system/legacy-usage reports,
+	// asked-for-and-missing names included.
+	httpd::compat::record(func_req);
 
 	// debugging informations
 	if(CLogging::getInstance()->getDebug())

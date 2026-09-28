@@ -12,11 +12,11 @@
 # stops short of its last member would otherwise read as complete.
 AM_CXXFLAGS = -std=c++11 -fno-rtti -fexceptions -Wall -Wextra -Werror=missing-field-initializers -Werror=switch -Werror=conversion-null -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 
-# DISABLE_LEGACY_API: the source's compatibility layer is not here, /control is
-# answered by nhttpd's own CControlAPI. The system module then reports an
-# empty legacy-usage list, which is the truth of this build.
+# The source's compatibility layer is not here: /control is answered by nhttpd's
+# own CControlAPI, which feeds the one piece of that layer this build keeps -
+# the counting seam behind /api/v1/system/legacy-usage (compat/mount.h is
+# this tree's bridge header, stubs/legacy_usage.cpp its counts).
 AM_CPPFLAGS = \
-	-DDISABLE_LEGACY_API \
 	-DHTTPD_AUTH_LEGACY_BASIC \
 	-I$(top_builddir) \
 	-I$(srcdir) \
@@ -70,12 +70,14 @@ libhttpd_a_SOURCES = \
 	stubs/auth_names.cpp \
 	stubs/descriptor.cpp \
 	events.cpp \
+	stubs/legacy_usage.cpp \
 	stubs/static_stub.cpp \
 	stubs/webconfig_stub.cpp
 
 noinst_HEADERS = \
 	auth.h \
 	byterange.h \
+	compat/mount.h \
 	endpoint.h \
 	endpoints.h \
 	events.h \

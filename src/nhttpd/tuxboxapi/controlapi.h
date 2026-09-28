@@ -20,6 +20,8 @@ private:
 	// Dispatcher Array
 	typedef void (CControlAPI::*TyFunc)(CyhookHandler *hh);
 	std::string func_req;
+	// seeds the legacy-usage counting seam with the dispatcher's names
+	void seedLegacyUsage(void);
 	typedef struct
 	{
 		const char *func_name;
