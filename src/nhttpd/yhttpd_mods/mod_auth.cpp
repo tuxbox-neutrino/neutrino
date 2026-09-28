@@ -14,6 +14,15 @@
 THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	THandleStatus status = HANDLED_CONTINUE;
 
+	// The API surface carries its own gate (src/httpd: sessions, tokens and
+	// the lan-read rule out of ni-web.conf, whose first write is migrated
+	// from this module's own credentials). Basic in front of it would put a
+	// second password prompt before /api/v1/login and keep every browser in
+	// a popup no page can style. /control and the pages stay behind this
+	// module as they always were.
+	if (hh->UrlData["path"].compare(0, 5, "/api/") == 0)
+		return HANDLED_CONTINUE;
+
 	// dont check local calls or calls from NoAuthClient
 	if (authenticate) {
 		if ((hh->UrlData["clientaddr"]).find(IADDR_LOCAL) > 0

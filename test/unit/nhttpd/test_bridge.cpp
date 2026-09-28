@@ -17,6 +17,11 @@
 #include "support/catch.hpp"
 
 #include "httpd/nhttpd_bridge.h"
+#include "httpd/auth.h"
+#include "httpd/credentials.h"
+#include "httpd/endpoints.h"
+#include "httpd/router.h"
+#include "coreapi/storage.h"
 #include "httpd/doc/openapi.h"
 
 #include "yhook.h"
@@ -219,11 +224,20 @@ TEST_CASE("a JSON body reaches the router and a malformed one is refused there",
 {
 	Attached a;
 
+	// A write needs a credential since the gate landed; what this case is
+	// about is the router's reading of the body behind it.
+	const std::string token = "00112233445566778899aabbccddeeff";
+	httpd::addApiToken(httpd::tokenLookupPrefix(token), httpd::hashSecret(token),
+	                   httpd::AuthLevel::System, "", 0);
+	const std::string bearer = "Bearer " + token;
+
 	Handler bad(M_POST, "/api/v1/system/standby", "{\"on\": [1,2]}");
+	bad.hh.HeaderList["Authorization"] = bearer;
 	REQUIRE(a.bridge.Hook_SendResponse(&bad.hh) == HANDLED_READY);
 	CHECK(bad.hh.httpStatus == HTTP_BAD_REQUEST);
 
 	Handler missing(M_POST, "/api/v1/system/standby", "{}");
+	missing.hh.HeaderList["Authorization"] = bearer;
 	REQUIRE(a.bridge.Hook_SendResponse(&missing.hh) == HANDLED_READY);
 	CHECK(missing.hh.httpStatus == HTTP_BAD_REQUEST);
 	CHECK(missing.hh.yresult.find("\"status\":400") != std::string::npos);
@@ -231,8 +245,11 @@ TEST_CASE("a JSON body reaches the router and a malformed one is refused there",
 	// PUT is dispatched and the path is matched: the router refuses the empty
 	// body before any handler runs, so no box backend is needed here.
 	Handler put(M_PUT, "/api/v1/bouquets/none-such/name", "{}");
+	put.hh.HeaderList["Authorization"] = bearer;
 	REQUIRE(a.bridge.Hook_SendResponse(&put.hh) == HANDLED_READY);
 	CHECK(put.hh.httpStatus == HTTP_BAD_REQUEST);
+
+	httpd::forgetApiTokens();
 }
 
 TEST_CASE("a method nhttpd cannot name is 501 from the router", "[bridge]")
@@ -472,6 +489,145 @@ TEST_CASE("a whole-file answer takes one range where the caller asked", "[bridge
 		CHECK(p.length == 10);
 		CHECK(p.content_range.empty());
 	}
+}
+
+TEST_CASE("the gate: the lan may read and a stranger may not", "[bridge]")
+{
+	Attached a;
+
+	// The harness peer is on the lan (192.168.1.20, inside the shipped
+	// lan_read), so a read passes with nothing presented.
+	Handler lan(M_GET, "/api/v1/system/legacy-usage");
+	REQUIRE(a.bridge.Hook_SendResponse(&lan.hh) == HANDLED_READY);
+	CHECK(lan.hh.httpStatus == HTTP_OK);
+
+	// Off the lan the same read is refused before any route runs, with the
+	// one refusal the gate ever writes - 403, never a 401 that would ask a
+	// browser for Basic - and it carries the API headers like any answer.
+	Handler off(M_GET, "/api/v1/system/legacy-usage");
+	off.hh.UrlData["clientaddr"] = "203.0.113.9";
+	REQUIRE(a.bridge.Hook_SendResponse(&off.hh) == HANDLED_READY);
+	CHECK(off.hh.httpStatus == HTTP_FORBIDDEN);
+	CHECK(headerOf(off.hh, "Cache-Control") == "no-store");
+}
+
+TEST_CASE("the gate: a write asks for more than the lan grants", "[bridge]")
+{
+	Attached a;
+
+	// The same request the router-refusal case sends with a credential: from
+	// the lan alone it must not get as far as the router's 400.
+	Handler put(M_PUT, "/api/v1/bouquets/none-such/name", "{}");
+	REQUIRE(a.bridge.Hook_SendResponse(&put.hh) == HANDLED_READY);
+	CHECK(put.hh.httpStatus == HTTP_FORBIDDEN);
+}
+
+TEST_CASE("the gate: a minted bearer token opens the write gate", "[bridge]")
+{
+	Attached a;
+
+	// The way a configured token arrives: the stored form into the table,
+	// the plain form into the header. A minted token would carry a scope,
+	// and a scoped token counts only where a route reads one.
+	const std::string token = "0123456789abcdef0123456789abcdef";
+	httpd::addApiToken(httpd::tokenLookupPrefix(token), httpd::hashSecret(token),
+	                   httpd::AuthLevel::System, "", 0);
+
+	Handler put(M_PUT, "/api/v1/bouquets/none-such/name", "{}");
+	put.hh.HeaderList["Authorization"] = "Bearer " + token;
+	REQUIRE(a.bridge.Hook_SendResponse(&put.hh) == HANDLED_READY);
+	// Through the gate: the router's own refusal of the empty body, not 401.
+	CHECK(put.hh.httpStatus == HTTP_BAD_REQUEST);
+
+	httpd::forgetApiTokens();
+}
+
+TEST_CASE("the gate: a session reads as the owner and a mutation asks for the second token", "[bridge]")
+{
+	Attached a;
+
+	const std::string session = httpd::openSession("root");
+	REQUIRE(!session.empty());
+	const std::string csrf = httpd::csrfFor(session);
+	REQUIRE(!csrf.empty());
+	const std::string cookie = std::string(httpd::sessionCookieName()) + "=" + session;
+
+	// From off the lan, so the cookie and nothing else is the credential.
+	Handler get(M_GET, "/api/v1/system/legacy-usage");
+	get.hh.UrlData["clientaddr"] = "203.0.113.9";
+	get.hh.HeaderList["Cookie"] = cookie;
+	REQUIRE(a.bridge.Hook_SendResponse(&get.hh) == HANDLED_READY);
+	CHECK(get.hh.httpStatus == HTTP_OK);
+
+	// A mutation with the cookie alone is what another site can make a
+	// browser send, and it is refused.
+	Handler bare(M_PUT, "/api/v1/bouquets/none-such/name", "{}");
+	bare.hh.UrlData["clientaddr"] = "203.0.113.9";
+	bare.hh.HeaderList["Cookie"] = cookie;
+	REQUIRE(a.bridge.Hook_SendResponse(&bare.hh) == HANDLED_READY);
+	CHECK(bare.hh.httpStatus == HTTP_FORBIDDEN);
+
+	// With the second token the gate opens and the router answers.
+	Handler both(M_PUT, "/api/v1/bouquets/none-such/name", "{}");
+	both.hh.UrlData["clientaddr"] = "203.0.113.9";
+	both.hh.HeaderList["Cookie"] = cookie;
+	both.hh.HeaderList[httpd::csrfHeaderName()] = csrf;
+	REQUIRE(a.bridge.Hook_SendResponse(&both.hh) == HANDLED_READY);
+	CHECK(both.hh.httpStatus == HTTP_BAD_REQUEST);
+}
+
+TEST_CASE("the gate: the query token counts only where the route reads one, and only scoped", "[bridge]")
+{
+	Attached a;
+
+	// The scoped media token, minted the way /api/v1/token/media mints one.
+	const std::string media = httpd::openScopedToken(httpd::mediaScopeName(),
+	                                                 httpd::AuthLevel::System);
+	REQUIRE(!media.empty());
+
+	// The core first: the minted token resolves in the query where the route
+	// allows one, with its scope beside it.
+	{
+		httpd::Credentials probe;
+		probe.peer = "203.0.113.9";
+		probe.query_token = media;
+		std::string named;
+		REQUIRE(httpd::granted(probe, true, &named) == httpd::AuthLevel::System);
+		REQUIRE(named == httpd::mediaScopeName());
+
+		httpd::AuthLevel need = httpd::AuthLevel::Public;
+		bool qok = false;
+		REQUIRE(httpd::routeLevelFor(httpd::Get, "/api/v1/storage/file", &need, &qok));
+		REQUIRE(qok);
+	}
+
+	// A route that was not written to read one: the token in the address is
+	// nothing, and the stranger is refused.
+	Handler info(M_GET, "/api/v1/system/legacy-usage?token=" + media);
+	info.hh.UrlData["clientaddr"] = "203.0.113.9";
+	REQUIRE(a.bridge.Hook_SendResponse(&info.hh) == HANDLED_READY);
+	CHECK(info.hh.httpStatus == HTTP_FORBIDDEN);
+
+	// The box's standing credential does not belong in an address: at the one
+	// route that reads a query token, a configured token there is still
+	// nothing - only a scoped one counts.
+	const std::string standing = "0f1e2d3c4b5a69780f1e2d3c4b5a6978";
+	httpd::addApiToken(httpd::tokenLookupPrefix(standing), httpd::hashSecret(standing),
+	                   httpd::AuthLevel::System, "", 0);
+	Handler wrong(M_GET, "/api/v1/storage/file?path=%2Ftmp%2Fx&token=" + standing);
+	wrong.hh.UrlData["clientaddr"] = "203.0.113.9";
+	REQUIRE(a.bridge.Hook_SendResponse(&wrong.hh) == HANDLED_READY);
+	CHECK(wrong.hh.httpStatus == HTTP_FORBIDDEN);
+
+	/* The end-to-end file answer for a scoped token is the wire check's
+	   (check-v1.sh): readFile calls confine() and rebuilds the roots from
+	   the box's own settings before every request, so a root a case sets
+	   here is gone by the time the handler looks - by design, a directory
+	   entered in a menu has to work without a restart. What this file can
+	   pin is above: the token resolves, the gate opens only where the route
+	   reads one, and only a scoped token counts in an address. */
+
+	httpd::forgetApiTokens();
 }
 
 TEST_CASE("without connection threads a stream is refused, not carried", "[bridge]")

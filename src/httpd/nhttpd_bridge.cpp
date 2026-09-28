@@ -8,6 +8,7 @@
 
 #include "nhttpd_bridge.h"
 
+#include "httpd/auth.h"
 #include "httpd/byterange.h"
 #include "httpd/endpoint.h"
 #include "httpd/events.h"
@@ -47,6 +48,75 @@ httpd::Method methodOf(THttp_Method m)
 		case M_HEAD:   return httpd::Head;
 		default:       return httpd::UnknownMethod;
 	}
+}
+
+/* One cookie out of the header, spelled the way a browser writes several:
+   name=value pairs with semicolons between them and space after each. The
+   first match answers. Nothing is decoded: the session token is minted
+   without a byte a cookie may not carry. */
+std::string cookieValue(const std::string &header, const char *name)
+{
+	const size_t nlen = strlen(name);
+	size_t at = 0;
+	while (at < header.size())
+	{
+		while (at < header.size() && (header[at] == ' ' || header[at] == ';'))
+			at++;
+		const size_t stop_at = header.find(';', at);
+		const size_t stop = (stop_at == std::string::npos) ? header.size() : stop_at;
+		const size_t eq = header.find('=', at);
+		if (eq != std::string::npos && eq < stop && eq - at == nlen &&
+		    header.compare(at, nlen, name) == 0)
+			return header.substr(eq + 1, stop - eq - 1);
+		at = stop + 1;
+	}
+	return std::string();
+}
+
+/* One value out of the raw query, decoded the way nhttpd decodes its own
+   parameter list. Read here rather than off hh->ParamList so the bridge
+   holds one reading of the request it was handed, target and all. */
+std::string queryValue(const std::string &query, const char *name)
+{
+	const size_t nlen = strlen(name);
+	size_t at = 0;
+	while (at < query.size())
+	{
+		const size_t stop_at = query.find('&', at);
+		const size_t stop = (stop_at == std::string::npos) ? query.size() : stop_at;
+		const size_t eq = query.find('=', at);
+		if (eq != std::string::npos && eq < stop && eq - at == nlen &&
+		    query.compare(at, nlen, name) == 0)
+			return decodeString(query.substr(eq + 1, stop - eq - 1));
+		at = stop + 1;
+	}
+	return std::string();
+}
+
+/* The credentials off an nhttpd request: credentialsOf as compatible
+   forks carry it in their server, with the MHD lookups replaced by
+   nhttpd's own lists. The basic member is read whether or not the header carries the Bearer
+   scheme, exactly as upstream does, and granted() never looks at it. */
+httpd::Credentials credentialsOf(CyhookHandler *hh, const std::string &query)
+{
+	httpd::Credentials c;
+	c.peer = hh->UrlData["clientaddr"];
+
+	const std::string cookies = header_value(hh->HeaderList, "Cookie");
+	if (!cookies.empty())
+		c.cookie_token = cookieValue(cookies, httpd::sessionCookieName());
+
+	const std::string authz = header_value(hh->HeaderList, "Authorization");
+	if (!authz.empty())
+	{
+		c.bearer_token = httpd::bearerToken(authz);
+		c.basic = httpd::basicCredential(authz);
+	}
+
+	c.csrf_header = header_value(hh->HeaderList, httpd::csrfHeaderName());
+	c.query_token = queryValue(query, httpd::queryTokenName());
+	c.forwarded_for = header_value(hh->HeaderList, "X-Forwarded-For");
+	return c;
 }
 
 void takeProblem(CyhookHandler *hh, int code, coreapi::ErrorCode why, const char *detail)
@@ -226,13 +296,36 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 			return hh->status;
 		}
 
-		/* What the caller is: whatever nhttpd let through. With mod_auth on,
-		   that is a caller who gave nhttpd's password; with it off, anybody
-		   who reached the box, as /control has always been answered. The
-		   router's own levels start to mean something with the session layer. */
+		/* The route first, then the caller, in upstream serve()'s order
+		   (server.cpp): the route declares which credentials count, so the
+		   request cannot be judged before it is known what it would reach.
+		   nhttpd hands the request over whole, so the gate is asked once
+		   where upstream's two-phase daemon asks it twice; the router asks
+		   the level half again at dispatch, through the same sentence, so
+		   the two refusals cannot be told apart. */
+		httpd::AuthLevel need = httpd::AuthLevel::Public;
+		bool query_token_ok = false;
+		const bool routed = httpd::routeLevelFor(m, path, &need, &query_token_ok);
+
+		const httpd::Credentials cred = credentialsOf(hh, query);
+		std::string scope;
+		const httpd::AuthLevel have = httpd::granted(cred, query_token_ok, &scope);
+
+		if (routed)
+		{
+			httpd::Response refusal;
+			if (!httpd::allowed(need, have, m, cred, &refusal))
+			{
+				httpd::addApiHeaders(refusal);
+				answerWith(hh, refusal);
+				return hh->status;
+			}
+		}
+
 		httpd::Response r = httpd::dispatch(m, path, query, hh->RawBody,
-		                                    hh->UrlData["clientaddr"], httpd::AuthLevel::System,
-		                                    "", "", header_value(hh->HeaderList, "Host"), "");
+		                                    cred.peer, have,
+		                                    httpd::clientAddress(cred), cred.cookie_token,
+		                                    header_value(hh->HeaderList, "Host"), scope);
 
 		if ((m == httpd::Get || m == httpd::Head) && httpd::openapi::isDocument(r))
 			r = httpd::openapi::withEncoding(r, header_value(hh->HeaderList, "Accept-Encoding"));
