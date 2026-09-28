@@ -18,6 +18,7 @@
 #include <ylogging.h>
 #include <ylanguage.h>
 #include <yhook.h>
+#include <httpd/events.h>
 #include <httpd/nhttpd_bridge.h>
 
 #ifdef Y_CONFIG_USE_YPARSER
@@ -237,6 +238,10 @@ void Cyhttpd::version(FILE *dest) {
 void Cyhttpd::stop_webserver() {
 	aprintf("stop requested......\n");
 	if (webserver) {
+		// before the hooks go: every open stream is closed and waited for,
+		// so no connection thread is inside the bridge when it is deleted
+		if (api_bridge)
+			httpd::events::stop();
 		webserver->stop();
 		hooks_detach();
 	}
@@ -261,6 +266,9 @@ void Cyhttpd::hooks_attach() {
 			CApiBridge::registerPrefixes();
 			api_bridge = new CApiBridge();
 			CyhookHandler::attach(api_bridge);
+			// after the attach, so no stream can open before the hook that
+			// carries it exists; refuses streams itself if its thread fails
+			httpd::events::start();
 		} else {
 			api_bridge = NULL;
 			aprintf("yhttpd: the REST layer is not attached: %s\n", why.c_str());

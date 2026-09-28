@@ -59,6 +59,9 @@ public:
 	virtual std::string getHookVersion(void) { return "1.0.0"; }
 	virtual THandleStatus Hook_PrepareResponse(CyhookHandler *hh);
 	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh);
+	// The stream pass: registers the stream (or refuses it as an ordinary
+	// answer), writes the header, and pumps the connection until it ends.
+	virtual THandleStatus Hook_SendStream(CyhookHandler *hh, CySocket *sock);
 
 	// Whether the tables are ones this server can answer from. Asked once
 	// before the hook is attached; a false answer keeps it off, with why.

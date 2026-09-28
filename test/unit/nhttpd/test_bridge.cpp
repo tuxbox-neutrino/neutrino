@@ -257,12 +257,42 @@ TEST_CASE("an answer shape nhttpd cannot carry yet is refused as 501 by the brid
 	CHECK(h.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
 	CHECK(h.hh.yresult.find("\"status\":501") != std::string::npos);
 
+}
+
+TEST_CASE("an event-stream answer is handed to the stream pass", "[bridge]")
+{
+	Attached a;
 	httpd::Response sse;
 	sse.code = 200;
 	sse.content_type = "text/event-stream";
-	Handler e(M_GET, "/api/v1/events");
-	CApiBridge::answerWith(&e.hh, sse);
-	CHECK(e.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
+	sse.headers.push_back(std::make_pair(std::string("Cache-Control"),
+	                                     std::string("no-cache, no-transform")));
+
+	SECTION("GET carries the handler's headers and asks for the stream")
+	{
+		Handler e(M_GET, "/api/v1/events");
+		CApiBridge::answerWith(&e.hh, sse);
+		CHECK(e.hh.status == HANDLED_STREAM);
+		CHECK(e.hh.httpStatus == HTTP_OK);
+		CHECK(e.hh.ResponseMimeType == "text/event-stream");
+		bool found = false;
+		for (size_t i = 0; i < e.hh.ResponseHeaders.size(); i++)
+			if (e.hh.ResponseHeaders[i].first == "Cache-Control"
+					&& e.hh.ResponseHeaders[i].second == "no-cache, no-transform")
+				found = true;
+		CHECK(found);
+		CHECK(e.hh.yresult.empty());
+	}
+	SECTION("HEAD is a finite answer with the stream's headers and no body")
+	{
+		Handler e(M_HEAD, "/api/v1/events");
+		CApiBridge::answerWith(&e.hh, sse);
+		CHECK(e.hh.status == HANDLED_READY);
+		CHECK(e.hh.httpStatus == HTTP_OK);
+		CHECK(e.hh.ResponseMimeType == "text/event-stream");
+		CHECK(e.hh.yresult.empty());
+		CHECK(e.hh.BuildHeader().find("Content-Length: 0\r\n") != std::string::npos);
+	}
 }
 
 TEST_CASE("a file answer hands the descriptor to the transport", "[bridge]")

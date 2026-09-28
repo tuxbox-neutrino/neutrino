@@ -10,6 +10,7 @@
 
 #include "httpd/byterange.h"
 #include "httpd/endpoint.h"
+#include "httpd/events.h"
 #include "httpd/http.h"
 #include "httpd/router.h"
 #include "httpd/status.h"
@@ -17,6 +18,7 @@
 #include "coreapi/base/errors.h"
 
 #include "helper.h"
+#include "ysocket.h"
 #include <ylogging.h>
 
 #include <cerrno>
@@ -252,17 +254,125 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 	return hh->status;
 }
 
+namespace
+{
+
+// The pump's way onto the wire: every block whole, or the stream ends.
+bool sendBlock(void *ctx, const char *bytes, size_t n)
+{
+	return ((CySocket *) ctx)->SendAll(bytes, n);
+}
+
+/* A registration between opening and spending. Whatever path leaves the
+   stream hook - a refused header send, a throw out of a string - gives the
+   seat back exactly once; spending it hands that duty to pumpStream. */
+struct HeldStream
+{
+	httpd::events::StreamHandle h;
+	explicit HeldStream(httpd::events::StreamHandle x) : h(x) {}
+	~HeldStream()
+	{
+		if (h != NULL)
+			httpd::events::closeStream(h);
+	}
+	httpd::events::StreamHandle spend()
+	{
+		httpd::events::StreamHandle out = h;
+		h = NULL;
+		return out;
+	}
+private:
+	HeldStream(const HeldStream &);
+	HeldStream &operator=(const HeldStream &);
+};
+
+} // namespace
+
+THandleStatus CApiBridge::Hook_SendStream(CyhookHandler *hh, CySocket *sock)
+{
+	if (!claims(hh))
+		return HANDLED_NONE;
+
+	try
+	{
+		/* Registered before the header goes out: the seat is counted and the
+		   opening frames are seeded first, so an event published while the
+		   header travels is waiting in the stream, not lost - and a refusal
+		   happens while nothing has been written, so it can still be an
+		   ordinary answer. */
+		httpd::events::StreamHandle handle = NULL;
+		httpd::Response refusal;
+		const httpd::events::Opened got =
+			httpd::events::openStream((int) sock->get_socket(), handle, refusal);
+
+		if (got == httpd::events::StreamRefused)
+		{
+			httpd::addApiHeaders(refusal);
+			hh->api_mode = true;
+			hh->httpStatus = (HttpResponseType) refusal.code;
+			hh->ResponseMimeType = refusal.content_type;
+			hh->ResponseHeaders = refusal.headers;
+			hh->yresult = refusal.body;
+			return HANDLED_READY;
+		}
+		if (got != httpd::events::StreamOpened)
+		{
+			takeProblem(hh, 500, coreapi::ErrorCode::BoxUnreadable,
+			            "the stream could not be opened");
+			return HANDLED_READY;
+		}
+
+		HeldStream held(handle);
+		const std::string header = hh->BuildHeader();
+		if (!sock->SendAll(header.data(), header.size()))
+			// held gives the seat back; bytes may be on the wire, so the
+			// connection is spent and no other answer may follow
+			return HANDLED_STREAM;
+
+		httpd::events::pumpStream(held.spend(), &sendBlock, sock);
+		return HANDLED_STREAM;
+	}
+	catch (const std::exception &e)
+	{
+		log_level_printf(1, "api bridge: %s\n", e.what());
+	}
+	catch (...)
+	{
+	}
+	/* A throw lands here only out of the header build or the bookkeeping
+	   around it; the guard above has given the seat back. Whether a byte
+	   made it out cannot be known cheaply, so the connection is treated as
+	   spent rather than answered twice. */
+	return HANDLED_STREAM;
+}
+
 void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 {
 	HeldDescriptor held(r.fd);
 	const int fd = held.fd;
 
-	const bool is_stream = !r.stream_argv.empty() || !r.relay_url.empty()
-	                       || r.content_type == "text/event-stream";
-	if (r.code == 200 && is_stream)
+	const bool is_relay = !r.stream_argv.empty() || !r.relay_url.empty();
+	if (r.code == 200 && is_relay)
 	{
 		takeProblem(hh, 501, coreapi::ErrorCode::NoSuchMethod,
-		            "this server does not carry a stream yet");
+		            "this server does not carry a relayed stream yet");
+		return;
+	}
+
+	if (httpd::events::isStream(r))
+	{
+		/* The handler said what the answer is; the connection becomes it in
+		   the stream pass. The headers travel now, before the status is
+		   given back, because the pass writes the header out of this handler
+		   and nothing after this sees the Response again. HEAD stays a
+		   finite answer: the stream's head, no body, length nought - and no
+		   stream is opened for it. */
+		hh->api_mode = true;
+		hh->httpStatus = (HttpResponseType) r.code;
+		hh->ResponseMimeType = r.content_type;
+		hh->ResponseHeaders = r.headers;
+		hh->yresult.clear();
+		hh->status = (hh->Method == M_HEAD) ? HANDLED_READY : HANDLED_STREAM;
 		return;
 	}
 
