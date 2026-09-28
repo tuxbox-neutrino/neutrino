@@ -200,5 +200,81 @@ else
 fi
 rm -f "$RF"
 
+# 14. the event stream: header without a length, the retry frame and its
+#     spread, one real event reaching two streams at once (the volume goes
+#     over the box's own loop: route -> wish -> applied -> announced), and
+#     the seats coming back after a hard close. The volume is put back.
+r14=`python3 - "$BASE" <<'PYEOF'
+import json, socket, subprocess, sys, time
+base = sys.argv[1]
+host = base.split('://', 1)[-1].split(':')[0]; port = int(base.rsplit(':', 1)[-1])
+def open_stream():
+	s = socket.create_connection((host, port), timeout=10)
+	s.sendall(b"GET /api/v1/events HTTP/1.0\r\nHost: box\r\n\r\n")
+	buf = b''
+	while b'\r\n\r\n' not in buf:
+		c = s.recv(4096)
+		if not c: break
+		buf += c
+	head, _, body = buf.partition(b'\r\n\r\n')
+	return s, head, body
+def read_until(s, needle, body, deadline):
+	s.settimeout(0.5)
+	while needle not in body and time.time() < deadline:
+		try:
+			c = s.recv(4096)
+		except socket.timeout:
+			continue
+		if not c: break
+		body += c
+	return body
+fails = []
+old = subprocess.check_output(['curl', '-s', base + '/api/v1/osd/volume'])
+try:
+	percent = json.loads(old)['percent']
+except Exception:
+	percent = None
+a, ah, abody = open_stream()
+b, bh, bbody = open_stream()
+if b' 200 ' not in ah.split(b'\r\n', 1)[0]:
+	fails.append('status ' + ah.split(b'\r\n', 1)[0].decode(errors='replace'))
+hl = ah.lower()
+if b'content-type: text/event-stream' not in hl: fails.append('content-type')
+if b'content-length:' in hl: fails.append('has content-length')
+if b'transfer-encoding:' in hl: fails.append('has transfer-encoding')
+abody = read_until(a, b'retry:', abody, time.time() + 2)
+bbody = read_until(b, b'retry:', bbody, time.time() + 2)
+if b'retry:' not in abody: fails.append('no retry frame within 2s')
+ra = abody.split(b'retry:')[1].split(b'\n')[0] if b'retry:' in abody else b''
+rb = bbody.split(b'retry:')[1].split(b'\n')[0] if b'retry:' in bbody else b''
+if ra == rb: fails.append('both told the same retry')
+want = 37 if percent != 37 else 38
+subprocess.call(['curl', '-s', '-o', '/dev/null', '-X', 'PUT',
+                 '-H', 'Content-Type: application/json',
+                 '-d', '{"percent":%d}' % want, base + '/api/v1/osd/volume'])
+deadline = time.time() + 3
+abody = read_until(a, b'event: volume', abody, deadline)
+bbody = read_until(b, b'event: volume', bbody, deadline)
+if b'event: volume' not in abody: fails.append('stream a missed the volume event')
+if b'event: volume' not in bbody: fails.append('stream b missed the volume event')
+a.close(); b.close()
+if percent is not None:
+	subprocess.call(['curl', '-s', '-o', '/dev/null', '-X', 'PUT',
+	                 '-H', 'Content-Type: application/json',
+	                 '-d', '{"percent":%d}' % percent, base + '/api/v1/osd/volume'])
+time.sleep(1.0)
+c, ch, cb = open_stream()
+d, dh, db = open_stream()
+if b' 200 ' not in ch.split(b'\r\n', 1)[0] or b' 200 ' not in dh.split(b'\r\n', 1)[0]:
+	fails.append('seats not reclaimed after a hard close')
+c.close(); d.close()
+print('PASS' if not fails else 'FAIL ' + '; '.join(fails))
+PYEOF
+`
+case "$r14" in
+	PASS*) pass "event stream: header, retry spread, one event on two streams, reap";;
+	*) fail "event stream: $r14";;
+esac
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]

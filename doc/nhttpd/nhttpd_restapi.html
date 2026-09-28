@@ -36,10 +36,21 @@ not the dedicated server of those forks, and <code>/control/</code> stays what i
 <p>
 What each route takes and answers is in the document; read it from the box or
 build it without one: <code>make -C src/httpd openapi-dump</code> writes the
-same bytes the route answers. Fourteen of the nineteen tables known from compatible forks are served;
-the five that lean on the dedicated server of compatible forks (the event stream, sessions, the
-stream and web-TV relays, the server's own start and stop) follow with the
-transport work each needs.
+same bytes the route answers. Fifteen of the nineteen tables known from compatible forks are served,
+the event stream among them; the four that lean on the dedicated server of compatible forks
+(sessions, the stream and web-TV relays, the server's own start and stop)
+follow with the transport work each needs.
+</p>
+<p>
+<code>GET /api/v1/events</code> is the box's own events as they happen
+(<code>text/event-stream</code>): zap, mode, standby, volume, mute, record
+start and stop, timer, EPG, bouquet and settings changes. The stream opens
+with a <code>retry:</code> field spread across clients, carries a comment
+frame when it has been silent, and runs on the connection it arrived on -
+no <code>Content-Length</code>, the body ends when the connection closes.
+At most eight streams are carried at once; the ninth caller gets a 503 with
+a <code>Retry-After</code>. A peer that stops reading is dropped once its
+backlog passes a quarter megabyte rather than buffered forever.
 </p>
 <p>
 The TypeScript shapes of the API are written out of the document by
@@ -99,13 +110,12 @@ routes declare (read, write, system) are recorded in the document as
 
 <h2>What is not there yet</h2>
 <ul>
-<li>the event stream (<code>/api/v1/events</code>): nhttpd has no streaming
-answer path; a route that would answer with a stream is refused with 501</li>
 <li>sessions, tokens, per-route levels: the session layer, and with it the
 auth table and the webserver table, as compatible forks have them</li>
 <li>the stream and web-TV relays (<code>/api/v1/stream...</code>,
 <code>/api/v1/webtv...</code>): they hand a long-lived connection to a
-program or a remote server, which is the same streaming path as the events</li>
+program or a remote server; a route that would answer with one is refused
+with 501 until that path exists</li>
 </ul>
 
 <h2>Where things are</h2>
