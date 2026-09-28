@@ -57,6 +57,8 @@
 #include <yconfig.h>
 #include "ytypes_globals.h"
 #include "ylogging.h"
+
+class CySocket; //forward: the stream pass hands the socket to the hook
 // tuxbox
 #include <configfile.h>
 
@@ -81,6 +83,7 @@ typedef enum
 	HANDLED_REWRITE,		// Set new URL and call Hooks again
 	HANDLED_CONTINUE,		// handled but go on
 	HANDLED_SENDFD,			// Send the hook's descriptor (api_mode)
+	HANDLED_STREAM,			// The hook streams on the socket itself (api_mode)
 
 } THandleStatus;
 typedef std::list<Cyhook *> THookList;
@@ -111,6 +114,13 @@ public:
 	// CWebserverConnection based hooks
 	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *){return HANDLED_NONE;};
 	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *){return HANDLED_NONE;};
+	// The stream pass: called only after a send hook answered HANDLED_STREAM.
+	// The hook owns the exchange from here - it writes the header and every
+	// frame on the socket itself, and only two returns exist: HANDLED_READY
+	// when it refused before writing a byte (the normal writer then answers
+	// out of the handler), HANDLED_STREAM when the stream ran and the
+	// connection is spent.
+	virtual THandleStatus	Hook_SendStream(CyhookHandler *, CySocket *){return HANDLED_NONE;};
 	virtual THandleStatus	Hook_EndConnection(CyhookHandler *){return HANDLED_NONE;}
 	virtual THandleStatus	Hook_UploadSetFilename(CyhookHandler *, std::string &){return HANDLED_NONE;}
 	virtual THandleStatus	Hook_UploadReady(CyhookHandler *, std::string){return HANDLED_NONE;}
@@ -196,6 +206,7 @@ public:
 	// CWebserverConnection based hooks
 	THandleStatus 		Hooks_PrepareResponse();// Hook for Response.SendResonse Dispatching
 	THandleStatus 		Hooks_SendResponse();	// Hook for Response.SendResonse Dispatching
+	THandleStatus		Hooks_SendStream(CySocket *sock); // Stream pass, after HANDLED_STREAM
 	THandleStatus 		Hooks_EndConnection();
 	THandleStatus		Hooks_UploadSetFilename(std::string &Filename);
 	THandleStatus		Hooks_UploadReady(const std::string& Filename);

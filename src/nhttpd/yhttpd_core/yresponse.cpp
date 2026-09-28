@@ -107,6 +107,24 @@ bool CWebserverResponse::SendResponse() {
 				return false;
 
 			Connection->HookHandler.Hooks_SendResponse();
+			if (Connection->HookHandler.status == HANDLED_STREAM) {
+				/* The hook owns the exchange: it must register the stream
+				   (or refuse it) before any byte goes out, so the header is
+				   its to write, not this loop's. Uncorked first, so the
+				   header and every frame reach the peer as they are written.
+				   Two ways back: HANDLED_READY = refused before writing -
+				   the normal writer below answers out of the handler, in
+				   this same iteration, with no second dispatch. Anything
+				   else: the stream ran on this socket until it ended or
+				   broke off mid-write; either way the connection is spent
+				   and no further HTTP answer may follow. */
+				Connection->sock->set_stream_flush();
+				Connection->HookHandler.Hooks_SendStream(Connection->sock);
+				if (Connection->HookHandler.status != HANDLED_READY) {
+					Connection->keep_alive = false;
+					return true;
+				}
+			}
 			if (Connection->HookHandler.status == HANDLED_SENDFD) {
 				// An answer that is a file: header with the stretch's length,
 				// then the bytes straight out of the descriptor. The handler

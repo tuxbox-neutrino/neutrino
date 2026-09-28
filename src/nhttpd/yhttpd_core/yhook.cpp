@@ -131,6 +131,24 @@ THandleStatus CyhookHandler::Hooks_ReadConfig(CConfigFile *Config,
 //-----------------------------------------------------------------------------
 // Hook Dispatcher for EndConnection
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// The stream pass. Same walk as the response pass: the first hook that
+// answers something other than NONE/CONTINUE owns the exchange.
+//-----------------------------------------------------------------------------
+THandleStatus CyhookHandler::Hooks_SendStream(CySocket *sock) {
+	log_level_printf(4, "Stream Hook-List Start\n");
+	THandleStatus _status = HANDLED_NONE;
+	THookList::iterator i = HookList.begin();
+	for (; i != HookList.end(); ++i) {
+		_status = (*i)->Hook_SendStream(this, sock);
+		if ((_status != HANDLED_NONE) && (_status != HANDLED_CONTINUE))
+			break;
+	}
+	log_level_printf(4, "Stream Hook-List End. Status (%d)\n", _status);
+	status = _status;
+	return _status;
+}
+
 THandleStatus CyhookHandler::Hooks_EndConnection() {
 	log_level_printf(4, "EndConnection Hook-List Start\n");
 	THandleStatus _status = HANDLED_NONE;
@@ -753,8 +771,11 @@ std::string CyhookHandler::BuildApiHeader() {
 	}
 	// HEAD included: the length is that of the answer a GET would carry.
 	// An answer that is a file states the stretch of it the transport sends.
-	result += string_printf("Content-Length: %lld\r\n",
-			(SendFd >= 0) ? (long long) SendFdLength : (long long) yresult.length());
+	// A stream has no length at all: the body runs until the connection
+	// closes, which Connection: close above already promises.
+	if (status != HANDLED_STREAM)
+		result += string_printf("Content-Length: %lld\r\n",
+				(SendFd >= 0) ? (long long) SendFdLength : (long long) yresult.length());
 	result += "\r\n";
 	return result;
 }

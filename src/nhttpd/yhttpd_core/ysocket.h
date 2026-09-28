@@ -91,6 +91,7 @@ public:
 	// Every byte of data, or false after the peer went away. Send() alone
 	// reports a partial write as success.
 	bool		SendAll(const char *data, size_t length);
+	void		set_stream_flush(void);			// uncork + NODELAY for streamed answers
 
 protected:
 	long 		BytesSend;					// Bytes send over Socket

@@ -29,6 +29,8 @@
 
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -491,4 +493,98 @@ TEST_CASE("a connection the server cannot take is answered and closed", "[nhttpd
 	CHECK(got.find("HTTP/1.0 503 ") == 0);
 	CHECK(got.find("Connection: close\r\n") != std::string::npos);
 	close(fd[1]);
+}
+
+TEST_CASE("the api header of a stream states no length", "[nhttpd]")
+{
+	CyhookHandler hh = apiHandler(M_GET, HTTP_OK, "");
+	hh.ResponseMimeType = "text/event-stream";
+	hh.status = HANDLED_STREAM;
+	std::string header = hh.BuildHeader();
+	CHECK(header.find("Content-Length:") == std::string::npos);
+	CHECK(header.find("Connection: close\r\n") != std::string::npos);
+	CHECK(header.find("Content-Type: text/event-stream\r\n") != std::string::npos);
+	// and only the stream mode drops it
+	hh.status = HANDLED_READY;
+	CHECK(hh.BuildHeader().find("Content-Length: 0\r\n") != std::string::npos);
+}
+
+TEST_CASE("set_stream_flush lifts the cork and stops the batching", "[nhttpd]")
+{
+	// a real TCP pair: TCP_CORK/TCP_NODELAY do not exist on AF_UNIX
+	int lfd = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(lfd >= 0);
+	struct sockaddr_in a;
+	memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	REQUIRE(bind(lfd, (struct sockaddr *) &a, sizeof(a)) == 0);
+	socklen_t alen = sizeof(a);
+	REQUIRE(getsockname(lfd, (struct sockaddr *) &a, &alen) == 0);
+	REQUIRE(listen(lfd, 1) == 0);
+	int cfd = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(connect(cfd, (struct sockaddr *) &a, sizeof(a)) == 0);
+	int sfd = accept(lfd, NULL, NULL);
+	REQUIRE(sfd >= 0);
+
+	int one = 1;
+	REQUIRE(setsockopt(sfd, IPPROTO_TCP, TCP_CORK, &one, sizeof(one)) == 0);
+
+	CySocket s(sfd);
+	s.isOpened = true;
+	s.isValid = true;
+	s.set_stream_flush();
+
+	int v = -1;
+	socklen_t vl = sizeof(v);
+	REQUIRE(getsockopt(sfd, IPPROTO_TCP, TCP_CORK, &v, &vl) == 0);
+	CHECK(v == 0);
+	v = -1;
+	vl = sizeof(v);
+	REQUIRE(getsockopt(sfd, IPPROTO_TCP, TCP_NODELAY, &v, &vl) == 0);
+	CHECK(v != 0);
+
+	s.close();
+	close(cfd);
+	close(lfd);
+}
+
+namespace
+{
+struct StreamProbeHook : public Cyhook
+{
+	bool called;
+	StreamProbeHook() : called(false) {}
+	virtual std::string getHookName(void) { return "stream probe"; }
+	virtual std::string getHookVersion(void) { return "0"; }
+	virtual THandleStatus Hook_SendStream(CyhookHandler *, CySocket *sock)
+	{
+		called = true;
+		sock->Send("x", 1);
+		return HANDLED_STREAM;
+	}
+};
+} // namespace
+
+TEST_CASE("the stream hook chain reaches the hook and carries its bytes", "[nhttpd]")
+{
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket s(fd[0]);
+	s.isOpened = true;
+	s.isValid = true;
+
+	StreamProbeHook probe;
+	CyhookHandler::attach(&probe);
+	CyhookHandler hh;
+	CHECK(hh.Hooks_SendStream(&s) == HANDLED_STREAM);
+	CHECK(hh.status == HANDLED_STREAM);
+	CHECK(probe.called);
+	CyhookHandler::detach(&probe);
+
+	char c = 0;
+	REQUIRE(read(fd[1], &c, 1) == 1);
+	CHECK(c == 'x');
+	close(fd[1]);
+	s.close();
 }

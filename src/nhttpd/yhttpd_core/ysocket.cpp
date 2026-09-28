@@ -246,6 +246,19 @@ bool CySocket::set_option(int typ, int option) {
 }
 
 //-----------------------------------------------------------------------------
+// A streamed answer must reach the peer the moment it is written: lift the
+// cork accept() put on (clearing TCP_CORK also flushes what it held back)
+// and stop Nagle from batching the small frames that follow.
+//-----------------------------------------------------------------------------
+void CySocket::set_stream_flush(void) {
+#ifdef TCP_CORK
+	int off = 0;
+	setsockopt(sock, IPPROTO_TCP, TCP_CORK, (char *) &off, sizeof(off));
+#endif
+	set_option(IPPROTO_TCP, TCP_NODELAY);
+}
+
+//-----------------------------------------------------------------------------
 // Set Re-Use Option for Port.
 //-----------------------------------------------------------------------------
 void CySocket::set_reuse_port() {
