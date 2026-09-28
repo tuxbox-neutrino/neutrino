@@ -42,10 +42,19 @@ S2='~"the bounds and the sets a row declares are the ones the document states"'
 # test/unit/httpd/test_openapi_basic.cpp):
 S4='~"what a caller has to present is stated\, and the second token is named where it is wanted"'
 
+# Environment, not code: the case hands a file to owner 1234:5678, which needs
+# CAP_CHOWN. On a box the suite runs as root and the case runs with it; on an
+# unprivileged build host the chown can only fail. Excluded by privilege, not
+# by name alone, so a privileged run keeps the coverage.
+S5=''
+if [ "`id -u`" != 0 ]; then
+	S5='~"a name under a directory too long to spell is still read"'
+fi
+
 # Bounded from outside: a wedged teardown (a pump a shutdown did not wake)
 # would otherwise hold the suite for ever, and a run that is killed says so
 # with timeout's own exit code instead of hanging silently.
 if command -v timeout >/dev/null 2>&1; then
-	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4" "$@"
+	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4$S5" "$@"
 fi
-exec "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4" "$@"
+exec "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4$S5" "$@"
