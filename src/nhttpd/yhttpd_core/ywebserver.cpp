@@ -416,6 +416,11 @@ void CWebserver::clear_Thread_List_Number(int number) {
 void CWebserver::refuse_connection(CySocket *sock) {
 	static const char refusal[] =
 		"HTTP/1.0 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n";
+	/* Uncorked first: accept() put TCP_CORK on, and a corked answer followed
+	   by a close that never read the request would race the reset that close
+	   sends for the unread bytes. Flushed, the line is on its way before the
+	   close; best effort either way, but the effort is made. */
+	sock->set_stream_flush();
 	sock->Send(refusal, sizeof(refusal) - 1);
 	sock->close();
 	delete sock;

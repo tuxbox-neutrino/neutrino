@@ -542,10 +542,15 @@ TEST_CASE("an event wakes the stream itself and not the next beat", "[sse]")
 	REQUIRE(s.ok());
 	REQUIRE(s.readFrame(2000).find("retry:") != std::string::npos);
 
+	const int64_t asked = wireNowMs();
 	publish(coreapi::EventType::Volume, 0, 42);
 	const std::string frame = s.readFrame(2000);
-	INFO(frame);
+	const int64_t took = wireNowMs() - asked;
+	INFO(frame << " took " << took << "ms");
 	REQUIRE(frame.find("event: volume") != std::string::npos);
+	/* Faster than the pump's own one-second belt, so what carried it was
+	   the broadcast and cannot have been the timeout. */
+	REQUIRE(took < 800);
 }
 
 TEST_CASE("over the ceiling the answer is 503 and not a silent queue", "[sse]")
@@ -884,6 +889,26 @@ TEST_CASE("a wedged stream's descriptor is named while the lock is held", "[sse]
 	   waits on the module's lock. Named under the lock, it cannot have been
 	   reissued; named outside it, it can. The probe watches the door. */
 	LockWatch watch;
+	/* Everything the case installs is taken back by unwinding, in this
+	   order: the server scope inside goes first (the reap may still fire
+	   the probe, the watch is alive), then this guard clears the probe,
+	   releases and joins the asker and clears the global, then the watch
+	   itself goes. A failing REQUIRE inside the scope leaves nothing
+	   dangling. */
+	struct ProbeGuard
+	{
+		LockWatch *w;
+		explicit ProbeGuard(LockWatch *x) : w(x) {}
+		~ProbeGuard()
+		{
+			events::setReapProbeForTest(NULL);
+			w->join();
+			LockWatch::watched = NULL;
+		}
+	private:
+		ProbeGuard(const ProbeGuard &);
+		ProbeGuard &operator=(const ProbeGuard &);
+	} probe_guard(&watch);
 	LockWatch::watched = &watch;
 	watch.start();
 	REQUIRE(watch.started);
@@ -932,7 +957,6 @@ TEST_CASE("a wedged stream's descriptor is named while the lock is held", "[sse]
 
 	events::setReapProbeForTest(NULL);
 	watch.join();
-	LockWatch::watched = NULL;
 
 	REQUIRE(watch.reached);      // the reaper named a descriptor
 	REQUIRE(watch.door);         // somebody was there to be kept out
@@ -969,4 +993,63 @@ TEST_CASE("a server started a second time is subscribed a second time", "[sse]")
 	const std::string one = s.readFrame(2000);
 	INFO(one);
 	REQUIRE(one.find("\"value\":7") != std::string::npos);
+}
+
+namespace
+{
+
+struct DrawRecorder
+{
+	std::vector<size_t> sizes;
+
+	static bool take(void *ctx, const char *, size_t n)
+	{
+		DrawRecorder *r = (DrawRecorder *) ctx;
+		r->sizes.push_back(n);
+		// enough turns to see the bound, then end the stream
+		return r->sizes.size() < 12;
+	}
+};
+
+} // namespace
+
+TEST_CASE("the pump draws at most one block per turn", "[sse]")
+{
+	/* The bound is what keeps pendingBytes() meaning something while a send
+	   blocks on a peer that is not reading; the wedged case depends on it
+	   without measuring it. Measured here at the pump itself. */
+	WebConfig c = defaultWebConfig();
+	c.sse_max_streams = 2;
+	setConfigForTest(c);
+	events::start();
+
+	int sp[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sp) == 0);
+	events::StreamHandle h = NULL;
+	Response refusal;
+	REQUIRE(events::openStream(sp[0], h, refusal) == events::StreamOpened);
+
+	// far more than one block pending before the first draw
+	for (int i = 0; i < 400; ++i)
+		publish(coreapi::EventType::Volume, 0, i);
+	REQUIRE(events::pendingBytes() > 3 * 4096);
+
+	DrawRecorder rec;
+	events::pumpStream(h, &DrawRecorder::take, &rec);
+
+	REQUIRE(rec.sizes.size() >= 3);
+	REQUIRE(rec.sizes[0] == 4096);
+	for (size_t i = 0; i < rec.sizes.size(); ++i)
+	{
+		INFO("draw " << i << " = " << rec.sizes[i]);
+		REQUIRE(rec.sizes[i] <= 4096);
+	}
+	REQUIRE(events::openStreams() == 0);
+
+	events::stop();
+	setConfigForTest(defaultWebConfig());
+	events::setHeartbeatMs(kShippedHeartbeatMs);
+	events::setPendingCeiling(kShippedCeiling);
+	close(sp[0]);
+	close(sp[1]);
 }

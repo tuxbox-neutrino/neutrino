@@ -21,6 +21,7 @@
 
 #include "yhook.h"
 #include "ytypes_globals.h"
+#include "ywebserver.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -471,4 +472,24 @@ TEST_CASE("a whole-file answer takes one range where the caller asked", "[bridge
 		CHECK(p.length == 10);
 		CHECK(p.content_range.empty());
 	}
+}
+
+TEST_CASE("without connection threads a stream is refused, not carried", "[bridge]")
+{
+	/* webserver.threading=false runs WebThread on the accept thread itself;
+	   one healthy stream would then be the last request the box ever takes.
+	   Refused before a seat is taken, as an ordinary finite answer. */
+	Attached a;
+	httpd::Response sse;
+	sse.code = 200;
+	sse.content_type = "text/event-stream";
+
+	CWebserver::is_threading = false;
+	Handler e(M_GET, "/api/v1/events");
+	CApiBridge::answerWith(&e.hh, sse);
+	CWebserver::is_threading = true;
+
+	CHECK(e.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
+	CHECK(e.hh.status == HANDLED_READY);
+	CHECK(e.hh.yresult.find("\"status\":501") != std::string::npos);
 }

@@ -19,6 +19,7 @@
 
 #include "helper.h"
 #include "ysocket.h"
+#include "ywebserver.h"
 #include <ylogging.h>
 
 #include <cerrno>
@@ -361,6 +362,16 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 
 	if (httpd::events::isStream(r))
 	{
+		/* Without connection threads, WebThread runs on the accept thread
+		   itself, and one healthy stream would be the last request the box
+		   ever takes. Refused before a seat exists, as a finite answer. */
+		if (hh->Method != M_HEAD && !CWebserver::is_threading)
+		{
+			takeProblem(hh, 501, coreapi::ErrorCode::NoSuchMethod,
+			            "this server carries no event stream without connection threads");
+			return;
+		}
+
 		/* The handler said what the answer is; the connection becomes it in
 		   the stream pass. The headers travel now, before the status is
 		   given back, because the pass writes the header out of this handler

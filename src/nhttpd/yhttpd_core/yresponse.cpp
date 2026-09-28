@@ -121,6 +121,11 @@ bool CWebserverResponse::SendResponse() {
 				Connection->sock->set_stream_flush();
 				Connection->HookHandler.Hooks_SendStream(Connection->sock);
 				if (Connection->HookHandler.status != HANDLED_READY) {
+					// A pass nobody answered closes the connection with
+					// nothing on it - a hook bug, so it is at least said.
+					if (Connection->HookHandler.status != HANDLED_STREAM)
+						log_level_printf(1, "stream pass unanswered (status %d), closing\n",
+								(int) Connection->HookHandler.status);
 					Connection->keep_alive = false;
 					return true;
 				}

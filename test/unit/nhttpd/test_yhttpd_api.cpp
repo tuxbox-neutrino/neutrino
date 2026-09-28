@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <fcntl.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -484,12 +485,30 @@ TEST_CASE("a connection the server cannot take is answered and closed", "[nhttpd
 
 	CWebserver::refuse_connection(s); // takes the socket: answers, closes, deletes
 
+	// with a deadline, so a refusal that forgot the close fails instead of
+	// hanging the suite on a read that never ends
 	std::string got;
-	char buf[256];
-	ssize_t n;
-	while ((n = read(fd[1], buf, sizeof(buf))) > 0)
-		got.append(buf, (size_t) n);
-	CHECK(n == 0); // EOF: the server side is really closed
+	bool eof = false;
+	const long long t_end = millisNow() + 5000;
+	while (millisNow() < t_end)
+	{
+		struct pollfd p;
+		p.fd = fd[1];
+		p.events = POLLIN;
+		p.revents = 0;
+		if (poll(&p, 1, 200) <= 0)
+			continue;
+		char buf[256];
+		ssize_t n = read(fd[1], buf, sizeof(buf));
+		if (n > 0)
+		{
+			got.append(buf, (size_t) n);
+			continue;
+		}
+		eof = (n == 0);
+		break;
+	}
+	CHECK(eof); // EOF: the server side is really closed
 	CHECK(got.find("HTTP/1.0 503 ") == 0);
 	CHECK(got.find("Connection: close\r\n") != std::string::npos);
 	close(fd[1]);
@@ -587,4 +606,59 @@ TEST_CASE("the stream hook chain reaches the hook and carries its bytes", "[nhtt
 	CHECK(c == 'x');
 	close(fd[1]);
 	s.close();
+}
+
+TEST_CASE("a refused TCP connection still gets its 503 past the cork", "[nhttpd]")
+{
+	/* The real shape of the refusal: accept() corks the socket, and the
+	   client has already queued request bytes the server will never read.
+	   A corked answer followed by the close would race the reset those
+	   unread bytes provoke; the refusal uncorks first. Read with a
+	   deadline, so a refusal that lost the race fails instead of hanging. */
+	int lfd = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(lfd >= 0);
+	struct sockaddr_in a;
+	memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	REQUIRE(bind(lfd, (struct sockaddr *) &a, sizeof(a)) == 0);
+	socklen_t alen = sizeof(a);
+	REQUIRE(getsockname(lfd, (struct sockaddr *) &a, &alen) == 0);
+	REQUIRE(listen(lfd, 1) == 0);
+	int cfd = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(connect(cfd, (struct sockaddr *) &a, sizeof(a)) == 0);
+	int sfd = accept(lfd, NULL, NULL);
+	REQUIRE(sfd >= 0);
+
+	const char req[] = "GET / HTTP/1.0\r\nHost: box\r\n\r\n";
+	REQUIRE(write(cfd, req, sizeof(req) - 1) == (ssize_t) (sizeof(req) - 1));
+
+	int one = 1;
+	REQUIRE(setsockopt(sfd, IPPROTO_TCP, TCP_CORK, &one, sizeof(one)) == 0);
+	CySocket *s = new CySocket(sfd);
+	s->isOpened = true;
+	s->isValid = true;
+
+	CWebserver::refuse_connection(s);
+
+	std::string got;
+	const long long t_end = millisNow() + 5000;
+	while (millisNow() < t_end && got.find("\r\n\r\n") == std::string::npos)
+	{
+		struct pollfd p;
+		p.fd = cfd;
+		p.events = POLLIN;
+		p.revents = 0;
+		if (poll(&p, 1, 200) <= 0)
+			continue;
+		char buf[256];
+		ssize_t n = read(cfd, buf, sizeof(buf));
+		if (n <= 0)
+			break;
+		got.append(buf, (size_t) n);
+	}
+	INFO(got);
+	CHECK(got.find("HTTP/1.0 503 ") == 0);
+	close(cfd);
+	close(lfd);
 }

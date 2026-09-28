@@ -42,4 +42,10 @@ S2='~"the bounds and the sets a row declares are the ones the document states"'
 # test/unit/httpd/test_openapi_basic.cpp):
 S4='~"what a caller has to present is stated\, and the second token is named where it is wanted"'
 
+# Bounded from outside: a wedged teardown (a pump a shutdown did not wake)
+# would otherwise hold the suite for ever, and a run that is killed says so
+# with timeout's own exit code instead of hanging silently.
+if command -v timeout >/dev/null 2>&1; then
+	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4" "$@"
+fi
 exec "$BIN" -w NoAssertions "$HIDDEN$S1$S2$S4" "$@"
