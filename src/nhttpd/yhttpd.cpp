@@ -255,6 +255,15 @@ void Cyhttpd::stop_webserver() {
 		if (api_bridge)
 			CApiBridge::stopEvents();
 		webserver->stop();
+		/* And every other connection thread as well: the hooks below and the
+		   server after them are deleted, and a request still being served
+		   walks both. A thread waiting on its peer is woken. One still inside
+		   a hook - a script /control/exec runs, say - is waited for as long as
+		   it takes: deleting under it would hand it freed hooks and a freed
+		   server. Until then this thread does not finish, and a start refuses
+		   to put a second server beside it. */
+		while (!webserver->waitForConnections(15000))
+			aprintf("stop: connection threads still running, waiting on\n");
 		hooks_detach();
 	}
 }
@@ -617,8 +626,9 @@ bool nhttpd_server_stop(void) {
 	/* The thread carries its own teardown (hooks, events, the delete) and
 	   nulls the instance last. Bounded: a teardown that wedges is reported
 	   as a stop that did not finish rather than waited on forever - and
-	   the start guard then refuses a second server beside the sleeper. */
-	for (int i = 0; i < 100; i++) {
+	   the start guard then refuses a second server beside the sleeper.
+	   Longer than the teardown's own wait for its connection threads. */
+	for (int i = 0; i < 250; i++) {
 		if (__atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) == NULL)
 			return true;
 		usleep(100 * 1000);

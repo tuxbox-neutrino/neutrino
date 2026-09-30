@@ -51,6 +51,9 @@ private:
 	fd_set 		read_fds; 				// read file descriptor list for select()
 	int 		fdmax;        				// maximum file descriptor number
 	CySocket 	*SocketList[HTTPD_MAX_CONNECTIONS];	// List of concurrent hadled connections
+	// The socket each connection thread serves, per thread slot, from the
+	// thread's start until it gives the socket up: what a stop wakes.
+	CySocket 	*Connection_Socket_List[HTTPD_MAX_CONNECTIONS];
 	int		open_connections;			// Number of opened connections
 	pthread_attr_t 	attr;					// pthread Attributes for deattach
 protected:
@@ -93,8 +96,19 @@ public:
 	// a fresh socket cannot block the accept thread.
 	static void	refuse_connection(CySocket *sock);
 
+	// For a stop, after the accept loop ended: wake every connection thread
+	// that still waits on its peer, then wait until every thread has left
+	// or timeout_ms passed. True when none is left. Whoever deletes the
+	// hooks or this server calls it first.
+	bool		waitForConnections(int timeout_ms);
+
 	// public for WebTread
 	void 		clear_Thread_List_Number(int number);	// Set Entry(number)to NULL in Threadlist 
+	// A connection thread gives its socket up before closing it: from then
+	// on a stop cannot reach it, and no longer needs to. Under the lock the
+	// stop takes, so it never shuts down a descriptor that was closed and
+	// handed out again.
+	void		forget_connection_socket(CySocket *sock);
 	void		addSocketToMasterSet(SOCKET fd); 	// add Socket to select master set
 	bool		CheckKeepAliveAllowedByIP(std::string client_ip); // Check if IP is allowed for keep-alive
 };

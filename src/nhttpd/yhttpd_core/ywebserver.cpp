@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 // tuxbox
@@ -43,6 +44,7 @@ CWebserver::CWebserver() {
 	terminate = false;
 	for (int i = 0; i < HTTPD_MAX_CONNECTIONS; i++) {
 		Connection_Thread_List[i] = (pthread_t) NULL;
+		Connection_Socket_List[i] = NULL;
 		SocketList[i] = NULL;
 	}
 	FD_ZERO(&master); // initialize FD_SETs
@@ -409,10 +411,50 @@ bool CWebserver::CheckKeepAliveAllowedByIP(std::string client_ip) {
 //-----------------------------------------------------------------------------
 void CWebserver::clear_Thread_List_Number(int number) {
 	pthread_mutex_lock(&mutex);
-	if (number < HTTPD_MAX_CONNECTIONS)
+	if (number < HTTPD_MAX_CONNECTIONS) {
 		Connection_Thread_List[number] = (pthread_t) NULL;
+		Connection_Socket_List[number] = NULL;
+	}
 	CloseConnectionSocketsByTimeout();
 	pthread_mutex_unlock(&mutex);
+}
+
+//-----------------------------------------------------------------------------
+void CWebserver::forget_connection_socket(CySocket *sock) {
+	pthread_mutex_lock(&mutex);
+	for (int i = 0; i < HTTPD_MAX_CONNECTIONS; i++)
+		if (Connection_Socket_List[i] == sock)
+			Connection_Socket_List[i] = NULL;
+	pthread_mutex_unlock(&mutex);
+}
+
+bool CWebserver::waitForConnections(int timeout_ms) {
+	struct timespec t0;
+	clock_gettime(CLOCK_MONOTONIC, &t0);
+	// Wake every thread that still waits on its peer: a read on a socket
+	// shut down here ends at once, and the thread finishes like one whose
+	// caller went away. Under the lock the threads give their sockets up
+	// under, so nothing shut down here was closed and handed out again.
+	pthread_mutex_lock(&mutex);
+	for (int i = 0; i < HTTPD_MAX_CONNECTIONS; i++)
+		if (Connection_Socket_List[i] != NULL)
+			Connection_Socket_List[i]->shutdown();
+	pthread_mutex_unlock(&mutex);
+	for (;;) {
+		int busy = 0;
+		pthread_mutex_lock(&mutex);
+		for (int i = 0; i < HTTPD_MAX_CONNECTIONS; i++)
+			if (Connection_Thread_List[i] != (pthread_t) NULL)
+				busy++;
+		pthread_mutex_unlock(&mutex);
+		if (busy == 0)
+			return true;
+		struct timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		if ((now.tv_sec - t0.tv_sec) * 1000 + (now.tv_nsec - t0.tv_nsec) / 1000000 >= timeout_ms)
+			return false;
+		usleep(10 * 1000);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -474,6 +516,8 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 			return false;
 		}
 		newConn->thread_number = index; //remember Index of Thread slot (for clean up)
+		// what a stop wakes, until the thread gives the socket up
+		Connection_Socket_List[index] = newSock;
 
 		// Create an orphan Thread. It is not joinable anymore.
 		// The id is written into the slot while the mutex is held: a worker
@@ -484,6 +528,7 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 		{
 			dperror("Could not create Connection-Thread\n");
 			Connection_Thread_List[index] = (pthread_t)NULL;
+			Connection_Socket_List[index] = NULL;
 			pthread_mutex_unlock( &mutex );
 			delete newConn;
 			refuse_connection(newSock);

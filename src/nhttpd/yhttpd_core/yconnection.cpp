@@ -10,6 +10,7 @@
 // yhttpd
 #include <yconfig.h>
 #include "yconnection.h"
+#include "ywebserver.h"
 #include "helper.h"
 //=============================================================================
 // Initialization of static variables
@@ -70,6 +71,9 @@ void CWebserverConnection::EndConnection() {
 	RequestCanceled = true;
 	//	sock->Flush();
 #ifndef Y_CONFIG_FEATURE_KEEP_ALIVE
+	// given up before it is closed: a stop no longer reaches it from here
+	if (Webserver)
+		Webserver->forget_connection_socket(sock);
 	// a request refused unread closes by lingering, so its answer is not
 	// lost to the reset the unread bytes would provoke
 	if (sock->linger_on_close)

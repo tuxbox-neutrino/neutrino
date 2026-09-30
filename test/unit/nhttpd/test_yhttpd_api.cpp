@@ -879,6 +879,80 @@ TEST_CASE("a lingering close gives up at its deadline", "[nhttpd]")
 	CHECK(took < 2000);
 }
 
+TEST_CASE("a stop wakes the connection threads and waits for every one of them", "[nhttpd]")
+{
+	/* The restart seam deletes the hooks and the server after the stop, so
+	   no connection thread may still be inside them. A caller that sent half
+	   a legacy request holds its thread in a header read without a deadline;
+	   the stop has to wake that thread and wait for it, and a wait that only
+	   waited would sit here until the caller gave up. (A GET does not do
+	   for this: its header read takes what is there and goes on.) */
+	const bool threading_was = CWebserver::is_threading;
+	CWebserver ws;
+	const int port = 34612;
+	ws.init((unsigned) port, true, "127.0.0.1");
+
+	pthread_t runner;
+	struct Runner
+	{
+		static void *run(void *arg)
+		{
+			((CWebserver *) arg)->run();
+			return NULL;
+		}
+	};
+	REQUIRE(pthread_create(&runner, NULL, &Runner::run, &ws) == 0);
+
+	struct sockaddr_in to;
+	std::memset(&to, 0, sizeof(to));
+	to.sin_family = AF_INET;
+	to.sin_port = htons((unsigned short) port);
+	to.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	int cfd = -1;
+	for (int i = 0; i < 100 && cfd < 0; i++)
+	{
+		usleep(50 * 1000);
+		int fd = socket(AF_INET, SOCK_STREAM, 0);
+		REQUIRE(fd >= 0);
+		if (connect(fd, (struct sockaddr *) &to, sizeof(to)) == 0)
+			cfd = fd;
+		else
+			close(fd);
+	}
+	REQUIRE(cfd >= 0);
+
+	// half a request: a POST's line, and never the empty line after it; a
+	// POST reads its header line by line, and that read has no deadline
+	const char half[] = "POST /nothing HTTP/1.0\r\n";
+	REQUIRE(write(cfd, half, sizeof(half) - 1) == (ssize_t) (sizeof(half) - 1));
+	usleep(300 * 1000);
+	// the thread that took the connection is still there, waiting
+	CHECK_FALSE(ws.waitForConnections(0));
+
+	ws.stop();
+	struct timespec until;
+	clock_gettime(CLOCK_REALTIME, &until);
+	until.tv_sec += 3;
+	const int joined = pthread_timedjoin_np(runner, NULL, &until);
+	if (joined != 0)
+		pthread_cancel(runner);
+	REQUIRE(joined == 0);
+
+	const long long t0 = millisNow();
+	const bool drained = ws.waitForConnections(3000);
+	const long long took = millisNow() - t0;
+
+	// whatever the outcome, no thread may outlive the server it belongs to
+	close(cfd);
+	const bool drained_after_close = ws.waitForConnections(3000);
+	CWebserver::is_threading = threading_was;
+	httpd::setBoundPortFromBridge(0);
+
+	CHECK(drained);
+	CHECK(took < 1000);
+	REQUIRE(drained_after_close);
+}
+
 TEST_CASE("a line cut short by the peer is what arrived and not one byte more", "[nhttpd]")
 {
 	int fd[2];
