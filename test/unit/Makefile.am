@@ -48,6 +48,7 @@ coreapi_tests_SOURCES = \
 	support/main.cpp \
 	coreapi/test_result.cpp \
 	lib/connection/test_basicclient.cpp \
+	lib/libeventserver/test_eventserver_outbox.cpp \
 	coreapi/test_channelsource.cpp \
 	zapit/test_zapitchannel_copy.cpp \
 	coreapi/test_channelstreams.cpp \
@@ -145,6 +146,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/lib/libconfigfile/libconfigfile.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
 	$(top_builddir)/lib/connection/libconnection.a \
+	$(top_builddir)/lib/libeventserver/libeventserver.a \
 	-lOpenThreads \
 	-lcurl \
 	-lcrypto \
