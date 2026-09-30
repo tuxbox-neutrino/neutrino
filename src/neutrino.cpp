@@ -2310,12 +2310,14 @@ void CNeutrinoApp::saveSetup(const char *fname)
 
 	const bool is_live_file = !strcmp(fname, NEUTRINO_SETTINGS_FILE);
 	const bool was_modified = configfile.getModifiedFlag();
+	bool written = false;
 	if (!is_live_file || was_modified)
-		configfile.saveConfig(fname);
+		written = configfile.saveConfig(fname);
 
 	/* Menu commits and web writes both end here. A backup under another
-	   name, or a save that changed nothing, is no news. */
-	if (is_live_file && was_modified)
+	   name, a save that changed nothing, or one that did not reach the file
+	   is no news. */
+	if (is_live_file && was_modified && written)
 		coreapi::settings::announceSettingsChanged();
 }
 
@@ -5299,6 +5301,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if( mode == NeutrinoModes::mode_avinput ) {
 			AVInputMode( false );
 		}
+	}
+	else if (msg == NeutrinoMessages::EVT_TIMERLIST_CHANGED) {
+		/* Registered so the web side hears of timer changes (published at the
+		   top of this function); for the screens it is nothing to act on.
+		   Answered unhandled, it closed the infobar and every hint box that
+		   was up whenever a timer was added, fired or cleaned up. */
+		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_RELOAD_PLUGINS) {
 		/* Here and not at whatever asked for it: the list this rebuilds is the
