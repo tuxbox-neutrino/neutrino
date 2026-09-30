@@ -571,6 +571,26 @@ TEST_CASE("over the ceiling the answer is 503 and not a silent queue", "[sse]")
 	REQUIRE(all.find("\"status\":503") != std::string::npos);
 }
 
+TEST_CASE("the configured ceiling is cut to what the connection threads can carry", "[sse]")
+{
+	// Each open stream holds one of nhttpd's 50 connection threads. The
+	// configuration allows 64, for a server that spends no thread on a
+	// stream; here a third of the threads is the most that goes to streams,
+	// so ordinary requests always find one.
+	WireServer serving(64);
+	std::vector<WireStream *> open;
+	for (int i = 0; i < 16; i++) {
+		open.push_back(new WireStream(serving.port));
+		REQUIRE(open.back()->ok());
+		REQUIRE(open.back()->code() == 200);
+	}
+	WireStream one_more(serving.port);
+	REQUIRE(one_more.ok());
+	CHECK(one_more.code() == 503);
+	for (size_t i = 0; i < open.size(); i++)
+		delete open[i];
+}
+
 TEST_CASE("a ceiling of none means no stream is opened at all", "[sse]")
 {
 	WireServer serving(0);

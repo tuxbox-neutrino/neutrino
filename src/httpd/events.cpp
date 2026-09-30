@@ -2,6 +2,7 @@
  * events.cpp - the event stream, and the seats that listen on it
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * DELIBERATE DRIFT from the source's events.cpp, declared here so the next
  * upstream diff reads mechanically. nhttpd carries a stream on the thread
@@ -36,6 +37,12 @@
  * loop turn. The draw stays at kBlockSize so pendingBytes() keeps meaning
  * what it says while a peer is not reading.
  *
+ * One ceiling besides, in start(): every open stream holds one of nhttpd's
+ * HTTPD_MAX_CONNECTIONS connection threads, and the configuration allows more
+ * streams than there are threads, for a server that spends none on a stream.
+ * At most a third of the threads go to streams, so ordinary requests always
+ * find one.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -59,6 +66,8 @@
 #include "status.h"
 
 #include "coreapi/base/errors.h"
+
+#include "yconfig.h"
 
 #include <cstddef>
 #include <cstdio>
@@ -820,6 +829,14 @@ void start()
 		   the server starts and read by the threads it runs, and a ceiling
 		   read on a request thread would be a second reader of it. */
 		max_streams_ = config().sse_max_streams;
+		const size_t carried = HTTPD_MAX_CONNECTIONS / 3;
+		if (max_streams_ > carried)
+		{
+			std::fprintf(stderr, "httpd: %u event streams configured, this server "
+			             "carries %u beside its other connections\n",
+			             (unsigned) max_streams_, (unsigned) carried);
+			max_streams_ = carried;
+		}
 		serving_ = true;
 
 		if (!tending_)
