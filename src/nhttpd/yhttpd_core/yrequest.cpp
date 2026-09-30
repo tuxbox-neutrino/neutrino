@@ -650,6 +650,7 @@ bool CWebserverRequest::HandleApiRequest() {
 	if (!readApiHeader(*Connection->sock, raw_header, API_HEADER_LIMIT, API_BODY_TIMEOUT_MS)) {
 		log_level_printf(1, "HandleApiRequest: header not read whole: %s\n", strerror(errno));
 		Connection->Response.SendError(HTTP_BAD_REQUEST);
+		Connection->sock->linger_on_close = true;
 		Connection->RequestCanceled = true;
 		return false;
 	}
@@ -659,6 +660,8 @@ bool CWebserverRequest::HandleApiRequest() {
 	switch (apiBodyDecision(Connection->Method, raw_header, length)) {
 	case API_BODY_BAD:
 		Connection->Response.SendError(HTTP_BAD_REQUEST);
+		// the body this refuses to frame is still on its way in
+		Connection->sock->linger_on_close = true;
 		Connection->RequestCanceled = true;
 		return false;
 	case API_BODY_NONE:
@@ -668,6 +671,8 @@ bool CWebserverRequest::HandleApiRequest() {
 		// body still unread resets the connection and takes the answer with it
 		RawBodyTooLarge = true;
 		Connection->sock->Discard((size_t)(length > API_DRAIN_CAP ? API_DRAIN_CAP : length), API_BODY_TIMEOUT_MS);
+		// and past the drain cap, what is left goes at the close
+		Connection->sock->linger_on_close = true;
 		return true;
 	case API_BODY_READ:
 		break;

@@ -72,6 +72,7 @@ CySocket::~CySocket() {
 //-----------------------------------------------------------------------------
 void CySocket::init(void) {
 	BytesSend = 0;
+	linger_on_close = false;
 	handling = false;
 	isOpened = false;
 	isValid = true;
@@ -699,6 +700,36 @@ bool CySocket::ReceiveUntil(const char *terminator, std::string &out, size_t lim
 }
 //-----------------------------------------------------------------------------
 // Read and drop length bytes under a deadline.
+//-----------------------------------------------------------------------------
+void CySocket::LingeringClose(int timeout_ms, size_t cap) {
+	if (isValid && isOpened && sock != 0 && sock != INVALID_SOCKET) {
+		::shutdown(sock, SHUT_WR);
+		const long long started = monotonicMillis();
+		char buffer[16384];
+		size_t dropped = 0;
+		while (dropped < cap) {
+			long long remaining = (long long) timeout_ms - (monotonicMillis() - started);
+			if (remaining <= 0)
+				break;
+			struct pollfd p;
+			p.fd = sock;
+			p.events = POLLIN;
+			p.revents = 0;
+			int ready = poll(&p, 1, (int) remaining);
+			if (ready < 0 && errno == EINTR)
+				continue;
+			if (ready <= 0)
+				break;
+			int got = Read(buffer, sizeof(buffer));
+			if (got < 0 && errno == EINTR)
+				continue;
+			if (got <= 0)
+				break; // the caller closed its side, or the connection broke
+			dropped += (size_t) got;
+		}
+	}
+	close();
+}
 //-----------------------------------------------------------------------------
 bool CySocket::Discard(size_t length, int timeout_ms) {
 	if (length == 0)

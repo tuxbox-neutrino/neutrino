@@ -70,7 +70,12 @@ void CWebserverConnection::EndConnection() {
 	RequestCanceled = true;
 	//	sock->Flush();
 #ifndef Y_CONFIG_FEATURE_KEEP_ALIVE
-	sock->close();
+	// a request refused unread closes by lingering, so its answer is not
+	// lost to the reset the unread bytes would provoke
+	if (sock->linger_on_close)
+		sock->LingeringClose(2000, 16 * 1024 * 1024);
+	else
+		sock->close();
 #endif
 }
 //-------------------------------------------------------------------------

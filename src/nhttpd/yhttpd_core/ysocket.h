@@ -91,6 +91,15 @@ public:
 	// Every byte of data, or false after the peer went away. Send() alone
 	// reports a partial write as success.
 	bool		SendAll(const char *data, size_t length);
+	// The close a server owes a caller whose request it refused without
+	// reading the body: the answer leaves behind a FIN, and whatever the
+	// caller still sends is read and dropped until it closes, timeout_ms
+	// pass or cap bytes went. A plain close on unread bytes becomes a reset,
+	// and a reset can take the answer with it.
+	void		LingeringClose(int timeout_ms, size_t cap);
+	// Set where a request was refused unread; the connection's end then
+	// closes by LingeringClose instead of close.
+	bool		linger_on_close;
 	void		set_stream_flush(void);			// uncork + NODELAY for streamed answers
 
 protected:

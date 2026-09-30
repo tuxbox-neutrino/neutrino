@@ -748,3 +748,132 @@ TEST_CASE("a refused TCP connection still gets its 503 past the cork", "[nhttpd]
 	close(cfd);
 	close(lfd);
 }
+
+namespace {
+
+// A connected pair over TCP loopback: only TCP turns a close with unread
+// bytes into the reset these cases are about.
+struct TcpPair
+{
+	int lfd, cfd, sfd;
+	TcpPair() : lfd(-1), cfd(-1), sfd(-1)
+	{
+		lfd = socket(AF_INET, SOCK_STREAM, 0);
+		struct sockaddr_in a;
+		memset(&a, 0, sizeof(a));
+		a.sin_family = AF_INET;
+		a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		if (lfd < 0 || bind(lfd, (struct sockaddr *) &a, sizeof(a)) != 0)
+			return;
+		socklen_t alen = sizeof(a);
+		if (getsockname(lfd, (struct sockaddr *) &a, &alen) != 0 || listen(lfd, 1) != 0)
+			return;
+		cfd = socket(AF_INET, SOCK_STREAM, 0);
+		if (cfd < 0 || connect(cfd, (struct sockaddr *) &a, sizeof(a)) != 0)
+			return;
+		sfd = accept(lfd, NULL, NULL);
+	}
+	~TcpPair()
+	{
+		if (cfd >= 0)
+			close(cfd);
+		if (lfd >= 0)
+			close(lfd);
+	}
+};
+
+// Everything the client end reads until EOF, an error or the deadline;
+// how the reading ended goes to *ended (0 EOF, -1 error, 1 deadline).
+std::string readAll(int fd, int timeout_ms, int *ended)
+{
+	std::string got;
+	*ended = 1;
+	const long long t_end = millisNow() + timeout_ms;
+	while (millisNow() < t_end) {
+		struct pollfd p;
+		p.fd = fd;
+		p.events = POLLIN;
+		p.revents = 0;
+		if (poll(&p, 1, 100) <= 0)
+			continue;
+		char buf[4096];
+		ssize_t n = read(fd, buf, sizeof(buf));
+		if (n == 0) {
+			*ended = 0;
+			break;
+		}
+		if (n < 0) {
+			*ended = -1;
+			break;
+		}
+		got.append(buf, (size_t) n);
+	}
+	return got;
+}
+
+} // namespace
+
+TEST_CASE("a lingering close lets the answer reach a caller that is still sending", "[nhttpd]")
+{
+	/* A refused request whose body the server does not read: the caller is
+	   still sending when the answer goes out. A plain close with those bytes
+	   unread resets the connection, and the caller's send fails part way
+	   (measured on loopback: 40 of these 64 blocks). Most clients give up
+	   at that point without reading the answer. The lingering close sends
+	   the answer behind a FIN and drops what arrives until the caller is
+	   done, so the caller finishes sending and then reads it. */
+	TcpPair tcp;
+	REQUIRE(tcp.sfd >= 0);
+	const std::string chunk(65536, 'x');
+	volatile bool sent_all = false;
+	std::thread sender([&tcp, &chunk, &sent_all]() {
+		for (int i = 0; i < 64; i++)
+			if (send(tcp.cfd, chunk.data(), chunk.size(), MSG_NOSIGNAL) != (ssize_t) chunk.size())
+				return;
+		sent_all = true;
+		shutdown(tcp.cfd, SHUT_WR);
+	});
+
+	CySocket *s = new CySocket(tcp.sfd);
+	s->isOpened = true;
+	s->isValid = true;
+	const std::string answer = "HTTP/1.0 400 Bad Request\r\nContent-Length: 0\r\n\r\n";
+	REQUIRE(s->SendAll(answer.data(), answer.size()));
+	s->LingeringClose(5000, 64 * 1024 * 1024);
+	delete s;
+
+	int ended = 1;
+	const std::string got = readAll(tcp.cfd, 5000, &ended);
+	sender.join();
+	CHECK(sent_all);
+	CHECK(got == answer);
+	CHECK(ended == 0);
+}
+
+TEST_CASE("a lingering close gives up at its deadline", "[nhttpd]")
+{
+	/* A caller that never stops sending holds the connection thread no
+	   longer than the deadline, whatever the cap. */
+	TcpPair tcp;
+	REQUIRE(tcp.sfd >= 0);
+	volatile bool stop = false;
+	const std::string chunk(65536, 'x');
+	std::thread sender([&tcp, &chunk, &stop]() {
+		while (!stop)
+			if (send(tcp.cfd, chunk.data(), chunk.size(), MSG_NOSIGNAL) <= 0)
+				return;
+	});
+
+	CySocket *s = new CySocket(tcp.sfd);
+	s->isOpened = true;
+	s->isValid = true;
+	const long long t0 = millisNow();
+	s->LingeringClose(300, (size_t) -1);
+	const long long took = millisNow() - t0;
+	delete s;
+	stop = true;
+	shutdown(tcp.cfd, SHUT_RDWR);
+	sender.join();
+	CHECK(took >= 250);
+	CHECK(took < 2000);
+}
