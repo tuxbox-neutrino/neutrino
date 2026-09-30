@@ -136,6 +136,7 @@ class CyhookHandler
 protected:
 	static THookList HookList;
 	static std::vector<std::string> ApiPrefixes;
+	static std::vector<std::string> ApiTargets;
 public:
 	CyhookHandler();
 	~CyhookHandler();
@@ -195,6 +196,7 @@ public:
 	// target exactly or as a directory (prefix followed by '/'); the query
 	// is not part of the match.
 	static void	registerApiPrefix(const std::string &prefix);
+	static void	registerApiTarget(const std::string &target);
 	static void	clearApiPrefixes();
 	static bool	isApiTarget(const std::string &raw_target);
 

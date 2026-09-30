@@ -693,6 +693,7 @@ void CyhookHandler::SendResult(std::string _content) {
 // API namespace
 //=============================================================================
 std::vector<std::string> CyhookHandler::ApiPrefixes;
+std::vector<std::string> CyhookHandler::ApiTargets;
 
 void CyhookHandler::registerApiPrefix(const std::string &prefix) {
 	if (prefix.empty() || prefix[0] != '/')
@@ -703,12 +704,27 @@ void CyhookHandler::registerApiPrefix(const std::string &prefix) {
 	ApiPrefixes.push_back(prefix);
 }
 
+// One exact target and nothing below it: a document, not a directory. What
+// lies under its name stays legacy ground, with the legacy authentication.
+void CyhookHandler::registerApiTarget(const std::string &target) {
+	if (target.empty() || target[0] != '/')
+		return;
+	for (size_t i = 0; i < ApiTargets.size(); i++)
+		if (ApiTargets[i] == target)
+			return;
+	ApiTargets.push_back(target);
+}
+
 void CyhookHandler::clearApiPrefixes() {
 	ApiPrefixes.clear();
+	ApiTargets.clear();
 }
 
 bool CyhookHandler::isApiTarget(const std::string &raw_target) {
 	const std::string path = raw_target.substr(0, raw_target.find('?'));
+	for (size_t i = 0; i < ApiTargets.size(); i++)
+		if (path == ApiTargets[i])
+			return true;
 	for (size_t i = 0; i < ApiPrefixes.size(); i++) {
 		const std::string &p = ApiPrefixes[i];
 		if (path == p)

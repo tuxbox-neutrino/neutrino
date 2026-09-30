@@ -256,7 +256,7 @@ bool CApiBridge::routesOk(std::string *why)
 void CApiBridge::registerPrefixes()
 {
 	CyhookHandler::registerApiPrefix(kPrefixApi);
-	CyhookHandler::registerApiPrefix(kPrefixDoc);
+	CyhookHandler::registerApiTarget(kPrefixDoc);
 }
 
 bool CApiBridge::claims(const CyhookHandler *hh)

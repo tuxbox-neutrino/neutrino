@@ -60,7 +60,7 @@ struct RegisteredPrefixes
 	{
 		CyhookHandler::clearApiPrefixes();
 		CyhookHandler::registerApiPrefix("/api/v1");
-		CyhookHandler::registerApiPrefix("/api/openapi.json");
+		CyhookHandler::registerApiTarget("/api/openapi.json");
 	}
 	~RegisteredPrefixes() { CyhookHandler::clearApiPrefixes(); }
 };
@@ -152,6 +152,11 @@ TEST_CASE("an api prefix matches the raw target only where it was registered", "
 	CHECK_FALSE(CyhookHandler::isApiTarget("/api/v10/system/info"));
 	CHECK_FALSE(CyhookHandler::isApiTarget("/api/v4/bouquets"));
 	CHECK_FALSE(CyhookHandler::isApiTarget("/api/openapi.json.gz"));
+	// the document is one exact target, not a directory: what lies below
+	// its name is legacy ground and keeps the legacy authentication
+	CHECK(CyhookHandler::isApiTarget("/api/openapi.json?x=1"));
+	CHECK_FALSE(CyhookHandler::isApiTarget("/api/openapi.json/anything"));
+	CHECK_FALSE(CyhookHandler::isApiTarget("/api/openapi.json/"));
 	CHECK_FALSE(CyhookHandler::isApiTarget("/control/getversion"));
 	CHECK_FALSE(CyhookHandler::isApiTarget("/"));
 	CHECK_FALSE(CyhookHandler::isApiTarget(""));
@@ -326,8 +331,9 @@ TEST_CASE("the api body reader refuses what it cannot frame", "[nhttpd]")
 	CHECK(CWebserverRequest::apiContentLength("content-length: 12\r\n\r\n", len) == CWebserverRequest::BODY_OK);
 	CHECK(len == 12);
 
-	CHECK(CWebserverRequest::apiContentLength("Content-Length: 12\r\nContent-Length: 12\r\n\r\n", len) == CWebserverRequest::BODY_OK);
-	CHECK(len == 12);
+	// a second length is refused even where it repeats the first: a reader in
+	// front of this one may frame the message differently
+	CHECK(CWebserverRequest::apiContentLength("Content-Length: 12\r\nContent-Length: 12\r\n\r\n", len) == CWebserverRequest::BODY_BAD);
 
 	CHECK(CWebserverRequest::apiContentLength("Content-Length: 12\r\ncontent-length: 13\r\n\r\n", len) == CWebserverRequest::BODY_BAD);
 	CHECK(CWebserverRequest::apiContentLength("Content-Length: -1\r\n\r\n", len) == CWebserverRequest::BODY_BAD);
@@ -367,6 +373,22 @@ TEST_CASE("the api header reader stops at the empty line, at EOF, at the limit a
 		REQUIRE(write(fd[1], req, strlen(req)) == (ssize_t) strlen(req));
 		CHECK(CWebserverRequest::readApiHeader(s, raw, 65536, 1000));
 		CHECK(raw == "Host: box\r\nContent-Length: 2\r\n\r\n");
+		char rest[2];
+		CHECK(read(fd[0], rest, 2) == 2);
+	}
+	SECTION("a request without header lines ends at its empty line")
+	{
+		// the request line took its own CRLF, so the empty line is all there
+		// is; waiting for a second CRLF pair would sit out the deadline
+		REQUIRE(write(fd[1], "\r\nxy", 4) == 4);
+		// closed behind the bytes, so a reader that wants more fails at once
+		// instead of holding the run until its deadline
+		close(fd[1]);
+		fd[1] = -1;
+		const long long t0 = millisNow();
+		CHECK(CWebserverRequest::readApiHeader(s, raw, 65536, 5000));
+		CHECK(millisNow() - t0 < 1000);
+		CHECK(raw == "\r\n");
 		char rest[2];
 		CHECK(read(fd[0], rest, 2) == 2);
 	}

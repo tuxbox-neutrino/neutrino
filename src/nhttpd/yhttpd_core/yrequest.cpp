@@ -21,6 +21,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <errno.h>
+#include <time.h>
 #include <unistd.h>
 
 // system
@@ -713,11 +714,13 @@ CWebserverRequest::ApiBody CWebserverRequest::apiContentLength(const std::string
 		for (size_t i = 0; i < text.size(); i++)
 			if (text[i] < '0' || text[i] > '9')
 				return BODY_BAD;
-		long long parsed = strtoll(text.c_str(), NULL, 10);
-		if (seen && parsed != value)
+		// A second length is refused even where it repeats the first: a
+		// reader in front of this server may frame the message differently,
+		// and one length is all a request needs.
+		if (seen)
 			return BODY_BAD;
 		seen = true;
-		value = parsed;
+		value = strtoll(text.c_str(), NULL, 10);
 	}
 	if (!seen)
 		return BODY_NONE;
@@ -732,13 +735,29 @@ CWebserverRequest::ApiBody CWebserverRequest::apiContentLength(const std::string
 // received, again and again.
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::readApiHeader(CySocket &sock, std::string &raw_header, size_t limit, int timeout_ms) {
-	std::string rest;
-	if (!sock.ReceiveUntil("\r\n\r\n", rest, limit, timeout_ms))
-		return false;
-	// the reader's contract is "each line, the empty one last", which is
-	// what the line-by-line legacy path produced
-	raw_header = rest;
-	return true;
+	// Line by line, because the request line already took its own CRLF: a
+	// request without header lines has nothing left but the empty line, and
+	// a search for a blank line's CRLF pair would sit out the deadline on
+	// it. One deadline and one limit for all the lines together.
+	raw_header.clear();
+	struct timespec t0;
+	clock_gettime(CLOCK_MONOTONIC, &t0);
+	for (;;) {
+		struct timespec now;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		const long long spent = (long long) (now.tv_sec - t0.tv_sec) * 1000 +
+		                        (now.tv_nsec - t0.tv_nsec) / 1000000;
+		if (spent >= timeout_ms)
+			return false;
+		std::string line;
+		if (!sock.ReceiveUntil("\r\n", line, limit - raw_header.size(), (int) (timeout_ms - spent)))
+			return false;
+		// the reader's contract is "each line, the empty one last", which is
+		// what the line-by-line legacy path produced
+		raw_header += line;
+		if (line == "\r\n")
+			return true;
+	}
 }
 
 //-----------------------------------------------------------------------------
