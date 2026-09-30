@@ -200,6 +200,10 @@ class CBouquetManager : public OpenThreads::Thread
 		bool existsChannelInBouquet(unsigned int bq_id, const t_channel_id channel_id);
 
 		void clearAll(bool user = true);
+		/* Every bouquet lets go of its channels, and keeps itself. For a
+		   full reload of the services, which destroys the channels: the
+		   caller holds the channel lock, so this does not take it. */
+		void forgetChannelsLocked();
 		void deletePosition(t_satellite_position satellitePosition);
 
 		void sortBouquets(void);

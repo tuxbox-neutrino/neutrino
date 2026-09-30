@@ -966,6 +966,14 @@ void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int n
 	}
 }
 
+void CBouquetManager::forgetChannelsLocked()
+{
+	for (unsigned int i = 0; i < Bouquets.size(); i++) {
+		Bouquets[i]->tvChannels.clear();
+		Bouquets[i]->radioChannels.clear();
+	}
+}
+
 void CBouquetManager::clearAll(bool user)
 {
 	/* Outside the lock: this waits for the logo thread to finish what it is

@@ -918,7 +918,7 @@ bool CServiceManager::LoadScanXml(delivery_system_t delsys)
 	return false;
 }
 
-bool CServiceManager::LoadServices(bool only_current)
+bool CServiceManager::LoadServices(bool only_current, void (*forget_borrowed)())
 {
 	/* Two threads reach this, and the phase below runs before the map is
 	 * locked, so without this they would rebuild the scan lists into each
@@ -975,6 +975,12 @@ bool CServiceManager::LoadServices(bool only_current)
 
 	if(only_current)
 		goto do_current;
+
+	/* Before the map is cleared and under the same lock: the bouquets and the
+	   application's lists borrow pointers into it, and a reader that took the
+	   lock between this clear and their emptying would walk freed channels. */
+	if (forget_borrowed)
+		forget_borrowed();
 
 	allchans.clear();
 	transponders.clear();

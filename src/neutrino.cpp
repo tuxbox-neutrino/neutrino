@@ -2279,17 +2279,18 @@ static void clearBouquetChannels(CBouquetList *list)
 		list->Bouquets[i]->channelList->ClearChannelList();
 }
 
-/* Called from PrepareChannels() once the services have been read again - on
-   the zapit thread, or on the main loop from CZapit::Start() and the start
-   wizard - after CServiceManager has destroyed every CZapitChannel it owned.
-   Each list below holds borrowed raw pointers into that map and nothing binds
-   their lifetime to it, so from that moment until channelsInit() has built the
-   lists again everything they hold names a freed object. Emptying them costs a
-   reader that arrives in the window nothing it would not also see on a box
-   whose bouquets are empty, which is a state every one of these lists reaches
-   anyway. The set is the one channelsInit() deletes and creates again, so a
-   list added there belongs here too. */
-void CNeutrinoApp::invalidateChannelLists()
+/* Called from PrepareChannels() under the channel lock when the services are
+   read again - on the zapit thread, or on the main loop from CZapit::Start()
+   and the start wizard: just before CServiceManager destroys every
+   CZapitChannel it owns, and once more after the read. Each list below holds
+   borrowed raw pointers into that map and nothing binds their lifetime to it,
+   so from the moment the channels are gone until channelsInit() has built the
+   lists again everything they hold would name a freed object. Emptying them
+   costs a reader that arrives in the window nothing it would not also see on
+   a box whose bouquets are empty, which is a state every one of these lists
+   reaches anyway. The set is the one channelsInit() deletes and creates
+   again, so a list added there belongs here too. */
+void CNeutrinoApp::invalidateChannelLists(bool lock_held)
 {
 	/* Under the channel manager's own lock, although nothing here touches the
 	   channel map: what is emptied are the lists whose readers hold that lock
@@ -2298,8 +2299,10 @@ void CNeutrinoApp::invalidateChannelLists()
 
 	   Safe to take from the thread that calls this: the read of the services
 	   above it has already given the lock back, and nothing below reaches into
-	   the channel manager, whose lock is not recursive. */
-	CServiceManager::ChannelGuard guard;
+	   the channel manager, whose lock is not recursive. The full reload calls
+	   this with the lock held, before it destroys the channels. */
+	if (!lock_held)
+		CServiceManager::getInstance()->LockChannels();
 
 	/* channelList is only ever an alias of one of these two */
 	if (TVchannelList)
@@ -2318,6 +2321,9 @@ void CNeutrinoApp::invalidateChannelLists()
 	clearBouquetChannels(RADIOallList);
 	clearBouquetChannels(RADIOwebList);
 	clearBouquetChannels(AllFavBouquetList);
+
+	if (!lock_held)
+		CServiceManager::getInstance()->UnlockChannels();
 }
 
 void CNeutrinoApp::channelsInit(bool bOnly)

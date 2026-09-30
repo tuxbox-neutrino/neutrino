@@ -212,7 +212,8 @@ public:
 	time_t getStartTime() { return neutrino_start_time; }
 
 	bool isMuted() {return current_muted; }
-	void invalidateChannelLists();
+	/* lock_held: the caller holds the channel lock, the full reload does */
+	void invalidateChannelLists(bool lock_held = false);
 	void setCurrentMuted(int m) { current_muted = m; }
 	int recordingstatus;
 	void MakeSectionsdConfig(CSectionsdClient::epg_config& config);

@@ -1442,21 +1442,34 @@ void CZapit::SetRecordMode(bool enable)
 	SendEvent(event);
 }
 
+/* Handed to the full reload below, which calls it under the channel lock
+   before it destroys a channel: the bouquets and every list of the
+   application borrow pointers into the channel map. */
+static void forgetBorrowedChannels()
+{
+	if (g_bouquetManager)
+		g_bouquetManager->forgetChannelsLocked();
+	CNeutrinoApp::getInstance()->invalidateChannelLists(true);
+}
+
 bool CZapit::PrepareChannels()
 {
 	current_channel = 0;
 
 	g_bouquetManager->empty = true;
-	if (!CServiceManager::getInstance()->LoadServices(false)){
+	if (!CServiceManager::getInstance()->LoadServices(false, &forgetBorrowedChannels)){
 		g_bouquetManager->empty = false;
 		return false;
 	}
 	INFO("LoadServices: success");
 
-	/* LoadServices above has destroyed every CZapitChannel. The application's
-	   channel and bouquet lists hold borrowed pointers into what it destroyed
-	   and are only rebuilt once the main loop gets to EVT_SERVICES_CHANGED, so
-	   empty all of them here rather than only the one currently on screen. */
+	/* LoadServices above has destroyed every CZapitChannel, and emptied the
+	   lists that borrow from them before it did. The application's lists are
+	   only rebuilt once the main loop gets to EVT_SERVICES_CHANGED; a
+	   channelsInit() still running on the main loop from an earlier reload
+	   takes no lock, so channels it read from the bouquets or the map before
+	   the reload freed them may have gone into the lists since. They are
+	   emptied once more here rather than left with whatever that took. */
 	CNeutrinoApp::getInstance()->invalidateChannelLists();
 
 	g_bouquetManager->loadBouquets();

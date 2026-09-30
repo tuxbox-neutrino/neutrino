@@ -127,7 +127,12 @@ class CServiceManager
 		static void CopyFile(const char * from, const char * to);
 
 		bool InitSatPosition(t_satellite_position position, const char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
-		bool LoadServices(bool only_current);
+		/* forget_borrowed, where given, is called under the channel lock before a
+		   full reload destroys a single channel: whatever holds borrowed pointers
+		   into the map empties itself there, so no reader that holds the channel
+		   lock ever finds a freed channel in it. It must not take the channel lock
+		   itself. */
+		bool LoadServices(bool only_current, void (*forget_borrowed)() = NULL);
 		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
 		bool SaveCurrentServices(transponder_id_t tpid);
 		bool CopyCurrentServices(transponder_id_t tpid);
