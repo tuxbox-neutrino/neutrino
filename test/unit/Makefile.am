@@ -42,7 +42,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 if USE_PUGIXML
 endif
 
-check_PROGRAMS = coreapi_tests
+check_PROGRAMS = coreapi_tests remotebox_client
 
 coreapi_tests_SOURCES = \
 	support/main.cpp \
@@ -151,7 +151,41 @@ coreapi_tests_LDADD = \
 	-lz \
 	-lpthread
 
-TESTS = $(check_PROGRAMS)
+# remotebox_client wraps the client another box speaks to this box with, compiled
+# from that tree's own files under interop/peer (kept word for word, refreshed by
+# path and never edited; see the README there) and driven by
+# test/http/check-remotebox.sh against a running box. It is built with the suite
+# and never run by it, because it needs a box to talk to - hence TESTS names the
+# suite alone. The peer directory is searched first so that the client's own
+# <system/httptool.h> is the one it was written against and not the one this
+# tree ships; the tree's helpers, json reader and timer client answer the rest.
+remotebox_client_SOURCES = \
+	interop/remotebox_client.cpp \
+	interop/peer/system/remotetimer.cpp \
+	interop/peer/system/remotetimer.h \
+	interop/peer/system/httptool.cpp \
+	interop/peer/system/httptool.h \
+	support/helperstubs.cpp
+
+# The progress window the http tool draws on reaches the framebuffer header, and
+# that one the signal library; the json reader the client parses answers with
+# lives in lib. Both flags are the ones src/system compiles the tree's own http
+# tool and json helper with.
+remotebox_client_CPPFLAGS = -I$(srcdir)/interop/peer $(AM_CPPFLAGS) -I$(top_srcdir)/lib/jsoncpp @SIGC_CFLAGS@
+
+remotebox_client_LDADD = \
+	$(top_builddir)/src/system/helpers.o \
+	$(top_builddir)/src/system/debug.o \
+	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
+	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
+	$(top_builddir)/lib/connection/libconnection.a \
+	$(top_builddir)/lib/libmd5sum/libmd5sum.a \
+	-lOpenThreads \
+	-lcurl \
+	-lz \
+	-lpthread
+
+TESTS = coreapi_tests
 
 # Catch2 passes a case that ran no assertion at all unless it is asked to object,
 # so a case whose only check sits behind a loop nobody enters reads as green. The
@@ -161,7 +195,7 @@ TESTS = $(check_PROGRAMS)
 # needs, one line each with what brings the case back.
 LOG_COMPILER = $(SHELL) $(srcdir)/support/run-tests.sh
 
-EXTRA_DIST = support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/counts.h support/counts.txt \
+EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/counts.h support/counts.txt \
 	scan/extract-enum.sh support/merge-counts.sh \
 	scan/check-hook.sh scan/check-fieldtypes.sh \
 	scan/check-hardware.sh scan/check-appliers.sh scan/check-denominator.sh \

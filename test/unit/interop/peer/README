@@ -1,0 +1,17 @@
+The client another box speaks to this box's /api/v1 with, kept here word for
+word so that check-remotebox.sh drives the code a peer really runs and not a
+reading of it.
+
+Files under system/ are taken as they stand from the peer's tree, paths
+src/system/remotetimer.{h,cpp} and src/system/httptool.{h,cpp}. Which tree
+state: the one the importing commit's provenance note names (upstream
+73789a23608de410542a514510912adff6879663, the same tree as mirror commit
+73048d540497); the Origin block of that commit names the commit that first
+introduced the client, which is a different thing. The files are never
+edited: a refresh is a checkout of those paths at the new tree state, recorded
+in the commit message the same way. Anything this tree needs that the peer's
+files do not offer goes into remotebox_client.cpp beside them.
+
+The directory is put first on the include path of that one program, so the
+client's own <system/httptool.h> is the one it was written against; the tree's
+own httptool is not part of this program.
