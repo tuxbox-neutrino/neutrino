@@ -26,6 +26,11 @@ namespace httpd
    it comes up and says nought when it goes down. */
 void setBoundPortFromBridge(int port);
 
+/* What the webserver said last through the call above, 0 while nothing
+   listens. Declared in server.h for the layer as well; repeated here so a
+   start in nhttpd can wait for its server's own word. */
+int boundPort();
+
 /* The two hands the seam drives the webserver with, installed once by the
    program (neutrino.cpp; yhttpd.cpp defines them). Where nothing installed
    them - openapi_dump, the unit suite - start() answers false and a reload

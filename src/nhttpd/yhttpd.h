@@ -58,9 +58,9 @@ public:
    start writes the port and the address into nhttpd.conf - the file this
    server reads and the one place they are recorded - starts the webserver
    thread again and answers the bound port once something listens, nought
-   where nothing came up. stop ends the accept loop and waits for the
-   thread to have carried its own teardown; both are bounded waits, never
-   forever. */
+   where nothing came up, a bounded wait. stop ends the accept loop and
+   waits for the thread to have carried its own teardown, as long as a
+   request still being served takes: the start after it must come. */
 int nhttpd_server_start(int port, const char *bind);
 bool nhttpd_server_stop(void);
 

@@ -104,7 +104,7 @@ bool start(const ServerConfig &c)
 	if (bound <= 0)
 		return false;
 
-	bound_port = bound;
+	__atomic_store_n(&bound_port, bound, __ATOMIC_SEQ_CST);
 	return true;
 }
 
@@ -112,22 +112,24 @@ void stop()
 {
 	if (stop_hand != 0)
 		stop_hand();
-	bound_port = 0;
+	__atomic_store_n(&bound_port, 0, __ATOMIC_SEQ_CST);
 }
 
+// Written by the webserver's thread and read by the reload runner and the
+// request threads, so atomic.
 bool running()
 {
-	return bound_port > 0;
+	return __atomic_load_n(&bound_port, __ATOMIC_SEQ_CST) > 0;
 }
 
 int boundPort()
 {
-	return bound_port;
+	return __atomic_load_n(&bound_port, __ATOMIC_SEQ_CST);
 }
 
 void setBoundPortFromBridge(int port)
 {
-	bound_port = (port > 0) ? port : 0;
+	__atomic_store_n(&bound_port, (port > 0) ? port : 0, __ATOMIC_SEQ_CST);
 }
 
 void installNhttpdServerControl(int (*start_thread)(int port, const char *bind),

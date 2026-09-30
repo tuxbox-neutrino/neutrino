@@ -16,8 +16,9 @@
 #    a map by a three-letter key, short enough never to allocate, and a call
 #    into nhttpd. Hook_PrepareResponse does nothing else and has no barrier.
 #  - each listed function that can allocate opens with try and has a
-#    catch (...). setBoundPortFromBridge only stores an int and
-#    registerPrefixes only calls back into nhttpd, so neither needs one.
+#    catch (...). setBoundPortFromBridge and boundPort only store and read
+#    an int and registerPrefixes only calls back into nhttpd, so none of
+#    them needs one.
 #
 # Read as text: the layer's entry points and nhttpd link into different
 # objects, and the question is where the braces are, not what runs.
@@ -38,7 +39,7 @@ for f in "$STRIP" "$BLANK"; do
 	[ -r "$f" ] || { echo "check-exception-boundary.sh: cannot read $f" >&2; exit 1; }
 done
 
-ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::scheduleReloadAndRestart CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startEvents CApiBridge::stopEvents'
+ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startEvents CApiBridge::stopEvents'
 
 # name, file that defines it; each of these opens with try
 GUARDED='knowName src/httpd/stubs/legacy_usage.cpp

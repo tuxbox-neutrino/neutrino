@@ -23,6 +23,7 @@
 #include <ylanguage.h>
 #include <yhook.h>
 #include <httpd/nhttpd_bridge.h>
+#include <httpd/server_control.h>
 
 #ifdef Y_CONFIG_USE_YPARSER
 #include <mod_yparser.h>
@@ -44,6 +45,22 @@ CStringList Cyhttpd::ConfigList;
 static CmAuth *auth = NULL;
 static CApiBridge *api_bridge = NULL;
 #endif
+
+/* Server threads that began, and that finished their teardown, the delete of
+   their instance included. Equal when no server thread is alive. A stop
+   waits for that, so the next start never overlaps the last one's teardown:
+   the instance's delete takes things with it that a new server would already
+   be using, the language instance among them. And a start that sees the
+   ended count move before its server reported a bound port knows the server
+   it started came up and went away without listening. */
+static unsigned server_runs_begun = 0;
+static unsigned server_runs_ended = 0;
+
+static bool server_threads_gone()
+{
+	return __atomic_load_n(&server_runs_begun, __ATOMIC_SEQ_CST) ==
+	       __atomic_load_n(&server_runs_ended, __ATOMIC_SEQ_CST);
+}
 
 #ifdef Y_CONFIG_USE_WEBLOG
 #include <mod_weblog.h>
@@ -81,17 +98,24 @@ void yhttpd_reload_config() {
 // Main Entry
 //-----------------------------------------------------------------------------
 
+/* Only on cancellation; nothing cancels this thread today. It ends the run the
+   way the normal tail below does, so a stop or a start waiting on the counts
+   is not left waiting for good. */
 void thread_cleanup (void *p)
 {
 	Cyhttpd *y = (Cyhttpd *)p;
 	if (y) {
+		Cyhttpd *mine = y;
+		__atomic_compare_exchange_n(&yhttpd, &mine, (Cyhttpd *) NULL, false,
+		                            __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 		y->stop_webserver();
 		delete y;
 	}
-	y = NULL;
+	__atomic_add_fetch(&server_runs_ended, 1, __ATOMIC_SEQ_CST);
 }
 
 void * nhttpd_main_thread(void *) {
+	__atomic_add_fetch(&server_runs_begun, 1, __ATOMIC_SEQ_CST);
 	set_threadname("yweb:main_thread");
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -102,6 +126,7 @@ void * nhttpd_main_thread(void *) {
 	//CLogging::getInstance()->LogLevel = 9;
 	if (!fresh) {
 		aprintf("Error initializing WebServer\n");
+		__atomic_add_fetch(&server_runs_ended, 1, __ATOMIC_SEQ_CST);
 		return (void *) EXIT_FAILURE;
 	}
 	/* we pthread_cancel this thread from the main thread, but still want to clean up */
@@ -128,6 +153,7 @@ void * nhttpd_main_thread(void *) {
 	    __atomic_compare_exchange_n(&yhttpd, &mine, (Cyhttpd *) NULL, false,
 	                                __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 		delete mine;
+	__atomic_add_fetch(&server_runs_ended, 1, __ATOMIC_SEQ_CST);
 
 	aprintf("Main end\n");
 	return (void *) EXIT_SUCCESS;
@@ -531,7 +557,7 @@ static int nhttpd_server_start_once(int port, const char *bind, bool second_chan
 	   shared). The stop before this call is what ends the old one; where
 	   it did not finish, the honest answer is that no new server came
 	   up - the old one is still answering where it was. */
-	if (__atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) != NULL) {
+	if (__atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) != NULL || !server_threads_gone()) {
 		aprintf("nhttpd_server_start: the old server has not finished stopping\n");
 		return 0;
 	}
@@ -567,39 +593,26 @@ static int nhttpd_server_start_once(int port, const char *bind, bool second_chan
 		}
 	}
 
+	const unsigned ended_before = __atomic_load_n(&server_runs_ended, __ATOMIC_SEQ_CST);
 	pthread_t nhttpd_thread;
 	if (pthread_create(&nhttpd_thread, NULL, nhttpd_main_thread, NULL) != 0)
 		return 0;
 	pthread_detach(nhttpd_thread);
 
-	/* Up means answering: the thread reads its file and binds, and the only
-	   honest sign of that is a connection. Asked on the loopback where the
-	   address is the wildcard, on the address itself otherwise; bounded, so
-	   a port the kernel refused answers nought instead of holding the
-	   reload runner forever. */
-	/* Where the listener is asked for: the address that is actually in
-	   effect - the old file's where the asked-for one was refused. */
-	std::string effective = carriable ? std::string((bind != NULL) ? bind : "0.0.0.0")
-	                                  : conf.getString("WebsiteMain.host", "0.0.0.0");
-	const char *probe = (effective == "0.0.0.0" || effective.empty())
-	                    ? "127.0.0.1" : effective.c_str();
+	/* Up means listening, and the one that knows is the server itself: it
+	   reports the port that really bound, its fallback included, once its
+	   listen succeeded. A connection to the port would also be answered by
+	   any other service that holds it while this server failed to bind
+	   there. The server's thread ending first means it never listened.
+	   Bounded, so a server that neither binds nor ends answers nought
+	   instead of holding the reload runner forever. */
 	for (int i = 0; i < 100; i++) {
 		usleep(100 * 1000);
-		int fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd < 0)
+		const int bound = httpd::boundPort();
+		if (bound > 0)
+			return bound;
+		if (__atomic_load_n(&server_runs_ended, __ATOMIC_SEQ_CST) != ended_before)
 			break;
-		struct sockaddr_in to;
-		memset(&to, 0, sizeof(to));
-		to.sin_family = AF_INET;
-		to.sin_port = htons((unsigned short) port);
-		if (inet_pton(AF_INET, probe, &to.sin_addr) != 1) {
-			close(fd);
-			break;
-		}
-		const int ok = connect(fd, (struct sockaddr *) &to, sizeof(to));
-		close(fd);
-		if (ok == 0)
-			return port;
 	}
 
 	/* Nothing came up on what was asked for. Before this is reported, one
@@ -620,18 +633,21 @@ static int nhttpd_server_start_once(int port, const char *bind, bool second_chan
 
 bool nhttpd_server_stop(void) {
 	Cyhttpd *running = __atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST);
-	if (running == NULL)
-		return true;
-	running->stop_run();
-	/* The thread carries its own teardown (hooks, events, the delete) and
-	   nulls the instance last. Bounded: a teardown that wedges is reported
-	   as a stop that did not finish rather than waited on forever - and
-	   the start guard then refuses a second server beside the sleeper.
-	   Longer than the teardown's own wait for its connection threads. */
-	for (int i = 0; i < 250; i++) {
-		if (__atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) == NULL)
-			return true;
+	if (running != NULL)
+		running->stop_run();
+	/* The thread carries its own teardown (hooks, events, the delete): it
+	   nulls the instance first and deletes it after, so a null instance is
+	   not yet a server gone - only the counts say when the delete is over.
+	   Also waited for when the instance was already null: a thread still
+	   inside its delete. The teardown waits for every connection thread, a
+	   long script included, so this waits as long as that takes: the start
+	   that follows is the only one there will be, and given up on here the
+	   box would answer nothing once the script was done. It runs on the
+	   reload runner's own thread, which nothing else waits for. */
+	for (unsigned i = 1; !server_threads_gone(); i++) {
+		if (i % 150 == 0)
+			aprintf("nhttpd_server_stop: the old server is still finishing\n");
 		usleep(100 * 1000);
 	}
-	return __atomic_load_n(&yhttpd, __ATOMIC_SEQ_CST) == NULL;
+	return true;
 }
