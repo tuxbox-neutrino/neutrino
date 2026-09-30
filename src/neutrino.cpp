@@ -293,6 +293,9 @@ CNeutrinoApp::CNeutrinoApp()
 	skipShutdownTimer	= false;
 	skipSleepTimer		= false;
 	lockStandbyCall         = false;
+	top_level_msg           = false;
+	plugins_reload_pending  = false;
+	timeshift_pending       = false;
 	deferred_deepstandby	= false;
 	deferred_recheck_timer	= 0;
 	webchannels_boot_check_done = false;
@@ -3641,6 +3644,18 @@ void CNeutrinoApp::RealRun()
 #ifdef ENABLE_LUA
 		luaServer->UnBlock();
 #endif
+		/* Back at the top, with no screen open: what a screen drew from
+		   the plugin list is gone with the screen. */
+		if (plugins_reload_pending) {
+			plugins_reload_pending = false;
+			if (g_Plugins)
+				g_Plugins->loadPlugins();
+		}
+		/* And a shift asked for meanwhile, judged by the mode as it is now. */
+		if (timeshift_pending) {
+			timeshift_pending = false;
+			startAskedTimeshift();
+		}
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 #ifdef ENABLE_LUA
 		if (luaServer->Block(msg, data))
@@ -3983,8 +3998,11 @@ void CNeutrinoApp::RealRun()
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				}
 
-				if (msg != CRCInput::RC_timeout)
+				if (msg != CRCInput::RC_timeout) {
+					top_level_msg = true;
 					handleMsg(msg, data);
+					top_level_msg = false;
+				}
 			}
 		}
 		else {
@@ -3996,11 +4014,35 @@ void CNeutrinoApp::RealRun()
 				}
 			}
 			else {
-				if (msg != CRCInput::RC_timeout)
+				if (msg != CRCInput::RC_timeout) {
+					top_level_msg = true;
 					handleMsg(msg, data);
+					top_level_msg = false;
+				}
 			}
 		}
 	}
+}
+
+/* A shift asked for over the wire, from the main loop: only in a mode that
+   shows a programme. In standby a shift would tune, record and open the
+   player behind the standby's back. */
+void CNeutrinoApp::startAskedTimeshift()
+{
+	const bool watching = mode == NeutrinoModes::mode_tv || mode == NeutrinoModes::mode_radio ||
+			      mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_webradio;
+	if (!watching) {
+		INFO("timeshift asked for in mode %s, not started", neutrinoMode_to_string(mode));
+		return;
+	}
+	/* The same act as the timeshift key. Writing the file alone leaves the
+	   picture on live, which is a recording and not a shift. No player
+	   where there is no live picture, and none on top of one playing. */
+	if (g_RemoteControl->is_video_started && !CMoviePlayerGui::getInstance().Playing())
+		CRecordManager::getInstance()->StartTimeshift();
+	else if (!CRecordManager::getInstance()->TimeshiftRunning())
+		CRecordManager::getInstance()->StartAutoRecord(true);
+	autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 }
 
 int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
@@ -4388,6 +4430,11 @@ coreapi::Status coreapi::boxRecordings(coreapi::RecordingList &out)
 }
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
+	/* Whether this came straight from the main loop, taken first and cleared,
+	   so a screen opened below that passes a message on reads false. */
+	const bool at_top_level = top_level_msg;
+	top_level_msg = false;
+
 	/* Ahead of everything below, because the branches that follow return early
 	   and free the payload as they go. */
 	coreapi::publishFromMessage(_msg, data);
@@ -4874,14 +4921,26 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_START_TIMESHIFT) {
-		/* The same act as the timeshift key. Writing the file alone leaves the
-		   picture on live, which is a recording and not a shift. No player
-		   where there is no live picture, and none on top of one playing. */
-		if (g_RemoteControl->is_video_started && !CMoviePlayerGui::getInstance().Playing())
-			CRecordManager::getInstance()->StartTimeshift();
-		else if (!CRecordManager::getInstance()->TimeshiftRunning())
-			CRecordManager::getInstance()->StartAutoRecord(true);
-		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+		/* Where the timeshift key works: from the main loop, with no screen
+		   open that the player would open on top of. Asked for while one is
+		   open - the infobar after a zap, a menu, the guide - the shift waits
+		   until the screens are closed, as the key does when the infobar
+		   hands it on; the caller was told the request was taken. */
+		if (!at_top_level) {
+			/* A second request while a shift is being watched is not noted:
+			   it would start another one once that player closed. Asked of
+			   the player, which knows, and not of the recordings: a shift
+			   can play a recording that is no buffer, and a buffer running
+			   without a player is one a later start may use. */
+			if (CMoviePlayerGui::getInstance().timeshift) {
+				INFO("timeshift asked for while one is being watched, nothing to start");
+				return messages_return::handled;
+			}
+			INFO("timeshift asked for with a screen open, starting it once the screens are closed");
+			timeshift_pending = true;
+			return messages_return::handled;
+		}
+		startAskedTimeshift();
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_STOP_TIMESHIFT) {
@@ -4890,6 +4949,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		   it the end of shifting rather than the end of one file. */
 		CRecordManager::getInstance()->StopAutoRecord();
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+		// and a shift still waiting for the screens to close is called off
+		timeshift_pending = false;
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_STREAM_START) {
@@ -5242,7 +5303,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if (msg == NeutrinoMessages::EVT_RELOAD_PLUGINS) {
 		/* Here and not at whatever asked for it: the list this rebuilds is the
 		   one the screens draw from, and the screens are drawn from this
-		   thread. */
+		   thread. And only from the main loop: passed on by a screen that is
+		   open, the plugin list or a menu drawn from it, the rebuild would pull
+		   the entries out from under it, so it waits until the screens are
+		   closed. */
+		if (!at_top_level) {
+			plugins_reload_pending = true;
+			return messages_return::handled;
+		}
 		if (g_Plugins)
 			g_Plugins->loadPlugins();
 		return messages_return::handled;

@@ -101,6 +101,14 @@ private:
 	bool				skipShutdownTimer;
 	bool 				skipSleepTimer;
 	bool                            lockStandbyCall;
+	/* Set by the main loop right before it hands a message to handleMsg, and
+	   taken back by handleMsg as it starts: a screen with a loop of its own
+	   that passes a message on leaves it false. */
+	bool                            top_level_msg;
+	// A reload of the plugin list asked for while a screen was open.
+	bool                            plugins_reload_pending;
+	// A shift asked for over the wire while a screen was open.
+	bool                            timeshift_pending;
 	bool				deferred_deepstandby;
 	uint32_t			deferred_recheck_timer;
 	bool				webchannels_boot_check_done;
@@ -134,6 +142,7 @@ private:
 
 	void ExitRun(int can_shutdown = 0);
 	void RealRun();
+	void startAskedTimeshift();
 	void InitZapper();
 	void InitTimerdClient();
 	void InitZapitClient();

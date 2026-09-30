@@ -62,6 +62,18 @@ WIRE=`arm 'msg == NeutrinoMessages::EVT_START_TIMESHIFT'`
 	echo "check-timeshift-start.sh: no arm for EVT_START_TIMESHIFT in $APP" >&2
 	exit 1
 }
+# The arm hands the start to one function, which the main loop also calls for
+# a request a screen made wait: the act is what that function does.
+case "$WIRE" in
+	*"startAskedTimeshift();"*)
+		WIRE=`arm 'void CNeutrinoApp::startAskedTimeshift('`
+		[ -n "$WIRE" ] || {
+			echo "check-timeshift-start.sh: the arm calls startAskedTimeshift, which" >&2
+			echo "  is not defined in $APP" >&2
+			exit 1
+		}
+		;;
+esac
 
 case "$WIRE" in
 	*"StartTimeshift()"*) ;;
