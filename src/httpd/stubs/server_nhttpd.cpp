@@ -28,6 +28,8 @@
 
 #include <pthread.h>
 
+#include <cstdio>
+#include <memory>
 #include <string>
 
 namespace httpd
@@ -55,13 +57,27 @@ bool (*stop_hand)(void) = 0;
    waiting is all the ordering this needs. */
 pthread_mutex_t reload_lock = PTHREAD_MUTEX_INITIALIZER;
 
+struct ReloadTurn
+{
+	ReloadTurn() { pthread_mutex_lock(&reload_lock); }
+	~ReloadTurn() { pthread_mutex_unlock(&reload_lock); }
+};
+
+/* A thread's entry, so nothing may leave it: an exception out of here ends
+   the process. The copy of the path and the turn are released on every way
+   out, the one an exception takes among them. */
 void *reloadRunner(void *arg)
 {
-	std::string *path = (std::string *) arg;
-	pthread_mutex_lock(&reload_lock);
-	reloadAndRestart(*path);
-	pthread_mutex_unlock(&reload_lock);
-	delete path;
+	try
+	{
+		std::unique_ptr<std::string> path((std::string *) arg);
+		ReloadTurn turn;
+		reloadAndRestart(*path);
+	}
+	catch (...)
+	{
+		std::fprintf(stderr, "httpd: the reload an answer asked for did not finish\n");
+	}
 	return 0;
 }
 
@@ -123,14 +139,23 @@ void installNhttpdServerControl(int (*start_thread)(int port, const char *bind),
 
 void scheduleReloadAndRestart(const std::string &path)
 {
-	std::string *owned = new std::string(path);
-	pthread_t t;
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	if (pthread_create(&t, &attr, &reloadRunner, owned) != 0)
-		delete owned;
-	pthread_attr_destroy(&attr);
+	// called from an nhttpd connection thread, which is built without
+	// exceptions: the copy's allocation is the one thing here that throws
+	try
+	{
+		std::string *owned = new std::string(path);
+		pthread_t t;
+		pthread_attr_t attr;
+		pthread_attr_init(&attr);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+		if (pthread_create(&t, &attr, &reloadRunner, owned) != 0)
+			delete owned;
+		pthread_attr_destroy(&attr);
+	}
+	catch (...)
+	{
+		std::fprintf(stderr, "httpd: no reload scheduled for %s\n", path.c_str());
+	}
 }
 
 } // namespace httpd

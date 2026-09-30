@@ -71,6 +71,10 @@ public:
 	// The prefixes this hook answers, told to the core so the request reader
 	// treats them as API targets.
 	static void registerPrefixes();
+	// The event stream's start and stop for the server that carries it, each
+	// behind the exception barrier every entry from nhttpd has.
+	static void startEvents();
+	static void stopEvents();
 	// Whether this request is one of ours, on the decoded url.
 	static bool claims(const CyhookHandler *hh);
 	// Response into the hook handler: status, headers, body; a file read

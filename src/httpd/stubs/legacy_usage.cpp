@@ -60,58 +60,73 @@ std::vector<Usage> &unknownUsage()
 
 void knowName(const char *name)
 {
-	if (name == NULL || *name == '\0')
-		return;
-
-	OpenThreads::ScopedLock<OpenThreads::Mutex> held(usageLock());
-
-	std::vector<Usage> &k = knownUsage();
-	for (size_t i = 0; i < k.size(); ++i)
+	// called from nhttpd, which is built without exceptions: a failed
+	// allocation leaves the name unknown instead of ending the process
+	try
 	{
-		if (k[i].name == name)
+		if (name == NULL || *name == '\0')
 			return;
-	}
 
-	Usage row;
-	row.name = name;
-	row.calls = 0;
-	k.push_back(row);
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held(usageLock());
+
+		std::vector<Usage> &k = knownUsage();
+		for (size_t i = 0; i < k.size(); ++i)
+		{
+			if (k[i].name == name)
+				return;
+		}
+
+		Usage row;
+		row.name = name;
+		row.calls = 0;
+		k.push_back(row);
+	}
+	catch (...)
+	{
+	}
 }
 
 void record(const std::string &name)
 {
-	// The same gate knowName holds: a blank /control/ carries no name, and
-	// a nameless row would spend one of the bounded unknown seats on it.
-	if (name.empty())
-		return;
-
-	OpenThreads::ScopedLock<OpenThreads::Mutex> held(usageLock());
-
-	std::vector<Usage> &k = knownUsage();
-	for (size_t i = 0; i < k.size(); ++i)
+	// called from nhttpd for every /control command, see knowName
+	try
 	{
-		if (k[i].name == name)
-		{
-			++k[i].calls;
+		// The same gate knowName holds: a blank /control/ carries no name, and
+		// a nameless row would spend one of the bounded unknown seats on it.
+		if (name.empty())
 			return;
+
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held(usageLock());
+
+		std::vector<Usage> &k = knownUsage();
+		for (size_t i = 0; i < k.size(); ++i)
+		{
+			if (k[i].name == name)
+			{
+				++k[i].calls;
+				return;
+			}
+		}
+
+		std::vector<Usage> &u = unknownUsage();
+		for (size_t i = 0; i < u.size(); ++i)
+		{
+			if (u[i].name == name)
+			{
+				++u[i].calls;
+				return;
+			}
+		}
+		if (u.size() < kMaxUnknownLegacyNames)
+		{
+			Usage next;
+			next.name = name;
+			next.calls = 1;
+			u.push_back(next);
 		}
 	}
-
-	std::vector<Usage> &u = unknownUsage();
-	for (size_t i = 0; i < u.size(); ++i)
+	catch (...)
 	{
-		if (u[i].name == name)
-		{
-			++u[i].calls;
-			return;
-		}
-	}
-	if (u.size() < kMaxUnknownLegacyNames)
-	{
-		Usage next;
-		next.name = name;
-		next.calls = 1;
-		u.push_back(next);
 	}
 }
 

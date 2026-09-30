@@ -253,6 +253,32 @@ bool CApiBridge::routesOk(std::string *why)
 	}
 }
 
+void CApiBridge::startEvents()
+{
+	try
+	{
+		httpd::events::start();
+	}
+	catch (...)
+	{
+		// the stream service stays down and refuses streams; the rest of
+		// the layer serves as before
+		std::fprintf(stderr, "httpd: the event stream did not start\n");
+	}
+}
+
+void CApiBridge::stopEvents()
+{
+	try
+	{
+		httpd::events::stop();
+	}
+	catch (...)
+	{
+		std::fprintf(stderr, "httpd: the event stream did not stop cleanly\n");
+	}
+}
+
 void CApiBridge::registerPrefixes()
 {
 	CyhookHandler::registerApiPrefix(kPrefixApi);
