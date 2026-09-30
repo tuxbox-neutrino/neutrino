@@ -15,6 +15,7 @@
 
 #include "support/catch.hpp"
 
+#include "yconnection.h"
 #include "yhook.h"
 #include "yrequest.h"
 #include "ysocket.h"
@@ -876,4 +877,113 @@ TEST_CASE("a lingering close gives up at its deadline", "[nhttpd]")
 	sender.join();
 	CHECK(took >= 250);
 	CHECK(took < 2000);
+}
+
+TEST_CASE("a line cut short by the peer is what arrived and not one byte more", "[nhttpd]")
+{
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket s(fd[0]);
+	s.isOpened = true;
+	s.isValid = true;
+
+	REQUIRE(write(fd[1], "ab", 2) == 2);
+	close(fd[1]);
+
+	CHECK(s.ReceiveLine() == "ab");
+	CHECK_FALSE(s.isValid);
+	// and at the end of the connection, nothing at all
+	CHECK(s.ReceiveLine().empty());
+	s.close();
+}
+
+TEST_CASE("a POST whose caller closes inside the header ends the request", "[nhttpd]")
+{
+	/* The header of a legacy POST is read line by line up to the empty
+	   line. A read at the end of the connection used to hand back a byte
+	   that never arrived, so the loop never met an empty line and grew the
+	   header until the box ran out of memory. Watched: a regression here
+	   ends the whole run instead of eating the machine. */
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket *s = new CySocket(fd[0]);
+	s->isOpened = true;
+	s->isValid = true;
+	const char req[] = "POST /nothing HTTP/1.0\r\nHost: box\r\n";
+	REQUIRE(write(fd[1], req, sizeof(req) - 1) == (ssize_t) (sizeof(req) - 1));
+	close(fd[1]);
+
+	volatile bool done = false;
+	std::thread watchdog([&done]() {
+		for (int i = 0; i < 500 && !done; i++)
+			usleep(10 * 1000);
+		if (!done) {
+			fprintf(stderr, "a POST cut inside its header did not end in 5 s\n");
+			_exit(1);
+		}
+	});
+
+	CWebserver ws;
+	CWebserverConnection *con = new CWebserverConnection(&ws);
+	con->Request.UrlData["clientaddr"] = "127.0.0.1";
+	con->sock = s;
+	const bool handled = con->Request.HandleRequest();
+	done = true;
+	watchdog.join();
+	delete con;
+	s->close();
+	delete s;
+	CHECK_FALSE(handled);
+}
+
+/* A legacy POST whose caller is gone before its body is complete, handed
+   to HandleRequest() over a socket pair. Watched like the header case: a
+   loop that never ends fails the whole run in 5 s instead of spinning. */
+static bool handleCutPost(const std::string &request)
+{
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	CySocket *s = new CySocket(fd[0]);
+	s->isOpened = true;
+	s->isValid = true;
+	REQUIRE(write(fd[1], request.data(), request.size()) == (ssize_t) request.size());
+	close(fd[1]);
+
+	volatile bool done = false;
+	std::thread watchdog([&done]() {
+		for (int i = 0; i < 500 && !done; i++)
+			usleep(10 * 1000);
+		if (!done) {
+			fprintf(stderr, "a POST whose caller went away did not end in 5 s\n");
+			_exit(1);
+		}
+	});
+
+	CWebserver ws;
+	CWebserverConnection *con = new CWebserverConnection(&ws);
+	con->Request.UrlData["clientaddr"] = "127.0.0.1";
+	con->sock = s;
+	const bool handled = con->Request.HandleRequest();
+	done = true;
+	watchdog.join();
+	delete con;
+	s->close();
+	delete s;
+	return handled;
+}
+
+TEST_CASE("a multipart POST whose caller goes away before a boundary ends the request", "[nhttpd]")
+{
+	/* The upload loop asks for the next part until the declared length is
+	   used up. At the end of the connection a line comes back empty and
+	   uses up nothing, so without a look at the socket the loop asked
+	   again at once, for ever, one thread at full load per request. An
+	   upload that did not arrive whole is not handed on either. */
+	CHECK_FALSE(handleCutPost("POST /nothing HTTP/1.0\r\nHost: box\r\n"
+			"Content-Type: multipart/form-data; boundary=b\r\n"
+			"Content-Length: 100\r\n\r\n"));
+	CHECK_FALSE(handleCutPost("POST /nothing HTTP/1.0\r\nHost: box\r\n"
+			"Content-Type: multipart/form-data; boundary=b\r\n"
+			"Content-Length: 300\r\n\r\n"
+			"--b\r\nContent-Disposition: form-data; name=\"v\"\r\n\r\none\r\n"));
 }

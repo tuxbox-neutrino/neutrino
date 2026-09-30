@@ -266,12 +266,8 @@ void CWebserverRequest::analyzeURL(std::string url) {
 bool CWebserverRequest::HandlePost() {
 	//read header: line by line
 	std::string raw_header = "", tmp_line = "";
-	// FIXME: a peer that closes before the empty line makes ReceiveLine()
-	// hand back one byte it never received (isValid false, bytes_gotten
-	// stepped once), so this loop never sees an empty line and grows
-	// raw_header until the box is out of memory. Left as it is here on
-	// purpose: the legacy path is byte-identical by contract (WORK-291);
-	// the API path reads its header through readApiHeader() instead.
+	// A peer that closes before the empty line ends this loop: at the end of
+	// the connection ReceiveLine() hands back an empty line, answered below.
 	do {
 		tmp_line = Connection->sock->ReceiveLine();
 		if (tmp_line.empty()) // Socket empty
