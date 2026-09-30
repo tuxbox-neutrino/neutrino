@@ -55,8 +55,15 @@ popup in front of the login. Programs present a configured token as
 <code>Authorization: Bearer</code> instead; an address may carry the
 scoped media token (<code>POST /api/v1/token/media</code>) as
 <code>?token=</code>, worth the media roots and nothing else. This is
-the flow that boxes with a compatible fork speak for remote timers, so such a box can
-drive this box's timers over <code>/api/v1</code>.
+the flow another box's remote-timer screen speaks, so a box running a
+compatible fork can drive this box's timers over
+<code>/api/v1</code>. That is proven on
+the wire rather than read off the source: <code>test/http/check-remotebox.sh</code>
+drives the peer's own client code, kept word for word under
+<code>test/unit/interop/peer/</code> and built as <code>remotebox_client</code>
+by <code>make check</code>, through list, margins, channel, add, change
+and remove against a running box, and reads the box back after every
+write.
 </p>
 <p>
 <code>GET /api/v1/system/webserver</code> answers where this server
@@ -127,34 +134,38 @@ and a stretch the file does not hold is a 416 problem document whose
 
 <h2>Requests</h2>
 <p>
-GET, HEAD, POST, PUT and DELETE. A POST or PUT body is JSON, read by its
+GET, HEAD, POST, PUT, PATCH and DELETE. A POST, PUT or PATCH body is JSON, read by its
 <code>Content-Length</code> up to 1 MiB; above that the request is refused
 with 413, and the body is read and dropped (up to 16 MiB) so the refusal
 reaches the caller instead of a reset. A body the server cannot frame (two differing
 lengths, a length that is not a number, any <code>Transfer-Encoding</code>) is
 400; one that stops arriving is 408 after ten seconds. <code>100 Continue</code>
 is sent only when the client asks for it with <code>Expect</code>.
-OPTIONS and PATCH are not read by nhttpd yet and answer 501. Outside the
-API namespace nhttpd refuses PUT, DELETE and TRACE as it always has: a 501
-line and a close without reading the rest of the request, which a client
-sees as a reset.
+PATCH is read since slice 3, the same way as POST and PUT. OPTIONS is not
+read by nhttpd yet: the connection is closed without an answer, which a
+client sees as a reset. Outside the API namespace nhttpd refuses PUT, PATCH,
+DELETE and TRACE as it always has: a 501 line and a close without reading
+the rest of the request, which a client sees as a reset.
 </p>
 
 <h2>Access</h2>
 <p>
-What nhttpd checks: its own Basic authentication (<code>mod_auth</code> in
-<code>nhttpd.conf</code>), for every path it serves, and only when
-<code>mod_auth.authenticate</code> is on. With it off every route here is open
-to any caller that reaches the box, as <code>/control/</code> has always been.
-The document says exactly that (scheme <code>basic</code>); the levels the
-routes declare (read, write, system) are recorded in the document as
-<code>x-auth-level</code> and start to be enforced with the session layer.
+nhttpd's own Basic authentication (<code>mod_auth</code> in
+<code>nhttpd.conf</code>) still governs every path it serves itself,
+<code>/control/</code> included, and only when
+<code>mod_auth.authenticate</code> is on. The API namespace it hands on
+unchecked since slice 3, because the layer has a gate of its own: every
+route declares a level (recorded in the document as
+<code>x-auth-level</code>), a public route answers anyone, a read passes
+from the networks <code>lan_read</code> names without a credential, and a
+write or a system route needs the session cookie with its second token or
+a configured token as <code>Authorization: Bearer</code>. A refusal is 403,
+a login that does not open is 401. The login flow itself is described
+under Addresses above, where the route is.
 </p>
 
 <h2>What is not there yet</h2>
 <ul>
-<li>sessions, tokens, per-route levels: the session layer, and with it the
-auth table and the webserver table, as compatible forks have them</li>
 <li>the stream and web-TV relays (<code>/api/v1/stream...</code>,
 <code>/api/v1/webtv...</code>): they hand a long-lived connection to a
 program or a remote server; a route that would answer with one is refused
@@ -168,6 +179,8 @@ with 501 until that path exists</li>
 <tr><td><code>src/nhttpd/yhttpd_core/</code></td><td>what the core grew for it: the API namespace (<code>registerApiPrefix</code>), the API body reader, the api-mode header, exact socket I/O</td></tr>
 <tr><td><code>test/unit/httpd/</code>, <code>test/unit/nhttpd/</code></td><td>the tests: the generator against the dump, the bridge with a filled hook handler, the core pieces over a socket pair</td></tr>
 <tr><td><code>test/unit/support/run-tests.sh</code></td><td>runs the suite; names the imported cases this tree cannot pass yet, and why</td></tr>
+<tr><td><code>test/unit/interop/</code></td><td>the remote-timer client another box speaks to this one with, as compatible forks ship it, and the small program <code>remotebox_client</code> that drives it one call at a time</td></tr>
+<tr><td><code>test/http/</code></td><td>the checks against a running box: <code>check-v1.sh</code> for the layer over the wire, <code>check-remotebox.sh</code> for the peer's client</td></tr>
 </table>
 </body>
 </html>
