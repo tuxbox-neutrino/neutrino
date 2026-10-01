@@ -5302,6 +5302,12 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			AVInputMode( false );
 		}
 	}
+	else if (msg == NeutrinoMessages::EVT_SI_FINISHED) {
+		/* The answer to a guide write whose wait was cut short by a wake
+		   (saveEpg): nothing waits for it any more. Answered unhandled, it
+		   closed the infobar the wake had just put up. */
+		return messages_return::handled;
+	}
 	else if (msg == NeutrinoMessages::EVT_TIMERLIST_CHANGED) {
 		/* Registered so the web side hears of timer changes (published at the
 		   top of this function); for the screens it is nothing to act on.
