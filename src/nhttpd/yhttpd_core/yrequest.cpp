@@ -109,6 +109,8 @@ bool CWebserverRequest::HandleRequest(void) {
 		//todo: implement
 		aprintf("HTTP Method not implemented :%d\n", Connection->Method);
 		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
+		// header and body are still on their way in
+		Connection->sock->linger_on_close = true;
 		return false;
 	}
 	// handle POST (read header & body)
@@ -149,6 +151,8 @@ bool CWebserverRequest::ParseStartLine(std::string start_line) {
 			else {
 				log_level_printf(1, "Unknown Method or invalid request\n");
 				Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
+				// the rest of the request is still on its way in
+				Connection->sock->linger_on_close = true;
 				log_level_printf(3, "Request: '%s'\n", rawbuffer.c_str());
 				return false;
 			}
@@ -639,6 +643,7 @@ bool CWebserverRequest::HandleApiRequest() {
 
 	if (Connection->Method == M_TRACE) {
 		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
+		Connection->sock->linger_on_close = true;
 		return false;
 	}
 

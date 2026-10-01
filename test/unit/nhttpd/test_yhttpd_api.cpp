@@ -1061,3 +1061,46 @@ TEST_CASE("a multipart POST whose caller goes away before a boundary ends the re
 			"Content-Length: 300\r\n\r\n"
 			"--b\r\nContent-Disposition: form-data; name=\"v\"\r\n\r\none\r\n"));
 }
+
+TEST_CASE("a method this server does not serve gets its 501 past the unread header", "[nhttpd]")
+{
+	/* OPTIONS, and a PUT outside the API, are refused right after the
+	   request line, with the rest of the request unread. A plain close then
+	   resets the connection while the caller is still sending its header,
+	   and the caller gives up without the 501. */
+	TcpPair tcp;
+	REQUIRE(tcp.sfd >= 0);
+	std::string request = "OPTIONS / HTTP/1.0\r\n";
+	for (int i = 0; i < 4000; i++)
+		request += "X-Padding-" + std::to_string(i) + ": " + std::string(1000, 'p') + "\r\n";
+	request += "\r\n";
+	volatile bool sent_all = false;
+	std::thread sender([&tcp, &request, &sent_all]() {
+		size_t done = 0;
+		while (done < request.size()) {
+			ssize_t n = send(tcp.cfd, request.data() + done, request.size() - done, MSG_NOSIGNAL);
+			if (n <= 0)
+				return;
+			done += (size_t) n;
+		}
+		sent_all = true;
+		shutdown(tcp.cfd, SHUT_WR);
+	});
+
+	CWebserver ws;
+	CWebserverConnection *con = new CWebserverConnection(&ws);
+	CySocket *s = new CySocket(tcp.sfd);
+	s->isOpened = true;
+	s->isValid = true;
+	con->Request.UrlData["clientaddr"] = "127.0.0.1";
+	con->sock = s;
+	con->HandleConnection();
+	delete con;
+	delete s;
+
+	int ended = 1;
+	const std::string got = readAll(tcp.cfd, 5000, &ended);
+	sender.join();
+	CHECK(sent_all);
+	CHECK(got.find("HTTP/1.0 501") == 0);
+}
