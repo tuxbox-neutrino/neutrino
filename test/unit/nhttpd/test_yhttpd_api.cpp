@@ -1104,3 +1104,14 @@ TEST_CASE("a method this server does not serve gets its 501 past the unread head
 	CHECK(sent_all);
 	CHECK(got.find("HTTP/1.0 501") == 0);
 }
+
+TEST_CASE("an api answer without content states no length", "[nhttpd]")
+{
+	// RFC 9110 15.3.5: a 204 carries no Content-Length; the logout answers
+	// with one, and a strict client or proxy rejects the answer for it
+	CyhookHandler hh = apiHandler(M_POST, HTTP_NO_CONTENT, "");
+	const std::string h = hh.BuildApiHeader();
+	CHECK(h.find("HTTP/1.0 204") == 0);
+	CHECK(h.find("Content-Length") == std::string::npos);
+	CHECK(h.substr(h.size() - 4) == "\r\n\r\n");
+}
