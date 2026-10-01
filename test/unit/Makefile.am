@@ -58,6 +58,7 @@ coreapi_tests_SOURCES = \
 	system/test_atomicfile.cpp \
 	system/test_atomicfile_link.cpp \
 	driver/test_postmsg.cpp \
+	driver/test_eventframe.cpp \
 	coreapi/test_eventbus.cpp \
 	coreapi/test_messagebridge.cpp \
 	coreapi/test_channels.cpp \
