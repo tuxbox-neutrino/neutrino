@@ -305,11 +305,24 @@ bool CWebserverRequest::HandlePost() {
 		// get message-body
 		std::string post_header = Connection->sock->ReceiveBlock();
 		while (post_header.length() < content_len) {
-			post_header += Connection->sock->ReceiveBlock();
-			/*			aprintf("POST form less data then expected\n");
-			 Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
-			 return false;
-			 */
+			std::string more = Connection->sock->ReceiveBlock();
+			if (more.empty()) {
+				// Nothing waiting: wait for the next byte instead of asking
+				// again at once. A caller that went away ends the body here,
+				// short of what it announced.
+				char next;
+				int got = Connection->sock->Read(&next, 1);
+				if (got < 0 && errno == EINTR)
+					continue;
+				if (got != 1) {
+					Connection->sock->isValid = false;
+					aprintf("POST form less data then expected\n");
+					Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
+					return false;
+				}
+				more.assign(1, next);
+			}
+			post_header += more;
 		}
 		// parse the params in post_header (message-body) an add them to ParameterList
 		ParseParams(post_header);
