@@ -1159,7 +1159,9 @@ void CInfoViewer::loop(bool show_dot)
 			res = messages_return::cancel_all;
 			hideIt = true;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id)) {
-			if (frameBuffer->getActive())
+			/* Only while the infobar is up: taken down meanwhile, the clock
+			   this paints is gone with it. */
+			if (frameBuffer->getActive() && is_visible)
 			{
 				showSNR ();
 				if (timeset) {
@@ -1227,6 +1229,12 @@ void CInfoViewer::loop(bool show_dot)
 			else
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
+		/* Whichever branch passed the message on: when its handler took the
+		   infobar down - standby does, asked for by key or over the network -
+		   this loop has nothing left to show. Left running, its timer painted
+		   the clock the standby had deleted as soon as the box was woken. */
+		if (!is_visible)
+			res |= messages_return::cancel_info;
 	}
 
 	if (hideIt) {
