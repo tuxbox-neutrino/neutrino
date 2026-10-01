@@ -20,6 +20,15 @@ description cannot drift from what is served. The layer is taken over
 unchanged, as compatible forks carry it; the server beneath it is nhttpd,
 not the dedicated server of those forks, and <code>/control/</code> stays what it was, byte for byte.
 </p>
+<p>
+One stated exception to that, for every answer of the server and not only
+the API: a body that holds a NUL byte now goes out whole. The header always
+counted it whole (<code>Content-Length</code> is the length of the answer as
+built), but the body stopped at the first NUL, so such an answer was cut
+short of its own length and the caller waited for bytes that never came.
+Answers without a NUL byte, which is every answer the pages ask for, are
+the same bytes as before.
+</p>
 
 <h2>Addresses</h2>
 <table border="0">
