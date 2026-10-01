@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <poll.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/un.h>
@@ -238,4 +239,56 @@ TEST_CASE("a server that goes away stops its outbox between two clients", "[even
 
 	for (size_t i = 0; i < busy.size(); i++)
 		delete busy[i];
+}
+
+namespace {
+
+// The per client send, which answers every time and keeps nothing back.
+struct DirectServer : public CEventServer
+{
+	bool sendTo(const char *udsName)
+	{
+		eventClient c = eventClient();
+		snprintf(c.udsName, sizeof(c.udsName), "%s", udsName);
+		return sendEvent2Client(52, CEventServer::INITID_TIMERD, &c, "x", 1);
+	}
+};
+
+struct DropRun
+{
+	DirectServer *server;
+	int refused;
+};
+
+void *dropMany(void *arg)
+{
+	DropRun *run = (DropRun *) arg;
+	for (int i = 0; i < 200; i++)
+		if (!run->server->sendTo("/tmp/eventserver-outbox-gone.sock"))
+			run->refused++;
+	return NULL;
+}
+
+} // namespace
+
+TEST_CASE("two threads that drop events at once share the drop count safely", "[eventserver][race]")
+{
+	/* Every sending thread writes the table that counts drops per client,
+	   here two of them the same client's count at once. A plain run cannot
+	   tell a guarded table from an unguarded one; this is the case a
+	   ThreadSanitizer run of the suite looks at. */
+	unlink("/tmp/eventserver-outbox-gone.sock");
+	DirectServer server;
+
+	DropRun a = { &server, 0 };
+	DropRun b = { &server, 0 };
+	pthread_t ta, tb;
+	REQUIRE(pthread_create(&ta, NULL, dropMany, &a) == 0);
+	REQUIRE(pthread_create(&tb, NULL, dropMany, &b) == 0);
+	pthread_join(ta, NULL);
+	pthread_join(tb, NULL);
+
+	// a send to a client that is not there is never answered as sent
+	CHECK(a.refused == 200);
+	CHECK(b.refused == 200);
 }
