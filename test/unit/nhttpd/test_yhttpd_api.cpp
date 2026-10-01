@@ -1062,6 +1062,21 @@ TEST_CASE("a multipart POST whose caller goes away before a boundary ends the re
 			"--b\r\nContent-Disposition: form-data; name=\"v\"\r\n\r\none\r\n"));
 }
 
+TEST_CASE("a form POST whose caller sends less than it announced ends the request", "[nhttpd]")
+{
+	/* The body of a form POST was read in blocks until the declared length
+	   had arrived. A block read with nothing waiting comes back empty at
+	   once, so a caller that announced more than it sent and closed held
+	   one thread at full load for good, and one that was merely slow kept
+	   it spinning until the rest came. */
+	CHECK_FALSE(handleCutPost("POST /nothing HTTP/1.0\r\nHost: box\r\n"
+			"Content-Type: application/x-www-form-urlencoded\r\n"
+			"Content-Length: 100\r\n\r\na=b"));
+	CHECK_FALSE(handleCutPost("POST /nothing HTTP/1.0\r\nHost: box\r\n"
+			"Content-Type: application/x-www-form-urlencoded\r\n"
+			"Content-Length: 100\r\n\r\n"));
+}
+
 TEST_CASE("a method this server does not serve gets its 501 past the unread header", "[nhttpd]")
 {
 	/* OPTIONS, and a PUT outside the API, are refused right after the
