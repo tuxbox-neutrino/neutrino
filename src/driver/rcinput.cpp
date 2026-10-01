@@ -867,7 +867,14 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 			CEventServer::eventHead emsg;
 			int read_bytes= recv(fd_eventclient, &emsg, sizeof(emsg), MSG_WAITALL);
 			//printf("[neutrino] event read %d bytes - following %d bytes\n", read_bytes, emsg.dataSize );
-			if ( read_bytes == sizeof(emsg) ) {
+			if ( read_bytes == sizeof(emsg) && emsg.dataSize > EVENT_BODY_MAX ) {
+				/* The size is the sender's. One no event has is not read at
+				   all: all ones would make the buffer below one byte longer
+				   than the largest number, which is no buffer. */
+				printf("[neutrino] event 0x%x from 0x%x claims %u bytes, not read\n",
+					emsg.eventID, emsg.initiatorID, emsg.dataSize);
+			}
+			else if ( read_bytes == sizeof(emsg) ) {
 				bool dont_delete_p = false;
 
 				unsigned char* p;
@@ -876,7 +883,18 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				{
 					read_bytes= recv(fd_eventclient, p, emsg.dataSize, MSG_WAITALL);
 					//printf("[neutrino] eventbody read %d bytes - initiator %x\n", read_bytes, emsg.initiatorID );
+					// a text whose sender left the end off ends here all the same
+					p[emsg.dataSize] = 0;
 
+					/* A sender that ran out of time part way through a body
+					   closes and keeps the event to send again whole. What
+					   came is less than the header says and is not handed on:
+					   read as the event, it would be read past what arrived,
+					   and the event would come a second time with the retry. */
+					if (read_bytes < 0 || (unsigned int) read_bytes != emsg.dataSize)
+						printf("[neutrino] event 0x%x from 0x%x cut short (%d of %u bytes), dropped\n",
+							emsg.eventID, emsg.initiatorID, read_bytes, emsg.dataSize);
+					else
 #if 0
 					if ( emsg.initiatorID == CEventServer::INITID_CONTROLD )
 					{

@@ -31,6 +31,11 @@
 #include <string>
 #include <map>
 
+/* The largest body a receiver reads. Every event this tree sends is a few
+   hundred bytes at most; the bound is for a header whose size no event could
+   have, which is then not read at all. */
+#define EVENT_BODY_MAX (1024 * 1024)
+
 
 class CEventServer
 {
