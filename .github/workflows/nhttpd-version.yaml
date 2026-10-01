@@ -88,7 +88,7 @@ on:
       #     every HTTP Server: header (yhttpd_core/yhook.cpp), the start log,
       #     mod_yparser and mod_weblog. After a tuxboxapi-only push all of
       #     them keep claiming a version whose behaviour has moved on.
-      #   - data/y-web/Y_Tools_Check_Install.yhtm reads that value and
+      #   - data/web-ui/Y_Tools_Check_Install.yhtm reads that value and
       #     compares it against a minimum. It is not display-only.
       # The fix for all three is the Web-API's own version line, which does
       # not exist yet (WORK-252). Until it does, this is a deliberate debt,
