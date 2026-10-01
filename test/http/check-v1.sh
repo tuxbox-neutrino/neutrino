@@ -20,6 +20,9 @@ T=`mktemp -d`; trap 'rm -rf "$T"' EXIT
 # carry the session and its second token. The credentials default to the
 # dev instance's (migrated out of its nhttpd.conf) and come from the
 # environment for any other box.
+fails=0
+pass() { echo "PASS $1"; }
+fail() { echo "FAIL $1"; fails=`expr $fails + 1`; }
 AUTH_USER="${CHECKV1_USER:-root}"
 AUTH_PASS="${CHECKV1_PASS:-root}"
 curl -s -c "$T/jar" -D "$T/hl" -o "$T/bl" -H 'Content-Type: application/json' \
@@ -36,9 +39,6 @@ fi
 AUTH_C="Cookie: ni-web-session=$SID"
 AUTH_X="$CSRF_H: $CSRF_V"
 export CV1_SID="$SID" CV1_CSRF_H="$CSRF_H" CV1_CSRF_V="$CSRF_V"
-fails=0
-pass() { echo "PASS $1"; }
-fail() { echo "FAIL $1"; fails=`expr $fails + 1`; }
 hdr() { grep -i "^$2:" "$1" | tr -d '\r' | sed 's/^[^:]*: *//'; }
 status() { head -1 "$1" | tr -d '\r' | awk '{print $2}'; }
 count() { grep -ic "^$2:" "$1"; }
