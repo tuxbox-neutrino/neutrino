@@ -20,6 +20,7 @@
 
 #include "support/catch.hpp"
 
+#include <atomic>
 #include <csignal>
 #include <cstdio>
 #include <cstring>
@@ -269,7 +270,7 @@ class Peer
 		std::string   path;
 		unsigned      to_send;
 		long          gap;
-		volatile bool stop;
+		std::atomic<bool> stop;
 		int           listen_fd;
 		pthread_t     thread;
 };
@@ -365,7 +366,7 @@ TEST_CASE("without a deadline a slow peer is waited for", "[ipc]")
 namespace
 {
 
-volatile bool bounded_thread_running = false;
+std::atomic<bool> bounded_thread_running(false);
 
 void * holdDeadline(void *)
 {
