@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <unistd.h>
 #include <pty.h>	/* forkpty*/
 #include <sys/ioctl.h>
@@ -149,9 +150,73 @@ std::string CAtomicFileWriter::sideNameFor(const std::string &path)
 	return path + ".new";
 }
 
-CAtomicFileWriter::CAtomicFileWriter(const std::string &path, mode_t file_mode)
-	: target(path), sidecar(sideNameFor(path)), mode(file_mode), fh(NULL)
+/* A file the user keeps as a link stays one: the bytes go to the file the
+   link names, the side file is opened beside that one, and the rename puts
+   the new content in its place and leaves the link alone. A plain fopen("w")
+   always followed such a link; renaming over it replaced the link with a
+   file of its own and left the storage it pointed to stale. A chain of up to
+   sixteen links is followed to its end, and a link whose file does not exist
+   yet leads to where that file would be, as fopen("w") would create it there.
+   A link that cannot be followed - a loop or a longer chain, a directory that
+   is not there, a target too long to read - or that ends in something other
+   than a plain file, such as a device, yields an empty name: nothing is
+   written then, and the link stays. */
+static std::string throughLink(const std::string &path)
 {
+	std::string name = path;
+	int hops = 0;
+	int found;
+	struct stat st;
+	while ((found = lstat(name.c_str(), &st)) == 0 && S_ISLNK(st.st_mode))
+	{
+		if (++hops > 16)
+			return std::string();
+		char buf[PATH_MAX];
+		const ssize_t len = readlink(name.c_str(), buf, sizeof(buf) - 1);
+		if (len <= 0 || len >= (ssize_t) sizeof(buf) - 1)
+			return std::string();
+		buf[len] = '\0';
+		std::string next(buf);
+		const std::string::size_type slash = name.rfind('/');
+		if (next[0] != '/' && slash != std::string::npos)
+			next = name.substr(0, slash + 1) + next;
+		name = next;
+	}
+	if (hops == 0)
+		return path;
+	// a device, a FIFO, a socket or a directory is no file to put in place
+	if (found == 0 && !S_ISREG(st.st_mode))
+		return std::string();
+
+	// The directory resolved and the file name kept: the file may not exist yet.
+	const std::string::size_type slash = name.rfind('/');
+	const std::string dir = slash == std::string::npos ? std::string(".")
+		: slash == 0 ? std::string("/") : name.substr(0, slash);
+	const std::string base = slash == std::string::npos ? name : name.substr(slash + 1);
+	char *real = realpath(dir.c_str(), NULL);
+	if (real == NULL || base.empty())
+	{
+		free(real);
+		return std::string();
+	}
+	std::string resolved(real);
+	free(real);
+	if (resolved != "/")
+		resolved += "/";
+	return resolved + base;
+}
+
+CAtomicFileWriter::CAtomicFileWriter(const std::string &path, mode_t file_mode, LinkPolicy links)
+	: target(links == FollowLink ? throughLink(path) : path),
+	  sidecar(target.empty() ? std::string() : sideNameFor(target)),
+	  mode(file_mode), fh(NULL)
+{
+	if (target.empty())
+	{
+		fprintf(stderr, "[CAtomicFileWriter] %s: a link that cannot be followed or does not end in a plain file, nothing written\n", path.c_str());
+		return;
+	}
+
 	/* Opened rather than fopen'd for the two flags a mode string cannot say.
 	   O_NOFOLLOW, because the side name sits in the same directory as the file
 	   and is derived rather than given: something planted there as a link would
@@ -181,7 +246,9 @@ CAtomicFileWriter::~CAtomicFileWriter()
 		fclose(fh);
 		fh = NULL;
 	}
-	// Emptied by commit(), which has put the side file in place or removed it.
+	// Empty from the start when a link could not be followed or did not end
+	// in a plain file and nothing was opened, and emptied by commit(), which
+	// has put the side file in place or removed it.
 	if (!sidecar.empty())
 		unlink(sidecar.c_str());
 }

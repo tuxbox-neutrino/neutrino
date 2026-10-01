@@ -64,17 +64,29 @@ bool file_exists(const char *filename);
 class CAtomicFileWriter
 {
 	public:
-		explicit CAtomicFileWriter(const std::string &path, mode_t file_mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		/* What a target that is a link gets. Followed, the file it names
+		   gets the bytes and the link stays, which is what a user who keeps
+		   a file as a link wants. Replaced, a file of its own takes the
+		   link's place and what the link named stays as it was, which is
+		   what a caller wants that checked the name itself and must not be
+		   led elsewhere by a link put there after its check. */
+		enum LinkPolicy { FollowLink, ReplaceLink };
+		static const mode_t DefaultMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+
+		explicit CAtomicFileWriter(const std::string &path, mode_t file_mode = DefaultMode,
+					   LinkPolicy links = FollowLink);
 		~CAtomicFileWriter();
 
 		/* The name the bytes go to before they take the file's place. Reachable
 		   so that a caller who has to know whether one write is already running
 		   can ask rather than spell the name a second time, and a second
 		   spelling is one that can drift from the one actually opened. Only
-		   the constructor asks here. */
+		   the constructor asks here, and for a file kept as a link it asks
+		   with the file the link leads to, not with the link. */
 		static std::string sideNameFor(const std::string &path);
 
-		// Null when the side file could not be opened at all.
+		// Null when the side file could not be opened, or when a link could
+		// not be followed or did not end in a plain file and none was tried.
 		FILE *file() const { return fh; }
 
 		bool commit() __attribute__((warn_unused_result));
