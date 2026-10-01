@@ -7,6 +7,10 @@
 #include <csignal>
 #include <unistd.h>
 #include <cstdlib>
+#include <cstring>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <pwd.h>
 #include <grp.h>
 #include <syscall.h>
@@ -219,7 +223,10 @@ void Cyhttpd::run() {
 	if (webserver) {
 		if (flag_threading_off)
 			webserver->is_threading = false;
+		// what the API layer's boundPort() answers with (server seam)
+		httpd::setBoundPortFromBridge(atoi(ConfigList["WebsiteMain.port"].c_str()));
 		webserver->run();
+		httpd::setBoundPortFromBridge(0);
 		stop_webserver();
 	} else
 		aprintf("Error initializing WebServer\n");
@@ -481,4 +488,80 @@ void Cyhttpd::ReadLanguage(void) {
 	CLanguage *lang = CLanguage::getInstance();
 	log_level_printf(3, "ReadLanguage:%s\n", ConfigList["Language.selected"].c_str());
 	lang->setLanguage(ConfigList["Language.selected"]);
+}
+
+//-----------------------------------------------------------------------------
+// Ends the accept loop and nothing else (see yhttpd.h).
+//-----------------------------------------------------------------------------
+void Cyhttpd::stop_run() {
+	if (webserver)
+		webserver->stop();
+}
+
+//=============================================================================
+// The two hands of the API layer's server seam (yhttpd.h says why they are
+// here). Both are called from the seam's reload runner, never from a
+// connection thread of the webserver they drive.
+//=============================================================================
+extern void *nhttpd_main_thread(void *);
+
+int nhttpd_server_start(int port, const char *bind) {
+	/* The file first: this server reads nhttpd.conf and nothing else, and
+	   the one place a moved port survives a restart is that file. Written
+	   through the same reader ReadConfig uses. */
+	CConfigFile conf(',');
+	conf.loadConfig(HTTPD_CONFIGFILE);
+	conf.setInt32("WebsiteMain.port", port);
+	conf.setString("WebsiteMain.host", (bind != NULL) ? bind : "0.0.0.0");
+	if (!conf.saveConfig(HTTPD_CONFIGFILE)) {
+		aprintf("nhttpd_server_start: cannot write %s\n", HTTPD_CONFIGFILE);
+		return 0;
+	}
+
+	pthread_t nhttpd_thread;
+	if (pthread_create(&nhttpd_thread, NULL, nhttpd_main_thread, NULL) != 0)
+		return 0;
+	pthread_detach(nhttpd_thread);
+
+	/* Up means answering: the thread reads its file and binds, and the only
+	   honest sign of that is a connection. Asked on the loopback where the
+	   address is the wildcard, on the address itself otherwise; bounded, so
+	   a port the kernel refused answers nought instead of holding the
+	   reload runner forever. */
+	const char *probe = (bind == NULL || strcmp(bind, "0.0.0.0") == 0 ||
+	                     strcmp(bind, "::") == 0) ? "127.0.0.1" : bind;
+	for (int i = 0; i < 100; i++) {
+		usleep(100 * 1000);
+		int fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (fd < 0)
+			break;
+		struct sockaddr_in to;
+		memset(&to, 0, sizeof(to));
+		to.sin_family = AF_INET;
+		to.sin_port = htons((unsigned short) port);
+		if (inet_pton(AF_INET, probe, &to.sin_addr) != 1) {
+			close(fd);
+			break;
+		}
+		const int ok = connect(fd, (struct sockaddr *) &to, sizeof(to));
+		close(fd);
+		if (ok == 0)
+			return port;
+	}
+	return 0;
+}
+
+bool nhttpd_server_stop(void) {
+	if (yhttpd == NULL)
+		return true;
+	yhttpd->stop_run();
+	/* The thread carries its own teardown (hooks, events, the delete) and
+	   nulls the instance last. Bounded: a teardown that wedges is reported
+	   as a stop that did not finish rather than waited on forever. */
+	for (int i = 0; i < 100; i++) {
+		if (yhttpd == NULL)
+			return true;
+		usleep(100 * 1000);
+	}
+	return yhttpd == NULL;
 }

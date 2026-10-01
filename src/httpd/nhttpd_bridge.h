@@ -49,6 +49,8 @@ struct FdPlan
 FdPlan planFdAnswer(int code, uint64_t file_length, const std::string &range_header);
 }
 
+#include "httpd/server_control.h"
+
 class CApiBridge : public Cyhook
 {
 public:

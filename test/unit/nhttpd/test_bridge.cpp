@@ -252,6 +252,46 @@ TEST_CASE("a JSON body reaches the router and a malformed one is refused there",
 	httpd::forgetApiTokens();
 }
 
+TEST_CASE("the webserver table answers the port the bridge said", "[bridge]")
+{
+	Attached a;
+
+	const std::string token = "abcdef0123456789abcdef0123456789";
+	httpd::addApiToken(httpd::tokenLookupPrefix(token), httpd::hashSecret(token),
+	                   httpd::AuthLevel::System, "", 0);
+
+	httpd::setBoundPortFromBridge(31999);
+	Handler h(M_GET, "/api/v1/system/webserver");
+	h.hh.HeaderList["Authorization"] = "Bearer " + token;
+	REQUIRE(a.bridge.Hook_SendResponse(&h.hh) == HANDLED_READY);
+	CHECK(h.hh.httpStatus == HTTP_OK);
+	CHECK(h.hh.yresult.find("\"port\":31999") != std::string::npos);
+	CHECK(h.hh.yresult.find("\"has_password\"") != std::string::npos);
+	// never the hash, never a password member
+	CHECK(h.hh.yresult.find("password_hash") == std::string::npos);
+
+	httpd::setBoundPortFromBridge(0);
+	httpd::forgetApiTokens();
+}
+
+TEST_CASE("a reload answer is carried to the transport, not done in the handler", "[bridge]")
+{
+	Attached a;
+
+	httpd::Response r;
+	r.code = 200;
+	r.content_type = "application/json";
+	r.body = "{}";
+	r.reload_after = "/somewhere/ni-web.conf";
+
+	Handler h(M_PUT, "/api/v1/system/webserver");
+	CApiBridge::answerWith(&h.hh, r);
+	CHECK(h.hh.httpStatus == HTTP_OK);
+	// The path rides on the handler for whoever sends the answer: the
+	// restart happens after the bytes are gone, never inside the handler.
+	CHECK(h.hh.ReloadAfter == "/somewhere/ni-web.conf");
+}
+
 TEST_CASE("PATCH is a method the bridge can name", "[bridge]")
 {
 	Attached a;

@@ -157,6 +157,13 @@ public:
 	int		SendFd;			// answer body from this descriptor, -1 = none
 	off_t		SendFdOffset;		// first byte to send
 	off_t		SendFdLength;		// how many bytes to send
+	// The configuration this server is to be put on once the answer's bytes
+	// have gone out, and empty for every answer that asks for nothing of the
+	// kind. A path and not a flag, for the reason the API layer's own
+	// Response carries it that way (httpd/endpoint.h): what is to be read is
+	// the file the server was told to read. The transport acts on it after
+	// SendResponse, never a hook.
+	std::string	ReloadAfter;
 	time_t 		LastModified;		// Last Modified Time of Item to send / -1 dynamic content
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;

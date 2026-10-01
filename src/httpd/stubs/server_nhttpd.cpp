@@ -6,13 +6,15 @@
  * License: GPL-2.0-or-later
  *
  * server.h describes the source's own daemon. On this tree the server that
- * answers is nhttpd, so the header's promises are answered from nhttpd's
- * side of the bridge: the bound port is whatever the attach said it is,
- * and the start/stop pair is the seam the webserver table's
- * answer-then-restart will drive (slice 3, part s3). Until that part
- * lands nothing in the product calls either; webconfig.cpp links them
- * because its reloadAndRestart() does, and that caller arrives with the
- * same part.
+ * answers is nhttpd, and this file maps the header's promises onto it:
+ * the bound port is what the attach said, and start/stop drive the
+ * webserver thread through two hands the program installs (yhttpd.cpp,
+ * installed from neutrino.cpp beside the first start). This library
+ * cannot name those hands itself: its other consumers - openapi_dump and
+ * the unit suite - must not link the server, and where nothing installed
+ * them start() stays false, which is the header's word for a start that
+ * did not happen, and reloadAndRestart() says the server did not come
+ * back.
  *
  * defaultConfig() carries the source's shipped values as written (their
  * server.cpp): the migration reader falls back to these where the old
@@ -21,6 +23,12 @@
  */
 
 #include "httpd/server.h"
+#include "httpd/nhttpd_bridge.h"
+#include "httpd/webconfig.h"
+
+#include <pthread.h>
+
+#include <string>
 
 namespace httpd
 {
@@ -31,6 +39,23 @@ namespace
 // What the attach said, and nought before it said anything - the header's
 // own reading for "nothing is bound".
 int bound_port = 0;
+
+// The two hands, empty until the program installs them.
+int  (*start_hand)(int port, const char *bind) = 0;
+bool (*stop_hand)(void) = 0;
+
+/* The runner a sent reload answer is carried by. Its own thread, because
+   the connection thread that sent the answer belongs to the webserver
+   being stopped: stopping from there would be the server waiting for a
+   thread that is waiting for the server. Detached like every connection
+   thread; the path travels as an owned copy. */
+void *reloadRunner(void *arg)
+{
+	std::string *path = (std::string *) arg;
+	reloadAndRestart(*path);
+	delete path;
+	return 0;
+}
 
 } // anonymous namespace
 
@@ -46,20 +71,29 @@ ServerConfig defaultConfig()
 	return c;
 }
 
-bool start(const ServerConfig &)
+bool start(const ServerConfig &c)
 {
-	// The restart seam is not wired yet (s3): nothing to put a server on,
-	// and false is the header's word for a start that did not happen.
-	return false;
+	if (start_hand == 0)
+		return false;
+
+	const int bound = start_hand(c.port, c.bind_address.c_str());
+	if (bound <= 0)
+		return false;
+
+	bound_port = bound;
+	return true;
 }
 
 void stop()
 {
+	if (stop_hand != 0)
+		stop_hand();
+	bound_port = 0;
 }
 
 bool running()
 {
-	return false;
+	return bound_port > 0;
 }
 
 int boundPort()
@@ -67,12 +101,28 @@ int boundPort()
 	return bound_port;
 }
 
-// The attach's half of boundPort(), this tree's own: nhttpd knows the
-// port it bound, server.h has no way to ask it, so the bridge says it
-// here once the webserver stands.
 void setBoundPortFromBridge(int port)
 {
 	bound_port = (port > 0) ? port : 0;
+}
+
+void installNhttpdServerControl(int (*start_thread)(int port, const char *bind),
+                                bool (*stop_thread)(void))
+{
+	start_hand = start_thread;
+	stop_hand = stop_thread;
+}
+
+void scheduleReloadAndRestart(const std::string &path)
+{
+	std::string *owned = new std::string(path);
+	pthread_t t;
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	if (pthread_create(&t, &attr, &reloadRunner, owned) != 0)
+		delete owned;
+	pthread_attr_destroy(&attr);
 }
 
 } // namespace httpd

@@ -38,6 +38,10 @@ public:
 	void run(); 					// Init Hooks, ReadConfig, Start Webserver
 	bool Configure();
 	void stop_webserver(); 			// Remove Hooks, Stop Webserver
+	// Ends the accept loop and nothing else: run() then returns and does
+	// the one stop_webserver() of this thread's life. For the restart
+	// hands below, which may not stop the hooks twice.
+	void stop_run();
 	static void version(FILE *dest);// Show Webserver Version
 	// Hooks
 	void hooks_attach(); 			// Add a Hook-Class to HookList
@@ -45,5 +49,19 @@ public:
 	void ReadConfig(void); 			// Read the config file for the webserver
 	void ReadLanguage(void); 		// Read Language Files
 };
+
+/* The two hands the API layer's server seam drives the webserver with
+   (httpd::installNhttpdServerControl, installed from neutrino.cpp). Here
+   and not in the seam's own library, because openapi_dump and the unit
+   suite link that library and must not link this server.
+
+   start writes the port and the address into nhttpd.conf - the file this
+   server reads and the one place they are recorded - starts the webserver
+   thread again and answers the bound port once something listens, nought
+   where nothing came up. stop ends the accept loop and waits for the
+   thread to have carried its own teardown; both are bounded waits, never
+   forever. */
+int nhttpd_server_start(int port, const char *bind);
+bool nhttpd_server_stop(void);
 
 #endif // __yhttpd_h__

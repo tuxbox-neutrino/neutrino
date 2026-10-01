@@ -46,10 +46,12 @@ if [ "`id -u`" != 0 ]; then
 	S5='~"a name under a directory too long to spell is still read"'
 fi
 
-# slice 3 part s3 (the answer-then-restart seam): reloadAndRestart() calls
-# start(), and until the webserver-table part wires that to nhttpd the
-# bridge's server.h answers false for it (stubs/server_nhttpd.cpp). The
-# configuration halves of both cases run everywhere else in the file.
+# The answer-then-restart seam is wired to the real nhttpd (the two hands
+# in yhttpd.cpp, installed by neutrino.cpp) - which is exactly why these
+# two cases stay out: this binary cannot carry that server (its hooks are
+# the box), so nothing installs the hands here and start() answers false.
+# The restart is proven on the wire instead (check-v1.sh, the port move).
+# The configuration halves of both cases run everywhere else in the file.
 S6='~"the server comes back up on the port the file now names"'
 S7='~"a reload that cannot read the file leaves the server on what it had"'
 

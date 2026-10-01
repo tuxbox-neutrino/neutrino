@@ -21,6 +21,7 @@
 
 // yhttpd
 #include <yhttpd.h>
+#include <httpd/server_control.h>
 #include "ywebserver.h"
 #include "ylogging.h"
 #include "helper.h"
@@ -539,6 +540,13 @@ void *WebThread(void *args) {
 	delete newConn->ySock;
 	newConn->ySock = NULL;
 #endif
+
+	/* A reload the answer asked for, carried out now that its bytes are gone
+	   and its socket is closed. On a runner of its own: this thread belongs
+	   to the webserver the reload stops, and a webserver cannot be stopped
+	   from a thread it owns. */
+	if (!con->HookHandler.ReloadAfter.empty())
+		httpd::scheduleReloadAndRestart(con->HookHandler.ReloadAfter);
 
 	// (4) end thread
 	delete con;

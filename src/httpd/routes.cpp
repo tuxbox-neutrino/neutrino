@@ -59,14 +59,14 @@ const RouteTable *installed = NULL;
    The same reasoning rules out a list sized from a count another unit hands over,
    which is why a module states a whole table and not an array and a count. */
 const RouteTable *const kTables[] = {
-	/* On nhttpd, in the source's order, leaving out the tables that need the
-	   server the source put beneath them: auth (sessions), stream and webtv
-	   (the relays) and webserver (the server's own start and stop). Those
+	/* On nhttpd, in the source's order, leaving out the two tables that need
+	   the relay transport the source put beneath them: stream and webtv. They
 	   follow with the transport work they need. */
 	&channelsTable,
 	&epgTable,
 	&settingsTable,
 	&systemTable,
+	&webserverTable,
 	&storageTable,
 	&netfsTable,
 	&eventsTable,

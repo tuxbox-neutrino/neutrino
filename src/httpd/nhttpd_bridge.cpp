@@ -331,10 +331,6 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 		if ((m == httpd::Get || m == httpd::Head) && httpd::openapi::isDocument(r))
 			r = httpd::openapi::withEncoding(r, header_value(hh->HeaderList, "Accept-Encoding"));
 
-		if (!r.reload_after.empty())
-			log_level_printf(1, "api bridge: a route asked for a reload of %s, which this server does not do yet\n",
-			                 r.reload_after.c_str());
-
 		answerWith(hh, r);
 	}
 	catch (const std::exception &e)
@@ -443,6 +439,11 @@ THandleStatus CApiBridge::Hook_SendStream(CyhookHandler *hh, CySocket *sock)
 
 void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 {
+	/* The reload path rides on the handler for the transport: the restart
+	   happens after the answer's bytes are gone (yresponse.cpp), never in
+	   the handler's own frame. */
+	hh->ReloadAfter = r.reload_after;
+
 	HeldDescriptor held(r.fd);
 	const int fd = held.fd;
 

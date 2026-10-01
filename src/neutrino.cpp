@@ -61,6 +61,7 @@
 #include <coreapi/base/deps.h>
 #include <coreapi/base/messagebridge.h>
 #include <httpd/webconfig.h>
+#include <httpd/server_control.h>
 #include <gui/settings_appliers.h>
 
 static bool saveNeutrinoSettings();
@@ -205,6 +206,9 @@ static bool timerd_thread_started = false;
 static volatile sig_atomic_t shutdown_in_progress = 0;
 extern void *timerd_main_thread(void *data);
 extern void *nhttpd_main_thread(void *data);
+// the two hands of the API layer's server seam (yhttpd.cpp)
+extern int nhttpd_server_start(int port, const char *bind);
+extern bool nhttpd_server_stop(void);
 
 //#define DISABLE_SECTIONSD
 
@@ -3332,6 +3336,12 @@ TIMER_START();
 	 * standard error. Before the webserver thread, so no request is ever
 	 * answered against a configuration that is still being replaced. */
 	httpd::load(NI_WEB_SETTINGS_FILE);
+
+	/* The API layer's server seam gets its two hands before the first
+	 * request can ask for a restart: with them installed, a webserver
+	 * answer that names a new configuration really moves this server
+	 * (stop, reload, start on what the file now says). */
+	httpd::installNhttpdServerControl(&nhttpd_server_start, &nhttpd_server_stop);
 
 	pthread_t nhttpd_thread;
 	if (!pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL))

@@ -233,6 +233,7 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 	SendFd = -1;
 	SendFdOffset = 0;
 	SendFdLength = 0;
+	ReloadAfter.clear();
 	ResponseHeaders.clear();
 	status = HANDLED_NONE;
 	httpStatus = HTTP_OK;

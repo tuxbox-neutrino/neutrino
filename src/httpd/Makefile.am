@@ -59,6 +59,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_system.cpp \
 	ep/ep_timers.cpp \
 	ep/ep_tuner.cpp \
+	ep/ep_webserver.cpp \
 	byterange.cpp \
 	credentials.cpp \
 	http.cpp \
@@ -94,6 +95,7 @@ noinst_HEADERS = \
 	router.h \
 	schema.h \
 	server.h \
+	server_control.h \
 	static.h \
 	status.h \
 	webconfig.h

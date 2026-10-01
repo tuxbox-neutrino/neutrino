@@ -491,5 +491,64 @@ case "$r17" in
 	*) fail "media token: $r17";;
 esac
 
+# 18. the webserver table, and the one answer that moves the server: the
+# write is answered on the old port with the address the caller reaches it
+# under next, then the box really comes up there - and back again, so the
+# instance is left where it was found. The session survives the move: the
+# webserver thread is restarted, the program is not.
+r18=`python3 - "$BASE" <<'PYEOF'
+import json, os, subprocess, sys, time
+base = sys.argv[1]
+host = base.rsplit(':', 1)[0]
+old_port = int(base.rsplit(':', 1)[1])
+new_port = old_port + 1
+sid = os.environ.get('CV1_SID', '')
+csrf_h = os.environ.get('CV1_CSRF_H', 'X-CSRF-Token')
+csrf_v = os.environ.get('CV1_CSRF_V', '')
+auth = ['-H', 'Cookie: ni-web-session=' + sid, '-H', csrf_h + ': ' + csrf_v]
+def curl(args):
+	return subprocess.check_output(['curl', '-s', '--max-time', '10'] + args, timeout=15)
+def webserver_on(port):
+	return json.loads(curl(auth[:2] + ['%s:%d/api/v1/system/webserver' % (host, port)]))
+def move(frm, to):
+	answer = json.loads(curl(['-X', 'PUT', '-H', 'Content-Type: application/json',
+		'-d', json.dumps({'port': to})] + auth + ['%s:%d/api/v1/system/webserver' % (host, frm)]))
+	caller = answer.get('caller', {})
+	if not caller.get('restarting') or not caller.get('port_moved'):
+		return 'the answer does not say it is moving: %s' % caller
+	if (':%d/' % to) not in caller.get('address', ''):
+		return 'the address does not carry the new port: %r' % caller.get('address')
+	for i in range(50):
+		time.sleep(0.3)
+		try:
+			if webserver_on(to).get('port') == to:
+				return ''
+		except Exception:
+			continue
+	return 'nothing answers on %d' % to
+fails = []
+before = webserver_on(old_port)
+if before.get('port') != old_port:
+	fails.append('GET says port %s, expected %d' % (before.get('port'), old_port))
+if before.get('has_password') is not True:
+	fails.append('has_password is %s' % before.get('has_password'))
+if 'password_hash' in json.dumps(before):
+	fails.append('the stored form leaks')
+if not fails:
+	gone = move(old_port, new_port)
+	if gone:
+		fails.append('move out: ' + gone)
+	else:
+		back = move(new_port, old_port)
+		if back:
+			fails.append('MOVE BACK FAILED, instance may sit on %d: %s' % (new_port, back))
+print('PASS' if not fails else 'FAIL ' + '; '.join(fails))
+PYEOF
+`
+case "$r18" in
+	PASS*) pass "webserver table: truth read, port moved and moved back, session survived";;
+	*) fail "webserver table: $r18";;
+esac
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]
