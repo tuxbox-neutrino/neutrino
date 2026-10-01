@@ -10,6 +10,7 @@
 
 #include <eventserver.h>
 
+#include <atomic>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -239,6 +240,147 @@ TEST_CASE("a server that goes away stops its outbox between two clients", "[even
 
 	for (size_t i = 0; i < busy.size(); i++)
 		delete busy[i];
+}
+
+namespace {
+
+// Gives the backlog back: the held connections go, and take() then accepts
+// them along with whatever else comes, reading nothing from them.
+void letGo(std::vector<int> &held)
+{
+	for (size_t i = 0; i < held.size(); i++)
+		close(held[i]);
+	held.clear();
+}
+
+/* The outbox thread has an event in hand and is about to ask whether its
+   registration still holds: the client unregisters, or moves, in exactly
+   that gap. A try already under way when that happens may still deliver,
+   so the gap has to be the one before the question. */
+CEventServer *gap_server = NULL;
+unsigned gap_event = 0;
+std::string gap_move_to;   // empty: unregister
+std::atomic<bool> gap_taken(false);
+std::atomic<size_t> gap_waiting_before(0);
+std::atomic<size_t> gap_waiting_after(0);
+
+void changeInTheGap(const char *)
+{
+	if (gap_taken)
+		return;
+	gap_waiting_before = gap_server->pendingEvents();
+	if (gap_move_to.empty())
+		gap_server->unRegisterEvent2(gap_event, 1);
+	else
+		gap_server->registerEvent2(gap_event, 1, gap_move_to);
+	gap_waiting_after = gap_server->pendingEvents();
+	gap_taken = true;
+}
+
+// Puts the hook in and takes it out again however the test ends. Declared
+// before the server, so it goes after it: the server's destructor has
+// stopped the outbox thread by then, and nothing can call the hook again.
+struct GapHook
+{
+	GapHook() { CEventServer::outboxProbeForTest = changeInTheGap; }
+	~GapHook()
+	{
+		CEventServer::outboxProbeForTest = NULL;
+		gap_server = NULL;
+	}
+};
+
+bool waitForGap(int timeout_ms)
+{
+	const long long end = nowMillis() + timeout_ms;
+	while (!gap_taken && nowMillis() < end)
+		usleep(5 * 1000);
+	return gap_taken;
+}
+
+} // namespace
+
+TEST_CASE("an event waiting for a client that unregistered is not delivered", "[eventserver]")
+{
+	/* The outbox kept the socket an event was for and nothing of who had
+	   asked for it, so a client that had said it wanted no more of these
+	   still got the ones waiting for it as soon as it took connections
+	   again, and they held their place in the outbox until then. */
+	BusyClient client(46);
+	REQUIRE(client.fd >= 0);
+	std::vector<int> held = fillBacklog(client.path);
+	REQUIRE_FALSE(held.empty());
+
+	GapHook hook;
+	CEventServer server;
+	server.registerEvent2(46, 1, client.path);
+	gap_server = &server;
+	gap_event = 46;
+	gap_move_to.clear();
+	gap_taken = false;
+	server.sendEvent(46, CEventServer::INITID_TIMERD, "stale", 5);
+	REQUIRE(waitForGap(2000));
+	CHECK(gap_waiting_before == 1);
+	CHECK(gap_waiting_after == 0);
+
+	letGo(held);
+	const std::vector<std::string> got = client.take(1, 1000);
+	CHECK(got.empty());
+	CHECK(server.pendingEvents() == 0);
+}
+
+TEST_CASE("an event waiting for a client that moved is not delivered to the socket it left", "[eventserver]")
+{
+	/* The same client registered again under another socket. What waited
+	   for the old one went there all the same, to whatever listens there
+	   now. */
+	BusyClient old_socket(47);
+	BusyClient new_socket(48);
+	REQUIRE(old_socket.fd >= 0);
+	REQUIRE(new_socket.fd >= 0);
+	std::vector<int> held = fillBacklog(old_socket.path);
+	REQUIRE_FALSE(held.empty());
+
+	GapHook hook;
+	CEventServer server;
+	server.registerEvent2(47, 1, old_socket.path);
+	gap_server = &server;
+	gap_event = 47;
+	gap_move_to = new_socket.path;
+	gap_taken = false;
+	server.sendEvent(47, CEventServer::INITID_TIMERD, "stale", 5);
+	REQUIRE(waitForGap(2000));
+	CHECK(gap_waiting_before == 1);
+	CHECK(gap_waiting_after == 0);
+
+	letGo(held);
+	const std::vector<std::string> left = old_socket.take(1, 1000);
+	CHECK(left.empty());
+
+	server.sendEvent(47, CEventServer::INITID_TIMERD, "fresh", 5);
+	const std::vector<std::string> got = new_socket.take(1, 2000);
+	REQUIRE(got.size() == 1);
+	CHECK(got[0] == "fresh");
+}
+
+TEST_CASE("registering again at the same socket keeps what waits for it", "[eventserver]")
+{
+	BusyClient client(49);
+	REQUIRE(client.fd >= 0);
+	std::vector<int> held = fillBacklog(client.path);
+	REQUIRE_FALSE(held.empty());
+
+	CEventServer server;
+	server.registerEvent2(49, 1, client.path);
+	server.sendEvent(49, CEventServer::INITID_TIMERD, "kept", 4);
+	REQUIRE(server.pendingEvents() == 1);
+
+	server.registerEvent2(49, 1, client.path);
+	letGo(held);
+
+	const std::vector<std::string> got = client.take(1, 2000);
+	REQUIRE(got.size() == 1);
+	CHECK(got[0] == "kept");
 }
 
 namespace {
