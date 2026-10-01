@@ -606,7 +606,8 @@ TEST_CASE("a head of the stream is answered without opening one", "[sse]")
 	REQUIRE(s.ok());
 	REQUIRE(s.code() == 200);
 	REQUIRE(s.headerOf("Content-Type") == "text/event-stream");
-	REQUIRE(s.headerOf("Content-Length") == "0");
+	// no length: the GET it stands for has none (RFC 9110 8.6)
+	REQUIRE(s.headerOf("Content-Length").empty());
 	// no body, and no seat taken
 	REQUIRE(s.readToEof(2000).empty());
 	REQUIRE(events::openStreams() == 0);

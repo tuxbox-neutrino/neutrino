@@ -497,13 +497,16 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 		   the stream pass. The headers travel now, before the status is
 		   given back, because the pass writes the header out of this handler
 		   and nothing after this sees the Response again. HEAD stays a
-		   finite answer: the stream's head, no body, length nought - and no
-		   stream is opened for it. */
+		   finite answer: the stream's head, no body and, like the stream,
+		   no length - and no stream is opened for it. */
 		hh->api_mode = true;
 		hh->httpStatus = (HttpResponseType) r.code;
 		hh->ResponseMimeType = r.content_type;
 		hh->ResponseHeaders = r.headers;
 		hh->yresult.clear();
+		/* Only the head says so: a stream that is then refused becomes a
+		   finite answer that states its length. */
+		hh->LengthUnknown = (hh->Method == M_HEAD);
 		hh->status = (hh->Method == M_HEAD) ? HANDLED_READY : HANDLED_STREAM;
 		return;
 	}

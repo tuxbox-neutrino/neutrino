@@ -362,7 +362,9 @@ TEST_CASE("an event-stream answer is handed to the stream pass", "[bridge]")
 		CHECK(e.hh.httpStatus == HTTP_OK);
 		CHECK(e.hh.ResponseMimeType == "text/event-stream");
 		CHECK(e.hh.yresult.empty());
-		CHECK(e.hh.BuildHeader().find("Content-Length: 0\r\n") != std::string::npos);
+		// No length: the GET it stands for has none, and a HEAD may only
+		// state the length that GET would carry (RFC 9110 8.6).
+		CHECK(e.hh.BuildHeader().find("Content-Length:") == std::string::npos);
 	}
 }
 

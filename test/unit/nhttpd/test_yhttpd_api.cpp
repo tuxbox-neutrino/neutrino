@@ -514,12 +514,15 @@ TEST_CASE("a fresh session carries no descriptor", "[nhttpd]")
 
 	CyhookHandler hh;
 	CHECK(hh.SendFd == -1);
+	CHECK_FALSE(hh.LengthUnknown);
 	hh.SendFd = fd;
 	hh.SendFdLength = 5;
+	hh.LengthUnknown = true;
 	CStringList none, config;
 	hh.session_init(none, none, none, config, M_GET, false);
 	CHECK(hh.SendFd == -1);
 	CHECK(hh.SendFdLength == 0);
+	CHECK_FALSE(hh.LengthUnknown);
 	// and the descriptor it held was really closed, not merely forgotten
 	CHECK(fcntl(fd, F_GETFD) == -1);
 }

@@ -28,6 +28,7 @@ CyhookHandler::CyhookHandler()
 	SendFd = -1;
 	SendFdOffset = 0;
 	SendFdLength = 0;
+	LengthUnknown = false;
 	cached = false;
 	keep_alive = 0;
 	_outIndent = 0;
@@ -233,6 +234,7 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 	SendFd = -1;
 	SendFdOffset = 0;
 	SendFdLength = 0;
+	LengthUnknown = false;
 	ReloadAfter.clear();
 	ResponseHeaders.clear();
 	status = HANDLED_NONE;
@@ -789,9 +791,10 @@ std::string CyhookHandler::BuildApiHeader() {
 	// HEAD included: the length is that of the answer a GET would carry.
 	// An answer that is a file states the stretch of it the transport sends.
 	// A stream has no length at all: the body runs until the connection
-	// closes, which Connection: close above already promises. A 204 has no
-	// content and states no length (RFC 9110 15.3.5).
-	if (status != HANDLED_STREAM && httpStatus != HTTP_NO_CONTENT)
+	// closes, which Connection: close above already promises, and a HEAD
+	// for one states none either (RFC 9110 8.6). A 204 has no content and
+	// states no length (RFC 9110 15.3.5).
+	if (status != HANDLED_STREAM && !LengthUnknown && httpStatus != HTTP_NO_CONTENT)
 		result += string_printf("Content-Length: %lld\r\n",
 				(SendFd >= 0) ? (long long) SendFdLength : (long long) yresult.length());
 	result += "\r\n";

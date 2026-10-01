@@ -158,6 +158,9 @@ public:
 	int		SendFd;			// answer body from this descriptor, -1 = none
 	off_t		SendFdOffset;		// first byte to send
 	off_t		SendFdLength;		// how many bytes to send
+	// The answer a GET would carry has no length, a stream that runs until
+	// the connection closes: the header of a HEAD for it states none either.
+	bool		LengthUnknown;
 	// The configuration this server is to be put on once the answer's bytes
 	// have gone out, and empty for every answer that asks for nothing of the
 	// kind. A path and not a flag, for the reason the API layer's own
