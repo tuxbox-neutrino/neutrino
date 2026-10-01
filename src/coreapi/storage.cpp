@@ -607,7 +607,10 @@ Result<Wrote> writeFile(const std::string &path, const std::string &bytes, bool 
 		return fail(Status::Conflict, ErrorCode::SideFileInTheWay,
 			    "a file is already being written beside " + path);
 
-	CAtomicFileWriter writer(target);
+	/* The name was found a plain file above. Should a link have taken its
+	   place since, it is replaced and not followed: followed, it would carry
+	   the bytes to wherever it points, out of the root. */
+	CAtomicFileWriter writer(target, CAtomicFileWriter::DefaultMode, CAtomicFileWriter::ReplaceLink);
 	FILE *out = writer.file();
 	if (out == NULL)
 		return fail(Status::Internal, ErrorCode::ChangeRefused, "the file " + path + " could not be opened for writing");

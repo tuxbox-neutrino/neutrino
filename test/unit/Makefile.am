@@ -56,6 +56,7 @@ coreapi_tests_SOURCES = \
 	zapit/test_zapitclient_getpids.cpp \
 	zapit/test_zapitclient_bouquetwrite.cpp \
 	system/test_atomicfile.cpp \
+	system/test_atomicfile_link.cpp \
 	driver/test_postmsg.cpp \
 	coreapi/test_eventbus.cpp \
 	coreapi/test_messagebridge.cpp \
