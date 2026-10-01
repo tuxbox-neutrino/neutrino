@@ -283,7 +283,15 @@ bool CWebserverRequest::HandlePost() {
 		{
 			content_len = HandlePostBoundary(boundary, content_len);
 		}
-		while(content_len > 0);
+		while(content_len > 0 && Connection->sock->isValid);
+		// At the end of the connection a part comes back empty and uses up
+		// nothing of the length: asking again would never end. What did
+		// not arrive whole is not handed on.
+		if (!Connection->sock->isValid) {
+			log_level_printf(1, "HandlePost: caller gone inside the upload\n");
+			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
+			return false;
+		}
 #else
 		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
 		return false;

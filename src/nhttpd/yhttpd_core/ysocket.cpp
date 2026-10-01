@@ -489,6 +489,8 @@ std::string CySocket::ReceiveLine() {
 	int bytes_gotten = 0;
 	std::string result = "";
 
+	bool failed = false;
+
 	while (true) {
 		// read one char
 		if (Read(buffer + bytes_gotten, 1) == 1) {
@@ -496,6 +498,7 @@ std::string CySocket::ReceiveLine() {
 				break;
 		} else {
 			isValid = false;
+			failed = true;
 			break;
 		}
 
@@ -504,7 +507,11 @@ std::string CySocket::ReceiveLine() {
 		else
 			break;
 	}
-	if (bytes_gotten < MAX_LINE_BUFFER - 1)
+	// A failed read put nothing at buffer[bytes_gotten]: the line is what
+	// arrived before it. Counting that slot in handed every caller one byte
+	// nobody sent, at the end of a connection on every call, and the POST
+	// header loop, waiting for an empty line, grew without end on it.
+	if (!failed && bytes_gotten < MAX_LINE_BUFFER - 1)
 		buffer[++bytes_gotten] = '\0';
 	result.assign(buffer, bytes_gotten);
 
