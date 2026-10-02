@@ -160,7 +160,8 @@ class CServiceManager
 		/* Every accessor that hands out a pointer into a channel map stays
 		 * unlocked, because the whole GUI holds such pointers across calls.
 		 * Whoever keeps one has to hold this for as long as it is used.
-		 * CopyChannel takes it itself and must not be called under it. */
+		 * GetServiceName, CopyChannel and GetLogoKeys hand back values and
+		 * take it themselves, so none of them may be called under it. */
 		void LockChannels() { channels_mutex.lock(); }
 		void UnlockChannels() { channels_mutex.unlock(); }
 
@@ -177,8 +178,19 @@ class CServiceManager
 		/* Snapshots, so a caller cannot keep a pointer into a map that the
 		 * next channel reload frees. A copied channel carries the pids, the
 		 * flags and the CA containers, but no audio tracks, subtitles or
-		 * PMT, see CZapitChannel::owned_t. */
+		 * PMT, see CZapitChannel::owned_t. Its strings are copied as well,
+		 * and several of them are written without this lock - by the GUI's
+		 * rename, the bouquet load and the web channel load - so a caller
+		 * off the box's loop reads what it needs through an accessor of its
+		 * own instead, as the logo lookup does. */
 		bool CopyChannel(const t_channel_id channel_id, CZapitChannel &out);
+		/* What the logo lookup needs of a channel and nothing more, read
+		 * under the lock: the service type, the satellite position and the
+		 * alternate logo. Every writer of the service type and the alternate
+		 * logo of a channel in the map holds the lock; the satellite
+		 * position is only set when a channel is made. */
+		bool GetLogoKeys(const t_channel_id channel_id, unsigned char &service_type,
+				 t_satellite_position &position, std::string &alternate_logo);
 
 		tallchans* GetAllChannels(){ return &allchans; };
 		bool GetAllRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);

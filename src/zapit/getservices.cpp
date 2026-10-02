@@ -1522,3 +1522,16 @@ bool CServiceManager::CopyChannel(const t_channel_id channel_id, CZapitChannel &
 	out = it->second;
 	return true;
 }
+
+bool CServiceManager::GetLogoKeys(const t_channel_id channel_id, unsigned char &service_type,
+				  t_satellite_position &position, std::string &alternate_logo)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+	channel_map_iterator_t it = allchans.find(channel_id);
+	if (it == allchans.end())
+		return false;
+	service_type = it->second.getServiceType(true);
+	position = it->second.getSatellitePosition();
+	alternate_logo = it->second.getAlternateLogo();
+	return true;
+}

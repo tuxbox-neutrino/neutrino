@@ -440,6 +440,9 @@ _repeat:
 
 void CServiceScan::FixServiceTypes()
 {
+	/* Under the channel lock: these channels are in the map, and the logo
+	   lookup reads their service type with that lock held. */
+	CServiceManager::ChannelGuard guard;
 	std::map <t_channel_id, uint8_t>::iterator stI;
 	for (stI = service_types.begin(); stI != service_types.end(); ++stI) {
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(stI->first);

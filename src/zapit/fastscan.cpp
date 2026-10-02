@@ -497,13 +497,19 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						} else {
 							newchannel->flags = CZapitChannel::UPDATED | CZapitChannel::FASTSCAN;
 						}
-						newchannel->setName(serviceName);
-						newchannel->setServiceType(service_type);
-						newchannel->setVideoPid(video_pid);
-						newchannel->setAudioPid(audio_pid);
-						newchannel->setPcrPid(pcr_pid);
-						newchannel->setPidsFlag();
-						newchannel->number = num;
+						{
+							/* Under the channel lock: the channel is in the map,
+							   and the logo lookup reads its service type with
+							   that lock held. */
+							CServiceManager::ChannelGuard guard;
+							newchannel->setName(serviceName);
+							newchannel->setServiceType(service_type);
+							newchannel->setVideoPid(video_pid);
+							newchannel->setAudioPid(audio_pid);
+							newchannel->setPcrPid(pcr_pid);
+							newchannel->setPidsFlag();
+							newchannel->number = num;
+						}
 
 						char pname[100];
 						if (CFrontend::isSat(frontend->getCurrentDeliverySystem()))

@@ -1359,7 +1359,12 @@ void CBouquetManager::loadWebchannels(int mode)
 							std::string helper = "alternate_logos";
 							if (alogo && !g_PicViewer->GetLogoName(chid, std::string(title), helper))
 							{
-								channel->setAlternateLogo(std::string(alogo));
+								{
+									/* Under the channel lock, which the logo lookup reads it
+									   with: the channel is in the map already. */
+									CServiceManager::ChannelGuard guard;
+									channel->setAlternateLogo(std::string(alogo));
+								}
 								LogoList.push_back(chid);
 							}
 
@@ -1510,7 +1515,12 @@ void CBouquetManager::loadWebchannels(int mode)
 								std::string helper = "alternate_logos";
 								if (!alogo.empty() && !g_PicViewer->GetLogoName(chid, title, helper))
 								{
-									channel->setAlternateLogo(alogo);
+									{
+										/* Under the channel lock, which the logo lookup reads it
+										   with: the channel is in the map already. */
+										CServiceManager::ChannelGuard guard;
+										channel->setAlternateLogo(alogo);
+									}
 									LogoList.push_back(chid);
 								}
 								channel->flags = CZapitChannel::UPDATED;
@@ -1685,21 +1695,27 @@ void CBouquetManager::run()
 	while (logo_running && it != LogoList.end())
 	{
 		chid = (*it);
-		cc = CServiceManager::getInstance()->FindChannel(chid);
-		if (logo_running && cc)
+		/* Each look-up under the channel lock, and no pointer kept past it:
+		   a reload frees the channels, and the logo lookup reads the
+		   alternate logo with that lock held. The download runs outside
+		   it. */
+		{
+			CServiceManager::ChannelGuard guard;
+			cc = CServiceManager::getInstance()->FindChannel(chid);
+			if (!logo_running || !cc)
+				break;
 			ologo = cc->getAlternateLogo();
-		else
+		}
+		if (!logo_running)
 			break;
-		cc = CServiceManager::getInstance()->FindChannel(chid);
-		if (logo_running && cc)
-			nlogo = downloadUrlToLogo(ologo, LOGODIR_TMP, chid);
-		else
-			break;
-		cc = CServiceManager::getInstance()->FindChannel(chid);
-		if (logo_running && cc)
+		nlogo = downloadUrlToLogo(ologo, LOGODIR_TMP, chid);
+		{
+			CServiceManager::ChannelGuard guard;
+			cc = CServiceManager::getInstance()->FindChannel(chid);
+			if (!logo_running || !cc)
+				break;
 			cc->setAlternateLogo(nlogo);
-		else
-			break;
+		}
 		it++;
 	}
 	LogoList.clear();

@@ -449,6 +449,9 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 
 	CZapitChannel *channel = CheckChannelId(service_id);
 	if (channel) {
+		/* Under the channel lock: the channel is in the map, and the logo
+		   lookup reads its service type with that lock held. */
+		CServiceManager::ChannelGuard guard;
 		channel->setName(serviceName);
 		channel->setServiceType(real_type);
 		channel->freq = freq_id;

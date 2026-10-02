@@ -766,10 +766,13 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	live_fe = fe;
 	CFEManager::getInstance()->setLiveFE(live_fe);
 
-	/* Under the channel lock: this clears the pids and flags that the logo
-	   lookup's copy reads under it. The audio tracks and the subtitle list it
-	   deletes are walked without the lock by the stream server, the
-	   recorder, the front display, nhttpd and the GUI. */
+	/* Under the channel lock, so that a reload, which destroys every channel
+	   in the map under it, cannot free this one in the middle of the reset,
+	   and a copy taken through CopyChannel, which nothing in this tree takes
+	   at present, never sees the pids and flags half cleared. The audio
+	   tracks and the subtitle list it deletes are walked without the lock by
+	   the stream server, the recorder, the front display, nhttpd and the
+	   GUI. */
 	if(!forupdate && current_channel) {
 		CServiceManager::ChannelGuard guard;
 		current_channel->resetPids();
