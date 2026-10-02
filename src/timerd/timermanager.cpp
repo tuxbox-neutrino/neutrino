@@ -42,6 +42,7 @@
 
 #include "debug.h"
 #include "timermanager.h"
+#include "timerwake.h"
 #include <system/set_threadname.h>
 
 #include <driver/display.h>
@@ -786,7 +787,7 @@ void CTimerManager::saveEventsToConfig()
 bool CTimerManager::shutdown()
 {
 	timerd_debug = 1; //FIXME
-	time_t nextAnnounceTime = 0;
+	CTimerWake wake;
 	bool status = false;
 	timer_is_rec = false;
 	dprintf("stopping timermanager thread ...\n");
@@ -821,23 +822,15 @@ bool CTimerManager::shutdown()
 			event->eventState < CTimerd::TIMERSTATE_ISRUNNING)
 		{
 			// We wake up only for Records and Zaptos and Standby-ON
-			if (event->announceTime < nextAnnounceTime || nextAnnounceTime == 0)
-			{
-				nextAnnounceTime = event->announceTime;
-				dprintf("shutdown: nextAnnounceTime %" PRId64 "\n", (int64_t)nextAnnounceTime);
-				if (event->eventType == CTimerd::TIMER_RECORD || standby_on_timer)
-					timer_is_rec = true;
-				else
-					timer_is_rec = false;
-			}
+			wake.add(event->eventType, event->announceTime, event->alarmTime,
+				 event->eventType == CTimerd::TIMER_RECORD || standby_on_timer);
 		}
 	}
 
-	timer_minutes = 0;
-	if (nextAnnounceTime != 0)
-	{
-		timer_minutes = (nextAnnounceTime - 3 * 60) / 60;
-	}
+	if (wake.found())
+		dprintf("shutdown: nextAnnounceTime %" PRId64 "\n", (int64_t)wake.earliest());
+	timer_is_rec = wake.isRec();
+	timer_minutes = wake.wakeMinutes();
 	dprintf("shutdown: timeset: %d timer_minutes %" PRId64 "\n", timeset, (int64_t)timer_minutes);
 	if (rc == 0)
 		pthread_mutex_unlock(&tm_eventsMutex);
@@ -846,7 +839,7 @@ bool CTimerManager::shutdown()
 //------------------------------------------------------------
 void CTimerManager::shutdownOnWakeup(int currEventID)
 {
-	time_t nextAnnounceTime=0;
+	CTimerWake wake;
 
 	pthread_mutex_lock(&tm_eventsMutex);
 	if(wakeup == 0) {
@@ -866,14 +859,11 @@ void CTimerManager::shutdownOnWakeup(int currEventID)
 			event->eventID != currEventID)
 		{
 			// Bei anstehendem/laufendem RECORD oder ZAPTO Timer nicht runterfahren
-			if(event->announceTime < nextAnnounceTime || nextAnnounceTime==0)
-			{
-				nextAnnounceTime=event->announceTime;
-			}
+			wake.add(event->eventType, event->announceTime, event->alarmTime);
 		}
 	}
 	time_t now = time(NULL);
-	if((nextAnnounceTime-now) > 600 || nextAnnounceTime==0)
+	if (!wake.dueWithin(now, 600))
 	{ // in den naechsten 10 min steht nix an
 		dprintf("Programming shutdown event\n");
 		CTimerEvent_Shutdown* event = new CTimerEvent_Shutdown(now+120, now+180);
@@ -1464,7 +1454,8 @@ bool CTimerEvent_Record::adjustToCurrentEPG()
 	{
 		if ( e->startTime <= check_time && (e->startTime + (int)e->duration) >= check_time)
 		{
-			_announceTime = e->startTime - (alarmTime - announceTime);
+			if (announceTime > 0)
+				_announceTime = e->startTime - (alarmTime - announceTime);
 			_alarmTime = e->startTime;
 			_stopTime = e->startTime + e->duration;
 			break;

@@ -11,4 +11,4 @@ AM_CPPFLAGS += -fno-rtti -fno-exceptions
 
 noinst_LIBRARIES  = libtimerdclient.a
 
-libtimerdclient_a_SOURCES = timerdclient.cpp
+libtimerdclient_a_SOURCES = timerdclient.cpp timerdannounce.cpp

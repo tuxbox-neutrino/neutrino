@@ -322,7 +322,8 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					{
 						int pre = 0,post = 0;
 						CTimerManager::getInstance()->getRecordingSafety(pre,post);
-						msgAddTimer.announceTime -= pre;
+						if (msgAddTimer.announceTime > 0)
+							msgAddTimer.announceTime -= pre;
 						msgAddTimer.alarmTime -= pre;
 						msgAddTimer.stopTime += post;
 					}
