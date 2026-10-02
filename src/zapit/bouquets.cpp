@@ -405,12 +405,22 @@ void CBouquetManager::writeBouquet(FILE * bouq_fd, uint32_t i, bool /* bUser */)
 }
 
 /**** class CBouquetManager *************************************************/
+/* One save of the bouquet files at a time. The GUI saves them after a list was
+   edited, a scan when it has read a network's channel numbers and when it is
+   done, and the channel daemon whenever a client asks it to, and the writer
+   gives every save of one file the same side file: a second save started while
+   the first was still writing would truncate the first one's side file under
+   it, and whichever renamed first would put a half written file in place.
+   Nothing else is taken while this is held. */
+static OpenThreads::Mutex bouquet_save_mutex;
+
 /* The file is replaced in one step rather than written over, because what a
    half written one costs is not the failed save: it is the next start, which
    reads whatever is lying there and takes a truncated list for the whole list.
    Whether the file is now the one just written is what this answers. */
 bool CBouquetManager::writeBouquetFile(const char * const filename, const bool userBouquets)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(bouquet_save_mutex);
 	CAtomicFileWriter out(filename);
 
 	FILE * bouq_fd = out.file();
