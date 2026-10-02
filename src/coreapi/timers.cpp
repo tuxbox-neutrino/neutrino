@@ -79,6 +79,16 @@ bool isRecording(int t)
 	       t == (int) TimerType::ImmediateRecord;
 }
 
+// What the box's timer screen makes. The daemon spins on any other plain
+// repeat once it has fired, and files the bare weekday flag as a one-off.
+bool offeredRepeat(int r)
+{
+	const int days = 0xfe00;
+	if (r >= (int) CTimerd::TIMERREPEAT_ONCE && r <= (int) CTimerd::TIMERREPEAT_MONTHLY)
+		return true;
+	return (r & ~days) == (int) CTimerd::TIMERREPEAT_WEEKDAYS && (r & days) != 0;
+}
+
 /* An immediate recording is not a kind the daemon can be handed. It files one as
    already running, which is what its one real sender needs: the box itself makes
    such a row after it has already begun a recording, so that something carries
@@ -158,9 +168,11 @@ Result<uint32_t> create(const TimerInfo &t)
 		return fail(Status::InvalidArgument, ErrorCode::RecordingWithoutDuration,
 			    "a recording has to end after it begins");
 
-	// Asked of a one-off only. A repeating timer whose first occurrence is
-	// behind us is the ordinary way to enter one, and the daemon moves it to
-	// its next occurrence.
+	if (!offeredRepeat(t.repeat))
+		return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+			    "the box does not repeat timers that way");
+
+	// Only a one-off: a repeating timer that begins before now fires at once.
 	if (t.repeat == (int) CTimerd::TIMERREPEAT_ONCE)
 	{
 		time_t now = 0;
@@ -196,6 +208,10 @@ Result<void> modify(const TimerInfo &t)
 	if (t.type == (int) TimerType::Record && t.stop <= t.start)
 		return fail(Status::InvalidArgument, ErrorCode::RecordingWithoutDuration,
 			    "a recording has to end after it begins");
+
+	if (!offeredRepeat(t.repeat))
+		return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+			    "the box does not repeat timers that way");
 
 	bool held = false;
 	Status s = daemonHolds(t.id, held);

@@ -39,9 +39,11 @@ Result<TimerList> list();
 //
 // InvalidArgument for a timer that cannot do anything: a kind the daemon does
 // not build, a recording or a zap with no channel, a recording that ends no
-// later than it starts, and a one-off whose moment has already passed. That last
-// rule is asked only of a one-off, because a repeating timer whose first
-// occurrence is behind us is what the daemon reschedules.
+// later than it starts, and a one-off whose moment has already passed. A
+// repeating timer that begins before now is taken, and fires at once.
+//
+// InvalidArgument as well for a repeat the box's timer screen does not make:
+// it takes nought to five, and the weekday flag with at least one day.
 //
 // An immediate recording is filed as an ordinary recording whose start has come,
 // because that is the only shape of it the daemon runs: handed the kind itself
@@ -57,7 +59,8 @@ Result<uint32_t> create(const TimerInfo &t);
 // The kind and the channel stay where they are, the daemon's protocol carrying
 // no way to move them, so the kind is read here only to pick which exchange
 // carries the change. NotFound for an id the daemon does not hold, asked before
-// the change rather than reported by it.
+// the change rather than reported by it. The repeat is held to the same set as
+// in create().
 Result<void> modify(const TimerInfo &t);
 
 // NotFound for an id the daemon does not hold, asked before the removal because

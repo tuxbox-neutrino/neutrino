@@ -294,8 +294,6 @@ TEST_CASE("a second before the current minute is not inside it", "[timers]")
 	REQUIRE(r.error().status == Status::InvalidArgument);
 }
 
-// A repeating timer whose first occurrence has gone by is how one is normally
-// entered: the daemon moves it to its next occurrence instead of refusing it.
 TEST_CASE("a repeating timer may begin before now", "[timers]")
 {
 	FakeTimerSource fake;
@@ -306,6 +304,38 @@ TEST_CASE("a repeating timer may begin before now", "[timers]")
 	t.start = 99000;
 	t.stop = 99600;
 	t.repeat = (int) CTimerd::TIMERREPEAT_DAILY;
+
+	REQUIRE(timers::create(t).ok());
+}
+
+// Its start is behind now too, so the code shows which rule is asked first.
+TEST_CASE("a weekday repeat that names no day is refused for its repeat", "[timers]")
+{
+	FakeTimerSource fake;
+	fake.clock = 100000;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = goodRecording();
+	t.start = 99000;
+	t.stop = 99600;
+	t.repeat = (int) CTimerd::TIMERREPEAT_WEEKDAYS;
+
+	Result<uint32_t> r = timers::create(t);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().code == ErrorCode::NotAListedValue);
+	REQUIRE(fake.timers.empty());
+}
+
+TEST_CASE("a weekday repeat that names a day may begin before now", "[timers]")
+{
+	FakeTimerSource fake;
+	fake.clock = 100000;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = goodRecording();
+	t.start = 99000;
+	t.stop = 99600;
+	t.repeat = (int) CTimerd::TIMERREPEAT_WEEKDAYS | (1 << 9);
 
 	REQUIRE(timers::create(t).ok());
 }
@@ -451,6 +481,90 @@ TEST_CASE("a remotebox timer cannot be made here", "[timers]")
 	REQUIRE(r.error().status == Status::InvalidArgument);
 	REQUIRE(r.error().code == ErrorCode::NoSuchTimerType);
 	REQUIRE(fake.timers.empty());
+}
+
+namespace
+{
+const int kRefusedRepeats[] = { 6, 7, 255, 0x100, 0x101, 0x1ff, 0x200, 0x302 };
+// Each plain repeat, each day alone, Monday to Friday, and every day.
+const int kTakenRepeats[] = { 0, 1, 2, 3, 4, 5, 0x300, 0x500, 0x900, 0x1100, 0x2100,
+			      0x4100, 0x8100, 0x3f00, 0xff00 };
+} // anonymous namespace
+
+TEST_CASE("a repeat the box's timer screen does not make is refused", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	for (size_t i = 0; i < sizeof(kRefusedRepeats) / sizeof(kRefusedRepeats[0]); i++)
+	{
+		TimerInfo t = goodRecording();
+		t.repeat = kRefusedRepeats[i];
+		INFO("repeat " << t.repeat);
+		Result<uint32_t> r = timers::create(t);
+		REQUIRE_FALSE(r.ok());
+		REQUIRE(r.error().status == Status::InvalidArgument);
+		REQUIRE(r.error().code == ErrorCode::NotAListedValue);
+	}
+	REQUIRE(fake.timers.empty());
+}
+
+TEST_CASE("every repeat the box's timer screen makes is taken as it was asked for", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	for (size_t i = 0; i < sizeof(kTakenRepeats) / sizeof(kTakenRepeats[0]); i++)
+	{
+		TimerInfo t = goodRecording();
+		t.repeat = kTakenRepeats[i];
+		INFO("repeat " << t.repeat);
+		REQUIRE(timers::create(t).ok());
+		REQUIRE(fake.timers.size() == i + 1);
+		REQUIRE(fake.timers[i].repeat == kTakenRepeats[i]);
+	}
+}
+
+TEST_CASE("a change to a repeat the box does not make is refused before the daemon is asked", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	Result<uint32_t> created = timers::create(goodRecording());
+	REQUIRE(created.ok());
+
+	for (size_t i = 0; i < sizeof(kRefusedRepeats) / sizeof(kRefusedRepeats[0]); i++)
+	{
+		TimerInfo t = goodRecording();
+		t.id = created.value();
+		t.repeat = kRefusedRepeats[i];
+		INFO("repeat " << t.repeat);
+		Result<void> r = timers::modify(t);
+		REQUIRE_FALSE(r.ok());
+		REQUIRE(r.error().status == Status::InvalidArgument);
+		REQUIRE(r.error().code == ErrorCode::NotAListedValue);
+	}
+	REQUIRE(fake.modifications == 0);
+	REQUIRE(fake.timers[0].repeat == (int) CTimerd::TIMERREPEAT_ONCE);
+}
+
+TEST_CASE("a change to any repeat the box makes is taken", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	Result<uint32_t> created = timers::create(goodRecording());
+	REQUIRE(created.ok());
+
+	for (size_t i = 0; i < sizeof(kTakenRepeats) / sizeof(kTakenRepeats[0]); i++)
+	{
+		TimerInfo t = goodRecording();
+		t.id = created.value();
+		t.repeat = kTakenRepeats[i];
+		INFO("repeat " << t.repeat);
+		REQUIRE(timers::modify(t).ok());
+		REQUIRE(fake.timers[0].repeat == kTakenRepeats[i]);
+	}
 }
 
 TEST_CASE("a timer the daemon refuses as a duplicate is a conflict", "[timers]")

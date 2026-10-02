@@ -1326,6 +1326,26 @@ TEST_CASE("a timer of a kind the box does not make is refused by name", "[write]
 	REQUIRE(short_one.body.find("recording-without-duration") != std::string::npos);
 }
 
+TEST_CASE("a repeat the box does not make is refused over both routes", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	std::string six = timerBody(box.timers.clock + 3600);
+	six.erase(six.size() - 1);
+	six += ",\"repeat\":6}";
+	const Reply made = authedPost("/api/v1/timers", six);
+	REQUIRE(made.code == 400);
+	REQUIRE(made.body.find("not-a-listed-value") != std::string::npos);
+	REQUIRE(box.timers.timers.empty());
+
+	REQUIRE(authedPost("/api/v1/timers", timerBody(box.timers.clock + 3600)).code == 201);
+	const Reply changed = authedPatch("/api/v1/timers/1", "{\"repeat\":6}");
+	REQUIRE(changed.code == 400);
+	REQUIRE(changed.body.find("not-a-listed-value") != std::string::npos);
+	REQUIRE(box.timers.timers[0].repeat == 0);
+}
+
 TEST_CASE("the timer list is answered and carries what its shape says", "[write]")
 {
 	ShippedRoutes shipped;

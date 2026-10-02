@@ -276,8 +276,9 @@ Response createTimer(const Request &r)
 
 	/* Every rule about what a timer may be is the layer below's: a kind it does
 	   not build, a recording with no channel, a recording that ends no later
-	   than it begins, and a one-off already behind us. A second copy of any of
-	   them here would be a rule that can disagree with the one that decides. */
+	   than it begins, a repeat the box does not make, and a one-off already
+	   behind us. A second copy of any of them here would be a rule that can
+	   disagree with the one that decides. */
 	coreapi::Result<uint32_t> made = coreapi::timers::create(t);
 	if (!made.ok())
 		return problemFor(made.error());
@@ -385,8 +386,9 @@ const long kMaxTimerId = 2147483647L;
    reason and read the same way.
 
    The repeat is the daemon's own numbering: nought to six are the plain
-   repeats, and above them the weekday flag carries one bit per day from the
-   ninth up, so the widest it reaches is that flag with every day set.
+   repeats, of which the layer below takes nought to five, and above them the
+   weekday flag carries one bit per day from the ninth up, so the widest it
+   reaches is that flag with every day set.
 
    The count is how many times a repeating timer still runs, and the daemon
    keeps it in a thirty two bit field. This bound is below that field and it is
@@ -395,6 +397,11 @@ const long kMaxTimerId = 2147483647L;
    cannot arrive as a different number from the one that was sent. */
 const long kMaxRepeat = 0xff00L;
 const long kMaxRepeatCount = 2147483647L;
+
+const char kRepeatDoc[] =
+	"how it repeats, in the daemon's own numbering: nought once, one daily, two weekly, "
+	"three every two weeks, four every four weeks, five monthly, or 256 plus at least one "
+	"day, Monday adding 512 and each later day twice the one before, up to 32768 for Sunday";
 
 const Param kOneParams[] = {
 	HTTPD_SEGMENT_IN("id", ParamType::UInt, "the timer, as the daemon numbers them", 1, kMaxTimerId),
@@ -407,8 +414,7 @@ const Param kCreateParams[] = {
 	HTTPD_BODY_REQUIRED("start", ParamType::Time, "when it fires, seconds since the epoch"),
 	HTTPD_BODY("stop", ParamType::Time, "when it stops, for a recording"),
 	HTTPD_BODY_TEXT("title", "the programme, the words or the plugin, by kind", 512),
-	HTTPD_BODY_IN("repeat", ParamType::Int, "how it repeats, in the daemon's own numbering", 0,
-		kMaxRepeat),
+	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
 		kMaxRepeatCount),
 	HTTPD_BODY("announce", ParamType::Time, "when the box says it is coming"),
@@ -431,8 +437,7 @@ const Param kChangeParams[] = {
 	HTTPD_BODY("start", ParamType::Time, "when it fires, seconds since the epoch"),
 	HTTPD_BODY("stop", ParamType::Time, "when it stops"),
 	HTTPD_BODY_TEXT("title", "the programme, the words or the plugin, by kind", 512),
-	HTTPD_BODY_IN("repeat", ParamType::Int, "how it repeats, in the daemon's own numbering", 0,
-		kMaxRepeat),
+	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
 		kMaxRepeatCount),
 	HTTPD_BODY("announce", ParamType::Time, "when the box says it is coming"),
