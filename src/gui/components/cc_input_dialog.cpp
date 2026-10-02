@@ -684,7 +684,7 @@ bool CCTextInputDialog::save()
 	}
 
 	if (cid_value)
-		*cid_value = cid_buffer.getText();
+		setSettingsText(*cid_value, cid_buffer.getText());
 
 	if (cid_observ && cid_value)
 		cid_observ->changeNotify(ccw_caption, (void *) cid_value->c_str());
@@ -1014,7 +1014,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 	}
 
 	if (!cid_saved && cid_value)
-		*cid_value = original_value;
+		setSettingsText(*cid_value, original_value);
 
 	hide();
 	return res;

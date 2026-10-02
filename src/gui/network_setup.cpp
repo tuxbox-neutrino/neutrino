@@ -248,7 +248,12 @@ int CNetworkSetup::showNetworkSetup()
 
 	if (!found)
 	{
-		if (!getDefaultNetworkInterface(g_settings.ifname, false))
+		/* A copy, published under the lock, as settings.h asks of every
+		   write of a text setting. */
+		std::string ifname = g_settings.ifname;
+		bool have_default = getDefaultNetworkInterface(ifname, false);
+		setSettingsText(g_settings.ifname, ifname);
+		if (!have_default)
 		{
 			int sel_res = showInterfaceSelectMenu();
 			if (g_settings.ifname.empty())

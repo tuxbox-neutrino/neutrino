@@ -41,6 +41,15 @@
 #include <global.h>
 #include <neutrino.h>
 
+/* A character of the edited value, written under the lock that the readers of
+   a text setting take off the box's loop: the input fields point into the
+   value itself, and that value is often a setting. */
+static void setCharLocked(char *p, char c)
+{
+	CSettingsTextGuard lock;
+	*p = c;
+}
+
 
 CExtendedInput::CExtendedInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ, bool* Cancel)
 {
@@ -117,7 +126,7 @@ void CExtendedInput::calculateDialog()
 	int maxY = 0;
 
 	if (valueString->size() < inputFields.size())
-		valueString->append(inputFields.size() - valueString->size(), ' ');
+		appendSettingsText(*valueString, std::string(inputFields.size() - valueString->size(), ' '));
 
 	selectedChar = -1;
 	for(unsigned int i=0; i<inputFields.size();i++)
@@ -276,10 +285,14 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg==CRCInput::RC_timeout))
 		{
-			if (trim (*valueString) != trim(oldval)){
+			/* Copies, because trim() cuts the string it is handed: done on
+			   the value itself, that was a write outside the lock, under
+			   the input fields that point into it. */
+			std::string now_trimmed = *valueString, old_trimmed = oldval;
+			if (trim(now_trimmed) != trim(old_trimmed)){
 				int erg = ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMsgBox::mbrYes, CMsgBox::mbNo | CMsgBox::mbYes | CMsgBox::mbCancel);
 				 if(erg==CMsgBox::mbrYes){
-					*valueString = oldval;
+					setSettingsText(*valueString, oldval);
 					loop=false;
 					if(cancel != NULL)
 						*cancel = true;
@@ -304,7 +317,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 		{
-			*valueString = oldval;
+			setSettingsText(*valueString, oldval);
 			loop=false;
 			if(cancel != NULL)
 				*cancel = true;
@@ -314,7 +327,8 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 
 	hide();
 
-	*valueString = trim(*valueString);
+	std::string trimmed = *valueString;
+	setSettingsText(*valueString, trim(trimmed));
 
 	onAfterExec();
 
@@ -424,7 +438,7 @@ void CExtendedInput_Item_Char::keyPressed(const int key)
 	{
 		if (isAllowedChar(*value))
 		{
-			*data = *value;
+			setCharLocked(data, *value);
 			g_RCInput->postMsg( CRCInput::RC_right, 0 );
 		}
 	}
@@ -435,22 +449,22 @@ void CExtendedInput_Item_Char::keyPressed(const int key)
 		{
 			if(pos<allowedChars.size()-1)
 			{
-				*data = allowedChars[pos+1];
+				setCharLocked(data, allowedChars[pos+1]);
 			}
 			else
 			{
-				*data = allowedChars[0];
+				setCharLocked(data, allowedChars[0]);
 			}
 		}
 		else if (key==CRCInput::RC_down)
 		{
 			if(pos>0)
 			{
-				*data = allowedChars[pos-1];
+				setCharLocked(data, allowedChars[pos-1]);
 			}
 			else
 			{
-				*data = allowedChars[allowedChars.size()-1];
+				setCharLocked(data, allowedChars[allowedChars.size()-1]);
 			}
 		}
 	}
@@ -482,14 +496,14 @@ void CIPInput::onBeforeExec()
 {
 	if (valueString->empty())
 	{
-		*valueString = "000.000.000.000";
+		setSettingsText(*valueString, "000.000.000.000");
 		return;
 	}
 	unsigned char ip[4];
 	sscanf(valueString->c_str(), "%hhu.%hhu.%hhu.%hhu", &ip[0], &ip[1], &ip[2], &ip[3]);
 	char s[20];
 	snprintf(s, sizeof(s), "%03hhu.%03hhu.%03hhu.%03hhu", ip[0], ip[1], ip[2], ip[3]);
-	*valueString = std::string(s);
+	setSettingsText(*valueString, std::string(s));
 }
 
 void CIPInput::onAfterExec()
@@ -498,9 +512,9 @@ void CIPInput::onAfterExec()
 	sscanf(valueString->c_str(), "%3d.%3d.%3d.%3d", &ip[0], &ip[1], &ip[2], &ip[3] );
 	char s[20];
 	snprintf(s, sizeof(s), "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-	*valueString = std::string(s);
+	setSettingsText(*valueString, std::string(s));
 	if(*valueString == "0.0.0.0")
-		*valueString = "";
+		setSettingsText(*valueString, "");
 }
 
 //-----------------------------#################################-------------------------------------------------------
@@ -513,7 +527,7 @@ CDateInput::CDateInput(const neutrino_locale_t Name, time_t* Time, const neutrin
 	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
 				tmTime->tm_year+1900,
 				tmTime->tm_hour, tmTime->tm_min);
-	*valueString = std::string(value);
+	setSettingsText(*valueString, std::string(value));
 
 	addInputField( new CExtendedInput_Item_Char("0123") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
@@ -541,7 +555,7 @@ void CDateInput::onBeforeExec()
 	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
 				tmTime->tm_year+1900,
 				tmTime->tm_hour, tmTime->tm_min);
-	*valueString = std::string(value);
+	setSettingsText(*valueString, std::string(value));
 }
 
 void CDateInput::onAfterExec()
@@ -587,7 +601,7 @@ void CDateInput::onAfterExec()
 	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
 				tmTime2->tm_year+1900,
 				tmTime2->tm_hour, tmTime2->tm_min);
-	*valueString = std::string(value);
+	setSettingsText(*valueString, std::string(value));
 }
 //-----------------------------#################################-------------------------------------------------------
 
@@ -618,14 +632,14 @@ void CMACInput::onBeforeExec()
 {
 	if (valueString->empty())
 	{
-		*valueString = "00:00:00:00:00:00";
+		setSettingsText(*valueString, "00:00:00:00:00:00");
 		return;
 	}
 	int mac[6];
 	sscanf(valueString->c_str(), "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5] );
 	char s[20];
 	snprintf(s, sizeof(s), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	*valueString = std::string(s);
+	setSettingsText(*valueString, std::string(s));
 }
 
 void CMACInput::onAfterExec()
@@ -634,9 +648,9 @@ void CMACInput::onAfterExec()
 	sscanf(valueString->c_str(), "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5] );
 	char s[20];
 	snprintf(s, sizeof(s), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	*valueString = std::string(s);
+	setSettingsText(*valueString, std::string(s));
 	if(*valueString == "00:00:00:00:00:00")
-		*valueString = "";
+		setSettingsText(*valueString, "");
 }
 
 //-----------------------------#################################-------------------------------------------------------
@@ -725,7 +739,7 @@ void CIntInput::onBeforeExec()
 	char tmp[MAX_CINTINPUT_SIZE];
 	snprintf(tmp, sizeof(tmp) - 1,"%*d", m_size, *myValue);
 	tmp[sizeof(tmp) - 1] = 0;
-	*valueString = std::string(tmp);
+	setSettingsText(*valueString, std::string(tmp));
 }
 
 void CIntInput::onAfterExec()

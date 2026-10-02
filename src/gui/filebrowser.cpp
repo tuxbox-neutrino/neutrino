@@ -1407,7 +1407,7 @@ bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str,
 			printf("%s %s dir %s\n",wrong_str ,action_str, newdir);
 			return false;
 		} else {
-			setting_dir = b.getSelectedFile()->Name;
+			setSettingsText(setting_dir, b.getSelectedFile()->Name);
 			return true;
 		}
 	}

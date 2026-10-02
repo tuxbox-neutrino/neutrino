@@ -363,7 +363,11 @@ class CSettingsTextGuard
    std::list members, of which nhttpd's xmltv list request rewrites three and
    every load of the bouquets, on the box's loop as well as on the channel
    daemon's thread and the scan's, empties and refills xmltv_xml_auto, and the
-   usermenu entries, whose elements the loop replaces whole. */
+   usermenu entries, whose elements the loop replaces whole.
+
+   Where one assignment of a string is not the unit, the writer holds
+   CSettingsTextGuard itself: the string input and the extended input for each
+   character they change. */
 inline void setSettingsText(std::string &field, const std::string &value)
 {
 	CSettingsTextGuard lock;

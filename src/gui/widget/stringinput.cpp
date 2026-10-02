@@ -45,6 +45,15 @@
 #include <global.h>
 #include <neutrino.h>
 
+/* One character of the edited string, written under the lock that the readers
+   of a text setting take off the box's loop: the string is often one the box
+   is running on, and a write races such a copy even where the buffer stays. */
+static void setCharAt(std::string *value, int pos, char c)
+{
+	CSettingsTextGuard lock;
+	value->at(pos) = c;
+}
+
 CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
 	name = Name;
@@ -149,12 +158,13 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 	{	
 		/* The string a screen edits here is often one the box is running on,
 		   and a request answered on another thread copies those. Every change
-		   that can move the buffer is published under the lock those reads
-		   take. A character written in place cannot move it and is left. */
+		   is made under the lock those reads take: one that can move the
+		   buffer through setSettingsText, a single character through
+		   setCharAt. */
 		std::string tmp_value = *valueString;
 		if (selected >= (int)valueString->length())
 			setSettingsText(*valueString, *valueString + std::string(selected - valueString->length() + 1, ' '));
-		valueString->at(selected) = validchars[CRCInput::getNumericValue(key)];
+		setCharAt(valueString, selected, validchars[CRCInput::getNumericValue(key)]);
 		int current_value = atoi(*valueString);
 		int tmp = current_value;
 		if (lower_bound != -1 || upper_bound != -1)
@@ -190,13 +200,16 @@ void CStringInput::keyBackspacePressed(void)
 	if (selected > 0)
 	{
 		selected--;
+		/* Shifted in a copy and published once: the string is often one the
+		   box is running on, and a copy taken on another thread between two
+		   of the single writes would hold a value the dialog never showed. */
+		std::string shifted = *valueString;
 		for (int i = selected; i < size - 1; i++)
-		{
-			valueString->at(i) = valueString->at(i + 1);
+			shifted.at(i) = shifted.at(i + 1);
+		shifted.at(size - 1) = ' ';
+		setSettingsText(*valueString, shifted);
+		for (int i = selected; i < size; i++)
 			paintChar(i);
-		}
-		valueString->at(size - 1) = ' ';
-		paintChar(size - 1);
 	}
 }
 
@@ -206,7 +219,7 @@ void CStringInput::keyRedPressed()
 	if(lower_bound == -1 || upper_bound == -1){
 		if (index(validchars, ' ') != NULL)
 		{
-			valueString->at(selected) = ' ';
+			setCharAt(valueString, selected, ' ');
 
 			if (selected < (size - 1))
 			{
@@ -236,7 +249,7 @@ void CStringInput::keyBluePressed()
 		char newValue = valueString->at(selected) ^ 32;
 		if (index(validchars, newValue) != NULL)
 		{
-			valueString->at(selected) = newValue;
+			setCharAt(valueString, selected, newValue);
 			paintChar(selected);
 		}
 	}
@@ -252,7 +265,7 @@ void CStringInput::keyUpPressed()
 	npos++;
 	if(npos>=(int)strlen(validchars))
 		npos = 0;
-	valueString->at(selected)=validchars[npos];
+	setCharAt(valueString, selected, validchars[npos]);
 
 	int current_value = atoi(*valueString);
 	int tmp = current_value;
@@ -293,7 +306,7 @@ void CStringInput::keyDownPressed()
 		else
 			npos = 0;
 	}
-	valueString->at(selected)=validchars[npos];
+	setCharAt(valueString, selected, validchars[npos]);
 
 	int current_value = atoi(*valueString);
 	int tmp = current_value;
@@ -345,30 +358,36 @@ void CStringInput::keyRightPressed()
 void CStringInput::keyMinusPressed()
 {
 	if(lower_bound == -1 || upper_bound == -1){
+		/* Shifted in a copy and published once, as in keyBackspacePressed. */
+		std::string shifted = *valueString;
 		int item = selected;
 		while (item < (size -1))
 		{
-			valueString->at(item) = valueString->at(item+1);
-			paintChar(item);
+			shifted.at(item) = shifted.at(item+1);
 			item++;
 		}
-		valueString->at(item) = ' ';
-		paintChar(item);
+		shifted.at(item) = ' ';
+		setSettingsText(*valueString, shifted);
+		for (item = selected; item < size; item++)
+			paintChar(item);
 	}
 }
 
 void CStringInput::keyPlusPressed()
 {
 	if(lower_bound == -1 || upper_bound == -1){
+		/* Shifted in a copy and published once, as in keyBackspacePressed. */
+		std::string shifted = *valueString;
 		int item = size -1;
 		while (item > selected)
 		{
-			valueString->at(item) = valueString->at(item-1);
-			paintChar(item);
+			shifted.at(item) = shifted.at(item-1);
 			item--;
 		}
-		valueString->at(item) = ' ';
-		paintChar(item);
+		shifted.at(item) = ' ';
+		setSettingsText(*valueString, shifted);
+		for (item = selected; item < size; item++)
+			paintChar(item);
 	}
 }
 
@@ -458,7 +477,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( (msg==CRCInput::RC_green) && (index(validchars, '.') != NULL))
 		{
-			valueString->at(selected) = '.';
+			setCharAt(valueString, selected, '.');
 
 			if (selected < (size - 1))
 			{
@@ -703,7 +722,7 @@ void CStringInputSMS::NormalKeyPressed(const neutrino_msg_t key)
 		}
 		else
 			keyCounter = (keyCounter + 1) % arraySizes[numericvalue];
-		valueString->at(selected) = Chars[numericvalue][keyCounter];
+		setCharAt(valueString, selected, Chars[numericvalue][keyCounter]);
 		last_digit = numericvalue;
 		paintChar(selected);
 		g_RCInput->killTimer (smstimer);
@@ -711,7 +730,7 @@ void CStringInputSMS::NormalKeyPressed(const neutrino_msg_t key)
 	}
 	else
 	{
-		valueString->at(selected) = *CRCInput::getUnicodeValue(key);
+		setCharAt(valueString, selected, *CRCInput::getUnicodeValue(key));
 		keyRedPressed();   /* to lower, paintChar */
 		keyRightPressed(); /* last_digit = -1, move to next position */
 	}
@@ -726,7 +745,7 @@ void CStringInputSMS::keyBackspacePressed(void)
 void CStringInputSMS::keyRedPressed()		// switch between lower & uppercase
 {
 	if (((valueString->at(selected) | 32) >= 'a') && ((valueString->at(selected) | 32) <= 'z'))
-	valueString->at(selected) ^= 32;
+	setCharAt(valueString, selected, valueString->at(selected) ^ 32);
 
 	paintChar(selected);
 }
