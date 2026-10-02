@@ -24,6 +24,7 @@
 
 #include <utility>
 
+#include <timerdclient/timerdannounce.h>
 #include <timerdclient/timerdtypes.h>
 
 namespace coreapi
@@ -148,6 +149,12 @@ bool recordingRuns(const TimerInfo &held)
 	       held.state == (int) CTimerd::TIMERSTATE_ISRUNNING;
 }
 
+// As the box's timer screen fills it in; announcement and wake run from it.
+time_t announceOf(const TimerInfo &t)
+{
+	return timerAnnounceTime((CTimerd::CTimerEventTypes) t.type, t.announce, t.start);
+}
+
 // Shared by the three entry points that read the list to answer about one
 // timer, so that a list that cannot be read never reads as a timer that is not
 // there.
@@ -201,6 +208,9 @@ Result<uint32_t> create(const TimerInfo &t)
 
 	TimerInfo asked = t;
 	asked.type = builtAs(t.type);
+	// It begins at once, with nothing ahead of it to announce.
+	if (t.type != (int) TimerType::ImmediateRecord)
+		asked.announce = announceOf(asked);
 
 	uint32_t new_id = 0;
 	Status s = timerSource().add(asked, new_id);
@@ -261,7 +271,11 @@ Result<void> modify(const TimerInfo &t)
 				    "a timer that runs once cannot begin before now");
 	}
 
-	s = timerSource().modify(t);
+	TimerInfo asked = t;
+	if (!recordingRuns(was))
+		asked.announce = announceOf(asked);
+
+	s = timerSource().modify(asked);
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::TimerNotChanged,
 			    "the box did not take the change");

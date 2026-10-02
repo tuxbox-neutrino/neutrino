@@ -72,6 +72,8 @@ coreapi_tests_SOURCES = \
 	coreapi/test_system.cpp \
 	coreapi/test_shellcontract.cpp \
 	system/test_mysystem.cpp \
+	timerd/test_timerwake.cpp \
+	lib/timerdclient/test_timerdannounce.cpp \
 	coreapi/test_storage.cpp \
 	coreapi/test_storage_write.cpp \
 	coreapi/test_shelltable.cpp \
@@ -116,6 +118,7 @@ coreapi_tests_SOURCES = \
 # archive with it, which is why that adapter lives in a file of its own.
 # The timer daemon's client is linked for the same reason as the channel object:
 # what a list read does with an answer that stops early is its own logic.
+# timerwake.o is the one object of the timer daemon that links on its own.
 # helpers.o carries the spawn helper the shipped program uses, so the case that
 # pins what it does with an ampersand drives that object and not a copy. debug.o,
 # the json archive and the network library are what it needs besides;
@@ -139,6 +142,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/nhttpd/yhttpd_core/libyhttpd.a \
 	$(top_builddir)/lib/xmltree/libxmltree.a \
 	$(top_builddir)/src/system/helpers.o \
+	$(top_builddir)/src/timerd/timerwake.o \
 	$(top_builddir)/src/system/debug.o \
 	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
 	$(top_builddir)/src/zapit/channel.o \

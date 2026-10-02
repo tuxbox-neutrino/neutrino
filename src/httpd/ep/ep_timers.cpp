@@ -340,7 +340,13 @@ Response changeTimer(const Request &r)
 		return noEnd();
 
 	if (r.has("start"))
-		t.start = r.asTime("start");
+	{
+		const time_t start = r.asTime("start");
+		// Keeps its lead; an announce the request names overrides it below.
+		if (t.announce > 0)
+			t.announce += start - t.start;
+		t.start = start;
+	}
 	if (r.has("stop"))
 		t.stop = r.asTime("stop");
 	if (r.has("repeat"))
@@ -431,7 +437,8 @@ const Param kCreateParams[] = {
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
 		kMaxRepeatCount),
-	HTTPD_BODY("announce", ParamType::Time, "when the box says it is coming"),
+	HTTPD_BODY("announce", ParamType::Time,
+		"when the box says it is coming; left out, nought or less, or after the start, it is a minute before the start, three for a recording, and none for an immediate recording"),
 	HTTPD_BODY("epg_id", ParamType::ChannelId, "the guide entry it was made from, hexadecimal"),
 	HTTPD_BODY("epg_start", ParamType::Time, "when that entry begins"),
 	HTTPD_BODY("standby_on", ParamType::Bool, "whether the box goes to standby with it"),
@@ -453,7 +460,8 @@ const Param kChangeParams[] = {
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
 		kMaxRepeatCount),
-	HTTPD_BODY("announce", ParamType::Time, "when the box says it is coming"),
+	HTTPD_BODY("announce", ParamType::Time,
+		"when the box says it is coming; left out, it moves with the start, and nought or less, or after the start, is a minute before the start, three for a recording; a running recording keeps the one it has"),
 };
 
 const Endpoint kTimerEndpoints[] = {

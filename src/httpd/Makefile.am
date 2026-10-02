@@ -163,12 +163,14 @@ EXTRA_DIST = check-answer-sets.sh nhttpd.conf.in
 
 # The document without a server: the same tables, the same bytes. Built on
 # request (make openapi-dump), used by the unit tests and by the type
-# generator under test/web.
+# generator under test/web. libtimerdclient answers the announce time the
+# timer layer fills in.
 EXTRA_PROGRAMS = openapi_dump
 openapi_dump_SOURCES = doc/openapi-dump.cpp doc/openapi-dump-stubs.cpp doc/openapi-dump-globals.cpp
 openapi_dump_LDADD = \
 	libhttpd.a \
 	$(top_builddir)/src/coreapi/libcoreapi.a \
+	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
 	$(top_builddir)/src/system/helpers.o \
 	$(top_builddir)/src/system/debug.o \
 	$(top_builddir)/lib/libconfigfile/libconfigfile.a \

@@ -906,6 +906,108 @@ TEST_CASE("a recording that has not begun may still move its start", "[timers]")
 	REQUIRE(fake.timers[0].start == 100200);
 }
 
+// -1 for a timer the daemon never got, so a failed create reads as a wrong value.
+static time_t filedAnnounce(const FakeTimerSource &fake, size_t i)
+{
+	return i < fake.timers.size() ? fake.timers[i].announce : -1;
+}
+
+TEST_CASE("a timer made without an announce time gets the timer screen's lead", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	timers::create(goodRecording());
+
+	TimerInfo zap;
+	zap.type = (int) TimerType::Zapto;
+	zap.channel_id = 0x2b66;
+	zap.start = 2000;
+	timers::create(zap);
+
+	// Below nought and after the start are no announce time either.
+	TimerInfo below = goodRecording();
+	below.announce = -300;
+	timers::create(below);
+	TimerInfo after = zap;
+	after.announce = 2300;
+	timers::create(after);
+
+	CHECK(filedAnnounce(fake, 0) == 2000 - 180);
+	CHECK(filedAnnounce(fake, 1) == 2000 - 60);
+	CHECK(filedAnnounce(fake, 2) == 2000 - 180);
+	CHECK(filedAnnounce(fake, 3) == 2000 - 60);
+}
+
+TEST_CASE("an announce time of its own is handed over as it was asked for", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo early = goodRecording();
+	early.announce = 1400;
+	timers::create(early);
+	TimerInfo at_start = goodRecording();
+	at_start.announce = 2000;
+	timers::create(at_start);
+
+	CHECK(filedAnnounce(fake, 0) == 1400);
+	CHECK(filedAnnounce(fake, 1) == 2000);
+}
+
+TEST_CASE("an immediate recording is made without an announce time", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t;
+	t.type = (int) TimerType::ImmediateRecord;
+	t.channel_id = 0x2b66;
+	t.start = 2000;
+	t.stop = 6000;
+	timers::create(t);
+	CHECK(filedAnnounce(fake, 0) == 0);
+}
+
+// Each step lands on a value the one before did not leave behind.
+TEST_CASE("a change without an announce time gets the timer screen's lead", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = goodRecording();
+	t.id = fake.next_id++;
+	t.announce = 1820;
+	fake.timers.push_back(t);
+
+	t.announce = 1500;
+	timers::modify(t);
+	CHECK(filedAnnounce(fake, 0) == 1500);
+
+	t.start = 2600;
+	t.stop = 3600;
+	t.announce = 2700;
+	timers::modify(t);
+	CHECK(filedAnnounce(fake, 0) == 2600 - 180);
+
+	t.start = 2700;
+	t.announce = 0;
+	timers::modify(t);
+	CHECK(filedAnnounce(fake, 0) == 2700 - 180);
+}
+
+TEST_CASE("a running recording keeps the announce time it has", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	t.stop = 103600;
+	timers::modify(t);
+	// With the stop, so a change that never arrived cannot pass for one that kept it.
+	CHECK(std::make_pair(filedAnnounce(fake, 0), fake.timers[0].stop) == std::make_pair((time_t) 0, (time_t) 103600));
+}
+
 TEST_CASE("the timer list is handed over rather than copied", "[timers]")
 {
 	FakeTimerSource fake;

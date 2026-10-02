@@ -1436,6 +1436,66 @@ TEST_CASE("a running recording is lengthened by a change that names only its sto
 	REQUIRE(box.timers.timers[0].stop == began + 7200);
 }
 
+// The i-th timer's announce time, and -1 for one the daemon never got.
+static time_t filedAnnounce(const BoxFixture &box, size_t i)
+{
+	return i < box.timers.timers.size() ? box.timers.timers[i].announce : -1;
+}
+
+// The page sends an empty field as no member at all.
+TEST_CASE("a timer made without an announce time is filed with the box's lead", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const time_t start = box.timers.clock + 3600;
+	authedPost("/api/v1/timers", timerBody(start));
+	CHECK(filedAnnounce(box, 0) == start - 180);
+	const ::Json::Value items = parsed(authedGet("/api/v1/timers").body)["items"];
+	CHECK(items[0]["announce"].asInt64() == start - 180);
+
+	std::string asked = timerBody(start + 7200);
+	asked.erase(asked.size() - 1);
+	char member[48];
+	std::snprintf(member, sizeof(member), ",\"announce\":%lld}", (long long) (start + 7200 - 600));
+	asked += member;
+	authedPost("/api/v1/timers", asked);
+	CHECK(filedAnnounce(box, 1) == start + 7200 - 600);
+}
+
+/* Left where it was, the announce time would end up after the start. Each step
+   lands on a value the one before did not leave behind. */
+TEST_CASE("a change of the start alone moves the announce time with it", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const time_t start = box.timers.clock + 3600;
+	char body[160];
+	std::snprintf(body, sizeof(body),
+		"{\"kind\":\"zapto\",\"channel_id\":\"2b66\",\"start\":%lld,\"announce\":%lld}",
+		(long long) start, (long long) (start - 300));
+	authedPost("/api/v1/timers", body);
+	CHECK(filedAnnounce(box, 0) == start - 300);
+
+	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (start - 600));
+	const Reply moved = authedPatch("/api/v1/timers/1", body);
+	CHECK(filedAnnounce(box, 0) == start - 900);
+	CHECK(parsed(moved.body)["announce"].asInt64() == start - 900);
+
+	std::snprintf(body, sizeof(body), "{\"start\":%lld,\"announce\":%lld}",
+		(long long) start, (long long) (start - 1200));
+	authedPatch("/api/v1/timers/1", body);
+	CHECK(filedAnnounce(box, 0) == start - 1200);
+
+	// A timer filed with none gets the lead at its new start, not the distance moved.
+	if (!box.timers.timers.empty())
+		box.timers.timers[0].announce = 0;
+	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (start + 600));
+	authedPatch("/api/v1/timers/1", body);
+	CHECK(filedAnnounce(box, 0) == start + 600 - 60);
+}
+
 TEST_CASE("a timer of a kind the box does not make is refused by name", "[write]")
 {
 	ShippedRoutes shipped;
@@ -1620,10 +1680,11 @@ TEST_CASE("an id wider than the daemon's own is refused and removes nothing", "[
 	REQUIRE(box.timers.timers.size() == 1);
 	REQUIRE(box.timers.timers[0].id == 1);
 
+	const time_t filed = box.timers.timers[0].announce;
 	const Reply wide = authedPatch("/api/v1/timers/4294967297", "{\"announce\":1735689000}");
 	REQUIRE(wide.code == 400);
 	REQUIRE(wide.body.find("out-of-range") != std::string::npos);
-	REQUIRE(box.timers.timers[0].announce == 0);
+	REQUIRE(box.timers.timers[0].announce == filed);
 
 	// The daemon numbers from one, so nought names no timer and the row says so
 	// rather than leaving it to be answered further down.
