@@ -1005,6 +1005,32 @@ TEST_CASE("the current channel is answered while one is running", "[endpoints]")
 	REQUIRE(parsed(r.body)["id"].asString() == hex(kFirstTv + 2));
 }
 
+TEST_CASE("a box in standby answers the current channel as nothing playing", "[endpoints]")
+{
+	// The channel stack goes on naming the channel it was left on.
+	ShippedRoutes shipped;
+	FakeChannelSource src;
+	fillChannels(src);
+	src.current = src.channels[2];
+	src.current_status = coreapi::Status::Ok;
+	src.mode = NeutrinoModes::mode_standby;
+	InstalledChannelSource installed(&src);
+
+	Reply r = get("/api/v1/channels/current");
+	REQUIRE(r.code == 404);
+	REQUIRE(parsed(r.body)["type"].asString() == "/errors/no-running-channel");
+
+	r = get("/api/v1/channels/current/crypt");
+	REQUIRE(r.code == 404);
+	REQUIRE(parsed(r.body)["type"].asString() == "/errors/no-running-channel");
+
+	src.mode = NeutrinoModes::mode_webtv;
+	r = get("/api/v1/channels/current");
+	REQUIRE(r.code == 200);
+	REQUIRE(parsed(r.body)["id"].asString() == hex(kFirstTv + 2));
+	REQUIRE(get("/api/v1/channels/current/crypt").code == 200);
+}
+
 /* What the box knows about a channel's streams reaches the one channel answers and not
    the listing.
 

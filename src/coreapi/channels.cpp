@@ -123,6 +123,30 @@ Result<ChannelInfo> current()
 	return ok(std::move(out));
 }
 
+namespace
+{
+
+// A mode that cannot be read is not standby.
+Result<void> somethingCanPlay()
+{
+	int m = 0;
+	if (channelSource().currentMode(m) == Status::Ok &&
+	    m == NeutrinoModes::mode_standby)
+		return fail(Status::NotFound, ErrorCode::NoRunningChannel,
+			    "nothing is playing, the box is in standby");
+	return ok();
+}
+
+} // anonymous namespace
+
+Result<ChannelInfo> playing()
+{
+	Result<void> awake = somethingCanPlay();
+	if (!awake.ok())
+		return fail(awake.error());
+	return current();
+}
+
 Result<ChannelStreams> streams(ChannelId id)
 {
 	ChannelStreams out;
@@ -289,6 +313,10 @@ Result<LogoList> logos(bool tv, bool files)
 
 Result<CaidList> currentCaids()
 {
+	Result<void> awake = somethingCanPlay();
+	if (!awake.ok())
+		return fail(awake.error());
+
 	std::vector<uint16_t> raw;
 	Status s = channelSource().currentCaids(raw);
 	if (s == Status::NotFound)

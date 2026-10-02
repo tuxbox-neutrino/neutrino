@@ -557,8 +557,8 @@ Response currentChannel(const Request &)
 	/* An idle box answers that there is nothing playing, and it is an answer
 	   rather than a fault: the layer below has already turned it into a refusal
 	   that carries a code. The old server dereferenced the running channel
-	   without asking whether there was one. */
-	coreapi::Result<coreapi::ChannelInfo> got = coreapi::channels::current();
+	   without asking whether there was one. In standby nothing plays either. */
+	coreapi::Result<coreapi::ChannelInfo> got = coreapi::channels::playing();
 	if (!got.ok())
 		return problemFor(got.error());
 

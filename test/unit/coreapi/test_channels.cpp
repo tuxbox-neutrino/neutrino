@@ -253,6 +253,42 @@ TEST_CASE("current reports NotFound when nothing is running", "[channels]")
 	REQUIRE((const void *) running.value().name.data() == fake.last_buffer);
 }
 
+TEST_CASE("a box in standby plays nothing whatever channel the stack names", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.current = mk(ERSTE, ERSTE_NAME, ServiceKind::Tv);
+	fake.current_status = Status::Ok;
+	fake.mode = NeutrinoModes::mode_standby;
+	InstalledChannelSource installed_source(&fake);
+
+	Result<ChannelInfo> asleep = channels::playing();
+	REQUIRE_FALSE(asleep.ok());
+	REQUIRE(asleep.error().status == Status::NotFound);
+	REQUIRE(asleep.error().code == ErrorCode::NoRunningChannel);
+	// The legacy surface still names the channel.
+	REQUIRE(channels::current().ok());
+
+	const int awake[] = { NeutrinoModes::mode_tv, NeutrinoModes::mode_radio,
+			      NeutrinoModes::mode_webtv, NeutrinoModes::mode_webradio };
+	for (size_t i = 0; i < sizeof(awake) / sizeof(awake[0]); i++)
+	{
+		fake.mode = awake[i];
+		Result<ChannelInfo> on = channels::playing();
+		REQUIRE(on.ok());
+		REQUIRE(on.value().id == ERSTE);
+	}
+
+	// No mode yet is a box coming up.
+	fake.mode_status = Status::NotFound;
+	REQUIRE(channels::playing().ok());
+
+	fake.mode_status = Status::Ok;
+	fake.current_status = Status::Internal;
+	Result<ChannelInfo> lost = channels::playing();
+	REQUIRE_FALSE(lost.ok());
+	REQUIRE(lost.error().code == ErrorCode::CurrentChannelUnresolved);
+}
+
 TEST_CASE("a running channel the map does not hold is not an idle box", "[channels]")
 {
 	FakeChannelSource fake;

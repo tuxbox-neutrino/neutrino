@@ -43,6 +43,9 @@ Result<ChannelInfo> get(ChannelId id);
 // channel handed to the caller.
 Result<ChannelInfo> current();
 
+// current(), but NotFound in standby, where the channel stack still names one.
+Result<ChannelInfo> playing();
+
 /* How that channel's streams are laid out, as far as the box holds it.
 
    Apart from the channel, because a channel is answered by the thousand and this
@@ -95,8 +98,8 @@ Result<LogoList> logos(bool tv, bool files);
 
 /* Each as the identifier the stream carries and the name this program has for it
    where it has one. An empty list is a channel nothing is scrambling, NotFound a
-   box with nothing playing: two answers, because a caller comes back for the
-   second and not for the first. */
+   box with nothing playing, as playing() reads it: two answers, because a caller
+   comes back for the second and not for the first. */
 Result<CaidList> currentCaids();
 
 /* hard says the services the box is holding are not written out first, so what
