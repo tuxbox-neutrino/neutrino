@@ -327,7 +327,30 @@ Result<void> reloadChannels(bool hard)
 // The commands below name only which message they mean. How one is carried,
 // and how a refusal reads, belongs to the transport rather than to the domain.
 
-Result<void> zap(ChannelId id)
+namespace
+{
+
+/* Here and not in the main loop, which cannot tell a web zap from a zap timer's.
+   An unreadable mode refuses, or it could wake a box nobody said may be woken. */
+Result<void> standbyAllows(bool wake)
+{
+	int m = 0;
+	Status s = channelSource().currentMode(m);
+	// No mode yet is a box starting up.
+	if (s == Status::NotFound)
+		return ok();
+	if (s != Status::Ok)
+		return fail(s, ErrorCode::ModeUnavailable,
+			    "the box mode could not be read");
+	if (m == NeutrinoModes::mode_standby && !wake)
+		return fail(Status::Conflict, ErrorCode::BoxInStandby,
+			    "the box is in standby");
+	return ok();
+}
+
+} // anonymous namespace
+
+Result<void> zap(ChannelId id, bool wake)
 {
 	ChannelInfo probe;
 	Status s = channelSource().findChannel(id, probe);
@@ -338,6 +361,20 @@ Result<void> zap(ChannelId id)
 		return fail(s, ErrorCode::ChannelListUnavailable,
 			    "the channel list could not be read");
 
+	// Before standby: waking the box would not free the tuner.
+	bool possible = false;
+	s = channelSource().canZap(id, possible);
+	if (s != Status::Ok)
+		return fail(s, ErrorCode::ChannelListUnavailable,
+			    "the channel list could not be read");
+	if (!possible)
+		return fail(Status::Conflict, ErrorCode::RecordingHoldsTuner,
+			    "a recording holds the tuner this channel needs");
+
+	Result<void> allowed = standbyAllows(wake);
+	if (!allowed.ok())
+		return allowed;
+
 	// Zeroed and not merely filled in, because the loop reads a whole event
 	// out of this message and only one of its fields is this command's.
 	CTimerd::EventInfo event = CTimerd::EventInfo();
@@ -346,14 +383,19 @@ Result<void> zap(ChannelId id)
 	return postPayload(NeutrinoMessages::ZAPTO, &event, sizeof(event));
 }
 
-Result<void> setMode(Mode m)
+Result<void> setMode(Mode m, bool wake)
 {
+	Result<void> allowed = standbyAllows(wake);
+	if (!allowed.ok())
+		return allowed;
+
 	// The mode alone. The flag that can ride beside it would leave the running
 	// channel where it is, which is not what asking for a mode means.
+	// wakeup always, so a box that went into standby since the check wakes whole.
 	neutrino_msg_data_t value = (m == Mode::Radio) ? NeutrinoModes::mode_radio
 						       : NeutrinoModes::mode_tv;
 
-	return postCommand(NeutrinoMessages::CHANGEMODE, value);
+	return postCommand(NeutrinoMessages::CHANGEMODE, value | NeutrinoModes::wakeup);
 }
 
 namespace

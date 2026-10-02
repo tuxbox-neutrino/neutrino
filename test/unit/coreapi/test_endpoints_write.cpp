@@ -45,6 +45,8 @@
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/types.h"
 
+#include <neutrinoMessages.h>
+
 #include "jsoncpp/json/json.h"
 
 #include <cstdio>
@@ -1054,6 +1056,62 @@ TEST_CASE("a zap to a channel the box does not have posts nothing", "[write]")
 	REQUIRE(r.body.find("no-such-channel") != std::string::npos);
 	// A command is posted and forgotten, so a zap to an id nobody has would
 	// otherwise be accepted and change nothing with nothing to say it.
+	REQUIRE(box.commands.posted.empty());
+}
+
+TEST_CASE("a zap or a mode change in standby is refused unless it may switch the box on", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.channels.mode = NeutrinoModes::mode_standby;
+
+	const Reply zap = authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\"}");
+	REQUIRE(zap.code == 409);
+	REQUIRE(zap.body.find("/errors/box-in-standby") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\",\"wake\":false}").code == 409);
+
+	const Reply mode = authedPost("/api/v1/mode", "{\"mode\":\"radio\"}");
+	REQUIRE(mode.code == 409);
+	REQUIRE(mode.body.find("/errors/box-in-standby") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/mode", "{\"mode\":\"radio\",\"wake\":false}").code == 409);
+
+	REQUIRE(box.commands.posted.empty());
+
+	// One auth level per route, flag or not.
+	REQUIRE(send(Post, "/api/v1/zap", "{\"channel_id\":\"2b66\",\"wake\":true}",
+		     AuthLevel::Write, "127.0.0.1").code == 202);
+	REQUIRE(send(Post, "/api/v1/mode", "{\"mode\":\"radio\",\"wake\":true}",
+		     AuthLevel::Write, "127.0.0.1").code == 202);
+	REQUIRE(box.commands.posted.size() == 2);
+	REQUIRE(box.commands.posted[0].first == NeutrinoMessages::ZAPTO);
+	REQUIRE(box.commands.posted[1].first == NeutrinoMessages::CHANGEMODE);
+	REQUIRE((box.commands.posted[1].second & NeutrinoModes::mode_mask) == (neutrino_msg_data_t) NeutrinoModes::mode_radio);
+	delete[] (unsigned char *) box.commands.posted[0].second;
+}
+
+TEST_CASE("wake is read as a yes or a no", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.channels.mode = NeutrinoModes::mode_standby;
+
+	const Reply zap = authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\",\"wake\":\"please\"}");
+	REQUIRE(zap.code == 400);
+	REQUIRE(zap.body.find("/errors/bad-bool") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/mode", "{\"mode\":\"tv\",\"wake\":\"please\"}").code == 400);
+	REQUIRE(box.commands.posted.empty());
+}
+
+TEST_CASE("a zap a recording holds the tuner for answers a conflict and posts nothing", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.channels.mode = NeutrinoModes::mode_tv;
+	box.channels.zap_possible = false;
+
+	const Reply r = authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\"}");
+	REQUIRE(r.code == 409);
+	REQUIRE(r.body.find("/errors/recording-holds-tuner") != std::string::npos);
 	REQUIRE(box.commands.posted.empty());
 }
 

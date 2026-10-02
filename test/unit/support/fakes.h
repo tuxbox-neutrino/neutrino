@@ -90,6 +90,11 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	// the box ever reports, so a test that means one has to say which.
 	int mode;
 
+	// Every zap possible by default; zap_asked keeps each channel asked about.
+	coreapi::Status zap_status;
+	bool zap_possible;
+	mutable std::vector<coreapi::ChannelId> zap_asked;
+
 	// Where the last read left its payload. A caller that hands the same
 	// address back has moved it out rather than copied it.
 	mutable const void *last_buffer;
@@ -100,6 +105,8 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		  current_status(coreapi::Status::NotFound),
 		  mode_status(coreapi::Status::Ok),
 		  mode(0),
+		  zap_status(coreapi::Status::Ok),
+		  zap_possible(true),
 		  last_buffer(0),
 		  services_saved(0),
 		  reinits(0),
@@ -233,6 +240,15 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		if (mode_status != coreapi::Status::Ok)
 			return mode_status;
 		out = mode;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status canZap(coreapi::ChannelId id, bool &out) const
+	{
+		zap_asked.push_back(id);
+		if (zap_status != coreapi::Status::Ok)
+			return zap_status;
+		out = zap_possible;
 		return coreapi::Status::Ok;
 	}
 

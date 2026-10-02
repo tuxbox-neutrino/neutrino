@@ -827,13 +827,14 @@ Response zap(const Request &r)
 	/* The channel is looked up before anything is posted, which the layer below
 	   does and this does not repeat: a command is posted and forgotten, so a zap
 	   to an id nobody has would otherwise be accepted and change nothing. */
-	coreapi::Result<void> done = coreapi::channels::zap(r.asChannelId("channel_id"));
+	coreapi::Result<void> done = coreapi::channels::zap(r.asChannelId("channel_id"),
+							     r.has("wake") && r.asBool("wake"));
 	if (!done.ok())
 		return problemFor(done.error());
 
 	/* Accepted and not done. The message is on the box's own queue and what takes
 	   it off reports nothing back, so this server has no way to have learnt that
-	   the channel changed, and in standby it will not. */
+	   the channel changed. */
 	return accepted();
 }
 
@@ -843,7 +844,8 @@ Response setMode(const Request &r)
 		? coreapi::channels::Mode::Radio
 		: coreapi::channels::Mode::Tv;
 
-	coreapi::Result<void> done = coreapi::channels::setMode(mode);
+	coreapi::Result<void> done = coreapi::channels::setMode(mode,
+								r.has("wake") && r.asBool("wake"));
 	if (!done.ok())
 		return problemFor(done.error());
 	return accepted();
@@ -1083,10 +1085,14 @@ const Param kReloadParams[] = {
 
 const Param kZapParams[] = {
 	HTTPD_BODY_REQUIRED("channel_id", ParamType::ChannelId, "the channel to play, hexadecimal"),
+	HTTPD_BODY("wake", ParamType::Bool,
+		"whether to switch the box on when it is in standby; without it a box in standby refuses with box-in-standby"),
 };
 
 const Param kModeParams[] = {
 	HTTPD_BODY_REQUIRED_FROM_SET("mode", "which of the two lists the box is to be in", "tv,radio"),
+	HTTPD_BODY("wake", ParamType::Bool,
+		"whether to switch the box on when it is in standby; without it a box in standby refuses with box-in-standby"),
 };
 
 /* A bouquet's name, bounded because it is a name and not a document. The ceiling
@@ -1179,10 +1185,10 @@ const Endpoint kChannelEndpoints[] = {
 	  "the bouquets the box holds, or only those holding one channel",
 	  HTTPD_PARAMS(kBouquetListParams), &kBouquetListSchema, &listBouquets, false },
 	{ Method::Post, "/api/v1/zap", AuthLevel::Write,
-	  "asks the box to play one channel",
+	  "asks the box to play one channel; refused with recording-holds-tuner while a recording holds the tuner the channel needs, and with box-in-standby in standby unless wake is set",
 	  HTTPD_PARAMS(kZapParams), NULL, &zap, false },
 	{ Method::Post, "/api/v1/mode", AuthLevel::Write,
-	  "asks the box to change between television and radio",
+	  "asks the box to change between television and radio; refused with box-in-standby in standby unless wake is set",
 	  HTTPD_PARAMS(kModeParams), NULL, &setMode, false },
 	{ Method::Post, "/api/v1/bouquets", AuthLevel::Write,
 	  "makes a bouquet with nothing in it",

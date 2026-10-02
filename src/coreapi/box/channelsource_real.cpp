@@ -343,6 +343,14 @@ class RealChannelSource : public ChannelSource
 			return Status::Ok;
 		}
 
+		Status canZap(ChannelId id, bool &out) const
+		{
+			// The rule looks the channel up, and a reload may be freeing it.
+			CServiceManager::ChannelGuard guard;
+			out = applicationCanZap(id);
+			return Status::Ok;
+		}
+
 		/* Both of the names a bouquet carries. Name is what it is written to file
 		   under and what the channel stack compares a new name against; bName is the
 		   caption every list on screen prints, and the two differ for the bouquets

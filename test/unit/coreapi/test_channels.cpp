@@ -386,7 +386,7 @@ TEST_CASE("zap posts the loop's zap command carrying the whole id", "[channels]"
 	InstalledSink installed_sink(&sink);
 
 	const long before = test_array_deletes;
-	Result<void> r = channels::zap(ERSTE);
+	Result<void> r = channels::zap(ERSTE, false);
 	const long released = test_array_deletes - before;
 
 	REQUIRE(r.ok());
@@ -418,7 +418,7 @@ TEST_CASE("a zap to an id nobody has is not posted", "[channels]")
 	InstalledSink installed_sink(&sink);
 
 	// Differs from the channel above only over bit 31.
-	Result<void> r = channels::zap(ABSENT);
+	Result<void> r = channels::zap(ABSENT, false);
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::NotFound);
 	REQUIRE(r.error().code == ErrorCode::NoSuchChannel);
@@ -436,7 +436,7 @@ TEST_CASE("an unreadable channel list stops a zap before it is posted", "[channe
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	Result<void> r = channels::zap(ERSTE);
+	Result<void> r = channels::zap(ERSTE, false);
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::Internal);
 	REQUIRE(r.error().code == ErrorCode::ChannelListUnavailable);
@@ -446,19 +446,26 @@ TEST_CASE("an unreadable channel list stops a zap before it is posted", "[channe
 
 TEST_CASE("setMode posts the mode the loop switches on", "[channels]")
 {
+	FakeChannelSource fake;
+	fake.mode = NeutrinoModes::mode_tv;
+	InstalledChannelSource installed_source(&fake);
+
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	REQUIRE(channels::setMode(channels::Mode::Radio).ok());
-	REQUIRE(channels::setMode(channels::Mode::Tv).ok());
+	REQUIRE(channels::setMode(channels::Mode::Radio, false).ok());
+	REQUIRE(channels::setMode(channels::Mode::Tv, false).ok());
 
 	REQUIRE(sink.posted.size() == 2);
 	REQUIRE(sink.posted[0].first == NeutrinoMessages::CHANGEMODE);
-	REQUIRE(sink.posted[0].second == (neutrino_msg_data_t) NeutrinoModes::mode_radio);
+	REQUIRE((sink.posted[0].second & NeutrinoModes::mode_mask) == (neutrino_msg_data_t) NeutrinoModes::mode_radio);
 	REQUIRE(sink.posted[1].first == NeutrinoMessages::CHANGEMODE);
-	REQUIRE(sink.posted[1].second == (neutrino_msg_data_t) NeutrinoModes::mode_tv);
+	REQUIRE((sink.posted[1].second & NeutrinoModes::mode_mask) == (neutrino_msg_data_t) NeutrinoModes::mode_tv);
 	// The mode alone: the flag that rides beside it would keep the old channel.
 	REQUIRE((sink.posted[0].second & (neutrino_msg_data_t) NeutrinoModes::norezap) == 0);
+	// Also while awake, in case the box enters standby before the loop reads it.
+	REQUIRE((sink.posted[0].second & (neutrino_msg_data_t) NeutrinoModes::wakeup) != 0);
+	REQUIRE((sink.posted[1].second & (neutrino_msg_data_t) NeutrinoModes::wakeup) != 0);
 }
 
 TEST_CASE("a refused command surfaces as the queue's own answer", "[channels]")
@@ -477,13 +484,13 @@ TEST_CASE("a refused command surfaces as the queue's own answer", "[channels]")
 		sink.answer = refused[i];
 		InstalledSink installed_sink(&sink);
 
-		Result<void> z = channels::zap(ERSTE);
+		Result<void> z = channels::zap(ERSTE, false);
 		REQUIRE_FALSE(z.ok());
 		REQUIRE(z.error().status == refused[i]);
 		REQUIRE(z.error().code == ErrorCode::CommandNotPosted);
 		REQUIRE(z.error().message == std::string("the box did not take the command"));
 
-		Result<void> m = channels::setMode(channels::Mode::Radio);
+		Result<void> m = channels::setMode(channels::Mode::Radio, false);
 		REQUIRE_FALSE(m.ok());
 		REQUIRE(m.error().status == refused[i]);
 		REQUIRE(m.error().code == ErrorCode::CommandNotPosted);
@@ -539,11 +546,160 @@ TEST_CASE("a refused zap leaves no payload behind", "[channels]")
 	   says they carry one, and this one's does not, so the release has to
 	   happen on the way out of the command. */
 	const long before = test_array_deletes;
-	Result<void> r = channels::zap(ERSTE);
+	Result<void> r = channels::zap(ERSTE, false);
 	const long released = test_array_deletes - before;
 
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(sink.posted.size() == 1);
 	REQUIRE(sink.posted[0].second != 0);
 	REQUIRE(released == 1);
+}
+
+TEST_CASE("a zap in standby is refused unless it may switch the box on", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	fake.mode = NeutrinoModes::mode_standby;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	Result<void> refused = channels::zap(ERSTE, false);
+	REQUIRE_FALSE(refused.ok());
+	REQUIRE(refused.error().status == Status::Conflict);
+	REQUIRE(refused.error().code == ErrorCode::BoxInStandby);
+	REQUIRE(refused.error().message == std::string("the box is in standby"));
+	// The loop wakes the box for any zap it finds in standby.
+	REQUIRE(sink.posted.empty());
+
+	REQUIRE(channels::zap(ERSTE, true).ok());
+	REQUIRE(sink.posted.size() == 1);
+	REQUIRE(sink.posted[0].first == NeutrinoMessages::ZAPTO);
+	REQUIRE(takePayload(sink.posted[0].second).channel_id == ERSTE);
+}
+
+TEST_CASE("an awake box takes a zap whether or not it may be switched on", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	// Television, radio, and a box that has not picked a mode while it starts.
+	const int modes[] = { NeutrinoModes::mode_tv, NeutrinoModes::mode_radio };
+	for (size_t i = 0; i < sizeof(modes) / sizeof(modes[0]); i++)
+	{
+		fake.mode = modes[i];
+		REQUIRE(channels::zap(ERSTE, false).ok());
+	}
+	fake.mode_status = Status::NotFound;
+	REQUIRE(channels::zap(ERSTE, false).ok());
+
+	REQUIRE(sink.posted.size() == 3);
+	for (size_t i = 0; i < sink.posted.size(); i++)
+		REQUIRE(takePayload(sink.posted[i].second).channel_id == ERSTE);
+}
+
+TEST_CASE("a box whose mode cannot be read is not woken by a zap or a mode change", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	fake.mode_status = Status::Internal;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	Result<void> z = channels::zap(ERSTE, false);
+	REQUIRE_FALSE(z.ok());
+	REQUIRE(z.error().status == Status::Internal);
+	REQUIRE(z.error().code == ErrorCode::ModeUnavailable);
+	REQUIRE(z.error().message == std::string("the box mode could not be read"));
+
+	Result<void> m = channels::setMode(channels::Mode::Radio, false);
+	REQUIRE_FALSE(m.ok());
+	REQUIRE(m.error().code == ErrorCode::ModeUnavailable);
+
+	REQUIRE(sink.posted.empty());
+}
+
+TEST_CASE("a zap a recording holds the tuner for is refused before it is posted", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	fake.mode = NeutrinoModes::mode_tv;
+	fake.zap_possible = false;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	Result<void> r = channels::zap(ERSTE, false);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Conflict);
+	REQUIRE(r.error().code == ErrorCode::RecordingHoldsTuner);
+	REQUIRE(r.error().message == std::string("a recording holds the tuner this channel needs"));
+	// The loop would drop it without a word.
+	REQUIRE(sink.posted.empty());
+	REQUIRE(fake.zap_asked.size() == 1);
+	REQUIRE(fake.zap_asked[0] == ERSTE);
+
+	// Ahead of standby: waking would not free the tuner.
+	fake.mode = NeutrinoModes::mode_standby;
+	Result<void> asleep = channels::zap(ERSTE, false);
+	REQUIRE_FALSE(asleep.ok());
+	REQUIRE(asleep.error().code == ErrorCode::RecordingHoldsTuner);
+	Result<void> waking = channels::zap(ERSTE, true);
+	REQUIRE_FALSE(waking.ok());
+	REQUIRE(waking.error().code == ErrorCode::RecordingHoldsTuner);
+	REQUIRE(sink.posted.empty());
+
+	fake.mode = NeutrinoModes::mode_tv;
+	fake.zap_possible = true;
+	REQUIRE(channels::zap(ERSTE, false).ok());
+	REQUIRE(sink.posted.size() == 1);
+	takePayload(sink.posted[0].second);
+}
+
+TEST_CASE("a zap whose tuner rule cannot be read is not posted", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	fake.mode = NeutrinoModes::mode_tv;
+	fake.zap_status = Status::Internal;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	Result<void> r = channels::zap(ERSTE, false);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Internal);
+	REQUIRE(r.error().code == ErrorCode::ChannelListUnavailable);
+	REQUIRE(sink.posted.empty());
+}
+
+TEST_CASE("a mode change in standby is refused unless it may switch the box on", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.mode = NeutrinoModes::mode_standby;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	Result<void> refused = channels::setMode(channels::Mode::Radio, false);
+	REQUIRE_FALSE(refused.ok());
+	REQUIRE(refused.error().status == Status::Conflict);
+	REQUIRE(refused.error().code == ErrorCode::BoxInStandby);
+	REQUIRE(refused.error().message == std::string("the box is in standby"));
+	REQUIRE(sink.posted.empty());
+
+	REQUIRE(channels::setMode(channels::Mode::Radio, true).ok());
+	REQUIRE(sink.posted.size() == 1);
+	REQUIRE(sink.posted[0].first == NeutrinoMessages::CHANGEMODE);
+	REQUIRE(sink.posted[0].second == (neutrino_msg_data_t) (NeutrinoModes::mode_radio | NeutrinoModes::wakeup));
 }

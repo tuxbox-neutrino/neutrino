@@ -67,12 +67,12 @@ enum class Mode { Tv, Radio };
 
 // The channel is looked up before the message goes out, because a posted command
 // reports nothing back and a zap to an id nobody has would otherwise be
-// unobservable. NotFound then, and nothing is posted.
-Result<void> zap(ChannelId id);
+// unobservable. NotFound then, and nothing is posted. Conflict while a recording
+// holds the tuner the channel needs, and in standby unless wake is set.
+Result<void> zap(ChannelId id, bool wake);
 
-// Posted like any other command, and in standby the box switches by a path that
-// takes no message, so this one can be accepted and still change nothing.
-Result<void> setMode(Mode m);
+// Conflict in standby unless wake is set.
+Result<void> setMode(Mode m, bool wake);
 
 // A read, and wider than the enum above: standby and the players are modes as
 // well. A NeutrinoModes value, src/include/neutrinoMessages.h, and never

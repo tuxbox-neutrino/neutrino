@@ -140,6 +140,8 @@ private:
 	void radioMode( bool rezap = true );
 	void AVInputMode( bool bOnOff );
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
+	bool wakeOnto(const t_channel_id channel_id, bool tv);
+	void cancelDeferredDeepStandby(void);
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void ExitRun(int can_shutdown = 0);
@@ -261,6 +263,7 @@ public:
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 	bool getChannellistIsVisible() { return channelList_painted; }
 	void zapTo(t_channel_id channel_id);
+	bool zapPossible(const t_channel_id channel_id);
 	bool wakeupFromStandby(void);
 	void standbyToStandby(void);
 	bool hasPendingRecording(void);

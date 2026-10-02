@@ -4275,6 +4275,43 @@ void CNeutrinoApp::tryDeferredDeepStandby(void)
 	g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 }
 
+void CNeutrinoApp::cancelDeferredDeepStandby(void)
+{
+	deferred_deepstandby = false;
+	if (deferred_recheck_timer) {
+		g_RCInput->killTimer(deferred_recheck_timer);
+		deferred_recheck_timer = 0;
+	}
+}
+
+// Public: the web API refuses a zap by the same rule.
+bool CNeutrinoApp::zapPossible(const t_channel_id channel_id)
+{
+	return (recordingstatus == 0) || CRecordManager::getInstance()->TimeshiftOnly() ||
+		(channelList && channelList->SameTP(channel_id));
+}
+
+/* Waking zaps to standby_channel_id, so pointing it at the target makes it one
+   zap. Only for a channel its list holds, or the box would wake onto nothing.
+   False when the caller still has to zap: while recording the wake keeps the
+   live channel. */
+bool CNeutrinoApp::wakeOnto(const t_channel_id channel_id, bool tv)
+{
+	CChannelList *list = tv ? TVchannelList : RADIOchannelList;
+	const bool held = list && list->hasChannelID(channel_id) >= 0;
+	if (held) {
+		standby_channel_id = channel_id;
+		const bool radio = (lastMode == NeutrinoModes::mode_radio) || (lastMode == NeutrinoModes::mode_webradio);
+		if (tv && radio)
+			lastMode = NeutrinoModes::mode_tv;
+		else if (!tv && !radio)
+			lastMode = NeutrinoModes::mode_radio;
+	}
+	cancelDeferredDeepStandby();
+	standbyMode(false);
+	return held && !recordingstatus && mode != NeutrinoModes::mode_standby;
+}
+
 void CNeutrinoApp::standbyToStandby(void)
 {
 	bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
@@ -4349,6 +4386,12 @@ static bool saveNeutrinoSettings()
 int coreapi::applicationMode()
 {
 	return CNeutrinoApp::getInstance()->getMode();
+}
+
+// The same, for the zap rule.
+bool coreapi::applicationCanZap(coreapi::ChannelId id)
+{
+	return CNeutrinoApp::getInstance()->zapPossible((t_channel_id) id);
 }
 
 // The same, for the flag that says the box is ignoring its remote control.
@@ -5004,17 +5047,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 	else if( msg == NeutrinoMessages::ZAPTO) {
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
-		if (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID()){
-			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||
-					(recordingstatus && channelList && channelList->SameTP(eventinfo->channel_id)) ) {
-				bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
+		const t_channel_id channel_id = eventinfo->channel_id;
+		if (zapPossible(channel_id)) {
+			bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(channel_id);
 
-				// The calls below write the mode, and one that writes it
-				// without this leaves a box that says it is running and looks
-				// like one in standby.
-				if (mode == NeutrinoModes::mode_standby)
-					standbyMode(false);
+			// Before the current channel test, which means nothing in standby.
+			bool woken = (mode == NeutrinoModes::mode_standby) && wakeOnto(channel_id, isTVMode);
 
+			if (!woken && channel_id != CZapit::getInstance()->GetCurrentChannelID()) {
 				dvbsub_stop();
 
 				if ((!isTVMode) && (mode != NeutrinoModes::mode_radio) && (mode != NeutrinoModes::mode_webradio)) {
@@ -5025,7 +5065,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				}
 
 				if(channelList)
-					channelList->zapTo_ChannelID(eventinfo->channel_id);
+					channelList->zapTo_ChannelID(channel_id);
 			}
 		}
 		delete[] (unsigned char*) data;
@@ -5171,12 +5211,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if( mode == NeutrinoModes::mode_standby ) {
 			standbyMode( false );
 		}
-		// user woke the box -> cancel a deferred deep-standby
-		deferred_deepstandby = false;
-		if (deferred_recheck_timer) {
-			g_RCInput->killTimer(deferred_recheck_timer);
-			deferred_recheck_timer = 0;
-		}
+		cancelDeferredDeepStandby();
 		g_RCInput->clearRCMsg();
 		return messages_return::handled;
 	}
@@ -5270,6 +5305,12 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
 		printf("CNeutrinoApp::handleMsg: CHANGEMODE to %s | REZAP %d\n", neutrinoMode_to_string(data & NeutrinoModes::mode_mask), (data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
+		// Otherwise the mode writes below leave a box that looks like standby
+		// and says it is running.
+		if ((data & NeutrinoModes::wakeup) && mode == NeutrinoModes::mode_standby) {
+			cancelDeferredDeepStandby();
+			standbyMode(false);
+		}
 		if((data & NeutrinoModes::mode_mask)== NeutrinoModes::mode_radio) {
 			if( mode != NeutrinoModes::mode_radio ) {
 				radioMode((data & NeutrinoModes::norezap) != NeutrinoModes::norezap);
@@ -5749,10 +5790,11 @@ void CNeutrinoApp::saveEpg(int _mode)
 			   wakes it the ordinary way a moment later, through the one path that
 			   leaves standby whole.
 
-			   These two names and no keys. Every key that wakes a box in standby,
+			   These names and no keys. Every key that wakes a box in standby,
 			   the added one from the settings among them, is turned into one of
-			   them by handleMsg below and comes round on the next pass, so the
-			   list of keys is not written out a second time here.
+			   the first two by handleMsg below and comes round on the next pass,
+			   so the list of keys is not written out a second time here. A zap,
+			   and a mode change that may wake, leave standby the same way.
 
 			   Only for the caller that is entering standby. The other one is the
 			   shutdown, where the wait has to run out: the process ends after it,
@@ -5763,7 +5805,9 @@ void CNeutrinoApp::saveEpg(int _mode)
 			   thread of its own, so it runs on either way and says so when it is
 			   done, to a main loop that has nothing to do with the answer. */
 			const bool wake = (msg == NeutrinoMessages::STANDBY_OFF ||
-					   msg == NeutrinoMessages::STANDBY_TOGGLE) &&
+					   msg == NeutrinoMessages::STANDBY_TOGGLE ||
+					   msg == NeutrinoMessages::ZAPTO ||
+					   (msg == NeutrinoMessages::CHANGEMODE && (data & NeutrinoModes::wakeup))) &&
 					  (_mode == NeutrinoModes::mode_standby);
 			/* Handed on unchanged where the queue would not take it back, which
 			   is what happened to it before and no worse. */

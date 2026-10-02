@@ -138,6 +138,8 @@ const Walked kWalked[] = {
 	CODE(NotEmpty),
 	CODE(TimeshiftRunning),
 	CODE(RecordingRunning),
+	CODE(BoxInStandby),
+	CODE(RecordingHoldsTuner),
 	CODE(BadScript),
 	CODE(BadTable),
 	CODE(NoTimeout),

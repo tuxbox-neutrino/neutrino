@@ -15,7 +15,8 @@
 # Four things, all of them inside the stretch between the wake being named and
 # the message being handed to handleMsg, which is what makes this an
 # interception rather than something that runs after the fact:
-#   both names, because either one alone leaves half the wakes swallowed
+#   both names, because either one alone leaves half the wakes swallowed, and a
+#   zap and a mode change that may wake, which answered inside never wake whole
 #   the message going back on the queue, or the wake is dropped rather than moved
 #   the wait ending, or the box still sits there for the rest of the two minutes
 #   the caller being asked, because the other caller is the shutdown: the process
@@ -141,6 +142,10 @@ want 'break;' \
 	"CNeutrinoApp::saveEpg keeps waiting after a wake, so the box stays unresponsive"
 want_gate '_mode == NeutrinoModes::mode_standby' \
 	"CNeutrinoApp::saveEpg does not ask which caller it is, so the shutdown stops waiting too"
+want_gate 'NeutrinoMessages::ZAPTO' \
+	"CNeutrinoApp::saveEpg answers a zap inside, where it cannot leave standby"
+want_gate 'NeutrinoModes::wakeup' \
+	"CNeutrinoApp::saveEpg answers a mode change that may wake inside, where it cannot leave standby"
 
 [ "$bad" -eq 0 ] || {
 	echo "check-standby-wake.sh: a box writing its guide out does not answer its power button" >&2

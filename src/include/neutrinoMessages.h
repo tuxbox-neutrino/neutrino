@@ -217,7 +217,9 @@ struct NeutrinoModes
 		mode_upnp = 10,
 		mode_webradio = 11,
 		mode_mask = 0xFF,
-		norezap = 0x100
+		norezap = 0x100,
+		// CHANGEMODE only: in standby, leave it first
+		wakeup = 0x200
 	};
 };
 

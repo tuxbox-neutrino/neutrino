@@ -77,6 +77,9 @@ struct ChannelSource
 	// The mode the box is in, in the numbering the mode messages carry, which
 	// is wider than television and radio: standby and the players are modes.
 	virtual Status currentMode(int &out) const = 0;
+	// Whether a zap to that channel would go through while a recording holds
+	// a tuner.
+	virtual Status canZap(ChannelId id, bool &out) const = 0;
 
 	/* Which conditional access systems the running channel is scrambled under,
 	   as the identifiers the stream carries. An empty list is a channel nothing
@@ -172,6 +175,9 @@ void installRealChannelSource();
 // Defined by the application, because the mode is held by a class whose header
 // reaches the GUI and this layer must not.
 int applicationMode();
+
+// The same, for canZap.
+bool applicationCanZap(ChannelId id);
 
 /* The same, for the flag that says the box still owes its user the question
    whether a channel list it noticed a change in should be reread. Rereading
