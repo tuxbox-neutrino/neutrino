@@ -78,12 +78,15 @@ void CLanguage::setLanguage(std::string _language){
 	ConfigLanguage->loadConfig(language_dir + "/" + _language);
 	DefaultLanguage->loadConfig(language_dir + "/" + HTTPD_DEFAULT_LANGUAGE);
 
+	/* Copied under the lock: this runs on the web server's threads, while the
+	   box's loop assigns the language from a screen. */
+	const std::string neutrino_language = settingsText(g_settings.language);
 	const char * path[2] = { LOCALEDIR_VAR, LOCALEDIR };
 	for (int i = 0; i < 2; i++)
 	{
 		std::string filename = path[i];
 		filename += "/";
-		filename += g_settings.language;
+		filename += neutrino_language;
 		filename += ".locale";
 
 		if(access(filename.c_str(), F_OK) == 0) {

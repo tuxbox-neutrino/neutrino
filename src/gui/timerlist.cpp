@@ -337,7 +337,12 @@ int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 				timer_rb.rbname = rbname;
 				if (timer_rb.rbname.empty())
 					timer_rb.rbname = timer_rb.rbaddress;
-				g_settings.timer_remotebox_ip.push_back(timer_rb);
+				{
+					/* Under the lock: nhttpd copies these out on its own
+					   threads, and a vector that grows moves what it reads. */
+					CSettingsTextGuard lock;
+					g_settings.timer_remotebox_ip.push_back(timer_rb);
+				}
 			}
 			changed = true;
 		}
@@ -368,7 +373,11 @@ int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 		CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 		std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin();
 		std::advance(it, bselected - item_offset);
-		it->enabled = !it->enabled;
+		{
+			// under the lock, as every change to the remote boxes is
+			CSettingsTextGuard lock;
+			it->enabled = !it->enabled;
+		}
 		f->setInfoIconRight(it->enabled ? NEUTRINO_ICON_MARKER_DIALOG_OK : NEUTRINO_ICON_MARKER_DIALOG_OFF);
 		changed = true;
 		return menu_return::RETURN_REPAINT;
@@ -403,7 +412,11 @@ int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 		rbsetup->enableSaveScreen();
 		if ((rbsetup->exec(NULL, "") == true) && (!it->rbaddress.empty()))
 		{
-			it->port = atoi(port);
+			{
+				// under the lock: nhttpd's remote box lookup reads the port
+				CSettingsTextGuard lock;
+				it->port = atoi(port);
+			}
 			f->setName(it->rbname);
 			remboxmenu->hide();
 			changed = true;
@@ -847,11 +860,19 @@ void CTimerList::RemoteBoxTimerList(CTimerd::TimerList &rtimerlist)
 		{
 			printf("Failed to parse JSON\n");
 			printf("%s\n", errMsg.c_str());
-			it->online = false;
+			{
+				/* The assignment alone: the download in this loop takes
+				   the same lock, which is not recursive. */
+				CSettingsTextGuard lock;
+				it->online = false;
+			}
 			continue;
 		}
 		else
+		{
+			CSettingsTextGuard lock;
 			it->online = true;
+		}
 
 		Json::Value delays = root["data"]["timer"][0];
 
@@ -1172,7 +1193,7 @@ bool CTimerList::RemoteBoxSetup()
 	if (changed)
 	{
 		std::vector<timer_remotebox_item> old_timer_remotebox_ip = g_settings.timer_remotebox_ip;
-		g_settings.timer_remotebox_ip.clear();
+		std::vector<timer_remotebox_item> remote_boxes;
 		for (int i = item_offset; i < remboxmenu->getItemsCount(); i++)
 		{
 			CMenuItem *item = remboxmenu->getItem(i);
@@ -1180,8 +1201,15 @@ bool CTimerList::RemoteBoxSetup()
 			for (std::vector<timer_remotebox_item>::iterator it = old_timer_remotebox_ip.begin(); it != old_timer_remotebox_ip.end(); ++it)
 			{
 				if (it->rbname == f->getName())
-					g_settings.timer_remotebox_ip.push_back(*it);
+					remote_boxes.push_back(*it);
 			}
+		}
+		{
+			/* Published whole under the lock: nhttpd copies these out on
+			   its own threads, and a vector rebuilt in place frees what it
+			   reads. */
+			CSettingsTextGuard lock;
+			g_settings.timer_remotebox_ip.swap(remote_boxes);
 		}
 		changed = false;
 		ret = true;

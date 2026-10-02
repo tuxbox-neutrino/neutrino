@@ -576,6 +576,9 @@ std::string CNeutrinoAPI::getLogoFile(t_channel_id channelId)
 std::string CNeutrinoAPI::GetRemoteBoxIP(std::string _rbname)
 {
 	std::string c_url = "";
+	/* Under the settings lock, which the loop holds while it changes this
+	   list or a string in it. Nothing below takes the lock a second time. */
+	CSettingsTextGuard lock;
 	for (std::vector<timer_remotebox_item>::iterator it = g_settings.timer_remotebox_ip.begin(); it != g_settings.timer_remotebox_ip.end(); ++it)
 	{
 		if (it->rbname == _rbname)

@@ -2371,7 +2371,8 @@ bool CMoviePlayerGui::getLiveUrlDetailed(const std::string &url, const std::stri
 		std::list<std::string> paths;
 		// try livestreamScript from user's livestreamScriptPath
 		// Note: livestreamScriptPath is disabled in webchannels-setup; just here for compatibility
-		paths.push_back(g_settings.livestreamScriptPath);
+		// copied under the lock: the stream server's thread looks scripts up too
+		paths.push_back(settingsText(g_settings.livestreamScriptPath));
 		// try livestreamScripts from webradio/webtv autoload directories
 		if (m_ThisMode == NeutrinoModes::mode_webradio)
 		{
@@ -4689,6 +4690,16 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 
 void CMoviePlayerGui::selectAutoLang()
 {
+	/* Copied once, under the lock: starting a web channel in the background
+	   runs this on the thread that starts it, while the box's loop may assign
+	   to these from a screen. */
+	const std::string charset = settingsText(g_settings.subs_charset);
+	std::string lang_pref[3], subs_pref[3];
+	for (int i = 0; i < 3; i++) {
+		lang_pref[i] = settingsText(g_settings.pref_lang[i]);
+		subs_pref[i] = settingsText(g_settings.pref_subs[i]);
+	}
+
 	if (!numsubs)
 		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
 
@@ -4696,7 +4707,7 @@ void CMoviePlayerGui::selectAutoLang()
 		for (unsigned count = 0; count < numsubs; count++) {
 			if (spids[count] == 0x1FFF) {
 				currentspid = spids[count];
-				playback->SelectSubtitles(currentspid, g_settings.subs_charset);
+				playback->SelectSubtitles(currentspid, charset);
 			}
 		}
 	}
@@ -4708,7 +4719,7 @@ void CMoviePlayerGui::selectAutoLang()
 			for (unsigned j = 0; j < numpida; j++) {
 				std::map<std::string, std::string>::const_iterator it;
 				for (it = iso639.begin(); it != iso639.end(); ++it) {
-					if (g_settings.pref_lang[i] == it->second && strncasecmp(language[j].c_str(), it->first.c_str(), 3) == 0) {
+					if (lang_pref[i] == it->second && strncasecmp(language[j].c_str(), it->first.c_str(), 3) == 0) {
 						bool enabled = true;
 						// TODO: better check of supported
 						std::string audioname;
@@ -4733,10 +4744,10 @@ void CMoviePlayerGui::selectAutoLang()
 	}
 	if (isWebChannel && g_settings.auto_subs && numsubs > 0) {
 		for(int i = 0; i < 3; i++) {
-			if(g_settings.pref_subs[i].empty() || g_settings.pref_subs[i] == "none")
+			if(subs_pref[i].empty() || subs_pref[i] == "none")
 				continue;
 
-			std::string temp(g_settings.pref_subs[i]);
+			std::string temp(subs_pref[i]);
 			std::string slang;
 			for (int j = 0 ; j < numsubs; j++) {
 				if (!sub_supported[j])
@@ -4753,7 +4764,7 @@ void CMoviePlayerGui::selectAutoLang()
 					break;
 			}
 			if (currentspid > 0) {
-				playback->SelectSubtitles(currentspid, g_settings.subs_charset);
+				playback->SelectSubtitles(currentspid, charset);
 				printf("[movieplayer] spid changed to %d %s (%s)\n", currentspid, temp.c_str(), slang.c_str());
 				break;
 			}

@@ -314,10 +314,14 @@ Example:
 	else if (ipv6)
 		curl_easy_setopt(curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
 
-	if (!g_settings.softupdate_proxyserver.empty() && useProxy) {
-		curl_easy_setopt(curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if (!g_settings.softupdate_proxyusername.empty()) {
-			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+	/* Copied under the lock: a web channel's script runs this on the stream
+	   server's thread as well, while the box's loop may assign to these. */
+	const std::string proxy_server = settingsText(g_settings.softupdate_proxyserver);
+	if (!proxy_server.empty() && useProxy) {
+		curl_easy_setopt(curl_handle, CURLOPT_PROXY, proxy_server.c_str());
+		const std::string proxy_user = settingsText(g_settings.softupdate_proxyusername);
+		if (!proxy_user.empty()) {
+			std::string tmp = proxy_user + ":" + settingsText(g_settings.softupdate_proxypassword);
 			curl_easy_setopt(curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
 		}
 	}

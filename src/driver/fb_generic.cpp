@@ -839,10 +839,14 @@ std::string CFrameBuffer::getIconPath(std::string icon_name, std::string file_ty
 		filetypes.push_back("." + file_type);
 	}
 
+	/* Copied under the lock: the screensaver, the hourglass's timer and the
+	   stream server's loading hint, among others, look icons up off the box's
+	   loop. */
+	const std::string theme_dir_name = settingsText(g_settings.theme_name);
 	std::vector<std::string> dir =
 	{
-		THEMESDIR_VAR "/" + g_settings.theme_name + "/icons",
-		THEMESDIR "/" + g_settings.theme_name + "/icons",
+		THEMESDIR_VAR "/" + theme_dir_name + "/icons",
+		THEMESDIR "/" + theme_dir_name + "/icons",
 		ICONSDIR_VAR,
 		iconBasePath
 	};

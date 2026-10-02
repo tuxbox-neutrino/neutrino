@@ -163,6 +163,9 @@ void CFlashUpdate::update_php(std::string &url, const char *type)
 }
 
 bool CFlashUpdate::checkOnlineVersion() {
+	/* Copied under the lock: the update check runs this on a thread of its
+	   own, while the box's loop may assign the setting from a screen. */
+	const std::string url_file = settingsText(g_settings.softupdate_url_file);
 	CHTTPTool httpTool;
 	std::string url;
 	std::string name;
@@ -178,12 +181,12 @@ bool CFlashUpdate::checkOnlineVersion() {
 	std::string versionString = "????????????????";
 	if (loadImageVersionConfig(_configfile))
 		versionString = _configfile.getString("version", "????????????????");
-	dprintf(DEBUG_NORMAL, "[update] file %s\n", g_settings.softupdate_url_file.c_str());
+	dprintf(DEBUG_NORMAL, "[update] file %s\n", url_file.c_str());
 	CFlashVersionInfo curInfo(versionString.c_str());
 	curVer = curInfo.getVersion();
 	dprintf(DEBUG_NORMAL, "[update] current flash-version: %s (%d) date %s (%" PRId64 ")\n", versionString.c_str(), curInfo.getVersion(), curInfo.getDate(), static_cast<int64_t>(curInfo.getDateTime()));
 
-	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
+	std::ifstream urlFile(url_file.c_str());
 	if (urlFile >> url)
 	{
 		// extract domain name
