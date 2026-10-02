@@ -231,6 +231,16 @@ CAtomicFileWriter::CAtomicFileWriter(const std::string &path, mode_t file_mode, 
 		perror(sidecar.c_str());
 		return;
 	}
+	/* The create mode counts only for a side file that is created. One that a
+	   write cut short by the end of the process left behind is opened again and
+	   keeps its mode, which is already the file's own when the cut came between
+	   the commit's chmod and its rename. */
+	if (fchmod(fd, S_IRUSR | S_IWUSR) != 0)
+	{
+		perror(sidecar.c_str());
+		close(fd);
+		return;
+	}
 	fh = fdopen(fd, "w");
 	if (fh == NULL)
 	{

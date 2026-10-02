@@ -60,7 +60,14 @@ bool file_exists(const char *filename);
    one step, so a reader sees either all of the new content or all of the old.
    file() is what the caller writes into and commit() is the only way anything
    replaces anything; every other way out leaves the file that was there and
-   takes the side file away again. */
+   takes the side file away again.
+
+   The side file has one name per file, not one per write: a write cut short by
+   the end of the process, before commit() or the destructor could take the
+   side file away, leaves no more than that one file behind, and the next write
+   of that file opens it again. Two writes of one file at the same time would
+   share it, though: a caller that may write a file from two threads keeps
+   those writes apart itself. */
 class CAtomicFileWriter
 {
 	public:
