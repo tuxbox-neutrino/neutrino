@@ -116,7 +116,7 @@ int builtAs(int type)
 // moment whole keeps its seconds and is held to them.
 time_t startOfMinute(time_t t) { return t - (t % 60); }
 
-Status daemonHolds(uint32_t id, bool &out)
+Status heldTimer(uint32_t id, TimerInfo &one, bool &out)
 {
 	TimerList held;
 	Status s = timerSource().list(held);
@@ -127,11 +127,25 @@ Status daemonHolds(uint32_t id, bool &out)
 	{
 		if (held[i].id == id)
 		{
+			one = held[i];
 			out = true;
 			break;
 		}
 	}
 	return Status::Ok;
+}
+
+Status daemonHolds(uint32_t id, bool &out)
+{
+	TimerInfo ignored;
+	return heldTimer(id, ignored, out);
+}
+
+// The daemon fires a timer on entering this state, so a new start moves nothing.
+bool recordingRuns(const TimerInfo &held)
+{
+	return isRecording(held.type) &&
+	       held.state == (int) CTimerd::TIMERSTATE_ISRUNNING;
 }
 
 // Shared by the three entry points that read the list to answer about one
@@ -213,13 +227,39 @@ Result<void> modify(const TimerInfo &t)
 		return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
 			    "the box does not repeat timers that way");
 
+	TimerInfo was;
 	bool held = false;
-	Status s = daemonHolds(t.id, held);
+	Status s = heldTimer(t.id, was, held);
 	if (s != Status::Ok)
 		return listUnreadable(s);
 	if (!held)
 		return fail(Status::NotFound, ErrorCode::NoSuchTimer,
 			    "no timer with that id");
+
+	// Only a one-off, as in create.
+	if (t.repeat == (int) CTimerd::TIMERREPEAT_ONCE)
+	{
+		time_t now = 0;
+		s = timerSource().now(now);
+		if (s != Status::Ok)
+			return fail(s, ErrorCode::ClockUnavailable,
+				    "the box could not read the time");
+
+		// A running recording can only move its end. Any other past start
+		// would fire at once.
+		if (recordingRuns(was))
+		{
+			if (t.start != was.start)
+				return fail(Status::Conflict, ErrorCode::RecordingRunning,
+					    "a recording that is running keeps the start it began at");
+			if (t.stop <= now)
+				return fail(Status::InvalidArgument, ErrorCode::TimerInThePast,
+					    "a recording that is running cannot end before now");
+		}
+		else if (t.start < startOfMinute(now))
+			return fail(Status::InvalidArgument, ErrorCode::TimerInThePast,
+				    "a timer that runs once cannot begin before now");
+	}
 
 	s = timerSource().modify(t);
 	if (s != Status::Ok)

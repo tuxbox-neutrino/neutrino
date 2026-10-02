@@ -58,6 +58,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <timerdclient/timerdtypes.h>
+
 using namespace httpd;
 
 namespace
@@ -1228,16 +1230,19 @@ TEST_CASE("a timer round trip creates, changes and removes", "[write]")
 	REQUIRE(headerOf(created, "Location") == "/api/v1/timers/" + id);
 	REQUIRE(box.timers.timers.size() == 1);
 
-	const Reply changed = authedPatch("/api/v1/timers/" + id, "{\"title\":\"other\"}");
+	char later[64];
+	std::snprintf(later, sizeof(later), "{\"stop\":%lld}", (long long) (box.timers.clock + 9000));
+	const Reply changed = authedPatch("/api/v1/timers/" + id, later);
 	REQUIRE(changed.code == 200);
 	// The change reached the daemon and the answer is read back from it rather
 	// than written out of what was sent.
-	REQUIRE(stringField(changed.body, "title") == "other");
-	REQUIRE(box.timers.timers[0].title == "other");
+	REQUIRE(parsed(changed.body)["stop"].asInt64() == box.timers.clock + 9000);
+	REQUIRE(box.timers.timers[0].stop == box.timers.clock + 9000);
 	// What a correction left out is what it did not change, which is the whole
 	// of the difference between a correction and a replacement.
 	REQUIRE(box.timers.timers[0].channel_id == kChannel);
 	REQUIRE(box.timers.timers[0].start == box.timers.clock + 3600);
+	REQUIRE(box.timers.timers[0].title == "the news");
 
 	REQUIRE(authedDelete("/api/v1/timers/" + id).code == 204);
 	REQUIRE(box.timers.timers.empty());
@@ -1247,7 +1252,7 @@ TEST_CASE("a timer round trip creates, changes and removes", "[write]")
 	REQUIRE(again.code == 404);
 	REQUIRE(again.body.find("no-such-timer") != std::string::npos);
 
-	REQUIRE(authedPatch("/api/v1/timers/" + id, "{\"title\":\"x\"}").code == 404);
+	REQUIRE(authedPatch("/api/v1/timers/" + id, later).code == 404);
 }
 
 TEST_CASE("the two flags a recording carries are taken on the way in and nowhere else", "[write]")
@@ -1300,6 +1305,135 @@ TEST_CASE("a timer in the past is refused with the reason", "[write]")
 	REQUIRE(r.code == 400);
 	REQUIRE(r.body.find("timer-in-the-past") != std::string::npos);
 	REQUIRE(box.timers.timers.empty());
+}
+
+TEST_CASE("a change names nothing the daemon would drop", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	REQUIRE(authedPost("/api/v1/timers", timerBody(box.timers.clock + 3600)).code == 201);
+	char zap[160];
+	std::snprintf(zap, sizeof(zap), "{\"kind\":\"zapto\",\"channel_id\":\"2b66\",\"start\":%lld}",
+	              (long long) (box.timers.clock + 3600));
+	REQUIRE(authedPost("/api/v1/timers", zap).code == 201);
+	REQUIRE(box.timers.timers.size() == 2);
+
+	const Reply titled = authedPatch("/api/v1/timers/1", "{\"title\":\"other\"}");
+	REQUIRE(titled.code == 400);
+	REQUIRE(titled.body.find("no-such-parameter") != std::string::npos);
+	REQUIRE(box.timers.timers[0].title == "the news");
+
+	const Reply standby = authedPatch("/api/v1/timers/1", "{\"standby_on\":true}");
+	REQUIRE(standby.code == 400);
+	REQUIRE(standby.body.find("no-such-parameter") != std::string::npos);
+	REQUIRE_FALSE(box.timers.timers[0].standby_on);
+
+	char later[64];
+	std::snprintf(later, sizeof(later), "{\"stop\":%lld}", (long long) (box.timers.clock + 9000));
+	const Reply ended = authedPatch("/api/v1/timers/2", later);
+	REQUIRE(ended.code == 400);
+	REQUIRE(ended.body.find("no-such-parameter") != std::string::npos);
+	REQUIRE(box.timers.timers[1].stop == 0);
+	REQUIRE(box.timers.modifications == 0);
+
+	// Nought is what a zap holds, so it is taken.
+	REQUIRE(authedPatch("/api/v1/timers/2", "{\"stop\":0}").code == 200);
+	REQUIRE(box.timers.modifications == 1);
+
+	REQUIRE(authedPatch("/api/v1/timers/1", later).code == 200);
+	REQUIRE(box.timers.timers[0].stop == box.timers.clock + 9000);
+}
+
+TEST_CASE("a timer that keeps no end is refused one when it is made", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const char *const kinds[] = { "shutdown", "zapto", "standby", "remind", "sleeptimer", "exec-plugin" };
+	const long long start = (long long) box.timers.clock + 3600;
+	for (size_t i = 0; i < sizeof(kinds) / sizeof(kinds[0]); ++i)
+	{
+		INFO(kinds[i]);
+		char body[200];
+		std::snprintf(body, sizeof(body),
+		              "{\"kind\":\"%s\",\"channel_id\":\"2b66\",\"start\":%lld,\"stop\":%lld}",
+		              kinds[i], start, start + 3600);
+		const Reply ended = authedPost("/api/v1/timers", body);
+		REQUIRE(ended.code == 400);
+		REQUIRE(ended.body.find("no-such-parameter") != std::string::npos);
+		REQUIRE(box.timers.timers.empty());
+
+		std::snprintf(body, sizeof(body),
+		              "{\"kind\":\"%s\",\"channel_id\":\"2b66\",\"start\":%lld,\"stop\":0}",
+		              kinds[i], start);
+		REQUIRE(authedPost("/api/v1/timers", body).code == 201);
+		REQUIRE(box.timers.timers.size() == 1);
+		box.timers.timers.clear();
+	}
+
+	char now_one[200];
+	std::snprintf(now_one, sizeof(now_one),
+	              "{\"kind\":\"immediate-record\",\"channel_id\":\"2b66\",\"start\":%lld,\"stop\":%lld}",
+	              (long long) box.timers.clock, (long long) box.timers.clock + 3600);
+	REQUIRE(authedPost("/api/v1/timers", now_one).code == 201);
+	REQUIRE(box.timers.timers.size() == 1);
+	REQUIRE(box.timers.timers[0].stop == box.timers.clock + 3600);
+	REQUIRE(authedPost("/api/v1/timers", timerBody(box.timers.clock + 7200)).code == 201);
+	REQUIRE(box.timers.timers.size() == 2);
+	REQUIRE(box.timers.timers[1].stop == box.timers.clock + 10800);
+}
+
+TEST_CASE("a one-off moved into the past is refused with the reason", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const time_t start = box.timers.clock + 3600;
+	REQUIRE(authedPost("/api/v1/timers", timerBody(start)).code == 201);
+
+	char body[64];
+	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (box.timers.clock - 3600));
+	const Reply moved = authedPatch("/api/v1/timers/1", body);
+	REQUIRE(moved.code == 400);
+	REQUIRE(moved.body.find("timer-in-the-past") != std::string::npos);
+	REQUIRE(box.timers.timers[0].start == start);
+
+	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (start + 60));
+	REQUIRE(authedPatch("/api/v1/timers/1", body).code == 200);
+	REQUIRE(box.timers.timers[0].start == start + 60);
+}
+
+// The page sends no start for a running recording.
+TEST_CASE("a running recording is lengthened by a change that names only its stop", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const time_t began = box.timers.clock + 60;
+	REQUIRE(authedPost("/api/v1/timers", timerBody(began)).code == 201);
+	REQUIRE(box.timers.timers.size() == 1);
+	box.timers.timers[0].state = (int) CTimerd::TIMERSTATE_ISRUNNING;
+	box.timers.clock = began + 600;
+
+	char body[64];
+	std::snprintf(body, sizeof(body), "{\"stop\":%lld}", (long long) (began + 7200));
+	const Reply changed = authedPatch("/api/v1/timers/1", body);
+	REQUIRE(changed.code == 200);
+	REQUIRE(box.timers.timers[0].start == began);
+	REQUIRE(box.timers.timers[0].stop == began + 7200);
+
+	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (began + 60));
+	const Reply moved = authedPatch("/api/v1/timers/1", body);
+	REQUIRE(moved.code == 409);
+	REQUIRE(moved.body.find("recording-running") != std::string::npos);
+	REQUIRE(box.timers.timers[0].start == began);
+
+	std::snprintf(body, sizeof(body), "{\"stop\":%lld}", (long long) box.timers.clock);
+	const Reply ended = authedPatch("/api/v1/timers/1", body);
+	REQUIRE(ended.code == 400);
+	REQUIRE(ended.body.find("timer-in-the-past") != std::string::npos);
+	REQUIRE(box.timers.timers[0].stop == began + 7200);
 }
 
 TEST_CASE("a timer of a kind the box does not make is refused by name", "[write]")
@@ -1486,8 +1620,10 @@ TEST_CASE("an id wider than the daemon's own is refused and removes nothing", "[
 	REQUIRE(box.timers.timers.size() == 1);
 	REQUIRE(box.timers.timers[0].id == 1);
 
-	REQUIRE(authedPatch("/api/v1/timers/4294967297", "{\"title\":\"other\"}").code == 400);
-	REQUIRE(box.timers.timers[0].title == "the news");
+	const Reply wide = authedPatch("/api/v1/timers/4294967297", "{\"announce\":1735689000}");
+	REQUIRE(wide.code == 400);
+	REQUIRE(wide.body.find("out-of-range") != std::string::npos);
+	REQUIRE(box.timers.timers[0].announce == 0);
 
 	// The daemon numbers from one, so nought names no timer and the row says so
 	// rather than leaving it to be answered further down.

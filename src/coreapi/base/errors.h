@@ -233,6 +233,8 @@ enum class ErrorCode
 	   second one, and two shifts of one channel hold two tuners to write the
 	   same stream twice. */
 	TimeshiftRunning,
+	// A running recording keeps its start; the daemon ignores a new one.
+	RecordingRunning,
 
 	// A table this layer wrote is wrong, which is a fault here and not at the caller.
 	BadScript,
@@ -485,6 +487,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::SideFileInTheWay: return "side-file-in-the-way";
 		case ErrorCode::NotEmpty: return "not-empty";
 		case ErrorCode::TimeshiftRunning: return "timeshift-running";
+		case ErrorCode::RecordingRunning: return "recording-running";
 		case ErrorCode::BadScript: return "bad-script";
 		case ErrorCode::BadTable: return "bad-table";
 		case ErrorCode::NoTimeout: return "no-timeout";

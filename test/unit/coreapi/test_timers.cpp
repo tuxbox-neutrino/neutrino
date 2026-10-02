@@ -59,6 +59,19 @@ TimerInfo goodRecording()
 	return t;
 }
 
+// A recording the daemon has fired: begun before the fake's clock, ending after it.
+TimerInfo runningRecording(FakeTimerSource &fake)
+{
+	fake.clock = 100000;
+	TimerInfo t = goodRecording();
+	t.id = fake.next_id++;
+	t.start = 99000;
+	t.stop = 100600;
+	t.state = (int) CTimerd::TIMERSTATE_ISRUNNING;
+	fake.timers.push_back(t);
+	return t;
+}
+
 // Keeps what the bus delivered, so a case can ask what a change announced.
 struct Recorder : public Subscriber
 {
@@ -696,10 +709,8 @@ TEST_CASE("a change that leaves a recording no duration is rejected", "[timers]"
 	REQUIRE(fake.modifications == 0);
 }
 
-// A change moves a timer that already exists, and one whose moment has gone by
-// is exactly the timer someone reaches for, so the rule that guards a new
-// timer must not be asked here.
-TEST_CASE("a change may move a timer that already began", "[timers]")
+// The daemon would fire it at once, as in create.
+TEST_CASE("a one-off that has not begun cannot be moved to before now", "[timers]")
 {
 	FakeTimerSource fake;
 	fake.clock = 100000;
@@ -714,12 +725,185 @@ TEST_CASE("a change may move a timer that already began", "[timers]")
 	t.id = created.value();
 	t.start = 99000;
 	t.stop = 99600;
-	REQUIRE(timers::modify(t).ok());
+	Result<void> r = timers::modify(t);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::InvalidArgument);
+	REQUIRE(r.error().code == ErrorCode::TimerInThePast);
+	REQUIRE(fake.modifications == 0);
+	REQUIRE(fake.timers[0].start == 200000);
+}
 
-	Result<TimerList> all = timers::list();
-	REQUIRE(all.ok());
-	REQUIRE(all.value().size() == 1);
-	REQUIRE(all.value()[0].start == 99000);
+TEST_CASE("a one-off that has not begun may be moved inside the current minute", "[timers]")
+{
+	FakeTimerSource fake;
+	fake.clock = 100000;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = goodRecording();
+	t.start = 200000;
+	t.stop = 201000;
+	Result<uint32_t> created = timers::create(t);
+	REQUIRE(created.ok());
+
+	t.id = created.value();
+	t.start = 99960;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 99960);
+
+	t.start = 99959;
+	REQUIRE_FALSE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 99960);
+}
+
+TEST_CASE("a repeating timer may be moved before now", "[timers]")
+{
+	FakeTimerSource fake;
+	fake.clock = 100000;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = goodRecording();
+	t.start = 200000;
+	t.stop = 201000;
+	t.repeat = (int) CTimerd::TIMERREPEAT_WEEKLY;
+	Result<uint32_t> created = timers::create(t);
+	REQUIRE(created.ok());
+
+	t.id = created.value();
+	t.start = 99000;
+	t.stop = 99600;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 99000);
+}
+
+TEST_CASE("a running recording that runs once is lengthened by its stop", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	t.stop = 103600;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.modifications == 1);
+	REQUIRE(fake.timers[0].stop == 103600);
+	REQUIRE(fake.timers[0].start == 99000);
+}
+
+TEST_CASE("a running recording that runs once may end a second after now", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	t.stop = fake.clock + 1;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].stop == fake.clock + 1);
+}
+
+TEST_CASE("a running recording that runs once keeps the start it began at", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	t.start = 99060;
+	t.stop = 103600;
+	Result<void> r = timers::modify(t);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Conflict);
+	REQUIRE(r.error().code == ErrorCode::RecordingRunning);
+	REQUIRE(fake.modifications == 0);
+	REQUIRE(fake.timers[0].stop == 100600);
+}
+
+TEST_CASE("a running recording that runs once cannot end before now", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	t.stop = fake.clock;
+	Result<void> r = timers::modify(t);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::InvalidArgument);
+	REQUIRE(r.error().code == ErrorCode::TimerInThePast);
+	REQUIRE(fake.modifications == 0);
+	REQUIRE(fake.timers[0].stop == 100600);
+}
+
+TEST_CASE("a clock that cannot be read fails the change of a running recording", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	fake.now_status = Status::Internal;
+	t.stop = 103600;
+	Result<void> r = timers::modify(t);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().code == ErrorCode::ClockUnavailable);
+	REQUIRE(fake.modifications == 0);
+}
+
+// The daemon counts the next occurrence from the start it holds.
+TEST_CASE("a running recording that repeats may still be moved", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	t.repeat = (int) CTimerd::TIMERREPEAT_DAILY;
+	fake.timers[0].repeat = t.repeat;
+	t.start = 99060;
+	t.stop = 99600;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 99060);
+	REQUIRE(fake.timers[0].stop == 99600);
+}
+
+TEST_CASE("a running recording turned into a one-off keeps the start it began at", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	fake.timers[0].repeat = (int) CTimerd::TIMERREPEAT_DAILY;
+	t.start = 99060;
+	Result<void> r = timers::modify(t);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().code == ErrorCode::RecordingRunning);
+	REQUIRE(fake.modifications == 0);
+}
+
+TEST_CASE("a running timer that records nothing is held to its start alone", "[timers]")
+{
+	FakeTimerSource fake;
+	fake.clock = 100000;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t;
+	t.type = (int) TimerType::Zapto;
+	t.channel_id = 0x2b66;
+	t.id = fake.next_id++;
+	t.start = 99960;
+	t.state = (int) CTimerd::TIMERSTATE_ISRUNNING;
+	fake.timers.push_back(t);
+
+	t.title = "Tagesschau";
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.modifications == 1);
+}
+
+TEST_CASE("a recording that has not begun may still move its start", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	fake.timers[0].state = (int) CTimerd::TIMERSTATE_SCHEDULED;
+	t.start = 100200;
+	t.stop = 100800;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 100200);
 }
 
 TEST_CASE("the timer list is handed over rather than copied", "[timers]")

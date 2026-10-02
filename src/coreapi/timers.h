@@ -61,6 +61,9 @@ Result<uint32_t> create(const TimerInfo &t);
 // carries the change. NotFound for an id the daemon does not hold, asked before
 // the change rather than reported by it. The repeat is held to the same set as
 // in create().
+//
+// A one-off is held to now as in create, except a running recording: Conflict
+// for a new start, and its stop has to be after now.
 Result<void> modify(const TimerInfo &t);
 
 // NotFound for an id the daemon does not hold, asked before the removal because

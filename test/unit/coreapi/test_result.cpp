@@ -137,6 +137,7 @@ const Walked kWalked[] = {
 	CODE(SideFileInTheWay),
 	CODE(NotEmpty),
 	CODE(TimeshiftRunning),
+	CODE(RecordingRunning),
 	CODE(BadScript),
 	CODE(BadTable),
 	CODE(NoTimeout),

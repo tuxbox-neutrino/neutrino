@@ -241,6 +241,20 @@ bool oneTimer(uint32_t id, coreapi::TimerInfo &out, bool &found, Response &refus
 	return true;
 }
 
+// Only a recording keeps an end; the daemon would drop any other's silently.
+bool endWithoutRecording(int type, time_t stop)
+{
+	return stop > 0 &&
+	       type != (int) coreapi::TimerType::Record &&
+	       type != (int) coreapi::TimerType::ImmediateRecord;
+}
+
+Response noEnd()
+{
+	return problemResponse(StatusBadRequest, coreapi::ErrorCode::NoSuchParameter,
+	                       "only a recording has an end");
+}
+
 Response notThere()
 {
 	return problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchTimer,
@@ -274,11 +288,14 @@ Response createTimer(const Request &r)
 	t.recording_safety = r.asBool("recording_safety");
 	t.auto_adjust = r.asBool("auto_adjust");
 
-	/* Every rule about what a timer may be is the layer below's: a kind it does
-	   not build, a recording with no channel, a recording that ends no later
-	   than it begins, a repeat the box does not make, and a one-off already
-	   behind us. A second copy of any of them here would be a rule that can
-	   disagree with the one that decides. */
+	if (endWithoutRecording(t.type, t.stop))
+		return noEnd();
+
+	/* Every other rule about what a timer may be is the layer below's: a kind
+	   it does not build, a recording with no channel, a recording that ends no
+	   later than it begins, a repeat the box does not make, and a one-off
+	   already behind us. A second copy of any of them here would be a rule that
+	   can disagree with the one that decides. */
 	coreapi::Result<uint32_t> made = coreapi::timers::create(t);
 	if (!made.ok())
 		return problemFor(made.error());
@@ -319,27 +336,24 @@ Response changeTimer(const Request &r)
 	if (!found)
 		return notThere();
 
+	if (r.has("stop") && endWithoutRecording(t.type, r.asTime("stop")))
+		return noEnd();
+
 	if (r.has("start"))
 		t.start = r.asTime("start");
 	if (r.has("stop"))
 		t.stop = r.asTime("stop");
-	if (r.has("title"))
-		t.title = r.asString("title");
 	if (r.has("repeat"))
 		t.repeat = (int) r.asInt("repeat");
 	if (r.has("repeat_count"))
 		t.repeat_count = (uint32_t) r.asUInt("repeat_count");
 	if (r.has("announce"))
 		t.announce = r.asTime("announce");
-	if (r.has("standby_on"))
-		t.standby_on = r.asBool("standby_on");
 
-	/* The kind and the channel are not offered and are not written over. The
-	   daemon's protocol carries no way to move either, so a route that took
-	   them would be one that answered ok and changed neither. The two flags the
-	   creation takes are left out for that same reason: the change command
-	   carries times, repeat and a directory and nothing else, and the daemon
-	   applies both flags when the timer is built. */
+	/* The kind, the channel, the title and the standby flag are not offered:
+	   the daemon's change command carries only times, repeat and a directory,
+	   so taking them would answer ok and change nothing. The two flags the
+	   creation takes are left out for the same reason. */
 	coreapi::Result<void> done = coreapi::timers::modify(t);
 	if (!done.ok())
 		return problemFor(done.error());
@@ -412,7 +426,7 @@ const Param kCreateParams[] = {
 	HTTPD_BODY("channel_id", ParamType::ChannelId,
 		"the channel, hexadecimal, for the kinds that act on one"),
 	HTTPD_BODY_REQUIRED("start", ParamType::Time, "when it fires, seconds since the epoch"),
-	HTTPD_BODY("stop", ParamType::Time, "when it stops, for a recording"),
+	HTTPD_BODY("stop", ParamType::Time, "when it stops, for a recording, and nought for any other kind"),
 	HTTPD_BODY_TEXT("title", "the programme, the words or the plugin, by kind", 512),
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
@@ -435,13 +449,11 @@ const Param kCreateParams[] = {
 const Param kChangeParams[] = {
 	HTTPD_SEGMENT_IN("id", ParamType::UInt, "the timer, as the daemon numbers them", 1, kMaxTimerId),
 	HTTPD_BODY("start", ParamType::Time, "when it fires, seconds since the epoch"),
-	HTTPD_BODY("stop", ParamType::Time, "when it stops"),
-	HTTPD_BODY_TEXT("title", "the programme, the words or the plugin, by kind", 512),
+	HTTPD_BODY("stop", ParamType::Time, "when it stops, for a recording, and nought for any other kind"),
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
 		kMaxRepeatCount),
 	HTTPD_BODY("announce", ParamType::Time, "when the box says it is coming"),
-	HTTPD_BODY("standby_on", ParamType::Bool, "whether the box goes to standby with it"),
 };
 
 const Endpoint kTimerEndpoints[] = {
