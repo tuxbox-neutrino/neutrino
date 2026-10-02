@@ -43,15 +43,18 @@ awk -F'\t' -v OFS='\t' '
 		mine[$1] = 1
 		if (($1 in base) && ($1 in theirs))
 			print $1, base[$1] + ($2 - base[$1]) + (theirs[$1] - base[$1])
-		else
+		else if (!($1 in base))
 			print
+		# Otherwise one side removed the figure, and keeping it would fail
+		# the run on a name nothing measures.
 	}
 
 	END {
-		# A line only the other side has is one ours never saw. Dropping it
-		# would take a whole figure out of the file without a word.
+		# A line only the other side has is one ours never saw, unless ours
+		# removed it. Dropping it would take a whole figure out of the file
+		# without a word.
 		for (k in have)
-			if (!(k in mine))
+			if (!(k in mine) && !(k in base))
 				print k, theirs[k]
 	}
 ' b=/tmp/mc.base t=/tmp/mc.theirs /tmp/mc.base /tmp/mc.theirs /tmp/mc.ours > /tmp/mc.out
