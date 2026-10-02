@@ -22,6 +22,7 @@
 
 
 #include "ping.h"
+#include <pthread.h>
 
 
 #ifndef  EXIT_SUCCESS
@@ -42,6 +43,21 @@ static int   ident = 0;
 static int   timo  = 2;
 static int   rrt;
 static int   sock = -1;
+
+/* One ping at a time: the socket, the timeout and the round trip time above
+   are shared by every caller, and the online update check pings on a thread
+   of its own while the GUI may ping at the same time. Each entry point holds
+   the lock until it has read what it answers. */
+static pthread_mutex_t ping_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+namespace
+{
+struct PingLock
+{
+	PingLock() { pthread_mutex_lock(&ping_mutex); }
+	~PingLock() { pthread_mutex_unlock(&ping_mutex); }
+};
+}
 
 static int 
 in_checksum( u_short *buf, int len )
@@ -250,6 +266,7 @@ myping(const std::string &hostname, int t, struct sockaddr_in *sa = NULL)
 int
 pinghost(const std::string &hostname, std::string *ip)
 {
+	PingLock lock;
 	struct sockaddr_in sa;
 	int res = myping( hostname, 0, &sa);
 	if (ip) {
@@ -262,12 +279,14 @@ pinghost(const std::string &hostname, std::string *ip)
 int
 pingthost(const std::string &hostname, int t)
 {
+  PingLock lock;
   return myping( hostname, t );
 }
 
 int
 tpinghost(const std::string &hostname)
 {
+  PingLock lock;
   int ret;
 
   if(( ret = myping( hostname, 0 )) > 0 )
@@ -279,6 +298,7 @@ tpinghost(const std::string &hostname)
 int
 tpingthost(const std::string &hostname, int t )
 {
+  PingLock lock;
   int ret;
 
   if(( ret = myping( hostname, t )) > 0 )

@@ -86,8 +86,14 @@ void *CFlashUpdateCheck::c4u_proc(void *)
 {
 	set_threadname("n:flashupdatecheck");
 
+	/* Deferred, the default: stopped only at a cancellation point - the
+	   sleep between two rounds, a wait on the network inside curl, or a
+	   file opened, read or written - and never inside a malloc or between
+	   taking a mutex and the guard that gives it back, which would leave
+	   that lock taken for good. The ping, whose host lookup waits holding
+	   a lock of the C library, runs with cancellation off. */
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, 0);
 
 	CFlashUpdate flashupdate;
 

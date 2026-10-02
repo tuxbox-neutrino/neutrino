@@ -68,6 +68,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <dirent.h>
@@ -197,7 +198,16 @@ bool CFlashUpdate::checkOnlineVersion() {
 			host = url.substr(startpos, endpos - startpos);
 		}
 		dprintf(DEBUG_NORMAL, "[update] host %s\n", host.c_str());
-		if (host.empty() || (pinghost(host) != 1))
+		/* Not cancellable while it runs: the host lookup inside takes a
+		   lock of the C library and waits on the network holding it, and
+		   a thread cancelled there would leave that lock taken for every
+		   later lookup in this process. The same goes for the lock that
+		   lets one ping run at a time. */
+		int cancel_state;
+		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cancel_state);
+		const int reachable = host.empty() ? 0 : pinghost(host);
+		pthread_setcancelstate(cancel_state, NULL);
+		if (reachable != 1)
 			return false;
 		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20))
 		{
