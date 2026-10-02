@@ -1205,6 +1205,28 @@ TEST_CASE("an epg window answers the events inside it", "[endpoints]")
 	REQUIRE(ids(r.body)[0] == hex(0x11));
 }
 
+TEST_CASE("a channel with nothing on now is refused and not answered empty", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	FakeEpgSource src;
+	coreapi::EventInfo e;
+	e.event_id = 0x11;
+	e.channel_id = kFirstTv;
+	e.title = "the news";
+	e.start = 100;
+	e.duration = 100;
+	src.events.push_back(e);
+	src.now = 5000;
+	InstalledGuideSources installed(&src);
+
+	const Reply r = get("/api/v1/epg/current?channel=" + hex(kFirstTv));
+	REQUIRE(r.code == 404);
+	REQUIRE(r.body.find("no-current-event") != std::string::npos);
+
+	src.now = 150;
+	REQUIRE(get("/api/v1/epg/current?channel=" + hex(kFirstTv)).code == 200);
+}
+
 TEST_CASE("a search shorter than the floor is refused", "[endpoints]")
 {
 	ShippedRoutes shipped;

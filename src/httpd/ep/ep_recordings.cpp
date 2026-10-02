@@ -69,7 +69,7 @@ const FieldDesc kRecordingFields[] = {
 	HTTPD_MEMBER("title", FieldType::String,
 		"what the guide called the programme when the recording began, empty for one begun with nothing to read"),
 	HTTPD_MEMBER("start", FieldType::Time,
-		"when the box began writing, seconds since the epoch, which is not when a timer was due"),
+		"when the box began writing, Unix time in seconds, which is not when a timer was due"),
 	HTTPD_MEMBER("path", FieldType::String, "the whole name of the file being written"),
 	/* The one member absent from some answers, and absent for the one reason
 	   the shape allows: nought is a real size for a recording that has just
@@ -188,26 +188,75 @@ Response stopTimeshift(const Request &)
 const long kMaxRecordingId = 2147483647L;
 
 const Param kOneParams[] = {
-	HTTPD_SEGMENT_IN("id", ParamType::UInt, "the recording, as the recording list names it", 1,
+	HTTPD_SEGMENT_IN("id", ParamType::UInt, "the recording, decimal, as GET /api/v1/recordings names it", 1,
 		kMaxRecordingId),
+};
+
+const RouteRefusal kStartTimeshiftRefusals[] = {
+	HTTPD_REFUSES(Conflict, TimeshiftRunning,
+		"the box is already keeping a shift"),
+};
+
+const RouteRefusal kStopRecordingRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchRecording,
+		"the box is recording nothing under that number"),
 };
 
 const Endpoint kRecordingEndpoints[] = {
 	{ Method::Get, "/api/v1/recordings", AuthLevel::Read,
 	  "every recording the box is taking at this moment",
-	  NULL, 0, &kRecordingListSchema, &listRecordings, false },
+	  "Returns every recording the box is writing right now, including the shift it "
+	  "keeps of what it is showing if one is running, as a flat list. There is no "
+	  "paging: a box takes as many recordings at once as its tuners and its own "
+	  "ceiling allow, which is always a handful, and a cursor over a list that is "
+	  "rebuilt whenever one starts or stops would name a place that had already "
+	  "moved. A box recording nothing answers an empty list.\n\n"
+	  "**Related:** `POST /api/v1/recordings/timeshift`, `DELETE /api/v1/recordings/{id}`.",
+	  NULL, 0, &kRecordingListSchema, &listRecordings, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	/* Written out and therefore answered ahead of the route below it, which
 	   binds anything in that position: which of two matching routes answers is
 	   settled by how many of its segments are written out. */
 	{ Method::Post, "/api/v1/recordings/timeshift", AuthLevel::Write,
 	  "asks the box to begin shifting the channel it is showing",
-	  NULL, 0, NULL, &startTimeshift, false },
+	  "Asks the box to start keeping a time shift of whatever channel it is "
+	  "currently showing. `202` means the command reached the loop that writes "
+	  "recordings, not that the shift has begun: watch `GET /api/v1/recordings` for "
+	  "a row with `timeshift` set to true to see it running.\n\n"
+	  "**Preconditions:** the box is not already keeping a shift.\n\n"
+	  "**Side effects:** a new recording of the current channel starts under the "
+	  "box's own tuner, listed like any other recording.\n\n"
+	  "**Refusals:**\n"
+	  "- `409 timeshift-running`: the box is already keeping a shift.\n\n"
+	  "**Related:** `GET /api/v1/recordings`, `DELETE /api/v1/recordings/timeshift`.",
+	  NULL, 0, NULL, &startTimeshift, false,
+	  Answers202, HTTPD_REFUSALS(kStartTimeshiftRefusals) },
 	{ Method::Delete, "/api/v1/recordings/timeshift", AuthLevel::Write,
 	  "asks the box to end the shift it is keeping",
-	  NULL, 0, NULL, &stopTimeshift, false },
+	  "Asks the box to stop the time shift it is keeping of the channel it is "
+	  "showing, which also stops the box from starting the next one on its own. "
+	  "`202` means the command reached the loop, not that the shift has already "
+	  "ended: watch `GET /api/v1/recordings` for the row to disappear.\n\n"
+	  "**Side effects:** the file the shift was writing stops growing and is no "
+	  "longer listed under `GET /api/v1/recordings`.\n\n"
+	  "**Related:** `POST /api/v1/recordings/timeshift`, `GET /api/v1/recordings`.",
+	  NULL, 0, NULL, &stopTimeshift, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Delete, "/api/v1/recordings/{id}", AuthLevel::Write,
 	  "asks the box to end one recording",
-	  HTTPD_PARAMS(kOneParams), NULL, &stopRecording, false },
+	  "Asks the box to stop the recording named by `id`, which is the same number "
+	  "`GET /api/v1/recordings` lists it under and is in fact the timer the "
+	  "recording carries. `202` means the command reached the timer daemon, not "
+	  "that the file has stopped growing: watch `GET /api/v1/recordings` for the "
+	  "row to disappear. Ending the shift of what is being shown this way works "
+	  "the same as ending any other recording.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-recording`: the box is recording nothing under that id; this "
+	  "also covers asking twice, since the id does not come back once the recording "
+	  "has ended.\n\n"
+	  "**Related:** `GET /api/v1/recordings`, `DELETE /api/v1/recordings/timeshift`.",
+	  HTTPD_PARAMS(kOneParams), NULL, &stopRecording, false,
+	  Answers202, HTTPD_REFUSALS(kStopRecordingRefusals) },
 };
 
 } // namespace

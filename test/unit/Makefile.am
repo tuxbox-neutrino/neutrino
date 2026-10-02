@@ -34,6 +34,7 @@ AM_CPPFLAGS = \
 	-DCOREAPI_COUNTS_FILE='"$(srcdir)/support/counts.txt"' \
 	-DCOREAPI_COUNTS_ACTUAL='"$(abs_builddir)/counts.actual"' \
 	-DHTTPD_OPENAPI_DUMP='"$(abs_builddir)/openapi.json"' \
+	-DCOREAPI_ANSWERS_ACTUAL='"$(abs_builddir)/answers.actual"' \
 	-DNI_WEB_OLD_CONF='"$(top_srcdir)/src/httpd/nhttpd.conf.in"' \
 	@HWLIB_CFLAGS@
 
@@ -103,6 +104,7 @@ coreapi_tests_SOURCES = \
 	httpd/test_webconfig.cpp \
 	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
+	support/answers.cpp \
 	support/helperstubs.cpp
 
 # The channel object is linked rather than reimplemented, so a change to its copy
@@ -204,7 +206,7 @@ TESTS = coreapi_tests
 # needs, one line each with what brings the case back.
 LOG_COMPILER = $(SHELL) $(srcdir)/support/run-tests.sh
 
-EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/counts.h support/counts.txt \
+EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/counts.h support/answers.h support/counts.txt \
 	scan/extract-enum.sh support/merge-counts.sh \
 	scan/check-hook.sh scan/check-fieldtypes.sh \
 	scan/check-hardware.sh scan/check-appliers.sh scan/check-denominator.sh \
@@ -257,7 +259,7 @@ BUILT_SOURCES = $(top_builddir)/src/tools/rcsim.h openapi.json settings-pairs.tx
 	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt
 CLEANFILES = openapi.json api.d.ts.tmp settings-pairs.txt settings-keys.txt settings-bounds.txt settings-locales.txt \
 	settings-choices.txt settings-labels.txt settings-applied.txt errorcodes.txt statuses.txt \
-	counts.actual
+	counts.actual answers.actual
 
 # The members each of the two enums declares, so that a walk of one in the suite
 # is answerable to the header it came from. The error codes are walked from a

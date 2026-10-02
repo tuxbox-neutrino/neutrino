@@ -82,6 +82,16 @@ const size_t kKindCount = sizeof(kKinds) / sizeof(kKinds[0]);
 const char kKindValues[] =
 	"shutdown,zapto,standby,record,remind,sleeptimer,exec-plugin,immediate-record";
 
+const char kKindDocs[] =
+	"shutdown: switches the box off at `start`\n"
+	"zapto: switches to `channel_id` at `start`, waking the box from deep standby for it; needs `channel_id`\n"
+	"standby: at `start` puts the box into standby when `standby_on` is `true`, and brings it out of standby when it is `false`\n"
+	"record: records `channel_id` from `start` to `stop`, waking the box from deep standby for it; needs `channel_id` and a `stop` after `start`\n"
+	"remind: shows `title` on the screen at `start`\n"
+	"sleeptimer: at `start` switches the box off or puts it into standby, whichever the box's own shutdown setting chooses\n"
+	"exec-plugin: starts the plugin named in `title` at `start`\n"
+	"immediate-record: a recording of `channel_id` that begins at once: send the current time as `start` and the end as `stop`; it is filed, and read back, as `record`";
+
 /* The number a timer read off the box carries, as the word for it, and the number
    itself for a kind this build has no word for. A timer file written by another image
    can name a kind nothing here knows, and the read of it deliberately keeps such a
@@ -112,27 +122,38 @@ bool kindFromName(const std::string &name, int &out)
 }
 
 const FieldDesc kTimerFields[] = {
-	HTTPD_MEMBER("id", FieldType::UInt, "what the daemon names this timer by, which is never nought"),
+	HTTPD_MEMBER("id", FieldType::UInt,
+		"the number the timer daemon gave this timer, 1 or more; the `{id}` of `PATCH` and `DELETE /api/v1/timers/{id}`"),
 	HTTPD_MEMBER("kind", FieldType::String,
-		"what the timer does, and the number itself for a kind written by an image this one has no word for"),
+		"what the timer does, one of the kinds `POST /api/v1/timers` takes (`shutdown`, `zapto`, `standby`, `record`, "
+		"`remind`, `sleeptimer`, `exec-plugin`, `immediate-record`); a timer made with `immediate-record` reads back as "
+		"`record`, and a kind this build has no name for is answered as its decimal type number, e.g. `10`"),
 	HTTPD_MEMBER("channel_id", FieldType::ChannelId,
-		"the channel it acts on, hexadecimal, and nought for a kind that acts on none"),
-	HTTPD_MEMBER("start", FieldType::Time, "when it fires, seconds since the epoch"),
+		"the channel it switches to or records, hexadecimal as the channel routes name it, and `0` for a kind that acts on no channel"),
+	HTTPD_MEMBER("start", FieldType::Time, "when the timer fires next, Unix time in seconds"),
 	HTTPD_MEMBER("stop", FieldType::Time,
-		"when it stops, and nought for a timer that has nothing to stop"),
+		"when a recording ends, Unix time in seconds, and `0` for a timer that has nothing to stop"),
 	HTTPD_MEMBER("title", FieldType::String,
 		"the programme of a recording or a zap, the words of a reminder, or the plugin of an exec timer"),
-	HTTPD_MEMBER("repeat", FieldType::Int, "how it repeats, in the daemon's own numbering"),
+	HTTPD_MEMBER("repeat", FieldType::Int,
+		"how it repeats, coded as the `repeat` member of `POST /api/v1/timers` (0 once, 1 daily, 2 weekly, "
+		"3 every 2 weeks, 4 every 4 weeks, 5 monthly, 256 plus weekday bits); a timer made outside this API may "
+		"carry a value that API refuses, such as 6 (by event description)"),
 	HTTPD_MEMBER("repeat_count", FieldType::UInt,
-		"how many times it still runs, nought for without end"),
+		"how many more times a repeating timer runs, and `0` for without end"),
 	HTTPD_MEMBER("state", FieldType::Int,
-		"what the daemon is doing with it, in the daemon's own numbering"),
+		"where the timer is in its life: 0 scheduled, 1 announced (the `announce` moment has passed), "
+		"2 running; 3 finished and 4 terminated last only until the daemon reschedules or drops the timer"),
 	HTTPD_MEMBER("announce", FieldType::Time,
-		"when the box says it is coming, which the daemon keeps separately"),
+		"when the box announces the timer and wakes for it, Unix time in seconds; unless it was set, "
+		"60 seconds before `start`, and 180 seconds before it for a recording"),
 	HTTPD_MEMBER("epg_id", FieldType::ChannelId,
-		"the guide entry it was made from, hexadecimal, nought for none"),
-	HTTPD_MEMBER("epg_start", FieldType::Time, "when that entry begins"),
-	HTTPD_MEMBER("standby_on", FieldType::Bool, "whether the box goes to standby with it"),
+		"the guide event the timer was made from, hexadecimal as `GET /api/v1/epg` names events, and `0` for none"),
+	HTTPD_MEMBER("epg_start", FieldType::Time,
+		"when that guide event begins, Unix time in seconds, and `0` for none"),
+	HTTPD_MEMBER("standby_on", FieldType::Bool,
+		"for a `standby` timer, `true` when it puts the box into standby and `false` when it brings the box out; "
+		"`false` for every other kind"),
 	HTTPD_MEMBER("recording_dir", FieldType::String,
 		"where a recording is written, empty for wherever the box records"),
 };
@@ -143,14 +164,16 @@ const FieldDesc kTimerFields[] = {
 const Schema kTimerSchema = { "timer", HTTPD_FIELDS(kTimerFields) };
 
 const FieldDesc kTimerListFields[] = {
-	HTTPD_LIST_OF("items", &kTimerSchema, "every timer the daemon holds, in the order it keeps them"),
+	HTTPD_LIST_OF("items", &kTimerSchema,
+		"every timer the daemon holds, in the order it keeps them, which is not necessarily the order of `start`"),
 };
 
 const Schema kTimerListSchema = { "timer-list", HTTPD_FIELDS(kTimerListFields) };
 
 const FieldDesc kCreatedFields[] = {
 	HTTPD_MEMBER("id", FieldType::String,
-		"the timer the daemon made, as the text the route that addresses it takes"),
+		"the number the daemon gave the new timer, as decimal text, which is the `{id}` of "
+		"`PATCH` and `DELETE /api/v1/timers/{id}` and the end of the `Location` header"),
 };
 
 const Schema kCreatedSchema = { "timer-created", HTTPD_FIELDS(kCreatedFields) };
@@ -419,34 +442,66 @@ const long kMaxRepeat = 0xff00L;
 const long kMaxRepeatCount = 2147483647L;
 
 const char kRepeatDoc[] =
-	"how it repeats, in the daemon's own numbering: nought once, one daily, two weekly, "
-	"three every two weeks, four every four weeks, five monthly, or 256 plus at least one "
-	"day, Monday adding 512 and each later day twice the one before, up to 32768 for Sunday";
+	"how the timer repeats, as a number:\n\n"
+	"| value | repeats |\n"
+	"|---|---|\n"
+	"| 0 | never, it runs once (the default) |\n"
+	"| 1 | daily |\n"
+	"| 2 | weekly |\n"
+	"| 3 | every 2 weeks |\n"
+	"| 4 | every 4 weeks |\n"
+	"| 5 | monthly |\n"
+	"| 256 + day bits | on the chosen weekdays |\n\n"
+	"For weekdays, add 256 and the bit of every day: Monday 512, Tuesday 1024, Wednesday 2048, "
+	"Thursday 4096, Friday 8192, Saturday 16384, Sunday 32768. At least 1 day is needed, so "
+	"Monday to Friday is 256 + 512 + 1024 + 2048 + 4096 + 8192 = 16128 and every day is 65280. "
+	"Any other value is refused with `400 not-a-listed-value`.";
 
 const Param kOneParams[] = {
-	HTTPD_SEGMENT_IN("id", ParamType::UInt, "the timer, as the daemon numbers them", 1, kMaxTimerId),
+	HTTPD_SEGMENT_IN("id", ParamType::UInt,
+		"the timer, by the decimal `id` `GET /api/v1/timers` answers for it", 1, kMaxTimerId),
 };
 
 const Param kCreateParams[] = {
-	HTTPD_BODY_REQUIRED_FROM_SET("kind", "what the timer is to do", kKindValues),
+	HTTPD_BODY_REQUIRED_FROM_SET("kind",
+		"what the timer does when it fires; the kind decides which other members it reads", kKindValues, kKindDocs),
 	HTTPD_BODY("channel_id", ParamType::ChannelId,
-		"the channel, hexadecimal, for the kinds that act on one"),
-	HTTPD_BODY_REQUIRED("start", ParamType::Time, "when it fires, seconds since the epoch"),
-	HTTPD_BODY("stop", ParamType::Time, "when it stops, for a recording, and nought for any other kind"),
-	HTTPD_BODY_TEXT("title", "the programme, the words or the plugin, by kind", 512),
+		"the channel to switch to or record, hexadecimal as `GET /api/v1/channels` answers it; "
+		"required for `zapto`, `record` and `immediate-record`, ignored by the other kinds"),
+	HTTPD_BODY_REQUIRED("start", ParamType::Time,
+		"when the timer fires, Unix time in seconds; for a timer that runs once it may not lie before the "
+		"current minute, while a repeating timer may start in the past and then fires at once"),
+	HTTPD_BODY("stop", ParamType::Time,
+		"when a recording ends, Unix time in seconds, after `start`; any value but `0` is refused for the "
+		"kinds that do not record"),
+	HTTPD_BODY_TEXT("title",
+		"the programme title stored with a `record` timer, the text a `remind` timer shows, or the name of the "
+		"plugin an `exec-plugin` timer starts; ignored by the other kinds, and cut to what the daemon stores", 512),
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
-	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
+	HTTPD_BODY_IN("repeat_count", ParamType::UInt,
+		"how many times a repeating timer runs, and `0` (the default) for without end", 0,
 		kMaxRepeatCount),
 	HTTPD_BODY("announce", ParamType::Time,
-		"when the box says it is coming; left out, nought or less, or after the start, it is a minute before the start, three for a recording, and none for an immediate recording"),
-	HTTPD_BODY("epg_id", ParamType::ChannelId, "the guide entry it was made from, hexadecimal"),
-	HTTPD_BODY("epg_start", ParamType::Time, "when that entry begins"),
-	HTTPD_BODY("standby_on", ParamType::Bool, "whether the box goes to standby with it"),
-	HTTPD_BODY_TEXT("recording_dir", "where a recording is written", 1024),
+		"when the box announces the timer and wakes for it, Unix time in seconds; left out, `0` or less, or "
+		"later than `start`, it becomes 60 seconds before `start`, or 180 seconds before it for `record`; "
+		"an `immediate-record` timer has none"),
+	HTTPD_BODY("epg_id", ParamType::ChannelId,
+		"the guide event the timer is made from, hexadecimal as `GET /api/v1/epg` answers it, for `record` and "
+		"`zapto`; with `auto_adjust` the box follows that event"),
+	HTTPD_BODY("epg_start", ParamType::Time,
+		"when that guide event begins, Unix time in seconds, sent together with `epg_id`"),
+	HTTPD_BODY("standby_on", ParamType::Bool,
+		"for a `standby` timer only: `true` puts the box into standby at `start`, `false` (the default) "
+		"brings it out of standby"),
+	HTTPD_BODY_TEXT("recording_dir",
+		"the directory a `record` timer writes to, as a path on the box; empty or left out for the box's "
+		"own recording directory", 1024),
 	HTTPD_BODY("recording_safety", ParamType::Bool,
-		"whether the box widens a recording by the margins it is set to, starting it earlier and stopping it later"),
+		"whether the box widens a recording by the margins it is set to, starting it earlier and stopping it "
+		"later; `false` when left out, so the timer keeps exactly the `start` and `stop` sent"),
 	HTTPD_BODY("auto_adjust", ParamType::Bool,
-		"whether the box moves a recording onto the guide's own times for the programme it covers, which it does only where the box is set up for it"),
+		"whether the box moves a recording onto the guide's own times for the programme `epg_id` names, which it "
+		"does only where the box is set up for it; `false` when left out"),
 };
 
 /* The id is in the path and everything else is in the body, and every one of
@@ -454,29 +509,141 @@ const Param kCreateParams[] = {
    change, and a required member here would make every correction a
    replacement. */
 const Param kChangeParams[] = {
-	HTTPD_SEGMENT_IN("id", ParamType::UInt, "the timer, as the daemon numbers them", 1, kMaxTimerId),
-	HTTPD_BODY("start", ParamType::Time, "when it fires, seconds since the epoch"),
-	HTTPD_BODY("stop", ParamType::Time, "when it stops, for a recording, and nought for any other kind"),
+	HTTPD_SEGMENT_IN("id", ParamType::UInt,
+		"the timer, by the decimal `id` `GET /api/v1/timers` answers for it", 1, kMaxTimerId),
+	HTTPD_BODY("start", ParamType::Time,
+		"the new moment the timer fires, Unix time in seconds; a timer that runs once may not be moved before "
+		"the current minute, and a recording that runs once keeps its start once it has begun"),
+	HTTPD_BODY("stop", ParamType::Time,
+		"the new end of a recording, Unix time in seconds, after `start` (and, for a recording that runs once "
+		"and has begun, after now); any value but `0` is refused for a timer that does not record"),
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
-	HTTPD_BODY_IN("repeat_count", ParamType::UInt, "how many times it runs, nought for without end", 0,
+	HTTPD_BODY_IN("repeat_count", ParamType::UInt,
+		"how many times a repeating timer runs, and `0` for without end", 0,
 		kMaxRepeatCount),
 	HTTPD_BODY("announce", ParamType::Time,
-		"when the box says it is coming; left out, it moves with the start, and nought or less, or after the start, is a minute before the start, three for a recording; a running recording keeps the one it has"),
+		"when the box announces the timer, Unix time in seconds; left out, it keeps its distance to `start` "
+		"when `start` moves, and `0` or less, or later than `start`, makes it 60 seconds before `start`, or "
+		"180 seconds for a recording; a running recording keeps the one it has"),
+};
+
+const RouteRefusal kCreateTimerRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NotAListedValue,
+		"the box does not repeat timers that way"),
+	HTTPD_REFUSES(InvalidArgument, TimerWithoutChannel,
+		"this kind of timer needs a channel"),
+	HTTPD_REFUSES(InvalidArgument, RecordingWithoutDuration,
+		"a recording has to end after it begins"),
+	HTTPD_REFUSES(InvalidArgument, TimerInThePast,
+		"a timer that runs once cannot begin before now"),
+	HTTPD_REFUSES(Conflict, TimerExists,
+		"the box already has a timer like this one"),
+};
+
+const RouteRefusal kChangeTimerRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NotAListedValue,
+		"the box does not repeat timers that way"),
+	HTTPD_REFUSES(InvalidArgument, RecordingWithoutDuration,
+		"a recording has to end after it begins"),
+	HTTPD_REFUSES(InvalidArgument, TimerInThePast,
+		"a timer that runs once cannot begin before now"),
+	HTTPD_REFUSES(NotFound, NoSuchTimer,
+		"the daemon holds no timer of that id"),
+	HTTPD_REFUSES(Conflict, RecordingRunning,
+		"a recording that is running keeps the start it began at"),
+};
+
+const RouteRefusal kRemoveTimerRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchTimer,
+		"no timer with that id"),
+	HTTPD_REFUSES(Internal, TimerStillThere,
+		"the box still has the timer"),
 };
 
 const Endpoint kTimerEndpoints[] = {
 	{ Method::Get, "/api/v1/timers", AuthLevel::Read,
 	  "every timer the box holds",
-	  NULL, 0, &kTimerListSchema, &listTimers, false },
+	  "Lists every timer the timer daemon holds, with what each one does and when. Not paged: a box holds "
+	  "tens of timers, not thousands. A timer leaves the list once it has run for the last time; a repeating "
+	  "one is rescheduled and stays.\n\n"
+	  "Use the `id` of an entry to change it with `PATCH /api/v1/timers/{id}` or remove it with "
+	  "`DELETE /api/v1/timers/{id}`.\n\n"
+	  "**Refusals:**\n"
+	  "- `timer-list-unavailable` (a 5xx status): the timer daemon could not be read; try again later.\n\n"
+	  "**Related:** `POST /api/v1/timers`, the `timer-changed` event on `GET /api/v1/events`.",
+	  NULL, 0, &kTimerListSchema, &listTimers, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/timers", AuthLevel::Write,
 	  "makes a timer and answers where it can be reached",
-	  HTTPD_PARAMS(kCreateParams), &kCreatedSchema, &createTimer, false },
+	  "Makes a timer in the box's timer daemon, the same daemon the box's own timer list shows. `kind` decides "
+	  "what it does and which other members matter (see the list under `kind`); `start` is always required. "
+	  "The answer is `201` with the new timer's decimal `id` and a `Location` header `/api/v1/timers/{id}`.\n\n"
+	  "For a recording of a programme from the guide, send `kind` `record`, the `channel_id`, the event's "
+	  "`start` and `start + duration` as `stop`, and optionally `epg_id`, `epg_start` and `title` from "
+	  "`GET /api/v1/epg/event`. `recording_safety` and `auto_adjust` are off unless sent, so the timer keeps "
+	  "exactly the times given.\n\n"
+	  "**Preconditions:** none on the box state: a timer can be made in standby, and a `record` or `zapto` "
+	  "timer wakes the box from deep standby before it is due.\n\n"
+	  "**Side effects:** the daemon stores the timer in its file and every client sees a `timer-changed` "
+	  "event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 timer-without-channel`: `zapto`, `record` or `immediate-record` without `channel_id`.\n"
+	  "- `400 recording-without-duration`: a recording whose `stop` is not after `start`.\n"
+	  "- `400 no-such-parameter`: a `stop` other than `0` for a kind that does not record.\n"
+	  "- `400 not-a-listed-value`: a `repeat` value outside the table under `repeat`.\n"
+	  "- `400 timer-in-the-past`: a timer that runs once (`repeat` 0) with a `start` before the current "
+	  "minute. Send a later `start`.\n"
+	  "- `409 timer-exists`: the daemon already holds a timer like this one; find it with `GET /api/v1/timers`.\n"
+	  "- `timer-not-created`, `clock-unavailable`: the daemon declined or the box could not read its clock; "
+	  "try again.\n\n"
+	  "**Related:** `GET /api/v1/timers`, `PATCH /api/v1/timers/{id}`, `DELETE /api/v1/timers/{id}`, "
+	  "`GET /api/v1/epg/event`.",
+	  HTTPD_PARAMS(kCreateParams), &kCreatedSchema, &createTimer, false,
+	  Answers201, HTTPD_REFUSALS_AND_BODY(kCreateTimerRefusals,
+		"{\"kind\":\"record\",\"channel_id\":\"283d000103f2\",\"start\":2000000000,"
+		"\"stop\":2000003600,\"title\":\"Tagesschau\",\"recording_safety\":true}") },
 	{ Method::Patch, "/api/v1/timers/{id}", AuthLevel::Write,
 	  "changes what a timer the daemon holds may be changed about",
-	  HTTPD_PARAMS(kChangeParams), &kTimerSchema, &changeTimer, false },
+	  "Changes the times and the repetition of a timer the daemon holds and answers the timer as the daemon "
+	  "reads it afterwards. Send only the members to change: everything left out keeps its value. Only `start`, `stop`, `repeat`, `repeat_count` and `announce` can be "
+	  "changed; to change the kind, the channel, the title or the standby flag, remove the timer with "
+	  "`DELETE /api/v1/timers/{id}` and make a new one with `POST /api/v1/timers`.\n\n"
+	  "Moving `start` moves an announcement that was set by the same amount, unless `announce` is sent too.\n\n"
+	  "**Preconditions:** a recording that runs once and has already begun can only have its `stop` changed, "
+	  "and its new `stop` must lie after now.\n\n"
+	  "**Side effects:** the daemon stores the change and every client sees a `timer-changed` event on "
+	  "`GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-timer`: the daemon holds no timer with that id; read the ids again from "
+	  "`GET /api/v1/timers`.\n"
+	  "- `409 recording-running`: a `start` other than the current one for a recording that runs once and "
+	  "has begun.\n"
+	  "- `400 timer-in-the-past`: a timer that runs once moved before the current minute, or a running "
+	  "recording given a `stop` before now.\n"
+	  "- `400 recording-without-duration`: a recording whose `stop` would not lie after its `start`.\n"
+	  "- `400 no-such-parameter`: a `stop` other than `0` for a timer that does not record.\n"
+	  "- `400 not-a-listed-value`: a `repeat` outside the table under `repeat`, including a timer that "
+	  "already carries such a value and is changed without sending a new `repeat`.\n"
+	  "- `timer-not-changed`: the daemon did not take the change; read the timer again.\n\n"
+	  "**Related:** `GET /api/v1/timers`, `DELETE /api/v1/timers/{id}`.",
+	  HTTPD_PARAMS(kChangeParams), &kTimerSchema, &changeTimer, false,
+	  Answers200, HTTPD_REFUSALS(kChangeTimerRefusals) },
 	{ Method::Delete, "/api/v1/timers/{id}", AuthLevel::Write,
 	  "removes one timer",
-	  HTTPD_PARAMS(kOneParams), NULL, &removeTimer, false },
+	  "Removes one timer from the timer daemon and answers `204` once a fresh read of the daemon's list no "
+	  "longer holds it. Removing the timer of a recording that is running stops that recording, and a "
+	  "repeating timer is removed with all its future runs.\n\n"
+	  "**Side effects:** the daemon drops the timer from its file and every client sees a `timer-changed` "
+	  "event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-timer`: the daemon holds no timer with that id, which is also the answer to a second "
+	  "removal of the same timer.\n"
+	  "- `500 timer-still-there`: the daemon took the removal and still holds the timer; read "
+	  "`GET /api/v1/timers` and try again.\n"
+	  "- `timer-not-removed` (a 5xx status): the daemon did not take the removal; try again.\n\n"
+	  "**Related:** `GET /api/v1/timers`, `POST /api/v1/timers`.",
+	  HTTPD_PARAMS(kOneParams), NULL, &removeTimer, false,
+	  Answers204, HTTPD_REFUSALS(kRemoveTimerRefusals) },
 };
 
 } // namespace

@@ -88,15 +88,19 @@ const FieldDesc kSessionStateFields[] = {
 	HTTPD_MEMBER("authenticated", FieldType::Bool,
 		"whether the caller holds a session that has not run out, which the answer that opens one always says it does"),
 	HTTPD_MEMBER_OF_SET("level", "public,read,write,system",
-		"what the caller is granted, under the name the document describing these routes uses for it"),
+		"what the caller is granted, under the name the document describing these routes uses for it",
+		"public: the level a request falls back to when neither a session, a token nor a network listed under lan_read grants it more\n"
+		"read: may read data, granted to a caller on a network listed under lan_read, or by a token minted at this level\n"
+		"write: may also read and change settings and state, granted by a token minted at this level\n"
+		"system: may reach every route, including session management and this server's own configuration, granted by a live login session or by a token minted at this level"),
 	HTTPD_MEMBER("user", FieldType::String,
 		"who the session belongs to, as the box knows the name, and empty for a caller holding none"),
 	HTTPD_MEMBER("csrf", FieldType::String,
 		"the second token, to be sent back in the header this server names on every request that changes something, and empty for a caller holding no session"),
 	HTTPD_MEMBER("csrf_header", FieldType::String,
-		"the header the token above travels in, said whatever the caller holds, so a page does not carry the name written out in two places"),
+		"the header the token above travels in, said whatever the caller holds, so a page does not carry the name written out in 2 places"),
 	HTTPD_MEMBER("expires_in", FieldType::UInt,
-		"how many seconds the session has left, and nought for a caller holding none"),
+		"how many seconds the session has left before it runs out, 0 for a caller holding none"),
 };
 
 const Schema kSessionStateSchema = { "session-state", HTTPD_FIELDS(kSessionStateFields) };
@@ -143,9 +147,10 @@ const FieldDesc kScopedTokenFields[] = {
 	HTTPD_MEMBER("token", FieldType::String,
 		"the token, to be put in the query of a route that takes one under the name this server states"),
 	HTTPD_MEMBER_OF_SET("scope", "media",
-		"what part of the box it reaches, which is the whole of what it is worth"),
+		"what part of the box it reaches, which is the whole of what it is worth",
+		"media: reads files under the box's media directories through `GET /api/v1/storage/file`, the one route that takes a scoped token, and reaches nothing else"),
 	HTTPD_MEMBER("expires_in", FieldType::UInt,
-		"how many seconds it has left, after which it resolves to nothing"),
+		"how many seconds the token has left before it stops working and resolves to nothing"),
 };
 
 const Schema kScopedTokenSchema = { "scoped-token", HTTPD_FIELDS(kScopedTokenFields) };
@@ -377,13 +382,20 @@ Response mintRecordingsToken(const Request &)
 }
 
 const Param kLoginParams[] = {
-	HTTPD_BODY_REQUIRED_TEXT("user", "the account, as the box knows it", 256),
+	HTTPD_BODY_REQUIRED_TEXT("user", "the account name, which must match the single username this box is configured with", 256),
 	/* Bounded well under what the derivation would take on the slowest box here. The
 	   stored form carries its own iteration count and the derivation is over a key of
 	   fixed width whatever is offered, so the length of a guess buys an attacker nothing;
 	   the bound keeps the one route reachable without a credential from being made to
 	   carry four kilobytes per attempt. */
-	HTTPD_BODY_REQUIRED_TEXT("password", "the password for it", 512),
+	HTTPD_BODY_REQUIRED_TEXT("password", "the password for that account, checked against the stored hash and never echoed back", 512),
+};
+
+const RouteRefusal kLoginRefusals[] = {
+	HTTPD_REFUSES_AS(401, NotPermitted,
+		"the name and the password do not go together"),
+	HTTPD_REFUSES_AS(429, TooManyAttempts,
+		"too many attempts are being made here; come back in a moment"),
 };
 
 /* Four routes and the one exception each of them is.
@@ -405,16 +417,95 @@ const Param kLoginParams[] = {
 const Endpoint kAuthEndpoints[] = {
 	{ Method::Post, "/api/v1/login", AuthLevel::Public,
 	  "opens a session for a name and a password, and says what that session carries and is worth",
-	  HTTPD_PARAMS(kLoginParams), &kSessionStateSchema, &login, false },
+	  "Checks the name and password against the single account this box is configured with and, when "
+	  "they match, opens a session for it. The answer carries the session state: `authenticated`, "
+	  "`level`, `user`, the second token `csrf` to send back in the header `csrf_header` names on every "
+	  "request that changes something, and `expires_in` in seconds. The session itself travels in a "
+	  "`Set-Cookie` header (`HttpOnly`, `SameSite=Lax`, no expiry attribute, so the browser forgets it "
+	  "when it closes).\n"
+	  "\n"
+	  "**Preconditions:** a username and a password hash must be configured on the box; a box with "
+	  "neither configured never matches whatever is sent, so login always fails.\n"
+	  "\n"
+	  "**Side effects:** opens an entry in the in-memory session table and sets the session cookie. "
+	  "Nothing is written to disk. Wrong attempts from the same address are delayed: the first 2 cost "
+	  "nothing extra, every one after that doubles the wait up to a ceiling of 60 seconds, and the "
+	  "record is forgotten after 10 minutes without another attempt from that address. At most 4 "
+	  "logins are checked at once across every address; a 5th caller arriving at the same moment is "
+	  "asked to retry rather than queued.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `401 not-permitted`: the name and the password do not go together. An unknown name and the "
+	  "right name with the wrong password are answered the same way and cost the same time to check, "
+	  "so a caller cannot use the delay to learn which it was.\n"
+	  "- `429 too-many-attempts`: either this address is still inside its backoff delay, or 4 logins "
+	  "are already being checked at once; the `Retry-After` header carries how many seconds to wait "
+	  "before trying again.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/session`, `POST /api/v1/logout`.",
+	  HTTPD_PARAMS(kLoginParams), &kSessionStateSchema, &login, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kLoginRefusals, "{\"user\":\"root\",\"password\":\"ni\"}") },
 	{ Method::Get, "/api/v1/session", AuthLevel::Public,
 	  "says what the request asking carries: whether it holds a session, what it was granted, and the second token to send back with what it changes",
-	  NULL, 0, &kSessionStateSchema, &sessionState, false },
+	  "Reads the credentials the request itself carries (the session cookie, a bearer token, or a token "
+	  "in the query where a route allows one) and answers the same session-state document the login "
+	  "answer carries: whether the caller is authenticated, the access level granted to this request, "
+	  "the user name, the second token `csrf` with the header name `csrf_header` it travels in, and how "
+	  "many seconds the session has left in `expires_in`. A request holding no session, or one that has "
+	  "run out, is answered the same way: `authenticated` false, empty `user` and `csrf`, `expires_in` 0, "
+	  "and as `level` what the request is granted without a session: the level of a bearer token it "
+	  "carries, `read` from a network allowed to read without signing in, `public` otherwise.\n"
+	  "\n"
+	  "This route is open to every caller, including one presenting nothing, so that a page which has "
+	  "lost its session, for instance after a reload, can find that out without the gate refusing the "
+	  "request for carrying no second token. A `GET` is a safe method, so no second token is needed "
+	  "here even though the cookie is read.\n"
+	  "\n"
+	  "**Related:** `POST /api/v1/login`, `POST /api/v1/logout`.",
+	  NULL, 0, &kSessionStateSchema, &sessionState, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/logout", AuthLevel::Write,
 	  "closes the session this request arrived with",
-	  NULL, 0, NULL, &logout, false },
+	  "Closes the session named by the request's own cookie, and tells the browser to forget that "
+	  "cookie by sending it back with `Max-Age=0`. Whether a session actually existed is not reported "
+	  "to a request that may write: one carrying a bearer token and no session is answered the same "
+	  "`204` as one that really closed something.\n"
+	  "\n"
+	  "**Preconditions:** the request needs write access, which a live session or a bearer token gives; "
+	  "a cookie whose session has run out gives none, and such a request is refused with `403` like any "
+	  "other. A request that writes with its session cookie must also carry the second token in the "
+	  "header this server names (`X-CSRF-Token` by default); one authenticated by a bearer token does "
+	  "not.\n"
+	  "\n"
+	  "**Side effects:** removes the session's entry from the in-memory session table and clears the "
+	  "cookie in the browser. A scoped token minted while that session was open is not revoked by this "
+	  "and keeps working until it runs out on its own.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/session`, `POST /api/v1/login`.",
+	  NULL, 0, NULL, &logout, false,
+	  Answers204, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/token/media", AuthLevel::System,
 	  "draws a short lived token that reaches the media this box holds and nothing else, for a player that can carry a credential only in the address",
-	  NULL, 0, &kScopedTokenSchema, &mintRecordingsToken, false },
+	  "Mints a token scoped to the media this box holds, such as recordings, and answers it "
+	  "together with its scope and lifetime in seconds, for a player that can only carry a credential "
+	  "in the address and not in a header or a cookie. Append it as `?token=...` to "
+	  "`GET /api/v1/storage/file`; that is the only route that accepts a scoped token, and there it "
+	  "reaches only files under the media directories.\n"
+	  "\n"
+	  "The scope is fixed to `media` and cannot be chosen. On every other route the token is not a "
+	  "credential at all, in the query or as a bearer header, so a leaked address exposes the media "
+	  "files and nothing more.\n"
+	  "\n"
+	  "**Preconditions:** the caller must already hold a session granted the system level, since this "
+	  "route requires it.\n"
+	  "\n"
+	  "**Side effects:** records the token's hash and expiry in memory only; nothing is written to "
+	  "disk, so the token stops working the moment the box restarts. Its lifetime equals the "
+	  "configured session lifetime, in seconds.\n"
+	  "\n"
+	  "**Related:** `POST /api/v1/login`.",
+	  NULL, 0, &kScopedTokenSchema, &mintRecordingsToken, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 };
 
 } // namespace

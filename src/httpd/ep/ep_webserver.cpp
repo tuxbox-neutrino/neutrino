@@ -486,7 +486,8 @@ const Param kWriteParams[] = {
 	   The bounds are the same numbers the save refuses outside of, and they are here as
 	   well because a reader of the document is owed that before it sends one. Where
 	   they are the same rule said twice, the save is the one that decides. */
-	HTTPD_BODY_IN("port", ParamType::UInt, "the port to answer on, from 1 to 65535", 1, 65535),
+	HTTPD_BODY_IN("port", ParamType::UInt,
+		"the TCP port to answer on once the server restarts on this file, from 1 to 65535", 1, 65535),
 	HTTPD_BODY_TEXT("bind", "the address to listen on, a literal of either family, and \"0.0.0.0\" for every address of the first", 45),
 	HTTPD_BODY_TEXT("user", "the one name a password is presented under", 64),
 	/* The password as somebody types it, and never the form it is stored as.
@@ -502,13 +503,55 @@ const Param kWriteParams[] = {
 		"whether the pages are to show a picture beside a channel"),
 };
 
+const RouteRefusal kWebserverWriteRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, MissingParameter,
+		"the body names nothing to change"),
+	HTTPD_REFUSES(InvalidArgument, WebserverNotConfigured,
+		"bind_address: \"not an address\" is not an address this can write down and bind, and nothing is written"),
+};
+
 const Endpoint kWebserverEndpoints[] = {
 	{ Method::Get, "/api/v1/system/webserver", AuthLevel::System,
 	  "how this server is set up: where it answers, who may tell it anything, and who reads from it without presenting anything",
-	  NULL, 0, &kWebserverSchema, &webserverRead, false },
+	  "Reads how this HTTP server itself is set up: the port and address it answers on, the account a "
+	  "caller signs in under, whether a password is set at all, the networks that may read without "
+	  "presenting anything and the proxies whose forwarded address is believed, whether the copied "
+	  "surface under `/control/` is reachable, and whether a channel picture is served at all. This is "
+	  "a different file from `neutrino.conf`, which `/api/v1/settings` reads and writes.\n"
+	  "\n"
+	  "**Related:** `PUT /api/v1/system/webserver`.",
+	  NULL, 0, &kWebserverSchema, &webserverRead, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Put, "/api/v1/system/webserver", AuthLevel::System,
 	  "sets this server up, naming only what is to change, and answers what the change means for the caller before the server is put on it",
-	  HTTPD_PARAMS(kWriteParams), &kChangedSchema, &webserverWrite, false },
+	  "Changes how this HTTP server itself is set up, naming only the members to change; a member left "
+	  "out keeps its stored value, while an empty string sent for one is a value the caller meant to "
+	  "write. The file is written first, then this answer is sent, and only after it has gone out does "
+	  "the server, if anything that needs one changed, restart on the new file; a caller that moved the "
+	  "port or the bind address therefore still receives this answer on the connection it asked over.\n"
+	  "\n"
+	  "The answer carries `webserver`, the configuration as the file now reads, and `caller`, what the "
+	  "change means for whoever asked: `address` is where to reach the server afterward, built from "
+	  "the name this request reached the box under and the new port, and empty when the request named "
+	  "no host; `port_moved` says whether the port changed; `password_changed` says whether the next "
+	  "sign in needs a different password, a session already open not being ended by it; `restarting` "
+	  "says whether anything changed enough to restart the server at all, since a request asking for "
+	  "what is already in effect changes nothing and restarts nothing.\n"
+	  "\n"
+	  "**Side effects:** rewrites this server's own configuration file. When `port`, `bind`, `user`, "
+	  "`password` or `channel_logos` actually changed, the server is restarted on the new file once the "
+	  "answer has been sent, which drops every connection it is holding, this one included.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `400 missing-parameter`: the body names nothing to change.\n"
+	  "- `400 webserver-not-configured`: the value given for one of the 4 save owned members could "
+	  "not be written, for instance a `bind` that is not an address literal, or the configuration file "
+	  "itself could not be written; the detail names which.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
+	  HTTPD_PARAMS(kWriteParams), &kChangedSchema, &webserverWrite, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kWebserverWriteRefusals,
+		"{\"port\":8081,\"bind\":\"0.0.0.0\",\"channel_logos\":true}") },
 };
 
 } // namespace

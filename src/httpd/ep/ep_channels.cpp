@@ -94,6 +94,29 @@ bool isRadio(coreapi::ServiceKind k)
 const char kVideoCodecValues[] = "unknown,none,mpeg2,h264,hevc,cavs";
 const char kAudioCodecValues[] = "unknown,mp2,ac3,eac3,aac,aacplus,dts,dtshd,lpcm";
 
+const char kVideoCodecDocs[] =
+	"unknown: the box has not read the channel's streams yet, or found a coding it has no name for\n"
+	"none: the service carries no picture, as a radio service does\n"
+	"mpeg2: MPEG-2 video\n"
+	"h264: H.264 (AVC)\n"
+	"hevc: H.265 (HEVC)\n"
+	"cavs: Chinese AVS video";
+
+const char kAudioCodecDocs[] =
+	"unknown: a track the box found and could not classify\n"
+	"mp2: MPEG-1 audio layer II\n"
+	"ac3: Dolby Digital (AC-3)\n"
+	"eac3: Dolby Digital Plus (E-AC-3)\n"
+	"aac: AAC (Advanced Audio Coding)\n"
+	"aacplus: HE-AAC (AAC+)\n"
+	"dts: DTS (Digital Theater Systems)\n"
+	"dtshd: DTS-HD (high resolution DTS)\n"
+	"lpcm: uncompressed linear PCM";
+
+const char kListModeDocs[] =
+	"tv: the television list, which television and WebTV channels are in (the default)\n"
+	"radio: the radio list, which radio and web radio channels are in";
+
 const char *videoCodecName(coreapi::VideoCodec c)
 {
 	switch (c)
@@ -129,19 +152,20 @@ const char *audioCodecName(coreapi::AudioCodec c)
 
 const FieldDesc kVideoFields[] = {
 	HTTPD_MEMBER_OF_SET("codec", kVideoCodecValues,
-		"what the picture is coded in, none for a service that carries no picture and unknown for one whose streams this box has not read"),
+		"the coding of the picture stream, as the box read it from the channel", kVideoCodecDocs),
 	HTTPD_MEMBER("pid", FieldType::UInt,
-		"the stream the picture is in, and nought where the box holds none"),
+		"the packet id (PID, decimal) of the picture stream in the transport stream, and 0 where the box knows none"),
 };
 
 const Schema kVideoSchema = { "video-stream", HTTPD_FIELDS(kVideoFields) };
 
 const FieldDesc kAudioTrackFields[] = {
-	HTTPD_MEMBER("pid", FieldType::UInt, "the stream this track is in"),
+	HTTPD_MEMBER("pid", FieldType::UInt,
+		"the packet id (PID, decimal) of this sound track in the transport stream"),
 	HTTPD_MEMBER_OF_SET("codec", kAudioCodecValues,
-		"what this track is coded in, and unknown for one the box found and could not classify"),
+		"the coding of this sound track, as the box read it from the channel", kAudioCodecDocs),
 	HTTPD_MEMBER("description", FieldType::String,
-		"what the stream says the track is, which is usually a three letter language code and is not translated here"),
+		"what the stream says the track is, usually a 3 letter ISO 639 language code such as `deu`, not translated here"),
 	HTTPD_MEMBER("selected", FieldType::Bool,
 		"whether this is the track the box is playing, which no track is while the box has not read the channel's streams"),
 };
@@ -152,24 +176,34 @@ const Schema kAudioTrackSchema = { "audio-track", HTTPD_FIELDS(kAudioTrackFields
    shapes are answered here: the listing carries these, and the two routes that
    answer one channel carry these and what its streams are. */
 #define HTTPD_CHANNEL_MEMBERS \
-	HTTPD_MEMBER("id", FieldType::ChannelId, "what every route here names this channel by, hexadecimal"), \
+	HTTPD_MEMBER("id", FieldType::ChannelId, \
+		"the channel id every route here names this channel by, hexadecimal, up to 16 digits"), \
 	HTTPD_MEMBER("epg_id", FieldType::ChannelId, \
-		"the identifier the guide keeps this channel's schedule under, which is another channel's wherever two share one, and which the guide routes here look up for themselves, so nothing has to ask for a schedule under it"), \
+		"the id the guide keeps this channel's schedule under, hexadecimal; another channel's id wherever 2 channels share 1 schedule. The guide routes look it up themselves, so callers pass `id` to them, never this"), \
 	HTTPD_MEMBER("number", FieldType::Int, \
-		"the position the box lists the channel at, negative or nought where it has none"), \
-	HTTPD_MEMBER("name", FieldType::String, "what the box calls the channel"), \
+		"the number the box shows beside the channel in its list, and 0 or less where it shows none"), \
+	HTTPD_MEMBER("name", FieldType::String, "the channel's name as the box shows it, which is not unique"), \
 	HTTPD_MEMBER("url", FieldType::String, \
 		"where a channel played without a tuner is fetched from, empty for a channel that is tuned"), \
-	HTTPD_MEMBER("service_id", FieldType::UInt, "the service this channel is in its transport stream"), \
-	HTTPD_MEMBER("transport_stream_id", FieldType::UInt, "the transport stream that carries it"), \
-	HTTPD_MEMBER("original_network_id", FieldType::UInt, "the network that stream belongs to"), \
+	HTTPD_MEMBER("service_id", FieldType::UInt, \
+		"the DVB service id of the channel inside its transport stream, decimal"), \
+	HTTPD_MEMBER("transport_stream_id", FieldType::UInt, \
+		"the DVB transport stream id of the transponder that carries it, decimal"), \
+	HTTPD_MEMBER("original_network_id", FieldType::UInt, \
+		"the DVB original network id of that transport stream, decimal"), \
 	HTTPD_MEMBER("satellite_position", FieldType::Int, \
-		"where the box points for it, nought for a channel that needs no dish"), \
+		"the orbital position in tenths of a degree, east positive and west negative (192 is 19.2 degrees east); cable sources are numbered from 3840 (0xF00) and terrestrial ones from 3584 (0xE00), and 0 is a channel received without a tuner"), \
 	HTTPD_MEMBER("freq_id", FieldType::UInt, \
 		"the transponder key the box files it under, which is not a frequency"), \
 	HTTPD_MEMBER_OF_SET("kind", "unknown,tv,radio,webtv,webradio", \
-		"what sort of service it is, and unknown for one the box has not classified"), \
-	HTTPD_MEMBER("scrambled", FieldType::Bool, "whether the box expects to have to descramble it"), \
+		"what sort of service the channel is and how the box receives it", \
+		"unknown: a service the box has not classified\n" \
+		"tv: a television service received by a tuner\n" \
+		"radio: a radio service received by a tuner\n" \
+		"webtv: a television channel the box plays from the address in `url`\n" \
+		"webradio: a radio channel the box plays from the address in `url`"), \
+	HTTPD_MEMBER("scrambled", FieldType::Bool, \
+		"whether the channel is marked as scrambled, so the box needs a descrambler or softcam to show it"), \
 	HTTPD_MEMBER("locked", FieldType::Bool, \
 		"whether the box asks for the parental code before it plays")
 
@@ -185,7 +219,8 @@ const Schema kChannelSchema = { "channel", HTTPD_FIELDS(kChannelFields) };
    nobody has switched around on it would answer nothing known for every one. */
 const FieldDesc kChannelDetailFields[] = {
 	HTTPD_CHANNEL_MEMBERS,
-	HTTPD_OBJECT("video", &kVideoSchema, "what the picture is and where it is"),
+	HTTPD_OBJECT("video", &kVideoSchema,
+		"the picture stream: its coding and its packet id, both unknown while `streams_known` is false"),
 	HTTPD_LIST_OF("audio", &kAudioTrackSchema,
 		"the sound tracks, in the order the stream lists them, and empty while streams_known is false"),
 	/* The honest member. The box reads a channel's stream layout when it plays
@@ -209,48 +244,55 @@ const FieldDesc kChannelPageFields[] = {
 	   everywhere a parameter is read, so a client handing an empty cursor back
 	   would be answered with the first page again. */
 	HTTPD_MEMBER_OPTIONAL("next_cursor", FieldType::ChannelId,
-		"hand this back as cursor for the page after this one, and absent when this page is the last"),
+		"the id of the last channel on this page, hexadecimal; send it as `cursor` to get the next page. Absent on the last page"),
 };
 
 const Schema kChannelPageSchema = { "channel-page", HTTPD_FIELDS(kChannelPageFields) };
 
 const FieldDesc kBouquetFields[] = {
 	HTTPD_MEMBER("id", FieldType::UInt,
-		"what the channel list names this bouquet by, counted from one"),
-	HTTPD_MEMBER("name", FieldType::String, "what the box calls the bouquet"),
-	HTTPD_MEMBER("hidden", FieldType::Bool, "whether the box leaves it out of the lists it draws"),
+		"the bouquet's position in the box's bouquet list, counted from 1; the `bouquet` of `GET /api/v1/channels` and `GET /api/v1/epg/grid`. It changes when a bouquet before it is moved or removed"),
+	HTTPD_MEMBER("name", FieldType::String,
+		"the bouquet's name, unique on the box, which the `/api/v1/bouquets/{bouquet}` routes address it by"),
+	HTTPD_MEMBER("hidden", FieldType::Bool,
+		"whether the box leaves the bouquet out of the channel lists it shows on screen"),
 	HTTPD_MEMBER("locked", FieldType::Bool,
 		"whether the box asks for the parental code before it opens it"),
 	HTTPD_MEMBER("user_bouquet", FieldType::Bool,
 		"whether somebody made it here rather than the provider sending it"),
-	HTTPD_MEMBER("tv_count", FieldType::UInt, "how many television services it holds"),
-	HTTPD_MEMBER("radio_count", FieldType::UInt, "how many radio services it holds"),
+	HTTPD_MEMBER("tv_count", FieldType::UInt,
+		"how many television channels (tuned and WebTV) the bouquet holds"),
+	HTTPD_MEMBER("radio_count", FieldType::UInt,
+		"how many radio channels (tuned and web radio) the bouquet holds"),
 };
 
 const Schema kBouquetSchema = { "bouquet", HTTPD_FIELDS(kBouquetFields) };
 
 const FieldDesc kBouquetListFields[] = {
-	HTTPD_LIST_OF("items", &kBouquetSchema, "every bouquet the box holds, in its own order"),
+	HTTPD_LIST_OF("items", &kBouquetSchema,
+		"every bouquet the box holds, hidden ones included, in the box's own order"),
 };
 
 const Schema kBouquetListSchema = { "bouquet-list", HTTPD_FIELDS(kBouquetListFields) };
 
 const FieldDesc kLogoFields[] = {
-	HTTPD_MEMBER("id", FieldType::ChannelId, "what every route here names this channel by, hexadecimal"),
+	HTTPD_MEMBER("id", FieldType::ChannelId,
+		"the channel id every route here names this channel by, hexadecimal, up to 16 digits"),
 	HTTPD_MEMBER("short_id", FieldType::ChannelId,
-		"the lower forty eight bits of that, hexadecimal, which is what the box names a picture file after"),
-	HTTPD_MEMBER("name", FieldType::String, "what the box calls the channel"),
+		"the lower 48 bits of `id`, hexadecimal, which is what the box names a picture file after"),
+	HTTPD_MEMBER("name", FieldType::String,
+		"the channel's name as the box shows it, which the box also tries as a picture file name"),
 	HTTPD_MEMBER("path", FieldType::String,
 		"where the picture is, empty both for a channel that has none and for a listing that was asked not to look"),
 	HTTPD_MEMBER("resolved", FieldType::String,
-		"where that name leads when it is a link, empty when it is not one"),
+		"the file `path` leads to when it is a symbolic link, and empty when it is not a link"),
 };
 
 const Schema kLogoSchema = { "logo", HTTPD_FIELDS(kLogoFields) };
 
 const FieldDesc kLogoListFields[] = {
 	HTTPD_LIST_OF("items", &kLogoSchema,
-		"every channel of the half that was asked for, in the order the box holds them"),
+		"every channel of the list `mode` names, in the order the box holds them"),
 };
 
 const Schema kLogoListSchema = { "logo-list", HTTPD_FIELDS(kLogoListFields) };
@@ -259,7 +301,8 @@ const Schema kLogoListSchema = { "logo-list", HTTPD_FIELDS(kLogoListFields) };
    printed the two into one string. The number is what the stream said and the
    name is what this box calls it. */
 const FieldDesc kCaidFields[] = {
-	HTTPD_MEMBER("caid", FieldType::UInt, "the identifier the stream carries"),
+	HTTPD_MEMBER("caid", FieldType::UInt,
+		"the conditional access system id the stream announces, as a decimal number (commonly written in hexadecimal, e.g. 0x1702 is 5890)"),
 	HTTPD_MEMBER("system", FieldType::String,
 		"what this box calls the system that identifier belongs to, empty for one it has no name for"),
 };
@@ -1043,56 +1086,63 @@ Response fillBouquet(const Request &r)
 }
 
 const Param kListParams[] = {
-	HTTPD_QUERY_FROM_SET("mode", "which of the two lists to answer, television when it is left out",
-		"tv,radio"),
+	HTTPD_QUERY_FROM_SET("mode", "which channel list to page through; with `bouquet`, which of the bouquet's channels",
+		"tv,radio", kListModeDocs),
 	/* Bounded, and the bound is what makes the narrowing below it safe rather than
 	   the cast. The value is handed on as a thirty two bit number, the accessor
 	   answers an unsigned long, and those are the same width on the box and not on
 	   the machine this is built on, so a row leaving both ends at nought was
 	   checked by nothing wherever they differ: two to the thirty two plus three
 	   arrived as three and answered with that bouquet's channels. */
-	HTTPD_QUERY_IN("bouquet", ParamType::UInt, "answer this bouquet's members rather than the whole list, counted from one", 1,
+	HTTPD_QUERY_IN("bouquet", ParamType::UInt,
+		"answer only this bouquet's channels, by the `id` `GET /api/v1/bouquets` answers (counted from 1), instead of the whole list", 1,
 		kMaxBouquetId),
-	HTTPD_QUERY("cursor", ParamType::ChannelId, "the id of the last item of the page before this one"),
-	HTTPD_QUERY_IN("limit", ParamType::UInt, "how many at most, one hundred when it is left out", 1,
+	HTTPD_QUERY("cursor", ParamType::ChannelId,
+		"the `next_cursor` of the page before, hexadecimal; left out for the first page"),
+	HTTPD_QUERY_IN("limit", ParamType::UInt, "how many channels at most this page holds, 100 when left out", 1,
 		kMaxPage),
 };
 
 const Param kBouquetListParams[] = {
 	HTTPD_QUERY("holds", ParamType::ChannelId,
-		"answer only the bouquets that hold this channel, in the box's own order, hexadecimal; it costs a read of every bouquet's members"),
+		"answer only the bouquets that hold this channel id, hexadecimal; it costs a read of every bouquet's members"),
 };
 
 const Param kOneParams[] = {
-	HTTPD_SEGMENT("id", ParamType::ChannelId, "the channel, hexadecimal"),
+	HTTPD_SEGMENT("id", ParamType::ChannelId,
+		"the channel id, hexadecimal, up to 16 digits, as `GET /api/v1/channels` answers it"),
 };
 
 const Param kLogoParams[] = {
-	HTTPD_SEGMENT("id", ParamType::ChannelId, "the channel, hexadecimal"),
+	HTTPD_SEGMENT("id", ParamType::ChannelId,
+		"the channel id, hexadecimal, up to 16 digits, as `GET /api/v1/channels` answers it"),
 };
 
 const Param kLogoListParams[] = {
-	HTTPD_QUERY_FROM_SET("mode", "which of the two lists to answer, television when it is left out",
-		"tv,radio"),
+	HTTPD_QUERY_FROM_SET("mode", "which channel list to answer, television when left out",
+		"tv,radio", kListModeDocs),
 	HTTPD_QUERY("files", ParamType::Bool,
 		"whether to look for the file as well, which costs a walk of the picture directories for every channel"),
 };
 
 const Param kReloadParams[] = {
 	HTTPD_BODY("hard", ParamType::Bool,
-		"whether to leave the services the box is holding unwritten, so that what is on the disc wins over what is in memory"),
+		"`false` (the default) writes the channels the box holds in memory to disc first and then reads them back, so memory wins; `true` skips the write, so the files on disc win over memory"),
 };
 
 const Param kZapParams[] = {
-	HTTPD_BODY_REQUIRED("channel_id", ParamType::ChannelId, "the channel to play, hexadecimal"),
+	HTTPD_BODY_REQUIRED("channel_id", ParamType::ChannelId,
+		"the channel to play, hexadecimal, up to 16 digits, as `GET /api/v1/channels` answers it"),
 	HTTPD_BODY("wake", ParamType::Bool,
-		"whether to switch the box on when it is in standby; without it a box in standby refuses with box-in-standby"),
+		"`true` switches a box in standby on and then plays the channel; `false` (the default) leaves a box in standby alone and the request is refused with `409 box-in-standby`"),
 };
 
 const Param kModeParams[] = {
-	HTTPD_BODY_REQUIRED_FROM_SET("mode", "which of the two lists the box is to be in", "tv,radio"),
+	HTTPD_BODY_REQUIRED_FROM_SET("mode", "the mode the box is to switch to, and with it the list it plays from", "tv,radio",
+		"tv: television mode, playing from the television list\n"
+		"radio: radio mode, playing from the radio list"),
 	HTTPD_BODY("wake", ParamType::Bool,
-		"whether to switch the box on when it is in standby; without it a box in standby refuses with box-in-standby"),
+		"`true` switches a box in standby on and then changes the mode; `false` (the default) leaves a box in standby alone and the request is refused with `409 box-in-standby`"),
 };
 
 /* A bouquet's name, bounded because it is a name and not a document. The ceiling
@@ -1101,32 +1151,43 @@ const Param kModeParams[] = {
 const long kMaxBouquetName = 255;
 
 const Param kNewBouquetParams[] = {
-	HTTPD_BODY_REQUIRED_TEXT("name", "what to call it", kMaxBouquetName),
+	HTTPD_BODY_REQUIRED_TEXT("name",
+		"the name of the new bouquet, which no other bouquet may carry; it is what the bouquet routes address it by",
+		kMaxBouquetName),
 };
 
 const Param kBouquetParams[] = {
-	HTTPD_SEGMENT_TEXT("bouquet", "the bouquet, by its name", kMaxBouquetName),
+	HTTPD_SEGMENT_TEXT("bouquet",
+		"the bouquet's `name` as `GET /api/v1/bouquets` answers it, percent encoded in the path", kMaxBouquetName),
 };
 
 const Param kRenameParams[] = {
-	HTTPD_SEGMENT_TEXT("bouquet", "the bouquet, by the name it carries now", kMaxBouquetName),
-	HTTPD_BODY_REQUIRED_TEXT("name", "what to call it instead", kMaxBouquetName),
+	HTTPD_SEGMENT_TEXT("bouquet",
+		"the bouquet's current `name` as `GET /api/v1/bouquets` answers it, percent encoded in the path", kMaxBouquetName),
+	HTTPD_BODY_REQUIRED_TEXT("name",
+		"the new name, which no bouquet may carry yet, the renamed one included", kMaxBouquetName),
 };
 
 const Param kMoveParams[] = {
-	HTTPD_SEGMENT_TEXT("bouquet", "the bouquet, by its name", kMaxBouquetName),
-	HTTPD_BODY_REQUIRED_FROM_SET("direction", "which way, one place at a time", "up,down"),
+	HTTPD_SEGMENT_TEXT("bouquet",
+		"the bouquet's `name` as `GET /api/v1/bouquets` answers it, percent encoded in the path", kMaxBouquetName),
+	HTTPD_BODY_REQUIRED_FROM_SET("direction", "which way the bouquet moves, by exactly 1 place", "up,down",
+		"up: 1 place towards the start of the list, swapping with the bouquet before it\n"
+		"down: 1 place towards the end of the list, swapping with the bouquet after it"),
 };
 
 const Param kHiddenParams[] = {
-	HTTPD_SEGMENT_TEXT("bouquet", "the bouquet, by its name", kMaxBouquetName),
-	HTTPD_BODY_REQUIRED("on", ParamType::Bool, "whether the box leaves it out of the lists it draws"),
+	HTTPD_SEGMENT_TEXT("bouquet",
+		"the bouquet's `name` as `GET /api/v1/bouquets` answers it, percent encoded in the path", kMaxBouquetName),
+	HTTPD_BODY_REQUIRED("on", ParamType::Bool,
+		"`true` leaves the bouquet out of the channel lists the box shows on screen, `false` shows it again"),
 };
 
 const Param kLockedParams[] = {
-	HTTPD_SEGMENT_TEXT("bouquet", "the bouquet, by its name", kMaxBouquetName),
+	HTTPD_SEGMENT_TEXT("bouquet",
+		"the bouquet's `name` as `GET /api/v1/bouquets` answers it, percent encoded in the path", kMaxBouquetName),
 	HTTPD_BODY_REQUIRED("on", ParamType::Bool,
-		"whether the box asks for the parental code before it opens it"),
+		"`true` makes the box ask for the parental PIN before it opens the bouquet, `false` removes that lock"),
 };
 
 /* The body is the list, and the third row is the one that says so. Which half of
@@ -1149,11 +1210,130 @@ const Param kLockedParams[] = {
    the whole of a body counts. The floor is nought because an empty list means the
    half holds nothing. */
 const Param kFillParams[] = {
-	HTTPD_SEGMENT_TEXT("bouquet", "the bouquet, by its name", kMaxBouquetName),
-	HTTPD_QUERY_REQUIRED_FROM_SET("mode", "which half of the bouquet the body is", "tv,radio"),
+	HTTPD_SEGMENT_TEXT("bouquet",
+		"the bouquet's `name` as `GET /api/v1/bouquets` answers it, percent encoded in the path", kMaxBouquetName),
+	HTTPD_QUERY_REQUIRED_FROM_SET("mode", "which of the bouquet's 2 channel lists the body replaces", "tv,radio",
+		"tv: the television channels of the bouquet (tuned and WebTV)\n"
+		"radio: the radio channels of the bouquet (tuned and web radio)"),
 	HTTPD_BODY_IS_LIST_OF("channels", ParamType::ChannelId,
-		"the channels this half is to hold, hexadecimal, in the order they are to be in, and none of them to empty it",
+		"a JSON array of channel ids, hexadecimal strings as `GET /api/v1/channels` answers them, in the order the bouquet is to hold them; an id named twice is kept once, at its first place; `[]` empties that list of the bouquet",
 		0, (long) kMaxChannelsInBouquet),
+};
+
+const RouteRefusal kListChannelsRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NoSuchChannel,
+		"the cursor names a channel this list does not hold"),
+	HTTPD_REFUSES(NotFound, NoSuchBouquet,
+		"no bouquet with that id"),
+};
+
+const RouteRefusal kCurrentChannelRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoRunningChannel,
+		"nothing is playing"),
+};
+
+const RouteRefusal kCurrentCryptRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoRunningChannel,
+		"nothing is playing, the box is in standby"),
+};
+
+const RouteRefusal kGetChannelRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchChannel,
+		"no channel with that id"),
+};
+
+const RouteRefusal kGetLogoRefusals[] = {
+	HTTPD_REFUSES(NotFound, LogosNotOffered,
+		"this server is set not to hand channel pictures over"),
+	HTTPD_REFUSES(NotFound, NoSuchLogo,
+		"no picture for that channel"),
+};
+
+const RouteRefusal kZapRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchChannel,
+		"no channel with that id"),
+	HTTPD_REFUSES(Conflict, BoxInStandby,
+		"the box is in standby"),
+	HTTPD_REFUSES(Conflict, RecordingHoldsTuner,
+		"a recording holds the tuner this channel needs"),
+};
+
+const RouteRefusal kSetModeRefusals[] = {
+	HTTPD_REFUSES(Conflict, BoxInStandby,
+		"the box is in standby"),
+};
+
+const RouteRefusal kMakeBouquetRefusals[] = {
+	HTTPD_REFUSES(Conflict, NameTaken,
+		"a bouquet of that name is already there"),
+	HTTPD_REFUSES(Internal, BouquetNotChanged,
+		"the box did not change the bouquet"),
+	HTTPD_REFUSES(Internal, BouquetNotSaved,
+		"saving the bouquet files failed: the list the box runs carries the change, the files may not"),
+};
+
+const RouteRefusal kRemoveBouquetRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchBouquet,
+		"no bouquet of that name"),
+	HTTPD_REFUSES(Internal, BouquetNotChanged,
+		"the box did not change the bouquet"),
+	HTTPD_REFUSES(Internal, BouquetNotSaved,
+		"saving the bouquet files failed: the list the box runs carries the change, the files may not"),
+};
+
+const RouteRefusal kRenameBouquetRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchBouquet,
+		"no bouquet of that name"),
+	HTTPD_REFUSES(Conflict, NameTaken,
+		"a bouquet of that name is already there"),
+	HTTPD_REFUSES(Internal, BouquetNotChanged,
+		"the box did not change the bouquet"),
+	HTTPD_REFUSES(Internal, BouquetNotSaved,
+		"saving the bouquet files failed: the list the box runs carries the change, the files may not"),
+};
+
+const RouteRefusal kMoveBouquetRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, AlreadyAtTheEnd,
+		"the bouquet is already at that end of the list"),
+	HTTPD_REFUSES(NotFound, NoSuchBouquet,
+		"no bouquet of that name"),
+	HTTPD_REFUSES(Internal, BouquetNotChanged,
+		"the box did not change the bouquet"),
+	HTTPD_REFUSES(Internal, BouquetNotSaved,
+		"saving the bouquet files failed: the list the box runs carries the change, the files may not"),
+};
+
+const RouteRefusal kHideBouquetRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchBouquet,
+		"no bouquet of that name"),
+	HTTPD_REFUSES(Internal, BouquetNotChanged,
+		"the box did not change the bouquet"),
+	HTTPD_REFUSES(Internal, BouquetNotSaved,
+		"saving the bouquet files failed: the list the box runs carries the change, the files may not"),
+};
+
+const RouteRefusal kLockBouquetRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchBouquet,
+		"no bouquet of that name"),
+	HTTPD_REFUSES(Internal, BouquetNotChanged,
+		"the box did not change the bouquet"),
+	HTTPD_REFUSES(Internal, BouquetNotSaved,
+		"saving the bouquet files failed: the list the box runs carries the change, the files may not"),
+};
+
+const RouteRefusal kFillBouquetRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadInt,
+		"the body is not one array of hexadecimal channel identifiers"),
+	HTTPD_REFUSES(InvalidArgument, TooManyChannels,
+		"one half of a bouquet takes at most 4096 channels"),
+	HTTPD_REFUSES(NotFound, NoSuchChannel,
+		"no channel with that id"),
+	HTTPD_REFUSES(NotFound, NoSuchBouquet,
+		"no bouquet of that name"),
+	HTTPD_REFUSES(Internal, BouquetNotChanged,
+		"the box did not change the bouquet"),
+	HTTPD_REFUSES(Internal, BouquetNotSaved,
+		"saving the bouquet files failed: the list the box runs carries the change, the files may not"),
 };
 
 /* Every route that reads asks for the least a route may ask for and is reached by
@@ -1165,55 +1345,173 @@ const Param kFillParams[] = {
 const Endpoint kChannelEndpoints[] = {
 	{ Method::Get, "/api/v1/channels", AuthLevel::Read,
 	  "the channels the box holds, a page at a time",
-	  HTTPD_PARAMS(kListParams), &kChannelPageSchema, &listChannels, false },
+	  "Lists the channels of the television or the radio list, or of 1 bouquet, a page at a time, in the order the box holds them. Each entry carries the channel `id` that every other route takes.\n\n"
+	  "To read the whole list, send the first request without `cursor`, then repeat with `cursor` set to the `next_cursor` of the answer until an answer has no `next_cursor`. The cursor is a channel id, not an offset, so the pages keep their place while the list keeps its order; a reload that reorders the list between 2 pages can repeat or leave out channels, so start again without `cursor` once the list changed. A channel listed twice in a bouquet is answered once.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 no-such-channel`: `cursor` names a channel this list does not hold, for example after the list changed; start again without `cursor`.\n"
+	  "- `404 no-such-bouquet`: no bouquet has that `bouquet` number; read the numbers from `GET /api/v1/bouquets`.\n\n"
+	  "**Related:** `GET /api/v1/channels/{id}` for 1 channel with its streams, `GET /api/v1/bouquets`, `POST /api/v1/zap`.",
+	  HTTPD_PARAMS(kListParams), &kChannelPageSchema, &listChannels, false,
+	  Answers200, HTTPD_REFUSALS(kListChannelsRefusals) },
 	{ Method::Get, "/api/v1/channels/current", AuthLevel::Read,
 	  "the channel the box is playing, with what its streams are",
-	  NULL, 0, &kChannelDetailSchema, &currentChannel, false },
+	  "Answers the channel the box is playing live, with its picture and sound streams as the box has read them, and which sound track is selected.\n\n"
+	  "**Preconditions:** the box is not in standby and plays a channel.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-running-channel`: nothing is playing, for example because the box is in standby. Wake it with `POST /api/v1/system/standby` or play a channel with `POST /api/v1/zap` and `wake: true`.\n\n"
+	  "**Related:** the `zap` event on `GET /api/v1/events` says when this changes; `GET /api/v1/channels/current/crypt`, `GET /api/v1/epg/current`.",
+	  NULL, 0, &kChannelDetailSchema, &currentChannel, false,
+	  Answers200, HTTPD_REFUSALS(kCurrentChannelRefusals) },
 	{ Method::Get, "/api/v1/channels/logos", AuthLevel::Read,
 	  "every channel of one list with what is known about the picture it is shown with",
-	  HTTPD_PARAMS(kLogoListParams), &kLogoListSchema, &listLogos, false },
+	  "Lists every channel of the television or the radio list with the ids the box names its channel picture (logo) files after. Not paged.\n\n"
+	  "By default the box does not look for the files, and `path` and `resolved` are empty. With `files=true` it searches its logo directories for every channel, which is slow on a large list, and fills in where the picture is.\n\n"
+	  "This list is answered whether or not the server hands pictures out; to fetch one picture, use `GET /api/v1/channels/{id}/logo`.",
+	  HTTPD_PARAMS(kLogoListParams), &kLogoListSchema, &listLogos, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/channels/current/crypt", AuthLevel::Read,
 	  "which conditional access systems the running channel is scrambled under",
-	  NULL, 0, &kCryptListSchema, &currentCrypt, false },
+	  "Lists the conditional access systems (CA system ids, CAIDs) the channel playing live announces, with the box's name for each system. An empty list means the channel is not scrambled.\n\n"
+	  "**Preconditions:** the box is not in standby and plays a channel.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-running-channel`: nothing is playing, for example in standby.\n\n"
+	  "**Related:** `GET /api/v1/system/decryption` for what is descrambling it, `GET /api/v1/channels/current`.",
+	  NULL, 0, &kCryptListSchema, &currentCrypt, false,
+	  Answers200, HTTPD_REFUSALS(kCurrentCryptRefusals) },
 	{ Method::Get, "/api/v1/channels/{id}", AuthLevel::Read,
 	  "one channel by its identifier, with what its streams are where the box has read them",
-	  HTTPD_PARAMS(kOneParams), &kChannelDetailSchema, &getChannel, false },
+	  "Answers 1 channel by its id, with its picture and sound streams. The box reads a channel's streams when it plays it, so a channel nobody has played since the box started answers `streams_known: false`, an empty `audio` list and a `video` codec of `unknown` or `none`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-channel`: no channel has that id; take ids from `GET /api/v1/channels`.\n\n"
+	  "**Related:** `GET /api/v1/channels/current`, `POST /api/v1/zap`.",
+	  HTTPD_PARAMS(kOneParams), &kChannelDetailSchema, &getChannel, false,
+	  Answers200, HTTPD_REFUSALS(kGetChannelRefusals) },
 	{ Method::Get, "/api/v1/channels/{id}/logo", AuthLevel::Read,
 	  "the picture the box shows that channel with, as the file it is",
-	  HTTPD_PARAMS(kLogoParams), NULL, &getLogo, false },
+	  "Answers the channel's picture (logo) file itself, with the media type its name ends in: `image/svg+xml`, `image/png`, `image/jpeg` or `image/gif`, otherwise `application/octet-stream`. Byte ranges (`Range` header) are answered with `206`.\n\n"
+	  "**Preconditions:** this server is set to hand channel pictures out (`channel_logos` of `GET /api/v1/system/webserver`).\n\n"
+	  "**Refusals:**\n"
+	  "- `404 logos-not-offered`: the server is set not to hand channel pictures out; treat it like a channel without a picture.\n"
+	  "- `404 no-such-logo`: the box has no picture for that channel, or the file could not be read; show the channel name instead.\n\n"
+	  "**Related:** `GET /api/v1/channels/logos`.",
+	  HTTPD_PARAMS(kLogoParams), NULL, &getLogo, false,
+	  Answers200 | Answers206, HTTPD_REFUSALS(kGetLogoRefusals) },
 	{ Method::Get, "/api/v1/bouquets", AuthLevel::Read,
 	  "the bouquets the box holds, or only those holding one channel",
-	  HTTPD_PARAMS(kBouquetListParams), &kBouquetListSchema, &listBouquets, false },
+	  "Lists the bouquets (channel groups) the box holds, in its own order, with their number, name, flags and how many television and radio channels each holds. Hidden bouquets are included.\n\n"
+	  "The `name` addresses a bouquet in the `/api/v1/bouquets/{bouquet}` routes; the `id` is its current position and is what `GET /api/v1/channels` and `GET /api/v1/epg/grid` take as `bouquet`. With `holds`, only the bouquets holding that channel are answered, for example to find the bouquet to open on the channel playing.\n\n"
+	  "**Related:** `GET /api/v1/channels?bouquet=`, the `bouquets-changed` event on `GET /api/v1/events`.",
+	  HTTPD_PARAMS(kBouquetListParams), &kBouquetListSchema, &listBouquets, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/zap", AuthLevel::Write,
 	  "asks the box to play one channel; refused with recording-holds-tuner while a recording holds the tuner the channel needs, and with box-in-standby in standby unless wake is set",
-	  HTTPD_PARAMS(kZapParams), NULL, &zap, false },
+	  "Switches live playback to the channel `channel_id` names, as choosing it on the remote control would. `202` means the box has queued the switch, not that it has happened: watch for the `zap` event on `GET /api/v1/events`, or read `GET /api/v1/channels/current`.\n\n"
+	  "**Preconditions:** the box is not in standby, or `wake` is `true`. No running recording holds the tuner the channel needs.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-channel`: no channel has that id. Take ids from `GET /api/v1/channels`.\n"
+	  "- `409 recording-holds-tuner`: a recording occupies the tuner this channel needs. This is checked before standby, so `wake` does not help. Pick a channel the free tuner receives, or end the recording with `DELETE /api/v1/recordings/{id}`.\n"
+	  "- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on and play the channel.\n\n"
+	  "**Related:** `POST /api/v1/mode`, `GET /api/v1/system/standby`, `POST /api/v1/system/standby`.",
+	  HTTPD_PARAMS(kZapParams), NULL, &zap, false,
+	  Answers202, HTTPD_REFUSALS(kZapRefusals) },
 	{ Method::Post, "/api/v1/mode", AuthLevel::Write,
 	  "asks the box to change between television and radio; refused with box-in-standby in standby unless wake is set",
-	  HTTPD_PARAMS(kModeParams), NULL, &setMode, false },
+	  "Switches the box between television and radio mode, as the TV and radio keys of the remote control do; the box then plays from that list. `202` means the box has queued the change: watch for the `mode` event on `GET /api/v1/events`.\n\n"
+	  "**Preconditions:** the box is not in standby, or `wake` is `true`.\n\n"
+	  "**Refusals:**\n"
+	  "- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on in that mode.\n\n"
+	  "**Related:** `POST /api/v1/zap`, `GET /api/v1/system/standby`.",
+	  HTTPD_PARAMS(kModeParams), NULL, &setMode, false,
+	  Answers202, HTTPD_REFUSALS(kSetModeRefusals) },
 	{ Method::Post, "/api/v1/bouquets", AuthLevel::Write,
 	  "makes a bouquet with nothing in it",
-	  HTTPD_PARAMS(kNewBouquetParams), NULL, &makeBouquet, false },
+	  "Makes a new, empty user bouquet. Fill it with `PUT /api/v1/bouquets/{bouquet}/channels`. The answer is `201` once the box has written its bouquet file and the new name reads back from its list; no `Location` header, the bouquet is addressed by the name that was sent.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `409 name-taken`: a bouquet of that name exists; choose another name.\n"
+	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back; read `GET /api/v1/bouquets` and try again.\n"
+	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
+	  "**Related:** `GET /api/v1/bouquets`, `DELETE /api/v1/bouquets/{bouquet}`.",
+	  HTTPD_PARAMS(kNewBouquetParams), NULL, &makeBouquet, false,
+	  Answers201, HTTPD_REFUSALS_AND_BODY(kMakeBouquetRefusals, "{\"name\":\"Sport\"}") },
 	{ Method::Delete, "/api/v1/bouquets/{bouquet}", AuthLevel::Write,
 	  "takes a bouquet away, with whatever it holds",
-	  HTTPD_PARAMS(kBouquetParams), NULL, &removeBouquet, false },
+	  "Removes a bouquet together with the channel entries it holds. Every bouquet after it moves up 1 place, so the `id` numbers of `GET /api/v1/bouquets` change.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-bouquet`: no bouquet has that name; read the names from `GET /api/v1/bouquets`.\n"
+	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back.\n"
+	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
+	  "**Related:** `POST /api/v1/bouquets`.",
+	  HTTPD_PARAMS(kBouquetParams), NULL, &removeBouquet, false,
+	  Answers204, HTTPD_REFUSALS(kRemoveBouquetRefusals) },
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/name", AuthLevel::Write,
 	  "renames it, which moves the name every other route here addresses it by",
-	  HTTPD_PARAMS(kRenameParams), NULL, &renameBouquet, false },
+	  "Gives a bouquet a new name. Afterwards the bouquet is addressed by the new name only: the old path no longer names anything.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-bouquet`: no bouquet has the name in the path.\n"
+	  "- `409 name-taken`: a bouquet already carries the new name, which includes renaming a bouquet to its own name.\n"
+	  "- `500 bouquet-not-changed`: the box did not take the change, or the old name is still there or the new one is missing afterwards.\n"
+	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
+	  "**Related:** `GET /api/v1/bouquets`.",
+	  HTTPD_PARAMS(kRenameParams), NULL, &renameBouquet, false,
+	  Answers204, HTTPD_REFUSALS_AND_BODY(kRenameBouquetRefusals, "{\"name\":\"Favourites\"}") },
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/position", AuthLevel::Write,
 	  "moves it one place up or down the list, and refuses at either end",
-	  HTTPD_PARAMS(kMoveParams), NULL, &moveBouquet, false },
+	  "Moves a bouquet 1 place up or down the bouquet list, swapping it with its neighbour; this also swaps their `id` numbers. To move a bouquet further, send the request again.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 already-at-the-end`: the bouquet is first and `direction` is `up`, or last and `direction` is `down`.\n"
+	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `500 bouquet-not-changed`: the box did not take the move or it did not read back.\n"
+	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
+	  "**Related:** `GET /api/v1/bouquets`.",
+	  HTTPD_PARAMS(kMoveParams), NULL, &moveBouquet, false,
+	  Answers204, HTTPD_REFUSALS(kMoveBouquetRefusals) },
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/hidden", AuthLevel::Write,
 	  "says whether the box leaves it out of the lists it draws",
-	  HTTPD_PARAMS(kHiddenParams), NULL, &hideBouquet, false },
+	  "Hides a bouquet from the channel lists the box shows on screen, or shows it again. A hidden bouquet is still answered by `GET /api/v1/bouquets` with `hidden: true`.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back.\n"
+	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.",
+	  HTTPD_PARAMS(kHiddenParams), NULL, &hideBouquet, false,
+	  Answers204, HTTPD_REFUSALS(kHideBouquetRefusals) },
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/locked", AuthLevel::Write,
 	  "says whether the box asks for the parental code before it opens it",
-	  HTTPD_PARAMS(kLockedParams), NULL, &lockBouquet, false },
+	  "Locks a bouquet behind the box's parental PIN, or unlocks it. The lock applies on the box's own screen; this API does not ask for the PIN.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back.\n"
+	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.",
+	  HTTPD_PARAMS(kLockedParams), NULL, &lockBouquet, false,
+	  Answers204, HTTPD_REFUSALS(kLockBouquetRefusals) },
 	{ Method::Post, "/api/v1/channels/reload", AuthLevel::Write,
 	  "asks the box to read its channel lists again",
-	  HTTPD_PARAMS(kReloadParams), NULL, &reloadChannelLists, false },
+	  "Makes the box read its channel and bouquet files again, for example after they were changed on disc. By default it first writes the channels it holds in memory to disc, so nothing it holds is lost; with `hard: true` it skips that write and the files on disc win. `202` means the box has taken the request and reloads on its own loop.\n\n"
+	  "**Refusals:**\n"
+	  "- `channel-list-unavailable` (a 5xx status): the box's channel manager could not be reached; try again later.\n\n"
+	  "**Related:** `GET /api/v1/channels`, `GET /api/v1/bouquets`.",
+	  HTTPD_PARAMS(kReloadParams), NULL, &reloadChannelLists, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/channels", AuthLevel::Write,
 	  "replaces the television or the radio members of it with the channels the body names, in the order it names them, and empties that half for a body naming none; the body is a JSON array of hexadecimal channel identifiers",
-	  HTTPD_PARAMS(kFillParams), NULL, &fillBouquet, false },
+	  "Replaces the television or the radio channels of a bouquet with the channels the body lists, in that order; the other list of the bouquet stays as it is. `[]` empties the list. The body is a JSON array of hexadecimal channel id strings, at most 4096; every id is checked before anything changes, so a refused request leaves the bouquet untouched.\n\n"
+	  "To add or remove 1 channel, read the current list with `GET /api/v1/channels?bouquet={id}&mode=...`, change it and send the whole list back.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, the box renumbers the channels it shows, and every client sees a `bouquets-changed` event on `GET /api/v1/events`. Removing a channel from the last bouquet that held it can take that channel off the box.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-int` or `400 bad-string`: the body is not 1 JSON array of hexadecimal ids of up to 16 digits.\n"
+	  "- `400 too-many-channels`: more than 4096 ids.\n"
+	  "- `404 no-such-channel`: an id names no channel; nothing was changed.\n"
+	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `500 bouquet-not-changed`: the box did not take the change, or the list did not read back in the order sent.\n"
+	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
+	  "**Related:** `GET /api/v1/channels`, `POST /api/v1/bouquets`.",
+	  HTTPD_PARAMS(kFillParams), NULL, &fillBouquet, false,
+	  Answers204, HTTPD_REFUSALS(kFillBouquetRefusals) },
 };
 
 } // namespace

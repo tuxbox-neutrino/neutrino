@@ -55,6 +55,9 @@ struct ServerConfig
 
 ServerConfig defaultConfig();
 
+const char *tooLargeDetail();
+const char *rangeRefusedDetail();
+
 // False when the port cannot be bound, because the box may already be running
 // something there and a server that cannot listen is not a reason to end the program
 // that was going to keep working without it. Also false for a port outside the range

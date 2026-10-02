@@ -20,6 +20,7 @@
  */
 
 #include "support/catch.hpp"
+#include "support/answers.h"
 #include "support/fakes.h"
 
 #include "httpd/auth.h"
@@ -39,6 +40,8 @@
 #include "coreapi/base/errors.h"
 #include "coreapi/netfs.h"
 #include "coreapi/osd.h"
+#include "coreapi/plugins.h"
+#include "coreapi/system.h"
 #include "coreapi/base/schema.h"
 #include "coreapi/settings/settings.h"
 #include "coreapi/storage.h"
@@ -51,11 +54,13 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include <fcntl.h>
+#include <limits.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
@@ -1365,6 +1370,39 @@ TEST_CASE("a timer in the past is refused with the reason", "[write]")
 	REQUIRE(box.timers.timers.empty());
 }
 
+TEST_CASE("a timer the daemon cannot make, change or let go of is refused with the reason", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	char body[160];
+	std::snprintf(body, sizeof(body), "{\"kind\":\"record\",\"start\":%lld,\"stop\":%lld}",
+	              (long long) (box.timers.clock + 3600), (long long) (box.timers.clock + 7200));
+	const Reply unchannelled = authedPost("/api/v1/timers", body);
+	REQUIRE(unchannelled.code == 400);
+	REQUIRE(unchannelled.body.find("timer-without-channel") != std::string::npos);
+
+	box.timers.add_status = coreapi::Status::Conflict;
+	const Reply twice = authedPost("/api/v1/timers", timerBody(box.timers.clock + 3600));
+	REQUIRE(twice.code == 409);
+	REQUIRE(twice.body.find("timer-exists") != std::string::npos);
+	REQUIRE(box.timers.timers.empty());
+
+	box.timers.add_status = coreapi::Status::Ok;
+	REQUIRE(authedPost("/api/v1/timers", timerBody(box.timers.clock + 3600)).code == 201);
+	std::snprintf(body, sizeof(body), "{\"stop\":%lld}", (long long) (box.timers.clock + 3600));
+	const Reply empty = authedPatch("/api/v1/timers/1", body);
+	REQUIRE(empty.code == 400);
+	REQUIRE(empty.body.find("recording-without-duration") != std::string::npos);
+	REQUIRE(box.timers.modifications == 0u);
+
+	box.timers.ignore_removals = true;
+	const Reply kept = authedDelete("/api/v1/timers/1");
+	REQUIRE(kept.code == 500);
+	REQUIRE(kept.body.find("timer-still-there") != std::string::npos);
+	REQUIRE(box.timers.removals == 1u);
+}
+
 TEST_CASE("a change names nothing the daemon would drop", "[write]")
 {
 	ShippedRoutes shipped;
@@ -1713,6 +1751,26 @@ TEST_CASE("a directory is made and a path removed inside the roots and nowhere e
 	REQUIRE(stat(inside.c_str(), &st) != 0);
 	REQUIRE(authedDelete("/api/v1/storage/path?path=" + inside).code == 404);
 	REQUIRE(authedDelete("/api/v1/storage/path?path=/etc/passwd").code == 400);
+}
+
+TEST_CASE("a directory that still holds something is not removed", "[write]")
+{
+	ShippedRoutes shipped;
+	RootsFixture roots;
+
+	const std::string dir = roots.box.at("full");
+	REQUIRE(mkdir(dir.c_str(), 0700) == 0);
+	const std::string inner = dir + "/inner";
+	REQUIRE(mkdir(inner.c_str(), 0700) == 0);
+
+	const Reply full = authedDelete("/api/v1/storage/path?path=" + dir);
+	REQUIRE(full.code == 409);
+	REQUIRE(full.body.find("not-empty") != std::string::npos);
+	struct stat st;
+	REQUIRE(stat(inner.c_str(), &st) == 0);
+
+	REQUIRE(authedDelete("/api/v1/storage/path?path=" + inner).code == 204);
+	REQUIRE(authedDelete("/api/v1/storage/path?path=" + dir).code == 204);
 }
 
 TEST_CASE("an id wider than the daemon's own is refused and removes nothing", "[write]")
@@ -2118,6 +2176,35 @@ TEST_CASE("a bouquet round trip makes, renames, moves and takes away", "[write]"
 	REQUIRE(parsed(authedGet("/api/v1/bouquets").body)["items"].size() == 2u);
 }
 
+TEST_CASE("every bouquet route refuses a name no bouquet carries and changes nothing", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+
+	const Reply answers[] = {
+		authedPut("/api/v1/bouquets/Keines/name", "{\"name\":\"Anders\"}"),
+		authedPut("/api/v1/bouquets/Keines/position", "{\"direction\":\"up\"}"),
+		authedPut("/api/v1/bouquets/Keines/hidden", "{\"on\":true}"),
+		authedPut("/api/v1/bouquets/Keines/locked", "{\"on\":true}"),
+		authedPut("/api/v1/bouquets/Keines/channels?mode=tv", "[\"2b66\"]"),
+	};
+	for (size_t i = 0; i < sizeof(answers) / sizeof(answers[0]); ++i)
+	{
+		INFO(i);
+		REQUIRE(answers[i].code == 404);
+		REQUIRE(answers[i].body.find("no-such-bouquet") != std::string::npos);
+	}
+
+	const Reply taken = authedPut("/api/v1/bouquets/Zweites/name", "{\"name\":\"Erstes\"}");
+	REQUIRE(taken.code == 409);
+	REQUIRE(taken.body.find("name-taken") != std::string::npos);
+
+	REQUIRE(box.channels.bouquets[0].name == "Erstes");
+	REQUIRE(box.channels.bouquets[1].name == "Zweites");
+	REQUIRE(box.channels.saves == 0u);
+}
+
 TEST_CASE("a bouquet name carrying a separator and a percent is one name", "[write]")
 {
 	ShippedRoutes shipped;
@@ -2178,7 +2265,7 @@ TEST_CASE("a bouquet route written below a write is a table the server will not 
 	};
 	static const Endpoint too_low[] = {
 		{ Delete, "/api/v1/bouquets/{bouquet}", AuthLevel::Read,
-		  "takes a bouquet away", HTTPD_PARAMS(params), NULL, &unreachedHandler, false },
+		  "takes a bouquet away", NULL, HTTPD_PARAMS(params), NULL, &unreachedHandler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	const RouteTable low = { HTTPD_TABLE_N("low", too_low, 1) };
 	std::string why;
@@ -2190,7 +2277,7 @@ TEST_CASE("a bouquet route written below a write is a table the server will not 
 	// turned down is the level and not anything else about the route.
 	static const Endpoint high[] = {
 		{ Delete, "/api/v1/bouquets/{bouquet}", AuthLevel::Write,
-		  "takes a bouquet away", HTTPD_PARAMS(params), NULL, &unreachedHandler, false },
+		  "takes a bouquet away", NULL, HTTPD_PARAMS(params), NULL, &unreachedHandler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	const RouteTable fine = { HTTPD_TABLE_N("fine", high, 1) };
 	std::string nothing_wrong;
@@ -2461,6 +2548,36 @@ TEST_CASE("a bouquet write whose save failed answers that and not a refusal", "[
 
 	const std::string all = authedGet("/api/v1/bouquets").body;
 	REQUIRE_FALSE(bouquetNamed(all, "Drittes").isNull());
+}
+
+TEST_CASE("every bouquet write states a failed save the same way", "[write]")
+{
+	/* The six that change a bouquet that is there end in the writing out the
+	   make above ends in, so a save that failed is the same answer from each:
+	   the change is in the list the box runs and the files may not hold it.
+	   Each is a route of its own in the document and states that answer, so
+	   each is sent one here. In this order the rename's new name is the one
+	   the removal finds, because the list carries the rename all the same. */
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+	box.channels.save_status = coreapi::Status::Internal;
+
+	const Reply replies[] = {
+		authedPut("/api/v1/bouquets/Zweites/hidden", "{\"on\":true}"),
+		authedPut("/api/v1/bouquets/Zweites/locked", "{\"on\":true}"),
+		authedPut("/api/v1/bouquets/Zweites/position", "{\"direction\":\"up\"}"),
+		authedPut("/api/v1/bouquets/Zweites/channels?mode=tv", "[\"2b66\"]"),
+		authedPut("/api/v1/bouquets/Zweites/name", "{\"name\":\"Anders\"}"),
+		authedDelete("/api/v1/bouquets/Anders"),
+	};
+	for (size_t i = 0; i < sizeof(replies) / sizeof(replies[0]); ++i)
+	{
+		INFO("write " << i);
+		REQUIRE(replies[i].code == 500);
+		REQUIRE(replies[i].body.find("bouquet-not-saved") != std::string::npos);
+		REQUIRE(replies[i].body.find("bouquet-not-changed") == std::string::npos);
+	}
 }
 
 TEST_CASE("an empty list empties that half and a body carrying no list does not", "[write]")
@@ -3437,3 +3554,334 @@ TEST_CASE("a line about the logos this server cannot read turns them off", "[wri
 	REQUIRE(r.code == 200);
 	REQUIRE_FALSE(parsed(r.body)["channel_logos"].asBool());
 }
+
+TEST_CASE("the body example a route is documented with is a request that route accepts", "[write][openapi]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+	ProcFixture proc;
+	FakeInputDevice input;
+	InstalledInputDevice installed_input(&input);
+	// Read by the icon route before it writes.
+	box.store.ints["mode_icons"] = 0;
+	box.store.ints["mode_icons_skin"] = 0;
+
+	const std::string example_channel = parsed(openapi::document())["paths"]["/api/v1/zap"]["post"]
+		["requestBody"]["content"]["application/json"]["example"]["channel_id"].asString();
+	box.channels.channels.push_back(makeChannel(std::strtoull(example_channel.c_str(), NULL, 16),
+	                                            "the example"));
+
+	std::map<std::string, std::string> none;
+	std::map<std::string, std::string> first;
+	first["bouquet"] = "Erstes";
+	std::map<std::string, std::string> second;
+	second["bouquet"] = "Zweites";
+
+	REQUIRE(sendBodyExample("POST", "/api/v1/zap", none) == 202);
+	REQUIRE(sendBodyExample("POST", "/api/v1/mode", none) == 202);
+	REQUIRE(sendBodyExample("POST", "/api/v1/channels/reload", none) == 202);
+	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/channels", first) == 204);
+	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/hidden", first) == 204);
+	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/locked", first) == 204);
+	// The first one is already at the top.
+	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/position", second) == 204);
+	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/name", first) == 204);
+	REQUIRE(sendBodyExample("POST", "/api/v1/bouquets", none) == 201);
+
+	REQUIRE(sendBodyExample("POST", "/api/v1/timers", none) == 201);
+	REQUIRE(sendBodyExample("PATCH", "/api/v1/timers/{id}", none) == 200);
+
+	REQUIRE(sendBodyExample("PATCH", "/api/v1/settings/{section}", none) == 200);
+	REQUIRE(sendBodyExample("POST", "/api/v1/settings/secret/clear", none) == 200);
+	REQUIRE(sendBodyExample("POST", "/api/v1/system/standby", none) == 202);
+
+	REQUIRE(sendBodyExample("PUT", "/api/v1/osd/volume", none) == 202);
+	REQUIRE(sendBodyExample("PUT", "/api/v1/osd/mute", none) == 202);
+	REQUIRE(sendBodyExample("POST", "/api/v1/osd/message", none) == 202);
+	REQUIRE(sendBodyExample("PUT", "/api/v1/osd/remote", none) == 202);
+	REQUIRE(sendBodyExample("POST", "/api/v1/osd/remote/key", none) == 202);
+	REQUIRE(sendBodyExample("PUT", "/api/v1/osd/infoicons", none) == 204);
+}
+
+TEST_CASE("the body examples of the routes that write files are requests those routes accept", "[write][openapi]")
+{
+	ShippedRoutes shipped;
+
+	{
+		RootsFixture roots;
+		REQUIRE(::mkdir(roots.box.at("movie").c_str(), 0700) == 0);
+		REQUIRE(sendBodyExample("POST", "/api/v1/storage/directory",
+		                        std::map<std::string, std::string>(),
+		                        "/media/hdd", roots.box.dir) == 201);
+	}
+	{
+		NetfsFixture netfs;
+		REQUIRE(sendBodyExample("PUT", "/api/v1/storage/netfs/{table}/{slot}",
+		                        std::map<std::string, std::string>()) == 200);
+	}
+	{
+		WebFile file("example", kWebFileHead);
+		REQUIRE(sendBodyExample("PUT", "/api/v1/system/webserver",
+		                        std::map<std::string, std::string>()) == 200);
+	}
+	{
+		ConfigFixture cfg;
+		WebConfig c = config();
+		c.username = "root";
+		c.password_hash = hashSecret("ni", 2000);
+		setConfigForTest(c);
+		REQUIRE(sendBodyExample("POST", "/api/v1/login", std::map<std::string, std::string>()) == 200);
+	}
+}
+
+/* What follows sends each route the request that provokes a refusal its table
+   states and no other case here reaches. The suite keeps a record of what every
+   shipped route answered (support/answers.cpp), and on a run of the whole suite a
+   refusal that is stated and never answered fails it: a statement nothing holds
+   to its route is one that can go on saying what the route no longer does. */
+
+namespace
+{
+
+// The web server's configuration as the case found it, put back on the way out.
+struct WebConfigKept
+{
+	WebConfig before;
+	WebConfigKept() : before(config()) {}
+	~WebConfigKept() { setConfigForTest(before); }
+};
+
+bool writeText(const std::string &path, const std::string &text)
+{
+	FILE *f = std::fopen(path.c_str(), "w");
+	if (f == NULL)
+		return false;
+	const bool all = std::fwrite(text.data(), 1, text.size(), f) == text.size();
+	return (std::fclose(f) == 0) && all;
+}
+
+} // namespace
+
+TEST_CASE("a logo route says whether logos are offered and whether there is one", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeLogoSource logos;
+	InstalledLogoSource installed_logos(&logos);
+	WebConfigKept kept;
+
+	WebConfig c = config();
+	c.channel_logos = false;
+	setConfigForTest(c);
+	const Reply off = authedGet("/api/v1/channels/2b66/logo");
+	REQUIRE(off.code == 404);
+	REQUIRE(off.body.find("logos-not-offered") != std::string::npos);
+
+	c.channel_logos = true;
+	setConfigForTest(c);
+	logos.status = coreapi::Status::NotFound;
+	const Reply none = authedGet("/api/v1/channels/2b66/logo");
+	REQUIRE(none.code == 404);
+	REQUIRE(none.body.find("no-such-logo") != std::string::npos);
+}
+
+TEST_CASE("the guide as XMLTV says when the bouquet list cannot be read", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.channels.bouquets_status = coreapi::Status::Internal;
+
+	const Reply r = authedGet("/api/v1/epg/xmltv");
+	REQUIRE(r.code == 500);
+	REQUIRE(r.body.find("bouquet-list-unavailable") != std::string::npos);
+}
+
+TEST_CASE("a picture this box cannot take is refused as not captured", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeScreenshotSource screen;
+	InstalledScreenshotSource installed_screen(&screen);
+	screen.screen_status = coreapi::Status::NotSupported;
+	screen.display_status = coreapi::Status::NotSupported;
+
+	const Reply osd = authedGet("/api/v1/osd/screenshot");
+	REQUIRE(osd.code == 501);
+	REQUIRE(osd.body.find("screen-not-captured") != std::string::npos);
+
+	const Reply display = authedGet("/api/v1/osd/display/screenshot");
+	REQUIRE(display.code == 501);
+	REQUIRE(display.body.find("display-not-captured") != std::string::npos);
+}
+
+TEST_CASE("the tuner routes say when there is no tuner and when the list cannot be read", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	// Live television, so the answer is about the tuner and not about the mode.
+	box.channels.mode = NeutrinoModes::mode_tv;
+	tuner.live_status = coreapi::Status::NotSupported;
+	tuner.list_status = coreapi::Status::Internal;
+
+	const Reply signal = authedGet("/api/v1/tuner/signal");
+	REQUIRE(signal.code == 501);
+	REQUIRE(signal.body.find("no-tuner") != std::string::npos);
+
+	const Reply list = authedGet("/api/v1/tuner/frontends");
+	REQUIRE(list.code == 500);
+	REQUIRE(list.body.find("frontend-list-unavailable") != std::string::npos);
+}
+
+TEST_CASE("a configuration document the box has never written is not found", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	Sandbox empty;
+	const std::string before = coreapi::config::configRoot();
+	coreapi::config::setConfigRoot(empty.dir);
+	const Reply r = authedGet("/api/v1/config/ubouquets");
+	coreapi::config::setConfigRoot(before);
+
+	REQUIRE(r.code == 404);
+	REQUIRE(r.body.find("config-document-unreadable") != std::string::npos);
+}
+
+TEST_CASE("a key the remote control has no name for is refused before anything is sent", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeInputDevice input;
+	InstalledInputDevice installed_input(&input);
+
+	const Reply r = authedPost("/api/v1/osd/remote/key", "{\"name\":\"KEY_NOTHING_OF_THE_KIND\"}");
+	REQUIRE(r.code == 400);
+	REQUIRE(r.body.find("no-such-key") != std::string::npos);
+	REQUIRE(input.writes == 0u);
+}
+
+TEST_CASE("a script route refuses a name that is no script's and one that is not there", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	Sandbox scripts;
+	const std::string before = coreapi::plugins::scriptRoot();
+	coreapi::plugins::setScriptRoot(scripts.dir);
+	const Reply option = authedPost("/api/v1/scripts/-x", "");
+	const Reply missing = authedPost("/api/v1/scripts/nothere", "");
+	coreapi::plugins::setScriptRoot(before);
+
+	REQUIRE(option.code == 400);
+	REQUIRE(option.body.find("bad-name") != std::string::npos);
+	REQUIRE(missing.code == 404);
+	REQUIRE(missing.body.find("script-missing") != std::string::npos);
+}
+
+TEST_CASE("the recording routes refuse a recording that is not there and a second shift", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeRecordingSource recordings;
+	InstalledRecordingSource installed_recordings(&recordings);
+
+	const Reply gone = authedDelete("/api/v1/recordings/99");
+	REQUIRE(gone.code == 404);
+	REQUIRE(gone.body.find("no-such-recording") != std::string::npos);
+
+	coreapi::RecordingInfo shift;
+	shift.id = 7;
+	shift.channel_id = kChannel;
+	shift.timeshift = true;
+	recordings.recordings.push_back(shift);
+	const Reply second = authedPost("/api/v1/recordings/timeshift", "");
+	REQUIRE(second.code == 409);
+	REQUIRE(second.body.find("timeshift-running") != std::string::npos);
+}
+
+TEST_CASE("the file routes refuse names outside the roots, a taken name and what is no plain file", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	RootsFixture roots;
+
+	const Reply read_outside = authedGet("/api/v1/storage/file?path=/etc/hostname");
+	REQUIRE(read_outside.code == 400);
+	REQUIRE(read_outside.body.find("outside-roots") != std::string::npos);
+
+	const Reply write_outside = authedPut("/api/v1/storage/file?path=/etc/a-new-name", "bytes");
+	REQUIRE(write_outside.code == 400);
+	REQUIRE(write_outside.body.find("outside-roots") != std::string::npos);
+
+	REQUIRE(writeText(roots.box.at("taken"), "was there"));
+	const Reply taken = authedPut("/api/v1/storage/file?path=" + roots.box.at("taken"), "new");
+	REQUIRE(taken.code == 409);
+	REQUIRE(taken.body.find("name-taken") != std::string::npos);
+
+	REQUIRE(::mkdir(roots.box.at("folder").c_str(), 0700) == 0);
+	const Reply folder = authedPut("/api/v1/storage/file?path=" + roots.box.at("folder") + "&overwrite=true", "new");
+	REQUIRE(folder.code == 409);
+	REQUIRE(folder.body.find("not-a-plain-file") != std::string::npos);
+}
+
+TEST_CASE("the file routes leave the web server's own store of who may reach the box alone", "[write][refusals]")
+{
+	/* The store is named from the configuration directory this build was made
+	   for, which has to exist for its name to resolve; a host that has none
+	   cannot name the store, and says so rather than passing. */
+	char where[PATH_MAX];
+	if (realpath(CONFIGDIR, where) == NULL)
+	{
+		WARN("no configuration directory " CONFIGDIR " on this host, so the store cannot be named");
+		return;
+	}
+	ShippedRoutes shipped;
+	RootsFixture roots;
+	// The roots are worked out again from these on every request; the fixture puts
+	// them back.
+	const std::string config_root(where);
+	coreapi::storage::internal::default_roots = config_root.c_str();
+	coreapi::storage::setRoots(config_root);
+	const std::string store = config_root + "/nhttpd.conf";
+
+	const Reply read = authedGet("/api/v1/storage/file?path=" + store);
+	REQUIRE(read.code == 400);
+	REQUIRE(read.body.find("access-store") != std::string::npos);
+
+	const Reply write = authedPut("/api/v1/storage/file?path=" + store + "&overwrite=true", "x");
+	REQUIRE(write.code == 400);
+	REQUIRE(write.body.find("access-store") != std::string::npos);
+
+	const Reply removed = authedDelete("/api/v1/storage/path?path=" + store);
+	REQUIRE(removed.code == 400);
+	REQUIRE(removed.body.find("access-store") != std::string::npos);
+}
+
+TEST_CASE("the body examples of the script and the plugin routes are requests they accept", "[write][openapi][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	Sandbox dir;
+
+	const std::string script = dir.at("hello.sh");
+	REQUIRE(writeText(script, "#!/bin/sh\necho hello\n"));
+	REQUIRE(::chmod(script.c_str(), 0700) == 0);
+	const std::string before = coreapi::plugins::scriptRoot();
+	coreapi::plugins::setScriptRoot(dir.dir);
+	std::map<std::string, std::string> script_name;
+	script_name["name"] = "hello";
+	const int ran = sendBodyExample("POST", "/api/v1/scripts/{name}", script_name);
+	coreapi::plugins::setScriptRoot(before);
+	REQUIRE(ran == 200);
+
+	FakePluginSource plugins;
+	InstalledPluginSource installed_plugins(&plugins);
+	coreapi::PluginInfo example;
+	example.name = "example";
+	example.title = "Example";
+	example.config = dir.at("example.cfg");
+	REQUIRE(writeText(example.config, "name=Example\nhide=0\n"));
+	plugins.plugins.push_back(example);
+	std::map<std::string, std::string> plugin_name;
+	plugin_name["name"] = "example";
+	REQUIRE(sendBodyExample("PUT", "/api/v1/plugins/{name}/hidden", plugin_name) == 204);
+}
+

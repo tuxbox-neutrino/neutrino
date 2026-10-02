@@ -23,8 +23,11 @@
 
 #include "httpd/endpoint.h"
 
+#include "coreapi/base/errors.h"
+
 #include <cstddef>
 #include <string>
+#include <vector>
 
 namespace httpd
 {
@@ -37,11 +40,19 @@ namespace openapi
    statement of the same surface, and the two part company the first time a parameter
    is added to one of them. So everything below walks the list of tables, and a route
    that appears in the list appears in the document because there is no other way for
-   it to get in.
+   it to get in. */
 
-   The tables declare no success code, so the answer is described under the range
-   rather than under a number somebody guessed: the routes that make something answer
-   201 and the ones that ask the box for something answer 202. */
+struct StatedRefusal
+{
+	int                http;
+	coreapi::ErrorCode code;
+	std::string        detail;
+	std::string        example;
+	const char        *rule;  // NULL for the route's own
+};
+
+// Shared with the suite, which holds it to what the routes answered.
+void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out);
 
 // Where the document is served, which is also the path the route below
 // declares, so the two cannot name different places.

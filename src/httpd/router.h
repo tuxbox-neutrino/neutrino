@@ -26,6 +26,8 @@
 
 #include <cstddef>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace httpd
 {
@@ -179,6 +181,16 @@ Response dispatch(Method m, const std::string &path,
    writes settings does. */
 bool routeLevelFor(Method m, const std::string &path, AuthLevel *level,
                    bool *query_token_ok = NULL);
+
+// All sent as 400.
+void parameterRefusals(const Endpoint &ep,
+                       std::vector<std::pair<coreapi::ErrorCode, std::string> > &out);
+
+// NULL in the product.
+typedef void (*AnswerWatch)(const Endpoint &ep, const Response &r);
+void setAnswerWatchForTest(AnswerWatch w);
+
+void noteAnswer(Method m, const std::string &path, const Response &r);
 
 } // namespace httpd
 

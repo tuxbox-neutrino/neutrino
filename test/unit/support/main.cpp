@@ -21,6 +21,7 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
+#include "answers.h"
 #include "counts.h"
 
 #include <cstdio>
@@ -36,6 +37,7 @@ int main(int argc, char *argv[])
 	if (bad != 0)
 		return bad;
 
+	watchAnswers();
 	const int failed = session.run();
 
 	// A run given a name or a tag to pick out is not the whole suite, so the
@@ -50,8 +52,9 @@ int main(int argc, char *argv[])
 	   case that stopped comparing is often what a failure did, but it does not
 	   decide the answer: the run has already failed for a reason somebody is
 	   about to read and a count a case never reached is unknown and not fallen. */
+	const bool answered = answersAgree(COREAPI_ANSWERS_ACTUAL);
 	const bool agree = coverageCountsAgree(COREAPI_COUNTS_FILE, COREAPI_COUNTS_ACTUAL, failed == 0);
 	if (failed != 0)
 		return failed;
-	return agree ? 0 : 1;
+	return (agree && answered) ? 0 : 1;
 }

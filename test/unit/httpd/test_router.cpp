@@ -53,12 +53,12 @@ static Response probe(const Request &r)
 static const Param probe_params[] = {
 	HTTPD_SEGMENT("id", ParamType::ChannelId, "channel id"),
 	HTTPD_QUERY_IN("limit", ParamType::Int, "page size", 1, 500),
-	HTTPD_QUERY_FROM_SET("mode", "list mode", "tv,radio"),
+	HTTPD_QUERY_FROM_SET("mode", "list mode", "tv,radio", NULL),
 };
 
 static const Endpoint probe_endpoints[] = {
-	{ Method::Get, "/api/v1/probe/{id}", AuthLevel::Read, "probe",
-	  HTTPD_PARAMS(probe_params), NULL, &probe, false },
+	{ Method::Get, "/api/v1/probe/{id}", AuthLevel::Read, "probe", NULL,
+	  HTTPD_PARAMS(probe_params), NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable probe_table = { HTTPD_TABLE_N("probe", probe_endpoints, 1) };
@@ -170,8 +170,8 @@ TEST_CASE("a table with two routes for one method and path is refused at start",
 	// A duplicate is a table defect and the server must not start on one,
 	// because which of the two answers would otherwise depend on link order.
 	static const Endpoint dup[] = {
-		{ Method::Get, "/api/v1/probe/{id}", AuthLevel::Read, "a", HTTPD_PARAMS(probe_params), NULL, &probe, false },
-		{ Method::Get, "/api/v1/probe/{id}", AuthLevel::Read, "b", HTTPD_PARAMS(probe_params), NULL, &probe, false },
+		{ Method::Get, "/api/v1/probe/{id}", AuthLevel::Read, "a", NULL, HTTPD_PARAMS(probe_params), NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
+		{ Method::Get, "/api/v1/probe/{id}", AuthLevel::Read, "b", NULL, HTTPD_PARAMS(probe_params), NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("dup", dup, 2) };
 	REQUIRE_FALSE(tableIsSane(t));
@@ -374,7 +374,7 @@ static const Param wide_params[] = {
 };
 
 static const Endpoint wide_endpoints[] = {
-	{ Method::Post, "/api/v1/wide", AuthLevel::Write, "wide", HTTPD_PARAMS(wide_params), NULL, &wide, false },
+	{ Method::Post, "/api/v1/wide", AuthLevel::Write, "wide", NULL, HTTPD_PARAMS(wide_params), NULL, &wide, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable wide_table = { HTTPD_TABLE_N("wide", wide_endpoints, 1) };
@@ -481,7 +481,7 @@ static const Param body_params[] = {
 };
 
 static const Endpoint body_endpoints[] = {
-	{ Method::Post, "/api/v1/body", AuthLevel::Write, "a body", HTTPD_PARAMS(body_params), NULL, &bodied, false },
+	{ Method::Post, "/api/v1/body", AuthLevel::Write, "a body", NULL, HTTPD_PARAMS(body_params), NULL, &bodied, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable body_table = { HTTPD_TABLE_N("body", body_endpoints, 1) };
@@ -621,9 +621,9 @@ static const Param two_params[] = {
 static const Endpoint two_endpoints[] = {
 	// The binding route is written first on purpose: if link order decided,
 	// this is the one that would answer both requests.
-	{ Method::Get, "/api/v1/two/{id}",    AuthLevel::Read, "by id",          HTTPD_PARAMS(two_params), NULL, &probe, false },
-	{ Method::Get, "/api/v1/two/current", AuthLevel::Read, "the current one", NULL, 0, NULL, &current, false },
-	{ Method::Delete, "/api/v1/two/{id}", AuthLevel::Write, "forget one",    HTTPD_PARAMS(two_params), NULL, &probe, false },
+	{ Method::Get, "/api/v1/two/{id}",    AuthLevel::Read, "by id", NULL,          HTTPD_PARAMS(two_params), NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/v1/two/current", AuthLevel::Read, "the current one", NULL, NULL, 0, NULL, &current, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Delete, "/api/v1/two/{id}", AuthLevel::Write, "forget one", NULL,    HTTPD_PARAMS(two_params), NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable two_table = { HTTPD_TABLE_N("two", two_endpoints, 3) };
@@ -691,15 +691,15 @@ static const Param tie_kind_params[] = {
 };
 
 static const Endpoint tie_endpoints[] = {
-	{ Method::Get, "/api/v1/tie/{id}/epg",       AuthLevel::Read, "the guide of one",  HTTPD_PARAMS(tie_id_params),   NULL, &probe, false },
-	{ Method::Get, "/api/v1/tie/current/{what}", AuthLevel::Read, "one of the current", HTTPD_PARAMS(tie_what_params), NULL, &current, false },
+	{ Method::Get, "/api/v1/tie/{id}/epg",       AuthLevel::Read, "the guide of one", NULL,  HTTPD_PARAMS(tie_id_params),   NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/v1/tie/current/{what}", AuthLevel::Read, "one of the current", NULL, HTTPD_PARAMS(tie_what_params), NULL, &current, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable tie_table = { HTTPD_TABLE_N("tie", tie_endpoints, 2) };
 
 static const Endpoint tie2_endpoints[] = {
-	{ Method::Get, "/api/v2/tie/{id}",       AuthLevel::Read, "one of them",     HTTPD_PARAMS(tie_id_params),   NULL, &probe, false },
-	{ Method::Get, "/api/v2/{kind}/current", AuthLevel::Read, "the current one", HTTPD_PARAMS(tie_kind_params), NULL, &current, false },
+	{ Method::Get, "/api/v2/tie/{id}",       AuthLevel::Read, "one of them", NULL,     HTTPD_PARAMS(tie_id_params),   NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/v2/{kind}/current", AuthLevel::Read, "the current one", NULL, HTTPD_PARAMS(tie_kind_params), NULL, &current, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable tie2_table = { HTTPD_TABLE_N("tie2", tie2_endpoints, 2) };
@@ -766,8 +766,8 @@ TEST_CASE("two routes that write out different segments in one place never meet"
 	// reaches both, because the one place they both write out they write out
 	// differently. Refusing this pair would refuse most tables.
 	static const Endpoint apart[] = {
-		{ Method::Get, "/api/v1/a/{id}", AuthLevel::Read, "one of a", HTTPD_PARAMS(tie_id_params),   NULL, &probe, false },
-		{ Method::Get, "/api/v1/b/{id}", AuthLevel::Read, "one of b", HTTPD_PARAMS(tie_id_params),   NULL, &probe, false },
+		{ Method::Get, "/api/v1/a/{id}", AuthLevel::Read, "one of a", NULL, HTTPD_PARAMS(tie_id_params),   NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
+		{ Method::Get, "/api/v1/b/{id}", AuthLevel::Read, "one of b", NULL, HTTPD_PARAMS(tie_id_params),   NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("apart", apart, 2) };
 	std::string why;
@@ -781,10 +781,10 @@ TEST_CASE("two tables can carry one answer between them", "[router]")
 	/* Neither table is wrong read alone, which is why the rule is over every
 	   route of every table rather than over each table on its own. */
 	static const Endpoint first[] = {
-		{ Method::Get, "/api/v1/tie/{id}/epg", AuthLevel::Read, "the guide of one", HTTPD_PARAMS(tie_id_params), NULL, &probe, false },
+		{ Method::Get, "/api/v1/tie/{id}/epg", AuthLevel::Read, "the guide of one", NULL, HTTPD_PARAMS(tie_id_params), NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const Endpoint second[] = {
-		{ Method::Get, "/api/v1/tie/current/{what}", AuthLevel::Read, "one of the current", HTTPD_PARAMS(tie_what_params), NULL, &current, false },
+		{ Method::Get, "/api/v1/tie/current/{what}", AuthLevel::Read, "one of the current", NULL, HTTPD_PARAMS(tie_what_params), NULL, &current, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable first_table = { HTTPD_TABLE_N("first", first, 1) };
 	static const RouteTable second_table = { HTTPD_TABLE_N("second", second, 1) };
@@ -914,7 +914,7 @@ TEST_CASE("a table this layer wrote wrong is refused, and says what is wrong wit
 		HTTPD_QUERY("mode", ParamType::Enum, "list mode"),
 	};
 	static const Param empty_listed[] = {
-		HTTPD_QUERY_FROM_SET("mode", "list mode", "tv,,radio"),
+		HTTPD_QUERY_FROM_SET("mode", "list mode", "tv,,radio", NULL),
 	};
 	static const Param upside_down[] = {
 		HTTPD_QUERY_IN("limit", ParamType::Int, "page size", 500, 1),
@@ -950,91 +950,120 @@ TEST_CASE("a table this layer wrote wrong is refused, and says what is wrong wit
 	static const Param empty_words[] = {
 		HTTPD_QUERY_IN("n", ParamType::Int, "", 1, 10),
 	};
+	static const RouteRefusal sent_as_success[] = {
+		HTTPD_REFUSES(Ok, NoSuchChannel, "no channel with that id"),
+	};
+	static const RouteRefusal sent_as_nothing[] = {
+		HTTPD_REFUSES_AS(302, NoSuchChannel, "no channel with that id"),
+	};
+	static const RouteRefusal without_example[] = {
+		HTTPD_REFUSES(NotFound, NoSuchChannel, ""),
+	};
+	static const RouteRefusal declared_twice[] = {
+		HTTPD_REFUSES(NotFound, NoSuchChannel, "no channel with that id"),
+		HTTPD_REFUSES(NotFound, NoSuchChannel, "nothing by that id"),
+	};
 
 	struct Case { const char *what; Endpoint ep; };
 	static const Case broken[] = {
 		{ "a segment bound to a name nothing declares",
-		  { Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", HTTPD_PARAMS(undeclared), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(undeclared), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a path parameter the path does not bind",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a path parameter that says it is optional",
-		  { Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", HTTPD_PARAMS(optional_path), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(optional_path), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a set with nothing in it",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(unlisted_enum), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(unlisted_enum), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a set with an empty value in it",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(empty_listed), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(empty_listed), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a floor above its ceiling",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(upside_down), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(upside_down), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "bounds on a type that does not read them",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(unread_bounds), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(unread_bounds), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a floor below zero on a number that holds none or more",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(negative_unsigned), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(negative_unsigned), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a parameter with no name",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(nameless), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(nameless), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "one name declared twice",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(twice), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(twice), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "no handler",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, NULL, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, NULL, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "nothing said about the route",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, NULL, NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, NULL, NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a path that is not absolute",
-		  { Method::Get, "api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "an empty segment in the path",
-		  { Method::Get, "/api/v1//x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1//x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a trailing separator, which is an empty segment",
-		  { Method::Get, "/api/v1/x/", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x/", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "an escape in a path a request is never matched against",
-		  { Method::Get, "/api/v1/%78", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/%78", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a segment bound to no name at all",
-		  { Method::Get, "/api/v1/{}", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/{}", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a method this server does not have",
-		  { UnknownMethod, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { UnknownMethod, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "one name bound twice in the path",
-		  { Method::Get, "/api/v1/x/{id}/{id}", AuthLevel::Read, "x", HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x/{id}/{id}", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a floor on the length of a string, which nothing reads",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(floored_string), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(floored_string), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a ceiling above the one every value here has",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(roomy_string), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(roomy_string), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a ceiling below nothing",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(negative_ceiling), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(negative_ceiling), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a set of accepted values beside a type that is not one of a set",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(listed_number), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(listed_number), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a parameter that says nothing about itself",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(wordless), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(wordless), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a parameter whose words are empty",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(empty_words), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(empty_words), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a route that declares parameters it does not carry",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, 2, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 2, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		/* A body is read for the methods written with one and for no others,
 		   so a value carried in the body of any of these three would never be
 		   extracted and a required one never missed. */
 		{ "a parameter carried in the body of a read",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(body_params), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(body_params), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a parameter carried in the body of a removal",
-		  { Method::Delete, "/api/v1/x", AuthLevel::Write, "x", HTTPD_PARAMS(body_params), NULL, &nothing_handler, false } },
+		  { Method::Delete, "/api/v1/x", AuthLevel::Write, "x", NULL, HTTPD_PARAMS(body_params), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a parameter carried in the body of an options",
-		  { Method::Options, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(body_params), NULL, &nothing_handler, false } },
+		  { Method::Options, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(body_params), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "open to everybody and not the route that hands out a credential",
-		  { Method::Get, "/api/v1/x", AuthLevel::Public, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Public, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "open to everybody at the credential path under another method",
-		  { Method::Get, "/api/v1/login", AuthLevel::Public, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/login", AuthLevel::Public, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		/* The second route open to everybody answers a GET and nothing else,
 		   and it is excused as that pair. A POST there would be a route that
 		   changes something reachable by anybody, at a path whose name reads
 		   as though somebody had already decided it was safe. */
 		{ "open to everybody at the path that says what a request carries, under another method",
-		  { Method::Post, "/api/v1/session", AuthLevel::Public, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Post, "/api/v1/session", AuthLevel::Public, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		/* A caller on the box's own network is granted a read and is asked for
 		   no credential, so each of these four is a route any page a browser
 		   on that network visits can reach in that browser's name. */
 		{ "a change that asks for no more than a read",
-		  { Method::Post, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Post, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a replacement that asks for no more than a read",
-		  { Method::Put, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Put, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a correction that asks for no more than a read",
-		  { Method::Patch, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Patch, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a removal that asks for no more than a read",
-		  { Method::Delete, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Delete, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
+		{ "a route that does not say what it succeeds with",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, 0, HTTPD_NO_REFUSALS } },
+		{ "a success code that is not one of the set",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200 | (1u << 12), HTTPD_NO_REFUSALS } },
+		{ "a route that declares refusals it does not carry",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, NULL, 2, NULL } },
+		{ "a refusal whose status projects to a success",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_REFUSALS(sent_as_success) } },
+		{ "a refusal sent with a code that is not a refusal",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_REFUSALS(sent_as_nothing) } },
+		{ "a refusal with no example of what it says",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_REFUSALS(without_example) } },
+		{ "an example of a body the method is never sent with",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS_AND_BODY("{}") } },
+		{ "one refusal declared twice",
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_REFUSALS(declared_twice) } },
 	};
 
 	for (size_t i = 0; i < sizeof(broken) / sizeof(broken[0]); ++i)
@@ -1060,37 +1089,45 @@ TEST_CASE("what a route may declare beside the method it answers", "[router]")
 		Endpoint    ep;
 	};
 
+	static const RouteRefusal own[] = {
+		HTTPD_REFUSES(NotFound, NoSuchChannel, "no channel with that id"),
+		HTTPD_REFUSES(Conflict, BoxInStandby, "the box is in standby"),
+		HTTPD_REFUSES_AS(503, UpstreamUnreachable, "the far end did not answer"),
+	};
+
 	static const Fine fine[] = {
+		{ "a route stating two success codes and refusals of its own",
+		  { Method::Put, "/api/v1/x", AuthLevel::Write, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers201 | Answers204, HTTPD_REFUSALS(own) } },
 		{ "a read asking for a read",
-		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a question about the route itself asking for a read",
-		  { Method::Options, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Options, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a change asking for a write",
-		  { Method::Post, "/api/v1/x", AuthLevel::Write, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Post, "/api/v1/x", AuthLevel::Write, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a replacement asking for a write",
-		  { Method::Put, "/api/v1/x", AuthLevel::Write, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Put, "/api/v1/x", AuthLevel::Write, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a removal asking for the most there is",
-		  { Method::Delete, "/api/v1/x", AuthLevel::System, "x", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Delete, "/api/v1/x", AuthLevel::System, "x", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		// Being reached grants nothing, so there is nothing for another site
 		// to gain by reaching it.
 		{ "the route that hands out a credential",
-		  { Method::Post, "/api/v1/login", AuthLevel::Public, "sign in", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Post, "/api/v1/login", AuthLevel::Public, "sign in", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		// And the one that says what the request asking carries, which hands
 		// back nothing that request did not already send.
 		{ "the route that says what a request carries",
-		  { Method::Get, "/api/v1/session", AuthLevel::Public, "what this request carries", NULL, 0, NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/session", AuthLevel::Public, "what this request carries", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		// The three methods a body is read for, so the rule that refuses one
 		// on the others is not a rule that refuses every body there is.
 		{ "a change carrying its values in a body",
-		  { Method::Post, "/api/v1/x", AuthLevel::Write, "x", HTTPD_PARAMS(body_params), NULL, &nothing_handler, false } },
+		  { Method::Post, "/api/v1/x", AuthLevel::Write, "x", NULL, HTTPD_PARAMS(body_params), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a replacement carrying its values in a body",
-		  { Method::Put, "/api/v1/x", AuthLevel::Write, "x", HTTPD_PARAMS(body_params), NULL, &nothing_handler, false } },
+		  { Method::Put, "/api/v1/x", AuthLevel::Write, "x", NULL, HTTPD_PARAMS(body_params), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		{ "a correction carrying its values in a body",
-		  { Method::Patch, "/api/v1/x", AuthLevel::Write, "x", HTTPD_PARAMS(body_params), NULL, &nothing_handler, false } },
+		  { Method::Patch, "/api/v1/x", AuthLevel::Write, "x", NULL, HTTPD_PARAMS(body_params), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 		// And a row whose set the build decides, so that the rule above is
 		// about a row saying two things and not about asking at all.
 		{ "a segment out of a set this table does not state",
-		  { Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", HTTPD_PARAMS(asked_set), NULL, &nothing_handler, false } },
+		  { Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(asked_set), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS } },
 	};
 
 	for (size_t i = 0; i < sizeof(fine) / sizeof(fine[0]); ++i)
@@ -1122,12 +1159,12 @@ TEST_CASE("a table nobody checked is answered rather than walked into", "[router
 	   a caller can do anything about and is not something to find out by
 	   jumping through it. */
 	static const Endpoint handlerless[] = {
-		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, 0, NULL, NULL, false },
+		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 0, NULL, NULL, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable no_handler = { HTTPD_TABLE_N("handlerless", handlerless, 1) };
 
 	static const Endpoint paramless[] = {
-		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, 3, NULL, &nothing_handler, false },
+		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, NULL, 3, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable no_params = { HTTPD_TABLE_N("paramless", paramless, 1) };
 
@@ -1147,7 +1184,7 @@ TEST_CASE("a table nobody checked is answered rather than walked into", "[router
 }
 
 static const Endpoint miscounted[] = {
-	{ Method::Post, "/api/v1/miscounted", AuthLevel::Write, "x", NULL, 3, NULL, &nothing_handler, false },
+	{ Method::Post, "/api/v1/miscounted", AuthLevel::Write, "x", NULL, NULL, 3, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable miscounted_table = { HTTPD_TABLE_N("miscounted", miscounted, 1) };
@@ -1170,7 +1207,7 @@ TEST_CASE("a table defect is answered before anything the caller sent is read", 
 TEST_CASE("the route that hands out a credential is the one that may be open", "[router]")
 {
 	static const Endpoint login[] = {
-		{ Method::Post, "/api/v1/login", AuthLevel::Public, "sign in", NULL, 0, NULL, &nothing_handler, false },
+		{ Method::Post, "/api/v1/login", AuthLevel::Public, "sign in", NULL, NULL, 0, NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("login", login, 1) };
 	std::string why;
@@ -1188,8 +1225,8 @@ TEST_CASE("two routes that spell one shape differently are the one route they ar
 		HTTPD_SEGMENT("name", ParamType::String, "a name"),
 	};
 	static const Endpoint spelt[] = {
-		{ Method::Get, "/api/v1/x/{id}",   AuthLevel::Read, "a", HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false },
-		{ Method::Get, "/api/v1/x/{name}", AuthLevel::Read, "b", HTTPD_PARAMS(other_path),     NULL, &nothing_handler, false },
+		{ Method::Get, "/api/v1/x/{id}",   AuthLevel::Read, "a", NULL, HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
+		{ Method::Get, "/api/v1/x/{name}", AuthLevel::Read, "b", NULL, HTTPD_PARAMS(other_path),     NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("spelt", spelt, 2) };
 	std::string why;
@@ -1202,8 +1239,8 @@ TEST_CASE("two routes that spell one shape differently are the one route they ar
 TEST_CASE("one method and one shape twice is refused and one shape under two methods is not", "[router]")
 {
 	static const Endpoint both[] = {
-		{ Method::Get,    "/api/v1/x/{id}", AuthLevel::Read,  "read one",   HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false },
-		{ Method::Delete, "/api/v1/x/{id}", AuthLevel::Write, "forget one", HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false },
+		{ Method::Get,    "/api/v1/x/{id}", AuthLevel::Read,  "read one", NULL,   HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
+		{ Method::Delete, "/api/v1/x/{id}", AuthLevel::Write, "forget one", NULL, HTTPD_PARAMS(one_path_param), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("both", both, 2) };
 	std::string why;
@@ -1301,8 +1338,8 @@ TEST_CASE("a value is read as the type its row declares and not as another one",
 }
 
 static const Endpoint head_endpoints[] = {
-	{ Method::Head, "/api/v1/probe", AuthLevel::Read, "the head of it",
-	  NULL, 0, NULL, &probe, false },
+	{ Method::Head, "/api/v1/probe", AuthLevel::Read, "the head of it", NULL,
+	  NULL, 0, NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable head_table = { HTTPD_TABLE_N("head", head_endpoints, 1) };
@@ -1343,8 +1380,8 @@ TEST_CASE("the methods a path answers name HEAD wherever they name GET", "[route
 }
 
 static const Endpoint head_first_endpoints[] = {
-	{ Method::Head, "/api/v1/probe", AuthLevel::Read, "the head of it", NULL, 0, NULL, &probe, false },
-	{ Method::Get,  "/api/v1/probe", AuthLevel::Read, "the whole of it", NULL, 0, NULL, &probe, false },
+	{ Method::Head, "/api/v1/probe", AuthLevel::Read, "the head of it", NULL, NULL, 0, NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Get,  "/api/v1/probe", AuthLevel::Read, "the whole of it", NULL, NULL, 0, NULL, &probe, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable head_first_table = { HTTPD_TABLE_N("head-first", head_first_endpoints, 2) };
@@ -1387,11 +1424,11 @@ TEST_CASE("a row may state its set or name one to ask for, and not both", "[rout
 	   would be the one place that goes on compiling while saying something
 	   else. */
 	Param both[] = {
-		HTTPD_QUERY_FROM_SET("mode", "list mode", "tv,radio"),
+		HTTPD_QUERY_FROM_SET("mode", "list mode", "tv,radio", NULL),
 	};
 	both[0].choices = &probe_choices;
 	const Endpoint two_sets[] = {
-		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(both), NULL, &nothing_handler, false },
+		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(both), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	const RouteTable t = { HTTPD_TABLE_N("two-sets", two_sets, 1) };
 	std::string why;
@@ -1405,7 +1442,7 @@ TEST_CASE("a row may state its set or name one to ask for, and not both", "[rout
 	};
 	numeric[0].choices = &probe_choices;
 	const Endpoint asked_number[] = {
-		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", HTTPD_PARAMS(numeric), NULL, &nothing_handler, false },
+		{ Method::Get, "/api/v1/x", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(numeric), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	const RouteTable n = { HTTPD_TABLE_N("asked-number", asked_number, 1) };
 	REQUIRE_FALSE(tableIsSane(n, &why));
@@ -1414,7 +1451,7 @@ TEST_CASE("a row may state its set or name one to ask for, and not both", "[rout
 	// And the row itself, so that what is refused above is the second set and
 	// the wrong kind, and not asking for a set at all.
 	const Endpoint alone[] = {
-		{ Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", HTTPD_PARAMS(asked_set), NULL, &nothing_handler, false },
+		{ Method::Get, "/api/v1/x/{id}", AuthLevel::Read, "x", NULL, HTTPD_PARAMS(asked_set), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	const RouteTable a = { HTTPD_TABLE_N("asked", alone, 1) };
 	REQUIRE(tableIsSane(a, &why));
@@ -1444,8 +1481,8 @@ static const Param whole_list_params[] = {
 };
 
 static const Endpoint whole_list_endpoints[] = {
-	{ Method::Put, "/api/v1/whole/{id}", AuthLevel::Write, "takes a list",
-	  HTTPD_PARAMS(whole_list_params), NULL, &wholly, false },
+	{ Method::Put, "/api/v1/whole/{id}", AuthLevel::Write, "takes a list", NULL,
+	  HTTPD_PARAMS(whole_list_params), NULL, &wholly, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 static const RouteTable whole_list_table = { HTTPD_TABLE_N("whole", whole_list_endpoints, 1) };
@@ -1467,8 +1504,8 @@ TEST_CASE("a route naming the whole of its body on a method that carries none is
 		HTTPD_BODY_IS_LIST_OF("items", ParamType::String, "the list", 0, 0),
 	};
 	static const Endpoint reading[] = {
-		{ Method::Get, "/api/v1/whole/{id}", AuthLevel::Read, "reads",
-		  HTTPD_PARAMS(on_a_read), NULL, &nothing_handler, false },
+		{ Method::Get, "/api/v1/whole/{id}", AuthLevel::Read, "reads", NULL,
+		  HTTPD_PARAMS(on_a_read), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("reading", reading, 1) };
 	std::string why;
@@ -1488,8 +1525,8 @@ TEST_CASE("a route naming the whole of its body and a value inside it is refused
 		HTTPD_BODY_REQUIRED_TEXT("what", "a member", 8),
 	};
 	static const Endpoint mixed[] = {
-		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "both",
-		  HTTPD_PARAMS(both_ways), NULL, &nothing_handler, false },
+		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "both", NULL,
+		  HTTPD_PARAMS(both_ways), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("mixed", mixed, 1) };
 	std::string why;
@@ -1505,8 +1542,8 @@ TEST_CASE("a route naming the whole of its body twice is refused", "[router]")
 		HTTPD_BODY_IS_MAP_OF("named", ParamType::String, "the map", 0, 0),
 	};
 	static const Endpoint two[] = {
-		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "twice",
-		  HTTPD_PARAMS(twice), NULL, &nothing_handler, false },
+		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "twice", NULL,
+		  HTTPD_PARAMS(twice), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("twice", two, 1) };
 	std::string why;
@@ -1523,8 +1560,8 @@ TEST_CASE("a list of a kind that does not travel as text is refused", "[router]"
 		HTTPD_BODY_IS_LIST_OF("items", ParamType::Int, "numbers", 0, 0),
 	};
 	static const Endpoint t_ep[] = {
-		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "numbers",
-		  HTTPD_PARAMS(numbers), NULL, &nothing_handler, false },
+		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "numbers", NULL,
+		  HTTPD_PARAMS(numbers), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable t = { HTTPD_TABLE_N("numbers", t_ep, 1) };
 	std::string why;
@@ -1544,8 +1581,8 @@ TEST_CASE("what a row naming the whole of a body counts is read as a count", "[r
 		HTTPD_BODY_IS_MAP_OF("named", ParamType::String, "the map", -1, 4),
 	};
 	static const Endpoint under[] = {
-		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "under",
-		  HTTPD_PARAMS(below), NULL, &nothing_handler, false },
+		{ Method::Post, "/api/v1/whole", AuthLevel::Write, "under", NULL,
+		  HTTPD_PARAMS(below), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable u = { HTTPD_TABLE_N("under", under, 1) };
 	std::string why;
@@ -1557,8 +1594,8 @@ TEST_CASE("what a row naming the whole of a body counts is read as a count", "[r
 		HTTPD_BODY_IS_LIST_OF("items", ParamType::ChannelId, "the list", 9, 2),
 	};
 	static const Endpoint over[] = {
-		{ Method::Put, "/api/v1/whole", AuthLevel::Write, "over",
-		  HTTPD_PARAMS(upside), NULL, &nothing_handler, false },
+		{ Method::Put, "/api/v1/whole", AuthLevel::Write, "over", NULL,
+		  HTTPD_PARAMS(upside), NULL, &nothing_handler, false, Answers200, HTTPD_NO_REFUSALS },
 	};
 	static const RouteTable o = { HTTPD_TABLE_N("over", over, 1) };
 	REQUIRE_FALSE(tableIsSane(o, &why));

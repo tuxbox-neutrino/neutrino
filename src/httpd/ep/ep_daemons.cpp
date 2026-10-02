@@ -73,19 +73,45 @@ Response restartDaemon(const Request &r)
 }
 
 const Param kNameParams[] = {
-	HTTPD_SEGMENT_TEXT_FROM_ASKED_SET("name", "the daemon, as the daemon list names it", 64, &daemonNames),
+	HTTPD_SEGMENT_TEXT_FROM_ASKED_SET("name",
+		"the daemon's identifier, taken from the id field GET /api/v1/daemons answers", 64, &daemonNames),
+};
+
+const RouteRefusal kStartDaemonRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchDaemon,
+		"this box has no daemon called example"),
 };
 
 const Endpoint kDaemonEndpoints[] = {
 	{ Method::Post, "/api/v1/daemons/{name}/start", AuthLevel::System,
-	  "starts one daemon",
-	  HTTPD_PARAMS(kNameParams), NULL, &startDaemon, false },
+	  "starts one daemon", "Starts one named daemon by running its start script as the account "
+	  "this server runs as. `204` means the script ran and returned without an error; it does "
+	  "not by itself mean the process is now in the process table, which is read back with "
+	  "`GET /api/v1/daemons`.\n\n"
+	  "**Preconditions:** `name` is one of the daemons this box knows; whether this box also "
+	  "carries the program or script for it is separate, see `installed` on "
+	  "`GET /api/v1/daemons`.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-daemon`: no daemon has that name. Take names from `GET /api/v1/daemons`.\n\n"
+	  "**Related:** `GET /api/v1/daemons`, `POST /api/v1/daemons/{name}/stop`.",
+	  HTTPD_PARAMS(kNameParams), NULL, &startDaemon, false,
+	  Answers204, HTTPD_REFUSALS(kStartDaemonRefusals) },
 	{ Method::Post, "/api/v1/daemons/{name}/stop", AuthLevel::System,
-	  "stops one daemon",
-	  HTTPD_PARAMS(kNameParams), NULL, &stopDaemon, false },
+	  "stops one daemon", "Stops one named daemon by running its stop script as the account "
+	  "this server runs as. `204` means the script ran and returned without an error; whether "
+	  "the process has actually left the process table is read back with "
+	  "`GET /api/v1/daemons`.\n\n"
+	  "**Related:** `GET /api/v1/daemons`, `POST /api/v1/daemons/{name}/start`.",
+	  HTTPD_PARAMS(kNameParams), NULL, &stopDaemon, false,
+	  Answers204, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/daemons/{name}/restart", AuthLevel::System,
-	  "stops one daemon and starts it again",
-	  HTTPD_PARAMS(kNameParams), NULL, &restartDaemon, false },
+	  "stops one daemon and starts it again", "Stops one named daemon and starts it again, by "
+	  "running its stop script and then its start script as the account this server runs as. "
+	  "`204` means both scripts ran and returned without an error; whether the process is "
+	  "running again afterwards is read back with `GET /api/v1/daemons`.\n\n"
+	  "**Related:** `GET /api/v1/daemons`.",
+	  HTTPD_PARAMS(kNameParams), NULL, &restartDaemon, false,
+	  Answers204, HTTPD_NO_REFUSALS },
 };
 
 } // namespace

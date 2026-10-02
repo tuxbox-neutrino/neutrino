@@ -56,14 +56,14 @@ const FieldDesc kEventFields[] = {
 		"what the guide names this event by, hexadecimal, carrying the channel in its upper bits"),
 	HTTPD_MEMBER("channel_id", FieldType::ChannelId,
 		"the channel the event belongs to, hexadecimal, named the way the channel routes name one, and the half the guide keeps where this box carries no such channel"),
-	HTTPD_MEMBER("title", FieldType::String, "what the event is called"),
+	HTTPD_MEMBER("title", FieldType::String, "the name of the event, as the guide carries it"),
 	/* What the guide calls the short text: where an event has none the event manager fills
 	   this field with the beginning of the long one, cut at a hundred and twenty bytes. Said
 	   here rather than undone, undoing it taking a second read of the guide per event. */
 	HTTPD_MEMBER("description", FieldType::String,
 		"the short text beside the name, empty where there is none, and the beginning of the long text where the event carries no short one"),
-	HTTPD_MEMBER("start", FieldType::Time, "when the event begins, seconds since the epoch"),
-	HTTPD_MEMBER("duration", FieldType::UInt, "how long it runs, in seconds"),
+	HTTPD_MEMBER("start", FieldType::Time, "when the event begins, Unix time in seconds"),
+	HTTPD_MEMBER("duration", FieldType::UInt, "how long the event runs from its start, in seconds"),
 };
 
 const Schema kEventSchema = { "event", HTTPD_FIELDS(kEventFields) };
@@ -99,7 +99,7 @@ const FieldDesc kGridFields[] = {
 	   of rows does not say it: a page ends at the limit or at the ceiling on events,
 	   whichever comes first, so a client that stops on a short page stops in the middle. */
 	HTTPD_MEMBER_OPTIONAL("next_cursor", FieldType::ChannelId,
-		"hand this back as cursor for the page after this one, and absent when this page is the last, which is the only thing that says there is no more"),
+		"the channel id of the last row, hexadecimal; send it back as `cursor` for the next page. Absent on the last page, which is the only thing that says there is no more"),
 };
 
 const Schema kGridSchema = { "epg-grid", HTTPD_FIELDS(kGridFields) };
@@ -109,17 +109,17 @@ const FieldDesc kEventDetailFields[] = {
 		"what the guide names this event by, hexadecimal, carrying the channel in its upper bits"),
 	HTTPD_MEMBER("channel_id", FieldType::ChannelId,
 		"the channel the event belongs to, hexadecimal, named the way the channel routes name one, and the half the guide keeps where this box carries no such channel"),
-	HTTPD_MEMBER("title", FieldType::String, "what the event is called"),
+	HTTPD_MEMBER("title", FieldType::String, "the name of the event, as the guide carries it"),
 	HTTPD_MEMBER("description", FieldType::String,
 		"the short text beside the name, empty where there is none"),
 	HTTPD_MEMBER("long_description", FieldType::String,
 		"the long text under the short one, empty where there is none, and never a copy of the short one"),
-	HTTPD_MEMBER("start", FieldType::Time, "when the event begins, seconds since the epoch"),
-	HTTPD_MEMBER("duration", FieldType::UInt, "how long it runs, in seconds"),
+	HTTPD_MEMBER("start", FieldType::Time, "when the event begins, Unix time in seconds"),
+	HTTPD_MEMBER("duration", FieldType::UInt, "how long the event runs from its start, in seconds"),
 	HTTPD_MEMBER("rating", FieldType::UInt,
-		"the least age in years the event is broadcast for, and nought where it carries no rating, which is not the same as an event for every age"),
+		"the least age in years the event is broadcast for, 0 where it carries no rating, which is not the same as an event for every age"),
 	HTTPD_MEMBER("genre", FieldType::UInt,
-		"what the event is about, as the broadcast's own classification: the broad class in the upper four bits and the narrower one in the lower four, and nought for an event that carries none"),
+		"what the event is about, as the broadcast's own classification: the broad class in the upper 4 bits and the narrower one in the lower 4, and 0 for an event that carries none"),
 };
 
 const Schema kEventDetailSchema = { "event-detail", HTTPD_FIELDS(kEventDetailFields) };
@@ -479,17 +479,23 @@ Response xmltvDocument(const Request &r)
 
 const Param kXmltvParams[] = {
 	HTTPD_QUERY_FROM_SET("mode", "which channels to include, television and radio both when it is left out",
-		"tv,radio,all"),
+		"tv,radio,all",
+		"tv: television channels only\n"
+		"radio: radio channels only\n"
+		"all: television and radio together"),
 };
 
 const Param kWindowParams[] = {
-	HTTPD_QUERY_REQUIRED("channel", ParamType::ChannelId, "the channel, hexadecimal"),
-	HTTPD_QUERY_REQUIRED("from", ParamType::Time, "when the window opens, seconds since the epoch"),
-	HTTPD_QUERY_REQUIRED("to", ParamType::Time, "when it closes, which has to be after it opens"),
+	HTTPD_QUERY_REQUIRED("channel", ParamType::ChannelId,
+		"the channel, hexadecimal, up to 16 digits, as GET /api/v1/channels answers it"),
+	HTTPD_QUERY_REQUIRED("from", ParamType::Time, "when the window opens, Unix time in seconds"),
+	HTTPD_QUERY_REQUIRED("to", ParamType::Time,
+		"when the window closes, Unix time in seconds, must be after from"),
 };
 
 const Param kCurrentParams[] = {
-	HTTPD_QUERY_REQUIRED("channel", ParamType::ChannelId, "the channel, hexadecimal"),
+	HTTPD_QUERY_REQUIRED("channel", ParamType::ChannelId,
+		"the channel, hexadecimal, up to 16 digits, as GET /api/v1/channels answers it"),
 };
 
 /* Both ends of the window are required here for the reason they are required of the one
@@ -500,18 +506,21 @@ const Param kCurrentParams[] = {
    will do and neither will do beside the other. What holds that is the handler: a table
    declares one value at a time and says nothing about two of them together. */
 const Param kGridParams[] = {
-	HTTPD_QUERY_IN("bouquet", ParamType::UInt, "the bouquet whose channels the grid is for, counted from one, both of its halves", 1,
-		kMaxBouquetId),
+	HTTPD_QUERY_IN("bouquet", ParamType::UInt,
+		"the bouquet whose channels the grid is for, counted from 1, television and radio both",
+		1, kMaxBouquetId),
 	HTTPD_QUERY("channels", ParamType::String,
 		"the channels the grid is for, hexadecimal, separated by commas, in the order the rows are wanted"),
-	HTTPD_QUERY_REQUIRED("from", ParamType::Time, "when the window opens, seconds since the epoch"),
-	HTTPD_QUERY_REQUIRED("to", ParamType::Time, "when it closes, which has to be after it opens"),
+	HTTPD_QUERY_REQUIRED("from", ParamType::Time, "when the window opens, Unix time in seconds"),
+	HTTPD_QUERY_REQUIRED("to", ParamType::Time,
+		"when the window closes, Unix time in seconds, must be after from"),
 	HTTPD_QUERY("cursor", ParamType::ChannelId,
-		"the channel of the last row of the page before this one, as that page answered it"),
+		"the `next_cursor` of the page before, a hexadecimal channel id; left out for the first page"),
 	/* The ceiling is the layer's own and is written from it rather than typed
 	   here, so a page that holds more one day does not need this row edited to
 	   allow it. */
-	HTTPD_QUERY_IN("limit", ParamType::UInt, "how many channels at most, twenty when it is left out, and fewer than this are answered where the events of the page reach their own ceiling first", 1,
+	HTTPD_QUERY_IN("limit", ParamType::UInt,
+		"how many channels at most, 20 when it is left out, and fewer than this are answered where the events of the page reach their own ceiling first", 1,
 		(long) coreapi::epg::MAX_GRID_CHANNELS),
 };
 
@@ -521,7 +530,7 @@ const Param kGridParams[] = {
 const Param kEventParams[] = {
 	HTTPD_QUERY_REQUIRED("id", ParamType::ChannelId, "the event, hexadecimal, as a listing names it"),
 	HTTPD_QUERY_REQUIRED("start", ParamType::Time,
-		"when that showing begins, seconds since the epoch, as the listing says beside the identifier"),
+		"when that showing begins, Unix time in seconds, as the listing says beside the identifier"),
 };
 
 const Param kSearchParams[] = {
@@ -529,35 +538,131 @@ const Param kSearchParams[] = {
 	   tables are checked, so the two character floor a search has stays where it is enforced,
 	   one layer down, and a query below it comes back saying which rule it broke. */
 	HTTPD_QUERY_REQUIRED("q", ParamType::String,
-		"what to look for in the name and both texts of an event"),
-	HTTPD_QUERY_REQUIRED("from", ParamType::Time, "when the window opens, seconds since the epoch"),
-	HTTPD_QUERY_REQUIRED("to", ParamType::Time, "when it closes, which has to be after it opens"),
+		"what to look for in the name and both texts of an event, at least 2 characters"),
+	HTTPD_QUERY_REQUIRED("from", ParamType::Time, "when the window opens, Unix time in seconds"),
+	HTTPD_QUERY_REQUIRED("to", ParamType::Time,
+		"when the window closes, Unix time in seconds, must be after from"),
 	/* The ceiling is the layer's own and is written from it rather than typed
 	   here, so a search that returns more one day does not need this row
 	   edited to allow it. */
-	HTTPD_QUERY_IN("limit", ParamType::UInt, "how many at most, one hundred when it is left out", 1,
+	HTTPD_QUERY_IN("limit", ParamType::UInt, "how many at most, 100 when it is left out", 1,
 		(long) coreapi::epg::MAX_SEARCH_RESULTS),
+};
+
+const RouteRefusal kListEventsRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, EmptyWindow,
+		"the window ends before it begins"),
+};
+
+const RouteRefusal kCurrentEventRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoCurrentEvent,
+		"nothing is scheduled for this channel now"),
+};
+
+const RouteRefusal kSearchEventsRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, QueryTooShort,
+		"the search needs at least 2 characters"),
+};
+
+const RouteRefusal kXmltvDocumentRefusals[] = {
+	HTTPD_REFUSES(Internal, BouquetListUnavailable,
+		"the bouquet list could not be read"),
+};
+
+const RouteRefusal kGridEventsRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, ConflictingParameters,
+		"a grid is for a bouquet or for the channels named, and not for both"),
+	HTTPD_REFUSES(InvalidArgument, NoSuchChannel,
+		"the cursor names a channel this request did not ask about"),
+	HTTPD_REFUSES(InvalidArgument, TooManyChannels,
+		"one request names at most 200 channels"),
+};
+
+const RouteRefusal kEventDetailRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchEvent,
+		"the guide holds no event beginning then under that identifier"),
 };
 
 const Endpoint kEpgEndpoints[] = {
 	{ Method::Get, "/api/v1/epg", AuthLevel::Read,
 	  "what a channel is showing over a window of time",
-	  HTTPD_PARAMS(kWindowParams), &kEventListSchema, &listEvents, false },
+	  "Returns every event the guide holds for one channel that overlaps the window "
+	  "`from` to `to`, in start time order. Both ends of the window are required: "
+	  "there is no default window, so a caller that wants a day has to say so. A "
+	  "channel the guide has never seen anything on answers an empty list rather "
+	  "than a refusal, because the guide cannot tell such a channel apart from one "
+	  "that is simply off air.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 empty-window`: `to` is not after `from`.",
+	  HTTPD_PARAMS(kWindowParams), &kEventListSchema, &listEvents, false,
+	  Answers200, HTTPD_REFUSALS(kListEventsRefusals) },
 	{ Method::Get, "/api/v1/epg/current", AuthLevel::Read,
 	  "what a channel is showing now",
-	  HTTPD_PARAMS(kCurrentParams), &kEventSchema, &currentEvent, false },
+	  "Returns the one event the guide says a channel is showing at the moment of "
+	  "the call. There is no window to narrow: the box always answers the event "
+	  "that covers now.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-current-event`: the guide holds no event for that channel covering "
+	  "now, for example on a channel without guide data; show the channel name alone.\n\n"
+	  "**Related:** `GET /api/v1/epg`, the `epg-updated` event on `GET /api/v1/events`.",
+	  HTTPD_PARAMS(kCurrentParams), &kEventSchema, &currentEvent, false,
+	  Answers200, HTTPD_REFUSALS(kCurrentEventRefusals) },
 	{ Method::Get, "/api/v1/epg/search", AuthLevel::Read,
 	  "the events of any channel whose text matches, inside a window",
-	  HTTPD_PARAMS(kSearchParams), &kSearchSchema, &searchEvents, false },
+	  "Searches the whole guide, every channel at once, for events whose title or "
+	  "either text contains `q`, restricted to the window `from` to `to`. There is "
+	  "no cursor: the guide is rebuilt under a reader as the box receives new data, "
+	  "so a position in it would not survive to a second call. A caller that wants "
+	  "more than one page narrows the window instead. The answer carries `truncated` "
+	  "set to true when more events matched than `limit` allowed, because a list "
+	  "exactly as long as the limit cannot say that on its own.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 query-too-short`: `q` is shorter than 2 characters.",
+	  HTTPD_PARAMS(kSearchParams), &kSearchSchema, &searchEvents, false,
+	  Answers200, HTTPD_REFUSALS(kSearchEventsRefusals) },
 	{ Method::Get, "/api/v1/epg/xmltv", AuthLevel::Read,
 	  "every user bouquet's schedule as one XMLTV document",
-	  HTTPD_PARAMS(kXmltvParams), NULL, &xmltvDocument, false },
+	  "Builds and returns the whole schedule of every channel in the user's visible "
+	  "bouquets as one XMLTV document (`application/xml`), written out as it is "
+	  "built rather than assembled in memory first, since a satellite list can run "
+	  "to hundreds of channels and tens of thousands of events. `mode` narrows the "
+	  "document to television or radio channels; left out, it carries both.\n\n"
+	  "**Refusals:**\n"
+	  "- `500 bouquet-list-unavailable`: the bouquet list could not be read.",
+	  HTTPD_PARAMS(kXmltvParams), NULL, &xmltvDocument, false,
+	  Answers200 | Answers206, HTTPD_REFUSALS(kXmltvDocumentRefusals) },
 	{ Method::Get, "/api/v1/epg/grid", AuthLevel::Read,
 	  "what several channels are showing over a window of time, a page of channels at a time, where a page holding fewer rows than were asked for is not on that account the last",
-	  HTTPD_PARAMS(kGridParams), &kGridSchema, &gridEvents, false },
+	  "Returns one row per channel, each row carrying the events of that channel "
+	  "inside the window `from` to `to`, for either a named bouquet or a list of "
+	  "channels named by hand; exactly 1 of the 2 has to be given. The answer is "
+	  "paged in channels: pass the `next_cursor` of one page back as `cursor` to get "
+	  "the next, and stop only once a page carries no `next_cursor` at all. A page "
+	  "may end before `limit` channels are reached if the events of the channels "
+	  "already in it hit the page's own ceiling first, so a short page is not on "
+	  "that account the last one; only a missing `next_cursor` says the walk is "
+	  "over. A row whose channel carried more events than one row holds comes back "
+	  "with `truncated` set to true.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 conflicting-parameters`: both `bouquet` and `channels` were named; use exactly one.\n"
+	  "- `400 no-such-channel`: `cursor` names a channel this request did not ask about.\n"
+	  "- `400 too-many-channels`: `channels` names more than 200 channels by hand.\n\n"
+	  "**Related:** `GET /api/v1/channels`.",
+	  HTTPD_PARAMS(kGridParams), &kGridSchema, &gridEvents, false,
+	  Answers200, HTTPD_REFUSALS(kGridEventsRefusals) },
 	{ Method::Get, "/api/v1/epg/event", AuthLevel::Read,
 	  "one event with the age it is broadcast for, what it is about, and the long text a listing does not carry",
-	  HTTPD_PARAMS(kEventParams), &kEventDetailSchema, &eventDetail, false },
+	  "Returns the full detail of one showing of one event: its short and long "
+	  "texts, the minimum age it is broadcast for, and its genre classification, "
+	  "none of which the listing and search routes carry. `id` and `start` together "
+	  "name the showing, exactly as a listing answered them beside each other, "
+	  "because the guide files more than one showing under the same event "
+	  "identifier.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-event`: the guide holds no event beginning at `start` under that identifier.\n\n"
+	  "**Related:** `GET /api/v1/epg`, `GET /api/v1/epg/current`, `GET /api/v1/epg/search`.",
+	  HTTPD_PARAMS(kEventParams), &kEventDetailSchema, &eventDetail, false,
+	  Answers200, HTTPD_REFUSALS(kEventDetailRefusals) },
 };
 
 } // namespace

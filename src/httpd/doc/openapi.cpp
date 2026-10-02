@@ -38,10 +38,13 @@
 #include "httpd/json.h"
 #include "httpd/router.h"
 #include "httpd/schema.h"
+#include "httpd/server.h"
 #include "httpd/static.h"
+#include "httpd/status.h"
 
 #include "coreapi/base/version.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -90,7 +93,7 @@ const size_t kMaxSchemaDepth = 8;
    answer costs the bytes of the answer, and a growth step that copies fifty kilobytes
    several times is that cost paid again. What is kept afterwards is a buffer of
    exactly the document's size, so the slack is local to the build. */
-const size_t kBuildReserve = 256 * 1024;
+const size_t kBuildReserve = 384 * 1024;
 
 /* Whether an operation needs the second token. A route that changes something and is
    reached without presenting anything is refused already, and Get and Options never
@@ -291,6 +294,77 @@ void appendAskedEnum(Json &j, void (*asks)(std::vector<std::string> &))
 	for (size_t i = 0; i < asked.size(); ++i)
 		j.value(asked[i]);
 	j.endArray();
+}
+
+// What value_docs says about one value of a set, or empty.
+std::string valueDoc(const char *value_docs, const std::string &value)
+{
+	for (const char *q = value_docs; q != NULL && *q != '\0';)
+	{
+		const char *e = std::strchr(q, '\n');
+		const size_t n = (e != NULL) ? (size_t)(e - q) : std::strlen(q);
+		if (n > value.size() + 2 && value.compare(0, value.size(), q, value.size()) == 0 &&
+		    q[value.size()] == ':' && q[value.size() + 1] == ' ')
+			return std::string(q + value.size() + 2, n - value.size() - 2);
+		if (e == NULL)
+			break;
+		q = e + 1;
+	}
+	return std::string();
+}
+
+std::vector<std::string> setValues(const char *values)
+{
+	std::vector<std::string> out;
+	for (const char *q = values; q != NULL && *q != '\0';)
+	{
+		const char *e = std::strchr(q, ',');
+		const size_t n = (e != NULL) ? (size_t)(e - q) : std::strlen(q);
+		out.push_back(std::string(q, n));
+		if (e == NULL)
+			break;
+		q = e + 1;
+	}
+	return out;
+}
+
+// The description with what each value of its set means listed under it.
+std::string describedSet(const char *doc, const char *values, const char *value_docs)
+{
+	std::string out = (doc != NULL) ? doc : "";
+	const std::vector<std::string> v = setValues(values);
+	bool listed = false;
+	for (size_t i = 0; i < v.size(); ++i)
+	{
+		const std::string text = valueDoc(value_docs, v[i]);
+		if (text.empty())
+			continue;
+		out += listed ? "\n- `" : "\n\n- `";
+		out += v[i] + "`: " + text;
+		listed = true;
+	}
+	return out;
+}
+
+void appendEnumDocs(Json &j, const char *values, const char *value_docs)
+{
+	const std::vector<std::string> v = setValues(values);
+	bool any = false;
+	for (size_t i = 0; i < v.size() && !any; ++i)
+		any = !valueDoc(value_docs, v[i]).empty();
+	if (!any)
+		return;
+	j.key("x-enum-descriptions");
+	j.beginObject();
+	for (size_t i = 0; i < v.size(); ++i)
+	{
+		const std::string text = valueDoc(value_docs, v[i]);
+		if (text.empty())
+			continue;
+		j.key(v[i].c_str());
+		j.value(text);
+	}
+	j.endObject();
 }
 
 /* What a value of this kind looks like on the wire, written into an object the caller has
@@ -560,8 +634,10 @@ void appendSchema(Json &j, const Schema &s, const std::vector<SchemaRef> &refs, 
 		if (prose && f.doc != NULL && f.doc[0] != '\0')
 		{
 			j.key("description");
-			j.value(f.doc);
+			j.value(describedSet(f.doc, f.values, f.value_docs));
 		}
+		if (prose)
+			appendEnumDocs(j, f.values, f.value_docs);
 		j.endObject();
 	}
 	j.endObject();
@@ -602,9 +678,9 @@ void appendProblemSchema(Json &j, bool prose)
 {
 	static const char *const kNames[] = { "type", "title", "status", "detail" };
 	static const char *const kDocs[] = {
-		"the kind of refusal, as a path carrying the code a client branches on",
-		"what that code is called",
-		"the status this answer was sent with",
+		"the kind of refusal, as a path ending in the refusal code (e.g. `box-in-standby`); branch on that code, not on `title` or `detail`",
+		"the name of the HTTP status the answer was sent with, for people (e.g. `Forbidden`); one refusal code can come with different titles, so branch on the code in `type`",
+		"the HTTP status this answer was sent with, repeated in the body",
 		"what was found wrong, which is the one member here that quotes what the caller sent"
 	};
 
@@ -635,6 +711,75 @@ void appendProblemSchema(Json &j, bool prose)
 	j.key("additionalProperties");
 	j.value(false);
 	j.endObject();
+}
+
+const char kIntroduction[] =
+	"The HTTP API of a Neutrino set-top box: channels and the guide, timers and recordings, the "
+	"screen and the remote control, settings, storage and the box itself. This document is built "
+	"by the box from the route tables it serves, so it always matches this build.\n\n"
+	"**Access.** Each operation states the level it needs in `x-auth-level`: `public`, `read`, "
+	"`write` or `system`. A caller on a network the server is set to trust for reading "
+	"(by default the private address ranges) gets `read` without credentials. Anything more needs "
+	"a session from `POST /api/v1/login` (a cookie, plus the `X-CSRF-Token` header on every request "
+	"that changes something) or a bearer token from the server configuration. "
+	"`GET /api/v1/session` says what the current request is granted.\n\n"
+	"**Values.** Channel, event and guide ids are hexadecimal strings of up to 16 digits. Moments are "
+	"Unix time in seconds (UTC); durations state their unit. Request bodies are JSON objects; "
+	"members a route does not declare are refused.\n\n"
+	"**Refusals** are `application/problem+json` objects whose `type` ends in a stable code such as "
+	"`box-in-standby`; each operation lists its own codes with an example.\n\n"
+	"**Changes** made by any client, or on the box itself, are announced on the event stream "
+	"`GET /api/v1/events`, so a client can follow the box without polling.";
+
+// Ahead of any box clock and inside thirty two bits.
+const long long kExampleMoment = 2000000000LL;
+const char kExampleChannel[] = "283d000103f2";
+
+bool hasExample(const Param &p)
+{
+	return p.type != ParamType::String || p.choices != NULL;
+}
+
+// nth puts later moments of one body an hour apart, so a stop follows its start.
+void appendExampleValue(Json &j, const Param &p, unsigned nth)
+{
+	const bool bounded = p.min != 0 || p.max != 0;
+	switch (p.type)
+	{
+		case ParamType::Int:
+		case ParamType::UInt:
+			j.value(bounded ? p.min : 0L);
+			return;
+		case ParamType::Time:
+		{
+			long long t = kExampleMoment + 3600LL * nth;
+			if (bounded && (t < (long long) p.min || t > (long long) p.max))
+				t = p.min;
+			j.value(t);
+			return;
+		}
+		case ParamType::Bool:
+			j.value(true);
+			return;
+		case ParamType::String:
+		{
+			std::vector<std::string> asked;
+			if (p.choices != NULL)
+				p.choices(asked);
+			j.value(asked.empty() ? std::string(p.name) : asked[0]);
+			return;
+		}
+		case ParamType::Enum:
+		{
+			const char *const comma = (p.values != NULL) ? std::strchr(p.values, ',') : NULL;
+			j.value((comma != NULL) ? std::string(p.values, comma - p.values)
+			                        : std::string((p.values != NULL) ? p.values : ""));
+			return;
+		}
+		case ParamType::ChannelId:
+			j.value(kExampleChannel);
+			return;
+	}
 }
 
 /* The row that names the whole of a body, and NULL for a route whose body is named
@@ -693,12 +838,20 @@ void appendParameters(Json &j, const Endpoint &ep, bool prose)
 		if (prose && p.doc != NULL && p.doc[0] != '\0')
 		{
 			j.key("description");
-			j.value(p.doc);
+			j.value(describedSet(p.doc, p.values, p.value_docs));
 		}
 		j.key("schema");
 		j.beginObject();
 		appendParamType(j, p);
+		if (prose)
+			appendEnumDocs(j, p.values, p.value_docs);
 		j.endObject();
+		// Only where one has to be filled in: a filled optional one is sent.
+		if ((p.in == In::Path || p.required) && hasExample(p))
+		{
+			j.key("example");
+			appendExampleValue(j, p, 0);
+		}
 		j.endObject();
 	}
 	/* The same header x-csrf-header above names, drawn here rather than left for a reader
@@ -720,9 +873,9 @@ void appendParameters(Json &j, const Endpoint &ep, bool prose)
 		if (prose)
 		{
 			j.key("description");
-			j.value("the second token a session cookie needs beside it on a request that "
-				"changes something, and never asked of a caller presenting a bearer token "
-				"instead");
+			j.value("the `csrf` value from `POST /api/v1/login` or `GET /api/v1/session`; required "
+				"beside the session cookie on every request that changes something, and not "
+				"needed with a bearer token. Without it such a request is refused with `403`");
 		}
 		j.key("schema");
 		j.beginObject();
@@ -805,6 +958,22 @@ void appendRequestBody(Json &j, const Endpoint &ep, bool prose)
 			// here as a ceiling on each one of them.
 			appendParamType(j, *whole, false);
 			j.endObject();
+			j.endObject();
+			j.key("example");
+			if (ep.body_example != NULL)
+			{
+				j.raw(ep.body_example);
+			}
+			else
+			{
+				j.beginArray();
+				appendExampleValue(j, *whole, 0);
+				j.endArray();
+			}
+			j.endObject();
+			j.endObject();
+			j.endObject();
+			return;
 		}
 		else
 		{
@@ -829,6 +998,11 @@ void appendRequestBody(Json &j, const Endpoint &ep, bool prose)
 			j.endObject();
 		}
 		j.endObject();
+		if (ep.body_example != NULL)
+		{
+			j.key("example");
+			j.raw(ep.body_example);
+		}
 		j.endObject();
 		j.endObject();
 		j.endObject();
@@ -875,8 +1049,10 @@ void appendRequestBody(Json &j, const Endpoint &ep, bool prose)
 		if (prose && p.doc != NULL && p.doc[0] != '\0')
 		{
 			j.key("description");
-			j.value(p.doc);
+			j.value(describedSet(p.doc, p.values, p.value_docs));
 		}
+		if (prose)
+			appendEnumDocs(j, p.values, p.value_docs);
 		j.endObject();
 	}
 	j.endObject();
@@ -897,26 +1073,59 @@ void appendRequestBody(Json &j, const Endpoint &ep, bool prose)
 	j.key("additionalProperties");
 	j.value(false);
 	j.endObject();
+
+	j.key("example");
+	if (ep.body_example != NULL)
+	{
+		j.raw(ep.body_example);
+		j.endObject();
+		j.endObject();
+		j.endObject();
+		return;
+	}
+	j.beginObject();
+	unsigned moments = 0;
+	for (size_t i = 0; i < ep.param_count; ++i)
+	{
+		const Param &p = ep.params[i];
+		if (p.in != In::Body || p.name == NULL || p.name[0] == '\0')
+			continue;
+		j.key(p.name);
+		appendExampleValue(j, p, moments);
+		if (p.type == ParamType::Time)
+			++moments;
+	}
+	j.endObject();
+
 	j.endObject();
 	j.endObject();
 	j.endObject();
 }
 
-void appendResponses(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &refs)
+struct AnswerDoc
 {
-	j.key("responses");
-	j.beginObject();
+	unsigned    bit;
+	int         code;
+	const char *what;
+};
 
-	/* The range and not a number. The tables declare what an answer carries and not what
-	   it is sent with, and the codes this server answers with include the one for a thing
-	   that was made and the one for a message handed to the box's own loop, so a document
-	   naming 200 for every route would be wrong about the ones that do not answer it. The
-	   description is the format's and not the tables': a Response Object without one is not
-	   a document a reader accepts, so it stays in a build compiled without the prose. */
-	j.key("2XX");
-	j.beginObject();
-	j.key("description");
-	j.value("the answer");
+// Kept without the prose: a Response Object needs a description.
+const AnswerDoc kAnswerDocs[] = {
+	{ Answers200, StatusOk,             "the answer" },
+	{ Answers201, StatusCreated,        "made" },
+	{ Answers202, StatusAccepted,       "taken, and carried out on the box's own loop" },
+	{ Answers204, StatusNoContent,      "done" },
+	{ Answers206, StatusPartialContent, "the stretch of the file that was asked for" },
+	{ Answers207, StatusMultiStatus,    "one outcome per value sent" },
+};
+
+const size_t kAnswerDocCount = sizeof(kAnswerDocs) / sizeof(kAnswerDocs[0]);
+
+void appendAnswerContent(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &refs, int code)
+{
+	if (code == StatusAccepted || code == StatusNoContent || code == StatusPartialContent)
+		return;
+
 	if (events::isStreamRoute(ep))
 	{
 		/* A stream and not a document, so what is stated is the media type and nothing about a
@@ -933,34 +1142,232 @@ void appendResponses(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &
 		j.endObject();
 		j.endObject();
 		j.endObject();
+		return;
 	}
-	else if (ep.schema != NULL)
+	if (ep.schema == NULL)
+		return;
+
+	const std::string ref = refFor(ep.schema, refs);
+	j.key("content");
+	j.beginObject();
+	j.key("application/json");
+	j.beginObject();
+	j.key("schema");
+	j.beginObject();
+	if (!ref.empty())
 	{
-		const std::string ref = refFor(ep.schema, refs);
-		j.key("content");
-		j.beginObject();
-		j.key("application/json");
-		j.beginObject();
-		j.key("schema");
-		j.beginObject();
-		if (!ref.empty())
+		j.key("$ref");
+		j.value(ref);
+	}
+	else
+	{
+		j.key("type");
+		j.value("object");
+	}
+	j.endObject();
+	j.endObject();
+	j.endObject();
+}
+
+struct ExampleRef
+{
+	int                http;
+	coreapi::ErrorCode code;
+	std::string        detail;
+	std::string        key;
+};
+
+const ExampleRef *exampleFor(const StatedRefusal &r, const std::vector<ExampleRef> &examples)
+{
+	for (size_t i = 0; i < examples.size(); ++i)
+	{
+		if (examples[i].http == r.http && examples[i].code == r.code && examples[i].detail == r.detail)
+			return &examples[i];
+	}
+	return NULL;
+}
+
+void collectExamples(const Endpoint &ep, std::vector<ExampleRef> &out)
+{
+	std::vector<StatedRefusal> stated;
+	statedRefusals(ep, stated);
+	for (size_t i = 0; i < stated.size(); ++i)
+	{
+		if (exampleFor(stated[i], out) != NULL)
+			continue;
+		ExampleRef e;
+		e.http = stated[i].http;
+		e.code = stated[i].code;
+		e.detail = stated[i].detail;
+		e.key = stated[i].example;
+		for (unsigned n = 2;; ++n)
 		{
-			j.key("$ref");
-			j.value(ref);
+			bool taken = false;
+			for (size_t k = 0; k < out.size() && !taken; ++k)
+				taken = (out[k].key == e.key);
+			if (!taken)
+				break;
+			char suffix[16];
+			std::snprintf(suffix, sizeof(suffix), "-%u", n);
+			e.key = stated[i].example + suffix;
 		}
+		out.push_back(e);
+	}
+}
+
+void appendProblemExample(Json &j, const ExampleRef &r)
+{
+	j.key(r.key.c_str());
+	j.beginObject();
+	j.key("value");
+	j.beginObject();
+	j.key("type");
+	j.value(std::string("/errors/") + coreapi::codeString(r.code));
+	j.key("title");
+	j.value(problemTitle(r.http));
+	j.key("status");
+	j.value(r.http);
+	j.key("detail");
+	j.value(r.detail);
+	j.endObject();
+	j.endObject();
+}
+
+struct RefusedRef
+{
+	int                                               http;
+	std::vector<std::pair<std::string, std::string> > examples;
+	std::string                                       key;
+};
+
+void refusedGroups(const Endpoint &ep, const std::vector<ExampleRef> &examples,
+                   std::vector<RefusedRef> &out)
+{
+	out.clear();
+	std::vector<StatedRefusal> refusals;
+	statedRefusals(ep, refusals);
+	for (size_t i = 0; i < refusals.size(); ++i)
+	{
+		const ExampleRef *const e = exampleFor(refusals[i], examples);
+		if (e == NULL)
+			continue;
+		size_t g = 0;
+		while (g < out.size() && out[g].http != refusals[i].http)
+			++g;
+		if (g == out.size())
+		{
+			out.push_back(RefusedRef());
+			out[g].http = refusals[i].http;
+		}
+		out[g].examples.push_back(std::make_pair(refusals[i].example, e->key));
+	}
+}
+
+const RefusedRef *sharedFor(const RefusedRef &g, const std::vector<RefusedRef> &shared)
+{
+	for (size_t i = 0; i < shared.size(); ++i)
+	{
+		if (shared[i].http == g.http && shared[i].examples == g.examples)
+			return &shared[i];
+	}
+	return NULL;
+}
+
+void collectRefused(const Endpoint &ep, const std::vector<ExampleRef> &examples,
+                    std::vector<RefusedRef> &shared)
+{
+	std::vector<RefusedRef> groups;
+	refusedGroups(ep, examples, groups);
+	for (size_t i = 0; i < groups.size(); ++i)
+	{
+		if (sharedFor(groups[i], shared) != NULL)
+			continue;
+		unsigned taken = 0;
+		for (size_t k = 0; k < shared.size(); ++k)
+			taken += (shared[k].http == groups[i].http) ? 1 : 0;
+		char key[32];
+		if (taken == 0)
+			std::snprintf(key, sizeof(key), "refused-%d", groups[i].http);
 		else
-		{
-			j.key("type");
-			j.value("object");
-		}
-		j.endObject();
-		j.endObject();
+			std::snprintf(key, sizeof(key), "refused-%d-%u", groups[i].http, taken + 1);
+		groups[i].key = key;
+		shared.push_back(groups[i]);
+	}
+}
+
+void appendRefused(Json &j, const RefusedRef &g)
+{
+	j.beginObject();
+	j.key("description");
+	j.value(problemTitle(g.http));
+	j.key("content");
+	j.beginObject();
+	j.key(problemContentType());
+	j.beginObject();
+	j.key("schema");
+	j.beginObject();
+	j.key("$ref");
+	j.value(std::string("#/components/schemas/") + kProblemKey);
+	j.endObject();
+	j.key("examples");
+	j.beginObject();
+	for (size_t i = 0; i < g.examples.size(); ++i)
+	{
+		j.key(g.examples[i].first.c_str());
+		j.beginObject();
+		j.key("$ref");
+		j.value(std::string("#/components/examples/") + g.examples[i].second);
 		j.endObject();
 	}
 	j.endObject();
+	j.endObject();
+	j.endObject();
+	j.endObject();
+}
 
-	// One refusal for every way this server turns a request down, pointed at
-	// rather than written out per operation, so the document carries it once.
+bool byStatus(const RefusedRef &a, const RefusedRef &b)
+{
+	return a.http < b.http;
+}
+
+void appendResponses(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &refs,
+                     const std::vector<ExampleRef> &examples,
+                     const std::vector<RefusedRef> &shared)
+{
+	j.key("responses");
+	j.beginObject();
+
+	for (size_t i = 0; i < kAnswerDocCount; ++i)
+	{
+		if ((ep.answers & kAnswerDocs[i].bit) == 0)
+			continue;
+		char key[8];
+		std::snprintf(key, sizeof(key), "%d", kAnswerDocs[i].code);
+		j.key(key);
+		j.beginObject();
+		j.key("description");
+		j.value(kAnswerDocs[i].what);
+		appendAnswerContent(j, ep, refs, kAnswerDocs[i].code);
+		j.endObject();
+	}
+
+	std::vector<RefusedRef> groups;
+	refusedGroups(ep, examples, groups);
+	std::stable_sort(groups.begin(), groups.end(), byStatus);
+	for (size_t i = 0; i < groups.size(); ++i)
+	{
+		const RefusedRef *const g = sharedFor(groups[i], shared);
+		if (g == NULL)
+			continue;
+		char key[8];
+		std::snprintf(key, sizeof(key), "%d", g->http);
+		j.key(key);
+		j.beginObject();
+		j.key("$ref");
+		j.value(std::string("#/components/responses/") + g->key);
+		j.endObject();
+	}
+
 	j.key("default");
 	j.beginObject();
 	j.key("$ref");
@@ -970,7 +1377,9 @@ void appendResponses(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &
 	j.endObject();
 }
 
-void appendOperation(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &refs, bool prose,
+void appendOperation(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &refs,
+                     const std::vector<ExampleRef> &examples,
+                     const std::vector<RefusedRef> &shared, bool prose,
                      const char *tag)
 {
 	j.beginObject();
@@ -994,6 +1403,11 @@ void appendOperation(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &
 	{
 		j.key("summary");
 		j.value(ep.summary);
+	}
+	if (prose && ep.description != NULL && ep.description[0] != '\0')
+	{
+		j.key("description");
+		j.value(ep.description);
 	}
 
 	/* What a caller has to be, as the level the route declares rather than as the
@@ -1057,7 +1471,7 @@ void appendOperation(Json &j, const Endpoint &ep, const std::vector<SchemaRef> &
 
 	appendParameters(j, ep, prose);
 	appendRequestBody(j, ep, prose);
-	appendResponses(j, ep, refs);
+	appendResponses(j, ep, refs, examples, shared);
 
 	j.endObject();
 }
@@ -1113,7 +1527,7 @@ const TagDoc kTags[] = {
 	  "and the shape a caller has to send to change one." },
 	{ "system",
 	  "What this box is and how it is doing: its build, its load, its time, the programs it runs, "
-	  "and the four calls that stop or restart it." },
+	  "standby, and the 3 calls that reboot it, switch it off or restart its program." },
 	{ "webserver",
 	  "The server answering this request, as it is set up: the port and the address it listens "
 	  "on, the one account it takes a password under, who reads from it without presenting one, "
@@ -1126,7 +1540,7 @@ const TagDoc kTags[] = {
 	  "The places this box writes to and the files on them: the mounts it knows, a directory, and "
 	  "one file read or written whole." },
 	{ "netfs",
-	  "The filesystems this box mounts from another machine, as the eight entries each of its two "
+	  "The filesystems this box mounts from another machine, as the 8 entries each of its 2 "
 	  "tables holds rather than as the lines of a file: the ones mounted at start up and kept, and "
 	  "the ones the automounter brings up when somebody looks at them. Passwords go in and never "
 	  "come back out." },
@@ -1141,11 +1555,11 @@ const TagDoc kTags[] = {
 	{ "webtv",
 	  "The channels this box plays from an address somewhere else rather than off an aerial, "
 	  "fetched here and handed on under this box's own name, so that a browser talks to one "
-	  "server instead of two. No route here takes an address: it takes a channel of this box, or "
+	  "server instead of 2. No route here takes an address: it takes a channel of this box, or "
 	  "a name this box minted for an address it read out of that channel's playlist." },
 	{ "config",
-	  "The box's configuration documents as whole files, read and written as they are on disk, "
-	  "and telling the program to read one again. Not the settings above: these are the files "
+	  "The box's configuration documents as whole files, read as they are on disk, "
+	  "and telling the program to read its configuration again. Not the settings above: these are the files "
 	  "underneath them, and nothing here checks what is put in one." },
 	{ "events",
 	  "The one stream a client stays connected to, to be told what changed instead of asking "
@@ -1220,6 +1634,66 @@ bool pathSeenBefore(const RouteTable *const *tables, size_t table_count,
 
 } // namespace
 
+namespace
+{
+
+void state(std::vector<StatedRefusal> &out, int http, coreapi::ErrorCode code,
+           const std::string &detail, const char *rule, const char *variant = "")
+{
+	const std::string example = std::string(coreapi::codeString(code)) + variant;
+	for (size_t i = 0; i < out.size(); ++i)
+	{
+		if (out[i].http == http && out[i].example == example)
+			return;
+	}
+	StatedRefusal r;
+	r.http = http;
+	r.code = code;
+	r.detail = detail;
+	r.example = example;
+	r.rule = rule;
+	out.push_back(r);
+}
+
+// The transport's ceiling holds whether or not the table names a body.
+bool takesBody(const Endpoint &ep)
+{
+	return ep.method == Post || ep.method == Put || ep.method == Patch;
+}
+
+} // namespace
+
+void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
+{
+	out.clear();
+	for (size_t i = 0; i < ep.refusal_count && ep.refusals != NULL; ++i)
+	{
+		const RouteRefusal &r = ep.refusals[i];
+		state(out, refusalStatus(r), r.code, (r.detail != NULL) ? r.detail : "", NULL);
+	}
+
+	if (ep.auth != AuthLevel::Public)
+		state(out, StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail(), "level");
+	// Asked of every session holder, on public routes too.
+	if (ep.method != Get && ep.method != Options)
+		state(out, StatusForbidden, coreapi::ErrorCode::NotPermitted, csrfRefusedDetail(), "token",
+		      "-without-token");
+
+	std::vector<std::pair<coreapi::ErrorCode, std::string> > checked;
+	parameterRefusals(ep, checked);
+	for (size_t i = 0; i < checked.size(); ++i)
+		state(out, StatusBadRequest, checked[i].first, checked[i].second, "parameters");
+
+	if (takesBody(ep))
+		state(out, StatusPayloadTooLarge, coreapi::ErrorCode::BodyTooLarge, tooLargeDetail(), "body");
+	if ((ep.answers & Answers206) != 0)
+		state(out, StatusRangeNotSatisfiable, coreapi::ErrorCode::RangeOutsideFile,
+		      rangeRefusedDetail(), "range");
+	if (events::isStreamRoute(ep))
+		state(out, StatusServiceUnavailable, coreapi::ErrorCode::TooManyStreams,
+		      events::streamsFullDetail(), "seats");
+}
+
 const char *documentPath()
 {
 	return kPath;
@@ -1251,6 +1725,22 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 		for (size_t i = 0; i < tables[t]->count; ++i)
 			collect(tables[t]->endpoints[i].schema, refs, 0);
 	}
+	std::vector<ExampleRef> examples;
+	for (size_t t = 0; t < table_count; ++t)
+	{
+		if (!tableUsable(tables[t]))
+			continue;
+		for (size_t i = 0; i < tables[t]->count; ++i)
+			collectExamples(tables[t]->endpoints[i], examples);
+	}
+	std::vector<RefusedRef> shared;
+	for (size_t t = 0; t < table_count; ++t)
+	{
+		if (!tableUsable(tables[t]))
+			continue;
+		for (size_t i = 0; i < tables[t]->count; ++i)
+			collectRefused(tables[t]->endpoints[i], examples, shared);
+	}
 
 	Json j(out, kBuildReserve);
 	j.beginObject();
@@ -1272,7 +1762,7 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 	if (with_descriptions)
 	{
 		j.key("description");
-		j.value("Every route this box answers, written out of the tables the server is built from.");
+		j.value(kIntroduction);
 	}
 	j.endObject();
 
@@ -1398,6 +1888,17 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 	j.endObject();
 	j.endObject();
 	j.endObject();
+	for (size_t i = 0; i < shared.size(); ++i)
+	{
+		j.key(shared[i].key.c_str());
+		appendRefused(j, shared[i]);
+	}
+	j.endObject();
+
+	j.key("examples");
+	j.beginObject();
+	for (size_t i = 0; i < examples.size(); ++i)
+		appendProblemExample(j, examples[i]);
 	j.endObject();
 
 	j.key("schemas");
@@ -1446,7 +1947,8 @@ void appendDocument(std::string &out, const RouteTable *const *tables,
 					if (other.param_count > 0 && other.params == NULL)
 						continue;
 					j.key(key);
-					appendOperation(j, other, refs, with_descriptions, tables[t2]->tag);
+					appendOperation(j, other, refs, examples, shared, with_descriptions,
+					                tables[t2]->tag);
 				}
 			}
 			j.endObject();
@@ -1690,7 +2192,15 @@ Response serveDocument(const Request &)
 const Endpoint kOpenApiEndpoints[] = {
 	{ Method::Get, kPath, AuthLevel::Read,
 	  "every route this server answers, as an OpenAPI document",
-	  NULL, 0, NULL, &serveDocument, false },
+	  "Answers this document: an OpenAPI 3.1 description of every route this build serves, built "
+	  "from the same route tables the server dispatches with. It is built once and kept, and "
+	  "sent compressed to a client that sends `Accept-Encoding: gzip`.\n\n"
+	  "A build configured without the API documentation answers the same paths, parameters and "
+	  "shapes without the descriptions; `api_doc` of `GET /api/v1/system/info` says which one this "
+	  "box carries.\n\n"
+	  "**Related:** `GET /api/v1/system/info`.",
+	  NULL, 0, NULL, &serveDocument, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 };
 
 } // namespace

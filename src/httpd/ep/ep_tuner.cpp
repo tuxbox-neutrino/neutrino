@@ -41,14 +41,14 @@ namespace
 {
 
 const FieldDesc kSignalFields[] = {
-	HTTPD_MEMBER("adapter", FieldType::Int, "which adapter the tuner that answered is on"),
+	HTTPD_MEMBER("adapter", FieldType::Int, "which DVB adapter number the tuner that answered is on"),
 	HTTPD_MEMBER("number", FieldType::Int,
 		"which tuner of that adapter it is, the pair being what names one"),
-	HTTPD_MEMBER("strength", FieldType::UInt, "how strong the signal is, out of full_scale below"),
+	HTTPD_MEMBER("strength", FieldType::UInt, "how strong the signal is, a raw reading out of full_scale below"),
 	HTTPD_MEMBER("snr", FieldType::UInt,
-		"how far the signal stands above the noise, out of full_scale below"),
+		"how far the signal stands above the noise, a raw reading out of full_scale below"),
 	HTTPD_MEMBER("full_scale", FieldType::UInt,
-		"what the two readings above are out of, so a reader wanting a percentage has both halves of the division"),
+		"what the 2 readings above are out of, currently 65535 (16 bits), so a reader wanting a percentage has both halves of the division"),
 	HTTPD_MEMBER("bit_error_rate", FieldType::UInt,
 		"how many bits arrived wrong, as a count the tuner keeps and not a reading out of a range, so nothing divides it"),
 	HTTPD_MEMBER("locked", FieldType::Bool,
@@ -58,16 +58,16 @@ const FieldDesc kSignalFields[] = {
 const Schema kSignalSchema = { "signal", HTTPD_FIELDS(kSignalFields) };
 
 const FieldDesc kFrontendFields[] = {
-	HTTPD_MEMBER("adapter", FieldType::Int, "which adapter this tuner is on"),
+	HTTPD_MEMBER("adapter", FieldType::Int, "which DVB adapter number this tuner is on"),
 	HTTPD_MEMBER("number", FieldType::Int,
 		"which tuner of that adapter it is, the pair being what names one"),
 	HTTPD_MEMBER("name", FieldType::String,
 		"what the driver calls it, which is the only name a tuner has"),
-	HTTPD_MEMBER("satellite", FieldType::Bool, "whether it can receive from a satellite"),
-	HTTPD_MEMBER("cable", FieldType::Bool, "whether it can receive from a cable"),
-	HTTPD_MEMBER("terrestrial", FieldType::Bool, "whether it can receive from an aerial"),
+	HTTPD_MEMBER("satellite", FieldType::Bool, "whether this tuner can receive from a satellite dish"),
+	HTTPD_MEMBER("cable", FieldType::Bool, "whether this tuner can receive from a cable connection"),
+	HTTPD_MEMBER("terrestrial", FieldType::Bool, "whether this tuner can receive from a terrestrial aerial"),
 	HTTPD_MEMBER("in_use", FieldType::Bool,
-		"whether something is holding it, which on a box with two tuners is what a recording looks like"),
+		"whether something is holding it, which on a box with 2 tuners is what a recording looks like"),
 	HTTPD_MEMBER("live", FieldType::Bool,
 		"whether the live picture is coming from this one, which nothing does while a stream or a recording is what plays"),
 };
@@ -171,13 +171,46 @@ Response resetTuner(const Request &)
 	return noContent();
 }
 
+const RouteRefusal kLiveSignalRefusals[] = {
+	HTTPD_REFUSES(NotSupported, NoTuner,
+		"no tuner is carrying a picture"),
+};
+
+const RouteRefusal kListFrontendsRefusals[] = {
+	HTTPD_REFUSES(Internal, FrontendListUnavailable,
+		"the tuners of this box could not be read"),
+};
+
+const RouteRefusal kResetTunerRefusals[] = {
+	HTTPD_REFUSES(Internal, TunerNotReset,
+		"the box did not put its tuners through a reset"),
+};
+
 const Endpoint kTunerEndpoints[] = {
 	{ Method::Get, "/api/v1/tuner/signal", AuthLevel::Read,
-	  "what the tuner carrying the picture is measuring",
-	  NULL, 0, &kSignalSchema, &liveSignal, false },
+	  "what the tuner carrying the picture is measuring", "Reads the raw signal "
+	  "strength, signal to noise ratio and bit error rate of the tuner that is "
+	  "currently feeding the live picture, plus the full scale value the first 2 "
+	  "readings are taken against and whether the tuner has a usable lock. The "
+	  "values are not percentages: divide `strength` or `snr` by `full_scale` to "
+	  "get one.\n\n"
+	  "**Refusals:**\n"
+	  "- `501 no-tuner`: no tuner is currently feeding the live picture, either "
+	  "because the box plays a stream or a recording instead, or because the "
+	  "tuner itself could not be read.",
+	  NULL, 0, &kSignalSchema, &liveSignal, false,
+	  Answers200, HTTPD_REFUSALS(kLiveSignalRefusals) },
 	{ Method::Get, "/api/v1/tuner/frontends", AuthLevel::Read,
-	  "every tuner this box has and what each of them is doing",
-	  NULL, 0, &kFrontendListSchema, &listFrontends, false },
+	  "every tuner this box has and what each of them is doing", "Lists every "
+	  "tuner the box found while it started, with what it can receive, whether "
+	  "something currently holds it (for example a recording) and whether it is "
+	  "the one feeding the live picture. A box with no tuner at all answers with "
+	  "an empty list rather than with a refusal. While the box plays a stream or "
+	  "a recording instead of a live channel, every tuner answers `live: false`, "
+	  "even the one last tuned to.\n\n"
+	  "**Related:** `GET /api/v1/tuner/signal`.",
+	  NULL, 0, &kFrontendListSchema, &listFrontends, false,
+	  Answers200, HTTPD_REFUSALS(kListFrontendsRefusals) },
 	/* System, where the reload of the channel lists beside it is Write, and the
 	   difference is what each of them touches. That one rewrites what the box
 	   holds in memory and leaves the picture where it is; this one drives the
@@ -192,7 +225,23 @@ const Endpoint kTunerEndpoints[] = {
 	   out for reading and writing from being able to take the picture off. */
 	{ Method::Post, "/api/v1/tuner/reset", AuthLevel::System,
 	  "puts the tuners down and up again and tunes the running channel afresh, for a picture that has gone while the box carried on",
-	  NULL, 0, NULL, &resetTuner, false },
+	  "Puts the channel daemon into standby and immediately out of it again, "
+	  "which closes and reopens every frontend, then tunes the channel that was "
+	  "last playing once more. `204` means the channel daemon accepted the "
+	  "retune; it does not mean the picture is back, which is what "
+	  "`GET /api/v1/tuner/signal` says.\n\n"
+	  "**Preconditions:** none are checked. It is meant for a box that is on: in "
+	  "standby it brings the channel daemon's tuners up while the box itself "
+	  "stays in standby, so check `GET /api/v1/system/standby` first.\n\n"
+	  "**Side effects:** every live viewer and every stream this box is serving "
+	  "loses its picture while the frontends are closed, because this holds the "
+	  "channel daemon's own standby and not only the tuner this client happens "
+	  "to be watching.\n\n"
+	  "**Refusals:**\n"
+	  "- `500 tuner-not-reset`: the channel daemon did not confirm the retune.\n\n"
+	  "**Related:** `GET /api/v1/tuner/signal`.",
+	  NULL, 0, NULL, &resetTuner, false,
+	  Answers204, HTTPD_REFUSALS(kResetTunerRefusals) },
 };
 
 } // namespace

@@ -117,6 +117,8 @@ struct FieldDesc
 	const char   *doc;
 	const Schema *nested;
 	const char   *values;
+	// "value: text" lines, one per value of the set.
+	const char   *value_docs;
 	ElementType   element;
 	/* The set of a member whose set the build decides, which a table cannot write down: the
 	   daemons this box drives are a list the layer below keeps, and a copy typed here would
@@ -149,38 +151,38 @@ struct Schema
    over a shape refuses a list of plain values that does not say what its values are
    and an object carrying no shape. */
 #define HTTPD_MEMBER(name, type, doc) \
-	(name), (type), false, (doc), NULL, NULL, httpd::ElementType::None, NULL
+	(name), (type), false, (doc), NULL, NULL, NULL, httpd::ElementType::None, NULL
 
 /* A member some answers leave out. The exception, and the one a reader has to
    test for before it reads it: absence is written where it is the only
    truthful answer, which is a value the box could not read at all. */
 #define HTTPD_MEMBER_OPTIONAL(name, type, doc) \
-	(name), (type), true, (doc), NULL, NULL, httpd::ElementType::None, NULL
+	(name), (type), true, (doc), NULL, NULL, NULL, httpd::ElementType::None, NULL
 
 /* A member whose text is one of a stated set, and never anything else. Written only
    where the handler cannot answer outside the set, which is what check-answer-sets.sh
    holds every one of these to: a set the server may step outside of makes a generated
    client refuse an answer the box was right to give. */
-#define HTTPD_MEMBER_OF_SET(name, set, doc) \
-	(name), httpd::FieldType::String, false, (doc), NULL, (set), httpd::ElementType::None, NULL
+#define HTTPD_MEMBER_OF_SET(name, set, doc, value_docs) \
+	(name), httpd::FieldType::String, false, (doc), NULL, (set), (value_docs), httpd::ElementType::None, NULL
 
 // A member that is an object of a named shape. Always a named one: an object
 // with no shape beside it is a member a reader is told nothing about.
 #define HTTPD_OBJECT(name, shape, doc) \
-	(name), httpd::FieldType::Object, false, (doc), (shape), NULL, httpd::ElementType::None, NULL
+	(name), httpd::FieldType::Object, false, (doc), (shape), NULL, NULL, httpd::ElementType::None, NULL
 
 // A member that is a list of objects of a named shape.
 #define HTTPD_LIST_OF(name, shape, doc) \
-	(name), httpd::FieldType::Array, false, (doc), (shape), NULL, httpd::ElementType::None, NULL
+	(name), httpd::FieldType::Array, false, (doc), (shape), NULL, NULL, httpd::ElementType::None, NULL
 
 // The same, left out of some answers.
 #define HTTPD_LIST_OF_OPTIONAL(name, shape, doc) \
-	(name), httpd::FieldType::Array, true, (doc), (shape), NULL, httpd::ElementType::None, NULL
+	(name), httpd::FieldType::Array, true, (doc), (shape), NULL, NULL, httpd::ElementType::None, NULL
 
 // A member that is a list of plain values, which says what those values are
 // because there are no members to name them.
 #define HTTPD_LIST_OF_VALUES(name, element, doc) \
-	(name), httpd::FieldType::Array, false, (doc), NULL, NULL, (element), NULL
+	(name), httpd::FieldType::Array, false, (doc), NULL, NULL, NULL, (element), NULL
 
 /* A member whose text is one of a set the build decides, which a table cannot write
    down.
@@ -195,14 +197,14 @@ struct Schema
    a set typed into a row and the function that writes the member are two texts that
    can drift, and here they are one function. */
 #define HTTPD_MEMBER_FROM_ASKED_SET(name, doc, asks) \
-	(name), httpd::FieldType::String, false, (doc), NULL, NULL, httpd::ElementType::None, (asks)
+	(name), httpd::FieldType::String, false, (doc), NULL, NULL, NULL, httpd::ElementType::None, (asks)
 
 /* A member spelled out field by field, for a case about the row itself: a set beside a
    kind that is not text, a list of plain values that says nothing about them, an object
    carrying no shape. Every one of those is a row the macros above cannot write. Nothing
    that means its row to be right should reach for this. */
 #define HTTPD_MEMBER_AS_WRITTEN(name, type, optional, doc, shape, set, element) \
-	(name), (type), (optional), (doc), (shape), (set), (element), NULL
+	(name), (type), (optional), (doc), (shape), (set), NULL, (element), NULL
 
 /* Whether a schema is one this layer wrote right. A schema nothing checks is decoration:
    it is read by no handler, so a member renamed in the writer and left alone here would

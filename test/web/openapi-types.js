@@ -27,7 +27,9 @@ const SCALARS = { string: 'string', integer: 'number', number: 'number', boolean
 const KNOWN = [
 	'type', 'description', 'properties', 'required', 'additionalProperties',
 	'items', 'enum', 'format', 'minimum', 'maximum', 'minLength', 'maxLength',
-	'pattern', 'default', 'example', '$ref', 'x-max-bytes', 'title', 'nullable'
+	'pattern', 'default', 'example', '$ref', 'x-max-bytes', 'title', 'nullable',
+	// What each value of an enum means: documentation, no bearing on the type.
+	'x-enum-descriptions'
 ];
 
 // Keywords that bound a value without saying anything about its type: an array of
@@ -231,15 +233,30 @@ function renderBody(operation, where, depth) {
 	return operation.requestBody.required === true ? shape : shape + ' | undefined';
 }
 
+// 206 only answers a caller asking for a range, so it never decides the result.
+const SUCCESS = ['200', '201', '207', '202', '204'];
+
 // What a caller gets back. An answer with nothing in it is null and not void:
 // the client hands back null for a 204 and for an empty body, and a screen
 // that assigns it somewhere should have to say so.
 function renderResult(operation, where, depth) {
 	const responses = operation.responses || {};
-	const ok = responses['2XX'] || responses['200'];
-	if (ok === undefined) {
-		die(where, 'no answer under 2XX, so there is nothing to say a caller gets');
+	for (const code of Object.keys(responses)) {
+		if (code.charAt(0) === '2' && SUCCESS.indexOf(code) === -1 && code !== '206') {
+			die(where, 'a success answer under ' + code + ', which this does not read');
+		}
 	}
+	const answers = SUCCESS.filter(function (code) { return responses[code] !== undefined; });
+	if (answers.length === 0) {
+		die(where, 'no success answer, so there is nothing to say a caller gets');
+	}
+	const said = answers.filter(function (code) {
+		return Object.keys(responses[code].content || {}).length > 0;
+	});
+	if (said.length > 1 && JSON.stringify(responses[said[0]].content) !== JSON.stringify(responses[said[1]].content)) {
+		die(where, 'two success answers carrying different things, and one call returns one');
+	}
+	const ok = responses[said.length > 0 ? said[0] : answers[0]];
 	const content = ok.content || {};
 	const kinds = Object.keys(content);
 	if (kinds.length === 0) {

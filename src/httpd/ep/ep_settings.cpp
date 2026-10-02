@@ -89,15 +89,24 @@ std::string decimal(long v)
    catalog they name. appendDescriptor still guards against absence rather than
    trusting that guard from a distance. */
 const FieldDesc kEnumValueFields[] = {
-	HTTPD_MEMBER("value", FieldType::Int, "what the box stores for this choice"),
-	HTTPD_MEMBER("label", FieldType::String, "the text the box shows for this choice"),
+	HTTPD_MEMBER("value", FieldType::Int,
+		"the number the box stores when this choice is picked, matched against the setting's own stored value"),
+	HTTPD_MEMBER("label", FieldType::String,
+		"the text the box shows for this choice, already resolved into the box's configured language"),
 };
 
 const Schema kEnumValueSchema = { "setting-choice", HTTPD_FIELDS(kEnumValueFields) };
 
 const FieldDesc kConditionFields[] = {
 	HTTPD_MEMBER("key", FieldType::String, "the setting whose current value this reads"),
-	HTTPD_MEMBER_OF_SET("op", "eq,ne,lt,le,gt,ge,in", "how the value is held against the numbers below"),
+	HTTPD_MEMBER_OF_SET("op", "eq,ne,lt,le,gt,ge,in", "how the value is held against the numbers below",
+		"eq: the setting's current value equals the one number given\n"
+		"ne: the setting's current value does not equal the one number given\n"
+		"lt: the setting's current value is less than the one number given\n"
+		"le: the setting's current value is less than or equal to the one number given\n"
+		"gt: the setting's current value is greater than the one number given\n"
+		"ge: the setting's current value is greater than or equal to the one number given\n"
+		"in: the setting's current value is one of the numbers given"),
 	/* Plain numbers and so no shape beside it. One list whatever the operator, a
 	   comparison against a single value being a list of one, so a reader has one member to
 	   read rather than two that depend on which operator arrived. */
@@ -110,15 +119,23 @@ const Schema kConditionSchema = { "setting-condition", HTTPD_FIELDS(kConditionFi
 const FieldDesc kSettingFields[] = {
 	HTTPD_MEMBER("id", FieldType::String,
 		"what every route here names this setting by, which is the key the box stores it under"),
-	HTTPD_MEMBER_OF_SET("type", "bool,int,string,enum", "what kind of value the setting holds"),
-	HTTPD_MEMBER("section", FieldType::String, "which page of the settings it belongs to"),
+	HTTPD_MEMBER_OF_SET("type", "bool,int,string,enum",
+		"what kind of value this setting holds, which decides how the rest of this descriptor is read",
+		"bool: stores 0 or 1 and is shown as a toggle\n"
+		"int: a whole number, bounded by min and max\n"
+		"string: free text or an identifier, with no numeric bounds\n"
+		"enum: one of a fixed or box reported set of choices, listed under values"),
+	HTTPD_MEMBER("section", FieldType::String,
+		"which page of the settings it belongs to, as GET /api/v1/settings/sections lists it"),
 	HTTPD_MEMBER_OPTIONAL("label", FieldType::String,
 		"the text the box shows for it, absent where the box offers the setting on no screen "
 		"or the catalog carries no text for its name"),
 	HTTPD_MEMBER_OPTIONAL("hint", FieldType::String,
 		"the name of the longer text beside it, absent where there is none"),
-	HTTPD_MEMBER_OPTIONAL("min", FieldType::Int, "the lowest value it takes, only for a whole number"),
-	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int, "the highest, only for a whole number"),
+	HTTPD_MEMBER_OPTIONAL("min", FieldType::Int,
+		"the lowest whole number this setting accepts, present only when type is int"),
+	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int,
+		"the highest whole number this setting accepts, present only when type is int"),
 	HTTPD_LIST_OF_OPTIONAL("values", &kEnumValueSchema,
 		"what it accepts, only for a setting that offers a set"),
 	HTTPD_MEMBER("default", FieldType::String,
@@ -660,7 +677,7 @@ void sectionNames(std::vector<std::string> &out)
 }
 
 const Param kSectionParams[] = {
-	HTTPD_SEGMENT_FROM_ASKED_SET("section", "the section, as the section list names it", &sectionNames),
+	HTTPD_SEGMENT_FROM_ASKED_SET("section", "the section's id, take it from GET /api/v1/settings/sections", &sectionNames),
 };
 
 /* The route that writes a section takes a body the table cannot list, its members being
@@ -677,9 +694,9 @@ const Param kSectionParams[] = {
 
    The two numbers count settings and not characters. */
 const Param kWriteParams[] = {
-	HTTPD_SEGMENT_FROM_ASKED_SET("section", "the section, as the section list names it", &sectionNames),
+	HTTPD_SEGMENT_FROM_ASKED_SET("section", "the section's id, take it from GET /api/v1/settings/sections", &sectionNames),
 	HTTPD_BODY_IS_MAP_OF("settings", ParamType::String,
-		"one member per setting to write, named as the section's schema names it, carrying the value as text",
+		"one member per setting to write, named by its key as GET /api/v1/settings/schema names it, carrying the new value as text",
 		1, (long) kMaxBodyMembers),
 };
 
@@ -688,28 +705,148 @@ const Param kWriteParams[] = {
    sections would therefore be unreachable, and none of the sixteen the program declares
    is called either. */
 const Param kClearParams[] = {
-	HTTPD_BODY_REQUIRED_TEXT("key", "the credential to empty, as the schema names it", 256),
+	HTTPD_BODY_REQUIRED_TEXT("key", "the key of the credential to empty, as GET /api/v1/settings/schema names it", 256),
+};
+
+const RouteRefusal kSettingsSectionRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchName,
+		"no settings are declared under a section of that name"),
+};
+
+const RouteRefusal kClearSecretRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NotACredential,
+		"the setting is not a credential and is not cleared here"),
+	HTTPD_REFUSES(NotFound, UnknownSetting,
+		"no setting is declared under that key"),
+};
+
+const RouteRefusal kSettingsWriteRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, DuplicateParameter,
+		"the body names one setting twice and there is no saying which value was meant"),
+	HTTPD_REFUSES(InvalidArgument, EmptyCredential,
+		"the setting is a credential and is not cleared by writing nothing"),
+	HTTPD_REFUSES(InvalidArgument, MissingParameter,
+		"the body names no setting to write"),
+	HTTPD_REFUSES(InvalidArgument, OutOfRange,
+		"the setting takes 0 to 100"),
+	HTTPD_REFUSES(NotFound, NoSuchName,
+		"no settings are declared under a section of that name"),
+	HTTPD_REFUSES(NotFound, UnknownSetting,
+		"this section declares no setting under that key"),
 };
 
 const Endpoint kSettingsEndpoints[] = {
 	{ Method::Get, "/api/v1/settings/schema", AuthLevel::Read,
 	  "every setting the box declares, and what each of them is",
-	  NULL, 0, &kSettingListSchema, &settingsSchema, false },
+	  "Lists every setting the box declares, independent of any one section: its key, what kind of "
+	  "value it holds, which section it belongs to, the label and hint text to show beside it where "
+	  "the locale catalog carries one, the bounds or choices it accepts, its default, whether changing "
+	  "it needs a restart, and whether it is a credential. A setting marked a credential never carries "
+	  "its real default here; its default is always reported as an empty string.\n"
+	  "\n"
+	  "Each item's `conditions` list states every comparison against another setting's current value "
+	  "that must hold before this setting is worth showing; an empty list means it is always shown.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/settings/sections`, `GET /api/v1/settings/{section}`, "
+	  "`PATCH /api/v1/settings/{section}`.",
+	  NULL, 0, &kSettingListSchema, &settingsSchema, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/settings/sections", AuthLevel::Read,
 	  "the sections the settings are laid out in",
-	  NULL, 0, &kSectionListSchema, &settingsSections, false },
+	  "Lists the sections the settings are grouped into, in the order the schema first names each one. "
+	  "Each item carries only the section's id; the settings belonging to it are read with "
+	  "`GET /api/v1/settings/{section}`, and a setting's own `section` member in the schema names the "
+	  "same id.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/settings/schema`, `GET /api/v1/settings/{section}`.",
+	  NULL, 0, &kSectionListSchema, &settingsSections, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/settings/{section}", AuthLevel::Read,
 	  "what one section's settings are set to",
-	  HTTPD_PARAMS(kSectionParams), &kValueListSchema, &settingsSection, false },
+	  "Reads every setting declared under one section and what it is currently set to. Each item "
+	  "carries the setting's key and its value rendered as text, the same rendering a write accepts "
+	  "back; a credential's value is always reported as an empty string, since reading one never shows "
+	  "what is stored.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-name`: no setting is declared under a section of that name. Take section ids "
+	  "from `GET /api/v1/settings/sections`.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/settings/schema`, `PATCH /api/v1/settings/{section}`.",
+	  HTTPD_PARAMS(kSectionParams), &kValueListSchema, &settingsSection, false,
+	  Answers200, HTTPD_REFUSALS(kSettingsSectionRefusals) },
 	/* Written out and so answering ahead of the route that binds a segment, by the same
 	   rule the two reads above do. A section called secret would be unreachable, and none of
 	   the sixteen the program declares is called that. */
 	{ Method::Post, "/api/v1/settings/secret/clear", AuthLevel::System,
 	  "empties one credential, which is the one thing writing to it will not do",
-	  HTTPD_PARAMS(kClearParams), &kValueSchema, &clearSecret, false },
+	  "Empties one credential setting, which is the only way to clear one: writing an empty value to "
+	  "it through `PATCH /api/v1/settings/{section}` is refused on purpose, so that a form redrawn "
+	  "from a read that answered nothing cannot wipe the value by accident. The answer is the same "
+	  "shape a section listing carries for one setting, and its `value` is empty, which is what the "
+	  "read of a credential always shows.\n"
+	  "\n"
+	  "**Preconditions:** `key` must name a setting the schema marks `secret`, and it must be a string "
+	  "typed setting, which every credential in this program is.\n"
+	  "\n"
+	  "**Side effects:** takes the empty value at once, so a read answers with it from then on; the "
+	  "box carries it into its running settings and saves its configuration file on its own loop, "
+	  "and while a text input is open on the box it waits until that is closed.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `400 not-a-credential`: the setting is not a credential, or is a credential of a kind that has "
+	  "nothing to clear; this route is not a second way to write any other setting.\n"
+	  "- `404 no-such-setting`: no setting is declared under that key. Take keys from "
+	  "`GET /api/v1/settings/schema`.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/settings/schema`, `PATCH /api/v1/settings/{section}`.",
+	  HTTPD_PARAMS(kClearParams), &kValueSchema, &clearSecret, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kClearSecretRefusals, "{\"key\":\"tmdb_api_key\"}") },
 	{ Method::Patch, "/api/v1/settings/{section}", AuthLevel::Write,
 	  "writes settings of one section, answering the section as it reads now when every one of them landed and a result per key when they did not all agree",
-	  HTTPD_PARAMS(kWriteParams), NULL, &settingsWrite, false },
+	  "Writes one or more settings of a single section in one request. Every key is checked and, where "
+	  "valid, taken before any answer is built, so a read answers with it from then on and a value "
+	  "already landed is never rolled back by a later key failing. The box carries the values into its "
+	  "running settings and saves its configuration file on its own loop right after, and while a text "
+	  "input is open on the box it waits until that is closed.\n"
+	  "\n"
+	  "When every key lands, the answer is `200` and is exactly the section's own `GET` answer: the "
+	  "section as it reads immediately afterward, which already reflects the new values, even though "
+	  "carrying them into the running program and telling the daemons that hold them "
+	  "happens afterward on the box's own loop. When more than one key was named "
+	  "and at least one of them failed, the answer is `207` with a `results` object naming each key "
+	  "and, for a failed one, its own status, `code` and `detail`; a request naming only one key that "
+	  "failed is instead answered as that one refusal, at its own status.\n"
+	  "\n"
+	  "A setting marked `needs_restart` in the schema takes effect only the next time the box "
+	  "restarts, whatever this answers.\n"
+	  "\n"
+	  "**Preconditions:** the section must be one the schema declares, and every key named must belong "
+	  "to that section.\n"
+	  "\n"
+	  "**Side effects:** takes the value of every key that passes its checks, also in a `207` "
+	  "answer that names others as failed, and the box saves its configuration file when its own "
+	  "loop carries them. A settings-changed event follows on `GET /api/v1/events` once the box's "
+	  "own loop has saved a value that changed.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `400 duplicate-parameter`: the same setting key is named twice in the body; neither value is "
+	  "written.\n"
+	  "- `400 empty-credential`: a key marked a credential was sent an empty value; clear it with "
+	  "`POST /api/v1/settings/secret/clear` instead.\n"
+	  "- `400 missing-parameter`: the body names no setting at all.\n"
+	  "- `400 out-of-range`: a whole number value falls outside the min and max the schema states for "
+	  "that key.\n"
+	  "- `404 no-such-name`: the section itself is not one the schema declares. Take section ids from "
+	  "`GET /api/v1/settings/sections`.\n"
+	  "- `404 no-such-setting`: a named key does not belong to this section, whether or not it exists "
+	  "elsewhere on the box.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/settings/schema`, `GET /api/v1/settings/{section}`, "
+	  "`POST /api/v1/settings/secret/clear`.",
+	  HTTPD_PARAMS(kWriteParams), NULL, &settingsWrite, false,
+	  Answers200 | Answers207, HTTPD_REFUSALS_AND_BODY(kSettingsWriteRefusals,
+		"{\"auto_subs\":\"1\"}") },
 };
 
 } // namespace

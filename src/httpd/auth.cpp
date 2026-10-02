@@ -555,6 +555,11 @@ const char *notPermittedDetail()
 	return kNotPermitted;
 }
 
+const char *csrfRefusedDetail()
+{
+	return "this request changes something and carries no matching token";
+}
+
 const char *authLevelName(AuthLevel a)
 {
 	switch (a)
@@ -757,7 +762,7 @@ bool allowed(AuthLevel need, AuthLevel have, Method m, const Credentials &c,
 		   already holding a live session ever reads this, and it still names
 		   no path and nothing about what this server has. */
 		if (refusal != NULL)
-			*refusal = refused("this request changes something and carries no matching token");
+			*refusal = refused(csrfRefusedDetail());
 		return false;
 	}
 

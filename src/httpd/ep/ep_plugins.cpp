@@ -78,7 +78,13 @@ const FieldDesc kPluginFields[] = {
 	HTTPD_MEMBER("description", FieldType::String,
 		"what the plugin says it does, empty for one that says nothing"),
 	HTTPD_MEMBER_OF_SET("kind", "disabled,game,tool,script,lua,unknown",
-		"what sort of thing it is, and unknown for a sort this server has no word for"),
+		"what sort of thing it is, and unknown for a sort this server has no word for",
+		"disabled: the box classifies it as disabled\n"
+		"game: a game plugin\n"
+		"tool: a plugin offered as a tool rather than a game\n"
+		"script: a shell script the box runs as the plugin\n"
+		"lua: a Lua script the box runs through its own Lua engine\n"
+		"unknown: the box reports a sort this server has no word for"),
 	HTTPD_MEMBER("hidden", FieldType::Bool,
 		"whether the box keeps it out of its own menus, which says nothing about whether it can be started"),
 };
@@ -200,11 +206,11 @@ Response runScript(const Request &r)
    a caller from choosing how long its own words come back to it; it is what
    keeps a name that could never be one from being carried any further. */
 const Param kNameParams[] = {
-	HTTPD_SEGMENT_TEXT("name", "the plugin, as the plugin list names it", 64),
+	HTTPD_SEGMENT_TEXT("name", "the plugin's name field, as GET /api/v1/plugins lists it, not its title", 64),
 };
 
 const Param kHideParams[] = {
-	HTTPD_SEGMENT_TEXT("name", "the plugin, as the plugin list names it", 64),
+	HTTPD_SEGMENT_TEXT("name", "the plugin's name field, as GET /api/v1/plugins lists it, not its title", 64),
 	/* Required, and one route rather than one per direction, for the reason
 	   the standby route states: hiding what is already hidden changes nothing
 	   and is taken, so a caller that meant one and sent the other would be
@@ -224,25 +230,86 @@ const Param kScriptParams[] = {
 		1024),
 };
 
+const RouteRefusal kRunScriptRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"that is not a name a script of this box carries"),
+	HTTPD_REFUSES(NotFound, ScriptMissing,
+		"there is no script of that name"),
+};
+
 const Endpoint kPluginEndpoints[] = {
 	{ Method::Get, "/api/v1/plugins", AuthLevel::Read,
-	  "every plugin this box found and what each of them is",
-	  NULL, 0, &kPluginListSchema, &listPlugins, false },
+	  "every plugin this box found and what each of them is", "Lists every "
+	  "plugin the box found the last time it read its plugin directories, with "
+	  "its name, title, description, kind and whether it is hidden from the "
+	  "box's own menus. A box carrying none answers with an empty list rather "
+	  "than with a refusal.\n\n"
+	  "**Related:** `POST /api/v1/plugins/{name}/start`, "
+	  "`PUT /api/v1/plugins/{name}/hidden`, `POST /api/v1/plugins/reload`.",
+	  NULL, 0, &kPluginListSchema, &listPlugins, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/plugins/{name}/start", AuthLevel::Write,
-	  "asks the box to start one plugin",
-	  HTTPD_PARAMS(kNameParams), NULL, &startPlugin, false },
+	  "asks the box to start one plugin", "Asks the box to start the plugin "
+	  "`name` names, as choosing it from a plugin menu would. `202` means the "
+	  "box has queued the request; this server does not learn whether a plugin "
+	  "of that name exists or whether it actually started, because starting one "
+	  "runs on the thread that also draws the screens and the box answers "
+	  "nothing back to this layer. A binary plugin takes over the screen and the "
+	  "remote control until it exits; a game plugin that draws into the live "
+	  "video is skipped if no live picture is currently playing. Starting a "
+	  "second plugin while one is already running is not prevented here: what "
+	  "happens then is up to the plugin itself. A shell or Lua plugin's output, "
+	  "if any, is shown on screen as a message once it finishes; nothing on this "
+	  "interface returns that output, unlike `POST /api/v1/scripts/{name}`.",
+	  HTTPD_PARAMS(kNameParams), NULL, &startPlugin, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Put, "/api/v1/plugins/{name}/hidden", AuthLevel::Write,
 	  "writes whether the box keeps one plugin out of the menus it draws itself",
-	  HTTPD_PARAMS(kHideParams), NULL, &hidePlugin, false },
+	  "Writes the `hidden` flag of the plugin `name` names into that plugin's "
+	  "own configuration file, replacing the file as a whole so a write that "
+	  "stops partway cannot leave it unreadable. `204` means the file has been "
+	  "written; the flag says nothing about whether the plugin can still be "
+	  "started through `POST /api/v1/plugins/{name}/start`, which does not check "
+	  "it.\n\n"
+	  "**Side effects:** rewrites the plugin's configuration file. The running "
+	  "menus still show the old state until they are rebuilt, which "
+	  "`POST /api/v1/plugins/reload` or a restart of the box does.\n\n"
+	  "**Related:** `GET /api/v1/plugins`, `POST /api/v1/plugins/reload`.",
+	  HTTPD_PARAMS(kHideParams), NULL, &hidePlugin, false,
+	  Answers204, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/plugins/reload", AuthLevel::Write,
-	  "asks the box to read its plugin directories again",
-	  NULL, 0, NULL, &reloadPlugins, false },
+	  "asks the box to read its plugin directories again", "Asks the box to "
+	  "read its plugin directories again and rebuild the list "
+	  "`GET /api/v1/plugins` answers from. `202` means the box has queued the "
+	  "request: the rebuild runs on the thread that draws the screens, so this "
+	  "server cannot say when it is done. Read `GET /api/v1/plugins` afterwards "
+	  "to see the new list.\n\n"
+	  "**Related:** `GET /api/v1/plugins`.",
+	  NULL, 0, NULL, &reloadPlugins, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	/* The only route here above a write, and the reason is the one the level table of
 	   the old surface already gives: it runs a file as the account this server runs
 	   as, which is the whole of the box. */
 	{ Method::Post, "/api/v1/scripts/{name}", AuthLevel::System,
 	  "runs one script out of the box's script directory and answers what it wrote",
-	  HTTPD_PARAMS(kScriptParams), &kScriptOutputSchema, &runScript, false },
+	  "Runs the script `name` names from the box's own script directory and "
+	  "waits for it to finish, then answers what it wrote on its standard "
+	  "output as `output`. `args` is split on whitespace and each piece reaches "
+	  "the script as one argument, in order; no shell is involved, so quoting "
+	  "characters reach the script literally. `name` is a bare name and not a "
+	  "path: the file run is that name with the script extension, directly "
+	  "inside the script directory and nowhere else.\n\n"
+	  "**Preconditions:** the script finishes within the box's own timeout; one "
+	  "that does not is stopped and refused. The script runs as the account the "
+	  "server itself runs as, which can do anything on the box, so the route "
+	  "needs the `system` level: a login, or a token configured at that level.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-name`: `name` is empty, is `.` or `..`, starts with `-`, or "
+	  "holds a character other than letters, digits, `.`, `-` or `_`.\n"
+	  "- `404 script-missing`: the script directory holds no script of that "
+	  "name.",
+	  HTTPD_PARAMS(kScriptParams), &kScriptOutputSchema, &runScript, false,
+	  Answers200, HTTPD_REFUSALS(kRunScriptRefusals) },
 };
 
 } // namespace

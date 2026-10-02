@@ -22,6 +22,7 @@
 #include "httpd/endpoints.h"
 #include "httpd/router.h"
 #include "coreapi/storage.h"
+#include "coreapi/system.h"
 #include "httpd/doc/openapi.h"
 
 #include "yhook.h"
@@ -492,6 +493,35 @@ TEST_CASE("a ranged ask against a file answer", "[bridge]")
 		CHECK(fcntl(fd, F_GETFD) == -1);
 	}
 	unlink(name);
+}
+
+TEST_CASE("a ranged ask past the end of a document goes out as the range refusal", "[bridge]")
+{
+	/* Through the send pass and a route that answers a file, rather than handed
+	   to answerWith: the range is the door's work and not the route's, so only
+	   the door can note what it made of the answer, and the suite's record of
+	   what the routes answered is where that has to show. */
+	Attached a;
+	char dir[] = "/tmp/test_bridge_config_XXXXXX";
+	REQUIRE(mkdtemp(dir) != NULL);
+	const std::string doc = std::string(dir) + "/ubouquets.xml";
+	const int fd = open(doc.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+	REQUIRE(fd >= 0);
+	REQUIRE(write(fd, "<zapit/>", 8) == 8);
+	close(fd);
+	const std::string before = coreapi::config::configRoot();
+	coreapi::config::setConfigRoot(dir);
+
+	Handler h(M_GET, "/api/v1/config/ubouquets");
+	h.hh.HeaderList["Range"] = "bytes=100-";
+	const THandleStatus sent = a.bridge.Hook_SendResponse(&h.hh);
+	coreapi::config::setConfigRoot(before);
+	unlink(doc.c_str());
+	rmdir(dir);
+
+	REQUIRE(sent == HANDLED_READY);
+	CHECK(h.hh.httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE);
+	CHECK(h.hh.yresult.find("range-outside-file") != std::string::npos);
 }
 
 TEST_CASE("a whole-file answer takes one range where the caller asked", "[bridge]")

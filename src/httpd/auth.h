@@ -200,6 +200,8 @@ bool allowed(AuthLevel need, AuthLevel have, Method m, const Credentials &c,
    turned it down. */
 const char *notPermittedDetail();
 
+const char *csrfRefusedDetail();
+
 /* Opens a session and answers the cookie token to hand out, or empty when it could
    not draw one. Empty is no session rather than a short one: nothing is written
    into the table, so a caller that hands the answer out without reading it hands

@@ -100,6 +100,8 @@ bool isStream(const Response &r);
    step. */
 bool isStreamRoute(const Endpoint &ep);
 
+const char *streamsFullDetail();
+
 // What became of an attempt to turn a connection into a stream.
 enum Opened
 {

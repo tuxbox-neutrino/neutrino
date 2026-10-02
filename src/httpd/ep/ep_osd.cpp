@@ -44,7 +44,7 @@ namespace
 {
 
 const FieldDesc kVolumeFields[] = {
-	HTTPD_MEMBER("percent", FieldType::Int, "how loud the box is, as a percentage"),
+	HTTPD_MEMBER("percent", FieldType::Int, "how loud the box is, as a percentage from 0 to 100"),
 	HTTPD_MEMBER("muted", FieldType::Bool,
 		"whether the sound is off, which is kept apart from the level so that turning it back on is the level it was"),
 };
@@ -183,8 +183,17 @@ Response setRemote(const Request &r)
    of it could come to name different halves of the same name. */
 const char kInfoIconsValues[] = "static,popup,infoviewer,off";
 
+const char kInfoIconsValueDocs[] =
+	"static: the box draws the icons itself, in the plain skin that keeps them visible\n"
+	"popup: the box draws the icons itself, in the popup skin\n"
+	"infoviewer: the box does not draw the icons; the infobar draws them instead, in its own skin\n"
+	"off: nothing draws the icons; if the skin was infoviewer it is moved to static first, "
+	"so the infobar does not take the drawing back on its own";
+
 const FieldDesc kInfoIconsFields[] = {
-	HTTPD_MEMBER_OF_SET("state", kInfoIconsValues, "which of the four the box is in"),
+	HTTPD_MEMBER_OF_SET("state", kInfoIconsValues,
+		"which of the 4 states the icons that say what the channel is carrying are in",
+		kInfoIconsValueDocs),
 };
 
 const Schema kInfoIconsSchema = { "infoicons", HTTPD_FIELDS(kInfoIconsFields) };
@@ -271,11 +280,13 @@ Response setInfoIcons(const Request &r)
 }
 
 const Param kVolumeParams[] = {
-	HTTPD_BODY_REQUIRED_IN("percent", ParamType::Int, "how loud to make it, as a percentage", 0, 100),
+	HTTPD_BODY_REQUIRED_IN("percent", ParamType::Int,
+		"the new volume, as a percentage from 0 to 100, carried to the box in a single byte", 0, 100),
 };
 
 const Param kMuteParams[] = {
-	HTTPD_BODY_REQUIRED("on", ParamType::Bool, "whether the sound is to be off"),
+	HTTPD_BODY_REQUIRED("on", ParamType::Bool,
+		"true to mute the sound, false to turn it back on at the level it was before"),
 };
 
 const Param kMessageParams[] = {
@@ -283,10 +294,12 @@ const Param kMessageParams[] = {
 	   it: the length becomes an allocation and a read of exactly that many bytes on
 	   the thread the box draws on, and it is refused here so a body over it never
 	   reaches the code that would allocate for it. Written as that constant. */
-	HTTPD_BODY_REQUIRED_TEXT("text", "the words to put on the screen",
+	HTTPD_BODY_REQUIRED_TEXT("text", "the words to put on the screen, at most 4096 bytes long and never empty",
 		(long) coreapi::osd::MAX_MESSAGE_BYTES),
-	HTTPD_BODY_FROM_SET("kind", "hint for one that goes away by itself, box for one that waits to be dismissed",
-		"hint,box"),
+	HTTPD_BODY_FROM_SET("kind", "which of the 2 ways the box shows the message; see the values below",
+		"hint,box",
+		"hint: a small box that goes away by itself after the box's own popup message timeout, or as soon as OK is pressed\n"
+		"box: a message box that stays on screen until it is dismissed with the back button"),
 };
 
 /* What a picture goes out as, from the form it was written in. One place, so
@@ -374,7 +387,8 @@ const Param kKeyParams[] = {
 	/* The ceiling is the one the layer below carries rather than a second
 	   opinion about it, for the reason the message ceiling is: written as that
 	   constant, the two cannot part. */
-	HTTPD_BODY_REQUIRED_TEXT("name", "the key to send, spelt as the list of them spells it",
+	HTTPD_BODY_REQUIRED_TEXT("name",
+		"the key to send, spelt exactly as GET /api/v1/osd/remote/keys names it, at most 32 bytes long",
 		(long) coreapi::osd::MAX_KEY_NAME_BYTES),
 };
 
@@ -383,20 +397,23 @@ const Param kRemoteParams[] = {
 };
 
 const Param kInfoIconsParams[] = {
-	HTTPD_BODY_REQUIRED_FROM_SET("state", "which of the four to put the icons in", kInfoIconsValues),
+	HTTPD_BODY_REQUIRED_FROM_SET("state", "which of the 4 states to put the icons in; see the values below",
+		kInfoIconsValues, kInfoIconsValueDocs),
 };
 
 const Param kPictureParams[] = {
 	// Carried in the query, because the method that fetches a picture is
 	// written with no body.
-	HTTPD_QUERY("osd", ParamType::Bool, "whether what the box drew over the picture goes in"),
-	HTTPD_QUERY("video", ParamType::Bool, "whether the picture itself goes in"),
+	HTTPD_QUERY("osd", ParamType::Bool, "whether the graphics the box draws over the picture are included, true by default"),
+	HTTPD_QUERY("video", ParamType::Bool, "whether the live video itself is included in the picture, true by default"),
 	/* A set and not a free string, so a form this box cannot write is refused where
 	   the request is read instead of being answered with a picture in whichever form
 	   the branch below fell through to. The two named here are the two the capture
 	   can write for a socket; the size is the box's and is not asked for. */
-	HTTPD_QUERY_FROM_SET("format", "which form the picture is written in, the second throwing detail away to be smaller and being much " "the smaller for a picture off the television",
-		"png,jpeg"),
+	HTTPD_QUERY_FROM_SET("format", "which image format the picture is encoded as; see the values below",
+		"png,jpeg",
+		"png: lossless, the larger file for a picture of moving video\n"
+		"jpeg: throws detail away to be smaller, much smaller for a picture of moving video"),
 	/* NOT READ, AND HERE BECAUSE A BROWSER LEAVES NO OTHER WAY TO ASK TWICE.
 	   A capture is a moment, and asking for the same moment again is asking
 	   for a different picture. An image element cannot carry a header, and a
@@ -406,52 +423,165 @@ const Param kPictureParams[] = {
 	   a fresh capture put nothing at all on the wire. So the caller says which
 	   capture it is asking for, and two captures are two addresses. Any number
 	   will do and the box looks at none of them. */
-	HTTPD_QUERY("at", ParamType::UInt, "any number, which this does not read: a capture is a moment, and two moments asked for under one address are one picture in a browser"),
+	HTTPD_QUERY("at", ParamType::UInt, "any number, which this does not read: a capture is a moment, and 2 moments asked for under one address are one picture in a browser"),
 };
 
 // The same and for the same reason, for the one picture that has nothing else
 // to say about itself.
 const Param kDisplayPictureParams[] = {
-	HTTPD_QUERY("at", ParamType::UInt, "any number, which this does not read: a capture is a moment, and two moments asked for under one address are one picture in a browser"),
+	HTTPD_QUERY("at", ParamType::UInt, "any number, which this does not read: a capture is a moment, and 2 moments asked for under one address are one picture in a browser"),
+};
+
+const RouteRefusal kGetVolumeRefusals[] = {
+	HTTPD_REFUSES(Internal, MuteUnavailable,
+		"the mute state could not be read"),
+};
+
+const RouteRefusal kSendKeyRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NoSuchKey,
+		"the remote control has no key of that name"),
+};
+
+const RouteRefusal kGetScreenshotRefusals[] = {
+	HTTPD_REFUSES(NotSupported, ScreenNotCaptured,
+		"the box could not take a picture of its screen"),
+};
+
+const RouteRefusal kGetDisplayScreenshotRefusals[] = {
+	HTTPD_REFUSES(NotSupported, DisplayNotCaptured,
+		"the box could not take a picture of its display"),
 };
 
 const Endpoint kOsdEndpoints[] = {
 	{ Method::Get, "/api/v1/osd/volume", AuthLevel::Read,
-	  "how loud the box is and whether the sound is off",
-	  NULL, 0, &kVolumeSchema, &getVolume, false },
+	  "how loud the box is and whether the sound is off", "Reads the current volume "
+	  "and the mute flag together, both taken at the same moment. The volume is a "
+	  "percentage from 0 to 100 and is independent of mute: muting does not change "
+	  "it, so turning the sound back on restores the level it had before.\n\n"
+	  "**Refusals:**\n"
+	  "- `500 mute-unavailable`: the mute state could not be read from the box.",
+	  NULL, 0, &kVolumeSchema, &getVolume, false,
+	  Answers200, HTTPD_REFUSALS(kGetVolumeRefusals) },
 	{ Method::Put, "/api/v1/osd/volume", AuthLevel::Write,
-	  "asks the box to change the volume",
-	  HTTPD_PARAMS(kVolumeParams), NULL, &setVolume, false },
+	  "asks the box to change the volume", "Sets the volume to `percent`, a value "
+	  "from 0 to 100. `202` means the box has queued the change, not that it has "
+	  "been applied: watch for the `volume` event on `GET /api/v1/events`, or read "
+	  "`GET /api/v1/osd/volume` again. The level is carried to the box in a single "
+	  "byte, which is why it is bounded to 0 to 100 both here and once more before "
+	  "it is applied. Changing the volume does not turn mute off, so a muted box "
+	  "stays muted at the new level until `PUT /api/v1/osd/mute` is sent.\n\n"
+	  "**Related:** `GET /api/v1/osd/volume`, `PUT /api/v1/osd/mute`.",
+	  HTTPD_PARAMS(kVolumeParams), NULL, &setVolume, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Put, "/api/v1/osd/mute", AuthLevel::Write,
-	  "asks the box to turn the sound off or on",
-	  HTTPD_PARAMS(kMuteParams), NULL, &setMuted, false },
+	  "asks the box to turn the sound off or on", "Sets the mute flag to `on`, "
+	  "independently of the volume level, which is kept apart so that turning the "
+	  "sound back on restores the level it had before. `202` means the box has "
+	  "queued the change: watch for the `mute` event on `GET /api/v1/events`, or "
+	  "read `GET /api/v1/osd/volume` again.\n\n"
+	  "**Related:** `GET /api/v1/osd/volume`.",
+	  HTTPD_PARAMS(kMuteParams), NULL, &setMuted, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/osd/message", AuthLevel::Write,
-	  "asks the box to put words on the screen",
-	  HTTPD_PARAMS(kMessageParams), NULL, &showMessage, false },
+	  "asks the box to put words on the screen", "Shows `text` on the screen, as "
+	  "either a hint that goes away by itself or a message box that waits to be "
+	  "dismissed, depending on `kind`. `202` means the box has queued the message, "
+	  "not that it is on screen yet; nothing on this interface reports when it "
+	  "goes away.\n\n"
+	  "**Preconditions:** the box is not in standby and not showing an AV input; "
+	  "in either of those the message is silently dropped and never appears.",
+	  HTTPD_PARAMS(kMessageParams), NULL, &showMessage, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/osd/remote", AuthLevel::Read,
-	  "whether the box is ignoring its remote control",
-	  NULL, 0, &kRemoteSchema, &getRemote, false },
+	  "whether the box is ignoring its remote control", "Reads whether the box is "
+	  "currently locked against its own remote control, as `PUT /api/v1/osd/remote` "
+	  "sets it.\n\n"
+	  "**Related:** `PUT /api/v1/osd/remote`.",
+	  NULL, 0, &kRemoteSchema, &getRemote, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Put, "/api/v1/osd/remote", AuthLevel::Write,
-	  "asks the box to start or stop ignoring its remote control",
-	  HTTPD_PARAMS(kRemoteParams), NULL, &setRemote, false },
+	  "asks the box to start or stop ignoring its remote control", "Sets whether "
+	  "the box ignores key presses from its own remote control. `202` means the "
+	  "box has queued the change: read `GET /api/v1/osd/remote` to see it take "
+	  "effect. This has no effect on `POST /api/v1/osd/remote/key`, which injects "
+	  "a key directly and does not go through the remote control receiver.\n\n"
+	  "**Related:** `GET /api/v1/osd/remote`, `POST /api/v1/osd/remote/key`.",
+	  HTTPD_PARAMS(kRemoteParams), NULL, &setRemote, false,
+	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/osd/remote/keys", AuthLevel::Read,
-	  "every key name the box knows",
-	  NULL, 0, &kKeyNameSchema, &getKeyNames, false },
+	  "every key name the box knows", "Lists every key name the box's own input "
+	  "table carries, in the order that table keeps them. A few names appear "
+	  "twice because the table maps 2 physical codes to the same name; sending "
+	  "such a name with `POST /api/v1/osd/remote/key` always reaches the first of "
+	  "those 2 codes. These are the only names `POST /api/v1/osd/remote/key` accepts.\n\n"
+	  "**Related:** `POST /api/v1/osd/remote/key`.",
+	  NULL, 0, &kKeyNameSchema, &getKeyNames, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/osd/remote/key", AuthLevel::Write,
-	  "asks the box to act on a key as though it had been pressed",
-	  HTTPD_PARAMS(kKeyParams), NULL, &sendKey, false },
+	  "asks the box to act on a key as though it had been pressed", "Injects the "
+	  "named key as a press followed immediately by a release, as though it had "
+	  "come from the remote control. `202` means the box has queued the key; there "
+	  "is no separate event that confirms it was acted on. This writes the key "
+	  "directly to the box's input device and ignores the remote control lock set "
+	  "by `PUT /api/v1/osd/remote`. There is no repeat and no long press: every "
+	  "call injects exactly one press and one release.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 no-such-key`: `name` is not one of the names `GET /api/v1/osd/remote/keys` "
+	  "lists.\n\n"
+	  "**Related:** `GET /api/v1/osd/remote/keys`.",
+	  HTTPD_PARAMS(kKeyParams), NULL, &sendKey, false,
+	  Answers202, HTTPD_REFUSALS_AND_BODY(kSendKeyRefusals, "{\"name\":\"KEY_OK\"}") },
 	{ Method::Get, "/api/v1/osd/infoicons", AuthLevel::Read,
-	  "which state the icons that say what the channel is carrying are in",
-	  NULL, 0, &kInfoIconsSchema, &getInfoIcons, false },
+	  "which state the icons that say what the channel is carrying are in", "Reads "
+	  "which of the 4 states the small icons that say what the current channel is "
+	  "carrying (for example scrambled or carrying subtitles) are in. The box "
+	  "keeps this as 2 separate settings, and this answers their combination as "
+	  "one of the 4 named states; see the values listed for `state` on "
+	  "`PUT /api/v1/osd/infoicons`.\n\n"
+	  "**Related:** `PUT /api/v1/osd/infoicons`.",
+	  NULL, 0, &kInfoIconsSchema, &getInfoIcons, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Put, "/api/v1/osd/infoicons", AuthLevel::Write,
-	  "puts those icons in one of the four states, which is two settings and a rule that is in neither",
-	  HTTPD_PARAMS(kInfoIconsParams), NULL, &setInfoIcons, false },
+	  "puts those icons in one of the 4 states, which is 2 settings and a rule that is in neither",
+	  "Writes both of the settings the icon state is made of in one save, so the "
+	  "box is never left with only one of them changed. `204` means both values "
+	  "are taken: a read answers with them from then on, and the box saves its "
+	  "configuration file on its own loop right after, waiting while a text input "
+	  "is open on the box.\n\n"
+	  "**Side effects:** takes 2 settings and has the box save its configuration "
+	  "file on its own loop.",
+	  HTTPD_PARAMS(kInfoIconsParams), NULL, &setInfoIcons, false,
+	  Answers204, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/osd/screenshot", AuthLevel::Read,
-	  "a picture of what the television is showing",
-	  HTTPD_PARAMS(kPictureParams), NULL, &getScreenshot, false },
+	  "a picture of what the television is showing", "Takes a picture of the "
+	  "live screen and returns it as an image, in the format `format` names. "
+	  "`osd` and `video` each default to true and say whether the box's own OSD "
+	  "graphics and the live video are each drawn into the picture; leaving both "
+	  "at their default gives the same picture the television shows. The `at` "
+	  "parameter is never read; it exists only so that 2 requests for a fresh "
+	  "picture use 2 different addresses, which keeps a browser from answering a "
+	  "second `<img>` out of its own cache.\n\n"
+	  "**Preconditions:** only one capture of the screen runs at a time; a request "
+	  "that arrives while another is still running is refused with a conflict "
+	  "rather than waiting for it.\n\n"
+	  "**Refusals:**\n"
+	  "- `501 screen-not-captured`: this build or this box has no way of reading "
+	  "its own screen.",
+	  HTTPD_PARAMS(kPictureParams), NULL, &getScreenshot, false,
+	  Answers200 | Answers206, HTTPD_REFUSALS(kGetScreenshotRefusals) },
 	{ Method::Get, "/api/v1/osd/display/screenshot", AuthLevel::Read,
-	  "a picture of the display on the front of the box",
-	  HTTPD_PARAMS(kDisplayPictureParams), NULL, &getDisplayScreenshot, false },
+	  "a picture of the display on the front of the box", "Takes a picture of the "
+	  "small display on the front of the box and returns it as a PNG image. Most "
+	  "boxes have no such display; this answers a refusal rather than a picture "
+	  "for them, and `format` is not offered because this is written in one form "
+	  "only. The `at` parameter is never read; it exists only so that 2 requests "
+	  "for a fresh picture use 2 different addresses, which keeps a browser from "
+	  "answering a second `<img>` out of its own cache.\n\n"
+	  "**Refusals:**\n"
+	  "- `501 display-not-captured`: this box has no front display, or this build "
+	  "was made without support for it.",
+	  HTTPD_PARAMS(kDisplayPictureParams), NULL, &getDisplayScreenshot, false,
+	  Answers200 | Answers206, HTTPD_REFUSALS(kGetDisplayScreenshotRefusals) },
 };
 
 } // namespace

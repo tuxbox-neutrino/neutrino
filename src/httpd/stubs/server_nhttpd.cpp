@@ -95,6 +95,21 @@ ServerConfig defaultConfig()
 	return c;
 }
 
+/* The details of the transport's own two refusals, which the API document
+   states for every route that can meet them. Here beside the rest of
+   server.h, so that openapi_dump and the suite state them without the
+   bridge, and the bridge sends the same words. The size is the bridge's
+   body limit, the one defaultConfig() names. */
+const char *tooLargeDetail()
+{
+	return "the body is larger than this server keeps for one request, 1 MiB";
+}
+
+const char *rangeRefusedDetail()
+{
+	return "the stretch that was asked for is not in this file";
+}
+
 bool start(const ServerConfig &c)
 {
 	if (start_hand == 0)

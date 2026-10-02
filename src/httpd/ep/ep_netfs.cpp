@@ -71,6 +71,14 @@ namespace
 // written in the table and the branch that reads it cannot come apart.
 const char kTableNames[] = "fstab,automount";
 
+const char kTableValueDocs[] =
+	"fstab: the file mounted at start up and kept, /var/etc/fstab\n"
+	"automount: the file the automounter reads when it starts, /var/etc/auto.net";
+
+const char kNetfsTypeDocs[] =
+	"nfs: a Network File System export\n"
+	"cifs: a Windows or Samba share";
+
 coreapi::netfs::Table tableOf(const Request &r)
 {
 	return (r.asString("table") == "automount") ? coreapi::netfs::Table::Automount
@@ -89,11 +97,12 @@ const char *kindName(coreapi::netfs::Kind k)
 
 const FieldDesc kEntryFields[] = {
 	HTTPD_MEMBER("slot", FieldType::UInt,
-		"which of the eight the entry is, which is what names it and what a write addresses; it does not move when another entry is changed"),
+		"which of the 8 the entry is, counted from 0; it is what names it and what a write addresses, and it does not move when another entry is changed"),
 	HTTPD_MEMBER("active", FieldType::Bool,
 		"whether the box mounts it: at start up for the first table, and when somebody looks at it for the second"),
-	HTTPD_MEMBER_OF_SET("type", "nfs,cifs", "what is speaking at the other end"),
-	HTTPD_MEMBER("host", FieldType::String, "the server, as an address or a name"),
+	HTTPD_MEMBER_OF_SET("type", "nfs,cifs", "what filesystem protocol the other end speaks", kNetfsTypeDocs),
+	HTTPD_MEMBER("host", FieldType::String,
+		"the remote server this entry mounts from, as an address or a host name"),
 	HTTPD_MEMBER("remote_dir", FieldType::String,
 		"what that server offers: the export for one kind and the share for the other, with the separator it is written with"),
 	HTTPD_MEMBER("local_dir", FieldType::String,
@@ -108,10 +117,12 @@ const FieldDesc kEntryFields[] = {
 const Schema kEntrySchema = { "netfs-entry", HTTPD_FIELDS(kEntryFields) };
 
 const FieldDesc kSlotsFields[] = {
-	HTTPD_MEMBER_OF_SET("table", kTableNames, "which of the two files this is"),
-	HTTPD_MEMBER("path", FieldType::String, "where that file is on this box"),
+	HTTPD_MEMBER_OF_SET("table", kTableNames,
+		"which of the 2 network filesystem files this table reflects", kTableValueDocs),
+	HTTPD_MEMBER("path", FieldType::String,
+		"the absolute path of that file on this box's filesystem"),
 	HTTPD_LIST_OF("items", &kEntrySchema,
-		"all eight slots in order, the empty ones among them, because what a write addresses is a slot and an empty slot is one to fill in"),
+		"all 8 slots in order, the empty ones among them, because what a write addresses is a slot and an empty slot is one to fill in"),
 	HTTPD_MEMBER("unreadable_lines", FieldType::UInt,
 		"how many lines of the file were meant to be entries and could not be read; the entries beside them are still here, and a write keeps those and not these"),
 };
@@ -265,21 +276,21 @@ Response reloadAutomounter(const Request &)
 }
 
 const Param kTableParams[] = {
-	HTTPD_SEGMENT_FROM_SET("table", "which of the two files, the one mounted at start up or the one the automounter reads", kTableNames),
+	HTTPD_SEGMENT_FROM_SET("table", "which of the 2 files: `fstab`, mounted at start up, or `automount`, which the automounter reads", kTableNames, kTableValueDocs),
 };
 
 const Param kSlotParams[] = {
-	HTTPD_SEGMENT_FROM_SET("table", "which of the two files, the one mounted at start up or the one the automounter reads", kTableNames),
+	HTTPD_SEGMENT_FROM_SET("table", "which of the 2 files: `fstab`, mounted at start up, or `automount`, which the automounter reads", kTableNames, kTableValueDocs),
 	/* Both ends written out, so a slot outside the eight is refused where every
 	   other parameter of this server is refused rather than one floor down. The
 	   layer below still refuses it, for the reason every rule said twice here
 	   is said twice: the one that decides is the one that owns the file. */
-	HTTPD_SEGMENT_IN("slot", ParamType::UInt, "which of the eight, counted from nought", 0, 7),
+	HTTPD_SEGMENT_IN("slot", ParamType::UInt, "which of the 8 slots this addresses, counted from 0 to 7", 0, 7),
 };
 
 const Param kEntryParams[] = {
-	HTTPD_SEGMENT_FROM_SET("table", "which of the two files, the one mounted at start up or the one the automounter reads", kTableNames),
-	HTTPD_SEGMENT_IN("slot", ParamType::UInt, "which of the eight, counted from nought", 0, 7),
+	HTTPD_SEGMENT_FROM_SET("table", "which of the 2 files: `fstab`, mounted at start up, or `automount`, which the automounter reads", kTableNames, kTableValueDocs),
+	HTTPD_SEGMENT_IN("slot", ParamType::UInt, "which of the 8 slots this addresses, counted from 0 to 7", 0, 7),
 	/* The whole entry and not the parts of it that changed, unlike the route
 	   that sets this server up. What is behind that one is four values a caller
 	   has no business restating to change a fifth; what is behind this one is
@@ -290,11 +301,12 @@ const Param kEntryParams[] = {
 	   means it stays. That is not a shortening of the rule above: it is the one
 	   value a read cannot answer with, so it is the one value a form cannot
 	   send back. */
-	HTTPD_BODY_REQUIRED("active", ParamType::Bool, "whether the box is to mount it"),
-	HTTPD_BODY_REQUIRED_FROM_SET("type", "what is speaking at the other end", "nfs,cifs"),
-	HTTPD_BODY_REQUIRED_TEXT("host", "the server, as an address or a name", 255),
+	HTTPD_BODY_REQUIRED("active", ParamType::Bool,
+		"whether the box is to mount this entry: true to enable it, false to keep it defined but unmounted"),
+	HTTPD_BODY_REQUIRED_FROM_SET("type", "what filesystem protocol the other end speaks", "nfs,cifs", kNetfsTypeDocs),
+	HTTPD_BODY_REQUIRED_TEXT("host", "the remote server this entry mounts from, as an address or a host name", 255),
 	HTTPD_BODY_REQUIRED_TEXT("remote_dir", "what that server offers, with the separator it is written with", 255),
-	HTTPD_BODY_REQUIRED_TEXT("local_dir", "where it lands on this box", 255),
+	HTTPD_BODY_REQUIRED_TEXT("local_dir", "where it lands: a path on this box, or a name under /mnt/autofs for the automounter table", 255),
 	HTTPD_BODY_TEXT("user", "the name it logs in under, and left out where it needs none", 64),
 	HTTPD_BODY_TEXT("password", "the password, as it is typed, and left out where it is to stay as it is", 255),
 	HTTPD_BODY_TEXT("options", "everything else the mount is given, comma separated", 255),
@@ -302,29 +314,86 @@ const Param kEntryParams[] = {
 
 const Endpoint kNetfsEndpoints[] = {
 	{ Method::Get, "/api/v1/storage/netfs/{table}", AuthLevel::System,
-	  "all eight entries of one of the two files, with the passwords withheld",
-	  HTTPD_PARAMS(kTableParams), &kSlotsSchema, &listEntries, false },
+	  "all 8 entries of 1 of the 2 files, with the passwords withheld", "Lists all 8 slots "
+	  "of one of the 2 network filesystem files this box keeps, `fstab` or `automount`, read "
+	  "fresh from the file for each request. Every slot is carried even when it is empty, "
+	  "because what a write addresses is a slot number and an empty slot is one to fill in. No "
+	  "password is ever in the answer, only whether one is set.\n\n"
+	  "**Related:** `PUT /api/v1/storage/netfs/{table}/{slot}`, "
+	  "`DELETE /api/v1/storage/netfs/{table}/{slot}`.",
+	  HTTPD_PARAMS(kTableParams), &kSlotsSchema, &listEntries, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Put, "/api/v1/storage/netfs/{table}/{slot}", AuthLevel::System,
-	  "puts one entry in one slot and answers the whole table as it now stands",
-	  HTTPD_PARAMS(kEntryParams), &kSlotsSchema, &writeEntry, false },
+	  "puts one entry in one slot and answers the whole table as it now stands", "Replaces the "
+	  "whole entry at one slot of 1 of the 2 files and answers the whole table as it now "
+	  "stands, which is `200` and not `204` because a caller has to be able to read the result "
+	  "of a write that rewrites the whole underlying file. Sending the whole entry is required: "
+	  "a caller that wants to change one field has to send every other field as it already "
+	  "reads, except `password`, which is the one field a read never carries back, so leaving "
+	  "it out keeps the password that was set rather than clearing it.\n\n"
+	  "**Side effects:** rewrites the file naming the network filesystems; this changes what "
+	  "gets mounted at the box's next start up for `fstab`, or what the automounter offers the "
+	  "next time it is reloaded or restarted for `automount`. It does not itself mount or "
+	  "unmount anything.\n\n"
+	  "**Related:** `GET /api/v1/storage/netfs/{table}`, "
+	  "`POST /api/v1/storage/netfs/fstab/mount`, `POST /api/v1/storage/netfs/automount/reload`.",
+	  HTTPD_PARAMS(kEntryParams), &kSlotsSchema, &writeEntry, false,
+	  Answers200, HTTPD_NO_REFUSALS_AND_BODY(
+		"{\"active\":true,\"type\":\"nfs\",\"host\":\"192.168.0.10\",\"remote_dir\":\"/nas/video\","
+		"\"local_dir\":\"/media/net\",\"options\":\"soft,nolock\"}") },
 	{ Method::Delete, "/api/v1/storage/netfs/{table}/{slot}", AuthLevel::System,
-	  "empties one slot, which is also the one way a password is taken off a mount",
-	  HTTPD_PARAMS(kSlotParams), &kSlotsSchema, &clearEntry, false },
+	  "empties one slot, which is also the one way a password is taken off a mount", "Empties "
+	  "one slot of 1 of the 2 files and answers the whole table as it now stands. This is "
+	  "the only way to take a password off a mount: `PUT` leaves a password alone when it is "
+	  "left out of the body, so clearing one means emptying the whole slot and writing it "
+	  "again.\n\n"
+	  "**Side effects:** rewrites the file naming the network filesystems, the same way a "
+	  "`PUT` to this slot would; it does not unmount anything already mounted under the slot's "
+	  "old directory.\n\n"
+	  "**Related:** `GET /api/v1/storage/netfs/{table}`, "
+	  "`PUT /api/v1/storage/netfs/{table}/{slot}`.",
+	  HTTPD_PARAMS(kSlotParams), &kSlotsSchema, &clearEntry, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	/* The two below drive the box's own start up script, which is what mounts
 	   these at start up, so what a caller asks for here and what the box does
 	   on its own are one piece of work and not two that have to agree. */
 	{ Method::Post, "/api/v1/storage/netfs/fstab/mount", AuthLevel::System,
-	  "mounts everything the first file names that is not mounted already",
-	  NULL, 0, &kRanSchema, &mountAll, false },
+	  "mounts everything the first file names that is not mounted already", "Runs the box's own "
+	  "start up script to mount everything `/var/etc/fstab` names that is not mounted already. "
+	  "The answer carries the script's own output, as it wrote it, which is meant for a person "
+	  "reading it rather than for a program to parse; what actually came of mounting is read "
+	  "back with `GET /api/v1/storage/mounts`. The script starts its retries in the background "
+	  "and returns, so a mount that needs retrying may still be pending once this answers.\n\n"
+	  "**Related:** `GET /api/v1/storage/netfs/{table}`, `GET /api/v1/storage/mounts`, "
+	  "`POST /api/v1/storage/netfs/fstab/unmount`.",
+	  NULL, 0, &kRanSchema, &mountAll, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/storage/netfs/fstab/unmount", AuthLevel::System,
-	  "unmounts every network filesystem this box has mounted",
-	  NULL, 0, &kRanSchema, &unmountAll, false },
+	  "unmounts every network filesystem this box has mounted", "Runs the box's own start up "
+	  "script to unmount every network filesystem currently mounted, whether or not it is named "
+	  "in `/var/etc/fstab`. The answer carries the script's own output, as it wrote it; what "
+	  "actually remains mounted is read back with `GET /api/v1/storage/mounts`.\n\n"
+	  "**Side effects:** anything reading from or writing to one of those mounts, a recording "
+	  "among it, loses access to it.\n\n"
+	  "**Related:** `GET /api/v1/storage/mounts`, `POST /api/v1/storage/netfs/fstab/mount`.",
+	  NULL, 0, &kRanSchema, &unmountAll, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	/* Its own act and not a second mount, because the automounter reads its
 	   file when it starts and not while it runs: an entry written there is not
 	   a mount until this has happened. */
 	{ Method::Post, "/api/v1/storage/netfs/automount/reload", AuthLevel::System,
-	  "starts the automounter again so that it reads its file afresh",
-	  NULL, 0, &kRanSchema, &reloadAutomounter, false },
+	  "starts the automounter again so that it reads its file afresh", "Restarts the "
+	  "automounter daemon so it reads `/var/etc/auto.net` afresh. The automounter only reads "
+	  "that file when it starts, not while it runs, so an entry written to the `automount` "
+	  "table through this interface is not offered under /mnt/autofs until this has run. The "
+	  "answer carries the restart script's own output, as it wrote it.\n\n"
+	  "**Side effects:** entries the automounter was already serving are offered again once it "
+	  "has come back up; anything actively reading from one during the restart loses access to "
+	  "it briefly.\n\n"
+	  "**Related:** `PUT /api/v1/storage/netfs/{table}/{slot}`, "
+	  "`GET /api/v1/storage/netfs/{table}`.",
+	  NULL, 0, &kRanSchema, &reloadAutomounter, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 };
 
 } // namespace

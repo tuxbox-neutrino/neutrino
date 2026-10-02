@@ -142,10 +142,12 @@ const char *fileKindName(coreapi::FileKind k)
 const FieldDesc kMountFields[] = {
 	HTTPD_MEMBER("id", FieldType::String,
 		"where the filesystem is mounted, which is what names it here"),
-	HTTPD_MEMBER("device", FieldType::String, "what is mounted there"),
-	HTTPD_MEMBER("fstype", FieldType::String, "what kind of filesystem it is"),
+	HTTPD_MEMBER("device", FieldType::String,
+		"the device or network share the kernel mounted there, as the mount table names it"),
+	HTTPD_MEMBER("fstype", FieldType::String,
+		"the filesystem type the kernel mounted it as, for example ext4 or vfat"),
 	HTTPD_MEMBER("total", FieldType::UInt,
-		"how large it is in bytes, nought where the counters could not be read"),
+		"how large it is in bytes, 0 where the counters could not be read"),
 	HTTPD_MEMBER("free", FieldType::UInt,
 		"how much of it a recording could still use, which is less than what is unallocated because of the reserve"),
 };
@@ -165,22 +167,36 @@ const Schema kMountListSchema = { "mount-list", HTTPD_FIELDS(kMountListFields) }
    Written out as zeroes they would be read as a real owner, a real size and a
    moment at the epoch, which is a listing stating things nobody measured.
    attributes_read is what a reader tests before it looks for any of them. */
+const char kFileKindDocs[] =
+	"unknown: the directory holds no type for this name\n"
+	"fifo: a named pipe\n"
+	"char-device: a character special device\n"
+	"dir: a directory\n"
+	"block-device: a block special device\n"
+	"regular: a plain file\n"
+	"link: a symbolic link, named as the link and not as what it points at\n"
+	"socket: a UNIX domain socket\n"
+	"whiteout: a filesystem whiteout marker";
+
 const FieldDesc kFileFields[] = {
-	HTTPD_MEMBER("id", FieldType::String, "the name, as the directory holds it"),
+	HTTPD_MEMBER("id", FieldType::String,
+		"the entry's name, as the directory holds it, with no path in front of it"),
 	HTTPD_MEMBER_OF_SET("kind", "unknown,fifo,char-device,dir,block-device,regular,link,socket,whiteout",
-		"what the directory says the name is, which for a link is a link and not what it points at"),
+		"what the directory says the name is, which for a link is a link and not what it points at", kFileKindDocs),
 	HTTPD_MEMBER("attributes_read", FieldType::Bool,
 		"whether the filesystem answered for the name, and so whether the members below are there at all"),
 	HTTPD_MEMBER_OPTIONAL("mode", FieldType::UInt,
-		"the permission bits and the kind, as the kernel keeps them"),
-	HTTPD_MEMBER_OPTIONAL("nlink", FieldType::UInt, "how many names the same content has"),
+		"the permission bits, conventionally shown in octal (for example 0644), and the file type bits, as the kernel's mode word packs them"),
+	HTTPD_MEMBER_OPTIONAL("nlink", FieldType::UInt,
+		"how many directory entries, hard links, point at the same content"),
 	HTTPD_MEMBER_OPTIONAL("size", FieldType::UInt,
 		"how large it is in bytes, and for a link how large what it points at is"),
 	HTTPD_MEMBER_OPTIONAL("mtime", FieldType::Time,
-		"when it was last written, seconds since the epoch"),
+		"when it was last written, Unix time in seconds"),
 	HTTPD_MEMBER_OPTIONAL("uid", FieldType::UInt,
-		"the owner, as the number the kernel gave and not as a name"),
-	HTTPD_MEMBER_OPTIONAL("gid", FieldType::UInt, "the group, likewise"),
+		"the owner, as the numeric id the kernel gave and not as a name"),
+	HTTPD_MEMBER_OPTIONAL("gid", FieldType::UInt,
+		"the group that owns it, as the numeric id the kernel gave and not as a name"),
 };
 
 const Schema kFileSchema = { "file", HTTPD_FIELDS(kFileFields) };
@@ -557,10 +573,57 @@ const Param kWriteParams[] = {
 	HTTPD_BODY_IS_BYTES("file", "the bytes of the file, sent as they are and not wrapped in anything", 0, 0),
 };
 
+const RouteRefusal kListFilesRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
+		"the name /etc is not inside any permitted directory"),
+};
+
+const RouteRefusal kCreateDirectoryRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
+		"the name /etc is not inside any permitted directory"),
+	HTTPD_REFUSES(Conflict, NameTaken,
+		"there is already something called /media/hdd/movie/new"),
+};
+
+const RouteRefusal kRemovePathRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, AccessStore,
+		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
+		"the name /etc is not inside any permitted directory"),
+	HTTPD_REFUSES(NotFound, NoSuchName,
+		"there is nothing called /media/hdd/movie/old"),
+	HTTPD_REFUSES(Conflict, NotEmpty,
+		"the directory /media/hdd/movie/old still holds something"),
+};
+
+const RouteRefusal kReadFileRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, AccessStore,
+		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
+		"the name /etc is not inside any permitted directory"),
+};
+
+const RouteRefusal kWriteFileRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, AccessStore,
+		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
+		"the name /etc is not inside any permitted directory"),
+	HTTPD_REFUSES(Conflict, NameTaken,
+		"there is already something called /media/hdd/notes.txt"),
+	HTTPD_REFUSES(Conflict, NotAPlainFile,
+		"what is called /media/hdd/movie is not a plain file, so nothing is put in its place"),
+};
+
 const Endpoint kStorageEndpoints[] = {
 	{ Method::Get, "/api/v1/storage/mounts", AuthLevel::Read,
-	  "the filesystems the box has mounted and how much room each has",
-	  NULL, 0, &kMountListSchema, &listMounts, false },
+	  "the filesystems the box has mounted and how much room each has", "Lists every filesystem "
+	  "the kernel currently has mounted, read fresh from the kernel's own mount table for each "
+	  "request: where each one is mounted, what device or network share is mounted there, its "
+	  "filesystem type, and how large it is in total and free bytes. This is every mount on the "
+	  "box, not only the ones a recording or a file route may use; `total` and `free` are 0 for "
+	  "a mount point the kernel will not answer usage for.",
+	  NULL, 0, &kMountListSchema, &listMounts, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	/* System and not Read, which is where the level table puts the filesystem and is a
 	   level higher than the two reads above it.
 
@@ -571,18 +634,53 @@ const Endpoint kStorageEndpoints[] = {
 	   and knowing what is on the box's disks is the difference this level exists to
 	   draw. */
 	{ Method::Get, "/api/v1/storage/files", AuthLevel::System,
-	  "what one directory inside the roots holds",
-	  HTTPD_PARAMS(kFileParams), &kFileListSchema, &listFiles, false },
+	  "what one directory inside the roots holds", "Lists the entries of one directory named by "
+	  "`path`, read fresh from the filesystem for each request: for every entry, its name, what "
+	  "kind of thing it is, and, where the filesystem could answer for it, its permission bits, "
+	  "link count, size, last written time, owner and group. The roots are the directories the "
+	  "box records to, where its movie browser looks, and the directories an image installs "
+	  "plugins into, rebuilt from the current recording path and movie browser settings before "
+	  "every request. The answer is not paged: it carries every entry the directory gave, in "
+	  "the order the directory gave them, which is not an order guaranteed to repeat.\n\n"
+	  "**Preconditions:** `path` has to resolve inside one of the roots.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 outside-roots`: `path` resolves outside every permitted directory.\n\n"
+	  "**Related:** `GET /api/v1/storage/mounts`, `GET /api/v1/storage/file`.",
+	  HTTPD_PARAMS(kFileParams), &kFileListSchema, &listFiles, false,
+	  Answers200, HTTPD_REFUSALS(kListFilesRefusals) },
 	/* Both of the two below are System and not Write. What they reach is the
 	   filesystem the box records to, a removal there is not something a later
 	   request can undo, and the roots the layer below confines them to are only
 	   worth what the account this server runs as cannot reach around them. */
 	{ Method::Post, "/api/v1/storage/directory", AuthLevel::System,
-	  "makes one directory inside the roots",
-	  HTTPD_PARAMS(kMakeParams), NULL, &createDirectory, false },
+	  "makes one directory inside the roots", "Makes one directory at `path`. `201` means the "
+	  "directory exists on the filesystem by the time this answers, not merely that making it "
+	  "was asked for: this is a direct filesystem call and not a request handed to the box's "
+	  "own loop.\n\n"
+	  "**Preconditions:** `path` has to resolve inside one of the roots, its parent directory "
+	  "has to exist already, and nothing may already be there under that name.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 outside-roots`: `path` resolves outside every permitted directory.\n"
+	  "- `409 name-taken`: something already exists under that name.\n\n"
+	  "**Related:** `GET /api/v1/storage/files`, `DELETE /api/v1/storage/path`.",
+	  HTTPD_PARAMS(kMakeParams), NULL, &createDirectory, false,
+	  Answers201, HTTPD_REFUSALS_AND_BODY(kCreateDirectoryRefusals,
+		"{\"path\":\"/media/hdd/movie/new\"}") },
 	{ Method::Delete, "/api/v1/storage/path", AuthLevel::System,
-	  "removes one file, or one directory with nothing in it",
-	  HTTPD_PARAMS(kRemoveParams), NULL, &removePath, false },
+	  "removes one file, or one directory with nothing in it", "Removes one name at `path`: a "
+	  "plain file, a link (removed itself, not what it points at), or a directory that holds "
+	  "nothing. `204` means it is gone from the filesystem by the time this answers.\n\n"
+	  "**Preconditions:** `path` has to resolve inside one of the roots and must not be the web "
+	  "server's own access store; a directory must be empty before it can be removed.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 access-store`: `path` names the web server's own store of who may reach this box, "
+	  "which no file route reads, writes or removes.\n"
+	  "- `400 outside-roots`: `path` resolves outside every permitted directory.\n"
+	  "- `404 no-such-name`: there is nothing at `path`.\n"
+	  "- `409 not-empty`: `path` is a directory that still holds something; remove what it holds first.\n\n"
+	  "**Related:** `GET /api/v1/storage/files`, `POST /api/v1/storage/directory`.",
+	  HTTPD_PARAMS(kRemoveParams), NULL, &removePath, false,
+	  Answers204, HTTPD_REFUSALS(kRemovePathRefusals) },
 	/* System like the listing above, and for more reason than that one has.
 	   What the listing hands back is the names, the modes and the sizes of
 	   what is under the roots; this one hands back the bytes, and the roots
@@ -608,15 +706,54 @@ const Endpoint kStorageEndpoints[] = {
 	   and the one that removes a name are not written to read a scope and do not get the
 	   flag: nothing a leaked address can do should be a thing this box cannot undo. */
 	{ Method::Get, "/api/v1/storage/file", AuthLevel::System,
-	  "the bytes of one file inside the roots",
-	  HTTPD_PARAMS(kReadParams), NULL, &readFile, true },
+	  "the bytes of one file inside the roots", "Sends the bytes of one plain file named by "
+	  "`path`, straight out of the file on disk rather than copied through this process first, "
+	  "with a content type guessed from its name and a `Content-Disposition` header naming it "
+	  "for download. `200` carries the whole file; sending a `Range` header asks for part of "
+	  "it, which answers `206` with only that stretch, or `416` when the range does not fit "
+	  "inside the file. A name that is not there, or that is not a plain file (a directory, a "
+	  "device, a pipe), answers not found rather than saying which of those it is.\n\n"
+	  "**Preconditions:** `path` has to resolve inside one of the roots and must not be the web "
+	  "server's own access store. This is the one route on this server that also accepts a "
+	  "credential carried in the address itself rather than in a header; such a credential "
+	  "reaches only the media roots (where the box records and where its movie browser looks), "
+	  "never the rest of the roots this route otherwise reaches, and is refused where it does "
+	  "not.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 access-store`: `path` names the web server's own store of who may reach this box, "
+	  "which no file route reads, writes or removes.\n"
+	  "- `400 outside-roots`: `path` resolves outside every permitted directory.\n\n"
+	  "**Related:** `GET /api/v1/storage/files`, `PUT /api/v1/storage/file`.",
+	  HTTPD_PARAMS(kReadParams), NULL, &readFile, true,
+	  Answers200 | Answers206, HTTPD_REFUSALS(kReadFileRefusals) },
 	/* The other half of the old defect, and the worse half: that server could
 	   be made to write any file on the box as well. Same level, same roots,
 	   and the body is the file's own bytes rather than a document naming
 	   anything. */
 	{ Method::Put, "/api/v1/storage/file", AuthLevel::System,
-	  "puts one file inside the roots, as the bytes of the body",
-	  HTTPD_PARAMS(kWriteParams), NULL, &writeFile, false },
+	  "puts one file inside the roots, as the bytes of the body", "Puts one file at `path`, "
+	  "with the whole request body as its bytes and nothing else: no form, no wrapper, no "
+	  "encoding. `201` means a new name was created; `204` means an existing name was replaced. "
+	  "The write is atomic: the bytes are written beside the final name first and put in its "
+	  "place in one step, so a transfer that breaks off leaves either the file that was there "
+	  "before or nothing at all, never a half written file. There is no ceiling of its own on "
+	  "the size beyond this server's general body ceiling, so this route suits configuration, "
+	  "lists and pictures rather than a recording or a firmware image.\n\n"
+	  "**Preconditions:** `path` has to resolve inside one of the roots, its directory has to "
+	  "exist already, and it must not be the web server's own access store. Replacing an "
+	  "existing name needs `overwrite: true`; without it, an existing name is left alone. What "
+	  "is replaced has to already be a plain file, not a directory or anything else.\n\n"
+	  "**Side effects:** writes or replaces the named file on the box's filesystem.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 access-store`: `path` names the web server's own store of who may reach this box, "
+	  "which no file route reads, writes or removes.\n"
+	  "- `400 outside-roots`: `path` resolves outside every permitted directory.\n"
+	  "- `409 name-taken`: something is already there and `overwrite` was not `true`.\n"
+	  "- `409 not-a-plain-file`: what is there is not a plain file, so nothing is put in its "
+	  "place.\n\n"
+	  "**Related:** `GET /api/v1/storage/file`, `DELETE /api/v1/storage/path`.",
+	  HTTPD_PARAMS(kWriteParams), NULL, &writeFile, false,
+	  Answers201 | Answers204, HTTPD_REFUSALS(kWriteFileRefusals) },
 };
 
 } // namespace

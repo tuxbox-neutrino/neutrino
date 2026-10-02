@@ -56,6 +56,10 @@ void appendProblem(std::string &out, const coreapi::Error &e, int http_code);
 
 const char *problemContentType();
 
+int refusalStatus(const RouteRefusal &r);
+
+const char *problemTitle(int http_code);
+
 /* What every answer this API sends carries besides its own headers, and the reason
    each of the three is not optional.
 

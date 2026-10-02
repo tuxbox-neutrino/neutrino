@@ -164,6 +164,16 @@ void appendProblem(std::string &out, const coreapi::Error &e, int http_code)
 	j.endObject();
 }
 
+int refusalStatus(const RouteRefusal &r)
+{
+	return (r.http != 0) ? r.http : httpStatus(r.status);
+}
+
+const char *problemTitle(int http_code)
+{
+	return titleForCode(http_code);
+}
+
 const char *problemContentType()
 {
 	return "application/problem+json";

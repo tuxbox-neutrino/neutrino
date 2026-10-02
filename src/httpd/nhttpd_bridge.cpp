@@ -14,6 +14,7 @@
 #include "httpd/events.h"
 #include "httpd/http.h"
 #include "httpd/router.h"
+#include "httpd/server.h"
 #include "httpd/status.h"
 #include "httpd/doc/openapi.h"
 #include "coreapi/base/errors.h"
@@ -130,6 +131,21 @@ void takeProblem(CyhookHandler *hh, int code, coreapi::ErrorCode why, const char
 	hh->ResponseHeaders = p.headers;
 	hh->yresult = p.body;
 	hh->status = HANDLED_READY;
+}
+
+/* The answer as it leaves, for the suite's record of what each route
+   answered, as upstream's server notes it after sending: the router notes
+   what a route said, and this adds what only the door gives - the login
+   gate's refusals, a body over the limit, and a code the range handling or
+   the transport turned the route's answer into. Only for those, so the
+   ordinary answer is not copied; one noted twice counts once. */
+void noteSent(const CyhookHandler *hh, httpd::Method m, const std::string &path)
+{
+	httpd::Response sent;
+	sent.code = (int) hh->httpStatus;
+	sent.content_type = hh->ResponseMimeType;
+	sent.body = hh->yresult;
+	httpd::noteAnswer(m, path, sent);
 }
 
 // After a throw. The document is a literal, but a string assignment can
@@ -319,7 +335,8 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 		if (hh->RawBodyTooLarge)
 		{
 			takeProblem(hh, 413, coreapi::ErrorCode::BodyTooLarge,
-			            "the body is larger than this server keeps for one request, 1 MiB");
+			            httpd::tooLargeDetail());
+			noteSent(hh, m, path);
 			return hh->status;
 		}
 
@@ -345,6 +362,7 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 			{
 				httpd::addApiHeaders(refusal);
 				answerWith(hh, refusal);
+				noteSent(hh, m, path);
 				return hh->status;
 			}
 		}
@@ -358,6 +376,9 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 			r = httpd::openapi::withEncoding(r, header_value(hh->HeaderList, "Accept-Encoding"));
 
 		answerWith(hh, r);
+		// the router noted what the route said; this is what the door made of it
+		if ((int) hh->httpStatus != r.code)
+			noteSent(hh, m, path);
 	}
 	catch (const std::exception &e)
 	{
@@ -422,6 +443,10 @@ THandleStatus CApiBridge::Hook_SendStream(CyhookHandler *hh, CySocket *sock)
 		const httpd::events::Opened got =
 			httpd::events::openStream((int) sock->get_socket(), handle, refusal);
 
+		// The two refusals of this pass are the door's own, noted as the send
+		// pass notes its own: the route said stream, and this is what it got.
+		const std::string target = hh->UrlData["target"];
+		const std::string path = target.substr(0, target.find('?'));
 		if (got == httpd::events::StreamRefused)
 		{
 			httpd::addApiHeaders(refusal);
@@ -430,12 +455,14 @@ THandleStatus CApiBridge::Hook_SendStream(CyhookHandler *hh, CySocket *sock)
 			hh->ResponseMimeType = refusal.content_type;
 			hh->ResponseHeaders = refusal.headers;
 			hh->yresult = refusal.body;
+			noteSent(hh, methodOf(hh->Method), path);
 			return HANDLED_READY;
 		}
 		if (got != httpd::events::StreamOpened)
 		{
 			takeProblem(hh, 500, coreapi::ErrorCode::BoxUnreadable,
 			            "the stream could not be opened");
+			noteSent(hh, methodOf(hh->Method), path);
 			return HANDLED_READY;
 		}
 
@@ -532,7 +559,7 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 		{
 			// the problem document is the body; held closes the file
 			takeProblem(hh, 416, coreapi::ErrorCode::RangeOutsideFile,
-			            "the stretch that was asked for is not in this file");
+			            httpd::rangeRefusedDetail());
 			hh->ResponseHeaders.push_back(std::make_pair(
 					std::string("Content-Range"), plan.content_range));
 			return;

@@ -36,6 +36,9 @@
 #include "httpd/doc/openapi.h"
 #include "httpd/router.h"
 #include "httpd/schema.h"
+#include "httpd/status.h"
+
+#include "coreapi/base/errors.h"
 
 #include "jsoncpp/json/json.h"
 
@@ -182,6 +185,17 @@ std::string fieldType(FieldType t)
 	return schema["properties"][name];
 }
 
+::Json::Value answerOf(const ::Json::Value &op)
+{
+	static const char *const kWith[] = { "200", "201", "207" };
+	for (size_t i = 0; i < sizeof(kWith) / sizeof(kWith[0]); ++i)
+	{
+		if (op["responses"].isMember(kWith[i]))
+			return op["responses"][kWith[i]];
+	}
+	return ::Json::Value();
+}
+
 bool listedIn(const ::Json::Value &array, const std::string &want)
 {
 	for (::Json::ArrayIndex i = 0; i < array.size(); ++i)
@@ -277,16 +291,23 @@ size_t proseIn(const ::Json::Value &doc)
 		{
 			const ::Json::Value op = item[verbs[j]];
 			n += op.isMember("summary") ? 1 : 0;
+			n += op.isMember("description") ? 1 : 0;
 
 			const ::Json::Value list = op["parameters"];
 			for (::Json::ArrayIndex k = 0; k < list.size(); ++k)
+			{
 				n += list[k].isMember("description") ? 1 : 0;
+				n += list[k]["schema"].isMember("x-enum-descriptions") ? 1 : 0;
+			}
 
 			const ::Json::Value body =
 				op["requestBody"]["content"]["application/json"]["schema"]["properties"];
 			const ::Json::Value::Members carried = body.getMemberNames();
 			for (size_t k = 0; k < carried.size(); ++k)
+			{
 				n += body[carried[k]].isMember("description") ? 1 : 0;
+				n += body[carried[k]].isMember("x-enum-descriptions") ? 1 : 0;
+			}
 
 			// The one place the words of a body of its own sit, there being no
 			// members for them to sit beside.
@@ -301,7 +322,10 @@ size_t proseIn(const ::Json::Value &doc)
 		const ::Json::Value props = shapes[shape_names[i]]["properties"];
 		const ::Json::Value::Members members = props.getMemberNames();
 		for (size_t j = 0; j < members.size(); ++j)
+		{
 			n += props[members[j]].isMember("description") ? 1 : 0;
+			n += props[members[j]].isMember("x-enum-descriptions") ? 1 : 0;
+		}
 	}
 
 	n += doc["info"].isMember("description") ? 1 : 0;
@@ -454,9 +478,13 @@ void checkConstraints(const ::Json::Value &schema, const Param &p)
 			REQUIRE(listedIn(schema["enum"], c.values[i]));
 	}
 
+	// What each value of the set means, which is prose and goes with it.
+	const bool explained = schema.isMember("x-enum-descriptions");
+	REQUIRE(explained == (openapi::descriptionsCompiledIn() && !c.values.empty() && p.value_docs != NULL));
+
 	// Nothing else. A constraint the row does not imply is one more member
 	// than this, and every lookup above would still have passed.
-	REQUIRE(schema.getMemberNames().size() == c.members());
+	REQUIRE(schema.getMemberNames().size() == c.members() + (explained ? 1 : 0));
 }
 
 /* The row as it is written into one element of a list or one value of an open
@@ -618,8 +646,8 @@ const Param kProbeParams[] = {
 };
 
 const Endpoint kProbeEndpoints[] = {
-	{ Method::Get, "/api/probe/{id}", AuthLevel::Read, "a route written where this case is",
-	  HTTPD_PARAMS(kProbeParams), &kProbeSchema, &probeHandler, false },
+	{ Method::Get, "/api/probe/{id}", AuthLevel::Read, "a route written where this case is", NULL,
+	  HTTPD_PARAMS(kProbeParams), &kProbeSchema, &probeHandler, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 const RouteTable kProbeTable = {
@@ -640,8 +668,8 @@ const FieldDesc kSecondFields[] = {
 const Schema kSecondSchema = { "twice", HTTPD_FIELDS(kSecondFields) };
 
 const Endpoint kClashEndpoints[] = {
-	{ Method::Get, "/api/clash/one", AuthLevel::Read, "the first", NULL, 0, &kFirstSchema, &probeHandler, false },
-	{ Method::Get, "/api/clash/two", AuthLevel::Read, "the second", NULL, 0, &kSecondSchema, &probeHandler, false },
+	{ Method::Get, "/api/clash/one", AuthLevel::Read, "the first", NULL, NULL, 0, &kFirstSchema, &probeHandler, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/clash/two", AuthLevel::Read, "the second", NULL, NULL, 0, &kSecondSchema, &probeHandler, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 const RouteTable kClashTable = {
@@ -696,6 +724,10 @@ TEST_CASE("every route the tables carry is in the document, with what the table 
 			REQUIRE(op.isMember("summary") == openapi::descriptionsCompiledIn());
 			if (openapi::descriptionsCompiledIn())
 				REQUIRE(op["summary"].asString() == std::string(ep.summary));
+			REQUIRE(op.isMember("description") ==
+			        (openapi::descriptionsCompiledIn() && ep.description != NULL));
+			if (op.isMember("description"))
+				REQUIRE(op["description"].asString() == std::string(ep.description));
 			REQUIRE(op["x-auth-level"].asString() == std::string(authName(ep.auth)));
 			REQUIRE_FALSE(op["operationId"].asString().empty());
 			REQUIRE(op["responses"].isMember("default"));
@@ -808,7 +840,10 @@ TEST_CASE("every parameter is in the document, where it travels and as what", "[
 					        openapi::descriptionsCompiledIn());
 					if (openapi::descriptionsCompiledIn())
 					{
-						REQUIRE(member["description"].asString() == std::string(p.doc));
+						if (p.value_docs == NULL)
+							REQUIRE(member["description"].asString() == std::string(p.doc));
+						else
+							REQUIRE(member["description"].asString().compare(0, std::strlen(p.doc), p.doc) == 0);
 						// Taken off before the constraints are counted, the
 						// prose not being one of them.
 						member.removeMember("description");
@@ -834,8 +869,11 @@ TEST_CASE("every parameter is in the document, where it travels and as what", "[
 					REQUIRE(entry["required"].asBool() == (p.in == In::Path ? true : p.required));
 					REQUIRE(entry.isMember("description") ==
 					        openapi::descriptionsCompiledIn());
-					if (openapi::descriptionsCompiledIn())
+					// The row's words first, then what each value of its set means.
+					if (openapi::descriptionsCompiledIn() && p.value_docs == NULL)
 						REQUIRE(entry["description"].asString() == std::string(p.doc));
+					if (openapi::descriptionsCompiledIn() && p.value_docs != NULL)
+						REQUIRE(entry["description"].asString().compare(0, std::strlen(p.doc), p.doc) == 0);
 					/* Every constraint the row implies and no other, which is
 					   what a client holds a value to before it sends one. All
 					   fifty two rows and not the handful a case could name:
@@ -923,12 +961,12 @@ const Param kWholeBytesParams[] = {
 };
 
 const Endpoint kWholeEndpoints[] = {
-	{ Method::Post, "/api/probe/list", AuthLevel::Write, "takes a list of words",
-	  HTTPD_PARAMS(kWholeListParams), NULL, &probeHandler, false },
-	{ Method::Post, "/api/probe/map", AuthLevel::Write, "takes an object of identifiers",
-	  HTTPD_PARAMS(kWholeMapParams), NULL, &probeHandler, false },
-	{ Method::Post, "/api/probe/bytes", AuthLevel::Write, "takes the bytes themselves",
-	  HTTPD_PARAMS(kWholeBytesParams), NULL, &probeHandler, false },
+	{ Method::Post, "/api/probe/list", AuthLevel::Write, "takes a list of words", NULL,
+	  HTTPD_PARAMS(kWholeListParams), NULL, &probeHandler, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Post, "/api/probe/map", AuthLevel::Write, "takes an object of identifiers", NULL,
+	  HTTPD_PARAMS(kWholeMapParams), NULL, &probeHandler, false, Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Post, "/api/probe/bytes", AuthLevel::Write, "takes the bytes themselves", NULL,
+	  HTTPD_PARAMS(kWholeBytesParams), NULL, &probeHandler, false, Answers200, HTTPD_NO_REFUSALS },
 };
 
 const RouteTable kWholeTable = {
@@ -1097,8 +1135,7 @@ TEST_CASE("the shape a route declares is filed under a key the route points at",
 			INFO(ep.path);
 
 			const ::Json::Value op = operationOf(doc, ep);
-			const ::Json::Value body =
-				op["responses"]["2XX"]["content"]["application/json"]["schema"];
+			const ::Json::Value body = answerOf(op)["content"]["application/json"]["schema"];
 			REQUIRE(body["$ref"].isString());
 
 			const ::Json::Value shape = pointed(doc, body["$ref"].asString());
@@ -1113,8 +1150,10 @@ TEST_CASE("the shape a route declares is filed under a key the route points at",
 				const ::Json::Value member = shape["properties"][f.name];
 				REQUIRE(member.isObject());
 				REQUIRE(member.isMember("description") == openapi::descriptionsCompiledIn());
-				if (openapi::descriptionsCompiledIn())
+				if (openapi::descriptionsCompiledIn() && f.value_docs == NULL)
 					REQUIRE(member["description"].asString() == std::string(f.doc));
+				if (openapi::descriptionsCompiledIn() && f.value_docs != NULL)
+					REQUIRE(member["description"].asString().compare(0, std::strlen(f.doc), f.doc) == 0);
 				if (f.type == FieldType::Object)
 					REQUIRE(member["$ref"].isString());
 				else
@@ -1182,7 +1221,7 @@ TEST_CASE("the route that answers with a stream says so rather than saying nothi
 		for (size_t j = 0; j < t[i]->count; ++j)
 		{
 			const Endpoint &ep = t[i]->endpoints[j];
-			const ::Json::Value answer = operationOf(doc, ep)["responses"]["2XX"];
+			const ::Json::Value answer = answerOf(operationOf(doc, ep));
 			INFO(ep.path);
 
 			if (!events::isStreamRoute(ep))
@@ -1255,6 +1294,297 @@ TEST_CASE("the refusal every layer answers with is described once and pointed at
 		}
 	}
 	REQUIRE(pointed_at > 30);
+}
+
+namespace
+{
+
+const struct
+{
+	unsigned    bit;
+	const char *key;
+} kSuccess[] = {
+	{ Answers200, "200" },
+	{ Answers201, "201" },
+	{ Answers202, "202" },
+	{ Answers204, "204" },
+	{ Answers206, "206" },
+	{ Answers207, "207" },
+};
+
+::Json::Value resolved(const ::Json::Value &doc, const ::Json::Value &at)
+{
+	if (at.isObject() && at.isMember("$ref"))
+		return pointed(doc, at["$ref"].asString());
+	return at;
+}
+
+std::string number(int n)
+{
+	char buf[16];
+	std::snprintf(buf, sizeof(buf), "%d", n);
+	return buf;
+}
+
+const Param kRuledParams[] = {
+	HTTPD_SEGMENT_IN("id", ParamType::UInt, "which", 1, 9),
+	HTTPD_BODY_REQUIRED_FROM_SET("kind", "what", "one,two", NULL),
+	HTTPD_BODY("on", ParamType::Bool, "whether"),
+};
+
+const RouteRefusal kRuledRefusals[] = {
+	HTTPD_REFUSES(Conflict, BoxInStandby, "the box is in standby"),
+	HTTPD_REFUSES_AS(StatusServiceUnavailable, UpstreamUnreachable, "the far end did not answer"),
+};
+
+const Endpoint kRuledEndpoints[] = {
+	{ Method::Post, "/api/v1/ruled/{id}", AuthLevel::Write, "changes one", NULL,
+	  HTTPD_PARAMS(kRuledParams), NULL, &probeHandler, false,
+	  Answers202, HTTPD_REFUSALS(kRuledRefusals) },
+	{ Method::Get, "/api/v1/session", AuthLevel::Public, "open to everybody", NULL,
+	  NULL, 0, NULL, &probeHandler, false, Answers200, HTTPD_NO_REFUSALS },
+};
+
+bool statesRefusal(const std::vector<openapi::StatedRefusal> &stated, int http,
+                   coreapi::ErrorCode code, const char *rule)
+{
+	for (size_t i = 0; i < stated.size(); ++i)
+	{
+		const bool same_rule = (rule == NULL) ? stated[i].rule == NULL
+		                                      : stated[i].rule != NULL &&
+		                                        std::strcmp(stated[i].rule, rule) == 0;
+		if (stated[i].http == http && stated[i].code == code && same_rule)
+			return true;
+	}
+	return false;
+}
+
+} // namespace
+
+TEST_CASE("each route states the codes it succeeds with as its table declares them", "[openapi]")
+{
+	ShippedRoutes shipped;
+
+	const ::Json::Value doc = parsed(openapi::document());
+	size_t tables = 0;
+	const RouteTable *const *t = allRoutes(&tables);
+
+	size_t stated = 0;
+	size_t several = 0;
+	for (size_t i = 0; i < tables; ++i)
+	{
+		for (size_t j = 0; j < t[i]->count; ++j)
+		{
+			const Endpoint &ep = t[i]->endpoints[j];
+			INFO(methodName(ep.method) << " " << ep.path);
+			const ::Json::Value responses = operationOf(doc, ep)["responses"];
+			REQUIRE_FALSE(responses.isMember("2XX"));
+
+			size_t here = 0;
+			for (size_t k = 0; k < sizeof(kSuccess) / sizeof(kSuccess[0]); ++k)
+			{
+				const bool declared = (ep.answers & kSuccess[k].bit) != 0;
+				REQUIRE(responses.isMember(kSuccess[k].key) == declared);
+				here += declared ? 1 : 0;
+			}
+			const ::Json::Value::Members codes = responses.getMemberNames();
+			size_t in_range = 0;
+			for (size_t k = 0; k < codes.size(); ++k)
+				in_range += (codes[k][0] == '2') ? 1 : 0;
+			REQUIRE(in_range == here);
+
+			REQUIRE_FALSE(responses["202"].isMember("content"));
+			REQUIRE_FALSE(responses["204"].isMember("content"));
+
+			stated += here;
+			several += (here > 1) ? 1 : 0;
+		}
+	}
+	REQUIRE(several > 0);
+	recordCount("success codes the document states", stated);
+}
+
+TEST_CASE("every refusal a route gives is stated under the code it is sent with and with an example", "[openapi]")
+{
+	ShippedRoutes shipped;
+
+	const ::Json::Value doc = parsed(openapi::document());
+	size_t tables = 0;
+	const RouteTable *const *t = allRoutes(&tables);
+
+	size_t refusals = 0;
+	for (size_t i = 0; i < tables; ++i)
+	{
+		for (size_t j = 0; j < t[i]->count; ++j)
+		{
+			const Endpoint &ep = t[i]->endpoints[j];
+			INFO(methodName(ep.method) << " " << ep.path);
+			const ::Json::Value responses = operationOf(doc, ep)["responses"];
+			REQUIRE(responses["default"]["$ref"].asString() == "#/components/responses/problem");
+
+			std::vector<openapi::StatedRefusal> stated;
+			openapi::statedRefusals(ep, stated);
+			REQUIRE_FALSE(stated.empty());
+			for (size_t k = 0; k < stated.size(); ++k)
+			{
+				const std::string code = coreapi::codeString(stated[k].code);
+				INFO(stated[k].http << " " << code);
+				const ::Json::Value response = resolved(doc, responses[number(stated[k].http)]);
+				REQUIRE(response.isObject());
+				REQUIRE(response["description"].asString() == problemTitle(stated[k].http));
+				const ::Json::Value problem = response["content"][problemContentType()];
+				REQUIRE(problem["schema"]["$ref"].asString() == "#/components/schemas/problem");
+
+				const ::Json::Value example = resolved(doc, problem["examples"][stated[k].example]);
+				REQUIRE(example["value"]["type"].asString() == "/errors/" + code);
+				REQUIRE(example["value"]["status"].asInt() == stated[k].http);
+				REQUIRE(example["value"]["title"].asString() == problemTitle(stated[k].http));
+				REQUIRE(example["value"]["detail"].asString() == stated[k].detail);
+				REQUIRE_FALSE(stated[k].detail.empty());
+				++refusals;
+			}
+
+			const ::Json::Value::Members codes = responses.getMemberNames();
+			for (size_t k = 0; k < codes.size(); ++k)
+			{
+				if (codes[k][0] == '2' || codes[k] == "default")
+					continue;
+				INFO(codes[k]);
+				const ::Json::Value examples =
+					resolved(doc, responses[codes[k]])["content"][problemContentType()]["examples"];
+				const ::Json::Value::Members names = examples.getMemberNames();
+				REQUIRE_FALSE(names.empty());
+				for (size_t n = 0; n < names.size(); ++n)
+				{
+					bool found = false;
+					for (size_t m = 0; m < stated.size() && !found; ++m)
+						found = number(stated[m].http) == codes[k] && stated[m].example == names[n];
+					INFO(names[n]);
+					REQUIRE(found);
+				}
+			}
+		}
+	}
+	recordCount("refusals the document states against a route", refusals);
+}
+
+TEST_CASE("refusals every route of a kind gives are stated by rule beside a route's own", "[openapi]")
+{
+	std::vector<openapi::StatedRefusal> stated;
+	openapi::statedRefusals(kRuledEndpoints[0], stated);
+
+	REQUIRE(statesRefusal(stated, 409, coreapi::ErrorCode::BoxInStandby, NULL));
+	REQUIRE(statesRefusal(stated, 503, coreapi::ErrorCode::UpstreamUnreachable, NULL));
+
+	REQUIRE(statesRefusal(stated, 403, coreapi::ErrorCode::NotPermitted, "level"));
+	REQUIRE(statesRefusal(stated, 403, coreapi::ErrorCode::NotPermitted, "token"));
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::NoSuchParameter, "parameters"));
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::MissingParameter, "parameters"));
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::OutOfRange, "parameters"));
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::BadInt, "parameters"));
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::BadEnum, "parameters"));
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::BadBool, "parameters"));
+	REQUIRE(statesRefusal(stated, 413, coreapi::ErrorCode::BodyTooLarge, "body"));
+	REQUIRE_FALSE(statesRefusal(stated, 416, coreapi::ErrorCode::RangeOutsideFile, "range"));
+	REQUIRE_FALSE(statesRefusal(stated, 503, coreapi::ErrorCode::TooManyStreams, "seats"));
+
+	openapi::statedRefusals(kRuledEndpoints[1], stated);
+	REQUIRE(stated.size() == 2u);
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::NoSuchParameter, "parameters"));
+	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::BadString, "parameters"));
+}
+
+TEST_CASE("the two conflicts a zap can meet are one 409 with an example each", "[openapi]")
+{
+	ShippedRoutes shipped;
+
+	const ::Json::Value doc = parsed(openapi::document());
+	const ::Json::Value op = doc["paths"]["/api/v1/zap"]["post"];
+	REQUIRE(op["responses"].isMember("202"));
+	const ::Json::Value conflict =
+		resolved(doc, op["responses"]["409"])["content"][problemContentType()]["examples"];
+	REQUIRE(conflict.getMemberNames().size() == 2u);
+	REQUIRE(resolved(doc, conflict["box-in-standby"])["value"]["type"].asString() ==
+	        "/errors/box-in-standby");
+	REQUIRE(resolved(doc, conflict["recording-holds-tuner"])["value"]["type"].asString() ==
+	        "/errors/recording-holds-tuner");
+
+	const ::Json::Value body = op["requestBody"]["content"]["application/json"]["example"];
+	REQUIRE(body["wake"].asBool());
+	REQUIRE(body["channel_id"].isString());
+}
+
+TEST_CASE("the body a reader starts from carries every member the route takes", "[openapi]")
+{
+	ShippedRoutes shipped;
+
+	const ::Json::Value doc = parsed(openapi::document());
+	size_t tables = 0;
+	const RouteTable *const *t = allRoutes(&tables);
+
+	size_t members = 0;
+	for (size_t i = 0; i < tables; ++i)
+	{
+		for (size_t j = 0; j < t[i]->count; ++j)
+		{
+			const Endpoint &ep = t[i]->endpoints[j];
+			const ::Json::Value op = operationOf(doc, ep);
+			const ::Json::Value body = op["requestBody"]["content"]["application/json"];
+			for (size_t k = 0; k < ep.param_count; ++k)
+			{
+				const Param &p = ep.params[k];
+				INFO(methodName(ep.method) << " " << ep.path << " " << p.name);
+				if (p.in == In::Path || p.in == In::Query)
+				{
+					const bool wanted = (p.in == In::Path || p.required) &&
+					                    (p.type != ParamType::String || p.choices != NULL);
+					const ::Json::Value params = op["parameters"];
+					for (::Json::ArrayIndex n = 0; n < params.size(); ++n)
+					{
+						if (params[n]["name"].asString() == p.name)
+							REQUIRE(params[n].isMember("example") == wanted);
+					}
+					continue;
+				}
+				// Held to being accepted where the routes are driven.
+				if (ep.body_example != NULL)
+				{
+					REQUIRE(body["example"] == parsed(ep.body_example));
+					continue;
+				}
+				if (p.in != In::Body)
+					continue;
+				const ::Json::Value value = body["example"][p.name];
+				REQUIRE_FALSE(value.isNull());
+				if (p.type == ParamType::Bool)
+					REQUIRE(value.isBool());
+				else if (p.type == ParamType::Int || p.type == ParamType::UInt ||
+				         p.type == ParamType::Time)
+					REQUIRE(value.isIntegral());
+				else
+					REQUIRE(value.isString());
+				if (p.type == ParamType::Enum)
+					REQUIRE(listedIn(body["schema"]["properties"][p.name]["enum"], value.asString()));
+				if (p.min != 0 || p.max != 0)
+				{
+					if (p.type == ParamType::Int || p.type == ParamType::UInt || p.type == ParamType::Time)
+					{
+						REQUIRE(value.asLargestInt() >= p.min);
+						REQUIRE(value.asLargestInt() <= p.max);
+					}
+				}
+				++members;
+			}
+		}
+	}
+
+	// Sent unchanged, a stop before its start would be refused.
+	const ::Json::Value timer =
+		doc["paths"]["/api/v1/timers"]["post"]["requestBody"]["content"]["application/json"]["example"];
+	REQUIRE(timer["start"].asLargestInt() < timer["stop"].asLargestInt());
+	REQUIRE(timer["start"].asLargestInt() > 1700000000);
+
+	recordCount("body members the examples carry", members);
 }
 
 TEST_CASE("what a caller has to present is stated, and the second token is named where it is wanted", "[openapi]")
@@ -1411,9 +1741,9 @@ TEST_CASE("two shapes carrying one name are filed apart rather than one over the
 	openapi::appendDocument(out, one, 1, true);
 
 	const ::Json::Value doc = parsed(out);
-	const std::string first = doc["paths"]["/api/clash/one"]["get"]["responses"]["2XX"]
+	const std::string first = doc["paths"]["/api/clash/one"]["get"]["responses"]["200"]
 	                             ["content"]["application/json"]["schema"]["$ref"].asString();
-	const std::string second = doc["paths"]["/api/clash/two"]["get"]["responses"]["2XX"]
+	const std::string second = doc["paths"]["/api/clash/two"]["get"]["responses"]["200"]
 	                              ["content"]["application/json"]["schema"]["$ref"].asString();
 	REQUIRE_FALSE(first.empty());
 	REQUIRE(first != second);
@@ -1459,11 +1789,7 @@ TEST_CASE("a build without the prose keeps every path and every shape and drops 
 	   named what the box calls it. */
 	REQUIRE(stripped["components"]["schemas"]["event"]["properties"].isMember("description"));
 
-	/* The description left on a Response Object is the format's own, one per
-	   operation, and its words are a fixed sentence here rather than anything
-	   out of a table. A Response Object without one is not a document a reader
-	   accepts, so leaving it out would answer a request for a shorter document
-	   by making it an unreadable one. */
+	// The format's own words, which no Response Object may lack.
 	size_t operations = 0;
 	const ::Json::Value::Members walked = stripped["paths"].getMemberNames();
 	for (size_t i = 0; i < walked.size(); ++i)
@@ -1473,7 +1799,19 @@ TEST_CASE("a build without the prose keeps every path and every shape and drops 
 		for (size_t j = 0; j < verbs.size(); ++j)
 		{
 			INFO(walked[i] << " " << verbs[j]);
-			REQUIRE(item[verbs[j]]["responses"]["2XX"]["description"].asString() == "the answer");
+			const ::Json::Value responses = item[verbs[j]]["responses"];
+			const ::Json::Value::Members codes = responses.getMemberNames();
+			size_t successes = 0;
+			for (size_t k = 0; k < codes.size(); ++k)
+			{
+				if (codes[k][0] != '2')
+					continue;
+				REQUIRE_FALSE(responses[codes[k]]["description"].asString().empty());
+				REQUIRE(responses[codes[k]]["description"] ==
+				        full["paths"][walked[i]][verbs[j]]["responses"][codes[k]]["description"]);
+				++successes;
+			}
+			REQUIRE(successes > 0);
 			++operations;
 		}
 	}
@@ -1678,13 +2016,13 @@ TEST_CASE("a shape this layer wrote wrong is refused, and says what is wrong wit
 		  { HTTPD_MEMBER_AS_WRITTEN("id", FieldType::ChannelId, false, "an identifier", NULL, "1,2",
 					    ElementType::None) } },
 		{ "a member that states a set with nothing in it",
-		  { HTTPD_MEMBER_OF_SET("s", "", "a word") } },
+		  { HTTPD_MEMBER_OF_SET("s", "", "a word", NULL) } },
 		{ "a member that states a set with an empty value in it",
-		  { HTTPD_MEMBER_OF_SET("s", "one,,two", "a word") } },
+		  { HTTPD_MEMBER_OF_SET("s", "one,,two", "a word", NULL) } },
 		{ "a member that states a set beginning with an empty value",
-		  { HTTPD_MEMBER_OF_SET("s", ",one", "a word") } },
+		  { HTTPD_MEMBER_OF_SET("s", ",one", "a word", NULL) } },
 		{ "a member that states one value of its set twice",
-		  { HTTPD_MEMBER_OF_SET("s", "one,two,one", "a word") } },
+		  { HTTPD_MEMBER_OF_SET("s", "one,two,one", "a word", NULL) } },
 	};
 
 	for (size_t i = 0; i < sizeof(broken) / sizeof(broken[0]); ++i)
@@ -1727,9 +2065,9 @@ TEST_CASE("what a member of an answer may say about itself", "[openapi]")
 		{ "a list of plain values that says what they are",
 		  { HTTPD_LIST_OF_VALUES("l", ElementType::Int, "a list") } },
 		{ "a set of one value, which is a set",
-		  { HTTPD_MEMBER_OF_SET("s", "one", "a word") } },
+		  { HTTPD_MEMBER_OF_SET("s", "one", "a word", NULL) } },
 		{ "a set of several",
-		  { HTTPD_MEMBER_OF_SET("s", "one,two,three", "a word") } },
+		  { HTTPD_MEMBER_OF_SET("s", "one,two,three", "a word", NULL) } },
 	};
 
 	for (size_t i = 0; i < sizeof(fine) / sizeof(fine[0]); ++i)

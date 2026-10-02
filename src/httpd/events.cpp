@@ -649,6 +649,11 @@ bool isStream(const Response &r)
 	return r.code == StatusOk && r.content_type == streamContentType();
 }
 
+const char *streamsFullDetail()
+{
+	return "this server is already carrying as many event streams as it will";
+}
+
 bool isStreamRoute(const Endpoint &ep)
 {
 	for (size_t i = 0; i < eventsTable.count; ++i)
@@ -715,7 +720,7 @@ Opened openStream(int fd, StreamHandle &out, Response &refusal)
 
 		refusal = problemResponse(StatusServiceUnavailable,
 		                          coreapi::ErrorCode::TooManyStreams,
-		                          "this server is already carrying as many event streams as it will");
+		                          streamsFullDetail());
 		refusal.headers.push_back(std::make_pair(std::string("Retry-After"),
 		                                         std::string(after)));
 		return StreamRefused;
@@ -994,7 +999,33 @@ Response streamHandler(const Request &)
    exemption already grants that much. */
 const Endpoint kEventsEndpoints[] = {
 	{ Method::Get, "/api/v1/events", AuthLevel::Read,
-	  "the box's own events as they happen", NULL, 0, NULL, &events::streamHandler, false },
+	  "the box's own events as they happen",
+	  "Opens a Server-Sent Events stream (`text/event-stream`) on which the box announces changes as "
+	  "they happen, whoever caused them: this API, the remote control or a timer. The connection stays "
+	  "open; read it with `EventSource` or any SSE client. The stream begins with a `retry:` line of "
+	  "10 to 19 seconds, the time a client waits before it reconnects, and carries a comment line "
+	  "(`:`) as a heartbeat when nothing happens.\n\n"
+	  "Each event is an `event:` line with its name and a `data:` line with a JSON object "
+	  "`{\"channel_id\": hex string, \"value\": integer, \"text\": string}`. Events say what changed, "
+	  "not everything about it: reread the matching route.\n\n"
+	  "| event | meaning | carries |\n"
+	  "|---|---|---|\n"
+	  "| `zap` | the box switched channel | `channel_id`: the new channel |\n"
+	  "| `mode` | the box changed mode | `value`: 1 TV, 2 radio, 4 standby, other values for the player modes |\n"
+	  "| `standby` | standby was entered or left | `value`: 1 in standby, 0 awake |\n"
+	  "| `volume` | the volume changed | `value`: 0 to 100 |\n"
+	  "| `mute` | sound was muted or unmuted | `value`: 1 muted, 0 sound on |\n"
+	  "| `record-start` | a recording began | `channel_id`, `value`: the recording id of `GET /api/v1/recordings` |\n"
+	  "| `record-stop` | a recording ended | `channel_id`, `value`: the recording id |\n"
+	  "| `timer-changed` | the timer list changed | nothing; reread `GET /api/v1/timers` |\n"
+	  "| `epg-updated` | the guide got now and next for a channel | `channel_id`: only its lower 48 bits; at most 1 per 500 milliseconds, others in between are dropped |\n"
+	  "| `bouquets-changed` | the bouquet list changed | nothing; reread `GET /api/v1/bouquets` |\n"
+	  "| `settings-changed` | settings were written | nothing; reread `GET /api/v1/settings/{section}` |\n\n"
+	  "**Refusals:**\n"
+	  "- `503 too-many-streams`: the server already carries as many event streams as it is set to "
+	  "(8 by default); close another one or try later.\n\n"
+	  "**Related:** every route whose description names an event.", NULL, 0, NULL, &events::streamHandler, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 };
 
 /* The pair, written where the array is, so that the length beside it is the

@@ -288,6 +288,8 @@ bool inList(const char *list, const std::string &v)
 	}
 }
 
+AnswerWatch answer_watch = NULL;
+
 /* Every refusal this file makes, written through the one builder beside the problem
    document, so two answers to one kind of refusal cannot take two shapes. */
 Response refuse(int code, coreapi::ErrorCode e, const std::string &detail)
@@ -423,6 +425,43 @@ void splitQuery(const std::string &q, std::vector<std::pair<std::string, std::st
 	}
 }
 
+const char *badNumberSays(ParamType t)
+{
+	switch (t)
+	{
+		case ParamType::UInt:      return "is not a whole number of none or more";
+		case ParamType::ChannelId: return "is not a hexadecimal identifier";
+		case ParamType::Time:      return "is not a whole number of seconds";
+		case ParamType::Int:
+		case ParamType::Bool:
+		case ParamType::String:
+		case ParamType::Enum:      break;
+	}
+	return "is not a whole number";
+}
+
+const unsigned kAnyAnswer = Answers200 | Answers201 | Answers202 | Answers204 |
+                            Answers206 | Answers207;
+
+const char kTooWide[] = "is wider than a whole number here holds";
+const char kOutsideClock[] = "is outside what the clock here holds";
+const char kZeroByte[] = "carries a zero byte";
+const char kGivenTwice[] = "was given twice";
+const char kNotAFlag[] = "is not a yes or a no";
+const char kRequired[] = "is required";
+const char kNoSuchParameter[] = "this endpoint declares no parameter of that name";
+const char kBadQueryEscape[] = "the query carries an escape that is not one";
+
+std::string longerSays(long long bytes)
+{
+	return "is longer than " + num(bytes) + " bytes";
+}
+
+std::string outsideSays(long min, long max)
+{
+	return "is outside " + num(min) + " to " + num(max);
+}
+
 /* Whether the text is a value the row declares, and what it is when it is.
    Otherwise refusal carries the answer naming the first thing found wrong with it.
 
@@ -436,13 +475,13 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 
 	if (hasZeroByte(text))
 	{
-		refusal = badParam(coreapi::ErrorCode::ValueHasZeroByte, p.name, "carries a zero byte");
+		refusal = badParam(coreapi::ErrorCode::ValueHasZeroByte, p.name, kZeroByte);
 		return false;
 	}
 	if (text.size() > kMaxValueBytes)
 	{
 		refusal = badParam(coreapi::ErrorCode::ValueTooLong, p.name,
-		                   "is longer than " + num((long long) kMaxValueBytes) + " bytes");
+		                   longerSays((long long) kMaxValueBytes));
 		return false;
 	}
 
@@ -453,7 +492,7 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			long long n = 0;
 			if (!parseSignedDec(text, n))
 			{
-				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, "is not a whole number");
+				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, badNumberSays(p.type));
 				return false;
 			}
 			/* The accessor answers a long, four bytes where this runs and eight where it is
@@ -463,14 +502,13 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			   of the type, which on this host reads as a comparison that cannot be true. */
 			if ((long long)(long) n != n)
 			{
-				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name,
-				                   "is wider than a whole number here holds");
+				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name, kTooWide);
 				return false;
 			}
 			if ((p.min != 0 || p.max != 0) && (n < (long long) p.min || n > (long long) p.max))
 			{
 				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name,
-				                   "is outside " + num(p.min) + " to " + num(p.max));
+				                   outsideSays(p.min, p.max));
 				return false;
 			}
 			v.number = n;
@@ -481,15 +519,14 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			unsigned long long n = 0;
 			if (!parseUnsignedDec(text, n))
 			{
-				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, "is not a whole number of none or more");
+				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, badNumberSays(p.type));
 				return false;
 			}
 			// The same narrowing as above, and unexercised here for the same
 			// reason.
 			if ((unsigned long long)(unsigned long) n != n)
 			{
-				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name,
-				                   "is wider than a whole number here holds");
+				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name, kTooWide);
 				return false;
 			}
 			if (p.min != 0 || p.max != 0)
@@ -502,7 +539,7 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 				if (n < lo || n > hi)
 				{
 					refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name,
-					                   "is outside " + num(p.min) + " to " + num(p.max));
+					                   outsideSays(p.min, p.max));
 					return false;
 				}
 			}
@@ -514,7 +551,7 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			bool b = false;
 			if (!parseBool(text, b))
 			{
-				refusal = badParam(coreapi::ErrorCode::BadBool, p.name, "is not a yes or a no");
+				refusal = badParam(coreapi::ErrorCode::BadBool, p.name, kNotAFlag);
 				return false;
 			}
 			v.flag = b;
@@ -525,7 +562,7 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			if (p.max > 0 && (long) text.size() > p.max)
 			{
 				refusal = badParam(coreapi::ErrorCode::ValueTooLong, p.name,
-				                   "is longer than " + num(p.max) + " bytes");
+				                   longerSays(p.max));
 				return false;
 			}
 			return true;
@@ -552,7 +589,7 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			unsigned long long n = 0;
 			if (!parseHex(text, n))
 			{
-				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, "is not a hexadecimal identifier");
+				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, badNumberSays(p.type));
 				return false;
 			}
 			// No bound is read: an identifier is eight bytes and the bounds a
@@ -565,19 +602,19 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			long long n = 0;
 			if (!parseSignedDec(text, n))
 			{
-				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, "is not a whole number of seconds");
+				refusal = badParam(coreapi::ErrorCode::BadInt, p.name, badNumberSays(p.type));
 				return false;
 			}
 			if (n < kTimeMin || n > kTimeMax)
 			{
 				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name,
-				                   "is outside what the clock here holds");
+				                   kOutsideClock);
 				return false;
 			}
 			if ((p.min != 0 || p.max != 0) && (n < (long long) p.min || n > (long long) p.max))
 			{
 				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name,
-				                   "is outside " + num(p.min) + " to " + num(p.max));
+				                   outsideSays(p.min, p.max));
 				return false;
 			}
 			v.number = n;
@@ -610,9 +647,7 @@ bool namesAreDeclared(const Endpoint &ep,
 	{
 		if (findParam(ep, given[i].first, where) != NULL)
 			continue;
-		refusal = refuse(StatusBadRequest,
-		                 coreapi::ErrorCode::NoSuchParameter,
-		                 "this endpoint declares no parameter of that name");
+		refusal = refuse(StatusBadRequest, coreapi::ErrorCode::NoSuchParameter, kNoSuchParameter);
 		return false;
 	}
 	return true;
@@ -632,7 +667,7 @@ bool namesAreDistinct(const Endpoint &ep,
 				continue;
 			const Param *p = findParam(ep, given[i].first, where);
 			refusal = badParam(coreapi::ErrorCode::DuplicateParameter,
-			                   (p != NULL) ? p->name : NULL, "was given twice");
+			                   (p != NULL) ? p->name : NULL, kGivenTwice);
 			return false;
 		}
 	}
@@ -682,9 +717,7 @@ Response runEndpoint(const Endpoint &ep,
 		{
 			// Before any name is compared, because an escape that is not one
 			// leaves nothing to compare.
-			return refuse(StatusBadRequest,
-			              coreapi::ErrorCode::BadString,
-			              "the query carries an escape that is not one");
+			return refuse(StatusBadRequest, coreapi::ErrorCode::BadString, kBadQueryEscape);
 		}
 		given.push_back(one);
 	}
@@ -801,7 +834,7 @@ Response runEndpoint(const Endpoint &ep,
 		if (namesWholeBody(p.in))
 			continue;
 		if (p.required && !present[i])
-			return badParam(coreapi::ErrorCode::MissingParameter, p.name, "is required");
+			return badParam(coreapi::ErrorCode::MissingParameter, p.name, kRequired);
 	}
 
 	for (size_t i = 0; i < ep.param_count; ++i)
@@ -992,8 +1025,11 @@ Response dispatchTables(const RouteTable *const *tables, size_t table_count, Met
 		return refuse(StatusInternalServerError,
 		              coreapi::ErrorCode::BadTable, "two routes answer this request");
 
-	return runEndpoint(*best, found.binds, query, body, peer, granted, reported, session, host,
-	                   scope);
+	const Response r = runEndpoint(*best, found.binds, query, body, peer, granted, reported,
+	                               session, host, scope);
+	if (answer_watch != NULL)
+		answer_watch(*best, r);
+	return r;
 }
 
 /* A route as the thing it matches rather than as the text it is written with,
@@ -1082,6 +1118,26 @@ bool endpointIsSane(const Endpoint &ep, Shape &shape, std::string *why)
 		return say(why, where + "the route says nothing about itself");
 	if (ep.param_count > 0 && ep.params == NULL)
 		return say(why, where + "the route declares parameters it does not carry");
+	if (ep.answers == 0 || (ep.answers & ~kAnyAnswer) != 0)
+		return say(why, where + "the route does not say which success codes it answers with");
+	if (ep.refusal_count > 0 && ep.refusals == NULL)
+		return say(why, where + "the route declares refusals it does not carry");
+	if (ep.body_example != NULL && ep.method != Post && ep.method != Put && ep.method != Patch)
+		return say(why, where + "the route gives an example of a body it is never sent");
+	for (size_t i = 0; i < ep.refusal_count; ++i)
+	{
+		const RouteRefusal &r = ep.refusals[i];
+		const int sent = refusalStatus(r);
+		if (sent < 400 || sent > 599)
+			return say(why, where + "a refusal the route declares is not sent as one");
+		if (r.detail == NULL || r.detail[0] == '\0')
+			return say(why, where + "a refusal the route declares carries no example");
+		for (size_t k = 0; k < i; ++k)
+		{
+			if (ep.refusals[k].code == r.code && refusalStatus(ep.refusals[k]) == sent)
+				return say(why, where + "the route declares one refusal twice");
+		}
+	}
 	/* Public is what the two endpoints named at the top of this file are, and the one
 	   posture this project exists to remove is everything being reachable without a
 	   credential. A third endpoint open to everybody is a change somebody has to make
@@ -1362,6 +1418,96 @@ Response dispatch(Method m, const std::string &path,
 	   is left alone. */
 	addApiHeaders(r);
 	return r;
+}
+
+void parameterRefusals(const Endpoint &ep,
+                       std::vector<std::pair<coreapi::ErrorCode, std::string> > &out)
+{
+	out.push_back(std::make_pair(coreapi::ErrorCode::NoSuchParameter,
+	                             std::string(kNoSuchParameter)));
+	out.push_back(std::make_pair(coreapi::ErrorCode::BadString, std::string(kBadQueryEscape)));
+
+	const Param *any = NULL;
+	const Param *named = NULL;
+	const Param *required = NULL;
+	const Param *number = NULL;
+	const Param *ranged = NULL;
+	const Param *flag = NULL;
+	const Param *listed = NULL;
+	for (size_t i = 0; i < ep.param_count && ep.params != NULL; ++i)
+	{
+		const Param &p = ep.params[i];
+		if (p.name == NULL || p.name[0] == '\0' || namesWholeBody(p.in))
+			continue;
+		if (any == NULL)
+			any = &p;
+		if (p.in != In::Path && named == NULL)
+			named = &p;
+		if (p.in != In::Path && p.required && required == NULL)
+			required = &p;
+		const bool numeric = p.type == ParamType::Int || p.type == ParamType::UInt ||
+		                     p.type == ParamType::Time;
+		if ((numeric || p.type == ParamType::ChannelId) && number == NULL)
+			number = &p;
+		if (numeric && ranged == NULL)
+			ranged = &p;
+		if (p.type == ParamType::Bool && flag == NULL)
+			flag = &p;
+		if (p.type == ParamType::Enum && listed == NULL)
+			listed = &p;
+	}
+
+	const std::string head = "parameter ";
+	if (any != NULL)
+	{
+		out.push_back(std::make_pair(coreapi::ErrorCode::ValueHasZeroByte,
+		                             head + any->name + " " + kZeroByte));
+		const long long ceiling = (any->type == ParamType::String && any->max > 0)
+			? (long long) any->max : (long long) kMaxValueBytes;
+		out.push_back(std::make_pair(coreapi::ErrorCode::ValueTooLong,
+		                             head + any->name + " " + longerSays(ceiling)));
+	}
+	if (named != NULL)
+		out.push_back(std::make_pair(coreapi::ErrorCode::DuplicateParameter,
+		                             head + named->name + " " + kGivenTwice));
+	if (required != NULL)
+		out.push_back(std::make_pair(coreapi::ErrorCode::MissingParameter,
+		                             head + required->name + " " + kRequired));
+	if (number != NULL)
+		out.push_back(std::make_pair(coreapi::ErrorCode::BadInt,
+		                             head + number->name + " " + badNumberSays(number->type)));
+	if (ranged != NULL)
+	{
+		const bool bounded = ranged->min != 0 || ranged->max != 0;
+		const std::string what = bounded ? outsideSays(ranged->min, ranged->max)
+		                                 : std::string(ranged->type == ParamType::Time ? kOutsideClock
+		                                                                               : kTooWide);
+		out.push_back(std::make_pair(coreapi::ErrorCode::OutOfRange, head + ranged->name + " " + what));
+	}
+	if (flag != NULL)
+		out.push_back(std::make_pair(coreapi::ErrorCode::BadBool,
+		                             head + flag->name + " " + kNotAFlag));
+	if (listed != NULL)
+		out.push_back(std::make_pair(coreapi::ErrorCode::BadEnum,
+		                             head + listed->name + " is not one of " +
+		                             ((listed->values != NULL) ? listed->values : "")));
+}
+
+void setAnswerWatchForTest(AnswerWatch w)
+{
+	answer_watch = w;
+}
+
+void noteAnswer(Method m, const std::string &path, const Response &r)
+{
+	if (answer_watch == NULL || m == UnknownMethod)
+		return;
+
+	size_t count = 0;
+	const RouteTable *const *tables = allRoutes(&count);
+	Match found;
+	if (matchIn(tables, count, m, path, found) == MatchedRoute)
+		answer_watch(*found.best, r);
 }
 
 bool routeLevelFor(Method m, const std::string &path, AuthLevel *level, bool *query_token_ok)
