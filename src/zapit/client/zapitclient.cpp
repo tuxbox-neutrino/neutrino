@@ -1099,11 +1099,11 @@ bool CZapitClient::saveBouquets(const bool saveall)
 	const bool written = send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS, (char*)&msg, sizeof(msg));
 
 	/* The one command here the daemon answers, and what it answers is whether
-	   the two files came out of it, not that the command was read. Both legs
-	   are made in the order they always were: a receive on a connection a
-	   failed send has already closed comes back at once and waits for nothing.
-	   An answer that never arrived leaves the struct as its constructor left
-	   it, which is the same no as a daemon that could not write. */
+	   it saved the two files, not that the command was read. Both legs are
+	   made in the order they always were: a receive on a connection a failed
+	   send has already closed comes back at once and waits for nothing. An
+	   answer that never arrived leaves the struct as its constructor left it,
+	   which is the same no as a daemon that could not save them. */
 	CZapitMessages::responseGeneralTrueFalse response;
 	const bool answered = CBasicClient::receive_data((char* )&response, sizeof(response));
 

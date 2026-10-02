@@ -417,7 +417,8 @@ static OpenThreads::Mutex bouquet_save_mutex;
 /* The file is replaced in one step rather than written over, because what a
    half written one costs is not the failed save: it is the next start, which
    reads whatever is lying there and takes a truncated list for the whole list.
-   Whether the file is now the one just written is what this answers. */
+   Whether the file is now the one just written, synced to the storage, is
+   what this answers. */
 bool CBouquetManager::writeBouquetFile(const char * const filename, const bool userBouquets)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(bouquet_save_mutex);

@@ -522,7 +522,7 @@ void CBEBouquetWidget::saveChanges()
 	CHintBox hintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVINGCHANGES), 480); // UTF-8
 	hintBox.paint();
 	if (!g_Zapit->saveBouquets())
-		printf("[bouqueteditor] the bouquet files were not written\n");
+		printf("[bouqueteditor] saving the bouquet files failed\n");
 	hintBox.hide();
 }
 

@@ -96,6 +96,11 @@ class CAtomicFileWriter
 		// not be followed or did not end in a plain file and none was tried.
 		FILE *file() const { return fh; }
 
+		// True once the new content is in the file's place, synced, and its
+		// directory synced, so that a power cut keeps it; on a filesystem
+		// that cannot sync a directory (EINVAL) the file's own sync is all
+		// there is. False otherwise, also when the content is in place but
+		// the directory sync failed.
 		bool commit() __attribute__((warn_unused_result));
 
 	private:

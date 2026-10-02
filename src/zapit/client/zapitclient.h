@@ -504,7 +504,7 @@ class CZapitClient:public CBasicClient
 	bool renumChannellist();
 
 	/* saves current bouquet configuration to bouquets.xml */
-	/* answers whether the daemon wrote both files, not whether it was asked */
+	/* answers whether the daemon saved both files, not whether it was asked */
 	bool saveBouquets(const bool saveall = false) __attribute__((warn_unused_result));
 
 	/****************************************/

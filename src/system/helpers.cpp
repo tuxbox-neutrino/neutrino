@@ -224,7 +224,7 @@ CAtomicFileWriter::CAtomicFileWriter(const std::string &path, mode_t file_mode, 
 	   pointed, which is the one way a write meant for one directory lands in
 	   another. And the create mode, so that the bytes are never readable by
 	   anyone else while they are still arriving; what the file ends up carrying
-	   is set by the commit, just before it takes the name. */
+	   is set by the commit, before the file is synced and takes the name. */
 	const int fd = open(sidecar.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_NOFOLLOW | O_CLOEXEC, S_IRUSR | S_IWUSR);
 	if (fd < 0)
 	{
@@ -234,7 +234,7 @@ CAtomicFileWriter::CAtomicFileWriter(const std::string &path, mode_t file_mode, 
 	/* The create mode counts only for a side file that is created. One that a
 	   write cut short by the end of the process left behind is opened again and
 	   keeps its mode, which is already the file's own when the cut came between
-	   the commit's chmod and its rename. */
+	   the commit's fchmod and its rename. */
 	if (fchmod(fd, S_IRUSR | S_IWUSR) != 0)
 	{
 		perror(sidecar.c_str());
@@ -263,6 +263,30 @@ CAtomicFileWriter::~CAtomicFileWriter()
 		unlink(sidecar.c_str());
 }
 
+/* Syncs the directory a file sits in, so that an entry just made in it - a
+   rename into place - survives a power cut. A filesystem that cannot sync a
+   directory answers EINVAL, and there is nothing more to wait for there. */
+static bool syncDirectoryOf(const std::string &path)
+{
+	const std::string::size_type slash = path.rfind('/');
+	const std::string dir = slash == std::string::npos ? std::string(".")
+		: slash == 0 ? std::string("/") : path.substr(0, slash);
+	const int fd = open(dir.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (fd < 0)
+	{
+		perror(dir.c_str());
+		return false;
+	}
+	bool ok = true;
+	if (fsync(fd) != 0 && errno != EINVAL)
+	{
+		perror(dir.c_str());
+		ok = false;
+	}
+	close(fd);
+	return ok;
+}
+
 bool CAtomicFileWriter::commit()
 {
 	if (fh == NULL)
@@ -276,16 +300,17 @@ bool CAtomicFileWriter::commit()
 	bool ok = (ferror(fh) == 0);
 	if (ok && fflush(fh) != 0)
 		ok = false;
-	if (ok && fdatasync(fileno(fh)) != 0)
+	// Set on the open file before the sync rather than on the file
+	// afterwards, so that the file never exists under the name callers read
+	// with a mode nobody asked for, and the mode reaches the storage with the
+	// bytes: fsync and not fdatasync, which may leave the mode behind.
+	if (ok && fchmod(fileno(fh), mode) != 0)
+		ok = false;
+	if (ok && fsync(fileno(fh)) != 0)
 		ok = false;
 	if (fclose(fh) != 0)
 		ok = false;
 	fh = NULL;
-
-	// Set here rather than on the file afterwards, so that the file never
-	// exists under the name callers read with a mode nobody asked for.
-	if (ok && chmod(sidecar.c_str(), mode) != 0)
-		ok = false;
 
 	if (!ok)
 	{
@@ -304,7 +329,12 @@ bool CAtomicFileWriter::commit()
 	}
 
 	sidecar.clear();
-	return true;
+
+	/* The rename is an entry in the directory, which the file's own sync does
+	   not reach: until the directory is synced as well, a power cut can bring
+	   back the file that was there. Nothing is undone when this fails, the new
+	   content being in place, but the save is not answered as one that holds. */
+	return syncDirectoryOf(target);
 }
 
 void  wakeup_hdd(const char *hdd_dir)

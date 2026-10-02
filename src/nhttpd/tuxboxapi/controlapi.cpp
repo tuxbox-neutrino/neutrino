@@ -3302,7 +3302,7 @@ void CControlAPI::setBouquetCGI(CyhookHandler *hh)
 void CControlAPI::saveBouquetCGI(CyhookHandler *hh)
 {
 	if (!NeutrinoAPI->Zapit->saveBouquets())
-		printf("[controlapi] the bouquet files were not written\n");
+		printf("[controlapi] saving the bouquet files failed\n");
 	NeutrinoAPI->UpdateBouquets();
 	hh->SendOk();
 }

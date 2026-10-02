@@ -766,7 +766,7 @@ int CScanSetup::showScanMenu()
 	if(zapitCfg.writeChannelsNames != tmp_writeChannelsNames){
 		CZapit::getInstance()->SetConfig(&zapitCfg);
 		if (!g_Zapit->saveBouquets())
-			printf("[scan_setup] the bouquet files were not written\n");
+			printf("[scan_setup] saving the bouquet files failed\n");
 	}
 
 	delete satOnOff;

@@ -3898,7 +3898,7 @@ _repeat:
 
 		if (favorites_changed) {
 			if (!g_bouquetManager->saveUBouquets())
-				printf("[neutrino] the user bouquets were not written\n");
+				printf("[neutrino] saving the user bouquets failed\n");
 			if (!channels_init)
 				CEpgScan::getInstance()->ConfigureEIT();
 		}
@@ -3907,7 +3907,7 @@ _repeat:
 			CServiceManager::getInstance()->SaveServices(true);
 
 		if (bouquets_changed && !g_bouquetManager->saveBouquets())
-			printf("[neutrino] the bouquets were not written\n");
+			printf("[neutrino] saving the bouquets failed\n");
 
 		if (channels_init) {
 			g_bouquetManager->renumServices();

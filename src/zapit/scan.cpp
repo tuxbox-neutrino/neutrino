@@ -388,7 +388,7 @@ _repeat:
 		bouquet->sortBouquetByNumber();
 		/* Said to the log and not passed on: the scan runs in a thread of its
 		   own with no screen in front of it, and it is the numbers it has just
-		   worked out that are not on disk. */
+		   worked out that are not safely on disk. */
 		if (!g_bouquetManager->saveUBouquets())
 			printf("[scan] save bouquets FAILED\n");
 	}
@@ -550,8 +550,8 @@ void CServiceScan::SaveServices()
 	/* first save bouquets, next load to re-number */
 	/* Both files are asked for even after the first one failed, because they
 	   hold different lists and the one that can still be written should be.
-	   The load below reads back what was written, so a failure here is also
-	   what renumbers the channels from the older list. */
+	   The load below reads back the file in place, so a failure that left the
+	   older one there also renumbers the channels from that older list. */
 	bool saved = g_bouquetManager->saveUBouquets();
 	if (!g_bouquetManager->saveBouquets())
 		saved = false;

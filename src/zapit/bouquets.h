@@ -180,9 +180,10 @@ class CBouquetManager : public OpenThreads::Thread
 
 		BouquetList Bouquets;
 
-		/* Whether the file the next start reads was written. The overload
-		   below is a different thing under the same name: it moves scanned
-		   bouquets into the list this manager holds and writes nothing. */
+		/* Whether the file the next start reads was written and synced to
+		   the storage. The overload below is a different thing under the
+		   same name: it moves scanned bouquets into the list this manager
+		   holds and writes nothing. */
 		bool saveBouquets(void) __attribute__((warn_unused_result));
 		bool saveUBouquets(void) __attribute__((warn_unused_result));
 		void saveBouquets(const CZapitClient::bouquetMode bouquetMode, const char * const providerName, t_satellite_position satellitePosition = INVALID_SAT_POSITION);
