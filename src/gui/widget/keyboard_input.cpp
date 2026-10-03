@@ -37,6 +37,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/msgbox.h>
+#include <gui/widget/stringinput.h>
 
 #include <system/helpers.h>
 #include "keyboard_input.h"
@@ -530,6 +531,7 @@ void CKeyboardInput::forceSaveScreen(bool enable)
 
 int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 {
+	CStringInputOpen counted;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	int res = menu_return::RETURN_REPAINT;

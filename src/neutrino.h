@@ -111,6 +111,8 @@ private:
 	bool				bouquets_changed;
 	bool				channels_init;
 	bool                            timer_wakeup;
+	// A reload of the settings asked for while a string input was open.
+	bool				reload_setup_pending;
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
@@ -218,6 +220,8 @@ public:
 	int recordingstatus;
 	void MakeSectionsdConfig(CSectionsdClient::epg_config& config);
 	void SendSectionsdConfig(void);
+	void reloadSetup();
+	void carryWaitingSettings();
 	int GetChannelMode(void) {
 		return lastChannelMode;
 	};

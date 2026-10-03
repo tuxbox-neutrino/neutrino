@@ -33,6 +33,34 @@
 #include <string>
 
 class CFrameBuffer;
+/* Counts the string inputs that are open. The string input, the PIN input and
+   the extended input edit the string they were handed in place and count on
+   nothing else changing it while they are open: they pad the string once to
+   its width and index it up to that width, and the address inputs keep
+   pointers into it. A value put into that string from elsewhere meanwhile ends
+   neutrino at the next key, or leaves the input writing into a buffer that is
+   gone. The keyboard input and the text input dialog edit a copy, but put it
+   back into the setting when they close, on cancel too, over any value put
+   there meanwhile. So code that puts new values into the settings asks this
+   first and waits while an input is open, and asks to be told when the last
+   one closes: that one posts STRING_INPUTS_CLOSED, which the screen the input
+   was opened from hands on before it saves anything on its way out. One open
+   on a script's thread counts as well. */
+class CStringInputOpen
+{
+	public:
+		CStringInputOpen();
+		~CStringInputOpen();
+		static bool any();
+		/* Asks for STRING_INPUTS_CLOSED once the last open input closes. If the
+		   queue will not take it then, the next save of the settings and the
+		   main loop take up what waited. */
+		static void notifyWhenClosed();
+	private:
+		CStringInputOpen(const CStringInputOpen &);
+		CStringInputOpen &operator=(const CStringInputOpen &);
+};
+
 class CStringInput : public CMenuTarget
 {
 	protected:

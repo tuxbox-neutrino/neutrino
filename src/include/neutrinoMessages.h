@@ -78,6 +78,9 @@ struct NeutrinoMessages
 		LEAVE_ALL				= CRCInput::RC_Messages + 26,
 		RESTART					= CRCInput::RC_Messages + 27,
 		POWER_MENU				= CRCInput::RC_Messages + 28,
+		/* Posted by the last string input to close, when a message that puts
+		   values into the settings waited for the inputs (CStringInputOpen). */
+		STRING_INPUTS_CLOSED			= CRCInput::RC_Messages + 31,
 
 		/* END of CRCInput::RC_Messages */
 

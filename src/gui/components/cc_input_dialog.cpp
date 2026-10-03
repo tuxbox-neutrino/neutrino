@@ -24,6 +24,7 @@
 #include <driver/rcinput.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/msgbox.h>
+#include <gui/widget/stringinput.h>
 
 namespace
 {
@@ -795,6 +796,7 @@ std::string &CCTextInputDialog::getValue(void)
 
 int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey*/)
 {
+	CStringInputOpen counted;
 	neutrino_msg_t msg = CRCInput::RC_nokey;
 	neutrino_msg_data_t data = 0;
 	int res = menu_return::RETURN_REPAINT;

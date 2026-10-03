@@ -27,6 +27,7 @@
 #endif
 
 #include <gui/widget/stringinput_ext.h>
+#include <gui/widget/stringinput.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
@@ -180,6 +181,7 @@ void CExtendedInput::enableSaveScreen(bool enable)
 
 int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 {
+	CStringInputOpen counted;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 

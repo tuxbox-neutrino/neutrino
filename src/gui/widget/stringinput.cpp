@@ -43,6 +43,9 @@
 #include <system/helpers.h>
 
 #include <global.h>
+#include <neutrinoMessages.h>
+
+#include <atomic>
 #include <neutrino.h>
 
 /* One character of the edited string, written under the lock that the readers
@@ -400,8 +403,37 @@ void CStringInput::forceSaveScreen(bool enable)
 	}
 }
 
+// Atomic, because an input may also be open on a script's thread.
+static std::atomic<int> string_inputs_open(0);
+static std::atomic<bool> string_inputs_notify(false);
+
+CStringInputOpen::CStringInputOpen()
+{
+	string_inputs_open++;
+}
+
+CStringInputOpen::~CStringInputOpen()
+{
+	if (--string_inputs_open > 0)
+		return;
+	if (string_inputs_notify.exchange(false) && g_RCInput != NULL &&
+	    !g_RCInput->postMsg(NeutrinoMessages::STRING_INPUTS_CLOSED, 0))
+		string_inputs_notify = true;
+}
+
+void CStringInputOpen::notifyWhenClosed()
+{
+	string_inputs_notify = true;
+}
+
+bool CStringInputOpen::any()
+{
+	return string_inputs_open.load() > 0;
+}
+
 int CStringInput::exec( CMenuTarget* parent, const std::string & )
 {
+	CStringInputOpen counted;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	int res = menu_return::RETURN_REPAINT;
@@ -815,6 +847,7 @@ void CPINInput::paintChar(int pos)
 
 int CPINInput::exec( CMenuTarget* parent, const std::string & )
 {
+	CStringInputOpen counted;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
