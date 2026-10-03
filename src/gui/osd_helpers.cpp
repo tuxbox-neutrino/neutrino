@@ -45,6 +45,11 @@ class CRealOsdResolution : public coreapi::OsdResolutionSource
 
 		coreapi::Status write(int mode)
 		{
+			/* A size the box is set to already is left alone, as the setup
+			   screen leaves it: switching it clears the screen and starts the
+			   clock and the infobar's parts again, for nothing. */
+			if (mode == COsdHelpers::getInstance()->g_settings_osd_resolution_save)
+				return coreapi::Status::Ok;
 			/* Both, and in this order, because that is what the setup screen
 			   does, src/gui/osd_setup.cpp:1604: the copy is what the next save
 			   writes, and the call is what the box is drawing at now. */

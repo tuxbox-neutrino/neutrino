@@ -353,6 +353,29 @@ TEST_CASE("the writes are in the values before the save is asked for", "[setting
 	saved_from = 0;
 }
 
+/* Whoever applies a setting is only asked when its value changed, and that
+   must not reach the save: the program's save writes the file only when
+   something in it changed, and it is the one that decides. */
+TEST_CASE("a write of the value a field already holds is still saved", "[settingssource]")
+{
+	SNeutrinoSettings values = SNeutrinoSettings();
+	values.repeat_blocker = 450;
+
+	FakeCommandSink sink;
+	InstalledSink installed(&sink);
+	ClearedSettingsSource cleared;
+	InstalledSettingsTable table(kRows, kRowCount);
+	installRealSettingsSource(&values, countSave);
+
+	saves = 0;
+	REQUIRE(settingsSource().writeInt("repeat_blocker", 450) == Status::Ok);
+	REQUIRE(settingsSource().persist() == Status::Ok);
+	applyPendingSettings();
+
+	REQUIRE(saves == 1);
+	REQUIRE(values.repeat_blocker == 450);
+}
+
 // A box whose loop will not take the message has not been asked to save, and
 // saying Ok would report a setting as kept that is still only held here.
 TEST_CASE("a refused message is what persist answers with", "[settingssource]")

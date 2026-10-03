@@ -2,6 +2,7 @@
  * settingssource_real.cpp - settings read from and written to the live configuration
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -208,8 +209,8 @@ class RealSettingsSource : public SettingsSource
 		}
 
 		/* On the loop's own thread: everything written since the last time, then the program's
-		   save, then whoever applies each of them. In that order, or the save writes the values it
-		   had before and the notifiers read the value the box was running on. */
+		   save, then whoever applies each of them that changed. In that order, or the save writes
+		   the values it had before and the notifiers read the value the box was running on. */
 		void applyAndSave()
 		{
 			std::vector<Write> taken;
@@ -230,10 +231,27 @@ class RealSettingsSource : public SettingsSource
 				for (size_t i = 0; i < taken.size(); ++i)
 				{
 					const FieldRef &f = taken[i].row->field;
+					/* Read back around the write rather than compared with
+					   what was sent: the member is what the box runs on, and
+					   a channel or a bit of a mask is kept in a form of its
+					   own. A row with neither counts as changed, so that
+					   nothing it had before is taken from it. */
 					if (f.write_number)
+					{
+						const long before = f.read_number(*values);
 						f.write_number(*values, taken[i].number);
+						taken[i].changed = f.read_number(*values) != before;
+					}
 					else if (f.write_text)
+					{
+						std::string before, after;
+						f.read_text(*values, before);
 						f.write_text(*values, taken[i].text);
+						f.read_text(*values, after);
+						taken[i].changed = after != before;
+					}
+					else
+						taken[i].changed = true;
 				}
 			}
 
@@ -267,6 +285,12 @@ class RealSettingsSource : public SettingsSource
 				   would apply whatever a screen last left there, over the value just written. */
 				if (!valueIsInNamedMember(row->field))
 					continue;
+				/* A screen tells its notifier of a change and of nothing else, and so does
+				   this: a caller that sends a section back as it read it would otherwise restart
+				   whatever each notifier restarts, the update check going online at once and
+				   dropping the mark of an update it had found among them. */
+				if (!taken[i].changed)
+					continue;
 				SettingsApplier *a = settingsApplier(row->section);
 				// Reported here because it reaches no caller: the value was
 				// stored and saved before anything was asked to apply it.
@@ -288,8 +312,12 @@ class RealSettingsSource : public SettingsSource
 			// Who wrote it, so that a post promises what its own caller wrote
 			// and a refused one takes back no more than that.
 			pthread_t         owner;
+			/* Whether carrying it changed the member, found out by the loop as
+			   it writes: a value written over the same value has nobody to
+			   tell. */
+			bool              changed;
 
-			Write() : row(0), number(0), batch(0), owner(pthread_self()) {}
+			Write() : row(0), number(0), batch(0), owner(pthread_self()), changed(false) {}
 		};
 
 		/* Linear over the table, read once per call and a few hundred rows: what an index would

@@ -2,6 +2,7 @@
  * test_settings.cpp - tests for reading and writing settings
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -562,6 +563,49 @@ TEST_CASE("an accepted write asks the applier of its own section once", "[settin
 
 	registerSettingsApplier("audio", NULL);
 	registerSettingsApplier("network", NULL);
+}
+
+/* A screen tells its notifier when a value changes and not when the same value
+   is chosen again, and a caller that sends a whole section back as it read it
+   writes every value it did not touch. Handed to the notifiers, each of those
+   restarts whatever its notifier restarts: the update check goes online at
+   once, the video system is set up again. */
+TEST_CASE("a write of the value a setting already holds asks no applier", "[settings]")
+{
+	RealStore store;
+	FakeApplier audio;
+	InstalledApplier a("audio", &audio);
+
+	REQUIRE(settings::set("audio_AnalogMode", "1").ok());
+	applyPendingSettings();
+	REQUIRE(audio.calls == 1);
+
+	REQUIRE(settings::set("audio_AnalogMode", "1").ok());
+	applyPendingSettings();
+	REQUIRE(audio.calls == 1);
+	REQUIRE(store.values.audio_AnalogMode == 1);
+
+	REQUIRE(settings::set("audio_AnalogMode", "0").ok());
+	applyPendingSettings();
+	REQUIRE(audio.calls == 2);
+	REQUIRE(store.values.audio_AnalogMode == 0);
+}
+
+TEST_CASE("a text written over the same text asks no applier either", "[settings]")
+{
+	RealStore store;
+	FakeApplier general;
+	InstalledApplier a("general", &general);
+
+	REQUIRE(settings::set("language", "deutsch").ok());
+	applyPendingSettings();
+	REQUIRE(general.calls == 1);
+	REQUIRE(general.last_key == "language");
+
+	REQUIRE(settings::set("language", "deutsch").ok());
+	applyPendingSettings();
+	REQUIRE(general.calls == 1);
+	REQUIRE(store.values.language == "deutsch");
 }
 
 TEST_CASE("a section with no applier still writes and says so", "[settings]")
