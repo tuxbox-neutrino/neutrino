@@ -388,9 +388,26 @@ Result<void> writeOut()
 {
 	Status s = channelSource().saveBouquets();
 	if (s != Status::Ok)
-		return fail(s, ErrorCode::BouquetNotChanged,
+	{
+		/* Said all the same, and answered with a code of its own. The box
+		   carries a change out before it is asked to save it, and numbers its
+		   lists again and tells the screen after a save that failed as well,
+		   so the list it runs has the change and a page over the network
+		   holds that list. Not the code for a change that did not happen: a
+		   caller told that makes it again, and a second add finds the name
+		   taken, a second rename finds the old name gone, and a second move
+		   moves the bouquet on by another place. Whether the list really
+		   carries the change is read back by the caller, as after a save that
+		   went through. A box that cannot be waited on afterwards is answered
+		   as one that cannot be waited on after a good save: the change is not
+		   known to have been carried out, and nothing is said. */
+		const Result<void> said = announceBouquetsChanged();
+		if (!said.ok())
+			return said;
+		return fail(s, ErrorCode::BouquetNotSaved,
 			    "saving the bouquet files failed: the list the box runs carries "
 			    "the change, the files may not");
+	}
 	s = channelSource().reloadBouquets();
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::BouquetNotChanged,
@@ -401,8 +418,10 @@ Result<void> writeOut()
 	return announceBouquetsChanged();
 }
 
-// What a write of the bouquet itself answers when the box turns it down. The
-// three outcomes are one code, which is stated where the code is declared.
+// What a write of the bouquet itself answers when the box turns it down: the
+// code for a change not made, as is a change the list read back does not carry.
+// A save that failed has a code of its own; both are stated where they are
+// declared.
 Result<void> changed(Status s)
 {
 	if (s != Status::Ok)
@@ -430,6 +449,23 @@ Result<void> notChanged()
 {
 	return fail(Status::Internal, ErrorCode::BouquetNotChanged,
 		    "the box took the change and the bouquet list does not carry it");
+}
+
+// Whether the change is to be looked for in the list: after a write that went
+// through, and after one whose save alone failed, the box carrying the change
+// either way.
+bool lookFor(const Result<void> &done)
+{
+	return done.ok() || done.error().code == ErrorCode::BouquetNotSaved;
+}
+
+// What a call answers once the change was looked for: what the writing out
+// answered when the list carries the change, and what the reading found when
+// it does not, a save that failed on a change the box never made being a change
+// not made.
+Result<void> settled(const Result<void> &done, const Result<void> &there)
+{
+	return there.ok() ? done : there;
 }
 
 // And the list could not be read at all, which says nothing about what the box
@@ -545,9 +581,9 @@ Result<void> addBouquet(const std::string &name)
 			    "the bouquet list could not be read");
 
 	const Result<void> made = changed(channelSource().addBouquet(name));
-	if (!made.ok())
+	if (!lookFor(made))
 		return made;
-	return probeName(name, true);
+	return settled(made, probeName(name, true));
 }
 
 Result<void> renameBouquet(const std::string &from, const std::string &to)
@@ -569,7 +605,7 @@ Result<void> renameBouquet(const std::string &from, const std::string &to)
 			    "the bouquet list could not be read");
 
 	const Result<void> done = changed(channelSource().renameBouquet(at.value(), to));
-	if (!done.ok())
+	if (!lookFor(done))
 		return done;
 
 	/* Both ends of it, because each answers a failure the other passes: a rename
@@ -579,7 +615,7 @@ Result<void> renameBouquet(const std::string &from, const std::string &to)
 	const Result<void> there = probeName(to, true);
 	if (!there.ok())
 		return there;
-	return probeName(from, false);
+	return settled(done, probeName(from, false));
 }
 
 Result<void> moveBouquet(const std::string &name, Direction d)
@@ -604,9 +640,9 @@ Result<void> moveBouquet(const std::string &name, Direction d)
 
 	const uint32_t to = up ? id - 1 : id + 1;
 	const Result<void> done = changed(channelSource().moveBouquet(id, to));
-	if (!done.ok())
+	if (!lookFor(done))
 		return done;
-	return probePosition(name, to);
+	return settled(done, probePosition(name, to));
 }
 
 Result<void> deleteBouquet(const std::string &name)
@@ -616,9 +652,9 @@ Result<void> deleteBouquet(const std::string &name)
 		return fail(at.error());
 
 	const Result<void> done = changed(channelSource().deleteBouquet(at.value()));
-	if (!done.ok())
+	if (!lookFor(done))
 		return done;
-	return probeName(name, false);
+	return settled(done, probeName(name, false));
 }
 
 Result<void> setBouquetHidden(const std::string &name, bool hidden)
@@ -628,9 +664,9 @@ Result<void> setBouquetHidden(const std::string &name, bool hidden)
 		return fail(at.error());
 
 	const Result<void> done = changed(channelSource().setBouquetHidden(at.value(), hidden));
-	if (!done.ok())
+	if (!lookFor(done))
 		return done;
-	return probeFlag(name, Flag::Hidden, hidden);
+	return settled(done, probeFlag(name, Flag::Hidden, hidden));
 }
 
 Result<void> setBouquetLock(const std::string &name, bool locked)
@@ -640,9 +676,9 @@ Result<void> setBouquetLock(const std::string &name, bool locked)
 		return fail(at.error());
 
 	const Result<void> done = changed(channelSource().setBouquetLock(at.value(), locked));
-	if (!done.ok())
+	if (!lookFor(done))
 		return done;
-	return probeFlag(name, Flag::Locked, locked);
+	return settled(done, probeFlag(name, Flag::Locked, locked));
 }
 
 Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &ids, Mode kind)
@@ -668,9 +704,9 @@ Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &id
 
 	const Result<void> done =
 		changed(channelSource().setBouquetChannels(at.value(), ids, kind == Mode::Tv));
-	if (!done.ok())
+	if (!lookFor(done))
 		return done;
-	return probeChannels(name, ids, kind);
+	return settled(done, probeChannels(name, ids, kind));
 }
 
 Result<void> announceBouquetsChanged()

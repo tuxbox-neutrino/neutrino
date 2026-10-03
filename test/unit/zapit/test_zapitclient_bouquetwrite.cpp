@@ -225,7 +225,7 @@ TEST_CASE("a save the daemon says it could not write is not a save", "[zapit][cl
 {
 	/* The case above answers nothing at all, which a client could refuse for
 	   the sole reason that it read nothing. This one answers, and what it
-	   answers is no: the two files were not written. A client that took the
+	   answers is no: saving the two files failed. A client that took the
 	   arrival of an answer for the answer itself passes the case above and
 	   fails here, which is the whole difference this command now carries. */
 	Daemon daemon(Daemon::SaysNotSaved);

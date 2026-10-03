@@ -2,6 +2,7 @@
  * test_bouquetedit.cpp - tests for editing one bouquet
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -406,25 +407,32 @@ TEST_CASE("a change the box turned down is not written out", "[bouquetedit]")
 	REQUIRE(e.fake.reloads == 0);
 }
 
-TEST_CASE("a change that was not written out is reported as one that did not happen",
+TEST_CASE("a change whose save failed is answered as not saved and not as not made",
           "[bouquetedit]")
 {
-	// One code for the three of them, because the change reaches the box only
-	// if all three go through and a caller told which one failed would do the
-	// same thing about any of them.
+	/* The box carries a change out before it is asked to save it, so a save
+	   that fails leaves the change in the list the box runs. Told that the
+	   change did not happen, a caller makes it again, and a second add finds
+	   its name taken. */
 	Edit e;
 	e.fake.save_status = Status::Busy;
 
 	const Result<void> unwritten = channels::addBouquet("Viertes Bouquet");
 	REQUIRE_FALSE(unwritten.ok());
 	REQUIRE(unwritten.error().status == Status::Busy);
-	REQUIRE(unwritten.error().code == ErrorCode::BouquetNotChanged);
-	// The read back is not attempted once the write is gone, so the two
-	// answers cannot be read as one having happened twice.
+	REQUIRE(unwritten.error().code == ErrorCode::BouquetNotSaved);
+	REQUIRE(e.fake.bouquets.size() == 4);
+	// The numbering is not asked for once the save failed, and the box is
+	// waited for before the change is said, as after a save that worked.
 	REQUIRE(e.fake.saves == 1);
 	REQUIRE(e.fake.reloads == 0);
+	REQUIRE(e.fake.awaits == 1);
+}
 
-	e.fake.save_status = Status::Ok;
+TEST_CASE("a change the box could not number again is reported as one that did not happen",
+          "[bouquetedit]")
+{
+	Edit e;
 	e.fake.reload_status = Status::Internal;
 	const Result<void> unread = channels::addBouquet("Fuenftes Bouquet");
 	REQUIRE_FALSE(unread.ok());
@@ -478,6 +486,30 @@ TEST_CASE("a change the box took and did not make is not answered as done", "[bo
 
 	// And the list is where it was, which is what the answers alone cannot
 	// say: a refusal that had changed something would read the same.
+	REQUIRE(e.fake.bouquets.size() == 3);
+	REQUIRE(e.fake.bouquets[1].name == "Favoriten");
+}
+
+TEST_CASE("a change the box did not make and could not save is not answered as saved",
+          "[bouquetedit]")
+{
+	/* Not saved says the list carries the change and only the files may not,
+	   which a caller takes as the change made. So a failed save is read back
+	   like one that went through, and a change the list does not carry is
+	   answered as not made, whatever the save answered. */
+	Edit e;
+	e.fake.writes_dropped = true;
+	e.fake.save_status = Status::Internal;
+
+	notDone("adding", channels::addBouquet("Viertes Bouquet"));
+	notDone("renaming", channels::renameBouquet("Favoriten", "Anders"));
+	notDone("moving", channels::moveBouquet("Favoriten", channels::Direction::Up));
+	notDone("hiding", channels::setBouquetHidden("Favoriten", true));
+	notDone("locking", channels::setBouquetLock("Favoriten", true));
+	notDone("filling", channels::setBouquetChannels("Favoriten", one(ZDF),
+	                                                channels::Mode::Tv));
+	notDone("deleting", channels::deleteBouquet("Favoriten"));
+
 	REQUIRE(e.fake.bouquets.size() == 3);
 	REQUIRE(e.fake.bouquets[1].name == "Favoriten");
 }
@@ -694,16 +726,13 @@ TEST_CASE("a change the box turned down is not announced", "[bouquetedit]")
 TEST_CASE("a change that never reached the box is not announced",
           "[bouquetedit]")
 {
-	/* Each of the three the writing out is made of, because the announcement
-	   stands behind all three and a subscriber told after any one of them
-	   failed would be told about a change the next start throws away. */
+	/* The two steps after the save, because the announcement stands behind
+	   both and a subscriber told after either failed would be told about a
+	   change the box may not have carried out. A save that failed is said all
+	   the same, in the case below. */
 	Edit e;
 	Watcher watch(&e.fake);
 
-	e.fake.save_status = Status::Internal;
-	turnedDown("save", channels::addBouquet("Neu"));
-
-	e.fake.save_status = Status::Ok;
 	e.fake.reload_status = Status::Internal;
 	turnedDown("reload", channels::addBouquet("Neuer"));
 
@@ -712,6 +741,46 @@ TEST_CASE("a change that never reached the box is not announced",
 	turnedDown("wait", channels::addBouquet("Noch einer"));
 
 	REQUIRE(watch.seen.empty());
+}
+
+TEST_CASE("a failed save the box cannot be waited for after is not answered as saved",
+          "[bouquetedit]")
+{
+	/* Not saved says the change is carried out and only the files may not
+	   hold it, which nobody knows of a box that could not be waited on. So
+	   that is answered as for a good save the box could not be waited on
+	   after, and nothing is said on the bus. */
+	Edit e;
+	Watcher watch(&e.fake);
+	e.fake.save_status = Status::Internal;
+	e.fake.await_status = Status::Busy;
+
+	const Result<void> r = channels::addBouquet("Neu");
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Busy);
+	REQUIRE(r.error().code == ErrorCode::BouquetNotChanged);
+	REQUIRE(watch.seen.empty());
+}
+
+TEST_CASE("a change whose save failed is announced all the same", "[bouquetedit]")
+{
+	/* The box carries the change out before the save and numbers its lists
+	   again after it whether or not the files came out, so a page holding
+	   the bouquet list holds one that is gone. The editors on the screen say
+	   it after a failed save as well. */
+	Edit e;
+	Watcher watch(&e.fake);
+	e.fake.save_status = Status::Internal;
+
+	const Result<void> r = channels::addBouquet("Neu");
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().code == ErrorCode::BouquetNotSaved);
+
+	REQUIRE(watch.countOf(EventType::BouquetsChanged) == 1);
+	REQUIRE(watch.seen.size() == 1);
+	// And after the wait, as every announcement is.
+	REQUIRE(watch.awaits_at_event.size() == 1);
+	REQUIRE(watch.awaits_at_event[0] == 1);
 }
 
 /* The screen's own bouquet editors write the lists out through the channel

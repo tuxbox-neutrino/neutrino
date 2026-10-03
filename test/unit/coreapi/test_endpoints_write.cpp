@@ -2,6 +2,7 @@
  * test_endpoints_write.cpp - tests for every writing route
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2166,6 +2167,25 @@ TEST_CASE("a bouquet write the box never received is not answered as done", "[wr
 	// not happen has nothing to save.
 	REQUIRE(box.channels.saves == 0u);
 	REQUIRE(box.channels.reloads == 0u);
+}
+
+TEST_CASE("a bouquet write whose save failed answers that and not a refusal", "[write]")
+{
+	/* The bouquet is made and in the list the box runs, and only the files may
+	   not hold it. Answered as not changed, a client would make it again and be
+	   told the name is taken. */
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+	box.channels.save_status = coreapi::Status::Internal;
+
+	const Reply made = authedPost("/api/v1/bouquets", "{\"name\":\"Drittes\"}");
+	REQUIRE(made.code == 500);
+	REQUIRE(made.body.find("bouquet-not-saved") != std::string::npos);
+	REQUIRE(made.body.find("bouquet-not-changed") == std::string::npos);
+
+	const std::string all = authedGet("/api/v1/bouquets").body;
+	REQUIRE_FALSE(bouquetNamed(all, "Drittes").isNull());
 }
 
 TEST_CASE("an empty list empties that half and a body carrying no list does not", "[write]")

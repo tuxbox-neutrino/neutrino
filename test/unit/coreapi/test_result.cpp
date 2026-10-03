@@ -2,6 +2,7 @@
  * test_result.cpp - tests for the result type
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -157,6 +158,7 @@ const Walked kWalked[] = {
 	CODE(ChangeRefused),
 	CODE(SettingNotWritten),
 	CODE(BouquetNotChanged),
+	CODE(BouquetNotSaved),
 	CODE(PluginNotChanged),
 	CODE(KeyNotSent),
 	CODE(ScreenNotCaptured),

@@ -27,7 +27,7 @@ chooser call sites read	199
 chooser call sites read whole	182
 conditions checked	34
 defaults compared against the program	236
-error codes the header declares	139
+error codes the header declares	140
 fields the bound scan read	45
 fields the chooser scan read	195
 fields with a stated label	93

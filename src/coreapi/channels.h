@@ -110,12 +110,15 @@ Result<void> reloadChannels(bool hard);
    anything before it is taken away or moved, while a name stays with the bouquet
    it was given to. Names are unique, and these calls are what keeps them so.
 
-   Every one of them writes the list out, reads it back, waits for the box to
-   have carried the change out, and looks for that change in the list. So an ok
-   is the list carrying what was asked for and not a command having been written
-   to a socket. An ok also covers the files the list is saved to. A save that
-   failed is answered as not changed even though the list the box runs carries
-   the change; the files may not.
+   Every one of them writes the list out, waits for the box to have carried the
+   change out, and looks for that change in the list. So an ok is the list
+   carrying what was asked for and not a command having been written to a
+   socket, and it covers the files the list is saved to as well. A save that
+   failed is answered as bouquet-not-saved when the list carries the change,
+   and said on the event bus like an ok: the box carries a change out before it
+   is asked to save it, so the list it runs has the change and only the files
+   may not. The next write that saves puts it in the files too, every save
+   writing the whole list.
 
    The cost is paid per call, five changes being five writes and five reads. */
 

@@ -283,15 +283,24 @@ enum class ErrorCode
 	   save after it did. The two are one act here: the value reaches the
 	   program only if both go through. */
 	SettingNotWritten,
-	/* The change did not go through all the way: the box turned it down,
-	   saving the list afterwards failed, or what follows the save did. The
-	   change counts only if all three go through.
+	/* The change did not go through: the box turned it down, the list read
+	   back does not carry it, or the box could not be asked to number its
+	   lists or be waited on after the save. The change counts only if all of
+	   it goes through; a save that failed is the code below.
 
-	   What it cannot promise is that nothing happened. A change made and not
-	   saved is one the box carries until it restarts, and a save that put the
-	   files in place without syncing their directory can still be taken back
-	   by a power cut. */
+	   What it cannot promise is that nothing happened. A change the box took
+	   and could not be waited on is one it may carry until it restarts. */
 	BouquetNotChanged,
+	/* The box carries the change in the list it runs, read back and found
+	   there, and saving the bouquet files afterwards failed: they could not be
+	   written, they are in place with their directory not synced, or the box
+	   did not answer whether it saved them. What a restart starts from is the
+	   files, so it may come up without the change, and a power cut can take
+	   back files that were not synced. Not the code above, because a caller
+	   told that a change did not happen makes it again. A box that did not
+	   answer the save at all is waited on once more before the change is
+	   announced, so that answer can take two of its waits. */
+	BouquetNotSaved,
 	/* A plugin the box has and whose own file did not take the change. The flag
 	   that keeps a plugin out of the box's menus lives in that file and nowhere
 	   else, so a write that did not land is a plugin still shown. Also answered
@@ -498,6 +507,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::ChangeRefused: return "change-refused";
 		case ErrorCode::SettingNotWritten: return "setting-not-written";
 		case ErrorCode::BouquetNotChanged: return "bouquet-not-changed";
+		case ErrorCode::BouquetNotSaved: return "bouquet-not-saved";
 		case ErrorCode::PluginNotChanged: return "plugin-not-changed";
 		case ErrorCode::KeyNotSent: return "key-not-sent";
 		case ErrorCode::ScreenNotCaptured: return "screen-not-captured";
