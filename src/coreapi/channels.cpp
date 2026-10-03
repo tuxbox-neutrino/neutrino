@@ -721,13 +721,18 @@ Result<void> announceBouquetsChanged()
 		return fail(s, ErrorCode::BouquetNotChanged,
 			    "the change did not reach the box");
 
+	publishBouquetsChanged();
+	return ok();
+}
+
+void publishBouquetsChanged()
+{
 	/* It names no bouquet. What a change does is not confined to the bouquet it
 	   was made about, because a move renumbers its neighbour and a delete moves
 	   everything below it. */
 	Event e;
 	e.type = EventType::BouquetsChanged;
 	EventBus::instance().publish(e);
-	return ok();
 }
 
 } // namespace channels

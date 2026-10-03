@@ -580,5 +580,9 @@ void CBEBouquetWidget::discardChanges()
 	CHintBox hintBox(LOCALE_BOUQUETEDITOR_NAME, g_Locale->getText(LOCALE_BOUQUETEDITOR_DISCARDINGCHANGES), 480); // UTF-8
 	hintBox.paint();
 	g_Zapit->restoreBouquets();
+	/* The changes thrown away were in the running list while the editor was
+	   open, so a reader over the network may hold them. Said under the box
+	   that says it is discarding, after the daemon has read the files back. */
+	(void) coreapi::channels::announceBouquetsChanged();
 	hintBox.hide();
 }

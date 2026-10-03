@@ -2,6 +2,7 @@
  * messagebridge.cpp - passing GUI messages in and out of the core API
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,6 +130,24 @@ void publishFromMessage(const neutrino_msg_t msg, const neutrino_msg_data_t data
 		case NeutrinoMessages::EVT_TIMERLIST_CHANGED:
 			type = EventType::TimerChanged;
 			break;
+
+		/* The channel lists were read again: the daemon says so once it has
+		   read the services and the bouquets, and the box posts it itself when
+		   a setting changes which lists it draws. Unlike the messages above,
+		   what stands behind this one is the new state already when it arrives,
+		   because the lists a reader goes to read are the daemon's, and only the
+		   screen's own are built from them afterwards. Carries no id: a reader
+		   rereads the whole list. A screen that hands the message on again can
+		   make it arrive here twice, so a reader takes a repeat as a repeat. */
+		case NeutrinoMessages::EVT_SERVICESCHANGED:
+			type = EventType::BouquetsChanged;
+			break;
+
+		/* EVT_BOUQUETSCHANGED is deliberately not here. The daemon sends it
+		   after every save, and the saves made through the core API, the
+		   bouquet editor and the favourites say so themselves once the daemon
+		   is through (channels::announceBouquetsChanged), so passing it on as
+		   well would say each of them twice. */
 
 		default:
 			return;

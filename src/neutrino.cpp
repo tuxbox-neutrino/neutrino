@@ -4170,6 +4170,15 @@ _repeat:
 			channelsInit(/*true*/);
 		}
 
+		/* Whoever reads this box over the network holds the bouquets the
+		   channel list or the bouquet list has just changed in place, and
+		   they are written out above straight through the bouquet manager,
+		   past the channel daemon and past everything that would have said
+		   so. Said whether or not the files came out, as the bouquet editor
+		   says it: the list the box runs changed either way. Without the
+		   wait, because nothing here went through the daemon. */
+		coreapi::channels::publishBouquetsChanged();
+
 		favorites_changed = false;
 		channels_changed = false;
 		bouquets_changed = false;

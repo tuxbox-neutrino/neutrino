@@ -614,9 +614,10 @@ TEST_CASE("a list that cannot be read back is not a change that did not happen",
 	REQUIRE(holds(e.fake.bouquet_members[1], ZDF));
 }
 
-/* Nothing the message loop sends says a bouquet changed, so a page holding a
-   list has no way to learn that the screen or a second page changed one, and
-   shows a list that is no longer there until somebody reloads it. */
+/* Nothing the message loop gets after a save is passed on to the bus, so a page
+   holding a list learns that the screen or a second page changed one only from
+   the calls below, and shows a list that is no longer there until somebody
+   reloads it if they say nothing. */
 
 namespace
 {
@@ -813,6 +814,23 @@ TEST_CASE("the announcement made on its own is made after the wait",
 
 	REQUIRE(watch.awaits_at_event.size() == 1);
 	REQUIRE(watch.awaits_at_event[0] == 1);
+}
+
+TEST_CASE("the saying without the wait reaches the bus and waits for nothing",
+          "[bouquetedit]")
+{
+	/* For the channel list, which wrote the lists out itself on the main loop:
+	   nothing of the box's is left to wait for, and a wait there would put the
+	   main loop behind the zap the list has just asked for. */
+	Edit e;
+	Watcher watch(&e.fake);
+
+	channels::publishBouquetsChanged();
+
+	REQUIRE(watch.countOf(EventType::BouquetsChanged) == 1);
+	REQUIRE(watch.seen.size() == 1);
+	REQUIRE(e.fake.awaits == 0);
+	REQUIRE(e.fake.saves == 0);
 }
 
 TEST_CASE("the announcement writes nothing of its own", "[bouquetedit]")

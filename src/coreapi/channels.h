@@ -152,16 +152,26 @@ Result<void> setBouquetLock(const std::string &name, bool locked);
 Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &ids, Mode kind);
 
 /* Says on the event bus that the bouquets are not what a reader was last handed,
-   and waits for the box before saying it. Every call above ends with this; it is
-   declared for the other way a bouquet changes, a viewer editing one on the
-   screen, where the editors write through the channel stack directly and never
-   reach this layer.
+   and waits for the box before saying it. Every call above ends with this, and
+   so does every screen that writes the bouquets out through the channel daemon
+   past these calls: the bouquet editor when it saves or throws its changes away,
+   and the favourites. A reload of the channel lists is said by the message
+   bridge, off the box's own message, whoever asked for it. What the legacy
+   control API and the command line client change command by command, and save,
+   goes unsaid.
 
    The waiting cannot be left out. The box answers a write of the lists as soon as
    the files are out and numbers the lists again after answering, so a reader
    woken before that reads the numbers being handed back in and the bouquet of
    everything no other bouquet holds emptied and refilling. */
 Result<void> announceBouquetsChanged();
+
+/* The saying without the waiting, for a screen that wrote the bouquets out
+   itself on the main loop, past the channel daemon: the channel list once its
+   edit mode or the bouquet list changed something. There is nothing of the
+   box's to wait for, and waiting would put the main loop behind whatever the
+   daemon is doing, a zap the list itself asked for among it. */
+void publishBouquetsChanged();
 
 } // namespace channels
 } // namespace coreapi

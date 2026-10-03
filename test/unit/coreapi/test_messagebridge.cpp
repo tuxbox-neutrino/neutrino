@@ -275,6 +275,40 @@ TEST_CASE("timerd's list-changed event reports without a payload", "[messagebrid
 	REQUIRE(c.seen[0].type == EventType::TimerChanged);
 }
 
+/* A reload of the channel lists rebuilds every bouquet, whoever asked for it:
+   the API, the service menu, a scan, a setting that changes which lists the
+   box draws. The daemon's message when it is done reached only the screen, so a
+   page holding the bouquet list kept one that was gone. */
+TEST_CASE("a reload of the channel lists says the bouquets changed", "[messagebridge]")
+{
+	Collector c;
+	EventBus::instance().subscribe(&c);
+
+	publishFromMessage(NeutrinoMessages::EVT_SERVICESCHANGED, 0);
+
+	EventBus::instance().unsubscribe(&c);
+
+	REQUIRE(c.seen.size() == 1);
+	REQUIRE(c.seen[0].type == EventType::BouquetsChanged);
+	REQUIRE(c.seen[0].channel_id == 0);
+	REQUIRE(c.seen[0].value == 0);
+}
+
+/* The daemon sends this one after every save, and every save that can be told
+   apart says so itself once the daemon is through. Passed on as well, each of
+   them would reach a reader twice. */
+TEST_CASE("the daemon's message after a save is not passed on", "[messagebridge]")
+{
+	Collector c;
+	EventBus::instance().subscribe(&c);
+
+	publishFromMessage(NeutrinoMessages::EVT_BOUQUETSCHANGED, 0);
+
+	EventBus::instance().unsubscribe(&c);
+
+	REQUIRE(c.seen.empty());
+}
+
 /* EVT_TIMER is the expiry of a timer the remote control layer holds, one of
    them behind every fading window, so translating it would put a stream on the
    bus that means nothing. The key is here for the same reason: an idle box
