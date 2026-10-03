@@ -51,6 +51,21 @@ time_t timer_minutes;
 bool timer_is_rec;
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
+/* Whether Reschedule can step a repeat to a later time: the fixed intervals,
+   and weekdays with at least one day among them. For anything else - the
+   never implemented BYEVENTDESCRIPTION, a value it does not know, weekday
+   bits without a day - it found no later time and looped for good, with the
+   event list locked. */
+static bool repeatSteps(CTimerd::CTimerEventRepeat repeat)
+{
+	if (repeat >= CTimerd::TIMERREPEAT_DAILY && repeat <= CTimerd::TIMERREPEAT_MONTHLY)
+		return true;
+	// The test Reschedule's weekday step makes, a negative value included:
+	// that compares as a weekday repeat here but yields no day there.
+	int weekdays = ((int) repeat) >> 9;
+	return repeat >= CTimerd::TIMERREPEAT_WEEKDAYS && weekdays > 0 && (weekdays & 0x7f) != 0;
+}
+
 //------------------------------------------------------------
 CTimerManager::CTimerManager()
 {
@@ -252,9 +267,10 @@ int CTimerManager::addEvent(CTimerEvent* evt, bool save)
 	pthread_mutex_lock(&tm_eventsMutex);
 	eventID++;						// increase unique event id
 	evt->eventID = eventID;
-	if(evt->eventRepeat==CTimerd::TIMERREPEAT_WEEKDAYS)
-		// Weekdays without weekday specified reduce to once
-		evt->eventRepeat=CTimerd::TIMERREPEAT_ONCE;
+	if (evt->eventRepeat != CTimerd::TIMERREPEAT_ONCE && !repeatSteps(evt->eventRepeat))
+		// A repeat that cannot be stepped, weekdays without a day among
+		// them included, reduces to once
+		evt->eventRepeat = CTimerd::TIMERREPEAT_ONCE;
 	events[eventID] = evt;			// insert into events
 	m_saveEvents = m_saveEvents || save;
 	if (timerd_debug)
@@ -362,9 +378,10 @@ int CTimerManager::modifyEvent(int peventID, time_t announceTime, time_t alarmTi
 		if(event->eventState==CTimerd::TIMERSTATE_PREANNOUNCE)
 			event->eventState = CTimerd::TIMERSTATE_SCHEDULED;
 		event->eventRepeat = evrepeat;
-		if(event->eventRepeat==CTimerd::TIMERREPEAT_WEEKDAYS)
-			// Weekdays without weekday specified reduce to once
-			event->eventRepeat=CTimerd::TIMERREPEAT_ONCE;
+		if (event->eventRepeat != CTimerd::TIMERREPEAT_ONCE && !repeatSteps(event->eventRepeat))
+			// A repeat that cannot be stepped, weekdays without a day among
+			// them included, reduces to once
+			event->eventRepeat = CTimerd::TIMERREPEAT_ONCE;
 		event->repeatCount = repeatCount;
 		switch (event->eventType)
 		{
@@ -958,6 +975,14 @@ void CTimerEvent::Reschedule()
 	{
 		eventState = CTimerd::TIMERSTATE_TERMINATED;
 		dprintf("event %d not rescheduled, event will be terminated\n",eventID);
+	}
+	else if (!repeatSteps(eventRepeat))
+	{
+		// Every way in, the timer file included, reduces such a repeat to
+		// once; kept so that a later writer of eventRepeat cannot bring the
+		// endless loop below back. It ends as a single event does.
+		eventState = CTimerd::TIMERSTATE_TERMINATED;
+		dprintf("event %d has repeat %d, which cannot be rescheduled, event will be terminated\n", eventID, (int) eventRepeat);
 	}
 	else
 	{
