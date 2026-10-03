@@ -145,11 +145,18 @@ const Endpoint kConfigEndpoints[] = {
 	{ Method::Get, "/api/v1/config/{document}", AuthLevel::Read,
 	  "one of the documents the box keeps its own configuration in, as it stands on the box",
 	  HTTPD_PARAMS(kDocumentParams), NULL, &configDocument, false },
-	/* Beside the three above rather than with the rest of the box, because
-	   what it asks for is the other half of the same subject: those hand a
-	   configuration document out, this asks the box to read them again. */
+	/* Beside the route above rather than with the rest of the box, because
+	   both are about how the box is configured: that one hands a channel
+	   document out, this asks the box to read its settings file,
+	   neutrino.conf, again and to hand the guide daemon its part of it. The
+	   channel documents are read again with it only when the settings read
+	   back change which extra lists the box builds; reading them on purpose
+	   is /api/v1/channels/reload, with hard to read what is on the disc
+	   rather than write the box's copy out first. Accepted and not done: the
+	   box reads the file when its loop takes the request up, and waits with
+	   it while a string input is open. */
 	{ Method::Post, "/api/v1/system/reload-setup", AuthLevel::Write,
-	  "asks the box to read its configuration again",
+	  "asks the box to read its settings file again",
 	  NULL, 0, NULL, &reloadSetup, false },
 };
 
