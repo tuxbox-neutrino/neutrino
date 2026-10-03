@@ -294,9 +294,22 @@ class RealChannelSource : public ChannelSource
 
 			/* Written out ahead of the reading, which is what makes what the
 			   box is holding win over what is on the disc. Left out, the file
-			   wins, and that is the other half of what the caller asked for. */
+			   wins, and that is the other half of what the caller asked for.
+
+			   Under the channel lock, because the writing walks the channel map
+			   and takes no lock of its own, while the channel stack erases a
+			   channel the last bouquet holding it let go of, a reload already
+			   under way empties the map and the service table monitor adds to
+			   it, each under this lock. Given back before the reading is asked
+			   for, which takes the same lock on the channel stack's thread while
+			   this one waits for its answer. Should the writing ever take this
+			   lock, or any other, the guard has to be looked at again: it is not
+			   a lock a thread may take twice. */
 			if (save_services)
+			{
+				CServiceManager::ChannelGuard guard;
 				CServiceManager::getInstance()->SaveServices(true, true);
+			}
 
 			// Recorded before the reading rather than after it, because what
 			// records it is read while the reading runs.

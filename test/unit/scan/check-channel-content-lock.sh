@@ -292,4 +292,60 @@ printf '%s' "$CAIDS" | awk -v guard="$GUARD" '
 	exit 1
 }
 
+# ------------------------------------------------------- the services writer
+#
+# The soft reload writes the services out on the web server's thread before it
+# asks the channel stack to read them again. The writing walks the channel map
+# and takes no lock of its own, while the channel stack erases from the map and
+# a reload empties it under the lock, so the adapter holds the guard around the
+# writing and gives it back before it asks for the reading, which takes the same
+# lock on the channel stack's thread while this one waits for its answer.
+body_of "$tmp/source" 'Status reloadChannels[(]' > "$tmp/reload"
+RELOAD=`tr '\n' ' ' < "$tmp/reload" | tr -s '[:space:]' ' '`
+held=`printf '%s' "$RELOAD" | awk -v guard="$GUARD" '{
+	g = index($0, guard); s = index($0, "SaveServices("); r = index($0, "reinitChannels(")
+	if (s == 0 || r == 0) { print "nomatch"; exit }
+	if (g == 0 || g > s) { print "noguard"; exit }
+	depth = 0
+	for (j = g; j < r; j++) {
+		c = substr($0, j, 1)
+		if (c == "{") depth++
+		else if (c == "}") { depth--; if (depth < 0) { print (j < s) ? "noguard" : "ok"; exit } }
+	}
+	print "held"
+}'`
+case "$held" in
+	ok) ;;
+	nomatch)
+		echo "check-channel-content-lock.sh: reloadChannels no longer writes the services" >&2
+		echo "  or asks for the reading, so the scan has stopped matching" >&2
+		exit 1
+		;;
+	noguard)
+		echo "check-channel-content-lock.sh: reloadChannels writes the services out" >&2
+		echo "  without $GUARD around SaveServices" >&2
+		exit 1
+		;;
+	*)
+		echo "check-channel-content-lock.sh: reloadChannels still holds $GUARD when it" >&2
+		echo "  asks for the reading, which takes that lock on the channel stack's thread" >&2
+		echo "  while this one waits for it" >&2
+		exit 1
+		;;
+esac
+
+# And the writing takes no lock of its own. With the guard held around it, the
+# channel lock would be taken twice, and any other lock would be ordered after
+# it, against LoadServices, which takes its own before the channel lock.
+body_of "$tmp/services" '^void CServiceManager::SaveServices[(]' > "$tmp/saveservices"
+[ -s "$tmp/saveservices" ] || {
+	echo "check-channel-content-lock.sh: no CServiceManager::SaveServices definition in $SERVICES" >&2
+	exit 1
+}
+if grep -qE 'ScopedLock|[Mm]utex|Guard|LockChannels|[.]lock[[:blank:]]*[(]' "$tmp/saveservices"; then
+	echo "check-channel-content-lock.sh: SaveServices takes a lock of its own, and the" >&2
+	echo "  guard reloadChannels holds around it has to be looked at again" >&2
+	exit 1
+fi
+
 exit 0
