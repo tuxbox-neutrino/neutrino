@@ -254,7 +254,7 @@ fi
 # reload runs outright. Each of the rest is reached from a thread of its own that
 # paints a front display or the icons over it. Every mention of a text field in
 # these has to stand inside one of the four accessors.
-READERS='src/httpd/compat/controlapi.cpp src/system/httptool.cpp src/system/helpers.cpp src/gui/plugins.cpp src/driver/pictureviewer/pictureviewer.cpp src/driver/lcdd.cpp src/driver/vfd.cpp src/driver/simple_display.cpp src/driver/glcd/glcd.cpp src/driver/glcd/simpleclock.cpp src/driver/glcd/weather.cpp src/driver/lcd4l.cpp src/gui/screensaver.cpp src/gui/infoicons.cpp'
+READERS='src/nhttpd/tuxboxapi/controlapi.cpp src/system/httptool.cpp src/system/helpers.cpp src/gui/plugins.cpp src/driver/pictureviewer/pictureviewer.cpp src/driver/lcdd.cpp src/driver/vfd.cpp src/driver/simple_display.cpp src/driver/glcd/glcd.cpp src/driver/glcd/simpleclock.cpp src/driver/glcd/weather.cpp src/driver/lcd4l.cpp src/gui/screensaver.cpp'
 for f in $READERS; do
 	[ -r "$SRC/$f" ] || {
 		echo "check-settings-text-lock.sh: cannot read $SRC/$f" >&2
