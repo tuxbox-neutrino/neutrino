@@ -1777,6 +1777,9 @@ void CRadioText::run()
 		{
 			mutex.unlock();
 			audioDemux->Stop();
+			/* The filter is off now, so whatever PID comes next has to
+			   set it up again, the one it had before included. */
+			current_pid = 0;
 			pidmutex.lock();
 			printf("CRadioText::run: ###################### waiting for pid.. ######################\n");
 			cond.wait(&pidmutex);
