@@ -228,9 +228,11 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-settings-input-open.sh \
 	scan/check-channellist-announce.sh \
 	scan/check-storage-write-link.sh \
+	scan/check-channel-writer-lock.sh \
+	scan/check-channel-lock-reentry.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
-	scan/settingstext.awk \
+	scan/settingstext.awk scan/channel-holds.awk \
 	scan/extract-pairs.sh scan/extract-bounds.sh scan/extract-defines.sh \
 	scan/extract-choices.sh scan/extract-constants.sh scan/extract-labels.sh \
 	scan/extract-applied.sh scan/extract-httpcodes.sh \
@@ -381,4 +383,6 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-settings-input-open.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-channellist-announce.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-storage-write-link.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-channel-writer-lock.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-channel-lock-reentry.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
