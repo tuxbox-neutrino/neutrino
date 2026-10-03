@@ -467,10 +467,14 @@ void CScreenSaver::paint()
 			else
 				scr_clock->paint(true);
 
-			if (g_RadiotextWin && g_settings.screensaver_mode_text)
-				scr_clock->allowPaint(g_RadiotextWin->isPainted());
-			else
-				scr_clock->allowPaint(true);
+			/* Not held back for the radio text window: that window is
+			   painted only by handleRadioText above, while the clock is
+			   stopped (killed at the top of this function, or not started
+			   yet), and the clock's place was chosen outside the window's
+			   band. Holding the clock until the window was painted only ever
+			   kept it dark when the window was not painted, as on every
+			   station without radio text. */
+			scr_clock->allowPaint(true);
 		}
 
 		if (g_settings.screensaver_mode == SCR_MODE_CLOCK_COLOR)
