@@ -142,6 +142,11 @@ bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 void CServiceManager::ResetChannelNumbers(bool bouquets, bool numbers)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(channels_mutex);
+	ResetChannelNumbersLocked(bouquets, numbers);
+}
+
+void CServiceManager::ResetChannelNumbersLocked(bool bouquets, bool numbers)
+{
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 #if 0 /* force to get free numbers if there are any */
 		if(have_numbers) {

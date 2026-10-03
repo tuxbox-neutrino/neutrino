@@ -721,9 +721,30 @@ void CBouquetManager::renumChannels(ZapitChannelList &list, int & counter, char 
 void CBouquetManager::makeRemainingChannelsBouquet(void)
 {
 	ZapitChannelList unusedChannels;
+	/* Read before the hold below: a copy taken under the catalogue's own
+	   lock, which is better not taken inside this one. */
+	const std::string other_caption = g_Locale->getString(LOCALE_BOUQUETNAME_OTHER);
+
+	/* One hold of the channel lock from emptying the bouquet of the remaining
+	   channels to the last number handed out. Threads other than this one walk
+	   the bouquets, their lists and the channel map under this lock, and a
+	   reload or a bouquet added on another thread frees or moves them under it.
+	   So this walk takes it as well, and takes it once: the numbers are zeroed
+	   first and handed out again bouquet by bouquet, and that bouquet is
+	   emptied and filled again, and a reader that took the lock anywhere in
+	   between would find nought for every channel not reached yet and the
+	   bouquet empty or half filled. Everything below takes the form that does
+	   not take the lock again, the lock not being one a thread may take twice,
+	   and nothing below reaches for any other lock. */
+	CServiceManager::ChannelGuard guard;
+
+	if (remainChannels) {
+		remainChannels->tvChannels.clear();
+		remainChannels->radioChannels.clear();
+	}
 
 	/* reset channel number and has_bouquet flag */
-	CServiceManager::getInstance()->ResetChannelNumbers();
+	CServiceManager::getInstance()->ResetChannelNumbersLocked();
 
 	//int i = 1, j = 1;
 	int i = CServiceManager::getInstance()->GetMaxNumber(false);
@@ -742,12 +763,12 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 
 	// TODO: use locales
 	if (remainChannels == NULL)
-		remainChannels = addBouquet(Bouquets.empty() ? DEFAULT_BQ_NAME_ALL : DEFAULT_BQ_NAME_OTHER, false); // UTF-8 encoded
+		remainChannels = addBouquetLocked(Bouquets.empty() ? DEFAULT_BQ_NAME_ALL : DEFAULT_BQ_NAME_OTHER, false); // UTF-8 encoded
 	remainChannels->bOther = true;
-	remainChannels->bName = g_Locale->getText(LOCALE_BOUQUETNAME_OTHER);
+	remainChannels->bName = other_caption;
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
-		remainChannels->addService(*it);
+		remainChannels->addServiceLocked(*it);
 	}
 
 	renumChannels(remainChannels->tvChannels, i);
@@ -762,14 +783,8 @@ void CBouquetManager::renumServices()
 
 	remainChannels = NULL;
 #endif
-	if(remainChannels) {
-		// The two lists a reader may be walking, emptied. Under the lock for
-		// the reason every other change of their length is.
-		CServiceManager::ChannelGuard guard;
-		remainChannels->tvChannels.clear();
-		remainChannels->radioChannels.clear();
-	}
-
+	// Empties the bouquet of the remaining channels and fills it again in
+	// the same hold of the channel lock as the numbers.
 	makeRemainingChannelsBouquet();
 }
 

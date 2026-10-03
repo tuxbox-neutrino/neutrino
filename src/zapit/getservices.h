@@ -142,6 +142,10 @@ class CServiceManager
 		bool AddNVODChannel(CZapitChannel * &channel);
 
 		void ResetChannelNumbers(bool bouquets = true, bool numbers = false);
+		/* The same for a caller that holds the channel lock already: the
+		   bouquet manager zeroes the numbers and hands them out again under
+		   one hold, so that no reader finds them half handed out. */
+		void ResetChannelNumbersLocked(bool bouquets = true, bool numbers = false);
 		void RemoveChannel(const t_channel_id channel_id);
 		void RemovePosition(t_satellite_position satellitePosition);
 		void RemoveAllChannels();
