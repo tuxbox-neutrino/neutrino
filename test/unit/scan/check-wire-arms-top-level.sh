@@ -9,7 +9,9 @@
 # So both arms ask whether this message came straight from the main loop, and
 # when it did not, they note it and leave it to the main loop: back at the top
 # of its loop, with every screen closed, it does what was asked. The shift is
-# then still only started where a picture is shown.
+# then still only started where a picture is shown, and both are done before
+# the loop lets luaclient scripts in, so no luaclient script is let in beside
+# the player a shift opens.
 #
 # The question is only as good as its answer, so the answer is checked too:
 # handleMsg takes the main loop's mark and clears it before anything else, so
@@ -126,6 +128,26 @@ for triple in 'msg == NeutrinoMessages::EVT_RELOAD_PLUGINS|plugins_reload_pendin
 		*)
 			echo "check-wire-arms-top-level.sh: RealRun does not take up $pending" >&2
 			echo "  at the top of its loop and do what was asked ($action)" >&2
+			bad=1
+			;;
+	esac
+	# And inside the loop before it lets luaclient scripts in: from UnBlock
+	# until Block a script runs on a thread of its own, so UnBlock comes after
+	# the request, as the last statement ahead of the wait for the next
+	# message, and nowhere before it.
+	case "$top" in
+		*"while(true){"*"if($pending){$pending=false;$action}"*"luaServer->UnBlock();#endif") ;;
+		*)
+			echo "check-wire-arms-top-level.sh: RealRun takes up $pending outside" >&2
+			echo "  its loop or after luaServer->UnBlock(), where a luaclient script" >&2
+			echo "  may run beside what was asked" >&2
+			bad=1
+			;;
+	esac
+	case "$top" in
+		*"UnBlock();"*"if($pending){"*)
+			echo "check-wire-arms-top-level.sh: RealRun lets luaclient scripts in" >&2
+			echo "  before it takes up $pending" >&2
 			bad=1
 			;;
 	esac
