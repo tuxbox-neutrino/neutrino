@@ -24,14 +24,16 @@
 #    how the setup screens edit a path, but it may not be stored anywhere else:
 #    the widget publishes what it edits under the same lock, and a pointer kept
 #    in a member is one this scan cannot follow;
-#  - the readers that are not on the box's own loop go through the accessor. The
-#    web server's compatibility layer and the threads that drive the front
-#    display are named, because those are the readers that exist; a read on the
-#    loop itself races with nobody and stays as it is;
-#  - except for the two fields a thread writes. The city and the coordinates the
-#    weather fetch resolves are written wherever that fetch runs, and two display
-#    threads run it, so a read of those on the loop races with a writer like any
-#    other and every mention of them goes through the accessor.
+#  - the readers that are not on the box's own loop go through the accessor.
+#    A file whose every read can run off the loop is named whole - the web
+#    server's layers, the threads that drive the front display, the stream
+#    server's Lua calls and the icon lookup - and in a file whose other reads
+#    run only on the loop the reads off it are pinned one by one; a read on
+#    the loop itself races with nobody and stays as it is;
+#  - and two fields whose every mention goes through the accessor, on the loop
+#    too: the city and the coordinates of the weather, held to it as a
+#    precaution, as settings.h asks; only the loop writes them, and the fetch
+#    the display threads run works on copies of its own.
 #
 # What this does not cover, said here because the scan reads as if it did: the
 # three strings of a usermenu entry are held to the same rule as the rest, but
@@ -66,7 +68,7 @@ done
 FLOOR_NAMES=70
 FLOOR_REFS=700
 FLOOR_PUBLISHED=15
-# The two the weather fetch writes were mentioned 15 times.
+# The weather's two were mentioned 15 times.
 FLOOR_THREADWRITTEN=12
 
 tmp=`mktemp -d`
@@ -188,11 +190,11 @@ if [ -s "$tmp/stored" ]; then
 	exit 1
 fi
 
-# ------------------------------------------ the two a thread writes as well
+# ------------------------------------- the two held to the accessor everywhere
 #
-# The weather fetch resolves a city and its coordinates and stores both, and the
-# display threads run that fetch, so these two have no reader that races with
-# nobody. Every mention of them anywhere goes through the accessor.
+# The city and the coordinates of the weather go through the accessor on the
+# loop too, a precaution settings.h asks for: only the loop writes them, and the
+# fetch the display threads run works on copies of its own.
 printf 'weather_city\nweather_location\n' > "$tmp/threadnames"
 : > "$tmp/threadwritten"
 while read -r f; do
@@ -202,15 +204,15 @@ done < "$tmp/candidates"
 
 twrefs=`awk -F'\t' '$1 == "#" { n += $2 } END { print n + 0 }' "$tmp/threadwritten"`
 if [ "$twrefs" -lt "$FLOOR_THREADWRITTEN" ]; then
-	echo "check-settings-text-lock.sh: $twrefs mentions of the two fields the" >&2
-	echo "  weather fetch writes, below the floor of $FLOOR_THREADWRITTEN: the scan has" >&2
-	echo "  stopped matching" >&2
+	echo "check-settings-text-lock.sh: $twrefs mentions of the weather's two" >&2
+	echo "  fields, below the floor of $FLOOR_THREADWRITTEN: the scan has stopped" >&2
+	echo "  matching" >&2
 	exit 1
 fi
 
 if grep -q '^B	' "$tmp/threadwritten"; then
-	echo "check-settings-text-lock.sh: these read a field the weather fetch writes" >&2
-	echo "  from its own thread, without the accessor:" >&2
+	echo "check-settings-text-lock.sh: these read the weather's city or" >&2
+	echo "  coordinates without the accessor, which settings.h asks of every read:" >&2
 	grep '^B	' "$tmp/threadwritten" | cut -f2,3 | sed 's/^/  /' >&2
 	exit 1
 fi
@@ -218,11 +220,14 @@ fi
 # ------------------------------------------------------------- the widgets
 #
 # What a screen hands a pointer to. The widget edits the caller's string as the
-# user types, so the write is here and not at the screen. Every change that can
-# move the buffer goes through the accessor; a character written in place cannot
-# move it and is left as it stands.
-WIDGETS='src/gui/widget/stringinput.cpp src/gui/widget/keyboard_input.cpp src/gui/widget/menue.cpp src/gui/opkg_manager.cpp'
-RAW='\*(valueString|optionValuePtr|local_dir)[ ]*=[^=]|(valueString|optionValuePtr|local_dir)->(append|assign|insert|erase|resize|swap|push_back|clear)[ ]*\('
+# user types, so the write is here and not at the screen. Every change is made
+# under the lock its readers take: one that can move the buffer through the
+# accessors, a single character through the widget's own guarded helper
+# (setCharAt in the string input, setCharLocked in the extended input). A bare
+# write through the extended input's data pointer is refused; the string input's
+# value->at(pos) is not a pattern this reads.
+WIDGETS='src/gui/widget/stringinput.cpp src/gui/widget/stringinput_ext.cpp src/gui/widget/keyboard_input.cpp src/gui/widget/menue.cpp src/gui/components/cc_input_dialog.cpp src/gui/filebrowser.cpp src/gui/opkg_manager.cpp'
+RAW='\*(valueString|optionValuePtr|local_dir|cid_value)[ ]*=[^=]|(valueString|optionValuePtr|local_dir|cid_value)->(append|assign|insert|erase|resize|swap|push_back|clear)[ ]*\(|(^|[^A-Za-z_.>])setting_dir[ ]*=[^=]|setting_dir\.(append|assign|insert|erase|resize|swap|push_back|clear)[ ]*\(|\*data[ ]*=[^=]'
 published=0
 for f in $WIDGETS; do
 	[ -r "$SRC/$f" ] || {
@@ -251,10 +256,12 @@ fi
 # are reached from those threads: the two download helpers, one behind the
 # redirect a timer follows and one behind everything else that fetches a URL; the
 # logo lookup the logo adapter calls; and the plugin scan, which a request for a
-# reload runs outright. Each of the rest is reached from a thread of its own that
-# paints a front display or the icons over it. Every mention of a text field in
-# these has to stand inside one of the four accessors.
-READERS='src/nhttpd/tuxboxapi/controlapi.cpp src/system/httptool.cpp src/system/helpers.cpp src/gui/plugins.cpp src/driver/pictureviewer/pictureviewer.cpp src/driver/lcdd.cpp src/driver/vfd.cpp src/driver/simple_display.cpp src/driver/glcd/glcd.cpp src/driver/glcd/simpleclock.cpp src/driver/glcd/weather.cpp src/driver/lcd4l.cpp src/gui/screensaver.cpp'
+# reload runs outright. nhttpd's language lookup answers on those threads as
+# well, the stream server's thread runs the Lua calls that fetch a URL, and the
+# icon lookup is asked from threads that paint. Each of the rest is reached from a
+# thread of its own that paints a front display or the icons over it. Every
+# mention of a text field in these has to stand inside one of the four accessors.
+READERS='src/nhttpd/tuxboxapi/controlapi.cpp src/nhttpd/yhttpd_core/ylanguage.cpp src/system/httptool.cpp src/system/helpers.cpp src/gui/plugins.cpp src/gui/lua/lua_curl.cpp src/gui/lua/luainstance.cpp src/driver/fb_generic.cpp src/driver/pictureviewer/pictureviewer.cpp src/driver/lcdd.cpp src/driver/vfd.cpp src/driver/simple_display.cpp src/driver/glcd/glcd.cpp src/driver/glcd/simpleclock.cpp src/driver/glcd/weather.cpp src/driver/lcd4l.cpp src/gui/screensaver.cpp'
 for f in $READERS; do
 	[ -r "$SRC/$f" ] || {
 		echo "check-settings-text-lock.sh: cannot read $SRC/$f" >&2
@@ -276,5 +283,42 @@ for f in $READERS; do
 		exit 1
 	fi
 done
+
+# ----------------------------------- the reads off the loop in a file of both
+#
+# Files whose other reads run only on the loop, where a bare read races with nobody, so
+# only the statements another thread runs are held: the online update check on
+# its own thread, the movie player's choice of language and subtitles on the
+# player's thread, and the remote box address the web server's threads look up.
+body() {	# body <file> <pattern of the function's first line>
+	prepare "$SRC/$1" | awk -v pat="$2" '
+		found == 0 && $0 ~ pat { found = 1 }
+		found == 1 { print; if ($0 ~ /^}/) exit }
+	' | tr '\n' ' ' | tr -s '[:space:]' ' '
+}
+pinned() {	# pinned <file> <function pattern> <what has to stand in it>
+	if ! body "$1" "$2" | grep -qF "$3"; then
+		echo "check-settings-text-lock.sh: $1 no longer reads off the loop through" >&2
+		echo "  the accessor where it did: $3" >&2
+		exit 1
+	fi
+}
+pinned src/gui/update.cpp '::checkOnlineVersion[(]' 'settingsText(g_settings.softupdate_url_file)'
+pinned src/gui/movieplayer.cpp 'void CMoviePlayerGui::selectAutoLang[(]' 'settingsText(g_settings.subs_charset)'
+pinned src/gui/movieplayer.cpp 'void CMoviePlayerGui::selectAutoLang[(]' 'settingsText(g_settings.pref_lang[i])'
+pinned src/gui/movieplayer.cpp 'void CMoviePlayerGui::selectAutoLang[(]' 'settingsText(g_settings.pref_subs[i])'
+# The guard first and the walk of the list after it, inside one function.
+RBIP=`body src/nhttpd/tuxboxapi/neutrinoapi.cpp 'CNeutrinoAPI::GetRemoteBoxIP[(]' | awk '
+	{
+		g = index($0, "CSettingsTextGuard")
+		w = index($0, "timer_remotebox_ip.begin()")
+		print (g > 0 && w > g) ? "held" : "bare"
+	}
+'`
+if [ "$RBIP" != "held" ]; then
+	echo "check-settings-text-lock.sh: CNeutrinoAPI::GetRemoteBoxIP walks the remote" >&2
+	echo "  boxes without CSettingsTextGuard in front of the walk" >&2
+	exit 1
+fi
 
 exit 0

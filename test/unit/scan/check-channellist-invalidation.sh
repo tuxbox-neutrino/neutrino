@@ -2,12 +2,16 @@
 # CServiceManager::allchans owns every CZapitChannel by value, and LoadServices
 # destroys the whole map before it parses the new one. Every channel list the
 # application holds is a vector of borrowed raw pointers into that map with no
-# lifetime binding of its own, so at that moment each of them names freed objects
-# until channelsInit() has built them again on the main loop.
+# lifetime binding of its own, so from that moment each of them would name freed
+# objects until channelsInit() has built them again on the main loop.
 #
-# CZapit::PrepareChannels is where the destruction happens and where the lists are
-# emptied. Neither that function nor CNeutrinoApp::invalidateChannelLists can be
-# linked into the test binary, so both are checked as text.
+# LoadServices empties these lists through its caller's hook, under the channel
+# lock, before it destroys the map (check-reload-forgets-first.sh holds that
+# order). CZapit::PrepareChannels empties them once more after the read, because
+# a channelsInit() still running from an earlier reload may have refilled them,
+# and that call is what this scan checks. Neither that function nor
+# CNeutrinoApp::invalidateChannelLists can be linked into the test binary, so
+# both are checked as text.
 #
 # Two properties, and the second is why this file is not a written down list of names:
 # the set of lists is read out of channelsInit's own deletes, so a list added there and
