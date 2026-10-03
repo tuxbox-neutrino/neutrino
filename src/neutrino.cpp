@@ -2350,7 +2350,9 @@ void CNeutrinoApp::invalidateChannelLists(bool lock_held)
 	/* Under the channel manager's own lock, although nothing here touches the
 	   channel map: what is emptied are the lists whose readers hold that lock
 	   while they walk them, and a walk and this running at once is a reader
-	   asking a list its length and then indexing a list that has none.
+	   asking a list its length and then indexing a list that has none. Taken
+	   here rather than around the call in PrepareChannels, so that call stays
+	   the single statement check-channellist-invalidation.sh reads.
 
 	   Safe to take from the thread that calls this: the read of the services
 	   above it has already given the lock back, and nothing below reaches into

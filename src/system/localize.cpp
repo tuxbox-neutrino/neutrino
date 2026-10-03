@@ -119,9 +119,11 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	   being written the table points partly into a block that has gone. Held
 	   against getString and against nothing else: a reader on another thread
 	   is safe only through getString, which waits for one string copy, and
-	   getText is not held. Here no caller off the loop asks getString yet.
-	   Reading the file inside is what such a caller would wait for, and a
-	   language is loaded when somebody changes it. */
+	   getText is not held. The REST layer is such a reader: it asks getString
+	   on the web server's threads for every label a settings schema answers
+	   with (coreapi's RealLocaleSource). Reading the file inside is what such
+	   a request waits for, and a language is loaded when somebody changes
+	   it. */
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(catalog_mutex);
 
 	FILE * fd = NULL;
@@ -276,8 +278,12 @@ std::string CLocaleManager::getString(const neutrino_locale_t keyName) const
 
    Here because nothing outside this file can see the table: it is defined in a
    header, and a second translation unit including it would carry a second copy.
-   Linear over a few thousand entries, which is what a caller holding a name
-   rather than a value asks for at most once per setting it applies. */
+   Linear over a few thousand entries. Its one caller, the REST layer's
+   catalogue lookup (coreapi's RealLocaleSource), asks once for every label a
+   settings schema answers with, each time one is asked for, on the web
+   server's threads: a few hundred rows and their values against a few
+   thousand names. An index built once is the change should that ever show in
+   a request's time. */
 neutrino_locale_t CLocaleManager::getLocale(const char * const name)
 {
 	if (name == NULL)

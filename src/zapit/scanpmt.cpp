@@ -109,21 +109,25 @@ bool CPmt::ParseInternal(CZapitChannel * const channel)
 	/* Everything below rewrites what the channel holds rather than the map it
 	   sits in: resetPids deletes every audio track and the subtitle list,
 	   setRawPmt deletes the table, and the two CA containers are assigned
-	   whole. Threads other than this one read those - the stream server, the
-	   CAM manager, the recorder, the front display, nhttpd and the GUI - but
-	   none of them under the channel lock. It is taken all the same for those
-	   that do hold it: a reload, which destroys every channel in the map
-	   under it, waits for the parse to end; the SDT monitor's copy of the
-	   current services sets the scrambled flag set below as well; and a copy
-	   taken through CopyChannel, which nothing in this tree takes at present,
-	   would read the CA containers, the teletext language and the pids and
-	   flags. Whoever holds the lock first is waited for.
+	   whole. Threads other than this one read those. The REST layer reads
+	   some of them under the channel lock, on the web server's threads: the
+	   table and the track list of a channel it is asked about (coreapi's
+	   channelStreams) and the CA list of the channel playing (currentCaids).
+	   The stream server, the CAM manager, the recorder, the front display,
+	   nhttpd's own pages and the GUI read them without it. The others that
+	   hold the lock: a reload, which destroys every channel in the map under
+	   it, waits for the parse to end; the SDT monitor's copy of the current
+	   services sets the scrambled flag set below as well; and a copy taken
+	   through CopyChannel, which nothing in this tree takes at present, would
+	   read the CA containers, the teletext language and the pids and flags.
+	   Whoever holds the lock first is waited for.
 
 	   Held across the parse and not around each write, so that a reload
-	   cannot free the channel between two of them and such a copy never
-	   carries the pids and the CA containers half rewritten. Nothing in here
-	   reaches the channel manager, so there is nothing for this to take
-	   twice.
+	   cannot free the channel between two of them, a REST read never finds
+	   the tracks gone between the reset and their return, and such a copy
+	   never carries the pids and the CA containers half rewritten. Nothing
+	   in here reaches the channel manager, so there is nothing for this to
+	   take twice.
 
 	   Taken here and not around CPmt::Parse: that one reads the table off the
 	   demux first, which waits on the transponder and would hold this lock for

@@ -768,11 +768,13 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	/* Under the channel lock, so that a reload, which destroys every channel
 	   in the map under it, cannot free this one in the middle of the reset,
-	   and a copy taken through CopyChannel, which nothing in this tree takes
-	   at present, never sees the pids and flags half cleared. The audio
-	   tracks and the subtitle list it deletes are walked without the lock by
-	   the stream server, the recorder, the front display, nhttpd and the
-	   GUI. */
+	   the REST layer's read of a channel's tracks (coreapi's channelStreams,
+	   on the web server's threads) never walks the ones being deleted, and a
+	   copy taken through CopyChannel, which nothing in this tree takes at
+	   present, never sees the pids and flags half cleared. The audio tracks
+	   and the subtitle list it deletes are walked without the lock by the
+	   stream server, the recorder, the front display, nhttpd's own pages and
+	   the GUI. */
 	if(!forupdate && current_channel) {
 		CServiceManager::ChannelGuard guard;
 		current_channel->resetPids();
@@ -3236,10 +3238,13 @@ void CZapit::run()
 	delete pcrDemux;
 	delete pmtDemux;
 	/* Cleared as well as freed, so that a reader which checks it after the
-	   teardown finds it gone. None does here yet: the web server runs detached
-	   and is never stopped, and its audio info reads the decoder without a
-	   check. The pointers around it are global in the same way and are left
-	   as they are, because none of them has a reader that outlives this. */
+	   teardown finds it gone. None does here yet: nothing stops the web
+	   server at the teardown - the REST layer stops it only to put a
+	   changed web server configuration in effect (reloadAndRestart in
+	   httpd/webconfig.cpp) and starts it again at once - and its audio info
+	   reads the decoder without a check. The pointers around it are global in
+	   the same way and are left as they are, because none of them has a
+	   reader that outlives this. */
 	delete audioDecoder;
 	audioDecoder = NULL;
 	delete audioDemux;

@@ -149,15 +149,20 @@ void CPlugins::loadPlugins()
 	   a reader could be told anything true out of: empty, then growing with
 	   every directory, then in an order that is not the one it ends in. A
 	   reader on another thread waits that long, which is the directories being
-	   read; the thread that rebuilds it waits for nothing. */
+	   read. A rebuild waits for whoever holds the lock when it starts: a copy
+	   the REST layer takes on a web thread (coreapi::boxPlugins in
+	   neutrino.cpp), or another rebuild - the loop's, or nhttpd's
+	   /control/reloadplugins on a web thread - and with several requests
+	   queued, for more than one of them. */
 	PluginGuard guard(this);
 
 	number_of_plugins = 0;
 	plugin_list.clear();
 	sindex = 100;
 	scanDir(GAMESDIR);
-	/* Copied under the lock: a request for a plugin list is answered on one of
-	   the web server's threads and has this rebuilt from there. */
+	/* Copied under the lock: nhttpd's /control/reloadplugins has this rebuilt
+	   on one of the web server's threads; the REST layer's reload reaches it
+	   on the loop. */
 	scanDir(settingsText(g_settings.plugin_hdd_dir).c_str());
 	scanDir(PLUGINDIR_MNT);
 	scanDir(PLUGINDIR_VAR);
