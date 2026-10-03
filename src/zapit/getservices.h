@@ -110,9 +110,6 @@ class CServiceManager
 
 		bool LoadScanXml(delivery_system_t delsys);
 
-		/* Callers already hold channels_mutex. */
-		bool AddChannelLocked(CZapitChannel * &channel);
-
 		void WriteSatHeader(FILE * fd, sat_config_t &config);
 		void WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
 				bool &updated, char * satstr, transponder &tp, CZapitChannel &channel, const char * action);
@@ -138,6 +135,8 @@ class CServiceManager
 		bool CopyCurrentServices(transponder_id_t tpid);
 
 		bool AddChannel(CZapitChannel * &channel);
+		/* The same for a caller that holds the channel lock already. */
+		bool AddChannelLocked(CZapitChannel * &channel);
 		bool AddCurrentChannel(CZapitChannel * &channel);
 		bool AddNVODChannel(CZapitChannel * &channel);
 
@@ -189,9 +188,10 @@ class CServiceManager
 		 * flags and the CA containers, but no audio tracks, subtitles or
 		 * PMT, see CZapitChannel::owned_t. Its strings are copied as well,
 		 * and several of them are written without this lock - by the GUI's
-		 * rename, the bouquet load and the web channel load - so a caller
-		 * off the box's loop reads what it needs through an accessor of its
-		 * own instead, as the logo lookup does. */
+		 * rename, the channel list's refresh of the current and the next
+		 * event, and the web channel load - so a caller off the box's loop
+		 * reads what it needs through an accessor of its own instead, as the
+		 * logo lookup does. */
 		bool CopyChannel(const t_channel_id channel_id, CZapitChannel &out);
 		/* What the logo lookup needs of a channel and nothing more, read
 		 * under the lock: the service type, the satellite position and the

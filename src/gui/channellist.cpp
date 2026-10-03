@@ -454,11 +454,16 @@ int CChannelList::doChannelMenu(void)
 				break;
 			case 3: // reset new
 			case 4: // reset all new
-				if (select == 3) {
-					(*chanlist)[selected]->flags = CZapitChannel::UPDATED;
-				} else {
-					for (unsigned int j = 0 ; j < (*chanlist).size(); j++)
-						(*chanlist)[j]->flags = CZapitChannel::UPDATED;
+				{
+					// Under the channel lock, which listings of the channel
+					// map read the marks under.
+					CServiceManager::ChannelGuard guard;
+					if (select == 3) {
+						(*chanlist)[selected]->flags = CZapitChannel::UPDATED;
+					} else {
+						for (unsigned int j = 0 ; j < (*chanlist).size(); j++)
+							(*chanlist)[j]->flags = CZapitChannel::UPDATED;
+					}
 				}
 				CNeutrinoApp::getInstance()->MarkChannelsChanged();
 				/* if make_new_list == ON, signal to re-init services */
@@ -3022,7 +3027,11 @@ void CChannelList::renameChannel()
 
 void CChannelList::lockChannel()
 {
-	(*chanlist)[selected]->bLocked = !(*chanlist)[selected]->bLocked;
+	{
+		// Under the channel lock, which other threads read the flag under.
+		CServiceManager::ChannelGuard guard;
+		(*chanlist)[selected]->bLocked = !(*chanlist)[selected]->bLocked;
+	}
 	CNeutrinoApp::getInstance()->MarkFavoritesChanged();
 	if (selected + 1 < (*chanlist).size())
 		g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_down, 0);

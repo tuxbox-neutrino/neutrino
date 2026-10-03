@@ -617,6 +617,11 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					chan = CServiceManager::getInstance()->FindChannel(chid);
 				if (chan != NULL) {
 					DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
+					/* The channel is in the map, and threads other than this
+					   one read its lock flag, its user name and its EPG id off
+					   it under the channel lock, so they are set under it, and
+					   the channel goes into the bouquet in the same hold. */
+					CServiceManager::ChannelGuard guard;
 					if(bUser && !(uname.empty()))
 						chan->setUserName(uname);
 					if(!bUser)
@@ -633,7 +638,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 						snprintf(buf, sizeof(buf), "%llx", chan->getChannelID() & 0xFFFFFFFFFFFFULL);
 						chan->setEPGmap("#" + new_epgxml + "=" + buf);
 					}
-					newBouquet->addService(chan);
+					newBouquet->addServiceLocked(chan);
 				} else if (bUser) {
 					if (url) {
 						chid = create_channel_id64(0, 0, 0, 0, 0, url);
@@ -643,12 +648,16 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 						chan = new CZapitChannel(name2, CREATE_CHANNEL_ID64, 1 /*service_type*/,
 								satellitePosition, freq);
 
-					CServiceManager::getInstance()->AddChannel(chan);
+					/* Put into the map, given what is set on it and added to
+					   the bouquet in one hold, as above, so that no reader of
+					   the map finds it there without its not-found mark. */
+					CServiceManager::ChannelGuard guard;
+					CServiceManager::getInstance()->AddChannelLocked(chan);
 					chan->flags = CZapitChannel::NOT_FOUND;
 					chan->bLocked = clock;
 					if(!(uname.empty()))
 						chan->setUserName(uname);
-					newBouquet->addService(chan);
+					newBouquet->addServiceLocked(chan);
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}
 
@@ -1433,9 +1442,15 @@ void CBouquetManager::loadWebchannels(int mode)
 								LogoList.push_back(chid);
 							}
 
-							channel->flags = CZapitChannel::UPDATED;
-							if (gbouquet)
-								gbouquet->addService(channel);
+							{
+								/* The mark under the channel lock, which listings
+								   of the channel map read it under, and the add in
+								   the same hold. */
+								CServiceManager::ChannelGuard guard;
+								channel->flags = CZapitChannel::UPDATED;
+								if (gbouquet)
+									gbouquet->addServiceLocked(channel);
+							}
 						}
 
 						l1 = xmlNextNode(l1);
@@ -1588,9 +1603,15 @@ void CBouquetManager::loadWebchannels(int mode)
 									}
 									LogoList.push_back(chid);
 								}
-								channel->flags = CZapitChannel::UPDATED;
-								if (gbouquet)
-									gbouquet->addService(channel);
+								{
+									/* The mark under the channel lock, which listings
+									   of the channel map read it under, and the add in
+									   the same hold. */
+									CServiceManager::ChannelGuard guard;
+									channel->flags = CZapitChannel::UPDATED;
+									if (gbouquet)
+										gbouquet->addServiceLocked(channel);
+								}
 							}
 						}
 					}
@@ -1696,9 +1717,15 @@ void CBouquetManager::loadWebchannels(int mode)
 									snprintf(buf, sizeof(buf), "%llx", chid & 0xFFFFFFFFFFFFULL);
 									channel->setEPGmap("#" + new_epgxml + "=" + buf);
 								}
-								channel->flags = CZapitChannel::UPDATED;
-								if (gbouquet)
-									gbouquet->addService(channel);
+								{
+									/* The mark under the channel lock, which listings
+									   of the channel map read it under, and the add in
+									   the same hold. */
+									CServiceManager::ChannelGuard guard;
+									channel->flags = CZapitChannel::UPDATED;
+									if (gbouquet)
+										gbouquet->addServiceLocked(channel);
+								}
 							}
 
 						}

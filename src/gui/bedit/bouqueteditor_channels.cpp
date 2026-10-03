@@ -457,7 +457,11 @@ void CBEChannelWidget::renameChannel()
 
 void CBEChannelWidget::switchLockChannel()
 {
-	(*Channels)[selected]->bLocked = !(*Channels)[selected]->bLocked;
+	{
+		// Under the channel lock, which other threads read the flag under.
+		CServiceManager::ChannelGuard guard;
+		(*Channels)[selected]->bLocked = !(*Channels)[selected]->bLocked;
+	}
 	channelsChanged = true;
 	paintItem(selected - liststart);
 
