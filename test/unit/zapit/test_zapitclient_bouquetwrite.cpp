@@ -20,6 +20,7 @@
 
 #include "support/catch.hpp"
 
+#include <atomic>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -159,7 +160,7 @@ class Daemon
 
 		Answer        answer_;
 		int           listen_fd_;
-		volatile bool stop_;
+		std::atomic<bool> stop_;
 		pthread_t     thread_;
 };
 
