@@ -463,11 +463,15 @@ Status registerSettingsApplier(const char *section, SettingsApplier *a);
 // that is the whole of it.
 SettingsApplier *settingsApplier(const char *section);
 
-/* The other half of that source, run by the message loop when the command
-   persist() sends arrives: it puts what was written into the values, asks for
-   the save, and then asks whoever applies each written setting. All three on
-   the loop's thread, and in that order, so that nothing is applied before the
-   value it stands for is there to be read.
+/* The other half of that source, run through carryWaitingSettings: by the
+   message loop when the command persist() sends arrives with no string input
+   open, otherwise in the screen the last input was opened from once it closes,
+   before neutrino.conf is saved next, by the exit and the restart on their way
+   out, or by the main loop at the top of its loop. Each time it puts
+   what was written into the values, asks for the save, and then asks whoever
+   applies each written setting. All three on the loop's thread, and in that
+   order, so that nothing is applied before the value it stands for is there
+   to be read.
 
    Does nothing while no real source is installed. */
 void applyPendingSettings();

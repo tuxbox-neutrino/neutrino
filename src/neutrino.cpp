@@ -296,6 +296,7 @@ CNeutrinoApp::CNeutrinoApp()
 	top_level_msg           = false;
 	plugins_reload_pending  = false;
 	timeshift_pending       = false;
+	settings_apply_pending  = false;
 	deferred_deepstandby	= false;
 	deferred_recheck_timer	= 0;
 	webchannels_boot_check_done = false;
@@ -2903,6 +2904,11 @@ void CNeutrinoApp::carryWaitingSettings()
 		reload_setup_pending = false;
 		reloadSetup();
 	}
+	// What was written over the wire meanwhile, on what the reload read.
+	if (settings_apply_pending) {
+		settings_apply_pending = false;
+		coreapi::applyPendingSettings();
+	}
 }
 
 void CNeutrinoApp::SendSectionsdConfig(void)
@@ -5091,8 +5097,20 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::APPLY_SETTINGS) {
-		// Settings written from outside, put into g_settings on the thread that reads them
-		coreapi::applyPendingSettings();
+		/* Settings written from outside, put into g_settings on the thread
+		   that reads them, and not while a string input is open. Such an
+		   input edits its setting in place, padded once to its width and
+		   indexed up to that width, so a shorter value written meanwhile ends
+		   neutrino at the next key, and the save that goes with the write
+		   would keep what the input has half edited. The write waits then as
+		   a reload of the settings does, and a read answers with it
+		   meanwhile. Under any other screen it is carried at once, after a
+		   reload that may still be waiting. */
+		settings_apply_pending = true;
+		if (CStringInputOpen::any())
+			CStringInputOpen::notifyWhenClosed();
+		else
+			carryWaitingSettings();
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::RELOAD_SETUP ) {

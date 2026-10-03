@@ -109,6 +109,8 @@ private:
 	bool                            plugins_reload_pending;
 	// A shift asked for over the wire while a screen was open.
 	bool                            timeshift_pending;
+	// Settings written over the wire while a string input was open.
+	bool                            settings_apply_pending;
 	bool				deferred_deepstandby;
 	uint32_t			deferred_recheck_timer;
 	bool				webchannels_boot_check_done;
