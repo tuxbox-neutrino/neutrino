@@ -514,14 +514,15 @@ class RealChannelSource : public ChannelSource
 			return Status::Ok;
 		}
 
-		// The channel numbers the lists are drawn from, built again from the bouquets as they now
-		// are. It is what makes a change visible without a restart, and what rebuilds the bouquet
-		// of everything no other bouquet holds.
+		/* Sends nothing. The save above numbers the lists again itself and rebuilds the bouquet
+		   of everything no other bouquet holds, after it has answered and before it tells the
+		   screen that the bouquets changed, and the wait the layer above makes next is answered
+		   only once the daemon is through with all of that. A numbering asked for here was served
+		   right behind the save, while the screen, woken by it, walks the bouquets to rebuild its
+		   own lists, and it emptied and refilled that one bouquet under the walk. */
 		Status reloadBouquets()
 		{
 			if (!g_Zapit)
-				return Status::Internal;
-			if (!g_Zapit->renumChannellist())
 				return Status::Internal;
 			return Status::Ok;
 		}

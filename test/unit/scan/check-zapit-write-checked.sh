@@ -11,7 +11,9 @@
 #
 # The rule is one line: every one of these calls stands in a refusal of its own and
 # answers Internal, the same answer the file gives for a channel stack that is not
-# there at all.
+# there at all. One call is held the other way: the numbering of the lists is never
+# sent, because the save numbers them itself, and check-bouquet-save-atomic.sh holds
+# the save to that.
 set -e
 LC_ALL=C
 export LC_ALL
@@ -39,13 +41,13 @@ awk -v keepstrings=0 -f "$STRIP" "$ADAPTER" | awk -f "$BLANK" > "$tmp/adapter"
 	exit 1
 }
 
-# The ten the channel stack is asked to change something with. getMode is not
+# The nine the channel stack is asked to change something with. getMode is not
 # among them on purpose: the adapter sends it to wait for the commands before
 # it, and it changes nothing, so what it answers is not a change that did or
 # did not happen.
 WRITES="addBouquet renameBouquet moveBouquet deleteBouquet setBouquetHidden \
 	setBouquetLock addChannelToBouquet removeChannelFromBouquet \
-	saveBouquets renumChannellist"
+	saveBouquets"
 
 awk -v names="$WRITES" '
 	BEGIN {
@@ -97,5 +99,18 @@ awk -v names="$WRITES" '
 	cat "$tmp/findings" >&2
 	exit 1
 }
+
+# And the two it must not use. The save numbers the lists again before it tells
+# the screen that the bouquets changed, and the screen answers that by walking
+# every bouquet to rebuild its own lists. A numbering sent behind the save is
+# served right after it and empties the bouquet of everything no other bouquet
+# holds while that walk may be reading it; one made here directly would also
+# run on the web server's thread.
+sent=`grep -nE '(renumChannellist|renumServices)[[:blank:]]*[(]' "$tmp/adapter" || true`
+if [ -n "$sent" ]; then
+	echo "check-zapit-write-checked.sh: the adapter numbers the lists a second time behind the save" >&2
+	printf '%s\n' "$sent" | sed 's/^/  /' >&2
+	exit 1
+fi
 
 exit 0

@@ -17,7 +17,9 @@
 # The command that carries that answer to a caller is checked here too, and for the
 # same reason. It used to answer before it started writing, when all it could say was
 # that the command had arrived. So what is checked is the order: the answer goes out
-# after both files have been written.
+# after both files have been written. And the command numbers the lists again before
+# it tells the screen that the bouquets changed, which is what lets the web layer
+# send no numbering of its own after a save (check-zapit-write-checked.sh).
 set -e
 LC_ALL=C
 export LC_ALL
@@ -144,5 +146,13 @@ answer=`grep -nE 'send_data[ \t]*\(' "$tmp/cmd" | head -1 | cut -d: -f1`
 	echo "  so what it answers cannot be whether they were written" >&2
 	exit 1
 }
+
+renum=`grep -nE 'g_bouquetManager->renumServices[[:blank:]]*[(][[:blank:]]*[)]' "$tmp/cmd" | head -1 | cut -d: -f1`
+event=`grep -nE 'SendEvent[[:blank:]]*[(][[:blank:]]*CZapitClient::EVT_BOUQUETS_CHANGED' "$tmp/cmd" | head -1 | cut -d: -f1`
+if [ -z "$renum" ] || [ -z "$event" ] || [ "$renum" -gt "$event" ]; then
+	echo "check-bouquet-save-atomic.sh: the save command no longer numbers the lists before it" >&2
+	echo "  says the bouquets changed, and the web layer sends no numbering of its own" >&2
+	exit 1
+fi
 
 exit 0

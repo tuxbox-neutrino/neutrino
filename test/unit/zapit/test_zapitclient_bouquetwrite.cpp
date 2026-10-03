@@ -171,7 +171,8 @@ TEST_CASE("a bouquet write with nothing at the daemon's address says so", "[zapi
 
 	BoundClient client;
 
-	// All ten, because the layer above sends all ten and one of them left
+	// All ten the client has for the bouquets: the layer above sends nine of
+	// them and the legacy control API the tenth, and one of them left
 	// answering yes is one write that goes on claiming to have happened.
 	REQUIRE_FALSE(client.addBouquet("Probe"));
 	REQUIRE_FALSE(client.renameBouquet(0, "Probe"));

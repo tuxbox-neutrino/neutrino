@@ -378,12 +378,12 @@ Result<uint32_t> position(const std::string &name)
 /* What every write below ends with, and what makes looking for the change
    afterwards worth anything.
 
-   A change is in memory until the list is written out, and the box goes on
-   drawing the list it loaded until that is read back, so leaving either out
-   loses the change. What the two do not say is that the change happened: the
-   box answers none of the writes above, so the call that sent one comes back
-   before the box has looked at it, and these two would then be writing out a
-   list nothing had been done to yet. The third is the one that waits. */
+   A change is in memory until the list is written out. The box takes the
+   commands in the order they were sent, so the save finds the change made, and
+   after answering it numbers the lists again and tells the screen; the second
+   call is there for a source whose save does not, and sends nothing on the box.
+   Neither answer covers the numbering, which is why the third call is the one
+   that waits before anything is read back. */
 Result<void> writeOut()
 {
 	Status s = channelSource().saveBouquets();

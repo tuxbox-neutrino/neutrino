@@ -139,9 +139,12 @@ struct ChannelSource
 	   Every id has been looked up before this is called. */
 	virtual Status setBouquetChannels(uint32_t id, const ChannelIdList &ids, bool tv) = 0;
 
-	/* Writing the list out, and reading it back into what the box draws from.
-	   Two calls because they fail for two causes, and a box that wrote the file
-	   without rereading it is in a state a caller can see.
+	/* Writing the list out, and numbering again what the box draws from. Two
+	   calls because a source may need both and they fail for two causes. On the
+	   box the save does both: its daemon numbers the lists again after every
+	   save, before it tells the screen, so the second call sends nothing there.
+	   A numbering sent behind the save would run while the screen rebuilds its
+	   lists from the bouquet that numbering empties.
 
 	   Every write above is in memory until these have run. The layer above runs
 	   both after each write, so they are not the caller's to remember. */
