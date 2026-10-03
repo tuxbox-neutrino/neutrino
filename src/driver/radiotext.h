@@ -47,6 +47,7 @@
 
 #include <hardware/dmx.h>
 #include <time.h>
+#include <atomic>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 #include <sigc++/signal.h>
@@ -97,7 +98,9 @@ class CRadioText : public OpenThreads::Thread, public sigc::trackable
 		OpenThreads::Mutex mutex;
 		OpenThreads::Mutex pidmutex;
 		OpenThreads::Condition cond;
-		bool running;
+		/* Set by the destructor on another thread than the reader's, and
+		   read by the reader without a lock in its loops. */
+		std::atomic<bool> running;
 
 		void run();
 		void init();

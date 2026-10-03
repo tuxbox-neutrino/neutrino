@@ -1663,7 +1663,9 @@ CRadioText::~CRadioText(void)
 	printf("CRadioText::~CRadioText\n");
 	running = false;
 	radiotext_stop();
+	pidmutex.lock();
 	cond.broadcast();
+	pidmutex.unlock();
 	OpenThreads::Thread::join();
 	latm_dump_close();
 	if (g_RadiotextWin)
@@ -1751,7 +1753,9 @@ void CRadioText::setPid(uint inPid, bool latm)
 		latm_stream = latm;
 		init();
 		mutex.unlock();
+		pidmutex.lock();
 		cond.broadcast();
+		pidmutex.unlock();
 	}
 }
 
@@ -1782,7 +1786,20 @@ void CRadioText::run()
 			current_pid = 0;
 			pidmutex.lock();
 			printf("CRadioText::run: ###################### waiting for pid.. ######################\n");
-			cond.wait(&pidmutex);
+			/* Looked at again under pidmutex, which setPid and the
+			   destructor signal under: a PID set, or the end asked for,
+			   between the look above and this wait would otherwise
+			   signal nobody, and the thread would sleep on until the next
+			   PID. The PID itself is read under its own mutex. */
+			for (;;)
+			{
+				mutex.lock();
+				bool idle = running && pid == 0;
+				mutex.unlock();
+				if (!idle)
+					break;
+				cond.wait(&pidmutex);
+			}
 			pidmutex.unlock();
 			mutex.lock();
 		}
