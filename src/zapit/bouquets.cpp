@@ -748,6 +748,15 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	CServiceManager::ChannelGuard guard;
 
 	if (remainChannels) {
+		/* A locked bouquet counts itself into the lock count of every channel
+		   it holds, and the adds below count it in again, so it is taken back
+		   here first, as deleting a bouquet does. */
+		if (remainChannels->bLocked) {
+			for (unsigned int n = 0; n < remainChannels->tvChannels.size(); n++)
+				remainChannels->tvChannels[n]->bLockCount--;
+			for (unsigned int n = 0; n < remainChannels->radioChannels.size(); n++)
+				remainChannels->radioChannels[n]->bLockCount--;
+		}
 		remainChannels->tvChannels.clear();
 		remainChannels->radioChannels.clear();
 	}
