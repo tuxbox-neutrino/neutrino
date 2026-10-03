@@ -15,7 +15,10 @@
 #
 # Two properties, and the second is why this is not a written down list of
 # writers: the functions that change the vector are read out of the file, so one
-# added there without the lock fails here.
+# added there without the lock fails here. A third holds the one write the core
+# API makes into a bouquet itself, its reorder, to a write that keeps the
+# length: the channel stack's walkers of these lists do not all take the lock,
+# and one at the end of a list that shrinks under it steps past it.
 set -e
 LC_ALL=C
 export LC_ALL
@@ -180,12 +183,151 @@ if [ -n "$bare" ]; then
 	exit 1
 fi
 
-# The one write this layer makes into a bouquet itself. It runs with the guard
-# already held, so it has to use the form that does not take it again; the
-# taking form would stop the thread on a lock it is holding.
-if grep -q '\->moveService(' "$tmp/source"; then
-	echo "check-bouquet-vector-lock.sh: channelsource_real.cpp calls moveService," >&2
-	echo "  which takes the channel lock, from under that same lock" >&2
+# The one write this layer makes into a bouquet itself, its reorder. Not
+# through the channel stack's move or its add and remove, which take a channel
+# out and put it back and so change the list's length, and of which the forms
+# that take the lock would stop the thread on the lock it holds. The adapter
+# changes what a bouquet holds only through the channel stack's commands.
+if grep -qE '(move|add|remove)Service(Locked)?[[:blank:]]*[(]' "$tmp/source"; then
+	echo "check-bouquet-vector-lock.sh: channelsource_real.cpp changes a bouquet through" >&2
+	echo "  the channel stack's move, add or remove, which change the list's length" >&2
+	exit 1
+fi
+
+# Nor does it change the length of a bouquet's list any other way, or the
+# block the list keeps its entries in: not directly, not through a reference or
+# a pointer it took to the list, whatever type that spells and whether or not
+# the pointer itself is const, or to such a name in turn, through the name or
+# through the pointer taken back, not by assigning over the list, not by a swap
+# with it on either side, and not by asking it for a block of another size.
+# What is read is text: a name is one when its declaration or its first value
+# says so, and else, do, return and throw before a star are no type. A
+# reference or a pointer to a const list cannot change it, and a copy made to
+# work on, or a pointer to one of its entries, is not the list; none of these
+# is looked at.
+lengths=`awk '
+	function word(n) { return "(^|[^A-Za-z_0-9])" n "([^A-Za-z_0-9]|$)" }
+	{ line[NR] = $0 }
+	END {
+		grow = "(erase|insert|push_back|pop_back|clear|resize|assign|swap|emplace|emplace_back|reserve|shrink_to_fit)"
+		names["tvChannels"] = 1
+		names["radioChannels"] = 1
+		# A name given to a list: a reference or a pointer declared with the
+		# list type, or set to a list or to a name found already, until no new
+		# one turns up. Set to a list means named whole, not an entry of it
+		# nor what a call on it returns. A const or volatile after the star
+		# qualifies the pointer and may stand before the name.
+		do {
+			added = 0
+			for (i = 1; i <= NR; i++) {
+				rest = line[i]
+				while (match(rest, /[&*][ \t]*((const|volatile)[ \t]+)*[A-Za-z_][A-Za-z_0-9]*[ \t]*(=[^=]|[(]|[{])[^;]*/)) {
+					decl = substr(rest, RSTART, RLENGTH)
+					lead = substr(rest, 1, RSTART - 1)
+					rest = substr(rest, RSTART + RLENGTH)
+					# The list is const only by a const in the type before
+					# the first star or ampersand of this declaration; one
+					# after that makes a pointer const and not the list.
+					base = lead
+					sub(/^.*[,;(){}]/, "", base)
+					sub(/[&*].*$/, "", base)
+					if (base ~ /(^|[^A-Za-z_0-9])const([^A-Za-z_0-9]|$)/)
+						continue
+					name = decl
+					sub(/^[&*][ \t]*((const|volatile)[ \t]+)*/, "", name)
+					sub(/[^A-Za-z_0-9].*$/, "", name)
+					if (name in names)
+						continue
+					init = decl
+					sub(/^[&*][ \t]*((const|volatile)[ \t]+)*[A-Za-z_][A-Za-z_0-9]*[ \t]*/, "", init)
+					hit = (lead ~ /ZapitChannelList[ \t]*$/)
+					for (n in names)
+						if (init ~ ("(^|[^A-Za-z_0-9])" n "[ \t]*([^A-Za-z_0-9 \t.([-]|$)"))
+							hit = 1
+					if (hit) {
+						names[name] = 1
+						added = 1
+					}
+				}
+			}
+		} while (added)
+		for (i = 1; i <= NR; i++) {
+			t = line[i]
+			bad = (t ~ /std::swap[ \t]*[(]/)
+			for (n in names) {
+				if (t ~ ("(^|[^A-Za-z_0-9])" n "[ \t]*([.]|->)[ \t]*" grow "[ \t]*[(]"))
+					bad = 1
+				if (t ~ ("[(][ \t]*[*][ \t]*" n "[ \t]*[)][ \t]*([.]|->)[ \t]*" grow "[ \t]*[(]"))
+					bad = 1
+				# An assignment over it, directly or through the pointer taken
+				# back, which its own declaration, a type before the name, is not.
+				# A statement word before the star is no type: else *p = x
+				# assigns.
+				d = t
+				gsub("(^|[^A-Za-z_0-9])(else|do|return|throw)[ \t]*[&*]", ";*", d)
+				gsub("[A-Za-z_0-9>][ \t]*[&*][ \t]*((const|volatile)[ \t]+)*" n "[ \t]*=", "@", d)
+				if (d ~ ("(^|[^A-Za-z_0-9])" n "[ \t]*=[^=]"))
+					bad = 1
+				if (t ~ ("[(][ \t]*[*][ \t]*" n "[ \t]*[)][ \t]*=[^=]"))
+					bad = 1
+				s = t
+				while (match(s, /swap[ \t]*[(][^)]*/)) {
+					arg = substr(s, RSTART, RLENGTH)
+					s = substr(s, RSTART + RLENGTH)
+					sub(/^swap[ \t]*[(]/, "", arg)
+					if (arg ~ word(n))
+						bad = 1
+				}
+			}
+			if (bad)
+				print i ": " t
+		}
+	}
+' "$tmp/source"`
+if [ -n "$lengths" ]; then
+	echo "check-bouquet-vector-lock.sh: channelsource_real.cpp changes the length or the block" >&2
+	echo "  of a bouquet's list:" >&2
+	printf '%s\n' "$lengths" | sed 's/^/  /' >&2
+	exit 1
+fi
+
+# And the reorder writes the new order back inside the block of the guard it
+# took, so a reader that holds the lock sees the old order or the new one.
+reorder=`awk -v pat='Status setBouquetChannels[(]' '
+	found == 0 && $0 ~ pat { found = 1 }
+	found == 1 {
+		print
+		n = length($0)
+		for (i = 1; i <= n; i++) {
+			c = substr($0, i, 1)
+			if (c == "{") depth++
+			else if (c == "}") { depth--; if (depth == 0) exit }
+		}
+	}
+' "$tmp/source" | tr '\n' ' '`
+placed=`printf '%s' "$reorder" | awk -v guard="$GUARD" '{
+	w = index($0, "std::copy(")
+	if (w == 0) { print "nocopy"; exit }
+	g = 0; pos = 0
+	while (1) {
+		k = index(substr($0, pos + 1), guard)
+		if (k == 0 || pos + k >= w)
+			break
+		g = pos + k
+		pos = g
+	}
+	if (g == 0) { print "noguard"; exit }
+	depth = 0
+	for (j = g; j < w; j++) {
+		c = substr($0, j, 1)
+		if (c == "{") depth++
+		else if (c == "}") { depth--; if (depth < 0) { print "closed"; exit } }
+	}
+	print "ok"
+}'`
+if [ "$placed" != ok ]; then
+	echo "check-bouquet-vector-lock.sh: setBouquetChannels does not write the new order back" >&2
+	echo "  with std::copy inside the block of $GUARD ($placed)" >&2
 	exit 1
 fi
 

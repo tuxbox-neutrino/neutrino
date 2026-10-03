@@ -24,6 +24,7 @@
 #include "coreapi/bouquetorder.h"
 #include "channelstreams_internal.h"
 
+#include <algorithm>
 #include <cstring>
 #include <vector>
 
@@ -410,9 +411,8 @@ class RealChannelSource : public ChannelSource
 			return Status::Ok;
 		}
 
-		/* Read twice by the call below, before it changes what is in the half
-		   and again before it puts that in order, and written once here so the
-		   two cannot read the half differently. */
+		/* What the half holds, read by the call below before it changes
+		   anything in it. */
 		void readHalf(size_t index, bool tv, ChannelIdList &out) const
 		{
 			// Before the lookup, so the bouquet cannot be freed between being
@@ -434,10 +434,20 @@ class RealChannelSource : public ChannelSource
 			if (!g_bouquetManager || !g_Zapit)
 				return Status::Internal;
 			const size_t index = (size_t) id - 1;
+			/* Which bouquet the position names now, kept so that the last hold
+			   below can tell whether it still names that one: another request
+			   can move or delete a bouquet while this one waits for its
+			   commands. By the number the bouquet was given when it was made,
+			   which no other bouquet gets, where an address can come back for a
+			   bouquet made since, and by its name. */
+			unsigned int target_serial = 0;
+			std::string target_name;
 			{
 				CServiceManager::ChannelGuard guard;
 				if (index >= g_bouquetManager->Bouquets.size())
 					return Status::NotFound;
+				target_serial = g_bouquetManager->Bouquets[index]->serial;
+				target_name = g_bouquetManager->Bouquets[index]->Name;
 			}
 
 			// What that half holds now, taken before anything is sent, so the
@@ -468,37 +478,66 @@ class RealChannelSource : public ChannelSource
 			   every position taken off it would name the wrong channel. */
 			(void) awaitCommands();
 
-			/* And now the order. Read again rather than worked out from the two loops
-			   above, so that a command which did not take leaves the order wrong and
-			   nothing else.
+			/* And now the order, worked out from the half as the commands above
+			   left it rather than from the two loops, so that a command which did
+			   not take leaves the order wrong and nothing else.
 
-			   The move is the one the two bouquet editors on the screen make. There is
-			   no command for it, so this is a write into the list from whichever thread
-			   the request arrived on. It shuffles a list without changing its length, so
-			   nothing it does can invalidate what another reader is holding; what a
-			   reader can see is a part of one order and a part of the other. */
+			   The move is the one the two bouquet editors on the screen make. There
+			   is no command for it, so this is a write into the list from whichever
+			   thread the request arrived on. Not through the channel stack's own
+			   move: that takes the channel out and puts it back in, so between the
+			   two the list is one shorter, and the bouquet savers, which hold only
+			   their own lock, the lists the main loop builds and the screen editors
+			   walk these lists without the channel lock. A walk that is at the end
+			   when the list shrinks steps past it. So the moves are made on a copy
+			   and the copy is written back over the same slots: the list keeps its
+			   length and its block throughout, a reader that holds the lock sees the
+			   old order or the new one, and one that does not can still read a part
+			   of each, a channel twice and another not at all. Only those walks
+			   taking the lock would close that.
+
+			   One hold for reading the half, working out the moves, making them and
+			   writing them back, with the bouquet found under it, because a reload
+			   frees bouquets only under this lock and another request may have moved
+			   or deleted one meanwhile. Nothing below reaches the channel manager or
+			   the channel stack: the lock is not one a thread may take twice, and
+			   the channel stack takes it for the very commands this thread would
+			   wait on. */
+			CServiceManager::ChannelGuard guard;
+			/* Left alone when the position names another bouquet by now: the
+			   reading back by name above this layer then answers that the
+			   bouquet does not hold what was asked. */
+			if (index >= g_bouquetManager->Bouquets.size() ||
+			    g_bouquetManager->Bouquets[index]->serial != target_serial ||
+			    g_bouquetManager->Bouquets[index]->Name != target_name)
+				return Status::Ok;
+			CZapitBouquet *b = g_bouquetManager->Bouquets[index];
+			ZapitChannelList &half = tv ? b->tvChannels : b->radioChannels;
+
 			ChannelIdList now;
-			readHalf(index, tv, now);
+			now.reserve(half.size());
+			for (size_t i = 0; i < half.size(); i++)
+				now.push_back((ChannelId) half[i]->getChannelID());
 
 			ChannelMoveList moves;
 			channelOrderMoves(now, ids, moves);
+			if (moves.empty())
+				return Status::Ok;
 
-			const unsigned char kind = tv ? ST_DIGITAL_TELEVISION_SERVICE
-						      : ST_DIGITAL_RADIO_SOUND_SERVICE;
-			/* The bouquet found again under the lock for every move rather
-			   than held across the run: a reload between two of them frees it,
-			   and a pointer taken once would be written through afterwards.
-			   The locked form of the move, because the lock is already held
-			   here and it is not one a thread may take twice. */
+			ZapitChannelList reordered(half);
 			for (size_t i = 0; i < moves.size(); i++)
 			{
-				CServiceManager::ChannelGuard guard;
-				if (index >= g_bouquetManager->Bouquets.size())
-					break;
-				g_bouquetManager->Bouquets[index]->moveServiceLocked(
-					(unsigned int) moves[i].from,
-					(unsigned int) moves[i].to, kind);
+				const size_t from = moves[i].from;
+				const size_t to = moves[i].to;
+				// Passed over, the way the channel stack's own move passes
+				// over a position the list does not have.
+				if (from >= reordered.size() || to >= reordered.size())
+					continue;
+				CZapitChannel *moved = reordered[from];
+				reordered.erase(reordered.begin() + (ptrdiff_t) from);
+				reordered.insert(reordered.begin() + (ptrdiff_t) to, moved);
 			}
+			std::copy(reordered.begin(), reordered.end(), half.begin());
 			return Status::Ok;
 		}
 

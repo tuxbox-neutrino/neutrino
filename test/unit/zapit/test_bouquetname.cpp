@@ -2,6 +2,7 @@
  * test_bouquetname.cpp - tests for bouquet names
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +24,7 @@
 #include <zapit/bouquets.h>
 
 #include <string>
+#include <type_traits>
 
 /* A bouquet carries two names and only one of them is its identity. Name is what
  * parseBouquetsXml writes and reads back, and it is the field existsBouquet compares a
@@ -86,4 +88,35 @@ TEST_CASE("a renamed bouquet answers to nothing of its old name", "[bouquetname]
 	CHECK_FALSE(b.Name == "Sport");
 	CHECK_FALSE(b.bName == "Sport");
 	CHECK(b.Name == b.bName);
+}
+
+TEST_CASE("a bouquet made after another is gone has a number of its own", "[bouquetname]")
+{
+	/* The bouquet editor's rename and the reorder of the REST layer let go of
+	 * the channel lock while they wait, and know their bouquet again afterwards
+	 * by this number and its name: an address can be handed to a bouquet made
+	 * meanwhile, the number cannot. Made and freed in turn, the second bouquet
+	 * usually gets the first one's block, which is the case this is about; the
+	 * check holds either way. */
+	CZapitBouquet *first = new CZapitBouquet("Sport");
+	const unsigned int serial = first->serial;
+	const void *where = first;
+	delete first;
+
+	CZapitBouquet *second = new CZapitBouquet("Sport");
+	INFO("made at the same address: " << ((const void *) second == where));
+	CHECK(second->serial != serial);
+	CHECK(second->Name == "Sport");
+	delete second;
+
+	CZapitBouquet a("A");
+	CZapitBouquet b("B");
+	CHECK(a.serial != b.serial);
+
+	/* Nor can a bouquet be copied, moved or assigned over: each would leave
+	 * two bouquets under one number. */
+	CHECK_FALSE(std::is_copy_constructible<CZapitBouquet>::value);
+	CHECK_FALSE(std::is_copy_assignable<CZapitBouquet>::value);
+	CHECK_FALSE(std::is_move_constructible<CZapitBouquet>::value);
+	CHECK_FALSE(std::is_move_assignable<CZapitBouquet>::value);
 }
