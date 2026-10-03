@@ -121,12 +121,24 @@ class RealChannelSource : public ChannelSource
 
 		Status findChannel(ChannelId id, ChannelInfo &out) const
 		{
-			// The empty name has to be typed, or an empty literal would pick
-			// the webtv constructor, which leaves the object unbuilt.
-			CZapitChannel ch(std::string(), 0, 0, 0, 0);
-			if (!CServiceManager::getInstance()->CopyChannel((t_channel_id) id, ch))
+			CServiceManager *manager = CServiceManager::getInstance();
+			if (manager == NULL)
+				return Status::Internal;
+
+			/* The channel where it sits, under the channel lock, and only the
+			   fields fill reads, the same as the listing above. Not
+			   CopyChannel: a whole copy also reads the current and next event
+			   texts, which the channel list on the screen rewrites on every
+			   paint without this lock, and which this answer does not
+			   carry. */
+			CServiceManager::ChannelGuard guard;
+			tallchans *all = manager->GetAllChannels();
+			if (all == NULL)
+				return Status::Internal;
+			tallchans_iterator it = all->find((t_channel_id) id);
+			if (it == all->end())
 				return Status::NotFound;
-			fill(ch, out);
+			fill(it->second, out);
 			return Status::Ok;
 		}
 
@@ -162,10 +174,12 @@ class RealChannelSource : public ChannelSource
 			if (manager == NULL)
 				return Status::Internal;
 
-			/* The channel where it sits and not a copy of it: a copied channel
-			   carries no pids, no table and no track list at all. The same
-			   lookup the running channel is read through, which also reaches
-			   the subservices a copy could not find. */
+			/* The channel where it sits and not a copy of it: a copy carries
+			   the pids but neither the table nor the track list
+			   (CZapitChannel::owned_t), and the table is what says whether the
+			   streams are known. The same lookup the running channel is read
+			   through, which also reaches the NVOD subservices that
+			   findChannel's lookup in the channel map does not. */
 			CServiceManager::ChannelGuard guard;
 			CZapitChannel *ch = manager->FindChannel((t_channel_id) id);
 			if (!ch)

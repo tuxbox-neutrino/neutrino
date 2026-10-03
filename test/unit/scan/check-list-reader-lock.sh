@@ -203,6 +203,18 @@ case "$WRITEBACK" in
 		;;
 esac
 
+# Nor does anything the web server's threads run take a whole copy of a
+# channel: a copy reads every string of it, and some of those other threads
+# write without the channel lock. The core API reads the fields it answers
+# with where the channel sits, under that lock.
+for f in `cd "$SRC" && grep -rl 'CopyChannel' src/coreapi src/httpd || true`; do
+	if prepare "$SRC/$f" | grep -q 'CopyChannel[ 	]*('; then
+		echo "check-list-reader-lock.sh: $f copies a whole channel on the web" >&2
+		echo "  server's threads; read the fields under the channel lock instead" >&2
+		exit 1
+	fi
+done
+
 # ------------------------------------------------------------ the catalogue
 
 body_of "$tmp/localize" '^CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale[(]' > "$tmp/load2"

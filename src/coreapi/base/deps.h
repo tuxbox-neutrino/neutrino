@@ -2,6 +2,7 @@
  * deps.h - the seams the core API is built on, and their wiring
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,10 +59,11 @@ struct ChannelSource
 	   channel route about it. NotFound for an identifier the box has no channel
 	   for. */
 	virtual Status guideChannel(ChannelId asked, ChannelId &whole, ChannelId &key) const = 0;
-	/* How one channel's streams are laid out. Apart from findChannel because a
-	   listing copies a channel out of the map and a copy carries none of its
-	   stream state by design, so this has to be read off the channel where it
-	   sits and a listing of two thousand channels does not pay for it.
+	/* How one channel's streams are laid out. Apart from findChannel and the
+	   listings, which fill the same record for every channel, so that a
+	   listing of two thousand channels does not pay for it. Read off the
+	   channel where it sits, under the channel lock: a copy carries neither
+	   the table nor the track list (CZapitChannel::owned_t).
 
 	   NotFound for a channel the box does not have. A channel it has and knows
 	   no streams of is Ok with known unset. */

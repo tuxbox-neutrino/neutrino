@@ -86,8 +86,9 @@ inline AudioCodec audioCodecOf(CZapitAudioChannel::ZapitAudioChannelType t)
 }
 
 /* What the box holds about one channel's streams. The caller holds the channel
-   lock and src is the channel where it sits, not a copy: a copy carries none of
-   this by design.
+   lock and src is the channel where it sits: a copy carries the pids but
+   neither the table nor the track list (CZapitChannel::owned_t), so it would
+   always answer unknown.
 
    What decides known is the raw table the channel keeps. The channel stack
    stores that only when it read the layout off the transponder and throws it
