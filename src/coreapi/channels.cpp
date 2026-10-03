@@ -2,6 +2,7 @@
  * channels.cpp - channels, bouquets and zapping, above the zapit client
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -386,11 +387,14 @@ Result<uint32_t> position(const std::string &name)
 Result<void> writeOut()
 {
 	Status s = channelSource().saveBouquets();
-	if (s == Status::Ok)
-		s = channelSource().reloadBouquets();
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::BouquetNotChanged,
-			    "the change did not reach the box");
+			    "saving the bouquet files failed: the list the box runs carries "
+			    "the change, the files may not");
+	s = channelSource().reloadBouquets();
+	if (s != Status::Ok)
+		return fail(s, ErrorCode::BouquetNotChanged,
+			    "the change is saved, but the box did not number its lists again");
 
 	/* Said here and not at any of the seven, for the reason the writing out is
 	   here. The wait that makes it true is the announcing call's own. */

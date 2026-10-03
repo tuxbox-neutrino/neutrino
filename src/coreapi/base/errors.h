@@ -2,6 +2,7 @@
  * errors.h - the error codes the core API answers with
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -268,27 +269,35 @@ enum class ErrorCode
 	   box did not even take the request is the difference between a box to
 	   restart and a signal to look at. */
 	TunerNotReset,
-	/* The file holding the network filesystems could not be written, whether it
-	   could not be opened or the write did not land. One code, because it is
-	   written whole or not at all. */
+	/* The file holding the network filesystems was not saved: it could not be
+	   opened, the write did not land, or it is in place with its directory not
+	   synced, so a power cut could still bring the old one back. One code,
+	   because the file holds one whole table or the other. */
 	NetfsTableNotWritten,
 	// One code for the one thing a caller can do about it. Which call the
-	// filesystem turned down says nothing a caller acts on differently.
+	// filesystem turned down says nothing a caller acts on differently. A
+	// write refused at the very end may have put the new content in place
+	// already: what failed then was syncing its directory.
 	ChangeRefused,
 	/* The value did not land, whether the store turned the write down or the
 	   save after it did. The two are one act here: the value reaches the
 	   program only if both go through. */
 	SettingNotWritten,
-	/* The bouquet is not what was asked for, whether the box turned the change
-	   down, would not write the list out afterwards, or would not read it back.
-	   The change reaches the box only if all three go through.
+	/* The change did not go through all the way: the box turned it down,
+	   saving the list afterwards failed, or what follows the save did. The
+	   change counts only if all three go through.
 
 	   What it cannot promise is that nothing happened. A change made and not
-	   written out is one the box carries until it restarts. */
+	   saved is one the box carries until it restarts, and a save that put the
+	   files in place without syncing their directory can still be taken back
+	   by a power cut. */
 	BouquetNotChanged,
 	/* A plugin the box has and whose own file did not take the change. The flag
 	   that keeps a plugin out of the box's menus lives in that file and nowhere
-	   else, so a write that did not land is a plugin still shown. */
+	   else, so a write that did not land is a plugin still shown. Also answered
+	   when the file took the change but its directory could not be synced; the
+	   flag then counts from the next reading of the plugins, unless a power cut
+	   takes it back first. */
 	PluginNotChanged,
 	// The key was one the box has and the node it goes to did not take it.
 	KeyNotSent,

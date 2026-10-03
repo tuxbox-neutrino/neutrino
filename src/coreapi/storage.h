@@ -138,7 +138,8 @@ Result<int> openFile(const std::string &path);
 
    InvalidArgument for a name outside the roots and for one that does not end in something
    this can write, NotFound for one whose directory is not there, Conflict for a name that
-   is taken and for one whose side name is, Internal for a write that was not taken. */
+   is taken and for one whose side name is, Internal for a write that was not taken or one
+   put in place whose directory could not be synced. */
 enum class Wrote
 {
 	Created,

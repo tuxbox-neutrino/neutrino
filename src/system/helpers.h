@@ -67,9 +67,9 @@ bool file_exists(const char *filename);
    The side file has one name per file, not one per write: a write cut short by
    the end of the process, before commit() or the destructor could take the
    side file away, leaves no more than that one file behind, and the next write
-   of that file opens it again. Two writes of one file at the same time would
-   share it, though: a caller that may write a file from two threads keeps
-   those writes apart itself. */
+   of that file through this writer opens it again. Two writes of one file at
+   the same time would share it, though: a caller that may write a file from
+   two threads keeps those writes apart itself. */
 class CAtomicFileWriter
 {
 	public:
@@ -89,9 +89,12 @@ class CAtomicFileWriter
 		/* The name the bytes go to before they take the file's place. Reachable
 		   so that a caller who has to know whether one write is already running
 		   can ask rather than spell the name a second time, and a second
-		   spelling is one that can drift from the one actually opened. Only
-		   the constructor asks here, and for a file kept as a link it asks
-		   with the file the link leads to, not with the link. */
+		   spelling is one that can drift from the one actually opened. Asked
+		   by the constructor and by any caller that refuses to start a write
+		   while one is there. The constructor asks with the name it writes
+		   to: the file a followed link leads to, or the name it was given
+		   when it replaces a link. A caller that checks for a write already
+		   running asks with the name it will hand the constructor. */
 		static std::string sideNameFor(const std::string &path);
 
 		// Null when the side file could not be opened, or when a link could

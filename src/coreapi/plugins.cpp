@@ -240,7 +240,8 @@ Result<void> setHidden(const std::string &name, bool hidden)
 
 	if (!writeLines(found->config, lines))
 		return fail(Status::Internal, ErrorCode::PluginNotChanged,
-			    "the file the plugin " + name + " came from did not take the change");
+			    "saving the file the plugin " + name + " came from failed: it holds "
+			    "what it held, or the change with its directory not synced");
 	return ok();
 }
 

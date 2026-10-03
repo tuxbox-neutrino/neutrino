@@ -638,8 +638,12 @@ Result<Wrote> writeFile(const std::string &path, const std::string &bytes, bool 
 		// what was there before this call is what is there after it.
 		return fail(Status::Internal, ErrorCode::ChangeRefused, "the file " + path + " could not be written");
 
+	/* A no is the file as it was, or the new content in its place with its
+	   directory not synced, which a power cut could still take back. */
 	if (!writer.commit())
-		return fail(Status::Internal, ErrorCode::ChangeRefused, "the file " + path + " could not be written");
+		return fail(Status::Internal, ErrorCode::ChangeRefused,
+			    "saving the file " + path + " failed: it holds what it held, "
+			    "or the new content with its directory not synced");
 
 	return ok(what);
 }

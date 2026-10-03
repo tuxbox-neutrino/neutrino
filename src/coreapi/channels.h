@@ -2,6 +2,7 @@
  * channels.h - channels, bouquets and zapping, above the zapit client
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,9 +113,9 @@ Result<void> reloadChannels(bool hard);
    Every one of them writes the list out, reads it back, waits for the box to
    have carried the change out, and looks for that change in the list. So an ok
    is the list carrying what was asked for and not a command having been written
-   to a socket. The one thing an ok does not cover is the file the list was
-   written to: a box that could not keep it answers ok here and comes back at the
-   next start without the change.
+   to a socket. An ok also covers the files the list is saved to. A save that
+   failed is answered as not changed even though the list the box runs carries
+   the change; the files may not.
 
    The cost is paid per call, five changes being five writes and five reads. */
 

@@ -631,7 +631,8 @@ Result<void> writeSlots(Table t, const Slots &s)
 	if (!writer.commit())
 	{
 		return fail(Status::Internal, ErrorCode::NetfsTableNotWritten,
-			    "the file naming the network filesystems was not put in place");
+			    "saving the file naming the network filesystems failed: it holds "
+			    "the table it held, or the new one with its directory not synced");
 	}
 	return ok();
 }

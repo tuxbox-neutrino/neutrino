@@ -2,6 +2,7 @@
  * webconfig.cpp - the webserver own configuration file
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, rework, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1316,13 +1317,18 @@ bool writeShippedFile(const std::string &out_path, const std::string &old_path, 
    then created exclusively, so this never writes through a name somebody else decides the
    target of.
 
-   NOT THE WRITER IN system/helpers.h, which does the same three steps. Two things here
-   are not that one's: the directory entry naming the file is committed as well, which is
-   the difference between answering true and a box that comes up after a power cut with no
-   file at all, and a failure is said into the list beside this rather than onto the
-   standard error. That list is what a screen at the box shows somebody who has just been
-   refused, and a line on the standard error of a program drawing a television picture
-   reaches nobody.
+   NOT THE WRITER IN system/helpers.h, which also writes beside the file, commits it, puts
+   it in place and syncs the directory. What sets this one apart: the working name is
+   removed and then created exclusively, where that one opens a side file left behind
+   again; a directory sync that fails once the file is in place is said here and answered
+   true, where that one answers false, and a directory the filesystem cannot sync at all
+   (EINVAL) is such a failure here, where that one counts it as synced and says nothing;
+   and a failure is said into the list beside this and not only onto the standard error.
+   That list is what a screen at the box shows somebody who has just been refused, and a
+   line on the standard error of a program drawing a television picture reaches nobody.
+   Used here, that one would also have to be handed the owner-only mode and told to
+   replace a link: left to its defaults it makes the file readable by everybody and
+   follows a link at path.
 
    PATH ITSELF IS NEVER FOLLOWED EITHER, and the caller checks that before calling this:
    the step below puts a file at a name, so a name that is a link would have the link

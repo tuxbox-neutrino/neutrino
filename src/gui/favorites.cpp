@@ -101,9 +101,9 @@ int CFavorites::addChannelToFavorites(bool show_list)
 		(void) coreapi::channels::announceBouquetsChanged();
 
 		/* The channel is in the favourites the box is running on either way.
-		   What a failure costs is the next start, which finds the list without
-		   it, and that is worth saying before the viewer walks away believing
-		   otherwise. */
+		   What a failure can cost is the next start, which may find the list
+		   without it, and that is worth saying before the viewer walks away
+		   believing otherwise. */
 		if (!saved)
 			DisplayErrorMessage(g_Locale->getText(LOCALE_BOUQUETEDITOR_SAVEFAILED));
 	}
