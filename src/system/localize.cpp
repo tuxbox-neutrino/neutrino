@@ -120,9 +120,11 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	   against getString and against nothing else: a reader on another thread
 	   is safe only through getString, which waits for one string copy, and
 	   getText is not held. The REST layer is such a reader: it asks getString
-	   on the web server's threads for every label a settings schema answers
-	   with (coreapi's RealLocaleSource). Reading the file inside is what such
-	   a request waits for, and a language is loaded when somebody changes
+	   on the web server's threads for every catalogue label a settings schema
+	   answers with, through coreapi's RealLocaleSource and the video screen's
+	   CVideoSettingChoices (src/gui/videosettings.cpp), which a write of an
+	   analog mode asks as well. Reading the file inside is what such a
+	   request waits for, and a language is loaded when somebody changes
 	   it. */
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(catalog_mutex);
 

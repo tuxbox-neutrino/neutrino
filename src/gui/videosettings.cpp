@@ -460,7 +460,11 @@ static analog_offer analogMode2Offer()
    The text is what a person reads and not a name for the catalog. The video
    modes carry no locale at all, "1080p 50Hz" among them, and the analog tables
    carry one each, so both are turned into text here and a caller gets one
-   shape. */
+   shape.
+
+   Unlike an applier it is asked on the web server's threads and not on the
+   loop, for every settings schema and for every write of one of these
+   settings, which is why the labels below are copies. */
 class CVideoSettingChoices : public coreapi::SettingChoices
 {
 	public:
@@ -499,11 +503,22 @@ class CVideoSettingChoices : public coreapi::SettingChoices
 		static coreapi::Status fill(const analog_offer &offer,
 					    std::vector<coreapi::SettingChoice> &out)
 		{
+			/* A build configured with --enable-cleanup deletes the catalogue
+			   at the end of the program while the web server may still be
+			   asking; what asks after that is told the choices cannot be
+			   told. A request already past this line when it goes is not
+			   covered, the program ending right after. */
+			if (offer.count > 0 && g_Locale == NULL)
+				return coreapi::Status::NotFound;
 			for (unsigned i = 0; i < offer.count; i++)
 			{
 				coreapi::SettingChoice one;
 				one.value = offer.table[i].key;
-				one.label = g_Locale->getText(offer.table[i].value);
+				/* The copying accessor and not the one that hands the pointer
+				   over: a language being loaded on the loop frees the block
+				   that pointer names. test/unit/scan/check-list-reader-lock.sh
+				   holds this class to it. */
+				one.label = g_Locale->getString(offer.table[i].value);
 				out.push_back(one);
 			}
 			return coreapi::Status::Ok;

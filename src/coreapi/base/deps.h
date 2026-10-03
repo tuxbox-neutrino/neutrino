@@ -883,7 +883,11 @@ void installRealRecordingSafetySource();
    one box model and quietly wrong for the next.
 
    Reached upwards like the applier above: the lists are the screens' own and
-   this layer may not reach into the screens.
+   this layer may not reach into the screens. Unlike the applier, called on the
+   thread that asked: a worker of the web layer, for every schema and for every
+   write of such a setting, which is held to the list. An answer therefore
+   hands back copies of anything the loop replaces, the catalog's text among
+   them: CLocaleManager::getString and not getText.
 
    NotFound for a name nobody registered, which is not an empty list: a set that
    is really empty is a setting the box offers nothing for, and one nobody

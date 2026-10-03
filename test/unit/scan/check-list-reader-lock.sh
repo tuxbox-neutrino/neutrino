@@ -16,8 +16,10 @@
 #
 # The locale catalogue. Loading a language frees the block every entry in the
 # table points into and writes the table again, and the settings document names
-# a label out of it on a web thread. What that thread may ask for is the copying
-# accessor, taken under the same lock the load holds.
+# labels out of it on a web thread: the layer's own adapter for every row, and
+# the video screen for the analog modes it offers, which a write of one asks
+# for as well. What such a thread may ask for is the copying accessor, taken
+# under the same lock the load holds.
 #
 # None of these can be linked into the test binary, so all are checked as text.
 set -e
@@ -38,7 +40,8 @@ NEUTRINO="$SRC/src/neutrino.cpp"
 PICTURE="$SRC/src/driver/pictureviewer/pictureviewer.cpp"
 LOCALIZE="$SRC/src/system/localize.cpp"
 LOCALESRC="$SRC/src/coreapi/box/localesource_real.cpp"
-for f in "$STRIP" "$BLANK" "$PLUGINS" "$NEUTRINO" "$PICTURE" "$LOCALIZE" "$LOCALESRC"; do
+VIDEO="$SRC/src/gui/videosettings.cpp"
+for f in "$STRIP" "$BLANK" "$PLUGINS" "$NEUTRINO" "$PICTURE" "$LOCALIZE" "$LOCALESRC" "$VIDEO"; do
 	[ -r "$f" ] || { echo "check-list-reader-lock.sh: cannot read $f" >&2; exit 1; }
 done
 
@@ -54,6 +57,7 @@ prepare "$NEUTRINO" > "$tmp/neutrino"
 prepare "$PICTURE" > "$tmp/picture"
 prepare "$LOCALIZE" > "$tmp/localize"
 prepare "$LOCALESRC" > "$tmp/localesrc"
+prepare "$VIDEO" > "$tmp/video"
 
 body_of() {
 	awk -v pat="$2" '
@@ -247,5 +251,57 @@ if ! grep -q 'getString(' "$tmp/localesrc"; then
 	echo "  getString, so the scan has stopped matching" >&2
 	exit 1
 fi
+
+# A read of the catalogue that hands its pointer on. g_Locale is the one
+# catalogue the program has and nothing reaches it under another name, which
+# is what tells its getText apart from the other classes that have one.
+POINTER='g_Locale[[:blank:]]*->[[:blank:]]*getText(AsString)?[[:blank:]]*[(]'
+
+# The video screen answers the settings layer for the analog modes on the
+# same threads, for every schema and for every write of one, and its labels
+# come out of the same catalogue.
+body_of "$tmp/video" '^class CVideoSettingChoices' > "$tmp/choices"
+[ -s "$tmp/choices" ] || {
+	echo "check-list-reader-lock.sh: no CVideoSettingChoices class in" >&2
+	echo "  $VIDEO" >&2
+	exit 1
+}
+if grep -qE "$POINTER" "$tmp/choices"; then
+	echo "check-list-reader-lock.sh: the video screen's choices hand on a" >&2
+	echo "  pointer from getText, which a language being loaded frees under it" >&2
+	exit 1
+fi
+if ! grep -q 'getString(' "$tmp/choices"; then
+	echo "check-list-reader-lock.sh: the video screen's choices no longer read" >&2
+	echo "  their labels through getString, so the scan has stopped matching" >&2
+	exit 1
+fi
+
+# It is the only file outside the layer that names the choices at all. A second
+# one would answer for choices, or hand an answer in, on the same threads and is
+# not read above, so it fails here until it is, however it spells the base:
+# with or without public, virtual or the namespace, or over two lines.
+others=''
+for f in `cd "$SRC" && grep -rlw 'SettingChoices' src | grep -v '^src/coreapi/' | grep -v '^src/gui/videosettings[.]cpp$' || true`; do
+	prepare "$SRC/$f" | grep -qw 'SettingChoices' && others="$others $f"
+done
+others=`printf '%s\n' $others`
+if [ -n "$others" ]; then
+	echo "check-list-reader-lock.sh: another screen answers for choices, which" >&2
+	echo "  the checks above do not read:" >&2
+	printf '%s\n' "$others" | sed 's/^/  /' >&2
+	exit 1
+fi
+
+# Nor does any file under src/coreapi or src/httpd. The link stub of the
+# document dump defines a getText of its own and calls none, so it passes
+# without being named.
+for f in `cd "$SRC" && grep -rl 'getText' src/coreapi src/httpd | grep -E '[.](cpp|h)$' || true`; do
+	if prepare "$SRC/$f" | grep -qE "$POINTER"; then
+		echo "check-list-reader-lock.sh: $f hands on a pointer from getText on" >&2
+		echo "  the web server's threads, which a language being loaded frees under it" >&2
+		exit 1
+	fi
+done
 
 exit 0
