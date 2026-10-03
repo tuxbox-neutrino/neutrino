@@ -1671,10 +1671,14 @@ void COsdSetup::resetRadioText()
 				g_RadiotextWin = NULL;
 			}
 			unsigned int pid = 0;
+			bool latm = false;
 			if(!g_RemoteControl->current_PIDs.APIDs.empty())
+			{
 				pid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;
+				latm = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_aache;
+			}
 
-			g_Radiotext->setPid(pid);
+			g_Radiotext->setPid(pid, latm);
 			printf("\033[32m[COsdSetup] %s - %d: %d\033[0m\n", __func__, __LINE__, pid);
 		}
 	}

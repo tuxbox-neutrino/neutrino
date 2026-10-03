@@ -1532,7 +1532,10 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				infoViewerBB->showBBButtons(true /*paintFooter*/); // in case button text has changed
 			}
 			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio))
-				g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
+			{
+				const CZapitClient::responseGetAPIDs &apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid];
+				g_Radiotext->setPid(apid.pid, apid.is_aache);
+			}
 		}
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES) {

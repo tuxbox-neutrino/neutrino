@@ -89,6 +89,10 @@ class CRadioText : public OpenThreads::Thread, public sigc::trackable
 		void handleRdsMessage(unsigned char *mtext, int len);
 
 		uint pid;
+		/* Set with the PID: whether that audio is AAC in LATM, the one kind
+		   whose radio text is read out of LATM frames. Any other audio is
+		   MPEG audio carrying it in the ancillary data, read by PES_Receive. */
+		bool latm_stream;
 
 		OpenThreads::Mutex mutex;
 		OpenThreads::Mutex pidmutex;
@@ -109,7 +113,7 @@ class CRadioText : public OpenThreads::Thread, public sigc::trackable
 		char *ptynr2string(int nr);
 		char *rds_entitychar(char *text);
 
-		void setPid(uint inPid);
+		void setPid(uint inPid, bool latm = false);
 		uint getPid() { return pid; }
 
 		void radiotext_stop(void);

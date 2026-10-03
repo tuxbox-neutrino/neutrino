@@ -74,7 +74,8 @@ namespace
 {
 
 /**
- * LATM/RDS decode path:
+ * LATM/RDS decode path, taken only for audio the PMT gives as AAC in LATM
+ * (stream type 0x11, passed in with setPid):
  * - PES audio payload -> LATM sync (0x56, 0xe0 mask)
  * - parse StreamMuxConfig (audio_mux_version_A == 0)
  * - read LATM payload length and scan for DSE blocks
@@ -1649,6 +1650,7 @@ void CRadioText::RadioStatusMsg(void)
 CRadioText::CRadioText(void)
 {
 	pid = 0;
+	latm_stream = false;
 	audioDemux = NULL;
 	init();
 
@@ -1734,7 +1736,7 @@ void CRadioText::radiotext_stop(void)
 	}
 }
 
-void CRadioText::setPid(uint inPid)
+void CRadioText::setPid(uint inPid, bool latm)
 {
 	printf("CRadioText::setPid: ###################### old pid 0x%x new pid 0x%x ######################\n", pid, inPid);
 	if (!g_RadiotextWin)
@@ -1742,10 +1744,11 @@ void CRadioText::setPid(uint inPid)
 		g_RadiotextWin = new CRadioTextGUI();
 		g_RadiotextWin->allowPaint(false);
 	}
-	if (pid != inPid)
+	if (pid != inPid || latm_stream != latm)
 	{
 		mutex.lock();
 		pid = inPid;
+		latm_stream = latm;
 		init();
 		mutex.unlock();
 		cond.broadcast();
@@ -1806,8 +1809,11 @@ void CRadioText::run()
 			}
 			if (memcmp(tmp, "\000\000\001\300", 4))
 			{
+				/* Not the start of an audio PES packet: only LATM audio
+				   has anything to look for in it. */
 				mutex.lock();
-				processLatmFromPes(tmp, n);
+				if (latm_stream)
+					processLatmFromPes(tmp, n);
 				mutex.unlock();
 				continue;
 			}
@@ -1840,8 +1846,15 @@ void CRadioText::run()
 			if (n > 0)
 			{
 				//printf("."); fflush(stdout);
+				/* LATM frames only on LATM audio. Told from the content alone,
+				   a sync word turning up at random in MPEG audio set the
+				   LATM configuration valid, which then held for every packet
+				   until the next PID, and MPEG audio's own radio text was not
+				   read any more. */
 				mutex.lock();
-				if (!processLatmFromPes(buf, n))
+				if (latm_stream)
+					processLatmFromPes(buf, n);
+				else
 					PES_Receive(buf, n);
 				mutex.unlock();
 			}
