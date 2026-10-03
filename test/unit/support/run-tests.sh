@@ -49,6 +49,14 @@ if [ "`id -u`" != 0 ]; then
 	S5=$S5'~"a credential for part of the box reaches that part and no other root"'
 fi
 
+# The other way round: the directory sync case needs a directory its own
+# process cannot read, and root reads every directory, so a privileged run
+# leaves it out.
+S10=''
+if [ "`id -u`" = 0 ]; then
+	S10='~"a directory that cannot be synced makes the commit answer no with the file in place"'
+fi
+
 # Two builds, one truth, two places it is read from. The known half of
 # legacy-usage is levels.h at compile time upstream and CControlAPI's
 # dispatch table at run time here, and this binary carries no dispatcher;
@@ -73,6 +81,6 @@ S7='~"a reload that cannot read the file leaves the server on what it had"'
 # would otherwise hold the suite for ever, and a run that is killed says so
 # with timeout's own exit code instead of hanging silently.
 if command -v timeout >/dev/null 2>&1; then
-	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7$S8$S9" "$@"
+	exec timeout -k 30 900 "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7$S8$S9$S10" "$@"
 fi
-exec "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7$S8$S9" "$@"
+exec "$BIN" -w NoAssertions "$HIDDEN$S1$S5$S6$S7$S8$S9$S10" "$@"

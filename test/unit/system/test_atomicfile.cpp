@@ -2,6 +2,7 @@
  * test_atomicfile.cpp - tests for writing a file atomically
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,7 +145,7 @@ TEST_CASE("a file in a place that is not there is refused and writes nothing", "
 	REQUIRE_FALSE(exists(target));
 }
 
-TEST_CASE("a writer dropped without a commit leaves the file and the side file alone", "[helpers][atomicwrite]")
+TEST_CASE("a writer dropped without a commit leaves the file alone and takes the side file away", "[helpers][atomicwrite]")
 {
 	const std::string target = pathIn("dropped.xml");
 	const std::string sidecar = target + ".new";
@@ -167,22 +168,101 @@ TEST_CASE("a replaced file carries the mode it was asked for", "[helpers][atomic
 	const std::string target = pathIn("mode.xml");
 	unlink(target.c_str());
 
-	/* Not the mode a plain create would leave: the file the bouquets go into
-	   is readable by everybody and a side file that kept whatever the process
-	   mask allows would quietly change that. Owner only here, because it is
-	   the one value no mask can produce on its own. */
+	/* Not owner only, which is what the side file is made with and set back
+	   to when it is opened again: a group bit can only have come from the
+	   commit's fchmod, which the process mask does not narrow. While the
+	   bytes arrive the side file stays owner only. */
+	const mode_t wanted = S_IRUSR | S_IWUSR | S_IRGRP;
 	{
-		CAtomicFileWriter out(target, S_IRUSR | S_IWUSR);
+		CAtomicFileWriter out(target, wanted);
 		REQUIRE(out.file() != NULL);
+		struct stat side;
+		REQUIRE(fstat(fileno(out.file()), &side) == 0);
+		REQUIRE((side.st_mode & 07777) == (mode_t)(S_IRUSR | S_IWUSR));
 		fputs("x", out.file());
 		REQUIRE(out.commit());
 	}
 
 	struct stat st;
 	REQUIRE(stat(target.c_str(), &st) == 0);
-	REQUIRE((st.st_mode & 07777) == (mode_t)(S_IRUSR | S_IWUSR));
+	REQUIRE((st.st_mode & 07777) == wanted);
 
 	unlink(target.c_str());
+}
+
+TEST_CASE("a side file left behind is opened again empty and owner only", "[helpers][atomicwrite]")
+{
+	/* What a write cut off by the end of the process leaves: the side file,
+	   carrying the file's own mode already if the cut came between the
+	   commit's fchmod and its rename. The next write opens it again, and it
+	   has to start empty and owner only: otherwise the bytes arriving would be
+	   readable by everybody, and a shorter write would keep the old tail. */
+	const std::string target = pathIn("leftover.xml");
+	const std::string sidecar = target + ".new";
+	unlink(target.c_str());
+	put(sidecar, "stale and longer");
+	REQUIRE(chmod(sidecar.c_str(), 0644) == 0);
+
+	{
+		CAtomicFileWriter out(target);
+		REQUIRE(out.file() != NULL);
+		struct stat side;
+		REQUIRE(fstat(fileno(out.file()), &side) == 0);
+		REQUIRE((side.st_mode & 07777) == (mode_t)(S_IRUSR | S_IWUSR));
+		REQUIRE(side.st_size == 0);
+		fputs("new", out.file());
+		REQUIRE(out.commit());
+	}
+
+	const mode_t dflt = CAtomicFileWriter::DefaultMode;
+	struct stat st;
+	REQUIRE(stat(target.c_str(), &st) == 0);
+	REQUIRE((st.st_mode & 07777) == dflt);
+	REQUIRE(get(target) == "new");
+	REQUIRE_FALSE(exists(sidecar));
+
+	unlink(target.c_str());
+}
+
+TEST_CASE("a directory that cannot be synced makes the commit answer no with the file in place", "[helpers][atomicwrite]")
+{
+	/* Write and search but no read: the side file can be made there and put
+	   in the file's place, but the directory cannot be opened to sync it. The
+	   answer is no, because the new content may not survive a power cut, and
+	   nothing is undone, because it is in place. Root opens any directory,
+	   which is why the runner leaves this out of a privileged run. */
+	mkdir(kDir, 0755);
+	const std::string dir = std::string(kDir) + "/nosync";
+	chmod(dir.c_str(), 0755);
+	mkdir(dir.c_str(), 0755);
+	const std::string target = dir + "/f.xml";
+	const std::string sidecar = target + ".new";
+	put(target, "old");
+	/* Back to a mode the next run can work in however the case ends: a
+	   failed assertion below leaves the scope at once. */
+	struct ModeBack
+	{
+		std::string p;
+		explicit ModeBack(const std::string &d) : p(d) {}
+		~ModeBack() { chmod(p.c_str(), 0755); }
+	} back(dir);
+	REQUIRE(chmod(dir.c_str(), 0300) == 0);
+
+	bool committed;
+	{
+		CAtomicFileWriter out(target);
+		REQUIRE(out.file() != NULL);
+		fputs("new", out.file());
+		committed = out.commit();
+	}
+	REQUIRE(chmod(dir.c_str(), 0755) == 0);
+
+	REQUIRE_FALSE(committed);
+	REQUIRE(get(target) == "new");
+	REQUIRE_FALSE(exists(sidecar));
+
+	unlink(target.c_str());
+	rmdir(dir.c_str());
 }
 
 TEST_CASE("the name the bytes go to is the one the writer opens", "[helpers][atomicwrite]")

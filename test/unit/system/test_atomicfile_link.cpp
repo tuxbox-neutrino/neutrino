@@ -110,3 +110,102 @@ TEST_CASE("a writer told to replace links puts a file where the link was and lea
 	unlink(name.c_str());
 	unlink(elsewhere.c_str());
 }
+
+TEST_CASE("a chain of relative links is followed to the file at its end", "[helpers][atomicwrite]")
+{
+	/* Each link is read against the directory it sits in, and a link may
+	   name another one. What gets the bytes is the file the last link names,
+	   and both links stay as they were. */
+	const std::string real = inDir("chain-real.xml");
+	const std::string middle = inDir("chain-middle.xml");
+	const std::string link = inDir("chain-link.xml");
+	unlink(middle.c_str());
+	unlink(link.c_str());
+	{
+		FILE *f = fopen(real.c_str(), "w");
+		REQUIRE(f != NULL);
+		fputs("old", f);
+		fclose(f);
+	}
+	REQUIRE(symlink("chain-real.xml", middle.c_str()) == 0);
+	REQUIRE(symlink("chain-middle.xml", link.c_str()) == 0);
+
+	{
+		CAtomicFileWriter out(link);
+		REQUIRE(out.file() != NULL);
+		fputs("new", out.file());
+		REQUIRE(out.commit());
+	}
+
+	struct stat st;
+	REQUIRE(lstat(link.c_str(), &st) == 0);
+	CHECK(S_ISLNK(st.st_mode));
+	REQUIRE(lstat(middle.c_str(), &st) == 0);
+	CHECK(S_ISLNK(st.st_mode));
+	CHECK(read(real) == "new");
+
+	unlink(link.c_str());
+	unlink(middle.c_str());
+	unlink(real.c_str());
+}
+
+TEST_CASE("a link to a file not there yet makes that file", "[helpers][atomicwrite]")
+{
+	// The file the link names is what the user wants written, whether or not
+	// it is there already; the link stays and names it afterwards.
+	const std::string absent = inDir("dangling-target.xml");
+	const std::string link = inDir("dangling-link.xml");
+	unlink(absent.c_str());
+	unlink(link.c_str());
+	REQUIRE(symlink("dangling-target.xml", link.c_str()) == 0);
+
+	{
+		CAtomicFileWriter out(link);
+		REQUIRE(out.file() != NULL);
+		fputs("new", out.file());
+		REQUIRE(out.commit());
+	}
+
+	struct stat st;
+	REQUIRE(lstat(link.c_str(), &st) == 0);
+	CHECK(S_ISLNK(st.st_mode));
+	CHECK(read(absent) == "new");
+
+	unlink(link.c_str());
+	unlink(absent.c_str());
+}
+
+TEST_CASE("a link that ends in no plain file or goes round is refused", "[helpers][atomicwrite]")
+{
+	/* A device, a FIFO, a socket or a directory is no file to put in place,
+	   and a link that leads back to itself never ends. Nothing is written
+	   and the links stay as they were. */
+	const std::string device = inDir("to-device.xml");
+	const std::string loop_a = inDir("loop-a.xml");
+	const std::string loop_b = inDir("loop-b.xml");
+	unlink(device.c_str());
+	unlink(loop_a.c_str());
+	unlink(loop_b.c_str());
+	REQUIRE(symlink("/dev/null", device.c_str()) == 0);
+	REQUIRE(symlink("loop-b.xml", loop_a.c_str()) == 0);
+	REQUIRE(symlink("loop-a.xml", loop_b.c_str()) == 0);
+
+	const char *names[] = { "to-device.xml", "loop-a.xml" };
+	for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); i++)
+	{
+		INFO("written through " << names[i]);
+		CAtomicFileWriter out(inDir(names[i]));
+		CHECK(out.file() == NULL);
+		CHECK_FALSE(out.commit());
+	}
+
+	struct stat st;
+	REQUIRE(lstat(device.c_str(), &st) == 0);
+	CHECK(S_ISLNK(st.st_mode));
+	REQUIRE(lstat(loop_a.c_str(), &st) == 0);
+	CHECK(S_ISLNK(st.st_mode));
+
+	unlink(device.c_str());
+	unlink(loop_a.c_str());
+	unlink(loop_b.c_str());
+}
