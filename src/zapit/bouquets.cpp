@@ -901,6 +901,13 @@ bool CBouquetManager::toggleBouquetLock(const unsigned int id)
 
 void CBouquetManager::setBouquetLockLocked(CZapitBouquet* bouquet, bool state)
 {
+	/* A call that leaves the state as it is changes nothing. The count below
+	   is one per locked bouquet a channel sits in, so moving it for a bouquet
+	   that was locked already counted it twice, and for one that was open
+	   took the unsigned count below nought, which locks the channel until the
+	   channels themselves are read in again. */
+	if (bouquet->bLocked == state)
+		return;
 	bouquet->bLocked = state;
         int add = bouquet->bLocked * 2 - 1;
 
