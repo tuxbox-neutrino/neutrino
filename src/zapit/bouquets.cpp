@@ -550,27 +550,43 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 
 		INFO("reading bouquets from %s", fname);
 
+		/* Copied once, before the holds below, with getString, which takes the
+		   catalogue's own lock: this runs on the channel daemon's thread and
+		   on a scan's, where getText's pointer can be freed by a language
+		   being loaded. */
+		const std::string fav_caption = g_Locale->getString(LOCALE_FAVORITES_BOUQUETNAME);
+
 		while ((search = xmlGetNextOccurence(search, "Bouquet")) != NULL) {
 			const char * name = xmlGetAttribute(search, "name");
 			if(name == NULL)
 				name = const_cast<char*>("Unknown");
 
-			CZapitBouquet* newBouquet = addBouquet(name, bUser);
-			// per default in contructor: newBouquet->BqID = 0; //set to default, override if bqID exists
-			GET_ATTR(search, "bqID", SCANF_BOUQUET_ID_TYPE, newBouquet->BqID);
-			const char* hidden = xmlGetAttribute(search, "hidden");
-			const char* locked = xmlGetAttribute(search, "locked");
-			const char* scanepg = xmlGetAttribute(search, "epg");
-			const char* useci = xmlGetAttribute(search, "ci");
-			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
-			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
-			newBouquet->bFav = (strcasecmp(name, DEFAULT_BQ_NAME_FAV) == 0);
-			if (newBouquet->bFav)
-				newBouquet->bName = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
-			else
-				newBouquet->bName = name;
-			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
-			newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
+			CZapitBouquet* newBouquet;
+			{
+				/* Put into the vector and given its caption and its flags in
+				   one hold of the channel lock: threads other than this one
+				   walk the vector under it and read the names and the flags
+				   off each bouquet, and would otherwise find this one with the
+				   name of its file and none of what the file says. Given back
+				   before the channels below, whose add takes it itself. */
+				CServiceManager::ChannelGuard guard;
+				newBouquet = addBouquetLocked(name, bUser);
+				// per default in contructor: newBouquet->BqID = 0; //set to default, override if bqID exists
+				GET_ATTR(search, "bqID", SCANF_BOUQUET_ID_TYPE, newBouquet->BqID);
+				const char* hidden = xmlGetAttribute(search, "hidden");
+				const char* locked = xmlGetAttribute(search, "locked");
+				const char* scanepg = xmlGetAttribute(search, "epg");
+				const char* useci = xmlGetAttribute(search, "ci");
+				newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
+				newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
+				newBouquet->bFav = (strcasecmp(name, DEFAULT_BQ_NAME_FAV) == 0);
+				if (newBouquet->bFav)
+					newBouquet->bName = fav_caption;
+				else
+					newBouquet->bName = name;
+				newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
+				newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
+			}
 			channel_node = xmlChildrenNode(search);
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string name2;
@@ -757,7 +773,19 @@ void CBouquetManager::renumServices()
 	makeRemainingChannelsBouquet();
 }
 
+/* The vector changes below, and both forms of that move what is already in it:
+   an insert shifts the tail and either may take a longer block and copy the lot
+   into it. Threads other than this one walk the vector under the channel
+   manager's lock, so it is taken here; the Locked form is for a caller that
+   holds it already, and gives the bouquet its caption and flags in the same
+   hold. */
 CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bool myfav, bool to_begin)
+{
+	CServiceManager::ChannelGuard guard;
+	return addBouquetLocked(name, ub, myfav, to_begin);
+}
+
+CZapitBouquet* CBouquetManager::addBouquetLocked(const std::string & name, bool ub, bool myfav, bool to_begin)
 {
 	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? DEFAULT_BQ_NAME_FAV : name);
 	newBouquet->bUser = ub;
@@ -769,13 +797,6 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	newBouquet->satellitePosition = INVALID_SAT_POSITION;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
-	/* From here down the vector itself changes, and both forms of that move
-	   what is already in it: an insert shifts the tail and either may take a
-	   longer block and copy the lot into it. Threads other than this one walk
-	   the vector under the channel manager's lock, so it is taken here. Only
-	   around the change, the bouquet above being this thread's own until it
-	   goes in. */
-	CServiceManager::ChannelGuard guard;
 	if(ub) {
 		BouquetList::iterator it;
 		if (to_begin) {
@@ -828,13 +849,33 @@ void CBouquetManager::deleteBouquetLocked(const CZapitBouquet* bouquet)
 	}
 }
 
+/* Both this and toggleBouquetLock take the channel lock and neither calls the
+   other, the lock not being one a thread may take twice; what they share is
+   the body below. The flag is read under the lock on other threads, and the
+   count this moves on every channel of the bouquet is moved under it by
+   addService and removeService as well. Walked beside them without it, a list
+   can take a new block under the walk, and a count moved beside one of theirs
+   can lose one of the two changes. */
 void CBouquetManager::setBouquetLock(const unsigned int id, bool state)
 {
+	CServiceManager::ChannelGuard guard;
 	if (id < Bouquets.size())
-		setBouquetLock(Bouquets[id], state);
+		setBouquetLockLocked(Bouquets[id], state);
 }
 
-void CBouquetManager::setBouquetLock(CZapitBouquet* bouquet, bool state)
+/* The bouquet editor's toggle: the state is read and turned in one hold, with
+   the position checked in it, so the turn starts from the state of the bouquet
+   it turns. True when there was one to turn. */
+bool CBouquetManager::toggleBouquetLock(const unsigned int id)
+{
+	CServiceManager::ChannelGuard guard;
+	if (id >= Bouquets.size())
+		return false;
+	setBouquetLockLocked(Bouquets[id], !Bouquets[id]->bLocked);
+	return true;
+}
+
+void CBouquetManager::setBouquetLockLocked(CZapitBouquet* bouquet, bool state)
 {
 	bouquet->bLocked = state;
         int add = bouquet->bLocked * 2 - 1;

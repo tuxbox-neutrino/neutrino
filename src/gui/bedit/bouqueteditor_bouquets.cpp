@@ -36,6 +36,7 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput.h>
 #include <zapit/client/zapittools.h>
+#include <zapit/getservices.h>
 
 #include "bouqueteditor_bouquets.h"
 #include "bouqueteditor_channels.h"
@@ -478,13 +479,33 @@ void CBEBouquetWidget::renameBouquet()
 	if ((*Bouquets)[selected]->bFav)
 		return;
 
-	std::string newName = inputName((*Bouquets)[selected]->Name.c_str(), LOCALE_BOUQUETEDITOR_NEWBOUQUETNAME);
-	if (newName != (*Bouquets)[selected]->Name)
+	/* The bouquet's number and its name as the input opens, to know it again
+	   after it: the input runs a message loop of its own, and a reload or a
+	   change sent over the network may rebuild the list or move the bouquets
+	   meanwhile. The number is never given to another bouquet; an address can
+	   be, to one made since. */
+	const unsigned int serial = (*Bouquets)[selected]->serial;
+	const std::string oldName = (*Bouquets)[selected]->Name;
+	std::string newName = inputName(oldName.c_str(), LOCALE_BOUQUETEDITOR_NEWBOUQUETNAME);
 	{
-		g_bouquetManager->Bouquets[selected]->Name = newName;
-		g_bouquetManager->Bouquets[selected]->bName = newName;
-		g_bouquetManager->Bouquets[selected]->bUser = true;
-		bouquetsChanged = true;
+		/* Under the channel lock, which threads other than this one read the
+		   bouquet names under, and only around the write. Only the bouquet the
+		   input was opened for is renamed: still at its position and still
+		   under its old name. One that went or moved is left alone, and so is
+		   whatever stands at the position now; a cancelled input hands the old
+		   name back and renames nothing. Through setName, which moves both
+		   names as the channel daemon's rename does. */
+		CServiceManager::ChannelGuard guard;
+		if (selected < g_bouquetManager->Bouquets.size())
+		{
+			CZapitBouquet *bouquet = g_bouquetManager->Bouquets[selected];
+			if (bouquet->serial == serial && bouquet->Name == oldName && newName != oldName)
+			{
+				bouquet->setName(newName);
+				bouquet->bUser = true;
+				bouquetsChanged = true;
+			}
+		}
 	}
 	paintHead();
 	paintBody();
@@ -494,15 +515,24 @@ void CBEBouquetWidget::renameBouquet()
 
 void CBEBouquetWidget::switchHideBouquet()
 {
-	bouquetsChanged = true;
-	(*Bouquets)[selected]->bHidden = !(*Bouquets)[selected]->bHidden;
+	{
+		// Under the channel lock, which other threads read the flag under,
+		// and with the position checked in the same hold. A change only
+		// when one was turned.
+		CServiceManager::ChannelGuard guard;
+		if (selected < Bouquets->size()) {
+			(*Bouquets)[selected]->bHidden = !(*Bouquets)[selected]->bHidden;
+			bouquetsChanged = true;
+		}
+	}
 	paintItems();
 }
 
 void CBEBouquetWidget::switchLockBouquet()
 {
-	bouquetsChanged = true;
-	g_bouquetManager->setBouquetLock((*Bouquets)[selected], !(*Bouquets)[selected]->bLocked);
+	// Read and turned in one hold of the channel lock, as hiding above.
+	if (g_bouquetManager->toggleBouquetLock(selected))
+		bouquetsChanged = true;
 	paintItems();
 }
 

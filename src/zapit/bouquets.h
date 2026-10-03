@@ -6,6 +6,7 @@
 #define __bouquets_h__
 
 #include <algorithm>
+#include <atomic>
 #include <cstdio>
 #include <functional>
 #include <map>
@@ -59,8 +60,23 @@ class CZapitBouquet
 	ZapitChannelList radioChannels;
 	ZapitChannelList tvChannels;
 
+	/* Given when the bouquet is made and never to another one, so that a
+	   caller that let go of the channel lock can tell this bouquet from one
+	   made later at the same address. Counted up and never back, on
+	   whatever thread a bouquet is made. A bouquet is neither copied nor
+	   assigned over: either would leave two bouquets under one number. */
+	unsigned int serial;
+	static unsigned int makeSerial()
+	{
+		static std::atomic<unsigned int> last(0);
+		return ++last;
+	}
+	CZapitBouquet(const CZapitBouquet &) = delete;
+	CZapitBouquet &operator=(const CZapitBouquet &) = delete;
+
 	inline CZapitBouquet(const std::string name)
 	{
+		serial = makeSerial();
 		Name = name;
 		bName = name;
 		BqID=DEFAULT_BQ_ID;
@@ -80,7 +96,8 @@ class CZapitBouquet
 	   on screen prints, and it only ever differs from Name for the two
 	   built in bouquets whose caption comes from the locale. Leaving bName
 	   behind lets a second bouquet be created under the caption the renamed
-	   one still shows. */
+	   one still shows. The caller holds the channel manager's lock:
+	   threads other than the writer's read both names under it. */
 	void setName(const std::string &name)
 	{
 		Name = name;
@@ -134,8 +151,10 @@ class CBouquetManager : public OpenThreads::Thread
 		//remap epg_id
 		std::map<t_channel_id, t_channel_id> EpgIDMapping;
 		std::map<t_channel_id, std::string> EpgXMLMapping;
-		// Caller holds the channel manager's lock.
+		// Caller holds the channel manager's lock, for all three.
 		void deleteBouquetLocked(const CZapitBouquet* bouquet);
+		CZapitBouquet* addBouquetLocked(const std::string & name, bool ub = false, bool myfav = false, bool to_begin = false);
+		void setBouquetLockLocked(CZapitBouquet* bouquet, bool state);
 		void readEPGMapping();
 		t_channel_id reMapEpgID(t_channel_id channelid);
 		std::string reMapEpgXML(t_channel_id channelid);
@@ -208,7 +227,7 @@ class CBouquetManager : public OpenThreads::Thread
 
 		void sortBouquets(void);
 		void setBouquetLock(const unsigned int id, bool state);
-		void setBouquetLock(CZapitBouquet* bouquet, bool state);
+		bool toggleBouquetLock(const unsigned int id);
 		void loadWebtv();
 		void loadWebradio();
 		void loadLogos();

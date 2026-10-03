@@ -2029,9 +2029,21 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CZapitMessages::commandRenameBouquet msgRenameBouquet;
 		CBasicServer::receive_data(connfd, &msgRenameBouquet, sizeof(msgRenameBouquet)); // bouquet & channel number are already starting at 0!
 		char * name = CBasicServer::receive_string(connfd);
-		if (msgRenameBouquet.bouquet < g_bouquetManager->Bouquets.size()) {
-			g_bouquetManager->Bouquets[msgRenameBouquet.bouquet]->setName(name);
-			g_bouquetManager->Bouquets[msgRenameBouquet.bouquet]->bUser = true;
+		{
+			/* Under the channel lock, which threads other than this one walk
+			   the bouquets under and read both names under: setName assigns
+			   the two strings, and an assignment that needs a longer buffer
+			   frees the old one under a reader copying it. The index check is
+			   in the same hold, so a reload on another thread cannot free the
+			   bouquet between the check and the write. Taken after the socket
+			   is read, so a client that is slow to send holds up nobody. A
+			   name the client did not send in full comes back as NULL, and
+			   that is no name. */
+			CServiceManager::ChannelGuard guard;
+			if (name && msgRenameBouquet.bouquet < g_bouquetManager->Bouquets.size()) {
+				g_bouquetManager->Bouquets[msgRenameBouquet.bouquet]->setName(name);
+				g_bouquetManager->Bouquets[msgRenameBouquet.bouquet]->bUser = true;
+			}
 		}
 		CBasicServer::delete_string(name);
 		break;
@@ -2113,6 +2125,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_BQ_SET_HIDDENSTATE: {
 		CZapitMessages::commandBouquetState msgBouquetHiddenState;
 		CBasicServer::receive_data(connfd, &msgBouquetHiddenState, sizeof(msgBouquetHiddenState)); // bouquet & channel number are already starting at 0!
+		// The same lock and the same hold as the rename above.
+		CServiceManager::ChannelGuard guard;
 		if (msgBouquetHiddenState.bouquet < g_bouquetManager->Bouquets.size())
 			g_bouquetManager->Bouquets[msgBouquetHiddenState.bouquet]->bHidden = msgBouquetHiddenState.state;
 		break;
