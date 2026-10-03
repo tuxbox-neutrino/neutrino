@@ -23,6 +23,7 @@
 #include "ywebserver.h"
 #include <httpd/server_control.h>
 
+#include <atomic>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -829,7 +830,7 @@ TEST_CASE("a lingering close lets the answer reach a caller that is still sendin
 	TcpPair tcp;
 	REQUIRE(tcp.sfd >= 0);
 	const std::string chunk(65536, 'x');
-	volatile bool sent_all = false;
+	std::atomic<bool> sent_all(false);
 	std::thread sender([&tcp, &chunk, &sent_all]() {
 		for (int i = 0; i < 64; i++)
 			if (send(tcp.cfd, chunk.data(), chunk.size(), MSG_NOSIGNAL) != (ssize_t) chunk.size())
@@ -849,7 +850,7 @@ TEST_CASE("a lingering close lets the answer reach a caller that is still sendin
 	int ended = 1;
 	const std::string got = readAll(tcp.cfd, 5000, &ended);
 	sender.join();
-	CHECK(sent_all);
+	CHECK(sent_all.load());
 	CHECK(got == answer);
 	CHECK(ended == 0);
 }
@@ -860,7 +861,7 @@ TEST_CASE("a lingering close gives up at its deadline", "[nhttpd]")
 	   longer than the deadline, whatever the cap. */
 	TcpPair tcp;
 	REQUIRE(tcp.sfd >= 0);
-	volatile bool stop = false;
+	std::atomic<bool> stop(false);
 	const std::string chunk(65536, 'x');
 	std::thread sender([&tcp, &chunk, &stop]() {
 		while (!stop)
@@ -990,7 +991,7 @@ TEST_CASE("a POST whose caller closes inside the header ends the request", "[nht
 	REQUIRE(write(fd[1], req, sizeof(req) - 1) == (ssize_t) (sizeof(req) - 1));
 	close(fd[1]);
 
-	volatile bool done = false;
+	std::atomic<bool> done(false);
 	std::thread watchdog([&done]() {
 		for (int i = 0; i < 500 && !done; i++)
 			usleep(10 * 1000);
@@ -1026,7 +1027,7 @@ static bool handleCutPost(const std::string &request)
 	REQUIRE(write(fd[1], request.data(), request.size()) == (ssize_t) request.size());
 	close(fd[1]);
 
-	volatile bool done = false;
+	std::atomic<bool> done(false);
 	std::thread watchdog([&done]() {
 		for (int i = 0; i < 500 && !done; i++)
 			usleep(10 * 1000);
@@ -1092,7 +1093,7 @@ TEST_CASE("a method this server does not serve gets its 501 past the unread head
 	for (int i = 0; i < 4000; i++)
 		request += "X-Padding-" + std::to_string(i) + ": " + std::string(1000, 'p') + "\r\n";
 	request += "\r\n";
-	volatile bool sent_all = false;
+	std::atomic<bool> sent_all(false);
 	std::thread sender([&tcp, &request, &sent_all]() {
 		size_t done = 0;
 		while (done < request.size()) {
@@ -1119,7 +1120,7 @@ TEST_CASE("a method this server does not serve gets its 501 past the unread head
 	int ended = 1;
 	const std::string got = readAll(tcp.cfd, 5000, &ended);
 	sender.join();
-	CHECK(sent_all);
+	CHECK(sent_all.load());
 	CHECK(got.find("HTTP/1.0 501") == 0);
 }
 
