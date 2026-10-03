@@ -55,6 +55,8 @@ fi
 S10=''
 if [ "`id -u`" = 0 ]; then
 	S10='~"a directory that cannot be synced makes the commit answer no with the file in place"'
+	# same class: the file manager's save into such a directory.
+	S10=$S10'~"a save whose directory cannot be synced says the new content may be in place"'
 fi
 
 # Two builds, one truth, two places it is read from. The known half of

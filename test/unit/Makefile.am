@@ -73,6 +73,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_shellcontract.cpp \
 	system/test_mysystem.cpp \
 	coreapi/test_storage.cpp \
+	coreapi/test_storage_write.cpp \
 	coreapi/test_shelltable.cpp \
 	coreapi/test_daemons.cpp \
 	coreapi/test_settingssource.cpp \
@@ -226,6 +227,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-wire-arms-top-level.sh \
 	scan/check-settings-input-open.sh \
 	scan/check-channellist-announce.sh \
+	scan/check-storage-write-link.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
 	scan/settingstext.awk \
@@ -378,4 +380,5 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-wire-arms-top-level.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-settings-input-open.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-channellist-announce.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-storage-write-link.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
