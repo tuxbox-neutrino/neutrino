@@ -24,6 +24,7 @@
 
 #include "coreapi/base/deps.h"
 #include "coreapi/base/errors.h"
+#include "coreapi/box/storage_internal.h"
 #include "shellcontract.h"
 
 #include <cstddef>
@@ -209,6 +210,12 @@ Result<void> setHidden(const std::string &name, bool hidden)
 	if (found->config.empty())
 		return fail(Status::NotSupported, ErrorCode::PluginNotChanged,
 			    "this box cannot say which file the plugin " + name + " came from");
+
+	/* From the read to the commit, so that two changes of one plugin's file
+	   do not share the side file it is written to (storage_internal.h), and a
+	   change cannot read the file between another one's read and write. Taken
+	   after the list, which holds the plugin list's own lock while it reads. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(storage::internal::wholeFileWriteMutex());
 
 	std::vector<std::string> lines;
 	if (!readLines(found->config, lines))

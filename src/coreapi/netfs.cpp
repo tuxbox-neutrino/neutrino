@@ -23,6 +23,7 @@
 #include "netfs.h"
 
 #include "coreapi/base/errors.h"
+#include "coreapi/box/storage_internal.h"
 #include "shellcontract.h"
 
 #include <cerrno>
@@ -723,6 +724,11 @@ Result<void> write(Table t, size_t slot, const Entry &e)
 	if (!shape.ok())
 		return fail(shape.error());
 
+	/* From the read to the commit, so that a second change of the table can
+	   neither read it in between and write back what this one replaced nor
+	   share the side file the table is written to (storage_internal.h). */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(storage::internal::wholeFileWriteMutex());
+
 	Result<Slots> got = readWithPasswords(t);
 	if (!got.ok())
 		return fail(got.error());
@@ -751,6 +757,9 @@ Result<void> clear(Table t, size_t slot)
 		return fail(Status::NotFound, ErrorCode::NoSuchName,
 			    "there is no such slot in the file naming the network filesystems");
 	}
+
+	// The same as for a write above.
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(storage::internal::wholeFileWriteMutex());
 
 	Result<Slots> got = readWithPasswords(t);
 	if (!got.ok())

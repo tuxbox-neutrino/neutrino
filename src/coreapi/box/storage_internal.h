@@ -23,6 +23,8 @@
 
 #include "coreapi/base/types.h"
 
+#include <OpenThreads/Mutex>
+
 namespace coreapi
 {
 namespace storage
@@ -71,6 +73,17 @@ FileKind kindOf(unsigned char d_type);
 typedef void (*Probe)(void);
 void setOpenProbeForTest(Probe p);
 void setWriteProbeForTest(Probe p);
+
+/* Held by every whole-file write of this layer, from the read or the look at
+   what is there to the commit: the file manager's writes, the tables naming the
+   network filesystems and a plugin's descriptor. CAtomicFileWriter writes
+   beside a file under one name per file, so two writes of one file at the same
+   time would share that side file, and the writer leaves keeping them apart to
+   its caller. One lock for all three, because the file manager's roots reach
+   the files the other two write. The box's own savers on its other threads do
+   not take it; against those the file manager's refusal of a side file that is
+   already there is the only guard. */
+OpenThreads::Mutex &wholeFileWriteMutex();
 
 } // namespace internal
 } // namespace storage

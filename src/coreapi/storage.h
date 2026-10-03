@@ -2,6 +2,7 @@
  * storage.h - mounts, directories and files on the box
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,11 +127,11 @@ Result<int> openFile(const std::string &path);
    there before or all of what arrived, and a write that fails partway takes the side file
    away again.
 
-   The side name is the file's own with a word after it, so a second write of the same file
-   while one is running, and the remains of one that was cut off, are both refused rather
-   than written through. That refusal is also what keeps the open from following something
-   planted at the side name: this opens a name it worked out rather than one a caller wrote,
-   and only when nothing is there.
+   The side name is the file's own with a word after it. Writes through this layer are kept
+   apart by a lock, and a side file that is there at the time of the look - the remains of a
+   write that was cut off, or a write of the box's own still running - is refused rather
+   than written through. What keeps the open from following something planted at the side
+   name is the writer's own O_NOFOLLOW.
 
    Without overwrite a taken name is a conflict and nothing is written. What may be replaced
    this way is a plain file and nothing else.

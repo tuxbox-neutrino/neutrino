@@ -94,6 +94,12 @@ Probe write_probe = NULL;
 
 void setOpenProbeForTest(Probe p) { open_probe = p; }
 void setWriteProbeForTest(Probe p) { write_probe = p; }
+
+OpenThreads::Mutex &wholeFileWriteMutex()
+{
+	static OpenThreads::Mutex m;
+	return m;
+}
 }
 
 namespace
@@ -583,6 +589,12 @@ Result<Wrote> writeFile(const std::string &path, const std::string &bytes, bool 
 		return fail(resolved.error());
 	const std::string target = resolved.value();
 
+	/* From the look at what is there to the commit, so that two writes of one
+	   file through this layer neither share the side file nor both pass the
+	   look below (storage_internal.h). Taken before the writer is made, so that
+	   its destructor, which takes the side file away again, runs under it too. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(internal::wholeFileWriteMutex());
+
 	struct stat st;
 	Wrote what = Wrote::Created;
 	// lstat and not stat, so that a name which is a link is answered for as a
@@ -599,17 +611,20 @@ Result<Wrote> writeFile(const std::string &path, const std::string &bytes, bool 
 
 	/* Where the bytes go before they take the name. Asked of the writer rather than spelled
 	   again here, a second spelling being able to drift from the name actually opened.
-	   Something already there is either a second write of this file still running or what one
-	   that was cut off left behind: the first would interleave two callers' bytes into one
-	   file, and the second is a name somebody has to look at. */
+	   Something already there is what a write that was cut off left behind, or a write of
+	   this file by one of the box's own savers still running - not one through this layer,
+	   which the lock above keeps out. The second would interleave two writers' bytes into one
+	   file, and the first is a name somebody has to look at. */
 	const std::string side = CAtomicFileWriter::sideNameFor(target);
 	if (lstat(side.c_str(), &st) == 0)
 		return fail(Status::Conflict, ErrorCode::SideFileInTheWay,
-			    "a file is already being written beside " + path);
+			    "there is already a file beside " + path + " under the name a new one is written to: "
+			    "another write of it still running, or what one that was cut off left behind");
 
-	/* The name was found a plain file above. Should a link have taken its
-	   place since, it is replaced and not followed: followed, it would carry
-	   the bytes to wherever it points, out of the root. */
+	/* The name was found a plain file above, or not there at all. Should a
+	   link have taken its place since, a dangling one included, it is replaced
+	   and not followed: followed, it would carry the bytes to wherever it
+	   points, out of the root. */
 	CAtomicFileWriter writer(target, CAtomicFileWriter::DefaultMode, CAtomicFileWriter::ReplaceLink);
 	FILE *out = writer.file();
 	if (out == NULL)
