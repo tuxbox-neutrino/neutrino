@@ -711,11 +711,12 @@ Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &id
 
 Result<void> announceBouquetsChanged()
 {
-	/* The wait first. None of the writes the box is given is answered by the
-	   box, so the call that sent one comes back while the box still has it in
-	   front of it, and a reader woken any earlier would read the bouquet in the
-	   middle of being renumbered: the numbers handed back in and the bouquet
-	   holding everything no other one holds emptied and refilling. */
+	/* The wait first. Of what it is given the box answers only the save, as
+	   soon as the files are out, and it numbers the lists again after that
+	   answer, so the call that sent the last command comes back while the box
+	   still has work of it in front of it. A reader woken any earlier would
+	   find the change with the numbering and the bouquet of everything no
+	   other bouquet holds from before it, and go away with that. */
 	Status s = channelSource().awaitCommands();
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::BouquetNotChanged,

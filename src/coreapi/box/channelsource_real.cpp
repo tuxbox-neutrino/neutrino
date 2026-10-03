@@ -192,8 +192,14 @@ class RealChannelSource : public ChannelSource
 		/* The channel lock covers the bouquet vector as well as the channel
 		   map: a reload frees every bouquet in it from another thread, and the
 		   two counts below are the length of lists that thread empties and
-		   fills. Held across the whole walk, because what it is holding off is
-		   the freeing of what the walk is reading. */
+		   fills. It covers each bouquet's two names and its hidden, locked and
+		   user flags too, every writer of those taking it, which is what makes
+		   the copies below whole; the channels' numbers, which the renumbering
+		   hands out in one hold; and their lock and state flags, which the
+		   bouquet load, the web channel load, the channel list and the editors
+		   set under it, a scan's marks aside. Held across the whole walk,
+		   because what it is holding off is the freeing of what the walk is
+		   reading. */
 		Status allBouquets(BouquetList &out) const
 		{
 			if (!g_bouquetManager)

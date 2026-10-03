@@ -162,8 +162,8 @@ Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &id
 
    The waiting cannot be left out. The box answers a write of the lists as soon as
    the files are out and numbers the lists again after answering, so a reader
-   woken before that reads the numbers being handed back in and the bouquet of
-   everything no other bouquet holds emptied and refilling. */
+   woken before that reads the change with the numbering and the bouquet of
+   everything no other bouquet holds from before it. */
 Result<void> announceBouquetsChanged();
 
 /* The saying without the waiting, for a screen that wrote the bouquets out
