@@ -2,7 +2,9 @@
  * Network configuration through systemd-networkd
  *
  * One file per interface in /etc/systemd/network holds the settings made
- * here, networkd picks it up on "networkctl reload".
+ * here, networkd picks it up on "networkctl reload". A wireless interface
+ * whose addresses iwd sets itself keeps them in the [IPv4] section of the
+ * profile iwd has stored for the connected network instead.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +21,7 @@
  */
 #include <config.h>
 #include <arpa/inet.h>
+#include <ctype.h>
 #include <cstdio>
 #include <errno.h>
 #include <stdint.h>
@@ -30,12 +33,19 @@
 #include "configure_network.h"
 #include <lib/libnet/libnet.h>
 #include <fstream>
+#include <utility>
+#include <vector>
 #include <system/helpers.h>
+#ifdef ENABLE_IWD
+#include <system/iwd_client.h>
+#endif
 
 #define NETWORKD_CONFIG_DIR "/etc/systemd/network"
 /* sorts before the distribution's catch-all files such as 80-wired.network */
 #define NETWORKD_CONFIG_PREFIX "50-neutrino-"
 #define NETWORKD_RUNTIME_DIR "/run/systemd/netif"
+#define IWD_MAIN_CONFIG "/etc/iwd/main.conf"
+#define IWD_STORAGE_DIR "/var/lib/iwd"
 
 static std::string config_file(const std::string &ifname)
 {
@@ -78,14 +88,107 @@ static std::string prefix_to_netmask(int prefix)
 	return inet_ntop(AF_INET, &in, buf, sizeof(buf)) ? buf : "";
 }
 
+static bool is_wireless(const std::string &ifname)
+{
+	return access(("/sys/class/net/" + ifname + "/wireless").c_str(), F_OK) == 0;
+}
+
+/* iwd sets the addresses of its interfaces itself, networkd leaves them alone */
+static bool iwd_configures_network(void)
+{
+	std::ifstream in(IWD_MAIN_CONFIG);
+	std::string line, section;
+	bool enabled = false;
+	while (getline(in, line))
+	{
+		line = trim(line);
+		if (line.empty() || line[0] == '#')
+			continue;
+		if (line[0] == '[')
+		{
+			section = line;
+			continue;
+		}
+		std::string::size_type eq = line.find('=');
+		if (section == "[General]" && eq != std::string::npos && trim(line.substr(0, eq)) == "EnableNetworkConfiguration")
+			enabled = (trim(line.substr(eq + 1)) == "true");
+	}
+	return enabled;
+}
+
+/* the settings file iwd keeps for the network the interface is connected
+ * to, the address settings of a network go into its [IPv4] section */
+static std::string iwd_profile(const std::string &ifname)
+{
+#ifdef ENABLE_IWD
+	CIwdClient *iwd = CIwdClient::getInstance();
+	if (!iwd->available() || iwd->deviceName() != ifname)
+		return "";
+
+	std::vector<iwd_network> networks;
+	iwd->getNetworks(networks);
+	for (size_t i = 0; i < networks.size(); i++)
+	{
+		const iwd_network &n = networks[i];
+		if (!n.connected || n.known_path.empty())
+			continue;
+
+		/* names with other characters than these are stored hex encoded */
+		bool plain = true;
+		for (size_t c = 0; c < n.name.length() && plain; c++)
+			plain = isalnum((unsigned char)n.name[c]) || strchr(" _-", n.name[c]);
+		std::string file = n.name;
+		if (!plain)
+		{
+			file = "=";
+			for (size_t c = 0; c < n.name.length(); c++)
+			{
+				char hex[3];
+				snprintf(hex, sizeof(hex), "%02x", (unsigned char)n.name[c]);
+				file += hex;
+			}
+		}
+		file = std::string(IWD_STORAGE_DIR "/") + file + "." + n.type;
+		return access(file.c_str(), R_OK | W_OK) == 0 ? file : "";
+	}
+#else
+	(void)ifname;
+#endif
+	return "";
+}
+
+static bool write_file(const std::string &file, const std::string &content, mode_t mode)
+{
+	std::string tmp = file + ".new";
+	unlink(tmp.c_str());
+	int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, mode);
+	if (fd < 0)
+	{
+		perror(tmp.c_str());
+		return false;
+	}
+	bool ok = write(fd, content.c_str(), content.length()) == (ssize_t)content.length();
+	ok = (fchmod(fd, mode) == 0) && ok;
+	ok = (fsync(fd) == 0) && ok;
+	close(fd);
+	if (!ok || rename(tmp.c_str(), file.c_str()) < 0)
+	{
+		perror(file.c_str());
+		unlink(tmp.c_str());
+		return false;
+	}
+	return true;
+}
+
 bool CNetworkConfig::canConfigure(void)
 {
-	/* a wireless interface is left to the wireless daemon */
-	if (wireless)
-		return false;
 	if (systemManaged())
 		return false;
-	return access(NETWORKD_RUNTIME_DIR, F_OK) == 0;
+	if (access(NETWORKD_RUNTIME_DIR, F_OK) != 0)
+		return false;
+	if (is_wireless(ifname) && iwd_configures_network())
+		return !iwd_profile(ifname).empty();
+	return true;
 }
 
 bool CNetworkConfig::hasAutomaticStart(void)
@@ -93,10 +196,114 @@ bool CNetworkConfig::hasAutomaticStart(void)
 	return false;
 }
 
+static void read_iwd_profile(const std::string &file, std::string &address, std::string &netmask, std::string &gateway, std::string &nameserver)
+{
+	std::ifstream in(file.c_str());
+	std::string line, section;
+	while (getline(in, line))
+	{
+		line = trim(line);
+		if (line.empty() || line[0] == '#')
+			continue;
+		if (line[0] == '[')
+		{
+			section = line;
+			continue;
+		}
+		std::string::size_type eq = line.find('=');
+		if (eq == std::string::npos || section != "[IPv4]")
+			continue;
+
+		std::string name = trim(line.substr(0, eq));
+		std::string value = trim(line.substr(eq + 1));
+		if (name == "Address")
+			address = value;
+		else if (name == "Netmask")
+			netmask = value;
+		else if (name == "Gateway")
+			gateway = value;
+		else if (name == "DNS")
+			nameserver = value.substr(0, value.find(' '));
+	}
+}
+
+/* the profile without the address settings, with new ones when static;
+ * an [IPv4] section that is left empty goes */
+static std::string iwd_profile_content(const std::string &file, const std::string &ipv4)
+{
+	std::ifstream in(file.c_str());
+	std::vector<std::pair<std::string, std::string> > sections(1);
+	std::string line;
+	while (getline(in, line))
+	{
+		std::string t = trim(line);
+		if (!t.empty() && t[0] == '[')
+		{
+			sections.push_back(std::make_pair(t, ""));
+			continue;
+		}
+		std::string::size_type eq = t.find('=');
+		if (sections.back().first == "[IPv4]" && eq != std::string::npos)
+		{
+			std::string name = trim(t.substr(0, eq));
+			if (name == "Address" || name == "Netmask" || name == "Gateway" || name == "Broadcast" || name == "DNS")
+				continue;
+		}
+		if (!t.empty())
+			sections.back().second += line + "\n";
+	}
+
+	bool written = false;
+	for (size_t i = 0; i < sections.size(); i++)
+		if (sections[i].first == "[IPv4]" && !written)
+		{
+			sections[i].second = ipv4 + sections[i].second;
+			written = true;
+		}
+	if (!written)
+		sections.push_back(std::make_pair(std::string("[IPv4]"), ipv4));
+
+	std::string out;
+	for (size_t i = 0; i < sections.size(); i++)
+	{
+		if (sections[i].first.empty())
+		{
+			out += sections[i].second;
+			continue;
+		}
+		if (sections[i].second.empty() && sections[i].first == "[IPv4]")
+			continue;
+		if (!out.empty())
+			out += "\n";
+		out += sections[i].first + "\n" + sections[i].second;
+	}
+	return out;
+}
+
 void CNetworkConfig::backendRead(void)
 {
 	inet_static = false;
 	automatic_start = true;
+
+	if (is_wireless(ifname) && iwd_configures_network())
+	{
+		std::string _address, _netmask, _gateway, _nameserver;
+		read_iwd_profile(iwd_profile(ifname), _address, _netmask, _gateway, _nameserver);
+		if (!validAddress(_address) || !validAddress(_netmask))
+			return;
+		inet_static = true;
+		address = _address;
+		netmask = _netmask;
+		gateway = validAddress(_gateway) ? _gateway : "";
+		nameserver = validAddress(_nameserver) ? _nameserver : "";
+		struct in_addr a, m;
+		inet_pton(AF_INET, address.c_str(), &a);
+		inet_pton(AF_INET, netmask.c_str(), &m);
+		a.s_addr |= ~m.s_addr;
+		char buf[INET_ADDRSTRLEN];
+		broadcast = inet_ntop(AF_INET, &a, buf, sizeof(buf)) ? buf : "";
+		return;
+	}
 
 	std::ifstream in(config_file(ifname).c_str());
 	if (!in.is_open())
@@ -166,6 +373,31 @@ void CNetworkConfig::backendCommit(bool modified, bool nameserver_changed)
 	if (!validInterface(ifname))
 		return;
 
+	if (is_wireless(ifname) && iwd_configures_network())
+	{
+		std::string profile = iwd_profile(ifname);
+		if (profile.empty())
+			return;
+		std::string ipv4;
+		if (inet_static)
+		{
+			if (!validAddress(address) || netmask_to_prefix(netmask) < 0 ||
+			    (!gateway.empty() && !validAddress(gateway)) ||
+			    (!nameserver.empty() && !validAddress(nameserver)))
+			{
+				printf("CNetworkConfig::commitConfig: invalid address, %s not written\n", profile.c_str());
+				return;
+			}
+			ipv4 = "Address=" + address + "\nNetmask=" + netmask + "\n";
+			if (!gateway.empty())
+				ipv4 += "Gateway=" + gateway + "\n";
+			if (!nameserver.empty())
+				ipv4 += "DNS=" + nameserver + "\n";
+		}
+		write_file(profile, iwd_profile_content(profile, ipv4), 0600);
+		return;
+	}
+
 	std::string conf = "# generated by neutrino\n";
 	conf += "[Match]\n";
 	conf += "Name=" + ifname + "\n";
@@ -209,30 +441,44 @@ void CNetworkConfig::backendCommit(bool modified, bool nameserver_changed)
 	}
 
 	/* networkd only reads *.network, the temporary name is invisible to it */
-	std::string file = config_file(ifname);
-	std::string tmp = file + ".new";
-	unlink(tmp.c_str());
-	int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0644);
-	if (fd < 0)
+	write_file(config_file(ifname), conf, 0644);
+}
+
+/* iwd takes the address settings of a network when it connects to it */
+static void iwd_reconnect(const std::string &ifname)
+{
+#ifdef ENABLE_IWD
+	CIwdClient *iwd = CIwdClient::getInstance();
+	if (!iwd->available() || iwd->deviceName() != ifname)
+		return;
+
+	std::vector<iwd_network> networks;
+	iwd->getNetworks(networks);
+	for (size_t i = 0; i < networks.size(); i++)
 	{
-		perror(tmp.c_str());
+		if (!networks[i].connected)
+			continue;
+		std::string passphrase;
+		iwd->disconnect();
+		iwd->connect(networks[i], passphrase);
 		return;
 	}
-	bool ok = write(fd, conf.c_str(), conf.length()) == (ssize_t)conf.length();
-	ok = (fchmod(fd, 0644) == 0) && ok;
-	ok = (fsync(fd) == 0) && ok;
-	close(fd);
-	if (!ok || rename(tmp.c_str(), file.c_str()) < 0)
-	{
-		perror(file.c_str());
-		unlink(tmp.c_str());
-	}
+#else
+	(void)ifname;
+#endif
 }
 
 void CNetworkConfig::startNetwork(void)
 {
 	if (!canConfigure() || !validInterface(ifname))
 		return;
+
+	if (is_wireless(ifname) && iwd_configures_network())
+	{
+		iwd_reconnect(ifname);
+		waitForAddress();
+		return;
+	}
 
 	std::string networkctl = find_executable("networkctl");
 	if (networkctl.empty())
@@ -247,7 +493,12 @@ void CNetworkConfig::startNetwork(void)
 	if (inet_static)
 		return;
 
-	/* give the DHCP client a moment, the menu shows the address next */
+	waitForAddress();
+}
+
+/* give the DHCP client a moment, the menu shows the address next */
+void CNetworkConfig::waitForAddress(void)
+{
 	for (int i = 0; i < 32; i++)
 	{
 		std::string ip, mask, brd;
