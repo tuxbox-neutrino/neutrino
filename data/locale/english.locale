@@ -2293,6 +2293,9 @@ networkmenu.ssid Network name (SSID)
 networkmenu.ssid_scan WLAN network scan
 networkmenu.ssid_scan_error No WLAN networks are found.
 networkmenu.ssid_scan_wait WLAN network scan in progress ...
+networkmenu.state_no_address no address
+networkmenu.state_no_cable no cable
+networkmenu.state_not_connected not connected
 networkmenu.test Test network now
 neutrino_starting %s %s starting ...
 nfs.active_shares Active shares
