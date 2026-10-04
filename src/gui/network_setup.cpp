@@ -390,6 +390,7 @@ int CNetworkSetup::showNetworkSetup()
 		CKeyboardInput *networkSettings_ssid = new CKeyboardInput(LOCALE_NETWORKMENU_SSID, &network_ssid);
 		//key, shown masked in the menu
 		CKeyboardInput *networkSettings_key = new CKeyboardInput(LOCALE_NETWORKMENU_PASSWORD, &network_key, 63, this);
+		networkSettings_key->setMasked(true);
 		CMenuForwarder *m9 = new CMenuDForwarder(LOCALE_NETWORKMENU_SSID, networkConfig->wireless, network_ssid, networkSettings_ssid);
 		CMenuForwarder *m10 = new CMenuDForwarder(LOCALE_NETWORKMENU_PASSWORD, networkConfig->wireless, network_key_mask, networkSettings_key);
 		CMenuForwarder *m11 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID_SCAN, networkConfig->wireless, NULL, this, "scanssid");
