@@ -2,6 +2,7 @@
  * timers.cpp - timers: reading, adding, changing, removing
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -271,8 +272,32 @@ Result<void> modify(const TimerInfo &t)
 				    "a timer that runs once cannot begin before now");
 	}
 
+	/* A running recording was announced before it began, so its announce time
+	   is not the change's to set, whatever the change carries: it keeps its
+	   lead. A one-off keeps its start as well, so that is the announce time the
+	   daemon holds. A repeating one may move its start, and its announce time
+	   moves with it, or the next occurrence would be announced early or not at
+	   all. A stored nought, which asks for no announcement, stays nought, and a
+	   move that does not fit a time_t takes the default lead from the new start.
+	   Any other timer gets the lead filled in. */
 	TimerInfo asked = t;
-	if (!recordingRuns(was))
+	if (recordingRuns(was))
+	{
+		asked.announce = was.announce;
+		if (was.announce > 0 && t.start != was.start)
+		{
+			time_t shift = 0;
+			time_t moved = 0;
+			if (__builtin_sub_overflow(t.start, was.start, &shift) ||
+			    __builtin_add_overflow(was.announce, shift, &moved))
+			{
+				asked.announce = 0;
+				moved = announceOf(asked);
+			}
+			asked.announce = moved;
+		}
+	}
+	else
 		asked.announce = announceOf(asked);
 
 	s = timerSource().modify(asked);

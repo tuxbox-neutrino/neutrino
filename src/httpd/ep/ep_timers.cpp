@@ -2,6 +2,7 @@
  * ep_timers.cpp - routes for timers
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -524,7 +525,8 @@ const Param kChangeParams[] = {
 	HTTPD_BODY("announce", ParamType::Time,
 		"when the box announces the timer, Unix time in seconds; left out, it keeps its distance to `start` "
 		"when `start` moves, and `0` or less, or later than `start`, makes it 60 seconds before `start`, or "
-		"180 seconds for a recording; a running recording keeps the one it has"),
+		"180 seconds for a recording; a running recording ignores this member: it keeps the announce time it "
+		"has, and a repeating one moves it along with `start`"),
 };
 
 const RouteRefusal kCreateTimerRefusals[] = {
@@ -608,7 +610,8 @@ const Endpoint kTimerEndpoints[] = {
 	  "reads it afterwards. Send only the members to change: everything left out keeps its value. Only `start`, `stop`, `repeat`, `repeat_count` and `announce` can be "
 	  "changed; to change the kind, the channel, the title or the standby flag, remove the timer with "
 	  "`DELETE /api/v1/timers/{id}` and make a new one with `POST /api/v1/timers`.\n\n"
-	  "Moving `start` moves an announcement that was set by the same amount, unless `announce` is sent too.\n\n"
+	  "Moving `start` moves an announcement that was set by the same amount, unless `announce` is sent too, "
+	  "which a running recording ignores.\n\n"
 	  "**Preconditions:** a recording that runs once and has already begun can only have its `stop` changed, "
 	  "and its new `stop` must lie after now.\n\n"
 	  "**Side effects:** the daemon stores the change and every client sees a `timer-changed` event on "

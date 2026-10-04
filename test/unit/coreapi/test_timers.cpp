@@ -844,6 +844,27 @@ TEST_CASE("a clock that cannot be read fails the change of a running recording",
 	REQUIRE(fake.modifications == 0);
 }
 
+// A recording the daemon has fired was announced already, so the time it was
+// announced at stays what it is, as the API document says, whatever a change
+// carries: nought, which elsewhere asks for the lead, or a time after the start.
+TEST_CASE("a running recording keeps its announce time against what a change carries", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	fake.timers[0].announce = 98820;
+	t.announce = 0;
+	t.stop = 103600;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].stop == 103600);
+	REQUIRE(fake.timers[0].announce == 98820);
+
+	t.announce = 99500;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].announce == 98820);
+}
+
 // The daemon counts the next occurrence from the start it holds.
 TEST_CASE("a running recording that repeats may still be moved", "[timers]")
 {
@@ -858,6 +879,31 @@ TEST_CASE("a running recording that repeats may still be moved", "[timers]")
 	REQUIRE(timers::modify(t).ok());
 	REQUIRE(fake.timers[0].start == 99060);
 	REQUIRE(fake.timers[0].stop == 99600);
+}
+
+// The daemon announces each occurrence as far ahead of its alarm as the one it
+// holds, so a repeating recording that moves keeps its lead and not the moment.
+TEST_CASE("a running recording that repeats keeps its lead when it moves", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t = runningRecording(fake);
+	t.repeat = (int) CTimerd::TIMERREPEAT_DAILY;
+	fake.timers[0].repeat = t.repeat;
+	fake.timers[0].announce = t.start - 180;
+	t.announce = 0;
+	t.start += 3600;
+	t.stop += 3600;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 99000 + 3600);
+	REQUIRE(fake.timers[0].announce == 99000 + 3600 - 180);
+
+	// A recording filed with no announcement keeps none.
+	fake.timers[0].announce = 0;
+	t.start += 60;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].announce == 0);
 }
 
 TEST_CASE("a running recording turned into a one-off keeps the start it began at", "[timers]")
