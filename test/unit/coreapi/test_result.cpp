@@ -133,6 +133,7 @@ const Walked kWalked[] = {
 	CODE(TooManyAttempts),
 	CODE(TimerExists),
 	CODE(NameTaken),
+	CODE(NameShared),
 	CODE(NotAPlainFile),
 	CODE(SideFileInTheWay),
 	CODE(NotEmpty),

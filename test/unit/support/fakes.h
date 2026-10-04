@@ -2,6 +2,7 @@
  * fakes.h - fake seams the tests run the core API against
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -358,14 +359,20 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	{
 		if (bouquets_status != coreapi::Status::Ok)
 			return bouquets_status;
+		uint32_t found = 0;
 		for (size_t i = 0; i < bouquets.size(); i++)
 		{
 			if (bouquets[i].name != name)
 				continue;
-			id = (uint32_t) i + 1;
-			return coreapi::Status::Ok;
+			// a name two bouquets carry, as the real source answers it
+			if (found)
+				return coreapi::Status::Conflict;
+			found = (uint32_t) i + 1;
 		}
-		return coreapi::Status::NotFound;
+		if (!found)
+			return coreapi::Status::NotFound;
+		id = found;
+		return coreapi::Status::Ok;
 	}
 
 	coreapi::Status addBouquet(const std::string &name)

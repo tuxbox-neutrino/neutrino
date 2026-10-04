@@ -2329,6 +2329,37 @@ TEST_CASE("every bouquet route refuses a name no bouquet carries and changes not
 	REQUIRE(box.channels.saves == 0u);
 }
 
+TEST_CASE("a bouquet name two bouquets carry is answered as shared", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+	coreapi::BouquetInfo twin;
+	twin.id = 3;
+	twin.name = "Erstes";
+	twin.user_bouquet = true;
+	box.channels.bouquets.push_back(twin);
+
+	// Every write that names a bouquet, and none of them reaches either one.
+	const Reply hide = authedPut("/api/v1/bouquets/Erstes/hidden", "{\"on\":true}");
+	REQUIRE(hide.code == 409);
+	REQUIRE(hide.body.find("name-shared") != std::string::npos);
+	REQUIRE(authedPut("/api/v1/bouquets/Erstes/locked", "{\"on\":true}").code == 409);
+	REQUIRE(authedPut("/api/v1/bouquets/Erstes/name", "{\"name\":\"Anders\"}").code == 409);
+	REQUIRE(authedPut("/api/v1/bouquets/Erstes/position", "{\"direction\":\"down\"}").code == 409);
+	REQUIRE(authedPut("/api/v1/bouquets/Erstes/channels?mode=tv", "[]").code == 409);
+	REQUIRE(authedDelete("/api/v1/bouquets/Erstes").code == 409);
+
+	const ::Json::Value all = parsed(authedGet("/api/v1/bouquets").body)["items"];
+	REQUIRE(all.size() == 3u);
+	for (::Json::ArrayIndex i = 0; i < all.size(); i++)
+	{
+		REQUIRE_FALSE(all[i]["hidden"].asBool());
+		REQUIRE_FALSE(all[i]["locked"].asBool());
+	}
+	REQUIRE(box.channels.saves == 0);
+}
+
 TEST_CASE("a bouquet name carrying a separator and a percent is one name", "[write]")
 {
 	ShippedRoutes shipped;

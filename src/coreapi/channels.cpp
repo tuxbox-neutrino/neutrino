@@ -446,6 +446,9 @@ Result<uint32_t> position(const std::string &name)
 	if (s == Status::NotFound)
 		return fail(s, ErrorCode::NoSuchBouquet,
 			    "no bouquet of that name");
+	if (s == Status::Conflict)
+		return fail(s, ErrorCode::NameShared,
+			    "more than one bouquet carries that name; rename one of them on the box first");
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::BouquetListUnavailable,
 			    "the bouquet list could not be read");
@@ -650,7 +653,7 @@ Result<void> addBouquet(const std::string &name)
 {
 	uint32_t taken = 0;
 	Status s = channelSource().bouquetByName(name, taken);
-	if (s == Status::Ok)
+	if (s == Status::Ok || s == Status::Conflict)
 		return fail(Status::Conflict, ErrorCode::NameTaken,
 			    "a bouquet of that name is already there");
 	if (s != Status::NotFound)
@@ -674,7 +677,7 @@ Result<void> renameBouquet(const std::string &from, const std::string &to)
 	// refused by this as well, which is the honest answer: the name is taken.
 	uint32_t taken = 0;
 	Status s = channelSource().bouquetByName(to, taken);
-	if (s == Status::Ok)
+	if (s == Status::Ok || s == Status::Conflict)
 		return fail(Status::Conflict, ErrorCode::NameTaken,
 			    "a bouquet of that name is already there");
 	if (s != Status::NotFound)

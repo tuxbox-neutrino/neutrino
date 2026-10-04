@@ -216,6 +216,10 @@ enum class ErrorCode
 	// The box already has it.
 	TimerExists,
 	NameTaken,
+	/* More than one carries the name a route addresses by, so the route cannot
+	   tell which is meant. Not the code above: that one refuses to give a name
+	   out twice, and this one refuses to act on a name that already was. */
+	NameShared,
 	/* What carries that name is not a plain file, and a plain file was to go in
 	   its place. Not the code above: that one is answered by asking again and
 	   saying to replace what is there, and a directory, a link and a device are
@@ -492,6 +496,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::TooManyAttempts: return "too-many-attempts";
 		case ErrorCode::TimerExists: return "timer-exists";
 		case ErrorCode::NameTaken: return "name-taken";
+		case ErrorCode::NameShared: return "name-shared";
 		case ErrorCode::NotAPlainFile: return "not-a-plain-file";
 		case ErrorCode::SideFileInTheWay: return "side-file-in-the-way";
 		case ErrorCode::NotEmpty: return "not-empty";

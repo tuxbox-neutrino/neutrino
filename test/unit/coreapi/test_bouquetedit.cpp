@@ -261,6 +261,53 @@ TEST_CASE("renaming to a name something else carries moves nothing", "[bouqueted
 	REQUIRE(e.fake.saves == 0);
 }
 
+// What a call naming a shared name must not do, written once for all six.
+void refusedAsShared(const char *which, const Result<void> &r)
+{
+	INFO(which);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Conflict);
+	REQUIRE(r.error().code == ErrorCode::NameShared);
+}
+
+TEST_CASE("a name two bouquets carry is refused and not taken as the first", "[bouquetedit]")
+{
+	/* Provider lists hold the same name twice. A route naming a bouquet by its
+	   name cannot tell which one is meant, and taking the first acted on a
+	   bouquet the caller had not chosen: the second one's delete took the
+	   first one away. */
+	Edit e;
+	e.fake.bouquets.push_back(bq(4, "Favoriten"));
+	const size_t before = e.fake.bouquets.size();
+
+	refusedAsShared("delete", channels::deleteBouquet("Favoriten"));
+	refusedAsShared("rename", channels::renameBouquet("Favoriten", "Andere"));
+	refusedAsShared("move", channels::moveBouquet("Favoriten", channels::Direction::Down));
+	refusedAsShared("hide", channels::setBouquetHidden("Favoriten", true));
+	refusedAsShared("lock", channels::setBouquetLock("Favoriten", true));
+	refusedAsShared("fill", channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv));
+
+	// Nothing changed and nothing was written.
+	REQUIRE(e.fake.bouquets.size() == before);
+	REQUIRE(e.fake.bouquets[1].name == "Favoriten");
+	REQUIRE(e.fake.bouquets[3].name == "Favoriten");
+	REQUIRE_FALSE(e.fake.bouquets[1].hidden);
+	REQUIRE_FALSE(e.fake.bouquets[3].hidden);
+	REQUIRE(e.fake.saves == 0);
+
+	// Giving the name out again is refused as taken, by both ways in.
+	const Result<void> made = channels::addBouquet("Favoriten");
+	REQUIRE_FALSE(made.ok());
+	REQUIRE(made.error().code == ErrorCode::NameTaken);
+	const Result<void> renamed = channels::renameBouquet("Erstes Bouquet", "Favoriten");
+	REQUIRE_FALSE(renamed.ok());
+	REQUIRE(renamed.error().code == ErrorCode::NameTaken);
+
+	// A name only one of them carries is still reached.
+	REQUIRE(channels::setBouquetHidden("Drittes Bouquet", true).ok());
+	REQUIRE(e.fake.bouquets[2].hidden);
+}
+
 TEST_CASE("a bouquet that was made is in the list and one that was taken away is not",
           "[bouquetedit]")
 {

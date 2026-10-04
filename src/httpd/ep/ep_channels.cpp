@@ -2,6 +2,7 @@
  * ep_channels.cpp - routes for channels and bouquets
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1280,6 +1281,8 @@ const RouteRefusal kMakeBouquetRefusals[] = {
 const RouteRefusal kRemoveBouquetRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchBouquet,
 		"no bouquet of that name"),
+	HTTPD_REFUSES(Conflict, NameShared,
+		"more than one bouquet carries that name"),
 	HTTPD_REFUSES(Internal, BouquetNotChanged,
 		"the box did not change the bouquet"),
 	HTTPD_REFUSES(Internal, BouquetNotSaved,
@@ -1289,6 +1292,8 @@ const RouteRefusal kRemoveBouquetRefusals[] = {
 const RouteRefusal kRenameBouquetRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchBouquet,
 		"no bouquet of that name"),
+	HTTPD_REFUSES(Conflict, NameShared,
+		"more than one bouquet carries that name"),
 	HTTPD_REFUSES(Conflict, NameTaken,
 		"a bouquet of that name is already there"),
 	HTTPD_REFUSES(Internal, BouquetNotChanged,
@@ -1302,6 +1307,8 @@ const RouteRefusal kMoveBouquetRefusals[] = {
 		"the bouquet is already at that end of the list"),
 	HTTPD_REFUSES(NotFound, NoSuchBouquet,
 		"no bouquet of that name"),
+	HTTPD_REFUSES(Conflict, NameShared,
+		"more than one bouquet carries that name"),
 	HTTPD_REFUSES(Internal, BouquetNotChanged,
 		"the box did not change the bouquet"),
 	HTTPD_REFUSES(Internal, BouquetNotSaved,
@@ -1311,6 +1318,8 @@ const RouteRefusal kMoveBouquetRefusals[] = {
 const RouteRefusal kHideBouquetRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchBouquet,
 		"no bouquet of that name"),
+	HTTPD_REFUSES(Conflict, NameShared,
+		"more than one bouquet carries that name"),
 	HTTPD_REFUSES(Internal, BouquetNotChanged,
 		"the box did not change the bouquet"),
 	HTTPD_REFUSES(Internal, BouquetNotSaved,
@@ -1320,6 +1329,8 @@ const RouteRefusal kHideBouquetRefusals[] = {
 const RouteRefusal kLockBouquetRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchBouquet,
 		"no bouquet of that name"),
+	HTTPD_REFUSES(Conflict, NameShared,
+		"more than one bouquet carries that name"),
 	HTTPD_REFUSES(Internal, BouquetNotChanged,
 		"the box did not change the bouquet"),
 	HTTPD_REFUSES(Internal, BouquetNotSaved,
@@ -1335,6 +1346,8 @@ const RouteRefusal kFillBouquetRefusals[] = {
 		"no channel with that id"),
 	HTTPD_REFUSES(NotFound, NoSuchBouquet,
 		"no bouquet of that name"),
+	HTTPD_REFUSES(Conflict, NameShared,
+		"more than one bouquet carries that name"),
 	HTTPD_REFUSES(Internal, BouquetNotChanged,
 		"the box did not change the bouquet"),
 	HTTPD_REFUSES(Internal, BouquetNotSaved,
@@ -1446,6 +1459,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name; read the names from `GET /api/v1/bouquets`.\n"
+	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back.\n"
 	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
 	  "**Related:** `POST /api/v1/bouquets`.",
@@ -1457,6 +1471,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has the name in the path.\n"
+	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
 	  "- `409 name-taken`: a bouquet already carries the new name, which includes renaming a bouquet to its own name.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the change, or the old name is still there or the new one is missing afterwards.\n"
 	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
@@ -1470,6 +1485,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 already-at-the-end`: the bouquet is first and `direction` is `up`, or last and `direction` is `down`.\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the move or it did not read back.\n"
 	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
 	  "**Related:** `GET /api/v1/bouquets`.",
@@ -1481,6 +1497,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back.\n"
 	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.",
 	  HTTPD_PARAMS(kHiddenParams), NULL, &hideBouquet, false,
@@ -1491,6 +1508,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back.\n"
 	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.",
 	  HTTPD_PARAMS(kLockedParams), NULL, &lockBouquet, false,
@@ -1513,6 +1531,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "- `400 too-many-channels`: more than 4096 ids.\n"
 	  "- `404 no-such-channel`: an id names no channel; nothing was changed.\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
+	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the change, or the list did not read back in the order sent.\n"
 	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
 	  "**Related:** `GET /api/v1/channels`, `POST /api/v1/bouquets`.",

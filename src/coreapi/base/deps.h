@@ -105,9 +105,10 @@ struct ChannelSource
 	   as BouquetInfo::id is. Callers name a bouquet by name, and findBouquet
 	   below is the only place the two meet. */
 
-	/* Which bouquet carries that name, or NotFound. What counts as carrying it
-	   is stated where the answer comes from: the box keeps a bouquet's identity
-	   and its printed caption in two fields.
+	/* Which bouquet carries that name, NotFound, or Conflict when more than
+	   one does. What counts as carrying it is stated where the answer comes
+	   from: the box keeps a bouquet's identity and its printed caption in two
+	   fields.
 
 	   Asked before every write below, so a new name's conflict and an old
 	   name's absence are the same question asked once. */

@@ -356,21 +356,29 @@ class RealChannelSource : public ChannelSource
 		   caption every list on screen prints, and the two differ for the bouquets
 		   whose caption comes from the locale. Reading only the first could not be
 		   handed the name a reader was shown; reading only the second would let a
-		   second bouquet be made under the identity of one already there. */
+		   second bouquet be made under the identity of one already there.
+		   A name two bouquets carry names neither of them: provider lists do
+		   hold the same name twice, and taking the first would act on a bouquet
+		   the caller did not mean. */
 		Status bouquetByName(const std::string &name, uint32_t &id) const
 		{
 			if (!g_bouquetManager)
 				return Status::Internal;
 			CServiceManager::ChannelGuard guard;
+			uint32_t found = 0;
 			for (size_t i = 0; i < g_bouquetManager->Bouquets.size(); i++)
 			{
 				const CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 				if (b->Name != name && b->bName != name)
 					continue;
-				id = (uint32_t) i + 1;
-				return Status::Ok;
+				if (found)
+					return Status::Conflict;
+				found = (uint32_t) i + 1;
 			}
-			return Status::NotFound;
+			if (!found)
+				return Status::NotFound;
+			id = found;
+			return Status::Ok;
 		}
 
 		/* Every write below goes to the channel stack over its own socket and not into
