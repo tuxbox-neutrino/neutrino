@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "dbus_objects.h"
+
 struct DBusConnection;
 struct DBusMessage;
 
@@ -71,12 +73,8 @@ class CIwdClient
 		DBusMessage *agentRequest(DBusMessage *msg);
 
 	private:
-		typedef std::map<std::string, std::string> props_t;
-		typedef std::map<std::string, props_t> ifaces_t;
-		typedef std::map<std::string, ifaces_t> objects_t;
-
-		DBusConnection *conn;
-		objects_t objects;
+		CDBusObjects bus;
+		DBusConnection *agent_conn;
 		std::string station_path;
 		std::string iwd_owner;
 		std::string pending_passphrase;
@@ -86,12 +84,7 @@ class CIwdClient
 		CIwdClient();
 		~CIwdClient();
 
-		bool open();
-		void close();
 		bool refresh();
-		std::string prop(const std::string &path, const char *iface, const char *name);
-		DBusMessage *call(const std::string &path, const char *iface, const char *method, const char *arg = NULL, bool arg_is_path = false, int timeout_ms = 10000);
-		bool simpleCall(const std::string &path, const char *iface, const char *method);
 		bool registerAgent();
 		void unregisterAgent();
 		int connectCall(const std::string &path, const char *iface, const char *method, const char *arg, std::string &passphrase, const std::string &network);

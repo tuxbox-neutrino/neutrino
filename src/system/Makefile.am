@@ -62,6 +62,7 @@ endif
 
 if ENABLE_IWD
 libneutrino_system_a_SOURCES += \
+	dbus_objects.cpp \
 	iwd_client.cpp
 AM_CPPFLAGS += @DBUS_CFLAGS@
 endif
