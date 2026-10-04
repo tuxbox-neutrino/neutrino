@@ -141,6 +141,7 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	srow = scol = 0;
 	focus = FOCUS_STRING;
 	force_saveScreen = false;
+	masked = false;
 	pixBuf = NULL;
 }
 
@@ -753,9 +754,12 @@ void CKeyboardInput::paintChar(int pos, std::string &c)
 	frameBuffer->paintBoxRel(xpos, ypos, input_w, input_h, bgcolor);
 	frameBuffer->paintBoxFrame(xpos, ypos, input_w, input_h, 1, COL_MENUCONTENT_PLUS_2);
 
-	int ch_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(c);
+	std::string star = "*";
+	std::string &shown = (masked && pos != selected && c != " " && !c.empty()) ? star : c;
+
+	int ch_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(shown);
 	int ch_x = xpos + std::max(input_w/2 - ch_w/2, 0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(ch_x, ypos+ input_h, ch_w, c, color);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(ch_x, ypos+ input_h, ch_w, shown, color);
 }
 
 void CKeyboardInput::paintKeyboard()
