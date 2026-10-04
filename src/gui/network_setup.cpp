@@ -253,7 +253,16 @@ int CNetworkSetup::showNetworkSetup()
 
 	const bool managed = CNetworkConfig::systemManaged();
 
-	if (!found)
+	if (found)
+	{
+		/* the interface of the settings has no address, show the one that is in use */
+		std::string ip, mask, broadcast;
+		netGetIP(g_settings.ifname, ip, mask, broadcast);
+		std::string route_if;
+		if (ip.empty() && getDefaultNetworkInterface(route_if, true) && route_if != g_settings.ifname)
+			setSettingsText(g_settings.ifname, route_if);
+	}
+	else
 	{
 		/* A copy, published under the lock, as settings.h asks of every
 		   write of a text setting. */
