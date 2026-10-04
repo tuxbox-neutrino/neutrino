@@ -5740,6 +5740,8 @@ void CNeutrinoApp::radioMode(bool rezap)
 
 	videoDecoder->SetSyncMode((AVSYNC_TYPE)AVSYNC_DISABLED);
 	audioDecoder->SetSyncMode((AVSYNC_TYPE)AVSYNC_DISABLED);
+
+	pointRadiotextAtLiveAudio();
 }
 
 void CNeutrinoApp::channelRezap()
@@ -5756,6 +5758,25 @@ void CNeutrinoApp::channelRezap()
 		channelList->zapTo_ChannelID(last_chid, true);
 	else
 		channelList->zapTo(0, true);
+}
+
+/* The radio text reader is pointed at a channel's audio when the infobar
+   learns its PIDs (EVT_ZAP_GOTAPIDS). That can pass by without it: at
+   start-up zapit tunes the last channel before this GUI listens, and on
+   waking up the channel plays again before the re-zap, which zaps only to a
+   channel of the list shown. So whenever radio mode is entered the reader is
+   pointed at the audio that plays; an event that follows points it again, at
+   the same audio or at the next channel's. */
+void CNeutrinoApp::pointRadiotextAtLiveAudio()
+{
+	if (!g_settings.radiotext_enable || !g_Radiotext || mode != NeutrinoModes::mode_radio)
+		return;
+	CZapitClient::responseGetPIDs pids;
+	g_Zapit->getPIDS(pids);
+	if (pids.APIDs.empty())
+		return;
+	unsigned int i = pids.PIDs.selected_apid < pids.APIDs.size() ? pids.PIDs.selected_apid : 0;
+	g_Radiotext->setPid(pids.APIDs[i].pid, pids.APIDs[i].is_aache);
 }
 
 //switching from current mode to tv or radio mode or to optional parameter prev_mode

@@ -261,6 +261,7 @@ public:
 	sigc::signal<void> OnAfterSetupFonts;
 	sigc::signal<void> OnBeforeSetupFonts;
 	void channelRezap();
+	void pointRadiotextAtLiveAudio();
 
 	void g_settings_video_Mode(int value) { g_settings.video_Mode = value; }
 
