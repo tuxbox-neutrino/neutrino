@@ -169,6 +169,7 @@ void CAudioPlayerGui::Init(void)
 		audiofilefilter.addFilter("aac");
 		audiofilefilter.addFilter("dts");
 		audiofilefilter.addFilter("m4a");
+		audiofilefilter.addFilter("opus");
 #endif
 	}
 	m_SMSKeyInput.setTimeout(AUDIOPLAYERGUI_SMSKEY_TIMEOUT);
