@@ -442,6 +442,24 @@ const long kMaxTimerId = 2147483647L;
 const long kMaxRepeat = 0xff00L;
 const long kMaxRepeatCount = 2147483647L;
 
+/* The moments a timer can be set for: from the start of the clock up to the
+   last second a thirty two bit time_t holds, 2038-01-19 03:14:07 UTC, which
+   is where the clock of the boxes this is built for ends. The ceiling refuses
+   nothing such a box could fire.
+
+   What it buys is on a build with a wider time_t. The box's own timer list
+   writes every start, end and announcement through localtime, which has no
+   answer for the far ends of that range, and hands what it gets to strftime
+   unchecked, so a timer out there ends the program the moment the list is
+   opened. Nothing before 1970 is a moment a timer can be for, and nought
+   stays in, being what an end or a guide start means by none.
+
+   The announcement takes no bound of its own: the layer below replaces one
+   that is not after nought and at or before the start with the default lead,
+   and keeps none for an immediate recording, so the start's bound is its
+   bound too. */
+const long kLatestTime = 2147483647L;
+
 const char kRepeatDoc[] =
 	"how the timer repeats, as a number:\n\n"
 	"| value | repeats |\n"
@@ -469,12 +487,12 @@ const Param kCreateParams[] = {
 	HTTPD_BODY("channel_id", ParamType::ChannelId,
 		"the channel to switch to or record, hexadecimal as `GET /api/v1/channels` answers it; "
 		"required for `zapto`, `record` and `immediate-record`, ignored by the other kinds"),
-	HTTPD_BODY_REQUIRED("start", ParamType::Time,
+	HTTPD_BODY_REQUIRED_IN("start", ParamType::Time,
 		"when the timer fires, Unix time in seconds; for a timer that runs once it may not lie before the "
-		"current minute, while a repeating timer may start in the past and then fires at once"),
-	HTTPD_BODY("stop", ParamType::Time,
+		"current minute, while a repeating timer may start in the past and then fires at once", 0, kLatestTime),
+	HTTPD_BODY_IN("stop", ParamType::Time,
 		"when a recording ends, Unix time in seconds, after `start`; any value but `0` is refused for the "
-		"kinds that do not record"),
+		"kinds that do not record", 0, kLatestTime),
 	HTTPD_BODY_TEXT("title",
 		"the programme title stored with a `record` timer, the text a `remind` timer shows, or the name of the "
 		"plugin an `exec-plugin` timer starts; ignored by the other kinds, and cut to what the daemon stores", 512),
@@ -489,8 +507,8 @@ const Param kCreateParams[] = {
 	HTTPD_BODY("epg_id", ParamType::ChannelId,
 		"the guide event the timer is made from, hexadecimal as `GET /api/v1/epg` answers it, for `record` and "
 		"`zapto`; with `auto_adjust` the box follows that event"),
-	HTTPD_BODY("epg_start", ParamType::Time,
-		"when that guide event begins, Unix time in seconds, sent together with `epg_id`"),
+	HTTPD_BODY_IN("epg_start", ParamType::Time,
+		"when that guide event begins, Unix time in seconds, sent together with `epg_id`", 0, kLatestTime),
 	HTTPD_BODY("standby_on", ParamType::Bool,
 		"for a `standby` timer only: `true` puts the box into standby at `start`, `false` (the default) "
 		"brings it out of standby"),
@@ -512,12 +530,12 @@ const Param kCreateParams[] = {
 const Param kChangeParams[] = {
 	HTTPD_SEGMENT_IN("id", ParamType::UInt,
 		"the timer, by the decimal `id` `GET /api/v1/timers` answers for it", 1, kMaxTimerId),
-	HTTPD_BODY("start", ParamType::Time,
+	HTTPD_BODY_IN("start", ParamType::Time,
 		"the new moment the timer fires, Unix time in seconds; a timer that runs once may not be moved before "
-		"the current minute, and a recording that runs once keeps its start once it has begun"),
-	HTTPD_BODY("stop", ParamType::Time,
+		"the current minute, and a recording that runs once keeps its start once it has begun", 0, kLatestTime),
+	HTTPD_BODY_IN("stop", ParamType::Time,
 		"the new end of a recording, Unix time in seconds, after `start` (and, for a recording that runs once "
-		"and has begun, after now); any value but `0` is refused for a timer that does not record"),
+		"and has begun, after now); any value but `0` is refused for a timer that does not record", 0, kLatestTime),
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt,
 		"how many times a repeating timer runs, and `0` for without end", 0,

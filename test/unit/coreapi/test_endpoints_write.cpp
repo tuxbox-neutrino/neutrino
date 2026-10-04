@@ -1592,6 +1592,43 @@ TEST_CASE("a change of the start alone moves the announce time with it", "[write
 	CHECK(filedAnnounce(box, 0) == start + 600 - 60);
 }
 
+TEST_CASE("a timer time outside the clock of the box is refused and nothing is stored", "[write]")
+{
+	/* The box's clock ends at 2038-01-19 03:14:07 UTC and the far ends of a
+	   wider time_t are what its own timer list cannot write out, so a start,
+	   an end and a guide start are taken from nought to that second. */
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const Reply late = authedPost("/api/v1/timers",
+		"{\"kind\":\"zapto\",\"channel_id\":\"2b66\",\"start\":2147483648}");
+	REQUIRE(late.code == 400);
+	REQUIRE(late.body.find("out-of-range") != std::string::npos);
+	REQUIRE(late.body.find("start") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/timers",
+		"{\"kind\":\"zapto\",\"channel_id\":\"2b66\",\"start\":-1,\"repeat\":1}").code == 400);
+	REQUIRE(authedPost("/api/v1/timers",
+		"{\"kind\":\"record\",\"channel_id\":\"2b66\",\"start\":2147483000,\"stop\":2147483648}").code == 400);
+	const Reply guide = authedPost("/api/v1/timers",
+		"{\"kind\":\"zapto\",\"channel_id\":\"2b66\",\"start\":2147483000,\"epg_start\":-1}");
+	REQUIRE(guide.code == 400);
+	REQUIRE(guide.body.find("epg_start") != std::string::npos);
+	REQUIRE(box.timers.timers.empty());
+
+	// The last second is still in, so the bound is the clock's and not one
+	// below it.
+	REQUIRE(authedPost("/api/v1/timers",
+		"{\"kind\":\"zapto\",\"channel_id\":\"2b66\",\"start\":2147483647}").code == 201);
+	REQUIRE(box.timers.timers.size() == 1);
+
+	// A correction is held to the same bounds and changes nothing.
+	const time_t filed = box.timers.timers[0].start;
+	REQUIRE(authedPatch("/api/v1/timers/1", "{\"start\":2147483648}").code == 400);
+	REQUIRE(authedPatch("/api/v1/timers/1", "{\"stop\":-1}").code == 400);
+	REQUIRE(box.timers.timers[0].start == filed);
+	REQUIRE(box.timers.modifications == 0);
+}
+
 TEST_CASE("a timer of a kind the box does not make is refused by name", "[write]")
 {
 	ShippedRoutes shipped;
