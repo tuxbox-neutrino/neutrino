@@ -26,6 +26,13 @@
 		// falls back to the dashboard so the UI is always reachable.
 		(function () {
 			var fallback = '/dashboard.yhtm';
+			// what the classic settings page and the shipped yWeb.conf
+			// write ("none" there), mapped onto the modern pages
+			var classic = {
+				none: 'dashboard.yhtm', bouquets: 'bouquets.yhtm',
+				control: 'dashboard.yhtm', remote: 'screenshot.yhtm',
+				screenshot: 'screenshot.yhtm'
+			};
 			fetch('/api/v4/config?config=yweb')
 				.then(function (r) { return r.json(); })
 				.then(function (data) {
@@ -34,7 +41,13 @@
 						location.replace('/wizard.yhtm');
 						return;
 					}
-					var page = cfg.start_page || 'dashboard.yhtm';
+					var page = cfg.start_page || '';
+					if (Object.prototype.hasOwnProperty.call(classic, page))
+						page = classic[page];
+					// a page of this UI only, never an address elsewhere and
+					// never this page itself (it would load itself forever)
+					if (!/^\/?[A-Za-z0-9_-]+\.yhtm$/.test(page))
+						page = 'dashboard.yhtm';
 					if (page.charAt(0) !== '/') page = '/' + page;
 					location.replace(page);
 				})
