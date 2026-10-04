@@ -219,10 +219,14 @@ static int my_filter(const struct dirent *dent)
 
 void CNetworkSetup::setBroadcast(void)
 {
-	in_addr_t na = inet_addr(network_address.c_str());
-	in_addr_t nm = inet_addr(network_netmask.c_str());
+	struct in_addr na, nm;
+	if (inet_pton(AF_INET, network_address.c_str(), &na) != 1 || inet_pton(AF_INET, network_netmask.c_str(), &nm) != 1)
+	{
+		network_broadcast = networkConfig->broadcast;
+		return;
+	}
 	struct in_addr in;
-	in.s_addr = na | ~nm;
+	in.s_addr = na.s_addr | ~nm.s_addr;
 	char tmp[40];
 	network_broadcast = (inet_ntop(AF_INET, &in, tmp, sizeof(tmp))) ? std::string(tmp) : "0.0.0.0";
 }
