@@ -264,6 +264,12 @@ window.YWEB_L = {
 	// Confirm-/Prompt-Dialoge (yweb-header.js)
 	"msg.cancel": "{=L:yw.msg.cancel=}",
 	"msg.error": "{=L:yw.msg.error=}",
+	"v1.signin_title": "{=L:yw.v1.signin_title=}",
+	"v1.signin_why": "{=L:yw.v1.signin_why=}",
+	"v1.user": "{=L:yw.v1.user=}",
+	"v1.password": "{=L:yw.v1.password=}",
+	"v1.signin": "{=L:yw.v1.signin=}",
+	"v1.signin_failed": "{=L:yw.v1.signin_failed=}",
 	"msg.load_fail": "{=L:yw.msg.load_fail=}",
 	// Standby-Rueckfrage der RC-Komponente (yweb-header.js)
 	"sb.confirm": "{=L:yw.sb.confirm=}",

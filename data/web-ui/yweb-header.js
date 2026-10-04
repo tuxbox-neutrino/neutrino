@@ -1736,6 +1736,8 @@ function ywebShowPrompt(title, label, value, onOk) {
 	var inp = backdrop.querySelector('.yweb-prompt-input');
 	inp.value = value || '';
 	var ok = async function(btn) {
+		// Enter while the first OK is still running would send it twice
+		if (btn.disabled) return;
 		if (!inp.value.trim()) { inp.focus(); return; }
 		btn.disabled = true;
 		try {

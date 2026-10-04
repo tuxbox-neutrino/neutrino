@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=87">
+	<link rel="stylesheet" href="/css/yweb.css?v=88">
 	<style>
 		.yweb-tools-grid {
 			display: grid;
@@ -131,8 +131,8 @@
 		</div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=20"></script>
-	<script src="/yweb-header.js?v=52"></script>
+	<script src="/Y_Lang.yjs?v=21"></script>
+	<script src="/yweb-header.js?v=53"></script>
 	<script>
 		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
 		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst

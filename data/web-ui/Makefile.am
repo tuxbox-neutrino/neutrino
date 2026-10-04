@@ -118,7 +118,8 @@ install_DATA = \
 	Y_Version.txt \
 	Y_Wait.yhtm \
 	Y_yWeb.js \
-	yweb-header.js
+	yweb-header.js \
+	yweb-v1.js
 
 configdir = $(CONFIGDIR)
 config_DATA = yWeb.conf

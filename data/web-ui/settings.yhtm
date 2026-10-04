@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=87">
+	<link rel="stylesheet" href="/css/yweb.css?v=88">
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
@@ -386,8 +386,8 @@
 
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
-	<script src="/Y_Lang.yjs?v=19"></script>
-	<script src="/yweb-header.js?v=52"></script>
+	<script src="/Y_Lang.yjs?v=21"></script>
+	<script src="/yweb-header.js?v=53"></script>
 	<script src="/settings-registry.js?v=14"></script>
 	<script>
 	var configData = {};

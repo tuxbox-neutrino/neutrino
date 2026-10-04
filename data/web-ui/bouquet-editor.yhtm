@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=87">
+	<link rel="stylesheet" href="/css/yweb.css?v=88">
 	<style>
 		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */
@@ -51,7 +51,12 @@
 		   trunkieren zu "1…" (Touch: Tap waehlt aus → Aktionen) */
 		#bqeBouquets li .bqe-mini { display: none; }
 		#bqeBouquets li:hover .bqe-mini,
-		#bqeBouquets li.sel .bqe-mini { display: inline-flex; }
+		#bqeBouquets li.sel .bqe-mini,
+		#bqeBouquets li:focus-within .bqe-mini { display: inline-flex; }
+		.bqe-mini.on { color: var(--yweb-accent); border-color: var(--yweb-accent); }
+		.bqe-mini:disabled { opacity: 0.5; cursor: default; }
+		.bqe-stale { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.8rem; padding: 0.4rem 0.8rem; border: 1px solid var(--yweb-accent); border-radius: var(--yweb-radius); font-size: var(--yweb-font-xs); }
+		.bqe-stale[hidden] { display: none; }
 		/* Drag & Drop: Einfuegelinie oben/unten, Ziel-Rahmen der Liste */
 		.bqe-list li[draggable="true"] { cursor: grab; }
 		.bqe-list li[draggable="true"]:active { cursor: grabbing; }
@@ -77,7 +82,7 @@
 	<main class="bqe-wrap">
 		<div class="bqe-toolbar">
 			<label class="bqe-mode">{=L:yw.bqe.mode=}
-				<select id="bqeMode" onchange="bqeReloadAll()">
+				<select id="bqeMode" onchange="bqeModeChanged()">
 					<option value="TV">TV</option>
 					<option value="RADIO">Radio</option>
 				</select>
@@ -88,17 +93,11 @@
 				</svg>
 				{=L:yw.bqe.new=}</button>
 			<span class="bqe-dirty" id="bqeDirty">&#9679; {=L:yw.bqe.unsaved=}</span>
-			<span style="flex:1"></span>
-			<button type="button" class="yweb-btn" onclick="bqeSave(this)">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-				</svg>
-				{=L:yw.bqe.save=}</button>
-			<button type="button" class="yweb-btn primary" onclick="bqeSaveReload(this)">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-				</svg>
-				{=L:yw.bqe.save_reload=}</button>
+		</div>
+
+		<div class="bqe-stale" id="bqeStale" role="status" hidden>
+			<span>{=L:yw.bqe.changed_on_box=}</span>
+			<button type="button" class="bqe-mini attn" onclick="bqeReloadAll(true)" title="{=L:yw.bqe.reload_discard=}">{=L:yw.bqe.reload=}</button>
 		</div>
 
 		<div class="bqe-grid">
@@ -123,11 +122,12 @@
 						</svg>
 						<span id="bqeChTitle">{=L:yw.bqe.channels=}</span>
 					</h3>
-					<button type="button" class="bqe-mini" id="bqeApplyBtn" onclick="bqeApplyChannels(this)" title="{=L:yw.bqe.apply_title=}">
+					<button type="button" class="bqe-mini" id="bqeApplyBtn" onclick="bqeApplyChannels()" title="{=L:yw.bqe.apply_title=}" disabled>
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<polyline points="20 6 9 17 4 12"/>
 						</svg>
 						{=L:yw.bqe.apply=}</button>
+					<button type="button" class="bqe-mini" id="bqeDiscardBtn" onclick="bqeDiscard()" title="{=L:yw.bqe.discard_title=}" disabled>{=L:yw.bqe.discard=}</button>
 				</header>
 				<div class="yweb-card-body">
 					<ul class="yweb-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
@@ -141,7 +141,7 @@
 						</svg>
 						{=L:yw.bqe.all_channels=} <small id="bqeAllCount"></small>
 					</h3>
-					<span class="bqe-search"><input id="bqeFilter" placeholder="{=L:yw.bqe.search=}" oninput="bqeRenderAll()"></span>
+					<span class="bqe-search"><input id="bqeFilter" placeholder="{=L:yw.bqe.search=}" aria-label="{=L:yw.bqe.search=}" oninput="bqeRenderAll()"></span>
 				</header>
 				<div class="yweb-card-body">
 					<ul class="yweb-plain-list bqe-list" id="bqeAll"></ul>
@@ -151,20 +151,38 @@
 		<p class="bqe-hint">{=L:yw.bqe.hint=}</p>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=20"></script>
-	<script src="/yweb-header.js?v=52"></script>
+	<script src="/Y_Lang.yjs?v=21"></script>
+	<script src="/yweb-header.js?v=53"></script>
+	<script src="/yweb-v1.js?v=3"></script>
 	<script>
-		var bqeBouquets = [];      // {number, name, hidden?, locked?}
-		var bqeSelected = null;    // number des gewaehlten Bouquets
-		var bqeChan = [];          // Arbeitskopie der Bouquet-Kanaele [{id,name}]
-		var bqeAllChan = [];       // alle Kanaele des Modus
+		// The editor speaks /api/v1: a bouquet is read with its position (id)
+		// and its hidden/locked state, and changed by its name; the box saves
+		// every change at once and announces it as an event. A name more than
+		// one bouquet carries addresses none of them, so such rows can be read
+		// but not changed here.
+		var bqeBouquets = [];      // [{id, name, hidden, locked, tv_count, radio_count}]
+		var bqeShown = [];         // the bouquets the list shows, as it was drawn
+		var bqeSel = null;         // {id, name} of the chosen bouquet
+		var bqeChan = [];          // working copy of its channels [{id, name}]
+		var bqeChanOf = null;      // {sel, mode} the working copy was read for
+		var bqeChanReading = false;
+		var bqeAllChan = [];       // every channel of the mode
+		var bqeAllOf = null;       // the mode bqeAllChan was read for
 		var bqeChanDirty = false;
+		var bqeApplying = false;
+		var bqeReloadTimer = null;
+		var bqeForeignSeen = false;	// a change from elsewhere since the last reload
+		var bqeOwn = {sent: 0, early: 0, due: []};	// see bqeOwnRequest
+		var bqeModeShown = 'TV';
+		// the latest read of each list; an answer to an older one is dropped,
+		// it may come last and would put back what a newer one replaced
+		var bqeReads = {bouquets: 0, all: 0, chan: 0};
 
 		function esc(t) { return escapeHtml(String(t == null ? '' : t)); }
 
 		// M5-Komponenten: 12px-Icons fuer die Listen-Miniknoepfe
 		// (CSS .bqe-mini svg dimensioniert)
-		function sIcon(p) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '<\/svg>'; }
+		function sIcon(p) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '<\/svg>'; }
 		var I_UP = sIcon('<polyline points="18 15 12 9 6 15"/>');
 		var I_DOWN = sIcon('<polyline points="6 9 12 15 18 9"/>');
 		var I_EDIT = sIcon('<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>');
@@ -173,89 +191,339 @@
 		var I_X = sIcon('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>');
 		var I_PLUS = sIcon('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>');
 		var I_EYEOFF = sIcon('<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>');
+		var I_TWIN = sIcon('<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
+
+		function bqeMode() {
+			return document.getElementById('bqeMode').value === 'RADIO' ? 'radio' : 'tv';
+		}
+
+		function bqeById(id) {
+			for (var i = 0; i < bqeBouquets.length; i++)
+				if (bqeBouquets[i].id === id) return bqeBouquets[i];
+			return null;
+		}
+
+		function bqeShared(name) {
+			var n = 0;
+			for (var i = 0; i < bqeBouquets.length; i++)
+				if (bqeBouquets[i].name === name && ++n > 1) return true;
+			return false;
+		}
+
+		function bqePath(name, sub) {
+			return '/bouquets/' + encodeURIComponent(name) + (sub ? '/' + sub : '');
+		}
+
+		// After a reload the chosen bouquet is found again: by its name when
+		// only one carries it (a move changes its position), else where it was.
+		// While it is being renamed, its new name counts as well.
+		function bqeFindSelection() {
+			if (!bqeSel) return;
+			var names = bqeSel.renaming ? [bqeSel.name, bqeSel.renaming] : [bqeSel.name];
+			for (var k = 0; k < names.length; k++) {
+				var hits = bqeBouquets.filter(function(b) { return b.name === names[k]; });
+				if (hits.length === 1) { bqeSel.id = hits[0].id; bqeSel.name = hits[0].name; return; }
+			}
+			var b = bqeById(bqeSel.id);
+			if (!b || names.indexOf(b.name) < 0) {
+				// gone, and its working copy with it
+				bqeSel = null;
+				bqeChanClear();
+			}
+		}
+
+		// The working copy has been read for the chosen bouquet in the shown
+		// mode: only then may it be applied, or edited (bqeEditable).
+		function bqeChanReady() {
+			return !!(bqeSel && bqeChanOf && bqeChanOf.sel === bqeSel && bqeChanOf.mode === bqeMode());
+		}
+
+		// A bouquet whose name another one carries cannot be applied, so its
+		// list is not edited either.
+		function bqeEditable() {
+			return bqeChanReady() && !bqeShared(bqeSel.name);
+		}
+
+		// The working copy goes; nothing can be edited until the chosen
+		// bouquet's list has been read.
+		function bqeChanClear() {
+			bqeChan = [];
+			bqeChanOf = null;
+			bqeChanReading = !!bqeSel;
+			setDirty(false);
+		}
 
 		function setDirty(d) {
 			bqeChanDirty = d;
 			document.getElementById('bqeDirty').classList.toggle('on', d);
 			// Uebernehmen hervorheben, solange die Arbeitskopie abweicht
 			document.getElementById('bqeApplyBtn').classList.toggle('attn', d);
+			document.getElementById('bqeDiscardBtn').disabled = !d;
+			bqeUpdateApply();
 		}
 
-		async function bqeReloadAll() {
-			await Promise.all([bqeLoadBouquets(), bqeLoadAllChannels()]);
-			if (bqeSelected !== null) await bqeLoadChannels(bqeSelected);
-			else bqeRenderChannels(); // Leerzustand "Bouquet links waehlen"
+		// "Apply" sends the working copy: only one that was read for the chosen
+		// bouquet in the shown mode and changed since, and one at a time.
+		function bqeUpdateApply() {
+			var shared = !!(bqeSel && bqeShared(bqeSel.name));
+			var apply = document.getElementById('bqeApplyBtn');
+			apply.disabled = shared || bqeApplying || !bqeChanDirty || !bqeChanReady();
+			apply.title = shared ? '{=L:yw.bqe.shared=}' : '{=L:yw.bqe.apply_title=}';
 		}
 
-		async function bqeLoadBouquets() {
-			var mode = document.getElementById('bqeMode').value;
+		function bqeShowStale(on) {
+			document.getElementById('bqeStale').hidden = !on;
+		}
+
+		// Asks before unapplied channel edits are thrown away; go() runs when
+		// there are none or when the user agrees, cancelling changes nothing.
+		function bqeUnlessDirty(go) {
+			if (!bqeChanDirty) { go(); return; }
+			ywebShowConfirm('{=L:yw.bqe.drop_title=}', '{=L:yw.bqe.drop_msg=}', '{=L:yw.bqe.discard=}',
+				function() { setDirty(false); go(); });
+		}
+
+		// A list drawn again loses the keyboard focus; it goes back to the row
+		// that had it, and to the same button of that row.
+		function bqeFocusIn(ul) {
+			var el = document.activeElement;
+			if (!el || !ul.contains(el)) return null;
+			var btn = el.closest('button[data-act]');
+			return {li: el.closest('li'), act: btn ? btn.dataset.act : null};
+		}
+		function bqeFocusRow(li, act) {
+			if (!li) return;
+			var btn = act ? li.querySelector('button[data-act="' + act + '"]') : null;
+			if (btn && !btn.disabled) btn.focus();
+			else if (li.tabIndex >= 0) li.focus();
+		}
+
+		/* Our own changes announce themselves as well, one event for each
+		   change that went through, and the event may come before the answer
+		   does. That many events are taken as ours and the rest as coming
+		   from elsewhere. An event still owed after a few seconds was lost
+		   (the stream was down) and is no longer waited for. A request the
+		   box refused for want of a sign-in changes nothing, so it does not
+		   count while the sign-in is open, only once it is sent again. */
+		async function bqeOwnRequest(method, path, opts) {
+			var counted = true;
+			var through = false;
+			bqeOwn.sent++;
+			var o = Object.assign({}, opts, {
+				refused: function() {
+					counted = false;
+					bqeOwn.sent--;
+					if (bqeOwn.early > bqeOwn.sent) bqeOwn.early = bqeOwn.sent;
+				},
+				retried: function() { counted = true; bqeOwn.sent++; }
+			});
 			try {
-				var resp = await ywebApi('bouquets', {showempty: 'true', mode: mode});
-				var root = resp.data || resp;
-				bqeBouquets = root.bouquets || [];
-			} catch (e) { bqeBouquets = []; ywebShowToast('Bouquets: ' + e.message, true); }
+				var r = await ywebV1(method, path, o);
+				through = true;
+				return r;
+			} finally {
+				if (counted) {
+					bqeOwn.sent--;
+					if (bqeOwn.early > 0) bqeOwn.early--;
+					else if (through) bqeOwn.due.push(Date.now() + 5000);
+				}
+			}
+		}
+
+		// true when a bouquets-changed event is one of our own
+		function bqeOwnEvent() {
+			var now = Date.now();
+			bqeOwn.due = bqeOwn.due.filter(function(t) { return t > now; });
+			if (bqeOwn.due.length) { bqeOwn.due.shift(); return true; }
+			if (bqeOwn.sent > bqeOwn.early) { bqeOwn.early++; return true; }
+			return false;
+		}
+
+		// Everything from the box again. Unapplied channel edits stay, unless
+		// discard is asked for: then the chosen bouquet's list is read too.
+		// The banner stays as long as edits are kept: what it warns of holds.
+		// After own changes only (ownOnly) the chosen bouquet's channels are
+		// not read again: hiding, locking, moving, renaming, adding or deleting
+		// a bouquet leaves them as they are, and "Apply" reads them itself.
+		async function bqeReloadAll(discard, ownOnly) {
+			if (discard) {
+				bqeChanClear();
+				bqeRenderChannels();
+				bqeRenderAll();
+			}
+			if (!bqeChanDirty) bqeShowStale(false);
+			await Promise.all([bqeLoadBouquets(), bqeLoadAllChannels()]);
+			if (!bqeSel) bqeChanClear();
+			else if (!bqeChanDirty && !(ownOnly && bqeChanReady())) await bqeLoadChannels();
 			bqeRenderBouquets();
+			bqeRenderChannels();
+			bqeRenderAll();
+			if (!bqeChanDirty) bqeShowStale(false);
+		}
+
+		// A read that fails leaves the list as it was: an empty one would drop
+		// the chosen bouquet and, with it, unapplied edits.
+		async function bqeLoadBouquets() {
+			var read = ++bqeReads.bouquets;
+			var list = null;
+			try {
+				var resp = await ywebV1('GET', '/bouquets');
+				list = (resp && resp.items) || [];
+			} catch (e) {
+				if (read === bqeReads.bouquets) ywebShowToast('Bouquets: ' + e.message, true);
+			}
+			if (read !== bqeReads.bouquets || list === null) return;
+			bqeBouquets = list;
+			bqeFindSelection();
+			bqeRenderBouquets();
+			bqeRenderChannels();
 		}
 
 		async function bqeLoadAllChannels() {
-			var mode = document.getElementById('bqeMode').value;
+			var read = ++bqeReads.all;
+			var mode = bqeMode();
+			var list = null;
 			try {
-				var resp = await ywebApi('channellist', {mode: mode});
-				bqeAllChan = (resp.data || resp).channels || [];
-			} catch (e) { bqeAllChan = []; }
+				list = (await ywebV1All('/channels', {mode: mode}))
+					.map(function(c) { return {id: c.id, name: c.name}; });
+			} catch (e) {
+				if (read === bqeReads.all) ywebShowToast('{=L:yw.bqe.all_channels=}: ' + e.message, true);
+			}
+			if (read !== bqeReads.all || list === null) return;
+			bqeAllChan = list;
+			bqeAllOf = mode;
 			bqeRenderAll();
 		}
 
-		async function bqeLoadChannels(nr) {
-			var mode = document.getElementById('bqeMode').value;
+		// The chosen bouquet's channels in the shown mode, as the working copy.
+		// A read that fails keeps a copy that belongs to the same bouquet and
+		// mode and leaves none otherwise; a copy edited while it was read
+		// again stays, and the banner says the box may have changed.
+		async function bqeLoadChannels() {
+			var read = ++bqeReads.chan;
+			var sel = bqeSel;
+			var mode = bqeMode();
+			var list = null;
+			bqeChanReading = true;
 			try {
-				var resp = await ywebApi('bouquet', {bouquet: nr, mode: mode});
-				bqeChan = ((resp.data || resp).channels || []).map(function(c) { return {id: c.id, name: c.name}; });
-			} catch (e) { bqeChan = []; }
-			setDirty(false);
+				list = !sel ? [] : (await ywebV1All('/channels', {bouquet: sel.id, mode: mode}))
+					.map(function(c) { return {id: c.id, name: c.name}; });
+			} catch (e) {
+				if (read === bqeReads.chan) ywebShowToast('{=L:yw.bqe.channels=}: ' + e.message, true);
+			}
+			if (read !== bqeReads.chan) return;
+			bqeChanReading = false;
+			if (sel !== bqeSel) {
+				// the bouquet it was read for is no longer the chosen one
+			} else if (list === null) {
+				if (!bqeChanReady()) { bqeChan = []; bqeChanOf = null; setDirty(false); }
+			} else if (bqeChanDirty && bqeChanReady()) {
+				bqeShowStale(true);
+			} else {
+				bqeChan = list;
+				bqeChanOf = sel ? {sel: sel, mode: mode} : null;
+				setDirty(false);
+			}
 			bqeRenderChannels();
 		}
 
 		function bqeRenderBouquets() {
 			var ul = document.getElementById('bqeBouquets');
+			var had = bqeFocusIn(ul);
+			var was = null;
+			if (had && had.li)
+				for (var k = 0; k < bqeShown.length; k++)
+					if (String(bqeShown[k].id) === had.li.dataset.id) { was = bqeShown[k]; break; }
 			document.getElementById('bqeBqCount').textContent = bqeBouquets.length + '';
+			var radio = bqeMode() === 'radio';
 			var html = '';
 			bqeBouquets.forEach(function(b) {
-				var nr = parseInt(b.number);
-				html += '<li class="' + (nr === bqeSelected ? 'sel' : '') + '" onclick="bqeSelect(' + nr + ')">' +
-					'<span class="nm">' + nr + ' ' + esc(b.name) + '</span>' +
-					'<span class="flags">' + (b.hidden === 'true' ? I_EYEOFF : '') + (b.locked === 'true' ? I_KEY : '') + '</span>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_up=}" onclick="event.stopPropagation();bqeMove(' + nr + ', \'up\')">' + I_UP + '</button>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_down=}" onclick="event.stopPropagation();bqeMove(' + nr + ', \'down\')">' + I_DOWN + '</button>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_rename=}" onclick="event.stopPropagation();bqeRename(' + nr + ', \'' + escapeJs(b.name) + '\')">' + I_EDIT + '</button>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.toggle_hide=}" onclick="event.stopPropagation();bqeToggle(' + nr + ', \'' + (b.hidden === 'true' ? 'show' : 'hide') + '\')">' + I_EYE + '</button>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_lock=}" onclick="event.stopPropagation();bqeToggle(' + nr + ', \'' + (b.locked === 'true' ? 'unlock' : 'lock') + '\')">' + I_KEY + '</button>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_del=}" onclick="event.stopPropagation();bqeDelete(' + nr + ', \'' + escapeJs(b.name) + '\')">' + I_X + '</button>' +
+				var n = radio ? b.radio_count : b.tv_count;
+				var shared = bqeShared(b.name);
+				var off = shared ? ' disabled title="{=L:yw.bqe.shared=}"' : '';
+				function btn(act, cls, title, icon, pressed) {
+					return '<button type="button" class="bqe-mini' + cls + '" data-act="' + act + '"' +
+						(pressed === undefined ? '' : ' aria-pressed="' + pressed + '"') +
+						(shared ? off : ' title="' + title + '"') + ' aria-label="' + title + '">' + icon + '</button>';
+				}
+				function flag(text, icon) {
+					return '<span role="img" title="' + text + '" aria-label="' + text + '">' + icon + '</span>';
+				}
+				var sel = bqeSel && b.id === bqeSel.id;
+				html += '<li tabindex="0" data-id="' + b.id + '"' + (sel ? ' class="sel" aria-current="true"' : '') + '>' +
+					'<span class="nm">' + b.id + ' ' + esc(b.name) + '</span>' +
+					'<span class="flags">' +
+						(shared ? flag('{=L:yw.bqe.shared=}', I_TWIN) : '') +
+						(b.hidden ? flag('{=L:yw.bqe.hidden=}', I_EYEOFF) : '') +
+						(b.locked ? flag('{=L:yw.bqe.locked=}', I_KEY) : '') +
+						' ' + n + '</span>' +
+					btn('up', '', '{=L:yw.bqe.t_up=}', I_UP) +
+					btn('down', '', '{=L:yw.bqe.t_down=}', I_DOWN) +
+					btn('rename', '', '{=L:yw.bqe.t_rename=}', I_EDIT) +
+					btn('hidden', b.hidden ? ' on' : '', b.hidden ? '{=L:yw.bqe.t_show=}' : '{=L:yw.bqe.t_hide=}', b.hidden ? I_EYEOFF : I_EYE, b.hidden ? 'true' : 'false') +
+					btn('locked', b.locked ? ' on' : '', b.locked ? '{=L:yw.bqe.t_unlock=}' : '{=L:yw.bqe.t_lock_on=}', I_KEY, b.locked ? 'true' : 'false') +
+					btn('del', '', '{=L:yw.bqe.t_del=}', I_X) +
 					'</li>';
 			});
 			ul.innerHTML = html || '<li class="bqe-empty">{=L:yw.bqe.no_bouquets=}</li>';
+			bqeShown = bqeBouquets;
+			if (was) {
+				// by its name when that is its own, else by its position
+				var same = bqeBouquets.filter(function(b) { return b.name === was.name; });
+				var at = same.length === 1 ? same[0].id : was.id;
+				bqeFocusRow(ul.querySelector('li[data-id="' + at + '"]'), had.act);
+			}
+		}
+
+		// One handler for the bouquet list: a click on a row picks it, a click
+		// on one of its buttons acts on it; Enter or Space on a row picks it.
+		function bqeBouquetEvent(e) {
+			var li = e.target.closest('li[data-id]');
+			if (!li) return;
+			var b = bqeById(parseInt(li.dataset.id, 10));
+			if (!b) return;
+			var btn = e.target.closest('button[data-act]');
+			if (e.type === 'keydown') {
+				if (btn || (e.key !== 'Enter' && e.key !== ' ')) return;
+				e.preventDefault();
+			}
+			if (!btn) { bqeSelect(b); return; }
+			e.stopPropagation();
+			if (btn.disabled) return;
+			var act = btn.dataset.act;
+			if (act === 'up' || act === 'down') bqeMove(b, act);
+			else if (act === 'rename') bqeRename(b);
+			else if (act === 'hidden' || act === 'locked') bqeToggle(b, act);
+			else if (act === 'del') bqeDelete(b);
 		}
 
 		function bqeRenderChannels() {
 			var ul = document.getElementById('bqeChannels');
-			document.getElementById('bqeChTitle').textContent =
-				bqeSelected === null ? '{=L:yw.bqe.channels=}' : ('{=L:yw.bqe.channels=} #' + bqeSelected + ' (' + bqeChan.length + ')');
+			var ready = bqeChanReady();
+			var off = bqeEditable() ? '' : ' disabled';
+			bqeUpdateApply();
+			document.getElementById('bqeChTitle').textContent = !bqeSel ? '{=L:yw.bqe.channels=}' :
+				('{=L:yw.bqe.channels=}: ' + bqeSel.name + (ready ? ' (' + bqeChan.length + ')' : ''));
 			var html = '';
 			bqeChan.forEach(function(c, i) {
 				html += '<li draggable="true" ondragstart="bqeDragMove(event, ' + i + ')"' +
 					' ondragover="bqeRowOver(event, ' + i + ')" ondragleave="bqeRowLeave(event)" ondrop="bqeRowDrop(event, ' + i + ')">' +
 					'<span class="flags">' + (i + 1) + '</span>' +
 					'<span class="nm">' + esc(c.name) + '</span>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_up=}" onclick="bqeChMove(' + i + ', -1)">' + I_UP + '</button>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_down=}" onclick="bqeChMove(' + i + ', 1)">' + I_DOWN + '</button>' +
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_remove=}" onclick="bqeChRemove(' + i + ')">' + I_X + '</button></li>';
+					'<button type="button" class="bqe-mini" data-act="up"' + off + ' title="{=L:yw.bqe.t_up=}" aria-label="{=L:yw.bqe.t_up=}" onclick="bqeChMove(' + i + ', -1)">' + I_UP + '</button>' +
+					'<button type="button" class="bqe-mini" data-act="down"' + off + ' title="{=L:yw.bqe.t_down=}" aria-label="{=L:yw.bqe.t_down=}" onclick="bqeChMove(' + i + ', 1)">' + I_DOWN + '</button>' +
+					'<button type="button" class="bqe-mini" data-act="remove"' + off + ' title="{=L:yw.bqe.t_remove=}" aria-label="{=L:yw.bqe.t_remove=}" onclick="bqeChRemove(' + i + ')">' + I_X + '</button></li>';
 			});
 			ul.innerHTML = html || '<li class="bqe-empty">' +
-				(bqeSelected === null ? '{=L:yw.bqe.pick_left=}' : '{=L:yw.bqe.empty_drop=}') + '</li>';
+				(!bqeSel ? '{=L:yw.bqe.pick_left=}' : ready ? '{=L:yw.bqe.empty_drop=}' :
+				 bqeChanReading ? '…' : '{=L:yw.bqe.not_read=}') + '</li>';
 		}
 
+		// Channel names go into data attributes and are read back from there,
+		// never into the script of an attribute.
 		function bqeRenderAll() {
 			var f = (document.getElementById('bqeFilter').value || '').toLowerCase();
+			var can = bqeEditable() && bqeAllOf === bqeMode() ? '' : ' disabled';
 			var inBq = {};
 			bqeChan.forEach(function(c) { inBq[c.id] = true; });
 			var html = '';
@@ -267,31 +535,60 @@
 				hits++;
 				if (shown >= 400) continue; // Rest nur zaehlen
 				shown++;
-				var idj = escapeJs(c.id), nmj = escapeJs(c.name);
-				html += '<li draggable="true" ondragstart="bqeDragAdd(event, \'' + idj + '\', \'' + nmj + '\')"' +
-					' ondblclick="bqeChAdd(\'' + idj + '\', \'' + nmj + '\')">' +
+				html += '<li draggable="true" data-id="' + esc(c.id) + '" data-name="' + esc(c.name) + '">' +
 					'<span class="nm">' + esc(c.name) + '</span>' +
 					(inBq[c.id] ? '<span class="flags">{=L:yw.bqe.in_bouquet=}</span>' :
-					'<button type="button" class="bqe-mini" title="{=L:yw.bqe.t_add=}" onclick="bqeChAdd(\'' + idj + '\', \'' + nmj + '\')">' + I_PLUS + '</button>') +
+					'<button type="button" class="bqe-mini" data-act="add"' + can + ' title="{=L:yw.bqe.t_add=}" aria-label="{=L:yw.bqe.t_add=}">' + I_PLUS + '</button>') +
 					'</li>';
 			}
 			if (hits > shown)
 				html += '<li class="bqe-empty">+' + (hits - shown) + ' {=L:yw.bqe.more_hits=}</li>';
 			document.getElementById('bqeAllCount').textContent =
 				f ? (hits + '/' + bqeAllChan.length) : String(bqeAllChan.length);
-			document.getElementById('bqeAll').innerHTML = html || '<li class="bqe-empty">{=L:yw.bqe.no_hits=}</li>';
+			document.getElementById('bqeAll').innerHTML = html || '<li class="bqe-empty">' +
+				(bqeAllOf === bqeMode() ? '{=L:yw.bqe.no_hits=}' : '…') + '</li>';
 		}
 
-		async function bqeSelect(nr) {
-			bqeSelected = nr;
-			bqeRenderBouquets();
-			await bqeLoadChannels(nr);
-			bqeRenderAll();
+		function bqeAllEvent(e) {
+			var li = e.target.closest('li[data-id]');
+			if (!li) return;
+			if (e.type === 'dragstart') { bqeDragAdd(e, li.dataset.id, li.dataset.name); return; }
+			if (e.type === 'click' && !e.target.closest('button[data-act="add"]')) return;
+			bqeChAdd(li.dataset.id, li.dataset.name);
+		}
+
+		// Choosing the bouquet shown again reads its list once more when that
+		// read had failed.
+		function bqeSelect(b) {
+			if (bqeSel && b.id === bqeSel.id && (bqeChanReady() || bqeChanReading)) return;
+			bqeUnlessDirty(async function() {
+				bqeSel = {id: b.id, name: b.name};
+				bqeChanClear();
+				bqeRenderBouquets();
+				var reading = bqeLoadChannels();
+				bqeRenderChannels();
+				bqeRenderAll();
+				await reading;
+				bqeRenderAll();
+			});
+		}
+
+		function bqeModeChanged() {
+			var sel = document.getElementById('bqeMode');
+			var wanted = sel.value;
+			sel.value = bqeModeShown;
+			bqeUnlessDirty(function() {
+				sel.value = bqeModeShown = wanted;
+				// neither list is one of this mode until it has been read
+				bqeAllChan = [];
+				bqeAllOf = null;
+				bqeReloadAll(true);
+			});
 		}
 
 		// ---- Drag & Drop: Kanaele im Bouquet sortieren und aus
-		// "Alle Kanaele" herueberziehen (Arbeitskopie; Uebernehmen +
-		// Speichern persistieren). Knoepfe bleiben als Touch-Fallback.
+		// "Alle Kanaele" herueberziehen (Arbeitskopie, "Uebernehmen"
+		// speichert). Knoepfe bleiben als Touch-Fallback.
 		var bqeDrag = null; // {type:'move', from} | {type:'add', id, name}
 
 		function bqeDragMove(e, i) {
@@ -307,7 +604,7 @@
 		}
 
 		function bqeDropOk() {
-			return bqeDrag && (bqeDrag.type === 'move' || bqeSelected !== null);
+			return !!bqeDrag && bqeEditable() && (bqeDrag.type === 'move' || bqeAllOf === bqeMode());
 		}
 
 		function bqeRowOver(e, i) {
@@ -378,106 +675,155 @@
 			document.getElementById('bqeChannels').classList.remove('drop-hover');
 		});
 
-		// ---- Kanal-Operationen (lokale Arbeitskopie, dann changebouquet)
+		// ---- Kanal-Operationen (Arbeitskopie, "Uebernehmen" speichert sie);
+		// nur an einer Arbeitskopie, die fuer dieses Bouquet gelesen ist
 		function bqeChMove(i, d) {
 			var j = i + d;
-			if (j < 0 || j >= bqeChan.length) return;
+			if (!bqeEditable() || j < 0 || j >= bqeChan.length) return;
+			var ul = document.getElementById('bqeChannels');
+			var had = bqeFocusIn(ul);
 			var t = bqeChan[i]; bqeChan[i] = bqeChan[j]; bqeChan[j] = t;
 			setDirty(true); bqeRenderChannels();
+			if (had) bqeFocusRow(ul.children[j], had.act);
 		}
 		function bqeChRemove(i) {
+			if (!bqeEditable()) return;
+			var ul = document.getElementById('bqeChannels');
+			var had = bqeFocusIn(ul);
 			bqeChan.splice(i, 1);
 			setDirty(true); bqeRenderChannels(); bqeRenderAll();
+			if (had) bqeFocusRow(ul.children[Math.min(i, bqeChan.length - 1)], 'remove');
 		}
 		function bqeChAdd(id, name) {
-			if (bqeSelected === null) { ywebShowToast('{=L:yw.bqe.pick_first=}', true); return; }
+			if (!bqeSel) { ywebShowToast('{=L:yw.bqe.pick_first=}', true); return; }
+			if (!bqeEditable() || bqeAllOf !== bqeMode()) return;
+			if (bqeChan.some(function(c) { return c.id === id; })) return;
 			bqeChan.push({id: id, name: name});
 			setDirty(true); bqeRenderChannels(); bqeRenderAll();
 		}
 
-		async function bqeApplyChannels(btn) {
-			if (bqeSelected === null) { ywebShowToast('{=L:yw.bqe.none_picked=}', true); return; }
-			btn.disabled = true;
+		// The channel list of the chosen bouquet in the shown mode, as a whole;
+		// the other mode's half of the bouquet stays as it is.
+		async function bqeApplyChannels() {
+			if (!bqeSel) { ywebShowToast('{=L:yw.bqe.none_picked=}', true); return; }
+			if (bqeApplying || !bqeChanDirty || !bqeChanReady() || bqeShared(bqeSel.name)) return;
+			bqeApplying = true;
+			bqeUpdateApply();
 			try {
-				var ids = bqeChan.map(function(c) { return c.id; }).join(',');
-				await ywebApi('changebouquet', {selected: bqeSelected, bchannels: ids});
+				await bqeOwnRequest('PUT', bqePath(bqeSel.name, 'channels'), {
+					query: {mode: bqeMode()},
+					body: bqeChan.map(function(c) { return c.id; })
+				});
 				setDirty(false);
 				ywebShowToast('{=L:yw.bqe.applied=}');
+				bqeApplying = false;
+				await bqeReloadAll();
 			} catch (e) {
 				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+			} finally {
+				bqeApplying = false;
+				bqeRenderChannels();
 			}
-			btn.disabled = false;
 		}
 
-		// ---- Bouquet-Operationen (Dialoge: shared ywebShowPrompt statt
-		// nativem prompt(), Fehler landen als Toast)
+		function bqeDiscard() {
+			if (bqeSel) bqeReloadAll(true);
+		}
+
+		// ---- Bouquet-Operationen: each one is saved on the box at once; the
+		// lists are read again, the working copy of the channels stays
+		async function bqeChange(method, path, body) {
+			try {
+				await bqeOwnRequest(method, path, body === undefined ? {} : {body: body});
+				return true;
+			} catch (e) {
+				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				return false;
+			}
+		}
+
 		function bqeAddBouquet() {
 			ywebShowPrompt('{=L:yw.bqe.new=}', '{=L:yw.bqe.new_name=}', '', async function(name) {
-				try {
-					await ywebApi('addbouquet', {name: name});
+				if (await bqeChange('POST', '/bouquets', {name: name})) {
 					ywebShowToast('{=L:yw.bqe.created=}');
 					await bqeLoadBouquets();
-				} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
+				}
 			});
 		}
 
-		function bqeRename(nr, oldName) {
-			ywebShowPrompt(oldName, '{=L:yw.bqe.rename_name=}', oldName, async function(name) {
-				if (name === oldName) return;
-				try {
-					await ywebApi('renamebouquet', {selected: nr, nameto: name});
+		function bqeRename(b) {
+			ywebShowPrompt(b.name, '{=L:yw.bqe.rename_name=}', b.name, async function(name) {
+				if (name === b.name) return;
+				var mine = bqeSel && bqeSel.name === b.name ? bqeSel : null;
+				if (mine) mine.renaming = name;
+				var done = await bqeChange('PUT', bqePath(b.name, 'name'), {name: name});
+				if (mine) {
+					delete mine.renaming;
+					if (done && bqeSel === mine) mine.name = name;
+				}
+				if (done) {
 					ywebShowToast('{=L:yw.bqe.renamed=}');
-				} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
+					await bqeLoadBouquets();
+				}
 			});
 		}
 
-		async function bqeMove(nr, dir) {
-			try {
-				await ywebApi('movebouquet', {selected: nr, action: dir});
-				if (bqeSelected === nr) bqeSelected += (dir === 'up' ? -1 : 1);
+		async function bqeMove(b, dir) {
+			if (await bqeChange('PUT', bqePath(b.name, 'position'), {direction: dir}))
 				await bqeLoadBouquets();
-			} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		}
 
-		async function bqeToggle(nr, action) {
-			try {
-				await ywebApi('setbouquet', {selected: nr, action: action});
+		async function bqeToggle(b, flag) {
+			if (await bqeChange('PUT', bqePath(b.name, flag), {on: !b[flag]}))
 				await bqeLoadBouquets();
-			} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		}
 
-		function bqeDelete(nr, name) {
-			ywebShowConfirm('{=L:yw.bqe.del_title=}', '{=L:yw.bqe.del_msg=} "' + esc(name) + '"?', '{=L:yw.bqe.del_btn=}',
+		// The list is read again either way: a delete the box refused may
+		// mean the bouquet went or changed meanwhile.
+		function bqeDelete(b) {
+			ywebShowConfirm('{=L:yw.bqe.del_title=}', '{=L:yw.bqe.del_msg=} "' + esc(b.name) + '"?', '{=L:yw.bqe.del_btn=}',
 				async function() {
-					await ywebApi('deletebouquet', {selected: nr});
-					if (bqeSelected === nr) { bqeSelected = null; bqeChan = []; bqeRenderChannels(); }
+					var done = await bqeChange('DELETE', bqePath(b.name));
+					if (done && bqeSel && bqeSel.name === b.name) { bqeSel = null; bqeChanClear(); }
 					await bqeLoadBouquets();
-					ywebShowToast('{=L:yw.bqe.deleted=}');
+					bqeRenderChannels();
+					bqeRenderAll();
+					if (done) ywebShowToast('{=L:yw.bqe.deleted=}');
 				});
 		}
 
-		async function bqeSave(btn) {
-			btn.disabled = true;
-			try {
-				await ywebApi('savebouquet');
-				ywebShowToast('{=L:yw.bqe.saved=}');
-			} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
-			btn.disabled = false;
+		// The box announces every change of the bouquets. Our own ones read the
+		// lists again and keep the working copy; another one reloads, or, with
+		// channel edits not applied, asks first. Asked again when the timer
+		// runs out: editing may have begun meanwhile.
+		function bqeBouquetsChanged() {
+			var own = bqeOwnEvent();
+			if (!own && bqeChanDirty) { bqeShowStale(true); return; }
+			if (!own) bqeForeignSeen = true;
+			clearTimeout(bqeReloadTimer);
+			bqeReloadTimer = setTimeout(function() {
+				var ownOnly = !bqeForeignSeen;
+				bqeForeignSeen = false;
+				if (own || !bqeChanDirty) bqeReloadAll(false, ownOnly);
+				else bqeShowStale(true);
+			}, 300);
 		}
 
-		async function bqeSaveReload(btn) {
-			btn.disabled = true;
-			try {
-				await ywebApi('savebouquet');
-				await ywebApi('reloadchannels');
-				ywebShowToast('{=L:yw.bqe.saved_reloaded=}');
-				await bqeReloadAll();
-			} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
-			btn.disabled = false;
-		}
+		// Leaving the page would drop unapplied channel edits; the browser asks.
+		window.addEventListener('beforeunload', function(e) {
+			if (!bqeChanDirty) return;
+			e.preventDefault();
+			e.returnValue = '';
+		});
 
+		document.getElementById('bqeBouquets').addEventListener('click', bqeBouquetEvent);
+		document.getElementById('bqeBouquets').addEventListener('keydown', bqeBouquetEvent);
+		document.getElementById('bqeAll').addEventListener('click', bqeAllEvent);
+		document.getElementById('bqeAll').addEventListener('dblclick', bqeAllEvent);
+		document.getElementById('bqeAll').addEventListener('dragstart', bqeAllEvent);
 		ywebInitHeader('tools');
-		bqeReloadAll();
+		ywebV1Events({'bouquets-changed': bqeBouquetsChanged});
+		bqeReloadAll(true);
 	</script>
 </body>
 </html>

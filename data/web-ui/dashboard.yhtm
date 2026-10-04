@@ -13,7 +13,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=87">
+	<link rel="stylesheet" href="/css/yweb.css?v=88">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -1195,8 +1195,8 @@
 		<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
 	</footer>
 
-	<script src="/Y_Lang.yjs?v=20"></script>
-	<script src="/yweb-header.js?v=52"></script>
+	<script src="/Y_Lang.yjs?v=21"></script>
+	<script src="/yweb-header.js?v=53"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;
