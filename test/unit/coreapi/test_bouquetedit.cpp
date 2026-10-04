@@ -439,6 +439,40 @@ TEST_CASE("a list naming a channel the box does not have changes nothing", "[bou
 	REQUIRE(e.fake.saves == 0);
 }
 
+TEST_CASE("a channel of the other kind is refused before anything is sent", "[bouquetedit]")
+{
+	/* The box files a channel by its own kind and not by the half it was named
+	   for: television channels sent for the radio half would go into the
+	   television half a second time while the radio half was emptied. A page
+	   that switches between the halves and sends the list it showed a moment
+	   ago would do just that. Refused both ways round, before the box is
+	   asked anything. */
+	Edit e;
+
+	ChannelIdList asked;
+	asked.push_back(ZDF);
+	asked.push_back(DLF);
+	const Result<void> tv = channels::setBouquetChannels("Favoriten", asked, channels::Mode::Tv);
+	REQUIRE_FALSE(tv.ok());
+	REQUIRE(tv.error().status == Status::InvalidArgument);
+	REQUIRE(tv.error().code == ErrorCode::WrongKindOfChannel);
+
+	const Result<void> radio = channels::setBouquetChannels("Favoriten", one(ERSTE),
+	                                                        channels::Mode::Radio);
+	REQUIRE_FALSE(radio.ok());
+	REQUIRE(radio.error().status == Status::InvalidArgument);
+	REQUIRE(radio.error().code == ErrorCode::WrongKindOfChannel);
+
+	const ChannelList now = e.fake.bouquet_members[2];
+	REQUIRE(now.size() == 2);
+	REQUIRE(holds(now, ERSTE));
+	REQUIRE(holds(now, DLF));
+	REQUIRE(e.fake.saves == 0);
+
+	// Each half still takes its own kind.
+	REQUIRE(channels::setBouquetChannels("Favoriten", one(DLF), channels::Mode::Radio).ok());
+}
+
 TEST_CASE("a change the box turned down is not written out", "[bouquetedit]")
 {
 	Edit e;

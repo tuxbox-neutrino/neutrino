@@ -155,6 +155,13 @@ enum class ErrorCode
 
 	   Named rather than met by taking the first of them. */
 	TooManyChannels,
+	/* A channel named for the half of a bouquet that holds the other kind: a
+	   radio channel for the television half, or a television one for the
+	   radio half. Refused rather than placed, because the box files a channel
+	   by its own kind, so it would land in the other half, a second time if
+	   it is there already, and the half that was named would come out
+	   without it. */
+	WrongKindOfChannel,
 	/* A value offered for a setting, against the row that declares it. Three
 	   codes, because a caller either sends a number at all, sends one inside
 	   the range, or sends one of the values the setting lists. */
@@ -479,6 +486,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::BodyTooLarge: return "body-too-large";
 		case ErrorCode::RangeOutsideFile: return "range-outside-file";
 		case ErrorCode::TooManyChannels: return "too-many-channels";
+		case ErrorCode::WrongKindOfChannel: return "wrong-kind-of-channel";
 		case ErrorCode::NotANumber: return "not-a-number";
 		case ErrorCode::OutOfRange: return "out-of-range";
 		case ErrorCode::NotAListedValue: return "not-a-listed-value";

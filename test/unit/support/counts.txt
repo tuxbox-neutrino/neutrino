@@ -29,7 +29,7 @@ chooser call sites read	199
 chooser call sites read whole	182
 conditions checked	34
 defaults compared against the program	236
-error codes the header declares	147
+error codes the header declares	148
 fields the bound scan read	45
 fields the chooser scan read	195
 fields with a stated label	91
@@ -52,9 +52,9 @@ listed keys compared against the table	25
 locale names the program has	3078
 options an applier or its notifier branches on	49
 parameters the document describes	134
-refusals the document states against a route	780
-refusals the routes declare of their own	122
-refusals the shipped routes were seen to give	186
+refusals the document states against a route	781
+refusals the routes declare of their own	123
+refusals the shipped routes were seen to give	187
 routes the document describes	98
 rows an applier acts on	25
 rows compared against the load and save pass	353

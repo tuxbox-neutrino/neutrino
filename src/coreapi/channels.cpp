@@ -780,6 +780,13 @@ Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &id
 		if (s != Status::Ok)
 			return fail(s, ErrorCode::ChannelListUnavailable,
 				    "the channel list could not be read");
+		/* The box files a channel by its own kind and not by the half it is
+		   named for, so one of the other kind would go into the other half
+		   and the half named here would come out without it. */
+		if (isTelevision(probe.kind) != (kind == Mode::Tv))
+			return fail(Status::InvalidArgument, ErrorCode::WrongKindOfChannel,
+				    kind == Mode::Tv ? "a radio channel cannot go into the television list"
+						     : "a television channel cannot go into the radio list");
 	}
 
 	const Result<void> done =

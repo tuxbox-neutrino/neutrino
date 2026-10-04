@@ -1342,6 +1342,8 @@ const RouteRefusal kFillBouquetRefusals[] = {
 		"the body is not one array of hexadecimal channel identifiers"),
 	HTTPD_REFUSES(InvalidArgument, TooManyChannels,
 		"one half of a bouquet takes at most 4096 channels"),
+	HTTPD_REFUSES(InvalidArgument, WrongKindOfChannel,
+		"a channel of the other kind for this half"),
 	HTTPD_REFUSES(NotFound, NoSuchChannel,
 		"no channel with that id"),
 	HTTPD_REFUSES(NotFound, NoSuchBouquet,
@@ -1529,6 +1531,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 bad-int` or `400 bad-string`: the body is not 1 JSON array of hexadecimal ids of up to 16 digits.\n"
 	  "- `400 too-many-channels`: more than 4096 ids.\n"
+	  "- `400 wrong-kind-of-channel`: an id names a radio channel for the television half, or the other way round; nothing was changed.\n"
 	  "- `404 no-such-channel`: an id names no channel; nothing was changed.\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
 	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"

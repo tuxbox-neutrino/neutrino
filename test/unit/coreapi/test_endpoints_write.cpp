@@ -2498,6 +2498,39 @@ TEST_CASE("filling one half of a bouquet leaves the other half alone", "[write]"
 	REQUIRE(now["radio_count"].asUInt() == 1u);
 }
 
+TEST_CASE("a half takes no channel of the other kind", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+
+	coreapi::ChannelInfo radio = makeChannel(0x4c21ULL, "the radio one");
+	radio.kind = coreapi::ServiceKind::Radio;
+	box.channels.channels.push_back(radio);
+	box.channels.bouquet_members[1].push_back(box.channels.channels[0]);
+	box.channels.bouquet_members[1].push_back(radio);
+
+	/* The box files a channel by its own kind, so the television channel sent
+	   for the radio half would have gone into the television half a second
+	   time while the radio half was emptied, and the read back would only
+	   have said so afterwards. Refused before the box is asked, both ways
+	   round, with a code a page can tell from a channel that is not there. */
+	const Reply tvForRadio = authedPut("/api/v1/bouquets/Erstes/channels?mode=radio",
+	                                   "[\"2b66\"]");
+	REQUIRE(tvForRadio.code == 400);
+	REQUIRE(tvForRadio.body.find("wrong-kind-of-channel") != std::string::npos);
+	const Reply radioForTv = authedPut("/api/v1/bouquets/Erstes/channels?mode=tv",
+	                                   "[\"2b66\",\"4c21\"]");
+	REQUIRE(radioForTv.code == 400);
+	REQUIRE(radioForTv.body.find("wrong-kind-of-channel") != std::string::npos);
+	REQUIRE(box.channels.bouquet_members[1].size() == 2u);
+	REQUIRE(box.channels.saves == 0u);
+
+	REQUIRE(authedPut("/api/v1/bouquets/Erstes/channels?mode=radio",
+	                  "[\"4c21\"]").code == 204);
+	REQUIRE(box.channels.saves == 1u);
+}
+
 TEST_CASE("a bouquet holds its channels in the order the list was written in", "[write]")
 {
 	/* What a caller sends is what it can read back. The half held whatever

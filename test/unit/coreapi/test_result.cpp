@@ -116,6 +116,7 @@ const Walked kWalked[] = {
 	CODE(BodyTooLarge),
 	CODE(RangeOutsideFile),
 	CODE(TooManyChannels),
+	CODE(WrongKindOfChannel),
 	CODE(NotANumber),
 	CODE(OutOfRange),
 	CODE(NotAListedValue),
