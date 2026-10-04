@@ -24,8 +24,8 @@
 #include <string.h>
 #include <unistd.h>
 #include "configure_network.h"
+#include <arpa/inet.h>
 #include <lib/libnet/libnet.h>             /* netGetNameserver, netSetNameserver   */
-#include <lib/libnet/network_interfaces.h> /* getInetAttributes, setInetAttributes */
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -62,7 +62,10 @@ CNetworkConfig::~CNetworkConfig()
 void CNetworkConfig::readConfig(std::string iname)
 {
 	ifname = iname;
-	inet_static = getInetAttributes(ifname, automatic_start, address, netmask, broadcast, gateway);
+	nameserver = "";
+	backendRead();
+	if (nameserver.empty())
+		netGetNameserver(nameserver);
 
 	init_vars();
 	copy_to_orig();
@@ -78,8 +81,11 @@ void CNetworkConfig::init_vars(void)
 
 	netGetHostname(hostname);
 
-	netGetDefaultRoute(router);
-	gateway = router;
+	/* a static setup keeps the gateway it was configured with */
+	if (!inet_static || gateway.empty()) {
+		netGetDefaultRoute(router);
+		gateway = router;
+	}
 
 	/* FIXME its enough to read IP for dhcp only ?
 	 * static config should not be different from settings in etc/network/interfaces */
@@ -118,6 +124,7 @@ void CNetworkConfig::copy_to_orig(void)
 	orig_netmask         = netmask;
 	orig_broadcast       = broadcast;
 	orig_gateway         = gateway;
+	orig_nameserver      = nameserver;
 	orig_inet_static     = inet_static;
 	orig_hostname	     = hostname;
 	orig_ifname	     = ifname;
@@ -181,135 +188,84 @@ bool CNetworkConfig::modified_from_orig(void)
 
 void CNetworkConfig::commitConfig(void)
 {
-	if (modified_from_orig())
+	if (!canConfigure())
 	{
-#ifdef DEBUG
-		printf("CNetworkConfig::commitConfig: modified, saving (wireless %d, ssid %s key %s)...\n", wireless, ssid.c_str(), key.c_str());
-#endif
-		if(orig_hostname != hostname)
-			netSetHostname(hostname);
+		printf("CNetworkConfig::commitConfig: %s is not configured here\n", ifname.c_str());
+		return;
+	}
 
-		if (inet_static)
-		{
-			addLoopbackDevice("lo", true);
-			setStaticAttributes(ifname, automatic_start, address, netmask, broadcast, gateway, wireless);
-		}
+	bool modified = modified_from_orig();
+	bool nameserver_changed = (nameserver != orig_nameserver);
+
+	if (modified && orig_hostname != hostname)
+	{
+		if (validHostname(hostname))
+			netSetHostname(hostname);
 		else
 		{
-			addLoopbackDevice("lo", true);
-			setDhcpAttributes(ifname, automatic_start, wireless);
+			printf("CNetworkConfig::commitConfig: invalid hostname, keeping the old one\n");
+			hostname = orig_hostname;
 		}
-		if(wireless && ((key != orig_key) || (ssid != orig_ssid)))
-			saveWpaConfig();
+	}
 
+	backendCommit(modified, nameserver_changed);
+
+	if (modified || nameserver_changed)
 		copy_to_orig();
-
-	}
-	if (nameserver != orig_nameserver)
-	{
-		orig_nameserver = nameserver;
-		netSetNameserver(nameserver);
-	}
 }
 
-void CNetworkConfig::startNetwork(void)
+bool CNetworkConfig::systemManaged(void)
 {
-	std::string ifup = find_executable("ifup");
-	if (ifup.empty())
-	{
-		printf("CNetworkConfig::startNetwork: ifup not found\n");
-		return;
-	}
-
-	std::string cmd = ifup + " " + ifname;
-#ifdef DEBUG
-	printf("CNetworkConfig::startNetwork: %s\n", cmd.c_str());
-#endif
-	my_system(3, "/bin/sh", "-c", cmd.c_str());
-
-	if (!inet_static)
-		init_vars();
+	return geteuid() != 0;
 }
 
-void CNetworkConfig::stopNetwork(void)
+/* letters, digits and hyphens in dot separated labels (RFC 1123) */
+bool CNetworkConfig::validHostname(const std::string &name)
 {
-	std::string ifdown = find_executable("ifdown");
-	if (ifdown.empty())
+	if (name.empty() || name.length() > 64)
+		return false;
+
+	size_t label = 0;
+	for (size_t i = 0; i < name.length(); i++)
 	{
-		printf("CNetworkConfig::stopNetwork: ifdown not found\n");
-		return;
-	}
-
-	std::string cmd = ifdown + " " + ifname;
-#ifdef DEBUG
-	printf("CNetworkConfig::stopNetwork: %s\n", cmd.c_str());
-#endif
-	my_system(3, "/bin/sh", "-c", cmd.c_str());
-}
-
-void CNetworkConfig::readWpaConfig()
-{
-	std::string   s;
-	std::ifstream in("/etc/wpa_supplicant.conf");
-
-	ssid = "";
-	key = "";
-	if(!in.is_open()) {
-		perror("/etc/wpa_supplicant.conf read error");
-		return;
-	}
-	while(getline(in, s)) {
-		if(s[0] == '#')
+		const char c = name[i];
+		if (c == '.')
+		{
+			if (label == 0 || name[i - 1] == '-')
+				return false;
+			label = 0;
 			continue;
-		std::string::size_type i = s.find('=');
-		if (i != std::string::npos) {
-			std::string n = s.substr(0, i);
-			std::string val = s.substr(i + 1, s.length() - (i + 1));
-
-			while((i = n.find(' ')) != std::string::npos)
-				n.erase(i, 1);
-			while((i = n.find('\t')) != std::string::npos)
-				n.erase(i, 1);
-
-			if((i = val.find('"')) != std::string::npos)
-				val.erase(i, 1);
-			if((i = val.rfind('"')) != std::string::npos)
-				val.erase(i, 1);
-
-			if(n == "ssid")
-				ssid = val;
-			else if(n == "psk")
-				key = val;
 		}
+		const bool alnum = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+		if (!alnum && !(c == '-' && label > 0))
+			return false;
+		if (++label > 63)
+			return false;
 	}
-#ifdef DEBUG
-	printf("CNetworkConfig::readWpaConfig: ssid %s key %s\n", ssid.c_str(), key.c_str());
-#endif
+	return label > 0 && name[name.length() - 1] != '-';
 }
 
-void CNetworkConfig::saveWpaConfig()
+bool CNetworkConfig::validAddress(const std::string &address)
 {
-#ifdef DEBUG
-	printf("CNetworkConfig::saveWpaConfig\n");
-#endif
-	std::ofstream out("/etc/wpa_supplicant.conf");
-	if(!out.is_open()) {
-		perror("/etc/wpa_supplicant.conf write error");
-		return;
+	struct in_addr in;
+	return inet_pton(AF_INET, address.c_str(), &in) == 1;
+}
+
+/* a name the kernel knows, made of characters that are harmless in a
+ * file name and on a command line */
+bool CNetworkConfig::validInterface(const std::string &name)
+{
+	if (name.empty() || name.length() > 15)
+		return false;
+
+	for (size_t i = 0; i < name.length(); i++)
+	{
+		const char c = name[i];
+		const bool ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
+		if (!ok || (i == 0 && (c == '.' || c == '-')))
+			return false;
 	}
-	out << "# generated by neutrino\n";
-	out << "ctrl_interface=/var/run/wpa_supplicant\n";
-	out << "\n";
-	out << "network={\n";
-	out << "	ssid=\"" + ssid + "\"\n";
-	if (!key.empty()) {
-		out << "	psk=\"" + key + "\"\n";;
-		out << "	proto=WPA WPA2\n";
-		out << "	key_mgmt=WPA-PSK\n";
-		out << "	pairwise=CCMP TKIP\n";
-		out << "	group=CCMP TKIP\n";
-	} else {
-		out << "	key_mgmt=NONE\n";
-	}
-	out << "}\n";
+
+	std::string sys = "/sys/class/net/" + name;
+	return access(sys.c_str(), F_OK) == 0;
 }
