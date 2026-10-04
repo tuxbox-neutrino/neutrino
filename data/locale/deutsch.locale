@@ -219,6 +219,30 @@ auto_update_check_monthly monatlich
 auto_update_check_off deaktiviert
 auto_update_check_on_start_only nur bei Start
 auto_update_check_weekly wöchentlich
+bluetooth.auth_failed Kopplung fehlgeschlagen.\nDer Code war falsch oder das Gerät hat abgelehnt.
+bluetooth.confirm_code Zeigt das Gerät diesen Code?
+bluetooth.connected verbunden
+bluetooth.connecting Verbindung wird hergestellt ...
+bluetooth.failed Das Gerät antwortet nicht.\nBitte in den Kopplungsmodus versetzen und erneut versuchen.
+bluetooth.gone Das Gerät wird nicht mehr gefunden.\nBitte erneut suchen.
+bluetooth.kind_audio Audio
+bluetooth.kind_gamepad Gamepad
+bluetooth.kind_input Eingabegerät
+bluetooth.kind_keyboard Tastatur
+bluetooth.kind_mouse Maus
+bluetooth.no_profile Das Gerät ist gekoppelt, kann von dieser Box aber nicht verwendet werden.
+bluetooth.none_found Keine Geräte gefunden
+bluetooth.paired gekoppelt
+bluetooth.pairing Gerät wird gekoppelt ...
+bluetooth.pin PIN des Geräts
+bluetooth.power Bluetooth ein/aus
+bluetooth.power_failed Bluetooth konnte nicht umgeschaltet werden.
+bluetooth.remove Gerät entfernen
+bluetooth.remove_ask Dieses Gerät und seine Kopplung entfernen?
+bluetooth.scan Geräte suchen
+bluetooth.scan_wait Bluetooth-Geräte werden gesucht ...
+bluetooth.type_code Diesen Code am Gerät eingeben und mit Enter bestätigen:
+bluetooth.unavailable Bluetooth ist nicht verfügbar.
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
@@ -1308,6 +1332,11 @@ menu.hint_back_brief Zurück zum vorherigen Menü.
 menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
+menu.hint_bluetooth_connect Dieses Gerät verbinden
+menu.hint_bluetooth_disconnect Dieses Gerät trennen
+menu.hint_bluetooth_pair Dieses Gerät koppeln und verbinden
+menu.hint_bluetooth_power Den Bluetooth-Adapter ein- oder ausschalten
+menu.hint_bluetooth_scan Nach Geräten suchen, die im Kopplungsmodus sind
 menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
 menu.hint_ca_init Konfiguration der CA-Systemhardware, CA-Modul und Kartenschächte
 menu.hint_cache_txt Startet das Zwischenspeichern des Videotextes nach einem Kanalwechsel
@@ -1547,6 +1576,7 @@ menu.hint_moviebrowser_fonts Ändern Sie die Schriftgrößen im Moviebrowser (Me
 menu.hint_moviebrowser_setup Auswahl- und Anzeigeoptionen einstellen.
 menu.hint_movieplayer_display_playtime Zeigt während der Wiedergabe die Spielzeit anstatt des Fimtitels im VFD
 menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste im Movieplayer-Modus gestartet wird
+menu.hint_net_bluetooth Lautsprecher, Kopfhörer, Tastaturen, Mäuse und Gamepads koppeln und verbinden
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische Vergabe einer IP-Adresse im Netzwerk
 menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem unter /media/00upnp
@@ -2246,6 +2276,7 @@ mpkey.subtitle Untertitel
 mpkey.time Zeitanzeige
 networkmenu.apply_settings Änderungen werden übernommen ...
 networkmenu.apply_settings_now Änderungen jetzt zuweisen?
+networkmenu.bluetooth Bluetooth
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.error_hostname Ungültiger Hostname!\nErlaubt sind Buchstaben, Ziffern und Bindestriche.

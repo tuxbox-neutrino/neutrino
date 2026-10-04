@@ -219,6 +219,30 @@ auto_update_check_monthly monthly
 auto_update_check_off Off
 auto_update_check_on_start_only only on start
 auto_update_check_weekly weekly
+bluetooth.auth_failed Pairing failed.\nThe code was wrong or the device refused.
+bluetooth.confirm_code Does the device show this code?
+bluetooth.connected connected
+bluetooth.connecting Connecting ...
+bluetooth.failed The device did not answer.\nPut it into pairing mode and try again.
+bluetooth.gone The device is not found any more.\nPlease search again.
+bluetooth.kind_audio Audio
+bluetooth.kind_gamepad Gamepad
+bluetooth.kind_input Input device
+bluetooth.kind_keyboard Keyboard
+bluetooth.kind_mouse Mouse
+bluetooth.no_profile The device is paired, but nothing on this box can use it.
+bluetooth.none_found No devices found
+bluetooth.paired paired
+bluetooth.pairing Pairing ...
+bluetooth.pin PIN of the device
+bluetooth.power Bluetooth on/off
+bluetooth.power_failed Bluetooth could not be switched.
+bluetooth.remove Remove device
+bluetooth.remove_ask Remove this device and its pairing?
+bluetooth.scan Search for devices
+bluetooth.scan_wait Searching for Bluetooth devices ...
+bluetooth.type_code Type this code on the device and press Enter:
+bluetooth.unavailable Bluetooth is not available.
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename rename
@@ -1308,6 +1332,11 @@ menu.hint_back_brief Return to previous menu
 menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
+menu.hint_bluetooth_connect Connect this device
+menu.hint_bluetooth_disconnect Disconnect this device
+menu.hint_bluetooth_pair Pair and connect this device
+menu.hint_bluetooth_power Switch the Bluetooth adapter on or off
+menu.hint_bluetooth_scan Search for devices that are in pairing mode
 menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_ca_init Configuration of CA-system hardware, CA-module and card slots
 menu.hint_cache_txt Start teletext caching after channel switch
@@ -1547,6 +1576,7 @@ menu.hint_moviebrowser_fonts Change moviebrowser (My recordings) font sizes
 menu.hint_moviebrowser_setup Set selection and display options.
 menu.hint_movieplayer_display_playtime While playback show playtime instead of movietitle on VFD/LCD
 menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
+menu.hint_net_bluetooth Pair and connect speakers, headphones, keyboards, mice and gamepads
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
 menu.hint_net_djmount Mount UPnP devices as filesystem\nunder /media/00upnp
@@ -2246,6 +2276,7 @@ mpkey.subtitle Subtitles
 mpkey.time Show time
 networkmenu.apply_settings Changes are applied
 networkmenu.apply_settings_now Do you want to apply settings now?
+networkmenu.bluetooth Bluetooth
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.error_hostname Invalid hostname!\nLetters, digits and hyphens are allowed.

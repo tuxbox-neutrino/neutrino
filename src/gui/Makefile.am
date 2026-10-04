@@ -138,6 +138,11 @@ libneutrino_gui_a_SOURCES += \
 	wlan_setup.cpp
 endif
 
+if ENABLE_BLUETOOTH
+libneutrino_gui_a_SOURCES += \
+	bluetooth_setup.cpp
+endif
+
 if ENABLE_LCD4LINUX
 libneutrino_gui_a_SOURCES += \
 	lcd4l_setup.cpp

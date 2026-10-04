@@ -65,6 +65,9 @@
 #include <system/helpers.h>
 
 #include <libnet.h>
+#ifdef ENABLE_BLUETOOTH
+#include <gui/bluetooth_setup.h>
+#endif
 #ifdef ENABLE_IWD
 #include <gui/wlan_setup.h>
 #else
@@ -143,6 +146,13 @@ int CNetworkSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		return showWlanList();
 	}
 #endif
+#ifdef ENABLE_BLUETOOTH
+	else if (actionKey == "bluetooth")
+	{
+		CBluetoothSetup bluetooth;
+		return bluetooth.exec(parent, "");
+	}
+#endif
 	else if (actionKey == "select_if")
 	{
 		return showInterfaceSelectMenu();
@@ -215,9 +225,18 @@ const CMenuOptionChooser::keyval OPTIONS_NTPENABLE_OPTIONS[OPTIONS_NTPENABLE_OPT
 	{ CNetworkSetup::NETWORK_NTP_ON, LOCALE_OPTIONS_NTP_ON }
 };
 
+/* with Bluetooth, the 1 opens its menu and the help key tests the network */
+#ifdef ENABLE_BLUETOOTH
+#define NETWORKTEST_KEY		CRCInput::RC_help
+#define NETWORKTEST_ICON	NEUTRINO_ICON_BUTTON_HELP
+#else
+#define NETWORKTEST_KEY		CRCInput::RC_1
+#define NETWORKTEST_ICON	NEUTRINO_ICON_BUTTON_1
+#endif
+
 static const struct button_label CNetworkSetupFooterButtons[] =
 {
-	{ NEUTRINO_ICON_BUTTON_1,	LOCALE_NETWORKMENU_TEST },
+	{ NETWORKTEST_ICON,		LOCALE_NETWORKMENU_TEST },
 	{ NEUTRINO_ICON_BUTTON_INFO,	LOCALE_NETWORKMENU_SHOW }
 };
 #define CNetworkSetupFooterButtonCount (sizeof(CNetworkSetupFooterButtons)/sizeof(CNetworkSetupFooterButtons[0]))
@@ -468,6 +487,9 @@ int CNetworkSetup::showNetworkSetup()
 	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
 	networkSettings->addItem(mf);
+#ifdef ENABLE_BLUETOOTH
+	addBluetoothItem(networkSettings);
+#endif
 
 #if 0
 	//services
@@ -481,7 +503,7 @@ int CNetworkSetup::showNetworkSetup()
 
 	int ret = 0;
 	networkSettings->setFooter(CNetworkSetupFooterButtons, CNetworkSetupFooterButtonCount);
-	networkSettings->addKey(CRCInput::RC_1, this, "networktest");
+	networkSettings->addKey(NETWORKTEST_KEY, this, "networktest");
 	networkSettings->addKey(CRCInput::RC_info, this, "networkshow");
 	while (true)
 	{
@@ -506,6 +528,15 @@ int CNetworkSetup::showNetworkSetup()
 	The network of a desktop is set up by that desktop. What is left here
 	are neutrino's own network services and a look at the active settings.
 */
+#ifdef ENABLE_BLUETOOTH
+void CNetworkSetup::addBluetoothItem(CMenuWidget *menu)
+{
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_NETWORKMENU_BLUETOOTH, true, NULL, this, "bluetooth", CRCInput::RC_1);
+	mf->setHint("", LOCALE_MENU_HINT_NET_BLUETOOTH);
+	menu->addItem(mf);
+}
+#endif
+
 int CNetworkSetup::showManagedNetworkSetup()
 {
 	CMenuWidget networkSettings(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_NETWORK, width, MN_WIDGET_ID_NETWORKSETUP);
@@ -523,6 +554,11 @@ int CNetworkSetup::showManagedNetworkSetup()
 	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0);
 	mf->setHint("", LOCALE_MENU_HINT_NET_PROXY);
 	networkSettings.addItem(mf);
+#ifdef ENABLE_BLUETOOTH
+	//Bluetooth is the desktop's as well, unless we are told otherwise
+	if (getenv("NEUTRINO_BLUETOOTH"))
+		addBluetoothItem(&networkSettings);
+#endif
 
 	networkSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_NETWORKMENU_MANAGED_BY_SYSTEM));
 	mf = new CMenuForwarder(LOCALE_NETWORKMENU_SELECT_IF, false, g_settings.ifname);
@@ -533,7 +569,7 @@ int CNetworkSetup::showManagedNetworkSetup()
 	networkSettings.integratePlugins(PLUGIN_INTEGRATION_NETWORK);
 
 	networkSettings.setFooter(CNetworkSetupFooterButtons, CNetworkSetupFooterButtonCount);
-	networkSettings.addKey(CRCInput::RC_1, this, "networktest");
+	networkSettings.addKey(NETWORKTEST_KEY, this, "networktest");
 	networkSettings.addKey(CRCInput::RC_info, this, "networkshow");
 
 	return networkSettings.exec(NULL, "");

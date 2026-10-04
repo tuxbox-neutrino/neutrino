@@ -87,6 +87,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		void backupNetworkSettings();
 		int showNetworkSetup();
 		int showManagedNetworkSetup();
+		void addBluetoothItem(CMenuWidget *menu);
 		int showInterfaceSelectMenu();
 		void showNetworkNTPSetup(CMenuWidget *menu_ntp);
 		int showNetworkNFSMounts();
