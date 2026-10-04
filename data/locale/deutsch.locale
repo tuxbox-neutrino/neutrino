@@ -2247,6 +2247,7 @@ networkmenu.apply_settings Änderungen werden übernommen ...
 networkmenu.apply_settings_now Änderungen jetzt zuweisen?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
+networkmenu.error_hostname Ungültiger Hostname!\nErlaubt sind Buchstaben, Ziffern und Bindestriche.
 networkmenu.error_no_address Keine %s-Adresse angegeben!
 networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname
@@ -2268,6 +2269,7 @@ networkmenu.httpd_threading Verbindungs-Threads
 networkmenu.httpd_user Benutzername
 networkmenu.inactive_network Netzwerk nicht aktiviert!
 networkmenu.ipaddress IP
+networkmenu.managed_by_system Wird vom System verwaltet
 networkmenu.mount Netzwerkfreigaben bearbeiten
 networkmenu.nameserver Nameserver
 networkmenu.netmask Netzmaske

@@ -44,6 +44,10 @@ class CNetworkConfig
 	void readWpaConfig();
 	void saveWpaConfig();
 
+	/* implemented once per backend, see configure_network_*.cpp */
+	void backendRead(void);
+	void backendCommit(bool modified, bool nameserver_changed);
+
  public:
 	bool        automatic_start;
 	std::string address;
@@ -71,6 +75,20 @@ class CNetworkConfig
 	void startNetwork(void);
 	void stopNetwork(void);
 	void setIfName(std::string name) { ifname = name;};
+
+	/* without root neutrino is an application on somebody's desktop, the
+	 * network belongs to that system and is not set up from here */
+	static bool systemManaged(void);
+	/* false when the settings of the interface are not ours to change:
+	 * the system manages the network, no backend is running, or it is a
+	 * wireless interface the backend leaves to the wireless daemon */
+	bool canConfigure(void);
+	/* the backend knows an interface that is configured but not started at boot */
+	bool hasAutomaticStart(void);
+
+	static bool validHostname(const std::string &name);
+	static bool validAddress(const std::string &address);
+	static bool validInterface(const std::string &name);
 };
 
 class CNetAdapter
