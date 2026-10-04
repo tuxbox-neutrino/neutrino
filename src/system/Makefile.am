@@ -59,3 +59,9 @@ else
 libneutrino_system_a_SOURCES += \
 	configure_network_ifupdown.cpp
 endif
+
+if ENABLE_IWD
+libneutrino_system_a_SOURCES += \
+	iwd_client.cpp
+AM_CPPFLAGS += @DBUS_CFLAGS@
+endif
