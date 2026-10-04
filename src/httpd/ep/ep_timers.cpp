@@ -366,9 +366,21 @@ Response changeTimer(const Request &r)
 	if (r.has("start"))
 	{
 		const time_t start = r.asTime("start");
-		// Keeps its lead; an announce the request names overrides it below.
+		/* Keeps its lead; an announce the request names overrides it below.
+		   The route bounds the start it is sent but not the times the daemon
+		   holds, which the older interfaces take from anywhere in a time_t, so
+		   the move is checked: one that does not fit a time_t gives the
+		   announce time up, and the layer below fills in the default lead as
+		   for a timer that names none. */
 		if (t.announce > 0)
-			t.announce += start - t.start;
+		{
+			time_t shift = 0;
+			time_t moved = 0;
+			if (__builtin_sub_overflow(start, t.start, &shift) ||
+			    __builtin_add_overflow(t.announce, shift, &moved))
+				moved = 0;
+			t.announce = moved;
+		}
 		t.start = start;
 	}
 	if (r.has("stop"))

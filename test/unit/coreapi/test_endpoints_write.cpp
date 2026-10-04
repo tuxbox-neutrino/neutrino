@@ -56,6 +56,7 @@
 #include <cstdlib>
 #include <map>
 #include <memory>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -1590,6 +1591,41 @@ TEST_CASE("a change of the start alone moves the announce time with it", "[write
 	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (start + 600));
 	authedPatch("/api/v1/timers/1", body);
 	CHECK(filedAnnounce(box, 0) == start + 600 - 60);
+}
+
+TEST_CASE("an announce time the daemon holds that cannot move with the start gives way to the lead", "[write]")
+{
+	/* The route bounds the start it is sent, so the far ends of a time_t can
+	   only be in what the daemon holds, which the older interfaces fill from
+	   anywhere. Moving the start then shifts an announce time that does not
+	   fit, and the move is checked rather than left to wrap: it gives the
+	   announce time up and the layer below fills in the default lead. */
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const time_t start = box.timers.clock + 3600;
+	char body[200];
+	std::snprintf(body, sizeof(body),
+		"{\"kind\":\"zapto\",\"channel_id\":\"2b66\",\"start\":%lld,\"announce\":%lld,\"repeat\":1}",
+		(long long) start, (long long) (start - 300));
+	REQUIRE(authedPost("/api/v1/timers", body).code == 201);
+	REQUIRE(filedAnnounce(box, 0) == start - 300);
+
+	// An announce time at the top of the range, moved later.
+	box.timers.timers[0].announce = std::numeric_limits<time_t>::max() - 10;
+	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (start + 60));
+	REQUIRE(authedPatch("/api/v1/timers/1", body).code == 200);
+	CHECK(filedAnnounce(box, 0) == start + 60 - 60);
+
+	/* A start at the bottom of it and an announce time at the top, which is
+	   where wrapping gives an answer that looks like one: the two moves wrap
+	   in opposite directions and leave an announce time six seconds before
+	   the new start, a lead nobody set. */
+	box.timers.timers[0].start = std::numeric_limits<time_t>::min();
+	box.timers.timers[0].announce = std::numeric_limits<time_t>::max() - 5;
+	std::snprintf(body, sizeof(body), "{\"start\":%lld}", (long long) (start + 120));
+	REQUIRE(authedPatch("/api/v1/timers/1", body).code == 200);
+	CHECK(filedAnnounce(box, 0) == start + 120 - 60);
 }
 
 TEST_CASE("a timer time outside the clock of the box is refused and nothing is stored", "[write]")
