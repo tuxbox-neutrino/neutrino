@@ -61,12 +61,21 @@ libneutrino_system_a_SOURCES += \
 	configure_network_ifupdown.cpp
 endif
 
+if USE_DBUS
+libneutrino_system_a_SOURCES += \
+	dbus_objects.cpp
+AM_CPPFLAGS += @DBUS_CFLAGS@
+endif
+
 if ENABLE_IWD
 libneutrino_system_a_SOURCES += \
-	dbus_objects.cpp \
 	iwd_client.cpp
-AM_CPPFLAGS += @DBUS_CFLAGS@
 else
 libneutrino_system_a_SOURCES += \
 	wpa_client.cpp
+endif
+
+if ENABLE_BLUETOOTH
+libneutrino_system_a_SOURCES += \
+	bluez_client.cpp
 endif

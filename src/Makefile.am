@@ -160,7 +160,7 @@ if ENABLE_LUA
 neutrino_LDADD += @LUA_LIBS@
 endif
 
-if ENABLE_IWD
+if USE_DBUS
 neutrino_LDADD += @DBUS_LIBS@
 endif
 

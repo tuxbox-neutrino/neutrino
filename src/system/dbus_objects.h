@@ -67,6 +67,9 @@ class CDBusObjects
 		bool callDispatching(const std::string &path, const char *iface, const char *method,
 				     const char *arg, int timeout_ms, std::string &error);
 
+		/* serve this connection for a while without a call of ours */
+		void dispatch(int ms);
+
 		/* the unique bus name of the service, to tell its calls from others */
 		std::string owner();
 

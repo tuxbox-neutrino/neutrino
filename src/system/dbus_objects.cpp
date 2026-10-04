@@ -184,6 +184,18 @@ bool CDBusObjects::callDispatching(const std::string &path, const char *iface, c
 	return ok;
 }
 
+void CDBusObjects::dispatch(int ms)
+{
+	if (!open())
+		return;
+
+	for (int i = 0; i < ms; i += 50)
+	{
+		if (!dbus_connection_read_write_dispatch(conn, 50))
+			break;
+	}
+}
+
 std::string CDBusObjects::owner()
 {
 	std::string result;
