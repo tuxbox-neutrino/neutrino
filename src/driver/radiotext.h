@@ -74,19 +74,42 @@ class CRadioText : public OpenThreads::Thread, public sigc::trackable
 		void send_pes_packet(unsigned char *data, int len, int timestamp);
 		void ShowImage(const char *file);
 		int first_packets;
-		bool uecp_in_frame;
-		bool uecp_escape;
-		int uecp_index;
-		unsigned char uecp_buf[512];
-		time_t uecp_last_ts;
+		/* A UECP frame being put together from the LATM DSEs: whether one
+		   is open, whether an escape byte came last, and the bytes so far,
+		   0xfe and then ADD..CRC unstuffed, index at the last of them. */
+		struct UecpFrame
+		{
+			bool in_frame;
+			bool escape;
+			int index;
+			unsigned char buf[264];
+		};
+		/* The readings of the frame being put together. A DSE that may be
+		   MPEG-4 ancillary data as well as a piece of UECP splits each of
+		   them in two, one without the DSE and one with it, and the length
+		   and CRC at the end of the frame decide which reading was right.
+		   One reading while no such DSE stands in the open frame, and room
+		   for UECP_READINGS; the reading that leaves every such DSE out is
+		   never the one given up for room. */
+		enum { UECP_READINGS = 32 };
+		UecpFrame uecp[UECP_READINGS];
+		int uecp_readings;
 
 		//Radiotext
 		void RadioStatusMsg(void);
 		bool DividePes(unsigned char *data, int length, int *substart, int *subend);
-		bool latm_scan_dse(const unsigned char *data, int len);
-		bool latm_process_frame(const unsigned char *data, int len);
+		void latm_scan_dse(const unsigned char *au, int len, int au_shift);
+		void latm_process_frame(const unsigned char *data, int len);
 		bool processLatmFromPes(const unsigned char *data, int len);
-		bool processUecpBuffer(const unsigned char *data, int len);
+		void processUecpBuffer(const unsigned char *data, int len, bool maybe_ancillary);
+		bool feedUecpReadings(unsigned char val, int first);
+		void keepUecpReading(int r);
+		void pruneUecpReadings();
+		bool uecpOpen() const;
+		static int feedUecpByte(UecpFrame &frame, unsigned char val);
+		static bool uecpFrameOk(UecpFrame &frame);
+		void deliverUecpFrame(UecpFrame &frame);
+		void failUecpFrame(UecpFrame &frame, bool ended);
 		void handleRdsMessage(unsigned char *mtext, int len);
 
 		uint pid;

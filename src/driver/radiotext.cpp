@@ -76,29 +76,41 @@ namespace
 /**
  * LATM/RDS decode path, taken only for audio the PMT gives as AAC in LATM
  * (stream type 0x11, passed in with setPid):
- * - PES audio payload -> LATM sync (0x56, 0xe0 mask)
- * - parse StreamMuxConfig (audio_mux_version_A == 0)
- * - read LATM payload length and scan for DSE blocks
- * - UECP frames (0xfe..0xff, 0xfd escaping) carry RDS MEC messages (RT/RT+)
+ * - PES audio payload -> LOAS sync (0x56, 0xe0 mask) -> AudioMuxElement
+ * - the StreamMuxConfig is read in full, its AudioSpecificConfig with the
+ *   GASpecificConfig included, so that the length of the access unit (AU)
+ *   behind it, and the AU itself, are read from the right bit
+ * - each AU is searched from its END backwards for the data stream element
+ *   (DSE): ETSI TS 101 154 Annex C.5.1 puts it after the audio elements,
+ *   before an optional FIL and the END. From the front it could only be
+ *   found by decoding the audio elements in front of it.
+ * - the DSE bytes carry UECP (EBU SPB 490) in forward order, one frame
+ *   spread over several AUs: 0xfe start, 0xff end, 0xfd 00/01/02 stuffing,
+ *   ADD SQC MFL MSG CRC, with the RDS messages (RT/RT+/PS/PTY/...)
  *
  * Debugging:
- * - RADIOTEXT_VERBOSE=0..3 prints UECP/MEC details
- * - RADIOTEXT_DUMP=1 or a path writes hex lines to /tmp/radiotext_dse.log
+ * - RADIOTEXT_VERBOSE=0..3 prints UECP/MEC details, from 2 on also a line
+ *   of counters at most every 10 s: frames lost show as sqc_gap, while
+ *   drop counts frames given up, mostly ones started by DSE look-alikes
+ * - RADIOTEXT_DUMP=1 or a path writes hex lines to /tmp/radiotext_dse.log:
+ *   DSE = DSE data fed to the UECP reader, DSE_ANC = fed, but it may be
+ *   MPEG-4 ancillary data as well, DSE_SKIP = DSE data left out (no frame
+ *   open, no start byte in it), UECP = a frame with a right CRC, UECP_CRC =
+ *   a frame with a wrong one
  * - RADIOTEXT_DUMP_MAX limits output size (default 524288)
- * - DSE = strict match, DSE_SCAN = heuristic scan, OTHERDATA = other_data bytes
- * - OTHERDATA dump is limited to 512 bytes, remaining bits are skipped
- * - UECP frames reset after 5s without an end marker to avoid long stalls
  */
 struct LatmConfig
 {
-	bool valid;
-	int audio_mux_version_A;
+	bool valid;         // a StreamMuxConfig has been read ...
+	bool unsupported;   // ... but it describes audio this reader cannot walk
+	int num_sub_frames;
 	int frame_length_type;
-	int frame_length;
+	int frame_length;   // AU bytes with frame_length_type 1
 
 	LatmConfig()
 		: valid(false)
-		, audio_mux_version_A(0)
+		, unsupported(false)
+		, num_sub_frames(0)
 		, frame_length_type(0)
 		, frame_length(0)
 	{
@@ -108,17 +120,22 @@ struct LatmConfig
 static LatmConfig latm_cfg;
 static std::vector<unsigned char> latm_pending;
 static const size_t latm_pending_max = 8192;
+static std::vector<unsigned char> latm_au;
+static int latm_aus = 0;
 static int latm_dse_hits = 0;
+static int latm_dse_fed = 0;
 static int latm_uecp_ok = 0;
 static int latm_uecp_crc_fail = 0;
+static int latm_uecp_drop = 0;
+static int latm_uecp_sqc_gap = 0;
+static int latm_uecp_last_sqc = 0;
+static time_t latm_stats_ts = 0;
 static FILE *latm_dump_fp = NULL;
 static unsigned int latm_dump_bytes = 0;
 static unsigned int latm_dump_limit = 0;
 static bool latm_dump_enabled = false;
 static char latm_dump_path[256];
 static const unsigned int latm_dump_default_limit = 512 * 1024;
-static const unsigned int latm_other_dump_max = 512;
-static const unsigned int latm_uecp_timeout_sec = 5;
 
 static void latm_dump_close()
 {
@@ -218,21 +235,6 @@ static void latm_dump_write_line(const char *tag, const unsigned char *data, int
 	latm_dump_bytes += (unsigned int)pos;
 }
 
-static void latm_dump_write_dse(const unsigned char *data, int len, uint pid)
-{
-	latm_dump_write_line("DSE", data, len, pid);
-}
-
-static void latm_dump_write_dse_scan(const unsigned char *data, int len, uint pid)
-{
-	latm_dump_write_line("DSE_SCAN", data, len, pid);
-}
-
-static void latm_dump_write_other(const unsigned char *data, int len, uint pid)
-{
-	latm_dump_write_line("OTHERDATA", data, len, pid);
-}
-
 /**
  * Minimal bit reader for LATM payloads (MSB-first).
  */
@@ -251,9 +253,14 @@ class LatmBitReader
 			return bitlen - bitpos;
 		}
 
+		int position() const
+		{
+			return bitpos;
+		}
+
 		int getBits(int n)
 		{
-			if (n <= 0 || bitpos + n > bitlen)
+			if (n <= 0 || n > bitlen - bitpos)
 				return -1;
 			int val = 0;
 			for (int i = 0; i < n; i++)
@@ -268,22 +275,15 @@ class LatmBitReader
 
 		bool skipBits(int n)
 		{
-			if (n < 0 || bitpos + n > bitlen)
+			if (n < 0 || n > bitlen - bitpos)
 				return false;
 			bitpos += n;
 			return true;
 		}
 
-		void byteAlign()
-		{
-			int mod = bitpos & 7;
-			if (mod)
-				bitpos += 8 - mod;
-		}
-
 		bool readBytes(unsigned char *out, int count)
 		{
-			if (count < 0 || bitpos + count * 8 > bitlen)
+			if (count < 0 || count > (bitlen - bitpos) / 8)
 				return false;
 			for (int i = 0; i < count; i++)
 			{
@@ -329,450 +329,467 @@ static unsigned int latm_get_value(LatmBitReader &br, bool &ok)
 }
 
 /**
- * Read "other_data" bits from StreamMuxConfig and optionally dump them.
+ * Read an audio object type: 5 bits, where 31 escapes to 32 + 6 bits.
  */
-static bool latm_read_other_data(LatmBitReader &br, unsigned int other_bits, uint pid)
+static int latm_get_audio_object_type(LatmBitReader &br)
 {
-	if (other_bits == 0)
-		return true;
-	if (other_bits > (unsigned int)br.bitsLeft())
-		return false;
-
-	unsigned int dump_bits = other_bits;
-	unsigned int max_bits = latm_other_dump_max * 8;
-	if (dump_bits > max_bits)
-		dump_bits = max_bits;
-	unsigned int dump_bytes = (dump_bits + 7) / 8;
-	std::vector<unsigned char> buf;
-	if (dump_bytes)
-		buf.assign(dump_bytes, 0);
-
-	for (unsigned int i = 0; i < other_bits; i++)
+	int aot = br.getBits(5);
+	if (aot == 31)
 	{
-		int bit = br.getBits(1);
-		if (bit < 0)
-			return false;
-		if (i < dump_bits)
-		{
-			unsigned int byte_index = i >> 3;
-			unsigned int bit_index = 7 - (i & 7);
-			buf[byte_index] |= (bit & 1) << bit_index;
-		}
+		int ext = br.getBits(6);
+		aot = ext < 0 ? -1 : 32 + ext;
 	}
-
-	if (dump_bytes)
-		latm_dump_write_other(buf.data(), dump_bytes, pid);
-	return true;
+	return aot;
 }
 
 /**
- * Skip AudioSpecificConfig to reach frame length fields.
+ * Skip a sampling frequency index, and the frequency an index of 0xf
+ * brings along.
  */
-static bool latm_skip_audio_specific_config(LatmBitReader &br)
+static bool latm_skip_sampling_frequency(LatmBitReader &br)
 {
-	int aot = br.getBits(5);
-	if (aot < 0)
+	int index = br.getBits(4);
+	return index >= 0 && (index != 0x0f || br.skipBits(24));
+}
+
+/**
+ * Read an AudioSpecificConfig (ISO/IEC 14496-3 1.6.2.1) up to its end, its
+ * GASpecificConfig included; the StreamMuxConfig goes on right behind it.
+ * Only AAC Main, LC, SSR and LTP, with or without SBR/PS, have AUs made of
+ * a raw_data_block() with the DSE in it. Any other object type, and the
+ * program_config_element of channel configuration 0, set unsupported.
+ */
+static bool latm_read_audio_specific_config(LatmBitReader &br, bool &unsupported)
+{
+	int aot = latm_get_audio_object_type(br);
+	if (aot < 0 || !latm_skip_sampling_frequency(br))
 		return false;
-	if (aot == 31)
-	{
-		int aot_ext = br.getBits(6);
-		if (aot_ext < 0)
-			return false;
-		aot = 32 + aot_ext;
-	}
-	int sf_index = br.getBits(4);
-	if (sf_index < 0)
-		return false;
-	if (sf_index == 0x0f)
-	{
-		if (!br.skipBits(24))
-			return false;
-	}
-	if (br.getBits(4) < 0)
+	int channel_config = br.getBits(4);
+	if (channel_config < 0)
 		return false;
 	if (aot == 5 || aot == 29)
 	{
-		int sf_ext = br.getBits(4);
-		if (sf_ext < 0)
+		// SBR, PS: the extension sampling frequency, then the core type
+		if (!latm_skip_sampling_frequency(br))
 			return false;
-		if (sf_ext == 0x0f)
-		{
-			if (!br.skipBits(24))
-				return false;
-		}
-		int aot2 = br.getBits(5);
-		if (aot2 < 0)
-			return false;
-		if (aot2 == 31)
-		{
-			int aot_ext = br.getBits(6);
-			if (aot_ext < 0)
-				return false;
-			aot2 = 32 + aot_ext;
-		}
-		if (br.getBits(4) < 0)
+		aot = latm_get_audio_object_type(br);
+		if (aot < 0)
 			return false;
 	}
+	if (aot < 1 || aot > 4 || channel_config == 0)
+	{
+		unsupported = true;
+		return true;
+	}
+
+	// GASpecificConfig
+	if (br.getBits(1) < 0)                  // frameLengthFlag
+		return false;
+	int depends_on_core_coder = br.getBits(1);
+	if (depends_on_core_coder < 0)
+		return false;
+	if (depends_on_core_coder && !br.skipBits(14))  // coreCoderDelay
+		return false;
+	int extension_flag = br.getBits(1);
+	if (extension_flag < 0)
+		return false;
+	if (extension_flag && br.getBits(1) < 0)    // extensionFlag3
+		return false;
 	return true;
 }
 
 /**
- * Parse LATM StreamMuxConfig. Only audio_mux_version_A == 0 is supported.
+ * Read a StreamMuxConfig (ISO/IEC 14496-3 1.7.3.1). A stream this reader
+ * cannot walk comes back valid but unsupported: audioMuxVersionA 1, more
+ * than one program or layer, subframes not framed alike, AUs that are not
+ * AAC raw_data_block()s, and the CELP/HVXC frame length types.
  */
-static bool latm_read_stream_mux_config(LatmBitReader &br, LatmConfig &cfg, uint pid)
+static bool latm_read_stream_mux_config(LatmBitReader &br, LatmConfig &cfg)
 {
+	cfg = LatmConfig();
 	int audio_mux_version = br.getBits(1);
 	if (audio_mux_version < 0)
 		return false;
-	cfg.audio_mux_version_A = 0;
 	if (audio_mux_version)
 	{
-		cfg.audio_mux_version_A = br.getBits(1);
-		if (cfg.audio_mux_version_A < 0)
+		int audio_mux_version_A = br.getBits(1);
+		if (audio_mux_version_A < 0)
+			return false;
+		if (audio_mux_version_A)
+		{
+			cfg.valid = cfg.unsupported = true;
+			return true;
+		}
+		bool ok = false;
+		latm_get_value(br, ok);             // taraBufferFullness
+		if (!ok)
 			return false;
 	}
 
-	if (!cfg.audio_mux_version_A)
+	int all_same_time_framing = br.getBits(1);
+	cfg.num_sub_frames = br.getBits(6);
+	int num_program = br.getBits(4);
+	int num_layer = br.getBits(3);
+	if (all_same_time_framing < 0 || cfg.num_sub_frames < 0 || num_program < 0 || num_layer < 0)
+		return false;
+	if (!all_same_time_framing || num_program || num_layer)
 	{
+		cfg.valid = cfg.unsupported = true;
+		return true;
+	}
+
+	unsigned int asc_len = 0;
+	if (audio_mux_version)
+	{
+		bool ok = false;
+		asc_len = latm_get_value(br, ok);
+		if (!ok || asc_len > (unsigned int)br.bitsLeft())
+			return false;
+	}
+	int asc_start = br.position();
+	if (!latm_read_audio_specific_config(br, cfg.unsupported))
+		return false;
+	if (cfg.unsupported)
+	{
+		cfg.valid = true;
+		return true;
+	}
+	if (audio_mux_version)
+	{
+		// the config may hold more than was read, a sync extension say
+		unsigned int used = br.position() - asc_start;
+		if (used > asc_len || !br.skipBits((int)(asc_len - used)))
+			return false;
+	}
+
+	cfg.frame_length_type = br.getBits(3);
+	if (cfg.frame_length_type < 0)
+		return false;
+	if (cfg.frame_length_type == 0)
+	{
+		if (br.getBits(8) < 0)              // latmBufferFullness
+			return false;
+	}
+	else if (cfg.frame_length_type == 1)
+	{
+		int frame_length = br.getBits(9);
+		if (frame_length < 0)
+			return false;
+		cfg.frame_length = frame_length + 20;   // 8 * (frameLength + 20) bits
+	}
+	else
+	{
+		cfg.valid = cfg.unsupported = true;
+		return true;
+	}
+
+	int other_data_present = br.getBits(1);
+	if (other_data_present < 0)
+		return false;
+	if (other_data_present)
+	{
+		// only the length is here, the other data follows the AUs
 		if (audio_mux_version)
 		{
 			bool ok = false;
-			latm_get_value(br, ok); // taraFullness
+			latm_get_value(br, ok);         // otherDataLenBits
 			if (!ok)
-				return false;
-		}
-
-		if (br.getBits(1) < 0) // allStreamsSameTimeFraming
-			return false;
-		if (br.getBits(6) < 0) // numSubFrames
-			return false;
-		if (br.getBits(4) != 0) // numPrograms
-			return false;
-		if (br.getBits(3) != 0) // numLayer
-			return false;
-
-		if (!audio_mux_version)
-		{
-			if (!latm_skip_audio_specific_config(br))
 				return false;
 		}
 		else
 		{
-			bool ok = false;
-			unsigned int asc_len = latm_get_value(br, ok);
-			if (!ok || !br.skipBits((int)asc_len))
-				return false;
-		}
-
-		cfg.frame_length_type = br.getBits(3);
-		if (cfg.frame_length_type < 0)
-			return false;
-		switch (cfg.frame_length_type)
-		{
-			case 0:
-				if (br.getBits(8) < 0) // latmBufferFullness
-					return false;
-				break;
-			case 1:
-				cfg.frame_length = br.getBits(9);
-				if (cfg.frame_length < 0)
-					return false;
-				break;
-			case 3:
-			case 4:
-			case 5:
-				if (br.getBits(6) < 0)
-					return false;
-				break;
-			case 6:
-			case 7:
-				if (br.getBits(1) < 0)
-					return false;
-				break;
-		}
-
-		int other_data = br.getBits(1);
-		if (other_data < 0)
-			return false;
-		if (other_data)
-		{
-			if (audio_mux_version)
+			int esc;
+			do
 			{
-				bool ok = false;
-				unsigned int other_bits = latm_get_value(br, ok);
-				if (!ok)
-					return false;
-				if (!latm_read_other_data(br, other_bits, pid))
+				esc = br.getBits(1);
+				if (esc < 0 || br.getBits(8) < 0)   // otherDataLenTmp
 					return false;
 			}
-			else
-			{
-				int esc;
-				std::vector<unsigned char> buf;
-				do
-				{
-					esc = br.getBits(1);
-					int tmp = br.getBits(8);
-					if (esc < 0 || tmp < 0)
-						return false;
-					if (buf.size() < latm_other_dump_max)
-						buf.push_back((unsigned char)tmp);
-				}
-				while (esc);
-				if (!buf.empty())
-					latm_dump_write_other(buf.data(), (int)buf.size(), pid);
-			}
+			while (esc);
 		}
-
-		int crc_present = br.getBits(1);
-		if (crc_present < 0)
-			return false;
-		if (crc_present && br.getBits(8) < 0)
-			return false;
 	}
+	int crc_check_present = br.getBits(1);
+	if (crc_check_present < 0 || (crc_check_present && br.getBits(8) < 0))  // crcCheckSum
+		return false;
 
 	cfg.valid = true;
 	return true;
 }
 
 /**
- * Read payload length info according to frame_length_type.
+ * Read a PayloadLengthInfo: the length in bytes of the AU that follows.
  */
 static int latm_read_payload_length_info(LatmBitReader &br, const LatmConfig &cfg)
 {
-	if (cfg.frame_length_type == 0)
-	{
-		int mux_slot_length = 0;
-		int tmp;
-		do
-		{
-			tmp = br.getBits(8);
-			if (tmp < 0)
-				return -1;
-			mux_slot_length += tmp;
-		}
-		while (tmp == 255);
-		return mux_slot_length;
-	}
 	if (cfg.frame_length_type == 1)
 		return cfg.frame_length;
-	if (cfg.frame_length_type == 3 || cfg.frame_length_type == 5 || cfg.frame_length_type == 7)
+	int mux_slot_length = 0;
+	int tmp;
+	do
 	{
-		if (br.getBits(2) < 0)
+		tmp = br.getBits(8);
+		if (tmp < 0)
 			return -1;
+		mux_slot_length += tmp;
 	}
-	return 0;
+	while (tmp == 255);
+	return mux_slot_length;
 }
 
 /**
- * Validate that the remaining AudioMuxElement only contains FILL/END.
+ * Read n bits (at most 24) at bit pos of buf, MSB first. The caller keeps
+ * pos + n inside the buffer.
  */
-static bool latm_tail_is_end_or_fill(LatmBitReader &br)
+static unsigned int latm_peek_bits(const unsigned char *buf, int len, int pos, int n)
 {
-	while (br.bitsLeft() >= 3)
+	int byte = pos >> 3;
+	unsigned int val = 0;
+	for (int i = 0; i < 4; i++)
+		val = (val << 8) | (byte + i < len ? buf[byte + i] : 0);
+	return (val >> (32 - (pos & 7) - n)) & ((1u << n) - 1);
+}
+
+struct LatmDse
+{
+	int header;         // bit where its header starts in the AU
+	int start;          // bit where its data starts
+	int count;          // data bytes
+	bool starts_frame;  // the data starts with the UECP start byte 0xfe
+	bool has_start;     // ... or holds it somewhere
+
+	LatmDse()
+		: header(0)
+		, start(0)
+		, count(0)
+		, starts_frame(false)
+		, has_start(false)
 	{
-		int elem_type = br.getBits(3);
-		if (elem_type < 0)
-			return false;
-		if (elem_type == 7)
-		{
-			while (br.bitsLeft() > 0)
-			{
-				int bit = br.getBits(1);
-				if (bit < 0 || bit != 0)
-					return false;
-			}
-			return true;
-		}
-		if (elem_type != 6)
-			return false;
-		int count = br.getBits(4);
-		if (count < 0)
-			return false;
-		if (count == 15)
-		{
-			int esc = br.getBits(8);
-			if (esc < 0)
-				return false;
-			count += esc - 1;
-		}
-		if (count < 0)
-			return false;
-		if (!br.skipBits(count * 8))
-			return false;
 	}
-	return false;
+};
+
+/**
+ * Rank of a DSE hit while no UECP frame is open: then only a frame start
+ * counts, and the first piece of a frame starts with its start byte.
+ */
+static int latm_dse_rank(const LatmDse &dse, bool in_frame)
+{
+	if (in_frame)
+		return 0;
+	return dse.starts_frame ? 2 : dse.has_start ? 1 : 0;
 }
 
 /**
- * Check for UECP start byte (0xfe) inside a buffer.
+ * Find the DSE of an AU, a raw_data_block(), from its END backwards.
+ *
+ * The DSE stands right before the END, or before one FIL in front of the
+ * END, and has the tag of the first audio element (TS 101 154 C.5.1). That
+ * gives the end of its data, and for each count the one place its header
+ * must be at, where it has to read ID_DSE, the tag, the align flag and that
+ * very count; with the align flag the header may end up to 7 bits before
+ * data that starts on a byte. A byte counts from the start of the AU, the
+ * way ISO/IEC 14496-3 has it, or from the start of the AudioMuxElement, the
+ * way FFmpeg and FAAD2 read it: au_shift is the AU's bit offset in there.
+ *
+ * More than one hit is rare: one inside the data of the real DSE cuts off
+ * its front, one in the audio data before it adds a front of garbage. With
+ * no UECP frame open (in_frame false), data starting with the UECP start
+ * byte comes first, then data holding one; after that the hit nearest to
+ * the END wins. MPEG-4 ancillary data (TS 101 154 C.5.2), which may stand
+ * in that place now and then, is sorted out by the UECP reader.
  */
-static bool latm_buffer_has_uecp_start(const unsigned char *data, int len)
+static bool latm_find_dse(const unsigned char *au, int len, int au_shift, bool in_frame, LatmDse &out)
 {
-	if (!data || len <= 0)
+	// the first element: SCE, CPE or LFE, and its tag
+	if (len < 3)
 		return false;
-	for (int i = 0; i < len; i++)
+	unsigned int first_id = latm_peek_bits(au, len, 0, 3);
+	if (first_id != 0 && first_id != 1 && first_id != 3)
+		return false;
+	unsigned int tag = latm_peek_bits(au, len, 3, 4);
+
+	// ID_END: the last three bits before the zeros that align the AU
+	int last = len - 1;
+	while (last >= 0 && !au[last])
+		last--;
+	if (last < 0)
+		return false;
+	int end = last * 8 + 7;
+	for (unsigned char b = au[last]; !(b & 1); b >>= 1)
+		end--;
+	end -= 2;
+	if (end < 7 || latm_peek_bits(au, len, end, 3) != 7)
+		return false;
+
+	// where the DSE data may end: at the END, or at a FIL before the END
+	int tails[1 + 15 + 256];
+	int num_tails = 0;
+	tails[num_tails++] = end;
+	for (int cnt = 0; cnt < 15; cnt++)
 	{
-		if (data[i] == 0xfe)
-			return true;
+		int q = end - 7 - 8 * cnt;
+		if (q < 7)
+			break;
+		if (latm_peek_bits(au, len, q, 7) == ((6u << 4) | cnt))
+			tails[num_tails++] = q;
 	}
-	return false;
+	for (int esc = 0; esc < 256; esc++)
+	{
+		// a FIL count of 15 escapes to 15 + esc - 1 bytes
+		int q = end - 15 - 8 * (14 + esc);
+		if (q < 7)
+			break;
+		if (latm_peek_bits(au, len, q, 15) == ((6u << 12) | (15u << 8) | esc))
+			tails[num_tails++] = q;
+	}
+
+	bool found = false;
+	for (int t = 0; t < num_tails; t++)
+	{
+		int q = tails[t];
+		for (int count = 1; count <= 510; count++)
+		{
+			int start = q - 8 * count;
+			int hlen = count < 255 ? 16 : 24;
+			if (start - hlen < 7)
+				break;
+			for (int align = 0; align < 2; align++)
+			{
+				int gaps = 1;
+				if (align)
+				{
+					if (start % 8 && (start + au_shift) % 8)
+						continue;
+					gaps = 8;
+				}
+				// ID_DSE, tag, align flag, count (255 + escape)
+				unsigned int head = (4u << 5) | (tag << 1) | align;
+				unsigned int want = count < 255 ? (head << 8) | count : (head << 16) | (255u << 8) | (count - 255);
+				for (int gap = 0; gap < gaps; gap++)
+				{
+					int header = start - gap - hlen;
+					if (header < 7)
+						break;
+					if (latm_peek_bits(au, len, header, hlen) != want)
+						continue;
+					LatmDse dse;
+					dse.header = header;
+					dse.start = start;
+					dse.count = count;
+					dse.starts_frame = latm_peek_bits(au, len, start, 8) == 0xfe;
+					for (int i = 0; i < count && !dse.has_start; i++)
+						dse.has_start = latm_peek_bits(au, len, start + 8 * i, 8) == 0xfe;
+					int rank = latm_dse_rank(dse, in_frame);
+					bool better;
+					if (!found)
+						better = true;
+					else if (rank != latm_dse_rank(out, in_frame))
+						better = rank > latm_dse_rank(out, in_frame);
+					else
+						better = dse.header > out.header;
+					if (better)
+					{
+						out = dse;
+						found = true;
+					}
+				}
+			}
+		}
+	}
+	return found;
 }
 
 /**
- * Strict DSE search: element type 4 followed by END/FILL tail.
+ * Whether DSE data is well-formed MPEG-4 ancillary data (TS 101 154 C.5.2):
+ * the sync byte 0xbc, bs_info and ancillary_data_status with their reserved
+ * bits clear, then exactly the fields the status announces, optionally
+ * followed by announcement switching data (C.5.3: 0xad and its length).
  */
-static bool latm_find_strict_dse(const unsigned char *data, int len, std::vector<unsigned char> &out)
+static bool latm_is_ancillary_data(const unsigned char *data, int count)
 {
-	const int total_bits = len * 8;
-	for (int bit = 0; bit + 16 < total_bits; bit++)
-	{
-		LatmBitReader br(data, len, bit);
-		int elem_type = br.getBits(3);
-		if (elem_type != 4)
-			continue;
-		if (br.getBits(4) < 0)
-			continue;
-		int align = br.getBits(1);
-		if (align < 0)
-			continue;
-		int count = br.getBits(8);
-		if (count < 0)
-			continue;
-		if (count == 255)
-		{
-			int esc = br.getBits(8);
-			if (esc < 0)
-				continue;
-			count += esc;
-		}
-		if (count <= 0 || count > 512)
-			continue;
-		if (align)
-			br.byteAlign();
-		if (br.bitsLeft() < count * 8 + 3)
-			continue;
-		std::vector<unsigned char> buf(count);
-		if (!br.readBytes(buf.data(), count))
-			continue;
-		if (!latm_tail_is_end_or_fill(br))
-			continue;
-		out.swap(buf);
-		return true;
-	}
-	return false;
+	if (count < 3 || data[0] != 0xbc || (data[1] & 0x03) || (data[2] & 0xe8))
+		return false;
+	int len = 3 + (data[2] & 0x10 ? 1 : 0)  // downmixing_levels_MPEG4
+		+ (data[2] & 0x04 ? 2 : 0)          // audio_coding_mode, Compression_value
+		+ (data[2] & 0x02 ? 2 : 0)          // coarse_grain_timecode
+		+ (data[2] & 0x01 ? 2 : 0);         // fine_grain_timecode
+	if (count >= len + 2 && data[len] == 0xad)
+		len += 2 + data[len + 1];
+	return count == len;
 }
+
+// what a byte did to a reading of a UECP frame
+enum
+{
+	UECP_IDLE,      // no frame open, byte passed over
+	UECP_MORE,      // taken into the open frame
+	UECP_START,     // 0xfe: a frame starts
+	UECP_RESTART,   // 0xfe: a frame starts, the open one is given up
+	UECP_END,       // 0xff: the open frame ends
+	UECP_DROP       // the open frame is given up
+};
 
 } // namespace
 
 /**
- * Find DSE blocks in a LATM payload and feed UECP frames.
- * Strict DSE requires an END/FILL tail; heuristic scan is used as fallback.
- * UECP frames are only parsed if a start marker (0xfe) is present.
+ * Look for the DSE of one AU and feed its bytes to the UECP reader: all of
+ * them while a frame is open, otherwise only when they hold a start byte.
  */
-bool CRadioText::latm_scan_dse(const unsigned char *data, int len)
+void CRadioText::latm_scan_dse(const unsigned char *au, int len, int au_shift)
 {
-	std::vector<unsigned char> strict;
-	bool found_dse = false;
-	if (latm_find_strict_dse(data, len, strict))
-	{
-		latm_dse_hits++;
-		bool strict_candidate = uecp_in_frame;
-		if (!strict.empty())
-		{
-			latm_dump_write_dse(strict.data(), (int)strict.size(), pid);
-			if (!strict_candidate)
-				strict_candidate = latm_buffer_has_uecp_start(strict.data(), (int)strict.size());
-		}
-		if (strict_candidate && !strict.empty())
-		{
-			found_dse = true;
-			if (processUecpBuffer(strict.data(), (int)strict.size()))
-			{
-				latm_uecp_ok++;
-				return true;
-			}
-			return true;
-		}
-	}
-
-	const int total_bits = len * 8;
-	for (int bit = 0; bit + 16 < total_bits; bit += 8)
-	{
-		LatmBitReader br(data, len, bit);
-		int elem_type = br.getBits(3);
-		if (elem_type != 4)
-			continue;
-		if (br.getBits(4) < 0)
-			continue;
-		int align = br.getBits(1);
-		if (align < 0)
-			continue;
-		int count = br.getBits(8);
-		if (count < 0)
-			continue;
-		if (count == 255)
-		{
-			int esc = br.getBits(8);
-			if (esc < 0)
-				continue;
-			count += esc;
-		}
-		if (count <= 0 || count > 512)
-			continue;
-		latm_dse_hits++;
-		found_dse = true;
-		if (align)
-			br.byteAlign();
-		std::vector<unsigned char> buf(count);
-		if (!br.readBytes(buf.data(), count))
-			continue;
-		if (buf.empty())
-			continue;
-		latm_dump_write_dse_scan(buf.data(), count, pid);
-		bool should_feed = uecp_in_frame;
-		if (!should_feed)
-			should_feed = latm_buffer_has_uecp_start(buf.data(), count);
-		if (!should_feed)
-			continue;
-		if (processUecpBuffer(buf.data(), count))
-		{
-			latm_uecp_ok++;
-			return true;
-		}
-	}
-	return found_dse;
+	bool in_frame = uecpOpen();
+	LatmDse dse;
+	if (!latm_find_dse(au, len, au_shift, in_frame, dse))
+		return;
+	unsigned char data[510];
+	for (int i = 0; i < dse.count; i++)
+		data[i] = (unsigned char)latm_peek_bits(au, len, dse.start + 8 * i, 8);
+	latm_dse_hits++;
+	bool feed = in_frame || dse.has_start;
+	bool maybe_ancillary = latm_is_ancillary_data(data, dse.count);
+	latm_dump_write_line(!feed ? "DSE_SKIP" : maybe_ancillary ? "DSE_ANC" : "DSE", data, dse.count, pid);
+	if (!feed)
+		return;
+	latm_dse_fed++;
+	processUecpBuffer(data, dse.count, maybe_ancillary);
 }
 
 /**
- * Parse a LATM AudioMuxElement and extract its payload for UECP/DSE parsing.
+ * Read one AudioMuxElement (ISO/IEC 14496-3 1.7.3) and search each of its
+ * AUs for a DSE. An AU starts at any bit; it is copied to a buffer of its
+ * own, where it starts on a byte.
  */
-bool CRadioText::latm_process_frame(const unsigned char *data, int len)
+void CRadioText::latm_process_frame(const unsigned char *data, int len)
 {
 	LatmBitReader br(data, len);
 	int use_same_mux = br.getBits(1);
 	if (use_same_mux < 0)
-		return false;
+		return;
 	if (!use_same_mux)
 	{
-		if (!latm_read_stream_mux_config(br, latm_cfg, pid))
-			return false;
+		/* A configuration that cannot be read, a bit error say, costs this
+		   frame only: the frames after it go on with the last good one. */
+		LatmConfig cfg;
+		if (!latm_read_stream_mux_config(br, cfg))
+			return;
+		if (cfg.unsupported && !(latm_cfg.valid && latm_cfg.unsupported) && S_Verbose >= 1)
+			printf("RDS-LATM: audio configuration not supported, no radio text read from it\n");
+		latm_cfg = cfg;
 	}
-	if (!latm_cfg.valid || latm_cfg.audio_mux_version_A != 0)
-		return false;
+	if (!latm_cfg.valid || latm_cfg.unsupported)
+		return;
 
-	int payload_len = latm_read_payload_length_info(br, latm_cfg);
-	if (payload_len <= 0 || br.bitsLeft() < payload_len * 8)
-		return false;
-
-	std::vector<unsigned char> payload(payload_len);
-	if (!br.readBytes(payload.data(), payload_len))
-		return false;
-
-	if (latm_scan_dse(payload.data(), payload_len))
-		return true;
-
-	return processUecpBuffer(payload.data(), payload_len);
+	for (int i = 0; i <= latm_cfg.num_sub_frames; i++)
+	{
+		int au_len = latm_read_payload_length_info(br, latm_cfg);
+		if (au_len <= 0 || au_len > br.bitsLeft() / 8)
+			return;
+		int au_shift = br.position() & 7;
+		latm_au.resize(au_len);
+		if (!br.readBytes(&latm_au[0], au_len))
+			return;
+		latm_aus++;
+		latm_scan_dse(&latm_au[0], au_len, au_shift);
+	}
 }
 
 // RDS rest
@@ -929,8 +946,6 @@ bool CRadioText::processLatmFromPes(const unsigned char *data, int len)
 	const unsigned char *payload = data + start;
 	int payload_len = len - start;
 	bool latm_seen = false;
-	bool latm_partial = false;
-	int frames = 0;
 	size_t keep_from = 0;
 
 	if (payload_len <= 0)
@@ -949,12 +964,10 @@ bool CRadioText::processLatmFromPes(const unsigned char *data, int len)
 			{
 				if (i + frame_len > latm_pending.size())
 				{
-					latm_partial = true;
 					keep_from = i;
 					break;
 				}
 				latm_seen = true;
-				frames++;
 				latm_process_frame(&latm_pending[i + 3], frame_len - 3);
 				i += frame_len;
 				keep_from = i;
@@ -971,11 +984,19 @@ bool CRadioText::processLatmFromPes(const unsigned char *data, int len)
 	if (latm_pending.size() > latm_pending_max)
 		latm_pending.erase(latm_pending.begin(), latm_pending.end() - latm_pending_max);
 
-	if (S_Verbose >= 2 && (latm_seen || latm_partial))
-		printf("RDS-LATM: frames %d dse %d uecp %d crc_fail %d pending %zu bytes\n",
-			frames, latm_dse_hits, latm_uecp_ok, latm_uecp_crc_fail, latm_pending.size());
+	if (S_Verbose >= 2)
+	{
+		time_t now = time(NULL);
+		if (now < latm_stats_ts || now - latm_stats_ts >= 10)
+		{
+			latm_stats_ts = now;
+			printf("RDS-LATM: aus %d dse %d (fed %d) uecp ok %d crc_fail %d drop %d sqc_gap %d\n",
+				latm_aus, latm_dse_hits, latm_dse_fed, latm_uecp_ok, latm_uecp_crc_fail,
+				latm_uecp_drop, latm_uecp_sqc_gap);
+		}
+	}
 
-	return latm_seen || latm_cfg.valid;
+	return latm_seen;
 }
 
 /**
@@ -1019,112 +1040,264 @@ void CRadioText::handleRdsMessage(unsigned char *mtext, int len)
 			break;
 		case 0xda:
 			break;
+		default:
+			if (S_Verbose >= 2)
+				printf("(RDS-MEC '%02x' not used)\n", mec);
+			break;
 	}
 }
 
 /**
- * Parse UECP frames from a buffer.
- * UECP uses 0xfe start, 0xff end, 0xfd escaping; CRC is verified.
- * A stuck frame is reset after a short timeout to allow new starts.
+ * Take one byte into a reading of a UECP frame (EBU SPB 490, 2.2).
+ * Stuffing keeps 0xfe and 0xff out of the frame body, so a raw 0xfe always
+ * starts a frame and a raw 0xff always ends it.
  */
-bool CRadioText::processUecpBuffer(const unsigned char *data, int len)
+int CRadioText::feedUecpByte(UecpFrame &frame, unsigned char val)
 {
-	if (!data || len <= 0)
+	if (val == 0xfe)
+	{
+		int result = frame.in_frame && frame.index > 0 ? UECP_RESTART : UECP_START;
+		frame.in_frame = true;
+		frame.escape = false;
+		frame.index = 0;
+		frame.buf[0] = val;
+		return result;
+	}
+	if (!frame.in_frame)
+		return UECP_IDLE;
+	if (val == 0xff)
+	{
+		frame.in_frame = false;
+		return UECP_END;
+	}
+	if (frame.escape)
+	{
+		frame.escape = false;
+		if (val > 0x02)
+		{
+			// only 0xfd 00/01/02 stand for 0xfd/0xfe/0xff
+			frame.in_frame = false;
+			return UECP_DROP;
+		}
+		val += 0xfd;
+	}
+	else if (val == 0xfd)
+	{
+		frame.escape = true;
+		return UECP_MORE;
+	}
+	frame.buf[++frame.index] = val;
+	// ADD SQC MFL MSG CRC: never longer than its MFL makes it
+	if (frame.index >= 4 && frame.index > frame.buf[4] + 6)
+	{
+		frame.in_frame = false;
+		return UECP_DROP;
+	}
+	return UECP_MORE;
+}
+
+/**
+ * Whether a frame ended by a raw 0xff is whole: its length fits its MFL and
+ * its CRC is right (CCITT over ADD..MSG, SPB 490 2.2.7).
+ */
+bool CRadioText::uecpFrameOk(UecpFrame &frame)
+{
+	int n = frame.index;
+	if (frame.escape || n < 6 || n != frame.buf[4] + 6)
 		return false;
+	return crc16_ccitt(frame.buf, n - 2, true) == ((frame.buf[n - 1] << 8) | frame.buf[n]);
+}
 
-	bool decoded = false;
-	time_t now = time(NULL);
-	if (uecp_in_frame && uecp_last_ts > 0 && now > uecp_last_ts)
+/**
+ * Hand a whole frame on to the MEC dispatch, as 0xfe ADD..CRC 0xff.
+ */
+void CRadioText::deliverUecpFrame(UecpFrame &frame)
+{
+	int n = frame.index;
+	frame.buf[n + 1] = 0xff;
+	latm_uecp_ok++;
+	latm_dump_write_line("UECP", frame.buf, n + 2, pid);
+	/* SQC 0 means unused, else it counts 1..255, 1 again after 255.
+	   A repeat keeps its frame's number and comes before the count is 100
+	   ahead (SPB 490 2.2.4), so up to 99 behind: no gap, and no new count. */
+	int sqc = frame.buf[3];
+	if (sqc)
 	{
-		if ((unsigned int)(now - uecp_last_ts) > latm_uecp_timeout_sec)
+		int ahead = latm_uecp_last_sqc ? (sqc - latm_uecp_last_sqc + 255) % 255 : 1;
+		if (ahead > 1 && ahead <= 255 - 100)
 		{
-			if (S_Verbose >= 1)
-				printf("RDS-UECP: timeout reset after %ld s\n", (long)(now - uecp_last_ts));
-			uecp_in_frame = false;
-			uecp_escape = false;
-			uecp_index = -1;
-			uecp_last_ts = 0;
+			latm_uecp_sqc_gap++;
+			if (S_Verbose >= 2)
+				printf("RDS-UECP: sequence %02x after %02x, frames lost in between\n", sqc, latm_uecp_last_sqc);
 		}
+		if (ahead >= 1 && ahead <= 255 - 100)
+			latm_uecp_last_sqc = sqc;
 	}
+	handleRdsMessage(frame.buf, n + 2);
+}
 
+/**
+ * Count a frame given up: one that ended with the right length but a
+ * wrong CRC, or one cut short.
+ */
+void CRadioText::failUecpFrame(UecpFrame &frame, bool ended)
+{
+	int n = frame.index;
+	if (!ended || frame.escape || n < 6 || n != frame.buf[4] + 6)
+	{
+		latm_uecp_drop++;
+		return;
+	}
+	frame.buf[n + 1] = 0xff;
+	latm_uecp_crc_fail++;
+	latm_dump_write_line("UECP_CRC", frame.buf, n + 2, pid);
+	if (S_Verbose >= 1)
+		printf("RDS-Error: wrong CRC # calc = %04x <> transmit = %02x%02x\n",
+			crc16_ccitt(frame.buf, n - 2, true), frame.buf[n - 1], frame.buf[n]);
+}
+
+/**
+ * Whether one of the readings has a frame open.
+ */
+bool CRadioText::uecpOpen() const
+{
+	for (int r = 0; r < uecp_readings; r++)
+		if (uecp[r].in_frame)
+			return true;
+	return false;
+}
+
+/**
+ * Go on with one reading: reading r, or an idle one for r < 0.
+ */
+void CRadioText::keepUecpReading(int r)
+{
+	if (r > 0)
+		uecp[0] = uecp[r];
+	else if (r < 0)
+	{
+		uecp[0].in_frame = false;
+		uecp[0].escape = false;
+		uecp[0].index = -1;
+	}
+	uecp_readings = 1;
+}
+
+/**
+ * Drop the readings that add no way of reading what follows: one with no
+ * frame open while another has one (it waits for a 0xfe, which starts the
+ * same frame in all of them), and one the same as a reading before it.
+ */
+void CRadioText::pruneUecpReadings()
+{
+	if (!uecpOpen())
+	{
+		keepUecpReading(-1);
+		return;
+	}
+	int n = 0;
+	for (int r = 0; r < uecp_readings; r++)
+	{
+		if (!uecp[r].in_frame)
+			continue;
+		bool same = false;
+		for (int k = 0; k < n && !same; k++)
+			same = uecp[k].escape == uecp[r].escape && uecp[k].index == uecp[r].index &&
+				memcmp(uecp[k].buf, uecp[r].buf, uecp[r].index + 1) == 0;
+		if (same)
+			continue;
+		if (n != r)
+			uecp[n] = uecp[r];
+		n++;
+	}
+	uecp_readings = n;
+}
+
+/**
+ * Take one byte into the readings from first on; the ones before it leave
+ * out the DSE the byte comes in. Returns true when the byte ended a frame
+ * whole: that reading is then the only one, and the frame is handed on.
+ * Inside such a DSE nothing else is decided; otherwise a 0xfe starts the
+ * same frame in every reading and a 0xff ends every open one, and a frame
+ * given up is counted once, when no reading has it open any more.
+ */
+bool CRadioText::feedUecpReadings(unsigned char val, int first)
+{
+	bool was_open = uecpOpen();
+	bool restart = false;
+	int whole = -1, sized = -1, ended = -1;
+	for (int r = first; r < uecp_readings; r++)
+	{
+		int result = feedUecpByte(uecp[r], val);
+		if (result == UECP_RESTART)
+			restart = true;
+		if (result != UECP_END)
+			continue;
+		if (whole < 0 && uecpFrameOk(uecp[r]))
+			whole = r;
+		if (ended < 0)
+			ended = r;
+		if (sized < 0 && !uecp[r].escape && uecp[r].index >= 6 && uecp[r].index == uecp[r].buf[4] + 6)
+			sized = r;
+	}
+	if (whole >= 0)
+	{
+		keepUecpReading(whole);
+		deliverUecpFrame(uecp[0]);
+		return true;
+	}
+	if (first > 0)
+		return false;
+	if (val == 0xfe)
+	{
+		if (restart)
+			failUecpFrame(uecp[0], false);
+		keepUecpReading(0);
+	}
+	else if (val == 0xff)
+	{
+		// the right length and a wrong CRC is a CRC error, else a frame cut short
+		if (ended >= 0)
+			failUecpFrame(uecp[sized >= 0 ? sized : ended], true);
+		keepUecpReading(-1);
+	}
+	else if (was_open && !uecpOpen())
+		failUecpFrame(uecp[0], false);
+	return false;
+}
+
+/**
+ * Assemble UECP frames from the bytes of the DSEs; one frame may spread
+ * over many DSEs. maybe_ancillary marks a DSE that is well-formed MPEG-4
+ * ancillary data (TS 101 154 C.5.2) as well, which may be sent now and
+ * then in between, while a piece of UECP may look just the same. Every
+ * reading then goes on twice, without the DSE and with it, so that a frame
+ * holding pieces of both kinds has a reading too; at the next end of a
+ * frame the one with the right length and CRC wins. There is room for
+ * UECP_READINGS: past it no more copies are made, while the reading that
+ * leaves every such DSE out always stays, so only a frame with an unusually
+ * dense mix of the two can be lost.
+ */
+void CRadioText::processUecpBuffer(const unsigned char *data, int len, bool maybe_ancillary)
+{
+	int first = 0;
+	if (maybe_ancillary)
+	{
+		first = uecp_readings;
+		int copies = uecp_readings;
+		if (copies > UECP_READINGS - uecp_readings)
+			copies = UECP_READINGS - uecp_readings;
+		if (copies < uecp_readings && S_Verbose >= 2)
+			printf("RDS-UECP: %d readings of the open frame, %d of them not split again\n",
+				uecp_readings, uecp_readings - copies);
+		for (int r = 0; r < copies; r++)
+			uecp[first + r] = uecp[r];
+		uecp_readings += copies;
+	}
 	for (int i = 0; i < len; i++)
-	{
-		unsigned char val = data[i];
-		if (!uecp_in_frame)
-		{
-			if (val != 0xfe)
-				continue;
-			uecp_in_frame = true;
-			uecp_escape = false;
-			uecp_index = -1;
-			uecp_buf[++uecp_index] = val;
-			uecp_last_ts = now;
-			continue;
-		}
-
-		if (uecp_escape)
-		{
-			switch (val)
-			{
-				case 0x00:
-					val = 0xfd;
-					break;
-				case 0x01:
-					val = 0xfe;
-					break;
-				case 0x02:
-					val = 0xff;
-					break;
-				default:
-					break;
-			}
-			uecp_escape = false;
-		}
-		else if (val == 0xfd)
-		{
-			uecp_escape = true;
-			continue;
-		}
-
-		if (uecp_index + 1 >= (int)sizeof(uecp_buf))
-		{
-			uecp_in_frame = false;
-			uecp_escape = false;
-			uecp_index = -1;
-			uecp_last_ts = 0;
-			continue;
-		}
-
-		uecp_buf[++uecp_index] = val;
-		uecp_last_ts = now;
-		if (val == 0xff)
-		{
-			if (uecp_index >= 9)
-			{
-				int frame_len = uecp_index + 1;
-				unsigned short tx_crc = (uecp_buf[frame_len - 3] << 8) + uecp_buf[frame_len - 2];
-				unsigned short crc16 = crc16_ccitt(uecp_buf, frame_len - 4, true);
-				unsigned short crc16_inv = (unsigned short)(~crc16);
-				unsigned short crc16_ns = crc16_ccitt(uecp_buf, frame_len - 4, false);
-				unsigned short crc16_ns_inv = (unsigned short)(~crc16_ns);
-				if (crc16 == tx_crc || crc16_inv == tx_crc || crc16_ns == tx_crc || crc16_ns_inv == tx_crc)
-				{
-					handleRdsMessage(uecp_buf, frame_len);
-					decoded = true;
-				}
-				else
-				{
-					latm_uecp_crc_fail++;
-				}
-			}
-			uecp_in_frame = false;
-			uecp_escape = false;
-			uecp_index = -1;
-			uecp_last_ts = 0;
-		}
-	}
-
-	return decoded;
+		if (feedUecpReadings(data[i], first))
+			first = 0;	// the DSE was UECP: the rest of it goes on in one reading
+	pruneUecpReadings();
 }
 
 /**
@@ -1708,16 +1881,19 @@ void CRadioText::init()
 
 	RT_MsgShow = false; // clear entries from old channel
 	have_radiotext	= false;
-	uecp_in_frame = false;
-	uecp_escape = false;
-	uecp_index = -1;
-	uecp_last_ts = 0;
+	keepUecpReading(-1);
 
 	latm_cfg = LatmConfig();
 	latm_pending.clear();
+	latm_aus = 0;
 	latm_dse_hits = 0;
+	latm_dse_fed = 0;
 	latm_uecp_ok = 0;
 	latm_uecp_crc_fail = 0;
+	latm_uecp_drop = 0;
+	latm_uecp_sqc_gap = 0;
+	latm_uecp_last_sqc = 0;
+	latm_stats_ts = time(NULL);
 
 	const char *rt_verbose = getenv("RADIOTEXT_VERBOSE");
 	if (rt_verbose)
