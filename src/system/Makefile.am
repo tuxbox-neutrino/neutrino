@@ -51,3 +51,6 @@ if HAVE_UCLIBC
 libneutrino_system_a_SOURCES += \
 	tzif-display.cpp
 endif
+
+libneutrino_system_a_SOURCES += \
+	configure_network_ifupdown.cpp
