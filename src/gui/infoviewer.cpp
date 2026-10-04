@@ -1525,17 +1525,21 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		recordModeActive = data;
 		if (is_visible) showRecordIcon(true);
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS) {
-		if ((*(t_channel_id *) data) == current_channel_id) {
-			if (is_visible && showButtonBar) {
-				infoViewerBB->showIcon_DD();
-				showLivestreamInfo();
-				infoViewerBB->showBBButtons(true /*paintFooter*/); // in case button text has changed
-			}
-			if (g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio))
-			{
-				const CZapitClient::responseGetAPIDs &apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid];
-				g_Radiotext->setPid(apid.pid, apid.is_aache);
-			}
+		const t_channel_id chid = *(t_channel_id *) data;
+		if (chid == current_channel_id && is_visible && showButtonBar) {
+			infoViewerBB->showIcon_DD();
+			showLivestreamInfo();
+			infoViewerBB->showBBButtons(true /*paintFooter*/); // in case button text has changed
+		}
+		/* The radio text follows the channel that plays. current_channel_id
+		   is the channel this bar shows, which is the channel list's choice:
+		   a zap from elsewhere (the web interface, a timer) to a channel the
+		   list does not hold leaves the bar on another one, and the reader
+		   stayed on the PID of the channel before. */
+		if (chid == g_RemoteControl->current_channel_id && g_settings.radiotext_enable && g_Radiotext && !g_RemoteControl->current_PIDs.APIDs.empty() && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio))
+		{
+			const CZapitClient::responseGetAPIDs &apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid];
+			g_Radiotext->setPid(apid.pid, apid.is_aache);
 		}
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES) {
