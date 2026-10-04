@@ -559,8 +559,10 @@ void CInfoViewerBB::showIcon_16_9()
 		return;
 
 	if ((g_InfoViewer->aspectRatio == 0) || ( g_RemoteControl->current_PIDs.PIDs.vpid == 0 ) || (g_InfoViewer->aspectRatio != videoDecoder->getAspectRatio())) {
-		if (g_InfoViewer->chanready &&
-		   (g_RemoteControl->current_PIDs.PIDs.vpid > 0 || IS_WEBCHAN(g_InfoViewer->get_current_channel_id())))
+		/* a file has no video PID either, the decoder knows the picture */
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_ts ||
+		    (g_InfoViewer->chanready &&
+		    (g_RemoteControl->current_PIDs.PIDs.vpid > 0 || IS_WEBCHAN(g_InfoViewer->get_current_channel_id()))))
 			g_InfoViewer->aspectRatio = videoDecoder->getAspectRatio();
 		else
 			g_InfoViewer->aspectRatio = 0;
