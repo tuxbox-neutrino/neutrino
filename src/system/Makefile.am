@@ -52,5 +52,10 @@ libneutrino_system_a_SOURCES += \
 	tzif-display.cpp
 endif
 
+if NETWORK_BACKEND_NETWORKD
+libneutrino_system_a_SOURCES += \
+	configure_network_networkd.cpp
+else
 libneutrino_system_a_SOURCES += \
 	configure_network_ifupdown.cpp
+endif
