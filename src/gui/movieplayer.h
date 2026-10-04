@@ -288,6 +288,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
 	bool StartWebtv();
+	bool waitForWebtvNetwork(uint64_t generation, t_channel_id chan);
 	bool checkWebtvDns(uint64_t generation, t_channel_id chan, const std::string &url, webtv_dns_result_t &dns);
 	bool waitUntilPlaybackStopped(const char *reason, int timeoutMs);
 
