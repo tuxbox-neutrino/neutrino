@@ -33,6 +33,11 @@
 
 bool CNetworkConfig::canConfigure(void)
 {
+#ifdef ENABLE_IWD
+	/* iwd brings its interfaces up and runs DHCP on them itself */
+	if (wireless)
+		return false;
+#endif
 	return !systemManaged();
 }
 
@@ -99,6 +104,17 @@ void CNetworkConfig::stopNetwork(void)
 	my_system(2, ifdown.c_str(), ifname.c_str());
 }
 
+#ifdef ENABLE_IWD
+void CNetworkConfig::readWpaConfig()
+{
+	ssid = "";
+	key = "";
+}
+
+void CNetworkConfig::saveWpaConfig()
+{
+}
+#else
 void CNetworkConfig::readWpaConfig()
 {
 	std::string   s;
@@ -183,3 +199,4 @@ void CNetworkConfig::saveWpaConfig()
 		perror(WPA_CONFIG " write error");
 	close(fd);
 }
+#endif

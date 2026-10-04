@@ -65,7 +65,11 @@
 #include <system/helpers.h>
 
 #include <libnet.h>
+#ifdef ENABLE_IWD
+#include <gui/wlan_setup.h>
+#else
 #include <libiw/iwscan.h>
+#endif
 #include <libconfigfile/configfile.h>
 #include <nhttpd/yconfig.h>
 
@@ -125,10 +129,20 @@ int CNetworkSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		showCurrentNetworkSettings();
 		return res;
 	}
+#ifdef ENABLE_IWD
+	else if (actionKey == "wlan")
+	{
+		CWlanSetup wlan;
+		res = wlan.exec(parent, "");
+		wlan_status = CWlanSetup::connectedNetwork();
+		return res;
+	}
+#else
 	else if (actionKey == "scanssid")
 	{
 		return showWlanList();
 	}
+#endif
 	else if (actionKey == "select_if")
 	{
 		return showInterfaceSelectMenu();
@@ -397,6 +411,17 @@ int CNetworkSetup::showNetworkSetup()
 		networkSettings->addItem(o1);	//set on start
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
+#ifdef ENABLE_IWD
+	{
+		//wireless networks are iwd's business, reached through its own menu
+		const bool have_wlan = CWlanSetup::available();
+		wlan_status = have_wlan ? CWlanSetup::connectedNetwork() : "";
+		mf = new CMenuForwarder(LOCALE_NETWORKMENU_WLAN, have_wlan, wlan_status, this, "wlan");
+		mf->setHint("", LOCALE_MENU_HINT_NET_WLAN);
+		networkSettings->addItem(mf);
+		networkSettings->addItem(GenericMenuSeparatorLine);
+	}
+#else
 	if (ifcount > 1) // if there is only one, its probably wired
 	{
 		//ssid
@@ -421,6 +446,7 @@ int CNetworkSetup::showNetworkSetup()
 		networkSettings->addItem(m10);	//key
 		networkSettings->addItem(GenericMenuSeparatorLine);
 	}
+#endif
 	//------------------------------------------------
 	networkSettings->addItem(mac);	//eth id
 	networkSettings->addItem(GenericMenuSeparatorLine);
@@ -1052,6 +1078,7 @@ void CNetworkSetup::testNetworkSettings()
 	ShowMsg(LOCALE_NETWORKMENU_TEST, text, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_NETWORK, MSGBOX_MIN_WIDTH, NO_TIMEOUT, false, CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH);
 }
 
+#ifndef ENABLE_IWD
 int CNetworkSetup::showWlanList()
 {
 	int   res = menu_return::RETURN_REPAINT;
@@ -1101,3 +1128,4 @@ int CNetworkSetup::showWlanList()
 	}
 	return res;
 }
+#endif

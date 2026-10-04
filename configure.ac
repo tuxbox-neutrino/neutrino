@@ -451,6 +451,17 @@ case "$network_backend" in
 esac
 AM_CONDITIONAL(NETWORK_BACKEND_NETWORKD, test "$network_backend" = "networkd")
 
+AC_ARG_ENABLE(iwd,
+	AS_HELP_STRING([--enable-iwd], [connect to wireless networks through iwd instead of wpa_supplicant @<:@default=no@:>@]),
+	[enable_iwd="$enableval"],
+	[enable_iwd="no"])
+
+if test "$enable_iwd" = "yes"; then
+	PKG_CHECK_MODULES([DBUS], [dbus-1])
+	AC_DEFINE(ENABLE_IWD, 1, [connect to wireless networks through iwd])
+fi
+AM_CONDITIONAL(ENABLE_IWD, test "$enable_iwd" = "yes")
+
 AC_ARG_ENABLE(freesatepg,
 	AS_HELP_STRING([--enable-freesatepg], [enable Freesat EPG code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FREESATEPG, 1, [enable Freesat EPG code]))

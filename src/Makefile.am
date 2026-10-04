@@ -160,6 +160,10 @@ if ENABLE_LUA
 neutrino_LDADD += @LUA_LIBS@
 endif
 
+if ENABLE_IWD
+neutrino_LDADD += @DBUS_LIBS@
+endif
+
 if ENABLE_UPNP
 neutrino_LDADD += \
 	$(top_builddir)/lib/libupnpclient/libupnpclient.a

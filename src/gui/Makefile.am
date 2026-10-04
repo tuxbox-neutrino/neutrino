@@ -133,6 +133,11 @@ libneutrino_gui_a_SOURCES += \
 	update_check_packages.cpp
 endif
 
+if ENABLE_IWD
+libneutrino_gui_a_SOURCES += \
+	wlan_setup.cpp
+endif
+
 if ENABLE_LCD4LINUX
 libneutrino_gui_a_SOURCES += \
 	lcd4l_setup.cpp

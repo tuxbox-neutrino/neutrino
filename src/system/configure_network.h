@@ -81,7 +81,7 @@ class CNetworkConfig
 	static bool systemManaged(void);
 	/* false when the settings of the interface are not ours to change:
 	 * the system manages the network, no backend is running, or it is a
-	 * wireless interface the backend leaves to the wireless daemon */
+	 * wireless interface that iwd configures on its own */
 	bool canConfigure(void);
 	/* the backend knows an interface that is configured but not started at boot */
 	bool hasAutomaticStart(void);

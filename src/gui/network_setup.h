@@ -58,6 +58,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		std::string network_ssid;
 		std::string network_key;
 		std::string network_key_mask;
+		std::string wlan_status;
 		std::string mac_addr;
 
 		int old_network_dhcp;
