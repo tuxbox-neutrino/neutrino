@@ -1902,7 +1902,7 @@ bool CMoviePlayerGui::StartWebtv(void)
 	 * releasing the mutex keeps the GUI responsive and allows
 	 * RequestAbort() from other threads. */
 	if (playback) {
-#if HAVE_ARM_HARDWARE
+#if HAVE_LIBSTB_HAL
 		res = playback->Start(file_name, cookie_header, second_file_name);
 #else
 		res = playback->Start((char *) file_name.c_str(), cookie_header);
@@ -2914,7 +2914,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	 * releasing the mutex allows ShowStartHint thread to call
 	 * RequestAbort() when the user presses Back/Stop. */
 	bool res = false;
-#if HAVE_ARM_HARDWARE
+#if HAVE_LIBSTB_HAL
 	if (playback)
 		 res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration,"",second_file_name);
 #else
@@ -3385,7 +3385,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (timeshift == TSHIFT_MODE_OFF)
 				callInfoViewer();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
-#if HAVE_CST_HARDWARE || HAVE_ARM_HARDWARE
+#if HAVE_CST_HARDWARE || HAVE_LIBSTB_HAL
                         if (selectChapter() != 0)
 #endif
                                 handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
