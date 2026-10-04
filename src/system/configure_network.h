@@ -47,6 +47,7 @@ class CNetworkConfig
 	/* implemented once per backend, see configure_network_*.cpp */
 	void backendRead(void);
 	void backendCommit(bool modified, bool nameserver_changed);
+	void waitForAddress(void);
 
  public:
 	bool        automatic_start;
@@ -81,7 +82,8 @@ class CNetworkConfig
 	static bool systemManaged(void);
 	/* false when the settings of the interface are not ours to change:
 	 * the system manages the network, no backend is running, or it is a
-	 * wireless interface that iwd configures on its own */
+	 * wireless interface that iwd configures on its own and that is not
+	 * connected to a network iwd knows */
 	bool canConfigure(void);
 	/* the backend knows an interface that is configured but not started at boot */
 	bool hasAutomaticStart(void);
