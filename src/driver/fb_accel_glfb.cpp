@@ -40,6 +40,7 @@ extern GLFramebuffer *glfb;
 #include <system/set_threadname.h>
 #include <gui/color.h>
 #include <gui/color_custom.h>
+#include <gui/osd_helpers.h>
 
 #define LOGTAG "[fb_glfb] "
 
@@ -163,6 +164,8 @@ void CFbAccelGLFB::_blit()
 /* wrong name... */
 int CFbAccelGLFB::setMode(unsigned int, unsigned int, unsigned int)
 {
+	if (osd_resolutions.empty())
+		setOsdResolutions();
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
@@ -180,4 +183,34 @@ int CFbAccelGLFB::setMode(unsigned int, unsigned int, unsigned int)
 fb_pixel_t * CFbAccelGLFB::getBackBufferPointer() const
 {
 	return backbuffer;
+}
+
+/*
+   The size of the GL framebuffer is set when it is created (libstb-hal:
+   GLFB_RESOLUTION) and does not change after that. So there is one OSD
+   resolution to offer, the one that was found, and everything that was
+   laid out for 1280x720 is scaled when that is 1920x1080.
+*/
+void CFbAccelGLFB::setOsdResolutions()
+{
+	osd_resolution_t res;
+	osd_resolutions.clear();
+	res.xRes = screeninfo.xres;
+	res.yRes = screeninfo.yres;
+	res.bpp  = 32;
+	res.mode = fullHdAvailable() ? OSDMODE_1080 : OSDMODE_720;
+	osd_resolutions.push_back(res);
+}
+
+int CFbAccelGLFB::scale2Res(int size)
+{
+	if (fullHdAvailable())
+		size += size/2;
+
+	return size;
+}
+
+bool CFbAccelGLFB::fullHdAvailable()
+{
+	return screeninfo.xres >= 1920;
 }

@@ -70,6 +70,9 @@ void COsdHelpers::changeOsdResolution(uint32_t mode, bool automode/*=false*/, bo
 //		modeNew = OSDMODE_720;
 
 	idx = frameBuffer->getIndexOsdResolution(modeNew);
+	/* what the framebuffer has, which need not be what was asked for */
+	if (idx < frameBuffer->osd_resolutions.size())
+		modeNew = frameBuffer->osd_resolutions[idx].mode;
 	resetOsd = (modeNew != getOsdResolution()) ? true : false;
 #if 1
 	printf(">>>>>[%s:%d] osd mode: %s => %s, automode: %s, forceOsdReset: %s\n", __func__, __LINE__,
