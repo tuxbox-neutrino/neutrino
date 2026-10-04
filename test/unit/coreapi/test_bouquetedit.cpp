@@ -377,7 +377,9 @@ TEST_CASE("setting one half of a bouquet leaves the other half alone", "[bouquet
 {
 	Edit e;
 
-	REQUIRE(channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv).ok());
+	/* ERSTE leaves its only bouquet here, which the call is told to do: this
+	   case is about something else than the question asked before that. */
+	REQUIRE(channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv, true).ok());
 
 	/* Read out of the list and not out of the answer. An endpoint of this
 	   branch once answered ok while emptying three lists, and a case that
@@ -473,6 +475,98 @@ TEST_CASE("a channel of the other kind is refused before anything is sent", "[bo
 	REQUIRE(channels::setBouquetChannels("Favoriten", one(DLF), channels::Mode::Radio).ok());
 }
 
+TEST_CASE("a list that leaves out a channel no other bouquet holds is refused", "[bouquetedit]")
+{
+	/* The channel stack forgets a channel that leaves the last bouquet holding
+	   it. Only this bouquet holds ERSTE, so a television list without it would
+	   take ERSTE off the box. Refused with the bouquet as it was and nothing
+	   sent, and the detail names the channel; said again with the removal
+	   confirmed, it is done. */
+	Edit e;
+
+	const Result<void> r = channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Conflict);
+	REQUIRE(r.error().code == ErrorCode::ChannelWouldBeRemoved);
+	REQUIRE(r.error().message.find("no other bouquet holds b9b0040200016dcb") != std::string::npos);
+	REQUIRE(holds(e.fake.bouquet_members[2], ERSTE));
+	REQUIRE_FALSE(holds(e.fake.bouquet_members[2], ZDF));
+	REQUIRE(e.fake.saves == 0);
+
+	REQUIRE(channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv, true).ok());
+	REQUIRE(holds(e.fake.bouquet_members[2], ZDF));
+	REQUIRE_FALSE(holds(e.fake.bouquet_members[2], ERSTE));
+}
+
+TEST_CASE("a channel another bouquet holds leaves a list without a question", "[bouquetedit]")
+{
+	/* Held by another bouquet as well, it stays on the box, and only the half
+	   the list is for is looked at: the radio member is not asked about by a
+	   television list, nor taken out. */
+	Edit e;
+	e.fake.bouquet_members[3].push_back(e.fake.channels[0]);
+
+	REQUIRE(channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv).ok());
+	REQUIRE(holds(e.fake.bouquet_members[2], ZDF));
+	REQUIRE_FALSE(holds(e.fake.bouquet_members[2], ERSTE));
+	REQUIRE(holds(e.fake.bouquet_members[2], DLF));
+}
+
+TEST_CASE("a refusal names eight of the channels and says that there are more", "[bouquetedit]")
+{
+	/* Ten television channels only this bouquet holds would leave it: the
+	   detail names the first eight and says there are more, rather than growing
+	   with the bouquet. The file names ERSTE twice, the second time among the
+	   first eight, and it is named once. */
+	Edit e;
+	e.fake.bouquet_members[2].insert(e.fake.bouquet_members[2].begin() + 1, e.fake.channels[0]);
+	for (ChannelId id = 0x101; id <= 0x109; id++)
+	{
+		e.fake.channels.push_back(mk(id, "Kanal", ServiceKind::Tv));
+		e.fake.bouquet_members[2].push_back(e.fake.channels.back());
+	}
+
+	const Result<void> r = channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().code == ErrorCode::ChannelWouldBeRemoved);
+	const std::string &d = r.error().message;
+	CHECK(d.find("holds b9b0040200016dcb, 101, 102, 103, 104, 105, 106, 107 and more, "
+	             "so the box would forget them") != std::string::npos);
+	CHECK(d.find("108") == std::string::npos);
+	REQUIRE(e.fake.saves == 0);
+}
+
+TEST_CASE("the radio half of a bouquet is asked about on its own", "[bouquetedit]")
+{
+	/* DLF is the only radio member and no other bouquet holds it: a radio list
+	   without it is refused and names it alone, while a television list leaves
+	   it where it is. */
+	Edit e;
+
+	const Result<void> r = channels::setBouquetChannels("Favoriten", ChannelIdList(), channels::Mode::Radio);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().code == ErrorCode::ChannelWouldBeRemoved);
+	CHECK(r.error().message.find("holds b9b004020001780f, so the box would forget it; ") != std::string::npos);
+	CHECK(r.error().message.find("take it off the box") != std::string::npos);
+	REQUIRE(holds(e.fake.bouquet_members[2], DLF));
+	REQUIRE(e.fake.saves == 0);
+}
+
+TEST_CASE("a bouquet that cannot be read while a list is checked refuses the list", "[bouquetedit]")
+{
+	/* The question cannot be answered without every other bouquet, so one that
+	   cannot be read refuses the list as the bouquet list does, rather than
+	   counting as a bouquet that holds nothing. */
+	Edit e;
+	e.fake.member_status[3] = Status::Busy;
+
+	const Result<void> r = channels::setBouquetChannels("Favoriten", one(ZDF), channels::Mode::Tv);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().code == ErrorCode::BouquetListUnavailable);
+	REQUIRE(holds(e.fake.bouquet_members[2], ERSTE));
+	REQUIRE(e.fake.saves == 0);
+}
+
 TEST_CASE("a change the box turned down is not written out", "[bouquetedit]")
 {
 	Edit e;
@@ -561,8 +655,10 @@ TEST_CASE("a change the box took and did not make is not answered as done", "[bo
 	notDone("moving", channels::moveBouquet("Favoriten", channels::Direction::Up));
 	notDone("hiding", channels::setBouquetHidden("Favoriten", true));
 	notDone("locking", channels::setBouquetLock("Favoriten", true));
+	/* ERSTE leaves its only bouquet here, which the call is told to do: this
+	   case is about something else than the question asked before that. */
 	notDone("filling", channels::setBouquetChannels("Favoriten", one(ZDF),
-	                                                channels::Mode::Tv));
+	                                                channels::Mode::Tv, true));
 	notDone("deleting", channels::deleteBouquet("Favoriten"));
 
 	// And the list is where it was, which is what the answers alone cannot
@@ -587,8 +683,10 @@ TEST_CASE("a change the box did not make and could not save is not answered as s
 	notDone("moving", channels::moveBouquet("Favoriten", channels::Direction::Up));
 	notDone("hiding", channels::setBouquetHidden("Favoriten", true));
 	notDone("locking", channels::setBouquetLock("Favoriten", true));
+	/* ERSTE leaves its only bouquet here, which the call is told to do: this
+	   case is about something else than the question asked before that. */
 	notDone("filling", channels::setBouquetChannels("Favoriten", one(ZDF),
-	                                                channels::Mode::Tv));
+	                                                channels::Mode::Tv, true));
 	notDone("deleting", channels::deleteBouquet("Favoriten"));
 
 	REQUIRE(e.fake.bouquets.size() == 3);
@@ -688,8 +786,10 @@ TEST_CASE("a list that cannot be read back is not a change that did not happen",
 	REQUIRE(e.fake.bouquets[0].name == "Favoriten");
 
 	e.fake.bouquets_status = Status::Ok;
+	/* ERSTE leaves its only bouquet here, which the call is told to do: this
+	   case is about something else than the question asked before that. */
 	const Result<void> filled = channels::setBouquetChannels("Favoriten", one(ZDF),
-	                                                         channels::Mode::Tv);
+	                                                         channels::Mode::Tv, true);
 	REQUIRE_FALSE(filled.ok());
 	REQUIRE(filled.error().code == ErrorCode::BouquetListUnavailable);
 	REQUIRE(holds(e.fake.bouquet_members[1], ZDF));
@@ -798,8 +898,10 @@ TEST_CASE("a change the box turned down is not announced", "[bouquetedit]")
 	turnedDown("move", channels::moveBouquet("Favoriten", channels::Direction::Up));
 	turnedDown("hide", channels::setBouquetHidden("Favoriten", true));
 	turnedDown("lock", channels::setBouquetLock("Favoriten", true));
+	/* ERSTE leaves its only bouquet here, which the call is told to do: this
+	   case is about something else than the question asked before that. */
 	turnedDown("fill", channels::setBouquetChannels("Favoriten", one(ZDF),
-	                                                channels::Mode::Tv));
+	                                                channels::Mode::Tv, true));
 	turnedDown("delete", channels::deleteBouquet("Favoriten"));
 
 	REQUIRE(watch.seen.empty());

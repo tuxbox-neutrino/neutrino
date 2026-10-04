@@ -227,6 +227,10 @@ enum class ErrorCode
 	   tell which is meant. Not the code above: that one refuses to give a name
 	   out twice, and this one refuses to act on a name that already was. */
 	NameShared,
+	/* Taking these out of the bouquet would take them off the box: no other
+	   bouquet holds them, and the box forgets a channel that leaves the last
+	   bouquet holding it. Asked again with the removal confirmed, it is done. */
+	ChannelWouldBeRemoved,
 	/* What carries that name is not a plain file, and a plain file was to go in
 	   its place. Not the code above: that one is answered by asking again and
 	   saying to replace what is there, and a directory, a link and a device are
@@ -505,6 +509,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::TimerExists: return "timer-exists";
 		case ErrorCode::NameTaken: return "name-taken";
 		case ErrorCode::NameShared: return "name-shared";
+		case ErrorCode::ChannelWouldBeRemoved: return "channel-would-be-removed";
 		case ErrorCode::NotAPlainFile: return "not-a-plain-file";
 		case ErrorCode::SideFileInTheWay: return "side-file-in-the-way";
 		case ErrorCode::NotEmpty: return "not-empty";

@@ -153,7 +153,7 @@
 
 	<script src="/Y_Lang.yjs?v=21"></script>
 	<script src="/yweb-header.js?v=53"></script>
-	<script src="/yweb-v1.js?v=3"></script>
+	<script src="/yweb-v1.js?v=4"></script>
 	<script>
 		// The editor speaks /api/v1: a bouquet is read with its position (id)
 		// and its hidden/locked state, and changed by its name; the box saves
@@ -703,27 +703,56 @@
 		}
 
 		// The channel list of the chosen bouquet in the shown mode, as a whole;
-		// the other mode's half of the bouquet stays as it is.
-		async function bqeApplyChannels() {
+		// the other mode's half of the bouquet stays as it is. A list that
+		// leaves out a channel no other bouquet holds would take that channel
+		// off the box, so the box refuses it until the user has said so here.
+		async function bqeApplyChannels(remove, fromQuestion) {
 			if (!bqeSel) { ywebShowToast('{=L:yw.bqe.none_picked=}', true); return; }
 			if (bqeApplying || !bqeChanDirty || !bqeChanReady() || bqeShared(bqeSel.name)) return;
+			// while the question is open, only its answer sends the list
+			if (!fromQuestion && document.querySelector('.yweb-confirm-backdrop')) return;
 			bqeApplying = true;
 			bqeUpdateApply();
+			// the list as sent, so that a confirmation answers for it and no other
+			var sent = {sel: bqeSel, mode: bqeMode(), ids: bqeChan.map(function(c) { return c.id; })};
 			try {
 				await bqeOwnRequest('PUT', bqePath(bqeSel.name, 'channels'), {
-					query: {mode: bqeMode()},
-					body: bqeChan.map(function(c) { return c.id; })
+					query: {mode: sent.mode, remove_from_box: remove ? 'true' : null},
+					body: sent.ids
 				});
 				setDirty(false);
 				ywebShowToast('{=L:yw.bqe.applied=}');
 				bqeApplying = false;
 				await bqeReloadAll();
 			} catch (e) {
-				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				if (e.code === 'channel-would-be-removed' && !remove)
+					bqeAskRemove(e.message, sent);
+				else
+					ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			} finally {
 				bqeApplying = false;
 				bqeRenderChannels();
 			}
+		}
+
+		// The refusal names by id the channels the box would forget; the
+		// channel list of the mode has their names, and an id it does not know
+		// is shown as it came. A refusal in another shape is shown as it came.
+		function bqeAskRemove(detail, sent) {
+			var m = /holds (.+?)( and more)?, so the box/.exec(String(detail));
+			var which = !m ? esc(detail) : m[1].split(', ').map(function(id) {
+				for (var i = 0; i < bqeAllChan.length; i++)
+					if (bqeAllChan[i].id === id) return esc(bqeAllChan[i].name);
+				return esc(id);
+			}).join(', ') + (m[2] ? ', …' : '');
+			ywebShowConfirm('{=L:yw.bqe.gone_title=}', '{=L:yw.bqe.gone_msg=}<br><strong>' + which + '<\/strong>',
+				'{=L:yw.bqe.gone_btn=}', function() {
+					// a list that changed since it was refused is asked about again
+					var same = bqeSel === sent.sel && bqeMode() === sent.mode &&
+						bqeChan.length === sent.ids.length &&
+						bqeChan.every(function(c, i) { return c.id === sent.ids[i]; });
+					return bqeApplyChannels(same, true);
+				});
 		}
 
 		function bqeDiscard() {

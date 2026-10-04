@@ -219,6 +219,9 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	{
 		if (bouquets_status != coreapi::Status::Ok)
 			return bouquets_status;
+		std::map<uint32_t, coreapi::Status>::const_iterator failing = member_status.find(id);
+		if (failing != member_status.end())
+			return failing->second;
 		std::map<uint32_t, coreapi::ChannelList>::const_iterator it = bouquet_members.find(id);
 		if (it == bouquet_members.end())
 			return coreapi::Status::NotFound;
@@ -343,6 +346,11 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	   What must not come of it is an answer saying the change did not happen,
 	   which is the one thing nobody knows at that point. */
 	bool reads_fail_after_write;
+
+	/* A read of one bouquet's members that fails while every other read goes
+	   through, for a case that means a failure halfway through a walk over the
+	   bouquets rather than a list that cannot be read at all. */
+	std::map<uint32_t, coreapi::Status> member_status;
 
 	/* What every write below ends with once it has made its change, so that
 	   the read after it meets the list in the state the knob above describes.

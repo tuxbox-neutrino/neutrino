@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <utility>
@@ -647,6 +648,71 @@ Result<void> probeChannels(const std::string &name, const ChannelIdList &ids, Mo
 	return (half == ids) ? ok() : notChanged();
 }
 
+/* What the list costs the box: the channels the half holds now that the list
+   leaves out and that no other bouquet holds. The channel stack forgets a channel
+   that leaves the last bouquet holding it, so these would be gone from the box.
+   Every bouquet counts as holding one, the provider lists and a hidden bouquet
+   too, as they do there. */
+Status leftAlone(uint32_t at, const ChannelIdList &ids, Mode kind, ChannelIdList &out)
+{
+	// A bouquet the source no longer knows holds nothing, here and below.
+	ChannelList held;
+	Status s = channelSource().bouquetChannels(at, held);
+	if (s != Status::Ok && s != Status::NotFound)
+		return s;
+
+	// Once each, however often the bouquet file names it.
+	ChannelIdList leaving;
+	for (size_t i = 0; i < held.size(); i++)
+		if (isTelevision(held[i].kind) == (kind == Mode::Tv) &&
+		    std::find(ids.begin(), ids.end(), held[i].id) == ids.end() &&
+		    std::find(leaving.begin(), leaving.end(), held[i].id) == leaving.end())
+			leaving.push_back(held[i].id);
+	if (leaving.empty())
+		return Status::Ok;
+
+	BouquetList all;
+	s = channelSource().allBouquets(all);
+	if (s != Status::Ok)
+		return s;
+	for (size_t b = 0; b < all.size() && !leaving.empty(); b++)
+	{
+		if (all[b].id == at)
+			continue;
+		ChannelList members;
+		s = channelSource().bouquetChannels(all[b].id, members);
+		if (s == Status::NotFound)
+			continue;
+		if (s != Status::Ok)
+			return s;
+		for (size_t m = 0; m < members.size(); m++)
+			leaving.erase(std::remove(leaving.begin(), leaving.end(), members[m].id),
+				      leaving.end());
+	}
+	out = leaving;
+	return Status::Ok;
+}
+
+// Says which ones, the first few of them, in the form the routes write an id in.
+std::string removalDetail(const ChannelIdList &alone)
+{
+	std::string d = "no other bouquet holds ";
+	const size_t shown = (alone.size() < 8) ? alone.size() : 8;
+	for (size_t i = 0; i < shown; i++)
+	{
+		char hex[24];
+		std::snprintf(hex, sizeof(hex), "%llx", (unsigned long long) alone[i]);
+		d += (i == 0) ? "" : ", ";
+		d += hex;
+	}
+	if (alone.size() > shown)
+		d += " and more";
+	d += (alone.size() == 1)
+		? ", so the box would forget it; send the list again with remove_from_box to take it off the box"
+		: ", so the box would forget them; send the list again with remove_from_box to take them off the box";
+	return d;
+}
+
 } // namespace
 
 Result<void> addBouquet(const std::string &name)
@@ -761,7 +827,8 @@ Result<void> setBouquetLock(const std::string &name, bool locked)
 	return settled(done, probeFlag(name, Flag::Locked, locked));
 }
 
-Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &ids, Mode kind)
+Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &ids, Mode kind,
+                                bool remove_from_box)
 {
 	Result<uint32_t> at = position(name);
 	if (!at.ok())
@@ -787,6 +854,21 @@ Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &id
 			return fail(Status::InvalidArgument, ErrorCode::WrongKindOfChannel,
 				    kind == Mode::Tv ? "a radio channel cannot go into the television list"
 						     : "a television channel cannot go into the radio list");
+	}
+
+	/* Asked before anything changes as well, so that a refusal leaves the
+	   bouquet as it was. Without this a page that only meant to tidy a bouquet
+	   could take a channel off the box for good, which nothing but a scan brings
+	   back. */
+	if (!remove_from_box)
+	{
+		ChannelIdList alone;
+		Status s = leftAlone(at.value(), ids, kind, alone);
+		if (s != Status::Ok)
+			return unreadable(s);
+		if (!alone.empty())
+			return fail(Status::Conflict, ErrorCode::ChannelWouldBeRemoved,
+				    removalDetail(alone));
 	}
 
 	const Result<void> done =

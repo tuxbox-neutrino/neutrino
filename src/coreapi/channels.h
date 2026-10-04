@@ -156,8 +156,13 @@ Result<void> setBouquetLock(const std::string &name, bool locked);
    both would make a caller meaning one hand the other back. Membership and order
    both: the numbers the box draws beside a channel are counted off that order.
    Every channel named is looked up before anything is changed, so a list naming
-   one the box does not have is refused with the bouquet as it was. */
-Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &ids, Mode kind);
+   one the box does not have is refused with the bouquet as it was.
+
+   The box forgets a channel that leaves the last bouquet holding it. A list that
+   leaves such a channel out is refused as channel-would-be-removed, with the
+   bouquet as it was, unless remove_from_box says to take it off the box. */
+Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &ids, Mode kind,
+                                bool remove_from_box = false);
 
 /* Says on the event bus that the bouquets are not what a reader was last handed,
    and waits for the box before saying it. Every call above ends with this, and

@@ -1069,7 +1069,8 @@ Response fillBouquet(const Request &r)
 	   Worth saying what it costs, because the box forgets a channel no bouquet
 	   holds any more: emptying the last half that held a channel takes the channel
 	   off the box. A list going from five names to one takes four out the same
-	   way. */
+	   way. So the layer below refuses such a list unless the caller said to take
+	   them off the box, and a page asks its user before it says so. */
 
 	coreapi::ChannelIdList ids;
 	if (!readChannelIds(items, ids))
@@ -1080,8 +1081,9 @@ Response fillBouquet(const Request &r)
 		? coreapi::channels::Mode::Radio
 		: coreapi::channels::Mode::Tv;
 
+	const bool remove_from_box = r.has("remove_from_box") && r.asBool("remove_from_box");
 	coreapi::Result<void> done =
-		coreapi::channels::setBouquetChannels(r.asString("bouquet"), ids, kind);
+		coreapi::channels::setBouquetChannels(r.asString("bouquet"), ids, kind, remove_from_box);
 	if (!done.ok())
 		return problemFor(done.error());
 	return noContent();
@@ -1222,6 +1224,8 @@ const Param kFillParams[] = {
 	HTTPD_BODY_IS_LIST_OF("channels", ParamType::ChannelId,
 		"a JSON array of channel ids, hexadecimal strings as `GET /api/v1/channels` answers them, in the order the bouquet is to hold them; an id named twice is kept once, at its first place; `[]` empties that list of the bouquet",
 		0, (long) kMaxChannelsInBouquet),
+	HTTPD_QUERY("remove_from_box", ParamType::Bool,
+		"`true` takes a channel the list leaves out off the box when no other bouquet holds it, which the box does on its own when a channel leaves its last bouquet; left out or `false`, such a list is refused with `409 channel-would-be-removed` and nothing changes"),
 };
 
 const RouteRefusal kListChannelsRefusals[] = {
@@ -1350,6 +1354,8 @@ const RouteRefusal kFillBouquetRefusals[] = {
 		"no bouquet of that name"),
 	HTTPD_REFUSES(Conflict, NameShared,
 		"more than one bouquet carries that name"),
+	HTTPD_REFUSES(Conflict, ChannelWouldBeRemoved,
+		"no other bouquet holds a channel the list leaves out, so the box would forget it"),
 	HTTPD_REFUSES(Internal, BouquetNotChanged,
 		"the box did not change the bouquet"),
 	HTTPD_REFUSES(Internal, BouquetNotSaved,
@@ -1527,7 +1533,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "replaces the television or the radio members of it with the channels the body names, in the order it names them, and empties that half for a body naming none; the body is a JSON array of hexadecimal channel identifiers",
 	  "Replaces the television or the radio channels of a bouquet with the channels the body lists, in that order; the other list of the bouquet stays as it is. `[]` empties the list. The body is a JSON array of hexadecimal channel id strings, at most 4096; every id is checked before anything changes, so a refused request leaves the bouquet untouched.\n\n"
 	  "To add or remove 1 channel, read the current list with `GET /api/v1/channels?bouquet={id}&mode=...`, change it and send the whole list back.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, the box renumbers the channels it shows, and every client sees a `bouquets-changed` event on `GET /api/v1/events`. Removing a channel from the last bouquet that held it can take that channel off the box.\n\n"
+	  "**Side effects:** the bouquet file is written and reloaded, the box renumbers the channels it shows, and every client sees a `bouquets-changed` event on `GET /api/v1/events`. A channel that no other bouquet holds is taken off the box when it leaves this list, so a list leaving one out is refused unless `remove_from_box` is `true`.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 bad-int` or `400 bad-string`: the body is not 1 JSON array of hexadecimal ids of up to 16 digits.\n"
 	  "- `400 too-many-channels`: more than 4096 ids.\n"
@@ -1535,6 +1541,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "- `404 no-such-channel`: an id names no channel; nothing was changed.\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
 	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
+	  "- `409 channel-would-be-removed`: no other bouquet holds a channel the list leaves out, as the bouquets stand when the list is checked, so the box would forget it; the detail names up to 8 of them by id. Ask the user, then send the same list again with `remove_from_box=true`.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the change, or the list did not read back in the order sent.\n"
 	  "- `500 bouquet-not-saved`: the change is in the list the box runs, but its bouquet files may not hold it; do not send it again, read `GET /api/v1/bouquets`.\n\n"
 	  "**Related:** `GET /api/v1/channels`, `POST /api/v1/bouquets`.",

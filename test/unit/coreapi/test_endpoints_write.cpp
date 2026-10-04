@@ -2768,6 +2768,32 @@ TEST_CASE("every bouquet write states a failed save the same way", "[write]")
 	}
 }
 
+TEST_CASE("a list that would take a channel off the box asks first", "[write]")
+{
+	/* The box forgets a channel that leaves the last bouquet holding it. Only
+	   Erstes holds the channel here, so a list without it is refused with the
+	   bouquet as it was and nothing written, and the same list said to take it
+	   off the box goes through. */
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+	box.channels.bouquet_members[1].push_back(box.channels.channels[0]);
+
+	const Reply asked = authedPut("/api/v1/bouquets/Erstes/channels?mode=tv", "[]");
+	REQUIRE(asked.code == 409);
+	REQUIRE(asked.body.find("channel-would-be-removed") != std::string::npos);
+	REQUIRE(box.channels.bouquet_members[1].size() == 1u);
+	REQUIRE(box.channels.saves == 0u);
+
+	// Said not to, in so many words, it is asked all the same.
+	REQUIRE(authedPut("/api/v1/bouquets/Erstes/channels?mode=tv&remove_from_box=false", "[]").code == 409);
+	REQUIRE(box.channels.bouquet_members[1].size() == 1u);
+
+	const Reply told = authedPut("/api/v1/bouquets/Erstes/channels?mode=tv&remove_from_box=true", "[]");
+	REQUIRE(told.code == 204);
+	REQUIRE(box.channels.bouquet_members[1].empty());
+}
+
 TEST_CASE("an empty list empties that half and a body carrying no list does not", "[write]")
 {
 	/* The two belong in one case, because what separates them is the whole of the
@@ -2802,8 +2828,9 @@ TEST_CASE("an empty list empties that half and a body carrying no list does not"
 	REQUIRE(box.channels.saves == 0u);
 
 	// The same route and the same bouquet as the refusal above, one written
-	// pair of brackets apart.
-	const Reply emptied = authedPut("/api/v1/bouquets/Erstes/channels?mode=tv", "[]");
+	// pair of brackets apart. The channel leaves its only bouquet, which the
+	// request says to do: the box would forget it, and that is asked first.
+	const Reply emptied = authedPut("/api/v1/bouquets/Erstes/channels?mode=tv&remove_from_box=true", "[]");
 	REQUIRE(emptied.code == 204);
 	REQUIRE(box.channels.saves == 1u);
 	REQUIRE(box.channels.reloads == 1u);
@@ -3250,8 +3277,9 @@ TEST_CASE("the floor the document states for a bouquet's list is the one the ser
 	giveBouquets(box.channels);
 	box.channels.bouquet_members[1].push_back(box.channels.channels[0]);
 
+	// Said to take the channel off the box, so the answer turns on the floor alone.
 	const long least = documentSays("/api/v1/bouquets/{bouquet}/channels", "put", "minItems");
-	const Reply empty = authedPut("/api/v1/bouquets/Erstes/channels?mode=tv", "[]");
+	const Reply empty = authedPut("/api/v1/bouquets/Erstes/channels?mode=tv&remove_from_box=true", "[]");
 	REQUIRE((empty.code >= 400) == (least > 0));
 }
 

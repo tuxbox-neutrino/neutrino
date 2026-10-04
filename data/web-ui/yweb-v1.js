@@ -6,8 +6,9 @@
 //   ywebV1('PUT', '/bouquets/' + encodeURIComponent(n) + '/hidden',
 //          {body: {on: true}})                            -> null (204)
 //
-// A refusal throws an Error with the box's reason as its message and the
-// HTTP status in .status (answers come as application/problem+json).
+// A refusal throws an Error with the box's reason as its message, the HTTP
+// status in .status and the code of the refusal in .code (answers come as
+// application/problem+json, whose type is /errors/ and the code).
 //
 // Reading needs no sign-in from the home network; changing anything does,
 // and so does reading from anywhere else. The box answers either with 403,
@@ -73,12 +74,16 @@ function _ywebV1Send(method, path, opts) {
 
 async function _ywebV1Error(resp, method, path) {
 	var text = '';
+	var code = '';
 	try {
 		var p = await resp.json();
 		if (p) text = p.detail || p.title || '';
+		if (p && typeof p.type === 'string' && p.type.indexOf('/errors/') === 0)
+			code = p.type.substring(8);
 	} catch (e) { /* not a problem document */ }
 	var err = new Error(text || (method + ' ' + path + ': HTTP ' + resp.status));
 	err.status = resp.status;
+	err.code = code;
 	return err;
 }
 
