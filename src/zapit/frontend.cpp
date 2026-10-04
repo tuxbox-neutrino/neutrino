@@ -766,6 +766,9 @@ uint32_t CFrontend::getRate() const
 
 fe_status_t CFrontend::getStatus(void) const
 {
+	if (adapter == -1)
+		return FE_HAS_LOCK;
+
 	struct dvb_frontend_event event;
 	event.status = FE_REINIT;
 	fop(ioctl, FE_READ_STATUS, &event.status);
@@ -1451,6 +1454,13 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
 	tuned = false;
+
+	if (adapter == -1) {
+		/* the frontend SIMULATE_FE has put in: every transponder is
+		   "there", what the demux then delivers is up to the HAL */
+		tuned = true;
+		return tuned;
+	}
 
 	struct dvb_frontend_event ev;
 	{
