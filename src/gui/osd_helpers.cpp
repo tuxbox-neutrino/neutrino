@@ -158,7 +158,7 @@ int COsdHelpers::isVideoSystem1080(int res)
 		return true;
 #endif
 
-#if HAVE_ARM_HARDWARE
+#if HAVE_ARM_HARDWARE || HAVE_GENERIC_HARDWARE
 	if ((res == VIDEO_STD_1080P50) ||
 	    (res == VIDEO_STD_1080P60) ||
 	    (res == VIDEO_STD_2160P24) ||
