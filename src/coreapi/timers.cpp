@@ -209,9 +209,13 @@ Result<uint32_t> create(const TimerInfo &t)
 
 	TimerInfo asked = t;
 	asked.type = builtAs(t.type);
-	// It begins at once, with nothing ahead of it to announce.
+	/* It begins at once, with nothing ahead of it to announce, so it has no
+	   announce time whatever the request carries: one taken as it came would
+	   reach the daemon and the box's own timer list unchecked. */
 	if (t.type != (int) TimerType::ImmediateRecord)
 		asked.announce = announceOf(asked);
+	else
+		asked.announce = 0;
 
 	uint32_t new_id = 0;
 	Status s = timerSource().add(asked, new_id);

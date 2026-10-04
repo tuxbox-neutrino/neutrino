@@ -26,6 +26,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <new>
 #include <string>
 #include <utility>
@@ -1012,6 +1013,24 @@ TEST_CASE("an immediate recording is made without an announce time", "[timers]")
 	t.start = 2000;
 	t.stop = 6000;
 	timers::create(t);
+	CHECK(filedAnnounce(fake, 0) == 0);
+}
+
+TEST_CASE("an announce time sent with an immediate recording is not kept", "[timers]")
+{
+	/* It has none, as the API document says, so one the caller sends is not
+	   handed to the daemon as it came: the far end of a wide time_t reached
+	   the box's own timer list that way. */
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+
+	TimerInfo t;
+	t.type = (int) TimerType::ImmediateRecord;
+	t.channel_id = 0x2b66;
+	t.start = 2000;
+	t.stop = 6000;
+	t.announce = std::numeric_limits<time_t>::max();
+	REQUIRE(timers::create(t).ok());
 	CHECK(filedAnnounce(fake, 0) == 0);
 }
 
