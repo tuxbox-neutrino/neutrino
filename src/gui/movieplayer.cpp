@@ -130,6 +130,7 @@ extern CTimeOSD *FileTimeOSD;
 #define WEBTV_STABLE_PLAYBACK_MS 15000
 #define WEBTV_ACTIVITY_GAP_MS 5000
 #define WEBTV_BUDGET_REFRESH_WINDOW_MS 60000
+#define WEBTV_NETWORK_WAIT_MS 30000
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
 CMoviePlayerGui* CMoviePlayerGui::instance_bg = NULL;
@@ -1858,6 +1859,56 @@ bool CMoviePlayerGui::checkWebtvDns(uint64_t generation, t_channel_id chan, cons
 	return true;
 }
 
+/* a default route over IPv4 or IPv6, the box is online */
+static bool webtvHaveDefaultRoute(void)
+{
+	std::ifstream v4("/proc/net/route");
+	std::string line;
+	std::getline(v4, line);
+	while (std::getline(v4, line)) {
+		char iface[32];
+		unsigned long dest = 1;
+		if (sscanf(line.c_str(), "%31s %lx", iface, &dest) == 2 && dest == 0)
+			return true;
+	}
+
+	std::ifstream v6("/proc/net/ipv6_route");
+	while (std::getline(v6, line)) {
+		char dest[33], iface[32];
+		unsigned int plen = 1;
+		if (sscanf(line.c_str(), "%32s %x %*s %*s %*s %*s %*s %*s %*s %31s", dest, &plen, iface) == 3 &&
+		    plen == 0 && strcmp(iface, "lo") && strspn(dest, "0") == 32)
+			return true;
+	}
+	return false;
+}
+
+/* wait for a default route as long as the request is the current one */
+bool CMoviePlayerGui::waitForWebtvNetwork(uint64_t generation, t_channel_id chan)
+{
+	printf("[webtv] waiting for the network channel=%llx generation=%llu\n",
+		(unsigned long long)chan, (unsigned long long)generation);
+	for (int waited = 0; waited < WEBTV_NETWORK_WAIT_MS; waited += 250) {
+		usleep(250 * 1000);
+		mutex.lock();
+		bool request_current = webtv_request.generation == generation && webtv_request.channel_id == chan &&
+				       webtv_abort_generation != generation;
+		mutex.unlock();
+		if (!request_current) {
+			recordWebtvFailure(WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY, chan, generation);
+			return false;
+		}
+		if (webtvHaveDefaultRoute()) {
+			printf("[webtv] network is up after %d ms channel=%llx generation=%llu\n",
+				waited + 250, (unsigned long long)chan, (unsigned long long)generation);
+			return true;
+		}
+	}
+	printf("[webtv] no network after %d ms channel=%llx generation=%llu\n",
+		WEBTV_NETWORK_WAIT_MS, (unsigned long long)chan, (unsigned long long)generation);
+	return false;
+}
+
 bool CMoviePlayerGui::StartWebtv(void)
 {
 	last_read = position = duration = 0;
@@ -1870,8 +1921,14 @@ bool CMoviePlayerGui::StartWebtv(void)
 	mutex.unlock();
 
 	webtv_dns_result_t dns;
-	if (isWebChannel && !checkWebtvDns(request_generation, request_channel, request_url, dns))
-		return false;
+	if (isWebChannel && !checkWebtvDns(request_generation, request_channel, request_url, dns)) {
+		/* right after the start the network may not be up yet */
+		if ((dns.reason != WEBTV_ERROR_DNS_FAILED && dns.reason != WEBTV_ERROR_DNS_TIMEOUT) ||
+		    webtvHaveDefaultRoute() ||
+		    !waitForWebtvNetwork(request_generation, request_channel) ||
+		    !checkWebtvDns(request_generation, request_channel, request_url, dns))
+			return false;
+	}
 
 	if (isWebChannel) {
 		mutex.lock();
