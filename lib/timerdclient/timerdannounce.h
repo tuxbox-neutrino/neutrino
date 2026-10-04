@@ -26,6 +26,7 @@
 #include <timerdclient/timerdtypes.h>
 
 // A stored announce time of 0, below 0 or after the alarm stands for none.
+// An alarm no later than the lead leaves none: 0.
 time_t timerAnnounceTime(CTimerd::CTimerEventTypes type, time_t announce, time_t alarm);
 
 #endif

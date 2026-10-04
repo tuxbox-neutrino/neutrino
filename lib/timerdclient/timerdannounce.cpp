@@ -25,5 +25,11 @@ time_t timerAnnounceTime(CTimerd::CTimerEventTypes type, time_t announce, time_t
 	if (announce > 0 && announce <= alarm)
 		return announce;
 	// The leads the timer list uses.
-	return alarm - ((type == CTimerd::TIMER_RECORD) ? 3 * 60 : 60);
+	const time_t lead = (type == CTimerd::TIMER_RECORD) ? 3 * 60 : 60;
+	/* An alarm no later than its own lead has no moment before it to announce
+	   at, and taking the lead off one far enough below nought would leave the
+	   range of time_t. None, then, as for a stored announce time of nought. */
+	if (alarm <= lead)
+		return 0;
+	return alarm - lead;
 }

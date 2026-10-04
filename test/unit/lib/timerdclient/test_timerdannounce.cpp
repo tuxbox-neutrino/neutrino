@@ -22,6 +22,8 @@
 
 #include <time.h>
 
+#include <limits>
+
 #include <timerdclient/timerdannounce.h>
 
 namespace
@@ -49,4 +51,15 @@ TEST_CASE("an announce time of its own is kept, up to the alarm itself", "[timer
 {
 	CHECK(timerAnnounceTime(CTimerd::TIMER_RECORD, kAlarm - 600, kAlarm) == kAlarm - 600);
 	CHECK(timerAnnounceTime(CTimerd::TIMER_ZAPTO, kAlarm, kAlarm) == kAlarm);
+}
+
+TEST_CASE("an alarm no later than its lead gives no announce time", "[timerdannounce]")
+{
+	/* Taking the lead off the earliest alarms a time_t carries would leave its
+	   range, so an alarm that close to nought, or below it, has none. */
+	CHECK(timerAnnounceTime(CTimerd::TIMER_RECORD, 0, 180) == 0);
+	CHECK(timerAnnounceTime(CTimerd::TIMER_ZAPTO, 0, 60) == 0);
+	CHECK(timerAnnounceTime(CTimerd::TIMER_ZAPTO, 0, 61) == 1);
+	CHECK(timerAnnounceTime(CTimerd::TIMER_ZAPTO, 0, -1) == 0);
+	CHECK(timerAnnounceTime(CTimerd::TIMER_RECORD, 0, std::numeric_limits<time_t>::min()) == 0);
 }
