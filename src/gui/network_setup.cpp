@@ -500,6 +500,25 @@ int CNetworkSetup::showManagedNetworkSetup()
 	return networkSettings.exec(NULL, "");
 }
 
+/* why an interface has no address: a wireless one is not connected to a
+   network, a wired one may have no cable in it */
+static neutrino_locale_t interfaceState(const std::string &ifname)
+{
+	std::string sys = "/sys/class/net/" + ifname;
+	if (access((sys + "/wireless").c_str(), F_OK) == 0)
+		return LOCALE_NETWORKMENU_STATE_NOT_CONNECTED;
+
+	FILE *f = fopen((sys + "/carrier").c_str(), "r");
+	int carrier = 0;
+	if (f)
+	{
+		if (fscanf(f, "%d", &carrier) != 1)
+			carrier = 0;
+		fclose(f);
+	}
+	return carrier ? LOCALE_NETWORKMENU_STATE_NO_ADDRESS : LOCALE_NETWORKMENU_STATE_NO_CABLE;
+}
+
 int CNetworkSetup::showInterfaceSelectMenu()
 {
 	int res = menu_return::RETURN_REPAINT;
@@ -538,7 +557,7 @@ int CNetworkSetup::showInterfaceSelectMenu()
 
 		netGetIP(ifnames[i], ip, mask, broadcast);
 		if (ip.empty() || ip == "0.0.0.0" || inet_pton(AF_INET, ip.c_str(), &addr) != 1)
-			ip = "n/a";
+			ip = g_Locale->getText(interfaceState(ifnames[i]));
 
 		char cnt[12];
 		sprintf(cnt, "%d", (int)i);

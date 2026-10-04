@@ -2293,6 +2293,9 @@ networkmenu.ssid Netzwerkname (SSID)
 networkmenu.ssid_scan WLAN-Netzwerke suchen
 networkmenu.ssid_scan_error Keine WLAN-Netzwerke gefunden.
 networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht ...
+networkmenu.state_no_address keine Adresse
+networkmenu.state_no_cable kein Kabel
+networkmenu.state_not_connected nicht verbunden
 networkmenu.test Netzwerk testen
 neutrino_starting %s %s wird gestartet ...
 nfs.active_shares Aktive Freigaben
