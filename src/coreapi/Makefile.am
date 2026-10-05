@@ -78,6 +78,8 @@ libcoreapi_a_SOURCES = \
 	tuner.cpp \
 	plugins.cpp \
 	recordings.cpp \
+	archive.cpp \
+	playback.cpp \
 	osd.cpp \
 	settings/settings.cpp \
 	streaming.cpp \
@@ -106,6 +108,8 @@ noinst_HEADERS = \
 	tuner.h \
 	plugins.h \
 	recordings.h \
+	archive.h \
+	playback.h \
 	osd.h \
 	base/schema.h \
 	settings/settings.h \

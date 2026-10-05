@@ -143,6 +143,11 @@ const std::string &Request::scope() const
 	return scope_;
 }
 
+const std::string &Request::addressToken() const
+{
+	return address_token_;
+}
+
 const std::string &Request::session() const
 {
 	return session_;
@@ -151,6 +156,11 @@ const std::string &Request::session() const
 const std::string &Request::host() const
 {
 	return host_;
+}
+
+const std::string &Request::localAddress() const
+{
+	return local_address_;
 }
 
 void Request::bind(const char *name, const Value &v)
@@ -183,6 +193,11 @@ void Request::setScope(const std::string &s)
 	scope_ = s;
 }
 
+void Request::setAddressToken(const std::string &t)
+{
+	address_token_ = t;
+}
+
 void Request::setGranted(AuthLevel a)
 {
 	granted_ = a;
@@ -196,6 +211,11 @@ void Request::setSession(const std::string &t)
 void Request::setHost(const std::string &h)
 {
 	host_ = h;
+}
+
+void Request::setLocalAddress(const std::string &a)
+{
+	local_address_ = a;
 }
 
 } // namespace httpd

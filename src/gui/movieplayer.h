@@ -236,6 +236,11 @@ class CMoviePlayerGui : public CMenuTarget
 	static CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO movie_info;
 	P_MI_MOVIE_LIST milist;
+	std::string recording_to_play;
+	bool recording_done;
+	bool selecting;
+	bool handing_over;
+	MI_MOVIE_INFO recording_info;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
 	/* playback from file */
@@ -371,6 +376,11 @@ class CMoviePlayerGui : public CMenuTarget
 	static cPlayback *getPlayback();
 	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="", std::string file2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; second_file_name = file2; }
 	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
+	void playRecording(const std::string &ts);
+	/* For a message a loop opened inside the player took instead of it: ends the playback and
+	   posts the message again, with its payload, for after it. A timeshift only with with_shift;
+	   false where no play loop runs, and then nothing was ended. */
+	bool endFor(neutrino_msg_t msg, neutrino_msg_data_t data, bool with_shift);
 	bool RestartBackground(const std::string &file, const std::string &name, t_channel_id chan, const std::string &script="");
 	bool RestartLastWebtv(t_channel_id chan);
 	void stopPlayBack(bool keep_webtv_failure = false);

@@ -169,10 +169,18 @@ body != "" {
 	# match rather than as nothing.
 	if ($0 ~ /return/) {
 		rest = $0
+		found = 0
 		while (match(rest, /"[^"]*"/)) {
 			word = substr(rest, RSTART + 1, RLENGTH - 2)
 			answers[home, body] = answers[home, body] " " (word == "" ? "<nothing>" : word)
 			rest = substr(rest, RSTART + RLENGTH)
+			found = 1
+		}
+		# A line that returns a bare call and no literal of its own passes the
+		# question on: what it answers is read off the function it calls, below.
+		if (!found && match($0, /return [A-Za-z_][A-Za-z0-9_]*\(\)/)) {
+			callee = substr($0, RSTART + 7, RLENGTH - 9)
+			delegate[home, body] = delegate[home, body] " " callee
 		}
 	}
 }
@@ -181,6 +189,28 @@ END {
 	if (nm < floor) {
 		print "check-answer-sets.sh: " nm " rows state a set, the scan has stopped matching" > "/dev/stderr"
 		exit 1
+	}
+
+	# A body that only passes the question on is answered here, off the one
+	# function it names, found in its own file first and then in any other.
+	for (hb in delegate) {
+		split(hb, hbp, SUBSEP)
+		h = hbp[1]; b = hbp[2]
+		nd2 = split(delegate[hb], dl, " ")
+		for (di = 1; di <= nd2; di++) {
+			callee = dl[di]
+			if (callee == "")
+				continue
+			src = ((h, callee) in answers) ? h : ""
+			if (src == "") {
+				for (f in answers) {
+					split(f, q, SUBSEP)
+					if (q[2] == callee) { src = q[1]; break }
+				}
+			}
+			if (src != "")
+				answers[h, b] = answers[h, b] answers[src, callee]
+		}
 	}
 
 	fail = 0

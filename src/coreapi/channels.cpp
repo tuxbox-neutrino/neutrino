@@ -20,6 +20,8 @@
  */
 
 #include "channels.h"
+#include "coreapi/archive.h"
+#include "coreapi/playback.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/base/deps.h"
 #include "coreapi/base/eventbus.h"
@@ -144,6 +146,11 @@ Result<ChannelInfo> playing()
 	Result<void> awake = somethingCanPlay();
 	if (!awake.ok())
 		return fail(awake.error());
+	// The channel stack still names the last channel while the player shows a file.
+	const playback::Snapshot shown = playback::snapshot();
+	if (shown.active && !shown.timeshift)
+		return fail(Status::NotFound, ErrorCode::NoRunningChannel,
+			    "no channel is playing, the box plays a recording or a file; GET /api/v1/playback says which");
 	return current();
 }
 
@@ -355,9 +362,6 @@ Result<void> reloadChannels(bool hard)
 // The commands below name only which message they mean. How one is carried,
 // and how a refusal reads, belongs to the transport rather than to the domain.
 
-namespace
-{
-
 /* Here and not in the main loop, which cannot tell a web zap from a zap timer's.
    An unreadable mode refuses, or it could wake a box nobody said may be woken. */
 Result<void> standbyAllows(bool wake)
@@ -376,9 +380,7 @@ Result<void> standbyAllows(bool wake)
 	return ok();
 }
 
-} // anonymous namespace
-
-Result<void> zap(ChannelId id, bool wake)
+Result<void> zap(ChannelId id, bool wake, bool stop_playback)
 {
 	ChannelInfo probe;
 	Status s = channelSource().findChannel(id, probe);
@@ -398,6 +400,11 @@ Result<void> zap(ChannelId id, bool wake)
 	if (!possible)
 		return fail(Status::Conflict, ErrorCode::RecordingHoldsTuner,
 			    "a recording holds the tuner this channel needs");
+
+	// The loop ends a file playback for a zap on its own, so leave is all this adds.
+	Result<void> free = archive::playbackAllows(stop_playback);
+	if (!free.ok())
+		return free;
 
 	Result<void> allowed = standbyAllows(wake);
 	if (!allowed.ok())

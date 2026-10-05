@@ -47,6 +47,8 @@ check_PROGRAMS = coreapi_tests remotebox_client
 
 coreapi_tests_SOURCES = \
 	support/main.cpp \
+	coreapi/test_archive.cpp \
+	coreapi/test_playback.cpp \
 	coreapi/test_result.cpp \
 	lib/connection/test_basicclient.cpp \
 	lib/libeventserver/test_eventserver_outbox.cpp \

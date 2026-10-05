@@ -1519,6 +1519,9 @@ const TagDoc kTags[] = {
 	  "stand by, and wake." },
 	{ "recordings",
 	  "What is being recorded at this moment, timeshift included, and stopping one of them." },
+	{ "playback",
+	  "What the television shows: a live channel, a recording or another file, and where the "
+	  "player stands in it." },
 	{ "osd",
 	  "The screen somebody is sitting in front of: the message on it, the volume, the keys a "
 	  "remote sends, and a picture of what it shows." },
@@ -1683,6 +1686,11 @@ void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
 	parameterRefusals(ep, checked);
 	for (size_t i = 0; i < checked.size(); ++i)
 		state(out, StatusBadRequest, checked[i].first, checked[i].second, "parameters");
+
+	// Not a declared Param, so stated here: the router refuses a second one.
+	if (ep.query_token_ok)
+		state(out, StatusBadRequest, coreapi::ErrorCode::DuplicateParameter,
+		      queryTokenGivenTwiceDetail(), "query-token", "-query-token");
 
 	if (takesBody(ep))
 		state(out, StatusPayloadTooLarge, coreapi::ErrorCode::BodyTooLarge, tooLargeDetail(), "body");

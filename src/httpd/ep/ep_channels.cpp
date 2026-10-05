@@ -871,7 +871,8 @@ Response zap(const Request &r)
 	   does and this does not repeat: a command is posted and forgotten, so a zap
 	   to an id nobody has would otherwise be accepted and change nothing. */
 	coreapi::Result<void> done = coreapi::channels::zap(r.asChannelId("channel_id"),
-							     r.has("wake") && r.asBool("wake"));
+							     r.has("wake") && r.asBool("wake"),
+							     r.has("stop_playback") && r.asBool("stop_playback"));
 	if (!done.ok())
 		return problemFor(done.error());
 
@@ -1135,6 +1136,8 @@ const Param kZapParams[] = {
 		"the channel to play, hexadecimal, up to 16 digits, as `GET /api/v1/channels` answers it"),
 	HTTPD_BODY("wake", ParamType::Bool,
 		"`true` switches a box in standby on and then plays the channel; `false` (the default) leaves a box in standby alone and the request is refused with `409 box-in-standby`"),
+	HTTPD_BODY("stop_playback", ParamType::Bool,
+		"`true` ends a file the movie player is playing and then plays the channel; `false` (the default) leaves the playback alone and the request is refused with `409 playback-running`"),
 };
 
 const Param kModeParams[] = {
@@ -1229,7 +1232,7 @@ const RouteRefusal kListChannelsRefusals[] = {
 
 const RouteRefusal kCurrentChannelRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoRunningChannel,
-		"nothing is playing"),
+		"no channel is playing"),
 };
 
 const RouteRefusal kCurrentCryptRefusals[] = {
@@ -1256,6 +1259,8 @@ const RouteRefusal kZapRefusals[] = {
 		"the box is in standby"),
 	HTTPD_REFUSES(Conflict, RecordingHoldsTuner,
 		"a recording holds the tuner this channel needs"),
+	HTTPD_REFUSES(Conflict, PlaybackRunning,
+		"something is playing in the movie player"),
 };
 
 const RouteRefusal kSetModeRefusals[] = {
@@ -1356,10 +1361,10 @@ const Endpoint kChannelEndpoints[] = {
 	{ Method::Get, "/api/v1/channels/current", AuthLevel::Read,
 	  "the channel the box is playing, with what its streams are",
 	  "Answers the channel the box is playing live, with its picture and sound streams as the box has read them, and which sound track is selected.\n\n"
-	  "**Preconditions:** the box is not in standby and plays a channel.\n\n"
+	  "**Preconditions:** the box is not in standby and plays a channel, not a recording or a file.\n\n"
 	  "**Refusals:**\n"
-	  "- `404 no-running-channel`: nothing is playing, for example because the box is in standby. Wake it with `POST /api/v1/system/standby` or play a channel with `POST /api/v1/zap` and `wake: true`.\n\n"
-	  "**Related:** the `zap` event on `GET /api/v1/events` says when this changes; `GET /api/v1/channels/current/crypt`, `GET /api/v1/epg/current`.",
+	  "- `404 no-running-channel`: no channel is playing, for example because the box is in standby or the movie player shows a recording or a file; `GET /api/v1/playback` says which. Wake it with `POST /api/v1/system/standby` or play a channel with `POST /api/v1/zap` and `wake: true`.\n\n"
+	  "**Related:** the `zap` event on `GET /api/v1/events` says when this changes; `GET /api/v1/playback`, `GET /api/v1/channels/current/crypt`, `GET /api/v1/epg/current`.",
 	  NULL, 0, &kChannelDetailSchema, &currentChannel, false,
 	  Answers200, HTTPD_REFUSALS(kCurrentChannelRefusals) },
 	{ Method::Get, "/api/v1/channels/logos", AuthLevel::Read,
@@ -1404,12 +1409,13 @@ const Endpoint kChannelEndpoints[] = {
 	  HTTPD_PARAMS(kBouquetListParams), &kBouquetListSchema, &listBouquets, false,
 	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/zap", AuthLevel::Write,
-	  "asks the box to play one channel; refused with recording-holds-tuner while a recording holds the tuner the channel needs, and with box-in-standby in standby unless wake is set",
+	  "asks the box to play one channel; refused with recording-holds-tuner while a recording holds the tuner the channel needs, with playback-running while the movie player plays a file unless stop_playback is set, and with box-in-standby in standby unless wake is set",
 	  "Switches live playback to the channel `channel_id` names, as choosing it on the remote control would. `202` means the box has queued the switch, not that it has happened: watch for the `zap` event on `GET /api/v1/events`, or read `GET /api/v1/channels/current`.\n\n"
-	  "**Preconditions:** the box is not in standby, or `wake` is `true`. No running recording holds the tuner the channel needs.\n\n"
+	  "**Preconditions:** the box is not in standby, or `wake` is `true`. The movie player plays no file, or `stop_playback` is `true`. No running recording holds the tuner the channel needs.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-channel`: no channel has that id. Take ids from `GET /api/v1/channels`.\n"
-	  "- `409 recording-holds-tuner`: a recording occupies the tuner this channel needs. This is checked before standby, so `wake` does not help. Pick a channel the free tuner receives, or end the recording with `DELETE /api/v1/recordings/{id}`.\n"
+	  "- `409 recording-holds-tuner`: a recording occupies the tuner this channel needs. This is checked first, so neither `stop_playback` nor `wake` helps. Pick a channel the free tuner receives, or end the recording with `DELETE /api/v1/recordings/{id}`.\n"
+	  "- `409 playback-running`: the movie player is playing a file, such as a finished recording, and `stop_playback` was not `true`. A web channel or the timeshift playing is not refused. Send again with `stop_playback: true` to end the playback and play the channel.\n"
 	  "- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on and play the channel.\n\n"
 	  "**Related:** `POST /api/v1/mode`, `GET /api/v1/system/standby`, `POST /api/v1/system/standby`.",
 	  HTTPD_PARAMS(kZapParams), NULL, &zap, false,

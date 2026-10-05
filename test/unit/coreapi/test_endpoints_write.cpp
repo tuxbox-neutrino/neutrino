@@ -36,6 +36,7 @@
 #include "httpd/server.h"
 #include "httpd/status.h"
 
+#include "coreapi/archive.h"
 #include "coreapi/daemons.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/netfs.h"
@@ -993,7 +994,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 48);
+	REQUIRE(changing == 50);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -1119,6 +1120,34 @@ TEST_CASE("a zap a recording holds the tuner for answers a conflict and posts no
 	REQUIRE(r.code == 409);
 	REQUIRE(r.body.find("/errors/recording-holds-tuner") != std::string::npos);
 	REQUIRE(box.commands.posted.empty());
+}
+
+TEST_CASE("a zap while a file plays is refused unless it may end the playback", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.channels.mode = NeutrinoModes::mode_ts;
+	coreapi::archive::notePlaying("/media/hdd/movie/one.ts");
+
+	const Reply r = authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\"}");
+	const Reply no = authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\",\"stop_playback\":false}");
+	const Reply bad = authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\",\"stop_playback\":\"please\"}");
+	const size_t before = box.commands.posted.size();
+	const Reply yes = authedPost("/api/v1/zap", "{\"channel_id\":\"2b66\",\"stop_playback\":true}");
+	// A mode change leaves the movie player playing, so it asks nothing.
+	const Reply mode = authedPost("/api/v1/mode", "{\"mode\":\"tv\"}");
+	coreapi::archive::notePlaying(std::string());
+
+	REQUIRE(r.code == 409);
+	REQUIRE(r.body.find("/errors/playback-running") != std::string::npos);
+	REQUIRE(no.code == 409);
+	REQUIRE(bad.code == 400);
+	REQUIRE(before == 0);
+	REQUIRE(yes.code == 202);
+	REQUIRE(mode.code == 202);
+	REQUIRE(box.commands.posted.size() == 2);
+	REQUIRE(box.commands.posted[0].first == NeutrinoMessages::ZAPTO);
+	delete[] (unsigned char *) box.commands.posted[0].second;
 }
 
 TEST_CASE("a settings write reaches the layer and a refused one says which rule", "[write]")

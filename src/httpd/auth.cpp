@@ -983,6 +983,29 @@ void addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel
 	t.expires = expires;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	if (!scope.empty())
+	{
+		size_t scoped = 0;
+		for (size_t i = 0; i < table().tokens.size(); ++i)
+			if (!table().tokens[i].scope.empty())
+				++scoped;
+
+		while (scoped >= kMaxScopedTokens)
+		{
+			size_t victim = table().tokens.size();
+			for (size_t i = 0; i < table().tokens.size(); ++i)
+			{
+				if (table().tokens[i].scope.empty())
+					continue;
+				if (victim == table().tokens.size() || table().tokens[i].expires < table().tokens[victim].expires)
+					victim = i;
+			}
+			if (victim == table().tokens.size())
+				break;
+			table().tokens.erase(table().tokens.begin() + victim);
+			--scoped;
+		}
+	}
 	table().tokens.push_back(t);
 }
 
@@ -1008,6 +1031,16 @@ std::string openScopedToken(const std::string &scope, AuthLevel level)
 	// credential nobody is watching any more.
 	addApiToken(prefix, stored, level, scope, expiryFrom(time(NULL), config().session_lifetime_s));
 	return token;
+}
+
+size_t scopedTokenCountForTest()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	size_t scoped = 0;
+	for (size_t i = 0; i < table().tokens.size(); ++i)
+		if (!table().tokens[i].scope.empty())
+			++scoped;
+	return scoped;
 }
 
 void forgetApiTokens()

@@ -72,7 +72,7 @@ const size_t   kShippedCeiling     = 256u * 1024u;
 TEST_CASE("every event type has a name and no two share one", "[sse]")
 {
 	std::set<std::string> seen;
-	for (int i = 0; i <= (int) coreapi::EventType::SettingsChanged; ++i)
+	for (int i = 0; i <= (int) coreapi::EventType::Playback; ++i)
 	{
 		const char *n = events::typeName((coreapi::EventType) i);
 		INFO("type value " << i);
@@ -80,7 +80,8 @@ TEST_CASE("every event type has a name and no two share one", "[sse]")
 		REQUIRE(std::string(n).size() > 0);
 		REQUIRE(seen.insert(n).second);
 	}
-	REQUIRE(seen.size() == 11);
+	REQUIRE(seen.size() == 12);
+	REQUIRE(std::string(events::typeName(coreapi::EventType::Playback)) == "playback");
 }
 
 TEST_CASE("the shipped beat and the shipped ceiling are what the header says", "[sse]")
@@ -833,10 +834,11 @@ TEST_CASE("every event type reaches a stream under its own name", "[sse]")
 		coreapi::EventType::TimerChanged,
 		coreapi::EventType::EpgUpdated,
 		coreapi::EventType::BouquetsChanged,
-		coreapi::EventType::SettingsChanged
+		coreapi::EventType::SettingsChanged,
+		coreapi::EventType::Playback
 	};
 	const size_t count = sizeof(kAll) / sizeof(kAll[0]);
-	REQUIRE(count == 11);
+	REQUIRE(count == 12);
 
 	for (size_t i = 0; i < count; ++i)
 	{

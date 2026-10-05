@@ -52,6 +52,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_epg.cpp \
 	ep/ep_netfs.cpp \
 	ep/ep_osd.cpp \
+	ep/ep_playback.cpp \
 	ep/ep_plugins.cpp \
 	ep/ep_recordings.cpp \
 	ep/ep_settings.cpp \

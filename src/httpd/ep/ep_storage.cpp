@@ -444,8 +444,7 @@ Response readFile(const Request &r)
 
 	const std::string &path = r.asString("path");
 
-	/* A CREDENTIAL THAT STANDS FOR PART OF THIS BOX IS HELD TO THAT PART HERE, and this
-	   is the only route that is asked to. A caller whose credential stands for the whole
+	/* A CREDENTIAL THAT STANDS FOR PART OF THIS BOX IS HELD TO THAT PART HERE. A caller whose credential stands for the whole
 	   of what its level reaches carries no scope and this says nothing about it, which is
 	   every caller that arrived on a session or on a token a configuration names.
 
@@ -689,8 +688,7 @@ const Endpoint kStorageEndpoints[] = {
 	   anybody who could reach the port, which is the defect this must not
 	   carry forward, and a level is the half of not carrying it that a caller
 	   meets first. */
-	/* THE ONE ROUTE ON THIS SERVER THAT TAKES A CREDENTIAL OUT OF AN ADDRESS, which is
-	   the last field of the row.
+	/* A ROUTE THAT TAKES A CREDENTIAL OUT OF AN ADDRESS, which is the last field of the row.
 
 	   What it is for: a recording is watched in a media player, a media player is given
 	   an address and nothing else, and every other way of presenting a credential here is
@@ -698,7 +696,7 @@ const Endpoint kStorageEndpoints[] = {
 	   this box shows beside a recording is an address that answers 403 to everybody who
 	   pastes it.
 
-	   What it costs, and why it is this route and no other. A token in an address outlives
+	   What it costs, and why it is a read of files and nothing that writes. A token in an address outlives
 	   the request: it is in a history list, in whatever the address was pasted into, and
 	   in the log of anything the request passed through. So the one that may travel that
 	   way is worth a part of this box and not the whole of it, readFile above holds it to
@@ -714,11 +712,10 @@ const Endpoint kStorageEndpoints[] = {
 	  "inside the file. A name that is not there, or that is not a plain file (a directory, a "
 	  "device, a pipe), answers not found rather than saying which of those it is.\n\n"
 	  "**Preconditions:** `path` has to resolve inside one of the roots and must not be the web "
-	  "server's own access store. This is the one route on this server that also accepts a "
-	  "credential carried in the address itself rather than in a header; such a credential "
-	  "reaches only the media roots (where the box records and where its movie browser looks), "
-	  "never the rest of the roots this route otherwise reaches, and is refused where it does "
-	  "not.\n\n"
+	  "server's own access store. A credential carried in the address itself rather than in a "
+	  "header is accepted here too; it reaches only the media roots (where the box records and "
+	  "where its movie browser looks), never the rest of the roots this route otherwise reaches, "
+	  "and is refused where it does not.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 access-store`: `path` names the web server's own store of who may reach this box, "
 	  "which no file route reads, writes or removes.\n"

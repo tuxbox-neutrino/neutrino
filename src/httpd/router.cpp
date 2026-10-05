@@ -678,16 +678,17 @@ bool namesAreDistinct(const Endpoint &ep,
    Every way out of here before the last line is a refusal, which is what makes the
    handler unable to see a value it would have to check.
 
-   The order of the checks is the order the answer names a fault in: a name nobody
-   declared, then a name given twice, then a required one left out, then what the
-   value is. A request wrong in two ways is told about the one furthest from being a
-   request this endpoint could answer. */
+   The order of the checks is the order the answer names a fault in: a query token
+   given twice, then a name nobody declared, then a name given twice, then a required
+   one left out, then what the value is. A request wrong in two ways is told about
+   the one furthest from being a request this endpoint could answer. */
 Response runEndpoint(const Endpoint &ep,
                      const std::vector<std::pair<std::string, std::string> > &path_values,
                      const std::string &query, const std::string &body,
                      const std::string &peer, AuthLevel granted,
                      const std::string &reported, const std::string &session,
-                     const std::string &host, const std::string &scope)
+                     const std::string &host, const std::string &scope,
+                     const std::string &local_address)
 {
 	/* The sentence is the gate's and not written out again here, because two
 	   copies of one refusal are two answers a client can tell apart the moment
@@ -731,15 +732,25 @@ Response runEndpoint(const Endpoint &ep,
 
 	   Only on a route that says so. Everywhere else the name is an ordinary one, and a
 	   route that happened to declare a parameter called this goes on carrying it. */
+	std::string address_token;
 	if (ep.query_token_ok)
 	{
 		const std::string credential = queryTokenName();
 		std::vector<std::pair<std::string, std::string> > rest;
 		rest.reserve(given.size());
+		bool have_one = false;
 		for (size_t i = 0; i < given.size(); ++i)
 		{
 			if (given[i].first != credential)
+			{
 				rest.push_back(given[i]);
+				continue;
+			}
+			// The gate checked the first value; a second one was never checked.
+			if (have_one)
+				return badParam(coreapi::ErrorCode::DuplicateParameter, credential.c_str(), kGivenTwice);
+			address_token = given[i].second;
+			have_one = true;
 		}
 		given.swap(rest);
 	}
@@ -789,11 +800,13 @@ Response runEndpoint(const Endpoint &ep,
 	req.setSession(session);
 	req.setHost(host);
 	req.setScope(scope);
+	req.setAddressToken(address_token);
+	req.setLocalAddress(local_address);
 
 	/* A value that is nothing is no value, whether the name was left out or handed over
 	   empty: a form that submits a field nobody touched sends the second and means the
 	   first, and reading the two differently would make the answer depend on how a
-	   client happened to build its query. */
+	   client happened to build its query. Not for a row marked closed_empty. */
 	std::vector<std::string> text(ep.param_count);
 	std::vector<char> present(ep.param_count, 0);
 	for (size_t i = 0; i < ep.param_count; ++i)
@@ -820,7 +833,7 @@ Response runEndpoint(const Endpoint &ep,
 			if (from[j].first != p.name)
 				continue;
 			text[i] = from[j].second;
-			present[i] = text[i].empty() ? 0 : 1;
+			present[i] = (text[i].empty() && !p.closed_empty) ? 0 : 1;
 			break;
 		}
 	}
@@ -972,7 +985,8 @@ Response dispatchTables(const RouteTable *const *tables, size_t table_count, Met
                         const std::string &body, const std::string &peer,
                         AuthLevel granted, const std::string &reported,
                         const std::string &session, const std::string &host,
-                        const std::string &scope)
+                        const std::string &scope,
+                        const std::string &local_address)
 {
 	/* A method this server does not have is not a path it does not have. The
 	   answer says the verb is one nothing here implements, rather than sending a
@@ -1026,7 +1040,7 @@ Response dispatchTables(const RouteTable *const *tables, size_t table_count, Met
 		              coreapi::ErrorCode::BadTable, "two routes answer this request");
 
 	const Response r = runEndpoint(*best, found.binds, query, body, peer, granted, reported,
-	                               session, host, scope);
+	                               session, host, scope, local_address);
 	if (answer_watch != NULL)
 		answer_watch(*best, r);
 	return r;
@@ -1307,6 +1321,10 @@ bool endpointIsSane(const Endpoint &ep, Shape &shape, std::string *why)
 			return say(why, where + "parameter " + p.name + " lists accepted values and is not one of a set");
 		}
 
+		// The flag is about a set staying closed, so it means nothing off one.
+		if (p.closed_empty && p.type != ParamType::Enum)
+			return say(why, where + "parameter " + p.name + " is marked closed_empty and is not an enum");
+
 		if (p.choices != NULL)
 		{
 			/* One set or the other and never both. A row that listed its values and
@@ -1384,33 +1402,36 @@ Response dispatchIn(const RouteTable *const *tables, size_t table_count, Method 
                     const std::string &path, const std::string &query,
                     const std::string &body, const std::string &peer, AuthLevel granted,
                     const std::string &reported, const std::string &session,
-                    const std::string &host, const std::string &scope)
+                    const std::string &host, const std::string &scope,
+                    const std::string &local_address)
 {
 	return dispatchTables(tables, table_count, m, path, query, body, peer, granted, reported,
-	                      session, host, scope);
+	                      session, host, scope, local_address);
 }
 
 Response dispatchIn(const RouteTable &t, Method m, const std::string &path,
                     const std::string &query, const std::string &body,
                     const std::string &peer, AuthLevel granted,
                     const std::string &reported, const std::string &session,
-                    const std::string &host, const std::string &scope)
+                    const std::string &host, const std::string &scope,
+                    const std::string &local_address)
 {
 	const RouteTable *const one[] = { &t };
 	return dispatchTables(one, 1, m, path, query, body, peer, granted, reported, session, host,
-	                      scope);
+	                      scope, local_address);
 }
 
 Response dispatch(Method m, const std::string &path,
                   const std::string &query, const std::string &body,
                   const std::string &peer, AuthLevel granted,
                   const std::string &reported, const std::string &session,
-                  const std::string &host, const std::string &scope)
+                  const std::string &host, const std::string &scope,
+                  const std::string &local_address)
 {
 	size_t count = 0;
 	const RouteTable *const *tables = allRoutes(&count);
 	Response r = dispatchTables(tables, count, m, path, query, body, peer, granted, reported,
-	                            session, host, scope);
+	                            session, host, scope, local_address);
 
 	/* Here rather than at each handler and each refusal, because what these three say
 	   is true of every answer this API gives and a header written at each site is a
@@ -1418,6 +1439,11 @@ Response dispatch(Method m, const std::string &path,
 	   is left alone. */
 	addApiHeaders(r);
 	return r;
+}
+
+std::string queryTokenGivenTwiceDetail()
+{
+	return std::string("parameter ") + queryTokenName() + " " + kGivenTwice;
 }
 
 void parameterRefusals(const Endpoint &ep,

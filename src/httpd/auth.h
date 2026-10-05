@@ -342,6 +342,10 @@ void setLoginClockForTest(time_t now);
 void addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel level,
                  const std::string &scope = std::string(), time_t expires = 0);
 
+// The ceiling on how many scoped tokens the table holds at once. Full drops the
+// one running out soonest.
+const size_t kMaxScopedTokens = 256;
+
 /* Draws a token that stands for one scope, writes it down and answers the token itself,
    or empty when it could not draw one. Empty is no token rather than a weak one: nothing
    is written into the table, so a caller handing the answer on hands on nothing that
@@ -363,6 +367,9 @@ std::string openScopedToken(const std::string &scope, AuthLevel level);
    that file is read before the daemon is started and nothing reloads it under a
    running one. */
 void forgetApiTokens();
+
+// How many scoped tokens the table currently holds, for a case to check the ceiling.
+size_t scopedTokenCountForTest();
 
 } // namespace httpd
 

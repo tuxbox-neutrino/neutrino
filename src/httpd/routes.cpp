@@ -78,6 +78,7 @@ const RouteTable *const kTables[] = {
 	&pluginsTable,
 	&configTable,
 	&recordingsTable,
+	&playbackTable,
 	&openapi::openapiTable,
 };
 

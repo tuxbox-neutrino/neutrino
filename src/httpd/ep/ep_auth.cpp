@@ -148,7 +148,7 @@ const FieldDesc kScopedTokenFields[] = {
 		"the token, to be put in the query of a route that takes one under the name this server states"),
 	HTTPD_MEMBER_OF_SET("scope", "media",
 		"what part of the box it reaches, which is the whole of what it is worth",
-		"media: reads files under the box's media directories through `GET /api/v1/storage/file`, the one route that takes a scoped token, and reaches nothing else"),
+		"media: reads files under the box's media directories through `GET /api/v1/storage/file` and the finished recordings through the archive file and playlist routes, and reaches nothing else"),
 	HTTPD_MEMBER("expires_in", FieldType::UInt,
 		"how many seconds the token has left before it stops working and resolves to nothing"),
 };
@@ -489,21 +489,23 @@ const Endpoint kAuthEndpoints[] = {
 	  "Mints a token scoped to the media this box holds, such as recordings, and answers it "
 	  "together with its scope and lifetime in seconds, for a player that can only carry a credential "
 	  "in the address and not in a header or a cookie. Append it as `?token=...` to "
-	  "`GET /api/v1/storage/file`; that is the only route that accepts a scoped token, and there it "
-	  "reaches only files under the media directories.\n"
+	  "`GET /api/v1/storage/file`, where it reaches only files under the media directories, or to "
+	  "the archive file and playlist routes.\n"
 	  "\n"
-	  "The scope is fixed to `media` and cannot be chosen. On every other route the token is not a "
+	  "The scope is always `media` and cannot be chosen. On every other route the token is not a "
 	  "credential at all, in the query or as a bearer header, so a leaked address exposes the media "
-	  "files and nothing more.\n"
+	  "and nothing more.\n"
 	  "\n"
 	  "**Preconditions:** the caller must already hold a session granted the system level, since this "
 	  "route requires it.\n"
 	  "\n"
 	  "**Side effects:** records the token's hash and expiry in memory only; nothing is written to "
 	  "disk, so the token stops working the moment the box restarts. Its lifetime equals the "
-	  "configured session lifetime, in seconds.\n"
+	  "configured session lifetime, in seconds, counted from the moment it is drawn; logging out "
+	  "does not end it.\n"
 	  "\n"
-	  "**Related:** `POST /api/v1/login`.",
+	  "**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, "
+	  "`GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",
 	  NULL, 0, &kScopedTokenSchema, &mintRecordingsToken, false,
 	  Answers200, HTTPD_NO_REFUSALS },
 };

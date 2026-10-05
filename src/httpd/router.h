@@ -127,14 +127,19 @@ bool routesAreSane(std::string *why = NULL);
 
    A HEAD is answered by the route that answers the GET, whole answer and all, and
    the transport sends the head of it. That is also why a table naming a route of its
-   own for HEAD is refused. */
+   own for HEAD is refused.
+
+   local_address is the authority (address and port) the socket itself answered
+   this request on, for a route that builds its own address rather than echo a
+   caller's; empty where the transport cannot say. */
 Response dispatchIn(const RouteTable *const *tables, size_t table_count, Method m,
                     const std::string &path, const std::string &query,
                     const std::string &body, const std::string &peer, AuthLevel granted,
                     const std::string &reported = std::string(),
                     const std::string &session = std::string(),
                     const std::string &host = std::string(),
-                    const std::string &scope = std::string());
+                    const std::string &scope = std::string(),
+                    const std::string &local_address = std::string());
 
 // One table, which is what most of what drives this needs.
 Response dispatchIn(const RouteTable &t, Method m, const std::string &path,
@@ -143,7 +148,8 @@ Response dispatchIn(const RouteTable &t, Method m, const std::string &path,
                     const std::string &reported = std::string(),
                     const std::string &session = std::string(),
                     const std::string &host = std::string(),
-                    const std::string &scope = std::string());
+                    const std::string &scope = std::string(),
+                    const std::string &local_address = std::string());
 
 // The same against every table the server ships.
 Response dispatch(Method m, const std::string &path,
@@ -152,7 +158,8 @@ Response dispatch(Method m, const std::string &path,
                   const std::string &reported = std::string(),
                   const std::string &session = std::string(),
                   const std::string &host = std::string(),
-                  const std::string &scope = std::string());
+                  const std::string &scope = std::string(),
+                  const std::string &local_address = std::string());
 
 /* The level the route that would answer a request declares, which the transport
    needs before the request is whole.
@@ -185,6 +192,9 @@ bool routeLevelFor(Method m, const std::string &path, AuthLevel *level,
 // All sent as 400.
 void parameterRefusals(const Endpoint &ep,
                        std::vector<std::pair<coreapi::ErrorCode, std::string> > &out);
+
+// The detail text for a query token given twice, shared with the document.
+std::string queryTokenGivenTwiceDetail();
 
 // NULL in the product.
 typedef void (*AnswerWatch)(const Endpoint &ep, const Response &r);

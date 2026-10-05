@@ -758,7 +758,7 @@ TEST_CASE("the groups are declared in the order somebody meets this box in", "[o
 	ShippedRoutes shipped;
 
 	static const char *const kMeant[] = {
-		"auth", "channels", "epg", "timers", "recordings", "osd", "settings",
+		"auth", "channels", "epg", "timers", "recordings", "playback", "osd", "settings",
 		"system", "webserver", "daemons", "storage", "netfs", "tuner", "plugins",
 		"stream", "webtv", "config", "events", "openapi"
 	};
@@ -1494,7 +1494,7 @@ TEST_CASE("refusals every route of a kind gives are stated by rule beside a rout
 	REQUIRE(statesRefusal(stated, 400, coreapi::ErrorCode::BadString, "parameters"));
 }
 
-TEST_CASE("the two conflicts a zap can meet are one 409 with an example each", "[openapi]")
+TEST_CASE("the conflicts a zap can meet are one 409 with an example each", "[openapi]")
 {
 	ShippedRoutes shipped;
 
@@ -1503,14 +1503,17 @@ TEST_CASE("the two conflicts a zap can meet are one 409 with an example each", "
 	REQUIRE(op["responses"].isMember("202"));
 	const ::Json::Value conflict =
 		resolved(doc, op["responses"]["409"])["content"][problemContentType()]["examples"];
-	REQUIRE(conflict.getMemberNames().size() == 2u);
+	REQUIRE(conflict.getMemberNames().size() == 3u);
 	REQUIRE(resolved(doc, conflict["box-in-standby"])["value"]["type"].asString() ==
 	        "/errors/box-in-standby");
 	REQUIRE(resolved(doc, conflict["recording-holds-tuner"])["value"]["type"].asString() ==
 	        "/errors/recording-holds-tuner");
+	REQUIRE(resolved(doc, conflict["playback-running"])["value"]["type"].asString() ==
+	        "/errors/playback-running");
 
 	const ::Json::Value body = op["requestBody"]["content"]["application/json"]["example"];
 	REQUIRE(body["wake"].asBool());
+	REQUIRE(body["stop_playback"].isBool());
 	REQUIRE(body["channel_id"].isString());
 }
 
@@ -1678,11 +1681,11 @@ TEST_CASE("what a caller has to present is stated, and the second token is named
 	// described here as asking for nothing at all.
 	REQUIRE(open == 2);
 	REQUIRE(needing > 15);
-	/* Exactly one route takes a credential out of an address, and this is where that
-	   is said out loud. A second one appearing is a change somebody has to have meant:
+	/* Exactly three routes take a credential out of an address, and this is where that
+	   is said out loud. A fourth one appearing is a change somebody has to have meant:
 	   what a leaked address reaches is the sum of these, and a number nobody is holding
 	   is a number that grows. */
-	REQUIRE(in_address == 1);
+	REQUIRE(in_address == 3);
 }
 
 TEST_CASE("the document is built once and handed out from where it was kept", "[openapi]")

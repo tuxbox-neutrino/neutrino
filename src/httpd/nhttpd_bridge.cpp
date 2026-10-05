@@ -370,7 +370,8 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 		httpd::Response r = httpd::dispatch(m, path, query, hh->RawBody,
 		                                    cred.peer, have,
 		                                    httpd::clientAddress(cred), cred.cookie_token,
-		                                    header_value(hh->HeaderList, "Host"), scope);
+		                                    header_value(hh->HeaderList, "Host"), scope,
+		                                    hh->UrlData["localaddr"]);
 
 		if ((m == httpd::Get || m == httpd::Head) && httpd::openapi::isDocument(r))
 			r = httpd::openapi::withEncoding(r, header_value(hh->HeaderList, "Accept-Encoding"));

@@ -20,6 +20,7 @@
 
 #include "support/catch.hpp"
 #include "support/fakes.h"
+#include "coreapi/archive.h"
 #include "coreapi/channels.h"
 
 #include <neutrinoMessages.h>
@@ -422,7 +423,7 @@ TEST_CASE("zap posts the loop's zap command carrying the whole id", "[channels]"
 	InstalledSink installed_sink(&sink);
 
 	const long before = test_array_deletes;
-	Result<void> r = channels::zap(ERSTE, false);
+	Result<void> r = channels::zap(ERSTE, false, false);
 	const long released = test_array_deletes - before;
 
 	REQUIRE(r.ok());
@@ -454,7 +455,7 @@ TEST_CASE("a zap to an id nobody has is not posted", "[channels]")
 	InstalledSink installed_sink(&sink);
 
 	// Differs from the channel above only over bit 31.
-	Result<void> r = channels::zap(ABSENT, false);
+	Result<void> r = channels::zap(ABSENT, false, false);
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::NotFound);
 	REQUIRE(r.error().code == ErrorCode::NoSuchChannel);
@@ -472,7 +473,7 @@ TEST_CASE("an unreadable channel list stops a zap before it is posted", "[channe
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	Result<void> r = channels::zap(ERSTE, false);
+	Result<void> r = channels::zap(ERSTE, false, false);
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::Internal);
 	REQUIRE(r.error().code == ErrorCode::ChannelListUnavailable);
@@ -520,7 +521,7 @@ TEST_CASE("a refused command surfaces as the queue's own answer", "[channels]")
 		sink.answer = refused[i];
 		InstalledSink installed_sink(&sink);
 
-		Result<void> z = channels::zap(ERSTE, false);
+		Result<void> z = channels::zap(ERSTE, false, false);
 		REQUIRE_FALSE(z.ok());
 		REQUIRE(z.error().status == refused[i]);
 		REQUIRE(z.error().code == ErrorCode::CommandNotPosted);
@@ -582,7 +583,7 @@ TEST_CASE("a refused zap leaves no payload behind", "[channels]")
 	   says they carry one, and this one's does not, so the release has to
 	   happen on the way out of the command. */
 	const long before = test_array_deletes;
-	Result<void> r = channels::zap(ERSTE, false);
+	Result<void> r = channels::zap(ERSTE, false, false);
 	const long released = test_array_deletes - before;
 
 	REQUIRE_FALSE(r.ok());
@@ -601,7 +602,7 @@ TEST_CASE("a zap in standby is refused unless it may switch the box on", "[chann
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	Result<void> refused = channels::zap(ERSTE, false);
+	Result<void> refused = channels::zap(ERSTE, false, false);
 	REQUIRE_FALSE(refused.ok());
 	REQUIRE(refused.error().status == Status::Conflict);
 	REQUIRE(refused.error().code == ErrorCode::BoxInStandby);
@@ -609,7 +610,7 @@ TEST_CASE("a zap in standby is refused unless it may switch the box on", "[chann
 	// The loop wakes the box for any zap it finds in standby.
 	REQUIRE(sink.posted.empty());
 
-	REQUIRE(channels::zap(ERSTE, true).ok());
+	REQUIRE(channels::zap(ERSTE, true, false).ok());
 	REQUIRE(sink.posted.size() == 1);
 	REQUIRE(sink.posted[0].first == NeutrinoMessages::ZAPTO);
 	REQUIRE(takePayload(sink.posted[0].second).channel_id == ERSTE);
@@ -629,10 +630,10 @@ TEST_CASE("an awake box takes a zap whether or not it may be switched on", "[cha
 	for (size_t i = 0; i < sizeof(modes) / sizeof(modes[0]); i++)
 	{
 		fake.mode = modes[i];
-		REQUIRE(channels::zap(ERSTE, false).ok());
+		REQUIRE(channels::zap(ERSTE, false, false).ok());
 	}
 	fake.mode_status = Status::NotFound;
-	REQUIRE(channels::zap(ERSTE, false).ok());
+	REQUIRE(channels::zap(ERSTE, false, false).ok());
 
 	REQUIRE(sink.posted.size() == 3);
 	for (size_t i = 0; i < sink.posted.size(); i++)
@@ -649,7 +650,7 @@ TEST_CASE("a box whose mode cannot be read is not woken by a zap or a mode chang
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	Result<void> z = channels::zap(ERSTE, false);
+	Result<void> z = channels::zap(ERSTE, false, false);
 	REQUIRE_FALSE(z.ok());
 	REQUIRE(z.error().status == Status::Internal);
 	REQUIRE(z.error().code == ErrorCode::ModeUnavailable);
@@ -673,7 +674,7 @@ TEST_CASE("a zap a recording holds the tuner for is refused before it is posted"
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	Result<void> r = channels::zap(ERSTE, false);
+	Result<void> r = channels::zap(ERSTE, false, false);
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::Conflict);
 	REQUIRE(r.error().code == ErrorCode::RecordingHoldsTuner);
@@ -685,19 +686,104 @@ TEST_CASE("a zap a recording holds the tuner for is refused before it is posted"
 
 	// Ahead of standby: waking would not free the tuner.
 	fake.mode = NeutrinoModes::mode_standby;
-	Result<void> asleep = channels::zap(ERSTE, false);
+	Result<void> asleep = channels::zap(ERSTE, false, false);
 	REQUIRE_FALSE(asleep.ok());
 	REQUIRE(asleep.error().code == ErrorCode::RecordingHoldsTuner);
-	Result<void> waking = channels::zap(ERSTE, true);
+	Result<void> waking = channels::zap(ERSTE, true, false);
 	REQUIRE_FALSE(waking.ok());
 	REQUIRE(waking.error().code == ErrorCode::RecordingHoldsTuner);
 	REQUIRE(sink.posted.empty());
 
 	fake.mode = NeutrinoModes::mode_tv;
 	fake.zap_possible = true;
-	REQUIRE(channels::zap(ERSTE, false).ok());
+	REQUIRE(channels::zap(ERSTE, false, false).ok());
 	REQUIRE(sink.posted.size() == 1);
 	takePayload(sink.posted[0].second);
+}
+
+namespace
+{
+
+// The movie player's note, taken away again whatever the case ends with.
+struct Noted
+{
+	Noted(const std::string &path, bool timeshift) { archive::notePlaying(path, timeshift); }
+	~Noted() { archive::notePlaying(std::string()); }
+};
+
+} // namespace
+
+TEST_CASE("a zap while the movie player plays a file is refused unless it may end the playback", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	fake.mode = NeutrinoModes::mode_ts;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+	Noted file("/media/hdd/movie/one.ts", false);
+
+	Result<void> r = channels::zap(ERSTE, false, false);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Conflict);
+	REQUIRE(r.error().code == ErrorCode::PlaybackRunning);
+	REQUIRE(r.error().message == std::string("something is playing in the movie player"));
+	REQUIRE(channels::zap(ERSTE, true, false).error().code == ErrorCode::PlaybackRunning);
+	REQUIRE(sink.posted.empty());
+
+	// The loop ends the playback for a zap by itself; leave is all it takes.
+	REQUIRE(channels::zap(ERSTE, false, true).ok());
+	REQUIRE(sink.posted.size() == 1);
+	REQUIRE(sink.posted[0].first == NeutrinoMessages::ZAPTO);
+	REQUIRE(takePayload(sink.posted[0].second).channel_id == ERSTE);
+}
+
+TEST_CASE("a held tuner comes before a running playback and a running playback before standby", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	fake.mode = NeutrinoModes::mode_standby;
+	fake.zap_possible = false;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+	Noted file("/media/hdd/movie/one.ts", false);
+
+	REQUIRE(channels::zap(ERSTE, true, true).error().code == ErrorCode::RecordingHoldsTuner);
+	fake.zap_possible = true;
+	REQUIRE(channels::zap(ERSTE, false, false).error().code == ErrorCode::PlaybackRunning);
+	REQUIRE(channels::zap(ERSTE, false, true).error().code == ErrorCode::BoxInStandby);
+	REQUIRE(sink.posted.empty());
+	REQUIRE(channels::zap(ERSTE, true, true).ok());
+	REQUIRE(sink.posted.size() == 1);
+	takePayload(sink.posted[0].second);
+}
+
+TEST_CASE("a web channel or the timeshift playing lets a zap through", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	// A web channel plays in the background player, which leaves no note.
+	fake.mode = NeutrinoModes::mode_webtv;
+	REQUIRE(channels::zap(ERSTE, false, false).ok());
+
+	// The timeshift plays in the movie player as a file does, and is noted as a shift.
+	fake.mode = NeutrinoModes::mode_ts;
+	{
+		Noted shift("/media/hdd/movie/.timeshift/live_temp.ts", true);
+		REQUIRE(channels::zap(ERSTE, false, false).ok());
+	}
+
+	REQUIRE(sink.posted.size() == 2);
+	for (size_t i = 0; i < sink.posted.size(); i++)
+		REQUIRE(takePayload(sink.posted[i].second).channel_id == ERSTE);
 }
 
 TEST_CASE("a zap whose tuner rule cannot be read is not posted", "[channels]")
@@ -711,7 +797,7 @@ TEST_CASE("a zap whose tuner rule cannot be read is not posted", "[channels]")
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	Result<void> r = channels::zap(ERSTE, false);
+	Result<void> r = channels::zap(ERSTE, false, false);
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::Internal);
 	REQUIRE(r.error().code == ErrorCode::ChannelListUnavailable);

@@ -235,9 +235,13 @@ enum class ErrorCode
 	TimeshiftRunning,
 	// A running recording keeps its start; the daemon ignores a new one.
 	RecordingRunning,
+	// This file is playing (delete), or a timeshift is playing back (play).
+	RecordingPlaying,
 	// Asked again with wake set, the box is switched on.
 	BoxInStandby,
 	RecordingHoldsTuner,
+	// Asked again with stop_playback set, the file playing is ended first.
+	PlaybackRunning,
 
 	// A table this layer wrote is wrong, which is a fault here and not at the caller.
 	BadScript,
@@ -491,8 +495,10 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::NotEmpty: return "not-empty";
 		case ErrorCode::TimeshiftRunning: return "timeshift-running";
 		case ErrorCode::RecordingRunning: return "recording-running";
+		case ErrorCode::RecordingPlaying: return "recording-playing";
 		case ErrorCode::BoxInStandby: return "box-in-standby";
 		case ErrorCode::RecordingHoldsTuner: return "recording-holds-tuner";
+		case ErrorCode::PlaybackRunning: return "playback-running";
 		case ErrorCode::BadScript: return "bad-script";
 		case ErrorCode::BadTable: return "bad-table";
 		case ErrorCode::NoTimeout: return "no-timeout";

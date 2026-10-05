@@ -616,6 +616,7 @@ const char *typeName(coreapi::EventType t)
 		case coreapi::EventType::EpgUpdated:   return "epg-updated";
 		case coreapi::EventType::BouquetsChanged: return "bouquets-changed";
 		case coreapi::EventType::SettingsChanged: return "settings-changed";
+		case coreapi::EventType::Playback:     return "playback";
 	}
 
 	// Only a value that is not one of the enumerators reaches here, which is
@@ -1020,7 +1021,8 @@ const Endpoint kEventsEndpoints[] = {
 	  "| `timer-changed` | the timer list changed | nothing; reread `GET /api/v1/timers` |\n"
 	  "| `epg-updated` | the guide got now and next for a channel | `channel_id`: only its lower 48 bits; at most 1 per 500 milliseconds, others in between are dropped |\n"
 	  "| `bouquets-changed` | the bouquet list changed | nothing; reread `GET /api/v1/bouquets` |\n"
-	  "| `settings-changed` | settings were written | nothing; reread `GET /api/v1/settings/{section}` |\n\n"
+	  "| `settings-changed` | settings were written | nothing; reread `GET /api/v1/settings/{section}` |\n"
+	  "| `playback` | the movie player started, stopped, paused, resumed, jumped or changed speed | `text`: the state (`playing`, `paused`, `forward`, `rewind` or `stopped`), the source as `GET /api/v1/playback` names it and, for a recording, its archive id, separated by spaces; `value`: the position in seconds; `channel_id`: the channel of a recording or a timeshift, else 0 |\n\n"
 	  "**Refusals:**\n"
 	  "- `503 too-many-streams`: the server already carries as many event streams as it is set to "
 	  "(8 by default); close another one or try later.\n\n"

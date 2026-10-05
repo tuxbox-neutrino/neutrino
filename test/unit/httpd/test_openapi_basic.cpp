@@ -56,9 +56,9 @@ TEST_CASE("the groups of this slice are declared in the order somebody meets thi
 	   stream and webtv. The source's own case for the full order comes back
 	   with them. */
 	static const char *const meant[] = {
-		"auth", "channels", "epg", "timers", "recordings", "osd", "settings",
-		"system", "webserver", "daemons", "storage", "netfs", "tuner",
-		"plugins", "config", "events", "openapi",
+		"auth", "channels", "epg", "timers", "recordings", "playback", "osd",
+		"settings", "system", "webserver", "daemons", "storage", "netfs",
+		"tuner", "plugins", "config", "events", "openapi",
 	};
 	const size_t count = sizeof(meant) / sizeof(meant[0]);
 

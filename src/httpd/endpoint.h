@@ -118,7 +118,11 @@ inline bool namesWholeBody(In in)
    other row. A table cannot state such a set: the sections the settings are laid out
    in come out of tables with rows this box's model decides, so a list typed here would
    be quietly wrong for another box. It is what a reader is told and not what the router
-   checks against; the set and the refusal are the layer below's. */
+   checks against; the set and the refusal are the layer below's.
+
+   closed_empty is true only for a row written with a macro that says so: there, a name
+   handed over empty is a value out of the set rather than one left out, because the set
+   never carries an empty member. False everywhere else. */
 typedef void (*Choices)(std::vector<std::string> &out);
 
 struct Param
@@ -133,6 +137,7 @@ struct Param
 	const char *values;    // comma separated, Enum only
 	const char *value_docs; // "value: text" lines, one per value of the set
 	Choices     choices;   // a set this table cannot state, asked for instead
+	bool        closed_empty; // true: a value handed over empty is out of the set, not left out
 };
 
 /* Writes a table's parameter array and its count as one pair, so the two cannot
@@ -155,13 +160,13 @@ struct Param
    row from claiming a range on a value that has none. FROM_SET names the values, and
    the type follows from the macro. */
 #define HTTPD_SEGMENT(name, type, doc) \
-	(name), (type), httpd::In::Path, true, (doc), 0, 0, NULL, NULL, NULL
+	(name), (type), httpd::In::Path, true, (doc), 0, 0, NULL, NULL, NULL, false
 #define HTTPD_SEGMENT_IN(name, type, doc, lo, hi) \
-	(name), (type), httpd::In::Path, true, (doc), (lo), (hi), NULL, NULL, NULL
+	(name), (type), httpd::In::Path, true, (doc), (lo), (hi), NULL, NULL, NULL, false
 #define HTTPD_SEGMENT_TEXT(name, doc, bytes) \
-	(name), httpd::ParamType::String, httpd::In::Path, true, (doc), 0, (bytes), NULL, NULL, NULL
+	(name), httpd::ParamType::String, httpd::In::Path, true, (doc), 0, (bytes), NULL, NULL, NULL, false
 #define HTTPD_SEGMENT_FROM_SET(name, doc, set, value_docs) \
-	(name), httpd::ParamType::Enum, httpd::In::Path, true, (doc), 0, 0, (set), (value_docs), NULL
+	(name), httpd::ParamType::Enum, httpd::In::Path, true, (doc), 0, 0, (set), (value_docs), NULL, false
 
 /* A segment out of a set this table cannot state, asked for where the document is
    written. Text and not one of a set as far as the router is concerned: the set is
@@ -169,45 +174,51 @@ struct Param
    here would be a rule that can disagree with the one that decides. What this adds
    is that a reader and a generated client are handed the names this box has. */
 #define HTTPD_SEGMENT_FROM_ASKED_SET(name, doc, asks) \
-	(name), httpd::ParamType::String, httpd::In::Path, true, (doc), 0, 0, NULL, NULL, (asks)
+	(name), httpd::ParamType::String, httpd::In::Path, true, (doc), 0, 0, NULL, NULL, (asks), false
 
 // The same, for a segment whose refusal quotes the name back, which is what a byte
 // ceiling on it is for: the ceiling keeps a caller from choosing how long its own
 // words come back to it.
 #define HTTPD_SEGMENT_TEXT_FROM_ASKED_SET(name, doc, bytes, asks) \
-	(name), httpd::ParamType::String, httpd::In::Path, true, (doc), 0, (bytes), NULL, NULL, (asks)
+	(name), httpd::ParamType::String, httpd::In::Path, true, (doc), 0, (bytes), NULL, NULL, (asks), false
 
 #define HTTPD_QUERY(name, type, doc) \
-	(name), (type), httpd::In::Query, false, (doc), 0, 0, NULL, NULL, NULL
+	(name), (type), httpd::In::Query, false, (doc), 0, 0, NULL, NULL, NULL, false
 #define HTTPD_QUERY_IN(name, type, doc, lo, hi) \
-	(name), (type), httpd::In::Query, false, (doc), (lo), (hi), NULL, NULL, NULL
+	(name), (type), httpd::In::Query, false, (doc), (lo), (hi), NULL, NULL, NULL, false
 #define HTTPD_QUERY_TEXT(name, doc, bytes) \
-	(name), httpd::ParamType::String, httpd::In::Query, false, (doc), 0, (bytes), NULL, NULL, NULL
+	(name), httpd::ParamType::String, httpd::In::Query, false, (doc), 0, (bytes), NULL, NULL, NULL, false
 #define HTTPD_QUERY_FROM_SET(name, doc, set, value_docs) \
-	(name), httpd::ParamType::Enum, httpd::In::Query, false, (doc), 0, 0, (set), (value_docs), NULL
+	(name), httpd::ParamType::Enum, httpd::In::Query, false, (doc), 0, 0, (set), (value_docs), NULL, false
+
+/* The same, for a set whose own values never read as nothing, so a name handed over
+   empty has to be a value the set does not carry rather than the name left out. */
+#define HTTPD_QUERY_FROM_CLOSED_SET(name, doc, set, value_docs) \
+	(name), httpd::ParamType::Enum, httpd::In::Query, false, (doc), 0, 0, (set), (value_docs), NULL, true
+
 #define HTTPD_QUERY_REQUIRED(name, type, doc) \
-	(name), (type), httpd::In::Query, true, (doc), 0, 0, NULL, NULL, NULL
+	(name), (type), httpd::In::Query, true, (doc), 0, 0, NULL, NULL, NULL, false
 #define HTTPD_QUERY_REQUIRED_IN(name, type, doc, lo, hi) \
-	(name), (type), httpd::In::Query, true, (doc), (lo), (hi), NULL, NULL, NULL
+	(name), (type), httpd::In::Query, true, (doc), (lo), (hi), NULL, NULL, NULL, false
 #define HTTPD_QUERY_REQUIRED_FROM_SET(name, doc, set, value_docs) \
-	(name), httpd::ParamType::Enum, httpd::In::Query, true, (doc), 0, 0, (set), (value_docs), NULL
+	(name), httpd::ParamType::Enum, httpd::In::Query, true, (doc), 0, 0, (set), (value_docs), NULL, false
 
 #define HTTPD_BODY(name, type, doc) \
-	(name), (type), httpd::In::Body, false, (doc), 0, 0, NULL, NULL, NULL
+	(name), (type), httpd::In::Body, false, (doc), 0, 0, NULL, NULL, NULL, false
 #define HTTPD_BODY_IN(name, type, doc, lo, hi) \
-	(name), (type), httpd::In::Body, false, (doc), (lo), (hi), NULL, NULL, NULL
+	(name), (type), httpd::In::Body, false, (doc), (lo), (hi), NULL, NULL, NULL, false
 #define HTTPD_BODY_TEXT(name, doc, bytes) \
-	(name), httpd::ParamType::String, httpd::In::Body, false, (doc), 0, (bytes), NULL, NULL, NULL
+	(name), httpd::ParamType::String, httpd::In::Body, false, (doc), 0, (bytes), NULL, NULL, NULL, false
 #define HTTPD_BODY_FROM_SET(name, doc, set, value_docs) \
-	(name), httpd::ParamType::Enum, httpd::In::Body, false, (doc), 0, 0, (set), (value_docs), NULL
+	(name), httpd::ParamType::Enum, httpd::In::Body, false, (doc), 0, 0, (set), (value_docs), NULL, false
 #define HTTPD_BODY_REQUIRED(name, type, doc) \
-	(name), (type), httpd::In::Body, true, (doc), 0, 0, NULL, NULL, NULL
+	(name), (type), httpd::In::Body, true, (doc), 0, 0, NULL, NULL, NULL, false
 #define HTTPD_BODY_REQUIRED_IN(name, type, doc, lo, hi) \
-	(name), (type), httpd::In::Body, true, (doc), (lo), (hi), NULL, NULL, NULL
+	(name), (type), httpd::In::Body, true, (doc), (lo), (hi), NULL, NULL, NULL, false
 #define HTTPD_BODY_REQUIRED_TEXT(name, doc, bytes) \
-	(name), httpd::ParamType::String, httpd::In::Body, true, (doc), 0, (bytes), NULL, NULL, NULL
+	(name), httpd::ParamType::String, httpd::In::Body, true, (doc), 0, (bytes), NULL, NULL, NULL, false
 #define HTTPD_BODY_REQUIRED_FROM_SET(name, doc, set, value_docs) \
-	(name), httpd::ParamType::Enum, httpd::In::Body, true, (doc), 0, 0, (set), (value_docs), NULL
+	(name), httpd::ParamType::Enum, httpd::In::Body, true, (doc), 0, 0, (set), (value_docs), NULL, false
 
 /* The body itself and not a member of it, in the two shapes no list of named members
    can state. The kind names what one element or one value is, and the two numbers
@@ -220,9 +231,9 @@ struct Param
    Named for what the body is and not for the row: reaching for the wrong one writes an
    array where a caller has to send an object. */
 #define HTTPD_BODY_IS_LIST_OF(name, type, doc, least, most) \
-	(name), (type), httpd::In::BodyList, true, (doc), (least), (most), NULL, NULL, NULL
+	(name), (type), httpd::In::BodyList, true, (doc), (least), (most), NULL, NULL, NULL, false
 #define HTTPD_BODY_IS_MAP_OF(name, type, doc, least, most) \
-	(name), (type), httpd::In::BodyMap, true, (doc), (least), (most), NULL, NULL, NULL
+	(name), (type), httpd::In::BodyMap, true, (doc), (least), (most), NULL, NULL, NULL, false
 
 /* The third shape: the body is the bytes and not a document of any kind, which is
    what a route carrying a file takes. The two numbers count bytes. The kind is
@@ -230,7 +241,7 @@ struct Param
    everything that describes one, and because nothing reads a kind off such a
    row. */
 #define HTTPD_BODY_IS_BYTES(name, doc, least, most) \
-	(name), httpd::ParamType::String, httpd::In::BodyBytes, true, (doc), (least), (most), NULL, NULL, NULL
+	(name), httpd::ParamType::String, httpd::In::BodyBytes, true, (doc), (least), (most), NULL, NULL, NULL, false
 
 /* A row spelled out field by field, for a case about the row itself: a bound on a
    type that reads none, a set beside a type that is not one of a set, a segment
@@ -240,7 +251,7 @@ struct Param
 
    Nothing that means its row to be right should reach for this. */
 #define HTTPD_PARAM_AS_WRITTEN(name, type, in, required, doc, lo, hi, set) \
-	(name), (type), (in), (required), (doc), (lo), (hi), (set), NULL, NULL
+	(name), (type), (in), (required), (doc), (lo), (hi), (set), NULL, NULL, false
 
 /* A value the router has read off the wire and checked against the row that
    declares it. The member the declared type names carries it and the rest are zero,
@@ -311,6 +322,9 @@ class Request
 		   where no scoped credential ever resolved, so there is nothing to hold. */
 		const std::string &scope() const;
 
+		// The scoped token a route that takes one found in its query; empty everywhere else.
+		const std::string &addressToken() const;
+
 		/* The session token this request presented, and empty for one that presented
 		   none or presented something that is not one.
 
@@ -331,6 +345,11 @@ class Request
 		   exactly like the one it gave. */
 		const std::string &host() const;
 
+		// The authority the socket itself answered this request on; empty where the
+		// transport cannot say. For a route that answers with its own address rather
+		// than echo a caller's, which host() is not safe for.
+		const std::string &localAddress() const;
+
 		/* Filled in by the router before the handler is entered and by nothing
 		   else. Public rather than reached through a friend because the work is
 		   spread over several helpers, and a value bound here has already been
@@ -343,8 +362,10 @@ class Request
 		void setReportedPeer(const std::string &p);
 		void setGranted(AuthLevel a);
 		void setScope(const std::string &s);
+		void setAddressToken(const std::string &t);
 		void setSession(const std::string &t);
 		void setHost(const std::string &h);
+		void setLocalAddress(const std::string &a);
 
 	private:
 		struct Bound
@@ -364,7 +385,9 @@ class Request
 		std::string        reported_peer_;
 		std::string        session_;
 		std::string        host_;
+		std::string        local_address_;
 		std::string        scope_;
+		std::string        address_token_;
 		AuthLevel          granted_;
 };
 

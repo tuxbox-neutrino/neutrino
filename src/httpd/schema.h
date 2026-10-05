@@ -171,6 +171,10 @@ struct Schema
 #define HTTPD_OBJECT(name, shape, doc) \
 	(name), httpd::FieldType::Object, false, (doc), (shape), NULL, NULL, httpd::ElementType::None, NULL
 
+// An object member absent from some answers.
+#define HTTPD_OBJECT_OPTIONAL(name, shape, doc) \
+	(name), httpd::FieldType::Object, true, (doc), (shape), NULL, NULL, httpd::ElementType::None, NULL
+
 // A member that is a list of objects of a named shape.
 #define HTTPD_LIST_OF(name, shape, doc) \
 	(name), httpd::FieldType::Array, false, (doc), (shape), NULL, NULL, httpd::ElementType::None, NULL

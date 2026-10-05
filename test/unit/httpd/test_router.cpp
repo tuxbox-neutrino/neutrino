@@ -123,6 +123,60 @@ TEST_CASE("a value that is not one the enum lists never reaches the handler", "[
 	REQUIRE(r.body.find("bad-enum") != std::string::npos);
 }
 
+TEST_CASE("an ordinary enum handed over empty is still read as left out", "[router]")
+{
+	handler_ran = false;
+	Response r = dispatchIn(probe_table, Method::Get, "/api/v1/probe/1", "mode=", "", "127.0.0.1", AuthLevel::System);
+	REQUIRE(r.code == 200);
+	REQUIRE(handler_ran);
+}
+
+namespace
+{
+
+Response closed_probe(const Request &)
+{
+	Response out;
+	out.code = 200;
+	return out;
+}
+
+const Param closed_params[] = {
+	HTTPD_QUERY_FROM_CLOSED_SET("sort", "sort key", "title,start", NULL),
+};
+const Endpoint closed_endpoints[] = {
+	{ Method::Get, "/api/v1/closed", AuthLevel::Read, "closed", NULL,
+	  HTTPD_PARAMS(closed_params), NULL, &closed_probe, false, Answers200, HTTPD_NO_REFUSALS },
+};
+const RouteTable closed_table = { HTTPD_TABLE_N("closed", closed_endpoints, 1) };
+
+} // namespace
+
+TEST_CASE("an enum row marked closed_empty refuses a value handed over empty", "[router]")
+{
+	Response absent = dispatchIn(closed_table, Method::Get, "/api/v1/closed", "", "", "127.0.0.1", AuthLevel::System);
+	REQUIRE(absent.code == 200);
+
+	Response empty = dispatchIn(closed_table, Method::Get, "/api/v1/closed", "sort=", "", "127.0.0.1", AuthLevel::System);
+	REQUIRE(empty.code == 400);
+	REQUIRE(empty.body.find("bad-enum") != std::string::npos);
+}
+
+TEST_CASE("closed_empty on a row that is not an enum is a table written wrong", "[router]")
+{
+	static const Param bad_params[] = {
+		{ "s", ParamType::String, In::Query, false, "a string", 0, 8, NULL, NULL, NULL, true },
+	};
+	static const Endpoint bad_endpoints[] = {
+		{ Method::Get, "/api/v1/bad", AuthLevel::Read, "bad", NULL,
+		  HTTPD_PARAMS(bad_params), NULL, &closed_probe, false, Answers200, HTTPD_NO_REFUSALS },
+	};
+	static const RouteTable bad_table = { HTTPD_TABLE_N("bad", bad_endpoints, 1) };
+	std::string why;
+	REQUIRE_FALSE(tableIsSane(bad_table, &why));
+	REQUIRE(why.find("closed_empty") != std::string::npos);
+}
+
 TEST_CASE("a parameter the table does not declare is refused, not ignored", "[router]")
 {
 	handler_ran = false;
@@ -1677,7 +1731,7 @@ TEST_CASE("which routes take a credential out of an address, asked the way the t
 	REQUIRE_FALSE(routeLevelFor(Get, "/control/standby", &need, &takes));
 	REQUIRE_FALSE(takes);
 
-	// And one route in the whole tree, counted rather than trusted.
+	// And the routes in the whole tree, counted rather than trusted.
 	size_t tables = 0;
 	const RouteTable *const *t = allRoutes(&tables);
 	REQUIRE(tables > 0);
@@ -1690,7 +1744,47 @@ TEST_CASE("which routes take a credential out of an address, asked the way the t
 				++saying_yes;
 		}
 	}
-	REQUIRE(saying_yes == 1);
+	REQUIRE(saying_yes == 3);
 
 	setRoutesForTest(NULL);
+}
+
+static std::string tokened_seen;
+
+static Response tokened(const Request &r)
+{
+	handler_ran = true;
+	handler_calls++;
+	tokened_seen = r.addressToken();
+	Response out;
+	out.code = 200;
+	out.body = "{}";
+	return out;
+}
+
+static const Endpoint tokened_endpoints[] = {
+	{ Method::Get, "/api/v1/tokened", AuthLevel::Read, "tokened", NULL, NULL, 0, NULL, &tokened, true,
+	  Answers200, HTTPD_NO_REFUSALS },
+};
+
+static const RouteTable tokened_table = { HTTPD_TABLE_N("tokened", tokened_endpoints, 1) };
+
+TEST_CASE("a route that reads a query token keeps the one value and refuses a second", "[router]")
+{
+	handler_ran = false;
+	tokened_seen.clear();
+	const int before = handler_calls;
+
+	Response one = dispatchIn(tokened_table, Method::Get, "/api/v1/tokened", "token=abc", "", "127.0.0.1",
+	                         AuthLevel::Read);
+	REQUIRE(one.code == 200);
+	REQUIRE(tokened_seen == "abc");
+	REQUIRE(handler_calls == before + 1);
+
+	Response two = dispatchIn(tokened_table, Method::Get, "/api/v1/tokened", "token=abc&token=%0D%0Aevil",
+	                         "", "127.0.0.1", AuthLevel::Read);
+	REQUIRE(two.code == 400);
+	REQUIRE(two.body.find("duplicate-parameter") != std::string::npos);
+	REQUIRE(two.body.find("evil") == std::string::npos);
+	REQUIRE(handler_calls == before + 1);
 }

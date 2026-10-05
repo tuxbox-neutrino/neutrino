@@ -55,6 +55,7 @@
 #include <driver/framebuffer.h>
 #include <driver/neutrinofonts.h>
 #include <driver/rcinput.h>
+#include <coreapi/archive.h>
 #include <coreapi/channels.h>
 #include <coreapi/system.h>
 #include <coreapi/settings/settings.h>
@@ -5046,6 +5047,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 
 	else if( msg == NeutrinoMessages::ZAPTO) {
+		// Taken by a loop open inside the movie player rather than by its own: it ends first.
+		if (CMoviePlayerGui::getInstance().endFor(msg, data, true))
+			return messages_return::handled | messages_return::cancel_all;
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		const t_channel_id channel_id = eventinfo->channel_id;
 		if (zapPossible(channel_id)) {
@@ -5416,6 +5420,25 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 
 		delete[] (unsigned char*) data;
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_PLAY_RECORDING) {
+		const coreapi::archive::PlayAsked asked = coreapi::archive::playAsked((const char *) data);
+		// A file playing is ended only with the leave the web sent along; without it the play is dropped below.
+		if (asked.stop_playback && mode != NeutrinoModes::mode_standby
+		    && CMoviePlayerGui::getInstance().endFor(msg, data, false))
+			return messages_return::handled | messages_return::cancel_all;
+		delete[] (unsigned char *) data;
+		// A web play reaching a sleeping box wakes it, as a zap does.
+		if (mode == NeutrinoModes::mode_standby) {
+			cancelDeferredDeepStandby();
+			standbyMode(false);
+		}
+		// Still starting, the screens the player draws on are not there yet.
+		if (mode == NeutrinoModes::mode_unknown || !channelList)
+			return messages_return::handled;
+		if (mode != NeutrinoModes::mode_standby && !CMoviePlayerGui::getInstance().Playing())
+			CMoviePlayerGui::getInstance().playRecording(asked.path);
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_SERVICES_UPD) {
@@ -5794,7 +5817,8 @@ void CNeutrinoApp::saveEpg(int _mode)
 			   the added one from the settings among them, is turned into one of
 			   the first two by handleMsg below and comes round on the next pass,
 			   so the list of keys is not written out a second time here. A zap,
-			   and a mode change that may wake, leave standby the same way.
+			   a recording played from the web and a mode change that may wake
+			   leave standby the same way.
 
 			   Only for the caller that is entering standby. The other one is the
 			   shutdown, where the wait has to run out: the process ends after it,
@@ -5807,6 +5831,7 @@ void CNeutrinoApp::saveEpg(int _mode)
 			const bool wake = (msg == NeutrinoMessages::STANDBY_OFF ||
 					   msg == NeutrinoMessages::STANDBY_TOGGLE ||
 					   msg == NeutrinoMessages::ZAPTO ||
+					   msg == NeutrinoMessages::EVT_PLAY_RECORDING ||
 					   (msg == NeutrinoMessages::CHANGEMODE && (data & NeutrinoModes::wakeup))) &&
 					  (_mode == NeutrinoModes::mode_standby);
 			/* Handed on unchanged where the queue would not take it back, which

@@ -221,6 +221,9 @@ extern const RouteTable streamTable;
 // one of them, and the shift it keeps of what it is showing.
 extern const RouteTable recordingsTable;
 
+// What the television shows.
+extern const RouteTable playbackTable;
+
 } // namespace httpd
 
 #endif

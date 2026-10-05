@@ -196,7 +196,10 @@ struct NeutrinoMessages
 		EVT_WEBTV_ZAP_COMPLETE			= CRCInput::RC_WithData + 28, /* data: (t_channel_id *) */
 		EVT_SCAN_REPORT_FREQUENCYP		= CRCInput::RC_WithData + 29,
 		EVT_SLIDER				= CRCInput::RC_WithData + 30, /* data: int */
-		EVT_WEBTV_RESTART			= CRCInput::RC_WithData + 31  /* data: (t_channel_id *) */
+		EVT_WEBTV_RESTART			= CRCInput::RC_WithData + 31, /* data: (t_channel_id *) */
+
+		/* from nhttpd: a finished recording to play, data: the path, NUL terminated */
+		EVT_PLAY_RECORDING			= CRCInput::RC_WithData + 32
 	};
 };
 

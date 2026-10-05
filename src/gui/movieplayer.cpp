@@ -61,6 +61,8 @@
 #include <eitd/edvbstring.h>
 #include <system/helpers.h>
 #include <system/helpers-json.h>
+#include <coreapi/archive.h>
+#include <coreapi/playback.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -132,6 +134,18 @@ extern CTimeOSD *FileTimeOSD;
 #define WEBTV_ACTIVITY_GAP_MS 5000
 #define WEBTV_BUDGET_REFRESH_WINDOW_MS 60000
 #define WEBTV_NETWORK_WAIT_MS 30000
+
+static bool playbackStateOf(int playstate, coreapi::playback::State &out)
+{
+	switch (playstate)
+	{
+		case CMoviePlayerGui::PLAY:  out = coreapi::playback::State::Playing; return true;
+		case CMoviePlayerGui::PAUSE: out = coreapi::playback::State::Paused;  return true;
+		case CMoviePlayerGui::FF:    out = coreapi::playback::State::Forward; return true;
+		case CMoviePlayerGui::REW:   out = coreapi::playback::State::Rewind;  return true;
+		default:                     return false;
+	}
+}
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
 CMoviePlayerGui* CMoviePlayerGui::instance_bg = NULL;
@@ -912,6 +926,9 @@ void CMoviePlayerGui::Init(void)
 {
 	playing = false;
 	stopped = true;
+	recording_done = false;
+	selecting = false;
+	handing_over = false;
 	currentVideoSystem = -1;
 	currentOsdResolution = 0;
 	is_audio_playing = false;
@@ -1231,7 +1248,8 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 
-	while(!isHTTP && !isUPNP && SelectFile()) {
+	selecting = true;
+	while(!isHTTP && !isUPNP && !handing_over && SelectFile()) {
 		if (timeshift != TSHIFT_MODE_OFF) {
 			CVFD::getInstance()->ShowIcon(FP_ICON_TIMESHIFT, true);
 			PlayFile();
@@ -1249,6 +1267,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		}
 		while (repeat_mode || filelist_it != filelist.end());
 	}
+	selecting = false;
 
 	bookmarkmanager->flush();
 
@@ -1475,6 +1494,7 @@ void CMoviePlayerGui::ClearFlags()
 	is_file_player = false;
 	is_audio_playing = false;
 	timeshift = TSHIFT_MODE_OFF;
+	handing_over = false;
 }
 
 void CMoviePlayerGui::ClearQueue()
@@ -1557,6 +1577,34 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 	return ret;
 }
 
+void CMoviePlayerGui::playRecording(const std::string &ts)
+{
+	// Inside the browser of this instance a nested run would overwrite its list.
+	if (selecting)
+		return;
+	recording_to_play = ts;
+	recording_done = false;
+	exec(NULL, "tsmoviebrowser");
+	recording_to_play.clear();
+}
+
+bool CMoviePlayerGui::endFor(neutrino_msg_t msg, neutrino_msg_data_t data, bool with_shift)
+{
+	// Only while the play loop runs. Once it has ended, as under a plugin that
+	// keeps the screen, or after a first hand over, the caller acts as before.
+	if (playstate < CMoviePlayerGui::PLAY || (timeshift != TSHIFT_MODE_OFF && !with_shift))
+		return false;
+	// The play loop ends on its next turn, and the browser behind it stays shut.
+	if (msg != NeutrinoMessages::ZAPTO)
+		menu_ret = menu_return::RETURN_EXIT_ALL;
+	playstate = CMoviePlayerGui::STOPPED;
+	keyPressed = CMoviePlayerGui::PLUGIN_PLAYSTATE_LEAVE_ALL;
+	handing_over = true;
+	ClearQueue();
+	g_RCInput->postMsg(msg, data);
+	return true;
+}
+
 bool CMoviePlayerGui::SelectFile()
 {
 	bool ret = false;
@@ -1606,6 +1654,20 @@ bool CMoviePlayerGui::SelectFile()
 		ret = true;
 	}
 #endif
+	else if (isMovieBrowser && !recording_to_play.empty()) {
+		// Second call: the one file has played.
+		if (recording_done)
+			return false;
+		recording_done = true;
+		recording_info.clear();
+		recording_info.file.Name = recording_to_play;
+		CMovieInfo info;
+		info.loadMovieInfo(&recording_info);
+		filelist.clear();
+		filelist_it = filelist.end();
+		p_movie_info = &recording_info;
+		ret = prepareFile(&p_movie_info->file);
+	}
 	else if (isMovieBrowser) {
 		disableOsdElements(MUTE);
 		if (moviebrowser->exec(Path_local.c_str())) {
@@ -2967,6 +3029,16 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	} else {
 		repeat_mode = (repeat_mode_enum) g_settings.movieplayer_repeat_on;
 		playstate = CMoviePlayerGui::PLAY;
+		if (this == instance_mp) {
+			coreapi::archive::notePlaying(file_name, timeshift != TSHIFT_MODE_OFF);
+			coreapi::playback::Started started;
+			started.path = file_name;
+			started.title = (p_movie_info && !p_movie_info->epgTitle.empty()) ? p_movie_info->epgTitle : pretty_name;
+			started.channel = p_movie_info ? p_movie_info->channelName : std::string();
+			started.channel_id = p_movie_info ? p_movie_info->channelId : 0;
+			started.timeshift = timeshift != TSHIFT_MODE_OFF;
+			coreapi::playback::begin(started);
+		}
 		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 		if (timeshift != TSHIFT_MODE_OFF) {
 			startposition = -1;
@@ -3138,6 +3210,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		if (first_start) {
 			callInfoViewer();
 			first_start = false;
+			// Ended from the infobar: what endFor handed on waits for the caller.
+			if (playstate < CMoviePlayerGui::PLAY)
+				break;
 		}
 
 		neutrino_msg_t msg = 0;
@@ -3621,6 +3696,14 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		if (msg < CRCInput::RC_MaxRC)
 			lastmsg = msg;
 #endif
+
+		coreapi::playback::Sample sample;
+		if (this == instance_mp && playbackStateOf(playstate, sample.state)) {
+			sample.position_ms = position;
+			sample.duration_ms = duration;
+			sample.speed = speed;
+			coreapi::playback::observe(sample);
+		}
 	}
 	printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
 	playstate = CMoviePlayerGui::STOPPED;
@@ -3640,6 +3723,10 @@ void CMoviePlayerGui::PlayFileLoop(void)
 void CMoviePlayerGui::PlayFileEnd(bool restore)
 {
 	printf("%s: stopping, this %p thread %p\n", __func__, this, CMoviePlayerGui::bgPlayThread);fflush(stdout);
+	if (this == instance_mp) {
+		coreapi::archive::notePlaying(std::string());
+		coreapi::playback::end();
+	}
 	if (filelist_it == filelist.end())
 		FileTimeOSD->kill();
 	clearSubtitle();

@@ -43,7 +43,8 @@ Result<ChannelInfo> get(ChannelId id);
 // channel handed to the caller.
 Result<ChannelInfo> current();
 
-// current(), but NotFound in standby, where the channel stack still names one.
+// current(), but NotFound in standby and while a recording or a file plays, where
+// the channel stack still names one.
 Result<ChannelInfo> playing();
 
 /* How that channel's streams are laid out, as far as the box holds it.
@@ -71,11 +72,15 @@ enum class Mode { Tv, Radio };
 // The channel is looked up before the message goes out, because a posted command
 // reports nothing back and a zap to an id nobody has would otherwise be
 // unobservable. NotFound then, and nothing is posted. Conflict while a recording
-// holds the tuner the channel needs, and in standby unless wake is set.
-Result<void> zap(ChannelId id, bool wake);
+// holds the tuner the channel needs, while the movie player plays a file unless
+// stop_playback is set, and in standby unless wake is set, in that order.
+Result<void> zap(ChannelId id, bool wake, bool stop_playback);
 
 // Conflict in standby unless wake is set.
 Result<void> setMode(Mode m, bool wake);
+
+// The standby rule of the two above, for any other command the loop wakes the box for.
+Result<void> standbyAllows(bool wake);
 
 // A read, and wider than the enum above: standby and the players are modes as
 // well. A NeutrinoModes value, src/include/neutrinoMessages.h, and never
