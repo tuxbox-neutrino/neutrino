@@ -816,7 +816,7 @@ const Endpoint kSettingsEndpoints[] = {
 	  "**Related:** `GET /api/v1/settings/schema`, `PATCH /api/v1/settings/{section}`.",
 	  HTTPD_PARAMS(kClearParams), &kValueSchema, &clearSecret, false,
 	  Answers200, HTTPD_REFUSALS_AND_BODY(kClearSecretRefusals, "{\"key\":\"tmdb_api_key\"}") },
-	{ Method::Patch, "/api/v1/settings/{section}", AuthLevel::Write,
+	{ Method::Patch, "/api/v1/settings/{section}", AuthLevel::System,
 	  "writes settings of one section, answering the section as it reads now when every one of them landed and a result per key when they did not all agree",
 	  "Writes one or more settings of a single section in one request. Every key is checked and, where "
 	  "valid, taken before any answer is built, so a read answers with it from then on and a value "

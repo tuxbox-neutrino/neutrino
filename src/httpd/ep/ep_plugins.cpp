@@ -248,7 +248,9 @@ const Endpoint kPluginEndpoints[] = {
 	  "`PUT /api/v1/plugins/{name}/hidden`, `POST /api/v1/plugins/reload`.",
 	  NULL, 0, &kPluginListSchema, &listPlugins, false,
 	  Answers200, HTTPD_NO_REFUSALS },
-	{ Method::Post, "/api/v1/plugins/{name}/start", AuthLevel::Write,
+	/* Above a write, as on the old surface: a plugin and a script are programs run as
+	   the account this server runs as, which is the whole of the box. */
+	{ Method::Post, "/api/v1/plugins/{name}/start", AuthLevel::System,
 	  "asks the box to start one plugin", "Asks the box to start the plugin "
 	  "`name` names, as choosing it from a plugin menu would. `202` means the "
 	  "box has queued the request; this server does not learn whether a plugin "
@@ -287,9 +289,6 @@ const Endpoint kPluginEndpoints[] = {
 	  "**Related:** `GET /api/v1/plugins`.",
 	  NULL, 0, NULL, &reloadPlugins, false,
 	  Answers202, HTTPD_NO_REFUSALS },
-	/* The only route here above a write, and the reason is the one the level table of
-	   the old surface already gives: it runs a file as the account this server runs
-	   as, which is the whole of the box. */
 	{ Method::Post, "/api/v1/scripts/{name}", AuthLevel::System,
 	  "runs one script out of the box's script directory and answers what it wrote",
 	  "Runs the script `name` names from the box's own script directory and "

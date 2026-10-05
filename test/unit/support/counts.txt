@@ -54,7 +54,7 @@ options an applier or its notifier branches on	49
 parameters the document describes	175
 refusals the document states against a route	1153
 refusals the routes declare of their own	200
-refusals the shipped routes were seen to give	286
+refusals the shipped routes were seen to give	287
 routes the document describes	126
 rows an applier acts on	25
 rows compared against the load and save pass	353

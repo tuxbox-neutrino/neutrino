@@ -1461,6 +1461,8 @@ TEST_CASE("a write asking for the box's own credential is refused a write", "[wr
 	REQUIRE(send(Post, "/api/v1/system/reboot", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(send(Post, "/api/v1/daemons/oscam/start", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(send(Delete, "/api/v1/storage/path?path=/tmp/x", "", AuthLevel::Write, "127.0.0.1").code == 403);
+	REQUIRE(send(Patch, "/api/v1/settings/audio", "{\"audio_volume_percent_ac3\":\"3\"}", AuthLevel::Write, "127.0.0.1").code == 403);
+	REQUIRE(send(Post, "/api/v1/plugins/tuxtxt/start", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(box.events.sent.empty());
 
 	// And a write is enough for the routes that ask for one.
@@ -3809,10 +3811,9 @@ TEST_CASE("every table this server ships is still one it can start on", "[write]
 
 TEST_CASE("the routes that drive the plugins ask for what their acts are worth", "[write]")
 {
-	/* Read off the shipped tables rather than written out here. Two of them
-	   change what the box is running and one of them runs a file as the account
-	   this server runs as, and only the last of those is the whole of the box.
-	   The walk above counts them; this says which is which. */
+	/* Read off the shipped tables rather than written out here. Starting a
+	   plugin and running a script are the whole of the box; reloading the
+	   list is a write. The walk above counts them; this says which is which. */
 	ShippedRoutes shipped;
 
 	size_t tables = 0;
@@ -3825,12 +3826,12 @@ TEST_CASE("the routes that drive the plugins ask for what their acts are worth",
 			const Endpoint &e = t[i]->endpoints[j];
 			const std::string path = e.path;
 			INFO(path);
-			if (path == "/api/v1/scripts/{name}")
+			if (path == "/api/v1/scripts/{name}" || path == "/api/v1/plugins/{name}/start")
 			{
 				REQUIRE(e.auth == AuthLevel::System);
 				++seen;
 			}
-			else if (path == "/api/v1/plugins/{name}/start" || path == "/api/v1/plugins/reload")
+			else if (path == "/api/v1/plugins/reload")
 			{
 				REQUIRE(e.auth == AuthLevel::Write);
 				++seen;
