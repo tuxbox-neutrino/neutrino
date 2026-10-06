@@ -2203,6 +2203,28 @@ TEST_CASE("only so many attempts are answered at once", "[write]")
 	endLoginAttempt("198.51.100.5", false);
 }
 
+TEST_CASE("an address whose delay ran out gets one attempt at a time", "[write]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+
+	time_t now = 1735689600;
+	setLoginClockForTest(now);
+	for (int i = 0; i < 3; ++i)
+		endLoginAttempt("203.0.113.7", false);
+
+	now += 1;
+	setLoginClockForTest(now);
+	unsigned retry = 0;
+	REQUIRE(beginLoginAttempt("203.0.113.7", &retry) == LoginAttempt::Open);
+	REQUIRE(beginLoginAttempt("203.0.113.7", &retry) == LoginAttempt::TooSoon);
+	REQUIRE(retry > 0);
+	REQUIRE(beginLoginAttempt("198.51.100.7", &retry) == LoginAttempt::Open);
+
+	endLoginAttempt("203.0.113.7", false);
+	endLoginAttempt("198.51.100.7", false);
+}
+
 TEST_CASE("the table of who has been guessing does not grow without bound", "[write]")
 {
 	/* Otherwise the thing an anonymous caller exhausts is this rather than the

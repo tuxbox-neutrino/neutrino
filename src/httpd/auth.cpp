@@ -900,7 +900,7 @@ LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after)
 
 	forgetQuietLocked(now);
 
-	const std::map<std::string, Attempts>::const_iterator i = table().attempts.find(peer);
+	const std::map<std::string, Attempts>::iterator i = table().attempts.find(peer);
 	if (i != table().attempts.end())
 	{
 		const unsigned delay = loginDelayFor(i->second.failures);
@@ -914,6 +914,9 @@ LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after)
 				*retry_after = (unsigned)((i->second.last + (time_t) delay) - now);
 			return LoginAttempt::TooSoon;
 		}
+		// Stamped now, so a second attempt from this address waits for this one.
+		if (delay > 0)
+			i->second.last = now;
 	}
 
 	++table().in_flight;
