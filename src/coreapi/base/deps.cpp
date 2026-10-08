@@ -520,6 +520,7 @@ class NoOsdResolution : public OsdResolutionSource
 	public:
 		Status read(int &) const { return Status::NotSupported; }
 		Status write(int) { return Status::NotSupported; }
+		Status available(std::vector<std::pair<int, int> > &) const { return Status::NotSupported; }
 };
 
 NoOsdResolution g_no_osd_resolution;

@@ -32,6 +32,8 @@
 #include <libeventserver/eventserver.h>
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <driver/neutrino_msg_t.h>
 
@@ -332,6 +334,9 @@ struct SystemSource
 
 	// What the hardware library says the box can do.
 	virtual Status capabilities(BoxCapabilities &out) const = 0;
+	// The file systems the kernel knows and a mkfs exists for, named as the
+	// disk menu names them.
+	virtual Status formatTools(std::vector<std::string> &out) const = 0;
 	// Whether the image fixes the parental lock. Read at every call, so a
 	// caller never acts on a state older than the request.
 	virtual Status parentalLocked(bool &out) const = 0;
@@ -774,6 +779,11 @@ struct TunerSource
 	   picture returned: the tuning happens on the channel stack's own thread
 	   and is answered for by the reading beside this. */
 	virtual Status reset() = 0;
+
+	/* How many frontends the tuner setup has switched on, which is what a
+	   choice that needs a second tuner is offered by. Anything but Ok says
+	   the frontends could not be reached. */
+	virtual Status enabledCount(unsigned &out) const = 0;
 };
 
 TunerSource &tunerSource();
@@ -1011,6 +1021,9 @@ struct OsdResolutionSource
 	virtual ~OsdResolutionSource() {}
 	virtual Status read(int &mode) const = 0;
 	virtual Status write(int mode) = 0;
+	// The sizes the box can draw at, width and height, in the order of the
+	// modes. Empty is a box that has none to offer.
+	virtual Status available(std::vector<std::pair<int, int> > &out) const = 0;
 };
 
 OsdResolutionSource &osdResolutionSource();

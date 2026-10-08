@@ -57,6 +57,18 @@ class CRealOsdResolution : public coreapi::OsdResolutionSource
 			COsdHelpers::getInstance()->changeOsdResolution((uint32_t) mode);
 			return coreapi::Status::Ok;
 		}
+
+		/* The list the framebuffer built for this box, in the order of the modes.
+		   Built once at start-up and left alone after, so a read from another
+		   thread finds it whole. */
+		coreapi::Status available(std::vector<std::pair<int, int> > &out) const
+		{
+			out.clear();
+			const std::vector<osd_resolution_t> &sizes = CFrameBuffer::getInstance()->osd_resolutions;
+			for (size_t i = 0; i < sizes.size(); i++)
+				out.push_back(std::make_pair((int) sizes[i].xRes, (int) sizes[i].yRes));
+			return coreapi::Status::Ok;
+		}
 };
 
 CRealOsdResolution g_real_osd_resolution;

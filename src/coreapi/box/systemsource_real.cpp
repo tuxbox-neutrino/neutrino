@@ -28,7 +28,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <set>
 #include <string>
+#include <vector>
 
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -311,6 +313,48 @@ class RealSystemSource : public SystemSource
 		Status parentalLocked(bool &out) const
 		{
 			out = access(NEUTRINO_PARENTALLOCKED_FILE, R_OK) == 0;
+			return Status::Ok;
+		}
+
+		/* Same test the disk menu applies: the kernel lists the file system
+		   and a mkfs for it is on the path. */
+		Status formatTools(std::vector<std::string> &out) const
+		{
+			static const char *const tools[][2] = {
+				{ "ext4",  "mkfs.ext4" },
+				{ "ext3",  "mkfs.ext3" },
+				{ "ext2",  "mkfs.ext2" },
+				{ "f2fs",  "mkfs.f2fs" },
+				{ "vfat",  "mkfs.vfat" },
+				{ "exfat", "mkfs.exfat" },
+				{ "xfs",   "mkfs.xfs" }
+			};
+
+			FILE *f = fopen("/proc/filesystems", "r");
+			if (!f)
+				return Status::Internal;
+			std::set<std::string> kernel;
+			char line[128]; // lines are shorter
+			while (fgets(line, sizeof(line), f))
+			{
+				size_t l = strlen(line);
+				if (l > 0)
+					line[l - 1] = 0;
+				// "nodev" lines carry a tab before the name, the others start with one
+				char *tab = strchr(line, '\t');
+				if (tab)
+					kernel.insert(std::string(tab + 1));
+			}
+			fclose(f);
+
+			out.clear();
+			for (size_t i = 0; i < sizeof(tools) / sizeof(tools[0]); i++)
+			{
+				if (kernel.find(tools[i][0]) == kernel.end())
+					continue;
+				if (!find_executable(tools[i][1]).empty())
+					out.push_back(tools[i][0]);
+			}
 			return Status::Ok;
 		}
 };

@@ -967,6 +967,8 @@ struct FakeSystemSource : public coreapi::SystemSource
 
 	coreapi::BoxCapabilities caps;
 	coreapi::Status          caps_status;
+	std::vector<std::string> format_tools;
+	coreapi::Status          format_tools_status;
 	bool                     parental_locked;
 	coreapi::Status          parental_status;
 
@@ -980,6 +982,7 @@ struct FakeSystemSource : public coreapi::SystemSource
 		  ci_present_status(coreapi::Status::Ok),
 		  ci_use_status(coreapi::Status::Ok),
 		  caps_status(coreapi::Status::Ok),
+		  format_tools_status(coreapi::Status::Ok),
 		  parental_locked(false),
 		  parental_status(coreapi::Status::Ok)
 	{
@@ -1010,6 +1013,14 @@ struct FakeSystemSource : public coreapi::SystemSource
 		if (caps_status != coreapi::Status::Ok)
 			return caps_status;
 		out = caps;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status formatTools(std::vector<std::string> &out) const
+	{
+		if (format_tools_status != coreapi::Status::Ok)
+			return format_tools_status;
+		out = format_tools;
 		return coreapi::Status::Ok;
 	}
 
@@ -1411,6 +1422,10 @@ struct FakeTunerSource : public coreapi::TunerSource
 	coreapi::Status reset_status;
 	unsigned resets;
 
+	// What the count of switched on frontends answers.
+	unsigned enabled;
+	coreapi::Status enabled_status;
+
 	// Counted, because a read refused before it got here and one that got here
 	// and found no tuner both leave an empty answer behind.
 	mutable unsigned list_reads;
@@ -1420,6 +1435,7 @@ struct FakeTunerSource : public coreapi::TunerSource
 		: list_status(coreapi::Status::Ok),
 		  live_status(coreapi::Status::NotSupported),
 		  reset_status(coreapi::Status::Ok), resets(0),
+		  enabled(1), enabled_status(coreapi::Status::Ok),
 		  list_reads(0), live_reads(0), signal_reads(0) {}
 
 	coreapi::Status frontends(coreapi::FrontendList &out) const
@@ -1461,6 +1477,13 @@ struct FakeTunerSource : public coreapi::TunerSource
 	{
 		resets++;
 		return reset_status;
+	}
+
+	// Written whatever the status, so a caller reading it after a refusal is caught.
+	coreapi::Status enabledCount(unsigned &out) const
+	{
+		out = enabled;
+		return enabled_status;
 	}
 };
 
@@ -1829,7 +1852,15 @@ struct FakeOsdResolution : public coreapi::OsdResolutionSource
 
 	mutable bool fail_next;
 
-	FakeOsdResolution() : mode(0), reads(0), writes(0), fail_next(false) {}
+	// Both sizes, as a box with a full HD screen draws.
+	std::vector<std::pair<int, int> > sizes;
+	coreapi::Status sizes_status;
+
+	FakeOsdResolution() : mode(0), reads(0), writes(0), fail_next(false), sizes_status(coreapi::Status::Ok)
+	{
+		sizes.push_back(std::make_pair(1280, 720));
+		sizes.push_back(std::make_pair(1920, 1080));
+	}
 
 	bool failing() const
 	{
@@ -1854,6 +1885,14 @@ struct FakeOsdResolution : public coreapi::OsdResolutionSource
 		if (failing())
 			return coreapi::Status::NotSupported;
 		mode = in;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status available(std::vector<std::pair<int, int> > &out) const
+	{
+		if (sizes_status != coreapi::Status::Ok)
+			return sizes_status;
+		out = sizes;
 		return coreapi::Status::Ok;
 	}
 };
