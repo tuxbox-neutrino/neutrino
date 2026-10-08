@@ -146,6 +146,7 @@ noinst_HEADERS = \
 	base/schema.h \
 	settings/choicesources.h \
 	settings/couple.h \
+	settings/boxdefaults.h \
 	settings/predicates.h \
 	base/bootmode.h \
 	settings/settings.h \

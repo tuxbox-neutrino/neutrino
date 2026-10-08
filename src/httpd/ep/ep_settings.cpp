@@ -449,7 +449,7 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	j.key("default");
 	j.value((d.type == coreapi::ValueType::String)
 	        ? std::string(d.default_string != NULL ? d.default_string : "")
-	        : decimal(d.default_int));
+	        : decimal(coreapi::defaultInt(d)));
 	j.key("needs_restart");
 	j.value(d.needs_restart);
 	j.key("secret");

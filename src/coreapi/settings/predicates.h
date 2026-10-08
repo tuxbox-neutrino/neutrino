@@ -42,6 +42,11 @@ bool canShutdown();
 bool hasFormatButton();
 // The front panel shows a play time, which takes eight characters.
 bool displayFitsPlaytime();
+// The display is a graphical one, which is what the graphical LCD is on by
+// default for.
+bool hasGraphicPanel();
+// The display is a numeric one.
+bool hasNumericPanel();
 bool takesZappingMode();
 bool takesHdmiColorimetry();
 /* The analog outputs by board revision. Revision 6 offers one list for SCART

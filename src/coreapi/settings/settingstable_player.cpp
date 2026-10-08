@@ -50,6 +50,11 @@ constexpr EnumValue kPicviewerScaling[] =
 	option(0).label("pictureviewer.resize.none")
 };
 
+long displayPlaytimeDefault()
+{
+	return hasNumericPanel() ? 1 : 0;
+}
+
 constexpr Descriptor kSettings[] =
 {
 	// src/neutrino.cpp:1239 src/gui/audioplayer_setup.cpp:117
@@ -151,6 +156,7 @@ constexpr Descriptor kSettings[] =
 		.label("movieplayer.display_playtime")
 		.hint("menu.hint_movieplayer_display_playtime")
 		.defaultValue(0)
+		.defaultFrom(displayPlaytimeDefault)
 		.field(COREAPI_NUMBER_FIELD_ON(movieplayer_display_playtime, displayFitsPlaytime, NULL)),
 	/* Local resolution: the source declares movieplayer_timeosd_while_searching
 	   here. In this fork the key is loaded and saved but nothing reads the

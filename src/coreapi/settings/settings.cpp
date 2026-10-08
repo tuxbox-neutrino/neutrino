@@ -395,7 +395,7 @@ Result<std::string> get(const std::string &key)
 	long value = 0;
 	Status s = settingsSource().readInt(d->key, value);
 	if (s == Status::NotFound)
-		value = d->default_int;
+		value = defaultInt(*d);
 	else if (s != Status::Ok)
 		return fail(s, ErrorCode::SettingUnreadable,
 			    "the setting could not be read");

@@ -20,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "boxdefaults.h"
 #include "predicates.h"
 #include "settingsfield.h"
 
@@ -79,6 +80,37 @@ constexpr EnumValue kLeftRightKeyTv[] =
 	option(3).label("keybindingmenu.mode_left_right_key_tv_infobar")
 };
 
+long keyFavoritesDefault()
+{
+	return boxdefault::kFavoritesIsVideo ? (int32_t) CRCInput::RC_video : (int32_t) CRCInput::RC_favorites;
+}
+
+long keyTimeshiftDefault()
+{
+	if (boxdefault::kTimeshiftIsNone)
+		return (int32_t) CRCInput::RC_nokey;
+	if (boxdefault::kVuPlus)
+		return (int32_t) CRCInput::RC_playpause;
+	return (int32_t) CRCInput::RC_pause;
+}
+
+long keyTvRadioModeDefault()
+{
+	return boxdefault::kTvRadioKeyIsTv ? (int32_t) CRCInput::RC_tv : (int32_t) CRCInput::RC_nokey;
+}
+
+long mpKeyPauseDefault()
+{
+	if (boxdefault::kPlayPauseKey || boxdefault::kVuPlus)
+		return (int32_t) CRCInput::RC_playpause;
+	return (int32_t) CRCInput::RC_pause;
+}
+
+long mpKeyPlayDefault()
+{
+	return boxdefault::kPlayPauseKey ? (int32_t) CRCInput::RC_playpause : (int32_t) CRCInput::RC_play;
+}
+
 constexpr Descriptor kSettings[] =
 {
 	// src/neutrino.cpp:6257 src/gui/keybind_setup.cpp:183
@@ -88,6 +120,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_tvradiomode")
 		.range(kKeyNone, kKeyMax)
 		.defaultValue((int32_t) CRCInput::RC_nokey)
+		.defaultFrom(keyTvRadioModeDefault)
 		.field(COREAPI_NUMBER_FIELD(key_tvradio_mode)),
 	// src/neutrino.cpp:6237 src/gui/keybind_setup.cpp:184
 	keyRow("key_power_off")
@@ -112,6 +145,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_favorites")
 		.range(kKeyNone, kKeyMax)
 		.defaultValue((int32_t) CRCInput::RC_favorites)
+		.defaultFrom(keyFavoritesDefault)
 		.field(COREAPI_NUMBER_FIELD(key_favorites)),
 	// src/neutrino.cpp:6226 src/gui/keybind_setup.cpp:187
 	keyRow("key_channelList_pageup")
@@ -272,6 +306,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_mpplay")
 		.range(kKeyNone, kKeyMax)
 		.defaultValue((int32_t) CRCInput::RC_play)
+		.defaultFrom(mpKeyPlayDefault)
 		.field(COREAPI_NUMBER_FIELD(mpkey_play)),
 	// src/neutrino.cpp:6284 src/gui/keybind_setup.cpp:207
 	keyRow("mpkey.pause")
@@ -280,6 +315,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_mppause")
 		.range(kKeyNone, kKeyMax)
 		.defaultValue((int32_t) CRCInput::RC_pause)
+		.defaultFrom(mpKeyPauseDefault)
 		.field(COREAPI_NUMBER_FIELD(mpkey_pause)),
 	// src/neutrino.cpp:6289 src/gui/keybind_setup.cpp:208
 	keyRow("mpkey.stop")
@@ -366,6 +402,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_timeshift")
 		.range(kKeyNone, kKeyMax)
 		.defaultValue((int32_t) CRCInput::RC_pause)
+		.defaultFrom(keyTimeshiftDefault)
 		.field(COREAPI_NUMBER_FIELD(key_timeshift)),
 	// src/neutrino.cpp:6259 src/gui/keybind_setup.cpp:219
 	keyRow("key_unlock")
@@ -539,6 +576,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_mbkey_cover")
 		.range(kKeyNone, kKeyMax)
 		.defaultValue((int32_t) CRCInput::RC_favorites)
+		.defaultFrom(keyFavoritesDefault)
 		.field(COREAPI_NUMBER_FIELD(mbkey_cover)),
 	// src/neutrino.cpp:6294 src/gui/keybind_setup.cpp:526
 	enumRow("bouquetlist_mode")

@@ -20,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "boxdefaults.h"
 #include "predicates.h"
 #include "settingsfield.h"
 
@@ -84,6 +85,13 @@ constexpr Condition kCecOn[] =
 	when("hdmi_cec_mode").isNot(0)
 };
 
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+long zappingModeDefault()
+{
+	return boxdefault::kZappingModeTwo ? 2 : 0;
+}
+#endif
+
 constexpr Descriptor kVideo[] =
 {
 	/* The screen drops the third choice where the box cannot draw 14:9, which
@@ -130,6 +138,7 @@ constexpr Descriptor kVideo[] =
 		.label("videomenu.zappingmode")
 		.hint("menu.hint_video_zappingmode")
 		.defaultValue(0)
+		.defaultFrom(zappingModeDefault)
 		.values(kZappingMode)
 		.field(COREAPI_NUMBER_FIELD_ON(zappingmode, takesZappingMode, NULL)),
 	/* A number and not a choice, and the ceiling differs by box: the same

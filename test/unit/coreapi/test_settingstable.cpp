@@ -310,6 +310,36 @@ TEST_CASE("every row a section table answers with is one the joined table carrie
 	REQUIRE(settingsTableCount() >= total);
 }
 
+/* sanity reads the constant, because a table is checked with no box to ask, so
+   what a box function answers is held to the same bounds here, once for each
+   kind of display the functions ask about. */
+TEST_CASE("every default function answers inside its row's own bounds", "[settingstable]")
+{
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	const display_type_t kinds[] = { HW_DISPLAY_NONE, HW_DISPLAY_LED_ONLY, HW_DISPLAY_LED_NUM,
+					 HW_DISPLAY_LINE_TEXT, HW_DISPLAY_GFX };
+
+	size_t checked = 0;
+	for (size_t k = 0; k < sizeof(kinds) / sizeof(kinds[0]); ++k)
+	{
+		box.caps.display_type = kinds[k];
+		for (size_t i = 0; i < settingsTableCount(); ++i)
+		{
+			const Descriptor &d = settingsTable()[i];
+			if (d.default_fn == NULL)
+				continue;
+			Descriptor as_constant = d;
+			as_constant.default_int = d.default_fn();
+			INFO("row " << d.key << " answers " << as_constant.default_int);
+			CHECK(descriptorIsSane(as_constant));
+			++checked;
+		}
+	}
+	INFO("answers checked: " << checked);
+	CHECK(checked > 0);
+}
+
 /* The builders are what every table is written with, and the tables use only some
    of what they offer. Each case writes the same row twice, once through the
    builders and once by position, and holds the two to each other member by member:

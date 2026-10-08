@@ -673,3 +673,33 @@ TEST_CASE("a key named by two conditions is read once for each of them", "[schem
 	REQUIRE(conditionsHold(d, lookup));
 	REQUIRE(reads == 2);
 }
+
+namespace
+{
+long sevenOnThisBox() { return 7; }
+} // namespace
+
+/* The function is the row's number where the box differs, so a row asks for it
+   through one call and the constant is only the answer where there is none. */
+TEST_CASE("a default function answers in place of the constant and only for numbers", "[schema]")
+{
+	Descriptor d = { "k", ValueType::Int, "s", "l", "h", 0, 9, NULL, 0, 3, NULL, false, false,
+			 COREAPI_ALWAYS, kNumber, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+	REQUIRE(descriptorIsSane(d));
+	REQUIRE(defaultInt(d) == 3);
+
+	d.default_fn = sevenOnThisBox;
+	REQUIRE(descriptorIsSane(d));
+	REQUIRE(defaultInt(d) == 7);
+
+	// Sanity reads the constant, so a table is checked without a box to ask.
+	d.default_int = 12;
+	REQUIRE_FALSE(descriptorIsSane(d));
+
+	Descriptor t = { "k", ValueType::String, "s", "l", "h", 0, 0, NULL, 0, 0, "x", false, false,
+			 COREAPI_ALWAYS, kText, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+	REQUIRE(descriptorIsSane(t));
+	t.default_fn = sevenOnThisBox;
+	REQUIRE_FALSE(descriptorIsSane(t));
+}
+

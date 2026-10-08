@@ -95,6 +95,16 @@ bool displayFitsPlaytime()
 	return capabilities().display_xres >= 8;
 }
 
+bool hasGraphicPanel()
+{
+	return capabilities().display_type == HW_DISPLAY_GFX;
+}
+
+bool hasNumericPanel()
+{
+	return capabilities().display_type == HW_DISPLAY_LED_NUM;
+}
+
 bool takesZappingMode()
 {
 	return capabilities().video_zapmode;

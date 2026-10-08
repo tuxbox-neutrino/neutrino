@@ -20,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "boxdefaults.h"
 #include "predicates.h"
 #include "settingsfield.h"
 
@@ -79,6 +80,22 @@ constexpr Condition kNotRealShutdown[] =
 {
 	when("shutdown_real").is(0)
 };
+#endif
+
+#ifdef ENABLE_GRAPHLCD
+long glcdEnableDefault()
+{
+	return hasGraphicPanel() ? 1 : 0;
+}
+
+long glcdScrollSpeedDefault()
+{
+	if (boxdefault::kScrollSpeedOne)
+		return 1;
+	if (boxdefault::kScrollSpeedTwo)
+		return 2;
+	return 5;
+}
 #endif
 
 constexpr Descriptor kSettings[] =
@@ -207,6 +224,7 @@ constexpr Descriptor kSettings[] =
 		.section("display")
 		.label("glcd.enable")
 		.defaultValue(0)
+		.defaultFrom(glcdEnableDefault)
 		.field(COREAPI_NUMBER_FIELD(glcd_enable)),
 	/* An index into the driver list the graphlcd configuration file holds, so
 	   no constant states the ceiling. Anything outside it the box turns into
@@ -269,6 +287,7 @@ constexpr Descriptor kSettings[] =
 		.label("glcd.scroll_speed")
 		.range(1, 63)
 		.defaultValue(5)
+		.defaultFrom(glcdScrollSpeedDefault)
 		.field(COREAPI_NUMBER_FIELD(glcd_scroll_speed)),
 	// src/neutrino.cpp:422 src/gui/glcdsetup.cpp:325
 	boolRow("glcd_mirror_osd")
