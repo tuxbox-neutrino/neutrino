@@ -20,6 +20,7 @@
 
 #include "settingstable.h"
 #include "settingsfield.h"
+#include "predicates.h"
 
 namespace coreapi
 {
@@ -61,21 +62,29 @@ constexpr EnumValue kHddNoise[] =
 	option(254).label("hdd_fast")
 };
 
+/* Positions in the disk manager's tool table, in the same order; named by the
+   file system, which the program has no other words for. An entry is offered
+   where its mkfs is there. */
+constexpr EnumValue kHddFs[] =
+{
+	option(0).text("ext4").availableIf(formatsExt4),
+	option(1).text("ext3").availableIf(formatsExt3),
+	option(2).text("ext2").availableIf(formatsExt2),
+	option(3).text("f2fs").availableIf(formatsF2fs),
+	option(4).text("vfat").availableIf(formatsVfat),
+	option(5).text("exfat").availableIf(formatsExfat),
+	option(6).text("xfs").availableIf(formatsXfs)
+};
+
 constexpr Descriptor kHdd[] =
 {
-	/* Which file system the box writes when it formats a disk, as an index into
-	   the tool table the screen walks. A number and not a choice: the screen
-	   names each entry with the tool's own name rather than a locale,
-	   src/gui/hdd_menu.cpp:627, so a choice here would offer words the program
-	   does not have. The ceiling is the last entry of that table,
-	   src/gui/hdd_menu.cpp:92. */
 	// src/neutrino.cpp:657 src/gui/hdd_menu.cpp:663
-	intRow("hdd_fs")
+	enumRow("hdd_fs")
 		.section("hdd")
 		.label("hdd_fs")
 		.hint("menu.hint_hdd_fmt")
-		.range(0, 6)
 		.defaultValue(0)
+		.values(kHddFs)
 		.field(COREAPI_NUMBER_FIELD(hdd_fs)),
 	// src/neutrino.cpp:658 src/gui/hdd_menu.cpp:823
 	// Local resolution: this fork falls back to 120 (ten minutes), not the source's 60.

@@ -43,6 +43,14 @@ constexpr EnumValue kVideoFormat[] =
 	option(3).label("videomenu.videoformat_169")
 };
 
+constexpr EnumValue kVideo43Mode[] =
+{
+	option(DISPLAY_AR_MODE_PANSCAN).label("videomenu.panscan"),
+	option(DISPLAY_AR_MODE_PANSCAN2).label("videomenu.panscan2").availableIf(canPanScan149),
+	option(DISPLAY_AR_MODE_LETTERBOX).label("videomenu.letterbox"),
+	option(DISPLAY_AR_MODE_NONE).label("videomenu.fullscreen")
+};
+
 // src/gui/videosettings.cpp:350
 constexpr EnumValue kDbDr[] =
 {
@@ -119,19 +127,14 @@ constexpr Descriptor kVideo[] =
 		.defaultValue(3)
 		.values(kVideoFormat)
 		.field(COREAPI_NUMBER_FIELD(video_Format)),
-	/* A number and not a choice: the screen offers it out of a list it builds
-	   at run time, which no scan can read, so a choice here would be one no
-	   case could hold to the screen. Every value in the range is a mode.
-	   Bound: DISPLAY_AR_MODE_PANSCAN through DISPLAY_AR_MODE_PANSCAN2, the four
-	   the screen's own table names, src/gui/videosettings.cpp:118. The screen
-	   drops the fourth where the box cannot pan and scan 14:9, at :897. */
+	// How a 4:3 picture is put on a wide screen.
 	// src/neutrino.cpp:490 src/gui/videosettings.cpp:437
-	intRow("video_43mode")
+	enumRow("video_43mode")
 		.section("video")
 		.label("videomenu.43mode")
 		.hint("menu.hint_video_43mode")
-		.range(0, 3)
 		.defaultValue(1)
+		.values(kVideo43Mode)
 		.field(COREAPI_NUMBER_FIELD(video_43mode)),
 	// The screen offers this one only off Coolstream, which is a revision read
 	// at run time. src/gui/videosettings.cpp:457

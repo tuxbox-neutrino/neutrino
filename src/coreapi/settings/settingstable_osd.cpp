@@ -307,6 +307,12 @@ constexpr EnumValue kScreenshotFormat[] =
 	option(2).text("BMP")
 };
 
+constexpr EnumValue kOsdResolution[] =
+{
+	option(OSDMODE_720).text("1280x720").availableIf(drawsOsd720),
+	option(OSDMODE_1080).text("1920x1080").availableIf(drawsOsd1080)
+};
+
 constexpr Descriptor kOsd[] =
 {
 	// src/neutrino.cpp:702 src/gui/osd_setup.cpp:711
@@ -871,25 +877,21 @@ constexpr Descriptor kOsd[] =
 	   builds its list in that order and what reads the value reads it as a
 	   mode, src/neutrino.cpp:1431.
 
-	   A number and not a choice: the screen names its two with the sizes in
-	   pixels it reads off the framebuffer, src/gui/osd_setup.cpp:731, and the
-	   program has no wording for either.
-
 	   The default is the one the pass that loads the settings falls back to,
 	   src/neutrino.cpp:1060. The pass that sets the framebuffer up reads the
 	   same key with a different fallback, :2752, which is a disagreement in the
 	   program and not in this row: whoever changes one belongs at the other. */
 	// src/neutrino.cpp:1064 src/gui/osd_setup.cpp:744
-	intRow("osd_resolution")
+	enumRow("osd_resolution")
 		.section("osd")
 		.label("colormenu.osd_resolution")
 		.hint("menu.hint_osd_resolution")
-		.range(0, 1)
 #if HAVE_ARM_HARDWARE || (HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2))
 		.defaultValue(1)
 #else
 		.defaultValue(0)
 #endif
+		.values(kOsdResolution)
 		.changeableWhen(kVideoModeNotAuto)
 		.field(COREAPI_SERVICE_FIELD(osd_resolution, askOsdResolution, tellOsdResolution)),
 	// src/neutrino.cpp:1054 src/gui/screensetup.cpp:225

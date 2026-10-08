@@ -180,6 +180,15 @@ constexpr EnumValue kSleeptimerMin[] =
 	option(150).text("150 min")
 };
 
+// The two modes that scan live are offered only with more than one tuner switched on.
+constexpr EnumValue kEpgScanMode[] =
+{
+	option(EPG_SCAN_MODE_OFF).label("options.off"),
+	option(EPG_SCAN_MODE_STANDBY).label("miscsettings.epg_scan_standby"),
+	option(EPG_SCAN_MODE_LIVE).label("miscsettings.epg_scan_live").availableIf(severalTunersEnabled),
+	option(EPG_SCAN_MODE_ALWAYS).label("miscsettings.epg_scan_always").availableIf(severalTunersEnabled)
+};
+
 constexpr Descriptor kMisc[] =
 {
 	// general
@@ -313,18 +322,13 @@ constexpr Descriptor kMisc[] =
 		.values(kEpgScan)
 		.changeableWhen(kEpgScanOn)
 		.field(COREAPI_NUMBER_FIELD(epg_scan)),
-	/* A number and not a choice: one of the four words the screen puts beside a
-	   value stands for a number two headers state differently, so no scan can
-	   read that table. The value is a pair of bits, live and standby, so every
-	   number in the range is a mode. Bound: src/driver/scanepg.h:39. The two
-	   standby modes are offered only where more than one tuner is enabled. */
 	// src/neutrino.cpp:789 src/gui/miscsettings_menu.cpp:527
-	intRow("epg_scan_mode")
+	enumRow("epg_scan_mode")
 		.section("misc")
 		.label("miscsettings.epg_scan")
 		.hint("menu.hint_epg_scan_mode")
-		.range(0, 3)
 		.defaultValue(2)
+		.values(kEpgScanMode)
 		.field(COREAPI_NUMBER_FIELD(epg_scan_mode)),
 
 	// file browser
