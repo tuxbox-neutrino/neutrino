@@ -329,6 +329,9 @@ struct SystemSource
 	   slot, which is why it is read apart from the two above: a box with a
 	   module seated and this false is descrambling some other way. */
 	virtual Status ciInUse(bool &out) const = 0;
+
+	// What the hardware library says the box can do.
+	virtual Status capabilities(BoxCapabilities &out) const = 0;
 };
 
 SystemSource &systemSource();

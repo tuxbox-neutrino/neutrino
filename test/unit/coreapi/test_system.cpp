@@ -21,14 +21,17 @@
 #include "support/catch.hpp"
 #include "support/fakes.h"
 
+#include "coreapi/base/bootmode.h"
 #include "coreapi/decryption.h"
 #include "coreapi/osd.h"
+#include "coreapi/settings/predicates.h"
 #include "coreapi/system.h"
 
 #include <neutrinoMessages.h>
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 
 #include <sys/stat.h>
@@ -616,4 +619,245 @@ TEST_CASE("a slot that cannot be read is a failure even where the count could be
 	REQUIRE_FALSE(bad.ok());
 	REQUIRE(bad.error().status == Status::NotSupported);
 	REQUIRE(bad.error().code == ErrorCode::DecryptionUnreadable);
+}
+
+/* One board revision at a time: the analog outputs are separate lists above
+   revision 6, and the Cinch one only where the build has one. */
+TEST_CASE("analog output predicates follow the board revision", "[system]")
+{
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+
+	struct Row
+	{
+		unsigned rev;
+		bool split;
+	};
+	const Row rows[] = {
+		{ 1, false },
+		{ 5, false },
+		{ 6, false },
+		{ 7, true },
+		{ 10, true },
+		{ 11, true }
+	};
+	for (size_t i = 0; i < sizeof(rows) / sizeof(rows[0]); ++i)
+	{
+		INFO("revision " << rows[i].rev);
+		source.caps.board_revision = rows[i].rev;
+		CHECK(analogOutputsSplit() == rows[i].split);
+#if defined(BOXMODEL_CST_HD2) && defined(ANALOG_MODE)
+		CHECK_FALSE(hasAnalogCinch());
+#else
+		CHECK(hasAnalogCinch() == rows[i].split);
+#endif
+	}
+
+	source.caps.board_revision = 7;
+	source.caps_status = Status::Internal;
+	CHECK_FALSE(analogOutputsSplit());
+	CHECK_FALSE(hasAnalogCinch());
+}
+
+namespace
+{
+struct CapabilityTest
+{
+	bool (*test)();
+	int coreapi::BoxCapabilities::*member;
+	const char *name;
+};
+} // namespace
+
+TEST_CASE("each setting predicate reads its own capability and fails closed", "[system]")
+{
+	const CapabilityTest tests[] =
+	{
+		{ hasHdmi, &coreapi::BoxCapabilities::has_HDMI, "hasHdmi" },
+		{ hasFan, &coreapi::BoxCapabilities::has_fan, "hasFan" },
+		{ canCec, &coreapi::BoxCapabilities::can_cec, "canCec" },
+		{ canCpufreq, &coreapi::BoxCapabilities::can_cpufreq, "canCpufreq" },
+		{ canSetBrightness, &coreapi::BoxCapabilities::display_can_set_brightness, "canSetBrightness" },
+		{ canShutdown, &coreapi::BoxCapabilities::can_shutdown, "canShutdown" },
+		{ hasFormatButton, &coreapi::BoxCapabilities::has_button_vformat, "hasFormatButton" },
+		{ takesZappingMode, &coreapi::BoxCapabilities::video_zapmode, "takesZappingMode" },
+		{ takesHdmiColorimetry, &coreapi::BoxCapabilities::video_hdmi_colorimetry, "takesHdmiColorimetry" },
+		{ canSelectRemote, &coreapi::BoxCapabilities::rc_hw_select, "canSelectRemote" },
+	};
+	const size_t n = sizeof(tests) / sizeof(tests[0]);
+
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+	for (size_t i = 0; i < n; ++i)
+	{
+		INFO(tests[i].name);
+		memset(&source.caps, 0, sizeof(source.caps));
+		source.caps_status = Status::Ok;
+		CHECK_FALSE(tests[i].test());
+
+		// Every other capability on and this one off.
+		for (size_t j = 0; j < n; ++j)
+			source.caps.*(tests[j].member) = 1;
+		source.caps.*(tests[i].member) = 0;
+		CHECK_FALSE(tests[i].test());
+
+		source.caps.*(tests[i].member) = 1;
+		CHECK(tests[i].test());
+
+		source.caps_status = Status::Internal;
+		CHECK_FALSE(tests[i].test());
+	}
+}
+
+/* The decoder count says a second picture is possible on a box started in a
+   mode that has no room for it, and the screen refuses there. */
+TEST_CASE("picture in picture is usable only where the decoder and the boot mode both allow it", "[system]")
+{
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+
+	const bool decoder[] = { false, false, true, true };
+	const bool mode[] = { false, true, false, true };
+	for (size_t i = 0; i < 4; ++i)
+	{
+		INFO("decoder " << decoder[i] << " mode " << mode[i]);
+		source.caps.can_pip = decoder[i];
+		source.caps.pip_boot_mode_ok = mode[i];
+		CHECK(pipUsable() == (decoder[i] && mode[i]));
+	}
+
+	source.caps.can_pip = 1;
+	source.caps.pip_boot_mode_ok = 1;
+	source.caps_status = Status::Internal;
+	CHECK_FALSE(pipUsable());
+}
+
+/* One revision at a time, by the screens' own tests: revision 0 is a revision and
+   passes the tests that exclude only others. Revision 1 is also what a box
+   without a Coolstream board reports. A box that cannot be asked fails through
+   its status. */
+TEST_CASE("the board revision predicates follow their revisions and fail closed", "[system]")
+{
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+
+	struct Row
+	{
+		unsigned rev;
+		bool dbdr, led, backlight, vfd;
+	};
+	const Row rows[] = {
+		{ 0, true, false, false, true },
+		{ 1, false, false, false, true },
+		{ 5, true, false, false, true },
+		{ 6, true, false, false, true },
+		{ 7, true, false, false, true },
+		{ 8, true, true, false, true },
+		{ 9, true, true, true, true },
+		{ 10, true, true, false, false },
+		{ 11, true, true, false, false },
+		{ 12, true, true, false, true }
+	};
+	for (size_t i = 0; i < sizeof(rows) / sizeof(rows[0]); ++i)
+	{
+		INFO("revision " << rows[i].rev);
+		source.caps.board_revision = rows[i].rev;
+		CHECK(hasDbdr() == rows[i].dbdr);
+		CHECK(hasLedMenu() == rows[i].led);
+		CHECK(hasBacklight() == rows[i].backlight);
+		CHECK(vfdEnabled() == rows[i].vfd);
+	}
+
+	source.caps.board_revision = 9;
+	source.caps_status = Status::Internal;
+	CHECK_FALSE(hasDbdr());
+	CHECK_FALSE(hasLedMenu());
+	CHECK_FALSE(hasBacklight());
+	CHECK_FALSE(vfdEnabled());
+}
+
+TEST_CASE("the panel brightness needs the capability and a wired panel", "[system]")
+{
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+
+	const unsigned revs[] = { 0, 1, 9, 10, 11 };
+	const bool wired[] = { true, true, true, false, false };
+	for (size_t i = 0; i < sizeof(revs) / sizeof(revs[0]); ++i)
+	{
+		INFO("revision " << revs[i]);
+		source.caps.board_revision = revs[i];
+		source.caps.display_can_set_brightness = 1;
+		CHECK(canSetPanelBrightness() == wired[i]);
+		source.caps.display_can_set_brightness = 0;
+		CHECK_FALSE(canSetPanelBrightness());
+	}
+
+	source.caps.board_revision = 9;
+	source.caps.display_can_set_brightness = 1;
+	source.caps_status = Status::Internal;
+	CHECK_FALSE(canSetPanelBrightness());
+}
+
+/* The screen counts the tuners the box has and not the ones switched on. */
+TEST_CASE("the fitted tuner predicate counts every frontend and fails closed", "[system]")
+{
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+
+	source.caps.frontend_count = 0;
+	CHECK_FALSE(severalTunersFitted());
+	source.caps.frontend_count = 1;
+	CHECK_FALSE(severalTunersFitted());
+	source.caps.frontend_count = 2;
+	CHECK(severalTunersFitted());
+
+	source.caps_status = Status::Internal;
+	CHECK_FALSE(severalTunersFitted());
+}
+
+/* The command line of a box that starts in numbered modes: only the one with room
+   for the picture lets it run. */
+TEST_CASE("the boot command line allows picture in picture only in mode 12 on a box with modes", "[system]")
+{
+	CHECK(bootModeAllowsPip(true, true, "console=ttyS0 boxmode=12 root=/dev/mmcblk0p3"));
+	CHECK_FALSE(bootModeAllowsPip(true, true, "console=ttyS0 boxmode=1 root=/dev/mmcblk0p3"));
+	CHECK_FALSE(bootModeAllowsPip(true, true, "console=ttyS0 root=/dev/mmcblk0p3"));
+	CHECK_FALSE(bootModeAllowsPip(true, true, ""));
+
+	// No modes on this box, or a line that cannot be read: not refused.
+	CHECK(bootModeAllowsPip(false, true, "boxmode=1"));
+	CHECK(bootModeAllowsPip(true, false, ""));
+	CHECK(bootModeAllowsPip(true, true, NULL));
+}
+
+TEST_CASE("the play time predicate needs eight characters of display", "[system]")
+{
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+	source.caps.display_xres = 8;
+	CHECK(displayFitsPlaytime());
+	source.caps.display_xres = 7;
+	CHECK_FALSE(displayFitsPlaytime());
+	source.caps.display_xres = 12;
+	source.caps_status = Status::Internal;
+	CHECK_FALSE(displayFitsPlaytime());
+}
+
+/* A slot counted from nought is there where the box counts more than it, and
+   the slots as a whole are there where it counts one. */
+TEST_CASE("the module slot predicates follow the slots the box counts and fail closed", "[system]")
+{
+	FakeSystemSource source;
+	InstalledSystemSource installed(&source);
+
+	source.ci_slots = 0;
+	CHECK_FALSE(hasCiSlot());
+	CHECK_FALSE(ciSlotFitted(0));
+	source.ci_slots = 2;
+	CHECK(hasCiSlot());
+	CHECK(ciSlotFitted(1));
+	CHECK_FALSE(ciSlotFitted(2));
+	source.ci_slot_status = Status::Internal;
+	CHECK_FALSE(hasCiSlot());
 }

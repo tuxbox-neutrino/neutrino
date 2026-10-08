@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include <hardware_caps.h>
+
 namespace coreapi
 {
 
@@ -442,6 +444,54 @@ struct BoxInfo
 	{
 		load_average[0] = load_average[1] = load_average[2] = 0;
 	}
+};
+
+/* What the box can do, as the hardware library reports it. Members and types
+   are the library's own so a reader can compare against its constants. */
+struct BoxCapabilities
+{
+	int            can_ar_14_9;
+	int            can_cec;
+	int            can_cpufreq;
+	int            can_pip;
+	int            can_ps_14_9;
+	int            can_shutdown;
+	int            display_can_deepstandby;
+	int            display_can_set_brightness;
+	int            display_has_statusline;
+	display_type_t display_type;
+	int            display_xres;
+	int            has_button_timer;
+	int            display_has_colon;
+	int            has_button_vformat;
+	int            has_fan;
+	int            has_HDMI;
+	int            has_HDMI_input;
+	int            has_SCART;
+	int            has_SCART_input;
+	int            pip_devs;
+	/* Not the library's: what the drivers offer under /proc, read with every
+	   call. Whether the front panel takes a scroll count rather than a flag,
+	   and whether the video driver takes a zapping mode and a colorimetry. */
+	int            display_scroll_repeats;
+	int            video_zapmode;
+	int            video_hdmi_colorimetry;
+	/* Whether the way the box was started lets a second picture run. Some
+	   boxes start in a mode that has no room for one even though the decoder
+	   count says it could, and the boot command line is the only place that
+	   says which. True where the box has no such modes. */
+	int            pip_boot_mode_ok;
+	/* Differences the build decides and the library does not report: the
+	   module clock and delay beyond what the other boxes offer, an input
+	   driver that can be told which remote to listen to, and the SCART picture
+	   fix of the oldest box family. */
+	int            ci_extended;
+	int            rc_hw_select;
+	int            has_scart_osd_fix;
+	// How many frontends the box has, switched on or not, counted at every call.
+	int            frontend_count;
+	/* The board revision, which decides what analog outputs the box has. */
+	unsigned int   board_revision;
 };
 
 /* The readings are raw and the scale beside them says what they are out of, so

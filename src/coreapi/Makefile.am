@@ -98,6 +98,7 @@ libcoreapi_a_SOURCES = \
 	osd.cpp \
 	settings/settings.cpp \
 	settings/couple.cpp \
+	settings/predicates.cpp \
 	streaming.cpp \
 	browserplay.cpp \
 	shellcontract.cpp \
@@ -143,6 +144,8 @@ noinst_HEADERS = \
 	base/schema.h \
 	settings/choicesources.h \
 	settings/couple.h \
+	settings/predicates.h \
+	base/bootmode.h \
 	settings/settings.h \
 	settings/settingsfield.h \
 	settings/settingstable.h \

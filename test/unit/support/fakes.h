@@ -26,6 +26,7 @@
 #include "coreapi/settings/settingstable.h"
 
 #include <cstdio>
+#include <cstring>
 #include <map>
 #include <set>
 #include <string>
@@ -964,6 +965,9 @@ struct FakeSystemSource : public coreapi::SystemSource
 	// show that the walk stops at the module it found.
 	mutable std::vector<unsigned> ci_asked;
 
+	coreapi::BoxCapabilities caps;
+	coreapi::Status          caps_status;
+
 	FakeSystemSource()
 		: volume_level(0), is_muted(false),
 		  box_status(coreapi::Status::Ok),
@@ -972,7 +976,19 @@ struct FakeSystemSource : public coreapi::SystemSource
 		  ci_slots(0), ci_used(false),
 		  ci_slot_status(coreapi::Status::Ok),
 		  ci_present_status(coreapi::Status::Ok),
-		  ci_use_status(coreapi::Status::Ok) {}
+		  ci_use_status(coreapi::Status::Ok),
+		  caps_status(coreapi::Status::Ok)
+	{
+		memset(&caps, 0, sizeof(caps));
+	}
+
+	coreapi::Status capabilities(coreapi::BoxCapabilities &out) const
+	{
+		if (caps_status != coreapi::Status::Ok)
+			return caps_status;
+		out = caps;
+		return coreapi::Status::Ok;
+	}
 
 	coreapi::Status boxInfo(coreapi::BoxInfo &out) const
 	{

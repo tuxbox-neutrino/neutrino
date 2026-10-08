@@ -21,8 +21,12 @@
 
 #include <config.h>
 
+#include "coreapi/base/bootmode.h"
 #include "coreapi/base/deps.h"
 #include "coreapi/box/proc_internal.h"
+
+#include <stdio.h>
+#include <string.h>
 
 #include <string>
 
@@ -31,6 +35,8 @@
 #include <unistd.h>
 
 #include <configfile.h>
+#include <cs_api.h>
+#include <driver/rcinput.h>
 #include <global.h>
 #include <hardware/ca.h>
 #include <hardware_caps.h>
@@ -72,6 +78,32 @@ const std::string &osName()
 
 // Its own translation unit, so that the hardware library and the channel stack
 // are only pulled in by a binary that installs this.
+/* Read once and kept: the line cannot change after the box has started. */
+bool pipBootModeOk()
+{
+	static const bool held = []()
+	{
+#if BOXMODEL_HD51 || BOXMODEL_BRE2ZE4K || BOXMODEL_H7
+		const bool has_modes = true;
+#else
+		const bool has_modes = false;
+#endif
+		char line[4096] = "";
+		bool readable = false;
+		if (has_modes)
+		{
+			FILE *f = fopen("/proc/cmdline", "r");
+			if (f != NULL)
+			{
+				readable = fgets(line, sizeof(line), f) != NULL;
+				fclose(f);
+			}
+		}
+		return bootModeAllowsPip(has_modes, readable, line);
+	}();
+	return held;
+}
+
 class RealSystemSource : public SystemSource
 {
 	public:
@@ -220,6 +252,58 @@ class RealSystemSource : public SystemSource
 		Status ciInUse(bool &out) const
 		{
 			out = CCamManager::getInstance()->getUseCI();
+			return Status::Ok;
+		}
+		Status capabilities(BoxCapabilities &out) const
+		{
+			hw_caps_t *caps = get_hwcaps();
+			if (!caps)
+				return Status::Internal;
+			out.can_ar_14_9 = caps->can_ar_14_9;
+			out.can_cec = caps->can_cec;
+			out.can_cpufreq = caps->can_cpufreq;
+			out.can_pip = caps->can_pip;
+			out.can_ps_14_9 = caps->can_ps_14_9;
+			out.can_shutdown = caps->can_shutdown;
+			out.display_can_deepstandby = caps->display_can_deepstandby;
+			out.display_can_set_brightness = caps->display_can_set_brightness;
+			out.display_has_statusline = caps->display_has_statusline;
+			out.display_type = caps->display_type;
+			out.display_xres = caps->display_xres;
+			out.has_button_timer = caps->has_button_timer;
+			out.display_has_colon = caps->display_has_colon;
+			out.has_button_vformat = caps->has_button_vformat;
+			out.has_fan = caps->has_fan;
+			out.has_HDMI = caps->has_HDMI;
+			out.has_HDMI_input = caps->has_HDMI_input;
+			out.has_SCART = caps->has_SCART;
+			out.has_SCART_input = caps->has_SCART_input;
+			out.pip_devs = caps->pip_devs;
+			out.display_scroll_repeats = file_exists("/proc/stb/lcd/scroll_repeats");
+			out.video_zapmode = file_exists("/proc/stb/video/zapmode");
+#if BOXMODEL_VUPLUS_ARM
+			out.video_hdmi_colorimetry = file_exists("/proc/stb/video/hdmi_colorspace");
+#else
+			out.video_hdmi_colorimetry = file_exists("/proc/stb/video/hdmi_colorimetry");
+#endif
+			out.board_revision = cs_get_revision();
+			out.pip_boot_mode_ok = pipBootModeOk();
+#if BOXMODEL_VUPLUS_ALL
+			out.ci_extended = 1;
+#else
+			out.ci_extended = 0;
+#endif
+#ifdef IOC_IR_SET_PRI_PROTOCOL
+			out.rc_hw_select = 1;
+#else
+			out.rc_hw_select = 0;
+#endif
+#if BOXMODEL_CST_HD1
+			out.has_scart_osd_fix = 1;
+#else
+			out.has_scart_osd_fix = 0;
+#endif
+			out.frontend_count = CFEManager::getInstance()->getFrontendCount();
 			return Status::Ok;
 		}
 };
