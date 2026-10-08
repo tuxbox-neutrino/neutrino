@@ -192,6 +192,10 @@ struct Schema
 #define HTTPD_LIST_OF_VALUES(name, element, doc) \
 	(name), httpd::FieldType::Array, false, (doc), NULL, NULL, NULL, (element), NULL
 
+// The same, left out of the answers where the member does not apply.
+#define HTTPD_LIST_OF_VALUES_OPTIONAL(name, element, doc) \
+	(name), httpd::FieldType::Array, true, (doc), NULL, NULL, NULL, (element), NULL
+
 /* A member whose text is one of a set the build decides, which a table cannot write
    down.
 

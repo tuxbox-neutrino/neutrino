@@ -73,6 +73,7 @@ const char *compareOpName(coreapi::CompareOp op)
 		case coreapi::CompareOp::Gt: return "gt";
 		case coreapi::CompareOp::Ge: return "ge";
 		case coreapi::CompareOp::In: return "in";
+		case coreapi::CompareOp::TextValid: return "text-valid";
 	}
 	return "eq";
 }
@@ -121,21 +122,51 @@ const FieldDesc kEnumValueFields[] = {
 
 const Schema kEnumValueSchema = { "setting-choice", HTTPD_FIELDS(kEnumValueFields) };
 
-const FieldDesc kConditionFields[] = {
+// What each operator means, said once for both shapes that carry one.
+const char kConditionOpDocs[] =
+	"eq: the setting's current value equals the one number given\n"
+	"ne: the setting's current value does not equal the one number given\n"
+	"lt: the setting's current value is less than the one number given\n"
+	"le: the setting's current value is less than or equal to the one number given\n"
+	"gt: the setting's current value is greater than the one number given\n"
+	"ge: the setting's current value is greater than or equal to the one number given\n"
+	"in: the setting's current value is one of the numbers given\n"
+	"text-valid: the setting's current text is not empty and is not the text given";
+
+/* One comparison inside a group. A group inside a group is never answered, so
+   this shape carries no group of its own.
+
+   values: plain numbers and so no shape beside it. One list whatever the numeric
+   operator, a comparison against a single value being a list of one, so a reader
+   has one member to read rather than two that depend on which operator arrived. */
+const FieldDesc kAlternativeFields[] = {
 	HTTPD_MEMBER("key", FieldType::String, "the setting whose current value this reads"),
-	HTTPD_MEMBER_OF_SET("op", "eq,ne,lt,le,gt,ge,in", "how the value is held against the numbers below",
-		"eq: the setting's current value equals the one number given\n"
-		"ne: the setting's current value does not equal the one number given\n"
-		"lt: the setting's current value is less than the one number given\n"
-		"le: the setting's current value is less than or equal to the one number given\n"
-		"gt: the setting's current value is greater than the one number given\n"
-		"ge: the setting's current value is greater than or equal to the one number given\n"
-		"in: the setting's current value is one of the numbers given"),
-	/* Plain numbers and so no shape beside it. One list whatever the operator, a
-	   comparison against a single value being a list of one, so a reader has one member to
-	   read rather than two that depend on which operator arrived. */
-	HTTPD_LIST_OF_VALUES("values", ElementType::Int,
-		"the numbers the value is compared against, one of them for every operator but in"),
+	HTTPD_MEMBER_OF_SET("op", "eq,ne,lt,le,gt,ge,in,text-valid",
+		"how the value is held against the numbers or the text below", kConditionOpDocs),
+	HTTPD_MEMBER_OPTIONAL("text", FieldType::String,
+		"the placeholder text-valid holds the setting's text against, present only for that operator"),
+	HTTPD_LIST_OF_VALUES_OPTIONAL("values", ElementType::Int,
+		"the numbers the value is compared against, one of them for every operator but in; "
+		"absent for text-valid, which compares text"),
+};
+
+const Schema kAlternativeSchema = { "setting-condition-alternative", HTTPD_FIELDS(kAlternativeFields) };
+
+/* A comparison, carrying key and op, or a group, carrying any and nothing else.
+   One shape with the members of both optional rather than two a reader has to
+   tell apart first. */
+const FieldDesc kConditionFields[] = {
+	HTTPD_MEMBER_OPTIONAL("key", FieldType::String,
+		"the setting whose current value this reads, absent for a group"),
+	HTTPD_MEMBER_OF_SET_OPTIONAL("op", "eq,ne,lt,le,gt,ge,in,text-valid",
+		"how the value is held against the numbers or the text below, absent for a group", kConditionOpDocs),
+	HTTPD_MEMBER_OPTIONAL("text", FieldType::String,
+		"the placeholder text-valid holds the setting's text against, present only for that operator"),
+	HTTPD_LIST_OF_VALUES_OPTIONAL("values", ElementType::Int,
+		"the numbers the value is compared against, one of them for every operator but in; "
+		"absent for text-valid, which compares text, and for a group"),
+	HTTPD_LIST_OF_OPTIONAL("any", &kAlternativeSchema,
+		"present only for a group, which holds when any one of these comparisons holds"),
 };
 
 const Schema kConditionSchema = { "setting-condition", HTTPD_FIELDS(kConditionFields) };
@@ -252,6 +283,39 @@ const FieldDesc kValueListFields[] = {
 };
 
 const Schema kValueListSchema = { "setting-value-list", HTTPD_FIELDS(kValueListFields) };
+
+// One comparison, on its own or as an alternative inside a group.
+void appendComparison(Json &j, const coreapi::Condition &c)
+{
+	j.beginObject();
+	j.key("key");
+	j.value(c.key != NULL ? c.key : "");
+	j.key("op");
+	j.value(compareOpName(c.op));
+	if (c.op == coreapi::CompareOp::TextValid)
+	{
+		j.key("text");
+		j.value(c.text != NULL ? c.text : "");
+		j.endObject();
+		return;
+	}
+	/* One list whatever the operator, so a reader has one member to read rather than two
+	   that depend on which operator arrived. Every operator but in compares against a
+	   single value, and a list of one is what that is. */
+	j.key("values");
+	j.beginArray();
+	if (c.op == coreapi::CompareOp::In)
+	{
+		for (size_t v = 0; c.values != NULL && v < c.value_count; ++v)
+			j.value(c.values[v]);
+	}
+	else
+	{
+		j.value(c.value);
+	}
+	j.endArray();
+	j.endObject();
+}
 
 /* One declared setting. Nothing here withholds anything: the layer below answers a
    schema with the default of a credential already taken out, and reading the tables
@@ -423,25 +487,25 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	for (size_t i = 0; d.conditions != NULL && i < d.condition_count; ++i)
 	{
 		const coreapi::Condition &c = d.conditions[i];
+		if (!coreapi::conditionIsGroup(c))
+		{
+			appendComparison(j, c);
+			continue;
+		}
+		/* A group inside a group is refused by the sanity check, and the
+		   evaluator answers it as holding, which makes the group around it hold.
+		   Such a group is left out, which a reader answers the same way, rather
+		   than written with a member that reads a setting with no name. */
+		bool nested = false;
+		for (size_t m = 0; c.any_of != NULL && m < c.any_count; ++m)
+			nested = nested || coreapi::conditionIsGroup(c.any_of[m]);
+		if (nested)
+			continue;
 		j.beginObject();
-		j.key("key");
-		j.value(c.key);
-		j.key("op");
-		j.value(compareOpName(c.op));
-		/* One list whatever the operator, so a reader has one member to read rather than two
-		   that depend on which operator arrived. Every operator but in compares against a
-		   single value, and a list of one is what that is. */
-		j.key("values");
+		j.key("any");
 		j.beginArray();
-		if (c.op == coreapi::CompareOp::In)
-		{
-			for (size_t v = 0; c.values != NULL && v < c.value_count; ++v)
-				j.value(c.values[v]);
-		}
-		else
-		{
-			j.value(c.value);
-		}
+		for (size_t m = 0; c.any_of != NULL && m < c.any_count; ++m)
+			appendComparison(j, c.any_of[m]);
 		j.endArray();
 		j.endObject();
 	}
