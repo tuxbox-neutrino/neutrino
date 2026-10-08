@@ -215,6 +215,9 @@ const FieldDesc kSettingFields[] = {
 		"shows in words instead, such as off, which it accepts beside min to max; for a text setting "
 		"the texts the box offers right now, where an empty list is a box that cannot say and any "
 		"text the setting's other rules allow is taken"),
+	HTTPD_MEMBER_OPTIONAL("listed", FieldType::Bool,
+		"present and true only for an int whose values are every number it accepts on this box, "
+		"each named, such as the tuners it has; a client offers it as that list and not as a number"),
 	HTTPD_MEMBER_OPTIONAL("text_kind", FieldType::String,
 		"what sort of text a string setting holds, present only for a string setting with a rule: "
 		"plain, directory, file, pin, host, number, name or paths"),
@@ -399,7 +402,7 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		}
 
 		// Every value the box shows in words rather than as the number.
-		if (d.type == coreapi::ValueType::Int && d.values != NULL && d.value_count > 0)
+		if (d.type == coreapi::ValueType::Int && d.choices_from == NULL && d.values != NULL && d.value_count > 0)
 		{
 			j.key("values");
 			j.beginArray();
@@ -480,11 +483,11 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		j.endArray();
 	}
 
-	if (d.type == coreapi::ValueType::String && d.choices_from != NULL)
+	if ((d.type == coreapi::ValueType::String || d.type == coreapi::ValueType::Int) && d.choices_from != NULL)
 	{
-		/* The texts the box offers, each under the text it stores. Empty is a box that
-		   cannot say what it has, and then the row's other rules alone hold: a caller
-		   offers free text rather than nothing. */
+		/* The values the box offers, a text each under the text it stores and a number under
+		   its number. Empty is a box that cannot say what it has, and then the row's other
+		   rules alone hold: a caller offers free text or a free number rather than nothing. */
 		j.key("values");
 		j.beginArray();
 		coreapi::Result<std::vector<coreapi::SettingChoice> > asked =
@@ -496,15 +499,24 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 			{
 				j.beginObject();
 				j.key("value");
-				j.value(0L);
-				j.key("text");
-				j.value(offered[i].text);
+				j.value(d.type == coreapi::ValueType::String ? 0L : offered[i].value);
+				if (d.type == coreapi::ValueType::String)
+				{
+					j.key("text");
+					j.value(offered[i].text);
+				}
 				j.key("label");
 				j.value(offered[i].label);
 				j.endObject();
 			}
 		}
 		j.endArray();
+		// A number with its list stated is every number it takes on this box.
+		if (d.type == coreapi::ValueType::Int && asked.ok())
+		{
+			j.key("listed");
+			j.value(true);
+		}
 	}
 
 	if (d.text != NULL)

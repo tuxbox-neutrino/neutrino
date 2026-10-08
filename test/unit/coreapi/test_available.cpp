@@ -403,10 +403,13 @@ TEST_CASE("the disk format offers the file systems the box can write", "[availab
 		box.format_tools.push_back(all[i]);
 	CHECK(offeredValues("hdd_fs") == "0=ext4,1=ext3,2=ext2,3=f2fs,4=vfat,5=exfat,6=xfs");
 
-	// A box that can format nothing offers nothing, and takes nothing.
+	// A box that can format nothing offers nothing, and takes nothing but the value
+	// it holds and the default, which are no new pick.
 	box.format_tools.clear();
 	CHECK(offeredValues("hdd_fs") == "(none)");
-	refusedAsUnlisted(store, "hdd_fs", "0");
+	refusedAsUnlisted(store, "hdd_fs", "1");
+	REQUIRE(settings::set("hdd_fs", "4").ok());
+	REQUIRE(settings::set("hdd_fs", "0").ok());
 
 	box.format_tools.push_back("ext4");
 	box.format_tools_status = Status::Internal;

@@ -214,6 +214,16 @@ Result<void> allowedByRow(const Descriptor &d, long value, const ValueLookup *no
 		    "the setting is not of a kind a number is offered for");
 }
 
+/* The default and the stored value of a number row: writing either again is no new pick,
+   whatever the row offers now. The store is read only when the default does not match. */
+bool keptValue(const Descriptor &d, long number)
+{
+	if (number == defaultInt(d))
+		return true;
+	long stored = 0;
+	return settingsSource().readInt(d.key, stored) == Status::Ok && stored == number;
+}
+
 void saidNameless(const char *key)
 {
 	static std::mutex lock;
@@ -246,7 +256,10 @@ bool providedChoices(const Descriptor &d, std::vector<SettingChoice> &out)
 			nameless = true;
 			continue;
 		}
-		if (one.label.empty() && d.type == ValueType::String)
+		std::string words;
+		if (!one.label_key.empty() && resolveLabel(one.label_key.c_str(), words))
+			one.label = words;
+		else if (one.label.empty() && d.type == ValueType::String)
 			one.label = one.text;
 		kept.push_back(one);
 	}
@@ -282,6 +295,24 @@ Result<void> holdsOffered(ChoiceSource from, const std::string &text, const std:
 	}
 	if (!offered)
 		return ok();
+	return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+		    "the setting does not offer that value");
+}
+
+Result<void> holdsOfferedNumber(ChoiceSource from, long number, const long *always)
+{
+	if (always != NULL && *always == number)
+		return ok();
+
+	std::vector<SettingChoice> listed;
+	if (!from(listed) || listed.empty())
+		return ok();
+
+	for (size_t i = 0; i < listed.size(); ++i)
+	{
+		if (listed[i].value == number)
+			return ok();
+	}
 	return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
 		    "the setting does not offer that value");
 }
@@ -644,27 +675,40 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 	if (!allowed.ok())
 		return fail(allowed.error());
 
-	/* Held to what the box offers, which leaves out the entries it lacks. Every value is
-	   refused while nobody can say what the set is: taking one then would write a number the
-	   box cannot show, which is a picture nobody gets back from with the remote control. */
+	/* Held to what the box offers, which leaves out the entries it lacks. While the box
+	   cannot say what it has, only the default and the stored value pass: any other
+	   could be a number the box cannot show. */
 	if (d->type == ValueType::Enum)
 	{
 		std::vector<SettingChoice> offered;
-		if (!valuesOffered(*d, offered))
+		bool listed = false;
+		const bool stated = valuesOffered(*d, offered);
+		for (size_t i = 0; stated && !listed && i < offered.size(); ++i)
+			listed = offered[i].value == number;
+		/* The default and the stored value pass again, as for a number: what a box
+		   that lacks the entry now falls back to or still holds is the way back. */
+		if (!listed && !keptValue(*d, number))
 		{
-			if (d->field.choices != NULL)
+			if (!stated && d->field.choices != NULL)
 				return fail(Status::InvalidArgument, ErrorCode::ChoicesUnavailable,
 					    "the values this setting offers are the box's own and nothing has said what they are");
 			return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
 				    "the setting does not offer that value");
 		}
-
-		bool listed = false;
-		for (size_t i = 0; !listed && i < offered.size(); ++i)
-			listed = offered[i].value == number;
-		if (!listed)
-			return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
-				    "the setting does not offer that value");
+	}
+	else if (d->choices_from != NULL)
+	{
+		// As for text: the default is offered, and the stored number is read only on a refusal.
+		const long fallback = defaultInt(*d);
+		Result<void> offered = holdsOfferedNumber(d->choices_from, number, &fallback);
+		if (!offered.ok())
+		{
+			long stored = 0;
+			if (settingsSource().readInt(d->key, stored) == Status::Ok && stored == number)
+				offered = ok();
+		}
+		if (!offered.ok())
+			return fail(offered.error());
 	}
 
 	return ok();

@@ -479,9 +479,11 @@ TEST_CASE("a value the box does not offer is refused", "[settingsfields]")
 	CHECK(store.values.video_Mode == 5);
 }
 
-/* Nothing is taken while nobody can say what the set is. Writing a mode the box
-   cannot show leaves a picture nobody gets back from with the remote control,
-   so the safe direction is to refuse rather than to let anything through. */
+/* Nothing new is taken while nobody can say what the set is. Writing a mode the
+   box cannot show leaves a picture nobody gets back from with the remote control,
+   so the safe direction is to refuse rather than to let anything through; only
+   the mode the box holds and its default pass, since writing either is no new
+   pick. */
 TEST_CASE("a setting whose values nobody can state takes none", "[settingsfields]")
 {
 	RealStore store;
@@ -491,7 +493,10 @@ TEST_CASE("a setting whose values nobody can state takes none", "[settingsfields
 	CHECK_FALSE(none.ok());
 	CHECK(none.error().code == ErrorCode::ChoicesUnavailable);
 
-	CHECK_FALSE(settings::set("video_Mode", "5").ok());
+	CHECK(settings::set("video_Mode", "5").ok());
+	Result<void> other = settings::set("video_Mode", "13");
+	REQUIRE_FALSE(other.ok());
+	CHECK(other.error().code == ErrorCode::ChoicesUnavailable);
 	applyPendingSettings();
 	CHECK(store.values.video_Mode == 5);
 

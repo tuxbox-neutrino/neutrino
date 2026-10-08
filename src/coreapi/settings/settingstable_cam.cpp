@@ -21,6 +21,11 @@
 #include "settingstable.h"
 #include "predicates.h"
 #include "settingsfield.h"
+#include "coreapi/base/deps.h"
+
+#include <cstdio>
+#include <string>
+#include <vector>
 
 namespace coreapi
 {
@@ -51,6 +56,33 @@ constexpr EnumValue kCiDelay[] =
 	option(256).text("256")
 };
 #endif
+
+/* The tuners the module can be bound to: none, and each frontend the box has under the
+   number the channel stack knows it by, shown as its place in the list and its name. False
+   where the box cannot say. */
+bool ciTuners(std::vector<SettingChoice> &out)
+{
+	FrontendList list;
+	if (!tunerSourceInstalled() || tunerSource().frontends(list) != Status::Ok)
+		return false;
+
+	std::vector<SettingChoice> offered;
+	SettingChoice none;
+	none.value = -1;
+	none.label_key = "options.off";
+	offered.push_back(none);
+	for (size_t i = 0; i < list.size(); ++i)
+	{
+		SettingChoice one;
+		one.value = list[i].number;
+		char head[16];
+		snprintf(head, sizeof(head), "%d: ", list[i].number + 1);
+		one.label = std::string(head) + list[i].name;
+		offered.push_back(one);
+	}
+	out.swap(offered);
+	return true;
+}
 
 constexpr Descriptor kCam[] =
 {
@@ -93,6 +125,7 @@ constexpr Descriptor kCam[] =
 		.label("ci.tuner")
 		.range(-1, 23)
 		.defaultValue(-1)
+		.choicesFrom(&ciTuners)
 		.field(COREAPI_NUMBER_FIELD(ci_tuner)),
 #if BOXMODEL_VUPLUS_ALL
 	/* Behind the arm the settings struct puts the field behind,

@@ -989,14 +989,14 @@ TEST_CASE("a row this layer got wrong refuses the value", "[settings]")
 	REQUIRE(kind.error().status == Status::Internal);
 	REQUIRE(kind.error().code == ErrorCode::BadTable);
 
-	Result<void> listless = settings::set("fixture_empty_enum", "0");
+	Result<void> listless = settings::set("fixture_empty_enum", "1");
 	REQUIRE_FALSE(listless.ok());
 	REQUIRE(listless.error().status == Status::InvalidArgument);
 	REQUIRE(listless.error().code == ErrorCode::NotAListedValue);
 
 	// The count says there are three to read and there is nothing to read them
 	// from, so the array and not the count is what says whether to look.
-	Result<void> lying = settings::set("fixture_lying_enum", "0");
+	Result<void> lying = settings::set("fixture_lying_enum", "1");
 	REQUIRE_FALSE(lying.ok());
 	REQUIRE(lying.error().code == ErrorCode::NotAListedValue);
 
