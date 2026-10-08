@@ -164,8 +164,13 @@ Result<void> check(const std::string &key, const std::string &value);
    members whose conditions each refuse the other's new value are both taken out, although
    either alone might have been allowed. And a store that fails to take a member in the
    write after this cannot be foreseen here, so a member may still land on one that did
-   not. */
-void settleBatch(BatchOverlay &batch, Refusals &refused);
+   not.
+
+   A member equal to the stored value is judged by no condition and is taken out of batch as
+   done, not put into refused, so nothing is written, saved or applied for it. keepUnchanged
+   leaves such members in and judges them, for a menu that has put the value into the
+   program's settings itself and needs its key applied. */
+void settleBatch(BatchOverlay &batch, Refusals &refused, bool keepUnchanged = false);
 
 /* All three passes of a write of several settings: check() on each, settleBatch(), then set()
    on what is left. The one entry for a caller that writes more than one setting, so none can

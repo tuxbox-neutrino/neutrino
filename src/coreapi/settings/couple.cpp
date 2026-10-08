@@ -429,17 +429,64 @@ bool CoupledBatch::current(const char *key, std::string &out) const
 	return true;
 }
 
-void CoupledBatch::refuse(const char *key, const char *message)
+bool CoupledBatch::currentNumber(const char *key, long &out) const
+{
+	std::string text;
+	return current(key, text) && numberOf(text, out);
+}
+
+bool CoupledBatch::changes(const char *key) const
+{
+	const std::string *text = written(key);
+	if (text == NULL)
+		return false;
+	Result<std::string> stored = get(key);
+	if (!stored.ok())
+		return true;
+	long a = 0;
+	long b = 0;
+	if (numberOf(*text, a) && numberOf(stored.value(), b))
+		return a != b;
+	return *text != stored.value();
+}
+
+Error conditionRefusal(const char *message, const std::vector<std::string> &because_of)
+{
+	std::string said = message;
+	for (size_t i = 0; i < because_of.size(); ++i)
+		said += (i == 0 ? ": " : ", ") + because_of[i];
+	Error e(Status::Conflict, ErrorCode::SettingConditionNotMet, said);
+	e.depends_on = because_of;
+	return e;
+}
+
+void CoupledBatch::refuse(const char *key, const char *message, const std::vector<std::string> &because_of)
 {
 	for (size_t i = 0; i < batch_.values.size(); ++i)
 	{
 		if (batch_.values[i].first != key)
 			continue;
-		refused_.push_back(std::make_pair(std::string(key),
-			Error(Status::Conflict, ErrorCode::SettingConditionNotMet, message)));
+		refused_.push_back(std::make_pair(std::string(key), conditionRefusal(message, because_of)));
 		batch_.values.erase(batch_.values.begin() + i);
 		return;
 	}
+}
+
+void CoupledBatch::refuseWith(const char *key, const Error &e)
+{
+	for (size_t i = 0; i < batch_.values.size(); ++i)
+	{
+		if (batch_.values[i].first != key)
+			continue;
+		refused_.push_back(std::make_pair(std::string(key), e));
+		batch_.values.erase(batch_.values.begin() + i);
+		return;
+	}
+}
+
+void CoupledBatch::refuse(const char *key, const char *message, const char *because_of)
+{
+	refuse(key, message, std::vector<std::string>(1, because_of));
 }
 
 void CoupledBatch::link(const char *key, const char *because)
@@ -489,11 +536,65 @@ bool CoupledBatch::imply(const char *key, const std::string &value, const char *
 		if (numberOf(*named, have) && numberOf(value, want) ? have == want : *named == value)
 			return true;
 		static const char *const kSaid = "the setting contradicts another one written with it";
-		refuse(key, kSaid);
-		refuse(because, kSaid);
+		refuse(key, kSaid, because);
+		refuse(because, kSaid, key);
 		return false;
 	}
 	return put(key, value, because);
+}
+
+bool CoupledBatch::clear(const char *key, const char *because)
+{
+	if (written(key) != NULL)
+	{
+		static const char *const kSaid = "the setting contradicts another one written with it";
+		refuse(key, kSaid, because);
+		refuse(because, kSaid, key);
+		return false;
+	}
+
+	Result<void> checked = checkCleared(key);
+	if (!checked.ok())
+	{
+		for (size_t i = 0; i < batch_.values.size(); ++i)
+		{
+			if (batch_.values[i].first != because)
+				continue;
+			refused_.push_back(std::make_pair(std::string(because), checked.error()));
+			batch_.values.erase(batch_.values.begin() + i);
+			break;
+		}
+		return false;
+	}
+
+	batch_.values.push_back(std::make_pair(std::string(key), std::string()));
+	batch_.cleared.push_back(key);
+	link(key, because);
+	return true;
+}
+
+bool judgedByCoupling(const Descriptor &row)
+{
+	if (row.condition_count == 0)
+		return false;
+	for (size_t p = 0; p < kJudgedPairCount; ++p)
+	{
+		const char *partner = NULL;
+		if (std::string(row.key) == kJudgedPairs[p].first)
+			partner = kJudgedPairs[p].second;
+		else if (std::string(row.key) == kJudgedPairs[p].second)
+			partner = kJudgedPairs[p].first;
+		if (partner == NULL)
+			continue;
+		for (size_t c = 0; c < row.condition_count; ++c)
+		{
+			const Condition &cond = row.conditions[c];
+			if (cond.any_of != NULL || cond.key == NULL || std::string(cond.key) != partner)
+				return false;
+		}
+		return true;
+	}
+	return false;
 }
 
 bool CoupledBatch::requirePair(const char *first, const char *second)
@@ -502,10 +603,11 @@ bool CoupledBatch::requirePair(const char *first, const char *second)
 	const bool has_second = written(second) != NULL;
 	if (has_first && has_second)
 		return true;
+	static const char *const kSaid = "the setting is one fact with another and is written together with it";
 	if (has_first)
-		refuse(first, "the setting is one fact with another and is written together with it");
+		refuse(first, kSaid, second);
 	if (has_second)
-		refuse(second, "the setting is one fact with another and is written together with it");
+		refuse(second, kSaid, first);
 	return false;
 }
 
@@ -518,7 +620,9 @@ const Coupling kCouplings[] =
 	coupleOsd,
 	coupleChannel,
 	coupleWeather,
-	couplePlugins
+	couplePlugins,
+	coupleCi,
+	coupleLcd4l
 };
 
 void partnersFrom(const KeyPair *pairs, size_t n, std::vector<std::string> &keys)
@@ -545,6 +649,32 @@ void partnersFrom(const KeyPair *pairs, size_t n, std::vector<std::string> &keys
 }
 
 } // anonymous namespace
+
+const char *pairPartner(const std::string &key, const char **writes)
+{
+	const struct { const KeyPair *pairs; size_t n; const char *writes; } kinds[] =
+	{
+		{ kChannelPairs, kChannelPairCount, "id" },
+		{ kWeatherPairs, kWeatherPairCount, "both" }
+	};
+	for (size_t k = 0; k < sizeof(kinds) / sizeof(kinds[0]); ++k)
+	{
+		for (size_t i = 0; i < kinds[k].n; ++i)
+		{
+			const char *other = NULL;
+			if (key == kinds[k].pairs[i].first)
+				other = kinds[k].pairs[i].second;
+			else if (key == kinds[k].pairs[i].second)
+				other = kinds[k].pairs[i].first;
+			if (other == NULL)
+				continue;
+			if (writes != NULL)
+				*writes = kinds[k].writes;
+			return other;
+		}
+	}
+	return NULL;
+}
 
 void addPartners(std::vector<std::string> &keys)
 {

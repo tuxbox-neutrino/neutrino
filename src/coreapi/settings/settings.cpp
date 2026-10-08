@@ -980,16 +980,40 @@ bool eraseMember(BatchOverlay &batch, const std::string &key)
 	return false;
 }
 
-void refuseByCondition(Refusals &refused, const std::string &key, const char *message)
+/* What is left of a settled batch. A member the caller named that the store holds already is
+   done and goes out of it, so no write, save or apply is made for it; a menu keeps it, because
+   its screen has put the value into the program's settings and the key is what the drain
+   applies. What a coupling added stays: the write skips it where it is unchanged. */
+void leaveSettled(BatchOverlay &batch, const BatchOverlay &made, const BatchOverlay &named, bool keepUnchanged)
+{
+	batch = made;
+	if (keepUnchanged)
+		return;
+	for (size_t i = batch.values.size(); i-- > 0;)
+	{
+		const std::string &key = batch.values[i].first;
+		bool asked = false;
+		for (size_t n = 0; n < named.values.size() && !asked; ++n)
+			asked = named.values[n].first == key;
+		if (asked && holdsStored(key, batch.values[i].second))
+			batch.values.erase(batch.values.begin() + i);
+	}
+}
+
+void refuseByCondition(Refusals &refused, const std::string &key, const Error &why)
 {
 	if (!alreadyRefused(refused, key))
-		refused.push_back(std::make_pair(key,
-			Error(Status::Conflict, ErrorCode::SettingConditionNotMet, message)));
+		refused.push_back(std::make_pair(key, why));
+}
+
+void refuseByCondition(Refusals &refused, const std::string &key, const char *message)
+{
+	refuseByCondition(refused, key, conditionRefusal(message, std::vector<std::string>()));
 }
 
 } // anonymous namespace
 
-void settleBatch(BatchOverlay &batch, Refusals &refused)
+void settleBatch(BatchOverlay &batch, Refusals &refused, bool keepUnchanged)
 {
 	/* What the caller named is kept apart from what the couplings made of it. Every round
 	   makes the couplings over again from the survivors, so a member that fell takes what it
@@ -1032,17 +1056,27 @@ void settleBatch(BatchOverlay &batch, Refusals &refused)
 		/* Judged round by round against what is still in, because dropping one member can take
 		   away what another one leaned on. */
 		std::vector<std::string> failing;
+		std::vector<Error> why;
 		for (size_t i = 0; i < made.values.size(); ++i)
 		{
 			const Descriptor *row = findRow(made.values[i].first);
 			if (row == NULL)
 				continue;
-			if (!allowedByConditions(*row, &made).ok())
+			Result<void> allowed = allowedByConditions(*row, &made, &made.values[i].second);
+			if (allowed.ok())
+				continue;
+			if (keepUnchanged || !holdsStored(made.values[i].first, made.values[i].second))
+			{
 				failing.push_back(made.values[i].first);
+				// An entry's own condition names no setting of the row's.
+				why.push_back(allowed.error().code == ErrorCode::SettingConditionNotMet ? allowed.error() :
+					conditionRefusal("the settings this one depends on do not allow it to be set",
+							 std::vector<std::string>()));
+			}
 		}
 		if (failing.empty())
 		{
-			batch = made;
+			leaveSettled(batch, made, named, keepUnchanged);
 			return;
 		}
 
@@ -1051,8 +1085,7 @@ void settleBatch(BatchOverlay &batch, Refusals &refused)
 		{
 			if (eraseMember(named, failing[f]))
 			{
-				refuseByCondition(refused, failing[f],
-					"the settings this one depends on do not allow it to be set");
+				refuseByCondition(refused, failing[f], why[f]);
 				progress = true;
 				continue;
 			}
@@ -1060,8 +1093,7 @@ void settleBatch(BatchOverlay &batch, Refusals &refused)
 			/* Not named by the caller: a coupling put it. It is reported under its own key, and
 			   what asked for it is refused with it, since one without the other is the state the
 			   coupling exists to prevent. */
-			refuseByCondition(refused, failing[f],
-				"the settings this one depends on do not allow it to be set");
+			refuseByCondition(refused, failing[f], why[f]);
 			for (size_t a = 0; a < added.size(); ++a)
 			{
 				if (added[a].key != failing[f])
@@ -1069,7 +1101,8 @@ void settleBatch(BatchOverlay &batch, Refusals &refused)
 				if (eraseMember(named, added[a].trigger))
 				{
 					refuseByCondition(refused, added[a].trigger,
-						"the setting it brings with it cannot be set");
+						conditionRefusal("the setting it brings with it cannot be set",
+								 std::vector<std::string>(1, failing[f])));
 					progress = true;
 				}
 			}
@@ -1081,7 +1114,7 @@ void settleBatch(BatchOverlay &batch, Refusals &refused)
 		{
 			for (size_t f = 0; f < failing.size(); ++f)
 				eraseMember(made, failing[f]);
-			batch = made;
+			leaveSettled(batch, made, named, keepUnchanged);
 			return;
 		}
 	}
