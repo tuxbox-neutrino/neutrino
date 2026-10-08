@@ -46,6 +46,7 @@ libcoreapi_a_SOURCES = \
 	box/picturesource_real.cpp \
 	box/inputdevice_real.cpp \
 	box/screenshotsource_real.cpp \
+	box/displaypicture.cpp \
 	box/logosource_real.cpp \
 	box/pluginsource_real.cpp \
 	box/recordingsource_real.cpp \
@@ -113,6 +114,7 @@ noinst_HEADERS = \
 	base/deps.h \
 	channels.h \
 	box/channelstreams_internal.h \
+	box/displaypicture.h \
 	bouquetorder.h \
 	epg.h \
 	timers.h \

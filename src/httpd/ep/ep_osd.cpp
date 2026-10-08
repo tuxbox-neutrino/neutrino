@@ -34,6 +34,7 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 #include <fcntl.h>
 
@@ -371,9 +372,9 @@ Response getScreenshot(const Request &r)
 			 pictureContentType(format));
 }
 
-Response getDisplayScreenshot(const Request &)
+Response getDisplayScreenshot(const Request &r)
 {
-	coreapi::Result<std::string> taken = coreapi::osd::displayScreenshot();
+	coreapi::Result<std::string> taken = coreapi::osd::displayScreenshot(r.asString("name"));
 	if (!taken.ok())
 		return problemFor(taken.error());
 	/* The display is written by whatever drives it and in one form only, so
@@ -381,6 +382,57 @@ Response getDisplayScreenshot(const Request &)
 	   refuse. */
 	return pictureAt(taken.value(), coreapi::ErrorCode::DisplayNotCaptured,
 			 pictureContentType(coreapi::PictureFormat::Png));
+}
+
+// The older route names no display and answers the first one listed.
+Response getFirstDisplayScreenshot(const Request &)
+{
+	coreapi::Result<std::string> taken = coreapi::osd::displayScreenshot();
+	if (!taken.ok())
+		return problemFor(taken.error());
+	return pictureAt(taken.value(), coreapi::ErrorCode::DisplayNotCaptured,
+			 pictureContentType(coreapi::PictureFormat::Png));
+}
+
+const FieldDesc kDisplayFields[] = {
+	HTTPD_MEMBER("name", FieldType::String,
+		"the identifier the picture of this display is asked for under, graphlcd or lcd4linux"),
+	HTTPD_MEMBER("title", FieldType::String, "what to call the display to a person"),
+};
+
+const Schema kDisplaySchema = { "display", HTTPD_FIELDS(kDisplayFields) };
+
+const FieldDesc kDisplayListFields[] = {
+	HTTPD_LIST_OF("items", &kDisplaySchema,
+		"every display on the front of the box that can be pictured right now, empty on a box with none"),
+};
+
+const Schema kDisplayListSchema = { "display-list", HTTPD_FIELDS(kDisplayListFields) };
+
+Response listDisplays(const Request &)
+{
+	coreapi::Result<std::vector<coreapi::osd::Display> > got = coreapi::osd::displays();
+	if (!got.ok())
+		return problemFor(got.error());
+
+	const std::vector<coreapi::osd::Display> &all = got.value();
+	Response out = okJson();
+	Json j(out.body, 32 + 64 * all.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		j.beginObject();
+		j.key("name");
+		j.value(all[i].name);
+		j.key("title");
+		j.value(all[i].title);
+		j.endObject();
+	}
+	j.endArray();
+	j.endObject();
+	return out;
 }
 
 const Param kKeyParams[] = {
@@ -426,9 +478,15 @@ const Param kPictureParams[] = {
 	HTTPD_QUERY("at", ParamType::UInt, "any number, which this does not read: a capture is a moment, and 2 moments asked for under one address are one picture in a browser"),
 };
 
-// The same and for the same reason, for the one picture that has nothing else
-// to say about itself.
+// The same and for the same reason, for the pictures that have nothing else
+// to say about themselves.
 const Param kDisplayPictureParams[] = {
+	HTTPD_SEGMENT_TEXT("name", "the display's name field, as GET /api/v1/osd/displays lists it", 32),
+	HTTPD_QUERY("at", ParamType::UInt, "any number, which this does not read: a capture is a moment, and 2 moments asked for under one address are one picture in a browser"),
+};
+
+// The older route, which names no display.
+const Param kFirstDisplayPictureParams[] = {
 	HTTPD_QUERY("at", ParamType::UInt, "any number, which this does not read: a capture is a moment, and 2 moments asked for under one address are one picture in a browser"),
 };
 
@@ -448,8 +506,19 @@ const RouteRefusal kGetScreenshotRefusals[] = {
 };
 
 const RouteRefusal kGetDisplayScreenshotRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchDisplay,
+		"this box has no display of that name"),
 	HTTPD_REFUSES(NotSupported, DisplayNotCaptured,
-		"the box could not take a picture of its display"),
+		"the display is not running, or the box could not take a picture of it"),
+	HTTPD_REFUSES(Internal, DisplayNotCaptured,
+		"the picture of the display could not be written"),
+};
+
+const RouteRefusal kGetFirstDisplayScreenshotRefusals[] = {
+	HTTPD_REFUSES(NotSupported, DisplayNotCaptured,
+		"no display is drawing, or the box could not take a picture of it"),
+	HTTPD_REFUSES(Internal, DisplayNotCaptured,
+		"the picture of the display could not be written"),
 };
 
 const Endpoint kOsdEndpoints[] = {
@@ -570,16 +639,42 @@ const Endpoint kOsdEndpoints[] = {
 	  HTTPD_PARAMS(kPictureParams), NULL, &getScreenshot, false,
 	  Answers200 | Answers206, HTTPD_REFUSALS(kGetScreenshotRefusals) },
 	{ Method::Get, "/api/v1/osd/display/screenshot", AuthLevel::Read,
-	  "a picture of the display on the front of the box", "Takes a picture of the "
-	  "small display on the front of the box and returns it as a PNG image. Most "
-	  "boxes have no such display; this answers a refusal rather than a picture "
-	  "for them, and `format` is not offered because this is written in one form "
-	  "only. The `at` parameter is never read; it exists only so that 2 requests "
+	  "a picture of the first display on the front of the box", "Takes a picture of "
+	  "the first display `GET /api/v1/osd/displays` lists and returns it as a PNG "
+	  "image. Most boxes have no such display; this answers a refusal rather than a "
+	  "picture for them, and `format` is not offered because this is written in one "
+	  "form only. The `at` parameter is never read; it exists only so that 2 requests "
 	  "for a fresh picture use 2 different addresses, which keeps a browser from "
 	  "answering a second `<img>` out of its own cache.\n\n"
 	  "**Refusals:**\n"
-	  "- `501 display-not-captured`: this box has no front display, or this build "
-	  "was made without support for it.",
+	  "- `501 display-not-captured`: no display is drawing on this box, or this build "
+	  "was made without support for it.\n"
+	  "- `500 display-not-captured`: the picture could not be copied or written.\n\n"
+	  "**Related:** `GET /api/v1/osd/displays/{name}/screenshot` names the display.",
+	  HTTPD_PARAMS(kFirstDisplayPictureParams), NULL, &getFirstDisplayScreenshot, false,
+	  Answers200 | Answers206, HTTPD_REFUSALS(kGetFirstDisplayScreenshotRefusals) },
+	{ Method::Get, "/api/v1/osd/displays", AuthLevel::Read,
+	  "the displays on the front of the box that can be pictured", "Lists the displays "
+	  "on the front of the box that are drawing right now: `graphlcd` where GraphLCD is "
+	  "built and running, `lcd4linux` where LCD4Linux is switched on with its screenshots "
+	  "and is writing its picture. Both can be listed at once. A box with none answers "
+	  "an empty list rather than a refusal.\n\n"
+	  "**Related:** `GET /api/v1/osd/displays/{name}/screenshot`.",
+	  NULL, 0, &kDisplayListSchema, &listDisplays, false,
+	  Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/v1/osd/displays/{name}/screenshot", AuthLevel::Read,
+	  "a picture of one display on the front of the box", "Takes a picture of the "
+	  "named display and returns it as a PNG image; `format` is not offered because "
+	  "this is written in one form only. The `at` parameter is never read; it exists "
+	  "only so that 2 requests for a fresh picture use 2 different addresses, which "
+	  "keeps a browser from answering a second `<img>` out of its own cache.\n\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-display`: no display has that name. Take names from "
+	  "`GET /api/v1/osd/displays`.\n"
+	  "- `501 display-not-captured`: this display is not running on this box, or "
+	  "this build was made without support for it.\n"
+	  "- `500 display-not-captured`: the picture could not be copied or written.\n\n"
+	  "**Related:** `GET /api/v1/osd/displays`.",
 	  HTTPD_PARAMS(kDisplayPictureParams), NULL, &getDisplayScreenshot, false,
 	  Answers200 | Answers206, HTTPD_REFUSALS(kGetDisplayScreenshotRefusals) },
 };

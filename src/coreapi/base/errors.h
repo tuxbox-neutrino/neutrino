@@ -43,6 +43,7 @@ enum class ErrorCode
 	NoSuchBouquet,
 	NoSuchTimer,
 	NoSuchDaemon,
+	NoSuchDisplay,
 	NoSuchVerb,
 	NoSuchCommand,
 	/* A path this server does not route, and a method it does not answer at a
@@ -488,6 +489,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::NoSuchBouquet: return "no-such-bouquet";
 		case ErrorCode::NoSuchTimer: return "no-such-timer";
 		case ErrorCode::NoSuchDaemon: return "no-such-daemon";
+		case ErrorCode::NoSuchDisplay: return "no-such-display";
 		case ErrorCode::NoSuchVerb: return "no-such-verb";
 		case ErrorCode::NoSuchCommand: return "no-such-command";
 		case ErrorCode::NoSuchRoute: return "no-such-route";

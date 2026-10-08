@@ -177,6 +177,11 @@ cGLCD *cGLCD::getInstance()
 	return cglcd;
 }
 
+cGLCD *cGLCD::peekInstance()
+{
+	return cglcd;
+}
+
 uint32_t cGLCD::ColorConvert3to1(uint32_t red, uint32_t green, uint32_t blue)
 {
 	unsigned int color_red_tmp = (static_cast<int>(red) * 2.55) + 1;

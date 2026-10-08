@@ -21,8 +21,11 @@
 #include <config.h>
 
 #include "coreapi/base/deps.h"
+#include "coreapi/box/displaypicture.h"
 
 #include <stdio.h>
+
+#include <system/helpers.h>
 
 #include <string>
 
@@ -42,6 +45,9 @@ namespace coreapi
 
 namespace
 {
+
+// Where LCD4Linux writes the picture of its display.
+const char LCD4LINUX_PICTURE[] = "/tmp/lcd4linux.png";
 
 #ifdef SCREENSHOT
 /* Which of the capture's own encoders writes a form. Its third one is not
@@ -85,24 +91,41 @@ class RealScreenshotSource : public ScreenshotSource
 #endif
 		}
 
-		Status captureDisplay(const std::string &path)
+		bool displayLive(const std::string &name)
 		{
+			if (name == "lcd4linux")
+				// The test Neutrino's own LCD4Linux driver makes of the process.
+				return displayPictureLive(LCD4LINUX_PICTURE, getpidof("lcd4linux") > 0);
 #ifdef ENABLE_GRAPHLCD
-			cGLCD *display = cGLCD::getInstance();
-			// Built when the box starts and only where one is configured, so
-			// nothing here is a fault either: the box has no such display.
-			if (display == NULL || display->bitmap == NULL)
-				return Status::NotSupported;
-			return display->dumpBuffer((fb_pixel_t *) display->bitmap->Data(),
-						   cGLCD::PNG, path.c_str())
-				? Status::Ok : Status::Internal;
-#else
-			// Most boxes have no second display and no build made without it
-			// has one, which is the common answer here rather than the rare
-			// one.
-			(void) path;
-			return Status::NotSupported;
+			// Looked up and never made: a request must not start a display, and
+			// a Respawn in progress has none to find.
+			if (name == "graphlcd")
+			{
+				cGLCD *display = cGLCD::peekInstance();
+				return display != NULL && display->bitmap != NULL;
+			}
 #endif
+			return false;
+		}
+
+		Status captureDisplay(const std::string &name, const std::string &path)
+		{
+			if (name == "lcd4linux")
+				return copyDisplayPicture(LCD4LINUX_PICTURE, path);
+#ifdef ENABLE_GRAPHLCD
+			if (name == "graphlcd")
+			{
+				cGLCD *display = cGLCD::peekInstance();
+				if (display == NULL || display->bitmap == NULL)
+					return Status::NotSupported;
+				return display->dumpBuffer((fb_pixel_t *) display->bitmap->Data(),
+							   cGLCD::PNG, path.c_str())
+					? Status::Ok : Status::Internal;
+			}
+#endif
+			// A build made without the driver has no such display, which is the
+			// common answer here and not a fault.
+			return Status::NotSupported;
 		}
 };
 

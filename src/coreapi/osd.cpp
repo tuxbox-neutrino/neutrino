@@ -195,7 +195,6 @@ const char SCREEN_PICTURE_JPEG[] = "/tmp/neutrino-screenshot.jpg";
 // Where a capture is written before it replaces the name above.
 const char SCREEN_TAKING_PNG[] = "/tmp/neutrino-screenshot-taking.png";
 const char SCREEN_TAKING_JPEG[] = "/tmp/neutrino-screenshot-taking.jpg";
-const char DISPLAY_PICTURE[] = "/tmp/neutrino-display.png";
 
 const char *screenPictureFor(PictureFormat f)
 {
@@ -288,21 +287,97 @@ Result<std::string> screenshot(bool osd, bool video, PictureFormat format)
 	return ok(path);
 }
 
-Result<std::string> displayScreenshot()
+namespace
 {
-	const std::string path = DISPLAY_PICTURE;
 
-	/* Waited for, unlike the one above. What is under this lock is an encode of
-	   a bitmap this process already holds, bounded by its own size, with no
+const char kGraphlcd[] = "graphlcd";
+const char kLcd4linux[] = "lcd4linux";
+
+// Where a picture of the named display is put, one name each so that two
+// displays asked for at once are two files.
+std::string displayPictureFor(const std::string &name)
+{
+	return "/tmp/neutrino-display-" + name + ".png";
+}
+
+bool knownDisplay(const std::string &name)
+{
+	return name == kGraphlcd || name == kLcd4linux;
+}
+
+bool settingOn(const char *key)
+{
+	long v = 0;
+	return settingsSource().readInt(key, v) == Status::Ok && v != 0;
+}
+
+// What the settings say is only half of it: the driver has to be writing too.
+bool displayDrawing(const std::string &name)
+{
+	/* The driver keeps its bitmap after it is switched off, so only the setting
+	   says that it stopped. */
+	if (name == kGraphlcd && !settingOn("glcd_enable"))
+		return false;
+	if (name == kLcd4linux && !(settingOn("lcd4l_support") && settingOn("lcd4l_screenshots")))
+		return false;
+	return screenshotSource().displayLive(name);
+}
+
+} // namespace
+
+Result<std::vector<Display> > displays()
+{
+	std::vector<Display> out;
+	if (displayDrawing(kGraphlcd))
+	{
+		Display d;
+		d.name = kGraphlcd;
+		d.title = "GraphLCD";
+		out.push_back(d);
+	}
+	if (displayDrawing(kLcd4linux))
+	{
+		Display d;
+		d.name = kLcd4linux;
+		d.title = "LCD4Linux";
+		out.push_back(d);
+	}
+	return ok(std::move(out));
+}
+
+Result<std::string> displayScreenshot(const std::string &name)
+{
+	if (!knownDisplay(name))
+		return fail(Status::NotFound, ErrorCode::NoSuchDisplay,
+			    "this box has no display called " + name);
+	if (!displayDrawing(name))
+		return fail(Status::NotSupported, ErrorCode::DisplayNotCaptured,
+			    "the display " + name + " is not running on this box");
+
+	const std::string path = displayPictureFor(name);
+
+	/* Waited for, unlike the screen above. What is under this lock is an encode of
+	   a bitmap this process already holds or a copy of a small file, with no
 	   device read in it; and nothing asks for this picture but a press of the
 	   button beside it, so two at once means two people pressing at the same
 	   moment. A refusal would cost that press a picture and buy nothing. */
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(displayGuard());
-	const Status s = screenshotSource().captureDisplay(path);
+	const Status s = screenshotSource().captureDisplay(name, path);
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::DisplayNotCaptured,
 			    "the box could not take a picture of its display");
 	return ok(path);
+}
+
+Result<std::string> displayScreenshot()
+{
+	Result<std::vector<Display> > all = displays();
+	if (!all.ok())
+		return fail(all.error());
+	if (all.value().empty())
+		return fail(Status::NotSupported, ErrorCode::DisplayNotCaptured,
+			    "no display on the front of this box is drawing");
+	return displayScreenshot(all.value()[0].name);
 }
 
 namespace

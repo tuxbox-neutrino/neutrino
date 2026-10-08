@@ -27,6 +27,7 @@
 
 #include <cstdio>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -1271,6 +1272,10 @@ struct FakeScreenshotSource : public coreapi::ScreenshotSource
 	unsigned screen_shots;
 	unsigned display_shots;
 
+	// The displays that are drawing, by name, and the one the last capture was for.
+	std::set<std::string> live_displays;
+	std::string last_display;
+
 	/* Where the layer above said to put it, which halves it asked for, and
 	   which form it asked the file to be written in. The form is kept because
 	   nothing else can see it: what the capture does with it is behind the
@@ -1302,9 +1307,12 @@ struct FakeScreenshotSource : public coreapi::ScreenshotSource
 		return writeFile(path) ? coreapi::Status::Ok : coreapi::Status::Internal;
 	}
 
-	coreapi::Status captureDisplay(const std::string &path)
+	bool displayLive(const std::string &name) { return live_displays.count(name) != 0; }
+
+	coreapi::Status captureDisplay(const std::string &name, const std::string &path)
 	{
 		display_shots++;
+		last_display = name;
 		last_path = path;
 		if (display_status != coreapi::Status::Ok)
 			return display_status;

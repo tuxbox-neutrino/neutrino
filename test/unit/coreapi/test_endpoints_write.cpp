@@ -109,6 +109,8 @@ struct Reply
 	Reply() : code(0) {}
 };
 
+// A file answer's descriptor is closed here: the reply keeps what the router
+// said, not the file.
 Reply replyOf(const Response &r)
 {
 	Reply out;
@@ -116,6 +118,8 @@ Reply replyOf(const Response &r)
 	out.content_type = r.content_type;
 	out.body = r.body;
 	out.headers = r.headers;
+	if (r.fd >= 0)
+		close(r.fd);
 	return out;
 }
 
@@ -5555,6 +5559,62 @@ TEST_CASE("a picture this box cannot take is refused as not captured", "[write][
 	const Reply display = authedGet("/api/v1/osd/display/screenshot");
 	REQUIRE(display.code == 501);
 	REQUIRE(display.body.find("display-not-captured") != std::string::npos);
+}
+
+TEST_CASE("the display routes list, refuse and tell unknown from off", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeScreenshotSource screen;
+	InstalledScreenshotSource installed_screen(&screen);
+
+	Reply r = authedGet("/api/v1/osd/displays");
+	REQUIRE(r.code == 200);
+	REQUIRE(parsed(r.body)["items"].size() == 0u);
+
+	r = authedGet("/api/v1/osd/displays/graphlcd/screenshot");
+	REQUIRE(r.code == 501);
+	REQUIRE(r.body.find("display-not-captured") != std::string::npos);
+
+	r = authedGet("/api/v1/osd/displays/tft/screenshot");
+	REQUIRE(r.code == 404);
+	REQUIRE(r.body.find("no-such-display") != std::string::npos);
+
+	// Both drawing: listed in that order, each pictured under its name, and
+	// the older route that names none answers the first.
+	box.store.ints["glcd_enable"] = 1;
+	box.store.ints["lcd4l_support"] = 2;
+	box.store.ints["lcd4l_screenshots"] = 1;
+	screen.display_status = coreapi::Status::Ok;
+	screen.live_displays.insert("graphlcd");
+	screen.live_displays.insert("lcd4linux");
+	r = authedGet("/api/v1/osd/displays");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	REQUIRE(items.size() == 2u);
+	REQUIRE(items[0u]["name"].asString() == "graphlcd");
+	REQUIRE(items[1u]["name"].asString() == "lcd4linux");
+
+	r = authedGet("/api/v1/osd/displays/lcd4linux/screenshot?at=3");
+	REQUIRE(r.code == 200);
+	REQUIRE(r.content_type == "image/png");
+	REQUIRE(screen.last_display == "lcd4linux");
+
+	r = authedGet("/api/v1/osd/display/screenshot");
+	REQUIRE(r.code == 200);
+	REQUIRE(screen.last_display == "graphlcd");
+
+	// One form only, so naming one is naming a parameter the route lacks.
+	r = authedGet("/api/v1/osd/displays/lcd4linux/screenshot?format=jpeg");
+	REQUIRE(r.code == 400);
+
+	// A picture that could not be written is a fault, on either route.
+	screen.display_status = coreapi::Status::Internal;
+	r = authedGet("/api/v1/osd/displays/graphlcd/screenshot");
+	REQUIRE(r.code == 500);
+	REQUIRE(r.body.find("display-not-captured") != std::string::npos);
+	r = authedGet("/api/v1/osd/display/screenshot");
+	REQUIRE(r.code == 500);
 }
 
 TEST_CASE("the tuner routes say when there is no tuner and when the list cannot be read", "[write][refusals]")

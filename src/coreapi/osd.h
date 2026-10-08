@@ -27,6 +27,7 @@
 #include <stddef.h>
 
 #include <string>
+#include <vector>
 
 namespace coreapi
 {
@@ -115,8 +116,26 @@ Result<void> setLocked(bool on);
    larger than the first. */
 Result<std::string> screenshot(bool osd, bool video, PictureFormat format);
 
-// The same for the small display on the front of the box. NotSupported where
-// there is none, which is most of them and every build made without it.
+// One of the displays on the front of the box that can be pictured.
+struct Display
+{
+	// The identifier the picture is asked for under: graphlcd or lcd4linux.
+	std::string name;
+	std::string title;
+};
+
+/* The displays that can be pictured right now. Empty on a box with none, which
+   is most of them, and that is an answer and not a fault. Two can be listed at
+   once, because the two drivers run side by side. */
+Result<std::vector<Display> > displays();
+
+/* The same picture for one display of that list. NoSuchDisplay for a name this
+   box has never had; NotSupported for one it has and that is not running, which
+   a caller tells apart from the first by the status. */
+Result<std::string> displayScreenshot(const std::string &name);
+
+// The first display of that list, for the older route that names none.
+// NotSupported where none is drawing, which is most boxes.
 Result<std::string> displayScreenshot();
 
 /* What the box draws in the corner to say what the channel is carrying. Four

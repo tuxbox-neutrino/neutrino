@@ -211,6 +211,8 @@ class cGLCD
 		bool imageShow(const std::string &filename, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, bool transp = false, bool maximize = false, bool clear = false, bool center_sw = false, bool center_sh = false);
 		bool drawText(int x, int y, int xmax, int text_width, const std::string &text, const GLCD::cFont *font, uint32_t color1, uint32_t color2, bool proportional, int skipPixels, int align);
 		static cGLCD *getInstance();
+		// Never constructs: for callers that must not start a display.
+		static cGLCD *peekInstance();
 		static void lockChannel(std::string txt, std::string epg = "", int scale = 0);
 		static void unlockChannel();
 		// A failed zap shows "(name)" until the next zap starts or succeeds.

@@ -351,10 +351,10 @@ const Descriptor kSettings[] =
 		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(lcd4l_convert)
 	},
-	/* Read by nothing in the program. The old box control menu of the web
-	   interface read it out of the saved file to offer the LCD4Linux
-	   screenshot; that menu is gone, and the screenshot is the lcd4linux
-	   extension's page now, offered whatever this says. */
+	/* Read by the display list of the REST interface: LCD4Linux is listed and
+	   pictured only while this and lcd4l_support are on. The old box control
+	   menu of the web interface read it out of the saved file; that menu is
+	   gone. */
 	// src/neutrino.cpp:444 src/gui/lcd4l_setup.cpp:227
 	{
 		"lcd4l_screenshots", ValueType::Bool, "display",

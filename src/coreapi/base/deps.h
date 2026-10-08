@@ -684,7 +684,10 @@ struct ScreenshotSource
 	   nothing between here and the encoder holds the picture as pixels. */
 	virtual Status captureScreen(bool osd, bool video, PictureFormat format,
 				     const std::string &path) = 0;
-	virtual Status captureDisplay(const std::string &path) = 0;
+	/* Whether the named display is drawing right now: graphlcd or lcd4linux.
+	   What the settings say about lcd4linux is asked of them and not of this. */
+	virtual bool displayLive(const std::string &name) = 0;
+	virtual Status captureDisplay(const std::string &name, const std::string &path) = 0;
 };
 
 ScreenshotSource &screenshotSource();
