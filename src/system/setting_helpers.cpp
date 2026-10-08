@@ -795,7 +795,12 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 		}
 #ifdef BOXMODEL_CST_HD2
 		for (i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+		{
+			// A slot this box does not draw has no mode to set.
+			if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key < 0)
+				continue;
 			modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_auto_modes[i];
+		}
 #else
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
 #endif

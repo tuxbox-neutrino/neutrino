@@ -251,8 +251,7 @@ const CMenuOptionChooser::keyval EPG_SCAN_MODE_OPTIONS[] =
 };
 #define EPG_SCAN_MODE_OPTION_COUNT (sizeof(EPG_SCAN_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
-#define SLEEPTIMER_MIN_OPTION_COUNT 7
-const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTION_COUNT] =
+const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[] =
 {
 	{ 0,	NONEXISTANT_LOCALE, "EPG"	},
 	{ 30,	NONEXISTANT_LOCALE, "30 min"	},
@@ -261,6 +260,7 @@ const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTIO
 	{ 120,	NONEXISTANT_LOCALE, "120 min"	},
 	{ 150,	NONEXISTANT_LOCALE, "150 min"	}
 };
+#define SLEEPTIMER_MIN_OPTION_COUNT (sizeof(SLEEPTIMER_MIN_OPTIONS)/sizeof(SLEEPTIMER_MIN_OPTIONS[0]))
 
 // show misc settings menue
 int CMiscMenue::showMiscSettingsMenu()
