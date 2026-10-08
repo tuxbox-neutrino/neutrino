@@ -267,6 +267,23 @@ bool tellOsdResolution(long value)
 	return osdResolutionSource().write((int) value) == Status::Ok;
 }
 
+/* VIDEO_STD_AUTO of the video library this build has, the last of its list of
+   standards, which each family numbers differently. Written out because the
+   library's header is not one every build of this table can include. */
+#if HAVE_CST_HARDWARE && defined(BOXMODEL_CST_HD2)
+constexpr long kVideoStdAuto = 16;	// hd2/libcoolstream/video_cs.h
+#elif HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+constexpr long kVideoStdAuto = 20;	// libarmbox and libmipsbox video_lib.h
+#else
+constexpr long kVideoStdAuto = 12;	// hd1/libcoolstream/video_cs.h, libgeneric-pc and libraspi video_lib.h
+#endif
+
+// The larger size is not offered while the box picks the video standard itself.
+constexpr Condition kVideoModeNotAuto[] =
+{
+	when("video_Mode").isNot(kVideoStdAuto)
+};
+
 constexpr Descriptor kOsd[] =
 {
 	// src/neutrino.cpp:702 src/gui/osd_setup.cpp:711
@@ -852,6 +869,7 @@ constexpr Descriptor kOsd[] =
 #else
 		.defaultValue(0)
 #endif
+		.changeableWhen(kVideoModeNotAuto)
 		.field(COREAPI_SERVICE_FIELD(osd_resolution, askOsdResolution, tellOsdResolution)),
 	// src/neutrino.cpp:1054 src/gui/screensetup.cpp:225
 	intRow("screen_StartX_a_0")

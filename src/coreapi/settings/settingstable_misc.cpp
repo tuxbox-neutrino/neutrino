@@ -86,6 +86,49 @@ constexpr Condition kShutdownRealOff[] =
 	when("shutdown_real").is(0)
 };
 
+// The scan has bouquets to walk only while it is switched on; 0 is off.
+constexpr Condition kEpgScanOn[] =
+{
+	when("epg_scan_mode").isNot(0)
+};
+
+// Where the guide is kept matters while it is either saved or read.
+constexpr Condition kEpgSavedOrRead[] =
+{
+	when("epg_save").isNot(0),
+	when("epg_read").isNot(0)
+};
+
+constexpr Condition kEpgDirUsed[] =
+{
+	anyOf(kEpgSavedOrRead)
+};
+
+constexpr char kTmdbKeyPlaceholder[] = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+constexpr char kOmdbKeyPlaceholder[] = "XXXXXXXX";
+constexpr char kShoutcastKeyPlaceholder[] = "XXXXXXXXXXXXXXXX";
+constexpr char kYoutubeKeyPlaceholder[] = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+
+constexpr Condition kTmdbKeyEntered[] =
+{
+	when("tmdb_api_key").textValid(kTmdbKeyPlaceholder)
+};
+
+constexpr Condition kOmdbKeyEntered[] =
+{
+	when("omdb_api_key").textValid(kOmdbKeyPlaceholder)
+};
+
+constexpr Condition kShoutcastKeyEntered[] =
+{
+	when("shoutcast_dev_id").textValid(kShoutcastKeyPlaceholder)
+};
+
+constexpr Condition kYoutubeKeyEntered[] =
+{
+	when("youtube_api_key").textValid(kYoutubeKeyPlaceholder)
+};
+
 // src/gui/miscsettings_menu.cpp:478
 constexpr Condition kEpgSaveOn[] =
 {
@@ -232,6 +275,7 @@ constexpr Descriptor kMisc[] =
 		.hint("menu.hint_epg_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/epg")
 		.text(kRuleDirectoryDurable)
+		.changeableWhen(kEpgDirUsed)
 		.field(COREAPI_TEXT_FIELD(epg_dir)),
 	// src/neutrino.cpp:788 src/gui/miscsettings_menu.cpp:524
 	enumRow("epg_scan")
@@ -240,6 +284,7 @@ constexpr Descriptor kMisc[] =
 		.hint("menu.hint_epg_scan")
 		.defaultValue(2)
 		.values(kEpgScan)
+		.changeableWhen(kEpgScanOn)
 		.field(COREAPI_NUMBER_FIELD(epg_scan)),
 	/* A number and not a choice: one of the four words the screen puts beside a
 	   value stands for a number two headers state differently, so no scan can
@@ -377,13 +422,14 @@ constexpr Descriptor kMisc[] =
 		.label("tmdb.enabled")
 		.hint("menu.hint_tmdb_enabled")
 		.defaultValue(1)
+		.changeableWhen(kTmdbKeyEntered)
 		.field(COREAPI_NUMBER_FIELD(tmdb_enabled)),
 	// src/neutrino.cpp:1177 src/gui/miscsettings_menu.cpp:661
 	textRow("tmdb_api_key")
 		.section("misc")
 		.label("tmdb.api_key")
 		.hint("menu.hint_tmdb_api_key")
-		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.defaultValue(kTmdbKeyPlaceholder)
 		.text(kRuleKey32)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(tmdb_api_key)),
@@ -393,13 +439,14 @@ constexpr Descriptor kMisc[] =
 		.label("omdb.enabled")
 		.hint("menu.hint_omdb_enabled")
 		.defaultValue(1)
+		.changeableWhen(kOmdbKeyEntered)
 		.field(COREAPI_NUMBER_FIELD(omdb_enabled)),
 	// src/neutrino.cpp:1184 src/gui/miscsettings_menu.cpp:676
 	textRow("omdb_api_key")
 		.section("misc")
 		.label("omdb.api_key")
 		.hint("menu.hint_omdb_api_key")
-		.defaultValue("XXXXXXXX")
+		.defaultValue(kOmdbKeyPlaceholder)
 		.text(kRuleKey8)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(omdb_api_key)),
@@ -409,13 +456,14 @@ constexpr Descriptor kMisc[] =
 		.label("shoutcast.enabled")
 		.hint("menu.hint_shoutcast_enabled")
 		.defaultValue(1)
+		.changeableWhen(kShoutcastKeyEntered)
 		.field(COREAPI_NUMBER_FIELD(shoutcast_enabled)),
 	// src/neutrino.cpp:1191 src/gui/miscsettings_menu.cpp:691
 	textRow("shoutcast_dev_id")
 		.section("misc")
 		.label("shoutcast.dev_id")
 		.hint("menu.hint_shoutcast_dev_id")
-		.defaultValue("XXXXXXXXXXXXXXXX")
+		.defaultValue(kShoutcastKeyPlaceholder)
 		.text(kRuleKey16)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(shoutcast_dev_id)),
@@ -425,13 +473,14 @@ constexpr Descriptor kMisc[] =
 		.label("youtube.enabled")
 		.hint("menu.hint_youtube_enabled")
 		.defaultValue(1)
+		.changeableWhen(kYoutubeKeyEntered)
 		.field(COREAPI_NUMBER_FIELD(youtube_enabled)),
 	// src/neutrino.cpp:1170 src/gui/miscsettings_menu.cpp:706
 	textRow("youtube_api_key")
 		.section("misc")
 		.label("youtube.api_key")
 		.hint("menu.hint_youtube_api_key")
-		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.defaultValue(kYoutubeKeyPlaceholder)
 		.text(kRuleKey39)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(youtube_api_key)),
@@ -519,6 +568,7 @@ constexpr Descriptor kMisc[] =
 		.range(0, 999)
 		.defaultValue(0)
 		.unit("unit.short.minute")
+		.changeableWhen(kShutdownRealOff)
 		.field(COREAPI_NUMBER_FIELD(shutdown_count)),
 	/* The standing sleep timer in minutes. Its item is the sleep timer box and
 	   holds the value as three digits of text, src/gui/sleeptimer.cpp:68. The

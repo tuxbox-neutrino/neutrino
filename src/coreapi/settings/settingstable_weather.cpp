@@ -42,6 +42,17 @@ constexpr Condition kWeatherOn[] =
 	when("weather_enabled").isNot(0)
 };
 
+#if ENABLE_WEATHER_KEY_MANAGE
+/* The key the build was configured with is checked at start; only a key a box
+   can enter is something a switch can be judged against. */
+constexpr char kWeatherKeyPlaceholder[] = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+
+constexpr Condition kWeatherKeyEntered[] =
+{
+	when("weather_api_key").textValid(kWeatherKeyPlaceholder)
+};
+#endif
+
 constexpr Descriptor kWeather[] =
 {
 	/* The screen offers this one only where the key beside it passes a check
@@ -54,6 +65,9 @@ constexpr Descriptor kWeather[] =
 		.label("weather.enabled")
 		.hint("menu.hint_weather_enabled")
 		.defaultValue(1)
+#if ENABLE_WEATHER_KEY_MANAGE
+		.changeableWhen(kWeatherKeyEntered)
+#endif
 		.field(COREAPI_NUMBER_FIELD(weather_enabled)),
 
 #if ENABLE_WEATHER_KEY_MANAGE
@@ -72,7 +86,7 @@ constexpr Descriptor kWeather[] =
 		.section("weather")
 		.label("weather.api_key")
 		.hint("menu.hint_weather_api_key")
-		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.defaultValue(kWeatherKeyPlaceholder)
 		.text(kRuleKey32)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(weather_api_key)),
