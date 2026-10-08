@@ -66,6 +66,15 @@ Result<Descriptor> describe(const std::string &key);
    told its own write did nothing; a write this layer answered with an error left nothing. */
 Result<std::string> get(const std::string &key);
 
+/* What a write of several settings will leave behind, as key and wire text, so each of
+   them is judged on that and not on what the store holds before any has landed. Only
+   values check() passed and settleBatch() kept belong in it: a value that never lands
+   must not be what allows another one. */
+struct BatchOverlay
+{
+	std::vector<std::pair<std::string, std::string> > values;
+};
+
 /* One setting, given the way the wire carries it, so what get() answered can be sent again
    unchanged. The value is held to three things and each refuses a value the next would not:
    what the settings file can carry, what the declaration allows, and what the field behind

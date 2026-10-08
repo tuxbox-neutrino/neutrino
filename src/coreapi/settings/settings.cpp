@@ -360,6 +360,81 @@ bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out)
 	return true;
 }
 
+// The value batch writes under key, NULL when it writes none.
+const std::string *batchValue(const BatchOverlay *batch, const Descriptor &row)
+{
+	if (batch == NULL)
+		return NULL;
+	for (size_t i = 0; i < batch->values.size(); ++i)
+	{
+		if (batch->values[i].first == row.key)
+			return &batch->values[i].second;
+	}
+	return NULL;
+}
+
+/* The two readers a condition is judged with. False is "cannot say", which the evaluator
+   takes as holding, so a store that fails to read never refuses a write. A credential is
+   read from the store itself and not through get(), which withholds it: what a caller
+   cannot see must not be what refuses its write. */
+bool readNumberAfterBatch(const char *key, long *value, void *context)
+{
+	const Descriptor *row = findRow(key);
+	if (row == NULL || holdsText(*row) || row->type == ValueType::List ||
+	    row->type == ValueType::Records)
+		return false;
+
+	const std::string *sent = batchValue(static_cast<const BatchOverlay *>(context), *row);
+	if (sent != NULL)
+		return parseNumber(*sent, *value);
+
+	long stored = 0;
+	Status s = settingsSource().readInt(row->key, stored);
+	if (s == Status::NotFound)
+		stored = defaultInt(*row);
+	else if (s != Status::Ok)
+		return false;
+	*value = stored;
+	return true;
+}
+
+bool readTextAfterBatch(const char *key, std::string *value, void *context)
+{
+	const Descriptor *row = findRow(key);
+	if (row == NULL || !holdsText(*row))
+		return false;
+
+	const std::string *sent = batchValue(static_cast<const BatchOverlay *>(context), *row);
+	if (sent != NULL)
+	{
+		*value = *sent;
+		return true;
+	}
+
+	std::string stored;
+	Status s = settingsSource().readString(row->key, stored);
+	if (s == Status::NotFound)
+		stored = row->default_string != NULL ? row->default_string : "";
+	else if (s != Status::Ok)
+		return false;
+	value->swap(stored);
+	return true;
+}
+
+/* Asked last, once the value has passed every rule of its own: a value no row could
+   take is wrong whatever the other settings hold, and that answer is the one a caller
+   can act on without changing anything else. */
+Result<void> allowedByConditions(const Descriptor &d, const BatchOverlay *batch)
+{
+	// The cast only fits the lookup's untyped context; both readers take it back as const.
+	ValueLookup after_batch = { readNumberAfterBatch, readTextAfterBatch,
+	                            const_cast<BatchOverlay *>(batch) };
+	if (!conditionsHold(d, after_batch))
+		return fail(Status::Conflict, ErrorCode::SettingConditionNotMet,
+			    "the settings this one depends on do not allow it to be set");
+	return ok();
+}
+
 /* The file system types the recording and update screens refuse a folder on: flash,
    which wears out under a recording, and memory, which a restart empties. */
 const long kFsRamfs = 0x858458f6L;
