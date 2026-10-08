@@ -82,294 +82,294 @@ const Descriptor kSettings[] =
 {
 	// src/neutrino.cpp:6257 src/gui/keybind_setup.cpp:183
 	{
-		"key_tvradio_mode", ValueType::Int, "keybindings",
+		"key_tvradio_mode", ValueType::Key, "keybindings",
 		"keybindingmenu.tvradiomode", "menu.hint_key_tvradiomode",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_tvradio_mode)
 	},
 	// src/neutrino.cpp:6237 src/gui/keybind_setup.cpp:184
 	{
-		"key_power_off", ValueType::Int, "keybindings",
+		"key_power_off", ValueType::Key, "keybindings",
 		"keybindingmenu.poweroff", "menu.hint_key_poweroff",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_standby, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_power_off)
 	},
 	// src/neutrino.cpp:6243 src/gui/keybind_setup.cpp:185
 	{
-		"key_standby_off_add", ValueType::Int, "keybindings",
+		"key_standby_off_add", ValueType::Key, "keybindings",
 		"keybindingmenu.standbyoff_add", "menu.hint_key_standbyoff_add",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_ok, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_standby_off_add)
 	},
 	// src/neutrino.cpp:6216 src/gui/keybind_setup.cpp:186
 	{
-		"key_favorites", ValueType::Int, "keybindings",
+		"key_favorites", ValueType::Key, "keybindings",
 		"keybindingmenu.favorites", "menu.hint_key_favorites",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_favorites, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_favorites)
 	},
 	// src/neutrino.cpp:6226 src/gui/keybind_setup.cpp:187
 	{
-		"key_channelList_pageup", ValueType::Int, "keybindings",
+		"key_channelList_pageup", ValueType::Key, "keybindings",
 		"keybindingmenu.pageup", "menu.hint_key_pageup",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_page_up, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pageup)
 	},
 	// src/neutrino.cpp:6225 src/gui/keybind_setup.cpp:188
 	{
-		"key_channelList_pagedown", ValueType::Int, "keybindings",
+		"key_channelList_pagedown", ValueType::Key, "keybindings",
 		"keybindingmenu.pagedown", "menu.hint_key_pagedown",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_page_down, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pagedown)
 	},
 	// src/neutrino.cpp:6261 src/gui/keybind_setup.cpp:189
 	{
-		"key_volumeup", ValueType::Int, "keybindings",
+		"key_volumeup", ValueType::Key, "keybindings",
 		"keybindingmenu.volumeup", "menu.hint_key_volumeup",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_plus, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_volumeup)
 	},
 	// src/neutrino.cpp:6260 src/gui/keybind_setup.cpp:190
 	{
-		"key_volumedown", ValueType::Int, "keybindings",
+		"key_volumedown", ValueType::Key, "keybindings",
 		"keybindingmenu.volumedown", "menu.hint_key_volumedown",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_minus, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_volumedown)
 	},
 	// src/neutrino.cpp:6223 src/gui/keybind_setup.cpp:191
 	{
-		"key_list_start", ValueType::Int, "keybindings",
+		"key_list_start", ValueType::Key, "keybindings",
 		"extra.key_list_start", "menu.hint_key_list_start",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_list_start)
 	},
 	// src/neutrino.cpp:6222 src/gui/keybind_setup.cpp:192
 	{
-		"key_list_end", ValueType::Int, "keybindings",
+		"key_list_end", ValueType::Key, "keybindings",
 		"extra.key_list_end", "menu.hint_key_list_end",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_list_end)
 	},
 	// src/neutrino.cpp:6210 src/gui/keybind_setup.cpp:193
 	{
-		"key_channelList_cancel", ValueType::Int, "keybindings",
+		"key_channelList_cancel", ValueType::Key, "keybindings",
 		"keybindingmenu.cancel", "menu.hint_key_cancel",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_home, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_channelList_cancel)
 	},
 	// src/neutrino.cpp:6211 src/gui/keybind_setup.cpp:194
 	{
-		"key_channelList_sort", ValueType::Int, "keybindings",
+		"key_channelList_sort", ValueType::Key, "keybindings",
 		"keybindingmenu.sort", "menu.hint_key_sort",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_blue, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_channelList_sort)
 	},
 	// src/neutrino.cpp:6208 src/gui/keybind_setup.cpp:195
 	{
-		"key_channelList_addrecord", ValueType::Int, "keybindings",
+		"key_channelList_addrecord", ValueType::Key, "keybindings",
 		"keybindingmenu.addrecord", "menu.hint_key_addrecord",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_red, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_channelList_addrecord)
 	},
 	// src/neutrino.cpp:6209 src/gui/keybind_setup.cpp:196
 	{
-		"key_channelList_addremind", ValueType::Int, "keybindings",
+		"key_channelList_addremind", ValueType::Key, "keybindings",
 		"keybindingmenu.addremind", "menu.hint_key_addremind",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_yellow, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_channelList_addremind)
 	},
 	// src/neutrino.cpp:6207 src/gui/keybind_setup.cpp:197
 	{
-		"key_bouquet_up", ValueType::Int, "keybindings",
+		"key_bouquet_up", ValueType::Key, "keybindings",
 		"keybindingmenu.bouquetup", "menu.hint_key_bouquetup",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_right, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_bouquet_up)
 	},
 	// src/neutrino.cpp:6206 src/gui/keybind_setup.cpp:198
 	{
-		"key_bouquet_down", ValueType::Int, "keybindings",
+		"key_bouquet_down", ValueType::Key, "keybindings",
 		"keybindingmenu.bouquetdown", "menu.hint_key_bouquetdown",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_left, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_bouquet_down)
 	},
 	// src/neutrino.cpp:6212 src/gui/keybind_setup.cpp:199
 	{
-		"key_current_transponder", ValueType::Int, "keybindings",
+		"key_current_transponder", ValueType::Key, "keybindings",
 		"extra.key_current_transponder", "menu.hint_key_transponder",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_current_transponder)
 	},
 	// src/neutrino.cpp:6239 src/gui/keybind_setup.cpp:200
 	{
-		"key_quickzap_up", ValueType::Int, "keybindings",
+		"key_quickzap_up", ValueType::Key, "keybindings",
 		"keybindingmenu.channelup", "menu.hint_key_channelup",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_up, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_quickzap_up)
 	},
 	// src/neutrino.cpp:6238 src/gui/keybind_setup.cpp:201
 	{
-		"key_quickzap_down", ValueType::Int, "keybindings",
+		"key_quickzap_down", ValueType::Key, "keybindings",
 		"keybindingmenu.channeldown", "menu.hint_key_channeldown",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_down, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_quickzap_down)
 	},
 	// src/neutrino.cpp:6245 src/gui/keybind_setup.cpp:202
 	{
-		"key_subchannel_up", ValueType::Int, "keybindings",
+		"key_subchannel_up", ValueType::Key, "keybindings",
 		"keybindingmenu.subchannelup", "menu.hint_key_subchannelup",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_right, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_subchannel_up)
 	},
 	// src/neutrino.cpp:6244 src/gui/keybind_setup.cpp:203
 	{
-		"key_subchannel_down", ValueType::Int, "keybindings",
+		"key_subchannel_down", ValueType::Key, "keybindings",
 		"keybindingmenu.subchanneldown", "menu.hint_key_subchanneldown",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_left, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_subchannel_down)
 	},
 	// src/neutrino.cpp:6262 src/gui/keybind_setup.cpp:204
 	{
-		"key_zaphistory", ValueType::Int, "keybindings",
+		"key_zaphistory", ValueType::Key, "keybindings",
 		"keybindingmenu.zaphistory", "menu.hint_key_history",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_home, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_zaphistory)
 	},
 	// src/neutrino.cpp:6221 src/gui/keybind_setup.cpp:205
 	{
-		"key_lastchannel", ValueType::Int, "keybindings",
+		"key_lastchannel", ValueType::Key, "keybindings",
 		"keybindingmenu.lastchannel", "menu.hint_key_lastchannel",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_0, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_lastchannel)
 	},
 	// src/neutrino.cpp:6285 src/gui/keybind_setup.cpp:206
 	{
-		"mpkey.play", ValueType::Int, "keybindings",
+		"mpkey.play", ValueType::Key, "keybindings",
 		"mpkey.play", "menu.hint_key_mpplay",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_play, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_play)
 	},
 	// src/neutrino.cpp:6284 src/gui/keybind_setup.cpp:207
 	{
-		"mpkey.pause", ValueType::Int, "keybindings",
+		"mpkey.pause", ValueType::Key, "keybindings",
 		"mpkey.pause", "menu.hint_key_mppause",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_pause, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_pause)
 	},
 	// src/neutrino.cpp:6289 src/gui/keybind_setup.cpp:208
 	{
-		"mpkey.stop", ValueType::Int, "keybindings",
+		"mpkey.stop", ValueType::Key, "keybindings",
 		"mpkey.stop", "menu.hint_key_mpstop",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_stop, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_stop)
 	},
 	// src/neutrino.cpp:6274 src/gui/keybind_setup.cpp:209
 	{
-		"mpkey.forward", ValueType::Int, "keybindings",
+		"mpkey.forward", ValueType::Key, "keybindings",
 		"mpkey.forward", "menu.hint_key_mpforward",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_forward, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_forward)
 	},
 	// src/neutrino.cpp:6288 src/gui/keybind_setup.cpp:210
 	{
-		"mpkey.rewind", ValueType::Int, "keybindings",
+		"mpkey.rewind", ValueType::Key, "keybindings",
 		"mpkey.rewind", "menu.hint_key_mprewind",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_rewind, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_rewind)
 	},
 	// src/neutrino.cpp:6272 src/gui/keybind_setup.cpp:211
 	{
-		"mpkey.audio", ValueType::Int, "keybindings",
+		"mpkey.audio", ValueType::Key, "keybindings",
 		"mpkey.audio", "menu.hint_key_mpaudio",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_green, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_audio)
 	},
 	// src/neutrino.cpp:6290 src/gui/keybind_setup.cpp:212
 	{
-		"mpkey.subtitle", ValueType::Int, "keybindings",
+		"mpkey.subtitle", ValueType::Key, "keybindings",
 		"mpkey.subtitle", "menu.hint_key_mpsubtitle",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_sub, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_subtitle)
 	},
 	// src/neutrino.cpp:6291 src/gui/keybind_setup.cpp:213
 	{
-		"mpkey.time", ValueType::Int, "keybindings",
+		"mpkey.time", ValueType::Key, "keybindings",
 		"mpkey.time", "menu.hint_key_mptime",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_timeshift, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_time)
 	},
 	// src/neutrino.cpp:6273 src/gui/keybind_setup.cpp:214
 	{
-		"mpkey.bookmark", ValueType::Int, "keybindings",
+		"mpkey.bookmark", ValueType::Key, "keybindings",
 		"mpkey.bookmark", "menu.hint_key_mpbookmark",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_yellow, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_bookmark)
 	},
 	// src/neutrino.cpp:6275 src/gui/keybind_setup.cpp:215
 	{
-		"mpkey.goto", ValueType::Int, "keybindings",
+		"mpkey.goto", ValueType::Key, "keybindings",
 		"mpkey.goto", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_goto)
 	},
 	// src/neutrino.cpp:6276 src/gui/keybind_setup.cpp:216
 	{
-		"mpkey.next_repeat_mode", ValueType::Int, "keybindings",
+		"mpkey.next_repeat_mode", ValueType::Key, "keybindings",
 		"mpkey.next_repeat_mode", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_next_repeat_mode)
 	},
 	// src/neutrino.cpp:6287 src/gui/keybind_setup.cpp:217
 	{
-		"mpkey.plugin", ValueType::Int, "keybindings",
+		"mpkey.plugin", ValueType::Key, "keybindings",
 		"mpkey.plugin", "menu.hint_key_mpplugin",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mpkey_plugin)
 	},
 	// src/neutrino.cpp:6252 src/gui/keybind_setup.cpp:218
 	{
-		"key_timeshift", ValueType::Int, "keybindings",
+		"key_timeshift", ValueType::Key, "keybindings",
 		"extra.key_timeshift", "menu.hint_key_timeshift",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_pause, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_timeshift)
 	},
 	// src/neutrino.cpp:6259 src/gui/keybind_setup.cpp:219
 	{
-		"key_unlock", ValueType::Int, "keybindings",
+		"key_unlock", ValueType::Key, "keybindings",
 		"extra.key_unlock", "menu.hint_key_unlock",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_setup, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_unlock)
 	},
 	// src/neutrino.cpp:6220 src/gui/keybind_setup.cpp:220
 	{
-		"key_help", ValueType::Int, "keybindings",
+		"key_help", ValueType::Key, "keybindings",
 		"extra.key_help", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_help, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_help)
 	},
 	// src/neutrino.cpp:6224 src/gui/keybind_setup.cpp:221
 	{
-		"key_next43mode", ValueType::Int, "keybindings",
+		"key_next43mode", ValueType::Key, "keybindings",
 		"extra.key_next43mode", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_next43mode)
 	},
 	// src/neutrino.cpp:6246 src/gui/keybind_setup.cpp:222
 	{
-		"key_switchformat", ValueType::Int, "keybindings",
+		"key_switchformat", ValueType::Key, "keybindings",
 		"extra.key_switchformat", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_switchformat)
 	},
 	// src/neutrino.cpp:6241 src/gui/keybind_setup.cpp:223
 	{
-		"key_screenshot", ValueType::Int, "keybindings",
+		"key_screenshot", ValueType::Key, "keybindings",
 		"extra.key_screenshot", "menu.hint_key_screenshot",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_games, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_screenshot)
 	},
 	// src/neutrino.cpp:6242 src/gui/keybind_setup.cpp:224
 	{
-		"key_sleep", ValueType::Int, "keybindings",
+		"key_sleep", ValueType::Key, "keybindings",
 		"extra.key_sleep", "menu.hint_key_sleep",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_sleep, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_sleep)
@@ -377,42 +377,42 @@ const Descriptor kSettings[] =
 #if ENABLE_PIP
 	// src/neutrino.cpp:6230 src/gui/keybind_setup.cpp:226
 	{
-		"key_pip_close", ValueType::Int, "keybindings",
+		"key_pip_close", ValueType::Key, "keybindings",
 		"extra.key_pip_close", "menu.hint_key_pip_close",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_prev, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pip_close)
 	},
 	// src/neutrino.cpp:6231 src/gui/keybind_setup.cpp:227
 	{
-		"key_pip_close_avinput", ValueType::Int, "keybindings",
+		"key_pip_close_avinput", ValueType::Key, "keybindings",
 		"extra.key_pip_close_avinput", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pip_close_avinput)
 	},
 	// src/neutrino.cpp:6232 src/gui/keybind_setup.cpp:228
 	{
-		"key_pip_rotate_cw", ValueType::Int, "keybindings",
+		"key_pip_rotate_cw", ValueType::Key, "keybindings",
 		"extra.key_pip_rotate_cw", "menu.hint_key_pip_rotate_cw",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pip_rotate_cw)
 	},
 	// src/neutrino.cpp:6233 src/gui/keybind_setup.cpp:229
 	{
-		"key_pip_rotate_ccw", ValueType::Int, "keybindings",
+		"key_pip_rotate_ccw", ValueType::Key, "keybindings",
 		"extra.key_pip_rotate_ccw", "menu.hint_key_pip_rotate_ccw",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pip_rotate_ccw)
 	},
 	// src/neutrino.cpp:6234 src/gui/keybind_setup.cpp:230
 	{
-		"key_pip_setup", ValueType::Int, "keybindings",
+		"key_pip_setup", ValueType::Key, "keybindings",
 		"extra.key_pip_setup", "menu.hint_key_pip_setup",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pip_setup)
 	},
 	// src/neutrino.cpp:6235 src/gui/keybind_setup.cpp:231
 	{
-		"key_pip_swap", ValueType::Int, "keybindings",
+		"key_pip_swap", ValueType::Key, "keybindings",
 		"extra.key_pip_swap", "menu.hint_key_pip_close",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_next, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_pip_swap)
@@ -441,56 +441,56 @@ const Descriptor kSettings[] =
 	},
 	// src/neutrino.cpp:6240 src/gui/keybind_setup.cpp:236
 	{
-		"key_record", ValueType::Int, "keybindings",
+		"key_record", ValueType::Key, "keybindings",
 		"extra.key_record", "menu.hint_key_record",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_record, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(key_record)
 	},
 	// src/neutrino.cpp:6264 src/gui/keybind_setup.cpp:237
 	{
-		"mbkey.copy_onefile", ValueType::Int, "keybindings",
+		"mbkey.copy_onefile", ValueType::Key, "keybindings",
 		"mbkey.copy_onefile", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mbkey_copy_onefile)
 	},
 	// src/neutrino.cpp:6265 src/gui/keybind_setup.cpp:238
 	{
-		"mbkey.copy_several", ValueType::Int, "keybindings",
+		"mbkey.copy_several", ValueType::Key, "keybindings",
 		"mbkey.copy_several", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mbkey_copy_several)
 	},
 	// src/neutrino.cpp:6267 src/gui/keybind_setup.cpp:239
 	{
-		"mbkey.cut", ValueType::Int, "keybindings",
+		"mbkey.cut", ValueType::Key, "keybindings",
 		"mbkey.cut", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mbkey_cut)
 	},
 	// src/neutrino.cpp:6268 src/gui/keybind_setup.cpp:240
 	{
-		"mbkey.truncate", ValueType::Int, "keybindings",
+		"mbkey.truncate", ValueType::Key, "keybindings",
 		"mbkey.truncate", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_nokey, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mbkey_truncate)
 	},
 	// src/neutrino.cpp:6269 src/gui/keybind_setup.cpp:241
 	{
-		"mbkey.toggle_view_cw", ValueType::Int, "keybindings",
+		"mbkey.toggle_view_cw", ValueType::Key, "keybindings",
 		"mbkey.toggle_view_cw", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_right, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mbkey_toggle_view_cw)
 	},
 	// src/neutrino.cpp:6270 src/gui/keybind_setup.cpp:242
 	{
-		"mbkey.toggle_view_ccw", ValueType::Int, "keybindings",
+		"mbkey.toggle_view_ccw", ValueType::Key, "keybindings",
 		"mbkey.toggle_view_ccw", NULL,
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_left, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mbkey_toggle_view_ccw)
 	},
 	// src/neutrino.cpp:6266 src/gui/keybind_setup.cpp:243
 	{
-		"mbkey.cover", ValueType::Int, "keybindings",
+		"mbkey.cover", ValueType::Key, "keybindings",
 		"mbkey.cover", "menu.hint_mbkey_cover",
 		kKeyNone, kKeyMax, NULL, 0, (int32_t) CRCInput::RC_favorites, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(mbkey_cover)

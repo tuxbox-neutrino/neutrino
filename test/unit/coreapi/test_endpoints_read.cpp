@@ -22,6 +22,8 @@
 #include "support/catch.hpp"
 #include "support/fakes.h"
 
+#include <driver/rcinput.h>
+
 /* What configure wrote. Read here for one thing only: the counter route below
    is answered by every build and what it counts is not, so the case that holds
    it has to know which build it is in. */
@@ -1774,6 +1776,78 @@ TEST_CASE("a secret row is described but never valued", "[endpoints]")
 	REQUIRE(one.body.find("hunter2") == std::string::npos);
 }
 
+TEST_CASE("the schema describes a key row by its bounds", "[endpoints]")
+{
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+
+	const ::Json::Value items = parsed(get("/api/v1/settings/schema").body)["items"];
+	const ::Json::Value *key = NULL;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		if (items[i]["id"].asString() == "key_power_off")
+			key = &items[i];
+	}
+	REQUIRE(key != NULL);
+
+	CHECK((*key)["type"].asString() == "key");
+	CHECK((*key)["min"].asInt() == (int32_t) CRCInput::RC_nokey);
+	CHECK((*key)["max"].asInt() == (int) CRCInput::RC_MaxRC);
+	CHECK_FALSE(key->isMember("values"));
+	CHECK((*key)["default"].asString() == std::to_string((long) (int32_t) CRCInput::RC_standby));
+}
+
+TEST_CASE("the keys route lists no key first and every named key plain and held", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	coreapi::installRealKeySource();
+	struct Restore { ~Restore() { coreapi::setKeySource(0); } } restore;
+
+	const Reply r = get("/api/v1/settings/keys");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	const std::vector<coreapi::KeyName> all = coreapi::keySource().all();
+	// Exactly what the source lists, in its order: no key, then the named keys plain,
+	// then the same held.
+	REQUIRE(all.size() > 100);
+	REQUIRE(items.size() == all.size());
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		INFO(i);
+		CHECK(items[i]["code"].asInt() == all[i].code);
+		CHECK(items[i]["name"].asString() == all[i].name);
+	}
+	CHECK(items[0u]["code"].asInt() == (int32_t) CRCInput::RC_nokey);
+	CHECK(items[0u]["name"].asString() == "none");
+	CHECK((items.size() - 1) % 2 == 0);
+
+	bool ok = false;
+	bool held = false;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		const int code = items[i]["code"].asInt();
+		if (code == (int) CRCInput::RC_ok && items[i]["name"].asString() == "ok")
+			ok = true;
+		if (code == (int) (CRCInput::RC_ok | CRCInput::RC_Repeat) && items[i]["name"].asString() == "ok (long)")
+			held = true;
+	}
+	CHECK(ok);
+	CHECK(held);
+}
+
+TEST_CASE("the keys route answers an empty list while no input layer is installed", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	coreapi::setKeySource(0);
+
+	const Reply r = get("/api/v1/settings/keys");
+	REQUIRE(r.code == 200);
+	CHECK(parsed(r.body)["items"].size() == 0);
+}
+
 TEST_CASE("a section nobody declared is 404", "[endpoints]")
 {
 	ShippedRoutes shipped;
@@ -2613,7 +2687,7 @@ TEST_CASE("every route these modules read with asks for a read at least", "[endp
 		}
 	}
 
-	REQUIRE(read_routes == 29);
+	REQUIRE(read_routes == 30);
 }
 
 TEST_CASE("no route this server ships is reachable without a credential", "[endpoints]")
@@ -2783,6 +2857,7 @@ TEST_CASE("every answer carries the members its route says it does", "[endpoints
 		{ "/api/v1/epg/event",         "/api/v1/epg/event?id=" + hex(0x31) + "&start=100" },
 		{ "/api/v1/settings/schema",   "/api/v1/settings/schema" },
 		{ "/api/v1/settings/sections", "/api/v1/settings/sections" },
+		{ "/api/v1/settings/keys",     "/api/v1/settings/keys" },
 		{ "/api/v1/settings/{section}","/api/v1/settings/network" },
 		{ "/api/v1/system/info",       "/api/v1/system/info" },
 		{ "/api/v1/storage/mounts",    "/api/v1/storage/mounts" },
@@ -2794,7 +2869,7 @@ TEST_CASE("every answer carries the members its route says it does", "[endpoints
 	const size_t count = sizeof(cases) / sizeof(cases[0]);
 	// Every route this task declares, so a route left out of this list is one
 	// nothing here holds to its shape.
-	REQUIRE(count == 17);
+	REQUIRE(count == 18);
 
 	for (size_t i = 0; i < count; ++i)
 	{

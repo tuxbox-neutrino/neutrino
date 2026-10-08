@@ -37,7 +37,11 @@ enum class ValueType
 	Bool,
 	Int,
 	String,
-	Enum
+	Enum,
+	// A key code of the remote control, stored as the number the input layer
+	// names the key by and shown by the name the box shows for it. Its bounds
+	// are the codes the field holds; which codes are keys is asked at the write.
+	Key
 };
 
 // One choice an Enum offers. The number is what the setting stores and
@@ -372,6 +376,13 @@ inline bool descriptorIsSane(const Descriptor &d)
 
 		case ValueType::Int:
 			return d.default_int >= d.min && d.default_int <= d.max;
+
+		case ValueType::Key:
+			// A code is one number between the bounds the field holds. The words of a
+			// number are for an Int, and which codes are keys is asked at the write.
+			if (d.values != NULL || d.value_count != 0)
+				return false;
+			return d.min <= d.max && d.default_int >= d.min && d.default_int <= d.max;
 
 		case ValueType::String:
 			return d.default_string != NULL;

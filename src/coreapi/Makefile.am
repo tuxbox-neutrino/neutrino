@@ -46,6 +46,7 @@ libcoreapi_a_SOURCES = \
 	box/picturesource_real.cpp \
 	box/inputdevice_real.cpp \
 	box/screenshotsource_real.cpp \
+	box/keysource_real.cpp \
 	box/displaypicture.cpp \
 	box/logosource_real.cpp \
 	box/pluginsource_real.cpp \

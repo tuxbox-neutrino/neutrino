@@ -27,6 +27,7 @@
 #include "httpd/schema.h"
 #include "httpd/status.h"
 
+#include "coreapi/base/deps.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/base/result.h"
 #include "coreapi/base/schema.h"
@@ -52,6 +53,7 @@ const char *valueTypeName(coreapi::ValueType t)
 		case coreapi::ValueType::Int:    return "int";
 		case coreapi::ValueType::String: return "string";
 		case coreapi::ValueType::Enum:   return "enum";
+		case coreapi::ValueType::Key:    return "key";
 	}
 	// Unreachable while the compiler holds the switch to the enumeration, an
 	// unhandled enumerator being an error in this directory.
@@ -120,12 +122,15 @@ const Schema kConditionSchema = { "setting-condition", HTTPD_FIELDS(kConditionFi
 const FieldDesc kSettingFields[] = {
 	HTTPD_MEMBER("id", FieldType::String,
 		"what every route here names this setting by, which is the key the box stores it under"),
-	HTTPD_MEMBER_OF_SET("type", "bool,int,string,enum",
+	HTTPD_MEMBER_OF_SET("type", "bool,int,string,enum,key",
 		"what kind of value this setting holds, which decides how the rest of this descriptor is read",
 		"bool: stores 0 or 1 and is shown as a toggle\n"
 		"int: a whole number, bounded by min and max\n"
 		"string: free text or an identifier, with no numeric bounds\n"
-		"enum: one of a fixed or box reported set of choices, listed under values"),
+		"enum: one of a fixed or box reported set of choices, listed under values\n"
+		"key: the code of a remote control key, stored as a whole number between min and max and shown "
+		"by the name GET /api/v1/settings/keys gives it; a code that list does not name is accepted too "
+		"where a remote control can send it"),
 	HTTPD_MEMBER("section", FieldType::String,
 		"which page of the settings it belongs to, as GET /api/v1/settings/sections lists it"),
 	HTTPD_MEMBER_OPTIONAL("label", FieldType::String,
@@ -138,9 +143,9 @@ const FieldDesc kSettingFields[] = {
 		"the help the box shows beside the setting on its own screen; absent where there is no "
 		"hint or the catalog carries no text for it"),
 	HTTPD_MEMBER_OPTIONAL("min", FieldType::Int,
-		"the lowest whole number this setting accepts, present only when type is int"),
+		"the lowest whole number this setting accepts, present only when type is int or key"),
 	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int,
-		"the highest whole number this setting accepts, present only when type is int"),
+		"the highest whole number this setting accepts, present only when type is int or key"),
 	HTTPD_LIST_OF_OPTIONAL("values", &kEnumValueSchema,
 		"what it accepts, only for a setting that offers a set"),
 	HTTPD_MEMBER("default", FieldType::String,
@@ -174,6 +179,22 @@ const FieldDesc kSectionListFields[] = {
 };
 
 const Schema kSectionListSchema = { "setting-section-list", HTTPD_FIELDS(kSectionListFields) };
+
+const FieldDesc kKeyNameFields[] = {
+	HTTPD_MEMBER("code", FieldType::Int,
+		"the number a key setting stores for this key, matched against the setting's own stored value"),
+	HTTPD_MEMBER("name", FieldType::String,
+		"what the box calls the key, which is the text its own key chooser shows for the code"),
+};
+
+const Schema kKeyNameSchema = { "setting-key-name", HTTPD_FIELDS(kKeyNameFields) };
+
+const FieldDesc kKeyNameListFields[] = {
+	HTTPD_LIST_OF("items", &kKeyNameSchema,
+		"every key the box names: no key first, then each named key, pressed and then held"),
+};
+
+const Schema kKeyNameListSchema = { "setting-key-name-list", HTTPD_FIELDS(kKeyNameListFields) };
 
 const FieldDesc kValueFields[] = {
 	HTTPD_MEMBER("id", FieldType::String, "the setting, which is the key the box stores it under"),
@@ -228,10 +249,10 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		}
 	}
 
-	// Only a whole number is bounded by these. Every other kind leaves both at
-	// nought, and a pair of noughts written out would read as a setting that
-	// takes nothing but nought.
-	if (d.type == coreapi::ValueType::Int)
+	// Only a whole number and a key code are bounded by these. Every other kind
+	// leaves both at nought, and a pair of noughts written out would read as a
+	// setting that takes nothing but nought.
+	if (d.type == coreapi::ValueType::Int || d.type == coreapi::ValueType::Key)
 	{
 		j.key("min");
 		j.value(d.min);
@@ -369,6 +390,29 @@ Response settingsSections(const Request &)
 		j.beginObject();
 		j.key("id");
 		j.value(names[i]);
+		j.endObject();
+	}
+	j.endArray();
+	j.endObject();
+	return out;
+}
+
+Response settingsKeys(const Request &)
+{
+	const std::vector<coreapi::KeyName> all = coreapi::keySource().all();
+
+	Response out = okJson();
+	Json j(out.body, 32 + 48 * all.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		j.beginObject();
+		j.key("code");
+		j.value(all[i].code);
+		j.key("name");
+		j.value(all[i].name);
 		j.endObject();
 	}
 	j.endArray();
@@ -774,6 +818,17 @@ const Endpoint kSettingsEndpoints[] = {
 	  "\n"
 	  "**Related:** `GET /api/v1/settings/schema`, `GET /api/v1/settings/{section}`.",
 	  NULL, 0, &kSectionListSchema, &settingsSections, false,
+	  Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/v1/settings/keys", AuthLevel::Read,
+	  "the remote control keys a key setting takes, with their names",
+	  "Lists the keys the box has a name for and the name it shows for each: no key first, then each "
+	  "named key, pressed and then held. A key setting stores the code, so a frontend shows the name "
+	  "from this list and writes the code back. A setting may hold a code this list does not name, "
+	  "because the box accepts the code of any key a remote control can send, and a frontend keeps "
+	  "such a code rather than dropping it.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/settings/schema`, `PATCH /api/v1/settings/{section}`.",
+	  NULL, 0, &kKeyNameListSchema, &settingsKeys, false,
 	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/settings/{section}", AuthLevel::Read,
 	  "what one section's settings are set to",

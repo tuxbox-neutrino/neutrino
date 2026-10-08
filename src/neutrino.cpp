@@ -3337,6 +3337,7 @@ TIMER_START();
 	CRCLock::getInstance();
 	coreapi::installRealInputDevice();
 	coreapi::installRealScreenshotSource();
+	coreapi::installRealKeySource();
 	coreapi::installRealLogoSource();
 	coreapi::installRealPluginSource();
 	coreapi::installRealRecordingSource();

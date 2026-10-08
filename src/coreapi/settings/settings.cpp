@@ -182,6 +182,17 @@ Result<void> allowedByRow(const Descriptor &d, long value)
 			return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
 				    "the setting does not offer that value");
 
+		case ValueType::Key:
+			if (value < d.min || value > d.max)
+				return fail(Status::InvalidArgument, ErrorCode::OutOfRange,
+					    "the setting takes the code of a key of the remote control");
+			// Inside the bounds is still no key where the code is one the input layer
+			// never delivers, such as a release.
+			if (!keySource().known(value))
+				return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+					    "the setting takes the code of a key a remote control can send, or no key");
+			return ok();
+
 		case ValueType::String:
 			break;
 	}

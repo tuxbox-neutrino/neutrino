@@ -1734,7 +1734,7 @@ const char *CRCInput::getUnicodeValue(const neutrino_msg_t key)
 *       transforms the rc-key to const char *
 *
 **************************************************************************/
-const char * CRCInput::getSpecialKeyName(const unsigned int key)
+const char *CRCInput::findSpecialKeyName(const unsigned int key)
 {
 	switch(key)
 	{
@@ -1891,9 +1891,17 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 			case RC_f10:
 				return "f10";
 			default:
-				printf("unknown key: %d (0x%x) \n", key, key);
-				return "unknown";
+				return NULL;
 	}
+}
+
+const char *CRCInput::getSpecialKeyName(const unsigned int key)
+{
+	const char *name = findSpecialKeyName(key);
+	if (name != NULL)
+		return name;
+	printf("unknown key: %d (0x%x) \n", key, key);
+	return "unknown";
 }
 
 std::string CRCInput::getKeyName(const unsigned int key)

@@ -696,6 +696,38 @@ void setScreenshotSource(ScreenshotSource *s);
 // Binds the accessors above to the box's own screen and display.
 void installRealScreenshotSource();
 
+struct KeyName
+{
+	long        code;
+	std::string name;
+};
+
+/* The remote control keys a key setting may hold, which the input layer names
+   and this layer must not include. A code is a key when it is no key at all or
+   a code the layer can deliver, pressed or held, whether or not it has a name:
+   the key chooser stores what it is sent. A code between the bounds the field
+   holds that the layer cannot deliver, such as a release, is none.
+
+   Not one of the seams that end the process when nothing is installed, for the
+   reason the locale source is not. Nothing installed answers that every code is
+   a key and names none: a layer that cannot say what a key is takes the bounds
+   of the row for the whole rule, as a condition it cannot read holds. */
+struct KeySource
+{
+	virtual ~KeySource() {}
+	virtual bool known(long code) const = 0;
+	// What the box shows for the code, empty for one without a name.
+	virtual std::string name(long code) const = 0;
+	// The named keys: no key first, then each plain and held.
+	virtual std::vector<KeyName> all() const = 0;
+};
+
+KeySource &keySource();
+void setKeySource(KeySource *s);
+
+// Binds the accessor above to the input layer's own table of key names.
+void installRealKeySource();
+
 /* The tuner: which the box has, what each is doing, and what it is locked to.
 
    A box with no tuner at all is a box these answer about rather than one they

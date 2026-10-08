@@ -285,6 +285,9 @@ class CRCInput
 		static const char *getUnicodeValue(const neutrino_msg_t key);
 		uint32_t *setAllowRepeat(uint32_t *);
 
+		// NULL for a key the table has no name for, where getSpecialKeyName says
+		// "unknown" and prints a line, which a walk over every code must not.
+		static const char *findSpecialKeyName(const unsigned int key);
 		static const char *getSpecialKeyName(const unsigned int key);
 		static const char *getKeyNameC(const unsigned int key);
 		static std::string getKeyName(const unsigned int key);
