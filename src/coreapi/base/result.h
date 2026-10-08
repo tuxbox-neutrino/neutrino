@@ -27,6 +27,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 // Every entry point returns a Result. Hand a container over with
 // ok(std::move(out)), otherwise the payload is copied.
@@ -67,6 +68,9 @@ struct Error
 	// errors.h turns it into what goes on a wire.
 	ErrorCode   code;
 	std::string message;
+	/* For setting-condition-not-met: the settings whose values refused it, so a caller can
+	   name them rather than parse message. Empty for every other code. */
+	std::vector<std::string> depends_on;
 
 	Error() : status(Status::Internal), code(ErrorCode::BoxUnreadable) {}
 	Error(Status s, ErrorCode c, const std::string &m)

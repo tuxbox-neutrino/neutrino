@@ -67,7 +67,7 @@ inline const char *jsonContentType()
    is inside a branch that has already asked. */
 inline Response problemFor(const coreapi::Error &e)
 {
-	return problemResponse(httpStatus(e.status), e.code, e.message);
+	return problemResponse(httpStatus(e.status), e);
 }
 
 // The head of an answer that succeeded, so that the code and the media type

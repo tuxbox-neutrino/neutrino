@@ -131,6 +131,8 @@ void addPageHeaders(Response &r);
    request down answers through this, the router and the transport alike, two shapes
    for one kind of answer being two documents a client has to know about. */
 Response problemResponse(int http_code, coreapi::ErrorCode code, const std::string &detail);
+// The same for a whole error, which carries depends_on where the layer below named any.
+Response problemResponse(int http_code, const coreapi::Error &e);
 
 /* The same document for the one refusal above written out already, for the answer
    that has to be sent when writing one has just failed.

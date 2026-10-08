@@ -304,12 +304,18 @@ Result<void> holdsOffered(ChoiceSource from, const std::string &text, const std:
 }
 
 
+ValueLookup lookupAfter(const BatchOverlay *batch);
+
 /* The values a row offers, whichever of the places they come from. One
    function, because the write is held to the same set a read answers with:
    written twice, a caller could be offered a value the write turns down. False is
-   a row that offers no set at all and a set nobody can state. */
-bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out)
+   a row that offers no set at all and a set nobody can state. The entries' own
+   conditions are judged on batch first and the store after it;
+   ignoreWhen leaves them out, for the pass that has no batch yet. */
+bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out,
+		   const BatchOverlay *batch = NULL, bool ignoreWhen = false)
 {
+	const ValueLookup now = lookupAfter(batch);
 	if (d.choices_from != NULL)
 		return providedChoices(d, out);
 
@@ -337,7 +343,7 @@ bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out)
 	for (size_t i = 0; i < d.value_count; ++i)
 	{
 		const EnumValue &e = d.values[i];
-		if (!entryOffered(e))
+		if (ignoreWhen ? (e.available != NULL && !e.available()) : !entryOffered(e, now))
 			continue;
 		SettingChoice one;
 		one.value = e.value;
@@ -421,17 +427,63 @@ bool readTextAfterBatch(const char *key, std::string *value, void *context)
 	return true;
 }
 
-/* Asked last, once the value has passed every rule of its own: a value no row could
-   take is wrong whatever the other settings hold, and that answer is the one a caller
-   can act on without changing anything else. */
-Result<void> allowedByConditions(const Descriptor &d, const BatchOverlay *batch)
+ValueLookup lookupAfter(const BatchOverlay *batch)
 {
 	// The cast only fits the lookup's untyped context; both readers take it back as const.
 	ValueLookup after_batch = { readNumberAfterBatch, readTextAfterBatch,
 	                            const_cast<BatchOverlay *>(batch) };
-	if (!conditionsHold(d, after_batch))
-		return fail(Status::Conflict, ErrorCode::SettingConditionNotMet,
-			    "the settings this one depends on do not allow it to be set");
+	return after_batch;
+}
+
+/* Asked last, once the value has passed every rule of its own: a value no row could
+   take is wrong whatever the other settings hold, and that answer is the one a caller
+   can act on without changing anything else. The entry of an enum that the value names
+   is judged here too, on the batch and then the store, because the settings its own
+   condition reads can be written in the same batch. value is NULL where there is none. */
+void addOnce(std::vector<std::string> &keys, const char *key)
+{
+	if (key != NULL && std::find(keys.begin(), keys.end(), key) == keys.end())
+		keys.push_back(key);
+}
+
+// The settings read by the conditions of d that do not hold, a group that fails naming all it reads.
+std::vector<std::string> failingKeys(const Descriptor &d, const ValueLookup &lookup)
+{
+	std::vector<std::string> keys;
+	for (size_t i = 0; d.conditions != NULL && i < d.condition_count; ++i)
+	{
+		const Condition &c = d.conditions[i];
+		if (conditionsHold(&c, 1, lookup))
+			continue;
+		if (!conditionIsGroup(c))
+			addOnce(keys, c.key);
+		for (size_t m = 0; conditionIsGroup(c) && c.any_of != NULL && m < c.any_count; ++m)
+			addOnce(keys, c.any_of[m].key);
+	}
+	return keys;
+}
+
+Result<void> allowedByConditions(const Descriptor &d, const BatchOverlay *batch, const std::string *value = NULL)
+{
+	const ValueLookup after_batch = lookupAfter(batch);
+	// A batch has been through the couplings, and for such a pair theirs is the answer.
+	if (!(batch != NULL && judgedByCoupling(d)) && !conditionsHold(d, after_batch))
+		return Result<void>::failure(conditionRefusal("the settings this one depends on do not allow it to be set",
+							      failingKeys(d, after_batch)));
+
+	long number = 0;
+	if (value != NULL && d.type == ValueType::Enum && d.choices_from == NULL && d.values != NULL &&
+	    parseNumber(*value, number))
+	{
+		for (size_t i = 0; i < d.value_count; ++i)
+		{
+			const EnumValue &e = d.values[i];
+			if (e.value == number && e.when_count > 0 && !conditionsHold(e.when, e.when_count, after_batch) &&
+			    !keptValue(d, number))
+				return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+					    "the setting does not offer that value");
+		}
+	}
 	return ok();
 }
 
@@ -800,6 +852,7 @@ Result<void> check(const std::string &key, const std::string &value)
 		return fail(Status::NotFound, ErrorCode::UnknownSetting,
 			    "no setting is declared under that key");
 	long number = 0;
+	// The entries' own conditions wait for the batch, which the first pass of a batch has not got.
 	return heldToRow(d, value, number);
 }
 

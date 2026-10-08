@@ -59,17 +59,10 @@ struct EnumValue
 	// NULL is always offered. Evaluated per request, so it may ask the box.
 	bool      (*available)();
 	// The entry is offered only while every one of these holds, NULL for always.
-	// Not read yet: the rows leave it empty until the lists that depend on
-	// another setting are declared.
+	// Judged with the settings as they stand, wherever the list is built.
 	const Condition *when;
 	size_t            when_count;
 };
-
-// One test for whether an entry is shown, so the lists built from a row agree.
-inline bool entryOffered(const EnumValue &e)
-{
-	return e.available == NULL || e.available();
-}
 
 /* One value a setting offers, with its label already the text the box shows.
    A value and not a range, because what the box offers is a set with holes in
@@ -1325,14 +1318,14 @@ inline bool comparisonHolds(const Condition &c, const ValueLookup &lookup)
 //
 // A frontend that reads the list itself and disagrees with this function is
 // wrong.
-inline bool conditionsHold(const Descriptor &d, const ValueLookup &lookup)
+inline bool conditionsHold(const Condition *list, size_t count, const ValueLookup &lookup)
 {
-	if (d.conditions == NULL)
+	if (list == NULL)
 		return true;
 
-	for (size_t i = 0; i < d.condition_count; ++i)
+	for (size_t i = 0; i < count; ++i)
 	{
-		const Condition &c = d.conditions[i];
+		const Condition &c = list[i];
 
 		bool holds = true;
 		if (!conditionIsGroup(c))
@@ -1349,6 +1342,21 @@ inline bool conditionsHold(const Descriptor &d, const ValueLookup &lookup)
 	}
 
 	return true;
+}
+
+inline bool conditionsHold(const Descriptor &d, const ValueLookup &lookup)
+{
+	return conditionsHold(d.conditions, d.condition_count, lookup);
+}
+
+/* Whether an entry of a list is offered: the box has what it stands for and the
+   settings it depends on allow it. One test for every list built from a row, so
+   they agree. */
+inline bool entryOffered(const EnumValue &e, const ValueLookup &lookup)
+{
+	if (e.available != NULL && !e.available())
+		return false;
+	return conditionsHold(e.when, e.when_count, lookup);
 }
 
 } // namespace coreapi

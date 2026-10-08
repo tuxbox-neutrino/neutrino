@@ -57,6 +57,10 @@ struct BatchRefusal
    partners down the same way. What is left in batch is what the caller stores. */
 void keepTogether(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &refused);
 
+/* setting-condition-not-met naming the settings that refused it, in the detail after
+   message and in depends_on. */
+Error conditionRefusal(const char *message, const std::vector<std::string> &because_of);
+
 /* The other half of a setting that is one fact in two parts, NULL for any other. writes,
    where given, says how the two are written: "id" where the identifier alone is written
    and the box fills in the other half, "both" where the two are written together. */

@@ -722,6 +722,23 @@ void appendProblemSchema(Json &j, bool prose)
 		}
 		j.endObject();
 	}
+	// Optional, so it stays out of required: only setting-condition-not-met carries it.
+	j.key("depends_on");
+	j.beginObject();
+	j.key("type");
+	j.value("array");
+	j.key("items");
+	j.beginObject();
+	j.key("type");
+	j.value("string");
+	j.endObject();
+	if (prose)
+	{
+		j.key("description");
+		j.value("present only for `setting-condition-not-met`: the keys of the settings whose values refused "
+		        "this one, which `detail` names as well");
+	}
+	j.endObject();
 	j.endObject();
 	j.key("required");
 	j.beginArray();

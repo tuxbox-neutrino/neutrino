@@ -161,6 +161,15 @@ void appendProblem(std::string &out, const coreapi::Error &e, int http_code)
 	j.key("detail");
 	j.value(e.message);
 
+	if (!e.depends_on.empty())
+	{
+		j.key("depends_on");
+		j.beginArray();
+		for (size_t i = 0; i < e.depends_on.size(); ++i)
+			j.value(e.depends_on[i]);
+		j.endArray();
+	}
+
 	j.endObject();
 }
 
@@ -291,10 +300,15 @@ void addApiHeaders(Response &r)
 
 Response problemResponse(int http_code, coreapi::ErrorCode code, const std::string &detail)
 {
+	return problemResponse(http_code, coreapi::Error(statusForCode(http_code), code, detail));
+}
+
+Response problemResponse(int http_code, const coreapi::Error &e)
+{
 	Response r;
 	r.code = http_code;
 	r.content_type = problemContentType();
-	appendProblem(r.body, coreapi::Error(statusForCode(http_code), code, detail), http_code);
+	appendProblem(r.body, e, http_code);
 	return r;
 }
 

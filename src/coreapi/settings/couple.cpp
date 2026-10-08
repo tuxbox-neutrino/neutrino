@@ -234,6 +234,16 @@ void coupleWeather(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &r
 
 } // anonymous namespace
 
+Error conditionRefusal(const char *message, const std::vector<std::string> &because_of)
+{
+	std::string said = message;
+	for (size_t i = 0; i < because_of.size(); ++i)
+		said += (i == 0 ? ": " : ", ") + because_of[i];
+	Error e(Status::Conflict, ErrorCode::SettingConditionNotMet, said);
+	e.depends_on = because_of;
+	return e;
+}
+
 void keepTogether(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &refused)
 {
 	coupleChannels(batch, refused);
