@@ -125,12 +125,12 @@ static std::string iwd_profile(const std::string &ifname)
 	if (!iwd->available() || iwd->deviceName() != ifname)
 		return "";
 
-	std::vector<iwd_network> networks;
+	std::vector<wireless_network> networks;
 	iwd->getNetworks(networks);
 	for (size_t i = 0; i < networks.size(); i++)
 	{
-		const iwd_network &n = networks[i];
-		if (!n.connected || n.known_path.empty())
+		const wireless_network &n = networks[i];
+		if (!n.connected || n.known_id.empty())
 			continue;
 
 		/* names with other characters than these are stored hex encoded */
@@ -452,7 +452,7 @@ static void iwd_reconnect(const std::string &ifname)
 	if (!iwd->available() || iwd->deviceName() != ifname)
 		return;
 
-	std::vector<iwd_network> networks;
+	std::vector<wireless_network> networks;
 	iwd->getNetworks(networks);
 	for (size_t i = 0; i < networks.size(); i++)
 	{
@@ -513,14 +513,4 @@ void CNetworkConfig::waitForAddress(void)
 void CNetworkConfig::stopNetwork(void)
 {
 	/* networkd replaces the running setup on reconfigure */
-}
-
-void CNetworkConfig::readWpaConfig()
-{
-	ssid = "";
-	key = "";
-}
-
-void CNetworkConfig::saveWpaConfig()
-{
 }

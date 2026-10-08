@@ -1,5 +1,5 @@
 /*
-	wireless network setup through iwd - Neutrino-GUI
+	wireless network setup through iwd or wpa_supplicant - Neutrino-GUI
 
 	License: GPL
 
@@ -21,7 +21,7 @@
 #define __wlan_setup__
 
 #include <gui/widget/menue.h>
-#include <system/iwd_client.h>
+#include <system/wlan_client.h>
 
 #include <string>
 #include <vector>
@@ -29,9 +29,9 @@
 class CWlanSetup : public CMenuTarget
 {
 	private:
-		CIwdClient *iwd;
+		CWlanClient *wlan;
 		CMenuWidget *menu;
-		std::vector<iwd_network> networks;
+		std::vector<wireless_network> networks;
 		std::vector<std::string> options;
 		int width;
 		int first_network;
@@ -39,7 +39,7 @@ class CWlanSetup : public CMenuTarget
 		bool rescan;
 
 		int show();
-		void connectTo(const iwd_network &network);
+		void connectTo(const wireless_network &network);
 		void connectHidden();
 		void forgetSelected();
 		void disconnect();
@@ -51,7 +51,7 @@ class CWlanSetup : public CMenuTarget
 
 		int exec(CMenuTarget *parent, const std::string &actionKey);
 
-		/* there is a wireless device and iwd lets us use it */
+		/* there is a wireless device and the backend lets us use it */
 		static bool available();
 		/* name of the connected network for the menu entry */
 		static std::string connectedNetwork();

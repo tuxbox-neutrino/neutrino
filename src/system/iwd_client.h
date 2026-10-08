@@ -23,31 +23,15 @@
 #include <vector>
 
 #include "dbus_objects.h"
+#include "wlan_client.h"
 
 struct DBusConnection;
 struct DBusMessage;
 
-struct iwd_network
-{
-	std::string path;	/* the network's D-Bus object, what every call refers to */
-	std::string name;	/* SSID, for display only */
-	std::string type;	/* open, psk, 8021x, wep */
-	std::string known_path;	/* set when iwd has stored the network */
-	int signal;		/* 100 * dBm */
-	bool connected;
-};
-
-class CIwdClient
+/* a network's id is its D-Bus object, its known_id the one of the stored network */
+class CIwdClient : public CWlanClient
 {
 	public:
-		enum
-		{
-			CONNECT_OK,
-			CONNECT_FAILED,
-			CONNECT_NOT_SUPPORTED,
-			CONNECT_UNAVAILABLE
-		};
-
 		static CIwdClient *getInstance();
 
 		/* iwd answers on the system bus, lets us in and has a wireless device */
@@ -57,17 +41,14 @@ class CIwdClient
 		std::string connectedNetwork();
 
 		bool scan(int timeout_ms = 15000);
-		bool getNetworks(std::vector<iwd_network> &networks);
+		bool getNetworks(std::vector<wireless_network> &networks);
 
 		/* the passphrase is only handed to iwd when it asks for it, an empty
 		 * one is right for open and for stored networks */
-		int connect(const iwd_network &network, std::string &passphrase);
+		int connect(const wireless_network &network, std::string &passphrase);
 		int connectHidden(const std::string &ssid, std::string &passphrase);
 		bool disconnect();
-		bool forget(const iwd_network &network);
-
-		/* overwrite a string that held a secret before releasing it */
-		static void wipe(std::string &secret);
+		bool forget(const wireless_network &network);
 
 		/* entry point of the D-Bus dispatcher: iwd asks its agent */
 		DBusMessage *agentRequest(DBusMessage *msg);

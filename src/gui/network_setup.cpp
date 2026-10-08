@@ -65,11 +65,7 @@
 #include <system/helpers.h>
 
 #include <libnet.h>
-#ifdef ENABLE_IWD
 #include <gui/wlan_setup.h>
-#else
-#include <libiw/iwscan.h>
-#endif
 #include <libconfigfile/configfile.h>
 #include <nhttpd/yconfig.h>
 
@@ -129,7 +125,6 @@ int CNetworkSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		showCurrentNetworkSettings();
 		return res;
 	}
-#ifdef ENABLE_IWD
 	else if (actionKey == "wlan")
 	{
 		CWlanSetup wlan;
@@ -137,12 +132,6 @@ int CNetworkSetup::exec(CMenuTarget *parent, const std::string &actionKey)
 		wlan_status = CWlanSetup::connectedNetwork();
 		return res;
 	}
-#else
-	else if (actionKey == "scanssid")
-	{
-		return showWlanList();
-	}
-#endif
 	else if (actionKey == "select_if")
 	{
 		return showInterfaceSelectMenu();
@@ -186,9 +175,6 @@ void CNetworkSetup::readNetworkSettings()
 	network_gateway		= networkConfig->gateway;
 	network_hostname	= networkConfig->hostname;
 	mac_addr		= networkConfig->mac_addr;
-	network_ssid		= networkConfig->ssid;
-	network_key		= networkConfig->key;
-	network_key_mask	= std::string(network_key.length(), '*');
 }
 
 void CNetworkSetup::backupNetworkSettings()
@@ -202,8 +188,6 @@ void CNetworkSetup::backupNetworkSettings()
 	old_network_nameserver		= networkConfig->nameserver;
 	old_network_gateway		= networkConfig->gateway;
 	old_network_hostname		= networkConfig->hostname;
-	old_network_ssid		= networkConfig->ssid;
-	old_network_key			= networkConfig->key;
 	old_ifname 			= g_settings.ifname;
 	old_mac_addr			= mac_addr;
 }
@@ -411,9 +395,8 @@ int CNetworkSetup::showNetworkSetup()
 		networkSettings->addItem(o1);	//set on start
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
-#ifdef ENABLE_IWD
 	{
-		//wireless networks are iwd's business, reached through its own menu
+		//wireless networks are the business of iwd or wpa_supplicant, reached through their own menu
 		const bool have_wlan = CWlanSetup::available();
 		wlan_status = have_wlan ? CWlanSetup::connectedNetwork() : "";
 		mf = new CMenuForwarder(LOCALE_NETWORKMENU_WLAN, have_wlan, wlan_status, this, "wlan");
@@ -421,32 +404,6 @@ int CNetworkSetup::showNetworkSetup()
 		networkSettings->addItem(mf);
 		networkSettings->addItem(GenericMenuSeparatorLine);
 	}
-#else
-	if (ifcount > 1) // if there is only one, its probably wired
-	{
-		//ssid
-		CKeyboardInput *networkSettings_ssid = new CKeyboardInput(LOCALE_NETWORKMENU_SSID, &network_ssid);
-		//key, shown masked in the menu
-		CKeyboardInput *networkSettings_key = new CKeyboardInput(LOCALE_NETWORKMENU_PASSWORD, &network_key, 63, this);
-		networkSettings_key->setMasked(true);
-		CMenuForwarder *m9 = new CMenuDForwarder(LOCALE_NETWORKMENU_SSID, networkConfig->wireless, network_ssid, networkSettings_ssid);
-		CMenuForwarder *m10 = new CMenuDForwarder(LOCALE_NETWORKMENU_PASSWORD, networkConfig->wireless, network_key_mask, networkSettings_key);
-		CMenuForwarder *m11 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID_SCAN, networkConfig->wireless, NULL, this, "scanssid");
-
-		m9->setHint("", LOCALE_MENU_HINT_NET_SSID);
-		m10->setHint("", LOCALE_MENU_HINT_NET_PASS);
-		m11->setHint("", LOCALE_MENU_HINT_NET_SSID_SCAN);
-
-		wlanEnable.Add(m9);
-		wlanEnable.Add(m10);
-		wlanEnable.Add(m11);
-
-		networkSettings->addItem(m11);	//ssid scan
-		networkSettings->addItem(m9);	//ssid
-		networkSettings->addItem(m10);	//key
-		networkSettings->addItem(GenericMenuSeparatorLine);
-	}
-#endif
 	//------------------------------------------------
 	networkSettings->addItem(mac);	//eth id
 	networkSettings->addItem(GenericMenuSeparatorLine);
@@ -495,7 +452,6 @@ int CNetworkSetup::showNetworkSetup()
 	}
 
 	dhcpDisable.Clear();
-	wlanEnable.Clear();
 	configEnable.Clear();
 	delete networkSettings;
 	delete sectionsdConfigNotifier;
@@ -712,12 +668,6 @@ bool CNetworkSetup::checkStringSettings()
 			dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d],  %d: %s -> %s\n", __func__, __LINE__, i, n_ssettings[i].old_network_setting.c_str(), n_ssettings[i].network_setting.c_str());
 			return true;
 		}
-	if (CNetworkConfig::getInstance()->wireless)
-	{
-		if ((old_network_ssid != network_ssid) || (old_network_key != network_key))
-			return true;
-	}
-
 	return false;
 }
 
@@ -744,8 +694,6 @@ void CNetworkSetup::prepareSettings()
 	networkConfig->gateway 		= network_gateway;
 	networkConfig->nameserver 	= network_nameserver;
 	networkConfig->hostname 	= network_hostname;
-	networkConfig->ssid 		= network_ssid;
-	networkConfig->key 		= network_key;
 
 	readNetworkSettings();
 	backupNetworkSettings();
@@ -862,8 +810,6 @@ void CNetworkSetup::restoreNetworkSettings()
 	network_nameserver		= old_network_nameserver;
 	network_gateway			= old_network_gateway;
 	network_hostname		= old_network_hostname;
-	network_ssid			= old_network_ssid;
-	network_key			= old_network_key;
 
 	networkConfig->automatic_start 	= network_automatic_start;
 	networkConfig->inet_static 	= (network_dhcp ? false : true);
@@ -873,8 +819,6 @@ void CNetworkSetup::restoreNetworkSettings()
 	networkConfig->gateway 		= network_gateway;
 	networkConfig->nameserver 	= network_nameserver;
 	networkConfig->hostname 	= network_hostname;
-	networkConfig->ssid 		= network_ssid;
-	networkConfig->key 		= network_key;
 
 	networkConfig->commitConfig();
 	changeNotify(LOCALE_NETWORKMENU_SELECT_IF, NULL);
@@ -898,17 +842,11 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * /*Data*/
 
 		configEnable.Activate(CNetworkConfig::getInstance()->canConfigure());
 		changeNotify(LOCALE_NETWORKMENU_DHCP, &CNetworkConfig::getInstance()->inet_static);
-
-		wlanEnable.Activate(CNetworkConfig::getInstance()->wireless);
 	}
 	else if (locale == LOCALE_NETWORKMENU_DHCP)
 	{
 		CNetworkConfig::getInstance()->inet_static = (network_dhcp == NETWORK_DHCP_OFF);
 		dhcpDisable.Activate(CNetworkConfig::getInstance()->inet_static && CNetworkConfig::getInstance()->canConfigure());
-	}
-	else if (locale == LOCALE_NETWORKMENU_PASSWORD)
-	{
-		network_key_mask = std::string(network_key.length(), '*');
 	}
 	return false;
 }
@@ -1078,54 +1016,3 @@ void CNetworkSetup::testNetworkSettings()
 	ShowMsg(LOCALE_NETWORKMENU_TEST, text, CMsgBox::mbrBack, CMsgBox::mbBack, NEUTRINO_ICON_NETWORK, MSGBOX_MIN_WIDTH, NO_TIMEOUT, false, CMsgBox::AUTO_WIDTH | CMsgBox::AUTO_HIGH);
 }
 
-#ifndef ENABLE_IWD
-int CNetworkSetup::showWlanList()
-{
-	int   res = menu_return::RETURN_REPAINT;
-
-	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_WAIT));
-	hintBox.paint();
-
-	std::vector<wlan_network> networks;
-	bool found = get_wlan_list(g_settings.ifname, networks);
-	hintBox.hide();
-	if (!found)
-	{
-		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_ERROR), CMsgBox::mbrBack, CMsgBox::mbBack); // UTF-8
-		return res;
-	}
-
-	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_NETWORK, width);
-	wlist.addIntroItems(LOCALE_NETWORKMENU_SSID_SCAN); //intros
-
-	char cnt[12];
-	int select = -1;
-	CMenuSelectorTarget *selector = new CMenuSelectorTarget(&select);
-
-	std::string option[networks.size()];
-	for (unsigned i = 0; i < networks.size(); ++i)
-	{
-		sprintf(cnt, "%d", i);
-
-		option[i] = networks[i].qual;
-		option[i] += ", ";
-		option[i] += networks[i].channel;
-
-		const char *icon = NULL;
-		if (networks[i].encrypted)
-			icon = NEUTRINO_ICON_MARKER_LOCK;
-		CMenuForwarder *net = new CMenuForwarder(networks[i].ssid.c_str(), true, option[i], selector, cnt, CRCInput::RC_nokey, NULL, icon);
-		net->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
-		wlist.addItem(net, networks[i].ssid == network_ssid);
-	}
-	res = wlist.exec(NULL, "");
-	delete selector;
-
-	dprintf(DEBUG_NORMAL, "[CNetworkSetup]\t[%s - %d], selected: %d\n", __func__, __LINE__, select);
-	if (select >= 0)
-	{
-		network_ssid = networks[select].ssid;
-	}
-	return res;
-}
-#endif

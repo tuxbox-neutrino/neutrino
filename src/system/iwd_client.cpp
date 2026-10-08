@@ -59,14 +59,6 @@ CIwdClient *CIwdClient::getInstance()
 	return client;
 }
 
-void CIwdClient::wipe(std::string &secret)
-{
-	volatile char *p = secret.empty() ? NULL : &secret[0];
-	for (size_t i = 0; p && i < secret.length(); i++)
-		p[i] = 0;
-	secret.clear();
-}
-
 /* the tree anew, and the station in it */
 bool CIwdClient::refresh()
 {
@@ -117,7 +109,7 @@ bool CIwdClient::scan(int timeout_ms)
 	return true;
 }
 
-bool CIwdClient::getNetworks(std::vector<iwd_network> &networks)
+bool CIwdClient::getNetworks(std::vector<wireless_network> &networks)
 {
 	networks.clear();
 	if (!available())
@@ -144,12 +136,12 @@ bool CIwdClient::getNetworks(std::vector<iwd_network> &networks)
 			if (dbus_message_iter_next(&fields) && dbus_message_iter_get_arg_type(&fields) == DBUS_TYPE_INT16)
 				dbus_message_iter_get_basic(&fields, &signal);
 
-			iwd_network n;
-			n.path = path;
-			n.name = bus.prop(n.path, IWD_NETWORK, "Name");
-			n.type = bus.prop(n.path, IWD_NETWORK, "Type");
-			n.known_path = bus.prop(n.path, IWD_NETWORK, "KnownNetwork");
-			n.connected = bus.prop(n.path, IWD_NETWORK, "Connected") == "1";
+			wireless_network n;
+			n.id = path;
+			n.name = bus.prop(n.id, IWD_NETWORK, "Name");
+			n.type = bus.prop(n.id, IWD_NETWORK, "Type");
+			n.known_id = bus.prop(n.id, IWD_NETWORK, "KnownNetwork");
+			n.connected = bus.prop(n.id, IWD_NETWORK, "Connected") == "1";
 			n.signal = signal;
 			if (!n.name.empty())
 				networks.push_back(n);
@@ -164,11 +156,11 @@ bool CIwdClient::disconnect()
 	return available() && bus.simpleCall(station_path, IWD_STATION, "Disconnect");
 }
 
-bool CIwdClient::forget(const iwd_network &network)
+bool CIwdClient::forget(const wireless_network &network)
 {
-	if (network.known_path.empty())
+	if (network.known_id.empty())
 		return false;
-	return bus.simpleCall(network.known_path, IWD_KNOWN_NETWORK, "Forget");
+	return bus.simpleCall(network.known_id, IWD_KNOWN_NETWORK, "Forget");
 }
 
 /* iwd calls back for the passphrase while it connects */
@@ -287,14 +279,14 @@ int CIwdClient::connectCall(const std::string &path, const char *iface, const ch
 	return result;
 }
 
-int CIwdClient::connect(const iwd_network &network, std::string &passphrase)
+int CIwdClient::connect(const wireless_network &network, std::string &passphrase)
 {
 	if (!available())
 	{
 		wipe(passphrase);
 		return CONNECT_UNAVAILABLE;
 	}
-	return connectCall(network.path, IWD_NETWORK, "Connect", NULL, passphrase, network.path);
+	return connectCall(network.id, IWD_NETWORK, "Connect", NULL, passphrase, network.id);
 }
 
 int CIwdClient::connectHidden(const std::string &ssid, std::string &passphrase)

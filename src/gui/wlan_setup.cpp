@@ -1,5 +1,5 @@
 /*
-	wireless network setup through iwd - Neutrino-GUI
+	wireless network setup through iwd or wpa_supplicant - Neutrino-GUI
 
 	License: GPL
 
@@ -43,7 +43,7 @@ static const struct button_label CWlanSetupFooterButtons[] =
 
 CWlanSetup::CWlanSetup()
 {
-	iwd = CIwdClient::getInstance();
+	wlan = CWlanClient::getInstance();
 	menu = NULL;
 	width = 50;
 	first_network = 0;
@@ -53,12 +53,12 @@ CWlanSetup::CWlanSetup()
 
 bool CWlanSetup::available()
 {
-	return CIwdClient::getInstance()->available();
+	return CWlanClient::getInstance()->available();
 }
 
 std::string CWlanSetup::connectedNetwork()
 {
-	return CIwdClient::getInstance()->connectedNetwork();
+	return CWlanClient::getInstance()->connectedNetwork();
 }
 
 /* an SSID is chosen by whoever runs the access point, show nothing but text */
@@ -132,13 +132,13 @@ int CWlanSetup::show()
 		{
 			CHintBox hint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_WAIT));
 			hint.paint();
-			iwd->scan();
+			wlan->scan();
 			hint.hide();
 			/* keys pressed while it took that long are not meant for what comes next */
 			g_RCInput->clearRCMsg();
 			rescan = false;
 		}
-		if (!iwd->getNetworks(networks))
+		if (!wlan->getNetworks(networks))
 		{
 			ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_ERROR), CMsgBox::mbrBack, CMsgBox::mbBack);
 			return res;
@@ -171,7 +171,7 @@ int CWlanSetup::show()
 			options[i] = tmp;
 			if (networks[i].connected)
 				options[i] += std::string(", ") + g_Locale->getText(LOCALE_NETWORKMENU_WLAN_CONNECTED);
-			else if (!networks[i].known_path.empty())
+			else if (!networks[i].known_id.empty())
 				options[i] += std::string(", ") + g_Locale->getText(LOCALE_NETWORKMENU_WLAN_KNOWN);
 
 			snprintf(tmp, sizeof(tmp), "%d", (int)i);
@@ -204,10 +204,10 @@ bool CWlanSetup::askPassphrase(std::string &passphrase)
 	if (passphrase.empty())
 		return false;
 
-	/* a WPA passphrase has 8 to 63 characters, iwd would refuse anything else */
+	/* a WPA passphrase has 8 to 63 characters, the backends refuse anything else */
 	if (passphrase.length() < 8 || passphrase.length() > 63)
 	{
-		CIwdClient::wipe(passphrase);
+		CWlanClient::wipe(passphrase);
 		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_WLAN_PASSPHRASE_INVALID), CMsgBox::mbrBack, CMsgBox::mbBack);
 		return false;
 	}
@@ -218,9 +218,9 @@ void CWlanSetup::showResult(int result)
 {
 	switch (result)
 	{
-		case CIwdClient::CONNECT_OK:
+		case CWlanClient::CONNECT_OK:
 			break;
-		case CIwdClient::CONNECT_NOT_SUPPORTED:
+		case CWlanClient::CONNECT_NOT_SUPPORTED:
 			ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_WLAN_UNSUPPORTED), CMsgBox::mbrBack, CMsgBox::mbBack);
 			break;
 		default:
@@ -229,25 +229,25 @@ void CWlanSetup::showResult(int result)
 	}
 }
 
-void CWlanSetup::connectTo(const iwd_network &network)
+void CWlanSetup::connectTo(const wireless_network &network)
 {
 	if (network.connected)
 		return;
 
 	if (network.type != "open" && network.type != "psk")
 	{
-		showResult(CIwdClient::CONNECT_NOT_SUPPORTED);
+		showResult(CWlanClient::CONNECT_NOT_SUPPORTED);
 		return;
 	}
 
-	/* iwd has the passphrase of a network it knows */
+	/* the backend has the passphrase of a network it knows */
 	std::string passphrase;
-	if (network.type == "psk" && network.known_path.empty() && !askPassphrase(passphrase))
+	if (network.type == "psk" && network.known_id.empty() && !askPassphrase(passphrase))
 		return;
 
 	CHintBox hint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_WLAN_CONNECTING));
 	hint.paint();
-	int result = iwd->connect(network, passphrase);
+	int result = wlan->connect(network, passphrase);
 	hint.hide();
 	g_RCInput->clearRCMsg();
 
@@ -269,14 +269,14 @@ void CWlanSetup::connectHidden()
 	key_input.exec(this, "");
 	if (!passphrase.empty() && (passphrase.length() < 8 || passphrase.length() > 63))
 	{
-		CIwdClient::wipe(passphrase);
+		CWlanClient::wipe(passphrase);
 		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_WLAN_PASSPHRASE_INVALID), CMsgBox::mbrBack, CMsgBox::mbBack);
 		return;
 	}
 
 	CHintBox hint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_WLAN_CONNECTING));
 	hint.paint();
-	int result = iwd->connectHidden(ssid, passphrase);
+	int result = wlan->connectHidden(ssid, passphrase);
 	hint.hide();
 	g_RCInput->clearRCMsg();
 
@@ -289,15 +289,15 @@ void CWlanSetup::forgetSelected()
 		return;
 
 	int n = menu->getSelected() - first_network;
-	if (n < 0 || n >= (int)networks.size() || networks[n].known_path.empty())
+	if (n < 0 || n >= (int)networks.size() || networks[n].known_id.empty())
 		return;
 
 	std::string question = display_name(networks[n].name) + "\n" + g_Locale->getText(LOCALE_NETWORKMENU_WLAN_FORGET_ASK);
 	if (ShowMsg(LOCALE_NETWORKMENU_WLAN_FORGET, question, CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_QUESTION) == CMsgBox::mbrYes)
-		iwd->forget(networks[n]);
+		wlan->forget(networks[n]);
 }
 
 void CWlanSetup::disconnect()
 {
-	iwd->disconnect();
+	wlan->disconnect();
 }

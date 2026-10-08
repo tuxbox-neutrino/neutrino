@@ -44,7 +44,8 @@ libneutrino_system_a_SOURCES = \
 	stacktrace.cpp \
 	supportinfo.cpp \
 	sysload.cpp \
-	setting_helpers.cpp
+	setting_helpers.cpp \
+	wlan_client.cpp
 #	safe_system.c
 
 if HAVE_UCLIBC
@@ -65,4 +66,7 @@ libneutrino_system_a_SOURCES += \
 	dbus_objects.cpp \
 	iwd_client.cpp
 AM_CPPFLAGS += @DBUS_CFLAGS@
+else
+libneutrino_system_a_SOURCES += \
+	wpa_client.cpp
 endif
