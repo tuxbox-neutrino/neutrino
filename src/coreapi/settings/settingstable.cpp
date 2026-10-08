@@ -52,6 +52,7 @@ constexpr Descriptor kSettings[] =
 		.section("general")
 		.label("languagesetup.osd")
 		.defaultValue("")
+		.text(kRuleNameFromList)
 		.choicesFrom(installedLocales)
 		.field(COREAPI_TEXT_FIELD(language)),
 	/* The name of a zone as the box's own list spells it, which is why this is
@@ -66,6 +67,7 @@ constexpr Descriptor kSettings[] =
 		.label("mainsettings.timezone")
 		.hint("menu.hint_timezone")
 		.defaultValue("(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna")
+		.text(kRuleNameFromList)
 		.needsRestart()
 		.choicesFrom(timezoneNames)
 		.field(COREAPI_TEXT_FIELD(timezone)),

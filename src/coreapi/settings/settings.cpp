@@ -30,9 +30,13 @@
 #include <set>
 #include <vector>
 
+#include <cctype>
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
+
+#include <sys/stat.h>
+#include <sys/statfs.h>
 
 namespace coreapi
 {
@@ -321,7 +325,125 @@ bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out)
 	return true;
 }
 
+/* The file system types the recording and update screens refuse a folder on: flash,
+   which wears out under a recording, and memory, which a restart empties. */
+const long kFsRamfs = 0x858458f6L;
+const long kFsTmpfs = 0x1021994L;
+const long kFsJffs2 = 0x72b6L;
+
+bool endsWithNoCase(const std::string &name, const std::string &ending)
+{
+	if (name.size() < ending.size())
+		return false;
+	const size_t at = name.size() - ending.size();
+	for (size_t i = 0; i < ending.size(); ++i)
+	{
+		if (tolower((unsigned char) name[at + i]) != tolower((unsigned char) ending[i]))
+			return false;
+	}
+	return true;
+}
+
+bool hasExtension(const std::string &name, const char *list)
+{
+	std::string rest = list;
+	while (!rest.empty())
+	{
+		const size_t comma = rest.find(',');
+		const std::string one = rest.substr(0, comma);
+		if (!one.empty() && endsWithNoCase(name, "." + one))
+			return true;
+		if (comma == std::string::npos)
+			break;
+		rest = rest.substr(comma + 1);
+	}
+	return false;
+}
+
 } // anonymous namespace
+
+bool fileSystemAllowed(MustExist level, long fs_type)
+{
+	const bool memory = fs_type == kFsRamfs || fs_type == kFsTmpfs;
+	if (fs_type == kFsJffs2)
+		return level == MustExist::No || level == MustExist::Yes;
+	return !(memory && level == MustExist::YesNotTmpfs);
+}
+
+namespace
+{
+
+/* The folder test the screens made through the folder browser: it exists, and the
+   file system under it is one the rule allows. A failed statfs refuses, as the
+   screen's own test did. */
+Result<void> existsAsRequired(const TextRule &rule, const std::string &value)
+{
+	struct stat st;
+	if (stat(value.c_str(), &st) != 0)
+		return fail(Status::InvalidArgument, ErrorCode::BadString,
+			    "the setting names a place that does not exist on the box");
+
+	if (rule.kind == TextKind::Directory && !S_ISDIR(st.st_mode))
+		return fail(Status::InvalidArgument, ErrorCode::BadString,
+			    "the setting names a folder and this is not one");
+	if (rule.kind == TextKind::File && !S_ISREG(st.st_mode))
+		return fail(Status::InvalidArgument, ErrorCode::BadString,
+			    "the setting names a file and this is not one");
+
+	if (rule.must_exist == MustExist::Yes)
+		return ok();
+
+	struct statfs fs;
+	if (statfs(value.c_str(), &fs) != 0)
+		return fail(Status::InvalidArgument, ErrorCode::BadString,
+			    "the file system under the setting's place cannot be told");
+	if (!fileSystemAllowed(rule.must_exist, (long) fs.f_type))
+		return fail(Status::InvalidArgument, ErrorCode::BadString,
+			    "the setting cannot be on this kind of file system");
+	return ok();
+}
+
+} // anonymous namespace
+
+Result<void> holdsTextRule(const TextRule &rule, const std::string &value, const std::string *current)
+{
+	switch (textFault(rule, value))
+	{
+		case TextFault::None:
+			break;
+		case TextFault::TooShort:
+			return fail(Status::InvalidArgument, ErrorCode::BadString,
+				    "the setting takes at least " + decimal((long) rule.min_length) + " characters");
+		case TextFault::TooLong:
+			return fail(Status::InvalidArgument, ErrorCode::BadString,
+				    "the setting takes at most " + decimal((long) rule.max_length) + " characters");
+		case TextFault::BadCharacter:
+			return fail(Status::InvalidArgument, ErrorCode::BadString,
+				    std::string("the setting takes only these characters: ") + rule.allowed);
+	}
+
+	/* What is already stored is not asked about again, so a client that sends the
+	   whole section back for an edit elsewhere is not refused for a disk that is
+	   not mounted right now. Only a changed value has to name something there. */
+	if (current != NULL && *current == value)
+		return ok();
+
+	if (value.empty())
+	{
+		if (rule.allow_empty || (rule.must_exist == MustExist::No && rule.extensions == NULL))
+			return ok();
+		return fail(Status::InvalidArgument, ErrorCode::BadString,
+			    "the setting names a place and cannot be empty");
+	}
+
+	if (rule.extensions != NULL && !hasExtension(value, rule.extensions))
+		return fail(Status::InvalidArgument, ErrorCode::BadString,
+			    std::string("the setting takes a file ending in one of: ") + rule.extensions);
+
+	if (rule.must_exist != MustExist::No)
+		return existsAsRequired(rule, value);
+	return ok();
+}
 
 Result<std::vector<Descriptor> > schema()
 {
@@ -438,6 +560,21 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 		Result<void> text = allowedAsText(value);
 		if (!text.ok())
 			return fail(text.error());
+
+		if (d->text != NULL)
+		{
+			Result<void> rule = holdsTextRule(*d->text, value);
+			/* The store is asked only for a value the rule refused, since what is already
+			   stored passes again however the place is mounted now. */
+			if (!rule.ok())
+			{
+				std::string stored;
+				if (settingsSource().readString(d->key, stored) == Status::Ok)
+					rule = holdsTextRule(*d->text, value, &stored);
+			}
+			if (!rule.ok())
+				return fail(rule.error());
+		}
 
 		/* An identifier is text here and a number where the program keeps it, so the one
 		   spelling that survives is the one a channel is named by everywhere else. A value the
@@ -579,6 +716,14 @@ Result<void> clearSecret(const std::string &key)
 	if (d->type != ValueType::String)
 		return fail(Status::InvalidArgument, ErrorCode::NotACredential,
 			    "the setting is a credential of a kind that has nothing to clear");
+
+	// Emptying is a write like any other to a row whose rule wants more, such as a pin.
+	if (d->text != NULL)
+	{
+		Result<void> rule = holdsTextRule(*d->text, std::string());
+		if (!rule.ok())
+			return fail(rule.error());
+	}
 
 	Status written = settingsSource().writeString(d->key, std::string());
 	if (written != Status::Ok)

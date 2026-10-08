@@ -73,6 +73,7 @@ constexpr Descriptor kWeather[] =
 		.label("weather.api_key")
 		.hint("menu.hint_weather_api_key")
 		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.text(kRuleKey32)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(weather_api_key)),
 	/* The item for this one is inside an arm the build does not take and it
@@ -124,6 +125,7 @@ constexpr Descriptor kWeather[] =
 		.label("weather.postalcode")
 		.hint("menu.hint_weather_postalcode")
 		.defaultValue("10178")
+		.text(kRulePostalCode)
 		.changeableWhen(kWeatherOn)
 		.field(COREAPI_TEXT_FIELD(weather_postalcode)),
 };

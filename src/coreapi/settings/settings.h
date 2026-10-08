@@ -36,6 +36,18 @@ namespace settings
 /* Answered out of the declaration and not out of the store, so a box with no
    store behind it still answers. A row the schema marks secret keeps its place
    and loses its declared default. */
+/* Whether a text is one the rule takes: its length, its characters, and for a
+   path the file or folder it names. An empty text is refused where the rule names
+   a place, unless the rule says allow_empty. A value equal to current, when given,
+   skips the tests about the place, so what is stored never has to be proven
+   again. Touches the file system only for a rule that asks for an existing path. */
+Result<void> holdsTextRule(const TextRule &rule, const std::string &value,
+			   const std::string *current = NULL);
+
+// Whether a folder on a file system of this type (the kernel's type number) is
+// acceptable at the given level of MustExist.
+bool fileSystemAllowed(MustExist level, long fs_type);
+
 Result<std::vector<Descriptor> > schema();
 
 // Each section once, in the order the schema first names it, so a frontend can

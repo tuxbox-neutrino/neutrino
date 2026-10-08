@@ -70,6 +70,7 @@ constexpr Descriptor kNetwork[] =
 		.label("networkmenu.select_if")
 		.hint("menu.hint_net_if")
 		.defaultValue("")
+		.text(kRuleNameFromList)
 		.choicesFrom(interfaceNames)
 		.field(COREAPI_TEXT_FIELD(ifname)),
 
@@ -89,6 +90,7 @@ constexpr Descriptor kNetwork[] =
 		.label("networkmenu.ntpserver")
 		.hint("menu.hint_net_ntpserver")
 		.defaultValue("0.de.pool.ntp.org")
+		.text(kRuleHost)
 		.field(COREAPI_TEXT_FIELD(network_ntpserver)),
 	/* Minutes, kept as text and turned into a number where it is used,
 	   src/neutrino.cpp:2775. Text here because the field is, and a String
@@ -101,6 +103,7 @@ constexpr Descriptor kNetwork[] =
 		.label("networkmenu.ntprefresh")
 		.hint("menu.hint_net_ntprefresh")
 		.defaultValue("30")
+		.text(kRuleNumberText3)
 		.field(COREAPI_TEXT_FIELD(network_ntprefresh)),
 
 	/* The proxy. The three below are one setting in three parts: the loader
@@ -120,6 +123,7 @@ constexpr Descriptor kNetwork[] =
 		.label("flashupdate.proxyserver")
 		.hint("menu.hint_net_proxyserver")
 		.defaultValue("")
+		.text(kRuleHost)
 		.field(COREAPI_TEXT_FIELD(softupdate_proxyserver)),
 	// src/neutrino.cpp:1100 src/gui/proxyserver_setup.cpp:144
 	textRow("softupdate_proxyusername")

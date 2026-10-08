@@ -26,9 +26,11 @@
 #include "coreapi/settings/settingsfield.h"
 #include "coreapi/settings/settingstable.h"
 #include "support/fakes.h"
+#include "support/counts.h"
 
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/statfs.h>
 
 #include <neutrinoMessages.h>
 
@@ -1691,4 +1693,180 @@ TEST_CASE("announceSettingsChanged puts one SettingsChanged event on the bus", "
 
 	REQUIRE(watch.seen.size() == 1);
 	REQUIRE(watch.seen[0].type == EventType::SettingsChanged);
+}
+
+static bool refusedAs(const Result<void> &r, ErrorCode code)
+{
+	return !r.ok() && r.error().code == code;
+}
+
+TEST_CASE("a pin row refuses text the remote cannot type back", "[settings][textrules]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource installed(&f);
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+
+	const char *const keys[] = { "parentallock_pincode", "personalize_pincode" };
+	const char *const refused[] = { "abcd", "12345", "123", "12 4", "-123" };
+	for (size_t k = 0; k < 2; ++k)
+	{
+		for (size_t v = 0; v < sizeof(refused) / sizeof(refused[0]); ++v)
+		{
+			INFO(keys[k] << " " << refused[v]);
+			CHECK(refusedAs(settings::set(keys[k], refused[v]), ErrorCode::BadString));
+			CHECK(refusedAs(settings::check(keys[k], refused[v]), ErrorCode::BadString));
+		}
+		CHECK(f.strings.count(keys[k]) == 0);
+		REQUIRE(settings::set(keys[k], "0815").ok());
+		CHECK(f.strings[keys[k]] == "0815");
+	}
+}
+
+TEST_CASE("a text row is held to its length, characters and place", "[settings][textrules]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource installed(&f);
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+
+	// Longer than the keyboard of the screen takes.
+	CHECK(refusedAs(settings::set("omdb_api_key", "123456789"), ErrorCode::BadString));
+	REQUIRE(settings::set("omdb_api_key", "12345678").ok());
+	// Digits only, three of them.
+	CHECK(refusedAs(settings::set("network_ntprefresh", "abc"), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("network_ntprefresh", "1234"), ErrorCode::BadString));
+	REQUIRE(settings::set("network_ntprefresh", "30").ok());
+
+	// A folder that is not there, and one that is a file.
+	CHECK(refusedAs(settings::set("network_nfs_audioplayerdir", "/no/such/folder-4711"), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("network_nfs_audioplayerdir", "/etc/passwd"), ErrorCode::BadString));
+	REQUIRE(settings::set("network_nfs_audioplayerdir", "/usr").ok());
+	// A folder row that tests nothing takes any place.
+	REQUIRE(settings::set("logo_hdd_dir", "/no/such/folder-4711").ok());
+	// Empty means none and is not looked for.
+	REQUIRE(settings::set("timeshiftdir", "").ok());
+
+	// A font is a file of the right ending.
+	CHECK(refusedAs(settings::set("font_file", "/etc/passwd"), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("font_file", "/no/such/font.ttf"), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("font_file", "/usr"), ErrorCode::BadString));
+}
+
+TEST_CASE("a text rule tells memory backed folders from the rest on the real file system", "[settings][textrules]")
+{
+	// /dev/shm is memory backed wherever the suite runs in the build image. Where it is
+	// not, the case says so and records that it did not run, which the counts file fails.
+	struct statfs fs;
+	if (statfs("/dev/shm", &fs) != 0 || (long) fs.f_type != 0x1021994L)
+	{
+		WARN("skipped: /dev/shm is not a tmpfs here");
+		recordCount("memory backed folders tried", 0);
+		return;
+	}
+
+	const TextRule durable = { TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, false };
+	const TextRule update = { TextKind::Directory, 0, 0, NULL, MustExist::YesNotFlash, NULL, false };
+	const TextRule any = { TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false };
+	CHECK_FALSE(settings::holdsTextRule(durable, "/dev/shm").ok());
+	CHECK(settings::holdsTextRule(update, "/dev/shm").ok());
+	CHECK(settings::holdsTextRule(any, "/dev/shm").ok());
+	CHECK(settings::holdsTextRule(durable, "/usr").ok());
+	recordCount("memory backed folders tried", 1);
+}
+
+TEST_CASE("a file system is allowed by the level a row asks for", "[settings][textrules]")
+{
+	const long ramfs = 0x858458f6L, tmpfs = 0x1021994L, jffs2 = 0x72b6L, ext4 = 0xEF53L;
+	// Flash is refused by both tested levels and taken by a row that only wants the folder.
+	CHECK_FALSE(settings::fileSystemAllowed(MustExist::YesNotFlash, jffs2));
+	CHECK_FALSE(settings::fileSystemAllowed(MustExist::YesNotTmpfs, jffs2));
+	CHECK(settings::fileSystemAllowed(MustExist::Yes, jffs2));
+	// Memory is refused only by the stricter level.
+	CHECK(settings::fileSystemAllowed(MustExist::YesNotFlash, tmpfs));
+	CHECK(settings::fileSystemAllowed(MustExist::YesNotFlash, ramfs));
+	CHECK_FALSE(settings::fileSystemAllowed(MustExist::YesNotTmpfs, tmpfs));
+	CHECK_FALSE(settings::fileSystemAllowed(MustExist::YesNotTmpfs, ramfs));
+	CHECK(settings::fileSystemAllowed(MustExist::YesNotTmpfs, ext4));
+	CHECK(settings::fileSystemAllowed(MustExist::YesNotFlash, ext4));
+}
+
+TEST_CASE("a pin cannot be cleared and a credential without a rule can", "[settings][textrules]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource installed(&f);
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+
+	f.strings["parentallock_pincode"] = "0815";
+	f.strings["personalize_pincode"] = "0815";
+	CHECK(refusedAs(settings::clearSecret("parentallock_pincode"), ErrorCode::BadString));
+	CHECK(refusedAs(settings::clearSecret("personalize_pincode"), ErrorCode::BadString));
+	CHECK(f.strings["parentallock_pincode"] == "0815");
+	CHECK(f.strings["personalize_pincode"] == "0815");
+
+	f.strings["softupdate_proxypassword"] = "secret";
+	REQUIRE(settings::clearSecret("softupdate_proxypassword").ok());
+	CHECK(f.strings["softupdate_proxypassword"] == "");
+}
+
+TEST_CASE("a row that names a place cannot be emptied unless its screen can", "[settings][textrules]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource installed(&f);
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+
+	CHECK(refusedAs(settings::set("font_file", ""), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("font_file_monospace", ""), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("epg_dir", ""), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("network_nfs_audioplayerdir", ""), ErrorCode::BadString));
+#ifndef USE_SMS_INPUT
+	// Picked from existing files; the SMS arm types a name instead and may leave it empty.
+	CHECK(refusedAs(settings::set("softupdate_url_file", ""), ErrorCode::BadString));
+#endif
+	// The timeshift folder empty means the recording folder.
+	REQUIRE(settings::set("timeshiftdir", "").ok());
+	// A row naming no place is not made stricter.
+	REQUIRE(settings::set("keyboard_layout", "").ok());
+}
+
+TEST_CASE("a place that is already stored is not looked for again", "[settings][textrules]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource installed(&f);
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+
+	// An unmounted disk and a legacy empty font path, as a client sends the whole section back.
+	f.strings["network_nfs_audioplayerdir"] = "/media/sda1/music-not-mounted";
+	f.strings["font_file"] = "";
+	REQUIRE(settings::set("network_nfs_audioplayerdir", "/media/sda1/music-not-mounted").ok());
+	REQUIRE(settings::check("network_nfs_audioplayerdir", "/media/sda1/music-not-mounted").ok());
+	REQUIRE(settings::set("font_file", "").ok());
+
+	// Any other value has to be there, as the file browser demands.
+	CHECK(refusedAs(settings::set("network_nfs_audioplayerdir", "/media/sda1/elsewhere-not-mounted"),
+			ErrorCode::BadString));
+	CHECK(f.strings["network_nfs_audioplayerdir"] == "/media/sda1/music-not-mounted");
+	REQUIRE(settings::set("network_nfs_audioplayerdir", "/usr").ok());
+}
+
+TEST_CASE("a text rule matches file endings without regard to case", "[settings][textrules]")
+{
+	const TextRule fonts = { TextKind::File, 0, 0, NULL, MustExist::No, "ttf,otf", false };
+	CHECK(settings::holdsTextRule(fonts, "/a/b.TTF").ok());
+	CHECK(settings::holdsTextRule(fonts, "/a/b.otf").ok());
+	CHECK_FALSE(settings::holdsTextRule(fonts, "/a/b.ttf.bak").ok());
+	CHECK_FALSE(settings::holdsTextRule(fonts, "/a/ttf").ok());
 }

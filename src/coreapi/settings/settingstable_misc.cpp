@@ -231,6 +231,7 @@ constexpr Descriptor kMisc[] =
 		.label("miscsettings.epg_dir")
 		.hint("menu.hint_epg_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/epg")
+		.text(kRuleDirectoryDurable)
 		.field(COREAPI_TEXT_FIELD(epg_dir)),
 	// src/neutrino.cpp:788 src/gui/miscsettings_menu.cpp:524
 	enumRow("epg_scan")
@@ -383,6 +384,7 @@ constexpr Descriptor kMisc[] =
 		.label("tmdb.api_key")
 		.hint("menu.hint_tmdb_api_key")
 		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.text(kRuleKey32)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(tmdb_api_key)),
 	// src/neutrino.cpp:1186 src/gui/miscsettings_menu.cpp:670
@@ -398,6 +400,7 @@ constexpr Descriptor kMisc[] =
 		.label("omdb.api_key")
 		.hint("menu.hint_omdb_api_key")
 		.defaultValue("XXXXXXXX")
+		.text(kRuleKey8)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(omdb_api_key)),
 	// src/neutrino.cpp:1193 src/gui/miscsettings_menu.cpp:685
@@ -413,6 +416,7 @@ constexpr Descriptor kMisc[] =
 		.label("shoutcast.dev_id")
 		.hint("menu.hint_shoutcast_dev_id")
 		.defaultValue("XXXXXXXXXXXXXXXX")
+		.text(kRuleKey16)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(shoutcast_dev_id)),
 	// src/neutrino.cpp:1172 src/gui/miscsettings_menu.cpp:700
@@ -428,6 +432,7 @@ constexpr Descriptor kMisc[] =
 		.label("youtube.api_key")
 		.hint("menu.hint_youtube_api_key")
 		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.text(kRuleKey39)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(youtube_api_key)),
 
@@ -438,6 +443,7 @@ constexpr Descriptor kMisc[] =
 		.label("plugins.hdd_dir")
 		.hint("menu.hint_plugins_hdd_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/plugins")
+		.text(kRuleDirectory)
 		.field(COREAPI_TEXT_FIELD(plugin_hdd_dir)),
 	// The name of a plugin, and the default is what the screen offers as none.
 	// src/neutrino.cpp:1033 src/gui/miscsettings_menu.cpp:726
@@ -446,6 +452,7 @@ constexpr Descriptor kMisc[] =
 		.label("mpkey.plugin")
 		.hint("menu.hint_movieplayer_plugin")
 		.defaultValue("---")
+		.text(kRuleNameFromList)
 		.field(COREAPI_TEXT_FIELD(movieplayer_plugin)),
 
 	// streaming
@@ -651,6 +658,7 @@ constexpr Descriptor kMisc[] =
 		.label("personalize.pincode")
 		.hint("personalize.pinhint")
 		.defaultValue("0000")
+		.text(kRulePin)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(personalize_pincode)),
 	/* The five below are lists of plugin file names joined with commas, which
@@ -661,26 +669,31 @@ constexpr Descriptor kMisc[] =
 	textRow("plugins_disabled")
 		.section("misc")
 		.defaultValue("")
+		.text(kRulePathList)
 		.field(COREAPI_TEXT_FIELD(plugins_disabled)),
 	// src/neutrino.cpp:1027
 	textRow("plugins_game")
 		.section("misc")
 		.defaultValue("")
+		.text(kRulePathList)
 		.field(COREAPI_TEXT_FIELD(plugins_game)),
 	// src/neutrino.cpp:1028
 	textRow("plugins_lua")
 		.section("misc")
 		.defaultValue("")
+		.text(kRulePathList)
 		.field(COREAPI_TEXT_FIELD(plugins_lua)),
 	// src/neutrino.cpp:1029
 	textRow("plugins_script")
 		.section("misc")
 		.defaultValue("")
+		.text(kRulePathList)
 		.field(COREAPI_TEXT_FIELD(plugins_script)),
 	// src/neutrino.cpp:1030
 	textRow("plugins_tool")
 		.section("misc")
 		.defaultValue("")
+		.text(kRulePathList)
 		.field(COREAPI_TEXT_FIELD(plugins_tool)),
 	/* Where the box goes back to after an advert break, in seconds. The menu
 	   offers nine fixed minutes and then a chooser over ten to a hundred and
@@ -718,6 +731,7 @@ constexpr Descriptor kMisc[] =
 	textRow("backup_dir")
 		.section("misc")
 		.defaultValue(TARGET_ROOT "/media")
+		.text(kRuleDirectory)
 		.field(COREAPI_TEXT_FIELD(backup_dir)),
 };
 

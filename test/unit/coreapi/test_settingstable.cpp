@@ -665,3 +665,120 @@ TEST_CASE("every number row that shows a unit says which, and nothing else carri
 	}
 	CHECK(seen == n);
 }
+
+namespace
+{
+struct TextRuleExpectation
+{
+	const char *key;
+	TextKind    kind;
+	size_t      min_length;
+	size_t      max_length;
+	const char *allowed;
+	MustExist   must_exist;
+	const char *extensions;
+	bool        allow_empty;
+};
+
+const char *const kDigits = "0123456789";
+const char *const kDigitsSpace = "0123456789 ";
+
+/* Written out from what each screen enforces, not read from the rows: the rows
+   are what is being held to it. A row that is not listed here has no rule. */
+const TextRuleExpectation kTextRules[] = {
+	{ "language", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "timezone", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "startchanneltv_id", TextKind::Plain, 1, 16, "0123456789abcdefABCDEF", MustExist::No, NULL, false },
+	{ "startchannelradio_id", TextKind::Plain, 1, 16, "0123456789abcdefABCDEF", MustExist::No, NULL, false },
+	{ "livestreamScriptPath", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "last_webtv_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "last_webradio_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "lcd_dim_time", TextKind::NumberAsText, 0, 3, kDigitsSpace, MustExist::No, NULL, false },
+	{ "glcd_logodir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "glcd_brightness_dim_time", TextKind::NumberAsText, 0, 5, kDigitsSpace, MustExist::No, NULL, false },
+	{ "lcd4l_logodir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "glcd_theme_name", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "epg_dir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, false },
+	{ "tmdb_api_key", TextKind::Plain, 0, 32, NULL, MustExist::No, NULL, false },
+	{ "omdb_api_key", TextKind::Plain, 0, 8, NULL, MustExist::No, NULL, false },
+	{ "shoutcast_dev_id", TextKind::Plain, 0, 16, NULL, MustExist::No, NULL, false },
+	{ "youtube_api_key", TextKind::Plain, 0, 39, NULL, MustExist::No, NULL, false },
+	{ "plugin_hdd_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "movieplayer_plugin", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "personalize_pincode", TextKind::Pin, 4, 4, kDigits, MustExist::No, NULL, false },
+	{ "plugins_disabled", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "plugins_game", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "plugins_lua", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "plugins_script", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "plugins_tool", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "backup_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "ifname", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "network_ntpserver", TextKind::Host, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "network_ntprefresh", TextKind::NumberAsText, 0, 3, kDigitsSpace, MustExist::No, NULL, false },
+	{ "softupdate_proxyserver", TextKind::Host, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "font_file", TextKind::File, 0, 0, NULL, MustExist::Yes, "ttf", false },
+	{ "font_file_monospace", TextKind::File, 0, 0, NULL, MustExist::Yes, "ttf", false },
+	{ "logo_hdd_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "screenshot_dir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, false },
+	{ "screensaver_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "theme_name", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "parentallock_pincode", TextKind::Pin, 4, 4, kDigits, MustExist::No, NULL, false },
+	{ "network_nfs_audioplayerdir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
+	{ "network_nfs_streamripperdir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
+	{ "network_nfs_picturedir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
+	{ "subs_charset", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "network_nfs_recordingdir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, false },
+	{ "timeshiftdir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, true },
+	{ "network_nfs_moviedir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+#ifdef USE_SMS_INPUT
+	{ "softupdate_url_file", TextKind::File, 0, 30, NULL, MustExist::No, NULL, true },
+#else
+	{ "softupdate_url_file", TextKind::File, 0, 0, NULL, MustExist::Yes, "conf,urls", false },
+#endif
+	{ "update_dir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotFlash, NULL, false },
+	{ "update_dir_opkg", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
+	{ "weather_api_key", TextKind::Plain, 0, 32, NULL, MustExist::No, NULL, false },
+	{ "weather_postalcode", TextKind::Plain, 0, 5, "0123456789. ", MustExist::No, NULL, false }
+};
+
+bool sameText(const char *a, const char *b)
+{
+	return (a == NULL) == (b == NULL) && (a == NULL || std::string(a) == b);
+}
+} // namespace
+
+TEST_CASE("every String row holds the rule its screen enforces", "[settingstable][textrules]")
+{
+	size_t ruled = 0;
+	for (size_t i = 0; i < settingsTableCount(); ++i)
+	{
+		const Descriptor &d = settingsTable()[i];
+		if (d.type != ValueType::String)
+			continue;
+		INFO("row " << d.key);
+		const TextRuleExpectation *want = NULL;
+		for (size_t e = 0; e < sizeof(kTextRules) / sizeof(kTextRules[0]); ++e)
+		{
+			if (std::string(kTextRules[e].key) == d.key)
+				want = &kTextRules[e];
+		}
+		if (want == NULL)
+		{
+			CHECK(d.text == NULL);
+			continue;
+		}
+		REQUIRE(d.text != NULL);
+		CHECK(d.text->kind == want->kind);
+		CHECK(d.text->min_length == want->min_length);
+		CHECK(d.text->max_length == want->max_length);
+		CHECK(sameText(d.text->allowed, want->allowed));
+		CHECK(d.text->must_exist == want->must_exist);
+		CHECK(sameText(d.text->extensions, want->extensions));
+		CHECK(d.text->allow_empty == want->allow_empty);
+		++ruled;
+	}
+	/* Some listed rows belong to hardware this build leaves out, so the count of
+	   rows compared is held by the counts file and not by the length of the list:
+	   a renamed row drops out of the number and fails there. */
+	recordCount("text rules compared against a screen", ruled);
+}

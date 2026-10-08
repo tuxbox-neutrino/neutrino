@@ -123,12 +123,14 @@ constexpr Descriptor kUpdate[] =
 		.section("update")
 		.label("flashupdate.url_file")
 		.defaultValue("/var/etc/update.urls")
+		.text(kRuleUrlFile)
 		.field(COREAPI_TEXT_FIELD(softupdate_url_file)),
 	// src/neutrino.cpp:1123 src/gui/update_settings.cpp:141
 	textRow("update_dir")
 		.section("update")
 		.label("extra.update_dir")
 		.defaultValue("/tmp")
+		.text(kRuleDirectoryUpdate)
 		.field(COREAPI_TEXT_FIELD(update_dir)),
 	/* Where the package manager puts what it downloads. No item anywhere names
 	   it, so the program has no name for it either; the file browser the
@@ -139,6 +141,7 @@ constexpr Descriptor kUpdate[] =
 	textRow("update_dir_opkg")
 		.section("update")
 		.defaultValue("/tmp")
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(update_dir_opkg)),
 	/* The seven below are what the image writer puts into the image it builds.
 	   Four of them the screen offers only where the box has the partition or

@@ -1574,6 +1574,54 @@ TEST_CASE("the settings schema answers every declared row", "[endpoints]")
 	REQUIRE(everyItemHas(r.body, "id"));
 }
 
+/* A frontend draws its input from the rule, so the pin's four digits and a
+   font's ending are in the schema and a row without a rule carries none. */
+TEST_CASE("the schema carries the text rule of a string setting", "[endpoints]")
+{
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+
+	const Reply r = get("/api/v1/settings/schema");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+
+	bool pin = false, font = false, plain = false;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		const ::Json::Value &row = items[i];
+		const std::string id = row["id"].asString();
+		if (id == "parentallock_pincode")
+		{
+			pin = true;
+			CHECK(row["text_kind"].asString() == "pin");
+			CHECK(row["min_length"].asInt() == 4);
+			CHECK(row["max_length"].asInt() == 4);
+			CHECK(row["allowed_chars"].asString() == "0123456789");
+			CHECK(row["must_exist"].asString() == "no");
+			CHECK_FALSE(row.isMember("extensions"));
+		}
+		else if (id == "font_file")
+		{
+			font = true;
+			CHECK(row["text_kind"].asString() == "file");
+			CHECK(row["must_exist"].asString() == "yes");
+			CHECK(row["extensions"].asString() == "ttf");
+			CHECK_FALSE(row.isMember("allowed_chars"));
+		}
+		else if (id == "keyboard_layout")
+		{
+			plain = true;
+			CHECK_FALSE(row.isMember("text_kind"));
+		}
+	}
+	CHECK(pin);
+	CHECK(font);
+	CHECK(plain);
+}
+
 /* The one place a caller other than the tables themselves reads label_key: the
    wire. Before this the field carried label_key's own spelling, such as
    videomenu.videoformat_169 for the choice a screen shows as 16:9, and these

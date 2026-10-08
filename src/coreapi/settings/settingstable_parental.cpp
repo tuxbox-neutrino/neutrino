@@ -102,6 +102,7 @@ constexpr Descriptor kSettings[] =
 		.label("parentallock.changepin")
 		.hint("menu.hint_parentallock_changepin")
 		.defaultValue("0000")
+		.text(kRulePin)
 		.secret()
 		.field(COREAPI_TEXT_FIELD(parentallock_pincode)),
 };

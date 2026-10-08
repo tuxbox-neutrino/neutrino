@@ -703,3 +703,24 @@ TEST_CASE("a default function answers in place of the constant and only for numb
 	REQUIRE_FALSE(descriptorIsSane(t));
 }
 
+
+TEST_CASE("a text rule has to be possible and its row's default has to keep it", "[schema]")
+{
+	const TextRule backwards = { TextKind::Plain, 5, 3, NULL, MustExist::No, NULL, false };
+	const TextRule digits = { TextKind::Pin, 4, 4, "0123456789", MustExist::No, NULL, false };
+	Descriptor d = { "k", ValueType::String, "s", "l", "h", 0, 0, NULL, 0, 0, "0000", false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+
+	d.text = &digits;
+	REQUIRE(descriptorIsSane(d));
+	d.default_string = "12";
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.default_string = "abcd";
+	REQUIRE_FALSE(descriptorIsSane(d));
+	// An empty default is no value and stays allowed.
+	d.default_string = "";
+	REQUIRE(descriptorIsSane(d));
+
+	d.text = &backwards;
+	d.default_string = "";
+	REQUIRE_FALSE(descriptorIsSane(d));
+}

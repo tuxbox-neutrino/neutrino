@@ -330,6 +330,7 @@ constexpr Descriptor kOsd[] =
 		.label("colormenu.font")
 		.hint("menu.hint_font_gui")
 		.defaultValue(FONTDIR "/neutrino.ttf")
+		.text(kRuleFontFile)
 		.field(COREAPI_TEXT_FIELD(font_file)),
 	// src/neutrino.cpp:1143 src/gui/osd_setup.cpp:1134
 	textRow("font_file_monospace")
@@ -337,6 +338,7 @@ constexpr Descriptor kOsd[] =
 		.label("colormenu.font_ttx")
 		.hint("menu.hint_font_ttx")
 		.defaultValue(FONTDIR "/tuxtxt.ttf")
+		.text(kRuleFontFile)
 		.field(COREAPI_TEXT_FIELD(font_file_monospace)),
 	// Per cent of the size each font is configured at.
 	// src/neutrino.cpp:1151 src/gui/osd_setup.cpp:307
@@ -385,6 +387,7 @@ constexpr Descriptor kOsd[] =
 		.label("miscsettings.infobar_logo_hdd_dir")
 		.hint("menu.hint_infobar_logo_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/logos")
+		.text(kRuleDirectory)
 		.field(COREAPI_TEXT_FIELD(logo_hdd_dir)),
 	// src/neutrino.cpp:1302 src/gui/osd_setup.cpp:1283
 	enumRow("channellist_show_channellogo")
@@ -671,6 +674,7 @@ constexpr Descriptor kOsd[] =
 		.label("screenshot.defdir")
 		.hint("menu.hint_screenshot_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/movies")
+		.text(kRuleDirectoryDurable)
 		.field(COREAPI_TEXT_FIELD(screenshot_dir)),
 	// src/neutrino.cpp:1037 src/gui/osd_setup.cpp:1814
 	intRow("screenshot_count")
@@ -759,6 +763,7 @@ constexpr Descriptor kOsd[] =
 		.label("screensaver.dir")
 		.hint("menu.hint_screensaver_dir")
 		.defaultValue(ICONSDIR "/screensaver")
+		.text(kRuleDirectory)
 		.changeableWhen(kScreensaverImage)
 		.field(COREAPI_TEXT_FIELD(screensaver_dir)),
 	// src/neutrino.cpp:734 src/gui/osd_setup.cpp:1882
@@ -999,6 +1004,7 @@ constexpr Descriptor kOsd[] =
 	textRow("theme_name")
 		.section("osd")
 		.defaultValue("")
+		.text(kRuleNameFromList)
 		.needsRestart()
 		.field(COREAPI_TEXT_FIELD(theme_name)),
 };

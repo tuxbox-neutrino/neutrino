@@ -123,6 +123,7 @@ constexpr Descriptor kSettings[] =
 		.label("audioplayer.defdir")
 		.hint("menu.hint_audioplayer_defdir")
 		.defaultValue(TARGET_ROOT "/media/sda1/music")
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(network_nfs_audioplayerdir)),
 	// src/neutrino.cpp:1246 src/gui/audioplayer_setup.cpp:155
 	boolRow("inetradio_autostart")
@@ -144,6 +145,7 @@ constexpr Descriptor kSettings[] =
 		.label("audioplayer.streamripper_dir")
 		.hint("menu.hint_audioplayer_streamripper_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/music/streamripper")
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(network_nfs_streamripperdir)),
 	/* The default is the box's own panel and no constant states it: the loader
 	   asks the hardware whether the display is a numeric one. Nought is what
@@ -197,6 +199,7 @@ constexpr Descriptor kSettings[] =
 		.label("pictureviewer.defdir")
 		.hint("menu.hint_pictureviewer_defdir")
 		.defaultValue(TARGET_ROOT "/media/sda1/pictures")
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(network_nfs_picturedir)),
 
 	/* The character set the box reads a subtitle file in. The item is in the
@@ -208,6 +211,7 @@ constexpr Descriptor kSettings[] =
 		.section("player")
 		.label("subtitles.charset")
 		.defaultValue("CP1252")
+		.text(kRuleNameFromList)
 		.field(COREAPI_TEXT_FIELD(subs_charset)),
 	/* What the player repeats, which the player writes itself when the repeat
 	   key is pressed, src/gui/movieplayer.cpp:3205. No item names it. A number

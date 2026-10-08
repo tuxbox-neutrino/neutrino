@@ -208,6 +208,20 @@ const FieldDesc kSettingFields[] = {
 		"what it accepts, only for a setting that offers a set; for a text setting the texts the box "
 		"offers right now, where an empty list is a box that cannot say and any text the setting's "
 		"other rules allow is taken"),
+	HTTPD_MEMBER_OPTIONAL("text_kind", FieldType::String,
+		"what sort of text a string setting holds, present only for a string setting with a rule: "
+		"plain, directory, file, pin, host, number, name or paths"),
+	HTTPD_MEMBER_OPTIONAL("min_length", FieldType::Int,
+		"the fewest bytes a string setting with a rule accepts; 0 for no minimum"),
+	HTTPD_MEMBER_OPTIONAL("max_length", FieldType::Int,
+		"the most bytes a string setting with a rule accepts; 0 for no limit"),
+	HTTPD_MEMBER_OPTIONAL("allowed_chars", FieldType::String,
+		"the only characters a string setting accepts, absent where any character is taken"),
+	HTTPD_MEMBER_OPTIONAL("must_exist", FieldType::String,
+		"whether the place a string setting names must exist on the box: no, yes, "
+		"not-memory (and not flash or memory backed storage) or not-flash (and not flash storage)"),
+	HTTPD_MEMBER_OPTIONAL("extensions", FieldType::String,
+		"the file name endings a file setting accepts, separated by commas, absent for any"),
 	HTTPD_MEMBER("default", FieldType::String,
 		"what the box falls back to, rendered the way a value is, and empty for a setting held to be a credential"),
 	HTTPD_MEMBER("needs_restart", FieldType::Bool,
@@ -454,6 +468,30 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 			}
 		}
 		j.endArray();
+	}
+
+	if (d.text != NULL)
+	{
+		static const char *const kinds[] = { "plain", "directory", "file", "pin", "host", "number", "name", "paths" };
+		static const char *const places[] = { "no", "yes", "not-memory", "not-flash" };
+		j.key("text_kind");
+		j.value(kinds[(int) d.text->kind]);
+		j.key("min_length");
+		j.value((long) d.text->min_length);
+		j.key("max_length");
+		j.value((long) d.text->max_length);
+		if (d.text->allowed != NULL)
+		{
+			j.key("allowed_chars");
+			j.value(d.text->allowed);
+		}
+		j.key("must_exist");
+		j.value(places[(int) d.text->must_exist]);
+		if (d.text->extensions != NULL)
+		{
+			j.key("extensions");
+			j.value(d.text->extensions);
+		}
 	}
 
 	j.key("default");

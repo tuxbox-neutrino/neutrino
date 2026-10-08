@@ -126,6 +126,7 @@ constexpr Descriptor kRecording[] =
 		.label("recordingmenu.defdir")
 		.hint("menu.hint_record_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/movies")
+		.text(kRuleDirectoryDurable)
 		.field(COREAPI_TEXT_FIELD(network_nfs_recordingdir)),
 	// src/neutrino.cpp:853 src/gui/record_setup.cpp:204
 	boolRow("recording_save_in_channeldir")
@@ -271,6 +272,7 @@ constexpr Descriptor kRecording[] =
 		.label("recordingmenu.tsdir")
 		.hint("menu.hint_record_tdir")
 		.defaultValue("")
+		.text(kRuleDirectoryDurableOrEmpty)
 		.field(COREAPI_TEXT_FIELD(timeshiftdir)),
 	// src/neutrino.cpp:877 src/gui/record_setup.cpp:401
 	boolRow("timeshift_pause")
@@ -321,6 +323,7 @@ constexpr Descriptor kRecording[] =
 		.section("recording")
 		.label("moviebrowser.dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/movies")
+		.text(kRuleDirectory)
 		.field(COREAPI_TEXT_FIELD(network_nfs_moviedir)),
 	/* Whether a direct recording asks where to put itself, and how far it
 	   asks: the recorder reads one and two apart, src/driver/record.cpp:2318

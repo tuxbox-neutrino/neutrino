@@ -154,6 +154,7 @@ constexpr Descriptor kSettings[] =
 		.label("lcdmenu.dim_time")
 		.hint("menu.hint_vfd_dimtime")
 		.defaultValue("0")
+		.text(kRuleNumberText3)
 		.field(COREAPI_TEXT_FIELD_ON(lcd_setting_dim_time, canSetPanelBrightness, NULL)),
 	// src/neutrino.cpp:644 src/gui/vfd_setup.cpp:359
 	enumRow("led_tv_mode")
@@ -241,6 +242,7 @@ constexpr Descriptor kSettings[] =
 		.section("display")
 		.label("glcd.logodir")
 		.defaultValue(TARGET_ROOT "/media/sda1/logos")
+		.text(kRuleDirectory)
 		.field(COREAPI_TEXT_FIELD(glcd_logodir)),
 	// src/neutrino.cpp:418 src/gui/glcdsetup.cpp:413
 	intRow("glcd_brightness")
@@ -271,6 +273,7 @@ constexpr Descriptor kSettings[] =
 		.section("display")
 		.label("glcd.brightness_dim_time")
 		.defaultValue(GLCD_DEFAULT_BRIGHTNESS_DIM_TIME)
+		.text(kRuleNumberText5)
 		.field(COREAPI_TEXT_FIELD(glcd_brightness_dim_time)),
 	// src/neutrino.cpp:424 src/gui/glcdsetup.cpp:321
 	boolRow("glcd_scroll")
@@ -317,6 +320,7 @@ constexpr Descriptor kSettings[] =
 		.label("lcd4l_logodir")
 		.hint("menu.hint_lcd4l_logodir")
 		.defaultValue(TARGET_ROOT "/media/sda1/logos")
+		.text(kRuleDirectory)
 		.field(COREAPI_TEXT_FIELD(lcd4l_logodir)),
 	/* A number and not a choice: the screen names the four panels with literal
 	   sizes rather than locales, src/gui/lcd4l_setup.cpp:63, so a choice here
@@ -399,6 +403,7 @@ constexpr Descriptor kSettings[] =
 	textRow("glcd_theme_name")
 		.section("display")
 		.defaultValue("")
+		.text(kRuleNameFromList)
 		.needsRestart()
 		.field(COREAPI_TEXT_FIELD(glcd_theme_name)),
 #endif
