@@ -954,6 +954,168 @@ Result<void> set(const std::string &key, const std::string &value, const BatchOv
 	return ok();
 }
 
+namespace
+{
+
+bool alreadyRefused(const Refusals &refused, const std::string &key)
+{
+	for (size_t i = 0; i < refused.size(); ++i)
+	{
+		if (refused[i].first == key)
+			return true;
+	}
+	return false;
+}
+
+bool eraseMember(BatchOverlay &batch, const std::string &key)
+{
+	for (size_t i = 0; i < batch.values.size(); ++i)
+	{
+		if (batch.values[i].first == key)
+		{
+			batch.values.erase(batch.values.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
+
+void refuseByCondition(Refusals &refused, const std::string &key, const char *message)
+{
+	if (!alreadyRefused(refused, key))
+		refused.push_back(std::make_pair(key,
+			Error(Status::Conflict, ErrorCode::SettingConditionNotMet, message)));
+}
+
+} // anonymous namespace
+
+void settleBatch(BatchOverlay &batch, Refusals &refused)
+{
+	/* What the caller named is kept apart from what the couplings made of it. Every round
+	   makes the couplings over again from the survivors, so a member that fell takes what it
+	   brought with it, and an addition that cannot land takes the member that brought it. The
+	   members only ever leave, so this ends. */
+	BatchOverlay named = batch;
+
+	/* A round that takes nothing out ends the loop, and every other round takes out a member of
+	   what the caller named, so the rounds cannot outnumber the members. The bound is that with
+	   room for every coupling to refuse in its own round. It is here for a coupling that comes
+	   to feed itself: that ends in a refusal of everything the caller named, never in a hang. */
+	const size_t bound = (named.values.size() + 1) * (couplingCount() + 1);
+	for (size_t round = 0;; ++round)
+	{
+		if (round > bound)
+		{
+			for (size_t i = 0; i < named.values.size(); ++i)
+				refuseByCondition(refused, named.values[i].first,
+					"the settings written together could not be settled");
+			batch.values.clear();
+			return;
+		}
+
+		BatchOverlay made = named;
+		Refusals refusedByCouple;
+		std::vector<Addition> added;
+		applyCouplings(made, refusedByCouple, added);
+		if (!refusedByCouple.empty())
+		{
+			// A refusal leaves the round half made, so it is made again without them.
+			for (size_t i = 0; i < refusedByCouple.size(); ++i)
+			{
+				eraseMember(named, refusedByCouple[i].first);
+				if (!alreadyRefused(refused, refusedByCouple[i].first))
+					refused.push_back(refusedByCouple[i]);
+			}
+			continue;
+		}
+
+		/* Judged round by round against what is still in, because dropping one member can take
+		   away what another one leaned on. */
+		std::vector<std::string> failing;
+		for (size_t i = 0; i < made.values.size(); ++i)
+		{
+			const Descriptor *row = findRow(made.values[i].first);
+			if (row == NULL)
+				continue;
+			if (!allowedByConditions(*row, &made).ok())
+				failing.push_back(made.values[i].first);
+		}
+		if (failing.empty())
+		{
+			batch = made;
+			return;
+		}
+
+		bool progress = false;
+		for (size_t f = 0; f < failing.size(); ++f)
+		{
+			if (eraseMember(named, failing[f]))
+			{
+				refuseByCondition(refused, failing[f],
+					"the settings this one depends on do not allow it to be set");
+				progress = true;
+				continue;
+			}
+
+			/* Not named by the caller: a coupling put it. It is reported under its own key, and
+			   what asked for it is refused with it, since one without the other is the state the
+			   coupling exists to prevent. */
+			refuseByCondition(refused, failing[f],
+				"the settings this one depends on do not allow it to be set");
+			for (size_t a = 0; a < added.size(); ++a)
+			{
+				if (added[a].key != failing[f])
+					continue;
+				if (eraseMember(named, added[a].trigger))
+				{
+					refuseByCondition(refused, added[a].trigger,
+						"the setting it brings with it cannot be set");
+					progress = true;
+				}
+			}
+		}
+
+		/* An addition nobody is recorded as owning cannot be traced to a member, so it alone
+		   is left out rather than looping on it. */
+		if (!progress)
+		{
+			for (size_t f = 0; f < failing.size(); ++f)
+				eraseMember(made, failing[f]);
+			batch = made;
+			return;
+		}
+	}
+}
+
+void writeBatch(const std::vector<std::pair<std::string, std::string> > &members, Refusals &failed,
+		bool onLoop)
+{
+	/* The three passes of one write, so every caller that writes more than one setting gets
+	   the couplings and the settling and none can leave them out. The first refuses what is
+	   wrong on its own, and only what passed goes into the batch, since a value that never
+	   lands must not allow another one. */
+	BatchOverlay batch;
+	for (size_t i = 0; i < members.size(); ++i)
+	{
+		Result<void> checked = check(members[i].first, members[i].second);
+		if (!checked.ok())
+		{
+			failed.push_back(std::make_pair(members[i].first, checked.error()));
+			continue;
+		}
+		batch.values.push_back(members[i]);
+	}
+
+	settleBatch(batch, failed);
+
+	for (size_t i = 0; i < batch.values.size(); ++i)
+	{
+		Result<void> done = set(batch.values[i].first, batch.values[i].second, &batch, onLoop);
+		if (!done.ok())
+			failed.push_back(std::make_pair(batch.values[i].first, done.error()));
+	}
+}
+
 Result<void> clearSecret(const std::string &key)
 {
 	const Descriptor *d = row(key);

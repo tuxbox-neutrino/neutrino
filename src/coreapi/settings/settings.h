@@ -66,6 +66,9 @@ Result<Descriptor> describe(const std::string &key);
    told its own write did nothing; a write this layer answered with an error left nothing. */
 Result<std::string> get(const std::string &key);
 
+// Each setting a write could not keep, with the answer its own write would have had.
+typedef std::vector<std::pair<std::string, Error> > Refusals;
+
 /* What a write of several settings will leave behind, as key and wire text, so each of
    them is judged on that and not on what the store holds before any has landed. Only
    values check() passed and settleBatch() kept belong in it: a value that never lands
@@ -134,6 +137,43 @@ bool availableNow(const Descriptor &d);
    judged on what the whole write leaves behind, which conditionsAllow() asks once every
    member has passed here. */
 Result<void> check(const std::string &key, const std::string &value);
+
+/* The second pass of a write of several settings, between check() and set(). First runs the
+   couplings over batch, which are the settings that cannot be written apart:
+   - writing the guide's save on puts its read on, and the module line follows its position;
+     a member the caller names with a value that contradicts that is refused together with
+     the member that implies it, while an equal value is taken as sent;
+   - the name and identifier of a start channel and the city and coordinates of the weather
+     are written together or not at all, and a weather pair clears the postal code;
+   - the five plugin lists stay one partition: a name written into one list leaves the
+     others, and two lists written together naming one plugin are both refused.
+   A coupling puts its values into batch, so a caller writes batch afterwards and not the
+   members it named. All of them are refused with setting-condition-not-met although the
+   schema states no condition for them: the answer names the pair or the clash.
+
+   Then takes out of batch every member whose conditions do not hold on batch and the store,
+   and again until a round takes out nothing, because a member taken out can be what another
+   one leaned on. The couplings are made over from what is left each round, so what a member
+   brought with it leaves with it, and a setting a coupling added that cannot land takes out
+   the member that asked for it. Each one taken out, added settings too, is put into refused
+   under its own key with setting-condition-not-met. What is left then holds together:
+   written with set() and this batch, every member lands on conditions the landed members
+   and the store satisfy, whatever order the caller named them in.
+
+   Two things it does not promise. The outcome is not the largest set that could land: two
+   members whose conditions each refuse the other's new value are both taken out, although
+   either alone might have been allowed. And a store that fails to take a member in the
+   write after this cannot be foreseen here, so a member may still land on one that did
+   not. */
+void settleBatch(BatchOverlay &batch, Refusals &refused);
+
+/* All three passes of a write of several settings: check() on each, settleBatch(), then set()
+   on what is left. The one entry for a caller that writes more than one setting, so none can
+   skip a coupling. Each key may be named once. Every setting that did not land, whichever pass
+   refused it, is in failed with the answer its own write would have had, and what the
+   couplings added is among them when it fails. */
+void writeBatch(const std::vector<std::pair<std::string, std::string> > &members, Refusals &failed,
+		bool onLoop = false);
 
 /* Empties a credential, the one thing set() will not do. The two rules that protect one
    leave no way to remove it: a read answers nothing, so a form redrawn from what it read
