@@ -52,6 +52,7 @@
 #include "coreapi/base/eventbus.h"
 #include "coreapi/netfs.h"
 #include "coreapi/base/schema.h"
+#include "coreapi/settings/settingsfield.h"
 #include "coreapi/settings/settings.h"
 #include "coreapi/storage.h"
 #include "coreapi/box/storage_internal.h"
@@ -1798,6 +1799,57 @@ TEST_CASE("the schema describes a key row by its bounds", "[endpoints]")
 	CHECK((*key)["max"].asInt() == (int) CRCInput::RC_MaxRC);
 	CHECK_FALSE(key->isMember("values"));
 	CHECK((*key)["default"].asString() == std::to_string((long) (int32_t) CRCInput::RC_standby));
+}
+
+namespace
+{
+
+bool g_names_known = true;
+
+bool twoNames(std::vector<coreapi::SettingChoice> &out)
+{
+	if (!g_names_known)
+		return false;
+	std::vector<coreapi::SettingChoice> found(2);
+	found[0].text = "alpha";
+	found[1].text = "beta";
+	found[1].label = "Beta";
+	out.swap(found);
+	return true;
+}
+
+const coreapi::Descriptor kTextChoiceRow[] =
+{
+	{
+		"fixture_name", coreapi::ValueType::String, "fixture", "label", NULL,
+		0, 0, NULL, 0, 0, "alpha", false, false, COREAPI_ALWAYS,
+		COREAPI_TEXT_FIELD_OFFERED(language, twoNames)
+	},
+};
+
+} // namespace
+
+TEST_CASE("the schema offers a text row's choices by their text, and none while the box cannot say", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	InstalledSettingsTable table(kTextChoiceRow, 1);
+	struct Restore { ~Restore() { g_names_known = true; } } restore;
+
+	g_names_known = true;
+	::Json::Value item = parsed(get("/api/v1/settings/schema").body)["items"][0u];
+	CHECK(item["id"].asString() == "fixture_name");
+	CHECK(item["type"].asString() == "string");
+	REQUIRE(item["values"].size() == 2u);
+	CHECK(item["values"][0u]["value"].asInt() == 0);
+	CHECK(item["values"][0u]["text"].asString() == "alpha");
+	CHECK(item["values"][0u]["label"].asString() == "alpha");
+	CHECK(item["values"][1u]["text"].asString() == "beta");
+	CHECK(item["values"][1u]["label"].asString() == "Beta");
+
+	g_names_known = false;
+	item = parsed(get("/api/v1/settings/schema").body)["items"][0u];
+	REQUIRE(item.isMember("values"));
+	CHECK(item["values"].size() == 0u);
 }
 
 TEST_CASE("the keys route lists no key first and every named key plain and held", "[endpoints]")

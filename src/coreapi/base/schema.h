@@ -61,9 +61,17 @@ struct SettingChoice
 {
 	long        value;
 	std::string label;
+	// What a text setting stores for this choice; empty for a choice of a
+	// number, whose value is the number.
+	std::string text;
 
 	SettingChoice() : value(0) {}
 };
+
+/* Where a text row's choices come from when the box decides them: the names
+   of the catalogs installed, the zones the box lists. False where the box has
+   nothing to offer, and out is then untouched. */
+typedef bool (*ChoiceSource)(std::vector<SettingChoice> &out);
 
 // Each ordering comparison comes in both strengths, because a closed range
 // written as a strict comparison against the next value assumes the values are
@@ -168,6 +176,10 @@ struct FieldRef
 	   beside it. */
 	const char *name;
 	FieldOrigin origin;
+	/* The list a text row offers, which the box decides, NULL for none: the
+	   names of the catalogs installed, the zones the box lists. The text kind of
+	   choices above, which name a set a number row is held to. */
+	ChoiceSource choices_from;
 };
 
 /* Whether the value is in the member the row is named after. Two things follow
@@ -181,7 +193,7 @@ inline bool valueIsInNamedMember(const FieldRef &f)
 
 // What a setting whose value this layer cannot reach writes.
 #define COREAPI_NO_FIELD \
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, coreapi::FieldOrigin::Nowhere }
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, coreapi::FieldOrigin::Nowhere, NULL }
 
 /* Hexadecimal, one to sixteen digits, no prefix. Read in either case and
    written back in lower. Beside the type rather than beside the field it stores
@@ -273,6 +285,9 @@ struct Descriptor
 inline bool descriptorIsSane(const Descriptor &d)
 {
 	if (d.key == NULL || d.key[0] == '\0')
+		return false;
+	// The box's list of texts is for a text row only, and one with no list of its own.
+	if (d.field.choices_from != NULL && (d.type != ValueType::String || d.values != NULL))
 		return false;
 	if (d.section == NULL || d.section[0] == '\0')
 		return false;

@@ -940,6 +940,9 @@ std::string plainKeyIn(const char *section)
 			continue;
 		if (rows[i].secret || rows[i].type != coreapi::ValueType::String)
 			continue;
+		// a text the box offers a list for takes nothing but its list
+		if (rows[i].field.choices_from != NULL)
+			continue;
 		return rows[i].key;
 	}
 	return std::string();

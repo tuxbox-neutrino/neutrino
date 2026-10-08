@@ -141,7 +141,7 @@ struct ChannelIdField
 	{ &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::read, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::write, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::fits, \
-	  NULL, NULL, NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member }
+	  NULL, NULL, NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, NULL }
 
 // The same field, with the set of values it offers asked for at run time rather
 // than written down beside the row. c names the set to whoever answers.
@@ -149,13 +149,20 @@ struct ChannelIdField
 	{ &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::read, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::write, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::fits, \
-	  NULL, NULL, NULL, NULL, (c), #f, coreapi::FieldOrigin::Member }
+	  NULL, NULL, NULL, NULL, (c), #f, coreapi::FieldOrigin::Member, NULL }
 
 #define COREAPI_TEXT_FIELD(f) \
 	{ NULL, NULL, NULL, \
 	  &coreapi::TextField<&SNeutrinoSettings::f>::read, \
 	  &coreapi::TextField<&SNeutrinoSettings::f>::write, \
-	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member }
+	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, NULL }
+
+// The same text field, with the texts the box offers for it asked of s.
+#define COREAPI_TEXT_FIELD_OFFERED(f, s) \
+	{ NULL, NULL, NULL, \
+	  &coreapi::TextField<&SNeutrinoSettings::f>::read, \
+	  &coreapi::TextField<&SNeutrinoSettings::f>::write, \
+	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, (s) }
 
 /* f is the member the screen binds the question to and the name this row is
    found under, m is the mask the value really lives in, and b is the bit of it.
@@ -166,13 +173,13 @@ struct ChannelIdField
 	  &coreapi::MaskBitField<decltype(SNeutrinoSettings::m), &SNeutrinoSettings::m, (b)>::write, \
 	  &coreapi::MaskBitField<decltype(SNeutrinoSettings::m), &SNeutrinoSettings::m, (b)>::fits, \
 	  NULL, NULL, NULL, NULL, NULL, \
-	  (sizeof(&SNeutrinoSettings::f) > 0 ? #f : #f), coreapi::FieldOrigin::MaskBit }
+	  (sizeof(&SNeutrinoSettings::f) > 0 ? #f : #f), coreapi::FieldOrigin::MaskBit, NULL }
 
 #define COREAPI_CHANNEL_ID_FIELD(f) \
 	{ NULL, NULL, NULL, \
 	  &coreapi::ChannelIdField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::read, \
 	  &coreapi::ChannelIdField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::write, \
-	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::ChannelIdField }
+	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::ChannelIdField, NULL }
 
 /* A value a daemon holds. a asks it and t tells it, and f is the member the
    program keeps as the screen's buffer for that value, named so the checks
@@ -184,6 +191,6 @@ struct ChannelIdField
    stays a constant. */
 #define COREAPI_SERVICE_FIELD(f, a, t) \
 	{ NULL, NULL, NULL, NULL, NULL, (a), (t), NULL, \
-	  (sizeof(&SNeutrinoSettings::f) > 0 ? #f : #f), coreapi::FieldOrigin::Service }
+	  (sizeof(&SNeutrinoSettings::f) > 0 ? #f : #f), coreapi::FieldOrigin::Service, NULL }
 
 #endif

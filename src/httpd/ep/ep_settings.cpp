@@ -93,7 +93,11 @@ std::string decimal(long v)
    trusting that guard from a distance. */
 const FieldDesc kEnumValueFields[] = {
 	HTTPD_MEMBER("value", FieldType::Int,
-		"the number the box stores when this choice is picked, matched against the setting's own stored value"),
+		"the number the box stores when this choice is picked, matched against the setting's own stored value; "
+		"0 for a choice of a text setting, which stores the text below"),
+	HTTPD_MEMBER_OPTIONAL("text", FieldType::String,
+		"what a text setting stores when this choice is picked, matched against its stored value; "
+		"present only for a setting of type string"),
 	HTTPD_MEMBER("label", FieldType::String,
 		"the text the box shows for this choice, already resolved into the box's configured language"),
 };
@@ -126,7 +130,8 @@ const FieldDesc kSettingFields[] = {
 		"what kind of value this setting holds, which decides how the rest of this descriptor is read",
 		"bool: stores 0 or 1 and is shown as a toggle\n"
 		"int: a whole number, bounded by min and max\n"
-		"string: free text or an identifier, with no numeric bounds\n"
+		"string: free text or an identifier, with no numeric bounds; where the box offers a list of the "
+		"texts it takes, they are listed under values\n"
 		"enum: one of a fixed or box reported set of choices, listed under values\n"
 		"key: the code of a remote control key, stored as a whole number between min and max and shown "
 		"by the name GET /api/v1/settings/keys gives it; a code that list does not name is accepted too "
@@ -147,7 +152,9 @@ const FieldDesc kSettingFields[] = {
 	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int,
 		"the highest whole number this setting accepts, present only when type is int or key"),
 	HTTPD_LIST_OF_OPTIONAL("values", &kEnumValueSchema,
-		"what it accepts, only for a setting that offers a set"),
+		"what it accepts, only for a setting that offers a set; for a text setting the texts the box "
+		"offers right now, where an empty list is a box that cannot say and any text the setting's "
+		"other rules allow is taken"),
 	HTTPD_MEMBER("default", FieldType::String,
 		"what the box falls back to, rendered the way a value is, and empty for a setting held to be a credential"),
 	HTTPD_MEMBER("needs_restart", FieldType::Bool,
@@ -308,6 +315,33 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 				j.value(text);
 			}
 			j.endObject();
+		}
+		j.endArray();
+	}
+
+	if (d.type == coreapi::ValueType::String && d.field.choices_from != NULL)
+	{
+		/* The texts the box offers, each under the text it stores. Empty is a box that
+		   cannot say what it has, and then the row's other rules alone hold: a caller
+		   offers free text rather than nothing. */
+		j.key("values");
+		j.beginArray();
+		coreapi::Result<std::vector<coreapi::SettingChoice> > asked =
+			coreapi::settings::choices(d.key);
+		if (asked.ok())
+		{
+			const std::vector<coreapi::SettingChoice> &offered = asked.value();
+			for (size_t i = 0; i < offered.size(); ++i)
+			{
+				j.beginObject();
+				j.key("value");
+				j.value(0L);
+				j.key("text");
+				j.value(offered[i].text);
+				j.key("label");
+				j.value(offered[i].label);
+				j.endObject();
+			}
 		}
 		j.endArray();
 	}

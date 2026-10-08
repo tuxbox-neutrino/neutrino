@@ -20,6 +20,7 @@
 
 #include "settingstable.h"
 #include "settingsfield.h"
+#include "choicesources.h"
 
 #include <vector>
 
@@ -46,25 +47,26 @@ namespace
 const Descriptor kSettings[] =
 {
 	// The name of a locale file, which is why an empty one is a default and
-	// means the box picks.
+	// means the box picks. The catalogs installed are the list on offer.
 	{
 		"language", ValueType::String, "general",
 		"languagesetup.osd", NULL,
 		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(language)
+		COREAPI_TEXT_FIELD_OFFERED(language, installedLocales)
 	},
 	/* The name of a zone as the box's own list spells it, which is why this is
-	   text and not a choice: the screen reads the list out of /etc/timezone.xml
-	   at run time, src/gui/osdlang_setup.cpp:162. The running box links its
-	   clock to the zone at start, src/neutrino.cpp:3009, and the screen's
-	   notifier does it again; a value written here reaches neither. */
+	   text: the screen reads the list out of /etc/timezone.xml at run time,
+	   src/gui/osdlang_setup.cpp:162, and the same list is on offer here. The
+	   running box links its clock to the zone at start, src/neutrino.cpp:3009,
+	   and the screen's notifier does it again; a value written here reaches
+	   neither. */
 	// src/neutrino.cpp:774 src/gui/osdlang_setup.cpp:162
 	{
 		"timezone", ValueType::String, "general",
 		"mainsettings.timezone", "menu.hint_timezone",
 		0, 0, NULL, 0, 0, "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna",
 		true, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(timezone)
+		COREAPI_TEXT_FIELD_OFFERED(timezone, timezoneNames)
 	},
 	// src/neutrino.cpp:747 src/gui/osdlang_setup.cpp:251
 	{

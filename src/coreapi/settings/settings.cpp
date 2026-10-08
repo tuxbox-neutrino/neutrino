@@ -25,6 +25,8 @@
 #include "coreapi/base/eventbus.h"
 #include "settingstable.h"
 
+#include <mutex>
+#include <set>
 #include <vector>
 
 #include <cerrno>
@@ -201,12 +203,87 @@ Result<void> allowedByRow(const Descriptor &d, long value)
 		    "the setting is not of a kind a number is offered for");
 }
 
-/* The values a row offers, whichever of the two places they come from. One
+void saidNameless(const char *key)
+{
+	static std::mutex lock;
+	static std::set<std::string> told;
+	std::lock_guard<std::mutex> hold(lock);
+	if (told.insert(key).second)
+		fprintf(stderr, "coreapi: the list of %s has entries without text and they are left out\n", key);
+}
+
+/* The list a row takes from its provider. False where the provider cannot say and
+   where it says nothing, since a list of no entry offers nothing to choose and the two
+   are answered alike. */
+bool providedChoices(const Descriptor &d, std::vector<SettingChoice> &out)
+{
+	std::vector<SettingChoice> listed;
+	if (!d.field.choices_from(listed) || listed.empty())
+		return false;
+
+	std::vector<SettingChoice> kept;
+	kept.reserve(listed.size());
+	bool nameless = false;
+	for (size_t i = 0; i < listed.size(); ++i)
+	{
+		SettingChoice &one = listed[i];
+		/* A String entry stands for its text. One without it is a provider that filled the
+		   number and the label like a number row's, and every write would be refused for it
+		   without a word, so it is left out and said once. */
+		if (d.type == ValueType::String && one.text.empty())
+		{
+			nameless = true;
+			continue;
+		}
+		if (one.label.empty() && d.type == ValueType::String)
+			one.label = one.text;
+		kept.push_back(one);
+	}
+	if (nameless)
+		saidNameless(d.key);
+	if (kept.empty())
+		return false;
+	out.swap(kept);
+	return true;
+}
+
+Result<void> holdsOffered(ChoiceSource from, const std::string &text, const std::string *always)
+{
+	// A value the caller knows the row holds, such as its default, needs no entry.
+	if (always != NULL && *always == text)
+		return ok();
+
+	std::vector<SettingChoice> listed;
+	// A box that cannot say what it has holds the row to nothing, as a rule of text would.
+	if (!from(listed))
+		return ok();
+
+	/* An entry without text stands for nothing a text row can store, as in the list a read
+	   answers, so it neither matches nor counts as an offer. */
+	bool offered = false;
+	for (size_t i = 0; i < listed.size(); ++i)
+	{
+		if (listed[i].text.empty())
+			continue;
+		offered = true;
+		if (listed[i].text == text)
+			return ok();
+	}
+	if (!offered)
+		return ok();
+	return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+		    "the setting does not offer that value");
+}
+
+/* The values a row offers, whichever of the places they come from. One
    function, because the write is held to the same set a read answers with:
    written twice, a caller could be offered a value the write turns down. False is
    a row that offers no set at all and a set nobody can state. */
 bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out)
 {
+	if (d.field.choices_from != NULL)
+		return providedChoices(d, out);
+
 	if (d.type != ValueType::Enum)
 		return false;
 
@@ -362,6 +439,23 @@ Result<void> set(const std::string &key, const std::string &value)
 			if (!readChannelIdText(value, id))
 				return fail(Status::InvalidArgument, ErrorCode::BadString,
 					    "the setting takes the hexadecimal spelling a channel is named by, of one to sixteen digits");
+		}
+
+		if (d->field.choices_from != NULL)
+		{
+			/* The default counts as offered: a row reads as its default until something is
+			   stored, so refusing it would make the way back to it a write that fails. The
+			   stored value is read only once the list has refused. */
+			const std::string fallback = d->default_string != NULL ? d->default_string : "";
+			Result<void> offered = holdsOffered(d->field.choices_from, value, &fallback);
+			if (!offered.ok())
+			{
+				std::string stored;
+				if (settingsSource().readString(d->key, stored) == Status::Ok && stored == value)
+					offered = ok();
+			}
+			if (!offered.ok())
+				return fail(offered.error());
 		}
 
 		written = settingsSource().writeString(d->key, value);

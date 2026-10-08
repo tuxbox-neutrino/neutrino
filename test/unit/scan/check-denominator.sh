@@ -58,7 +58,7 @@ awk -F'\t' '$2 == "scalar" && $3 == "plain" { print $1 }' "$tmp/members" | sort 
 # macro nothing here names would leave the member it carries unaccounted for,
 # and this is the one place that would say so. The member a row names is always
 # the first argument, whatever else the macro takes after it.
-FIELD_MACROS='COREAPI_(NUMBER_FIELD_ASKED|NUMBER_FIELD|TEXT_FIELD|MASK_BIT_FIELD|CHANNEL_ID_FIELD|SERVICE_FIELD)'
+FIELD_MACROS='COREAPI_(NUMBER_FIELD_ASKED|NUMBER_FIELD|TEXT_FIELD_OFFERED|TEXT_FIELD|MASK_BIT_FIELD|CHANNEL_ID_FIELD|SERVICE_FIELD)'
 
 # The declared set is every field a row points at. The listed file is not among
 # these, so the two sets are read apart.

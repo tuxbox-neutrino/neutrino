@@ -47,6 +47,7 @@ libcoreapi_a_SOURCES = \
 	box/inputdevice_real.cpp \
 	box/screenshotsource_real.cpp \
 	box/keysource_real.cpp \
+	settings/choicesources.cpp \
 	box/displaypicture.cpp \
 	box/logosource_real.cpp \
 	box/pluginsource_real.cpp \
@@ -139,6 +140,7 @@ noinst_HEADERS = \
 	box/picture_internal.h \
 	osd.h \
 	base/schema.h \
+	settings/choicesources.h \
 	settings/settings.h \
 	settings/settingsfield.h \
 	settings/settingstable.h \

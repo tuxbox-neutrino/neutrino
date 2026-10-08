@@ -20,6 +20,7 @@
 
 #include "settingstable.h"
 #include "settingsfield.h"
+#include "choicesources.h"
 
 namespace coreapi
 {
@@ -60,15 +61,15 @@ const EnumValue kNtpEnable[] =
 const Descriptor kNetwork[] =
 {
 	/* The name of an interface, and what the screen offers is what the box has:
-	   it reads /sys/class/net, src/gui/network_setup.cpp:236. A name nothing
-	   there matches is dropped and replaced at the next load,
-	   src/system/helpers.cpp:2276. */
+	   it reads /sys/class/net, src/gui/network_setup.cpp:236, and the same is on
+	   offer here. A name nothing there matches is dropped and replaced at the
+	   next load, src/system/helpers.cpp:2276. */
 	// src/neutrino.cpp:813 src/gui/network_setup.cpp:261
 	{
 		"ifname", ValueType::String, "network",
 		"networkmenu.select_if", "menu.hint_net_if",
 		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(ifname)
+		COREAPI_TEXT_FIELD_OFFERED(ifname, interfaceNames)
 	},
 
 	// time
