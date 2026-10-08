@@ -94,6 +94,17 @@ void CNetworkConfig::init_vars(void)
 		netmask = mask;
 		broadcast = _broadcast;
 		address = ip;
+		/* an address iwd has set carries no broadcast, the one of the
+		 * network is what the menu shows and compares against */
+		struct in_addr na, nm;
+		if ((broadcast.empty() || broadcast == "0.0.0.0")
+		    && inet_pton(AF_INET, address.c_str(), &na) == 1 && inet_pton(AF_INET, netmask.c_str(), &nm) == 1) {
+			struct in_addr in;
+			char tmp[40];
+			in.s_addr = na.s_addr | ~nm.s_addr;
+			if (inet_ntop(AF_INET, &in, tmp, sizeof(tmp)))
+				broadcast = tmp;
+		}
 	}
 
 	netGetMacAddr(ifname, addr);
