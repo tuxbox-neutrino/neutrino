@@ -347,6 +347,7 @@ constexpr Descriptor kOsd[] =
 		.hint("fontmenu.scaling_x_hint2")
 		.range(50, 200)
 		.defaultValue(100)
+		.unit("unit.short.percent")
 		.field(COREAPI_NUMBER_FIELD(font_scaling_x)),
 	// src/neutrino.cpp:1152 src/gui/osd_setup.cpp:313
 	// Local resolution: this fork falls back to 100 per cent, not the source's 105.
@@ -356,6 +357,7 @@ constexpr Descriptor kOsd[] =
 		.hint("fontmenu.scaling_y_hint2")
 		.range(50, 200)
 		.defaultValue(100)
+		.unit("unit.short.percent")
 		.field(COREAPI_NUMBER_FIELD(font_scaling_y)),
 
 	// menus
@@ -729,6 +731,7 @@ constexpr Descriptor kOsd[] =
 		.hint("menu.hint_screensaver_delay")
 		.range(0, 999)
 		.defaultValue(1)
+		.unit("unit.short.minute")
 		.field(COREAPI_NUMBER_FIELD(screensaver_delay)),
 	// src/neutrino.cpp:732 src/gui/osd_setup.cpp:1863
 	enumRow("screensaver_mode")
@@ -747,6 +750,7 @@ constexpr Descriptor kOsd[] =
 		.hint("menu.hint_screensaver_timeout")
 		.range(0, 60)
 		.defaultValue(10)
+		.unit("unit.short.second")
 		.changeableWhen(kScreensaverOn)
 		.field(COREAPI_NUMBER_FIELD(screensaver_timeout)),
 	// src/neutrino.cpp:731 src/gui/osd_setup.cpp:1876

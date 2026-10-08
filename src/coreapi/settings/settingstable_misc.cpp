@@ -511,6 +511,7 @@ constexpr Descriptor kMisc[] =
 		.hint("menu.hint_shutdown_count")
 		.range(0, 999)
 		.defaultValue(0)
+		.unit("unit.short.minute")
 		.field(COREAPI_NUMBER_FIELD(shutdown_count)),
 	/* The standing sleep timer in minutes. Its item is the sleep timer box and
 	   holds the value as three digits of text, src/gui/sleeptimer.cpp:68. The
@@ -523,6 +524,7 @@ constexpr Descriptor kMisc[] =
 		.label("sleeptimerbox.title2")
 		.range(0, 999)
 		.defaultValue(180)
+		.unit("unit.short.minute")
 		.field(COREAPI_NUMBER_FIELD(shutdown_min)),
 	/* Which of the three the power menu did last, standby, off or restart,
 	   src/gui/poweroff_menu.cpp:56, :62 and :68. The menu writes it and reads
@@ -569,6 +571,7 @@ constexpr Descriptor kMisc[] =
 		.hint("menu.hint_epg_extendedcache")
 		.range(0, 999)
 		.defaultValue(168)
+		.unit("unit.short.hour")
 		.field(COREAPI_NUMBER_FIELD(epg_extendedcache)),
 	// src/neutrino.cpp:780 src/gui/miscsettings_menu.cpp:521
 	intRow("epg_max_events")
@@ -585,6 +588,7 @@ constexpr Descriptor kMisc[] =
 		.hint("menu.hint_epg_old_events")
 		.range(0, 999)
 		.defaultValue(1)
+		.unit("unit.short.hour")
 		.field(COREAPI_NUMBER_FIELD(epg_old_events)),
 	/* How many hours pass before the standby scan runs again,
 	   src/driver/scanepg.cpp:325. Nothing states a bound for it, so the row
@@ -689,6 +693,7 @@ constexpr Descriptor kMisc[] =
 		.section("misc")
 		.range(60, 7200)
 		.defaultValue(180)
+		.unit("unit.short.second")
 		.field(COREAPI_NUMBER_FIELD(adzap_zapBackPeriod)),
 	// src/neutrino.cpp:1205 src/gui/adzap.cpp:346
 	enumRow("adzap_zapOnActivation")

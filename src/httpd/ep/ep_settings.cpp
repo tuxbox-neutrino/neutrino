@@ -199,6 +199,11 @@ const FieldDesc kSettingFields[] = {
 		"the lowest whole number this setting accepts, present only when type is int or key"),
 	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int,
 		"the highest whole number this setting accepts, present only when type is int or key"),
+	HTTPD_MEMBER_OPTIONAL("unit", FieldType::String,
+		"the name of the text that follows the number, such as unit.short.hour, for the box's own "
+		"language catalog and not the text itself; present only when type is int and the box shows "
+		"the number with a unit, so a client draws its own text for the name and nothing for one it "
+		"does not know"),
 	HTTPD_LIST_OF_OPTIONAL("values", &kEnumValueSchema,
 		"what it accepts, only for a setting that offers a set; for a text setting the texts the box "
 		"offers right now, where an empty list is a box that cannot say and any text the setting's "
@@ -365,6 +370,11 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		j.value(d.min);
 		j.key("max");
 		j.value(d.max);
+		if (d.type == coreapi::ValueType::Int && d.unit_key != NULL)
+		{
+			j.key("unit");
+			j.value(d.unit_key);
+		}
 	}
 
 	if (d.type == coreapi::ValueType::Enum)

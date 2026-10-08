@@ -141,6 +141,7 @@ constexpr Descriptor kRecording[] =
 		.hint("menu.hint_record_time")
 		.range(1, 24)
 		.defaultValue(4)
+		.unit("unit.short.hour")
 		.field(COREAPI_NUMBER_FIELD(record_hours)),
 	/* Loaded as a flag and offered as a choice, and the two words beside its
 	   values are what it means rather than an on and an off, so a Bool row
@@ -207,6 +208,7 @@ constexpr Descriptor kRecording[] =
 		.label("extra.record_bufsize")
 		.range(1, 25)
 		.defaultValue(4)
+		.unit("unit.short.megabyte")
 		.field(COREAPI_NUMBER_FIELD(recording_bufsize)),
 	// src/neutrino.cpp:847 src/gui/record_setup.cpp:257
 	intRow("recording_bufsize_dmx")
@@ -214,6 +216,7 @@ constexpr Descriptor kRecording[] =
 		.label("extra.record_bufsize_dmx")
 		.range(1, 25)
 		.defaultValue(2)
+		.unit("unit.short.megabyte")
 		.field(COREAPI_NUMBER_FIELD(recording_bufsize_dmx)),
 #endif
 
@@ -232,6 +235,7 @@ constexpr Descriptor kRecording[] =
 		.hint("menu.hint_record_zap_pre_time")
 		.range(0, 10)
 		.defaultValue(0)
+		.unit("unit.short.minute")
 		.field(COREAPI_NUMBER_FIELD(zapto_pre_time)),
 	// Default: CFollowScreenings::FOLLOWSCREENINGS_ON, src/gui/followscreenings.h:66
 	// src/neutrino.cpp:696 src/gui/record_setup.cpp:343
@@ -283,6 +287,7 @@ constexpr Descriptor kRecording[] =
 		.hint("menu.hint_record_timeshift_auto")
 		.range(0, 300)
 		.defaultValue(0)
+		.unit("unit.short.second")
 		.field(COREAPI_NUMBER_FIELD(timeshift_auto)),
 	// src/neutrino.cpp:875 src/gui/record_setup.cpp:411
 	boolRow("timeshift_delete")
@@ -305,6 +310,7 @@ constexpr Descriptor kRecording[] =
 		.hint("menu.hint_record_time_ts")
 		.range(1, 24)
 		.defaultValue(4)
+		.unit("unit.short.hour")
 		.field(COREAPI_NUMBER_FIELD(timeshift_hours)),
 
 	/* Where the movie browser looks, which is not where recordings are
@@ -372,6 +378,7 @@ constexpr Descriptor kRecording[] =
 		.hint("menu.hint_record_timebefore")
 		.range(0, 99)
 		.defaultValue(0)
+		.unit("unit.short.minute")
 		.field(COREAPI_SERVICE_FIELD(record_safety_time_before, askSafetyBefore, tellSafetyBefore)),
 	// src/gui/record_setup.cpp:321
 	intRow("record_safety_time_after")
@@ -380,6 +387,7 @@ constexpr Descriptor kRecording[] =
 		.hint("menu.hint_record_timeafter")
 		.range(0, 99)
 		.defaultValue(10)
+		.unit("unit.short.minute")
 		.field(COREAPI_SERVICE_FIELD(record_safety_time_after, askSafetyAfter, tellSafetyAfter)),
 	/* The three bits of recording_audio_pids_default, which the screen offers as
 	   three questions and folds back into the mask as it leaves,

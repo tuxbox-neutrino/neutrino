@@ -598,3 +598,70 @@ TEST_CASE("every shipped row names a section, and a row with a hint names a labe
 	}
 	CHECK(rows > 0);
 }
+
+/* The unit a number is shown with is part of what the row says, as its bounds
+   are. Only a whole number has one, and a row names a unit or a format and never
+   both. The names are held to the catalog by check-locale-catalog.sh; what is held
+   here is which row carries which, since a row left without its unit would show a
+   bare number on every screen that draws it. */
+TEST_CASE("every number row that shows a unit says which, and nothing else carries one", "[settingstable][units]")
+{
+	static const struct { const char *key; const char *unit; const char *format; } kExpected[] = {
+		{ "audio_volume_percent_ac3", "unit.short.percent", NULL },
+		{ "audio_volume_percent_pcm", "unit.short.percent", NULL },
+		{ "picviewer_slide_time", "unit.short.second", NULL },
+		{ "repeat_genericblocker", "unit.short.millisecond", NULL },
+		{ "repeat_blocker", "unit.short.millisecond", NULL },
+		{ "longkeypress_duration", "unit.short.millisecond", NULL },
+		{ "record_hours", "unit.short.hour", NULL },
+		// The two the table carries only where the settings struct has the fields.
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+		{ "recording_bufsize", "unit.short.megabyte", NULL },
+		{ "recording_bufsize_dmx", "unit.short.megabyte", NULL },
+#endif
+		{ "zapto_pre_time", "unit.short.minute", NULL },
+		{ "record_safety_time_before", "unit.short.minute", NULL },
+		{ "record_safety_time_after", "unit.short.minute", NULL },
+		{ "timeshift_hours", "unit.short.hour", NULL },
+		{ "timeshift_auto", "unit.short.second", NULL },
+		{ "font_scaling_x", "unit.short.percent", NULL },
+		{ "font_scaling_y", "unit.short.percent", NULL },
+		{ "screensaver_delay", "unit.short.minute", NULL },
+		{ "screensaver_timeout", "unit.short.second", NULL },
+		{ "epg_extendedcache_time", "unit.short.hour", NULL },
+		{ "epg_old_events", "unit.short.hour", NULL },
+		{ "shutdown_count", "unit.short.minute", NULL },
+		{ "shutdown_min", "unit.short.minute", NULL },
+		{ "adzap_zapBackPeriod", "unit.short.second", NULL },
+	};
+	const size_t n = sizeof(kExpected) / sizeof(kExpected[0]);
+
+	size_t seen = 0;
+	for (size_t i = 0; i < settingsTableCount(); ++i)
+	{
+		const Descriptor &d = settingsTable()[i];
+		INFO("row " << d.key);
+		const bool carries = d.unit_key != NULL || d.format_key != NULL;
+		if (carries)
+			CHECK(d.type == ValueType::Int);
+		const bool both = d.unit_key != NULL && d.format_key != NULL;
+		CHECK_FALSE(both);
+
+		bool listed = false;
+		for (size_t j = 0; j < n; ++j)
+		{
+			if (std::string(d.key) != kExpected[j].key)
+				continue;
+			listed = true;
+			++seen;
+			REQUIRE((d.unit_key == NULL) == (kExpected[j].unit == NULL));
+			REQUIRE((d.format_key == NULL) == (kExpected[j].format == NULL));
+			if (kExpected[j].unit != NULL)
+				CHECK(std::string(d.unit_key) == kExpected[j].unit);
+			if (kExpected[j].format != NULL)
+				CHECK(std::string(d.format_key) == kExpected[j].format);
+		}
+		CHECK(carries == listed);
+	}
+	CHECK(seen == n);
+}

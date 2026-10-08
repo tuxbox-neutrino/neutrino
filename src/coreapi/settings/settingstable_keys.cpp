@@ -605,6 +605,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_repeatblockgeneric")
 		.range(0, 999)
 		.defaultValue(100)
+		.unit("unit.short.millisecond")
 		.field(COREAPI_NUMBER_FIELD(repeat_genericblocker)),
 	// src/neutrino.cpp:6298 src/gui/keybind_setup.cpp:536
 	boolRow("sms_channel")
@@ -652,6 +653,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_repeatblock")
 		.range(0, 999)
 		.defaultValue(450)
+		.unit("unit.short.millisecond")
 		.field(COREAPI_NUMBER_FIELD(repeat_blocker)),
 	/* Milliseconds again, and here the floor is what off means rather than
 	   zero: anything above it is a duration and the value itself is the only
@@ -663,6 +665,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_longkeypress_duration")
 		.range(LONGKEYPRESS_OFF, 9999)
 		.defaultValue(LONGKEYPRESS_OFF)
+		.unit("unit.short.millisecond")
 		.field(COREAPI_NUMBER_FIELD(longkeypress_duration)),
 };
 

@@ -199,6 +199,7 @@ constexpr Descriptor kAudio[] =
 		.hint("menu.hint_audio_adjust_vol_ac3")
 		.range(0, 100)
 		.defaultValue(100)
+		.unit("unit.short.percent")
 		.field(COREAPI_NUMBER_FIELD(audio_volume_percent_ac3)),
 	// src/neutrino.cpp:516 src/gui/audio_setup.cpp:209
 	intRow("audio_volume_percent_pcm")
@@ -207,6 +208,7 @@ constexpr Descriptor kAudio[] =
 		.hint("menu.hint_audio_adjust_vol_pcm")
 		.range(0, 100)
 		.defaultValue(100)
+		.unit("unit.short.percent")
 		.field(COREAPI_NUMBER_FIELD(audio_volume_percent_pcm)),
 
 	/* The volume the box is at, which it writes on every change,

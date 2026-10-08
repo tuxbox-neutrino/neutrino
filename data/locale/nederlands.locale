@@ -2186,8 +2186,10 @@ unicable.scr Unicable SCR
 unit.decimal .
 unit.long.years jaren
 unit.short.hour h
+unit.short.megabyte MB
 unit.short.millisecond ms
 unit.short.minute min
+unit.short.percent %
 unit.short.second s
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Geen UPnP servers gevonden

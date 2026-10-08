@@ -2912,8 +2912,10 @@ unicable.scr_hint Counted from 0 (like CH00 in the LNB data sheet)\nOther device
 unit.decimal .
 unit.long.years years
 unit.short.hour h
+unit.short.megabyte MB
 unit.short.millisecond ms
 unit.short.minute min
+unit.short.percent %
 unit.short.second s
 upnpbrowser.head UPnP browser
 upnpbrowser.noservers No UPnP servers found

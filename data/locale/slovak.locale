@@ -2864,8 +2864,10 @@ unicable.scr SCR Unicable
 unit.decimal .
 unit.long.years roky
 unit.short.hour h
+unit.short.megabyte MB
 unit.short.millisecond ms
 unit.short.minute min
+unit.short.percent %
 unit.short.second s
 upnpbrowser.head UPnP prehliadač
 upnpbrowser.noservers Nenájdený UPnP server

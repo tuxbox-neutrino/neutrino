@@ -189,6 +189,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_pictureviewer_slide_time")
 		.range(0, 999)
 		.defaultValue(10)
+		.unit("unit.short.second")
 		.field(COREAPI_NUMBER_FIELD(picviewer_slide_time)),
 	// src/neutrino.cpp:835 src/gui/pictureviewer_setup.cpp:112
 	textRow("network_nfs_picturedir")
