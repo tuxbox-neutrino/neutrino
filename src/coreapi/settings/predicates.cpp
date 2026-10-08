@@ -26,6 +26,11 @@
 
 #include <string.h>
 
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
+
 namespace coreapi
 {
 
@@ -47,7 +52,34 @@ BoxCapabilities capabilities(bool *ok = NULL)
 	return caps;
 }
 
+// False when the box cannot say which file systems it can write.
+bool formats(const char *fs)
+{
+	std::vector<std::string> tools;
+	if (systemSource().formatTools(tools) != Status::Ok)
+		return false;
+	return std::find(tools.begin(), tools.end(), fs) != tools.end();
+}
+
+bool drawsOsd(int w, int h)
+{
+	std::vector<std::pair<int, int> > sizes;
+	if (osdResolutionSource().available(sizes) != Status::Ok)
+		return false;
+	return std::find(sizes.begin(), sizes.end(), std::make_pair(w, h)) != sizes.end();
+}
+
 } // anonymous namespace
+
+bool canPanScan149()
+{
+	return capabilities().can_ps_14_9;
+}
+
+bool canAspect149()
+{
+	return capabilities().can_ar_14_9;
+}
 
 bool hasHdmi()
 {
@@ -188,6 +220,23 @@ bool severalTunersFitted()
 {
 	return capabilities().frontend_count > 1;
 }
+
+bool severalTunersEnabled()
+{
+	unsigned n = 0;
+	return tunerSource().enabledCount(n) == Status::Ok && n > 1;
+}
+
+bool formatsExt4() { return formats("ext4"); }
+bool formatsExt3() { return formats("ext3"); }
+bool formatsExt2() { return formats("ext2"); }
+bool formatsF2fs() { return formats("f2fs"); }
+bool formatsVfat() { return formats("vfat"); }
+bool formatsExfat() { return formats("exfat"); }
+bool formatsXfs() { return formats("xfs"); }
+
+bool drawsOsd720() { return drawsOsd(1280, 720); }
+bool drawsOsd1080() { return drawsOsd(1920, 1080); }
 
 // The settings of the module slots as a whole are offered where the box has a slot.
 bool hasCiSlot()

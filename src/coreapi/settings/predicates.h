@@ -26,6 +26,8 @@ namespace coreapi
 
 // All of these answer false when the box cannot say what it can do, so an
 // entry or a setting is never offered on a guess.
+bool canPanScan149();
+bool canAspect149();
 bool hasHdmi();
 bool hasFan();
 bool canCec();
@@ -77,6 +79,19 @@ bool canSelectRemote();
 bool ciSlotFitted(unsigned slot);
 // More than one tuner in the box, whether switched on or not.
 bool severalTunersFitted();
+// More than one tuner switched on in the tuner setup.
+bool severalTunersEnabled();
+// The kernel knows the file system and a mkfs for it is there.
+bool formatsExt4();
+bool formatsExt3();
+bool formatsExt2();
+bool formatsF2fs();
+bool formatsVfat();
+bool formatsExfat();
+bool formatsXfs();
+// The box draws its own screen at that size.
+bool drawsOsd720();
+bool drawsOsd1080();
 // The box has a module slot, which the settings of the slots as a whole need.
 bool hasCiSlot();
 
