@@ -171,10 +171,20 @@ Result<void> allowedByRow(const Descriptor &d, long value)
 			return ok();
 
 		case ValueType::Int:
+		{
+			// Every value the row names in words is taken beside the bounds.
+			std::string also;
+			for (size_t i = 0; d.values != NULL && i < d.value_count; ++i)
+			{
+				if (value == d.values[i].value)
+					return ok();
+				also += (i == 0 ? " or " : ", ") + decimal(d.values[i].value);
+			}
 			if (value < d.min || value > d.max)
 				return fail(Status::InvalidArgument, ErrorCode::OutOfRange,
-					    "the setting takes " + decimal(d.min) + " to " + decimal(d.max));
+					    "the setting takes " + decimal(d.min) + " to " + decimal(d.max) + also);
 			return ok();
+		}
 
 		case ValueType::Enum:
 			/* A row whose set is the box's own carries no list here, and the value is held to what

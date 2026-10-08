@@ -115,6 +115,12 @@ constexpr EnumValue kRecordingType[] =
 	option(1).label("recording_type.file")
 };
 
+// No pause before the timeshift starts by itself is no start at all.
+constexpr EnumValue kTimeshiftAutoOff[] =
+{
+	option(0).label("options.off")
+};
+
 constexpr Descriptor kRecording[] =
 {
 	/* The screen refuses this one and the timeshift directory below it while a
@@ -289,6 +295,7 @@ constexpr Descriptor kRecording[] =
 		.hint("menu.hint_record_timeshift_auto")
 		.range(0, 300)
 		.defaultValue(0)
+		.values(kTimeshiftAutoOff)
 		.unit("unit.short.second")
 		.field(COREAPI_NUMBER_FIELD(timeshift_auto)),
 	// src/neutrino.cpp:875 src/gui/record_setup.cpp:411

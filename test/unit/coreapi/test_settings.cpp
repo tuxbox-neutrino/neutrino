@@ -1872,3 +1872,93 @@ TEST_CASE("a text rule matches file endings without regard to case", "[settings]
 	CHECK_FALSE(settings::holdsTextRule(fonts, "/a/b.ttf.bak").ok());
 	CHECK_FALSE(settings::holdsTextRule(fonts, "/a/ttf").ok());
 }
+
+namespace
+{
+// A number from one to fourteen that shows nought as off, and one that names
+// nothing beside the same bounds.
+const EnumValue kOffBelow[] = { { 0, "options.off", NULL, NULL, NULL, 0 } };
+const Descriptor kNamedNumber[] =
+{
+	{
+		"fixture_named", ValueType::Int, "fixture", "label", NULL,
+		1, 14, COREAPI_VALUES(kOffBelow), 1, NULL, false, false, COREAPI_ALWAYS,
+		COREAPI_NUMBER_FIELD(channellist_descmode),
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	},
+	{
+		"fixture_plain", ValueType::Int, "fixture", "label", NULL,
+		1, 14, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
+		COREAPI_NUMBER_FIELD(channellist_descmode),
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	},
+};
+const size_t kNamedNumberCount = sizeof(kNamedNumber) / sizeof(kNamedNumber[0]);
+
+// A number from one to fourteen that shows two values below the floor in words.
+const EnumValue kAutoAndOff[] =
+{
+	{ -1, "options.auto", NULL, NULL, NULL, 0 },
+	{ 0, "options.off", NULL, NULL, NULL, 0 }
+};
+const Descriptor kSeveralNamed[] =
+{
+	{
+		"fixture_several", ValueType::Int, "fixture", "label", NULL,
+		1, 14, COREAPI_VALUES(kAutoAndOff), 1, NULL, false, false, COREAPI_ALWAYS,
+		COREAPI_NUMBER_FIELD(channellist_descmode),
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	},
+};
+const size_t kSeveralNamedCount = sizeof(kSeveralNamed) / sizeof(kSeveralNamed[0]);
+} // namespace
+
+TEST_CASE("a number takes the value it names in words beside its bounds and nothing else", "[settings]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource source(&f);
+	InstalledSettingsTable table(kNamedNumber, kNamedNumberCount);
+	REQUIRE(descriptorIsSane(kNamedNumber[0]));
+	REQUIRE(descriptorIsSane(kNamedNumber[1]));
+
+	REQUIRE(settings::set("fixture_named", "0").ok());
+	REQUIRE(f.ints["fixture_named"] == 0);
+	REQUIRE(settings::set("fixture_named", "14").ok());
+	REQUIRE(f.ints["fixture_named"] == 14);
+
+	Result<void> under = settings::set("fixture_named", "-1");
+	REQUIRE_FALSE(under.ok());
+	REQUIRE(under.error().code == ErrorCode::OutOfRange);
+	REQUIRE(under.error().message == "the setting takes 1 to 14 or 0");
+	Result<void> over = settings::set("fixture_named", "15");
+	REQUIRE_FALSE(over.ok());
+	REQUIRE(over.error().code == ErrorCode::OutOfRange);
+	REQUIRE(f.ints["fixture_named"] == 14);
+
+	Result<void> plain = settings::set("fixture_plain", "0");
+	REQUIRE_FALSE(plain.ok());
+	REQUIRE(plain.error().code == ErrorCode::OutOfRange);
+	REQUIRE(plain.error().message == "the setting takes 1 to 14");
+	REQUIRE(f.ints.count("fixture_plain") == 0);
+}
+
+TEST_CASE("a number naming several values in words takes each of them beside its bounds", "[settings]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource source(&f);
+	InstalledSettingsTable table(kSeveralNamed, kSeveralNamedCount);
+	REQUIRE(descriptorIsSane(kSeveralNamed[0]));
+
+	REQUIRE(settings::set("fixture_several", "-1").ok());
+	REQUIRE(f.ints["fixture_several"] == -1);
+	REQUIRE(settings::set("fixture_several", "0").ok());
+	REQUIRE(f.ints["fixture_several"] == 0);
+	REQUIRE(settings::set("fixture_several", "7").ok());
+	REQUIRE(f.ints["fixture_several"] == 7);
+
+	Result<void> other = settings::set("fixture_several", "-2");
+	REQUIRE_FALSE(other.ok());
+	REQUIRE(other.error().code == ErrorCode::OutOfRange);
+	REQUIRE(other.error().message == "the setting takes 1 to 14 or -1, 0");
+	REQUIRE(f.ints["fixture_several"] == 7);
+}

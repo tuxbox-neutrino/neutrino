@@ -205,9 +205,10 @@ const FieldDesc kSettingFields[] = {
 		"the number with a unit, so a client draws its own text for the name and nothing for one it "
 		"does not know"),
 	HTTPD_LIST_OF_OPTIONAL("values", &kEnumValueSchema,
-		"what it accepts, only for a setting that offers a set; for a text setting the texts the box "
-		"offers right now, where an empty list is a box that cannot say and any text the setting's "
-		"other rules allow is taken"),
+		"what it accepts, for a setting that offers a set; for an int, each number the box "
+		"shows in words instead, such as off, which it accepts beside min to max; for a text setting "
+		"the texts the box offers right now, where an empty list is a box that cannot say and any "
+		"text the setting's other rules allow is taken"),
 	HTTPD_MEMBER_OPTIONAL("text_kind", FieldType::String,
 		"what sort of text a string setting holds, present only for a string setting with a rule: "
 		"plain, directory, file, pin, host, number, name or paths"),
@@ -388,6 +389,26 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		{
 			j.key("unit");
 			j.value(d.unit_key);
+		}
+
+		// Every value the box shows in words rather than as the number.
+		if (d.type == coreapi::ValueType::Int && d.values != NULL && d.value_count > 0)
+		{
+			j.key("values");
+			j.beginArray();
+			for (size_t i = 0; i < d.value_count; ++i)
+			{
+				const coreapi::EnumValue &named = d.values[i];
+				std::string words;
+				coreapi::settings::resolveLabel(named.label_key, words);
+				j.beginObject();
+				j.key("value");
+				j.value((long) named.value);
+				j.key("label");
+				j.value(words);
+				j.endObject();
+			}
+			j.endArray();
 		}
 	}
 

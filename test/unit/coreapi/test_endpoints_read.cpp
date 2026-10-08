@@ -1622,6 +1622,94 @@ TEST_CASE("the schema carries the text rule of a string setting", "[endpoints]")
 	CHECK(plain);
 }
 
+namespace
+{
+const coreapi::EnumValue kOffBelow[] = { { 0, "options.off", NULL, NULL, NULL, 0 } };
+const coreapi::EnumValue kTwoNamed[] =
+{
+	{ -1, "options.auto", NULL, NULL, NULL, 0 },
+	{ 0, "options.off", NULL, NULL, NULL, 0 },
+};
+const coreapi::Descriptor kSeveralNamed[] =
+{
+	{
+		"fixture_several", coreapi::ValueType::Int, "fixture", NULL, NULL,
+		1, 14, kTwoNamed, 2, 1, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD,
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	},
+};
+const coreapi::Descriptor kNamedNumbers[] =
+{
+	{
+		"fixture_named", coreapi::ValueType::Int, "fixture", NULL, NULL,
+		1, 14, kOffBelow, 1, 1, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD,
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	},
+	{
+		"fixture_plain", coreapi::ValueType::Int, "fixture", NULL, NULL,
+		1, 14, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD,
+		NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	},
+};
+} // namespace
+
+// A client draws the same words the box does and knows the value is taken
+// although it lies below min.
+TEST_CASE("the schema names the value a number shows in words", "[endpoints]")
+{
+	FakeSystemSource unlocked;
+	InstalledSystemSource installed_unlocked(&unlocked);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+	FakeLocaleSource cat;
+	cat.texts["options.off"] = "off";
+	InstalledLocaleSource installed(&cat);
+	InstalledSettingsTable table(kNamedNumbers, 2);
+
+	const Reply r = get("/api/v1/settings/schema");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	REQUIRE(items.size() == 2);
+
+	const ::Json::Value &named = items[0];
+	REQUIRE(named["id"].asString() == "fixture_named");
+	CHECK(named["min"].asInt() == 1);
+	CHECK(named["max"].asInt() == 14);
+	REQUIRE(named["values"].size() == 1);
+	CHECK(named["values"][0]["value"].asInt() == 0);
+	CHECK(named["values"][0]["label"].asString() == "off");
+
+	const ::Json::Value &plain = items[1];
+	REQUIRE(plain["id"].asString() == "fixture_plain");
+	CHECK_FALSE(plain.isMember("values"));
+}
+
+TEST_CASE("the schema names every value a number shows in words", "[endpoints]")
+{
+	FakeSystemSource unlocked;
+	InstalledSystemSource installed_unlocked(&unlocked);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+	FakeLocaleSource cat;
+	cat.texts["options.auto"] = "auto";
+	cat.texts["options.off"] = "off";
+	InstalledLocaleSource installed(&cat);
+	InstalledSettingsTable table(kSeveralNamed, 1);
+
+	const Reply r = get("/api/v1/settings/schema");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	REQUIRE(items.size() == 1);
+	const ::Json::Value &values = items[0]["values"];
+	REQUIRE(values.size() == 2);
+	CHECK(values[0]["value"].asInt() == -1);
+	CHECK(values[0]["label"].asString() == "auto");
+	CHECK(values[1]["value"].asInt() == 0);
+	CHECK(values[1]["label"].asString() == "off");
+}
+
 /* The one place a caller other than the tables themselves reads label_key: the
    wire. Before this the field carried label_key's own spelling, such as
    videomenu.videoformat_169 for the choice a screen shows as 16:9, and these

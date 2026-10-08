@@ -123,6 +123,18 @@ long mpKeyPlayDefault()
 	return boxdefault::kPlayPauseKey ? (int32_t) CRCInput::RC_playpause : (int32_t) CRCInput::RC_play;
 }
 
+// Nought is no blocking and no jump, which the screens say in words.
+constexpr EnumValue kOffAtZero[] =
+{
+	option(0).label("options.off")
+};
+
+// The floor of the long key press is the value that means it is off.
+constexpr EnumValue kOffAtLongPressFloor[] =
+{
+	option(LONGKEYPRESS_OFF).label("options.off")
+};
+
 constexpr Descriptor kSettings[] =
 {
 	// src/neutrino.cpp:6257 src/gui/keybind_setup.cpp:183
@@ -617,6 +629,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_repeatblockgeneric")
 		.range(0, 999)
 		.defaultValue(100)
+		.values(kOffAtZero)
 		.unit("unit.short.millisecond")
 		.field(COREAPI_NUMBER_FIELD(repeat_genericblocker)),
 	// src/neutrino.cpp:6298 src/gui/keybind_setup.cpp:536
@@ -665,6 +678,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_key_repeatblock")
 		.range(0, 999)
 		.defaultValue(450)
+		.values(kOffAtZero)
 		.unit("unit.short.millisecond")
 		.field(COREAPI_NUMBER_FIELD(repeat_blocker)),
 	/* Milliseconds again, and here the floor is what off means rather than
@@ -677,6 +691,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_longkeypress_duration")
 		.range(LONGKEYPRESS_OFF, 9999)
 		.defaultValue(LONGKEYPRESS_OFF)
+		.values(kOffAtLongPressFloor)
 		.unit("unit.short.millisecond")
 		.field(COREAPI_NUMBER_FIELD(longkeypress_duration)),
 };

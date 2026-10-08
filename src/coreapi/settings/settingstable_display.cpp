@@ -98,6 +98,16 @@ long glcdScrollSpeedDefault()
 }
 #endif
 
+constexpr EnumValue kOffAtMinusOne[] =
+{
+	option(-1).label("options.off")
+};
+
+constexpr EnumValue kOffAtZero[] =
+{
+	option(0).label("options.off")
+};
+
 constexpr Descriptor kSettings[] =
 {
 	/* The channel line the front panel shows. The wording of nought is the
@@ -129,6 +139,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_vfd_scroll")
 		.range(0, 999)
 		.defaultValue(1)
+		.values(kOffAtZero)
 		.field(COREAPI_NUMBER_FIELD(lcd_scroll)),
 	/* The floor is what off means rather than nought, which is a brightness of
 	   none. The ceiling is the panel's and the build decides it. */
@@ -143,6 +154,7 @@ constexpr Descriptor kSettings[] =
 		.range(-1, 15)
 #endif
 		.defaultValue(0)
+		.values(kOffAtMinusOne)
 		.field(COREAPI_NUMBER_FIELD_ON(lcd_setting_dim_brightness, canSetPanelBrightness, NULL)),
 	/* Minutes kept as text. The screen takes three digits and nothing else,
 	   src/gui/vfd_setup.cpp:333, and the driver reads the text with atoi,

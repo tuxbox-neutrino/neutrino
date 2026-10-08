@@ -852,3 +852,94 @@ TEST_CASE("a group inside a group is passed over by the evaluator rather than wa
 	Descriptor d = rowWithConditions(c, 1);
 	REQUIRE(conditionsHold(d, numberLookup({{"a",0},{"x",0}})));
 }
+
+namespace
+{
+bool notOffered() { return false; }
+} // namespace
+
+TEST_CASE("a number names a value in words, at its floor or outside its bounds", "[schema]")
+{
+	const EnumValue below[] = { { 0, "options.off", NULL, NULL, NULL, 0 } };
+	const EnumValue floor[] = { { 1, "options.off", NULL, NULL, NULL, 0 } };
+	const EnumValue above[] = { { 15, "options.off", NULL, NULL, NULL, 0 } };
+	const EnumValue inside[] = { { 5, "options.off", NULL, NULL, NULL, 0 } };
+	const EnumValue ceiling[] = { { 14, "options.off", NULL, NULL, NULL, 0 } };
+	const EnumValue unworded[] = { { 0, NULL, NULL, NULL, NULL, 0 } };
+	const EnumValue emptyWord[] = { { 0, "", NULL, NULL, NULL, 0 } };
+	const EnumValue fixedText[] = { { 0, NULL, "off", NULL, NULL, 0 } };
+	const EnumValue withheld[] = { { 0, "options.off", NULL, notOffered, NULL, 0 } };
+	Descriptor d = { "k", ValueType::Int, "s", "l", "h", 1, 14, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+	REQUIRE(descriptorIsSane(d));
+	REQUIRE(namedNumber(d) == NULL);
+
+	d.values = below;
+	d.value_count = 1;
+	REQUIRE(descriptorIsSane(d));
+	REQUIRE(namedNumber(d) == &below[0]);
+	d.values = floor;
+	REQUIRE(descriptorIsSane(d));
+	d.values = above;
+	REQUIRE(descriptorIsSane(d));
+
+	d.values = inside;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = ceiling;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = unworded;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = emptyWord;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = fixedText;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = withheld;
+	REQUIRE_FALSE(descriptorIsSane(d));
+
+	// Words with no value to stand for, and a count with no list.
+	d.values = below;
+	d.value_count = 0;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = NULL;
+	d.value_count = 1;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	REQUIRE(namedNumber(d) == NULL);
+
+	// Only a number names a value this way.
+	d.values = below;
+	d.value_count = 1;
+	d.type = ValueType::Enum;
+	REQUIRE(namedNumber(d) == NULL);
+}
+
+TEST_CASE("a number may name several values, each outside the range and each once", "[schema]")
+{
+	const EnumValue two[] = { { -1, "options.auto", NULL, NULL, NULL, 0 }, { 0, "options.off", NULL, NULL, NULL, 0 } };
+	const EnumValue twice[] = { { 0, "options.off", NULL, NULL, NULL, 0 }, { 0, "options.auto", NULL, NULL, NULL, 0 } };
+	const EnumValue oneInside[] = { { 0, "options.off", NULL, NULL, NULL, 0 }, { 5, "options.auto", NULL, NULL, NULL, 0 } };
+	const EnumValue unworded[] = { { 0, "options.off", NULL, NULL, NULL, 0 }, { -1, NULL, NULL, NULL, NULL, 0 } };
+	const EnumValue five[] =
+	{
+		{ -4, "a", NULL, NULL, NULL, 0 }, { -3, "b", NULL, NULL, NULL, 0 }, { -2, "c", NULL, NULL, NULL, 0 },
+		{ -1, "d", NULL, NULL, NULL, 0 }, { 0, "e", NULL, NULL, NULL, 0 }
+	};
+	Descriptor d = { "k", ValueType::Int, "s", "l", "h", 1, 14, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+
+	d.values = two;
+	d.value_count = 2;
+	REQUIRE(descriptorIsSane(d));
+	// Only the single-word case is answered by namedNumber, so nobody mistakes
+	// the first of several for the only one.
+	REQUIRE(namedNumber(d) == NULL);
+
+	d.values = twice;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = oneInside;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = unworded;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = five;
+	d.value_count = 5;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.value_count = 4;
+	REQUIRE(descriptorIsSane(d));
+}

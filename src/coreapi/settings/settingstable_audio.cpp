@@ -76,6 +76,12 @@ constexpr Condition kSrsOn[] =
 	when("srs_enable").isNot(0)
 };
 
+// The floor of start_volume, shown in words.
+constexpr EnumValue kVolumeLastUsed[] =
+{
+	option(-1).label("audiomenu.volume_last_used")
+};
+
 constexpr Descriptor kAudio[] =
 {
 	// src/neutrino.cpp:742 src/gui/audio_setup.cpp:137
@@ -157,6 +163,7 @@ constexpr Descriptor kAudio[] =
 		.hint("menu.hint_audio_volstart")
 		.range(-1, 100)
 		.defaultValue(-1)
+		.values(kVolumeLastUsed)
 		.needsRestart()
 		.field(COREAPI_NUMBER_FIELD(start_volume)),
 	// src/neutrino.cpp:531 src/gui/audio_setup.cpp:196

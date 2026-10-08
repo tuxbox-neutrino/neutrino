@@ -284,6 +284,17 @@ constexpr Condition kVideoModeNotAuto[] =
 	when("video_Mode").isNot(kVideoStdAuto)
 };
 
+// The floors of the screensaver delay and timeout, shown in words.
+constexpr EnumValue kScreensaverDelayOff[] =
+{
+	option(0).label("screensaver.off")
+};
+
+constexpr EnumValue kScreensaverTimeoutOff[] =
+{
+	option(0).label("options.off")
+};
+
 constexpr Descriptor kOsd[] =
 {
 	// src/neutrino.cpp:702 src/gui/osd_setup.cpp:711
@@ -752,6 +763,7 @@ constexpr Descriptor kOsd[] =
 		.hint("menu.hint_screensaver_delay")
 		.range(0, 999)
 		.defaultValue(1)
+		.values(kScreensaverDelayOff)
 		.unit("unit.short.minute")
 		.field(COREAPI_NUMBER_FIELD(screensaver_delay)),
 	// src/neutrino.cpp:732 src/gui/osd_setup.cpp:1863
@@ -771,6 +783,7 @@ constexpr Descriptor kOsd[] =
 		.hint("menu.hint_screensaver_timeout")
 		.range(0, 60)
 		.defaultValue(10)
+		.values(kScreensaverTimeoutOff)
 		.unit("unit.short.second")
 		.changeableWhen(kScreensaverOn)
 		.field(COREAPI_NUMBER_FIELD(screensaver_timeout)),
