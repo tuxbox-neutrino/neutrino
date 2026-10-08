@@ -397,6 +397,16 @@ inline std::string settingsText(const std::string &field)
 	return field;
 }
 
+/* The same for a list or a list of records the struct keeps: a copy taken under
+   the lock the settings layer copies them under, walked outside it. A walk of the
+   list itself would be a walk of memory a write is free to release. */
+template <class C>
+inline C settingsCopy(const C &list)
+{
+	CSettingsTextGuard lock;
+	return list;
+}
+
 struct SNeutrinoSettings
 {
 	// theme/color options
