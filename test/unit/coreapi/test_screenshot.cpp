@@ -120,14 +120,82 @@ struct CaptureInFlight
 		CaptureInFlight &operator=(const CaptureInFlight &);
 };
 
+std::string readFrom(int fd)
+{
+	std::string out;
+	char buf[256];
+	ssize_t n = 0;
+	while ((n = ::read(fd, buf, sizeof(buf))) > 0)
+		out.append(buf, (size_t) n);
+	return out;
+}
+
+std::string readPath(const std::string &path)
+{
+	const int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+	if (fd < 0)
+		return "(no file)";
+	const std::string out = readFrom(fd);
+	::close(fd);
+	return out;
+}
+
+// A descriptor closed whichever line a case leaves through.
+
+// A descriptor closed whichever line a case leaves through.
+struct OpenFile
+{
+	int fd;
+	explicit OpenFile(const std::string &path) : fd(::open(path.c_str(), O_RDONLY | O_CLOEXEC)) {}
+	~OpenFile() { if (fd >= 0) ::close(fd); }
+
+	private:
+		OpenFile(const OpenFile &);
+		OpenFile &operator=(const OpenFile &);
 };
 
 } // namespace
 
+/* The lock is given back before the server opens the file and sends it, so the
+   next capture may run while an answer is still going out. That answer has to
+   keep the picture it opened, whole. */
+TEST_CASE("a picture still being sent is not rewritten by the next capture", "[screenshot]")
+{
+	FakeScreenshotSource source;
+	source.content = "the first picture";
 	InstalledScreenshotSource installed(&source);
 
+	const std::string path = osd::screenshot(true, true, PictureFormat::Jpeg).value();
+	OpenFile sending(path);
+	REQUIRE(sending.fd >= 0);
+
+	source.content = "the second";
+	REQUIRE(osd::screenshot(true, true, PictureFormat::Jpeg).value() == path);
+
+	REQUIRE(readFrom(sending.fd) == "the first picture");
+	REQUIRE(readPath(path) == "the second");
+}
+
+/* While a capture is being written the name still holds the last whole picture,
+   and it holds the new one once the capture has finished. */
+TEST_CASE("the name holds the last whole picture while the next is taken", "[screenshot]")
 {
 	HeldScreenshotSource source;
+	source.content = "the picture before";
 	source.let_go = true;
 	InstalledScreenshotSource installed(&source);
+	const std::string path = osd::screenshot(true, true, PictureFormat::Png).value();
+	REQUIRE(readPath(path) == "the picture before");
+
+	source.let_go = false;
+	source.inside = false;
+	source.content = "the picture after";
+	std::string during;
+	{
+		CaptureInFlight next(source);
 		REQUIRE(source.waitInside(kHeldMs));
+		during = readPath(path);
+	}
+	REQUIRE(during == "the picture before");
+	REQUIRE(readPath(path) == "the picture after");
+}

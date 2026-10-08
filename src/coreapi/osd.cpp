@@ -192,6 +192,9 @@ namespace
    nobody looking at the answer would catch. */
 const char SCREEN_PICTURE_PNG[] = "/tmp/neutrino-screenshot.png";
 const char SCREEN_PICTURE_JPEG[] = "/tmp/neutrino-screenshot.jpg";
+// Where a capture is written before it replaces the name above.
+const char SCREEN_TAKING_PNG[] = "/tmp/neutrino-screenshot-taking.png";
+const char SCREEN_TAKING_JPEG[] = "/tmp/neutrino-screenshot-taking.jpg";
 const char DISPLAY_PICTURE[] = "/tmp/neutrino-display.png";
 
 const char *screenPictureFor(PictureFormat f)
@@ -206,6 +209,11 @@ const char *screenPictureFor(PictureFormat f)
 	// Only a value cast into the enumeration from outside it reaches this, and
 	// the form it is answered with is the one every caller of this can read.
 	return SCREEN_PICTURE_PNG;
+}
+
+const char *screenTakingFor(PictureFormat f)
+{
+	return f == PictureFormat::Jpeg ? SCREEN_TAKING_JPEG : SCREEN_TAKING_PNG;
 }
 
 /* One capture at a time per kind. Two writers on one name leave a file that is
@@ -259,10 +267,24 @@ Result<std::string> screenshot(bool osd, bool video, PictureFormat format)
 		return fail(Status::Busy, ErrorCode::ScreenNotCaptured,
 			    "the box is already taking a picture of its screen");
 	Held held(screenGuard());
-	const Status s = screenshotSource().captureScreen(osd, video, format, path);
+	/* Written aside and renamed over the name while still held. The lock is
+	   given back before the server opens and sends the file, so writing the
+	   name itself would truncate a picture another answer is still sending;
+	   a rename leaves that answer its own file. */
+	const std::string taking = screenTakingFor(format);
+	const Status s = screenshotSource().captureScreen(osd, video, format, taking);
 	if (s != Status::Ok)
+	{
+		std::remove(taking.c_str());
 		return fail(s, ErrorCode::ScreenNotCaptured,
 			    "the box could not take a picture of its screen");
+	}
+	if (std::rename(taking.c_str(), path.c_str()) != 0)
+	{
+		std::remove(taking.c_str());
+		return fail(Status::Internal, ErrorCode::ScreenNotCaptured,
+			    "the picture the box took could not be put in place");
+	}
 	return ok(path);
 }
 
