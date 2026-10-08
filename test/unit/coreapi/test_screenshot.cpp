@@ -2,6 +2,7 @@
  * test_screenshot.cpp - tests for screenshots
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +30,7 @@
 #include <string>
 
 #include <fcntl.h>
+#include <pthread.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -139,8 +141,6 @@ std::string readPath(const std::string &path)
 	::close(fd);
 	return out;
 }
-
-// A descriptor closed whichever line a case leaves through.
 
 // A descriptor closed whichever line a case leaves through.
 struct OpenFile
