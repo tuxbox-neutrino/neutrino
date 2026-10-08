@@ -40,312 +40,324 @@ namespace
 /* The one inverted flag in the tree. Its screen reads nought as on, so a Bool
    row would turn a frontend's true into the opposite and nothing would say so.
    src/gui/widget/menue_options.h:8 */
-const EnumValue kShutdownReal[] =
+constexpr EnumValue kShutdownReal[] =
 {
-	{ 0, "options.on" },
-	{ 1, "options.off" }
+	option(0).label("options.on"),
+	option(1).label("options.off")
 };
 
 // src/gui/miscsettings_menu.cpp:194
-const EnumValue kFilesystemUtf8[] =
+constexpr EnumValue kFilesystemUtf8[] =
 {
-	{ 0, "filesystem.is.utf8.option.iso8859.1" },
-	{ 1, "filesystem.is.utf8.option.utf8" }
+	option(0).label("filesystem.is.utf8.option.iso8859.1"),
+	option(1).label("filesystem.is.utf8.option.utf8")
 };
 
 // src/gui/miscsettings_menu.cpp:201
-const EnumValue kNewZapMode[] =
+constexpr EnumValue kNewZapMode[] =
 {
-	{ 0, "channellist.new_zap_mode_off" },
-	{ 1, "channellist.new_zap_mode_allow" },
-	{ 2, "channellist.new_zap_mode_active" }
+	option(0).label("channellist.new_zap_mode_off"),
+	option(1).label("channellist.new_zap_mode_allow"),
+	option(2).label("channellist.new_zap_mode_active")
 };
 
 // src/gui/miscsettings_menu.cpp:209
-const EnumValue kEnableSdt[] =
+constexpr EnumValue kEnableSdt[] =
 {
-	{ 0, "channellist.enablesdt_off" },
-	{ 1, "channellist.enablesdt_on" },
-	{ 2, "channellist.enablesdt_on_extended" }
+	option(0).label("channellist.enablesdt_off"),
+	option(1).label("channellist.enablesdt_on"),
+	option(2).label("channellist.enablesdt_on_extended")
 };
 
 /* The off value the enum carries is not offered here: the loader turns a stored
    nought into the first of the three below and turns the scan off through the
    mode beside it. src/neutrino.cpp:791 src/gui/miscsettings_menu.cpp:235 */
-const EnumValue kEpgScan[] =
+constexpr EnumValue kEpgScan[] =
 {
-	{ 1, "miscsettings.epg_scan_bq" },
-	{ 2, "miscsettings.epg_scan_fav" },
-	{ 3, "miscsettings.epg_scan_sel" }
+	option(1).label("miscsettings.epg_scan_bq"),
+	option(2).label("miscsettings.epg_scan_fav"),
+	option(3).label("miscsettings.epg_scan_sel")
 };
 
 // The screen makes the two below editable only while the box is left to switch
 // off for real. src/gui/miscsettings_menu.cpp:422
-const Condition kShutdownRealOff[] =
+constexpr Condition kShutdownRealOff[] =
 {
-	{ "shutdown_real", CompareOp::Eq, 0, NULL, 0 }
+	when("shutdown_real").is(0)
 };
 
 // src/gui/miscsettings_menu.cpp:478
-const Condition kEpgSaveOn[] =
+constexpr Condition kEpgSaveOn[] =
 {
-	{ "epg_save", CompareOp::Ne, 0, NULL, 0 }
+	when("epg_save").isNot(0)
 };
 
 // src/gui/miscsettings_menu.cpp:487
-const Condition kEpgReadOn[] =
+constexpr Condition kEpgReadOn[] =
 {
-	{ "epg_read", CompareOp::Ne, 0, NULL, 0 }
+	when("epg_read").isNot(0)
 };
 
 /* Where the box goes when an advert break is spotted, src/gui/adzap.cpp:346.
    The numbers are the enum the settings struct declares,
    src/system/settings.h:981. */
-const EnumValue kAdzapZap[] =
+constexpr EnumValue kAdzapZap[] =
 {
-	{ 0, "adzap.zap_off" },
-	{ 1, "adzap.zap_to_last_channel" },
-	{ 2, "adzap.zap_to_start_channel" }
+	option(0).label("adzap.zap_off"),
+	option(1).label("adzap.zap_to_last_channel"),
+	option(2).label("adzap.zap_to_start_channel")
 };
 
-const Descriptor kMisc[] =
+constexpr Descriptor kMisc[] =
 {
 	// general
 	// src/neutrino.cpp:724 src/gui/miscsettings_menu.cpp:391
-	{
-		"power_standby", ValueType::Bool, "misc",
-		"extra.start_tostandby", "menu.hint_start_tostandby",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(power_standby)
-	},
+	boolRow("power_standby")
+		.section("misc")
+		.label("extra.start_tostandby")
+		.hint("menu.hint_start_tostandby")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(power_standby)),
 	// src/neutrino.cpp:703 src/gui/miscsettings_menu.cpp:395
-	{
-		"cacheTXT", ValueType::Bool, "misc",
-		"extra.cache_txt", "menu.hint_cache_txt",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(cacheTXT)
-	},
+	boolRow("cacheTXT")
+		.section("misc")
+		.label("extra.cache_txt")
+		.hint("menu.hint_cache_txt")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(cacheTXT)),
 	/* Offered only where the box has a fan, a capability read at run time.
 	   Nought names the fan off and the chooser cannot reach it: it clamps to
 	   the floor, src/gui/widget/menue.cpp:1921. */
 	// src/neutrino.cpp:526 src/gui/miscsettings_menu.cpp:404
-	{
-		"fan_speed", ValueType::Int, "misc",
-		"fan_speed", "menu.hint_fan_speed",
-		1, 14, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD_ON(fan_speed, hasFan)
-	},
+	intRow("fan_speed")
+		.section("misc")
+		.label("fan_speed")
+		.hint("menu.hint_fan_speed")
+		.range(1, 14)
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD_ON(fan_speed, hasFan, NULL)),
 
 	// energy and shutdown
 	// src/neutrino.cpp:714 src/gui/miscsettings_menu.cpp:436
-	{
-		"shutdown_real", ValueType::Enum, "misc",
-		"miscsettings.shutdown_real", "menu.hint_shutdown_real",
-		0, 0, COREAPI_VALUES(kShutdownReal), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(shutdown_real)
-	},
+	enumRow("shutdown_real")
+		.section("misc")
+		.label("miscsettings.shutdown_real")
+		.hint("menu.hint_shutdown_real")
+		.defaultValue(0)
+		.values(kShutdownReal)
+		.field(COREAPI_NUMBER_FIELD(shutdown_real)),
 	// src/neutrino.cpp:721 src/gui/miscsettings_menu.cpp:422
-	{
-		"shutdown_real_rcdelay", ValueType::Bool, "misc",
-		"miscsettings.shutdown_real_rcdelay", "menu.hint_shutdown_rcdelay",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kShutdownRealOff),
-		COREAPI_NUMBER_FIELD(shutdown_real_rcdelay)
-	},
+	boolRow("shutdown_real_rcdelay")
+		.section("misc")
+		.label("miscsettings.shutdown_real_rcdelay")
+		.hint("menu.hint_shutdown_rcdelay")
+		.defaultValue(0)
+		.changeableWhen(kShutdownRealOff)
+		.field(COREAPI_NUMBER_FIELD(shutdown_real_rcdelay)),
 	// The screen offers this one only where the box can switch off, which is a
 	// capability read at run time. src/gui/miscsettings_menu.cpp:444
 	// src/neutrino.cpp:722 src/gui/miscsettings_menu.cpp:446
-	{
-		"shutdown_block_while_recording", ValueType::Bool, "misc",
-		"miscsettings.shutdown_block_recording", "menu.hint_shutdown_block_recording",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD_ON(shutdown_block_while_recording, canShutdown)
-	},
+	boolRow("shutdown_block_while_recording")
+		.section("misc")
+		.label("miscsettings.shutdown_block_recording")
+		.hint("menu.hint_shutdown_block_recording")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD_ON(shutdown_block_while_recording, canShutdown, NULL)),
 	/* Minutes, and nought says the box takes the length off the programme it is
 	   showing. A number and not a choice, because the screen names its six
 	   under literal words rather than locales and no scan can read that table.
 	   Bound: the last of the six, src/gui/miscsettings_menu.cpp:253. */
 	// src/neutrino.cpp:723 src/gui/miscsettings_menu.cpp:455
-	{
-		"sleeptimer_min", ValueType::Int, "misc",
-		"miscsettings.sleeptimer_min", "menu.hint_sleeptimer_min",
-		0, 150, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(sleeptimer_min)
-	},
+	intRow("sleeptimer_min")
+		.section("misc")
+		.label("miscsettings.sleeptimer_min")
+		.hint("menu.hint_sleeptimer_min")
+		.range(0, 150)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(sleeptimer_min)),
 
 	// epg
 	// src/neutrino.cpp:784 src/gui/miscsettings_menu.cpp:475
-	{
-		"epg_save", ValueType::Bool, "misc",
-		"miscsettings.epg_save", "menu.hint_epg_save",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_save)
-	},
+	boolRow("epg_save")
+		.section("misc")
+		.label("miscsettings.epg_save")
+		.hint("menu.hint_epg_save")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(epg_save)),
 	// src/neutrino.cpp:787 src/gui/miscsettings_menu.cpp:478
-	{
-		"epg_save_standby", ValueType::Bool, "misc",
-		"miscsettings.epg_save_standby", "menu.hint_epg_save_standby",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_CONDITIONS(kEpgSaveOn),
-		COREAPI_NUMBER_FIELD(epg_save_standby)
-	},
+	boolRow("epg_save_standby")
+		.section("misc")
+		.label("miscsettings.epg_save_standby")
+		.hint("menu.hint_epg_save_standby")
+		.defaultValue(1)
+		.changeableWhen(kEpgSaveOn)
+		.field(COREAPI_NUMBER_FIELD(epg_save_standby)),
 	// src/neutrino.cpp:785 src/gui/miscsettings_menu.cpp:481
-	{
-		"epg_save_frequently", ValueType::Bool, "misc",
-		"miscsettings.epg_save_frequently", "menu.hint_epg_save_frequently",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kEpgSaveOn),
-		COREAPI_NUMBER_FIELD(epg_save_frequently)
-	},
+	boolRow("epg_save_frequently")
+		.section("misc")
+		.label("miscsettings.epg_save_frequently")
+		.hint("menu.hint_epg_save_frequently")
+		.defaultValue(0)
+		.changeableWhen(kEpgSaveOn)
+		.field(COREAPI_NUMBER_FIELD(epg_save_frequently)),
 	// src/neutrino.cpp:786 src/gui/miscsettings_menu.cpp:531
-	{
-		"epg_save_mode", ValueType::Bool, "misc",
-		"miscsettings.epg_save_mode", "menu.hint_epg_save_mode",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_save_mode)
-	},
+	boolRow("epg_save_mode")
+		.section("misc")
+		.label("miscsettings.epg_save_mode")
+		.hint("menu.hint_epg_save_mode")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(epg_save_mode)),
 	// src/neutrino.cpp:782 src/gui/miscsettings_menu.cpp:484
-	{
-		"epg_read", ValueType::Bool, "misc",
-		"miscsettings.epg_read", "menu.hint_epg_read",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_read)
-	},
+	boolRow("epg_read")
+		.section("misc")
+		.label("miscsettings.epg_read")
+		.hint("menu.hint_epg_read")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(epg_read)),
 	// src/neutrino.cpp:783 src/gui/miscsettings_menu.cpp:487
-	{
-		"epg_read_frequently", ValueType::Bool, "misc",
-		"miscsettings.epg_read_frequently", "menu.hint_epg_read_frequently",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_CONDITIONS(kEpgReadOn),
-		COREAPI_NUMBER_FIELD(epg_read_frequently)
-	},
+	boolRow("epg_read_frequently")
+		.section("misc")
+		.label("miscsettings.epg_read_frequently")
+		.hint("menu.hint_epg_read_frequently")
+		.defaultValue(1)
+		.changeableWhen(kEpgReadOn)
+		.field(COREAPI_NUMBER_FIELD(epg_read_frequently)),
 	/* Offered while either of the two above is on, a disjunction across two
 	   keys that a conjunction of comparisons cannot say, so it carries no
 	   condition and is always shown. */
 	// src/neutrino.cpp:777 src/gui/miscsettings_menu.cpp:493
-	{
-		"epg_dir", ValueType::String, "misc",
-		"miscsettings.epg_dir", "menu.hint_epg_dir",
-		0, 0, NULL, 0, 0, TARGET_ROOT "/media/sda1/epg", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(epg_dir)
-	},
+	textRow("epg_dir")
+		.section("misc")
+		.label("miscsettings.epg_dir")
+		.hint("menu.hint_epg_dir")
+		.defaultValue(TARGET_ROOT "/media/sda1/epg")
+		.field(COREAPI_TEXT_FIELD(epg_dir)),
 	// src/neutrino.cpp:788 src/gui/miscsettings_menu.cpp:524
-	{
-		"epg_scan", ValueType::Enum, "misc",
-		"miscsettings.epg_scan_bouquets", "menu.hint_epg_scan",
-		0, 0, COREAPI_VALUES(kEpgScan), 2, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_scan)
-	},
+	enumRow("epg_scan")
+		.section("misc")
+		.label("miscsettings.epg_scan_bouquets")
+		.hint("menu.hint_epg_scan")
+		.defaultValue(2)
+		.values(kEpgScan)
+		.field(COREAPI_NUMBER_FIELD(epg_scan)),
 	/* A number and not a choice: one of the four words the screen puts beside a
 	   value stands for a number two headers state differently, so no scan can
 	   read that table. The value is a pair of bits, live and standby, so every
 	   number in the range is a mode. Bound: src/driver/scanepg.h:39. The two
 	   standby modes are offered only where more than one tuner is enabled. */
 	// src/neutrino.cpp:789 src/gui/miscsettings_menu.cpp:527
-	{
-		"epg_scan_mode", ValueType::Int, "misc",
-		"miscsettings.epg_scan", "menu.hint_epg_scan_mode",
-		0, 3, NULL, 0, 2, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_scan_mode)
-	},
+	intRow("epg_scan_mode")
+		.section("misc")
+		.label("miscsettings.epg_scan")
+		.hint("menu.hint_epg_scan_mode")
+		.range(0, 3)
+		.defaultValue(2)
+		.field(COREAPI_NUMBER_FIELD(epg_scan_mode)),
 
 	// file browser
 	// src/neutrino.cpp:707 src/gui/miscsettings_menu.cpp:561
-	{
-		"filesystem_is_utf8", ValueType::Enum, "misc",
-		"filesystem.is.utf8", "menu.hint_filesystem_is_utf8",
-		0, 0, COREAPI_VALUES(kFilesystemUtf8), 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(filesystem_is_utf8)
-	},
+	enumRow("filesystem_is_utf8")
+		.section("misc")
+		.label("filesystem.is.utf8")
+		.hint("menu.hint_filesystem_is_utf8")
+		.defaultValue(1)
+		.values(kFilesystemUtf8)
+		.field(COREAPI_NUMBER_FIELD(filesystem_is_utf8)),
 	// src/neutrino.cpp:1261 src/gui/miscsettings_menu.cpp:565
-	{
-		"filebrowser_showrights", ValueType::Bool, "misc",
-		"filebrowser.showrights", "menu.hint_filebrowser_showrights",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(filebrowser_showrights)
-	},
+	boolRow("filebrowser_showrights")
+		.section("misc")
+		.label("filebrowser.showrights")
+		.hint("menu.hint_filebrowser_showrights")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(filebrowser_showrights)),
 	// src/neutrino.cpp:1260 src/gui/miscsettings_menu.cpp:568
-	{
-		"filebrowser_denydirectoryleave", ValueType::Bool, "misc",
-		"filebrowser.denydirectoryleave", "menu.hint_filebrowser_denydirectoryleave",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(filebrowser_denydirectoryleave)
-	},
+	boolRow("filebrowser_denydirectoryleave")
+		.section("misc")
+		.label("filebrowser.denydirectoryleave")
+		.hint("menu.hint_filebrowser_denydirectoryleave")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(filebrowser_denydirectoryleave)),
 
 	// channel list
 	// src/neutrino.cpp:622 src/gui/miscsettings_menu.cpp:585
-	{
-		"make_hd_list", ValueType::Bool, "misc",
-		"channellist.make_hdlist", "menu.hint_make_hdlist",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(make_hd_list)
-	},
+	boolRow("make_hd_list")
+		.section("misc")
+		.label("channellist.make_hdlist")
+		.hint("menu.hint_make_hdlist")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(make_hd_list)),
 	// src/neutrino.cpp:626 src/gui/miscsettings_menu.cpp:589
-	{
-		"make_webtv_list", ValueType::Bool, "misc",
-		"channellist.make_webtvlist", "menu.hint_make_webtvlist",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(make_webtv_list)
-	},
+	boolRow("make_webtv_list")
+		.section("misc")
+		.label("channellist.make_webtvlist")
+		.hint("menu.hint_make_webtvlist")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(make_webtv_list)),
 	// src/neutrino.cpp:625 src/gui/miscsettings_menu.cpp:593
-	{
-		"make_webradio_list", ValueType::Bool, "misc",
-		"channellist.make_webradiolist", "menu.hint_make_webradiolist",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(make_webradio_list)
-	},
+	boolRow("make_webradio_list")
+		.section("misc")
+		.label("channellist.make_webradiolist")
+		.hint("menu.hint_make_webradiolist")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(make_webradio_list)),
 	// src/neutrino.cpp:623 src/gui/miscsettings_menu.cpp:597
-	{
-		"make_new_list", ValueType::Bool, "misc",
-		"channellist.make_newlist", "menu.hint_make_newlist",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(make_new_list)
-	},
+	boolRow("make_new_list")
+		.section("misc")
+		.label("channellist.make_newlist")
+		.hint("menu.hint_make_newlist")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(make_new_list)),
 	// src/neutrino.cpp:624 src/gui/miscsettings_menu.cpp:601
-	{
-		"make_removed_list", ValueType::Bool, "misc",
-		"channellist.make_removedlist", "menu.hint_make_removedlist",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(make_removed_list)
-	},
+	boolRow("make_removed_list")
+		.section("misc")
+		.label("channellist.make_removedlist")
+		.hint("menu.hint_make_removedlist")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(make_removed_list)),
 	// src/neutrino.cpp:628 src/gui/miscsettings_menu.cpp:605
-	{
-		"keep_channel_numbers", ValueType::Bool, "misc",
-		"channellist.keep_numbers", "menu.hint_keep_numbers",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(keep_channel_numbers)
-	},
+	boolRow("keep_channel_numbers")
+		.section("misc")
+		.label("channellist.keep_numbers")
+		.hint("menu.hint_keep_numbers")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(keep_channel_numbers)),
 	// src/neutrino.cpp:699 src/gui/miscsettings_menu.cpp:609
-	{
-		"zap_cycle", ValueType::Bool, "misc",
-		"extra.zap_cycle", "menu.hint_zap_cycle",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(zap_cycle)
-	},
+	boolRow("zap_cycle")
+		.section("misc")
+		.label("extra.zap_cycle")
+		.hint("menu.hint_zap_cycle")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(zap_cycle)),
 	// src/neutrino.cpp:1300 src/gui/miscsettings_menu.cpp:613
-	{
-		"channellist_new_zap_mode", ValueType::Enum, "misc",
-		"channellist.new_zap_mode", "menu.hint_new_zap_mode",
-		0, 0, COREAPI_VALUES(kNewZapMode), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(channellist_new_zap_mode)
-	},
+	enumRow("channellist_new_zap_mode")
+		.section("misc")
+		.label("channellist.new_zap_mode")
+		.hint("menu.hint_new_zap_mode")
+		.defaultValue(0)
+		.values(kNewZapMode)
+		.field(COREAPI_NUMBER_FIELD(channellist_new_zap_mode)),
 	// src/neutrino.cpp:1301 src/gui/miscsettings_menu.cpp:617
-	{
-		"channellist_numeric_adjust", ValueType::Bool, "misc",
-		"channellist.numeric_adjust", "menu.hint_numeric_adjust",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(channellist_numeric_adjust)
-	},
+	boolRow("channellist_numeric_adjust")
+		.section("misc")
+		.label("channellist.numeric_adjust")
+		.hint("menu.hint_numeric_adjust")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(channellist_numeric_adjust)),
 	// src/neutrino.cpp:629 src/gui/miscsettings_menu.cpp:621
-	{
-		"show_empty_favorites", ValueType::Bool, "misc",
-		"channellist.show_empty_favs", "menu.hint_channellist_show_empty_favs",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(show_empty_favorites)
-	},
+	boolRow("show_empty_favorites")
+		.section("misc")
+		.label("channellist.show_empty_favs")
+		.hint("menu.hint_channellist_show_empty_favs")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(show_empty_favorites)),
 	// src/neutrino.cpp:701 src/gui/miscsettings_menu.cpp:625
-	{
-		"enable_sdt", ValueType::Enum, "misc",
-		"miscsettings.channellist_enablesdt", "menu.hint_channellist_enablesdt",
-		0, 0, COREAPI_VALUES(kEnableSdt), 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(enable_sdt)
-	},
+	enumRow("enable_sdt")
+		.section("misc")
+		.label("miscsettings.channellist_enablesdt")
+		.hint("menu.hint_channellist_enablesdt")
+		.defaultValue(1)
+		.values(kEnableSdt)
+		.field(COREAPI_NUMBER_FIELD(enable_sdt)),
 
 	/* Online services. Each of the four flags is editable only where the key
 	   beside it passes a check that reads the key itself, which is a function
@@ -359,102 +371,104 @@ const Descriptor kMisc[] =
 	   them are not: which service a box uses is not a secret, and marking them
 	   would hide the state of a switch a frontend has to draw. */
 	// src/neutrino.cpp:1179 src/gui/miscsettings_menu.cpp:655
-	{
-		"tmdb_enabled", ValueType::Bool, "misc",
-		"tmdb.enabled", "menu.hint_tmdb_enabled",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(tmdb_enabled)
-	},
+	boolRow("tmdb_enabled")
+		.section("misc")
+		.label("tmdb.enabled")
+		.hint("menu.hint_tmdb_enabled")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(tmdb_enabled)),
 	// src/neutrino.cpp:1177 src/gui/miscsettings_menu.cpp:661
-	{
-		"tmdb_api_key", ValueType::String, "misc",
-		"tmdb.api_key", "menu.hint_tmdb_api_key",
-		0, 0, NULL, 0, 0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(tmdb_api_key)
-	},
+	textRow("tmdb_api_key")
+		.section("misc")
+		.label("tmdb.api_key")
+		.hint("menu.hint_tmdb_api_key")
+		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(tmdb_api_key)),
 	// src/neutrino.cpp:1186 src/gui/miscsettings_menu.cpp:670
-	{
-		"omdb_enabled", ValueType::Bool, "misc",
-		"omdb.enabled", "menu.hint_omdb_enabled",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(omdb_enabled)
-	},
+	boolRow("omdb_enabled")
+		.section("misc")
+		.label("omdb.enabled")
+		.hint("menu.hint_omdb_enabled")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(omdb_enabled)),
 	// src/neutrino.cpp:1184 src/gui/miscsettings_menu.cpp:676
-	{
-		"omdb_api_key", ValueType::String, "misc",
-		"omdb.api_key", "menu.hint_omdb_api_key",
-		0, 0, NULL, 0, 0, "XXXXXXXX", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(omdb_api_key)
-	},
+	textRow("omdb_api_key")
+		.section("misc")
+		.label("omdb.api_key")
+		.hint("menu.hint_omdb_api_key")
+		.defaultValue("XXXXXXXX")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(omdb_api_key)),
 	// src/neutrino.cpp:1193 src/gui/miscsettings_menu.cpp:685
-	{
-		"shoutcast_enabled", ValueType::Bool, "misc",
-		"shoutcast.enabled", "menu.hint_shoutcast_enabled",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(shoutcast_enabled)
-	},
+	boolRow("shoutcast_enabled")
+		.section("misc")
+		.label("shoutcast.enabled")
+		.hint("menu.hint_shoutcast_enabled")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(shoutcast_enabled)),
 	// src/neutrino.cpp:1191 src/gui/miscsettings_menu.cpp:691
-	{
-		"shoutcast_dev_id", ValueType::String, "misc",
-		"shoutcast.dev_id", "menu.hint_shoutcast_dev_id",
-		0, 0, NULL, 0, 0, "XXXXXXXXXXXXXXXX", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(shoutcast_dev_id)
-	},
+	textRow("shoutcast_dev_id")
+		.section("misc")
+		.label("shoutcast.dev_id")
+		.hint("menu.hint_shoutcast_dev_id")
+		.defaultValue("XXXXXXXXXXXXXXXX")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(shoutcast_dev_id)),
 	// src/neutrino.cpp:1172 src/gui/miscsettings_menu.cpp:700
-	{
-		"youtube_enabled", ValueType::Bool, "misc",
-		"youtube.enabled", "menu.hint_youtube_enabled",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(youtube_enabled)
-	},
+	boolRow("youtube_enabled")
+		.section("misc")
+		.label("youtube.enabled")
+		.hint("menu.hint_youtube_enabled")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(youtube_enabled)),
 	// src/neutrino.cpp:1170 src/gui/miscsettings_menu.cpp:706
-	{
-		"youtube_api_key", ValueType::String, "misc",
-		"youtube.api_key", "menu.hint_youtube_api_key",
-		0, 0, NULL, 0, 0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(youtube_api_key)
-	},
+	textRow("youtube_api_key")
+		.section("misc")
+		.label("youtube.api_key")
+		.hint("menu.hint_youtube_api_key")
+		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(youtube_api_key)),
 
 	// plugins
 	// src/neutrino.cpp:1025 src/gui/miscsettings_menu.cpp:722
-	{
-		"plugin_hdd_dir", ValueType::String, "misc",
-		"plugins.hdd_dir", "menu.hint_plugins_hdd_dir",
-		0, 0, NULL, 0, 0, TARGET_ROOT "/media/sda1/plugins", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(plugin_hdd_dir)
-	},
+	textRow("plugin_hdd_dir")
+		.section("misc")
+		.label("plugins.hdd_dir")
+		.hint("menu.hint_plugins_hdd_dir")
+		.defaultValue(TARGET_ROOT "/media/sda1/plugins")
+		.field(COREAPI_TEXT_FIELD(plugin_hdd_dir)),
 	// The name of a plugin, and the default is what the screen offers as none.
 	// src/neutrino.cpp:1033 src/gui/miscsettings_menu.cpp:726
-	{
-		"movieplayer_plugin", ValueType::String, "misc",
-		"mpkey.plugin", "menu.hint_movieplayer_plugin",
-		0, 0, NULL, 0, 0, "---", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(movieplayer_plugin)
-	},
+	textRow("movieplayer_plugin")
+		.section("misc")
+		.label("mpkey.plugin")
+		.hint("menu.hint_movieplayer_plugin")
+		.defaultValue("---")
+		.field(COREAPI_TEXT_FIELD(movieplayer_plugin)),
 
 	// streaming
 	// Bound: the five digits the screen takes.
 	// src/neutrino.cpp:870 src/gui/miscsettings_menu.cpp:750
-	{
-		"streaming_port", ValueType::Int, "misc",
-		"streaming.port", NULL,
-		0, 99999, NULL, 0, 31339, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(streaming_port)
-	},
+	intRow("streaming_port")
+		.section("misc")
+		.label("streaming.port")
+		.range(0, 99999)
+		.defaultValue(31339)
+		.field(COREAPI_NUMBER_FIELD(streaming_port)),
 	// src/neutrino.cpp:868 src/gui/miscsettings_menu.cpp:755
-	{
-		"streaming_ecmmode", ValueType::Bool, "misc",
-		"streaming.ecmmode", NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(streaming_ecmmode)
-	},
+	boolRow("streaming_ecmmode")
+		.section("misc")
+		.label("streaming.ecmmode")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(streaming_ecmmode)),
 	// src/neutrino.cpp:869 src/gui/miscsettings_menu.cpp:760
-	{
-		"streaming_decryptmode", ValueType::Bool, "misc",
-		"streaming.decryptmode", NULL,
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(streaming_decryptmode)
-	},
+	boolRow("streaming_decryptmode")
+		.section("misc")
+		.label("streaming.decryptmode")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(streaming_decryptmode)),
 
 	/* The two below are numbers and not choices, because the screen names its
 	   thirteen steps under literal words rather than locales. Bound: nought and
@@ -462,19 +476,19 @@ const Descriptor kMisc[] =
 	   offered only where the box can change its clock, and the loader forces a
 	   value where it cannot, nought for the first and fifty for the second. */
 	// src/neutrino.cpp:578 src/gui/miscsettings_menu.cpp:774
-	{
-		"cpufreq", ValueType::Int, "misc",
-		"cpu.freq_normal", NULL,
-		0, 600, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD_ON(cpufreq, canCpufreq)
-	},
+	intRow("cpufreq")
+		.section("misc")
+		.label("cpu.freq_normal")
+		.range(0, 600)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD_ON(cpufreq, canCpufreq, NULL)),
 	// src/neutrino.cpp:579 src/gui/miscsettings_menu.cpp:775
-	{
-		"standby_cpufreq", ValueType::Int, "misc",
-		"cpu.freq_standby", NULL,
-		0, 600, NULL, 0, 100, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD_ON(standby_cpufreq, canCpufreq)
-	},
+	intRow("standby_cpufreq")
+		.section("misc")
+		.label("cpu.freq_standby")
+		.range(0, 600)
+		.defaultValue(100)
+		.field(COREAPI_NUMBER_FIELD_ON(standby_cpufreq, canCpufreq, NULL)),
 
 	/* What follows has no item on any screen, or an item a screen offers
 	   outside the settings menus. Where the program states no name for a
@@ -483,205 +497,187 @@ const Descriptor kMisc[] =
 	/* The small channel list, which the lists ask for while they draw.
 	   src/neutrino.cpp:3553 */
 	// src/neutrino.cpp:705
-	{
-		"minimode", ValueType::Bool, "misc",
-		NULL, NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(minimode)
-	},
+	boolRow("minimode")
+		.section("misc")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(minimode)),
 	/* Three digits on the screen, src/gui/miscsettings_menu.cpp:428, the only
 	   bound stated anywhere: the value is kept as text there and turned into a
 	   number on the way out, :461. */
 	// src/neutrino.cpp:710 src/gui/miscsettings_menu.cpp:429
-	{
-		"shutdown_count", ValueType::Int, "misc",
-		"miscsettings.shutdown_count", "menu.hint_shutdown_count",
-		0, 999, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(shutdown_count)
-	},
+	intRow("shutdown_count")
+		.section("misc")
+		.label("miscsettings.shutdown_count")
+		.hint("menu.hint_shutdown_count")
+		.range(0, 999)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(shutdown_count)),
 	/* The standing sleep timer in minutes. Its item is the sleep timer box and
 	   holds the value as three digits of text, src/gui/sleeptimer.cpp:68. The
 	   loader reads it only where the box can switch itself off. */
 	// src/neutrino.cpp:713 src/gui/sleeptimer.cpp:68
 	/* Local resolution: this fork falls back to 180 minutes of inactivity
 	   before the box switches itself off, not the source's 0 (never). */
-	{
-		"shutdown_min", ValueType::Int, "misc",
-		"sleeptimerbox.title2", NULL,
-		0, 999, NULL, 0, 180, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(shutdown_min)
-	},
+	intRow("shutdown_min")
+		.section("misc")
+		.label("sleeptimerbox.title2")
+		.range(0, 999)
+		.defaultValue(180)
+		.field(COREAPI_NUMBER_FIELD(shutdown_min)),
 	/* Which of the three the power menu did last, standby, off or restart,
 	   src/gui/poweroff_menu.cpp:56, :62 and :68. The menu writes it and reads
 	   it back to mark the entry, :119; no item names it. Its default is the
 	   switch beside it, and the literal below is what that one falls back to. */
 	// src/neutrino.cpp:727
-	{
-		"power_off_selected", ValueType::Int, "misc",
-		NULL, NULL,
-		0, 2, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(power_off_selected)
-	},
+	intRow("power_off_selected")
+		.section("misc")
+		.range(0, 2)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(power_off_selected)),
 	/* Whether the box follows a recorder onto its own input. Read once a
 	   message arrives from one, src/neutrino.cpp:4468, and offered by no screen
 	   at all; the web interface offers it instead. */
 	// src/neutrino.cpp:738
-	{
-		"vcr_AutoSwitch", ValueType::Bool, "misc",
-		NULL, NULL,
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(vcr_AutoSwitch)
-	},
+	boolRow("vcr_AutoSwitch")
+		.section("misc")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(vcr_AutoSwitch)),
 	/* Whether the up and down keys walk the audio tracks while the infobar
 	   stands, src/daemonc/remotecontrol.cpp. No screen offers it. */
 	// src/neutrino.cpp:744
-	{
-		"audiochannel_up_down_enable", ValueType::Bool, "misc",
-		NULL, NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audiochannel_up_down_enable)
-	},
+	boolRow("audiochannel_up_down_enable")
+		.section("misc")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(audiochannel_up_down_enable)),
 	/* The four below are the section daemon's cache sizes. Each has an item
 	   that keeps the value as a fixed number of digits of text, which is the
 	   only bound stated anywhere and is what the bounds here are. They reach
 	   the daemon through the same call as the time settings,
 	   src/neutrino.cpp:2779. */
 	// src/neutrino.cpp:778 src/gui/miscsettings_menu.cpp:500
-	{
-		"epg_cache_time", ValueType::Int, "misc",
-		"miscsettings.epg_cache", "menu.hint_epg_cache",
-		0, 99, NULL, 0, 7, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_cache)
-	},
+	intRow("epg_cache_time")
+		.section("misc")
+		.label("miscsettings.epg_cache")
+		.hint("menu.hint_epg_cache")
+		.range(0, 99)
+		.defaultValue(7)
+		.field(COREAPI_NUMBER_FIELD(epg_cache)),
 	// src/neutrino.cpp:779 src/gui/miscsettings_menu.cpp:507
-	{
-		"epg_extendedcache_time", ValueType::Int, "misc",
-		"miscsettings.epg_extendedcache", "menu.hint_epg_extendedcache",
-		0, 999, NULL, 0, 168, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_extendedcache)
-	},
+	intRow("epg_extendedcache_time")
+		.section("misc")
+		.label("miscsettings.epg_extendedcache")
+		.hint("menu.hint_epg_extendedcache")
+		.range(0, 999)
+		.defaultValue(168)
+		.field(COREAPI_NUMBER_FIELD(epg_extendedcache)),
 	// src/neutrino.cpp:780 src/gui/miscsettings_menu.cpp:521
-	{
-		"epg_max_events", ValueType::Int, "misc",
-		"miscsettings.epg_max_events", "menu.hint_epg_max_events",
-		0, 999999, NULL, 0, 30000, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_max_events)
-	},
+	intRow("epg_max_events")
+		.section("misc")
+		.label("miscsettings.epg_max_events")
+		.hint("menu.hint_epg_max_events")
+		.range(0, 999999)
+		.defaultValue(30000)
+		.field(COREAPI_NUMBER_FIELD(epg_max_events)),
 	// src/neutrino.cpp:781 src/gui/miscsettings_menu.cpp:514
-	{
-		"epg_old_events", ValueType::Int, "misc",
-		"miscsettings.epg_old_events", "menu.hint_epg_old_events",
-		0, 999, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_old_events)
-	},
+	intRow("epg_old_events")
+		.section("misc")
+		.label("miscsettings.epg_old_events")
+		.hint("menu.hint_epg_old_events")
+		.range(0, 999)
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(epg_old_events)),
 	/* How many hours pass before the standby scan runs again,
 	   src/driver/scanepg.cpp:325. Nothing states a bound for it, so the row
 	   states the widest the field holds and a floor of nought. A bound no
 	   screen governs and no check can compare. */
 	// src/neutrino.cpp:796
-	{
-		"epg_scan_rescan", ValueType::Int, "misc",
-		NULL, NULL,
-		0, 2147483647, NULL, 0, 24, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_scan_rescan)
-	},
+	intRow("epg_scan_rescan")
+		.section("misc")
+		.range(0, 2147483647)
+		.defaultValue(24)
+		.field(COREAPI_NUMBER_FIELD(epg_scan_rescan)),
 	// src/neutrino.cpp:799 src/gui/eventlist.cpp:1482
-	{
-		"epg_search_history_max", ValueType::Int, "misc",
-		"eventfinder.max_history", NULL,
-		0, 50, NULL, 0, 10, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_search_history_max)
-	},
+	intRow("epg_search_history_max")
+		.section("misc")
+		.label("eventfinder.max_history")
+		.range(0, 50)
+		.defaultValue(10)
+		.field(COREAPI_NUMBER_FIELD(epg_search_history_max)),
 	/* How many searches the box actually kept, which the search list writes
 	   itself and holds to the count above, src/gui/eventlist.cpp:1243. Writing
 	   it does not add a search; the ceiling is the one the list enforces. */
 	// src/neutrino.cpp:800
-	{
-		"epg_search_history_size", ValueType::Int, "misc",
-		NULL, NULL,
-		0, 50, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(epg_search_history_size)
-	},
+	intRow("epg_search_history_size")
+		.section("misc")
+		.range(0, 50)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(epg_search_history_size)),
 	/* Which keyboard the on screen one comes up as, written by the keyboard
 	   itself when it is changed, src/gui/widget/keyboard_input.cpp:345, and
 	   read the next time it opens, :337. Empty means the box picks by
 	   language. */
 	// src/neutrino.cpp:773
-	{
-		"keyboard_layout", ValueType::String, "misc",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(keyboard_layout)
-	},
+	textRow("keyboard_layout")
+		.section("misc")
+		.defaultValue("")
+		.field(COREAPI_TEXT_FIELD(keyboard_layout)),
 	/* How the file browser sorts, which it writes itself. The loader holds it
 	   to the number of sorts there are and turns anything else into nought,
 	   src/neutrino.cpp:1263, and that count is the ceiling here. */
 	// src/neutrino.cpp:1262
-	{
-		"filebrowser_sortmethod", ValueType::Int, "misc",
-		NULL, NULL,
-		0, 4, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(filebrowser_sortmethod)
-	},
+	intRow("filebrowser_sortmethod")
+		.section("misc")
+		.range(0, 4)
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(filebrowser_sortmethod)),
 	/* Whether the event view opens in the larger window,
 	   src/gui/epgview.cpp:752. Read as a flag and offered by no screen. */
 	// src/neutrino.cpp:1287
-	{
-		"bigFonts", ValueType::Bool, "misc",
-		NULL, NULL,
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(bigFonts)
-	},
+	boolRow("bigFonts")
+		.section("misc")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(bigFonts)),
 	/* The code that guards the personalisation menu. A credential, so a read
 	   answers nothing and an empty write is refused; the declared default is
 	   the program's own fallback and not a box's value. Nothing here asks for
 	   the old code before taking a new one. */
 	// src/neutrino.cpp:934 src/gui/personalize.cpp:445
-	{
-		"personalize_pincode", ValueType::String, "misc",
-		"personalize.pincode", "personalize.pinhint",
-		0, 0, NULL, 0, 0, "0000", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(personalize_pincode)
-	},
+	textRow("personalize_pincode")
+		.section("misc")
+		.label("personalize.pincode")
+		.hint("personalize.pinhint")
+		.defaultValue("0000")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(personalize_pincode)),
 	/* The five below are lists of plugin file names joined with commas, which
 	   the personalisation screen rebuilds whole whenever it is left,
 	   src/gui/personalize.cpp:388. A name this layer cannot check is what a
 	   frontend would be writing. */
 	// src/neutrino.cpp:1026
-	{
-		"plugins_disabled", ValueType::String, "misc",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(plugins_disabled)
-	},
+	textRow("plugins_disabled")
+		.section("misc")
+		.defaultValue("")
+		.field(COREAPI_TEXT_FIELD(plugins_disabled)),
 	// src/neutrino.cpp:1027
-	{
-		"plugins_game", ValueType::String, "misc",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(plugins_game)
-	},
+	textRow("plugins_game")
+		.section("misc")
+		.defaultValue("")
+		.field(COREAPI_TEXT_FIELD(plugins_game)),
 	// src/neutrino.cpp:1028
-	{
-		"plugins_lua", ValueType::String, "misc",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(plugins_lua)
-	},
+	textRow("plugins_lua")
+		.section("misc")
+		.defaultValue("")
+		.field(COREAPI_TEXT_FIELD(plugins_lua)),
 	// src/neutrino.cpp:1029
-	{
-		"plugins_script", ValueType::String, "misc",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(plugins_script)
-	},
+	textRow("plugins_script")
+		.section("misc")
+		.defaultValue("")
+		.field(COREAPI_TEXT_FIELD(plugins_script)),
 	// src/neutrino.cpp:1030
-	{
-		"plugins_tool", ValueType::String, "misc",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(plugins_tool)
-	},
+	textRow("plugins_tool")
+		.section("misc")
+		.defaultValue("")
+		.field(COREAPI_TEXT_FIELD(plugins_tool)),
 	/* Where the box goes back to after an advert break, in seconds. The menu
 	   offers nine fixed minutes and then a chooser over ten to a hundred and
 	   twenty, src/gui/adzap.cpp:357 and :369, so the floor is the smallest of
@@ -689,37 +685,35 @@ const Descriptor kMisc[] =
 	   binds a local in minutes rather than the field, so its label names
 	   minutes and this row is seconds; the row therefore states no label. */
 	// src/neutrino.cpp:1204 src/gui/adzap.cpp:369
-	{
-		"adzap_zapBackPeriod", ValueType::Int, "misc",
-		NULL, NULL,
-		60, 7200, NULL, 0, 180, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(adzap_zapBackPeriod)
-	},
+	intRow("adzap_zapBackPeriod")
+		.section("misc")
+		.range(60, 7200)
+		.defaultValue(180)
+		.field(COREAPI_NUMBER_FIELD(adzap_zapBackPeriod)),
 	// src/neutrino.cpp:1205 src/gui/adzap.cpp:346
-	{
-		"adzap_zapOnActivation", ValueType::Enum, "misc",
-		"adzap.zap", "menu.hint_adzap_zap",
-		0, 0, COREAPI_VALUES(kAdzapZap), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(adzap_zapOnActivation)
-	},
+	enumRow("adzap_zapOnActivation")
+		.section("misc")
+		.label("adzap.zap")
+		.hint("menu.hint_adzap_zap")
+		.defaultValue(0)
+		.values(kAdzapZap)
+		.field(COREAPI_NUMBER_FIELD(adzap_zapOnActivation)),
 	// src/neutrino.cpp:1206 src/gui/adzap.cpp:342
-	{
-		"adzap_writeData", ValueType::Bool, "misc",
-		"adzap.writedata", "menu.hint_adzap_writedata",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(adzap_writeData)
-	},
+	boolRow("adzap_writeData")
+		.section("misc")
+		.label("adzap.writedata")
+		.hint("menu.hint_adzap_writedata")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(adzap_writeData)),
 	/* Where the settings backup is written. Two file browsers write it,
 	   src/gui/keybind_setup.cpp:126 and src/gui/settings_manager.cpp:79, and
 	   neither names it: the one locale that carries the words is a question
 	   with the directory in it and not the name of a field. */
 	// src/neutrino.cpp:1122
-	{
-		"backup_dir", ValueType::String, "misc",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, TARGET_ROOT "/media", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(backup_dir)
-	},
+	textRow("backup_dir")
+		.section("misc")
+		.defaultValue(TARGET_ROOT "/media")
+		.field(COREAPI_TEXT_FIELD(backup_dir)),
 };
 
 } // anonymous namespace

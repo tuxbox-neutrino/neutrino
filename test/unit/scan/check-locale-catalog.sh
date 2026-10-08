@@ -58,41 +58,20 @@ if [ "$cn" -lt 3000 ]; then
 	exit 1
 fi
 
-# label_key and hint_key sit together on a line of their own in every row this
-# tree declares, which is what the tables' own comments call "the labels off
-# the screen that offers it": a quoted string or NULL, a comma, the same
-# again, and nothing else on the line.
-awk '
-	/^[ \t]*(NULL|"[^"]*"),[ \t]*(NULL|"[^"]*"),[ \t]*$/ {
-		line = $0
-		sub(/^[ \t]+/, "", line)
-		sub(/[ \t]*,[ \t]*$/, "", line)
-		n = split(line, parts, ",")
-		for (i = 1; i <= n; i++) {
-			v = parts[i]
-			gsub(/^[ \t]+|[ \t]+$/, "", v)
-			if (v == "NULL") continue
-			gsub(/^"|"$/, "", v)
-			print v
-		}
-	}
-' "$tmp/stripped" | LC_ALL=C sort -u > "$tmp/labelhint"
+# A row names its label_key and hint_key with .label() and .hint(), each a
+# builder call on a line of its own.
+grep -oE '^[ 	]*\.(label|hint)\("[^"]*"\)' "$tmp/stripped" \
+	| sed -E 's/^[ 	]*\.(label|hint)\("([^"]*)"\)$/\2/' | LC_ALL=C sort -u > "$tmp/labelhint"
 
-# An Enum's own choices are a table of their own instead, one choice per
-# line, a number or an expression and a quoted string between braces. Kept
-# apart from the pairs above rather than merged in the same pass, because a
-# route answers a choice's own label as never absent (ep_settings.cpp's
-# kEnumValueFields), which is a claim this makes for the choices alone and
-# has to be checked, and reported, on its own count: a scan that stopped
-# matching only this shape would otherwise hide behind the pairs still
-# matching theirs.
-awk '
-	/^[ \t]*\{[^{}]*,[ \t]*"[^"]*"[ \t]*\},?[ \t]*$/ {
-		line = $0
-		if (match(line, /"[^"]*"/))
-			print substr(line, RSTART + 1, RLENGTH - 2)
-	}
-' "$tmp/stripped" | LC_ALL=C sort -u > "$tmp/choices"
+# An Enum's own choices are a table of their own instead, one choice per line,
+# option(value).label("name"). Kept apart from the rows rather than merged in
+# the same pass, because a route answers a choice's own label as never absent
+# (ep_settings.cpp's kEnumValueFields), which is a claim this makes for the
+# choices alone and has to be checked, and reported, on its own count: a scan
+# that stopped matching only this shape would otherwise hide behind the rows
+# still matching theirs.
+grep -oE 'option\([^()]*\)\.label\("[^"]*"\)' "$tmp/stripped" \
+	| sed -E 's/^.*\.label\("([^"]*)"\)$/\1/' | LC_ALL=C sort -u > "$tmp/choices"
 
 lh=`wc -l < "$tmp/labelhint"`
 ch=`wc -l < "$tmp/choices"`

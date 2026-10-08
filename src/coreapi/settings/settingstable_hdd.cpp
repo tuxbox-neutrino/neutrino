@@ -42,26 +42,26 @@ namespace
 
 /* How long the disk waits before it spins down, src/gui/hdd_menu.cpp:823. The
    last three are not minutes: the driver reads them as its own codes. */
-const EnumValue kHddSleep[] =
+constexpr EnumValue kHddSleep[] =
 {
-	{   0, "options.off" },
-	{  60, "hdd_5min" },
-	{ 120, "hdd_10min" },
-	{ 240, "hdd_20min" },
-	{ 241, "hdd_30min" },
-	{ 242, "hdd_60min" }
+	option(0).label("options.off"),
+	option(60).label("hdd_5min"),
+	option(120).label("hdd_10min"),
+	option(240).label("hdd_20min"),
+	option(241).label("hdd_30min"),
+	option(242).label("hdd_60min")
 };
 
 // How loud the disk is allowed to be, src/gui/hdd_menu.cpp:832.
-const EnumValue kHddNoise[] =
+constexpr EnumValue kHddNoise[] =
 {
-	{   0, "options.off" },
-	{ 128, "hdd_slow" },
-	{ 190, "hdd_middle" },
-	{ 254, "hdd_fast" }
+	option(0).label("options.off"),
+	option(128).label("hdd_slow"),
+	option(190).label("hdd_middle"),
+	option(254).label("hdd_fast")
 };
 
-const Descriptor kHdd[] =
+constexpr Descriptor kHdd[] =
 {
 	/* Which file system the box writes when it formats a disk, as an index into
 	   the tool table the screen walks. A number and not a choice: the screen
@@ -70,30 +70,33 @@ const Descriptor kHdd[] =
 	   does not have. The ceiling is the last entry of that table,
 	   src/gui/hdd_menu.cpp:92. */
 	// src/neutrino.cpp:657 src/gui/hdd_menu.cpp:663
-	{
-		"hdd_fs", ValueType::Int, "hdd",
-		"hdd_fs", "menu.hint_hdd_fmt",
-		0, 6, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdd_fs)
-	},
+	intRow("hdd_fs")
+		.section("hdd")
+		.label("hdd_fs")
+		.hint("menu.hint_hdd_fmt")
+		.range(0, 6)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(hdd_fs)),
 	// src/neutrino.cpp:658 src/gui/hdd_menu.cpp:823
 	// Local resolution: this fork falls back to 120 (ten minutes), not the source's 60.
-	{
-		"hdd_sleep", ValueType::Enum, "hdd",
-		"hdd_sleep", "menu.hint_hdd_sleep",
-		0, 0, COREAPI_VALUES(kHddSleep), 120, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdd_sleep)
-	},
+	enumRow("hdd_sleep")
+		.section("hdd")
+		.label("hdd_sleep")
+		.hint("menu.hint_hdd_sleep")
+		.defaultValue(120)
+		.values(kHddSleep)
+		.field(COREAPI_NUMBER_FIELD(hdd_sleep)),
 	/* The screen offers this one only where the box found a full hdparm,
 	   src/gui/hdd_menu.cpp:830, which is a file it looks for and not a setting,
 	   so the row carries no condition and is always shown. */
 	// src/neutrino.cpp:659 src/gui/hdd_menu.cpp:832
-	{
-		"hdd_noise", ValueType::Enum, "hdd",
-		"hdd_noise", "menu.hint_hdd_noise",
-		0, 0, COREAPI_VALUES(kHddNoise), 254, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdd_noise)
-	},
+	enumRow("hdd_noise")
+		.section("hdd")
+		.label("hdd_noise")
+		.hint("menu.hint_hdd_noise")
+		.defaultValue(254)
+		.values(kHddNoise)
+		.field(COREAPI_NUMBER_FIELD(hdd_noise)),
 };
 
 } // anonymous namespace

@@ -152,29 +152,29 @@ const Descriptor kRows[] =
 	{
 		"repeat_blocker", ValueType::Int, "keybindings", "label", NULL,
 		0, 2000, NULL, 0, 450, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(repeat_blocker)
+		COREAPI_NUMBER_FIELD(repeat_blocker), NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	},
 	{
 		"current_volume", ValueType::Int, "audio", "label", NULL,
 		0, 100, NULL, 0, 75, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(current_volume)
+		COREAPI_NUMBER_FIELD(current_volume), NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	},
 	{
 		"channellist_descmode", ValueType::Bool, "channels", "label", NULL,
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(channellist_descmode)
+		COREAPI_NUMBER_FIELD(channellist_descmode), NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	},
 	{
 		"language", ValueType::String, "general", "label", NULL,
 		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(language)
+		COREAPI_TEXT_FIELD(language), NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	},
 	// Declared and not reachable, which is what the program's file only
 	// settings look like from here.
 	{
 		"font_scaling_x", ValueType::Int, "osd", "label", NULL,
 		0, 200, NULL, 0, 100, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NO_FIELD
+		COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	},
 };
 

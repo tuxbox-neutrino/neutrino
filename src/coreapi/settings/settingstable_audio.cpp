@@ -34,111 +34,115 @@ namespace
    on the other, so a row for the pair this build does not have would not
    compile. */
 
-const EnumValue kAnalogMode[] =
+constexpr EnumValue kAnalogMode[] =
 {
 	// src/gui/audio_setup.cpp:90
-	{ 0, "audiomenu.stereo" },
-	{ 1, "audiomenu.monoleft" },
-	{ 2, "audiomenu.monoright" }
+	option(0).label("audiomenu.stereo"),
+	option(1).label("audiomenu.monoleft"),
+	option(2).label("audiomenu.monoright")
 };
 
 #if !(HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE)
-const EnumValue kHdmiDD[] =
+constexpr EnumValue kHdmiDD[] =
 {
 	// src/gui/audio_setup.cpp:121 lib/hardware/coolstream/hd1/libcoolstream/audio_cs.h:41
-	{ 0, "options.off" },
-	{ 1, "audiomenu.hdmi_dd_auto" },
-	{ 2, "audiomenu.hdmi_dd_force" }
+	option(0).label("options.off"),
+	option(1).label("audiomenu.hdmi_dd_auto"),
+	option(2).label("audiomenu.hdmi_dd_force")
 };
 #endif
 
-const EnumValue kAvSync[] =
+constexpr EnumValue kAvSync[] =
 {
 	// src/gui/audio_setup.cpp:113
-	{ 0, "options.off" },
-	{ 1, "options.on" },
-	{ 2, "audiomenu.avsync_am" }
+	option(0).label("options.off"),
+	option(1).label("options.on"),
+	option(2).label("audiomenu.avsync_am")
 };
 
 /* The third choice the screen offers only on one box model is left out, so
    that no frontend offers a value the driver behind it was never given. */
-const EnumValue kSrsAlgo[] =
+constexpr EnumValue kSrsAlgo[] =
 {
 	// src/gui/audio_setup.cpp:102
-	{ 0, "audio.srs_algo_light" },
-	{ 1, "audio.srs_algo_normal" }
+	option(0).label("audio.srs_algo_light"),
+	option(1).label("audio.srs_algo_normal")
 };
 
 // The screen hands srs_enable in as the active flag of the three below, so a
 // nonzero value is what makes them editable.
-const Condition kSrsOn[] =
+constexpr Condition kSrsOn[] =
 {
-	{ "srs_enable", CompareOp::Ne, 0, NULL, 0 }
+	when("srs_enable").isNot(0)
 };
 
-const Descriptor kAudio[] =
+constexpr Descriptor kAudio[] =
 {
 	// src/neutrino.cpp:742 src/gui/audio_setup.cpp:137
-	{
-		"audio_AnalogMode", ValueType::Enum, "audio",
-		"audiomenu.analog_mode", "menu.hint_audio_analog_mode",
-		0, 0, COREAPI_VALUES(kAnalogMode), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audio_AnalogMode)
-	},
+	enumRow("audio_AnalogMode")
+		.section("audio")
+		.label("audiomenu.analog_mode")
+		.hint("menu.hint_audio_analog_mode")
+		.defaultValue(0)
+		.values(kAnalogMode)
+		.field(COREAPI_NUMBER_FIELD(audio_AnalogMode)),
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	// src/neutrino.cpp:536 src/gui/audio_setup.cpp:145
-	{
-		"ac3_pass", ValueType::Bool, "audio",
-		"audiomenu.ac3", "menu.hint_audio_ac3",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(ac3_pass)
-	},
+	boolRow("ac3_pass")
+		.section("audio")
+		.label("audiomenu.ac3")
+		.hint("menu.hint_audio_ac3")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(ac3_pass)),
 	// src/neutrino.cpp:537 src/gui/audio_setup.cpp:148
-	{
-		"dts_pass", ValueType::Bool, "audio",
-		"audiomenu.dts", "menu.hint_audio_dts",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(dts_pass)
-	},
+	boolRow("dts_pass")
+		.section("audio")
+		.label("audiomenu.dts")
+		.hint("menu.hint_audio_dts")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(dts_pass)),
 #else
 	// The screen offers this one only where the box reports an HDMI socket,
 	// which is a capability read at run time and not a setting to condition on.
 	// src/neutrino.cpp:539 src/gui/audio_setup.cpp:154
-	{
-		"hdmi_dd", ValueType::Enum, "audio",
-		"audiomenu.hdmi_dd", "menu.hint_audio_hdmi_dd",
-		0, 0, COREAPI_VALUES(kHdmiDD), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD_ON(hdmi_dd, hasHdmi)
-	},
+	enumRow("hdmi_dd")
+		.section("audio")
+		.label("audiomenu.hdmi_dd")
+		.hint("menu.hint_audio_hdmi_dd")
+		.defaultValue(0)
+		.values(kHdmiDD)
+		.field(COREAPI_NUMBER_FIELD_ON(hdmi_dd, hasHdmi, NULL)),
 	// src/neutrino.cpp:540 src/gui/audio_setup.cpp:159
-	{
-		"spdif_dd", ValueType::Bool, "audio",
-		"audiomenu.spdif_dd", "menu.hint_audio_spdif_dd",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(spdif_dd)
-	},
+	boolRow("spdif_dd")
+		.section("audio")
+		.label("audiomenu.spdif_dd")
+		.hint("menu.hint_audio_spdif_dd")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(spdif_dd)),
 #endif
 	// src/neutrino.cpp:743 src/gui/audio_setup.cpp:141
-	{
-		"audio_DolbyDigital", ValueType::Bool, "audio",
-		"audiomenu.dolbydigital", "menu.hint_audio_dd",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audio_DolbyDigital)
-	},
+	boolRow("audio_DolbyDigital")
+		.section("audio")
+		.label("audiomenu.dolbydigital")
+		.hint("menu.hint_audio_dd")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(audio_DolbyDigital)),
 	// src/neutrino.cpp:544 src/gui/audio_setup.cpp:168
-	{
-		"avsync", ValueType::Enum, "audio",
-		"audiomenu.avsync", "menu.hint_audio_avsync",
-		0, 0, COREAPI_VALUES(kAvSync), 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(avsync)
-	},
+	enumRow("avsync")
+		.section("audio")
+		.label("audiomenu.avsync")
+		.hint("menu.hint_audio_avsync")
+		.defaultValue(1)
+		.values(kAvSync)
+		.field(COREAPI_NUMBER_FIELD(avsync)),
 	// src/neutrino.cpp:509 src/gui/audio_setup.cpp:172
-	{
-		"current_volume_step", ValueType::Int, "audio",
-		"audiomenu.volume_step", "menu.hint_audio_volstep",
-		1, 25, NULL, 0, 5, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(current_volume_step)
-	},
+	intRow("current_volume_step")
+		.section("audio")
+		.label("audiomenu.volume_step")
+		.hint("menu.hint_audio_volstep")
+		.range(1, 25)
+		.defaultValue(5)
+		.field(COREAPI_NUMBER_FIELD(current_volume_step)),
 	/* The floor is the one value that is not a volume: the screen names it
 	   separately and it says the box keeps whatever was last set.
 
@@ -147,74 +151,81 @@ const Descriptor kAudio[] =
 	   so a change to it moves nothing until the box loads its settings again.
 	   The screen offers it with no notifier for that reason. */
 	// src/neutrino.cpp:510 src/gui/audio_setup.cpp:176
-	{
-		"start_volume", ValueType::Int, "audio",
-		"audiomenu.volume_start", "menu.hint_audio_volstart",
-		-1, 100, NULL, 0, -1, NULL, true, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(start_volume)
-	},
+	intRow("start_volume")
+		.section("audio")
+		.label("audiomenu.volume_start")
+		.hint("menu.hint_audio_volstart")
+		.range(-1, 100)
+		.defaultValue(-1)
+		.needsRestart()
+		.field(COREAPI_NUMBER_FIELD(start_volume)),
 	// src/neutrino.cpp:531 src/gui/audio_setup.cpp:196
-	{
-		"srs_enable", ValueType::Bool, "audio",
-		"audio.srs_iq", "menu.hint_audio_srs",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(srs_enable)
-	},
+	boolRow("srs_enable")
+		.section("audio")
+		.label("audio.srs_iq")
+		.hint("menu.hint_audio_srs")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(srs_enable)),
 	// src/neutrino.cpp:532 src/gui/audio_setup.cpp:183
-	{
-		"srs_algo", ValueType::Enum, "audio",
-		"audio.srs_algo", "menu.hint_audio_srs_algo",
-		0, 0, COREAPI_VALUES(kSrsAlgo), 1, NULL, false, false, COREAPI_CONDITIONS(kSrsOn),
-		COREAPI_NUMBER_FIELD(srs_algo)
-	},
+	enumRow("srs_algo")
+		.section("audio")
+		.label("audio.srs_algo")
+		.hint("menu.hint_audio_srs_algo")
+		.defaultValue(1)
+		.values(kSrsAlgo)
+		.changeableWhen(kSrsOn)
+		.field(COREAPI_NUMBER_FIELD(srs_algo)),
 	// src/neutrino.cpp:534 src/gui/audio_setup.cpp:187
-	{
-		"srs_nmgr_enable", ValueType::Bool, "audio",
-		"audio.srs_nmgr", "menu.hint_audio_srs_nmgr",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kSrsOn),
-		COREAPI_NUMBER_FIELD(srs_nmgr_enable)
-	},
+	boolRow("srs_nmgr_enable")
+		.section("audio")
+		.label("audio.srs_nmgr")
+		.hint("menu.hint_audio_srs_nmgr")
+		.defaultValue(0)
+		.changeableWhen(kSrsOn)
+		.field(COREAPI_NUMBER_FIELD(srs_nmgr_enable)),
 	// src/neutrino.cpp:533 src/gui/audio_setup.cpp:191
-	{
-		"srs_ref_volume", ValueType::Int, "audio",
-		"audio.srs_volume", "menu.hint_audio_srs_volume",
-		1, 100, NULL, 0, 75, NULL, false, false, COREAPI_CONDITIONS(kSrsOn),
-		COREAPI_NUMBER_FIELD(srs_ref_volume)
-	},
+	intRow("srs_ref_volume")
+		.section("audio")
+		.label("audio.srs_volume")
+		.hint("menu.hint_audio_srs_volume")
+		.range(1, 100)
+		.defaultValue(75)
+		.changeableWhen(kSrsOn)
+		.field(COREAPI_NUMBER_FIELD(srs_ref_volume)),
 	// src/neutrino.cpp:515 src/gui/audio_setup.cpp:204
-	{
-		"audio_volume_percent_ac3", ValueType::Int, "audio",
-		"audiomenu.volume_adjustment_ac3", "menu.hint_audio_adjust_vol_ac3",
-		0, 100, NULL, 0, 100, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audio_volume_percent_ac3)
-	},
+	intRow("audio_volume_percent_ac3")
+		.section("audio")
+		.label("audiomenu.volume_adjustment_ac3")
+		.hint("menu.hint_audio_adjust_vol_ac3")
+		.range(0, 100)
+		.defaultValue(100)
+		.field(COREAPI_NUMBER_FIELD(audio_volume_percent_ac3)),
 	// src/neutrino.cpp:516 src/gui/audio_setup.cpp:209
-	{
-		"audio_volume_percent_pcm", ValueType::Int, "audio",
-		"audiomenu.volume_adjustment_pcm", "menu.hint_audio_adjust_vol_pcm",
-		0, 100, NULL, 0, 100, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audio_volume_percent_pcm)
-	},
+	intRow("audio_volume_percent_pcm")
+		.section("audio")
+		.label("audiomenu.volume_adjustment_pcm")
+		.hint("menu.hint_audio_adjust_vol_pcm")
+		.range(0, 100)
+		.defaultValue(100)
+		.field(COREAPI_NUMBER_FIELD(audio_volume_percent_pcm)),
 
 	/* The volume the box is at, which it writes on every change,
 	   src/driver/volume.cpp, and reads at the next start where the start volume
 	   beside it says to keep it. No item names it. */
 	// src/neutrino.cpp:507
-	{
-		"current_volume", ValueType::Int, "audio",
-		NULL, NULL,
-		0, 100, NULL, 0, 75, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(current_volume)
-	},
+	intRow("current_volume")
+		.section("audio")
+		.range(0, 100)
+		.defaultValue(75)
+		.field(COREAPI_NUMBER_FIELD(current_volume)),
 	/* The analogue output, offered by the audio track chooser rather than by a
 	   settings screen, src/gui/audio_select.cpp:137. */
 	// src/neutrino.cpp:541 src/gui/audio_select.cpp:137
-	{
-		"analog_out", ValueType::Bool, "audio",
-		"audiomenu.analog_out", NULL,
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(analog_out)
-	},
+	boolRow("analog_out")
+		.section("audio")
+		.label("audiomenu.analog_out")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(analog_out)),
 };
 
 } // anonymous namespace

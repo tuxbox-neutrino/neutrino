@@ -21,16 +21,16 @@ bool probeAsk(long &) { return false; }
 bool probeTell(long) { return false; }
 const Descriptor row[] = {
 	{ "k", ValueType::Int, "s", "l", NULL, 0, 2000, NULL, 0, 450, NULL, false, false,
-	  COREAPI_ALWAYS, COREAPI_NUMBER_FIELD(repeat_blocker) },
+	  COREAPI_ALWAYS, COREAPI_NUMBER_FIELD(repeat_blocker), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ "t", ValueType::String, "s", "l", NULL, 0, 0, NULL, 0, 0, "", false, false,
-	  COREAPI_ALWAYS, COREAPI_TEXT_FIELD(language) },
+	  COREAPI_ALWAYS, COREAPI_TEXT_FIELD(language), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ "i", ValueType::String, "s", "l", NULL, 0, 0, NULL, 0, 0, "0", false, false,
-	  COREAPI_ALWAYS, COREAPI_CHANNEL_ID_FIELD(startchanneltv_id) },
+	  COREAPI_ALWAYS, COREAPI_CHANNEL_ID_FIELD(startchanneltv_id), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ "b", ValueType::Bool, "s", "l", NULL, 0, 1, NULL, 0, 0, NULL, false, false,
 	  COREAPI_ALWAYS, COREAPI_MASK_BIT_FIELD(recording_audio_pids_std,
-						 recording_audio_pids_default, 1) },
+						 recording_audio_pids_default, 1), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ "d", ValueType::Int, "s", "l", NULL, 0, 99, NULL, 0, 0, NULL, false, false,
-	  COREAPI_ALWAYS, COREAPI_SERVICE_FIELD(record_safety_time_before, probeAsk, probeTell) },
+	  COREAPI_ALWAYS, COREAPI_SERVICE_FIELD(record_safety_time_before, probeAsk, probeTell), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 };
 const Descriptor *first() { return row; }
 PROBE

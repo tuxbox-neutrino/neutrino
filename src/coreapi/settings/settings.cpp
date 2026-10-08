@@ -219,7 +219,7 @@ void saidNameless(const char *key)
 bool providedChoices(const Descriptor &d, std::vector<SettingChoice> &out)
 {
 	std::vector<SettingChoice> listed;
-	if (!d.field.choices_from(listed) || listed.empty())
+	if (!d.choices_from(listed) || listed.empty())
 		return false;
 
 	std::vector<SettingChoice> kept;
@@ -282,7 +282,7 @@ Result<void> holdsOffered(ChoiceSource from, const std::string &text, const std:
    a row that offers no set at all and a set nobody can state. */
 bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out)
 {
-	if (d.field.choices_from != NULL)
+	if (d.choices_from != NULL)
 		return providedChoices(d, out);
 
 	if (d.type != ValueType::Enum)
@@ -450,13 +450,13 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 					    "the setting takes the hexadecimal spelling a channel is named by, of one to sixteen digits");
 		}
 
-		if (d->field.choices_from != NULL)
+		if (d->choices_from != NULL)
 		{
 			/* The default counts as offered: a row reads as its default until something is
 			   stored, so refusing it would make the way back to it a write that fails. The
 			   stored value is read only once the list has refused. */
 			const std::string fallback = d->default_string != NULL ? d->default_string : "";
-			Result<void> offered = holdsOffered(d->field.choices_from, value, &fallback);
+			Result<void> offered = holdsOffered(d->choices_from, value, &fallback);
 			if (!offered.ok())
 			{
 				std::string stored;

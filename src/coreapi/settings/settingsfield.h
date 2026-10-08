@@ -137,53 +137,36 @@ struct ChannelIdField
 // and then claim it is of a type it is not. The name comes from the same
 // argument as the functions, so a row cannot point at one field and be checked
 // against another.
-#define COREAPI_NUMBER_FIELD(f) \
+#define COREAPI_NUMBER_FIELD(f) COREAPI_NUMBER_FIELD_ON(f, NULL, NULL)
+
+/* The same field for a setting not every box has in one shape: a is the test
+   for whether the box has what the setting controls, o the shape the setting
+   takes where a says no, NULL where it is then not on the box at all. */
+#define COREAPI_NUMBER_FIELD_ON(f, a, o) \
 	{ &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::read, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::write, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::fits, \
-	  NULL, NULL, NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, NULL, NULL }
+	  NULL, NULL, NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, (a), (o) }
 
 // The same field, with the set of values it offers asked for at run time rather
 // than written down beside the row. c names the set to whoever answers.
-#define COREAPI_NUMBER_FIELD_ASKED(f, c) \
-	{ &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::read, \
-	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::write, \
-	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::fits, \
-	  NULL, NULL, NULL, NULL, (c), #f, coreapi::FieldOrigin::Member, NULL, NULL }
+#define COREAPI_NUMBER_FIELD_ASKED(f, c) COREAPI_NUMBER_FIELD_ASKED_ON(f, c, NULL)
 
-/* The two above for a setting not every box has: a asks this box whether it has
-   what the setting controls, a fan, a second picture, a CI slot. */
-#define COREAPI_NUMBER_FIELD_ON(f, a) \
-	{ &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::read, \
-	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::write, \
-	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::fits, \
-	  NULL, NULL, NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, NULL, (a) }
-
+// The same for a setting not every box has, a asking this box as above.
 #define COREAPI_NUMBER_FIELD_ASKED_ON(f, c, a) \
 	{ &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::read, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::write, \
 	  &coreapi::NumberField<decltype(SNeutrinoSettings::f), &SNeutrinoSettings::f>::fits, \
-	  NULL, NULL, NULL, NULL, (c), #f, coreapi::FieldOrigin::Member, NULL, (a) }
+	  NULL, NULL, NULL, NULL, (c), #f, coreapi::FieldOrigin::Member, (a), NULL }
 
-#define COREAPI_TEXT_FIELD(f) \
+#define COREAPI_TEXT_FIELD(f) COREAPI_TEXT_FIELD_ON(f, NULL, NULL)
+
+// The same for text not every box has, as COREAPI_NUMBER_FIELD_ON.
+#define COREAPI_TEXT_FIELD_ON(f, a, o) \
 	{ NULL, NULL, NULL, \
 	  &coreapi::TextField<&SNeutrinoSettings::f>::read, \
 	  &coreapi::TextField<&SNeutrinoSettings::f>::write, \
-	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, NULL, NULL }
-
-// The text field for a setting not every box has, a asking this box as above.
-#define COREAPI_TEXT_FIELD_ON(f, a) \
-	{ NULL, NULL, NULL, \
-	  &coreapi::TextField<&SNeutrinoSettings::f>::read, \
-	  &coreapi::TextField<&SNeutrinoSettings::f>::write, \
-	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, NULL, (a) }
-
-// The same text field, with the texts the box offers for it asked of s.
-#define COREAPI_TEXT_FIELD_OFFERED(f, s) \
-	{ NULL, NULL, NULL, \
-	  &coreapi::TextField<&SNeutrinoSettings::f>::read, \
-	  &coreapi::TextField<&SNeutrinoSettings::f>::write, \
-	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, (s), NULL }
+	  NULL, NULL, NULL, #f, coreapi::FieldOrigin::Member, (a), (o) }
 
 /* f is the member the screen binds the question to and the name this row is
    found under, m is the mask the value really lives in, and b is the bit of it.

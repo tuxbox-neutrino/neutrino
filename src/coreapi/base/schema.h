@@ -1074,6 +1074,9 @@ inline bool descriptorIsSane(const Descriptor &d)
 		return false;
 	if (d.choices_from != NULL && d.type != ValueType::Int && d.type != ValueType::String)
 		return false;
+	// Beside a text row's own list it would leave two answers to what the row takes.
+	if (d.choices_from != NULL && d.type == ValueType::String && d.values != NULL)
+		return false;
 	for (size_t i = 0; i < d.value_count && d.values != NULL; ++i)
 	{
 		const EnumValue &e = d.values[i];

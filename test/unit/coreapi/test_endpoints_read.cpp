@@ -1936,11 +1936,12 @@ bool twoNames(std::vector<coreapi::SettingChoice> &out)
 
 const coreapi::Descriptor kTextChoiceRow[] =
 {
-	{
-		"fixture_name", coreapi::ValueType::String, "fixture", "label", NULL,
-		0, 0, NULL, 0, 0, "alpha", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD_OFFERED(language, twoNames)
-	},
+	coreapi::textRow("fixture_name")
+		.section("fixture")
+		.label("label")
+		.defaultValue("alpha")
+		.choicesFrom(twoNames)
+		.field(COREAPI_TEXT_FIELD(language)),
 };
 
 } // namespace

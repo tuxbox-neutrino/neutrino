@@ -35,123 +35,123 @@ namespace
    own choice: the values are the two a flag carries either way. */
 
 // src/gui/audioplayer_setup.cpp:99
-const EnumValue kDisplayOrder[] =
+constexpr EnumValue kDisplayOrder[] =
 {
-	{ 0, "audioplayer.artist_title" },
-	{ 1, "audioplayer.title_artist" }
+	option(0).label("audioplayer.artist_title"),
+	option(1).label("audioplayer.title_artist")
 };
 
 // The order is the screen's and so is the gap: none is last and carries nought.
 // src/gui/pictureviewer_setup.cpp:88
-const EnumValue kPicviewerScaling[] =
+constexpr EnumValue kPicviewerScaling[] =
 {
-	{ 1, "pictureviewer.resize.simple" },
-	{ 2, "pictureviewer.resize.color_average" },
-	{ 0, "pictureviewer.resize.none" }
+	option(1).label("pictureviewer.resize.simple"),
+	option(2).label("pictureviewer.resize.color_average"),
+	option(0).label("pictureviewer.resize.none")
 };
 
-const Descriptor kSettings[] =
+constexpr Descriptor kSettings[] =
 {
 	// src/neutrino.cpp:1239 src/gui/audioplayer_setup.cpp:117
-	{
-		"audioplayer_display", ValueType::Enum, "player",
-		"audioplayer.display_order", "menu.hint_audioplayer_order",
-		0, 0, COREAPI_ENUM(kDisplayOrder), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_display)
-	},
+	enumRow("audioplayer_display")
+		.section("player")
+		.label("audioplayer.display_order")
+		.hint("menu.hint_audioplayer_order")
+		.defaultValue(0)
+		.values(kDisplayOrder)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_display)),
 	// src/neutrino.cpp:1241 src/gui/audioplayer_setup.cpp:121
-	{
-		"audioplayer_follow", ValueType::Bool, "player",
-		"audioplayer.follow", "menu.hint_audioplayer_follow",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_follow)
-	},
+	boolRow("audioplayer_follow")
+		.section("player")
+		.label("audioplayer.follow")
+		.hint("menu.hint_audioplayer_follow")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_follow)),
 	// src/neutrino.cpp:1244 src/gui/audioplayer_setup.cpp:125
-	{
-		"audioplayer_select_title_by_name", ValueType::Bool, "player",
-		"audioplayer.select_title_by_name", "menu.hint_audioplayer_title",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_select_title_by_name)
-	},
+	boolRow("audioplayer_select_title_by_name")
+		.section("player")
+		.label("audioplayer.select_title_by_name")
+		.hint("menu.hint_audioplayer_title")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_select_title_by_name)),
 	// src/neutrino.cpp:1243 src/gui/audioplayer_setup.cpp:129
-	{
-		"audioplayer_repeat_on", ValueType::Bool, "player",
-		"audioplayer.repeat_on", "menu.hint_audioplayer_repeat",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_repeat_on)
-	},
+	boolRow("audioplayer_repeat_on")
+		.section("player")
+		.label("audioplayer.repeat_on")
+		.hint("menu.hint_audioplayer_repeat")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_repeat_on)),
 	// src/neutrino.cpp:1245 src/gui/audioplayer_setup.cpp:133
-	{
-		"audioplayer_show_playlist", ValueType::Bool, "player",
-		"audioplayer.show_playlist", "menu.hint_audioplayer_playlist",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_show_playlist)
-	},
+	boolRow("audioplayer_show_playlist")
+		.section("player")
+		.label("audioplayer.show_playlist")
+		.hint("menu.hint_audioplayer_playlist")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_show_playlist)),
 	// src/neutrino.cpp:1238 src/gui/audioplayer_setup.cpp:137
-	{
-		"audioplayer_cover_as_screensaver", ValueType::Bool, "player",
-		"audioplayer.cover_as_screensaver", "menu.hint_audioplayer_cover_as_screensaver",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_cover_as_screensaver)
-	},
+	boolRow("audioplayer_cover_as_screensaver")
+		.section("player")
+		.label("audioplayer.cover_as_screensaver")
+		.hint("menu.hint_audioplayer_cover_as_screensaver")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_cover_as_screensaver)),
 	// src/neutrino.cpp:1242 src/gui/audioplayer_setup.cpp:141
-	{
-		"audioplayer_highprio", ValueType::Bool, "player",
-		"audioplayer.highprio", "menu.hint_audioplayer_highprio",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_highprio)
-	},
+	boolRow("audioplayer_highprio")
+		.section("player")
+		.label("audioplayer.highprio")
+		.hint("menu.hint_audioplayer_highprio")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_highprio)),
 	/* The item is in an arm the build never takes, src/gui/audioplayer_setup.cpp:145,
 	   and the value is read while a track plays all the same,
 	   src/driver/audiodec/mp3dec.cpp:393. The label and the words come off that
 	   dead item, which is the only statement of them there is. */
 	// src/neutrino.cpp:1247 src/gui/audioplayer_setup.cpp:146
-	{
-		"spectrum", ValueType::Bool, "player",
-		"audioplayer.spectrum", NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(spectrum)
-	},
+	boolRow("spectrum")
+		.section("player")
+		.label("audioplayer.spectrum")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(spectrum)),
 	// src/neutrino.cpp:833 src/gui/audioplayer_setup.cpp:148
-	{
-		"network_nfs_audioplayerdir", ValueType::String, "player",
-		"audioplayer.defdir", "menu.hint_audioplayer_defdir",
-		0, 0, NULL, 0, 0, TARGET_ROOT "/media/sda1/music", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(network_nfs_audioplayerdir)
-	},
+	textRow("network_nfs_audioplayerdir")
+		.section("player")
+		.label("audioplayer.defdir")
+		.hint("menu.hint_audioplayer_defdir")
+		.defaultValue(TARGET_ROOT "/media/sda1/music")
+		.field(COREAPI_TEXT_FIELD(network_nfs_audioplayerdir)),
 	// src/neutrino.cpp:1246 src/gui/audioplayer_setup.cpp:155
-	{
-		"inetradio_autostart", ValueType::Bool, "player",
-		"inetradio.autostart", "menu.hint_inetradio_autostart",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(inetradio_autostart)
-	},
+	boolRow("inetradio_autostart")
+		.section("player")
+		.label("inetradio.autostart")
+		.hint("menu.hint_inetradio_autostart")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(inetradio_autostart)),
 	// src/neutrino.cpp:1240 src/gui/audioplayer_setup.cpp:159
-	{
-		"audioplayer_enable_sc_metadata", ValueType::Bool, "player",
-		"audioplayer.enable_sc_metadata", "menu.hint_audioplayer_sc_metadata",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(audioplayer_enable_sc_metadata)
-	},
+	boolRow("audioplayer_enable_sc_metadata")
+		.section("player")
+		.label("audioplayer.enable_sc_metadata")
+		.hint("menu.hint_audioplayer_sc_metadata")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(audioplayer_enable_sc_metadata)),
 	// src/neutrino.cpp:837 src/gui/audioplayer_setup.cpp:163
-	{
-		"network_nfs_streamripperdir", ValueType::String, "player",
-		"audioplayer.streamripper_dir", "menu.hint_audioplayer_streamripper_dir",
-		0, 0, NULL, 0, 0, TARGET_ROOT "/media/sda1/music/streamripper", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(network_nfs_streamripperdir)
-	},
+	textRow("network_nfs_streamripperdir")
+		.section("player")
+		.label("audioplayer.streamripper_dir")
+		.hint("menu.hint_audioplayer_streamripper_dir")
+		.defaultValue(TARGET_ROOT "/media/sda1/music/streamripper")
+		.field(COREAPI_TEXT_FIELD(network_nfs_streamripperdir)),
 	/* The default is the box's own panel and no constant states it: the loader
 	   asks the hardware whether the display is a numeric one. Nought is what
 	   every other box gets, and the screen offers the item only where the panel
 	   is at least eight characters wide,
 	   src/gui/mediaplayer_setup.cpp:128, which is hardware and not a setting. */
 	// src/neutrino.cpp:1251 src/gui/mediaplayer_setup.cpp:128
-	{
-		"movieplayer_display_playtime", ValueType::Bool, "player",
-		"movieplayer.display_playtime", "menu.hint_movieplayer_display_playtime",
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD_ON(movieplayer_display_playtime, displayFitsPlaytime)
-	},
+	boolRow("movieplayer_display_playtime")
+		.section("player")
+		.label("movieplayer.display_playtime")
+		.hint("menu.hint_movieplayer_display_playtime")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD_ON(movieplayer_display_playtime, displayFitsPlaytime, NULL)),
 	/* Local resolution: the source declares movieplayer_timeosd_while_searching
 	   here. In this fork the key is loaded and saved but nothing reads the
 	   member - the player has no use of it and the screen's item sits in
@@ -161,69 +161,67 @@ const Descriptor kSettings[] =
 	   (WORK-114). */
 	// How many times the end of a file has to be seen before the player stops.
 	// src/neutrino.cpp:1252 src/gui/mediaplayer_setup.cpp:138
-	{
-		"movieplayer_eof_cnt", ValueType::Int, "player",
-		"movieplayer.eof_cnt", NULL,
-		1, 10, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(movieplayer_eof_cnt)
-	},
+	intRow("movieplayer_eof_cnt")
+		.section("player")
+		.label("movieplayer.eof_cnt")
+		.range(1, 10)
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(movieplayer_eof_cnt)),
 	// src/neutrino.cpp:1234 src/gui/pictureviewer_setup.cpp:103
-	{
-		"picviewer_scaling", ValueType::Enum, "player",
-		"pictureviewer.scaling", "menu.hint_pictureviewer_scaling",
-		0, 0, COREAPI_ENUM(kPicviewerScaling), 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(picviewer_scaling)
-	},
+	enumRow("picviewer_scaling")
+		.section("player")
+		.label("pictureviewer.scaling")
+		.hint("menu.hint_pictureviewer_scaling")
+		.defaultValue(1)
+		.values(kPicviewerScaling)
+		.field(COREAPI_NUMBER_FIELD(picviewer_scaling)),
 	// Seconds a slide is shown.
 	// src/neutrino.cpp:1235 src/gui/pictureviewer_setup.cpp:107
-	{
-		"picviewer_slide_time", ValueType::Int, "player",
-		"pictureviewer.slide_time", "menu.hint_pictureviewer_slide_time",
-		0, 999, NULL, 0, 10, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(picviewer_slide_time)
-	},
+	intRow("picviewer_slide_time")
+		.section("player")
+		.label("pictureviewer.slide_time")
+		.hint("menu.hint_pictureviewer_slide_time")
+		.range(0, 999)
+		.defaultValue(10)
+		.field(COREAPI_NUMBER_FIELD(picviewer_slide_time)),
 	// src/neutrino.cpp:835 src/gui/pictureviewer_setup.cpp:112
-	{
-		"network_nfs_picturedir", ValueType::String, "player",
-		"pictureviewer.defdir", "menu.hint_pictureviewer_defdir",
-		0, 0, NULL, 0, 0, TARGET_ROOT "/media/sda1/pictures", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(network_nfs_picturedir)
-	},
+	textRow("network_nfs_picturedir")
+		.section("player")
+		.label("pictureviewer.defdir")
+		.hint("menu.hint_pictureviewer_defdir")
+		.defaultValue(TARGET_ROOT "/media/sda1/pictures")
+		.field(COREAPI_TEXT_FIELD(network_nfs_picturedir)),
 
 	/* The character set the box reads a subtitle file in. The item is in the
 	   player's own audio and subtitle chooser rather than a settings screen,
 	   and it fills its list at run time, src/gui/movieplayer.cpp:4323, so this
 	   is text and not a choice. */
 	// src/neutrino.cpp:770 src/gui/movieplayer.cpp:4323
-	{
-		"subs_charset", ValueType::String, "player",
-		"subtitles.charset", NULL,
-		0, 0, NULL, 0, 0, "CP1252", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(subs_charset)
-	},
+	textRow("subs_charset")
+		.section("player")
+		.label("subtitles.charset")
+		.defaultValue("CP1252")
+		.field(COREAPI_TEXT_FIELD(subs_charset)),
 	/* What the player repeats, which the player writes itself when the repeat
 	   key is pressed, src/gui/movieplayer.cpp:3205. No item names it. A number
 	   and not a choice: the three modes have no locales of their own.
 	   src/gui/movieplayer.h:89 */
 	// src/neutrino.cpp:1253
-	{
-		"movieplayer_repeat_on", ValueType::Int, "player",
-		NULL, NULL,
-		0, 2, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(movieplayer_repeat_on)
-	},
+	intRow("movieplayer_repeat_on")
+		.section("player")
+		.range(0, 2)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(movieplayer_repeat_on)),
 #if HAVE_CST_HARDWARE
 	/* Behind the arm the settings struct puts the field behind. Whether the
 	   player treats a track of no stated kind as AC3, which the audio chooser
 	   turns over rather than offering as an item, src/gui/movieplayer.cpp:3862,
 	   so the program states no name for it. */
 	// src/neutrino.cpp:1255
-	{
-		"movieplayer_select_ac3_atype0", ValueType::Bool, "player",
-		NULL, NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(movieplayer_select_ac3_atype0)
-	},
+	boolRow("movieplayer_select_ac3_atype0")
+		.section("player")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(movieplayer_select_ac3_atype0)),
 #endif
 };
 

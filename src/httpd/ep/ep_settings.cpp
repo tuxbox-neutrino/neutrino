@@ -419,7 +419,7 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		j.endArray();
 	}
 
-	if (d.type == coreapi::ValueType::String && d.field.choices_from != NULL)
+	if (d.type == coreapi::ValueType::String && d.choices_from != NULL)
 	{
 		/* The texts the box offers, each under the text it stores. Empty is a box that
 		   cannot say what it has, and then the row's other rules alone hold: a caller

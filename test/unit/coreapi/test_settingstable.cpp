@@ -51,23 +51,23 @@ namespace
 // depend on which kinds the shipped table happens to carry.
 const Condition kOnRow[] =
 {
-	{ "fixture_flag", CompareOp::Ne, 0, NULL, 0 }
+	{ "fixture_flag", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 }
 };
 
 const Condition kOnNothing[] =
 {
-	{ "fixture_no_such_key", CompareOp::Ne, 0, NULL, 0 }
+	{ "fixture_no_such_key", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 }
 };
 
 const Descriptor kSound[] =
 {
 	{
 		"fixture_flag", ValueType::Bool, "fixture", "fixture.flag", NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD
+		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	},
 	{
 		"fixture_gated", ValueType::Int, "fixture", "fixture.gated", NULL,
-		0, 9, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kOnRow), COREAPI_NO_FIELD
+		0, 9, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kOnRow), COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	}
 };
 
@@ -75,11 +75,11 @@ const Descriptor kDangling[] =
 {
 	{
 		"fixture_flag", ValueType::Bool, "fixture", "fixture.flag", NULL,
-		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD
+		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	},
 	{
 		"fixture_gated", ValueType::Int, "fixture", "fixture.gated", NULL,
-		0, 9, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kOnNothing), COREAPI_NO_FIELD
+		0, 9, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kOnNothing), COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 	}
 };
 

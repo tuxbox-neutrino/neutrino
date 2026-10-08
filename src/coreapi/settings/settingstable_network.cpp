@@ -52,54 +52,56 @@ namespace
    screen. A Bool is compared on the numbers alone, and which of the two means
    one would then rest on nothing.
    src/gui/network_setup.cpp:199 src/gui/network_setup.h:119 */
-const EnumValue kNtpEnable[] =
+constexpr EnumValue kNtpEnable[] =
 {
-	{ 0, "options.ntp_off" },
-	{ 1, "options.ntp_on" }
+	option(0).label("options.ntp_off"),
+	option(1).label("options.ntp_on")
 };
 
-const Descriptor kNetwork[] =
+constexpr Descriptor kNetwork[] =
 {
 	/* The name of an interface, and what the screen offers is what the box has:
 	   it reads /sys/class/net, src/gui/network_setup.cpp:236, and the same is on
 	   offer here. A name nothing there matches is dropped and replaced at the
 	   next load, src/system/helpers.cpp:2276. */
 	// src/neutrino.cpp:813 src/gui/network_setup.cpp:261
-	{
-		"ifname", ValueType::String, "network",
-		"networkmenu.select_if", "menu.hint_net_if",
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD_OFFERED(ifname, interfaceNames)
-	},
+	textRow("ifname")
+		.section("network")
+		.label("networkmenu.select_if")
+		.hint("menu.hint_net_if")
+		.defaultValue("")
+		.choicesFrom(interfaceNames)
+		.field(COREAPI_TEXT_FIELD(ifname)),
 
 	// time
 	// src/neutrino.cpp:926 src/gui/network_setup.cpp:505
 	// Local resolution: this fork falls back to NTP being off, not the source's on.
-	{
-		"network_ntpenable", ValueType::Enum, "network",
-		"networkmenu.ntpenable", "menu.hint_net_ntpenable",
-		0, 0, COREAPI_VALUES(kNtpEnable), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(network_ntpenable)
-	},
+	enumRow("network_ntpenable")
+		.section("network")
+		.label("networkmenu.ntpenable")
+		.hint("menu.hint_net_ntpenable")
+		.defaultValue(0)
+		.values(kNtpEnable)
+		.field(COREAPI_NUMBER_FIELD(network_ntpenable)),
 	// src/neutrino.cpp:927 src/gui/network_setup.cpp:501
-	{
-		"network_ntpserver", ValueType::String, "network",
-		"networkmenu.ntpserver", "menu.hint_net_ntpserver",
-		0, 0, NULL, 0, 0, "0.de.pool.ntp.org", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(network_ntpserver)
-	},
+	textRow("network_ntpserver")
+		.section("network")
+		.label("networkmenu.ntpserver")
+		.hint("menu.hint_net_ntpserver")
+		.defaultValue("0.de.pool.ntp.org")
+		.field(COREAPI_TEXT_FIELD(network_ntpserver)),
 	/* Minutes, kept as text and turned into a number where it is used,
 	   src/neutrino.cpp:2775. Text here because the field is, and a String
 	   carries no bound, so the three digits and the ten characters the screen
 	   takes are stated nowhere a caller can read.
 	   src/gui/network_setup.cpp:503 */
 	// src/neutrino.cpp:928 src/gui/network_setup.cpp:503
-	{
-		"network_ntprefresh", ValueType::String, "network",
-		"networkmenu.ntprefresh", "menu.hint_net_ntprefresh",
-		0, 0, NULL, 0, 0, "30", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(network_ntprefresh)
-	},
+	textRow("network_ntprefresh")
+		.section("network")
+		.label("networkmenu.ntprefresh")
+		.hint("menu.hint_net_ntprefresh")
+		.defaultValue("30")
+		.field(COREAPI_TEXT_FIELD(network_ntprefresh)),
 
 	/* The proxy. The three below are one setting in three parts: the loader
 	   itself joins them into one URL, src/neutrino.cpp:1103, and so does every
@@ -113,26 +115,28 @@ const Descriptor kNetwork[] =
 	   a box goes through is not a credential, and hiding it would leave a
 	   frontend unable to show whether one is set at all. */
 	// src/neutrino.cpp:1099 src/gui/proxyserver_setup.cpp:128
-	{
-		"softupdate_proxyserver", ValueType::String, "network",
-		"flashupdate.proxyserver", "menu.hint_net_proxyserver",
-		0, 0, NULL, 0, 0, "", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(softupdate_proxyserver)
-	},
+	textRow("softupdate_proxyserver")
+		.section("network")
+		.label("flashupdate.proxyserver")
+		.hint("menu.hint_net_proxyserver")
+		.defaultValue("")
+		.field(COREAPI_TEXT_FIELD(softupdate_proxyserver)),
 	// src/neutrino.cpp:1100 src/gui/proxyserver_setup.cpp:144
-	{
-		"softupdate_proxyusername", ValueType::String, "network",
-		"flashupdate.proxyusername", "menu.hint_net_proxyuser",
-		0, 0, NULL, 0, 0, "", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(softupdate_proxyusername)
-	},
+	textRow("softupdate_proxyusername")
+		.section("network")
+		.label("flashupdate.proxyusername")
+		.hint("menu.hint_net_proxyuser")
+		.defaultValue("")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(softupdate_proxyusername)),
 	// src/neutrino.cpp:1101 src/gui/proxyserver_setup.cpp:161
-	{
-		"softupdate_proxypassword", ValueType::String, "network",
-		"flashupdate.proxypassword", "menu.hint_net_proxypass",
-		0, 0, NULL, 0, 0, "", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(softupdate_proxypassword)
-	},
+	textRow("softupdate_proxypassword")
+		.section("network")
+		.label("flashupdate.proxypassword")
+		.hint("menu.hint_net_proxypass")
+		.defaultValue("")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(softupdate_proxypassword)),
 };
 
 } // anonymous namespace

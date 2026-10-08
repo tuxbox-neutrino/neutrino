@@ -37,24 +37,24 @@ namespace
 /* The screen makes the three below editable only while the weather is on,
    which it states as the item's own state rather than through a notifier.
    src/gui/weather_setup.cpp:115 src/gui/weather_setup.cpp:119 */
-const Condition kWeatherOn[] =
+constexpr Condition kWeatherOn[] =
 {
-	{ "weather_enabled", CompareOp::Ne, 0, NULL, 0 }
+	when("weather_enabled").isNot(0)
 };
 
-const Descriptor kWeather[] =
+constexpr Descriptor kWeather[] =
 {
 	/* The screen offers this one only where the key beside it passes a check
 	   that reads the key itself, which is a function call and not a comparison
 	   against another setting, so it carries no condition. The loader turns it
 	   off the same way at load, src/neutrino.cpp:1162. */
 	// src/neutrino.cpp:1161 src/gui/weather_setup.cpp:97
-	{
-		"weather_enabled", ValueType::Bool, "weather",
-		"weather.enabled", "menu.hint_weather_enabled",
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(weather_enabled)
-	},
+	boolRow("weather_enabled")
+		.section("weather")
+		.label("weather.enabled")
+		.hint("menu.hint_weather_enabled")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(weather_enabled)),
 
 #if ENABLE_WEATHER_KEY_MANAGE
 	/* The two below sit behind the arm the program loads and saves them under,
@@ -68,12 +68,13 @@ const Descriptor kWeather[] =
 	   that key instead, which is not a constant this can carry.
 	   src/neutrino.cpp:1155 */
 	// src/neutrino.cpp:1158 src/gui/weather_setup.cpp:103
-	{
-		"weather_api_key", ValueType::String, "weather",
-		"weather.api_key", "menu.hint_weather_api_key",
-		0, 0, NULL, 0, 0, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(weather_api_key)
-	},
+	textRow("weather_api_key")
+		.section("weather")
+		.label("weather.api_key")
+		.hint("menu.hint_weather_api_key")
+		.defaultValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(weather_api_key)),
 	/* The item for this one is inside an arm the build does not take and it
 	   binds a number of the screen's own rather than the field, which the
 	   screen copies back in changeNotify, src/gui/weather_setup.cpp:215. Its
@@ -82,12 +83,12 @@ const Descriptor kWeather[] =
 	   src/gui/weather.cpp:121, so it is text and not a choice.
 	   src/gui/weather_setup.cpp:110 */
 	// src/neutrino.cpp:1159 src/gui/weather_setup.cpp:110
-	{
-		"weather_api_version", ValueType::String, "weather",
-		"weather.api_version", "menu.hint_weather_api_version",
-		0, 0, NULL, 0, 0, "3.0", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(weather_api_version)
-	},
+	textRow("weather_api_version")
+		.section("weather")
+		.label("weather.api_version")
+		.hint("menu.hint_weather_api_version")
+		.defaultValue("3.0")
+		.field(COREAPI_TEXT_FIELD(weather_api_version)),
 #endif
 
 	/* The name of the place and its coordinates are one setting in two parts,
@@ -99,29 +100,32 @@ const Descriptor kWeather[] =
 	   item for the pair and both rows name its label.
 	   Default: src/gui/weather_setup.h:24 */
 	// src/neutrino.cpp:1164 src/gui/weather_setup.cpp:115
-	{
-		"weather_city", ValueType::String, "weather",
-		"weather.location", "menu.hint_weather_location",
-		0, 0, NULL, 0, 0, "Berlin", false, false, COREAPI_CONDITIONS(kWeatherOn),
-		COREAPI_TEXT_FIELD(weather_city)
-	},
+	textRow("weather_city")
+		.section("weather")
+		.label("weather.location")
+		.hint("menu.hint_weather_location")
+		.defaultValue("Berlin")
+		.changeableWhen(kWeatherOn)
+		.field(COREAPI_TEXT_FIELD(weather_city)),
 	// src/neutrino.cpp:1165 src/gui/weather_setup.cpp:115
-	{
-		"weather_location", ValueType::String, "weather",
-		"weather.location", "menu.hint_weather_location",
-		0, 0, NULL, 0, 0, "52.52,13.40", false, false, COREAPI_CONDITIONS(kWeatherOn),
-		COREAPI_TEXT_FIELD(weather_location)
-	},
+	textRow("weather_location")
+		.section("weather")
+		.label("weather.location")
+		.hint("menu.hint_weather_location")
+		.defaultValue("52.52,13.40")
+		.changeableWhen(kWeatherOn)
+		.field(COREAPI_TEXT_FIELD(weather_location)),
 	/* Five characters on the screen, src/gui/weather_setup.cpp:185, and a
 	   String carries no bound, so that is stated nowhere a caller can read.
 	   Default: src/gui/weather_setup.h:26 */
 	// src/neutrino.cpp:1166 src/gui/weather_setup.cpp:119
-	{
-		"weather_postalcode", ValueType::String, "weather",
-		"weather.postalcode", "menu.hint_weather_postalcode",
-		0, 0, NULL, 0, 0, "10178", false, false, COREAPI_CONDITIONS(kWeatherOn),
-		COREAPI_TEXT_FIELD(weather_postalcode)
-	},
+	textRow("weather_postalcode")
+		.section("weather")
+		.label("weather.postalcode")
+		.hint("menu.hint_weather_postalcode")
+		.defaultValue("10178")
+		.changeableWhen(kWeatherOn)
+		.field(COREAPI_TEXT_FIELD(weather_postalcode)),
 };
 
 } // anonymous namespace

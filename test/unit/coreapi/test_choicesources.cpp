@@ -107,11 +107,12 @@ bool fixtureChoices(std::vector<SettingChoice> &out)
 
 const Descriptor kOffered[] =
 {
-	{
-		"fixture_name", ValueType::String, "fixture", "label", NULL,
-		0, 0, NULL, 0, 0, "default name", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD_OFFERED(language, fixtureChoices)
-	},
+	textRow("fixture_name")
+		.section("fixture")
+		.label("label")
+		.defaultValue("default name")
+		.choicesFrom(fixtureChoices)
+		.field(COREAPI_TEXT_FIELD(language)),
 };
 
 } // namespace
@@ -236,12 +237,12 @@ TEST_CASE("the language, the zone and the interface offer the box's lists", "[ch
 		Result<Descriptor> d = settings::describe(keys[i]);
 		REQUIRE(d.ok());
 		CHECK(d.value().type == ValueType::String);
-		CHECK(d.value().field.choices_from != NULL);
+		CHECK(d.value().choices_from != NULL);
 		CHECK(descriptorIsSane(d.value()));
 	}
-	CHECK(settings::describe("language").value().field.choices_from == installedLocales);
-	CHECK(settings::describe("timezone").value().field.choices_from == timezoneNames);
-	CHECK(settings::describe("ifname").value().field.choices_from == interfaceNames);
+	CHECK(settings::describe("language").value().choices_from == installedLocales);
+	CHECK(settings::describe("timezone").value().choices_from == timezoneNames);
+	CHECK(settings::describe("ifname").value().choices_from == interfaceNames);
 }
 
 // The runner puts every place of the box in an empty directory, so no case

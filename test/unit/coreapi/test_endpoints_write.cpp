@@ -955,7 +955,7 @@ std::string plainKeyIn(const char *section)
 		if (rows[i].secret || rows[i].type != coreapi::ValueType::String)
 			continue;
 		// a text the box offers a list for takes nothing but its list
-		if (rows[i].field.choices_from != NULL)
+		if (rows[i].choices_from != NULL)
 			continue;
 		return rows[i].key;
 	}

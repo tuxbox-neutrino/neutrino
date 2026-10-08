@@ -37,21 +37,21 @@ namespace
 
 // The screen offers the age as the three the ratings use.
 // src/gui/parentallock_setup.cpp:85
-const EnumValue kLockage[] =
+constexpr EnumValue kLockage[] =
 {
-	{ 12, "parentallock.lockage12" },
-	{ 16, "parentallock.lockage16" },
-	{ 18, "parentallock.lockage18" }
+	option(12).label("parentallock.lockage12"),
+	option(16).label("parentallock.lockage16"),
+	option(18).label("parentallock.lockage18")
 };
 
 // src/gui/parentallock_setup.cpp:93
-const EnumValue kDefaultLocked[] =
+constexpr EnumValue kDefaultLocked[] =
 {
-	{ 0, "parentallock.defaultunlocked" },
-	{ 1, "parentallock.defaultlocked" }
+	option(0).label("parentallock.defaultunlocked"),
+	option(1).label("parentallock.defaultlocked")
 };
 
-const Descriptor kSettings[] =
+constexpr Descriptor kSettings[] =
 {
 	/* A number and not a choice. The screen's table carries a fourth entry
 	   naming a locale the program no longer has,
@@ -60,47 +60,50 @@ const Descriptor kSettings[] =
 	   src/system/settings.h:1425-1428, and one of the four is the entry the
 	   screen keeps in an arm it never takes. */
 	// src/neutrino.cpp:1129 src/gui/parentallock_setup.cpp:111
-	{
-		"parentallock_prompt", ValueType::Int, "parental",
-		"parentallock.prompt", "menu.hint_parentallock_prompt",
-		0, 3, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(parentallock_prompt)
-	},
+	intRow("parentallock_prompt")
+		.section("parental")
+		.label("parentallock.prompt")
+		.hint("menu.hint_parentallock_prompt")
+		.range(0, 3)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(parentallock_prompt)),
 	// src/neutrino.cpp:1130 src/gui/parentallock_setup.cpp:115
-	{
-		"parentallock_lockage", ValueType::Enum, "parental",
-		"parentallock.lockage", "menu.hint_parentallock_lockage",
-		0, 0, COREAPI_ENUM(kLockage), 12, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(parentallock_lockage)
-	},
+	enumRow("parentallock_lockage")
+		.section("parental")
+		.label("parentallock.lockage")
+		.hint("menu.hint_parentallock_lockage")
+		.defaultValue(12)
+		.values(kLockage)
+		.field(COREAPI_NUMBER_FIELD(parentallock_lockage)),
 	/* A choice and not a flag: the words are what a new bouquet starts as and
 	   not an on and an off, so a flag would carry the values and lose them. */
 	// src/neutrino.cpp:1137 src/gui/parentallock_setup.cpp:119
-	{
-		"parentallock_defaultlocked", ValueType::Enum, "parental",
-		"parentallock.bouquetmode", NULL,
-		0, 0, COREAPI_ENUM(kDefaultLocked), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(parentallock_defaultlocked)
-	},
+	enumRow("parentallock_defaultlocked")
+		.section("parental")
+		.label("parentallock.bouquetmode")
+		.defaultValue(0)
+		.values(kDefaultLocked)
+		.field(COREAPI_NUMBER_FIELD(parentallock_defaultlocked)),
 	// Seconds a locked channel stays watchable after the pin was given.
 	// src/neutrino.cpp:1139 src/gui/parentallock_setup.cpp:121
-	{
-		"parentallock_zaptime", ValueType::Int, "parental",
-		"parentallock.zaptime", NULL,
-		0, 10000, NULL, 0, 60, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(parentallock_zaptime)
-	},
+	intRow("parentallock_zaptime")
+		.section("parental")
+		.label("parentallock.zaptime")
+		.range(0, 10000)
+		.defaultValue(60)
+		.field(COREAPI_NUMBER_FIELD(parentallock_zaptime)),
 	/* The pin itself, which is why it is secret: a read answers nothing and an
 	   empty write is refused, so a form that round trips its fields cannot
 	   clear it. The screen takes four digits and no more,
 	   src/gui/parentallock_setup.cpp:125, which a String row cannot say. */
 	// src/neutrino.cpp:1138 src/gui/parentallock_setup.cpp:126
-	{
-		"parentallock_pincode", ValueType::String, "parental",
-		"parentallock.changepin", "menu.hint_parentallock_changepin",
-		0, 0, NULL, 0, 0, "0000", false, true, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(parentallock_pincode)
-	},
+	textRow("parentallock_pincode")
+		.section("parental")
+		.label("parentallock.changepin")
+		.hint("menu.hint_parentallock_changepin")
+		.defaultValue("0000")
+		.secret()
+		.field(COREAPI_TEXT_FIELD(parentallock_pincode)),
 };
 
 /* What the lock holds. The pin is not among them: it stays changeable on a

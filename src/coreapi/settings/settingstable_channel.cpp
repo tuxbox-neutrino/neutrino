@@ -50,92 +50,101 @@ namespace
    is 2 and is not among them. Nought below is the value the program falls back
    to, which the enum spells LIST_MODE_FAV. src/gui/channellist.h:51
    src/gui/zapit_setup.cpp:85 */
-const EnumValue kChannelListMode[] =
+constexpr EnumValue kChannelListMode[] =
 {
-	{ -1, "channellist.remember" },
-	{  0, "channellist.favs" },
-	{  1, "channellist.provs" },
-	{  3, "channellist.sats" },
-	{  4, "channellist.head" }
+	option(-1).label("channellist.remember"),
+	option(0).label("channellist.favs"),
+	option(1).label("channellist.provs"),
+	option(3).label("channellist.sats"),
+	option(4).label("channellist.head")
 };
 
 /* The four start channel rows are offered only while the box is not told to
    come up on the channel it was left on, which is what greys the two items out.
    src/gui/zapit_setup.cpp:78 */
-const Condition kNoLastChannel[] =
+constexpr Condition kNoLastChannel[] =
 {
-	{ "uselastchannel", CompareOp::Eq, 0, NULL, 0 }
+	when("uselastchannel").is(0)
 };
 
 /* The loader writes the initial mode over the mode the box was left in
    wherever one is chosen, so the pair below matters only while none is.
    src/neutrino.cpp:521 */
-const Condition kNoInitialMode[] =
+constexpr Condition kNoInitialMode[] =
 {
-	{ "channel_mode_initial", CompareOp::Lt, 0, NULL, 0 }
+	when("channel_mode_initial").below(0)
 };
 
-const Descriptor kChannel[] =
+constexpr Descriptor kChannel[] =
 {
 	/* The three rows below reach the box only at start: the first is handed to
 	   zapit once, src/neutrino.cpp:3072, and the two list modes are read by the
 	   pass that loads them and nowhere else, src/neutrino.cpp:521. */
 	// src/neutrino.cpp:1201 src/gui/zapit_setup.cpp:72
-	{
-		"uselastchannel", ValueType::Bool, "channel",
-		"zapitsetup.last_use", "menu.hint_last_use",
-		0, 1, NULL, 0, 1, NULL, true, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(uselastchannel)
-	},
+	boolRow("uselastchannel")
+		.section("channel")
+		.label("zapitsetup.last_use")
+		.hint("menu.hint_last_use")
+		.defaultValue(1)
+		.needsRestart()
+		.field(COREAPI_NUMBER_FIELD(uselastchannel)),
 	// src/neutrino.cpp:519 src/gui/zapit_setup.cpp:94
-	{
-		"channel_mode_initial", ValueType::Enum, "channel",
-		"zapitsetup.channelmode", "menu.hint_channellist_mode",
-		0, 0, COREAPI_VALUES(kChannelListMode), 0, NULL, true, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(channel_mode_initial)
-	},
+	enumRow("channel_mode_initial")
+		.section("channel")
+		.label("zapitsetup.channelmode")
+		.hint("menu.hint_channellist_mode")
+		.defaultValue(0)
+		.values(kChannelListMode)
+		.needsRestart()
+		.field(COREAPI_NUMBER_FIELD(channel_mode_initial)),
 	// src/neutrino.cpp:520 src/gui/zapit_setup.cpp:98
-	{
-		"channel_mode_initial_radio", ValueType::Enum, "channel",
-		"zapitsetup.channelmode_radio", "menu.hint_channellist_mode_radio",
-		0, 0, COREAPI_VALUES(kChannelListMode), 0, NULL, true, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(channel_mode_initial_radio)
-	},
+	enumRow("channel_mode_initial_radio")
+		.section("channel")
+		.label("zapitsetup.channelmode_radio")
+		.hint("menu.hint_channellist_mode_radio")
+		.defaultValue(0)
+		.values(kChannelListMode)
+		.needsRestart()
+		.field(COREAPI_NUMBER_FIELD(channel_mode_initial_radio)),
 
 	/* The two identifiers, which is what a start channel really is. The program
 	   has no name for either: what the screen names is the pair, and the name
 	   beside each carries that. Handed to zapit once at start, so a written one
 	   takes effect at the next. */
 	// src/neutrino.cpp:1213 src/neutrino.cpp:3121
-	{
-		"startchanneltv_id", ValueType::String, "channel",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "0", true, false, COREAPI_CONDITIONS(kNoLastChannel),
-		COREAPI_CHANNEL_ID_FIELD(startchanneltv_id)
-	},
+	textRow("startchanneltv_id")
+		.section("channel")
+		.defaultValue("0")
+		.needsRestart()
+		.changeableWhen(kNoLastChannel)
+		.field(COREAPI_CHANNEL_ID_FIELD(startchanneltv_id)),
 	// src/neutrino.cpp:1214 src/neutrino.cpp:3122
-	{
-		"startchannelradio_id", ValueType::String, "channel",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, "0", true, false, COREAPI_CONDITIONS(kNoLastChannel),
-		COREAPI_CHANNEL_ID_FIELD(startchannelradio_id)
-	},
+	textRow("startchannelradio_id")
+		.section("channel")
+		.defaultValue("0")
+		.needsRestart()
+		.changeableWhen(kNoLastChannel)
+		.field(COREAPI_CHANNEL_ID_FIELD(startchannelradio_id)),
 	/* The name beside each, which is what the screen shows on the item and what
 	   a person reads. Not what the box zaps to. */
 	// src/neutrino.cpp:1211 src/gui/zapit_setup.cpp:78
-	{
-		"startchanneltv", ValueType::String, "channel",
-		"zapitsetup.last_tv", "menu.hint_last_tv",
-		0, 0, NULL, 0, 0, "", true, false, COREAPI_CONDITIONS(kNoLastChannel),
-		COREAPI_TEXT_FIELD(StartChannelTV)
-	},
+	textRow("startchanneltv")
+		.section("channel")
+		.label("zapitsetup.last_tv")
+		.hint("menu.hint_last_tv")
+		.defaultValue("")
+		.needsRestart()
+		.changeableWhen(kNoLastChannel)
+		.field(COREAPI_TEXT_FIELD(StartChannelTV)),
 	// src/neutrino.cpp:1212 src/gui/zapit_setup.cpp:81
-	{
-		"startchannelradio", ValueType::String, "channel",
-		"zapitsetup.last_radio", "menu.hint_last_radio",
-		0, 0, NULL, 0, 0, "", true, false, COREAPI_CONDITIONS(kNoLastChannel),
-		COREAPI_TEXT_FIELD(StartChannelRadio)
-	},
+	textRow("startchannelradio")
+		.section("channel")
+		.label("zapitsetup.last_radio")
+		.hint("menu.hint_last_radio")
+		.defaultValue("")
+		.needsRestart()
+		.changeableWhen(kNoLastChannel)
+		.field(COREAPI_TEXT_FIELD(StartChannelRadio)),
 
 	/* Web channels. The screen offers the three below only in its television
 	   arm, src/gui/webchannels_setup.cpp:244, which is which menu was opened
@@ -148,60 +157,55 @@ const Descriptor kChannel[] =
 	   condition shortens as the screen does.
 	   src/gui/webchannels_setup.cpp:52 */
 	// src/neutrino.cpp:1021 src/gui/webchannels_setup.cpp:538
-	{
-		"livestreamResolution", ValueType::Int, "channel",
-		"livestream.resolution", NULL,
+	intRow("livestreamResolution")
+		.section("channel")
+		.label("livestream.resolution")
 #if HAVE_CST_HARDWARE
-		480, 1920,
+		.range(480, 1920)
 #else
-		480, 3840,
+		.range(480, 3840)
 #endif
-		NULL, 0, 1920, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(livestreamResolution)
-	},
+		.defaultValue(1920)
+		.field(COREAPI_NUMBER_FIELD(livestreamResolution)),
 	// src/neutrino.cpp:942 src/gui/webchannels_setup.cpp:250
-	{
-		"webtv_stream_restart_attempts", ValueType::Int, "channel",
-		"webtv.stream_restart_attempts", NULL,
-		0, 3, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(webtv_stream_restart_attempts)
-	},
+	intRow("webtv_stream_restart_attempts")
+		.section("channel")
+		.label("webtv.stream_restart_attempts")
+		.range(0, 3)
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(webtv_stream_restart_attempts)),
 	// src/neutrino.cpp:947 src/gui/webchannels_setup.cpp:252
-	{
-		"webtv_dns_diagnostics", ValueType::Bool, "channel",
-		"webtv.dns.diagnostics", NULL,
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(webtv_dns_diagnostics)
-	},
+	boolRow("webtv_dns_diagnostics")
+		.section("channel")
+		.label("webtv.dns.diagnostics")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(webtv_dns_diagnostics)),
 	/* The two below carry no hint: the screen builds one at run time out of the
 	   directories it reads, which is text and not the name of one.
 	   src/gui/webchannels_setup.cpp:259 */
 	// src/neutrino.cpp:941 src/gui/webchannels_setup.cpp:268
-	{
-		"webtv_xml_auto", ValueType::Bool, "channel",
-		"webtv.xml.auto", NULL,
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(webtv_xml_auto)
-	},
+	boolRow("webtv_xml_auto")
+		.section("channel")
+		.label("webtv.xml.auto")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(webtv_xml_auto)),
 	// src/neutrino.cpp:973 src/gui/webchannels_setup.cpp:263
-	{
-		"webradio_xml_auto", ValueType::Bool, "channel",
-		"webradio.xml.auto", NULL,
-		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(webradio_xml_auto)
-	},
+	boolRow("webradio_xml_auto")
+		.section("channel")
+		.label("webradio.xml.auto")
+		.defaultValue(1)
+		.field(COREAPI_NUMBER_FIELD(webradio_xml_auto)),
 	/* The item for this one is inside an arm the build does not take, and the
 	   value is live anyway: the movie player still reads it,
 	   src/gui/movieplayer.cpp:2252. Its label and its position come from that
 	   dead item, which is the only statement of them there is.
 	   src/gui/webchannels_setup.cpp:238 */
 	// src/neutrino.cpp:1022 src/gui/webchannels_setup.cpp:238
-	{
-		"livestreamScriptPath", ValueType::String, "channel",
-		"livestream.scriptpath", NULL,
-		0, 0, NULL, 0, 0, WEBTVDIR, false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(livestreamScriptPath)
-	},
+	textRow("livestreamScriptPath")
+		.section("channel")
+		.label("livestream.scriptpath")
+		.defaultValue(WEBTVDIR)
+		.field(COREAPI_TEXT_FIELD(livestreamScriptPath)),
 
 	/* The two below are the list the box was left in, which it writes whenever
 	   the list is changed, src/neutrino.cpp:2541 and :2545, and reads once at
@@ -210,47 +214,44 @@ const Descriptor kChannel[] =
 	   item names either, and the ceiling is the last of the five list modes,
 	   src/gui/channellist.h:51. */
 	// src/neutrino.cpp:517
-	{
-		"channel_mode", ValueType::Int, "channel",
-		NULL, NULL,
-		0, 4, NULL, 0, 0, NULL, true, false, COREAPI_CONDITIONS(kNoInitialMode),
-		COREAPI_NUMBER_FIELD(channel_mode)
-	},
+	intRow("channel_mode")
+		.section("channel")
+		.range(0, 4)
+		.defaultValue(0)
+		.needsRestart()
+		.changeableWhen(kNoInitialMode)
+		.field(COREAPI_NUMBER_FIELD(channel_mode)),
 	// src/neutrino.cpp:518
-	{
-		"channel_mode_radio", ValueType::Int, "channel",
-		NULL, NULL,
-		0, 4, NULL, 0, 0, NULL, true, false, COREAPI_CONDITIONS(kNoInitialMode),
-		COREAPI_NUMBER_FIELD(channel_mode_radio)
-	},
+	intRow("channel_mode_radio")
+		.section("channel")
+		.range(0, 4)
+		.defaultValue(0)
+		.needsRestart()
+		.changeableWhen(kNoInitialMode)
+		.field(COREAPI_NUMBER_FIELD(channel_mode_radio)),
 	/* How the channel list is sorted, which the list itself steps through and
 	   wraps at the last sort there is, src/gui/channellist.cpp:939. That count
 	   is the ceiling here, src/gui/channellist.h:265. No item names it. */
 	// src/neutrino.cpp:1307
-	{
-		"channellist_sort_mode", ValueType::Int, "channel",
-		NULL, NULL,
-		0, 3, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(channellist_sort_mode)
-	},
+	intRow("channellist_sort_mode")
+		.section("channel")
+		.range(0, 3)
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(channellist_sort_mode)),
 	/* The two below are where the file browser last stood when a web channel
 	   list was picked, written by the browser itself,
 	   src/gui/webchannels_setup.cpp:139 and :161, and read the next time it
 	   opens, :154. No item names either. */
 	// src/neutrino.cpp:967
-	{
-		"last_webtv_dir", ValueType::String, "channel",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, WEBTVDIR_VAR, false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(last_webtv_dir)
-	},
+	textRow("last_webtv_dir")
+		.section("channel")
+		.defaultValue(WEBTVDIR_VAR)
+		.field(COREAPI_TEXT_FIELD(last_webtv_dir)),
 	// src/neutrino.cpp:999
-	{
-		"last_webradio_dir", ValueType::String, "channel",
-		NULL, NULL,
-		0, 0, NULL, 0, 0, WEBRADIODIR_VAR, false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(last_webradio_dir)
-	},
+	textRow("last_webradio_dir")
+		.section("channel")
+		.defaultValue(WEBRADIODIR_VAR)
+		.field(COREAPI_TEXT_FIELD(last_webradio_dir)),
 };
 
 } // anonymous namespace

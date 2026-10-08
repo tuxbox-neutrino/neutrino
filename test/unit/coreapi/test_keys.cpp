@@ -63,7 +63,7 @@ std::string decimal0(long v)
 TEST_CASE("a key row is sane between bounds that hold its default and names no words", "[keys]")
 {
 	Descriptor d = { "k", ValueType::Key, "s", "l", NULL, -2, 100, NULL, 0, 5, NULL, false, false,
-		COREAPI_ALWAYS, COREAPI_NO_FIELD };
+		COREAPI_ALWAYS, COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 	REQUIRE(descriptorIsSane(d));
 
 	d.default_int = 101;
@@ -77,7 +77,7 @@ TEST_CASE("a key row is sane between bounds that hold its default and names no w
 	REQUIRE_FALSE(descriptorIsSane(d));
 	d.min = -2;
 
-	const EnumValue words[] = { { -2, "a" } };
+	const EnumValue words[] = { { -2, "a", NULL, NULL, NULL, 0 } };
 	d.values = words;
 	d.value_count = 1;
 	REQUIRE_FALSE(descriptorIsSane(d));

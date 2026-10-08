@@ -49,10 +49,10 @@ SECTION_FLOOR=10
 tmp=`mktemp -d`
 trap 'rm -rf "$tmp"' EXIT
 
-# The third string of a row is its section.
+# A row names its section with .section().
 awk -v keepstrings=1 -f "$HERE/strip-comments.awk" "$SRC"/src/coreapi/settings/settingstable*.cpp \
-	| grep -oE '"[A-Za-z_0-9]+", ValueType::[A-Za-z]+, "[a-z_]+"' \
-	| sed -E 's/.*"([a-z_]+)"$/\1/' | sort -u > "$tmp/sections"
+	| grep -oE '\.section\("[a-z_]+"\)' \
+	| sed -E 's/^\.section\("([a-z_]+)"\)$/\1/' | sort -u > "$tmp/sections"
 
 awk -v keepstrings=1 -f "$HERE/strip-comments.awk" "$APPLIERS" \
 	| grep -oE '\{[ 	]*"[a-z_]+",[ 	]*&[A-Za-z_0-9]+' \
