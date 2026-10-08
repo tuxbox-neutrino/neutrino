@@ -20,6 +20,7 @@
 
 #include "support/catch.hpp"
 #include "coreapi/base/schema.h"
+#include "support/conditions.h"
 
 #include <cstring>
 
@@ -723,4 +724,131 @@ TEST_CASE("a text rule has to be possible and its row's default has to keep it",
 	d.text = &backwards;
 	d.default_string = "";
 	REQUIRE_FALSE(descriptorIsSane(d));
+}
+
+TEST_CASE("a text condition holds for a real key and not for the placeholder", "[schema]")
+{
+	static const Condition c[] = { { "k_key", CompareOp::TextValid, 0, NULL, 0, "XXXX", NULL, 0 } };
+	Descriptor d = rowWithConditions(c, 1);
+	REQUIRE(conditionsHold(d, textLookup("k_key", "abcd")));
+	REQUIRE_FALSE(conditionsHold(d, textLookup("k_key", "XXXX")));
+	REQUIRE_FALSE(conditionsHold(d, textLookup("k_key", "")));
+}
+
+TEST_CASE("a text condition nobody can read text for leaves the setting shown", "[schema]")
+{
+	static const Condition c[] = { { "k_key", CompareOp::TextValid, 0, NULL, 0, "XXXX", NULL, 0 } };
+	Descriptor d = rowWithConditions(c, 1);
+
+	// A lookup that knows numbers only, and one that knows the text of another key.
+	REQUIRE(conditionsHold(d, numberLookup({{"k_key", 0}})));
+	REQUIRE(conditionsHold(d, textLookup("other", "")));
+}
+
+TEST_CASE("a text condition without a placeholder asks only for some text", "[schema]")
+{
+	static const Condition none[] = { { "k_key", CompareOp::TextValid, 0, NULL, 0, NULL, NULL, 0 } };
+	Descriptor d = rowWithConditions(none, 1);
+	REQUIRE(conditionsHold(d, textLookup("k_key", "abcd")));
+	REQUIRE_FALSE(conditionsHold(d, textLookup("k_key", "")));
+
+	static const Condition empty[] = { { "k_key", CompareOp::TextValid, 0, NULL, 0, "", NULL, 0 } };
+	Descriptor e = rowWithConditions(empty, 1);
+	REQUIRE(conditionsHold(e, textLookup("k_key", "abcd")));
+	REQUIRE_FALSE(conditionsHold(e, textLookup("k_key", "")));
+}
+
+TEST_CASE("a text condition without its placeholder is not sane", "[schema]")
+{
+	Condition c[] = { { "k_key", CompareOp::TextValid, 0, NULL, 0, NULL, NULL, 0 } };
+	Descriptor d = rowWithConditions(c, 1);
+	REQUIRE_FALSE(descriptorIsSane(d));
+
+	c[0].text = "XXXX";
+	REQUIRE(descriptorIsSane(d));
+}
+
+TEST_CASE("an or group holds when one member holds", "[schema]")
+{
+	static const Condition any[] = {
+		{ "a", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 },
+		{ "b", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 } };
+	static const Condition c[] = { { NULL, CompareOp::Eq, 0, NULL, 0, NULL, COREAPI_ANY(any) } };
+	Descriptor d = rowWithConditions(c, 1);
+	REQUIRE(conditionsHold(d, numberLookup({{"a",0},{"b",1}})));
+	REQUIRE_FALSE(conditionsHold(d, numberLookup({{"a",0},{"b",0}})));
+}
+
+TEST_CASE("an or group is one entry of a list that stays a conjunction", "[schema]")
+{
+	static const Condition any[] = {
+		{ "a", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 },
+		{ "b", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 } };
+	static const Condition c[] = {
+		{ NULL, CompareOp::Eq, 0, NULL, 0, NULL, COREAPI_ANY(any) },
+		{ "on", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 } };
+	Descriptor d = rowWithConditions(c, 2);
+	REQUIRE(descriptorIsSane(d));
+	REQUIRE(conditionsHold(d, numberLookup({{"a",1},{"b",0},{"on",1}})));
+	REQUIRE_FALSE(conditionsHold(d, numberLookup({{"a",1},{"b",0},{"on",0}})));
+	REQUIRE_FALSE(conditionsHold(d, numberLookup({{"a",0},{"b",0},{"on",1}})));
+}
+
+TEST_CASE("an or group member nobody can answer for leaves the setting shown", "[schema]")
+{
+	static const Condition any[] = {
+		{ "a", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 },
+		{ "absent", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 } };
+	static const Condition c[] = { { NULL, CompareOp::Eq, 0, NULL, 0, NULL, COREAPI_ANY(any) } };
+	Descriptor d = rowWithConditions(c, 1);
+	REQUIRE(conditionsHold(d, numberLookup({{"a",0}})));
+	REQUIRE_FALSE(conditionsHold(d, numberLookup({{"a",0},{"absent",0}})));
+}
+
+TEST_CASE("an or group with no members, a key or a group inside it is not sane", "[schema]")
+{
+	Condition inner[] = { { "x", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 } };
+	Condition any[] = {
+		{ "a", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 },
+		{ "b", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 } };
+	Condition c[] = { { NULL, CompareOp::Eq, 0, NULL, 0, NULL, COREAPI_ANY(any) } };
+	Descriptor d = rowWithConditions(c, 1);
+	REQUIRE(descriptorIsSane(d));
+
+	c[0].any_count = 0;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	c[0].any_count = 2;
+
+	c[0].any_of = NULL;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	c[0].any_of = any;
+
+	c[0].key = "a";
+	REQUIRE_FALSE(descriptorIsSane(d));
+	c[0].key = NULL;
+
+	// A member is held to every rule a comparison is held to.
+	any[1].key = NULL;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	any[1].key = "b";
+
+	any[1].op = CompareOp::TextValid;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	any[1].op = CompareOp::Ne;
+
+	// Refused as a group even where it would pass as a comparison.
+	any[1].any_of = inner;
+	any[1].any_count = 1;
+	REQUIRE_FALSE(descriptorIsSane(d));
+}
+
+TEST_CASE("a group inside a group is passed over by the evaluator rather than walked", "[schema]")
+{
+	static const Condition inner[] = { { "x", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 } };
+	static const Condition any[] = {
+		{ "a", CompareOp::Ne, 0, NULL, 0, NULL, NULL, 0 },
+		{ NULL, CompareOp::Eq, 0, NULL, 0, NULL, COREAPI_ANY(inner) } };
+	static const Condition c[] = { { NULL, CompareOp::Eq, 0, NULL, 0, NULL, COREAPI_ANY(any) } };
+	Descriptor d = rowWithConditions(c, 1);
+	REQUIRE(conditionsHold(d, numberLookup({{"a",0},{"x",0}})));
 }

@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <map>
 #include <string>
+#include <vector>
 
 /* The table held to its own rules, which is the part no reading of the program's source
    can answer. Whether a row says what the program says is checked beside this; whether
@@ -89,17 +90,56 @@ const Descriptor kDangling[] =
 // and how many were looked at. Written once and driven over the fixtures as
 // well as over the shipped table, so what the case below asserts is what it
 // proves it can refuse.
+// Every comparison a row carries, those inside a group included, because a
+// group names no key of its own.
+std::vector<const Condition *> comparisonsOf(const Descriptor &d)
+{
+	std::vector<const Condition *> out;
+	for (size_t c = 0; d.conditions != NULL && c < d.condition_count; ++c)
+	{
+		const Condition &one = d.conditions[c];
+		if (!conditionIsGroup(one))
+		{
+			out.push_back(&one);
+			continue;
+		}
+		for (size_t m = 0; one.any_of != NULL && m < one.any_count; ++m)
+			out.push_back(&one.any_of[m]);
+	}
+	return out;
+}
+
+/* Why a comparison cannot be answered, empty where it can: its key names no row,
+   or a text test names a number or a number test names text. Either way the
+   reader is handed nothing and the setting is shown every time. */
+std::string conditionFault(const Condition &c)
+{
+	if (c.key == NULL)
+		return "names no declared key";
+	const Result<Descriptor> target = settings::describe(c.key);
+	if (!target.ok())
+		return "names no declared key";
+	const bool text = target.value().type == ValueType::String;
+	if ((c.op == CompareOp::TextValid) != text)
+		return text ? "compares text as a number" : "tests a number as text";
+	return "";
+}
+
+// Every condition of the installed table that names a key the table declares,
+// and how many were looked at. Written once and driven over the fixtures as
+// well as over the shipped table, so what the case below asserts is what it
+// proves it can refuse.
 size_t danglingConditions(size_t &looked)
 {
 	size_t bad = 0;
 	looked = 0;
 	for (size_t i = 0; i < settingsTableCount(); ++i)
 	{
-		const Descriptor &d = settingsTable()[i];
-		for (size_t c = 0; c < d.condition_count; ++c)
+		const std::vector<const Condition *> all = comparisonsOf(settingsTable()[i]);
+		for (size_t c = 0; c < all.size(); ++c)
 		{
 			++looked;
-			if (!settings::describe(d.conditions[c].key).ok())
+			if (!conditionFault(*all[c]).empty())
 				++bad;
 		}
 	}
@@ -137,11 +177,12 @@ TEST_CASE("every condition the program declares names a key it declares", "[sett
 	for (size_t i = 0; i < settingsTableCount(); ++i)
 	{
 		const Descriptor &d = settingsTable()[i];
-		for (size_t c = 0; c < d.condition_count; ++c)
+		const std::vector<const Condition *> all = comparisonsOf(d);
+		for (size_t c = 0; c < all.size(); ++c)
 		{
 			++looked;
-			INFO("row " << d.key << " is shown when " << d.conditions[c].key << " holds");
-			CHECK(settings::describe(d.conditions[c].key).ok());
+			INFO("row " << d.key << " is shown when " << (all[c]->key ? all[c]->key : "(none)") << " holds");
+			CHECK(conditionFault(*all[c]) == "");
 		}
 	}
 
@@ -808,3 +849,4 @@ TEST_CASE("the cover key's default follows the favourites key as it is set", "[s
 	store.ints["key_favorites"] = defaultInt(*favorites) + 1;
 	CHECK(defaultInt(*cover) == defaultInt(*favorites) + 1);
 }
+
