@@ -575,7 +575,8 @@ void fillLocaleFromSchema(FakeLocaleSource &cat)
 		if (d.hint_key != NULL)
 			cat.texts[d.hint_key] = "hint text";
 		for (size_t v = 0; d.values != NULL && v < d.value_count; ++v)
-			cat.texts[d.values[v].label_key] = "choice text";
+			if (d.values[v].label_key != NULL)
+				cat.texts[d.values[v].label_key] = "choice text";
 	}
 }
 

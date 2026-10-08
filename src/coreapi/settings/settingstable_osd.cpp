@@ -299,6 +299,14 @@ constexpr EnumValue kScreensaverTimeoutOff[] =
 	option(0).label("options.off")
 };
 
+// The driver's formats, src/driver/screenshot.h:40.
+constexpr EnumValue kScreenshotFormat[] =
+{
+	option(0).text("PNG"),
+	option(1).text("JPEG"),
+	option(2).text("BMP")
+};
+
 constexpr Descriptor kOsd[] =
 {
 	// src/neutrino.cpp:702 src/gui/osd_setup.cpp:711
@@ -716,17 +724,13 @@ constexpr Descriptor kOsd[] =
 		.range(1, 5)
 		.defaultValue(1)
 		.field(COREAPI_NUMBER_FIELD(screenshot_count)),
-	/* A number and not a choice. The screen names its three formats in words
-	   of its own rather than by a locale, so a choice here would offer names
-	   nothing else in the program has, and the range is the enumeration the
-	   driver takes. */
 	// src/neutrino.cpp:1039 src/gui/osd_setup.cpp:1818 src/driver/screenshot.h:40
-	intRow("screenshot_format")
+	enumRow("screenshot_format")
 		.section("osd")
 		.label("screenshot.format")
 		.hint("menu.hint_screenshot_format")
-		.range(0, 2)
 		.defaultValue(1)
+		.values(kScreenshotFormat)
 		.field(COREAPI_NUMBER_FIELD(screenshot_format)),
 	// src/neutrino.cpp:1040 src/gui/osd_setup.cpp:1822
 	enumRow("screenshot_mode")

@@ -153,6 +153,33 @@ constexpr EnumValue kAdzapZap[] =
 	option(2).label("adzap.zap_to_start_channel")
 };
 
+constexpr EnumValue kCpuFreq[] =
+{
+	option(0).label("cpu.freq_default"),
+	option(50).text("50 Mhz"),
+	option(100).text("100 Mhz"),
+	option(150).text("150 Mhz"),
+	option(200).text("200 Mhz"),
+	option(250).text("250 Mhz"),
+	option(300).text("300 Mhz"),
+	option(350).text("350 Mhz"),
+	option(400).text("400 Mhz"),
+	option(450).text("450 Mhz"),
+	option(500).text("500 Mhz"),
+	option(550).text("550 Mhz"),
+	option(600).text("600 Mhz")
+};
+
+constexpr EnumValue kSleeptimerMin[] =
+{
+	option(0).text("EPG"),
+	option(30).text("30 min"),
+	option(60).text("60 min"),
+	option(90).text("90 min"),
+	option(120).text("120 min"),
+	option(150).text("150 min")
+};
+
 constexpr Descriptor kMisc[] =
 {
 	// general
@@ -209,16 +236,14 @@ constexpr Descriptor kMisc[] =
 		.defaultValue(0)
 		.field(COREAPI_NUMBER_FIELD_ON(shutdown_block_while_recording, canShutdown, NULL)),
 	/* Minutes, and nought says the box takes the length off the programme it is
-	   showing. A number and not a choice, because the screen names its six
-	   under literal words rather than locales and no scan can read that table.
-	   Bound: the last of the six, src/gui/miscsettings_menu.cpp:253. */
+	   showing. The six the screen offers, src/gui/miscsettings_menu.cpp:253. */
 	// src/neutrino.cpp:723 src/gui/miscsettings_menu.cpp:455
-	intRow("sleeptimer_min")
+	enumRow("sleeptimer_min")
 		.section("misc")
 		.label("miscsettings.sleeptimer_min")
 		.hint("menu.hint_sleeptimer_min")
-		.range(0, 150)
 		.defaultValue(0)
+		.values(kSleeptimerMin)
 		.field(COREAPI_NUMBER_FIELD(sleeptimer_min)),
 
 	// epg
@@ -528,24 +553,23 @@ constexpr Descriptor kMisc[] =
 		.defaultValue(1)
 		.field(COREAPI_NUMBER_FIELD(streaming_decryptmode)),
 
-	/* The two below are numbers and not choices, because the screen names its
-	   thirteen steps under literal words rather than locales. Bound: nought and
-	   the last of the thirteen, src/gui/miscsettings_menu.cpp:218. Both are
-	   offered only where the box can change its clock, and the loader forces a
-	   value where it cannot, nought for the first and fifty for the second. */
+	/* The thirteen steps the screen offers, src/gui/miscsettings_menu.cpp:218.
+	   Both rows are offered only where the box can change its clock, and the
+	   loader forces a value where it cannot, nought for the first and fifty for
+	   the second. */
 	// src/neutrino.cpp:578 src/gui/miscsettings_menu.cpp:774
-	intRow("cpufreq")
+	enumRow("cpufreq")
 		.section("misc")
 		.label("cpu.freq_normal")
-		.range(0, 600)
 		.defaultValue(0)
+		.values(kCpuFreq)
 		.field(COREAPI_NUMBER_FIELD_ON(cpufreq, canCpufreq, NULL)),
 	// src/neutrino.cpp:579 src/gui/miscsettings_menu.cpp:775
-	intRow("standby_cpufreq")
+	enumRow("standby_cpufreq")
 		.section("misc")
 		.label("cpu.freq_standby")
-		.range(0, 600)
 		.defaultValue(100)
+		.values(kCpuFreq)
 		.field(COREAPI_NUMBER_FIELD_ON(standby_cpufreq, canCpufreq, NULL)),
 
 	/* What follows has no item on any screen, or an item a screen offers

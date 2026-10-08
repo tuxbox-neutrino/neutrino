@@ -41,6 +41,15 @@ constexpr EnumValue kCiMode[] =
 	option(2).label("ci.mode_2")
 };
 
+constexpr EnumValue kCiDelay[] =
+{
+	option(16).text("16"),
+	option(32).text("32"),
+	option(64).text("64"),
+	option(128).text("128"),
+	option(256).text("256")
+};
+
 constexpr Descriptor kCam[] =
 {
 	// src/neutrino.cpp:582 src/gui/cam_menu.cpp:162
@@ -85,16 +94,14 @@ constexpr Descriptor kCam[] =
 		.field(COREAPI_NUMBER_FIELD(ci_tuner)),
 #if BOXMODEL_VUPLUS_ALL
 	/* Behind the arm the settings struct puts the field behind,
-	   src/system/settings.h:423. A number and not a choice: the screen names
-	   its five values with literal digits rather than locales,
-	   src/gui/cam_menu.cpp:88, so a choice here would offer words the program
-	   does not have. The bounds are the first and the last of those five. */
+	   src/system/settings.h:423. The five values the screen offers,
+	   src/gui/cam_menu.cpp:88. */
 	// src/neutrino.cpp:588 src/gui/cam_menu.cpp:160
-	intRow("ci_delay")
+	enumRow("ci_delay")
 		.section("cam")
 		.label("ci.delay")
-		.range(16, 256)
 		.defaultValue(128)
+		.values(kCiDelay)
 		.field(COREAPI_NUMBER_FIELD_ON(ci_delay, hasCiSlot, NULL)),
 #endif
 };

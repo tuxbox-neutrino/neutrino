@@ -446,15 +446,24 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		}
 		for (size_t i = 0; d.values != NULL && i < d.value_count; ++i)
 		{
+			// An entry this box lacks is not offered, as the write turns it down.
+			if (!coreapi::entryOffered(d.values[i]))
+				continue;
 			j.beginObject();
 			j.key("value");
 			j.value(d.values[i].value);
-			/* The schema declares this member always present, which check-locale-catalog.sh is
-			   what makes true. A schema entry is not the compiler, so this still asks, and answers
-			   the one way a resolve that somehow failed could be told apart from one that held:
-			   leaving the field out rather than answering a choice with its key. */
+			/* The words of an entry the box names itself are the text. The schema declares
+			   this member always present, which check-locale-catalog.sh makes true for the
+			   rest. A schema entry is not the compiler, so this still asks, and answers the one
+			   way a resolve that somehow failed could be told apart from one that held: leaving
+			   the field out rather than answering a choice with its key. */
 			std::string text;
-			if (coreapi::settings::resolveLabel(d.values[i].label_key, text))
+			if (d.values[i].label_text != NULL)
+			{
+				j.key("label");
+				j.value(d.values[i].label_text);
+			}
+			else if (coreapi::settings::resolveLabel(d.values[i].label_key, text))
 			{
 				j.key("label");
 				j.value(text);

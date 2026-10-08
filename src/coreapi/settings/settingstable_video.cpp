@@ -92,6 +92,20 @@ long zappingModeDefault()
 }
 #endif
 
+constexpr EnumValue kHdmiColorimetry[] =
+{
+#if BOXMODEL_VUPLUS_ARM
+	option(0).label("videomenu.hdmi_colorimetry_auto"),
+	option(1).label("videomenu.hdmi_colorimetry_bt709"),
+	option(2).label("videomenu.hdmi_colorimetry_bt470")
+#else
+	option(0).label("videomenu.hdmi_colorimetry_auto"),
+	option(1).label("videomenu.hdmi_colorimetry_bt2020ncl"),
+	option(2).label("videomenu.hdmi_colorimetry_bt2020cl"),
+	option(3).label("videomenu.hdmi_colorimetry_bt709")
+#endif
+};
+
 constexpr Descriptor kVideo[] =
 {
 	/* The screen drops the third choice where the box cannot draw 14:9, which
@@ -141,21 +155,15 @@ constexpr Descriptor kVideo[] =
 		.defaultFrom(zappingModeDefault)
 		.values(kZappingMode)
 		.field(COREAPI_NUMBER_FIELD_ON(zappingmode, takesZappingMode, NULL)),
-	/* A number and not a choice, and the ceiling differs by box: the same
-	   stored number names a different colorimetry on the two arms below, so no
-	   one list of values describes both.
-	   src/gui/videosettings.cpp:369 offers three, :377 offers four. */
+	/* The same stored number names a different colorimetry on the two arms of
+	   the list: src/gui/videosettings.cpp:369 offers three, :377 offers four. */
 	// src/neutrino.cpp:575 src/gui/videosettings.cpp:560
-	intRow("hdmi_colorimetry")
+	enumRow("hdmi_colorimetry")
 		.section("video")
 		.label("videomenu.hdmi_colorimetry")
 		.hint("menu.hint_video_hdmi_colorimetry")
-#if BOXMODEL_VUPLUS_ARM
-		.range(0, 2)
-#else
-		.range(0, 3)
-#endif
 		.defaultValue(0)
+		.values(kHdmiColorimetry)
 		.field(COREAPI_NUMBER_FIELD_ON(hdmi_colorimetry, takesHdmiColorimetry, NULL)),
 	/* The five below are edited by src/gui/psisetup.cpp, which holds each of
 	   the four values to 0..255 at :206 and :215 and states no bound for the

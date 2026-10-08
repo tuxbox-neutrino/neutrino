@@ -730,9 +730,13 @@ TEST_CASE("every value a choice offers names a locale the program has", "[settin
 			++checked;
 			INFO("row " << d.key << " offers " << d.values[v].value
 			     << " as " << (d.values[v].label_key ? d.values[v].label_key : "(none)"));
-			CHECK(d.values[v].label_key != NULL);
-			if (d.values[v].label_key != NULL)
-				CHECK(localeNames().count(d.values[v].label_key) == 1);
+			// An entry with a text of its own, such as a format name, has no locale to name.
+			if (d.values[v].label_key == NULL)
+			{
+				CHECK(d.values[v].label_text != NULL);
+				continue;
+			}
+			CHECK(localeNames().count(d.values[v].label_key) == 1);
 		}
 	}
 

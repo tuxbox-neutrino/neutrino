@@ -51,21 +51,25 @@ constexpr EnumValue kDefaultLocked[] =
 	option(1).label("parentallock.defaultlocked")
 };
 
+constexpr EnumValue kPrompt[] =
+{
+	option(0).label("parentallock.never"),
+	option(2).label("parentallock.changetolocked"),
+	option(3).label("parentallock.onsignal")
+};
+
 constexpr Descriptor kSettings[] =
 {
-	/* A number and not a choice. The screen's table carries a fourth entry
-	   naming a locale the program no longer has,
-	   src/gui/parentallock_setup.cpp:78, so the scan that holds a choice to the
-	   screen cannot read the table at all. The range is the enum's,
-	   src/system/settings.h:1425-1428, and one of the four is the entry the
-	   screen keeps in an arm it never takes. */
+	/* The three the screen offers, src/gui/parentallock_setup.cpp:78; the fourth
+	   of the enum, src/system/settings.h:1425-1428, sits in an arm the screen
+	   never takes and names a locale the program no longer has. */
 	// src/neutrino.cpp:1129 src/gui/parentallock_setup.cpp:111
-	intRow("parentallock_prompt")
+	enumRow("parentallock_prompt")
 		.section("parental")
 		.label("parentallock.prompt")
 		.hint("menu.hint_parentallock_prompt")
-		.range(0, 3)
 		.defaultValue(0)
+		.values(kPrompt)
 		.field(COREAPI_NUMBER_FIELD(parentallock_prompt)),
 	// src/neutrino.cpp:1130 src/gui/parentallock_setup.cpp:115
 	enumRow("parentallock_lockage")

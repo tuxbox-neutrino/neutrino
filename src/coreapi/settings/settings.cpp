@@ -187,18 +187,9 @@ Result<void> allowedByRow(const Descriptor &d, long value)
 		}
 
 		case ValueType::Enum:
-			/* A row whose set is the box's own carries no list here, and the value is held to what
-			   the box offers by the caller of this. Answering not a listed value from here would
-			   refuse every value such a row has. */
-			if (d.field.choices != NULL)
-				return ok();
-			for (size_t i = 0; d.values != NULL && i < d.value_count; ++i)
-			{
-				if (d.values[i].value == value)
-					return ok();
-			}
-			return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
-				    "the setting does not offer that value");
+			// Held to what the row offers by the caller, which asks the one function
+			// that also leaves out what the box lacks.
+			return ok();
 
 		case ValueType::Key:
 			if (value < d.min || value > d.max)
@@ -323,14 +314,26 @@ bool valuesOffered(const Descriptor &d, std::vector<SettingChoice> &out)
 	listed.reserve(d.value_count);
 	for (size_t i = 0; i < d.value_count; ++i)
 	{
+		const EnumValue &e = d.values[i];
+		if (!entryOffered(e))
+			continue;
 		SettingChoice one;
-		one.value = d.values[i].value;
-		/* The text and not the name of it, because that is what the other kind
-		   answers with and a caller must not have to tell the two apart. A name
-		   the catalog carries nothing under leaves the text empty. */
-		resolveLabel(d.values[i].label_key, one.label);
+		one.value = e.value;
+		if (e.label_text != NULL)
+			one.label = e.label_text;
+		else
+		{
+			/* The text and not the name of it, because that is what the other kind
+			   answers with and a caller must not have to tell the two apart. A name
+			   the catalog carries nothing under leaves the text empty. */
+			if (e.label_key != NULL)
+				one.label_key = e.label_key;
+			resolveLabel(e.label_key, one.label);
+		}
 		listed.push_back(one);
 	}
+	if (listed.empty())
+		return false;
 	out.swap(listed);
 	return true;
 }
@@ -626,16 +629,20 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 	if (!allowed.ok())
 		return fail(allowed.error());
 
-	/* A row whose set is the box's own is held to what the box offers rather than to a list
-	   nothing here has. Every value is refused while nobody can say what the set is: taking
-	   one then would write a number the box cannot show, which is a picture nobody gets back
-	   from with the remote control. */
-	if (d->field.choices != NULL)
+	/* Held to what the box offers, which leaves out the entries it lacks. Every value is
+	   refused while nobody can say what the set is: taking one then would write a number the
+	   box cannot show, which is a picture nobody gets back from with the remote control. */
+	if (d->type == ValueType::Enum)
 	{
 		std::vector<SettingChoice> offered;
 		if (!valuesOffered(*d, offered))
-			return fail(Status::InvalidArgument, ErrorCode::ChoicesUnavailable,
-				    "the values this setting offers are the box's own and nothing has said what they are");
+		{
+			if (d->field.choices != NULL)
+				return fail(Status::InvalidArgument, ErrorCode::ChoicesUnavailable,
+					    "the values this setting offers are the box's own and nothing has said what they are");
+			return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+				    "the setting does not offer that value");
+		}
 
 		bool listed = false;
 		for (size_t i = 0; !listed && i < offered.size(); ++i)
