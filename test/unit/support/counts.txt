@@ -53,10 +53,10 @@ listed keys compared against the table	25
 locale names the program has	3083
 memory backed folders tried	1
 options an applier or its notifier branches on	49
-parameters the document describes	185
-refusals the document states against a route	1211
-refusals the routes declare of their own	224
-refusals the shipped routes were seen to give	314
+parameters the document describes	186
+refusals the document states against a route	1215
+refusals the routes declare of their own	225
+refusals the shipped routes were seen to give	315
 routes the document describes	131
 rows an applier acts on	25
 rows compared against the load and save pass	353

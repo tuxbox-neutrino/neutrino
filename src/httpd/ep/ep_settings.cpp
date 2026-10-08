@@ -36,6 +36,8 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <map>
+#include <set>
 #include <cstring>
 #include <string>
 #include <utility>
@@ -215,6 +217,9 @@ const FieldDesc kSettingFields[] = {
 		"shows in words instead, such as off, which it accepts beside min to max; for a text setting "
 		"the texts the box offers right now, where an empty list is a box that cannot say and any "
 		"text the setting's other rules allow is taken"),
+	HTTPD_MEMBER_OPTIONAL("values_from", FieldType::String,
+		"instead of values, for a list that several settings of this answer carry alike: the name of that list "
+		"under the answer's value_lists, whose entries are read exactly as values would be"),
 	HTTPD_MEMBER_OPTIONAL("listed", FieldType::Bool,
 		"present and true only for an int whose values are every number it accepts on this box, "
 		"each named, such as the tuners it has, beside the value already stored and the default, "
@@ -236,10 +241,10 @@ const FieldDesc kSettingFields[] = {
 		"the file name endings a file setting accepts, separated by commas, absent for any"),
 	HTTPD_MEMBER("default", FieldType::String,
 		"what the box falls back to, rendered the way a value is, and empty for a setting held to be a credential"),
-	HTTPD_MEMBER("needs_restart", FieldType::Bool,
-		"whether the box has to be restarted before it takes effect"),
-	HTTPD_MEMBER("secret", FieldType::Bool,
-		"whether the setting is a credential, which is described here and never valued"),
+	HTTPD_MEMBER_OPTIONAL("needs_restart", FieldType::Bool,
+		"present and true only where the box has to be restarted before the setting takes effect; absent means false"),
+	HTTPD_MEMBER_OPTIONAL("secret", FieldType::Bool,
+		"present and true only for a credential, which is described here and never valued; absent means false"),
 	HTTPD_LIST_OF("conditions", &kConditionSchema,
 		"every comparison that has to hold before the setting is worth showing, all of them together, empty for one always shown"),
 	HTTPD_MEMBER_OPTIONAL("locked", FieldType::Bool,
@@ -266,6 +271,9 @@ const FieldDesc kSettingFields[] = {
 const Schema kSettingSchema = { "setting", HTTPD_FIELDS(kSettingFields) };
 
 const FieldDesc kSettingListFields[] = {
+	HTTPD_NAMED_LISTS_OPTIONAL("value_lists", &kEnumValueSchema,
+		"present only when two or more settings of the answer carry the same list of choices: each such list "
+		"once, under the name those settings give in values_from; a list only one setting carries stays with it"),
 	HTTPD_LIST_OF("items", &kSettingSchema,
 		"every setting declared, in the order the tables state them"),
 };
@@ -351,7 +359,152 @@ void appendComparison(Json &j, const coreapi::Condition &c)
 /* One declared setting. Nothing here withholds anything: the layer below answers a
    schema with the default of a credential already taken out, and reading the tables
    directly from here would hand a caller the value that the read of it refuses. */
-void appendDescriptor(Json &j, const coreapi::Descriptor &d)
+/* Built before any row is written, because whether a list is shared depends on all rows. */
+struct RowValues
+{
+	RowValues() : has(false), listed(false) {}
+	bool        has;
+	bool        listed;
+	std::string json;
+	std::string from;
+};
+
+void valuesOf(const coreapi::Descriptor &d, RowValues &out)
+{
+	Json j(out.json);
+
+	// Every value the box shows in words rather than as the number.
+	if (d.type == coreapi::ValueType::Int && d.choices_from == NULL && d.values != NULL && d.value_count > 0)
+	{
+		out.has = true;
+		j.beginArray();
+		for (size_t i = 0; i < d.value_count; ++i)
+		{
+			const coreapi::EnumValue &named = d.values[i];
+			std::string words;
+			coreapi::settings::resolveLabel(named.label_key, words);
+			j.beginObject();
+			j.key("value");
+			j.value((long) named.value);
+			j.key("label");
+			j.value(words);
+			j.endObject();
+		}
+		j.endArray();
+		return;
+	}
+
+	if (d.type == coreapi::ValueType::Enum)
+	{
+		/* A setting whose values the box decides carries none of its own, so the layer is
+		   asked for them and a caller reads one member either way.
+
+		   Every row reaching this branch is a choice, and one whose values are the box's own
+		   answers nothing while the box cannot be asked. A caller that finds it empty has a
+		   setting it cannot draw a chooser for at this moment, not one it may offer as free
+		   text, and a write is refused for as long as that lasts, but for the value already
+		   stored and the default, which are no new pick. */
+		out.has = true;
+		j.beginArray();
+		if (d.field.choices != NULL)
+		{
+			coreapi::Result<std::vector<coreapi::SettingChoice> > asked =
+				coreapi::settings::choices(d.key);
+			if (asked.ok())
+			{
+				const std::vector<coreapi::SettingChoice> &offered = asked.value();
+				for (size_t i = 0; i < offered.size(); ++i)
+				{
+					j.beginObject();
+					j.key("value");
+					j.value(offered[i].value);
+					/* Always here, unlike the branch below: these words are the text itself and not the
+					   name of one, so there is no catalog that could fail to carry them. An empty one is a
+					   value the box offers under no wording, which a caller may still write. */
+					j.key("label");
+					j.value(offered[i].label);
+					j.endObject();
+				}
+			}
+		}
+		for (size_t i = 0; d.values != NULL && i < d.value_count; ++i)
+		{
+			// An entry this box lacks is not offered, as the write turns it down.
+			if (!coreapi::entryOffered(d.values[i]))
+				continue;
+			j.beginObject();
+			j.key("value");
+			j.value(d.values[i].value);
+			/* The words of an entry the box names itself are the text. The schema declares
+			   this member always present, which check-locale-catalog.sh makes true for the
+			   rest. A schema entry is not the compiler, so this still asks, and answers the one
+			   way a resolve that somehow failed could be told apart from one that held: leaving
+			   the field out rather than answering a choice with its key. */
+			std::string text;
+			if (d.values[i].label_text != NULL)
+			{
+				j.key("label");
+				j.value(d.values[i].label_text);
+			}
+			else if (coreapi::settings::resolveLabel(d.values[i].label_key, text))
+			{
+				j.key("label");
+				j.value(text);
+			}
+			j.endObject();
+		}
+		j.endArray();
+		return;
+	}
+
+	if ((d.type == coreapi::ValueType::String || d.type == coreapi::ValueType::Int) && d.choices_from != NULL)
+	{
+		/* The values the box offers, a text each under the text it stores and a number under
+		   its number. Empty is a box that cannot say what it has, and then the row's other
+		   rules alone hold: a caller offers free text or a free number rather than nothing. */
+		out.has = true;
+		j.beginArray();
+		coreapi::Result<std::vector<coreapi::SettingChoice> > asked =
+			coreapi::settings::choices(d.key);
+		if (asked.ok())
+		{
+			const std::vector<coreapi::SettingChoice> &offered = asked.value();
+			for (size_t i = 0; i < offered.size(); ++i)
+			{
+				j.beginObject();
+				j.key("value");
+				j.value(d.type == coreapi::ValueType::String ? 0L : offered[i].value);
+				if (d.type == coreapi::ValueType::String)
+				{
+					j.key("text");
+					j.value(offered[i].text);
+				}
+				j.key("label");
+				j.value(offered[i].label);
+				j.endObject();
+			}
+		}
+		j.endArray();
+		// A number with its list stated is every number it takes on this box.
+		out.listed = d.type == coreapi::ValueType::Int && asked.ok();
+	}
+}
+
+/* The name a list is stated under when several rows share it. The text of the list itself
+   decides it, so in practice the same list has the same name whichever section the answer
+   was narrowed to; a hash collision inside one answer renames, so a client reads the name
+   per answer. */
+std::string valueListName(const std::string &json)
+{
+	unsigned long h = 2166136261UL;
+	for (size_t i = 0; i < json.size(); ++i)
+		h = ((h ^ (unsigned char) json[i]) * 16777619UL) & 0xffffffffUL;
+	char buf[24];
+	std::snprintf(buf, sizeof(buf), "list-%08lx", h);
+	return buf;
+}
+
+void appendDescriptor(Json &j, const coreapi::Descriptor &d, const RowValues &values)
 {
 	j.beginObject();
 	j.key("id");
@@ -402,120 +555,21 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 			j.key("unit");
 			j.value(d.unit_key);
 		}
+	}
 
-		// Every value the box shows in words rather than as the number.
-		if (d.type == coreapi::ValueType::Int && d.choices_from == NULL && d.values != NULL && d.value_count > 0)
+	if (values.has)
+	{
+		if (values.from.empty())
 		{
 			j.key("values");
-			j.beginArray();
-			for (size_t i = 0; i < d.value_count; ++i)
-			{
-				const coreapi::EnumValue &named = d.values[i];
-				std::string words;
-				coreapi::settings::resolveLabel(named.label_key, words);
-				j.beginObject();
-				j.key("value");
-				j.value((long) named.value);
-				j.key("label");
-				j.value(words);
-				j.endObject();
-			}
-			j.endArray();
+			j.raw(values.json.c_str());
 		}
-	}
-
-	if (d.type == coreapi::ValueType::Enum)
-	{
-		/* A setting whose values the box decides carries none of its own, so the layer is
-		   asked for them and a caller reads one member either way.
-
-		   Every row reaching this branch is a choice, and one whose values are the box's own
-		   answers nothing while the box cannot be asked. A caller that finds it empty has a
-		   setting it cannot draw a chooser for at this moment, not one it may offer as free
-		   text, and a write is refused for as long as that lasts, but for the value already
-		   stored and the default, which are no new pick. */
-		j.key("values");
-		j.beginArray();
-		if (d.field.choices != NULL)
+		else
 		{
-			coreapi::Result<std::vector<coreapi::SettingChoice> > asked =
-				coreapi::settings::choices(d.key);
-			if (asked.ok())
-			{
-				const std::vector<coreapi::SettingChoice> &offered = asked.value();
-				for (size_t i = 0; i < offered.size(); ++i)
-				{
-					j.beginObject();
-					j.key("value");
-					j.value(offered[i].value);
-					/* Always here, unlike the branch below: these words are the text itself and not the
-					   name of one, so there is no catalog that could fail to carry them. An empty one is a
-					   value the box offers under no wording, which a caller may still write. */
-					j.key("label");
-					j.value(offered[i].label);
-					j.endObject();
-				}
-			}
+			j.key("values_from");
+			j.value(values.from);
 		}
-		for (size_t i = 0; d.values != NULL && i < d.value_count; ++i)
-		{
-			// An entry this box lacks is not offered, as the write turns it down.
-			if (!coreapi::entryOffered(d.values[i]))
-				continue;
-			j.beginObject();
-			j.key("value");
-			j.value(d.values[i].value);
-			/* The words of an entry the box names itself are the text. The schema declares
-			   this member always present, which check-locale-catalog.sh makes true for the
-			   rest. A schema entry is not the compiler, so this still asks, and answers the one
-			   way a resolve that somehow failed could be told apart from one that held: leaving
-			   the field out rather than answering a choice with its key. */
-			std::string text;
-			if (d.values[i].label_text != NULL)
-			{
-				j.key("label");
-				j.value(d.values[i].label_text);
-			}
-			else if (coreapi::settings::resolveLabel(d.values[i].label_key, text))
-			{
-				j.key("label");
-				j.value(text);
-			}
-			j.endObject();
-		}
-		j.endArray();
-	}
-
-	if ((d.type == coreapi::ValueType::String || d.type == coreapi::ValueType::Int) && d.choices_from != NULL)
-	{
-		/* The values the box offers, a text each under the text it stores and a number under
-		   its number. Empty is a box that cannot say what it has, and then the row's other
-		   rules alone hold: a caller offers free text or a free number rather than nothing. */
-		j.key("values");
-		j.beginArray();
-		coreapi::Result<std::vector<coreapi::SettingChoice> > asked =
-			coreapi::settings::choices(d.key);
-		if (asked.ok())
-		{
-			const std::vector<coreapi::SettingChoice> &offered = asked.value();
-			for (size_t i = 0; i < offered.size(); ++i)
-			{
-				j.beginObject();
-				j.key("value");
-				j.value(d.type == coreapi::ValueType::String ? 0L : offered[i].value);
-				if (d.type == coreapi::ValueType::String)
-				{
-					j.key("text");
-					j.value(offered[i].text);
-				}
-				j.key("label");
-				j.value(offered[i].label);
-				j.endObject();
-			}
-		}
-		j.endArray();
-		// A number with its list stated is every number it takes on this box.
-		if (d.type == coreapi::ValueType::Int && asked.ok())
+		if (values.listed)
 		{
 			j.key("listed");
 			j.value(true);
@@ -550,10 +604,18 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	j.value((d.type == coreapi::ValueType::String)
 	        ? std::string(d.default_string != NULL ? d.default_string : "")
 	        : decimal(coreapi::defaultInt(d)));
-	j.key("needs_restart");
-	j.value(d.needs_restart);
-	j.key("secret");
-	j.value(d.secret);
+	/* A member at its default is left out: needs_restart and secret false. Most rows are at
+	   both, and a list that states them anyway is a good part of the answer. */
+	if (d.needs_restart)
+	{
+		j.key("needs_restart");
+		j.value(true);
+	}
+	if (d.secret)
+	{
+		j.key("secret");
+		j.value(true);
+	}
 
 	if (coreapi::settings::lockedNow(d.key))
 	{
@@ -613,7 +675,7 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	j.endObject();
 }
 
-Response settingsSchema(const Request &)
+Response settingsSchema(const Request &r)
 {
 	coreapi::Result<std::vector<coreapi::Descriptor> > got = coreapi::settings::schema();
 	if (!got.ok())
@@ -621,13 +683,77 @@ Response settingsSchema(const Request &)
 
 	const std::vector<coreapi::Descriptor> rows = std::move(got).value();
 
+	const bool narrowed = r.has("section");
+	const std::string &section = r.asString("section");
+	if (narrowed)
+	{
+		bool have = false;
+		for (size_t i = 0; !have && i < rows.size(); ++i)
+			have = rows[i].section != NULL && section == rows[i].section;
+		if (!have)
+			return problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchName,
+			                       "no setting is declared under a section of that name");
+	}
+
+	std::vector<size_t> chosen;
+	for (size_t i = 0; i < rows.size(); ++i)
+	{
+		if (!narrowed || (rows[i].section != NULL && section == rows[i].section))
+			chosen.push_back(i);
+	}
+
+	/* A list that two or more rows of this answer carry is stated once under value_lists, and
+	   those rows name it. One row's list stays with the row, and a list no row of this answer
+	   carries is not here. */
+	std::vector<RowValues> values(chosen.size());
+	std::map<std::string, size_t> uses;
+	for (size_t i = 0; i < chosen.size(); ++i)
+	{
+		valuesOf(rows[chosen[i]], values[i]);
+		if (values[i].has && values[i].json != "[]")
+			++uses[values[i].json];
+	}
+	std::map<std::string, std::string> names;
+	std::set<std::string> taken;
+	for (size_t i = 0; i < chosen.size(); ++i)
+	{
+		if (!values[i].has || values[i].json == "[]" || uses[values[i].json] < 2)
+			continue;
+		std::map<std::string, std::string>::const_iterator known = names.find(values[i].json);
+		if (known == names.end())
+		{
+			// Two different lists with one hash would otherwise answer as one.
+			std::string name = valueListName(values[i].json);
+			while (taken.count(name) != 0)
+				name += "x";
+			taken.insert(name);
+			known = names.insert(std::make_pair(values[i].json, name)).first;
+		}
+		values[i].from = known->second;
+	}
+
 	Response out = okJson();
-	Json j(out.body, 32 + 320 * rows.size());
+	Json j(out.body, 32 + 320 * chosen.size());
 	j.beginObject();
+	if (!names.empty())
+	{
+		j.key("value_lists");
+		j.beginObject();
+		// First-use order keeps the answer the same from call to call.
+		std::set<std::string> written;
+		for (size_t i = 0; i < chosen.size(); ++i)
+		{
+			if (values[i].from.empty() || !written.insert(values[i].from).second)
+				continue;
+			j.key(values[i].from.c_str());
+			j.raw(values[i].json.c_str());
+		}
+		j.endObject();
+	}
 	j.key("items");
 	j.beginArray();
-	for (size_t i = 0; i < rows.size(); ++i)
-		appendDescriptor(j, rows[i]);
+	for (size_t i = 0; i < chosen.size(); ++i)
+		appendDescriptor(j, rows[chosen[i]], values[i]);
 	j.endArray();
 	j.endObject();
 	return out;
@@ -1062,6 +1188,10 @@ const Param kSectionParams[] = {
 	HTTPD_SEGMENT_FROM_ASKED_SET("section", "the section's id, take it from GET /api/v1/settings/sections", &sectionNames),
 };
 
+const Param kSchemaParams[] = {
+	HTTPD_QUERY_FROM_ASKED_SET("section", "only the settings of this section, as GET /api/v1/settings/sections names it", &sectionNames),
+};
+
 /* The route that writes a section takes a body the table cannot list, its members being
    whichever settings the caller means to write, and the second row is the one that says
    so rather than leaving a reader of the document with nothing to send.
@@ -1093,6 +1223,11 @@ const Param kClearParams[] = {
 const RouteRefusal kSettingsSectionRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchName,
 		"no settings are declared under a section of that name"),
+};
+
+const RouteRefusal kSettingsSchemaRefusals[] = {
+	HTTPD_REFUSES(NotFound, NoSuchName,
+		"no setting is declared under a section of that name"),
 };
 
 const RouteRefusal kClearSecretRefusals[] = {
@@ -1150,10 +1285,21 @@ const Endpoint kSettingsEndpoints[] = {
 	  "true for a setting the box's parental lock fixes right now, which refuses every write too. Both "
 	  "are left out where they do not apply.\n"
 	  "\n"
+	  "A member at its default is left out: `needs_restart`, `secret` and `listed` are false unless "
+	  "the item says otherwise. A list of choices that several items carry alike is stated once in the "
+	  "answer's `value_lists` object, and each such item names it in `values_from` instead of carrying "
+	  "`values`; read its entries the same way.\n"
+	  "\n"
+	  "`section` narrows the list to one section, which keeps the answer small.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `404 no-such-name`: no setting is declared under a section of that name. Take section ids "
+	  "from `GET /api/v1/settings/sections`.\n"
+	  "\n"
 	  "**Related:** `GET /api/v1/settings/sections`, `GET /api/v1/settings/{section}`, "
 	  "`PATCH /api/v1/settings/{section}`.",
-	  NULL, 0, &kSettingListSchema, &settingsSchema, false,
-	  Answers200, HTTPD_NO_REFUSALS },
+	  HTTPD_PARAMS(kSchemaParams), &kSettingListSchema, &settingsSchema, false,
+	  Answers200, HTTPD_REFUSALS(kSettingsSchemaRefusals) },
 	{ Method::Get, "/api/v1/settings/sections", AuthLevel::Read,
 	  "the sections the settings are laid out in",
 	  "Lists the sections the settings are grouped into, in the order the schema first names each one. "

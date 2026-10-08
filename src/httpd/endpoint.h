@@ -202,6 +202,9 @@ struct Param
 #define HTTPD_QUERY_FROM_CLOSED_SET(name, doc, set, value_docs) \
 	(name), httpd::ParamType::Enum, httpd::In::Query, false, (doc), 0, 0, (set), (value_docs), NULL, true
 
+#define HTTPD_QUERY_FROM_ASKED_SET(name, doc, asks) \
+	(name), httpd::ParamType::String, httpd::In::Query, false, (doc), 0, 0, NULL, NULL, (asks), false
+
 #define HTTPD_QUERY_REQUIRED(name, type, doc) \
 	(name), (type), httpd::In::Query, true, (doc), 0, 0, NULL, NULL, NULL, false
 #define HTTPD_QUERY_REQUIRED_IN(name, type, doc, lo, hi) \

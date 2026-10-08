@@ -468,6 +468,7 @@ bool typeMatches(const ::Json::Value &v, FieldType t)
 		case FieldType::ChannelId: return got == ::Json::stringValue && isHexIdentifier(v.asString());
 		case FieldType::Object: return got == ::Json::objectValue;
 		case FieldType::Array:  return got == ::Json::arrayValue;
+		case FieldType::NamedLists: return got == ::Json::objectValue;
 	}
 	// A value cast into the enum from outside it, which no table here writes.
 	return false;
@@ -486,6 +487,7 @@ const char *typeName(FieldType t)
 		case FieldType::ChannelId: return "channel id";
 		case FieldType::Object: return "object";
 		case FieldType::Array:  return "array";
+		case FieldType::NamedLists: return "named lists";
 	}
 	return "?";
 }
@@ -518,6 +520,19 @@ void checkShape(const ::Json::Value &v, const Schema &s, const std::string &wher
 		{
 			REQUIRE(f.nested != NULL);
 			checkShape(member, *f.nested, where + "." + f.name);
+			continue;
+		}
+		if (f.type == FieldType::NamedLists)
+		{
+			REQUIRE(f.nested != NULL);
+			const ::Json::Value::Members listed = member.getMemberNames();
+			for (size_t n = 0; n < listed.size(); ++n)
+			{
+				INFO("list " << listed[n]);
+				REQUIRE(member[listed[n]].isArray());
+				for (::Json::ArrayIndex e = 0; e < member[listed[n]].size(); ++e)
+					checkShape(member[listed[n]][e], *f.nested, where + "." + f.name + "." + listed[n]);
+			}
 			continue;
 		}
 		if (f.type == FieldType::Array)
@@ -2160,6 +2175,151 @@ TEST_CASE("the schema answers a number's own list and marks it listed", "[endpoi
 		CHECK(items[i]["listed"].asBool());
 	}
 	REQUIRE(seen);
+}
+
+TEST_CASE("the schema states a list several rows share once and names it from each row", "[endpoints][named]")
+{
+	FakeSystemSource unlocked;
+	InstalledSystemSource installed_unlocked(&unlocked);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+	static const coreapi::EnumValue shared[] =
+	{
+		{ 0, "options.off", NULL, NULL, NULL, 0 },
+		{ 1, "options.on", NULL, NULL, NULL, 0 },
+	};
+	static const coreapi::EnumValue alone[] =
+	{
+		{ 0, "options.no", NULL, NULL, NULL, 0 },
+	};
+	static const coreapi::Descriptor rows[] =
+	{
+		{ "t_a", coreapi::ValueType::Int, "fixture", "label", NULL, 0, 9, shared, 2, 0, NULL, false, false,
+		  COREAPI_ALWAYS, COREAPI_NUMBER_FIELD(repeat_blocker), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+		{ "t_b", coreapi::ValueType::Int, "fixture", "label", NULL, 0, 9, shared, 2, 0, NULL, false, false,
+		  COREAPI_ALWAYS, COREAPI_NUMBER_FIELD(repeat_blocker), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+		{ "t_c", coreapi::ValueType::Int, "other", "label", NULL, 0, 9, alone, 1, 0, NULL, false, false,
+		  COREAPI_ALWAYS, COREAPI_NUMBER_FIELD(repeat_blocker), NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	};
+	InstalledSettingsTable table(rows, 3);
+
+	::Json::Value all = parsed(get("/api/v1/settings/schema").body);
+	const ::Json::Value &items = all["items"];
+	REQUIRE(items.size() == 3);
+	REQUIRE(all["value_lists"].isObject());
+	REQUIRE(all["value_lists"].size() == 1);
+	const std::string name = items[0]["values_from"].asString();
+	REQUIRE_FALSE(name.empty());
+	CHECK(items[1]["values_from"].asString() == name);
+	CHECK_FALSE(items[0].isMember("values"));
+	CHECK_FALSE(items[1].isMember("values"));
+	REQUIRE(all["value_lists"][name].size() == 2);
+	CHECK(all["value_lists"][name][1]["value"].asInt() == 1);
+	CHECK(all["value_lists"][name][1].isMember("label"));
+
+	// One row's list stays with the row.
+	CHECK_FALSE(items[2].isMember("values_from"));
+	CHECK(items[2]["values"].size() == 1);
+
+	// Narrowed to the section holding the lone row, no list is shared, so none is stated.
+	const ::Json::Value one = parsed(get("/api/v1/settings/schema?section=other").body);
+	CHECK_FALSE(one.isMember("value_lists"));
+	CHECK(one["items"][0]["values"].size() == 1);
+
+	// Narrowed to the sharing rows, the same list has the same name.
+	const ::Json::Value two = parsed(get("/api/v1/settings/schema?section=fixture").body);
+	CHECK(two["items"][0]["values_from"].asString() == name);
+	CHECK(two["value_lists"].size() == 1);
+
+	// A section no row is declared under is refused rather than answered empty.
+	const Reply none = get("/api/v1/settings/schema?section=nowhere");
+	REQUIRE(none.code == 404);
+	CHECK(none.body.find("no-such-name") != std::string::npos);
+}
+
+TEST_CASE("the schema of the shipped rows states every shared list once", "[endpoints][named]")
+{
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+
+	const ::Json::Value all = parsed(get("/api/v1/settings/schema").body);
+	const ::Json::Value &items = all["items"];
+	REQUIRE(all["value_lists"].isObject());
+
+	std::map<std::string, int> used;
+	std::string sharing_section, sharing_id, sharing_list;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		INFO(items[i]["id"].asString());
+		CHECK_FALSE((items[i].isMember("values") && items[i].isMember("values_from")));
+		if (!items[i].isMember("values_from"))
+			continue;
+		const std::string from = items[i]["values_from"].asString();
+		REQUIRE(all["value_lists"].isMember(from));
+		++used[from];
+		if (sharing_id.empty())
+		{
+			sharing_section = items[i]["section"].asString();
+			sharing_id = items[i]["id"].asString();
+			sharing_list = from;
+		}
+	}
+	// Each stated list is carried by at least two rows, and no list is stated that nobody names.
+	REQUIRE(used.size() == all["value_lists"].size());
+	REQUIRE_FALSE(used.empty());
+	for (std::map<std::string, int>::const_iterator u = used.begin(); u != used.end(); ++u)
+		CHECK(u->second >= 2);
+
+	// Narrowed to the section of a row that names a list, the row carries the same list,
+	// under the same name where the section still shares it and inline where it does not.
+	const ::Json::Value narrowed = parsed(get(("/api/v1/settings/schema?section=" + sharing_section).c_str()).body);
+	bool seen = false;
+	for (::Json::ArrayIndex i = 0; i < narrowed["items"].size(); ++i)
+	{
+		const ::Json::Value &row = narrowed["items"][i];
+		if (row["id"].asString() != sharing_id)
+			continue;
+		seen = true;
+		if (row.isMember("values_from"))
+			CHECK(row["values_from"].asString() == sharing_list);
+		else
+			CHECK(row["values"] == all["value_lists"][sharing_list]);
+	}
+	CHECK(seen);
+	CHECK(narrowed["value_lists"].size() <= all["value_lists"].size());
+}
+
+TEST_CASE("the schema leaves out a member at its default", "[endpoints]")
+{
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+
+	const ::Json::Value items = parsed(get("/api/v1/settings/schema").body)["items"];
+	size_t restart = 0, secret = 0;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		const ::Json::Value &row = items[i];
+		INFO(row["id"].asString());
+		for (const char *flag : { "needs_restart", "secret", "locked", "listed" })
+		{
+			if (row.isMember(flag))
+				CHECK(row[flag].asBool());
+		}
+		if (row.isMember("available"))
+			CHECK_FALSE(row["available"].asBool());
+		restart += row.isMember("needs_restart");
+		secret += row.isMember("secret");
+	}
+	// The members are still said where they differ.
+	CHECK(restart > 0);
+	CHECK(secret > 0);
 }
 
 TEST_CASE("the schema describes a key row by its bounds", "[endpoints]")

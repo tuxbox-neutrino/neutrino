@@ -57,7 +57,10 @@ enum class FieldType
 	// carry fifty three. Named apart from String so a reader is told the shape of it.
 	ChannelId,
 	Object,
-	Array
+	Array,
+	/* An object whose member names the answer chooses, each member a list of objects of the
+	   shape beside it. Neither fields nor a count can say that, so it is a kind of its own. */
+	NamedLists
 };
 
 /* What the plain values of an Array are, for an Array that carries no shape. None is
@@ -196,6 +199,11 @@ struct Schema
 #define HTTPD_LIST_OF_VALUES_OPTIONAL(name, element, doc) \
 	(name), httpd::FieldType::Array, true, (doc), NULL, NULL, NULL, (element), NULL
 
+// An object member absent from some answers, whose members are lists of the named shape under
+// names the answer chooses.
+#define HTTPD_NAMED_LISTS_OPTIONAL(name, shape, doc) \
+	(name), httpd::FieldType::NamedLists, true, (doc), (shape), NULL, NULL, httpd::ElementType::None, NULL
+
 /* A member whose text is one of a set the build decides, which a table cannot write
    down.
 
@@ -286,14 +294,15 @@ inline bool schemaIsSane(const Schema &s, const char **why = NULL, size_t depth 
 			}
 		}
 
-		const bool may_carry = (f.type == FieldType::Object || f.type == FieldType::Array);
+		const bool may_carry = (f.type == FieldType::Object || f.type == FieldType::Array ||
+		                        f.type == FieldType::NamedLists);
 		if (f.nested != NULL && !may_carry)
 		{
 			if (why != NULL)
 				*why = "a member carries a shape and is not an object or an array";
 			return false;
 		}
-		if (f.nested == NULL && f.type == FieldType::Object)
+		if (f.nested == NULL && (f.type == FieldType::Object || f.type == FieldType::NamedLists))
 		{
 			if (why != NULL)
 				*why = "a member is an object and carries no shape";

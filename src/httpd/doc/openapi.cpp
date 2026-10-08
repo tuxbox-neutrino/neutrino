@@ -584,6 +584,26 @@ void appendFieldType(Json &j, const FieldDesc &f, const std::vector<SchemaRef> &
 			}
 			return;
 		}
+		case FieldType::NamedLists:
+		{
+			j.key("type");
+			j.value("object");
+			j.key("additionalProperties");
+			j.beginObject();
+			j.key("type");
+			j.value("array");
+			const std::string ref = refFor(f.nested, refs);
+			j.key("items");
+			j.beginObject();
+			if (!ref.empty())
+			{
+				j.key("$ref");
+				j.value(ref);
+			}
+			j.endObject();
+			j.endObject();
+			return;
+		}
 		case FieldType::Array:
 		{
 			j.key("type");

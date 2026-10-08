@@ -144,6 +144,7 @@ std::string fieldType(FieldType t)
 		case FieldType::ChannelId: return "string";
 		case FieldType::Object: return "object";
 		case FieldType::Array:  return "array";
+		case FieldType::NamedLists: return "object";
 	}
 	return "";
 }
@@ -2001,6 +2002,8 @@ TEST_CASE("a shape this layer wrote wrong is refused, and says what is wrong wit
 		  { HTTPD_MEMBER("n", FieldType::Int, "") } },
 		{ "a member that is an object and carries no shape",
 		  { HTTPD_MEMBER("o", FieldType::Object, "an object") } },
+		{ "lists under names the answer chooses that carry no shape",
+		  { HTTPD_MEMBER("n", FieldType::NamedLists, "lists by name") } },
 		{ "a member that carries a shape and is neither an object nor a list",
 		  { HTTPD_MEMBER_AS_WRITTEN("n", FieldType::Int, false, "a number", &kProbeSchema, NULL,
 					    ElementType::None) } },
@@ -2321,4 +2324,21 @@ TEST_CASE("a name a listing answers and a route takes back is one kind of thing"
 		const ::Json::Value other = parameterOf(doc["paths"][path]["post"], "name");
 		REQUIRE(other["schema"]["enum"].size() == answered["enum"].size());
 	}
+}
+
+TEST_CASE("lists stated under names the answer chooses are an object of lists of one shape", "[openapi]")
+{
+	ShippedRoutes shipped;
+
+	const ::Json::Value doc = parsed(openapi::document());
+	const ::Json::Value list = pointed(doc, "#/components/schemas/setting-list");
+	REQUIRE(list.isObject());
+	const ::Json::Value shared = list["properties"]["value_lists"];
+	REQUIRE(shared["type"].asString() == "object");
+	REQUIRE(shared["additionalProperties"]["type"].asString() == "array");
+	REQUIRE(shared["additionalProperties"]["items"]["$ref"].asString() == "#/components/schemas/setting-choice");
+	REQUIRE(pointed(doc, "#/components/schemas/setting-choice").isObject());
+	// Sometimes absent.
+	for (::Json::ArrayIndex i = 0; i < list["required"].size(); ++i)
+		REQUIRE(list["required"][i].asString() != "value_lists");
 }
