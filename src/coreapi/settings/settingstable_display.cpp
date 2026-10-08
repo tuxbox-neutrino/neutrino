@@ -72,6 +72,16 @@ constexpr EnumValue kLcd4lSupport[] =
 	option(2).label("lcd4l_support_on")
 };
 
+/* The four panels the box can drive, named by their sizes and not by words a
+   locale would carry. The numbers are those of the driver's panel enum. */
+constexpr EnumValue kLcd4lDisplayType[] =
+{
+	option(0).text("320x240 Pearl DPF"),
+	option(1).text("800x480 Samsung SPF"),
+	option(2).text("800x600 Samsung SPF"),
+	option(3).text("1024x600 Samsung SPF")
+};
+
 #if defined(ENABLE_GRAPHLCD) || defined(ENABLE_LCD4LINUX)
 /* Both standby brightnesses are offered only where the box really goes to
    standby. The flag reads nought as on, src/gui/widget/menue_options.h:8, which
@@ -334,17 +344,13 @@ constexpr Descriptor kSettings[] =
 		.defaultValue(TARGET_ROOT "/media/sda1/logos")
 		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(lcd4l_logodir)),
-	/* A number and not a choice: the screen names the four panels with literal
-	   sizes rather than locales, src/gui/lcd4l_setup.cpp:63, so a choice here
-	   would offer words the program does not have. The range is the enum's,
-	   src/driver/lcd4l.h:48. */
 	// src/neutrino.cpp:438 src/gui/lcd4l_setup.cpp:191
-	intRow("lcd4l_display_type")
+	enumRow("lcd4l_display_type")
 		.section("display")
 		.label("lcd4l_display_type")
 		.hint("menu.hint_lcd4l_display_type")
-		.range(0, 3)
 		.defaultValue(0)
+		.values(kLcd4lDisplayType)
 		.field(COREAPI_NUMBER_FIELD(lcd4l_display_type)),
 	/* A number and not a choice for a different reason: the screen offers two
 	   different lists for it and picks by the panel,
