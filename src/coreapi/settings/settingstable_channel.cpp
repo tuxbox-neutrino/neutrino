@@ -20,6 +20,7 @@
 
 #include "settingstable.h"
 #include "settingsfield.h"
+#include "predicates.h"
 
 namespace coreapi
 {
@@ -73,6 +74,20 @@ constexpr Condition kNoLastChannel[] =
 constexpr Condition kNoInitialMode[] =
 {
 	when("channel_mode_initial").below(0)
+};
+
+/* The pixels across of a web stream, named by the picture it makes. The steps are
+   literal sizes without a locale. The boxes that cannot decode the larger two
+   do not offer them. */
+constexpr EnumValue kLivestreamResolution[] =
+{
+	option(3840).text("3840x2160").availableIf(decodesLargeStreams),
+	option(2560).text("2560x1440").availableIf(decodesLargeStreams),
+	option(1920).text("1920x1080"),
+	option(1280).text("1280x720"),
+	option(854).text("854x480"),
+	option(640).text("640x360"),
+	option(480).text("480x270")
 };
 
 constexpr Descriptor kChannel[] =
@@ -152,22 +167,15 @@ constexpr Descriptor kChannel[] =
 	   arm, src/gui/webchannels_setup.cpp:244, which is which menu was opened
 	   and not a setting, so none of them carries a condition.
 
-	   A number of pixels across, and a number rather than a choice: the screen
-	   names its steps with literal sizes rather than locales, so every value
-	   between the offered ones is one a frontend can write and the box has no
-	   step for. Bound: the first and the last of the table, which the same
-	   condition shortens as the screen does.
-	   src/gui/webchannels_setup.cpp:52 */
+	   A number of pixels across, one of the steps the screen offers,
+	   src/gui/webchannels_setup.cpp:55; the larger two only where the build's
+	   hardware decodes them, as the screen leaves them out there. */
 	// src/neutrino.cpp:1021 src/gui/webchannels_setup.cpp:538
-	intRow("livestreamResolution")
+	enumRow("livestreamResolution")
 		.section("channel")
 		.label("livestream.resolution")
-#if HAVE_CST_HARDWARE
-		.range(480, 1920)
-#else
-		.range(480, 3840)
-#endif
 		.defaultValue(1920)
+		.values(kLivestreamResolution)
 		.field(COREAPI_NUMBER_FIELD(livestreamResolution)),
 	// src/neutrino.cpp:942 src/gui/webchannels_setup.cpp:250
 	intRow("webtv_stream_restart_attempts")

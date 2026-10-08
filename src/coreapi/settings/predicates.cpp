@@ -101,6 +101,16 @@ bool canCpufreq()
 	return capabilities().can_cpufreq;
 }
 
+bool decodesLargeStreams()
+{
+	// A hardware family the build is made for, and no capability the driver reports.
+#if HAVE_CST_HARDWARE
+	return false;
+#else
+	return true;
+#endif
+}
+
 bool canSetBrightness()
 {
 	return capabilities().display_can_set_brightness;

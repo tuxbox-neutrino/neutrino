@@ -33,6 +33,8 @@ bool hasFan();
 bool canCec();
 // Can change its own clock speed.
 bool canCpufreq();
+// Decodes web streams above full HD.
+bool decodesLargeStreams();
 // The front panel takes a brightness.
 bool canSetBrightness();
 // It can, and the way the box was started leaves room for it. What a screen
