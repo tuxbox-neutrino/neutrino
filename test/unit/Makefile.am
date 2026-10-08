@@ -220,7 +220,7 @@ TESTS = coreapi_tests
 # needs, one line each with what brings the case back.
 LOG_COMPILER = $(SHELL) $(srcdir)/support/run-tests.sh
 
-EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/conditions.h support/counts.h support/answers.h support/counts.txt \
+EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/conditions.h support/boundedrows.h support/counts.h support/answers.h support/counts.txt \
 	scan/extract-enum.sh support/merge-counts.sh \
 	scan/check-hook.sh scan/check-fieldtypes.sh \
 	scan/check-hardware.sh scan/check-appliers.sh scan/check-denominator.sh \

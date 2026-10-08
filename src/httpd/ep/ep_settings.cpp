@@ -381,12 +381,13 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	// Only a whole number and a key code are bounded by these. Every other kind
 	// leaves both at nought, and a pair of noughts written out would read as a
 	// setting that takes nothing but nought.
+	const coreapi::Bounds now = coreapi::boundsNow(d);
 	if (d.type == coreapi::ValueType::Int || d.type == coreapi::ValueType::Key)
 	{
 		j.key("min");
-		j.value(d.min);
+		j.value(now.min);
 		j.key("max");
-		j.value(d.max);
+		j.value(now.max);
 		if (d.type == coreapi::ValueType::Int && d.unit_key != NULL)
 		{
 			j.key("unit");

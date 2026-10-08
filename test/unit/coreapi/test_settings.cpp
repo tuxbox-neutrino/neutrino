@@ -26,6 +26,7 @@
 #include "coreapi/settings/settingsfield.h"
 #include "coreapi/settings/settingstable.h"
 #include "support/fakes.h"
+#include "support/boundedrows.h"
 #include "support/counts.h"
 
 #include <pthread.h>
@@ -1961,4 +1962,76 @@ TEST_CASE("a number naming several values in words takes each of them beside its
 	REQUIRE(other.error().code == ErrorCode::OutOfRange);
 	REQUIRE(other.error().message == "the setting takes 1 to 14 or -1, 0");
 	REQUIRE(f.ints["fixture_several"] == 7);
+}
+
+TEST_CASE("a number is held to the range the box states now", "[settings][bounds]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource source(&f);
+	InstalledSettingsTable table(kBoundedRows, kBoundedRowsCount);
+	BoundedProvider box;
+	boundedLow() = 20;
+	boundedHigh() = 200;
+
+	REQUIRE(settings::set("t_bounded", "200").ok());
+	REQUIRE(settings::set("t_bounded", "20").ok());
+	CHECK(refusedAs(settings::set("t_bounded", "201"), ErrorCode::OutOfRange));
+	CHECK(refusedAs(settings::set("t_bounded", "19"), ErrorCode::OutOfRange));
+	CHECK(f.ints["t_bounded"] == 20);
+
+	// The range follows the box: the same value is taken once the box allows it.
+	boundedHigh() = 300;
+	CHECK(settings::set("t_bounded", "201").ok());
+	CHECK(settings::check("t_bounded", "300").ok());
+	CHECK_FALSE(settings::check("t_bounded", "301").ok());
+}
+
+TEST_CASE("the constant range is the envelope a provider cannot widen", "[settings][bounds]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource source(&f);
+	InstalledSettingsTable table(kBoundedRows, kBoundedRowsCount);
+	BoundedProvider box;
+	boundedLow() = -50;
+	boundedHigh() = 5000;
+
+	REQUIRE(settings::set("t_bounded", "1000").ok());
+	REQUIRE(settings::set("t_bounded", "0").ok());
+	CHECK(refusedAs(settings::set("t_bounded", "1001"), ErrorCode::OutOfRange));
+	CHECK(refusedAs(settings::set("t_bounded", "-1"), ErrorCode::OutOfRange));
+
+	const Bounds now = boundsNow(kBoundedRows[0]);
+	CHECK(now.min == 0);
+	CHECK(now.max == 1000);
+
+	// A provider whose answers cross leaves the constants.
+	boundedLow() = 300;
+	boundedHigh() = 100;
+	const Bounds crossed = boundsNow(kBoundedRows[0]);
+	CHECK(crossed.min == 0);
+	CHECK(crossed.max == 1000);
+}
+
+TEST_CASE("the value already stored and the default pass a bound that has moved", "[settings][bounds]")
+{
+	FakeSettingsSource f;
+	InstalledSettingsSource source(&f);
+	InstalledSettingsTable table(kBoundedRows, kBoundedRowsCount);
+	BoundedProvider box;
+	boundedLow() = 100;
+	boundedHigh() = 200;
+
+	f.ints["t_bounded"] = 700;
+	// Reading answers the stored value as it is.
+	Result<std::string> read = settings::get("t_bounded");
+	REQUIRE(read.ok());
+	CHECK(read.value() == "700");
+	REQUIRE(settings::set("t_bounded", "700").ok());
+	CHECK(settings::check("t_bounded", "700").ok());
+	// Only that value: another one outside is refused, and the default is the way back.
+	CHECK(refusedAs(settings::set("t_bounded", "701"), ErrorCode::OutOfRange));
+	CHECK(settings::set("t_bounded", "10").ok());
+	// Beyond the constants a stored value is no longer passed.
+	f.ints["t_bounded"] = 5000;
+	CHECK(refusedAs(settings::set("t_bounded", "5000"), ErrorCode::OutOfRange));
 }

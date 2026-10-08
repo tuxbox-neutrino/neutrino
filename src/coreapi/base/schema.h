@@ -45,6 +45,7 @@ enum class ValueType
 };
 
 struct Condition;
+struct ValueLookup;
 
 // One choice an Enum offers. The number is what the setting stores and
 // label_key names the text a frontend shows for it, so the wording can move
@@ -382,7 +383,12 @@ typedef bool (*ChoiceSource)(std::vector<SettingChoice> &out);
 // of the two. A frontend draws the unit beside the number and the format in
 // its place, and the schema answers the unit's key and not the format's, whose
 // %d only a box's own screen can fill. min_now and max_now answer the bound when
-// the constant is not the whole story and the constant stays the fallback.
+// the constant is not the whole story and the constant stays the fallback. They are
+// read through boundsNow() and nowhere else, which holds the answer inside the
+// constants: the constants are the outer envelope, so a provider that answers wrongly
+// cannot widen a row. They may be called from the thread that serves a write, while
+// the value is checked, and from the loop, so a provider reads atomics or its own lock
+// and never a screen's objects.
 //
 // default_fn is the number a box falls back to when it is not the same on every
 // box, or depends on what the box has, for a Bool, an Int or an Enum. The
@@ -413,8 +419,10 @@ struct Descriptor
 	const char      *format_key;
 	const TextRule  *text;
 	ChoiceSource     choices_from;
-	long           (*min_now)();
-	long           (*max_now)();
+	/* NULL for the store, else the lookup a write is judged with, so a bound that follows
+	   another setting reads the value the same write gives it. */
+	long           (*min_now)(const ValueLookup *);
+	long           (*max_now)(const ValueLookup *);
 	long           (*default_fn)();
 };
 
@@ -423,6 +431,46 @@ inline long defaultInt(const Descriptor &d)
 {
 	return d.default_fn != NULL ? d.default_fn() : d.default_int;
 }
+
+struct Bounds
+{
+	long min;
+	long max;
+};
+
+/* The range a number takes on this box right now: what the row's providers say,
+   held inside the constant range, and the constants where a provider is absent.
+   A provider whose two answers cross is taken as no answer, because the range
+   they would leave holds nothing and a row that takes nothing is no row. */
+inline Bounds boundsNow(const Descriptor &d, const ValueLookup *now = NULL)
+{
+	Bounds b = { d.min, d.max };
+	if (d.min_now == NULL && d.max_now == NULL)
+		return b;
+
+	long lo = d.min_now != NULL ? d.min_now(now) : d.min;
+	long hi = d.max_now != NULL ? d.max_now(now) : d.max;
+	if (lo < d.min)
+		lo = d.min;
+	if (lo > d.max)
+		lo = d.max;
+	if (hi < d.min)
+		hi = d.min;
+	if (hi > d.max)
+		hi = d.max;
+	if (lo > hi)
+		return b;
+	b.min = lo;
+	b.max = hi;
+	return b;
+}
+
+// Whether the range of the row can be narrower than its constants.
+inline bool boundsVary(const Descriptor &d)
+{
+	return d.min_now != NULL || d.max_now != NULL;
+}
+
 
 // Each writes an array and its count as one pair, so the two cannot disagree: a
 // count one too large reads an element nothing at run time can see. The tables
@@ -762,7 +810,7 @@ public:
 		}, avail_);
 	}
 
-	constexpr RowBuilder minNow(long (*fn)()) const
+	constexpr RowBuilder minNow(long (*fn)(const ValueLookup *)) const
 	{
 		return RowBuilder(Descriptor{
 			d_.key, d_.type, d_.section, d_.label_key, d_.hint_key, d_.min, d_.max, d_.values,
@@ -772,7 +820,7 @@ public:
 		}, avail_);
 	}
 
-	constexpr RowBuilder maxNow(long (*fn)()) const
+	constexpr RowBuilder maxNow(long (*fn)(const ValueLookup *)) const
 	{
 		return RowBuilder(Descriptor{
 			d_.key, d_.type, d_.section, d_.label_key, d_.hint_key, d_.min, d_.max, d_.values,

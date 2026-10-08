@@ -377,3 +377,14 @@ TEST_CASE("the pairs name each other and the start channels their list", "[coupl
 		CHECK(describe(keys[i]).ok());
 	}
 }
+
+// The panel limits the rows state and the coupling holds every write path to.
+TEST_CASE("the Pearl panel takes brightness up to seven and the Samsung panels up to ten", "[couple][lcd4l]")
+{
+	CHECK(settings::lcd4lBrightnessCeiling(0) == 7);
+	CHECK(settings::lcd4lBrightnessCeiling(1) == 10);
+	CHECK(settings::lcd4lBrightnessCeiling(2) == 10);
+	CHECK(settings::lcd4lBrightnessCeiling(3) == 10);
+	// A type nobody knows gets the lower ceiling, as the screen gave it.
+	CHECK(settings::lcd4lBrightnessCeiling(9) == 7);
+}

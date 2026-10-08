@@ -414,8 +414,8 @@ namespace
 bool builderBoxHas() { return true; }
 bool builderEntryOffered() { return true; }
 long builderDefault() { return 3; }
-long builderLow() { return 1; }
-long builderHigh() { return 9; }
+long builderLow(const ValueLookup *) { return 1; }
+long builderHigh(const ValueLookup *) { return 9; }
 bool builderChoices(std::vector<SettingChoice> &) { return true; }
 
 constexpr long kBuilderModes[] = { 1, 2 };

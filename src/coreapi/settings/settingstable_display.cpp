@@ -23,6 +23,8 @@
 #include "boxdefaults.h"
 #include "predicates.h"
 #include "settingsfield.h"
+#include "couple.h"
+#include "coreapi/base/deps.h"
 
 namespace coreapi
 {
@@ -88,6 +90,21 @@ constexpr EnumValue kLcd4lDisplayType[] =
 	option(6).text("800x600 PNG"),
 	option(7).text("1024x600 PNG")
 };
+
+#ifdef ENABLE_LCD4LINUX
+/* The panel's ceiling, read as a write is checked, so the screen and every write path stop at
+   the same number. A write that names the panel too is judged on that one. Ten is the wider
+   panel's, which the row's constants keep as the outer limit. */
+long lcd4lBrightnessMax(const ValueLookup *now)
+{
+	long type = 0;
+	const bool read = now != NULL ? now->read("lcd4l_display_type", &type, now->context)
+	                              : settingsSource().readInt("lcd4l_display_type", type) == Status::Ok;
+	if (!read)
+		return 10;
+	return settings::lcd4lBrightnessCeiling(type);
+}
+#endif
 
 #if defined(ENABLE_GRAPHLCD) || defined(ENABLE_LCD4LINUX)
 /* Both standby brightnesses are offered only where the box really goes to
@@ -387,6 +404,7 @@ constexpr Descriptor kSettings[] =
 		.label("lcd4l_brightness")
 		.hint("menu.hint_lcd4l_brightness")
 		.range(1, 10)
+		.maxNow(lcd4lBrightnessMax)
 		.defaultValue(7)
 		.field(COREAPI_NUMBER_FIELD(lcd4l_brightness)),
 	// src/neutrino.cpp:442 src/gui/lcd4l_setup.cpp:322
@@ -395,6 +413,7 @@ constexpr Descriptor kSettings[] =
 		.label("lcd4l_brightness_standby")
 		.hint("menu.hint_lcd4l_brightness_standby")
 		.range(1, 10)
+		.maxNow(lcd4lBrightnessMax)
 		.defaultValue(3)
 		.changeableWhen(kNotRealShutdown)
 		.field(COREAPI_NUMBER_FIELD(lcd4l_brightness_standby)),

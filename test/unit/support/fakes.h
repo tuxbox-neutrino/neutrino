@@ -1108,6 +1108,40 @@ struct InstalledSettingsTable
 	~InstalledSettingsTable() { coreapi::setSettingsTable(0, 0); }
 };
 
+/* The bounds a box states at run time, as a row's minNow and maxNow providers read them.
+   Reset on both ends of a case so that one that moved them leaves the next a wide range. */
+inline long &boundedLow()
+{
+	static long v = 0;
+	return v;
+}
+inline long &boundedHigh()
+{
+	static long v = 1000;
+	return v;
+}
+inline long boundedLowNow(const coreapi::ValueLookup *)
+{
+	return boundedLow();
+}
+inline long boundedHighNow(const coreapi::ValueLookup *)
+{
+	return boundedHigh();
+}
+struct BoundedProvider
+{
+	BoundedProvider()
+	{
+		boundedLow() = 0;
+		boundedHigh() = 1000;
+	}
+	~BoundedProvider()
+	{
+		boundedLow() = 0;
+		boundedHigh() = 1000;
+	}
+};
+
 /* Counts what it was handed and answers what a case told it to. The key is
    copied because the caller hands over a pointer into whichever table was
    installed, and a case may read it back after that table is gone. */

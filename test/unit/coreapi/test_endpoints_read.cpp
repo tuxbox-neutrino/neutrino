@@ -21,6 +21,7 @@
 
 #include "support/catch.hpp"
 #include "support/fakes.h"
+#include "support/boundedrows.h"
 
 #include <driver/rcinput.h>
 
@@ -2081,6 +2082,30 @@ TEST_CASE("a secret row is described but never valued", "[endpoints]")
 	REQUIRE(valueOf(one.body, secret->key) != "<no such item>");
 	// Nowhere in the answer, and not merely absent from the member read above.
 	REQUIRE(one.body.find("hunter2") == std::string::npos);
+}
+
+TEST_CASE("the schema states the range the box has now", "[endpoints][bounds]")
+{
+	FakeSystemSource unlocked;
+	InstalledSystemSource installed_unlocked(&unlocked);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+	InstalledSettingsTable table(kBoundedRows, 1);
+	BoundedProvider box;
+	boundedLow() = 20;
+	boundedHigh() = 200;
+
+	const Reply r = get("/api/v1/settings/schema");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	REQUIRE(items.size() == 1);
+	CHECK(items[0]["min"].asInt() == 20);
+	CHECK(items[0]["max"].asInt() == 200);
+
+	boundedHigh() = 300;
+	const Reply moved = get("/api/v1/settings/schema");
+	CHECK(parsed(moved.body)["items"][0]["max"].asInt() == 300);
 }
 
 TEST_CASE("the schema describes a key row by its bounds", "[endpoints]")

@@ -157,7 +157,7 @@ void withhold(Descriptor &d)
    refuse what they refuse and neither stands in for the other, because a row's
    bounds can be wider than its field and a field is wider than most rows'
    bounds. */
-Result<void> allowedByRow(const Descriptor &d, long value)
+Result<void> allowedByRow(const Descriptor &d, long value, const ValueLookup *now)
 {
 	switch (d.type)
 	{
@@ -180,9 +180,10 @@ Result<void> allowedByRow(const Descriptor &d, long value)
 					return ok();
 				also += (i == 0 ? " or " : ", ") + decimal(d.values[i].value);
 			}
-			if (value < d.min || value > d.max)
+			const Bounds b = boundsNow(d, now);
+			if (value < b.min || value > b.max)
 				return fail(Status::InvalidArgument, ErrorCode::OutOfRange,
-					    "the setting takes " + decimal(d.min) + " to " + decimal(d.max) + also);
+					    "the setting takes " + decimal(b.min) + " to " + decimal(b.max) + also);
 			return ok();
 		}
 
@@ -192,7 +193,9 @@ Result<void> allowedByRow(const Descriptor &d, long value)
 			return ok();
 
 		case ValueType::Key:
-			if (value < d.min || value > d.max)
+		{
+			const Bounds b = boundsNow(d, now);
+			if (value < b.min || value > b.max)
 				return fail(Status::InvalidArgument, ErrorCode::OutOfRange,
 					    "the setting takes the code of a key of the remote control");
 			// Inside the bounds is still no key where the code is one the input layer
@@ -201,6 +204,7 @@ Result<void> allowedByRow(const Descriptor &d, long value)
 				return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
 					    "the setting takes the code of a key a remote control can send, or no key");
 			return ok();
+		}
 
 		case ValueType::String:
 			break;
@@ -625,7 +629,18 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 		return fail(Status::InvalidArgument, ErrorCode::NotANumber,
 			    "the setting takes a whole number");
 
-	Result<void> allowed = allowedByRow(*d, number);
+	Result<void> allowed = allowedByRow(*d, number, NULL);
+	if (!allowed.ok() && boundsVary(*d) && number >= d->min && number <= d->max)
+	{
+		/* Inside the constants and outside what the box states now: the default is the
+		   way back and the stored value is what a bound that has moved since leaves
+		   behind, so writing either again is no new pick. The stored value is read only
+		   on a refusal. */
+		long stored = 0;
+		if (number == defaultInt(*d) ||
+		    (settingsSource().readInt(d->key, stored) == Status::Ok && stored == number))
+			allowed = ok();
+	}
 	if (!allowed.ok())
 		return fail(allowed.error());
 

@@ -65,6 +65,10 @@ const char *pairPartner(const std::string &key, const char **writes = NULL);
 // "tv" or "radio" for a start channel row, which list its channel comes from; NULL for any other.
 const char *startChannelKind(const std::string &key);
 
+/* What the panel of the LCD4Linux display takes, by its type as the driver numbers it:
+   the highest brightness and whether a skin is one the panel has. */
+long lcd4lBrightnessCeiling(long display_type);
+
 } // namespace settings
 } // namespace coreapi
 

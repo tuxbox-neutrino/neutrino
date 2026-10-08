@@ -100,6 +100,7 @@ libcoreapi_a_SOURCES = \
 	osd.cpp \
 	settings/settings.cpp \
 	settings/couple.cpp \
+	settings/couple_lcd4l.cpp \
 	settings/predicates.cpp \
 	streaming.cpp \
 	browserplay.cpp \
