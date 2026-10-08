@@ -23,7 +23,9 @@
 #include "support/answers.h"
 
 #include "coreapi/archive.h"
+#include "coreapi/archive_internal.h"
 #include "coreapi/base/deps.h"
+#include "coreapi/box/storage_internal.h"
 #include "coreapi/base/errors.h"
 
 #include "httpd/auth.h"
@@ -39,6 +41,8 @@
 #include <OpenThreads/Block>
 #include <OpenThreads/Thread>
 
+#include <algorithm>
+#include <cerrno>
 #include <cstdio>
 #include <map>
 #include <memory>
@@ -124,6 +128,8 @@ struct Disk
 	}
 };
 
+/* The movie browser's own file is one the case writes, and every request scans
+   again, so a case that changes the disk between two requests sees the change. */
 struct Archive
 {
 	Disk                    disk;
@@ -131,13 +137,30 @@ struct Archive
 	InstalledSettingsSource in_settings;
 	FakeRecordingSource     recordings;
 	InstalledRecordingSource in_recordings;
+	std::string             browser;
+	const char             *before_browser;
 
-	Archive() : in_settings(&settings), in_recordings(&recordings)
+	Archive()
+		: in_settings(&settings), in_recordings(&recordings), browser(disk.base + "/moviebrowser.conf"),
+		  before_browser(storage::internal::moviebrowser_config_path)
 	{
 		settings.strings["network_nfs_recordingdir"] = disk.base;
+		storage::internal::moviebrowser_config_path = browser.c_str();
+		archive::internal::setTimesForTest(-1, 0);
 		archive::notePlaying(std::string());
 	}
-	~Archive() { archive::notePlaying(std::string()); }
+	~Archive()
+	{
+		archive::notePlaying(std::string());
+		archive::internal::setTimesForTest(-1, -1);
+		archive::internal::setRootProbeForTest(NULL);
+		archive::internal::setReadingForTest(NULL);
+		archive::internal::setWritableForTest(NULL);
+		archive::internal::setUnlinkForTest(NULL);
+		storage::internal::moviebrowser_config_path = before_browser;
+	}
+	// What the movie browser wrote, one key=value a line.
+	void browse(const std::string &lines) { disk.file("moviebrowser.conf", lines); }
 };
 
 } // namespace
@@ -489,8 +512,9 @@ TEST_CASE("removing never reaches out of the record directory", "[archive]")
 	a.disk.link("evil.ts", outside.base + "/victim.ts");
 	REQUIRE(archive::list("", 0, 10).value().total == 0);
 
+	const std::string evil = a.disk.base + "/evil.ts";
 	unsigned char d[SHA256_DIGEST_LENGTH];
-	SHA256((const unsigned char *) "evil.ts", 7, d);
+	SHA256((const unsigned char *) evil.data(), evil.size(), d);
 	static const char kHex[] = "0123456789abcdef";
 	std::string id;
 	for (size_t i = 0; i < 8; ++i)
@@ -1581,4 +1605,548 @@ TEST_CASE("a path names its archive entry by the archive's own rules without a s
 	REQUIRE(deep.ok());
 	REQUIRE(top.value().title == "Tatort");
 	REQUIRE(deep.value().title == "Lanz");
+}
+
+namespace
+{
+
+std::string idFor(const std::string &path)
+{
+	unsigned char d[SHA256_DIGEST_LENGTH];
+	SHA256((const unsigned char *) path.data(), path.size(), d);
+	static const char kHex[] = "0123456789abcdef";
+	std::string id;
+	for (size_t i = 0; i < 8; ++i)
+	{
+		id += kHex[d[i] >> 4];
+		id += kHex[d[i] & 15];
+	}
+	return id;
+}
+
+std::string titlesIn(const archive::Page &p)
+{
+	std::vector<std::string> t;
+	for (size_t i = 0; i < p.items.size(); ++i)
+		t.push_back(p.items[i].title);
+	std::sort(t.begin(), t.end());
+	std::string out;
+	for (size_t i = 0; i < t.size(); ++i)
+		out += (i ? " " : "") + t[i];
+	return out;
+}
+
+std::string sourceOf(const archive::Page &p, const std::string &title)
+{
+	for (size_t i = 0; i < p.items.size(); ++i)
+		if (p.items[i].title == title)
+			return p.items[i].source;
+	return std::string();
+}
+
+} // namespace
+
+TEST_CASE("the archive lists every directory the movie browser scans and no other", "[archive][library]")
+{
+	Archive a;
+	Disk own, unused, second;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	own.recording("b", "B", "X", 1, 1790000001);
+	unused.recording("c", "C", "X", 1, 1790000002);
+	second.recording("d", "D", "X", 1, 1790000003);
+	// The browser writes a directory with its trailing slash.
+	a.browse("mb_dir_0=" + own.base + "/\nmb_dir_used0=1\n"
+	         "mb_dir_1=" + unused.base + "\nmb_dir_used1=0\n"
+	         "mb_dir_2=" + second.base + "\nmb_dir_used2=1\n");
+
+	archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(titlesIn(p) == "A B D");
+	REQUIRE(sourceOf(p, "A") == a.disk.base);
+	REQUIRE(sourceOf(p, "B") == own.base);
+	REQUIRE(sourceOf(p, "D") == second.base);
+	REQUIRE(p.sources.size() == 3);
+	REQUIRE(p.sources[0] == a.disk.base);
+	REQUIRE(p.sources[1] == own.base);
+	REQUIRE(p.sources[2] == second.base);
+
+	REQUIRE(titlesIn(archive::list("", 0, 10, archive::Sort(), own.base).value()) == "B");
+	REQUIRE(archive::list("", 0, 10, archive::Sort(), unused.base).value().total == 0);
+
+	// The record directory switched off in the browser is out of the library too.
+	a.browse("mb_storageDir_rec=0\nmb_dir_0=" + own.base + "\nmb_dir_used0=1\n");
+	p = archive::list("", 0, 10).value();
+	REQUIRE(titlesIn(p) == "B");
+	REQUIRE(p.sources.size() == 1);
+}
+
+TEST_CASE("a directory that is not there is left out of the library", "[archive][library]")
+{
+	Archive a;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	a.browse("mb_dir_0=/tmp/coreapi_archive_not_mounted\nmb_dir_used0=1\n");
+	const archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(titlesIn(p) == "A");
+	REQUIRE(p.sources.size() == 1);
+	REQUIRE(p.sources[0] == a.disk.base);
+}
+
+namespace
+{
+
+OpenThreads::Block dead_share;
+std::string dead_root;
+bool hold_every = false;
+int probes_of_record_dir = 0;
+std::string record_dir;
+
+void probeRoot(const std::string &root)
+{
+	if (root == record_dir)
+		++probes_of_record_dir;
+	if (hold_every || root == dead_root)
+		dead_share.block();
+}
+
+// Lets a share it held go, and waits for its scan to end, also on a failed REQUIRE.
+struct DeadShare
+{
+	explicit DeadShare(const std::string &root, bool every = false)
+	{
+		dead_share.reset();
+		dead_root = root;
+		hold_every = every;
+		archive::internal::setRootProbeForTest(&probeRoot);
+	}
+	~DeadShare()
+	{
+		dead_share.release();
+		archive::internal::setTimesForTest(10000, 0);
+		archive::list("", 0, 1);
+		archive::internal::setRootProbeForTest(NULL);
+		dead_root.clear();
+		hold_every = false;
+	}
+};
+
+long msSince(const struct timeval &t)
+{
+	struct timeval now;
+	gettimeofday(&now, NULL);
+	return (now.tv_sec - t.tv_sec) * 1000 + (now.tv_usec - t.tv_usec) / 1000;
+}
+
+} // namespace
+
+TEST_CASE("a share that does not answer is left out and never holds a request up again", "[archive][library]")
+{
+	Archive a;
+	Disk share;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	share.recording("s", "S", "X", 1, 1790000001);
+	a.browse("mb_dir_0=" + share.base + "\nmb_dir_used0=1\n");
+	DeadShare dead(share.base);
+	archive::internal::setTimesForTest(1000, 0);
+
+	struct timeval t;
+	gettimeofday(&t, NULL);
+	archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(msSince(t) < 3000);
+	REQUIRE(titlesIn(p) == "A");
+	REQUIRE(p.sources.size() == 1);
+
+	// Known not to answer, it costs the next request nothing.
+	gettimeofday(&t, NULL);
+	p = archive::list("", 0, 10).value();
+	REQUIRE(msSince(t) < 500);
+	REQUIRE(titlesIn(p) == "A");
+	REQUIRE(archive::find(idFor(share.base + "/s.ts")).error().code == ErrorCode::NoSuchRecording);
+	REQUIRE(archive::entryAt(share.base + "/s.ts").error().code == ErrorCode::NoSuchRecording);
+
+	// Once it answers again it is back.
+	dead_share.release();
+	archive::internal::setTimesForTest(10000, 0);
+	REQUIRE(titlesIn(archive::list("", 0, 10).value()) == "A S");
+}
+
+TEST_CASE("a scan holds until it ages or the library is refreshed", "[archive][library]")
+{
+	Archive a;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	record_dir = a.disk.base;
+	probes_of_record_dir = 0;
+	archive::internal::setRootProbeForTest(&probeRoot);
+	archive::internal::setTimesForTest(-1, 60000);
+
+	REQUIRE(archive::list("", 0, 10).value().total == 1);
+	REQUIRE(probes_of_record_dir == 1);
+	a.disk.recording("b", "B", "X", 1, 1790000001);
+	REQUIRE(archive::list("", 0, 10).value().total == 1);
+	REQUIRE(archive::find(idFor(a.disk.base + "/a.ts")).ok());
+	REQUIRE(probes_of_record_dir == 1);
+
+	archive::refresh();
+	REQUIRE(archive::list("", 0, 10).value().total == 2);
+	REQUIRE(probes_of_record_dir == 2);
+
+	// A removal is seen at once, without waiting for the age.
+	REQUIRE(archive::remove(idFor(a.disk.base + "/a.ts")).ok());
+	REQUIRE(titlesIn(archive::list("", 0, 10).value()) == "B");
+	record_dir.clear();
+}
+
+TEST_CASE("one file has one id whichever directory lists it, and two files never share one", "[archive][library]")
+{
+	Archive a;
+	Disk other;
+	a.disk.recording("same", "Here", "X", 1, 1790000000);
+	other.recording("same", "There", "X", 1, 1790000001);
+	a.disk.dir("Serien");
+	a.disk.recording("Serien/x", "Folge", "X", 1, 1790000002);
+	a.browse("mb_dir_0=" + other.base + "\nmb_dir_used0=1\n"
+	         "mb_dir_1=" + a.disk.base + "/Serien\nmb_dir_used1=1\n");
+
+	const archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(titlesIn(p) == "Folge Here There");
+	for (size_t i = 0; i < p.items.size(); ++i)
+		for (size_t k = i + 1; k < p.items.size(); ++k)
+			REQUIRE(p.items[i].id != p.items[k].id);
+	REQUIRE(sourceOf(p, "Folge") == a.disk.base);
+	REQUIRE(archive::find(idFor(a.disk.base + "/Serien/x.ts")).value().title == "Folge");
+	REQUIRE(archive::find(idFor(a.disk.base + "/same.ts")).value().path == a.disk.base + "/same.ts");
+	REQUIRE(archive::find(idFor(other.base + "/same.ts")).value().path == other.base + "/same.ts");
+	REQUIRE(archive::entryAt(other.base + "/same.ts").value().source == other.base);
+}
+
+TEST_CASE("a directory the movie browser does not scan is never reached", "[archive][library]")
+{
+	Archive a;
+	Disk unused;
+	unused.recording("c", "C", "X", 1, 1790000000);
+	unused.file("c.jpg", "cover");
+	a.browse("mb_dir_0=" + unused.base + "\nmb_dir_used0=0\n");
+	const std::string id = idFor(unused.base + "/c.ts");
+	REQUIRE(archive::find(id).error().code == ErrorCode::NoSuchRecording);
+	REQUIRE(archive::remove(id).error().code == ErrorCode::NoSuchRecording);
+	REQUIRE(archive::coverPath(id).error().code == ErrorCode::NoSuchRecording);
+	REQUIRE(archive::entryAt(unused.base + "/c.ts").error().code == ErrorCode::NoSuchRecording);
+	REQUIRE(ask(httpd::Get, "/api/v1/recordings/archive/" + id + "/file", "", httpd::AuthLevel::Read).code == 404);
+	struct stat st;
+	REQUIRE(lstat((unused.base + "/c.ts").c_str(), &st) == 0);
+}
+
+namespace
+{
+
+bool readOnly(const std::string &) { return false; }
+
+} // namespace
+
+TEST_CASE("a recording on a read-only share is refused whole, not half removed", "[archive][library]")
+{
+	Archive a;
+	a.disk.recording("one", "One", "X", 1, 1790000000);
+	a.disk.file("one.jpg", "cover");
+	const std::string id = idFor(a.disk.base + "/one.ts");
+	archive::internal::setWritableForTest(&readOnly);
+	Result<void> got = archive::remove(id);
+	REQUIRE_FALSE(got.ok());
+	REQUIRE(got.error().code == ErrorCode::MediumReadOnly);
+	REQUIRE(got.error().status == Status::Conflict);
+	httpd::Response r = ask(httpd::Delete, "/api/v1/recordings/archive/" + id, "");
+	REQUIRE(r.code == 409);
+	REQUIRE(r.body.find("/errors/medium-read-only") != std::string::npos);
+	struct stat st;
+	REQUIRE(lstat((a.disk.base + "/one.ts").c_str(), &st) == 0);
+	REQUIRE(lstat((a.disk.base + "/one.xml").c_str(), &st) == 0);
+	REQUIRE(lstat((a.disk.base + "/one.jpg").c_str(), &st) == 0);
+	archive::internal::setWritableForTest(NULL);
+	REQUIRE(archive::remove(id).ok());
+}
+
+TEST_CASE("the archive routes say where each recording lies and narrow by it", "[archive][routes][library]")
+{
+	Archive a;
+	Disk own;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	own.recording("b", "B", "X", 1, 1790000001);
+	a.browse("mb_dir_0=" + own.base + "\nmb_dir_used0=1\n");
+	const std::string path = "/api/v1/recordings/archive";
+	::Json::Value v = parsed(ask(httpd::Get, path, "", httpd::AuthLevel::Read).body);
+	REQUIRE(v["sources"].size() == 2);
+	REQUIRE(v["sources"][0].asString() == a.disk.base);
+	REQUIRE(v["sources"][1].asString() == own.base);
+	REQUIRE(v["items"][0]["source"].asString() == own.base);
+	REQUIRE(v["items"][1]["source"].asString() == a.disk.base);
+	v = parsed(ask(httpd::Get, path, "source=" + own.base, httpd::AuthLevel::Read).body);
+	REQUIRE(v["total"].asUInt() == 1);
+	REQUIRE(v["items"][0]["title"].asString() == "B");
+	const std::string id = v["items"][0]["id"].asString();
+	v = parsed(ask(httpd::Get, path + "/" + id, "", httpd::AuthLevel::Read).body);
+	REQUIRE(v["source"].asString() == own.base);
+}
+
+TEST_CASE("what a scan found is held to its rules again before the path is used", "[archive][library]")
+{
+	Archive a;
+	Disk outside;
+	a.disk.recording("gone", "Gone", "X", 1, 1790000000);
+	a.disk.dir("Serien");
+	a.disk.recording("Serien/x", "Folge", "X", 1, 1790000001);
+	outside.recording("x", "Elsewhere", "X", 1, 1790000002);
+	archive::internal::setTimesForTest(-1, 60000);
+	REQUIRE(archive::list("", 0, 10).value().total == 2);
+
+	// Removed in the movie browser or over the network, which tells the archive nothing.
+	const std::string gone = idFor(a.disk.base + "/gone.ts");
+	unlink((a.disk.base + "/gone.ts").c_str());
+	unlink((a.disk.base + "/gone.xml").c_str());
+	Result<void> removed = archive::remove(gone);
+	REQUIRE_FALSE(removed.ok());
+	REQUIRE(removed.error().code == ErrorCode::NoSuchRecording);
+	REQUIRE(ask(httpd::Delete, "/api/v1/recordings/archive/" + gone, "").code == 404);
+	REQUIRE(ask(httpd::Get, "/api/v1/recordings/archive/" + gone + "/file", "", httpd::AuthLevel::Read).code == 404);
+	REQUIRE(titlesIn(archive::list("", 0, 10).value()) == "Folge");
+
+	// A folder swapped for a link after the scan leads nowhere, least of all out of the library.
+	const std::string folge = idFor(a.disk.base + "/Serien/x.ts");
+	REQUIRE(archive::find(folge).ok());
+	const std::string folder = a.disk.base + "/Serien";
+	REQUIRE(rename(folder.c_str(), (folder + ".was").c_str()) == 0);
+	REQUIRE(symlink(outside.base.c_str(), folder.c_str()) == 0);
+	const int file = ask(httpd::Get, "/api/v1/recordings/archive/" + folge + "/file", "", httpd::AuthLevel::Read).code;
+	const int removal = ask(httpd::Delete, "/api/v1/recordings/archive/" + folge, "").code;
+	unlink(folder.c_str());
+	rename((folder + ".was").c_str(), folder.c_str());
+	REQUIRE(file == 404);
+	REQUIRE(removal == 404);
+	struct stat st;
+	REQUIRE(lstat((outside.base + "/x.ts").c_str(), &st) == 0);
+	REQUIRE(lstat((outside.base + "/x.xml").c_str(), &st) == 0);
+}
+
+TEST_CASE("a removal reads again every directory that lists the recording", "[archive][library]")
+{
+	Archive a;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	a.disk.dir("Serien");
+	a.disk.recording("Serien/x", "Folge", "X", 1, 1790000001);
+	a.browse("mb_dir_0=" + a.disk.base + "/Serien\nmb_dir_used0=1\n");
+	archive::internal::setTimesForTest(-1, 60000);
+	REQUIRE(titlesIn(archive::list("", 0, 10).value()) == "A Folge");
+	REQUIRE(archive::remove(idFor(a.disk.base + "/Serien/x.ts")).ok());
+	REQUIRE(titlesIn(archive::list("", 0, 10).value()) == "A");
+}
+
+TEST_CASE("a directory inside another one narrows to every recording it holds", "[archive][library]")
+{
+	Archive a;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	a.disk.dir("Serien");
+	a.disk.recording("Serien/x", "Folge", "X", 1, 1790000001);
+	const std::string serien = a.disk.base + "/Serien";
+	a.browse("mb_dir_0=" + serien + "\nmb_dir_used0=1\n");
+	archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(titlesIn(p) == "A Folge");
+	REQUIRE(sourceOf(p, "Folge") == a.disk.base);
+	p = archive::list("", 0, 10, archive::Sort(), serien).value();
+	REQUIRE(titlesIn(p) == "Folge");
+	REQUIRE(p.total == 1);
+	REQUIRE(sourceOf(p, "Folge") == serien);
+	REQUIRE(titlesIn(archive::list("", 0, 10, archive::Sort(), a.disk.base).value()) == "A Folge");
+}
+
+namespace
+{
+
+int alreadyGone(const char *)
+{
+	errno = ENOENT;
+	return -1;
+}
+
+int notAllowed(const char *)
+{
+	errno = EACCES;
+	return -1;
+}
+
+} // namespace
+
+TEST_CASE("what removing the stream says decides the refusal", "[archive][library]")
+{
+	Archive a;
+	a.disk.recording("one", "One", "X", 1, 1790000000);
+	a.disk.file("one.jpg", "cover");
+	const std::string id = idFor(a.disk.base + "/one.ts");
+
+	// A folder of another user on a share the box may write elsewhere.
+	archive::internal::setUnlinkForTest(&notAllowed);
+	Result<void> got = archive::remove(id);
+	REQUIRE_FALSE(got.ok());
+	REQUIRE(got.error().code == ErrorCode::MediumReadOnly);
+	REQUIRE(got.error().status == Status::Conflict);
+
+	// Gone between the check and the removal.
+	archive::internal::setUnlinkForTest(&alreadyGone);
+	got = archive::remove(id);
+	REQUIRE_FALSE(got.ok());
+	REQUIRE(got.error().code == ErrorCode::NoSuchRecording);
+	REQUIRE(got.error().status == Status::NotFound);
+
+	struct stat st;
+	REQUIRE(lstat((a.disk.base + "/one.xml").c_str(), &st) == 0);
+	REQUIRE(lstat((a.disk.base + "/one.jpg").c_str(), &st) == 0);
+	archive::internal::setUnlinkForTest(NULL);
+	REQUIRE(archive::remove(id).ok());
+}
+
+namespace
+{
+
+OpenThreads::Block slow_read;
+std::string slow_root;
+
+void readSlowly(const std::string &root)
+{
+	if (root == slow_root)
+		slow_read.block();
+}
+
+// Lets a directory it held go, and waits for its read to end, also on a failed REQUIRE.
+struct SlowRead
+{
+	explicit SlowRead(const std::string &root)
+	{
+		slow_read.reset();
+		slow_root = root;
+		archive::internal::setReadingForTest(&readSlowly);
+	}
+	~SlowRead()
+	{
+		slow_read.release();
+		archive::internal::setTimesForTest(10000, 0);
+		archive::list("", 0, 1);
+		archive::internal::setReadingForTest(NULL);
+		slow_root.clear();
+	}
+};
+
+} // namespace
+
+TEST_CASE("a directory still read the first time makes the page say so", "[archive][library]")
+{
+	Archive a;
+	Disk share;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	share.recording("s", "S", "X", 1, 1790000001);
+	a.browse("mb_dir_0=" + share.base + "\nmb_dir_used0=1\n");
+	SlowRead slow(share.base);
+	archive::internal::setTimesForTest(200, 0);
+
+	archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(p.partial);
+	REQUIRE(titlesIn(p) == "A");
+	REQUIRE(p.total == 1);
+	REQUIRE(p.sources.size() == 1);
+	REQUIRE(p.sources[0] == a.disk.base);
+	::Json::Value v = parsed(ask(httpd::Get, "/api/v1/recordings/archive", "", httpd::AuthLevel::Read).body);
+	REQUIRE(v["partial"].asBool());
+	REQUIRE(v["sources"].size() == 1);
+
+	slow_read.release();
+	archive::internal::setTimesForTest(10000, 0);
+	p = archive::list("", 0, 10).value();
+	REQUIRE_FALSE(p.partial);
+	REQUIRE(titlesIn(p) == "A S");
+	REQUIRE(p.sources.size() == 2);
+	v = parsed(ask(httpd::Get, "/api/v1/recordings/archive", "", httpd::AuthLevel::Read).body);
+	REQUIRE(v["partial"].isBool());
+	REQUIRE_FALSE(v["partial"].asBool());
+}
+
+TEST_CASE("starting a file neither starts a scan nor waits for a share", "[archive][library]")
+{
+	Archive a;
+	Disk share;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	share.recording("s", "S", "X", 1, 1790000001);
+	a.browse("mb_dir_0=" + share.base + "\nmb_dir_used0=1\n");
+	record_dir = a.disk.base;
+	probes_of_record_dir = 0;
+	DeadShare dead(std::string(), true);
+
+	struct timeval t;
+	gettimeofday(&t, NULL);
+	Result<archive::Entry> here = archive::entryAt(a.disk.base + "/a.ts");
+	Result<archive::Entry> there = archive::entryAt(share.base + "/s.ts");
+	const long took = msSince(t);
+	const int probes = probes_of_record_dir;
+	record_dir.clear();
+	REQUIRE(took < 100);
+	REQUIRE(probes == 0);
+	REQUIRE(here.ok());
+	REQUIRE(here.value().title == "A");
+	REQUIRE(here.value().source == a.disk.base);
+	REQUIRE(there.ok());
+	REQUIRE(there.value().source == share.base);
+}
+
+TEST_CASE("a scan that renews an aged one is waited for so a file copied in shows up", "[archive][library]")
+{
+	Archive a;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	archive::internal::setTimesForTest(-1, 0);
+	REQUIRE(titlesIn(archive::list("", 0, 10).value()) == "A");
+	// Copied in over the network, which tells the archive nothing.
+	a.disk.recording("b", "B", "X", 1, 1790000001);
+	REQUIRE(titlesIn(archive::list("", 0, 10).value()) == "A B");
+
+	// A reading that runs past the wait is answered with the one before it, not as missing.
+	SlowRead slow(a.disk.base);
+	archive::internal::setTimesForTest(300, 0);
+	a.disk.recording("c", "C", "X", 1, 1790000002);
+	const archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(titlesIn(p) == "A B");
+	REQUIRE_FALSE(p.partial);
+	REQUIRE(p.sources.size() == 1);
+}
+
+TEST_CASE("a page narrowed to a directory read whole is not partial for another one", "[archive][library]")
+{
+	Archive a;
+	Disk share;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	share.recording("s", "S", "X", 1, 1790000001);
+	a.browse("mb_dir_0=" + share.base + "\nmb_dir_used0=1\n");
+	SlowRead slow(share.base);
+	archive::internal::setTimesForTest(200, 0);
+	archive::Page p = archive::list("", 0, 10, archive::Sort(), a.disk.base).value();
+	REQUIRE(titlesIn(p) == "A");
+	REQUIRE_FALSE(p.partial);
+	p = archive::list("", 0, 10, archive::Sort(), share.base).value();
+	REQUIRE(p.total == 0);
+	REQUIRE(p.partial);
+	REQUIRE(archive::list("", 0, 10).value().partial);
+}
+
+TEST_CASE("the playing file is not looked at in a directory that did not answer", "[archive][library]")
+{
+	Archive a;
+	Disk away;
+	a.disk.recording("a", "A", "X", 1, 1790000000);
+	// The same bytes under a second name, which only a look at the file tells apart.
+	const std::string there = away.base + "/a.ts";
+	REQUIRE(::link((a.disk.base + "/a.ts").c_str(), there.c_str()) == 0);
+	away.made.push_back(there);
+	a.browse("mb_dir_0=" + away.base + "\nmb_dir_used0=1\n");
+	DeadShare dead(away.base);
+	archive::internal::setTimesForTest(200, 0);
+
+	archive::notePlaying(there);
+	archive::Page p = archive::list("", 0, 10).value();
+	REQUIRE(titlesIn(p) == "A");
+	REQUIRE_FALSE(p.items[0].playing);
+	archive::notePlaying(a.disk.base + "/a.ts");
+	p = archive::list("", 0, 10).value();
+	REQUIRE(p.items[0].playing);
 }

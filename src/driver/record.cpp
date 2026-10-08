@@ -64,6 +64,7 @@
 #include <eitd/sectionsd.h>
 #include <timerdclient/timerdclient.h>
 #include <cs_api.h>
+#include <coreapi/archive.h>
 #include <coreapi/base/messagebridge.h>
 
 extern "C" {
@@ -1554,6 +1555,8 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 	   then, and a subscriber is already held to taking what it needs and
 	   returning at once rather than going back to ask the box anything. */
 	coreapi::publishRecordingStopped(stopped_channel, (uint32_t) stopped_id);
+	// Only marks the scans stale, so it is cheap under this lock.
+	coreapi::archive::refresh();
 }
 
 bool CRecordManager::Stop(const t_channel_id channel_id)

@@ -24,6 +24,7 @@
 #include "storage.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/box/storage_internal.h"
+#include "coreapi/library.h"
 #include "coreapi/settings/settings.h"
 
 #include "system/helpers.h"
@@ -116,10 +117,6 @@ std::string &rootsStore()
 	static std::string s(internal::kShippedRoots);
 	return s;
 }
-
-// Up to this many directories in the movie browser's own file, which is what
-// the screen behind it offers.
-const int kMovieBrowserDirs = 8;
 
 // One element of the list, left out where it names nothing this layer could
 // resolve later. Not checked for being there: a medium that is not mounted yet
@@ -399,25 +396,12 @@ void refreshRoots()
 	   where this box records is the declaration the program already carries, and so the
 	   copy is taken under the lock a screen writing that member holds. A store that
 	   cannot answer leaves the list as it is: the media are still reachable, which is
-	   better than a request refused because a setting could not be read. */
-	Result<std::string> recording = settings::get("network_nfs_recordingdir");
-	if (recording.ok())
-		addRoot(all, recording.value());
-
-	/* Asked for before it is opened, because the reader writes a line to the error
-	   stream for a file that is not there and this runs on every request. A box that has
-	   never opened the movie browser has no such file, and that is not a fault. */
-	if (access(internal::moviebrowser_config_path, R_OK) == 0)
-	{
-		CConfigFile browser(',');
-		browser.loadConfig(internal::moviebrowser_config_path);
-		for (int i = 0; i < kMovieBrowserDirs; i++)
-		{
-			char key[32];
-			snprintf(key, sizeof(key), "mb_dir_%d", i);
-			addRoot(all, browser.getString(key, ""));
-		}
-	}
+	   better than a request refused because a setting could not be read. Every
+	   directory the movie browser names is admitted, whether it scans it or not. */
+	const library::Dirs dirs = library::read();
+	addRoot(all, dirs.record);
+	for (size_t i = 0; i < dirs.own.size(); i++)
+		addRoot(all, dirs.own[i].path);
 
 	setRoots(all);
 }

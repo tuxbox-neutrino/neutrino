@@ -215,7 +215,8 @@ const RouteRefusal kStopRecordingRefusals[] = {
 
 const FieldDesc kArchiveFields[] = {
 	HTTPD_MEMBER("id", FieldType::String,
-		"what names this recording, 16 hexadecimal digits that stay the same while the file does"),
+		"what names this recording, 16 hexadecimal digits that stay the same while the file does, "
+		"whichever directory of the library lists it"),
 	HTTPD_MEMBER("title", FieldType::String, "what the guide called the programme, empty when the box noted none"),
 	HTTPD_MEMBER("channel", FieldType::String, "the channel's name as the box noted it"),
 	HTTPD_MEMBER("channel_id", FieldType::ChannelId, "the channel, hexadecimal, 0 when the box noted none"),
@@ -224,6 +225,8 @@ const FieldDesc kArchiveFields[] = {
 	HTTPD_MEMBER("duration", FieldType::UInt, "how long it is in seconds, 0 when the box noted no length"),
 	HTTPD_MEMBER("size", FieldType::UInt, "how many bytes the stream file holds"),
 	HTTPD_MEMBER("playing", FieldType::Bool, "whether the box is playing this recording on the television now"),
+	HTTPD_MEMBER("source", FieldType::String,
+		"the directory of the library it was found in, as the movie browser names it without a trailing slash"),
 };
 const Schema kArchiveSchema = { "archived-recording", HTTPD_FIELDS(kArchiveFields) };
 
@@ -231,6 +234,12 @@ const FieldDesc kArchivePageFields[] = {
 	HTTPD_LIST_OF("items", &kArchiveSchema, "one page of finished recordings, in the order sort and order ask for"),
 	HTTPD_MEMBER("total", FieldType::UInt, "how many recordings match, on every page"),
 	HTTPD_MEMBER_OPTIONAL("next_offset", FieldType::UInt, "the offset of the next page, absent on the last"),
+	HTTPD_LIST_OF_VALUES("sources", ElementType::String,
+		"every directory of the library that answered and was read whole, in the movie browser's order, "
+		"each a value source takes"),
+	HTTPD_MEMBER("partial", FieldType::Bool,
+		"true while a directory that answered is still being read the first time; its recordings are "
+		"missing from this answer, so ask again in a few seconds"),
 };
 const Schema kArchivePageSchema = { "archive-page", HTTPD_FIELDS(kArchivePageFields) };
 
@@ -244,6 +253,7 @@ const FieldDesc kArchiveDetailsFields[] = {
 	HTTPD_MEMBER("duration", FieldType::UInt, "how long it is in seconds, 0 when the box noted no length"),
 	HTTPD_MEMBER("size", FieldType::UInt, "how many bytes the stream file holds"),
 	HTTPD_MEMBER("playing", FieldType::Bool, "whether the box is playing this recording on the television now"),
+	HTTPD_MEMBER("source", FieldType::String, "the directory of the library it was found in, as the list names it"),
 	HTTPD_MEMBER_OPTIONAL("description", FieldType::String,
 		"the guide's short text, at most 1024 bytes; absent when the box noted none"),
 	HTTPD_MEMBER_OPTIONAL("long_description", FieldType::String,
@@ -289,7 +299,8 @@ Response listArchive(const Request &r)
 	                                       : coreapi::archive::descendingByDefault(key);
 	coreapi::Result<coreapi::archive::Page> got =
 		coreapi::archive::list(r.has("title") ? r.asString("title") : std::string(), offset, limit,
-		                       coreapi::archive::Sort(key, descending));
+		                       coreapi::archive::Sort(key, descending),
+		                       r.has("source") ? r.asString("source") : std::string());
 	if (!got.ok())
 		return problemFor(got.error());
 	const coreapi::archive::Page p = got.value();
@@ -320,11 +331,20 @@ Response listArchive(const Request &r)
 		j.value((unsigned long long) e.size);
 		j.key("playing");
 		j.value(e.playing);
+		j.key("source");
+		j.value(e.source);
 		j.endObject();
 	}
 	j.endArray();
 	j.key("total");
 	j.value((unsigned long) p.total);
+	j.key("sources");
+	j.beginArray();
+	for (size_t i = 0; i < p.sources.size(); ++i)
+		j.value(p.sources[i]);
+	j.endArray();
+	j.key("partial");
+	j.value(p.partial);
 	if (offset + p.items.size() < p.total)
 	{
 		j.key("next_offset");
@@ -378,6 +398,8 @@ Response archivedDetails(const Request &r)
 	j.value((unsigned long long) e.size);
 	j.key("playing");
 	j.value(e.playing);
+	j.key("source");
+	j.value(e.source);
 	textIfAny(j, "description", d.description);
 	textIfAny(j, "long_description", d.long_description);
 	numberIfAny(j, "genre", d.genre);
@@ -645,6 +667,7 @@ Response archivedPlaylist(const Request &r)
 
 const Param kArchiveListParams[] = {
 	HTTPD_QUERY_TEXT("title", "only recordings whose title holds these words, any case", 255),
+	HTTPD_QUERY_TEXT("source", "only recordings from this directory of the library, as sources names it", 4095),
 	HTTPD_QUERY_IN("offset", ParamType::UInt, "how many matching recordings to skip, 0 when left out", 0, 1000000),
 	HTTPD_QUERY_IN("limit", ParamType::UInt, "how many at most, 15 when left out", 1,
 		(long) coreapi::archive::kMaxLimit),
@@ -693,6 +716,7 @@ const RouteRefusal kArchiveRemoveRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchRecording, "no recording has that id"),
 	HTTPD_REFUSES(Conflict, RecordingRunning, "the box is still writing this recording"),
 	HTTPD_REFUSES(Conflict, RecordingPlaying, "the box is playing this recording"),
+	HTTPD_REFUSES(Conflict, MediumReadOnly, "the box may not remove files in the directory holding it"),
 };
 
 const RouteRefusal kArchiveFileRefusals[] = {
@@ -763,16 +787,25 @@ const Endpoint kRecordingEndpoints[] = {
 	  HTTPD_PARAMS(kOneParams), NULL, &stopRecording, false,
 	  Answers202, HTTPD_REFUSALS(kStopRecordingRefusals) },
 	{ Method::Get, "/api/v1/recordings/archive", AuthLevel::Read,
-	  "the finished recordings on the record disk, newest first unless sorted otherwise, a page at a time",
-	  "Lists the finished recordings in the box's record directory and the folders directly below it, newest "
-	  "first, 15 to a page unless `limit` says otherwise. A recording is a transport stream the box wrote with "
+	  "the finished recordings in the media library, newest first unless sorted otherwise, a page at a time",
+	  "Lists the finished recordings in the media library and the folders directly below each of its "
+	  "directories, newest first, 15 to a page unless `limit` says otherwise. The library is the directories "
+	  "the box's movie browser is set to look in: the record directory and its own list, each only while "
+	  "switched on there. A directory on a share that does not answer within two seconds is left out of "
+	  "this answer and of `sources`. One that answered but is still being read the first time is left "
+	  "out too and sets `partial`; ask again shortly. Every directory is read again once its last reading "
+	  "is 30 seconds old and when a recording ends or is removed, and the answer waits up to two seconds "
+	  "for that; a reading that takes longer is answered with what the one before it found. A file added "
+	  "by other means can take up to 30 seconds to appear. `source` says where each recording lies and narrows the list to one directory; a "
+	  "recording two directories hold counts for the first of them unless `source` names the other. "
+	  "A recording is a transport stream the box wrote with "
 	  "its metadata file beside it; title, channel and length come from that file, `start` is reckoned from "
 	  "when the stream was last written and that length. `title` narrows the list to titles holding those "
 	  "words. `sort` orders the matching recordings by `title`, `start`, `channel`, `duration` or `size` "
 	  "before the page is cut; `order` left out is `desc` for `start`, `duration` and `size` and `asc` for "
 	  "`title` and `channel`. Recordings that compare equal follow their `id`, ascending, so pages never "
-	  "overlap. Pass `next_offset` back as `offset`, with the same `title`, `sort` and `order`, for the next "
-	  "page; the last page carries none.\n\n"
+	  "overlap. Pass `next_offset` back as `offset`, with the same `title`, `source`, `sort` and `order`, for "
+	  "the next page; the last page carries none.\n\n"
 	  "**Related:** `GET /api/v1/recordings/archive/{id}`, `GET /api/v1/recordings/archive/{id}/file`, "
 	  "`POST /api/v1/recordings/archive/{id}/play`, "
 	  "`DELETE /api/v1/recordings/archive/{id}`, `GET /api/v1/recordings`.",
@@ -795,7 +828,7 @@ const Endpoint kRecordingEndpoints[] = {
 	  "the cover picture of one finished recording",
 	  "Sends the picture that lies beside the recording's stream under the same name, looked for as the "
 	  "box's movie browser looks: `.jpg`, `.png`, `.gif`, `.jpeg`, then `.bmp`. Only a plain file inside the "
-	  "record directory counts; a link is never followed.\n\n"
+	  "library directory the recording lies in counts; a link is never followed.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-recording`: no recording has that `id`, or it has no cover.\n\n"
 	  "**Related:** `GET /api/v1/recordings/archive/{id}`.",
@@ -861,11 +894,13 @@ const Endpoint kRecordingEndpoints[] = {
 	{ Method::Delete, "/api/v1/recordings/archive/{id}", AuthLevel::Write,
 	  "removes one finished recording from the disk for good",
 	  "Removes one finished recording: the stream file, its metadata file and a cover picture of the same "
-	  "name. Nothing outside the record directory is ever reached.\n\n"
+	  "name. Nothing outside the library is ever reached.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-recording`: no recording has that `id`, also when it was removed already.\n"
 	  "- `409 recording-running`: the box is still writing this recording; stop it first.\n"
-	  "- `409 recording-playing`: the box is playing this recording.\n\n"
+	  "- `409 recording-playing`: the box is playing this recording.\n"
+	  "- `409 medium-read-only`: the box may not remove files in the directory it lies in, such as on a "
+	  "share mounted read-only or a folder of another user; nothing of it was removed.\n\n"
 	  "**Related:** `GET /api/v1/recordings/archive`, `DELETE /api/v1/recordings/{id}`.",
 	  HTTPD_PARAMS(kArchiveOneParams), NULL, &removeArchived, false,
 	  Answers204, HTTPD_REFUSALS(kArchiveRemoveRefusals) },

@@ -79,6 +79,7 @@ libcoreapi_a_SOURCES = \
 	plugins.cpp \
 	recordings.cpp \
 	archive.cpp \
+	library.cpp \
 	playback.cpp \
 	osd.cpp \
 	settings/settings.cpp \
@@ -109,6 +110,8 @@ noinst_HEADERS = \
 	plugins.h \
 	recordings.h \
 	archive.h \
+	archive_internal.h \
+	library.h \
 	playback.h \
 	osd.h \
 	base/schema.h \

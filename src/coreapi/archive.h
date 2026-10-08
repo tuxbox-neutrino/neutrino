@@ -1,5 +1,5 @@
 /*
- * archive.h - the finished recordings on the record disk
+ * archive.h - the finished recordings in the movie browser's directories
  *
  * Copyright (C) 2026 NI-Team
  *
@@ -35,10 +35,10 @@ namespace coreapi
 namespace archive
 {
 
-// One finished recording: a .ts in the record directory with its .xml beside it.
+// One finished recording: a .ts in a library directory with its .xml beside it.
 struct Entry
 {
-	std::string id;          // 16 lowercase hex digits
+	std::string id;          // 16 lowercase hex digits of the whole resolved name
 	std::string title;
 	std::string channel;
 	ChannelId   channel_id;  // 0 when the metadata names none
@@ -47,18 +47,22 @@ struct Entry
 	uint64_t    size;
 	bool        playing;
 	std::string path;        // whole name of the .ts, never sent by a list route
+	std::string source;      // the library directory as the movie browser names it, without a trailing slash
+	std::string root;        // that directory resolved, never sent
 };
 
 struct Page
 {
-	std::vector<Entry> items;
-	size_t             total;
+	std::vector<Entry>       items;
+	size_t                   total;
+	std::vector<std::string> sources;  // the library directories that answered and were read whole
+	bool                     partial;  // one that answered is still being read the first time
+
+	Page() : total(0), partial(false) {}
 };
 
 const size_t kDefaultLimit = 15;
 const size_t kMaxLimit = 50;
-
-std::string recordDirectory();
 
 enum class SortKey
 {
@@ -82,11 +86,17 @@ struct Sort
 // Start, duration and size descending; title and channel ascending.
 bool descendingByDefault(SortKey key);
 
-Result<Page> list(const std::string &title_part, size_t offset, size_t limit, const Sort &sort = Sort());
+/* An empty source is every library directory. A file two directories list
+   counts for the first of them, unless source names the other. */
+Result<Page> list(const std::string &title_part, size_t offset, size_t limit, const Sort &sort = Sort(),
+                  const std::string &source = std::string());
+
+// The next request scans every library directory again.
+void refresh();
 
 Result<Entry> find(const std::string &id);
 
-// The entry one path names, held to the rules a list keeps, without a scan.
+// The entry one path names, held to the rules a list keeps, without a scan or a wait.
 Result<Entry> entryAt(const std::string &path);
 
 // Texts past these are cut at a character boundary.

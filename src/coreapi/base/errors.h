@@ -242,6 +242,8 @@ enum class ErrorCode
 	RecordingHoldsTuner,
 	// Asked again with stop_playback set, the file playing is ended first.
 	PlaybackRunning,
+	// The directory holding it may only be read, so nothing of it was removed.
+	MediumReadOnly,
 
 	// A table this layer wrote is wrong, which is a fault here and not at the caller.
 	BadScript,
@@ -499,6 +501,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::BoxInStandby: return "box-in-standby";
 		case ErrorCode::RecordingHoldsTuner: return "recording-holds-tuner";
 		case ErrorCode::PlaybackRunning: return "playback-running";
+		case ErrorCode::MediumReadOnly: return "medium-read-only";
 		case ErrorCode::BadScript: return "bad-script";
 		case ErrorCode::BadTable: return "bad-table";
 		case ErrorCode::NoTimeout: return "no-timeout";
