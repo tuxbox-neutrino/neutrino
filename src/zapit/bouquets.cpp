@@ -1143,24 +1143,6 @@ static std::string webchannelDirKey(const std::string &dir)
 	return normalized;
 }
 
-/*
- * A source entry counts as auto-dir entry only if its parent directory
- * IS one of the auto directories; subdirectories and lookalike sibling
- * paths stay manual sources.
- */
-static bool isWebchannelAutoDirEntry(const std::string &entry, const std::string &dir_key0, const std::string &dir_key1)
-{
-	if (entry.empty() || entry[0] != '/')
-		return false;
-
-	std::string::size_type pos = entry.find_last_of('/');
-	if (pos == std::string::npos || pos == 0)
-		return false;
-
-	std::string parent = webchannelDirKey(entry.substr(0, pos));
-	return (parent == dir_key0) || (parent == dir_key1);
-}
-
 // same file types the WebTV/WebRadio setup menu scans (webchannels_setup.cpp)
 static int webchannelAutoFileFilter(const struct dirent *entry)
 {
@@ -1176,9 +1158,11 @@ static int webchannelAutoFileFilter(const struct dirent *entry)
 }
 
 /*
- * Build the effective source list for one reload pass: manual/remote
- * sources from the configured list plus a fresh scan of the auto
- * directories. Works on a zapit-local list only; the GUI-owned
+ * Build the effective source list for one reload pass: every source of
+ * the configured list, wherever it lies, plus a fresh scan of the auto
+ * directories while autoloading is on. The configured list holds only
+ * what the user entered; a file found by the scan whose name is already
+ * listed is loaded once. Works on a zapit-local list only; the GUI-owned
  * g_settings source lists are never written here.
  */
 static void buildWebchannelSources(int mode, std::list<std::string> &sources)
@@ -1205,13 +1189,7 @@ static void buildWebchannelSources(int mode, std::list<std::string> &sources)
 	std::string dir_keys[2] = { webchannelDirKey(dirs[0]), webchannelDirKey(dirs[1]) };
 
 	if (cfg)
-	{
-		for (std::list<std::string>::iterator it = cfg->begin(); it != cfg->end(); ++it)
-		{
-			if (!isWebchannelAutoDirEntry(*it, dir_keys[0], dir_keys[1]))
-				sources.push_back(*it);
-		}
-	}
+		sources.insert(sources.end(), cfg->begin(), cfg->end());
 
 	if (!auto_enabled)
 		return;
@@ -1235,7 +1213,7 @@ static void buildWebchannelSources(int mode, std::list<std::string> &sources)
 			if (file_size(webchannel_file))
 			{
 				/* same basename means same list, may be shipped in both
-				   auto dirs or configured manually (see webchannels_auto) */
+				   auto dirs or listed by the user as well */
 				bool found = false;
 				for (std::list<std::string>::iterator it = sources.begin(); it != sources.end(); ++it)
 				{

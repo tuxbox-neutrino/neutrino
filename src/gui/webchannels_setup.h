@@ -25,6 +25,8 @@
 #define __webchannels_setup_h__
 
 #include <sys/types.h>
+#include <list>
+#include <string>
 #include <string.h>
 #include <gui/widget/menue.h>
 
@@ -48,16 +50,7 @@ class CWebChannelsSetup : public CMenuTarget, CChangeObserver
 		int Show();
 		bool changeNotify(const neutrino_locale_t OptionName, void *data);
 
-		// webradio wrappers
-		void webradio_xml_auto();
-		bool webradio_xml_autodir(std::string directory);
-
-		// webtv wrappers
-		void webtv_xml_auto();
-		bool webtv_xml_autodir(std::string directory);
-
-		void webchannels_auto();
-		bool webchannels_autodir(std::string directory);
+		std::list<std::string> webchannels_autofiles(const std::list<std::string> &listed);
 };
 
 class CWebTVResolution : public CMenuTarget

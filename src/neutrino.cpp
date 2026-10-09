@@ -955,8 +955,13 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		g_settings.webtv_stream_restart_attempts = 3;
 	g_settings.webtv_dns_diagnostics = configfile.getInt32("webtv_dns_diagnostics", 1) ? 1 : 0;
 	g_settings.webtv_xml.clear();
+	/* A count of zero is what a setup holding only autoloaded files saved
+	   before webtv_xml_listed existed (saveSetup left those files out), so
+	   then the user's own webtv_usr.xml stands in, as it always did. Once
+	   the flag is set, the count is the list as the user left it, an
+	   emptied one included. */
 	int webtv_count = configfile.getInt32("webtv_xml_count", 0);
-	if (webtv_count)
+	if (webtv_count || configfile.getBool("webtv_xml_listed", false))
 	{
 		for (int i = 0; i < webtv_count; i++)
 		{
@@ -975,9 +980,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	}
 	setSettingsText(g_settings.last_webtv_dir, configfile.getString("last_webtv_dir", WEBTVDIR_VAR));
 
-	CWebChannelsSetup webchannelssetup;
-	webchannelssetup.webtv_xml_auto();
-
 	// webradio
 	g_settings.webradio_xml_auto = configfile.getInt32("webradio_xml_auto", 1);
 	g_settings.webradio_xml.clear();
@@ -987,8 +989,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	   because of driver- or firmware-issues or so. Not sure.
 	   So let's avoid loading webradio_xml to get an empty webradio bouquet.
 	*/
+	// a count of zero as for webtv_xml_listed above
 	int webradio_count = configfile.getInt32("webradio_xml_count", 0);
-	if (webradio_count)
+	if (webradio_count || configfile.getBool("webradio_xml_listed", false))
 	{
 		for (int i = 0; i < webradio_count; i++)
 		{
@@ -1006,8 +1009,6 @@ int CNeutrinoApp::loadSetup(const char *fname)
 			g_settings.webradio_xml.push_back(webradio_xml);
 	}
 	setSettingsText(g_settings.last_webradio_dir, configfile.getString("last_webradio_dir", WEBRADIODIR_VAR));
-
-	webchannelssetup.webradio_xml_auto();
 #endif
 
 	// xmltv
@@ -1959,7 +1960,6 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setBool("widget_fade", g_settings.widget_fade);
 
 	// webtv
-	CWebChannelsSetup webchannelssetup;
 	configfile.setInt32("webtv_xml_auto", g_settings.webtv_xml_auto);
 	configfile.setInt32("webtv_stream_restart_attempts", g_settings.webtv_stream_restart_attempts);
 	configfile.setInt32("webtv_dns_diagnostics", g_settings.webtv_dns_diagnostics);
@@ -1967,12 +1967,11 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it)
 	{
 		std::string k = "webtv_xml_" + to_string(webtv_count);
-		if (webchannelssetup.webtv_xml_autodir((*it)))
-			continue;
 		configfile.setString(k, *it);
 		webtv_count++;
 	}
 	configfile.setInt32("webtv_xml_count", webtv_count);
+	configfile.setBool("webtv_xml_listed", true);
 	configfile.setString("last_webtv_dir", g_settings.last_webtv_dir);
 
 	// webradio
@@ -1981,12 +1980,11 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	for (std::list<std::string>::iterator it = g_settings.webradio_xml.begin(); it != g_settings.webradio_xml.end(); ++it)
 	{
 		std::string k = "webradio_xml_" + to_string(webradio_count);
-		if (webchannelssetup.webradio_xml_autodir((*it)))
-			continue;
 		configfile.setString(k, *it);
 		webradio_count++;
 	}
 	configfile.setInt32("webradio_xml_count", webradio_count);
+	configfile.setBool("webradio_xml_listed", true);
 	configfile.setString("last_webradio_dir", g_settings.last_webradio_dir);
 
 	// xmltv
