@@ -1321,7 +1321,7 @@ std::string CNeutrinoYParser::func_get_webtv_list(CyhookHandler *, std::string)
 {
 	std::string yresult;
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); it++)
-			yresult += string_printf((*it).c_str()) + "\n";
+			yresult += (*it) + "\n";
 	return yresult;
 }
 
@@ -1329,7 +1329,7 @@ std::string CNeutrinoYParser::func_get_webradio_list(CyhookHandler *, std::strin
 {
 	std::string yresult;
 	for (std::list<std::string>::iterator it = g_settings.webradio_xml.begin(); it != g_settings.webradio_xml.end(); it++)
-			yresult += string_printf((*it).c_str()) + "\n";
+			yresult += (*it) + "\n";
 	return yresult;
 }
 
@@ -1337,6 +1337,6 @@ std::string CNeutrinoYParser::func_get_xmltv_list(CyhookHandler *, std::string)
 {
 	std::string yresult;
 	for (std::list<std::string>::iterator it = g_settings.xmltv_xml.begin(); it != g_settings.xmltv_xml.end(); it++)
-			yresult += string_printf((*it).c_str()) + "\n";
+			yresult += (*it) + "\n";
 	return yresult;
 }
