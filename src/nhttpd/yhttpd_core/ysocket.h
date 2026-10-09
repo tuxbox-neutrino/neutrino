@@ -63,6 +63,7 @@ public:
 	CySocket* 	accept();					// Wait for Connection. Returns "slave" Socket
 	void 		setAddr(sockaddr_in _clientaddr);
 	std::string 	get_client_ip(void);				// Get IP from Client
+	std::string 	get_local_authority(void);			// "address:port" this end answers on, empty if unknown
 	SOCKET 		get_socket(){return sock;}			// Return "C" Socket-ID
 	int		get_accept_port(void);				// Get Port for accepted connection
 

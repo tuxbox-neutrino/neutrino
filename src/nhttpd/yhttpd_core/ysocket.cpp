@@ -230,6 +230,19 @@ std::string CySocket::get_client_ip(void) {
 	return inet_ntoa(addr.sin_addr);
 }
 //-----------------------------------------------------------------------------
+// The address and port the connection came in on, as a client would write them
+// to reach this box again: the listening socket may be bound to every address.
+std::string CySocket::get_local_authority(void) {
+	sockaddr_in local;
+	socklen_t len = sizeof(local);
+	if (getsockname(sock, (sockaddr *) &local, &len) != 0 || local.sin_family != AF_INET)
+		return "";
+	char ip[INET_ADDRSTRLEN];
+	if (!inet_ntop(AF_INET, &local.sin_addr, ip, sizeof(ip)))
+		return "";
+	return std::string(ip) + ":" + std::to_string((int) ntohs(local.sin_port));
+}
+//-----------------------------------------------------------------------------
 int CySocket::get_accept_port(void) {
 	return (int) ntohs(addr.sin_port);
 }

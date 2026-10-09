@@ -569,6 +569,7 @@ void *WebThread(void *args) {
 	}
 
 	con->Request.UrlData["clientaddr"] = newConn->ySock->get_client_ip(); // TODO:here?
+	con->Request.UrlData["localaddr"] = newConn->ySock->get_local_authority();
 	con->sock = newConn->ySock; // give socket reference
 	newConn->ySock->handling = true; // dont handle this socket now be webserver main loop
 
