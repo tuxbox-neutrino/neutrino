@@ -277,35 +277,39 @@ TEST_CASE("a one-off timer that begins before now is rejected", "[timers]")
 	REQUIRE(r.error().code == ErrorCode::TimerInThePast);
 }
 
-// A caller that builds a moment out of separate fields has no seconds to give
-// and zeroes them, so a start inside the current minute is the ordinary way of
-// asking for now and must not be refused.
-TEST_CASE("a one-off timer inside the current minute is taken", "[timers]")
+// A form gives no seconds, and a click lands a moment after the minute it was
+// made in, so a start a little behind the box's clock means now.
+TEST_CASE("a one-off timer a little behind the box's clock is taken", "[timers]")
 {
 	FakeTimerSource fake;
 	fake.clock = 100000;
 	InstalledTimerSource installed(&fake);
 
-	TimerInfo t = goodRecording();
-	t.start = 100000 - (100000 % 60);
-	t.stop = 101000;
-
-	REQUIRE(timers::create(t).ok());
+	const time_t behind[] = { 100000 - (100000 % 60), 100000 - (100000 % 60) - 1, 100000 - 120 };
+	for (size_t i = 0; i < sizeof(behind) / sizeof(behind[0]); i++)
+	{
+		TimerInfo t = goodRecording();
+		t.start = behind[i];
+		t.stop = 101000;
+		t.title = i == 0 ? "a" : i == 1 ? "b" : "c";
+		CHECK(timers::create(t).ok());
+	}
 }
 
-TEST_CASE("a second before the current minute is not inside it", "[timers]")
+TEST_CASE("a one-off timer further behind the box's clock is refused", "[timers]")
 {
 	FakeTimerSource fake;
 	fake.clock = 100000;
 	InstalledTimerSource installed(&fake);
 
 	TimerInfo t = goodRecording();
-	t.start = 100000 - (100000 % 60) - 1;
+	t.start = 100000 - 121;
 	t.stop = 101000;
 
 	Result<uint32_t> r = timers::create(t);
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::InvalidArgument);
+	REQUIRE(r.error().code == ErrorCode::TimerInThePast);
 }
 
 TEST_CASE("a repeating timer may begin before now", "[timers]")
@@ -411,6 +415,8 @@ TEST_CASE("an immediate recording reaches the daemon as one whose start has come
 	FakeTimerSource fake;
 	InstalledTimerSource installed(&fake);
 
+	fake.clock = 2000;
+
 	TimerInfo t;
 	t.type = (int) TimerType::ImmediateRecord;
 	t.channel_id = 0x2b66;
@@ -422,10 +428,74 @@ TEST_CASE("an immediate recording reaches the daemon as one whose start has come
 	REQUIRE(fake.timers.size() == 1);
 	REQUIRE(fake.timers[0].type == (int) TimerType::Record);
 	REQUIRE(fake.timers[0].type != (int) TimerType::ImmediateRecord);
-	// Everything else is the caller's and travels untouched.
 	REQUIRE(fake.timers[0].channel_id == 0x2b66);
 	REQUIRE(fake.timers[0].start == 2000);
 	REQUIRE(fake.timers[0].stop == 6000);
+}
+
+// A page sends the clock of the device it runs on, read some seconds earlier.
+TEST_CASE("an immediate recording begins at the box's time and keeps its length", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+	fake.clock = 100000;
+
+	const time_t sent[] = { 100000 - 90, 100000 - 600, 100000 + 300 };
+	for (size_t i = 0; i < sizeof(sent) / sizeof(sent[0]); i++)
+	{
+		TimerInfo t;
+		t.type = (int) TimerType::ImmediateRecord;
+		t.channel_id = 0x2b66;
+		t.start = sent[i];
+		t.stop = sent[i] + 3600;
+		t.title = "Tatort";
+
+		Result<uint32_t> r = timers::create(t);
+		REQUIRE(r.ok());
+		REQUIRE(fake.timers.size() == i + 1);
+		CHECK(fake.timers[i].start == 100000);
+		CHECK(fake.timers[i].stop == 100000 + 3600);
+	}
+}
+
+TEST_CASE("an immediate recording ends with its programme", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+	fake.clock = 100000;
+
+	TimerInfo t;
+	t.type = (int) TimerType::ImmediateRecord;
+	t.channel_id = 0x2b66;
+	t.epg_start = 98200;
+	t.start = 100000 - 600;
+	t.stop = 101800;
+
+	REQUIRE(timers::create(t).ok());
+	REQUIRE(fake.timers.size() == 1);
+	CHECK(fake.timers[0].start == 100000);
+	CHECK(fake.timers[0].stop == 101800);
+	CHECK(fake.timers[0].epg_start == 98200);
+}
+
+// Over by the box's clock, so the end the caller saw ahead is kept as a length.
+TEST_CASE("an immediate recording whose programme is over keeps the length it was sent", "[timers]")
+{
+	FakeTimerSource fake;
+	InstalledTimerSource installed(&fake);
+	fake.clock = 100000;
+
+	TimerInfo t;
+	t.type = (int) TimerType::ImmediateRecord;
+	t.channel_id = 0x2b66;
+	t.epg_start = 96400;
+	t.start = 100000 - 600;
+	t.stop = 100000 - 60;
+
+	REQUIRE(timers::create(t).ok());
+	REQUIRE(fake.timers.size() == 1);
+	CHECK(fake.timers[0].start == 100000);
+	CHECK(fake.timers[0].stop == 100000 + 540);
 }
 
 // The other kinds are handed over as they were asked for, so the translation
@@ -734,7 +804,7 @@ TEST_CASE("a one-off that has not begun cannot be moved to before now", "[timers
 	REQUIRE(fake.timers[0].start == 200000);
 }
 
-TEST_CASE("a one-off that has not begun may be moved inside the current minute", "[timers]")
+TEST_CASE("a one-off that has not begun may be moved a little behind the box's clock", "[timers]")
 {
 	FakeTimerSource fake;
 	fake.clock = 100000;
@@ -747,13 +817,17 @@ TEST_CASE("a one-off that has not begun may be moved inside the current minute",
 	REQUIRE(created.ok());
 
 	t.id = created.value();
-	t.start = 99960;
-	REQUIRE(timers::modify(t).ok());
-	REQUIRE(fake.timers[0].start == 99960);
-
 	t.start = 99959;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 99959);
+
+	t.start = 99880;
+	REQUIRE(timers::modify(t).ok());
+	REQUIRE(fake.timers[0].start == 99880);
+
+	t.start = 99879;
 	REQUIRE_FALSE(timers::modify(t).ok());
-	REQUIRE(fake.timers[0].start == 99960);
+	REQUIRE(fake.timers[0].start == 99880);
 }
 
 TEST_CASE("a repeating timer may be moved before now", "[timers]")

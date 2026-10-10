@@ -112,11 +112,24 @@ int builtAs(int type)
 	return type;
 }
 
-// Where a caller builds a moment out of separate fields it has no seconds to
-// give, and both places that do it zero them, so a start anywhere inside the
-// current minute is one the caller means as now. A caller that hands over a
-// moment whole keeps its seconds and is held to them.
-time_t startOfMinute(time_t t) { return t - (t % 60); }
+/* An immediate recording begins at the box's now, whatever start the caller
+   sent: its clock can be behind the box's or stale by the time it sends. An end
+   that is a programme's end is broadcast time and stays while it lies ahead;
+   any other end keeps its distance from the start the caller sent. */
+void startNow(TimerInfo &t, time_t now)
+{
+	const bool programmeEnd = t.epg_start > 0 && t.stop > now;
+	if (!programmeEnd)
+		t.stop = now + (t.stop - t.start);
+	t.start = now;
+}
+
+/* A start this little behind the box's clock is one the caller meant as now:
+   a form gives no seconds, a click can land just past a minute, and the
+   caller's clock need not agree with the box's. The daemon fires it at once. */
+const time_t kNowGrace = 120;
+
+bool beforeNow(time_t start, time_t now) { return start < now - kNowGrace; }
 
 Status heldTimer(uint32_t id, TimerInfo &one, bool &out)
 {
@@ -194,25 +207,29 @@ Result<uint32_t> create(const TimerInfo &t)
 		return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
 			    "the box does not repeat timers that way");
 
-	// Only a one-off: a repeating timer that begins before now fires at once.
-	if (t.repeat == (int) CTimerd::TIMERREPEAT_ONCE)
+	TimerInfo asked = t;
+	const bool once = t.repeat == (int) CTimerd::TIMERREPEAT_ONCE;
+	const bool immediate = t.type == (int) TimerType::ImmediateRecord;
+	if (once || immediate)
 	{
 		time_t now = 0;
 		Status s = timerSource().now(now);
 		if (s != Status::Ok)
 			return fail(s, ErrorCode::ClockUnavailable,
 				    "the box could not read the time");
-		if (t.start < startOfMinute(now))
+		if (immediate)
+			startNow(asked, now);
+		// Only a one-off: a repeating timer that begins before now fires at once.
+		else if (beforeNow(t.start, now))
 			return fail(Status::InvalidArgument, ErrorCode::TimerInThePast,
 				    "a timer that runs once cannot begin before now");
 	}
 
-	TimerInfo asked = t;
 	asked.type = builtAs(t.type);
 	/* It begins at once, with nothing ahead of it to announce, so it has no
 	   announce time whatever the request carries: one taken as it came would
 	   reach the daemon and the box's own timer list unchecked. */
-	if (t.type != (int) TimerType::ImmediateRecord)
+	if (!immediate)
 		asked.announce = announceOf(asked);
 	else
 		asked.announce = 0;
@@ -271,7 +288,7 @@ Result<void> modify(const TimerInfo &t)
 				return fail(Status::InvalidArgument, ErrorCode::TimerInThePast,
 					    "a recording that is running cannot end before now");
 		}
-		else if (t.start < startOfMinute(now))
+		else if (beforeNow(t.start, now))
 			return fail(Status::InvalidArgument, ErrorCode::TimerInThePast,
 				    "a timer that runs once cannot begin before now");
 	}
