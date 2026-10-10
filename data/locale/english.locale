@@ -219,6 +219,30 @@ auto_update_check_monthly monthly
 auto_update_check_off Off
 auto_update_check_on_start_only only on start
 auto_update_check_weekly weekly
+bluetooth.auth_failed Pairing failed.\nThe code was wrong or the device refused.
+bluetooth.confirm_code Does the device show this code?
+bluetooth.connected connected
+bluetooth.connecting Connecting ...
+bluetooth.failed The device did not answer.\nPut it into pairing mode and try again.
+bluetooth.gone The device is not found any more.\nPlease search again.
+bluetooth.kind_audio Audio
+bluetooth.kind_gamepad Gamepad
+bluetooth.kind_input Input device
+bluetooth.kind_keyboard Keyboard
+bluetooth.kind_mouse Mouse
+bluetooth.no_profile The device is paired, but nothing on this box can use it.
+bluetooth.none_found No devices found
+bluetooth.paired paired
+bluetooth.pairing Pairing ...
+bluetooth.pin PIN of the device
+bluetooth.power Bluetooth on/off
+bluetooth.power_failed Bluetooth could not be switched.
+bluetooth.remove Remove device
+bluetooth.remove_ask Remove this device and its pairing?
+bluetooth.scan Search for devices
+bluetooth.scan_wait Searching for Bluetooth devices ...
+bluetooth.type_code Type this code on the device and press Enter:
+bluetooth.unavailable Bluetooth is not available.
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename rename
@@ -1308,6 +1332,11 @@ menu.hint_back_brief Return to previous menu
 menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
+menu.hint_bluetooth_connect Connect this device
+menu.hint_bluetooth_disconnect Disconnect this device
+menu.hint_bluetooth_pair Pair and connect this device
+menu.hint_bluetooth_power Switch the Bluetooth adapter on or off
+menu.hint_bluetooth_scan Search for devices that are in pairing mode
 menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_ca_init Configuration of CA-system hardware, CA-module and card slots
 menu.hint_cache_txt Start teletext caching after channel switch
@@ -1547,6 +1576,7 @@ menu.hint_moviebrowser_fonts Change moviebrowser (My recordings) font sizes
 menu.hint_moviebrowser_setup Set selection and display options.
 menu.hint_movieplayer_display_playtime While playback show playtime instead of movietitle on VFD/LCD
 menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
+menu.hint_net_bluetooth Pair and connect speakers, headphones, keyboards, mice and gamepads
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
 menu.hint_net_djmount Mount UPnP devices as filesystem\nunder /media/00upnp
@@ -1591,6 +1621,7 @@ menu.hint_net_ssid_scan Scan for available WLAN networks
 menu.hint_net_telnet Enable telnet login to your box
 menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
 menu.hint_net_ushare Share connected HDD over uPnp
+menu.hint_net_wlan Search for wireless networks and connect to one
 menu.hint_net_xupnpd Share live channels over UPNP
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
@@ -2245,8 +2276,10 @@ mpkey.subtitle Subtitles
 mpkey.time Show time
 networkmenu.apply_settings Changes are applied
 networkmenu.apply_settings_now Do you want to apply settings now?
+networkmenu.bluetooth Bluetooth
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
+networkmenu.error_hostname Invalid hostname!\nLetters, digits and hyphens are allowed.
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway Gateway
 networkmenu.hostname Hostname
@@ -2268,6 +2301,7 @@ networkmenu.httpd_threading Connection threading
 networkmenu.httpd_user Username
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
+networkmenu.managed_by_system Managed by the system
 networkmenu.mount Edit network shares
 networkmenu.nameserver Name server
 networkmenu.netmask Netmask
@@ -2291,7 +2325,21 @@ networkmenu.ssid Network name (SSID)
 networkmenu.ssid_scan WLAN network scan
 networkmenu.ssid_scan_error No WLAN networks are found.
 networkmenu.ssid_scan_wait WLAN network scan in progress ...
+networkmenu.state_no_address no address
+networkmenu.state_no_cable no cable
+networkmenu.state_not_connected not connected
 networkmenu.test Test network now
+networkmenu.wlan Wireless network (WLAN)
+networkmenu.wlan_connected connected
+networkmenu.wlan_connecting Connecting ...
+networkmenu.wlan_disconnect Disconnect
+networkmenu.wlan_failed Connection failed.\nPlease check the passphrase.
+networkmenu.wlan_forget Forget network
+networkmenu.wlan_forget_ask Forget this network and its passphrase?
+networkmenu.wlan_hidden Hidden network
+networkmenu.wlan_known saved
+networkmenu.wlan_passphrase_invalid The passphrase needs 8 to 63 characters.
+networkmenu.wlan_unsupported This kind of network is not supported.
 neutrino_starting %s %s starting ...
 nfs.active_shares Active shares
 nfs.alreadymounted Directory already mounted
