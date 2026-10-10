@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -239,6 +240,15 @@ void	netSetHostname( std::string &host )
 void	netSetNameserver(std::string &ip)
 {
 	FILE	*fp;
+	struct stat st;
+
+	/* a link belongs to a resolver such as systemd-resolved or resolvconf,
+	 * writing through it would replace that resolver's file */
+	if (lstat("/etc/resolv.conf", &st) == 0 && S_ISLNK(st.st_mode))
+	{
+		fprintf(stderr, "netSetNameserver: /etc/resolv.conf is managed by the system, not written\n");
+		return;
+	}
 
 	fp = fopen("/etc/resolv.conf","w");
 	if (!fp)
@@ -264,7 +274,11 @@ void	netGetNameserver( std::string &ip )
 	unsigned zaehler;
 
 	ip = "";
-	fp = fopen("/etc/resolv.conf","r");
+	/* behind systemd-resolved /etc/resolv.conf only names the local stub,
+	 * the servers in use are listed here */
+	fp = fopen("/run/systemd/resolve/resolv.conf","r");
+	if (!fp)
+		fp = fopen("/etc/resolv.conf","r");
 	if (!fp)
 		return;
 
@@ -300,8 +314,8 @@ void netGetMacAddr(std::string &ifname, unsigned char *mac)
 	ifr.ifr_addr.sa_family = AF_INET;
 	strncpy(ifr.ifr_name, ifname.c_str(), sizeof(ifr.ifr_name)-1);
 
-	if(ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
-		return;
+	if(ioctl(fd, SIOCGIFHWADDR, &ifr) == 0)
+		memmove(mac, ifr.ifr_hwaddr.sa_data, 6);
 
-	memmove(mac, ifr.ifr_hwaddr.sa_data, 6);
+	close(fd);
 }

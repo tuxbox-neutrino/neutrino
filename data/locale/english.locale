@@ -2247,6 +2247,7 @@ networkmenu.apply_settings Changes are applied
 networkmenu.apply_settings_now Do you want to apply settings now?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
+networkmenu.error_hostname Invalid hostname!\nLetters, digits and hyphens are allowed.
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway Gateway
 networkmenu.hostname Hostname
@@ -2268,6 +2269,7 @@ networkmenu.httpd_threading Connection threading
 networkmenu.httpd_user Username
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
+networkmenu.managed_by_system Managed by the system
 networkmenu.mount Edit network shares
 networkmenu.nameserver Name server
 networkmenu.netmask Netmask
@@ -2291,6 +2293,9 @@ networkmenu.ssid Network name (SSID)
 networkmenu.ssid_scan WLAN network scan
 networkmenu.ssid_scan_error No WLAN networks are found.
 networkmenu.ssid_scan_wait WLAN network scan in progress ...
+networkmenu.state_no_address no address
+networkmenu.state_no_cable no cable
+networkmenu.state_not_connected not connected
 networkmenu.test Test network now
 neutrino_starting %s %s starting ...
 nfs.active_shares Active shares
