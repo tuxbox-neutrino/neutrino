@@ -3747,16 +3747,21 @@ void CControlAPI::logoCGI(CyhookHandler *hh)
 	hh->Write(NeutrinoAPI->getLogoFile(channel_id));
 }
 
-/* API keys, tokens and passwords are never handed out over the web interface */
+/* API keys, tokens, passwords and PINs are left out of what /control/config answers.
+   A password or PIN can sit inside the name, as network_nfs_password_<n> and
+   ci_pincode_<n> do; a key or an ID only at its end, so keyboard_layout and the
+   ac3_pass/dts_pass passthrough settings stay readable. */
 static bool config_key_is_secret(const std::string &key)
 {
-	const char *suffixes[] = { "_key", "_dev_id", "password" };
+	const char *suffixes[] = { "_key", "_dev_id" };
 	for (unsigned i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); i++) {
 		size_t n = strlen(suffixes[i]);
 		if (key.size() >= n && key.compare(key.size() - n, n, suffixes[i]) == 0)
 			return true;
 	}
-	return key.find("_token") != std::string::npos;
+	return key.find("password") != std::string::npos
+		|| key.find("pincode") != std::string::npos
+		|| key.find("_token") != std::string::npos;
 }
 
 //-------------------------------------------------------------------------
@@ -3839,16 +3844,20 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 
 		if (load) {	// get and output list
 			conf = Config->getConfigDataMap();
-			ConfigDataMap::iterator it, end, start;
-			for (start = conf.begin(), it=start, end = conf.end(); it != end; ++it) {
+			ConfigDataMap::iterator it, end;
+			// the separator goes before every entry but the first one written,
+			// which is not the first one in the map once that one is left out
+			bool first = true;
+			for (it = conf.begin(), end = conf.end(); it != end; ++it) {
+				if (config_key_is_secret(it->first))
+					continue;
 				std::string key = it->first;
 				replace(key, ".", "_dot_");
 				replace(key, "-", "_bind_");
-				if (!config_key_is_secret(it->first)) {
-					if(it != start)
-						result += hh->outNext();
-					result += hh->outPair(key, it->second, false);
-				}
+				if (!first)
+					result += hh->outNext();
+				result += hh->outPair(key, it->second, false);
+				first = false;
 			}
 		}
 		else { // set values and save list
