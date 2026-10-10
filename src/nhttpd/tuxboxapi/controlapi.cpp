@@ -3746,6 +3746,19 @@ void CControlAPI::logoCGI(CyhookHandler *hh)
 	       &channel_id);
 	hh->Write(NeutrinoAPI->getLogoFile(channel_id));
 }
+
+/* API keys, tokens and passwords are never handed out over the web interface */
+static bool config_key_is_secret(const std::string &key)
+{
+	const char *suffixes[] = { "_key", "_dev_id", "password" };
+	for (unsigned i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); i++) {
+		size_t n = strlen(suffixes[i]);
+		if (key.size() >= n && key.compare(key.size() - n, n, suffixes[i]) == 0)
+			return true;
+	}
+	return key.find("_token") != std::string::npos;
+}
+
 //-------------------------------------------------------------------------
 /** Get Config File or save values to given config file
  * @param hh CyhookHandler
@@ -3831,7 +3844,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				std::string key = it->first;
 				replace(key, ".", "_dot_");
 				replace(key, "-", "_bind_");
-				if (!(hh->ParamList["config"] == "nhttpd" && it->first == "mod_auth.password")) {
+				if (!config_key_is_secret(it->first)) {
 					if(it != start)
 						result += hh->outNext();
 					result += hh->outPair(key, it->second, false);
