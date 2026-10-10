@@ -1894,6 +1894,10 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 
 	printf("%s channel_id %" PRIx64 " mode %s\n", __func__, channel_id, neutrinoMode_to_string(mode));
 
+	/* Null only on a box without any tuner. */
+	if (CZapit::getInstance()->GetLiveFrontend() == NULL)
+		return false;
+
 	last_mode = CNeutrinoApp::getInstance()->getMode();
 	if(last_mode == NeutrinoModes::mode_standby && recmap.empty()) {
 		g_Zapit->setStandby(false); // this zap to live_channel_id
