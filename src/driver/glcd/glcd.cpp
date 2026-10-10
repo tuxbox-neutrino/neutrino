@@ -36,6 +36,7 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <hardware_caps.h>
 #include <eitd/sectionsd.h>
+#include <coreapi/settings/choicesources.h>
 #include <math.h>
 
 #include "glcd.h"
@@ -895,6 +896,10 @@ void cGLCD::Run(void)
 		fprintf(stderr, "No driver config found!\n");
 		return;
 	}
+	std::vector<std::string> config_names;
+	for (size_t i = 0; i < GLCD::Config.driverConfigs.size(); i++)
+		config_names.push_back(GLCD::Config.driverConfigs[i].name);
+	coreapi::noteGlcdConfigNames(config_names);
 
 	struct timespec ts;
 

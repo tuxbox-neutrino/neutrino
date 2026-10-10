@@ -189,6 +189,8 @@ PluginSource &pluginSource()
 
 void setPluginSource(PluginSource *s) { g_plugin_source = s; }
 
+bool pluginSourceInstalled() { return g_plugin_source != 0; }
+
 static RecordingSource *g_recording_source = 0;
 
 RecordingSource &recordingSource()

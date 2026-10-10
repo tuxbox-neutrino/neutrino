@@ -22,6 +22,7 @@
 #include "settingstable.h"
 #include "predicates.h"
 #include "settingsfield.h"
+#include "choicesources.h"
 
 namespace coreapi
 {
@@ -536,6 +537,7 @@ constexpr Descriptor kMisc[] =
 		.hint("menu.hint_movieplayer_plugin")
 		.defaultValue("---")
 		.text(kRuleNameFromList)
+		.choicesFrom(moviePlayerPlugins)
 		.field(COREAPI_TEXT_FIELD(movieplayer_plugin)),
 
 	// streaming

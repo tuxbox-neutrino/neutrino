@@ -60,6 +60,19 @@ bool timezonesFrom(const std::string &list, const std::string &root, std::vector
 bool interfaceNames(std::vector<SettingChoice> &out);
 bool interfacesIn(const std::string &dir, std::vector<SettingChoice> &out);
 
+/* The panels of the display's configuration file, each as its index with its name as the
+   label. False while the file has not been read. */
+bool glcdConfigs(std::vector<SettingChoice> &out);
+
+/* What the movie player key may start: none, stored as "---", and then every plugin the
+   menus show, stored by the name it calls itself. */
+bool moviePlayerPlugins(std::vector<SettingChoice> &out);
+
+/* The names of the panels the display's configuration file lists, in its order, kept when it
+   is read so the list is answered without touching the display. */
+void noteGlcdConfigNames(const std::vector<std::string> &names);
+std::vector<std::string> recordedGlcdConfigNames();
+
 namespace internal
 {
 /* Puts root in front of every place the lists above are read from, so the unit

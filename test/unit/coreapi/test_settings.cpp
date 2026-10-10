@@ -20,6 +20,7 @@
  */
 
 #include "support/catch.hpp"
+#include "coreapi/settings/choicesources.h"
 #include "coreapi/settings/settings.h"
 #include "coreapi/base/deps.h"
 #include "coreapi/base/eventbus.h"
@@ -2034,4 +2035,54 @@ TEST_CASE("the value already stored and the default pass a bound that has moved"
 	// Beyond the constants a stored value is no longer passed.
 	f.ints["t_bounded"] = 5000;
 	CHECK(refusedAs(settings::set("t_bounded", "5000"), ErrorCode::OutOfRange));
+}
+
+TEST_CASE("the movie player key offers none and the plugins the menus show", "[settings][menurows]")
+{
+	FakePluginSource plugins;
+	InstalledPluginSource installed(&plugins);
+	plugins.add("ytube", "YouTube");
+	plugins.add("secret", "Hidden one");
+	plugins.plugins.back().hidden = true;
+	plugins.add("mediathek", "Mediathek");
+
+	std::vector<SettingChoice> offered;
+	REQUIRE(moviePlayerPlugins(offered));
+	REQUIRE(offered.size() == 3);
+	CHECK(offered[0].text == "---");
+	CHECK(offered[0].label_key == "plugins.no_plugin");
+	CHECK(offered[1].text == "YouTube");
+	CHECK(offered[1].label == "YouTube");
+	CHECK(offered[2].text == "Mediathek");
+
+	Result<Descriptor> d = settings::describe("movieplayer_plugin");
+	REQUIRE(d.ok());
+	CHECK(d.value().choices_from == &moviePlayerPlugins);
+
+	plugins.list_status = Status::NotSupported;
+	std::vector<SettingChoice> none;
+	CHECK_FALSE(moviePlayerPlugins(none));
+}
+
+TEST_CASE("the display panels are offered from the names kept when the file was read", "[settings][menurows]")
+{
+	struct Reset { ~Reset() { noteGlcdConfigNames(std::vector<std::string>()); } } reset;
+	std::vector<SettingChoice> offered;
+	noteGlcdConfigNames(std::vector<std::string>());
+	CHECK_FALSE(glcdConfigs(offered));
+
+	std::vector<std::string> names;
+	names.push_back("dpf320x240");
+	names.push_back("vuplus4k");
+	noteGlcdConfigNames(names);
+	REQUIRE(glcdConfigs(offered));
+	REQUIRE(offered.size() == 2);
+	CHECK(offered[0].value == 0);
+	CHECK(offered[0].label == "dpf320x240");
+	CHECK(offered[1].value == 1);
+	CHECK(offered[1].label == "vuplus4k");
+	CHECK(offered[1].text.empty());
+#ifdef ENABLE_GRAPHLCD
+	CHECK(settings::describe("glcd_selected_config").value().choices_from == &glcdConfigs);
+#endif
 }

@@ -834,6 +834,8 @@ struct PluginSource
 
 PluginSource &pluginSource();
 void setPluginSource(PluginSource *s);
+// Whether one is installed, asked without ending the process, as for the system source.
+bool pluginSourceInstalled();
 
 // Binds the accessor above to whatever holds the plugins the box found.
 void installRealPluginSource();

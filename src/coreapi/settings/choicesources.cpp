@@ -23,6 +23,8 @@
 
 #include "coreapi/settings/choicesources.h"
 
+#include "coreapi/base/deps.h"
+
 #include <xmlinterface.h>
 
 #include <dirent.h>
@@ -31,6 +33,7 @@
 #include <unistd.h>
 
 #include <fstream>
+#include <mutex>
 #include <set>
 #include <sstream>
 #include <string>
@@ -236,6 +239,66 @@ bool interfacesIn(const std::string &dir, std::vector<SettingChoice> &out)
 
 	if (found.empty())
 		return false;
+	out.swap(found);
+	return true;
+}
+
+namespace
+{
+
+std::mutex g_config_names_lock;
+std::vector<std::string> g_config_names;
+
+} // namespace
+
+void noteGlcdConfigNames(const std::vector<std::string> &names)
+{
+	std::lock_guard<std::mutex> hold(g_config_names_lock);
+	g_config_names = names;
+}
+
+std::vector<std::string> recordedGlcdConfigNames()
+{
+	std::lock_guard<std::mutex> hold(g_config_names_lock);
+	return g_config_names;
+}
+
+bool glcdConfigs(std::vector<SettingChoice> &out)
+{
+	const std::vector<std::string> names = recordedGlcdConfigNames();
+	if (names.empty())
+		return false;
+	std::vector<SettingChoice> found;
+	for (size_t i = 0; i < names.size(); ++i)
+	{
+		SettingChoice one;
+		one.value = (long) i;
+		one.label = names[i];
+		found.push_back(one);
+	}
+	out.swap(found);
+	return true;
+}
+
+bool moviePlayerPlugins(std::vector<SettingChoice> &out)
+{
+	PluginList plugins;
+	if (!pluginSourceInstalled() || pluginSource().list(plugins) != Status::Ok)
+		return false;
+	std::vector<SettingChoice> found;
+	SettingChoice none;
+	none.text = "---";
+	none.label_key = "plugins.no_plugin";
+	found.push_back(none);
+	for (size_t i = 0; i < plugins.size(); ++i)
+	{
+		if (plugins[i].hidden || plugins[i].title.empty())
+			continue;
+		SettingChoice one;
+		one.text = plugins[i].title;
+		one.label = plugins[i].title;
+		found.push_back(one);
+	}
 	out.swap(found);
 	return true;
 }

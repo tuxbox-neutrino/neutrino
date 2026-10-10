@@ -24,6 +24,7 @@
 #include "predicates.h"
 #include "settingsfield.h"
 #include "couple.h"
+#include "choicesources.h"
 #include "coreapi/base/deps.h"
 
 namespace coreapi
@@ -284,6 +285,7 @@ constexpr Descriptor kSettings[] =
 		.label("glcd.display")
 		.range(0, 99)
 		.defaultValue(0)
+		.choicesFrom(glcdConfigs)
 		.field(COREAPI_NUMBER_FIELD(glcd_selected_config)),
 	// src/neutrino.cpp:416 src/gui/glcdsetup.cpp:315
 	textRow("glcd_logodir")
