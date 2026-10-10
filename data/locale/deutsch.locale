@@ -1591,6 +1591,7 @@ menu.hint_net_ssid_scan Nach verfügbaren WLAN-Netzwerken suchen
 menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box
 menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server und externe IP-Adressen
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
+menu.hint_net_wlan WLAN-Netzwerke suchen und verbinden
 menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste usw.
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
@@ -2247,6 +2248,7 @@ networkmenu.apply_settings Änderungen werden übernommen ...
 networkmenu.apply_settings_now Änderungen jetzt zuweisen?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
+networkmenu.error_hostname Ungültiger Hostname!\nErlaubt sind Buchstaben, Ziffern und Bindestriche.
 networkmenu.error_no_address Keine %s-Adresse angegeben!
 networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname
@@ -2268,6 +2270,7 @@ networkmenu.httpd_threading Verbindungs-Threads
 networkmenu.httpd_user Benutzername
 networkmenu.inactive_network Netzwerk nicht aktiviert!
 networkmenu.ipaddress IP
+networkmenu.managed_by_system Wird vom System verwaltet
 networkmenu.mount Netzwerkfreigaben bearbeiten
 networkmenu.nameserver Nameserver
 networkmenu.netmask Netzmaske
@@ -2291,7 +2294,21 @@ networkmenu.ssid Netzwerkname (SSID)
 networkmenu.ssid_scan WLAN-Netzwerke suchen
 networkmenu.ssid_scan_error Keine WLAN-Netzwerke gefunden.
 networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht ...
+networkmenu.state_no_address keine Adresse
+networkmenu.state_no_cable kein Kabel
+networkmenu.state_not_connected nicht verbunden
 networkmenu.test Netzwerk testen
+networkmenu.wlan Drahtlosnetzwerk (WLAN)
+networkmenu.wlan_connected verbunden
+networkmenu.wlan_connecting Verbindung wird hergestellt ...
+networkmenu.wlan_disconnect Trennen
+networkmenu.wlan_failed Verbindung fehlgeschlagen.\nBitte das Passwort prüfen.
+networkmenu.wlan_forget Netzwerk vergessen
+networkmenu.wlan_forget_ask Dieses Netzwerk und sein Passwort vergessen?
+networkmenu.wlan_hidden Verstecktes Netzwerk
+networkmenu.wlan_known gespeichert
+networkmenu.wlan_passphrase_invalid Das Passwort muss 8 bis 63 Zeichen lang sein.
+networkmenu.wlan_unsupported Diese Art von Netzwerk wird nicht unterstützt.
 neutrino_starting %s %s wird gestartet ...
 nfs.active_shares Aktive Freigaben
 nfs.alreadymounted Verzeichnis bereits gemountet.

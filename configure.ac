@@ -434,6 +434,34 @@ AC_ARG_ENABLE(mdev,
 	AS_HELP_STRING([--enable-mdev], [use mdev instead of broken neutrino mount hack @<:@default=no@:>@]),
 	AC_DEFINE(ASSUME_MDEV, 1, [use mdev instead of broken neutrino mount hack]))
 
+AC_ARG_WITH([network-backend],
+	AS_HELP_STRING([--with-network-backend=NAME], [what configures the wired interfaces: ifupdown or networkd @<:@default=ifupdown@:>@]),
+	[network_backend="$withval"],
+	[network_backend="ifupdown"])
+
+case "$network_backend" in
+	ifupdown)
+		;;
+	networkd)
+		AC_DEFINE(NETWORK_BACKEND_NETWORKD, 1, [configure the wired interfaces through systemd-networkd])
+		;;
+	*)
+		AC_MSG_ERROR([unknown network backend "$network_backend"])
+		;;
+esac
+AM_CONDITIONAL(NETWORK_BACKEND_NETWORKD, test "$network_backend" = "networkd")
+
+AC_ARG_ENABLE(iwd,
+	AS_HELP_STRING([--enable-iwd], [connect to wireless networks through iwd instead of wpa_supplicant @<:@default=no@:>@]),
+	[enable_iwd="$enableval"],
+	[enable_iwd="no"])
+
+if test "$enable_iwd" = "yes"; then
+	PKG_CHECK_MODULES([DBUS], [dbus-1])
+	AC_DEFINE(ENABLE_IWD, 1, [connect to wireless networks through iwd])
+fi
+AM_CONDITIONAL(ENABLE_IWD, test "$enable_iwd" = "yes")
+
 AC_ARG_ENABLE(freesatepg,
 	AS_HELP_STRING([--enable-freesatepg], [enable Freesat EPG code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FREESATEPG, 1, [enable Freesat EPG code]))
