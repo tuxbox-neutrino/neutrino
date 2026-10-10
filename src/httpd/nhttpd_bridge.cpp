@@ -556,6 +556,10 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 		   the one a caller cannot resume a download from. */
 		const nhttpd_bridge::FdPlan plan = nhttpd_bridge::planFdAnswer(
 				r.code, r.length, header_value(hh->HeaderList, "Range"));
+		/* Said on every file answer: a media player that is never told
+		   offers no seeking, even though a range it asked for would be
+		   answered. */
+		const std::pair<std::string, std::string> ranges("Accept-Ranges", "bytes");
 		if (plan.code == 416)
 		{
 			// the problem document is the body; held closes the file
@@ -563,8 +567,10 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 			            httpd::rangeRefusedDetail());
 			hh->ResponseHeaders.push_back(std::make_pair(
 					std::string("Content-Range"), plan.content_range));
+			hh->ResponseHeaders.push_back(ranges);
 			return;
 		}
+		hh->ResponseHeaders.push_back(ranges);
 		if (!plan.content_range.empty())
 			hh->ResponseHeaders.push_back(std::make_pair(
 					std::string("Content-Range"), plan.content_range));

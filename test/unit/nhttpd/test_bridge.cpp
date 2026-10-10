@@ -495,6 +495,52 @@ TEST_CASE("a ranged ask against a file answer", "[bridge]")
 	unlink(name);
 }
 
+TEST_CASE("a file answer says that it takes ranges", "[bridge]")
+{
+	/* A player decides from this header alone whether it may seek, so it has
+	   to be there on the whole file as well as on a stretch of it. */
+	Attached a;
+	char name[] = "/tmp/test_bridge_XXXXXX";
+	int fd = mkstemp(name);
+	REQUIRE(fd >= 0);
+	REQUIRE(write(fd, "0123456", 7) == 7);
+	lseek(fd, 0, SEEK_SET);
+
+	httpd::Response r;
+	REQUIRE(httpd::answerFromDescriptor(r, fd));
+	r.code = 200;
+	r.content_type = "video/mp2t";
+
+	const char *const asks[] = { "", "bytes=2-4", "bytes=7-" };
+	for (size_t k = 0; k < sizeof(asks) / sizeof(asks[0]); ++k)
+	{
+		INFO("Range: " << asks[k]);
+		if (k > 0)
+		{
+			fd = open(name, O_RDONLY);
+			REQUIRE(fd >= 0);
+			REQUIRE(httpd::answerFromDescriptor(r, fd));
+			r.code = 200;
+		}
+		Handler h(M_GET, "/api/v1/recordings/archive/0123456789abcdef/file");
+		if (asks[k][0] != '\0')
+			h.hh.HeaderList["Range"] = asks[k];
+		CApiBridge::answerWith(&h.hh, r);
+		size_t seen = 0;
+		for (size_t i = 0; i < h.hh.ResponseHeaders.size(); i++)
+			if (h.hh.ResponseHeaders[i].first == "Accept-Ranges"
+					&& h.hh.ResponseHeaders[i].second == "bytes")
+				seen++;
+		CHECK(seen == 1);
+		if (h.hh.SendFd >= 0)
+		{
+			close(h.hh.SendFd);
+			h.hh.SendFd = -1;
+		}
+	}
+	unlink(name);
+}
+
 TEST_CASE("a ranged ask past the end of a document goes out as the range refusal", "[bridge]")
 {
 	/* Through the send pass and a route that answers a file, rather than handed
