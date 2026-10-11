@@ -115,6 +115,7 @@ libneutrino_gui_a_SOURCES = \
 	weather.cpp \
 	weather_setup.cpp \
 	webchannels_setup.cpp \
+	wlan_setup.cpp \
 	xmltv_setup.cpp \
 	zapit_setup.cpp
 
