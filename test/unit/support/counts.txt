@@ -47,9 +47,9 @@ labels compared against a chooser	179
 labels compared against a number chooser	29
 labels compared against a stated field	82
 labels compared against the locale names	328
-labels stated beside a field	99
+labels stated beside a field	100
 listed keys compared against the table	25
-locale names the program has	3058
+locale names the program has	3063
 options an applier or its notifier branches on	49
 parameters the document describes	134
 refusals the document states against a route	774
