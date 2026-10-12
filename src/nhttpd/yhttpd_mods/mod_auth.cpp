@@ -49,13 +49,21 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	// the login flow's own resources must work without credentials,
 	// but never through a traversal: analyzeURL matches the
 	// percent-decoded URL and mod_sendfile does not sanitize "..",
-	// so "/css/../…" must not become an unauthenticated file read
+	// so "/css/../…" must not become an unauthenticated file read.
+	// The template parser runs an `execute` parameter (and prints its
+	// trace for `debug`) before it renders a page, and before it even
+	// looks whether the file exists: a request carrying either is
+	// never open, and under the asset prefixes no template is.
+	const std::string &ext = hh->UrlData["fileext"];
+	const bool runs_template = hh->ParamList.find("execute") != hh->ParamList.end()
+		|| hh->ParamList.find("debug") != hh->ParamList.end();
+	const bool template_file = ext == "yhtm" || ext == "yjs" || ext == "ysh";
 	bool authfree = false;
-	if (url.find("..") == std::string::npos)
+	if (url.find("..") == std::string::npos && !runs_template)
 		authfree = url == "/login.yhtm"
 			|| url == "/favicon.ico"
-			|| url.compare(0, 5, "/css/") == 0
-			|| url.compare(0, 9, "/favicon/") == 0;
+			|| (!template_file && url.compare(0, 5, "/css/") == 0)
+			|| (!template_file && url.compare(0, 9, "/favicon/") == 0);
 
 	// the /login handlers run for every client, exempt included —
 	// otherwise localhost could not submit the form and GET /login
