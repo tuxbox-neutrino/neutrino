@@ -25,7 +25,10 @@
 // /api/v1/events and calls the handler of each event that arrives with its
 // data ({channel_id, value, text}). The browser reconnects by itself, except
 // after a refusal: a stream the box refused for want of a sign-in is opened
-// again once the sign-in went through.
+// again once the sign-in went through. A handler named `open` is called with
+// null each time the stream (re)connects, which is when a page rereads what
+// it may have missed. ywebV1EventsLive() says whether the stream is open
+// right now; a page polls what it follows while it is not.
 
 var _ywebV1Csrf = null;	// {header, token} of the open session, if any
 var _ywebV1SignInPending = null;	// the one sign-in dialog of the page, while open
@@ -227,6 +230,11 @@ function ywebV1Events(handlers) {
 	if (!window.EventSource) return null;
 	_ywebV1Stream = {handlers: handlers, es: null, closed: false};
 	return _ywebV1Open();
+}
+
+function ywebV1EventsLive() {
+	return !!(window.EventSource && _ywebV1Stream && _ywebV1Stream.es &&
+		_ywebV1Stream.es.readyState === EventSource.OPEN);
 }
 
 function _ywebV1Open() {

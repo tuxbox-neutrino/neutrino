@@ -1116,6 +1116,8 @@ yw.timer.new=New timer
 yw.timer.choose_bq=Choose bouquet...
 yw.bq.channels_unit=channels
 yw.dash.next_prog=Next
+yw.dash.play_recording=Playing a recording
+yw.dash.play_file=Playing a file
 yw.bq.tap_info=Tap to load programme info...
 
 # Personalization — texts mirror Neutrino's own locale (personalize.*)

@@ -1116,6 +1116,8 @@ yw.timer.new=Neuer Timer
 yw.timer.choose_bq=Bouquet wählen...
 yw.bq.channels_unit=Sender
 yw.dash.next_prog=Nächste
+yw.dash.play_recording=Wiedergabe einer Aufnahme
+yw.dash.play_file=Wiedergabe einer Datei
 yw.bq.tap_info=Tippen zum Laden der Sendungsinfo...
 
 # Personalisierung — Texte wie in Neutrinos Locale (personalize.*)

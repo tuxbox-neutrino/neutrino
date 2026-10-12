@@ -153,7 +153,7 @@
 
 	<script src="/Y_Lang.yjs?v=23"></script>
 	<script src="/yweb-header.js?v=54"></script>
-	<script src="/yweb-v1.js?v=5"></script>
+	<script src="/yweb-v1.js?v=6"></script>
 	<script>
 		// The editor speaks /api/v1: a bouquet is read with its position (id)
 		// and its hidden/locked state, and changed by its name; the box saves

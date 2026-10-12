@@ -497,6 +497,23 @@
 		white-space: nowrap;
 	}
 
+	/* Playback banner: a recording or a file the player shows */
+	.yweb-play-info {
+		background: rgba(59, 130, 246, 0.1);
+		border-top-color: rgba(59, 130, 246, 0.2);
+	}
+
+	.yweb-play-icon {
+		color: var(--pico-primary);
+	}
+
+	.yweb-play-time {
+		text-align: right;
+		font-weight: 600;
+		white-space: nowrap;
+		font-variant-numeric: tabular-nums;
+	}
+
 	/* Tuner Signal Widget */
 	.yweb-tuner {
 		display: flex;
@@ -974,6 +991,14 @@
 					</div>
 					<div class="yweb-rec-time" id="rec-remaining">--:--</div>
 				</div>
+				<div id="play-info" class="yweb-rec-info yweb-play-info yweb-hidden">
+					<span class="yweb-play-icon" id="play-icon" aria-hidden="true">▶</span>
+					<div class="yweb-rec-details">
+						<div class="yweb-rec-title" id="play-title">--</div>
+						<div class="yweb-rec-channel" id="play-source">--</div>
+					</div>
+					<div class="yweb-play-time" id="play-time">--:--</div>
+				</div>
 				<footer class="yweb-card-footer yweb-channel-footer">
 					<div class="yweb-next-epg">{=L:yw.dash.next_prog=}: <span id="next-epg">--</span></div>
 					<div class="yweb-channel-actions">
@@ -1198,6 +1223,7 @@
 	<script src="/Y_Lang.yjs?v=23"></script>
 	<script src="/yweb-header.js?v=54"></script>
 	<script src="/yweb-dom.js?v=1"></script>
+	<script src="/yweb-v1.js?v=6"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;
@@ -1265,90 +1291,222 @@
 		return 'ok';                         // Normal
 	}
 
-	// Load Channel Info
-	function loadChannelInfo() {
-		apiJson('channel').then(function(data) {
-			if (data.success === 'true' && data.data && data.data.channel && data.data.channel[0]) {
-				var ch = data.data.channel[0];
-				var channelName = ch.name || 'Unbekannt';
-				var channelId = ch.id;
-				// Store for EPG info button
-				currentChannelId = channelId;
-				currentChannelName = channelName;
-				// Logo (api v4) neben dem Namen; bricht der Load, bleibt
-				// nur der Name stehen. DOM statt HTML-String: der Name
-				// kommt ungefiltert aus der Senderliste.
-				var chEl = document.getElementById('current-channel');
-				chEl.textContent = '';
-				// mit Logo tritt der Textname zurueck (has-logo verkleinert
-				// ihn); bricht der Logo-Load, kommt die volle Groesse wieder
-				chEl.classList.toggle('has-logo', !!ch.logo);
-				if (ch.logo) {
-					var logoImg = document.createElement('img');
-					logoImg.className = 'yweb-status-channel-logo';
-					logoImg.src = ch.logo;
-					logoImg.alt = '';
-					logoImg.onerror = function() {
-						chEl.classList.remove('has-logo');
-						this.remove();
-					};
-					chEl.appendChild(logoImg);
-				}
-				var nameEl = document.createElement('span');
-				nameEl.className = 'yweb-status-channel-name';
-				nameEl.textContent = channelName;
-				chEl.appendChild(nameEl);
-				setText('channel-preview', channelName);
-				loadEpgForChannel(channelId);
-			} else {
-				currentChannelId = null;
-				currentChannelName = null;
-				withEl('current-channel', function(el) { el.classList.remove('has-logo'); el.textContent = '{=L:yw.dash.no_channel=}'; });
-				setText('channel-preview', '{=L:yw.dash.no_channel=}');
-			}
-		}).catch(function() {
-			currentChannelId = null;
-			currentChannelName = null;
-			withEl('current-channel', function(el) { el.classList.remove('has-logo'); el.textContent = '{=L:yw.dash.no_channel=}'; });
-			setText('channel-preview', '{=L:yw.dash.no_channel=}');
-		});
+	// ---- Following the box over /api/v1 ----------------------------------
+	// Channel, guide, recordings, timers, mode, standby and playback follow
+	// the event stream (/api/v1/events) instead of asking on a timer: each
+	// event rereads the one card it concerns, and a card only touches what
+	// changed. What v1 has no event for (system, network, tuner signal, stream
+	// details) is still asked on a timer, and only while the page is visible.
+
+	const NO_CHANNEL = '{=L:yw.dash.no_channel=}';
+	const NO_EPG = '{=L:yw.dash.no_epg=}';
+	const RECORDING = '{=L:yw.bc.recording=}';
+
+	const dash = {
+		channel: null,		// {id, name, kind} of the current channel, null for none
+		shown: null,		// the channel key the card shows, so a reread of the same one changes nothing
+		now: null,		// the guide event running on the current channel
+		next: null,		// and the one after it
+		recordings: [],		// what the box records, its timeshift left out
+		timers: [],
+		playback: null,
+		playbackAt: 0,		// when the playback state was read, to count its position on
+		names: Object.create(null)	// channel id -> name, for timers and recordings
+	};
+
+	// A read that fails is no answer: the card keeps what it shows or says
+	// there is nothing. A refusal for want of a sign-in opens the dialog once
+	// (yweb-v1.js) and the read is sent again.
+	function dashGet(path, query) {
+		return ywebV1('GET', path, query ? {query: query} : undefined).catch(function() { return null; });
 	}
 
-	function loadEpgForChannel(channelId) {
-		if (!channelId) return;
-		apiJson('epg?channelid=' + channelId + '&details=true').then(function(resp) {
-			var now = Math.floor(Date.now() / 1000);
-			var progs = (resp && resp.data && resp.data.epglist && resp.data.epglist.progData) || [];
-			var foundCurrent = false, foundNext = false;
+	// The legacy helpers this page still calls (EPG dialog, recording) take
+	// a channel id with all 16 digits; v1 writes one without leading zeros.
+	function legacyChannelId(id) {
+		return ('0000000000000000' + String(id)).slice(-16);
+	}
 
-			for (var i = 0; i < progs.length; i++) {
-				var startSec = parseInt(progs[i].start_sec) || 0;
-				var stopSec = parseInt(progs[i].stop_sec) || 0;
-				var desc = progs[i].description || '--';
-				var startT = progs[i].start_t || '--:--';
+	function clock(sec) {
+		return sec ? ywebFormatTime(new Date(sec * 1000)) : '--:--';
+	}
 
-				if (!foundCurrent && now >= startSec && now < stopSec) {
-					foundCurrent = true;
-					setText('current-epg', desc);
-					var duration = stopSec - startSec;
-					var elapsed = now - startSec;
-					var pct = Math.min(100, Math.max(0, Math.round(100 * elapsed / duration)));
-					withEl('epg-progress', function(el) { el.value = pct; });
-					var sd = new Date(startSec * 1000), ed = new Date(stopSec * 1000);
-					setText('epg-start', ywebFormatTime(sd));
-					setText('epg-end', ywebFormatTime(ed));
-				} else if (foundCurrent && !foundNext && startSec >= now) {
-					foundNext = true;
-					setText('next-epg', startT + ' ' + desc);
-					break;
-				}
-			}
+	function dayAndClock(sec) {
+		const d = new Date(sec * 1000);
+		return {date: ywebPad2(d.getDate()) + '.' + ywebPad2(d.getMonth() + 1) + '.', time: ywebFormatTime(d)};
+	}
 
-			if (!foundCurrent) setText('current-epg', '{=L:yw.dash.no_epg=}');
-			if (!foundNext) setText('next-epg', '--');
-		}).catch(function() {
-			setText('current-epg', '--');
+	function duration(sec) {
+		sec = Math.max(0, Math.floor(sec));
+		const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60, s = sec % 60;
+		return (h > 0 ? h + ':' + ywebPad2(m) : String(m)) + ':' + ywebPad2(s);
+	}
+
+	function remaining(stopSec) {
+		const now = Math.floor(Date.now() / 1000);
+		if (!stopSec || stopSec <= now) return '';
+		const min = Math.floor((stopSec - now) / 60), hr = Math.floor(min / 60);
+		return hr > 0 ? hr + 'h ' + (min % 60) + 'm' : min + ' min';
+	}
+
+	// The names of the channels timers and recordings name by id, each asked once.
+	async function ensureNames(ids) {
+		const missing = ids.filter(function(id, i) {
+			return id && !(id in dash.names) && ids.indexOf(id) === i;
 		});
+		await Promise.all(missing.map(async function(id) {
+			const ch = await dashGet('/channels/' + encodeURIComponent(id));
+			dash.names[id] = (ch && ch.name) || '';
+		}));
+	}
+
+	// takeMode: whether the mode is read off the channel's kind, which it is
+	// on the first read and on a zap (a zap to the other kind changes the
+	// mode). Otherwise the mode event says it: a box switched to TV whose
+	// zap to a TV channel did not go through still plays the radio channel.
+	async function refreshChannel(takeMode) {
+		const ch = await dashGet('/channels/current');
+		if (!ch || !ch.id) {
+			dash.channel = null;
+			currentChannelId = null;
+			currentChannelName = null;
+			showChannel();
+			dash.now = dash.next = null;
+			showGuide();
+			return;
+		}
+		dash.channel = {id: ch.id, name: ch.name || '', kind: ch.kind || ''};
+		dash.names[ch.id] = ch.name || '';
+		currentChannelId = legacyChannelId(ch.id);
+		currentChannelName = ch.name || '';
+		if (takeMode)
+			setMode(ch.kind === 'radio' || ch.kind === 'webradio' ? 'radio' : 'tv');
+		showChannel();
+		refreshGuide();
+	}
+
+	// Rebuilt only when the channel is another one, so a reread does not
+	// reload the logo. The name comes unfiltered from the channel list and
+	// goes in as text.
+	function showChannel() {
+		const ch = dash.channel;
+		const key = ch ? ch.id + '\n' + ch.name : '';
+		if (key === dash.shown) return;
+		dash.shown = key;
+		const chEl = document.getElementById('current-channel');
+		if (!chEl) return;
+		if (!ch) {
+			chEl.classList.remove('has-logo');
+			chEl.textContent = NO_CHANNEL;
+			setText('channel-preview', NO_CHANNEL);
+			return;
+		}
+		const name = ch.name || '--';
+		// with a logo the name steps back (has-logo); a logo that does not
+		// load leaves the name at full size
+		const logo = ywebEl('img', {className: 'yweb-status-channel-logo',
+			attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: ''},
+			on: {error: function() { chEl.classList.remove('has-logo'); this.remove(); }}});
+		chEl.classList.add('has-logo');
+		chEl.replaceChildren(logo, ywebEl('span', {className: 'yweb-status-channel-name'}, name));
+		setText('channel-preview', name);
+	}
+
+	// What runs now on the current channel and what follows. Asked again on
+	// a zap, when the guide says it has news for this channel, and when the
+	// running event is over; the progress in between is counted here.
+	async function refreshGuide() {
+		const ch = dash.channel;
+		if (!ch) return;
+		const now = await dashGet('/epg/current', {channel: ch.id});
+		if (dash.channel !== ch) return;	// zapped meanwhile
+		const from = (now && now.start) ? now.start + now.duration : Math.floor(Date.now() / 1000);
+		const win = await dashGet('/epg', {channel: ch.id, from: from, to: from + 12 * 3600});
+		if (dash.channel !== ch) return;
+		dash.now = (now && now.start) ? now : null;
+		dash.next = null;
+		const items = (win && win.items) || [];
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].start >= from) {
+				dash.next = items[i];
+				break;
+			}
+		}
+		showGuide();
+	}
+
+	function showGuide() {
+		const ev = dash.now;
+		if (ev) {
+			setText('current-epg', ev.title || '--');
+			setText('epg-start', clock(ev.start));
+			setText('epg-end', clock(ev.start + ev.duration));
+		} else {
+			setText('current-epg', dash.channel ? NO_EPG : '--');
+			setText('epg-start', '--:--');
+			setText('epg-end', '--:--');
+			withEl('epg-progress', function(el) { el.value = 0; });
+		}
+		setText('next-epg', dash.next ? clock(dash.next.start) + ' ' + (dash.next.title || '--') : '--');
+		tickGuide();
+	}
+
+	function tickGuide() {
+		const ev = dash.now;
+		if (!ev) return;
+		const t = Date.now() / 1000;
+		if (t >= ev.start + ev.duration) {
+			// over: the next one runs now if it has begun, and the guide is asked again
+			dash.now = (dash.next && dash.next.start <= t) ? dash.next : null;
+			dash.next = null;
+			showGuide();
+			refreshGuide();
+			return;
+		}
+		const pct = ev.duration > 0 ? Math.min(100, Math.max(0, Math.round(100 * (t - ev.start) / ev.duration))) : 0;
+		withEl('epg-progress', function(el) { if (el.value !== pct) el.value = pct; });
+	}
+
+	// The guide event says which channel in the lower 48 bits of its id.
+	function sameLow48(a, b) {
+		return legacyChannelId(a).slice(-12).toLowerCase() === legacyChannelId(b).slice(-12).toLowerCase();
+	}
+
+	let guideSoon = null;
+	function refreshGuideSoon() {
+		if (guideSoon) return;
+		guideSoon = setTimeout(function() { guideSoon = null; refreshGuide(); }, 1000);
+	}
+
+	// A recording or a file the player shows, from GET /api/v1/playback and
+	// the playback event; the position is counted on while it plays.
+	async function refreshPlayback() {
+		dash.playback = await dashGet('/playback');
+		dash.playbackAt = Date.now();
+		showPlayback();
+	}
+
+	function playing() {
+		const p = dash.playback;
+		return !!(p && (p.source === 'recording' || p.source === 'file'));
+	}
+
+	function showPlayback() {
+		const p = dash.playback;
+		const active = playing();
+		withEl('play-info', function(el) { el.classList.toggle('yweb-hidden', !active); });
+		if (!active) return;
+		const rec = p.recording || {}, file = p.file || {};
+		setText('play-title', (p.source === 'recording' ? (rec.title || rec.channel) : (file.title || file.name)) || '--');
+		setText('play-source', p.source === 'recording'
+			? '{=L:yw.dash.play_recording=}' + (rec.channel ? ' · ' + rec.channel : '')
+			: '{=L:yw.dash.play_file=}');
+		let pos = p.position || 0;
+		if (p.state === 'playing' && !p.paused)
+			pos += Math.floor((Date.now() - dash.playbackAt) / 1000) * (p.speed || 1);
+		if (p.duration && pos > p.duration) pos = p.duration;
+		setText('play-time', duration(pos) + (p.duration ? ' / ' + duration(p.duration) : ''));
+		setText('play-icon', (p.paused || p.state === 'paused') ? '❚❚' : '▶');
 	}
 
 	// Load System Info
@@ -1473,7 +1631,10 @@
 			}
 		});
 
-		// Software versions from API
+	}
+
+	// Software versions, which do not change while the page is open
+	function loadVersions() {
 		apiJson('versions').then(function(data) {
 			if (data) {
 				if (data.yweb) setText('yweb-version', data.yweb);
@@ -1484,92 +1645,54 @@
 		});
 	}
 
-	// Recording check with details
-	function checkRecording() {
-		apiJson('setmode?status').then(function(data) {
-			if (data && typeof data.recording !== 'undefined')
-				handleRecordingStatus(data.recording);
-		});
+	// What the box records, from GET /api/v1/recordings; the time left comes
+	// from the timer that carries the recording.
+	async function refreshRecordings() {
+		const r = await dashGet('/recordings');
+		dash.recordings = ((r && r.items) || []).filter(function(it) { return !it.timeshift; });
+		await ensureNames(dash.recordings.map(function(it) { return it.channel_id; }));
+		showRecording();
 	}
 
-	// Toggle recording from dashboard Rec button
-	function toggleRecording() {
-		const btn = document.getElementById('rec-btn');
-		if (!btn) return;
-		if (btn.classList.contains('recording')) {
-			ywebStopRecording();
-			btn.classList.remove('recording');
-			btn.querySelector('span').textContent = 'Rec';
-			btn.title = 'Aufnehmen';
-			setTimeout(function() { checkRecording(); loadTimers(); }, 1500);
-		} else {
-			// Record current event on current channel
-			ywebRecordEvent(currentChannelId, currentChannelName);
-			// Refresh recording status + timer card after API has processed
-			setTimeout(function() { checkRecording(); loadTimers(); }, 1500);
-			setTimeout(function() { checkRecording(); loadTimers(); }, 4000);
-		}
-	}
-
-	function handleRecordingStatus(isRecording) {
+	function showRecording() {
+		const rec = dash.recordings[0] || null;
+		const isRecording = !!rec;
 		withEl('rec-indicator', function(el) { el.classList.toggle('yweb-hidden', !isRecording); });
 		withEl('rec-info', function(el) { el.classList.toggle('yweb-hidden', !isRecording); });
 
-		// Update Rec/Stop button state
 		const recBtn = document.getElementById('rec-btn');
 		if (recBtn) {
-			recBtn.classList.toggle('recording', !!isRecording);
+			recBtn.classList.toggle('recording', isRecording);
 			recBtn.querySelector('span').textContent = isRecording ? 'Stop' : 'Rec';
 			recBtn.title = isRecording ? '{=L:yw.dash.record_stop=}' : '{=L:yw.dash.record=}';
 		}
+		if (!rec) return;
 
-		if (isRecording) {
-				// Fetch timer data to get recording details
-				apiJson('timer').then(function(response) {
-					const timers = ywebParseTimerList(response);
-					if (timers.length === 0) return;
-
-					// Find running recording (state == 2, type_number == 5 or 9)
-					const running = timers.find(function(t) {
-						const state = parseInt(t.state) || 0;
-						const typeNum = parseInt(t.type_number) || 0;
-						return state === 2 && (typeNum === 5 || typeNum === 9);
-					});
-
-					if (running) {
-						const title = running.title || running.channel_name || '{=L:yw.bc.recording=}';
-						const channel = running.channel_name || '';
-
-						// Calculate remaining time from stop time
-						const now = Math.floor(Date.now() / 1000);
-						let remaining = '--:--';
-						if (running.stop && Array.isArray(running.stop) && running.stop[0]) {
-							const stopSec = parseInt(running.stop[0].digits) || 0;
-							if (stopSec > now) {
-								const remSec = stopSec - now;
-								const remMin = Math.floor(remSec / 60);
-								const remHr = Math.floor(remMin / 60);
-								if (remHr > 0) {
-									remaining = remHr + 'h ' + (remMin % 60) + 'm';
-								} else {
-									remaining = remMin + ' min';
-								}
-							}
-						}
-
-						setText('rec-title', title);
-						setText('rec-channel', channel);
-						setText('rec-remaining', remaining);
-					}
-			});
-		}
+		const channel = dash.names[rec.channel_id] || '';
+		const timer = dash.timers.find(function(t) { return t.id === rec.id; });
+		setText('rec-title', rec.title || channel || RECORDING);
+		setText('rec-channel', channel);
+		setText('rec-remaining', (timer && remaining(timer.stop)) || '--:--');
 	}
 
-	// Standby: im Standby wecken, sonst (mit Rückfrage als yweb-Dialog
-	// statt nativem confirm) schlafen legen
+	// Recording and stopping still go through the helpers the other pages
+	// share (EPG dialog, timer list), which move to v1 with those pages. What
+	// they change comes back as record and timer events.
+	function toggleRecording() {
+		const btn = document.getElementById('rec-btn');
+		if (!btn) return;
+		if (btn.classList.contains('recording'))
+			ywebStopRecording();
+		else
+			ywebRecordEvent(currentChannelId, currentChannelName);
+		// without the event stream nothing would say so
+		setTimeout(function() { if (!ywebV1EventsLive()) refreshEvented(); }, 1500);
+	}
+
+	// Standby: wake a sleeping box, put an awake one to sleep after asking
 	async function toggleStandby(inStandby) {
 		try {
-			await ywebApi('standby', inStandby ? 'off' : 'on');
+			await ywebV1('POST', '/system/standby', {body: {on: !inStandby}});
 			ywebShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
 		} catch (e) {
 			ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
@@ -1578,8 +1701,8 @@
 
 	async function sendStandby() {
 		try {
-			var st = await ywebApi('standby', {status: ''});
-			var inStandby = !!(st && st.standby === true);
+			const st = await ywebV1('GET', '/system/standby');
+			const inStandby = !!(st && st.on);
 			if (!inStandby) {
 				ywebShowConfirm('Standby', '{=L:yw.sb.confirm=}', 'Standby', function() { return toggleStandby(false); }, {variant: 'ok'});
 				return;
@@ -1590,28 +1713,25 @@
 		}
 	}
 
-	// TV/Radio Mode
+	// TV/Radio Mode: read off the current channel and the mode event
 	var currentMode = 'tv';
 
-	function switchMode() {
+	function setMode(mode) {
+		if (mode === currentMode) return;
+		currentMode = mode;
+		updateModeUI();
+	}
+
+	async function switchMode() {
 		const newMode = currentMode === 'tv' ? 'radio' : 'tv';
-
-		// Disable button during switch
 		withEl('mode-switch-btn', function(el) { el.disabled = true; el.style.opacity = '0.6'; });
-
-		// Send API request
-		apiGet('setmode?' + newMode).then(function() {
-			currentMode = newMode;
-			updateModeUI();
-			// Refresh data after mode switch
-			setTimeout(function() {
-				loadChannelInfo();
-				loadStreamInfo();
-				withEl('mode-switch-btn', function(el) { el.disabled = false; el.style.opacity = '1'; });
-			}, 1500);
-		}).catch(function() {
-			withEl('mode-switch-btn', function(el) { el.disabled = false; el.style.opacity = '1'; });
-		});
+		try {
+			await ywebV1('POST', '/mode', {body: {mode: newMode}});
+			setMode(newMode);
+		} catch (e) {
+			ywebShowToast(e.message, true);
+		}
+		withEl('mode-switch-btn', function(el) { el.disabled = false; el.style.opacity = '1'; });
 	}
 
 	function updateModeUI() {
@@ -1636,118 +1756,133 @@
 		}
 	}
 
-	function loadCurrentMode() {
-		apiJson('mode?channelsmode').then(function(data) {
-			currentMode = (data && data.mode === 'radio') ? 'radio' : 'tv';
-			updateModeUI();
-		});
+	// The timer kinds v1 names, as the numbers the shared labels and icons know
+	const TIMER_KIND_TYPES = {
+		'shutdown': 1, 'zapto': 3, 'standby': 4, 'record': 5, 'remind': 6,
+		'sleeptimer': 7, 'exec-plugin': 8, 'immediate-record': 9
+	};
+
+	function timerTypeNumber(t) {
+		return TIMER_KIND_TYPES[t.kind] || parseInt(t.kind, 10) || 0;
 	}
 
-	// Timer icons: use shared ywebGetTimerIconHtml() with dashboard-specific CSS class
-	function getTimerIcon(type) {
-		return ywebGetTimerIconHtml(type, 'yweb-timer-icon');
+	function isRunningRecording(t) {
+		return t.state === 2 && timerTypeNumber(t) === 5;
 	}
 
-	// Load Timer list
-	function loadTimers() {
-		apiJson('timer').then(function(response) {
-			const container = document.getElementById('timer-list');
-			if (!container) return;
-			const now = Math.floor(Date.now() / 1000);
-
-			const timers = ywebParseTimerList(response);
-
-			if (timers.length === 0) {
-				container.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.dash.no_timers=}'));
-				setText('timer-preview', '{=L:yw.dash.no_timers_short=}');
-				return;
-			}
-
-			// Timer helpers: use shared yweb* functions from yweb-header.js
-			const getAlarm = ywebGetTimerAlarm;
-			const getTimerType = ywebGetTimerType;
-			const getStopSec = ywebGetTimerStopSec;
-
-			// Separate running recordings (state=2, type 5 or 9) from future timers
-			const runningRecs = timers.filter(function(t) {
-				const state = parseInt(t.state) || 0;
-				const typeNum = parseInt(t.type_number) || 0;
-				return state === 2 && (typeNum === 5 || typeNum === 9);
-			});
-
-			// Filter future scheduled timers (exclude running ones)
-			const maxScheduled = 3 - runningRecs.length;
-			const futureTimers = timers.filter(function(t) {
-				const state = parseInt(t.state) || 0;
-				if (state === 2) return false; // Skip running
-				const alarm = getAlarm(t);
-				const alarmSec = alarm.digits ? parseInt(alarm.digits) : 0;
-				return alarmSec > now;
-			}).sort(function(a, b) {
-				const aTime = parseInt(getAlarm(a).digits) || 0;
-				const bTime = parseInt(getAlarm(b).digits) || 0;
-				return aTime - bTime;
-			}).slice(0, Math.max(maxScheduled, 1));
-
-			if (runningRecs.length === 0 && futureTimers.length === 0) {
-				container.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.dash.no_timers=}'));
-				setText('timer-preview', '{=L:yw.dash.no_timers_short=}');
-				return;
-			}
-
-			// Timer preview
-			if (runningRecs.length > 0) {
-				setText('timer-preview', '● {=L:yw.bc.rec_running=}');
-			} else {
-				const nextAlarm = getAlarm(futureTimers[0]);
-				setText('timer-preview', (nextAlarm.date || '') + ' ' + (nextAlarm.time || ''));
-			}
-
-			// Running recordings first, then the scheduled timers. Titles and
-			// channel names come from the EPG and go in as text.
-			const rows = runningRecs.map(function(t) { return {timer: t, running: true}; })
-				.concat(futureTimers.map(function(t) { return {timer: t, running: false}; }));
-			ywebSync(container, rows, function(row, i) {
-				// '#' keeps a position apart from a timer id
-				return (row.running ? 'run-' : 'next-') + (row.timer.id !== undefined ? row.timer.id : '#' + i);
-			}, function(row) {
-				const timer = row.timer;
-				const channel = timer.channel_name || '';
-				if (row.running) {
-					const title = timer.title || timer.channel_name || '{=L:yw.bc.recording=}';
-					const stopSec = getStopSec(timer);
-					let remaining = '';
-					if (stopSec > now) {
-						const remSec = stopSec - now;
-						const remMin = Math.floor(remSec / 60);
-						const remHr = Math.floor(remMin / 60);
-						remaining = remHr > 0 ? remHr + 'h ' + (remMin % 60) + 'm' : remMin + ' min';
-					}
-					return ywebEl('div', {className: 'yweb-timer-item running'},
-						ywebEl('div', {className: 'yweb-timer-icon record'}, ywebMarkup('<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>')),
-						ywebEl('div', {className: 'yweb-timer-info'},
-							ywebEl('div', {className: 'yweb-timer-title'}, title),
-							channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
-						remaining ? ywebEl('div', {className: 'yweb-timer-remaining'}, remaining) : null);
-				}
-				const type = getTimerType(timer);
-				const title = timer.title || timer.channel_name || type;
-				const alarm = getAlarm(timer);
-				return ywebEl('div', {className: 'yweb-timer-item'},
-					ywebMarkup(getTimerIcon(type)),
-					ywebEl('div', {className: 'yweb-timer-info'},
-						ywebEl('div', {className: 'yweb-timer-title'}, title),
-						channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
-					ywebEl('div', {className: 'yweb-timer-time'},
-						ywebEl('div', {className: 'yweb-timer-date'}, alarm.date || '--'),
-						ywebEl('div', {className: 'yweb-timer-hour'}, alarm.time || '--:--')));
-			});
-		}).catch(function() {
+	async function refreshTimers() {
+		const r = await dashGet('/timers');
+		if (!r) {
 			withEl('timer-list', function(el) {
 				el.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.timer.unavail=}'));
 			});
 			setText('timer-preview', '--');
+			return;
+		}
+		dash.timers = r.items || [];
+		await ensureNames(dash.timers.map(function(t) { return t.channel_id; }));
+		showTimers();
+		showRecording();
+	}
+
+	// Running recordings first, then the next scheduled timers. Titles and
+	// channel names come from the guide and go in as text.
+	function showTimers() {
+		const container = document.getElementById('timer-list');
+		if (!container) return;
+		const now = Math.floor(Date.now() / 1000);
+		const running = dash.timers.filter(isRunningRecording);
+		const future = dash.timers.filter(function(t) {
+			return t.state !== 2 && t.start > now;
+		}).sort(function(a, b) { return a.start - b.start; })
+			.slice(0, Math.max(3 - running.length, 1));
+
+		if (running.length === 0 && future.length === 0) {
+			container.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.dash.no_timers=}'));
+			setText('timer-preview', '{=L:yw.dash.no_timers_short=}');
+			return;
+		}
+		if (running.length > 0) {
+			setText('timer-preview', '● {=L:yw.bc.rec_running=}');
+		} else {
+			const at = dayAndClock(future[0].start);
+			setText('timer-preview', at.date + ' ' + at.time);
+		}
+
+		const rows = running.map(function(t) { return {timer: t, running: true}; })
+			.concat(future.map(function(t) { return {timer: t, running: false}; }));
+		ywebSync(container, rows, function(row) {
+			return (row.running ? 'run-' : 'next-') + row.timer.id;
+		}, function(row) {
+			const timer = row.timer;
+			const channel = dash.names[timer.channel_id] || '';
+			const n = timerTypeNumber(timer);
+			const label = ywebGetTimerType({type_number: n});
+			if (row.running) {
+				const left = remaining(timer.stop);
+				return ywebEl('div', {className: 'yweb-timer-item running'},
+					ywebEl('div', {className: 'yweb-timer-icon record'}, ywebMarkup('<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>')),
+					ywebEl('div', {className: 'yweb-timer-info'},
+						ywebEl('div', {className: 'yweb-timer-title'}, timer.title || channel || RECORDING),
+						channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
+					left ? ywebEl('div', {className: 'yweb-timer-remaining'}, left) : null);
+			}
+			const at = dayAndClock(timer.start);
+			return ywebEl('div', {className: 'yweb-timer-item'},
+				// the icon by the type's own name; the label is translated
+				ywebMarkup(ywebGetTimerIconHtml(YWEB_TIMER_TYPES[n] || '', 'yweb-timer-icon')),
+				ywebEl('div', {className: 'yweb-timer-info'},
+					ywebEl('div', {className: 'yweb-timer-title'}, timer.title || channel || label),
+					channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
+				ywebEl('div', {className: 'yweb-timer-time'},
+					ywebEl('div', {className: 'yweb-timer-date'}, at.date),
+					ywebEl('div', {className: 'yweb-timer-hour'}, at.time)));
 		});
+	}
+
+	// Everything the event stream keeps current, read again: on reconnect
+	// (events may have been missed), on pull-to-refresh, and on a timer while
+	// the stream is not open.
+	function refreshEvented() {
+		refreshChannel(true);
+		refreshPlayback();
+		refreshRecordings();
+		refreshTimers();
+	}
+
+	function followTheBox() {
+		let opened = 0;
+		ywebV1Events({
+			// the stream's own open event: the first one is the page loading,
+			// every later one a reconnect after a gap
+			open: function() { if (opened++) refreshEvented(); },
+			zap: function() { refreshChannel(true); refreshPlayback(); loadStreamInfo(); },
+			mode: function(d) {
+				if (d && d.value === 1) setMode('tv');
+				else if (d && d.value === 2) setMode('radio');
+				refreshChannel(false);
+				loadStreamInfo();
+			},
+			standby: function() { refreshChannel(false); refreshPlayback(); },
+			'record-start': function() { refreshTimers().then(refreshRecordings); },
+			'record-stop': function() { refreshTimers().then(refreshRecordings); },
+			'timer-changed': refreshTimers,
+			'epg-updated': function(d) {
+				if (d && dash.channel && sameLow48(d.channel_id, dash.channel.id))
+					refreshGuideSoon();
+			},
+			playback: refreshPlayback
+		});
+	}
+
+	// A timer that runs only while the page is visible; all of them run once
+	// more when it becomes visible again.
+	const dashPolls = [];
+	function whileVisible(ms, fn) {
+		dashPolls.push(fn);
+		setInterval(function() {
+			if (document.visibilityState === 'visible') fn();
+		}, ms);
 	}
 
 	// Signal quality class based on percentage
@@ -2044,11 +2179,10 @@
 			mode: 'expanded'
 		});
 
-		loadCurrentMode();
-		loadChannelInfo();
+		refreshEvented();
+		followTheBox();
+		loadVersions();
 		loadSystemInfo();
-		checkRecording();
-		loadTimers();
 		loadTunerStatus();
 		loadStreamInfo();
 
@@ -2059,20 +2193,26 @@
 		new MutationObserver(ywebBalanceDashboard)
 			.observe(document.querySelector('.yweb-dashboard'), {childList: true});
 
-		setInterval(loadChannelInfo, 30000);
-		setInterval(loadSystemInfo, 30000);
-		setInterval(checkRecording, 10000);
-		setInterval(loadTimers, 60000);
-		setInterval(loadTunerStatus, 5000);
-		setInterval(loadStreamInfo, 30000);
+		// No event for these: asked on a timer, while visible
+		whileVisible(30000, loadSystemInfo);
+		whileVisible(5000, loadTunerStatus);
+		whileVisible(30000, loadStreamInfo);
+		// Without an open event stream the evented cards are asked as well
+		whileVisible(30000, function() { if (!ywebV1EventsLive()) refreshEvented(); });
+		// Counted here between events: guide progress, time left, playback position
+		setInterval(tickGuide, 15000);
+		setInterval(function() { showTimers(); showRecording(); }, 30000);
+		setInterval(function() { if (playing()) showPlayback(); }, 1000);
+		document.addEventListener('visibilitychange', function() {
+			if (document.visibilityState === 'visible')
+				dashPolls.forEach(function(fn) { fn(); });
+		});
 
 		// Register pull-to-refresh callback
 		if (typeof ywebSetRefreshCallback === 'function') {
 			ywebSetRefreshCallback(function() {
-				loadChannelInfo();
+				refreshEvented();
 				loadSystemInfo();
-				checkRecording();
-				loadTimers();
 				loadTunerStatus();
 				loadStreamInfo();
 				return new Promise(resolve => setTimeout(resolve, 800));
