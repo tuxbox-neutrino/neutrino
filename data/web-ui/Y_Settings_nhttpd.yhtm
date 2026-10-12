@@ -1,5 +1,3 @@
-{=var-set:default_username=root=}
-{=var-set:default_password=ni=}
 {=include-block:Y_Blocks.txt;management_check_top=}
 {=include-block:Y_Blocks.txt;head=}
 <script src="/Y_Baselib.js"></script>
@@ -15,7 +13,9 @@ function form_init()
 }
 function do_submit()
 {
-	if(document.f.authpassword.value.length < 2)
+	// empty keeps the stored password, which this page cannot show
+	var pw = document.f.authpassword.value;
+	if(pw.length > 0 && pw.length < 2)
 		alert("{=L:set.nhttpd.check_password=}");
 	else
 	if(document.f.port.value == "")
@@ -46,15 +46,15 @@ function do_check_input_LogosURL()
 			<tr><td colspan="2" class="y_form_header">{=L:set.nhttpd.authentication=}</td></tr>
 			<tr>
 				<td>{=L:user=}</td>
-				<td><input type="text" name="authuser" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.username;{=var-get:default_username=}~open=}" title="{=L:user=}"/></td>
+				<td><input type="text" name="authuser" size="20" value="{=func:get_web_login_user=}" title="{=L:user=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:password=}</td>
-				<td><input type="password" name="authpassword" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.password;{=var-get:default_password=}~cache=}" title="{=L:password=}"/></td>
+				<td><input type="password" name="authpassword" size="20" value="" autocomplete="new-password" placeholder="{=L:set.nhttpd.password_unchanged=}" title="{=L:set.nhttpd.password_unchanged=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.client_without_authentication=}</td>
-				<td><input type="text" name="noauthclient" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.no_auth_client~cache=}" title="{=L:set.nhttpd.client_without_authentication_desc=}"/></td>
+				<td><input type="text" name="noauthclient" size="20" value="{=ini-get:%(CONFIGDIR)/nhttpd.conf;mod_auth.no_auth_client~open=}" title="{=L:set.nhttpd.client_without_authentication_desc=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.authentication=}</td>

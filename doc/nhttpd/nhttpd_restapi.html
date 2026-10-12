@@ -159,10 +159,20 @@ the rest of the request, which a client sees as a reset.
 
 <h2>Access</h2>
 <p>
-nhttpd's own Basic authentication (<code>mod_auth</code> in
-<code>nhttpd.conf</code>) still governs every path it serves itself,
-<code>/control/</code> included, and only when
-<code>mod_auth.authenticate</code> is on. The API namespace it hands on
+The box has one account, kept in <code>ni-web.conf</code> as a name and a
+stored form of the password; <code>nhttpd.conf</code> no longer carries
+either. nhttpd's own gate (<code>mod_auth</code>) still governs every path it
+serves itself, <code>/control/</code> included, and only when
+<code>mod_auth.authenticate</code> is on. It takes the session the API login
+opens, and Basic checked against that same account; on
+<code>/control/</code>, <code>/cgi-bin/</code>, <code>/fb/</code>,
+<code>/api/v4/</code> and <code>/y/</code>, which change the box with a GET,
+the session counts only for a request from a page of this box
+(<code>Sec-Fetch-Site: same-origin</code>, or else an <code>Origin</code> or
+<code>Referer</code> naming this host). The screen at the box, the settings
+pages and <code>/control/config</code> change the same account, at once and
+without a restart. A session ends after the configured lifetime without a
+request and at the latest 30 days after the login. The API namespace it hands on
 unchecked since slice 3, because the layer has a gate of its own: every
 route declares a level (recorded in the document as
 <code>x-auth-level</code>), a public route answers anyone, a read passes

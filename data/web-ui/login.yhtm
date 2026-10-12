@@ -116,13 +116,13 @@
 		<h1>Neutrino-Web-UI</h1>
 		<p class="sub">{=L:yw.login.intro=}</p>
 
-		<!-- Must stay a plain form post: the server matches the request
-		     content type "application/x-www-form-urlencoded" exactly, a
-		     fetch() with a charset suffix would not be parsed. -->
-		<form method="post" action="/login">
-			<!-- Both notes exist in the DOM up front, so role=status is
+		<!-- Signs in through the REST login (POST /api/v1/login), whose
+		     session cookie the old pages and /control accept as well. -->
+		<form id="loginForm" novalidate>
+			<!-- The notes exist in the DOM up front, so role=status is
 			     announced when they are unhidden. -->
 			<div class="login-flash err" id="loginErr" role="status" tabindex="-1" hidden>{=L:yw.login.failed=}</div>
+			<div class="login-flash err" id="loginWait" role="status" tabindex="-1" data-template="{=L:yw.login.wait=}" hidden></div>
 			<div class="login-flash out" id="loginOut" role="status" hidden>{=L:yw.login.out=}</div>
 
 			<div class="login-field">
@@ -138,9 +138,7 @@
 				</div>
 			</div>
 
-			<input type="hidden" id="loginNext" name="next" value="/">
-
-			<button type="submit" class="yweb-btn primary">{=L:yw.login.submit=}</button>
+			<button type="submit" id="loginSubmit" class="yweb-btn primary">{=L:yw.login.submit=}</button>
 		</form>
 	</main>
 
@@ -159,21 +157,74 @@
 			btn.innerHTML = show ? LOGIN_EYE : LOGIN_EYEOFF;
 		}
 
-		var loginParams = new URLSearchParams(location.search);
-		var loginNext = loginParams.get('next') || '/';
-		// Server-side sanitizing is authoritative; this only avoids
-		// carrying obvious junk through the form roundtrip.
-		if (loginNext.charAt(0) !== '/' || loginNext.charAt(1) === '/')
-			loginNext = '/';
-		document.getElementById('loginNext').value = loginNext;
-
-		if (loginParams.get('err') === '1') {
-			var err = document.getElementById('loginErr');
-			err.hidden = false;
-			err.focus();
+		// Where to go once signed in: a path on this box and nothing else -
+		// one leading slash, no second one, no backslash anywhere, which is
+		// the rule the server applied while it handled this form itself.
+		function loginSafeNext(next) {
+			if (!next || next.charAt(0) !== '/' || next.charAt(1) === '/' || next.indexOf('\\') >= 0)
+				return '/';
+			return next;
 		}
+
+		var loginParams = new URLSearchParams(location.search);
+		var loginNext = loginSafeNext(loginParams.get('next'));
+		var LOGIN_WAIT = document.getElementById('loginWait').getAttribute('data-template');
+
+		function loginNote(id, text) {
+			['loginErr', 'loginWait', 'loginOut'].forEach(function(n) {
+				document.getElementById(n).hidden = (n !== id);
+			});
+			if (!id)
+				return;
+			var note = document.getElementById(id);
+			if (text)
+				note.textContent = text;
+			if (note.hasAttribute('tabindex'))
+				note.focus();
+		}
+
+		async function loginSubmit(e) {
+			e.preventDefault();
+			var btn = document.getElementById('loginSubmit');
+			var pass = document.getElementById('loginPass');
+			if (btn.disabled)
+				return;
+			btn.disabled = true;
+			loginNote(null);
+			try {
+				var resp = await fetch('/api/v1/login', {
+					method: 'POST', credentials: 'same-origin', cache: 'no-store',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({user: document.getElementById('loginUser').value, password: pass.value})
+				});
+				if (resp.ok) {
+					location.replace(loginNext);
+					return;
+				}
+				// A session is open already: the login route then asks for its
+				// second token, and there is nothing left to sign in to.
+				if (resp.status === 403) {
+					var s = await fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
+					var state = s.ok ? await s.json() : null;
+					if (state && state.authenticated) {
+						location.replace(loginNext);
+						return;
+					}
+				}
+				if (resp.status === 429)
+					loginNote('loginWait', LOGIN_WAIT.replace('%s', resp.headers.get('Retry-After') || '60'));
+				else
+					loginNote('loginErr');
+			} catch (ex) {
+				loginNote('loginErr');
+			}
+			btn.disabled = false;
+			pass.select();
+		}
+		document.getElementById('loginForm').addEventListener('submit', loginSubmit);
+
 		if (loginParams.get('out') === '1')
-			document.getElementById('loginOut').hidden = false;
+			loginNote('loginOut');
 	</script>
 </body>
 </html>

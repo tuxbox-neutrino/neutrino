@@ -87,6 +87,8 @@ private:
 	std::string func_get_header_data(CyhookHandler *hh, std::string para);
 	std::string func_get_config_data(CyhookHandler *hh, std::string para);
 	std::string func_do_reload_httpd_config(CyhookHandler *hh, std::string para);
+	std::string func_get_web_login_user(CyhookHandler *hh, std::string para);
+	std::string func_set_web_login(CyhookHandler *hh, std::string para);
 	std::string func_change_httpd(CyhookHandler *hh, std::string para);
 	std::string func_get_languages_as_dropdown(CyhookHandler *hh, std::string para);
 	std::string func_set_language(CyhookHandler *, std::string para);

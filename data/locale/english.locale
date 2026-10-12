@@ -1568,7 +1568,7 @@ menu.hint_net_httpd_auth Require login for the web interface
 menu.hint_net_httpd_host Bind address or host\n(leave empty or 0.0.0.0 for all)
 menu.hint_net_httpd_loglevel Set the web server log verbosity
 menu.hint_net_httpd_noauth Clients that may access without login\n(comma-separated IPs/hosts)
-menu.hint_net_httpd_pass Password for HTTP authentication
+menu.hint_net_httpd_pass Password for the web interface and the API; leave empty to keep the stored one
 menu.hint_net_httpd_port TCP port for the web interface (1-65535)
 menu.hint_net_httpd_ssl Enable HTTPS for the web interface
 menu.hint_net_httpd_ssl_cafile Path to CA file (optional)

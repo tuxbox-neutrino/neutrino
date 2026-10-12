@@ -300,6 +300,7 @@ set.nhttpd.cache_info=Cache info
 set.nhttpd.clear_cache=clear cache
 set.nhttpd.server_configuration=Server Configuration
 set.nhttpd.check_password=Password must have 4 letters at minimum
+set.nhttpd.password_unchanged=empty = unchanged
 set.nhttpd.check_port=Port is required
 
 # ===== Settings yWeb
@@ -1051,6 +1052,7 @@ yw.login.user=Username
 yw.login.pass=Password
 yw.login.submit=Sign in
 yw.login.failed=Sign-in failed. Please check username and password.
+yw.login.wait=Too many attempts. Please wait %s seconds and try again.
 yw.login.out=You have been signed out.
 yw.picker.title=Choose folder
 yw.picker.choose_folder=Choose this folder

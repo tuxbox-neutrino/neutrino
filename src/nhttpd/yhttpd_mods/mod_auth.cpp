@@ -6,16 +6,8 @@
 #include <cctype>
 #include <cstring>
 #include <cstdlib>
-#include <fcntl.h>
-#include <pthread.h>
-#include <unistd.h>
 #include "mod_auth.h"
 #include <helper.h>
-
-#define SESSION_COOKIE_NAME	"ysid"
-#define SESSION_MAX		64
-
-static pthread_mutex_t session_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 //-----------------------------------------------------------------------------
 // HOOK: response_hook
@@ -23,9 +15,10 @@ static pthread_mutex_t session_mutex = PTHREAD_MUTEX_INITIALIZER;
 THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	THandleStatus status = HANDLED_CONTINUE;
 
-	// The API surface carries its own gate (src/httpd: sessions, tokens and
-	// the lan-read rule out of ni-web.conf, whose first write is migrated
-	// from this module's own credentials). Basic in front of it would put a
+	// The API surface carries its own gate (src/httpd: the one account in
+	// ni-web.conf, its sessions and tokens, and the lan-read rule); this
+	// module asks the same account through login_bridge. Basic in front of
+	// the API would put a
 	// second password prompt before /api/v1/login and keep every browser in
 	// a popup no page can style. /control and the pages stay behind this
 	// module as they always were. The same predicate the request reader
@@ -34,8 +27,18 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	if (CyhookHandler::isApiTarget(hh->UrlData["url"]))
 		return HANDLED_CONTINUE;
 
-	if (!authenticate)
+	// With the page login switched off the pages are open, yet a change
+	// through the REST layer still asks for a sign-in and opens a session.
+	// /logout ends that one too, and then has nothing else to do.
+	if (!authenticate) {
+		if (hh->UrlData["url"] == "/logout") {
+			login_bridge::closeSessionOf(GetHeader(hh, "Cookie"));
+			hh->HookVarList["Set-Cookie"] = login_bridge::forgetSessionCookie();
+			hh->SendRedirect("/");
+			return HANDLED_REDIRECTION;
+		}
 		return status;
+	}
 
 	// local calls and NoAuthClient matches (a leading address
 	// prefix, e.g. "192.168.1." — the UIs have always advertised
@@ -65,42 +68,24 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 			|| (!template_file && url.compare(0, 5, "/css/") == 0)
 			|| (!template_file && url.compare(0, 9, "/favicon/") == 0);
 
-	// the /login handlers run for every client, exempt included —
-	// otherwise localhost could not submit the form and GET /login
-	// would run into a 404
+	// /login runs for every client, exempt included, so an old bookmark
+	// or a form cached before the login moved to POST /api/v1/login
+	// lands on the page instead of a 404
 	if (url == "/login") {
-		if (hh->Method == M_POST) {
-			std::string next = SanitizeNext(hh->ParamList["next"]);
-			if (hh->ParamList["username"] == username
-					&& hh->ParamList["password"] == password) {
-				std::string token = CreateSession();
-				// an empty token means /dev/urandom failed; deny the
-				// login rather than fall back to weak randomness
-				if (!token.empty()) {
-					hh->HookVarList["Set-Cookie"] = SESSION_COOKIE_NAME "="
-						+ token + "; Path=/; HttpOnly; SameSite=Lax; Max-Age="
-						+ string_printf("%d", session_timeout);
-					hh->SendRedirect(next);
-					return HANDLED_REDIRECTION;
-				}
-			}
-			hh->SendRedirect("/login.yhtm?err=1&next=" + UrlEncode(next));
-			return HANDLED_REDIRECTION;
-		}
 		hh->SendRedirect("/login.yhtm");
 		return HANDLED_REDIRECTION;
 	}
 
 	if (url == "/logout") {
-		// drop the session (if one is presented) and always tell the
+		// close the session (if one is presented) and always tell the
 		// browser to forget the cookie, whatever else happens below
-		DropSession(GetSessionCookie(hh));
-		hh->HookVarList["Set-Cookie"] = SESSION_COOKIE_NAME "=; Path=/; Max-Age=0";
+		login_bridge::closeSessionOf(GetHeader(hh, "Cookie"));
+		hh->HookVarList["Set-Cookie"] = login_bridge::forgetSessionCookie();
 
 		// a pure cookie session in a browser logs out deterministically;
 		// anything carrying Basic credentials still needs the 401 below —
 		// answering 401 to a top-level navigation is the only way to make
-		// browsers drop their cached credentials, otherwise CheckAuth
+		// browsers drop their cached credentials, otherwise the Basic check
 		// would log them right back in.
 		// An exempt client gets told why logging out changes nothing
 		// for it; the concrete exception list is never disclosed here
@@ -157,7 +142,8 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 
 	if (!exempt && !authfree)
 	{
-		if (!CheckSession(hh) && !CheckAuth(hh)) {
+		const login_bridge::Ask ask = AskOf(hh);
+		if (!login_bridge::sessionAdmits(ask) && !login_bridge::basicAdmits(ask)) {
 			// browsers get the styled login page; scripts and API
 			// clients keep the unchanged Basic-auth 401 path
 			if (IsBrowserNavigation(hh)) {
@@ -192,43 +178,42 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 //-----------------------------------------------------------------------------
 THandleStatus CmAuth::Hook_ReadConfig(CConfigFile *Config,
 		CStringList &ConfigList) {
-	std::string old_username = username;
-	std::string old_password = password;
-	username = Config->getString("mod_auth.username", AUTHUSER);
-	password = Config->getString("mod_auth.password", AUTHPASSWORD);
 	no_auth_client = Config->getString("mod_auth.no_auth_client", "");
 	authenticate = Config->getBool("mod_auth.authenticate", false);
-	session_timeout = Config->getInt32("mod_auth.session_timeout",
-			AUTH_SESSION_TIMEOUT);
-	if (session_timeout <= 0)
-		session_timeout = AUTH_SESSION_TIMEOUT;
-	// this hook fires on every config save and set-lang reload; only a
-	// real credential change may log everybody out
-	if (old_username != username || old_password != password)
-		ClearSessions();
-	ConfigList["mod_auth.username"] = username;
-	ConfigList["mod_auth.password"] = password;
 	ConfigList["mod_auth.no_auth_client"] = no_auth_client;
 	ConfigList["mod_auth.authenticate"] = Config->getString(
 			"mod_auth.authenticate", "false");
-	ConfigList["mod_auth.session_timeout"] = string_printf("%d",
-			session_timeout);
+
+	// The account lives in ni-web.conf, hashed, and was carried there from
+	// this file at the first start. A plain copy left here is one nothing
+	// reads and anybody who can read the file can, so it goes once the
+	// account is there; the cookie lifetime went with the old sessions.
+	if (login_bridge::passwordSet()) {
+		bool dropped = Config->deleteKey("mod_auth.password");
+		dropped = Config->deleteKey("mod_auth.username") || dropped;
+		dropped = Config->deleteKey("mod_auth.session_timeout") || dropped;
+		if (dropped)
+			Config->saveConfig(HTTPD_CONFIGFILE);
+	}
 	return HANDLED_CONTINUE;
 }
 
 //-----------------------------------------------------------------------------
-// check if given username an pssword are valid
+// what the REST layer's login needs to know about this request
 //-----------------------------------------------------------------------------
-bool CmAuth::CheckAuth(CyhookHandler *hh) {
-	if (hh->HeaderList["Authorization"].empty())
-		return false;
-	std::string encodet = hh->HeaderList["Authorization"].substr(6,
-			hh->HeaderList["Authorization"].length() - 6);
-	std::string decodet = decodeBase64(encodet.c_str());
-	int pos = decodet.find_first_of(':');
-	std::string user = decodet.substr(0, pos);
-	std::string passwd = decodet.substr(pos + 1, decodet.length() - pos - 1);
-	return (user.compare(username) == 0 && passwd.compare(password) == 0);
+login_bridge::Ask CmAuth::AskOf(CyhookHandler *hh) {
+	login_bridge::Ask a;
+	a.path = hh->UrlData["path"];
+	a.peer = hh->UrlData["clientaddr"];
+	a.cookie = GetHeader(hh, "Cookie");
+	a.authorization = GetHeader(hh, "Authorization");
+	a.sec_fetch_site = GetHeader(hh, "Sec-Fetch-Site");
+	a.origin = GetHeader(hh, "Origin");
+	a.referer = GetHeader(hh, "Referer");
+	a.host = GetHeader(hh, "Host");
+	CStringList::const_iterator execute = hh->ParamList.find("execute");
+	a.runs_commands = execute != hh->ParamList.end() && !execute->second.empty();
+	return a;
 }
 
 //-----------------------------------------------------------------------------
@@ -244,25 +229,6 @@ std::string CmAuth::GetHeader(CyhookHandler *hh, const std::string &name) {
 }
 
 //-----------------------------------------------------------------------------
-// extract the session token from the Cookie request header
-//-----------------------------------------------------------------------------
-std::string CmAuth::GetSessionCookie(CyhookHandler *hh) {
-	std::string cookies = GetHeader(hh, "Cookie");
-	static const std::string prefix = SESSION_COOKIE_NAME "=";
-	std::string::size_type pos = 0;
-	while (pos < cookies.length()) {
-		std::string::size_type end = cookies.find(';', pos);
-		if (end == std::string::npos)
-			end = cookies.length();
-		std::string part = trim(cookies.substr(pos, end - pos));
-		if (part.compare(0, prefix.length(), prefix) == 0)
-			return part.substr(prefix.length());
-		pos = end + 1;
-	}
-	return "";
-}
-
-//-----------------------------------------------------------------------------
 // a browser navigation accepts text/html — but so do the legacy
 // Prototype XHRs, which must keep getting 401 instead of login HTML;
 // they mark themselves with X-Requested-With
@@ -271,49 +237,6 @@ bool CmAuth::IsBrowserNavigation(CyhookHandler *hh) {
 	if (GetHeader(hh, "Accept").find("text/html") == std::string::npos)
 		return false;
 	return GetHeader(hh, "X-Requested-With") != "XMLHttpRequest";
-}
-
-//-----------------------------------------------------------------------------
-// open-redirect guard for the post-login target: only a local absolute
-// path survives — exactly one leading '/', no scheme, no backslashes
-//-----------------------------------------------------------------------------
-std::string CmAuth::SanitizeNext(std::string next) {
-	if (next.empty() || next[0] != '/')
-		return "/";
-	if (next.length() > 1 && (next[1] == '/' || next[1] == '\\'))
-		return "/";
-	if (next.find('\\') != std::string::npos)
-		return "/";
-	return next;
-}
-
-//-----------------------------------------------------------------------------
-// 32 hex characters from /dev/urandom; empty on failure — the caller
-// denies the login then, a weak fallback would defeat the session login
-// (the in-repo randomString() is unseeded rand() and not usable here)
-//-----------------------------------------------------------------------------
-std::string CmAuth::MintToken(void) {
-	unsigned char raw[16];
-	int fd = open("/dev/urandom", O_RDONLY);
-	if (fd < 0)
-		return "";
-	size_t got = 0;
-	while (got < sizeof(raw)) {
-		ssize_t r = read(fd, raw + got, sizeof(raw) - got);
-		if (r <= 0) {
-			close(fd);
-			return "";
-		}
-		got += r;
-	}
-	close(fd);
-	static const char hexdigit[] = "0123456789abcdef";
-	std::string token(2 * sizeof(raw), '0');
-	for (size_t i = 0; i < sizeof(raw); i++) {
-		token[2 * i] = hexdigit[raw[i] >> 4];
-		token[2 * i + 1] = hexdigit[raw[i] & 0x0f];
-	}
-	return token;
 }
 
 //-----------------------------------------------------------------------------
@@ -334,116 +257,4 @@ std::string CmAuth::UrlEncode(const std::string &s) {
 		}
 	}
 	return result;
-}
-
-//-----------------------------------------------------------------------------
-// look up the presented session token; a hit renews the expiry
-// (sliding timeout). Expired entries are swept while the lock is held.
-//-----------------------------------------------------------------------------
-bool CmAuth::CheckSession(CyhookHandler *hh) {
-	std::string token = GetSessionCookie(hh);
-	if (token.empty())
-		return false;
-	bool valid = false;
-	time_t now = time(NULL);
-	pthread_mutex_lock(&session_mutex);
-	for (std::map<std::string, time_t>::iterator it = sessions.begin();
-			it != sessions.end();)
-		if (it->second <= now)
-			sessions.erase(it++);
-		else
-			++it;
-	std::map<std::string, time_t>::iterator hit = sessions.find(token);
-	if (hit != sessions.end()) {
-		hit->second = now + session_timeout;
-		valid = true;
-	}
-	pthread_mutex_unlock(&session_mutex);
-	return valid;
-}
-
-//-----------------------------------------------------------------------------
-// mint and store a new session token; caps the table so a client
-// hammering the login cannot grow it without bound
-//-----------------------------------------------------------------------------
-std::string CmAuth::CreateSession(void) {
-	std::string token = MintToken();
-	if (token.empty())
-		return "";
-	time_t now = time(NULL);
-	pthread_mutex_lock(&session_mutex);
-	if (sessions.size() >= SESSION_MAX) {
-		std::map<std::string, time_t>::iterator oldest = sessions.begin();
-		for (std::map<std::string, time_t>::iterator it = sessions.begin();
-				it != sessions.end(); ++it)
-			if (it->second < oldest->second)
-				oldest = it;
-		sessions.erase(oldest);
-	}
-	sessions[token] = now + session_timeout;
-	pthread_mutex_unlock(&session_mutex);
-	return token;
-}
-
-//-----------------------------------------------------------------------------
-void CmAuth::DropSession(const std::string &token) {
-	if (token.empty())
-		return;
-	pthread_mutex_lock(&session_mutex);
-	sessions.erase(token);
-	pthread_mutex_unlock(&session_mutex);
-}
-
-//-----------------------------------------------------------------------------
-void CmAuth::ClearSessions(void) {
-	pthread_mutex_lock(&session_mutex);
-	sessions.clear();
-	pthread_mutex_unlock(&session_mutex);
-}
-
-//-----------------------------------------------------------------------------
-// decode Base64 buffer to String
-//-----------------------------------------------------------------------------
-std::string CmAuth::decodeBase64(const char *b64buffer) {
-	if(b64buffer==NULL)
-		return "";
-	char *newString; //shorter then b64buffer
-	std::string result;
-	if ((newString = (char *) malloc(sizeof(char) * strlen(b64buffer) + 1))
-			!= NULL) {
-		char *org_newString = newString;
-		int i = 0;
-		unsigned long c = 0;
-
-		while (*b64buffer) {
-			int oneChar = *b64buffer++;
-			if (oneChar >= '0' && oneChar <= '9')
-				oneChar = oneChar - '0' + 52;
-			else if (oneChar >= 'A' && oneChar <= 'Z')
-				oneChar = oneChar - 'A';
-			else if (oneChar >= 'a' && oneChar <= 'z')
-				oneChar = oneChar - 'a' + 26;
-			else if (oneChar == '+')
-				oneChar = 62;
-			else if (oneChar == '/')
-				oneChar = 63;
-			else if (oneChar == '=')
-				oneChar = 0;
-			else
-				continue;
-
-			c = (c << 6) | oneChar;
-			if (++i == 4) {
-				*newString++ = (char) (c >> 16);
-				*newString++ = (char) (c >> 8);
-				*newString++ = (char) c;
-				i = 0;
-			}
-		}
-		*newString++ = '\0';
-		result = std::string(org_newString);
-		free(org_newString);
-		return result;
-	} else
-		return "";
 }

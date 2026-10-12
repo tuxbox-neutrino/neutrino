@@ -38,6 +38,7 @@
 #include <neutrino_menue.h>
 
 #include <nhttpd/yconfig.h>
+#include <httpd/login_bridge.h>
 
 #include <libconfigfile/configfile.h>
 
@@ -61,7 +62,7 @@ CNhttpdSetup::CNhttpdSetup()
 	, ssl_enabled(0)
 	, host(HTTPD_DEFAULT_HOST)
 	, username(AUTHUSER)
-	, password(AUTHPASSWORD)
+	, password("")
 	, no_auth_client("")
 	, ssl_pemfile(SSL_PEMFILE)
 	, ssl_ca_file(SSL_CA_FILE)
@@ -94,11 +95,14 @@ void CNhttpdSetup::loadConfig()
 		loglevel = 0;
 
 	auth_enabled = config.getBool("mod_auth.authenticate", false) ? 1 : 0;
-	username = config.getString("mod_auth.username", AUTHUSER);
-	password = config.getString("mod_auth.password", AUTHPASSWORD);
+	// the account lives in ni-web.conf, hashed (httpd/login_bridge.h): the
+	// name can be shown, the password cannot, so its field opens empty and
+	// an empty field keeps the stored one
+	username = login_bridge::user();
+	password.clear();
 	no_auth_client = config.getString("mod_auth.no_auth_client", "");
 	// fixed-width mask so the menu neither shows the password nor its length
-	password_mask = password.empty() ? "" : "********";
+	password_mask = login_bridge::passwordSet() ? "********" : "";
 
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	ssl_enabled = config.getBool("WebsiteMain.ssl", false) ? 1 : 0;
@@ -127,8 +131,6 @@ bool CNhttpdSetup::saveConfig()
 	config.setInt32("server.log.loglevel", loglevel);
 
 	config.setBool("mod_auth.authenticate", auth_enabled != 0);
-	config.setString("mod_auth.username", username);
-	config.setString("mod_auth.password", password);
 	config.setString("mod_auth.no_auth_client", no_auth_client);
 
 #ifdef Y_CONFIG_USE_OPEN_SSL
@@ -142,7 +144,18 @@ bool CNhttpdSetup::saveConfig()
 		return false;
 	}
 
+	// in effect for the pages and the REST login as soon as this returns
+	std::string why;
+	const bool login_saved = login_bridge::change(username, password, &why);
+	password.assign(password.size(), '\0');
+	password.clear();
+
 	yhttpd_reload_config();
+	if (!login_saved) {
+		fprintf(stderr, "[nhttpd_setup] the login was not changed: %s\n", why.c_str());
+		DisplayErrorMessage(g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_SAVE_FAILED));
+		return false;
+	}
 	return true;
 }
 
@@ -152,7 +165,7 @@ bool CNhttpdSetup::changeNotify(const neutrino_locale_t OptionName, void * /*Dat
 		auth_items.Activate(auth_enabled != 0);
 	else if (OptionName == LOCALE_NETWORKMENU_HTTPD_PASS)
 	{
-		password_mask = password.empty() ? "" : "********";
+		password_mask = (!password.empty() || login_bridge::passwordSet()) ? "********" : "";
 		if (pass_fwd)
 			pass_fwd->setOption(password_mask);
 	}

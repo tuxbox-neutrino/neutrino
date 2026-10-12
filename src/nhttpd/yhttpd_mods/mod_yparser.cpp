@@ -28,6 +28,8 @@
 #include <ylogging.h>
 #include "mod_yparser.h"
 #include <ylanguage.h>
+#include <httpd/login_bridge.h>
+#include "mod_auth.h"
 
 //=============================================================================
 // Initialization of static variables
@@ -669,6 +671,8 @@ const CyParser::TyFuncCall CyParser::yFuncCallList[] = {
 		{ "get_header_data", 			&CyParser::func_get_header_data },
 		{ "get_config_data", 			&CyParser::func_get_config_data },
 		{ "do_reload_httpd_config", 	&CyParser::func_do_reload_httpd_config },
+		{ "get_web_login_user",			&CyParser::func_get_web_login_user },
+		{ "set_web_login",				&CyParser::func_set_web_login },
 		{ "httpd_change", 				&CyParser::func_change_httpd },
 		{ "get_languages_as_dropdown",	&CyParser::func_get_languages_as_dropdown },
 		{ "set_language",				&CyParser::func_set_language },
@@ -735,6 +739,27 @@ std::string CyParser::func_do_reload_httpd_config(CyhookHandler *, std::string) 
 	//raise(SIGUSR1); // Send HUP-Signal to Reload Settings
 	yhttpd_reload_config();
 	return "";
+}
+
+//-------------------------------------------------------------------------
+// y-func : the account of the one login (httpd/login_bridge.h)
+// The name, for a form field; the password is stored hashed and has
+// nothing to show.
+//-------------------------------------------------------------------------
+std::string CyParser::func_get_web_login_user(CyhookHandler *, std::string) {
+	return encodeString(login_bridge::user());
+}
+
+// Takes authuser and authpassword from the submitted form itself, so the
+// password never passes through a template. An empty field leaves that
+// half as it is.
+std::string CyParser::func_set_web_login(CyhookHandler *hh, std::string) {
+	std::string why;
+	std::string password = hh->ParamList["authpassword"];
+	const login_bridge::Ask from = CmAuth::AskOf(hh);
+	const bool ok = login_bridge::change(hh->ParamList["authuser"], password, &why, &from);
+	password.assign(password.size(), '\0');
+	return ok ? "" : "ERROR [set_web_login]: " + encodeString(why);
 }
 
 //-------------------------------------------------------------------------

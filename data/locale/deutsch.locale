@@ -1568,7 +1568,7 @@ menu.hint_net_httpd_auth Anmeldung für das Webinterface erzwingen
 menu.hint_net_httpd_host Bind-Adresse oder Host\n(leer oder 0.0.0.0 für alle)
 menu.hint_net_httpd_loglevel Log-Level des Webservers
 menu.hint_net_httpd_noauth Clients ohne Login\n(kommagetrennte IPs/Hosts)
-menu.hint_net_httpd_pass Passwort für die HTTP-Authentifizierung
+menu.hint_net_httpd_pass Passwort für Web-Oberfläche und API; leer lassen behält das bisherige
 menu.hint_net_httpd_port TCP-Port für das Webinterface (1-65535)
 menu.hint_net_httpd_ssl HTTPS für das Webinterface aktivieren
 menu.hint_net_httpd_ssl_cafile Pfad zur CA-Datei (optional)

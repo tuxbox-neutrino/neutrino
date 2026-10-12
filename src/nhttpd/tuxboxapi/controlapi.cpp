@@ -47,6 +47,8 @@
 #include <driver/record.h>
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
+#include <httpd/login_bridge.h>
+#include <mod_auth.h>
 #include <src/tools/rcsim.h> // rcsim.h is located in $(top_builddir)
 #include <driver/pictureviewer/pictureviewer.h>
 extern CPictureViewer *g_PicViewer;
@@ -5261,17 +5263,15 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				first = false;
 			}
 			if (configFileName == "nhttpd") {
-				// derived status bits only — the password itself is never
-				// delivered; emitted unconditionally because a missing key
-				// means the compiled-in default applies
-				std::string pw = Config->getString("mod_auth.password", AUTHPASSWORD);
-				bool pw_set = !Config->getString("mod_auth.password", "").empty();
-				bool pw_default = (pw == "tuxbox" || pw == "coolstream" || pw == "ni");
+				// the account lives in ni-web.conf, hashed: its name and
+				// two status bits, never the password
 				if (!result.empty())
 					result += hh->outNext();
-				result += hh->outPair("mod_auth_dot_password_set", pw_set ? "true" : "false", false);
+				result += hh->outPair("mod_auth_dot_username", login_bridge::user(), false);
 				result += hh->outNext();
-				result += hh->outPair("mod_auth_dot_password_default", pw_default ? "true" : "false", false);
+				result += hh->outPair("mod_auth_dot_password_set", login_bridge::passwordSet() ? "true" : "false", false);
+				result += hh->outNext();
+				result += hh->outPair("mod_auth_dot_password_default", login_bridge::passwordIsShipped() ? "true" : "false", false);
 			}
 		}
 		else { // set values and save list
@@ -5281,13 +5281,36 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			// clobbered every submitted key g_settings knows about.
 			if (configFileName == "neutrino")
 				CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
+			// nhttpd: the account goes to ni-web.conf through the one login
+			// and never into this file; an empty password field leaves the
+			// stored one, which is what a page that cannot show it sends
+			std::string login_user, login_password;
 			for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it) {
 				std::string key = it->first;
 				replace(key, "_dot_", ".");
 				replace(key, "_bind_", "-");
+				if (configFileName == "nhttpd") {
+					if (key == "mod_auth.username") {
+						login_user = it->second;
+						continue;
+					}
+					if (key == "mod_auth.password") {
+						login_password = it->second;
+						continue;
+					}
+					if (key == "mod_auth.session_timeout")
+						continue;
+				}
 				if (key != "_dc" && key != "action" && key != "format" && key != "config"
 			    && !key.empty() && key.find_first_not_of("0123456789") != std::string::npos)
 					Config->setString(key, it->second);
+			}
+			if (configFileName == "nhttpd" && (!login_user.empty() || !login_password.empty())) {
+				std::string why;
+				const login_bridge::Ask from = CmAuth::AskOf(hh);
+				if (!login_bridge::change(login_user, login_password, &why, &from))
+					error = "the login was not changed: " + why;
+				login_password.assign(login_password.size(), '\0');
 			}
 			if (configFileName == "neutrino") {
 				Config->saveConfig(config_filename);
