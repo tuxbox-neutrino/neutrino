@@ -6,6 +6,9 @@
  *   action { id, label, button, confirm?, success?, refresh?,
  *            api: {endpoint, params, raw?} }        — v4 call button
  * Optional: showIf: {key, value} for conditional visibility
+ * v1section: the section of GET /api/v1/settings/sections this category
+ *   goes into when the box declares it (settings-v1.js); its fields the
+ *   schema lacks stay here and are drawn below that section's rows
  */
 // M5b: Sidebar-Gruppen — Reihenfolge = Anzeige-Reihenfolge der Sidebar.
 // Jede Registry-Kategorie traegt group:'<id>'; Extension-Kategorien
@@ -69,6 +72,7 @@ var SETTINGS_DEFAULT_ICON = regIcon('<line x1="4" y1="21" x2="4" y2="14"/><line 
 var SETTINGS_REGISTRY = [
 	{
 		id: 'video',
+		v1section: 'video',
 		group: 'av',
 		icon: regIcon('<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>'),
 		label: 'Video',
@@ -98,6 +102,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'audio',
+		v1section: 'audio',
 		group: 'av',
 		icon: regIcon('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'),
 		label: 'Audio',
@@ -152,6 +157,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'lcd',
+		v1section: 'display',
 		group: 'disp',
 		icon: regIcon('<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>'),
 		label: 'LCD',
@@ -178,6 +184,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'glcd',
+		v1section: 'display',
 		group: 'disp',
 		icon: regIcon('<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'),
 		label: 'GLCD',
@@ -197,6 +204,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'cec',
+		v1section: 'video',
 		group: 'av',
 		icon: regIcon('<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>'),
 		label: 'HDMI/CEC',
@@ -216,6 +224,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'system',
+		v1section: 'misc',
 		group: 'sys',
 		icon: regIcon('<rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>'),
 		label: ywebL('reg.system', 'System'),
@@ -419,6 +428,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'buttons',
+		v1section: 'keybindings',
 		group: 'ui',
 		icon: regIcon('<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'),
 		label: ywebL('reg.keys', 'Keys'),

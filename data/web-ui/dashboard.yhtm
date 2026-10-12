@@ -1220,7 +1220,7 @@
 		<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
 	</footer>
 
-	<script src="/Y_Lang.yjs?v=25"></script>
+	<script src="/Y_Lang.yjs?v=26"></script>
 	<script src="/yweb-header.js?v=56"></script>
 	<script src="/yweb-dom.js?v=1"></script>
 	<script src="/yweb-v1.js?v=10"></script>

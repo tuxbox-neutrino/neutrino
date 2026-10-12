@@ -177,6 +177,82 @@
 		.settings-card .yweb-form-row input[type="number"] {
 			width: 6rem;
 		}
+		/* Rows of the box's own settings (settings-v1.js): label, help
+		   button and restart mark share the label column; the help and a
+		   refusal of the box sit below the row, across both columns */
+		.yweb-set-label {
+			display: flex;
+			align-items: center;
+			gap: 0.3rem;
+			min-width: 0;
+		}
+		/* a long label wraps inside its column instead of pushing the
+		   help button under the control (yweb.css keeps labels unshrunk) */
+		.settings-card .yweb-set-label label:not(.yweb-toggle) {
+			min-width: 0;
+			flex-shrink: 1;
+			overflow-wrap: anywhere;
+		}
+		.yweb-set-info {
+			flex: none;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 1.6rem;
+			height: 1.6rem;
+			padding: 0;
+			margin: 0;
+			border: none;
+			border-radius: 50%;
+			background: none;
+			color: var(--pico-muted-color);
+			cursor: pointer;
+		}
+		.yweb-set-info:hover,
+		.yweb-set-info[aria-expanded="true"] {
+			color: var(--yweb-accent);
+		}
+		.yweb-set-info svg,
+		.yweb-set-restart svg {
+			width: 1rem;
+			height: 1rem;
+		}
+		.yweb-set-restart {
+			flex: none;
+			display: inline-flex;
+			color: var(--yweb-warning);
+		}
+		.yweb-set-help,
+		.yweb-set-error {
+			grid-column: 1 / -1;
+			font-size: var(--yweb-font-sm);
+		}
+		.yweb-set-help {
+			padding: 0.5rem 0.75rem;
+			border-left: 3px solid var(--yweb-accent);
+			border-radius: 0 var(--yweb-radius) var(--yweb-radius) 0;
+			background: var(--yweb-accent-light);
+			color: var(--pico-color);
+		}
+		.yweb-set-help[hidden] {
+			display: none;
+		}
+		.yweb-set-help p {
+			margin: 0 0 0.3rem;
+			white-space: pre-line;
+		}
+		.yweb-set-help p:last-child {
+			margin-bottom: 0;
+		}
+		.yweb-set-help .yweb-set-default {
+			color: var(--pico-muted-color);
+		}
+		.yweb-set-error {
+			color: var(--yweb-danger);
+		}
+		.settings-card .yweb-form-row [aria-invalid="true"] {
+			border-color: var(--yweb-danger);
+		}
 
 		/* M5c: zentrale Dirty-State-Save-Leiste am Fuß der Content-Spalte.
 		   Klebt beim Scrollen am unteren Rand und wirkt über der Karte
@@ -386,9 +462,12 @@
 
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
-	<script src="/Y_Lang.yjs?v=25"></script>
+	<script src="/Y_Lang.yjs?v=26"></script>
 	<script src="/yweb-header.js?v=56"></script>
-	<script src="/settings-registry.js?v=15"></script>
+	<script src="/yweb-dom.js?v=1"></script>
+	<script src="/yweb-v1.js?v=10"></script>
+	<script src="/settings-registry.js?v=16"></script>
+	<script src="/settings-v1.js?v=1"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -628,12 +707,36 @@
 	function ywebPickInto(inputId, startPath) {
 		ywebShowPathPicker(startPath, function(p) {
 			var el = document.getElementById(inputId);
-			if (el) { el.value = p; el.dispatchEvent(new Event('change')); }
+			// bubbling, so the delegated listeners (save bar, conditions) see it
+			if (el) { el.value = p; el.dispatchEvent(new Event('change', {bubbles: true})); }
 		});
 	}
 
+	// What a registry category dissolved into this section of the box adds
+	// to it: its fields the schema lacks, if the box's file carries them
+	function renderLeftovers(section) {
+		var html = '';
+		SETTINGS_REGISTRY.forEach(function(cat) {
+			if (V1SET.dissolved[cat.id] !== section) return;
+			cat.sections.forEach(function(sec) {
+				var body = '';
+				sec.fields.forEach(function(f) {
+					if (f.key && (V1SET.items[f.key] || !hasConfigKey(f.key))) return;
+					body += renderField(f);
+				});
+				if (body)
+					html += '<div class="yweb-form-section">' +
+						'<div class="yweb-form-section-title">' + sec.title + '</div>' + body + '</div>';
+			});
+		});
+		return html;
+	}
+
+	// A section of the box comes back as an element (settings-v1.js), every
+	// other category as markup
 	function renderCategory(catId) {
 		if (EXT_SETTINGS_CATS[catId]) return renderExtConfigPanel(EXT_SETTINGS_CATS[catId]);
+		if (V1SET.ok && V1SET.bySection[catId]) return v1setPanel(catId, renderLeftovers(catId));
 		var cat = SETTINGS_REGISTRY.find(function(c) { return c.id === catId; });
 		if (!cat) return '';
 
@@ -656,6 +759,8 @@
 			// ENABLE_UPNP, HAVE_CST_HARDWARE).
 			var body = '', n = 0;
 			sec.fields.forEach(function(f) {
+				// a key the box declares is drawn by settings-v1.js
+				if (f.key && V1SET.claimed[f.key]) { body += v1setSlot(f.key); n++; return; }
 				if (cat.requireKeys && f.key && !hasConfigKey(f.key)) return;
 				var fh = renderField(f);
 				if (fh) { body += fh; n++; }
@@ -1396,8 +1501,8 @@
 		var groups = {};
 		SETTINGS_GROUPS.forEach(function(g) { groups[g.id] = []; });
 
-		SETTINGS_REGISTRY.forEach(function(cat) {
-			(groups[cat.group] || groups.ext).push({cat: cat, esc: false});
+		v1setCategories().forEach(function(cat) {
+			(groups[cat.group] || groups.ext).push({cat: cat, esc: !!cat.v1});
 		});
 		Object.keys(EXT_SETTINGS_CATS).forEach(function(cid) {
 			var cat = EXT_SETTINGS_CATS[cid];
@@ -1453,9 +1558,15 @@
 			panel = document.createElement('div');
 			panel.className = 'settings-panel';
 			panel.id = 'panel-' + catId;
-			panel.innerHTML = renderCategory(catId);
+			var drawn = renderCategory(catId);
+			if (drawn instanceof Node)
+				panel.appendChild(drawn);
+			else
+				panel.innerHTML = drawn;
+			v1setFillSlots(panel);
 			content.appendChild(panel);
 			renderedPanels[catId] = true;
+			v1setApplyConditions();
 		}
 		panel.classList.add('active');
 	}
@@ -1478,10 +1589,11 @@
 	}
 
 	// Dirty-Zähler für die Save-Leiste: gleiche Diff-Logik wie
-	// saveSettings (String-Vergleich gegen configData)
+	// saveSettings (String-Vergleich gegen configData), dazu die Zeilen
+	// der Box-Einstellungen (settings-v1.js)
 	function ywebCountDirty() {
 		var values = collectValues();
-		var dirty = 0;
+		var dirty = v1setDirty().count;
 		for (var key in values) {
 			var origKey = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
 			if (values[key] !== (configData[origKey] || '')) dirty++;
@@ -1500,6 +1612,7 @@
 	// Verwerfen: alle Panel-Caches wegwerfen und aktive Kategorie aus
 	// configData neu rendern (die übrigen rendern beim nächsten Besuch)
 	function discardSettings() {
+		v1setDiscard();
 		renderedPanels = {};
 		document.querySelectorAll('#settingsContent .settings-panel').forEach(function(p) { p.remove(); });
 		var cat = activeCategory;
@@ -1508,10 +1621,14 @@
 		ywebUpdateSaveBar();
 	}
 
+	// Box settings go to PATCH /api/v1/settings/{section}, what only the
+	// registry knows to config=neutrino. A key the box refuses keeps its
+	// input and reason (settings-v1.js) through the redraw afterwards.
 	async function saveSettings() {
 		var values = collectValues();
 		var params = 'action=submit';
 		var changed = 0;
+		var v1dirty = v1setDirty();
 
 		for (var key in values) {
 			var origKey = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
@@ -1521,23 +1638,58 @@
 			}
 		}
 
-		if (changed === 0) {
+		if (changed === 0 && v1dirty.count === 0) {
 			ywebShowToast('{=L:yw.set.nochanges=}');
 			return;
 		}
 
-		var btns = document.querySelectorAll('#settingsSaveBar .yweb-btn');
-		btns.forEach(function(b) { b.disabled = true; });
-
+		// no edits while the box answers and the form is drawn again: a
+		// refusal arriving late must not replace a newer input
+		settingsBusy(true);
 		try {
-			await ywebApi('config', 'config=neutrino&' + params);
-			ywebShowToast(changed + ' ' + (changed > 1 ? '{=L:yw.set.saved_many=}' : '{=L:yw.set.saved_one=}'));
-			await loadSettings();
-		} catch (e) {
-			ywebShowToast('{=L:yw.tm.save_fail=}', true);
+			await saveSettingsNow(values, params, changed, v1dirty);
+		} finally {
+			settingsBusy(false);
+		}
+	}
+
+	// Locks the form and the save bar while a write is answered (saving,
+	// clearing a credential)
+	function settingsBusy(on) {
+		var content = document.getElementById('settingsContent');
+		content.inert = on;
+		if (on) content.setAttribute('aria-busy', 'true');
+		else content.removeAttribute('aria-busy');
+		document.querySelectorAll('#settingsSaveBar .yweb-btn').forEach(function(b) { b.disabled = on; });
+	}
+
+	async function saveSettingsNow(values, params, changed, v1dirty) {
+		var v1 = {saved: 0, failed: 0, restart: false};
+		if (v1dirty.count)
+			v1 = await v1setSave(v1dirty);
+		var oldOk = true;
+		if (changed) {
+			try {
+				await ywebApi('config', 'config=neutrino&' + params);
+			} catch (e) {
+				oldOk = false;
+			}
 		}
 
-		btns.forEach(function(b) { b.disabled = false; });
+		var saved = v1.saved + (oldOk ? changed : 0);
+		if (!oldOk)
+			ywebShowToast('{=L:yw.tm.save_fail=}', true);
+		else if (v1.failed)
+			ywebShowToast('{=L:yw.set.save_some_fail=}', true);
+		else
+			ywebShowToast(saved + ' ' + (saved > 1 ? '{=L:yw.set.saved_many=}' : '{=L:yw.set.saved_one=}') +
+				(v1.restart ? ' \u2013 {=L:yw.set.saved_restart=}' : ''));
+		// a refused save of the old interface keeps the form as it is
+		if (oldOk)
+			await loadSettings();
+		else
+			await v1setRefresh();
+		ywebUpdateSaveBar();
 	}
 
 	// Werte, die ausserhalb der Domaene ihres Feldes liegen, auf den Wert
@@ -1572,8 +1724,11 @@
 	async function loadSettings() {
 		try {
 			// v4 liefert ein valides Envelope-Dokument - der historische
-			// Brace-Zaehler (Workaround fuer das alte Doppel-Dokument) entfaellt
-			var resp = await ywebApi('config', {config: 'neutrino'});
+			// Brace-Zaehler (Workaround fuer das alte Doppel-Dokument) entfaellt.
+			// Daneben die Einstellungen der Box ueber /api/v1 (settings-v1.js);
+			// ohne sie bleibt die Seite bei der Registry.
+			var both = await Promise.all([ywebApi('config', {config: 'neutrino'}), v1setLoad()]);
+			var resp = both[0];
 			configData = (resp && resp.data && resp.data.config) || {};
 		} catch (e) {
 			document.getElementById('settingsContent').innerHTML =
@@ -1620,9 +1775,7 @@
 		document.getElementById('settingsContent').innerHTML = '';
 
 		// Determine active category from hash or default to first
-		var hash = location.hash.replace('#', '');
-		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; }) || EXT_SETTINGS_CATS[hash];
-		var targetCategory = validCat ? hash : SETTINGS_REGISTRY[0].id;
+		var targetCategory = categoryOfHash() || v1setCategories()[0].id;
 
 		activeCategory = '';
 		buildNavigation();
@@ -1630,19 +1783,36 @@
 		ywebUpdateSaveBar();
 	}
 
+	// The category the address names; one dissolved into a section of the
+	// box (an old bookmark such as #lcd) leads to that section
+	function categoryOfHash() {
+		var hash = location.hash.replace('#', '');
+		if (V1SET.dissolved[hash]) return V1SET.dissolved[hash];
+		var known = v1setCategories().some(function(c) { return c.id === hash; }) || EXT_SETTINGS_CATS[hash];
+		return known ? hash : '';
+	}
+
 	// Hash navigation
 	window.addEventListener('hashchange', function() {
-		var hash = location.hash.replace('#', '');
-		var validCat = SETTINGS_REGISTRY.find(function(c) { return c.id === hash; }) || EXT_SETTINGS_CATS[hash];
-		if (validCat) switchCategory(hash);
+		var cat = categoryOfHash();
+		if (cat) switchCategory(cat);
 	});
 
 	// M5c: Dirty-State live verfolgen (Delegation — Panels werden lazy
 	// gerendert und gecacht, der Listener auf dem Container sieht alles)
 	document.getElementById('settingsContent').addEventListener('input', ywebUpdateSaveBar);
 	document.getElementById('settingsContent').addEventListener('change', ywebUpdateSaveBar);
-	// Observer-Felder (disabledIf) folgen ihrem uebergeordneten Eintrag
+	// Observer-Felder (disabledIf) folgen ihrem uebergeordneten Eintrag,
+	// die Zeilen der Box ihren Bedingungen
 	document.getElementById('settingsContent').addEventListener('change', ywebApplyDeps);
+	document.getElementById('settingsContent').addEventListener('change', v1setApplyConditions);
+	// ein abgelehnter Wert, den der Nutzer wieder bearbeitet, ist erledigt
+	document.getElementById('settingsContent').addEventListener('input', function(e) { v1setEdited(e.target); });
+	document.getElementById('settingsContent').addEventListener('change', function(e) { v1setEdited(e.target); });
+
+	// Was anderswo gespeichert wird (am Geraet, von einer zweiten Seite),
+	// liest die Seite nach
+	ywebV1Events({'settings-changed': v1setChanged, open: v1setStreamOpen});
 
 	loadSettings();
 	</script>

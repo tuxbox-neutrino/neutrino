@@ -32,6 +32,7 @@ install_DATA = \
 	set-lang.yhtm \
 	settings.yhtm \
 	settings-registry.js \
+	settings-v1.js \
 	sysinfo.yhtm \
 	timer.yhtm \
 	recordings.yhtm \
