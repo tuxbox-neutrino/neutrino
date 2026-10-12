@@ -465,7 +465,7 @@
 	<script src="/Y_Lang.yjs?v=27"></script>
 	<script src="/yweb-header.js?v=58"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=12"></script>
+	<script src="/yweb-v1.js?v=13"></script>
 	<script src="/settings-registry.js?v=16"></script>
 	<script src="/settings-v1.js?v=1"></script>
 	<script>
@@ -900,8 +900,9 @@
 		btn.disabled = false;
 	}
 
-	// Backup/Restore der Einstellungen via exec-Vertrag
-	// (Y_Tools settings_backup_restore; Script echot den Archivpfad)
+	// Backup and restore over /api/v1: the box packs its settings with its own
+	// backup.sh; an archive goes up in pieces to /tmp, and the box checks it,
+	// puts it back itself and restarts
 	function renderBackupPanel() {
 		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.backup_title=}') +
 			'<div class="yweb-form-section"><div class="yweb-form-section-title">Backup</div>' +
@@ -917,11 +918,7 @@
 	async function doSettingsBackup(btn) {
 		btn.disabled = true;
 		try {
-			var out = (await ywebApi('exec', 'Y_Tools&settings_backup_restore&backup', {raw: true})).trim();
-			var file = out.split('\n').pop().trim();
-			if (file.indexOf('/') !== 0) throw new Error(out || '{=L:yw.set.no_archive=}');
-			ywebShowToast('Backup: ' + file);
-			window.location.href = '/api/v4/file?action=download&path=' + encodeURIComponent(file);
+			ywebShowToast('Backup: ' + await ywebV1Download('/system/backup', 'settings.tar.gz'));
 		} catch (e) {
 			ywebShowToast('{=L:yw.set.backup_fail=}: ' + e.message, true);
 		}
@@ -933,6 +930,7 @@
 	function doSettingsRestore(btn) {
 		var inp = document.getElementById('restoreFile');
 		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
+		if (!/\.(tar\.gz|tgz|tar)$/i.test(inp.files[0].name)) { ywebShowToast('{=L:yw.set.restore_type=}', true); return; }
 		ywebModal('restoreConfirmModal', '{=L:yw.set.restore_btn=}',
 			'<p>{=L:yw.set.restore_confirm=}<br><small style="color:var(--pico-muted-color)">' +
 			escapeHtml(inp.files[0].name) + '</small></p>' +
@@ -945,17 +943,28 @@
 		var inp = document.getElementById('restoreFile');
 		if (!inp || !inp.files || !inp.files.length) return;
 		btn.disabled = true;
+		// a name of its own in /tmp, keeping the ending the box tells the kind by
+		var f = inp.files[0];
+		var ending = (/\.(tar\.gz|tgz|tar)$/i.exec(f.name) || ['', 'tar.gz'])[1].toLowerCase();
+		var name = 'restore-' + Math.random().toString(36).slice(2, 10) + '.' + ending;
+		var uploaded = false;
 		try {
-			var f = inp.files[0];
-			var fd = new FormData();
-			fd.append('file', f);
-			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
-			if (!up.ok) throw new Error('Upload fehlgeschlagen');
-			var out = await ywebApi('exec', 'Y_Tools&settings_restore_upload&' + encodeURIComponent(f.name), {raw: true});
-			ywebShowToast('Restore: ' + (out.trim() || '{=L:yw.set.restore_done=}'));
+			await ywebV1UploadPieces(f, '/tmp/' + name);
+			uploaded = true;
+			await ywebV1('POST', '/system/restore', {body: {file: name}});
+			uploaded = false;	// the box has it now, and is about to restart
 			ywebCloseModal('restoreConfirmModal');
+			ywebShowToast('{=L:yw.set.restore_started=}');
 		} catch (e) {
-			ywebShowToast('{=L:yw.set.restore_fail=}: ' + e.message, true);
+			if (uploaded && !e.status) {
+				// no answer: the box may have taken the archive over and be restarting
+				ywebShowToast('{=L:yw.set.restore_unknown=}', true);
+			} else {
+				// a refusal; the box takes the upload away itself once it has read it
+				if (uploaded)
+					ywebV1('DELETE', '/storage/path', {query: {path: '/tmp/' + name}}).catch(function() {});
+				ywebShowToast('{=L:yw.set.restore_fail=}: ' + e.message, true);
+			}
 		}
 		btn.disabled = false;
 	}

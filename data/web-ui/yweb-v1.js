@@ -8,6 +8,8 @@
 //   ywebV1Blob('/osd/screenshot', {format: 'png'})        -> Blob
 //   ywebV1('PUT', '/storage/file', {query: {path: p}, raw: blob})
 //                                                         -> bytes as the body
+//   ywebV1UploadPieces(file, '/tmp/x.tar.gz', onProgress) -> a file of any size
+//   ywebV1Download('/system/backup', 'settings.tar.gz')   -> saved, its name
 //
 // A refusal throws an Error with the box's reason as its message, the HTTP
 // status in .status and the code of the refusal in .code (answers come as
@@ -127,6 +129,82 @@ async function ywebV1Blob(path, query, opts) {
 		resp = await get();
 	if (!resp.ok) throw await _ywebV1Error(resp, 'GET', path);
 	return resp.blob();
+}
+
+// A file the box answers as a download, saved under the name the box gives it
+// (Content-Disposition), else under fallback; the same sign-in on 403 as
+// ywebV1. Resolves to the name it was saved under.
+async function ywebV1Download(path, fallback) {
+	var get = function() { return fetch(_ywebV1Url(path), {credentials: 'same-origin', cache: 'no-store'}); };
+	var resp = await get();
+	if (resp.status === 403 && (await ywebV1Session() || await ywebV1SignIn()))
+		resp = await get();
+	if (!resp.ok) throw await _ywebV1Error(resp, 'GET', path);
+	var m = /filename="([^"\/\\]+)"/.exec(resp.headers.get('Content-Disposition') || '');
+	var name = m ? m[1] : fallback;
+	var blob = await resp.blob();
+	var a = document.createElement('a');
+	a.href = URL.createObjectURL(blob);
+	a.download = name;
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+	setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+	return name;
+}
+
+// Pieces an upload goes up in: well below the server's body ceiling of 1 MiB,
+// and small enough that one arrives within the 10 s the server gives a body
+// over a slow link (some 26 KB/s).
+var YWEB_V1_PIECE = 256 * 1024;
+
+// How long the box holds a file to be, -1 when it cannot say
+async function _ywebV1Length(path) {
+	var at = path.lastIndexOf('/');
+	var listed = await ywebV1('GET', '/storage/files', {query: {path: path.substring(0, at) || '/'}});
+	var name = path.substring(at + 1);
+	var e = ((listed && listed.items) || []).find(function(x) { return x.id === name; });
+	return e && e.attributes_read ? e.size : -1;
+}
+
+/* A file of any size up to the box, at path inside the box's roots: the first
+   piece with PUT, which refuses a name in use, each further one with PATCH at
+   its offset. A piece is sent once more after a broken line; one that reached
+   the box although its answer did not is found by the file's length, so it is
+   neither lost nor written twice. onProgress(sent, total) after each piece. An
+   upload that fails takes away what it wrote; a first piece refused because the
+   name is taken wrote nothing, and what is there is somebody else's. */
+async function ywebV1UploadPieces(file, path, onProgress) {
+	var send = function(offset, piece, again) {
+		return offset === 0
+			? ywebV1('PUT', '/storage/file', {query: {path: path, overwrite: again ? true : null}, raw: piece})
+			: ywebV1('PATCH', '/storage/file', {query: {path: path, offset: offset}, raw: piece});
+	};
+	var wrote = false;
+	try {
+		var offset = 0;
+		do {
+			var piece = file.slice(offset, offset + YWEB_V1_PIECE);
+			try {
+				await send(offset, piece, false);
+			} catch (e) {
+				if (e.status) throw e;	// the box answered: a refusal, not a broken line
+				await new Promise(function(r) { setTimeout(r, 1000); });
+				try {
+					await send(offset, piece, true);
+				} catch (e2) {
+					if (e2.code !== 'offset-mismatch' || await _ywebV1Length(path) !== offset + piece.size) throw e2;
+				}
+			}
+			wrote = true;
+			offset += piece.size;
+			if (onProgress) onProgress(offset, file.size);
+		} while (offset < file.size);
+	} catch (e) {
+		if (wrote)
+			ywebV1('DELETE', '/storage/path', {query: {path: path}}).catch(function() {});
+		throw e;
+	}
 }
 
 // Every page of a paged list (items + next_cursor), as one array.

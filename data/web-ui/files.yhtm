@@ -503,7 +503,7 @@
 	<script src="/Y_Lang.yjs?v=27"></script>
 	<script src="/yweb-header.js?v=58"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=12"></script>
+	<script src="/yweb-v1.js?v=13"></script>
 	<script>
 		// The file manager works through /api/v1/storage: it reaches the
 		// directories the box names as its roots (where it records, where its
@@ -515,11 +515,6 @@
 		// State: '' is the top level, the list of roots
 		let currentPath = '';
 		let roots = [];		// the roots that are there, as GET /storage/roots names them
-
-		// Pieces an upload goes up in: well below the server's body ceiling of
-		// 1 MiB, and small enough that one arrives within the 10 s the server
-		// gives a body over a slow link (some 26 KB/s)
-		const UPLOAD_PIECE = 256 * 1024;
 
 		// SVG icon templates (page source, not data)
 		const ICONS = {
@@ -873,33 +868,6 @@
 		}
 
 		// The length the piece file has reached, for a piece whose answer was lost
-		async function partLength(dir, part) {
-			const listed = await ywebV1('GET', '/storage/files', {query: {path: dir}});
-			const name = part.substring(part.lastIndexOf('/') + 1);
-			const e = ((listed && listed.items) || []).find(x => x.id === name);
-			return e && e.attributes_read ? e.size : -1;
-		}
-
-		/* One piece, sent again once when the connection broke on the way. A
-		   piece that reached the box although its answer did not is found by
-		   the length of the piece file, so it is neither lost nor written twice. */
-		async function sendPiece(dir, part, offset, piece) {
-			const send = again => offset === 0
-				? ywebV1('PUT', '/storage/file', {query: {path: part, overwrite: again ? true : null}, raw: piece})
-				: ywebV1('PATCH', '/storage/file', {query: {path: part, offset: offset}, raw: piece});
-			try {
-				await send(false);
-			} catch (e) {
-				if (e.status) throw e;	// the box answered: a refusal, not a broken line
-				await new Promise(r => setTimeout(r, 1000));
-				try {
-					await send(true);
-				} catch (e2) {
-					if (e2.code !== 'offset-mismatch' || await partLength(dir, part) !== offset + piece.size) throw e2;
-				}
-			}
-		}
-
 		/* In pieces below the server's body ceiling, to a hidden name of its own
 		   beside the target, which takes the real name at the end: what was there
 		   under that name stays whole until the last piece is in, and a name in use
@@ -918,18 +886,14 @@
 			status.textContent = '{=L:yw.fm.uploading=}: ' + file.name;
 			bar.value = 0;
 
-			let started = false;
+			// the pieces take themselves away when they fail; after that the
+			// piece file is this upload's to take away
+			let uploaded = false;
 			try {
-				let offset = 0;
-				do {
-					const piece = file.slice(offset, offset + UPLOAD_PIECE);
-					await sendPiece(dir, part, offset, piece);
-					// a piece file of this upload is there now, to take away on a failure;
-					// a first piece refused as name-taken belongs to somebody else
-					started = true;
-					offset += piece.size;
-					bar.value = file.size ? Math.round(offset * 100 / file.size) : 100;
-				} while (offset < file.size);
+				await ywebV1UploadPieces(file, part, (sent, total) => {
+					bar.value = total ? Math.round(sent * 100 / total) : 100;
+				});
+				uploaded = true;
 
 				try {
 					await ywebV1('POST', '/storage/rename', {body: {from: part, to: target}});
@@ -939,7 +903,7 @@
 					if (!replace) throw new Error('{=L:yw.fm.not_replaced=}');
 					await ywebV1('POST', '/storage/rename', {body: {from: part, to: target, overwrite: true}});
 				}
-				started = false;
+				uploaded = false;
 
 				status.textContent = '{=L:yw.fm.done=}: ' + file.name;
 				ywebShowToast('{=L:yw.fm.uploaded=}: ' + file.name);
@@ -951,7 +915,7 @@
 			} catch (e) {
 				status.textContent = '{=L:yw.msg.error=}: ' + e.message;
 				ywebShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true);
-				if (started)
+				if (uploaded)
 					ywebV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
 			}
 

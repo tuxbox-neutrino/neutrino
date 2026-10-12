@@ -470,13 +470,6 @@ do_zapit_put_upload()
 	rm -f "/tmp/$1"
 }
 
-# An uploaded settings archive taken back.
-do_settings_restore_upload()
-{
-	upload_name_ok "$1" || { echo "error: not an uploaded file"; return 1; }
-	restore.sh "/tmp/$1"
-}
-
 restart_neutrino()
 {
 	echo "fixme"
@@ -620,7 +613,6 @@ case "$action" in
 	rm_update_version)		rm -f /tmp/version.txt ;;
 	settings_backup_restore)	do_settings_backup_restore $* ;;
 	zapit_put_upload)		do_zapit_put_upload "$@" ;;
-	settings_restore_upload)	do_settings_restore_upload "$@" ;;
 	automount_list)			do_automount_list $* ;;
 	automount_getline)		do_automount_getline $* ;;
 	automount_setline)		do_automount_setline $* ;;

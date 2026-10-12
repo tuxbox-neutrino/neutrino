@@ -391,7 +391,7 @@
 	<script src="/Y_Lang.yjs?v=27"></script>
 	<script src="/yweb-header.js?v=58"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=12"></script>
+	<script src="/yweb-v1.js?v=13"></script>
 	<script>
 		// The channel list over /api/v1: bouquets, their channels and what each
 		// is showing now. Names, titles and texts come from the broadcast and go
