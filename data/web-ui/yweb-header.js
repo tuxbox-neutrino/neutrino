@@ -6,7 +6,7 @@
 // Central configuration
 const YWEB_CONFIG = {
 	logo: '/images/logo.png',
-	title: 'yWeb'
+	title: 'Neutrino-Web-UI'
 };
 
 // i18n helper: reads the server-rendered dictionary from Y_Lang.yjs
@@ -41,7 +41,7 @@ function _ywebCloseBtn(onclick) {
 // Footer HTML Template
 const YWEB_FOOTER_HTML = `
 <footer class="yweb-footer">
-	yWeb <span id="yweb-footer-version">--</span> ·
+	Neutrino-Web-UI <span id="yweb-footer-version">--</span> ·
 	<a href="#" onclick="ywebShowAbout(); return false;">${ywebL('about.link', 'About')}</a> ·
 	<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
 </footer>
@@ -59,7 +59,7 @@ const YWEB_ABOUT_HTML = `
 			<div class="yweb-about-section">
 				<h4>Versionen</h4>
 				<div class="yweb-about-grid">
-					<span class="yweb-about-label">yWeb</span>
+					<span class="yweb-about-label">Neutrino-Web-UI</span>
 					<span class="yweb-about-value" id="about-yweb">--</span>
 					<span class="yweb-about-label">Neutrino</span>
 					<span class="yweb-about-value" id="about-neutrino">--</span>
@@ -87,7 +87,7 @@ const YWEB_ABOUT_HTML = `
 			<div class="yweb-about-section">
 				<h4>Lizenz &amp; Copyright</h4>
 				<div class="yweb-about-legal">
-					<p><strong>yWeb</strong> - Neutrino Web Interface<br>
+					<p><strong>Neutrino-Web-UI</strong> - based on yWeb by yjogol<br>
 					<span id="about-copyright">Copyright © Tuxbox Project</span></p>
 					<p>Lizenziert unter der <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank">GNU GPL v2</a></p>
 					<p><strong>Icons:</strong> Teile der Icons basieren auf <a href="https://www.famfamfam.com/lab/icons/silk/" target="_blank">Silk Icons</a> von famfamfam, lizenziert unter <a href="https://creativecommons.org/licenses/by/2.5/" target="_blank">CC BY 2.5</a></p>

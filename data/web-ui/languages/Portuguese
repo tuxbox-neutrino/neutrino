@@ -71,7 +71,7 @@ main.settings_desc=Definições da Box, Web, Plugins ...
 main.extensions=Extensões
 main.extensions_desc=Extensões do Utilizador ...
 main.info=Informação
-main.info_desc=Informação sobre o yWeb, Actualizações
+main.info_desc=Informação sobre a Neutrino-Web-UI, Actualizações
 
 #========= Menu do Control da Box
 bc.menue.bouquets_desc=Mudar Canais
@@ -213,7 +213,7 @@ epg.si.crypt=Sistemas de Codificação
 ========Definições
 set.reload_neutrino=reiniciar  Neutrino
 set.reboot_required=O reinício é necessário
-set.sync_with_neutrino_desc=Após alterar configurações via yWeb: <br/>Escolha na TV "Menu Principal-> Serviços-> Soft reiniciar", para aceitar as mudanças dentro de neutrino. <br/> Após alterar as configurações dentro Neutrino: <br/> Escolha na TV "Menu Principal-> Configurações-> Salvar configurações agora", para aceitar estas alterações e recarregue esta página.
+set.sync_with_neutrino_desc=Após alterar configurações via a Neutrino-Web-UI: <br/>Escolha na TV "Menu Principal-> Serviços-> Soft reiniciar", para aceitar as mudanças dentro de neutrino. <br/> Após alterar as configurações dentro Neutrino: <br/> Escolha na TV "Menu Principal-> Configurações-> Salvar configurações agora", para aceitar estas alterações e recarregue esta página.
 
 set.sync_with_neutrino=Sincronização com Neutrino
 
@@ -310,7 +310,7 @@ set.nhttpd.client_without_authentication=Cliente sem autenticação
 set.nhttpd.active_after_boot=activo após boot
 set.nhttpd.port=Porta
 set.nhttpd.threading=Threading
-set.nhttpd.alternate_web_folder=Pasta Alternativa para o yWeb
+set.nhttpd.alternate_web_folder=Pasta Alternativa para a Neutrino-Web-UI
 set.nhttpd.allowed_file_extensions=Permitir Todas as extensões / MIME
 set.nhttpd.allow_all_file_extensions=Permitir Todas as extensões
 set.nhttpd.url_of_logos_desc=Escreva directório ou URL para os Logos

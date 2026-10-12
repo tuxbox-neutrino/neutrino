@@ -1,11 +1,11 @@
 /*!
-\page ywebext yWeb-Erweiterungen (Manifest, Slots, Schaltung, Verwaltung)
+\page ywebext Neutrino-Web-UI-Erweiterungen (Manifest, Slots, Schaltung, Verwaltung)
 
 English version: \ref ywebext_en
 
 \section ywebext_intro Mechanismus
 
-Das moderne yWeb laedt Erweiterungen deklarativ aus
+Die Neutrino-Web-UI laedt Erweiterungen deklarativ aus
 `<webroot>/extensions/<name>/manifest.json` — kein Patchen von Kernseiten.
 Der Loader lebt in `data/y-web/yweb-header.js` (`ywebDiscoverExtensions` /
 `ywebInjectExtensions`) und laeuft beim Seiten-Init jeder modernen Seite.
@@ -159,13 +159,13 @@ Kern-Bumps nicht tracken.
 */
 
 /*!
-\page ywebext_en yWeb extensions (manifest, slots, gating, manager)
+\page ywebext_en Neutrino-Web-UI extensions (manifest, slots, gating, manager)
 
 Deutsche Fassung: \ref ywebext
 
 \section ywebext_en_intro Mechanism
 
-Modern yWeb loads extensions declaratively from
+The Neutrino-Web-UI loads extensions declaratively from
 `<webroot>/extensions/<name>/manifest.json` — no patching of core pages.
 The loader lives in `data/y-web/yweb-header.js`
 (`ywebDiscoverExtensions` / `ywebInjectExtensions`) and runs on page

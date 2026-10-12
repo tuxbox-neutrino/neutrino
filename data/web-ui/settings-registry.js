@@ -270,7 +270,7 @@ var SETTINGS_REGISTRY = [
 		id: 'extensions',
 		group: 'ext',
 		icon: regIcon('<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>'),
-		label: ywebL('set.ext_title', 'yWeb extensions'),
+		label: ywebL('set.ext_title', 'Neutrino-Web-UI extensions'),
 		custom: true
 	},
 	{
@@ -408,7 +408,7 @@ var SETTINGS_REGISTRY = [
 				collapsible: true,
 				fields: [
 					{ type: 'info', label: ywebL('pers.featkey_label', 'Note'),
-					  text: ywebL('pers.featkey_note', 'Neutrino has no menu for these keys; yWeb offers them in addition.') },
+					  text: ywebL('pers.featkey_note', 'Neutrino has no menu for these keys; the Neutrino-Web-UI offers them in addition.') },
 					persFeatKey('fav', ywebL('pers.feat_fav', 'add channel to favorites')),
 					persFeatKey('timerlist', ywebL('pers.feat_timerlist', 'Timer list')),
 					persFeatKey('vtxt', ywebL('pers.feat_vtxt', 'Videotext')),
@@ -476,7 +476,7 @@ var SETTINGS_REGISTRY = [
 		id: 'yweb',
 		group: 'sys',
 		icon: regIcon('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'),
-		label: 'yWeb',
+		label: 'Neutrino-Web-UI',
 		config: 'yweb',
 		sections: [
 			{

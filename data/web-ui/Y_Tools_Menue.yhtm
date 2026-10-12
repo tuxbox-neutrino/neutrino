@@ -99,7 +99,7 @@ function init(){
 				</li>
 			</ul>
 		</div>
-		<div class="y_menu_sec_section">yWeb</div>
+		<div class="y_menu_sec_section">Neutrino-Web-UI</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_tools_yweb">
 				<li>

@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="apple-mobile-web-app-capable" content="yes">
-	<title>yWeb Dashboard</title>
+	<title>Neutrino-Web-UI Dashboard</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<script>
@@ -1190,7 +1190,7 @@
 	</main>
 
 	<footer class="yweb-footer">
-		yWeb <span id="yweb-version">--</span> ·
+		Neutrino-Web-UI <span id="yweb-version">--</span> ·
 		<a href="#" onclick="ywebShowAbout(); return false;">{=L:yw.about.link=}</a> ·
 		<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
 	</footer>

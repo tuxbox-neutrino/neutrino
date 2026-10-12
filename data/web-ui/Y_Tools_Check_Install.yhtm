@@ -41,7 +41,7 @@ function sLog_addRow(_body, state, action_text, state_text){
 function do_check(){
 	sLog_init();
 	sLog_clear();
-	sLog_addRow(sLog_body, "ok", "yWeb Version is: {=ini-get:Y_Version.txt;version=} {=ini-get:Y_Version.txt;date=}", "ok");
+	sLog_addRow(sLog_body, "ok", "Neutrino-Web-UI version is: {=ini-get:Y_Version.txt;version=} {=ini-get:Y_Version.txt;date=}", "ok");
 
 	/*webserver*/
 	var needed_nhttpd_version = "3.2.7";

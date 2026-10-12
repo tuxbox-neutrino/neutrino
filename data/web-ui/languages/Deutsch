@@ -81,10 +81,10 @@ main.settings_desc=Einstellungen f&uuml;r die Box, Webserver, ...
 main.extensions=Erweiterungen
 main.extensions_desc=Installierte Erweiterungen und Verwaltung
 main.info=Info
-main.info_desc=Information &uuml;ber das yWeb, Version
+main.info_desc=Information &uuml;ber die Neutrino-Web-UI, Version
 main.remote_full_desc=Fernbedienung & OSD Vollbild
 main.stream_to_vlc_client_desc=Live TV direkt im VLC Client
-main.ni=yWeb Tools
+main.ni=Neutrino-Web-UI Tools
 
 # ===== Boxcontrol Menue
 bc.menue.bouquets_desc=Sender ausw&auml;hlen
@@ -222,7 +222,7 @@ epg.si.crypt=Crypt Systeme
 
 # ===== Neutrino Settings
 set.reboot_required=Neustart notwendig
-set.sync_with_neutrino_desc=After changing settings via yWeb: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
+set.sync_with_neutrino_desc=After changing settings via the Neutrino-Web-UI: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
 set.sync_with_neutrino=Zur Synchronisation mit Neutrino
 
 # ===== Settings General & Menue
@@ -508,7 +508,7 @@ live.timer-sync.status=Status
 
 # ===== INFO
 info.help=Hilfe
-info.about_yweb=&Uuml;ber yWeb
+info.about_yweb=&Uuml;ber die Neutrino-Web-UI
 info.about_image=&Uuml;ber Image
 info.about.your_image=Dein Image
 info.about.actual_image=Aktuelles Image
@@ -884,7 +884,7 @@ yw.set.grp_sys=System
 yw.set.grp_net=Netzwerk & Quellen
 yw.set.grp_ui=Bedienoberfläche
 yw.set.grp_ext=Erweiterungen
-yw.set.ext_title=yWeb-Erweiterungen
+yw.set.ext_title=Neutrino-Web-UI-Erweiterungen
 yw.set.ext_search=Suche Erweiterungen...
 yw.set.ext_none=Keine Erweiterungen gefunden
 yw.set.ext_found=Gefundene Erweiterungen
@@ -1028,7 +1028,7 @@ yw.reg.zap_mode=Umschaltmodus
 yw.lang.title=Sprache
 yw.lang.none=Keine Sprachen installiert
 yw.wiz.title=Einrichtung
-yw.wiz.welcome=Willkommen bei yWeb
+yw.wiz.welcome=Willkommen bei der Neutrino-Web-UI
 yw.wiz.intro=Sprache und Startseite wählen und loslegen.
 yw.wiz.start_page=Startseite
 yw.wiz.finish=Loslegen
@@ -1201,4 +1201,4 @@ yw.pers.feat_timerlist=Timerliste
 yw.pers.feat_vtxt=Videotext
 yw.pers.feat_rclock=Fernbedienung sperren
 yw.pers.featkey_label=Hinweis
-yw.pers.featkey_note=Neutrino bietet für diese Tasten kein Menü; yWeb blendet sie zusätzlich ein.
+yw.pers.featkey_note=Neutrino bietet für diese Tasten kein Menü; die Neutrino-Web-UI blendet sie zusätzlich ein.

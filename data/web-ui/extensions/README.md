@@ -1,8 +1,8 @@
-# A yWeb extension in 10 minutes
+# A Neutrino-Web-UI extension in 10 minutes
 
 *Deutsche Fassung: [README.de.md](README.de.md)*
 
-Modern yWeb loads extensions automatically from this directory.
+The Neutrino-Web-UI loads extensions automatically from this directory.
 An extension is **a folder with a manifest** — no patching of core
 pages, no build required.
 
@@ -163,7 +163,7 @@ Contract:
 
 Copy template: [`hallo-yweb/hallo.html`](hallo-yweb/hallo.html). Key points:
 
-- Embed the yWeb header/nav:
+- Embed the Neutrino-Web-UI header/nav:
   `<div class="yweb-header-wrapper" data-page="tools"></div>` +
   `<script src="/yweb-header.js"></script>` + `ywebInitHeader('tools');`
 - Styling: link Pico CSS + `/css/yweb.css` — use the ready-made classes

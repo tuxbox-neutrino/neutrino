@@ -69,7 +69,7 @@ main.settings_desc=Nastavení zařízení, Prohlížeč, Doplńky ...
 main.extensions=Rozšíření
 main.extensions_desc=Uživatelské rozšíření ...
 main.info=Informace
-main.info_desc=Informace o yWeb, Aktualizace
+main.info_desc=Informace o Neutrino-Web-UI, Aktualizace
 main.live_tv_desc=Živá TV
 main.live_tv_popup_desc=Okno Živá TV
 main.remote_full_desc=Dálkové ovládaní a OSD
@@ -209,7 +209,7 @@ epg.si.url=Url
 ======= Nastavení
 set.reload_neutrino=Restart Neutrina
 set.reboot_required=Nutný ReBoot
-set.sync_with_neutrino_desc=Po změnách nastavení přes yWeb:<br/>Vybrat na TV "Hlavní Menu-> Služby-> Restart software", pro přijetí změn uvnitř neutrína.<br/>Po změnách nastavení uvnitř Neutrina: <br/>Vybrat na TV "Hlavní Menu-> Nastavení-> Uložení nastavení", pro použití těchto změn a znovu načíst tuto stránku.
+set.sync_with_neutrino_desc=Po změnách nastavení přes Neutrino-Web-UI:<br/>Vybrat na TV "Hlavní Menu-> Služby-> Restart software", pro přijetí změn uvnitř neutrína.<br/>Po změnách nastavení uvnitř Neutrina: <br/>Vybrat na TV "Hlavní Menu-> Nastavení-> Uložení nastavení", pro použití těchto změn a znovu načíst tuto stránku.
 set.sync_with_neutrino=Synchronizovat s Neutrínem
 
 ====== Hlavné nastavenia a Ponuka

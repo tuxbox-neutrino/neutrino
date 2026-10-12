@@ -446,7 +446,7 @@ void CImageInfo::initAPIVersions()
 	s_api	+= "LUA " + to_string(LUA_API_VERSION_MAJOR) + "." + to_string(LUA_API_VERSION_MINOR);
 	s_api	+= ", ";
 	#endif
-	s_api	+= "yWeb ";
+	s_api	+= "Neutrino-Web-UI ";
 	s_api	+= getYWebVersion();
 	s_api	+= ", ";
 	s_api	+= HTTPD_NAME;

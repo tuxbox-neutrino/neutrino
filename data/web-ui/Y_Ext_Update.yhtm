@@ -32,7 +32,7 @@
 			<th>{=L:ext.tag=}</th>
 			<th>{=L:ext.your=}<br/>{=L:ext.version=}</th>
 			<th>{=L:ext.update=}<br/>{=L:ext.version=}</th>
-			<th title="minimal yWeb version">yWeb</th>
+			<th title="minimal Neutrino-Web-UI version">Web-UI</th>
 			<th>{=L:ext.size=}</th>
 			<th>{=L:ext.info=}</th>
 		</tr>

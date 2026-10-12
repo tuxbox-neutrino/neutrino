@@ -22,7 +22,7 @@ function init(){
 			<ul id="secmenu_settings_general">
 				<li>
 					{=var-set:m_link_href=Y_Settings_yWeb.yhtm=}
-					{=var-set:m_link_text=yWeb=}
+					{=var-set:m_link_text=Neutrino-Web-UI=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>

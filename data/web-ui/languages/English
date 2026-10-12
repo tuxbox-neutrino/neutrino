@@ -81,10 +81,10 @@ main.settings_desc=Settings for Box, Web, Plugins ...
 main.extensions=Extensions
 main.extensions_desc=User Extensions ...
 main.info=Info
-main.info_desc=Information about yWeb, Updates
+main.info_desc=Information about the Neutrino-Web-UI, Updates
 main.remote_full_desc=Remote & OSD full
 main.stream_to_vlc_client_desc=Stream to VLC Client
-main.ni=yWeb Tools
+main.ni=Neutrino-Web-UI Tools
 
 # ===== Boxcontrol Menue
 bc.menue.bouquets_desc=Switch channels
@@ -222,7 +222,7 @@ epg.si.crypt=Crypt systems
 
 # ===== Neutrino Settings
 set.reboot_required=reboot required
-set.sync_with_neutrino_desc=After changing settings via yWeb: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
+set.sync_with_neutrino_desc=After changing settings via the Neutrino-Web-UI: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
 set.sync_with_neutrino=Synchronization with Neutrino
 
 # ===== Settings General & Menue
@@ -508,7 +508,7 @@ live.timer-sync.status=Status
 
 # ===== INFO
 info.help=Help
-info.about_yweb=About yWeb
+info.about_yweb=About the Neutrino-Web-UI
 info.about=About Image
 info.about.your_image=Your Image
 info.about.actual_image=Current Image
@@ -884,7 +884,7 @@ yw.set.grp_sys=System
 yw.set.grp_net=Network & Sources
 yw.set.grp_ui=User interface
 yw.set.grp_ext=Extensions
-yw.set.ext_title=yWeb extensions
+yw.set.ext_title=Neutrino-Web-UI extensions
 yw.set.ext_search=Searching for extensions...
 yw.set.ext_none=No extensions found
 yw.set.ext_found=Discovered extensions
@@ -1028,7 +1028,7 @@ yw.reg.zap_mode=Zapping mode
 yw.lang.title=Language
 yw.lang.none=No languages installed
 yw.wiz.title=Setup
-yw.wiz.welcome=Welcome to yWeb
+yw.wiz.welcome=Welcome to the Neutrino-Web-UI
 yw.wiz.intro=Choose your language and start page to get going.
 yw.wiz.start_page=Start page
 yw.wiz.finish=Get started
@@ -1201,4 +1201,4 @@ yw.pers.feat_timerlist=Timer list
 yw.pers.feat_vtxt=Videotext
 yw.pers.feat_rclock=Lock remote control
 yw.pers.featkey_label=Note
-yw.pers.featkey_note=Neutrino has no menu for these keys; yWeb offers them in addition.
+yw.pers.featkey_note=Neutrino has no menu for these keys; the Neutrino-Web-UI offers them in addition.

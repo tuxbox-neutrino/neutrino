@@ -71,7 +71,7 @@ main.settings_desc=Ustawienia, Przeglądarka, urządzenia, akcesoria ...
 main.extensions=Rozszerzenia
 main.extensions_desc=Zainstalowane rozszerzenia i zarządzanie
 main.info=Informacje
-main.info_desc=Informacje yWeb, Aktualizacje
+main.info_desc=Informacje o Neutrino-Web-UI, Aktualizacje
 main.live_tv_desc=TV Live
 main.live_tv_popup_desc=Okno Live TV
 main.remote_full_desc=Pilot zdalnego sterowania i OSD Pełny ekran
@@ -211,7 +211,7 @@ epg.si.url=Url
 # ========= Ustawienia
 set.reload_neutrino=Restart Neutrino
 set.reboot_required=Wymaga restartu
-set.sync_with_neutrino_desc=Po zmianie ustawień poprzez yWeb: Wybierz <br/> w telewizji "Menu główne> Usługi-> Restart neutrino", aby zaakceptować zmiany<br/> Po zmianie ustawień:. Wybierz <br/> w telewizji "Menu główne> Ustawienia-> Zapisz ustawienia", aby zastosować zmiany i przeładuj stronę.
+set.sync_with_neutrino_desc=Po zmianie ustawień poprzez Neutrino-Web-UI: Wybierz <br/> w telewizji "Menu główne> Usługi-> Restart neutrino", aby zaakceptować zmiany<br/> Po zmianie ustawień:. Wybierz <br/> w telewizji "Menu główne> Ustawienia-> Zapisz ustawienia", aby zastosować zmiany i przeładuj stronę.
 set.sync_with_neutrino=Synchronizacja z neutrino
 
 # ========= Główne ustawienia i funkcje

@@ -1,6 +1,6 @@
-# yWeb languages — how to add or complete a translation
+# Neutrino-Web-UI languages — how to add or complete a translation
 
-This directory holds the translation files for the yWeb web interface.
+This directory holds the translation files for the Neutrino-Web-UI.
 Each file is one language; the **file name is the language name** shown in
 the header language switcher (e.g. `Deutsch`, `English`, `Français`).
 
@@ -25,8 +25,8 @@ submit=Submit
 
 ## Two key namespaces
 
-- **Legacy keys** (`submit`, `action`, `global.*`, …) — the classic yWeb
-  interface.
+- **Legacy keys** (`submit`, `action`, `global.*`, …) — the classic pages taken over from the
+  yWeb interface.
 - **Modern keys** (`yw.*`) — the current, reworked UI: navigation,
   settings registry, dashboard, wizard, directory picker, etc.
   `English` is the reference and always has the complete set.

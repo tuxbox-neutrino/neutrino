@@ -88,7 +88,7 @@ main.settings_desc=Nastavenia zariadenia, Prehliadač, Doplnky ...
 main.extensions=Rozšírenia
 main.extensions_desc=Uživatelské rozšírenia ...
 main.info=Informácie
-main.info_desc=Informácia o yWeb, Aktualizácie
+main.info_desc=Informácia o Neutrino-Web-UI, Aktualizácie
 main.live_tv_desc=Živá TV
 main.live_tv_popup_desc=Okno Živá TV
 main.remote_full_desc=Diaľkové ovládanie a OSD
@@ -230,7 +230,7 @@ epg.si.url=Url
 ======= Nastavenia
 set.reload_neutrino=reŠtart Neutrina
 set.reboot_required=Nutný reBoot
-set.sync_with_neutrino_desc=Po zmenách nastavení cez yWeb:<br/>Vybrať na TV "Hlavné Menu-> Služby-> Reštart software", pre prijatie zmien vnútri neutrína.<br/>Po zmenách nastavení vnútri Neutrina: <br/>Vybrať na TV "Hlavné Menu-> Nastavenia-> Uloženie nastavenia", pre použitie týchto zmien a znovu načítať túto stránku.
+set.sync_with_neutrino_desc=Po zmenách nastavení cez Neutrino-Web-UI:<br/>Vybrať na TV "Hlavné Menu-> Služby-> Reštart software", pre prijatie zmien vnútri neutrína.<br/>Po zmenách nastavení vnútri Neutrina: <br/>Vybrať na TV "Hlavné Menu-> Nastavenia-> Uloženie nastavenia", pre použitie týchto zmien a znovu načítať túto stránku.
 set.sync_with_neutrino=Synchronizovať s Neutrinom
 
 ====== Hlavné nastavenia a Ponuka
@@ -628,8 +628,8 @@ rc.key_pos=Pos
 rc.key_recall=Naspäť
 
 =========NI
-main.ni=yWeb Tools
-main.ni_desc=yWeb rozšírenie
+main.ni=Neutrino-Web-UI Tools
+main.ni_desc=Neutrino-Web-UI rozšírenie
 
 ni.save=Uložiť
 ni.cancel=Zrušiť

@@ -123,7 +123,7 @@ dem v4-Release erfolgt ist; danach waere sie nur ueber /api/v5 zu haben.
 
 Einige Operationen bleiben bewusst shell-getrieben und laufen ueber
 `GET /api/v4/exec?Y_Tools&<funktion>[&<arg>...]` (Roh-Text-Ausgabe).
-Die Funktionen liegen in `data/y-web/scripts/Y_Tools.sh` (yWeb-Paket);
+Die Funktionen liegen in `data/y-web/scripts/Y_Tools.sh` (Paket der Neutrino-Web-UI);
 relevante stabile Funktionsnamen:
 
 | Funktion | Zweck |
@@ -136,13 +136,13 @@ relevante stabile Funktionsnamen:
 | `installer` | hochgeladenes Paket installieren |
 | `zapit_upload <datei>` | Kanal-/Bouquet-XML einspielen |
 
-Verfuegbarkeit ist Paket-abhaengig (yWeb-Scripts installiert?); Clients
+Verfuegbarkeit ist Paket-abhaengig (Scripts der Neutrino-Web-UI installiert?); Clients
 muessen mit Fehlern/leerer Ausgabe degradieren. Fuer alles andere gilt die
 JSON-Flaeche oben.
 
 \section apiv4_ext Erweiterungen
 
-Das moderne yWeb ist ueber einen Manifest-/Slot-Mechanismus erweiterbar;
+Die Neutrino-Web-UI ist ueber einen Manifest-/Slot-Mechanismus erweiterbar;
 Erweiterungen konsumieren ausschliesslich diese v4-Flaeche.
-Details: \ref ywebext "yWeb-Erweiterungen".
+Details: \ref ywebext "Neutrino-Web-UI-Erweiterungen".
 */

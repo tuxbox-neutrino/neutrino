@@ -111,7 +111,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 		hh->Write(
 			"<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
 			"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-			"<title>yWeb - Logout</title>"
+			"<title>Neutrino-Web-UI - Logout</title>"
 			"<style>body{margin:0;display:flex;min-height:100vh;align-items:center;"
 			"justify-content:center;font-family:system-ui,sans-serif;"
 			"background:#11191f;color:#dce3e8}main{max-width:26rem;padding:2rem;"
@@ -163,7 +163,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 			hh->Write(
 				"<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
 				"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-				"<title>yWeb - Login</title>"
+				"<title>Neutrino-Web-UI - Login</title>"
 				"<style>body{margin:0;display:flex;min-height:100vh;align-items:center;"
 				"justify-content:center;font-family:system-ui,sans-serif;"
 				"background:#11191f;color:#dce3e8}main{max-width:24rem;padding:2rem;"

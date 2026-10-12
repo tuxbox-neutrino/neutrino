@@ -1,8 +1,8 @@
-# yWeb-Erweiterung in 10 Minuten
+# Neutrino-Web-UI-Erweiterung in 10 Minuten
 
 *English version: [README.md](README.md)*
 
-Das moderne yWeb lädt Erweiterungen automatisch aus diesem Verzeichnis.
+Die Neutrino-Web-UI lädt Erweiterungen automatisch aus diesem Verzeichnis.
 Eine Erweiterung ist **ein Ordner mit einem Manifest** — kein Patchen von
 Kernseiten, kein Build nötig.
 
@@ -163,7 +163,7 @@ Vertrag:
 
 Kopiervorlage: [`hallo-yweb/hallo.html`](hallo-yweb/hallo.html). Kernpunkte:
 
-- yWeb-Header/Nav einbinden:
+- Header/Nav der Neutrino-Web-UI einbinden:
   `<div class="yweb-header-wrapper" data-page="tools"></div>` +
   `<script src="/yweb-header.js"></script>` + `ywebInitHeader('tools');`
 - Styling: Pico CSS + `/css/yweb.css` verlinken — fertige Klassen

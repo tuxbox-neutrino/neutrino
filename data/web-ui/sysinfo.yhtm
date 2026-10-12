@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>yWeb - System Info</title>
+	<title>Neutrino-Web-UI - System Info</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: yweb-header.js runs
@@ -358,7 +358,7 @@
 				if (ver.neutrino_git) nv += ' (' + ver.neutrino_git.substring(0, 8) + ')';
 				sw += row('Neutrino', nv);
 			}
-			if (ver.yweb) sw += row('yWeb', ver.yweb);
+			if (ver.yweb) sw += row('Neutrino-Web-UI', ver.yweb);
 			if (ver.api) sw += row('API', ver.api);
 			if (ver.server) sw += row('Server', ver.server);
 			document.getElementById('sysinfo-sw').innerHTML = sw;

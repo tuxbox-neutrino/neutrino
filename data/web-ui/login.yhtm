@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>yWeb - {=L:yw.login.title=}</title>
+	<title>Neutrino-Web-UI - {=L:yw.login.title=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: yweb-header.js runs
@@ -113,7 +113,7 @@
 </head>
 <body>
 	<main class="login-wrap yweb-card">
-		<h1>yWeb</h1>
+		<h1>Neutrino-Web-UI</h1>
 		<p class="sub">{=L:yw.login.intro=}</p>
 
 		<!-- Must stay a plain form post: the server matches the request

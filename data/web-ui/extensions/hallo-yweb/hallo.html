@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Hello yWeb</title>
+	<title>Hello Neutrino-Web-UI</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: yweb-header.js runs
@@ -19,9 +19,9 @@
 
 	<main style="max-width:640px;margin:0 auto;padding:1rem">
 		<div class="yweb-card" style="padding:1rem">
-			<h3 id="exTitle">Hello yWeb!</h3>
+			<h3 id="exTitle">Hello Neutrino-Web-UI!</h3>
 			<p id="exIntro">This page is the reference extension. It shows how an
-			extension embeds the yWeb header, reads data from the
+			extension embeds the Neutrino-Web-UI header, reads data from the
 			<code>/api/v4/</code> interface and localizes itself with its own
 			language pack (<code>languages/*.json</code>).</p>
 			<div class="yweb-form-row"><label id="exHostLabel">Hostname</label><span id="exHost">…</span></div>
@@ -39,7 +39,7 @@
 		(async function() {
 			await ywebExtLangLoad('hallo-yweb');
 			var L = function(k, en) { return ywebExtL('hallo-yweb', k, en); };
-			document.getElementById('exTitle').textContent = L('page.title', 'Hello yWeb!');
+			document.getElementById('exTitle').textContent = L('page.title', 'Hello Neutrino-Web-UI!');
 			document.getElementById('exIntro').textContent = L('page.intro', document.getElementById('exIntro').textContent);
 			document.getElementById('exHostLabel').textContent = L('page.hostname', 'Hostname');
 			document.getElementById('exUpLabel').textContent = L('page.uptime', 'Uptime');
