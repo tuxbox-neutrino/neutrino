@@ -1175,8 +1175,8 @@
 	}
 
 	// Wake-on-LAN: description and MAC of up to three devices in the web
-	// interface's own settings (/api/v1/webui/settings); waking goes through
-	// the exec contract (ether-wake on the box)
+	// interface's own settings (/api/v1/webui/settings); the box sends the
+	// wake-up packet itself (POST /api/v1/network/wake)
 	function renderWolPanel() {
 		setTimeout(loadWolPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN') +
@@ -1215,7 +1215,7 @@
 		if (!mac.trim()) { ywebShowToast('{=L:yw.set.wol_nomac=}', true); return; }
 		btn.disabled = true;
 		try {
-			await ywebApi('exec', 'Y_Tools&wol&' + encodeURIComponent(mac.trim()), {raw: true});
+			await ywebV1('POST', '/network/wake', {body: {mac: mac.trim()}});
 			ywebShowToast('{=L:yw.set.wol_sent=}: ' + mac.trim());
 		} catch (e) {
 			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
