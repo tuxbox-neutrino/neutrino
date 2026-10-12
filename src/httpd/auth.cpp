@@ -2,6 +2,7 @@
  * auth.cpp - who is asking, and what that permits
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,14 +70,27 @@ const char kQueryToken[]    = "token";
    in. */
 time_t sweep_every = 60;
 
+/* A session runs out once it has been left alone for the configured lifetime, and
+   every request it carries moves that moment on. opened is kept so the moving stops
+   at the ceiling below: a session somebody uses every day still ends, and a cookie
+   copied off a machine is not good for as long as the machine keeps using it. */
 struct Session
 {
 	std::string user;
 	std::string csrf;
+	time_t      opened;
 	time_t      expires;
 
-	Session() : expires(0) {}
+	Session() : opened(0), expires(0) {}
 };
+
+/* The longest a session lasts however busy it is, which is also the longest
+   lifetime the configuration accepts, so a lifetime set to the maximum is a session
+   that does not slide at all. Sixty four sessions at once, as many as the page
+   login before this one kept; a full table gives up the session that would run out
+   soonest. */
+const time_t kSessionCeiling = 30 * 24 * 60 * 60;
+const size_t kMaxSessions    = 64;
 
 /* One minted token: the first characters of it, the stored form of the whole of it, what
    it was minted at, what part of the box it stands for, and when it stops. The token
@@ -93,6 +107,11 @@ struct ApiToken
 	AuthLevel   level;
 	std::string scope;
 	time_t      expires;
+
+	/* The cookie token of the session that drew this one, and empty for a token
+	   drawn any other way. A token drawn from a session ends with it: signing out
+	   ends what the page handed to a player as well. */
+	std::string session;
 
 	ApiToken() : level(AuthLevel::Public), expires(0) {}
 };
@@ -137,6 +156,15 @@ struct Table
 
 // Nought is the real clock, which is what the product runs on.
 time_t test_clock = 0;
+
+// The same for the session table, kept apart so that walking the login delay
+// does not age every session a case opened.
+time_t session_clock = 0;
+
+time_t sessionNow()
+{
+	return (session_clock != 0) ? session_clock : time(NULL);
+}
 
 /* Built on first use rather than at namespace scope, for the reason the server
    beside this gives: nothing in this directory may need a constructor to have
@@ -259,6 +287,21 @@ time_t expiryFrom(time_t now, unsigned lifetime)
 	return now + (time_t) lifetime;
 }
 
+// Drops the tokens a session drew. Called with the lock held.
+void dropTokensOfLocked(const std::string &session)
+{
+	size_t kept = 0;
+	for (size_t k = 0; k < table().tokens.size(); ++k)
+	{
+		if (table().tokens[k].session == session)
+			continue;
+		if (kept != k)
+			table().tokens[kept] = table().tokens[k];
+		++kept;
+	}
+	table().tokens.resize(kept);
+}
+
 // Drops what has run out. Called with the lock held.
 void expireLocked(time_t now)
 {
@@ -268,7 +311,10 @@ void expireLocked(time_t now)
 		std::map<std::string, Session>::iterator here = i;
 		++i;
 		if (here->second.expires <= now)
+		{
+			dropTokensOfLocked(here->first);
 			table().sessions.erase(here);
+		}
 	}
 
 	/* The tokens with an end to them go the same way and in the same walk. A record
@@ -323,7 +369,7 @@ bool liveSession(const std::string &token, std::string *csrf,
 	const std::map<std::string, Session>::const_iterator i = table().sessions.find(token);
 	if (i == table().sessions.end())
 		return false;
-	if (i->second.expires <= time(NULL))
+	if (i->second.expires <= sessionNow())
 		return false;
 
 	if (csrf != NULL)
@@ -333,6 +379,31 @@ bool liveSession(const std::string &token, std::string *csrf,
 	if (expires != NULL)
 		*expires = i->second.expires;
 	return true;
+}
+
+/* Moves a live session's end on by the configured lifetime, and never past the
+   ceiling counted from when it was opened. Asked by the gate once a session has
+   answered for a request, so it is a request that keeps a session alive and not
+   somebody asking how long one has left. */
+void slideSession(const std::string &token)
+{
+	if (token.empty())
+		return;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
+	if (i == table().sessions.end())
+		return;
+
+	const time_t now = sessionNow();
+	if (i->second.expires <= now)
+		return;
+
+	const time_t moved   = expiryFrom(now, config().session_lifetime_s);
+	const time_t ceiling = expiryFrom(i->second.opened, (unsigned) kSessionCeiling);
+	const time_t want    = (moved < ceiling) ? moved : ceiling;
+	if (want > i->second.expires)
+		i->second.expires = want;
 }
 
 /* What a token is worth and what part of the box it stands for, and false when it is not
@@ -368,6 +439,15 @@ bool tokenLevel(const std::string &token, AuthLevel *out, std::string *scope = N
 				continue;
 			if (table().tokens[i].expires != 0 && table().tokens[i].expires <= now)
 				continue;
+			/* A token drawn from a session is refused once that session has run
+			   out, whether or not the walk has been round to take both away. */
+			if (!table().tokens[i].session.empty())
+			{
+				const std::map<std::string, Session>::const_iterator owner =
+					table().sessions.find(table().tokens[i].session);
+				if (owner == table().sessions.end() || owner->second.expires <= sessionNow())
+					continue;
+			}
 			candidates.push_back(table().tokens[i]);
 		}
 	}
@@ -712,7 +792,10 @@ AuthLevel granted(const Credentials &c, bool query_token_ok, std::string *scope)
 	   is a session, and a session is the answer. */
 	const AuthLevel from_session = sessionLevel(c.cookie_token);
 	if (from_session != AuthLevel::Public)
+	{
+		slideSession(c.cookie_token);
 		return from_session;
+	}
 
 	const WebConfig &cfg = config();
 
@@ -781,7 +864,24 @@ std::string openSession(const std::string &user)
 	s.csrf = csrf;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
-	s.expires = expiryFrom(time(NULL), config().session_lifetime_s);
+	s.opened  = sessionNow();
+	s.expires = expiryFrom(s.opened, config().session_lifetime_s);
+
+	/* Full: what has run out goes first, and if that was nothing the session that
+	   would run out soonest, with whatever it drew. A caller signing in over and
+	   over pushes out its own sessions before anybody else's busy one. */
+	if (table().sessions.size() >= kMaxSessions)
+		expireLocked(s.opened);
+	if (table().sessions.size() >= kMaxSessions)
+	{
+		std::map<std::string, Session>::iterator victim = table().sessions.begin();
+		for (std::map<std::string, Session>::iterator i = table().sessions.begin();
+		     i != table().sessions.end(); ++i)
+			if (i->second.expires < victim->second.expires)
+				victim = i;
+		dropTokensOfLocked(victim->first);
+		table().sessions.erase(victim);
+	}
 
 	/* A token already in the table is not a token to hand out twice, and the
 	   answer for one is no session rather than the other session under it. */
@@ -802,6 +902,7 @@ bool closeSession(const std::string &token)
 		return false;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	dropTokensOfLocked(token);
 	return table().sessions.erase(token) > 0;
 }
 
@@ -831,7 +932,7 @@ time_t sessionExpiresIn(const std::string &token)
 	   are a moment apart and the difference can have gone under nought since the
 	   lookup found the session live. A clock somebody set forward while this was
 	   being answered does exactly that. */
-	const time_t now = time(NULL);
+	const time_t now = sessionNow();
 	if (expires <= now)
 		return 0;
 	return expires - now;
@@ -969,14 +1070,20 @@ void setLoginClockForTest(time_t now)
 	test_clock = now;
 }
 
-void addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel level,
-                 const std::string &scope, time_t expires)
+void setSessionClockForTest(time_t now)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	session_clock = now;
+}
+
+bool addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel level,
+                 const std::string &scope, time_t expires, const std::string &session)
 {
 	/* A record with nothing to find it by or nothing to confirm it against
 	   would be a record that answers for every token or for none, and which of
 	   the two it is would be decided by whatever compares an empty string. */
 	if (prefix.empty() || hashed.empty())
-		return;
+		return false;
 
 	ApiToken t;
 	t.prefix = prefix;
@@ -984,8 +1091,19 @@ void addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel
 	t.level = level;
 	t.scope = scope;
 	t.expires = expires;
+	t.session = session;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+
+	/* Drawn for a session that has run out or was closed in the meantime: nothing
+	   is written, or the token would outlive what it was drawn from after all. */
+	if (!session.empty())
+	{
+		const std::map<std::string, Session>::const_iterator owner = table().sessions.find(session);
+		if (owner == table().sessions.end() || owner->second.expires <= sessionNow())
+			return false;
+	}
+
 	if (!scope.empty())
 	{
 		size_t scoped = 0;
@@ -1010,9 +1128,11 @@ void addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel
 		}
 	}
 	table().tokens.push_back(t);
+	return true;
 }
 
-std::string openScopedToken(const std::string &scope, AuthLevel level)
+std::string openScopedToken(const std::string &scope, AuthLevel level,
+                            const std::string &session)
 {
 	/* A scope is the whole of what makes this token narrower than the box, so one
 	   without a scope is not drawn at all. The answer is empty, which is no token,
@@ -1029,10 +1149,13 @@ std::string openScopedToken(const std::string &scope, AuthLevel level)
 	if (prefix.empty() || stored.empty())
 		return std::string();
 
-	// As long as a session and no longer, because what holds one is a page that
-	// has one, and a credential outliving the session it was asked for is a
-	// credential nobody is watching any more.
-	addApiToken(prefix, stored, level, scope, expiryFrom(time(NULL), config().session_lifetime_s));
+	/* A few hours and no longer, which is a film and not a week, because what holds
+	   one is a player somebody started from a page. Drawn from a session it also ends
+	   with that session, so a credential nobody is watching any more does not outlive
+	   the sign-in it was asked for. */
+	if (!addApiToken(prefix, stored, level, scope,
+	                 expiryFrom(time(NULL), kScopedTokenLifetime), session))
+		return std::string();
 	return token;
 }
 

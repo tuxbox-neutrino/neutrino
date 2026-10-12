@@ -2,6 +2,7 @@
  * auth.h - who is asking, and what that permits
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -207,7 +208,12 @@ const char *csrfRefusedDetail();
    into the table, so a caller that hands the answer out without reading it hands
    out a cookie that resolves to nothing. The second token is drawn at the same
    time and a session is only written when both were drawn, a session whose second
-   token is empty being one that every request sending no header satisfies. */
+   token is empty being one that every request sending no header satisfies.
+
+   A session runs out after the configured lifetime without a request, and every
+   request it carries through the gate starts that lifetime again, up to thirty days
+   after it was opened. The table holds sixty four; a full one gives up the session
+   that would run out soonest. */
 std::string openSession(const std::string &user);
 
 /* What the route that hands that token out sets on the cookie is written where that route
@@ -219,7 +225,8 @@ std::string openSession(const std::string &user);
    buy is on top of that and not instead of it. */
 
 // Whether there was a session under this token to drop. The next request
-// carrying it is a request carrying nothing, with no interval in between.
+// carrying it is a request carrying nothing, with no interval in between, and
+// so is the next one carrying a token that session drew.
 bool closeSession(const std::string &token);
 
 /* Whether this token still names a session that has not run out.
@@ -329,6 +336,9 @@ size_t loginAttemptCountForTest();
    through without waiting out the delay it is walking. */
 void setLoginClockForTest(time_t now);
 
+// The same for the session table: opening, sliding and running out.
+void setSessionClockForTest(time_t now);
+
 /* Records an API token, as the first characters of it and the stored form of the whole of
    it. The prefix is a parameter and not read out of the stored form, because the stored
    form is a hash and carries nothing of the token: without it the only way to find the
@@ -338,9 +348,14 @@ void setLoginClockForTest(time_t now);
 
    An empty scope is a token worth its level wherever its level is enough, which is what
    every token a configuration names is. An expiry of nought is a token that does not run
-   out, which is the same set: a line in a file is taken away by editing the file. */
-void addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel level,
-                 const std::string &scope = std::string(), time_t expires = 0);
+   out, which is the same set: a line in a file is taken away by editing the file.
+
+   session, when it is not empty, is the cookie token of the session the token was drawn
+   from, and the token ends with that session. False and nothing written for a record
+   with nothing to find it by, and for a session that is no longer live. */
+bool addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel level,
+                 const std::string &scope = std::string(), time_t expires = 0,
+                 const std::string &session = std::string());
 
 // The ceiling on how many scoped tokens the table holds at once. Full drops the
 // one running out soonest.
@@ -355,11 +370,15 @@ const size_t kMaxScopedTokens = 256;
    A scope out of a request would be a caller choosing how much of the box its own token
    is worth.
 
-   It lives as long as a session does and in the same place: in memory, until it runs out
-   or the daemon stops. Nothing here writes a token into a file, so a token that leaked
+   It lives for the lifetime below and in memory, until it runs out or the daemon stops.
+   Drawn with a session's cookie token it also ends when that session does, by signing
+   out or by running out. Nothing here writes a token into a file, so a token that leaked
    cannot outlive the box's uptime, and there is no line in a configuration for anyone to
    find one in. */
-std::string openScopedToken(const std::string &scope, AuthLevel level);
+const unsigned kScopedTokenLifetime = 6 * 60 * 60;
+
+std::string openScopedToken(const std::string &scope, AuthLevel level,
+                            const std::string &session = std::string());
 
 /* Empties that table. The thing that fills it from a file calls this first, so
    reading the file twice leaves the tokens the file names rather than two of each.

@@ -2,6 +2,7 @@
  * ep_auth.cpp - routes for sessions
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -356,9 +357,14 @@ Response sessionState(const Request &r)
    Nothing is written to any file. The record lives in memory and runs out on its own, so a
    token that leaked is worth nothing once the box has restarted, and there is no line in a
    configuration for anyone to find one in. */
-Response mintRecordingsToken(const Request &)
+Response mintRecordingsToken(const Request &r)
 {
-	const std::string token = openScopedToken(mediaScopeName(), AuthLevel::System);
+	/* Tied to the session the request arrived with, when that session is what let
+	   it in, so signing out ends what was handed to a player as well. A caller let in
+	   by a bearer token has no session for the token to end with, whatever cookie
+	   it also carried. */
+	const std::string owner = sessionIsLive(r.session()) ? r.session() : std::string();
+	const std::string token = openScopedToken(mediaScopeName(), AuthLevel::System, owner);
 	/* Nothing was written down, so there is no token to hand out. A fault and not a
 	   refusal: the caller was granted this and what failed is this server. */
 	if (token.empty())
@@ -373,10 +379,10 @@ Response mintRecordingsToken(const Request &)
 	j.key("scope");
 	j.value(mediaScopeName());
 	j.key("expires_in");
-	/* The session's own length, which is what this was drawn for. Read off the
-	   configuration rather than out of the record, there being nothing that reads one
-	   back and no reason to have one. */
-	j.value((unsigned long long) config().session_lifetime_s);
+	/* The lifetime every such token is drawn with, read off the constant rather than
+	   out of the record, there being nothing that reads one back. A session ending
+	   sooner ends the token sooner, which this cannot know in advance. */
+	j.value((unsigned long long) kScopedTokenLifetime);
 	j.endObject();
 	return out;
 }
@@ -422,7 +428,8 @@ const Endpoint kAuthEndpoints[] = {
 	  "`level`, `user`, the second token `csrf` to send back in the header `csrf_header` names on every "
 	  "request that changes something, and `expires_in` in seconds. The session itself travels in a "
 	  "`Set-Cookie` header (`HttpOnly`, `SameSite=Lax`, no expiry attribute, so the browser forgets it "
-	  "when it closes).\n"
+	  "when it closes). A session runs out after the configured lifetime without a request; every "
+	  "request it carries starts that lifetime again, up to 30 days after the login.\n"
 	  "\n"
 	  "**Preconditions:** a username and a password hash must be configured on the box; a box with "
 	  "neither configured never matches whatever is sent, so login always fails.\n"
@@ -478,8 +485,7 @@ const Endpoint kAuthEndpoints[] = {
 	  "not.\n"
 	  "\n"
 	  "**Side effects:** removes the session's entry from the in-memory session table and clears the "
-	  "cookie in the browser. A scoped token minted while that session was open is not revoked by this "
-	  "and keeps working until it runs out on its own.\n"
+	  "cookie in the browser. A scoped token minted through that session ends with it.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/session`, `POST /api/v1/login`.",
 	  NULL, 0, NULL, &logout, false,
@@ -500,9 +506,9 @@ const Endpoint kAuthEndpoints[] = {
 	  "route requires it.\n"
 	  "\n"
 	  "**Side effects:** records the token's hash and expiry in memory only; nothing is written to "
-	  "disk, so the token stops working the moment the box restarts. Its lifetime equals the "
-	  "configured session lifetime, in seconds, counted from the moment it is drawn; logging out "
-	  "does not end it.\n"
+	  "disk, so the token stops working the moment the box restarts. It lives 6 hours from the moment "
+	  "it is drawn, and a token drawn through a session ends earlier when that session ends, by "
+	  "logging out or by running out.\n"
 	  "\n"
 	  "**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, "
 	  "`GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",

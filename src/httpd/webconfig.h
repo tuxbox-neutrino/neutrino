@@ -2,6 +2,7 @@
  * webconfig.h - the webserver own configuration file
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, rework, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,6 +92,8 @@ struct WebConfig
 	   serves nothing, for the reason under load below. */
 	std::string  docroot;
 
+	/* How long a session lasts without a request. Every request it carries starts
+	   this again, up to the ceiling auth.h states for openSession. */
 	unsigned     session_lifetime_s;
 	unsigned     sse_max_streams;
 

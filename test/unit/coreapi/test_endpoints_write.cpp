@@ -923,6 +923,136 @@ TEST_CASE("logging out drops the session the request arrived with", "[write]")
 	REQUIRE(headerOf(gone, "Set-Cookie").find("Max-Age=0") != std::string::npos);
 }
 
+/* The session clock is moved a year ahead of the real one, so the gate's own walk of
+   the table, which reads the real clock, never takes a session these cases hold. */
+struct SessionClock
+{
+	time_t at;
+	SessionClock() : at(time(NULL) + 365 * 24 * 60 * 60) { setSessionClockForTest(at); }
+	~SessionClock() { setSessionClockForTest(0); }
+	void move(time_t by) { at += by; setSessionClockForTest(at); }
+};
+
+TEST_CASE("a request a session carries moves its end on, and never past thirty days", "[write]")
+{
+	ConfigFixture cfg;
+	WebConfig c = config();
+	c.session_lifetime_s = 10 * 24 * 60 * 60;
+	setConfigForTest(c);
+	SessionClock clock;
+
+	const std::string token = openSession(kUser);
+	REQUIRE_FALSE(token.empty());
+	REQUIRE(sessionExpiresIn(token) == 10 * 24 * 60 * 60);
+
+	Credentials cred;
+	cred.peer = "203.0.113.5";
+	cred.cookie_token = token;
+
+	// Five days in, a request: ten days again from here.
+	clock.move(5 * 24 * 60 * 60);
+	REQUIRE(granted(cred) == AuthLevel::System);
+	REQUIRE(sessionExpiresIn(token) == 10 * 24 * 60 * 60);
+
+	// Asking how long it has left is not a request it carried.
+	clock.move(24 * 60 * 60);
+	REQUIRE(sessionExpiresIn(token) == 9 * 24 * 60 * 60);
+
+	// Busy every few days, it still ends thirty days after it was opened.
+	for (int day = 6; day < 25; day += 4)
+	{
+		clock.move(4 * 24 * 60 * 60);
+		REQUIRE(granted(cred) == AuthLevel::System);
+	}
+	// Opened at day 0, now day 26: four days left however busy it is.
+	REQUIRE(sessionExpiresIn(token) == 4 * 24 * 60 * 60);
+	clock.move(4 * 24 * 60 * 60);
+	REQUIRE(granted(cred) == AuthLevel::Public);
+	REQUIRE_FALSE(sessionIsLive(token));
+
+	// Left alone for its lifetime, a session is gone without a request.
+	const std::string idle = openSession(kUser);
+	clock.move(10 * 24 * 60 * 60);
+	REQUIRE_FALSE(sessionIsLive(idle));
+}
+
+TEST_CASE("the session table holds sixty four and gives up the one running out soonest", "[write]")
+{
+	ConfigFixture cfg;
+	SessionClock clock;
+	// Whatever earlier cases left open goes first, so the count below is this case's.
+	expireSessions(std::numeric_limits<time_t>::max());
+	REQUIRE(sessionCount() == 0);
+
+	std::vector<std::string> tokens;
+	for (int i = 0; i < 64; ++i)
+	{
+		tokens.push_back(openSession(kUser));
+		REQUIRE_FALSE(tokens.back().empty());
+		clock.move(1);
+	}
+	REQUIRE(sessionCount() == 64);
+
+	const std::string newest = openSession(kUser);
+	REQUIRE_FALSE(newest.empty());
+	REQUIRE(sessionCount() == 64);
+	REQUIRE_FALSE(sessionIsLive(tokens[0]));
+	REQUIRE(sessionIsLive(tokens[1]));
+	REQUIRE(sessionIsLive(newest));
+
+	expireSessions(std::numeric_limits<time_t>::max());
+}
+
+TEST_CASE("a media token drawn through a session ends with that session", "[write]")
+{
+	ConfigFixture cfg;
+	SessionClock clock;
+
+	Credentials player;
+	player.peer = "203.0.113.5";
+
+	// Signing out ends it.
+	const std::string signed_out = openSession(kUser);
+	player.query_token = openScopedToken(mediaScopeName(), AuthLevel::System, signed_out);
+	REQUIRE_FALSE(player.query_token.empty());
+	REQUIRE(granted(player, true) == AuthLevel::System);
+	REQUIRE(closeSession(signed_out));
+	REQUIRE(granted(player, true) == AuthLevel::Public);
+
+	// So does running out, whether or not the table was walked since.
+	const std::string ran_out = openSession(kUser);
+	player.query_token = openScopedToken(mediaScopeName(), AuthLevel::System, ran_out);
+	REQUIRE(granted(player, true) == AuthLevel::System);
+	clock.move(config().session_lifetime_s);
+	REQUIRE(granted(player, true) == AuthLevel::Public);
+
+	// A session that is gone draws nothing.
+	REQUIRE(openScopedToken(mediaScopeName(), AuthLevel::System, signed_out).empty());
+
+	// Drawn without a session, it lives the few hours every one does.
+	const std::string bare = openScopedToken(mediaScopeName(), AuthLevel::System);
+	REQUIRE_FALSE(bare.empty());
+	player.query_token = bare;
+	REQUIRE(granted(player, true) == AuthLevel::System);
+}
+
+TEST_CASE("a media token for a caller a bearer let in is not tied to a dead cookie", "[write]")
+{
+	/* The cookie arrives beside the bearer whether or not it is still a session.
+	   The token is tied to the session only when that session is what let the
+	   caller in; a dead one beside a bearer would otherwise refuse the token. */
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+
+	const std::string dead = openSession(kUser);
+	REQUIRE(closeSession(dead));
+
+	const Response out = dispatch(Post, "/api/v1/token/media", "", "", "127.0.0.1",
+	                              AuthLevel::System, std::string(), dead);
+	REQUIRE(out.code == 200);
+	REQUIRE_FALSE(stringField(replyOf(out).body, "token").empty());
+}
+
 TEST_CASE("a cookie alone does not carry a request that changes something", "[write]")
 {
 	/* The gate, driven with what a browser would send. A cookie is attached by
