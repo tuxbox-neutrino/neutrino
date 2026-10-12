@@ -143,8 +143,7 @@
 	<script src="/yweb-v1.js?v=12"></script>
 	<script>
 		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
-		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst
-		// ohne Icon
+		// Settings-Panels)
 		function sIcon(p) { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '<\/svg>'; }
 		var I_REFRESH = sIcon('<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>');
 		var I_ROTATE = sIcon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>');
@@ -154,15 +153,11 @@
 		var I_LOCK = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>');
 		var I_UNLOCK = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>');
 
-		// A box action over /api/v1 ('POST /system/reboot'), or over the old
-		// interface by its name ('setmode') where v1 has no route for it
+		// A box action over /api/v1 ('POST /system/reboot')
 		async function bcDo(label, endpoint, params) {
 			try {
 				var m = /^(POST|PUT) (\/.*)$/.exec(endpoint);
-				if (m)
-					await ywebV1(m[1], m[2], params ? {body: params} : {});
-				else
-					await ywebApi(endpoint, params);
+				await ywebV1(m[1], m[2], params ? {body: params} : {});
 				ywebShowToast(label + ' {=L:yw.msg.executed=}');
 			} catch (e) {
 				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
@@ -177,15 +172,6 @@
 				return;
 			}
 			return bcDo(label, endpoint, params);
-		}
-
-		async function bcExec(label, args) {
-			try {
-				var out = (await ywebApi('exec', args, {raw: true})).trim();
-				ywebShowToast(out || (label + ' {=L:yw.msg.executed=}'));
-			} catch (e) {
-				ywebShowToast(label + ' {=L:yw.msg.notavail=}: ' + e.message, true);
-			}
 		}
 
 		// The API reference needs the Swagger UI package, which an image
@@ -208,27 +194,110 @@
 				'<button type="button" class="yweb-btn danger" onclick="bcAction(\'Shutdown\', \'POST /system/shutdown\', null, \'{=L:yw.bc.shutdown_confirm=}\')">' + I_POWER + '{=L:yw.bc.shutdown_btn=}</button></span></div></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.bc.recording=} <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
 				'<div class="yweb-form-row"><label>{=L:yw.bc.instant_rec=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Start\', \'setmode\', {record: \'start\'})">' + I_REC + 'Start</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.recording=}-Stop\', \'setmode\', {record: \'stop\'})">' + I_STOP + 'Stop</button></span></div></div>' +
+				'<button type="button" class="yweb-btn" onclick="bcRecStart()">' + I_REC + 'Start</button> ' +
+				'<button type="button" class="yweb-btn" onclick="bcRecStop()">' + I_STOP + 'Stop</button></span></div></div>' +
+				'<div class="yweb-form-section" id="bcVideo" hidden><div class="yweb-form-section-title">Video</div>' +
+				'<div class="yweb-form-row"><label for="bcVideoMode">{=L:yw.bc.resolution=}</label><span class="yweb-row-actions">' +
+				'<select id="bcVideoMode"></select> ' +
+				'<button type="button" class="yweb-btn" onclick="bcVideoApply()">{=L:yw.bqe.apply=}</button></span></div></div>' +
 				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.tools.remote_sub=}</div>' +
 				'<div class="yweb-form-row"><label>{=L:yw.bc.rc_at_box=}</label><span class="yweb-row-actions">' +
 				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.lock=}\', \'PUT /osd/remote\', {locked: true})">' + I_LOCK + '{=L:yw.bc.lock=}</button> ' +
 				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.unlock=}\', \'PUT /osd/remote\', {locked: false})">' + I_UNLOCK + '{=L:yw.bc.unlock=}</button></span></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">Zapit <small style="color:var(--pico-muted-color)">{=L:yw.bc.script_dep=}</small></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.resolution=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="bcExec(\'1080\', \'Y_Tools&resolution&1080\')">1080</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcExec(\'720\', \'Y_Tools&resolution&720\')">720</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcExec(\'PAL\', \'Y_Tools&resolution&pal\')">PAL</button></span></div>' +
+				'<div class="yweb-form-section"><div class="yweb-form-section-title">Zapit</div>' +
 				'<div class="yweb-form-row"><label>{=L:yw.bc.reload_channels=}</label><span class="yweb-row-actions">' +
 				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.reload=}\', \'POST /channels/reload\', null)">' + I_REFRESH + '{=L:yw.bc.reload=}</button></span></div>' +
 				'<div class="yweb-form-row"><label>{=L:yw.bc.tuner_reset=}</label><span class="yweb-row-actions">' +
 				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.tuner_reset=}\', \'POST /tuner/reset\', null)">' + I_ROTATE + 'Reset</button></span></div></div>';
 			ywebModal('bcModal', 'Boxcontrol', body);
+			bcRecState();
+			bcVideoLoad();
+		}
+
+		// What the box records besides its shift, after GET /api/v1/recordings
+		async function bcRecState() {
+			var el = document.getElementById('bcRecState');
 			try {
-				var st = await ywebApi('setmode', {status: ''});
-				var el = document.getElementById('bcRecState');
-				if (el) el.textContent = (st && st.recording) ? '\u2022 {=L:yw.bc.rec_running=}' : '\u2022 {=L:yw.bc.rec_none=}';
+				var r = await ywebV1('GET', '/recordings');
+				var on = ((r && r.items) || []).some(function(it) { return !it.timeshift; });
+				if (el) el.textContent = on ? '\u2022 {=L:yw.bc.rec_running=}' : '\u2022 {=L:yw.bc.rec_none=}';
+			} catch (e) {
+				if (el) el.textContent = '';
+			}
+		}
+
+		// The record key's recording: of the channel the box shows, after asking
+		// whether a box in standby is to be switched on for it. The box begins it
+		// after the answer, so the state is read again a moment later.
+		async function bcRecStart() {
+			try {
+				var ok = await ywebV1Lifting('/recordings', {}, {
+					title: '{=L:yw.bc.instant_rec=}',
+					ok: 'Start',
+					stop: '',
+					wake: '{=L:yw.bc.rec_wake=}'
+				});
+				if (!ok) return;
+				ywebShowToast('{=L:yw.bc.recording=}-Start {=L:yw.msg.executed=}');
+				setTimeout(bcRecState, 1500);
+			} catch (e) {
+				ywebShowToast(e.code === 'recording-running' ? '{=L:yw.bc.rec_already=}' :
+					'{=L:yw.msg.error=}: ' + e.message, true);
+			}
+		}
+
+		// Ends the recording of the channel the box shows, else the first that
+		// is not its shift, as the old stop did
+		async function bcRecStop() {
+			var id = null;
+			try {
+				var lists = await Promise.all([ywebV1('GET', '/recordings'), ywebV1('GET', '/channels/current')]);
+				var live = lists[1] && lists[1].id ? ywebLegacyChannelId(lists[1].id) : '';
+				var mine = ((lists[0] && lists[0].items) || []).find(function(it) {
+					return !it.timeshift && ywebLegacyChannelId(it.channel_id) === live;
+				});
+				if (mine) id = mine.id;
 			} catch (e) {}
+			await ywebStopRecording(id);
+			bcRecState();
+		}
+
+		// The video modes this box offers, from its settings schema, with the one
+		// it uses selected; the row stays hidden on a box that offers none
+		var bcVideoSection = null;
+		async function bcVideoLoad() {
+			try {
+				var schema = await ywebV1('GET', '/settings/schema');
+				var item = ((schema && schema.items) || []).find(function(it) { return it.id === 'video_Mode'; });
+				if (!item || !(item.values && item.values.length)) return;
+				var now = await ywebV1('GET', '/settings/' + encodeURIComponent(item.section));
+				var cur = ((now && now.items) || []).find(function(it) { return it.id === 'video_Mode'; });
+				var sel = document.getElementById('bcVideoMode');
+				if (!sel) return;
+				sel.replaceChildren();
+				item.values.forEach(function(c) {
+					sel.appendChild(ywebEl('option', {value: String(c.value)}, c.label || String(c.value)));
+				});
+				if (cur) sel.value = String(cur.value);
+				bcVideoSection = item.section;
+				document.getElementById('bcVideo').hidden = false;
+			} catch (e) {}
+		}
+
+		// The box switches to the chosen mode when the setting is written
+		async function bcVideoApply() {
+			var sel = document.getElementById('bcVideoMode');
+			if (!sel || !bcVideoSection) return;
+			var label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : sel.value;
+			try {
+				var answer = await ywebV1('PATCH', '/settings/' + encodeURIComponent(bcVideoSection), {body: {video_Mode: sel.value}});
+				var r = answer && answer.results && answer.results.video_Mode;
+				if (r && r.status >= 300)
+					throw new Error(r.detail || r.code || String(r.status));
+				ywebShowToast('{=L:yw.bc.resolution=}: ' + label);
+			} catch (e) {
+				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+			}
 		}
 	</script>
 </body>
