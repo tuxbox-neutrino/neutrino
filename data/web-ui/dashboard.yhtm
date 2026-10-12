@@ -1197,6 +1197,7 @@
 
 	<script src="/Y_Lang.yjs?v=21"></script>
 	<script src="/yweb-header.js?v=53"></script>
+	<script src="/yweb-dom.js?v=1"></script>
 	<script>
 	// Current channel tracking for EPG info
 	let currentChannelId = null;
@@ -1236,9 +1237,6 @@
 	}
 	function setText(id, str) {
 		withEl(id, function(el) { el.textContent = str; });
-	}
-	function setHtml(id, html) {
-		withEl(id, function(el) { el.innerHTML = html; });
 	}
 
 	// Update gauge - circumference = 2 * PI * 16 = 100.5
@@ -1436,7 +1434,6 @@
 
 			// Network interfaces - filter to show only relevant ones
 			if (data.interfaces && data.interfaces.length > 0) {
-				let html = '';
 				// Filter: only interfaces with IP or physical interfaces
 				const relevant = data.interfaces.filter(function(iface) {
 					// Skip veth (docker), br- without IP
@@ -1453,24 +1450,26 @@
 					setText('network-preview', primaryNet.ip);
 				}
 
-				relevant.forEach(function(iface) {
-					const isWlan = /^(wlan|wl)/.test(iface.name);
-					const icon = isWlan ?
-						'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>' :
-						'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>';
-					const macStr = iface.mac ? iface.mac.toUpperCase() : '';
-
-					html += '<div class="yweb-net-item">' +
-						'<div class="yweb-net-icon">' + icon + '</div>' +
-						'<div class="yweb-net-info">' +
-							'<div class="yweb-net-name">' + iface.name + '</div>' +
-							'<div class="yweb-net-ip">' + (iface.ip || '{=L:yw.dash.no_ip=}') + '</div>' +
-							(macStr ? '<div class="yweb-net-mac">' + macStr + '</div>' : '') +
-						'</div>' +
-						'<div class="yweb-net-status ' + (iface.up ? 'up' : '') + '"></div>' +
-					'</div>';
-				});
-				setHtml('net-interfaces', html || '<div class="yweb-text-muted">{=L:yw.si.no_ifaces=}</div>');
+				// interface names and addresses go in as text
+				const netList = document.getElementById('net-interfaces');
+				if (netList && relevant.length === 0) {
+					netList.replaceChildren(ywebEl('div', {className: 'yweb-text-muted'}, '{=L:yw.si.no_ifaces=}'));
+				} else if (netList) {
+					ywebSync(netList, relevant, function(iface) { return iface.name; }, function(iface) {
+						const isWlan = /^(wlan|wl)/.test(iface.name);
+						const icon = isWlan ?
+							'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>' :
+							'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>';
+						const macStr = iface.mac ? String(iface.mac).toUpperCase() : '';
+						return ywebEl('div', {className: 'yweb-net-item'},
+							ywebEl('div', {className: 'yweb-net-icon'}, ywebMarkup(icon)),
+							ywebEl('div', {className: 'yweb-net-info'},
+								ywebEl('div', {className: 'yweb-net-name'}, iface.name),
+								ywebEl('div', {className: 'yweb-net-ip'}, iface.ip || '{=L:yw.dash.no_ip=}'),
+								macStr ? ywebEl('div', {className: 'yweb-net-mac'}, macStr) : null),
+							ywebEl('div', {className: 'yweb-net-status' + (iface.up ? ' up' : '')}));
+					});
+				}
 			}
 		});
 
@@ -1659,7 +1658,7 @@
 			const timers = ywebParseTimerList(response);
 
 			if (timers.length === 0) {
-				container.innerHTML = '<div class="yweb-timer-empty">{=L:yw.dash.no_timers=}</div>';
+				container.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.dash.no_timers=}'));
 				setText('timer-preview', '{=L:yw.dash.no_timers_short=}');
 				return;
 			}
@@ -1691,7 +1690,7 @@
 			}).slice(0, Math.max(maxScheduled, 1));
 
 			if (runningRecs.length === 0 && futureTimers.length === 0) {
-				container.innerHTML = '<div class="yweb-timer-empty">{=L:yw.dash.no_timers=}</div>';
+				container.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.dash.no_timers=}'));
 				setText('timer-preview', '{=L:yw.dash.no_timers_short=}');
 				return;
 			}
@@ -1704,54 +1703,49 @@
 				setText('timer-preview', (nextAlarm.date || '') + ' ' + (nextAlarm.time || ''));
 			}
 
-			let html = '';
-
-			// Running recordings first
-			runningRecs.forEach(function(timer) {
-				const title = timer.title || timer.channel_name || '{=L:yw.bc.recording=}';
+			// Running recordings first, then the scheduled timers. Titles and
+			// channel names come from the EPG and go in as text.
+			const rows = runningRecs.map(function(t) { return {timer: t, running: true}; })
+				.concat(futureTimers.map(function(t) { return {timer: t, running: false}; }));
+			ywebSync(container, rows, function(row, i) {
+				// '#' keeps a position apart from a timer id
+				return (row.running ? 'run-' : 'next-') + (row.timer.id !== undefined ? row.timer.id : '#' + i);
+			}, function(row) {
+				const timer = row.timer;
 				const channel = timer.channel_name || '';
-				const stopSec = getStopSec(timer);
-				let remaining = '';
-				if (stopSec > now) {
-					const remSec = stopSec - now;
-					const remMin = Math.floor(remSec / 60);
-					const remHr = Math.floor(remMin / 60);
-					remaining = remHr > 0 ? remHr + 'h ' + (remMin % 60) + 'm' : remMin + ' min';
+				if (row.running) {
+					const title = timer.title || timer.channel_name || '{=L:yw.bc.recording=}';
+					const stopSec = getStopSec(timer);
+					let remaining = '';
+					if (stopSec > now) {
+						const remSec = stopSec - now;
+						const remMin = Math.floor(remSec / 60);
+						const remHr = Math.floor(remMin / 60);
+						remaining = remHr > 0 ? remHr + 'h ' + (remMin % 60) + 'm' : remMin + ' min';
+					}
+					return ywebEl('div', {className: 'yweb-timer-item running'},
+						ywebEl('div', {className: 'yweb-timer-icon record'}, ywebMarkup('<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>')),
+						ywebEl('div', {className: 'yweb-timer-info'},
+							ywebEl('div', {className: 'yweb-timer-title'}, title),
+							channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
+						remaining ? ywebEl('div', {className: 'yweb-timer-remaining'}, remaining) : null);
 				}
-
-				html += '<div class="yweb-timer-item running">' +
-					'<div class="yweb-timer-icon record"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg></div>' +
-					'<div class="yweb-timer-info">' +
-						'<div class="yweb-timer-title">' + title + '</div>' +
-						(channel ? '<div class="yweb-timer-channel">' + channel + '</div>' : '') +
-					'</div>' +
-					(remaining ? '<div class="yweb-timer-remaining">' + remaining + '</div>' : '') +
-				'</div>';
-			});
-
-			// Scheduled timers
-			futureTimers.forEach(function(timer) {
 				const type = getTimerType(timer);
 				const title = timer.title || timer.channel_name || type;
-				const channel = timer.channel_name || '';
 				const alarm = getAlarm(timer);
-
-				html += '<div class="yweb-timer-item">' +
-					getTimerIcon(type) +
-					'<div class="yweb-timer-info">' +
-						'<div class="yweb-timer-title">' + title + '</div>' +
-						(channel ? '<div class="yweb-timer-channel">' + channel + '</div>' : '') +
-					'</div>' +
-					'<div class="yweb-timer-time">' +
-						'<div class="yweb-timer-date">' + (alarm.date || '--') + '</div>' +
-						'<div class="yweb-timer-hour">' + (alarm.time || '--:--') + '</div>' +
-					'</div>' +
-				'</div>';
+				return ywebEl('div', {className: 'yweb-timer-item'},
+					ywebMarkup(getTimerIcon(type)),
+					ywebEl('div', {className: 'yweb-timer-info'},
+						ywebEl('div', {className: 'yweb-timer-title'}, title),
+						channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
+					ywebEl('div', {className: 'yweb-timer-time'},
+						ywebEl('div', {className: 'yweb-timer-date'}, alarm.date || '--'),
+						ywebEl('div', {className: 'yweb-timer-hour'}, alarm.time || '--:--')));
 			});
-
-			container.innerHTML = html;
 		}).catch(function() {
-			setHtml('timer-list', '<div class="yweb-timer-empty">{=L:yw.timer.unavail=}</div>');
+			withEl('timer-list', function(el) {
+				el.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.timer.unavail=}'));
+			});
 			setText('timer-preview', '--');
 		});
 	}
@@ -1809,14 +1803,14 @@
 		const container = document.getElementById('tuner-list');
 		if (!container) return;
 
-		let html = '';
+		const rows = [];
 		let activeTuners = 0;
 		let totalSig = 0;
 		let totalSnr = 0;
 
 		tuners.forEach(function(tuner) {
-			const sig = Math.min(100, tuner.sig || 0);
-			const snr = Math.min(100, tuner.snr || 0);
+			const sig = Math.max(0, Math.min(100, Number(tuner.sig) || 0));
+			const snr = Math.max(0, Math.min(100, Number(tuner.snr) || 0));
 			const sigQuality = getSignalQuality(sig);
 			const snrQuality = getSignalQuality(snr);
 			const sigColor = getSignalColor(sig);
@@ -1844,46 +1838,35 @@
 				totalSnr += snr;
 			}
 
-			html += '<div class="yweb-tuner-item">';
-			html += '<div class="yweb-tuner-header">';
-			html += '<span class="yweb-tuner-name" title="' + (tuner.name || '') + '">' + shortName + '</span>';
-			html += '<span class="yweb-tuner-type">' + (tuner.type || 'DVB') + '</span>';
-			html += '<span class="yweb-tuner-state ' + tuner.state + '">' + stateLabel + '</span>';
-			html += '</div>';
-
-			if (tuner.channel) {
-				html += '<div class="yweb-tuner-channel">' + tuner.channel + '</div>';
-			}
-
-			html += '<div class="yweb-tuner-signals">';
-
-			// SIG bar
-			html += '<div class="yweb-tuner-signal">';
-			html += '<div class="yweb-tuner-signal-header">';
-			html += '<span class="yweb-tuner-signal-label">SIG</span>';
-			html += '<span class="yweb-tuner-signal-value" style="color:' + sigColor + '">' + sig + '%</span>';
-			html += '</div>';
-			html += '<div class="yweb-tuner-signal-bar">';
-			html += '<div class="yweb-tuner-signal-fill" style="width:' + sig + '%;background:' + sigColor + '"></div>';
-			html += '</div>';
-			html += '</div>';
-
-			// SNR bar
-			html += '<div class="yweb-tuner-signal">';
-			html += '<div class="yweb-tuner-signal-header">';
-			html += '<span class="yweb-tuner-signal-label">SNR</span>';
-			html += '<span class="yweb-tuner-signal-value" style="color:' + snrColor + '">' + snr + '%</span>';
-			html += '</div>';
-			html += '<div class="yweb-tuner-signal-bar">';
-			html += '<div class="yweb-tuner-signal-fill" style="width:' + snr + '%;background:' + snrColor + '"></div>';
-			html += '</div>';
-			html += '</div>';
-
-			html += '</div>'; // signals
-			html += '</div>'; // tuner-item
+			rows.push({tuner: tuner, shortName: shortName, stateLabel: stateLabel, sig: sig, snr: snr,
+				sigColor: sigColor, snrColor: snrColor});
 		});
 
-		container.innerHTML = html;
+		// the channel name comes from the broadcast and goes in as text; the
+		// state only as a class it is known to be
+		ywebSync(container, rows, function(row, i) {
+			return row.tuner.id !== undefined ? row.tuner.id : '#' + i;
+		}, function(row) {
+			const tuner = row.tuner;
+			const knownState = ['viewing', 'recording', 'busy', 'idle'].indexOf(tuner.state) >= 0;
+			function signal(label, value, color) {
+				return ywebEl('div', {className: 'yweb-tuner-signal'},
+					ywebEl('div', {className: 'yweb-tuner-signal-header'},
+						ywebEl('span', {className: 'yweb-tuner-signal-label'}, label),
+						ywebEl('span', {className: 'yweb-tuner-signal-value', style: {color: color}}, value + '%')),
+					ywebEl('div', {className: 'yweb-tuner-signal-bar'},
+						ywebEl('div', {className: 'yweb-tuner-signal-fill', style: {width: value + '%', background: color}})));
+			}
+			return ywebEl('div', {className: 'yweb-tuner-item'},
+				ywebEl('div', {className: 'yweb-tuner-header'},
+					ywebEl('span', {className: 'yweb-tuner-name', title: tuner.name || ''}, row.shortName),
+					ywebEl('span', {className: 'yweb-tuner-type'}, tuner.type || 'DVB'),
+					ywebEl('span', {className: 'yweb-tuner-state' + (knownState ? ' ' + tuner.state : '')}, row.stateLabel)),
+				tuner.channel ? ywebEl('div', {className: 'yweb-tuner-channel'}, tuner.channel) : null,
+				ywebEl('div', {className: 'yweb-tuner-signals'},
+					signal('SIG', row.sig, row.sigColor),
+					signal('SNR', row.snr, row.snrColor)));
+		});
 
 		// Update preview and icon
 		updateTunerPreview(tuners, activeTuners, totalSig, totalSnr);
@@ -1974,11 +1957,16 @@
 		const pidsContainer = document.getElementById('stream-pids');
 		if (!pidsContainer) return;
 
-		let html = '';
+		const tags = [];
+		function tag(label, value) {
+			tags.push(ywebEl('span', {className: 'yweb-pid-tag'},
+				ywebEl('span', {className: 'label'}, label),
+				ywebEl('span', {className: 'value'}, value)));
+		}
 
 		// Video PID
 		if (data.vpid) {
-			html += '<span class="yweb-pid-tag"><span class="label">VID</span><span class="value">' + data.vpid + '</span></span>';
+			tag('VID', data.vpid);
 		}
 
 		// Audio PIDs
@@ -1991,22 +1979,22 @@
 					const desc = apid.desc.toLowerCase();
 					if (desc.includes('eng') || desc.includes('english')) label = 'ENG';
 				}
-				html += '<span class="yweb-pid-tag"><span class="label">' + label + '</span><span class="value">' + apid.pid + '</span></span>';
+				tag(label, apid.pid);
 			});
 		}
 
 		// Special PIDs
 		if (data.vtxtpid) {
-			html += '<span class="yweb-pid-tag"><span class="label">TXT</span><span class="value">' + data.vtxtpid + '</span></span>';
+			tag('TXT', data.vtxtpid);
 		}
 		if (data.pmtpid) {
-			html += '<span class="yweb-pid-tag"><span class="label">PMT</span><span class="value">' + data.pmtpid + '</span></span>';
+			tag('PMT', data.pmtpid);
 		}
 		if (data.pcrpid) {
-			html += '<span class="yweb-pid-tag"><span class="label">PCR</span><span class="value">' + data.pcrpid + '</span></span>';
+			tag('PCR', data.pcrpid);
 		}
 
-		pidsContainer.innerHTML = html;
+		pidsContainer.replaceChildren.apply(pidsContainer, tags);
 	}
 
 
