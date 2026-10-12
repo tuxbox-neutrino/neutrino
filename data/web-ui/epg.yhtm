@@ -484,10 +484,10 @@
 		</div>
 	</div>
 
-	<script src="/Y_Lang.yjs?v=24"></script>
-	<script src="/yweb-header.js?v=55"></script>
+	<script src="/Y_Lang.yjs?v=25"></script>
+	<script src="/yweb-header.js?v=56"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=9"></script>
+	<script src="/yweb-v1.js?v=10"></script>
 	<script>
 		// The programme grid over /api/v1: the bouquet's channels, then the
 		// guide window for 20 of them per request (GET /api/v1/epg/grid),

@@ -16,6 +16,7 @@ window.YWEB_L = {
 	"nav.timer": "{=L:yw.nav.timer=}",
 	"nav.settings": "{=L:yw.nav.settings=}",
 	"nav.tools": "{=L:yw.nav.tools=}",
+	"nav.recordings": "{=L:yw.nav.recordings=}",
 	// settings-registry.js (ywebL-Labels)
 	"bc.recording": "{=L:yw.bc.recording=}",
 	"bc.restart_btn": "{=L:yw.bc.restart_btn=}",

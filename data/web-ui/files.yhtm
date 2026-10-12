@@ -500,8 +500,8 @@
 		<div class="yweb-card-indicator" id="cardIndicator"></div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=24"></script>
-	<script src="/yweb-header.js?v=55"></script>
+	<script src="/Y_Lang.yjs?v=25"></script>
+	<script src="/yweb-header.js?v=56"></script>
 	<script>
 		// State
 		let currentPath = '/';

@@ -34,6 +34,7 @@ install_DATA = \
 	settings-registry.js \
 	sysinfo.yhtm \
 	timer.yhtm \
+	recordings.yhtm \
 	tools.yhtm \
 	extensions.txt \
 	favicon.ico \

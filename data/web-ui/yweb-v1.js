@@ -231,26 +231,27 @@ function ywebLegacyChannelId(id) {
 	return ('0000000000000000' + String(id)).slice(-16);
 }
 
-// Plays a channel through POST /api/v1/zap. The two refusals the user can
-// lift are asked about and the request sent again: the movie player playing
-// a file (stop_playback) and the box in standby (wake). Resolves true once
-// the box took the switch, false when the user said no; any other refusal
-// throws as ywebV1 does.
-async function ywebV1Zap(channelId) {
-	var body = {channel_id: channelId};
+// Sends a request that puts something on the television (a zap, a
+// recording) and asks about the two refusals the user can lift: the movie
+// player playing a file (stop_playback) and the box in standby (wake), then
+// sends it again. texts names the sheet's title, its button and the two
+// questions. Resolves true once the box took it, false when the user said
+// no; any other refusal throws as ywebV1 does.
+async function ywebV1Lifting(path, body, texts) {
+	body = Object.assign({}, body);
 	for (;;) {
 		try {
-			await ywebV1('POST', '/zap', {body: body});
+			await ywebV1('POST', path, {body: body});
 			return true;
 		} catch (e) {
 			if (e.status === 409 && e.code === 'playback-running' && !body.stop_playback) {
-				if (!await _ywebV1Ask(ywebL('v1.zap_stop_playback', 'The player is playing a file. Stop it and switch to the channel?')))
+				if (!await _ywebV1Ask(texts.stop, texts.title, texts.ok))
 					return false;
 				body.stop_playback = true;
 				continue;
 			}
 			if (e.status === 409 && e.code === 'box-in-standby' && !body.wake) {
-				if (!await _ywebV1Ask(ywebL('v1.zap_wake', 'The box is in standby. Switch it on and play the channel?')))
+				if (!await _ywebV1Ask(texts.wake, texts.title, texts.ok))
 					return false;
 				body.wake = true;
 				continue;
@@ -260,18 +261,28 @@ async function ywebV1Zap(channelId) {
 	}
 }
 
+// Plays a channel through POST /api/v1/zap, asking as above.
+function ywebV1Zap(channelId) {
+	return ywebV1Lifting('/zap', {channel_id: channelId}, {
+		title: ywebL('v1.zap_title', 'Switch channel'),
+		ok: ywebL('v1.zap_ok', 'Switch'),
+		stop: ywebL('v1.zap_stop_playback', 'The player is playing a file. Stop it and switch to the channel?'),
+		wake: ywebL('v1.zap_wake', 'The box is in standby. Switch it on and play the channel?')
+	});
+}
+
 // A yes or no in a sheet (yweb-dom.js); without the helper layer the
 // browser's own confirm.
-function _ywebV1Ask(text) {
+function _ywebV1Ask(text, title, ok) {
 	if (typeof ywebSheet !== 'function')
 		return Promise.resolve(window.confirm(text));
 	return new Promise(function(resolve) {
 		ywebSheet({
-			title: ywebL('v1.zap_title', 'Switch channel'),
+			title: title,
 			body: ywebEl('p', {}, text),
 			actions: [
 				{label: ywebL('msg.cancel', 'Cancel'), value: false},
-				{label: ywebL('v1.zap_ok', 'Switch'), value: true, primary: true}
+				{label: ok, value: true, primary: true}
 			],
 			onClose: function(result) { resolve(result === true); }
 		});
