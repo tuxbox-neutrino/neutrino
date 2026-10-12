@@ -485,339 +485,239 @@
 	</div>
 
 	<script src="/Y_Lang.yjs?v=24"></script>
-	<script src="/yweb-header.js?v=54"></script>
+	<script src="/yweb-header.js?v=55"></script>
+	<script src="/yweb-dom.js?v=1"></script>
+	<script src="/yweb-v1.js?v=8"></script>
 	<script>
-		// Configuration
+		// The programme grid over /api/v1: the bouquet's channels, then the
+		// guide window for 20 of them per request (GET /api/v1/epg/grid),
+		// filled in as the pages arrive. Titles and texts come from the
+		// broadcast and go in as text.
 		const MINUTES_PER_SLOT = 30;
 		const DISPLAY_HOURS = 4;
-		const TOTAL_MINUTES = DISPLAY_HOURS * 60; // 240 minutes
+		const TOTAL_MINUTES = DISPLAY_HOURS * 60;
 
-		// State
 		let currentBouquet = '';
+		let currentMode = 'tv';
 		let currentStartTime = null;
-		let selectedProgram = null;
+		let selectedProgram = null;	// {channelId, channelName, ev}
 		let timers = [];
+		let gridToken = 0;
 
-		// Initialize time selector
+		const formatTime = ywebFormatTime;
+		function clock(sec) { return formatTime(new Date(sec * 1000)); }
+
 		function initTimeSelect() {
 			const select = document.getElementById('timeSelect');
 			const now = new Date();
 			now.setMinutes(0, 0, 0);
-
-			select.innerHTML = '';
+			const options = [];
 			for (let i = 0; i < 24; i++) {
 				const time = new Date(now.getTime() + i * 3600000);
-				const option = document.createElement('option');
-				option.value = Math.floor(time.getTime() / 1000);
-				option.textContent = ywebPad2(time.getHours()) + ':00';
-				if (i === 0) option.selected = true;
-				select.appendChild(option);
+				options.push(ywebEl('option', {value: String(Math.floor(time.getTime() / 1000))},
+					ywebPad2(time.getHours()) + ':00'));
 			}
-
+			select.replaceChildren.apply(select, options);
+			select.selectedIndex = 0;
 			currentStartTime = parseInt(select.value);
 		}
 
-		// Load bouquets — uses shared ywebFetchBouquets()
+		// The bouquets of the list the box plays from, hidden and empty ones left out
 		async function loadBouquets() {
 			const select = document.getElementById('bouquetSelect');
 			try {
-				const bouquets = await ywebFetchBouquets();
-				select.innerHTML = '';
-				bouquets.forEach((b, i) => {
-					const option = document.createElement('option');
-					option.value = b.number;
-					option.textContent = b.name;
-					if (i === 0) {
-						option.selected = true;
-						currentBouquet = b.number;
-					}
-					select.appendChild(option);
-				});
+				const ch = await ywebV1('GET', '/channels/current').catch(() => null);
+				currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
+				const r = await ywebV1('GET', '/bouquets');
+				const bouquets = ((r && r.items) || []).filter(b =>
+					!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
+				select.replaceChildren.apply(select, bouquets.map(b => ywebEl('option', {value: String(b.id)}, b.name)));
+				currentBouquet = bouquets.length ? String(bouquets[0].id) : '';
 			} catch (e) {
-				select.innerHTML = '<option>{=L:yw.epg.load_fail=}</option>';
+				select.replaceChildren(ywebEl('option', {}, '{=L:yw.epg.load_fail=}'));
 				console.error('Failed to load bouquets:', e);
 			}
 		}
 
-		// Load timers (json list; replaces the legacy format=id line parser)
 		async function loadTimers() {
 			try {
-				const data = await ywebApi('timer');
-				timers = ywebParseTimerList(data).map(t => ({
-					eventType: parseInt(t.type_number) || 0,
-					alarmTime: parseInt(ywebGetTimerAlarm(t).digits) || 0,
-					stopTime: ywebGetTimerStopSec(t),
-					channelId: t.channel_id
-				}));
+				const r = await ywebV1('GET', '/timers');
+				timers = (r && r.items) || [];
 			} catch (e) {
-				console.error('Failed to load timers:', e);
+				timers = [];
 			}
 		}
 
-		// Load EPG data
+		// The timer that covers an event: a recording from before its start to
+		// after its end, or a zap timer at its start
+		function timerFor(channelId, ev) {
+			return timers.find(t => t.channel_id === channelId &&
+				((t.kind === 'record' && t.start <= ev.start && t.stop >= ev.start + ev.duration) ||
+				 (t.kind === 'zapto' && t.start === ev.start)));
+		}
+
 		async function loadEpg() {
+			const token = ++gridToken;
 			const grid = document.getElementById('epgGrid');
-			grid.innerHTML = '<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.epg.loading=}</p>';
+			grid.replaceChildren(ywebEl('p', {attrs: {'aria-busy': 'true'},
+				style: {padding: '3rem', 'text-align': 'center', color: 'var(--pico-muted-color)'}}, '{=L:yw.epg.loading=}'));
 
 			currentBouquet = document.getElementById('bouquetSelect').value;
 			currentStartTime = parseInt(document.getElementById('timeSelect').value);
-
-			await loadTimers();
+			const startTime = currentStartTime;
+			const stopTime = startTime + DISPLAY_HOURS * 3600;
 
 			try {
-				// Get channels for bouquet — uses shared ywebFetchChannels()
-				const channels = await ywebFetchChannels(currentBouquet);
+				await loadTimers();
+				const channels = await ywebV1All('/channels', {mode: currentMode, bouquet: currentBouquet});
+				if (token !== gridToken) return;
 
-				const stopTime = currentStartTime + (DISPLAY_HOURS * 3600);
-				const numSlots = (DISPLAY_HOURS * 60) / MINUTES_PER_SLOT;
-
-				// Build time header
-				let html = '<div class="yweb-epg-time-header">';
-				html += '<div class="yweb-epg-channel-header">{=L:yw.msg.channel=}</div>';
-				html += '<div class="yweb-epg-times">';
-
-				for (let i = 0; i < numSlots; i++) {
-					const slotTime = new Date((currentStartTime + i * MINUTES_PER_SLOT * 60) * 1000);
-					html += `<div class="yweb-epg-time-slot">${ywebFormatTime(slotTime)}</div>`;
-				}
-
-				// Now marker and line
 				const now = Math.floor(Date.now() / 1000);
-				const nowInWindow = now >= currentStartTime && now < stopTime;
-				let nowPercent = 0;
-				if (nowInWindow) {
-					nowPercent = ((now - currentStartTime) / 60) / TOTAL_MINUTES * 100;
-					// Small triangle marker in header
-					html += `<div class="yweb-epg-now-marker" style="left:calc(100px + ${nowPercent}%)"></div>`;
-				}
+				const nowInWindow = now >= startTime && now < stopTime;
+				const nowPercent = ((now - startTime) / 60) / TOTAL_MINUTES * 100;
 
-				html += '</div></div>';
+				const slots = [];
+				for (let i = 0; i < TOTAL_MINUTES / MINUTES_PER_SLOT; i++)
+					slots.push(ywebEl('div', {className: 'yweb-epg-time-slot'}, clock(startTime + i * MINUTES_PER_SLOT * 60)));
+				if (nowInWindow)
+					slots.push(ywebEl('div', {className: 'yweb-epg-now-marker', style: {left: 'calc(100px + ' + nowPercent + '%)'}}));
+				const header = ywebEl('div', {className: 'yweb-epg-time-header'},
+					ywebEl('div', {className: 'yweb-epg-channel-header'}, '{=L:yw.msg.channel=}'),
+					ywebEl('div', {className: 'yweb-epg-times'}, slots));
 
-				// Build channel rows container with single now-line
-				html += '<div class="yweb-epg-channels" style="position:relative">';
+				const rows = ywebEl('div', {className: 'yweb-epg-channels', style: {position: 'relative'}},
+					nowInWindow ? ywebEl('div', {className: 'yweb-epg-now-line', style: {left: 'calc(100px + ' + nowPercent + '%)'}}) : null);
+				const programsOf = Object.create(null);
+				channels.forEach(channel => {
+					const programs = ywebEl('div', {className: 'yweb-epg-programs'});
+					programsOf[channel.id] = {channel: channel, el: programs};
+					rows.appendChild(ywebEl('div', {className: 'yweb-epg-row'},
+						ywebEl('div', {className: 'yweb-epg-channel-name', title: '{=L:yw.epg.zap_to=} ' + channel.name,
+							on: {click: () => zapTo(channel.id)}},
+							ywebEl('span', {}, channel.name)),
+						programs));
+				});
+				grid.replaceChildren(header, rows);
 
-				// Single now line spanning entire channel area (offset by channel name width)
-				if (nowInWindow) {
-					html += `<div class="yweb-epg-now-line" style="left:calc(100px + ${nowPercent}%)"></div>`;
-				}
-
-				for (const channel of channels) {
-					html += await buildChannelRow(channel, currentStartTime, stopTime);
-				}
-
-				html += '</div>';
-
-				grid.innerHTML = html;
-
+				// the guide, a page of channels at a time
+				let cursor = null;
+				do {
+					const query = {bouquet: currentBouquet, from: startTime, to: stopTime, limit: 20};
+					if (cursor) query.cursor = cursor;
+					const page = await ywebV1('GET', '/epg/grid', {query: query});
+					if (token !== gridToken) return;
+					((page && page.items) || []).forEach(row => {
+						const target = programsOf[row.channel_id];
+						if (target) fillRow(target.channel, target.el, row.events || [], startTime, stopTime, now);
+					});
+					cursor = page && page.next_cursor;
+				} while (cursor);
 			} catch (e) {
-				grid.innerHTML = '<p class="yweb-empty">{=L:yw.epg.load_fail=}</p>';
+				if (token !== gridToken) return;
+				grid.replaceChildren(ywebEl('p', {className: 'yweb-empty'}, '{=L:yw.epg.load_fail=}'));
 				console.error('Failed to load EPG:', e);
 			}
 		}
 
-		// Build channel row
-		async function buildChannelRow(channel, startTime, stopTime) {
-			let html = '<div class="yweb-epg-row">';
-			html += `<div class="yweb-epg-channel-name" onclick="zapTo('${channel.id}')" title="{=L:yw.epg.zap_to=} ${escapeHtml(channel.name)}">`;
-			// Show logo if available, otherwise text
-			if (channel.logo) {
-				html += `<img class="yweb-epg-channel-logo" src="${channel.logo}" alt="${escapeHtml(channel.name)}" onerror="this.outerHTML='<span>${escapeHtml(channel.name)}</span>'">`;
-			} else {
-				html += `<span>${escapeHtml(channel.name)}</span>`;
-			}
-			html += '</div>';
-			html += '<div class="yweb-epg-programs">';
-
-			try {
-				// Note: stoptime parameter doesn't work reliably, so we fetch all and filter client-side
-				const epgData = await ywebApi('epg', {channelid: channel.id, details: 'true'});
-				const programs = epgData?.data?.epglist?.progData || [];
-
-				if (programs.length === 0) {
-					html += '</div></div>';
-					return html;
-				}
-
-				const now = Math.floor(Date.now() / 1000);
-
-
-				for (let i = 0; i < programs.length; i++) {
-					const prog = programs[i];
-					const progStart = parseInt(prog.start_sec) || 0;
-					const progStop = parseInt(prog.stop_sec) || 0;
-					const desc = prog.description || '';
-
-
-					// Skip programs that end before our window
-					if (progStop <= startTime) {
-						continue;
-					}
-					// Stop if program starts after our window
-					if (progStart >= stopTime) {
-						break;
-					}
-
-
-					const info1 = prog.info1 || '';
-					const info2 = prog.info2 || '';
-					const startT = prog.start_t || '';
-
-					// Calculate position in percent
-					const displayStart = Math.max(progStart, startTime);
-					const displayStop = Math.min(progStop, stopTime);
-					const leftPercent = ((displayStart - startTime) / 60) / TOTAL_MINUTES * 100;
-					const widthPercent = ((displayStop - displayStart) / 60) / TOTAL_MINUTES * 100;
-
-					// Check for timer
-					let timerClass = '';
-					const timer = timers.find(t => t.channelId === channel.id &&
-						t.alarmTime <= progStart && t.stopTime >= progStop);
-					if (timer) {
-						timerClass = timer.eventType === 5 ? ' timer-rec' : ' timer-zap';
-					}
-
-					// Check if current and calculate progress
-					const isCurrent = (now >= progStart && now < progStop);
-					const currentClass = isCurrent ? ' current' : '';
-					let progressStyle = '';
-					if (isCurrent) {
-						const elapsed = now - progStart;
-						const total = progStop - progStart;
-						const progress = Math.round((elapsed / total) * 100);
-						progressStyle = `--progress:${progress}%;`;
-					}
-
-					const progData = JSON.stringify({
-						channelId: channel.id,
-						channelName: channel.name,
-						start: progStart,
-						stop: progStop,
-						startT: startT,
-						desc: desc,
-						info1: info1,
-						info2: info2
-					}).replace(/'/g, '&#39;');
-
-					html += `<div class="yweb-epg-program${timerClass}${currentClass}" style="left:${leftPercent}%;width:calc(${widthPercent}% - 2px);${progressStyle}" onclick='showProgramDetail(${progData})'>`;
-					html += `<div class="yweb-epg-program-title">${escapeHtml(desc)}</div>`;
-					html += `<div class="yweb-epg-program-time">${startT}</div>`;
-					html += '</div>';
-				}
-
-			} catch (e) {
-				console.error(`Failed to load EPG for ${channel.name}:`, e);
-			}
-
-			html += '</div></div>';
-			return html;
+		function fillRow(channel, el, events, startTime, stopTime, now) {
+			const boxes = [];
+			events.forEach(ev => {
+				const evStop = ev.start + ev.duration;
+				if (evStop <= startTime || ev.start >= stopTime) return;
+				const displayStart = Math.max(ev.start, startTime);
+				const displayStop = Math.min(evStop, stopTime);
+				const leftPercent = ((displayStart - startTime) / 60) / TOTAL_MINUTES * 100;
+				const widthPercent = ((displayStop - displayStart) / 60) / TOTAL_MINUTES * 100;
+				const timer = timerFor(channel.id, ev);
+				const isCurrent = now >= ev.start && now < evStop;
+				const style = {left: leftPercent + '%', width: 'calc(' + widthPercent + '% - 2px)'};
+				if (isCurrent) style['--progress'] = Math.round((now - ev.start) / ev.duration * 100) + '%';
+				boxes.push(ywebEl('div', {className: 'yweb-epg-program' +
+					(timer ? (timer.kind === 'record' ? ' timer-rec' : ' timer-zap') : '') + (isCurrent ? ' current' : ''),
+					style: style, on: {click: () => showProgramDetail(channel, ev)}},
+					ywebEl('div', {className: 'yweb-epg-program-title'}, ev.title || ''),
+					ywebEl('div', {className: 'yweb-epg-program-time'}, clock(ev.start))));
+			});
+			el.replaceChildren.apply(el, boxes);
 		}
 
-		// Show program detail
-		function showProgramDetail(prog) {
-			selectedProgram = prog;
-
-			document.getElementById('modalTitle').textContent = prog.desc || '-';
-			document.getElementById('modalSubtitle').textContent = prog.channelName || '-';
-
-			const startDate = new Date(prog.start * 1000);
-			const stopDate = new Date(prog.stop * 1000);
-			const duration = Math.round((prog.stop - prog.start) / 60);
-			const timeStr = `${formatTime(startDate)} - ${formatTime(stopDate)} (${duration} Min.)`;
-			document.getElementById('modalInfo').textContent = timeStr;
-
-			let desc = prog.info1 || '';
-			if (prog.info2) {
-				desc += (desc ? '\n\n' : '') + prog.info2;
-			}
-			document.getElementById('modalDesc').textContent = desc || '{=L:yw.epg.no_desc=}';
-
+		// The detail dialog; the long text is asked for when it opens
+		async function showProgramDetail(channel, ev) {
+			selectedProgram = {channelId: channel.id, channelName: channel.name, ev: ev};
+			document.getElementById('modalTitle').textContent = ev.title || '-';
+			document.getElementById('modalSubtitle').textContent = channel.name || '-';
+			const minutes = Math.round(ev.duration / 60);
+			document.getElementById('modalInfo').textContent =
+				clock(ev.start) + ' - ' + clock(ev.start + ev.duration) + ' (' + minutes + ' Min.)';
+			const descEl = document.getElementById('modalDesc');
+			descEl.textContent = ev.description || '';
 			document.getElementById('epgModal').classList.add('open');
+			const shown = selectedProgram;
+			const full = await ywebV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => null);
+			if (selectedProgram !== shown) return;
+			const desc = full ? [full.description, full.long_description].filter(Boolean).join('\n\n') : (ev.description || '');
+			descEl.textContent = desc || '{=L:yw.epg.no_desc=}';
 		}
 
-		// Close modal
 		function closeModal() {
 			document.getElementById('epgModal').classList.remove('open');
 			selectedProgram = null;
 		}
 
-		// Set timer (record)
+		// A recording of the event, through the helper the other pages share
 		async function setTimerRec() {
 			if (!selectedProgram) return;
-
-			try {
-				await ywebApi('timer', {action: 'new', alarm: selectedProgram.start, stop: selectedProgram.stop, channel_id: selectedProgram.channelId, type: 5});
-				ywebShowToast('{=L:yw.epg.timer_rec_set=}');
+			if (await ywebRecordEvent(selectedProgram.channelId, selectedProgram.channelName, selectedProgram.ev)) {
 				closeModal();
 				loadEpg();
-			} catch (e) {
-				ywebShowToast('{=L:yw.epg.timer_fail=}', true);
-				console.error('Timer error:', e);
 			}
 		}
 
-		// Set timer (zap)
+		// A zap timer at the event's start, or this minute for one running
 		async function setTimerZap() {
 			if (!selectedProgram) return;
-
+			const ev = selectedProgram.ev;
 			try {
-				await ywebApi('timer', {action: 'new', alarm: selectedProgram.start, channel_id: selectedProgram.channelId, type: 3});
+				await ywebV1('POST', '/timers', {body: {kind: 'zapto', channel_id: selectedProgram.channelId,
+					start: Math.max(ev.start, Math.floor(Date.now() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
 				ywebShowToast('{=L:yw.epg.timer_zap_set=}');
 				closeModal();
 				loadEpg();
 			} catch (e) {
-				ywebShowToast('{=L:yw.epg.timer_fail=}', true);
-				console.error('Timer error:', e);
+				ywebShowToast('{=L:yw.epg.timer_fail=}: ' + e.message, true);
 			}
 		}
 
-		// Zap now
 		async function zapNow() {
 			if (!selectedProgram) return;
-
-			try {
-				await ywebApi('zapto', String(selectedProgram.channelId));
-				closeModal();
-			} catch (e) {
-				console.error('Zap error:', e);
-			}
+			if (await zapTo(selectedProgram.channelId)) closeModal();
 		}
 
-		// Zap to channel
+		// Zap: a file the player plays, or a box in standby, is asked about first
 		async function zapTo(channelId) {
 			try {
-				await ywebApi('zapto', String(channelId));
+				return await ywebV1Zap(channelId);
 			} catch (e) {
-				console.error('Zap error:', e);
+				ywebShowToast(e.message, true);
+				return false;
 			}
 		}
 
-		// Change time
 		function changeTime(hours) {
 			const select = document.getElementById('timeSelect');
-			const currentIndex = select.selectedIndex;
-			const newIndex = Math.max(0, Math.min(select.options.length - 1, currentIndex + hours));
-			select.selectedIndex = newIndex;
+			select.selectedIndex = Math.max(0, Math.min(select.options.length - 1, select.selectedIndex + hours));
 			loadEpg();
 		}
 
-
-		// Use shared ywebFormatTime() from yweb-header.js
-		const formatTime = ywebFormatTime;
-
-		// Event listeners
 		document.getElementById('bouquetSelect').addEventListener('change', loadEpg);
 		document.getElementById('timeSelect').addEventListener('change', loadEpg);
-
-		// Close modal on background click
 		document.getElementById('epgModal').addEventListener('click', function(e) {
 			if (e.target === this) closeModal();
 		});
 
-		// Initialize
 		initTimeSelect();
 		loadBouquets().then(loadEpg);
 
-		// Register pull-to-refresh callback
 		if (typeof ywebSetRefreshCallback === 'function') {
 			ywebSetRefreshCallback(function() {
 				return loadEpg();

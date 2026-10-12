@@ -389,9 +389,9 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=24"></script>
-	<script src="/yweb-header.js?v=54"></script>
+	<script src="/yweb-header.js?v=55"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=7"></script>
+	<script src="/yweb-v1.js?v=8"></script>
 	<script>
 		// The channel list over /api/v1: bouquets, their channels and what each
 		// is showing now. Names, titles and texts come from the broadcast and go
@@ -496,8 +496,8 @@
 					ywebEl('div', {className: 'yweb-channel-actions', on: {click: event => event.stopPropagation()}},
 						actionButton(SVG_PLAY, '{=L:yw.epg.zap=}', '{=L:yw.bq.zap_title=}', () => zapTo(ch.id)),
 						actionButton(SVG_INFO, 'Info', '{=L:yw.dash.epg_info=}', () => showEpg(ch.id, ch.name)),
-						actionButton(SVG_REC, 'Rec', '{=L:yw.bq.rec_title=}', () => ywebRecordEvent(ywebLegacyChannelId(ch.id), ch.name), true),
-						actionButton(SVG_STREAM, 'Stream', '{=L:yw.bq.stream_title=}', () => ywebStreamChannel(ywebLegacyChannelId(ch.id), ch.name)))),
+						actionButton(SVG_REC, 'Rec', '{=L:yw.bq.rec_title=}', () => ywebRecordEvent(ch.id, ch.name, epgNow[ch.id]), true),
+						actionButton(SVG_STREAM, 'Stream', '{=L:yw.bq.stream_title=}', () => ywebStreamChannel(ch.id, ch.name)))),
 				ywebEl('div', {className: 'yweb-channel-detail', id: 'detail-' + ch.id},
 					ywebEl('div', {className: 'yweb-channel-detail-loading'}, '{=L:yw.bq.tap_info=}')));
 			// a logo only while the box hands them out; one that fails leaves the placeholder text
@@ -674,7 +674,7 @@
 		}
 
 		function showEpg(channelId, channelName) {
-			ywebShowEpgModal(ywebLegacyChannelId(channelId), channelName);
+			ywebShowEpgModal(channelId, channelName);
 		}
 
 		async function toggleChannelDetail(event, channelId) {
@@ -697,7 +697,7 @@
 			function content(text, muted) {
 				detailEl.replaceChildren(ywebEl('div', {className: 'yweb-channel-detail-content'},
 					ywebEl('div', {className: 'yweb-channel-detail-desc',
-						style: muted ? {fontStyle: 'italic', color: 'var(--pico-muted-color)'} : undefined}, text)));
+						style: muted ? {'font-style': 'italic', color: 'var(--pico-muted-color)'} : undefined}, text)));
 			}
 			try {
 				let ev = epgNow[channelId];

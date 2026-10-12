@@ -1221,19 +1221,14 @@
 	</footer>
 
 	<script src="/Y_Lang.yjs?v=24"></script>
-	<script src="/yweb-header.js?v=54"></script>
+	<script src="/yweb-header.js?v=55"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=7"></script>
+	<script src="/yweb-v1.js?v=8"></script>
 	<script>
-	// Current channel tracking for EPG info
-	let currentChannelId = null;
-	let currentChannelName = null;
-
 	// Show EPG info for current channel
 	function showCurrentEpgInfo() {
-		if (currentChannelId && currentChannelName) {
-			ywebShowEpgModal(currentChannelId, currentChannelName);
-		}
+		if (dash.channel)
+			ywebShowEpgModal(dash.channel.id, dash.channel.name);
 	}
 
 	// API Helpers — all requests go to /api/v4/ (always JSON for json
@@ -1311,7 +1306,9 @@
 		timers: [],
 		playback: null,
 		playbackAt: 0,		// when the playback state was read, to count its position on
-		names: Object.create(null)	// channel id -> name, for timers and recordings
+		names: Object.create(null),	// channel id -> name, for timers and recordings
+		naming: Object.create(null),	// channel id -> the read of its name under way
+		channelRead: 0			// counts channel reads, so an older answer arriving last is dropped
 	};
 
 	// A read that fails is no answer: the card keeps what it shows or says
@@ -1319,12 +1316,6 @@
 	// (yweb-v1.js) and the read is sent again.
 	function dashGet(path, query) {
 		return ywebV1('GET', path, query ? {query: query} : undefined).catch(function() { return null; });
-	}
-
-	// The legacy helpers this page still calls (EPG dialog, recording) take
-	// a channel id with all 16 digits; v1 writes one without leading zeros.
-	function legacyChannelId(id) {
-		return ('0000000000000000' + String(id)).slice(-16);
 	}
 
 	function clock(sec) {
@@ -1349,14 +1340,18 @@
 		return hr > 0 ? hr + 'h ' + (min % 60) + 'm' : min + ' min';
 	}
 
-	// The names of the channels timers and recordings name by id, each asked once.
+	// The names of the channels timers and recordings name by id, each asked
+	// once, also while two cards ask at the same time.
 	async function ensureNames(ids) {
-		const missing = ids.filter(function(id, i) {
-			return id && !(id in dash.names) && ids.indexOf(id) === i;
-		});
-		await Promise.all(missing.map(async function(id) {
-			const ch = await dashGet('/channels/' + encodeURIComponent(id));
-			dash.names[id] = (ch && ch.name) || '';
+		await Promise.all(ids.map(function(id) {
+			if (!id || id in dash.names) return null;
+			if (!dash.naming[id]) {
+				dash.naming[id] = dashGet('/channels/' + encodeURIComponent(id)).then(function(ch) {
+					dash.names[id] = (ch && ch.name) || '';
+					delete dash.naming[id];
+				});
+			}
+			return dash.naming[id];
 		}));
 	}
 
@@ -1365,11 +1360,11 @@
 	// mode). Otherwise the mode event says it: a box switched to TV whose
 	// zap to a TV channel did not go through still plays the radio channel.
 	async function refreshChannel(takeMode) {
+		const read = ++dash.channelRead;
 		const ch = await dashGet('/channels/current');
+		if (read !== dash.channelRead) return;	// a later read was started: its answer counts
 		if (!ch || !ch.id) {
 			dash.channel = null;
-			currentChannelId = null;
-			currentChannelName = null;
 			showChannel();
 			dash.now = dash.next = null;
 			showGuide();
@@ -1377,8 +1372,6 @@
 		}
 		dash.channel = {id: ch.id, name: ch.name || '', kind: ch.kind || ''};
 		dash.names[ch.id] = ch.name || '';
-		currentChannelId = legacyChannelId(ch.id);
-		currentChannelName = ch.name || '';
 		if (takeMode)
 			setMode(ch.kind === 'radio' || ch.kind === 'webradio' ? 'radio' : 'tv');
 		showChannel();
@@ -1469,7 +1462,7 @@
 
 	// The guide event says which channel in the lower 48 bits of its id.
 	function sameLow48(a, b) {
-		return legacyChannelId(a).slice(-12).toLowerCase() === legacyChannelId(b).slice(-12).toLowerCase();
+		return ywebLegacyChannelId(a).slice(-12).toLowerCase() === ywebLegacyChannelId(b).slice(-12).toLowerCase();
 	}
 
 	let guideSoon = null;
@@ -1675,16 +1668,17 @@
 		setText('rec-remaining', (timer && remaining(timer.stop)) || '--:--');
 	}
 
-	// Recording and stopping still go through the helpers the other pages
-	// share (EPG dialog, timer list), which move to v1 with those pages. What
-	// they change comes back as record and timer events.
+	// Recording and stopping go through the helpers the EPG dialog and the
+	// channel list share (yweb-v1.js): what runs now is recorded, the
+	// recording shown is ended. What they change comes back as record and
+	// timer events.
 	function toggleRecording() {
 		const btn = document.getElementById('rec-btn');
 		if (!btn) return;
 		if (btn.classList.contains('recording'))
-			ywebStopRecording();
-		else
-			ywebRecordEvent(currentChannelId, currentChannelName);
+			ywebStopRecording(dash.recordings[0] ? dash.recordings[0].id : null);
+		else if (dash.channel)
+			ywebRecordEvent(dash.channel.id, dash.channel.name, dash.now);
 		// without the event stream nothing would say so
 		setTimeout(function() { if (!ywebV1EventsLive()) refreshEvented(); }, 1500);
 	}
