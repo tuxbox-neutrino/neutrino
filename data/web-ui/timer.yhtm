@@ -648,24 +648,41 @@
 		}
 		function clock(sec) { return ywebFormatTime(new Date(sec * 1000)); }
 
-		// The names of the channels the timers name, each asked once
+		// A timer without a channel names "0"
+		function channelOf(t) {
+			return t.channel_id && t.channel_id !== '0' ? t.channel_id : '';
+		}
+
+		// The names of the channels the timers name, each asked once, also
+		// while two reads of the list overlap
+		const naming = Object.create(null);
 		async function ensureNames(ids) {
-			const missing = ids.filter((id, i) => id && !(id in names) && ids.indexOf(id) === i);
-			await Promise.all(missing.map(async id => {
-				const ch = await ywebV1('GET', '/channels/' + encodeURIComponent(id)).catch(() => null);
-				names[id] = (ch && ch.name) || '';
+			await Promise.all(ids.map(id => {
+				if (!id || id in names) return null;
+				if (!naming[id]) {
+					naming[id] = ywebV1('GET', '/channels/' + encodeURIComponent(id)).catch(() => null).then(ch => {
+						names[id] = (ch && ch.name) || '';
+						delete naming[id];
+					});
+				}
+				return naming[id];
 			}));
 		}
 
+		let timersRead = 0;	// an older answer arriving after a newer one is dropped
 		async function loadTimers() {
+			const read = ++timersRead;
 			const list = document.getElementById('timerList');
 			try {
 				const r = await ywebV1('GET', '/timers');
-				allTimers = (r && r.items) || [];
-				await ensureNames(allTimers.map(t => t.channel_id));
+				const items = (r && r.items) || [];
+				await ensureNames(items.map(channelOf));
+				if (read !== timersRead) return;
+				allTimers = items;
 				updateFilterCounts();
 				renderTimerList();
 			} catch (e) {
+				if (read !== timersRead) return;	// a newer read has the list
 				console.error('Failed to load timers:', e);
 				list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.timer.unavail=}'));
 			}
@@ -754,7 +771,7 @@
 		function timerRow(timer) {
 			const typeNum = typeNumber(timer);
 			const state = timer.state || 0;
-			const channel = names[timer.channel_id] || '';
+			const channel = names[channelOf(timer)] || '';
 			const typeLabel = TIMER_TYPE_LABELS[typeNum] || YWEB_TIMER_TYPES[typeNum] || String(timer.kind);
 			const title = timer.title || channel || typeLabel;
 			const stateLabel = TIMER_STATE_LABELS[state] || '';
@@ -783,7 +800,7 @@
 				timer.announce ? detail('{=L:yw.tm.announce=}', dateOf(timer.announce) + ' ' + clock(timer.announce)) : [],
 				detail('{=L:yw.tm.repeat=}', rep + (timer.repeat && timer.repeat_count ? ' (' + timer.repeat_count + ')' : '')),
 				channel ? detail('{=L:yw.dash.channels=}', channel) : [],
-				timer.channel_id ? detail('{=L:yw.tm.channel_id=}', timer.channel_id) : [],
+				channelOf(timer) ? detail('{=L:yw.tm.channel_id=}', timer.channel_id) : [],
 				timer.recording_dir ? detail('{=L:yw.tm.rec_dir=}', timer.recording_dir) : [],
 				timer.epg_id && timer.epg_id !== '0' ? detail('EPG-ID', timer.epg_id) : [],
 				detail('Timer-ID', String(timer.id)));
@@ -1165,12 +1182,13 @@
 			return Math.floor(d.getTime() / 1000);
 		}
 
+		// The repeat number of the form, and null for weekdays with no day ticked
 		function repeatValue() {
 			const rep = parseInt(document.getElementById('tmRepeat').value) || 0;
-			if (rep < 256) return rep;
+			if (rep < 256 || document.getElementById('tmRepeat').selectedOptions[0].dataset.kept) return rep;
 			let days = 0;
 			document.querySelectorAll('input[name="tmWd"]:checked').forEach(cb => { days += parseInt(cb.value); });
-			return 256 + (days || 512);	// Monday when no day is ticked
+			return days ? 256 + days : null;
 		}
 
 		async function submitTimer() {
@@ -1199,6 +1217,10 @@
 			}
 
 			const repeat = repeatValue();
+			if (repeat === null) {
+				ywebShowToast('{=L:yw.tm.need_day=}', true);
+				return;
+			}
 			const repcount = parseInt(document.getElementById('tmRepcount').value) || 0;
 			const body = {start: secondsOf(alDate, alTime), repeat: repeat, repeat_count: repeat ? repcount : 0};
 			if (needsStop) body.stop = secondsOf(stDate, stTime);
@@ -1265,14 +1287,21 @@
 			}
 
 			const rep = timer.repeat || 0;
-			document.getElementById('tmRepeat').value = String(rep >= 256 ? 256 : rep);
+			const repSel = document.getElementById('tmRepeat');
+			repSel.value = String(rep >= 256 ? 256 : rep);
+			if (repSel.value === '') {
+				// a repetition this form has no row for (set at the box): kept as
+				// it is and named, rather than turned into "once"
+				repSel.appendChild(ywebEl('option', {value: String(rep), data: {kept: '1'}}, '#' + rep));
+				repSel.value = String(rep);
+			}
 			document.querySelectorAll('input[name="tmWd"]').forEach(cb => {
 				cb.checked = rep >= 256 && (rep & parseInt(cb.value)) !== 0;
 			});
 			onRepeatChange();
 			if (timer.repeat_count) document.getElementById('tmRepcount').value = String(timer.repeat_count);
 
-			if (timer.channel_id) selectChannelById(timer.channel_id);
+			if (channelOf(timer)) selectChannelById(timer.channel_id);
 			if (timer.recording_dir) {
 				// the folders may be listed already, or arrive later
 				const dirSel = document.getElementById('tmRecDir');

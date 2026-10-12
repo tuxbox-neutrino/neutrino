@@ -203,7 +203,7 @@
 							<option value="duration">{=L:yw.media.sort_duration=}</option>
 							<option value="size">{=L:yw.media.sort_size=}</option>
 						</select>
-						<select id="mediaOrder" aria-label="{=L:yw.media.sort=}">
+						<select id="mediaOrder" aria-label="{=L:yw.media.order=}">
 							<option value="">↕</option>
 							<option value="asc">↑</option>
 							<option value="desc">↓</option>
@@ -261,6 +261,8 @@
 		let nextOffset = 0;		// where the next page begins, null after the last
 		let listToken = 0;		// a newer read makes an older answer stale
 		let partialRetry = null;
+		let partialTries = 0;		// a directory still read the first time is asked about a few times, not for ever
+		let pagesShown = 0;		// pages on screen, so a reread does not throw away what "more" loaded
 		let sourcesShown = '';
 
 		function archive(id) {
@@ -312,6 +314,7 @@
 			if (token !== listToken) return;
 
 			const items = (page && page.items) || [];
+			pagesShown = more ? pagesShown + 1 : 1;
 			if (!more) list.replaceChildren();
 			items.forEach(rec => list.appendChild(recordingRow(rec)));
 			if (!more && items.length === 0)
@@ -324,10 +327,24 @@
 			document.getElementById('mediaPreview').textContent = total + ' {=L:yw.nav.recordings=}';
 			showSources((page && page.sources) || []);
 
-			// a directory still being read the first time: asked again once
+			// a directory still being read the first time: asked again a few
+			// times, further apart each time, while only the first page is shown
 			document.getElementById('mediaPartial').hidden = !(page && page.partial);
-			if (page && page.partial && !partialRetry)
-				partialRetry = setTimeout(() => { partialRetry = null; loadList(false); }, 3000);
+			if (!(page && page.partial)) partialTries = 0;
+			else if (!partialRetry && partialTries < 5 && pagesShown === 1) {
+				partialRetry = setTimeout(() => {
+					partialRetry = null;
+					if (pagesShown === 1) loadList(false);	// "more" was pressed meanwhile: keep its pages
+				}, 3000 * ++partialTries);
+			}
+		}
+
+		// The player moved: only the first page is read again, and not while
+		// somebody has paged further down
+		let playbackSoon = null;
+		function playbackChanged() {
+			if (pagesShown > 1 || playbackSoon) return;
+			playbackSoon = setTimeout(() => { playbackSoon = null; loadList(false); }, 1000);
 		}
 
 		function recordingRow(rec) {
@@ -474,7 +491,7 @@
 		// a finished recording joins the library; a playback moves the "playing" mark
 		ywebV1Events({
 			'record-stop': () => loadList(false),
-			playback: () => loadList(false)
+			playback: playbackChanged
 		});
 
 		document.addEventListener('DOMContentLoaded', function() {
