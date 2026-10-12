@@ -181,6 +181,9 @@ class CFbAccelGLFB
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
 		fb_pixel_t * getBackBufferPointer() const;
+		int scale2Res(int size);
+		bool fullHdAvailable();
+		void setOsdResolutions();
 };
 
 class CFbAccelARM
