@@ -2,6 +2,7 @@
  * recordings.cpp - recordings, their files, and what is being written
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +23,11 @@
 
 #include "coreapi/base/deps.h"
 #include "coreapi/base/errors.h"
+#include "coreapi/channels.h"
 
+#include <timerdclient/timerdtypes.h>
+
+#include <cstring>
 #include <utility>
 
 #include <sys/stat.h>
@@ -159,6 +164,37 @@ Result<void> stopTimeshift()
 			    "the box is keeping no shift");
 
 	return postEvent(BoxEvent::StopTimeshift);
+}
+
+Result<void> startInstant(bool wake)
+{
+	Result<void> allowed = channels::standbyAllows(wake);
+	if (!allowed.ok())
+		return allowed;
+
+	Result<ChannelInfo> live = channels::current();
+	if (!live.ok())
+		return fail(live.error());
+
+	RecordingList all;
+	Status s = running(all);
+	if (s != Status::Ok)
+		return listUnreadable(s);
+	/* Asked here so a caller learns why nothing happened: the loop starts no
+	   second recording of a channel it is recording already. The shift does not
+	   count: the loop starts the recording beside it, as a file of its own. */
+	for (size_t i = 0; i < all.size(); ++i)
+		if (!all[i].timeshift && all[i].channel_id == live.value().id)
+			return fail(Status::Conflict, ErrorCode::RecordingRunning,
+				    "the channel the box is showing is being recorded already");
+
+	/* No event behind it, which is what tells the loop to record the channel it
+	   is showing rather than a timer's (src/neutrino.cpp, RECORD_START). */
+	CTimerd::RecordingInfo info;
+	memset(&info, 0, sizeof(info));
+	info.eventID = 0;
+	info.channel_id = live.value().id;
+	return postEvent(BoxEvent::StartRecording, &info, sizeof(info));
 }
 
 } // namespace recordings

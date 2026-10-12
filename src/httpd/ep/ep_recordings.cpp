@@ -2,6 +2,7 @@
  * ep_recordings.cpp - routes for recordings
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,9 +62,9 @@ namespace
    they are not the same list: a timer that has not fired is not a recording, and the
    shift the box keeps of what it is showing is a recording nobody made a timer for.
 
-   Every route here is a list or acts on one member of it. There is no route that
-   starts an ordinary recording, because making a timer that fires now is what starts
-   one. */
+   Every route here is a list or acts on one member of it, but one: the record key's
+   recording of whatever the box is showing, which no timer stands behind. A
+   recording of a programme is a timer that fires now, made on the timer routes. */
 
 const char *startedBy(bool from_timer)
 {
@@ -171,6 +172,16 @@ Response stopRecording(const Request &r)
 	return accepted();
 }
 
+/* A recording of what the box is showing, as the record key starts one. 202,
+   because what records is the loop and nothing here waits for it. */
+Response startRecording(const Request &r)
+{
+	coreapi::Result<void> done = coreapi::recordings::startInstant(r.has("wake") && r.asBool("wake"));
+	if (!done.ok())
+		return problemFor(done.error());
+	return accepted();
+}
+
 Response startTimeshift(const Request &)
 {
 	coreapi::Result<void> done = coreapi::recordings::startTimeshift();
@@ -201,6 +212,20 @@ const long kMaxRecordingId = 2147483647L;
 const Param kOneParams[] = {
 	HTTPD_SEGMENT_IN("id", ParamType::UInt, "the recording, decimal, as GET /api/v1/recordings names it", 1,
 		kMaxRecordingId),
+};
+
+const Param kStartRecordingParams[] = {
+	/* Absent reads as no: a recording asked for from outside does not switch
+	   a box on that somebody put into standby, unless the caller says so. */
+	HTTPD_BODY("wake", ParamType::Bool,
+		"whether a box in standby is to be switched on to record"),
+};
+
+const RouteRefusal kStartRecordingRefusals[] = {
+	HTTPD_REFUSES(Conflict, BoxInStandby,
+		"the box is in standby"),
+	HTTPD_REFUSES(Conflict, RecordingRunning,
+		"the channel the box is showing is being recorded already"),
 };
 
 const RouteRefusal kStartTimeshiftRefusals[] = {
@@ -743,6 +768,24 @@ const Endpoint kRecordingEndpoints[] = {
 	  "**Related:** `POST /api/v1/recordings/timeshift`, `DELETE /api/v1/recordings/{id}`.",
 	  NULL, 0, &kRecordingListSchema, &listRecordings, false,
 	  Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Post, "/api/v1/recordings", AuthLevel::Write,
+	  "asks the box to record the channel it is showing",
+	  "Starts a recording of the channel the box is showing, as the record key "
+	  "does, into the box's record directory. `202` means the command reached the "
+	  "loop that writes recordings, not that the recording has begun: watch "
+	  "`GET /api/v1/recordings` for the row. A shift the box keeps of that channel "
+	  "does not count: the recording starts beside it, as a file of its own, and "
+	  "holds nothing of what the shift held before.\n\n"
+	  "**Preconditions:** the box is not in standby, or `wake` is `true`; the "
+	  "channel is not being recorded already.\n\n"
+	  "**Refusals:**\n"
+	  "- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send "
+	  "again with `wake: true` to switch it on and record.\n"
+	  "- `409 recording-running`: the channel the box is showing is being recorded "
+	  "already.\n\n"
+	  "**Related:** `GET /api/v1/recordings`, `DELETE /api/v1/recordings/{id}`.",
+	  HTTPD_PARAMS(kStartRecordingParams), NULL, &startRecording, false,
+	  Answers202, HTTPD_REFUSALS_AND_BODY(kStartRecordingRefusals, "{\"wake\":false}") },
 	/* Written out and therefore answered ahead of the route below it, which
 	   binds anything in that position: which of two matching routes answers is
 	   settled by how many of its segments are written out. */

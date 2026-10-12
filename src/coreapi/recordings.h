@@ -2,6 +2,7 @@
  * recordings.h - recordings, their files, and what is being written
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,6 +70,15 @@ Result<void> stop(uint32_t id);
    the loop's socket and no more. */
 Result<void> startTimeshift();
 Result<void> stopTimeshift();
+
+/* Begins a recording of the channel the box is showing, as the record key does.
+
+   Conflict BoxInStandby while the box is in standby and wake was not given (the
+   loop would switch it on to record), Conflict RecordingRunning when that channel
+   is already being recorded, the shift aside, since the loop would start nothing.
+   Both are read before the command goes out and can be overtaken. Ok says the
+   command reached the loop and no more: watch list() for the row. */
+Result<void> startInstant(bool wake);
 
 } // namespace recordings
 } // namespace coreapi

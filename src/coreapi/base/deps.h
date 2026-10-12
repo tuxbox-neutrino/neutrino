@@ -560,6 +560,10 @@ enum class BoxEvent
 	   are not separated by a thread. */
 	StartTimeshift,
 	StopTimeshift,
+	/* Begin a recording of what the box is showing, the one the record key
+	   starts. Its body is a recording record with no event behind it, which is
+	   how the loop tells this apart from a timer's recording. */
+	StartRecording,
 	// Not an event. The number of them, which is what the registration counts.
 	Count
 };

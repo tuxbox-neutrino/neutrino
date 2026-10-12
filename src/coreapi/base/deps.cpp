@@ -339,6 +339,7 @@ unsigned eventNumber(BoxEvent e)
 		case BoxEvent::ReloadSetup:    return NeutrinoMessages::RELOAD_SETUP;
 		case BoxEvent::StartTimeshift: return NeutrinoMessages::EVT_START_TIMESHIFT;
 		case BoxEvent::StopTimeshift:  return NeutrinoMessages::EVT_STOP_TIMESHIFT;
+		case BoxEvent::StartRecording: return NeutrinoMessages::RECORD_START;
 		case BoxEvent::Count:          break;
 	}
 	return 0;

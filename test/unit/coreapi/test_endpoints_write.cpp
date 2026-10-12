@@ -55,6 +55,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <map>
 #include <memory>
 #include <limits>
@@ -1124,7 +1125,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 52);
+	REQUIRE(changing == 53);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -3957,6 +3958,11 @@ TEST_CASE("the body example a route is documented with is a request that route a
 
 	REQUIRE(sendBodyExample("POST", "/api/v1/zap", none) == 202);
 	REQUIRE(sendBodyExample("POST", "/api/v1/mode", none) == 202);
+	{
+		FakeRecordingSource recordings;
+		InstalledRecordingSource installed_recordings(&recordings);
+		REQUIRE(sendBodyExample("POST", "/api/v1/recordings", none) == 202);
+	}
 	REQUIRE(sendBodyExample("POST", "/api/v1/channels/reload", none) == 202);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/channels", first) == 204);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/hidden", first) == 204);
@@ -4181,6 +4187,55 @@ TEST_CASE("a script route refuses a name that is no script's and one that is not
 	REQUIRE(option.body.find("bad-name") != std::string::npos);
 	REQUIRE(missing.code == 404);
 	REQUIRE(missing.body.find("script-missing") != std::string::npos);
+}
+
+TEST_CASE("a recording of what the box shows goes to its loop, once and not unasked from standby", "[write][recordings]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeRecordingSource recordings;
+	InstalledRecordingSource installed_recordings(&recordings);
+	box.channels.current.id = kChannel;
+
+	const Reply started = authedPost("/api/v1/recordings", "");
+	REQUIRE(started.code == 202);
+	REQUIRE(box.events.sent.size() == 1);
+	REQUIRE(box.events.sent[0].id == (unsigned) NeutrinoMessages::RECORD_START);
+	// The loop tells this apart from a timer's recording by the missing event.
+	CTimerd::RecordingInfo sent;
+	REQUIRE(box.events.sent[0].body.size() == sizeof(sent));
+	std::memcpy(&sent, box.events.sent[0].body.data(), sizeof(sent));
+	REQUIRE(sent.eventID == 0);
+	REQUIRE(sent.channel_id == kChannel);
+
+	// A shift of that channel does not stand in the way: the recording starts beside it.
+	coreapi::RecordingInfo shift;
+	shift.id = 7;
+	shift.channel_id = kChannel;
+	shift.timeshift = true;
+	recordings.recordings.push_back(shift);
+	REQUIRE(authedPost("/api/v1/recordings", "{}").code == 202);
+
+	// A recording of it does, and nothing is sent.
+	coreapi::RecordingInfo rec;
+	rec.id = 8;
+	rec.channel_id = kChannel;
+	recordings.recordings.push_back(rec);
+	const size_t before = box.events.sent.size();
+	const Reply twice = authedPost("/api/v1/recordings", "");
+	REQUIRE(twice.code == 409);
+	REQUIRE(twice.body.find("recording-running") != std::string::npos);
+	REQUIRE(box.events.sent.size() == before);
+
+	// In standby only with leave to switch the box on.
+	recordings.recordings.clear();
+	box.channels.mode = NeutrinoModes::mode_standby;
+	const Reply asleep = authedPost("/api/v1/recordings", "{\"wake\":false}");
+	REQUIRE(asleep.code == 409);
+	REQUIRE(asleep.body.find("box-in-standby") != std::string::npos);
+	REQUIRE(box.events.sent.size() == before);
+	REQUIRE(authedPost("/api/v1/recordings", "{\"wake\":true}").code == 202);
+	REQUIRE(box.events.sent.size() == before + 1);
 }
 
 TEST_CASE("the recording routes refuse a recording that is not there and a second shift", "[write][refusals]")
