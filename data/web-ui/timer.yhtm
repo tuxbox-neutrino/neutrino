@@ -1015,7 +1015,7 @@
 					<div class="yweb-form-section-title">Aufnahme-Optionen</div>
 					<div class="yweb-form-row">
 						<label for="tmRecDir">{=L:yw.fm.folder=}</label>
-						<select id="tmRecDir" data-fixed>
+						<select id="tmRecDir" data-fixed onchange="onRecDirChange(this)">
 							<option value="">Standard</option>
 						</select>
 					</div>
@@ -1158,23 +1158,74 @@
 			}
 		}
 
-		// The recording folders. /api/v1 lists none, so this one read stays
-		// on the old call.
+		// The folders a recording can go to, from GET /api/v1/recordings/folders:
+		// the box's roots and what lies below them, those on a disc that is not
+		// attached left out. A list the box cut short says so, and any other
+		// folder can be typed in.
+		const REC_DIR_OTHER = ':other';	// never a path: those start with /
+		let cachedRecPartial = false;
 		async function loadRecordDirs() {
 			const sel = document.getElementById('tmRecDir');
 			if (!sel) return;
 			try {
 				if (!cachedRecDirs) {
-					const data = await ywebApi('getdir', {dir: 'allmoviedirs', subdirs: 'true'});
-					const root = data.data || data;
-					cachedRecDirs = (root.dirs || []).map(item => item.dir).filter(Boolean);
+					const data = await ywebV1('GET', '/recordings/folders');
+					cachedRecDirs = ((data && data.items) || []).filter(f => f.present).map(f => f.path);
+					cachedRecPartial = !!(data && data.partial);
 				}
-				options(sel, [ywebEl('option', {value: ''}, 'Standard')]
-					.concat(cachedRecDirs.map(dir => ywebEl('option', {value: dir}, dir))));
-				if (sel.dataset.want) sel.value = sel.dataset.want;
+				const items = [ywebEl('option', {value: ''}, 'Standard')]
+					.concat(cachedRecDirs.map(dir => ywebEl('option', {value: dir}, dir)));
+				if (cachedRecPartial)
+					items.push(ywebEl('option', {value: '', disabled: true}, '\u2026 {=L:yw.tm.dir_cut=}'));
+				items.push(ywebEl('option', {value: REC_DIR_OTHER}, '{=L:yw.tm.dir_other=}'));
+				options(sel, items);
+				if (sel.dataset.want) offerDir(sel, sel.dataset.want);
 			} catch (e) {
 				// keep the default option
 			}
+			sel.dataset.last = sel.value;
+		}
+
+		// "Other folder": asks for a path on the box and offers it in the list
+		function onRecDirChange(sel) {
+			if (sel.value !== REC_DIR_OTHER) {
+				sel.dataset.last = sel.value;
+				return;
+			}
+			const input = ywebEl('input', {type: 'text', value: sel.dataset.last || '/', attrs: {'aria-label': '{=L:yw.tm.dir_ask=}'}});
+			const back = function() { sel.value = sel.dataset.last || ''; };
+			ywebSheet({
+				title: '{=L:yw.tm.dir_ask=}',
+				body: ywebEl('div', {}, input),
+				actions: [
+					{label: '{=L:yw.msg.cancel=}', value: false},
+					{label: 'OK', primary: true, onClick: function() {
+						const dir = input.value.trim();
+						if (dir.charAt(0) !== '/' || dir.indexOf('/../') >= 0 || /\/\.\.$/.test(dir)) {
+							ywebShowToast('{=L:yw.tm.dir_bad=}', true);
+							return false;
+						}
+						offerDir(sel, dir);
+						sel.dataset.last = sel.value;
+					}}
+				],
+				onClose: function() { if (sel.value === REC_DIR_OTHER) back(); }
+			});
+			input.focus();
+		}
+
+		// Selects a timer's own folder, adding it when the list does not hold it
+		// (a disc not attached now), so the form shows where the timer records
+		function offerDir(sel, dir) {
+			const bare = d => d.replace(/\/+$/, '');
+			const listed = Array.from(sel.options).find(o => o.value && bare(o.value) === bare(dir));
+			if (listed) {
+				sel.value = listed.value;
+				return;
+			}
+			const other = Array.from(sel.options).find(o => o.value === REC_DIR_OTHER);
+			sel.insertBefore(ywebEl('option', {value: dir}, dir), other || null);
+			sel.value = dir;
 		}
 
 		function secondsOf(dateValue, timeValue) {
@@ -1230,7 +1281,7 @@
 				if (needsChannel) body.channel_id = channelId;
 				if (type === '5') {
 					const recDir = document.getElementById('tmRecDir').value;
-					if (recDir) body.recording_dir = recDir;
+					if (recDir.charAt(0) === '/') body.recording_dir = recDir;
 					body.recording_safety = document.getElementById('tmRecSafety').checked;
 					body.auto_adjust = document.getElementById('tmAutoAdjust').checked;
 				} else if (type === '4') {
@@ -1306,7 +1357,7 @@
 				// the folders may be listed already, or arrive later
 				const dirSel = document.getElementById('tmRecDir');
 				dirSel.dataset.want = timer.recording_dir;
-				dirSel.value = timer.recording_dir;
+				offerDir(dirSel, timer.recording_dir);
 			}
 			if (timer.kind === 'remind') document.getElementById('tmMessage').value = timer.title || '';
 			if (timer.kind === 'exec-plugin') document.getElementById('tmPlugin').value = timer.title || '';
