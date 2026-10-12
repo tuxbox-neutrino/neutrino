@@ -118,6 +118,7 @@ install_DATA = \
 	Y_Version.txt \
 	Y_Wait.yhtm \
 	Y_yWeb.js \
+	yweb-dom.js \
 	yweb-header.js \
 	yweb-v1.js
 
