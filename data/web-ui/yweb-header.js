@@ -750,19 +750,31 @@ async function ywebApi(endpoint, params, opts) {
 	return data;
 }
 
+// A key of the remote control. Over /api/v1 where the page loads yweb-v1.js
+// (session, CSRF token), else over the old interface, which extensions and
+// older pages still use.
 async function ywebSendKey(key) {
+	var v1 = typeof ywebV1 === 'function';
+	var send = v1
+		? function() { return ywebV1('POST', '/osd/remote/key', {body: {name: key}}); }
+		: function() { return ywebApi('rcem', key, {raw: true}); };
 	if (key === 'KEY_POWER') {
 		try {
-			var st = await ywebApi('standby', {status: ''});
-			if (st && st.standby === false) {
+			var awake = v1
+				? (await ywebV1('GET', '/system/standby')).on === false
+				: (await ywebApi('standby', {status: ''})).standby === false;
+			if (awake) {
 				// Rueckfrage als yweb-Dialog statt nativem confirm()
 				ywebShowConfirm('Standby', ywebL('sb.confirm', 'Put the box into standby?'), 'Standby',
-					function() { return ywebApi('rcem', key, {raw: true}); }, {variant: 'ok'});
+					send, {variant: 'ok'});
 				return;
 			}
-		} catch (e) { /* ignore */ }
+		} catch (e) {
+			// a sign-in that was cancelled is not a yes to the key
+			if (v1 && e.status === 403) return;
+		}
 	}
-	return ywebApi('rcem', key, {raw: true});
+	return send();
 }
 
 // ═══ Remote Control Component ═══
@@ -1554,9 +1566,14 @@ async function ywebSendMessage(mode) {
 
 	var result = document.getElementById('yweb-msg-result');
 	try {
-		var params = {};
-		params[mode] = text;
-		await ywebApi('message', params);
+		if (typeof ywebV1 === 'function') {
+			// nmsg: a hint that goes by itself; popup: a box that waits
+			await ywebV1('POST', '/osd/message', {body: {text: text, kind: mode === 'popup' ? 'box' : 'hint'}});
+		} else {
+			var params = {};
+			params[mode] = text;
+			await ywebApi('message', params);
+		}
 		result.textContent = 'Gesendet';
 		result.style.color = 'var(--yweb-success)';
 		input.value = '';

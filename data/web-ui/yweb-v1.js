@@ -5,6 +5,7 @@
 //   ywebV1('GET', '/channels', {query: {mode: 'tv'}})     -> parsed JSON
 //   ywebV1('PUT', '/bouquets/' + encodeURIComponent(n) + '/hidden',
 //          {body: {on: true}})                            -> null (204)
+//   ywebV1Blob('/osd/screenshot', {format: 'png'})        -> Blob
 //
 // A refusal throws an Error with the box's reason as its message, the HTTP
 // status in .status and the code of the refusal in .code (answers come as
@@ -106,6 +107,20 @@ async function ywebV1(method, path, opts) {
 	if (resp.status === 202 || resp.status === 204) return null;
 	var type = resp.headers.get('Content-Type') || '';
 	return type.indexOf('json') >= 0 ? resp.json() : resp.text();
+}
+
+// A picture (or any other file) as a Blob, for a screenshot: the same
+// sign-in on 403 as ywebV1, and a refusal throws the same Error.
+// opts.quiet leaves the sign-in out and throws on a 403 (a probe at load).
+async function ywebV1Blob(path, query, opts) {
+	opts = opts || {};
+	var url = _ywebV1Url(path, query);
+	var get = function() { return fetch(url, {credentials: 'same-origin', cache: 'no-store'}); };
+	var resp = await get();
+	if (resp.status === 403 && !opts.quiet && (await ywebV1Session() || await ywebV1SignIn()))
+		resp = await get();
+	if (!resp.ok) throw await _ywebV1Error(resp, 'GET', path);
+	return resp.blob();
 }
 
 // Every page of a paged list (items + next_cursor), as one array.

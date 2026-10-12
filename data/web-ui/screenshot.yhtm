@@ -369,9 +369,14 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=26"></script>
-	<script src="/yweb-header.js?v=56"></script>
+	<script src="/yweb-header.js?v=57"></script>
+	<script src="/yweb-dom.js?v=1"></script>
+	<script src="/yweb-v1.js?v=11"></script>
 	<script>
 		let reloadInterval = null;
+		let shotUrl = null;		// object URL of the picture shown, freed when replaced
+		let shotBusy = false;		// one capture at a time: the box refuses a second one
+		let displayProbe = null;	// 'shown', 'none', or 'signin' while a sign-in is missing
 
 		// Inject shared remote template; registering via the host keeps
 		// this instance replaceable by a late-loaded skin renderer
@@ -415,6 +420,31 @@
 			return true;
 		}
 
+		// The picture comes straight from GET /api/v1/osd/screenshot: nothing
+		// is written to the box, so there is nothing to clean up after
+		function showPicture(blob) {
+			const img = document.getElementById('screenshot');
+			if (shotUrl) URL.revokeObjectURL(shotUrl);
+			shotUrl = URL.createObjectURL(blob);
+			img.src = shotUrl;
+			img.style.display = 'block';
+			document.getElementById('placeholder').style.display = 'none';
+		}
+
+		async function capture(path, query) {
+			if (shotBusy) return false;	// the running one answers
+			shotBusy = true;
+			try {
+				showPicture(await ywebV1Blob(path, Object.assign({at: Date.now()}, query || {})));
+			} finally {
+				shotBusy = false;
+			}
+			// the probe at load went unanswered for want of a sign-in, which
+			// this capture has just had
+			if (displayProbe === 'signin') probeDisplay();
+			return true;
+		}
+
 		async function doSnapshot() {
 			if (!checkEnable()) return;
 
@@ -424,63 +454,55 @@
 			const placeholder = document.getElementById('placeholder');
 			const loading = document.getElementById('loading');
 			const img = document.getElementById('screenshot');
+			const had = img.style.display === 'block';
 
-			placeholder.style.display = 'none';
-			img.style.display = 'none';
-			loading.style.display = 'flex';
-
-			const osd = document.getElementById('checkOSD').checked ? 1 : 0;
-			const video = document.getElementById('checkVideo').checked ? 1 : 0;
+			if (!had) placeholder.style.display = 'none';
+			loading.style.display = had ? 'none' : 'flex';
 
 			try {
-				await ywebApi('screenshot', {name: 'screenshot', osd: osd, video: video});
-				await new Promise(resolve => setTimeout(resolve, 500));
-				loading.style.display = 'none';
-				img.src = '/tmp/screenshot.png?' + Math.random();
-				img.style.display = 'block';
+				await capture('/osd/screenshot', {
+					osd: document.getElementById('checkOSD').checked,
+					video: document.getElementById('checkVideo').checked,
+					format: 'png'
+				});
 			} catch (e) {
-				console.error('Screenshot failed:', e);
-				loading.style.display = 'none';
-				placeholder.style.display = 'flex';
+				// another capture still running keeps the picture there is
+				if (e.status !== 409)
+					ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				if (!had) placeholder.style.display = 'flex';
 			}
+			loading.style.display = 'none';
 		}
 
-		// GLCD nur anbieten, wenn der Endpoint im Build existiert
-		// (HEAD-Registrierungscheck: 404 = ohne GraphLCD gebaut)
-		(async function() {
+		// The front display only where the box can read it: 501 says it cannot
+		async function probeDisplay() {
 			try {
-				var r = await fetch('/api/v4/glcdscreenshot', {method: 'HEAD'});
-				if (r.ok) document.getElementById('btnGlcd').style.display = '';
-			} catch (e) {}
-		})();
+				await ywebV1Blob('/osd/display/screenshot', {at: Date.now()}, {quiet: true});
+				document.getElementById('btnGlcd').style.display = '';
+				displayProbe = 'shown';
+			} catch (e) {
+				displayProbe = e.status === 403 ? 'signin' : 'none';
+			}
+		}
+		probeDisplay();
 
 		async function doGlcdSnapshot(btn) {
 			btn.disabled = true;
 			try {
-				await ywebApi('glcdscreenshot', {name: 'glcdshot'});
-				var img = document.getElementById('screenshot');
-				img.src = '/tmp/glcdshot.png?' + Math.random();
-				img.style.display = 'block';
-				document.getElementById('placeholder').style.display = 'none';
+				await capture('/osd/display/screenshot');
 			} catch (e) {
 				ywebShowToast('{=L:yw.shot.glcdfail=}: ' + e.message, true);
 			}
 			btn.disabled = false;
 		}
 
-		async function doClear() {
+		function doClear() {
 			const img = document.getElementById('screenshot');
-			const placeholder = document.getElementById('placeholder');
-
 			img.style.display = 'none';
-			img.src = '';
-			placeholder.style.display = 'flex';
-
-			try {
-				await ywebApi('cmd', 'rm -f /tmp/*.png', {raw: true});
-			} catch (e) {
-				console.error('Clear failed:', e);
-			}
+			img.removeAttribute('src');
+			if (shotUrl) URL.revokeObjectURL(shotUrl);
+			shotUrl = null;
+			document.getElementById('placeholder').style.display = 'flex';
 		}
 
 		// Reload toggle

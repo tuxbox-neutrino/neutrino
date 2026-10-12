@@ -243,9 +243,9 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=26"></script>
-	<script src="/yweb-header.js?v=56"></script>
+	<script src="/yweb-header.js?v=57"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=10"></script>
+	<script src="/yweb-v1.js?v=11"></script>
 	<script>
 		// The finished recordings over /api/v1/recordings/archive: a page at a
 		// time, by source, title words and order; details, play on the TV,
