@@ -2,6 +2,7 @@
  * ep_webserver.cpp - routes for the webserver own configuration
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -237,11 +238,12 @@ const Schema kWebserverSchema = { "webserver", HTTPD_FIELDS(kWebserverFields) };
 Response webserverRead(const Request &)
 {
 	const WebConfig &c = config();
+	const Login l = loginInEffect();
 
 	Response out = okJson();
 	Json j(out.body, 512);
-	writeWebserver(j, answeringPort(), c.server.bind_address, c.username,
-	               !c.password_hash.empty(), c.channel_logos);
+	writeWebserver(j, answeringPort(), c.server.bind_address, l.username,
+	               !l.password_hash.empty(), c.channel_logos);
 	return out;
 }
 
@@ -376,6 +378,12 @@ Response webserverWrite(const Request &r)
 				       "this server was never told which file its configuration is kept in, so there is none to write");
 	}
 
+	/* From reading what is in effect to the save, shared with a change to the
+	   account at the box and with load, so the two writers of this file cannot
+	   interleave. Held to the end of the answer and released before the restart,
+	   which runs once these bytes are gone and takes the lock for its read. */
+	AccountLock account;
+
 	const WebSettings before = currentWebSettings();
 	WebSettings s = before;
 
@@ -433,7 +441,12 @@ Response webserverWrite(const Request &r)
 				       whatWentWrong());
 	}
 
-	const bool port_moved = s.port != before.port;
+	/* Measured against the server as it runs and not against `before`, which is
+	   where a save waiting for its restart left the file: the caller is told what
+	   the coming restart does to it, that earlier save's part included. */
+	const WebSettings effective = settingsInEffect();
+	const bool port_moved = s.port != effective.port;
+	const bool password_changed = s.change_password || newPasswordAwaitsLoad();
 	/* The logo switch is in here with the four that decide where the server answers,
 	   although nothing about it needs a socket rebound, and the reason is the one
 	   arrangement this file rests on: what is in effect is read without a lock and is
@@ -441,10 +454,11 @@ Response webserverWrite(const Request &r)
 	   put in effect would leave the file saying one thing and the server answering
 	   another until the next start. */
 	const bool moved = port_moved
-		|| s.bind_address != before.bind_address
-		|| s.username != before.username
-		|| s.change_password
-		|| s.channel_logos != before.channel_logos;
+		|| s.bind_address != effective.bind_address
+		|| s.username != effective.username
+		|| password_changed
+		|| s.channel_logos != effective.channel_logos;
+	const bool restarting = moved || restartAwaitsLoad();
 
 	Response out = okJson();
 	Json j(out.body, 640);
@@ -456,7 +470,7 @@ Response webserverWrite(const Request &r)
 	   write is read from what is in effect, which is what the file says too,
 	   every line a save does not own reaching the new file as it stood. */
 	writeWebserver(j, s.port, s.bind_address, s.username,
-		       s.change_password || !config().password_hash.empty(),
+		       s.change_password || !loginInEffect().password_hash.empty(),
 		       s.channel_logos);
 	j.key("caller");
 	j.beginObject();
@@ -465,15 +479,18 @@ Response webserverWrite(const Request &r)
 	j.key("port_moved");
 	j.value(port_moved);
 	j.key("password_changed");
-	j.value(s.change_password);
+	j.value(password_changed);
 	j.key("restarting");
-	j.value(moved);
+	j.value(restarting);
 	j.endObject();
 	j.endObject();
 
-	// The last line of the handler, and the only one that arms anything.
+	// The last lines of the handler, and the only ones that arm anything.
 	if (moved)
+	{
 		out.reload_after = path;
+		armRestart();
+	}
 	return out;
 }
 

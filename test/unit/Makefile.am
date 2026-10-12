@@ -104,6 +104,7 @@ coreapi_tests_SOURCES = \
 	httpd/test_byterange.cpp \
 	httpd/test_credentials.cpp \
 	httpd/test_legacy_usage.cpp \
+	httpd/test_login_bridge.cpp \
 	httpd/test_netmatch.cpp \
 	httpd/test_webconfig.cpp \
 	nhttpd/yhttpd_stubs.cpp \

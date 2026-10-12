@@ -277,6 +277,43 @@ const std::string &configPath();
    that reads one without a file to read. Nothing in the product calls it. */
 void setConfigForTest(const WebConfig &c);
 
+/* The account every login checks against: the name and the stored form of its
+   password.
+
+   Apart from config() because it changes under a running server. The screen at the
+   box, the old pages and the settings page change it without restarting anything
+   (login_bridge.h), and config() may only be replaced while the daemon is stopped.
+   So this is a copy under a lock: installed together with everything else by load
+   and setConfigForTest, and on its own by publishLogin once a save wrote a new one.
+   Every reader of the account reads it here and not out of config(). */
+struct Login
+{
+	std::string username;
+	std::string password_hash;
+};
+
+Login loginInEffect();
+void publishLogin(const Login &l);
+
+/* Held by load for the whole of a read, by a change to the account at the box
+   (login_bridge::change) from reading what is in effect to publishing what it
+   wrote, and by the REST route that writes the same file (PUT
+   /api/v1/system/webserver) from its reading to its answer. A change runs on a
+   thread that is not stopped while load replaces what is in effect, so without
+   this they could interleave: a change reading a configuration being replaced,
+   publishing an account older than the file a reload just installed, or two
+   saves each rewriting the file the other one read. */
+class AccountLock
+{
+public:
+	AccountLock();
+	~AccountLock();
+
+private:
+	AccountLock(const AccountLock &);
+	AccountLock &operator=(const AccountLock &);
+};
+
 /* What the last load or migration dropped, one line each, and also written to the
    standard error as it happens.
 
@@ -341,12 +378,34 @@ struct WebSettings
 	   may tell it anything, which is why it is the one a caller can move without
 	   being locked out by getting it wrong. */
 	bool        channel_logos;
+
+	/* Whether the save rewrites the name and the password and nothing else, which
+	   is what a change to the account from the box or the old pages is. The port,
+	   the address and the logo switch are then left in the file as they stand, so
+	   such a change made while a REST save waits for its restart cannot write the
+	   values in effect back over the ones that save just wrote. */
+	bool        account_only = false;
 };
 
 // The above as they stand in what is in effect, which is what a screen opens on.
 // The screen at the box offers four of them; the logo switch is a line the route
-// writes and that screen leaves where it found it.
+// writes and that screen leaves where it found it. Between a save into the file the
+// server reads and the load that puts it in effect, what that save wrote: a writer
+// in that window starts from it and does not write back what it replaced.
 WebSettings currentWebSettings();
+
+/* What is in effect, whatever a save since wrote: what the consequences of a
+   change are measured against, a caller asking what a restart will do to it. */
+WebSettings settingsInEffect();
+
+/* What saves into the file the server reads still wait for the load that puts
+   them in effect: whether one of them carried a new password, and whether a
+   restart that reads the file was armed for them (armRestart, called by the route
+   that arms one). Both clear when a load reads the file back; the second also
+   when an armed restart ran and its read failed, the saves still waiting. */
+bool newPasswordAwaitsLoad();
+bool restartAwaitsLoad();
+void armRestart();
 
 /* Writes the values above into path and leaves every other line of it where it
    stands, comments included. A rewrite of the lines this owns and not a file
@@ -379,7 +438,8 @@ WebSettings currentWebSettings();
 
    A box with no file at that name gets one, with the same head the migration
    writes. */
-bool saveWebSettings(const std::string &path, const WebSettings &s);
+bool saveWebSettings(const std::string &path, const WebSettings &s,
+                     std::string *stored_hash = NULL);
 
 /* Reads path again and puts the running server on what it now says.
 

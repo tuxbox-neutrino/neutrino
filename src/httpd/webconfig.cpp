@@ -33,6 +33,9 @@
 
 #include <openssl/crypto.h>
 
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
+
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
@@ -1493,9 +1496,93 @@ const WebConfig &config()
 	return held();
 }
 
+namespace
+{
+
+// Built on first use, for the reason held() is.
+Login &heldLogin()
+{
+	static Login l;
+	return l;
+}
+
+OpenThreads::Mutex &loginLock()
+{
+	static OpenThreads::Mutex m;
+	return m;
+}
+
+OpenThreads::Mutex &accountLock()
+{
+	static OpenThreads::Mutex m;
+	return m;
+}
+
+/* What the last save wrote into the file the server reads, from that save until a
+   load reads the file back. A REST save is put in effect by a restart that runs
+   once its answer is gone; a writer in between that started from what is in effect
+   would write the values that save replaced back over it. Held under loginLock. */
+struct Pending
+{
+	bool        held;
+	WebSettings s;
+	bool        new_password;
+	bool        restart_due;
+
+	Pending() : held(false), new_password(false), restart_due(false) {}
+};
+
+Pending &pending()
+{
+	static Pending p;
+	return p;
+}
+
+void forgetPending()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	pending() = Pending();
+}
+
+// A restart ran, whether or not its read went through: none is due any more.
+void restartRan()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	pending().restart_due = false;
+}
+
+} // namespace
+
+AccountLock::AccountLock()
+{
+	accountLock().lock();
+}
+
+AccountLock::~AccountLock()
+{
+	accountLock().unlock();
+}
+
+Login loginInEffect()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return heldLogin();
+}
+
+void publishLogin(const Login &l)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	heldLogin() = l;
+}
+
 void setConfigForTest(const WebConfig &c)
 {
+	forgetPending();
 	held() = c;
+	Login l;
+	l.username = c.username;
+	l.password_hash = c.password_hash;
+	publishLogin(l);
 }
 
 const std::vector<std::string> &configProblems()
@@ -1510,6 +1597,7 @@ const std::string &configPath()
 
 bool load(const std::string &path)
 {
+	AccountLock account;
 	problemList().clear();
 
 	/* Before the file is looked at, and kept whatever the look comes to. What
@@ -1723,17 +1811,51 @@ bool load(const std::string &path)
 	readApiTokens(m, cut);
 
 	held() = c;
+	forgetPending();
+	Login l;
+	l.username = c.username;
+	l.password_hash = c.password_hash;
+	publishLogin(l);
 	return true;
 }
 
 WebSettings currentWebSettings()
+{
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+		if (pending().held)
+			return pending().s;
+	}
+	return settingsInEffect();
+}
+
+bool newPasswordAwaitsLoad()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return pending().held && pending().new_password;
+}
+
+bool restartAwaitsLoad()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return pending().held && pending().restart_due;
+}
+
+void armRestart()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	if (pending().held)
+		pending().restart_due = true;
+}
+
+WebSettings settingsInEffect()
 {
 	const WebConfig &c = config();
 
 	WebSettings s;
 	s.port = c.server.port;
 	s.bind_address = c.server.bind_address;
-	s.username = c.username;
+	s.username = loginInEffect().username;
 	// Nothing to show: what is held is a stored form, and the switch beside it
 	// is what makes an untouched field mean the stored form stays.
 	s.password.clear();
@@ -1742,9 +1864,11 @@ WebSettings currentWebSettings()
 	return s;
 }
 
-bool saveWebSettings(const std::string &path, const WebSettings &s)
+bool saveWebSettings(const std::string &path, const WebSettings &s, std::string *stored_hash)
 {
 	problemList().clear();
+	if (stored_hash != NULL)
+		stored_hash->clear();
 
 	/* Every value is judged before the file is opened, so a value that cannot
 	   be used leaves the file as it was rather than half of it rewritten. The
@@ -1790,6 +1914,8 @@ bool saveWebSettings(const std::string &path, const WebSettings &s)
 				 "written");
 			return false;
 		}
+		if (stored_hash != NULL)
+			*stored_hash = hash;
 	}
 
 	std::vector<OwnedLine> owned;
@@ -1797,13 +1923,16 @@ bool saveWebSettings(const std::string &path, const WebSettings &s)
 		OwnedLine one;
 		one.written = false;
 
-		one.key = kKeyPort;
-		one.value = decimal(static_cast<unsigned long>(s.port));
-		owned.push_back(one);
+		if (!s.account_only)
+		{
+			one.key = kKeyPort;
+			one.value = decimal(static_cast<unsigned long>(s.port));
+			owned.push_back(one);
 
-		one.key = kKeyBind;
-		one.value = s.bind_address;
-		owned.push_back(one);
+			one.key = kKeyBind;
+			one.value = s.bind_address;
+			owned.push_back(one);
+		}
 
 		one.key = kKeyUser;
 		one.value = s.username;
@@ -1813,9 +1942,12 @@ bool saveWebSettings(const std::string &path, const WebSettings &s)
 		   switch this file already had is written wherever a person sets it,
 		   and a file where one switch reads true and the next reads 1 is a file
 		   somebody has to look up the reader for. Both are read back. */
-		one.key = kKeyLogos;
-		one.value = s.channel_logos ? "true" : "false";
-		owned.push_back(one);
+		if (!s.account_only)
+		{
+			one.key = kKeyLogos;
+			one.value = s.channel_logos ? "true" : "false";
+			owned.push_back(one);
+		}
 
 		/* The stored form is a line this save owns only when a new password was
 		   typed. Left out of the list otherwise, whatever the file holds under
@@ -1900,7 +2032,33 @@ bool saveWebSettings(const std::string &path, const WebSettings &s)
 			appendPair(out, owned[i].key, owned[i].value);
 	}
 
-	return replaceFile(path, out);
+	const bool replaced = replaceFile(path, out);
+
+	/* Written into the file the server reads: what it now says is where the next
+	   writer starts until a load reads it back. An account-only save is in effect
+	   when it returns (login_bridge publishes it), so it leaves nothing waiting and
+	   only carries its name into a save that already waits. */
+	if (replaced && path == heldPath())
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+		if (s.account_only)
+		{
+			if (pending().held)
+				pending().s.username = s.username;
+		}
+		else
+		{
+			Pending p;
+			p.held = true;
+			p.s = s;
+			p.s.password.clear();
+			p.s.change_password = false;
+			p.new_password = s.change_password || (pending().held && pending().new_password);
+			p.restart_due = pending().held && pending().restart_due;
+			pending() = p;
+		}
+	}
+	return replaced;
 }
 
 bool reloadAndRestart(const std::string &path)
@@ -1921,6 +2079,9 @@ bool reloadAndRestart(const std::string &path)
 		complain("the server did not come back up, so this box answers nothing over the network until "
 			 "the port and the address it was given are ones it can bind");
 
+	/* A read that failed leaves the saves it was for waiting, and a writer still
+	   starts from them; the restart that was armed for them has run all the same. */
+	restartRan();
 	return read && up;
 }
 

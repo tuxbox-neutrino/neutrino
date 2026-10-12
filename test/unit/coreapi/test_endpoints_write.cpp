@@ -3128,6 +3128,37 @@ TEST_CASE("moving the port says where the box will be, and moves it afterwards",
 	REQUIRE(config().server.port == 8081);
 }
 
+TEST_CASE("a second write before the restart still says what the restart will do", "[write]")
+{
+	/* The first write waits for a restart that runs once its answer is gone. A
+	   caller writing again in that window is answered about the server as it
+	   runs, and the first write's part of the coming restart is part of that. */
+	ShippedRoutes shipped;
+	WebFile file("second", kWebFileHead);
+
+	const Response first = putWebserver("{\"port\":8099,\"password\":\"another-one\"}");
+	REQUIRE(first.code == 200);
+	REQUIRE(first.reload_after == file.path);
+
+	const Response second = putWebserver("{\"port\":8099}");
+	REQUIRE(second.code == 200);
+	const ::Json::Value root = parsed(second.body);
+	REQUIRE(root["caller"]["port_moved"].asBool());
+	REQUIRE(root["caller"]["password_changed"].asBool());
+	REQUIRE(root["caller"]["restarting"].asBool());
+
+	// A write naming only the logo switch starts from what the first one wrote.
+	const Response third = putWebserver("{\"channel_logos\":true}");
+	REQUIRE(third.code == 200);
+	const ::Json::Value after = parsed(third.body);
+	REQUIRE(after["webserver"]["port"].asInt() == 8099);
+	REQUIRE(after["caller"]["restarting"].asBool());
+	REQUIRE(wholeOf(file.path).find("port=8099") != std::string::npos);
+
+	// Nothing of it is in effect before the restart reads the file.
+	REQUIRE(config().server.port == 8081);
+}
+
 TEST_CASE("narrowing what the server listens on is said before it happens", "[write]")
 {
 	/* The second way out. A caller that is not on the loopback will not reach

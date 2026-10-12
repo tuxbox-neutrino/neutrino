@@ -73,6 +73,13 @@ struct Credentials
 const char *sessionCookieName();
 const char *csrfHeaderName();
 
+/* One cookie out of a Cookie header, spelled the way a browser writes several:
+   name=value pairs with semicolons between them and space after each. The first
+   match answers, and nothing is decoded: the session token is minted without a
+   byte a cookie may not carry. Here because two transports read the session out
+   of the same header, the bridge and the old server's own gate. */
+std::string cookieValue(const std::string &header, const char *name);
+
 /* The name a token travels under in a query, stated here for the same reason the two
    above are: the transport reads it off the request, the router drops it before it
    compares what a route declares, and the document names it as a scheme. Three readers
@@ -100,8 +107,8 @@ std::string bearerToken(const std::string &authorization);
    decoded from the base64 that follows it, and empty for anything that is not that
    scheme or whose payload will not decode. What is answered here is not itself a
    credential this file confirms: it is the pair a caller offered, and the one place
-   that reads it, httpd::compat::legacyAllows, is where it is checked against the
-   box's own account. */
+   that reads it, the legacy server's gate through login_bridge.h, is where it is
+   checked against the box's own account. */
 std::string basicCredential(const std::string &authorization);
 
 /* Which address this request is judged to have come from.

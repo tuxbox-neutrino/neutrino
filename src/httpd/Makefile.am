@@ -65,6 +65,7 @@ libhttpd_a_SOURCES = \
 	credentials.cpp \
 	http.cpp \
 	json.cpp \
+	login_bridge.cpp \
 	netmatch.cpp \
 	nhttpd_bridge.cpp \
 	doc/openapi.cpp \
@@ -90,6 +91,7 @@ noinst_HEADERS = \
 	randomsource.h \
 	http.h \
 	json.h \
+	login_bridge.h \
 	netmatch.h \
 	nhttpd_bridge.h \
 	doc/openapi.h \

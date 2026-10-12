@@ -52,29 +52,6 @@ httpd::Method methodOf(THttp_Method m)
 	}
 }
 
-/* One cookie out of the header, spelled the way a browser writes several:
-   name=value pairs with semicolons between them and space after each. The
-   first match answers. Nothing is decoded: the session token is minted
-   without a byte a cookie may not carry. */
-std::string cookieValue(const std::string &header, const char *name)
-{
-	const size_t nlen = strlen(name);
-	size_t at = 0;
-	while (at < header.size())
-	{
-		while (at < header.size() && (header[at] == ' ' || header[at] == ';'))
-			at++;
-		const size_t stop_at = header.find(';', at);
-		const size_t stop = (stop_at == std::string::npos) ? header.size() : stop_at;
-		const size_t eq = header.find('=', at);
-		if (eq != std::string::npos && eq < stop && eq - at == nlen &&
-		    header.compare(at, nlen, name) == 0)
-			return header.substr(eq + 1, stop - eq - 1);
-		at = stop + 1;
-	}
-	return std::string();
-}
-
 /* One value out of the raw query, decoded the way nhttpd decodes its own
    parameter list. Read here rather than off hh->ParamList so the bridge
    holds one reading of the request it was handed, target and all. */
@@ -106,7 +83,7 @@ httpd::Credentials credentialsOf(CyhookHandler *hh, const std::string &query)
 
 	const std::string cookies = header_value(hh->HeaderList, "Cookie");
 	if (!cookies.empty())
-		c.cookie_token = cookieValue(cookies, httpd::sessionCookieName());
+		c.cookie_token = httpd::cookieValue(cookies, httpd::sessionCookieName());
 
 	const std::string authz = header_value(hh->HeaderList, "Authorization");
 	if (!authz.empty())

@@ -30,6 +30,7 @@
 
 #include <openssl/crypto.h>
 
+#include <cstring>
 #include <limits>
 #include <map>
 #include <string>
@@ -728,6 +729,25 @@ std::string clientAddress(const Credentials &c)
 
 	const std::string forwarded = lastForwarded(c.forwarded_for);
 	return forwarded.empty() ? c.peer : forwarded;
+}
+
+std::string cookieValue(const std::string &header, const char *name)
+{
+	const size_t nlen = strlen(name);
+	size_t at = 0;
+	while (at < header.size())
+	{
+		while (at < header.size() && (header[at] == ' ' || header[at] == ';'))
+			at++;
+		const size_t stop_at = header.find(';', at);
+		const size_t stop = (stop_at == std::string::npos) ? header.size() : stop_at;
+		const size_t eq = header.find('=', at);
+		if (eq != std::string::npos && eq < stop && eq - at == nlen &&
+		    header.compare(at, nlen, name) == 0)
+			return header.substr(eq + 1, stop - eq - 1);
+		at = stop + 1;
+	}
+	return std::string();
 }
 
 AuthLevel sessionLevel(const std::string &token)

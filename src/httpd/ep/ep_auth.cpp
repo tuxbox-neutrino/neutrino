@@ -215,7 +215,7 @@ Response login(const Request &r)
 		return tooManyAttempts(retry_after);
 	AttemptHeld held(r.peer());
 
-	const WebConfig &cfg = config();
+	const Login cfg = loginInEffect();
 
 	/* Both halves are asked and neither settles the answer on its own, so the work of
 	   answering is the same whichever is wrong. Returning before the derivation for a name
