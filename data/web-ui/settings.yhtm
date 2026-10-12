@@ -386,9 +386,9 @@
 
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
-	<script src="/Y_Lang.yjs?v=22"></script>
-	<script src="/yweb-header.js?v=53"></script>
-	<script src="/settings-registry.js?v=14"></script>
+	<script src="/Y_Lang.yjs?v=23"></script>
+	<script src="/yweb-header.js?v=54"></script>
+	<script src="/settings-registry.js?v=15"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -750,7 +750,8 @@
 		if (changed === 0) { ywebShowToast('{=L:yw.set.nochanges=}'); return; }
 		btn.disabled = true;
 		try {
-			await ywebApi('config', 'config=' + cfgName + '&' + params);
+			// in the body: the password field travels with it
+			await ywebApi('config', 'config=' + cfgName + '&' + params, {post: true});
 			// Auth-Zustand kann sich geaendert haben: Gate/Logout-Button
 			// beim naechsten Seitenload neu bewerten
 			if (cfgName === 'nhttpd') {

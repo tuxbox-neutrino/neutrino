@@ -575,14 +575,13 @@ function ywebCheckDefaultPassword() {
 	// Load gemerkten Auth-Zustand schalten
 	try {
 		if (sessionStorage.getItem('yweb-pwgate') === 'ok') {
-			ywebUpdateLogoutBtn(sessionStorage.getItem('yweb-authed') === 'true');
+			ywebRefreshLogoutBtn();
 			return;
 		}
 	} catch (e) {}
 	ywebApi('config', {config: 'nhttpd'}).then(function(resp) {
 		var cfg = (resp && resp.data && resp.data.config) || {};
 		var authed = cfg['mod_auth_dot_authenticate'] === 'true';
-		ywebUpdateLogoutBtn(authed);
 		if (authed && cfg['mod_auth_dot_password_default'] === 'true') {
 			location.replace('/wizard.yhtm?step=login&forced=1');
 			return;
@@ -591,7 +590,24 @@ function ywebCheckDefaultPassword() {
 			sessionStorage.setItem('yweb-pwgate', 'ok');
 			sessionStorage.setItem('yweb-authed', authed ? 'true' : 'false');
 		} catch (e) {}
-	}).catch(function() {});
+		ywebRefreshLogoutBtn();
+	}).catch(function() { ywebRefreshLogoutBtn(); });
+}
+
+// The button shows while the pages ask for a login, and also while a
+// session of the one login is open: with the page login switched off a
+// change still asks for a sign-in, and what was signed into can be ended.
+function ywebRefreshLogoutBtn() {
+	var authed = false;
+	try { authed = sessionStorage.getItem('yweb-authed') === 'true'; } catch (e) {}
+	if (authed) {
+		ywebUpdateLogoutBtn(true);
+		return;
+	}
+	fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'})
+		.then(function(r) { return r.ok ? r.json() : null; })
+		.then(function(s) { ywebUpdateLogoutBtn(!!(s && s.authenticated)); })
+		.catch(function() {});
 }
 
 function ywebUpdateLogoutBtn(show) {
@@ -599,16 +615,15 @@ function ywebUpdateLogoutBtn(show) {
 	if (btn) btn.hidden = !show;
 }
 
-// /logout antwortet immer 401 -> Top-Level-Navigation dorthin laesst den
-// Browser die gecachten Basic-Auth-Credentials verwerfen. Der Vorab-Fetch
-// mit Bogus-Credentials raeumt in manchen Browsern schon promptlos.
+// /logout ends the session and tells the browser to forget its cookie.
+// With the page login on it answers 401 to whatever still carries Basic
+// credentials, which makes the browser drop them; with it off it goes
+// back to the start page.
 function ywebLogout() {
 	try {
 		sessionStorage.removeItem('yweb-pwgate');
 		sessionStorage.removeItem('yweb-authed');
 	} catch (e) {}
-	// the session logout is deterministic; the server clears the cookie
-	// and 401s any remaining Basic credentials on /logout itself
 	location.href = '/logout';
 }
 
@@ -704,7 +719,20 @@ async function ywebApi(endpoint, params, opts) {
 			if (q.length) url += '?' + q.join('&');
 		}
 	}
-	var resp = await fetch(url);
+	// opts.post sends the parameters in the body instead, for what must not
+	// end up in an address: a log keeps the address, never the body. The
+	// type is named exactly, the server parses no other spelling of it.
+	var resp;
+	if (opts.post) {
+		var cut = url.indexOf('?');
+		resp = await fetch(cut < 0 ? url : url.substring(0, cut), {
+			method: 'POST', credentials: 'same-origin',
+			headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+			body: cut < 0 ? '' : url.substring(cut + 1)
+		});
+	} else {
+		resp = await fetch(url);
+	}
 	if (!resp.ok) {
 		var errText = '';
 		try {

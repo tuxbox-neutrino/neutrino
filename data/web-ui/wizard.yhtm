@@ -222,7 +222,16 @@
 			if (pw)
 				params += '&' + encodeURIComponent('mod_auth.password') + '=' + encodeURIComponent(pw);
 			try {
-				await fetch('/api/v4/config?' + params);
+				// in the body, so the password is in no address a log keeps
+				var resp = await fetch('/api/v4/config', {
+					method: 'POST', credentials: 'same-origin',
+					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+					body: params
+				});
+				var data = null;
+				try { data = await resp.json(); } catch (ignore) {}
+				if (!resp.ok || (data && data.success === 'false'))
+					throw new Error((data && data.error && data.error.msg) || ('HTTP ' + resp.status));
 				wizLoginDone();
 			} catch (e) {
 				btn.disabled = false;

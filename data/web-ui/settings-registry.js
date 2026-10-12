@@ -456,8 +456,6 @@ var SETTINGS_REGISTRY = [
 					{ key: 'mod_auth.password', label: ywebL('set.mnt_pass', 'Password'), type: 'password' },
 					{ key: 'mod_auth.no_auth_client', label: ywebL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
 					  hint: ywebL('reg.noauth_client_hint', 'matching addresses never see the login; local access (127.0.0.1) is always exempt') },
-					{ key: 'mod_auth.session_timeout', label: ywebL('reg.session_timeout', 'Login validity (seconds)'), type: 'number', min: 60, default: 86400,
-					  hint: ywebL('reg.session_timeout_hint', 'browser logins expire after this idle time; scripts using the password directly are unaffected') },
 					{ key: 'WebsiteMain.port', label: 'Port', type: 'number', min: 1, max: 65535 }
 				]
 			},

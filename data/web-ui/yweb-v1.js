@@ -187,6 +187,9 @@ function _ywebV1SignInDialog() {
 					var s = await resp.json();
 					if (s && s.authenticated && s.csrf && s.csrf_header) {
 						_ywebV1Csrf = {header: s.csrf_header, token: s.csrf};
+						// what was signed into can be ended from the header
+						if (typeof ywebUpdateLogoutBtn === 'function')
+							ywebUpdateLogoutBtn(true);
 						finish(true);
 						return;
 					}

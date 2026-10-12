@@ -41,7 +41,7 @@ function do_check_input_LogosURL()
 	<div class="work_box_head"><div class="work_box_head_h2">
 	{=var-set:menu={=L:set.nhttpd.webserver=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
-	<form name="f" class="y_form" action="/y/cgi">
+	<form name="f" class="y_form" method="post" action="/y/cgi">
 		<table border="0" width="100%">
 			<tr><td colspan="2" class="y_form_header">{=L:set.nhttpd.authentication=}</td></tr>
 			<tr>

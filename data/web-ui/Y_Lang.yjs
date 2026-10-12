@@ -159,8 +159,6 @@ window.YWEB_L = {
 	"reg.mute_until_lock": "{=L:yw.reg.mute_until_lock=}",
 	"reg.noauth_client": "{=L:yw.reg.noauth_client=}",
 	"reg.noauth_client_hint": "{=L:yw.reg.noauth_client_hint=}",
-	"reg.session_timeout": "{=L:yw.reg.session_timeout=}",
-	"reg.session_timeout_hint": "{=L:yw.reg.session_timeout_hint=}",
 	"reg.off": "{=L:yw.reg.off=}",
 	"reg.on": "{=L:yw.reg.on=}",
 	"reg.output": "{=L:yw.reg.output=}",
