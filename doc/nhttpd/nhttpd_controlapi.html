@@ -135,10 +135,6 @@
 		<td><a href="http://box_ip/cgi-bin/exec">http://box_ip/cgi-bin/exec</a></td>
 	</tr>
 	<tr>
-		<td><a href="#cmd">Shell-Befehl ausf&uuml;hren</a></td>
-		<td><a href="http://box_ip/control/cmd">http://box_ip/control/cmd</a></td>
-	</tr>
-	<tr>
 		<td><a href="#system">System-/Treiberfunktionen</a></td>
 		<td><a href="http://box_ip/control/system">http://box_ip/control/system</a></td>
 	</tr>
@@ -2147,34 +2143,6 @@ wird. In newsticker.list muss dann der Aufruf folgendermassen aussehen:<br>
 <br>
 http://box_ip/cgi-bin/exec?buli<br>
 <br>
-</div>
-
-<!-- ----------------------------------------------------------- -->
-<div class="title1"><a name="cmd"></a><b>Shell-Befehl ausf&uuml;hren</b></div>
-<div class="URL">Handler: http://box_ip/control/cmd</div>
-<br>
-<b>Parameter:</b> &lt;Befehl&gt; (beliebiger Shell-Befehl)<br>
-<b>R&uuml;ckgabe:</b> stdout des Befehls als text/plain<br>
-<br>
-F&uuml;hrt einen beliebigen Shell-Befehl direkt via popen() aus und liefert die Ausgabe
-als Plain-Text zur&uuml;ck. Im Unterschied zu <a href="#exec">exec</a> werden keine .sh-Skripte
-in Plugin-Verzeichnissen gesucht, sondern der Befehl wird direkt ausgef&uuml;hrt.<br>
-<br>
-<div class="example">
-Beispiele:<br>
-<br>
-&gt;&gt;&gt;http://box_ip/control/cmd?ls -la /tmp<br>
-drwxrwxrwt 12 root root 4096 Feb 28 10:00 .<br>
-drwxr-xr-x 23 root root 4096 Feb 28 09:00 ..<br>
-...<br>
-<br>
-&gt;&gt;&gt;http://box_ip/control/cmd?ps aux<br>
-USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND<br>
-root 1 0.0 0.0 168936 13092 ? Ss 09:00 0:01 /sbin/init<br>
-...<br>
-<br>
-&gt;&gt;&gt;http://box_ip/control/cmd?dmesg<br>
-[Kernel-Log Ausgabe]<br>
 </div>
 
 <!-- ----------------------------------------------------------- -->

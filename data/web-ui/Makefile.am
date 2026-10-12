@@ -24,7 +24,6 @@ nobase_install_DATA = \
 install_DATA = \
 	bouquet-editor.yhtm \
 	bouquets.yhtm \
-	cmd.yhtm \
 	dashboard.yhtm \
 	epg.yhtm \
 	files.yhtm \
@@ -104,7 +103,6 @@ install_DATA = \
 	Y_Timer_List.yhtm \
 	Y_Tools_Boxcontrol.yhtm \
 	Y_Tools_Check_Install.yhtm \
-	Y_Tools_Cmd.yhtm \
 	Y_Tools_Info_Menue.yhtm \
 	Y_Tools_Installer.yhtm \
 	Y_Tools_Menue.yhtm \

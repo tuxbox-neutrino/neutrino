@@ -5,7 +5,7 @@
 
 - Basis-URL: `http://<box>/api/v4/<endpoint>`
 - Ausgabe: JSON (kein `format`-Parameter noetig). Ausnahmen sind in der
-  Mapping-Tabelle markiert: `exec` und `cmd` liefern Roh-Text, `logo` liefert
+  Mapping-Tabelle markiert: `exec` liefert Roh-Text, `logo` liefert
   ein Bild. Fehler liefern auch dort JSON.
 - Fehler: HTTP-Status + JSON-Objekt
   `{"success": "false", "error":{"msg": "..."}}`
@@ -25,7 +25,7 @@
     `{"success": "false", "error":{"msg": "<text>"}}`
 - **Unbekannter Endpoint:** HTTP 404 +
   `{"success": "false", "error":{"msg": "unknown endpoint", "endpoint": "<name>"}}`
-- Endpoints mit Roh-Ausgabe (z.B. `exec`, `cmd`) sind in der Mapping-Tabelle
+- Endpoints mit Roh-Ausgabe (z.B. `exec`) sind in der Mapping-Tabelle
   als `text/plain` markiert und liefern KEIN JSON. `logo` liefert entsprechend
   Binaerdaten (siehe \ref apiv4_logo).
 - Hinweis `timer`: Aktionen (`action=new|modify|remove`, `get=...`) werden
@@ -73,7 +73,6 @@
 | `/api/v4/rc` | `/control/rc` (Envelope statt `ok`) | CControlAPI::RCCGI |
 | `/api/v4/rcem` | `/control/rcem` (Envelope statt `ok`) | CControlAPI::RCEmCGI |
 | `/api/v4/exec` | `/control/exec` — **Roh-Text, kein JSON** | CControlAPI::ExecCGI |
-| `/api/v4/cmd` | `/control/cmd` — **Roh-Text, kein JSON** | CControlAPI::CmdCGI |
 | `/api/v4/startplugin` | `/control/startplugin` (Envelope) | CControlAPI::StartPluginCGI |
 | `/api/v4/plugins` | `/control/plugins` (NEU: Plugin-Liste `{"plugins":[{number,name,type,description,hidden}]}`) | CControlAPI::PluginsCGI |
 | `/api/v4/reloadplugins` | `/control/reloadplugins` (Envelope) | CControlAPI::ReloadPluginsCGI |

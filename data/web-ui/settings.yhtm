@@ -924,7 +924,7 @@
 			fd.append('file', f);
 			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
 			if (!up.ok) throw new Error('Upload fehlgeschlagen');
-			var out = await ywebApi('exec', 'Y_Tools&exec_cmd&restore.sh&' + encodeURIComponent('/tmp/' + f.name), {raw: true});
+			var out = await ywebApi('exec', 'Y_Tools&settings_restore_upload&' + encodeURIComponent(f.name), {raw: true});
 			ywebShowToast('Restore: ' + (out.trim() || '{=L:yw.set.restore_done=}'));
 			ywebCloseModal('restoreConfirmModal');
 		} catch (e) {
@@ -1317,9 +1317,8 @@
 			if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
 			var res = await up.json();
 			var size = (res.data && res.data.size) || '?';
-			var paths = await ywebApi('paths');
-			var confdir = paths.configdir || '/var/tuxbox/config';
-			await ywebApi('exec', 'Y_Tools&exec_cmd&cp&' + encodeURIComponent('/tmp/' + f.name) + '&' + encodeURIComponent(confdir + '/zapit/' + target), {raw: true});
+			var put = await ywebApi('exec', 'Y_Tools&zapit_put_upload&' + encodeURIComponent(f.name) + '&' + encodeURIComponent(target), {raw: true});
+			if (/^error/.test(put.trim())) throw new Error(put.trim());
 			await ywebApi('reloadchannels');
 			if (status) status.textContent = target + ' ✓ (' + size + ' B)';
 			ywebShowToast(target + ' {=L:yw.set.zapit_done=}');

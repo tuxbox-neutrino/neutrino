@@ -438,7 +438,6 @@ function stb_exec_command(_cmd)
 {
 	alert("Function stb_exec_command is deactivated for security reasons");
 	var __cmd = _cmd.replace(/ /g, "&");
-	//return loadSyncURL("/control/exec?Y_Tools&exec_cmd&"+__cmd);
 }
 
 function stb_exec_tools(_cmd)

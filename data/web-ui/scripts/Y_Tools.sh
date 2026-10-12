@@ -259,40 +259,6 @@ do_automount_setline()
 # Execute shell command
 # 1: directory 2: append [true|false] 3+: cmd
 # -----------------------------------------------------------
-do_cmd()
-{
-	cd $1
-	pw1="$1"
-	app="$2"
-	shift 2
-
-	# Only a plain "cd <dir>" takes the shortcut. Anything longer still goes
-	# to the shell, otherwise everything after the directory would be
-	# dropped without a word (e.g. "cd /etc; echo hi").
-	if [ "$1" = "cd" ] && [ $# -eq 2 ]
-	then
-		cd "$2"
-	else
-		tmp=`$*` #Execute command
-	fi
-	pw=`pwd`
-	echo '<html><body><form name="o"><textarea name="ot">'
-	echo "$pw1>$*"
-	echo "$tmp"
-	echo '</textarea></form>'
-	echo '<script>'
-	if [ "$app" = "true" ]
-	then
-		echo 'parent.document.co.cmds.value += document.o.ot.value;'
-	else
-		echo 'parent.document.co.cmds.value = document.o.ot.value;'
-	fi
-	echo "parent.set_pwd('$pw');"
-	echo 'parent.setCaretToEnd(parent.document.co.cmds);'
-	echo 'parent.document.f.cmd.focus();'
-	echo '</script></body></html>'
-}
-
 # -----------------------------------------------------------
 # yInstaller
 # un-tar uploaded file to /tmp/y-install.
@@ -480,6 +446,37 @@ do_settings_backup_restore()
 	esac
 }
 
+# The name of a file the web interface has just uploaded to /tmp and nothing
+# else: no directory in it, no hidden or relative name. These two replace a
+# generic command action that ran whatever it was given.
+upload_name_ok()
+{
+	case "$1" in
+		""|*/*|.*) return 1 ;;
+	esac
+	[ -f "/tmp/$1" ]
+}
+
+# An uploaded channel list put in place, under one of the names zapit reads.
+# Not the older zapit_upload above, which takes the old upload form's file.
+do_zapit_put_upload()
+{
+	upload_name_ok "$1" || { echo "error: not an uploaded file"; return 1; }
+	case "$2" in
+		bouquets.xml|ubouquets.xml|services.xml|myservices.xml) ;;
+		*) echo "error: not a channel list"; return 1 ;;
+	esac
+	cp "/tmp/$1" "%(CONFIGDIR)/zapit/$2" || { echo "error: could not put the list in place"; return 1; }
+	rm -f "/tmp/$1"
+}
+
+# An uploaded settings archive taken back.
+do_settings_restore_upload()
+{
+	upload_name_ok "$1" || { echo "error: not an uploaded file"; return 1; }
+	restore.sh "/tmp/$1"
+}
+
 restart_neutrino()
 {
 	echo "fixme"
@@ -611,7 +608,6 @@ case "$action" in
 	rcsim)				rcsim $1 >/dev/null ;;
 	domount)			do_mount $* ;;
 	dounmount)			do_unmount $* ;;
-	cmd)				do_cmd $* ;;
 	installer)			do_installer $* 2>&1 ;;
 	ext_uninstaller)		do_ext_uninstaller $* 2>&1 ;;
 	ext_installer)			do_ext_installer $* 2>&1 ;;
@@ -623,7 +619,8 @@ case "$action" in
 	get_update_version)		wget -O /tmp/version.txt "https://raw.githubusercontent.com/tuxbox-neutrino/gui-neutrino/master/data/web-ui/Y_Version.txt" ;;
 	rm_update_version)		rm -f /tmp/version.txt ;;
 	settings_backup_restore)	do_settings_backup_restore $* ;;
-	exec_cmd)			$* ;;
+	zapit_put_upload)		do_zapit_put_upload "$@" ;;
+	settings_restore_upload)	do_settings_restore_upload "$@" ;;
 	automount_list)			do_automount_list $* ;;
 	automount_getline)		do_automount_getline $* ;;
 	automount_setline)		do_automount_setline $* ;;

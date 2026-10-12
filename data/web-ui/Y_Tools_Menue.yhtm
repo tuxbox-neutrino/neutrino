@@ -3,9 +3,6 @@
 <script src="/Y_Baselib.js"></script>
 <script src="/Y_yWeb.js"></script>
 <script>
-function cmd_popup(){
-	window.open('Y_Tools_Cmd.yhtm','cmd','width=720,height=470,resizable=yes');
-}
 function init(){
 	add_yExtensions('tools_general', 'secmenu_tools_general');
 	add_yExtensions('tools_expert', 'secmenu_tools_expert');
@@ -89,13 +86,6 @@ function init(){
 			<ul id="secmenu_tools_expert">
 				<li>
 					<a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">{=L:main.info=}</a>
-				</li>
-				<li>
-					{=var-set:m_link_href=Y_Tools_Cmd.yhtm=}
-					{=var-set:m_link_desc==}
-					{=var-set:m_link_text={=L:tools.command_shell=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-					<a title="{=L:tools.command_shell=} (popup)" href="javascript:cmd_popup()" class="y_menu_popup_link" ><img src="/images/popup.png"/></a>
 				</li>
 			</ul>
 		</div>

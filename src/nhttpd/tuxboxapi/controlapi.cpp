@@ -272,7 +272,6 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"startplugin",		&CControlAPI::StartPluginCGI,		"text/plain"},
 	{"plugins",		&CControlAPI::PluginsCGI,		"application/json"},
 	{"exec",		&CControlAPI::ExecCGI,			"text/plain"},
-	{"cmd",			&CControlAPI::CmdCGI,			"text/plain"},
 	{"yweb",		&CControlAPI::YWebCGI,			"text/plain"},
 	// video & Audio handling
 	{"aspectratio",		&CControlAPI::AspectRatioCGI,		"text/plain"},
@@ -361,7 +360,6 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallListV4[] =
 	{"rcem",	&CControlAPI::RCEmCGI,		"application/json"},
 	// scripts, plugins & media
 	{"exec",	&CControlAPI::ExecCGI,		"text/plain"},
-	{"cmd",		&CControlAPI::CmdCGI,		"text/plain"},
 	{"startplugin",	&CControlAPI::StartPluginCGI,	"application/json"},
 	{"plugins",	&CControlAPI::PluginsCGI,	"application/json"},
 	{"reloadplugins",	&CControlAPI::ReloadPluginsCGI,	"application/json"},
@@ -764,46 +762,6 @@ void CControlAPI::ExecCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
-void CControlAPI::CmdCGI(CyhookHandler *hh)
-{
-	if (hh->ParamList.empty())
-	{
-		hh->SetError(HTTP_BAD_REQUEST);
-		return;
-	}
-
-	std::string cmd = hh->ParamList["1"];
-	// Cache the size once. hh->ParamList is a std::map, so operator[] inserts
-	// a default entry for every missing numeric key; re-evaluating size() in
-	// the loop condition made it grow together with i, so the loop never
-	// terminated. Mirror the bounded pattern already used by ExecCGI().
-	unsigned int len = hh->ParamList.size();
-	for (unsigned int i = 2; i <= len; i++)
-	{
-		std::string p = hh->ParamList[itoa(i)];
-		if (!p.empty())
-		{
-			cmd += " ";
-			cmd += p;
-		}
-	}
-
-	FILE *f = popen(cmd.c_str(), "r");
-	if (f == NULL)
-	{
-		hh->SetError(HTTP_INTERNAL_SERVER_ERROR);
-		return;
-	}
-
-	std::string result;
-	char buf[1024];
-	while (fgets(buf, sizeof(buf), f))
-		result += buf;
-	pclose(f);
-
-	hh->WriteLn(result);
-}
-
 //-----------------------------------------------------------------------------
 void CControlAPI::SystemCGI(CyhookHandler *hh)
 {
