@@ -23,6 +23,7 @@
  */
 
 #include "configfile.h"
+#include "coreapi/base/settingswrites.h"
 
 #include <fstream>
 #include <iostream>
@@ -94,6 +95,16 @@ bool CConfigFile::loadConfig(const std::string &filename, char _delimiter)
 
 bool CConfigFile::saveConfig(const char *const filename, char _delimiter)
 {
+	/* Settings put back from an archive wait for the restart that reads them:
+	   whatever saves through here, the settings, the scan settings, the old
+	   configuration pages, a plugin, would write what the program holds over
+	   them. */
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		std::cerr << "[configfile] settings are being put back, " << filename << " left alone" << std::endl;
+		return false;
+	}
 	std::string tmpname = std::string(filename) + ".tmp";
 	unlink(tmpname.c_str());
 	std::fstream configFile(tmpname.c_str(), std::ios::out);

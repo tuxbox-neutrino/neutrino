@@ -1,20 +1,32 @@
 #!/bin/sh
-echo Restore settings from $1
+echo "Restore settings from $1"
 
-tar t -f $1 | grep ^config/ > /dev/null
-if [ $? -eq 0 ]; then
-	cd /var/tuxbox
+# exit 1: nothing was put back; exit 3: the archive did not unpack whole, and
+# what came before the failure is back; exit 2: the settings are back and the
+# restart could not be started. The menu tells the three apart.
+list=$(tar t -f "$1") || { echo "Restore failed, the archive cannot be read"; exit 1; }
+if echo "$list" | grep ^config/ > /dev/null; then
+	cd /var/tuxbox || exit 1
 else
-	cd /
+	cd / || exit 1
 fi
 
-# check if $1 ends with "gz"
+# check if $1 ends with "gz"; an archive that did not unpack whole restarts nothing
 if [ "$1" != "${1%gz}" ]; then
-	tar -xzf $1
+	tar -xzf "$1"
 else
-	tar -xf $1
-fi
+	tar -xf "$1"
+fi || { echo "Restore failed part way, the box is not restarted"; exit 3; }
 
 sync
 sync
+# A build that restarts only neutrino after a restore (--with-restore-restart)
+# leaves the restart to the program that ran this, which ends itself without
+# saving its settings over what was put back.
+if [ "@RESTORE_RESTART@" = "neutrino" ]; then
+	echo "Settings restored, neutrino restarts"
+	exit 0
+fi
 reboot -f
+echo "Settings restored, and the box could not be restarted"
+exit 2

@@ -2740,6 +2740,9 @@ settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
 settings.restore Restore system settings
+settings.restore_busy A restore is already under way, or settings restored before wait for the restart.
+settings.restore_partly The settings were restored only in part.\nPlease restart by hand now and restore them again.\nUntil then no settings are saved.
+settings.restore_restart_failed The settings are restored, but the restart could not be started.\nPlease restart by hand now.\nUntil then no settings are saved.
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shoutcast.dev_id SHOUTcast Developer ID
 shoutcast.enabled SHOUTcast support

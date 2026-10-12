@@ -61,6 +61,7 @@
 #include <coreapi/settings/settings.h>
 #include <coreapi/base/deps.h>
 #include <coreapi/base/messagebridge.h>
+#include <coreapi/base/settingswrites.h>
 #include <httpd/webconfig.h>
 #include <httpd/server_control.h>
 #include <gui/settings_appliers.h>
@@ -1593,6 +1594,13 @@ void CNeutrinoApp::upgradeSetup(const char * fname)
 **************************************************************************************/
 void CNeutrinoApp::saveSetup(const char *fname)
 {
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		printf("[neutrino] settings are being put back, %s left alone\n", fname);
+		return;
+	}
 	char cfg_key[81];
 
 	/* What waited for the string inputs is taken up before the settings file

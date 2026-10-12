@@ -27,6 +27,7 @@
 #include "httpd/schema.h"
 #include "httpd/status.h"
 
+#include "coreapi/backup.h"
 #include "coreapi/channels.h"
 #include "coreapi/daemons.h"
 #include "coreapi/decryption.h"
@@ -424,6 +425,39 @@ Response shutdown(const Request &)
 	return accepted();
 }
 
+/* The archive as backup.sh packed it, handed over as a file to keep. Its name
+   says which box and when; only what a name on a download can carry is kept. */
+Response backupDownload(const Request &)
+{
+	coreapi::Result<coreapi::backup::Archive> made = coreapi::backup::make();
+	if (!made.ok())
+		return problemFor(made.error());
+	coreapi::backup::Archive a = std::move(made).value();
+	std::string name;
+	for (size_t i = 0; i < a.name.size(); ++i)
+	{
+		const char c = a.name[i];
+		const bool plain = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+		                   c == '.' || c == '_' || c == '-';
+		name += plain ? c : '_';
+	}
+	Response out;
+	out.code = StatusOk;
+	out.content_type = "application/gzip";
+	out.body.swap(a.bytes);
+	out.headers.push_back(std::make_pair(std::string("Content-Disposition"),
+	                                     "attachment; filename=\"" + name + "\""));
+	return out;
+}
+
+Response restoreSettings(const Request &r)
+{
+	coreapi::Result<void> done = coreapi::backup::restore(r.asString("file"));
+	if (!done.ok())
+		return problemFor(done.error());
+	return accepted();
+}
+
 Response restart(const Request &)
 {
 	coreapi::Result<void> done = coreapi::system::restart();
@@ -431,6 +465,31 @@ Response restart(const Request &)
 		return problemFor(done.error());
 	return accepted();
 }
+
+const RouteRefusal kBackupRefusals[] = {
+	HTTPD_REFUSES(Internal, BackupFailed,
+		"backup.sh left no archive, or one larger than 64 MiB"),
+};
+
+const Param kRestoreParams[] = {
+	HTTPD_BODY_REQUIRED_TEXT("file",
+		"the archive's name in /tmp, where the caller uploaded it (PUT and PATCH /api/v1/storage/file), "
+		"ending in .tar.gz, .tgz or .tar", 255),
+};
+
+const RouteRefusal kRestoreRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"the archive is a plain name in the temporary directory, of letters, digits, dots, dashes and "
+		"underscores, ending in .tar.gz, .tgz or .tar"),
+	HTTPD_REFUSES(NotFound, NoSuchName,
+		"there is no uploaded archive of that name"),
+	HTTPD_REFUSES(InvalidArgument, RestoreRefused,
+		"the archive would write where the box backs nothing up: /etc/passwd"),
+	HTTPD_REFUSES(Conflict, RestoreRefused,
+		"another restore is under way"),
+	HTTPD_REFUSES(Internal, RestoreRefused,
+		"/var/tuxbox/config/neutrino.conf could not be written; the box is not restarted"),
+};
 
 const Param kStandbyParams[] = {
 	/* Required, and not a route per direction. Standby off while not in standby
@@ -680,6 +739,63 @@ const Endpoint kSystemEndpoints[] = {
 	  "**Related:** `POST /api/v1/system/reboot`, `POST /api/v1/system/standby`.",
 	  NULL, 0, NULL, &shutdown, false,
 	  Answers202, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/v1/system/backup", AuthLevel::System,
+	  "the box's settings as one archive to keep",
+	  "Packs the box's settings with its own backup.sh, the script the settings menu on the screen "
+	  "runs, and answers the archive as a file to keep (`application/gzip`, named "
+	  "`settings_<host>_<date>.tar.gz`): the files the box's tobackup.conf names, or its whole "
+	  "configuration directory where there is no such list. The archive holds the box's passwords "
+	  "and keys as its settings do, so it is for the box's own credential only.\n\n"
+	  "**Refusals:**\n"
+	  "- `500 backup-failed`: the box has no backup.sh, it failed, or it left no archive or one "
+	  "larger than 64 MiB.\n\n"
+	  "**Related:** `POST /api/v1/system/restore`.",
+	  NULL, 0, NULL, &backupDownload, false,
+	  Answers200, HTTPD_REFUSALS(kBackupRefusals) },
+	{ Method::Post, "/api/v1/system/restore", AuthLevel::System,
+	  "puts the settings of an uploaded archive back and restarts the box",
+	  "Puts back an archive uploaded to /tmp beforehand and restarts the box at once, as the settings "
+	  "menu does, so the program does not save its own settings over what was put back. A build for a "
+	  "PC that runs other things besides restarts only the program, started again in its own place "
+	  "without saving, and not the system (`--with-restore-restart`). `202` says the settings are back "
+	  "and the restart starts a few seconds later; the box, or the program, is then gone until it is up "
+	  "again. One restore runs at a time.\n\n"
+	  "The box first takes the upload over: it copies it into a directory of its own under a name it "
+	  "chooses and removes the upload, so what it checks is what it puts back. Then every name in the "
+	  "archive is read from its headers. Each has to land in the configuration directory or on a path "
+	  "the box's tobackup.conf names: a directory, a file or a pattern. Names land below the box's "
+	  "/var/tuxbox where any of them begins with `config/`, and below `/` otherwise. An absolute name, "
+	  "one that climbs with `..`, one with a `.` or an empty part, one beginning with `.restore-`, a name "
+	  "with a control character, a link of either kind or a device in the archive, a link already on the "
+	  "box below where a name lands, a file where the box has a directory or the other way round, and an "
+	  "archive that holds one name as a file and as a directory or puts an entry below one of its files "
+	  "are refused, and so is an archive that cannot be read, one larger than 64 MiB, one whose headers "
+	  "say it unpacks to more than 256 MiB, or one of more than 20000 names.\n\n"
+	  "The box unpacks the archive itself, with the same reading of its headers that checked it. From "
+	  "then on until the restart it saves no settings of its own, the saves under way finished first. "
+	  "Each file is written beside its place and takes its name only once every file is whole, with the "
+	  "permissions its entry carries, no set-id bits, and the owner the file had on the box where it had "
+	  "one; directories on the way, also a listed one the box does not have yet, are made where they are "
+	  "missing and not followed where they are links, and a directory entry sets its directory's "
+	  "permissions last.\n\n"
+	  "**Preconditions:** the archive was uploaded to /tmp, as `PUT` and `PATCH "
+	  "/api/v1/storage/file` do in pieces for a file larger than one request.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar.\n"
+	  "- `404 no-such-name`: no file of that name was uploaded.\n"
+	  "- `400 restore-refused`: the archive cannot be read or holds a name it may not; the detail "
+	  "names the first. Nothing was written.\n"
+	  "- `409 restore-refused`: another restore is under way, or settings put back before wait for "
+	  "their restart.\n"
+	  "- `500 restore-refused`: the box cannot restart itself, and nothing was put back; or it could not "
+	  "take the archive over or write a file of it, and its settings are as they were and it is not "
+	  "restarted; or, rarely, a file could not take its place after others had, and the settings are "
+	  "back in part and the box is not restarted; or the settings are back and the restart could not be "
+	  "started. The detail says which; in the last two the box saves no settings and has to be "
+	  "restarted by hand.\n\n"
+	  "**Related:** `GET /api/v1/system/backup`.",
+	  HTTPD_PARAMS(kRestoreParams), NULL, &restoreSettings, false,
+	  Answers202, HTTPD_REFUSALS_AND_BODY(kRestoreRefusals, "{\"file\":\"settings.tar.gz\"}") },
 	{ Method::Post, "/api/v1/system/restart", AuthLevel::System,
 	  "asks the box to start its own program again without restarting the box", "Asks the box "
 	  "to start its own application again without rebooting the Linux system underneath it. "

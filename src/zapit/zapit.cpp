@@ -77,6 +77,7 @@
 
 #include <neutrino.h>
 #include <gui/osd_helpers.h>
+#include <coreapi/base/settingswrites.h>
 
 #ifdef PEDANTIC_VALGRIND_SETUP
 #define VALGRIND_PARANOIA(x) memset(&x, 0, sizeof(x))
@@ -201,6 +202,13 @@ void CZapit::SendEvent(const unsigned int eventID, const void* eventbody, const 
 
 void CZapit::SaveSettings(bool write)
 {
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (write && !may.allowed())
+	{
+		printf("[zapit] settings are being put back, zapit.conf left alone\n");
+		return;
+	}
 	/* Start() gives up before LoadSettings() when it found no usable frontend,
 	 * so nothing here was ever read from the file. Writing now would put
 	 * whatever the members happen to hold into zapit.conf, where it outlives
@@ -307,6 +315,9 @@ void CZapit::LoadAudioMap()
 
 void CZapit::SaveAudioMap()
 {
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+		return;
 	FILE *audio_config_file = fopen(AUDIO_CONFIG_FILE, "w");
 	if (!audio_config_file) {
 		perror(AUDIO_CONFIG_FILE);
@@ -343,6 +354,9 @@ void CZapit::LoadVolumeMap()
 
 void CZapit::SaveVolumeMap()
 {
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+		return;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 	FILE *volume_config_file = fopen(VOLUME_CONFIG_FILE, "w");
 	if (!volume_config_file) {

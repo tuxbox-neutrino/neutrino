@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "coreapi/base/settingswrites.h"
 
 namespace coreapi
 {
@@ -108,6 +109,10 @@ bool writeAll(int fd, const std::string &text)
    this file is written for answers success once the temporary file opened. */
 bool save(const Settings &all)
 {
+	// settings put back from an archive wait for the restart that reads them
+	SettingsWrite may;
+	if (!may.allowed())
+		return false;
 	std::string text;
 	for (Settings::const_iterator it = all.begin(); it != all.end(); ++it)
 		text += it->first + "=" + it->second + "\n";

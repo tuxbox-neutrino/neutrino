@@ -46,6 +46,7 @@
 #include <system/set_threadname.h>
 
 #include <driver/display.h>
+#include <coreapi/base/settingswrites.h>
 
 extern bool timeset;
 time_t timer_minutes;
@@ -757,6 +758,13 @@ void CTimerManager::loadRecordingSafety()
 // -------------------------------------------------------------------------------------
 void CTimerManager::saveEventsToConfig()
 {
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		dprintf("settings are being put back, the timers are not saved\n");
+		return;
+	}
 	pthread_mutex_lock(&tm_eventsMutex);
 
 	// Sperren !!!

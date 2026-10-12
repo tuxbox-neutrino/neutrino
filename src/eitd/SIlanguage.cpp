@@ -30,6 +30,7 @@
 #include <vector>
 #include <map>
 #include <pthread.h>
+#include <cstdio>
 #include <fstream>
 
 #include <OpenThreads/Thread>
@@ -37,6 +38,7 @@
 #include <OpenThreads/ScopedLock>
 
 #include <sectionsdclient/sectionsdclient.h>
+#include <coreapi/base/settingswrites.h>
 
 #include "SIlanguage.hpp"
 
@@ -165,6 +167,13 @@ error:
 bool SIlanguage::saveLanguages()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(languages_lock);
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		printf("[sectionsd] settings are being put back, %s left alone\n", LANGUAGEFILE);
+		return false;
+	}
 	std::ofstream file(LANGUAGEFILE);
 	switch(mode) {
 	case CSectionsdClient::ALL:

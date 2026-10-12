@@ -39,6 +39,8 @@
 #include "coreapi/archive.h"
 #include "coreapi/daemons.h"
 #include "coreapi/base/errors.h"
+#include "coreapi/base/settingswrites.h"
+#include "configfile.h"
 #include "coreapi/netfs.h"
 #include "coreapi/osd.h"
 #include "coreapi/plugins.h"
@@ -48,6 +50,7 @@
 #include "coreapi/storage.h"
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/types.h"
+#include "coreapi/backup.h"
 #include "coreapi/network.h"
 #include "coreapi/webui.h"
 
@@ -62,10 +65,12 @@
 #include <memory>
 #include <limits>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <fcntl.h>
 #include <limits.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
@@ -551,6 +556,227 @@ struct Sandbox
 	private:
 		Sandbox(const Sandbox &);
 		Sandbox &operator=(const Sandbox &);
+};
+
+/* A box of the case's own for the backup routes: a configuration directory with
+   a list of what is backed up, backup.sh, the box's own /var/tuxbox in the
+   sandbox, and the restart after a restore caught before it starts, so no case
+   restarts the machine it runs on. */
+unsigned &rebootsStarted()
+{
+	static unsigned started = 0;
+	return started;
+}
+
+bool rebootStartsOk = true;
+
+// Stands in for the restart, and ends what a restart that started would end.
+bool catchReboot()
+{
+	rebootsStarted()++;
+	if (rebootStartsOk)
+		coreapi::backup::internal::restartedForTest();
+	return rebootStartsOk;
+}
+
+// A restart that has not come yet: the restore waits for it.
+bool restartLater()
+{
+	return true;
+}
+
+struct BackupFixture
+{
+	Sandbox     box;
+	std::string config;
+	std::string list;
+	std::string bin;
+	const char *before_tmp;
+	const char *before_config;
+	const char *before_list;
+	const char *before_bin;
+	const char *before_tuxbox;
+	const char *before_reboot;
+	bool        before_in_place;
+
+	BackupFixture()
+		: config(box.at("config")), list(box.at("config/tobackup.conf")), bin(box.at("bin")),
+		  before_tmp(coreapi::backup::internal::tmp_dir), before_config(coreapi::backup::internal::config_dir),
+		  before_list(coreapi::backup::internal::backup_list), before_bin(coreapi::backup::internal::script_dir),
+		  before_tuxbox(coreapi::backup::internal::tuxbox_dir),
+		  before_reboot(coreapi::backup::internal::restart_command),
+		  before_in_place(coreapi::backup::internal::restart_in_place)
+	{
+		mkdir(config.c_str(), 0700);
+		mkdir(bin.c_str(), 0700);
+		mkdir(box.at("extra").c_str(), 0700);
+		mkdir(box.at("other").c_str(), 0700);
+		write(config + "/neutrino.conf", "volume=50\n");
+		write(box.at("extra/a.conf"), "a=1\n");
+		write(box.at("other/x.conf"), "x=1\n");
+		write(list, "# what is backed up\n" + box.at("extra") + "/   # a directory\n-" + box.at("other") + "\n" +
+		      box.at("cfg") + "/*.cfg\n" + box.at("wild") + "/*/s.conf\n");
+		// backup.sh as the box's: an archive named after the box and the day, in $1
+		script("backup.sh", "#!/bin/sh\ntar -czf \"$1/settings_testbox_20261013_1200.tar.gz\" -C / \"" +
+		       config.substr(1) + "\" 2>/dev/null\necho Backup to $1\n");
+		coreapi::backup::internal::tmp_dir = box.dir.c_str();
+		coreapi::backup::internal::config_dir = config.c_str();
+		coreapi::backup::internal::backup_list = list.c_str();
+		coreapi::backup::internal::script_dir = bin.c_str();
+		// an archive of the box's own layout, config/..., lands in the sandbox
+		coreapi::backup::internal::tuxbox_dir = box.dir.c_str();
+		rebootsStarted() = 0;
+		rebootStartsOk = true;
+		coreapi::backup::internal::setRestarterForTest(&catchReboot);
+	}
+
+	~BackupFixture()
+	{
+		coreapi::backup::internal::max_members = 20000;
+		coreapi::backup::internal::max_unpacked = 256ull * 1024 * 1024;
+		coreapi::backup::internal::setRestarterForTest(NULL);
+		coreapi::backup::internal::restartedForTest();
+		coreapi::backup::internal::tuxbox_dir = before_tuxbox;
+		coreapi::backup::internal::restart_command = before_reboot;
+		coreapi::backup::internal::restart_in_place = before_in_place;
+		coreapi::backup::internal::tmp_dir = before_tmp;
+		coreapi::backup::internal::config_dir = before_config;
+		coreapi::backup::internal::backup_list = before_list;
+		coreapi::backup::internal::script_dir = before_bin;
+	}
+
+	void write(const std::string &path, const std::string &text)
+	{
+		FILE *f = std::fopen(path.c_str(), "w");
+		if (f != NULL)
+		{
+			std::fputs(text.c_str(), f);
+			std::fclose(f);
+		}
+	}
+
+	void script(const char *name, const std::string &text)
+	{
+		write(bin + "/" + name, text);
+		chmod((bin + "/" + name).c_str(), 0700);
+	}
+
+	static std::string read(const std::string &path)
+	{
+		std::string out;
+		FILE *f = std::fopen(path.c_str(), "r");
+		if (f == NULL)
+			return "(none)";
+		char buf[4096];
+		size_t n;
+		while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0)
+			out.append(buf, n);
+		std::fclose(f);
+		return out;
+	}
+
+	/* What the unpacking may leave behind and must not: its own directory in the
+	   upload directory, and a file written beside its place that never took it. */
+	std::vector<std::string> leftovers() const
+	{
+		std::vector<std::string> out;
+		const std::string dirs[] = { box.dir, config, box.at("extra"), box.at("cfg") };
+		for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); ++i)
+		{
+			DIR *d = opendir(dirs[i].c_str());
+			if (d == NULL)
+				continue;
+			struct dirent *e;
+			while ((e = readdir(d)) != NULL)
+				if (std::strncmp(e->d_name, "restore.", 8) == 0 || std::strncmp(e->d_name, ".restore-", 9) == 0)
+					out.push_back(dirs[i] + "/" + e->d_name);
+			closedir(d);
+		}
+		return out;
+	}
+
+	// An archive in the upload directory holding the named paths as tar stores them.
+	bool archive(const std::string &name, const std::string &paths, const std::string &dir = "/")
+	{
+		const std::string cmd = "tar -czf '" + box.at(name) + "' -C '" + dir + "' " + paths + " 2>/dev/null";
+		return std::system(cmd.c_str()) == 0;
+	}
+
+	/* A plain tar built entry by entry, the way an archive built by hand can
+	   carry what tar itself would never store: a name that climbs, a newline in
+	   a name, a long name or a pax record naming another place than the header. */
+	struct RawEntry
+	{
+		std::string name;
+		char        type;
+		std::string data;
+	};
+
+	static std::string rawHeader(const std::string &name, char type, size_t size,
+				     const std::string &prefix = std::string())
+	{
+		char h[512];
+		std::memset(h, 0, sizeof(h));
+		std::memcpy(h, name.data(), name.size() < 100 ? name.size() : 99);
+		std::memcpy(h + 345, prefix.data(), prefix.size() < 155 ? prefix.size() : 154);
+		std::memcpy(h + 100, "0000644", 7);
+		std::memcpy(h + 108, "0000000", 7);
+		std::memcpy(h + 116, "0000000", 7);
+		std::snprintf(h + 124, 12, "%011lo", (unsigned long) size);
+		std::memcpy(h + 136, "00000000000", 11);
+		h[156] = type;
+		std::memcpy(h + 257, "ustar", 6);
+		std::memcpy(h + 263, "00", 2);
+		std::memset(h + 148, ' ', 8);
+		unsigned sum = 0;
+		for (size_t i = 0; i < sizeof(h); ++i)
+			sum += (unsigned char) h[i];
+		std::snprintf(h + 148, 8, "%06o", sum);
+		h[155] = ' ';
+		return std::string(h, sizeof(h));
+	}
+
+	void rawTarOf(const std::string &name, const std::vector<RawEntry> &entries,
+		      const std::string &prefix = std::string())
+	{
+		std::string out;
+		for (size_t i = 0; i < entries.size(); ++i)
+		{
+			out += rawHeader(entries[i].name, entries[i].type, entries[i].data.size(), prefix);
+			std::string data = entries[i].data;
+			data.resize(((data.size() + 511) / 512) * 512, '\0');
+			out += data;
+		}
+		out += std::string(1024, '\0');
+		FILE *f = std::fopen(box.at(name).c_str(), "wb");
+		if (f != NULL)
+		{
+			std::fwrite(out.data(), 1, out.size(), f);
+			std::fclose(f);
+		}
+	}
+
+	void rawTar(const std::string &name, const std::string &member)
+	{
+		std::vector<RawEntry> one;
+		RawEntry e = { member, '0', "x\n" };
+		one.push_back(e);
+		rawTarOf(name, one);
+	}
+
+	// A pax record as tar writes one: its own length first, the newline counted.
+	static std::string paxRecord(const std::string &key, const std::string &value)
+	{
+		const std::string body = " " + key + "=" + value + "\n";
+		size_t len = body.size() + 1;
+		while (std::to_string(len).size() + body.size() != len)
+			++len;
+		return std::to_string(len) + body;
+	}
+
+	private:
+		BackupFixture(const BackupFixture &);
+		BackupFixture &operator=(const BackupFixture &);
 };
 
 /* The packet a wake would send, caught before it reaches a socket, so no case
@@ -1194,7 +1420,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 55);
+	REQUIRE(changing == 56);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4040,6 +4266,11 @@ TEST_CASE("the body example a route is documented with is a request that route a
 		WakeFixture wake;
 		REQUIRE(sendBodyExample("POST", "/api/v1/network/wake", none) == 204);
 	}
+	{
+		BackupFixture b;
+		b.archive("settings.tar.gz", b.config + "/neutrino.conf");
+		REQUIRE(sendBodyExample("POST", "/api/v1/system/restore", none) == 202);
+	}
 	REQUIRE(sendBodyExample("POST", "/api/v1/channels/reload", none) == 202);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/channels", first) == 204);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/hidden", first) == 204);
@@ -4707,4 +4938,546 @@ TEST_CASE("a device on the box's network is woken with the packet its card liste
 	wakePackets().clear();
 	REQUIRE(lanPost("/api/v1/network/wake", "{\"mac\":\"001122aabbcc\"}").code == 403);
 	REQUIRE(wakePackets().empty());
+}
+
+TEST_CASE("a freeze of the settings writes waits for the ones under way and holds off the rest", "[write][backup]")
+{
+	REQUIRE_FALSE(coreapi::SettingsWrite::frozen());
+	coreapi::SettingsWrite *under_way = new coreapi::SettingsWrite;
+	REQUIRE(under_way->allowed());
+	volatile bool frozen = false;
+	std::thread freezer([&frozen]() {
+		coreapi::SettingsWrite::freeze();
+		frozen = true;
+	});
+	usleep(200 * 1000);
+	// the freeze is on, and waits for the write under way to finish
+	REQUIRE(coreapi::SettingsWrite::frozen());
+	REQUIRE_FALSE(frozen);
+	{
+		coreapi::SettingsWrite later;
+		REQUIRE_FALSE(later.allowed());
+	}
+	delete under_way;
+	freezer.join();
+	REQUIRE(frozen);
+	// the writer of every key=value settings file asks as well
+	char dir[] = "/tmp/settingswrites_XXXXXX";
+	REQUIRE(mkdtemp(dir) != NULL);
+	const std::string conf = std::string(dir) + "/scan.conf";
+	CConfigFile cfg('=');
+	cfg.setString("diseqc", "1");
+	REQUIRE_FALSE(cfg.saveConfig(conf));
+	REQUIRE(access(conf.c_str(), F_OK) != 0);
+	coreapi::SettingsWrite::thaw();
+	coreapi::SettingsWrite after;
+	REQUIRE(after.allowed());
+	REQUIRE(cfg.saveConfig(conf));
+	unlink(conf.c_str());
+	rmdir(dir);
+}
+
+TEST_CASE("the settings menu's restore and the web's take turns", "[write][backup]")
+{
+	ShippedRoutes shipped;
+	BackupFixture b;
+	const std::string rel = b.box.dir.substr(1);
+	const std::string okPaths = "'" + rel + "/config/neutrino.conf' '" + rel + "/extra/a.conf'";
+
+	// While the menu restores, the web's restore waits its turn.
+	{
+		coreapi::backup::MenuRestore menu;
+		REQUIRE(menu.taken());
+		coreapi::backup::MenuRestore second;
+		REQUIRE_FALSE(second.taken());
+		REQUIRE(b.archive("during.tar.gz", okPaths));
+		const Reply during = authedPost("/api/v1/system/restore", "{\"file\":\"during.tar.gz\"}");
+		REQUIRE(during.code == 409);
+		REQUIRE(during.body.find("another restore") != std::string::npos);
+	}
+
+	// A menu restore that put nothing back leaves the turn free for the next.
+	{
+		coreapi::backup::MenuRestore menu;
+		REQUIRE(menu.taken());
+	}
+	REQUIRE(b.archive("free.tar.gz", okPaths));
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"free.tar.gz\"}").code == 202);
+
+	// Settings the web put back wait for the restart: the menu does not start
+	// another restore, and cannot let go of the hold on the settings writes.
+	coreapi::backup::internal::setRestarterForTest(&restartLater);
+	REQUIRE(b.archive("web.tar.gz", okPaths));
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"web.tar.gz\"}").code == 202);
+	{
+		coreapi::backup::MenuRestore menu;
+		REQUIRE_FALSE(menu.taken());
+		menu.putBack();
+	}
+	REQUIRE(coreapi::SettingsWrite::frozen());
+	coreapi::backup::internal::restartedForTest();
+
+	// Settings the menu put back, in whole or in part, keep the web's restore off
+	// until the restart.
+	{
+		coreapi::backup::MenuRestore menu;
+		REQUIRE(menu.taken());
+		coreapi::SettingsWrite::freeze();
+		menu.putBack();
+	}
+	REQUIRE(b.archive("aftermenu.tar.gz", okPaths));
+	const Reply aftermenu = authedPost("/api/v1/system/restore", "{\"file\":\"aftermenu.tar.gz\"}");
+	REQUIRE(aftermenu.code == 409);
+	REQUIRE(aftermenu.body.find("wait for the restart") != std::string::npos);
+	REQUIRE(coreapi::SettingsWrite::frozen());
+	coreapi::backup::internal::restartedForTest();
+	coreapi::backup::internal::setRestarterForTest(&catchReboot);
+	REQUIRE_FALSE(coreapi::SettingsWrite::frozen());
+	REQUIRE(b.leftovers().empty());
+}
+
+TEST_CASE("the box's settings go out as one archive and come back only where it backs up", "[write][backup]")
+{
+	ShippedRoutes shipped;
+	BackupFixture b;
+
+	// The archive backup.sh packed, as a file to keep, and nothing left behind.
+	const Reply got = authedGet("/api/v1/system/backup");
+	REQUIRE(got.code == 200);
+	REQUIRE(got.content_type == "application/gzip");
+	REQUIRE(got.body.size() > 2);
+	REQUIRE((unsigned char) got.body[0] == 0x1f);
+	REQUIRE((unsigned char) got.body[1] == 0x8b);
+	REQUIRE(headerOf(got, "Content-Disposition") == "attachment; filename=\"settings_testbox_20261013_1200.tar.gz\"");
+	DIR *d = opendir(b.box.dir.c_str());
+	REQUIRE(d != NULL);
+	struct dirent *e;
+	bool leftover = false;
+	while ((e = readdir(d)) != NULL)
+		leftover = leftover || std::strncmp(e->d_name, "backup.", 7) == 0;
+	closedir(d);
+	REQUIRE_FALSE(leftover);
+	REQUIRE(send(Get, "/api/v1/system/backup", "", AuthLevel::Write, "127.0.0.1").code == 403);
+
+	// Into the configuration directory, and onto what tobackup.conf names: what
+	// the archive holds is back, with the permissions it carries and no set-id
+	// bit, the box is restarted, the upload is gone and nothing of the unpacking
+	// is left behind.
+	const std::string rel = b.box.dir.substr(1);
+	const std::string okPaths = "'" + rel + "/config/neutrino.conf' '" + rel + "/extra/a.conf'";
+	chmod(b.box.at("extra/a.conf").c_str(), 0640);
+	b.write(b.config + "/suid.conf", "s=1\n");
+	chmod((b.config + "/suid.conf").c_str(), 04755);
+	REQUIRE(b.archive("ok.tar.gz", okPaths + " '" + rel + "/config/suid.conf'"));
+	b.write(b.config + "/neutrino.conf", "volume=99\n");
+	b.write(b.box.at("extra/a.conf"), "a=2\n");
+	chmod(b.box.at("extra/a.conf").c_str(), 0600);
+	REQUIRE(send(Post, "/api/v1/system/restore", "{\"file\":\"ok.tar.gz\"}", AuthLevel::Write, "127.0.0.1").code == 403);
+	REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=99\n");
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"ok.tar.gz\"}").code == 202);
+	REQUIRE(rebootsStarted() == 1);
+	REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=50\n");
+	REQUIRE(b.read(b.box.at("extra/a.conf")) == "a=1\n");
+	struct stat mode;
+	REQUIRE(stat(b.box.at("extra/a.conf").c_str(), &mode) == 0);
+	REQUIRE((mode.st_mode & 07777) == 0640);
+	REQUIRE(stat((b.config + "/suid.conf").c_str(), &mode) == 0);
+	REQUIRE((mode.st_mode & 07777) == 0755);
+	REQUIRE(access(b.box.at("ok.tar.gz").c_str(), F_OK) != 0);
+	REQUIRE(b.leftovers().empty());
+
+	// A pattern from the list, and the box's own layout under config/.
+	mkdir(b.box.at("cfg").c_str(), 0700);
+	b.write(b.box.at("cfg/x.cfg"), "x\n");
+	REQUIRE(b.archive("pattern.tar.gz", "'" + rel + "/cfg/x.cfg'"));
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"pattern.tar.gz\"}").code == 202);
+	REQUIRE(b.read(b.box.at("cfg/x.cfg")) == "x\n");
+	// config/... lands below the box's /var/tuxbox, here the sandbox
+	REQUIRE(b.archive("boxstyle.tar.gz", "config/neutrino.conf", b.box.dir));
+	b.write(b.config + "/neutrino.conf", "volume=98\n");
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"boxstyle.tar.gz\"}").code == 202);
+	REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=50\n");
+	// a pax record naming a place inside, with its header inside as well
+	{
+		std::vector<BackupFixture::RawEntry> raw;
+		BackupFixture::RawEntry pax = { "PaxHeaders/x", 'x', BackupFixture::paxRecord("path", rel + "/config/long-name.conf") };
+		BackupFixture::RawEntry plain = { rel + "/config/long-na", '0', "x\n" };
+		raw.push_back(pax);
+		raw.push_back(plain);
+		b.rawTarOf("paxok.tar", raw);
+	}
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"paxok.tar\"}").code == 202);
+	// unpacked as the pax path says, as GNU tar does, and not as the header's name
+	REQUIRE(b.read(b.config + "/long-name.conf") == "x\n");
+	REQUIRE(access((b.config + "/long-na").c_str(), F_OK) != 0);
+	REQUIRE(rebootsStarted() == 4);
+
+	// Refused, and nothing started: elsewhere, left out of a wider entry, a link, unreadable.
+	struct Refused { const char *name; const char *why; };
+	mkdir(b.box.at("elsewhere").c_str(), 0700);
+	b.write(b.box.at("elsewhere/x.conf"), "x\n");
+	REQUIRE(symlink(b.box.at("elsewhere").c_str(), (b.config + "/external").c_str()) == 0);
+	REQUIRE(b.archive("through.tar.gz", "'" + rel + "/config/external/x.conf'"));
+	REQUIRE(b.archive("elsewhere.tar.gz", "'" + rel + "/other/x.conf'"));
+	REQUIRE(b.archive("mixed.tar.gz", "'" + rel + "/config/neutrino.conf' '" + rel + "/other/x.conf'"));
+	REQUIRE(symlink("/etc/passwd", (b.config + "/link").c_str()) == 0);
+	REQUIRE(b.archive("link.tar.gz", "'" + rel + "/config/link'"));
+	b.write(b.box.at("junk.tar.gz"), "not an archive at all\n");
+	b.rawTar("climb.tar", rel + "/config/../other/x.conf");
+	b.rawTar("newline.tar", rel + "/config/a\nb");
+	{
+		std::vector<BackupFixture::RawEntry> raw;
+		BackupFixture::RawEntry gnu = { "././@LongLink", 'L', rel + "/other/x.conf" + std::string(1, '\0') };
+		BackupFixture::RawEntry plain = { rel + "/config/ok.conf", '0', "x\n" };
+		raw.push_back(gnu);
+		raw.push_back(plain);
+		b.rawTarOf("longname.tar", raw);
+		raw.clear();
+		BackupFixture::RawEntry pax = { "PaxHeaders/ok.conf", 'x', BackupFixture::paxRecord("path", rel + "/other/x.conf") };
+		raw.push_back(pax);
+		raw.push_back(plain);
+		b.rawTarOf("pax.tar", raw);
+		raw.clear();
+		BackupFixture::RawEntry device = { rel + "/config/dev", '3', "" };
+		raw.push_back(device);
+		b.rawTarOf("device.tar", raw);
+		raw.clear();
+		// a pax size telling tar to step elsewhere than the header does
+		BackupFixture::RawEntry paxsize = { "PaxHeaders/ok.conf", 'x', BackupFixture::paxRecord("size", "1024") };
+		raw.push_back(paxsize);
+		raw.push_back(plain);
+		b.rawTarOf("paxsize.tar", raw);
+		raw.clear();
+		BackupFixture::RawEntry sparse = { "PaxHeaders/ok.conf", 'x', BackupFixture::paxRecord("GNU.sparse.size", "2") };
+		raw.push_back(sparse);
+		raw.push_back(plain);
+		b.rawTarOf("sparse.tar", raw);
+		raw.clear();
+		/* A record length that wraps around once added to where it starts and
+		   points back at a record already read: read on, it would be read for ever. */
+		BackupFixture::RawEntry wrap = { "PaxHeaders/ok.conf", 'x',
+			"13 comment=x\n13 comment=x\n18446744073709551603 comment=z\n" };
+		raw.push_back(wrap);
+		raw.push_back(plain);
+		b.rawTarOf("paxwrap.tar", raw);
+	}
+	{
+		/* An old GNU header keeps times where ustar keeps the prefix: a tar reading
+		   it as GNU unpacks the name field alone, here outside, while the prefix
+		   in front of it would land inside. */
+		std::vector<BackupFixture::RawEntry> raw;
+		BackupFixture::RawEntry plain = { "etc-evil.conf", '0', "x\n" };
+		raw.push_back(plain);
+		b.rawTarOf("prefix.tar", raw, rel + "/config");
+		raw.clear();
+		/* A directory whose header claims data, and in that data a header of its
+		   own: tar does not step over data for a directory, so it would unpack
+		   that header. */
+		const std::string hidden = BackupFixture::rawHeader("etc/hidden.conf", '0', 2) +
+					   std::string("x\n") + std::string(510, '\0');
+		BackupFixture::RawEntry dir = { rel + "/config/safe/", '5', hidden };
+		raw.push_back(dir);
+		b.rawTarOf("dirdata.tar", raw);
+		raw.clear();
+		// two pax headers before one entry
+		BackupFixture::RawEntry pax1 = { "PaxHeaders/a", 'x', BackupFixture::paxRecord("path", rel + "/config/a.conf") };
+		BackupFixture::RawEntry pax2 = { "PaxHeaders/b", 'x', BackupFixture::paxRecord("path", rel + "/config/b.conf") };
+		BackupFixture::RawEntry inside = { rel + "/config/c.conf", '0', "x\n" };
+		raw.push_back(pax1);
+		raw.push_back(pax2);
+		raw.push_back(inside);
+		b.rawTarOf("stacked.tar", raw);
+		raw.clear();
+		// a file named like a directory, with data an old tar would not step over
+		BackupFixture::RawEntry slash = { rel + "/config/dir/", '0', hidden };
+		raw.push_back(slash);
+		b.rawTarOf("slashfile.tar", raw);
+	}
+	{
+		/* A lone zero block and an entry behind it: GNU tar reads on past it and
+		   unpacks that entry. */
+		std::string tar = BackupFixture::rawHeader(rel + "/config/ok.conf", '0', 2) + std::string("x\n") +
+				  std::string(510, '\0') + std::string(512, '\0') +
+				  BackupFixture::rawHeader("etc/behind.conf", '0', 2) + std::string("x\n") +
+				  std::string(510, '\0') + std::string(1024, '\0');
+		FILE *f = std::fopen(b.box.at("lonezero.tar").c_str(), "wb");
+		REQUIRE(f != NULL);
+		std::fwrite(tar.data(), 1, tar.size(), f);
+		std::fclose(f);
+	}
+	mkdir(b.box.at("wild").c_str(), 0700);
+	REQUIRE(symlink(b.box.at("elsewhere").c_str(), b.box.at("wild/sub").c_str()) == 0);
+	b.rawTar("wildlink.tar", rel + "/wild/sub/s.conf");
+	// names read alike by no two readers: a . part, and an empty one
+	b.rawTar("dotpart.tar", rel + "/config/./a.conf");
+	b.rawTar("emptypart.tar", rel + "/config//a.conf");
+	// a file where the box has a directory, and a directory where it has a file
+	mkdir((b.config + "/adir").c_str(), 0700);
+	b.rawTar("ondir.tar", rel + "/config/adir");
+	{
+		std::vector<BackupFixture::RawEntry> raw;
+		BackupFixture::RawEntry dir = { rel + "/config/neutrino.conf/", '5', "" };
+		raw.push_back(dir);
+		b.rawTarOf("onfile.tar", raw);
+		// the archive at odds with itself: a file and a directory of one name, and
+		// an entry below a file of its own
+		raw.clear();
+		BackupFixture::RawEntry both_dir = { rel + "/config/both/", '5', "" };
+		BackupFixture::RawEntry both_file = { rel + "/config/both", '0', "x\n" };
+		raw.push_back(both_dir);
+		raw.push_back(both_file);
+		b.rawTarOf("both.tar", raw);
+		raw.clear();
+		BackupFixture::RawEntry outer = { rel + "/config/outer", '0', "x\n" };
+		BackupFixture::RawEntry inner = { rel + "/config/outer/inner.conf", '0', "y\n" };
+		raw.push_back(outer);
+		raw.push_back(inner);
+		b.rawTarOf("below.tar", raw);
+	}
+	const Refused refused[] = {
+		{ "elsewhere.tar.gz", "backs nothing up" },
+		{ "mixed.tar.gz",     "backs nothing up" },
+		{ "link.tar.gz",      "link" },
+		{ "junk.tar.gz",      "cannot be read" },
+		{ "climb.tar",        "climbs" },
+		{ "through.tar.gz",   "through a link" },
+		{ "newline.tar",      "control character" },
+		{ "longname.tar",     "backs nothing up" },
+		{ "pax.tar",          "backs nothing up" },
+		{ "device.tar",       "a device" },
+		{ "wildlink.tar",     "through a link" },
+		{ "paxsize.tar",      "cannot be read" },
+		{ "sparse.tar",       "cannot be read" },
+		{ "paxwrap.tar",      "cannot be read" },
+		{ "prefix.tar",       "backs nothing up" },
+		{ "dirdata.tar",      "cannot be read" },
+		{ "stacked.tar",      "cannot be read" },
+		{ "slashfile.tar",    "cannot be read" },
+		{ "lonezero.tar",     "cannot be read" },
+		{ "ondir.tar",        "file where the box has a directory" },
+		{ "onfile.tar",       "directory where the box has a file" },
+		{ "both.tar",         "as a file and as a directory" },
+		{ "below.tar",        "as a file and puts" },
+		{ "dotpart.tar",      "or an empty part" },
+		{ "emptypart.tar",    "or an empty part" },
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i].name);
+		const Reply r = authedPost("/api/v1/system/restore", std::string("{\"file\":\"") + refused[i].name + "\"}");
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("restore-refused") != std::string::npos);
+		REQUIRE(r.body.find(refused[i].why) != std::string::npos);
+		REQUIRE(access(b.box.at(refused[i].name).c_str(), F_OK) != 0);
+	}
+	REQUIRE(rebootsStarted() == 4);
+	REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=50\n");
+	// a copy goes with its directory, refused or put back
+	REQUIRE(b.leftovers().empty());
+
+	// More than the settings of a box come to.
+	REQUIRE(b.archive("big.tar.gz", okPaths));
+	coreapi::backup::internal::max_unpacked = 5;
+	const Reply big = authedPost("/api/v1/system/restore", "{\"file\":\"big.tar.gz\"}");
+	coreapi::backup::internal::max_unpacked = 256ull * 1024 * 1024;
+	REQUIRE(big.code == 400);
+	REQUIRE(big.body.find("unpacks to more") != std::string::npos);
+	REQUIRE(b.archive("many.tar.gz", okPaths));
+	coreapi::backup::internal::max_members = 1;
+	const Reply many = authedPost("/api/v1/system/restore", "{\"file\":\"many.tar.gz\"}");
+	coreapi::backup::internal::max_members = 20000;
+	REQUIRE(many.code == 400);
+	REQUIRE(many.body.find("more names") != std::string::npos);
+
+	// Names that are no upload of this kind, and one with nothing behind it.
+	const char *const names[] = { "x.zip", "../x.tar.gz", ".hidden.tar.gz", "sub/x.tar.gz",
+	                              "evil.tar --exclude=.tar", "a b.tar.gz", "-x.tar.gz" };
+	for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); ++i)
+	{
+		INFO(names[i]);
+		const Reply r = authedPost("/api/v1/system/restore", std::string("{\"file\":\"") + names[i] + "\"}");
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("bad-name") != std::string::npos);
+	}
+	const Reply none = authedPost("/api/v1/system/restore", "{\"file\":\"none.tar.gz\"}");
+	REQUIRE(none.code == 404);
+	REQUIRE(none.body.find("no-such-name") != std::string::npos);
+
+	// A file that cannot be written: the settings as they were, no restart.
+	mkdir((b.config + "/ro").c_str(), 0700);
+	b.write(b.config + "/ro/x.conf", "x\n");
+	REQUIRE(b.archive("ro.tar.gz", "'" + rel + "/config/neutrino.conf' '" + rel + "/config/ro/x.conf'"));
+	b.write(b.config + "/neutrino.conf", "volume=97\n");
+	chmod((b.config + "/ro").c_str(), 0500);
+	const Reply ro = authedPost("/api/v1/system/restore", "{\"file\":\"ro.tar.gz\"}");
+	chmod((b.config + "/ro").c_str(), 0700);
+	if (geteuid() != 0)
+	{
+		REQUIRE(ro.code == 500);
+		REQUIRE(ro.body.find("could not be written") != std::string::npos);
+		REQUIRE(ro.body.find("not restarted") != std::string::npos);
+		REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=97\n");
+		REQUIRE(rebootsStarted() == 4);
+	}
+	REQUIRE(b.leftovers().empty());
+	// nothing changed, so the box may save its settings again
+	REQUIRE_FALSE(coreapi::SettingsWrite::frozen());
+
+	// Back, and the restart not started: said so.
+	b.write(b.config + "/neutrino.conf", "volume=50\n");
+	REQUIRE(b.archive("noboot.tar.gz", okPaths));
+	b.write(b.config + "/neutrino.conf", "volume=96\n");
+	rebootStartsOk = false;
+	const Reply noboot = authedPost("/api/v1/system/restore", "{\"file\":\"noboot.tar.gz\"}");
+	rebootStartsOk = true;
+	REQUIRE(noboot.code == 500);
+	REQUIRE(noboot.body.find("the settings are back") != std::string::npos);
+	REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=50\n");
+	// and until the box is restarted by hand it saves no settings and puts none back
+	{
+		coreapi::SettingsWrite held;
+		REQUIRE_FALSE(held.allowed());
+	}
+	REQUIRE(b.archive("afternoboot.tar.gz", okPaths));
+	const Reply afternoboot = authedPost("/api/v1/system/restore", "{\"file\":\"afternoboot.tar.gz\"}");
+	REQUIRE(afternoboot.code == 409);
+	REQUIRE(afternoboot.body.find("wait for the restart") != std::string::npos);
+	REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=50\n");
+	coreapi::backup::internal::restartedForTest();
+
+	/* Back and waiting for the restart: the box saves no settings file, and a
+	   second restore is turned down, until the restart. */
+	coreapi::backup::internal::setRestarterForTest(&restartLater);
+	REQUIRE(b.archive("waits.tar.gz", okPaths));
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"waits.tar.gz\"}").code == 202);
+	{
+		coreapi::SettingsWrite later;
+		REQUIRE_FALSE(later.allowed());
+	}
+	REQUIRE(b.archive("second.tar.gz", okPaths));
+	const Reply second = authedPost("/api/v1/system/restore", "{\"file\":\"second.tar.gz\"}");
+	REQUIRE(second.code == 409);
+	REQUIRE(second.body.find("wait for the restart") != std::string::npos);
+	coreapi::backup::internal::restartedForTest();
+	{
+		coreapi::SettingsWrite again;
+		REQUIRE(again.allowed());
+	}
+	coreapi::backup::internal::setRestarterForTest(&catchReboot);
+
+	// A directory entry sets its directory's permissions, whatever it has on the box.
+	mkdir((b.config + "/secret").c_str(), 0700);
+	chmod((b.config + "/secret").c_str(), 0700);
+	b.write(b.config + "/secret/s.conf", "s=1\n");
+	REQUIRE(b.archive("secret.tar.gz", "'" + rel + "/config/secret'"));
+	chmod((b.config + "/secret").c_str(), 0755);
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"secret.tar.gz\"}").code == 202);
+	struct stat secret;
+	REQUIRE(stat((b.config + "/secret").c_str(), &secret) == 0);
+	REQUIRE((secret.st_mode & 07777) == 0700);
+
+	/* A directory the box does not have yet, read-only in the archive, with a
+	   file in it: the file goes in first and the permissions come last, so this
+	   works for a program that is not root as well. */
+	mkdir((b.config + "/rodir").c_str(), 0700);
+	b.write(b.config + "/rodir/r.conf", "r=1\n");
+	chmod((b.config + "/rodir").c_str(), 0555);
+	REQUIRE(b.archive("rodir.tar.gz", "'" + rel + "/config/rodir'"));
+	chmod((b.config + "/rodir").c_str(), 0700);
+	REQUIRE(unlink((b.config + "/rodir/r.conf").c_str()) == 0);
+	REQUIRE(rmdir((b.config + "/rodir").c_str()) == 0);
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"rodir.tar.gz\"}").code == 202);
+	REQUIRE(b.read(b.config + "/rodir/r.conf") == "r=1\n");
+	struct stat rodir;
+	REQUIRE(stat((b.config + "/rodir").c_str(), &rodir) == 0);
+	REQUIRE((rodir.st_mode & 07777) == 0555);
+	chmod((b.config + "/rodir").c_str(), 0700);
+
+	// Started for real: the shell after the unpacking, here running a command
+	// that only notes it ran, a moment after the answer. The restart of the
+	// program in its own place would replace the test, so the shell runs.
+	coreapi::backup::internal::setRestarterForTest(NULL);
+	coreapi::backup::internal::restart_in_place = false;
+	// with what the shell is handed, which the restart of this program alone runs on
+	const std::string note = "[ -x \"$0\" ] && [ \"$1\" = \"" + std::to_string((long) getpid()) +
+				 "\" ] && echo started > '" + b.box.at("started") + "'";
+	coreapi::backup::internal::restart_command = note.c_str();
+	const unsigned before_real = rebootsStarted();
+	REQUIRE(b.archive("real.tar.gz", okPaths));
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"real.tar.gz\"}").code == 202);
+	std::string noted;
+	for (int i = 0; i < 50 && noted.empty(); ++i)
+	{
+		usleep(100 * 1000);
+		noted = b.read(b.box.at("started"));
+		if (noted == "(none)")
+			noted.clear();
+	}
+	REQUIRE(noted == "started\n");
+	REQUIRE(rebootsStarted() == before_real);
+	coreapi::backup::internal::restartedForTest();
+	coreapi::backup::internal::setRestarterForTest(&catchReboot);
+
+	/* Listed places the box does not have yet, as on a freshly flashed box: a
+	   listed directory, the directory of a listed file and that of a pattern are
+	   made, and what goes into them is put back. */
+	{
+		const unsigned before = rebootsStarted();
+		b.write(b.list, b.read(b.list) + b.box.at("gone") + "/\n" + b.box.at("lone/f.conf") + "\n" +
+			b.box.at("pat") + "/*.cfg\n");
+		b.rawTar("gone.tar", rel + "/gone/sub/x.conf");
+		b.rawTar("lone.tar", rel + "/lone/f.conf");
+		b.rawTar("pat.tar", rel + "/pat/y.cfg");
+		REQUIRE(access(b.box.at("gone").c_str(), F_OK) != 0);
+		REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"gone.tar\"}").code == 202);
+		REQUIRE(b.read(b.box.at("gone/sub/x.conf")) == "x\n");
+		REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"lone.tar\"}").code == 202);
+		REQUIRE(b.read(b.box.at("lone/f.conf")) == "x\n");
+		REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"pat.tar\"}").code == 202);
+		REQUIRE(b.read(b.box.at("pat/y.cfg")) == "x\n");
+		REQUIRE(rebootsStarted() == before + 3);
+	}
+
+	/* A working name a restore cut short left behind is no reason to refuse the
+	   next one, and is not this restore's to touch; an archive name of that form
+	   is refused, as no restore could tell it from its own. */
+	{
+		const std::string stale = b.config + "/.restore-0123456789abcdef-0";
+		b.write(stale, "left over\n");
+		b.rawTar("stale.tar", rel + "/config/st.conf");
+		REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"stale.tar\"}").code == 202);
+		REQUIRE(b.read(b.config + "/st.conf") == "x\n");
+		REQUIRE(b.read(stale) == "left over\n");
+		unlink(stale.c_str());
+		b.rawTar("reserved.tar", rel + "/config/.restore-x");
+		const Reply reserved = authedPost("/api/v1/system/restore", "{\"file\":\"reserved.tar\"}");
+		REQUIRE(reserved.code == 400);
+		REQUIRE(reserved.body.find(".restore-") != std::string::npos);
+	}
+
+	/* A GNU long name whose header name, cut at 100 bytes, ends in a slash: the
+	   name it is unpacked as is the long one, and only that one is held to the
+	   rule that a file's name does not end in a slash. */
+	{
+		std::string head = rel + "/config/";
+		REQUIRE(head.size() < 99);
+		const std::string long_name = rel + "/config/" + std::string(120, 'l') + ".conf";
+		std::vector<BackupFixture::RawEntry> raw;
+		BackupFixture::RawEntry gnu = { "././@LongLink", 'L', long_name + std::string(1, '\0') };
+		BackupFixture::RawEntry plain = { head, '0', "x\n" };
+		raw.push_back(gnu);
+		raw.push_back(plain);
+		b.rawTarOf("longslash.tar", raw);
+		REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"longslash.tar\"}").code == 202);
+		REQUIRE(b.read("/" + long_name) == "x\n");
+	}
+	REQUIRE(b.leftovers().empty());
+
+	// No restore.sh is needed to put settings back; without backup.sh nothing is packed.
+	REQUIRE(access((b.bin + "/restore.sh").c_str(), F_OK) != 0);
+	unlink((b.bin + "/backup.sh").c_str());
+	const Reply nobackup = authedGet("/api/v1/system/backup");
+	REQUIRE(nobackup.code == 500);
+	REQUIRE(nobackup.body.find("backup-failed") != std::string::npos);
+	REQUIRE(b.leftovers().empty());
 }

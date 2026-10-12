@@ -37,6 +37,7 @@
 #include <stdlib.h>
 
 #include <system/helpers.h>
+#include "coreapi/base/settingswrites.h"
 
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
@@ -149,6 +150,10 @@ bool readLines(const std::string &path, std::vector<std::string> &out)
 
 bool writeLines(const std::string &path, const std::vector<std::string> &lines)
 {
+	// settings put back from an archive wait for the restart that reads them
+	SettingsWrite may;
+	if (!may.allowed())
+		return false;
 	CAtomicFileWriter writer(path);
 	FILE *f = writer.file();
 	if (f == NULL)

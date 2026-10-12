@@ -44,6 +44,7 @@
 #include "capmt.h"
 #include <hardware/dmx.h>
 #include <OpenThreads/ScopedLock>
+#include <coreapi/base/settingswrites.h>
 
 static int fedebug = 0;
 static int unused_demux;
@@ -507,6 +508,13 @@ bool CFEManager::loadSettings()
 
 void CFEManager::saveSettings(bool write)
 {
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (write && !may.allowed())
+	{
+		printf("[femanager] settings are being put back, %s left alone\n", FECONFIGFILE);
+		return;
+	}
 	if (femap.empty()) {
 		WARN("frontend map is empty, skipping save of %s", FECONFIGFILE);
 		return;

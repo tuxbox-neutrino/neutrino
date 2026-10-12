@@ -54,6 +54,7 @@
 #include "settings.h"
 #include "zapit.h"
 #include <xmlinterface.h>
+#include <coreapi/base/settingswrites.h>
 
 #define M3U_START_MARKER	"#EXTM3U"
 #define M3U_INFO_MARKER		"#EXTINF"
@@ -421,6 +422,13 @@ static OpenThreads::Mutex bouquet_save_mutex;
    what this answers. */
 bool CBouquetManager::writeBouquetFile(const char * const filename, const bool userBouquets)
 {
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		printf("CBouquetManager::writeBouquetFile: settings are being put back, %s left alone\n", filename);
+		return false;
+	}
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(bouquet_save_mutex);
 	CAtomicFileWriter out(filename);
 

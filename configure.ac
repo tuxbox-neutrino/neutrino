@@ -897,6 +897,26 @@ src/nhttpd/nhttpd.conf
 #data/control/migration.sh
 #])
 
+# What restarts once settings are put back, from the menu or over the web:
+# the whole system, or only this program. A PC that runs other things besides
+# is not to be rebooted by a restore; a box, a Raspberry Pi or a PC that runs
+# nothing but this program is, which a builder can ask for either way. Only
+# the program restarts by ending it without saving and starting it again,
+# which is for a setup where nothing else would start it again.
+AC_ARG_WITH(restore-restart,
+	AS_HELP_STRING([--with-restore-restart=reboot|neutrino],
+		[what restarts after a restore: the system, or only neutrino; default neutrino on a generic PC, reboot otherwise]),
+	[RESTORE_RESTART="$withval"],
+	[if test "$BOXMODEL" = "generic"; then RESTORE_RESTART=neutrino; else RESTORE_RESTART=reboot; fi])
+case "$RESTORE_RESTART" in
+	reboot|neutrino) ;;
+	*) AC_MSG_ERROR([--with-restore-restart takes reboot or neutrino, not $RESTORE_RESTART]) ;;
+esac
+if test "$RESTORE_RESTART" = "neutrino"; then
+	AC_DEFINE(RESTORE_RESTARTS_NEUTRINO, 1, [a restore restarts only neutrino and not the system])
+fi
+AC_SUBST(RESTORE_RESTART)
+
 # Backup scripts
 AC_CONFIG_FILES([
 data/scripts/backup.sh

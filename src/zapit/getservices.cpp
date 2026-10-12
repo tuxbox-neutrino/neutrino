@@ -29,6 +29,7 @@
 #include "settings.h"
 #include "satconfig.h"
 #include "capmt.h"
+#include <coreapi/base/settingswrites.h>
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>
@@ -1101,6 +1102,13 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 
 void CServiceManager::SaveServices(bool tocopy, bool if_changed, bool no_deleted)
 {
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		printf("CServiceManager::SaveServices: settings are being put back, %s left alone\n", SERVICES_XML);
+		return;
+	}
 	std::string delivery_name;
 	int processed = 0;
 

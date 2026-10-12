@@ -267,6 +267,13 @@ enum class ErrorCode
 	/* The wake-up packet for another device did not leave the box: no socket,
 	   or the network turned the broadcast down. */
 	WakeNotSent,
+	/* The box's settings could not be packed: no backup.sh, it failed, or it
+	   left no archive or one too large to hand over. */
+	BackupFailed,
+	/* An archive that is not put back: it cannot be read, or it holds a name
+	   that would land where the box backs nothing up, or the box cannot start
+	   putting it back. */
+	RestoreRefused,
 	/* The box is already keeping a shift, where one was to be started. Refused
 	   rather than granted quietly, because the record manager would start a
 	   second one, and two shifts of one channel hold two tuners to write the
@@ -545,6 +552,8 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::KernelLogUnreadable: return "kernel-log-unreadable";
 		case ErrorCode::TooManySettings: return "too-many-settings";
 		case ErrorCode::WakeNotSent: return "wake-not-sent";
+		case ErrorCode::BackupFailed: return "backup-failed";
+		case ErrorCode::RestoreRefused: return "restore-refused";
 		case ErrorCode::TimeshiftRunning: return "timeshift-running";
 		case ErrorCode::RecordingRunning: return "recording-running";
 		case ErrorCode::RecordingPlaying: return "recording-playing";

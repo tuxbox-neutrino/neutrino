@@ -44,6 +44,8 @@
 #include <driver/screen_max.h>
 #include <system/helpers.h>
 #include <system/debug.h>
+#include <coreapi/backup.h>
+#include <coreapi/base/settingswrites.h>
 
 #include <sys/vfs.h>
 
@@ -165,10 +167,48 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo);
 			if(result == CMsgBox::mbrYes)
 			{
+				// one restore at a time, the web interface's included
+				coreapi::backup::MenuRestore turn;
+				if (!turn.taken())
+				{
+					ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_BUSY),
+						CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
+					return res;
+				}
 				std::string restore_sh = find_executable("restore.sh");
 				std::string restore_file = fileBrowser.getSelectedFile()->Name;
 				dprintf(DEBUG_NORMAL, "[CSettingsManager]\t[%s - %d] executing [%s %s]\n", __func__, __LINE__, restore_sh.c_str(), restore_file.c_str());
-				my_system(2, restore_sh.c_str(), restore_file.c_str());
+				/* Nothing of the box saves a settings file while the script puts
+				   them back and until the restart: it would write what it holds
+				   over them. Let go again only where the script put nothing back:
+				   it said so (1), or did not run at all. */
+				coreapi::SettingsWrite::freeze();
+				const int done = restore_sh.empty() ? 127 :
+					my_system(2, restore_sh.c_str(), restore_file.c_str());
+				/* 0: the settings are back and the restart is under way, or in a
+				   build that restarts only this program, is this program's to
+				   start; 2: back, and the reboot could not be started; anything
+				   else but 1 and a script that never ran may have put part of
+				   them back. */
+				if (done == 1 || done == 127 || done < 0)
+				{
+					coreapi::SettingsWrite::thaw();
+					return res;
+				}
+				turn.putBack();
+				neutrino_locale_t said = NONEXISTANT_LOCALE;
+				if (done == 2)
+					said = LOCALE_SETTINGS_RESTORE_RESTART_FAILED;
+				else if (done != 0)
+					said = LOCALE_SETTINGS_RESTORE_PARTLY;
+#ifdef RESTORE_RESTARTS_NEUTRINO
+				// restore.sh leaves the restart to this program in such a build
+				else if (!coreapi::backup::restartWithoutSaving())
+					said = LOCALE_SETTINGS_RESTORE_RESTART_FAILED;
+#endif
+				if (said != NONEXISTANT_LOCALE)
+					ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(said),
+						CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR);
 			}
 		}
 		return res;

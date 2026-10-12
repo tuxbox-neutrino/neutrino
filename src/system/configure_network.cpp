@@ -31,6 +31,7 @@
 #include <sstream>
 #include <fstream>
 #include <system/helpers.h>
+#include <coreapi/base/settingswrites.h>
 
 CNetworkConfig::CNetworkConfig()
 {
@@ -188,6 +189,13 @@ bool CNetworkConfig::modified_from_orig(void)
 
 void CNetworkConfig::commitConfig(void)
 {
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		printf("CNetworkConfig::commitConfig: settings are being put back, the network files are left alone\n");
+		return;
+	}
 	if (!canConfigure())
 	{
 		printf("CNetworkConfig::commitConfig: %s is not configured here\n", ifname.c_str());

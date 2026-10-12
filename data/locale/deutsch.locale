@@ -2740,6 +2740,9 @@ settings.pos_top_center oben zentriert
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 settings.restore System-Einstellungen wiederherstellen
+settings.restore_busy Es wird schon zurückgespielt, oder zurückgespielte Einstellungen warten auf den Neustart.
+settings.restore_partly Die Einstellungen wurden nur zum Teil zurückgespielt.\nBitte jetzt von Hand neu starten und erneut zurückspielen.\nBis dahin werden keine Einstellungen gespeichert.
+settings.restore_restart_failed Die Einstellungen sind zurückgespielt, der Neustart ließ sich aber nicht starten.\nBitte jetzt von Hand neu starten.\nBis dahin werden keine Einstellungen gespeichert.
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shoutcast.dev_id SHOUTcast Developer ID
 shoutcast.enabled SHOUTcast-Unterstützung
