@@ -1206,7 +1206,7 @@
 
 	// XMLTV/WebChannels-Quellen: eine URL pro Zeile; Speichern setzt die
 	// Listen via xmltvlist (ACHTUNG: leere Textarea leert die Liste) und
-	// laedt die Kanallisten neu (reloadchannels-Trichter, vgl. WORK-147)
+	// laedt die Kanallisten neu (POST /api/v1/channels/reload)
 	function renderXmltvPanel() {
 		setTimeout(loadXmltvPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.xmltv_title=}') +
@@ -1282,7 +1282,7 @@
 		btn.disabled = true;
 		try {
 			await ywebApi('xmltvlist', {webtv: tv, webradio: radio});
-			await ywebApi('reloadchannels');
+			await ywebV1('POST', '/channels/reload');
 			ywebShowToast('{=L:yw.set.xmltv_saved=}');
 		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;
@@ -1319,7 +1319,8 @@
 			var size = (res.data && res.data.size) || '?';
 			var put = await ywebApi('exec', 'Y_Tools&zapit_put_upload&' + encodeURIComponent(f.name) + '&' + encodeURIComponent(target), {raw: true});
 			if (/^error/.test(put.trim())) throw new Error(put.trim());
-			await ywebApi('reloadchannels');
+			// the list just put in place wins over what the box holds
+			await ywebV1('POST', '/channels/reload', {body: {hard: true}});
 			if (status) status.textContent = target + ' ✓ (' + size + ' B)';
 			ywebShowToast(target + ' {=L:yw.set.zapit_done=}');
 		} catch (e) {
@@ -1354,47 +1355,57 @@
 		btn.disabled = false;
 	}
 
-	// Plugins: Liste vom v4 plugins-Endpoint, Start via startplugin.
-	// Daemon-Steuerung (nfs/samba/... via Y_Tools-Scripts) bleibt bewusst
-	// der Legacy-Seite ueberlassen - paket-/imageabhaengig.
+	// Plugins over /api/v1: the list, starting one, and reading the plugin
+	// directories again. The box starts a plugin and reads its directories
+	// on its own thread, after it answered. Daemon control (nfs, samba, ...
+	// through the Y_Tools scripts) stays with the legacy page on purpose:
+	// it depends on the packages and the image.
 	function renderPluginsPanel() {
 		setTimeout(loadPluginsPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('{=L:yw.reg.plugins=}') +
 			'<div id="pluginsPanel"><p aria-busy="true">{=L:yw.set.plugins_loading=}</p></div></div>';
 	}
 
+	function pluginRow(label, note, button) {
+		return ywebEl('div', {className: 'yweb-form-row'},
+			ywebEl('label', {}, label, note ? ' ' : null,
+				note ? ywebEl('small', {style: {color: 'var(--pico-muted-color)'}}, note) : null),
+			button ? ywebEl('span', {className: 'yweb-row-actions'}, button) : null);
+	}
+
+	function pluginButton(icon, text, onClick) {
+		return ywebEl('button', {type: 'button', className: 'yweb-btn', on: {click: function() { onClick(this); }}},
+			ywebMarkup(icon), text);
+	}
+
 	async function loadPluginsPanel() {
 		var el = document.getElementById('pluginsPanel');
 		if (!el) return;
 		try {
-			var data = await ywebApi('plugins');
-			var list = (data && data.plugins) || [];
-			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">Installierte Plugins</div>';
-			if (list.length === 0) {
-				html += '<div class="yweb-form-row"><label>{=L:yw.set.plugins_none=}</label></div>';
-			} else {
-				list.forEach(function(pl) {
-					if (pl.hidden) return;
-					var desc = pl.description ? ' <small style="color:var(--pico-muted-color)">' + escapeHtml(pl.description) + '</small>' : '';
-					html += '<div class="yweb-form-row"><label>' + escapeHtml(pl.name) + desc + '</label>' +
-						'<span class="yweb-row-actions">' +
-						'<button type="button" class="yweb-btn" onclick="startPluginByName(\'' + escapeJs(pl.name) + '\', this)">' + PLAY_ICON + '{=L:yw.set.plugins_start=}</button></span></div>';
-				});
-			}
-			html += '</div><div class="yweb-form-section"><div class="yweb-form-section-title">Verwaltung</div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.set.plugins_reload=}</label>' +
-				'<span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="reloadPluginList(this)">' + REFRESH_ICON + '{=L:yw.set.plugins_reload_btn=}</button></span></div></div>';
-			el.innerHTML = html;
+			var data = await ywebV1('GET', '/plugins');
+			var list = ((data && data.items) || []).filter(function(pl) { return !pl.hidden; });
+			var installed = ywebEl('div', {className: 'yweb-form-section'},
+				ywebEl('div', {className: 'yweb-form-section-title'}, 'Installierte Plugins'));
+			if (list.length === 0)
+				installed.appendChild(pluginRow('{=L:yw.set.plugins_none=}'));
+			list.forEach(function(pl) {
+				installed.appendChild(pluginRow(pl.title || pl.name, pl.description,
+					pluginButton(PLAY_ICON, '{=L:yw.set.plugins_start=}', function(btn) { startPluginByName(pl.name, btn); })));
+			});
+			var manage = ywebEl('div', {className: 'yweb-form-section'},
+				ywebEl('div', {className: 'yweb-form-section-title'}, 'Verwaltung'),
+				pluginRow('{=L:yw.set.plugins_reload=}', null,
+					pluginButton(REFRESH_ICON, '{=L:yw.set.plugins_reload_btn=}', reloadPluginList)));
+			el.replaceChildren(installed, manage);
 		} catch (e) {
-			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.plugins_notavail=}: ' + escapeHtml(e.message) + '</label></div>';
+			el.replaceChildren(pluginRow('{=L:yw.set.plugins_notavail=}: ' + e.message));
 		}
 	}
 
 	async function startPluginByName(name, btn) {
 		btn.disabled = true;
 		try {
-			await ywebApi('startplugin', {name: name});
+			await ywebV1('POST', '/plugins/' + encodeURIComponent(name) + '/start');
 			ywebShowToast('{=L:yw.set.plugin_started=}: ' + name);
 		} catch (e) {
 			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
@@ -1402,10 +1413,13 @@
 		btn.disabled = false;
 	}
 
+	// The box reads the directories after it answered, so the list is read
+	// again a moment later
 	async function reloadPluginList(btn) {
 		btn.disabled = true;
 		try {
-			await ywebApi('reloadplugins');
+			await ywebV1('POST', '/plugins/reload');
+			await new Promise(function(r) { setTimeout(r, 1500); });
 			await loadPluginsPanel();
 			ywebShowToast('{=L:yw.set.plugins_reloaded=}');
 		} catch (e) {
