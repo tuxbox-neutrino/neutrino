@@ -67,6 +67,9 @@ private:
 	// local Session vars
 	CStringList ycgi_vars;	//ycgi session vars
 	CConfigFile *yConfig;
+	// what a page set in the web interface's own file since it opened it,
+	// merged into the file as it stands when the page saves
+	std::map<std::string, std::string> ywebPending;
 
 	// mutex for vars and caching (yCached_*)
 	static pthread_mutex_t yParser_mutex;

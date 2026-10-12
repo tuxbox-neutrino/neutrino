@@ -198,6 +198,8 @@ extern const RouteTable storageTable;
    file under the roots and about what the kernel has mounted, and this one
    answers about a table with a shape that a page must not have to know. */
 extern const RouteTable netfsTable;
+// The web interface's own settings file, beside the box's settings and not among them.
+extern const RouteTable webuiTable;
 extern const RouteTable authTable;
 extern const RouteTable timersTable;
 extern const RouteTable osdTable;

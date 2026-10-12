@@ -48,6 +48,7 @@
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
 #include <httpd/login_bridge.h>
+#include <coreapi/webui.h>
 #include <mod_auth.h>
 #include <src/tools/rcsim.h> // rcsim.h is located in $(top_builddir)
 #include <driver/pictureviewer/pictureviewer.h>
@@ -5179,6 +5180,11 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	std::string error = "";
 	std::string result = "";
 	std::string configFileName = hh->ParamList["config"];
+	/* The web interface's own file is also read and written over /api/v1, in
+	   this same program: one at a time, or each could write over the other. */
+	coreapi::webui::FileLock *yweb_lock = NULL;
+	if (configFileName == "yweb")
+		yweb_lock = new coreapi::webui::FileLock;
 
 	hh->outStart();
 
@@ -5311,6 +5317,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 
 	if (own_config)
 		delete Config;
+	delete yweb_lock;
 }
 
 //-----------------------------------------------------------------------------

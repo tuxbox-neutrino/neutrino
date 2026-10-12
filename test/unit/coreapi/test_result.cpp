@@ -145,6 +145,7 @@ const Walked kWalked[] = {
 	CODE(IntoItself),
 	CODE(ProcessesUnreadable),
 	CODE(KernelLogUnreadable),
+	CODE(TooManySettings),
 	CODE(TimeshiftRunning),
 	CODE(RecordingRunning),
 	CODE(RecordingPlaying),
@@ -386,6 +387,7 @@ TEST_CASE("the codes the file endpoint answers with are written down", "[result]
 		{ ErrorCode::IntoItself,      "into-itself" },
 		{ ErrorCode::ProcessesUnreadable, "processes-unreadable" },
 		{ ErrorCode::KernelLogUnreadable, "kernel-log-unreadable" },
+		{ ErrorCode::TooManySettings, "too-many-settings" },
 		{ ErrorCode::ChangeRefused,   "change-refused" }
 	};
 	for (size_t i = 0; i < sizeof(emitted) / sizeof(emitted[0]); i++)

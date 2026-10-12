@@ -79,6 +79,7 @@ libcoreapi_a_SOURCES = \
 	tuner.cpp \
 	plugins.cpp \
 	recordings.cpp \
+	webui.cpp \
 	archive.cpp \
 	library.cpp \
 	playback.cpp \
@@ -111,6 +112,7 @@ noinst_HEADERS = \
 	plugins.h \
 	recordings.h \
 	recordings_internal.h \
+	webui.h \
 	archive.h \
 	archive_internal.h \
 	library.h \

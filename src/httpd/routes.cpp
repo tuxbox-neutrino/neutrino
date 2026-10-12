@@ -67,6 +67,7 @@ const RouteTable *const kTables[] = {
 	&settingsTable,
 	&systemTable,
 	&webserverTable,
+	&webuiTable,
 	&storageTable,
 	&netfsTable,
 	&eventsTable,

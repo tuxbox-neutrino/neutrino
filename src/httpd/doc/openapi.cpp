@@ -1536,6 +1536,10 @@ const TagDoc kTags[] = {
 	  "on, the one account it takes a password under, who reads from it without presenting one, "
 	  "and whether it hands channel pictures over. The only part of this box that can cut the "
 	  "way it is being changed through." },
+	{ "webui",
+	  "What the web interface keeps of its own beside the box's settings: the start page, the "
+	  "box's name and colour as the pages show them, the devices it wakes, and which extensions it "
+	  "shows." },
 	{ "daemons",
 	  "Starting, stopping and restarting one of the programs beside the one answering here. What "
 	  "they are and how they are doing is under system." },

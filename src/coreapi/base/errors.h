@@ -261,6 +261,9 @@ enum class ErrorCode
 	   not hand its log to this program: nothing a caller can change. */
 	ProcessesUnreadable,
 	KernelLogUnreadable,
+	/* The web interface's own settings file holds as many keys as it takes. A
+	   new one goes in only after another is taken out. */
+	TooManySettings,
 	/* The box is already keeping a shift, where one was to be started. Refused
 	   rather than granted quietly, because the record manager would start a
 	   second one, and two shifts of one channel hold two tuners to write the
@@ -537,6 +540,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::IntoItself: return "into-itself";
 		case ErrorCode::ProcessesUnreadable: return "processes-unreadable";
 		case ErrorCode::KernelLogUnreadable: return "kernel-log-unreadable";
+		case ErrorCode::TooManySettings: return "too-many-settings";
 		case ErrorCode::TimeshiftRunning: return "timeshift-running";
 		case ErrorCode::RecordingRunning: return "recording-running";
 		case ErrorCode::RecordingPlaying: return "recording-playing";

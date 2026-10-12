@@ -48,6 +48,7 @@
 #include "coreapi/storage.h"
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/types.h"
+#include "coreapi/webui.h"
 
 #include <neutrinoMessages.h>
 
@@ -549,6 +550,46 @@ struct Sandbox
 	private:
 		Sandbox(const Sandbox &);
 		Sandbox &operator=(const Sandbox &);
+};
+
+/* The web interface's own settings file, one of the case's own, with what a box
+   ships in it and a key that is not read back. */
+struct WebuiFixture
+{
+	Sandbox     box;
+	std::string path;
+	const char *before;
+
+	WebuiFixture() : path(box.at("yWeb.conf")), before(coreapi::webui::internal::config_path)
+	{
+		coreapi::webui::internal::config_path = path.c_str();
+		FILE *f = std::fopen(path.c_str(), "w");
+		if (f != NULL)
+		{
+			std::fputs("start_page=none\nyweb_box_name=${HOSTNAME}\ntmdb_api_key=SECRETVALUE\n", f);
+			std::fclose(f);
+		}
+	}
+
+	~WebuiFixture() { coreapi::webui::internal::config_path = before; }
+
+	std::string file() const
+	{
+		std::string out;
+		FILE *f = std::fopen(path.c_str(), "r");
+		if (f == NULL)
+			return out;
+		char buf[512];
+		size_t n;
+		while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0)
+			out.append(buf, n);
+		std::fclose(f);
+		return out;
+	}
+
+	private:
+		WebuiFixture(const WebuiFixture &);
+		WebuiFixture &operator=(const WebuiFixture &);
 };
 
 /* The default list and the movie browser's file go with the roots, because the routes
@@ -1125,7 +1166,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 53);
+	REQUIRE(changing == 54);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -3963,6 +4004,10 @@ TEST_CASE("the body example a route is documented with is a request that route a
 		InstalledRecordingSource installed_recordings(&recordings);
 		REQUIRE(sendBodyExample("POST", "/api/v1/recordings", none) == 202);
 	}
+	{
+		WebuiFixture webui;
+		REQUIRE(sendBodyExample("PATCH", "/api/v1/webui/settings", none) == 200);
+	}
 	REQUIRE(sendBodyExample("POST", "/api/v1/channels/reload", none) == 202);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/channels", first) == 204);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/hidden", first) == 204);
@@ -4481,3 +4526,107 @@ TEST_CASE("the body examples of the script and the plugin routes are requests th
 	REQUIRE(sendBodyExample("PUT", "/api/v1/plugins/{name}/hidden", plugin_name) == 204);
 }
 
+TEST_CASE("the web interface's own settings are read and written whole, held to their shape", "[write][webui]")
+{
+	ShippedRoutes shipped;
+	WebuiFixture webui;
+
+	// What is read back, and the key that is not.
+	const Reply read = authedGet("/api/v1/webui/settings");
+	REQUIRE(read.code == 200);
+	REQUIRE(read.body.find("\"start_page\"") != std::string::npos);
+	REQUIRE(read.body.find("SECRETVALUE") == std::string::npos);
+	REQUIRE(read.body.find("\"withheld\":[\"tmdb_api_key\"]") != std::string::npos);
+	REQUIRE(send(Get, "/api/v1/webui/settings", "", AuthLevel::Read, "192.168.1.9").code == 200);
+
+	// Written in one go: a value set, a value taken out with an empty one, the rest kept.
+	const Reply wrote = authedPatch("/api/v1/webui/settings",
+		"{\"yweb_box_name\":\"Wohnzimmer\",\"start_page\":\"\",\"wol_mac_1\":\"aa:bb:cc:dd:ee:ff\","
+		"\"ext_epg-plus.v2_enabled\":\"1\"}");
+	REQUIRE(wrote.code == 200);
+	REQUIRE(wrote.body.find("Wohnzimmer") != std::string::npos);
+	REQUIRE(wrote.body.find("start_page") == std::string::npos);
+	const std::string after = webui.file();
+	REQUIRE(after.find("yweb_box_name=Wohnzimmer") != std::string::npos);
+	REQUIRE(after.find("start_page") == std::string::npos);
+	REQUIRE(after.find("wol_mac_1=aa:bb:cc:dd:ee:ff") != std::string::npos);
+	REQUIRE(after.find("ext_epg-plus.v2_enabled=1") != std::string::npos);
+	// What was written is what is read back.
+	REQUIRE(authedGet("/api/v1/webui/settings").body.find("\"value\":\"aa:bb:cc:dd:ee:ff\"") != std::string::npos);
+	REQUIRE(after.find("tmdb_api_key=SECRETVALUE") != std::string::npos);
+
+	// Only with the box's own credential: one key is who may reach the old management menus.
+	REQUIRE(send(Patch, "/api/v1/webui/settings", "{\"management_ip\":\"1.2.3.4\"}",
+	             AuthLevel::Write, "127.0.0.1").code == 403);
+
+	// Every refusal leaves the file as it was.
+	struct Case { const char *body; int code; const char *wire; };
+	const Case refused[] = {
+		{ "{\"1st\":\"x\"}",                      400, "bad-name" },
+		{ "{\"a b\":\"x\"}",                      400, "bad-name" },
+		{ "{\"_x\":\"x\"}",                       400, "bad-name" },
+		{ "{\"page\":\"{=script:Y_Tools=}\"}",    400, "bad-string" },
+		{ "{\"page\":\"<img src=x onerror=alert(1)>\"}", 400, "bad-string" },
+		{ "{\"page\":\"x\\\" onclick=\\\"y\"}",  400, "bad-string" },
+		{ "{\"page\":\"it's\"}",                  400, "bad-string" },
+		{ "{\"page\":\"a\\\\b\"}",            400, "bad-string" },
+		{ "{\"page\":\"NAS #1\"}",                400, "bad-string" },
+		{ "{\"page\":\"one\\ntwo\"}",            400, "bad-string" },
+		{ "{\"page\":{\"nested\":1}}",            400, "bad-string" },
+		{ "{\"page\":\"1\",\"page\":\"2\"}",  400, "duplicate-parameter" },
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i].body);
+		const Reply r = authedPatch("/api/v1/webui/settings", refused[i].body);
+		REQUIRE(r.code == refused[i].code);
+		REQUIRE(r.body.find(refused[i].wire) != std::string::npos);
+		REQUIRE(webui.file() == after);
+	}
+	const Reply none = authedPatch("/api/v1/webui/settings", "{}");
+	REQUIRE(none.code == 400);
+	REQUIRE(none.body.find("missing-parameter") != std::string::npos);
+	const Reply longer = authedPatch("/api/v1/webui/settings",
+		"{\"page\":\"" + std::string(coreapi::webui::kMaxValueLength + 1, 'x') + "\"}");
+	REQUIRE(longer.code == 400);
+	REQUIRE(longer.body.find("value-too-long") != std::string::npos);
+	REQUIRE(webui.file() == after);
+
+	// More keys than the file takes.
+	std::string many = "{";
+	for (size_t i = 0; i < coreapi::webui::kMaxKeys; ++i)
+		many += std::string(i ? "," : "") + "\"k" + std::to_string(i) + "\":\"v\"";
+	many += "}";
+	const Reply full = authedPatch("/api/v1/webui/settings", many);
+	REQUIRE(full.code == 409);
+	REQUIRE(full.body.find("too-many-settings") != std::string::npos);
+	REQUIRE(webui.file() == after);
+
+	// A key as long as an extension's can make it, and one longer.
+	const std::string longest(coreapi::webui::kMaxKeyLength, 'k');
+	REQUIRE(authedPatch("/api/v1/webui/settings", "{\"" + longest + "\":\"1\"}").code == 200);
+	const Reply overlong = authedPatch("/api/v1/webui/settings", "{\"" + longest + "k\":\"1\"}");
+	REQUIRE(overlong.code == 400);
+	REQUIRE(overlong.body.find("bad-name") != std::string::npos);
+	REQUIRE(authedPatch("/api/v1/webui/settings", "{\"" + longest + "\":\"\"}").code == 200);
+	REQUIRE(webui.file() == after);
+
+	// A file that cannot be saved says so: no directory to write it in, and a
+	// file that cannot be put in place, which leaves what stood there.
+	const std::string nowhere = webui.box.at("no-such-dir/yWeb.conf");
+	coreapi::webui::internal::config_path = nowhere.c_str();
+	const Reply unsaved = authedPatch("/api/v1/webui/settings", "{\"page\":\"x\"}");
+	const std::string occupied = webui.box.at("taken");
+	REQUIRE(mkdir(occupied.c_str(), 0700) == 0);
+	coreapi::webui::internal::config_path = occupied.c_str();
+	const Reply unplaced = authedPatch("/api/v1/webui/settings", "{\"page\":\"x\"}");
+	coreapi::webui::internal::config_path = webui.path.c_str();
+	REQUIRE(unsaved.code == 500);
+	REQUIRE(unsaved.body.find("setting-not-written") != std::string::npos);
+	REQUIRE(unplaced.code == 500);
+	REQUIRE(unplaced.body.find("setting-not-written") != std::string::npos);
+	struct stat st;
+	REQUIRE(stat(occupied.c_str(), &st) == 0);
+	REQUIRE(S_ISDIR(st.st_mode));
+	REQUIRE(access((occupied + ".tmp").c_str(), F_OK) != 0);
+}

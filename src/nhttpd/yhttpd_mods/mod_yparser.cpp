@@ -29,6 +29,7 @@
 #include "mod_yparser.h"
 #include <ylanguage.h>
 #include <httpd/login_bridge.h>
+#include <coreapi/webui.h>
 #include "mod_auth.h"
 
 //=============================================================================
@@ -585,13 +586,34 @@ std::string CyParser::YWeb_cgi_get_ini(CyhookHandler *, std::string filename,
 //-------------------------------------------------------------------------
 void CyParser::YWeb_cgi_set_ini(CyhookHandler *, std::string filename,
 		std::string varname, std::string varvalue, std::string yaccess) {
+	const bool yweb = filename == YWEB_CONFIGFILE;
 	if ((yaccess == "open") || (yaccess.empty())) {
 		yConfig->clear();
 		yConfig->loadConfig(filename);
+		ywebPending.clear();
 	}
 	yConfig->setString(varname, varvalue);
-	if ((yaccess == "save") || (yaccess.empty()))
-		yConfig->saveConfig(filename);
+	if (yweb)
+		ywebPending[varname] = varvalue;
+	if ((yaccess == "save") || (yaccess.empty())) {
+		if (!yweb) {
+			yConfig->saveConfig(filename);
+			return;
+		}
+		/* The web interface's own file is also written over /api/v1. Saving
+		   what was read when the page opened it would write over a key that
+		   changed since, so only what the page set goes into the file as it
+		   stands now, under the lock /api/v1 takes for the same file. */
+		coreapi::webui::FileLock held;
+		CConfigFile fresh(',');
+		if (access(filename.c_str(), R_OK) == 0)
+			fresh.loadConfig(filename);
+		for (std::map<std::string, std::string>::const_iterator it = ywebPending.begin();
+		     it != ywebPending.end(); ++it)
+			fresh.setString(it->first, it->second);
+		fresh.saveConfig(filename);
+		ywebPending.clear();
+	}
 }
 
 //-------------------------------------------------------------------------

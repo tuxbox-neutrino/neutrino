@@ -61,6 +61,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_timers.cpp \
 	ep/ep_tuner.cpp \
 	ep/ep_webserver.cpp \
+	ep/ep_webui.cpp \
 	byterange.cpp \
 	credentials.cpp \
 	http.cpp \
