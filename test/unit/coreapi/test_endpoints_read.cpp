@@ -42,6 +42,8 @@
 // mode_standby, for the one route that reads the box mode as a yes or no.
 #include "neutrinoMessages.h"
 
+#include "coreapi/box/proc_internal.h"
+#include "coreapi/system.h"
 #include "coreapi/daemons.h"
 #include "coreapi/decryption.h"
 #include "coreapi/epg.h"
@@ -2433,6 +2435,78 @@ TEST_CASE("the route that lists a directory asks what the filesystem is under", 
 	REQUIRE(refused.code == 403);
 }
 
+namespace
+{
+coreapi::Result<std::string> threeLines()
+{
+	return coreapi::ok(std::string("<6>[ 0.0] Booting\n<3>[ 1.5] usb failed\nplain\n"));
+}
+coreapi::Result<std::string> noLog()
+{
+	return coreapi::fail(coreapi::Status::NotSupported, coreapi::ErrorCode::KernelLogUnreadable,
+	            "the kernel does not hand its log to this program");
+}
+} // namespace
+
+TEST_CASE("the process route lists what the process table holds, and says when there is none", "[endpoints][system]")
+{
+	ShippedRoutes shipped;
+	Sandbox proc;
+	REQUIRE_FALSE(proc.dir.empty());
+	REQUIRE(::mkdir(proc.at("5").c_str(), 0755) == 0);
+	FILE *f = std::fopen(proc.at("5/stat").c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fputs("5 (sh) S 1 1 1 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 100 4096 2 0\n", f);
+	std::fclose(f);
+	f = std::fopen(proc.at("5/cmdline").c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fwrite("/bin/sh\0-c\0x\0", 1, 13, f);
+	std::fclose(f);
+
+	const char *before = coreapi::system::internal::proc_root;
+	coreapi::system::internal::proc_root = proc.dir.c_str();
+	const Reply r = get("/api/v1/system/processes", AuthLevel::System);
+	const std::string gone = proc.at("none");
+	coreapi::system::internal::proc_root = gone.c_str();
+	const Reply none = get("/api/v1/system/processes", AuthLevel::System);
+	coreapi::system::internal::proc_root = before;
+
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	REQUIRE(items.size() == 1);
+	REQUIRE(items[0]["id"].asInt() == 5);
+	REQUIRE(items[0]["name"].asString() == "sh");
+	REQUIRE(items[0]["command"].asString() == "/bin/sh -c x");
+	REQUIRE(items[0]["state"].asString() == "S");
+
+	REQUIRE(none.code == 501);
+	REQUIRE(none.body.find("processes-unreadable") != std::string::npos);
+
+	// What a command line can carry is not for a read granted by address.
+	REQUIRE(get("/api/v1/system/processes").code == 403);
+}
+
+TEST_CASE("the kernel log route answers the lines with their levels, and says when it is refused", "[endpoints][system]")
+{
+	ShippedRoutes shipped;
+	const coreapi::system::internal::KernelLogReader before = coreapi::system::internal::kernel_log_reader;
+	coreapi::system::internal::kernel_log_reader = &threeLines;
+	const Reply r = get("/api/v1/system/kernel-log", AuthLevel::System);
+	coreapi::system::internal::kernel_log_reader = &noLog;
+	const Reply refused = get("/api/v1/system/kernel-log", AuthLevel::System);
+	coreapi::system::internal::kernel_log_reader = before;
+
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	REQUIRE(items.size() == 3);
+	REQUIRE(items[0]["level"].asInt() == 6);
+	REQUIRE(items[0]["text"].asString() == "[ 0.0] Booting");
+	REQUIRE(items[2]["level"].asInt() == -1);
+
+	REQUIRE(refused.code == 501);
+	REQUIRE(refused.body.find("kernel-log-unreadable") != std::string::npos);
+}
+
 TEST_CASE("every route these modules read with asks for a read at least", "[endpoints]")
 {
 	/* The tables these modules state, walked rather than a list typed here, so a route
@@ -2467,7 +2541,7 @@ TEST_CASE("every route these modules read with asks for a read at least", "[endp
 		}
 	}
 
-	REQUIRE(read_routes == 25);
+	REQUIRE(read_routes == 27);
 }
 
 TEST_CASE("no route this server ships is reachable without a credential", "[endpoints]")

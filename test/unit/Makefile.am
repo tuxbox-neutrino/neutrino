@@ -81,6 +81,7 @@ coreapi_tests_SOURCES = \
 	lib/timerdclient/test_timerdannounce.cpp \
 	coreapi/test_storage.cpp \
 	coreapi/test_storage_move.cpp \
+	coreapi/test_system_proc.cpp \
 	coreapi/test_storage_write.cpp \
 	coreapi/test_shelltable.cpp \
 	coreapi/test_daemons.cpp \

@@ -2,6 +2,7 @@
  * system.h - box facts, standby, reboot and restart
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +26,7 @@
 #include "coreapi/base/types.h"
 
 #include <string>
+#include <vector>
 
 namespace coreapi
 {
@@ -32,6 +34,40 @@ namespace system
 {
 
 Result<BoxInfo> info();
+
+/* One process as /proc tells of it: its number and its parent's, the user it
+   runs as (numeric), the state letter, the memory it holds and has mapped, the
+   name the kernel keeps and the command line it was started with (a kernel
+   thread, which has none, shows its name in brackets). */
+struct ProcessInfo
+{
+	int                pid;
+	int                ppid;
+	unsigned           uid;
+	char               state;
+	unsigned long long rss_bytes;
+	unsigned long long vsize_bytes;
+	std::string        name;
+	std::string        command;
+};
+
+/* Every process running now, by number. Read out of /proc and not by starting
+   ps, so nothing runs to answer. One that ends while the list is read is left
+   out. NotSupported ProcessesUnreadable where there is no /proc. */
+Result<std::vector<ProcessInfo> > processes();
+
+/* One line of the kernel's log: the level it was written at (0 the most
+   urgent, 7 debug, -1 where the line carries none) and the text. */
+struct KernelLogLine
+{
+	int         level;
+	std::string text;
+};
+
+/* The kernel's log as it stands, what dmesg prints, read and not cleared.
+   NotSupported KernelLogUnreadable where the kernel will not hand it to this
+   program (kernel.dmesg_restrict for a program not running as root). */
+Result<std::vector<KernelLogLine> > kernelLog();
 
 // The four below are commands, sent and forgotten, so an ok says the command
 // reached the loop's socket and nothing about what the box did with it: standby

@@ -2,6 +2,7 @@
  * ep_system.cpp - routes for box facts and power
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -439,6 +440,119 @@ const Param kStandbyParams[] = {
 	HTTPD_BODY_REQUIRED("on", ParamType::Bool, "whether the box is to go to standby or come out of it"),
 };
 
+const FieldDesc kProcessFields[] = {
+	HTTPD_MEMBER("id", FieldType::Int, "the process number"),
+	HTTPD_MEMBER("ppid", FieldType::Int, "the number of the process that started it"),
+	HTTPD_MEMBER("uid", FieldType::UInt, "the user it runs as, as the numeric id and not as a name"),
+	HTTPD_MEMBER("state", FieldType::String,
+		"the state letter the kernel gives it, for example R running, S sleeping, Z ended and not yet collected"),
+	HTTPD_MEMBER("rss", FieldType::UInt, "how much memory it holds right now, in bytes"),
+	HTTPD_MEMBER("vsize", FieldType::UInt, "how much address space it has mapped, in bytes"),
+	HTTPD_MEMBER("name", FieldType::String, "the name the kernel keeps for it"),
+	HTTPD_MEMBER("command", FieldType::String,
+		"the command line it was started with, its arguments apart by spaces; a kernel thread, which has none, shows its name in brackets"),
+};
+
+const Schema kProcessSchema = { "process", HTTPD_FIELDS(kProcessFields) };
+
+const FieldDesc kProcessListFields[] = {
+	HTTPD_LIST_OF("items", &kProcessSchema, "every process running when the list was read, by number"),
+};
+
+const Schema kProcessListSchema = { "process-list", HTTPD_FIELDS(kProcessListFields) };
+
+const FieldDesc kKernelLogLineFields[] = {
+	HTTPD_MEMBER("level", FieldType::Int,
+		"the level the line was written at, 0 the most urgent and 7 debug, -1 where the line carries none"),
+	HTTPD_MEMBER("text", FieldType::String, "the line as the kernel keeps it, without its level"),
+};
+
+const Schema kKernelLogLineSchema = { "kernel-log-line", HTTPD_FIELDS(kKernelLogLineFields) };
+
+const FieldDesc kKernelLogFields[] = {
+	HTTPD_LIST_OF("items", &kKernelLogLineSchema, "every line the kernel's log holds, oldest first"),
+};
+
+const Schema kKernelLogSchema = { "kernel-log", HTTPD_FIELDS(kKernelLogFields) };
+
+/* What the web interface used to get by running ps and dmesg through a route
+   that ran any command at all. These two answer only what they are, read and
+   not started. */
+Response listProcesses(const Request &)
+{
+	coreapi::Result<std::vector<coreapi::system::ProcessInfo> > got = coreapi::system::processes();
+	if (!got.ok())
+		return problemFor(got.error());
+	const std::vector<coreapi::system::ProcessInfo> all = std::move(got).value();
+
+	Response out = okJson();
+	Json j(out.body, 32 + 160 * all.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		const coreapi::system::ProcessInfo &p = all[i];
+		j.beginObject();
+		j.key("id");
+		j.value((long long) p.pid);
+		j.key("ppid");
+		j.value((long long) p.ppid);
+		j.key("uid");
+		j.value((unsigned long long) p.uid);
+		j.key("state");
+		j.value(std::string(1, p.state));
+		j.key("rss");
+		j.value(p.rss_bytes);
+		j.key("vsize");
+		j.value(p.vsize_bytes);
+		j.key("name");
+		j.value(p.name);
+		j.key("command");
+		j.value(p.command);
+		j.endObject();
+	}
+	j.endArray();
+	j.endObject();
+	return out;
+}
+
+Response kernelLog(const Request &)
+{
+	coreapi::Result<std::vector<coreapi::system::KernelLogLine> > got = coreapi::system::kernelLog();
+	if (!got.ok())
+		return problemFor(got.error());
+	const std::vector<coreapi::system::KernelLogLine> all = std::move(got).value();
+
+	Response out = okJson();
+	Json j(out.body, 32 + 96 * all.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		j.beginObject();
+		j.key("level");
+		j.value((long long) all[i].level);
+		j.key("text");
+		j.value(all[i].text);
+		j.endObject();
+	}
+	j.endArray();
+	j.endObject();
+	return out;
+}
+
+const RouteRefusal kProcessesRefusals[] = {
+	HTTPD_REFUSES(NotSupported, ProcessesUnreadable,
+		"there is no process list to read at /proc"),
+};
+
+const RouteRefusal kKernelLogRefusals[] = {
+	HTTPD_REFUSES(NotSupported, KernelLogUnreadable,
+		"the kernel does not hand its log to this program"),
+};
+
 const RouteRefusal kBoxInfoRefusals[] = {
 	HTTPD_REFUSES(Internal, BoxUnreadable,
 		"the box could not be identified"),
@@ -456,6 +570,30 @@ const Endpoint kSystemEndpoints[] = {
 	  "a request problem; try again later.",
 	  NULL, 0, &kBoxSchema, &boxInfo, false,
 	  Answers200, HTTPD_REFUSALS(kBoxInfoRefusals) },
+	/* System and not Read: a command line can carry what a program was started
+	   with, a password among it, and the kernel's log names devices, addresses
+	   and what failed where. */
+	{ Method::Get, "/api/v1/system/processes", AuthLevel::System,
+	  "every process running on the box", "Lists every process running when the list is read, by "
+	  "process number: its parent, the user it runs as, its state, the memory it holds and has "
+	  "mapped, its name and the command line it was started with. Read out of the kernel's "
+	  "process table and not by starting a program, so asking changes nothing on the box. A "
+	  "process that ends while the list is read is left out.\n\n"
+	  "**Refusals:**\n"
+	  "- `501 processes-unreadable`: the box keeps no process list where this reads it.\n\n"
+	  "**Related:** `GET /api/v1/system/kernel-log`, `GET /api/v1/system/info`.",
+	  NULL, 0, &kProcessListSchema, &listProcesses, false,
+	  Answers200, HTTPD_REFUSALS(kProcessesRefusals) },
+	{ Method::Get, "/api/v1/system/kernel-log", AuthLevel::System,
+	  "the kernel's log, what dmesg prints", "Reads the kernel's log as it stands, oldest line "
+	  "first, each line with the level it was written at. Reading leaves the log as it is for "
+	  "every other reader.\n\n"
+	  "**Refusals:**\n"
+	  "- `501 kernel-log-unreadable`: the kernel does not hand its log to this program, which "
+	  "kernel.dmesg_restrict does for a program not running as root.\n\n"
+	  "**Related:** `GET /api/v1/system/processes`.",
+	  NULL, 0, &kKernelLogSchema, &kernelLog, false,
+	  Answers200, HTTPD_REFUSALS(kKernelLogRefusals) },
 	{ Method::Get, "/api/v1/system/standby", AuthLevel::Read,
 	  "whether the box is in standby", "Reads whether the box is in standby right now. The "
 	  "answer is read from the box's own mode, the same one `POST /api/v1/system/standby` "

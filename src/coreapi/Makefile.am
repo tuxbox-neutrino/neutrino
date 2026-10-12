@@ -74,6 +74,7 @@ libcoreapi_a_SOURCES = \
 	epg.cpp \
 	timers.cpp \
 	system.cpp \
+	system_proc.cpp \
 	decryption.cpp \
 	tuner.cpp \
 	plugins.cpp \
@@ -124,6 +125,7 @@ noinst_HEADERS = \
 	box/shellcontract_internal.h \
 	shelltable.h \
 	storage.h \
+	box/proc_internal.h \
 	box/storage_internal.h \
 	netfs.h \
 	daemons.h \

@@ -257,6 +257,10 @@ enum class ErrorCode
 	IsARoot,
 	// A directory was to move into itself or into something it holds.
 	IntoItself,
+	/* There is no process list where the box keeps one, or the kernel will
+	   not hand its log to this program: nothing a caller can change. */
+	ProcessesUnreadable,
+	KernelLogUnreadable,
 	/* The box is already keeping a shift, where one was to be started. Refused
 	   rather than granted quietly, because the record manager would start a
 	   second one, and two shifts of one channel hold two tuners to write the
@@ -531,6 +535,8 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::OffsetMismatch: return "offset-mismatch";
 		case ErrorCode::IsARoot: return "is-a-root";
 		case ErrorCode::IntoItself: return "into-itself";
+		case ErrorCode::ProcessesUnreadable: return "processes-unreadable";
+		case ErrorCode::KernelLogUnreadable: return "kernel-log-unreadable";
 		case ErrorCode::TimeshiftRunning: return "timeshift-running";
 		case ErrorCode::RecordingRunning: return "recording-running";
 		case ErrorCode::RecordingPlaying: return "recording-playing";

@@ -143,6 +143,8 @@ const Walked kWalked[] = {
 	CODE(OffsetMismatch),
 	CODE(IsARoot),
 	CODE(IntoItself),
+	CODE(ProcessesUnreadable),
+	CODE(KernelLogUnreadable),
 	CODE(TimeshiftRunning),
 	CODE(RecordingRunning),
 	CODE(RecordingPlaying),
@@ -382,6 +384,8 @@ TEST_CASE("the codes the file endpoint answers with are written down", "[result]
 		{ ErrorCode::OffsetMismatch,  "offset-mismatch" },
 		{ ErrorCode::IsARoot,         "is-a-root" },
 		{ ErrorCode::IntoItself,      "into-itself" },
+		{ ErrorCode::ProcessesUnreadable, "processes-unreadable" },
+		{ ErrorCode::KernelLogUnreadable, "kernel-log-unreadable" },
 		{ ErrorCode::ChangeRefused,   "change-refused" }
 	};
 	for (size_t i = 0; i < sizeof(emitted) / sizeof(emitted[0]); i++)
