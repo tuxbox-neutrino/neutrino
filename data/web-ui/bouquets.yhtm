@@ -391,7 +391,7 @@
 	<script src="/Y_Lang.yjs?v=24"></script>
 	<script src="/yweb-header.js?v=55"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=8"></script>
+	<script src="/yweb-v1.js?v=9"></script>
 	<script>
 		// The channel list over /api/v1: bouquets, their channels and what each
 		// is showing now. Names, titles and texts come from the broadcast and go
@@ -751,10 +751,15 @@
 
 		// Initialize; a zap from anywhere else (remote control, timer) moves the mark
 		loadCurrentChannel().then(() => loadBouquets());
+		let zapRead = 0;	// an older answer arriving after a newer one is dropped
 		ywebV1Events({
 			zap: async function() {
+				const read = ++zapRead;
 				const mode = currentMode;
-				await loadCurrentChannel();
+				const ch = await ywebV1('GET', '/channels/current').catch(() => null);
+				if (read !== zapRead) return;
+				currentChannelId = ch ? ch.id : null;
+				currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 				if (currentMode !== mode) loadBouquets();	// the box switched lists
 				else markCurrent();
 			}

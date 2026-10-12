@@ -452,6 +452,8 @@ function ywebCloseEpgModal(event) {
 	const modal = document.getElementById('ywebEpgModal');
 	if (modal) modal.classList.remove('open');
 	document.body.style.overflow = '';
+	// what it showed is no event a later Rec elsewhere may take
+	ywebEpgModalEvent = null;
 }
 
 // A playlist for a player on this computer: the box's stream server with the
@@ -527,8 +529,10 @@ async function ywebStopRecording(recordingId) {
 // EPG Modal: toggle between Record and Stop
 async function ywebEpgModalToggleRec() {
 	if (ywebEpgModalIsRecording) {
+		// this channel's recording and no other: one that ended since the
+		// dialog opened leaves nothing to stop here
 		const rec = await ywebCheckRecordingForChannel(ywebEpgModalChannelId);
-		if (await ywebStopRecording(rec ? rec.id : null))
+		if (!rec || await ywebStopRecording(rec.id))
 			ywebEpgModalUpdateRecBtn(false);
 	} else if (await ywebRecordEvent()) {
 		ywebCheckRecordingForChannel(ywebEpgModalChannelId).then(function(rec) { ywebEpgModalUpdateRecBtn(!!rec); });
