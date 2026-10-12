@@ -25,7 +25,11 @@
 #include "coreapi/base/result.h"
 #include "coreapi/base/types.h"
 
+#include <stddef.h>
 #include <stdint.h>
+
+#include <string>
+#include <vector>
 
 namespace coreapi
 {
@@ -79,6 +83,37 @@ Result<void> stopTimeshift();
    Both are read before the command goes out and can be overtaken. Ok says the
    command reached the loop and no more: watch list() for the row. */
 Result<void> startInstant(bool wake);
+
+/* A directory a recording timer can be given to write into. */
+struct Folder
+{
+	std::string path;      // absolute, without a trailing slash
+	bool        root;      // one the box is set up with rather than one found below it
+	bool        present;   // there now; a root on a disc that is not attached is not
+};
+
+struct FolderList
+{
+	std::vector<Folder> items;
+	bool                partial;   // the list stopped at kMaxFolders
+};
+
+const size_t kMaxFolders = 256;
+// As deep as the movie browser looks for films (src/gui/moviebrowser/mb_storage.cpp).
+const int kFolderDepth = 10;
+
+/* The roots first: the box's record directory and the movie browser's own
+   directories, in that order, each once and whether or not the browser is set to
+   scan it. Then the directories below each root in turn, down to kFolderDepth
+   levels, each followed by its own and siblings sorted by name. Hidden directories
+   are left out and links below a root are not followed.
+
+   The walk runs on a thread of its own, one at a time, and this waits for it a few
+   seconds at most (recordings_internal.h): a share that stopped answering holds
+   that thread and not the caller. A walk cut short, by that wait, by kMaxFolders,
+   or by how many entries it may read in all, says so with partial; the roots are
+   always in the list, those not reached as not present. */
+FolderList folders();
 
 } // namespace recordings
 } // namespace coreapi

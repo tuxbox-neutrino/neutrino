@@ -110,6 +110,7 @@ noinst_HEADERS = \
 	tuner.h \
 	plugins.h \
 	recordings.h \
+	recordings_internal.h \
 	archive.h \
 	archive_internal.h \
 	library.h \

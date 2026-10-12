@@ -52,10 +52,10 @@ listed keys compared against the table	25
 locale names the program has	3078
 options an applier or its notifier branches on	49
 parameters the document describes	142
-refusals the document states against a route	843
+refusals the document states against a route	846
 refusals the routes declare of their own	145
 refusals the shipped routes were seen to give	210
-routes the document describes	104
+routes the document describes	105
 rows an applier acts on	25
 rows compared against the load and save pass	353
 rows in a section with an applier	222
@@ -63,5 +63,5 @@ rows this build links	361
 rows whose set of values the box decides	3
 rows whose value is not in the settings file	5
 rule refusals the document states	16
-shapes the document files against a route	51
-success codes the document states	113
+shapes the document files against a route	52
+success codes the document states	114

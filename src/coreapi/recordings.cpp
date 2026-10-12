@@ -24,13 +24,19 @@
 #include "coreapi/base/deps.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/channels.h"
+#include "coreapi/library.h"
+#include "coreapi/recordings_internal.h"
 
 #include <timerdclient/timerdtypes.h>
 
+#include <algorithm>
 #include <cstring>
 #include <utility>
 
+#include <dirent.h>
+#include <pthread.h>
 #include <sys/stat.h>
+#include <time.h>
 
 namespace coreapi
 {
@@ -196,6 +202,337 @@ Result<void> startInstant(bool wake)
 	info.channel_id = live.value().id;
 	return postEvent(BoxEvent::StartRecording, &info, sizeof(info));
 }
+
+namespace
+{
+
+// An absolute directory without its trailing slash; empty for a name that names
+// none, which the movie browser also refuses: empty, relative, or / itself.
+std::string folderName(std::string dir)
+{
+	while (dir.size() > 1 && dir[dir.size() - 1] == '/')
+		dir.erase(dir.size() - 1);
+	if (dir.empty() || dir[0] != '/' || dir == "/")
+		return std::string();
+	return dir;
+}
+
+bool listed(const FolderList &list, const std::string &path)
+{
+	for (size_t i = 0; i < list.items.size(); ++i)
+		if (list.items[i].path == path)
+			return true;
+	return false;
+}
+
+/* One walk at a time, on a thread of its own: a disc that stops answering, a
+   network share whose server went away, holds that thread and no request. A
+   request waits for the walk until its deadline and then answers what the walk
+   has found so far. Never destroyed, because a walk held up by a share may
+   still write into it at exit. */
+struct Walk
+{
+	pthread_mutex_t        mutex;
+	pthread_cond_t         changed;
+	bool                   busy;
+	unsigned long          started;   // walks begun
+	unsigned long          finished;  // walks ended
+	FolderList             found;     // what the running walk has found so far
+	/* What the last walk to end found, whole. A request whose walk has ended
+	   reads this and never found: by the time it wakes, another request may
+	   have begun the next walk and emptied found. */
+	FolderList             last;
+	long                   wait_ms;
+	internal::FolderProbe  probe;
+
+	Walk() : busy(false), started(0), finished(0), wait_ms(internal::kFolderWaitMs), probe(NULL)
+	{
+		found.partial = false;
+		last.partial = false;
+		pthread_mutex_init(&mutex, NULL);
+		pthread_condattr_t attr;
+		pthread_condattr_init(&attr);
+		pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+		pthread_cond_init(&changed, &attr);
+		pthread_condattr_destroy(&attr);
+	}
+};
+
+Walk &walk()
+{
+	static Walk *w = new Walk;
+	return *w;
+}
+
+class Held
+{
+	public:
+		Held() { pthread_mutex_lock(&walk().mutex); }
+		~Held() { pthread_mutex_unlock(&walk().mutex); }
+};
+
+int64_t nowMs()
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (int64_t) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+
+// Under the lock; false once the list is full, which ends the walk.
+bool addFolder(const std::string &path, bool root, bool present)
+{
+	FolderList &list = walk().found;
+	if (listed(list, path))
+		return true;
+	if (list.items.size() >= kMaxFolders)
+	{
+		list.partial = true;
+		return false;
+	}
+	Folder f;
+	f.path = path;
+	f.root = root;
+	f.present = present;
+	list.items.push_back(f);
+	return true;
+}
+
+void cut()
+{
+	Held held;
+	walk().found.partial = true;
+}
+
+/* The directories below dir, by name, each followed by its own; false once the
+   walk is to end. Names are read whole before going down, so one directory is
+   open at a time, but no more of them than the list still has room for, and no
+   more entries in all than the budget: a directory of a million files costs the
+   budget and not a million calls. */
+bool descend(const std::string &dir, int depth, size_t &budget, internal::FolderProbe probe)
+{
+	if (depth > kFolderDepth)
+		return true;
+	if (budget == 0)
+	{
+		cut();
+		return false;
+	}
+	size_t room;
+	{
+		Held held;
+		if (walk().found.items.size() >= kMaxFolders)
+		{
+			walk().found.partial = true;
+			return false;
+		}
+		room = kMaxFolders - walk().found.items.size();
+	}
+	if (probe != NULL)
+		probe(dir);
+	DIR *d = opendir(dir.c_str());
+	if (d == NULL)
+		return true;
+	std::vector<std::string> names;
+	bool more = false;
+	struct dirent *e;
+	while ((e = readdir(d)) != NULL)
+	{
+		if (budget == 0)
+		{
+			more = true;
+			break;
+		}
+		--budget;
+		// Covers "." and ".." too, and the timeshift buffer under its dot-named folder.
+		if (e->d_name[0] == '.')
+			continue;
+		bool is_dir = e->d_type == DT_DIR;
+		// Only an entry the filesystem does not type is asked about; a link is typed as one.
+		if (e->d_type == DT_UNKNOWN)
+		{
+			struct stat st;
+			is_dir = lstat((dir + "/" + e->d_name).c_str(), &st) == 0 && S_ISDIR(st.st_mode);
+		}
+		if (!is_dir)
+			continue;
+		if (names.size() == room)
+		{
+			more = true;
+			break;
+		}
+		names.push_back(e->d_name);
+	}
+	closedir(d);
+	if (more)
+		cut();
+	std::sort(names.begin(), names.end());
+	for (size_t i = 0; i < names.size(); ++i)
+	{
+		const std::string path = dir + "/" + names[i];
+		{
+			Held held;
+			if (!addFolder(path, false, true))
+				return false;
+		}
+		if (!descend(path, depth + 1, budget, probe))
+			return false;
+	}
+	return true;
+}
+
+struct WalkJob
+{
+	std::vector<std::string> roots;
+};
+
+void *walkFolders(void *arg)
+{
+	const std::vector<std::string> roots = ((WalkJob *) arg)->roots;
+	delete (WalkJob *) arg;
+	internal::FolderProbe probe;
+	{
+		Held held;
+		probe = walk().probe;
+	}
+
+	// The roots first, so a list cut short below them still holds them all.
+	std::vector<std::string> present;
+	for (size_t i = 0; i < roots.size(); ++i)
+	{
+		if (probe != NULL)
+			probe(roots[i]);
+		// A root may be a link to where the disc is mounted, so it is followed.
+		struct stat st;
+		const bool there = stat(roots[i].c_str(), &st) == 0 && S_ISDIR(st.st_mode);
+		{
+			Held held;
+			addFolder(roots[i], true, there);
+			pthread_cond_broadcast(&walk().changed);
+		}
+		if (there)
+			present.push_back(roots[i]);
+	}
+	size_t budget = internal::kFolderEntryBudget;
+	for (size_t i = 0; i < present.size(); ++i)
+		if (!descend(present[i], 1, budget, probe))
+			break;
+
+	Held held;
+	walk().last = walk().found;
+	walk().busy = false;
+	++walk().finished;
+	pthread_cond_broadcast(&walk().changed);
+	return NULL;
+}
+
+// Under the lock; false when no thread could be started.
+bool startWalk(const std::vector<std::string> &roots)
+{
+	Walk &w = walk();
+	w.found = FolderList();
+	w.found.partial = false;
+	WalkJob *job = new WalkJob;
+	job->roots = roots;
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_t t;
+	const bool ok = pthread_create(&t, &attr, &walkFolders, job) == 0;
+	pthread_attr_destroy(&attr);
+	if (!ok)
+	{
+		delete job;
+		return false;
+	}
+	w.busy = true;
+	++w.started;
+	return true;
+}
+
+} // namespace
+
+FolderList folders()
+{
+	const library::Dirs d = library::read();
+	std::vector<std::string> roots;
+	std::vector<std::string> named;
+	named.push_back(d.record);
+	for (size_t i = 0; i < d.own.size(); ++i)
+		named.push_back(d.own[i].path);
+	for (size_t i = 0; i < named.size(); ++i)
+	{
+		const std::string dir = folderName(named[i]);
+		if (!dir.empty() && std::find(roots.begin(), roots.end(), dir) == roots.end())
+			roots.push_back(dir);
+	}
+
+	Walk &w = walk();
+	FolderList out;
+	bool done = false;
+	{
+		Held held;
+		/* A walk already running is waited for rather than a second one begun,
+		   so a share that hangs holds one thread however often this is asked. */
+		if (w.busy || startWalk(roots))
+		{
+			const unsigned long mine = w.started;
+			const int64_t deadline = nowMs() + w.wait_ms;
+			while (w.finished < mine)
+			{
+				const int64_t now = nowMs();
+				if (now >= deadline)
+					break;
+				struct timespec until;
+				until.tv_sec = (time_t) (deadline / 1000);
+				until.tv_nsec = (long) (deadline % 1000) * 1000000;
+				pthread_cond_timedwait(&w.changed, &w.mutex, &until);
+			}
+			done = w.finished >= mine;
+			// Ended: the walk waited for, or one begun and ended after it.
+			out = done ? w.last : w.found;
+		}
+	}
+	if (done)
+		return out;
+
+	/* Cut short: what the walk found, with the roots it has not reached, or
+	   that another walk was begun for, as not there. */
+	FolderList cut_short;
+	cut_short.partial = true;
+	for (size_t i = 0; i < roots.size(); ++i)
+	{
+		Folder f;
+		f.path = roots[i];
+		f.root = true;
+		f.present = false;
+		for (size_t j = 0; j < out.items.size(); ++j)
+			if (out.items[j].root && out.items[j].path == roots[i])
+				f.present = out.items[j].present;
+		cut_short.items.push_back(f);
+	}
+	for (size_t j = 0; j < out.items.size(); ++j)
+		if (!out.items[j].root && !listed(cut_short, out.items[j].path))
+			cut_short.items.push_back(out.items[j]);
+	return cut_short;
+}
+
+namespace internal
+{
+
+void setFolderWaitForTest(long wait_ms)
+{
+	Held held;
+	walk().wait_ms = wait_ms < 0 ? kFolderWaitMs : wait_ms;
+}
+
+void setFolderProbeForTest(FolderProbe p)
+{
+	Held held;
+	walk().probe = p;
+}
+
+} // namespace internal
+
 
 } // namespace recordings
 } // namespace coreapi

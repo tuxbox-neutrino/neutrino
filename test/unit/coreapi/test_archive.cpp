@@ -2,6 +2,7 @@
  * test_archive.cpp - tests for the archive listing
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,8 @@
 #include "coreapi/base/deps.h"
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/errors.h"
+#include "coreapi/recordings.h"
+#include "coreapi/recordings_internal.h"
 
 #include "httpd/auth.h"
 #include "httpd/credentials.h"
@@ -57,6 +60,8 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <pthread.h>
+#include <stdint.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -793,6 +798,260 @@ httpd::Response ask(httpd::Method m, const std::string &path, const std::string 
 }
 
 } // namespace
+
+TEST_CASE("the recording folders are the roots first, then what lies below them by name", "[archive][folders]")
+{
+	Archive a;
+	a.disk.dir("b");
+	a.disk.dir("a");
+	a.disk.dir("a/x");
+	a.disk.dir("other");
+	a.disk.dir("other/inner");
+	a.disk.dir(".hidden");
+	a.disk.file("plain.ts", "not a directory");
+	a.disk.link("link", a.disk.base + "/a");
+	/* The record directory again with a slash, a browser directory below it, one on
+	   a disc that is not there, and one that names nothing; the last of them only
+	   takes its place, which the browser does not scan. */
+	a.browse("mb_dir_0=" + a.disk.base + "/other\n"
+	         "mb_dir_1=" + a.disk.base + "/\n"
+	         "mb_dir_2=/coreapi_no_such_folder\n"
+	         "mb_dir_3=relative\n"
+	         "mb_dir_used0=0\n");
+
+	const recordings::FolderList got = recordings::folders();
+	REQUIRE_FALSE(got.partial);
+	std::vector<std::string> paths;
+	for (size_t i = 0; i < got.items.size(); ++i)
+		paths.push_back(got.items[i].path);
+	const std::string b = a.disk.base;
+	const std::vector<std::string> want = {
+		b, b + "/other", "/coreapi_no_such_folder", b + "/a", b + "/a/x", b + "/b", b + "/other/inner"
+	};
+	REQUIRE(paths == want);
+	REQUIRE(got.items[0].root);
+	REQUIRE(got.items[0].present);
+	REQUIRE(got.items[1].root);
+	REQUIRE(got.items[2].root);
+	REQUIRE_FALSE(got.items[2].present);
+	REQUIRE_FALSE(got.items[3].root);
+	REQUIRE(got.items[3].present);
+}
+
+TEST_CASE("the recording folders go as deep as the movie browser and stop at their ceiling", "[archive][folders]")
+{
+	Archive a;
+	std::string rel = "d1";
+	a.disk.dir(rel);
+	for (int depth = 2; depth <= recordings::kFolderDepth + 1; ++depth)
+	{
+		rel += "/d" + std::to_string(depth);
+		a.disk.dir(rel);
+	}
+	const recordings::FolderList deep = recordings::folders();
+	REQUIRE_FALSE(deep.partial);
+	// the root and one directory for each level down to the deepest the browser reads
+	REQUIRE(deep.items.size() == (size_t) recordings::kFolderDepth + 1);
+	REQUIRE(deep.items.back().path.find("/d" + std::to_string(recordings::kFolderDepth)) != std::string::npos);
+
+	for (size_t i = 0; i < recordings::kMaxFolders + 10; ++i)
+		a.disk.dir("wide" + std::to_string(1000 + i));
+	a.browse("mb_dir_0=/coreapi_no_such_folder\n");
+	const recordings::FolderList wide = recordings::folders();
+	REQUIRE(wide.partial);
+	REQUIRE(wide.items.size() == recordings::kMaxFolders);
+	// the roots are in it whatever lies below the first of them
+	REQUIRE(wide.items[0].path == a.disk.base);
+	REQUIRE(wide.items[1].path == "/coreapi_no_such_folder");
+}
+
+namespace
+{
+
+/* Stands in for the walk's look at a directory: notes every one, and holds the
+   walk at one named directory until the case lets it go, as a share whose
+   server went away holds it. */
+struct FolderProbeState
+{
+	pthread_mutex_t          mutex;
+	pthread_cond_t           changed;
+	std::vector<std::string> seen;
+	std::string              stall_at;
+	bool                     released;
+	int                      stalled;
+};
+
+FolderProbeState &probeState()
+{
+	static FolderProbeState s = { PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER,
+	                              std::vector<std::string>(), std::string(), true, 0 };
+	return s;
+}
+
+void folderProbe(const std::string &dir)
+{
+	FolderProbeState &s = probeState();
+	pthread_mutex_lock(&s.mutex);
+	s.seen.push_back(dir);
+	if (dir == s.stall_at)
+	{
+		++s.stalled;
+		while (!s.released)
+			pthread_cond_wait(&s.changed, &s.mutex);
+	}
+	pthread_mutex_unlock(&s.mutex);
+}
+
+// Sets the probe up for one case and takes it away again, waiting out the walk.
+struct WatchedWalk
+{
+	explicit WatchedWalk(const std::string &stall_at = std::string())
+	{
+		FolderProbeState &s = probeState();
+		pthread_mutex_lock(&s.mutex);
+		s.seen.clear();
+		s.stall_at = stall_at;
+		s.released = stall_at.empty();
+		s.stalled = 0;
+		pthread_mutex_unlock(&s.mutex);
+		recordings::internal::setFolderProbeForTest(&folderProbe);
+	}
+	~WatchedWalk()
+	{
+		release();
+		// waits for whatever walk is running to end, so the next case starts its own
+		recordings::internal::setFolderWaitForTest(-1);
+		recordings::folders();
+		recordings::internal::setFolderProbeForTest(NULL);
+	}
+	void release()
+	{
+		FolderProbeState &s = probeState();
+		pthread_mutex_lock(&s.mutex);
+		s.released = true;
+		pthread_cond_broadcast(&s.changed);
+		pthread_mutex_unlock(&s.mutex);
+	}
+	std::vector<std::string> seen()
+	{
+		FolderProbeState &s = probeState();
+		pthread_mutex_lock(&s.mutex);
+		std::vector<std::string> out = s.seen;
+		pthread_mutex_unlock(&s.mutex);
+		return out;
+	}
+	int stalled()
+	{
+		FolderProbeState &s = probeState();
+		pthread_mutex_lock(&s.mutex);
+		const int n = s.stalled;
+		pthread_mutex_unlock(&s.mutex);
+		return n;
+	}
+};
+
+int64_t monotonicMs()
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (int64_t) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+
+} // namespace
+
+TEST_CASE("a share that does not answer holds the folder walk and not the caller", "[archive][folders]")
+{
+	Archive a;
+	a.disk.dir("Serien");
+	a.browse("mb_dir_0=/coreapi_stalled_share\n");
+	WatchedWalk walk("/coreapi_stalled_share");
+	recordings::internal::setFolderWaitForTest(200);
+
+	int64_t began = monotonicMs();
+	const recordings::FolderList first = recordings::folders();
+	REQUIRE(monotonicMs() - began < 2000);
+	REQUIRE(first.partial);
+	REQUIRE(first.items.size() == 2);
+	REQUIRE(first.items[0].path == a.disk.base);
+	REQUIRE(first.items[0].present);
+	REQUIRE(first.items[1].path == "/coreapi_stalled_share");
+	REQUIRE(first.items[1].root);
+	REQUIRE_FALSE(first.items[1].present);
+
+	// Asked again while the share hangs: the same wait, and no second walk.
+	began = monotonicMs();
+	REQUIRE(recordings::folders().partial);
+	REQUIRE(monotonicMs() - began < 2000);
+	REQUIRE(walk.stalled() == 1);
+
+	// Once the share answers the walk ends, and the next one reads it all.
+	walk.release();
+	recordings::internal::setFolderWaitForTest(-1);
+	recordings::folders();
+	const recordings::FolderList after = recordings::folders();
+	REQUIRE_FALSE(after.partial);
+	REQUIRE(after.items.size() == 3);
+	REQUIRE(after.items[2].path == a.disk.base + "/Serien");
+}
+
+TEST_CASE("the folder walk looks into no directory the full list has no room for", "[archive][folders]")
+{
+	Archive a;
+	for (size_t i = 0; i < recordings::kMaxFolders; ++i)
+	{
+		const std::string wide = "w" + std::to_string(1000 + i);
+		a.disk.dir(wide);
+		a.disk.dir(wide + "/inner");
+	}
+	WatchedWalk walk;
+	const recordings::FolderList got = recordings::folders();
+	REQUIRE(got.partial);
+	REQUIRE(got.items.size() == recordings::kMaxFolders);
+	// every directory the walk opened is one the list holds
+	const std::vector<std::string> seen = walk.seen();
+	REQUIRE(seen.size() <= got.items.size());
+	for (size_t i = 0; i < seen.size(); ++i)
+	{
+		bool held = false;
+		for (size_t j = 0; j < got.items.size(); ++j)
+			held = held || got.items[j].path == seen[i];
+		INFO(seen[i]);
+		REQUIRE(held);
+	}
+}
+
+TEST_CASE("the folder walk stops after the entries it may read in all", "[archive][folders]")
+{
+	Archive a;
+	a.disk.dir("many");
+	for (size_t i = 0; i < recordings::internal::kFolderEntryBudget + 10; ++i)
+		a.disk.file("many/f" + std::to_string(i), std::string());
+	a.disk.dir("many/sub");
+	const recordings::FolderList got = recordings::folders();
+	REQUIRE(got.partial);
+	REQUIRE(got.items[0].path == a.disk.base);
+	REQUIRE(got.items[1].path == a.disk.base + "/many");
+}
+
+TEST_CASE("the recording folder route lists the roots and what lies below them", "[archive][folders][routes]")
+{
+	Archive a;
+	a.disk.dir("Serien");
+	a.browse("mb_dir_0=/coreapi_no_such_folder\n");
+
+	httpd::Response r = ask(httpd::Get, "/api/v1/recordings/folders", "", httpd::AuthLevel::Read);
+	REQUIRE(r.code == 200);
+	const ::Json::Value v = parsed(r.body);
+	REQUIRE(v["partial"].asBool() == false);
+	REQUIRE(v["items"].size() == 3);
+	REQUIRE(v["items"][0]["path"].asString() == a.disk.base);
+	REQUIRE(v["items"][0]["root"].asBool());
+	REQUIRE(v["items"][0]["present"].asBool());
+	REQUIRE(v["items"][1]["path"].asString() == "/coreapi_no_such_folder");
+	REQUIRE_FALSE(v["items"][1]["present"].asBool());
+	REQUIRE(v["items"][2]["path"].asString() == a.disk.base + "/Serien");
+	REQUIRE_FALSE(v["items"][2]["root"].asBool());
+}
 
 TEST_CASE("the archive route answers a page newest first", "[archive][routes]")
 {

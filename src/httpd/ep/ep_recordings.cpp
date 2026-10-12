@@ -157,6 +157,54 @@ Response listRecordings(const Request &)
 	return out;
 }
 
+const FieldDesc kFolderFields[] = {
+	HTTPD_MEMBER("path", FieldType::String, "the directory, absolute and without a trailing slash"),
+	HTTPD_MEMBER("root", FieldType::Bool,
+		"true for the record directory and the movie browser's own directories, false for one found below them"),
+	HTTPD_MEMBER("present", FieldType::Bool,
+		"whether the directory is there now; false for a root on a disc that is not attached"),
+};
+
+const Schema kFolderSchema = { "recording-folder", HTTPD_FIELDS(kFolderFields) };
+
+const FieldDesc kFolderListFields[] = {
+	HTTPD_LIST_OF("items", &kFolderSchema,
+		"the roots first, in the box's order, then the directories below each root, by name"),
+	HTTPD_MEMBER("partial", FieldType::Bool,
+		"true when the list was cut short, by its ceiling or by directories that did not answer in "
+		"time, and may leave directories out"),
+};
+
+const Schema kFolderListSchema = { "recording-folders", HTTPD_FIELDS(kFolderListFields) };
+
+Response listFolders(const Request &)
+{
+	const coreapi::recordings::FolderList list = coreapi::recordings::folders();
+
+	Response out = okJson();
+	Json j(out.body, 32 + 96 * list.items.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < list.items.size(); ++i)
+	{
+		const coreapi::recordings::Folder &f = list.items[i];
+		j.beginObject();
+		j.key("path");
+		j.value(f.path);
+		j.key("root");
+		j.value(f.root);
+		j.key("present");
+		j.value(f.present);
+		j.endObject();
+	}
+	j.endArray();
+	j.key("partial");
+	j.value(list.partial);
+	j.endObject();
+	return out;
+}
+
 Response stopRecording(const Request &r)
 {
 	/* NotFound for a number nothing is being recorded under, which the layer
@@ -786,6 +834,20 @@ const Endpoint kRecordingEndpoints[] = {
 	  "**Related:** `GET /api/v1/recordings`, `DELETE /api/v1/recordings/{id}`.",
 	  HTTPD_PARAMS(kStartRecordingParams), NULL, &startRecording, false,
 	  Answers202, HTTPD_REFUSALS_AND_BODY(kStartRecordingRefusals, "{\"wake\":false}") },
+	{ Method::Get, "/api/v1/recordings/folders", AuthLevel::Read,
+	  "lists the directories a recording timer can write into",
+	  "Lists the box's record directory and the movie browser's own directories, the roots, "
+	  "followed by the directories below them down to the depth the movie browser looks for films. "
+	  "Hidden directories are left out and links below a root are not followed. A root that is not "
+	  "there now, a disc that is not attached, is listed with `present` false.\n\n"
+	  "The list stops at 256 directories, after 16384 directory entries read in all, or when "
+	  "the directories have not answered within three seconds, as a network share whose server "
+	  "went away does, and then says so with `partial`. The roots are always in it; one the walk "
+	  "did not reach in time is listed as not present.\n\n"
+	  "A path from here is what `recording_dir` of `POST /api/v1/timers` takes.\n\n"
+	  "**Related:** `POST /api/v1/timers`, `GET /api/v1/recordings/archive`.",
+	  NULL, 0, &kFolderListSchema, &listFolders, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	/* Written out and therefore answered ahead of the route below it, which
 	   binds anything in that position: which of two matching routes answers is
 	   settled by how many of its segments are written out. */
