@@ -638,6 +638,7 @@ yw.msg.executed=ausgeführt
 yw.msg.error=Fehler
 yw.msg.saved=Gespeichert
 yw.msg.cancel=Abbrechen
+yw.msg.close=Schließen
 yw.msg.notavail=nicht verfügbar
 yw.bc.restart_gui=Neutrino-GUI neu starten
 yw.bc.restart_btn=Neustart GUI

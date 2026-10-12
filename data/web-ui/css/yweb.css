@@ -3141,3 +3141,76 @@ body.yweb-remote-open {
 	font-size: 0.85em;
 	margin-left: 0.2rem;
 }
+
+/* ============================================
+   yweb-dom.js: sheet, dock, row actions
+   ============================================ */
+dialog.yweb-sheet > article {
+	width: min(32rem, 92vw);
+	max-height: 85vh;
+	overflow-y: auto;
+}
+
+dialog.yweb-sheet > article > header h3 {
+	margin: 0;
+	font-size: 1.1rem;
+}
+
+dialog.yweb-sheet footer {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.5rem;
+}
+
+dialog.yweb-sheet footer button {
+	width: auto;
+	margin: 0;
+}
+
+dialog.yweb-sheet footer button.danger {
+	--pico-background-color: var(--pico-del-color);
+	--pico-border-color: var(--pico-del-color);
+}
+
+.yweb-dock {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-left: auto;
+	font-size: 0.85em;
+}
+
+.yweb-dock:empty {
+	display: none;
+}
+
+.yweb-dock-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.yweb-row-actions {
+	display: inline-flex;
+	gap: 0.25rem;
+}
+
+.yweb-row-actions button {
+	width: auto;
+	margin: 0;
+	padding: 0.25rem 0.4rem;
+	background: transparent;
+	border: 1px solid var(--pico-muted-border-color);
+	color: var(--pico-color);
+	line-height: 1;
+}
+
+.yweb-row-actions button svg {
+	width: 1rem;
+	height: 1rem;
+}
+
+.yweb-row-actions button.danger {
+	color: var(--pico-del-color);
+}

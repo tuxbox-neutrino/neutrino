@@ -638,6 +638,7 @@ yw.msg.executed=done
 yw.msg.error=Error
 yw.msg.saved=Saved
 yw.msg.cancel=Cancel
+yw.msg.close=Close
 yw.msg.notavail=not available
 yw.bc.restart_gui=Restart Neutrino GUI
 yw.bc.restart_btn=Restart GUI

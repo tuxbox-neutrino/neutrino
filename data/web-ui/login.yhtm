@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=88">
+	<link rel="stylesheet" href="/css/yweb.css?v=89">
 	<style>
 		/* Compact centered auth card after the portal login pattern.
 		   yweb.css already makes body a column flexbox with main{flex:1}

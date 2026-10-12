@@ -263,6 +263,7 @@ window.YWEB_L = {
 	"msg.loading": "{=L:yw.msg.loading=}",
 	// Confirm-/Prompt-Dialoge (yweb-header.js)
 	"msg.cancel": "{=L:yw.msg.cancel=}",
+	"msg.close": "{=L:yw.msg.close=}",
 	"msg.error": "{=L:yw.msg.error=}",
 	"v1.signin_title": "{=L:yw.v1.signin_title=}",
 	"v1.signin_why": "{=L:yw.v1.signin_why=}",
