@@ -1282,11 +1282,65 @@ function ywebShowPathPicker(startPath, onPick, opts) {
 	ywebPickerLoad(_ywebPickerState.path);
 }
 
+/* Over /api/v1 where the page loads yweb-v1.js: the picker then reaches the
+   box's roots and what lies below them, as the file manager does. Its top
+   level ('') is the list of roots, and a start outside them leads there. */
+async function _ywebPickerRows(path) {
+	if (path) {
+		try {
+			var listed = await ywebV1('GET', '/storage/files', {query: {path: path}});
+			var roots0 = await ywebV1('GET', '/storage/roots');
+			var isRoot = ((roots0 && roots0.items) || []).some(function(r) { return r.present && r.id === path; });
+			return {path: path, parent: isRoot ? '' : ywebParentPath(path),
+				entries: ((listed && listed.items) || []).map(function(e) {
+					return {name: e.id, dir: e.kind === 'dir', full: path.replace(/\/+$/, '') + '/' + e.id};
+				})};
+		} catch (e) {
+			if (e.code !== 'outside-roots' && e.code !== 'no-such-name') throw e;
+		}
+	}
+	var roots = await ywebV1('GET', '/storage/roots');
+	return {path: '', parent: null, entries: ((roots && roots.items) || []).filter(function(r) { return r.present; })
+		.map(function(r) { return {name: r.id, dir: true, full: r.id}; })};
+}
+
 async function ywebPickerLoad(path) {
 	var listEl = document.getElementById('yweb-picker-list');
 	var crumbEl = document.getElementById('yweb-picker-crumb');
 	if (!listEl) return;
 	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + ywebL('msg.loading', 'Loading...') + '</li>';
+	// both: a page that loads yweb-v1.js without yweb-dom.js keeps the old list
+	if (typeof ywebV1 === 'function' && typeof ywebEl === 'function') {
+		var rows;
+		try {
+			rows = await _ywebPickerRows(path);
+		} catch (e) {
+			ywebShowToast(ywebL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
+			return;
+		}
+		_ywebPickerState.path = rows.path;
+		if (crumbEl) crumbEl.textContent = rows.path || ywebL('picker.roots', 'Permitted folders');
+		var chooseBtn = document.querySelector('#yweb-picker .yweb-btn.primary');
+		if (chooseBtn) chooseBtn.disabled = !rows.path;	// the list of roots is no folder
+		// Rows as elements with their handlers, so a folder name is text
+		// whatever it holds (yweb-dom.js comes with yweb-v1.js)
+		var row = function(label, onClick) {
+			return ywebEl('li', {}, ywebEl('button', {type: 'button', className: 'yweb-btn',
+				style: {width: '100%', 'text-align': 'left', border: 'none'}, on: {click: onClick}}, label));
+		};
+		var items = [];
+		if (rows.parent !== null)
+			items.push(row('↑ ..', function() { ywebPickerLoad(rows.parent); }));
+		rows.entries.forEach(function(e) {
+			if (!e.dir && !_ywebPickerState.filesToo) return;
+			items.push(row((e.dir ? '📁' : '📄') + ' ' + e.name,
+				function() { if (e.dir) ywebPickerLoad(e.full); else ywebPickerPickFile(e.full); }));
+		});
+		if (!items.length)
+			items.push(ywebEl('li', {style: {padding: '0.5rem', color: 'var(--pico-muted-color)'}}, ywebL('picker.empty', 'empty')));
+		listEl.replaceChildren.apply(listEl, items);
+		return;
+	}
 	var data;
 	try {
 		data = await ywebApi('file', {action: 'list', path: path});
@@ -1300,13 +1354,15 @@ async function ywebPickerLoad(path) {
 	var html = '';
 	if (path !== '/')
 		html += '<li><button type="button" class="yweb-btn" style="width:100%;text-align:left;border:none" ' +
-			'onclick="ywebPickerLoad(' + JSON.stringify(ywebParentPath(path)).replace(/"/g, '&quot;') + ')">↑ ..</button></li>';
+			'onclick="ywebPickerLoad(' + escapeHtml(JSON.stringify(ywebParentPath(path))) + ')">↑ ..</button></li>';
 	entries.forEach(function(e) {
 		if (!e.name || e.name === '.' || e.name === '..') return;
 		var isDir = (e.type_str === 'dir' || e.type === 4 || e.type === '4');
 		if (!isDir && !_ywebPickerState.filesToo) return;
 		var full = e.fullname || (path.replace(/\/+$/, '') + '/' + e.name);
-		var arg = JSON.stringify(full).replace(/"/g, '&quot;');
+		// escaped as a whole: the attribute is decoded before the handler is
+		// read, so an & in a name must not become a quote there
+		var arg = escapeHtml(JSON.stringify(full));
 		var icon = isDir ? '📁' : '📄';
 		var action = isDir ? 'ywebPickerLoad(' + arg + ')' : 'ywebPickerPickFile(' + arg + ')';
 		html += '<li><button type="button" class="yweb-btn" style="width:100%;text-align:left;border:none" onclick="' + action + '">' +

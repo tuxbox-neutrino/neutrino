@@ -500,16 +500,28 @@
 		<div class="yweb-card-indicator" id="cardIndicator"></div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=26"></script>
-	<script src="/yweb-header.js?v=57"></script>
+	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/yweb-header.js?v=58"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=11"></script>
+	<script src="/yweb-v1.js?v=12"></script>
 	<script>
-		// State
-		let currentPath = '/';
-		let quickDirs = [];
+		// The file manager works through /api/v1/storage: it reaches the
+		// directories the box names as its roots (where it records, where its
+		// movie browser looks, its plugin folders and the usual media and
+		// temporary directories) and nothing else on the box. The top level
+		// lists those roots. Rows are built with ywebEl, so a file name is
+		// always text, whatever characters it carries.
 
-		// SVG icon templates
+		// State: '' is the top level, the list of roots
+		let currentPath = '';
+		let roots = [];		// the roots that are there, as GET /storage/roots names them
+
+		// Pieces an upload goes up in: well below the server's body ceiling of
+		// 1 MiB, and small enough that one arrives within the 10 s the server
+		// gives a body over a slow link (some 26 KB/s)
+		const UPLOAD_PIECE = 256 * 1024;
+
+		// SVG icon templates (page source, not data)
 		const ICONS = {
 			folder: '<svg class="yweb-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>',
 			file: '<svg class="yweb-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>',
@@ -517,7 +529,9 @@
 			parent: '<svg class="yweb-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>',
 			download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
 			rename: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
-			delete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>'
+			delete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
+			ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="20,6 9,17 4,12"/></svg>',
+			cancel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
 		};
 
 		// Format file size
@@ -544,167 +558,174 @@
 			return p || '/';
 		}
 
-		// ===== Quick Access Sidebar =====
+		function joinPath(dir, name) {
+			return normPath(dir + '/' + name);
+		}
+
+		// The root a path lies in: the longest one it is or lies below
+		function rootOf(path) {
+			let best = '';
+			roots.forEach(r => {
+				if ((path === r || path.startsWith(r + '/')) && r.length > best.length) best = r;
+			});
+			return best;
+		}
+
+		function storageQuery(path) {
+			return '?path=' + encodeURIComponent(path);
+		}
+
+		// A yes or no that shows its text as text (file names among it)
+		function askFirst(title, text, ok) {
+			return new Promise(resolve => {
+				ywebSheet({
+					title: title,
+					body: ywebEl('p', {}, text),
+					actions: [
+						{label: ywebL('msg.cancel', 'Cancel'), value: false},
+						{label: ok, value: true, danger: true}
+					],
+					onClose: result => resolve(result === true)
+				});
+			});
+		}
+
+		// ===== Quick Access Sidebar: the roots =====
 
 		async function loadQuickDirs() {
-			quickDirs = [
-				{ name: 'Root /', path: '/' },
-				{ name: 'Home', path: '/home' },
-				{ name: 'Tmp', path: '/tmp' }
-			];
-
-			// Load paths from API
 			try {
-				const paths = await ywebApi('paths');
-				if (paths.configdir) quickDirs.push({ name: 'Config', path: paths.configdir });
-				if (paths.plugindir) quickDirs.push({ name: 'Plugins', path: paths.plugindir });
+				const r = await ywebV1('GET', '/storage/roots');
+				roots = ((r && r.items) || []).filter(x => x.present).map(x => normPath(x.id));
 			} catch (e) {
-				quickDirs.push({ name: 'Config', path: '/var/tuxbox/config' });
+				roots = [];
+				ywebShowToast('{=L:yw.msg.load_fail=}: ' + e.message, true);
 			}
-
-			// Load recording dirs
-			try {
-				const data = await ywebApi('getdir');
-				const dirs = data.dirs || data;
-				if (Array.isArray(dirs)) {
-					dirs.forEach(d => {
-						const dir = d.dir || d;
-						if (dir && typeof dir === 'string') {
-							const name = dir.split('/').filter(Boolean).pop() || dir;
-							quickDirs.push({ name: 'Rec: ' + name, path: dir });
-						}
-					});
-				}
-			} catch (e) {
-				// ignore
-			}
-
 			renderQuickDirs();
 		}
 
 		function renderQuickDirs() {
 			const list = document.getElementById('quickList');
-			let html = '';
-			quickDirs.forEach(d => {
-				const isActive = normPath(d.path) === normPath(currentPath);
-				html += '<li class="yweb-nav-item yweb-quick-item' + (isActive ? ' active' : '') + '" onclick="navigateTo(\'' + escapeJs(d.path) + '\')">'
-					+ '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'
-					+ '<span class="yweb-nav-name yweb-quick-name">' + escapeHtml(d.name) + '</span>'
-					+ '</li>';
-			});
-			list.innerHTML = html;
+			const items = [{name: '{=L:yw.fm.roots=}', path: ''}].concat(roots.map(r => ({name: r, path: r})));
+			list.replaceChildren(...items.map(d => ywebEl('li', {
+				className: 'yweb-nav-item yweb-quick-item' + (d.path === currentPath ? ' active' : ''),
+				on: {click: () => navigateTo(d.path)}
+			}, ywebMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'),
+				ywebEl('span', {className: 'yweb-nav-name yweb-quick-name'}, d.name))));
 		}
 
-		// ===== Breadcrumb =====
+		// ===== Breadcrumb: the roots, the root, then what lies below it =====
 
 		function renderBreadcrumb() {
 			const el = document.getElementById('breadcrumb');
-			if (currentPath === '/') {
-				el.innerHTML = '<span class="yweb-breadcrumb-current">/</span>';
-				return;
+			const crumbs = [{name: '{=L:yw.fm.roots=}', path: ''}];
+			const root = rootOf(currentPath);
+			if (root) {
+				crumbs.push({name: root, path: root});
+				let acc = root;
+				currentPath.substring(root.length).split('/').filter(Boolean).forEach(part => {
+					acc += '/' + part;
+					crumbs.push({name: part, path: acc});
+				});
 			}
-
-			const parts = currentPath.split('/').filter(Boolean);
-			let html = '<a href="#" onclick="navigateTo(\'/\'); return false;">/</a>';
-
-			let accumulated = '';
-			parts.forEach((part, i) => {
-				accumulated += '/' + part;
-				html += '<span class="yweb-breadcrumb-sep">/</span>';
-				if (i === parts.length - 1) {
-					html += '<span class="yweb-breadcrumb-current">' + escapeHtml(part) + '</span>';
-				} else {
-					html += '<a href="#" onclick="navigateTo(\'' + escapeJs(accumulated) + '\'); return false;">' + escapeHtml(part) + '</a>';
-				}
+			const parts = [];
+			crumbs.forEach((c, i) => {
+				if (i > 0) parts.push(ywebEl('span', {className: 'yweb-breadcrumb-sep'}, '/'));
+				if (i === crumbs.length - 1)
+					parts.push(ywebEl('span', {className: 'yweb-breadcrumb-current'}, c.name));
+				else
+					parts.push(ywebEl('a', {attrs: {href: '#'}, on: {click: ev => { ev.preventDefault(); navigateTo(c.path); }}}, c.name));
 			});
-
-			el.innerHTML = html;
+			el.replaceChildren(...parts);
 		}
 
 		// ===== File Listing =====
 
+		function fileRow(entry) {
+			const isDir = entry.kind === 'dir';
+			const isLink = entry.kind === 'link';
+			const fullpath = joinPath(currentPath, entry.id);
+			const actions = ywebEl('div', {className: 'yweb-file-actions', on: {click: ev => ev.stopPropagation()}});
+			if (!isDir)
+				actions.appendChild(ywebEl('a', {className: 'yweb-btn', title: '{=L:yw.fm.download=}',
+					attrs: {href: '/api/v1/storage/file' + storageQuery(fullpath), download: entry.id}}, ywebMarkup(ICONS.download)));
+			actions.appendChild(ywebEl('button', {type: 'button', className: 'yweb-btn', title: '{=L:yw.fm.rename=}',
+				on: {click: () => startRename(fullpath, entry.id)}}, ywebMarkup(ICONS.rename)));
+			actions.appendChild(ywebEl('button', {type: 'button', className: 'yweb-btn', title: '{=L:yw.fm.delete=}',
+				style: {color: 'var(--yweb-danger)'}, on: {click: () => deleteItem(fullpath, entry.id, isDir)}}, ywebMarkup(ICONS.delete)));
+
+			const size = isDir || !entry.attributes_read ? '' : formatFileSize(entry.size || 0);
+			const date = entry.attributes_read ? formatFileDate(entry.mtime || 0) : '';
+			return ywebEl('li', {className: 'yweb-file-row' + (isDir ? ' is-dir' : ''), data: {path: fullpath, name: entry.id},
+				on: isDir ? {click: () => navigateTo(fullpath)} : {}},
+				ywebMarkup(isDir ? ICONS.folder : (isLink ? ICONS.link : ICONS.file)),
+				ywebEl('div', {className: 'yweb-file-info'},
+					ywebEl('span', {className: 'yweb-file-name'}, entry.id),
+					ywebEl('span', {className: 'yweb-file-size'}, size),
+					ywebEl('span', {className: 'yweb-file-date'}, date)),
+				actions);
+		}
+
+		function rootRow(root) {
+			return ywebEl('li', {className: 'yweb-file-row is-dir', data: {path: root}, on: {click: () => navigateTo(root)}},
+				ywebMarkup(ICONS.folder),
+				ywebEl('div', {className: 'yweb-file-info'}, ywebEl('span', {className: 'yweb-file-name'}, root)));
+		}
+
+		function note(text, color) {
+			return ywebEl('li', {style: {padding: '1rem', 'text-align': 'center', color: color || 'var(--pico-muted-color)'}}, text);
+		}
+
+		let listToken = 0;	// a slower answer for a directory left already is dropped
+
 		async function loadDir(path) {
-			currentPath = normPath(path);
+			currentPath = path ? normPath(path) : '';
+			const mine = ++listToken;
 			renderBreadcrumb();
 			renderQuickDirs();
 			updatePreviews();
 
 			const list = document.getElementById('fileList');
-			list.innerHTML = '<li aria-busy="true" style="padding:1rem;text-align:center">{=L:yw.msg.loading=}</li>';
-
-			// Update title
 			const title = document.getElementById('fileListTitle');
-			const dirName = currentPath === '/' ? '/' : currentPath.split('/').filter(Boolean).pop();
-			title.textContent = dirName;
+
+			// The top level: the roots, and a word on why there is nothing else
+			if (!currentPath) {
+				title.textContent = '{=L:yw.fm.roots=}';
+				document.getElementById('diskInfo').textContent = '';
+				list.replaceChildren(...roots.map(rootRow), note('{=L:yw.fm.roots_note=}'));
+				return;
+			}
+
+			title.textContent = currentPath.split('/').filter(Boolean).pop() || currentPath;
+			list.replaceChildren(ywebEl('li', {attrs: {'aria-busy': 'true'}, style: {padding: '1rem', 'text-align': 'center'}}, '{=L:yw.msg.loading=}'));
 
 			try {
-				const data = await ywebApi('file', {action: 'list', path: currentPath});
-				const files = data?.data?.filelist || data?.filelist || [];
+				const data = await ywebV1('GET', '/storage/files', {query: {path: currentPath}});
+				if (mine !== listToken) return;
+				const files = (data && data.items) || [];
 
 				// Sort: directories first, then alphabetical
 				files.sort((a, b) => {
-					const aDir = a.type_str === 'dir' || a.type === 4;
-					const bDir = b.type_str === 'dir' || b.type === 4;
+					const aDir = a.kind === 'dir';
+					const bDir = b.kind === 'dir';
 					if (aDir && !bDir) return -1;
 					if (!aDir && bDir) return 1;
-					return (a.name || '').localeCompare(b.name || '');
+					return (a.id || '').localeCompare(b.id || '');
 				});
 
-				let html = '';
+				// Up: from a root to the list of roots, else one directory up
+				const parentPath = rootOf(currentPath) === currentPath ? '' :
+					(currentPath.substring(0, currentPath.lastIndexOf('/')) || '/');
+				const rows = [ywebEl('li', {className: 'yweb-file-row parent-dir is-dir', on: {click: () => navigateTo(parentPath)}},
+					ywebMarkup(ICONS.parent),
+					ywebEl('div', {className: 'yweb-file-info'}, ywebEl('span', {className: 'yweb-file-name'}, '..')))];
+				files.forEach(f => rows.push(fileRow(f)));
+				if (!files.length) rows.push(note('{=L:yw.fm.empty=}'));
+				list.replaceChildren(...rows);
 
-				// Parent directory link
-				if (currentPath !== '/') {
-					const parentPath = currentPath.substring(0, currentPath.lastIndexOf('/')) || '/';
-					html += '<li class="yweb-file-row parent-dir is-dir" onclick="navigateTo(\'' + escapeJs(parentPath) + '\')">'
-						+ ICONS.parent
-						+ '<div class="yweb-file-info"><span class="yweb-file-name">..</span></div>'
-						+ '</li>';
-				}
-
-				if (files.length === 0 && currentPath === '/') {
-					html += '<li style="padding:1rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.fm.empty=}</li>';
-				}
-
-				files.forEach(f => {
-					const isDir = f.type_str === 'dir' || f.type === 4;
-					const isLink = f.type_str === 'link' || f.type === 10;
-					const icon = isDir ? ICONS.folder : (isLink ? ICONS.link : ICONS.file);
-					const fullpath = f.fullname || (currentPath + '/' + f.name).replace(/\/+/g, '/');
-					const size = isDir ? '' : formatFileSize(parseInt(f.size) || 0);
-					const date = formatFileDate(parseInt(f.time_t) || 0);
-
-					html += '<li class="yweb-file-row' + (isDir ? ' is-dir' : '') + '" data-path="' + escapeHtml(fullpath) + '" data-name="' + escapeHtml(f.name) + '" data-isdir="' + isDir + '"'
-						+ (isDir ? ' onclick="navigateTo(\'' + escapeJs(fullpath) + '\')"' : '')
-						+ '>'
-						+ icon
-						+ '<div class="yweb-file-info">'
-						+ '<span class="yweb-file-name" id="fname-' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</span>'
-						+ '<span class="yweb-file-size">' + size + '</span>'
-						+ '<span class="yweb-file-date">' + date + '</span>'
-						+ '</div>'
-						+ '<div class="yweb-file-actions" onclick="event.stopPropagation()">';
-
-					// Download (files only)
-					if (!isDir) {
-						html += '<a class="yweb-btn" href="/api/v4/file?action=download&path=' + encodeURIComponent(fullpath) + '" download title="{=L:yw.fm.download=}">' + ICONS.download + '</a>';
-					}
-
-					// Rename
-					html += '<button class="yweb-btn" onclick="startRename(\'' + escapeJs(fullpath) + '\', \'' + escapeJs(f.name) + '\')" title="{=L:yw.fm.rename=}">' + ICONS.rename + '</button>';
-
-					// Delete
-					html += '<button class="yweb-btn" onclick="deleteItem(\'' + escapeJs(fullpath) + '\', \'' + escapeJs(f.name) + '\', ' + isDir + ')" title="{=L:yw.fm.delete=}" style="color:var(--yweb-danger)">' + ICONS.delete + '</button>';
-
-					html += '</div></li>';
-				});
-
-				list.innerHTML = html || '<li style="padding:1rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.fm.empty=}</li>';
-
-				// Load disk info
-				loadDiskInfo();
+				loadDiskInfo(mine);
 			} catch (e) {
-				console.error('Failed to load directory:', e);
-				list.innerHTML = '<li style="padding:1rem;text-align:center;color:var(--yweb-danger)">{=L:yw.msg.load_fail=}: ' + escapeHtml(e.message) + '</li>';
+				if (mine !== listToken) return;
+				list.replaceChildren(note('{=L:yw.msg.load_fail=}: ' + e.message, 'var(--yweb-danger)'));
 			}
 		}
 
@@ -717,104 +738,87 @@
 		}
 
 		function refreshDir() {
-			loadDir(currentPath);
+			return loadDir(currentPath);
 		}
 
-		// ===== Disk Info =====
+		// ===== Disk Info: the mount the directory lies on =====
 
-		async function loadDiskInfo() {
+		async function loadDiskInfo(mine) {
+			const el = document.getElementById('diskInfo');
 			try {
-				const data = await ywebApi('statfs', {dir: currentPath});
-				// statfs delivers raw f_* fields (the old Total_bytes keys
-				// never existed in this payload, the card was silently dead)
-				const st = data?.data?.statfs || {};
-				const bsize = parseInt(st.f_bsize) || 0;
-				const total = (parseInt(st.f_blocks) || 0) * bsize;
-				const free = (parseInt(st.f_bavail) || 0) * bsize;
-				const used = total - free;
-				const pct = total > 0 ? Math.round(used * 100 / total) + '%' : '';
-
-				if (total > 0) {
-					document.getElementById('diskInfo').textContent = formatFileSize(free) + ' {=L:yw.fm.free=} / ' + formatFileSize(total) + ' (' + pct + ')';
+				const data = await ywebV1('GET', '/storage/mounts');
+				if (mine !== listToken) return;
+				let best = null;
+				((data && data.items) || []).forEach(m => {
+					const at = m.id === '/' ? '' : m.id;
+					if ((currentPath === m.id || currentPath.startsWith(at + '/')) && (!best || m.id.length > best.id.length))
+						best = m;
+				});
+				if (best && best.total > 0) {
+					const pct = Math.round((best.total - best.free) * 100 / best.total) + '%';
+					el.textContent = formatFileSize(best.free) + ' {=L:yw.fm.free=} / ' + formatFileSize(best.total) + ' (' + pct + ')';
+				} else {
+					el.textContent = '';
 				}
 			} catch (e) {
-				// ignore
+				el.textContent = '';
 			}
 		}
 
 		// ===== File Actions =====
 
-		// Delete
-		function deleteItem(fullpath, name, isDir) {
-			ywebShowConfirm(
-				'{=L:yw.fm.delete=}',
+		// Delete: a file, a link or an empty directory; the box keeps a
+		// directory that still holds something and says so
+		async function deleteItem(fullpath, name, isDir) {
+			const ok = await askFirst('{=L:yw.fm.delete=}',
 				(isDir ? '{=L:yw.fm.folder=}' : '{=L:yw.fm.file=}') + ' "' + name + '" {=L:yw.fm.delete_confirm=}',
-				'{=L:yw.fm.delete=}',
-				function() {
-					doDelete(fullpath, isDir);
-				}
-			);
-		}
-
-		async function doDelete(fullpath, isDir) {
+				'{=L:yw.fm.delete=}');
+			if (!ok) return;
 			try {
-				const action = isDir ? 'filemgr_rmdir' : 'filemgr_rm';
-				await ywebApi('exec', 'Y_NAS&' + action + '&' + encodeURIComponent(fullpath), {raw: true});
+				await ywebV1('DELETE', '/storage/path', {query: {path: fullpath}});
 				ywebShowToast('{=L:yw.fm.deleted=}');
 				refreshDir();
 			} catch (e) {
-				ywebShowToast('{=L:yw.fm.delete_fail=}: ' + e.message, true);
+				ywebShowToast((e.code === 'not-empty' ? '{=L:yw.fm.not_empty=}' : '{=L:yw.fm.delete_fail=}') + ': ' + e.message, true);
 			}
 		}
 
-		// Rename
+		// Rename in place: the name field takes the row's name
 		function startRename(fullpath, name) {
-			// Find the file row
-			const row = document.querySelector('.yweb-file-row[data-path="' + CSS.escape(fullpath) + '"]');
+			const row = Array.prototype.find.call(document.querySelectorAll('.yweb-file-row'), r => r.dataset.path === fullpath);
 			if (!row) return;
-
 			const nameEl = row.querySelector('.yweb-file-name');
-			const origName = name;
-
+			const input = ywebEl('input', {type: 'text', value: name});
+			const go = () => doRename(fullpath, name, input.value.trim());
 			nameEl.classList.add('editing');
-			nameEl.innerHTML = '<input type="text" value="' + escapeHtml(origName) + '" id="renameInput">'
-				+ '<button class="yweb-btn primary" onclick="doRename(\'' + escapeJs(fullpath) + '\', \'' + escapeJs(origName) + '\')" style="padding:0.15rem 0.3rem">'
-				+ '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="20,6 9,17 4,12"/></svg>'
-				+ '</button>'
-				+ '<button class="yweb-btn" onclick="refreshDir()" style="padding:0.15rem 0.3rem">'
-				+ '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
-				+ '</button>';
-
-			const input = document.getElementById('renameInput');
+			nameEl.replaceChildren(input,
+				ywebEl('button', {type: 'button', className: 'yweb-btn primary', style: {padding: '0.15rem 0.3rem'},
+					attrs: {'aria-label': '{=L:yw.fm.rename=}'}, on: {click: go}}, ywebMarkup(ICONS.ok)),
+				ywebEl('button', {type: 'button', className: 'yweb-btn', style: {padding: '0.15rem 0.3rem'},
+					attrs: {'aria-label': ywebL('msg.cancel', 'Cancel')}, on: {click: () => refreshDir()}}, ywebMarkup(ICONS.cancel)));
 			input.focus();
 			// Select filename without extension
-			const dotIdx = origName.lastIndexOf('.');
-			if (dotIdx > 0) {
-				input.setSelectionRange(0, dotIdx);
-			} else {
-				input.select();
-			}
-			input.onkeydown = function(e) {
-				if (e.key === 'Enter') doRename(fullpath, origName);
+			const dotIdx = name.lastIndexOf('.');
+			if (dotIdx > 0) input.setSelectionRange(0, dotIdx);
+			else input.select();
+			input.addEventListener('keydown', e => {
+				if (e.key === 'Enter') go();
 				if (e.key === 'Escape') refreshDir();
-			};
+			});
 		}
 
-		async function doRename(fullpath, origName) {
-			const input = document.getElementById('renameInput');
-			if (!input) return;
-
-			const newName = input.value.trim();
+		async function doRename(fullpath, origName, newName) {
 			if (!newName || newName === origName) {
 				refreshDir();
 				return;
 			}
-
+			if (newName.indexOf('/') >= 0) {
+				ywebShowToast('{=L:yw.fm.rename_fail=}: {=L:yw.fm.bad_name=}', true);
+				return;
+			}
 			try {
-				const dir = fullpath.substring(0, fullpath.lastIndexOf('/'));
-				const oldPath = fullpath;
-				const newPath = dir + '/' + newName;
-				await ywebApi('exec', 'Y_NAS&filemgr_ren&' + encodeURIComponent(oldPath) + '&' + encodeURIComponent(newPath), {raw: true});
+				const dir = fullpath.substring(0, fullpath.lastIndexOf('/')) || '/';
+				await ywebV1('POST', '/storage/rename', {body: {from: fullpath, to: joinPath(dir, newName)}});
 				ywebShowToast('{=L:yw.fm.renamed=}');
 				refreshDir();
 			} catch (e) {
@@ -825,6 +829,7 @@
 		// ===== Create Folder =====
 
 		function showNewFolderInput() {
+			if (!currentPath) return;	// the top level holds the roots only
 			const row = document.getElementById('newFolderRow');
 			row.classList.add('active');
 			const input = document.getElementById('newFolderName');
@@ -844,11 +849,13 @@
 		async function createFolder() {
 			const input = document.getElementById('newFolderName');
 			const name = input.value.trim();
-			if (!name) return;
-
+			if (!name || !currentPath) return;
+			if (name.indexOf('/') >= 0) {
+				ywebShowToast('{=L:yw.msg.error=}: {=L:yw.fm.bad_name=}', true);
+				return;
+			}
 			try {
-				const path = normPath(currentPath + '/' + name);
-				await ywebApi('exec', 'Y_NAS&filemgr_mkdir&' + encodeURIComponent(path), {raw: true});
+				await ywebV1('POST', '/storage/directory', {body: {path: joinPath(currentPath, name)}});
 				hideNewFolderInput();
 				ywebShowToast('{=L:yw.fm.folder_created=}');
 				refreshDir();
@@ -860,42 +867,79 @@
 		// ===== Upload =====
 
 		function toggleUpload() {
+			if (!currentPath) return;
 			const area = document.getElementById('uploadArea');
 			area.classList.toggle('active');
 		}
 
+		// The length the piece file has reached, for a piece whose answer was lost
+		async function partLength(dir, part) {
+			const listed = await ywebV1('GET', '/storage/files', {query: {path: dir}});
+			const name = part.substring(part.lastIndexOf('/') + 1);
+			const e = ((listed && listed.items) || []).find(x => x.id === name);
+			return e && e.attributes_read ? e.size : -1;
+		}
+
+		/* One piece, sent again once when the connection broke on the way. A
+		   piece that reached the box although its answer did not is found by
+		   the length of the piece file, so it is neither lost nor written twice. */
+		async function sendPiece(dir, part, offset, piece) {
+			const send = again => offset === 0
+				? ywebV1('PUT', '/storage/file', {query: {path: part, overwrite: again ? true : null}, raw: piece})
+				: ywebV1('PATCH', '/storage/file', {query: {path: part, offset: offset}, raw: piece});
+			try {
+				await send(false);
+			} catch (e) {
+				if (e.status) throw e;	// the box answered: a refusal, not a broken line
+				await new Promise(r => setTimeout(r, 1000));
+				try {
+					await send(true);
+				} catch (e2) {
+					if (e2.code !== 'offset-mismatch' || await partLength(dir, part) !== offset + piece.size) throw e2;
+				}
+			}
+		}
+
+		/* In pieces below the server's body ceiling, to a hidden name of its own
+		   beside the target, which takes the real name at the end: what was there
+		   under that name stays whole until the last piece is in, and a name in use
+		   is only replaced after asking. An upload that fails takes its pieces away
+		   again. */
 		async function uploadFile(file) {
-			if (!file) return;
+			if (!file || !currentPath) return;
+			const dir = currentPath;
+			const target = joinPath(dir, file.name);
+			const part = joinPath(dir, '.' + file.name + '.' + Math.random().toString(36).slice(2, 8) + '.upload');
 
 			const progress = document.getElementById('uploadProgress');
 			const bar = document.getElementById('uploadBar');
 			const status = document.getElementById('uploadStatus');
-
 			progress.classList.add('active');
 			status.textContent = '{=L:yw.fm.uploading=}: ' + file.name;
 			bar.value = 0;
 
+			let started = false;
 			try {
-				const formData = new FormData();
-				formData.append('file', file);
+				let offset = 0;
+				do {
+					const piece = file.slice(offset, offset + UPLOAD_PIECE);
+					await sendPiece(dir, part, offset, piece);
+					// a piece file of this upload is there now, to take away on a failure;
+					// a first piece refused as name-taken belongs to somebody else
+					started = true;
+					offset += piece.size;
+					bar.value = file.size ? Math.round(offset * 100 / file.size) : 100;
+				} while (offset < file.size);
 
-				const xhr = new XMLHttpRequest();
-				xhr.open('POST', '/api/v4/file?action=upload&path=' + encodeURIComponent(currentPath));
-
-				xhr.upload.onprogress = function(e) {
-					if (e.lengthComputable) {
-						bar.value = Math.round((e.loaded / e.total) * 100);
-					}
-				};
-
-				await new Promise((resolve, reject) => {
-					xhr.onload = function() {
-						if (xhr.status >= 200 && xhr.status < 300) resolve();
-						else reject(new Error('{=L:yw.inst.upfail=}: ' + xhr.status));
-					};
-					xhr.onerror = reject;
-					xhr.send(formData);
-				});
+				try {
+					await ywebV1('POST', '/storage/rename', {body: {from: part, to: target}});
+				} catch (e) {
+					if (e.code !== 'name-taken') throw e;
+					const replace = await askFirst('{=L:yw.fm.upload=}', '"' + file.name + '" {=L:yw.fm.replace_ask=}', '{=L:yw.fm.replace=}');
+					if (!replace) throw new Error('{=L:yw.fm.not_replaced=}');
+					await ywebV1('POST', '/storage/rename', {body: {from: part, to: target, overwrite: true}});
+				}
+				started = false;
 
 				status.textContent = '{=L:yw.fm.done=}: ' + file.name;
 				ywebShowToast('{=L:yw.fm.uploaded=}: ' + file.name);
@@ -903,10 +947,12 @@
 					progress.classList.remove('active');
 					document.getElementById('uploadArea').classList.remove('active');
 				}, 2000);
-				refreshDir();
+				if (currentPath === dir) refreshDir();
 			} catch (e) {
 				status.textContent = '{=L:yw.msg.error=}: ' + e.message;
 				ywebShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true);
+				if (started)
+					ywebV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
 			}
 
 			// Reset file input
@@ -935,14 +981,9 @@
 		function updatePreviews() {
 			const sidebarPreview = document.getElementById('sidebarPreview');
 			const filesPreview = document.getElementById('filesPreview');
-
-			if (sidebarPreview) {
-				const active = quickDirs.find(d => normPath(d.path) === normPath(currentPath));
-				sidebarPreview.textContent = active ? active.name : currentPath;
-			}
-			if (filesPreview) {
-				filesPreview.textContent = currentPath;
-			}
+			const where = currentPath || '{=L:yw.fm.roots=}';
+			if (sidebarPreview) sidebarPreview.textContent = rootOf(currentPath) || where;
+			if (filesPreview) filesPreview.textContent = where;
 		}
 
 		// ===== Pull-to-Refresh =====
@@ -960,8 +1001,14 @@
 
 		// ===== Initialize =====
 
-		loadQuickDirs();
-		loadDir('/');
+		// The roots first, so the top level and the breadcrumb know them; an
+		// address with #<path> inside them opens there
+		(async function() {
+			await loadQuickDirs();
+			let asked = '';
+			try { asked = decodeURIComponent(location.hash.replace(/^#/, '')); } catch (e) { /* not an address */ }
+			loadDir(asked && rootOf(normPath(asked)) ? asked : '');
+		})();
 
 		document.addEventListener('DOMContentLoaded', function() {
 			ywebInitMobileAccordion({

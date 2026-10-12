@@ -6,6 +6,8 @@
 //   ywebV1('PUT', '/bouquets/' + encodeURIComponent(n) + '/hidden',
 //          {body: {on: true}})                            -> null (204)
 //   ywebV1Blob('/osd/screenshot', {format: 'png'})        -> Blob
+//   ywebV1('PUT', '/storage/file', {query: {path: p}, raw: blob})
+//                                                         -> bytes as the body
 //
 // A refusal throws an Error with the box's reason as its message, the HTTP
 // status in .status and the code of the refusal in .code (answers come as
@@ -67,7 +69,11 @@ async function ywebV1Session() {
 function _ywebV1Send(method, path, opts) {
 	var headers = {};
 	var init = {method: method, credentials: 'same-origin', cache: 'no-store', headers: headers};
-	if (opts.body !== undefined) {
+	if (opts.raw !== undefined) {
+		// bytes as they are (a file or a piece of one), not a document
+		headers['Content-Type'] = 'application/octet-stream';
+		init.body = opts.raw;
+	} else if (opts.body !== undefined) {
 		headers['Content-Type'] = 'application/json';
 		init.body = JSON.stringify(opts.body);
 	}

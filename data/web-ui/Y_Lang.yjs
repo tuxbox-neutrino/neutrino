@@ -288,6 +288,7 @@ window.YWEB_L = {
 	"picker.choose_folder": "{=L:yw.picker.choose_folder=}",
 	"picker.not_readable": "{=L:yw.picker.not_readable=}",
 	"picker.empty": "{=L:yw.picker.empty=}",
+	"picker.roots": "{=L:yw.picker.roots=}",
 	"msg.loading": "{=L:yw.msg.loading=}",
 	// Confirm-/Prompt-Dialoge (yweb-header.js)
 	"msg.cancel": "{=L:yw.msg.cancel=}",

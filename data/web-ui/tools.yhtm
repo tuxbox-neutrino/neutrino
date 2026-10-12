@@ -145,10 +145,10 @@
 		</div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=26"></script>
-	<script src="/yweb-header.js?v=57"></script>
+	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/yweb-header.js?v=58"></script>
 	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=11"></script>
+	<script src="/yweb-v1.js?v=12"></script>
 	<script>
 		// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
 		// Settings-Panels); Ziffern-Buttons (1080/720/PAL) bleiben bewusst
