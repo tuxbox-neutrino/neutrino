@@ -788,6 +788,20 @@
 	// eigener Load/Diff/Save-Zyklus gegen config=<name>, getrennt vom
 	// neutrino-Hauptformular (collectValues ignoriert data-extcfg-Felder)
 	var EXT_CONFIG_CACHE = {};
+
+	// The web interface's own settings (yWeb.conf) over /api/v1, as a plain
+	// object; a write names only the keys to change, and an empty value takes
+	// a key out, which the pages read the same as a key that is not there
+	async function webuiSettingsRead() {
+		var r = await ywebV1('GET', '/webui/settings');
+		var out = {};
+		((r && r.items) || []).forEach(function(it) { out[it.key] = it.value; });
+		return out;
+	}
+
+	function webuiSettingsWrite(changes) {
+		return ywebV1('PATCH', '/webui/settings', {body: changes});
+	}
 	function renderExtConfigPanel(cat) {
 		setTimeout(function() { loadExtConfigPanel(cat); }, 0);
 		return '<div class="settings-card">' + makeCardHeader(cat.label) +
@@ -798,10 +812,16 @@
 		var el = document.getElementById('extcfg-' + cat.id);
 		if (!el) return;
 		try {
-			var resp = await ywebApi('config', {config: cat.config});
-			var cfg = (resp && resp.data && resp.data.config) || {};
+			var cfg, get;
+			if (cat.config === 'yweb') {
+				cfg = await webuiSettingsRead();
+				get = function(key) { return cfg[key] || ''; };
+			} else {
+				var resp = await ywebApi('config', {config: cat.config});
+				cfg = (resp && resp.data && resp.data.config) || {};
+				get = function(key) { return cfg[String(key).replace(/\./g, '_dot_').replace(/-/g, '_bind_')] || ''; };
+			}
 			EXT_CONFIG_CACHE[cat.config] = cfg;
-			var get = function(key) { return cfg[String(key).replace(/\./g, '_dot_').replace(/-/g, '_bind_')] || ''; };
 			var html = '';
 			var savable = 0;
 			cat.sections.forEach(function(sec) {
@@ -841,22 +861,29 @@
 	async function saveExtConfig(catId, cfgName, btn) {
 		var root = document.getElementById('extcfg-' + catId);
 		var cfg = EXT_CONFIG_CACHE[cfgName] || {};
+		// the web interface's own file goes over /api/v1, by its plain keys
+		var yweb = cfgName === 'yweb';
 		var params = 'action=submit';
+		var changes = {};
 		var changed = 0;
 		root.querySelectorAll('[data-key][data-extcfg]').forEach(function(el) {
 			var key = el.getAttribute('data-key');
 			var val = (el.type === 'checkbox') ? (el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off')) : el.value;
-			var ck = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+			var ck = yweb ? key : key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
 			if (val !== (cfg[ck] || '')) {
 				params += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(val);
+				changes[key] = val;
 				changed++;
 			}
 		});
 		if (changed === 0) { ywebShowToast('{=L:yw.set.nochanges=}'); return; }
 		btn.disabled = true;
 		try {
-			// in the body: the password field travels with it
-			await ywebApi('config', 'config=' + cfgName + '&' + params, {post: true});
+			if (yweb)
+				await webuiSettingsWrite(changes);
+			else
+				// in the body: the password field travels with it
+				await ywebApi('config', 'config=' + cfgName + '&' + params, {post: true});
 			// Auth-Zustand kann sich geaendert haben: Gate/Logout-Button
 			// beim naechsten Seitenload neu bewerten
 			if (cfgName === 'nhttpd') {
@@ -1055,9 +1082,12 @@
 			try {
 				var out = extScriptResult(await ywebApi('exec', 'Y_Extensions&uninstall&' + encodeURIComponent(dir), {raw: true}));
 				if (out.indexOf('ok:') !== 0) throw new Error(out || dir);
-				// blank the config keys — the config API cannot delete keys;
-				// empty values are inert (documented residue)
-				await ywebApi('config', 'config=yweb&action=submit&ext_' + dir + '_enabled=&ext_' + dir + '_slot=');
+				// its keys go with it (an empty value takes a key out); the
+				// extension is gone either way, and keys left over are inert
+				var gone = {};
+				gone['ext_' + dir + '_enabled'] = '';
+				gone['ext_' + dir + '_slot'] = '';
+				try { await webuiSettingsWrite(gone); } catch (eKeys) { console.warn('extension keys kept:', eKeys.message); }
 				delete _extUpdates[dir];
 				ywebShowToast('{=L:yw.set.extuninst_ok=}: ' + name);
 				await loadExtensionsPanel();
@@ -1081,8 +1111,7 @@
 	async function extCheckUpdates(btn) {
 		btn.disabled = true;
 		try {
-			var resp = await ywebApi('config', {config: 'yweb'});
-			var cfg = (resp && resp.data && resp.data.config) || {};
+			var cfg = await webuiSettingsRead();
 			var url = cfg['ext_index_url'] || EXT_INDEX_DEFAULT;
 			var idx = null;
 			try {
@@ -1126,24 +1155,28 @@
 
 	async function saveExtensions(btn) {
 		var exts = await ywebDiscoverExtensions();
-		var params = 'action=submit';
+		var changes = {};
 		exts.forEach(function(m) {
+			// a folder put there by hand under a name no key can carry is left
+			// out rather than failing the save of every other one
+			if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,254}$/.test(m.dir)) return;
 			var ena = document.getElementById('extena_' + m.dir);
 			var slot = document.getElementById('extslot_' + m.dir);
-			params += '&ext_' + m.dir + '_enabled=' + (ena && ena.checked ? '1' : '0');
-			if (slot) params += '&ext_' + m.dir + '_slot=' + slot.value;
+			changes['ext_' + m.dir + '_enabled'] = ena && ena.checked ? '1' : '0';
+			if (slot) changes['ext_' + m.dir + '_slot'] = slot.value;
 		});
 		btn.disabled = true;
 		try {
-			await ywebApi('config', 'config=yweb&' + params);
+			await webuiSettingsWrite(changes);
 			ywebShowToast('{=L:yw.set.ext_saved=}');
 			await loadExtensionsPanel();
 		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;
 	}
 
-	// Wake-on-LAN: MAC/Beschreibung in yWeb.conf (config=yweb), Wecken
-	// via exec-Vertrag (ether-wake auf der Box)
+	// Wake-on-LAN: description and MAC of up to three devices in the web
+	// interface's own settings (/api/v1/webui/settings); waking goes through
+	// the exec contract (ether-wake on the box)
 	function renderWolPanel() {
 		setTimeout(loadWolPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN') +
@@ -1154,20 +1187,26 @@
 		var el = document.getElementById('wolPanel');
 		if (!el) return;
 		try {
-			var resp = await ywebApi('config', {config: 'yweb'});
-			var cfg = (resp && resp.data && resp.data.config) || {};
+			var cfg = await webuiSettingsRead();
 			EXT_CONFIG_CACHE['yweb'] = cfg;
-			var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.set.wol_devices=}</div>';
-			for (var i = 1; i <= 3; i++) {
-				html += '<div class="yweb-form-row"><label>{=L:yw.set.wol_device=} ' + i + '</label><span>' +
-					'<input type="text" id="wol_desc_' + i + '" placeholder="{=L:yw.set.wol_desc_ph=}" style="max-width:140px" value="' + (cfg['wol_desc_' + i] || '') + '"> ' +
-					'<input type="text" id="wol_mac_' + i + '" placeholder="aa:bb:cc:dd:ee:ff" style="max-width:160px" value="' + (cfg['wol_mac_' + i] || '') + '"> ' +
-					'<button type="button" class="yweb-btn" onclick="wolWake(' + i + ', this)">' + ZAP_ICON + '{=L:yw.set.wol_wake=}</button></span></div>';
-			}
-			html += '</div>' + makePanelSaveRow('wolSave(this)');
-			el.innerHTML = html;
+			var section = ywebEl('div', {className: 'yweb-form-section'},
+				ywebEl('div', {className: 'yweb-form-section-title'}, '{=L:yw.set.wol_devices=}'));
+			[1, 2, 3].forEach(function(i) {
+				section.appendChild(ywebEl('div', {className: 'yweb-form-row'},
+					ywebEl('label', {}, '{=L:yw.set.wol_device=} ' + i),
+					ywebEl('span', {},
+						ywebEl('input', {type: 'text', id: 'wol_desc_' + i, value: cfg['wol_desc_' + i] || '',
+							attrs: {placeholder: '{=L:yw.set.wol_desc_ph=}'}, style: {'max-width': '140px'}}), ' ',
+						ywebEl('input', {type: 'text', id: 'wol_mac_' + i, value: cfg['wol_mac_' + i] || '',
+							attrs: {placeholder: 'aa:bb:cc:dd:ee:ff'}, style: {'max-width': '160px'}}), ' ',
+						ywebEl('button', {type: 'button', className: 'yweb-btn', on: {click: function() { wolWake(i, this); }}},
+							ywebMarkup(ZAP_ICON), '{=L:yw.set.wol_wake=}'))));
+			});
+			el.replaceChildren(section);
+			el.insertAdjacentHTML('beforeend', makePanelSaveRow('wolSave(this)'));
 		} catch (e) {
-			el.innerHTML = '<div class="yweb-form-row"><label>{=L:yw.set.notavail=}: ' + escapeHtml(e.message) + '</label></div>';
+			el.replaceChildren(ywebEl('div', {className: 'yweb-form-row'},
+				ywebEl('label', {}, '{=L:yw.set.notavail=}: ' + e.message)));
 		}
 	}
 
@@ -1186,18 +1225,18 @@
 
 	async function wolSave(btn) {
 		var cfg = EXT_CONFIG_CACHE['yweb'] || {};
-		var params = 'action=submit';
+		var changes = {};
 		var changed = 0;
 		for (var i = 1; i <= 3; i++) {
 			['wol_desc_' + i, 'wol_mac_' + i].forEach(function(k) {
 				var v = (document.getElementById(k) || {}).value || '';
-				if (v !== (cfg[k] || '')) { params += '&' + k + '=' + encodeURIComponent(v); changed++; }
+				if (v !== (cfg[k] || '')) { changes[k] = v; changed++; }
 			});
 		}
 		if (!changed) { ywebShowToast('{=L:yw.set.nochanges=}'); return; }
 		btn.disabled = true;
 		try {
-			await ywebApi('config', 'config=yweb&' + params);
+			await webuiSettingsWrite(changes);
 			ywebShowToast('{=L:yw.msg.saved=}');
 			await loadWolPanel();
 		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
