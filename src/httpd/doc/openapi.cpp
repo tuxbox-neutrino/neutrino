@@ -1540,6 +1540,8 @@ const TagDoc kTags[] = {
 	  "What the web interface keeps of its own beside the box's settings: the start page, the "
 	  "box's name and colour as the pages show them, the devices it wakes, and which extensions it "
 	  "shows." },
+	{ "network",
+	  "What the box does on its network for somebody else: waking a device that sleeps." },
 	{ "daemons",
 	  "Starting, stopping and restarting one of the programs beside the one answering here. What "
 	  "they are and how they are doing is under system." },

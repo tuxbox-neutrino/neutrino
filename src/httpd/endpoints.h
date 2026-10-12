@@ -200,6 +200,8 @@ extern const RouteTable storageTable;
 extern const RouteTable netfsTable;
 // The web interface's own settings file, beside the box's settings and not among them.
 extern const RouteTable webuiTable;
+// What the box does on its network for somebody else: waking a device.
+extern const RouteTable networkTable;
 extern const RouteTable authTable;
 extern const RouteTable timersTable;
 extern const RouteTable osdTable;

@@ -57,7 +57,7 @@ TEST_CASE("the groups of this slice are declared in the order somebody meets thi
 	   with them. */
 	static const char *const meant[] = {
 		"auth", "channels", "epg", "timers", "recordings", "playback", "osd",
-		"settings", "system", "webserver", "webui", "daemons", "storage", "netfs",
+		"settings", "system", "webserver", "webui", "network", "daemons", "storage", "netfs",
 		"tuner", "plugins", "config", "events", "openapi",
 	};
 	const size_t count = sizeof(meant) / sizeof(meant[0]);

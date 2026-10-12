@@ -48,6 +48,7 @@
 #include "coreapi/storage.h"
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/types.h"
+#include "coreapi/network.h"
 #include "coreapi/webui.h"
 
 #include <neutrinoMessages.h>
@@ -550,6 +551,33 @@ struct Sandbox
 	private:
 		Sandbox(const Sandbox &);
 		Sandbox &operator=(const Sandbox &);
+};
+
+/* The packet a wake would send, caught before it reaches a socket, so no case
+   broadcasts on the network of the machine it runs on. */
+std::vector<unsigned char> &wakePackets()
+{
+	static std::vector<unsigned char> sent;
+	return sent;
+}
+
+bool wakeSendsOk = true;
+
+bool catchWake(const unsigned char *packet, size_t length)
+{
+	wakePackets().assign(packet, packet + length);
+	return wakeSendsOk;
+}
+
+struct WakeFixture
+{
+	WakeFixture()
+	{
+		wakePackets().clear();
+		wakeSendsOk = true;
+		coreapi::network::internal::setWakeSenderForTest(&catchWake);
+	}
+	~WakeFixture() { coreapi::network::internal::setWakeSenderForTest(NULL); }
 };
 
 /* The web interface's own settings file, one of the case's own, with what a box
@@ -1166,7 +1194,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 54);
+	REQUIRE(changing == 55);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4008,6 +4036,10 @@ TEST_CASE("the body example a route is documented with is a request that route a
 		WebuiFixture webui;
 		REQUIRE(sendBodyExample("PATCH", "/api/v1/webui/settings", none) == 200);
 	}
+	{
+		WakeFixture wake;
+		REQUIRE(sendBodyExample("POST", "/api/v1/network/wake", none) == 204);
+	}
 	REQUIRE(sendBodyExample("POST", "/api/v1/channels/reload", none) == 202);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/channels", first) == 204);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/hidden", first) == 204);
@@ -4629,4 +4661,50 @@ TEST_CASE("the web interface's own settings are read and written whole, held to 
 	REQUIRE(stat(occupied.c_str(), &st) == 0);
 	REQUIRE(S_ISDIR(st.st_mode));
 	REQUIRE(access((occupied + ".tmp").c_str(), F_OK) != 0);
+}
+
+TEST_CASE("a device on the box's network is woken with the packet its card listens for", "[write][network]")
+{
+	ShippedRoutes shipped;
+	WakeFixture wake;
+
+	const unsigned char hw[6] = { 0x00, 0x11, 0x22, 0xaa, 0xbb, 0xcc };
+	const char *const spellings[] = { "00:11:22:aa:BB:cc", "00-11-22-AA-bb-CC", "001122aabbcc" };
+	for (size_t i = 0; i < sizeof(spellings) / sizeof(spellings[0]); ++i)
+	{
+		INFO(spellings[i]);
+		wakePackets().clear();
+		REQUIRE(authedPost("/api/v1/network/wake", std::string("{\"mac\":\"") + spellings[i] + "\"}").code == 204);
+		const std::vector<unsigned char> &p = wakePackets();
+		REQUIRE(p.size() == 6 + 16 * 6);
+		for (size_t b = 0; b < 6; ++b)
+			REQUIRE(p[b] == 0xff);
+		for (size_t r = 0; r < 16; ++r)
+			REQUIRE(std::memcmp(&p[6 + r * 6], hw, 6) == 0);
+	}
+
+	const char *const wrong[] = {
+		"00:11:22:aa:bb", "00:11-22:aa:bb:cc", "zz:11:22:aa:bb:cc", "00:11:22:aa:bb:cc:", "0011.22aa.bbcc", ""
+	};
+	for (size_t i = 0; i < sizeof(wrong) / sizeof(wrong[0]); ++i)
+	{
+		INFO(wrong[i]);
+		wakePackets().clear();
+		const Reply r = authedPost("/api/v1/network/wake", std::string("{\"mac\":\"") + wrong[i] + "\"}");
+		REQUIRE(r.code == 400);
+		REQUIRE(wakePackets().empty());
+	}
+	REQUIRE(authedPost("/api/v1/network/wake", "{\"mac\":\"00:11:22:aa:bb:cc:dd\"}").body.find("value-too-long") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/network/wake", "{\"mac\":\"0011:22aabbcc\"}").body.find("bad-string") != std::string::npos);
+
+	wakeSendsOk = false;
+	const Reply unsent = authedPost("/api/v1/network/wake", "{\"mac\":\"001122aabbcc\"}");
+	REQUIRE(unsent.code == 500);
+	REQUIRE(unsent.body.find("wake-not-sent") != std::string::npos);
+
+	// A caller the network exemption granted a read wakes nothing.
+	wakeSendsOk = true;
+	wakePackets().clear();
+	REQUIRE(lanPost("/api/v1/network/wake", "{\"mac\":\"001122aabbcc\"}").code == 403);
+	REQUIRE(wakePackets().empty());
 }
