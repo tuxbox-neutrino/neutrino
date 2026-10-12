@@ -2,6 +2,7 @@
  * test_endpoints_read.cpp - tests for every reading route
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1604,6 +1605,38 @@ TEST_CASE("a schema label resolves through the installed catalog, not the key", 
 		CHECK(found["values"][i]["label"].asString() != "videomenu.videoformat_169");
 	}
 	REQUIRE(have_choice);
+}
+
+/* The hint beside a setting: its name as before, and the text the name stands
+   for, resolved the way the label is, so a page shows the help the box shows. */
+TEST_CASE("a schema hint carries its text beside its name", "[endpoints]")
+{
+	ShippedRoutes shipped;
+
+	FakeLocaleSource cat;
+	cat.texts["menu.hint_video_format"] = "Picks the shape of the picture";
+	InstalledLocaleSource installed(&cat);
+
+	const Reply r = get("/api/v1/settings/schema");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+
+	bool have = false, untranslated = false;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		if (items[i]["id"].asString() == "video_Format")
+		{
+			have = true;
+			CHECK(items[i]["hint"].asString() == "menu.hint_video_format");
+			REQUIRE(items[i].isMember("hint_text"));
+			CHECK(items[i]["hint_text"].asString() == "Picks the shape of the picture");
+		}
+		// a hint the catalog carries nothing for answers its name and no text
+		else if (items[i].isMember("hint") && !items[i].isMember("hint_text"))
+			untranslated = true;
+	}
+	REQUIRE(have);
+	CHECK(untranslated);
 }
 
 /* The values of a setting the box decides, which carries none of its own. A

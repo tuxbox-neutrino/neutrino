@@ -2,6 +2,7 @@
  * ep_settings.cpp - routes for settings
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,6 +133,10 @@ const FieldDesc kSettingFields[] = {
 		"or the catalog carries no text for its name"),
 	HTTPD_MEMBER_OPTIONAL("hint", FieldType::String,
 		"the name of the longer text beside it, absent where there is none"),
+	HTTPD_MEMBER_OPTIONAL("hint_text", FieldType::String,
+		"that longer text itself, resolved into the box's configured language as the label is, "
+		"the help the box shows beside the setting on its own screen; absent where there is no "
+		"hint or the catalog carries no text for it"),
 	HTTPD_MEMBER_OPTIONAL("min", FieldType::Int,
 		"the lowest whole number this setting accepts, present only when type is int"),
 	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int,
@@ -212,6 +217,15 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	{
 		j.key("hint");
 		j.value(d.hint_key);
+
+		/* The text beside the name, so a page shows the same help the screen at the box
+		   shows and needs no catalog of its own. Absent for the reason a label is. */
+		std::string hint_text;
+		if (coreapi::settings::resolveLabel(d.hint_key, hint_text))
+		{
+			j.key("hint_text");
+			j.value(hint_text);
+		}
 	}
 
 	// Only a whole number is bounded by these. Every other kind leaves both at
