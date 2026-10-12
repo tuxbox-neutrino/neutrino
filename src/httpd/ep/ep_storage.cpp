@@ -2,6 +2,7 @@
  * ep_storage.cpp - routes for mounts and files
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, rework)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,6 +161,21 @@ const FieldDesc kMountListFields[] = {
 
 const Schema kMountListSchema = { "mount-list", HTTPD_FIELDS(kMountListFields) };
 
+const FieldDesc kRootFields[] = {
+	HTTPD_MEMBER("id", FieldType::String,
+		"the directory, as the list of roots names it, which is what the file routes are confined to"),
+	HTTPD_MEMBER("present", FieldType::Bool,
+		"whether it is there as a directory right now; a medium that is not mounted yet is a root all the same"),
+};
+
+const Schema kRootSchema = { "storage-root", HTTPD_FIELDS(kRootFields) };
+
+const FieldDesc kRootListFields[] = {
+	HTTPD_LIST_OF("items", &kRootSchema, "every root once, in the order the list holds them"),
+};
+
+const Schema kRootListSchema = { "storage-root-list", HTTPD_FIELDS(kRootListFields) };
+
 /* Everything from mode down is absent for a name the filesystem would not
    answer for, a broken link above all, and that is the one place in this
    server where the shape of an item follows what is in it.
@@ -306,6 +322,54 @@ Response listFiles(const Request &r)
 	j.endArray();
 	j.endObject();
 	return out;
+}
+
+Response listRoots(const Request &)
+{
+	confine();
+
+	const std::vector<coreapi::storage::RootEntry> all = coreapi::storage::rootList();
+	Response out = okJson();
+	Json j(out.body, 32 + 64 * all.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		j.beginObject();
+		j.key("id");
+		j.value(all[i].path);
+		j.key("present");
+		j.value(all[i].present);
+		j.endObject();
+	}
+	j.endArray();
+	j.endObject();
+	return out;
+}
+
+/* A rename is a call to the filesystem that answered before this line, so
+   204 says the name has changed and not that a change was asked for. */
+Response renamePath(const Request &r)
+{
+	confine();
+	coreapi::Result<void> done = coreapi::storage::renamePath(r.asString("from"), r.asString("to"),
+								  r.has("overwrite") && r.asBool("overwrite"));
+	if (!done.ok())
+		return problemFor(done.error());
+	return noContent();
+}
+
+/* One piece of a file larger than a request may carry, added at the end of what
+   the earlier pieces made. 204, because the bytes are in the file by now. */
+Response appendFile(const Request &r)
+{
+	confine();
+	coreapi::Result<void> done = coreapi::storage::appendFile(r.asString("path"),
+								  (uint64_t) r.asUInt("offset"), r.body());
+	if (!done.ok())
+		return problemFor(done.error());
+	return noContent();
 }
 
 Response createDirectory(const Request &r)
@@ -538,6 +602,26 @@ const Param kMakeParams[] = {
    these tables puts it: what sits between a caller and this box drops or
    rewrites a body on a removal often enough that a route depending on one would
    work from some networks and not from others. */
+/* Both names in the body and not the address, as the directory to make is: a
+   rename changes something, and an address is what a log keeps. */
+const Param kRenameParams[] = {
+	HTTPD_BODY_REQUIRED("from", ParamType::String,
+		"the name to change, inside the roots; a link is renamed itself and not what it leads to"),
+	HTTPD_BODY_REQUIRED("to", ParamType::String,
+		"the name it is to have, inside the roots and on the same filesystem, whose directory has to exist"),
+	/* Absent reads as no, for the reason the file write's own flag does. */
+	HTTPD_BODY("overwrite", ParamType::Bool,
+		"whether a plain file already called that may be replaced by a plain file"),
+};
+
+const Param kAppendParams[] = {
+	HTTPD_QUERY_REQUIRED("path", ParamType::String,
+		"the file to add to, a plain file inside the roots"),
+	HTTPD_QUERY_REQUIRED("offset", ParamType::UInt,
+		"where the piece goes, which has to be the file's length now: what the earlier pieces add up to"),
+	HTTPD_BODY_IS_BYTES("piece", "the next bytes of the file, sent as they are and not wrapped in anything", 0, 0),
+};
+
 const Param kRemoveParams[] = {
 	HTTPD_QUERY_REQUIRED("path", ParamType::String,
 		"the file or the empty directory to remove, inside the roots"),
@@ -613,6 +697,46 @@ const RouteRefusal kWriteFileRefusals[] = {
 		"what is called /media/hdd/movie is not a plain file, so nothing is put in its place"),
 };
 
+const RouteRefusal kRenameRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, AccessStore,
+		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
+		"the name /etc is not inside any permitted directory"),
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"the name /media/hdd/.. does not end in something this can act on"),
+	HTTPD_REFUSES(InvalidArgument, IsARoot,
+		"the directory /media/hdd is or holds one of those everything else has to stay inside, and keeps its name"),
+	HTTPD_REFUSES(InvalidArgument, IntoItself,
+		"the directory /media/hdd/movie cannot move into what it holds"),
+	HTTPD_REFUSES(InvalidArgument, CrossDevice,
+		"the names /media/hdd/a.ts and /media/usb/a.ts are on two filesystems, and a rename does not copy"),
+	HTTPD_REFUSES(NotFound, NoSuchName,
+		"there is nothing called /media/hdd/old.txt"),
+	HTTPD_REFUSES(NotFound, NoSuchParent,
+		"the directory that would hold /media/hdd/new/a.txt is not there"),
+	HTTPD_REFUSES(Conflict, NameTaken,
+		"there is already something called /media/hdd/new.txt"),
+	HTTPD_REFUSES(Conflict, NotAPlainFile,
+		"only a plain file replaces a plain file, and /media/hdd/movie or /media/hdd/new is not one"),
+};
+
+const RouteRefusal kAppendRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, AccessStore,
+		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
+		"the name /etc is not inside any permitted directory"),
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"the name /media/hdd/. does not end in something this can act on"),
+	HTTPD_REFUSES(NotFound, NoSuchName,
+		"there is no file called /media/hdd/.upload.part"),
+	HTTPD_REFUSES(NotFound, NoSuchParent,
+		"the directory that would hold /media/hdd/gone/.upload.part is not there"),
+	HTTPD_REFUSES(Conflict, OffsetMismatch,
+		"the file /media/hdd/.upload.part holds 1048576 bytes, which is where the next piece goes"),
+	HTTPD_REFUSES(Conflict, NotAPlainFile,
+		"what is called /media/hdd/movie is not a plain file, so nothing is added to it"),
+};
+
 const Endpoint kStorageEndpoints[] = {
 	{ Method::Get, "/api/v1/storage/mounts", AuthLevel::Read,
 	  "the filesystems the box has mounted and how much room each has", "Lists every filesystem "
@@ -632,6 +756,18 @@ const Endpoint kStorageEndpoints[] = {
 	   channel list and the guide, and the difference between knowing what is on television
 	   and knowing what is on the box's disks is the difference this level exists to
 	   draw. */
+	/* System like the listing below: the roots name where the box keeps its
+	   configuration, its recordings and its plugins. */
+	{ Method::Get, "/api/v1/storage/roots", AuthLevel::System,
+	  "the directories the file routes are confined to", "Lists the roots: every directory the "
+	  "file routes reach into, rebuilt from the current recording path and movie browser "
+	  "settings for each request, and whether each one is there as a directory right now. A "
+	  "name is inside the roots when it is one of them or lies below one; everything else on "
+	  "the box is out of reach of the file routes. Meant as the places a file manager offers to "
+	  "start from.\n\n"
+	  "**Related:** `GET /api/v1/storage/files`, `GET /api/v1/storage/mounts`.",
+	  NULL, 0, &kRootListSchema, &listRoots, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/storage/files", AuthLevel::System,
 	  "what one directory inside the roots holds", "Lists the entries of one directory named by "
 	  "`path`, read fresh from the filesystem for each request: for every entry, its name, what "
@@ -665,6 +801,30 @@ const Endpoint kStorageEndpoints[] = {
 	  HTTPD_PARAMS(kMakeParams), NULL, &createDirectory, false,
 	  Answers201, HTTPD_REFUSALS_AND_BODY(kCreateDirectoryRefusals,
 		"{\"path\":\"/media/hdd/movie/new\"}") },
+	{ Method::Post, "/api/v1/storage/rename", AuthLevel::System,
+	  "gives one name inside the roots another", "Renames `from` to `to` in one step on the "
+	  "same filesystem; what moves is the name itself, so a link is renamed as a link. `204` "
+	  "means the name has changed by the time this answers. A name already taken is left "
+	  "alone unless `overwrite` is `true`, and then only a plain file replaces a plain file, "
+	  "in one step, so a reader sees the old file or the new one and never neither.\n\n"
+	  "**Preconditions:** both names have to lie inside the roots and on one filesystem, the "
+	  "directory that is to hold `to` has to exist, and neither name may be the web server's "
+	  "own access store. A root itself keeps its name.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 access-store`: either name is the web server's own store of who may reach this box.\n"
+	  "- `400 outside-roots`: either name resolves outside every permitted directory.\n"
+	  "- `400 bad-name`: a name ends in `.` or `..` rather than in something to act on.\n"
+	  "- `400 is-a-root`: `from` is one of the roots or holds one.\n"
+	  "- `400 into-itself`: a directory was to move into something it holds.\n"
+	  "- `400 cross-device`: the two names are on two filesystems; copy and remove instead.\n"
+	  "- `404 no-such-name`: there is nothing at `from`.\n"
+	  "- `404 no-such-parent`: the directory that is to hold `to` is not there.\n"
+	  "- `409 name-taken`: something is already called `to` and `overwrite` was not `true`.\n"
+	  "- `409 not-a-plain-file`: `to` is taken and one of the two is not a plain file.\n\n"
+	  "**Related:** `GET /api/v1/storage/files`, `PATCH /api/v1/storage/file`.",
+	  HTTPD_PARAMS(kRenameParams), NULL, &renamePath, false,
+	  Answers204, HTTPD_REFUSALS_AND_BODY(kRenameRefusals,
+		"{\"from\":\"/media/hdd/old.txt\",\"to\":\"/media/hdd/new.txt\"}") },
 	{ Method::Delete, "/api/v1/storage/path", AuthLevel::System,
 	  "removes one file, or one directory with nothing in it", "Removes one name at `path`: a "
 	  "plain file, a link (removed itself, not what it points at), or a directory that holds "
@@ -751,6 +911,31 @@ const Endpoint kStorageEndpoints[] = {
 	  "**Related:** `GET /api/v1/storage/file`, `DELETE /api/v1/storage/path`.",
 	  HTTPD_PARAMS(kWriteParams), NULL, &writeFile, false,
 	  Answers201 | Answers204, HTTPD_REFUSALS(kWriteFileRefusals) },
+	/* The way past the body ceiling the route above has: a large file goes up
+	   in pieces to a name of its own and takes its real name with a rename at
+	   the end, so what was there under that name stays whole until then. */
+	{ Method::Patch, "/api/v1/storage/file", AuthLevel::System,
+	  "adds the next piece to the end of one file inside the roots", "Adds the request body to "
+	  "the end of the plain file at `path`, which has to be exactly `offset` bytes long. For a "
+	  "file larger than one request may carry: the first piece is put with "
+	  "`PUT /api/v1/storage/file` under a name of its own, every further one is added here at "
+	  "the length the file has reached, and `POST /api/v1/storage/rename` gives it its real name "
+	  "at the end. A piece sent twice or one that went missing is refused, and the file is left "
+	  "as it was; its length says where to go on from. `204` means the bytes are in the file.\n\n"
+	  "**Preconditions:** `path` has to resolve inside one of the roots, name a plain file and "
+	  "not be the web server's own access store; `offset` has to be its length now.\n\n"
+	  "**Side effects:** makes the named file longer by the body.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 access-store`: `path` names the web server's own store of who may reach this box.\n"
+	  "- `400 outside-roots`: `path` resolves outside every permitted directory.\n"
+	  "- `400 bad-name`: `path` ends in `.` or `..` rather than in a file name.\n"
+	  "- `404 no-such-name`: there is no file at `path`.\n"
+	  "- `404 no-such-parent`: the directory that would hold `path` is not there.\n"
+	  "- `409 offset-mismatch`: the file is not `offset` bytes long; a piece went missing or came twice.\n"
+	  "- `409 not-a-plain-file`: what is at `path` is not a plain file.\n\n"
+	  "**Related:** `PUT /api/v1/storage/file`, `POST /api/v1/storage/rename`.",
+	  HTTPD_PARAMS(kAppendParams), NULL, &appendFile, false,
+	  Answers204, HTTPD_REFUSALS(kAppendRefusals) },
 };
 
 } // namespace

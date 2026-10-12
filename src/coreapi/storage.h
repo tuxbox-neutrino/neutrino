@@ -155,6 +155,48 @@ Result<Wrote> writeFile(const std::string &path, const std::string &bytes, bool 
 // so the list stays the list of what is mounted.
 Result<std::vector<MountInfo> > mounts();
 
+/* The roots as the list stands: every element once, in its order, and whether it names a
+   directory that is there right now. For a caller that offers places to start, such as a
+   file manager's list of them; nothing any call here decides about containment changes
+   with what this answers, and a root that is not there yet still counts once it is. */
+struct RootEntry
+{
+	std::string path;
+	bool        present;
+};
+std::vector<RootEntry> rootList();
+
+/* Gives one name inside the roots another name inside the roots, in one step and on one
+   filesystem. What moves is the name itself: a link is renamed as a link, not what it leads
+   to, as removePath removes one.
+
+   The directory that is to hold the new name has to be there already. Without overwrite a
+   taken name is a conflict, decided in the same step as the rename where the kernel and the
+   filesystem can do that and by a look just before it where they cannot. With overwrite only
+   a plain file replaces a plain file, in one step, so a reader sees the old file or the new
+   one and never neither.
+
+   InvalidArgument for either name outside the roots or naming a web server's access store,
+   for a root itself, or a directory that holds one, as the name to rename (IsARoot), for a
+   directory to go into something it holds (IntoItself), for names on two filesystems (CrossDevice),
+   since a rename does not copy. NotFound when there is nothing under the first name or the
+   directory for the second is missing. Conflict NameTaken when the second name is taken and
+   overwrite was not given, and NotAPlainFile when it is taken and either of the two is not
+   a plain file. */
+Result<void> renamePath(const std::string &from, const std::string &to, bool overwrite);
+
+/* Adds bytes to the end of one plain file inside the roots that is exactly offset bytes long.
+   For a file larger than one request may carry: sent in pieces to a name of its own and
+   given its real name with renamePath at the end, so what was there under that name stays
+   whole until the last piece is in.
+
+   The length has to match, so a piece that came twice or one that went missing is refused
+   rather than written where it does not belong (Conflict OffsetMismatch, the file left as it
+   was). NotFound when there is no file under the name, Conflict NotAPlainFile when what is
+   there is not a plain file, InvalidArgument for a name outside the roots or naming an
+   access store. A piece the system takes only part of is taken back off again. */
+Result<void> appendFile(const std::string &path, uint64_t offset, const std::string &bytes);
+
 // Confined like everything else here: a name outside the roots is refused before the kernel
 // is asked, so that what exists elsewhere on the box cannot be read off which refusal comes
 // back. NotFound for a name inside a root that is not there or the kernel will not answer

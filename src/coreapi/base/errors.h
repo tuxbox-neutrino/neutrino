@@ -243,6 +243,20 @@ enum class ErrorCode
 	   remains away rather than renaming or overwriting. */
 	SideFileInTheWay,
 	NotEmpty,
+	/* The two names lie on two filesystems, and a rename gives a name and does
+	   not copy. A caller copies and removes instead, or picks a name on the
+	   same filesystem. */
+	CrossDevice,
+	/* A piece of a file sent in parts was to go at an offset the file has not
+	   reached, or has gone past: one went missing or came twice. The file is
+	   left as it was, and its length tells the caller where to go on from. */
+	OffsetMismatch,
+	/* The name is one of the directories everything else has to stay inside,
+	   or holds one. Renamed, it would take with it the place the box records
+	   to or reads from, so it keeps its name. */
+	IsARoot,
+	// A directory was to move into itself or into something it holds.
+	IntoItself,
 	/* The box is already keeping a shift, where one was to be started. Refused
 	   rather than granted quietly, because the record manager would start a
 	   second one, and two shifts of one channel hold two tuners to write the
@@ -513,6 +527,10 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::NotAPlainFile: return "not-a-plain-file";
 		case ErrorCode::SideFileInTheWay: return "side-file-in-the-way";
 		case ErrorCode::NotEmpty: return "not-empty";
+		case ErrorCode::CrossDevice: return "cross-device";
+		case ErrorCode::OffsetMismatch: return "offset-mismatch";
+		case ErrorCode::IsARoot: return "is-a-root";
+		case ErrorCode::IntoItself: return "into-itself";
 		case ErrorCode::TimeshiftRunning: return "timeshift-running";
 		case ErrorCode::RecordingRunning: return "recording-running";
 		case ErrorCode::RecordingPlaying: return "recording-playing";

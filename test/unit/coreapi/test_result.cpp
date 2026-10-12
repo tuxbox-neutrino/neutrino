@@ -139,6 +139,10 @@ const Walked kWalked[] = {
 	CODE(NotAPlainFile),
 	CODE(SideFileInTheWay),
 	CODE(NotEmpty),
+	CODE(CrossDevice),
+	CODE(OffsetMismatch),
+	CODE(IsARoot),
+	CODE(IntoItself),
 	CODE(TimeshiftRunning),
 	CODE(RecordingRunning),
 	CODE(RecordingPlaying),
@@ -374,6 +378,10 @@ TEST_CASE("the codes the file endpoint answers with are written down", "[result]
 		{ ErrorCode::NotAPlainFile,   "not-a-plain-file" },
 		{ ErrorCode::SideFileInTheWay, "side-file-in-the-way" },
 		{ ErrorCode::NotEmpty,        "not-empty" },
+		{ ErrorCode::CrossDevice,     "cross-device" },
+		{ ErrorCode::OffsetMismatch,  "offset-mismatch" },
+		{ ErrorCode::IsARoot,         "is-a-root" },
+		{ ErrorCode::IntoItself,      "into-itself" },
 		{ ErrorCode::ChangeRefused,   "change-refused" }
 	};
 	for (size_t i = 0; i < sizeof(emitted) / sizeof(emitted[0]); i++)

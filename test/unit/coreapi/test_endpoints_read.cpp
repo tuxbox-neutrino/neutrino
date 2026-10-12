@@ -2467,7 +2467,7 @@ TEST_CASE("every route these modules read with asks for a read at least", "[endp
 		}
 	}
 
-	REQUIRE(read_routes == 24);
+	REQUIRE(read_routes == 25);
 }
 
 TEST_CASE("no route this server ships is reachable without a credential", "[endpoints]")

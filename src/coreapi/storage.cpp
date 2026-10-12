@@ -41,6 +41,7 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -346,6 +347,48 @@ Result<std::string> resolveHolder(const std::string &path)
 	return ok(target);
 }
 
+// Whether a resolved directory is one of the roots or holds one, each root resolved now for
+// the reason insideAny resolves them: renamed, either would take a root away under the box.
+bool isOrHoldsRoot(const std::string &resolved)
+{
+	const std::string all = roots();
+	size_t i = 0;
+	while (i <= all.size())
+	{
+		size_t e = all.find(':', i);
+		if (e == std::string::npos)
+			e = all.size();
+		const std::string one = all.substr(i, e - i);
+		i = e + 1;
+		char buf[PATH_MAX];
+		if (one.empty() || realpath(one.c_str(), buf) == NULL)
+			continue;
+		const std::string root(buf);
+		if (root == resolved || root.compare(0, resolved.size() + 1, resolved + "/") == 0)
+			return true;
+	}
+	return false;
+}
+
+/* A rename that leaves a taken name alone, decided by the kernel in the same step. -1 with
+   errno ENOSYS or EINVAL where the kernel or the filesystem cannot do that, and the caller
+   then looks first and renames after. The system call and not the C library's wrapper,
+   which an older library does not have even on a kernel that does. */
+#ifndef RENAME_NOREPLACE
+#define RENAME_NOREPLACE (1 << 0)
+#endif
+int renameNoReplace(const char *from, const char *to)
+{
+#ifdef SYS_renameat2
+	return (int) syscall(SYS_renameat2, AT_FDCWD, from, AT_FDCWD, to, RENAME_NOREPLACE);
+#else
+	(void) from;
+	(void) to;
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
 // A mount table writes a space, a tab, a newline and a backslash as a backslash
 // and three octal digits, so a mount point carrying one arrives escaped.
 std::string unescapeMountField(const std::string &field)
@@ -630,6 +673,180 @@ Result<Wrote> writeFile(const std::string &path, const std::string &bytes, bool 
 			    "or the new content with its directory not synced");
 
 	return ok(what);
+}
+
+std::vector<RootEntry> rootList()
+{
+	std::vector<RootEntry> out;
+	const std::string all = roots();
+	size_t i = 0;
+	while (i <= all.size())
+	{
+		size_t e = all.find(':', i);
+		if (e == std::string::npos)
+			e = all.size();
+		const std::string one = all.substr(i, e - i);
+		i = e + 1;
+		if (one.empty())
+			continue;
+		bool seen = false;
+		for (size_t k = 0; k < out.size() && !seen; k++)
+			seen = out[k].path == one;
+		if (seen)
+			continue;
+
+		/* There as a directory, and not one that resolves to /, which admits
+		   nothing (insideAny) and so is no place to start. */
+		RootEntry r;
+		r.path = one;
+		char buf[PATH_MAX];
+		struct stat st;
+		r.present = realpath(one.c_str(), buf) != NULL && strcmp(buf, "/") != 0 &&
+			    stat(buf, &st) == 0 && S_ISDIR(st.st_mode);
+		out.push_back(r);
+	}
+	return out;
+}
+
+Result<void> renamePath(const std::string &from, const std::string &to, bool overwrite)
+{
+	// Both directories resolved and the two names left alone, so that a link
+	// is renamed and not what it leads to.
+	Result<std::string> src = resolveHolder(from);
+	if (!src.ok())
+		return fail(src.error());
+	Result<std::string> dst = resolveHolder(to);
+	if (!dst.ok())
+		return fail(dst.error());
+	const std::string source = src.value();
+	const std::string target = dst.value();
+
+	/* The lock writeFile holds from its look to its commit, so that a rename
+	   cannot slip between the two and a write cannot land on a name this is
+	   about to take. Renames of the box's own savers it cannot keep out. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(internal::wholeFileWriteMutex());
+
+	struct stat sst;
+	if (lstat(source.c_str(), &sst) != 0)
+		return fail(Status::NotFound, ErrorCode::NoSuchName, "there is nothing called " + from);
+
+	// Already the name it is to have, which a rename leaves as it is.
+	struct stat tst;
+	const bool taken = lstat(target.c_str(), &tst) == 0;
+	if (taken && tst.st_dev == sst.st_dev && tst.st_ino == sst.st_ino)
+		return ok();
+
+	if (S_ISDIR(sst.st_mode))
+	{
+		if (isOrHoldsRoot(source))
+			return fail(Status::InvalidArgument, ErrorCode::IsARoot,
+				    "the directory " + from + " is or holds one of those everything else has to stay inside, and keeps its name");
+		if (target.compare(0, source.size() + 1, source + "/") == 0)
+			return fail(Status::InvalidArgument, ErrorCode::IntoItself,
+				    "the directory " + from + " cannot move into what it holds");
+	}
+
+	int done = -1;
+	if (taken)
+	{
+		if (!overwrite)
+			return fail(Status::Conflict, ErrorCode::NameTaken, "there is already something called " + to);
+		if (!S_ISREG(sst.st_mode) || !S_ISREG(tst.st_mode))
+			return fail(Status::Conflict, ErrorCode::NotAPlainFile,
+				    "only a plain file replaces a plain file, and " + from + " or " + to + " is not one");
+		done = ::rename(source.c_str(), target.c_str());
+	}
+	else
+	{
+		done = renameNoReplace(source.c_str(), target.c_str());
+		if (done != 0 && (errno == ENOSYS || errno == EINVAL))
+		{
+			// Looked at once more, just before, where the kernel cannot do it
+			// in one step.
+			if (lstat(target.c_str(), &tst) == 0)
+				return fail(Status::Conflict, ErrorCode::NameTaken, "there is already something called " + to);
+			done = ::rename(source.c_str(), target.c_str());
+		}
+	}
+
+	if (done == 0)
+		return ok();
+	if (errno == EEXIST || errno == ENOTEMPTY)
+		return fail(Status::Conflict, ErrorCode::NameTaken, "there is already something called " + to);
+	if (errno == EXDEV)
+		return fail(Status::InvalidArgument, ErrorCode::CrossDevice,
+			    "the names " + from + " and " + to + " are on two filesystems, and a rename does not copy");
+	if (errno == EROFS)
+		return fail(Status::Conflict, ErrorCode::MediumReadOnly,
+			    "the filesystem holding " + from + " may only be read");
+	return fail(Status::Internal, ErrorCode::ChangeRefused, "the name " + from + " could not be changed");
+}
+
+Result<void> appendFile(const std::string &path, uint64_t offset, const std::string &bytes)
+{
+	Result<std::string> resolved = resolveHolder(path);
+	if (!resolved.ok())
+		return fail(resolved.error());
+	const std::string target = resolved.value();
+
+	// One piece of a file at a time, and none while a whole-file write or a
+	// rename of it is between its look and its end.
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(internal::wholeFileWriteMutex());
+
+	/* O_NOFOLLOW so that a link at the name is refused and not written
+	   through, out of the roots; O_NONBLOCK so that a pipe there answers at
+	   once rather than waiting for a reader on a request thread. */
+	const int fd = open(target.c_str(), O_WRONLY | O_APPEND | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+	if (fd < 0)
+	{
+		if (errno == ENOENT)
+			return fail(Status::NotFound, ErrorCode::NoSuchName, "there is no file called " + path);
+		if (errno == ELOOP || errno == EISDIR || errno == ENXIO)
+			return fail(Status::Conflict, ErrorCode::NotAPlainFile,
+				    "what is called " + path + " is not a plain file, so nothing is added to it");
+		if (errno == EROFS)
+			return fail(Status::Conflict, ErrorCode::MediumReadOnly,
+				    "the filesystem holding " + path + " may only be read");
+		return fail(Status::Internal, ErrorCode::ChangeRefused, "the file " + path + " could not be opened for writing");
+	}
+
+	struct stat st;
+	if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode))
+	{
+		close(fd);
+		return fail(Status::Conflict, ErrorCode::NotAPlainFile,
+			    "what is called " + path + " is not a plain file, so nothing is added to it");
+	}
+	if ((uint64_t) st.st_size != offset)
+	{
+		close(fd);
+		char held[32];
+		snprintf(held, sizeof(held), "%llu", (unsigned long long) st.st_size);
+		return fail(Status::Conflict, ErrorCode::OffsetMismatch,
+			    "the file " + path + " holds " + held + " bytes, which is where the next piece goes");
+	}
+
+	size_t sent = 0;
+	while (sent < bytes.size())
+	{
+		const ssize_t n = write(fd, bytes.data() + sent, bytes.size() - sent);
+		if (n < 0 && errno == EINTR)
+			continue;
+		if (n <= 0)
+		{
+			// What part of the piece went in comes out again, so the file
+			// ends where the last whole piece did.
+			const bool trimmed = ftruncate(fd, (off_t) offset) == 0;
+			close(fd);
+			return fail(Status::Internal, ErrorCode::ChangeRefused, trimmed
+				    ? "the file " + path + " could not be written; it ends where the last whole piece did"
+				    : "the file " + path + " could not be written, and part of the piece may be left at its end");
+		}
+		sent += (size_t) n;
+	}
+	if (close(fd) != 0)
+		return fail(Status::Internal, ErrorCode::ChangeRefused, "the file " + path + " could not be written");
+	return ok();
 }
 
 Result<std::vector<MountInfo> > mounts()

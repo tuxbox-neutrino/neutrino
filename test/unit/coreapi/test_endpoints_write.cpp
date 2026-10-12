@@ -1124,7 +1124,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 50);
+	REQUIRE(changing == 52);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -3993,6 +3993,15 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 		                        "/media/hdd", roots.box.dir) == 201);
 	}
 	{
+		RootsFixture roots;
+		FILE *old = std::fopen(roots.box.at("old.txt").c_str(), "w");
+		REQUIRE(old != NULL);
+		REQUIRE(std::fclose(old) == 0);
+		REQUIRE(sendBodyExample("POST", "/api/v1/storage/rename",
+		                        std::map<std::string, std::string>(),
+		                        "/media/hdd", roots.box.dir) == 204);
+	}
+	{
 		NetfsFixture netfs;
 		REQUIRE(sendBodyExample("PUT", "/api/v1/storage/netfs/{table}/{slot}",
 		                        std::map<std::string, std::string>()) == 200);
@@ -4036,6 +4045,26 @@ bool writeText(const std::string &path, const std::string &text)
 		return false;
 	const bool all = std::fwrite(text.data(), 1, text.size(), f) == text.size();
 	return (std::fclose(f) == 0) && all;
+}
+
+std::string readText(const std::string &path)
+{
+	std::string got;
+	FILE *f = std::fopen(path.c_str(), "r");
+	if (f == NULL)
+		return got;
+	char buf[4096];
+	size_t n;
+	while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0)
+		got.append(buf, n);
+	std::fclose(f);
+	return got;
+}
+
+std::string renameBody(const std::string &from, const std::string &to, bool overwrite = false)
+{
+	return "{\"from\":\"" + from + "\",\"to\":\"" + to + "\"" +
+	       (overwrite ? ",\"overwrite\":true}" : "}");
 }
 
 } // namespace
@@ -4199,6 +4228,133 @@ TEST_CASE("the file routes refuse names outside the roots, a taken name and what
 	REQUIRE(folder.body.find("not-a-plain-file") != std::string::npos);
 }
 
+TEST_CASE("a file too large for one request goes up in pieces and takes its name at the end", "[write][storage]")
+{
+	ShippedRoutes shipped;
+	RootsFixture roots;
+	const std::string part = roots.box.at(".big.bin.upload");
+	const std::string name = roots.box.at("big.bin");
+
+	REQUIRE(authedPut("/api/v1/storage/file?path=" + part, "first-").code == 201);
+	REQUIRE(authedPatch("/api/v1/storage/file?path=" + part + "&offset=6", "second-").code == 204);
+
+	// The same piece again finds the file further on, and is refused.
+	const Reply twice = authedPatch("/api/v1/storage/file?path=" + part + "&offset=6", "second-");
+	REQUIRE(twice.code == 409);
+	REQUIRE(twice.body.find("offset-mismatch") != std::string::npos);
+	REQUIRE(readText(part) == "first-second-");
+
+	REQUIRE(authedPost("/api/v1/storage/rename", renameBody(part, name)).code == 204);
+	REQUIRE(readText(name) == "first-second-");
+
+	// A finished upload takes a name already in use only with leave to.
+	REQUIRE(writeText(roots.box.at(".next.upload"), "newer"));
+	const Reply taken = authedPost("/api/v1/storage/rename", renameBody(roots.box.at(".next.upload"), name));
+	REQUIRE(taken.code == 409);
+	REQUIRE(taken.body.find("name-taken") != std::string::npos);
+	REQUIRE(readText(name) == "first-second-");
+	REQUIRE(authedPost("/api/v1/storage/rename", renameBody(roots.box.at(".next.upload"), name, true)).code == 204);
+	REQUIRE(readText(name) == "newer");
+}
+
+TEST_CASE("the roots route names every root and whether it is there", "[write][storage]")
+{
+	ShippedRoutes shipped;
+	RootsFixture roots;
+
+	const Reply r = authedGet("/api/v1/storage/roots");
+	REQUIRE(r.code == 200);
+	REQUIRE(r.body.find("{\"id\":\"" + roots.box.dir + "\",\"present\":true}") != std::string::npos);
+}
+
+TEST_CASE("the rename and the piece routes refuse what the layer below refuses", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	RootsFixture roots;
+
+	REQUIRE(writeText(roots.box.at("file"), "x"));
+	const Reply out_from = authedPost("/api/v1/storage/rename", renameBody("/etc/hostname", roots.box.at("h")));
+	REQUIRE(out_from.code == 400);
+	REQUIRE(out_from.body.find("outside-roots") != std::string::npos);
+	const Reply out_piece = authedPatch("/api/v1/storage/file?path=/etc/hostname&offset=0", "x");
+	REQUIRE(out_piece.code == 400);
+	REQUIRE(out_piece.body.find("outside-roots") != std::string::npos);
+
+	const Reply gone = authedPost("/api/v1/storage/rename", renameBody(roots.box.at("missing"), roots.box.at("m")));
+	REQUIRE(gone.code == 404);
+	REQUIRE(gone.body.find("no-such-name") != std::string::npos);
+	const Reply gone_piece = authedPatch("/api/v1/storage/file?path=" + roots.box.at("missing") + "&offset=0", "x");
+	REQUIRE(gone_piece.code == 404);
+	REQUIRE(gone_piece.body.find("no-such-name") != std::string::npos);
+
+	const Reply no_dir = authedPost("/api/v1/storage/rename", renameBody(roots.box.at("file"), roots.box.at("no/dir")));
+	REQUIRE(no_dir.code == 404);
+	REQUIRE(no_dir.body.find("no-such-parent") != std::string::npos);
+	const Reply no_dir_piece = authedPatch("/api/v1/storage/file?path=" + roots.box.at("no/dir") + "&offset=0", "x");
+	REQUIRE(no_dir_piece.code == 404);
+	REQUIRE(no_dir_piece.body.find("no-such-parent") != std::string::npos);
+
+	const Reply dots = authedPost("/api/v1/storage/rename", renameBody(roots.box.dir + "/..", roots.box.at("up")));
+	REQUIRE(dots.code == 400);
+	REQUIRE(dots.body.find("bad-name") != std::string::npos);
+	const Reply dot_piece = authedPatch("/api/v1/storage/file?path=" + roots.box.dir + "/.&offset=0", "x");
+	REQUIRE(dot_piece.code == 400);
+	REQUIRE(dot_piece.body.find("bad-name") != std::string::npos);
+
+	REQUIRE(::mkdir(roots.box.at("d").c_str(), 0700) == 0);
+	REQUIRE(::mkdir(roots.box.at("d/e").c_str(), 0700) == 0);
+	const Reply itself = authedPost("/api/v1/storage/rename", renameBody(roots.box.at("d"), roots.box.at("d/e/d")));
+	REQUIRE(itself.code == 400);
+	REQUIRE(itself.body.find("into-itself") != std::string::npos);
+
+	REQUIRE(::mkdir(roots.box.at("folder").c_str(), 0700) == 0);
+	const Reply over_dir = authedPost("/api/v1/storage/rename", renameBody(roots.box.at("file"), roots.box.at("folder"), true));
+	REQUIRE(over_dir.code == 409);
+	REQUIRE(over_dir.body.find("not-a-plain-file") != std::string::npos);
+	const Reply piece_dir = authedPatch("/api/v1/storage/file?path=" + roots.box.at("folder") + "&offset=0", "x");
+	REQUIRE(piece_dir.code == 409);
+	REQUIRE(piece_dir.body.find("not-a-plain-file") != std::string::npos);
+
+	/* A root inside another one keeps its name, as the recording directory
+	   under /media does. The roots are worked out again on every request, so
+	   the second one goes into the list they start from. */
+	REQUIRE(::mkdir(roots.box.at("movie").c_str(), 0700) == 0);
+	const std::string both = roots.box.dir + ":" + roots.box.at("movie");
+	coreapi::storage::internal::default_roots = both.c_str();
+	const Reply root = authedPost("/api/v1/storage/rename", renameBody(roots.box.at("movie"), roots.box.at("films")));
+	coreapi::storage::internal::default_roots = roots.box.dir.c_str();
+	REQUIRE(root.code == 400);
+	REQUIRE(root.body.find("is-a-root") != std::string::npos);
+}
+
+TEST_CASE("a rename across two filesystems is refused", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	RootsFixture roots;
+
+	/* /dev/shm, where the host keeps it apart from the sandbox's filesystem.
+	   Without a second one there is nothing to cross, and the case says so. */
+	struct stat a, b;
+	if (::stat("/dev/shm", &b) != 0 || ::stat(roots.box.dir.c_str(), &a) != 0 || a.st_dev == b.st_dev)
+	{
+		WARN("no second filesystem beside " + roots.box.dir + " on this host");
+		return;
+	}
+	char tmpl[] = "/dev/shm/endpoints_move_XXXXXX";
+	REQUIRE(::mkdtemp(tmpl) != NULL);
+	const std::string shm(tmpl);
+	const std::string both = roots.box.dir + ":" + shm;
+	coreapi::storage::internal::default_roots = both.c_str();
+
+	REQUIRE(writeText(roots.box.at("f"), "here"));
+	const Reply r = authedPost("/api/v1/storage/rename", renameBody(roots.box.at("f"), shm + "/f"));
+	coreapi::storage::internal::default_roots = roots.box.dir.c_str();
+	(void) std::system(("rm -rf '" + shm + "'").c_str());
+	REQUIRE(r.code == 400);
+	REQUIRE(r.body.find("cross-device") != std::string::npos);
+	REQUIRE(readText(roots.box.at("f")) == "here");
+}
+
 TEST_CASE("the file routes leave the web server's own store of who may reach the box alone", "[write][refusals]")
 {
 	/* The store is named from the configuration directory this build was made
@@ -4230,6 +4386,14 @@ TEST_CASE("the file routes leave the web server's own store of who may reach the
 	const Reply removed = authedDelete("/api/v1/storage/path?path=" + store);
 	REQUIRE(removed.code == 400);
 	REQUIRE(removed.body.find("access-store") != std::string::npos);
+
+	const Reply renamed = authedPost("/api/v1/storage/rename", renameBody(store, config_root + "/taken-away"));
+	REQUIRE(renamed.code == 400);
+	REQUIRE(renamed.body.find("access-store") != std::string::npos);
+
+	const Reply piece = authedPatch("/api/v1/storage/file?path=" + store + "&offset=0", "x");
+	REQUIRE(piece.code == 400);
+	REQUIRE(piece.body.find("access-store") != std::string::npos);
 }
 
 TEST_CASE("the body examples of the script and the plugin routes are requests they accept", "[write][openapi][refusals]")
