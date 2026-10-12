@@ -225,6 +225,59 @@ function _ywebV1SignInDialog() {
 	});
 }
 
+// The legacy helpers (/api/v4, the EPG dialog, recording, streaming) take a
+// channel id with all 16 hex digits; v1 writes one without leading zeros.
+function ywebLegacyChannelId(id) {
+	return ('0000000000000000' + String(id)).slice(-16);
+}
+
+// Plays a channel through POST /api/v1/zap. The two refusals the user can
+// lift are asked about and the request sent again: the movie player playing
+// a file (stop_playback) and the box in standby (wake). Resolves true once
+// the box took the switch, false when the user said no; any other refusal
+// throws as ywebV1 does.
+async function ywebV1Zap(channelId) {
+	var body = {channel_id: channelId};
+	for (;;) {
+		try {
+			await ywebV1('POST', '/zap', {body: body});
+			return true;
+		} catch (e) {
+			if (e.status === 409 && e.code === 'playback-running' && !body.stop_playback) {
+				if (!await _ywebV1Ask(ywebL('v1.zap_stop_playback', 'The player is playing a file. Stop it and switch to the channel?')))
+					return false;
+				body.stop_playback = true;
+				continue;
+			}
+			if (e.status === 409 && e.code === 'box-in-standby' && !body.wake) {
+				if (!await _ywebV1Ask(ywebL('v1.zap_wake', 'The box is in standby. Switch it on and play the channel?')))
+					return false;
+				body.wake = true;
+				continue;
+			}
+			throw e;
+		}
+	}
+}
+
+// A yes or no in a sheet (yweb-dom.js); without the helper layer the
+// browser's own confirm.
+function _ywebV1Ask(text) {
+	if (typeof ywebSheet !== 'function')
+		return Promise.resolve(window.confirm(text));
+	return new Promise(function(resolve) {
+		ywebSheet({
+			title: ywebL('v1.zap_title', 'Switch channel'),
+			body: ywebEl('p', {}, text),
+			actions: [
+				{label: ywebL('msg.cancel', 'Cancel'), value: false},
+				{label: ywebL('v1.zap_ok', 'Switch'), value: true, primary: true}
+			],
+			onClose: function(result) { resolve(result === true); }
+		});
+	});
+}
+
 // One EventSource for the page; handlers keyed by event name.
 function ywebV1Events(handlers) {
 	if (!window.EventSource) return null;

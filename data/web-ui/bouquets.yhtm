@@ -388,476 +388,354 @@
 		<div class="yweb-card-indicator" id="cardIndicator"></div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=23"></script>
+	<script src="/Y_Lang.yjs?v=24"></script>
 	<script src="/yweb-header.js?v=54"></script>
+	<script src="/yweb-dom.js?v=1"></script>
+	<script src="/yweb-v1.js?v=7"></script>
 	<script>
-		let currentChannelId = null;
-		let currentBouquetNumber = null;
-		let bouquetsData = [];
+		// The channel list over /api/v1: bouquets, their channels and what each
+		// is showing now. Names, titles and texts come from the broadcast and go
+		// in as text (yweb-dom.js); nothing here is built as markup.
+		let currentChannelId = null;	// the v1 id of the channel the box plays
+		let currentMode = 'tv';		// the list shown: the one the box plays from
+		let currentBouquetNumber = '';	// the v1 bouquet id, '' for all channels
+		let bouquetsData = [];		// the bouquets of that list, hidden ones left out
+		let logosOffered = true;	// false once the box says it hands no logos out
 
-		// API Helpers — use shared functions from yweb-header.js
-		const fetchText = ywebFetchText;
-		const fetchJson = ywebFetchJson;
+		const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>';
+		const SVG_GLOBE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+		const SVG_EXPAND = '<svg class="yweb-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>';
+		const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+		const SVG_REC = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>';
+		const SVG_STREAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12,15 17,21 7,21"/></svg>';
 
-		// Load current channel and find its bouquet
-		async function loadCurrentChannel() {
-			try {
-				const data = await ywebApi('zapto', null, {raw: true});
-				currentChannelId = data.trim();
-			} catch (e) {
-				console.error('Failed to load current channel:', e);
-			}
+		function clock(sec) {
+			return ywebFormatTime(new Date(sec * 1000));
 		}
 
-		// Load bouquets and find the one containing current channel
+		function rowOf(channelId) {
+			return document.querySelector('.yweb-channel-row[data-id="' + CSS.escape(String(channelId)) + '"]');
+		}
+
+		// The channel the box plays, and with it which list to show
+		async function loadCurrentChannel() {
+			const ch = await ywebV1('GET', '/channels/current').catch(() => null);
+			currentChannelId = ch ? ch.id : null;
+			currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
+		}
+
+		// The bouquets of that list, and the one holding the current channel
 		async function loadBouquets() {
 			const list = document.getElementById('bouquetList');
 			try {
-				bouquetsData = await ywebFetchBouquets();
+				const r = await ywebV1('GET', '/bouquets');
+				bouquetsData = ((r && r.items) || []).filter(b =>
+					!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
 
-				// Find bouquet containing current channel
-				let foundBouquet = null;
+				let active = '';
 				if (currentChannelId) {
-					for (const b of bouquetsData) {
-						try {
-							const channels = await ywebFetchChannels(b.number);
-							if (channels.some(ch => ch.id === currentChannelId)) {
-								foundBouquet = b.number;
-								break;
-							}
-						} catch (e) {
-							// Ignore errors for individual bouquet checks
-						}
-					}
+					const holding = await ywebV1('GET', '/bouquets', {query: {holds: currentChannelId}}).catch(() => null);
+					const found = holding && (holding.items || []).find(x => bouquetsData.some(b => b.id === x.id));
+					if (found) active = String(found.id);
 				}
-
-				renderBouquetList(foundBouquet || (bouquetsData[0]?.number || ''));
+				renderBouquetList(active || (bouquetsData[0] ? String(bouquetsData[0].id) : ''));
 			} catch (e) {
 				console.error('Failed to load bouquets:', e);
-				list.innerHTML = '<li class="yweb-empty">{=L:yw.msg.load_fail=}</li>';
+				list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.msg.load_fail=}'));
 			}
 		}
 
-		// Render bouquet list
 		function renderBouquetList(activeBouquet) {
 			const list = document.getElementById('bouquetList');
-
-			// Add "Alle Sender" option
-			let html = `
-				<li class="yweb-nav-item yweb-bouquet-item${activeBouquet === '' ? ' active' : ''}" onclick="selectBouquet('')">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<circle cx="12" cy="12" r="10"/>
-						<line x1="2" y1="12" x2="22" y2="12"/>
-						<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-					</svg>
-					<span class="yweb-nav-name yweb-bouquet-name">{=L:yw.bq.all_channels=}</span>
-				</li>
-			`;
-
+			const items = [ywebEl('li', {className: 'yweb-nav-item yweb-bouquet-item' + (activeBouquet === '' ? ' active' : ''),
+				on: {click: () => selectBouquet('')}},
+				ywebMarkup(SVG_GLOBE),
+				ywebEl('span', {className: 'yweb-nav-name yweb-bouquet-name'}, '{=L:yw.bq.all_channels=}'))];
 			bouquetsData.forEach(b => {
-				const isActive = String(activeBouquet) === String(b.number);
-				html += `
-					<li class="yweb-nav-item yweb-bouquet-item${isActive ? ' active' : ''}" onclick="selectBouquet('${b.number}')" data-bouquet="${b.number}">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<polygon points="5,3 19,12 5,21"/>
-						</svg>
-						<span class="yweb-nav-name yweb-bouquet-name">${escapeHtml(b.name)}</span>
-					</li>
-				`;
+				items.push(ywebEl('li', {className: 'yweb-nav-item yweb-bouquet-item' + (String(activeBouquet) === String(b.id) ? ' active' : ''),
+					data: {bouquet: String(b.id)}, on: {click: () => selectBouquet(String(b.id))}},
+					ywebMarkup(SVG_PLAY),
+					ywebEl('span', {className: 'yweb-nav-name yweb-bouquet-name'}, b.name)));
 			});
-
-			list.innerHTML = html;
+			list.replaceChildren.apply(list, items);
 			currentBouquetNumber = activeBouquet;
 
-			// Scroll to active bouquet in container
 			setTimeout(() => {
 				const activeItem = list.querySelector('.yweb-bouquet-item.active');
-				if (activeItem) {
-					scrollToElementInContainer(activeItem, list);
-				}
+				if (activeItem) scrollToElementInContainer(activeItem, list);
 			}, 200);
 
-			// Update preview for mobile
 			updateBouquetPreview();
-
-			// Load channels for active bouquet
 			loadChannels(activeBouquet);
 		}
 
-		// Select bouquet
 		function selectBouquet(bouquet) {
-			// Update active state in bouquet list
 			document.querySelectorAll('.yweb-bouquet-item').forEach(item => {
 				const itemBouquet = item.dataset.bouquet || '';
-				item.classList.toggle('active', itemBouquet === bouquet || (bouquet === '' && !item.dataset.bouquet));
+				item.classList.toggle('active', itemBouquet === bouquet);
 			});
-
 			currentBouquetNumber = bouquet;
 			updateBouquetPreview();
 			loadChannels(bouquet);
-
 			// Mobile: auto-switch to channel card for better UX
-			if (window.innerWidth <= 800) {
-				selectCard('card-channels');
-			}
+			if (window.innerWidth <= 800) selectCard('card-channels');
 		}
 
-		// Load channels
+		function channelRow(ch) {
+			const isCurrent = ch.id === currentChannelId;
+			const placeholder = ywebEl('div', {className: 'yweb-icon-placeholder'}, currentMode === 'radio' ? 'Radio' : 'TV');
+			const row = ywebEl('li', {className: 'yweb-channel-row' + (isCurrent ? ' current' : ''),
+				data: {id: ch.id}, on: {click: event => toggleChannelDetail(event, ch.id)}},
+				ywebEl('div', {className: 'yweb-channel-main'},
+					placeholder,
+					ywebMarkup(SVG_EXPAND),
+					ywebEl('div', {className: 'yweb-channel-info'},
+						ywebEl('div', {className: 'yweb-channel-name'}, ch.name),
+						ywebEl('div', {className: 'yweb-channel-epg'}),
+						ywebEl('div', {className: 'yweb-channel-progress'}, ywebEl('div', {className: 'yweb-channel-progress-bar'}))),
+					ywebEl('div', {className: 'yweb-channel-actions', on: {click: event => event.stopPropagation()}},
+						actionButton(SVG_PLAY, '{=L:yw.epg.zap=}', '{=L:yw.bq.zap_title=}', () => zapTo(ch.id)),
+						actionButton(SVG_INFO, 'Info', '{=L:yw.dash.epg_info=}', () => showEpg(ch.id, ch.name)),
+						actionButton(SVG_REC, 'Rec', '{=L:yw.bq.rec_title=}', () => ywebRecordEvent(ywebLegacyChannelId(ch.id), ch.name), true),
+						actionButton(SVG_STREAM, 'Stream', '{=L:yw.bq.stream_title=}', () => ywebStreamChannel(ywebLegacyChannelId(ch.id), ch.name)))),
+				ywebEl('div', {className: 'yweb-channel-detail', id: 'detail-' + ch.id},
+					ywebEl('div', {className: 'yweb-channel-detail-loading'}, '{=L:yw.bq.tap_info=}')));
+			// a logo only while the box hands them out; one that fails leaves the placeholder text
+			if (logosOffered) {
+				const img = ywebEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: '', loading: 'lazy'},
+					on: {error: function() {
+						row.classList.remove('has-logo');
+						placeholder.textContent = currentMode === 'radio' ? 'Radio' : 'TV';
+					}}});
+				placeholder.replaceChildren(img);
+				row.classList.add('has-logo');
+			}
+			return row;
+		}
+
+		function actionButton(svg, label, title, onClick, danger) {
+			return ywebEl('button', {className: 'yweb-btn', title: title, style: danger ? {color: 'var(--yweb-danger)'} : undefined,
+				on: {click: onClick}},
+				ywebMarkup(svg),
+				ywebEl('span', {className: 'btn-label'}, label));
+		}
+
+		// Whether the box hands logos out at all, asked once with the first
+		// channel: a list of hundreds would otherwise ask for each in vain.
+		async function checkLogos(channelId) {
+			try {
+				const r = await fetch('/api/v1/channels/' + encodeURIComponent(channelId) + '/logo', {credentials: 'same-origin'});
+				if (r.status === 404) {
+					const p = await r.json().catch(() => null);
+					if (p && p.type === '/errors/logos-not-offered') logosOffered = false;
+				}
+			} catch (e) { /* asked again on the next list */ }
+		}
+
+		let channelsToken = 0;
 		async function loadChannels(bouquet) {
+			const token = ++channelsToken;
 			const list = document.getElementById('channelList');
 			const countEl = document.getElementById('channelCount');
 			const titleEl = document.getElementById('currentBouquetName');
-			list.innerHTML = '<li aria-busy="true">{=L:yw.bq.loading_channels=}</li>';
+			list.replaceChildren(ywebEl('li', {attrs: {'aria-busy': 'true'}}, '{=L:yw.bq.loading_channels=}'));
 
-			// Update title
 			if (bouquet === '') {
 				titleEl.textContent = '{=L:yw.bq.all_channels=}';
 			} else {
-				const bq = bouquetsData.find(b => String(b.number) === String(bouquet));
+				const bq = bouquetsData.find(b => String(b.id) === String(bouquet));
 				titleEl.textContent = bq ? bq.name : '{=L:yw.dash.channels=}';
 			}
 
 			try {
-				let channels;
-				if (bouquet) {
-					channels = await ywebFetchChannels(bouquet);
-				} else {
-					// "All channels" — channellist delivers the full list
-					// (bare bouquet requires a parameter under v4)
-					const response = await ywebApi('channellist');
-					channels = response.data?.channels || response.channels || response;
-				}
+				const query = {mode: currentMode};
+				if (bouquet) query.bouquet = bouquet;
+				const channels = await ywebV1All('/channels', query);
+				if (token !== channelsToken) return;	// another bouquet was chosen meanwhile
 
-				countEl.textContent = `${channels.length} {=L:yw.bq.channels_unit=}`;
-
+				countEl.textContent = channels.length + ' {=L:yw.bq.channels_unit=}';
 				if (channels.length === 0) {
-					list.innerHTML = '<li class="yweb-empty">{=L:yw.bq.no_channels=}</li>';
+					list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.bq.no_channels=}'));
 					return;
 				}
+				if (logosOffered) await checkLogos(channels[0].id);
+				if (token !== channelsToken) return;
 
-				let html = '';
-				channels.forEach(ch => {
-					const isCurrent = ch.id === currentChannelId;
-
-					html += `
-						<li class="yweb-channel-row${isCurrent ? ' current' : ''}${ch.logo ? ' has-logo' : ''}" data-id="${ch.id}" onclick="toggleChannelDetail(event, '${ch.id}')">
-							<div class="yweb-channel-main">
-								<div class="yweb-icon-placeholder" data-logo="${ch.id}">
-									${ch.logo ? `<img src="${ch.logo}" onerror="this.closest('li').classList.remove('has-logo');this.parentNode.textContent='TV'" alt="${escapeHtml(ch.name)}">` : 'TV'}
-								</div>
-								<svg class="yweb-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-									<polyline points="6,9 12,15 18,9"/>
-								</svg>
-								<div class="yweb-channel-info">
-									<div class="yweb-channel-name">${escapeHtml(ch.name)}</div>
-									<div class="yweb-channel-epg"></div>
-									<div class="yweb-channel-progress"><div class="yweb-channel-progress-bar"></div></div>
-								</div>
-								<div class="yweb-channel-actions" onclick="event.stopPropagation()">
-									<button class="yweb-btn" onclick="zapTo('${ch.id}')" title="{=L:yw.bq.zap_title=}">
-										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<polygon points="5,3 19,12 5,21"/>
-										</svg>
-										<span class="btn-label">{=L:yw.epg.zap=}</span>
-									</button>
-									<button class="yweb-btn" onclick="showEpg('${ch.id}', '${escapeJs(ch.name)}')" title="{=L:yw.dash.epg_info=}">
-										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<circle cx="12" cy="12" r="10"/>
-											<line x1="12" y1="16" x2="12" y2="12"/>
-											<line x1="12" y1="8" x2="12.01" y2="8"/>
-										</svg>
-										<span class="btn-label">Info</span>
-									</button>
-									<button class="yweb-btn" onclick="ywebRecordEvent('${ch.id}', '${escapeJs(ch.name)}')" title="{=L:yw.bq.rec_title=}" style="color:var(--yweb-danger)">
-										<svg viewBox="0 0 24 24" fill="currentColor">
-											<circle cx="12" cy="12" r="8"/>
-										</svg>
-										<span class="btn-label">Rec</span>
-									</button>
-									<button class="yweb-btn" onclick="ywebStreamChannel('${ch.id}', '${escapeJs(ch.name)}')" title="{=L:yw.bq.stream_title=}">
-										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
-											<polygon points="12,15 17,21 7,21"/>
-										</svg>
-										<span class="btn-label">Stream</span>
-									</button>
-								</div>
-							</div>
-							<div class="yweb-channel-detail" id="detail-${ch.id}">
-								<div class="yweb-channel-detail-loading">{=L:yw.bq.tap_info=}</div>
-							</div>
-						</li>
-					`;
-				});
-
-				list.innerHTML = html;
+				list.replaceChildren.apply(list, channels.map(channelRow));
 
 				// Scroll to current channel in container (after layout is complete)
 				setTimeout(() => {
 					const currentRow = list.querySelector('.current');
-					if (currentRow) {
-						const cardBody = list.parentElement;
-						if (cardBody) {
-							const rowTop = currentRow.offsetTop;
-							const cardBodyHeight = cardBody.clientHeight;
-							const rowHeight = currentRow.offsetHeight;
-							const scrollTo = rowTop - (cardBodyHeight / 2) + (rowHeight / 2);
-							cardBody.scrollTop = Math.max(0, scrollTo);
-						}
+					const cardBody = list.parentElement;
+					if (currentRow && cardBody) {
+						const scrollTo = currentRow.offsetTop - (cardBody.clientHeight / 2) + (currentRow.offsetHeight / 2);
+						cardBody.scrollTop = Math.max(0, scrollTo);
 					}
 				}, 300);
 
-				// Update preview for mobile
 				updateChannelPreview();
-
-				// Load EPG info after delay (let server settle first)
-				setTimeout(() => loadEpgInfo(channels), 1000);
+				loadEpgInfo(channels, bouquet, token);
 			} catch (e) {
-				list.innerHTML = '<li class="yweb-empty">{=L:yw.msg.load_fail=}</li>';
+				if (token !== channelsToken) return;
+				list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.msg.load_fail=}'));
 				console.error('Failed to load channels:', e);
 			}
 		}
 
-		// Store EPG timing data for progress updates
-		const epgTimingData = {};
+		// What each channel shows now, from the guide grid: a page of 20 channels
+		// per request, for the bouquet or for the named channels of the whole list.
+		const epgNow = {};	// channel id -> the event running now
 		let progressUpdateInterval = null;
-		let epgLoadController = null;
 
-		// Abort background EPG loading
-		function abortEpgLoading() {
-			if (epgLoadController) {
-				epgLoadController.abort();
-				epgLoadController = null;
-			}
-		}
-
-		// Small delay helper
-		const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-		// Load EPG info for channels (JSON API) - low priority background task
-		async function loadEpgInfo(channels) {
-			abortEpgLoading();
-			epgLoadController = new AbortController();
-			const signal = epgLoadController.signal;
+		async function loadEpgInfo(channels, bouquet, token) {
 			const now = Math.floor(Date.now() / 1000);
-			for (const ch of channels) {
-				if (signal.aborted) break;
-				try {
-					// direct fetch (not ywebApi): the AbortController signal must
-					// cancel in-flight EPG loads when the bouquet changes
-					const response = await fetch(`/api/v4/epg?channelid=${ch.id}&max=1&starttime=${now}`, { signal });
-					const jsonData = await response.json();
-					// Small delay between requests to not block server
-					await delay(50);
-					// API returns: { success, data: { epglist: { progData: [...] } } }
-					const progData = jsonData?.data?.epglist?.progData || jsonData?.epglist?.progData;
-					if (!progData || progData.length === 0) continue;
-
-					const prog = progData[0];
-					const desc = prog.description || '';
-					const startT = prog.start_t || '';
-					const stopT = prog.stop_t || '';
-					const startSec = parseInt(prog.start_sec || '0');
-					const stopSec = parseInt(prog.stop_sec || '0');
-
-					if (!desc) continue;
-
-					const row = document.querySelector(`.yweb-channel-row[data-id="${ch.id}"]`);
-					if (row) {
-						const epgEl = row.querySelector('.yweb-channel-epg');
-						if (epgEl) {
-							epgEl.textContent = `${startT}-${stopT} ${desc}`;
-						}
-
-						// Store timing data and update progress
-						if (startSec && stopSec && stopSec > startSec) {
-							epgTimingData[ch.id] = { startSec, stopSec };
-							updateChannelProgress(ch.id, startSec, stopSec);
-						}
-					}
-				} catch (e) {
-					// Ignore EPG errors for individual channels
-				}
+			const pages = [];
+			if (bouquet) {
+				pages.push({bouquet: bouquet});
+			} else {
+				for (let i = 0; i < channels.length; i += 20)
+					pages.push({channels: channels.slice(i, i + 20).map(ch => ch.id).join(',')});
 			}
-
-			// Start progress update timer if not running
+			for (const base of pages) {
+				let cursor = null;
+				do {
+					if (token !== channelsToken) return;
+					const query = Object.assign({from: now, to: now + 60, limit: 20}, base);
+					if (cursor) query.cursor = cursor;
+					let page;
+					try {
+						page = await ywebV1('GET', '/epg/grid', {query: query});
+					} catch (e) {
+						break;	// no guide for this page; the rows stay without one
+					}
+					if (token !== channelsToken) return;
+					((page && page.items) || []).forEach(row => showNow(row.channel_id, row.events || [], now));
+					cursor = page && page.next_cursor;
+				} while (cursor);
+			}
 			startProgressUpdateTimer();
 		}
 
-		// Update progress bar for a single channel
-		function updateChannelProgress(channelId, startSec, stopSec) {
-			const row = document.querySelector(`.yweb-channel-row[data-id="${channelId}"]`);
-			if (!row) return;
-
-			const progressContainer = row.querySelector('.yweb-channel-progress');
-			const progressBar = row.querySelector('.yweb-channel-progress-bar');
-			if (!progressContainer || !progressBar) return;
-
-			const now = Math.floor(Date.now() / 1000);
-			const duration = stopSec - startSec;
-			const elapsed = now - startSec;
-			const percent = Math.min(100, Math.max(0, (elapsed / duration) * 100));
-
-			progressBar.style.width = percent + '%';
-			progressContainer.classList.add('active');
+		function showNow(channelId, events, now) {
+			const ev = events.find(e => e.start <= now && now < e.start + e.duration);
+			const row = rowOf(channelId);
+			if (!ev || !row) return;
+			epgNow[channelId] = ev;
+			row.querySelector('.yweb-channel-epg').textContent =
+				clock(ev.start) + '-' + clock(ev.start + ev.duration) + ' ' + (ev.title || '');
+			updateChannelProgress(channelId);
 		}
 
-		// Update all progress bars periodically
+		function updateChannelProgress(channelId) {
+			const ev = epgNow[channelId];
+			const row = rowOf(channelId);
+			if (!ev || !row) return;
+			const container = row.querySelector('.yweb-channel-progress');
+			const bar = row.querySelector('.yweb-channel-progress-bar');
+			const now = Date.now() / 1000;
+			const percent = Math.min(100, Math.max(0, (now - ev.start) / ev.duration * 100));
+			bar.style.width = percent + '%';
+			container.classList.add('active');
+		}
+
 		function updateAllProgress() {
-			const now = Math.floor(Date.now() / 1000);
-			for (const [channelId, timing] of Object.entries(epgTimingData)) {
-				// Skip if event has ended
-				if (now >= timing.stopSec) {
-					delete epgTimingData[channelId];
+			const now = Date.now() / 1000;
+			for (const id of Object.keys(epgNow)) {
+				if (now >= epgNow[id].start + epgNow[id].duration) {
+					delete epgNow[id];
 					continue;
 				}
-				updateChannelProgress(channelId, timing.startSec, timing.stopSec);
+				updateChannelProgress(id);
 			}
 		}
 
-		// Start timer for progress updates
 		function startProgressUpdateTimer() {
-			if (progressUpdateInterval) return;
-			progressUpdateInterval = setInterval(updateAllProgress, 30000); // Update every 30 seconds
+			if (!progressUpdateInterval)
+				progressUpdateInterval = setInterval(updateAllProgress, 30000);
 		}
 
-		// Stop timer when leaving page
-		function stopProgressUpdateTimer() {
-			if (progressUpdateInterval) {
-				clearInterval(progressUpdateInterval);
-				progressUpdateInterval = null;
-			}
+		function markCurrent() {
+			document.querySelectorAll('.yweb-channel-row').forEach(row => {
+				row.classList.toggle('current', row.dataset.id === currentChannelId);
+			});
+			updateChannelPreview();
 		}
 
-		// Zap to channel
+		// Zap: a file the player plays, or a box in standby, is asked about first
 		async function zapTo(channelId) {
 			try {
-				await ywebApi('zapto', String(channelId));
-				currentChannelId = channelId;
-
-				document.querySelectorAll('.yweb-channel-row').forEach(row => {
-					row.classList.toggle('current', row.dataset.id === channelId);
-				});
-			} catch (e) {
-				console.error('Failed to zap:', e);
-			}
-		}
-
-		// Show EPG Info Modal (uses shared modal from yweb-header.js)
-		function showEpg(channelId, channelName) {
-			abortEpgLoading();
-			ywebShowEpgModal(channelId, channelName);
-		}
-
-		// Toggle channel detail expansion
-		async function toggleChannelDetail(event, channelId) {
-			// Don't toggle if clicking on buttons
-			if (event.target.closest('.yweb-channel-actions')) return;
-
-			// Abort background EPG loading to prioritize this request
-			abortEpgLoading();
-
-			const row = document.querySelector(`.yweb-channel-row[data-id="${channelId}"]`);
-			if (!row) return;
-
-			const isExpanded = row.classList.contains('row-expanded');
-			const detailEl = document.getElementById(`detail-${channelId}`);
-
-			if (isExpanded) {
-				// Collapse
-				row.classList.remove('row-expanded');
-			} else {
-				// Collapse other expanded rows
-				document.querySelectorAll('.yweb-channel-row.row-expanded').forEach(r => {
-					r.classList.remove('row-expanded');
-				});
-
-				// Expand this row
-				row.classList.add('row-expanded');
-
-				// Load detail if not already loaded
-				if (detailEl && detailEl.querySelector('.yweb-channel-detail-loading')) {
-					await loadChannelDetail(channelId, detailEl);
+				if (await ywebV1Zap(channelId)) {
+					currentChannelId = channelId;
+					markCurrent();
 				}
+			} catch (e) {
+				ywebShowToast(e.message, true);
 			}
 		}
 
-		// Load detailed EPG info for a channel (JSON API)
-		async function loadChannelDetail(channelId, detailEl) {
-			try {
-				const now = Math.floor(Date.now() / 1000);
-				const response = await ywebApi('epg', {channelid: channelId, details: 'true', max: 1, starttime: now});
-				// API returns: { success, data: { epglist: { progData: [...] } } }
-				const progData = response?.data?.epglist?.progData || response?.epglist?.progData;
+		function showEpg(channelId, channelName) {
+			ywebShowEpgModal(ywebLegacyChannelId(channelId), channelName);
+		}
 
-				if (!progData || progData.length === 0) {
-					detailEl.innerHTML = '<div class="yweb-channel-detail-content">{=L:yw.bq.no_epg=}</div>';
+		async function toggleChannelDetail(event, channelId) {
+			if (event.target.closest('.yweb-channel-actions')) return;
+			const row = rowOf(channelId);
+			if (!row) return;
+			const detailEl = document.getElementById('detail-' + channelId);
+			if (row.classList.contains('row-expanded')) {
+				row.classList.remove('row-expanded');
+				return;
+			}
+			document.querySelectorAll('.yweb-channel-row.row-expanded').forEach(r => r.classList.remove('row-expanded'));
+			row.classList.add('row-expanded');
+			if (detailEl && detailEl.querySelector('.yweb-channel-detail-loading'))
+				await loadChannelDetail(channelId, detailEl);
+		}
+
+		// The long text of what runs now
+		async function loadChannelDetail(channelId, detailEl) {
+			function content(text, muted) {
+				detailEl.replaceChildren(ywebEl('div', {className: 'yweb-channel-detail-content'},
+					ywebEl('div', {className: 'yweb-channel-detail-desc',
+						style: muted ? {fontStyle: 'italic', color: 'var(--pico-muted-color)'} : undefined}, text)));
+			}
+			try {
+				let ev = epgNow[channelId];
+				if (!ev) ev = await ywebV1('GET', '/epg/current', {query: {channel: channelId}}).catch(() => null);
+				if (!ev) {
+					content('{=L:yw.bq.no_epg=}');
 					return;
 				}
-
-				const prog = progData[0];
-				const title = prog.description || '';
-				let info1 = prog.info1 || '';
-				const info2 = prog.info2 || '';
-
-				// Remove duplicate title from info1 (first line often repeats the title)
-				if (info1 && title) {
-					const lines = info1.split('\n');
-					if (lines[0].trim() === title.trim()) {
-						lines.shift();
-						info1 = lines.join('\n').trim();
-					}
-				}
-
-				// Build description from info1 and info2
-				let desc = info1;
-				if (info2) desc += (desc ? '\n\n' : '') + info2;
-
-				let html = '';
-				// Only show description - title is already visible in the channel row
-				if (desc) {
-					html += `<div class="yweb-channel-detail-desc">${escapeHtml(desc)}</div>`;
-				} else {
-					html += `<div class="yweb-channel-detail-desc" style="font-style: italic; color: var(--pico-muted-color);">{=L:yw.epg.no_desc=}</div>`;
-				}
-
-				detailEl.innerHTML = `<div class="yweb-channel-detail-content">${html}</div>`;
+				const full = await ywebV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => ev);
+				const desc = [full.description, full.long_description].filter(Boolean).join('\n\n');
+				if (desc) content(desc);
+				else content('{=L:yw.epg.no_desc=}', true);
 			} catch (e) {
 				console.error('Failed to load channel detail:', e);
-				detailEl.innerHTML = '<div class="yweb-channel-detail-content">{=L:yw.msg.load_fail=}</div>';
+				content('{=L:yw.msg.load_fail=}');
 			}
 		}
 
-		// Scroll element into view within its scrollable container
 		function scrollToElementInContainer(element, listElement) {
 			if (!element) return;
-
-			// Simple approach: use scrollIntoView with block: 'nearest' first,
-			// then manually adjust to center if needed
 			const scrollParent = listElement ? listElement.parentElement : null;
-
 			if (scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight) {
-				// Container is scrollable - calculate position manually
 				const containerTop = scrollParent.getBoundingClientRect().top;
 				const elementTop = element.getBoundingClientRect().top;
 				const relativeTop = elementTop - containerTop + scrollParent.scrollTop;
-				const centerPosition = relativeTop - (scrollParent.clientHeight / 2) + (element.offsetHeight / 2);
-
-				scrollParent.scrollTop = Math.max(0, centerPosition);
+				scrollParent.scrollTop = Math.max(0, relativeTop - (scrollParent.clientHeight / 2) + (element.offsetHeight / 2));
 			} else {
-				// Fallback to scrollIntoView
 				element.scrollIntoView({ block: 'center', behavior: 'instant' });
 			}
 		}
 
 		// ===== Mobile Accordion =====
 
-		// Update preview text
 		function updateBouquetPreview() {
 			const preview = document.getElementById('bouquetPreview');
 			if (preview && bouquetsData.length > 0) {
-				const active = bouquetsData.find(b => String(b.number) === String(currentBouquetNumber));
-				preview.textContent = active ? active.name : `${bouquetsData.length} Bouquets`;
+				const active = bouquetsData.find(b => String(b.id) === String(currentBouquetNumber));
+				preview.textContent = active ? active.name : bouquetsData.length + ' Bouquets';
 			}
 		}
 
@@ -865,20 +743,23 @@
 			const preview = document.getElementById('channelPreview');
 			const count = document.getElementById('channelCount');
 			if (preview) {
-				// Show current channel name or count
 				const currentRow = document.querySelector('.yweb-channel-row.current .yweb-channel-name');
-				if (currentRow) {
-					preview.textContent = currentRow.textContent;
-				} else if (count) {
-					preview.textContent = count.textContent;
-				}
+				if (currentRow) preview.textContent = currentRow.textContent;
+				else if (count) preview.textContent = count.textContent;
 			}
 		}
 
-		// Initialize
+		// Initialize; a zap from anywhere else (remote control, timer) moves the mark
 		loadCurrentChannel().then(() => loadBouquets());
+		ywebV1Events({
+			zap: async function() {
+				const mode = currentMode;
+				await loadCurrentChannel();
+				if (currentMode !== mode) loadBouquets();	// the box switched lists
+				else markCurrent();
+			}
+		});
 
-		// Setup mobile accordion
 		document.addEventListener('DOMContentLoaded', function() {
 			ywebInitMobileAccordion({
 				cardOrder: ['card-bouquets', 'card-channels'],
@@ -897,27 +778,20 @@
 			const expandedCard = document.querySelector('.yweb-card:not(.collapsed)');
 			if (expandedCard) {
 				const cardBody = expandedCard.querySelector('.yweb-card-body');
-				if (cardBody && cardBody.scrollTop > 5) {
-					return false; // Card body is scrolled, don't trigger pull-to-refresh
-				}
+				if (cardBody && cardBody.scrollTop > 5) return false;
 			}
-			// Also check main container
 			const main = document.querySelector('.yweb-bouquets-grid');
-			if (main && main.scrollTop > 5) {
-				return false;
-			}
+			if (main && main.scrollTop > 5) return false;
 			return true;
 		}
 
-		// Register pull-to-refresh callback with custom scroll check
 		if (typeof ywebSetRefreshCallback === 'function') {
 			ywebSetRefreshCallback(function() {
-				if (!isAtScrollTop()) return Promise.resolve(); // Don't refresh if scrolled
-				return loadBouquets();
+				if (!isAtScrollTop()) return Promise.resolve();
+				return loadCurrentChannel().then(() => loadBouquets());
 			});
 		}
 
-		// Override the global scroll check for this page
 		if (typeof window.ywebIsAtScrollTop === 'undefined') {
 			window.ywebIsAtScrollTop = isAtScrollTop;
 		}

@@ -269,6 +269,10 @@ window.YWEB_L = {
 	"v1.password": "{=L:yw.v1.password=}",
 	"v1.signin": "{=L:yw.v1.signin=}",
 	"v1.signin_failed": "{=L:yw.v1.signin_failed=}",
+	"v1.zap_title": "{=L:yw.v1.zap_title=}",
+	"v1.zap_ok": "{=L:yw.v1.zap_ok=}",
+	"v1.zap_stop_playback": "{=L:yw.v1.zap_stop_playback=}",
+	"v1.zap_wake": "{=L:yw.v1.zap_wake=}",
 	"msg.load_fail": "{=L:yw.msg.load_fail=}",
 	// Standby-Rueckfrage der RC-Komponente (yweb-header.js)
 	"sb.confirm": "{=L:yw.sb.confirm=}",
