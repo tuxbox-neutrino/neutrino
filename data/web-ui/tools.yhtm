@@ -81,6 +81,11 @@
 			text-align: center;
 		}
 
+		/* hidden has to win against the card's own display */
+		.yweb-tool-card[hidden] {
+			display: none;
+		}
+
 		[data-theme="light"] .yweb-tool-card {
 			border: 1px solid var(--yweb-border-subtle);
 		}
@@ -126,6 +131,15 @@
 				</svg>
 				<span>{=L:yw.tools.bqedit=}</span>
 				<small>{=L:yw.tools.bqedit_sub=}</small>
+			</a>
+
+			<!-- only where the optional Swagger UI package is installed -->
+			<a href="/swagger/" class="yweb-tool-card" id="toolApiRef" hidden>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+				</svg>
+				<span>{=L:yw.tools.apiref=}</span>
+				<small>{=L:yw.tools.apiref_sub=}</small>
 			</a>
 
 		</div>
@@ -181,6 +195,15 @@
 				ywebShowToast(label + ' {=L:yw.msg.notavail=}: ' + e.message, true);
 			}
 		}
+
+		// The API reference needs the Swagger UI package, which an image
+		// carries only where its flash has room for it
+		(async function() {
+			try {
+				var r = await fetch('/swagger/vendor/swagger-ui-bundle.js', {method: 'HEAD', credentials: 'same-origin'});
+				if (r.ok) document.getElementById('toolApiRef').hidden = false;
+			} catch (e) {}
+		})();
 
 		async function showBoxControl() {
 			var body =
