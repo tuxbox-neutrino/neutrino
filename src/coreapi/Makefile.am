@@ -85,6 +85,7 @@ libcoreapi_a_SOURCES = \
 	webui.cpp \
 	network.cpp \
 	backup.cpp \
+	tarfile.cpp \
 	websources.cpp \
 	archive.cpp \
 	library.cpp \
@@ -124,6 +125,7 @@ noinst_HEADERS = \
 	websources.h \
 	shares.h \
 	backup.h \
+	tarfile.h \
 	archive.h \
 	archive_internal.h \
 	library.h \
