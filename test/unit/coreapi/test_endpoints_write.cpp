@@ -4717,7 +4717,7 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 		ConfigFixture cfg;
 		WebConfig c = config();
 		c.username = "root";
-		c.password_hash = hashSecret("ni", 2000);
+		c.password_hash = hashSecret(kShippedPassword, 2000);
 		setConfigForTest(c);
 		REQUIRE(sendBodyExample("POST", "/api/v1/login", std::map<std::string, std::string>()) == 200);
 	}

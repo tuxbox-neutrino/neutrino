@@ -327,7 +327,7 @@ TEST_CASE("every start that finds no configuration leaves one behind", "[webconf
 	REQUIRE(modeOf(out.path()) == 0600);
 	REQUIRE(httpd::load(out.path()));
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
 
 	/* Nothing is said about a migration that never happened: there was no old
 	   file, so there is no refusal to report and no line to carry into the
@@ -497,7 +497,7 @@ TEST_CASE("a migration that is refused still leaves a login, and the file says w
 
 	REQUIRE(httpd::load(out.path()));
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
 	REQUIRE_FALSE(httpd::verifySecret("zwiebelfisch", httpd::config().password_hash));
 
 	// Whatever the written file says, nothing in it reads back as a setting
@@ -540,7 +540,7 @@ TEST_CASE("a name that cannot be written leaves nothing behind and the next star
 	REQUIRE(httpd::ensureConfigFile(old.path(), out));
 	REQUIRE(::lstat(out.c_str(), &st) == 0);
 	REQUIRE(httpd::load(out));
-	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
 
 	::unlink(out.c_str());
 	::rmdir(dir.c_str());
@@ -617,7 +617,7 @@ TEST_CASE("the first thing in a written file is the login", "[webconf]")
 	const std::string written = readFile(out.path());
 	const std::string said = prose(written);
 
-	const size_t login = said.find("LOGIN: user \"root\", password \"ni\"");
+	const size_t login = said.find(std::string("LOGIN: user \"root\", password \"") + httpd::kShippedPassword + "\"");
 	const size_t change = said.find("TO CHANGE IT:");
 	const size_t over = said.find("TO START OVER:");
 	const size_t syntax = said.find("HOW THIS FILE IS READ");
@@ -640,9 +640,8 @@ TEST_CASE("the first thing in a written file is the login", "[webconf]")
 	REQUIRE(at != std::string::npos);
 	REQUIRE(std::count(written.begin(), written.begin() + (long) at, '\n') < 3);
 
-	// And it says that the one it names is the shell login of the same box, so
-	// that whoever changes it changes one thing and not two.
-	REQUIRE(said.find("over the network for a shell") != std::string::npos);
+	// And it says that the first login asks for a password of one's own.
+	REQUIRE(said.find("The first login asks for a password of your own") != std::string::npos);
 }
 
 TEST_CASE("the migration carries the user and hashes the password", "[webconf]")
@@ -729,14 +728,14 @@ TEST_CASE("the password is carried whatever the switch said", "[webconf]")
 				REQUIRE(written.find(shapes[i].secret) == std::string::npos);
 		}
 
-		/* The one line this round is about: what is carried is the value the
-		   image ships with, said once so that an owner who changed the login
-		   this box takes over the network and never opened that file learns
-		   they have a web password they did not choose. Said for that value
-		   and for no other, or it would be a line about every migration. */
-		REQUIRE(anyProblemMentions("carried across as the password") == shapes[i].shipped);
+		/* The one line this round is about: what is carried is a value these
+		   boxes have shipped with, said once, and the first login asks for a
+		   password of the owner's own. Said for those values and for no other,
+		   or it would be a line about every migration; the value itself is not
+		   named, being one of a list. */
+		REQUIRE(anyProblemMentions("a password these boxes have shipped with") == shapes[i].shipped);
 		if (shapes[i].shipped)
-			REQUIRE(anyProblemMentions("\"ni\""));
+			REQUIRE_FALSE(anyProblemMentions("\"ni\""));
 
 		REQUIRE(httpd::load(out.path()));
 		REQUIRE(httpd::config().username == "root");
@@ -1488,7 +1487,7 @@ TEST_CASE("the shipped old file migrates and loads", "[webconf]")
 	/* Read out of the installed file rather than out of a copy of it here, so
 	   that an image which one day ships a different value is answered by this
 	   case rather than by a transcription of what the file used to say. */
-	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
 	REQUIRE(modeOf(out.path()) == 0600);
 	REQUIRE_FALSE(anySettingMentions(readFile(out.path()), "authenticate"));
 	REQUIRE(readFile(out.path()).find("=ni\n") == std::string::npos);
@@ -2057,7 +2056,7 @@ TEST_CASE("the old server's keys are not called unknown", "[webconf]")
 	   nothing about the port, which the shipped file names as a port this can
 	   read and carry. */
 	REQUIRE(httpd::configProblems().size() == 2);
-	REQUIRE(anyProblemMentions("carried across as the password"));
+	REQUIRE(anyProblemMentions("a password these boxes have shipped with"));
 }
 
 /* The bearer path was built, checked and unreachable: nothing outside the

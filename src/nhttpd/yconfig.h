@@ -103,7 +103,7 @@
 #define HTTPD_DEFAULT_LANGUAGE 		"English"
 
 #define AUTHUSER			"root"
-#define AUTHPASSWORD			"tuxbox"
+#define AUTHPASSWORD			WEB_DEFAULT_PASSWORD
 #define AUTH_SESSION_TIMEOUT		86400	// browser session lifetime in seconds (sliding)
 
 #define HTTPD_CONFIGDIR			CONFIGDIR

@@ -116,13 +116,38 @@ const char kOldPassword[] = "mod_auth.password";
 const char kOldSwitch[]   = "mod_auth.authenticate";
 const char kOldExempt[]   = "mod_auth.no_auth_client";
 
-/* The password the other server ships with, which is not a password anybody
-   chose. It stands in that server's own configuration file two lines under the
-   switch that turns its checking off, and it is written into that server a
-   second time as the value used when the file names none, so it is published
-   twice in the source of every image. Carrying it would hand the level that
-   shuts the box down to whoever has read either place. */
-const char kOldShippedPassword[] = "ni";
+} // namespace
+
+/* The password every box starts with (configure: WEB_DEFAULT_PASSWORD), which is
+   nobody's choice: it stands in the nhttpd.conf the image installs, as the old
+   server's value for a file that names none, and in the access file written
+   when there is nothing to carry over. The first login with it asks for a
+   password of the owner's own, and until then the interface does nothing else. */
+const char kShippedPassword[] = WEB_DEFAULT_PASSWORD;
+
+/* Every password a box of this line has shipped with: this one, the old
+   server's built-in default, the one Coolstream images carried and the one the
+   first version of this layer wrote. A login still using one is asked for a
+   password of its own as well. */
+static const char *const kShippedPasswords[] = { WEB_DEFAULT_PASSWORD, "tuxbox", "coolstream", "ni" };
+
+const char *const *shippedPasswords(size_t *count)
+{
+	if (count != NULL)
+		*count = sizeof(kShippedPasswords) / sizeof(kShippedPasswords[0]);
+	return kShippedPasswords;
+}
+
+bool isShippedPassword(const std::string &secret)
+{
+	for (size_t i = 0; i < sizeof(kShippedPasswords) / sizeof(kShippedPasswords[0]); ++i)
+		if (secret == kShippedPasswords[i])
+			return true;
+	return false;
+}
+
+namespace
+{
 
 /* How long a session may stand. A day by default. The bounds are here because
    this is a security parameter and both ends of it are a way to be wrong: a
@@ -1234,9 +1259,9 @@ void appendLoginHead(std::string &text, LoginSource from, const std::string &use
 
 	if (from == ShippedLogin)
 		appendWrapped(text, "",
-			      std::string("LOGIN: user \"") + user + "\", password \"" + kOldShippedPassword +
-			      "\". That is also the login this box takes over the network for a shell, "
-			      "so it is one password to change and not two.");
+			      std::string("LOGIN: user \"") + user + "\", password \"" + kShippedPassword +
+			      "\", the login every box ships with. The first login asks for a password of "
+			      "your own, and the web interface does nothing else until it is set.");
 	else if (has_password)
 		appendWrapped(text, "",
 			      std::string("LOGIN: user \"") + user + "\", with the password " +
@@ -1262,9 +1287,10 @@ void appendLoginHead(std::string &text, LoginSource from, const std::string &use
 	if (from == CarriedLogin)
 		over += " and " + old_path;
 	over += std::string(", then restart. This file is written again with user \"root\" and password \"") +
-		kOldShippedPassword + "\"";
+		kShippedPassword + "\"";
 	over += (from == ShippedLogin) ? ", which is what stands above."
-				       : ", which is also the login this box takes over the network for a shell.";
+				       : ", and the first login asks for a password of your own. The web server "
+				         "menu of the box does the same without a shell.";
 	appendWrapped(text, "", over);
 }
 
@@ -1441,14 +1467,14 @@ std::string ownHead(const std::string &user, bool has_password)
    end at a box whose web interface had no credential at all: it answers reads from the
    private networks, refuses everything that changes anything from anywhere, and says so
    nowhere anybody looks, so its owner is locked out by a line in a boot log that is gone
-   by morning. The login written here is the one the image already carries in the password
-   file of the box and is the shell login of the same box over the network. */
+   by morning. The login written here is the one every box ships with, which the first
+   login asks to replace. */
 bool writeShippedFile(const std::string &out_path, const std::string &old_path, bool tried_old)
 {
 	// Taken before the write below, which complains into the same list.
 	const std::vector<std::string> why = problemsNow();
 
-	const std::string hash = hashSecret(kOldShippedPassword);
+	const std::string hash = hashSecret(kShippedPassword);
 	if (hash.empty())
 	{
 		complain("the password this image ships with could not be hashed, so nothing is written and "
@@ -2724,7 +2750,7 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 	{
 		std::string secret;
 		const bool has_secret = present(m, kOldPassword, secret) && !secret.empty();
-		const bool shipped = has_secret && secret == kOldShippedPassword;
+		const bool shipped = has_secret && isShippedPassword(secret);
 
 		has_password = has_secret;
 		if (has_password)
@@ -2745,17 +2771,12 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 				 " is empty, so the new file carries no password and every request needing one is refused");
 		else if (shipped)
 		{
-			/* Said once, at the first start, and not a refusal.
-
-			   The value is named. It is this file's own constant and not something read
-			   out of the file being migrated, and it is the root login these boxes take
-			   over the network as well. What it is for is the owner who changed that
-			   login and never opened this file: without this they have a web password
-			   they did not choose and no reason to look for one. */
-			complain(std::string(kOldPassword) + " is \"" + kOldShippedPassword +
-				 "\", the value that server ships with, and it is carried across as the "
-				 "password for this one. It is also the login this box takes over the network, "
-				 "so changing it is one thing and not two");
+			/* Said once, at the first start, and not a refusal: the login carried across
+			   is one every box has shipped with, and the first login asks for a password
+			   of the owner's own. The value is not repeated here, being one of a list. */
+			complain(std::string(kOldPassword) + " is a password these boxes have shipped "
+				 "with, and it is carried across; the first login asks for a password of "
+				 "your own");
 		}
 	}
 

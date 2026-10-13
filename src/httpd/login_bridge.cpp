@@ -331,13 +331,11 @@ bool passwordIsShipped()
 				return memory().shipped;
 		}
 
-		/* The passwords these boxes have shipped with: the old server's compiled
-		   default (AUTHPASSWORD in src/nhttpd/yconfig.h), the one Coolstream images
-		   carried, and the one the REST layer writes when it finds nothing to
-		   migrate (kOldShippedPassword in webconfig.cpp). */
-		static const char *const shipped[] = { "tuxbox", "coolstream", "ni" };
+		// the passwords these boxes have shipped with (webconfig.cpp)
+		size_t count = 0;
+		const char *const *shipped = httpd::shippedPasswords(&count);
 		bool answer = false;
-		for (size_t i = 0; i < sizeof(shipped) / sizeof(shipped[0]) && !answer; ++i)
+		for (size_t i = 0; i < count && !answer; ++i)
 			answer = httpd::verifySecret(shipped[i], stored);
 
 		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());

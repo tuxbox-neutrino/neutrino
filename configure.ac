@@ -897,6 +897,15 @@ src/nhttpd/nhttpd.conf
 #data/control/migration.sh
 #])
 
+# The password the web interface of a box starts with, the one login every
+# box ships with until its owner sets one: the first login asks for one of
+# the owner's own. One value for nhttpd's built-in default, the nhttpd.conf
+# the image installs and the access file written when there is nothing to
+# carry over.
+WEB_DEFAULT_PASSWORD=neutrino
+AC_DEFINE_UNQUOTED(WEB_DEFAULT_PASSWORD, "$WEB_DEFAULT_PASSWORD", [the password the web interface ships with])
+AC_SUBST(WEB_DEFAULT_PASSWORD)
+
 # What restarts once settings are put back, from the menu or over the web:
 # the whole system, or only this program. A PC that runs other things besides
 # is not to be rebooted by a restore; a box, a Raspberry Pi or a PC that runs

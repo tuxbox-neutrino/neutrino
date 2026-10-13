@@ -168,6 +168,17 @@ bool isLoopbackPeer(const std::string &peer);
    thread can hold. */
 const WebConfig &config();
 
+
+/* The password every box ships with (configure: WEB_DEFAULT_PASSWORD), which
+   the first login asks to replace. */
+extern const char kShippedPassword[];
+
+/* The passwords boxes of this line have shipped with, the one above among them,
+   and whether a password is one of them. A login using one is asked for a
+   password of its own. */
+const char *const *shippedPasswords(size_t *count);
+bool isShippedPassword(const std::string &secret);
+
 /* Reads path and installs what it holds.
 
    False when the file cannot be read at all, and then nothing is installed: a

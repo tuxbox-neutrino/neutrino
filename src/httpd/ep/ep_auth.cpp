@@ -451,7 +451,7 @@ const Endpoint kAuthEndpoints[] = {
 	  "\n"
 	  "**Related:** `GET /api/v1/session`, `POST /api/v1/logout`.",
 	  HTTPD_PARAMS(kLoginParams), &kSessionStateSchema, &login, false,
-	  Answers200, HTTPD_REFUSALS_AND_BODY(kLoginRefusals, "{\"user\":\"root\",\"password\":\"ni\"}") },
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kLoginRefusals, "{\"user\":\"root\",\"password\":\"neutrino\"}") },
 	{ Method::Get, "/api/v1/session", AuthLevel::Public,
 	  "says what the request asking carries: whether it holds a session, what it was granted, and the second token to send back with what it changes",
 	  "Reads the credentials the request itself carries (the session cookie, a bearer token, or a token "
