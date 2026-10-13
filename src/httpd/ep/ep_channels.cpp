@@ -161,6 +161,17 @@ const FieldDesc kVideoFields[] = {
 
 const Schema kVideoSchema = { "video-stream", HTTPD_FIELDS(kVideoFields) };
 
+const FieldDesc kStreamPidsFields[] = {
+	HTTPD_MEMBER("pmt", FieldType::UInt,
+		"the packet id (PID, decimal) of the programme map table, which lists the channel's streams, and 0 where the box knows none"),
+	HTTPD_MEMBER("pcr", FieldType::UInt,
+		"the packet id (PID, decimal) carrying the clock reference the decoders keep time by, often the picture's own, and 0 where the box knows none"),
+	HTTPD_MEMBER("teletext", FieldType::UInt,
+		"the packet id (PID, decimal) of the teletext stream, and 0 where the box knows none or the channel carries none"),
+};
+
+const Schema kStreamPidsSchema = { "stream-pids", HTTPD_FIELDS(kStreamPidsFields) };
+
 const FieldDesc kAudioTrackFields[] = {
 	HTTPD_MEMBER("pid", FieldType::UInt,
 		"the packet id (PID, decimal) of this sound track in the transport stream"),
@@ -225,6 +236,8 @@ const FieldDesc kChannelDetailFields[] = {
 		"the picture stream: its coding and its packet id, both unknown while `streams_known` is false"),
 	HTTPD_LIST_OF("audio", &kAudioTrackSchema,
 		"the sound tracks, in the order the stream lists them, and empty while streams_known is false"),
+	HTTPD_OBJECT("pids", &kStreamPidsSchema,
+		"the packet ids beside the picture and the sound; like the picture's, known for a channel the box has played or one a scan with the box's pid option wrote down"),
 	/* The honest member. The box reads a channel's stream layout when it plays
 	   the channel, so a channel nobody has switched to has none, and a caller
 	   told nothing about that would read an empty track list as a channel with
@@ -398,6 +411,16 @@ void appendChannelDetail(Json &j, const coreapi::ChannelInfo &c,
 		j.endObject();
 	}
 	j.endArray();
+
+	j.key("pids");
+	j.beginObject();
+	j.key("pmt");
+	j.value((unsigned) s.pmt_pid);
+	j.key("pcr");
+	j.value((unsigned) s.pcr_pid);
+	j.key("teletext");
+	j.value((unsigned) s.teletext_pid);
+	j.endObject();
 
 	j.key("streams_known");
 	j.value(s.known);
@@ -1522,7 +1545,7 @@ const Endpoint kChannelEndpoints[] = {
 	  Answers200, HTTPD_REFUSALS(kListChannelsRefusals) },
 	{ Method::Get, "/api/v1/channels/current", AuthLevel::Read,
 	  "the channel the box is playing, with what its streams are",
-	  "Answers the channel the box is playing live, with its picture and sound streams as the box has read them, and which sound track is selected.\n\n"
+	  "Answers the channel the box is playing live, with its picture and sound streams as the box has read them, which sound track is selected, and the packet ids of the programme map, the clock reference and the teletext.\n\n"
 	  "**Preconditions:** the box is not in standby and plays a channel, not a recording or a file.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-running-channel`: no channel is playing, for example because the box is in standby or the movie player shows a recording or a file; `GET /api/v1/playback` says which. Wake it with `POST /api/v1/system/standby` or play a channel with `POST /api/v1/zap` and `wake: true`.\n\n"
@@ -1547,7 +1570,7 @@ const Endpoint kChannelEndpoints[] = {
 	  Answers200, HTTPD_REFUSALS(kCurrentCryptRefusals) },
 	{ Method::Get, "/api/v1/channels/{id}", AuthLevel::Read,
 	  "one channel by its identifier, with what its streams are where the box has read them",
-	  "Answers 1 channel by its id, with its picture and sound streams. The box reads a channel's streams when it plays it, so a channel nobody has played since the box started answers `streams_known: false`, an empty `audio` list and a `video` codec of `unknown` or `none`.\n\n"
+	  "Answers 1 channel by its id, with its picture and sound streams and the packet ids beside them. The box reads a channel's streams when it plays it, so a channel nobody has played since the box started answers `streams_known: false`, an empty `audio` list and a `video` codec of `unknown` or `none`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-channel`: no channel has that id; take ids from `GET /api/v1/channels`.\n\n"
 	  "**Related:** `GET /api/v1/channels/current`, `POST /api/v1/zap`.",

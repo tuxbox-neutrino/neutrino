@@ -1039,7 +1039,7 @@ TEST_CASE("a box in standby answers the current channel as nothing playing", "[e
 
    A page is five hundred channels and the track list is read off each channel where it
    sits, so a listing that carried it would read five hundred of them to answer one
-   request. Held here in both directions: the two single answers carry the three members,
+   request. Held here in both directions: the two single answers carry the four members,
    and the listing carries none of them. */
 TEST_CASE("one channel says what its streams are", "[endpoints]")
 {
@@ -1062,6 +1062,9 @@ TEST_CASE("one channel says what its streams are", "[endpoints]")
 	ac3.codec = coreapi::AudioCodec::Ac3;
 	ac3.description = "deu";
 	live.audio.push_back(ac3);
+	live.pmt_pid = 0x1770;
+	live.pcr_pid = 0x17de;
+	live.teletext_pid = 0x17f2;
 	src.streams[kFirstTv + 4] = live;
 
 	InstalledChannelSource installed(&src);
@@ -1081,6 +1084,9 @@ TEST_CASE("one channel says what its streams are", "[endpoints]")
 	REQUIRE(got["audio"][0]["selected"].asBool());
 	REQUIRE(got["audio"][1]["codec"].asString() == "ac3");
 	REQUIRE_FALSE(got["audio"][1]["selected"].asBool());
+	REQUIRE(got["pids"]["pmt"].asUInt() == 0x1770);
+	REQUIRE(got["pids"]["pcr"].asUInt() == 0x17de);
+	REQUIRE(got["pids"]["teletext"].asUInt() == 0x17f2);
 }
 
 TEST_CASE("a channel nobody has switched to says so rather than guessing", "[endpoints]")
@@ -1104,6 +1110,9 @@ TEST_CASE("a channel nobody has switched to says so rather than guessing", "[end
 	REQUIRE(got["video"]["pid"].asUInt() == 0);
 	REQUIRE(got["audio"].isArray());
 	REQUIRE(got["audio"].size() == 0);
+	REQUIRE(got["pids"]["pmt"].asUInt() == 0);
+	REQUIRE(got["pids"]["pcr"].asUInt() == 0);
+	REQUIRE(got["pids"]["teletext"].asUInt() == 0);
 }
 
 TEST_CASE("the running channel says what its streams are as well", "[endpoints]")
@@ -1161,6 +1170,7 @@ TEST_CASE("the channel listing carries no stream members", "[endpoints]")
 		INFO("item " << i);
 		REQUIRE_FALSE(got["items"][i].isMember("video"));
 		REQUIRE_FALSE(got["items"][i].isMember("audio"));
+		REQUIRE_FALSE(got["items"][i].isMember("pids"));
 		REQUIRE_FALSE(got["items"][i].isMember("streams_known"));
 	}
 }

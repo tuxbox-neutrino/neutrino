@@ -73,6 +73,9 @@ TEST_CASE("a channel nobody has switched to says its streams are unknown", "[cha
 	REQUIRE(s.video_codec == VideoCodec::Unknown);
 	REQUIRE(s.video_pid == 0);
 	REQUIRE(s.audio.empty());
+	REQUIRE(s.pmt_pid == 0);
+	REQUIRE(s.pcr_pid == 0);
+	REQUIRE(s.teletext_pid == 0);
 
 	delete cold;
 }
@@ -246,6 +249,8 @@ TEST_CASE("what a scan wrote down is not answered as a track list", "[channelstr
 	scanned->setVideoPid(0x17de);
 	scanned->setAudioPid(0x17e8);
 	scanned->setPmtPid(0x1770);
+	scanned->setPcrPid(0x17de);
+	scanned->setTeletextPid(0x17f2);
 	scanned->setPidsFlag();
 
 	ChannelStreams s;
@@ -255,6 +260,10 @@ TEST_CASE("what a scan wrote down is not answered as a track list", "[channelstr
 	REQUIRE(s.audio.empty());
 	REQUIRE(s.video_codec == VideoCodec::H264);
 	REQUIRE(s.video_pid == 0x17de);
+	// the other packet ids the scan wrote down are held the same way
+	REQUIRE(s.pmt_pid == 0x1770);
+	REQUIRE(s.pcr_pid == 0x17de);
+	REQUIRE(s.teletext_pid == 0x17f2);
 
 	delete scanned;
 }

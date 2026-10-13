@@ -106,6 +106,9 @@ inline void fillStreams(CZapitChannel &src, ChannelStreams &dst)
 	dst.known = src.getRawPmt(pmt_len) != NULL;
 	dst.video_codec = videoCodecOf(src);
 	dst.video_pid = src.getVideoPid();
+	dst.pmt_pid = src.getPmtPid();
+	dst.pcr_pid = src.getPcrPid();
+	dst.teletext_pid = src.getTeletextPid();
 	dst.audio.clear();
 	if (!dst.known)
 		return;

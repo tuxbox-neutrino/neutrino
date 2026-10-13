@@ -168,8 +168,17 @@ struct ChannelStreams
 	VideoCodec     video_codec;
 	uint16_t       video_pid;
 	AudioTrackList audio;
+	/* The packet ids beside the picture and the sound: the programme map, the
+	   clock reference and the teletext. Like the picture pid they do not follow
+	   known, a scan with the pid option writing them into the service list as
+	   well. 0 where the box knows none. */
+	uint16_t       pmt_pid;
+	uint16_t       pcr_pid;
+	uint16_t       teletext_pid;
 
-	ChannelStreams() : known(false), video_codec(VideoCodec::Unknown), video_pid(0) {}
+	ChannelStreams()
+		: known(false), video_codec(VideoCodec::Unknown), video_pid(0),
+		  pmt_pid(0), pcr_pid(0), teletext_pid(0) {}
 };
 
 struct BouquetInfo
