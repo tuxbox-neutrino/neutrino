@@ -71,6 +71,24 @@ const FieldDesc kApiFields[] = {
 
 const Schema kApiSchema = { "api-version", HTTPD_FIELDS(kApiFields) };
 
+const FieldDesc kCpuFields[] = {
+	HTTPD_MEMBER("model", FieldType::String, "the processor as the kernel names it"),
+	HTTPD_MEMBER("cores", FieldType::UInt, "how many cores it has"),
+	HTTPD_MEMBER("load_percent", FieldType::Int,
+		"how busy it was over the tenth of a second this was read in, in percent, and -1 where that could not be read"),
+};
+
+const Schema kCpuSchema = { "cpu", HTTPD_FIELDS(kCpuFields) };
+
+const FieldDesc kSupportFields[] = {
+	HTTPD_MEMBER("homepage", FieldType::String, "the project's home page, and empty where there is none"),
+	HTTPD_MEMBER("docs", FieldType::String, "its documentation"),
+	HTTPD_MEMBER("forum", FieldType::String, "where to ask for help"),
+	HTTPD_MEMBER("copyright", FieldType::String, "whose the program is, as one line"),
+};
+
+const Schema kSupportSchema = { "support", HTTPD_FIELDS(kSupportFields) };
+
 const FieldDesc kBoxFields[] = {
 	HTTPD_MEMBER("vendor", FieldType::String,
 		"who built the box, which the model name on its own does not say"),
@@ -96,6 +114,19 @@ const FieldDesc kBoxFields[] = {
 		"whether this build carries the API documentation, which is the prose in the document this server writes about itself and the reader page beside it, both under one switch"),
 	HTTPD_OBJECT("api", &kApiSchema,
 		"what this interface is, so a caller knows before it asks anything else"),
+	HTTPD_OBJECT("cpu", &kCpuSchema, "the processor and how busy it is"),
+	HTTPD_LIST_OF_VALUES("load_average", ElementType::Number,
+		"what waits to run, averaged over 1, 5 and 15 minutes, as the kernel keeps it"),
+	HTTPD_MEMBER("processes_running", FieldType::UInt, "tasks running now"),
+	HTTPD_MEMBER("processes_total", FieldType::UInt, "tasks in all"),
+	HTTPD_MEMBER("temperature_known", FieldType::Bool, "whether the box has a sensor for the processor's temperature"),
+	HTTPD_MEMBER("temperature", FieldType::Int,
+		"the processor's temperature in degrees Celsius, and 0 where temperature_known is false"),
+	HTTPD_MEMBER("os", FieldType::String, "the system the image is built from, as /etc/os-release names it"),
+	HTTPD_MEMBER("machine", FieldType::String, "the machine the kernel runs on, such as armv7l or x86_64"),
+	HTTPD_MEMBER("neutrino_version", FieldType::String, "the version of the program"),
+	HTTPD_MEMBER("neutrino_git", FieldType::String, "the revision the program was built from, and empty where the build does not say"),
+	HTTPD_OBJECT("support", &kSupportSchema, "where to find help, as the box's own information screen says"),
 };
 
 const Schema kBoxSchema = { "box", HTTPD_FIELDS(kBoxFields) };
@@ -280,6 +311,52 @@ Response boxInfo(const Request &)
 	j.value((unsigned long) NEUTRINO_API_VERSION_MAJOR);
 	j.key("minor");
 	j.value((unsigned long) NEUTRINO_API_VERSION_MINOR);
+	j.endObject();
+
+	j.key("cpu");
+	j.beginObject();
+	j.key("model");
+	j.value(box.cpu_model);
+	j.key("cores");
+	j.value((unsigned long) box.cpu_cores);
+	j.key("load_percent");
+	j.value((long) box.cpu_load_percent);
+	j.endObject();
+	j.key("load_average");
+	j.beginArray();
+	for (int i = 0; i < 3; ++i)
+		j.value(box.load_average[i]);
+	j.endArray();
+	j.key("processes_running");
+	j.value((unsigned long) box.processes_running);
+	j.key("processes_total");
+	j.value((unsigned long) box.processes_total);
+	j.key("temperature_known");
+	j.value(box.temperature_known);
+	j.key("temperature");
+	j.value((long) (box.temperature_known ? box.temperature : 0));
+	j.key("os");
+	j.value(box.os_name);
+	j.key("machine");
+	j.value(box.machine);
+	j.key("neutrino_version");
+	j.value(PACKAGE_VERSION);
+	j.key("neutrino_git");
+#ifdef PACKAGE_VERSION_GIT
+	j.value(PACKAGE_VERSION_GIT);
+#else
+	j.value("");
+#endif
+	j.key("support");
+	j.beginObject();
+	j.key("homepage");
+	j.value(box.homepage);
+	j.key("docs");
+	j.value(box.docs);
+	j.key("forum");
+	j.value(box.forum);
+	j.key("copyright");
+	j.value(box.copyright);
 	j.endObject();
 	j.endObject();
 	return out;

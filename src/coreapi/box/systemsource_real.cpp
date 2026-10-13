@@ -2,6 +2,7 @@
  * systemsource_real.cpp - system facts read from the running box
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,9 @@
 #include <config.h>
 
 #include "coreapi/base/deps.h"
+#include "coreapi/box/proc_internal.h"
+
+#include <string>
 
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -31,6 +35,7 @@
 #include <hardware/ca.h>
 #include <hardware_caps.h>
 #include <system/helpers.h>
+#include <system/supportinfo.h>
 #include <zapit/capmt.h>
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
@@ -55,6 +60,13 @@ std::string readImageVersion()
 const std::string &imageVersion()
 {
 	static const std::string held = readImageVersion();
+	return held;
+}
+
+// Read once: the system under a running program does not change.
+const std::string &osName()
+{
+	static const std::string held = system::internal::readOsName();
 	return held;
 }
 
@@ -94,7 +106,10 @@ class RealSystemSource : public SystemSource
 			// runs, so neither of those is worth keeping.
 			struct utsname sys;
 			if (uname(&sys) == 0)
+			{
 				out.kernel = sys.release;
+				out.machine = sys.machine;
+			}
 
 			// The name is truncated rather than terminated when it does not
 			// fit, so the end is put there rather than trusted.
@@ -136,6 +151,20 @@ class RealSystemSource : public SystemSource
 				out.root_total = (unsigned long long) blocks * (unsigned long long) block_size;
 				out.root_free = (unsigned long long)(blocks - used) * (unsigned long long) block_size;
 			}
+
+			// the readers of the process list's module, which a case can point at a tree
+			system::internal::readCpu(out.cpu_model, out.cpu_cores);
+			out.cpu_load_percent = system::internal::cpuLoadPercent();
+			system::internal::readLoad(out.load_average, out.processes_running, out.processes_total);
+			out.temperature_known = system::internal::readTemperature(out.temperature);
+			out.os_name = osName();
+
+			// what the box's own information screen shows
+			CSupportInfo &support = CSupportInfo::getInstance();
+			out.homepage = support.getHomepage();
+			out.docs = support.getDocs();
+			out.forum = support.getForum();
+			out.copyright = support.getCopyright();
 
 			return Status::Ok;
 		}

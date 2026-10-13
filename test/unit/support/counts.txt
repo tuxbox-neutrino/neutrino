@@ -16,7 +16,7 @@
 # web bytes the pages may cost gzipped	786432
 acted options matched to a declared row	26
 acted options whose row writes another member	5
-answer members narrower than free text	49
+answer members narrower than free text	50
 applier sections registered	8
 body examples their routes accepted	37
 body members the examples carry	25
@@ -52,10 +52,10 @@ listed keys compared against the table	25
 locale names the program has	3083
 options an applier or its notifier branches on	49
 parameters the document describes	173
-refusals the document states against a route	1127
+refusals the document states against a route	1131
 refusals the routes declare of their own	196
 refusals the shipped routes were seen to give	281
-routes the document describes	122
+routes the document describes	123
 rows an applier acts on	25
 rows compared against the load and save pass	353
 rows in a section with an applier	222
@@ -63,5 +63,5 @@ rows this build links	361
 rows whose set of values the box decides	3
 rows whose value is not in the settings file	5
 rule refusals the document states	17
-shapes the document files against a route	63
-success codes the document states	131
+shapes the document files against a route	64
+success codes the document states	132

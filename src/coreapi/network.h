@@ -1,5 +1,6 @@
 /*
- * network.h - what the box does on its network for somebody else
+ * network.h - the box's network interfaces, and what it does on its network
+ * for somebody else
  *
  * Copyright (C) 2026 Thilo Graf
  *
@@ -14,6 +15,7 @@
 #include <stddef.h>
 
 #include <string>
+#include <vector>
 
 namespace coreapi
 {
@@ -30,6 +32,20 @@ namespace network
    or not at all. InvalidArgument BadString for anything else, Internal
    WakeNotSent, saying why, when the packet left on no network. */
 Result<void> wake(const std::string &mac);
+
+/* A network interface of the box: its name, its IPv4 address where it has one,
+   its hardware address, and whether it is up. The loopback is left out. */
+struct Interface
+{
+	std::string name;
+	std::string ipv4;
+	std::string mac;
+	bool        up;
+	Interface() : up(false) {}
+};
+
+// Every interface, by name; none for a box whose interfaces could not be read.
+std::vector<Interface> interfaces();
 
 namespace internal
 {

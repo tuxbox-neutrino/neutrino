@@ -2204,12 +2204,74 @@ TEST_CASE("an uptime below nought is a reading that failed and not a duration", 
 	const Reply r = get("/api/v1/system/info");
 	REQUIRE(r.code == 200);
 	REQUIRE(parsed(r.body)["uptime"].asInt64() == 0);
-	REQUIRE(r.body.find("-1") == std::string::npos);
+	REQUIRE(r.body.find("\"uptime\":-1") == std::string::npos);
 
 	const Endpoint *ep = routeFor("/api/v1/system/info");
 	REQUIRE(ep != NULL);
 	REQUIRE(ep->schema != NULL);
 	checkShape(parsed(r.body), *ep->schema, "/api/v1/system/info");
+}
+
+TEST_CASE("the processor, the load, the temperature and where to find help are what the box reads", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	FakeSystemSource src;
+	src.box.cpu_model = "ARMv7 Processor rev 1 (v7l)";
+	src.box.cpu_cores = 2;
+	src.box.cpu_load_percent = 37;
+	src.box.load_average[0] = 0.5;
+	src.box.load_average[1] = 0.25;
+	src.box.load_average[2] = 0.125;
+	src.box.processes_running = 2;
+	src.box.processes_total = 143;
+	src.box.temperature_known = true;
+	src.box.temperature = 61;
+	src.box.os_name = "Tuxbox OS 4.0";
+	src.box.machine = "armv7l";
+	src.box.homepage = "https://tuxbox-neutrino.org";
+	src.box.docs = "https://wiki.tuxbox-neutrino.org";
+	src.box.forum = "https://forum.tuxbox-neutrino.org";
+	src.box.copyright = "Copyright 2026 Tuxbox Project";
+	InstalledSystemSource installed(&src);
+
+	const Reply r = get("/api/v1/system/info");
+	REQUIRE(r.code == 200);
+	const ::Json::Value got = parsed(r.body);
+	REQUIRE(got["cpu"]["model"].asString() == "ARMv7 Processor rev 1 (v7l)");
+	REQUIRE(got["cpu"]["cores"].asUInt() == 2);
+	REQUIRE(got["cpu"]["load_percent"].asInt() == 37);
+	REQUIRE(got["load_average"].size() == 3);
+	REQUIRE(got["load_average"][2].asDouble() == 0.125);
+	REQUIRE(got["processes_total"].asUInt() == 143);
+	REQUIRE(got["temperature_known"].asBool());
+	REQUIRE(got["temperature"].asInt() == 61);
+	REQUIRE(got["os"].asString() == "Tuxbox OS 4.0");
+	REQUIRE(got["machine"].asString() == "armv7l");
+	REQUIRE(!got["neutrino_version"].asString().empty());
+	REQUIRE(got["support"]["forum"].asString() == "https://forum.tuxbox-neutrino.org");
+	REQUIRE(got["support"]["copyright"].asString() == "Copyright 2026 Tuxbox Project");
+
+	// no sensor and no load reading are said as such, and nothing else is made up
+	src.box.temperature_known = false;
+	src.box.temperature = 99;
+	src.box.cpu_load_percent = -1;
+	const ::Json::Value none = parsed(get("/api/v1/system/info").body);
+	REQUIRE_FALSE(none["temperature_known"].asBool());
+	REQUIRE(none["temperature"].asInt() == 0);
+	REQUIRE(none["cpu"]["load_percent"].asInt() == -1);
+}
+
+TEST_CASE("the network interfaces are listed without the loopback", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	const Reply r = get("/api/v1/network/interfaces");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+	for (Json::ArrayIndex i = 0; i < items.size(); ++i)
+		REQUIRE(items[i]["name"].asString() != "lo");
+	const Endpoint *ep = routeFor("/api/v1/network/interfaces");
+	REQUIRE(ep != NULL);
+	checkShape(parsed(r.body), *ep->schema, "/api/v1/network/interfaces");
 }
 
 TEST_CASE("a name the box never converted does not leave a body no reader will take", "[endpoints]")

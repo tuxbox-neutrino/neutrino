@@ -12,6 +12,8 @@
 
 #include <cerrno>
 #include <cstring>
+#include <fstream>
+#include <map>
 #include <vector>
 
 #include <arpa/inet.h>
@@ -155,6 +157,39 @@ void setWakeSenderForTest(WakeSender s)
 }
 
 } // namespace internal
+
+std::vector<Interface> interfaces()
+{
+	std::map<std::string, Interface> by_name;
+	struct ifaddrs *all = NULL;
+	if (getifaddrs(&all) != 0)
+		return std::vector<Interface>();
+	for (struct ifaddrs *a = all; a != NULL; a = a->ifa_next)
+	{
+		if (a->ifa_name == NULL || (a->ifa_flags & IFF_LOOPBACK) != 0)
+			continue;
+		Interface &i = by_name[a->ifa_name];
+		i.name = a->ifa_name;
+		i.up = i.up || (a->ifa_flags & IFF_UP) != 0;
+		if (a->ifa_addr != NULL && a->ifa_addr->sa_family == AF_INET && i.ipv4.empty())
+		{
+			char text[INET_ADDRSTRLEN];
+			const struct sockaddr_in *in = reinterpret_cast<const struct sockaddr_in *>(a->ifa_addr);
+			if (inet_ntop(AF_INET, &in->sin_addr, text, sizeof(text)) != NULL)
+				i.ipv4 = text;
+		}
+	}
+	freeifaddrs(all);
+	std::vector<Interface> out;
+	for (std::map<std::string, Interface>::iterator it = by_name.begin(); it != by_name.end(); ++it)
+	{
+		// the hardware address as the kernel writes it
+		std::ifstream in(("/sys/class/net/" + it->first + "/address").c_str());
+		std::getline(in, it->second.mac);
+		out.push_back(it->second);
+	}
+	return out;
+}
 
 } // namespace network
 } // namespace coreapi

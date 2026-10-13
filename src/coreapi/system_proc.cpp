@@ -17,13 +17,18 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <vector>
+
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
 
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/klog.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 /* What the web interface showed by running "ps aux" and "dmesg" through a
@@ -39,6 +44,8 @@ namespace internal
 {
 const char *proc_root = "/proc";
 KernelLogReader kernel_log_reader = NULL;
+const char *sys_root = "/sys";
+const char *etc_root = "/etc";
 } // namespace internal
 
 namespace
@@ -201,6 +208,208 @@ Result<std::vector<KernelLogLine> > kernelLog()
 	}
 	return ok(std::move(out));
 }
+
+namespace internal
+{
+
+void readCpu(std::string &model, unsigned &cores)
+{
+	std::ifstream in((std::string(proc_root) + "/cpuinfo").c_str());
+	std::string line, arm;
+	while (std::getline(in, line))
+	{
+		std::string value;
+		const size_t colon = line.find(':');
+		if (colon != std::string::npos)
+		{
+			const size_t start = line.find_first_not_of(" \t", colon + 1);
+			if (start != std::string::npos)
+				value = line.substr(start);
+		}
+		if (line.compare(0, 9, "processor") == 0)
+			++cores;
+		else if (line.compare(0, 10, "model name") == 0 && model.empty())
+			model = value;
+		else if ((line.compare(0, 9, "Processor") == 0 || line.compare(0, 8, "Hardware") == 0) && arm.empty())
+			arm = value;
+	}
+	if (model.empty())
+		model = arm;
+	if (cores == 0)
+		cores = 1;
+}
+
+bool cpuTimes(unsigned long long &total, unsigned long long &idle)
+{
+	std::FILE *f = std::fopen((std::string(proc_root) + "/stat").c_str(), "r");
+	if (f == NULL)
+		return false;
+	// user nice system idle iowait irq softirq steal: guest time is counted in user already
+	unsigned long long v[8] = { 0 };
+	const int got = std::fscanf(f, "cpu %llu %llu %llu %llu %llu %llu %llu %llu", &v[0], &v[1], &v[2], &v[3],
+				    &v[4], &v[5], &v[6], &v[7]);
+	std::fclose(f);
+	if (got < 4)
+		return false;
+	total = 0;
+	for (int i = 0; i < 8; ++i)
+		total += v[i];
+	idle = v[3] + v[4];
+	return true;
+}
+
+int loadBetween(unsigned long long total1, unsigned long long idle1, unsigned long long total2,
+		unsigned long long idle2)
+{
+	if (total2 <= total1 || idle2 < idle1)
+		return -1;
+	const unsigned long long spent = total2 - total1;
+	const unsigned long long idle = idle2 - idle1 < spent ? idle2 - idle1 : spent;
+	return (int) ((spent - idle) * 100 / spent);
+}
+
+namespace
+{
+
+OpenThreads::Mutex &loadLock()
+{
+	static OpenThreads::Mutex m;
+	return m;
+}
+
+struct LoadReading
+{
+	bool valid;
+	long long at_ms;
+	unsigned long long total, idle;
+	LoadReading() : valid(false), at_ms(0), total(0), idle(0) {}
+};
+
+LoadReading &lastReading()
+{
+	static LoadReading r;
+	return r;
+}
+
+long long nowMs()
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (long long) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+
+} // namespace
+
+int cpuLoadPercent()
+{
+	unsigned long long t2, i2;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> lock(loadLock());
+		LoadReading &last = lastReading();
+		const long long now = nowMs();
+		if (last.valid && now - last.at_ms >= 200 && now - last.at_ms <= 10000)
+		{
+			if (!cpuTimes(t2, i2))
+				return -1;
+			const int percent = loadBetween(last.total, last.idle, t2, i2);
+			last.at_ms = now;
+			last.total = t2;
+			last.idle = i2;
+			if (percent >= 0)
+				return percent;
+		}
+	}
+	unsigned long long t1, i1;
+	if (!cpuTimes(t1, i1))
+		return -1;
+	usleep(100000);
+	if (!cpuTimes(t2, i2))
+		return -1;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(loadLock());
+	LoadReading &last = lastReading();
+	last.valid = true;
+	last.at_ms = nowMs();
+	last.total = t2;
+	last.idle = i2;
+	return loadBetween(t1, i1, t2, i2);
+}
+
+void forgetLoadReadingForTest()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(loadLock());
+	lastReading() = LoadReading();
+}
+
+void readLoad(double avg[3], unsigned &running, unsigned &total)
+{
+	avg[0] = avg[1] = avg[2] = 0;
+	running = total = 0;
+	std::FILE *f = std::fopen((std::string(proc_root) + "/loadavg").c_str(), "r");
+	if (f == NULL)
+		return;
+	if (std::fscanf(f, "%lf %lf %lf %u/%u", &avg[0], &avg[1], &avg[2], &running, &total) != 5)
+	{
+		avg[0] = avg[1] = avg[2] = 0;
+		running = total = 0;
+	}
+	std::fclose(f);
+}
+
+bool readTemperature(int &celsius)
+{
+	const std::string dir = std::string(sys_root) + "/class/thermal";
+	DIR *d = opendir(dir.c_str());
+	if (d == NULL)
+		return false;
+	const int none = -1000;
+	int package = none, core = none, first = none, first_zone = -1;
+	struct dirent *e;
+	while ((e = readdir(d)) != NULL)
+	{
+		if (std::strncmp(e->d_name, "thermal_zone", 12) != 0 || !allDigits(e->d_name + 12))
+			continue;
+		const int zone = std::atoi(e->d_name + 12);
+		const std::string base = dir + "/" + e->d_name;
+		std::ifstream type_in((base + "/type").c_str());
+		std::string type;
+		std::getline(type_in, type);
+		std::ifstream temp_in((base + "/temp").c_str());
+		long milli = 0;
+		if (!(temp_in >> milli))
+			continue;
+		const int t = (int) (milli / 1000);
+		if (type.find("pkg") != std::string::npos)
+			package = t;
+		else if (type.find("core") != std::string::npos || type.find("Core") != std::string::npos)
+			core = core > t ? core : t;
+		else if (first_zone < 0 || zone < first_zone)
+		{
+			first = t;
+			first_zone = zone;
+		}
+	}
+	closedir(d);
+	celsius = package != none ? package : core != none ? core : first;
+	return celsius != none;
+}
+
+std::string readOsName()
+{
+	std::ifstream in((std::string(etc_root) + "/os-release").c_str());
+	std::string line;
+	while (std::getline(in, line))
+	{
+		if (line.compare(0, 12, "PRETTY_NAME=") != 0)
+			continue;
+		std::string v = line.substr(12);
+		if (v.size() >= 2 && (v[0] == '"' || v[0] == '\'') && v[v.size() - 1] == v[0])
+			v = v.substr(1, v.size() - 2);
+		return v;
+	}
+	return std::string();
+}
+
+} // namespace internal
 
 } // namespace system
 } // namespace coreapi

@@ -167,3 +167,155 @@ TEST_CASE("the kernel's log comes back line by line with each line's level", "[s
 	REQUIRE_FALSE(refused.ok());
 	REQUIRE(refused.error().code == ErrorCode::KernelLogUnreadable);
 }
+
+namespace
+{
+
+/* /proc, /sys and /etc of a case's own for the readings the box information
+   carries, and the real ones put back afterwards. */
+struct FakeRoots
+{
+	std::string dir, proc, sys, etc;
+	const char *saved_proc, *saved_sys, *saved_etc;
+
+	FakeRoots()
+		: saved_proc(system::internal::proc_root), saved_sys(system::internal::sys_root),
+		  saved_etc(system::internal::etc_root)
+	{
+		char tmpl[] = "/tmp/coreapi_roots_XXXXXX";
+		if (mkdtemp(tmpl) != NULL)
+			dir = tmpl;
+		proc = dir + "/proc";
+		sys = dir + "/sys";
+		etc = dir + "/etc";
+		system::internal::proc_root = proc.c_str();
+		system::internal::sys_root = sys.c_str();
+		system::internal::etc_root = etc.c_str();
+		system::internal::forgetLoadReadingForTest();
+	}
+
+	~FakeRoots()
+	{
+		system::internal::proc_root = saved_proc;
+		system::internal::sys_root = saved_sys;
+		system::internal::etc_root = saved_etc;
+		system::internal::forgetLoadReadingForTest();
+		if (!dir.empty())
+			(void) std::system(("rm -rf '" + dir + "'").c_str());
+	}
+
+	void put(const std::string &path, const std::string &bytes)
+	{
+		(void) std::system(("mkdir -p \"$(dirname '" + path + "')\"").c_str());
+		FILE *f = std::fopen(path.c_str(), "w");
+		REQUIRE(f != NULL);
+		std::fwrite(bytes.data(), 1, bytes.size(), f);
+		std::fclose(f);
+	}
+
+	void zone(int n, const std::string &type, long milli)
+	{
+		char base[64];
+		std::snprintf(base, sizeof(base), "/class/thermal/thermal_zone%d", n);
+		put(sys + base + "/type", type + "\n");
+		char temp[32];
+		std::snprintf(temp, sizeof(temp), "%ld\n", milli);
+		put(sys + base + "/temp", temp);
+	}
+};
+
+} // namespace
+
+TEST_CASE("the processor and its system are read the way their kernels write them", "[system]")
+{
+	FakeRoots r;
+	std::string model;
+	unsigned cores = 0;
+
+	// an ARM box names its processor in a line of its own, before or after the cores
+	r.put(r.proc + "/cpuinfo", "Processor\t: ARMv7 Processor rev 1 (v7l)\nprocessor\t: 0\nprocessor\t: 1\n"
+	      "Hardware\t: BCM7251S\n");
+	system::internal::readCpu(model, cores);
+	REQUIRE(model == "ARMv7 Processor rev 1 (v7l)");
+	REQUIRE(cores == 2);
+
+	// a PC once per core
+	r.put(r.proc + "/cpuinfo", "processor\t: 0\nmodel name\t: Intel(R) Core(TM) i7\nprocessor\t: 1\n"
+	      "model name\t: Intel(R) Core(TM) i7\n");
+	model.clear();
+	cores = 0;
+	system::internal::readCpu(model, cores);
+	REQUIRE(model == "Intel(R) Core(TM) i7");
+	REQUIRE(cores == 2);
+
+	// an ARM64 kernel may name it nowhere, and a cpuinfo with no cores still has one
+	r.put(r.proc + "/cpuinfo", "BogoMIPS\t: 50.00\n");
+	model.clear();
+	cores = 0;
+	system::internal::readCpu(model, cores);
+	REQUIRE(model.empty());
+	REQUIRE(cores == 1);
+
+	r.put(r.etc + "/os-release", "NAME=Tuxbox\nPRETTY_NAME='Tuxbox OS 4.0'\nVERSION_ID=4.0\n");
+	REQUIRE(system::internal::readOsName() == "Tuxbox OS 4.0");
+	r.put(r.etc + "/os-release", "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\n");
+	REQUIRE(system::internal::readOsName() == "Debian GNU/Linux 13 (trixie)");
+}
+
+TEST_CASE("the load is what the processors spent busy between two readings", "[system]")
+{
+	FakeRoots r;
+	unsigned long long total = 0, idle = 0;
+
+	// ten fields, as a current kernel writes them: guest time is in user already
+	r.put(r.proc + "/stat", "cpu  100 0 50 800 50 0 0 0 7 7\ncpu0 1 2 3 4\n");
+	REQUIRE(system::internal::cpuTimes(total, idle));
+	REQUIRE(total == 1000);
+	REQUIRE(idle == 850);
+
+	REQUIRE(system::internal::loadBetween(1000, 850, 2000, 1600) == 25);
+	REQUIRE(system::internal::loadBetween(1000, 850, 1000, 850) == -1);   // no time between
+	REQUIRE(system::internal::loadBetween(2000, 900, 3000, 800) == -1);   // idle going back
+	REQUIRE(system::internal::loadBetween(1000, 0, 1100, 500) == 0);      // idle beyond the time spent
+
+	// unreadable: said as such
+	r.put(r.proc + "/stat", "intr 1 2 3\n");
+	REQUIRE(system::internal::cpuLoadPercent() == -1);
+
+	double avg[3];
+	unsigned running = 9, all = 9;
+	r.put(r.proc + "/loadavg", "0.50 0.25 0.12 2/143 4321\n");
+	system::internal::readLoad(avg, running, all);
+	REQUIRE(avg[0] == 0.5);
+	REQUIRE(avg[2] == 0.12);
+	REQUIRE(running == 2);
+	REQUIRE(all == 143);
+	r.put(r.proc + "/loadavg", "garbage\n");
+	system::internal::readLoad(avg, running, all);
+	REQUIRE(avg[0] == 0);
+	REQUIRE(all == 0);
+}
+
+TEST_CASE("the temperature comes from whichever thermal zones there are", "[system]")
+{
+	FakeRoots r;
+	int celsius = 0;
+	REQUIRE_FALSE(system::internal::readTemperature(celsius));
+
+	// zones numbered with gaps: the lowest-numbered one where nothing names the processor
+	r.zone(3, "soc-thermal", 52000);
+	r.zone(1, "board", 48000);
+	REQUIRE(system::internal::readTemperature(celsius));
+	REQUIRE(celsius == 48);
+
+	// cores: the hottest of them
+	r.zone(5, "Core 0", 55000);
+	r.zone(6, "Core 1", 57000);
+	REQUIRE(system::internal::readTemperature(celsius));
+	REQUIRE(celsius == 57);
+
+	// a package zone before any core
+	r.zone(9, "x86_pkg_temp", 60000);
+	REQUIRE(system::internal::readTemperature(celsius));
+	REQUIRE(celsius == 60);
+}

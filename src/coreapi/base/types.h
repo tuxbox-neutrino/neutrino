@@ -2,6 +2,7 @@
  * types.h - the value types the core API passes around
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -398,8 +399,40 @@ struct BoxInfo
 	unsigned long long root_total;
 	unsigned long long root_free;
 
+	/* The processor as the kernel names it and its cores, and how busy it was
+	   over the tenth of a second this was read in, in percent; -1 for a load
+	   that could not be read. */
+	std::string cpu_model;
+	unsigned    cpu_cores;
+	int         cpu_load_percent;
+	// What waits to run, averaged over 1, 5 and 15 minutes, as the kernel keeps it.
+	double      load_average[3];
+	// Tasks running now and in all.
+	unsigned    processes_running;
+	unsigned    processes_total;
+
+	// The processor's temperature in degrees Celsius, where the box has a sensor for it.
+	bool        temperature_known;
+	int         temperature;
+
+	// The system the image is built from, as /etc/os-release names it, and the
+	// machine the kernel runs on.
+	std::string os_name;
+	std::string machine;
+
+	// Where to find help, and whose the program is, as the box's own screen says.
+	std::string homepage;
+	std::string docs;
+	std::string forum;
+	std::string copyright;
+
 	BoxInfo()
-		: uptime(0), memory_total(0), memory_free(0), root_total(0), root_free(0) {}
+		: uptime(0), memory_total(0), memory_free(0), root_total(0), root_free(0), cpu_cores(0),
+		  cpu_load_percent(-1), processes_running(0), processes_total(0), temperature_known(false),
+		  temperature(0)
+	{
+		load_average[0] = load_average[1] = load_average[2] = 0;
+	}
 };
 
 /* The pair of numbers is what names it: a box can carry several adapters and
