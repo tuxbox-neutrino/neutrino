@@ -91,6 +91,7 @@
 			<option value="settings.yhtm">{=L:yw.nav.settings=}</option>
 		</select>
 
+		<small class="wiz-err" id="wizErr0" role="status" tabindex="-1" hidden></small>
 		<button type="button" class="yweb-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)">{=L:yw.wiz.next=}</button>
 	</main>
 
@@ -141,10 +142,9 @@
 		}
 
 		var wizParams = new URLSearchParams(location.search);
-		var wizForced = wizParams.get('forced') === '1';
 		var wizLoginOnly = wizParams.get('step') === 'login';
 		var wizTarget = 'dashboard.yhtm';
-		var wizPwWasDefault = false;
+		var wizPwShipped = false;
 
 		// Remember the active language so we only switch when it changes
 		// (switching triggers a webserver config reload on the box).
@@ -155,25 +155,46 @@
 			return s.value;
 		})();
 
+		/* /api/v1 with the session this page has, and its second token for a
+		   change. Without one, the sign-in; with one that still owes the
+		   owner's own password, the page that sets it. Both come back here. */
+		var WIZ_AWAY = 'away';
+		async function wizV1(method, path, body) {
+			var sr = await fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
+			var s = sr.ok ? await sr.json() : null;
+			var back = encodeURIComponent(location.pathname + location.search);
+			if (s && s.authenticated && s.password_change_required) {
+				location.replace('/password.yhtm?next=' + back);
+				throw new Error(WIZ_AWAY);
+			}
+			if (!s || !s.authenticated) {
+				location.replace('/login.yhtm?next=' + back);
+				throw new Error(WIZ_AWAY);
+			}
+			var headers = {};
+			if (method !== 'GET') headers[s.csrf_header] = s.csrf;
+			if (body !== undefined) headers['Content-Type'] = 'application/json';
+			var r = await fetch('/api/v1' + path, {method: method, credentials: 'same-origin', cache: 'no-store',
+				headers: headers, body: body === undefined ? undefined : JSON.stringify(body)});
+			var data = null;
+			try { data = await r.json(); } catch (ignore) {}
+			if (!r.ok)
+				throw new Error((data && (data.detail || data.title)) || ('HTTP ' + r.status));
+			return data;
+		}
+
 		async function wizLoadLogin() {
 			try {
-				var resp = await fetch('/api/v4/config?config=nhttpd&format=json');
-				var data = await resp.json();
-				var cfg = (data && data.data && data.data.config) || {};
-				document.getElementById('wizAuth').checked = cfg['mod_auth_dot_authenticate'] === 'true';
-				document.getElementById('wizUser').value = cfg['mod_auth_dot_username'] || 'root';
-				wizPwWasDefault = cfg['mod_auth_dot_password_default'] === 'true';
+				var w = await wizV1('GET', '/system/webserver');
+				document.getElementById('wizAuth').checked = !!w.page_login;
+				document.getElementById('wizUser').value = w.user || 'root';
+				wizPwShipped = !!w.password_shipped;
 			} catch (e) {}
 		}
 
 		function wizShowLogin() {
 			document.getElementById('wizCardBasics').hidden = true;
 			document.getElementById('wizCardLogin').hidden = false;
-			if (wizForced) {
-				document.getElementById('wizLoginIntro').textContent = '{=L:yw.wiz.login_forced=}';
-				document.getElementById('wizAuth').checked = true;
-				document.getElementById('wizSkip').hidden = true;
-			}
 		}
 
 		async function wizNext(btn) {
@@ -181,25 +202,65 @@
 			var lang = document.getElementById('wizLang').value;
 			wizTarget = document.getElementById('wizPage').value;
 			try {
-				await fetch('/api/v4/config?config=yweb&action=submit&startup=true&start_page=' +
-					encodeURIComponent(wizTarget));
+				await wizV1('PATCH', '/webui/settings', {startup: 'true', start_page: wizTarget});
 				if (lang && lang !== wizStartLang)
 					await fetch('/set-lang.yhtm?' + encodeURIComponent(lang), {cache: 'no-store'});
 				wizShowLogin();
 			} catch (e) {
 				btn.disabled = false;
+				wizError(e.message || 'error', 'wizErr0');
 			}
 		}
 
-		function wizError(msg) {
-			var el = document.getElementById('wizErr');
+		function wizError(msg, id) {
+			if (msg === WIZ_AWAY) return;
+			var el = document.getElementById(id || 'wizErr');
 			el.hidden = false;
 			el.textContent = msg;
 			el.focus();
 		}
 
+		/* A change of the login restarts the web server once the answer is out;
+		   the next page is asked for only once it answers again, which its
+		   start count says. Port and address are not the wizard's to change.
+		   Not back within half a minute, each question given two seconds:
+		   said, the note as it was, and the page stays, the change being
+		   saved all the same. */
+		async function wizAfterRestart(answer) {
+			var caller = (answer && answer.caller) || {};
+			var was = (answer && answer.webserver) || {};
+			if (!caller.restarting) return;
+			var note = document.querySelector('#wizCardLogin .wiz-note');
+			var noteWas = note ? note.textContent : '';
+			if (note) note.textContent = '{=L:yw.set.ws_restarting=}';
+			var end = Date.now() + 30000;
+			while (Date.now() < end) {
+				await new Promise(function(r) { setTimeout(r, 300); });
+				// a question left hanging is given up after two seconds, and
+				// cut off where the browser can: the deadline holds either way
+				var opts = {credentials: 'same-origin', cache: 'no-store'};
+				var ask = typeof AbortController === 'function' ? new AbortController() : null;
+				if (ask) opts.signal = ask.signal;
+				var timer = 0;
+				var poll = fetch('/api/v1/system/webserver', opts)
+					.then(function(r) { return r.ok ? r.json() : null; });
+				poll.catch(function() {});
+				var cut = new Promise(function(done) {
+					timer = setTimeout(function() { if (ask) ask.abort(); done(null); }, 2000);
+				});
+				try {
+					var now = await Promise.race([poll, cut]);
+					if (now && typeof now.restarts === 'number' && now.restarts > was.restarts)
+						return;
+				} catch (e) { /* not back yet */ }
+				finally { clearTimeout(timer); }
+			}
+			if (note) note.textContent = noteWas;
+			throw new Error('{=L:yw.wiz.login_not_back=}');
+		}
+
 		function wizLoginDone() {
-			location.href = wizForced ? '/' : '/' + wizTarget;
+			location.href = '/' + wizTarget;
 		}
 
 		async function wizLoginSave(btn) {
@@ -208,41 +269,36 @@
 			var pw = document.getElementById('wizPass').value;
 			var pw2 = document.getElementById('wizPass2').value;
 			if (pw !== pw2) { wizError('{=L:yw.wiz.login_mismatch=}'); return; }
-			// Login aktiv, aber weiterhin nur das Werkspasswort: nicht speichern
-			if (auth && !pw && (wizForced || wizPwWasDefault)) { wizError('{=L:yw.wiz.login_needpw=}'); return; }
-			btn.disabled = true;
-			var params = 'config=nhttpd&action=submit' +
-				'&' + encodeURIComponent('mod_auth.authenticate') + '=' + (auth ? 'true' : 'false') +
-				'&' + encodeURIComponent('mod_auth.username') + '=' + encodeURIComponent(user);
+			// the page login on and still the password every box ships with: not saved
+			if (auth && !pw && wizPwShipped) { wizError('{=L:yw.wiz.login_needpw=}'); return; }
+			// skipping while the server restarts would ask for the next page
+			// in the gap: both wait for the save
+			var skip = document.getElementById('wizSkip');
+			btn.disabled = skip.disabled = true;
+			var body = {page_login: auth, user: user};
 			if (pw)
-				params += '&' + encodeURIComponent('mod_auth.password') + '=' + encodeURIComponent(pw);
+				body.password = pw;
 			try {
-				// in the body, so the password is in no address a log keeps
-				var resp = await fetch('/api/v4/config', {
-					method: 'POST', credentials: 'same-origin',
-					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-					body: params
-				});
-				var data = null;
-				try { data = await resp.json(); } catch (ignore) {}
-				if (!resp.ok || (data && data.success === 'false'))
-					throw new Error((data && data.error && data.error.msg) || ('HTTP ' + resp.status));
+				var answer = await wizV1('PUT', '/system/webserver', body);
+				// saved: a second save after a server slow to come back asks
+				// for what is in effect, and sending the password again would
+				// count as a change and restart the server once more
+				if (pw) {
+					document.getElementById('wizPass').value = '';
+					document.getElementById('wizPass2').value = '';
+					wizPwShipped = false;
+				}
+				await wizAfterRestart(answer);
 				wizLoginDone();
 			} catch (e) {
-				btn.disabled = false;
+				btn.disabled = skip.disabled = false;
 				wizError(e.message || 'error');
 			}
 		}
 
-		if (wizLoginOnly) {
+		if (wizLoginOnly)
 			wizShowLogin();
-			wizLoadLogin().then(function() {
-				// forced haelt den Schalter an; sonst Ist-Zustand anzeigen
-				if (wizForced) document.getElementById('wizAuth').checked = true;
-			});
-		} else {
-			wizLoadLogin();
-		}
+		wizLoadLogin();
 	</script>
 </body>
 </html>
