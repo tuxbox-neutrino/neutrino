@@ -48,15 +48,21 @@
    one value in this box that decides whether any of the rest can be reached at all.
 
    WHAT THE ROUTES HERE OFFER AND WHAT THEY DO NOT. The configuration behind this
-   server carries eleven things (webconfig.h). Seven are answered here, four can be
+   server carries eleven things (webconfig.h). Seven are answered here, five can be
    written, and each of the rest is left out for a reason of its own:
 
-     port, bind, user, password   read and written. They are the four the box's own
-                                  screen offers and four of the five lines the save
-                                  this stands on owns.
+     port, bind                   read and written, and written into nhttpd.conf and
+                                  not into this server's own file: nhttpd binds them,
+                                  and the menu at the box sets them in that file too,
+                                  so a second copy anywhere else would be one that
+                                  moves back. bind is an address of the first family,
+                                  the only one nhttpd listens on as written.
 
-     channel_logos                read and written, and the fifth line that save
-                                  owns. The two below it are read only because
+     user, password               read and written. They are the account the box's
+                                  own screen offers, kept in this server's own file.
+
+     channel_logos                read and written, and a line of this server's own
+                                  file. The two below it are read only because
                                   writing them shuts somebody out or breaks a caller
                                   the caller cannot see; neither is true of this one.
                                   It is a line of this file and not of neutrino.conf
@@ -424,19 +430,19 @@ Response webserverWrite(const Request &r)
 				       "the body names nothing to change");
 	}
 
-	/* Every rule about these four values is the save's, which is where the file
-	   they are written into is understood: what a port may be, what an address
-	   literal is, what a name may carry, and what an empty password verifies
-	   against. A second copy of any of them here would be a rule that can
-	   disagree with the one that decides. */
+	/* Every rule about these values is the save's, which is where the files
+	   they are written into are understood: what a port may be, what address
+	   nhttpd can listen on, what a name may carry, and what an empty password
+	   verifies against. A second copy of any of them here would be a rule that
+	   can disagree with the one that decides. */
 	if (!saveWebSettings(path, s))
 	{
-		/* Answered as the caller's request being wrong, because the four values
-		   the save was handed all came out of this request and one of them is
-		   what it refused in every case but one. The exception is the file
-		   itself being unwritable, and the line carried back names the file
-		   when that is what happened, which is the one thing that tells a
-		   caller it is not its own fault. */
+		/* Answered as the caller's request being wrong, because the values the
+		   save was handed all came out of this request and one of them is what
+		   it refused in every case but one. The exception is a file itself
+		   being unwritable, and the line carried back names the file when that
+		   is what happened, which is the one thing that tells a caller it is
+		   not its own fault. */
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::WebserverNotConfigured,
 				       whatWentWrong());
 	}
@@ -505,7 +511,7 @@ const Param kWriteParams[] = {
 	   they are the same rule said twice, the save is the one that decides. */
 	HTTPD_BODY_IN("port", ParamType::UInt,
 		"the TCP port to answer on once the server restarts on this file, from 1 to 65535", 1, 65535),
-	HTTPD_BODY_TEXT("bind", "the address to listen on, a literal of either family, and \"0.0.0.0\" for every address of the first", 45),
+	HTTPD_BODY_TEXT("bind", "the address to listen on once the server restarts, a literal of the first family, and \"0.0.0.0\" for every one of them", 15),
 	HTTPD_BODY_TEXT("user", "the one name a password is presented under", 64),
 	/* The password as somebody types it, and never the form it is stored as.
 	   What becomes of it is credentials.h's, and a route taking a stored form
@@ -524,7 +530,7 @@ const RouteRefusal kWebserverWriteRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, MissingParameter,
 		"the body names nothing to change"),
 	HTTPD_REFUSES(InvalidArgument, WebserverNotConfigured,
-		"bind_address: \"not an address\" is not an address this can write down and bind, and nothing is written"),
+		"WebsiteMain.host: \"::1\" is not an address this server can listen on, and nothing is written. It listens on addresses of the first family only, and every interface is written as \"0.0.0.0\""),
 };
 
 const Endpoint kWebserverEndpoints[] = {
@@ -555,15 +561,18 @@ const Endpoint kWebserverEndpoints[] = {
 	  "says whether anything changed enough to restart the server at all, since a request asking for "
 	  "what is already in effect changes nothing and restarts nothing.\n"
 	  "\n"
-	  "**Side effects:** rewrites this server's own configuration file. When `port`, `bind`, `user`, "
-	  "`password` or `channel_logos` actually changed, the server is restarted on the new file once the "
-	  "answer has been sent, which drops every connection it is holding, this one included.\n"
+	  "**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port` "
+	  "or `bind` differ from what that file says, that file being where the server answers. When "
+	  "`port`, `bind`, `user`, `password` or `channel_logos` actually changed, the server is restarted "
+	  "on the new files once the answer has been sent, which drops every connection it is holding, this "
+	  "one included. Where nothing comes up on a new port or address, it goes back to the one it "
+	  "answered on before.\n"
 	  "\n"
 	  "**Refusals:**\n"
 	  "- `400 missing-parameter`: the body names nothing to change.\n"
-	  "- `400 webserver-not-configured`: the value given for one of the 4 save owned members could "
-	  "not be written, for instance a `bind` that is not an address literal, or the configuration file "
-	  "itself could not be written; the detail names which.\n"
+	  "- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` "
+	  "that is not an address literal of the first family, the only one this server listens on, or a "
+	  "configuration file itself could not be written; the detail names which.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
 	  HTTPD_PARAMS(kWriteParams), &kChangedSchema, &webserverWrite, false,

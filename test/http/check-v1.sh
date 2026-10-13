@@ -543,40 +543,82 @@ if not fails:
 		if back:
 			fails.append('MOVE BACK FAILED, instance may sit on %d: %s' % (new_port, back))
 if not fails:
-	# An address nhttpd cannot carry (AF_INET only): the answer promises a
-	# restart, and the box comes back where it was instead of nowhere. The
-	# bind in the file is put back afterwards over the same route.
-	answer = json.loads(curl(['-X', 'PUT', '-H', 'Content-Type: application/json',
-		'-d', json.dumps({'bind': '::1'})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)]))
-	if not answer.get('caller', {}).get('restarting'):
-		fails.append('the v6 bind was not even tried: %s' % answer.get('caller'))
-	else:
-		came_back = False
-		for i in range(50):
-			time.sleep(0.3)
-			try:
-				if webserver_on(old_port).get('port') == old_port:
-					came_back = True
-					break
-			except Exception:
-				continue
-		if not came_back:
-			fails.append('BOX DID NOT COME BACK on %d after a v6 bind' % old_port)
-		else:
-			answer = json.loads(curl(['-X', 'PUT', '-H', 'Content-Type: application/json',
-				'-d', json.dumps({'bind': '0.0.0.0'})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)]))
-			for i in range(50):
-				time.sleep(0.3)
+	# An address nhttpd cannot listen on as written (AF_INET only) is turned
+	# down before anything is written, and nothing restarts.
+	code = curl(['-o', '/dev/null', '-w', '%{http_code}', '-X', 'PUT', '-H', 'Content-Type: application/json',
+		'-d', json.dumps({'bind': '::1'})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)])
+	if code != b'400':
+		fails.append('a v6 bind was answered %s, not 400' % code.decode())
+	elif webserver_on(old_port).get('bind') != before.get('bind'):
+		fails.append('a refused v6 bind moved the address')
+if not fails:
+	# A port something else holds: the answer promises the move, nothing comes
+	# up there, and the server goes back to the port it answered on, its file
+	# with it. Only where this runs on the box itself, the one place a port of
+	# the box can be taken from here.
+	import socket
+	blocker = socket.socket()
+	# The moves above leave that port in TIME-WAIT, which would refuse this
+	# bind; a listening socket still refuses nhttpd's.
+	blocker.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	try:
+		blocker.bind((host.split('//', 1)[-1].strip('[]'), new_port))
+	except OSError:
+		blocker.close()
+		blocker = None
+		print('note: %s is not this machine, the taken port is not tried' % host, file=sys.stderr)
+	if blocker is not None:
+		blocker.listen(1)
+		# Down first and then up again, so what is seen afterwards is the
+		# server after the restart and not the one before it.
+		def restarted_on(port):
+			down = False
+			for i in range(100):
+				time.sleep(0.2)
 				try:
-					if webserver_on(old_port).get('bind') == '0.0.0.0':
-						break
+					answer = webserver_on(port)
 				except Exception:
+					down = True
 					continue
+				if down and answer.get('port') == port:
+					return True
+			return False
+		try:
+			answer = json.loads(curl(['-X', 'PUT', '-H', 'Content-Type: application/json',
+				'-d', json.dumps({'port': new_port})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)]))
+			if not answer.get('caller', {}).get('restarting'):
+				fails.append('the taken port was not even tried: %s' % answer.get('caller'))
+			elif not restarted_on(old_port):
+				fails.append('BOX DID NOT COME BACK on %d after %d was taken' % (old_port, new_port))
+		finally:
+			blocker.close()
+		# The file says the old port again: a restart that changes nothing
+		# about the port comes up there, the port now being free. The switch
+		# reads back changed only once the restart read the files, so an
+		# answer carrying it on the old port is the server after the restart.
+		if not fails:
+			logos = webserver_on(old_port).get('channel_logos')
+			for value in (not logos, logos):
+				curl(['-X', 'PUT', '-H', 'Content-Type: application/json',
+					'-d', json.dumps({'channel_logos': value})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)])
+				came = False
+				for i in range(100):
+					time.sleep(0.2)
+					try:
+						if webserver_on(old_port).get('channel_logos') == value:
+							came = True
+							break
+					except Exception:
+						continue
+				if not came:
+					fails.append('after the fallback a restart did not come up on %d, so the file '
+						'does not say it' % old_port)
+					break
 print('PASS' if not fails else 'FAIL ' + '; '.join(fails))
 PYEOF
 `
 case "$r18" in
-	PASS*) pass "webserver table: truth, port moved and back, v6 bind refused safely";;
+	PASS*) pass "webserver table: truth, port moved and back, v6 bind refused, taken port falls back";;
 	*) fail "webserver table: $r18";;
 esac
 

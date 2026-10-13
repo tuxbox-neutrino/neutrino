@@ -45,6 +45,11 @@ namespace httpd
    one port ends up in front of a daemon started from a default saying another.
    Starting the server is start(config().server).
 
+   That half is read out of nhttpd.conf and not out of this server's own file:
+   the port and the address are nhttpd's, which binds them, and the menu at the
+   box sets them there. Everything else here is the access file's
+   (HTTPD_ACCESS_FILE).
+
    An aggregate with no constructor, filled by defaultWebConfig below, so a value
    nobody filled in has no password anything verifies against and no network
    anything is admitted from. */
@@ -203,19 +208,15 @@ const WebConfig &config();
      channel_logos       off, which is the least a switch that shows something
                          can mean
      api_tokens          none, which is also what the key absent means
-     bind_address        a value nothing can bind, so the server does not start
-     port                the default, and this is the one exception
 
-   The port is the exception because a port is where the box answers and not who
-   may reach it. There is no least port, and a box that refused to start over a
-   mistyped port would be off the network for a reason that grants nobody
-   anything.
-
-   The bind address is the other shape of the same rule: its default is the
-   wildcard, wider than any line naming one interface, so it is never fallen back
-   to. A value that reads as an address but is not one this can use is carried
-   through as it stands and a value that cannot be recovered at all becomes
-   empty; start refuses both.
+   port and bind_address are not keys of this file any more. Where the server
+   answers is read out of server_path, nhttpd.conf on a box, the way nhttpd
+   reads it when it starts: its own defaults, and an empty address meaning every
+   interface. nhttpd binds what that file says whatever this makes of it, so a
+   rule of this file's own there would only tell a caller something nhttpd is
+   not doing. A line naming either key here is said and has no effect. An empty
+   server_path leaves nhttpd's defaults in effect; a file at it that cannot be
+   read does the same and says so.
 
    api_tokens is the one key whose value does not end up in the structure above. A
    token is a credential, so load hands it to the table a bearer header is
@@ -257,7 +258,7 @@ const WebConfig &config();
    A line naming something that can be taken for no key here is said and no more:
    refusing the file for one would make a working configuration unusable after an
    upgrade. */
-bool load(const std::string &path);
+bool load(const std::string &path, const std::string &server_path = std::string());
 
 /* The file the last load was asked for, and empty before anything asked for one.
 
@@ -273,8 +274,15 @@ bool load(const std::string &path);
    written before it starts. */
 const std::string &configPath();
 
+/* The file the last load read where the server answers out of, nhttpd.conf on a
+   box, and empty where it was handed none. A save writes the port and the address
+   there, and only there. */
+const std::string &serverPath();
+
 /* Installs a whole configuration, so a case can put a policy in front of the code
-   that reads one without a file to read. Nothing in the product calls it. */
+   that reads one without a file to read. The files the last load read are
+   forgotten with it, there being none behind this one: a save after it writes no
+   file a case before it left named. Nothing in the product calls it. */
 void setConfigForTest(const WebConfig &c);
 
 /* The account every login checks against: the name and the stored form of its
@@ -350,9 +358,12 @@ const std::vector<std::string> &configProblems();
    of those would write back eleven members having been asked about four, so every
    key the file names and the screen does not offer would come back out of
    whatever this program's default happened to be on the day. The save below
-   rewrites four lines of a file and leaves the rest alone. */
+   rewrites the lines it owns and leaves the rest alone. */
 struct WebSettings
 {
+	/* Where the server answers, which the save below writes into nhttpd.conf
+	   (serverPath) and not into the access file: nhttpd binds them, and the menu at
+	   the box sets them in that file too. */
 	int         port;
 	std::string bind_address;
 	std::string username;
@@ -373,25 +384,28 @@ struct WebSettings
 	std::string password;
 	bool        change_password;
 
-	/* Whether the pages show a picture beside a channel. The fifth line this save
-	   owns and the only one that does not decide where the server answers or who
-	   may tell it anything, which is why it is the one a caller can move without
-	   being locked out by getting it wrong. */
+	/* Whether the pages show a picture beside a channel. The one value here that
+	   does not decide where the server answers or who may tell it anything, which
+	   is why it is the one a caller can move without being locked out by getting
+	   it wrong. */
 	bool        channel_logos;
 
 	/* Whether the save rewrites the name and the password and nothing else, which
 	   is what a change to the account from the box or the old pages is. The port,
-	   the address and the logo switch are then left in the file as they stand, so
-	   such a change made while a REST save waits for its restart cannot write the
-	   values in effect back over the ones that save just wrote. */
+	   the address and the logo switch are then left as they stand and not even
+	   judged, so such a change made while a REST save waits for its restart cannot
+	   write the values in effect back over the ones that save just wrote. */
 	bool        account_only = false;
 };
 
 // The above as they stand in what is in effect, which is what a screen opens on.
-// The screen at the box offers four of them; the logo switch is a line the route
+// The screen at the box offers the account; the logo switch is a line the route
 // writes and that screen leaves where it found it. Between a save into the file the
 // server reads and the load that puts it in effect, what that save wrote: a writer
-// in that window starts from it and does not write back what it replaced.
+// in that window starts from it and does not write back what it replaced. The port
+// and the address are what nhttpd.conf says at the moment of asking, whatever is in
+// effect, because the menu at the box writes them there without passing through
+// this layer, and a writer starting from anything older would move them back.
 WebSettings currentWebSettings();
 
 /* What is in effect, whatever a save since wrote: what the consequences of a
@@ -407,31 +421,40 @@ bool newPasswordAwaitsLoad();
 bool restartAwaitsLoad();
 void armRestart();
 
-/* Writes the values above into path and leaves every other line of it where it
-   stands, comments included. A rewrite of the lines this owns and not a file
-   written out of a structure, for the reason WebSettings gives.
+/* Writes the values above: the name, a new password's stored form and the logo
+   switch into path, leaving every other line of it where it stands, comments
+   included; the port and the address into nhttpd.conf (serverPath), and only when
+   they differ from what that file says. A rewrite of the lines this owns and not a
+   file written out of a structure, for the reason WebSettings gives.
 
    WHAT COUNTS AS A LINE NAMING ONE OF THOSE KEYS IS THE QUESTION LOAD ASKS AND
-   NOT AN EXACT MATCH. A line spelled Port, a line with a space in front of the
-   separator and a line carrying a number sign anywhere are all lines load reads
-   as that key being named and unusable, and one of them left standing beside the
-   line written here would leave the file naming a port and the server running on
-   the default. So they are taken out, and so is a second line naming a key
-   already written, a file naming one key twice being read as whichever line came
-   last.
+   NOT AN EXACT MATCH. A line spelled Username, a line with a space in front of
+   the separator and a line carrying a number sign anywhere are all lines load
+   reads as that key being named and unusable, and one of them left standing
+   beside the line written here would leave the file naming one account and the
+   server checking against none. So they are taken out, and so is a second line
+   naming a key already written, a file naming one key twice being read as
+   whichever line came last. A line naming port or bind_address, which this file
+   no longer holds, is taken out too.
 
-   False and nothing written when a value cannot be used: a port outside 1 to
-   65535, an address that is not a literal of either family, an empty user name, a
-   name carrying a byte that does not read back as it was written, a password that
-   could not be hashed, and a path that names a link rather than a file. The link
-   is refused because what replaces the file is put in place by name, which would
-   replace the link and not what it points at.
+   False and nothing written when a value cannot be used: a port that changes to
+   one outside 1 to 65535, an address that changes to one nhttpd cannot listen on
+   as written (anything but a literal of the first family), a port or an address
+   that changes on a server never told which file holds them, an empty user name,
+   a name carrying a byte that does not read back as it was written, a password
+   that could not be hashed, and a path that names a link rather than a file. The
+   link is refused because what replaces the file is put in place by name, which
+   would replace the link and not what it points at.
 
    Nothing is half written. The new content goes to a name of its own, is
    committed there, and takes the place of path in one step. What this cannot
    promise, where writing a file that was not there can, is that nothing happened
    when it answers false: once the new file is in place there is no old one to go
    back to, so a failure after that point is said and answered true.
+
+   nhttpd.conf is written first, through nhttpd's own writer, and put back when
+   path then cannot be written, so a save answered false has not moved where the
+   next start answers.
 
    The file that replaces path is readable and writable by its owner and by nobody
    else, whatever the mode of the file it replaces.
@@ -441,7 +464,8 @@ void armRestart();
 bool saveWebSettings(const std::string &path, const WebSettings &s,
                      std::string *stored_hash = NULL);
 
-/* Reads path again and puts the running server on what it now says.
+/* Reads path and nhttpd.conf (serverPath) again and puts the running server on
+   what they now say.
 
    The daemon is stopped across the read and not around it, which is the
    arrangement config() above describes: a request thread reads what is in effect
@@ -449,13 +473,18 @@ bool saveWebSettings(const std::string &path, const WebSettings &s,
    that is bound.
 
    False when the file could not be read, and then nothing was replaced and the
-   server comes back up on what it was already running. False when the file was
-   read and the server did not come back up, and then the box answers nowhere.
-   That is said rather than hidden behind a daemon left on the old port. */
+   server comes back up on what it was already running. False when nothing came up
+   on a port or an address that changed: the server is then put back once on the
+   port and the address it answered on before, and nhttpd.conf with it, so the
+   next start does not repeat the failure. False when the server did not come
+   back up at all, and then the box answers nowhere. Each is said rather than
+   hidden. */
 bool reloadAndRestart(const std::string &path);
 
-/* Writes out_path from what nhttpd_conf holds. Carried across: the bind address,
-   the user name, and the password as the stored form credentials.h writes.
+/* Writes out_path from what nhttpd_conf holds. Carried across: the user name, and
+   the password as the stored form credentials.h writes. Where the server answers
+   is not carried: it stays in nhttpd_conf, which nhttpd goes on reading and which
+   load reads it out of as well.
 
    THE PASSWORD IS CARRIED WHATEVER THE SWITCH SAID AND WHATEVER THE VALUE IS.
 
@@ -479,14 +508,10 @@ bool reloadAndRestart(const std::string &path);
    and how to get back to the shipped one. The reader it is written for is whoever
    has just been refused a login and opened the file over a shell. Under that
    stands every key this reads, each with what it decides and with the default in
-   force the moment the file was written, and only the four above are written as
+   force the moment the file was written, and only the two above are written as
    lines: a default written out as a line freezes the defaults of the day into a
    box that will never see tomorrow's, and this format has no inert line to write
    one on, the parser reading anything that carries the separator as a setting.
-
-   The port is carried, because it is the number whoever upgrades already has
-   written down. A value in that line that is not a port leaves this server's own
-   default standing and is said out loud.
 
    Everything else in that file belongs to the other server or to its page
    templates and is left there, and two things are left behind on purpose: the
@@ -519,7 +544,7 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path);
 /* Leaves the box with a configuration file at out_path, run on every start.
 
    THE ONE OUTCOME THIS RULES OUT IS A BOX WITH NO FILE AND NO LOGIN. The call
-   above refuses in five places and the write under it in a sixth, and every one
+   above refuses in four places and the write under it in a fifth, and every one
    of them used to end at a box whose web interface had no credential at all: it
    answers reads from the private networks, refuses everything that changes
    anything, and says why only on a standard error nobody is reading. Two owners

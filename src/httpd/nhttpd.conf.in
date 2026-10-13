@@ -2,8 +2,8 @@
 # the one thing of that server's that had to stay behind.
 #
 # A box upgraded from an older image still has the file this template installed,
-# and the first start after the upgrade reads it for the address, the user name,
-# the password and the port that box was reached on. That reading is
+# and the first start after the upgrade reads it for the user name and the
+# password; every start reads it for the port and the address. That reading is
 # src/httpd/webconfig.cpp; what holds it to the real shape of the file is this
 # template, which the suite hands it in place of a transcription, so a line the
 # migration cannot carry is found here rather than on somebody's box.

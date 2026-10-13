@@ -3346,8 +3346,9 @@ TIMER_START();
 	 * file under its former name where there is one, taken over whole; else
 	 * the user name and the password out of nhttpd's own file where there is
 	 * one to carry, the password hashed rather than copied; and the login the
-	 * image ships otherwise. nhttpd stays the server and keeps its port, so
-	 * the file seeds the API layer's credentials and policy. */
+	 * image ships otherwise. nhttpd stays the server and its file keeps the
+	 * port and the address, so this one holds the API layer's credentials and
+	 * policy. */
 	if (httpd::ensureConfigFile(HTTPD_SERVER_FILE, HTTPD_ACCESS_FILE, HTTPD_ACCESS_FORMER_FILE))
 		printf("[neutrino] web server access configuration written to %s\n", HTTPD_ACCESS_FILE);
 
@@ -3356,8 +3357,10 @@ TIMER_START();
 	 * what it declares as its own defaults. A file that is there and
 	 * unreadable leaves the same defaults in effect and says so on the
 	 * standard error. Before the webserver thread, so no request is ever
-	 * answered against a configuration that is still being replaced. */
-	httpd::load(HTTPD_ACCESS_FILE);
+	 * answered against a configuration that is still being replaced. Where
+	 * the server answers is read out of nhttpd's file, the one nhttpd binds
+	 * from, so both layers start on the same port. */
+	httpd::load(HTTPD_ACCESS_FILE, HTTPD_SERVER_FILE);
 
 	/* The API layer's server seam gets its two hands before the first
 	 * request can ask for a restart: with them installed, a webserver

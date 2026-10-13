@@ -29,6 +29,7 @@
 #include "httpd/credentials.h"
 #include "httpd/netmatch.h"
 #include "httpd/server.h"
+#include "httpd/server_control.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -284,17 +285,23 @@ TEST_CASE("the port a box nobody ever configured answers on", "[webconf]")
 	REQUIRE(httpd::defaultWebConfig().server.port == 80);
 
 	/* And it is a default and not a value the load happens to leave standing:
-	   a file naming other keys and no port lands on it too. The port stays an
-	   ordinary key, so the line under this is what a box that names one gets,
+	   a box whose nhttpd.conf names no port lands on it too, and so does a box
+	   without that file, which is what nhttpd itself starts on. The port is
+	   nhttpd's key, so the line under this is what a box that names one gets,
 	   and nothing here nails the number down for a box that chose. */
-	Temp conf("conf");
+	Temp conf("conf"), server("server");
 	writeFile(conf.path(), "username=admin\n");
-	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::load(conf.path(), server.path()));
 	REQUIRE(httpd::config().server.port == 80);
 
-	writeFile(conf.path(), "port=8080\n");
-	REQUIRE(httpd::load(conf.path()));
+	writeFile(server.path(), "WebsiteMain.host=0.0.0.0\n");
+	REQUIRE(httpd::load(conf.path(), server.path()));
+	REQUIRE(httpd::config().server.port == 80);
+
+	writeFile(server.path(), "WebsiteMain.port=8080\n");
+	REQUIRE(httpd::load(conf.path(), server.path()));
 	REQUIRE(httpd::config().server.port == 8080);
+	REQUIRE(httpd::configProblems().empty());
 }
 
 TEST_CASE("every start that finds no configuration leaves one behind", "[webconf]")
@@ -470,8 +477,7 @@ TEST_CASE("a migration that is refused still leaves a login, and the file says w
 	Temp old("old"), out("out");
 
 	writeFile(old.path(),
-		  "WebsiteMain.host=www.example.invalid\n"
-		  "mod_auth.username=root\n"
+		  "mod_auth.username=root \n"
 		  "mod_auth.password=zwiebelfisch\n");
 
 	REQUIRE(httpd::ensureConfigFile(old.path(), out.path()));
@@ -479,8 +485,8 @@ TEST_CASE("a migration that is refused still leaves a login, and the file says w
 
 	const std::string written = readFile(out.path());
 	const std::string said = prose(written);
-	REQUIRE(said.find("WebsiteMain.host") != std::string::npos);
-	REQUIRE(said.find("is not an address") != std::string::npos);
+	REQUIRE(said.find("mod_auth.username") != std::string::npos);
+	REQUIRE(said.find("a space at one of its ends") != std::string::npos);
 	REQUIRE(said.find(old.path()) != std::string::npos);
 
 	/* The password that was not carried is not in the file either. A refusal
@@ -638,7 +644,7 @@ TEST_CASE("the first thing in a written file is the login", "[webconf]")
 	REQUIRE(said.find("over the network for a shell") != std::string::npos);
 }
 
-TEST_CASE("the migration carries host and user and hashes the password", "[webconf]")
+TEST_CASE("the migration carries the user and hashes the password", "[webconf]")
 {
 	Restore back;
 	Temp old("old"), out("out");
@@ -648,7 +654,6 @@ TEST_CASE("the migration carries host and user and hashes the password", "[webco
 	REQUIRE(httpd::load(out.path()));
 
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::config().server.bind_address == "0.0.0.0");
 
 	// The cleartext is gone and the hash answers for it.
 	REQUIRE(httpd::config().password_hash.compare(0, 14, "pbkdf2-sha256$") == 0);
@@ -784,94 +789,54 @@ TEST_CASE("the switch that turned authentication off is not carried over", "[web
 	REQUIRE(written.find("mod_auth.authenticate") != std::string::npos);
 }
 
-TEST_CASE("the migration takes the old port", "[webconf]")
+TEST_CASE("the migration leaves where the server answers in the old file", "[webconf]")
 {
-	/* Nothing is listening on it once this runs, and it is the number whoever
-	   upgrades already has in a bookmark. Written out rather than left to the
-	   default that happens to agree, so that a box which was moved elsewhere is
-	   carried by the same line as this one. */
-	Restore back;
-	Temp old("old"), out("out");
-
-	writeFile(old.path(), kShippedOldFile);
-	REQUIRE(httpd::migrateFrom(old.path(), out.path()));
-
-	REQUIRE(readFile(out.path()).find("port=80\n") != std::string::npos);
-
-	REQUIRE(httpd::load(out.path()));
-	REQUIRE(httpd::config().server.port == 80);
-}
-
-TEST_CASE("a box that moved its old port keeps the port it moved to", "[webconf]")
-{
-	/* The case the default cannot answer. Whoever put the old server on
-	   another number did it because eighty was taken or unreachable on their
-	   network, and handing them eighty back is the one outcome that is wrong
-	   for the box that said so out loud. */
+	/* The port and the address are nhttpd's, and nhttpd goes on reading them
+	   out of the file the account is carried from, as the menu at the box goes
+	   on writing them there. A copy in the new file would be a second place for
+	   one number, and the one that came back at the next restart. */
 	Restore back;
 	Temp old("old"), out("out");
 
 	writeFile(old.path(),
 		  "WebsiteMain.port=8080\n"
-		  "WebsiteMain.host=0.0.0.0\n"
+		  "WebsiteMain.host=192.168.1.2\n"
 		  "mod_auth.username=root\n"
 		  "mod_auth.password=ni\n");
 
 	REQUIRE(httpd::migrateFrom(old.path(), out.path()));
-	REQUIRE(readFile(out.path()).find("port=8080\n") != std::string::npos);
+	const std::string written = readFile(out.path());
+	REQUIRE_FALSE(anySettingMentions(written, "port="));
+	REQUIRE_FALSE(anySettingMentions(written, "bind_address="));
+	REQUIRE(readFile(old.path()).find("WebsiteMain.port=8080\n") != std::string::npos);
 
-	REQUIRE(httpd::load(out.path()));
+	REQUIRE(httpd::load(out.path(), old.path()));
 	REQUIRE(httpd::config().server.port == 8080);
+	REQUIRE(httpd::config().server.bind_address == "192.168.1.2");
 	REQUIRE(httpd::config().username == "root");
+	REQUIRE(httpd::configProblems().empty());
 }
 
-TEST_CASE("an old port that is not one leaves the default and says so", "[webconf]")
+TEST_CASE("an old port or address nobody could use does not stop the migration", "[webconf]")
 {
-	/* The same answer the load gives such a line, and for the same reason: a
-	   port is where the box answers and not who may reach it, so there is no
-	   least port to fall back to and nothing is granted by refusing. Refusing
-	   the whole migration over it would cost the credential beside it, which
-	   is what this call exists to carry. */
+	/* Neither is carried, so neither is judged: the account beside them is what
+	   this call exists to carry, and refusing it over a line nhttpd reads its
+	   own way would cost the login for nothing. */
 	Restore back;
 
-	const char *const bad[] = { "0", "65536", "eighty", "", "99999999999" };
-	for (size_t i = 0; i < sizeof(bad) / sizeof(bad[0]); ++i)
+	const char *const lines[] = { "WebsiteMain.port=eighty\n", "WebsiteMain.host=www.example.invalid\n",
+				      "WebsiteMain.port=8080 # the one we chose\n" };
+	for (size_t i = 0; i < sizeof(lines) / sizeof(lines[0]); ++i)
 	{
 		Temp old("old"), out("out");
-		writeFile(old.path(),
-			  std::string("WebsiteMain.port=") + bad[i] + "\n" +
-			  "mod_auth.username=root\n"
-			  "mod_auth.password=ni\n");
+		writeFile(old.path(), std::string(lines[i]) + "mod_auth.username=root\nmod_auth.password=ni\n");
 
-		INFO("old port value " << bad[i]);
+		INFO("old line " << lines[i]);
 		REQUIRE(httpd::migrateFrom(old.path(), out.path()));
-		REQUIRE(anyProblemMentions("WebsiteMain.port"));
-
+		REQUIRE_FALSE(anyProblemMentions("WebsiteMain"));
 		REQUIRE(httpd::load(out.path()));
-		REQUIRE(httpd::config().server.port == httpd::defaultConfig().port);
 		REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
 	}
-}
-
-TEST_CASE("an old port line cut short by a number sign is not half a port", "[webconf]")
-{
-	/* The parser keeps what came before the number sign, and what it keeps here
-	   ends in a space, so the value is not a number and the default stands. A
-	   reader that trimmed it would carry a port whose line nobody meant as
-	   one. */
-	Restore back;
-	Temp old("old"), out("out");
-
-	writeFile(old.path(),
-		  "WebsiteMain.port=8080 # the one we chose\n"
-		  "mod_auth.username=root\n"
-		  "mod_auth.password=ni\n");
-
-	REQUIRE(httpd::migrateFrom(old.path(), out.path()));
-	REQUIRE(anyProblemMentions("WebsiteMain.port"));
-
-	REQUIRE(httpd::load(out.path()));
-	REQUIRE(httpd::config().server.port == httpd::defaultConfig().port);
 }
 
 TEST_CASE("the migration does not carry the old page directory", "[webconf]")
@@ -1031,23 +996,6 @@ TEST_CASE("a password the old file does not carry is said out loud", "[webconf]"
 	REQUIRE_FALSE(httpd::verifySecret("ni", httpd::config().password_hash));
 }
 
-TEST_CASE("a host that is not an address stops the migration", "[webconf]")
-{
-	/* Dropping it would fall back to the wildcard, which answers a line naming
-	   one interface by listening on all of them. Nothing is written, and the
-	   box keeps the server it already has. */
-	Restore back;
-	Temp old("old"), out("out");
-
-	writeFile(old.path(), "WebsiteMain.host=www.example.invalid\nmod_auth.username=root\nmod_auth.password=ni\n");
-
-	REQUIRE_FALSE(httpd::migrateFrom(old.path(), out.path()));
-
-	struct stat st;
-	REQUIRE(stat(out.c_str(), &st) != 0);
-	REQUIRE(anyProblemMentions("WebsiteMain.host"));
-}
-
 TEST_CASE("a user name that would not read back stops the migration", "[webconf]")
 {
 	Restore back;
@@ -1136,7 +1084,6 @@ TEST_CASE("nothing the migration writes is read back as something else", "[webco
 
 	REQUIRE(httpd::load(out.path()));
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::config().server.port == 80);
 	REQUIRE(httpd::configProblems().empty());
 }
 
@@ -1145,14 +1092,14 @@ TEST_CASE("a prefix list in the file replaces the seeded one", "[webconf]")
 	Restore back;
 	Temp conf("conf");
 
-	writeFile(conf.path(), "lan_read=10.9.0.0/16\nport=9090\n");
+	writeFile(conf.path(), "lan_read=10.9.0.0/16\nsession_lifetime_s=9090\n");
 
 	REQUIRE(httpd::load(conf.path()));
 	REQUIRE(httpd::config().lan_read.size() == 1);
 	REQUIRE(httpd::addressInAnyPrefix("10.9.1.1", httpd::config().lan_read));
 	REQUIRE_FALSE(httpd::addressInAnyPrefix("192.168.1.1", httpd::config().lan_read));
 	REQUIRE_FALSE(httpd::addressInAnyPrefix("127.0.0.1", httpd::config().lan_read));
-	REQUIRE(httpd::config().server.port == 9090);
+	REQUIRE(httpd::config().session_lifetime_s == 9090);
 	REQUIRE(httpd::configProblems().empty());
 }
 
@@ -1233,14 +1180,14 @@ TEST_CASE("an entry that does not parse is dropped and said out loud", "[webconf
 	Restore back;
 	Temp conf("conf");
 
-	writeFile(conf.path(), "lan_read=10.9.0.0/16,not-a-prefix,192.168.0.0/16\nport=9091\n");
+	writeFile(conf.path(), "lan_read=10.9.0.0/16,not-a-prefix,192.168.0.0/16\nsession_lifetime_s=9091\n");
 
 	REQUIRE(httpd::load(conf.path()));
 
 	// Two and not three: a bad entry kept as a zero prefix matches nothing, so
 	// an address check alone cannot tell it from an entry that was dropped.
 	REQUIRE(httpd::config().lan_read.size() == 2);
-	REQUIRE(httpd::config().server.port == 9091);
+	REQUIRE(httpd::config().session_lifetime_s == 9091);
 
 	// And dropped loudly. Silence would make a mistyped network look exactly
 	// like a network the file never named.
@@ -1273,60 +1220,60 @@ TEST_CASE("a proxy list is read the same way and is empty when unwritten", "[web
 	REQUIRE(anyProblemMentions("trusted_proxies"));
 }
 
-TEST_CASE("a port that is not one keeps the default and is said out loud", "[webconf]")
+TEST_CASE("where the server answers is read out of nhttpd.conf as nhttpd reads it", "[webconf]")
 {
+	/* nhttpd binds what that file says whatever this layer makes of it, so the
+	   only reading worth having is nhttpd's own: its defaults where a line is
+	   missing, and every interface where the address is empty. Any other
+	   reading would answer a caller with a port nhttpd is not on. */
 	Restore back;
+	Temp conf("conf"), server("server");
+	writeFile(conf.path(), "username=root\n");
 
-	const char *const bad[] = { "0", "65536", "eighty", "80 ", "-1", "", "8081x", "9999999999" };
-	for (size_t i = 0; i < sizeof(bad) / sizeof(bad[0]); ++i)
-	{
-		Temp conf("conf");
-		writeFile(conf.path(), std::string("port=") + bad[i] + "\n");
-
-		REQUIRE(httpd::load(conf.path()));
-		INFO("port value " << bad[i]);
-		REQUIRE(httpd::config().server.port == httpd::defaultConfig().port);
-		REQUIRE(anyProblemMentions("port"));
-	}
-}
-
-TEST_CASE("a bind address that is not one is carried through unusable", "[webconf]")
-{
-	/* The one value that is not dropped when it does not read. Every other
-	   default admits less than a wrong value would; this one is the wildcard,
-	   so falling back to it answers a line naming one interface by listening on
-	   all of them. Kept, the call that binds refuses it. */
-	Restore back;
-	Temp conf("conf");
-
-	writeFile(conf.path(), "bind_address=localhost\n");
-
-	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.bind_address == "localhost");
-	REQUIRE(httpd::config().server.bind_address != "0.0.0.0");
-	REQUIRE(anyProblemMentions("bind_address"));
-
-	// Asked first, because a daemon another case left running would refuse the
-	// start below for a reason that has nothing to do with the address.
-	REQUIRE_FALSE(httpd::running());
-	REQUIRE_FALSE(httpd::start(httpd::config().server));
-	REQUIRE_FALSE(httpd::running());
-}
-
-TEST_CASE("a bind address that is one is taken in either family", "[webconf]")
-{
-	Restore back;
-	Temp v4("conf"), v6("conf");
-
-	writeFile(v4.path(), "bind_address=127.0.0.1\n");
-	REQUIRE(httpd::load(v4.path()));
+	writeFile(server.path(), "WebsiteMain.port=8081\nWebsiteMain.host=127.0.0.1\nmod_auth.username=x\n");
+	REQUIRE(httpd::load(conf.path(), server.path()));
+	REQUIRE(httpd::config().server.port == 8081);
 	REQUIRE(httpd::config().server.bind_address == "127.0.0.1");
+	REQUIRE(httpd::serverPath() == server.path());
 	REQUIRE(httpd::configProblems().empty());
 
-	writeFile(v6.path(), "bind_address=::1\n");
-	REQUIRE(httpd::load(v6.path()));
-	REQUIRE(httpd::config().server.bind_address == "::1");
-	REQUIRE(httpd::configProblems().empty());
+	writeFile(server.path(), "WebsiteMain.port=8082\nWebsiteMain.host=\n");
+	REQUIRE(httpd::load(conf.path(), server.path()));
+	REQUIRE(httpd::config().server.port == 8082);
+	REQUIRE(httpd::config().server.bind_address == "0.0.0.0");
+
+	// A file there that cannot be read leaves nhttpd's defaults, and says so.
+	::unlink(server.c_str());
+	REQUIRE(::mkdir(server.c_str(), 0700) == 0);
+	REQUIRE(httpd::load(conf.path(), server.path()));
+	REQUIRE(httpd::config().server.port == 80);
+	REQUIRE(httpd::config().server.bind_address == "0.0.0.0");
+	REQUIRE(anyProblemMentions("could not be read out of"));
+}
+
+TEST_CASE("a port or an address in this file has no effect and is said", "[webconf]")
+{
+	/* The two keys this file held before nhttpd.conf became the one place for
+	   them. A line naming one, however it is spelled and whatever it carries,
+	   is neither read nor taken for a key whose least meaning stands in for it:
+	   it is a line from before, and it goes at the next save. */
+	Restore back;
+	Temp conf("conf"), server("server");
+
+	writeFile(server.path(), "WebsiteMain.port=8081\nWebsiteMain.host=0.0.0.0\n");
+	writeFile(conf.path(),
+		  "port=9090\n"
+		  "Bind_Address = 127.0.0.1 # only from the box\n"
+		  "username=admin\n");
+
+	REQUIRE(httpd::load(conf.path(), server.path()));
+	REQUIRE(httpd::config().server.port == 8081);
+	REQUIRE(httpd::config().server.bind_address == "0.0.0.0");
+	REQUIRE(httpd::config().username == "admin");
+	REQUIRE(httpd::configProblems().size() == 2);
+	REQUIRE(anyProblemMentions("line 1 (port)"));
+	REQUIRE(anyProblemMentions("line 2 (bind_address)"));
+	REQUIRE(anyProblemMentions("no longer from this file"));
 }
 
 TEST_CASE("a text value that would not read back is dropped", "[webconf]")
@@ -1492,10 +1439,10 @@ TEST_CASE("a key the file does not carry keeps its default without a word", "[we
 	Restore back;
 	Temp conf("conf");
 
-	writeFile(conf.path(), "port=9000\n");
+	writeFile(conf.path(), "session_lifetime_s=9000\n");
 
 	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.port == 9000);
+	REQUIRE(httpd::config().session_lifetime_s == 9000);
 	REQUIRE(httpd::config().username == "root");
 	REQUIRE(httpd::config().lan_read.size() == 6);
 	REQUIRE(httpd::configProblems().empty());
@@ -1532,9 +1479,10 @@ TEST_CASE("the shipped old file migrates and loads", "[webconf]")
 
 	writeFile(old.path(), shipped);
 	REQUIRE(httpd::migrateFrom(old.path(), out.path()));
-	REQUIRE(httpd::load(out.path()));
+	REQUIRE(httpd::load(out.path(), old.path()));
 
 	REQUIRE(httpd::config().server.port == 80);
+	REQUIRE(httpd::config().server.bind_address == "0.0.0.0");
 	REQUIRE(httpd::config().username == "root");
 	/* Read out of the installed file rather than out of a copy of it here, so
 	   that an image which one day ships a different value is answered by this
@@ -1556,7 +1504,7 @@ TEST_CASE("a line cut short by a number sign is not read at all", "[webconf]")
 	Temp conf("conf");
 
 	writeFile(conf.path(),
-		  "port=9000\n"
+		  "session_lifetime_s=9000\n"
 		  "docroot=/var/my#dir\n"
 		  "lan_read=10.0.0.0/8\n");
 
@@ -1572,7 +1520,7 @@ TEST_CASE("a line cut short by a number sign is not read at all", "[webconf]")
 	REQUIRE_FALSE(anyProblemMentions("/var/my"));
 
 	// The lines around it still load.
-	REQUIRE(httpd::config().server.port == 9000);
+	REQUIRE(httpd::config().session_lifetime_s == 9000);
 	REQUIRE(httpd::config().lan_read.size() == 1);
 	REQUIRE(httpd::configProblems().size() == 2);
 }
@@ -1588,12 +1536,12 @@ TEST_CASE("a comment carrying a separator is read as neither and is said out lou
 	Temp conf("conf");
 
 	writeFile(conf.path(),
-		  "# the default port is port=80\n"
+		  "# the default lifetime is session_lifetime_s=86400\n"
 		  "# a comment with no separator is read as nothing and says nothing\n"
-		  "port=9000\n");
+		  "session_lifetime_s=9000\n");
 
 	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.port == 9000);
+	REQUIRE(httpd::config().session_lifetime_s == 9000);
 	REQUIRE(httpd::configProblems().size() == 1);
 	REQUIRE(anyProblemMentions("not read at all"));
 	REQUIRE(anyProblemMentions("line 1"));
@@ -1601,7 +1549,7 @@ TEST_CASE("a comment carrying a separator is read as neither and is said out lou
 	/* The key the parse stored for that line is most of the line, so naming it
 	   would name whatever the line held. Only a key this file knows is named,
 	   and the line number identifies the rest. */
-	REQUIRE_FALSE(anyProblemMentions("the default port is"));
+	REQUIRE_FALSE(anyProblemMentions("the default lifetime is"));
 }
 
 TEST_CASE("a value the parser keeps whole is not disturbed", "[webconf]")
@@ -1728,41 +1676,6 @@ TEST_CASE("a legacy switch cut short is off", "[webconf]")
 	REQUIRE(anyProblemMentions("legacy_enabled"));
 }
 
-TEST_CASE("a bind address cut short is one nothing can bind", "[webconf]")
-{
-	/* The default here is the wildcard, so this is the other shape of the same
-	   rule: a line naming one interface that cannot be read must not become
-	   every interface. */
-	Restore back;
-	Temp conf("conf");
-
-	writeFile(conf.path(), "bind_address=127.0.0.1 # only from the box itself\n");
-
-	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.bind_address != "0.0.0.0");
-	REQUIRE(anyProblemMentions("bind_address"));
-
-	REQUIRE_FALSE(httpd::running());
-	REQUIRE_FALSE(httpd::start(httpd::config().server));
-	REQUIRE_FALSE(httpd::running());
-}
-
-TEST_CASE("a port cut short keeps the default, which is the one exception", "[webconf]")
-{
-	/* A port is where the box answers and not who may reach it. There is no
-	   least port, and a box that refused to start over a mistyped one would be
-	   off the network for a reason that grants nobody anything. */
-	Restore back;
-	Temp conf("conf");
-
-	writeFile(conf.path(), "port=9090 # the one we chose\nusername=admin\n");
-
-	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.port == httpd::defaultConfig().port);
-	REQUIRE(httpd::config().username == "admin");
-	REQUIRE(anyProblemMentions("port"));
-}
-
 TEST_CASE("a stored form is never repeated in a complaint", "[webconf]")
 {
 	/* The list is public and both halves of it reach somewhere a person reads.
@@ -1794,10 +1707,10 @@ TEST_CASE("a value a message repeats cannot carry a byte that rewrites it", "[we
 	Restore back;
 	Temp conf("conf");
 
-	writeFile(conf.path(), std::string("port=8\x1b[31m1\nlan_read=10.0.0.0/8\x07x\n"));
+	writeFile(conf.path(), std::string("legacy_enabled=tr\x1b[31mue\nlan_read=10.0.0.0/8\x07x\n"));
 
 	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.port == httpd::defaultConfig().port);
+	REQUIRE_FALSE(httpd::config().legacy_enabled);
 
 	const std::vector<std::string> &p = httpd::configProblems();
 	REQUIRE(p.size() == 2);
@@ -1807,7 +1720,7 @@ TEST_CASE("a value a message repeats cannot carry a byte that rewrites it", "[we
 		REQUIRE(p[i].find('\x1b') == std::string::npos);
 		REQUIRE(p[i].find('\x07') == std::string::npos);
 	}
-	REQUIRE(anyProblemMentions("8?[31m1"));
+	REQUIRE(anyProblemMentions("tr?[31mue"));
 }
 
 TEST_CASE("a value a message repeats is cut short of a whole line", "[webconf]")
@@ -1816,36 +1729,13 @@ TEST_CASE("a value a message repeats is cut short of a whole line", "[webconf]")
 	Temp conf("conf");
 
 	const std::string huge(400, 'z');
-	writeFile(conf.path(), "port=" + huge + "\n");
+	writeFile(conf.path(), "legacy_enabled=" + huge + "\n");
 
 	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.port == httpd::defaultConfig().port);
+	REQUIRE_FALSE(httpd::config().legacy_enabled);
 	REQUIRE(httpd::configProblems().size() == 1);
 	REQUIRE(httpd::configProblems()[0].find(huge) == std::string::npos);
 	REQUIRE(httpd::configProblems()[0].size() < 200);
-}
-
-TEST_CASE("a bind address carrying a zero byte is refused by the binder too", "[webconf]")
-{
-	/* The value is compared as a C string where it is bound, and that reading
-	   ends at the first zero byte, so half of it would be bound as though it
-	   were the whole. This file refuses such a value, and the header says the
-	   call that binds refuses it as well; this is what makes that true. */
-	Restore back;
-	Temp conf("conf");
-
-	const char raw[] = "bind_address=127.0.0.1\0evil\nport=18081\n";
-	writeFile(conf.path(), std::string(raw, sizeof(raw) - 1));
-
-	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.bind_address.size() == 14);
-	REQUIRE(httpd::config().server.bind_address != "127.0.0.1");
-	REQUIRE(anyProblemMentions("bind_address"));
-
-	REQUIRE_FALSE(httpd::running());
-	REQUIRE_FALSE(httpd::start(httpd::config().server));
-	REQUIRE_FALSE(httpd::running());
-	REQUIRE(httpd::boundPort() != 18081);
 }
 
 TEST_CASE("the binder refuses a zero byte whoever handed it over", "[webconf]")
@@ -1936,10 +1826,10 @@ TEST_CASE("a migration whose value was cut short says which line did it", "[webc
 	Restore back;
 	Temp old("old"), out("out"), good("old"), good_out("out");
 
-	writeFile(old.path(), "WebsiteMain.host=192.168.1.1 # our LAN\nmod_auth.password=ni\n");
+	writeFile(old.path(), "mod_auth.username=root # the admin\nmod_auth.password=ni\n");
 	REQUIRE_FALSE(httpd::migrateFrom(old.path(), out.path()));
 	REQUIRE(anyProblemMentions("number sign"));
-	REQUIRE(anyProblemMentions("WebsiteMain.host"));
+	REQUIRE(anyProblemMentions("mod_auth.username"));
 
 	struct stat st;
 	REQUIRE(stat(out.c_str(), &st) != 0);
@@ -2029,18 +1919,10 @@ TEST_CASE("space around a name does not make the key absent", "[webconf]")
 	}
 }
 
-TEST_CASE("space around a name reaches the other two keys the same way", "[webconf]")
+TEST_CASE("space around a name reaches the other keys the same way", "[webconf]")
 {
 	Restore back;
-	Temp bind("conf"), life("conf");
-
-	writeFile(bind.path(), "bind_address = 127.0.0.1\n");
-	REQUIRE(httpd::load(bind.path()));
-	REQUIRE(httpd::config().server.bind_address != "0.0.0.0");
-	REQUIRE(anyProblemMentions("bind_address"));
-	REQUIRE_FALSE(httpd::running());
-	REQUIRE_FALSE(httpd::start(httpd::config().server));
-	REQUIRE_FALSE(httpd::running());
+	Temp life("conf");
 
 	writeFile(life.path(), "session_lifetime_s = 300\n");
 	REQUIRE(httpd::load(life.path()));
@@ -2071,7 +1953,7 @@ TEST_CASE("a name differing only in case is the key it can only mean", "[webconf
 	   written to narrow the exemption and a policy of six seeded networks. Where
 	   the intent is unmistakable the safe reading of it is the narrow one. */
 	Restore back;
-	Temp lan("conf"), bind("conf"), life("conf");
+	Temp lan("conf"), life("conf");
 
 	writeFile(lan.path(), "LAN_READ=10.9.0.0/16\n");
 	REQUIRE(httpd::load(lan.path()));
@@ -2083,15 +1965,7 @@ TEST_CASE("a name differing only in case is the key it can only mean", "[webconf
 	REQUIRE(anyProblemMentions("line 1"));
 
 	// Case and space at once, which is the shape a person actually types.
-	writeFile(bind.path(), "Bind_Address = 127.0.0.1\n");
-	REQUIRE(httpd::load(bind.path()));
-	REQUIRE(httpd::config().server.bind_address != "0.0.0.0");
-	REQUIRE(anyProblemMentions("bind_address"));
-	REQUIRE_FALSE(httpd::running());
-	REQUIRE_FALSE(httpd::start(httpd::config().server));
-	REQUIRE_FALSE(httpd::running());
-
-	writeFile(life.path(), "SESSION_LIFETIME_S=300\n");
+	writeFile(life.path(), "Session_Lifetime_S = 300\n");
 	REQUIRE(httpd::load(life.path()));
 	REQUIRE(httpd::config().session_lifetime_s == 60);
 	REQUIRE(httpd::config().session_lifetime_s != 86400);
@@ -2107,11 +1981,11 @@ TEST_CASE("a name this cannot take for any key is said and no more", "[webconf]"
 	Restore back;
 	Temp conf("conf");
 
-	writeFile(conf.path(), "listen_port=9090\nlan-read=10.9.0.0/16\nport=9000\n");
+	writeFile(conf.path(), "listen_port=9090\nlan-read=10.9.0.0/16\nsession_lifetime_s=9000\n");
 
 	// Read, not refused, and every line it does know still takes effect.
 	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.port == 9000);
+	REQUIRE(httpd::config().session_lifetime_s == 9000);
 
 	REQUIRE(httpd::configProblems().size() == 2);
 	REQUIRE(anyProblemMentions("listen_port"));
@@ -2145,8 +2019,6 @@ TEST_CASE("a name written exactly says nothing about itself", "[webconf]")
 	writeFile(conf.path(),
 		  "# a comment with no separator in it\n"
 		  "\n"
-		  "port=9000\n"
-		  "bind_address=127.0.0.1\n"
 		  "username=admin\n"
 		  "lan_read=10.9.0.0/16\n"
 		  "trusted_proxies=10.0.0.1/32\n"
@@ -2157,8 +2029,6 @@ TEST_CASE("a name written exactly says nothing about itself", "[webconf]")
 
 	REQUIRE(httpd::load(conf.path()));
 	REQUIRE(httpd::configProblems().empty());
-	REQUIRE(httpd::config().server.port == 9000);
-	REQUIRE(httpd::config().server.bind_address == "127.0.0.1");
 	REQUIRE(httpd::config().username == "admin");
 	REQUIRE(httpd::config().lan_read.size() == 1);
 	REQUIRE(httpd::config().trusted_proxies.size() == 1);
@@ -2417,7 +2287,7 @@ TEST_CASE("a file that names no tokens says nothing about them", "[webconf]")
 	Tokens held;
 	Temp f("tokennone");
 
-	writeFile(f.path(), "port=8081\n");
+	writeFile(f.path(), "username=root\n");
 	REQUIRE(httpd::load(f.path()));
 
 	REQUIRE(httpd::configProblems().empty());
@@ -2481,19 +2351,26 @@ namespace
 {
 
 /* A file of the shape a box really carries: the head the migration writes, the
-   four keys a screen at the box owns, and two lines belonging to nobody the
-   screen offers. What a save has to do with the last three is nothing. */
+   account a screen at the box owns, and two lines belonging to nobody the screen
+   offers. What a save has to do with the last two is nothing. */
 const char kFileOnABox[] =
 	"# nhttpd access configuration.\n"
 	"#\n"
 	"# This box has no password, because the file this was written from carried\n"
 	"# none.\n"
-	"port=8081\n"
-	"bind_address=0.0.0.0\n"
 	"username=root\n"
 	"password_hash=\n"
 	"lan_read=10.0.0.0/8\n"
 	"legacy_enabled=false\n";
+
+/* nhttpd.conf as a box carries it: where the server answers, and lines of
+   nhttpd's own that a save has no business with. */
+const char kServerFileOnABox[] =
+	"WebsiteMain.host=0.0.0.0\n"
+	"WebsiteMain.port=8081\n"
+	"configfile.version=5\n"
+	"mod_auth.username=root\n"
+	"webserver.threading=true\n";
 
 httpd::WebSettings settingsOf(int port, const std::string &bind, const std::string &user)
 {
@@ -2530,52 +2407,143 @@ size_t linesNaming(const std::string &text, const std::string &key)
 	return found;
 }
 
-// A port nothing else holds, found the way the server's own cases find one and
-// given up again before it is written into a file.
-int freePort()
+/* Both files of a box, read the way the program reads them on the way up, so a
+   save knows which nhttpd.conf is the one it writes the port into. */
+struct Box
 {
-	const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-	REQUIRE(fd >= 0);
+	Temp conf;
+	Temp server;
 
-	struct sockaddr_in addr;
-	std::memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = 0;
-	REQUIRE(::inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) == 1);
-	REQUIRE(::bind(fd, (const struct sockaddr *) &addr, sizeof(addr)) == 0);
-
-	struct sockaddr_in bound;
-	socklen_t bound_len = sizeof(bound);
-	std::memset(&bound, 0, sizeof(bound));
-	REQUIRE(::getsockname(fd, (struct sockaddr *) &bound, &bound_len) == 0);
-	const int port = (int) ntohs(bound.sin_port);
-	::close(fd);
-
-	REQUIRE(port > 0);
-	return port;
-}
-
-// A daemon left running would refuse the next case's start for a reason that
-// case is not about.
-struct StopServer
-{
-	~StopServer() { httpd::stop(); }
+	Box(const char *tag, const std::string &conf_text = kFileOnABox,
+	    const std::string &server_text = kServerFileOnABox)
+		: conf(tag), server("server")
+	{
+		writeFile(conf.path(), conf_text);
+		writeFile(server.path(), server_text);
+		REQUIRE(httpd::load(conf.path(), server.path()));
+	}
 };
+
+/* The two hands the program installs for nhttpd, stood in for so a restart can
+   be followed without a server. Like nhttpd, a start binds what nhttpd.conf says
+   and not what it was handed, and answers that port as the one bound, or nought
+   for the one port a case says nothing comes up on. */
+struct FakeServer
+{
+	static int refused;
+	static int last_port;
+	static std::string last_bind;
+
+	static std::string onDisk(const char *key, const std::string &otherwise)
+	{
+		const std::string text = readFile(httpd::serverPath());
+		const std::string wanted = std::string(key) + "=";
+		std::istringstream lines(text);
+		std::string line;
+		while (std::getline(lines, line))
+		{
+			if (line.compare(0, wanted.size(), wanted) == 0)
+				return line.substr(wanted.size());
+		}
+		return otherwise;
+	}
+
+	static int start(int, const char *)
+	{
+		const int port = std::atoi(onDisk("WebsiteMain.port", "80").c_str());
+		if (port == refused)
+			return 0;
+		last_port = port;
+		last_bind = onDisk("WebsiteMain.host", "0.0.0.0");
+		return port;
+	}
+
+	static bool stop() { return true; }
+
+	FakeServer()
+	{
+		refused = -1;
+		last_port = 0;
+		last_bind.clear();
+		httpd::installNhttpdServerControl(&start, &stop);
+	}
+
+	~FakeServer()
+	{
+		httpd::stop();
+		httpd::installNhttpdServerControl(0, 0);
+	}
+};
+
+int FakeServer::refused = -1;
+int FakeServer::last_port = 0;
+std::string FakeServer::last_bind;
 
 } // namespace
 
-TEST_CASE("a save writes the keys it owns and load reads them back", "[webconf]")
+TEST_CASE("a save writes the account here and the port into nhttpd.conf", "[webconf]")
 {
 	Restore back;
-	Temp conf("save");
+	Box box("save");
 
-	writeFile(conf.path(), kFileOnABox);
-	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "127.0.0.1", "somebody")));
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "127.0.0.1", "somebody")));
 
-	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::load(box.conf.path(), box.server.path()));
 	REQUIRE(httpd::config().server.port == 9099);
 	REQUIRE(httpd::config().server.bind_address == "127.0.0.1");
 	REQUIRE(httpd::config().username == "somebody");
+
+	// Each where it belongs, and nhttpd's own lines left as nhttpd wrote them.
+	const std::string conf = readFile(box.conf.path());
+	REQUIRE(linesNaming(conf, "port") == 0);
+	REQUIRE(linesNaming(conf, "bind_address") == 0);
+	const std::string server = readFile(box.server.path());
+	REQUIRE(fileHasLine(server, "WebsiteMain.port=9099"));
+	REQUIRE(fileHasLine(server, "WebsiteMain.host=127.0.0.1"));
+	REQUIRE(fileHasLine(server, "configfile.version=5"));
+	REQUIRE(fileHasLine(server, "webserver.threading=true"));
+	REQUIRE(fileHasLine(server, "mod_auth.username=root"));
+}
+
+TEST_CASE("a save that leaves the port and the address alone does not touch nhttpd.conf", "[webconf]")
+{
+	/* That file is nhttpd's and the menu's. A save of the account or of the logo
+	   switch has no business rewriting it, and none judging a line in it this
+	   would not have written but nhttpd reads its own way. */
+	Restore back;
+	Box box("untouched", kFileOnABox,
+		"WebsiteMain.host=box.lan\nWebsiteMain.port=8081\n# kept as it is\n");
+
+	httpd::WebSettings s = httpd::currentWebSettings();
+	REQUIRE(s.bind_address == "box.lan");
+	s.username = "somebody";
+	s.channel_logos = false;
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), s));
+	REQUIRE(readFile(box.server.path()) == "WebsiteMain.host=box.lan\nWebsiteMain.port=8081\n# kept as it is\n");
+
+	// The account alone judges neither, whatever it was handed for them.
+	httpd::WebSettings account = settingsOf(0, "not an address", "another");
+	account.account_only = true;
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), account));
+	REQUIRE(readFile(box.server.path()) == "WebsiteMain.host=box.lan\nWebsiteMain.port=8081\n# kept as it is\n");
+}
+
+TEST_CASE("where to start from is what nhttpd.conf says now", "[webconf]")
+{
+	/* The menu at the box writes that file without passing through this layer.
+	   A writer starting from what is in effect would put back the port the menu
+	   just moved, which is how a port changed there used to come back. */
+	Restore back;
+	Box box("menu");
+
+	writeFile(box.server.path(), "WebsiteMain.host=0.0.0.0\nWebsiteMain.port=8090\nconfigfile.version=5\n");
+	REQUIRE(httpd::config().server.port == 8081);
+	REQUIRE(httpd::currentWebSettings().port == 8090);
+
+	httpd::WebSettings s = httpd::currentWebSettings();
+	s.username = "somebody";
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), s));
+	REQUIRE(fileHasLine(readFile(box.server.path()), "WebsiteMain.port=8090"));
 }
 
 TEST_CASE("a save leaves every line it does not own where it stands", "[webconf]")
@@ -2585,12 +2553,11 @@ TEST_CASE("a save leaves every line it does not own where it stands", "[webconf]
 	   is written once, by the migration, and dropping it silently is a loss
 	   nothing in this program would ever report. */
 	Restore back;
-	Temp conf("keep");
+	Box box("keep");
 
-	writeFile(conf.path(), kFileOnABox);
-	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "127.0.0.1", "somebody")));
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "127.0.0.1", "somebody")));
 
-	const std::string after = readFile(conf.path());
+	const std::string after = readFile(box.conf.path());
 	REQUIRE(fileHasLine(after, "# nhttpd access configuration."));
 	REQUIRE(fileHasLine(after, "# This box has no password, because the file this was written from carried"));
 	REQUIRE(fileHasLine(after, "# none."));
@@ -2599,7 +2566,7 @@ TEST_CASE("a save leaves every line it does not own where it stands", "[webconf]
 
 	// And the settings that are not the screen's keep their meaning, which is
 	// the reason the lines were kept rather than the look of the file.
-	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::load(box.conf.path()));
 	REQUIRE_FALSE(httpd::config().legacy_enabled);
 	REQUIRE(httpd::config().lan_read.size() == 1);
 }
@@ -2610,15 +2577,13 @@ TEST_CASE("a save that was not asked about the password leaves the stored one", 
 	   because there is nothing to show in it. A save that read that field as a
 	   password would take the password off the box. */
 	Restore back;
-	Temp conf("keeppass");
-
 	const std::string stored = httpd::hashSecret("the-one-on-the-box");
 	REQUIRE_FALSE(stored.empty());
-	writeFile(conf.path(), "port=8081\npassword_hash=" + stored + "\n");
+	Box box("keeppass", "username=root\npassword_hash=" + stored + "\n");
 
-	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "root")));
 
-	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::load(box.conf.path()));
 	REQUIRE(httpd::config().password_hash == stored);
 	REQUIRE(httpd::verifySecret("the-one-on-the-box", httpd::config().password_hash));
 }
@@ -2630,7 +2595,7 @@ TEST_CASE("a password typed at the box is written as a stored form", "[webconf]"
 
 	writeFile(conf.path(), kFileOnABox);
 
-	httpd::WebSettings s = settingsOf(8081, "0.0.0.0", "root");
+	httpd::WebSettings s = settingsOf(80, "0.0.0.0", "root");
 	s.change_password = true;
 	s.password = "not-the-shipped-one";
 	REQUIRE(httpd::saveWebSettings(conf.path(), s));
@@ -2647,9 +2612,11 @@ TEST_CASE("a password typed at the box is written as a stored form", "[webconf]"
 
 TEST_CASE("a line naming a key another way does not survive a save", "[webconf]")
 {
-	/* Left standing, either of these would leave the file naming a port and the
-	   server running on the default, because load counts a name it can take for
-	   a key as that key being named and unusable whatever else the file says. */
+	/* Left standing, the name would leave the file naming one account and the
+	   server checking against none, because load counts a name it can take for a
+	   key as that key being named and unusable whatever else the file says. The
+	   port and the address lines of a file from before go with it, however
+	   they are spelled. */
 	Restore back;
 	Temp conf("otherspelling");
 
@@ -2658,12 +2625,13 @@ TEST_CASE("a line naming a key another way does not survive a save", "[webconf]"
 		  " username = somebody\n"
 		  "bind_address=127.0.0.1 # only from the box itself\n");
 
-	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(80, "0.0.0.0", "root")));
 
+	const std::string after = readFile(conf.path());
+	REQUIRE(after.find("Port") == std::string::npos);
+	REQUIRE(after.find("bind_address") == std::string::npos);
 	REQUIRE(httpd::load(conf.path()));
 	REQUIRE(httpd::configProblems().empty());
-	REQUIRE(httpd::config().server.port == 9099);
-	REQUIRE(httpd::config().server.bind_address == "0.0.0.0");
 	REQUIRE(httpd::config().username == "root");
 }
 
@@ -2674,57 +2642,93 @@ TEST_CASE("a key the file named twice is one line after a save", "[webconf]")
 	Restore back;
 	Temp conf("twice");
 
-	writeFile(conf.path(), "port=8081\nlan_read=10.0.0.0/8\nport=8082\n");
-	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+	writeFile(conf.path(), "username=one\nlan_read=10.0.0.0/8\nusername=two\n");
+	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(80, "0.0.0.0", "root")));
 
 	const std::string after = readFile(conf.path());
-	REQUIRE(linesNaming(after, "port") == 1);
-	REQUIRE(fileHasLine(after, "port=9099"));
+	REQUIRE(linesNaming(after, "username") == 1);
+	REQUIRE(fileHasLine(after, "username=root"));
 	REQUIRE(fileHasLine(after, "lan_read=10.0.0.0/8"));
 }
 
-TEST_CASE("a value that cannot be used leaves the file exactly as it was", "[webconf]")
+TEST_CASE("a value that cannot be used leaves both files exactly as they were", "[webconf]")
 {
 	Restore back;
 
 	SECTION("a port outside the range the protocol has")
 	{
-		Temp conf("badport");
-		writeFile(conf.path(), kFileOnABox);
-
-		REQUIRE_FALSE(httpd::saveWebSettings(conf.path(), settingsOf(0, "0.0.0.0", "root")));
-		REQUIRE(readFile(conf.path()) == kFileOnABox);
-		REQUIRE(anyProblemMentions("port"));
+		Box box("badport");
+		REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), settingsOf(0, "0.0.0.0", "root")));
+		REQUIRE(readFile(box.conf.path()) == kFileOnABox);
+		REQUIRE(readFile(box.server.path()) == kServerFileOnABox);
+		REQUIRE(anyProblemMentions("WebsiteMain.port"));
 	}
 
-	SECTION("an address that is not one")
+	SECTION("an address that is not one nhttpd listens on as written")
 	{
-		Temp conf("badaddr");
-		writeFile(conf.path(), kFileOnABox);
+		const char *const bad[] = { "localhost", "::1", "0.0.0.0 ", "" };
+		for (size_t i = 0; i < sizeof(bad) / sizeof(bad[0]); ++i)
+		{
+			Box box("badaddr");
+			INFO("address " << bad[i]);
+			REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), settingsOf(8081, bad[i], "root")));
+			REQUIRE(readFile(box.conf.path()) == kFileOnABox);
+			REQUIRE(readFile(box.server.path()) == kServerFileOnABox);
+			REQUIRE(anyProblemMentions("WebsiteMain.host"));
+		}
+	}
 
-		REQUIRE_FALSE(httpd::saveWebSettings(conf.path(), settingsOf(8081, "localhost", "root")));
+	SECTION("a port that changes on a server never told which file holds it")
+	{
+		Temp conf("noserver");
+		writeFile(conf.path(), kFileOnABox);
+		REQUIRE(httpd::load(conf.path()));
+		REQUIRE_FALSE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "0.0.0.0", "root")));
 		REQUIRE(readFile(conf.path()) == kFileOnABox);
-		REQUIRE(anyProblemMentions("bind_address"));
+		REQUIRE(anyProblemMentions("never told which file"));
 	}
 
 	SECTION("a name nothing answers to")
 	{
-		Temp conf("badname");
-		writeFile(conf.path(), kFileOnABox);
-
-		REQUIRE_FALSE(httpd::saveWebSettings(conf.path(), settingsOf(8081, "0.0.0.0", "")));
-		REQUIRE(readFile(conf.path()) == kFileOnABox);
+		Box box("badname");
+		REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "")));
+		REQUIRE(readFile(box.conf.path()) == kFileOnABox);
+		REQUIRE(readFile(box.server.path()) == kServerFileOnABox);
 		REQUIRE(anyProblemMentions("username"));
 	}
 
 	SECTION("a name carrying a byte that does not read back as it was written")
 	{
-		Temp conf("cutname");
-		writeFile(conf.path(), kFileOnABox);
-
-		REQUIRE_FALSE(httpd::saveWebSettings(conf.path(), settingsOf(8081, "0.0.0.0", "some#body")));
-		REQUIRE(readFile(conf.path()) == kFileOnABox);
+		Box box("cutname");
+		REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "some#body")));
+		REQUIRE(readFile(box.conf.path()) == kFileOnABox);
+		REQUIRE(readFile(box.server.path()) == kServerFileOnABox);
 		REQUIRE(anyProblemMentions("username"));
+	}
+
+	SECTION("an access file that cannot be written puts nhttpd.conf back")
+	{
+		/* nhttpd.conf is written first, so a save refused after it would leave
+		   the next start on a port the caller was told was not saved. */
+		Box box("unwritable");
+		// The name the new content is written under before it takes the old
+		// one's place, taken by something no file can be created over.
+		const std::string working = box.conf.path() + ".new";
+		REQUIRE(::mkdir(working.c_str(), 0700) == 0);
+		REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+		::rmdir(working.c_str());
+		REQUIRE(readFile(box.conf.path()) == kFileOnABox);
+		REQUIRE(fileHasLine(readFile(box.server.path()), "WebsiteMain.port=8081"));
+	}
+
+	SECTION("an nhttpd.conf that is not there is not made up out of two lines")
+	{
+		Box box("noserverfile");
+		::unlink(box.server.c_str());
+		REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+		REQUIRE(readFile(box.conf.path()) == kFileOnABox);
+		struct stat st;
+		REQUIRE(::lstat(box.server.c_str(), &st) != 0);
 	}
 }
 
@@ -2735,11 +2739,11 @@ TEST_CASE("a box with no file gets one only its owner can read", "[webconf]")
 	Restore back;
 	Temp conf("fresh");
 
-	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(80, "0.0.0.0", "root")));
 	REQUIRE(modeOf(conf.path()) == (S_IRUSR | S_IWUSR));
 
 	REQUIRE(httpd::load(conf.path()));
-	REQUIRE(httpd::config().server.port == 9099);
+	REQUIRE(httpd::config().username == "root");
 	REQUIRE(httpd::configProblems().empty());
 }
 
@@ -2754,39 +2758,70 @@ TEST_CASE("a save is refused on a name that is a link", "[webconf]")
 	writeFile(real.path(), kFileOnABox);
 	REQUIRE(::symlink(real.c_str(), link.c_str()) == 0);
 
-	REQUIRE_FALSE(httpd::saveWebSettings(link.path(), settingsOf(9099, "0.0.0.0", "root")));
+	REQUIRE_FALSE(httpd::saveWebSettings(link.path(), settingsOf(80, "0.0.0.0", "root")));
 	REQUIRE(readFile(real.path()) == kFileOnABox);
 	REQUIRE(anyProblemMentions("is a link"));
 
 	::unlink(link.c_str());
 }
 
-TEST_CASE("the server comes back up on the port the file now names", "[webconf]")
+TEST_CASE("the server comes back up on the port nhttpd.conf now names", "[webconf]")
 {
 	/* The property the screen at the box exists for. A save that reached the
 	   file and a daemon still answering on the port before it is a box whose
 	   file and whose socket say two different things. */
 	Restore back;
-	StopServer done;
-	Temp conf("restart");
+	Box box("restart");
+	FakeServer server;
 
-	const int first = freePort();
-	writeFile(conf.path(), "bind_address=127.0.0.1\nlan_read=127.0.0.0/8\n");
-
-	httpd::WebSettings s = settingsOf(first, "127.0.0.1", "root");
-	REQUIRE(httpd::saveWebSettings(conf.path(), s));
-	REQUIRE(httpd::reloadAndRestart(conf.path()));
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "127.0.0.1", "root")));
+	REQUIRE(httpd::reloadAndRestart(box.conf.path()));
 	REQUIRE(httpd::running());
-	REQUIRE(httpd::boundPort() == first);
+	REQUIRE(httpd::boundPort() == 9099);
+	REQUIRE(FakeServer::last_bind == "127.0.0.1");
+	REQUIRE(httpd::config().server.port == 9099);
+}
 
-	const int second = freePort();
-	REQUIRE(second != first);
-	s.port = second;
-	REQUIRE(httpd::saveWebSettings(conf.path(), s));
-	REQUIRE(httpd::reloadAndRestart(conf.path()));
+TEST_CASE("nothing on a new port puts the server back where it was, and nhttpd.conf with it", "[webconf]")
+{
+	/* Usually something else holds the port. A box answering where it used to
+	   beats one answering nowhere until somebody edits a file, and a file still
+	   naming the port nothing came up on would repeat the failure at the next
+	   start. */
+	Restore back;
+	Box box("goback");
+	FakeServer server;
+	FakeServer::refused = 9099;
+
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+	REQUIRE_FALSE(httpd::reloadAndRestart(box.conf.path()));
 	REQUIRE(httpd::running());
-	REQUIRE(httpd::boundPort() == second);
-	REQUIRE(httpd::config().server.port == second);
+	REQUIRE(httpd::boundPort() == 8081);
+	REQUIRE(httpd::config().server.port == 8081);
+	REQUIRE(fileHasLine(readFile(box.server.path()), "WebsiteMain.port=8081"));
+	REQUIRE(anyProblemMentions("goes back to port 8081"));
+}
+
+TEST_CASE("a taken port is gone back from even where the access file cannot be read again", "[webconf]")
+{
+	/* nhttpd binds what nhttpd.conf says whatever the access file came to, so a
+	   new port written there and an access file nobody can read at the restart
+	   is a start on the new port: the going back has to know that, or it takes
+	   the new port for the old one and leaves the box answering nowhere. */
+	Restore back;
+	Box box("unreadable");
+	FakeServer server;
+	FakeServer::refused = 9099;
+
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+	::unlink(box.conf.c_str());
+	REQUIRE(::mkdir(box.conf.c_str(), 0700) == 0);
+
+	REQUIRE_FALSE(httpd::reloadAndRestart(box.conf.path()));
+	REQUIRE(httpd::running());
+	REQUIRE(httpd::boundPort() == 8081);
+	REQUIRE(fileHasLine(readFile(box.server.path()), "WebsiteMain.port=8081"));
+	REQUIRE(anyProblemMentions("goes back to port 8081"));
 }
 
 TEST_CASE("a reload that cannot read the file leaves the server on what it had", "[webconf]")
@@ -2794,19 +2829,16 @@ TEST_CASE("a reload that cannot read the file leaves the server on what it had",
 	/* A file somebody deleted is not a reason to take the box off the network,
 	   and it is not a reason to say nothing either. */
 	Restore back;
-	StopServer done;
-	Temp conf("reloadgone");
+	Box box("reloadgone");
+	FakeServer server;
 
-	const int port = freePort();
-	writeFile(conf.path(), "bind_address=127.0.0.1\n");
-	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(port, "127.0.0.1", "root")));
-	REQUIRE(httpd::reloadAndRestart(conf.path()));
-	REQUIRE(httpd::boundPort() == port);
+	REQUIRE(httpd::reloadAndRestart(box.conf.path()));
+	REQUIRE(httpd::boundPort() == 8081);
 
-	::unlink(conf.c_str());
-	REQUIRE_FALSE(httpd::reloadAndRestart(conf.path()));
+	::unlink(box.conf.c_str());
+	REQUIRE_FALSE(httpd::reloadAndRestart(box.conf.path()));
 
 	REQUIRE(httpd::running());
-	REQUIRE(httpd::boundPort() == port);
+	REQUIRE(httpd::boundPort() == 8081);
 	REQUIRE(anyProblemMentions("could not be read again"));
 }

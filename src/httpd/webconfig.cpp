@@ -59,8 +59,6 @@ namespace
 /* The keys this file knows, all of them flat. The old file grouped them under
    the name of a website and of a module, which was how one process served
    several sites; this one serves the box it runs on. */
-const char kKeyPort[]            = "port";
-const char kKeyBind[]            = "bind_address";
 const char kKeyUser[]            = "username";
 const char kKeyHash[]            = "password_hash";
 const char kKeyLanRead[]         = "lan_read";
@@ -76,14 +74,26 @@ const char kKeyApiTokens[]       = "api_tokens";
 // A key out of a file is text somebody else wrote; one of these is not.
 const char *const kKnownKeys[] =
 {
-	kKeyPort, kKeyBind, kKeyUser, kKeyHash, kKeyLanRead,
+	kKeyUser, kKeyHash, kKeyLanRead,
 	kKeyTrustedProxies, kKeyDocroot, kKeySessionLifetime,
 	kKeySseMaxStreams, kKeyLegacy, kKeyLogos, kKeyApiTokens
 };
 
-// What the old file calls the same things, where it has them at all.
-const char kOldHost[]     = "WebsiteMain.host";
-const char kOldPort[]     = "WebsiteMain.port";
+/* Two keys this file held once and holds no longer. Where the server answers
+   is nhttpd.conf's: the menu at the box and nhttpd itself read and write it
+   there, and a second copy here is how a port moved in one place came back
+   from the other at the next restart. A line naming either is said, has no
+   effect, and goes at the next save. */
+const char *const kRetiredKeys[] = { "port", "bind_address" };
+
+/* Where the server answers, in nhttpd's own file and under nhttpd's own names.
+   Read the way nhttpd reads them (yhttpd.cpp, ReadConfig) and written the way
+   the menu at the box writes them (gui/nhttpd_setup.cpp), so the three never
+   disagree about what the file says. */
+const char kServerPort[] = "WebsiteMain.port";
+const char kServerHost[] = "WebsiteMain.host";
+
+// What the old file calls the account, where it has one at all.
 const char kOldUser[]     = "mod_auth.username";
 const char kOldPassword[] = "mod_auth.password";
 const char kOldSwitch[]   = "mod_auth.authenticate";
@@ -135,15 +145,6 @@ const size_t kMinTokenChars = 32;
    it, and the ones past this are dropped and named rather than read. */
 const size_t kMaxApiTokens = 16;
 
-/* What a bind address becomes when the file names one this cannot recover.
-
-   Not an address in either family, so the call that binds refuses it and the
-   server does not come up. That is the answer here rather than the default,
-   because the default is the wildcard and every line naming an interface is
-   narrower than it. It is also visibly not something anybody typed, which is
-   what distinguishes it from a value carried through as it stands. */
-const char kNoAddress[] = "";
-
 /* What credentials.h writes in front of a stored form. Named here only to say
    that a value which does not begin with it was probably mistyped. It is not a
    second judge of what a stored form may be: the value is kept whatever this
@@ -190,6 +191,12 @@ WebConfig &held()
 }
 
 std::string &heldPath()
+{
+	static std::string p;
+	return p;
+}
+
+std::string &heldServerPath()
 {
 	static std::string p;
 	return p;
@@ -307,19 +314,21 @@ bool readUnsigned(const std::string &text, unsigned long &out)
 	return true;
 }
 
-// An address and not a name. A name would have to be resolved to be bound, and
-// what it resolves to is not what the file says.
-bool isAddressLiteral(const std::string &text)
+/* An address nhttpd listens on as it is written, which is one of the first
+   family and nothing else: its socket is AF_INET (ysocket.cpp), and what it
+   cannot use there, a name it fails to resolve or an address of the second
+   family, it answers by listening on every interface. A save writing one of
+   those would be asking for one interface and getting all of them.
+
+   An address and not a name, too: a name would have to be resolved to be
+   bound, and what it resolves to is not what the file says. */
+bool isListenAddress(const std::string &text)
 {
 	if (text.empty() || text.find('\0') != std::string::npos)
 		return false;
 
 	struct in_addr v4;
-	if (inet_pton(AF_INET, text.c_str(), &v4) == 1)
-		return true;
-
-	struct in6_addr v6;
-	return inet_pton(AF_INET6, text.c_str(), &v6) == 1;
+	return inet_pton(AF_INET, text.c_str(), &v4) == 1;
 }
 
 /* A list as the file carries one. An empty value is a list of nothing and not
@@ -448,6 +457,20 @@ std::string knownKeyFor(const std::string &key)
 	return std::string();
 }
 
+// The same reading for the keys this file no longer holds, so that a line a
+// person spelled Port goes the way port does.
+std::string retiredKeyFor(const std::string &key)
+{
+	const std::string folded = foldedAscii(key);
+	const size_t count = sizeof(kRetiredKeys) / sizeof(kRetiredKeys[0]);
+	for (size_t i = 0; i < count; ++i)
+	{
+		if (folded == kRetiredKeys[i])
+			return std::string(kRetiredKeys[i]);
+	}
+	return std::string();
+}
+
 /* A key of a file named back to the operator, or nothing when it is not one of
    ours.
 
@@ -539,6 +562,19 @@ LineFaults scanLines(const std::string &path, bool judge_names)
 
 		const std::string key = line.substr(0, sep);
 		const std::string taken_for = knownKeyFor(trimmed(key));
+
+		/* Before the number sign, which would make it unreadable: a line
+		   this file no longer reads is not one whose least meaning stands in
+		   for it, whatever it carries. */
+		const std::string retired = judge_names ? retiredKeyFor(trimmed(key)) : std::string();
+		if (!retired.empty())
+		{
+			out.notes.push_back("line " + decimal(lineno) + " (" + retired + "): where the server "
+					    "answers is read from nhttpd.conf (" + kServerPort + ", " + kServerHost +
+					    ") and no longer from this file, so the line has no effect and goes at "
+					    "the next save");
+			continue;
+		}
 
 		if (line.find('#') != std::string::npos)
 		{
@@ -1232,10 +1268,13 @@ void appendKeyDocs(std::string &text)
 		      "no key can be turned off by writing a number sign in front of it.");
 
 	appendCommentLine(text, "");
+	appendWrapped(text, "", std::string("WHERE THE SERVER ANSWERS is not in this file. The port and the "
+		      "interface are nhttpd.conf's, ") + kServerPort + " and " + kServerHost + ", where the "
+		      "menu at the box and the web interface both set them.");
+
+	appendCommentLine(text, "");
 	appendComment(text,
 		      "THE LINES AT THE END OF THIS FILE.");
-	appendKeyDoc(text, kKeyPort, "the port this box answers on", "");
-	appendKeyDoc(text, kKeyBind, "the interface it answers on, \"0.0.0.0\" being every one of them", "");
 	appendKeyDoc(text, kKeyUser, "the name a login is made under", "");
 	appendKeyDoc(text, kKeyHash, "the password, kept as a hash. An empty one is no password, and a "
 		     "box with none answers nothing that changes anything", "");
@@ -1292,9 +1331,7 @@ std::string migratedHead(const std::string &user, bool has_password, const std::
 
 	appendCommentLine(text, "");
 	appendWrapped(text, "", "Written from " + old_path + ", the file of the web interface this one "
-		      "replaces, which is left where it is. The port below is the one that file named: "
-		      "nothing of that server is on it any more, and it is where this box was reached "
-		      "before.");
+		      "replaces, which is left where it is and keeps saying where the server answers.");
 
 	appendNotes(text, "NOTES ON WHAT WAS AND WAS NOT CARRIED OVER:", notes);
 	appendKeyDocs(text);
@@ -1375,8 +1412,6 @@ bool writeShippedFile(const std::string &out_path, const std::string &old_path, 
 	const WebConfig d = defaultWebConfig();
 
 	std::string text = shippedHead(d.username, old_path, tried_old, why);
-	appendPair(text, kKeyPort, decimal(static_cast<unsigned long>(d.server.port)));
-	appendPair(text, kKeyBind, d.server.bind_address);
 	appendPair(text, kKeyUser, d.username);
 	appendPair(text, kKeyHash, hash);
 
@@ -1458,13 +1493,10 @@ bool replaceFile(const std::string &path, const std::string &text)
 	return true;
 }
 
-/* The keys a save at the box owns. Every other line of that file belongs to
-   whoever wrote it and is carried across untouched. */
-const char *const kOwnedKeys[] = { kKeyPort, kKeyBind, kKeyUser, kKeyHash };
-const size_t kOwnedKeyCount = sizeof(kOwnedKeys) / sizeof(kOwnedKeys[0]);
-
-// What a save writes for each key it owns, which is fewer than the four above
-// when the password is not being changed.
+/* What a save writes for each key it owns: the name, the stored form when a
+   new password was typed, and the logo switch unless the save is the
+   account's alone. Every other line of that file belongs to whoever wrote it
+   and is carried across untouched. */
 struct OwnedLine
 {
 	const char *key;
@@ -1476,10 +1508,10 @@ struct OwnedLine
    none of them.
 
    The name is taken the way scanLines takes it and not byte for byte, for the same
-   reason: a line spelled Port, a line with a space in front of the separator and a line
-   carrying a number sign are all lines load counts as that key being named and unusable.
-   Left standing beside the line a save writes, any one of them would leave the file
-   naming a port and the server running on something else. */
+   reason: a line spelled Username, a line with a space in front of the separator and a
+   line carrying a number sign are all lines load counts as that key being named and
+   unusable. Left standing beside the line a save writes, any one of them would leave the
+   file naming one account and the server checking against none. */
 size_t ownedLineFor(const std::string &line, const std::vector<OwnedLine> &owned)
 {
 	const size_t sep = line.find('=');
@@ -1518,6 +1550,79 @@ bool isReadableRegularFile(const std::string &path, const char *what)
 	{
 		complain(std::string("the ") + what + " " + path + " is larger than a configuration is, and it "
 			 "is not read");
+		return false;
+	}
+	return true;
+}
+
+/* What nhttpd.conf says about where the server answers, read the way nhttpd reads
+   it when it starts (yhttpd.cpp, ReadConfig): its own reader, its own defaults, and
+   an empty address meaning every interface. Read any other way, a caller would be
+   told a port nhttpd is not going to bind.
+
+   A file that is not there is nhttpd's defaults, which is what nhttpd starts on
+   before it writes the file out itself. False for a file that is there and cannot
+   be read, and server is then left as it was handed in. */
+bool readServerFile(const std::string &path, ServerConfig &server)
+{
+	const ServerConfig d = defaultConfig();
+	struct stat st;
+	if (::stat(path.c_str(), &st) != 0 && errno == ENOENT)
+	{
+		server.port = d.port;
+		server.bind_address = d.bind_address;
+		return true;
+	}
+	if (!isReadableRegularFile(path, "server configuration"))
+		return false;
+
+	CConfigFile file(',');
+	if (!file.loadConfig(path))
+	{
+		complain("cannot parse " + path);
+		return false;
+	}
+
+	server.port = file.getInt32(kServerPort, d.port);
+	server.bind_address = file.getString(kServerHost, d.bind_address);
+	if (server.bind_address.empty())
+		server.bind_address = d.bind_address;
+	return true;
+}
+
+/* Writes where the server answers into nhttpd.conf the way the menu at the box
+   does (gui/nhttpd_setup.cpp), through nhttpd's own reader and writer, so every
+   other line of that file stays as nhttpd and its pages wrote it. That writer
+   puts a new file in the place of the old one, as every other writer of that file
+   does.
+
+   A file that is not there is refused rather than created: nhttpd writes it out
+   when it starts, and a file holding only these two lines is one nhttpd takes for
+   the format before its own and rebuilds without them.
+
+   Read back afterwards, because that writer answers true whether or not its new
+   file took the old one's place. */
+bool writeServerFile(const std::string &path, int port, const std::string &host)
+{
+	if (!isReadableRegularFile(path, "server configuration"))
+		return false;
+
+	CConfigFile file(',');
+	if (!file.loadConfig(path))
+	{
+		complain("cannot parse " + path + ", and nothing is written rather than a file holding two "
+			 "lines of it");
+		return false;
+	}
+
+	file.setInt32(kServerPort, port);
+	file.setString(kServerHost, host);
+
+	ServerConfig back = defaultConfig();
+	if (!file.saveConfig(path) || !readServerFile(path, back) || back.port != port ||
+	    back.bind_address != host)
+	{
+		complain("cannot write " + path + ", so it may not say where the server is to answer");
 		return false;
 	}
 	return true;
@@ -1656,6 +1761,8 @@ void setConfigForTest(const WebConfig &c)
 {
 	forgetPending();
 	held() = c;
+	heldPath().clear();
+	heldServerPath().clear();
 	Login l;
 	l.username = c.username;
 	l.password_hash = c.password_hash;
@@ -1672,7 +1779,12 @@ const std::string &configPath()
 	return heldPath();
 }
 
-bool load(const std::string &path)
+const std::string &serverPath()
+{
+	return heldServerPath();
+}
+
+bool load(const std::string &path, const std::string &server_path)
 {
 	AccountLock account;
 	problemList().clear();
@@ -1683,6 +1795,7 @@ bool load(const std::string &path)
 	   started for the first time has no file and still has the one name a save
 	   is to write it at. */
 	heldPath() = path;
+	heldServerPath() = server_path;
 
 	if (!isReadableRegularFile(path, "configuration"))
 		return false;
@@ -1708,57 +1821,14 @@ bool load(const std::string &path)
 	WebConfig c = defaultWebConfig();
 	std::string raw;
 
-	{
-		const Reading r = reading(m, cut, kKeyPort, raw);
-		if (r == KeyUnreadable)
-		{
-			/* The one key whose fallback is the default and not the least it
-			   can mean. A port is where the box answers and not who may reach
-			   it, there is no least port, and a box refusing to start over a
-			   mistyped one would be off the network for a reason that grants
-			   nobody anything. */
-			complain(std::string(kKeyPort) + ": the line carries a port this cannot read, and the "
-				 "default stands, a port being where the box answers rather than who may "
-				 "reach it");
-		}
-		else if (r == KeyPresent)
-		{
-			unsigned long v = 0;
-			// Zero is refused where it is allowed at the call that binds. There
-			// it means a port the kernel picks, which is what a case wants and
-			// what nobody running a box wants.
-			if (!readUnsigned(raw, v) || v < 1 || v > 65535)
-				complain(std::string(kKeyPort) + ": " + quoted(raw) +
-					 " is not a port from 1 to 65535, and the default stands");
-			else
-				c.server.port = static_cast<int>(v);
-		}
-	}
-
-	{
-		const Reading r = reading(m, cut, kKeyBind, raw);
-		if (r == KeyUnreadable)
-		{
-			complain(std::string(kKeyBind) + ": the line carries an address this cannot read, and "
-				 "what stands in its place is one nothing can bind, so the server will not "
-				 "start. The default is the wildcard and would listen more widely than any "
-				 "line naming an interface");
-			c.server.bind_address = kNoAddress;
-		}
-		else if (r == KeyPresent)
-		{
-			/* Carried through even when it is unusable, unlike everything else
-			   here. The default is the wildcard, so dropping a line naming one
-			   interface would answer it by listening on all of them. Kept, the
-			   call that binds refuses it, and that call refuses everything this
-			   refuses: a value carrying a zero byte included, which is the one
-			   shape where the two could have disagreed. */
-			if (!isAddressLiteral(raw))
-				complain(std::string(kKeyBind) + ": the value is not an address, and the server "
-					 "will refuse to start on it");
-			c.server.bind_address = raw;
-		}
-	}
+	/* Where the server answers, out of nhttpd's file and not this one, so that
+	   what is in effect here is what nhttpd binds when it starts. A file there
+	   that cannot be read leaves nhttpd's defaults, which is what nhttpd itself
+	   starts on without one. */
+	if (!server_path.empty() && !readServerFile(server_path, c.server))
+		complain("where the server answers could not be read out of " + server_path + ", and "
+			 "what stands is nhttpd's default, port " + decimal(c.server.port) + " on every "
+			 "interface");
 
 	readTextField(m, cut, kKeyDocroot, "", c.docroot);
 
@@ -1898,12 +1968,30 @@ bool load(const std::string &path)
 
 WebSettings currentWebSettings()
 {
+	WebSettings s;
+	bool waiting = false;
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
-		if (pending().held)
-			return pending().s;
+		waiting = pending().held;
+		if (waiting)
+			s = pending().s;
 	}
-	return settingsInEffect();
+	if (!waiting)
+		s = settingsInEffect();
+
+	/* Where the server answers is what nhttpd.conf says now, whatever is in effect
+	   and whatever a save here wrote: the menu at the box writes that file too, and
+	   a writer starting from anything older would put back the port it moved. */
+	if (!heldServerPath().empty())
+	{
+		ServerConfig server = defaultConfig();
+		if (readServerFile(heldServerPath(), server))
+		{
+			s.port = server.port;
+			s.bind_address = server.bind_address;
+		}
+	}
+	return s;
 }
 
 bool newPasswordAwaitsLoad()
@@ -1947,21 +2035,47 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 	if (stored_hash != NULL)
 		stored_hash->clear();
 
-	/* Every value is judged before the file is opened, so a value that cannot
-	   be used leaves the file as it was rather than half of it rewritten. The
-	   value is not repeated back where the key makes it a credential. */
-	if (s.port < 1 || s.port > 65535)
+	/* Where the server answers goes into nhttpd.conf, and only where it changes:
+	   a save leaving the port and the address as that file has them neither
+	   touches the file, which is nhttpd's, nor judges what it finds there. Each
+	   of the two is judged only when it changes, so a value somebody wrote there
+	   by hand that nhttpd reads and this would not write stays where it is. A
+	   save of the account alone never looks at the file. */
+	const std::string &server_path = heldServerPath();
+	ServerConfig was = config().server;
+	bool port_changes = false;
+	bool host_changes = false;
+	if (!s.account_only)
 	{
-		complain(std::string(kKeyPort) + ": the port asked for is not one from 1 to 65535, and "
+		if (!server_path.empty() && !readServerFile(server_path, was))
+			return false;
+		port_changes = s.port != was.port;
+		host_changes = s.bind_address != was.bind_address;
+	}
+	const bool move = port_changes || host_changes;
+
+	/* Every value is judged before either file is opened, so a value that cannot
+	   be used leaves both as they were rather than half of it rewritten. The
+	   value is not repeated back where the key makes it a credential. */
+	if (move && server_path.empty())
+	{
+		complain("this server was never told which file says where it answers, so the port and the "
+			 "address cannot be written, and nothing is written");
+		return false;
+	}
+
+	if (port_changes && (s.port < 1 || s.port > 65535))
+	{
+		complain(std::string(kServerPort) + ": the port asked for is not one from 1 to 65535, and "
 			 "nothing is written");
 		return false;
 	}
 
-	if (!survivesTheFile(s.bind_address) || !isAddressLiteral(s.bind_address))
+	if (host_changes && (!survivesTheFile(s.bind_address) || !isListenAddress(s.bind_address)))
 	{
-		complain(std::string(kKeyBind) + ": " + quoted(s.bind_address) + " is not an address this "
-			 "can write down and bind, and nothing is written. Every interface is written as "
-			 "\"0.0.0.0\", which is what a box answers on when nothing narrower is asked for");
+		complain(std::string(kServerHost) + ": " + quoted(s.bind_address) + " is not an address this "
+			 "server can listen on, and nothing is written. It listens on addresses of the first "
+			 "family only, and every interface is written as \"0.0.0.0\"");
 		return false;
 	}
 
@@ -1999,17 +2113,6 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 	{
 		OwnedLine one;
 		one.written = false;
-
-		if (!s.account_only)
-		{
-			one.key = kKeyPort;
-			one.value = decimal(static_cast<unsigned long>(s.port));
-			owned.push_back(one);
-
-			one.key = kKeyBind;
-			one.value = s.bind_address;
-			owned.push_back(one);
-		}
 
 		one.key = kKeyUser;
 		one.value = s.username;
@@ -2083,6 +2186,12 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 		const std::string line = last ? text.substr(at) : text.substr(at, end - at);
 		at = last ? text.size() : end + 1;
 
+		// A line this file no longer reads goes, so the file stops saying a
+		// port nothing here is answering on.
+		const size_t sep = line.find('=');
+		if (sep != std::string::npos && !retiredKeyFor(trimmed(line.substr(0, sep))).empty())
+			continue;
+
 		const size_t which = ownedLineFor(line, owned);
 		if (which == owned.size())
 		{
@@ -2109,7 +2218,17 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 			appendPair(out, owned[i].key, owned[i].value);
 	}
 
+	/* nhttpd's file first and this one after, and the first put back when the
+	   second cannot be written, so a save answered false has not moved the port
+	   that the next start binds. Two files are never written as one step; what
+	   this rules out is the half of a save that would outlast a refusal. */
+	if (move && !writeServerFile(server_path, s.port, s.bind_address))
+		return false;
+
 	const bool replaced = replaceFile(path, out);
+	if (!replaced && move && !writeServerFile(server_path, was.port, was.bind_address))
+		complain(server_path + " could not be put back, and says a port and an address that this "
+			 "save was refused for");
 
 	/* Written into the file the server reads: what it now says is where the next
 	   writer starts until a load reads it back. An account-only save is in effect
@@ -2144,14 +2263,45 @@ bool reloadAndRestart(const std::string &path)
 	   effect is read by request threads without a lock, so replacing it under a
 	   running daemon would be replacing something one of them holds, and a
 	   listening socket has nowhere to put a new port in any case. */
+	const ServerConfig before = config().server;
 	stop();
 
-	const bool read = load(path);
+	const bool read = load(path, heldServerPath());
 	if (!read)
+	{
 		complain("the configuration could not be read again, so what was already in effect stays in "
 			 "effect and the server comes back up on that");
+		/* Except where it answers. nhttpd binds what its own file says whatever
+		   was read here, so that is read again on its own: the going back below
+		   compares against it, and without it a new port nothing can bind would
+		   look like the old one and the server would stay down. */
+		if (!heldServerPath().empty())
+			readServerFile(heldServerPath(), held().server);
+	}
 
-	const bool up = start(config().server);
+	bool up = start(config().server);
+
+	/* Nothing on the new port or address, which is usually something else already
+	   holding it. Once, back to where the server answered before, and nhttpd.conf
+	   back with it so the next start does not repeat the failure: a box answering
+	   where it used to beats one answering nowhere until somebody edits a file. */
+	bool went_back = false;
+	const ServerConfig failed = config().server;
+	if (!up && !heldServerPath().empty() &&
+	    (failed.port != before.port || failed.bind_address != before.bind_address))
+	{
+		complain("nothing answers on port " + decimal(static_cast<unsigned long>(failed.port)) + " at " +
+			 quoted(failed.bind_address) + ", so the server goes back to port " +
+			 decimal(static_cast<unsigned long>(before.port)) + " at " + quoted(before.bind_address) +
+			 " and " + heldServerPath() + " says so again");
+		if (writeServerFile(heldServerPath(), before.port, before.bind_address))
+		{
+			held().server = before;
+			up = start(before);
+			went_back = up;
+		}
+	}
+
 	if (!up)
 		complain("the server did not come back up, so this box answers nothing over the network until "
 			 "the port and the address it was given are ones it can bind");
@@ -2159,7 +2309,7 @@ bool reloadAndRestart(const std::string &path)
 	/* A read that failed leaves the saves it was for waiting, and a writer still
 	   starts from them; the restart that was armed for them has run all the same. */
 	restartRan();
-	return read && up;
+	return read && up && !went_back;
 }
 
 bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
@@ -2183,7 +2333,7 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 	   log in. This is the one place where the value carried is visibly not the
 	   value somebody typed, so it is said. */
 	const CutShort cut = scanLines(nhttpd_conf, false).cut_short;
-	const char *const carried[] = { kOldHost, kOldUser, kOldPassword };
+	const char *const carried[] = { kOldUser, kOldPassword };
 	for (size_t i = 0; i < sizeof(carried) / sizeof(carried[0]); ++i)
 	{
 		const CutShort::const_iterator at = cut.find(carried[i]);
@@ -2195,27 +2345,10 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 			 "what the old server compared against");
 	}
 
-	std::string bind = defaultConfig().bind_address;
+	/* Only the account. Where the server answers stays in that file, which
+	   nhttpd goes on reading and which this layer reads it out of as well. */
 	std::string user = "root";
-	int listen_port = defaultConfig().port;
 	std::string raw;
-
-	if (present(m, kOldHost, raw) && !raw.empty())
-	{
-		/* Refused rather than dropped, and the whole migration with it. The
-		   default is the wildcard, so taking it for a line naming something
-		   else would answer a narrower instruction with a wider one, and a box
-		   that ends up listening on every interface its owner named one of is
-		   worse off than a box that says on the next start why it wrote
-		   nothing. */
-		if (!isAddressLiteral(raw))
-		{
-			complain(std::string(kOldHost) + ": " + quoted(raw) + " is not an address, and nothing "
-				 "is written rather than listening more widely than it says");
-			return false;
-		}
-		bind = raw;
-	}
 
 	if (present(m, kOldUser, raw))
 	{
@@ -2279,25 +2412,6 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 		complain(std::string(kOldExempt) +
 			 " named callers that needed no password, and this server exempts nobody by name");
 
-	if (present(m, kOldPort, raw))
-	{
-		/* Carried, which it was not while both servers ran. The one that held this
-		   number goes out with this work, so the number is free, and it is the one this
-		   box was reached at. A box whose owner moved the old server off eighty moved it
-		   for a reason this cannot see.
-
-		   A value that is not a port leaves the default standing rather than refusing the
-		   migration, the way the read of this server's own file treats such a line: a
-		   port is where the box answers and not who may reach it, so there is nothing to
-		   be granted by refusing, and the refusal would cost the credential beside it. */
-		unsigned long v = 0;
-		if (!readUnsigned(raw, v) || v < 1 || v > 65535)
-			complain(std::string(kOldPort) + ": " + quoted(raw) +
-				 " is not a port from 1 to 65535, and the default stands");
-		else
-			listen_port = static_cast<int>(v);
-	}
-
 	/* Taken before the write below, which complains into the same list. Every
 	   one of these is said in the written file as well as on the standard
 	   error: the list is read by whoever is watching a boot, and the file is
@@ -2306,8 +2420,6 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 
 	std::string text = migratedHead(user, has_password, nhttpd_conf, notes);
 
-	appendPair(text, kKeyPort, decimal(static_cast<unsigned long>(listen_port)));
-	appendPair(text, kKeyBind, bind);
 	appendPair(text, kKeyUser, user);
 	appendPair(text, kKeyHash, hash);
 

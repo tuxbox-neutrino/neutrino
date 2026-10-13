@@ -11,6 +11,8 @@
 #include "httpd/auth.h"
 #include "httpd/credentials.h"
 #include "httpd/login_bridge.h"
+#include "httpd/server.h"
+#include "httpd/server_control.h"
 #include "httpd/webconfig.h"
 
 #include <cstdio>
@@ -282,12 +284,17 @@ TEST_CASE("a change after a save waiting for its restart keeps what that save wr
 	char name[96];
 	std::snprintf(name, sizeof(name), "/tmp/ni-login-pending-%d", (int) getpid());
 	const std::string path = name;
+	const std::string server = path + ".nhttpd";
 	std::FILE *f = std::fopen(path.c_str(), "w");
 	REQUIRE(f != NULL);
-	std::fprintf(f, "port=8080\nusername=%s\npassword_hash=%s\n", kUser, hashSecret(kPassword, 1000).c_str());
+	std::fprintf(f, "username=%s\npassword_hash=%s\n", kUser, hashSecret(kPassword, 1000).c_str());
+	REQUIRE(std::fclose(f) == 0);
+	f = std::fopen(server.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "WebsiteMain.port=8080\nconfigfile.version=5\n");
 	REQUIRE(std::fclose(f) == 0);
 	const WebConfig before = config();
-	REQUIRE(load(path));
+	REQUIRE(load(path, server));
 
 	// A REST save names another user and another port and waits for its restart.
 	WebSettings put = currentWebSettings();
@@ -302,8 +309,8 @@ TEST_CASE("a change after a save waiting for its restart keeps what that save wr
 	std::string why;
 	REQUIRE(login_bridge::change("", "after-the-put", &why));
 
-	// The restart reads the file: that save's name and port, and the new password.
-	REQUIRE(load(path));
+	// The restart reads the files: that save's name and port, and the new password.
+	REQUIRE(load(path, server));
 	REQUIRE(config().username == "alice");
 	REQUIRE(config().server.port == 8099);
 	REQUIRE(verifySecret("after-the-put", config().password_hash));
@@ -313,22 +320,49 @@ TEST_CASE("a change after a save waiting for its restart keeps what that save wr
 	REQUIRE(currentWebSettings().username == "alice");
 
 	::unlink(path.c_str());
+	::unlink(server.c_str());
 	setConfigForTest(before);
 }
+
+namespace
+{
+
+// Hands that start on whatever they are given, so a restart here fails only
+// where its read does and never for want of a server.
+int startsAnywhere(int port, const char *) { return (port > 0) ? port : 80; }
+bool stopsAtOnce() { return true; }
+
+struct ServerHands
+{
+	ServerHands() { installNhttpdServerControl(&startsAnywhere, &stopsAtOnce); }
+	~ServerHands()
+	{
+		stop();
+		installNhttpdServerControl(0, 0);
+	}
+};
+
+} // namespace
 
 TEST_CASE("a restart whose read failed is no longer due, and the save it was for still waits", "[login]")
 {
 	Account account;
+	ServerHands hands;
 
 	char name[96];
 	std::snprintf(name, sizeof(name), "/tmp/ni-login-restart-%d", (int) getpid());
 	const std::string path = name;
+	const std::string server = path + ".nhttpd";
 	std::FILE *f = std::fopen(path.c_str(), "w");
 	REQUIRE(f != NULL);
-	std::fprintf(f, "port=8080\nusername=%s\npassword_hash=%s\n", kUser, hashSecret(kPassword, 1000).c_str());
+	std::fprintf(f, "username=%s\npassword_hash=%s\n", kUser, hashSecret(kPassword, 1000).c_str());
+	REQUIRE(std::fclose(f) == 0);
+	f = std::fopen(server.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "WebsiteMain.port=8080\nconfigfile.version=5\n");
 	REQUIRE(std::fclose(f) == 0);
 	const WebConfig before = config();
-	REQUIRE(load(path));
+	REQUIRE(load(path, server));
 
 	WebSettings put = currentWebSettings();
 	put.port = 8099;
@@ -345,6 +379,7 @@ TEST_CASE("a restart whose read failed is no longer due, and the save it was for
 	REQUIRE(currentWebSettings().port == 8099);
 
 	::rmdir(path.c_str());
+	::unlink(server.c_str());
 	setConfigForTest(before);
 }
 

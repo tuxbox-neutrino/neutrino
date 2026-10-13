@@ -545,13 +545,14 @@ void Cyhttpd::stop_run() {
 //=============================================================================
 extern void *nhttpd_main_thread(void *);
 
-static int nhttpd_server_start_once(int port, const char *bind, bool second_chance);
-
+/* port and bind are what the API layer read out of nhttpd.conf, which is
+   also what the server reads when it starts (ReadConfig): that file is the
+   one place where the server answers, written by the menu at the box and by
+   the API layer's save, so nothing is written here. Named in the log only.
+   Going back to the old port when nothing comes up on a new one is the API
+   layer's (webconfig.cpp, reloadAndRestart), which knows what the old one
+   was. */
 int nhttpd_server_start(int port, const char *bind) {
-	return nhttpd_server_start_once(port, bind, false);
-}
-
-static int nhttpd_server_start_once(int port, const char *bind, bool second_chance) {
 	/* Never two: a start beside a living server would put two accept
 	   loops on overlapping state (the hooks and this file's globals are
 	   shared). The stop before this call is what ends the old one; where
@@ -562,36 +563,8 @@ static int nhttpd_server_start_once(int port, const char *bind, bool second_chan
 		return 0;
 	}
 
-	/* What this server can actually listen on: nhttpd's socket is AF_INET
-	   (ysocket.cpp), so an address of the other family, legal as it is in
-	   nhttpd-access.conf, is one this box cannot come up on. Refused before the
-	   file is touched, and the server comes back on what nhttpd.conf
-	   already says - reachable where it was, which beats a box that
-	   answers nowhere until somebody edits a file. The GET answers the
-	   port that really bound, so the caller can see where it landed. */
-	CConfigFile conf(',');
-	conf.loadConfig(HTTPD_CONFIGFILE);
-	const int old_port = conf.getInt32("WebsiteMain.port", port);
-	const std::string old_host = conf.getString("WebsiteMain.host", "0.0.0.0");
-	struct in_addr v4_probe;
-	const bool carriable = (bind == NULL) || (strcmp(bind, "0.0.0.0") == 0) ||
-	                       (inet_pton(AF_INET, bind, &v4_probe) == 1);
-	if (!carriable) {
-		aprintf("nhttpd_server_start: %s is not an address this server can "
-		        "listen on (AF_INET only); coming back on what %s says\n",
-		        bind, HTTPD_CONFIGFILE);
-		port = conf.getInt32("WebsiteMain.port", port);
-	} else {
-		/* The file first: this server reads nhttpd.conf and nothing else,
-		   and the one place a moved port survives a restart is that file.
-		   Written through the same reader ReadConfig uses. */
-		conf.setInt32("WebsiteMain.port", port);
-		conf.setString("WebsiteMain.host", (bind != NULL) ? bind : "0.0.0.0");
-		if (!conf.saveConfig(HTTPD_CONFIGFILE)) {
-			aprintf("nhttpd_server_start: cannot write %s\n", HTTPD_CONFIGFILE);
-			return 0;
-		}
-	}
+	aprintf("nhttpd_server_start: port %d at %s, as %s says\n", port,
+	        (bind != NULL) ? bind : "0.0.0.0", HTTPD_CONFIGFILE);
 
 	const unsigned ended_before = __atomic_load_n(&server_runs_ended, __ATOMIC_SEQ_CST);
 	pthread_t nhttpd_thread;
@@ -613,20 +586,6 @@ static int nhttpd_server_start_once(int port, const char *bind, bool second_chan
 			return bound;
 		if (__atomic_load_n(&server_runs_ended, __ATOMIC_SEQ_CST) != ended_before)
 			break;
-	}
-
-	/* Nothing came up on what was asked for. Before this is reported, one
-	   try on what was in effect before: a caller was promised a restart,
-	   and a box answering where it used to beats a box answering nowhere.
-	   Only where the file was rewritten - the refused-address path above
-	   never touched it - and only once. */
-	if (carriable && !second_chance) {
-		aprintf("nhttpd_server_start: nothing answers on %d, going back to "
-		        "port %d\n", port, old_port);
-		conf.setInt32("WebsiteMain.port", old_port);
-		conf.setString("WebsiteMain.host", old_host.c_str());
-		conf.saveConfig(HTTPD_CONFIGFILE);
-		return nhttpd_server_start_once(old_port, old_host.c_str(), true);
 	}
 	return 0;
 }

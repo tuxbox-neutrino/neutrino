@@ -3301,33 +3301,49 @@ TEST_CASE("a bouquet at the end of the list is not moved past it", "[write]")
 namespace
 {
 
-/* A configuration of this case's own, in a file of its own, installed the way the
-   program installs one: through the read that also records where the file is, which
-   is what the route writes back into. What is in effect is put back on the way out,
-   because it is a global of this program. */
+// nhttpd.conf as a case starts from: where the server answers, and a line of
+// nhttpd's own a save leaves alone.
+const char kServerFileHead[] = "WebsiteMain.host=0.0.0.0\nWebsiteMain.port=8081\nconfigfile.version=5\n";
+
+/* A configuration of this case's own, in files of its own, installed the way the
+   program installs one: through the read that also records where the files are,
+   which is what the route writes back into, the access file for the account and
+   nhttpd.conf for where the server answers. What is in effect is put back on the
+   way out, because it is a global of this program. */
 struct WebFile
 {
 	std::string path;
+	std::string server;
 	WebConfig   before;
 
-	WebFile(const char *tag, const std::string &text) : before(config())
+	static void put(const std::string &where, const std::string &text)
+	{
+		std::FILE *f = std::fopen(where.c_str(), "w");
+		REQUIRE(f != NULL);
+		REQUIRE(std::fwrite(text.data(), 1, text.size(), f) == text.size());
+		REQUIRE(std::fclose(f) == 0);
+	}
+
+	WebFile(const char *tag, const std::string &text,
+	        const std::string &server_text = kServerFileHead) : before(config())
 	{
 		char name[160];
 		std::snprintf(name, sizeof(name), "/tmp/ni-webroute-%s-%d", tag, (int) getpid());
 		path = name;
+		server = path + ".nhttpd";
 
-		std::FILE *f = std::fopen(path.c_str(), "w");
-		REQUIRE(f != NULL);
-		REQUIRE(std::fwrite(text.data(), 1, text.size(), f) == text.size());
-		REQUIRE(std::fclose(f) == 0);
+		put(path, text);
+		put(server, server_text);
 
-		REQUIRE(load(path));
+		REQUIRE(load(path, server));
 		REQUIRE(configPath() == path);
+		REQUIRE(serverPath() == server);
 	}
 
 	~WebFile()
 	{
 		::unlink(path.c_str());
+		::unlink(server.c_str());
 		setConfigForTest(before);
 	}
 
@@ -3361,7 +3377,7 @@ Response putWebserver(const std::string &body,
 	                std::string(), std::string(), host);
 }
 
-const char kWebFileHead[] = "port=8081\nbind_address=0.0.0.0\nusername=root\n";
+const char kWebFileHead[] = "username=root\n";
 
 /* Every member the shape names is in the answer and nothing else is, one level down as
    well.
@@ -3414,8 +3430,10 @@ TEST_CASE("moving the port says where the box will be, and moves it afterwards",
 	REQUIRE(root["caller"]["port_moved"].asBool());
 	REQUIRE(root["caller"]["restarting"].asBool());
 
-	// The file says so before the answer does anything about it.
-	REQUIRE(wholeOf(file.path).find("port=8099") != std::string::npos);
+	// nhttpd.conf says so before the answer does anything about it, and the
+	// access file does not say it at all.
+	REQUIRE(wholeOf(file.server).find("WebsiteMain.port=8099\n") != std::string::npos);
+	REQUIRE(wholeOf(file.path).find("port=") == std::string::npos);
 
 	/* And the server is not on it yet. The answer names the file the transport
 	   is to read once these bytes have gone out, and that is the whole of the
@@ -3449,7 +3467,7 @@ TEST_CASE("a second write before the restart still says what the restart will do
 	const ::Json::Value after = parsed(third.body);
 	REQUIRE(after["webserver"]["port"].asInt() == 8099);
 	REQUIRE(after["caller"]["restarting"].asBool());
-	REQUIRE(wholeOf(file.path).find("port=8099") != std::string::npos);
+	REQUIRE(wholeOf(file.server).find("WebsiteMain.port=8099\n") != std::string::npos);
 
 	// Nothing of it is in effect before the restart reads the file.
 	REQUIRE(config().server.port == 8081);
@@ -3471,7 +3489,43 @@ TEST_CASE("narrowing what the server listens on is said before it happens", "[wr
 	REQUIRE_FALSE(root["caller"]["port_moved"].asBool());
 	REQUIRE(root["caller"]["restarting"].asBool());
 	REQUIRE(r.reload_after == file.path);
-	REQUIRE(wholeOf(file.path).find("bind_address=127.0.0.1") != std::string::npos);
+	REQUIRE(wholeOf(file.server).find("WebsiteMain.host=127.0.0.1\n") != std::string::npos);
+}
+
+TEST_CASE("an address nhttpd would not listen on as written is turned down", "[write]")
+{
+	/* nhttpd listens on addresses of the first family only, and what it cannot
+	   use there it answers by listening on every interface: a caller asking for
+	   one would get all of them. */
+	ShippedRoutes shipped;
+	WebFile file("bind6", kWebFileHead);
+
+	const std::string before = wholeOf(file.server);
+	const Response r = putWebserver("{\"bind\":\"::1\"}");
+	REQUIRE(r.code == 400);
+	REQUIRE(r.reload_after.empty());
+	REQUIRE(r.body.find("WebsiteMain.host") != std::string::npos);
+	REQUIRE(wholeOf(file.server) == before);
+}
+
+TEST_CASE("a port moved in the menu at the box is not moved back by a write", "[write]")
+{
+	/* The menu writes nhttpd.conf without passing through this route. A write
+	   naming something else starts from what that file says now, and the coming
+	   restart is what puts the server on the port the menu chose: the caller is
+	   told so, the port it reached the box on not being the one it will. */
+	ShippedRoutes shipped;
+	WebFile file("menu", kWebFileHead);
+
+	WebFile::put(file.server, "WebsiteMain.host=0.0.0.0\nWebsiteMain.port=8090\nconfigfile.version=5\n");
+
+	const Response r = putWebserver("{\"user\":\"admin\"}");
+	REQUIRE(r.code == 200);
+	const ::Json::Value root = parsed(r.body);
+	REQUIRE(root["webserver"]["port"].asInt() == 8090);
+	REQUIRE(root["caller"]["port_moved"].asBool());
+	REQUIRE(root["caller"]["restarting"].asBool());
+	REQUIRE(wholeOf(file.server).find("WebsiteMain.port=8090\n") != std::string::npos);
 }
 
 TEST_CASE("a new password is taken as a password and answered as neither form", "[write]")
@@ -3536,14 +3590,16 @@ TEST_CASE("a change that could not be saved does not move the server", "[write]"
 	WebFile file("refused", kWebFileHead);
 
 	const std::string before = wholeOf(file.path);
+	const std::string before_server = wholeOf(file.server);
 	const Response r = putWebserver("{\"bind\":\"not an address\"}");
 	REQUIRE(r.code == 400);
 	REQUIRE(r.content_type == "application/problem+json");
 	REQUIRE(r.reload_after.empty());
 	REQUIRE(wholeOf(file.path) == before);
+	REQUIRE(wholeOf(file.server) == before_server);
 
 	// The box says which value it was and not only that one was.
-	REQUIRE(r.body.find("bind_address") != std::string::npos);
+	REQUIRE(r.body.find("WebsiteMain.host") != std::string::npos);
 }
 
 TEST_CASE("asking for what is already in effect takes the box off nothing", "[write]")
@@ -3579,7 +3635,7 @@ TEST_CASE("what a request does not name keeps the value it had", "[write]")
 	   An empty member is a different thing: that is a value the caller wrote,
 	   and the save turns an empty one down. */
 	ShippedRoutes shipped;
-	WebFile file("kept", "port=8081\nbind_address=0.0.0.0\nusername=someone\n");
+	WebFile file("kept", "username=someone\n");
 
 	const Response r = putWebserver("{\"port\":8099}");
 	REQUIRE(r.code == 200);
