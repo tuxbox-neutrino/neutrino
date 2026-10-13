@@ -48,6 +48,7 @@ libcoreapi_a_SOURCES = \
 	box/pluginsource_real.cpp \
 	box/recordingsource_real.cpp \
 	box/settingssource_real.cpp \
+	box/websources_real.cpp \
 	box/localesource_real.cpp \
 	box/recordingsafetysource_real.cpp \
 	settings/settingstable.cpp \
@@ -82,6 +83,7 @@ libcoreapi_a_SOURCES = \
 	webui.cpp \
 	network.cpp \
 	backup.cpp \
+	websources.cpp \
 	archive.cpp \
 	library.cpp \
 	playback.cpp \
@@ -116,6 +118,7 @@ noinst_HEADERS = \
 	recordings_internal.h \
 	webui.h \
 	network.h \
+	websources.h \
 	backup.h \
 	archive.h \
 	archive_internal.h \

@@ -939,7 +939,7 @@ TEST_CASE("a mount's size is its blocks and what is left of them", "[storage]")
 		REQUIRE(root->free != (uint64_t) direct.f_bfree * (uint64_t) direct.f_bsize);
 }
 
-TEST_CASE("the roots a fresh layer starts with are the media and the plugins", "[storage]")
+TEST_CASE("the roots a fresh layer starts with are the media, the plugins and the web channel lists", "[storage]")
 {
 	const std::string &initial = g_initial_roots;
 
@@ -952,7 +952,8 @@ TEST_CASE("the roots a fresh layer starts with are the media and the plugins", "
 
 	static const char *const wanted[] = {
 		"/media", "/mnt", "/var", "/tmp", "/hdd",
-		PLUGINDIR, PLUGINDIR_VAR, PLUGINDIR_MNT, LUAPLUGINDIR, LUAPLUGINDIR_VAR
+		PLUGINDIR, PLUGINDIR_VAR, PLUGINDIR_MNT, LUAPLUGINDIR, LUAPLUGINDIR_VAR,
+		WEBTVDIR_VAR, WEBRADIODIR_VAR
 	};
 	for (size_t i = 0; i < sizeof(wanted) / sizeof(wanted[0]); i++)
 	{

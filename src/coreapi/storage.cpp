@@ -57,13 +57,16 @@ namespace internal
 {
 const char *mounts_path = "/proc/self/mounts";
 
-// The media the box records to and the three directories a plugin can be installed into. /
-// deliberately is not among them, so a listing cannot start at the root of the filesystem
-// and work down, and insideRoots below throws out an element that resolves to /.
+// The media the box records to, the three directories a plugin can be installed into, and
+// the two the box keeps web channel lists of its own in, which a page uploads a list into
+// (websources.h); on a box those two are under /var, on a build placed elsewhere they are
+// not. / deliberately is not among them, so a listing cannot start at the root of the
+// filesystem and work down, and insideRoots below throws out an element that resolves to /.
 const char kShippedRoots[] =
 	"/media:/mnt:/var:/tmp:/hdd:"
 	PLUGINDIR ":" PLUGINDIR_VAR ":" PLUGINDIR_MNT ":"
-	LUAPLUGINDIR ":" LUAPLUGINDIR_VAR;
+	LUAPLUGINDIR ":" LUAPLUGINDIR_VAR ":"
+	WEBTVDIR_VAR ":" WEBRADIODIR_VAR;
 
 const char *default_roots = kShippedRoots;
 

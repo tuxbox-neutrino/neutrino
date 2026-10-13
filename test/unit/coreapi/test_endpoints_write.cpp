@@ -48,6 +48,7 @@
 #include "coreapi/base/schema.h"
 #include "coreapi/settings/settings.h"
 #include "coreapi/storage.h"
+#include "coreapi/websources.h"
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/types.h"
 #include "coreapi/backup.h"
@@ -1420,7 +1421,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 56);
+	REQUIRE(changing == 57);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4364,6 +4365,145 @@ TEST_CASE("a line about the logos this server cannot read turns them off", "[wri
 	REQUIRE_FALSE(parsed(r.body)["channel_logos"].asBool());
 }
 
+namespace
+{
+
+/* The lists the box reads web channels and guides from, held here instead of in
+   the program's settings: what a write was handed, and whether it asked for the
+   reload. */
+struct FakeWebSources : coreapi::websources::Source
+{
+	coreapi::websources::Lists lists;
+	bool reload_asked;
+	int writes;
+
+	FakeWebSources() : reload_asked(false), writes(0)
+	{
+		lists.webtv.push_back("http://example.com/tv.xml");
+		lists.xmltv.push_back("/var/tuxbox/xmltv/guide.xml");
+	}
+
+	coreapi::Status read(coreapi::websources::Lists &out) const
+	{
+		out = lists;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status write(coreapi::websources::Kind kind, const std::vector<std::string> &entries,
+	                      bool reload)
+	{
+		if (kind == coreapi::websources::WebTv)
+			lists.webtv = entries;
+		else if (kind == coreapi::websources::WebRadio)
+			lists.webradio = entries;
+		else
+			lists.xmltv = entries;
+		reload_asked = reload;
+		++writes;
+		return coreapi::Status::Ok;
+	}
+};
+
+struct WebSourcesFixture
+{
+	FakeWebSources fake;
+	WebSourcesFixture() { coreapi::websources::setSource(&fake); }
+	~WebSourcesFixture() { coreapi::websources::setSource(NULL); }
+};
+
+Response putWebSources(const std::string &kind, const std::string &body, const std::string &query = "",
+                       AuthLevel as = AuthLevel::Write)
+{
+	return dispatch(Put, "/api/v1/channels/sources/" + kind, query, body, "192.0.2.7", as);
+}
+
+} // namespace
+
+TEST_CASE("the lists the box reads web channels and guides from are read and replaced one at a time", "[write]")
+{
+	ShippedRoutes shipped;
+	WebSourcesFixture sources;
+
+	// A read asks for what a write does: an address in these lists often carries a key.
+	REQUIRE(send(Get, "/api/v1/channels/sources", "", AuthLevel::Read, "192.0.2.7").code == 403);
+	const Reply read = send(Get, "/api/v1/channels/sources", "", AuthLevel::Write, "192.0.2.7");
+	REQUIRE(read.code == 200);
+	const ::Json::Value was = parsed(read.body);
+	REQUIRE(was["webtv"].size() == 1);
+	REQUIRE(was["webtv"][0].asString() == "http://example.com/tv.xml");
+	REQUIRE(was["webradio"].size() == 0);
+	REQUIRE(was["xmltv"][0].asString() == "/var/tuxbox/xmltv/guide.xml");
+	REQUIRE(was["webtv_dir"].asString() == coreapi::websources::webtvDir());
+	REQUIRE(was["webradio_dir"].asString() == coreapi::websources::webradioDir());
+
+	// One list replaced, in order, and the other two left as they are.
+	const Response r = putWebSources("webradio",
+		"[\"https://radio.example/list.m3u\",\"/var/tuxbox/webradio/mine.xml\"]", "reload=true");
+	REQUIRE(r.code == 200);
+	const ::Json::Value now = parsed(r.body);
+	REQUIRE(now["webradio"].size() == 2);
+	REQUIRE(now["webradio"][1].asString() == "/var/tuxbox/webradio/mine.xml");
+	REQUIRE(now["webtv"].size() == 1);
+	REQUIRE(now["xmltv"].size() == 1);
+	REQUIRE(sources.fake.reload_asked);
+
+	// [] empties one, and without reload nothing is reread.
+	REQUIRE(putWebSources("xmltv", "[]").code == 200);
+	REQUIRE(sources.fake.lists.xmltv.empty());
+	REQUIRE_FALSE(sources.fake.reload_asked);
+
+	const Endpoint *ep = routeFor(Put, "/api/v1/channels/sources/{kind}");
+	REQUIRE(ep != NULL);
+	answerFitsShape(now, *ep->schema, "PUT /api/v1/channels/sources/{kind}");
+}
+
+TEST_CASE("a list with an entry the box cannot read is turned down whole", "[write]")
+{
+	ShippedRoutes shipped;
+	WebSourcesFixture sources;
+
+	const char *const bodies[] = {
+		"[\"http://ok.example/a.xml\",\"ftp://example.com/b.xml\"]",
+		"[\"relative/list.xml\"]",
+		"[\"http://example.com/a\\nb.xml\"]",
+		"[\"\"]",
+		"[\"/media/News#1.m3u\"]",
+		"{\"webtv\":[]}",
+		"[1,2]",
+	};
+	for (size_t i = 0; i < sizeof(bodies) / sizeof(bodies[0]); ++i)
+	{
+		INFO(bodies[i]);
+		const Response r = putWebSources("webtv", bodies[i]);
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("bad-string") != std::string::npos);
+	}
+	REQUIRE(sources.fake.writes == 0);
+	REQUIRE(sources.fake.lists.webtv.size() == 1);
+
+	// The detail names the entry.
+	REQUIRE(putWebSources("webtv", bodies[0]).body.find("entry 2") != std::string::npos);
+
+	// More than the box reads.
+	std::string many = "[";
+	for (int i = 0; i < 33; ++i)
+		many += std::string(i ? "," : "") + "\"http://example.com/" + std::to_string(i) + ".xml\"";
+	many += "]";
+	REQUIRE(putWebSources("webtv", many).code == 400);
+	REQUIRE(sources.fake.writes == 0);
+
+	// A kind the box does not have is not a list.
+	REQUIRE(putWebSources("webcam", "[]").code == 400);
+
+	// A guide address longer than the guide daemon takes is refused, where the
+	// same address is a channel list the box can read.
+	const std::string longer = "http://example.com/" + std::string(82, 'g') + ".xml";
+	REQUIRE(longer.size() == 105);
+	REQUIRE(putWebSources("xmltv", "[\"" + longer + "\"]").code == 400);
+	REQUIRE(sources.fake.writes == 0);
+	REQUIRE(putWebSources("webtv", "[\"" + longer + "\"]").code == 200);
+}
+
 TEST_CASE("the body example a route is documented with is a request that route accepts", "[write][openapi]")
 {
 	ShippedRoutes shipped;
@@ -4408,6 +4548,12 @@ TEST_CASE("the body example a route is documented with is a request that route a
 		REQUIRE(sendBodyExample("POST", "/api/v1/system/restore", none) == 202);
 	}
 	REQUIRE(sendBodyExample("POST", "/api/v1/channels/reload", none) == 202);
+	{
+		WebSourcesFixture sources;
+		std::map<std::string, std::string> kind;
+		kind["kind"] = "webtv";
+		REQUIRE(sendBodyExample("PUT", "/api/v1/channels/sources/{kind}", kind) == 200);
+	}
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/channels", first) == 204);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/hidden", first) == 204);
 	REQUIRE(sendBodyExample("PUT", "/api/v1/bouquets/{bouquet}/locked", first) == 204);

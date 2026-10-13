@@ -29,6 +29,7 @@
 #include "httpd/webconfig.h"
 
 #include "coreapi/channels.h"
+#include "coreapi/websources.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/base/result.h"
 #include "coreapi/base/types.h"
@@ -866,6 +867,89 @@ Response reloadChannelLists(const Request &r)
 	return accepted();
 }
 
+/* The lists the box reads web channels and the XMLTV guide from, with the
+   directories its own channel lists are kept in, which is where a page puts a
+   file it uploads before naming it in a list. */
+const FieldDesc kWebSourcesFields[] = {
+	HTTPD_LIST_OF_VALUES("webtv", ElementType::String,
+		"the web TV channel lists the box reads, XML or M3U, as addresses or files on the box, in the order it reads them"),
+	HTTPD_LIST_OF_VALUES("webradio", ElementType::String,
+		"the web radio channel lists, in the same form"),
+	HTTPD_LIST_OF_VALUES("xmltv", ElementType::String,
+		"the XMLTV guides the box reads programme data from, as addresses or files on the box"),
+	HTTPD_MEMBER("webtv_dir", FieldType::String,
+		"the directory the box keeps web TV channel lists of its own in, where an uploaded list belongs"),
+	HTTPD_MEMBER("webradio_dir", FieldType::String,
+		"the directory the box keeps web radio channel lists of its own in"),
+};
+
+const Schema kWebSourcesSchema = { "web-sources", HTTPD_FIELDS(kWebSourcesFields) };
+
+void writeList(Json &j, const char *name, const std::vector<std::string> &all)
+{
+	j.key(name);
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+		j.value(all[i]);
+	j.endArray();
+}
+
+Response webSourcesAnswer()
+{
+	const coreapi::Result<coreapi::websources::Lists> lists = coreapi::websources::read();
+	if (!lists.ok())
+		return problemFor(lists.error());
+
+	Response out = okJson();
+	Json j(out.body, 2048);
+	j.beginObject();
+	writeList(j, "webtv", lists.value().webtv);
+	writeList(j, "webradio", lists.value().webradio);
+	writeList(j, "xmltv", lists.value().xmltv);
+	j.key("webtv_dir");
+	j.value(coreapi::websources::webtvDir());
+	j.key("webradio_dir");
+	j.value(coreapi::websources::webradioDir());
+	j.endObject();
+	return out;
+}
+
+Response readWebSources(const Request &)
+{
+	return webSourcesAnswer();
+}
+
+/* One list at a time and as the whole body, for the reason the bouquet's own
+   list is: a list is not a value the router binds. Answered with all three as
+   the box will read them, the write being carried by the program's loop a
+   moment later and a read meanwhile answering what it named. */
+Response writeWebSources(const Request &r)
+{
+	const std::string kind = r.asString("kind");
+	const coreapi::websources::Kind which =
+		(kind == "webradio") ? coreapi::websources::WebRadio :
+		(kind == "xmltv") ? coreapi::websources::XmlTv : coreapi::websources::WebTv;
+
+	std::vector<std::string> entries;
+	const ArrayRead read = readStringArray(r.body(), coreapi::websources::kMaxSources, entries);
+	if (read == ArrayRead::TooMany)
+	{
+		char most[32];
+		std::snprintf(most, sizeof(most), "%lu", (unsigned long) coreapi::websources::kMaxSources);
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString,
+		                       std::string("a list holds at most ") + most + " entries");
+	}
+	if (read != ArrayRead::Ok)
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString,
+		                       "the body is not one array of strings");
+
+	const coreapi::Result<void> written =
+		coreapi::websources::write(which, entries, r.has("reload") && r.asBool("reload"));
+	if (!written.ok())
+		return problemFor(written.error());
+	return webSourcesAnswer();
+}
+
 Response zap(const Request &r)
 {
 	/* The channel is looked up before anything is posted, which the layer below
@@ -1132,6 +1216,23 @@ const Param kLogoListParams[] = {
 const Param kReloadParams[] = {
 	HTTPD_BODY("hard", ParamType::Bool,
 		"`false` (the default) writes the channels the box holds in memory to disc first and then reads them back, so memory wins; `true` skips the write, so the files on disc win over memory"),
+};
+
+const Param kWebSourceParams[] = {
+	HTTPD_SEGMENT_FROM_SET("kind", "which of the 3 lists the body replaces", "webtv,webradio,xmltv",
+		"webtv: the web TV channel lists\n"
+		"webradio: the web radio channel lists\n"
+		"xmltv: the XMLTV guides"),
+	HTTPD_BODY_IS_LIST_OF("sources", ParamType::String,
+		"a JSON array of the entries in the order the box is to read them, each an http or https address or an absolute path on the box of up to 1024 bytes, 100 for a guide, which is the longest the guide daemon takes, and without a `#`, which the settings file cannot keep; `[]` empties the list",
+		0, (long) coreapi::websources::kMaxSources),
+	HTTPD_QUERY("reload", ParamType::Bool,
+		"`true` has the box read its channel lists again once the list is in place, and the guides as well where the XMLTV list was written; left out, the list is read at the next reload or start"),
+};
+
+const RouteRefusal kWebSourceRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadString,
+		"entry 1 of the webtv list is not an http or https address or an absolute path of up to 1024 bytes without control characters or a number sign"),
 };
 
 const Param kZapParams[] = {
@@ -1529,6 +1630,21 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Related:** `GET /api/v1/channels`, `GET /api/v1/bouquets`.",
 	  HTTPD_PARAMS(kReloadParams), NULL, &reloadChannelLists, false,
 	  Answers202, HTTPD_NO_REFUSALS },
+	{ Method::Get, "/api/v1/channels/sources", AuthLevel::Write,
+	  "the lists the box reads web channels and XMLTV guides from",
+	  "Reads the 3 lists the box takes web content from: `webtv` and `webradio`, the channel lists (XML or M3U) of web TV and web radio, and `xmltv`, the XMLTV guides it reads programme data from, each an address or a file on the box in the order the box reads them; with them the directories the box keeps channel lists of its own in, where a file uploaded with `PUT /api/v1/storage/file` belongs before it is named in a list. Asks for the level a write does, an address in these lists often carrying an access key.\n\n"
+	  "**Related:** `PUT /api/v1/channels/sources/{kind}`, `POST /api/v1/channels/reload`.",
+	  NULL, 0, &kWebSourcesSchema, &readWebSources, false,
+	  Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Put, "/api/v1/channels/sources/{kind}", AuthLevel::Write,
+	  "replaces one of the lists the box reads web channels or XMLTV guides from, and reads them in again on request",
+	  "Replaces the list `kind` names with the entries of the body, a JSON array of addresses and absolute paths in the order the box is to read them; `[]` empties it, and the other 2 lists stay as they are. The box takes the list over on its own loop and saves its settings with it; the answer carries all 3 lists as the box will read them. With `reload=true` the box then reads its channel lists again, and the guides as well when the XMLTV list was written.\n\n"
+	  "**Side effects:** the box's settings are saved; with `reload=true` the channel lists are read again, which every client sees as a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-string`: the body is not 1 array of strings, holds more than 32 entries, or an entry is not an http or https address or an absolute path of up to 1024 bytes (100 for a guide) without control characters or `#`; the detail names the entry, and nothing is written.\n\n"
+	  "**Related:** `GET /api/v1/channels/sources`.",
+	  HTTPD_PARAMS(kWebSourceParams), &kWebSourcesSchema, &writeWebSources, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kWebSourceRefusals, "[\"http://example.com/webtv.xml\"]") },
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/channels", AuthLevel::Write,
 	  "replaces the television or the radio members of it with the channels the body names, in the order it names them, and empties that half for a body naming none; the body is a JSON array of hexadecimal channel identifiers",
 	  "Replaces the television or the radio channels of a bouquet with the channels the body lists, in that order; the other list of the bouquet stays as it is. `[]` empties the list. The body is a JSON array of hexadecimal channel id strings, at most 4096; every id is checked before anything changes, so a refused request leaves the bouquet untouched.\n\n"

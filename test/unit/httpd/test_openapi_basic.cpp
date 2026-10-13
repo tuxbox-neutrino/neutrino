@@ -23,6 +23,7 @@
 
 #include <set>
 #include <string>
+#include <algorithm>
 #include <vector>
 
 namespace {
@@ -70,11 +71,10 @@ TEST_CASE("the groups of this slice are declared in the order somebody meets thi
 		CHECK(tags[(Json::ArrayIndex) i]["name"].asString() == meant[i]);
 }
 
-TEST_CASE("the one route of this slice that takes a whole body says so", "[openapi-basic]")
+TEST_CASE("the routes of this slice that take a whole list as their body say so", "[openapi-basic]")
 {
 	const Json::Value doc = shipped();
-	size_t whole = 0;
-	std::string where;
+	std::vector<std::string> where;
 	const Json::Value paths = doc["paths"];
 	for (Json::ValueConstIterator p = paths.begin(); p != paths.end(); ++p)
 		for (Json::ValueConstIterator op = p->begin(); op != p->end(); ++op)
@@ -82,13 +82,12 @@ TEST_CASE("the one route of this slice that takes a whole body says so", "[opena
 			{
 				const Json::Value schema = (*op)["requestBody"]["content"]["application/json"]["schema"];
 				if (schema["type"].asString() == "array")
-				{
-					whole++;
-					where = p.name();
-				}
+					where.push_back(p.name());
 			}
-	CHECK(whole == 1);
-	CHECK(where == "/api/v1/bouquets/{bouquet}/channels");
+	std::sort(where.begin(), where.end());
+	REQUIRE(where.size() == 2);
+	CHECK(where[0] == "/api/v1/bouquets/{bouquet}/channels");
+	CHECK(where[1] == "/api/v1/channels/sources/{kind}");
 }
 
 TEST_CASE("a build without the prose keeps every path and every shape of this slice", "[openapi-basic]")

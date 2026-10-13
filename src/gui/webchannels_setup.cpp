@@ -38,9 +38,11 @@
 #include <gui/widget/keyboard_input.h>
 #include <gui/widget/menue_options.h>
 #include <zapit/zapit.h>
+#include <OpenThreads/ScopedLock>
 #include <zapit/bouquets.h>
 #include <neutrino_menue.h>
 #include "webchannels_setup.h"
+#include <coreapi/websources.h>
 
 
 #include <dirent.h>
@@ -301,16 +303,22 @@ int CWebChannelsSetup::Show()
 			CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 			webchannels.push_back(f->getName());
 		}
-		if (webradio)
 		{
-			g_settings.webradio_xml.clear();
-			g_settings.webradio_xml = webchannels;
+			// a channel reload copies these lists on zapit's thread
+			OpenThreads::ScopedLock<OpenThreads::Mutex> lists(CZapit::webListsMutex());
+			if (webradio)
+			{
+				g_settings.webradio_xml.clear();
+				g_settings.webradio_xml = webchannels;
+			}
+			else
+			{
+				g_settings.webtv_xml.clear();
+				g_settings.webtv_xml = webchannels;
+			}
 		}
-		else
-		{
-			g_settings.webtv_xml.clear();
-			g_settings.webtv_xml = webchannels;
-		}
+		// the copy the web layer answers from
+		coreapi::websources::refresh();
 		if (webradio)
 			CZapit::getInstance()->SetWebRadioXML(&g_settings.webradio_xml);
 		else

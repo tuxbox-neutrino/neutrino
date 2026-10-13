@@ -26,6 +26,7 @@
 #include <neutrino.h>
 #include <gui/filebrowser.h>
 #include <gui/widget/keyboard_input.h>
+#include <coreapi/websources.h>
 
 CXMLTVSetup::CXMLTVSetup()
 {
@@ -177,6 +178,8 @@ int CXMLTVSetup::Show()
 			CMenuForwarder *f = static_cast<CMenuForwarder *>(item);
 			g_settings.xmltv_xml.push_back(f->getName());
 		}
+		// the copy the web layer answers from
+		coreapi::websources::refresh();
 
 		CNeutrinoApp::getInstance()->xmltv_xml_readepg();
 	}

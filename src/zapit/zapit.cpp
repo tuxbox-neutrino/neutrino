@@ -1574,6 +1574,12 @@ void CZapit::unlockPlayBack(const bool /*sendpmt*/)
 	}
 }
 
+OpenThreads::Mutex &CZapit::webListsMutex()
+{
+	static OpenThreads::Mutex m;
+	return m;
+}
+
 void CZapit::Rezap(void)
 {
 	if (currentMode & RECORD_MODE)

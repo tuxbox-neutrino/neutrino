@@ -58,6 +58,7 @@
 #include <coreapi/archive.h>
 #include <coreapi/channels.h>
 #include <coreapi/system.h>
+#include <coreapi/websources.h>
 #include <coreapi/settings/settings.h>
 #include <coreapi/base/deps.h>
 #include <coreapi/base/messagebridge.h>
@@ -160,6 +161,7 @@ static bool saveNeutrinoSettings();
 
 #include <zapit/debug.h>
 #include <zapit/zapit.h>
+#include <OpenThreads/ScopedLock>
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
 #include <zapit/scan.h>
@@ -976,7 +978,10 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	if (g_settings.webtv_stream_restart_attempts > 3)
 		g_settings.webtv_stream_restart_attempts = 3;
 	g_settings.webtv_dns_diagnostics = configfile.getInt32("webtv_dns_diagnostics", 1) ? 1 : 0;
-	g_settings.webtv_xml.clear();
+	/* Built apart and put in place under zapit's lock for these lists: a
+	   reload of the channels copies them on zapit's thread, and a reload of
+	   the settings comes while one may be running. */
+	std::list<std::string> webtv_list;
 	/* A count of zero is what a setup holding only autoloaded files saved
 	   before webtv_xml_listed existed (saveSetup left those files out), so
 	   then the user's own webtv_usr.xml stands in, as it always did. Once
@@ -991,20 +996,20 @@ int CNeutrinoApp::loadSetup(const char *fname)
 			std::string webtv_xml = configfile.getString(k, "");
 			if (webtv_xml.empty())
 				continue;
-			g_settings.webtv_xml.push_back(webtv_xml);
+			webtv_list.push_back(webtv_xml);
 		}
 	}
 	else
 	{
 		std::string webtv_xml = configfile.getString("webtv_xml", WEBTV_XML);
 		if (file_size(webtv_xml.c_str()))
-			g_settings.webtv_xml.push_back(webtv_xml);
+			webtv_list.push_back(webtv_xml);
 	}
 	setSettingsText(g_settings.last_webtv_dir, configfile.getString("last_webtv_dir", WEBTVDIR_VAR));
 
 	// webradio
 	g_settings.webradio_xml_auto = configfile.getInt32("webradio_xml_auto", 1);
-	g_settings.webradio_xml.clear();
+	std::list<std::string> webradio_list;
 #ifndef BOXMODEL_CST_HD1
 	/*
 	   Coolstream's HD1 generation can't play audiostreams via movieplayer
@@ -1021,17 +1026,22 @@ int CNeutrinoApp::loadSetup(const char *fname)
 			std::string webradio_xml = configfile.getString(k, "");
 			if (webradio_xml.empty())
 				continue;
-			g_settings.webradio_xml.push_back(webradio_xml);
+			webradio_list.push_back(webradio_xml);
 		}
 	}
 	else
 	{
 		std::string webradio_xml = configfile.getString("webradio_xml", WEBRADIO_XML);
 		if (file_size(webradio_xml.c_str()))
-			g_settings.webradio_xml.push_back(webradio_xml);
+			webradio_list.push_back(webradio_xml);
 	}
 	setSettingsText(g_settings.last_webradio_dir, configfile.getString("last_webradio_dir", WEBRADIODIR_VAR));
 #endif
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> lists(CZapit::webListsMutex());
+		g_settings.webtv_xml.swap(webtv_list);
+		g_settings.webradio_xml.swap(webradio_list);
+	}
 
 	// xmltv
 	g_settings.xmltv_xml.clear();
@@ -1047,6 +1057,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 			g_settings.xmltv_xml.push_back(xmltv_xml);
 		}
 	}
+	// The copy of the three lists the web layer answers from; nothing before it
+	// is installed.
+	coreapi::websources::refresh();
 
 	/* xmltv_xml_auto is not touched here. It is no setting of the file but
 	   what the web channel lists name, and only a channel reload fills it
@@ -2917,6 +2930,7 @@ void CNeutrinoApp::carryWaitingSettings()
 	if (settings_apply_pending) {
 		settings_apply_pending = false;
 		coreapi::applyPendingSettings();
+		coreapi::websources::applyPending();
 	}
 }
 
@@ -3323,6 +3337,8 @@ TIMER_START();
 	coreapi::installRealRecordingSource();
 	coreapi::installRealEventSink();
 	coreapi::installRealSettingsSource(&g_settings, saveNeutrinoSettings);
+	// The web channel and guide lists, which the settings above cannot hold.
+	coreapi::websources::installRealSource(saveNeutrinoSettings);
 	// g_Locale is already loaded well above this line; the accessor reads it
 	// fresh on every call, so nothing here binds it to the language in effect
 	// at this particular moment.

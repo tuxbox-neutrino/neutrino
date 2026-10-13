@@ -312,6 +312,11 @@ class CZapit : public OpenThreads::Thread
 		std::list<std::string> *GetWebRadioXML(void) { return webradio_xml; }
 		void SetWebTVXML(std::list<std::string> *xml) { webtv_xml = xml; }
 		void SetWebRadioXML(std::list<std::string> *xml) { webradio_xml = xml; }
+		/* Held around every change to the two lists above and around the copy
+		   a reload of the channels takes of them on this thread: the program
+		   changes them on its own loop (its screens, a reload of its settings,
+		   a write over the web API) while a reload may be running here. */
+		static OpenThreads::Mutex &webListsMutex();
 		bool getUseChannelFilter();
 		void setMoviePlayer(bool enable);
 };

@@ -49,6 +49,7 @@
 #include <gui/rc_lock.h>
 #include <httpd/login_bridge.h>
 #include <httpd/webconfig.h>
+#include <coreapi/websources.h>
 #include <coreapi/webui.h>
 #include <mod_auth.h>
 #include <src/tools/rcsim.h> // rcsim.h is located in $(top_builddir)
@@ -4861,64 +4862,43 @@ void CControlAPI::xmltvm3uCGI(CyhookHandler *hh)
 
 void CControlAPI::xmltvlistCGI(CyhookHandler *hh)
 {
-	std::vector<std::string>::iterator it;
-	std::vector<std::string> url_list;
-	std::string tmp;
-
-	if (!hh->ParamList["webtv"].empty())
+	/* Through the web layer's own lists (coreapi/websources.h), which the
+	   program's loop takes over and saves: written here, on a connection
+	   thread, they were the program's lists rebuilt while its loop reads them,
+	   and nothing saved them. A list left out or empty is emptied, as before;
+	   all three are checked before any is written. */
+	const char *const names[] = { "webtv", "webradio", "xmltv" };
+	const coreapi::websources::Kind kinds[] = {
+		coreapi::websources::WebTv, coreapi::websources::WebRadio, coreapi::websources::XmlTv
+	};
+	std::vector<std::string> lists[3];
+	for (int i = 0; i < 3; i++)
 	{
-		std::string webtv_url = hh->ParamList["webtv"];
-		g_settings.webtv_xml.clear();
-		url_list = ::split(webtv_url, '\n');
-		for (it = url_list.begin(); it != url_list.end(); it++)
+		const std::vector<std::string> lines = ::split(hh->ParamList[names[i]], '\n');
+		for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); ++it)
 		{
-			tmp = (*it);
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
-			if (!tmp.empty())
-				g_settings.webtv_xml.push_back(tmp);
+			std::string entry = *it;
+			entry.erase(std::remove(entry.begin(), entry.end(), '\r'), entry.end());
+			entry.erase(std::remove(entry.begin(), entry.end(), '\t'), entry.end());
+			if (!entry.empty())
+				lists[i].push_back(entry);
+		}
+		const coreapi::Result<void> passes = coreapi::websources::check(kinds[i], lists[i]);
+		if (!passes.ok())
+		{
+			hh->SendError(passes.error().message);
+			return;
 		}
 	}
-	else
-		g_settings.webtv_xml.clear();
-
-	if (!hh->ParamList["webradio"].empty())
+	for (int i = 0; i < 3; i++)
 	{
-		std::string webradio_url = hh->ParamList["webradio"];
-		g_settings.webradio_xml.clear();
-		url_list = ::split(webradio_url, '\n');
-		for (it = url_list.begin(); it != url_list.end(); it++)
+		const coreapi::Result<void> written = coreapi::websources::write(kinds[i], lists[i], false);
+		if (!written.ok())
 		{
-			tmp = (*it);
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
-			if (!tmp.empty())
-				g_settings.webradio_xml.push_back(tmp);
+			hh->SendError(written.error().message);
+			return;
 		}
 	}
-	else
-		g_settings.webradio_xml.clear();
-
-	if (!hh->ParamList["xmltv"].empty())
-	{
-		std::string xmltv_url = hh->ParamList["xmltv"];
-		g_settings.xmltv_xml.clear();
-		url_list = ::split(xmltv_url, '\n');
-		for (it = url_list.begin(); it != url_list.end(); it++)
-		{
-			tmp = (*it);
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\t'), tmp.end());
-			if (!tmp.empty())
-				g_settings.xmltv_xml.push_back(tmp);
-		}
-	}
-	else
-		g_settings.xmltv_xml.clear();
-
 	hh->SendOk();
 }
 //-------------------------------------------------------------------------

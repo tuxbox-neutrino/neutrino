@@ -1206,7 +1206,10 @@ static void buildWebchannelSources(int mode, std::list<std::string> &sources)
 	std::string dir_keys[2] = { webchannelDirKey(dirs[0]), webchannelDirKey(dirs[1]) };
 
 	if (cfg)
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> lists(CZapit::webListsMutex());
 		sources.insert(sources.end(), cfg->begin(), cfg->end());
+	}
 
 	if (!auto_enabled)
 		return;
