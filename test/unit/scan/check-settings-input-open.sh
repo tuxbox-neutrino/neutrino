@@ -12,10 +12,12 @@
 # So the inputs count themselves while they are open, and both arms note what
 # was asked and leave it waiting while one is. What waited goes through one
 # function, carryWaitingSettings, which takes up the reload first and then the
-# writes, the settings and then the web source lists (coreapi/websources.h), so
-# that the reload reads the file before a carried write is saved over it. It is called by both arms when no input is open; when the message the
-# last input posts arrives, in the screen the input was opened from, asking for
-# it again when another input opened meanwhile; before neutrino.conf is saved,
+# writes, the settings, the web source lists (coreapi/websources.h) and the
+# network share slots (coreapi/shares.h), so that the reload reads the file
+# before a carried write is saved over it. It is called by both arms when no
+# input is open; when the message the last input posts arrives, in the
+# screen the input was opened from, asking for it again when another input
+# opened meanwhile; before neutrino.conf is saved,
 # so that no save puts the values the box runs on over a file a reload was asked
 # to read; by the exit and the restart before their saves, as they never return
 # to an input; and at the top of the main loop, before luaclient scripts are
@@ -137,9 +139,9 @@ done
 # What waits is taken up in one place: the reload first, then the write.
 carry=`block "$tmp/app" 'void CNeutrinoApp::carryWaitingSettings('`
 case "$carry" in
-	*"if(reload_setup_pending){reload_setup_pending=false;reloadSetup();}if(settings_apply_pending){settings_apply_pending=false;coreapi::applyPendingSettings();coreapi::websources::applyPending();}}") ;;
+	*"if(reload_setup_pending){reload_setup_pending=false;reloadSetup();}if(settings_apply_pending){settings_apply_pending=false;coreapi::applyPendingSettings();coreapi::websources::applyPending();coreapi::shares::applyPending();}}") ;;
 	*) fail "carryWaitingSettings does not take up a waiting reload and then the waiting" \
-		"  settings and web source writes, each once" ;;
+		"  settings, web source and share writes, each once" ;;
 esac
 
 # The message the last input posts: asked again while another input is open,

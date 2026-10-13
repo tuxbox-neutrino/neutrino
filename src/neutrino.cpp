@@ -59,6 +59,7 @@
 #include <coreapi/channels.h>
 #include <coreapi/system.h>
 #include <coreapi/websources.h>
+#include <coreapi/shares.h>
 #include <coreapi/settings/settings.h>
 #include <coreapi/base/deps.h>
 #include <coreapi/base/messagebridge.h>
@@ -1060,6 +1061,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	// The copy of the three lists the web layer answers from; nothing before it
 	// is installed.
 	coreapi::websources::refresh();
+	// and the copy of the network share slots
+	coreapi::shares::refresh();
 
 	/* xmltv_xml_auto is not touched here. It is no setting of the file but
 	   what the web channel lists name, and only a channel reload fills it
@@ -2931,6 +2934,7 @@ void CNeutrinoApp::carryWaitingSettings()
 		settings_apply_pending = false;
 		coreapi::applyPendingSettings();
 		coreapi::websources::applyPending();
+		coreapi::shares::applyPending();
 	}
 }
 
@@ -3339,6 +3343,7 @@ TIMER_START();
 	coreapi::installRealSettingsSource(&g_settings, saveNeutrinoSettings);
 	// The web channel and guide lists, which the settings above cannot hold.
 	coreapi::websources::installRealSource(saveNeutrinoSettings);
+	coreapi::shares::installRealSource(saveNeutrinoSettings);
 	// g_Locale is already loaded well above this line; the accessor reads it
 	// fresh on every call, so nothing here binds it to the language in effect
 	// at this particular moment.

@@ -56,6 +56,7 @@
 #include <unistd.h>
 #include <neutrino.h>
 #include <zapit/client/zapittools.h>
+#include <coreapi/shares.h>
 
 extern int pinghost (const std::string &hostname, std::string *ip = NULL);
 
@@ -180,6 +181,8 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 		*/
 		if (generation != CFSMounter::getMountGeneration())
 			returnval = menu_return::RETURN_EXIT;
+		// the copy of the slots the web interface reads, after this screen edited them
+		coreapi::shares::refresh();
 	}
 	else if(actionKey == "rc_spkr")
 	{

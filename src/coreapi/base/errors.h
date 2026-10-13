@@ -433,6 +433,17 @@ enum class ErrorCode
 	   with; it reaches nothing but setting a password of its own until it has. */
 	PasswordChangeRequired,
 
+	/* A network share of the box's own slots (coreapi::shares) and its mount:
+	   the slot names nothing to mount, something is mounted where it lands,
+	   the box cannot mount that kind, the mount or the unmount failed, and
+	   what is mounted there is not the slot's share. */
+	ShareNotConfigured,
+	MountPointBusy,
+	FilesystemUnsupported,
+	MountFailed,
+	ShareNotMounted,
+	UnmountFailed,
+
 	// A command this layer ran, and what became of it.
 	CommandNotStarted,
 	CommandOutputUnreadable,
@@ -617,6 +628,12 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::ConfigDocumentUnreadable: return "config-document-unreadable";
 		case ErrorCode::WebserverNotConfigured: return "webserver-not-configured";
 		case ErrorCode::PasswordChangeRequired: return "password-change-required";
+		case ErrorCode::ShareNotConfigured: return "share-not-configured";
+		case ErrorCode::MountPointBusy: return "mount-point-busy";
+		case ErrorCode::FilesystemUnsupported: return "filesystem-unsupported";
+		case ErrorCode::MountFailed: return "mount-failed";
+		case ErrorCode::ShareNotMounted: return "share-not-mounted";
+		case ErrorCode::UnmountFailed: return "unmount-failed";
 		case ErrorCode::CommandNotStarted: return "command-not-started";
 		case ErrorCode::CommandOutputUnreadable: return "command-output-unreadable";
 		case ErrorCode::Timeout: return "timeout";

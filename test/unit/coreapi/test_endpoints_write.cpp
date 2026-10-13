@@ -43,6 +43,7 @@
 #include "coreapi/base/settingswrites.h"
 #include "configfile.h"
 #include "coreapi/netfs.h"
+#include "coreapi/shares.h"
 #include "coreapi/osd.h"
 #include "coreapi/plugins.h"
 #include "coreapi/system.h"
@@ -1424,7 +1425,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 59);
+	REQUIRE(changing == 63);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4318,6 +4319,284 @@ TEST_CASE("none of the network filesystem routes is reached below system", "[wri
 	REQUIRE(lanPost("/api/v1/storage/netfs/automount/reload", "").code == 403);
 }
 
+namespace
+{
+
+/* The box's own shares as a case holds them: eight slots, what is mounted on
+   each, and what the next mount and unmount are to come to. */
+struct FakeShares : public coreapi::shares::Source
+{
+	std::vector<coreapi::shares::Share> slots;
+	std::vector<coreapi::shares::State> states;
+	coreapi::shares::Mounted next_mount;
+	coreapi::shares::Unmounted next_unmount;
+	coreapi::Status next_write;
+	std::vector<std::string> mounted, unmounted;
+
+	FakeShares()
+		: slots(coreapi::shares::kSlots), states(coreapi::shares::kSlots, coreapi::shares::State::Unmounted),
+		  next_mount(coreapi::shares::Mounted::Ok), next_unmount(coreapi::shares::Unmounted::Ok),
+		  next_write(coreapi::Status::Ok)
+	{
+		for (size_t i = 0; i < slots.size(); ++i)
+			slots[i].local_dir = "/mnt/mnt" + std::to_string((unsigned long) i);
+		coreapi::shares::setSource(this);
+	}
+	~FakeShares() { coreapi::shares::setSource(NULL); }
+
+	coreapi::Status read(std::vector<coreapi::shares::Share> &out, std::vector<coreapi::shares::State> &st) const
+	{
+		out = slots;
+		st = states;
+		return coreapi::Status::Ok;
+	}
+	coreapi::Status write(size_t slot, const coreapi::shares::Share &share)
+	{
+		if (next_write != coreapi::Status::Ok)
+			return next_write;
+		const std::string kept = slots[slot].password;
+		slots[slot] = share;
+		if (!share.change_password)
+			slots[slot].password = kept;
+		return coreapi::Status::Ok;
+	}
+	coreapi::shares::Mounted mount(const coreapi::shares::Share &share)
+	{
+		mounted.push_back(share.local_dir);
+		if (next_mount == coreapi::shares::Mounted::Ok)
+			for (size_t i = 0; i < slots.size(); ++i)
+				if (slots[i].local_dir == share.local_dir)
+					states[i] = coreapi::shares::State::Mounted;
+		return next_mount;
+	}
+	coreapi::shares::Unmounted unmount(const coreapi::shares::Share &share)
+	{
+		unmounted.push_back(share.local_dir);
+		if (next_unmount == coreapi::shares::Unmounted::Ok)
+			for (size_t i = 0; i < slots.size(); ++i)
+				if (slots[i].local_dir == share.local_dir)
+					states[i] = coreapi::shares::State::Unmounted;
+		return next_unmount;
+	}
+};
+
+const char kShareBody[] =
+	"{\"automount\":true,\"type\":\"cifs\",\"local_dir\":\"/mnt/nas\",\"host\":\"nas.lan\","
+	"\"remote_dir\":\"media\",\"user\":\"uli\",\"password\":\"p$(reboot)'x\",\"options1\":\"rw\","
+	"\"options2\":\"vers=3.0\",\"mac\":\"00:11:22:aa:bb:cc\"}";
+
+} // namespace
+
+TEST_CASE("the box's own shares are read without the password and written whole", "[write][shares]")
+{
+	ShippedRoutes shipped;
+	FakeShares fake;
+	fake.slots[2].host = "10.0.0.2";
+	fake.slots[2].remote_dir = "/export";
+	fake.slots[2].password = "kept";
+
+	const Reply list = authedGet("/api/v1/storage/shares");
+	REQUIRE(list.code == 200);
+	const ::Json::Value got = parsed(list.body);
+	REQUIRE(got["items"].size() == 8);
+	REQUIRE(got["items"][2]["host"].asString() == "10.0.0.2");
+	REQUIRE(got["items"][2]["has_password"].asBool());
+	REQUIRE(got["items"][2]["state"].asString() == "unmounted");
+	REQUIRE(list.body.find("kept") == std::string::npos);
+
+	// Written whole; a password that is no word of the shell's is still just a password.
+	const Reply put = authedPut("/api/v1/storage/shares/5", kShareBody);
+	REQUIRE(put.code == 200);
+	REQUIRE(fake.slots[5].kind == coreapi::shares::Kind::Cifs);
+	REQUIRE(fake.slots[5].automount);
+	REQUIRE(fake.slots[5].host == "nas.lan");
+	REQUIRE(fake.slots[5].username == "uli");
+	REQUIRE(fake.slots[5].password == "p$(reboot)'x");
+	REQUIRE(fake.slots[5].mac == "00:11:22:aa:bb:cc");
+	REQUIRE(put.body.find("reboot") == std::string::npos);
+	REQUIRE(parsed(put.body)["items"][5]["has_password"].asBool());
+
+	// Left out, the stored password stays; sent empty, it goes.
+	REQUIRE(authedPut("/api/v1/storage/shares/2",
+			  "{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/two\",\"host\":\"10.0.0.2\","
+			  "\"remote_dir\":\"/export\"}").code == 200);
+	REQUIRE(fake.slots[2].password == "kept");
+	REQUIRE(fake.slots[2].local_dir == "/mnt/two");
+	REQUIRE(authedPut("/api/v1/storage/shares/2",
+			  "{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/two\",\"password\":\"\"}").code == 200);
+	REQUIRE(fake.slots[2].password.empty());
+	REQUIRE(fake.slots[2].host.empty());
+
+	// What the box could not keep or mount is refused, and nothing is written.
+	const char *const refused[] = {
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"mnt/rel\"}",
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/../etc\"}",
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/with space\"}",
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\",\"remote_dir\":\"/a b\"}",
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\",\"host\":\"nas;reboot\"}",
+		// a host the mount would read as an option of its own
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\",\"host\":\"-oro\"}",
+		"{\"automount\":false,\"type\":\"cifs\",\"local_dir\":\"/mnt/x\",\"password\":\"a,b\"}",
+		"{\"automount\":false,\"type\":\"cifs\",\"local_dir\":\"/mnt/x\",\"user\":\"a#b\"}",
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\",\"options1\":\"rw soft\"}",
+		"{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\",\"mac\":\"00:11:22\"}",
+		"{\"automount\":false,\"type\":\"cifs\",\"local_dir\":\"/mnt/x\",\"options1\":\"rw,password=s\"}",
+		"{\"automount\":false,\"type\":\"cifs\",\"local_dir\":\"/mnt/x\",\"options2\":\"Credentials=/etc/c\"}",
+		"{\"automount\":false,\"type\":\"lufs\",\"local_dir\":\"/mnt/x\"}",
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i]);
+		const Reply no = authedPut("/api/v1/storage/shares/6", refused[i]);
+		REQUIRE(no.code == 400);
+		REQUIRE((no.body.find("bad-string") != std::string::npos || no.body.find("bad-enum") != std::string::npos ||
+			 no.body.find("not-in-set") != std::string::npos));
+		REQUIRE(fake.slots[6].local_dir == "/mnt/mnt6");
+	}
+
+	// A box that could not be asked to take it over says so, and one too busy to.
+	fake.next_write = coreapi::Status::Internal;
+	const Reply unposted = authedPut("/api/v1/storage/shares/6", "{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\"}");
+	REQUIRE(unposted.code == 500);
+	REQUIRE(unposted.body.find("command-not-posted") != std::string::npos);
+	fake.next_write = coreapi::Status::Busy;
+	const Reply busy = authedPut("/api/v1/storage/shares/6", "{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\"}");
+	REQUIRE(busy.code == 409);
+	REQUIRE(busy.body.find("command-not-posted") != std::string::npos);
+	REQUIRE(fake.slots[6].local_dir == "/mnt/mnt6");
+}
+
+TEST_CASE("a slot's share is mounted and unmounted, and nothing else on its directory", "[write][shares]")
+{
+	ShippedRoutes shipped;
+	FakeShares fake;
+	fake.slots[1].host = "10.0.0.1";
+	fake.slots[1].remote_dir = "/export";
+
+	// A slot naming nothing to mount.
+	const Reply empty = authedPost("/api/v1/storage/shares/0/mount", "");
+	REQUIRE(empty.code == 409);
+	REQUIRE(empty.body.find("share-not-configured") != std::string::npos);
+	REQUIRE(fake.mounted.empty());
+
+	// What the mount came to, as the box's mounter says it.
+	const struct
+	{
+		coreapi::shares::Mounted said;
+		int code;
+		const char *wire;
+	} outcomes[] = {
+		{ coreapi::shares::Mounted::Unsupported, 501, "filesystem-unsupported" },
+		{ coreapi::shares::Mounted::Timeout, 500, "timeout" },
+		{ coreapi::shares::Mounted::Failed, 500, "mount-failed" },
+		{ coreapi::shares::Mounted::Busy, 409, "mount-point-busy" },
+	};
+	for (size_t i = 0; i < sizeof(outcomes) / sizeof(outcomes[0]); ++i)
+	{
+		INFO(outcomes[i].wire);
+		fake.next_mount = outcomes[i].said;
+		const Reply r = authedPost("/api/v1/storage/shares/1/mount", "");
+		REQUIRE(r.code == outcomes[i].code);
+		REQUIRE(r.body.find(outcomes[i].wire) != std::string::npos);
+	}
+	fake.next_mount = coreapi::shares::Mounted::Ok;
+	const Reply mounted = authedPost("/api/v1/storage/shares/1/mount", "");
+	REQUIRE(mounted.code == 200);
+	REQUIRE(parsed(mounted.body)["items"][1]["state"].asString() == "mounted");
+	// mounted already
+	REQUIRE(authedPost("/api/v1/storage/shares/1/mount", "").code == 409);
+
+	// Something else on a slot's directory is neither mounted over nor taken away.
+	fake.slots[3].host = "10.0.0.3";
+	fake.slots[3].remote_dir = "/other";
+	fake.states[3] = coreapi::shares::State::Foreign;
+	const size_t mounts = fake.mounted.size();
+	REQUIRE(authedPost("/api/v1/storage/shares/3/mount", "").code == 409);
+	const Reply foreign = authedPost("/api/v1/storage/shares/3/unmount", "");
+	REQUIRE(foreign.code == 409);
+	REQUIRE(foreign.body.find("share-not-mounted") != std::string::npos);
+	REQUIRE(fake.mounted.size() == mounts);
+	REQUIRE(fake.unmounted.empty());
+	REQUIRE(authedPost("/api/v1/storage/shares/4/unmount", "").code == 409);
+
+	// The unmount of the slot's own share, decided again where it is done.
+	fake.next_unmount = coreapi::shares::Unmounted::NotOurs;
+	const Reply overmounted = authedPost("/api/v1/storage/shares/1/unmount", "");
+	REQUIRE(overmounted.code == 409);
+	REQUIRE(overmounted.body.find("share-not-mounted") != std::string::npos);
+	fake.next_unmount = coreapi::shares::Unmounted::Failed;
+	const Reply stuck = authedPost("/api/v1/storage/shares/1/unmount", "");
+	REQUIRE(stuck.code == 500);
+	REQUIRE(stuck.body.find("unmount-failed") != std::string::npos);
+	fake.next_unmount = coreapi::shares::Unmounted::Ok;
+	const Reply gone = authedPost("/api/v1/storage/shares/1/unmount", "");
+	REQUIRE(gone.code == 200);
+	REQUIRE(parsed(gone.body)["items"][1]["state"].asString() == "unmounted");
+	REQUIRE(fake.unmounted.back() == "/mnt/mnt1");
+
+	// A slot of the userspace FTP filesystem is read, and mounted and unmounted at the box only.
+	fake.slots[5].kind = coreapi::shares::Kind::Lufs;
+	fake.slots[5].host = "ftp.lan";
+	fake.slots[5].remote_dir = "pub";
+	REQUIRE(parsed(authedGet("/api/v1/storage/shares").body)["items"][5]["type"].asString() == "lufs");
+	const size_t before = fake.mounted.size();
+	const Reply lufs_mount = authedPost("/api/v1/storage/shares/5/mount", "");
+	REQUIRE(lufs_mount.code == 501);
+	REQUIRE(lufs_mount.body.find("filesystem-unsupported") != std::string::npos);
+	fake.states[5] = coreapi::shares::State::Foreign;
+	const Reply lufs_unmount = authedPost("/api/v1/storage/shares/5/unmount", "");
+	REQUIRE(lufs_unmount.code == 501);
+	REQUIRE(lufs_unmount.body.find("filesystem-unsupported") != std::string::npos);
+	REQUIRE(fake.mounted.size() == before);
+}
+
+TEST_CASE("every slot set to mount automatically is mounted, and each says what came of it", "[write][shares]")
+{
+	ShippedRoutes shipped;
+	FakeShares fake;
+	fake.slots[0].automount = true;
+	fake.slots[0].host = "10.0.0.1";
+	fake.slots[0].remote_dir = "/a";
+	fake.slots[2].automount = true;   // names nothing to mount
+	fake.slots[4].automount = true;
+	fake.slots[4].host = "10.0.0.4";
+	fake.slots[4].remote_dir = "/b";
+	fake.states[4] = coreapi::shares::State::Mounted;   // mounted already: left out
+	fake.slots[5].host = "10.0.0.5";                     // not automatic: left out
+	fake.slots[5].remote_dir = "/c";
+
+	const Reply r = authedPost("/api/v1/storage/shares/mount", "");
+	REQUIRE(r.code == 200);
+	const ::Json::Value got = parsed(r.body);
+	REQUIRE(got["items"].size() == 2);
+	REQUIRE(got["items"][0]["slot"].asUInt() == 0);
+	REQUIRE(got["items"][0]["mounted"].asBool());
+	REQUIRE(got["items"][1]["slot"].asUInt() == 2);
+	REQUIRE_FALSE(got["items"][1]["mounted"].asBool());
+	REQUIRE(got["items"][1]["code"].asString() == "share-not-configured");
+	REQUIRE(fake.mounted.size() == 1);
+}
+
+TEST_CASE("a box without shares of its own says so, and none of the routes is reached below system", "[write][shares]")
+{
+	ShippedRoutes shipped;
+	{
+		const Reply none = authedGet("/api/v1/storage/shares");
+		REQUIRE(none.code == 501);
+		REQUIRE(none.body.find("command-not-sent") != std::string::npos);
+		REQUIRE(authedPut("/api/v1/storage/shares/0", "{\"automount\":false,\"type\":\"nfs\",\"local_dir\":\"/mnt/x\"}").code == 501);
+		REQUIRE(authedPost("/api/v1/storage/shares/mount", "").code == 501);
+		REQUIRE(authedPost("/api/v1/storage/shares/0/mount", "").code == 501);
+		REQUIRE(authedPost("/api/v1/storage/shares/0/unmount", "").code == 501);
+	}
+	FakeShares fake;
+	REQUIRE(send(Get, "/api/v1/storage/shares", "", AuthLevel::Write, "127.0.0.1").code == 403);
+	REQUIRE(send(Put, "/api/v1/storage/shares/0", kShareBody, AuthLevel::Write, "127.0.0.1").code == 403);
+	REQUIRE(lanPost("/api/v1/storage/shares/0/mount", "").code == 403);
+	REQUIRE(lanPost("/api/v1/storage/shares/0/unmount", "").code == 403);
+	REQUIRE(lanPost("/api/v1/storage/shares/mount", "").code == 403);
+}
+
 TEST_CASE("the switch that shows a logo is a line of this server's own file", "[write]")
 {
 	/* It decides what a page draws and not what the television draws, which is
@@ -4720,6 +4999,11 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 	{
 		NetfsFixture netfs;
 		REQUIRE(sendBodyExample("PUT", "/api/v1/storage/netfs/{table}/{slot}",
+		                        std::map<std::string, std::string>()) == 200);
+	}
+	{
+		FakeShares shares;
+		REQUIRE(sendBodyExample("PUT", "/api/v1/storage/shares/{slot}",
 		                        std::map<std::string, std::string>()) == 200);
 	}
 	{

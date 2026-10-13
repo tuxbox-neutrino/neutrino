@@ -50,6 +50,7 @@ libcoreapi_a_SOURCES = \
 	box/recordingsource_real.cpp \
 	box/settingssource_real.cpp \
 	box/websources_real.cpp \
+	box/shares_real.cpp \
 	box/localesource_real.cpp \
 	box/recordingsafetysource_real.cpp \
 	settings/settingstable.cpp \
@@ -96,6 +97,7 @@ libcoreapi_a_SOURCES = \
 	shelltable.cpp \
 	storage.cpp \
 	netfs.cpp \
+	shares.cpp \
 	daemons.cpp \
 	base/eventbus.cpp \
 	base/messagebridge.cpp
@@ -120,6 +122,7 @@ noinst_HEADERS = \
 	webui.h \
 	network.h \
 	websources.h \
+	shares.h \
 	backup.h \
 	archive.h \
 	archive_internal.h \
