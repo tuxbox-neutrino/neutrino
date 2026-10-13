@@ -204,6 +204,7 @@ const Walked kWalked[] = {
 	CODE(RecordingListUnavailable),
 	CODE(ConfigDocumentUnreadable),
 	CODE(WebserverNotConfigured),
+	CODE(PasswordChangeRequired),
 	CODE(CommandNotStarted),
 	CODE(CommandOutputUnreadable),
 	CODE(Timeout),

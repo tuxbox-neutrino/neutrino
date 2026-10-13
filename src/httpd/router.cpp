@@ -290,6 +290,19 @@ bool inList(const char *list, const std::string &v)
 }
 
 AnswerWatch answer_watch = NULL;
+PasswordOwed password_owed = NULL;
+
+// The routes a caller signed in with a shipped password still reaches.
+bool openWhilePasswordOwed(const Endpoint &ep)
+{
+	static const char *const open[] = {
+		"/api/v1/login", "/api/v1/session", "/api/v1/logout", "/api/v1/account/password"
+	};
+	for (size_t i = 0; i < sizeof(open) / sizeof(open[0]); ++i)
+		if (std::strcmp(ep.path, open[i]) == 0)
+			return true;
+	return false;
+}
 
 /* Every refusal this file makes, written through the one builder beside the problem
    document, so two answers to one kind of refusal cannot take two shapes. */
@@ -696,6 +709,14 @@ Response runEndpoint(const Endpoint &ep,
 	   one of them is reworded. */
 	if (!atLeast(granted, ep.auth))
 		return refuse(StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail());
+
+	/* Signed in while the box still opens to a password it shipped with: the
+	   routes that let the caller set its own answer, nothing else does. Asked
+	   last, the question costing a derivation the first time it is asked of a
+	   stored password. */
+	if (atLeast(granted, AuthLevel::Write) && !openWhilePasswordOwed(ep) && passwordChangeOwed())
+		return refuse(StatusForbidden, coreapi::ErrorCode::PasswordChangeRequired,
+		              passwordChangeRequiredDetail());
 
 	// A table this layer wrote with no handler in it would otherwise be a jump
 	// through nothing.
@@ -1522,6 +1543,27 @@ void parameterRefusals(const Endpoint &ep,
 		out.push_back(std::make_pair(coreapi::ErrorCode::BadEnum,
 		                             head + listed->name + " is not one of " +
 		                             ((listed->values != NULL) ? listed->values : "")));
+}
+
+void setPasswordOwed(PasswordOwed f)
+{
+	password_owed = f;
+}
+
+bool passwordChangeOwed()
+{
+	return password_owed != NULL && password_owed();
+}
+
+bool reachableWhilePasswordOwed(const Endpoint &ep)
+{
+	return openWhilePasswordOwed(ep);
+}
+
+const char *passwordChangeRequiredDetail()
+{
+	return "this box still opens to the password it shipped with: set a password of "
+	       "your own first, with PUT /api/v1/account/password";
 }
 
 void setAnswerWatchForTest(AnswerWatch w)

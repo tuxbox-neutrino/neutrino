@@ -258,6 +258,8 @@ struct WireServer
 		   is joined, because the hooks and the config below must outlive
 		   the last HandleConnection. */
 		events::stop();
+		// registerPrefixes installed the first-login gate, which the other cases do not expect
+		httpd::setPasswordOwed(NULL);
 		::shutdown(listener->get_socket(), SHUT_RDWR);
 		pthread_join(acceptor, NULL);
 		for (;;)

@@ -351,12 +351,17 @@ bool passwordIsShipped()
 }
 
 bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from)
+            const Ask *from, bool reset_to_shipped)
 {
 	if (why != NULL)
 		why->clear();
 	try
 	{
+		// the rules every writer of the password is held to
+		if (!password.empty() && !(reset_to_shipped && httpd::isShippedPassword(password)) &&
+		    !httpd::passwordAcceptable(password, why))
+			return false;
+
 		if (from != NULL && !fromThisBox(*from))
 		{
 			if (why != NULL)

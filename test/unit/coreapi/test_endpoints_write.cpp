@@ -32,6 +32,7 @@
 #include "httpd/json.h"
 #include "httpd/doc/openapi.h"
 #include "httpd/router.h"
+#include "httpd/login_bridge.h"
 #include "httpd/schema.h"
 #include "httpd/server.h"
 #include "httpd/status.h"
@@ -238,7 +239,8 @@ std::string stringField(const std::string &body, const char *name)
    written down, so what the login route goes through here is the derivation it goes
    through on the box. */
 const char kUser[] = "root";
-const char kPassword[] = "ni";
+// none of the passwords these boxes have shipped with, which the first-login gate would hold to a change
+const char kPassword[] = "own-pass-1";
 
 // The address the login cases are answered from, in the range set aside for
 // documentation so it is nobody's network.
@@ -1422,7 +1424,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 58);
+	REQUIRE(changing == 59);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -3548,6 +3550,18 @@ TEST_CASE("a new password is taken as a password and answered as neither form", 
 	ShippedRoutes shipped;
 	WebFile file("password", kWebFileHead);
 
+	// held to the rules every writer of the password is held to
+	const std::string untouched = wholeOf(file.path);
+	const char *const refused[] = { "{\"password\":\"short\"}", "{\"password\":\"coolstream\"}" };
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i]);
+		const Response no = putWebserver(refused[i]);
+		REQUIRE(no.code == 400);
+		REQUIRE(no.body.find("bad-string") != std::string::npos);
+		REQUIRE(wholeOf(file.path) == untouched);
+	}
+
 	const Response r = putWebserver("{\"password\":\"a password nobody guesses\"}");
 	REQUIRE(r.code == 200);
 
@@ -4720,6 +4734,13 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 		c.password_hash = hashSecret(kShippedPassword, 2000);
 		setConfigForTest(c);
 		REQUIRE(sendBodyExample("POST", "/api/v1/login", std::map<std::string, std::string>()) == 200);
+	}
+	{
+		// the example replaces the shipped password, which the box starts from
+		WebFile file("example-password", std::string(kWebFileHead) + "password_hash=" +
+		             hashSecret(kShippedPassword, 2000) + "\n");
+		REQUIRE(sendBodyExample("PUT", "/api/v1/account/password",
+		                        std::map<std::string, std::string>()) == 204);
 	}
 }
 
@@ -6039,4 +6060,125 @@ TEST_CASE("a bouquet write holds the channel files until the box is through with
 	REQUIRE(lockedAtAwait);
 	REQUIRE_FALSE(coreapi::channels::internal::filesLockTaken());
 	box.channels.on_await = NULL;
+}
+
+namespace
+{
+
+// The question the server asks installed for a case, and taken back after it.
+struct PasswordOwedInstalled
+{
+	PasswordOwedInstalled() { httpd::setPasswordOwed(&login_bridge::passwordIsShipped); }
+	~PasswordOwedInstalled() { httpd::setPasswordOwed(NULL); }
+};
+
+} // namespace
+
+TEST_CASE("a box still opening to its shipped password asks for one of the owner's own first", "[write][firstlogin]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	WebFile file("firstlogin", std::string(kWebFileHead) + "password_hash=" +
+	             hashSecret(kShippedPassword, 2000) + "\n");
+	REQUIRE(login_bridge::passwordIsShipped());
+	// Asked only where the server installed the question: the router alone holds nothing back.
+	REQUIRE(send(Get, "/api/v1/channels", "", AuthLevel::Write, "127.0.0.1").code == 200);
+	PasswordOwedInstalled owed;
+
+	// A caller that signed in reaches the routes that let it set its own, and nothing else.
+	const Reply blocked = send(Post, "/api/v1/system/standby", "{\"on\":true}", AuthLevel::System, "127.0.0.1");
+	REQUIRE(blocked.code == 403);
+	REQUIRE(blocked.body.find("password-change-required") != std::string::npos);
+	REQUIRE(send(Get, "/api/v1/channels", "", AuthLevel::Write, "127.0.0.1").code == 403);
+	const Reply state = send(Get, "/api/v1/session", "", AuthLevel::System, "127.0.0.1");
+	REQUIRE(state.code == 200);
+	REQUIRE(parsed(state.body)["password_change_required"].asBool());
+	// one reading without a password off the home network presented none, and is not asked
+	REQUIRE(send(Get, "/api/v1/channels", "", AuthLevel::Read, "192.168.1.20").code == 200);
+	REQUIRE_FALSE(parsed(send(Get, "/api/v1/session", "", AuthLevel::Read, "192.168.1.20").body)
+	              ["password_change_required"].asBool());
+	// and one signed in with the shipped password may still leave
+	{
+		const std::string token = openSession("root");
+		REQUIRE_FALSE(token.empty());
+		const Response out = dispatch(Post, "/api/v1/logout", "", "", "127.0.0.1",
+		                              AuthLevel::System, std::string(), token);
+		REQUIRE(out.code == 204);
+		REQUIRE(csrfFor(token).empty());
+	}
+
+	// What a password of one's own has to be.
+	struct Refused
+	{
+		const char *current;
+		const char *password;
+		int code;
+		const char *says;
+	};
+	const Refused refused[] = {
+		{ "wrong", "my own pass phrase", 403, "not the one in effect" },
+		{ kShippedPassword, "short", 400, "fewer than 8" },
+		{ kShippedPassword, "coolstream", 400, "shipped with" },
+		{ kShippedPassword, kShippedPassword, 400, "shipped with" },
+		// refused by the router already: a text member holds no control characters
+		{ kShippedPassword, "with\ttab inside", 400, "bad-string" },
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i].says);
+		const Reply r = send(Put, "/api/v1/account/password",
+		                     std::string("{\"current\":\"") + refused[i].current + "\",\"password\":\"" +
+		                     refused[i].password + "\"}", AuthLevel::System, "127.0.0.1");
+		REQUIRE(r.code == refused[i].code);
+		REQUIRE(r.body.find(refused[i].says) != std::string::npos);
+		REQUIRE(login_bridge::passwordIsShipped());
+	}
+
+	// Set: in effect at once, and the box answers everything again.
+	const Reply set = send(Put, "/api/v1/account/password",
+	                       std::string("{\"current\":\"") + kShippedPassword +
+	                       "\",\"password\":\"my own pass phrase\"}", AuthLevel::System, "127.0.0.1");
+	REQUIRE(set.code == 204);
+	REQUIRE_FALSE(login_bridge::passwordIsShipped());
+	REQUIRE(verifySecret("my own pass phrase", loginInEffect().password_hash));
+	REQUIRE_FALSE(parsed(send(Get, "/api/v1/session", "", AuthLevel::System, "127.0.0.1").body)
+	              ["password_change_required"].asBool());
+	REQUIRE(send(Get, "/api/v1/channels", "", AuthLevel::Write, "127.0.0.1").code == 200);
+	REQUIRE(ChannelFileFixture::read(file.path).find("password_hash=") != std::string::npos);
+	// the same one again is no change
+	const Reply same = send(Put, "/api/v1/account/password",
+	                        "{\"current\":\"my own pass phrase\",\"password\":\"my own pass phrase\"}",
+	                        AuthLevel::System, "127.0.0.1");
+	REQUIRE(same.code == 400);
+	REQUIRE(same.body.find("the one it is to replace") != std::string::npos);
+}
+
+TEST_CASE("the current password is guessed no faster here than at the login, and a file that cannot be written is said", "[write][firstlogin]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebFile file("pw-refused", std::string(kWebFileHead) + "password_hash=" +
+	             hashSecret(kShippedPassword, 2000) + "\n");
+	const std::string wrong = "{\"current\":\"wrong one\",\"password\":\"my own pass phrase\"}";
+	const std::string right = std::string("{\"current\":\"") + kShippedPassword +
+	                          "\",\"password\":\"my own pass phrase\"}";
+
+	// The wrong ones count against the address as wrong logins do.
+	setLoginClockForTest(1735689600);
+	for (int i = 0; i < 3; ++i)
+		REQUIRE(send(Put, "/api/v1/account/password", wrong, AuthLevel::System, "192.0.2.77").code == 403);
+	const Reply waits = send(Put, "/api/v1/account/password", right, AuthLevel::System, "192.0.2.77");
+	REQUIRE(waits.code == 429);
+	REQUIRE(waits.body.find("too-many-attempts") != std::string::npos);
+	REQUIRE(verifySecret(kShippedPassword, loginInEffect().password_hash));
+	forgetLoginAttemptsForTest();
+
+	// A file the password cannot be written to is a fault of this box, and the old one stays.
+	REQUIRE(::unlink(file.path.c_str()) == 0);
+	REQUIRE(::mkdir(file.path.c_str(), 0700) == 0);
+	const Reply fault = send(Put, "/api/v1/account/password", right, AuthLevel::System, "127.0.0.1");
+	REQUIRE(::rmdir(file.path.c_str()) == 0);
+	REQUIRE(fault.code == 500);
+	REQUIRE(fault.body.find("webserver-not-configured") != std::string::npos);
+	REQUIRE(verifySecret(kShippedPassword, loginInEffect().password_hash));
 }

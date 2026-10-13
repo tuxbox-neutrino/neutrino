@@ -104,7 +104,12 @@ struct Attached
 		CyhookHandler::clearApiPrefixes();
 		CApiBridge::registerPrefixes();
 	}
-	~Attached() { CyhookHandler::clearApiPrefixes(); }
+	~Attached()
+	{
+		CyhookHandler::clearApiPrefixes();
+		// registerPrefixes installs the first-login gate, which the other cases do not expect
+		httpd::setPasswordOwed(NULL);
+	}
 };
 
 } // namespace
@@ -669,6 +674,40 @@ TEST_CASE("the gate: a minted bearer token opens the write gate", "[bridge]")
 	REQUIRE(a.bridge.Hook_SendResponse(&put.hh) == HANDLED_READY);
 	// Through the gate: the router's own refusal of the empty body, not 401.
 	CHECK(put.hh.httpStatus == HTTP_BAD_REQUEST);
+
+	httpd::forgetApiTokens();
+}
+
+namespace
+{
+bool alwaysOwed()
+{
+	return true;
+}
+} // namespace
+
+TEST_CASE("the gate: while the shipped password is in effect a bearer token is held to it too", "[bridge][firstlogin]")
+{
+	Attached a;
+	httpd::setPasswordOwed(&alwaysOwed);
+
+	// A script holding a token of the box's own is refused the way a browser is,
+	// and told why: what anybody can look up opens no write, whatever carries it.
+	const std::string token = "0123456789abcdef0123456789abcdef";
+	httpd::addApiToken(httpd::tokenLookupPrefix(token), httpd::hashSecret(token),
+	                   httpd::AuthLevel::System, "", 0);
+	Handler put(M_PUT, "/api/v1/bouquets/none-such/name", "{}");
+	put.hh.HeaderList["Authorization"] = "Bearer " + token;
+	REQUIRE(a.bridge.Hook_SendResponse(&put.hh) == HANDLED_READY);
+	CHECK(put.hh.httpStatus == HTTP_FORBIDDEN);
+	CHECK(put.hh.yresult.find("password-change-required") != std::string::npos);
+
+	// And the session document says so to that caller as well.
+	Handler state(M_GET, "/api/v1/session");
+	state.hh.HeaderList["Authorization"] = "Bearer " + token;
+	REQUIRE(a.bridge.Hook_SendResponse(&state.hh) == HANDLED_READY);
+	CHECK(state.hh.httpStatus == HTTP_OK);
+	CHECK(state.hh.yresult.find("\"password_change_required\":true") != std::string::npos);
 
 	httpd::forgetApiTokens();
 }

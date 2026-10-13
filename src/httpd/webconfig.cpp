@@ -146,6 +146,42 @@ bool isShippedPassword(const std::string &secret)
 	return false;
 }
 
+bool passwordAcceptable(const std::string &password, std::string *why)
+{
+	size_t chars = 0;
+	for (size_t i = 0; i < password.size(); ++i)
+	{
+		const unsigned char c = (unsigned char) password[i];
+		if (c < 0x20 || c == 0x7f)
+		{
+			if (why != NULL)
+				*why = "the new password holds a control character";
+			return false;
+		}
+		// a byte that does not continue a character starts one
+		if ((c & 0xc0) != 0x80)
+			++chars;
+	}
+	if (chars < kMinPasswordChars)
+	{
+		if (why != NULL)
+		{
+			char said[80];
+			std::snprintf(said, sizeof(said), "the new password has fewer than %u characters",
+			              (unsigned) kMinPasswordChars);
+			*why = said;
+		}
+		return false;
+	}
+	if (isShippedPassword(password))
+	{
+		if (why != NULL)
+			*why = "the new password is one these boxes have shipped with, which anybody can look up";
+		return false;
+	}
+	return true;
+}
+
 namespace
 {
 

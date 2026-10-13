@@ -101,9 +101,12 @@ bool passwordIsShipped();
    through the REST route, with a sign-in.
 
    False, with why, when the request did not come from a page of this box, or the
-   file would not take a value or could not be written; nothing is changed then. */
+   file would not take a value or could not be written; nothing is changed then.
+   A password set here has to pass httpd::passwordAcceptable, whoever sets it;
+   reset_to_shipped lets the shipped password through, for the menu at the
+   box that puts the login back for an owner who lost theirs. */
 bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from = 0);
+            const Ask *from = 0, bool reset_to_shipped = false);
 
 } // namespace login_bridge
 

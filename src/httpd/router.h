@@ -2,6 +2,7 @@
  * router.h - matching a request to a route
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -195,6 +196,22 @@ void parameterRefusals(const Endpoint &ep,
 
 // The detail text for a query token given twice, shared with the document.
 std::string queryTokenGivenTwiceDetail();
+
+/* Whether the box still opens to a password it shipped with. Every caller
+   that may write, which is one that signed in, is then answered only by the
+   routes that let it set a password of its own (login, session, logout and
+   PUT /api/v1/account/password); every other route refuses it with 403
+   password-change-required. A caller reading without a password off the home
+   network presented none and is not asked. NULL asks nothing; the server
+   installs login_bridge::passwordIsShipped. */
+typedef bool (*PasswordOwed)();
+void setPasswordOwed(PasswordOwed f);
+// What the installed question answers, false where none is installed.
+bool passwordChangeOwed();
+// Whether ep answers such a caller all the same; the API document states the
+// refusal on every other route.
+bool reachableWhilePasswordOwed(const Endpoint &ep);
+const char *passwordChangeRequiredDetail();
 
 // NULL in the product.
 typedef void (*AnswerWatch)(const Endpoint &ep, const Response &r);

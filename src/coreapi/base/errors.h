@@ -429,6 +429,9 @@ enum class ErrorCode
 	   it ran on either way, and the line the box wrote says which value it
 	   was. */
 	WebserverNotConfigured,
+	/* The caller signed in while the box still opens to a password it shipped
+	   with; it reaches nothing but setting a password of its own until it has. */
+	PasswordChangeRequired,
 
 	// A command this layer ran, and what became of it.
 	CommandNotStarted,
@@ -613,6 +616,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::RecordingListUnavailable: return "recording-list-unavailable";
 		case ErrorCode::ConfigDocumentUnreadable: return "config-document-unreadable";
 		case ErrorCode::WebserverNotConfigured: return "webserver-not-configured";
+		case ErrorCode::PasswordChangeRequired: return "password-change-required";
 		case ErrorCode::CommandNotStarted: return "command-not-started";
 		case ErrorCode::CommandOutputUnreadable: return "command-output-unreadable";
 		case ErrorCode::Timeout: return "timeout";

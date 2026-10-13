@@ -383,6 +383,55 @@ TEST_CASE("a restart whose read failed is no longer due, and the save it was for
 	setConfigForTest(before);
 }
 
+TEST_CASE("a password set for the account is held to the rules, and the reset to the shipped one is not", "[login]")
+{
+	Account account;
+
+	char name[96];
+	std::snprintf(name, sizeof(name), "/tmp/ni-login-rules-%d", (int) getpid());
+	const std::string path = name;
+	std::FILE *f = std::fopen(path.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "username=%s\npassword_hash=%s\n", kUser, hashSecret(kPassword, 1000).c_str());
+	REQUIRE(std::fclose(f) == 0);
+	const WebConfig before = config();
+	REQUIRE(load(path));
+
+	struct Refused
+	{
+		const char *password;
+		const char *says;
+	};
+	const Refused refused[] = {
+		{ "seven77", "fewer than 8" },
+		// seven characters in fourteen bytes: counted as a person counts them
+		{ "\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4", "fewer than 8" },
+		{ "with\ttab inside", "control character" },
+		{ "coolstream", "shipped with" },
+		{ kShippedPassword, "shipped with" },
+	};
+	std::string why;
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i].says);
+		REQUIRE_FALSE(login_bridge::change("", refused[i].password, &why));
+		REQUIRE(why.find(refused[i].says) != std::string::npos);
+		REQUIRE(verifySecret(kPassword, loginInEffect().password_hash));
+	}
+	// eight characters, some of them two bytes each
+	REQUIRE(login_bridge::change("", "\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4x", &why));
+	REQUIRE(verifySecret("\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4x", loginInEffect().password_hash));
+
+	// The reset at the box goes back to the shipped login, and to nothing else short.
+	REQUIRE_FALSE(login_bridge::change("root", "seven77", &why, NULL, true));
+	REQUIRE(login_bridge::change("root", kShippedPassword, &why, NULL, true));
+	REQUIRE(login_bridge::user() == "root");
+	REQUIRE(login_bridge::passwordIsShipped());
+
+	::unlink(path.c_str());
+	setConfigForTest(before);
+}
+
 TEST_CASE("a stored password the boxes shipped with is recognised, and another one is not", "[login]")
 {
 	Account account;

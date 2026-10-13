@@ -179,6 +179,16 @@ extern const char kShippedPassword[];
 const char *const *shippedPasswords(size_t *count);
 bool isShippedPassword(const std::string &secret);
 
+// The fewest characters a password set for the account has.
+const size_t kMinPasswordChars = 8;
+
+/* Whether a password may be set for the account: at least kMinPasswordChars
+   characters (counted as UTF-8 code points, as a person counts them), no
+   control characters, and none of the shipped ones. why says what is wrong.
+   Every writer of the account's password asks this; the menu's reset to the
+   shipped login is the one deliberate exception. */
+bool passwordAcceptable(const std::string &password, std::string *why);
+
 /* Reads path and installs what it holds.
 
    False when the file cannot be read at all, and then nothing is installed: a

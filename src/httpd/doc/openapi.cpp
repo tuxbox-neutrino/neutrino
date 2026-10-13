@@ -722,7 +722,11 @@ const char kIntroduction[] =
 	"(by default the private address ranges) gets `read` without credentials. Anything more needs "
 	"a session from `POST /api/v1/login` (a cookie, plus the `X-CSRF-Token` header on every request "
 	"that changes something) or a bearer token from the server configuration. "
-	"`GET /api/v1/session` says what the current request is granted.\n\n"
+	"`GET /api/v1/session` says what the current request is granted. A box that still opens to "
+	"the password it shipped with answers a caller signed in with it only on `POST /api/v1/login`, "
+	"`GET /api/v1/session`, `POST /api/v1/logout` and `PUT /api/v1/account/password`; every other "
+	"operation refuses it with `403 password-change-required` until a password of the owner's own "
+	"is set.\n\n"
 	"**Values.** Channel, event and guide ids are hexadecimal strings of up to 16 digits. Moments are "
 	"Unix time in seconds (UTC); durations state their unit. Request bodies are JSON objects; "
 	"members a route does not declare are refused.\n\n"
@@ -1683,6 +1687,10 @@ void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
 
 	if (ep.auth != AuthLevel::Public)
 		state(out, StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail(), "level");
+	// Asked of a caller signed in while the box still opens to a shipped password.
+	if (!reachableWhilePasswordOwed(ep))
+		state(out, StatusForbidden, coreapi::ErrorCode::PasswordChangeRequired,
+		      passwordChangeRequiredDetail(), "first-login");
 	// Asked of every session holder, on public routes too.
 	if (ep.method != Get && ep.method != Options)
 		state(out, StatusForbidden, coreapi::ErrorCode::NotPermitted, csrfRefusedDetail(), "token",

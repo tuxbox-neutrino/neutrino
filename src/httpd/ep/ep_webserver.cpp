@@ -457,6 +457,10 @@ Response webserverWrite(const Request &r)
 	{
 		s.password = r.asString("password");
 		named = true;
+		// the rules every writer of the password is held to
+		std::string why;
+		if (!s.password.empty() && !passwordAcceptable(s.password, &why))
+			return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString, why);
 	}
 	if (r.has("channel_logos"))
 	{
@@ -599,7 +603,7 @@ const Param kWriteParams[] = {
 	   would let whoever stole one put it back without ever knowing the password
 	   it was made from. Left out means the password stays; there is nothing to
 	   read back that would make any other reading possible. */
-	HTTPD_BODY_TEXT("password", "a new password, as it is typed and never as it is stored, and left out where it is to stay as it is", 256),
+	HTTPD_BODY_TEXT("password", "a new password, as it is typed and never as it is stored: at least 8 characters, no control characters and none of the passwords these boxes have shipped with; left out where it is to stay as it is", 256),
 	/* The one member here that cannot lock anybody out, and the only reason it
 	   restarts the server at all is that this file replaces what is in effect
 	   only while the daemon is down. */

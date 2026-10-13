@@ -14,6 +14,7 @@
 #include "httpd/events.h"
 #include "httpd/http.h"
 #include "httpd/router.h"
+#include "httpd/login_bridge.h"
 #include "httpd/server.h"
 #include "httpd/status.h"
 #include "httpd/doc/openapi.h"
@@ -276,6 +277,8 @@ void CApiBridge::registerPrefixes()
 {
 	CyhookHandler::registerApiPrefix(kPrefixApi);
 	CyhookHandler::registerApiTarget(kPrefixDoc);
+	// a caller signed in with a shipped password sets its own before anything else
+	httpd::setPasswordOwed(&login_bridge::passwordIsShipped);
 }
 
 bool CApiBridge::claims(const CyhookHandler *hh)

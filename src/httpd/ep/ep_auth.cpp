@@ -27,6 +27,8 @@
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
 #include "httpd/json.h"
+#include "httpd/login_bridge.h"
+#include "httpd/router.h"
 #include "httpd/schema.h"
 #include "httpd/status.h"
 
@@ -102,6 +104,8 @@ const FieldDesc kSessionStateFields[] = {
 		"the header the token above travels in, said whatever the caller holds, so a page does not carry the name written out in 2 places"),
 	HTTPD_MEMBER("expires_in", FieldType::UInt,
 		"how many seconds the session has left before it runs out, 0 for a caller holding none"),
+	HTTPD_MEMBER("password_change_required", FieldType::Bool,
+		"whether the caller may write while the box still opens to a password it shipped with: it is to set a password of its own with PUT /api/v1/account/password, and nothing else answers it until then; false for a caller that may not write"),
 };
 
 const Schema kSessionStateSchema = { "session-state", HTTPD_FIELDS(kSessionStateFields) };
@@ -114,6 +118,8 @@ void writeSessionState(Json &j, bool authenticated, AuthLevel level,
                        const std::string &user, const std::string &csrf,
                        time_t expires_in)
 {
+	// asked only of a caller the gate would hold to it
+	const bool change_required = (int) level >= (int) AuthLevel::Write && passwordChangeOwed();
 	j.beginObject();
 	j.key("authenticated");
 	j.value(authenticated);
@@ -131,6 +137,8 @@ void writeSessionState(Json &j, bool authenticated, AuthLevel level,
 	j.value(csrfHeaderName());
 	j.key("expires_in");
 	j.value((unsigned long long) expires_in);
+	j.key("password_change_required");
+	j.value(change_required);
 	j.endObject();
 }
 
@@ -337,6 +345,51 @@ Response sessionState(const Request &r)
 	return out;
 }
 
+/* What a password of the owner's own has to be: what every writer of it is held to
+   (httpd::passwordAcceptable), and not the one it replaces. */
+bool acceptablePassword(const std::string &password, const std::string &current, std::string &why)
+{
+	if (!passwordAcceptable(password, &why))
+		return false;
+	if (password == current)
+	{
+		why = "the new password is the one it is to replace";
+		return false;
+	}
+	return true;
+}
+
+/* The account's password replaced by one of the owner's own, the one route a
+   caller signed in with a shipped password reaches besides login, session and
+   logout. The password in effect is asked for again, and a wrong one is
+   counted against the address as a wrong login is, so a session left open on
+   somebody else's screen is not a way of setting the box's password. In
+   effect for every login when this answers; sessions already open stay open,
+   this one among them, which is how the page goes on from here. */
+Response changePassword(const Request &r)
+{
+	unsigned retry_after = 0;
+	if (beginLoginAttempt(r.peer(), &retry_after) != LoginAttempt::Open)
+		return tooManyAttempts(retry_after);
+	AttemptHeld held(r.peer());
+
+	const Login cfg = loginInEffect();
+	const std::string current = r.asString("current");
+	if (!verifySecret(current, cfg.password_hash))
+		return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted,
+		                       "the current password is not the one in effect");
+	held.granted = true;
+
+	const std::string password = r.asString("password");
+	std::string why;
+	if (!acceptablePassword(password, current, why))
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString, why);
+	if (!login_bridge::change(std::string(), password, &why, NULL))
+		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::WebserverNotConfigured,
+		                       "the password could not be changed: " + why);
+	return noContent();
+}
+
 /* A token that reaches the media this box holds and nothing else, for a program that can present a
    credential no other way.
 
@@ -397,6 +450,22 @@ const Param kLoginParams[] = {
 	HTTPD_BODY_REQUIRED_TEXT("password", "the password for that account, checked against the stored hash and never echoed back", 512),
 };
 
+const Param kPasswordParams[] = {
+	HTTPD_BODY_REQUIRED_TEXT("current", "the password in effect, as it is typed, asked for again before it is replaced", 512),
+	HTTPD_BODY_REQUIRED_TEXT("password", "the new password as it is typed: at least 8 characters, no control characters, none of the passwords these boxes have shipped with, and not the one it replaces", 256),
+};
+
+const RouteRefusal kPasswordRefusals[] = {
+	HTTPD_REFUSES_AS(400, BadString,
+		"the new password has fewer than 8 characters"),
+	HTTPD_REFUSES_AS(403, NotPermitted,
+		"the current password is not the one in effect"),
+	HTTPD_REFUSES_AS(429, TooManyAttempts,
+		"too many attempts are being made here; come back in a moment"),
+	HTTPD_REFUSES_AS(500, WebserverNotConfigured,
+		"the password could not be changed: nhttpd-access.conf could not be written"),
+};
+
 const RouteRefusal kLoginRefusals[] = {
 	HTTPD_REFUSES_AS(401, NotPermitted,
 		"the name and the password do not go together"),
@@ -404,7 +473,7 @@ const RouteRefusal kLoginRefusals[] = {
 		"too many attempts are being made here; come back in a moment"),
 };
 
-/* Four routes and the one exception each of them is.
+/* Five routes and the one exception each of them is.
 
    Login is one of the two routes open to everybody, and it is where the check over these
    tables says it is: being reached grants nothing.
@@ -419,7 +488,10 @@ const RouteRefusal kLoginRefusals[] = {
    network visits could reach in that browser's name.
 
    The fourth asks for System, which is the level of what it hands out, for the reason
-   written where the handler is. */
+   written where the handler is.
+
+   The fifth asks for System as well, the password it sets being the credential every
+   other route is reached with, and asks for the password in effect once more besides. */
 const Endpoint kAuthEndpoints[] = {
 	{ Method::Post, "/api/v1/login", AuthLevel::Public,
 	  "opens a session for a name and a password, and says what that session carries and is worth",
@@ -490,6 +562,35 @@ const Endpoint kAuthEndpoints[] = {
 	  "**Related:** `GET /api/v1/session`, `POST /api/v1/login`.",
 	  NULL, 0, NULL, &logout, false,
 	  Answers204, HTTPD_NO_REFUSALS },
+	{ Method::Put, "/api/v1/account/password", AuthLevel::System,
+	  "replaces the account's password with one of the owner's own",
+	  "Sets the password of the single account this box has. The password in effect is asked for "
+	  "again in `current`; a wrong one is counted against the address like a wrong login. The new "
+	  "password has at least 8 characters, holds no control characters, is none of the passwords "
+	  "these boxes have shipped with and is not the one it replaces. It is in effect for every login "
+	  "when this answers; sessions already open stay open, the one asking among them.\n"
+	  "\n"
+	  "While the box still opens to a password it shipped with, this is the route a caller signed in "
+	  "with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and "
+	  "`POST /api/v1/logout` refuses it with `403 password-change-required`, which "
+	  "`GET /api/v1/session` announces as `password_change_required`. The old `/control/` routes "
+	  "keep answering the box's login as they always did.\n"
+	  "\n"
+	  "**Side effects:** the stored form of the password is written to nhttpd-access.conf; the "
+	  "password itself is kept nowhere.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-string`: the new password is too short, holds a control character, is one these "
+	  "boxes have shipped with, or is the one it replaces; the detail says which.\n"
+	  "- `403 not-permitted`: `current` is not the password in effect.\n"
+	  "- `429 too-many-attempts`: wrong passwords were sent from this address too often, or too many "
+	  "are being checked at once; `Retry-After` says how long to wait.\n"
+	  "- `500 webserver-not-configured`: the box could not write the new password; the old one stays "
+	  "in effect.\n"
+	  "\n"
+	  "**Related:** `POST /api/v1/login`, `GET /api/v1/session`.",
+	  HTTPD_PARAMS(kPasswordParams), NULL, &changePassword, false,
+	  Answers204, HTTPD_REFUSALS_AND_BODY(kPasswordRefusals, "{\"current\":\"neutrino\",\"password\":\"my own pass phrase\"}") },
 	{ Method::Post, "/api/v1/token/media", AuthLevel::System,
 	  "draws a short lived token that reaches the media this box holds and nothing else, for a player that can carry a credential only in the address",
 	  "Mints a token scoped to the media this box holds, such as recordings, and answers it "
