@@ -1329,42 +1329,49 @@
 		btn.disabled = false;
 	}
 
-	// XMLTV/WebChannels-Quellen: eine URL pro Zeile; Speichern setzt die
-	// Listen via xmltvlist (ACHTUNG: leere Textarea leert die Liste) und
-	// laedt die Kanallisten neu (POST /api/v1/channels/reload)
+	// The lists the box reads web channels and XMLTV guides from, over
+	// /api/v1/channels/sources: one address or file per line; a save replaces
+	// only the lists that changed and has the box read its channels again
+	var XMLTV_LOADED = null;
+	var XMLTV_KINDS = ['webtv', 'webradio', 'xmltv'];
+	// a list file uploaded over one already named changes no line, and the box
+	// still has to read it in: the uploads finished per list, and how many of
+	// them a save had the box read in. Counted rather than flagged, so an upload
+	// that finishes while a save runs stays owed
+	var XMLTV_UPLOADS = {webtv: 0, webradio: 0};
+	var XMLTV_READ_IN = {webtv: 0, webradio: 0};
+
+	function xmltvOwed() {
+		return Object.keys(XMLTV_UPLOADS).filter(function(kind) {
+			return XMLTV_UPLOADS[kind] !== XMLTV_READ_IN[kind];
+		});
+	}
+
 	function renderXmltvPanel() {
 		setTimeout(loadXmltvPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('{=L:yw.set.xmltv_title=}') +
 			'<div id="xmltvPanel"><p aria-busy="true">Lade…</p></div></div>';
 	}
 
-	function collectXmlSources(cfg, base) {
-		var out = [];
-		if (cfg[base]) out.push(cfg[base]);
-		var count = parseInt(cfg[base + '_count']) || 0;
-		for (var i = 1; i <= count; i++)
-			if (cfg[base + '_' + i]) out.push(cfg[base + '_' + i]);
-		return out;
+	function xmltvSection(kind, title, upload) {
+		var html = '<div class="yweb-form-section"><div class="yweb-form-section-title">' + title + '</div>' +
+			'<textarea id="xmltv_' + kind + '" rows="4" style="width:100%" placeholder="{=L:yw.set.xmltv_ph=}">' +
+			escapeHtml((XMLTV_LOADED[kind] || []).join('\n')) + '</textarea>';
+		if (upload)
+			html += '<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label>' +
+				'<span class="yweb-row-actions">' + makeFileControl('xmltv_' + kind + '_file', '.xml,.m3u') +
+				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'' + kind + '\', this)">' + UP_ICON + '{=L:yw.fm.upload=}</button></span></div>';
+		return html + '</div>';
 	}
 
 	async function loadXmltvPanel() {
 		var el = document.getElementById('xmltvPanel');
 		if (!el) return;
 		try {
-			var resp = await ywebApi('config', {config: 'neutrino'});
-			var cfg = (resp && resp.data && resp.data.config) || {};
-			var tv = collectXmlSources(cfg, 'webtv_xml').join('\n');
-			var radio = collectXmlSources(cfg, 'webradio_xml').join('\n');
-			el.innerHTML = '<div class="yweb-form-section"><div class="yweb-form-section-title">WebTV</div>' +
-				'<textarea id="xmltv_tv" rows="4" style="width:100%" placeholder="{=L:yw.set.xmltv_ph=}">' + escapeHtml(tv) + '</textarea>' +
-				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label>' +
-				'<span class="yweb-row-actions">' + makeFileControl('xmltv_tv_file', '.xml,.m3u') +
-				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'tv\', this)">' + UP_ICON + '{=L:yw.fm.upload=}</button></span></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">WebRadio</div>' +
-				'<textarea id="xmltv_radio" rows="4" style="width:100%">' + escapeHtml(radio) + '</textarea>' +
-				'<div class="yweb-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_upload=}</small></label>' +
-				'<span class="yweb-row-actions">' + makeFileControl('xmltv_radio_file', '.xml,.m3u') +
-				'<button type="button" class="yweb-btn" onclick="uploadXmltv(\'radio\', this)">' + UP_ICON + '{=L:yw.fm.upload=}</button></span></div></div>' +
+			XMLTV_LOADED = await ywebV1('GET', '/channels/sources');
+			el.innerHTML = xmltvSection('webtv', 'WebTV', true) +
+				xmltvSection('webradio', 'WebRadio', true) +
+				xmltvSection('xmltv', '{=L:yw.set.xmltv_guide=}', false) +
 				'<div class="yweb-form-row"><label><small style="color:var(--pico-muted-color)">{=L:yw.set.xmltv_hint=}</small></label>' +
 				'<span class="yweb-row-actions">' +
 				'<button type="button" class="yweb-btn primary" onclick="saveXmltv(this)">' + SAVE_ICON + '{=L:yw.bqe.save_reload=}</button></span></div>';
@@ -1373,41 +1380,75 @@
 		}
 	}
 
-	// Lokale Quelldatei ins WebTV/WebRadio-Verzeichnis hochladen und ihren
-	// Pfad als neue Zeile in die passende Quellliste eintragen (Speichern
-	// aktiviert sie dann wie eine URL-Zeile). Ersetzt xmltvlist NICHT sofort.
+	// A list as the box takes it: the lines of the field, without blanks and
+	// without the spaces a paste brings along at either end
+	function xmltvEntries(kind) {
+		var ta = document.getElementById('xmltv_' + kind);
+		return ((ta && ta.value) || '').split('\n').map(function(l) { return l.trim(); })
+			.filter(function(l) { return l.length > 0; });
+	}
+
+	// A local list file goes up in pieces into the directory the box keeps its
+	// own lists in, under a name no reload reads, and takes its own name only
+	// once it is whole; its path is then added as a line (a save names it)
 	async function uploadXmltv(kind, btn) {
 		var inp = document.getElementById('xmltv_' + kind + '_file');
 		var ta = document.getElementById('xmltv_' + kind);
 		if (!inp || !inp.files || !inp.files.length) { ywebShowToast('{=L:yw.inst.nofile=}', true); return; }
 		btn.disabled = true;
+		var part = '';
 		try {
-			var paths = await ywebApi('paths');
-			var dir = (kind === 'tv' ? paths.webtvdir_var : paths.webradiodir_var) || paths.configdir;
 			var f = inp.files[0];
-			var fd = new FormData();
-			fd.append('file', f);
-			var up = await fetch('/api/v4/file?action=upload&path=' + encodeURIComponent(dir),
-				{method: 'POST', body: fd});
-			if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
-			var res = await up.json();
-			var savedPath = (res.data && res.data.path) || (dir + '/' + f.name);
-			if (ta && ta.value.split('\n').indexOf(savedPath) < 0)
+			var dir = (kind === 'webtv' ? XMLTV_LOADED.webtv_dir : XMLTV_LOADED.webradio_dir);
+			var name = f.name.replace(/[^A-Za-z0-9._-]/g, '_');
+			var savedPath = dir + '/' + name;
+			part = dir + '/.' + name + '.' + Math.random().toString(36).slice(2, 8) + '.upload';
+			await ywebV1UploadPieces(f, part);
+			await ywebV1('POST', '/storage/rename', {body: {from: part, to: savedPath, overwrite: true}});
+			part = '';
+			XMLTV_UPLOADS[kind]++;
+			if (ta && xmltvEntries(kind).indexOf(savedPath) < 0)
 				ta.value = (ta.value ? ta.value.replace(/\n*$/, '\n') : '') + savedPath;
 			ywebShowToast('{=L:yw.fm.uploaded=}: ' + savedPath);
 			inp.value = '';
-		} catch (e) { ywebShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true); }
+		} catch (e) {
+			if (part) {
+				try { await ywebV1('DELETE', '/storage/path', {query: {path: part}}); } catch (e2) {}
+			}
+			ywebShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true);
+		}
 		btn.disabled = false;
 	}
 
 	async function saveXmltv(btn) {
-		var tv = (document.getElementById('xmltv_tv') || {}).value || '';
-		var radio = (document.getElementById('xmltv_radio') || {}).value || '';
+		var changed = XMLTV_KINDS.filter(function(kind) {
+			return JSON.stringify(xmltvEntries(kind)) !== JSON.stringify(XMLTV_LOADED[kind] || []);
+		});
+		var owed = xmltvOwed();
+		if (!changed.length && !owed.length) { ywebShowToast('{=L:yw.set.nochanges=}'); return; }
 		if (!confirm('{=L:yw.set.xmltv_confirm=}')) return;
+		// what this save answers for; an upload finishing meanwhile stays owed
+		var upto = {webtv: XMLTV_UPLOADS.webtv, webradio: XMLTV_UPLOADS.webradio};
+		// with nothing changed an upload's list goes as it stands: the reload that
+		// comes with a written list is the box's own, which reads the guides the
+		// playlists name as well, and a bare channel reload does not
+		var sending = changed.length ? changed : [owed[0]];
+		// every list as it stands now, before the first request: the panel can
+		// be closed while one is under way, and a field gone reads as empty
+		var bodies = {};
+		sending.forEach(function(kind) { bodies[kind] = xmltvEntries(kind); });
 		btn.disabled = true;
 		try {
-			await ywebApi('xmltvlist', {webtv: tv, webradio: radio});
-			await ywebV1('POST', '/channels/reload');
+			// each with the reload: the box carries what came meanwhile in one go,
+			// and a list taken over is read in even where a later one is refused.
+			// What is compared next time is what was sent, list by list: a list
+			// changed elsewhere meanwhile is not taken for an edit made here
+			for (var i = 0; i < sending.length; i++) {
+				var answer = await ywebV1('PUT', '/channels/sources/' + sending[i],
+					{body: bodies[sending[i]], query: {reload: true}});
+				XMLTV_LOADED[sending[i]] = answer[sending[i]];
+			}
+			XMLTV_READ_IN = upto;
 			ywebShowToast('{=L:yw.set.xmltv_saved=}');
 		} catch (e) { ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true); }
 		btn.disabled = false;
