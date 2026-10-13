@@ -2,6 +2,7 @@
  * endpoint.h - one route: its method, path, level and handler
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,8 +122,13 @@ inline bool namesWholeBody(In in)
    checks against; the set and the refusal are the layer below's.
 
    closed_empty is true only for a row written with a macro that says so: there, a name
-   handed over empty is a value out of the set rather than one left out, because the set
-   never carries an empty member. False everywhere else. */
+   handed over empty is a value rather than one left out. On a set it is a value out of
+   the set, because the set never carries an empty member; on a text member of a body
+   it is the empty text, which clears what the member names, the way an emptied field
+   of a form does. A body names its members on purpose, so an empty one there is
+   something the caller wrote; a query is what a form builds out of every field, the
+   untouched ones included, so the flag is never on a text row of one. False everywhere
+   else. */
 typedef void (*Choices)(std::vector<std::string> &out);
 
 struct Param
@@ -209,6 +215,10 @@ struct Param
 	(name), (type), httpd::In::Body, false, (doc), (lo), (hi), NULL, NULL, NULL, false
 #define HTTPD_BODY_TEXT(name, doc, bytes) \
 	(name), httpd::ParamType::String, httpd::In::Body, false, (doc), 0, (bytes), NULL, NULL, NULL, false
+/* The same, for a member whose empty text is a value the caller means: it clears
+   what the member names (closed_empty above). */
+#define HTTPD_BODY_TEXT_CLEARABLE(name, doc, bytes) \
+	(name), httpd::ParamType::String, httpd::In::Body, false, (doc), 0, (bytes), NULL, NULL, NULL, true
 #define HTTPD_BODY_FROM_SET(name, doc, set, value_docs) \
 	(name), httpd::ParamType::Enum, httpd::In::Body, false, (doc), 0, 0, (set), (value_docs), NULL, false
 #define HTTPD_BODY_REQUIRED(name, type, doc) \

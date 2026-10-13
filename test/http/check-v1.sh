@@ -569,18 +569,16 @@ if not fails:
 		print('note: %s is not this machine, the taken port is not tried' % host, file=sys.stderr)
 	if blocker is not None:
 		blocker.listen(1)
-		# Down first and then up again, so what is seen afterwards is the
-		# server after the restart and not the one before it.
-		def restarted_on(port):
-			down = False
+		# A start count above the one the answer carried is the server after
+		# the restart and not the one before it, however short the restart.
+		def restarted_on(port, before):
 			for i in range(100):
 				time.sleep(0.2)
 				try:
 					answer = webserver_on(port)
 				except Exception:
-					down = True
 					continue
-				if down and answer.get('port') == port:
+				if answer.get('restarts', -1) > before and answer.get('bound_port') == port:
 					return True
 			return False
 		try:
@@ -588,7 +586,7 @@ if not fails:
 				'-d', json.dumps({'port': new_port})] + auth + ['%s:%d/api/v1/system/webserver' % (host, old_port)]))
 			if not answer.get('caller', {}).get('restarting'):
 				fails.append('the taken port was not even tried: %s' % answer.get('caller'))
-			elif not restarted_on(old_port):
+			elif not restarted_on(old_port, answer.get('webserver', {}).get('restarts', 0)):
 				fails.append('BOX DID NOT COME BACK on %d after %d was taken' % (old_port, new_port))
 		finally:
 			blocker.close()

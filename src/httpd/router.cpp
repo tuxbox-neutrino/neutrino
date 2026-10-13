@@ -2,6 +2,7 @@
  * router.cpp - matching a request to a route
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1321,9 +1322,13 @@ bool endpointIsSane(const Endpoint &ep, Shape &shape, std::string *why)
 			return say(why, where + "parameter " + p.name + " lists accepted values and is not one of a set");
 		}
 
-		// The flag is about a set staying closed, so it means nothing off one.
-		if (p.closed_empty && p.type != ParamType::Enum)
-			return say(why, where + "parameter " + p.name + " is marked closed_empty and is not an enum");
+		/* The flag is about a set staying closed, or about the empty text a body
+		   member carries on purpose, so it means nothing anywhere else: off a set it
+		   is a text member of a body or nothing (endpoint.h). */
+		if (p.closed_empty && p.type != ParamType::Enum &&
+		    !(p.type == ParamType::String && p.in == In::Body))
+			return say(why, where + "parameter " + p.name + " is marked closed_empty and is neither "
+				   "an enum nor a text member of a body");
 
 		if (p.choices != NULL)
 		{

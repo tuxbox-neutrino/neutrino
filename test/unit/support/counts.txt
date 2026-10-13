@@ -51,7 +51,7 @@ labels stated beside a field	98
 listed keys compared against the table	25
 locale names the program has	3078
 options an applier or its notifier branches on	49
-parameters the document describes	145
+parameters the document describes	151
 refusals the document states against a route	888
 refusals the routes declare of their own	160
 refusals the shipped routes were seen to give	231

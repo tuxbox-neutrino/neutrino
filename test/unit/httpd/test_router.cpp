@@ -2,6 +2,7 @@
  * test_router.cpp - tests for route matching
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,7 +163,7 @@ TEST_CASE("an enum row marked closed_empty refuses a value handed over empty", "
 	REQUIRE(empty.body.find("bad-enum") != std::string::npos);
 }
 
-TEST_CASE("closed_empty on a row that is not an enum is a table written wrong", "[router]")
+TEST_CASE("closed_empty on a row that is neither an enum nor a body text is a table written wrong", "[router]")
 {
 	static const Param bad_params[] = {
 		{ "s", ParamType::String, In::Query, false, "a string", 0, 8, NULL, NULL, NULL, true },
@@ -175,6 +176,59 @@ TEST_CASE("closed_empty on a row that is not an enum is a table written wrong", 
 	std::string why;
 	REQUIRE_FALSE(tableIsSane(bad_table, &why));
 	REQUIRE(why.find("closed_empty") != std::string::npos);
+}
+
+namespace
+{
+
+// What the clearable probe was handed: whether each member counted as named, and
+// what the clearable one carried.
+bool cleared_named = false;
+bool plain_named = false;
+std::string cleared_value = "untouched";
+
+Response clearable_probe(const Request &r)
+{
+	cleared_named = r.has("note");
+	plain_named = r.has("name");
+	cleared_value = cleared_named ? r.asString("note") : std::string("untouched");
+	Response out;
+	out.code = 200;
+	return out;
+}
+
+const Param clearable_params[] = {
+	HTTPD_BODY_TEXT_CLEARABLE("note", "a text the caller may clear", 16),
+	HTTPD_BODY_TEXT("name", "a text an empty value leaves alone", 16),
+};
+const Endpoint clearable_endpoints[] = {
+	{ Method::Put, "/api/v1/clearable", AuthLevel::Write, "clearable", NULL,
+	  HTTPD_PARAMS(clearable_params), NULL, &clearable_probe, false, Answers200, HTTPD_NO_REFUSALS },
+};
+const RouteTable clearable_table = { HTTPD_TABLE_N("clearable", clearable_endpoints, 1) };
+
+} // namespace
+
+TEST_CASE("an empty text member of a body marked clearable is a value, and only that one", "[router]")
+{
+	/* The one way a caller clears a text member: named in the body and empty. A
+	   member not so marked still reads empty as left out, which is what every form
+	   that sends an untouched field means. */
+	std::string why;
+	REQUIRE(tableIsSane(clearable_table, &why));
+
+	Response r = dispatchIn(clearable_table, Method::Put, "/api/v1/clearable", "",
+	                        "{\"note\":\"\",\"name\":\"\"}", "127.0.0.1", AuthLevel::System);
+	REQUIRE(r.code == 200);
+	REQUIRE(cleared_named);
+	REQUIRE(cleared_value.empty());
+	REQUIRE_FALSE(plain_named);
+
+	r = dispatchIn(clearable_table, Method::Put, "/api/v1/clearable", "", "{\"name\":\"x\"}",
+	               "127.0.0.1", AuthLevel::System);
+	REQUIRE(r.code == 200);
+	REQUIRE_FALSE(cleared_named);
+	REQUIRE(plain_named);
 }
 
 TEST_CASE("a parameter the table does not declare is refused, not ignored", "[router]")

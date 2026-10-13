@@ -24,6 +24,7 @@
 #include <yhook.h>
 #include <httpd/nhttpd_bridge.h>
 #include <httpd/server_control.h>
+#include <httpd/webconfig.h>
 
 #ifdef Y_CONFIG_USE_YPARSER
 #include <mod_yparser.h>
@@ -389,6 +390,11 @@ void Cyhttpd::hooks_detach() {
 //-----------------------------------------------------------------------------
 void Cyhttpd::ReadConfig(void) {
 	log_level_printf(3, "ReadConfig Start\n");
+	/* The whole read, because it writes the file back where it filled in
+	   defaults: under the lock every writer of nhttpd.conf in the program
+	   holds, so it cannot write back what the menu or the REST route has
+	   just changed. */
+	httpd::ServerFileLock hold;
 	CConfigFile *Config = new CConfigFile(',');
 	bool have_config = false;
 	if (access(HTTPD_CONFIGFILE, R_OK) == 0)
@@ -416,7 +422,7 @@ void Cyhttpd::ReadConfig(void) {
 
 			Config->setString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT);
 
-			Config->saveConfig(HTTPD_CONFIGFILE);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 
 		}
 		// Add Defaults for Version 2
@@ -424,7 +430,7 @@ void Cyhttpd::ReadConfig(void) {
 			Config->setString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT);
 			Config->setInt32("configfile.version", CONF_VERSION);
 			Config->setString("mod_sendfile.sendAll", HTTPD_SENDFILE_ALL);
-			Config->saveConfig(HTTPD_CONFIGFILE);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 		}
 		// Add Defaults for Version 4
 		if (Config->getInt32("configfile.version") < 4) {
@@ -433,14 +439,14 @@ void Cyhttpd::ReadConfig(void) {
 			Config->setString("Language.directory", HTTPD_LANGUAGEDIR);
 			if (Config->getString("WebsiteMain.hosted_directory", "").empty())
 				Config->setString("WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
-			Config->saveConfig(HTTPD_CONFIGFILE);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 		}
 		// Add Defaults for Version 5
 		if (Config->getInt32("configfile.version") < 5) {
 			if (Config->getString("WebsiteMain.host", "").empty())
 				Config->setString("WebsiteMain.host", HTTPD_DEFAULT_HOST);
 			Config->setInt32("configfile.version", CONF_VERSION);
-			Config->saveConfig(HTTPD_CONFIGFILE);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 		}
 	}
 	if (Config->getString("WebsiteMain.host", "").empty()) {
@@ -516,7 +522,7 @@ void Cyhttpd::ReadConfig(void) {
 
 	// Save if new defaults are set
 	if (!have_config)
-		Config->saveConfig(HTTPD_CONFIGFILE);
+		httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 	log_level_printf(3, "ReadConfig End\n");
 	delete Config;
 }

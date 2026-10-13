@@ -2303,7 +2303,7 @@ TEST_CASE("the server says the port it is really answering on", "[endpoints]")
 
 	const Reply r = get("/api/v1/system/webserver", AuthLevel::System);
 	REQUIRE(r.code == 200);
-	REQUIRE(parsed(r.body)["port"].asInt() == bound);
+	REQUIRE(parsed(r.body)["bound_port"].asInt() == bound);
 
 	const Endpoint *ep = routeFor("/api/v1/system/webserver");
 	REQUIRE(ep != NULL);

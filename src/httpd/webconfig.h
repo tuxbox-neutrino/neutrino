@@ -25,6 +25,7 @@
 #include "netmatch.h"
 #include "server.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -343,8 +344,73 @@ private:
 
    Bounded. A file within the size this reads can hold a quarter of a million
    unusable lines. When the ceiling is reached one last line says the rest were
-   not listed. */
-const std::vector<std::string> &configProblems();
+   not listed.
+
+   A copy, taken under the list's own lock: lines reach it from threads that hold
+   the account's lock, from writers of nhttpd.conf that hold only theirs, and from
+   reads that hold none. */
+std::vector<std::string> configProblems();
+
+/* What nhttpd.conf holds for the web server besides where it answers: the lines
+   the settings page offers, read the way nhttpd reads them and put in effect when
+   nhttpd starts. This layer acts on none of them. It reads and writes them so that
+   the page, the menu at the box and nhttpd agree on one file.
+
+   Constructed as nhttpd's own defaults, the values it runs on where its file names
+   none (yhttpd.cpp ReadConfig, mod_auth, mod_sendfile). */
+struct ServerOptions
+{
+	ServerOptions();
+
+	bool        page_login;          // mod_auth.authenticate: the pages ask for the login
+	std::string no_login_prefix;     // mod_auth.no_auth_client: callers whose address
+	                                 // begins with this are never asked, and empty for none
+	bool        threading;           // webserver.threading
+	std::string override_directory;  // WebsiteMain.override_directory: a file here is
+	                                 // served in place of the pages' own of that name
+	std::string hosted_directory;    // WebsiteMain.hosted_directory
+	bool        send_all_types;      // mod_sendfile.sendAll: a file of a type nhttpd has
+	                                 // no name for is sent all the same
+};
+
+bool sameServerOptions(const ServerOptions &a, const ServerOptions &b);
+
+/* Held by every writer of nhttpd.conf in this program from its read to its write:
+   the save below, the restart that puts a port back, the menu at the box
+   (gui/nhttpd_setup.cpp), the old config route (controlapi.cpp), the pages'
+   language switch (mod_yparser.cpp) and nhttpd reading its file when it starts or
+   is told to read it again (yhttpd.cpp, ReadConfig), which with its hooks writes
+   defaults back.
+   Each of them rewrites the whole file, so two at once would have the second
+   write back what the first just changed.
+
+   Taken after AccountLock where both are held, never before it: a writer that
+   changes the account as well releases this one first. */
+class ServerFileLock
+{
+public:
+	ServerFileLock();
+	~ServerFileLock();
+
+private:
+	ServerFileLock(const ServerFileLock &);
+	ServerFileLock &operator=(const ServerFileLock &);
+};
+
+/* A whole nhttpd.conf written out of its lines, the way nhttpd's own writer lays
+   them out, one key and its value to a line in the order of the map. Unlike that
+   writer, every write is checked and the content committed before the new file
+   takes the place of the old one, so a full disk leaves the old file whole rather
+   than a short one in its place. The file keeps its mode; one that is not there
+   yet gets the mode nhttpd's writer gives it.
+
+   For every writer of that file, each holding ServerFileLock. False, with the old
+   file as it was, where anything before the replacement failed. */
+bool saveServerFile(const std::string &path, const std::map<std::string, std::string> &lines);
+
+/* What nhttpd.conf (serverPath) says about the above now, and nhttpd's defaults
+   where it says nothing, where there is no such file, or where none was named. */
+ServerOptions currentServerOptions();
 
 /* The settings somebody changes at the box itself, which are fewer than the file
    holds and fewer than the structure at the top of this header.
@@ -390,11 +456,18 @@ struct WebSettings
 	   it wrong. */
 	bool        channel_logos;
 
+	/* The rest of what nhttpd.conf holds for the server, written there beside the
+	   port and the address and only where it differs from what that file says. A
+	   writer starts from currentWebSettings, which reads them out of the file; one
+	   that starts from nothing writes nhttpd's defaults. */
+	ServerOptions options;
+
 	/* Whether the save rewrites the name and the password and nothing else, which
 	   is what a change to the account from the box or the old pages is. The port,
-	   the address and the logo switch are then left as they stand and not even
-	   judged, so such a change made while a REST save waits for its restart cannot
-	   write the values in effect back over the ones that save just wrote. */
+	   the address, the options and the logo switch are then left as they stand
+	   and not even judged, so such a change made while a REST save waits for its
+	   restart cannot write the values in effect back over the ones that save just
+	   wrote. */
 	bool        account_only = false;
 };
 
@@ -423,9 +496,9 @@ void armRestart();
 
 /* Writes the values above: the name, a new password's stored form and the logo
    switch into path, leaving every other line of it where it stands, comments
-   included; the port and the address into nhttpd.conf (serverPath), and only when
-   they differ from what that file says. A rewrite of the lines this owns and not a
-   file written out of a structure, for the reason WebSettings gives.
+   included; the port, the address and the options into nhttpd.conf (serverPath),
+   each only where it differs from what that file says. A rewrite of the lines this
+   owns and not a file written out of a structure, for the reason WebSettings gives.
 
    WHAT COUNTS AS A LINE NAMING ONE OF THOSE KEYS IS THE QUESTION LOAD ASKS AND
    NOT AN EXACT MATCH. A line spelled Username, a line with a space in front of
@@ -439,8 +512,10 @@ void armRestart();
 
    False and nothing written when a value cannot be used: a port that changes to
    one outside 1 to 65535, an address that changes to one nhttpd cannot listen on
-   as written (anything but a literal of the first family), a port or an address
-   that changes on a server never told which file holds them, an empty user name,
+   as written (anything but a literal of the first family), a prefix that changes
+   to something no address begins with, a directory that changes to anything but
+   an absolute path without a step up, any of these changing on a server never
+   told which file holds them, an empty user name,
    a name carrying a byte that does not read back as it was written, a password
    that could not be hashed, and a path that names a link rather than a file. The
    link is refused because what replaces the file is put in place by name, which
@@ -452,9 +527,16 @@ void armRestart();
    when it answers false: once the new file is in place there is no old one to go
    back to, so a failure after that point is said and answered true.
 
-   nhttpd.conf is written first, through nhttpd's own writer, and put back when
-   path then cannot be written, so a save answered false has not moved where the
-   next start answers.
+   nhttpd.conf is written first, under ServerFileLock, as nhttpd writes it and with
+   every write checked before the new file takes the old one's place, and put back
+   when path then cannot be written, so a save answered false has not moved where
+   the next start answers.
+
+   from is what the caller started from, currentWebSettings as it read it. Given,
+   only what s changes against it is written into nhttpd.conf, so a value the menu
+   at the box wrote there since the caller read it stays, unless the caller changed
+   that same value. Without it, whatever s says that differs from the file is
+   written.
 
    The file that replaces path is readable and writable by its owner and by nobody
    else, whatever the mode of the file it replaces.
@@ -462,7 +544,7 @@ void armRestart();
    A box with no file at that name gets one, with the same head the migration
    writes. */
 bool saveWebSettings(const std::string &path, const WebSettings &s,
-                     std::string *stored_hash = NULL);
+                     std::string *stored_hash = NULL, const WebSettings *from = NULL);
 
 /* Reads path and nhttpd.conf (serverPath) again and puts the running server on
    what they now say.

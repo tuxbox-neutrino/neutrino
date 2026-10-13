@@ -39,6 +39,7 @@
 
 #include <nhttpd/yconfig.h>
 #include <httpd/login_bridge.h>
+#include <httpd/webconfig.h>
 
 #include <libconfigfile/configfile.h>
 
@@ -122,24 +123,32 @@ bool CNhttpdSetup::saveConfig()
 		return false;
 	}
 
-	CConfigFile config(',');
-	config.loadConfig(HTTPD_CONFIGFILE);
+	/* Read and written under the lock every writer of this file in the program
+	   holds, the REST route among them, and released before the account is
+	   changed below, whose lock is taken first everywhere else. */
+	bool saved = false;
+	{
+		httpd::ServerFileLock hold;
+		CConfigFile config(',');
+		config.loadConfig(HTTPD_CONFIGFILE);
 
-	config.setInt32("WebsiteMain.port", port);
-	config.setString("WebsiteMain.host", host);
-	config.setBool("webserver.threading", threading != 0);
-	config.setInt32("server.log.loglevel", loglevel);
+		config.setInt32("WebsiteMain.port", port);
+		config.setString("WebsiteMain.host", host);
+		config.setBool("webserver.threading", threading != 0);
+		config.setInt32("server.log.loglevel", loglevel);
 
-	config.setBool("mod_auth.authenticate", auth_enabled != 0);
-	config.setString("mod_auth.no_auth_client", no_auth_client);
+		config.setBool("mod_auth.authenticate", auth_enabled != 0);
+		config.setString("mod_auth.no_auth_client", no_auth_client);
 
 #ifdef Y_CONFIG_USE_OPEN_SSL
-	config.setBool("WebsiteMain.ssl", ssl_enabled != 0);
-	config.setString("WebsiteMain.ssl_pemfile", ssl_pemfile);
-	config.setString("WebsiteMain.ssl_ca_file", ssl_ca_file);
+		config.setBool("WebsiteMain.ssl", ssl_enabled != 0);
+		config.setString("WebsiteMain.ssl_pemfile", ssl_pemfile);
+		config.setString("WebsiteMain.ssl_ca_file", ssl_ca_file);
 #endif
 
-	if (!config.saveConfig(HTTPD_CONFIGFILE)) {
+		saved = httpd::saveServerFile(HTTPD_CONFIGFILE, config.getConfigDataMap());
+	}
+	if (!saved) {
 		DisplayErrorMessage(g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_SAVE_FAILED));
 		return false;
 	}

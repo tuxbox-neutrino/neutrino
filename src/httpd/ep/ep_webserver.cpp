@@ -23,6 +23,7 @@
 
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
+#include "httpd/login_bridge.h"
 #include "httpd/json.h"
 #include "httpd/netmatch.h"
 #include "httpd/schema.h"
@@ -48,8 +49,9 @@
    one value in this box that decides whether any of the rest can be reached at all.
 
    WHAT THE ROUTES HERE OFFER AND WHAT THEY DO NOT. The configuration behind this
-   server carries eleven things (webconfig.h). Seven are answered here, five can be
-   written, and each of the rest is left out for a reason of its own:
+   server carries eleven things (webconfig.h), and nhttpd.conf the lines of nhttpd's
+   own the settings page offers. Most are answered here, some can be written, and
+   each of the rest is left out for a reason of its own:
 
      port, bind                   read and written, and written into nhttpd.conf and
                                   not into this server's own file: nhttpd binds them,
@@ -60,6 +62,14 @@
 
      user, password               read and written. They are the account the box's
                                   own screen offers, kept in this server's own file.
+                                  Whether the password in effect is one the boxes
+                                  shipped with is read beside them.
+
+     page_login, no_login_prefix, read and written, and lines of nhttpd.conf the
+     threading, send_all_types,   settings page has always offered: whether the pages
+     override_directory,          ask for the login and of whom not, and how nhttpd
+     hosted_directory             serves them. nhttpd reads them when it starts, so a
+                                  change to one restarts it as a new port does.
 
      channel_logos                read and written, and a line of this server's own
                                   file. The two below it are read only because
@@ -163,26 +173,7 @@ void writePrefixes(Json &j, const char *name, const std::vector<NetPrefix> &all)
 	j.endArray();
 }
 
-/* The port a caller reaches this box on, which is not always the port the
-   configuration asked for: a file naming nought asks the kernel to choose, and what it
-   chose is the only number that is any use to whoever is asking. The configured one
-   answers while nothing is bound.
-
-   The bound port is asked for and whether the server is running is not, which is not a
-   shortening. A handler runs on a thread the daemon owns and tearing the daemon down
-   waits for those threads, so a handler asking a question that a shutdown holds the
-   answer to is a handler waiting for something waiting for it. The bound port is kept
-   under a lock of its own for exactly that reason (server.cpp) and reads as none while
-   nothing is bound. */
-int answeringPort()
-{
-	const int bound = boundPort();
-	if (bound > 0)
-		return bound;
-	return config().server.port;
-}
-
-/* What the server is set to, as the seven members both routes answer it with.
+/* What the server is set to, as the members both routes answer it with.
 
    One writer for both, because the answer to a write says what the server is now set
    to and a caller has to be able to read that the same way it reads the answer to a
@@ -192,9 +183,12 @@ int answeringPort()
    to a write is what the file now says and the running server is still on the old one
    at the moment that answer is built: nothing is put on the new configuration until the
    answer has gone out. Everything this route does not write is read from what is in
-   effect, which for those keys is what the file says too. */
+   effect, which for those keys is what the file says too. The options are what
+   nhttpd.conf says, which is what nhttpd runs on: it reads them when it starts, and the
+   menu at the box puts its own changes in effect as it writes them. */
 void writeWebserver(Json &j, int port, const std::string &bind,
-                    const std::string &user, bool has_password, bool logos)
+                    const std::string &user, bool has_password, bool logos,
+                    const ServerOptions &o)
 {
 	const WebConfig &c = config();
 
@@ -203,6 +197,15 @@ void writeWebserver(Json &j, int port, const std::string &bind,
 	j.value((unsigned long) ((port > 0) ? port : 0));
 	j.key("bind");
 	j.value(bind);
+	/* The port that answers now, which is not the one above after the menu at the
+	   box moved it and before anything restarted the server, nor where nhttpd
+	   fell back from a port it could not take. Asked for and whether the server
+	   is running is not: tearing the daemon down waits for the threads handlers
+	   run on, and the bound port is kept apart for that reason (server.h). */
+	j.key("bound_port");
+	j.value((unsigned long) boundPort());
+	j.key("restarts");
+	j.value((unsigned long) startCount());
 	j.key("user");
 	j.value(user);
 	/* Whether one is set and never which one. A stored form is what an offline
@@ -212,23 +215,50 @@ void writeWebserver(Json &j, int port, const std::string &bind,
 	   place. */
 	j.key("has_password");
 	j.value(has_password);
+	/* Of the password in effect, so a page can say that the box still opens to the
+	   login it shipped with. A password a write sets is not judged in its answer: it
+	   is not in effect yet, and the read after the restart says. */
+	j.key("password_shipped");
+	j.value(login_bridge::passwordIsShipped());
+	j.key("page_login");
+	j.value(o.page_login);
+	j.key("no_login_prefix");
+	j.value(o.no_login_prefix);
 	writePrefixes(j, "lan_read", c.lan_read);
 	writePrefixes(j, "trusted_proxies", c.trusted_proxies);
 	j.key("legacy_enabled");
 	j.value(c.legacy_enabled);
 	j.key("channel_logos");
 	j.value(logos);
+	j.key("threading");
+	j.value(o.threading);
+	j.key("override_directory");
+	j.value(o.override_directory);
+	j.key("hosted_directory");
+	j.value(o.hosted_directory);
+	j.key("send_all_types");
+	j.value(o.send_all_types);
 	j.endObject();
 }
 
 const FieldDesc kWebserverFields[] = {
 	HTTPD_MEMBER("port", FieldType::UInt,
-		"the port this server is answering on, which is the one the kernel chose where the configuration asked for none"),
+		"the port nhttpd.conf names, which the server answers on from its next start, and now as well unless the menu at the box moved it since"),
+	HTTPD_MEMBER("bound_port", FieldType::UInt,
+		"the port the server is answering on now, 0 while nothing is bound; it differs from port after the menu at the box moved that and before a restart, and where nhttpd fell back from a port it could not take"),
+	HTTPD_MEMBER("restarts", FieldType::UInt,
+		"how many times the server was put on its configuration again since the box came up; a caller compares it across a write to see whether the restart it announced has happened"),
 	HTTPD_MEMBER("bind", FieldType::String,
 		"the address it listens on, and \"0.0.0.0\" for every address of the first family"),
 	HTTPD_MEMBER("user", FieldType::String, "the one name a password is presented under"),
 	HTTPD_MEMBER("has_password", FieldType::Bool,
 		"whether a password is set at all, which is the whole of what is said about it: neither the password nor the form it is stored as ever leaves the box"),
+	HTTPD_MEMBER("password_shipped", FieldType::Bool,
+		"whether the password in effect is one these boxes have shipped with, which anybody can look up; a password a write sets is judged by the read after the restart"),
+	HTTPD_MEMBER("page_login", FieldType::Bool,
+		"whether the pages ask for the login, a line of nhttpd.conf: with it off the pages are open, and a change made over this interface still asks for a sign in"),
+	HTTPD_MEMBER("no_login_prefix", FieldType::String,
+		"the start of an IPv4 address whose callers the pages never ask for the login, such as \"192.168.1.\", and empty for none; the box itself is never asked. It opens the pages and not this interface, whose reads without a password are lan_read"),
 	HTTPD_LIST_OF_VALUES("lan_read", ElementType::String,
 		"the networks a caller may read from without presenting anything, as this box compares them and not as a file happened to write them, and empty where nobody may"),
 	HTTPD_LIST_OF_VALUES("trusted_proxies", ElementType::String,
@@ -237,19 +267,32 @@ const FieldDesc kWebserverFields[] = {
 		"whether the copied surface under /control/ is answered at all, which is a line of the file and not something this route writes"),
 	HTTPD_MEMBER("channel_logos", FieldType::Bool,
 		"whether this server hands a channel picture over at all: with it off the route that carries one answers as it does for a channel that has none, so the switch holds for every caller and a page has nothing to read. The television is drawn from the box's own settings and is not touched by it"),
+	HTTPD_MEMBER("threading", FieldType::Bool,
+		"whether nhttpd answers each request on a thread of its own, a line of nhttpd.conf"),
+	HTTPD_MEMBER("override_directory", FieldType::String,
+		"a directory whose files are served in place of the pages' own of the same name, a line of nhttpd.conf"),
+	HTTPD_MEMBER("hosted_directory", FieldType::String,
+		"the directory served under /hosted/, a line of nhttpd.conf"),
+	HTTPD_MEMBER("send_all_types", FieldType::Bool,
+		"whether a file of a type nhttpd has no name for is sent all the same rather than refused, a line of nhttpd.conf"),
 };
 
 const Schema kWebserverSchema = { "webserver", HTTPD_FIELDS(kWebserverFields) };
 
+/* Where the server answers and how nhttpd serves are what nhttpd.conf says, the
+   same reading a write starts from, so a caller that writes back what it read
+   writes back what the file says and not a port the menu at the box has moved
+   away from since. */
 Response webserverRead(const Request &)
 {
 	const WebConfig &c = config();
 	const Login l = loginInEffect();
+	const WebSettings now = currentWebSettings();
 
 	Response out = okJson();
-	Json j(out.body, 512);
-	writeWebserver(j, answeringPort(), c.server.bind_address, l.username,
-	               !l.password_hash.empty(), c.channel_logos);
+	Json j(out.body, 1024);
+	writeWebserver(j, now.port, now.bind_address, l.username,
+	               !l.password_hash.empty(), c.channel_logos, now.options);
 	return out;
 }
 
@@ -421,6 +464,38 @@ Response webserverWrite(const Request &r)
 		named = true;
 	}
 
+	// The lines of nhttpd.conf beside the port and the address.
+	if (r.has("page_login"))
+	{
+		s.options.page_login = r.asBool("page_login");
+		named = true;
+	}
+	if (r.has("no_login_prefix"))
+	{
+		s.options.no_login_prefix = r.asString("no_login_prefix");
+		named = true;
+	}
+	if (r.has("threading"))
+	{
+		s.options.threading = r.asBool("threading");
+		named = true;
+	}
+	if (r.has("override_directory"))
+	{
+		s.options.override_directory = r.asString("override_directory");
+		named = true;
+	}
+	if (r.has("hosted_directory"))
+	{
+		s.options.hosted_directory = r.asString("hosted_directory");
+		named = true;
+	}
+	if (r.has("send_all_types"))
+	{
+		s.options.send_all_types = r.asBool("send_all_types");
+		named = true;
+	}
+
 	/* A body naming nothing is turned down rather than answered. It changes no
 	   value, so the only thing left for it to be is a way of asking the box to
 	   restart its own server, and that is not what this route is. */
@@ -435,7 +510,9 @@ Response webserverWrite(const Request &r)
 	   nhttpd can listen on, what a name may carry, and what an empty password
 	   verifies against. A second copy of any of them here would be a rule that
 	   can disagree with the one that decides. */
-	if (!saveWebSettings(path, s))
+	/* From what this request started from, so a value the menu at the box wrote
+	   into nhttpd.conf since then stays unless this request names it. */
+	if (!saveWebSettings(path, s, NULL, &before))
 	{
 		/* Answered as the caller's request being wrong, because the values the
 		   save was handed all came out of this request and one of them is what
@@ -463,11 +540,15 @@ Response webserverWrite(const Request &r)
 		|| s.bind_address != effective.bind_address
 		|| s.username != effective.username
 		|| password_changed
-		|| s.channel_logos != effective.channel_logos;
+		|| s.channel_logos != effective.channel_logos
+		/* Against what nhttpd.conf said and not against what is in effect, which this
+		   layer does not hold for these: nhttpd reads them when it starts, and the
+		   menu puts its own changes in effect as it writes them. */
+		|| !sameServerOptions(s.options, before.options);
 	const bool restarting = moved || restartAwaitsLoad();
 
 	Response out = okJson();
-	Json j(out.body, 640);
+	Json j(out.body, 1280);
 	j.beginObject();
 	j.key("webserver");
 	/* What the file now says and not what is in effect, the two being different
@@ -477,7 +558,7 @@ Response webserverWrite(const Request &r)
 	   every line a save does not own reaching the new file as it stood. */
 	writeWebserver(j, s.port, s.bind_address, s.username,
 		       s.change_password || !loginInEffect().password_hash.empty(),
-		       s.channel_logos);
+		       s.channel_logos, s.options);
 	j.key("caller");
 	j.beginObject();
 	j.key("address");
@@ -524,6 +605,19 @@ const Param kWriteParams[] = {
 	   only while the daemon is down. */
 	HTTPD_BODY("channel_logos", ParamType::Bool,
 		"whether the pages are to show a picture beside a channel"),
+	/* The lines of nhttpd.conf the settings page offers besides where the server
+	   answers. What each may be is the save's to judge, as for the four above. */
+	HTTPD_BODY("page_login", ParamType::Bool,
+		"whether the pages are to ask for the login"),
+	/* Empty is a value here, the one that exempts nobody, so a caller can take
+	   a prefix away again. */
+	HTTPD_BODY_TEXT_CLEARABLE("no_login_prefix", "the start of an IPv4 address in dotted decimal whose callers the pages are never to ask for the login, such as \"192.168.1.\", and empty for nobody", 15),
+	HTTPD_BODY("threading", ParamType::Bool,
+		"whether nhttpd is to answer each request on a thread of its own"),
+	HTTPD_BODY_TEXT("override_directory", "an absolute path whose files are to be served in place of the pages' own of the same name", 255),
+	HTTPD_BODY_TEXT("hosted_directory", "an absolute path to serve under /hosted/", 255),
+	HTTPD_BODY("send_all_types", ParamType::Bool,
+		"whether a file of a type nhttpd has no name for is to be sent all the same"),
 };
 
 const RouteRefusal kWebserverWriteRefusals[] = {
@@ -537,7 +631,9 @@ const Endpoint kWebserverEndpoints[] = {
 	{ Method::Get, "/api/v1/system/webserver", AuthLevel::System,
 	  "how this server is set up: where it answers, who may tell it anything, and who reads from it without presenting anything",
 	  "Reads how this HTTP server itself is set up: the port and address it answers on, the account a "
-	  "caller signs in under, whether a password is set at all, the networks that may read without "
+	  "caller signs in under, whether a password is set at all and whether it is one the boxes shipped "
+	  "with, whether the pages ask for the login and of which callers not, how nhttpd serves the pages "
+	  "(threads, the override and hosted directories, files of unknown type), the networks that may read without "
 	  "presenting anything and the proxies whose forwarded address is believed, whether the copied "
 	  "surface under `/control/` is reachable, and whether a channel picture is served at all. This is "
 	  "a different file from `neutrino.conf`, which `/api/v1/settings` reads and writes.\n"
@@ -561,9 +657,9 @@ const Endpoint kWebserverEndpoints[] = {
 	  "says whether anything changed enough to restart the server at all, since a request asking for "
 	  "what is already in effect changes nothing and restarts nothing.\n"
 	  "\n"
-	  "**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port` "
-	  "or `bind` differ from what that file says, that file being where the server answers. When "
-	  "`port`, `bind`, `user`, `password` or `channel_logos` actually changed, the server is restarted "
+	  "**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port`, "
+	  "`bind` or another member kept there differs from what that file says, that file being where the "
+	  "server answers and how nhttpd serves. When any member actually changed, the server is restarted "
 	  "on the new files once the answer has been sent, which drops every connection it is holding, this "
 	  "one included. Where nothing comes up on a new port or address, it goes back to the one it "
 	  "answered on before.\n"
@@ -571,7 +667,8 @@ const Endpoint kWebserverEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 missing-parameter`: the body names nothing to change.\n"
 	  "- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` "
-	  "that is not an address literal of the first family, the only one this server listens on, or a "
+	  "that is not an address literal of the first family, the only one this server listens on, a "
+	  "`no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a "
 	  "configuration file itself could not be written; the detail names which.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",

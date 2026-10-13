@@ -81,6 +81,12 @@ bool running();
 // zero.
 int boundPort();
 
+/* How many times start has put the server up since the program came up, the
+   start the program makes on its way up not counted. Compared across a change that
+   restarts the server, it says whether the restart has happened, which the port
+   cannot say where the port stayed the same. */
+unsigned startCount();
+
 /* How many requests the server is holding state for. The daemon may abandon a
    connection without calling the handler a last time, so the state one request needs
    is freed from the notification the daemon makes when it is done and never on the way

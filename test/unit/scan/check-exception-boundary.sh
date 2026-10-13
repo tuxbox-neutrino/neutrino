@@ -10,6 +10,9 @@
 #  - nhttpd calls into the layer through the names listed below and no others.
 #    A new direct call fails here until its target is written with a barrier
 #    and added to the list.
+#  - a type of the layer nhttpd builds is a call as well, its constructor and
+#    destructor running in an nhttpd frame. Only the types listed below may be
+#    built there, each one whose constructor and destructor cannot throw.
 #  - the hooks are reached through the Cyhook interface and carry their own
 #    barriers, held to the same rule below. The one thing a hook may do ahead
 #    of its try is ask claims() whether the request is its own: a lookup in
@@ -39,13 +42,14 @@ for f in "$STRIP" "$BLANK"; do
 	[ -r "$f" ] || { echo "check-exception-boundary.sh: cannot read $f" >&2; exit 1; }
 done
 
-ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startEvents CApiBridge::stopEvents'
+ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart httpd::saveServerFile CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startEvents CApiBridge::stopEvents'
 
 # name, file that defines it; each of these opens with try
 GUARDED='knowName src/httpd/stubs/legacy_usage.cpp
 record src/httpd/stubs/legacy_usage.cpp
 scheduleReloadAndRestart src/httpd/stubs/server_nhttpd.cpp
 reloadRunner src/httpd/stubs/server_nhttpd.cpp
+saveServerFile src/httpd/webconfig.cpp
 CApiBridge::routesOk src/httpd/nhttpd_bridge.cpp
 CApiBridge::startEvents src/httpd/nhttpd_bridge.cpp
 CApiBridge::stopEvents src/httpd/nhttpd_bridge.cpp
@@ -67,6 +71,25 @@ find "$SRC/src/nhttpd" \( -name '*.cpp' -o -name '*.h' \) | sort | while read -r
 		| sed -E 's/^[^A-Za-z_]//; s/[ \t]*\($//' >> "$tmp/calls" || true
 done
 sort -u "$tmp/calls" > "$tmp/called"
+
+# httpd::ServerFileLock locks and unlocks a mutex that load() builds on the
+# program's way up, before nhttpd runs, so nothing in it allocates.
+TYPES='httpd::ServerFileLock'
+: > "$tmp/types"
+find "$SRC/src/nhttpd" \( -name '*.cpp' -o -name '*.h' \) | sort | while read -r f; do
+	prepare "$f" | grep -o -E '(^|[^A-Za-z_0-9:])httpd::[A-Z][A-Za-z_0-9]*' \
+		| sed -E 's/^[^A-Za-z_]//' >> "$tmp/types" || true
+done
+sort -u "$tmp/types" | while read -r name; do
+	case " $TYPES " in
+	*" $name "*) ;;
+	*)
+		echo "check-exception-boundary.sh: nhttpd builds $name, which is not a listed" >&2
+		echo "  type whose constructor and destructor cannot throw" >&2
+		exit 1
+		;;
+	esac
+done || exit 1
 if [ ! -s "$tmp/called" ]; then
 	echo "check-exception-boundary.sh: no call from nhttpd into the layer found," >&2
 	echo "  the scan has stopped matching" >&2

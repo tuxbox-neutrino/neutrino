@@ -266,7 +266,7 @@ TEST_CASE("the webserver table answers the port the bridge said", "[bridge]")
 	h.hh.HeaderList["Authorization"] = "Bearer " + token;
 	REQUIRE(a.bridge.Hook_SendResponse(&h.hh) == HANDLED_READY);
 	CHECK(h.hh.httpStatus == HTTP_OK);
-	CHECK(h.hh.yresult.find("\"port\":31999") != std::string::npos);
+	CHECK(h.hh.yresult.find("\"bound_port\":31999") != std::string::npos);
 	CHECK(h.hh.yresult.find("\"has_password\"") != std::string::npos);
 	// never the hash, never a password member
 	CHECK(h.hh.yresult.find("password_hash") == std::string::npos);

@@ -48,6 +48,7 @@
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
 #include <httpd/login_bridge.h>
+#include <httpd/webconfig.h>
 #include <coreapi/webui.h>
 #include <mod_auth.h>
 #include <src/tools/rcsim.h> // rcsim.h is located in $(top_builddir)
@@ -5185,6 +5186,12 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	coreapi::webui::FileLock *yweb_lock = NULL;
 	if (configFileName == "yweb")
 		yweb_lock = new coreapi::webui::FileLock;
+	/* nhttpd's own file likewise, against the REST route, the menu at the box and
+	   nhttpd's own read of it. Released before the account is changed below,
+	   whose lock is taken before this one everywhere else. */
+	httpd::ServerFileLock *server_lock = NULL;
+	if (configFileName == "nhttpd")
+		server_lock = new httpd::ServerFileLock;
 
 	hh->outStart();
 
@@ -5269,24 +5276,30 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			    && !key.empty() && key.find_first_not_of("0123456789") != std::string::npos)
 					Config->setString(key, it->second);
 			}
-			if (configFileName == "nhttpd" && (!login_user.empty() || !login_password.empty())) {
-				std::string why;
-				const login_bridge::Ask from = CmAuth::AskOf(hh);
-				if (!login_bridge::change(login_user, login_password, &why, &from))
-					error = "the login was not changed: " + why;
+			if (configFileName == "nhttpd") {
+				// the file first and under its lock, the account after it
+				if (!httpd::saveServerFile(config_filename, Config->getConfigDataMap()))
+					error = "the settings were not written: " + config_filename;
+				delete server_lock;
+				server_lock = NULL;
+				if (!login_user.empty() || !login_password.empty()) {
+					std::string why;
+					const login_bridge::Ask from = CmAuth::AskOf(hh);
+					if (!login_bridge::change(login_user, login_password, &why, &from))
+						error = "the login was not changed: " + why;
+				}
 				login_password.assign(login_password.size(), '\0');
+				// pick up new auth credentials without a restart,
+				// same as the legacy do_reload_httpd_config block
+				yhttpd_reload_config();
 			}
-			if (configFileName == "neutrino") {
+			else if (configFileName == "neutrino") {
 				Config->saveConfig(config_filename);
 				// apply on the GUI thread; same path as /control/reloadsetup
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD);
 			}
 			else if (own_config) {
 				Config->saveConfig(config_filename);
-				// pick up new auth credentials without a restart,
-				// same as the legacy do_reload_httpd_config block
-				if (configFileName == "nhttpd")
-					yhttpd_reload_config();
 			}
 		}
 	}
@@ -5317,6 +5330,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 
 	if (own_config)
 		delete Config;
+	delete server_lock;
 	delete yweb_lock;
 }
 

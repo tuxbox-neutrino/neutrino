@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include "mod_auth.h"
 #include <helper.h>
+#include <httpd/webconfig.h>
 
 //-----------------------------------------------------------------------------
 // HOOK: response_hook
@@ -193,7 +194,7 @@ THandleStatus CmAuth::Hook_ReadConfig(CConfigFile *Config,
 		dropped = Config->deleteKey("mod_auth.username") || dropped;
 		dropped = Config->deleteKey("mod_auth.session_timeout") || dropped;
 		if (dropped)
-			Config->saveConfig(HTTPD_CONFIGFILE);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 	}
 	return HANDLED_CONTINUE;
 }

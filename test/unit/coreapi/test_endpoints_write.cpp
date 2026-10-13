@@ -3526,6 +3526,16 @@ TEST_CASE("a port moved in the menu at the box is not moved back by a write", "[
 	REQUIRE(root["caller"]["port_moved"].asBool());
 	REQUIRE(root["caller"]["restarting"].asBool());
 	REQUIRE(wholeOf(file.server).find("WebsiteMain.port=8090\n") != std::string::npos);
+
+	/* And a caller that writes back the document it read: the read answers what
+	   nhttpd.conf says, the same reading the write starts from, so restating it
+	   restates the menu's port and not the one still bound. */
+	const Reply read = authedGet("/api/v1/system/webserver");
+	REQUIRE(read.code == 200);
+	REQUIRE(parsed(read.body)["port"].asInt() == 8090);
+	const Response restated = putWebserver("{\"port\":8090,\"user\":\"root\"}");
+	REQUIRE(restated.code == 200);
+	REQUIRE(wholeOf(file.server).find("WebsiteMain.port=8090\n") != std::string::npos);
 }
 
 TEST_CASE("a new password is taken as a password and answered as neither form", "[write]")
@@ -3579,6 +3589,76 @@ TEST_CASE("the networks that read without a password are not narrowed from here"
 	                               AuthLevel::System);
 	REQUIRE(read.code == 200);
 	REQUIRE(parsed(read.body)["lan_read"].size() > 0u);
+}
+
+TEST_CASE("the lines of nhttpd.conf the settings page offers are read and written here", "[write]")
+{
+	/* Whether the pages ask for the login and of whom not, and how nhttpd serves
+	   them: the page, the menu at the box and nhttpd read one file, and nhttpd
+	   reads it when it starts, so a change restarts it as a new port does. */
+	ShippedRoutes shipped;
+	WebFile file("options", kWebFileHead);
+
+	const Reply read = authedGet("/api/v1/system/webserver");
+	REQUIRE(read.code == 200);
+	const ::Json::Value was = parsed(read.body);
+	REQUIRE_FALSE(was["page_login"].asBool());
+	REQUIRE(was["no_login_prefix"].asString().empty());
+	REQUIRE(was["threading"].asBool());
+	REQUIRE(was["send_all_types"].asBool());
+	REQUIRE(was["hosted_directory"].asString() == ServerOptions().hosted_directory);
+	REQUIRE(was.isMember("password_shipped"));
+
+	const Response r = putWebserver("{\"page_login\":true,\"no_login_prefix\":\"10.0.\","
+	                                "\"hosted_directory\":\"/media/hdd/web\"}");
+	REQUIRE(r.code == 200);
+	const ::Json::Value root = parsed(r.body);
+	REQUIRE(root["webserver"]["page_login"].asBool());
+	REQUIRE(root["webserver"]["no_login_prefix"].asString() == "10.0.");
+	REQUIRE(root["webserver"]["hosted_directory"].asString() == "/media/hdd/web");
+	REQUIRE_FALSE(root["caller"]["port_moved"].asBool());
+	REQUIRE(root["caller"]["restarting"].asBool());
+	REQUIRE(r.reload_after == file.path);
+
+	const std::string server = wholeOf(file.server);
+	REQUIRE(server.find("mod_auth.authenticate=true\n") != std::string::npos);
+	REQUIRE(server.find("mod_auth.no_auth_client=10.0.\n") != std::string::npos);
+	REQUIRE(server.find("WebsiteMain.hosted_directory=/media/hdd/web\n") != std::string::npos);
+	REQUIRE(wholeOf(file.path).find("authenticate") == std::string::npos);
+
+	// What the file already says arms no restart of its own.
+	const Response same = putWebserver("{\"page_login\":true,\"threading\":true}");
+	REQUIRE(same.code == 200);
+	REQUIRE(same.reload_after.empty());
+
+	// An empty prefix is a value, the one that exempts nobody: it takes the
+	// prefix away again.
+	const Response cleared = putWebserver("{\"no_login_prefix\":\"\"}");
+	REQUIRE(cleared.code == 200);
+	REQUIRE(parsed(cleared.body)["webserver"]["no_login_prefix"].asString().empty());
+	REQUIRE(wholeOf(file.server).find("mod_auth.no_auth_client=\n") != std::string::npos);
+	REQUIRE(cleared.reload_after == file.path);
+}
+
+TEST_CASE("an option nhttpd could not use as written is turned down", "[write]")
+{
+	ShippedRoutes shipped;
+	WebFile file("badoptions", kWebFileHead);
+
+	const std::string before = wholeOf(file.server);
+	const char *const bodies[] = {
+		"{\"no_login_prefix\":\"192.168.1.0/24\"}",
+		"{\"override_directory\":\"web\"}",
+		"{\"hosted_directory\":\"/media/../etc\"}",
+	};
+	for (size_t i = 0; i < sizeof(bodies) / sizeof(bodies[0]); ++i)
+	{
+		INFO(bodies[i]);
+		const Response r = putWebserver(bodies[i]);
+		REQUIRE(r.code == 400);
+		REQUIRE(r.reload_after.empty());
+		REQUIRE(wholeOf(file.server) == before);
+	}
 }
 
 TEST_CASE("a change that could not be saved does not move the server", "[write]")

@@ -29,6 +29,7 @@
 #include "mod_yparser.h"
 #include <ylanguage.h>
 #include <httpd/login_bridge.h>
+#include <httpd/webconfig.h>
 #include <coreapi/webui.h>
 #include "mod_auth.h"
 
@@ -865,10 +866,17 @@ std::string CyParser::func_get_languages_as_dropdown(CyhookHandler *,
 //-------------------------------------------------------------------------
 std::string CyParser::func_set_language(CyhookHandler *, std::string para) {
 	if (!para.empty()) {
-		CConfigFile *Config = new CConfigFile(',');
-		Config->loadConfig(HTTPD_CONFIGFILE);
-		Config->setString("Language.selected", para);
-		Config->saveConfig(HTTPD_CONFIGFILE);
+		/* Under the lock every writer of nhttpd.conf holds, the REST route and
+		   the menu among them, and released before the reload, whose read of
+		   the file takes it again. */
+		{
+			httpd::ServerFileLock hold;
+			CConfigFile *Config = new CConfigFile(',');
+			Config->loadConfig(HTTPD_CONFIGFILE);
+			Config->setString("Language.selected", para);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
+			delete Config;
+		}
 		yhttpd_reload_config();
 	}
 	return "";

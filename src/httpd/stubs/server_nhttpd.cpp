@@ -42,6 +42,9 @@ namespace
 // own reading for "nothing is bound".
 int bound_port = 0;
 
+// Every start that came up, read by request threads.
+unsigned started = 0;
+
 // The two hands, empty until the program installs them.
 int  (*start_hand)(int port, const char *bind) = 0;
 bool (*stop_hand)(void) = 0;
@@ -120,7 +123,13 @@ bool start(const ServerConfig &c)
 		return false;
 
 	__atomic_store_n(&bound_port, bound, __ATOMIC_SEQ_CST);
+	__atomic_add_fetch(&started, 1u, __ATOMIC_SEQ_CST);
 	return true;
+}
+
+unsigned startCount()
+{
+	return __atomic_load_n(&started, __ATOMIC_SEQ_CST);
 }
 
 void stop()

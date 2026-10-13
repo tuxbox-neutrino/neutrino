@@ -49,6 +49,7 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "coreapi/base/settingswrites.h"
 
 namespace httpd
 {
@@ -92,6 +93,22 @@ const char *const kRetiredKeys[] = { "port", "bind_address" };
    disagree about what the file says. */
 const char kServerPort[] = "WebsiteMain.port";
 const char kServerHost[] = "WebsiteMain.host";
+
+// The rest of what the settings page sets in that file (ServerOptions), under
+// the names nhttpd and its modules read.
+const char kServerAuth[]      = "mod_auth.authenticate";
+const char kServerNoAuth[]    = "mod_auth.no_auth_client";
+const char kServerThreading[] = "webserver.threading";
+const char kServerOverride[]  = "WebsiteMain.override_directory";
+const char kServerHosted[]    = "WebsiteMain.hosted_directory";
+const char kServerSendAll[]   = "mod_sendfile.sendAll";
+
+/* The longest prefix and the longest directory a save writes. A prefix is the
+   start of an address of the first family, the only one nhttpd listens on, and
+   no longer than the longest such address; a directory longer than this is not
+   one anybody set up on a box. */
+const size_t kMaxPrefixChars = 15;
+const size_t kMaxDirectoryChars = 255;
 
 // What the old file calls the account, where it has one at all.
 const char kOldUser[]     = "mod_auth.username";
@@ -184,6 +201,36 @@ std::vector<std::string> &problemList()
 	return held;
 }
 
+/* Held only around the list above and never while taking another lock. Lines
+   reach the list from threads holding the account's lock, from writers of
+   nhttpd.conf holding only theirs, and from reads that hold none. */
+OpenThreads::Mutex &problemLock()
+{
+	static OpenThreads::Mutex m;
+	return m;
+}
+
+void clearProblems()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(problemLock());
+	problemList().clear();
+}
+
+std::vector<std::string> problemsNow()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(problemLock());
+	return problemList();
+}
+
+/* Asked for first by load, on the program's way up, so the mutex is built there
+   and not on nhttpd's thread, which is built without exceptions and would
+   otherwise make it at the first read of nhttpd.conf. */
+OpenThreads::Mutex &serverFileLock()
+{
+	static OpenThreads::Mutex m;
+	return m;
+}
+
 WebConfig &held()
 {
 	static WebConfig c = defaultWebConfig();
@@ -246,6 +293,7 @@ std::string quoted(const std::string &v)
    and nothing carries a raw line of a file. */
 void complain(const std::string &line)
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(problemLock());
 	const size_t held_now = problemList().size();
 	if (held_now > kMaxProblems)
 		return;
@@ -1398,7 +1446,7 @@ std::string ownHead(const std::string &user, bool has_password)
 bool writeShippedFile(const std::string &out_path, const std::string &old_path, bool tried_old)
 {
 	// Taken before the write below, which complains into the same list.
-	const std::vector<std::string> why = problemList();
+	const std::vector<std::string> why = problemsNow();
 
 	const std::string hash = hashSecret(kOldShippedPassword);
 	if (hash.empty())
@@ -1452,12 +1500,12 @@ bool writeShippedFile(const std::string &out_path, const std::string &old_path, 
    False and the working file removed for anything up to and including the step that puts
    it in place. After that step there is no old file to go back to, so a failure past it is
    said and answered true. */
-bool replaceFile(const std::string &path, const std::string &text)
+bool replaceFile(const std::string &path, const std::string &text, mode_t mode = S_IRUSR | S_IWUSR)
 {
 	const std::string working = path + ".new";
 	::unlink(working.c_str());
 
-	const int fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, S_IRUSR | S_IWUSR);
+	const int fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, mode);
 	if (fd < 0)
 	{
 		complain(std::string("cannot create ") + working + ": " + std::strerror(errno));
@@ -1590,42 +1638,136 @@ bool readServerFile(const std::string &path, ServerConfig &server)
 	return true;
 }
 
-/* Writes where the server answers into nhttpd.conf the way the menu at the box
-   does (gui/nhttpd_setup.cpp), through nhttpd's own reader and writer, so every
-   other line of that file stays as nhttpd and its pages wrote it. That writer
-   puts a new file in the place of the old one, as every other writer of that file
-   does.
-
-   A file that is not there is refused rather than created: nhttpd writes it out
-   when it starts, and a file holding only these two lines is one nhttpd takes for
-   the format before its own and rebuilds without them.
-
-   Read back afterwards, because that writer answers true whether or not its new
-   file took the old one's place. */
-bool writeServerFile(const std::string &path, int port, const std::string &host)
+/* The options as nhttpd reads them: the switches through the same reading its
+   modules make (a page login is on for anything but false or 0, every file type
+   is sent only for true), and every line the file does not carry at nhttpd's
+   default. False for a file that is there and cannot be read, and options are
+   then left as they were handed in. */
+bool readServerOptions(const std::string &path, ServerOptions &options)
 {
+	struct stat st;
+	if (::stat(path.c_str(), &st) != 0 && errno == ENOENT)
+	{
+		options = ServerOptions();
+		return true;
+	}
 	if (!isReadableRegularFile(path, "server configuration"))
 		return false;
 
 	CConfigFile file(',');
 	if (!file.loadConfig(path))
 	{
-		complain("cannot parse " + path + ", and nothing is written rather than a file holding two "
-			 "lines of it");
+		complain("cannot parse " + path);
 		return false;
 	}
 
-	file.setInt32(kServerPort, port);
-	file.setString(kServerHost, host);
+	const ServerOptions d;
+	options.page_login = file.getBool(kServerAuth, d.page_login);
+	options.no_login_prefix = file.getString(kServerNoAuth, d.no_login_prefix);
+	options.threading = file.getBool(kServerThreading, d.threading);
+	options.override_directory = file.getString(kServerOverride, d.override_directory);
+	options.hosted_directory = file.getString(kServerHosted, d.hosted_directory);
+	options.send_all_types = file.getString(kServerSendAll, d.send_all_types ? "true" : "false") == "true";
+	return true;
+}
 
-	ServerConfig back = defaultConfig();
-	if (!file.saveConfig(path) || !readServerFile(path, back) || back.port != port ||
-	    back.bind_address != host)
-	{
-		complain("cannot write " + path + ", so it may not say where the server is to answer");
+// One line of nhttpd.conf a save writes, and the value it is to read back as.
+struct ServerLine
+{
+	const char *key;
+	std::string value;
+};
+
+/* Writes lines of nhttpd.conf as the menu at the box changes them
+   (gui/nhttpd_setup.cpp): read through nhttpd's own reader, so every other line
+   of that file stays as nhttpd and its pages wrote it, and written through
+   saveServerFile, which checks what nhttpd's own writer does not. The caller
+   holds ServerFileLock.
+
+   A file that is not there is refused rather than created: nhttpd writes it out
+   when it starts, and a file holding only a few of its lines is one nhttpd takes
+   for the format before its own and rebuilds without them. */
+bool writeServerLines(const std::string &path, const std::vector<ServerLine> &lines)
+{
+	if (!isReadableRegularFile(path, "server configuration"))
 		return false;
+
+	CConfigFile file(',', false);
+	if (!file.loadConfig(path))
+	{
+		complain("cannot parse " + path + ", and nothing is written rather than a file holding a "
+			 "few lines of it");
+		return false;
+	}
+
+	for (size_t i = 0; i < lines.size(); ++i)
+		file.setString(lines[i].key, lines[i].value);
+
+	return saveServerFile(path, file.getConfigDataMap());
+}
+
+std::vector<ServerLine> serverLinesOf(int port, const std::string &host)
+{
+	std::vector<ServerLine> lines;
+	ServerLine one;
+	one.key = kServerPort;
+	one.value = decimal(static_cast<unsigned long>(port));
+	lines.push_back(one);
+	one.key = kServerHost;
+	one.value = host;
+	lines.push_back(one);
+	return lines;
+}
+
+/* The start of an address as nhttpd writes its callers' down before it compares
+   them, byte for byte, with this: dotted decimal of the first family, the only one
+   it listens on, without leading zeros. So up to four groups of up to three
+   digits, none above 255 and none but a lone 0 starting with 0, with a dot
+   between them and at most one after the last of fewer than four. Empty is
+   nobody. Anything else matches no caller, which a page could not tell from a
+   prefix that works. */
+bool isAddressPrefix(const std::string &v)
+{
+	if (v.size() > kMaxPrefixChars)
+		return false;
+
+	size_t groups = 0;
+	size_t at = 0;
+	while (at < v.size())
+	{
+		const size_t dot = v.find('.', at);
+		const std::string group = v.substr(at, (dot == std::string::npos) ? std::string::npos : dot - at);
+		if (group.empty() || group.size() > 3 || (group.size() > 1 && group[0] == '0'))
+			return false;
+		unsigned value = 0;
+		for (size_t i = 0; i < group.size(); ++i)
+		{
+			if (group[i] < '0' || group[i] > '9')
+				return false;
+			value = value * 10 + static_cast<unsigned>(group[i] - '0');
+		}
+		if (value > 255)
+			return false;
+		++groups;
+		if (dot == std::string::npos)
+			break;
+		if (groups == 4)
+			return false;
+		at = dot + 1;
 	}
 	return true;
+}
+
+/* A directory nhttpd serves files out of: an absolute path, without a step up,
+   that reads back out of the file as it was written. Whether it is there is not
+   asked: nhttpd looks for each file as it is asked for, and a directory made later
+   is one it serves from then on. */
+bool isServedDirectory(const std::string &v)
+{
+	if (v.empty() || v.size() > kMaxDirectoryChars || v[0] != '/' || !survivesTheFile(v))
+		return false;
+	const std::string wrapped = v + "/";
+	return wrapped.find("/../") == std::string::npos;
 }
 
 } // namespace
@@ -1700,6 +1842,7 @@ OpenThreads::Mutex &accountLock()
 	return m;
 }
 
+
 /* What the last save wrote into the file the server reads, from that save until a
    load reads the file back. A REST save is put in effect by a restart that runs
    once its answer is gone; a writer in between that started from what is in effect
@@ -1745,6 +1888,16 @@ AccountLock::~AccountLock()
 	accountLock().unlock();
 }
 
+ServerFileLock::ServerFileLock()
+{
+	serverFileLock().lock();
+}
+
+ServerFileLock::~ServerFileLock()
+{
+	serverFileLock().unlock();
+}
+
 Login loginInEffect()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
@@ -1769,9 +1922,9 @@ void setConfigForTest(const WebConfig &c)
 	publishLogin(l);
 }
 
-const std::vector<std::string> &configProblems()
+std::vector<std::string> configProblems()
 {
-	return problemList();
+	return problemsNow();
 }
 
 const std::string &configPath()
@@ -1786,8 +1939,9 @@ const std::string &serverPath()
 
 bool load(const std::string &path, const std::string &server_path)
 {
+	(void) serverFileLock();
 	AccountLock account;
-	problemList().clear();
+	clearProblems();
 
 	/* Before the file is looked at, and kept whatever the look comes to. What
 	   this records is where the box keeps its configuration, which is a
@@ -1991,7 +2145,68 @@ WebSettings currentWebSettings()
 			s.bind_address = server.bind_address;
 		}
 	}
+	s.options = currentServerOptions();
 	return s;
+}
+
+ServerOptions::ServerOptions()
+	: page_login(false),
+	  threading(true),
+	  override_directory(PUBLIC_HTTPDDIR),
+	  hosted_directory(HOSTED_HTTPDDIR),
+	  send_all_types(true)
+{
+}
+
+bool sameServerOptions(const ServerOptions &a, const ServerOptions &b)
+{
+	return a.page_login == b.page_login && a.no_login_prefix == b.no_login_prefix &&
+	       a.threading == b.threading && a.override_directory == b.override_directory &&
+	       a.hosted_directory == b.hosted_directory && a.send_all_types == b.send_all_types;
+}
+
+/* nhttpd calls this directly and is built without exceptions, so nothing may
+   leave it: an allocation that fails is a file left as it was. */
+bool saveServerFile(const std::string &path, const std::map<std::string, std::string> &lines)
+{
+	try
+	{
+		// settings put back from an archive wait for the restart that reads them
+		coreapi::SettingsWrite may;
+		if (!may.allowed())
+		{
+			complain(path + ": settings are being put back, and nothing is written until the restart");
+			return false;
+		}
+		std::string text;
+		for (std::map<std::string, std::string>::const_iterator it = lines.begin(); it != lines.end(); ++it)
+			text += it->first + "=" + it->second + "\n";
+
+		// What nhttpd's writer gives a file it makes (libconfigfile, saveConfig).
+		mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+		struct stat st;
+		if (::stat(path.c_str(), &st) == 0)
+			mode = st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
+
+		if (!replaceFile(path, text, mode))
+		{
+			complain("cannot write " + path + ", which is left as it was");
+			return false;
+		}
+		return true;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+ServerOptions currentServerOptions()
+{
+	ServerOptions o;
+	if (!heldServerPath().empty())
+		readServerOptions(heldServerPath(), o);
+	return o;
 }
 
 bool newPasswordAwaitsLoad()
@@ -2029,9 +2244,44 @@ WebSettings settingsInEffect()
 	return s;
 }
 
-bool saveWebSettings(const std::string &path, const WebSettings &s, std::string *stored_hash)
+namespace
 {
-	problemList().clear();
+
+// ServerFileLock where a save writes nhttpd.conf, and nothing where it cannot.
+struct ServerFileHold
+{
+	explicit ServerFileHold(bool take) : held(take)
+	{
+		if (held)
+			serverFileLock().lock();
+	}
+
+	~ServerFileHold()
+	{
+		if (held)
+			serverFileLock().unlock();
+	}
+
+	const bool held;
+
+private:
+	ServerFileHold(const ServerFileHold &);
+	ServerFileHold &operator=(const ServerFileHold &);
+};
+
+} // namespace
+
+bool saveWebSettings(const std::string &path, const WebSettings &s, std::string *stored_hash,
+                     const WebSettings *from)
+{
+	clearProblems();
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		complain(path + ": settings are being put back, and nothing is written until the restart");
+		return false;
+	}
 	if (stored_hash != NULL)
 		stored_hash->clear();
 
@@ -2042,25 +2292,93 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 	   by hand that nhttpd reads and this would not write stays where it is. A
 	   save of the account alone never looks at the file. */
 	const std::string &server_path = heldServerPath();
+
+	/* From the read of nhttpd.conf below to the write of it and, where the access
+	   file then cannot be written, to putting it back: every other writer of that
+	   file in this program waits meanwhile, so none of them writes over this. */
+	ServerFileHold server_hold(!s.account_only && !server_path.empty());
+
 	ServerConfig was = config().server;
+	ServerOptions was_options;
+	if (!s.account_only && !server_path.empty() &&
+	    (!readServerFile(server_path, was) || !readServerOptions(server_path, was_options)))
+		return false;
+
+	/* What the caller changes is what it asks for against what it started from,
+	   and only that is written: a value the menu at the box wrote since the caller
+	   read the file stays, unless the caller changed that same value. Nor is a
+	   value written that the file already says. */
+	ServerConfig base = was;
+	ServerOptions base_options = was_options;
+	if (from != NULL)
+	{
+		base.port = from->port;
+		base.bind_address = from->bind_address;
+		base_options = from->options;
+	}
 	bool port_changes = false;
 	bool host_changes = false;
 	if (!s.account_only)
 	{
-		if (!server_path.empty() && !readServerFile(server_path, was))
-			return false;
-		port_changes = s.port != was.port;
-		host_changes = s.bind_address != was.bind_address;
+		port_changes = s.port != base.port && s.port != was.port;
+		host_changes = s.bind_address != base.bind_address && s.bind_address != was.bind_address;
 	}
-	const bool move = port_changes || host_changes;
+
+	/* The lines of nhttpd.conf this save writes, and what each of them said
+	   before, which is what goes back when the access file then cannot be
+	   written. */
+	std::vector<ServerLine> server_lines;
+	std::vector<ServerLine> server_before;
+	if (!s.account_only)
+	{
+		const ServerOptions &o = s.options;
+		const ServerOptions &w = was_options;
+		const ServerOptions &b = base_options;
+		const struct
+		{
+			const char *key;
+			bool        changes;
+			std::string value;
+			std::string before;
+		} all[] =
+		{
+			{ kServerPort, port_changes, decimal(static_cast<unsigned long>(s.port)),
+			  decimal(static_cast<unsigned long>(was.port)) },
+			{ kServerHost, host_changes, s.bind_address, was.bind_address },
+			{ kServerAuth, o.page_login != b.page_login && o.page_login != w.page_login,
+			  o.page_login ? "true" : "false", w.page_login ? "true" : "false" },
+			{ kServerNoAuth, o.no_login_prefix != b.no_login_prefix && o.no_login_prefix != w.no_login_prefix,
+			  o.no_login_prefix, w.no_login_prefix },
+			{ kServerThreading, o.threading != b.threading && o.threading != w.threading,
+			  o.threading ? "true" : "false", w.threading ? "true" : "false" },
+			{ kServerOverride, o.override_directory != b.override_directory &&
+			  o.override_directory != w.override_directory, o.override_directory, w.override_directory },
+			{ kServerHosted, o.hosted_directory != b.hosted_directory &&
+			  o.hosted_directory != w.hosted_directory, o.hosted_directory, w.hosted_directory },
+			{ kServerSendAll, o.send_all_types != b.send_all_types && o.send_all_types != w.send_all_types,
+			  o.send_all_types ? "true" : "false", w.send_all_types ? "true" : "false" },
+		};
+		for (size_t i = 0; i < sizeof(all) / sizeof(all[0]); ++i)
+		{
+			if (!all[i].changes)
+				continue;
+			ServerLine line;
+			line.key = all[i].key;
+			line.value = all[i].value;
+			server_lines.push_back(line);
+			line.value = all[i].before;
+			server_before.push_back(line);
+		}
+	}
+	const bool move = !server_lines.empty();
 
 	/* Every value is judged before either file is opened, so a value that cannot
 	   be used leaves both as they were rather than half of it rewritten. The
 	   value is not repeated back where the key makes it a credential. */
 	if (move && server_path.empty())
 	{
-		complain("this server was never told which file says where it answers, so the port and the "
-			 "address cannot be written, and nothing is written");
+		complain("this server was never told which file says where it answers, so the port, the "
+			 "address and the rest of nhttpd.conf cannot be written, and nothing is written");
 		return false;
 	}
 
@@ -2076,6 +2394,39 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 		complain(std::string(kServerHost) + ": " + quoted(s.bind_address) + " is not an address this "
 			 "server can listen on, and nothing is written. It listens on addresses of the first "
 			 "family only, and every interface is written as \"0.0.0.0\"");
+		return false;
+	}
+
+	if (s.options.no_login_prefix != base_options.no_login_prefix &&
+	    s.options.no_login_prefix != was_options.no_login_prefix && !s.account_only &&
+	    !isAddressPrefix(s.options.no_login_prefix))
+	{
+		complain(std::string(kServerNoAuth) + ": " + quoted(s.options.no_login_prefix) + " is not the "
+			 "start of an address of the first family as nhttpd writes them, such as \"192.168.1.\", "
+			 "and nothing is written");
+		return false;
+	}
+
+	const struct
+	{
+		const char        *key;
+		const std::string *now;
+		const std::string *base;
+		const std::string *was;
+	} directories[] =
+	{
+		{ kServerOverride, &s.options.override_directory, &base_options.override_directory,
+		  &was_options.override_directory },
+		{ kServerHosted, &s.options.hosted_directory, &base_options.hosted_directory,
+		  &was_options.hosted_directory },
+	};
+	for (size_t i = 0; i < sizeof(directories) / sizeof(directories[0]); ++i)
+	{
+		if (s.account_only || *directories[i].now == *directories[i].base ||
+		    *directories[i].now == *directories[i].was || isServedDirectory(*directories[i].now))
+			continue;
+		complain(std::string(directories[i].key) + ": " + quoted(*directories[i].now) + " is not an "
+			 "absolute path without a step up, and nothing is written");
 		return false;
 	}
 
@@ -2222,13 +2573,12 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 	   second cannot be written, so a save answered false has not moved the port
 	   that the next start binds. Two files are never written as one step; what
 	   this rules out is the half of a save that would outlast a refusal. */
-	if (move && !writeServerFile(server_path, s.port, s.bind_address))
+	if (move && !writeServerLines(server_path, server_lines))
 		return false;
 
 	const bool replaced = replaceFile(path, out);
-	if (!replaced && move && !writeServerFile(server_path, was.port, was.bind_address))
-		complain(server_path + " could not be put back, and says a port and an address that this "
-			 "save was refused for");
+	if (!replaced && move && !writeServerLines(server_path, server_before))
+		complain(server_path + " could not be put back, and says what this save was refused for");
 
 	/* Written into the file the server reads: what it now says is where the next
 	   writer starts until a load reads it back. An account-only save is in effect
@@ -2294,7 +2644,12 @@ bool reloadAndRestart(const std::string &path)
 			 quoted(failed.bind_address) + ", so the server goes back to port " +
 			 decimal(static_cast<unsigned long>(before.port)) + " at " + quoted(before.bind_address) +
 			 " and " + heldServerPath() + " says so again");
-		if (writeServerFile(heldServerPath(), before.port, before.bind_address))
+		bool put_back = false;
+		{
+			ServerFileLock hold;
+			put_back = writeServerLines(heldServerPath(), serverLinesOf(before.port, before.bind_address));
+		}
+		if (put_back)
 		{
 			held().server = before;
 			up = start(before);
@@ -2314,7 +2669,7 @@ bool reloadAndRestart(const std::string &path)
 
 bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 {
-	problemList().clear();
+	clearProblems();
 
 	if (!isReadableRegularFile(nhttpd_conf, "old configuration"))
 		return false;
@@ -2416,7 +2771,7 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 	   one of these is said in the written file as well as on the standard
 	   error: the list is read by whoever is watching a boot, and the file is
 	   read by whoever comes looking for the password weeks later. */
-	const std::vector<std::string> notes = problemList();
+	const std::vector<std::string> notes = problemsNow();
 
 	std::string text = migratedHead(user, has_password, nhttpd_conf, notes);
 
@@ -2529,7 +2884,7 @@ bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_pat
 	   migrate, so what an earlier read left in the list goes rather than being
 	   written into a file it says nothing about. */
 	if (!have_old)
-		problemList().clear();
+		clearProblems();
 
 	return writeShippedFile(out_path, nhttpd_conf, have_old);
 }

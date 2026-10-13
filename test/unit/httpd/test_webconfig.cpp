@@ -35,6 +35,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -1814,7 +1815,7 @@ TEST_CASE("the list of complaints is bounded", "[webconf]")
 	REQUIRE(httpd::configProblems().size() == 101);
 	REQUIRE(httpd::configProblems().size() < 400);
 
-	const std::string &last = httpd::configProblems().back();
+	const std::string last = httpd::configProblems().back();
 	REQUIRE(last.find("not named here") != std::string::npos);
 }
 
@@ -2774,10 +2775,13 @@ TEST_CASE("the server comes back up on the port nhttpd.conf now names", "[webcon
 	Box box("restart");
 	FakeServer server;
 
+	const unsigned starts = httpd::startCount();
 	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "127.0.0.1", "root")));
 	REQUIRE(httpd::reloadAndRestart(box.conf.path()));
 	REQUIRE(httpd::running());
 	REQUIRE(httpd::boundPort() == 9099);
+	// counted, so a caller can tell the server after the restart from the one before
+	REQUIRE(httpd::startCount() == starts + 1);
 	REQUIRE(FakeServer::last_bind == "127.0.0.1");
 	REQUIRE(httpd::config().server.port == 9099);
 }
@@ -2841,4 +2845,198 @@ TEST_CASE("a reload that cannot read the file leaves the server on what it had",
 	REQUIRE(httpd::running());
 	REQUIRE(httpd::boundPort() == 8081);
 	REQUIRE(anyProblemMentions("could not be read again"));
+}
+
+TEST_CASE("the rest of nhttpd.conf is read the way nhttpd reads it", "[webconf]")
+{
+	/* Its modules read these lines their own way: the page login is on for
+	   anything but false or 0, every file type is sent only for true. A reading
+	   of this layer's own would show a page a switch nhttpd is not running on. */
+	Restore back;
+	Box box("options", kFileOnABox,
+		"WebsiteMain.port=8081\n"
+		"mod_auth.authenticate=1\n"
+		"mod_auth.no_auth_client=192.168.1.\n"
+		"webserver.threading=false\n"
+		"WebsiteMain.override_directory=/var/web\n"
+		"WebsiteMain.hosted_directory=/media/hdd/web\n"
+		"mod_sendfile.sendAll=yes\n");
+
+	const httpd::ServerOptions o = httpd::currentServerOptions();
+	REQUIRE(o.page_login);
+	REQUIRE(o.no_login_prefix == "192.168.1.");
+	REQUIRE_FALSE(o.threading);
+	REQUIRE(o.override_directory == "/var/web");
+	REQUIRE(o.hosted_directory == "/media/hdd/web");
+	REQUIRE_FALSE(o.send_all_types);
+	REQUIRE(httpd::sameServerOptions(httpd::currentWebSettings().options, o));
+
+	// nhttpd's own defaults where the file names nothing.
+	writeFile(box.server.path(), "WebsiteMain.port=8081\n");
+	const httpd::ServerOptions d = httpd::currentServerOptions();
+	REQUIRE_FALSE(d.page_login);
+	REQUIRE(d.no_login_prefix.empty());
+	REQUIRE(d.threading);
+	REQUIRE(d.override_directory == PUBLIC_HTTPDDIR);
+	REQUIRE(d.hosted_directory == HOSTED_HTTPDDIR);
+	REQUIRE(d.send_all_types);
+	REQUIRE(httpd::sameServerOptions(d, httpd::ServerOptions()));
+}
+
+TEST_CASE("a save writes the options that changed into nhttpd.conf and no others", "[webconf]")
+{
+	Restore back;
+	Box box("optsave");
+
+	httpd::WebSettings s = httpd::currentWebSettings();
+	s.options.page_login = true;
+	s.options.no_login_prefix = "192.168.1.";
+	s.options.hosted_directory = "/media/hdd/web";
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), s));
+
+	const std::string server = readFile(box.server.path());
+	REQUIRE(fileHasLine(server, "mod_auth.authenticate=true"));
+	REQUIRE(fileHasLine(server, "mod_auth.no_auth_client=192.168.1."));
+	REQUIRE(fileHasLine(server, "WebsiteMain.hosted_directory=/media/hdd/web"));
+	// What did not change is not written, a default included.
+	REQUIRE(linesNaming(server, "WebsiteMain.override_directory") == 0);
+	REQUIRE(linesNaming(server, "mod_sendfile.sendAll") == 0);
+	REQUIRE(fileHasLine(server, "webserver.threading=true"));
+	REQUIRE(fileHasLine(server, "WebsiteMain.port=8081"));
+
+	const httpd::ServerOptions o = httpd::currentServerOptions();
+	REQUIRE(o.page_login);
+	REQUIRE(o.no_login_prefix == "192.168.1.");
+	REQUIRE(o.hosted_directory == "/media/hdd/web");
+
+	// The account alone writes none of them, whatever it was handed.
+	httpd::WebSettings account = httpd::currentWebSettings();
+	account.account_only = true;
+	account.options.page_login = false;
+	account.options.hosted_directory = "relative";
+	account.username = "another";
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), account));
+	REQUIRE(readFile(box.server.path()) == server);
+}
+
+TEST_CASE("an option nhttpd could not use as written leaves both files as they were", "[webconf]")
+{
+	/* The prefix is compared byte for byte with the start of a caller's address,
+	   so anything but the start of an address matches nobody, or by accident
+	   somebody. A directory is where files are served from, so a relative one
+	   or one with a step up serves from somewhere nobody meant. */
+	Restore back;
+
+	const char *const prefixes[] = { "192.168.1.0/24", "box.lan", "10.0. ", "x", "999.", "1.2.3.4.",
+					 "01.", "1..2", ".1", "::::", "fd00:1:" };
+	for (size_t i = 0; i < sizeof(prefixes) / sizeof(prefixes[0]); ++i)
+	{
+		Box box("badprefix");
+		httpd::WebSettings s = httpd::currentWebSettings();
+		s.options.no_login_prefix = prefixes[i];
+		INFO("prefix " << prefixes[i]);
+		REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), s));
+		REQUIRE(readFile(box.server.path()) == kServerFileOnABox);
+		REQUIRE(readFile(box.conf.path()) == kFileOnABox);
+		REQUIRE(anyProblemMentions("mod_auth.no_auth_client"));
+	}
+
+	const char *const directories[] = { "", "relative/web", "/media/../etc", "/media/hdd/..", "/a#b" };
+	for (size_t i = 0; i < sizeof(directories) / sizeof(directories[0]); ++i)
+	{
+		Box box("baddir");
+		httpd::WebSettings s = httpd::currentWebSettings();
+		s.options.override_directory = directories[i];
+		INFO("directory " << directories[i]);
+		REQUIRE_FALSE(httpd::saveWebSettings(box.conf.path(), s));
+		REQUIRE(readFile(box.server.path()) == kServerFileOnABox);
+		REQUIRE(anyProblemMentions("WebsiteMain.override_directory"));
+	}
+
+	// The start of an address as nhttpd writes them, and the root as a
+	// directory, are taken.
+	const char *const good[] = { "192.168.", "10.0.0.1", "1", "0.", "255.255.255." };
+	for (size_t i = 0; i < sizeof(good) / sizeof(good[0]); ++i)
+	{
+		Box box("goodopts");
+		httpd::WebSettings s = httpd::currentWebSettings();
+		s.options.no_login_prefix = good[i];
+		s.options.override_directory = "/";
+		INFO("prefix " << good[i]);
+		REQUIRE(httpd::saveWebSettings(box.conf.path(), s));
+	}
+}
+
+TEST_CASE("a value the menu wrote since a caller read the file stays", "[webconf]")
+{
+	/* The menu at the box writes nhttpd.conf without passing through this layer.
+	   A caller that read the file before that and changes something else must not
+	   write back the port it read; a caller that changes the port itself does. */
+	Restore back;
+	Box box("merge");
+
+	const httpd::WebSettings from = httpd::currentWebSettings();
+	writeFile(box.server.path(), "WebsiteMain.host=0.0.0.0\nWebsiteMain.port=8090\nconfigfile.version=5\n");
+
+	httpd::WebSettings s = from;
+	s.channel_logos = false;
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), s, NULL, &from));
+	REQUIRE(fileHasLine(readFile(box.server.path()), "WebsiteMain.port=8090"));
+
+	s.port = 9099;
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), s, NULL, &from));
+	REQUIRE(fileHasLine(readFile(box.server.path()), "WebsiteMain.port=9099"));
+}
+
+TEST_CASE("nhttpd.conf keeps its mode and every line nobody changed", "[webconf]")
+{
+	Restore back;
+	Box box("mode");
+	REQUIRE(::chmod(box.server.c_str(), 0644) == 0);
+
+	REQUIRE(httpd::saveWebSettings(box.conf.path(), settingsOf(9099, "0.0.0.0", "root")));
+	REQUIRE(modeOf(box.server.path()) == 0644);
+	const std::string server = readFile(box.server.path());
+	REQUIRE(fileHasLine(server, "configfile.version=5"));
+	REQUIRE(fileHasLine(server, "mod_auth.username=root"));
+	REQUIRE(fileHasLine(server, "webserver.threading=true"));
+	REQUIRE(fileHasLine(server, "WebsiteMain.host=0.0.0.0"));
+	REQUIRE(fileHasLine(server, "WebsiteMain.port=9099"));
+	struct stat st;
+	REQUIRE(::lstat((box.server.path() + ".new").c_str(), &st) != 0);
+}
+
+TEST_CASE("every writer of nhttpd.conf writes it whole or leaves it", "[webconf]")
+{
+	/* The menu, the old config route, the language switch and nhttpd's own read
+	   write the file through this rather than through nhttpd's own writer, which
+	   checks nothing: a file that is there keeps its mode, one that is not gets
+	   the mode nhttpd gives it, and one that cannot be written stays as it was. */
+	Restore back;
+	Temp server("server"), fresh("fresh");
+	writeFile(server.path(), "WebsiteMain.port=8081\n");
+	REQUIRE(::chmod(server.c_str(), 0600) == 0);
+
+	std::map<std::string, std::string> lines;
+	lines["WebsiteMain.port"] = "8082";
+	lines["Language.selected"] = "Deutsch";
+	{
+		httpd::ServerFileLock hold;
+		REQUIRE(httpd::saveServerFile(server.path(), lines));
+		REQUIRE(httpd::saveServerFile(fresh.path(), lines));
+	}
+	REQUIRE(readFile(server.path()) == "Language.selected=Deutsch\nWebsiteMain.port=8082\n");
+	REQUIRE(modeOf(server.path()) == 0600);
+	REQUIRE(modeOf(fresh.path()) == 0644);
+
+	// The working name taken by something no file can be created over.
+	const std::string working = server.path() + ".new";
+	REQUIRE(::mkdir(working.c_str(), 0700) == 0);
+	lines["WebsiteMain.port"] = "9999";
+	{
+		httpd::ServerFileLock hold;
+		REQUIRE_FALSE(httpd::saveServerFile(server.path(), lines));
+	}
+	::rmdir(working.c_str());
+	REQUIRE(readFile(server.path()) == "Language.selected=Deutsch\nWebsiteMain.port=8082\n");
 }
