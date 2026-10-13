@@ -192,32 +192,44 @@ Technisch: die Schaltung liegt in `yWeb.conf`
 ## 5. Installieren / Aktualisieren / Deinstallieren (Verwaltung)
 
 Einstellungen → **Erweiterungen** verwaltet auch den Lebenszyklus
-(Backend: `scripts/Y_Extensions.sh` über den `exec`-Vertrag):
+(Backend: `/api/v1/webui/extensions`; die Box selbst lädt nichts
+herunter):
 
 - **Installieren**: `tar.gz`-Archiv hochladen oder eine Download-URL
-  einfügen (z.B. ein GitHub-Release-Asset). Ein Update ist einfach die
-  erneute Installation derselben Erweiterung — der Ordner wird ersetzt,
-  alle Config-Keys (Enable/Slot und Erweiterungs-Einstellungen)
-  überleben.
-- **Updates prüfen**: expliziter Knopf; vergleicht die installierten
-  Versionen gegen eine gehostete `index.json`
+  einfügen (z.B. ein GitHub-Release-Asset). Bei einer URL lädt der
+  Browser das Archiv und lädt es wie eine Datei hoch; die Adresse muss
+  das Lesen aus einer Webseite erlauben (GitHub tut das), sonst das
+  Archiv herunterladen und als Datei installieren. Ein Update ist
+  einfach die erneute Installation derselben Erweiterung — der Ordner
+  wird ersetzt, sobald der neue ganz entpackt ist, alle Config-Keys
+  (Enable/Slot und Erweiterungs-Einstellungen) überleben.
+- **Updates prüfen**: expliziter Knopf; der Browser vergleicht die
+  installierten Versionen gegen eine gehostete `index.json`
   (Default: das Repository `tuxbox-neutrino/yweb-extensions`,
   überschreibbar per `yWeb.conf`-Key `ext_index_url`). Verfügbare
   Updates zeigen Badge und Update-Knopf in der Zeile.
 - **Deinstallieren**: Zeilen-Knopf mit Bestätigung. Entfernt den
-  Erweiterungsordner und die mitgelieferten Skripte; die
-  `ext_<ordner>_*`-Config-Keys werden geleert (die Config-API kann
-  keine Keys löschen — leere Werte sind inerte Reste).
+  Erweiterungsordner und die mitgelieferten Skripte, jedes nur, solange
+  es noch die installierte Kopie ist; die `ext_<ordner>_*`-Config-Keys
+  werden entfernt.
 
 ### Packaging-Vertrag (`<ordner>.tar.gz`)
 
 - Das Archiv enthält **genau einen Top-Level-Ordner**; sein Name ist
   der Erweiterungs-Schlüssel (`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`) und er
   muss `manifest.json` enthalten.
-- Es entpackt nach `<webroot>/extensions/<ordner>/`.
-- Shell-Skripte in `<ordner>/scripts/*.sh` werden bei der Installation
-  nach `<webroot>/scripts/` kopiert (für `exec`-/`action`-Felder
-  verfügbar) und bei der Deinstallation entfernt — eindeutig benennen.
+- Nur Verzeichnisse und normale Dateien: keine Links, keine Geräte,
+  kein absoluter Name und keiner, der mit `..` aufsteigt; höchstens
+  16 MiB gepackt, 2000 Namen und 64 MiB entpackt.
+- Es entpackt nach `<webroot>/extensions/<ordner>/`, Dateien für alle
+  lesbar (0644), Verzeichnisse 0755.
+- Shell-Skripte in `<ordner>/scripts/*.sh` (Buchstaben, Ziffern,
+  Punkte, Bindestriche, Unterstriche) werden bei der Installation nach
+  `<webroot>/scripts/` kopiert, ausführbar (für `exec`-/`action`-Felder
+  verfügbar), und bei der Deinstallation entfernt. Ein Skript darf
+  keinen Namen tragen, den die Seiten schon haben — ein eigenes der Box
+  oder das einer anderen Erweiterung —, also eindeutig benennen; ersetzt
+  wird nur die unveränderte frühere Kopie derselben Erweiterung.
 - Skripte werden **unverändert** kopiert — Build-Zeit-Platzhalter wie
   `%(PRIVATE_HTTPDDIR)` werden *nicht* expandiert (das passiert nur
   beim `make install` des Kerns). Geteilte Libraries stattdessen über

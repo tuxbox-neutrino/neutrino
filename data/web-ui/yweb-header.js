@@ -1715,29 +1715,29 @@ function ywebCloseAbout(event) {
 // ═══ Extension-Loader (WORK-146 Spec §4) ═══
 // Konvention: <webroot>/extensions/<name>/manifest.json mit
 //   {"name","version","slot":"nav|tools|dashboard|page","entry","description"?}
-// Schaltung: config=yweb ext_<name>_enabled=1, optional ext_<name>_slot
-// (Slot-Override). Fehlendes extensions-Verzeichnis ist KEIN Fehler.
+// Schaltung: yWeb.conf ext_<name>_enabled=1, optional ext_<name>_slot
+// (Slot-Override). Which are installed comes from GET /api/v1/webui/extensions,
+// the switches from GET /api/v1/webui/settings, both readable without a
+// sign-in from the home network; a page that may read neither shows none.
 var _ywebExtensions = null;
+
+async function _ywebV1Read(path) {
+	var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
+	return r.ok ? r.json() : null;
+}
 
 async function ywebDiscoverExtensions() {
 	if (_ywebExtensions !== null) return _ywebExtensions;
 	_ywebExtensions = [];
 	try {
-		var cfgResp = await ywebApi('config', {config: 'nhttpd'});
-		var nh = (cfgResp.data && cfgResp.data.config) || {};
-		var webroot = nh['WebsiteMain_dot_directory'];
-		if (!webroot) return _ywebExtensions;
-		var list;
-		try {
-			list = await ywebApi('file', {action: 'list', path: webroot + '/extensions'});
-		} catch (e) { return _ywebExtensions; }
-		var entries = (list.data && list.data.filelist) || list.filelist || [];
-		var yCfgResp = await ywebApi('config', {config: 'yweb'});
-		var yCfg = (yCfgResp.data && yCfgResp.data.config) || {};
+		var list = await _ywebV1Read('/webui/extensions');
+		var entries = (list && list.items) || [];
+		if (!entries.length) return _ywebExtensions;
+		var settings = await _ywebV1Read('/webui/settings');
+		var yCfg = {};
+		((settings && settings.items) || []).forEach(function(it) { yCfg[it.key] = it.value; });
 		for (var i = 0; i < entries.length; i++) {
-			var e = entries[i];
-			var isDir = (e.type_str === 'dir' || e.type === 4 || e.type === '4');
-			if (!isDir || !e.name || e.name.charAt(0) === '.') continue;
+			var e = {name: entries[i].dir};
 			try {
 				// no-cache: revalidieren, sonst ueberlebt ein altes Manifest
 				// im Browser-Cache jede Aenderung auf der Box
@@ -1750,8 +1750,8 @@ async function ywebDiscoverExtensions() {
 				// script (script-only, entry_js)
 				if (!m.entry && !m.entry_js && !(m.settings && m.settings.sections)) continue;
 				m.dir = e.name;
-				// Config-Ausgabe encodiert '-' als _bind_ (ConfigCGI)
-				var ckBase = ('ext_' + m.dir).replace(/-/g, '_bind_');
+				m.scripts = entries[i].scripts || [];
+				var ckBase = 'ext_' + m.dir;
 				m.enabled = (yCfg[ckBase + '_enabled'] === '1');
 				m.slot = yCfg[ckBase + '_slot'] || m.slot || 'tools';
 				m.url = m.entry ? ('/extensions/' + encodeURIComponent(m.dir) + '/' + encodeURIComponent(m.entry)) : '';

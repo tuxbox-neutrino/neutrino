@@ -945,6 +945,7 @@ yw.set.extinst_title=Install extension
 yw.set.extinst_file=Upload archive (tar.gz)
 yw.set.extinst_url=Install from URL
 yw.set.extinst_nourl=Please enter a URL
+yw.set.extinst_cors=The browser cannot load this address (it does not let a page read it). Download the archive and install it as a file.
 yw.set.extinst_ok=Installed
 yw.set.extinst_fail=Installation failed
 yw.set.extup_check=Check for updates

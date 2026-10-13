@@ -192,31 +192,41 @@ Technically the switch lives in `yWeb.conf`
 ## 5. Install / update / uninstall (manager)
 
 Settings → **Extensions** also manages the lifecycle
-(backend: `scripts/Y_Extensions.sh` via the `exec` contract):
+(backend: `/api/v1/webui/extensions`; the box itself never downloads
+anything):
 
 - **Install**: upload a `tar.gz` archive, or paste a download URL
-  (e.g. a GitHub release asset). An update is simply installing the
-  same extension again — the folder is replaced, all config keys
-  (enable/slot and extension settings) survive.
-- **Check for updates**: explicit button; compares the installed
-  versions against a hosted `index.json`
+  (e.g. a GitHub release asset). For a URL, the browser loads the
+  archive and uploads it like a file, so the address has to let a web
+  page read it (GitHub does); otherwise download it and install it as a
+  file. An update is simply installing the same extension again — the
+  folder is replaced once the new one is unpacked whole, all config
+  keys (enable/slot and extension settings) survive.
+- **Check for updates**: explicit button; the browser compares the
+  installed versions against a hosted `index.json`
   (default: the `tuxbox-neutrino/yweb-extensions` repository,
   overridable via the `yWeb.conf` key `ext_index_url`). Available
   updates show a badge and an update button in the row.
 - **Uninstall**: row button with confirmation. Removes the extension
-  folder and the scripts it shipped; the `ext_<folder>_*` config keys
-  are blanked (the config API cannot delete keys — empty values are
-  inert leftovers).
+  folder and the scripts it shipped, each only where it is still the
+  copy it installed; the `ext_<folder>_*` config keys are taken out.
 
 ### Packaging contract (`<folder>.tar.gz`)
 
 - The archive contains **exactly one top-level folder**; its name is
   the extension key (`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`) and it must
   contain `manifest.json`.
-- It unpacks to `<webroot>/extensions/<folder>/`.
-- Shell scripts in `<folder>/scripts/*.sh` are copied to
-  `<webroot>/scripts/` on install (available for `exec`/`action`
-  fields) and removed on uninstall — name them uniquely.
+- Only directories and regular files: no links, no devices, no name
+  that is absolute or climbs with `..`; at most 16 MiB packed, 2000
+  names and 64 MiB unpacked.
+- It unpacks to `<webroot>/extensions/<folder>/`, files readable by
+  all (0644), directories 0755.
+- Shell scripts in `<folder>/scripts/*.sh` (letters, digits, dots,
+  dashes and underscores) are copied to `<webroot>/scripts/` on install,
+  executable (available for `exec`/`action` fields), and removed on
+  uninstall. A script may not take the name of one the pages already
+  have — the box's own or another extension's — so name them uniquely;
+  only the same extension's earlier copy, unchanged, is replaced.
 - Scripts are copied **verbatim** — build-time placeholders like
   `%(PRIVATE_HTTPDDIR)` are *not* expanded (that only happens during
   the core's `make install`). Locate shared libraries from the script

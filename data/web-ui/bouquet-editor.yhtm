@@ -152,7 +152,7 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=59"></script>
+	<script src="/yweb-header.js?v=60"></script>
 	<script src="/yweb-v1.js?v=14"></script>
 	<script>
 		// The editor speaks /api/v1: a bouquet is read with its position (id)
