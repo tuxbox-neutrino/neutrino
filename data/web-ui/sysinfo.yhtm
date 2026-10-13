@@ -293,7 +293,7 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=60"></script>
+	<script src="/yweb-header.js?v=61"></script>
 	<script src="/yweb-dom.js?v=1"></script>
 	<script src="/yweb-v1.js?v=14"></script>
 	<script>
@@ -311,21 +311,21 @@
 
 	async function loadSysInfo() {
 		try {
-			var results = await Promise.all([
-				ywebApi('sysinfo'),
-				ywebApi('versions')
-			]);
-			var sys = results[0];
-			var ver = results[1];
+			// over /api/v1, in the shape the page has always read (yweb-header.js)
+			var sys = await ywebSystemInfo(true);
+			if (!sys) throw new Error('/api/v1/system/info');
+			var ver = await ywebVersions(sys);
 
 			// Hardware
 			var hw = '';
-			if (sys.cpu_model) hw += row('CPU', sys.cpu_model);
+			if (sys.cpu_model) hw += row('CPU', escapeHtml(sys.cpu_model));
 			hw += row('{=L:yw.si.cores=}', sys.cpu.cores);
-			hw += row('{=L:yw.si.load=}', sys.cpu.percent + '%');
+			// the load where the box could measure it, else its average, else nothing
+			hw += row('{=L:yw.si.load=}', sys.cpu && sys.cpu.percent !== undefined ? sys.cpu.percent + '%'
+				: (sys.load ? sys.load[0].toFixed(2) : '–'));
 			if (sys.temperature !== null && sys.temperature !== undefined)
 				hw += row('{=L:yw.si.temperature=}', sys.temperature + '°C');
-			if (sys.box) hw += row('Box', sys.box.vendor + ' ' + sys.box.name + ' (' + sys.box.arch + ')');
+			if (sys.box) hw += row('Box', escapeHtml(sys.box.vendor + ' ' + sys.box.name + ' (' + sys.box.arch + ')'));
 			document.getElementById('sysinfo-hw').innerHTML = hw;
 
 			// Speicher
@@ -346,9 +346,10 @@
 
 			// System
 			var s = '';
-			s += row('Hostname', sys.hostname);
+			s += row('Hostname', escapeHtml(sys.hostname || ''));
 			s += row('Uptime', ywebFormatUptime(sys.uptime));
-			s += row('Kernel', sys.kernel);
+			s += row('Kernel', escapeHtml(sys.kernel || ''));
+			if (sys.os) s += row('OS', escapeHtml(sys.os));
 			if (sys.load) s += row('Load', sys.load[0].toFixed(2) + ' / ' + sys.load[1].toFixed(2) + ' / ' + sys.load[2].toFixed(2));
 			if (sys.processes) s += row('{=L:yw.si.processes=}', sys.processes.running + ' {=L:yw.si.active=} / ' + sys.processes.total + ' {=L:yw.si.total=}');
 			document.getElementById('sysinfo-sys').innerHTML = s;
@@ -358,10 +359,10 @@
 			if (ver.neutrino) {
 				var nv = ver.neutrino_name ? ver.neutrino_name + ' ' + ver.neutrino : ver.neutrino;
 				if (ver.neutrino_git) nv += ' (' + ver.neutrino_git.substring(0, 8) + ')';
-				sw += row('Neutrino', nv);
+				sw += row('Neutrino', escapeHtml(nv));
 			}
-			if (ver.yweb) sw += row('Neutrino-Web-UI', ver.yweb);
-			if (ver.api) sw += row('API', ver.api);
+			if (ver.yweb) sw += row('Neutrino-Web-UI', escapeHtml(ver.yweb));
+			if (ver.api) sw += row('API', escapeHtml(ver.api));
 			if (ver.server) sw += row('Server', ver.server);
 			document.getElementById('sysinfo-sw').innerHTML = sw;
 
@@ -372,9 +373,9 @@
 					var iface = sys.interfaces[i];
 					net += '<div class="sysinfo-iface">' +
 						'<span class="sysinfo-iface-status ' + (iface.up ? 'up' : 'down') + '"></span>' +
-						'<span class="sysinfo-iface-name">' + iface.name + '</span>' +
-						'<span>' + (iface.ip || '–') + '</span>' +
-						'<span class="sysinfo-iface-detail">' + (iface.mac || '') + '</span>' +
+						'<span class="sysinfo-iface-name">' + escapeHtml(iface.name) + '</span>' +
+						'<span>' + escapeHtml(iface.ip || '–') + '</span>' +
+						'<span class="sysinfo-iface-detail">' + escapeHtml(iface.mac || '') + '</span>' +
 					'</div>';
 				}
 			} else {

@@ -1221,7 +1221,7 @@
 	</footer>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=60"></script>
+	<script src="/yweb-header.js?v=61"></script>
 	<script src="/yweb-dom.js?v=1"></script>
 	<script src="/yweb-v1.js?v=14"></script>
 	<script>
@@ -1231,8 +1231,8 @@
 			ywebShowEpgModal(dash.channel.id, dash.channel.name);
 	}
 
-	// API Helpers — all requests go to /api/v4/ (always JSON for json
-	// endpoints; bare zapto keeps its raw channel id output)
+	// API Helpers for what has no /api/v1 route yet: the tuners with their
+	// signal each, the picture's stream info and the PIDs (step A2)
 	function apiGet(endpoint) {
 		return fetch('/api/v4/' + endpoint)
 			.then(function(r) { return r.text(); })
@@ -1502,9 +1502,9 @@
 		setText('play-icon', (p.paused || p.state === 'paused') ? '❚❚' : '▶');
 	}
 
-	// Load System Info
+	// Load System Info: /api/v1/system/info in the old shape (yweb-header.js)
 	function loadSystemInfo() {
-		apiJson('sysinfo').then(function(data) {
+		ywebSystemInfo(false).then(function(data) {
 			if (!data) return;
 
 			// Uptime
@@ -1628,7 +1628,8 @@
 
 	// Software versions, which do not change while the page is open
 	function loadVersions() {
-		apiJson('versions').then(function(data) {
+		// the reading the header and the footer already made
+		ywebSystemInfoOnce().then(ywebVersions).then(function(data) {
 			if (data) {
 				if (data.yweb) setText('yweb-version', data.yweb);
 				if (data.api) setText('api-version', data.api);

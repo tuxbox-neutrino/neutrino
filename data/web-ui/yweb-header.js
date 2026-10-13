@@ -498,27 +498,104 @@ function ywebUpdateClock() {
 	if (clock) clock.textContent = ywebFormatTime(new Date());
 }
 
+/* What the box says about itself, over /api/v1, in the shape the pages
+   have always read (the old sysinfo answer): sizes in kilobytes, the root
+   filesystem as disk, every storage filesystem in disks, the interfaces with
+   ip. Readable without a sign-in from the home network; null where the box
+   does not answer. full asks for the filesystems and the interfaces as well,
+   which only the information page shows. */
+async function ywebSystemInfo(full) {
+	var read = async function(path) {
+		try {
+			var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
+			return r.ok ? r.json() : null;
+		} catch (e) { return null; }
+	};
+	var all = await Promise.all([read('/system/info'), full ? read('/storage/mounts') : null,
+		full ? read('/network/interfaces') : null]);
+	var info = all[0];
+	if (!info) return null;
+	var kb = function(bytes) { return Math.round((bytes || 0) / 1024); };
+	var pct = function(used, total) { return total > 0 ? Math.round(used * 100 / total) : 0; };
+	var memTotal = kb(info.memory_total), memUsed = memTotal - kb(info.memory_free);
+	var rootTotal = kb(info.root_total), rootFree = kb(info.root_free);
+	// storage the way the old page chose it: devices, flash, network shares and /
+	var disks = [], seen = {};
+	((all[1] && all[1].items) || []).forEach(function(m) {
+		var flash = ['ubifs', 'jffs2', 'yaffs2'].indexOf(m.fstype) >= 0;
+		var net = ['nfs', 'nfs4', 'cifs', 'smb3'].indexOf(m.fstype) >= 0;
+		if (!(String(m.device).indexOf('/dev/') === 0 || flash || net || m.id === '/')) return;
+		if (seen[m.device] || !m.total) return;
+		seen[m.device] = true;
+		var total = kb(m.total), free = kb(m.free);
+		disks.push({device: m.device, mount: m.id, fstype: m.fstype, total: total, free: free,
+			used: total - free, percent: pct(total - free, total)});
+	});
+	return {
+		hostname: info.hostname,
+		uptime: info.uptime,
+		kernel: info.kernel,
+		cpu_model: info.cpu ? info.cpu.model : '',
+		cpu: info.cpu && info.cpu.load_percent >= 0 ? {percent: info.cpu.load_percent, cores: info.cpu.cores}
+			: (info.cpu ? {cores: info.cpu.cores} : undefined),
+		load: info.load_average,
+		processes: {running: info.processes_running, total: info.processes_total},
+		temperature: info.temperature_known ? info.temperature : null,
+		memory: {total: memTotal, used: memUsed, percent: pct(memUsed, memTotal)},
+		disk: {total: rootTotal, free: rootFree, used: rootTotal - rootFree, percent: pct(rootTotal - rootFree, rootTotal)},
+		disks: disks,
+		box: {vendor: info.vendor, name: info.model, arch: info.chipset},
+		os: info.os,
+		interfaces: ((all[2] && all[2].items) || []).map(function(i) {
+			return {name: i.name, ip: i.ipv4, mac: i.mac, up: i.up};
+		}),
+		info: info
+	};
+}
+
+/* The versions and links in the shape of the old versions answer: the
+   program's and the interface's from /api/v1/system/info, the pages' own
+   from the Y_Version.txt they ship. */
+async function ywebVersions(sys) {
+	var info = sys ? sys.info : null;
+	if (!info) {
+		try {
+			var r = await fetch('/api/v1/system/info', {credentials: 'same-origin', cache: 'no-store'});
+			info = r.ok ? await r.json() : {};
+		} catch (e) { info = {}; }
+	}
+	var out = {
+		neutrino: info.neutrino_version || '',
+		neutrino_git: info.neutrino_git || '',
+		api: info.api ? info.api.major + '.' + info.api.minor : '',
+		links: info.support || {},
+		copyright: {text: info.support ? info.support.copyright : ''}
+	};
+	try {
+		var v = await fetch('/Y_Version.txt', {cache: 'no-cache'});
+		if (v.ok) (await v.text()).split('\n').forEach(function(line) {
+			if (line.indexOf('version=') === 0) out.yweb = line.slice(8).trim();
+			else if (line.indexOf('date=') === 0) out.yweb_date = line.slice(5).trim();
+		});
+	} catch (e) { /* no version file */ }
+	return out;
+}
+
+// One reading per page for the header's name and the footer: each reading
+// measures the processor for a tenth of a second.
+var _ywebSystemInfoOnce = null;
+function ywebSystemInfoOnce() {
+	if (!_ywebSystemInfoOnce) _ywebSystemInfoOnce = ywebSystemInfo(false);
+	return _ywebSystemInfoOnce;
+}
+
 // Load hostname
 function ywebLoadHostname() {
 	const el = document.getElementById('yweb-hostname');
 	if (!el) return;
-
-	// Prefer sysinfo (real hostname), fallback to boxinfo (boxname)
-	ywebApi('sysinfo')
+	ywebSystemInfoOnce()
 		.then(data => {
-			if (data && data.hostname) {
-				el.textContent = data.hostname;
-			} else {
-				return ywebLoadHostnameFallback(el);
-			}
-		})
-		.catch(() => ywebLoadHostnameFallback(el));
-}
-
-function ywebLoadHostnameFallback(el) {
-	ywebApi('boxinfo')
-		.then(data => {
-			el.textContent = (data && data.boxname) ? data.boxname : 'neutrino';
+			el.textContent = (data && (data.hostname || (data.box && data.box.name))) || 'neutrino';
 		})
 		.catch(() => { el.textContent = 'neutrino'; });
 }
@@ -626,7 +703,8 @@ function ywebInitFooter() {
 	}
 
 	// Load versions from API
-	ywebApi('versions')
+	ywebSystemInfoOnce()
+		.then(sys => ywebVersions(sys))
 		.then(data => {
 			if (data.yweb) {
 				const el = document.getElementById('yweb-footer-version');
@@ -1652,7 +1730,8 @@ function ywebShowAbout() {
 	if (!modal) return;
 
 	// Load data from API (versions and links)
-	ywebApi('versions')
+	ywebSystemInfoOnce()
+		.then(sys => ywebVersions(sys))
 		.then(data => {
 			const setEl = (id, val) => {
 				const el = document.getElementById(id);
@@ -1666,12 +1745,11 @@ function ywebShowAbout() {
 			const linksEl = document.getElementById('about-links');
 			if (linksEl && data.links) {
 				let html = '';
-				if (data.links.homepage)
-					html += '<a href="' + data.links.homepage + '" target="_blank">Homepage</a>';
-				if (data.links.docs)
-					html += '<a href="' + data.links.docs + '" target="_blank">Dokumentation</a>';
-				if (data.links.forum)
-					html += '<a href="' + data.links.forum + '" target="_blank">Forum</a>';
+				var link = function(url, text) {
+					return /^https?:\/\//.test(url) ? '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + text + '</a>' : '';
+				};
+				html += link(data.links.homepage, 'Homepage') + link(data.links.docs, 'Dokumentation') +
+					link(data.links.forum, 'Forum');
 				linksEl.innerHTML = html || '<span class="yweb-about-label">' + ywebL('about.no_links', 'No links available') + '</span>';
 			}
 
@@ -1683,21 +1761,16 @@ function ywebShowAbout() {
 		})
 		.catch(() => {});
 
-	// Load box info (v4 delivers JSON natively, no legacy text fallback needed)
-	ywebApi('boxinfo')
+	// the box and its system, over /api/v1/system/info
+	ywebSystemInfoOnce()
 		.then(data => {
+			if (!data) return;
 			const boxEl = document.getElementById('about-box');
-			if (boxEl) boxEl.textContent = (data.vendor && data.boxname) ? data.vendor + ' ' + data.boxname : data.boxname || '--';
+			if (boxEl) boxEl.textContent = (data.box.vendor && data.box.name) ? data.box.vendor + ' ' + data.box.name : data.box.name || '--';
 			const archEl = document.getElementById('about-arch');
-			if (archEl) archEl.textContent = data.boxarch || '--';
-		})
-		.catch(() => {});
-
-	// Load OS info
-	ywebApi('osinfo')
-		.then(data => {
+			if (archEl) archEl.textContent = data.box.arch || '--';
 			const osEl = document.getElementById('about-os');
-			if (osEl) osEl.textContent = data.pretty_name || data.name || '--';
+			if (osEl) osEl.textContent = data.os || '--';
 		})
 		.catch(() => {});
 

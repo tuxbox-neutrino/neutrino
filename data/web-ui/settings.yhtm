@@ -463,7 +463,7 @@
 	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=60"></script>
+	<script src="/yweb-header.js?v=61"></script>
 	<script src="/yweb-dom.js?v=1"></script>
 	<script src="/yweb-v1.js?v=14"></script>
 	<script src="/settings-registry.js?v=17"></script>
