@@ -446,30 +446,6 @@ do_settings_backup_restore()
 	esac
 }
 
-# The name of a file the web interface has just uploaded to /tmp and nothing
-# else: no directory in it, no hidden or relative name. These two replace a
-# generic command action that ran whatever it was given.
-upload_name_ok()
-{
-	case "$1" in
-		""|*/*|.*) return 1 ;;
-	esac
-	[ -f "/tmp/$1" ]
-}
-
-# An uploaded channel list put in place, under one of the names zapit reads.
-# Not the older zapit_upload above, which takes the old upload form's file.
-do_zapit_put_upload()
-{
-	upload_name_ok "$1" || { echo "error: not an uploaded file"; return 1; }
-	case "$2" in
-		bouquets.xml|ubouquets.xml|services.xml|myservices.xml) ;;
-		*) echo "error: not a channel list"; return 1 ;;
-	esac
-	cp "/tmp/$1" "%(CONFIGDIR)/zapit/$2" || { echo "error: could not put the list in place"; return 1; }
-	rm -f "/tmp/$1"
-}
-
 restart_neutrino()
 {
 	echo "fixme"
@@ -612,7 +588,6 @@ case "$action" in
 	get_update_version)		wget -O /tmp/version.txt "https://raw.githubusercontent.com/tuxbox-neutrino/gui-neutrino/master/data/web-ui/Y_Version.txt" ;;
 	rm_update_version)		rm -f /tmp/version.txt ;;
 	settings_backup_restore)	do_settings_backup_restore $* ;;
-	zapit_put_upload)		do_zapit_put_upload "$@" ;;
 	automount_list)			do_automount_list $* ;;
 	automount_getline)		do_automount_getline $* ;;
 	automount_setline)		do_automount_setline $* ;;

@@ -1467,6 +1467,10 @@
 			'<span id="zapitStatus" style="color:var(--pico-muted-color);font-size:0.8rem"></span></div></div></div>';
 	}
 
+	// The list goes up in pieces into /tmp under a name of its own, and the box
+	// takes it over from there: checks that it is a list of the kind chosen,
+	// puts it in place of its own and reads its channel lists again, so the
+	// uploaded list wins over what the box holds
 	async function doZapitUpload(btn) {
 		var inp = document.getElementById('zapitFile');
 		var target = (document.getElementById('zapitTarget') || {}).value;
@@ -1475,21 +1479,22 @@
 		if (!confirm(target + ' {=L:yw.set.zapit_confirm=}')) return;
 		btn.disabled = true;
 		if (status) status.textContent = '{=L:yw.inst.uploading=}…';
+		var file = 'zapit-' + Math.random().toString(36).slice(2, 10) + '.xml';
+		var uploaded = false;
 		try {
 			var f = inp.files[0];
-			var fd = new FormData();
-			fd.append('file', f);
-			var up = await fetch('/api/v4/file?action=upload&path=/tmp', {method: 'POST', body: fd});
-			if (!up.ok) throw new Error('{=L:yw.inst.upfail=}');
-			var res = await up.json();
-			var size = (res.data && res.data.size) || '?';
-			var put = await ywebApi('exec', 'Y_Tools&zapit_put_upload&' + encodeURIComponent(f.name) + '&' + encodeURIComponent(target), {raw: true});
-			if (/^error/.test(put.trim())) throw new Error(put.trim());
-			// the list just put in place wins over what the box holds
-			await ywebV1('POST', '/channels/reload', {body: {hard: true}});
-			if (status) status.textContent = target + ' ✓ (' + size + ' B)';
+			await ywebV1UploadPieces(f, '/tmp/' + file);
+			uploaded = true;
+			await ywebV1('POST', '/channels/files/' + target.replace(/\.xml$/, ''), {body: {file: file}});
+			uploaded = false;
+			if (status) status.textContent = target + ' ✓ (' + f.size + ' B)';
 			ywebShowToast(target + ' {=L:yw.set.zapit_done=}');
+			inp.value = '';
 		} catch (e) {
+			// the box takes an upload it looked at away itself; one it never got to stays
+			if (uploaded) {
+				try { await ywebV1('DELETE', '/storage/path', {query: {path: '/tmp/' + file}}); } catch (e2) {}
+			}
 			if (status) status.textContent = '';
 			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
