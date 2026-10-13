@@ -162,8 +162,8 @@ all-local: check-sources check-no-constructors check-answer-sets
 # nhttpd.conf.in is the old server's configuration template. Here it is not
 # a leftover: nhttpd is alive and this is the shape of its file, which the
 # migration reader (webconfig.cpp) reads a box's credentials and port out of
-# on the first start without a ni-web.conf. The suite holds the reader to
-# this template (NI_WEB_OLD_CONF).
+# on the first start without a nhttpd-access.conf. The suite holds the reader to
+# this template (SERVER_CONF_TEMPLATE).
 EXTRA_DIST = check-answer-sets.sh nhttpd.conf.in
 
 # The document without a server: the same tables, the same bytes. Built on

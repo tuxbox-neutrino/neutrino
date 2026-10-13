@@ -670,7 +670,7 @@ const RouteRefusal kCreateDirectoryRefusals[] = {
 
 const RouteRefusal kRemovePathRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, AccessStore,
-		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+		"the name /var/tuxbox/config/nhttpd-access.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
 	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
 		"the name /etc is not inside any permitted directory"),
 	HTTPD_REFUSES(NotFound, NoSuchName,
@@ -681,14 +681,14 @@ const RouteRefusal kRemovePathRefusals[] = {
 
 const RouteRefusal kReadFileRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, AccessStore,
-		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+		"the name /var/tuxbox/config/nhttpd-access.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
 	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
 		"the name /etc is not inside any permitted directory"),
 };
 
 const RouteRefusal kWriteFileRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, AccessStore,
-		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+		"the name /var/tuxbox/config/nhttpd-access.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
 	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
 		"the name /etc is not inside any permitted directory"),
 	HTTPD_REFUSES(Conflict, NameTaken,
@@ -699,7 +699,7 @@ const RouteRefusal kWriteFileRefusals[] = {
 
 const RouteRefusal kRenameRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, AccessStore,
-		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+		"the name /var/tuxbox/config/nhttpd-access.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
 	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
 		"the name /etc is not inside any permitted directory"),
 	HTTPD_REFUSES(InvalidArgument, BadName,
@@ -722,7 +722,7 @@ const RouteRefusal kRenameRefusals[] = {
 
 const RouteRefusal kAppendRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, AccessStore,
-		"the name /var/tuxbox/config/ni-web.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
+		"the name /var/tuxbox/config/nhttpd-access.conf is a web server's own store of who may reach this box, which is read, written and removed through no file route"),
 	HTTPD_REFUSES(InvalidArgument, OutsideRoots,
 		"the name /etc is not inside any permitted directory"),
 	HTTPD_REFUSES(InvalidArgument, BadName,

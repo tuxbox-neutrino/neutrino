@@ -194,6 +194,10 @@ Failure outside(const std::string &path)
    be attacked at leisure. Writing one is worse: a caller that can replace it grants itself
    the box for good, and no later change of the password undoes that.
 
+   The third is the name the access store had before (HTTPD_ACCESS_FORMER_FILE). The first
+   start takes it over and removes it, but on a box where it could not be removed it still
+   holds a hash and tokens, and it is no less a store for being one nothing reads.
+
    Only these, and not the directory they sit in: everything else there is a configuration
    somebody has a good reason to fetch, to back up or to compare.
 
@@ -205,7 +209,7 @@ Failure outside(const std::string &path)
    What it cannot see is a second hard link to the same file, a hard link being a name of its
    own with nothing in the filesystem to say what it shares. Making one needs a shell on the
    box. */
-const char *const kAccessStoreNames[] = { "ni-web.conf", "nhttpd.conf" };
+const char *const kAccessStoreNames[] = { "nhttpd-access.conf", "nhttpd.conf", "ni-web.conf" };
 
 bool isAccessStore(const std::string &resolved)
 {

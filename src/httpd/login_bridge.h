@@ -6,7 +6,7 @@
  * License: GPL-2.0-or-later
  *
  * The box has one account and keeps it in one place: the name and the
- * stored form of the password in ni-web.conf. The REST layer's login, the
+ * stored form of the password in nhttpd-access.conf. The REST layer's login, the
  * old server's gate (mod_auth), the screen at the box (CNhttpdSetup) and
  * the old configuration routes all ask here, so none of them holds a copy
  * of its own, and a password changed in one of them is the password every
@@ -89,7 +89,7 @@ bool passwordIsShipped();
 
    An empty name or an empty password leaves that half as it is: a screen cannot
    show a stored form, so it opens the field empty, and an untouched field must not
-   take the password off the box. Written to ni-web.conf and in effect for every
+   take the password off the box. Written to nhttpd-access.conf and in effect for every
    login when this returns; sessions already open stay open, as they do when the
    REST route changes the password.
 

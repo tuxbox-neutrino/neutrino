@@ -15,7 +15,7 @@
 #
 # It stays for as long as boxes come here from images that had that server,
 # which is years, and it is not the place to describe anything this program
-# does. The server's own settings are ni-web.conf.
+# does. Who may reach the box is kept in nhttpd-access.conf.
 Language.directory=languages
 Language.selected=Deutsch
 Tuxbox.LogosURL=@TARGET_PUBLIC_HTTPDDIR@/logo

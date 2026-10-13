@@ -95,7 +95,7 @@ void CNhttpdSetup::loadConfig()
 		loglevel = 0;
 
 	auth_enabled = config.getBool("mod_auth.authenticate", false) ? 1 : 0;
-	// the account lives in ni-web.conf, hashed (httpd/login_bridge.h): the
+	// the account lives in nhttpd-access.conf, hashed (httpd/login_bridge.h): the
 	// name can be shown, the password cannot, so its field opens empty and
 	// an empty field keeps the stored one
 	username = login_bridge::user();

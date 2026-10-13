@@ -16,7 +16,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	THandleStatus status = HANDLED_CONTINUE;
 
 	// The API surface carries its own gate (src/httpd: the one account in
-	// ni-web.conf, its sessions and tokens, and the lan-read rule); this
+	// nhttpd-access.conf, its sessions and tokens, and the lan-read rule); this
 	// module asks the same account through login_bridge. Basic in front of
 	// the API would put a
 	// second password prompt before /api/v1/login and keep every browser in
@@ -184,7 +184,7 @@ THandleStatus CmAuth::Hook_ReadConfig(CConfigFile *Config,
 	ConfigList["mod_auth.authenticate"] = Config->getString(
 			"mod_auth.authenticate", "false");
 
-	// The account lives in ni-web.conf, hashed, and was carried there from
+	// The account lives in nhttpd-access.conf, hashed, and was carried there from
 	// this file at the first start. A plain copy left here is one nothing
 	// reads and anybody who can read the file can, so it goes once the
 	// account is there; the cookie lifetime went with the old sessions.

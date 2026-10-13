@@ -510,9 +510,10 @@ bool reloadAndRestart(const std::string &path);
    credential the box is running on.
 
    out_path is created with the mode it keeps and never a wider one. True means
-   the file is there and will still be there after the power goes: the content and
-   the directory entry naming it are both committed before this answers, so there
-   is no moment at which a partial credential is readable. */
+   the file is there and will still be there after the power goes: the content is
+   committed under a working name and then linked into place, and the directory
+   entry naming it is committed before this answers, so there is no moment at
+   which a partial credential is readable and no power cut leaves one behind. */
 bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path);
 
 /* Leaves the box with a configuration file at out_path, run on every start.
@@ -534,10 +535,18 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path);
 
    True only when this call wrote out_path.
 
-   Three states, and a box is in exactly one of them:
+   Four states, and a box is in exactly one of them:
 
      anything at out_path      nothing is written and nothing is said, which is
-                               every start after the one that wrote it.
+                               every start after the one that wrote it. A file
+                               at former_path beside it is removed.
+
+     a file at former_path     taken over whole under out_path and then removed:
+     or a link to one          the name this file had before (HTTPD_ACCESS_FORMER_FILE).
+                               A link is read through and then removed, what it
+                               points at being left alone. Where it cannot be
+                               taken over, or not read to its end, nothing
+                               changes and the next start tries again.
 
      only the old file         the migration is attempted, and its refusal is
                                not the end: what it could not carry is written
@@ -559,7 +568,8 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path);
 
    Racing another writer for out_path is settled the same way the call above
    settles it: creation is exclusive. */
-bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_path);
+bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_path,
+		      const std::string &former_path = std::string());
 
 } // namespace httpd
 

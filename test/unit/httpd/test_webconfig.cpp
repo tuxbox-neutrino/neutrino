@@ -2,6 +2,7 @@
  * test_webconfig.cpp - tests for the webserver configuration
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (rework, fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +64,7 @@ class Temp
 		{
 			char buf[128];
 			static int counter = 0;
-			std::snprintf(buf, sizeof(buf), "/tmp/ni-webconf-%s-%d-%d", what, (int) getpid(), ++counter);
+			std::snprintf(buf, sizeof(buf), "/tmp/httpd-access-%s-%d-%d", what, (int) getpid(), ++counter);
 			path_ = buf;
 			removeIt();
 		}
@@ -353,6 +354,89 @@ TEST_CASE("every start that finds no configuration leaves one behind", "[webconf
 	REQUIRE(::stat(link.c_str(), &st) != 0);
 }
 
+TEST_CASE("the file under its former name is taken over whole and a leftover goes", "[webconfig]")
+{
+	Restore back;
+	Temp old("old"), out("out"), former("former");
+
+	/* A box that kept its login under the former name: the file is taken over as
+	   it stands, its head given the new name, and the former name goes. Not built
+	   again out of nhttpd's file, which no longer holds a password once the
+	   account was carried, so the box keeps the login it has. */
+	writeFile(old.path(), kShippedOldFile);
+	const std::string hash = httpd::hashSecret("kept-password");
+	const std::string kept = "# ni-web configuration.\n#\n# a line of its own\nusername=keeper\npassword_hash=" +
+				 hash + "\nlan_read=192.168.0.0/16\n";
+	writeFile(former.path(), kept);
+	REQUIRE(httpd::ensureConfigFile(old.path(), out.path(), former.path()));
+	struct stat st;
+	REQUIRE(::lstat(former.c_str(), &st) != 0);
+	const std::string taken = readFile(out.path());
+	REQUIRE(taken.compare(0, 30, "# nhttpd access configuration.") == 0);
+	REQUIRE(taken.find("# a line of its own\n") != std::string::npos);
+	REQUIRE(modeOf(out.path()) == 0600);
+	REQUIRE(httpd::load(out.path()));
+	REQUIRE(httpd::config().username == "keeper");
+	REQUIRE(httpd::verifySecret("kept-password", httpd::config().password_hash));
+
+	/* A former file beside one in effect is a leftover holding an old hash that
+	   nothing reads any more: it goes, and the file in effect is left exactly as
+	   it is. */
+	writeFile(former.path(), "username=stale\n");
+	REQUIRE_FALSE(httpd::ensureConfigFile(old.path(), out.path(), former.path()));
+	REQUIRE(::lstat(former.c_str(), &st) != 0);
+	REQUIRE(readFile(out.path()) == taken);
+	REQUIRE(anyProblemMentions("is removed"));
+
+	/* Something at the former name that is not a file is no former login, and the
+	   start goes on as it would without one. */
+	Temp out2("out2");
+	REQUIRE(::mkdir(former.c_str(), 0700) == 0);
+	REQUIRE(httpd::ensureConfigFile(old.path(), out2.path(), former.path()));
+	REQUIRE(::lstat(former.c_str(), &st) == 0);
+	REQUIRE(S_ISDIR(st.st_mode));
+}
+
+TEST_CASE("a login kept under the former name through a link is taken over too", "[webconfig]")
+{
+	/* A box that kept that file through a link has a login there, and building
+	   one out of nhttpd's file instead would hand it the one it shipped with. The
+	   link goes and what it points at is left alone. */
+	Restore back;
+	Temp old("old"), out("out"), former("former"), target("target");
+
+	writeFile(old.path(), kShippedOldFile);
+	const std::string hash = httpd::hashSecret("kept-through-a-link");
+	writeFile(target.path(), "username=linked\npassword_hash=" + hash + "\n");
+	REQUIRE(::symlink(target.c_str(), former.c_str()) == 0);
+
+	REQUIRE(httpd::ensureConfigFile(old.path(), out.path(), former.path()));
+	struct stat st;
+	REQUIRE(::lstat(former.c_str(), &st) != 0);
+	REQUIRE(::lstat(target.c_str(), &st) == 0);
+	REQUIRE(httpd::load(out.path()));
+	REQUIRE(httpd::config().username == "linked");
+	REQUIRE(httpd::verifySecret("kept-through-a-link", httpd::config().password_hash));
+}
+
+TEST_CASE("a new file appears whole or not at all", "[webconfig]")
+{
+	/* Written under a working name and linked into place, so a power cut leaves
+	   nothing at the name, which the next start fills, rather than half a login.
+	   A working file such a cut left behind is no obstacle to the next try. */
+	Restore back;
+	Temp old("old"), out("out");
+	writeFile(old.path(), "mod_auth.username=root\nmod_auth.password=ni\n");
+	writeFile(out.path() + ".new", "username=half");
+
+	REQUIRE(httpd::ensureConfigFile(old.path(), out.path()));
+	struct stat st;
+	REQUIRE(::lstat((out.path() + ".new").c_str(), &st) != 0);
+	REQUIRE(modeOf(out.path()) == 0600);
+	REQUIRE(httpd::load(out.path()));
+	REQUIRE(httpd::config().username == "root");
+	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+}
 TEST_CASE("the old file of a box that was locked out is what it logs in with", "[webconf]")
 {
 	/* The shape two owners reported: a name and a password in the old file, no
@@ -428,7 +512,7 @@ TEST_CASE("a name that cannot be written leaves nothing behind and the next star
 	Restore back;
 	Temp old("old"), dir("dir");
 
-	const std::string out = dir.path() + "/ni-web.conf";
+	const std::string out = dir.path() + "/nhttpd-access.conf";
 	struct stat st;
 
 	REQUIRE_FALSE(httpd::ensureConfigFile(old.path(), out));
@@ -889,7 +973,7 @@ TEST_CASE("an output that cannot be created leaves nothing behind", "[webconf]")
 	writeFile(old.path(), kShippedOldFile);
 	writeFile(blocker.path(), "not a directory\n");
 
-	const std::string out = blocker.path() + "/ni-web.conf";
+	const std::string out = blocker.path() + "/nhttpd-access.conf";
 	REQUIRE_FALSE(httpd::migrateFrom(old.path(), out));
 
 	struct stat st;
@@ -1443,7 +1527,7 @@ TEST_CASE("the shipped old file migrates and loads", "[webconf]")
 	Restore back;
 	Temp old("old"), out("out");
 
-	const std::string shipped = readFile(NI_WEB_OLD_CONF);
+	const std::string shipped = readFile(SERVER_CONF_TEMPLATE);
 	REQUIRE(shipped.find("mod_auth.password") != std::string::npos);
 
 	writeFile(old.path(), shipped);
@@ -2092,7 +2176,7 @@ TEST_CASE("the old server's keys are not called unknown", "[webconf]")
 	Restore back;
 	Temp old("old"), out("out");
 
-	writeFile(old.path(), readFile(NI_WEB_OLD_CONF));
+	writeFile(old.path(), readFile(SERVER_CONF_TEMPLATE));
 
 	REQUIRE(httpd::migrateFrom(old.path(), out.path()));
 	REQUIRE_FALSE(anyProblemMentions("not a key this reads"));
@@ -2400,7 +2484,7 @@ namespace
    four keys a screen at the box owns, and two lines belonging to nobody the
    screen offers. What a save has to do with the last three is nothing. */
 const char kFileOnABox[] =
-	"# ni-web configuration.\n"
+	"# nhttpd access configuration.\n"
 	"#\n"
 	"# This box has no password, because the file this was written from carried\n"
 	"# none.\n"
@@ -2507,7 +2591,7 @@ TEST_CASE("a save leaves every line it does not own where it stands", "[webconf]
 	REQUIRE(httpd::saveWebSettings(conf.path(), settingsOf(9099, "127.0.0.1", "somebody")));
 
 	const std::string after = readFile(conf.path());
-	REQUIRE(fileHasLine(after, "# ni-web configuration."));
+	REQUIRE(fileHasLine(after, "# nhttpd access configuration."));
 	REQUIRE(fileHasLine(after, "# This box has no password, because the file this was written from carried"));
 	REQUIRE(fileHasLine(after, "# none."));
 	REQUIRE(fileHasLine(after, "lan_read=10.0.0.0/8"));

@@ -283,14 +283,14 @@ TEST_CASE("a reload answer is carried to the transport, not done in the handler"
 	r.code = 200;
 	r.content_type = "application/json";
 	r.body = "{}";
-	r.reload_after = "/somewhere/ni-web.conf";
+	r.reload_after = "/somewhere/nhttpd-access.conf";
 
 	Handler h(M_PUT, "/api/v1/system/webserver");
 	CApiBridge::answerWith(&h.hh, r);
 	CHECK(h.hh.httpStatus == HTTP_OK);
 	// The path rides on the handler for whoever sends the answer: the
 	// restart happens after the bytes are gone, never inside the handler.
-	CHECK(h.hh.ReloadAfter == "/somewhere/ni-web.conf");
+	CHECK(h.hh.ReloadAfter == "/somewhere/nhttpd-access.conf");
 }
 
 TEST_CASE("PATCH is a method the bridge can name", "[bridge]")

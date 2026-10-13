@@ -1,6 +1,7 @@
 #!/bin/sh
-# The two files the storage layer refuses to read, write or remove are the two a web
-# server on this box keeps its access store in. Which files those are is stated by
+# The files the storage layer refuses to read, write or remove are the ones a web
+# server on this box keeps its access store in, the name that store had before
+# included. Which files those are is stated by
 # the programs that own them, and the storage layer works the names out a second time
 # from the same directory macro.
 #
@@ -50,29 +51,42 @@ grep -qE 'realpath\(CONFIGDIR,' "$STORAGE" || {
 }
 
 # What the two programs say their own store is called.
-niweb=`grep -E '^#define[[:blank:]]+NI_WEB_SETTINGS_FILE' "$GLOBAL" | grep -oE '"/[^"]+"' | tr -d '"/' || true`
-[ -n "$niweb" ] || {
-	echo "check-access-store.sh: no NI_WEB_SETTINGS_FILE definition in $GLOBAL" >&2
+access=`grep -E '^#define[[:blank:]]+HTTPD_ACCESS_FILE' "$GLOBAL" | grep -oE '"/[^"]+"' | tr -d '"/' || true`
+[ -n "$access" ] || {
+	echo "check-access-store.sh: no HTTPD_ACCESS_FILE definition in $GLOBAL" >&2
 	exit 1
 }
-grep -qE '^#define[[:blank:]]+NI_WEB_SETTINGS_FILE[[:blank:]]+CONFIGDIR' "$GLOBAL" || {
-	echo "check-access-store.sh: NI_WEB_SETTINGS_FILE is no longer under CONFIGDIR," >&2
+grep -qE '^#define[[:blank:]]+HTTPD_ACCESS_FILE[[:blank:]]+CONFIGDIR' "$GLOBAL" || {
+	echo "check-access-store.sh: HTTPD_ACCESS_FILE is no longer under CONFIGDIR," >&2
 	echo "  so the storage layer is working its name out under the wrong directory" >&2
 	exit 1
 }
 
-old=`grep -E '^#define[[:blank:]]+NI_WEB_OLD_SETTINGS_FILE' "$GLOBAL" | grep -oE '"/[^"]+"' | tr -d '"/' || true`
+old=`grep -E '^#define[[:blank:]]+HTTPD_SERVER_FILE' "$GLOBAL" | grep -oE '"/[^"]+"' | tr -d '"/' || true`
 [ -n "$old" ] || {
-	echo "check-access-store.sh: no NI_WEB_OLD_SETTINGS_FILE definition in $GLOBAL" >&2
+	echo "check-access-store.sh: no HTTPD_SERVER_FILE definition in $GLOBAL" >&2
 	exit 1
 }
-grep -qE '^#define[[:blank:]]+NI_WEB_OLD_SETTINGS_FILE[[:blank:]]+CONFIGDIR' "$GLOBAL" || {
-	echo "check-access-store.sh: NI_WEB_OLD_SETTINGS_FILE is no longer under CONFIGDIR," >&2
-	echo "  so the storage layer is working the removed server's name out under the wrong directory" >&2
+grep -qE '^#define[[:blank:]]+HTTPD_SERVER_FILE[[:blank:]]+CONFIGDIR' "$GLOBAL" || {
+	echo "check-access-store.sh: HTTPD_SERVER_FILE is no longer under CONFIGDIR," >&2
+	echo "  so the storage layer is working the server file's name out under the wrong directory" >&2
 	exit 1
 }
 
-want=`printf '%s\n%s\n' "$niweb" "$old" | LC_ALL=C sort`
+# And the name the access store had before, which a box may still carry where the
+# first start could not remove it.
+former=`grep -E '^#define[[:blank:]]+HTTPD_ACCESS_FORMER_FILE' "$GLOBAL" | grep -oE '"/[^"]+"' | tr -d '"/' || true`
+[ -n "$former" ] || {
+	echo "check-access-store.sh: no HTTPD_ACCESS_FORMER_FILE definition in $GLOBAL" >&2
+	exit 1
+}
+grep -qE '^#define[[:blank:]]+HTTPD_ACCESS_FORMER_FILE[[:blank:]]+CONFIGDIR' "$GLOBAL" || {
+	echo "check-access-store.sh: HTTPD_ACCESS_FORMER_FILE is no longer under CONFIGDIR," >&2
+	echo "  so the storage layer is working the former name out under the wrong directory" >&2
+	exit 1
+}
+
+want=`printf '%s\n%s\n%s\n' "$access" "$old" "$former" | LC_ALL=C sort`
 if [ "$refused" != "$want" ]; then
 	echo "check-access-store.sh: the storage layer refuses" >&2
 	printf '%s\n' "$refused" | sed 's/^/  /' >&2

@@ -10,6 +10,7 @@
 @CONFIGDIR@/settingsupdate.conf
 @CONFIGDIR@/neutrino.conf
 @CONFIGDIR@/nhttpd.conf
+@CONFIGDIR@/nhttpd-access.conf
 @CONFIGDIR@/encoding.conf
 @CONFIGDIR@/epglanguages.conf
 @CONFIGDIR@/scan.conf

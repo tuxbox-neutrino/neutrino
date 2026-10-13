@@ -5227,7 +5227,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				first = false;
 			}
 			if (configFileName == "nhttpd") {
-				// the account lives in ni-web.conf, hashed: its name and
+				// the account lives in nhttpd-access.conf, hashed: its name and
 				// two status bits, never the password
 				if (!result.empty())
 					result += hh->outNext();
@@ -5245,7 +5245,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			// clobbered every submitted key g_settings knows about.
 			if (configFileName == "neutrino")
 				CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
-			// nhttpd: the account goes to ni-web.conf through the one login
+			// nhttpd: the account goes to nhttpd-access.conf through the one login
 			// and never into this file; an empty password field leaves the
 			// stored one, which is what a page that cannot show it sends
 			std::string login_user, login_password;

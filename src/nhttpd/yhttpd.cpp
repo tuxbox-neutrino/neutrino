@@ -564,7 +564,7 @@ static int nhttpd_server_start_once(int port, const char *bind, bool second_chan
 
 	/* What this server can actually listen on: nhttpd's socket is AF_INET
 	   (ysocket.cpp), so an address of the other family, legal as it is in
-	   ni-web.conf, is one this box cannot come up on. Refused before the
+	   nhttpd-access.conf, is one this box cannot come up on. Refused before the
 	   file is touched, and the server comes back on what nhttpd.conf
 	   already says - reachable where it was, which beats a box that
 	   answers nowhere until somebody edits a file. The GET answers the

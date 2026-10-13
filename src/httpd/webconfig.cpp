@@ -46,6 +46,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -247,12 +248,12 @@ void complain(const std::string &line)
 		const std::string last = "the file has more lines this cannot use than are worth listing, and "
 					 "the rest are not named here";
 		problemList().push_back(last);
-		std::fprintf(stderr, "[ni-web config] %s\n", last.c_str());
+		std::fprintf(stderr, "[nhttpd access] %s\n", last.c_str());
 		return;
 	}
 
 	problemList().push_back(line);
-	std::fprintf(stderr, "[ni-web config] %s\n", line.c_str());
+	std::fprintf(stderr, "[nhttpd access] %s\n", line.c_str());
 }
 
 /* Whether a value survives being written to this file and read back out of it.
@@ -936,12 +937,50 @@ bool writeWholeFile(int fd, const std::string &text)
 	return true;
 }
 
+/* A rename that refuses a name that is taken: errno ENOSYS or EINVAL where the
+   kernel or the filesystem cannot do that. The system call and not the C
+   library's wrapper, which an older library does not have even on a kernel that
+   does. */
+#ifndef RENAME_NOREPLACE
+#define RENAME_NOREPLACE (1 << 0)
+#endif
+int renameNoReplace(const char *from, const char *to)
+{
+#ifdef SYS_renameat2
+	return (int) ::syscall(SYS_renameat2, AT_FDCWD, from, AT_FDCWD, to, RENAME_NOREPLACE);
+#else
+	(void) from;
+	(void) to;
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+/* The content goes to a working name first and is committed there, and only then
+   is path made a second name of it: a link, which like the exclusive creation
+   before it refuses a name that is taken, and which is one step, so a power cut
+   leaves either no file at path or the whole of it. Written straight to path, a cut
+   in the middle would leave half a file there, which every later start takes for
+   the configuration it is, and the start after a takeover would remove the whole
+   one it came from as a leftover. */
 bool writeNewFile(const std::string &path, const std::string &text)
 {
-	const int fd = ::open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, S_IRUSR | S_IWUSR);
+	{
+		struct stat st;
+		if (::lstat(path.c_str(), &st) == 0)
+		{
+			complain(std::string("cannot create ") + path + ": " + std::strerror(EEXIST));
+			return false;
+		}
+	}
+
+	const std::string working = path + ".new";
+	::unlink(working.c_str());
+
+	const int fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, S_IRUSR | S_IWUSR);
 	if (fd < 0)
 	{
-		complain(std::string("cannot create ") + path + ": " + std::strerror(errno));
+		complain(std::string("cannot create ") + working + ": " + std::strerror(errno));
 		return false;
 	}
 
@@ -951,16 +990,54 @@ bool writeNewFile(const std::string &path, const std::string &text)
 		ok = false;
 	if (::close(fd) != 0)
 		ok = false;
-	if (ok && !syncDirectoryOf(path))
-		ok = false;
-
 	if (!ok)
 	{
-		complain(std::string("cannot write ") + path + ", and what was written of it is removed");
-		::unlink(path.c_str());
+		complain(std::string("cannot write ") + working + ", and what was written of it is removed");
+		::unlink(working.c_str());
+		return false;
 	}
 
-	return ok;
+	/* A filesystem without hard links (EPERM, EOPNOTSUPP) is asked for a rename
+	   that refuses a name that is taken, which is the same one step; one that
+	   cannot do that either (ENOSYS, EINVAL) gets the rename after a look, the
+	   look and the rename being as close as a start running alone needs. */
+	if (::link(working.c_str(), path.c_str()) == 0)
+		::unlink(working.c_str());
+	else if (errno != EPERM && errno != EOPNOTSUPP)
+	{
+		complain(std::string("cannot create ") + path + ": " + std::strerror(errno));
+		::unlink(working.c_str());
+		return false;
+	}
+	else if (renameNoReplace(working.c_str(), path.c_str()) != 0)
+	{
+		int why = errno;
+		struct stat st;
+		bool placed = false;
+		if (why == ENOSYS || why == EINVAL)
+		{
+			if (::lstat(path.c_str(), &st) == 0)
+				why = EEXIST;
+			else if (::rename(working.c_str(), path.c_str()) == 0)
+				placed = true;
+			else
+				why = errno;
+		}
+		if (!placed)
+		{
+			complain(std::string("cannot create ") + path + ": " + std::strerror(why));
+			::unlink(working.c_str());
+			return false;
+		}
+	}
+
+	if (!syncDirectoryOf(path))
+	{
+		complain(std::string("cannot commit ") + path + ", and it is removed again");
+		::unlink(path.c_str());
+		return false;
+	}
+	return true;
 }
 
 void appendPair(std::string &text, const char *key, const std::string &value)
@@ -1068,7 +1145,7 @@ enum LoginSource
 void appendLoginHead(std::string &text, LoginSource from, const std::string &user,
 		     bool has_password, const std::string &old_path)
 {
-	appendCommentLine(text, "ni-web configuration.");
+	appendCommentLine(text, "nhttpd access configuration.");
 	appendCommentLine(text, "");
 
 	if (from == ShippedLogin)
@@ -2237,17 +2314,95 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 	return writeNewFile(out_path, text);
 }
 
-bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_path)
+/* The file under the name it had before, taken over as it stands: it is this
+   file in every line, so nothing is carried or judged, only the first line of
+   the head is given the file's new name. Created exclusively like every other
+   file this writes. */
+bool takeOverFormer(const std::string &former_path, const std::string &out_path)
 {
+	if (!isReadableRegularFile(former_path, "former configuration"))
+		return false;
+
+	/* Read to its end or not at all, because what this writes is the box's
+	   login from now on and the file it came from goes: a read that stopped
+	   early would be a shorter login the next start no longer has the whole
+	   of. */
+	std::string text;
+	{
+		const int fd = ::open(former_path.c_str(), O_RDONLY | O_CLOEXEC);
+		bool ok = fd >= 0;
+		char buf[4096];
+		while (ok)
+		{
+			const ssize_t n = ::read(fd, buf, sizeof(buf));
+			if (n < 0 && errno == EINTR)
+				continue;
+			if (n <= 0)
+			{
+				ok = (n == 0);
+				break;
+			}
+			text.append(buf, static_cast<size_t>(n));
+			ok = text.size() <= static_cast<size_t>(kMaxFileBytes);
+		}
+		if (fd >= 0)
+			::close(fd);
+		if (!ok)
+		{
+			complain("cannot read the former configuration " + former_path + " to its end, so it is "
+				 "left where it is and taken over at the next start");
+			return false;
+		}
+	}
+	const std::string old_head = "# ni-web configuration.";
+	if (text.compare(0, old_head.size(), old_head) == 0)
+		text.replace(0, old_head.size(), "# nhttpd access configuration.");
+	return writeNewFile(out_path, text);
+}
+
+bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_path,
+		      const std::string &former_path)
+{
+	/* A link to a file counts as the file: a box that kept its login there
+	   through a link is a box with a login, and building one out of nhttpd's
+	   file instead would hand it the one it shipped with. It is read through
+	   the link, and what goes afterwards is the link and not what it points
+	   at. */
 	struct stat st;
+	const bool have_former = !former_path.empty() && ::lstat(former_path.c_str(), &st) == 0 &&
+				 (S_ISREG(st.st_mode) ||
+				  (S_ISLNK(st.st_mode) && ::stat(former_path.c_str(), &st) == 0 && S_ISREG(st.st_mode)));
 
 	/* lstat and not stat, so that a link pointing nowhere counts as the name
 	   being taken rather than as nothing being there. The creations below are
 	   exclusive and would refuse such a name anyway; what this keeps away is
 	   the attempt and a line about it on every start for as long as the name
-	   stays that way. */
+	   stays that way. A file under the former name beside it is a leftover
+	   holding an old password hash and tokens, which nothing reads any more,
+	   so it goes; the storage layer goes on refusing that name for a box
+	   where it cannot. */
 	if (::lstat(out_path.c_str(), &st) == 0)
+	{
+		if (have_former && ::unlink(former_path.c_str()) == 0)
+			complain(former_path + " was left beside " + out_path + " and is removed; " +
+				 out_path + " is the one in effect");
 		return false;
+	}
+
+	/* The file under its former name is this box's login already: taken over
+	   whole, and not built again out of nhttpd's file, which no longer holds a
+	   password once the account was carried. Where it cannot be taken over
+	   both stay as they are and the next start tries again, rather than a
+	   shipped login taking the place of the one the box has. */
+	if (have_former)
+	{
+		if (!takeOverFormer(former_path, out_path))
+			return false;
+		if (::unlink(former_path.c_str()) != 0)
+			complain(std::string("cannot remove ") + former_path + " after taking it over: " +
+				 std::strerror(errno));
+		return true;
+	}
 
 	/* stat and not lstat for the old file, which is only read: a link to the
 	   old server's file is a perfectly ordinary thing for a box to have, and

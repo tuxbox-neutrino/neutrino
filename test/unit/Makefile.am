@@ -35,7 +35,7 @@ AM_CPPFLAGS = \
 	-DCOREAPI_COUNTS_ACTUAL='"$(abs_builddir)/counts.actual"' \
 	-DHTTPD_OPENAPI_DUMP='"$(abs_builddir)/openapi.json"' \
 	-DCOREAPI_ANSWERS_ACTUAL='"$(abs_builddir)/answers.actual"' \
-	-DNI_WEB_OLD_CONF='"$(top_srcdir)/src/httpd/nhttpd.conf.in"' \
+	-DSERVER_CONF_TEMPLATE='"$(top_srcdir)/src/httpd/nhttpd.conf.in"' \
 	@HWLIB_CFLAGS@
 
 AUTOMAKE_OPTIONS = subdir-objects

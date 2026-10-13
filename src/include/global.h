@@ -33,23 +33,29 @@
 #define IMAGE_METADATA_FILE TARGET_ROOT "/etc/image-version"
 
 #define NEUTRINO_SETTINGS_FILE CONFIGDIR "/neutrino.conf"
-/* Beside the program's own settings and not inside them, because what is in it
-   is a credential and a policy about who may reach the box, which the settings
-   file is copied over and rewritten wholesale on every save. Absent on a box
-   nobody has configured, and the API layer then runs on what it declares as
-   its own defaults. */
-#define NI_WEB_SETTINGS_FILE CONFIGDIR "/ni-web.conf"
-/* nhttpd's own file. In the source's tree this names a removed server's leftover;
-   here nhttpd is alive, owns and keeps writing it. The migration reader
-   (src/httpd/webconfig.cpp) reads it once, on the first start without a
-   ni-web.conf, for the address, the user name, the password and the port -
-   so the API layer starts with the credentials this box already has - and
-   that reader never writes it.
+/* Who may reach the box over the web server: the one login (its password as a
+   hash), the API tokens, the sessions, who may read without signing in and
+   which proxies are believed. Beside the server's own file and not inside it,
+   because a credential does not belong in a file that the settings menu, the
+   old configuration route and the server itself each rewrite wholesale. Absent
+   on a box nobody has configured, and the API layer then runs on what it
+   declares as its own defaults. */
+#define HTTPD_ACCESS_FILE CONFIGDIR "/nhttpd-access.conf"
+/* nhttpd's own file: how the server runs (its port and address, threading, the
+   directories it serves, the page login). The one place those are kept; the
+   API layer reads and writes them here. The first start without the file
+   above also takes the user name and the password out of it, hashed, so the
+   API layer starts with the credentials this box already has.
 
-   Named beside the file above because the two are one question asked twice,
-   and because the storage layer refuses to hand out either of them; the check
-   that holds those two lists together reads both names from here. */
-#define NI_WEB_OLD_SETTINGS_FILE CONFIGDIR "/nhttpd.conf"
+   Named beside the file above because the storage layer refuses to hand out
+   either of them; the check that holds those two lists together reads both
+   names from here. */
+#define HTTPD_SERVER_FILE CONFIGDIR "/nhttpd.conf"
+/* Where builds before nhttpd-access.conf, and boxes from the image this layer
+   was taken from, kept the file above. Taken over once, on the first start
+   without nhttpd-access.conf, and then removed; one found beside it is a
+   leftover holding an old password hash and is removed as well. */
+#define HTTPD_ACCESS_FORMER_FILE CONFIGDIR "/ni-web.conf"
 #define NEUTRINO_SCAN_SETTINGS_FILE CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE DATADIR "/neutrino/.plocked"
 
