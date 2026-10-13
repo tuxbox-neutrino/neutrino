@@ -28,6 +28,7 @@ install_DATA = \
 	epg.yhtm \
 	files.yhtm \
 	login.yhtm \
+	password.yhtm \
 	screenshot.yhtm \
 	set-lang.yhtm \
 	settings.yhtm \

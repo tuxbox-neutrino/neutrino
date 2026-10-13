@@ -99,9 +99,27 @@ async function _ywebV1Error(resp, method, path) {
 	return err;
 }
 
+/* A refusal saying the box still opens to the password it shipped with: the
+   page the owner sets one of their own on, and back here afterwards. Read from a
+   copy, so the caller can still read the answer. */
+async function _ywebV1ChangeOwed(resp) {
+	if (resp.status !== 403)
+		return false;
+	try {
+		var p = await resp.clone().json();
+		if (p && p.type === '/errors/password-change-required') {
+			location.replace('/password.yhtm?next=' + encodeURIComponent(location.pathname + location.search));
+			return true;
+		}
+	} catch (e) { /* not a problem document */ }
+	return false;
+}
+
 async function ywebV1(method, path, opts) {
 	opts = opts || {};
 	var resp = await _ywebV1Send(method, path, opts);
+	if (await _ywebV1ChangeOwed(resp))
+		throw await _ywebV1Error(resp, method, path);
 	if (resp.status === 403) {
 		// no open session, or a stale token
 		if (opts.refused) opts.refused();
@@ -125,6 +143,8 @@ async function ywebV1Blob(path, query, opts) {
 	var url = _ywebV1Url(path, query);
 	var get = function() { return fetch(url, {credentials: 'same-origin', cache: 'no-store'}); };
 	var resp = await get();
+	if (await _ywebV1ChangeOwed(resp))
+		throw await _ywebV1Error(resp, 'GET', path);
 	if (resp.status === 403 && !opts.quiet && (await ywebV1Session() || await ywebV1SignIn()))
 		resp = await get();
 	if (!resp.ok) throw await _ywebV1Error(resp, 'GET', path);
@@ -137,6 +157,8 @@ async function ywebV1Blob(path, query, opts) {
 async function ywebV1Download(path, fallback) {
 	var get = function() { return fetch(_ywebV1Url(path), {credentials: 'same-origin', cache: 'no-store'}); };
 	var resp = await get();
+	if (await _ywebV1ChangeOwed(resp))
+		throw await _ywebV1Error(resp, 'GET', path);
 	if (resp.status === 403 && (await ywebV1Session() || await ywebV1SignIn()))
 		resp = await get();
 	if (!resp.ok) throw await _ywebV1Error(resp, 'GET', path);

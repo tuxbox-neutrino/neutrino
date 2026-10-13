@@ -566,52 +566,28 @@ function ywebInitHeader(pageName) {
 	ywebCheckDefaultPassword();
 }
 
-// Default-Passwort-Gate: aktiver Login mit Werkspasswort ist faktisch
-// ungeschuetzt (root:tuxbox ist oeffentlich bekannt). Einmal pro Session
-// pruefen und zum Wizard-Login-Schritt umleiten — Analogie zum
-// must_change_password-Gate des Online-Update-Portals, hier clientseitig,
-// weil Basic-Auth stateless ist. wizard.yhtm laedt dieses Skript nicht,
-// eine Redirect-Schleife ist damit ausgeschlossen.
+// A session opened with the password the box shipped with is to set one of
+// its own first: the box refuses it everything else until then
+// (password_change_required in GET /api/v1/session), so the page goes to
+// where that is done. Asked on every page load, which costs one request; a
+// page without a session is not asked, having signed in with nothing.
+// password.yhtm and login.yhtm do not load this script, so this cannot loop.
 function ywebCheckDefaultPassword() {
-	// Sentinel gesetzt: Fetch sparen, Logout-Button aus dem beim ersten
-	// Load gemerkten Auth-Zustand schalten
-	try {
-		if (sessionStorage.getItem('yweb-pwgate') === 'ok') {
-			ywebRefreshLogoutBtn();
-			return;
-		}
-	} catch (e) {}
-	ywebApi('config', {config: 'nhttpd'}).then(function(resp) {
-		var cfg = (resp && resp.data && resp.data.config) || {};
-		var authed = cfg['mod_auth_dot_authenticate'] === 'true';
-		if (authed && cfg['mod_auth_dot_password_default'] === 'true') {
-			location.replace('/wizard.yhtm?step=login&forced=1');
-			return;
-		}
-		try {
-			sessionStorage.setItem('yweb-pwgate', 'ok');
-			sessionStorage.setItem('yweb-authed', authed ? 'true' : 'false');
-		} catch (e) {}
-		ywebRefreshLogoutBtn();
-	}).catch(function() { ywebRefreshLogoutBtn(); });
-}
-
-// The button shows while the pages ask for a login, and also while a
-// session of the one login is open: with the page login switched off a
-// change still asks for a sign-in, and what was signed into can be ended.
-function ywebRefreshLogoutBtn() {
-	var authed = false;
-	try { authed = sessionStorage.getItem('yweb-authed') === 'true'; } catch (e) {}
-	if (authed) {
-		ywebUpdateLogoutBtn(true);
-		return;
-	}
 	fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'})
 		.then(function(r) { return r.ok ? r.json() : null; })
-		.then(function(s) { ywebUpdateLogoutBtn(!!(s && s.authenticated)); })
+		.then(function(s) {
+			if (s && s.password_change_required) {
+				location.replace('/password.yhtm?next=' + encodeURIComponent(location.pathname + location.search));
+				return;
+			}
+			ywebUpdateLogoutBtn(!!(s && s.authenticated));
+		})
 		.catch(function() {});
 }
 
+// The button shows while a session of the one login is open (the page
+// login opens one too): what was signed into can be ended. Set from the
+// session document the password check above reads.
 function ywebUpdateLogoutBtn(show) {
 	var btn = document.getElementById('yweb-logout-btn');
 	if (btn) btn.hidden = !show;
@@ -622,10 +598,6 @@ function ywebUpdateLogoutBtn(show) {
 // credentials, which makes the browser drop them; with it off it goes
 // back to the start page.
 function ywebLogout() {
-	try {
-		sessionStorage.removeItem('yweb-pwgate');
-		sessionStorage.removeItem('yweb-authed');
-	} catch (e) {}
 	location.href = '/logout';
 }
 

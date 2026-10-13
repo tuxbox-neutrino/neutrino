@@ -103,6 +103,10 @@
 			border-color: var(--yweb-border-subtle);
 			color: var(--pico-color);
 		}
+		.login-wrap .login-first {
+			margin: 14px 0 0;
+			font-size: 0.8rem;
+		}
 		.login-wrap button[type=submit] {
 			width: 100%;
 			padding: 9px 18px;
@@ -140,6 +144,9 @@
 
 			<button type="submit" id="loginSubmit" class="yweb-btn primary">{=L:yw.login.submit=}</button>
 		</form>
+		<!-- Said always and the same way, so it tells nothing about this box:
+		     the login every box ships with, which the first sign-in replaces. -->
+		<p class="sub login-first">{=L:yw.login.first=}</p>
 	</main>
 
 	<script>
@@ -198,6 +205,14 @@
 					body: JSON.stringify({user: document.getElementById('loginUser').value, password: pass.value})
 				});
 				if (resp.ok) {
+					// signed in with the password the box shipped with: one of
+					// the owner's own first, then on to where the login was going
+					var opened = null;
+					try { opened = await resp.json(); } catch (ex) { /* no document */ }
+					if (opened && opened.password_change_required) {
+						location.replace('/password.yhtm?next=' + encodeURIComponent(loginNext));
+						return;
+					}
 					location.replace(loginNext);
 					return;
 				}
