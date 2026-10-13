@@ -444,6 +444,11 @@ enum class ErrorCode
 	ShareNotMounted,
 	UnmountFailed,
 
+	/* An extension of the web interface was not installed or removed, and why;
+	   a script it ships would take the name of one the pages already have. */
+	ExtensionRefused,
+	ScriptNameTaken,
+
 	// A command this layer ran, and what became of it.
 	CommandNotStarted,
 	CommandOutputUnreadable,
@@ -634,6 +639,8 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::MountFailed: return "mount-failed";
 		case ErrorCode::ShareNotMounted: return "share-not-mounted";
 		case ErrorCode::UnmountFailed: return "unmount-failed";
+		case ErrorCode::ExtensionRefused: return "extension-refused";
+		case ErrorCode::ScriptNameTaken: return "script-name-taken";
 		case ErrorCode::CommandNotStarted: return "command-not-started";
 		case ErrorCode::CommandOutputUnreadable: return "command-output-unreadable";
 		case ErrorCode::Timeout: return "timeout";

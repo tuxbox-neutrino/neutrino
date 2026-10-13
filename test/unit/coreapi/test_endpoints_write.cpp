@@ -44,6 +44,7 @@
 #include "configfile.h"
 #include "coreapi/netfs.h"
 #include "coreapi/shares.h"
+#include "coreapi/extensions.h"
 #include "coreapi/osd.h"
 #include "coreapi/plugins.h"
 #include "coreapi/system.h"
@@ -1425,7 +1426,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 63);
+	REQUIRE(changing == 65);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4597,6 +4598,427 @@ TEST_CASE("a box without shares of its own says so, and none of the routes is re
 	REQUIRE(lanPost("/api/v1/storage/shares/mount", "").code == 403);
 }
 
+namespace
+{
+
+/* The pages' directory and the temporary directory of a case's own for the
+   extension routes, with one script of the pages' own already there. */
+struct ExtFixture
+{
+	Sandbox     box;
+	std::string web, tmp;
+	const char *before_web;
+	const char *before_tmp;
+
+	ExtFixture()
+		: web(box.at("web")), tmp(box.at("tmp")), before_web(coreapi::extensions::internal::web_root),
+		  before_tmp(coreapi::extensions::internal::tmp_dir)
+	{
+		REQUIRE(::mkdir(web.c_str(), 0755) == 0);
+		REQUIRE(::mkdir((web + "/scripts").c_str(), 0755) == 0);
+		REQUIRE(::mkdir(tmp.c_str(), 0700) == 0);
+		REQUIRE(::mkdir(box.at("src").c_str(), 0700) == 0);
+		write(web + "/scripts/Y_Tools.sh", "#!/bin/sh\necho the pages' own\n");
+		coreapi::extensions::internal::web_root = web.c_str();
+		coreapi::extensions::internal::tmp_dir = tmp.c_str();
+	}
+
+	~ExtFixture()
+	{
+		coreapi::extensions::internal::web_root = before_web;
+		coreapi::extensions::internal::tmp_dir = before_tmp;
+	}
+
+	static void write(const std::string &path, const std::string &text)
+	{
+		std::FILE *f = std::fopen(path.c_str(), "w");
+		REQUIRE(f != NULL);
+		REQUIRE(std::fwrite(text.data(), 1, text.size(), f) == text.size());
+		REQUIRE(std::fclose(f) == 0);
+	}
+
+	static std::string read(const std::string &path)
+	{
+		std::string out;
+		std::FILE *f = std::fopen(path.c_str(), "r");
+		if (f == NULL)
+			return "(none)";
+		char buf[512];
+		size_t got;
+		while ((got = std::fread(buf, 1, sizeof(buf), f)) > 0)
+			out.append(buf, got);
+		std::fclose(f);
+		return out;
+	}
+
+	// An extension's tree under src/, files given as path and text.
+	void tree(const std::vector<std::pair<std::string, std::string> > &files)
+	{
+		(void) std::system(("rm -rf '" + box.at("src") + "' && mkdir -p '" + box.at("src") + "'").c_str());
+		for (size_t i = 0; i < files.size(); ++i)
+		{
+			const std::string path = box.at("src") + "/" + files[i].first;
+			(void) std::system(("mkdir -p \"$(dirname '" + path + "')\"").c_str());
+			write(path, files[i].second);
+		}
+	}
+
+	// tar.gz of what src/ holds, uploaded to tmp/ as name.
+	bool pack(const std::string &name, const std::string &what)
+	{
+		const std::string cmd = "tar -czf '" + tmp + "/" + name + "' -C '" + box.at("src") + "' " + what + " 2>/dev/null";
+		return std::system(cmd.c_str()) == 0;
+	}
+
+	// A plain tar built entry by entry, as an archive built by hand can be.
+	void raw(const std::string &name, const std::vector<BackupFixture::RawEntry> &entries)
+	{
+		std::string out;
+		for (size_t i = 0; i < entries.size(); ++i)
+		{
+			out += BackupFixture::rawHeader(entries[i].name, entries[i].type, entries[i].data.size());
+			std::string data = entries[i].data;
+			data.resize(((data.size() + 511) / 512) * 512, '\0');
+			out += data;
+		}
+		out += std::string(1024, '\0');
+		write(tmp + "/" + name, out);
+	}
+
+	// What an install or a removal leaves behind besides what it is for.
+	std::vector<std::string> leftovers() const
+	{
+		std::vector<std::string> out;
+		const std::string dirs[] = { tmp, web + "/extensions", web + "/scripts" };
+		for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); ++i)
+		{
+			DIR *d = opendir(dirs[i].c_str());
+			if (d == NULL)
+				continue;
+			struct dirent *e;
+			while ((e = readdir(d)) != NULL)
+				if (std::strncmp(e->d_name, "extension.", 10) == 0 || std::strncmp(e->d_name, ".install-", 9) == 0 ||
+				    std::strncmp(e->d_name, ".old-", 5) == 0 || std::strncmp(e->d_name, ".remove-", 8) == 0 ||
+				    std::strncmp(e->d_name, ".ext-", 5) == 0)
+					out.push_back(dirs[i] + "/" + e->d_name);
+			closedir(d);
+		}
+		return out;
+	}
+
+	private:
+		ExtFixture(const ExtFixture &);
+		ExtFixture &operator=(const ExtFixture &);
+};
+
+std::vector<std::pair<std::string, std::string> > clockFiles(const std::string &version, const std::string &tool)
+{
+	std::vector<std::pair<std::string, std::string> > f;
+	f.push_back(std::make_pair("clock/manifest.json", "{\"name\":\"Clock\",\"version\":\"" + version + "\",\"slot\":\"tools\",\"entry\":\"index.html\"}"));
+	f.push_back(std::make_pair("clock/index.html", "<p>clock " + version + "</p>"));
+	f.push_back(std::make_pair("clock/scripts/clock_tool.sh", tool));
+	return f;
+}
+
+} // namespace
+
+TEST_CASE("an extension uploaded as an archive is installed, listed, replaced and removed with its scripts", "[write][extensions]")
+{
+	ShippedRoutes shipped;
+	ExtFixture x;
+
+	// none yet, and the list says so to a reader on the home network
+	REQUIRE(parsed(send(Get, "/api/v1/webui/extensions", "", AuthLevel::Read, "192.168.1.20").body)["items"].size() == 0);
+
+	std::vector<std::pair<std::string, std::string> > files = clockFiles("1.0", "#!/bin/sh\necho one\n");
+	files.push_back(std::make_pair("clock/scripts/old_tool.sh", "#!/bin/sh\necho old\n"));
+	x.tree(files);
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	const Reply in = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	REQUIRE(in.code == 201);
+	const ::Json::Value got = parsed(in.body);
+	REQUIRE(got["dir"].asString() == "clock");
+	REQUIRE(got["scripts"].size() == 2);
+	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
+	REQUIRE(x.read(x.web + "/scripts/clock_tool.sh") == "#!/bin/sh\necho one\n");
+	struct stat st;
+	REQUIRE(stat((x.web + "/scripts/clock_tool.sh").c_str(), &st) == 0);
+	REQUIRE((st.st_mode & 0777) == 0755);
+	REQUIRE(stat((x.web + "/extensions/clock/index.html").c_str(), &st) == 0);
+	REQUIRE((st.st_mode & 0777) == 0644);
+	REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
+	REQUIRE(x.leftovers().empty());
+
+	const ::Json::Value listed = parsed(send(Get, "/api/v1/webui/extensions", "", AuthLevel::Read, "192.168.1.20").body);
+	REQUIRE(listed["items"].size() == 1);
+	REQUIRE(listed["items"][0]["dir"].asString() == "clock");
+
+	// A newer version takes its place; the script it no longer ships goes, a
+	// script of its changed by hand would not.
+	x.tree(clockFiles("2.0", "#!/bin/sh\necho two\n"));
+	REQUIRE(x.pack("clock2.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\"}").code == 201);
+	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");
+	REQUIRE(x.read(x.web + "/scripts/clock_tool.sh") == "#!/bin/sh\necho two\n");
+	REQUIRE(access((x.web + "/scripts/old_tool.sh").c_str(), F_OK) != 0);
+	REQUIRE(x.leftovers().empty());
+
+	// The pages' own script is never taken, and an extension's own changed by
+	// hand is no longer its own: nothing changes then.
+	std::vector<std::pair<std::string, std::string> > taking = clockFiles("3.0", "#!/bin/sh\necho three\n");
+	taking.push_back(std::make_pair("clock/scripts/Y_Tools.sh", "#!/bin/sh\necho mine now\n"));
+	x.tree(taking);
+	REQUIRE(x.pack("taking.tar.gz", "clock"));
+	const Reply taken = authedPost("/api/v1/webui/extensions", "{\"file\":\"taking.tar.gz\"}");
+	REQUIRE(taken.code == 409);
+	REQUIRE(taken.body.find("script-name-taken") != std::string::npos);
+	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
+	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");
+	ExtFixture::write(x.web + "/scripts/clock_tool.sh", "#!/bin/sh\necho changed at the box\n");
+	x.tree(clockFiles("3.0", "#!/bin/sh\necho three\n"));
+	REQUIRE(x.pack("changed.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"changed.tar.gz\"}").code == 409);
+	ExtFixture::write(x.web + "/scripts/clock_tool.sh", "#!/bin/sh\necho two\n");
+	REQUIRE(x.leftovers().empty());
+
+	// Removed, with its script, and the pages' own left.
+	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
+	REQUIRE(access((x.web + "/extensions/clock").c_str(), F_OK) != 0);
+	REQUIRE(access((x.web + "/scripts/clock_tool.sh").c_str(), F_OK) != 0);
+	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
+	const Reply again = authedDelete("/api/v1/webui/extensions/clock");
+	REQUIRE(again.code == 404);
+	REQUIRE(again.body.find("no-such-name") != std::string::npos);
+	REQUIRE(authedDelete("/api/v1/webui/extensions/bad.name").code == 400);
+	REQUIRE(x.leftovers().empty());
+}
+
+TEST_CASE("an archive that is not one extension's files and directories is refused, and nothing changes", "[write][extensions]")
+{
+	ShippedRoutes shipped;
+	ExtFixture x;
+
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"../clock.tar.gz\"}").code == 400);
+	const Reply none = authedPost("/api/v1/webui/extensions", "{\"file\":\"none.tar.gz\"}");
+	REQUIRE(none.code == 404);
+	REQUIRE(none.body.find("no-such-name") != std::string::npos);
+
+	struct Refused
+	{
+		const char *file;
+		const char *says;
+	};
+	std::vector<BackupFixture::RawEntry> raw;
+	BackupFixture::RawEntry manifest = { "clock/manifest.json", '0', "{}" };
+	BackupFixture::RawEntry other = { "other/manifest.json", '0', "{}" };
+	raw.push_back(manifest);
+	raw.push_back(other);
+	x.raw("two.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry page = { "clock/index.html", '0', "<p/>" };
+	raw.push_back(page);
+	x.raw("nomanifest.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry link = { "clock/evil", '2', "" };
+	raw.push_back(manifest);
+	raw.push_back(link);
+	x.raw("link.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry climb = { "clock/../../etc/x", '0', "x" };
+	raw.push_back(manifest);
+	raw.push_back(climb);
+	x.raw("climb.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry absolute = { "/clock/manifest.json", '0', "{}" };
+	raw.push_back(absolute);
+	x.raw("absolute.tar", raw);
+	raw.clear();
+	// a manifest with no directory around it
+	BackupFixture::RawEntry loose = { "manifest.json", '0', "{}" };
+	raw.push_back(loose);
+	x.raw("loose.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry badname = { "bad name/manifest.json", '0', "{}" };
+	raw.push_back(badname);
+	x.raw("badname.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry script = { "clock/scripts/bad$name.sh", '0', "#!/bin/sh\n" };
+	raw.push_back(manifest);
+	raw.push_back(script);
+	x.raw("badscript.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry twice = { "clock/manifest.json", '0', "{\"again\":1}" };
+	raw.push_back(manifest);
+	raw.push_back(twice);
+	x.raw("twice.tar", raw);
+	raw.clear();
+	BackupFixture::RawEntry asfile = { "clock/data", '0', "x" };
+	BackupFixture::RawEntry asdir = { "clock/data/inner.txt", '0', "y" };
+	raw.push_back(manifest);
+	raw.push_back(asfile);
+	raw.push_back(asdir);
+	x.raw("fileanddir.tar", raw);
+	ExtFixture::write(x.tmp + "/junk.tar.gz", "this is no archive\n");
+	const Refused refused[] = {
+		{ "two.tar",        "more than one top-level directory" },
+		{ "nomanifest.tar", "manifest.json" },
+		{ "link.tar",       "a link or a device" },
+		{ "climb.tar",      "climbs" },
+		{ "absolute.tar",   "absolute" },
+		{ "loose.tar",      "a file beside its directory" },
+		{ "badname.tar",    "letters, digits, dashes and underscores" },
+		{ "badscript.tar",  "the script" },
+		{ "twice.tar",      "twice" },
+		{ "fileanddir.tar", "as a file and as a directory" },
+		{ "junk.tar.gz",    "cannot be read" },
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i].file);
+		const Reply r = authedPost("/api/v1/webui/extensions", std::string("{\"file\":\"") + refused[i].file + "\"}");
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("extension-refused") != std::string::npos);
+		REQUIRE(r.body.find(refused[i].says) != std::string::npos);
+		REQUIRE(access((x.tmp + "/" + refused[i].file).c_str(), F_OK) != 0);
+		REQUIRE(access((x.web + "/extensions/clock").c_str(), F_OK) != 0);
+		REQUIRE(x.leftovers().empty());
+	}
+}
+
+TEST_CASE("one extension change at a time, and a disc that refuses is said", "[write][extensions]")
+{
+	ShippedRoutes shipped;
+	ExtFixture x;
+	x.tree(clockFiles("1.0", "#!/bin/sh\necho one\n"));
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+
+	coreapi::extensions::internal::holdTurnForTest(true);
+	const Reply busy = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	const Reply busy_remove = authedDelete("/api/v1/webui/extensions/clock");
+	coreapi::extensions::internal::holdTurnForTest(false);
+	REQUIRE(busy.code == 409);
+	REQUIRE(busy.body.find("extension-refused") != std::string::npos);
+	REQUIRE(busy_remove.code == 409);
+
+	if (geteuid() != 0)
+	{
+		// the extensions directory not writable: nothing is put in place or taken away
+		REQUIRE(::mkdir((x.web + "/extensions").c_str(), 0755) == 0);
+		REQUIRE(x.pack("clock.tar.gz", "clock"));
+		REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+		chmod((x.web + "/extensions").c_str(), 0555);
+		REQUIRE(x.pack("clock.tar.gz", "clock"));
+		const Reply refused = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+		const Reply kept = authedDelete("/api/v1/webui/extensions/clock");
+		chmod((x.web + "/extensions").c_str(), 0755);
+		REQUIRE(refused.code == 500);
+		REQUIRE(refused.body.find("extension-refused") != std::string::npos);
+		REQUIRE(kept.code == 500);
+		REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
+	}
+}
+
+TEST_CASE("the pages' own scripts and what is not a plain file are never an extension's", "[write][extensions]")
+{
+	ShippedRoutes shipped;
+	ExtFixture x;
+
+	/* Y_Tools.sh as an extension installed by the old manager left it: its
+	   copy in the pages' place. Still never the extension's to replace or take. */
+	std::vector<std::pair<std::string, std::string> > files = clockFiles("1.0", "#!/bin/sh\necho one\n");
+	REQUIRE(::mkdir((x.web + "/extensions").c_str(), 0755) == 0);
+	REQUIRE(std::system(("mkdir -p '" + x.web + "/extensions/clock/scripts'").c_str()) == 0);
+	ExtFixture::write(x.web + "/extensions/clock/manifest.json", "{}");
+	ExtFixture::write(x.web + "/extensions/clock/scripts/Y_Tools.sh", "#!/bin/sh\necho the pages' own\n");
+	files.push_back(std::make_pair("clock/scripts/Y_Tools.sh", "#!/bin/sh\necho the pages' own\n"));
+	x.tree(files);
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	const Reply own = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	REQUIRE(own.code == 409);
+	REQUIRE(own.body.find("script-name-taken") != std::string::npos);
+	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
+	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
+
+	// A link in the pages' scripts under a shipped name is not taken, nor followed.
+	ExtFixture::write(x.box.at("elsewhere.sh"), "#!/bin/sh\necho elsewhere\n");
+	REQUIRE(symlink(x.box.at("elsewhere.sh").c_str(), (x.web + "/scripts/clock_tool.sh").c_str()) == 0);
+	x.tree(clockFiles("1.0", "#!/bin/sh\necho elsewhere\n"));
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 409);
+	REQUIRE(x.read(x.box.at("elsewhere.sh")) == "#!/bin/sh\necho elsewhere\n");
+	REQUIRE(::unlink((x.web + "/scripts/clock_tool.sh").c_str()) == 0);
+	// and with the extension installed, its own script's name turned into a link is no longer its own
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(::unlink((x.web + "/scripts/clock_tool.sh").c_str()) == 0);
+	REQUIRE(symlink(x.box.at("elsewhere.sh").c_str(), (x.web + "/scripts/clock_tool.sh").c_str()) == 0);
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 409);
+	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
+	struct stat link_st;
+	REQUIRE(lstat((x.web + "/scripts/clock_tool.sh").c_str(), &link_st) == 0);
+	REQUIRE(S_ISLNK(link_st.st_mode));
+	REQUIRE(x.read(x.box.at("elsewhere.sh")) == "#!/bin/sh\necho elsewhere\n");
+	REQUIRE(::unlink((x.web + "/scripts/clock_tool.sh").c_str()) == 0);
+
+	// An extension directory that is a link is no extension: not written through, not removed.
+	REQUIRE(::mkdir(x.box.at("outside").c_str(), 0755) == 0);
+	REQUIRE(symlink(x.box.at("outside").c_str(), (x.web + "/extensions/clock").c_str()) == 0);
+	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 404);
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(access(x.box.at("outside/manifest.json").c_str(), F_OK) != 0);
+	struct stat st;
+	REQUIRE(lstat((x.web + "/extensions/clock").c_str(), &st) == 0);
+	REQUIRE(S_ISDIR(st.st_mode));
+	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
+
+	// A script in a directory below scripts/ is unpacked and not put beside the pages' own.
+	std::vector<std::pair<std::string, std::string> > deeper = clockFiles("1.0", "#!/bin/sh\necho one\n");
+	deeper.push_back(std::make_pair("clock/scripts/lib/helper.sh", "#!/bin/sh\n"));
+	x.tree(deeper);
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	const Reply in = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	REQUIRE(in.code == 201);
+	REQUIRE(parsed(in.body)["scripts"].size() == 1);
+	REQUIRE(access((x.web + "/extensions/clock/scripts/lib/helper.sh").c_str(), F_OK) == 0);
+	REQUIRE(access((x.web + "/scripts/helper.sh").c_str(), F_OK) != 0);
+
+	// An upload past 16 MiB is refused and goes.
+	{
+		std::FILE *f = std::fopen((x.tmp + "/big.tar.gz").c_str(), "w");
+		REQUIRE(f != NULL);
+		REQUIRE(ftruncate(fileno(f), (off_t) coreapi::extensions::kMaxArchiveBytes + 1) == 0);
+		std::fclose(f);
+	}
+	const Reply big = authedPost("/api/v1/webui/extensions", "{\"file\":\"big.tar.gz\"}");
+	REQUIRE(big.code == 400);
+	REQUIRE(big.body.find("16 MiB") != std::string::npos);
+	REQUIRE(access((x.tmp + "/big.tar.gz").c_str(), F_OK) != 0);
+
+	// A second change while one is under way: the upload goes all the same.
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	coreapi::extensions::internal::holdTurnForTest(true);
+	const Reply busy = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	coreapi::extensions::internal::holdTurnForTest(false);
+	REQUIRE(busy.code == 409);
+	REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
+
+	if (geteuid() != 0)
+	{
+		// Scripts that cannot be written leave the installed version as it was.
+		x.tree(clockFiles("2.0", "#!/bin/sh\necho two\n"));
+		REQUIRE(x.pack("clock.tar.gz", "clock"));
+		chmod((x.web + "/scripts").c_str(), 0555);
+		const Reply stuck = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+		chmod((x.web + "/scripts").c_str(), 0755);
+		REQUIRE(stuck.code == 500);
+		REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
+		REQUIRE(x.read(x.web + "/scripts/clock_tool.sh") == "#!/bin/sh\necho one\n");
+	}
+	REQUIRE(x.leftovers().empty());
+}
+
 TEST_CASE("the switch that shows a logo is a line of this server's own file", "[write]")
 {
 	/* It decides what a page draws and not what the television draws, which is
@@ -5005,6 +5427,13 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 		FakeShares shares;
 		REQUIRE(sendBodyExample("PUT", "/api/v1/storage/shares/{slot}",
 		                        std::map<std::string, std::string>()) == 200);
+	}
+	{
+		ExtFixture x;
+		x.tree(clockFiles("1.0", "#!/bin/sh\necho one\n"));
+		REQUIRE(x.pack("clock.tar.gz", "clock"));
+		REQUIRE(sendBodyExample("POST", "/api/v1/webui/extensions",
+		                        std::map<std::string, std::string>()) == 201);
 	}
 	{
 		WebFile file("example", kWebFileHead);

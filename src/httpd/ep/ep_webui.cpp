@@ -16,6 +16,7 @@
 
 #include "coreapi/base/errors.h"
 #include "coreapi/base/result.h"
+#include "coreapi/extensions.h"
 #include "coreapi/webui.h"
 
 #include <cstddef>
@@ -137,6 +138,105 @@ const RouteRefusal kWriteRefusals[] = {
 		"the web interface's settings file could not be saved"),
 };
 
+/* THE EXTENSIONS of the web interface: the list the pages show and load, and
+   installing and removing one (coreapi::extensions). The archive is always
+   uploaded by the caller, who fetched it, and never fetched by the box. */
+
+const FieldDesc kExtensionFields[] = {
+	HTTPD_MEMBER("dir", FieldType::String,
+		"the extension's directory under /extensions/, where its manifest.json is served"),
+	HTTPD_LIST_OF_VALUES("scripts", ElementType::String,
+		"the shell scripts it ships, which are installed beside the pages' own"),
+};
+
+const Schema kExtensionSchema = { "extension", HTTPD_FIELDS(kExtensionFields) };
+
+const FieldDesc kExtensionsFields[] = {
+	HTTPD_LIST_OF("items", &kExtensionSchema, "every installed extension, by name"),
+};
+
+const Schema kExtensionsSchema = { "extensions", HTTPD_FIELDS(kExtensionsFields) };
+
+void writeExtension(Json &j, const coreapi::extensions::Extension &x)
+{
+	j.beginObject();
+	j.key("dir");
+	j.value(x.dir);
+	j.key("scripts");
+	j.beginArray();
+	for (size_t i = 0; i < x.scripts.size(); ++i)
+		j.value(x.scripts[i]);
+	j.endArray();
+	j.endObject();
+}
+
+Response listExtensions(const Request &)
+{
+	coreapi::Result<std::vector<coreapi::extensions::Extension> > got = coreapi::extensions::list();
+	if (!got.ok())
+		return problemFor(got.error());
+	const std::vector<coreapi::extensions::Extension> all = std::move(got).value();
+	Response out = okJson();
+	Json j(out.body, 32 + 96 * all.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+		writeExtension(j, all[i]);
+	j.endArray();
+	j.endObject();
+	return out;
+}
+
+Response installExtension(const Request &r)
+{
+	coreapi::Result<coreapi::extensions::Extension> got = coreapi::extensions::install(r.asString("file"));
+	if (!got.ok())
+		return problemFor(got.error());
+	Response out = createdJson();
+	Json j(out.body, 128);
+	writeExtension(j, got.value());
+	return out;
+}
+
+Response removeExtension(const Request &r)
+{
+	coreapi::Result<void> done = coreapi::extensions::remove(r.asString("dir"));
+	if (!done.ok())
+		return problemFor(done.error());
+	return noContent();
+}
+
+const Param kInstallParams[] = {
+	HTTPD_BODY_REQUIRED_TEXT("file",
+		"the archive's name in /tmp, where `PUT` and `PATCH /api/v1/storage/file` uploaded it: letters, "
+		"digits, dots, dashes and underscores, ending in .tar.gz, .tgz or .tar", 255),
+};
+
+const Param kExtensionParams[] = {
+	HTTPD_SEGMENT_TEXT("dir", "the extension's directory name", 64),
+};
+
+const RouteRefusal kInstallRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"the archive is a plain name in the temporary directory, ending in .tar.gz, .tgz or .tar"),
+	HTTPD_REFUSES(NotFound, NoSuchName, "there is no uploaded archive of that name"),
+	HTTPD_REFUSES(InvalidArgument, ExtensionRefused,
+		"the archive holds more than one top-level directory"),
+	HTTPD_REFUSES(Conflict, ScriptNameTaken,
+		"the pages already have a script named Y_Tools.sh, which is not this extension's own"),
+	HTTPD_REFUSES(Conflict, ExtensionRefused, "another extension is being installed or removed"),
+	HTTPD_REFUSES(Internal, ExtensionRefused, "the extension could not be put in place"),
+};
+
+const RouteRefusal kRemoveRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"an extension is named with letters, digits, dashes and underscores"),
+	HTTPD_REFUSES(NotFound, NoSuchName, "no extension of that name is installed"),
+	HTTPD_REFUSES(Conflict, ExtensionRefused, "another extension is being installed or removed"),
+	HTTPD_REFUSES(Internal, ExtensionRefused, "the extension could not be taken away"),
+};
+
 const Endpoint kWebuiEndpoints[] = {
 	{ Method::Get, "/api/v1/webui/settings", AuthLevel::Read,
 	  "what the web interface keeps of its own beside the box's settings",
@@ -172,6 +272,57 @@ const Endpoint kWebuiEndpoints[] = {
 	  "**Related:** `GET /api/v1/webui/settings`.",
 	  HTTPD_PARAMS(kWriteParams), &kWebuiSchema, &writeWebui, false,
 	  Answers200, HTTPD_REFUSALS_AND_BODY(kWriteRefusals, "{\"yweb_box_name\":\"Wohnzimmer\"}") },
+	{ Method::Get, "/api/v1/webui/extensions", AuthLevel::Read,
+	  "the extensions of the web interface that are installed",
+	  "Lists the installed extensions of the web interface: each a directory under `/extensions/` "
+	  "with a `manifest.json`, which the pages read from there, and the shell scripts it ships. "
+	  "Which of them the pages show, and where, is in `GET /api/v1/webui/settings` "
+	  "(`ext_<dir>_enabled`, `ext_<dir>_slot`).\n\n"
+	  "**Related:** `POST /api/v1/webui/extensions`, `DELETE /api/v1/webui/extensions/{dir}`.",
+	  NULL, 0, &kExtensionsSchema, &listExtensions, false,
+	  Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Post, "/api/v1/webui/extensions", AuthLevel::System,
+	  "installs or replaces an extension from an archive uploaded to /tmp",
+	  "Installs the extension in an archive uploaded to /tmp beforehand, with `PUT` and `PATCH "
+	  "/api/v1/storage/file` for one larger than a request; an installed extension of that name is "
+	  "replaced, which is how one is updated. The box fetches nothing: a page that installs from "
+	  "an address loads the archive itself and uploads it. The box takes the upload over into a "
+	  "directory of its own and removes it, and reads the archive from its own headers: it has to "
+	  "hold exactly one directory, named with letters, digits, dashes and underscores, with a "
+	  "`manifest.json` in it, and only directories and regular files, no name that climbs or is "
+	  "absolute, no more than 16 MiB, 2000 names and 64 MiB unpacked. The extension is unpacked "
+	  "beside the installed ones, its shell scripts (its `scripts/*.sh`) are written beside the "
+	  "pages' own, executable, and only then does it take the place of one of its name; a file or a "
+	  "link in that place is replaced, never followed. A script "
+	  "may not take the name of one the pages ship themselves, nor of any other script the pages "
+	  "have unless it is this extension's own from an earlier install, still as that install left "
+	  "it. The upload goes in every case.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar.\n"
+	  "- `404 no-such-name`: no archive of that name was uploaded.\n"
+	  "- `400 extension-refused`: the archive is not an extension this box takes; the detail says why.\n"
+	  "- `409 script-name-taken`: a script it ships would take the name of one the pages already have.\n"
+	  "- `409 extension-refused`: another extension is being installed or removed.\n"
+	  "- `500 extension-refused`: the disc refused; an installed extension of that name is as it "
+	  "was, unless the detail says the new one is in place and names a script that could not take "
+	  "its name.\n\n"
+	  "**Related:** `GET /api/v1/webui/extensions`, `DELETE /api/v1/webui/extensions/{dir}`.",
+	  HTTPD_PARAMS(kInstallParams), &kExtensionSchema, &installExtension, false,
+	  Answers201, HTTPD_REFUSALS_AND_BODY(kInstallRefusals, "{\"file\":\"clock.tar.gz\"}") },
+	{ Method::Delete, "/api/v1/webui/extensions/{dir}", AuthLevel::System,
+	  "removes an extension and the scripts it shipped",
+	  "Removes an installed extension, and the shell scripts it shipped, each only where the "
+	  "pages' script of that name is still the one it installed and not one the pages ship "
+	  "themselves. Its keys in the web interface's "
+	  "settings are left; `PATCH /api/v1/webui/settings` takes them out.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-name`: no extension can carry that name.\n"
+	  "- `404 no-such-name`: no extension of that name is installed.\n"
+	  "- `409 extension-refused`: another extension is being installed or removed.\n"
+	  "- `500 extension-refused`: the disc refused.\n\n"
+	  "**Related:** `POST /api/v1/webui/extensions`.",
+	  HTTPD_PARAMS(kExtensionParams), NULL, &removeExtension, false,
+	  Answers204, HTTPD_REFUSALS(kRemoveRefusals) },
 };
 
 } // namespace
