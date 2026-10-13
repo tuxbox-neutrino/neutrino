@@ -456,26 +456,27 @@ var SETTINGS_REGISTRY = [
 		group: 'sys',
 		icon: regIcon('<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>'),
 		label: 'Webserver',
+		// read and written over /api/v1/system/webserver, by its member names
 		config: 'nhttpd',
 		sections: [
 			{
 				title: ywebL('reg.access', 'Access'),
 				fields: [
-					{ key: 'mod_auth.authenticate', label: ywebL('reg.auth', 'Password protection'), type: 'bool' },
-					{ key: 'mod_auth.username', label: ywebL('set.mnt_user', 'User'), type: 'text' },
-					{ key: 'mod_auth.password', label: ywebL('set.mnt_pass', 'Password'), type: 'password' },
-					{ key: 'mod_auth.no_auth_client', label: ywebL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
-					  hint: ywebL('reg.noauth_client_hint', 'matching addresses never see the login; local access (127.0.0.1) is always exempt') },
-					{ key: 'WebsiteMain.port', label: 'Port', type: 'number', min: 1, max: 65535 }
+					{ key: 'page_login', label: ywebL('reg.auth', 'Password protection'), type: 'bool' },
+					{ key: 'user', label: ywebL('set.mnt_user', 'User'), type: 'text' },
+					{ key: 'password', label: ywebL('set.mnt_pass', 'Password'), type: 'password' },
+					{ key: 'no_login_prefix', label: ywebL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
+					  hint: ywebL('reg.noauth_client_hint', 'callers whose address begins with this see the pages without the login, and the box itself always does; a change made in the web interface still asks for the sign-in') },
+					{ key: 'port', label: 'Port', type: 'number', min: 1, max: 65535 }
 				]
 			},
 			{
 				title: ywebL('reg.content', 'Content'),
 				fields: [
-					{ key: 'WebsiteMain.override_directory', label: ywebL('reg.override_dir', 'Override directory'), type: 'text', picker: true, hint: ywebL('reg.override_dir_hint', 'files here override the default web root') },
-					{ key: 'WebsiteMain.hosted_directory', label: ywebL('reg.hosted_dir', 'Hosted directory'), type: 'text', picker: true },
-					{ key: 'webserver.threading', label: 'Threading', type: 'bool' },
-					{ key: 'mod_sendfile.sendAll', label: ywebL('reg.send_all_types', 'Send all file types'), type: 'bool' }
+					{ key: 'override_directory', label: ywebL('reg.override_dir', 'Override directory'), type: 'text', picker: true, hint: ywebL('reg.override_dir_hint', 'files here override the default web root') },
+					{ key: 'hosted_directory', label: ywebL('reg.hosted_dir', 'Hosted directory'), type: 'text', picker: true },
+					{ key: 'threading', label: 'Threading', type: 'bool' },
+					{ key: 'send_all_types', label: ywebL('reg.send_all_types', 'Send all file types'), type: 'bool' }
 				]
 			}
 		]

@@ -466,7 +466,7 @@
 	<script src="/yweb-header.js?v=58"></script>
 	<script src="/yweb-dom.js?v=1"></script>
 	<script src="/yweb-v1.js?v=13"></script>
-	<script src="/settings-registry.js?v=16"></script>
+	<script src="/settings-registry.js?v=17"></script>
 	<script src="/settings-v1.js?v=1"></script>
 	<script>
 	var configData = {};
@@ -802,6 +802,67 @@
 	function webuiSettingsWrite(changes) {
 		return ywebV1('PATCH', '/webui/settings', {body: changes});
 	}
+
+	// The web server's own settings over /api/v1: the access file and
+	// nhttpd.conf behind one route, by its member names. A field's value as
+	// the form shows it, and what a changed one is sent as.
+	function webserverFieldValue(cfg, key) {
+		var v = cfg[key];
+		return (v === undefined || v === null) ? '' : String(v);
+	}
+
+	function webserverBodyValue(el, val) {
+		if (el.type === 'checkbox') return val === 'true';
+		if (el.type === 'number') return parseInt(val, 10);
+		return val;
+	}
+
+	/* A write answers what it means for the caller before the server is
+	   restarted on it: whether it restarts, and where it answers next. The page
+	   waits for the restart by the server's start count, which the answer
+	   carries from before it. A server here with a higher count has restarted
+	   here: done, or, where the port was to move, the new port was taken and the
+	   server went back to this one, which the page then says. Gone from here for
+	   a few seconds, a moved server is followed, under the scheme and the name
+	   the page was reached by. 'moving', 'restarting', or '' for a write the
+	   server takes without a restart. */
+	async function webserverAfterWrite(answer) {
+		var caller = (answer && answer.caller) || {};
+		var was = (answer && answer.webserver) || {};
+		if (!caller.restarting) return '';
+		var moving = !!caller.port_moved;
+		var target = new URL(location.href);
+		target.port = String(was.port);
+		ywebShowToast(moving ? '{=L:yw.set.ws_moving=} ' + target.origin + '/' : '{=L:yw.set.ws_restarting=}');
+		// what answers here, or null where nothing does
+		var here = async function() {
+			try {
+				var r = await fetch('/api/v1/system/webserver', {credentials: 'same-origin', cache: 'no-store'});
+				return r.ok ? await r.json() : {};
+			} catch (e) {
+				return null;
+			}
+		};
+		var downSince = 0;
+		for (var i = 0; i < 80; i++) {
+			await new Promise(function(r) { setTimeout(r, 300); });
+			var now = await here();
+			if (now === null) {
+				if (!moving) continue;
+				if (!downSince) downSince = Date.now();
+				else if (Date.now() - downSince > 4000) {
+					location.href = target.toString();
+					return 'moving';
+				}
+				continue;
+			}
+			if (typeof now.restarts === 'number' && now.restarts > was.restarts) {
+				if (moving) ywebShowToast('{=L:yw.set.ws_port_taken=} ' + (now.bound_port || now.port), true);
+				return 'restarting';
+			}
+		}
+		return 'restarting';
+	}
 	function renderExtConfigPanel(cat) {
 		setTimeout(function() { loadExtConfigPanel(cat); }, 0);
 		return '<div class="settings-card">' + makeCardHeader(cat.label) +
@@ -816,6 +877,9 @@
 			if (cat.config === 'yweb') {
 				cfg = await webuiSettingsRead();
 				get = function(key) { return cfg[key] || ''; };
+			} else if (cat.config === 'nhttpd') {
+				cfg = await ywebV1('GET', '/system/webserver');
+				get = function(key) { return webserverFieldValue(cfg, key); };
 			} else {
 				var resp = await ywebApi('config', {config: cat.config});
 				cfg = (resp && resp.data && resp.data.config) || {};
@@ -839,9 +903,9 @@
 			// Passwort-Status unter dem (bewusst immer leeren) Passwortfeld:
 			// der Server liefert nur die abgeleiteten Bits, nie das Passwort
 			if (cat.config === 'nhttpd') {
-				var pwEl = el.querySelector('#cfg_' + cat.id + '_mod_auth__password');
-				var pwDef = cfg['mod_auth_dot_password_default'] === 'true';
-				var pwSet = cfg['mod_auth_dot_password_set'] === 'true';
+				var pwEl = el.querySelector('#cfg_' + cat.id + '_password');
+				var pwDef = cfg.password_shipped === true;
+				var pwSet = cfg.has_password === true;
 				var pwMsg = pwDef ? '{=L:yw.set.pw_default=}' : (pwSet ? '{=L:yw.set.pw_isset=}' : '');
 				var pwRow = pwEl ? pwEl.closest('.yweb-form-row') : null;
 				if (pwRow && pwMsg) {
@@ -861,14 +925,23 @@
 	async function saveExtConfig(catId, cfgName, btn) {
 		var root = document.getElementById('extcfg-' + catId);
 		var cfg = EXT_CONFIG_CACHE[cfgName] || {};
-		// the web interface's own file goes over /api/v1, by its plain keys
+		// the web interface's own file and the web server go over /api/v1,
+		// by their plain keys and member names
 		var yweb = cfgName === 'yweb';
+		var webserver = cfgName === 'nhttpd';
 		var params = 'action=submit';
 		var changes = {};
 		var changed = 0;
 		root.querySelectorAll('[data-key][data-extcfg]').forEach(function(el) {
 			var key = el.getAttribute('data-key');
 			var val = (el.type === 'checkbox') ? (el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off')) : el.value;
+			if (webserver) {
+				// the password field opens empty and an empty one keeps the password
+				if (el.type === 'password' ? val === '' : val === webserverFieldValue(cfg, key)) return;
+				changes[key] = webserverBodyValue(el, val);
+				changed++;
+				return;
+			}
 			var ck = yweb ? key : key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
 			if (val !== (cfg[ck] || '')) {
 				params += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(val);
@@ -878,9 +951,12 @@
 		});
 		if (changed === 0) { ywebShowToast('{=L:yw.set.nochanges=}'); return; }
 		btn.disabled = true;
+		var after = '';
 		try {
 			if (yweb)
 				await webuiSettingsWrite(changes);
+			else if (webserver)
+				after = await webserverAfterWrite(await ywebV1('PUT', '/system/webserver', {body: changes}));
 			else
 				// in the body: the password field travels with it
 				await ywebApi('config', 'config=' + cfgName + '&' + params, {post: true});
@@ -892,7 +968,8 @@
 					sessionStorage.removeItem('yweb-authed');
 				} catch (e2) {}
 			}
-			ywebShowToast(changed + ' ' + (changed > 1 ? '{=L:yw.set.saved_many=}' : '{=L:yw.set.saved_one=}'));
+			if (after === 'moving') return;
+			if (after !== 'restarting') ywebShowToast(changed + ' ' + (changed > 1 ? '{=L:yw.set.saved_many=}' : '{=L:yw.set.saved_one=}'));
 			await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
 		} catch (e) {
 			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
