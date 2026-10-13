@@ -70,7 +70,9 @@ class CFSMounter
 		enum UMountRes
 		{
 			UMRES_ERR = 0,
-			UMRES_OK  = 1
+			UMRES_OK  = 1,
+			// umountShare(): what is mounted there is not that share
+			UMRES_NOT_OURS = 2
 		};
 
 		struct MountInfo
@@ -99,6 +101,15 @@ class CFSMounter
 						  std::string options1, std::string options2);
 		static bool automount();
 		static CFSMounter::UMountRes umount(const char *const dir = NULL);
+		/* the share unmounted from local_dir only where it is the mount on
+		   top there, looked at and unmounted in one step */
+		static CFSMounter::UMountRes umountShare(const std::string &local_dir, const FSType fstype,
+							 const std::string &ip, const std::string &dir);
+		/* what is mounted on top at local_dir, tmpfs included; false for nothing */
+		static bool topMount(const std::string &local_dir, MountInfo &top);
+		/* whether mi is the share of that kind from that server and directory */
+		static bool isShare(const MountInfo &mi, const FSType fstype, const std::string &ip,
+				    const std::string &dir);
 		static void getMountedFS(MountInfos &fs);
 		/* every mount except tmpfs, which never carries a share; use this when
 		   the question is "is anything on that directory", not "is it ours" */

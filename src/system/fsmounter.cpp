@@ -45,6 +45,7 @@
 
 #include <errno.h>
 #include <pthread.h>
+#include <atomic>
 
 #include <sys/mount.h>
 #include <unistd.h>
@@ -53,6 +54,38 @@ pthread_mutex_t g_mut;
 pthread_cond_t g_cond;
 pthread_t g_mnt;
 int g_mntstatus;
+
+/* One mount or unmount at a time: the four above are shared by every mount,
+   the modules loaded, the counter of changes and the check of what is mounted
+   before an unmount are shared by all of them, and the screen at the box and
+   the web interface's routes both mount and unmount. Recursive, as a mount
+   asks fsSupported(), which takes it as well. */
+static pthread_mutex_t g_mounting = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+namespace
+{
+struct Mounting
+{
+	Mounting() { pthread_mutex_lock(&g_mounting); }
+	~Mounting() { pthread_mutex_unlock(&g_mounting); }
+};
+}
+
+/* A value handed to the shell as one word, whatever it holds: in single
+   quotes, a quote in it closed, escaped and opened again. The settings hold
+   what somebody typed, a password among it. */
+static std::string shellWord(const std::string &v)
+{
+	std::string out = "'";
+	for (size_t i = 0; i < v.size(); ++i)
+	{
+		if (v[i] == '\'')
+			out += "'\\''";
+		else
+			out += v[i];
+	}
+	return out + "'";
+}
 
 void *mount_thread(void *cmd)
 {
@@ -109,7 +142,10 @@ bool insert_modules(const CFSMounter::FSType fstype)
 bool nfs_mounted_once = false;
 
 /* see CFSMounter::getMountGeneration() */
-static unsigned int g_mount_generation = 0;
+/* Atomic and read without the lock: the screen of the network shares reads it
+   as it opens and closes, and must not wait out a mount of a server that does
+   not answer. */
+static std::atomic<unsigned int> g_mount_generation(0);
 
 unsigned int CFSMounter::getMountGeneration()
 {
@@ -143,6 +179,8 @@ CFSMounter::FS_Support CFSMounter::fsSupported(const CFSMounter::FSType fstype, 
 	if (in_proc_filesystems(fsname))
 		return CFSMounter::FS_READY;
 
+	// loading and unloading modules, and the note of the NFS one, under the lock
+	Mounting one_at_a_time;
 	if (insert_modules(fstype))
 	{
 		if (in_proc_filesystems(fsname))
@@ -271,6 +309,7 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 				       std::string options1, std::string options2)
 {
 	std::string cmd;
+	Mounting one_at_a_time;
 	pthread_mutex_init(&g_mut, NULL);
 	pthread_cond_init(&g_cond, NULL);
 	g_mntstatus = -1;
@@ -319,52 +358,30 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 		}
 	}
 
-	if (fstype == NFS)
+	/* Every value one word for the shell, so nothing typed into a setting is
+	   read as a command. The options go to the mount as one list. */
+	std::string options;
+	if (fstype == CIFS || fstype == LUFS)
 	{
-		cmd = "mount -t nfs ";
-		cmd += getDeviceString(NFS, ip, dir);
-		cmd += ' ';
-		cmd += local_dir;
+		if (fstype == LUFS)
+			options = "fs=ftpfs,";
+		options += "username=" + username + ",password=" + password;
+		if (fstype == LUFS)
+			options += ",host=" + ip + ",root=/" + dir;
 	}
-	else if (fstype == CIFS)
-	{
-		cmd = "mount -t cifs ";
-		cmd += getDeviceString(CIFS, ip, dir);
-		cmd += ' ';
-		cmd += local_dir;
-		cmd += " -o username=";
-		cmd += username;
-		cmd += ",password=";
-		cmd += password;
-	}
-	else
-	{
-		cmd = "lufsd none ";
-		cmd += local_dir;
-		cmd += " -o fs=ftpfs,username=";
-		cmd += username;
-		cmd += ",password=";
-		cmd += password;
-		cmd += ",host=";
-		cmd += ip;
-		cmd += ",root=/";
-		cmd += dir;
-	}
-
 	if (!options1.empty())
-	{
-		if (fstype == NFS)
-			cmd += " -o ";
-		else
-			cmd += ',';
-		cmd += options1;
-	}
-
+		options += (options.empty() ? "" : ",") + options1;
 	if (!options2.empty())
-	{
-		cmd += ',';
-		cmd += options2;
-	}
+		options += (options.empty() ? "" : ",") + options2;
+
+	if (fstype == NFS)
+		cmd = "mount -t nfs " + shellWord(getDeviceString(NFS, ip, dir)) + ' ' + shellWord(local_dir);
+	else if (fstype == CIFS)
+		cmd = "mount -t cifs " + shellWord(getDeviceString(CIFS, ip, dir)) + ' ' + shellWord(local_dir);
+	else
+		cmd = "lufsd none " + shellWord(local_dir);
+	if (!options.empty())
+		cmd += " -o " + shellWord(options);
 
 	pthread_create(&g_mnt, 0, mount_thread, (void *) cmd.c_str());
 
@@ -384,7 +401,9 @@ CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string 
 	pthread_join(g_mnt, NULL);
 	if (g_mntstatus != 0)
 	{
-		printf("[CFSMounter] FS mount error: \"%s\"\n", cmd.c_str());
+		// what was mounted where, and never the command, which holds the password
+		printf("[CFSMounter] FS mount error (%d) %s:%s -> %s\n", (int) fstype, ip.c_str(), dir.c_str(),
+		       local_dir.c_str());
 		return (retcode == ETIMEDOUT) ? MRES_TIMEOUT : MRES_UNKNOWN;
 	}
 	g_mount_generation++;
@@ -410,6 +429,7 @@ bool CFSMounter::automount()
 
 CFSMounter::UMountRes CFSMounter::umount(const char *const dir)
 {
+	Mounting one_at_a_time;
 	UMountRes res = UMRES_OK;
 	if (dir != NULL)
 	{
@@ -452,6 +472,63 @@ static bool is_network_fs(const std::string &type)
 	return type == "nfs" || type == "nfs4"
 		|| type == "cifs" || type == "smb3"
 		|| type == "lufs";
+}
+
+/* What is mounted on top at local_dir: the last line of /proc/mounts naming that
+   directory, tmpfs included, as an unmount takes away what was mounted last.
+   False when nothing is mounted there or the directory does not resolve. */
+bool CFSMounter::topMount(const std::string &local_dir, MountInfo &top)
+{
+	const std::string mount_point = resolve_mount_point(local_dir);
+	if (mount_point.empty())
+		return false;
+	bool found = false;
+	std::ifstream in("/proc/mounts", std::ifstream::in);
+	while (in.good())
+	{
+		MountInfo mi;
+		in >> mi.device >> mi.mountPoint >> mi.type;
+		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		if (mi.mountPoint.empty())
+			continue;
+		mi.device = unescape_mount_field(mi.device);
+		mi.mountPoint = unescape_mount_field(mi.mountPoint);
+		if (mi.mountPoint == mount_point)
+		{
+			top = mi;
+			found = true;
+		}
+	}
+	return found;
+}
+
+/* Whether a mount is the share of that kind from that server and directory:
+   its device as the mount writes it, and a type of that kind. A share of the
+   userspace FTP filesystem registers as "none", whatever it is, so none is
+   ever told apart from another and none counts. */
+bool CFSMounter::isShare(const MountInfo &mi, const FSType fstype, const std::string &ip, const std::string &dir)
+{
+	if (fstype == NFS)
+		return (mi.type == "nfs" || mi.type == "nfs4") && mi.device == getDeviceString(NFS, ip, dir);
+	if (fstype == CIFS)
+		return (mi.type == "cifs" || mi.type == "smb3") && mi.device == getDeviceString(CIFS, ip, dir);
+	return false;
+}
+
+/* Takes the share away from local_dir only where it is what is mounted on top
+   there, the look and the unmount one step for every caller of this mounter.
+   The resolved directory is unmounted and not a link on the way to it. */
+CFSMounter::UMountRes CFSMounter::umountShare(const std::string &local_dir, const FSType fstype,
+					      const std::string &ip, const std::string &dir)
+{
+	Mounting one_at_a_time;
+	MountInfo top;
+	if (!topMount(local_dir, top) || !isShare(top, fstype, ip, dir))
+		return UMRES_NOT_OURS;
+	if (umount2(top.mountPoint.c_str(), MNT_FORCE | UMOUNT_NOFOLLOW) != 0)
+		return UMRES_ERR;
+	g_mount_generation++;
+	return UMRES_OK;
 }
 
 /*
