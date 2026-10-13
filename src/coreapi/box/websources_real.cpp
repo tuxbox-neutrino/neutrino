@@ -154,7 +154,8 @@ class RealWebSources : public Source
 				return;
 			if (guide)
 				readGuides(g_settings.xmltv_xml);
-			readGuides(g_settings.xmltv_xml_auto);
+			// a copy: a load of the bouquets on another thread refills that list
+			readGuides(settingsCopy(g_settings.xmltv_xml_auto));
 		}
 
 		// On the loop's thread, after the program changed the lists itself.

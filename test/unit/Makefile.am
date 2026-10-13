@@ -239,6 +239,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-timeshift-start.sh \
 	scan/check-wire-arms-top-level.sh \
 	scan/check-settings-input-open.sh \
+	scan/check-xmltv-auto-lock.sh \
 	scan/check-channellist-announce.sh \
 	scan/check-storage-write-link.sh \
 	scan/check-channel-writer-lock.sh \
@@ -394,6 +395,7 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-timeshift-start.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-wire-arms-top-level.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-settings-input-open.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-xmltv-auto-lock.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-channellist-announce.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-storage-write-link.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-channel-writer-lock.sh $(top_srcdir)
