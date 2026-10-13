@@ -499,6 +499,23 @@ struct FrontendInfo
 		  terrestrial(false), in_use(false), live(false), measured(false) {}
 };
 
+/* What the video decoder is showing, whatever plays it: a channel, a web
+   channel, a recording or a file. shown false is no moving picture at all
+   (standby, radio, a decoder blanked as a channel is switched, a build
+   without a decoder), and the rest is then nought. frame_rate is in frames
+   per second and 0 where the decoder does not say; aspect is the name the
+   box's own stream information gives it, empty where it has none. */
+struct PictureInfo
+{
+	bool        shown;
+	int         width;
+	int         height;
+	double      frame_rate;
+	std::string aspect;
+
+	PictureInfo() : shown(false), width(0), height(0), frame_rate(0) {}
+};
+
 // A value for every kind a directory can report. One short of that and a reader
 // has to guess which kind it was folded into. Unknown is what a filesystem that
 // does not keep the kind beside the name answers.

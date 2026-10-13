@@ -43,6 +43,7 @@ libcoreapi_a_SOURCES = \
 	box/channelsource_real.cpp \
 	box/systemsource_real.cpp \
 	box/tunersource_real.cpp \
+	box/picturesource_real.cpp \
 	box/inputdevice_real.cpp \
 	box/screenshotsource_real.cpp \
 	box/logosource_real.cpp \
@@ -132,6 +133,7 @@ noinst_HEADERS = \
 	archive_internal.h \
 	library.h \
 	playback.h \
+	box/picture_internal.h \
 	osd.h \
 	base/schema.h \
 	settings/settings.h \

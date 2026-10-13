@@ -2,6 +2,7 @@
  * ep_playback.cpp - what the television shows
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -194,6 +195,43 @@ Response playbackNow(const Request &)
 	return out;
 }
 
+const FieldDesc kPictureFields[] = {
+	HTTPD_MEMBER("shown", FieldType::Bool,
+		"whether the television shows a moving picture: false in standby, for radio, while the decoder is blanked, for example as a channel is switched, and on a box that cannot say; the members below are then 0 or empty"),
+	HTTPD_MEMBER("width", FieldType::Int, "the picture's width in pixels, as the decoder decodes it"),
+	HTTPD_MEMBER("height", FieldType::Int,
+		"its height in lines, 1080 where a decoder reports the 1088 the coding pads such a picture to"),
+	HTTPD_MEMBER("frame_rate", FieldType::Number,
+		"frames per second: 23.976, 24, 25, 29.97, 30, 50, 59.94 or 60, and 0 where the decoder does not say"),
+	HTTPD_MEMBER("aspect", FieldType::String,
+		"the aspect ratio as the box's own stream information names it (4:3, 14:9, 16:9 or 20:9), and empty where the decoder reports one it has no name for"),
+};
+
+const Schema kPictureSchema = { "picture", HTTPD_FIELDS(kPictureFields) };
+
+Response playbackPicture(const Request &)
+{
+	coreapi::Result<coreapi::PictureInfo> got = coreapi::playback::picture();
+	if (!got.ok())
+		return problemFor(got.error());
+	const coreapi::PictureInfo p = got.value();
+	Response out = okJson();
+	Json j(out.body, 128);
+	j.beginObject();
+	j.key("shown");
+	j.value(p.shown);
+	j.key("width");
+	j.value((long) p.width);
+	j.key("height");
+	j.value((long) p.height);
+	j.key("frame_rate");
+	j.value(p.frame_rate);
+	j.key("aspect");
+	j.value(p.aspect);
+	j.endObject();
+	return out;
+}
+
 const Endpoint kPlaybackEndpoints[] = {
 	{ Method::Get, "/api/v1/playback", AuthLevel::Read,
 	  "what the television shows: a live channel, a recording, another file or nothing",
@@ -211,6 +249,18 @@ const Endpoint kPlaybackEndpoints[] = {
 	  "`GET /api/v1/channels/current`, `GET /api/v1/recordings/archive/{id}`.",
 	  NULL, 0, &kPlaybackSchema, &playbackNow, false,
 	  Answers200, HTTPD_REFUSALS(kPlaybackRefusals) },
+	{ Method::Get, "/api/v1/playback/picture", AuthLevel::Read,
+	  "what the picture on the television is: its size, frame rate and aspect",
+	  "Answers what the video decoder shows, whatever plays it: live television, a web channel, a "
+	  "recording or a file. The decoder is asked only in the modes that show a moving picture, as the "
+	  "box's own stream information asks it; standby, radio, a decoder blanked as a channel is switched "
+	  "and a box that cannot say answer `shown: false` with the other members 0 or empty. The values are "
+	  "the decoder's, not the channel's: a picture scaled for the television keeps the size it was sent "
+	  "in. Never refused.\n\n"
+	  "**Related:** `GET /api/v1/playback` says what plays; `GET /api/v1/channels/current` names the "
+	  "channel's streams and their codecs.",
+	  NULL, 0, &kPictureSchema, &playbackPicture, false,
+	  Answers200, HTTPD_NO_REFUSALS },
 };
 
 } // namespace

@@ -2,6 +2,7 @@
  * test_playback.cpp - tests for what the television shows
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +25,7 @@
 #include "coreapi/archive.h"
 #include "coreapi/channels.h"
 #include "coreapi/playback.h"
+#include "coreapi/box/picture_internal.h"
 #include "coreapi/base/deps.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/base/eventbus.h"
@@ -141,6 +143,11 @@ playback::Started started(const std::string &path, const std::string &title = st
 	std::unique_ptr< ::Json::CharReader> r(b.newCharReader());
 	r->parse(text.data(), text.data() + text.size(), &v, &errs);
 	return v;
+}
+
+httpd::Response askPicture()
+{
+	return httpd::dispatch(httpd::Get, "/api/v1/playback/picture", "", std::string(), "192.168.1.9", httpd::AuthLevel::Read);
 }
 
 httpd::Response askPlayback()
@@ -480,4 +487,98 @@ TEST_CASE("a title and a channel are cut to what the archive answers", "[playbac
 	playback::begin(s);
 	REQUIRE(playback::snapshot().title.size() == archive::kMaxShortText);
 	REQUIRE(playback::snapshot().channel == std::string(archive::kMaxShortText - 1, 'c'));
+}
+
+TEST_CASE("the picture route answers what the decoder shows", "[playback][routes]")
+{
+	FakeChannelSource channels;
+	InstalledChannelSource in_channels(&channels);
+	FakePictureSource decoder;
+	InstalledPictureSource in_decoder(&decoder);
+	channels.mode = NeutrinoModes::mode_tv;
+	decoder.shown.shown = true;
+	decoder.shown.width = 1920;
+	decoder.shown.height = 1080;
+	decoder.shown.frame_rate = 25;
+	decoder.shown.aspect = "16:9";
+
+	httpd::Response r = askPicture();
+	REQUIRE(r.code == 200);
+	::Json::Value v = parsed(r.body);
+	REQUIRE(v["shown"].asBool());
+	REQUIRE(v["width"].asInt() == 1920);
+	REQUIRE(v["height"].asInt() == 1080);
+	REQUIRE(v["frame_rate"].asDouble() == 25);
+	REQUIRE(v["aspect"].asString() == "16:9");
+
+	// a web channel and the movie player show theirs through the same decoder
+	channels.mode = NeutrinoModes::mode_webtv;
+	REQUIRE(parsed(askPicture().body)["shown"].asBool());
+	channels.mode = NeutrinoModes::mode_ts;
+	REQUIRE(parsed(askPicture().body)["shown"].asBool());
+}
+
+TEST_CASE("no picture in standby, for radio, or where the box cannot say", "[playback][routes]")
+{
+	FakeChannelSource channels;
+	InstalledChannelSource in_channels(&channels);
+	FakePictureSource decoder;
+	InstalledPictureSource in_decoder(&decoder);
+	decoder.shown.shown = true;
+	decoder.shown.width = 1280;
+	decoder.shown.height = 720;
+
+	// the still picture radio shows is not asked for
+	const int quiet[] = { NeutrinoModes::mode_standby, NeutrinoModes::mode_radio,
+			      NeutrinoModes::mode_webradio };
+	for (size_t i = 0; i < sizeof(quiet) / sizeof(quiet[0]); ++i)
+	{
+		INFO("mode " << quiet[i]);
+		channels.mode = quiet[i];
+		httpd::Response r = askPicture();
+		REQUIRE(r.code == 200);
+		::Json::Value v = parsed(r.body);
+		REQUIRE_FALSE(v["shown"].asBool());
+		REQUIRE(v["width"].asInt() == 0);
+		REQUIRE(v["aspect"].asString() == "");
+	}
+	REQUIRE(decoder.reads == 0);
+
+	// a box without a decoder is not a fault
+	channels.mode = NeutrinoModes::mode_tv;
+	decoder.status = Status::NotSupported;
+	httpd::Response r = askPicture();
+	REQUIRE(r.code == 200);
+	REQUIRE_FALSE(parsed(r.body)["shown"].asBool());
+}
+
+TEST_CASE("the decoder's numbers are named as the box's own stream information names them", "[playback]")
+{
+	PictureInfo p;
+	internal::fillPicture(1920, 1088, 2, 3, p);
+	REQUIRE(p.shown);
+	REQUIRE(p.width == 1920);
+	REQUIRE(p.height == 1080);
+	REQUIRE(p.frame_rate == 25);
+	REQUIRE(p.aspect == "16:9");
+
+	internal::fillPicture(720, 576, 0, 1, p);
+	REQUIRE(p.height == 576);
+	REQUIRE(p.frame_rate == 23.976);
+	REQUIRE(p.aspect == "4:3");
+
+	// positions the lists do not have are values without a name
+	internal::fillPicture(1280, 720, 8, 5, p);
+	REQUIRE(p.shown);
+	REQUIRE(p.frame_rate == 0);
+	REQUIRE(p.aspect == "");
+	internal::fillPicture(1280, 720, -1, 0, p);
+	REQUIRE(p.frame_rate == 0);
+	REQUIRE(p.aspect == "");
+
+	// a decoder with no size shows nothing, whatever else it says
+	internal::fillPicture(0, 0, 2, 3, p);
+	REQUIRE_FALSE(p.shown);
+	REQUIRE(p.frame_rate == 0);
+	REQUIRE(p.aspect == "");
 }

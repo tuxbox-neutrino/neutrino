@@ -1415,6 +1415,33 @@ struct InstalledTunerSource
 	~InstalledTunerSource() { coreapi::setTunerSource(0); }
 };
 
+/* The video decoder. A case that means a picture on show says which; the
+   default is the decoder showing nothing. Counted, because a mode that shows
+   no moving picture is answered without asking it at all. */
+struct FakePictureSource : public coreapi::PictureSource
+{
+	coreapi::PictureInfo shown;
+	coreapi::Status      status;
+	mutable unsigned     reads;
+
+	FakePictureSource() : status(coreapi::Status::Ok), reads(0) {}
+
+	coreapi::Status picture(coreapi::PictureInfo &out) const
+	{
+		reads++;
+		if (status != coreapi::Status::Ok)
+			return status;
+		out = shown;
+		return coreapi::Status::Ok;
+	}
+};
+
+struct InstalledPictureSource
+{
+	explicit InstalledPictureSource(coreapi::PictureSource *s) { coreapi::setPictureSource(s); }
+	~InstalledPictureSource() { coreapi::setPictureSource(0); }
+};
+
 /* The plugins of the box. Nothing here scans a disc, so what a case sees is a
    list it wrote and a record of what was asked to run, the second counted on
    the way in so that a name turned away above this and a run the box refused do

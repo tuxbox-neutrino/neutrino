@@ -3330,6 +3330,7 @@ TIMER_START();
 	coreapi::installRealCommandSink();
 	coreapi::installRealSystemSource();
 	coreapi::installRealTunerSource();
+	coreapi::installRealPictureSource();
 	/* Made here, on this thread, rather than left to whoever asks for it
 	   first: what makes it is not written for two askers at once, and from the
 	   line below onwards the askers include the web layer's own workers. */

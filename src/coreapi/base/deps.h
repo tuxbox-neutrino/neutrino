@@ -735,6 +735,24 @@ void setTunerSource(TunerSource *s);
 // Binds the accessors above to the frontends the box has.
 void installRealTunerSource();
 
+/* What the video decoder is showing. Its own seam and not a corner of the
+   tuner's, the decoder showing a web channel, a recording or a file as well.
+
+   NotSupported is a box without a decoder, which is also what every build
+   that only links this layer looks like. Ok with shown false is a decoder
+   showing nothing. */
+struct PictureSource
+{
+	virtual ~PictureSource() {}
+	virtual Status picture(PictureInfo &out) const = 0;
+};
+
+PictureSource &pictureSource();
+void setPictureSource(PictureSource *s);
+
+// Binds the reading above to the box's video decoder.
+void installRealPictureSource();
+
 // Reading and writing the programme file, for whatever of it cannot be done
 // through the seams above.
 

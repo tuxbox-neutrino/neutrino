@@ -117,6 +117,13 @@ struct Now
 
 Result<Now> now();
 
+/* What the picture on the television is. Read from the decoder only in the
+   modes that show a moving picture: live television, a web channel and the
+   movie player, as the box's own stream information reads it; anything else,
+   standby and radio among them, and a box that cannot say, answer shown
+   false. Never refused. */
+Result<PictureInfo> picture();
+
 } // namespace playback
 } // namespace coreapi
 

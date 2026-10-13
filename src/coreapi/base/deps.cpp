@@ -507,6 +507,29 @@ OsdResolutionSource &osdResolutionSource()
 
 void setOsdResolutionSource(OsdResolutionSource *s) { g_osd_resolution_source = s; }
 
+namespace
+{
+// What a read reaches on a build with no decoder: a box that cannot say.
+class NoPicture : public PictureSource
+{
+	public:
+		Status picture(PictureInfo &) const { return Status::NotSupported; }
+};
+
+NoPicture g_no_picture;
+} // anonymous namespace
+
+static PictureSource *g_picture_source = 0;
+
+PictureSource &pictureSource()
+{
+	if (!g_picture_source)
+		return g_no_picture;
+	return *g_picture_source;
+}
+
+void setPictureSource(PictureSource *s) { g_picture_source = s; }
+
 bool dependenciesInstalled()
 {
 	return g_channel_source != 0 &&

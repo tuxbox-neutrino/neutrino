@@ -255,5 +255,20 @@ Result<Now> now()
 	return ok(out);
 }
 
+Result<PictureInfo> picture()
+{
+	PictureInfo out;
+	int mode = 0;
+	if (channelSource().currentMode(mode) != Status::Ok)
+		return ok(out);
+	if (mode != NeutrinoModes::mode_tv && mode != NeutrinoModes::mode_webtv &&
+	    mode != NeutrinoModes::mode_ts)
+		return ok(out);
+	// a box that cannot say shows nothing it could name
+	if (pictureSource().picture(out) != Status::Ok)
+		return ok(PictureInfo());
+	return ok(out);
+}
+
 } // namespace playback
 } // namespace coreapi
