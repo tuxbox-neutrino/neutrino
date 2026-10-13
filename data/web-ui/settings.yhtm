@@ -1493,31 +1493,6 @@
 		btn.disabled = false;
 	}
 
-	async function doMountUnmount(i, btn) {
-		var inp = document.getElementById('cfg_network_nfs_local_dir_' + i);
-		var dir = inp ? inp.value.trim() : '';
-		if (!dir) { ywebShowToast('{=L:yw.set.no_mountpoint=}', true); return; }
-		btn.disabled = true;
-		try {
-			var out = (await ywebApi('exec', 'Y_Tools&dounmount&' + encodeURIComponent(dir), {raw: true})).trim();
-			ywebShowToast(out || ('Getrennt: ' + dir));
-		} catch (e) {
-			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
-		}
-		btn.disabled = false;
-	}
-
-	async function doMountAction(i, action, btn) {
-		btn.disabled = true;
-		try {
-			var out = (await ywebApi('exec', 'Y_Tools&' + action + (i >= 0 ? '&' + i : ''), {raw: true})).trim();
-			ywebShowToast(out || 'Ausgefuehrt');
-		} catch (e) {
-			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
-		}
-		btn.disabled = false;
-	}
-
 	// Plugins over /api/v1: the list, starting one, and reading the plugin
 	// directories again. The box starts a plugin and reads its directories
 	// on its own thread, after it answered. Daemon control (nfs, samba, ...
@@ -1591,80 +1566,182 @@
 		btn.disabled = false;
 	}
 
+	// The box's own network shares over /api/v1/storage/shares: the 8 slots the
+	// screen at the box edits, each saved, mounted and unmounted on its own.
+	// Not part of the save bar: a slot is written whole, and a stored password
+	// is never read back, so the field opens empty and is only sent when typed.
+	var SHARE_STATE = {
+		mounted: '{=L:yw.set.mnt_state_mounted=}',
+		unmounted: '{=L:yw.set.mnt_state_unmounted=}',
+		foreign: '{=L:yw.set.mnt_state_foreign=}'
+	};
+
 	function renderMountsPanel() {
-		var html = makeCardHeader('Netzlaufwerke');
-		html += '<div class="yweb-form-row"><label>Alle konfigurierten Mounts</label>' +
-			'<span class="yweb-row-actions">' +
-			'<button type="button" class="yweb-btn primary" onclick="doMountAction(-1, \'do_mount_all\', this)">' + MOUNT_ICON + '{=L:yw.set.mnt_mount_all=}</button></span></div>';
+		setTimeout(loadSharesPanel, 0);
+		return '<div class="settings-card">' + makeCardHeader('Netzlaufwerke') +
+			'<div id="sharesPanel"><p aria-busy="true"></p></div></div>';
+	}
+
+	async function loadSharesPanel() {
+		var el = document.getElementById('sharesPanel');
+		if (!el) return;
+		try {
+			var data = await ywebV1('GET', '/storage/shares');
+			drawShares(el, (data && data.items) || []);
+		} catch (e) {
+			el.replaceChildren(ywebEl('p', {}, '{=L:yw.msg.error=}: ' + e.message));
+		}
+	}
+
+	function shareSummary(sh) {
+		return (sh.host ? (sh.host + ':' + sh.remote_dir + ' → ' + sh.local_dir) : '{=L:yw.set.mnt_unconfigured=}') +
+			' · ' + (SHARE_STATE[sh.state] || sh.state);
+	}
+
+	function shareSlot(sh, open) {
 		var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
-		for (var i = 0; i < 8; i++) {
-			var ip = getConfigKey('network_nfs_ip_' + i);
-			var dir = getConfigKey('network_nfs_dir_' + i);
-			var local = getConfigKey('network_nfs_local_dir_' + i);
-			var typeVal = getConfigKey('network_nfs_type_' + i);
-			var summary = ip ? (ip + ':' + dir + ' \u2192 ' + local) : '{=L:yw.set.mnt_unconfigured=}';
-			var isCifs = (typeVal === '1');
+		var slot = ywebEl('div', {className: 'mount-slot' + (open ? ' open' : ''), id: 'mount-slot-' + sh.slot},
+			ywebEl('div', {className: 'mount-slot-header', on: {click: function() { slot.classList.toggle('open'); }}},
+				ywebEl('span', {}, 'Slot ' + sh.slot + ' ',
+					ywebEl('span', {className: 'slot-summary', id: 'share_summary_' + sh.slot}, shareSummary(sh))),
+				ywebMarkup(chevron)),
+			ywebEl('fieldset', {className: 'mount-slot-body', id: 'share_body_' + sh.slot,
+				style: {border: '0', margin: '0', padding: '0', 'min-width': '0'}},
+				// an FTP share (lufs) is set, mounted and unmounted at the box only
+				sh.type === 'lufs' ? shareRow('FTP (lufs)', ywebEl('span', {}, '{=L:yw.set.mnt_lufs_note=}')) : shareFields(sh)));
+		return slot;
+	}
 
-			html += '<div class="mount-slot" id="mount-slot-' + i + '">' +
-				'<div class="mount-slot-header" onclick="toggleMount(' + i + ')">' +
-				'<span>Slot ' + i + ' <span class="slot-summary">' + summary + '</span></span>' + chevron +
-				'</div>' +
-				'<div class="mount-slot-body">' +
-				renderMountFields(i, isCifs) +
-				'</div></div>';
+	function drawShares(el, items) {
+		var all = ywebEl('div', {className: 'yweb-form-row'},
+			ywebEl('label', {}, '{=L:yw.set.mnt_mount_auto=}'),
+			ywebEl('span', {className: 'yweb-row-actions'},
+				ywebEl('button', {type: 'button', className: 'yweb-btn primary', on: {click: function() { mountAutomaticShares(this); }}},
+					ywebMarkup(MOUNT_ICON), '{=L:yw.set.mnt_mount=}')));
+		el.replaceChildren(all, ...items.map(function(sh) { return shareSlot(sh, false); }));
+	}
+
+	/* After an action: the slot acted on is drawn again from what the box
+	   answered, the others only get their summary, so what was typed into
+	   them and not saved yet stays. */
+	function updateShares(items, acted) {
+		items.forEach(function(sh) {
+			if (sh.slot === acted) {
+				var old = document.getElementById('mount-slot-' + sh.slot);
+				if (old) old.replaceWith(shareSlot(sh, true));
+				return;
+			}
+			var summary = document.getElementById('share_summary_' + sh.slot);
+			if (summary) summary.textContent = shareSummary(sh);
+		});
+	}
+
+	// The slot's own form is locked while the box answers for it.
+	async function onShare(i, request) {
+		var body = document.getElementById('share_body_' + i);
+		if (body) body.disabled = true;
+		try {
+			var res = await request();
+			updateShares((res && res.items) || [], i);
+			return true;
+		} catch (e) {
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+			if (body) body.disabled = false;
+			return false;
 		}
-
-		return '<div class="settings-card">' + html + '</div>';
 	}
 
-	function renderMountFields(i, isCifs) {
-		var g = function(k) { return escapeHtml(getConfigKey('network_nfs_' + k + '_' + i)); };
-		var id = function(k) { return 'cfg_network_nfs_' + k + '_' + i; };
-		var dk = function(k) { return 'network_nfs_' + k + '_' + i; };
-
-		return '<div class="yweb-form-row"><label>{=L:yw.tm.type=}</label>' +
-			'<select id="' + id('type') + '" data-key="' + dk('type') + '" onchange="onMountTypeChange(' + i + ')">' +
-			'<option value="0"' + (g('type') !== '1' ? ' selected' : '') + '>NFS</option>' +
-			'<option value="1"' + (g('type') === '1' ? ' selected' : '') + '>CIFS</option>' +
-			'</select></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_ip=}</label>' +
-			'<input type="text" id="' + id('ip') + '" data-key="' + dk('ip') + '" value="' + g('ip') + '"></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_dir=}</label>' +
-			'<input type="text" id="' + id('dir') + '" data-key="' + dk('dir') + '" value="' + g('dir') + '"></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_local=}</label><span>' +
-			'<input type="text" id="' + id('local_dir') + '" data-key="' + dk('local_dir') + '" value="' + g('local_dir') + '">' +
-			' <button type="button" class="yweb-btn" title="{=L:yw.picker.title=}" onclick="ywebPickInto(\'' + id('local_dir') + '\', \'' + (getConfigKey('network_nfs_local_dir_' + i) || '/media') + '\')">' + FOLDER_ICON + '</button></span></div>' +
-			'<div class="yweb-form-row"><label>Auto-Mount</label>' +
-			'<label class="yweb-toggle"><input type="checkbox" id="' + id('automount') + '" data-key="' + dk('automount') + '" data-on="1" data-off="0"' + (g('automount') === '1' ? ' checked' : '') + '>' +
-			'<span class="yweb-toggle-slider"></span></label></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_opts=} 1</label>' +
-			'<input type="text" id="' + id('mount_options1') + '" data-key="' + dk('mount_options1') + '" value="' + g('mount_options1') + '"></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_opts=} 2</label>' +
-			'<input type="text" id="' + id('mount_options2') + '" data-key="' + dk('mount_options2') + '" value="' + g('mount_options2') + '"></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_mac=}</label>' +
-			'<input type="text" id="' + id('mac') + '" data-key="' + dk('mac') + '" value="' + g('mac') + '"></div>' +
-			'<div class="cifs-fields' + (isCifs ? ' visible' : '') + '" id="cifs-' + i + '">' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_user=}</label>' +
-			'<input type="text" id="' + id('username') + '" data-key="' + dk('username') + '" value="' + g('username') + '"></div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_pass=}</label>' +
-			'<input type="password" id="' + id('password') + '" data-key="' + dk('password') + '" value="' + g('password') + '"></div>' +
-			'</div>' +
-			'<div class="yweb-form-row"><label>{=L:yw.set.mnt_actions=}</label><span class="yweb-row-actions">' +
-			'<button type="button" class="yweb-btn" onclick="doMountAction(' + i + ', \'domount\', this)">' + MOUNT_ICON + '{=L:yw.set.mnt_mount=}</button> ' +
-			'<button type="button" class="yweb-btn" onclick="doMountUnmount(' + i + ', this)">' + EJECT_ICON + '{=L:yw.set.mnt_umount=}</button></span></div>';
+	function shareRow(label, control) {
+		return ywebEl('div', {className: 'yweb-form-row'}, ywebEl('label', {}, label), control);
 	}
 
-	function toggleMount(i) {
-		document.getElementById('mount-slot-' + i).classList.toggle('open');
+	function shareFields(sh) {
+		var i = sh.slot;
+		var input = function(key, value, type) {
+			return ywebEl('input', {type: type || 'text', id: 'share_' + key + '_' + i, value: value || ''});
+		};
+		var type = ywebEl('select', {id: 'share_type_' + i},
+			ywebEl('option', {value: 'nfs'}, 'NFS'),
+			ywebEl('option', {value: 'cifs'}, 'CIFS'),
+			sh.type === 'lufs' ? ywebEl('option', {value: 'lufs'}, 'FTP (lufs)') : null);
+		type.value = sh.type;
+		var pass = input('password', '', 'password');
+		pass.placeholder = sh.has_password ? '{=L:yw.set.mnt_pass_kept=}' : '';
+		pass.autocomplete = 'new-password';
+		var clear = sh.has_password ? ywebEl('label', {style: {display: 'inline-flex', gap: '.3rem', 'margin-left': '.5rem'}},
+			ywebEl('input', {type: 'checkbox', id: 'share_clearpass_' + i}), ' {=L:yw.set.mnt_pass_clear=}') : null;
+		var credentials = ywebEl('div', {className: 'cifs-fields' + (sh.type !== 'nfs' ? ' visible' : '')},
+			shareRow('{=L:yw.set.mnt_user=}', input('user', sh.user)),
+			shareRow('{=L:yw.set.mnt_pass=}', ywebEl('span', {}, pass, clear)));
+		type.addEventListener('change', function() {
+			credentials.classList.toggle('visible', type.value !== 'nfs');
+		});
+		var local = input('local_dir', sh.local_dir);
+		var auto = ywebEl('input', {type: 'checkbox', id: 'share_automount_' + i, checked: !!sh.automount});
+		var button = function(icon, text, onClick) {
+			return ywebEl('button', {type: 'button', className: 'yweb-btn', on: {click: function() { onClick(this); }}},
+				ywebMarkup(icon), text);
+		};
+		return [
+			shareRow('{=L:yw.tm.type=}', type),
+			shareRow('{=L:yw.set.mnt_ip=}', input('host', sh.host)),
+			shareRow('{=L:yw.set.mnt_dir=}', input('remote_dir', sh.remote_dir)),
+			shareRow('{=L:yw.set.mnt_local=}', ywebEl('span', {}, local, ' ',
+				ywebEl('button', {type: 'button', className: 'yweb-btn', title: '{=L:yw.picker.title=}',
+					on: {click: function() { ywebPickInto(local.id, local.value || '/media'); }}}, ywebMarkup(FOLDER_ICON)))),
+			shareRow('Auto-Mount', ywebEl('label', {className: 'yweb-toggle'}, auto, ywebEl('span', {className: 'yweb-toggle-slider'}))),
+			shareRow('{=L:yw.set.mnt_opts=} 1', input('options1', sh.options1)),
+			shareRow('{=L:yw.set.mnt_opts=} 2', input('options2', sh.options2)),
+			shareRow('{=L:yw.set.mnt_mac=}', input('mac', sh.mac)),
+			credentials,
+			shareRow('{=L:yw.set.mnt_actions=}', ywebEl('span', {className: 'yweb-row-actions'},
+				button(SAVE_ICON, '{=L:yw.bqe.save=}', function() { saveShare(i); }), ' ',
+				button(MOUNT_ICON, '{=L:yw.set.mnt_mount=}', function() { shareAction(i, 'mount'); }), ' ',
+				button(EJECT_ICON, '{=L:yw.set.mnt_umount=}', function() { shareAction(i, 'unmount'); })))
+		];
 	}
 
-	function onMountTypeChange(i) {
-		var sel = document.getElementById('cfg_network_nfs_type_' + i);
-		var cifsDiv = document.getElementById('cifs-' + i);
-		if (sel && cifsDiv) {
-			if (sel.value === '1') cifsDiv.classList.add('visible');
-			else cifsDiv.classList.remove('visible');
+	async function saveShare(i) {
+		var val = function(key) { return document.getElementById('share_' + key + '_' + i).value.trim(); };
+		var body = {
+			automount: document.getElementById('share_automount_' + i).checked,
+			type: val('type'), local_dir: val('local_dir'), host: val('host'), remote_dir: val('remote_dir'),
+			user: val('user'), options1: val('options1'), options2: val('options2'), mac: val('mac')
+		};
+		// typed: the new one; the box's own left alone otherwise, or taken away
+		var pass = document.getElementById('share_password_' + i).value;
+		var clear = document.getElementById('share_clearpass_' + i);
+		if (pass !== '')
+			body.password = pass;
+		else if (clear && clear.checked)
+			body.password = '';
+		if (await onShare(i, function() { return ywebV1('PUT', '/storage/shares/' + i, {body: body}); }))
+			ywebShowToast('{=L:yw.set.mnt_saved=}');
+	}
+
+	function shareAction(i, act) {
+		return onShare(i, function() { return ywebV1('POST', '/storage/shares/' + i + '/' + act); });
+	}
+
+	async function mountAutomaticShares(btn) {
+		btn.disabled = true;
+		try {
+			var res = await ywebV1('POST', '/storage/shares/mount');
+			var items = (res && res.items) || [];
+			var failed = items.filter(function(o) { return !o.mounted; });
+			if (items.length === 0)
+				ywebShowToast('{=L:yw.set.mnt_auto_none=}');
+			else if (failed.length === 0)
+				ywebShowToast(items.length + ' {=L:yw.set.mnt_auto_done=}');
+			else
+				ywebShowToast(failed.map(function(o) { return 'Slot ' + o.slot + ': ' + o.detail; }).join('; '), true);
+			// only the summaries: what was typed into a slot and not saved stays
+			var now = await ywebV1('GET', '/storage/shares');
+			updateShares((now && now.items) || [], -1);
+		} catch (e) {
+			ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 		}
+		btn.disabled = false;
 	}
 
 	// M5b: Sidebar nach SETTINGS_GROUPS gruppiert (Zwischentitel + Icon je
