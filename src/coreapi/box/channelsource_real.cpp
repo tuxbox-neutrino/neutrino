@@ -322,7 +322,9 @@ class RealChannelSource : public ChannelSource
 			if (g_bouquetManager)
 				g_bouquetManager->setWebchannelsReloadReason(reason);
 
-			g_Zapit->reinitChannels();
+			// a reading the daemon did not answer is not one that happened
+			if (!g_Zapit->reinitChannels())
+				return Status::Internal;
 
 			/* The box no longer owes its user the question whether the list it
 			   noticed a change in should be read again, because reading it is
@@ -605,13 +607,16 @@ class RealChannelSource : public ChannelSource
 		   them. What makes a read taken afterwards a read of what they did is that the
 		   stack serves one connection at a time and in order: a command it does answer
 		   has every command sent before it behind it. Asking what mode the box is in is
-		   the smallest question there is, so that is the one sent here. The answer is
-		   thrown away on purpose. */
+		   the smallest question there is, so that is the one sent here. What the mode
+		   is does not matter; whether an answer came does, and one that did not is no
+		   wait that ended. */
 		Status awaitCommands()
 		{
 			if (!g_Zapit)
 				return Status::Internal;
-			(void) g_Zapit->getMode();
+			// a wait the daemon did not answer is not one that ended
+			if (!g_Zapit->awaitCommands())
+				return Status::Internal;
 			return Status::Ok;
 		}
 };

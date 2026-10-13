@@ -149,6 +149,7 @@ const Walked kWalked[] = {
 	CODE(WakeNotSent),
 	CODE(BackupFailed),
 	CODE(RestoreRefused),
+	CODE(ChannelFileRefused),
 	CODE(TimeshiftRunning),
 	CODE(RecordingRunning),
 	CODE(RecordingPlaying),
@@ -394,6 +395,7 @@ TEST_CASE("the codes the file endpoint answers with are written down", "[result]
 		{ ErrorCode::WakeNotSent,     "wake-not-sent" },
 		{ ErrorCode::BackupFailed,    "backup-failed" },
 		{ ErrorCode::RestoreRefused,  "restore-refused" },
+		{ ErrorCode::ChannelFileRefused, "channel-file-refused" },
 		{ ErrorCode::ChangeRefused,   "change-refused" }
 	};
 	for (size_t i = 0; i < sizeof(emitted) / sizeof(emitted[0]); i++)

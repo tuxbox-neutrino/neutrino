@@ -121,7 +121,7 @@ class CServiceManager
 		~CServiceManager();
 		static CServiceManager * getInstance();
 
-		static void CopyFile(const char * from, const char * to);
+		static bool CopyFile(const char * from, const char * to);
 
 		bool InitSatPosition(t_satellite_position position, const char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
 		/* forget_borrowed, where given, is called under the channel lock before a

@@ -274,6 +274,10 @@ enum class ErrorCode
 	   that would land where the box backs nothing up, or the box cannot start
 	   putting it back. */
 	RestoreRefused,
+	/* A channel file that is not put in place: too large, not one the box's
+	   reader takes or not a list of the kind its name says, or the box could
+	   not take the upload over or put it beside its own. */
+	ChannelFileRefused,
 	/* The box is already keeping a shift, where one was to be started. Refused
 	   rather than granted quietly, because the record manager would start a
 	   second one, and two shifts of one channel hold two tuners to write the
@@ -554,6 +558,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::WakeNotSent: return "wake-not-sent";
 		case ErrorCode::BackupFailed: return "backup-failed";
 		case ErrorCode::RestoreRefused: return "restore-refused";
+		case ErrorCode::ChannelFileRefused: return "channel-file-refused";
 		case ErrorCode::TimeshiftRunning: return "timeshift-running";
 		case ErrorCode::RecordingRunning: return "recording-running";
 		case ErrorCode::RecordingPlaying: return "recording-playing";

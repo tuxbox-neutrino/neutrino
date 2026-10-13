@@ -25,6 +25,8 @@
 #include "coreapi/base/result.h"
 #include "coreapi/base/types.h"
 
+#include <stddef.h>
+
 #include <string>
 
 namespace coreapi
@@ -113,6 +115,55 @@ Result<CaidList> currentCaids();
    an unset flag asks for. */
 Result<void> reloadChannels(bool hard);
 
+/* The four files in the box's zapit directory it reads its channels from: the
+   services a scan found (services.xml) and those added by hand
+   (myservices.xml), the bouquets of the providers (bouquets.xml) and the
+   user's own (ubouquets.xml). */
+enum ChannelFile
+{
+	ServicesFile,
+	MyServicesFile,
+	BouquetsFile,
+	UserBouquetsFile
+};
+
+// More than the channel files of any box come to; a larger one is refused.
+const size_t kMaxChannelFileBytes = 16u * 1024u * 1024u;
+
+/* Puts a channel file the caller uploaded to the temporary directory in place
+   of the box's own file of that kind, and has the box read its channel lists
+   again the hard way, so the file wins over what the box holds in memory: a
+   reading that wrote the services out first would write them over it.
+
+   upload is a plain name in the temporary directory, of letters, digits, dots,
+   dashes and underscores, ending in .xml: InvalidArgument BadName for any
+   other, NotFound NoSuchName for a name with no regular file behind it.
+
+   The upload is first copied into a directory of this program's own under a
+   name it chose, and the upload goes, so what is checked is what is put in
+   place. The copy holds no more than kMaxChannelFileBytes, the box's own
+   reader takes it, and its root element is zapit, holding only sat, cable and
+   terrestrial elements in a services file, each with the name the box looks
+   it up by, and only Bouquet elements in a bouquet
+   file; InvalidArgument ChannelFileRefused naming why otherwise, which also
+   keeps a file sent as the wrong one of the four out.
+
+   It then goes beside the box's file under a hidden name, reaches the disc,
+   and is renamed over it, so a reader finds the old file or the new one and
+   never part of either; a link in the file's place is replaced, not followed.
+   Internal ChannelFileRefused where that fails, the box's file as it was.
+   The hard reading follows; ChannelListUnavailable where the box did not say
+   it had read the lists, the file in place by then. Internal
+   ChannelFileRefused as well for a file in place and read whose rename the
+   disc did not confirm.
+
+   No save of the lists the box holds that this layer asks for comes between
+   the two: reloadChannels and the bouquet writes above take the same lock,
+   the writes up to the wait that says the box is through with them, and the
+   file is put in place only once the box has answered such a wait itself;
+   Internal ChannelFileRefused, nothing put in place, where it did not. */
+Result<void> putChannelFile(ChannelFile which, const std::string &upload);
+
 /* Editing bouquets. Every call below names a bouquet by its name and never by
    its position in the list: a position is what the box renumbers the moment
    anything before it is taken away or moved, while a name stays with the bouquet
@@ -185,6 +236,17 @@ Result<void> announceBouquetsChanged();
    box's to wait for, and waiting would put the main loop behind whatever the
    daemon is doing, a zap the list itself asked for among it. */
 void publishBouquetsChanged();
+
+namespace internal
+{
+// Where uploads are and where the box keeps its channel files; a case points
+// them at directories of its own.
+extern const char *upload_dir;
+extern const char *zapit_dir;
+// Whether the lock putChannelFile shares with the saves of the lists is held
+// right now, for a case that checks what holds it.
+bool filesLockTaken();
+} // namespace internal
 
 } // namespace channels
 } // namespace coreapi

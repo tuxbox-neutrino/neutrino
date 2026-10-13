@@ -867,6 +867,22 @@ Response reloadChannelLists(const Request &r)
 	return accepted();
 }
 
+/* A channel file uploaded beforehand put in place of the box's own, which the
+   layer below checks and has the box read in. Done, and not only accepted:
+   the box has read its lists again by the time this answers. */
+Response putChannelFile(const Request &r)
+{
+	const std::string name = r.asString("name");
+	const coreapi::channels::ChannelFile which =
+		(name == "myservices") ? coreapi::channels::MyServicesFile :
+		(name == "bouquets") ? coreapi::channels::BouquetsFile :
+		(name == "ubouquets") ? coreapi::channels::UserBouquetsFile : coreapi::channels::ServicesFile;
+	const coreapi::Result<void> done = coreapi::channels::putChannelFile(which, r.asString("file"));
+	if (!done.ok())
+		return problemFor(done.error());
+	return noContent();
+}
+
 /* The lists the box reads web channels and the XMLTV guide from, with the
    directories its own channel lists are kept in, which is where a page puts a
    file it uploads before naming it in a list. */
@@ -1216,6 +1232,30 @@ const Param kLogoListParams[] = {
 const Param kReloadParams[] = {
 	HTTPD_BODY("hard", ParamType::Bool,
 		"`false` (the default) writes the channels the box holds in memory to disc first and then reads them back, so memory wins; `true` skips the write, so the files on disc win over memory"),
+};
+
+const Param kChannelFileParams[] = {
+	HTTPD_SEGMENT_FROM_SET("name", "which of the box's 4 channel files the upload replaces",
+		"services,myservices,bouquets,ubouquets",
+		"services: services.xml, the transponders and services a scan found\n"
+		"myservices: myservices.xml, transponders and services added by hand\n"
+		"bouquets: bouquets.xml, the providers' bouquets\n"
+		"ubouquets: ubouquets.xml, the user's own bouquets"),
+	HTTPD_BODY_REQUIRED_TEXT("file",
+		"the upload's name in /tmp, where the caller put it (PUT and PATCH /api/v1/storage/file), "
+		"of letters, digits, dots, dashes and underscores, ending in .xml", 128),
+};
+
+const RouteRefusal kChannelFileRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"the upload is a plain name in the temporary directory, of letters, digits, dots, dashes and underscores, ending in .xml"),
+	HTTPD_REFUSES(NotFound, NoSuchName, "there is no uploaded file of that name"),
+	HTTPD_REFUSES(InvalidArgument, ChannelFileRefused,
+		"the file is no list of bouquets: it holds a sat element where only Bouquet belongs"),
+	HTTPD_REFUSES(Internal, ChannelFileRefused,
+		"the file could not be put in place of the box's ubouquets.xml, which is as it was"),
+	HTTPD_REFUSES(Internal, ChannelListUnavailable,
+		"the file is in place, and the box did not read its channel lists again"),
 };
 
 const Param kWebSourceParams[] = {
@@ -1630,6 +1670,21 @@ const Endpoint kChannelEndpoints[] = {
 	  "**Related:** `GET /api/v1/channels`, `GET /api/v1/bouquets`.",
 	  HTTPD_PARAMS(kReloadParams), NULL, &reloadChannelLists, false,
 	  Answers202, HTTPD_NO_REFUSALS },
+	{ Method::Post, "/api/v1/channels/files/{name}", AuthLevel::System,
+	  "puts an uploaded channel or bouquet file in place of the box's own and has the box read its channel lists again",
+	  "Replaces one of the 4 files the box reads its channels from with a file uploaded to /tmp beforehand, and has the box read its channel lists again from the files, so the upload wins over the channels the box holds in memory, as `POST /api/v1/channels/reload` with `hard: true` does. `204` says the file is in place and the box has read its lists again.\n\n"
+	  "The box first takes the upload over: it copies it into a directory of its own and removes the upload, so what it checks is what it puts in place. The file holds no more than 16 MiB, the box's own XML reader takes it, and its root element is `zapit`, holding only `sat`, `cable` and `terrestrial` elements for `services` and `myservices`, each with its `name`, and only `Bouquet` elements for `bouquets` and `ubouquets`, which keeps a file sent as the wrong one of the 4 out. It is written beside the box's file and renamed over it, so the box reads the old file or the new one and never part of either.\n\n"
+	  "**Preconditions:** the file was uploaded to /tmp, as `PUT` and `PATCH /api/v1/storage/file` do in pieces for a file larger than one request.\n\n"
+	  "**Side effects:** the channel lists are read again, which drops changes the box held only in memory and which every client sees as a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .xml.\n"
+	  "- `404 no-such-name`: no file of that name was uploaded.\n"
+	  "- `400 channel-file-refused`: the file is larger than 16 MiB, is no XML the box can read, or is not a list of the kind `name` says; the detail says which, and the box's file is untouched.\n"
+	  "- `500 channel-file-refused`: the box could not take the upload over or put the file in place, or its channel manager did not answer before, and its own file is as it was; or the file is in place and read, and the disc did not confirm the change, which a power cut may undo; the detail says which.\n"
+	  "- `500 channel-list-unavailable`: the file is in place, and the box's channel manager did not say it had read it; `POST /api/v1/channels/reload` with `hard: true` does that later.\n\n"
+	  "**Related:** `POST /api/v1/channels/reload`, `PUT /api/v1/storage/file`.",
+	  HTTPD_PARAMS(kChannelFileParams), NULL, &putChannelFile, false,
+	  Answers204, HTTPD_REFUSALS_AND_BODY(kChannelFileRefusals, "{\"file\":\"ubouquets.xml\"}") },
 	{ Method::Get, "/api/v1/channels/sources", AuthLevel::Write,
 	  "the lists the box reads web channels and XMLTV guides from",
 	  "Reads the 3 lists the box takes web content from: `webtv` and `webradio`, the channel lists (XML or M3U) of web TV and web radio, and `xmltv`, the XMLTV guides it reads programme data from, each an address or a file on the box in the order the box reads them; with them the directories the box keeps channel lists of its own in, where a file uploaded with `PUT /api/v1/storage/file` belongs before it is named in a list. Asks for the level a write does, an address in these lists often carrying an access key.\n\n"

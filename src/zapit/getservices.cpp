@@ -34,7 +34,13 @@
 #include <math.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 #include <fstream>
+#include <vector>
 
 //#define SAVE_DEBUG
 
@@ -1065,18 +1071,68 @@ do_current:
 	return true;
 }
 
-void CServiceManager::CopyFile(const char * from, const char * to)
+/* from put in place of to: written beside it under a hidden name, on the disc,
+   and renamed over it, so a reader, a power cut or a full disc finds the old
+   file or the new one and never part of either. The services file is rewritten
+   this way on every save, a reading that numbers the channels included, and a
+   file just put in place by the web interface is one of the ones it rewrites.
+   Where to is a link, the file it leads to is the one replaced, as the old copy
+   wrote through it: a list moved to a disc and linked stays there.
+   False, the old file as it was, where anything of it failed. */
+bool CServiceManager::CopyFile(const char * from, const char * to)
 {
-	std::ifstream in(from, std::ios::in | std::ios::binary);
-	if(in.good()){
-		std::ofstream out(to, std::ios::out | std::ios::binary);
-		if(out.good()){
-			out << in.rdbuf();
-			out.close();
-		}
-		in.close();
+	char resolved[PATH_MAX];
+	const std::string target(realpath(to, resolved) != NULL ? resolved : to);
+	const size_t slash = target.rfind('/');
+	const std::string dir = slash == std::string::npos ? std::string(".") : target.substr(0, slash);
+	const std::string base = slash == std::string::npos ? target : target.substr(slash + 1);
+	const int in = open(from, O_RDONLY | O_CLOEXEC);
+	if (in < 0)
+		return false;
+	const std::string pattern = dir + "/." + base + ".XXXXXX";
+	std::vector<char> name(pattern.begin(), pattern.end());
+	name.push_back('\0');
+	const int out = mkstemp(&name[0]);
+	if (out < 0) {
+		close(in);
+		return false;
 	}
-	// sync();
+	bool ok = true;
+	char buf[65536];
+	for (;;) {
+		const ssize_t n = read(in, buf, sizeof(buf));
+		if (n < 0 && errno == EINTR)
+			continue;
+		if (n <= 0) {
+			ok = n == 0;
+			break;
+		}
+		ssize_t done = 0;
+		while (ok && done < n) {
+			const ssize_t w = write(out, buf + done, n - done);
+			if (w < 0 && errno == EINTR)
+				continue;
+			ok = w > 0;
+			if (ok)
+				done += w;
+		}
+		if (!ok)
+			break;
+	}
+	close(in);
+	ok = ok && fchmod(out, 0644) == 0 && fsync(out) == 0;
+	ok = close(out) == 0 && ok;
+	ok = ok && rename(&name[0], target.c_str()) == 0;
+	if (!ok) {
+		unlink(&name[0]);
+		return false;
+	}
+	const int d = open(dir.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (d >= 0) {
+		fsync(d);
+		close(d);
+	}
+	return true;
 }
 
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
@@ -1177,9 +1233,12 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed, bool no_deleted
 		}
 	}
 	fprintf(fd, "</zapit>\n");
-	fclose(fd);
+	// a list cut short by a full disc is not put in place of a whole one
+	const bool written = !ferror(fd);
+	const bool closed = fclose(fd) == 0;
 	if(tocopy) {
-		CopyFile((char *) SERVICES_TMP, (char *) SERVICES_XML);
+		if (!written || !closed || !CopyFile(SERVICES_TMP, SERVICES_XML))
+			printf("CServiceManager::SaveServices: %s could not be written, it stays as it was\n", SERVICES_XML);
 		unlink(SERVICES_TMP);
 	}
 #ifdef SAVE_DEBUG

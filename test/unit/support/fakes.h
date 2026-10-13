@@ -121,6 +121,7 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		  saves_at_await(0),
 		  reloads_at_await(0),
 		  await_status(coreapi::Status::Ok),
+		  on_await(NULL),
 		  writes_dropped(false),
 		  rename_cuts_name(false),
 		  rename_lands_beside(false),
@@ -320,6 +321,8 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	unsigned saves_at_await;
 	unsigned reloads_at_await;
 	coreapi::Status await_status;
+	// Called at the wait, for a case that looks at what is held by then.
+	void (*on_await)();
 
 	/* The box takes the change and makes none of it. Every write answers ok
 	   and the list stands still, which is what a command written to a socket
@@ -514,6 +517,8 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		awaits++;
 		saves_at_await = saves;
 		reloads_at_await = reloads;
+		if (on_await != NULL)
+			on_await();
 		return await_status;
 	}
 

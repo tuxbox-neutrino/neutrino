@@ -52,6 +52,7 @@
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/types.h"
 #include "coreapi/backup.h"
+#include "coreapi/channels.h"
 #include "coreapi/network.h"
 #include "coreapi/webui.h"
 
@@ -1421,7 +1422,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 57);
+	REQUIRE(changing == 58);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4504,6 +4505,104 @@ TEST_CASE("a list with an entry the box cannot read is turned down whole", "[wri
 	REQUIRE(putWebSources("webtv", "[\"" + longer + "\"]").code == 200);
 }
 
+namespace
+{
+
+/* Directories of the case's own for the channel files: an upload directory,
+   and a zapit directory with the box's ubouquets.xml in it. */
+struct ChannelFileFixture
+{
+	Sandbox     dirs;
+	std::string uploads;
+	std::string zapit;
+	const char *before_uploads;
+	const char *before_zapit;
+
+	ChannelFileFixture()
+		: uploads(dirs.at("tmp")), zapit(dirs.at("zapit")),
+		  before_uploads(coreapi::channels::internal::upload_dir),
+		  before_zapit(coreapi::channels::internal::zapit_dir)
+	{
+		mkdir(uploads.c_str(), 0700);
+		mkdir(zapit.c_str(), 0700);
+		write(zapit + "/ubouquets.xml", kOwnBouquets);
+		coreapi::channels::internal::upload_dir = uploads.c_str();
+		coreapi::channels::internal::zapit_dir = zapit.c_str();
+	}
+
+	~ChannelFileFixture()
+	{
+		coreapi::channels::internal::upload_dir = before_uploads;
+		coreapi::channels::internal::zapit_dir = before_zapit;
+	}
+
+	static const char kOwnBouquets[];
+
+	static void write(const std::string &path, const std::string &text)
+	{
+		FILE *f = std::fopen(path.c_str(), "w");
+		if (f != NULL)
+		{
+			std::fwrite(text.data(), 1, text.size(), f);
+			std::fclose(f);
+		}
+	}
+
+	static std::string read(const std::string &path)
+	{
+		std::string out;
+		FILE *f = std::fopen(path.c_str(), "r");
+		if (f == NULL)
+			return "(none)";
+		char buf[4096];
+		size_t n;
+		while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0)
+			out.append(buf, n);
+		std::fclose(f);
+		return out;
+	}
+
+	// What is left in a directory besides the names given.
+	static std::vector<std::string> others(const std::string &dir, const char *keep)
+	{
+		std::vector<std::string> out;
+		DIR *d = opendir(dir.c_str());
+		if (d == NULL)
+			return out;
+		struct dirent *e;
+		while ((e = readdir(d)) != NULL)
+		{
+			const std::string n(e->d_name);
+			if (n != "." && n != ".." && (keep == NULL || n != keep))
+				out.push_back(n);
+		}
+		closedir(d);
+		return out;
+	}
+
+	private:
+		ChannelFileFixture(const ChannelFileFixture &);
+		ChannelFileFixture &operator=(const ChannelFileFixture &);
+};
+
+const char ChannelFileFixture::kOwnBouquets[] =
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n\t<Bouquet name=\"own\"/>\n</zapit>\n";
+
+const char kBouquetsUp[] =
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n\t<Bouquet name=\"Neu\" hidden=\"0\" locked=\"0\">\n"
+	"\t\t<S i=\"0001\" t=\"0001\" on=\"0001\" s=\"192\" frq=\"11494\"/>\n\t</Bouquet>\n</zapit>\n";
+
+const char kServicesUp[] =
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit api=\"4\">\n"
+	"\t<sat name=\"Astra 19.2E\" position=\"192\" diseqc=\"0\" uncommited=\"0\">\n\t</sat>\n</zapit>\n";
+
+Reply putFile(const std::string &name, const std::string &file)
+{
+	return authedPost("/api/v1/channels/files/" + name, "{\"file\":\"" + file + "\"}");
+}
+
+} // namespace
+
 TEST_CASE("the body example a route is documented with is a request that route accepts", "[write][openapi]")
 {
 	ShippedRoutes shipped;
@@ -4548,6 +4647,13 @@ TEST_CASE("the body example a route is documented with is a request that route a
 		REQUIRE(sendBodyExample("POST", "/api/v1/system/restore", none) == 202);
 	}
 	REQUIRE(sendBodyExample("POST", "/api/v1/channels/reload", none) == 202);
+	{
+		ChannelFileFixture files;
+		files.write(files.uploads + "/ubouquets.xml", ChannelFileFixture::kOwnBouquets);
+		std::map<std::string, std::string> name;
+		name["name"] = "ubouquets";
+		REQUIRE(sendBodyExample("POST", "/api/v1/channels/files/{name}", name) == 204);
+	}
 	{
 		WebSourcesFixture sources;
 		std::map<std::string, std::string> kind;
@@ -5762,4 +5868,175 @@ TEST_CASE("the box's settings go out as one archive and come back only where it 
 	REQUIRE(nobackup.code == 500);
 	REQUIRE(nobackup.body.find("backup-failed") != std::string::npos);
 	REQUIRE(b.leftovers().empty());
+}
+
+TEST_CASE("an uploaded channel or bouquet file takes the place of the box's own and is read in", "[write][channelfiles]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	ChannelFileFixture c;
+	const std::string own = c.zapit + "/ubouquets.xml";
+
+	// A bouquet list for the user's bouquets: put in place, the upload gone, nothing
+	// else left in either directory, the mode the box's files have, and read in
+	// the hard way, so what is in memory is not written over it.
+	c.write(c.uploads + "/my list.xml", kBouquetsUp);
+	REQUIRE(putFile("ubouquets", "my list.xml").code == 400);
+	c.write(c.uploads + "/up.xml", kBouquetsUp);
+	REQUIRE(send(Post, "/api/v1/channels/files/ubouquets", "{\"file\":\"up.xml\"}", AuthLevel::Write,
+	             "127.0.0.1").code == 403);
+	REQUIRE(c.read(own) == ChannelFileFixture::kOwnBouquets);
+	const unsigned reinits = box.channels.reinits;
+	const unsigned saved = box.channels.services_saved;
+	REQUIRE(putFile("ubouquets", "up.xml").code == 204);
+	REQUIRE(c.read(own) == kBouquetsUp);
+	struct stat st;
+	REQUIRE(lstat(own.c_str(), &st) == 0);
+	REQUIRE((st.st_mode & 07777) == 0644);
+	REQUIRE(box.channels.reinits == reinits + 1);
+	REQUIRE(box.channels.services_saved == saved);
+	REQUIRE(box.channels.reload_reason == "webif_hardreload");
+	REQUIRE(c.others(c.uploads, "my list.xml").empty());
+	REQUIRE(c.others(c.zapit, "ubouquets.xml").empty());
+
+	// A services list goes where services belong, under the box's own name for it.
+	c.write(c.uploads + "/sat.xml", kServicesUp);
+	REQUIRE(putFile("services", "sat.xml").code == 204);
+	REQUIRE(c.read(c.zapit + "/services.xml") == kServicesUp);
+	REQUIRE(box.channels.reinits == reinits + 2);
+
+	// Refused, each with the box's file untouched, the upload gone and no reading.
+	struct Refused
+	{
+		const char *as;
+		const char *text;
+		const char *says;
+	};
+	const Refused refused[] = {
+		{ "services", "<zapit api=\"4\">\n\t<cable/>\n</zapit>\n", "cable element without the name" },
+		{ "myservices", "<zapit>\n\t<terrestrial position=\"1\"/>\n</zapit>\n", "terrestrial element without the name" },
+		{ "services", "<zapit>\n\t<sat position=\"192\"/>\n</zapit>\n", "sat element without the name" },
+		{ "bouquets", kServicesUp, "only Bouquet belongs" },
+		{ "myservices", kBouquetsUp, "only sat, cable and terrestrial belong" },
+		{ "ubouquets", "<?xml version=\"1.0\"?>\n<channels><Bouquet name=\"x\"/></channels>\n", "root element is not zapit" },
+		{ "ubouquets", "this is not xml at all <<<", "no XML the box can read" },
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); i++)
+	{
+		INFO(refused[i].says);
+		c.write(c.uploads + "/bad.xml", refused[i].text);
+		const Reply r = putFile(refused[i].as, "bad.xml");
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("channel-file-refused") != std::string::npos);
+		REQUIRE(r.body.find(refused[i].says) != std::string::npos);
+		REQUIRE(c.others(c.uploads, "my list.xml").empty());
+	}
+	REQUIRE(c.read(own) == kBouquetsUp);
+	REQUIRE(c.read(c.zapit + "/bouquets.xml") == "(none)");
+	REQUIRE(c.read(c.zapit + "/myservices.xml") == "(none)");
+	REQUIRE(box.channels.reinits == reinits + 2);
+
+	// Larger than any box's lists.
+	{
+		std::string big = "<zapit>";
+		big.resize(coreapi::channels::kMaxChannelFileBytes + 1, ' ');
+		c.write(c.uploads + "/big.xml", big);
+		const Reply r = putFile("ubouquets", "big.xml");
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("larger than 16 MiB") != std::string::npos);
+		REQUIRE(c.others(c.uploads, "my list.xml").empty());
+	}
+
+	// Names that are no plain upload, one with nothing behind it, and a link.
+	const char *names[] = { "../up.xml", ".up.xml", "up.txt", "up", "-up.xml" };
+	for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); i++)
+	{
+		INFO(names[i]);
+		const Reply r = putFile("ubouquets", names[i]);
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("bad-name") != std::string::npos);
+	}
+	REQUIRE(putFile("ubouquets", "none.xml").code == 404);
+	c.write(c.dirs.at("elsewhere.xml"), kBouquetsUp);
+	REQUIRE(symlink(c.dirs.at("elsewhere.xml").c_str(), (c.uploads + "/link.xml").c_str()) == 0);
+	REQUIRE(putFile("ubouquets", "link.xml").code == 404);
+	REQUIRE(putFile("frontend", "up.xml").code == 400);
+	REQUIRE(box.channels.reinits == reinits + 2);
+
+	// A link in the file's place is replaced and what it pointed at left alone.
+	c.write(c.dirs.at("kept.xml"), "kept");
+	REQUIRE(symlink(c.dirs.at("kept.xml").c_str(), (c.zapit + "/bouquets.xml").c_str()) == 0);
+	c.write(c.uploads + "/b.xml", kBouquetsUp);
+	REQUIRE(putFile("bouquets", "b.xml").code == 204);
+	REQUIRE(lstat((c.zapit + "/bouquets.xml").c_str(), &st) == 0);
+	REQUIRE(S_ISREG(st.st_mode));
+	REQUIRE(c.read(c.dirs.at("kept.xml")) == "kept");
+
+	// A zapit directory nothing can be written to: refused, the box's file as it was.
+	chmod(c.zapit.c_str(), 0500);
+	c.write(c.uploads + "/u.xml", ChannelFileFixture::kOwnBouquets);
+	const Reply locked = putFile("ubouquets", "u.xml");
+	chmod(c.zapit.c_str(), 0700);
+	if (geteuid() != 0)
+	{
+		REQUIRE(locked.code == 500);
+		REQUIRE(locked.body.find("channel-file-refused") != std::string::npos);
+		REQUIRE(c.read(own) == kBouquetsUp);
+	}
+
+	// The box not answering the wait before the file goes in: nothing put in
+	// place and no reading.
+	box.channels.await_status = coreapi::Status::Internal;
+	c.write(c.uploads + "/w.xml", ChannelFileFixture::kOwnBouquets);
+	const unsigned before_wait = box.channels.reinits;
+	const Reply unanswered = putFile("ubouquets", "w.xml");
+	box.channels.await_status = coreapi::Status::Ok;
+	REQUIRE(unanswered.code == 500);
+	REQUIRE(unanswered.body.find("did not answer") != std::string::npos);
+	REQUIRE(c.read(own) == kBouquetsUp);
+	REQUIRE(box.channels.reinits == before_wait);
+	// the upload and the directory it was checked in gone, whatever the cases
+	// above left there on purpose
+	REQUIRE(access((c.uploads + "/w.xml").c_str(), F_OK) != 0);
+	const std::vector<std::string> left = c.others(c.uploads, NULL);
+	for (size_t i = 0; i < left.size(); ++i)
+		REQUIRE(left[i].compare(0, 12, "channelfile.") != 0);
+
+	// In place, and the channel stack not there to read it: said so.
+	box.channels.reload_channels_status = coreapi::Status::Internal;
+	c.write(c.uploads + "/u.xml", ChannelFileFixture::kOwnBouquets);
+	const Reply unread = putFile("ubouquets", "u.xml");
+	REQUIRE(unread.code >= 500);
+	REQUIRE(unread.body.find("channel-list-unavailable") != std::string::npos);
+	REQUIRE(c.read(own) == ChannelFileFixture::kOwnBouquets);
+}
+
+namespace
+{
+
+bool lockedAtAwait = false;
+
+void noteFilesLock()
+{
+	lockedAtAwait = coreapi::channels::internal::filesLockTaken();
+}
+
+} // namespace
+
+TEST_CASE("a bouquet write holds the channel files until the box is through with its save", "[write][channelfiles]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+	REQUIRE_FALSE(coreapi::channels::internal::filesLockTaken());
+	/* The box answers the save before it writes the services that go with it,
+	   so a file put in place in between would be written over: the lock is
+	   still held at the wait that follows the save, and given back after. */
+	lockedAtAwait = false;
+	box.channels.on_await = &noteFilesLock;
+	REQUIRE(authedPost("/api/v1/bouquets", "{\"name\":\"Drittes\"}").code == 201);
+	REQUIRE(box.channels.awaits > 0);
+	REQUIRE(lockedAtAwait);
+	REQUIRE_FALSE(coreapi::channels::internal::filesLockTaken());
+	box.channels.on_await = NULL;
 }

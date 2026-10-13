@@ -341,8 +341,12 @@ class CZapitClient:public CBasicClient
 	/* restore bouquets so as if they where just loaded*/
 	void restoreBouquets();
 
-	/* reloads channels and services*/
-	void reinitChannels();
+	/* reloads channels and services; whether the daemon said it had */
+	bool reinitChannels();
+
+	/* whether the daemon answered once it was through with every command sent
+	   before this one */
+	bool awaitCommands();
 
 	/* called when sectionsd updates currentservices.xml */
 	void reloadCurrentServices();

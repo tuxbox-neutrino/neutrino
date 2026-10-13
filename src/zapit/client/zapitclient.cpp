@@ -324,6 +324,21 @@ int CZapitClient::getMode()
 	return response.mode;
 }
 
+/* A question the daemon takes up only once it is through with every command
+   sent before it, and whether it answered: a caller that holds off something
+   until the daemon is done waits for this and nothing else. */
+bool CZapitClient::awaitCommands()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	const bool sent = send(CZapitMessages::CMD_GET_MODE);
+
+	CZapitMessages::responseGetMode response;
+	const bool answered = CBasicClient::receive_data((char* )&response, sizeof(response));
+
+	close_connection();
+	return sent && answered;
+}
+
 void CZapitClient::setSubServices( subServiceList& subServices )
 {
 	unsigned int i;
@@ -564,14 +579,18 @@ void CZapitClient::restoreBouquets()
 }
 
 /* reloads channels and services*/
-void CZapitClient::reinitChannels()
+bool CZapitClient::reinitChannels()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-	send(CZapitMessages::CMD_REINIT_CHANNELS);
+	const bool sent = send(CZapitMessages::CMD_REINIT_CHANNELS);
 
+	/* The daemon answers once it has read the lists again. A send that failed,
+	   an answer that never came or one that is no ready is a reading nobody can
+	   vouch for; a caller that has nothing to tell may leave it unread. */
 	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response), true);
+	const bool answered = CBasicClient::receive_data((char* )&response, sizeof(response), true);
 	close_connection();
+	return sent && answered && response.cmd == CZapitMessages::CMD_READY;
 }
 
 //called when sectionsd updates currentservices.xml

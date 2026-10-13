@@ -19,6 +19,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <config.h>
+
 #include "channels.h"
 #include "coreapi/archive.h"
 #include "coreapi/playback.h"
@@ -27,18 +29,28 @@
 #include "coreapi/base/eventbus.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <string>
 #include <utility>
+#include <vector>
 
+#include <fcntl.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
 
 #include <neutrinoMessages.h>
 #include <timerdclient/timerdtypes.h>
 #include <zapit/types.h>
+
+#include <xmlinterface.h>
 
 namespace coreapi
 {
@@ -267,6 +279,19 @@ const char *caSystemName(uint16_t caid)
 const char kSoftReload[] = "webif_reload";
 const char kHardReload[] = "webif_hardreload";
 
+/* Held around every save of its channel files this layer asks the box for, and
+   around putting a file in place up to the reading that takes it in: a save of
+   the lists the box holds that fell between the two would write them over the
+   file just put there, and the reading would read them back. A function's own,
+   so this file carries no object whose construction order matters. Never held
+   by the box's own threads, so waiting for the box while holding it waits for
+   nobody who waits for it. */
+OpenThreads::Mutex &filesLock()
+{
+	static OpenThreads::Mutex lock;
+	return lock;
+}
+
 } // namespace
 
 Result<std::string> logo(ChannelId id)
@@ -351,6 +376,7 @@ Result<void> reloadChannels(bool hard)
 	/* The services are written out for the soft reading and not for the hard
 	   one, which is the whole of what the two are: writing them out first is
 	   what makes what the box holds win over what is on the disc. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> files(filesLock());
 	Status s = channelSource().reloadChannels(!hard, hard ? kHardReload : kSoftReload);
 	/* The channel stack was not there to be asked, which is the one way this
 	   fails and is the same thing as a channel list that cannot be read. */
@@ -467,6 +493,10 @@ Result<uint32_t> position(const std::string &name)
    that waits before anything is read back. */
 Result<void> writeOut()
 {
+	/* Held to the end, the wait included: the box answers the save before it is
+	   through with it, and writes the services after that answer where a
+	   channel left its last bouquet. Only the wait at the end says it is done. */
+	OpenThreads::ScopedLock<OpenThreads::Mutex> files(filesLock());
 	Status s = channelSource().saveBouquets();
 	if (s != Status::Ok)
 	{
@@ -903,6 +933,305 @@ void publishBouquetsChanged()
 	Event e;
 	e.type = EventType::BouquetsChanged;
 	EventBus::instance().publish(e);
+}
+
+
+namespace internal
+{
+
+const char *upload_dir = "/tmp";
+const char *zapit_dir = ZAPITDIR;
+
+bool filesLockTaken()
+{
+	if (filesLock().trylock() != 0)
+		return true;
+	filesLock().unlock();
+	return false;
+}
+
+} // namespace internal
+
+namespace
+{
+
+// The four files by name, each with whether it is one of the two that list services.
+struct ChannelFileName
+{
+	ChannelFile which;
+	const char *name;
+	bool services;
+};
+
+const ChannelFileName kChannelFiles[] = {
+	{ ServicesFile,     "services.xml",   true },
+	{ MyServicesFile,   "myservices.xml", true },
+	{ BouquetsFile,     "bouquets.xml",   false },
+	{ UserBouquetsFile, "ubouquets.xml",  false },
+};
+
+bool letterOrDigit(char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+}
+
+// A name in the upload directory and nothing more: no way out of it, no hidden name.
+bool plainUpload(const std::string &file)
+{
+	if (file.size() < 5 || file.size() > 128 || !letterOrDigit(file[0]))
+		return false;
+	for (size_t i = 0; i < file.size(); ++i)
+	{
+		const char c = file[i];
+		if (!letterOrDigit(c) && c != '.' && c != '_' && c != '-')
+			return false;
+	}
+	return file.compare(file.size() - 4, 4, ".xml") == 0;
+}
+
+enum class Copy { Done, TooLarge, Broken };
+
+// All of in written to out, as long as that is no more than most bytes.
+Copy copyAtMost(int in, int out, size_t most)
+{
+	std::vector<char> buf(65536);
+	size_t total = 0;
+	for (;;)
+	{
+		const ssize_t n = read(in, &buf[0], buf.size());
+		if (n < 0 && errno == EINTR)
+			continue;
+		if (n < 0)
+			return Copy::Broken;
+		if (n == 0)
+			return Copy::Done;
+		total += (size_t) n;
+		if (total > most)
+			return Copy::TooLarge;
+		ssize_t done = 0;
+		while (done < n)
+		{
+			const ssize_t w = write(out, &buf[done], n - done);
+			if (w < 0 && errno == EINTR)
+				continue;
+			if (w <= 0)
+				return Copy::Broken;
+			done += w;
+		}
+	}
+}
+
+/* The upload, copied to to, a name of this program's own. Opened without
+   following a link and without waiting, so neither a link nor a pipe put in the
+   upload's place after it was looked at is read, and refused unless it is a
+   regular file. */
+Copy takeOver(const std::string &from, const std::string &to)
+{
+	const int in = open(from.c_str(), O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC);
+	if (in < 0)
+		return Copy::Broken;
+	struct stat st;
+	if (fstat(in, &st) != 0 || !S_ISREG(st.st_mode))
+	{
+		close(in);
+		return Copy::Broken;
+	}
+	const int out = open(to.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600);
+	if (out < 0)
+	{
+		close(in);
+		return Copy::Broken;
+	}
+	Copy c = copyAtMost(in, out, kMaxChannelFileBytes);
+	close(in);
+	if (close(out) != 0 && c == Copy::Done)
+		c = Copy::Broken;
+	return c;
+}
+
+// The directory the upload was copied into, with the copy.
+void removeStaging(const std::string &dir, const std::string &copy)
+{
+	unlink(copy.c_str());
+	rmdir(dir.c_str());
+}
+
+/* Whether the box's own reader takes the file and it is a list of the kind its
+   name says: the root element zapit, holding only the elements the box reads
+   out of such a file. Anything else would read as no channels or no bouquets
+   at all, once the box's own file is gone. A child without a name is text
+   between the elements, which the box passes over as well. Each sat, cable and
+   terrestrial element has to carry its name, as the box's own files do: the
+   reader makes a string of a cable's or a terrestrial's unasked, and one
+   without would bring the box down on every start. Written for both trees the
+   reader can be built on, the tree of its own and pugixml, whose node is a
+   value and not a pointer. */
+bool channelFileOk(const std::string &path, bool services, std::string &why)
+{
+	xmlDocPtr doc = parseXmlFile(path.c_str(), false);
+	if (doc == NULL)
+	{
+		why = "the file is no XML the box can read";
+		return false;
+	}
+	bool ok = true;
+	const xmlNodePtr root = xmlDocGetRootElement(doc);
+	const char *top = root ? xmlGetName(root) : NULL;
+	if (top == NULL || std::strcmp(top, "zapit") != 0)
+	{
+		why = "the file's root element is not zapit";
+		ok = false;
+	}
+	for (xmlNodePtr n = ok ? xmlChildrenNode(root) : xmlNodePtr(); ok && n; n = xmlNextNode(n))
+	{
+		const char *name = xmlGetName(n);
+		if (name == NULL || *name == '\0')
+			continue;
+		if (services)
+		{
+			if (std::strcmp(name, "sat") != 0 && std::strcmp(name, "cable") != 0 &&
+			    std::strcmp(name, "terrestrial") != 0)
+			{
+				why = std::string("the file is no list of services: it holds a ") + name +
+				      " element where only sat, cable and terrestrial belong";
+				ok = false;
+			}
+			else if (xmlGetAttribute(n, "name") == NULL)
+			{
+				why = std::string("the file has a ") + name + " element without the name the box looks it up by";
+				ok = false;
+			}
+		}
+		else if (std::strcmp(name, "Bouquet") != 0)
+		{
+			why = std::string("the file is no list of bouquets: it holds a ") + name +
+			      " element where only Bouquet belongs";
+			ok = false;
+		}
+	}
+	xmlFreeDoc(doc);
+	return ok;
+}
+
+enum class Placed { InPlace, NotDurable, Untouched };
+
+/* The checked copy put in place of the box's file: written beside it under a
+   hidden name, on the disc before the rename, with the mode the box's own
+   files have, and renamed over it, so a reader finds the old file or the new
+   one. The rename replaces a link in the file's place and does not follow it.
+   NotDurable for a file in place whose rename the disc did not confirm, which
+   is still to be read in; Untouched where the box's file is as it was. */
+Placed putInPlace(const std::string &copy, const std::string &dir, const char *name)
+{
+	const int d = open(dir.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (d < 0)
+		return Placed::Untouched;
+	const int in = open(copy.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+	if (in < 0)
+	{
+		close(d);
+		return Placed::Untouched;
+	}
+	std::string pattern = dir + "/." + name + ".XXXXXX";
+	std::vector<char> buf(pattern.begin(), pattern.end());
+	buf.push_back('\0');
+	const int out = mkstemp(&buf[0]);
+	if (out < 0)
+	{
+		close(in);
+		close(d);
+		return Placed::Untouched;
+	}
+	fcntl(out, F_SETFD, FD_CLOEXEC);
+	const std::string beside(&buf[0]);
+	bool ok = copyAtMost(in, out, kMaxChannelFileBytes) == Copy::Done;
+	close(in);
+	ok = ok && fchmod(out, 0644) == 0 && fsync(out) == 0;
+	ok = close(out) == 0 && ok;
+	ok = ok && rename(beside.c_str(), (dir + "/" + name).c_str()) == 0;
+	if (!ok)
+	{
+		unlink(beside.c_str());
+		close(d);
+		return Placed::Untouched;
+	}
+	// the rename on the disc as well
+	const bool durable = fsync(d) == 0;
+	close(d);
+	return durable ? Placed::InPlace : Placed::NotDurable;
+}
+
+} // namespace
+
+Result<void> putChannelFile(ChannelFile which, const std::string &upload)
+{
+	const ChannelFileName *file = NULL;
+	for (size_t i = 0; i < sizeof(kChannelFiles) / sizeof(kChannelFiles[0]); i++)
+		if (kChannelFiles[i].which == which)
+			file = &kChannelFiles[i];
+	if (file == NULL)
+		return fail(Status::InvalidArgument, ErrorCode::BadName, "there is no such channel file");
+	if (!plainUpload(upload))
+		return fail(Status::InvalidArgument, ErrorCode::BadName,
+			    "the upload is a plain name in the temporary directory, of letters, digits, dots, "
+			    "dashes and underscores, ending in .xml");
+	const std::string from = std::string(internal::upload_dir) + "/" + upload;
+	struct stat st;
+	if (lstat(from.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
+		return fail(Status::NotFound, ErrorCode::NoSuchName, "there is no uploaded file of that name");
+
+	std::string pattern = std::string(internal::upload_dir) + "/channelfile.XXXXXX";
+	std::vector<char> buf(pattern.begin(), pattern.end());
+	buf.push_back('\0');
+	if (mkdtemp(&buf[0]) == NULL)
+		return fail(Status::Internal, ErrorCode::ChannelFileRefused, "no directory to check the file in");
+	const std::string dir(&buf[0]);
+	const std::string copy = dir + "/" + file->name;
+	const Copy taken = takeOver(from, copy);
+	unlink(from.c_str());
+	if (taken == Copy::TooLarge)
+	{
+		removeStaging(dir, copy);
+		return fail(Status::InvalidArgument, ErrorCode::ChannelFileRefused, "the file is larger than 16 MiB");
+	}
+	if (taken != Copy::Done)
+	{
+		removeStaging(dir, copy);
+		return fail(Status::Internal, ErrorCode::ChannelFileRefused, "the upload could not be taken over");
+	}
+
+	std::string why;
+	if (!channelFileOk(copy, file->services, why))
+	{
+		removeStaging(dir, copy);
+		return fail(Status::InvalidArgument, ErrorCode::ChannelFileRefused, why);
+	}
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> files(filesLock());
+	/* The box through with every command before this one first: it answers a
+	   save before it is done writing, and a save whose own wait went unanswered
+	   gave the lock back while that writing may still be under way. */
+	if (channelSource().awaitCommands() != Status::Ok)
+	{
+		removeStaging(dir, copy);
+		return fail(Status::Internal, ErrorCode::ChannelFileRefused,
+			    "the box's channel manager did not answer, so the file was not put in place");
+	}
+	const Placed placed = putInPlace(copy, internal::zapit_dir, file->name);
+	removeStaging(dir, copy);
+	if (placed == Placed::Untouched)
+		return fail(Status::Internal, ErrorCode::ChannelFileRefused,
+			    std::string("the file could not be put in place of the box's ") + file->name +
+			    ", which is as it was");
+	const Status s = channelSource().reloadChannels(false, kHardReload);
+	if (s != Status::Ok)
+		return fail(s, ErrorCode::ChannelListUnavailable,
+			    "the file is in place, and the box did not read its channel lists again");
+	if (placed == Placed::NotDurable)
+		return fail(Status::Internal, ErrorCode::ChannelFileRefused,
+			    "the file is in place and the box has read it, but the disc did not confirm the "
+			    "change, which a power cut may undo");
+	return ok();
 }
 
 } // namespace channels
