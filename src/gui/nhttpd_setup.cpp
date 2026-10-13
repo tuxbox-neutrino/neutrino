@@ -75,12 +75,43 @@ CNhttpdSetup::~CNhttpdSetup()
 {
 }
 
-int CNhttpdSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CNhttpdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
+	if (actionKey == "reset_password")
+	{
+		resetPassword();
+		return menu_return::RETURN_REPAINT;
+	}
+
 	if (parent)
 		parent->hide();
 
 	return showSetup();
+}
+
+/* The web interface's login put back to the one every box ships with, for an
+   owner who no longer knows theirs: user root and the shipped password, which
+   the first login over the web asks to replace again. Asked first. */
+void CNhttpdSetup::resetPassword()
+{
+	if (ShowMsg(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD, g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_ASK),
+		    CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) != CMsgBox::mbrYes)
+		return;
+	std::string why;
+	if (!login_bridge::change("root", WEB_DEFAULT_PASSWORD, &why, NULL, true))
+	{
+		printf("[CNhttpdSetup] %s: the web password was not reset: %s\n", __func__, why.c_str());
+		DisplayErrorMessage(g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_FAILED));
+		return;
+	}
+	username = login_bridge::user();
+	password.clear();
+	password_mask = "********";
+	std::string done = g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_DONE);
+	const size_t at = done.find("%s");
+	if (at != std::string::npos)
+		done.replace(at, 2, WEB_DEFAULT_PASSWORD);
+	ShowMsg(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD, done, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO);
 }
 
 void CNhttpdSetup::loadConfig()
@@ -241,6 +272,11 @@ int CNhttpdSetup::showSetup()
 	noauth_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_NOAUTH);
 	auth_items.Add(noauth_fwd);
 	menu->addItem(noauth_fwd);
+
+	// the web interface's login, whether or not the pages ask for it
+	CMenuForwarder *reset_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD, true, NULL, this, "reset_password");
+	reset_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_RESET_PASSWORD);
+	menu->addItem(reset_fwd);
 
 	menu->addItem(GenericMenuSeparatorLine);
 

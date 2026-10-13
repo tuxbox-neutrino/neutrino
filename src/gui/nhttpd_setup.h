@@ -54,6 +54,7 @@ class CNhttpdSetup : public CMenuTarget, public CChangeObserver
 
 		void loadConfig();
 		bool saveConfig();
+		void resetPassword();
 		int showSetup();
 
 	public:
