@@ -2,6 +2,7 @@
  * ep_tuner.cpp - routes for signal and frontends
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,22 +41,33 @@ namespace httpd
 namespace
 {
 
+// What a tuner measures, the same in the live reading and in each tuner of
+// the list.
+#define HTTPD_SIGNAL_READINGS \
+	HTTPD_MEMBER("strength", FieldType::UInt, "how strong the signal is, a raw reading out of full_scale below"), \
+	HTTPD_MEMBER("snr", FieldType::UInt, \
+		"how far the signal stands above the noise, a raw reading out of full_scale below"), \
+	HTTPD_MEMBER("full_scale", FieldType::UInt, \
+		"what the 2 readings above are out of, currently 65535 (16 bits), so a reader wanting a percentage has both halves of the division"), \
+	HTTPD_MEMBER("bit_error_rate", FieldType::UInt, \
+		"how many bits arrived wrong, as a count the tuner keeps and not a reading out of a range, so nothing divides it"), \
+	HTTPD_MEMBER("locked", FieldType::Bool, \
+		"whether the tuner has a signal it can decode, which is what tells a weak signal from none at all")
+
 const FieldDesc kSignalFields[] = {
 	HTTPD_MEMBER("adapter", FieldType::Int, "which DVB adapter number the tuner that answered is on"),
 	HTTPD_MEMBER("number", FieldType::Int,
 		"which tuner of that adapter it is, the pair being what names one"),
-	HTTPD_MEMBER("strength", FieldType::UInt, "how strong the signal is, a raw reading out of full_scale below"),
-	HTTPD_MEMBER("snr", FieldType::UInt,
-		"how far the signal stands above the noise, a raw reading out of full_scale below"),
-	HTTPD_MEMBER("full_scale", FieldType::UInt,
-		"what the 2 readings above are out of, currently 65535 (16 bits), so a reader wanting a percentage has both halves of the division"),
-	HTTPD_MEMBER("bit_error_rate", FieldType::UInt,
-		"how many bits arrived wrong, as a count the tuner keeps and not a reading out of a range, so nothing divides it"),
-	HTTPD_MEMBER("locked", FieldType::Bool,
-		"whether the tuner has a signal it can decode, which is what tells a weak signal from none at all"),
+	HTTPD_SIGNAL_READINGS,
 };
 
 const Schema kSignalSchema = { "signal", HTTPD_FIELDS(kSignalFields) };
+
+const FieldDesc kReadingFields[] = { HTTPD_SIGNAL_READINGS };
+
+const Schema kReadingSchema = { "signal-reading", HTTPD_FIELDS(kReadingFields) };
+
+#undef HTTPD_SIGNAL_READINGS
 
 const FieldDesc kFrontendFields[] = {
 	HTTPD_MEMBER("adapter", FieldType::Int, "which DVB adapter number this tuner is on"),
@@ -70,6 +82,10 @@ const FieldDesc kFrontendFields[] = {
 		"whether something is holding it, which on a box with 2 tuners is what a recording looks like"),
 	HTTPD_MEMBER("live", FieldType::Bool,
 		"whether the live picture is coming from this one, which nothing does while a stream or a recording is what plays"),
+	HTTPD_MEMBER("measured", FieldType::Bool,
+		"whether `signal` was read, which it is for a tuner that is receiving: the one the live picture comes from (`live` true) and one in use, for example by a recording. An idle tuner is not asked, having nothing to measure"),
+	HTTPD_OBJECT("signal", &kReadingSchema,
+		"what this tuner measures, as `GET /api/v1/tuner/signal` answers it for the live one, and all zero while `measured` is false"),
 };
 
 const Schema kFrontendSchema = { "frontend", HTTPD_FIELDS(kFrontendFields) };
@@ -80,6 +96,21 @@ const FieldDesc kFrontendListFields[] = {
 };
 
 const Schema kFrontendListSchema = { "frontend-list", HTTPD_FIELDS(kFrontendListFields) };
+
+// The readings of one tuner, the same in the live reading and in the list.
+void appendReadings(Json &j, const coreapi::SignalInfo &sig)
+{
+	j.key("strength");
+	j.value((unsigned long) sig.strength);
+	j.key("snr");
+	j.value((unsigned long) sig.snr);
+	j.key("full_scale");
+	j.value((unsigned long) sig.full_scale);
+	j.key("bit_error_rate");
+	j.value((unsigned long) sig.bit_error_rate);
+	j.key("locked");
+	j.value(sig.locked);
+}
 
 Response liveSignal(const Request &)
 {
@@ -100,16 +131,7 @@ Response liveSignal(const Request &)
 	   control API turns the same two into a percentage before it sends them, which
 	   loses the reading; a caller that wants that percentage has what it needs to work
 	   it out. */
-	j.key("strength");
-	j.value((unsigned long) sig.strength);
-	j.key("snr");
-	j.value((unsigned long) sig.snr);
-	j.key("full_scale");
-	j.value((unsigned long) sig.full_scale);
-	j.key("bit_error_rate");
-	j.value((unsigned long) sig.bit_error_rate);
-	j.key("locked");
-	j.value(sig.locked);
+	appendReadings(j, sig);
 	j.endObject();
 	return out;
 }
@@ -123,7 +145,7 @@ Response listFrontends(const Request &)
 	const coreapi::FrontendList all = std::move(got).value();
 
 	Response out = okJson();
-	Json j(out.body, 32 + 160 * all.size());
+	Json j(out.body, 32 + 320 * all.size());
 	j.beginObject();
 	j.key("items");
 	j.beginArray();
@@ -148,6 +170,12 @@ Response listFrontends(const Request &)
 		j.value(all[i].in_use);
 		j.key("live");
 		j.value(all[i].live);
+		j.key("measured");
+		j.value(all[i].measured);
+		j.key("signal");
+		j.beginObject();
+		appendReadings(j, all[i].signal);
+		j.endObject();
 		j.endObject();
 	}
 	j.endArray();
@@ -204,10 +232,11 @@ const Endpoint kTunerEndpoints[] = {
 	  "every tuner this box has and what each of them is doing", "Lists every "
 	  "tuner the box found while it started, with what it can receive, whether "
 	  "something currently holds it (for example a recording) and whether it is "
-	  "the one feeding the live picture. A box with no tuner at all answers with "
-	  "an empty list rather than with a refusal. While the box plays a stream or "
-	  "a recording instead of a live channel, every tuner answers `live: false`, "
-	  "even the one last tuned to.\n\n"
+	  "the one feeding the live picture, and for a tuner that is receiving, what "
+	  "it measures, as raw readings like those of `GET /api/v1/tuner/signal`. A "
+	  "box with no tuner at all answers with an empty list rather than with a "
+	  "refusal. While the box plays a stream or a recording instead of a live "
+	  "channel, every tuner answers `live: false`, even the one last tuned to.\n\n"
 	  "**Related:** `GET /api/v1/tuner/signal`.",
 	  NULL, 0, &kFrontendListSchema, &listFrontends, false,
 	  Answers200, HTTPD_REFUSALS(kListFrontendsRefusals) },

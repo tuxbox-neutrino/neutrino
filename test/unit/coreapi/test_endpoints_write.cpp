@@ -5577,6 +5577,80 @@ TEST_CASE("the tuner routes say when there is no tuner and when the list cannot 
 	REQUIRE(list.body.find("frontend-list-unavailable") != std::string::npos);
 }
 
+TEST_CASE("each tuner that is receiving says what it measures, and an idle one is not asked", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	box.channels.mode = NeutrinoModes::mode_tv;
+
+	coreapi::FrontendInfo live;
+	live.number = 0;
+	live.name = "Si2166";
+	live.satellite = true;
+	live.live = true;
+	tuner.tuners.push_back(live);
+	coreapi::FrontendInfo idle;
+	idle.number = 1;
+	idle.name = "Si2166";
+	idle.satellite = true;
+	tuner.tuners.push_back(idle);
+
+	coreapi::SignalInfo reading;
+	reading.strength = 0xc000;
+	reading.snr = 0x8000;
+	reading.full_scale = 0xFFFF;
+	reading.bit_error_rate = 3;
+	reading.locked = true;
+	tuner.readings[std::make_pair(0, 0)] = reading;
+	// filed for the idle one as well, so a reading it shows was asked for
+	tuner.readings[std::make_pair(0, 1)] = reading;
+
+	Reply r = authedGet("/api/v1/tuner/frontends");
+	REQUIRE(r.code == 200);
+	::Json::Value got = parsed(r.body);
+	REQUIRE(got["items"].size() == 2);
+
+	const ::Json::Value first = got["items"][0];
+	REQUIRE(first["live"].asBool());
+	REQUIRE(first["measured"].asBool());
+	REQUIRE(first["signal"]["strength"].asUInt() == 0xc000);
+	REQUIRE(first["signal"]["snr"].asUInt() == 0x8000);
+	REQUIRE(first["signal"]["full_scale"].asUInt() == 0xFFFF);
+	REQUIRE(first["signal"]["bit_error_rate"].asUInt() == 3);
+	REQUIRE(first["signal"]["locked"].asBool());
+	// the pair names the tuner beside the readings and not inside them
+	REQUIRE_FALSE(first["signal"].isMember("adapter"));
+
+	const ::Json::Value second = got["items"][1];
+	REQUIRE_FALSE(second["live"].asBool());
+	REQUIRE_FALSE(second["measured"].asBool());
+	REQUIRE(second["signal"]["strength"].asUInt() == 0);
+	REQUIRE_FALSE(second["signal"]["locked"].asBool());
+	REQUIRE(tuner.signal_reads == 1u);
+
+	/* A web channel plays: the assignment still names the first frontend,
+	   which nothing uses now, and it is not asked. One held by a recording
+	   receives whatever the box shows, and is. */
+	box.channels.mode = NeutrinoModes::mode_webtv;
+	tuner.tuners[1].in_use = true;
+	r = authedGet("/api/v1/tuner/frontends");
+	REQUIRE(r.code == 200);
+	got = parsed(r.body);
+	REQUIRE_FALSE(got["items"][0]["live"].asBool());
+	REQUIRE_FALSE(got["items"][0]["measured"].asBool());
+	REQUIRE(got["items"][1]["measured"].asBool());
+	REQUIRE(got["items"][1]["signal"]["strength"].asUInt() == 0xc000);
+	REQUIRE(tuner.signal_reads == 2u);
+
+	// a reading the box cannot have leaves the row unmeasured, the list whole
+	tuner.readings.clear();
+	r = authedGet("/api/v1/tuner/frontends");
+	REQUIRE(r.code == 200);
+	REQUIRE_FALSE(parsed(r.body)["items"][1]["measured"].asBool());
+}
+
 TEST_CASE("a configuration document the box has never written is not found", "[write][refusals]")
 {
 	ShippedRoutes shipped;

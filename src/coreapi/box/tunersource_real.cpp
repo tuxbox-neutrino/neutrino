@@ -40,6 +40,19 @@ namespace
    measured against rather than by a number it assumed. */
 const uint32_t SIGNAL_FULL_SCALE = 0xFFFF;
 
+// Raw, as the frontend reports them. What they mean as a percentage is the
+// reader's arithmetic and not this one's.
+void readSignal(CFrontend *fe, SignalInfo &out)
+{
+	out.adapter = fe->getAdapter();
+	out.number = fe->getNumber();
+	out.strength = fe->getSignalStrength();
+	out.snr = fe->getSignalNoiseRatio();
+	out.full_scale = SIGNAL_FULL_SCALE;
+	out.bit_error_rate = fe->getBitErrorRate();
+	out.locked = (fe->getStatus() & FE_HAS_LOCK) != 0;
+}
+
 // Its own translation unit, so that the frontend stack is only pulled in by a
 // binary that installs this.
 class RealTunerSource : public TunerSource
@@ -77,6 +90,22 @@ class RealTunerSource : public TunerSource
 			return Status::Ok;
 		}
 
+		Status signalOf(int adapter, int number, SignalInfo &out) const
+		{
+			CFEManager *m = CFEManager::getInstance();
+			const int count = m->getFrontendCount();
+			for (int i = 0; i < count; ++i)
+			{
+				CFrontend *fe = m->getFE(i);
+				if (fe != NULL && fe->getAdapter() == adapter && fe->getNumber() == number)
+				{
+					readSignal(fe, out);
+					return Status::Ok;
+				}
+			}
+			return Status::NotSupported;
+		}
+
 		Status liveSignal(SignalInfo &out) const
 		{
 			CFrontend *fe = CFEManager::getInstance()->getLiveFE();
@@ -85,15 +114,7 @@ class RealTunerSource : public TunerSource
 			if (fe == NULL)
 				return Status::NotSupported;
 
-			out.adapter = fe->getAdapter();
-			out.number = fe->getNumber();
-			// Raw, as the frontend reports them. What they mean as a
-			// percentage is the reader's arithmetic and not this one's.
-			out.strength = fe->getSignalStrength();
-			out.snr = fe->getSignalNoiseRatio();
-			out.full_scale = SIGNAL_FULL_SCALE;
-			out.bit_error_rate = fe->getBitErrorRate();
-			out.locked = (fe->getStatus() & FE_HAS_LOCK) != 0;
+			readSignal(fe, out);
 			return Status::Ok;
 		}
 

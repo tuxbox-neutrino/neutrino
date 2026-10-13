@@ -711,6 +711,12 @@ struct TunerSource
 	   tuner and a tuner given nothing to receive. Anything else says the
 	   frontends could not be reached at all, and only that is a fault. */
 	virtual Status liveSignal(SignalInfo &out) const = 0;
+	/* What one frontend is measuring, named by the pair a frontend list names
+	   it by. NotSupported where the box has no such frontend. Asked only for a
+	   frontend that is receiving, which the layer above decides with what the
+	   box is doing: an idle one has nothing to measure, and an open idle one
+	   asked anyway writes an error line into the log on some drivers. */
+	virtual Status signalOf(int adapter, int number, SignalInfo &out) const = 0;
 
 	/* Puts the tuner stack down and brings it back up, and retunes the running
 	   channel, which is what a viewer does about a picture that has gone.

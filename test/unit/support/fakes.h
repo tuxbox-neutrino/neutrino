@@ -1365,7 +1365,7 @@ struct FakeTunerSource : public coreapi::TunerSource
 		: list_status(coreapi::Status::Ok),
 		  live_status(coreapi::Status::NotSupported),
 		  reset_status(coreapi::Status::Ok), resets(0),
-		  list_reads(0), live_reads(0) {}
+		  list_reads(0), live_reads(0), signal_reads(0) {}
 
 	coreapi::Status frontends(coreapi::FrontendList &out) const
 	{
@@ -1382,6 +1382,23 @@ struct FakeTunerSource : public coreapi::TunerSource
 		if (live_status != coreapi::Status::Ok)
 			return live_status;
 		out = signal;
+		return coreapi::Status::Ok;
+	}
+
+	/* What each frontend measures, filed by adapter and number; one not filed
+	   is a frontend the box does not have. Counted, because a frontend not
+	   asked and one asked that answered nothing leave the same row. */
+	std::map<std::pair<int, int>, coreapi::SignalInfo> readings;
+	mutable unsigned signal_reads;
+
+	coreapi::Status signalOf(int adapter, int number, coreapi::SignalInfo &out) const
+	{
+		signal_reads++;
+		std::map<std::pair<int, int>, coreapi::SignalInfo>::const_iterator it =
+			readings.find(std::make_pair(adapter, number));
+		if (it == readings.end())
+			return coreapi::Status::NotSupported;
+		out = it->second;
 		return coreapi::Status::Ok;
 	}
 

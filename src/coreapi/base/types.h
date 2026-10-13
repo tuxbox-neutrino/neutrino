@@ -444,29 +444,6 @@ struct BoxInfo
 	}
 };
 
-/* The pair of numbers is what names it: a box can carry several adapters and
-   several frontends on each, and neither number alone is unique. Three flags
-   and not one kind, because a frontend taking more than one is a single device
-   and the one it happens to be tuned to would say it cannot receive the others.
-   in_use and live differ: something holds a frontend while it records, and that
-   is not the live one. */
-struct FrontendInfo
-{
-	int         adapter;
-	int         number;
-	// What the driver calls it, which is the only name a frontend has.
-	std::string name;
-	bool        satellite;
-	bool        cable;
-	bool        terrestrial;
-	bool        in_use;
-	bool        live;
-
-	FrontendInfo()
-		: adapter(0), number(0), satellite(false), cable(false),
-		  terrestrial(false), in_use(false), live(false) {}
-};
-
 /* The readings are raw and the scale beside them says what they are out of, so
    a reader wanting a percentage has both halves of the division. Turning them
    into one number here would be a presentation decision made for every reader
@@ -490,6 +467,36 @@ struct SignalInfo
 	SignalInfo()
 		: adapter(0), number(0), strength(0), snr(0), full_scale(0),
 		  bit_error_rate(0), locked(false) {}
+};
+
+/* The pair of numbers is what names it: a box can carry several adapters and
+   several frontends on each, and neither number alone is unique. Three flags
+   and not one kind, because a frontend taking more than one is a single device
+   and the one it happens to be tuned to would say it cannot receive the others.
+   in_use and live differ: something holds a frontend while it records, and that
+   is not the live one. */
+struct FrontendInfo
+{
+	int         adapter;
+	int         number;
+	// What the driver calls it, which is the only name a frontend has.
+	std::string name;
+	bool        satellite;
+	bool        cable;
+	bool        terrestrial;
+	bool        in_use;
+	bool        live;
+	/* What it measures, read from a tuner that is receiving: the one the
+	   picture comes from and one in use. An idle tuner has nothing to measure,
+	   and an open idle one asked anyway answers some drivers with an error
+	   line in the log at every reading. measured false leaves signal at its
+	   zeros. */
+	bool        measured;
+	SignalInfo  signal;
+
+	FrontendInfo()
+		: adapter(0), number(0), satellite(false), cable(false),
+		  terrestrial(false), in_use(false), live(false), measured(false) {}
 };
 
 // A value for every kind a directory can report. One short of that and a reader

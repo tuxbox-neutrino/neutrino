@@ -99,6 +99,24 @@ Result<FrontendList> frontends()
 		for (size_t i = 0; i < out.size(); ++i)
 			out[i].live = false;
 	}
+
+	/* Measured only where something is receiving, and only once the lines
+	   above have said whether the picture comes from a tuner at all: the
+	   assignment stays on a frontend nobody uses while a stream or a file
+	   plays, and in standby. A frontend in use, by a recording for one, is
+	   receiving whatever the box shows. A reading that cannot be had leaves
+	   the row unmeasured rather than failing the list. */
+	for (size_t i = 0; i < out.size(); ++i)
+	{
+		if (!out[i].live && !out[i].in_use)
+			continue;
+		SignalInfo sig;
+		if (tunerSource().signalOf(out[i].adapter, out[i].number, sig) == Status::Ok)
+		{
+			out[i].signal = sig;
+			out[i].measured = true;
+		}
+	}
 	return ok(std::move(out));
 }
 
