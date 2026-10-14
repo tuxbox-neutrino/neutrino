@@ -254,8 +254,10 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 
 ## Offizielle Erweiterungen
 
-Die offiziellen Erweiterungen leben in eigenen versionierten
-Repositories unter `github.com/tuxbox-neutrino/yweb-extension-<name>`
-(installer, m3u-converter, camds, infoicons, hallo-yweb) und sind über
-die Verwaltung installierbar; der Update-Index liegt im Meta-Repository
-`yweb-extensions`.
+Die offiziellen Erweiterungen werden gegen `/api/v1` neu gebaut; jede
+bekommt ein eigenes versioniertes Repository und einen Eintrag in einem
+Update-Index, den die Verwaltung liest. Die bisherigen Repositories
+`github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
+m3u-converter, camds, infoicons, hallo-yweb) samt ihrem Index
+`yweb-extensions` gehören zum alten Skript-Vertrag; ihre Erweiterungen
+laufen mit dieser Version nicht.

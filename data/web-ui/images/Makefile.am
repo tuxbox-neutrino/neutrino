@@ -16,6 +16,7 @@ install_DATA = \
 	logo.png \
 	modify.png \
 	new.png \
+	page_edit.png \
 	record.png \
 	reload.png \
 	remove.png \
@@ -36,9 +37,3 @@ install_DATA = \
 	wget.png \
 	x_red.png \
 	zap.png
-
-# file manager
-install_DATA += \
-	copy.gif \
-	page_edit.png \
-	paste.gif

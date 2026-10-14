@@ -6,7 +6,6 @@ SUBDIRS = \
 	jquery \
 	languages \
 	lcd4linux \
-	prototype \
 	scripts \
 	styles
 

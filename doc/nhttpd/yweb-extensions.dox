@@ -124,10 +124,11 @@ manifest.json der Erweiterung.
 
 \section ywebext_repos Repo-Vorlage und Versionierung
 
-Offizielle Erweiterungen leben in eigenen Repos
+Offizielle Erweiterungen bekommen je ein eigenes Repo. Die bisherigen
 `github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
-m3u-converter, camds, infoicons, hallo-yweb); Index + Doku + Vorlagen im
-Meta-Repo `yweb-extensions`. Repo-Layout:
+m3u-converter, camds, infoicons, hallo-yweb) samt Meta-Repo
+`yweb-extensions` gehören zum alten Skript-Vertrag und laufen mit dieser
+Version nicht. Repo-Layout:
 
 \code{.unparsed}
 yweb-extension-<name>/
@@ -285,10 +286,11 @@ manifest.json by its release workflow.
 
 \section ywebext_en_repos Repo template and versioning
 
-Official extensions live in their own repos
+Official extensions each get a repo of their own. The earlier
 `github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
-m3u-converter, camds, infoicons, hallo-yweb); index + docs + templates
-in the `yweb-extensions` meta repo. Repo layout:
+m3u-converter, camds, infoicons, hallo-yweb) and the `yweb-extensions`
+meta repo belong to the old script contract and do not work with this
+version. Repo layout:
 
 \code{.unparsed}
 yweb-extension-<name>/

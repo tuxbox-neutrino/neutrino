@@ -835,7 +835,6 @@ data/web-ui/favicon/Makefile
 data/web-ui/info/Makefile
 data/web-ui/jquery/Makefile
 data/web-ui/lcd4linux/Makefile
-data/web-ui/prototype/Makefile
 data/zapit/Makefile
 lib/Makefile
 lib/connection/Makefile

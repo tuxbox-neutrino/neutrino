@@ -430,10 +430,6 @@ function stb_rcsim(_key){
 	loadSyncURL("/control/rcem?" + _key);
 }
 
-function stb_reload_neutrino(){
-	var sc=stb_exec_tools("restart_neutrino");
-}
-
 function stb_exec_command(_cmd)
 {
 	alert("Function stb_exec_command is deactivated for security reasons");

@@ -1,31 +1,3 @@
-# ------- No Managemant Error
-start-block~no_management
-{=include-block:Y_Blocks.txt;head=}
-{=include-block:Y_Blocks.txt;head_close=}
-<body>
-<br />
-<div class="y_head">Error</div>
-<div class="y_work_box" title="This page could be used for management proposes only">
-	This page could be used for management proposes only.
-</div>
-</body>
-</html>
-end-block~no_management
-
-# ------- Managemant Check : insert at Top of Page
-start-block~management_check_top
-{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:%(CONFIGDIR)/yWeb.conf;management_ip2=}~1~=}=}
-{=if-empty:{=var-get:management=}
-~
-	{=include-block:Y_Blocks.txt;no_management=}
-~
-end-block~management_check_top
-
-# ------- Managemant Check : insert at End of Page
-start-block~management_check_bottom
-=}
-end-block~management_check_bottom
-
 # ------- Snip: Wait Message Layer-div hidden
 start-block~snip_wait
 <div class="y_wait_box" id="wait">
@@ -47,16 +19,6 @@ start-block~work_menu
 <div>{=var-get:menu=}</div>
 end-block~work_menu
 
-# ------- Neutrino form help box
-start-block~neutrino_form_helpbox
-<div class="work_box">
-	<div class="work_box_head"><div class="work_box_head_h2">{=L:set.sync_with_neutrino=}</div></div>
-	<div class="work_box_body">
-	{=L:set.sync_with_neutrino_desc=}
-	</div>
-</div>
-end-block~neutrino_form_helpbox
-
 # ============= LAYOUT
 # ------- Lay-HEAD
 start-block~head
@@ -76,12 +38,6 @@ end-block~head
 start-block~head_close
 </head>
 end-block~head_close
-
-# ============= prototypejs
-# ------- prototype library
-start-block~js_prototype
-<script src="/prototype/prototype.js"></script>
-end-block~js_prototype
 
 # ============= jQuery
 # ------- jQuery library
@@ -129,8 +85,3 @@ start-block~netfs_table_row
 			</td>
 		</tr>
 end-block~netfs_table_row
-
-# ------- Filemgr
-start-block~filemgr_edit_save_settings
-{=file-action:{=file=};add;{=editfile=}=}
-end-block~filemgr_edit_save_settings
