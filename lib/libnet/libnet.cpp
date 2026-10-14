@@ -165,34 +165,80 @@ void	netSetDefaultRoute( char *gw )
 	return;
 }
 #endif
-void netGetDefaultRoute( std::string &ip )
+bool netDefaultRouteIn(const char *table, std::string &dev, std::string &gw)
 {
-	FILE *fp;
-	char interface[9];
-	uint32_t destination;
-	uint32_t gw;
-	uint8_t gateway[4];
-	char zeile[256];
-
-	ip = "";
-	fp = fopen("/proc/net/route","r");
+	dev = "";
+	gw = "";
+	FILE *fp = fopen(table, "r");
 	if (fp == NULL)
-		return;
-	char *fg = fgets(zeile,sizeof(zeile),fp); /* skip header */
-	while(fg && (fg = fgets(zeile,sizeof(zeile),fp)))
+		return false;
+
+	bool found = false;
+	char line[256];
+	// the first line names the columns
+	if (fgets(line, sizeof(line), fp) != NULL)
 	{
-		destination = 1; /* in case sscanf fails */
-		sscanf(zeile,"%8s %x %x", interface, &destination, &gw);
-		if (destination)
-			continue;
-		/* big/little endian kernels have reversed entries, so this is correct */
-		memcpy(gateway, &gw, 4);
-		char tmp[80];
-		snprintf(tmp, sizeof(tmp), "%d.%d.%d.%d", gateway[0], gateway[1], gateway[2], gateway[3]);
-		ip = std::string(tmp);
-		break;
+		while (!found && fgets(line, sizeof(line), fp) != NULL)
+		{
+			char iface[64];
+			unsigned int destination = 1;
+			unsigned int gateway = 0;
+			if (sscanf(line, "%63s %x %x", iface, &destination, &gateway) != 3 || destination != 0)
+				continue;
+			// written in the kernel's byte order, so memory order is network order
+			unsigned char octet[4];
+			memcpy(octet, &gateway, 4);
+			char text[16];
+			snprintf(text, sizeof(text), "%u.%u.%u.%u", octet[0], octet[1], octet[2], octet[3]);
+			dev = iface;
+			gw = text;
+			found = true;
+		}
 	}
 	fclose(fp);
+	return found;
+}
+
+bool netDefaultRoute(std::string &dev, std::string &gw)
+{
+	return netDefaultRouteIn("/proc/net/route", dev, gw);
+}
+
+void netGetDefaultRoute( std::string &ip )
+{
+	std::string dev;
+	netDefaultRoute(dev, ip);
+}
+
+bool netHaveDefaultRouteIn(const char *table, const char *table6)
+{
+	std::string dev;
+	std::string gw;
+	if (netDefaultRouteIn(table, dev, gw))
+		return true;
+
+	FILE *fp = fopen(table6, "r");
+	if (fp == NULL)
+		return false;
+
+	bool found = false;
+	char line[256];
+	while (!found && fgets(line, sizeof(line), fp) != NULL)
+	{
+		char destination[33];
+		char iface[64];
+		unsigned int prefix = 1;
+		if (sscanf(line, "%32s %x %*s %*s %*s %*s %*s %*s %*s %63s", destination, &prefix, iface) == 3 &&
+		    prefix == 0 && strcmp(iface, "lo") != 0 && strspn(destination, "0") == 32)
+			found = true;
+	}
+	fclose(fp);
+	return found;
+}
+
+bool netHaveDefaultRoute()
+{
+	return netHaveDefaultRouteIn("/proc/net/route", "/proc/net/ipv6_route");
 }
 
 #if 0

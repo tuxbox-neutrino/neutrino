@@ -2444,34 +2444,13 @@ bool getDefaultNetworkInterface(std::string &ifname, bool prefer_route)
 		return true;
 	}
 
-	if (prefer_route)
+	std::string route_if;
+	std::string gateway;
+	if (prefer_route && netDefaultRoute(route_if, gateway) && route_if != "lo" &&
+	    std::find(ifnames.begin(), ifnames.end(), route_if) != ifnames.end())
 	{
-		std::ifstream in("/proc/net/route");
-		if (in.is_open())
-		{
-			std::string line;
-			if (std::getline(in, line))
-			{
-				while (std::getline(in, line))
-				{
-					char iface[64];
-					unsigned long dest = 1;
-					if (sscanf(line.c_str(), "%63s %lx", iface, &dest) == 2)
-					{
-						if (dest == 0)
-						{
-							std::string route_if = iface;
-							if (route_if != "lo" && std::find(ifnames.begin(), ifnames.end(), route_if) != ifnames.end())
-							{
-								ifname = route_if;
-								return true;
-							}
-							break;
-						}
-					}
-				}
-			}
-		}
+		ifname = route_if;
+		return true;
 	}
 
 	return false;

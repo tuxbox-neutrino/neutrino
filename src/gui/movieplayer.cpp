@@ -77,6 +77,7 @@
 
 #include <hardware/video.h>
 #include <libtuxtxt/teletext.h>
+#include <lib/libnet/libnet.h>
 #include <zapit/zapit.h>
 #include <system/set_threadname.h>
 
@@ -1859,30 +1860,6 @@ bool CMoviePlayerGui::checkWebtvDns(uint64_t generation, t_channel_id chan, cons
 	return true;
 }
 
-/* a default route over IPv4 or IPv6, the box is online */
-static bool webtvHaveDefaultRoute(void)
-{
-	std::ifstream v4("/proc/net/route");
-	std::string line;
-	std::getline(v4, line);
-	while (std::getline(v4, line)) {
-		char iface[32];
-		unsigned long dest = 1;
-		if (sscanf(line.c_str(), "%31s %lx", iface, &dest) == 2 && dest == 0)
-			return true;
-	}
-
-	std::ifstream v6("/proc/net/ipv6_route");
-	while (std::getline(v6, line)) {
-		char dest[33], iface[32];
-		unsigned int plen = 1;
-		if (sscanf(line.c_str(), "%32s %x %*s %*s %*s %*s %*s %*s %*s %31s", dest, &plen, iface) == 3 &&
-		    plen == 0 && strcmp(iface, "lo") && strspn(dest, "0") == 32)
-			return true;
-	}
-	return false;
-}
-
 /* wait for a default route as long as the request is the current one */
 bool CMoviePlayerGui::waitForWebtvNetwork(uint64_t generation, t_channel_id chan)
 {
@@ -1898,7 +1875,7 @@ bool CMoviePlayerGui::waitForWebtvNetwork(uint64_t generation, t_channel_id chan
 			recordWebtvFailure(WEBTV_ERROR_USER_ZAP_CANCELLED_RETRY, chan, generation);
 			return false;
 		}
-		if (webtvHaveDefaultRoute()) {
+		if (netHaveDefaultRoute()) {
 			printf("[webtv] network is up after %d ms channel=%llx generation=%llu\n",
 				waited + 250, (unsigned long long)chan, (unsigned long long)generation);
 			return true;
@@ -1924,7 +1901,7 @@ bool CMoviePlayerGui::StartWebtv(void)
 	if (isWebChannel && !checkWebtvDns(request_generation, request_channel, request_url, dns)) {
 		/* right after the start the network may not be up yet */
 		if ((dns.reason != WEBTV_ERROR_DNS_FAILED && dns.reason != WEBTV_ERROR_DNS_TIMEOUT) ||
-		    webtvHaveDefaultRoute() ||
+		    netHaveDefaultRoute() ||
 		    !waitForWebtvNetwork(request_generation, request_channel) ||
 		    !checkWebtvDns(request_generation, request_channel, request_url, dns))
 			return false;
