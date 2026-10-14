@@ -55,33 +55,14 @@ restriced_by_management_ip=restringido pela Gestão de IP
 #========= Menu Principal
 main.live_tv_desc=LiveTV
 main.live_tv_popup_desc=LiveTV popup
-main.remote_full_desc=Control Remoto & OSD full
-main.stream_to_vlc_client_desc=Fazer Stream para o VLC Client
 main.version=Version
 
 #=========Main Menue
-main.boxcontrol=Control da Box
-main.boxcontrol_desc=Control da Box & Favoritos
 main.live=Live
 main.live_desc=LiveView, Timer Sync &amp; Definições
-main.tools=Ferramentas
-main.tools_desc=Montagens, WOL, Ferramentas Especiais
-main.settings=Definições
-main.settings_desc=Definições da Box, Web, Plugins ...
-main.extensions=Extensões
-main.extensions_desc=Extensões do Utilizador ...
-main.info=Informação
-main.info_desc=Informação sobre a Neutrino-Web-UI, Actualizações
 
 #========= Menu do Control da Box
-bc.menue.bouquets_desc=Mudar Canais
-bc.menue.bouquets=Favoritos
-bc.menue.control_desc=control as funções da box como (reiniciar , remote control, SPTS, ...)
 bc.menue.control=Control
-bc.menue.messages_desc=enviar mensagem para a box
-bc.menue.messages=Mensagens
-bc.menue.remote_desc=Remote Control baseado em Web
-bc.menue.remote=Remote
 bc.menue.lcd_screenshot_desc=fazer um lcd screenshot
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot não se encontra instalado
@@ -94,13 +75,7 @@ bc.menue.remote_osd_desc=remote e osd
 bc.menue.remote_osd=Remote & OSD
 bc.menue.remote_osd_desc_ni=dboxshot não se encontra instalado
 
-bc.menue.decrease_volume=diminuir volume
-bc.menue.increase_volume=aumentar volume
-bc.menue.mute_volume=cortar volume
-bc.menue.switch_to_tv=mudar para TV
-bc.menue.switch_to_radio=mudar para Radio
 bc.menue.webinf_slavebox=Webinterface de Outra Box
-bc.menue.volumen_display=visualizar volume
 
 ========= Boxcontrol
 bc.control.freemem=FreeMem
@@ -121,10 +96,6 @@ bc.control.status=estado
 bc.control.restart=reiniciar 
 
 ========= Boxcontrol - Message
-bc.msg.message_to_screen_desc=escrever mensagem para enviar para mostrar na Tela da TV
-bc.msg.message_to_screen=Mensagem na Tela
-bc.msg.popup_to_screen=Mensagem como popup
-bc.msg.send_message=enviar mensagem
 
 ======== Boxcontrol - Remote & OSD
 bc.osd.shot=Shot
@@ -137,105 +108,26 @@ bc.tv.delete_shot=Apagar shots
 bc.tv.shap_wait_text=Frazer Snapshot
 
 ========= Boxcontrol - Others
-bc.channels=Canais
 
 ====== EXtension
-ext.installer_updater=Instalar/Actualizar
-ext.uninstaller=Desinstalar Extensões
-ext.search_for_ext=Procurar por extensões ...
-ext.installed_extensions=instalar extensões
-ext.type=Tipo
-ext.extension=Extensão
-ext.tag=Tag
-ext.version=Versão
-ext.size=Size/k
-ext.uninstall=Desinstalar
-ext.info=Informação
-ext.free=Livre
-ext.action=Acção
-ext.status=Estado
-ext.preview=Definições  da nova extensão (visualização)
-
-ext.update_preview=Actualizar lista de visualização
-ext.your=Tua
-ext.update=Actualização
-ext.update_install=actualizar/instalar
-ext.site=Sítio
-ext.refresh_now=Definições gravadas. Menu actualizando agora.
-ext.ext_saved=Definições das Extensões gravadas
 
 ====== Favoritos
-bou.bouquet=Favoritos
-bou.bouquets_must_be_saved=Todos os Favoritos devem ser gravados!
 bou.bouquet_editor=Editor de Favoritos
-bou.bouquet_add=adicionar favorito
-bou.name_of_bouquet=Nome dos Favoritos
-bou.rename_bouquet=Renomear Favoritos
-bou.move_up=mover para cima
-bou.move_down=mover para baixo
-bou.remove=remover
-bou.delete=apagar
-bou.add=adicionar
-bou.rename=renomear
-bou.bouqets_saved=Favoritos gravados
-bou.delete1=Quer realmente apagar os Favoritos
-bou.delete2=
-bou.no_bouquet_name=Não escreveu Nome para o sua lista de Favoritos
 
 ========EPG
-epg.get_epg=buscar EPG ...
-epg.epg_plus=EPG Plus
-epg.select_bouquet=selecione favorito - os canais serão actualizados
-
-epg.hover_for_details=mover para programa para ver detalhes
-epg.refresh=buscar ou actualizar a EPG
-epg.past_hours=últimas horas
-epg.next_hours=próximas horas
-epg.set_timer_rec=Ajustar o programador para gravação. Realizado.
-epg.set_timer_zap=Coloque o canal para mudar. Realizado.
-
 
 ========EPG Streaminfo
-epg.si.streaminfo=Streaminfo
-epg.si.resolution=Resolução
-epg.si.ratio=Aspect Ratio
-epg.si.fps=Frames por segundo
-epg.si.audiotype=Tipo de Áudio
-epg.si.frequence=frequência
-epg.si.onid=Original Network ID
-epg.si.sid=Service ID
-epg.si.tsid=Transponder Stream ID
-epg.si.vpid=Video PID
-epg.si.apid=Audio PID
-epg.si.vtxtpid=Pid do Teletexto
-epg.si.crypt=Sistemas de Codificação
 
 ========Definições
 set.reload_neutrino=reiniciar  Neutrino
-set.reboot_required=O reinício é necessário
 set.sync_with_neutrino_desc=Após alterar configurações via a Neutrino-Web-UI: <br/>Escolha na TV "Menu Principal-> Serviços-> Soft reiniciar", para aceitar as mudanças dentro de neutrino. <br/> Após alterar as configurações dentro Neutrino: <br/> Escolha na TV "Menu Principal-> Configurações-> Salvar configurações agora", para aceitar estas alterações e recarregue esta página.
 
 set.sync_with_neutrino=Sincronização com Neutrino
 
 =======Definições General & Menu
-set.menue.webserver=Webserver
 set.menue.timer_settings=Definições do Programador
-set.menue.zapit=Zapit
-set.menue.backup_restore=Backup &amp; Restore
-set.menue.bouquet_editor=Editor de Favoritos
-set.menue.video_audio=Video/Audio
-set.menue.parental=Parental
-set.menue.direct_recording=Gravação Directa
-set.menue.recording=Gravação
-set.menue.audio_player=Audioplayer
-set.menue.movieplayer=Movieplayer
-set.menue.pictureviewer=Picture Viewer
-set.menue.lcd_display=LC-Display
-set.menue.key_settings=Key Layout
 set.menue.boot_options=Opções do Boot
-set.menue.peronalization=Personalização
 set.menue.plugins=Plugins
-set.menue.others=Outros
 
 ========Definições de Gravação em Neutrino
 set.rec.rec_dest=Destino da Gravação
@@ -248,29 +140,14 @@ set.rec.recserver_ip=IP do Servidor para Gravação
 set.rec.recserver_port=Porta do Servidor para Gravação
 set.rec.recserver_wol=WOL Servidor de Gravação
 set.rec.mac_adress=MAC Adress
-set.rec.rec_behavior=Comportamento da gravação
 set.rec.stop_playback=Stop Playback
 set.rec.epg_sectionsd_desc=sectionsd: desligado/ligado/reiniciar
 set.rec.epg_sectionsd=EPG (Sectionsd)
 set.rec.dont_stop=não parar
 set.rec.stop=parar
 set.rec.restart=reiniciar
-set.rec.zap=Zap nos anúncios
 set.rec.scart=Evitar a comutação Scart
 set.rec.spts=Gravar em SPTS-Mode
-set.rec.timer_settings=Definições do Programador
-set.rec.start_delay=Atraso no inicio da Grav. (sec)
-set.rec.stop_delay=Atraso no fim da Grav. (sec)
-set.rec.zap_delay=Zap start delay (sec)
-set.rec.audio_channels=Canais Audio
-set.rec.audio_standard=Gravar audio em modo standard
-set.rec.audio_alternate=Gravar audio em modo alternativo
-set.rec.audio_ac3=Gravar audio ac3
-set.rec.recordtime=Tempo de gravação na hora
-set.rec.timeshift_desc=Timeshift(pausar Tv ao vivo)
-set.rec.timeshift.auto_record=Gravação automática (em Sec, 0=desactivada)
-set.rec.timeshift.auto_delete=Eliminação automática
-set.rec.timeshift.tmp_timeshift=Timeshift temporário
 
 ========Definições Movieplayer - Neutrino
 set.mp.sources=Sources
@@ -287,82 +164,24 @@ set.mp.resolution=Resolution
 set.mp.audio_datarate=Data rate Audio
 set.mp.transcode_audio=Transcode Audio (dvd/vcd/mpg)
 set.mp.force_ac3=Usar AC3 no uso de avi
-set.mp.player=Player
-set.mp.start_directory=Directório de Início
 set.mp.only_movieplayer=Só Movieplayer1
 set.mp.used_buffer=Usar Buffer (WabberQueue)
 set.mp.number_buffersegments=Número de segs no buffer
 set.mp.picture_in_browser=Imagem da TV no Browser
 
 ========Definições Parental - Neutrino
-set.parental.activate=Activado
-set.parental.type.never=Nunca
-set.parental.type.bouquet=Favorito
-set.parental.type.preset=Predefinido
-set.parental.minimum_age=Idade Mínima
-set.parental.pin=PIN
 
 ========Definições NHTTP
-set.nhttpd.webserver=Webserver
-set.nhttpd.authentication=Autenticação
-set.nhttpd.client_without_authentication_desc=Cliente sem autenticação, verifique. Escreva Ip.
-set.nhttpd.client_without_authentication=Cliente sem autenticação
-set.nhttpd.active_after_boot=activo após boot
-set.nhttpd.port=Porta
-set.nhttpd.threading=Threading
-set.nhttpd.alternate_web_folder=Pasta Alternativa para a Neutrino-Web-UI
-set.nhttpd.allowed_file_extensions=Permitir Todas as extensões / MIME
-set.nhttpd.allow_all_file_extensions=Permitir Todas as extensões
-set.nhttpd.url_of_logos_desc=Escreva directório ou URL para os Logos
-set.nhttpd.url_of_logos=URL or directório dos Logos
-set.nhttpd.server=Servidor
 set.nhttpd.ips_without_keep_alive_desc=(ex. JtG Server, separado por vírgulas)
 set.nhttpd.ips_without_keep_alive=IPs sem keep-alive
-set.nhttpd.cache=Cache
-set.nhttpd.cache_info=Informação da Cache
-set.nhttpd.clear_cache=apagar cache
-set.nhttpd.server_configuration=Configuração do Servidor
-set.nhttpd.check_password=A Palavra-passe deve ter 4 letras no mínimo!
-set.nhttpd.check_port=Porta é requerida
 
 =========Definições yWeb
-set.yweb.enter_ip_desc=escrever IP (xxx.xxx.xxx.xxx)
-set.yweb.enter_mac_desc=escrever MAC Adress (xx:xx:xx:xx:xx:xx)
-set.yweb.description=Descrição
-set.yweb.enter_description_desc=escrever descrição
-set.yweb.management_IPs=Gestão de IPs
-set.yweb.wake_on_lan=Wake on Lan
-set.yweb.box_tag_desc=Ver nome da Box no Topo do Menu.
-set.yweb.box_tag=Box Tag
-set.yweb.box_color_desc=Cor do Nome da Box no Topo do Menu exemplo escrever 2188e0 sem #
-set.yweb.box_color=Cor
-set.yweb.start_page=Página de início
-set.yweb.remote=Remote
 
 ========Definições Picture viewer
-set.pv.pictureviewer=Pictureviewer
-set.pv.scale=Escala
-set.pv.scale.none=nenhum
-set.pv.scale.simple=simples
-set.pv.scale.complex=complexo
-set.pv.slideshow_duration=Tempo do Slideshow
-set.pv.start_dir=Diretório de Início
 set.pv.decoding_server_ip=IP do Servidor-decifrador
 set.pv.decoding_server_port=Porta do Servidor-decifrador</td>
 
 ========Definições Audioplayer
-set.ap.audioplayer=Audioplayer
-set.ap.display_order.actor_title=Artista, Título
-set.ap.display_order.title_actor=Título, Artista
-set.ap.display_order=Exibir
-set.ap.select_actual_track=Selecionar faixa actual
-set.ap.search_by_name=Procurar pelo Nome
-set.ap.repeat_mode=Activar o modo de repetição
-set.ap.show_playlist=Mostrar faixas tocadas
-set.ap.screensaver=Screen saver (min, 0=desligado)
-set.ap.decode_priority=Prioridade de decodificação
-set.ap.start_dir=Diretório de Início
-set.ap.parse_shoutcast=Shoutcast Meta-Data
 
 ============ Ferramentas de Informação
 tools.info.show_messages=Mensagens do Kernel
@@ -388,15 +207,8 @@ tools.yinstaller.upload_install=upload e instalar
 
 ============ Ferramentas
 tools.automount_desc=organizar tipo de montagens
-tools.automount=AutoMounts
-tools.mounts_desc=organizar tipo de montagens
-tools.mounts=Montagens
-tools.wake_on_lan=Wake on LAN
-tools.check_install=Verificar Instalados
-tools.expert=Especial
 tools.image_desc=backup or flash image
 tools.image=Image
-tools.not_installed=por instalar
 tools.path=Path
 tools.command=Comando_Shell
 tools.cmd.enter_command=escrever comando para executar
@@ -411,10 +223,7 @@ live.tv=TV
 live.radio_popup_desc=LiveRadio (popup)
 live.radio=Rádio
 live.double_view=Vista Dupla
-live.timer=Timer
 live.epg=EPG
-live.epg_plus_popup_desc=EPG+ (popup)
-live.epg_plus=EPG Plus
 live.timer_sync=Timer Sync
 
 =========== LIVE tv/radio
@@ -479,31 +288,8 @@ live.set.vlc_rec_dir=Directório de Gravação do VLC
 live.set.refresh_liveview=Actualizar LiveView
 
 =========== LIVE Timer Edit
-live.timer_edit.timer=Programador
-live.timer_edit.times=Times
-live.timer_edit.alarm_date=Data do Alarme
-live.timer_edit.time=Tempo
-live.timer_edit.stop_date=Data Final
-live.timer_edit.repeat=Repetir
 live.timer_edit.repeat1=repetir (0 = ilimitado)
-live.timer_edit.weekdays.format=(Seg-Dom, X=Timer)
-live.timer_edit.weekdays=Dias da Semana
-live.timer_edit.values=Valores
-live.timer_edit.channel=Canal
-live.timer_edit.apids=APIDs
-live.timer_edit.apids.default=Padrão
-live.timer_edit.apids.standard=Standard
-live.timer_edit.apids.alt=Alternative
-live.timer_edit.apids.ac3=AC3
-live.timer_edit.apids=APids
-live.timer_edit.standby=Standby
-live.timer_edit.plugin=Plugin
-live.timer_edit.rec_dir=Diretório da Gravação
-live.timer_edit.description=Descrição
 
 ========== INFO
-info.help=Ajuda
 info.About=Sobre
 info.check_for_updates=Verificar actualizações
-info.your_version=Versão instalada
-info.actual_version=Versão actual

@@ -71,42 +71,8 @@ date.th=Do
 date.fr=Fr
 date.sa=Sa
 
-# ===== Main Menue
-main.boxcontrol=Boxsteuerung
-main.boxcontrol_desc=Boxcontrol & Bouquets
-main.tools=Werkzeuge
-main.tools_desc=Mounts, WOL, Experten Werkzeuge, Flashen
-main.settings=Einstellungen
-main.settings_desc=Einstellungen f&uuml;r die Box, Webserver, ...
-main.extensions=Erweiterungen
-main.extensions_desc=Installierte Erweiterungen und Verwaltung
-main.info=Info
-main.info_desc=Information &uuml;ber die Neutrino-Web-UI, Version
-main.remote_full_desc=Fernbedienung & OSD Vollbild
-main.stream_to_vlc_client_desc=Live TV direkt im VLC Client
-main.ni=Neutrino-Web-UI Tools
-
 # ===== Boxcontrol Menue
-bc.menue.bouquets_desc=Sender ausw&auml;hlen
-bc.menue.bouquets=Sender
-bc.menue.control_desc=Box Funktionen (Neustart, Aufnahmemodus, ...)
 bc.menue.control=Steuerung
-bc.menue.messages_desc=Nachricht an die Box senden
-bc.menue.messages=Nachrichten
-bc.menue.remote_desc=Fernbedienung
-bc.menue.remote=Fernbedienung
-bc.menue.screenshot=Screenshot
-
-bc.menue.decrease_volume=Lautst&auml;rke verringern
-bc.menue.increase_volume=Lautst&auml;rke erh&ouml;hen
-bc.menue.mute_volume=Lautst&auml;rke an / aus
-bc.menue.switch_to_tv=Zum TV umschalten
-bc.menue.switch_to_radio=Zum Radio umschalten
-bc.menue.volumen_display=Lautst&auml;rke Anzeige
-
-bc.menue.signal=Signalst&auml;rke
-bc.menue.sig_display=Signalst&auml;rke
-bc.menue.snr_display=(Signal-)Rauschabstand
 
 # ===== Boxcontrol
 bc.control.lock=sperren
@@ -125,232 +91,15 @@ bc.control.shutdown=Ausschalten
 bc.control.status=Status
 bc.control.restart=Neustart
 
-# ===== Boxcontrol - Message
-bc.msg.message_to_screen_desc=Nachricht eingeben
-bc.msg.message_to_screen=Meldung auf Bildschirm
-bc.msg.popup_to_screen=Popup auf Bildschirm
-bc.msg.send_message=Nachricht senden
-
-# ===== Boxcontrol - Screenshot
-bc.screenshot.create=Schnappschuss
-bc.screenshot.delete=Schnappschuss l&ouml;schen
-bc.screenshot.wait_text=Schnappschuss wird erstellt
-bc.screenshot.checkenable=OSD und/oder TV muss aktiviert sein!
-bc.screenshot.checkpip=F%FCr PiP muss TV aktiviert sein!
-bc.screenshot.reload_desc=Reload-Intervall in Sekunden
-
-# ===== Boxcontrol - PZapit
-bc.pzapit=PZapit
-bc.pzapit.title=PZapit-Steuerung
-bc.pzapit.resolution=Aufl&ouml;sung
-bc.pzapit.43mode=4:3 Anzeigeverhalten
-bc.pzapit.channellists=Kanallisten
-bc.pzapit.tuner=Tuner
-
-# ===== Boxcontrol - Others
-bc.channels=Sender
-
-# ===== Extension
-ext.installer_updater=Installation
-ext.uninstaller=Deinstallation Erweiterungen
-ext.search_for_ext=Suche nach Extensions ...
-ext.installed_extensions=Installierte Erweiterungen
-ext.type=Typ
-ext.extension=Erweiterung
-ext.version=Version
-ext.size=Gr&ouml;&szlig;e/k
-ext.uninstall=Deinstallation
-ext.info=Info
-ext.free=Frei
-ext.action=Aktion
-ext.status=Status
-ext.preview=Neue Erweiterungseinstellungen (Vorschau)
-ext.update_preview=Vorschau aktualisieren
-ext.your=Deine
-ext.update=Aktuelle
-ext.update_install=Aktualisierung / Installation
-ext.site=Site
-ext.refresh_now=Einstellungen gespeichert. Menues werden aktualisiert.
-ext.ext_saved=Erweiterungseinstellungen gespeichert
-ext.tag=Markierung
-
-# ===== Bouquet
-bou.bouquet=Bouquet
-bou.bouquets_must_be_saved=Alle &Auml;nderungen m&uuml;ssen noch gespeichert werden!
-bou.bouquet_add=Bouquet hinzuf&uuml;gen
-bou.name_of_bouquet=Name des neuen Bouquets
-bou.rename_bouquet=Bouquet umbenennen
-bou.move_up=Nach oben
-bou.move_down=Nach unten
-bou.remove=Entfernen
-bou.delete=L&ouml;schen
-bou.add=Hinzuf&uuml;gen
-bou.rename=Umbenennen
-bou.bouqets_saved=Bouquet-Liste gespeichert
-bou.delete1=Bouquet
-bou.delete2=wirklich loeschen
-bou.no_bouquet_name=Es wurde kein Bouquet-Name angegeben
-
-# ===== EPG
-epg.get_epg=EPG holen ...
-epg.epg_plus=EPG Plus
-epg.select_bouquet=Bouquet ausw&auml;hlen - Kan&auml;le werden aktualisiert
-epg.hover_for_details=F&uuml;r Details: Maus &uuml;ber die entsprechende Sendung bewegen.
-epg.refresh=EPG Daten aktualisieren
-epg.past_hours=Stunden zur&uuml;ck
-epg.next_hours=Stunden vor
-epg.set_timer_rec=Aufnahme-Timer gesetzt
-epg.set_timer_zap=Umschalt-Timer gesetzt
-
-# ===== EPG Streaminfo
-epg.si.streaminfo=Streaminfo
-epg.si.url=URL
-epg.si.resolution=Aufl&ouml;sung
-epg.si.ratio=Verh&auml;ltnis
-epg.si.fps=Bildrate
-epg.si.audiotype=Audiotyp
-epg.si.frequence=Frequenz
-epg.si.onid=Original Network ID
-epg.si.sid=Service ID
-epg.si.tsid=Transponder Stream ID
-epg.si.vpid=Video PID
-epg.si.pmtpid=Program Map Table PID
-epg.si.pcrpid=Program Clock Reference PID
-epg.si.apid=Audio PID
-epg.si.vtxtpid=Teletext PID
-epg.si.crypt=Crypt Systeme
-
 # ===== Neutrino Settings
-set.reboot_required=Neustart notwendig
 set.sync_with_neutrino_desc=After changing settings via the Neutrino-Web-UI: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
 set.sync_with_neutrino=Zur Synchronisation mit Neutrino
 
 # ===== Settings General & Menue
-set.menue.epg=EPG
 set.menue.timer_settings=Timer Einstellungen
-set.menue.zapit=Zapit
-set.menue.backup_restore=Sichern und Wiederherstellen
-set.menue.bouquet_editor=Bouquet-Editor
-set.menue.video_audio=Video/Audio
-set.menue.parental=Jugendschutz
-set.menue.direct_recording=Direktaufnahme
-set.menue.recording=Aufnahme
-set.menue.audio_player=Audioplayer
-set.menue.movieplayer=Movieplayer
-set.menue.pictureviewer=Bildbetrachter
-set.menue.glcd_display=GLC-Display
-set.menue.lcd_display=LC-Display
-set.menue.key_settings=Tastenbelegung
-set.menue.peronalization=Personalisierung
-set.menue.others=Diverses
-set.menue.xmltv=XMLTV
-set.menue.webserver=Webserver
 
 # ===== Neutrino Settings - Recording
-set.rec.rec_behavior=Aufnahmeverhalten
 set.rec.stop=anhalten
-set.rec.zap=Umschalten bei Ank&uuml;ndigung
-set.rec.timer_settings=Timereinstellungen
-set.rec.start_delay=Aufnahmestart-Korrektur (Sek)
-set.rec.stop_delay=Aufnahmeende-Korrektur (Sek)
-set.rec.zap_delay=Umschaltstart-Korrektur (Sek)
-set.rec.audio_channels=Tonspuren
-set.rec.audio_standard=Standard Tonspur aufnehmen
-set.rec.audio_alternate=Alternative Tonspur aufnehmen
-set.rec.audio_ac3=AC3 Tonspuren aufnehmen
-set.rec.channeldir=Speichere im Kanalverzeichnis
-set.rec.epg_end=Aufnahme nur bis EPG-Ende
-set.rec.recordtime=Aufnahmezeit in Stunden
-set.rec.timeshift_desc=Timeshift
-set.rec.timeshift.pause=Start mit Pause-Taste
-set.rec.timeshift.auto_record=Autom. Aufnahme (in Sek, 0=deaktiviert)
-set.rec.timeshift.auto_delete=Automatisches L&ouml;schen
-set.rec.timeshift.tmp_timeshift=Tempor&auml;res timeshift
-
-# ===== Neutrino Settings - Movieplayer
-set.mp.player=Player
-set.mp.start_directory=Startverzeichnis
-
-# ===== Neutrino Settings - Parental
-set.parental.activate=Aktivieren
-set.parental.type.never=Nie
-set.parental.type.bouquet=Bouquet
-set.parental.type.preset=Vorsperre
-set.parental.minimum_age=Mindestalter
-set.parental.pin=PIN
-
-# ===== Settings NHTTP
-set.nhttpd.webserver=Webserver
-set.nhttpd.authentication=Authentifikation
-set.nhttpd.client_without_authentication_desc=Rechner ohne Authentifikation. IP des Rechners eingeben.
-set.nhttpd.client_without_authentication=Rechner ohne Authentifikation
-set.nhttpd.active_after_boot=Nach Neustart aktiv
-set.nhttpd.port=Port
-set.nhttpd.threading=Threading
-set.nhttpd.alternate_web_folder=Alternativer Web-Ordner
-set.nhttpd.hosted_folder=Eingebundenes Verzeichnis
-set.nhttpd.allowed_file_extensions=Erlaubte Dateiendungen / MIME
-set.nhttpd.allow_all_file_extensions=Alle Dateiendungen erlauben
-set.nhttpd.display_logos=Logos anzeigen
-set.nhttpd.url_of_logos_desc=URL bzw. Verzeichnis der Logos eingeben
-set.nhttpd.url_of_logos=URL bzw. Verzeichnis der Logos
-set.nhttpd.server=Server
-set.nhttpd.cache=Cache
-set.nhttpd.cache_info=Cache Informationen
-set.nhttpd.clear_cache=Cache l&ouml;schen
-set.nhttpd.server_configuration=Server Konfiguration
-set.nhttpd.check_password=Passwort muss mind. 4 Zeichen haben
-set.nhttpd.password_unchanged=leer = unverändert
-set.nhttpd.check_port=Port muss angegeben werden
-
-# ===== Settings yWeb
-set.yweb.enter_ip_desc=IP Adresse eingeben (xxx.xxx.xxx.xxx)
-set.yweb.enter_mac_desc=MAC Adresse eingeben (xx:xx:xx:xx:xx:xx)
-set.yweb.description=Bezeichnung
-set.yweb.enter_description_desc=Beschreibung eingeben
-set.yweb.management_IPs=Management IPs
-set.yweb.wake_on_lan=Wake on Lan
-set.yweb.box_tag_desc=Box Name im Top-Menue.
-set.yweb.box_tag=Box Bezeichnung
-set.yweb.box_color_desc=Farbe der Box Bezeichnung im Top-Menue. z.B. 2188e0 eingeben ohne #
-set.yweb.box_color=Farbe
-set.yweb.start_page=Startseite
-set.yweb.remote=Fernbedienung
-set.yweb.screenshot_rc=FB auf Screenshot-Seite
-set.yweb.screenshot_timeout=Screenshot-Timeout
-
-# ===== Settings Picture viewer
-set.pv.pictureviewer=Bildbetrachter
-set.pv.scale=Skalierung
-set.pv.scale.none=keine
-set.pv.scale.simple=einfach
-set.pv.scale.complex=aufwendig
-set.pv.slideshow_duration=Diaschau-Anzeigedauer
-set.pv.start_dir=Start-Verzeichnis
-
-# ===== Settings Audioplayer
-set.ap.audioplayer=Audioplayer
-set.ap.display_order.actor_title=Interpret, Titel
-set.ap.display_order.title_actor=Titel, Interpret
-set.ap.display_order=Anzeige
-set.ap.select_actual_track=Selektiere akt. Track
-set.ap.search_by_name=Titelsuche nach Name
-set.ap.repeat_mode=Repeatmodus aktivieren
-set.ap.show_playlist=Playlist anzeigen
-set.ap.screensaver=Bildschirmschoner (min, 0=aus)
-set.ap.decode_priority=Hohe Decodier-Priorit&auml;t
-set.ap.start_dir=Start-Verzeichnis
-set.ap.parse_shoutcast=Shoutcast Meta-Daten
-
-# ===== Settings Backup/Restore
-set.settings.backup=Sichern
-set.settings.backup_desc=Sichern Ihrer Einstellungen
-set.settings.restore=Wiederherstellen
-set.settings.restore_desc=Hochladen und wiederherstellen einer vorher erstellten Sicherung. Ihre Box startet danach neu.
-set.settings.warning=Sichern &amp; Wiederherstellen ist nur bei einem gleichen Image mit gleichem Entwicklungsstand sinnvoll.
-
-# ===== Settings XMLTV
-set.xmltv.header=XMLTV Einstellungen
 
 # ===== Settings Plugins
 set.plugins=Plugin-Steuerung
@@ -417,7 +166,6 @@ tools.yinstaller.tar_file=tar-Datei
 tools.yinstaller.upload_install=hochladen und installieren
 
 # ===== Tools NetFS
-tools.netfs=NetFS
 tools.netfs.0=fstab
 tools.netfs.1=auto.net
 tools.netfs.title=NetFS-Steuerung
@@ -440,49 +188,10 @@ tools.netfs.active=Eintrag aktiv
 tools.netfs.autofs_restart=autofs neu starten
 
 # ===== Tools
-tools.automount=AutoMounts
-tools.mounts_desc=File mounts organisieren
-tools.mounts=Mounts
-tools.wake_on_lan=Wake on LAN
-tools.check_install=Installation pr&uuml;fen
-tools.expert=Expert
-tools.not_installed=nicht installiert
 tools.path=Verzeichnis
 tools.command=Kommando
 tools.cmd.enter_command=Auszuf&uuml;hrendes Kommando eingeben
 tools.cmd.execute_command=Kommando ausf&uuml;hren
-tools.filemgr_desc=Dateien und Verzeichnisse organisieren
-tools.filemgr=Dateimanager
-
-# ===== LIVE Menue now Main
-live.timer=Timer
-live.epg_plus_popup_desc=EPG+ (popup)
-live.epg_plus=EPG Plus
-
-# ===== LIVE Timer Edit
-live.timer_edit.timer=Timer
-live.timer_edit.times=Zeiten
-live.timer_edit.alarm_date=Alarm-Datum
-live.timer_edit.time=Zeit
-live.timer_edit.stop_date=Stop-Datum
-live.timer_edit.repeat=Wiederholung
-live.timer_edit.repeatings=Wiederholungen<br>(0 = unbegrenzt)
-live.timer_edit.weekdays.format=(Mo-So, X=Timer)
-live.timer_edit.weekdays=Wochentage
-live.timer_edit.values=Werte
-live.timer_edit.channel=Programm
-live.timer_edit.apids=APIDs
-live.timer_edit.apids.default=Default
-live.timer_edit.apids.standard=Standard
-live.timer_edit.apids.alt=Alternative
-live.timer_edit.apids.ac3=AC3
-live.timer_edit.apids=APids
-live.timer_edit.standby=Standby
-live.timer_edit.plugin=Plugin
-live.timer_edit.rec_dir=Aufnahmeverzeichnis
-live.timer_edit.description=Beschreibung
-live.timer_edit.type=Typ
-live.timer_edit.message=Nachricht
 
 # ===== LIVE Timer Sync
 live.timer-sync.get_timer=Timer holen
@@ -506,71 +215,12 @@ live.timer-sync.action=Aktion
 live.timer-sync.status=Status
 
 # ===== INFO
-info.help=Hilfe
-info.about_yweb=&Uuml;ber die Neutrino-Web-UI
 info.about_image=&Uuml;ber Image
 info.about.your_image=Dein Image
 info.about.actual_image=Aktuelles Image
 info.about.image_upd_no=Kein Update verf&uuml;gbar
 info.about.image_upd_yes=Update verf&uuml;gbar
 info.check_for_updates=Auf Updates pr&uuml;fen
-info.your_version=Deine Version
-info.actual_version=Aktuelle Version
-
-# ===== Remote control
-rc.key_power=Standby
-rc.key_mute=Mute
-rc.key_1=1
-rc.key_2=2
-rc.key_3=3
-rc.key_4=4
-rc.key_5=5
-rc.key_6=6
-rc.key_7=7
-rc.key_8=8
-rc.key_9=9
-rc.key_0=0
-rc.key_text=Text
-rc.key_favorites=Favoriten
-rc.key_volumeup=Vol+
-rc.key_volumedown=Vol-
-rc.key_pageup=Page+
-rc.key_pagedown=Page-
-rc.key_radio=TV/Radio
-rc.key_mode=Video Format
-rc.key_next=Skip-
-rc.key_previous=Skip+
-rc.key_sleep=Sleep
-rc.key_audio=Audio
-rc.key_help=Help
-rc.key_red=Rot
-rc.key_green=Gr&uuml;n
-rc.key_yellow=Gelb
-rc.key_blue=Blau
-rc.key_epg=EPG
-rc.key_info=Info
-rc.key_ok=OK
-rc.key_up=Hoch
-rc.key_down=Runter
-rc.key_left=Links
-rc.key_right=Rechts
-rc.key_setup=Men&uuml;
-rc.key_home=Exit
-rc.key_sat=Sat
-rc.key_www=
-rc.key_rewind=Rewind
-rc.key_play=Play
-rc.key_forward=Forward
-rc.key_stop=Stop
-rc.key_record=Record
-rc.key_pause=Pause
-rc.key_games=
-rc.key_trsp=Trsp
-rc.key_time=
-rc.key_picsize=Pic Size
-rc.key_picmode=Pic Mode
-rc.key_pos=Pos
-rc.key_recall=Recall
 
 # ===== MODERN YWEB UI (yw.* keys, see Y_Lang.yjs)
 yw.nav.dashboard=Dashboard
