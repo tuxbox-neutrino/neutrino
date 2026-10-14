@@ -75,7 +75,6 @@ verglichen und gespeichert — kein eigener JS-Code nötig:
 `key`-Felder werden in der gewählten Config-Datei persistiert;
 `action`-Felder feuern einen v4-Call (typisch `exec` auf ein Script);
 ohne `success`-Text erscheint die Script-Ausgabe als Toast-Feedback.
-Referenz: [`hallo-yweb/manifest.json`](hallo-yweb/manifest.json).
 
 ### Optional: eigenes Sprachpaket (`languages/`)
 
@@ -113,7 +112,6 @@ meine-erweiterung/
   Es wird nur die aktive Sprache geladen (kein Zweit-Fetch auf Englisch).
 - Englisch + Deutsch immer paarig pflegen; gleiche Keysets.
 
-Referenz: [`hallo-yweb/languages/`](hallo-yweb/languages/).
 
 ### Optional: Laufzeit-Skript (`entry_js`)
 
@@ -161,7 +159,7 @@ Vertrag:
 
 ## 3. Seite schreiben (`index.html`)
 
-Kopiervorlage: [`hallo-yweb/hallo.html`](hallo-yweb/hallo.html). Kernpunkte:
+Kernpunkte:
 
 - Header/Nav der Neutrino-Web-UI einbinden:
   `<div class="yweb-header-wrapper" data-page="tools"></div>` +
@@ -260,6 +258,4 @@ Die offiziellen Erweiterungen leben in eigenen versionierten
 Repositories unter `github.com/tuxbox-neutrino/yweb-extension-<name>`
 (installer, m3u-converter, camds, infoicons, hallo-yweb) und sind über
 die Verwaltung installierbar; der Update-Index liegt im Meta-Repository
-`yweb-extensions`. Nur **hallo-yweb** bleibt zusätzlich hier gebündelt
-als Offline-Copy-Paste-Beispiel — sein Repository ist die Quelle der
-Wahrheit.
+`yweb-extensions`.

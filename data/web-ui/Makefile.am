@@ -15,10 +15,6 @@ installdir = $(PRIVATE_HTTPDDIR)
 nobase_install_DATA = \
 	extensions/README.md \
 	extensions/README.de.md \
-	extensions/hallo-yweb/manifest.json \
-	extensions/hallo-yweb/hallo.html \
-	extensions/hallo-yweb/languages/English.json \
-	extensions/hallo-yweb/languages/Deutsch.json \
 	swagger/index.html
 
 install_DATA = \

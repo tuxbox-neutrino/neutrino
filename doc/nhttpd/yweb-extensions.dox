@@ -151,8 +151,6 @@ Kern-Bumps nicht tracken.
 
 \section ywebext_ref Referenz & Einsteiger-Doku
 
-- Referenz-Erweiterung: `data/y-web/extensions/hallo-yweb/` (gebuendelte
-  Kopie; Quelle der Wahrheit ist das Repo yweb-extension-hallo-yweb).
 - Einsteiger-Anleitung ("Erweiterung in 10 Minuten"):
   `data/y-web/extensions/README.md` (englisch) bzw. `README.de.md`
   (deutsch).
@@ -314,8 +312,6 @@ bumps.
 
 \section ywebext_en_ref Reference & getting-started docs
 
-- Reference extension: `data/y-web/extensions/hallo-yweb/` (bundled
-  copy; the source of truth is the yweb-extension-hallo-yweb repo).
 - Getting-started guide ("an extension in 10 minutes"):
   `data/y-web/extensions/README.md` (English) or `README.de.md`
   (German).
