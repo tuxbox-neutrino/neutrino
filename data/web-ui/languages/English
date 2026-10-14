@@ -1210,6 +1210,7 @@ yw.timer.rep.bydesc=By description
 yw.about.link=About
 yw.msg.channel=Channel
 yw.dash.no_channel=No channel
+yw.dash.no_tuner=No tuner
 yw.timer.unavail=Timers not available
 yw.timer.new=New timer
 yw.timer.choose_bq=Choose bouquet...

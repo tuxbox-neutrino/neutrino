@@ -413,7 +413,8 @@
 		font-size: 0.62rem;
 	}
 
-	.yweb-timer-empty {
+	.yweb-timer-empty,
+	.yweb-tuner-empty {
 		color: var(--pico-muted-color);
 		text-align: center;
 		padding: 1rem;
@@ -1231,20 +1232,6 @@
 			ywebShowEpgModal(dash.channel.id, dash.channel.name);
 	}
 
-	// API Helpers for what has no /api/v1 route yet: the tuners with their
-	// signal each, the picture's stream info and the PIDs (step A2)
-	function apiGet(endpoint) {
-		return fetch('/api/v4/' + endpoint)
-			.then(function(r) { return r.text(); })
-			.catch(function() { return ''; });
-	}
-
-	function apiJson(endpoint) {
-		return fetch('/api/v4/' + endpoint)
-			.then(function(r) { return r.json(); })
-			.catch(function() { return {}; });
-	}
-
 	// Format helpers — use shared versions from yweb-header.js
 	var formatKB = ywebFormatKB;
 	var formatUptime = ywebFormatUptime;
@@ -1295,6 +1282,7 @@
 
 	const NO_CHANNEL = '{=L:yw.dash.no_channel=}';
 	const NO_EPG = '{=L:yw.dash.no_epg=}';
+	const NO_TUNER = '{=L:yw.dash.no_tuner=}';
 	const RECORDING = '{=L:yw.bc.recording=}';
 
 	const dash = {
@@ -1913,25 +1901,42 @@
 		}
 	}
 
-	// Load Tuner Status using Multi-Tuner API
-	function loadTunerStatus() {
-		// Try new multi-tuner API first
-		apiJson('tuners').then(function(data) {
-			if (data && data.tuners && data.tuners.length > 0) {
-				renderTunerList(data.tuners);
-			} else {
-				// Fallback to legacy single-tuner API
-				loadTunerStatusLegacy();
-			}
-		}).catch(function() {
-			loadTunerStatusLegacy();
-		});
+	// The tuners with what each receiving one measures (GET /tuner/frontends):
+	// the live one shows the channel the box plays, another one in use is held
+	// by something else, most often a recording. The readings are raw, out of
+	// full_scale. A read that fails keeps what the card shows.
+	async function loadTunerStatus() {
+		const got = await dashGet('/tuner/frontends');
+		if (!got || !Array.isArray(got.items)) return;
+		renderTunerList(got.items.map(function(fe) {
+			const sig = fe.signal || {};
+			const scale = Number(sig.full_scale) || 0;
+			function percent(v) { return fe.measured && scale > 0 ? Math.round(Number(v || 0) * 100 / scale) : 0; }
+			return {
+				id: fe.adapter + ':' + fe.number,
+				name: fe.name || '',
+				// the kind it receives; which delivery systems it takes the box does not say
+				type: fe.satellite ? 'DVB-S' : fe.cable ? 'DVB-C' : fe.terrestrial ? 'DVB-T' : 'DVB',
+				sig: percent(sig.strength),
+				snr: percent(sig.snr),
+				channel: fe.live && dash.channel ? dash.channel.name : '',
+				state: fe.live ? 'viewing' : fe.in_use ? 'busy' : 'idle'
+			};
+		}));
 	}
 
 	// Render multi-tuner list
 	function renderTunerList(tuners) {
 		const container = document.getElementById('tuner-list');
 		if (!container) return;
+		// a box without a tuner says so rather than showing an empty card
+		if (!tuners.length) {
+			container.replaceChildren(ywebEl('div', {className: 'yweb-tuner-empty'}, NO_TUNER));
+			// the icon greyed as for idle tuners, the preview saying why
+			updateTunerPreview(tuners, 0, 0, 0);
+			setText('tuner-preview', NO_TUNER);
+			return;
+		}
 
 		const rows = [];
 		let activeTuners = 0;
@@ -1955,7 +1960,6 @@
 			// State label translation
 			const stateLabels = {
 				'viewing': 'Live',
-				'recording': 'REC',
 				'busy': 'Busy',
 				'idle': 'Idle'
 			};
@@ -1978,7 +1982,7 @@
 			return row.tuner.id !== undefined ? row.tuner.id : '#' + i;
 		}, function(row) {
 			const tuner = row.tuner;
-			const knownState = ['viewing', 'recording', 'busy', 'idle'].indexOf(tuner.state) >= 0;
+			const knownState = ['viewing', 'busy', 'idle'].indexOf(tuner.state) >= 0;
 			function signal(label, value, color) {
 				return ywebEl('div', {className: 'yweb-tuner-signal'},
 					ywebEl('div', {className: 'yweb-tuner-signal-header'},
@@ -2049,43 +2053,49 @@
 		}
 	}
 
-	// Single-tuner fallback (boxes without the multi-tuner list)
-	function loadTunerStatusLegacy() {
-		apiJson('signal').then(function(data) {
-			if (data && typeof data.sig !== 'undefined') {
-				const tuners = [{
-					id: 0,
-					name: 'Tuner',
-					type: 'DVB',
-					sig: data.sig || 0,
-					snr: data.snr || 0,
-					ber: data.ber || 0,
-					locked: (data.sig > 0),
-					channel: '',
-					state: (data.sig > 0) ? 'viewing' : 'idle'
-				}];
-				renderTunerList(tuners);
-			}
-		});
+	// The names the sound codecs go by on the card
+	const SOUND_CODECS = {mp2: 'MPEG', ac3: 'AC3', eac3: 'E-AC3', aac: 'AAC', aacplus: 'HE-AAC',
+		dts: 'DTS', dtshd: 'DTS-HD', lpcm: 'LPCM'};
+
+	// The picture as the decoder shows it (GET /playback/picture); the sound
+	// as the selected track of the running channel and the channel's packet
+	// ids (GET /channels/current). A picture read that fails keeps what the
+	// card shows; sound and packet ids go with a channel that cannot be read,
+	// which is also what a playing recording or file answers.
+	async function loadStreamInfo() {
+		const both = await Promise.all([dashGet('/playback/picture'), dashGet('/channels/current')]);
+		const pic = both[0], ch = both[1];
+		if (pic) {
+			const shown = !!pic.shown && pic.width > 0 && pic.height > 0;
+			updateStreamInfoUI(shown ? pic.width + 'x' + pic.height : '', shown ? pic.width : 0,
+				shown ? pic.height : 0, shown ? pic.aspect : '', shown && pic.frame_rate ? pic.frame_rate + 'fps' : '',
+				soundOf(ch));
+		} else {
+			// the picture as it was, the sound from the channel read beside it
+			setText('stream-audio', soundOf(ch) || '--');
+		}
+		updatePidsUI(ch);
 	}
 
-	// Load Stream Info (Resolution, Aspect, Framerate, Audio, PIDs)
-	function loadStreamInfo() {
-		apiJson('info?streaminfo').then(function(data) {
-			if (data && typeof data.resolution !== 'undefined')
-				updateStreamInfoUI(data.resolution, data.width, data.height, data.aspect, data.fps, data.audio);
-		});
-
-		apiJson('zapto?getallpids').then(function(data) {
-			if (data && typeof data.vpid !== 'undefined')
-				updatePidsUI(data);
-		});
+	// The selected track's codec and what the stream calls it, '' without one
+	function soundOf(ch) {
+		const tracks = (ch && Array.isArray(ch.audio)) ? ch.audio : [];
+		const t = tracks.filter(function(a) { return a.selected; })[0];
+		if (!t) return '';
+		const codec = SOUND_CODECS[t.codec] || '';
+		const desc = t.description || '';
+		// a description that names the codec already ("AC3 5.1 deu") stands alone
+		if (codec && desc.toLowerCase().indexOf(codec.toLowerCase()) >= 0)
+			return desc;
+		return [codec, desc].filter(Boolean).join(' ');
 	}
 
-	// Update PIDs UI from JSON data
-	function updatePidsUI(data) {
+	// The running channel's packet ids, from its answer on /channels/current;
+	// none without a channel
+	function updatePidsUI(ch) {
 		const pidsContainer = document.getElementById('stream-pids');
 		if (!pidsContainer) return;
+		const data = ch || {};
 
 		const tags = [];
 		function tag(label, value) {
@@ -2095,40 +2105,39 @@
 		}
 
 		// Video PID
-		if (data.vpid) {
-			tag('VID', data.vpid);
+		if (data.video && data.video.pid) {
+			tag('VID', data.video.pid);
 		}
 
 		// Audio PIDs
-		if (data.apids && data.apids.length > 0) {
-			data.apids.forEach(function(apid) {
-				let label = 'AUD';
-				if (apid.ac3 || apid.eac3) label = 'AC3';
-				else if (apid.aac) label = 'AAC';
-				else if (apid.desc) {
-					const desc = apid.desc.toLowerCase();
-					if (desc.includes('eng') || desc.includes('english')) label = 'ENG';
-				}
-				tag(label, apid.pid);
-			});
-		}
+		(Array.isArray(data.audio) ? data.audio : []).forEach(function(track) {
+			let label = 'AUD';
+			if (track.codec === 'ac3' || track.codec === 'eac3') label = 'AC3';
+			else if (track.codec === 'aac' || track.codec === 'aacplus') label = 'AAC';
+			else if (track.description) {
+				const desc = track.description.toLowerCase();
+				if (desc.includes('eng') || desc.includes('english')) label = 'ENG';
+			}
+			tag(label, track.pid);
+		});
 
 		// Special PIDs
-		if (data.vtxtpid) {
-			tag('TXT', data.vtxtpid);
+		const pids = data.pids || {};
+		if (pids.teletext) {
+			tag('TXT', pids.teletext);
 		}
-		if (data.pmtpid) {
-			tag('PMT', data.pmtpid);
+		if (pids.pmt) {
+			tag('PMT', pids.pmt);
 		}
-		if (data.pcrpid) {
-			tag('PCR', data.pcrpid);
+		if (pids.pcr) {
+			tag('PCR', pids.pcr);
 		}
 
 		pidsContainer.replaceChildren.apply(pidsContainer, tags);
 	}
 
 
-	// Update stream info UI (shared by JSON and legacy)
+	// Update stream info UI
 	function updateStreamInfoUI(resolution, width, height, aspect, fps, audio) {
 		// In radio mode: only show audio, hide video-specific info
 		if (currentMode === 'radio') {
