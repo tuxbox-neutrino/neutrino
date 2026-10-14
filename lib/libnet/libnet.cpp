@@ -1,4 +1,6 @@
 #include <string.h>
+#include <limits.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
@@ -242,12 +244,23 @@ void	netSetNameserver(std::string &ip)
 	FILE	*fp;
 	struct stat st;
 
-	/* a link belongs to a resolver such as systemd-resolved or resolvconf,
-	 * writing through it would replace that resolver's file */
+	/* A link into /run belongs to a resolver such as systemd-resolved or
+	 * resolvconf and would be overwritten by it. Any other link is storage
+	 * and is written through by fopen. */
 	if (lstat("/etc/resolv.conf", &st) == 0 && S_ISLNK(st.st_mode))
 	{
-		fprintf(stderr, "netSetNameserver: /etc/resolv.conf is managed by the system, not written\n");
-		return;
+		char target[PATH_MAX];
+		if (!realpath("/etc/resolv.conf", target))
+		{
+			ssize_t len = readlink("/etc/resolv.conf", target, sizeof(target) - 1);
+			target[len > 0 ? len : 0] = '\0';
+		}
+		if (!strncmp(target, "/run/", 5) || !strncmp(target, "/var/run/", 9) ||
+		    !strncmp(target, "../run/", 7) || !strncmp(target, "../var/run/", 11))
+		{
+			fprintf(stderr, "netSetNameserver: /etc/resolv.conf is managed by the system, not written\n");
+			return;
+		}
 	}
 
 	fp = fopen("/etc/resolv.conf","w");
