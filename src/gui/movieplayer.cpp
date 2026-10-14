@@ -965,6 +965,7 @@ void CMoviePlayerGui::Init(void)
 	filefilter_audio.addFilter("mp3");
 	filefilter_audio.addFilter("mpa");
 	filefilter_audio.addFilter("ogg");
+	filefilter_audio.addFilter("opus");
 	filefilter_audio.addFilter("wav");
 	// audio playlists
 	filefilter_audio.addFilter("m3u");
