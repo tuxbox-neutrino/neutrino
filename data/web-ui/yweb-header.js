@@ -750,7 +750,7 @@ async function ywebFetchJson(url) {
 //   ywebApi('timer')                            -> parsed JSON payload
 //   ywebApi('timer', {action:'new', type:5})    -> envelope-checked action
 //   ywebApi('setmode', {status:''})             -> key-only query param
-//   ywebApi('exec', 'Y_Tools&dounmount&...', {raw:true}) -> raw text (exec/rcem)
+//   ywebApi('exec', 'Y_Tools&get_hostname', {raw:true}) -> raw text (exec/rcem)
 // Throws Error on HTTP failure or {"success":"false"} envelopes; the
 // error message carries error.msg from the box when available.
 async function ywebApi(endpoint, params, opts) {

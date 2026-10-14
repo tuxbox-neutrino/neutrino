@@ -15,196 +15,6 @@ BNAME=${0##*/}
 
 PLUGIN_DIRS="%(PLUGINDIR) %(PLUGINDIR_VAR) %(PLUGINDIR_MNT) $(config_get_value_direct $y_config_neutrino 'plugin_hdd_dir')"
 
-# ===========================================================
-# Settings : Styles
-# ===========================================================
-# -----------------------------------------------------------
-# Style List
-# -----------------------------------------------------------
-style_get()
-{
-	check_yWeb_conf
-	active_style=$(config_get_value_direct $y_config_yWeb 'style')
-
-	y_path_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.directory')
-	y_path_override_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.override_directory')
-
-	style_list=""
-	style_list="$style_list $(find $y_path_override_directory/styles -name 'Y_Dist-*')"
-	style_list="$style_list $(find $y_path_directory/styles -name 'Y_Dist-*')"
-
-	f_list=""
-	html_option_list=""
-	for f in $style_list
-	do
-		echo $f_list | grep ${f##*/}
-		if [ $? == 0 ]; then
-			continue
-		fi
-		f_list="$f_list ${f##*/}"
-
-		style=$(echo "$f" | sed -e s/^.*Y_Dist-//g | sed -e s/.css//g)
-		if [ "$style" = "$active_style" ]
-		then
-			sel="selected='selected'"
-		else
-			sel=""
-		fi
-		opt="<option value='$style' $sel>$(echo "$style" | tr '_' ' ')</option>"
-		html_option_list="$html_option_list $opt"
-	done
-	echo "$html_option_list"
-}
-
-# -----------------------------------------------------------
-# Set Style: override Y_Main.css   $1=Style-Name
-# -----------------------------------------------------------
-style_set()
-{
-	# This function should be called one time after installing a new image
-	# to get sure, the right skin is installed too
-
-	style=${1:-$(config_get_value_direct $y_config_yWeb 'style')}
-	test -n "$style" || return
-
-	y_path_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.directory')
-	y_path_override_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.override_directory')
-
-	cd $y_path_directory
-	if [ -e $y_path_override_directory/styles/Y_Dist-$style.css ]; then
-		cp $y_path_override_directory/styles/Y_Dist-$style.css Y_Dist.css
-	elif [ -e $y_path_directory/styles/Y_Dist-$style.css ]; then
-		cp $y_path_directory/styles/Y_Dist-$style.css Y_Dist.css
-	else
-		config_set_value_direct $y_config_yWeb 'style'
-	fi
-}
-
-# -----------------------------------------------------------
-# Image Backup - build form
-# -----------------------------------------------------------
-image_upload()
-{
-	if [ -s "$y_upload_file" ]
-	then
-		msg="<b>Image upload ok</b><br>"
-		msg="$msg <script>window.setTimeout('parent.do_image_upload_ready()',1000)</script>"
-	else
-		msg="Upload-Problem.<br>Please, try again."
-		msg="$msg <script>window.setTimeout('parent.do_image_upload_ready_error()',1000)</script>"
-	fi
-	y_format_message_html
-}
-
-# -----------------------------------------------------------
-# copies Uploadfile to $1
-# -----------------------------------------------------------
-upload_copy()
-{
-	if [ -s "$y_upload_file" ]
-	then
-		cp "$y_upload_file" "$1"
-	else
-		msg="Upload-Problem.<br>Try again, please."
-	fi
-}
-
-# -----------------------------------------------------------
-zapit_upload()
-{
-	msg="$1 hochgeladen<br><a href='/Y_Settings_zapit.yhtm'><u>next file</u></a>"
-	upload_copy "$y_path_zapit/$1"
-	y_format_message_html
-}
-
-# -----------------------------------------------------------
-# Mount from Neutrino-Settings $1=nr
-# -----------------------------------------------------------
-do_mount()
-{
-	config_open $y_config_neutrino
-	fstype=`config_get_value "network_nfs_type_$1"`
-	ip=`config_get_value "network_nfs_ip_$1"`
-	local_dir=`config_get_value "network_nfs_local_dir_$1"`
-	dir=`config_get_value "network_nfs_dir_$1"`
-	options1=`config_get_value "network_nfs_mount_options1_$1"`
-	options2=`config_get_value "network_nfs_mount_options2_$1"`
-	username=`config_get_value "network_nfs_username_$1"`
-	password=`config_get_value "network_nfs_password_$1"`
-
-	# check options
-	if [ "$options1" = "" ]
-	then
-		options1=options2
-		options2=""
-	fi
-
-	# default options
-	if [ "$options1" = "" -a "$options2" = "" ]
-	then
-		if [ "$fstype" = "0" ] # nfs
-		then
-			options1="soft"
-			options2="nolock"
-		elif [ "$fstype" = "1" ] # cifs
-		then
-			options1="ro"
-			options2=""
-		elif [ "$fstype" = "2" ] # lufs
-		then
-			options1=""
-			options2=""
-		fi
-	fi
-
-	# build mount command
-	case "$fstype" in
-		0) # nfs
-			cmd="mount -t nfs $ip:$dir $local_dir"
-		;;
-		1) # cifs
-			cmd="mount -t cifs //$ip/$dir $local_dir -o username=$username,password=$password";
-		;;
-		2) # lufs
-			cmd="lufsd none $local_dir -o fs=ftpfs,username=$username,password=$password,host=$ip,root=/$dir";
-		;;
-		default)
-			echo "mount type not supported"
-	esac
-
-	if [ "$options1" != "" ]
-	then
-		if [ "$fstype" = "0" ] # nfs
-		then
-			cmd="$cmd -o $options1"
-		else
-			cmd="$cmd,$options1"
-		fi
-	fi
-
-	if [ "$options2" != "" ]
-	then
-		cmd="$cmd,$options2"
-	fi
-
-	res=`$cmd`
-	echo "$cmd" >/tmp/mount.log
-	echo "$res" >>/tmp/mount.log
-	echo "$res"
-	echo "view mounts"
-	m=`mount`
-	msg="mount cmd:$cmd<br><br>res=$res<br>view Mounts;<br>$m"
-	y_format_message_html
-}
-
-# -----------------------------------------------------------
-# unmount $1=local_dir
-# -----------------------------------------------------------
-do_unmount()
-{
-	umount $1
-}
-
 # -----------------------------------------------------------
 # AutoMount
 # deactivate mount "#" replaces "---" and "=" replaced ",,"
@@ -324,42 +134,6 @@ do_installer()
 }
 
 # -----------------------------------------------------------
-# extension Installer $1=URL
-# -----------------------------------------------------------
-do_ext_installer()
-{
-	if [ -e $y_upload_file ]; then
-		rm $y_upload_file
-	fi
-	wgetlog=`wget -O $y_upload_file $1 2>&1`
-	if [ -s "$y_upload_file" ];then
-		mkdir -p $y_path_install
-		cd $y_path_install
-		tar -xf "$y_upload_file"
-		rm $y_upload_file
-		if [ -s "$y_install" ] # look for install.sh
-		then
-			chmod 755 $y_install
-			o=`$y_install` # execute
-			rm -f $y_install # clean up
-			echo "ok: wget=$wgetlog"
-		fi
-	else
-		e=`cat /tmp/err.log`
-		echo "error: $y_install not found. wget=$wgetlog $e"
-	fi
-}
-
-do_ext_uninstaller()
-{
-	uinst="%(CONFIGDIR)/y-ext/uninstall.sh"
-	if [ -e "$uinst"  ]; then
-		chmod 755 "$uinst"
-		`$uinst $1_uninstall.inc`
-	fi 
-}
-
-# -----------------------------------------------------------
 # view /proc/$1 Informations
 # -----------------------------------------------------------
 proc()
@@ -367,83 +141,6 @@ proc()
 	msg=`cat /proc/$1`
 	msg="<b>proc: $1</b><br><br>$msg"
 	y_format_message_html
-}
-
-# -----------------------------------------------------------
-# wake up $1=MAC
-# -----------------------------------------------------------
-wol()
-{
-	msg=`ether-wake $1`
-	msg="<b>Wake on LAN $1</b><br><br>$msg"
-	y_format_message_html
-}
-
-# -----------------------------------------------------------
-# osd shot
-# $1= fbshot | grab
-# -----------------------------------------------------------
-do_fbshot()
-{
-	if [ "$1" = "fbshot" ]; then
-		shift 1
-		if [ -e "$y_path_varbin/fbshot" ]; then
-			$y_path_varbin/fbshot $*
-		else
-			fbshot $*
-		fi
-	elif [ "$1" = "grab" ]; then
-		shift 1
-		if [ -e "$y_path_varbin/grab" ]; then
-			$y_path_varbin/grab $*
-		else
-			grab $*
-		fi
-	fi
-}
-
-# -----------------------------------------------------------
-# delete fbshot created graphics
-# -----------------------------------------------------------
-do_fbshot_clear()
-{
-	rm /tmp/*.bmp
-	rm /tmp/*.png
-}
-
-# -----------------------------------------------------------
-# delete screenshots
-# -----------------------------------------------------------
-do_screenshot_clear()
-{
-	rm -f /tmp/*.png
-}
-
-# -----------------------------------------------------------
-# Settings Backup/Restore
-# -----------------------------------------------------------
-do_settings_backup_restore()
-{
-	now=$(date +%Y-%m-%d_%H-%M-%S)
-	workdir="$y_path_tmp/y_save_settings/$now"
-	case "$1" in
-		backup)
-			rm -rf $workdir
-			mkdir -p $workdir
-			backup.sh $workdir >/dev/null
-			filename=$(ls -1 -tr $workdir/settings_* | tail -1)
-			echo "$filename"
-		;;
-		restore)
-			if [ -s "$y_upload_file" ]
-			then
-				msg=$(restore.sh "$y_upload_file")
-			else
-				msg="error: no upload file"
-			fi
-			y_format_message_html
-		;;
-	esac
 }
 
 restart_neutrino()
@@ -564,30 +261,13 @@ is_running()
 action=$1; shift
 
 case "$action" in
-	style_set)			style_set $1 ;;
-	style_get)			style_get ;;
-	image_upload)			image_upload ;;
-	image_backup)			image_backup_mtd $1; echo "/tmp/flash_mtd$1.img" ;;
-	zapit_upload)			zapit_upload $1 ;;
 	kernel-stack)			msg=`dmesg`; y_format_message_html ;;
 	ps)				msg=`ps aux`; y_format_message_html ;;
 	free)				f=`free`; p=`df -h`; msg="RAM Memory use\n-------------------\n$f\n\nPartitions\n-------------------\n$p"; y_format_message_html ;;
 	yreboot)			reboot; echo "Reboot..." ;;
 	check_yWeb_conf) 		check_yWeb_conf ;;
-	rcsim)				rcsim $1 >/dev/null ;;
-	domount)			do_mount $* ;;
-	dounmount)			do_unmount $* ;;
 	installer)			do_installer $* 2>&1 ;;
-	ext_uninstaller)		do_ext_uninstaller $* 2>&1 ;;
-	ext_installer)			do_ext_installer $* 2>&1 ;;
 	proc)				proc $* ;;
-	wol)				wol $* ;;
-	fbshot)				do_fbshot $* ;;
-	fbshot_clear)			do_fbshot_clear ;;
-	screenshot_clear)		do_screenshot_clear ;;
-	get_update_version)		wget -O /tmp/version.txt "https://raw.githubusercontent.com/tuxbox-neutrino/gui-neutrino/master/data/web-ui/Y_Version.txt" ;;
-	rm_update_version)		rm -f /tmp/version.txt ;;
-	settings_backup_restore)	do_settings_backup_restore $* ;;
 	automount_list)			do_automount_list $* ;;
 	automount_getline)		do_automount_getline $* ;;
 	automount_setline)		do_automount_setline $* ;;
@@ -607,21 +287,6 @@ case "$action" in
 		else
 			cat $y_path_httpd/channels.txt
 		fi
-	;;
-	get_extension_list)
-		if [ -e "$y_path_config/extensions.txt" ]
-		then
-			cat $y_path_config/extensions.txt
-		else
-			cat $y_path_httpd/extensions.txt
-		fi
-	;;
-	write_extension_list)
-		echo  "$*" >$y_path_config/extensions.txt
-	;;
-	url_get)
-		res=`wget -O /tmp/$2 "$1" >/tmp/url.log 2>&1`
-		cat /tmp/$2
 	;;
 	mtd_space)
 		df | while read filesystem blocks used available percent mounted ; do
@@ -908,24 +573,6 @@ case "$action" in
 		fi
 
 		test $COUNT = 0 && echo "Es sind derzeit keine Karten online!"
-	;;
-
-	# zapit
-	resolution)
-		pzapit --${1}		&& echo "ok" || echo "failed"
-	;;
-	43mode)
-		pzapit -vm43 ${1}	&& echo "ok" || echo "failed"
-	;;
-	reload_channellists)
-		pzapit -c		&& echo "ok" || echo "failed"
-	;;
-	reset_tuner)
-				E=0
-		pzapit -esb;	E=$(($E+$?));	sleep 1
-		pzapit -lsb;	E=$(($E+$?));	sleep 1
-		pzapit -rz;	E=$(($E+$?))
-		test $E = 0	&& echo "ok" || echo "failed"
 	;;
 
 	# netfs

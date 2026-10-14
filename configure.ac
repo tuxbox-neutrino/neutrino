@@ -832,7 +832,6 @@ data/web-ui/scripts/Makefile
 data/web-ui/styles/Makefile
 data/web-ui/css/Makefile
 data/web-ui/favicon/Makefile
-data/web-ui/images/rc/Makefile
 data/web-ui/info/Makefile
 data/web-ui/jquery/Makefile
 data/web-ui/lcd4linux/Makefile

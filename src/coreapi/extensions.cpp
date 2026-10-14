@@ -89,9 +89,10 @@ bool plainUpload(const std::string &file)
 	return endsWith(file, ".tar.gz") || endsWith(file, ".tgz") || endsWith(file, ".tar");
 }
 
-/* The scripts the pages ship themselves (data/web-ui/scripts), and the one the
-   old extension manager was: never an extension's, whatever an extension
-   installed by that manager left in their place. */
+/* The scripts the pages ship themselves (data/web-ui/scripts), and the two
+   they shipped once, the old file manager's and the old extension manager's:
+   never an extension's, whatever an extension installed by that manager left
+   in their place. */
 bool pagesOwn(const std::string &n)
 {
 	static const char *const own[] = { "_Y_Globals.sh", "_Y_Library.sh", "Y_NAS.sh", "Y_Tools.sh", "Y_Extensions.sh" };

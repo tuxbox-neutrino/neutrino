@@ -48,6 +48,6 @@ function do_delete()
 	</form>
 	</div>
 </div>
-{=include-block:Y_Blocks_Neutrino.txt;neutrino_form_helpbox=}
+{=include-block:Y_Blocks.txt;neutrino_form_helpbox=}
 </body>
 </html>

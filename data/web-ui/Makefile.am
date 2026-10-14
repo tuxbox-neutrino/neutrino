@@ -38,7 +38,6 @@ install_DATA = \
 	timer.yhtm \
 	recordings.yhtm \
 	tools.yhtm \
-	extensions.txt \
 	favicon.ico \
 	index.html \
 	wizard.yhtm \
@@ -46,7 +45,6 @@ install_DATA = \
 	Y_About_Image.yhtm \
 	Y_Baselib.js \
 	Y_Blocks.txt \
-	Y_Blocks_Neutrino.txt \
 	Y_Filemgr_Edit.yhtm \
 	Y_Lang.yjs \
 	Y_Main.css \
