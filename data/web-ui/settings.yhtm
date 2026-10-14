@@ -1498,9 +1498,9 @@
 
 	// Plugins over /api/v1: the list, starting one, and reading the plugin
 	// directories again. The box starts a plugin and reads its directories
-	// on its own thread, after it answered. Daemon control (nfs, samba, ...
-	// through the Y_Tools scripts) stays with the legacy page on purpose:
-	// it depends on the packages and the image.
+	// on its own thread, after it answered. Starting and stopping services
+	// (nfs, samba, ...) is not part of this panel: it depends on the
+	// packages and the image, and comes as an extension over /api/v1/daemons.
 	function renderPluginsPanel() {
 		setTimeout(loadPluginsPanel, 0);
 		return '<div class="settings-card">' + makeCardHeader('{=L:yw.reg.plugins=}') +

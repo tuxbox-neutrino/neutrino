@@ -122,18 +122,21 @@ dem v4-Release erfolgt ist; danach waere sie nur ueber /api/v5 zu haben.
 
 Einige Operationen bleiben bewusst shell-getrieben und laufen ueber
 `GET /api/v4/exec?Y_Tools&<funktion>[&<arg>...]` (Roh-Text-Ausgabe).
-Die Funktionen liegen in `data/y-web/scripts/Y_Tools.sh` (Paket der Neutrino-Web-UI);
-relevante stabile Funktionsnamen:
+Die Funktionen liegen in `data/web-ui/scripts/Y_Tools.sh` (Paket der Neutrino-Web-UI);
+relevante Funktionsnamen:
 
 | Funktion | Zweck |
 |---|---|
-| `domount <nr>` / `dounmount <dir>` | NFS/CIFS-Eintrag mounten / unmounten |
-| `do_mount_all` | alle konfigurierten Netz-Mounts mounten |
-| `automount_getline` / `automount_setline` | autofs-Zeilen lesen/schreiben |
-| `wol <mac>` | Wake-on-LAN (ether-wake) |
-| `settings_backup_restore backup\|restore` | Config-Backup erzeugen / einspielen |
-| `installer` | hochgeladenes Paket installieren |
-| `zapit_upload <datei>` | Kanal-/Bouquet-XML einspielen |
+| `do_mount_all` / `do_umount_all` | alle Netz-Mounts der NetFS-Tabelle ein-/aushaengen |
+
+Die frueher hier genannten Funktionen sind mit den alten Seiten entfallen;
+ihre Aufgaben haben Routen unter `/api/v1`: `domount`/`dounmount` ->
+`/api/v1/storage/shares`, `wol` -> `POST /api/v1/network/wake`,
+`settings_backup_restore` -> `/api/v1/system/backup` und `/restore`,
+`installer` -> `/api/v1/webui/extensions`, `zapit_upload` ->
+`/api/v1/channels/files/{name}`; `automount_getline`/`automount_setline`
+(auto.net) ersetzt die Automount-Tabelle von NetFS. Der exec-Vertrag
+entfaellt ganz, sobald `Y_Tools.sh` geht.
 
 Verfuegbarkeit ist Paket-abhaengig (Scripts der Neutrino-Web-UI installiert?); Clients
 muessen mit Fehlern/leerer Ausgabe degradieren. Fuer alles andere gilt die

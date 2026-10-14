@@ -42,29 +42,17 @@ install_DATA = \
 	index.html \
 	wizard.yhtm \
 	robots.txt \
-	Y_About_Image.yhtm \
 	Y_Baselib.js \
 	Y_Blocks.txt \
-	Y_Filemgr_Edit.yhtm \
 	Y_Lang.yjs \
 	Y_Main.css \
-	Y_Settings_Camds.yhtm \
 	Y_Settings_Infoicons.yhtm \
-	Y_Settings_Plugins.yhtm \
 	Y_Settings_Plugins_hide.yhtm \
-	Y_Settings_automount.yhtm \
-	Y_Settings_automount_list.yhtm \
-	Y_Tools_Boxcontrol.yhtm \
-	Y_Tools_Info_Menue.yhtm \
-	Y_Tools_Installer.yhtm \
 	Y_Tools_NetFS.yhtm \
 	Y_Tools_NetFS_edit.yhtm \
 	Y_Tools_NetFS_init.yhtm \
-	Y_Tools_m3uConvert.yhtm \
-	Y_Tools_m3uConvert_help.yhtm \
 	Y_User.css \
 	Y_Version.txt \
-	Y_Wait.yhtm \
 	yweb-dom.js \
 	yweb-header.js \
 	yweb-v1.js
