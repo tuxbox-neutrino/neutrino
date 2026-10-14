@@ -764,7 +764,35 @@ bool CNetworkSetup::checkForIP()
 		}
 	}
 
+	// The backend drops what these refuse without a word, so the user is told here.
+	neutrino_locale_t invalid = NONEXISTANT_LOCALE;
+	if (!network_dhcp && !CNetworkConfig::validAddress(network_address))
+		invalid = LOCALE_NETWORKMENU_IPADDRESS;
+	else if (!network_dhcp && !CNetworkConfig::validAddress(network_netmask))
+		invalid = LOCALE_NETWORKMENU_NETMASK;
+	else if (!network_dhcp && !network_gateway.empty() && !CNetworkConfig::validAddress(network_gateway))
+		invalid = LOCALE_NETWORKMENU_GATEWAY;
+	else if (!network_nameserver.empty() && !CNetworkConfig::validAddress(network_nameserver))
+		invalid = LOCALE_NETWORKMENU_NAMESERVER;
+	else if (wirelessChanged() && !CNetworkConfig::validSsid(network_ssid))
+		invalid = LOCALE_NETWORKMENU_SSID;
+	else if (wirelessChanged() && !CNetworkConfig::validKey(network_key))
+		invalid = LOCALE_NETWORKMENU_PASSWORD;
+	if (invalid != NONEXISTANT_LOCALE)
+	{
+		std::string msg = g_Locale->getText(LOCALE_NETWORKMENU_ERROR_INVALID_ENTRY);
+		str_replace("%s", g_Locale->getText(invalid), msg);
+		ShowMsg(LOCALE_MAINSETTINGS_NETWORK, msg, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR, width);
+		return false;
+	}
+
 	return true;
+}
+
+// the backend writes the wireless setup only when it changed
+bool CNetworkSetup::wirelessChanged()
+{
+	return networkConfig->wireless && (network_ssid != old_network_ssid || network_key != old_network_key);
 }
 
 //saves settings without apply, reboot is required

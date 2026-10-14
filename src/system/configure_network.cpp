@@ -251,6 +251,26 @@ bool CNetworkConfig::validAddress(const std::string &address)
 	return inet_pton(AF_INET, address.c_str(), &in) == 1;
 }
 
+/* wpa_supplicant reads a quoted string up to the last quote of the line,
+ * so the only way out of it is a line break */
+static bool wpaStringOk(const std::string &s)
+{
+	for (size_t i = 0; i < s.length(); i++)
+		if ((unsigned char)s[i] < 0x20 || s[i] == 0x7f)
+			return false;
+	return true;
+}
+
+bool CNetworkConfig::validSsid(const std::string &ssid)
+{
+	return !ssid.empty() && ssid.length() <= 32 && wpaStringOk(ssid);
+}
+
+bool CNetworkConfig::validKey(const std::string &key)
+{
+	return key.empty() || (key.length() >= 8 && key.length() <= 63 && wpaStringOk(key));
+}
+
 /* a name the kernel knows, made of characters that are harmless in a
  * file name and on a command line */
 bool CNetworkConfig::validInterface(const std::string &name)

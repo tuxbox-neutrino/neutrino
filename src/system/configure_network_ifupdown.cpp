@@ -136,23 +136,13 @@ void CNetworkConfig::readWpaConfig()
 	}
 }
 
-/* wpa_supplicant reads a quoted string up to the last quote of the line,
- * so the only way out of it is a line break */
-static bool wpa_string_ok(const std::string &s)
-{
-	for (size_t i = 0; i < s.length(); i++)
-		if ((unsigned char)s[i] < 0x20 || s[i] == 0x7f)
-			return false;
-	return true;
-}
-
 void CNetworkConfig::saveWpaConfig()
 {
-	if (ssid.empty() || ssid.length() > 32 || !wpa_string_ok(ssid)) {
+	if (!validSsid(ssid)) {
 		printf("CNetworkConfig::saveWpaConfig: invalid SSID, " WPA_CONFIG " not written\n");
 		return;
 	}
-	if (!key.empty() && (key.length() < 8 || key.length() > 63 || !wpa_string_ok(key))) {
+	if (!validKey(key)) {
 		printf("CNetworkConfig::saveWpaConfig: invalid key, " WPA_CONFIG " not written\n");
 		return;
 	}

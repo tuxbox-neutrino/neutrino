@@ -2248,6 +2248,7 @@ networkmenu.apply_settings_now Änderungen jetzt zuweisen?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.error_hostname Ungültiger Hostname!\nErlaubt sind Buchstaben, Ziffern und Bindestriche.
+networkmenu.error_invalid_entry Ungültige Eingabe: %s
 networkmenu.error_no_address Keine %s-Adresse angegeben!
 networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname

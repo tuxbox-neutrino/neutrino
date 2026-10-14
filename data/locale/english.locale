@@ -2248,6 +2248,7 @@ networkmenu.apply_settings_now Do you want to apply settings now?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.error_hostname Invalid hostname!\nLetters, digits and hyphens are allowed.
+networkmenu.error_invalid_entry Invalid entry: %s
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway Gateway
 networkmenu.hostname Hostname

@@ -97,6 +97,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		bool checkIntSettings();
 		bool checkStringSettings();
 		bool checkForIP();
+		bool wirelessChanged();
 		bool settingsChanged();
 		const char * mypinghost(std::string &host);
 		std::string getTimeSyncSettingsText(const std::string &offset,

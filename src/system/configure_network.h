@@ -89,6 +89,9 @@ class CNetworkConfig
 	static bool validHostname(const std::string &name);
 	static bool validAddress(const std::string &address);
 	static bool validInterface(const std::string &name);
+	static bool validSsid(const std::string &ssid);
+	// empty is an open network
+	static bool validKey(const std::string &key);
 };
 
 class CNetAdapter
