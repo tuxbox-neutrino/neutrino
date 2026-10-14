@@ -1,7 +1,6 @@
 #	yWeb language file (German/Deutsch) by yjogol
 
 # ===== GENERAL / GLOBAL
-global.no_iframes=Dein Browser unterst&uuml;tzt keine IFrames.
 clear=l&ouml;schen
 submit=Ausf&uuml;hren
 action=Aktion
@@ -71,29 +70,8 @@ date.th=Do
 date.fr=Fr
 date.sa=Sa
 
-# ===== Boxcontrol Menue
-bc.menue.control=Steuerung
-
 # ===== Boxcontrol
-bc.control.lock=sperren
-bc.control.unlock=freigeben
-bc.control.standby_mode=Standby Modus
-bc.control.recording_mode=Aufnahmemodus
-bc.control.box=Box
-bc.control.remote=Fernbedienung
-bc.control.playback=Abspielen
-bc.control.epg_sectiond=EPG Sectiond
-bc.control.live_lock=Live sperren
 bc.control.reboot.ask=Box wirklich neu starten?
-bc.control.reboot=Neustart
-bc.control.shutdown.ask=Box wirklich ausschalten?
-bc.control.shutdown=Ausschalten
-bc.control.status=Status
-bc.control.restart=Neustart
-
-# ===== Neutrino Settings
-set.sync_with_neutrino_desc=After changing settings via the Neutrino-Web-UI: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
-set.sync_with_neutrino=Zur Synchronisation mit Neutrino
 
 # ===== Settings General & Menue
 set.menue.timer_settings=Timer Einstellungen
@@ -102,14 +80,6 @@ set.menue.timer_settings=Timer Einstellungen
 set.rec.stop=anhalten
 
 # ===== Settings Plugins
-set.plugins=Plugin-Steuerung
-set.plugins.title=Plugins und Services verwalten
-
-set.plugin-tools.fcm-addr=Telefonbuch bearbeiten
-set.plugin-tools.pat-rules=Regeln bearbeiten
-set.plugin-tools.epgscan-dat=Transponderliste bearbeiten
-set.plugin-tools.rssreader-conf=RSS-Feeds bearbeiten
-set.plugin-tools.2webtvxmlurls-conf=WebTV-URLs bearbeiten
 
 set.plugins_hide=Plugins verstecken
 set.plugins_hide.title=Plugins anzeigen und verstecken
@@ -122,48 +92,6 @@ set.infoicons.flagfiles=Benachrichtigungs-Dateien
 set.infoicons.static=Statisch
 set.infoicons.popup=Als Popup
 set.infoicons.infoviewer=Mit Infoviewer
-
-# ===== Settings camds
-set.camds=Softcams
-set.camds.title=Softcam-Steuerung
-
-set.camd-tools=Werkzeuge f&uuml;r
-set.camd-tools.line=----------------------------------
-set.camd-tools.ecminfo=ECM-Informationen
-set.camd-tools.countcards=Verf&uuml;gbare Karten z&auml;hlen
-set.camd-tools.sc01info=Kartendaten aus Slot1
-set.camd-tools.sc02info=Kartendaten aus Slot2
-set.camd-tools.shareinfo=CS-Informationen
-set.camd-tools.shareonl=Online-Share-Informationen
-set.camd-tools.mginfo=CS-Informationen
-set.camd-tools.cccamdinfo=CCCamd Verbindungen
-set.camd-tools.pidinfo=PID-Informationen
-set.camd-tools.mgshareinfo=NewCamd Verbindungen
-set.camd-tools.oscamversion=Allgemeine Informationen
-set.camd-tools.ncamversion=Allgemeine Informationen
-set.camd-tools.doscamversion=Allgemeine Informationen
-
-# ===== Tools Info
-tools.info.show_messages=Kernel Meldungen
-tools.info.processes=Prozesse
-tools.info.memory=Speicher
-tools.info.cpu_info=CPU Info
-tools.info.mem_info=Speicher info
-tools.info.partitions=Partitions
-tools.info.mtd=mtd
-tools.info.stat=Statistik
-tools.info.version=Version
-
-# ===== Tools yInstaller
-tools.yinstaller.no_file_given=Keine Datei angegeben!
-tools.yinstaller.space.mtd=Platz gesamt
-tools.yinstaller.space.used=Benutzt
-tools.yinstaller.space.free=Frei
-tools.yinstaller.space.percentage=Anteil benutzt
-tools.yinstaller.not_determine=Kann freien Speicherplatz nicht ermitteln.
-tools.yinstaller.head=yInstaller
-tools.yinstaller.tar_file=tar-Datei
-tools.yinstaller.upload_install=hochladen und installieren
 
 # ===== Tools NetFS
 tools.netfs.0=fstab
@@ -213,14 +141,6 @@ live.timer-sync.clear_log=L&ouml;sche Log
 live.timer-sync.log=Log
 live.timer-sync.action=Aktion
 live.timer-sync.status=Status
-
-# ===== INFO
-info.about_image=&Uuml;ber Image
-info.about.your_image=Dein Image
-info.about.actual_image=Aktuelles Image
-info.about.image_upd_no=Kein Update verf&uuml;gbar
-info.about.image_upd_yes=Update verf&uuml;gbar
-info.check_for_updates=Auf Updates pr&uuml;fen
 
 # ===== MODERN YWEB UI (yw.* keys, see Y_Lang.yjs)
 yw.nav.dashboard=Dashboard

@@ -3,7 +3,6 @@
 #	$Date: 2015-03-05 11:45:14 +100 (Czw, 05 Marzez 2015) $
 #	$Revision$
 # ========= Start / Ustawienia ogólne
-global.no_iframes=Twoja przeglądarka nie obsługuje I-Frame.
 clear=Wyczyść
 submit=Uruchom
 action=Działanie
@@ -67,7 +66,6 @@ main.live_tv_popup_desc=Okno Live TV
 main.version=wersja
 
 # ========= Okno Menu sterowania
-bc.menue.control=Sterowanie
 bc.menue.lcd_screenshot_desc=Tworzenie zrzutu ekranu LCD
 bc.menue.lcd_screenshot=Zrzut ekranu LCD
 bc.menue.lcd_screenshot_desc_ni=lcshot nie jest zainstalowane
@@ -77,21 +75,7 @@ bc.menue.webinf_slavebox=Interfejs WWW dla urządzenia slave
 
 # ========= Sterowanie
 bc.control.freemem=Dostępna pamięć
-bc.control.lock=Zablokowany
-bc.control.unlock=Odblokowany
-bc.control.standby_mode=Tryb czuwania
-bc.control.recording_mode=Tryb nagrywania
-bc.control.box=Tuner
-bc.control.remote=Pilot
-bc.control.playback=Tryb odtwarzania
-bc.control.epg_sectiond=Sekcja EPG
-bc.control.live_lock=Zablokowane
 bc.control.reboot.ask=Ponownie uruchomić tuner?
-bc.control.reboot=Restart
-bc.control.shutdown.ask=Wyłączyć urządzenie?
-bc.control.shutdown=Wyłączony
-bc.control.status=Stan
-bc.control.restart=Restart
 
 # ========= Sterowanie - Zrzut ekranu
 bc.screenshot.zoom=Powiększenie zrzutu ekranu
@@ -101,8 +85,6 @@ bou.bouquet_editor=Edytuj Ulubione
 
 # ========= Ustawienia
 set.reload_neutrino=Restart Neutrino
-set.sync_with_neutrino_desc=Po zmianie ustawień poprzez Neutrino-Web-UI: Wybierz <br/> w telewizji "Menu główne> Usługi-> Restart neutrino", aby zaakceptować zmiany<br/> Po zmianie ustawień:. Wybierz <br/> w telewizji "Menu główne> Ustawienia-> Zapisz ustawienia", aby zastosować zmiany i przeładuj stronę.
-set.sync_with_neutrino=Synchronizacja z neutrino
 
 # ========= Główne ustawienia i funkcje
 set.menue.timer_settings=Ustawienia zegara
@@ -166,28 +148,6 @@ set.timer.klack.url=Osobiste RSS
 set.timer.klack.security_code_desc=Twój kod zabezpieczający, aby pobierać dane bez logowania
 set.timer.klack.security_code=Kod zabezpieczający
 set.timer.channel_name_replacelist=Nazwa kanału
-
-# ========= Narzędzia Informacje
-tools.info.show_messages=Komunikaty jądra
-tools.info.processes=Procesy
-tools.info.memory=Pamięć
-tools.info.cpu_info=Informacje o CPU
-tools.info.mem_info=Informacje o pamięci
-tools.info.partitions=Partycje
-tools.info.mtd=MTD
-tools.info.stat=Statystyki
-tools.info.version=wersja
-
-# ========= Narzędzia yInstaller
-tools.yinstaller.no_file_given=wybranych plików!
-tools.yinstaller.space.mtd=Całkowita pojemność
-tools.yinstaller.space.used=Użyte
-tools.yinstaller.space.free=Bezpłatne
-tools.yinstaller.space.percentage=Procentowe użycie
-tools.yinstaller.not_determine=Nie można określić ilość wolnego miejsca.
-tools.yinstaller.head=yInstaller
-tools.yinstaller.tar_file=Plik .tar
-tools.yinstaller.upload_install=wysyłania i zainstalować
 
 # ========= Narzędzia
 tools.automount_desc=Zarządzanie automatyczne montowanie
@@ -296,4 +256,3 @@ live.timer-sync.status=Stan
 # ========= INFO
 info.hel=Pomoc
 info.About=O
-info.check_for_updates=Sprawdź aktualizacje

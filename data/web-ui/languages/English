@@ -1,7 +1,6 @@
 #	yWeb language file (Englisch) by yjogol
 
 # ===== GENERAL / GLOBAL
-global.no_iframes=Your Browser does not support IFrames.
 clear=clear
 submit=Submit
 action=Action
@@ -71,29 +70,8 @@ date.th=Th
 date.fr=Fr
 date.sa=Sa
 
-# ===== Boxcontrol Menue
-bc.menue.control=Control
-
 # ===== Boxcontrol
-bc.control.lock=lock
-bc.control.unlock=unlock
-bc.control.standby_mode=standby mode
-bc.control.recording_mode=recording mode
-bc.control.box=box
-bc.control.remote=remote
-bc.control.playback=playback
-bc.control.epg_sectiond=EPG Sectiond
-bc.control.live_lock=live lock
 bc.control.reboot.ask=Really restart the Box?
-bc.control.reboot=reboot
-bc.control.shutdown.ask=Really shutdown the Box?
-bc.control.shutdown=shutdown
-bc.control.status=status
-bc.control.restart=restart
-
-# ===== Neutrino Settings
-set.sync_with_neutrino_desc=After changing settings via the Neutrino-Web-UI: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
-set.sync_with_neutrino=Synchronization with Neutrino
 
 # ===== Settings General & Menue
 set.menue.timer_settings=Timer Settings
@@ -102,14 +80,6 @@ set.menue.timer_settings=Timer Settings
 set.rec.stop=stop
 
 # ===== Settings Plugins
-set.plugins=Plugincontrol
-set.plugins.title=Manage plugins and services
-
-set.plugin-tools.fcm-addr=Edit Phonebook
-set.plugin-tools.pat-rules=Edit Rules
-set.plugin-tools.epgscan-dat=Edit Transponderlist
-set.plugin-tools.rssreader-conf=Edit RSS-Feeds
-set.plugin-tools.2webtvxmlurls-conf=Edit WebTV-URLs
 
 set.plugins_hide=Hide plugins
 set.plugins_hide.title=Show and hide plugins
@@ -122,48 +92,6 @@ set.infoicons.flagfiles=Flag-Files
 set.infoicons.static=Static
 set.infoicons.popup=As a popup
 set.infoicons.infoviewer=With Infoviewer
-
-# ===== Settings camds
-set.camds=Softcams
-set.camds.title=Softcam-Control
-
-set.camd-tools=Tools for
-set.camd-tools.line=----------------------------------
-set.camd-tools.ecminfo=ECM-Informations
-set.camd-tools.countcards=Count available cards
-set.camd-tools.sc01info=Card-details from slot1
-set.camd-tools.sc02info=Card-details from slot2
-set.camd-tools.shareinfo=CS-Informations
-set.camd-tools.shareonl=Online-Share-Informations
-set.camd-tools.mginfo=CS-Informations
-set.camd-tools.cccamdinfo=CCCamd Lines
-set.camd-tools.pidinfo=PID-Informations
-set.camd-tools.mgshareinfo=NewCamd Lines
-set.camd-tools.oscamversion=Common Informations
-set.camd-tools.ncamversion=Common Informations
-set.camd-tools.doscamversion=Common Informations
-
-# ===== Tools Info
-tools.info.show_messages=Kernel Messages
-tools.info.processes=Processes
-tools.info.memory=Memory
-tools.info.cpu_info=CPU info
-tools.info.mem_info=Memory info
-tools.info.partitions=Partitions
-tools.info.mtd=mtd
-tools.info.stat=Statistics
-tools.info.version=Version
-
-# ===== Tools yInstaller
-tools.yinstaller.no_file_given=No file given!
-tools.yinstaller.space.mtd=Space total
-tools.yinstaller.space.used=used
-tools.yinstaller.space.free=free
-tools.yinstaller.space.percentage=percentage used
-tools.yinstaller.not_determine=Can not determine free space.
-tools.yinstaller.head=yInstaller
-tools.yinstaller.tar_file=tar-File
-tools.yinstaller.upload_install=upload and install
 
 # ===== Tools NetFS
 tools.netfs.0=fstab
@@ -216,11 +144,6 @@ live.timer-sync.status=Status
 
 # ===== INFO
 info.about=About Image
-info.about.your_image=Your Image
-info.about.actual_image=Current Image
-info.about.image_upd_no=No update available
-info.about.image_upd_yes=Update available
-info.check_for_updates=Check for Updates
 
 # ===== MODERN YWEB UI (yw.* keys, see Y_Lang.yjs)
 yw.nav.dashboard=Dashboard

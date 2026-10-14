@@ -3,7 +3,6 @@
 #	$Date: 2010-03-05 07:02:32 +0100 (Fr, 05 Mrz 2010) $
 #	$Revision: 454 $
 ﻿=========== Geral / GLOBAL
-global.no_iframes=O seu Browser não suporta IFrames.
 clear=apagar
 submit=Submeter
 action=Acção
@@ -62,7 +61,6 @@ main.live=Live
 main.live_desc=LiveView, Timer Sync &amp; Definições
 
 #========= Menu do Control da Box
-bc.menue.control=Control
 bc.menue.lcd_screenshot_desc=fazer um lcd screenshot
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot não se encontra instalado
@@ -79,21 +77,7 @@ bc.menue.webinf_slavebox=Webinterface de Outra Box
 
 ========= Boxcontrol
 bc.control.freemem=FreeMem
-bc.control.lock=bloquear
-bc.control.unlock=desbloquear
-bc.control.standby_mode=modo em standby
-bc.control.recording_mode=modo de gravação
-bc.control.box=box
-bc.control.remote=remote
-bc.control.playback=playback
-bc.control.epg_sectiond=EPG Sectiond
-bc.control.live_lock=bloqueio do live
 bc.control.reboot.ask=Quer realmente reiniciar a sua Box?
-bc.control.reboot=reiniciar 
-bc.control.shutdown.ask=Quer realmente desligar a sua Box?
-bc.control.shutdown=desligar
-bc.control.status=estado
-bc.control.restart=reiniciar 
 
 ========= Boxcontrol - Message
 
@@ -120,9 +104,6 @@ bou.bouquet_editor=Editor de Favoritos
 
 ========Definições
 set.reload_neutrino=reiniciar  Neutrino
-set.sync_with_neutrino_desc=Após alterar configurações via a Neutrino-Web-UI: <br/>Escolha na TV "Menu Principal-> Serviços-> Soft reiniciar", para aceitar as mudanças dentro de neutrino. <br/> Após alterar as configurações dentro Neutrino: <br/> Escolha na TV "Menu Principal-> Configurações-> Salvar configurações agora", para aceitar estas alterações e recarregue esta página.
-
-set.sync_with_neutrino=Sincronização com Neutrino
 
 =======Definições General & Menu
 set.menue.timer_settings=Definições do Programador
@@ -184,26 +165,8 @@ set.pv.decoding_server_port=Porta do Servidor-decifrador</td>
 ========Definições Audioplayer
 
 ============ Ferramentas de Informação
-tools.info.show_messages=Mensagens do Kernel
-tools.info.processes=Processos
-tools.info.memory=Memória
-tools.info.cpu_info=Informação do CPU
-tools.info.mem_info=Informação da memória
-tools.info.partitions=Partições
-tools.info.mtd=mtd
-tools.info.stat=Estatisticas
-tools.info.version=Versão
 
 ============ Ferramentas yInstaller
-tools.yinstaller.no_file_given=Nenhum ficheiro selecionado!
-tools.yinstaller.space.mtd=Total de espaço
-tools.yinstaller.space.used=usados
-tools.yinstaller.space.free=livres
-tools.yinstaller.space.percentage=percentagem usada
-tools.yinstaller.not_determine=Sem puder determinar o espaço livre.
-tools.yinstaller.head=yInstaller
-tools.yinstaller.tar_file=tar-Ficheiro
-tools.yinstaller.upload_install=upload e instalar
 
 ============ Ferramentas
 tools.automount_desc=organizar tipo de montagens
@@ -292,4 +255,3 @@ live.timer_edit.repeat1=repetir (0 = ilimitado)
 
 ========== INFO
 info.About=Sobre
-info.check_for_updates=Verificar actualizações

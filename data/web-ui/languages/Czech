@@ -3,7 +3,6 @@
 #	$Date: 2014-04-09 16:02:10 +0100 (st, 09 Duben 2014) $
 #	$Revision: 213 $
 #========= Hlavní / Celkové nastavení
-global.no_iframes= Váš prohlížeč nepodporuje i-frame.
 clear=Vymazat
 submit=Spustit
 action=Akce
@@ -65,7 +64,6 @@ main.live_tv_popup_desc=Okno Živá TV
 main.version=Verze
 
 #========= Nabídka ovládaní boxu
-bc.menue.control=Ovládání
 bc.menue.lcd_screenshot_desc=Vytvoří obrázek OSD zobrazení v mřížce
 bc.menue.lcd_screenshot=Zesnímání OSD obrazovky
 bc.menue.lcd_screenshot_desc_ni=lcshot není inštalovaný
@@ -75,21 +73,7 @@ bc.menue.webinf_slavebox=Webinterface pro podřízené zařízení
 
 #========= Ovládání
 bc.control.freemem=Volná pamět
-bc.control.lock=Zamčené
-bc.control.unlock=Odemčené
-bc.control.standby_mode=Režim připravenosti
-bc.control.recording_mode=Režim nahrávaní
-bc.control.box=Box
-bc.control.remote=Ovladač
-bc.control.playback=Režim přehrávání
-bc.control.epg_sectiond=EPG Sekce
-bc.control.live_lock=Naživo zamčené
 bc.control.reboot.ask=Skutečně restartovat zařízení?
-bc.control.reboot=ReBoot
-bc.control.shutdown.ask=Skutečně vypnout zařízení?
-bc.control.shutdown=Vypnout
-bc.control.status=Stav
-bc.control.restart=Restart
 
 ========= Ovládání - Zpráva
 
@@ -111,8 +95,6 @@ epg.zap_to=Přepnutí na kanál. Vykonané.
 
 ======= Nastavení
 set.reload_neutrino=Restart Neutrina
-set.sync_with_neutrino_desc=Po změnách nastavení přes Neutrino-Web-UI:<br/>Vybrat na TV "Hlavní Menu-> Služby-> Restart software", pro přijetí změn uvnitř neutrína.<br/>Po změnách nastavení uvnitř Neutrina: <br/>Vybrat na TV "Hlavní Menu-> Nastavení-> Uložení nastavení", pro použití těchto změn a znovu načíst tuto stránku.
-set.sync_with_neutrino=Synchronizovat s Neutrínem
 
 ====== Hlavné nastavenia a Ponuka
 set.menue.timer_settings=Nastavení tvinfo.de
@@ -185,26 +167,9 @@ set.timer.channel_name_replacelist=Název kanálu směnného seznamu
 ======= Nastavení Zálohy / Obnovení
 
 ============ Nástroje Info
-tools.info.show_messages=Zprávy kernelu
-tools.info.processes=Procesy
-tools.info.memory=Paměť
-tools.info.cpu_info=Informace o CPU
-tools.info.mem_info=Informace o paměti
-tools.info.partitions=Informace o oddílu
-tools.info.mtd=mtd
-tools.info.stat=Stav
-tools.info.version=Verze
 
 ============ Nástroje yInstaller
-tools.yinstaller.no_file_given=Vybrán soubor !
-tools.yinstaller.space.mtd=Celková kapacita
 tools.yinstaller.space.user=Použitá
-tools.yinstaller.space.free=Volná
-tools.yinstaller.space.percentage=Použitá v procentech
-tools.yinstaller.not_determine=Nelze určit volná kapacita .
-tools.yinstaller.head=yInstaller
-tools.yinstaller.tar_file=tar - Soubor
-tools.yinstaller.upload_install=Nahrát a instalovat
 
 ============ Nástroje 
 tools.automount_desc=Správu automaticky připojených souborů 
@@ -314,6 +279,5 @@ live.timer-sync.status=Stav
 ========== INFO
 info.hel=Pomoc
 info.About=O programu
-info.check_for_updates=Kontrola aktualizace
 
 ========= Dálkové ovládání

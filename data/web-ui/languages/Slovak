@@ -3,7 +3,6 @@
 #	$Date: 2018-07-22 17:17:17 +0100 (ne, 22 Júna 2018) $
 #	$Revision: 350 $
 #========= Hlavné / Celkové nastavenie
-global.no_iframes=Váš prehliadač nepodporuje I-rámce.
 clear=vyčistiť
 submit=Odoslať
 action=Akcia
@@ -84,7 +83,6 @@ main.live_tv_popup_desc=Okno Živá TV
 main.version=Verzia
 
 #========= Ponuka ovládania boxu
-bc.menue.control=Ovládanie
 bc.menue.lcd_screenshot_desc=Vytvorí obrázok OSD zobrazenia v mierke
 bc.menue.lcd_screenshot=Zosnímanie OSD obrazovky
 bc.menue.lcd_screenshot_desc_ni=lcshot nie je inštalovaný
@@ -94,21 +92,7 @@ bc.menue.webinf_slavebox=Webinterface pre podriadené zariadenie
 
 #========= Ovládanie
 bc.control.freemem=Voľná pamäť
-bc.control.lock=zamknuté
-bc.control.unlock=odomknuté
-bc.control.standby_mode=režim pripravenosti
-bc.control.recording_mode=režim nahrávania
-bc.control.box=box
-bc.control.remote=ovládač
-bc.control.playback=režim prehrávania
-bc.control.epg_sectiond=EPG Sekcia
-bc.control.live_lock=naživo zamknuté
 bc.control.reboot.ask=Skutočne reštartovať zariadenie?
-bc.control.reboot=reBoot
-bc.control.shutdown.ask=Skutočne vypnúť zariadenie?
-bc.control.shutdown=vypnúť
-bc.control.status=stav
-bc.control.restart=reŠtart
 
 ========= Ovládanie - Správa
 
@@ -129,8 +113,6 @@ epg.zap_to=Prepnutie na kanál. Vykonané.
 
 ======= Nastavenia
 set.reload_neutrino=reŠtart Neutrina
-set.sync_with_neutrino_desc=Po zmenách nastavení cez Neutrino-Web-UI:<br/>Vybrať na TV "Hlavné Menu-> Služby-> Reštart software", pre prijatie zmien vnútri neutrína.<br/>Po zmenách nastavení vnútri Neutrina: <br/>Vybrať na TV "Hlavné Menu-> Nastavenia-> Uloženie nastavenia", pre použitie týchto zmien a znovu načítať túto stránku.
-set.sync_with_neutrino=Synchronizovať s Neutrinom
 
 ====== Hlavné nastavenia a Ponuka
 set.menue.timer_settings=Nastavenie tvinfo.de
@@ -203,26 +185,8 @@ set.timer.channel_name_replacelist=Názov kanálu výmenného zoznamu
 ======= Nastavenia Zálohy/Obnovenia
 
 ============ Nástroje Info
-tools.info.show_messages=Správy kernelu
-tools.info.processes=Procesy
-tools.info.memory=Pamäť
-tools.info.cpu_info=Informácia o CPU
-tools.info.mem_info=Informácia o pamäti
-tools.info.partitions=Informácia o partíciach
-tools.info.mtd=mtd
-tools.info.stat=Stav
-tools.info.version=Verzia
 
 ============ Nástroje yInstaller
-tools.yinstaller.no_file_given=Nevybraný súbor !
-tools.yinstaller.space.mtd=Celková kapacita
-tools.yinstaller.space.used= Použitá
-tools.yinstaller.space.free= Voľná
-tools.yinstaller.space.percentage= Použitá v percentách
-tools.yinstaller.not_determine=Nedá sa určiť voľná kapacita.
-tools.yinstaller.head=yInstaller
-tools.yinstaller.tar_file=tar-súbor
-tools.yinstaller.upload_install=nahrať a inštalovať
 
 ============ Nástroje
 tools.automount_desc=spravovanie automaticky pripojených súborov
@@ -330,7 +294,6 @@ live.timer-sync.status=Stav
 
 ========== INFO
 info.About=O programe
-info.check_for_updates=Kontrola aktualizácie
 
 ========= Dialkové ovládanie
 rc_key_sub=Titulky
