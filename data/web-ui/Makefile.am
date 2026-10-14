@@ -41,85 +41,32 @@ install_DATA = \
 	extensions.txt \
 	favicon.ico \
 	index.html \
-	index_legacy.html \
 	wizard.yhtm \
 	robots.txt \
 	Y_About_Image.yhtm \
-	Y_About_yWeb.yhtm \
 	Y_Baselib.js \
-	Y_Blank.yhtm \
 	Y_Blocks.txt \
 	Y_Blocks_Neutrino.txt \
-	Y_Boxcontrol_Bouquet_Editor_Edit.yhtm \
-	Y_Boxcontrol_Bouquet_Editor_Main.yhtm \
-	Y_Boxcontrol_Bouquetlist.yhtm \
-	Y_Boxcontrol_Bouquets.yhtm \
-	Y_Boxcontrol_Channellist.yhtm \
-	Y_Boxcontrol_Menue.yhtm \
-	Y_Boxcontrol_Messages.yhtm \
-	Y_Boxcontrol_PZapit.yhtm \
-	Y_Dyn_Pages.yhtm \
-	Y_EPG.js \
-	Y_EPG_Plus.yhtm \
-	Y_Ext_Menue.yhtm \
-	Y_Ext_Settings.yhtm \
-	Y_Ext_Uninstall.yhtm \
-	Y_Ext_Update.js \
-	Y_Ext_Update.yhtm \
-	Y_Ext_Update_refresh.yhtm \
-	Y_Filemgr.yhtm \
 	Y_Filemgr_Edit.yhtm \
-	Y_Info_Help.yhtm \
-	Y_Info_Menue.yhtm \
 	Y_Lang.yjs \
-	Y_Live_EPG.yhtm \
-	Y_Live_EPG_Info.yhtm \
 	Y_Main.css \
-	Y_Menue.yhtm \
-	Y_Refresh.yhtm \
-	Y_Settings_Backup.yhtm \
 	Y_Settings_Camds.yhtm \
 	Y_Settings_Infoicons.yhtm \
-	Y_Settings_Menue.yhtm \
 	Y_Settings_Plugins.yhtm \
 	Y_Settings_Plugins_hide.yhtm \
 	Y_Settings_automount.yhtm \
 	Y_Settings_automount_list.yhtm \
-	Y_Settings_buttons.yhtm \
-	Y_Settings_glcd.yhtm \
-	Y_Settings_lcd.yhtm \
-	Y_Settings_mount.yhtm \
-	Y_Settings_mount_list.yhtm \
-	Y_Settings_neutrino_forms.yhtm \
-	Y_Settings_nhttpd.yhtm \
-	Y_Settings_personalize.yhtm \
-	Y_Settings_umount_list.yhtm \
-	Y_Settings_video_audio.yhtm \
-	Y_Settings_wol.yhtm \
-	Y_Settings_xmltv.yhtm \
-	Y_Settings_yWeb.yhtm \
-	Y_Settings_zapit.yhtm \
-	Y_StreamInfo.yhtm \
-	Y_Timer_Edit.yhtm \
-	Y_Timer_List.yhtm \
 	Y_Tools_Boxcontrol.yhtm \
-	Y_Tools_Check_Install.yhtm \
 	Y_Tools_Info_Menue.yhtm \
 	Y_Tools_Installer.yhtm \
-	Y_Tools_Menue.yhtm \
 	Y_Tools_NetFS.yhtm \
 	Y_Tools_NetFS_edit.yhtm \
 	Y_Tools_NetFS_init.yhtm \
-	Y_Tools_Rcsim.yhtm \
-	Y_Tools_Screenshot.yhtm  \
-	Y_Tools_Screenshot_GraphLCD.yhtm \
-	Y_Tools_Screenshot_LCD4Linux.yhtm  \
 	Y_Tools_m3uConvert.yhtm \
 	Y_Tools_m3uConvert_help.yhtm \
 	Y_User.css \
 	Y_Version.txt \
 	Y_Wait.yhtm \
-	Y_yWeb.js \
 	yweb-dom.js \
 	yweb-header.js \
 	yweb-v1.js

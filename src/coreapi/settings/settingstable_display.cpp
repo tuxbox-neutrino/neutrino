@@ -2,6 +2,7 @@
  * settingstable_display.cpp - front display settings, one row per field
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, rework, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -350,9 +351,10 @@ const Descriptor kSettings[] =
 		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
 		COREAPI_NUMBER_FIELD(lcd4l_convert)
 	},
-	/* Read by the web interface out of the saved file and by nothing in the
-	   program, data/y-web/Y_Boxcontrol_Menue.yhtm:174, so a written value takes
-	   effect when it has been saved and not before. */
+	/* Read by nothing in the program. The old box control menu of the web
+	   interface read it out of the saved file to offer the LCD4Linux
+	   screenshot; that menu is gone, and the screenshot is the lcd4linux
+	   extension's page now, offered whatever this says. */
 	// src/neutrino.cpp:444 src/gui/lcd4l_setup.cpp:227
 	{
 		"lcd4l_screenshots", ValueType::Bool, "display",

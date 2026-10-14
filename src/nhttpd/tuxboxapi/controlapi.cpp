@@ -211,7 +211,7 @@ void CControlAPI::compatibility_Timer(CyhookHandler *hh)
 		else if(hh->ParamList["action"] == "new")
 			doNewTimer(hh);
 	}
-	hh->SendRedirect("/Y_Timer_List.yhtm");
+	hh->SendRedirect("/timer.yhtm");
 }
 
 //=============================================================================
