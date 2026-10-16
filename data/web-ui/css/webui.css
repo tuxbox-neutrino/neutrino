@@ -969,7 +969,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	margin: 0 0 1rem;
 }
 
-/* Sign-in dialog of yweb-v1.js: the refusal below the fields */
+/* Sign-in dialog of webui-v1.js: the refusal below the fields */
 .yweb-confirm-dialog .yweb-v1-err {
 	margin: -0.5rem 0 1rem;
 	color: var(--yweb-danger);
@@ -3143,7 +3143,7 @@ body.yweb-remote-open {
 }
 
 /* ============================================
-   yweb-dom.js: sheet, dock, row actions
+   webui-dom.js: sheet, dock, row actions
    ============================================ */
 dialog.yweb-sheet > article {
 	width: min(32rem, 92vw);

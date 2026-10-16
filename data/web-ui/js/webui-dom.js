@@ -1,5 +1,5 @@
-// yweb-dom.js - the small DOM helpers the modern pages share (load before
-// the page's own script; uses the language texts of yweb-header.js when it
+// webui-dom.js - the small DOM helpers the modern pages share (load before
+// the page's own script; uses the language texts of webui-header.js when it
 // is loaded, else English).
 //
 //   ywebEl('div', {className: 'row', title: name}, name, ' ', child)
@@ -175,7 +175,7 @@ function ywebSync(list, items, keyOf, render, update) {
 //   button of the body, else the first action, and back to where it was
 //   when the sheet closes. The dialog leaves the document when it closes.
 
-// a text of the language files when yweb-header.js is loaded, else the English one
+// a text of the language files when webui-header.js is loaded, else the English one
 function _ywebText(key, en) {
 	return typeof ywebL === 'function' ? ywebL(key, en) : en;
 }

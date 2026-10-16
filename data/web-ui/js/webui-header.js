@@ -5,7 +5,7 @@
 
 // Central configuration
 const YWEB_CONFIG = {
-	logo: '/images/logo.png',
+	logo: '/img/logo.png',
 	title: 'Neutrino-Web-UI'
 };
 
@@ -800,7 +800,7 @@ async function ywebApi(endpoint, params, opts) {
 	return data;
 }
 
-// A key of the remote control. Over /api/v1 where the page loads yweb-v1.js
+// A key of the remote control. Over /api/v1 where the page loads webui-v1.js
 // (session, CSRF token), else over the old interface, which extensions and
 // older pages still use.
 async function ywebSendKey(key) {
@@ -1298,7 +1298,7 @@ function ywebCloseModal(id) {
 	document.body.style.overflow = '';
 }
 
-// Companion des geteilten .yweb-file-Controls (yweb.css): zeigt den
+// Companion des geteilten .yweb-file-Controls (webui.css): zeigt den
 // gewaehlten Dateinamen im Control an — onchange="ywebFileName(this)"
 function ywebFileName(inp) {
 	var box = inp.closest('.yweb-file');
@@ -1332,7 +1332,7 @@ function ywebShowPathPicker(startPath, onPick, opts) {
 	ywebPickerLoad(_ywebPickerState.path);
 }
 
-/* Over /api/v1 where the page loads yweb-v1.js: the picker then reaches the
+/* Over /api/v1 where the page loads webui-v1.js: the picker then reaches the
    box's roots and what lies below them, as the file manager does. Its top
    level ('') is the list of roots, and a start outside them leads there. */
 async function _ywebPickerRows(path) {
@@ -1359,7 +1359,7 @@ async function ywebPickerLoad(path) {
 	var crumbEl = document.getElementById('yweb-picker-crumb');
 	if (!listEl) return;
 	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + ywebL('msg.loading', 'Loading...') + '</li>';
-	// both: a page that loads yweb-v1.js without yweb-dom.js keeps the old list
+	// both: a page that loads webui-v1.js without webui-dom.js keeps the old list
 	if (typeof ywebV1 === 'function' && typeof ywebEl === 'function') {
 		var rows;
 		try {
@@ -1373,7 +1373,7 @@ async function ywebPickerLoad(path) {
 		var chooseBtn = document.querySelector('#yweb-picker .yweb-btn.primary');
 		if (chooseBtn) chooseBtn.disabled = !rows.path;	// the list of roots is no folder
 		// Rows as elements with their handlers, so a folder name is text
-		// whatever it holds (yweb-dom.js comes with yweb-v1.js)
+		// whatever it holds (webui-dom.js comes with webui-v1.js)
 		var row = function(label, onClick) {
 			return ywebEl('li', {}, ywebEl('button', {type: 'button', className: 'yweb-btn',
 				style: {width: '100%', 'text-align': 'left', border: 'none'}, on: {click: onClick}}, label));
@@ -1433,7 +1433,7 @@ function ywebPickerPickFile(full) {
 	if (st && typeof st.onPick === 'function') st.onPick(full);
 }
 
-// The EPG dialog, recording and streaming of a channel live in yweb-v1.js,
+// The EPG dialog, recording and streaming of a channel live in webui-v1.js,
 // which the pages offering them load after this file.
 
 // Timer constants — shared across all pages. Interne Typnamen (EN,

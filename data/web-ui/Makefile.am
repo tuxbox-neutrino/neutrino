@@ -2,8 +2,10 @@ SUBDIRS = \
 	css \
 	favicon \
 	images \
+	img \
 	info \
 	jquery \
+	js \
 	languages \
 	lcd4linux \
 	scripts \
@@ -27,8 +29,6 @@ install_DATA = \
 	screenshot.yhtm \
 	set-lang.yhtm \
 	settings.yhtm \
-	settings-registry.js \
-	settings-v1.js \
 	sysinfo.yhtm \
 	timer.yhtm \
 	recordings.yhtm \
@@ -47,10 +47,7 @@ install_DATA = \
 	Y_Tools_NetFS_edit.yhtm \
 	Y_Tools_NetFS_init.yhtm \
 	Y_User.css \
-	Y_Version.txt \
-	yweb-dom.js \
-	yweb-header.js \
-	yweb-v1.js
+	Y_Version.txt
 
 configdir = $(CONFIGDIR)
 config_DATA = yWeb.conf

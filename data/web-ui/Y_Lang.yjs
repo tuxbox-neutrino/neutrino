@@ -3,8 +3,8 @@
 // Served through mod_yparser: every L: language token below is replaced
 // with the translation for the active language (CLanguage chain: selected
 // language -> Neutrino -> English). Beware: the parser replaces tokens
-// even inside comments. Load this BEFORE yweb-header.js; ywebL(key, en)
-// in yweb-header.js reads window.YWEB_L and falls back to its second
+// even inside comments. Load this BEFORE webui-header.js; ywebL(key, en)
+// in webui-header.js reads window.YWEB_L and falls back to its second
 // argument when a key is missing or untranslated.
 // Convention: modern-UI keys live under the yw.* prefix in
 // data/y-web/languages/<Language>. Translation values must not contain
@@ -230,11 +230,11 @@ window.YWEB_L = {
 	"set.secret_keep": "{=L:yw.set.secret_keep=}",
 	"set.unknown_value": "{=L:yw.set.unknown_value=}",
 	"si.network": "{=L:yw.si.network=}",
-	// Tools-Dialoge (yweb-header.js: Nachricht-Popover, Remote-Titel)
+	// Tools-Dialoge (webui-header.js: Nachricht-Popover, Remote-Titel)
 	"tools.message": "{=L:yw.tools.message=}",
 	"tools.message_ph": "{=L:yw.tools.message_ph=}",
 	"tools.remote_sub": "{=L:yw.tools.remote_sub=}",
-	// Remote control buttons (yweb-header.js)
+	// Remote control buttons (webui-header.js)
 	"rc.fav": "{=L:yw.rc.fav=}",
 	"rc.time": "{=L:yw.rc.time=}",
 	"rc.power": "{=L:yw.rc.power=}",
@@ -263,7 +263,7 @@ window.YWEB_L = {
 	"rc.epg": "{=L:yw.rc.epg=}",
 	"rc.text": "{=L:yw.rc.text=}",
 	"rc.numpad": "{=L:yw.rc.numpad=}",
-	// Sprachwechsler (yweb-header.js)
+	// Sprachwechsler (webui-header.js)
 	"lang.title": "{=L:yw.lang.title=}",
 	"lang.none": "{=L:yw.lang.none=}",
 	// settings-registry.js (M4e: SRS + System)
@@ -283,14 +283,14 @@ window.YWEB_L = {
 	"reg.fan_speed": "{=L:yw.reg.fan_speed=}",
 	"reg.start_volume_hint": "{=L:yw.reg.start_volume_hint=}",
 	"reg.override_dir_hint": "{=L:yw.reg.override_dir_hint=}",
-	// Verzeichnis-Picker (yweb-header.js)
+	// Verzeichnis-Picker (webui-header.js)
 	"picker.title": "{=L:yw.picker.title=}",
 	"picker.choose_folder": "{=L:yw.picker.choose_folder=}",
 	"picker.not_readable": "{=L:yw.picker.not_readable=}",
 	"picker.empty": "{=L:yw.picker.empty=}",
 	"picker.roots": "{=L:yw.picker.roots=}",
 	"msg.loading": "{=L:yw.msg.loading=}",
-	// Confirm-/Prompt-Dialoge (yweb-header.js)
+	// Confirm-/Prompt-Dialoge (webui-header.js)
 	"msg.cancel": "{=L:yw.msg.cancel=}",
 	"msg.close": "{=L:yw.msg.close=}",
 	"msg.error": "{=L:yw.msg.error=}",
@@ -305,9 +305,9 @@ window.YWEB_L = {
 	"v1.zap_stop_playback": "{=L:yw.v1.zap_stop_playback=}",
 	"v1.zap_wake": "{=L:yw.v1.zap_wake=}",
 	"msg.load_fail": "{=L:yw.msg.load_fail=}",
-	// Standby-Rueckfrage der RC-Komponente (yweb-header.js)
+	// Standby-Rueckfrage der RC-Komponente (webui-header.js)
 	"sb.confirm": "{=L:yw.sb.confirm=}",
-	// Header/EPG-Modal/About (yweb-header.js)
+	// Header/EPG-Modal/About (webui-header.js)
 	"theme.toggle": "{=L:yw.theme.toggle=}",
 	"hdr.logout": "{=L:yw.hdr.logout=}",
 	"epg.nodata": "{=L:yw.epg.nodata=}",
@@ -316,13 +316,13 @@ window.YWEB_L = {
 	"ext.extension": "{=L:yw.ext.extension=}",
 	"ext.open": "{=L:yw.ext.open=}",
 	"about.no_links": "{=L:yw.about.no_links=}",
-	// Aufnahme-Aktionen (yweb-header.js)
+	// Aufnahme-Aktionen (webui-header.js)
 	"rec.planned": "{=L:yw.rec.planned=}",
 	"rec.stopped": "{=L:yw.rec.stopped=}",
 	"rec.stop_fail": "{=L:yw.rec.stop_fail=}",
 	"rec.stop": "{=L:yw.rec.stop=}",
 	"rec.start": "{=L:yw.rec.start=}",
-	// Timer-Anzeige-Labels (yweb-header.js, Maps)
+	// Timer-Anzeige-Labels (webui-header.js, Maps)
 	"timer.type.1": "{=L:yw.timer.type.1=}",
 	"timer.type.3": "{=L:yw.timer.type.3=}",
 	"timer.type.4": "{=L:yw.timer.type.4=}",

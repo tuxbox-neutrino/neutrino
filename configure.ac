@@ -827,6 +827,8 @@ data/webradio/Makefile
 data/webtv/Makefile
 data/web-ui/Makefile
 data/web-ui/images/Makefile
+data/web-ui/img/Makefile
+data/web-ui/js/Makefile
 data/web-ui/languages/Makefile
 data/web-ui/scripts/Makefile
 data/web-ui/styles/Makefile

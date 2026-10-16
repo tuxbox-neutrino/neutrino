@@ -6,12 +6,12 @@
 	<title>Neutrino-Web-UI - {=L:yw.nav.settings=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* Layout as <main>: inherits the global main rule (flex:1,
 		   min-height:0, overflow:auto) so long content scrolls and the
@@ -187,7 +187,7 @@
 			min-width: 0;
 		}
 		/* a long label wraps inside its column instead of pushing the
-		   help button under the control (yweb.css keeps labels unshrunk) */
+		   help button under the control (webui.css keeps labels unshrunk) */
 		.settings-card .yweb-set-label label:not(.yweb-toggle) {
 			min-width: 0;
 			flex-shrink: 1;
@@ -418,7 +418,7 @@
 			color: var(--pico-muted-color);
 		}
 
-		/* Mobile — settings-specific overrides (form-row mobile handled by yweb.css) */
+		/* Mobile — settings-specific overrides (form-row mobile handled by webui.css) */
 		@media (max-width: 800px) {
 			.yweb-settings-sidebar { display: none; }
 			.yweb-settings-mobile-nav { display: flex; }
@@ -466,14 +466,14 @@
 		</div>
 	</main>
 
-	<!-- Reihenfolge: Registry-Labels rufen ywebL (yweb-header.js) auf, das
+	<!-- Reihenfolge: Registry-Labels rufen ywebL (webui-header.js) auf, das
 	     window.YWEB_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=61"></script>
-	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=14"></script>
-	<script src="/settings-registry.js?v=17"></script>
-	<script src="/settings-v1.js?v=4"></script>
+	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-dom.js?v=1"></script>
+	<script src="/js/webui-v1.js?v=14"></script>
+	<script src="/js/settings-registry.js?v=17"></script>
+	<script src="/js/settings-v1.js?v=4"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -689,7 +689,7 @@
 	var RESTORE_ICON = sIcon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>');
 	var TRASH_ICON = sIcon('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>');
 
-	// Markup-Helfer: gestyltes Datei-Control (.yweb-file aus yweb.css);
+	// Markup-Helfer: gestyltes Datei-Control (.yweb-file aus webui.css);
 	// der gewählte Dateiname landet via onchange in .yweb-file-name
 	function makeFileControl(inputId, accept) {
 		return '<label class="yweb-file"><input type="file" id="' + inputId + '"' +
@@ -697,7 +697,7 @@
 			'<span class="yweb-file-btn">{=L:yw.set.choose_file=}</span>' +
 			'<span class="yweb-file-name">&ndash;</span></label>';
 	}
-	// ywebFileName (onchange-Companion des Controls) liefert yweb-header.js
+	// ywebFileName (onchange-Companion des Controls) liefert webui-header.js
 
 	// Rechtsbuendiger Save-Button fuer Panels mit eigenem Config-Zyklus
 	// (ExtConfig, Erweiterungen, WoL) — Optik wie die zentrale Save-Leiste.
@@ -1047,7 +1047,7 @@
 	}
 
 	// Extension manager: discovered manifests with enable toggle, slot
-	// override (persisted in yWeb.conf, loader in yweb-header.js) and
+	// override (persisted in yWeb.conf, loader in webui-header.js) and
 	// install/update/uninstall over /api/v1/webui/extensions. The box fetches
 	// nothing: an archive from an address is loaded by the browser and
 	// uploaded like a file.

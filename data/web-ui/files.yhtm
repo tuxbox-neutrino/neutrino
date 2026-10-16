@@ -6,12 +6,12 @@
 	<title>Neutrino-Web-UI - {=L:yw.tools.files=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* 2-column grid layout */
 		main.yweb-files-grid {
@@ -501,9 +501,9 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=61"></script>
-	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=14"></script>
+	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-dom.js?v=1"></script>
+	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
 		// The file manager works through /api/v1/storage: it reaches the
 		// directories the box names as its roots (where it records, where its

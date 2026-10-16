@@ -1,5 +1,5 @@
-// yweb-v1.js - what the modern pages share to talk to the REST interface
-// /api/v1 (load after Y_Lang.yjs and yweb-header.js).
+// webui-v1.js - what the modern pages share to talk to the REST interface
+// /api/v1 (load after Y_Lang.yjs and webui-header.js).
 //
 //   ywebV1('GET', '/bouquets')                            -> parsed JSON
 //   ywebV1('GET', '/channels', {query: {mode: 'tv'}})     -> parsed JSON
@@ -392,7 +392,7 @@ function ywebV1Zap(channelId) {
 	});
 }
 
-// A yes or no in a sheet (yweb-dom.js); without the helper layer the
+// A yes or no in a sheet (webui-dom.js); without the helper layer the
 // browser's own confirm.
 function _ywebV1Ask(text, title, ok) {
 	if (typeof ywebSheet !== 'function')

@@ -8,12 +8,12 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -304,7 +304,7 @@
 	}
 
 	/* Layout-only delta; colour/frame/hover/focus/light come from the
-	   shared .yweb-btn base in yweb.css (loaded before this style). */
+	   shared .yweb-btn base in webui.css (loaded before this style). */
 	.yweb-mode-switch-btn {
 		flex: 1;
 		gap: 0.3rem;
@@ -889,7 +889,7 @@
 	</style>
 </head>
 <body>
-	<!-- Header wird dynamisch von yweb-header.js generiert -->
+	<!-- Header wird dynamisch von webui-header.js generiert -->
 	<div class="yweb-header-wrapper" data-page="dashboard"></div>
 	<div class="yweb-header-spacer"></div>
 
@@ -1222,9 +1222,9 @@
 	</footer>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=61"></script>
-	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=14"></script>
+	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-dom.js?v=1"></script>
+	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
 	// Show EPG info for current channel
 	function showCurrentEpgInfo() {
@@ -1232,7 +1232,7 @@
 			ywebShowEpgModal(dash.channel.id, dash.channel.name);
 	}
 
-	// Format helpers — use shared versions from yweb-header.js
+	// Format helpers — use shared versions from webui-header.js
 	var formatKB = ywebFormatKB;
 	var formatUptime = ywebFormatUptime;
 
@@ -1301,7 +1301,7 @@
 
 	// A read that fails is no answer: the card keeps what it shows or says
 	// there is nothing. A refusal for want of a sign-in opens the dialog once
-	// (yweb-v1.js) and the read is sent again.
+	// (webui-v1.js) and the read is sent again.
 	function dashGet(path, query) {
 		return ywebV1('GET', path, query ? {query: query} : undefined).catch(function() { return null; });
 	}
@@ -1490,7 +1490,7 @@
 		setText('play-icon', (p.paused || p.state === 'paused') ? '❚❚' : '▶');
 	}
 
-	// Load System Info: /api/v1/system/info in the old shape (yweb-header.js)
+	// Load System Info: /api/v1/system/info in the old shape (webui-header.js)
 	function loadSystemInfo() {
 		ywebSystemInfo(false).then(function(data) {
 			if (!data) return;
@@ -1658,7 +1658,7 @@
 	}
 
 	// Recording and stopping go through the helpers the EPG dialog and the
-	// channel list share (yweb-v1.js): what runs now is recorded, the
+	// channel list share (webui-v1.js): what runs now is recorded, the
 	// recording shown is ended. What they change comes back as record and
 	// timer events.
 	function toggleRecording() {
@@ -2166,7 +2166,7 @@
 
 
 	// M5d: Restreihen-Balancer — Logik lebt seit N2a geteilt in
-	// yweb-header.js (ywebBalanceGrid), Tools nutzt sie ebenfalls.
+	// webui-header.js (ywebBalanceGrid), Tools nutzt sie ebenfalls.
 	function ywebBalanceDashboard() {
 		ywebBalanceGrid('.yweb-dashboard', {wideClass: 'dash-wide'});
 	}

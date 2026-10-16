@@ -13,7 +13,6 @@ install_DATA = \
 	fb.png \
 	inlink.gif \
 	key.png \
-	logo.png \
 	modify.png \
 	new.png \
 	page_edit.png \

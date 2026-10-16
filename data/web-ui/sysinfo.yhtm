@@ -6,12 +6,12 @@
 	<title>Neutrino-Web-UI - System Info</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		.sysinfo-content {
 			padding: 0.5rem 1rem;
@@ -51,7 +51,7 @@
 			100% { outline-color: transparent; }
 		}
 
-		/* Kopfmasse wie .yweb-card-header (yweb.css) — gleiche Hoehe
+		/* Kopfmasse wie .yweb-card-header (webui.css) — gleiche Hoehe
 		   und Titelgroesse wie auf allen anderen Seiten */
 		.sysinfo-card-header {
 			display: flex;
@@ -293,9 +293,9 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=61"></script>
-	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=14"></script>
+	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-dom.js?v=1"></script>
+	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
 	function row(label, value) {
 		return '<span class="sysinfo-label">' + label + '</span><span class="sysinfo-value">' + value + '</span>';
@@ -311,7 +311,7 @@
 
 	async function loadSysInfo() {
 		try {
-			// over /api/v1, in the shape the page has always read (yweb-header.js)
+			// over /api/v1, in the shape the page has always read (webui-header.js)
 			var sys = await ywebSystemInfo(true);
 			if (!sys) throw new Error('/api/v1/system/info');
 			var ver = await ywebVersions(sys);

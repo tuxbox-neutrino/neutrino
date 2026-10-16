@@ -163,8 +163,8 @@ Kernpunkte:
 
 - Header/Nav der Neutrino-Web-UI einbinden:
   `<div class="yweb-header-wrapper" data-page="tools"></div>` +
-  `<script src="/yweb-header.js"></script>` + `ywebInitHeader('tools');`
-- Styling: Pico CSS + `/css/yweb.css` verlinken — fertige Klassen
+  `<script src="/js/webui-header.js"></script>` + `ywebInitHeader('tools');`
+- Styling: Pico CSS + `/css/webui.css` verlinken — fertige Klassen
   (`yweb-card`, `yweb-form-row`, `yweb-btn`) nutzen.
 - Theme **vor** diesen Stylesheets setzen, sonst malt die Seite erst
   dunkel und springt dann auf das Theme des Benutzers:

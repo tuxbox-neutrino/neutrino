@@ -6,12 +6,12 @@
 	<title>Neutrino-Web-UI - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.
@@ -408,7 +408,7 @@
 	</style>
 </head>
 <body>
-	<!-- Header wird dynamisch von yweb-header.js generiert -->
+	<!-- Header wird dynamisch von webui-header.js generiert -->
 	<div class="yweb-header-wrapper" data-page="epg"></div>
 	<div class="yweb-header-spacer"></div>
 
@@ -485,9 +485,9 @@
 	</div>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=61"></script>
-	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=14"></script>
+	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-dom.js?v=1"></script>
+	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
 		// The programme grid over /api/v1: the bouquet's channels, then the
 		// guide window for 20 of them per request (GET /api/v1/epg/grid),

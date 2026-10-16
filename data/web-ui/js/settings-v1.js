@@ -1,5 +1,5 @@
 // settings-v1.js - the settings the box declares, drawn from and written to
-// /api/v1/settings (settings.yhtm; load after yweb-dom.js, yweb-v1.js and
+// /api/v1/settings (settings.yhtm; load after webui-dom.js, webui-v1.js and
 // settings-registry.js).
 //
 // GET /settings/schema names every setting the box has: its key, kind,

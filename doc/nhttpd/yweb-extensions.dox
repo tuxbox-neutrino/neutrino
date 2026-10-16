@@ -7,7 +7,7 @@ English version: \ref ywebext_en
 
 Die Neutrino-Web-UI laedt Erweiterungen deklarativ aus
 `<webroot>/extensions/<name>/manifest.json` — kein Patchen von Kernseiten.
-Der Loader lebt in `data/y-web/yweb-header.js` (`ywebDiscoverExtensions` /
+Der Loader lebt in `data/web-ui/js/webui-header.js` (`ywebDiscoverExtensions` /
 `ywebInjectExtensions`) und laeuft beim Seiten-Init jeder modernen Seite.
 
 \section ywebext_manifest Manifest-Schema
@@ -42,7 +42,7 @@ Der Loader lebt in `data/y-web/yweb-header.js` (`ywebDiscoverExtensions` /
 
 Erweiterungen lokalisieren sich selbst ueber flache JSON-Woerterbuecher
 `<ordner>/languages/<Sprache>.json` (Dateiname wie die Kern-Sprachdatei,
-z.B. `English.json`, `Deutsch.json`). Helfer in `yweb-header.js`:
+z.B. `English.json`, `Deutsch.json`). Helfer in `webui-header.js`:
 
 - `ywebActiveLangName()` — aktiver Sprachname (aus der Dropdown-Liste,
   Fallback `English`).
@@ -146,8 +146,8 @@ Versionierung semantisch `v<major>.<minor>.<patch>`: version-line
 Patch als `git rev-list --count v<maj>.<min>..HEAD + 1` (jq auf
 manifest.json), taggt, baut den Tarball und veroeffentlicht das Release
 im selben Job (GITHUB_TOKEN-Pushes triggern keine Folge-Workflows).
-Erweiterungs-Seiten referenzieren Kern-Assets (`/css/yweb.css`,
-`/Y_Lang.yjs`, `/yweb-header.js`) OHNE `?v=`-Parameter — sie koennen
+Erweiterungs-Seiten referenzieren Kern-Assets (`/css/webui.css`,
+`/Y_Lang.yjs`, `/js/webui-header.js`) OHNE `?v=`-Parameter — sie koennen
 Kern-Bumps nicht tracken.
 
 \section ywebext_ref Referenz & Einsteiger-Doku
@@ -166,7 +166,7 @@ Deutsche Fassung: \ref ywebext
 
 The Neutrino-Web-UI loads extensions declaratively from
 `<webroot>/extensions/<name>/manifest.json` — no patching of core pages.
-The loader lives in `data/y-web/yweb-header.js`
+The loader lives in `data/web-ui/js/webui-header.js`
 (`ywebDiscoverExtensions` / `ywebInjectExtensions`) and runs on page
 init of every modern page.
 
@@ -203,7 +203,7 @@ init of every modern page.
 Extensions localize themselves through flat JSON dictionaries
 `<folder>/languages/<Language>.json` (named like the core language
 file, e.g. `English.json`, `Deutsch.json`). Helpers in
-`yweb-header.js`:
+`webui-header.js`:
 
 - `ywebActiveLangName()` — active language name (from the dropdown
   data, fallback `English`).
@@ -308,8 +308,8 @@ sets `<maj>.<min>.0` and creates the annotated anchor tag
 `main` as `git rev-list --count v<maj>.<min>..HEAD + 1` (jq on
 manifest.json), tags, builds the tarball and publishes the release in
 the same job (GITHUB_TOKEN pushes trigger no follow-up workflows).
-Extension pages reference core assets (`/css/yweb.css`, `/Y_Lang.yjs`,
-`/yweb-header.js`) WITHOUT `?v=` parameters — they cannot track core
+Extension pages reference core assets (`/css/webui.css`, `/Y_Lang.yjs`,
+`/js/webui-header.js`) WITHOUT `?v=` parameters — they cannot track core
 bumps.
 
 \section ywebext_en_ref Reference & getting-started docs

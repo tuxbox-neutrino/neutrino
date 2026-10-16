@@ -6,12 +6,12 @@
 	<title>Neutrino-Web-UI - {=L:yw.tools.bqedit=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */
@@ -64,7 +64,7 @@
 		.bqe-list li.drop-bottom { box-shadow: inset 0 -2px 0 var(--yweb-accent); }
 		#bqeChannels.drop-hover { outline: 1px dashed var(--yweb-accent); outline-offset: -2px; border-radius: 4px; }
 		.bqe-search { flex: 1; min-width: 140px; }
-		/* Flach genug fuer die 2.4rem-Kopfhoehe (yweb.css), sonst ist
+		/* Flach genug fuer die 2.4rem-Kopfhoehe (webui.css), sonst ist
 		   dieses Panel hoeher als seine Nachbarn */
 		.bqe-search input { width: 100%; padding: 0.15rem 0.5rem !important; height: auto !important; margin: 0 !important; font-size: 0.8rem; line-height: 1.2; }
 		.bqe-hint { color: var(--pico-muted-color); font-size: 0.75rem; margin-top: 0.6rem; }
@@ -152,8 +152,8 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=61"></script>
-	<script src="/yweb-v1.js?v=14"></script>
+	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
 		// The editor speaks /api/v1: a bouquet is read with its position (id)
 		// and its hidden/locked state, and changed by its name; the box saves

@@ -6,12 +6,12 @@
 	<title>Neutrino-Web-UI - Bouquets</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* 2-column grid layout for bouquets. Bouquetspalte bemisst
 		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —
@@ -340,7 +340,7 @@
 	</style>
 </head>
 <body>
-	<!-- Header wird dynamisch von yweb-header.js generiert -->
+	<!-- Header wird dynamisch von webui-header.js generiert -->
 	<div class="yweb-header-wrapper" data-page="bouquets"></div>
 	<div class="yweb-header-spacer"></div>
 
@@ -389,13 +389,13 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/yweb-header.js?v=61"></script>
-	<script src="/yweb-dom.js?v=1"></script>
-	<script src="/yweb-v1.js?v=14"></script>
+	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-dom.js?v=1"></script>
+	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
 		// The channel list over /api/v1: bouquets, their channels and what each
 		// is showing now. Names, titles and texts come from the broadcast and go
-		// in as text (yweb-dom.js); nothing here is built as markup.
+		// in as text (webui-dom.js); nothing here is built as markup.
 		let currentChannelId = null;	// the v1 id of the channel the box plays
 		let currentMode = 'tv';		// the list shown: the one the box plays from
 		let currentBouquetNumber = '';	// the v1 bouquet id, '' for all channels

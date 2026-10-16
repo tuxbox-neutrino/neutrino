@@ -6,15 +6,15 @@
 	<title>Neutrino-Web-UI - {=L:yw.login.title=}</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
-		// Apply the stored theme before first paint: yweb-header.js runs
+		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* Compact centered auth card after the portal login pattern.
-		   yweb.css already makes body a column flexbox with main{flex:1}
+		   webui.css already makes body a column flexbox with main{flex:1}
 		   — undo the stretch and the fixed height so the card sizes to
 		   its content; margin:auto centers it and still allows
 		   scrolling to the top on tiny viewports. */
@@ -150,7 +150,7 @@
 	</main>
 
 	<script>
-		// Local eye icons: this page deliberately does not load yweb-header.js
+		// Local eye icons: this page deliberately does not load webui-header.js
 		var LOGIN_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 		var LOGIN_EYEOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 		// The icon mirrors the state: crossed-out eye while masked
