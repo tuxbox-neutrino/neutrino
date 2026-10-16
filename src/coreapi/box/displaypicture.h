@@ -33,8 +33,17 @@ namespace coreapi
    display that stands still has an old file and is still live. */
 bool displayPictureLive(const char *path, bool running);
 
-/* A whole copy of the file at the path given, written aside and renamed. NotSupported
-   where there is no such file, Internal where the copy could not be made. */
+/* Whether the bytes are one whole PNG: the signature, then chunks whose lengths
+   add up and whose checksums hold, ending in IEND and nothing after it, and
+   image data that unpacks to the end of its stream, whose own checksum holds.
+   A file still being written, or read while it was rewritten in place, fails
+   this, also where its chunks each came whole from two pictures. */
+bool wholePng(const std::string &bytes);
+
+/* A whole copy of the file at the path given, checked to be a whole PNG, written
+   aside and renamed. NotSupported where there is no such file, Internal where the
+   copy could not be made. A file not whole after a second read leaves the last
+   whole copy at the path given, and that is Ok; with none it is Internal. */
 Status copyDisplayPicture(const char *from, const std::string &to);
 
 } // namespace coreapi

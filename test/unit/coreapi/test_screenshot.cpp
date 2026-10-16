@@ -39,6 +39,8 @@
 #include <unistd.h>
 #include <utime.h>
 
+#include <zlib.h>
+
 using namespace coreapi;
 
 namespace
@@ -290,6 +292,46 @@ static void writeText(const std::string &path, const std::string &body)
 	fclose(f);
 }
 
+static void chunk(std::string &out, const char *type, const std::string &data)
+{
+	const unsigned long n = data.size();
+	out += (char) (n >> 24);
+	out += (char) (n >> 16);
+	out += (char) (n >> 8);
+	out += (char) n;
+	const std::string body = std::string(type, 4) + data;
+	out += body;
+	const unsigned long crc = crc32(crc32(0L, Z_NULL, 0), (const Bytef *) body.data(), body.size());
+	out += (char) (crc >> 24);
+	out += (char) (crc >> 16);
+	out += (char) (crc >> 8);
+	out += (char) crc;
+}
+
+/* A PNG that is whole as far as the copy checks it: IHDR, image data as one zlib
+   stream cut into IDAT chunks of the size given, IEND. The data is the bytes given
+   and no picture anybody could draw. Level is zlib's; at 0 nothing is packed, so
+   two pictures of the same length have their chunks at the same places. */
+static std::string pngOf(const std::string &data, size_t idat = 4096, int level = 0)
+{
+	uLongf packed = compressBound(data.size());
+	std::string stream(packed, '\0');
+	REQUIRE(compress2((Bytef *) &stream[0], &packed, (const Bytef *) data.data(), data.size(), level) == Z_OK);
+	stream.resize(packed);
+
+	std::string out("\x89PNG\r\n\x1a\n", 8);
+	chunk(out, "IHDR", std::string(13, '\0'));
+	for (size_t at = 0; at < stream.size(); at += idat)
+		chunk(out, "IDAT", stream.substr(at, idat));
+	chunk(out, "IEND", "");
+	return out;
+}
+
+static std::string pngOf(size_t payload, char fill)
+{
+	return pngOf(std::string(payload, fill));
+}
+
 static std::string readText(const std::string &path)
 {
 	std::string out;
@@ -319,9 +361,7 @@ TEST_CASE("the lcd4linux picture is copied whole and and a display is live only 
 	REQUIRE(copyDisplayPicture(source.c_str(), target) == Status::NotSupported);
 	REQUIRE_FALSE(exists(target));
 
-	std::string body(10000, 'x');
-	body[0] = 'P';
-	body[9999] = 'Z';
+	const std::string body = pngOf(10000, 'x');
 	writeText(source, body);
 	REQUIRE(displayPictureLive(source.c_str(), true));
 	REQUIRE_FALSE(displayPictureLive(source.c_str(), false));
@@ -336,6 +376,59 @@ TEST_CASE("the lcd4linux picture is copied whole and and a display is live only 
 
 	// Nowhere to write: a fault, and nothing left under either name.
 	REQUIRE(copyDisplayPicture(source.c_str(), "/nonexistent-dir/x.png") == Status::Internal);
+	unlink(source.c_str());
+	unlink(target.c_str());
+}
+
+TEST_CASE("a display picture caught half written is not sent, the last whole one is", "[screenshot]")
+{
+	const std::string whole = pngOf(5000, 'a');
+	REQUIRE(wholePng(whole));
+	REQUIRE_FALSE(wholePng(""));
+	REQUIRE_FALSE(wholePng(whole + "x"));
+
+	const std::string tag = std::to_string((long) getpid());
+	const std::string source = "/tmp/test-lcd4l-half-" + tag + ".png";
+	const std::string target = "/tmp/test-lcd4l-half-copy-" + tag + ".png";
+	unlink(source.c_str());
+	unlink(target.c_str());
+
+	// Cut short, as a writer that paused would leave it, with no whole one yet.
+	writeText(source, whole.substr(0, 3000));
+	REQUIRE(copyDisplayPicture(source.c_str(), target) == Status::Internal);
+	REQUIRE_FALSE(exists(target));
+	REQUIRE_FALSE(exists(target + ".tmp"));
+
+	writeText(source, whole);
+	REQUIRE(copyDisplayPicture(source.c_str(), target) == Status::Ok);
+	REQUIRE(readText(target) == whole);
+
+	// Rewritten in place: the same size, part old picture and part new.
+	std::string mixed = pngOf(5000, 'b');
+	mixed.replace(0, 2000, whole.substr(0, 2000));
+	writeText(source, mixed);
+	REQUIRE(copyDisplayPicture(source.c_str(), target) == Status::Ok);
+	REQUIRE(readText(target) == whole);
+	REQUIRE_FALSE(exists(target + ".tmp"));
+
+	// The same, cut where one chunk ends: every chunk is whole, each from
+	// one of the two pictures, and only the image data's own checksum says
+	// they do not belong together.
+	const std::string first = pngOf(20000, 'c');
+	const std::string second = pngOf(20000, 'd');
+	REQUIRE(first.size() == second.size());
+	const size_t cut = 8 + (12 + 13) + 2 * (12 + 4096);
+	const std::string spliced = first.substr(0, cut) + second.substr(cut);
+	REQUIRE(wholePng(first));
+	REQUIRE(wholePng(second));
+	REQUIRE_FALSE(wholePng(spliced));
+	writeText(source, spliced);
+	REQUIRE(copyDisplayPicture(source.c_str(), target) == Status::Ok);
+	REQUIRE(readText(target) == whole);
+
+	// Image data that would unpack to far more than any display shows.
+	REQUIRE_FALSE(wholePng(pngOf(std::string(65u * 1024u * 1024u, '\0'), 1u << 20, 9)));
+
 	unlink(source.c_str());
 	unlink(target.c_str());
 }
