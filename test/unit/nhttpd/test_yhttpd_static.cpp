@@ -367,6 +367,107 @@ TEST_CASE("a web directory reached through a link still has its files open", "[n
 		close(fd);
 }
 
+TEST_CASE("a page path is answered with index.html only where the switch says so", "[nhttpd]")
+{
+	Box b;
+	b.file(b.core + "/index.html", "<shell>");
+
+	b.ask("/epg/grid");
+	CHECK(ystatic::resolve(&b.hh).origin == ystatic::Target::NONE);
+
+	b.hh.WebserverConfigList["WebsiteMain.spa_fallback"] = "true";
+	const ystatic::Target page = ystatic::resolve(&b.hh);
+	CHECK(page.origin == ystatic::Target::CORE);
+	CHECK(page.fallback);
+	CHECK(page.file == b.core + "/index.html");
+	const int fd = ystatic::openPublic(&b.hh, page);
+	REQUIRE(fd >= 0);
+	CHECK(readAll(fd) == "<shell>");
+	close(fd);
+
+	// with a slash at the end, which analyzeURL answers as index.html
+	b.ask("/epg/");
+	CHECK(ystatic::resolve(&b.hh).fallback);
+	b.ask("/epg/grid/");
+	CHECK(ystatic::resolve(&b.hh).fallback);
+
+	b.ask("/control/info");
+	CHECK(ystatic::resolve(&b.hh).origin == ystatic::Target::NONE);
+	b.ask("/control/");
+	CHECK(ystatic::resolve(&b.hh).origin == ystatic::Target::NONE);
+	b.ask("/extensions");
+	CHECK(ystatic::resolve(&b.hh).origin == ystatic::Target::NONE);
+	b.ask("/missing.js");
+	CHECK(ystatic::resolve(&b.hh).origin == ystatic::Target::NONE);
+	b.ask("/epg/grid");
+	b.hh.Method = M_POST;
+	CHECK(ystatic::resolve(&b.hh).origin == ystatic::Target::NONE);
+}
+
+TEST_CASE("an index.html that is not the web directory's own file is no page to fall back on", "[nhttpd]")
+{
+	Box b;
+	b.hh.WebserverConfigList["WebsiteMain.spa_fallback"] = "true";
+	b.file(b.outside + "/index.html", "elsewhere");
+	b.link(b.outside + "/index.html", b.core + "/index.html");
+	b.ask("/epg");
+	CHECK(ystatic::openPublic(&b.hh, ystatic::resolve(&b.hh)) < 0);
+
+	Box c;
+	c.hh.WebserverConfigList["WebsiteMain.spa_fallback"] = "true";
+	c.file(c.core + "/extensions/e/index.html", "extension");
+	c.link(c.core + "/extensions/e/index.html", c.core + "/index.html");
+	c.ask("/epg");
+	CHECK(ystatic::openPublic(&c.hh, ystatic::resolve(&c.hh)) < 0);
+
+	Box d;
+	d.hh.WebserverConfigList["WebsiteMain.spa_fallback"] = "true";
+	d.file(d.over + "/index.html", "override");
+	d.file(d.core + "/index.html", "core");
+	d.ask("/epg");
+	CHECK(ystatic::openPublic(&d.hh, ystatic::resolve(&d.hh)) < 0);
+
+	Box e;
+	e.hh.WebserverConfigList["WebsiteMain.spa_fallback"] = "true";
+	e.file(e.core + "/index.html.gz", "compressed");
+	e.ask("/epg");
+	const int fd = ystatic::openPublic(&e.hh, ystatic::resolve(&e.hh));
+	CHECK(fd >= 0);
+	if (fd >= 0)
+		close(fd);
+
+	Box f;
+	f.hh.WebserverConfigList["WebsiteMain.spa_fallback"] = "true";
+	f.ask("/epg");
+	CHECK(ystatic::resolve(&f.hh).origin == ystatic::Target::NONE);
+}
+
+TEST_CASE("a page path answered with the index is not a cached page of the same address", "[nhttpd]")
+{
+	Box b;
+	b.hh.WebserverConfigList["WebsiteMain.spa_fallback"] = "true";
+	b.file(b.core + "/index.html", "<shell>");
+	CConfigFile config('\t');
+	config.setString("mod_cache.cache_directory", b.root + "/cache");
+	CStringList list;
+	CmodCache cache;
+	cache.Hook_ReadConfig(&config, list);
+	// a template's page, cached under its decoded address with the query
+	cache.AddToCache(&b.hh, "/private.yhtm?route=/epg", "a protected page", "text/html");
+
+	// the same address with the ? encoded: no parameters, and a page path
+	b.ask("/private.yhtm?route=/epg");
+	b.hh.UrlData["fullurl"] = "/private.yhtm?route=/epg";
+	const ystatic::Target page = ystatic::resolve(&b.hh);
+	REQUIRE(page.fallback);
+	b.hh.PublicFd = ystatic::openPublic(&b.hh, page);
+	REQUIRE(b.hh.PublicFd >= 0);
+	cache.Hook_PrepareResponse(&b.hh);
+	CHECK_FALSE(b.hh.cached);
+	CHECK(b.hh.NewURL.empty());
+	CmodCache::DeleteCache();
+}
+
 TEST_CASE("a name with %, + or ? comes back whole from the second URL pass", "[nhttpd]")
 {
 	const std::string name = "/srv/web/a%41+b?c.css";

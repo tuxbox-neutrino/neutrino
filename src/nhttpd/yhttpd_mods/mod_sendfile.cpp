@@ -93,10 +93,13 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 		hh->PublicFd = -1;
 		target.origin = ystatic::Target::CORE;
 		target.file = hh->HookVarList["sendfile.public"];
+		target.fallback = hh->HookVarList["sendfile.fallback"] == "true";
 	} else
 		target = ystatic::resolve(hh);
 
-	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
+	// a page path answered with index.html goes out as the page it is
+	const std::string ext = target.fallback ? std::string("html") : hh->UrlData["fileext"];
+	std::string mime = sendfileTypes[ext];
 	if (((!mime.empty()) || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
 			&& !(hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh")) {
 		const std::string fullfilename = target.file;
@@ -226,6 +229,11 @@ THandleStatus CmodSendfile::Hook_ReadConfig(CConfigFile *Config,
 	ConfigList["mod_sendfile.mime_types"] = exttypes;
 	ConfigList["mod_sendfile.sendAll"] = Config->getString(
 			"mod_sendfile.sendAll", HTTPD_SENDFILE_ALL);
+	// A single-page interface: a page path that names no file is answered
+	// with the web directory's index.html (ystatic::resolve). Off for the
+	// pages shipped with the box, whose index.html only picks the start page.
+	ConfigList["WebsiteMain.spa_fallback"] = Config->getString(
+			"WebsiteMain.spa_fallback", "false");
 
 	bool ende = false;
 	std::string item, ext, mime;

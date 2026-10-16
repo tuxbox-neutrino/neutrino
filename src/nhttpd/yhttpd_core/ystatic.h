@@ -22,13 +22,18 @@ struct Target
 	enum Origin { NONE, CORE, OVERRIDE, RAW };
 	Origin origin;
 	std::string file;	// the file to open, as found
-	Target() : origin(NONE) {}
+	bool fallback;		// the web directory's index.html for a page path
+	Target() : origin(NONE), fallback(false) {}
 };
 
 // path and filename as the request's UrlData holds them.
 Target resolveName(CyhookHandler *hh, const std::string &path, const std::string &filename);
 
-// The request's own file.
+// The request's own file, or, with WebsiteMain.spa_fallback switched on, the
+// web directory's index.html for a GET or HEAD whose last path segment has
+// no file extension (also one ending in /), that names no file and no
+// reserved space: a page of a single-page interface reloaded at its own
+// address.
 Target resolve(CyhookHandler *hh);
 
 // Whether the decoded URL lies in a space another hook answers or that is

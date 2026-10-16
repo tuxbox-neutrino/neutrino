@@ -89,7 +89,24 @@ Target resolveName(CyhookHandler *hh, const std::string &path, const std::string
 
 Target resolve(CyhookHandler *hh)
 {
-	return resolveName(hh, hh->UrlData["path"], hh->UrlData["filename"]);
+	Target t = resolveName(hh, hh->UrlData["path"], hh->UrlData["filename"]);
+	if (t.origin != Target::NONE)
+		return t;
+	if (hh->WebserverConfigList["WebsiteMain.spa_fallback"] != "true")
+		return t;
+	if (hh->Method != M_GET && hh->Method != M_HEAD)
+		return t;
+	// a page path names no file type in its last segment; analyzeURL has
+	// already turned one ending in / into index.html, so its fileext
+	// does not tell
+	const std::string &url = hh->UrlData["url"];
+	const size_t last = url.rfind('/');
+	if (url.find('.', last == std::string::npos ? 0 : last) != std::string::npos
+			|| inReservedSpace(url))
+		return t;
+	Target index = resolveName(hh, "/", "index.html");
+	index.fallback = index.origin != Target::NONE;
+	return index;
 }
 
 bool inReservedSpace(const std::string &url)

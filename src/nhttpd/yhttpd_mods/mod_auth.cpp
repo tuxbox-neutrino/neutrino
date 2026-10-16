@@ -86,6 +86,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 				hh->dropPublicFd();
 				hh->PublicFd = fd;
 				hh->HookVarList["sendfile.public"] = target.file;
+				hh->HookVarList["sendfile.fallback"] = target.fallback ? "true" : "false";
 			}
 		}
 	}
