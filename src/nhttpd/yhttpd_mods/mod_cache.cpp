@@ -30,6 +30,11 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh) {
 	log_level_printf(4, "mod_cache prepare hook start url:%s\n",
 			hh->UrlData["fullurl"].c_str());
 	std::string url = hh->UrlData["fullurl"];
+	// A request mod_auth let through without a login is answered from the
+	// file it opened and checked (PublicFd), never from a page cached under
+	// the same decoded address: /a.yhtm%3Fb=/c and /a.yhtm?b=/c are one key.
+	if (hh->PublicFd >= 0)
+		return hh->status;
 	if (CacheList.find(url) != CacheList.end()) // is in Cache. Rewrite URL or not modified
 	{
 		hh->cached = true;

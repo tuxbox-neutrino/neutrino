@@ -21,7 +21,6 @@ class CmodSendfile : public Cyhook
 private:
 protected:
 	int 			OpenFile(CyhookHandler *hh, std::string fullfilename);
-	std::string 		GetFileName(CyhookHandler *hh, std::string path, std::string filename);
 	std::string 		GetContentType(std::string ext);
 	static CStringList	sendfileTypes;
 public:

@@ -28,6 +28,8 @@ CyhookHandler::CyhookHandler()
 	SendFd = -1;
 	SendFdOffset = 0;
 	SendFdLength = 0;
+	PublicFd = -1;
+	SendFileFd = -1;
 	LengthUnknown = false;
 	cached = false;
 	keep_alive = 0;
@@ -47,6 +49,10 @@ CyhookHandler::CyhookHandler()
 
 CyhookHandler::~CyhookHandler()
 {
+	if (SendFd >= 0)
+		close(SendFd);
+	dropPublicFd();
+	dropSendFileFd();
 }
 
 //=============================================================================
@@ -235,6 +241,8 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 	SendFd = -1;
 	SendFdOffset = 0;
 	SendFdLength = 0;
+	dropPublicFd();
+	dropSendFileFd();
 	LengthUnknown = false;
 	ReloadAfter.clear();
 	ResponseHeaders.clear();

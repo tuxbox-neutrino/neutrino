@@ -158,6 +158,17 @@ public:
 	int		SendFd;			// answer body from this descriptor, -1 = none
 	off_t		SendFdOffset;		// first byte to send
 	off_t		SendFdLength;		// how many bytes to send
+	// A file mod_auth opened and checked because the request may go out
+	// without a login (ystatic::openPublic); mod_sendfile answers from it
+	// instead of looking the name up again. For the sign-in page, a
+	// template (HookVarList "public.template", ystatic::openLoginPage),
+	// the parser reads it instead. -1 = none.
+	int		PublicFd;
+	// A HANDLED_SENDFILE answer from a file a hook already opened
+	// (SendOpenedFile): the transport sends from this descriptor and never
+	// opens NewURL again. -1 = open NewURL as before. Both descriptors are
+	// owned here; session_init and the destructor close what is left.
+	int		SendFileFd;
 	// The answer a GET would carry has no length, a stream that runs until
 	// the connection closes: the header of a HEAD for it states none either.
 	bool		LengthUnknown;
@@ -251,7 +262,11 @@ public:
 	void SendOk(void);
 	void SendError(std::string error = "");
 	void SendResult(std::string _content);
-	void SendFile(const std::string& url)		{NewURL = url; status = HANDLED_SENDFILE;}
+	void SendFile(const std::string& url)		{dropSendFileFd(); NewURL = url; status = HANDLED_SENDFILE;}
+	// Answers with a file this hook opened: fd is sent, url only names it.
+	void SendOpenedFile(int fd, const std::string& url)	{dropSendFileFd(); SendFileFd = fd; NewURL = url; status = HANDLED_SENDFILE;}
+	void dropSendFileFd()				{if (SendFileFd >= 0) close(SendFileFd); SendFileFd = -1;}
+	void dropPublicFd()				{if (PublicFd >= 0) close(PublicFd); PublicFd = -1;}
 	void SendRedirect(const std::string& url)	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
 	void SendRewrite(const std::string& url)	{NewURL = url; status = HANDLED_REWRITE;}
 

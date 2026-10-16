@@ -57,6 +57,7 @@
 #include <yconfig.h>
 #include <ytypes_globals.h>
 #include <helper.h>
+#include <ystatic.h>
 #include "mod_sendfile.h"
 
 //=============================================================================
@@ -80,15 +81,28 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 		hh->UrlData["path"]=hh->WebserverConfigList["WebsiteMain.hosted_directory"]+(hh->UrlData["path"]).substr(_hosted.length()-1);
 #endif //Y_CONFIG_USE_HOSTEDWEB
 
+	// A file mod_auth opened and checked for an answer without a login is
+	// the one that goes out (ystatic::openPublic); any other request is
+	// looked up here in the same way. Either way the file is opened once
+	// and sent from that descriptor. The sign-in page's descriptor is the
+	// parser's (public.template).
+	ystatic::Target target;
+	int filed = -1;
+	if (hh->PublicFd >= 0 && hh->HookVarList["public.template"].empty()) {
+		filed = hh->PublicFd;
+		hh->PublicFd = -1;
+		target.origin = ystatic::Target::CORE;
+		target.file = hh->HookVarList["sendfile.public"];
+	} else
+		target = ystatic::resolve(hh);
+
 	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
 	if (((!mime.empty()) || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
 			&& !(hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh")) {
-		//TODO: Check allowed directories / actually in GetFileName
-		// build filename
-		std::string fullfilename = GetFileName(hh, hh->UrlData["path"],
-				hh->UrlData["filename"]);
-		int filed;
-		if ((filed = OpenFile(hh, fullfilename)) != -1) //can access file?
+		const std::string fullfilename = target.file;
+		if (filed < 0)
+			filed = OpenFile(hh, fullfilename);
+		if (filed != -1) //can access file?
 		{
 			struct stat statbuf;
 			hh->LastModified = (time_t) 0;
@@ -107,7 +121,6 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 				hh->LastModified = (statbuf.st_ctime > statbuf.st_mtime)
 						? statbuf.st_ctime : statbuf.st_mtime;
 			}
-			close(filed);
 
 			// check If-Modified-Since
 			time_t if_modified_since = (time_t) - 1;
@@ -167,12 +180,15 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 					}
 				}
 				if (!satisfiable) {
+					close(filed);
 					// handled here: without HANDLED_ERROR the next modules
 					// take the request on and it ends as 404
 					hh->SetError(HTTP_REQUEST_RANGE_NOT_SATISFIABLE, HANDLED_ERROR);
 					aprintf("mod_sendfile: Client requested range '%s' which is outside of [0,%lld]\n", range, hh->ContentLength - 1);
 				} else {
-					hh->SendFile(fullfilename);
+					// the name only for the header's sake (e.g. .gz):
+					// what goes out is this descriptor
+					hh->SendOpenedFile(filed, ystatic::reparseSafe(fullfilename));
 					hh->ResponseMimeType = mime;
 					/* Every range that was asked for and is served goes out as
 					   206 with its Content-Range, the one from the first byte and
@@ -182,14 +198,17 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 					if (range)
 						hh->httpStatus = HTTP_PARTIAL_CONTENT;
 				}
-			} else
+			} else {
+				close(filed);
 				hh->SetHeader(HTTP_NOT_MODIFIED, mime, HANDLED_READY);
+			}
 		} else {
 			aprintf("mod_sendfile: File not found. url:(%s) fullfilename:(%s)\n",
 					hh->UrlData["url"].c_str(), fullfilename.c_str());
 			hh->SetError(HTTP_NOT_FOUND);
 		}
-	}
+	} else if (filed >= 0)
+		close(filed);
 	log_level_printf(4, "mod_sendfile prepare hook end status:%d\n",
 			(int) hh->status);
 
@@ -222,33 +241,6 @@ THandleStatus CmodSendfile::Hook_ReadConfig(CConfigFile *Config,
 	return HANDLED_CONTINUE;
 }
 
-//-----------------------------------------------------------------------------
-// Send File: Build Filename
-// First Look at PublicDocumentRoot than PrivateDocumentRoot than pure path
-//-----------------------------------------------------------------------------
-std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::string filename) {
-	std::string tmpfilename;
-	if (path[path.length() - 1] != '/')
-		tmpfilename = path + "/" + filename;
-	else
-		tmpfilename = path + filename;
-	if (access(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename, R_OK) == 0)
-		tmpfilename = hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename;
-	else if (access(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz", R_OK) == 0)
-		tmpfilename = hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz";
-	else if (access(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename, R_OK) == 0)
-		tmpfilename = hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename;
-	else if (access(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz", R_OK) == 0)
-		tmpfilename = hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz";
-#ifdef Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL
-	else if(access(tmpfilename,R_OK) == 0)
-	;
-#endif
-	else {
-		return "";
-	}
-	return tmpfilename;
-}
 //-----------------------------------------------------------------------------
 // Send File: Open File and check file type
 //-----------------------------------------------------------------------------

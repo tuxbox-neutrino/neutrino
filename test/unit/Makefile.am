@@ -100,6 +100,7 @@ coreapi_tests_SOURCES = \
 	nhttpd/test_yhttpd_api.cpp \
 	nhttpd/test_bridge.cpp \
 	nhttpd/test_yhttpd_config.cpp \
+	nhttpd/test_yhttpd_static.cpp \
 	httpd/test_openapi.cpp \
 	httpd/test_openapi_basic.cpp \
 	httpd/test_router.cpp \
@@ -149,6 +150,7 @@ coreapi_tests_SOURCES = \
 coreapi_tests_LDADD = \
 	$(top_builddir)/src/httpd/libhttpd.a \
 	$(top_builddir)/src/coreapi/libcoreapi.a \
+	$(top_builddir)/src/nhttpd/yhttpd_mods/libyhttpdmods.a \
 	$(top_builddir)/src/nhttpd/yhttpd_core/libyhttpd.a \
 	$(top_builddir)/lib/xmltree/libxmltree.a \
 	$(top_builddir)/src/system/helpers.o \

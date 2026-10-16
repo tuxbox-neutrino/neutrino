@@ -12,6 +12,7 @@
 // C++
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <map>
 // system
 #include <unistd.h>
@@ -272,10 +273,47 @@ void CyParser::ParseAndSendFile(CyhookHandler *hh) {
 //-----------------------------------------------------------------------------
 // mini cgi Engine (file parsing)
 //-----------------------------------------------------------------------------
+namespace {
+
+// a template as the parser takes it: every line ended with \r\n
+std::string readTemplate(std::istream &fin)
+{
+	std::string html_template, ytmp;
+	while (!fin.eof()) {
+		getline(fin, ytmp);
+		html_template = html_template + ytmp + "\r\n";
+	}
+	return html_template;
+}
+
+} // namespace
+
 std::string CyParser::cgi_file_parsing(CyhookHandler *hh,
 		std::string htmlfilename, bool ydebug) {
 	bool found = false;
-	std::string htmlfullfilename, yresult, html_template;
+	std::string htmlfullfilename, yresult;
+
+	// A page open without a login (the sign-in page) is read from the
+	// file mod_auth opened and checked (ystatic::openLoginPage), never by
+	// its name again: a copy put into the override directory, or a link
+	// put in its place, after the check is not what runs.
+	if (hh->PublicFd >= 0 && hh->HookVarList["public.template"] == htmlfilename) {
+		const int fd = hh->PublicFd;
+		hh->PublicFd = -1;
+		std::string content;
+		char buf[4096];
+		ssize_t n;
+		while ((n = read(fd, buf, sizeof(buf))) > 0)
+			content.append(buf, (size_t) n);
+		close(fd);
+		std::istringstream fin(content);
+		char cwd[255];
+		getcwd(cwd, 254);
+		chdir(HTML_DIRS[1].c_str()); // the web directory, where it was found
+		yresult += cgi_cmd_parsing(hh, readTemplate(fin), ydebug);
+		chdir(cwd);
+		return yresult;
+	}
 
 	bool isHosted = false;
 #ifdef Y_CONFIG_USE_HOSTEDWEB
@@ -293,14 +331,7 @@ std::string CyParser::cgi_file_parsing(CyhookHandler *hh,
 		if (fin.good()) {
 			found = true;
 			chdir(HTML_DIRS[i].c_str()); // set working dir
-
-			// read whole file into html_template
-			std::string ytmp;
-			while (!fin.eof()) {
-				getline(fin, ytmp);
-				html_template = html_template + ytmp + "\r\n";
-			}
-			yresult += cgi_cmd_parsing(hh, html_template, ydebug); // parsing engine
+			yresult += cgi_cmd_parsing(hh, readTemplate(fin), ydebug); // parsing engine
 			fin.close();
 		}
 	}

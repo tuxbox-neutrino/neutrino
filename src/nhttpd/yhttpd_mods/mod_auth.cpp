@@ -9,6 +9,7 @@
 #include "mod_auth.h"
 #include <helper.h>
 #include <httpd/webconfig.h>
+#include <ystatic.h>
 
 //-----------------------------------------------------------------------------
 // HOOK: response_hook
@@ -50,24 +51,44 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 
 	const std::string &url = hh->UrlData["url"];
 
-	// the login flow's own resources must work without credentials,
-	// but never through a traversal: analyzeURL matches the
-	// percent-decoded URL and mod_sendfile does not sanitize "..",
-	// so "/css/../…" must not become an unauthenticated file read.
-	// The template parser runs an `execute` parameter (and prints its
-	// trace for `debug`) before it renders a page, and before it even
-	// looks whether the file exists: a request carrying either is
-	// never open, and under the asset prefixes no template is.
-	const std::string &ext = hh->UrlData["fileext"];
+	// What may be answered without credentials: the files of the web
+	// directory itself (the pages load before anybody signs in, as the
+	// pages of a single-page interface must), and the sign-in page while
+	// it is still a template. Never through a traversal: analyzeURL
+	// matches the percent-decoded URL and mod_sendfile does not sanitize
+	// "..". The template parser runs an `execute` parameter (and prints
+	// its trace for `debug`) before it renders a page, and before it even
+	// looks whether the file exists: a request carrying either is never
+	// open. Which file a request ends up at, and whether that file may go
+	// out, is ystatic's: the override and hosted directories, the raw
+	// path, templates, scripts, extensions and the spaces other hooks
+	// answer stay behind the login. The file checked is the file sent
+	// (PublicFd).
 	const bool runs_template = hh->ParamList.find("execute") != hh->ParamList.end()
 		|| hh->ParamList.find("debug") != hh->ParamList.end();
-	const bool template_file = ext == "yhtm" || ext == "yjs" || ext == "ysh";
 	bool authfree = false;
-	if (url.find("..") == std::string::npos && !runs_template)
-		authfree = url == "/login.yhtm"
-			|| url == "/favicon.ico"
-			|| (!template_file && url.compare(0, 5, "/css/") == 0)
-			|| (!template_file && url.compare(0, 9, "/favicon/") == 0);
+	if (url.find("..") == std::string::npos && !runs_template) {
+		if (url == "/login.yhtm") {
+			// the parser reads the checked page from this descriptor
+			const int fd = ystatic::openLoginPage(hh);
+			if (fd >= 0) {
+				authfree = true;
+				hh->dropPublicFd();
+				hh->PublicFd = fd;
+				hh->HookVarList["public.template"] = url;
+			}
+		}
+		else if ((hh->Method == M_GET || hh->Method == M_HEAD) && !ystatic::inReservedSpace(url)) {
+			const ystatic::Target target = ystatic::resolve(hh);
+			const int fd = ystatic::openPublic(hh, target);
+			if (fd >= 0) {
+				authfree = true;
+				hh->dropPublicFd();
+				hh->PublicFd = fd;
+				hh->HookVarList["sendfile.public"] = target.file;
+			}
+		}
+	}
 
 	// /login runs for every client, exempt included, so an old bookmark
 	// or a form cached before the login moved to POST /api/v1/login
@@ -146,8 +167,11 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 		const login_bridge::Ask ask = AskOf(hh);
 		if (!login_bridge::sessionAdmits(ask) && !login_bridge::basicAdmits(ask)) {
 			// browsers get the styled login page; scripts and API
-			// clients keep the unchanged Basic-auth 401 path
-			if (IsBrowserNavigation(hh)) {
+			// clients keep the unchanged Basic-auth 401 path, and so
+			// do browsers where the web directory has no login page of
+			// its own: sent to a missing or overridden one, they would
+			// be sent on to it again and again
+			if (IsBrowserNavigation(hh) && ystatic::ownLoginPage(hh)) {
 				hh->SendRedirect("/login.yhtm?next="
 					+ UrlEncode(hh->UrlData["fullurl"]));
 				return HANDLED_REDIRECTION;

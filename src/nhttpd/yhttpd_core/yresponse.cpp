@@ -183,9 +183,18 @@ bool CWebserverResponse::SendResponse() {
 		//		if(Connection->HookHandler.UrlData["path"] == "/tmp/")//TODO: un-cachable dirs
 		//			cache = false;
 		Write(Connection->HookHandler.BuildHeader(cache));
-		if (Connection->Method != M_HEAD)
-			Sendfile(Connection->Request.UrlData["url"], Connection->HookHandler.RangeStart,
-				(Connection->HookHandler.RangeStart == 0 && Connection->HookHandler.RangeEnd == -1) ? -1 : Connection->HookHandler.RangeEnd - Connection->HookHandler.RangeStart + 1);
+		const off_t length = (Connection->HookHandler.RangeStart == 0 && Connection->HookHandler.RangeEnd == -1)
+			? -1 : Connection->HookHandler.RangeEnd - Connection->HookHandler.RangeStart + 1;
+		if (Connection->HookHandler.SendFileFd >= 0) {
+			// the file the hook opened and checked, never its name again
+			int filed = Connection->HookHandler.SendFileFd;
+			Connection->HookHandler.SendFileFd = -1;
+			if (Connection->Method != M_HEAD
+					&& !Connection->sock->SendFile(filed, Connection->HookHandler.RangeStart, length))
+				Connection->RequestCanceled = true;
+			close(filed);
+		} else if (Connection->Method != M_HEAD)
+			Sendfile(Connection->Request.UrlData["url"], Connection->HookHandler.RangeStart, length);
 		return true;
 	}
 	if (Connection->HookHandler.status == HANDLED_SENDFILE && Connection->HookHandler.httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE) {
