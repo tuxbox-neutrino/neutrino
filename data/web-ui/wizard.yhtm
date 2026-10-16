@@ -8,7 +8,7 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
@@ -56,7 +56,7 @@
 			display: flex;
 			gap: 0.6rem;
 		}
-		.wiz-wrap .wiz-actions .yweb-btn {
+		.wiz-wrap .wiz-actions .webui-btn {
 			flex: 1;
 		}
 		.wiz-wrap .wiz-err {
@@ -72,9 +72,9 @@
 	</style>
 </head>
 <body>
-	<!-- yweb-card statt settings-card: letztere ist settings.yhtm-lokal
+	<!-- webui-card statt settings-card: letztere ist settings.yhtm-lokal
 	     und hier wirkungslos — die Karte war randlos/unsichtbar -->
-	<main class="wiz-wrap yweb-card" id="wizCardBasics">
+	<main class="wiz-wrap webui-card" id="wizCardBasics">
 		<h1>{=L:yw.wiz.welcome=}</h1>
 		<p class="sub">{=L:yw.wiz.intro=}</p>
 
@@ -92,10 +92,10 @@
 		</select>
 
 		<small class="wiz-err" id="wizErr0" role="status" tabindex="-1" hidden></small>
-		<button type="button" class="yweb-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)">{=L:yw.wiz.next=}</button>
+		<button type="button" class="webui-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)">{=L:yw.wiz.next=}</button>
 	</main>
 
-	<main class="wiz-wrap yweb-card" id="wizCardLogin" hidden>
+	<main class="wiz-wrap webui-card" id="wizCardLogin" hidden>
 		<h1>{=L:yw.wiz.login_title=}</h1>
 		<p class="sub" id="wizLoginIntro">{=L:yw.wiz.login_intro=}</p>
 
@@ -107,13 +107,13 @@
 		<label for="wizPass">{=L:yw.wiz.login_pass=}</label>
 		<div class="wiz-pw-row">
 			<input type="password" id="wizPass" autocomplete="new-password">
-			<button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass', this)"></button>
+			<button type="button" class="webui-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass', this)"></button>
 		</div>
 
 		<label for="wizPass2">{=L:yw.wiz.login_pass2=}</label>
 		<div class="wiz-pw-row">
 			<input type="password" id="wizPass2" autocomplete="new-password">
-			<button type="button" class="yweb-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass2', this)"></button>
+			<button type="button" class="webui-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass2', this)"></button>
 		</div>
 
 		<!-- Fehlerelement existiert vorab im DOM, sonst wird nichts angesagt -->
@@ -121,8 +121,8 @@
 		<small class="wiz-note">{=L:yw.wiz.login_note=}</small>
 
 		<div class="wiz-actions">
-			<button type="button" class="yweb-btn ghost" id="wizSkip" onclick="wizLoginDone()">{=L:yw.wiz.login_skip=}</button>
-			<button type="button" class="yweb-btn primary" onclick="wizLoginSave(this)">{=L:yw.wiz.login_save=}</button>
+			<button type="button" class="webui-btn ghost" id="wizSkip" onclick="wizLoginDone()">{=L:yw.wiz.login_skip=}</button>
+			<button type="button" class="webui-btn primary" onclick="wizLoginSave(this)">{=L:yw.wiz.login_save=}</button>
 		</div>
 	</main>
 
@@ -131,7 +131,7 @@
 		var WIZ_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 		var WIZ_EYEOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 		// The icon mirrors the state: crossed-out eye while masked
-		document.querySelectorAll('.wiz-pw-row .yweb-btn').forEach(function(b) { b.innerHTML = WIZ_EYEOFF; });
+		document.querySelectorAll('.wiz-pw-row .webui-btn').forEach(function(b) { b.innerHTML = WIZ_EYEOFF; });
 
 		function wizTogglePw(id, btn) {
 			var el = document.getElementById(id);

@@ -8,7 +8,7 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
@@ -16,7 +16,7 @@
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.
 		   Both themes now define their own surface, and text on the accent
-		   uses the shared --yweb-on-accent token instead of plain white. */
+		   uses the shared --webui-on-accent token instead of plain white. */
 		:root {
 			--epg-prog-bg: #2a3a4a;
 			--epg-prog-border: #3a4a5a;
@@ -31,14 +31,14 @@
 			--epg-row-hover: rgba(0, 0, 0, 0.03);
 		}
 
-		.yweb-epg-container {
+		.webui-epg-container {
 			padding: 0.3rem;
 			max-width: 100%;
 			overflow-x: auto;
 		}
 
 		/* EPG Toolbar - kompakt in einer Zeile */
-		.yweb-epg-toolbar {
+		.webui-epg-toolbar {
 			margin-bottom: 0.3rem;
 			padding: 0.25rem 0.4rem;
 			flex-wrap: nowrap;
@@ -47,34 +47,34 @@
 		/* Pico stretches form controls to full width, which blew both
 		   selects up and shoved the buttons against the right edge. Size
 		   them by content instead: bouquet names need room, the time is
-		   always "HH:MM". Vertical padding matches .yweb-btn so selects
+		   always "HH:MM". Vertical padding matches .webui-btn so selects
 		   and buttons share one control height; buttons themselves keep
 		   the shared component size (no local shrinking). */
-		.yweb-epg-toolbar .yweb-select {
+		.webui-epg-toolbar .webui-select {
 			padding: 0.3rem 0.5rem;
 			width: auto;
 			min-width: 0;
 		}
 
-		.yweb-epg-toolbar #bouquetSelect {
+		.webui-epg-toolbar #bouquetSelect {
 			flex: 0 1 16rem;
 		}
 
 		/* keep room for Pico's dropdown chevron on the narrow select */
-		.yweb-epg-toolbar #timeSelect {
+		.webui-epg-toolbar #timeSelect {
 			flex: 0 0 auto;
 			padding-right: 1.6rem;
 		}
 
 		/* EPG Grid */
-		.yweb-epg-grid {
+		.webui-epg-grid {
 			background: var(--pico-card-background-color);
-			border-radius: var(--yweb-radius);
+			border-radius: var(--webui-radius);
 			overflow: hidden;
 		}
 
 		/* Time header */
-		.yweb-epg-time-header {
+		.webui-epg-time-header {
 			display: flex;
 			background: var(--pico-card-sectioning-background-color);
 			border-bottom: 1px solid var(--pico-muted-border-color);
@@ -84,25 +84,25 @@
 			position: relative;
 		}
 
-		.yweb-epg-channel-header {
+		.webui-epg-channel-header {
 			min-width: 100px;
 			width: 100px;
 			padding: 0.4rem 0.5rem;
 			font-weight: 600;
 			font-size: 0.7rem;
 			/* muted is too faint for 11px labels in the light theme */
-			color: var(--yweb-text-secondary);
+			color: var(--webui-text-secondary);
 			border-right: 1px solid var(--pico-muted-border-color);
 			flex-shrink: 0;
 		}
 
-		.yweb-epg-times {
+		.webui-epg-times {
 			display: flex;
 			flex: 1;
 			overflow: hidden;
 		}
 
-		.yweb-epg-time-slot {
+		.webui-epg-time-slot {
 			flex: 1;
 			padding: 0.4rem 0.25rem;
 			text-align: left;
@@ -110,26 +110,26 @@
 			font-size: 0.7rem;
 			font-weight: 500;
 			border-right: 1px solid var(--pico-muted-border-color);
-			color: var(--yweb-text-secondary);
+			color: var(--webui-text-secondary);
 		}
 
 		/* Channel rows */
-		.yweb-epg-channels {
+		.webui-epg-channels {
 			max-height: calc(100vh - 160px);
 			overflow-y: auto;
 		}
 
-		.yweb-epg-row {
+		.webui-epg-row {
 			display: flex;
 			border-bottom: 1px solid var(--pico-muted-border-color);
 			min-height: 44px;
 		}
 
-		.yweb-epg-row:hover {
+		.webui-epg-row:hover {
 			background: var(--epg-row-hover);
 		}
 
-		.yweb-epg-channel-name {
+		.webui-epg-channel-name {
 			min-width: 100px;
 			width: 100px;
 			padding: 0.25rem 0.4rem;
@@ -144,25 +144,25 @@
 			overflow: hidden;
 		}
 
-		.yweb-epg-channel-name:hover {
-			color: var(--yweb-accent);
+		.webui-epg-channel-name:hover {
+			color: var(--webui-accent);
 		}
 
-		.yweb-epg-channel-name span {
+		.webui-epg-channel-name span {
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 
-		.yweb-epg-channel-logo {
+		.webui-epg-channel-logo {
 			max-width: 92px;
 			max-height: 32px;
 			object-fit: contain;
 		}
 
 		/* Logos sind fuer dunkle OSDs gezeichnet — im Light-Theme eine
-		   dunkle Kachel unterlegen (wie .yweb-icon-placeholder) */
-		[data-theme="light"] .yweb-epg-channel-logo {
+		   dunkle Kachel unterlegen (wie .webui-icon-placeholder) */
+		[data-theme="light"] .webui-epg-channel-logo {
 			background: #1e242e;
 			border-radius: 4px;
 			padding: 2px 4px;
@@ -174,18 +174,18 @@
 		   (Sky, 8:1) auf Streifenhoehe; Mobile behaelt die 100px, dort
 		   zaehlt jede Programmspalten-Breite */
 		@media (min-width: 769px) {
-			.yweb-epg-channel-header,
-			.yweb-epg-channel-name {
+			.webui-epg-channel-header,
+			.webui-epg-channel-name {
 				min-width: 150px;
 				width: 150px;
 			}
 
-			.yweb-epg-channel-logo {
+			.webui-epg-channel-logo {
 				max-width: 138px;
 			}
 		}
 
-		.yweb-epg-programs {
+		.webui-epg-programs {
 			flex: 1;
 			position: relative;
 			overflow: hidden;
@@ -194,7 +194,7 @@
 		}
 
 		/* Program items */
-		.yweb-epg-program {
+		.webui-epg-program {
 			position: absolute;
 			top: 2px;
 			bottom: 2px;
@@ -204,7 +204,7 @@
 			padding: 2px 6px;
 			overflow: hidden;
 			cursor: pointer;
-			transition: var(--yweb-transition);
+			transition: var(--webui-transition);
 			font-size: 0.7rem;
 			line-height: 1.15;
 			display: flex;
@@ -212,34 +212,34 @@
 			justify-content: center;
 		}
 
-		.yweb-epg-program:hover {
-			background: var(--yweb-accent);
-			border-color: var(--yweb-accent);
-			color: var(--yweb-on-accent);
+		.webui-epg-program:hover {
+			background: var(--webui-accent);
+			border-color: var(--webui-accent);
+			color: var(--webui-on-accent);
 			z-index: 5;
 			box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 		}
 
 		/* Current program with progress bar effect */
-		.yweb-epg-program.current {
+		.webui-epg-program.current {
 			background: linear-gradient(to right,
-				var(--yweb-accent) 0%,
-				var(--yweb-accent) var(--progress, 0%),
+				var(--webui-accent) 0%,
+				var(--webui-accent) var(--progress, 0%),
 				var(--epg-prog-rest) var(--progress, 0%),
 				var(--epg-prog-rest) 100%);
-			border-color: var(--yweb-accent);
-			color: var(--yweb-on-accent);
+			border-color: var(--webui-accent);
+			color: var(--webui-on-accent);
 		}
 
-		.yweb-epg-program.timer-rec {
-			border-left: 3px solid var(--yweb-danger);
+		.webui-epg-program.timer-rec {
+			border-left: 3px solid var(--webui-danger);
 		}
 
-		.yweb-epg-program.timer-zap {
-			border-left: 3px solid var(--yweb-success);
+		.webui-epg-program.timer-zap {
+			border-left: 3px solid var(--webui-success);
 		}
 
-		.yweb-epg-program-title {
+		.webui-epg-program-title {
 			font-weight: 600;
 			white-space: nowrap;
 			overflow: hidden;
@@ -247,18 +247,18 @@
 			color: inherit;
 		}
 
-		.yweb-epg-program-time {
+		.webui-epg-program-time {
 			font-size: 0.6rem;
 			opacity: 0.7;
 		}
 
-		.yweb-epg-program:hover .yweb-epg-program-time,
-		.yweb-epg-program.current .yweb-epg-program-time {
+		.webui-epg-program:hover .webui-epg-program-time,
+		.webui-epg-program.current .webui-epg-program-time {
 			opacity: 0.9;
 		}
 
 		/* Detail Modal */
-		.yweb-epg-modal {
+		.webui-epg-modal {
 			display: none;
 			position: fixed;
 			top: 0;
@@ -272,21 +272,21 @@
 			padding: 1rem;
 		}
 
-		.yweb-epg-modal.open {
+		.webui-epg-modal.open {
 			display: flex;
 		}
 
-		.yweb-epg-modal-content {
+		.webui-epg-modal-content {
 			background: var(--pico-card-background-color);
-			border-radius: var(--yweb-radius-lg);
-			box-shadow: var(--yweb-shadow-lg);
+			border-radius: var(--webui-radius-lg);
+			box-shadow: var(--webui-shadow-lg);
 			max-width: 500px;
 			width: 100%;
 			max-height: 80vh;
 			overflow-y: auto;
 		}
 
-		.yweb-epg-modal-header {
+		.webui-epg-modal-header {
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-start;
@@ -294,19 +294,19 @@
 			border-bottom: 1px solid var(--pico-muted-border-color);
 		}
 
-		.yweb-epg-modal-title {
+		.webui-epg-modal-title {
 			font-size: 1.1rem;
 			font-weight: 600;
 			margin: 0;
 		}
 
-		.yweb-epg-modal-subtitle {
+		.webui-epg-modal-subtitle {
 			font-size: 0.85rem;
 			color: var(--pico-muted-color);
 			margin-top: 0.25rem;
 		}
 
-		.yweb-epg-modal-close {
+		.webui-epg-modal-close {
 			background: none;
 			border: none;
 			color: var(--pico-muted-color);
@@ -314,31 +314,31 @@
 			padding: 0.25rem;
 		}
 
-		.yweb-epg-modal-close:hover {
+		.webui-epg-modal-close:hover {
 			color: var(--pico-color);
 		}
 
-		.yweb-epg-modal-close svg {
+		.webui-epg-modal-close svg {
 			width: 20px;
 			height: 20px;
 		}
 
-		.yweb-epg-modal-body {
+		.webui-epg-modal-body {
 			padding: 1rem;
 		}
 
-		.yweb-epg-modal-info {
+		.webui-epg-modal-info {
 			font-size: 0.9rem;
 			color: var(--pico-muted-color);
 			margin-bottom: 0.5rem;
 		}
 
-		.yweb-epg-modal-desc {
+		.webui-epg-modal-desc {
 			font-size: 0.9rem;
 			line-height: 1.5;
 		}
 
-		.yweb-epg-modal-footer {
+		.webui-epg-modal-footer {
 			display: flex;
 			gap: 0.5rem;
 			padding: 0.75rem 1rem;
@@ -349,18 +349,18 @@
 			background: var(--pico-card-background-color);
 		}
 
-		.yweb-epg-modal-footer .yweb-btn {
+		.webui-epg-modal-footer .webui-btn {
 			padding: 0.4rem 0.75rem;
 			font-size: 0.8rem;
 		}
 
-		.yweb-epg-modal-footer .yweb-btn svg {
+		.webui-epg-modal-footer .webui-btn svg {
 			width: 14px;
 			height: 14px;
 		}
 
 		/* Now marker - small triangle at top of header */
-		.yweb-epg-now-marker {
+		.webui-epg-now-marker {
 			position: absolute;
 			bottom: 0;
 			transform: translateX(-50%);
@@ -373,7 +373,7 @@
 		}
 
 		/* Now line spanning through channels area */
-		.yweb-epg-now-line {
+		.webui-epg-now-line {
 			position: absolute;
 			top: 0;
 			bottom: 0;
@@ -386,22 +386,22 @@
 
 		/* Responsive */
 		@media (max-width: 768px) {
-			.yweb-epg-toolbar {
+			.webui-epg-toolbar {
 				flex-direction: column;
 				align-items: stretch;
 			}
 
-			.yweb-epg-select {
+			.webui-epg-select {
 				width: 100%;
 			}
 
-			.yweb-epg-channel-header,
-			.yweb-epg-channel-name {
+			.webui-epg-channel-header,
+			.webui-epg-channel-name {
 				min-width: 80px;
 				width: 80px;
 			}
 
-			.yweb-epg-time-slot {
+			.webui-epg-time-slot {
 				flex: 0 0 60px;
 			}
 		}
@@ -409,23 +409,23 @@
 </head>
 <body>
 	<!-- Header wird dynamisch von webui-header.js generiert -->
-	<div class="yweb-header-wrapper" data-page="epg"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="epg"></div>
+	<div class="webui-header-spacer"></div>
 
 	<!-- Main Content -->
-	<main class="yweb-epg-container">
+	<main class="webui-epg-container">
 		<!-- Toolbar - kompakt in einer Zeile -->
-		<div class="yweb-toolbar yweb-epg-toolbar">
-			<select class="yweb-select" id="bouquetSelect">
+		<div class="webui-toolbar webui-epg-toolbar">
+			<select class="webui-select" id="bouquetSelect">
 				<option value="">{=L:yw.nav.bouquets=}...</option>
 			</select>
-			<select class="yweb-select" id="timeSelect"></select>
+			<select class="webui-select" id="timeSelect"></select>
 			<!-- the time nav belongs next to the time it shifts -->
-			<div class="yweb-btn-group">
-				<button class="yweb-btn" onclick="changeTime(-2)" title="-2 Stunden">&lt; -2h</button>
-				<button class="yweb-btn" onclick="changeTime(2)" title="+2 Stunden">+2h &gt;</button>
+			<div class="webui-btn-group">
+				<button class="webui-btn" onclick="changeTime(-2)" title="-2 Stunden">&lt; -2h</button>
+				<button class="webui-btn" onclick="changeTime(2)" title="+2 Stunden">+2h &gt;</button>
 			</div>
-			<button class="yweb-btn primary" onclick="loadEpg()">
+			<button class="webui-btn primary" onclick="loadEpg()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<polyline points="23,4 23,10 17,10"/>
 					<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
@@ -435,45 +435,45 @@
 		</div>
 
 		<!-- EPG Grid -->
-		<div class="yweb-epg-grid" id="epgGrid">
+		<div class="webui-epg-grid" id="epgGrid">
 			<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.epg.loading=}</p>
 		</div>
 	</main>
 
 	<!-- Detail Modal -->
-	<div class="yweb-epg-modal" id="epgModal">
-		<div class="yweb-epg-modal-content">
-			<div class="yweb-epg-modal-header">
+	<div class="webui-epg-modal" id="epgModal">
+		<div class="webui-epg-modal-content">
+			<div class="webui-epg-modal-header">
 				<div>
-					<h3 class="yweb-epg-modal-title" id="modalTitle">-</h3>
-					<div class="yweb-epg-modal-subtitle" id="modalSubtitle">-</div>
+					<h3 class="webui-epg-modal-title" id="modalTitle">-</h3>
+					<div class="webui-epg-modal-subtitle" id="modalSubtitle">-</div>
 				</div>
-				<button class="yweb-epg-modal-close" onclick="closeModal()">
+				<button class="webui-epg-modal-close" onclick="closeModal()">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<line x1="18" y1="6" x2="6" y2="18"/>
 						<line x1="6" y1="6" x2="18" y2="18"/>
 					</svg>
 				</button>
 			</div>
-			<div class="yweb-epg-modal-body">
-				<div class="yweb-epg-modal-info" id="modalInfo">-</div>
-				<div class="yweb-epg-modal-desc" id="modalDesc">-</div>
+			<div class="webui-epg-modal-body">
+				<div class="webui-epg-modal-info" id="modalInfo">-</div>
+				<div class="webui-epg-modal-desc" id="modalDesc">-</div>
 			</div>
-			<div class="yweb-epg-modal-footer">
-				<button class="yweb-btn" onclick="zapNow()" title="{=L:yw.epg.zap_title=}">
+			<div class="webui-epg-modal-footer">
+				<button class="webui-btn" onclick="zapNow()" title="{=L:yw.epg.zap_title=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polygon points="5,3 19,12 5,21"/>
 					</svg>
 					{=L:yw.epg.zap=}
 				</button>
-				<button class="yweb-btn" onclick="setTimerZap()" title="{=L:yw.epg.timer_zap_title=}">
+				<button class="webui-btn" onclick="setTimerZap()" title="{=L:yw.epg.timer_zap_title=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="10"/>
 						<polyline points="12,6 12,12 16,14"/>
 					</svg>
 					Timer
 				</button>
-				<button class="yweb-btn primary" onclick="setTimerRec()" title="{=L:yw.epg.timer_rec_title=}">
+				<button class="webui-btn primary" onclick="setTimerRec()" title="{=L:yw.epg.timer_rec_title=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="10"/>
 						<circle cx="12" cy="12" r="3" fill="currentColor"/>
@@ -504,7 +504,7 @@
 		let timers = [];
 		let gridToken = 0;
 
-		const formatTime = ywebFormatTime;
+		const formatTime = webuiFormatTime;
 		function clock(sec) { return formatTime(new Date(sec * 1000)); }
 
 		function initTimeSelect() {
@@ -514,8 +514,8 @@
 			const options = [];
 			for (let i = 0; i < 24; i++) {
 				const time = new Date(now.getTime() + i * 3600000);
-				options.push(ywebEl('option', {value: String(Math.floor(time.getTime() / 1000))},
-					ywebPad2(time.getHours()) + ':00'));
+				options.push(webuiEl('option', {value: String(Math.floor(time.getTime() / 1000))},
+					webuiPad2(time.getHours()) + ':00'));
 			}
 			select.replaceChildren.apply(select, options);
 			select.selectedIndex = 0;
@@ -526,22 +526,22 @@
 		async function loadBouquets() {
 			const select = document.getElementById('bouquetSelect');
 			try {
-				const ch = await ywebV1('GET', '/channels/current').catch(() => null);
+				const ch = await webuiV1('GET', '/channels/current').catch(() => null);
 				currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
-				const r = await ywebV1('GET', '/bouquets');
+				const r = await webuiV1('GET', '/bouquets');
 				const bouquets = ((r && r.items) || []).filter(b =>
 					!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
-				select.replaceChildren.apply(select, bouquets.map(b => ywebEl('option', {value: String(b.id)}, b.name)));
+				select.replaceChildren.apply(select, bouquets.map(b => webuiEl('option', {value: String(b.id)}, b.name)));
 				currentBouquet = bouquets.length ? String(bouquets[0].id) : '';
 			} catch (e) {
-				select.replaceChildren(ywebEl('option', {}, '{=L:yw.epg.load_fail=}'));
+				select.replaceChildren(webuiEl('option', {}, '{=L:yw.epg.load_fail=}'));
 				console.error('Failed to load bouquets:', e);
 			}
 		}
 
 		async function loadTimers() {
 			try {
-				const r = await ywebV1('GET', '/timers');
+				const r = await webuiV1('GET', '/timers');
 				timers = (r && r.items) || [];
 			} catch (e) {
 				timers = [];
@@ -560,7 +560,7 @@
 		async function loadEpg() {
 			const token = ++gridToken;
 			const grid = document.getElementById('epgGrid');
-			grid.replaceChildren(ywebEl('p', {attrs: {'aria-busy': 'true'},
+			grid.replaceChildren(webuiEl('p', {attrs: {'aria-busy': 'true'},
 				style: {padding: '3rem', 'text-align': 'center', color: 'var(--pico-muted-color)'}}, '{=L:yw.epg.loading=}'));
 
 			currentBouquet = document.getElementById('bouquetSelect').value;
@@ -568,13 +568,13 @@
 			const startTime = currentStartTime;
 			const stopTime = startTime + DISPLAY_HOURS * 3600;
 			if (!currentBouquet) {
-				grid.replaceChildren(ywebEl('p', {className: 'yweb-empty'}, '{=L:yw.bq.no_channels=}'));
+				grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, '{=L:yw.bq.no_channels=}'));
 				return;
 			}
 
 			try {
 				await loadTimers();
-				const channels = await ywebV1All('/channels', {mode: currentMode, bouquet: currentBouquet});
+				const channels = await webuiV1All('/channels', {mode: currentMode, bouquet: currentBouquet});
 				if (token !== gridToken) return;
 
 				const now = Math.floor(Date.now() / 1000);
@@ -583,23 +583,23 @@
 
 				const slots = [];
 				for (let i = 0; i < TOTAL_MINUTES / MINUTES_PER_SLOT; i++)
-					slots.push(ywebEl('div', {className: 'yweb-epg-time-slot'}, clock(startTime + i * MINUTES_PER_SLOT * 60)));
+					slots.push(webuiEl('div', {className: 'webui-epg-time-slot'}, clock(startTime + i * MINUTES_PER_SLOT * 60)));
 				if (nowInWindow)
-					slots.push(ywebEl('div', {className: 'yweb-epg-now-marker', style: {left: 'calc(100px + ' + nowPercent + '%)'}}));
-				const header = ywebEl('div', {className: 'yweb-epg-time-header'},
-					ywebEl('div', {className: 'yweb-epg-channel-header'}, '{=L:yw.msg.channel=}'),
-					ywebEl('div', {className: 'yweb-epg-times'}, slots));
+					slots.push(webuiEl('div', {className: 'webui-epg-now-marker', style: {left: 'calc(100px + ' + nowPercent + '%)'}}));
+				const header = webuiEl('div', {className: 'webui-epg-time-header'},
+					webuiEl('div', {className: 'webui-epg-channel-header'}, '{=L:yw.msg.channel=}'),
+					webuiEl('div', {className: 'webui-epg-times'}, slots));
 
-				const rows = ywebEl('div', {className: 'yweb-epg-channels', style: {position: 'relative'}},
-					nowInWindow ? ywebEl('div', {className: 'yweb-epg-now-line', style: {left: 'calc(100px + ' + nowPercent + '%)'}}) : null);
+				const rows = webuiEl('div', {className: 'webui-epg-channels', style: {position: 'relative'}},
+					nowInWindow ? webuiEl('div', {className: 'webui-epg-now-line', style: {left: 'calc(100px + ' + nowPercent + '%)'}}) : null);
 				const programsOf = Object.create(null);
 				channels.forEach(channel => {
-					const programs = ywebEl('div', {className: 'yweb-epg-programs'});
+					const programs = webuiEl('div', {className: 'webui-epg-programs'});
 					programsOf[channel.id] = {channel: channel, el: programs};
-					rows.appendChild(ywebEl('div', {className: 'yweb-epg-row'},
-						ywebEl('div', {className: 'yweb-epg-channel-name', title: '{=L:yw.epg.zap_to=} ' + channel.name,
+					rows.appendChild(webuiEl('div', {className: 'webui-epg-row'},
+						webuiEl('div', {className: 'webui-epg-channel-name', title: '{=L:yw.epg.zap_to=} ' + channel.name,
 							on: {click: () => zapTo(channel.id)}},
-							ywebEl('span', {}, channel.name)),
+							webuiEl('span', {}, channel.name)),
 						programs));
 				});
 				grid.replaceChildren(header, rows);
@@ -609,7 +609,7 @@
 				do {
 					const query = {bouquet: currentBouquet, from: startTime, to: stopTime, limit: 20};
 					if (cursor) query.cursor = cursor;
-					const page = await ywebV1('GET', '/epg/grid', {query: query});
+					const page = await webuiV1('GET', '/epg/grid', {query: query});
 					if (token !== gridToken) return;
 					((page && page.items) || []).forEach(row => {
 						const target = programsOf[row.channel_id];
@@ -619,7 +619,7 @@
 				} while (cursor);
 			} catch (e) {
 				if (token !== gridToken) return;
-				grid.replaceChildren(ywebEl('p', {className: 'yweb-empty'}, '{=L:yw.epg.load_fail=}'));
+				grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, '{=L:yw.epg.load_fail=}'));
 				console.error('Failed to load EPG:', e);
 			}
 		}
@@ -637,11 +637,11 @@
 				const isCurrent = now >= ev.start && now < evStop;
 				const style = {left: leftPercent + '%', width: 'calc(' + widthPercent + '% - 2px)'};
 				if (isCurrent) style['--progress'] = Math.round((now - ev.start) / ev.duration * 100) + '%';
-				boxes.push(ywebEl('div', {className: 'yweb-epg-program' +
+				boxes.push(webuiEl('div', {className: 'webui-epg-program' +
 					(timer ? (timer.kind === 'record' ? ' timer-rec' : ' timer-zap') : '') + (isCurrent ? ' current' : ''),
 					style: style, on: {click: () => showProgramDetail(channel, ev)}},
-					ywebEl('div', {className: 'yweb-epg-program-title'}, ev.title || ''),
-					ywebEl('div', {className: 'yweb-epg-program-time'}, clock(ev.start))));
+					webuiEl('div', {className: 'webui-epg-program-title'}, ev.title || ''),
+					webuiEl('div', {className: 'webui-epg-program-time'}, clock(ev.start))));
 			});
 			el.replaceChildren.apply(el, boxes);
 		}
@@ -658,7 +658,7 @@
 			descEl.textContent = ev.description || '';
 			document.getElementById('epgModal').classList.add('open');
 			const shown = selectedProgram;
-			const full = await ywebV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => null);
+			const full = await webuiV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => null);
 			if (selectedProgram !== shown) return;
 			const desc = full ? [full.description, full.long_description].filter(Boolean).join('\n\n') : (ev.description || '');
 			descEl.textContent = desc || '{=L:yw.epg.no_desc=}';
@@ -672,7 +672,7 @@
 		// A recording of the event, through the helper the other pages share
 		async function setTimerRec() {
 			if (!selectedProgram) return;
-			if (await ywebRecordEvent(selectedProgram.channelId, selectedProgram.channelName, selectedProgram.ev)) {
+			if (await webuiRecordEvent(selectedProgram.channelId, selectedProgram.channelName, selectedProgram.ev)) {
 				closeModal();
 				loadEpg();
 			}
@@ -683,13 +683,13 @@
 			if (!selectedProgram) return;
 			const ev = selectedProgram.ev;
 			try {
-				await ywebV1('POST', '/timers', {body: {kind: 'zapto', channel_id: selectedProgram.channelId,
+				await webuiV1('POST', '/timers', {body: {kind: 'zapto', channel_id: selectedProgram.channelId,
 					start: Math.max(ev.start, Math.floor(Date.now() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
-				ywebShowToast('{=L:yw.epg.timer_zap_set=}');
+				webuiShowToast('{=L:yw.epg.timer_zap_set=}');
 				closeModal();
 				loadEpg();
 			} catch (e) {
-				ywebShowToast('{=L:yw.epg.timer_fail=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.epg.timer_fail=}: ' + e.message, true);
 			}
 		}
 
@@ -701,9 +701,9 @@
 		// Zap: a file the player plays, or a box in standby, is asked about first
 		async function zapTo(channelId) {
 			try {
-				return await ywebV1Zap(channelId);
+				return await webuiV1Zap(channelId);
 			} catch (e) {
-				ywebShowToast(e.message, true);
+				webuiShowToast(e.message, true);
 				return false;
 			}
 		}
@@ -723,8 +723,8 @@
 		initTimeSelect();
 		loadBouquets().then(loadEpg);
 
-		if (typeof ywebSetRefreshCallback === 'function') {
-			ywebSetRefreshCallback(function() {
+		if (typeof webuiSetRefreshCallback === 'function') {
+			webuiSetRefreshCallback(function() {
 				return loadEpg();
 			});
 		}

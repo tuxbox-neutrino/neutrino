@@ -21,7 +21,7 @@
 //
 // A field the box refused keeps what was typed, with the box's reason,
 // until it is saved or discarded (V1SET.pending), also across a redraw.
-// Rows read text from the box only through ywebEl, never as markup.
+// Rows read text from the box only through webuiEl, never as markup.
 
 var V1SET = {
 	ok: false,			// schema and values read
@@ -104,7 +104,7 @@ var V1SET_INFO_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
 var V1SET_RESTART_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
 
 function v1setTitle(section) {
-	return ywebL('set.sec_' + section, V1SET_TITLES[section] ||
+	return webuiL('set.sec_' + section, V1SET_TITLES[section] ||
 		section.charAt(0).toUpperCase() + section.slice(1));
 }
 
@@ -127,7 +127,7 @@ function _v1setNeutrinoCat(cat) {
 
 async function _v1setReadValues() {
 	var reads = await Promise.all(V1SET.order.map(function(section) {
-		return ywebV1('GET', '/settings/' + encodeURIComponent(section));
+		return webuiV1('GET', '/settings/' + encodeURIComponent(section));
 	}));
 	var values = Object.create(null);
 	reads.forEach(function(r) {
@@ -144,8 +144,8 @@ async function v1setLoad() {
 	var had = V1SET.ok;
 	try {
 		if (!had) {
-			var schema = await ywebV1('GET', '/settings/schema');
-			var sections = await ywebV1('GET', '/settings/sections');
+			var schema = await webuiV1('GET', '/settings/schema');
+			var sections = await webuiV1('GET', '/settings/sections');
 			V1SET.items = Object.create(null);
 			V1SET.unavailable = Object.create(null);
 			V1SET.bySection = Object.create(null);
@@ -179,7 +179,7 @@ async function v1setLoad() {
 			// that has none to give leaves them number fields
 			if (Object.keys(V1SET.items).some(function(k) { return V1SET.items[k].type === 'key'; })) {
 				try {
-					var keys = await ywebV1('GET', '/settings/keys');
+					var keys = await webuiV1('GET', '/settings/keys');
 					V1SET.keys = (keys && Array.isArray(keys.items)) ? keys.items : null;
 				} catch (e) {
 					V1SET.keys = null;
@@ -192,7 +192,7 @@ async function v1setLoad() {
 		V1SET.ok = true;
 	} catch (e) {
 		if (had)
-			ywebShowToast(ywebL('set.reread_fail', 'Reading the settings again failed; they show what was read before'), true);
+			webuiShowToast(webuiL('set.reread_fail', 'Reading the settings again failed; they show what was read before'), true);
 		else
 			V1SET.ok = false;
 	}
@@ -300,7 +300,7 @@ function _v1setChannels(kind) {
 				var query = {mode: kind, limit: 500};
 				if (cursor)
 					query.cursor = cursor;
-				var page = await ywebV1('GET', '/channels', {query: query});
+				var page = await webuiV1('GET', '/channels', {query: query});
 				((page && page.items) || []).forEach(function(c) {
 					out.push({id: _v1setChannelId(c.id), name: String(c.name || '')});
 				});
@@ -320,11 +320,11 @@ function _v1setChannels(kind) {
 // once under the name the box keeps beside it, the list follows once read; a
 // list that cannot be read leaves the identifier to be typed.
 function _v1setChannelChoice(item, idKey, id) {
-	var none = ywebL('set.no_channel', 'none');
+	var none = webuiL('set.no_channel', 'none');
 	var current = _v1setChannelId(_v1setShown(V1SET.items[idKey]));
 	var name = _v1setShown(item);
-	var sel = ywebEl('select', {id: id, data: {v1key: idKey}});
-	sel.appendChild(ywebEl('option', {value: current}, current === '0' ? none : (name || current)));
+	var sel = webuiEl('select', {id: id, data: {v1key: idKey}});
+	sel.appendChild(webuiEl('option', {value: current}, current === '0' ? none : (name || current)));
 	sel.value = current;
 	_v1setChannels(item.channel_kind === 'radio' ? 'radio' : 'tv').then(function(list) {
 		if (!sel.isConnected)
@@ -332,21 +332,21 @@ function _v1setChannelChoice(item, idKey, id) {
 		var keep = sel.value;
 		while (sel.firstChild)
 			sel.removeChild(sel.firstChild);
-		sel.appendChild(ywebEl('option', {value: '0'}, none));
+		sel.appendChild(webuiEl('option', {value: '0'}, none));
 		var listed = keep === '0';
 		list.forEach(function(c) {
 			listed = listed || c.id === keep;
-			sel.appendChild(ywebEl('option', {value: c.id}, c.name || c.id));
+			sel.appendChild(webuiEl('option', {value: c.id}, c.name || c.id));
 		});
 		// a channel the list has lost since stays what it is, under its name
 		if (!listed)
-			sel.appendChild(ywebEl('option', {value: keep},
-				(name || keep) + ' (' + ywebL('set.unknown_value', 'not offered') + ')'));
+			sel.appendChild(webuiEl('option', {value: keep},
+				(name || keep) + ' (' + webuiL('set.unknown_value', 'not offered') + ')'));
 		sel.value = keep;
 	}, function() {
 		if (!sel.isConnected)
 			return;
-		var input = ywebEl('input', {type: 'text', id: id, value: sel.value, data: {v1key: idKey},
+		var input = webuiEl('input', {type: 'text', id: id, value: sel.value, data: {v1key: idKey},
 			attrs: {spellcheck: 'false'}});
 		input.disabled = sel.disabled;
 		if (sel.dataset.v1fixed)
@@ -406,8 +406,8 @@ function _v1setChoice(sel, v) {
 		if (sel.options[i].value === v)
 			return;
 	// a value the box holds but does not offer stays what it is
-	sel.appendChild(ywebEl('option', {value: v},
-		(v === '' ? '–' : v) + ' (' + ywebL('set.unknown_value', 'not offered') + ')'));
+	sel.appendChild(webuiEl('option', {value: v},
+		(v === '' ? '–' : v) + ' (' + webuiL('set.unknown_value', 'not offered') + ')'));
 }
 
 function _v1setSetControl(el, item, v) {
@@ -430,7 +430,7 @@ function _v1setOptValue(c) {
 function _v1setDefaultText(item) {
 	var d = (item.default === undefined || item.default === null) ? '' : String(item.default);
 	if (item.type === 'bool')
-		return _v1setIsOn(d) ? ywebL('reg.on', 'On') : ywebL('reg.off', 'Off');
+		return _v1setIsOn(d) ? webuiL('reg.on', 'On') : webuiL('reg.off', 'Off');
 	var o = (item.values || []).find(function(c) { return _v1setOptValue(c) === d; });
 	if (o)
 		return o.label || d;
@@ -454,22 +454,22 @@ function _v1setControl(item, id, val) {
 	if (pair && pair.writes === 'id' && item.label)
 		return _v1setChannelChoice(item, pair.partner, id);
 	if (item.type === 'bool')
-		return ywebEl('label', {className: 'yweb-toggle'},
-			ywebEl('input', {type: 'checkbox', id: id, checked: _v1setIsOn(val), data: data}),
-			ywebEl('span', {className: 'yweb-toggle-slider'}));
+		return webuiEl('label', {className: 'webui-toggle'},
+			webuiEl('input', {type: 'checkbox', id: id, checked: _v1setIsOn(val), data: data}),
+			webuiEl('span', {className: 'webui-toggle-slider'}));
 	// A choice the box has none of (an output it lacks) is shown, never written;
 	// so is a listed number with an empty list. A text row whose list comes
 	// empty is one the box cannot say anything about: it stays free text,
 	// which the box takes then too.
 	if ((item.type === 'enum' || item.listed) && !(item.values && item.values.length)) {
-		return ywebEl('select', {id: id, disabled: true, data: {v1key: item.id, v1fixed: '1'}},
-			ywebEl('option', {value: val}, (val === '' ? '' : val + ' \u2013 ') + ywebL('set.notavail', 'Not available')));
+		return webuiEl('select', {id: id, disabled: true, data: {v1key: item.id, v1fixed: '1'}},
+			webuiEl('option', {value: val}, (val === '' ? '' : val + ' \u2013 ') + webuiL('set.notavail', 'Not available')));
 	}
 	if (item.type === 'key' && V1SET.keys && V1SET.keys.length) {
 		// a key by its name; a code the box takes but names not stays
-		var keySel = ywebEl('select', {id: id, data: data});
+		var keySel = webuiEl('select', {id: id, data: data});
 		V1SET.keys.forEach(function(k) {
-			keySel.appendChild(ywebEl('option', {value: String(k.code)}, k.name || String(k.code)));
+			keySel.appendChild(webuiEl('option', {value: String(k.code)}, k.name || String(k.code)));
 		});
 		_v1setChoice(keySel, val);
 		keySel.value = val;
@@ -483,19 +483,19 @@ function _v1setControl(item, id, val) {
 		if (item.max !== undefined) attrs.max = item.max;
 		var named = (item.values || []).filter(function(c) { return c.text === undefined; });
 		if (!named.length)
-			return ywebEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs});
+			return webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs});
 		attrs.list = id + '_names';
-		var names = ywebEl('datalist', {id: id + '_names'});
+		var names = webuiEl('datalist', {id: id + '_names'});
 		named.forEach(function(c) {
-			names.appendChild(ywebEl('option', {value: String(c.value)}, c.label || String(c.value)));
+			names.appendChild(webuiEl('option', {value: String(c.value)}, c.label || String(c.value)));
 		});
-		return ywebEl('span', {}, ywebEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs}), names);
+		return webuiEl('span', {}, webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs}), names);
 	}
 	if (item.values && item.values.length) {
-		var sel = ywebEl('select', {id: id, data: data});
+		var sel = webuiEl('select', {id: id, data: data});
 		item.values.forEach(function(c) {
 			var v = _v1setOptValue(c);
-			sel.appendChild(ywebEl('option', {value: v}, c.label || v));
+			sel.appendChild(webuiEl('option', {value: v}, c.label || v));
 		});
 		_v1setChoice(sel, val);
 		sel.value = val;
@@ -504,32 +504,32 @@ function _v1setControl(item, id, val) {
 	if (item.secret) {
 		// a credential reads as nothing: empty leaves it as it is, and
 		// emptying it is a button of its own
-		var pw = ywebEl('input', {type: 'password', id: id, value: val, data: data,
-			attrs: {autocomplete: 'new-password', placeholder: ywebL('set.secret_keep', 'unchanged')}});
-		var cell = ywebEl('span', {}, pw);
+		var pw = webuiEl('input', {type: 'password', id: id, value: val, data: data,
+			attrs: {autocomplete: 'new-password', placeholder: webuiL('set.secret_keep', 'unchanged')}});
+		var cell = webuiEl('span', {}, pw);
 		if (typeof togglePwField === 'function') {
-			var eye = ywebEl('button', {type: 'button', className: 'yweb-btn yweb-set-act',
-				attrs: {'aria-pressed': 'false', 'aria-label': ywebL('set.pw_show', 'Show password')},
-				on: {click: function() { togglePwField(id, eye); }}}, ywebMarkup(EYEOFF_ICON));
+			var eye = webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',
+				attrs: {'aria-pressed': 'false', 'aria-label': webuiL('set.pw_show', 'Show password')},
+				on: {click: function() { togglePwField(id, eye); }}}, webuiMarkup(EYEOFF_ICON));
 			cell.appendChild(eye);
 		}
-		cell.appendChild(ywebEl('button', {type: 'button', className: 'yweb-btn yweb-set-act',
-			on: {click: function() { v1setClearSecret(item); }}}, ywebL('set.secret_clear', 'Clear')));
+		cell.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',
+			on: {click: function() { v1setClearSecret(item); }}}, webuiL('set.secret_clear', 'Clear')));
 		return cell;
 	}
-	var input = ywebEl('input', {type: 'text', id: id, value: val, data: data});
-	if (!_v1setIsFolder(item) || typeof ywebPickInto !== 'function')
+	var input = webuiEl('input', {type: 'text', id: id, value: val, data: data});
+	if (!_v1setIsFolder(item) || typeof webuiPickInto !== 'function')
 		return input;
-	return ywebEl('span', {}, input, ywebEl('button', {type: 'button', className: 'yweb-btn yweb-set-act',
-		title: ywebL('picker.title', 'Choose folder'), attrs: {'aria-label': ywebL('picker.title', 'Choose folder')},
-		on: {click: function() { ywebPickInto(id, input.value || '/'); }}}, ywebMarkup(FOLDER_ICON)));
+	return webuiEl('span', {}, input, webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',
+		title: webuiL('picker.title', 'Choose folder'), attrs: {'aria-label': webuiL('picker.title', 'Choose folder')},
+		on: {click: function() { webuiPickInto(id, input.value || '/'); }}}, webuiMarkup(FOLDER_ICON)));
 }
 
 // A row the parental lock holds is shown and not written: its fields and
 // buttons stay locked whatever its conditions say.
 function _v1setLock(control) {
-	var list = control.matches('[data-v1key], .yweb-set-act') ? [control] :
-		Array.prototype.slice.call(control.querySelectorAll('[data-v1key], .yweb-set-act'));
+	var list = control.matches('[data-v1key], .webui-set-act') ? [control] :
+		Array.prototype.slice.call(control.querySelectorAll('[data-v1key], .webui-set-act'));
 	list.forEach(function(el) {
 		el.disabled = true;
 		el.dataset.v1fixed = '1';
@@ -542,40 +542,40 @@ function v1setRow(item) {
 	var control = _v1setControl(item, id, _v1setShown(item));
 	if (item.locked)
 		_v1setLock(control);
-	var labelCell = ywebEl('div', {className: 'yweb-set-label'}, ywebEl('label', {htmlFor: id}, label));
+	var labelCell = webuiEl('div', {className: 'webui-set-label'}, webuiEl('label', {htmlFor: id}, label));
 	if (item.locked)
-		labelCell.appendChild(ywebEl('span', {className: 'yweb-set-locked'},
-			ywebL('set.locked', 'locked by the parental lock')));
-	var restart = ywebL('set.restart_title', 'Takes effect after a restart');
+		labelCell.appendChild(webuiEl('span', {className: 'webui-set-locked'},
+			webuiL('set.locked', 'locked by the parental lock')));
+	var restart = webuiL('set.restart_title', 'Takes effect after a restart');
 	if (item.needs_restart)
-		labelCell.appendChild(ywebEl('span', {className: 'yweb-set-restart', title: restart,
-			attrs: {role: 'img', 'aria-label': restart}}, ywebMarkup(V1SET_RESTART_ICON)));
+		labelCell.appendChild(webuiEl('span', {className: 'webui-set-restart', title: restart,
+			attrs: {role: 'img', 'aria-label': restart}}, webuiMarkup(V1SET_RESTART_ICON)));
 
 	// the help the box shows beside the setting, opened by the info button
 	var help = null;
 	if (item.hint_text) {
 		var open = !!V1SET.helpOpen[item.id];
-		help = ywebEl('div', {className: 'yweb-set-help', id: id + '_help', hidden: !open},
-			ywebEl('p', {}, item.hint_text),
-			item.needs_restart ? ywebEl('p', {}, restart) : null,
-			item.secret ? null : ywebEl('p', {className: 'yweb-set-default'},
-				ywebL('set.default', 'Default') + ': ' + _v1setDefaultText(item)));
-		var info = ywebEl('button', {type: 'button', className: 'yweb-set-info',
-			title: ywebL('set.help', 'Help'),
+		help = webuiEl('div', {className: 'webui-set-help', id: id + '_help', hidden: !open},
+			webuiEl('p', {}, item.hint_text),
+			item.needs_restart ? webuiEl('p', {}, restart) : null,
+			item.secret ? null : webuiEl('p', {className: 'webui-set-default'},
+				webuiL('set.default', 'Default') + ': ' + _v1setDefaultText(item)));
+		var info = webuiEl('button', {type: 'button', className: 'webui-set-info',
+			title: webuiL('set.help', 'Help'),
 			attrs: {'aria-expanded': open ? 'true' : 'false', 'aria-controls': id + '_help',
-				'aria-label': ywebL('set.help', 'Help') + ': ' + label},
+				'aria-label': webuiL('set.help', 'Help') + ': ' + label},
 			on: {click: function() {
 				help.hidden = !help.hidden;
 				V1SET.helpOpen[item.id] = !help.hidden;
 				info.setAttribute('aria-expanded', help.hidden ? 'false' : 'true');
-			}}}, ywebMarkup(V1SET_INFO_ICON));
+			}}}, webuiMarkup(V1SET_INFO_ICON));
 		labelCell.appendChild(info);
 	}
 
-	var row = ywebEl('div', {className: 'yweb-form-row', data: {v1row: item.id}}, labelCell, control, help);
+	var row = webuiEl('div', {className: 'webui-form-row', data: {v1row: item.id}}, labelCell, control, help);
 	var p = V1SET.pending[_v1setWrites(item)];
 	if (p && p.error) {
-		row.appendChild(ywebEl('div', {className: 'yweb-set-error', id: id + '_err'}, p.error));
+		row.appendChild(webuiEl('div', {className: 'webui-set-error', id: id + '_err'}, p.error));
 		var field = row.querySelector('[data-v1key]');
 		field.setAttribute('aria-invalid', 'true');
 		field.setAttribute('aria-describedby', id + '_err');
@@ -586,15 +586,15 @@ function v1setRow(item) {
 // One section of the box as a card; extra is the registry's markup for what
 // the schema lacks, drawn below.
 function v1setPanel(section, extra) {
-	var rows = ywebEl('div', {className: 'yweb-form-section'});
+	var rows = webuiEl('div', {className: 'webui-form-section'});
 	(V1SET.bySection[section] || []).forEach(function(item) {
 		if (!V1SET.claimed[item.id] && !_v1setIdHalf(item))
 			rows.appendChild(v1setRow(item));
 	});
-	var card = ywebEl('div', {className: 'settings-card'},
-		ywebEl('div', {className: 'settings-card-header'}, ywebEl('h3', {}, v1setTitle(section))), rows);
+	var card = webuiEl('div', {className: 'settings-card'},
+		webuiEl('div', {className: 'settings-card-header'}, webuiEl('h3', {}, v1setTitle(section))), rows);
 	if (extra) {
-		var more = ywebEl('div', {});
+		var more = webuiEl('div', {});
 		more.innerHTML = extra;	// registry markup from the page source
 		card.appendChild(more);
 	}
@@ -653,14 +653,14 @@ function v1setApplyConditions() {
 		var off = failing.length > 0;
 		row.classList.toggle('is-disabled', off);
 		if (off)
-			row.title = ywebL('set.cond_off', 'No effect with the current value of') + ': ' +
+			row.title = webuiL('set.cond_off', 'No effect with the current value of') + ': ' +
 				failing.map(function(c) {
 					var it = V1SET.items[c.key];
 					return it ? _v1setLabel(it) : c.key;
 				}).join(', ');
 		else
 			row.removeAttribute('title');
-		row.querySelectorAll('[data-v1key]:not([data-v1fixed]), .yweb-set-act:not([data-v1fixed])').forEach(function(el) { el.disabled = off; });
+		row.querySelectorAll('[data-v1key]:not([data-v1fixed]), .webui-set-act:not([data-v1fixed])').forEach(function(el) { el.disabled = off; });
 	});
 }
 
@@ -719,7 +719,7 @@ function v1setEdited(el) {
 	el.removeAttribute('aria-invalid');
 	el.removeAttribute('aria-describedby');
 	var row = el.closest('[data-v1row]');
-	var err = row && row.querySelector('.yweb-set-error');
+	var err = row && row.querySelector('.webui-set-error');
 	if (err)
 		err.remove();
 }
@@ -739,7 +739,7 @@ async function v1setSave(dirty) {
 			var keys = Object.keys(body);
 			var failed = Object.create(null);
 			try {
-				var answer = await ywebV1('PATCH', '/settings/' + encodeURIComponent(section), {body: body});
+				var answer = await webuiV1('PATCH', '/settings/' + encodeURIComponent(section), {body: body});
 				// 207: some keys landed, others name their refusal
 				if (answer && answer.results)
 					keys.forEach(function(k) {
@@ -791,7 +791,7 @@ async function v1setRefresh() {
 	await v1setReread();
 	document.querySelectorAll('#settingsContent [data-v1row]').forEach(function(row) {
 		var item = V1SET.items[row.dataset.v1row];
-		if (item && (V1SET.pending[_v1setWrites(item)] || row.querySelector('.yweb-set-error')))
+		if (item && (V1SET.pending[_v1setWrites(item)] || row.querySelector('.webui-set-error')))
 			row.replaceWith(v1setRow(item));
 	});
 	v1setApplyConditions();
@@ -803,11 +803,11 @@ function v1setDiscard() {
 
 function _v1setAsk(text, title, ok) {
 	return new Promise(function(resolve) {
-		ywebSheet({
+		webuiSheet({
 			title: title,
-			body: ywebEl('p', {}, text),
+			body: webuiEl('p', {}, text),
 			actions: [
-				{label: ywebL('msg.cancel', 'Cancel'), value: false},
+				{label: webuiL('msg.cancel', 'Cancel'), value: false},
 				{label: ok, value: true, danger: true}
 			],
 			onClose: function(result) { resolve(result === true); }
@@ -816,17 +816,17 @@ function _v1setAsk(text, title, ok) {
 }
 
 async function v1setClearSecret(item) {
-	var ok = await _v1setAsk(ywebL('set.secret_clear_ask', 'Clear the stored value? The box then holds none.'),
-		_v1setLabel(item), ywebL('set.secret_clear', 'Clear'));
+	var ok = await _v1setAsk(webuiL('set.secret_clear_ask', 'Clear the stored value? The box then holds none.'),
+		_v1setLabel(item), webuiL('set.secret_clear', 'Clear'));
 	if (!ok)
 		return;
 	// the form is locked as for a save, so no newer input meets the answer
 	if (typeof settingsBusy === 'function')
 		settingsBusy(true);
 	try {
-		await ywebV1('POST', '/settings/secret/clear', {body: {key: item.id}});
+		await webuiV1('POST', '/settings/secret/clear', {body: {key: item.id}});
 	} catch (e) {
-		ywebShowToast(ywebL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 		return;
 	} finally {
 		if (typeof settingsBusy === 'function')
@@ -839,9 +839,9 @@ async function v1setClearSecret(item) {
 		row.replaceWith(v1setRow(item));
 		v1setApplyConditions();
 	}
-	ywebShowToast(ywebL('set.secret_cleared', 'Cleared'));
-	if (typeof ywebUpdateSaveBar === 'function')
-		ywebUpdateSaveBar();
+	webuiShowToast(webuiL('set.secret_cleared', 'Cleared'));
+	if (typeof webuiUpdateSaveBar === 'function')
+		webuiUpdateSaveBar();
 }
 
 // ---- changes made elsewhere -------------------------------------------------
@@ -895,6 +895,6 @@ async function v1setReread() {
 	});
 	V1SET.values = fresh;
 	v1setApplyConditions();
-	if (typeof ywebUpdateSaveBar === 'function')
-		ywebUpdateSaveBar();
+	if (typeof webuiUpdateSaveBar === 'function')
+		webuiUpdateSaveBar();
 }

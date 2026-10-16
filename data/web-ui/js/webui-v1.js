@@ -1,15 +1,15 @@
 // webui-v1.js - what the modern pages share to talk to the REST interface
 // /api/v1 (load after Y_Lang.yjs and webui-header.js).
 //
-//   ywebV1('GET', '/bouquets')                            -> parsed JSON
-//   ywebV1('GET', '/channels', {query: {mode: 'tv'}})     -> parsed JSON
-//   ywebV1('PUT', '/bouquets/' + encodeURIComponent(n) + '/hidden',
+//   webuiV1('GET', '/bouquets')                            -> parsed JSON
+//   webuiV1('GET', '/channels', {query: {mode: 'tv'}})     -> parsed JSON
+//   webuiV1('PUT', '/bouquets/' + encodeURIComponent(n) + '/hidden',
 //          {body: {on: true}})                            -> null (204)
-//   ywebV1Blob('/osd/screenshot', {format: 'png'})        -> Blob
-//   ywebV1('PUT', '/storage/file', {query: {path: p}, raw: blob})
+//   webuiV1Blob('/osd/screenshot', {format: 'png'})        -> Blob
+//   webuiV1('PUT', '/storage/file', {query: {path: p}, raw: blob})
 //                                                         -> bytes as the body
-//   ywebV1UploadPieces(file, '/tmp/x.tar.gz', onProgress) -> a file of any size
-//   ywebV1Download('/system/backup', 'settings.tar.gz')   -> saved, its name
+//   webuiV1UploadPieces(file, '/tmp/x.tar.gz', onProgress) -> a file of any size
+//   webuiV1Download('/system/backup', 'settings.tar.gz')   -> saved, its name
 //
 // A refusal throws an Error with the box's reason as its message, the HTTP
 // status in .status and the code of the refusal in .code (answers come as
@@ -26,20 +26,20 @@
 // is sent once more afterwards: a page that keeps count of its changes on the
 // way leaves the wait out.
 //
-// ywebV1Events({name: function(data) {...}}) opens one EventSource on
+// webuiV1Events({name: function(data) {...}}) opens one EventSource on
 // /api/v1/events and calls the handler of each event that arrives with its
 // data ({channel_id, value, text}). The browser reconnects by itself, except
 // after a refusal: a stream the box refused for want of a sign-in is opened
 // again once the sign-in went through. A handler named `open` is called with
 // null each time the stream (re)connects, which is when a page rereads what
-// it may have missed. ywebV1EventsLive() says whether the stream is open
+// it may have missed. webuiV1EventsLive() says whether the stream is open
 // right now; a page polls what it follows while it is not.
 
-var _ywebV1Csrf = null;	// {header, token} of the open session, if any
-var _ywebV1SignInPending = null;	// the one sign-in dialog of the page, while open
-var _ywebV1Stream = null;	// {handlers, es, closed} of ywebV1Events
+var _webuiV1Csrf = null;	// {header, token} of the open session, if any
+var _webuiV1SignInPending = null;	// the one sign-in dialog of the page, while open
+var _webuiV1Stream = null;	// {handlers, es, closed} of webuiV1Events
 
-function _ywebV1Url(path, query) {
+function _webuiV1Url(path, query) {
 	var url = '/api/v1' + path;
 	if (query) {
 		var q = [];
@@ -54,21 +54,21 @@ function _ywebV1Url(path, query) {
 }
 
 // Reads the session state and keeps its token; true when one is open.
-async function ywebV1Session() {
-	_ywebV1Csrf = null;
+async function webuiV1Session() {
+	_webuiV1Csrf = null;
 	try {
 		var resp = await fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
 		if (!resp.ok) return false;
 		var s = await resp.json();
 		if (s && s.authenticated && s.csrf && s.csrf_header) {
-			_ywebV1Csrf = {header: s.csrf_header, token: s.csrf};
+			_webuiV1Csrf = {header: s.csrf_header, token: s.csrf};
 			return true;
 		}
 	} catch (e) { /* no session then */ }
 	return false;
 }
 
-function _ywebV1Send(method, path, opts) {
+function _webuiV1Send(method, path, opts) {
 	var headers = {};
 	var init = {method: method, credentials: 'same-origin', cache: 'no-store', headers: headers};
 	if (opts.raw !== undefined) {
@@ -79,12 +79,12 @@ function _ywebV1Send(method, path, opts) {
 		headers['Content-Type'] = 'application/json';
 		init.body = JSON.stringify(opts.body);
 	}
-	if (method !== 'GET' && _ywebV1Csrf)
-		headers[_ywebV1Csrf.header] = _ywebV1Csrf.token;
-	return fetch(_ywebV1Url(path, opts.query), init);
+	if (method !== 'GET' && _webuiV1Csrf)
+		headers[_webuiV1Csrf.header] = _webuiV1Csrf.token;
+	return fetch(_webuiV1Url(path, opts.query), init);
 }
 
-async function _ywebV1Error(resp, method, path) {
+async function _webuiV1Error(resp, method, path) {
 	var text = '';
 	var code = '';
 	try {
@@ -102,7 +102,7 @@ async function _ywebV1Error(resp, method, path) {
 /* A refusal saying the box still opens to the password it shipped with: the
    page the owner sets one of their own on, and back here afterwards. Read from a
    copy, so the caller can still read the answer. */
-async function _ywebV1ChangeOwed(resp) {
+async function _webuiV1ChangeOwed(resp) {
 	if (resp.status !== 403)
 		return false;
 	try {
@@ -115,53 +115,53 @@ async function _ywebV1ChangeOwed(resp) {
 	return false;
 }
 
-async function ywebV1(method, path, opts) {
+async function webuiV1(method, path, opts) {
 	opts = opts || {};
-	var resp = await _ywebV1Send(method, path, opts);
-	if (await _ywebV1ChangeOwed(resp))
-		throw await _ywebV1Error(resp, method, path);
+	var resp = await _webuiV1Send(method, path, opts);
+	if (await _webuiV1ChangeOwed(resp))
+		throw await _webuiV1Error(resp, method, path);
 	if (resp.status === 403) {
 		// no open session, or a stale token
 		if (opts.refused) opts.refused();
-		var open = await ywebV1Session();
-		if (open || await ywebV1SignIn()) {
+		var open = await webuiV1Session();
+		if (open || await webuiV1SignIn()) {
 			if (opts.retried) opts.retried();
-			resp = await _ywebV1Send(method, path, opts);
+			resp = await _webuiV1Send(method, path, opts);
 		}
 	}
-	if (!resp.ok) throw await _ywebV1Error(resp, method, path);
+	if (!resp.ok) throw await _webuiV1Error(resp, method, path);
 	if (resp.status === 202 || resp.status === 204) return null;
 	var type = resp.headers.get('Content-Type') || '';
 	return type.indexOf('json') >= 0 ? resp.json() : resp.text();
 }
 
 // A picture (or any other file) as a Blob, for a screenshot: the same
-// sign-in on 403 as ywebV1, and a refusal throws the same Error.
+// sign-in on 403 as webuiV1, and a refusal throws the same Error.
 // opts.quiet leaves the sign-in out and throws on a 403 (a probe at load).
-async function ywebV1Blob(path, query, opts) {
+async function webuiV1Blob(path, query, opts) {
 	opts = opts || {};
-	var url = _ywebV1Url(path, query);
+	var url = _webuiV1Url(path, query);
 	var get = function() { return fetch(url, {credentials: 'same-origin', cache: 'no-store'}); };
 	var resp = await get();
-	if (await _ywebV1ChangeOwed(resp))
-		throw await _ywebV1Error(resp, 'GET', path);
-	if (resp.status === 403 && !opts.quiet && (await ywebV1Session() || await ywebV1SignIn()))
+	if (await _webuiV1ChangeOwed(resp))
+		throw await _webuiV1Error(resp, 'GET', path);
+	if (resp.status === 403 && !opts.quiet && (await webuiV1Session() || await webuiV1SignIn()))
 		resp = await get();
-	if (!resp.ok) throw await _ywebV1Error(resp, 'GET', path);
+	if (!resp.ok) throw await _webuiV1Error(resp, 'GET', path);
 	return resp.blob();
 }
 
 // A file the box answers as a download, saved under the name the box gives it
 // (Content-Disposition), else under fallback; the same sign-in on 403 as
-// ywebV1. Resolves to the name it was saved under.
-async function ywebV1Download(path, fallback) {
-	var get = function() { return fetch(_ywebV1Url(path), {credentials: 'same-origin', cache: 'no-store'}); };
+// webuiV1. Resolves to the name it was saved under.
+async function webuiV1Download(path, fallback) {
+	var get = function() { return fetch(_webuiV1Url(path), {credentials: 'same-origin', cache: 'no-store'}); };
 	var resp = await get();
-	if (await _ywebV1ChangeOwed(resp))
-		throw await _ywebV1Error(resp, 'GET', path);
-	if (resp.status === 403 && (await ywebV1Session() || await ywebV1SignIn()))
+	if (await _webuiV1ChangeOwed(resp))
+		throw await _webuiV1Error(resp, 'GET', path);
+	if (resp.status === 403 && (await webuiV1Session() || await webuiV1SignIn()))
 		resp = await get();
-	if (!resp.ok) throw await _ywebV1Error(resp, 'GET', path);
+	if (!resp.ok) throw await _webuiV1Error(resp, 'GET', path);
 	var m = /filename="([^"\/\\]+)"/.exec(resp.headers.get('Content-Disposition') || '');
 	var name = m ? m[1] : fallback;
 	var blob = await resp.blob();
@@ -178,12 +178,12 @@ async function ywebV1Download(path, fallback) {
 // Pieces an upload goes up in: well below the server's body ceiling of 1 MiB,
 // and small enough that one arrives within the 10 s the server gives a body
 // over a slow link (some 26 KB/s).
-var YWEB_V1_PIECE = 256 * 1024;
+var WEBUI_V1_PIECE = 256 * 1024;
 
 // How long the box holds a file to be, -1 when it cannot say
-async function _ywebV1Length(path) {
+async function _webuiV1Length(path) {
 	var at = path.lastIndexOf('/');
-	var listed = await ywebV1('GET', '/storage/files', {query: {path: path.substring(0, at) || '/'}});
+	var listed = await webuiV1('GET', '/storage/files', {query: {path: path.substring(0, at) || '/'}});
 	var name = path.substring(at + 1);
 	var e = ((listed && listed.items) || []).find(function(x) { return x.id === name; });
 	return e && e.attributes_read ? e.size : -1;
@@ -196,17 +196,17 @@ async function _ywebV1Length(path) {
    neither lost nor written twice. onProgress(sent, total) after each piece. An
    upload that fails takes away what it wrote; a first piece refused because the
    name is taken wrote nothing, and what is there is somebody else's. */
-async function ywebV1UploadPieces(file, path, onProgress) {
+async function webuiV1UploadPieces(file, path, onProgress) {
 	var send = function(offset, piece, again) {
 		return offset === 0
-			? ywebV1('PUT', '/storage/file', {query: {path: path, overwrite: again ? true : null}, raw: piece})
-			: ywebV1('PATCH', '/storage/file', {query: {path: path, offset: offset}, raw: piece});
+			? webuiV1('PUT', '/storage/file', {query: {path: path, overwrite: again ? true : null}, raw: piece})
+			: webuiV1('PATCH', '/storage/file', {query: {path: path, offset: offset}, raw: piece});
 	};
 	var wrote = false;
 	try {
 		var offset = 0;
 		do {
-			var piece = file.slice(offset, offset + YWEB_V1_PIECE);
+			var piece = file.slice(offset, offset + WEBUI_V1_PIECE);
 			try {
 				await send(offset, piece, false);
 			} catch (e) {
@@ -215,7 +215,7 @@ async function ywebV1UploadPieces(file, path, onProgress) {
 				try {
 					await send(offset, piece, true);
 				} catch (e2) {
-					if (e2.code !== 'offset-mismatch' || await _ywebV1Length(path) !== offset + piece.size) throw e2;
+					if (e2.code !== 'offset-mismatch' || await _webuiV1Length(path) !== offset + piece.size) throw e2;
 				}
 			}
 			wrote = true;
@@ -224,17 +224,17 @@ async function ywebV1UploadPieces(file, path, onProgress) {
 		} while (offset < file.size);
 	} catch (e) {
 		if (wrote)
-			ywebV1('DELETE', '/storage/path', {query: {path: path}}).catch(function() {});
+			webuiV1('DELETE', '/storage/path', {query: {path: path}}).catch(function() {});
 		throw e;
 	}
 }
 
 // Every page of a paged list (items + next_cursor), as one array.
-async function ywebV1All(path, query) {
+async function webuiV1All(path, query) {
 	var items = [];
 	var q = Object.assign({}, query || {}, {limit: 500});
 	for (;;) {
-		var page = await ywebV1('GET', path, {query: q});
+		var page = await webuiV1('GET', path, {query: q});
 		items = items.concat((page && page.items) || []);
 		if (!page || !page.next_cursor) return items;
 		q.cursor = page.next_cursor;
@@ -243,48 +243,48 @@ async function ywebV1All(path, query) {
 
 // The sign-in dialog; resolves true once signed in, false when cancelled.
 // Requests refused at the same time share the one dialog.
-function ywebV1SignIn() {
-	if (_ywebV1SignInPending) return _ywebV1SignInPending;
-	_ywebV1SignInPending = _ywebV1SignInDialog().then(function(ok) {
-		_ywebV1SignInPending = null;
-		if (ok && _ywebV1Stream && _ywebV1Stream.closed) _ywebV1Open();
+function webuiV1SignIn() {
+	if (_webuiV1SignInPending) return _webuiV1SignInPending;
+	_webuiV1SignInPending = _webuiV1SignInDialog().then(function(ok) {
+		_webuiV1SignInPending = null;
+		if (ok && _webuiV1Stream && _webuiV1Stream.closed) _webuiV1Open();
 		return ok;
 	});
-	return _ywebV1SignInPending;
+	return _webuiV1SignInPending;
 }
 
-function _ywebV1SignInDialog() {
+function _webuiV1SignInDialog() {
 	return new Promise(function(resolve) {
 		var before = document.activeElement;
 		var backdrop = document.createElement('div');
-		backdrop.className = 'yweb-confirm-backdrop';
+		backdrop.className = 'webui-confirm-backdrop';
 		backdrop.innerHTML =
-			'<div class="yweb-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="yweb-v1-signin-title">' +
-				'<h4 id="yweb-v1-signin-title"></h4>' +
-				'<p class="yweb-v1-why"></p>' +
-				'<label class="yweb-prompt-label" for="yweb-v1-user"></label>' +
-				'<input type="text" class="yweb-prompt-input" id="yweb-v1-user" autocomplete="username" maxlength="255">' +
-				'<label class="yweb-prompt-label" for="yweb-v1-pass"></label>' +
-				'<input type="password" class="yweb-prompt-input" id="yweb-v1-pass" autocomplete="current-password" maxlength="255">' +
-				'<p class="yweb-v1-err" role="alert" hidden></p>' +
-				'<div class="yweb-confirm-actions">' +
+			'<div class="webui-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="webui-v1-signin-title">' +
+				'<h4 id="webui-v1-signin-title"></h4>' +
+				'<p class="webui-v1-why"></p>' +
+				'<label class="webui-prompt-label" for="webui-v1-user"></label>' +
+				'<input type="text" class="webui-prompt-input" id="webui-v1-user" autocomplete="username" maxlength="255">' +
+				'<label class="webui-prompt-label" for="webui-v1-pass"></label>' +
+				'<input type="password" class="webui-prompt-input" id="webui-v1-pass" autocomplete="current-password" maxlength="255">' +
+				'<p class="webui-v1-err" role="alert" hidden></p>' +
+				'<div class="webui-confirm-actions">' +
 					'<button type="button" class="confirm-cancel"></button>' +
 					'<button type="button" class="confirm-ok"></button>' +
 				'</div>' +
 			'</div>';
-		backdrop.querySelector('h4').textContent = ywebL('v1.signin_title', 'Sign in');
-		backdrop.querySelector('.yweb-v1-why').textContent =
-			ywebL('v1.signin_why', 'The box asks for a sign-in for this.');
-		var labels = backdrop.querySelectorAll('.yweb-prompt-label');
-		labels[0].textContent = ywebL('v1.user', 'User');
-		labels[1].textContent = ywebL('v1.password', 'Password');
-		var user = backdrop.querySelector('#yweb-v1-user');
-		var pass = backdrop.querySelector('#yweb-v1-pass');
-		var err = backdrop.querySelector('.yweb-v1-err');
+		backdrop.querySelector('h4').textContent = webuiL('v1.signin_title', 'Sign in');
+		backdrop.querySelector('.webui-v1-why').textContent =
+			webuiL('v1.signin_why', 'The box asks for a sign-in for this.');
+		var labels = backdrop.querySelectorAll('.webui-prompt-label');
+		labels[0].textContent = webuiL('v1.user', 'User');
+		labels[1].textContent = webuiL('v1.password', 'Password');
+		var user = backdrop.querySelector('#webui-v1-user');
+		var pass = backdrop.querySelector('#webui-v1-pass');
+		var err = backdrop.querySelector('.webui-v1-err');
 		var okBtn = backdrop.querySelector('.confirm-ok');
 		var cancelBtn = backdrop.querySelector('.confirm-cancel');
-		okBtn.textContent = ywebL('v1.signin', 'Sign in');
-		cancelBtn.textContent = ywebL('msg.cancel', 'Cancel');
+		okBtn.textContent = webuiL('v1.signin', 'Sign in');
+		cancelBtn.textContent = webuiL('msg.cancel', 'Cancel');
 
 		var done = false;
 		function finish(result) {
@@ -300,7 +300,7 @@ function _ywebV1SignInDialog() {
 			okBtn.disabled = true;
 			err.hidden = true;
 			// a wrong password says so; any other refusal says what the box said
-			var why = ywebL('v1.signin_failed', 'Sign-in failed');
+			var why = webuiL('v1.signin_failed', 'Sign-in failed');
 			try {
 				var resp = await fetch('/api/v1/login', {
 					method: 'POST', credentials: 'same-origin', cache: 'no-store',
@@ -310,15 +310,15 @@ function _ywebV1SignInDialog() {
 				if (resp.ok) {
 					var s = await resp.json();
 					if (s && s.authenticated && s.csrf && s.csrf_header) {
-						_ywebV1Csrf = {header: s.csrf_header, token: s.csrf};
+						_webuiV1Csrf = {header: s.csrf_header, token: s.csrf};
 						// what was signed into can be ended from the header
-						if (typeof ywebUpdateLogoutBtn === 'function')
-							ywebUpdateLogoutBtn(true);
+						if (typeof webuiUpdateLogoutBtn === 'function')
+							webuiUpdateLogoutBtn(true);
 						finish(true);
 						return;
 					}
 				} else if (resp.status !== 401) {
-					why = (await _ywebV1Error(resp, 'POST', '/login')).message;
+					why = (await _webuiV1Error(resp, 'POST', '/login')).message;
 				}
 			} catch (e) { /* refused the same way below */ }
 			err.textContent = why;
@@ -348,7 +348,7 @@ function _ywebV1SignInDialog() {
 
 // The legacy helpers (/api/v4, the EPG dialog, recording, streaming) take a
 // channel id with all 16 hex digits; v1 writes one without leading zeros.
-function ywebLegacyChannelId(id) {
+function webuiLegacyChannelId(id) {
 	return ('0000000000000000' + String(id)).slice(-16);
 }
 
@@ -357,22 +357,22 @@ function ywebLegacyChannelId(id) {
 // player playing a file (stop_playback) and the box in standby (wake), then
 // sends it again. texts names the sheet's title, its button and the two
 // questions. Resolves true once the box took it, false when the user said
-// no; any other refusal throws as ywebV1 does.
-async function ywebV1Lifting(path, body, texts) {
+// no; any other refusal throws as webuiV1 does.
+async function webuiV1Lifting(path, body, texts) {
 	body = Object.assign({}, body);
 	for (;;) {
 		try {
-			await ywebV1('POST', path, {body: body});
+			await webuiV1('POST', path, {body: body});
 			return true;
 		} catch (e) {
 			if (e.status === 409 && e.code === 'playback-running' && !body.stop_playback) {
-				if (!await _ywebV1Ask(texts.stop, texts.title, texts.ok))
+				if (!await _webuiV1Ask(texts.stop, texts.title, texts.ok))
 					return false;
 				body.stop_playback = true;
 				continue;
 			}
 			if (e.status === 409 && e.code === 'box-in-standby' && !body.wake) {
-				if (!await _ywebV1Ask(texts.wake, texts.title, texts.ok))
+				if (!await _webuiV1Ask(texts.wake, texts.title, texts.ok))
 					return false;
 				body.wake = true;
 				continue;
@@ -383,26 +383,26 @@ async function ywebV1Lifting(path, body, texts) {
 }
 
 // Plays a channel through POST /api/v1/zap, asking as above.
-function ywebV1Zap(channelId) {
-	return ywebV1Lifting('/zap', {channel_id: channelId}, {
-		title: ywebL('v1.zap_title', 'Switch channel'),
-		ok: ywebL('v1.zap_ok', 'Switch'),
-		stop: ywebL('v1.zap_stop_playback', 'The player is playing a file. Stop it and switch to the channel?'),
-		wake: ywebL('v1.zap_wake', 'The box is in standby. Switch it on and play the channel?')
+function webuiV1Zap(channelId) {
+	return webuiV1Lifting('/zap', {channel_id: channelId}, {
+		title: webuiL('v1.zap_title', 'Switch channel'),
+		ok: webuiL('v1.zap_ok', 'Switch'),
+		stop: webuiL('v1.zap_stop_playback', 'The player is playing a file. Stop it and switch to the channel?'),
+		wake: webuiL('v1.zap_wake', 'The box is in standby. Switch it on and play the channel?')
 	});
 }
 
 // A yes or no in a sheet (webui-dom.js); without the helper layer the
 // browser's own confirm.
-function _ywebV1Ask(text, title, ok) {
-	if (typeof ywebSheet !== 'function')
+function _webuiV1Ask(text, title, ok) {
+	if (typeof webuiSheet !== 'function')
 		return Promise.resolve(window.confirm(text));
 	return new Promise(function(resolve) {
-		ywebSheet({
+		webuiSheet({
 			title: title,
-			body: ywebEl('p', {}, text),
+			body: webuiEl('p', {}, text),
 			actions: [
-				{label: ywebL('msg.cancel', 'Cancel'), value: false},
+				{label: webuiL('msg.cancel', 'Cancel'), value: false},
 				{label: ok, value: true, primary: true}
 			],
 			onClose: function(result) { resolve(result === true); }
@@ -411,19 +411,19 @@ function _ywebV1Ask(text, title, ok) {
 }
 
 // One EventSource for the page; handlers keyed by event name.
-function ywebV1Events(handlers) {
+function webuiV1Events(handlers) {
 	if (!window.EventSource) return null;
-	_ywebV1Stream = {handlers: handlers, es: null, closed: false};
-	return _ywebV1Open();
+	_webuiV1Stream = {handlers: handlers, es: null, closed: false};
+	return _webuiV1Open();
 }
 
-function ywebV1EventsLive() {
-	return !!(window.EventSource && _ywebV1Stream && _ywebV1Stream.es &&
-		_ywebV1Stream.es.readyState === EventSource.OPEN);
+function webuiV1EventsLive() {
+	return !!(window.EventSource && _webuiV1Stream && _webuiV1Stream.es &&
+		_webuiV1Stream.es.readyState === EventSource.OPEN);
 }
 
-function _ywebV1Open() {
-	var stream = _ywebV1Stream;
+function _webuiV1Open() {
+	var stream = _webuiV1Stream;
 	var es = new EventSource('/api/v1/events');
 	stream.es = es;
 	stream.closed = false;
@@ -446,37 +446,37 @@ function _ywebV1Open() {
 // are v1's: hexadecimal without leading zeros.
 
 // EPG Info Modal HTML Template
-const YWEB_EPG_MODAL_HTML = `
-<div class="yweb-epg-modal-backdrop" id="ywebEpgModal" onclick="ywebCloseEpgModal(event)">
-	<div class="yweb-epg-modal" onclick="event.stopPropagation()">
-		<div class="yweb-epg-modal-header">
-			<h3 id="ywebEpgModalChannel">--</h3>
-			${_ywebCloseBtn('ywebCloseEpgModal()')}
+const WEBUI_EPG_MODAL_HTML = `
+<div class="webui-epg-modal-backdrop" id="webuiEpgModal" onclick="webuiCloseEpgModal(event)">
+	<div class="webui-epg-modal" onclick="event.stopPropagation()">
+		<div class="webui-epg-modal-header">
+			<h3 id="webuiEpgModalChannel">--</h3>
+			${_webuiCloseBtn('webuiCloseEpgModal()')}
 		</div>
-		<div class="yweb-epg-modal-body">
-			<div class="yweb-epg-current">
-				<div class="yweb-epg-title" id="ywebEpgCurrentTitle">Lade...</div>
-				<div class="yweb-epg-time" id="ywebEpgCurrentTime">--:-- - --:--</div>
-				<div class="yweb-epg-progress">
-					<div class="yweb-epg-progress-bar" id="ywebEpgProgressBar" style="width: 0%"></div>
+		<div class="webui-epg-modal-body">
+			<div class="webui-epg-current">
+				<div class="webui-epg-title" id="webuiEpgCurrentTitle">Lade...</div>
+				<div class="webui-epg-time" id="webuiEpgCurrentTime">--:-- - --:--</div>
+				<div class="webui-epg-progress">
+					<div class="webui-epg-progress-bar" id="webuiEpgProgressBar" style="width: 0%"></div>
 				</div>
-				<div class="yweb-epg-description" id="ywebEpgCurrentDesc"></div>
+				<div class="webui-epg-description" id="webuiEpgCurrentDesc"></div>
 			</div>
-			<div class="yweb-epg-next" id="ywebEpgNextSection" style="display: none;">
-				<div class="yweb-epg-next-label">Danach</div>
-				<div class="yweb-epg-next-title" id="ywebEpgNextTitle">--</div>
-				<div class="yweb-epg-next-time" id="ywebEpgNextTime">--:-- - --:--</div>
+			<div class="webui-epg-next" id="webuiEpgNextSection" style="display: none;">
+				<div class="webui-epg-next-label">Danach</div>
+				<div class="webui-epg-next-title" id="webuiEpgNextTitle">--</div>
+				<div class="webui-epg-next-time" id="webuiEpgNextTime">--:-- - --:--</div>
 			</div>
 		</div>
-		<div class="yweb-epg-modal-footer">
-			<button class="yweb-btn" onclick="ywebCloseEpgModal()">Schließen</button>
-			<button class="yweb-btn" id="ywebEpgRecBtn" onclick="ywebEpgModalToggleRec()" style="color:var(--yweb-danger,#ef4444)">
+		<div class="webui-epg-modal-footer">
+			<button class="webui-btn" onclick="webuiCloseEpgModal()">Schließen</button>
+			<button class="webui-btn" id="webuiEpgRecBtn" onclick="webuiEpgModalToggleRec()" style="color:var(--webui-danger,#ef4444)">
 				<svg viewBox="0 0 24 24" fill="currentColor" style="width:1rem;height:1rem;margin-right:0.3rem">
 					<circle cx="12" cy="12" r="8"/>
 				</svg>
 				<span>Aufnehmen</span>
 			</button>
-			<button class="yweb-btn primary" onclick="ywebStreamChannel()">
+			<button class="webui-btn primary" onclick="webuiStreamChannel()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem">
 					<path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
 					<polygon points="12,15 17,21 7,21"/>
@@ -489,46 +489,46 @@ const YWEB_EPG_MODAL_HTML = `
 `;
 
 // The channel and the guide event the dialog shows, for its buttons
-let ywebEpgModalChannelId = null;
-let ywebEpgModalChannelName = null;
-let ywebEpgModalEvent = null;
-let ywebEpgModalIsRecording = false;
-let _ywebEpgModalToken = 0;
+let webuiEpgModalChannelId = null;
+let webuiEpgModalChannelName = null;
+let webuiEpgModalEvent = null;
+let webuiEpgModalIsRecording = false;
+let _webuiEpgModalToken = 0;
 
-function _ywebClock(sec) {
-	return ywebFormatTime(new Date(sec * 1000));
+function _webuiClock(sec) {
+	return webuiFormatTime(new Date(sec * 1000));
 }
 
 // A guide read that finds nothing is an answer, not a failure
-function _ywebV1Maybe(path, query) {
-	return ywebV1('GET', path, {query: query}).catch(function(e) {
+function _webuiV1Maybe(path, query) {
+	return webuiV1('GET', path, {query: query}).catch(function(e) {
 		if (e.status === 404) return null;
 		throw e;
 	});
 }
 
 // What runs now on a channel, its long text and what follows
-async function ywebShowEpgModal(channelId, channelName) {
-	if (!document.getElementById('ywebEpgModal'))
-		document.body.insertAdjacentHTML('beforeend', YWEB_EPG_MODAL_HTML);
+async function webuiShowEpgModal(channelId, channelName) {
+	if (!document.getElementById('webuiEpgModal'))
+		document.body.insertAdjacentHTML('beforeend', WEBUI_EPG_MODAL_HTML);
 
-	const modal = document.getElementById('ywebEpgModal');
-	const titleEl = document.getElementById('ywebEpgCurrentTitle');
-	const timeEl = document.getElementById('ywebEpgCurrentTime');
-	const descEl = document.getElementById('ywebEpgCurrentDesc');
-	const progressBar = document.getElementById('ywebEpgProgressBar');
-	const channelEl = document.getElementById('ywebEpgModalChannel');
-	const nextSection = document.getElementById('ywebEpgNextSection');
-	const nextTitleEl = document.getElementById('ywebEpgNextTitle');
-	const nextTimeEl = document.getElementById('ywebEpgNextTime');
+	const modal = document.getElementById('webuiEpgModal');
+	const titleEl = document.getElementById('webuiEpgCurrentTitle');
+	const timeEl = document.getElementById('webuiEpgCurrentTime');
+	const descEl = document.getElementById('webuiEpgCurrentDesc');
+	const progressBar = document.getElementById('webuiEpgProgressBar');
+	const channelEl = document.getElementById('webuiEpgModalChannel');
+	const nextSection = document.getElementById('webuiEpgNextSection');
+	const nextTitleEl = document.getElementById('webuiEpgNextTitle');
+	const nextTimeEl = document.getElementById('webuiEpgNextTime');
 
-	const token = ++_ywebEpgModalToken;
-	ywebEpgModalChannelId = channelId;
-	ywebEpgModalChannelName = channelName || ywebL('epg.programme', 'Programme');
-	ywebEpgModalEvent = null;
+	const token = ++_webuiEpgModalToken;
+	webuiEpgModalChannelId = channelId;
+	webuiEpgModalChannelName = channelName || webuiL('epg.programme', 'Programme');
+	webuiEpgModalEvent = null;
 
-	channelEl.textContent = ywebEpgModalChannelName;
-	titleEl.textContent = ywebL('msg.loading', 'Loading...');
+	channelEl.textContent = webuiEpgModalChannelName;
+	titleEl.textContent = webuiL('msg.loading', 'Loading...');
 	timeEl.textContent = '--:-- - --:--';
 	descEl.textContent = '';
 	progressBar.style.width = '0%';
@@ -537,64 +537,64 @@ async function ywebShowEpgModal(channelId, channelName) {
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
 
-	ywebEpgModalUpdateRecBtn(false);
-	ywebCheckRecordingForChannel(channelId).then(function(rec) {
-		if (token === _ywebEpgModalToken) ywebEpgModalUpdateRecBtn(!!rec);
+	webuiEpgModalUpdateRecBtn(false);
+	webuiCheckRecordingForChannel(channelId).then(function(rec) {
+		if (token === _webuiEpgModalToken) webuiEpgModalUpdateRecBtn(!!rec);
 	});
 
 	try {
-		const ev = await _ywebV1Maybe('/epg/current', {channel: channelId});
-		if (token !== _ywebEpgModalToken) return;	// opened for another channel meanwhile
+		const ev = await _webuiV1Maybe('/epg/current', {channel: channelId});
+		if (token !== _webuiEpgModalToken) return;	// opened for another channel meanwhile
 		if (!ev) {
-			titleEl.textContent = ywebL('epg.nodata', 'No EPG data available');
+			titleEl.textContent = webuiL('epg.nodata', 'No EPG data available');
 			return;
 		}
-		ywebEpgModalEvent = ev;
+		webuiEpgModalEvent = ev;
 		const end = ev.start + ev.duration;
 		titleEl.textContent = ev.title || '--';
-		timeEl.textContent = _ywebClock(ev.start) + ' - ' + _ywebClock(end);
+		timeEl.textContent = _webuiClock(ev.start) + ' - ' + _webuiClock(end);
 		descEl.textContent = ev.description || '';
 		if (ev.duration > 0) {
 			const pct = Math.min(100, Math.max(0, (Date.now() / 1000 - ev.start) / ev.duration * 100));
 			progressBar.style.width = pct + '%';
 		}
 
-		const full = await _ywebV1Maybe('/epg/event', {id: ev.id, start: ev.start}).catch(function() { return null; });
-		if (token !== _ywebEpgModalToken) return;
+		const full = await _webuiV1Maybe('/epg/event', {id: ev.id, start: ev.start}).catch(function() { return null; });
+		if (token !== _webuiEpgModalToken) return;
 		if (full)
 			descEl.textContent = [full.description, full.long_description].filter(Boolean).join('\n\n');
 
-		const win = await _ywebV1Maybe('/epg', {channel: channelId, from: end, to: end + 6 * 3600}).catch(function() { return null; });
-		if (token !== _ywebEpgModalToken) return;
+		const win = await _webuiV1Maybe('/epg', {channel: channelId, from: end, to: end + 6 * 3600}).catch(function() { return null; });
+		if (token !== _webuiEpgModalToken) return;
 		const next = win && (win.items || []).find(function(e) { return e.start >= end; });
 		if (next) {
 			nextTitleEl.textContent = next.title || '--';
-			nextTimeEl.textContent = _ywebClock(next.start) + ' - ' + _ywebClock(next.start + next.duration);
+			nextTimeEl.textContent = _webuiClock(next.start) + ' - ' + _webuiClock(next.start + next.duration);
 			nextSection.style.display = 'block';
 		}
 	} catch (e) {
-		if (token !== _ywebEpgModalToken) return;
-		titleEl.textContent = ywebL('msg.load_fail', 'Loading failed');
+		if (token !== _webuiEpgModalToken) return;
+		titleEl.textContent = webuiL('msg.load_fail', 'Loading failed');
 		console.error('Failed to load EPG:', e);
 	}
 }
 
-function ywebCloseEpgModal(event) {
+function webuiCloseEpgModal(event) {
 	if (event && event.target !== event.currentTarget) return;
-	const modal = document.getElementById('ywebEpgModal');
+	const modal = document.getElementById('webuiEpgModal');
 	if (modal) modal.classList.remove('open');
 	document.body.style.overflow = '';
 	// what it showed is no event a later Rec elsewhere may take
-	ywebEpgModalEvent = null;
+	webuiEpgModalEvent = null;
 }
 
 // A playlist for a player on this computer: the box's stream server with the
 // channel, which wants the id with all 16 digits
-function ywebStreamChannel(channelId, channelName) {
-	channelId = channelId || ywebEpgModalChannelId;
-	channelName = channelName || ywebEpgModalChannelName;
+function webuiStreamChannel(channelId, channelName) {
+	channelId = channelId || webuiEpgModalChannelId;
+	channelName = channelName || webuiEpgModalChannelName;
 	if (!channelId) return;
-	const plist = "#EXTM3U\n#EXTINF:-1," + channelName + "\nhttp://" + window.location.hostname + ":31339/id=" + ywebLegacyChannelId(channelId) + "\n";
+	const plist = "#EXTM3U\n#EXTINF:-1," + channelName + "\nhttp://" + window.location.hostname + ":31339/id=" + webuiLegacyChannelId(channelId) + "\n";
 	const blob = new Blob([plist], { type: "application/octet-stream" });
 	const a = document.createElement('a');
 	a.href = URL.createObjectURL(blob);
@@ -607,15 +607,15 @@ function ywebStreamChannel(channelId, channelName) {
 // the dialog shows for its channel, else what runs now on the channel. An
 // event already running starts recording this minute, a timer being refused
 // a start before it. Resolves true once the timer is set.
-async function ywebRecordEvent(channelId, channelName, ev) {
-	channelId = channelId || ywebEpgModalChannelId;
-	channelName = channelName || ywebEpgModalChannelName;
-	if (!ev && channelId === ywebEpgModalChannelId) ev = ywebEpgModalEvent;
+async function webuiRecordEvent(channelId, channelName, ev) {
+	channelId = channelId || webuiEpgModalChannelId;
+	channelName = channelName || webuiEpgModalChannelName;
+	if (!ev && channelId === webuiEpgModalChannelId) ev = webuiEpgModalEvent;
 	if (!channelId) return false;
 	try {
-		if (!ev) ev = await _ywebV1Maybe('/epg/current', {channel: channelId});
+		if (!ev) ev = await _webuiV1Maybe('/epg/current', {channel: channelId});
 		if (!ev) {
-			ywebShowToast(ywebL('epg.nodata', 'No EPG data available'), true);
+			webuiShowToast(webuiL('epg.nodata', 'No EPG data available'), true);
 			return false;
 		}
 		const minute = Math.floor(Date.now() / 60000) * 60;
@@ -625,12 +625,12 @@ async function ywebRecordEvent(channelId, channelName, ev) {
 			body.epg_id = ev.id;
 			body.epg_start = ev.start;
 		}
-		await ywebV1('POST', '/timers', {body: body});
-		ywebShowToast(ywebL('rec.planned', 'Recording scheduled') + ': ' + (channelName || ''));
+		await webuiV1('POST', '/timers', {body: body});
+		webuiShowToast(webuiL('rec.planned', 'Recording scheduled') + ': ' + (channelName || ''));
 		return true;
 	} catch (e) {
 		console.error('Record failed:', e);
-		ywebShowToast(ywebL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 		return false;
 	}
 }
@@ -638,52 +638,52 @@ async function ywebRecordEvent(channelId, channelName, ev) {
 // Ends a recording through DELETE /api/v1/recordings/{id}; without an id the
 // one the box is recording, its timeshift left out. The id is the timer the
 // recording carries, so a timer list can pass its own.
-async function ywebStopRecording(recordingId) {
+async function webuiStopRecording(recordingId) {
 	try {
 		if (!recordingId) {
-			const r = await ywebV1('GET', '/recordings');
+			const r = await webuiV1('GET', '/recordings');
 			const rec = ((r && r.items) || []).find(function(it) { return !it.timeshift; });
 			if (!rec) {
-				ywebShowToast(ywebL('rec.stop_fail', 'Stop failed'), true);
+				webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
 				return false;
 			}
 			recordingId = rec.id;
 		}
-		await ywebV1('DELETE', '/recordings/' + encodeURIComponent(recordingId));
-		ywebShowToast(ywebL('rec.stopped', 'Recording stopped'));
+		await webuiV1('DELETE', '/recordings/' + encodeURIComponent(recordingId));
+		webuiShowToast(webuiL('rec.stopped', 'Recording stopped'));
 		return true;
 	} catch (e) {
-		ywebShowToast(ywebL('rec.stop_fail', 'Stop failed') + ': ' + e.message, true);
+		webuiShowToast(webuiL('rec.stop_fail', 'Stop failed') + ': ' + e.message, true);
 		return false;
 	}
 }
 
 // EPG Modal: toggle between Record and Stop
-async function ywebEpgModalToggleRec() {
-	if (ywebEpgModalIsRecording) {
+async function webuiEpgModalToggleRec() {
+	if (webuiEpgModalIsRecording) {
 		// this channel's recording and no other: one that ended since the
 		// dialog opened leaves nothing to stop here
-		const rec = await ywebCheckRecordingForChannel(ywebEpgModalChannelId);
-		if (!rec || await ywebStopRecording(rec.id))
-			ywebEpgModalUpdateRecBtn(false);
-	} else if (await ywebRecordEvent()) {
-		ywebCheckRecordingForChannel(ywebEpgModalChannelId).then(function(rec) { ywebEpgModalUpdateRecBtn(!!rec); });
+		const rec = await webuiCheckRecordingForChannel(webuiEpgModalChannelId);
+		if (!rec || await webuiStopRecording(rec.id))
+			webuiEpgModalUpdateRecBtn(false);
+	} else if (await webuiRecordEvent()) {
+		webuiCheckRecordingForChannel(webuiEpgModalChannelId).then(function(rec) { webuiEpgModalUpdateRecBtn(!!rec); });
 	}
 }
 
-function ywebEpgModalUpdateRecBtn(isRecording) {
-	ywebEpgModalIsRecording = isRecording;
-	const btn = document.getElementById('ywebEpgRecBtn');
+function webuiEpgModalUpdateRecBtn(isRecording) {
+	webuiEpgModalIsRecording = isRecording;
+	const btn = document.getElementById('webuiEpgRecBtn');
 	if (!btn) return;
 	const label = btn.querySelector('span');
-	if (label) label.textContent = isRecording ? ywebL('rec.stop', 'Stop recording') : ywebL('rec.start', 'Record');
-	btn.style.animation = isRecording ? 'yweb-pulse 1.5s infinite' : '';
+	if (label) label.textContent = isRecording ? webuiL('rec.stop', 'Stop recording') : webuiL('rec.start', 'Record');
+	btn.style.animation = isRecording ? 'webui-pulse 1.5s infinite' : '';
 }
 
 // The recording the box is making of a channel, its timeshift left out, or null
-async function ywebCheckRecordingForChannel(channelId) {
+async function webuiCheckRecordingForChannel(channelId) {
 	try {
-		const r = await ywebV1('GET', '/recordings');
+		const r = await webuiV1('GET', '/recordings');
 		return ((r && r.items) || []).find(function(it) {
 			return !it.timeshift && it.channel_id === channelId;
 		}) || null;

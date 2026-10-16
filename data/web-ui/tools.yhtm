@@ -8,12 +8,12 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
-		.yweb-tools-grid {
+		.webui-tools-grid {
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 			gap: 1rem;
@@ -28,24 +28,24 @@
 		   per-row count did not divide 12 (e.g. 5 cards). Below the
 		   breakpoint the auto-fill layout stays untouched. */
 		@media (min-width: 1101px) {
-			.yweb-tools-grid {
+			.webui-tools-grid {
 				grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
 				justify-content: center;
 				max-width: none;
 			}
 		}
 
-		.yweb-tool-card {
+		.webui-tool-card {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			gap: 0.75rem;
 			padding: 1.5rem 1rem;
 			background: var(--pico-card-background-color);
-			border-radius: var(--yweb-radius-lg);
-			box-shadow: var(--yweb-shadow);
+			border-radius: var(--webui-radius-lg);
+			box-shadow: var(--webui-shadow);
 			cursor: pointer;
-			transition: var(--yweb-transition);
+			transition: var(--webui-transition);
 			text-decoration: none;
 			/* Kachel-Titel neutral: Picos Anchor-Blau auf <a>-Karten aufheben */
 			--pico-color: inherit;
@@ -53,55 +53,55 @@
 			border: 1px solid transparent;
 		}
 
-		.yweb-tool-card:hover {
-			box-shadow: var(--yweb-shadow-hover);
-			border-color: var(--yweb-accent);
-			color: var(--yweb-accent);
+		.webui-tool-card:hover {
+			box-shadow: var(--webui-shadow-hover);
+			border-color: var(--webui-accent);
+			color: var(--webui-accent);
 			transform: translateY(-2px);
 		}
 
-		.yweb-tool-card:active {
+		.webui-tool-card:active {
 			transform: scale(0.97);
 		}
 
-		.yweb-tool-card svg {
+		.webui-tool-card svg {
 			width: 36px;
 			height: 36px;
-			color: var(--yweb-accent);
+			color: var(--webui-accent);
 		}
 
-		.yweb-tool-card span {
+		.webui-tool-card span {
 			font-size: 0.9rem;
 			font-weight: 600;
 		}
 
-		.yweb-tool-card small {
+		.webui-tool-card small {
 			font-size: 0.7rem;
 			color: var(--pico-muted-color);
 			text-align: center;
 		}
 
 		/* hidden has to win against the card's own display */
-		.yweb-tool-card[hidden] {
+		.webui-tool-card[hidden] {
 			display: none;
 		}
 
-		[data-theme="light"] .yweb-tool-card {
-			border: 1px solid var(--yweb-border-subtle);
+		[data-theme="light"] .webui-tool-card {
+			border: 1px solid var(--webui-border-subtle);
 		}
 
-		[data-theme="light"] .yweb-tool-card:hover {
-			border-color: var(--yweb-accent);
+		[data-theme="light"] .webui-tool-card:hover {
+			border-color: var(--webui-accent);
 		}
 	</style>
 </head>
 <body>
-	<div class="yweb-header-wrapper" data-page="tools"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="tools"></div>
+	<div class="webui-header-spacer"></div>
 
 	<main>
-		<div class="yweb-tools-grid">
-			<a href="/sysinfo.yhtm" class="yweb-tool-card">
+		<div class="webui-tools-grid">
+			<a href="/sysinfo.yhtm" class="webui-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
 				</svg>
@@ -109,7 +109,7 @@
 				<small>{=L:yw.tools.sysinfo_sub=}</small>
 			</a>
 
-			<div class="yweb-tool-card" onclick="showBoxControl()">
+			<div class="webui-tool-card" onclick="showBoxControl()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="14" y1="10" x2="18" y2="10"/><line x1="14" y1="14" x2="18" y2="14"/>
 				</svg>
@@ -117,7 +117,7 @@
 				<small>{=L:yw.tools.boxcontrol_sub=}</small>
 			</div>
 
-			<a href="/bouquet-editor.yhtm" class="yweb-tool-card">
+			<a href="/bouquet-editor.yhtm" class="webui-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
 				</svg>
@@ -126,7 +126,7 @@
 			</a>
 
 			<!-- only where the optional Swagger UI package is installed -->
-			<a href="/swagger/" class="yweb-tool-card" id="toolApiRef" hidden>
+			<a href="/swagger/" class="webui-tool-card" id="toolApiRef" hidden>
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
 				</svg>
@@ -157,18 +157,18 @@
 		async function bcDo(label, endpoint, params) {
 			try {
 				var m = /^(POST|PUT) (\/.*)$/.exec(endpoint);
-				await ywebV1(m[1], m[2], params ? {body: params} : {});
-				ywebShowToast(label + ' {=L:yw.msg.executed=}');
+				await webuiV1(m[1], m[2], params ? {body: params} : {});
+				webuiShowToast(label + ' {=L:yw.msg.executed=}');
 			} catch (e) {
-				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			}
 		}
 
-		// Rueckfrage als yweb-Dialog statt nativem confirm(); der
+		// Rueckfrage als webui-Dialog statt nativem confirm(); der
 		// Bestaetigen-Knopf wiederholt den Aktionsnamen (label)
 		function bcAction(label, endpoint, params, confirmText) {
 			if (confirmText) {
-				ywebShowConfirm(label, confirmText, label, function() { return bcDo(label, endpoint, params); });
+				webuiShowConfirm(label, confirmText, label, function() { return bcDo(label, endpoint, params); });
 				return;
 			}
 			return bcDo(label, endpoint, params);
@@ -185,31 +185,31 @@
 
 		async function showBoxControl() {
 			var body =
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">Box</div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.restart_gui=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.restart_btn=}\', \'POST /system/restart\', null, \'{=L:yw.bc.restart_confirm=}\')">' + I_REFRESH + '{=L:yw.bc.restart_btn=}</button></span></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.reboot=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn danger" onclick="bcAction(\'Reboot\', \'POST /system/reboot\', null, \'{=L:yw.bc.reboot_confirm=}\')">' + I_ROTATE + 'Reboot</button></span></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.shutdown=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn danger" onclick="bcAction(\'Shutdown\', \'POST /system/shutdown\', null, \'{=L:yw.bc.shutdown_confirm=}\')">' + I_POWER + '{=L:yw.bc.shutdown_btn=}</button></span></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.bc.recording=} <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.instant_rec=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="bcRecStart()">' + I_REC + 'Start</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcRecStop()">' + I_STOP + 'Stop</button></span></div></div>' +
-				'<div class="yweb-form-section" id="bcVideo" hidden><div class="yweb-form-section-title">Video</div>' +
-				'<div class="yweb-form-row"><label for="bcVideoMode">{=L:yw.bc.resolution=}</label><span class="yweb-row-actions">' +
+				'<div class="webui-form-section"><div class="webui-form-section-title">Box</div>' +
+				'<div class="webui-form-row"><label>{=L:yw.bc.restart_gui=}</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.restart_btn=}\', \'POST /system/restart\', null, \'{=L:yw.bc.restart_confirm=}\')">' + I_REFRESH + '{=L:yw.bc.restart_btn=}</button></span></div>' +
+				'<div class="webui-form-row"><label>{=L:yw.bc.reboot=}</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn danger" onclick="bcAction(\'Reboot\', \'POST /system/reboot\', null, \'{=L:yw.bc.reboot_confirm=}\')">' + I_ROTATE + 'Reboot</button></span></div>' +
+				'<div class="webui-form-row"><label>{=L:yw.bc.shutdown=}</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn danger" onclick="bcAction(\'Shutdown\', \'POST /system/shutdown\', null, \'{=L:yw.bc.shutdown_confirm=}\')">' + I_POWER + '{=L:yw.bc.shutdown_btn=}</button></span></div></div>' +
+				'<div class="webui-form-section"><div class="webui-form-section-title">{=L:yw.bc.recording=} <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
+				'<div class="webui-form-row"><label>{=L:yw.bc.instant_rec=}</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcRecStart()">' + I_REC + 'Start</button> ' +
+				'<button type="button" class="webui-btn" onclick="bcRecStop()">' + I_STOP + 'Stop</button></span></div></div>' +
+				'<div class="webui-form-section" id="bcVideo" hidden><div class="webui-form-section-title">Video</div>' +
+				'<div class="webui-form-row"><label for="bcVideoMode">{=L:yw.bc.resolution=}</label><span class="webui-row-actions">' +
 				'<select id="bcVideoMode"></select> ' +
-				'<button type="button" class="yweb-btn" onclick="bcVideoApply()">{=L:yw.bqe.apply=}</button></span></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">{=L:yw.tools.remote_sub=}</div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.rc_at_box=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.lock=}\', \'PUT /osd/remote\', {locked: true})">' + I_LOCK + '{=L:yw.bc.lock=}</button> ' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.unlock=}\', \'PUT /osd/remote\', {locked: false})">' + I_UNLOCK + '{=L:yw.bc.unlock=}</button></span></div></div>' +
-				'<div class="yweb-form-section"><div class="yweb-form-section-title">Zapit</div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.reload_channels=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.reload=}\', \'POST /channels/reload\', null)">' + I_REFRESH + '{=L:yw.bc.reload=}</button></span></div>' +
-				'<div class="yweb-form-row"><label>{=L:yw.bc.tuner_reset=}</label><span class="yweb-row-actions">' +
-				'<button type="button" class="yweb-btn" onclick="bcAction(\'{=L:yw.bc.tuner_reset=}\', \'POST /tuner/reset\', null)">' + I_ROTATE + 'Reset</button></span></div></div>';
-			ywebModal('bcModal', 'Boxcontrol', body);
+				'<button type="button" class="webui-btn" onclick="bcVideoApply()">{=L:yw.bqe.apply=}</button></span></div></div>' +
+				'<div class="webui-form-section"><div class="webui-form-section-title">{=L:yw.tools.remote_sub=}</div>' +
+				'<div class="webui-form-row"><label>{=L:yw.bc.rc_at_box=}</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.lock=}\', \'PUT /osd/remote\', {locked: true})">' + I_LOCK + '{=L:yw.bc.lock=}</button> ' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.unlock=}\', \'PUT /osd/remote\', {locked: false})">' + I_UNLOCK + '{=L:yw.bc.unlock=}</button></span></div></div>' +
+				'<div class="webui-form-section"><div class="webui-form-section-title">Zapit</div>' +
+				'<div class="webui-form-row"><label>{=L:yw.bc.reload_channels=}</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.reload=}\', \'POST /channels/reload\', null)">' + I_REFRESH + '{=L:yw.bc.reload=}</button></span></div>' +
+				'<div class="webui-form-row"><label>{=L:yw.bc.tuner_reset=}</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.tuner_reset=}\', \'POST /tuner/reset\', null)">' + I_ROTATE + 'Reset</button></span></div></div>';
+			webuiModal('bcModal', 'Boxcontrol', body);
 			bcRecState();
 			bcVideoLoad();
 		}
@@ -218,7 +218,7 @@
 		async function bcRecState() {
 			var el = document.getElementById('bcRecState');
 			try {
-				var r = await ywebV1('GET', '/recordings');
+				var r = await webuiV1('GET', '/recordings');
 				var on = ((r && r.items) || []).some(function(it) { return !it.timeshift; });
 				if (el) el.textContent = on ? '\u2022 {=L:yw.bc.rec_running=}' : '\u2022 {=L:yw.bc.rec_none=}';
 			} catch (e) {
@@ -231,17 +231,17 @@
 		// after the answer, so the state is read again a moment later.
 		async function bcRecStart() {
 			try {
-				var ok = await ywebV1Lifting('/recordings', {}, {
+				var ok = await webuiV1Lifting('/recordings', {}, {
 					title: '{=L:yw.bc.instant_rec=}',
 					ok: 'Start',
 					stop: '',
 					wake: '{=L:yw.bc.rec_wake=}'
 				});
 				if (!ok) return;
-				ywebShowToast('{=L:yw.bc.recording=}-Start {=L:yw.msg.executed=}');
+				webuiShowToast('{=L:yw.bc.recording=}-Start {=L:yw.msg.executed=}');
 				setTimeout(bcRecState, 1500);
 			} catch (e) {
-				ywebShowToast(e.code === 'recording-running' ? '{=L:yw.bc.rec_already=}' :
+				webuiShowToast(e.code === 'recording-running' ? '{=L:yw.bc.rec_already=}' :
 					'{=L:yw.msg.error=}: ' + e.message, true);
 			}
 		}
@@ -251,14 +251,14 @@
 		async function bcRecStop() {
 			var id = null;
 			try {
-				var lists = await Promise.all([ywebV1('GET', '/recordings'), ywebV1('GET', '/channels/current')]);
-				var live = lists[1] && lists[1].id ? ywebLegacyChannelId(lists[1].id) : '';
+				var lists = await Promise.all([webuiV1('GET', '/recordings'), webuiV1('GET', '/channels/current')]);
+				var live = lists[1] && lists[1].id ? webuiLegacyChannelId(lists[1].id) : '';
 				var mine = ((lists[0] && lists[0].items) || []).find(function(it) {
-					return !it.timeshift && ywebLegacyChannelId(it.channel_id) === live;
+					return !it.timeshift && webuiLegacyChannelId(it.channel_id) === live;
 				});
 				if (mine) id = mine.id;
 			} catch (e) {}
-			await ywebStopRecording(id);
+			await webuiStopRecording(id);
 			bcRecState();
 		}
 
@@ -267,16 +267,16 @@
 		var bcVideoSection = null;
 		async function bcVideoLoad() {
 			try {
-				var schema = await ywebV1('GET', '/settings/schema');
+				var schema = await webuiV1('GET', '/settings/schema');
 				var item = ((schema && schema.items) || []).find(function(it) { return it.id === 'video_Mode'; });
 				if (!item || !(item.values && item.values.length)) return;
-				var now = await ywebV1('GET', '/settings/' + encodeURIComponent(item.section));
+				var now = await webuiV1('GET', '/settings/' + encodeURIComponent(item.section));
 				var cur = ((now && now.items) || []).find(function(it) { return it.id === 'video_Mode'; });
 				var sel = document.getElementById('bcVideoMode');
 				if (!sel) return;
 				sel.replaceChildren();
 				item.values.forEach(function(c) {
-					sel.appendChild(ywebEl('option', {value: String(c.value)}, c.label || String(c.value)));
+					sel.appendChild(webuiEl('option', {value: String(c.value)}, c.label || String(c.value)));
 				});
 				if (cur) sel.value = String(cur.value);
 				bcVideoSection = item.section;
@@ -290,13 +290,13 @@
 			if (!sel || !bcVideoSection) return;
 			var label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : sel.value;
 			try {
-				var answer = await ywebV1('PATCH', '/settings/' + encodeURIComponent(bcVideoSection), {body: {video_Mode: sel.value}});
+				var answer = await webuiV1('PATCH', '/settings/' + encodeURIComponent(bcVideoSection), {body: {video_Mode: sel.value}});
 				var r = answer && answer.results && answer.results.video_Mode;
 				if (r && r.status >= 300)
 					throw new Error(r.detail || r.code || String(r.status));
-				ywebShowToast('{=L:yw.bc.resolution=}: ' + label);
+				webuiShowToast('{=L:yw.bc.resolution=}: ' + label);
 			} catch (e) {
-				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			}
 		}
 	</script>

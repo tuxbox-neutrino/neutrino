@@ -9,18 +9,18 @@
    follows a switch to light: the viewer's own light look is that theme,
    and the colours below are for the dark one. */
 var theme = "dark";
-try { theme = localStorage.getItem("yweb-theme") || "dark"; } catch (e) {}
+try { theme = localStorage.getItem("webui-theme") || localStorage.getItem("yweb-theme") || "dark"; } catch (e) {}
 document.documentElement.setAttribute("data-theme", theme);
 </script>
 <style>
 /* In both themes: the accent, and the one warning on this page. */
-:root { --yweb-accent: #fd6d13; --yweb-accent-hover: #e55a00; }
-.swagger-ui .btn.execute { background: var(--yweb-accent); border-color: var(--yweb-accent);
+:root { --webui-accent: #fd6d13; --webui-accent-hover: #e55a00; }
+.swagger-ui .btn.execute { background: var(--webui-accent); border-color: var(--webui-accent);
   color: #17120c; }
-.swagger-ui .btn.execute:hover { background: var(--yweb-accent-hover); }
-.swagger-ui .btn.authorize { color: var(--yweb-accent); border-color: var(--yweb-accent); }
-.swagger-ui .btn.authorize svg { fill: var(--yweb-accent); }
-.swagger-ui *:focus-visible { outline: 2px solid var(--yweb-accent); outline-offset: 1px; }
+.swagger-ui .btn.execute:hover { background: var(--webui-accent-hover); }
+.swagger-ui .btn.authorize { color: var(--webui-accent); border-color: var(--webui-accent); }
+.swagger-ui .btn.authorize svg { fill: var(--webui-accent); }
+.swagger-ui *:focus-visible { outline: 2px solid var(--webui-accent); outline-offset: 1px; }
 #warning {
   font: 14px/1.5 system-ui, sans-serif;
   background: #3a2e10;
@@ -54,8 +54,8 @@ body { margin: 0; }
   --doc-surface: #181c25;
   --doc-surface-2: #1f2430;
   --doc-line: rgba(255, 255, 255, 0.1);
-  --yweb-text-primary: #e5e5e5;
-  --yweb-text-secondary: #9ca3af;
+  --webui-text-primary: #e5e5e5;
+  --webui-text-secondary: #9ca3af;
   /* Slightly cool rather than neutral grey, so that two surfaces lying on
      each other come apart without a border between them. */
   --doc-get: #4aa3df;
@@ -65,7 +65,7 @@ body { margin: 0; }
   --doc-delete: #e0574d;
 }
 
-body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
+body { margin: 0; background: var(--doc-bg); color: var(--webui-text-primary); }
 
 #warning {
   font: 14px/1.5 system-ui, sans-serif;
@@ -78,7 +78,7 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
 }
 #warning code { color: #ffd27f; }
 
-.swagger-ui { color: var(--yweb-text-primary); }
+.swagger-ui { color: var(--webui-text-primary); }
 .swagger-ui .info .title,
 .swagger-ui .info li, .swagger-ui .info p, .swagger-ui .info table,
 .swagger-ui .opblock-tag, .swagger-ui .opblock .opblock-summary-path,
@@ -94,13 +94,13 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
 .swagger-ui .response-col_status, .swagger-ui .response-col_links,
 .swagger-ui .tab li, .swagger-ui label, .swagger-ui .model-title,
 .swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5,
-.swagger-ui .btn { color: var(--yweb-text-primary); }
+.swagger-ui .btn { color: var(--webui-text-primary); }
 .swagger-ui .opblock .opblock-section-header h4,
 .swagger-ui .parameter__in, .swagger-ui .opblock-tag small,
-.swagger-ui .model, .swagger-ui .prop-type { color: var(--yweb-text-secondary); }
+.swagger-ui .model, .swagger-ui .prop-type { color: var(--webui-text-secondary); }
 
 .swagger-ui .info a, .swagger-ui a.nostyle, .swagger-ui .model-title__text,
-.swagger-ui .opblock-summary-path a { color: var(--yweb-accent); }
+.swagger-ui .opblock-summary-path a { color: var(--webui-accent); }
 
 .swagger-ui .opblock-tag { border-bottom: 1px solid var(--doc-line); }
 .swagger-ui .opblock { background: var(--doc-surface); border-color: var(--doc-line); }
@@ -117,22 +117,22 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
 }
 .swagger-ui input[type=text], .swagger-ui input[type=password],
 .swagger-ui textarea, .swagger-ui select {
-  background: var(--doc-surface-2); color: var(--yweb-text-primary);
+  background: var(--doc-surface-2); color: var(--webui-text-primary);
   border: 1px solid var(--doc-line);
 }
 .swagger-ui .dialog-ux .modal-ux { background: var(--doc-surface); border-color: var(--doc-line); }
 .swagger-ui .dialog-ux .modal-ux-header h3,
 .swagger-ui .dialog-ux .modal-ux-content h4,
-.swagger-ui .dialog-ux .modal-ux-content p { color: var(--yweb-text-primary); }
+.swagger-ui .dialog-ux .modal-ux-content p { color: var(--webui-text-primary); }
 
 /* What a person acts on, and only that. */
-.swagger-ui .btn.execute { background: var(--yweb-accent); border-color: var(--yweb-accent);
+.swagger-ui .btn.execute { background: var(--webui-accent); border-color: var(--webui-accent);
   color: #17120c; }
-.swagger-ui .btn.execute:hover { background: var(--yweb-accent-hover); }
-.swagger-ui .btn.authorize { color: var(--yweb-accent); border-color: var(--yweb-accent); }
-.swagger-ui .btn.authorize svg { fill: var(--yweb-accent); }
+.swagger-ui .btn.execute:hover { background: var(--webui-accent-hover); }
+.swagger-ui .btn.authorize { color: var(--webui-accent); border-color: var(--webui-accent); }
+.swagger-ui .btn.authorize svg { fill: var(--webui-accent); }
 .swagger-ui .btn { background: transparent; border-color: var(--doc-line); }
-.swagger-ui *:focus-visible { outline: 2px solid var(--yweb-accent); outline-offset: 1px; }
+.swagger-ui *:focus-visible { outline: 2px solid var(--webui-accent); outline-offset: 1px; }
 
 /* What a route does. */
 .swagger-ui .opblock.opblock-get .opblock-summary-method { background: var(--doc-get); }
@@ -148,7 +148,7 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
 .swagger-ui .opblock.opblock-get, .swagger-ui .opblock.opblock-post,
 .swagger-ui .opblock.opblock-put, .swagger-ui .opblock.opblock-patch,
 .swagger-ui .opblock.opblock-delete { background: var(--doc-surface); }
-.swagger-ui .opblock .tab-header .tab-item.active h4 span:after { background: var(--yweb-accent); }
+.swagger-ui .opblock .tab-header .tab-item.active h4 span:after { background: var(--webui-accent); }
 .swagger-ui .opblock .opblock-summary-method { color: #10141a; text-shadow: none; }
 .swagger-ui .opblock.opblock-get .opblock-summary,
 .swagger-ui .opblock.opblock-post .opblock-summary,
@@ -160,15 +160,15 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
    is a third accent on a page that has one. */
 .swagger-ui .info .title small { background: var(--doc-surface-2); }
 .swagger-ui .info .title small.version-stamp { background: var(--doc-surface-2); }
-.swagger-ui .info .title small pre { color: var(--yweb-text-secondary); }
+.swagger-ui .info .title small pre { color: var(--webui-text-secondary); }
 /* A line of guidance the viewer draws in its own green, at a size where that
    green is the one thing on this page nobody can read. */
-.swagger-ui .response-control-media-type__accept-message { color: var(--yweb-text-secondary); }
+.swagger-ui .response-control-media-type__accept-message { color: var(--webui-text-secondary); }
 
 /* The viewer draws several of its marks as black shapes, which on this ground
    are shapes nobody can see. */
-.swagger-ui svg:not(:root) { fill: var(--yweb-text-secondary); }
-.swagger-ui .btn.authorize svg, .swagger-ui .authorization__btn svg { fill: var(--yweb-accent); }
+.swagger-ui svg:not(:root) { fill: var(--webui-text-secondary); }
+.swagger-ui .btn.authorize svg, .swagger-ui .authorization__btn svg { fill: var(--webui-accent); }
 
 /* Dark form controls, and readable stand-ins for the viewer's purples. */
 :root { color-scheme: dark; --doc-code: #e8c58a; --doc-type: #7cc0ef; }
@@ -180,7 +180,7 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
 .swagger-ui .prop-type, .swagger-ui .json-schema-2020-12__attribute--primary { color: var(--doc-type); }
 .swagger-ui .json-schema-2020-12__constraint,
 .swagger-ui .json-schema-2020-12__constraint--string {
-  background: var(--doc-surface-2); color: var(--yweb-text-secondary); border: 1px solid var(--doc-line);
+  background: var(--doc-surface-2); color: var(--webui-text-secondary); border: 1px solid var(--doc-line);
 }
 
 /* The schema list ships light; give it this page's surfaces. */
@@ -189,12 +189,12 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
 .swagger-ui .json-schema-2020-12-property .json-schema-2020-12__title,
 .swagger-ui .json-schema-2020-12-keyword__name--primary,
 .swagger-ui .json-schema-2020-12-keyword__value--primary,
-.swagger-ui .json-schema-2020-12__attribute { color: var(--yweb-text-primary); }
+.swagger-ui .json-schema-2020-12__attribute { color: var(--webui-text-primary); }
 .swagger-ui .json-schema-2020-12-keyword__name--secondary,
 .swagger-ui .json-schema-2020-12-keyword__value,
 .swagger-ui .json-schema-2020-12-keyword__value--secondary,
 .swagger-ui .json-schema-2020-12-keyword--description,
-.swagger-ui .json-schema-2020-12-expand-deep-button { color: var(--yweb-text-secondary); }
+.swagger-ui .json-schema-2020-12-expand-deep-button { color: var(--webui-text-secondary); }
 .swagger-ui section.models { border-color: var(--doc-line); }
 .swagger-ui section.models.is-open h4 { border-bottom-color: var(--doc-line); }
 .swagger-ui section.models h4:hover { background: var(--doc-surface-2); }
@@ -205,7 +205,7 @@ body { margin: 0; background: var(--doc-bg); color: var(--yweb-text-primary); }
 .swagger-ui .json-schema-2020-12-body,
 .swagger-ui .json-schema-2020-12-keyword__children { border-left-color: var(--doc-line); }
 .swagger-ui .model-box { background: var(--doc-surface-2); }
-.swagger-ui .model-title, .swagger-ui .model .property { color: var(--yweb-text-secondary); }
+.swagger-ui .model-title, .swagger-ui .model .property { color: var(--webui-text-secondary); }
 </style>
 <script>
 if (theme !== "dark") { document.getElementById("dark-colours").disabled = true; }

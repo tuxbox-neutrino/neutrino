@@ -10,101 +10,101 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
-	   Balancer (ywebBalanceDashboard) die letzte Reihe auffüllen kann.
+	   Balancer (webuiBalanceDashboard) die letzte Reihe auffüllen kann.
 	   Gap/Padding bleiben beim Ist (Mobil unangetastet). */
-	.yweb-dashboard {
+	.webui-dashboard {
 		display: grid;
 		grid-template-columns: repeat(12, 1fr);
 		grid-auto-flow: dense;
 		gap: 0.6rem;
 		padding: 0.5rem;
 	}
-	.yweb-dashboard > .yweb-card {
+	.webui-dashboard > .webui-card {
 		grid-column: span var(--dash-span, 4);
 		min-width: 0;
 	}
 	@media (max-width: 1100px) {
-		.yweb-dashboard > .yweb-card { grid-column: span 6 !important; }
+		.webui-dashboard > .webui-card { grid-column: span 6 !important; }
 	}
 	@media (max-width: 700px) {
-		.yweb-dashboard > .yweb-card { grid-column: span 12 !important; }
+		.webui-dashboard > .webui-card { grid-column: span 12 !important; }
 	}
 	/* Breit gespannte Karten (letzte Reihe): Stream-Kacheln fließen
 	   horizontal und teilen sich die Breite, statt "leer breit" zu
 	   wirken; die PID-Chips wandern als volle Zeile darunter */
-	.yweb-card.dash-wide .yweb-stream-info {
+	.webui-card.dash-wide .webui-stream-info {
 		display: flex;
 		flex-wrap: wrap;
 	}
-	.yweb-card.dash-wide .yweb-stream-item {
+	.webui-card.dash-wide .webui-stream-item {
 		flex: 1 1 160px;
 		min-width: 0;
 	}
-	.yweb-card.dash-wide .yweb-pids {
+	.webui-card.dash-wide .webui-pids {
 		flex-basis: 100%;
 	}
 
-	.yweb-card .yweb-card-body {
+	.webui-card .webui-card-body {
 		padding: 0.5rem 0.6rem;
 	}
 
-	.yweb-card .yweb-card-footer {
+	.webui-card .webui-card-footer {
 		padding: 0.35rem 0.6rem;
 		font-size: 0.7rem;
 	}
 
 	/* Metric gauges - thinner strokes */
-	.yweb-metrics {
+	.webui-metrics {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 0.3rem;
 	}
 
-	.yweb-gauge {
+	.webui-gauge {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		padding: 0.3rem 0.2rem;
 	}
 
-	.yweb-gauge-ring {
+	.webui-gauge-ring {
 		position: relative;
 		width: 52px;
 		height: 52px;
 	}
 
-	.yweb-gauge-ring svg {
+	.webui-gauge-ring svg {
 		transform: rotate(-90deg);
 		width: 100%;
 		height: 100%;
 	}
 
-	.yweb-gauge-ring circle {
+	.webui-gauge-ring circle {
 		fill: none;
 		stroke-width: 4;
 	}
 
-	.yweb-gauge-ring .bg {
+	.webui-gauge-ring .bg {
 		stroke: var(--pico-muted-border-color);
 	}
 
-	.yweb-gauge-ring .fg {
-		stroke: var(--yweb-accent);
+	.webui-gauge-ring .fg {
+		stroke: var(--webui-accent);
 		stroke-linecap: round;
 		transition: stroke-dashoffset 0.6s ease;
 	}
 
-	.yweb-gauge-ring .fg.ok { stroke: var(--yweb-success); }
-	.yweb-gauge-ring .fg.warning { stroke: var(--yweb-warning); }
-	.yweb-gauge-ring .fg.danger { stroke: var(--yweb-danger); }
+	.webui-gauge-ring .fg.ok { stroke: var(--webui-success); }
+	.webui-gauge-ring .fg.warning { stroke: var(--webui-warning); }
+	.webui-gauge-ring .fg.danger { stroke: var(--webui-danger); }
 
-	.yweb-gauge-value {
+	.webui-gauge-value {
 		position: absolute;
 		top: 50%;
 		left: 50%;
@@ -113,41 +113,41 @@
 		font-weight: 600;
 	}
 
-	.yweb-gauge-label {
+	.webui-gauge-label {
 		font-size: 0.65rem;
 		color: var(--pico-muted-color);
 		margin-top: 0.15rem;
 	}
 
-	.yweb-gauge-sub {
+	.webui-gauge-sub {
 		font-size: 0.58rem;
 		color: var(--pico-muted-color);
 		opacity: 0.85;
 	}
 
 	/* System info in footer */
-	.yweb-sys-footer {
+	.webui-sys-footer {
 		display: flex;
 		justify-content: space-between;
 		gap: 0.5rem;
 		flex-wrap: wrap;
 	}
 
-	.yweb-sys-footer-item {
+	.webui-sys-footer-item {
 		display: flex;
 		gap: 0.25rem;
 	}
 
-	.yweb-sys-footer-label {
+	.webui-sys-footer-label {
 		color: var(--pico-muted-color);
 	}
 
-	.yweb-sys-footer-value {
+	.webui-sys-footer-value {
 		font-weight: 500;
 	}
 
 	/* Network list - compact */
-	.yweb-net-list {
+	.webui-net-list {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
@@ -155,13 +155,13 @@
 		overflow-y: auto;
 	}
 
-	.yweb-net-item {
+	.webui-net-item {
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
 		padding: 0.3rem 0.4rem;
 		background: var(--pico-card-sectioning-background-color);
-		border-radius: var(--yweb-radius);
+		border-radius: var(--webui-radius);
 		font-size: 0.7rem;
 	}
 
@@ -176,75 +176,75 @@
 			flex-direction: column;
 		}
 
-		#card-network .yweb-card-body {
+		#card-network .webui-card-body {
 			flex: 1;
 			min-height: 0;
 			display: flex;
 		}
 
-		#card-network .yweb-net-list {
+		#card-network .webui-net-list {
 			flex: 1;
 			min-height: 0;
 			max-height: none;
 		}
 
-		#card-network .yweb-net-item {
+		#card-network .webui-net-item {
 			flex: 1 1 auto;
 			max-height: 5rem;
 		}
 	}
 
-	.yweb-net-icon {
+	.webui-net-icon {
 		width: 22px;
 		height: 22px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--yweb-accent-light);
+		background: var(--webui-accent-light);
 		border-radius: 50%;
 		flex-shrink: 0;
 	}
 
-	.yweb-net-icon svg {
+	.webui-net-icon svg {
 		width: 12px;
 		height: 12px;
-		color: var(--yweb-accent);
+		color: var(--webui-accent);
 	}
 
-	.yweb-net-info {
+	.webui-net-info {
 		flex: 1;
 		min-width: 0;
 		line-height: 1.2;
 	}
 
-	.yweb-net-name {
+	.webui-net-name {
 		font-weight: 600;
 		font-size: 0.68rem;
 	}
 
-	.yweb-net-ip {
+	.webui-net-ip {
 		color: var(--pico-muted-color);
 		font-family: var(--pico-font-family-monospace);
 		font-size: 0.62rem;
 	}
 
-	.yweb-net-mac {
+	.webui-net-mac {
 		color: var(--pico-muted-color);
 		font-family: var(--pico-font-family-monospace);
 		font-size: 0.55rem;
 		opacity: 0.7;
 	}
 
-	.yweb-net-status {
+	.webui-net-status {
 		width: 6px;
 		height: 6px;
 		border-radius: 50%;
-		background: var(--yweb-danger);
+		background: var(--webui-danger);
 		flex-shrink: 0;
 	}
 
-	.yweb-net-status.up {
-		background: var(--yweb-success);
+	.webui-net-status.up {
+		background: var(--webui-success);
 	}
 
 	/* Hostname in network card header (scoped to avoid overriding header hostname) */
@@ -254,88 +254,88 @@
 	}
 
 	/* Temperature in header */
-	.yweb-temp {
+	.webui-temp {
 		display: flex;
 		align-items: center;
 		gap: 0.2rem;
 		font-size: 0.8rem;
 	}
 
-	.yweb-temp-icon {
-		color: var(--yweb-warning);
+	.webui-temp-icon {
+		color: var(--webui-warning);
 		width: 14px;
 		height: 14px;
 	}
 
-	.yweb-temp-value {
+	.webui-temp-value {
 		font-weight: 600;
 	}
 
-	.yweb-temp-value.hot {
-		color: var(--yweb-danger);
+	.webui-temp-value.hot {
+		color: var(--webui-danger);
 	}
 
 	/* TV/Radio Mode Switch */
-	.yweb-mode-switch {
+	.webui-mode-switch {
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
 		margin-bottom: 0.75rem;
 		padding-bottom: 0.75rem;
-		border-bottom: 1px solid var(--yweb-border);
+		border-bottom: 1px solid var(--webui-border);
 	}
 
-	.yweb-mode-current {
+	.webui-mode-current {
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
 		padding: 0.4rem 0.7rem;
-		background: var(--yweb-accent-light);
+		background: var(--webui-accent-light);
 		border-radius: 6px;
 		font-size: 0.75rem;
 		font-weight: 600;
-		color: var(--yweb-text);
+		color: var(--webui-text);
 	}
 
-	.yweb-mode-current svg {
+	.webui-mode-current svg {
 		width: 16px;
 		height: 16px;
-		color: var(--yweb-primary);
+		color: var(--webui-primary);
 	}
 
 	/* Layout-only delta; colour/frame/hover/focus/light come from the
-	   shared .yweb-btn base in webui.css (loaded before this style). */
-	.yweb-mode-switch-btn {
+	   shared .webui-btn base in webui.css (loaded before this style). */
+	.webui-mode-switch-btn {
 		flex: 1;
 		gap: 0.3rem;
 		padding: 0.5rem 0.3rem;
 		font-size: 0.65rem;
 	}
 
-	.yweb-mode-switch-btn svg {
+	.webui-mode-switch-btn svg {
 		width: 18px;
 		height: 18px;
 	}
 
 	/* Actions grid - 3 columns */
-	.yweb-actions {
+	.webui-actions {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 0.4rem;
 	}
 
-	.yweb-action-btn {
+	.webui-action-btn {
 		padding: 0.5rem 0.3rem;
 		font-size: 0.65rem;
 	}
 
-	.yweb-action-btn svg {
+	.webui-action-btn svg {
 		width: 18px;
 		height: 18px;
 	}
 
 	/* Timer list - compact */
-	.yweb-timer-list {
+	.webui-timer-list {
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
@@ -343,48 +343,48 @@
 		overflow-y: auto;
 	}
 
-	.yweb-timer-item {
+	.webui-timer-item {
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
 		padding: 0.3rem 0.4rem;
 		background: var(--pico-card-sectioning-background-color);
-		border-radius: var(--yweb-radius);
+		border-radius: var(--webui-radius);
 		font-size: 0.7rem;
 	}
 
-	.yweb-timer-icon {
+	.webui-timer-icon {
 		width: 22px;
 		height: 22px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--yweb-accent-light);
+		background: var(--webui-accent-light);
 		border-radius: 50%;
 		flex-shrink: 0;
 	}
 
-	.yweb-timer-icon svg {
+	.webui-timer-icon svg {
 		width: 12px;
 		height: 12px;
-		color: var(--yweb-accent);
+		color: var(--webui-accent);
 	}
 
-	.yweb-timer-icon.record {
+	.webui-timer-icon.record {
 		background: rgba(239, 68, 68, 0.15);
 	}
 
-	.yweb-timer-icon.record svg {
-		color: var(--yweb-danger);
+	.webui-timer-icon.record svg {
+		color: var(--webui-danger);
 	}
 
-	.yweb-timer-info {
+	.webui-timer-info {
 		flex: 1;
 		min-width: 0;
 		line-height: 1.2;
 	}
 
-	.yweb-timer-title {
+	.webui-timer-title {
 		font-weight: 600;
 		font-size: 0.68rem;
 		white-space: nowrap;
@@ -392,29 +392,29 @@
 		text-overflow: ellipsis;
 	}
 
-	.yweb-timer-channel {
+	.webui-timer-channel {
 		color: var(--pico-muted-color);
 		font-size: 0.62rem;
 	}
 
-	.yweb-timer-time {
+	.webui-timer-time {
 		text-align: right;
 		flex-shrink: 0;
 		line-height: 1.2;
 	}
 
-	.yweb-timer-date {
+	.webui-timer-date {
 		font-weight: 600;
 		font-size: 0.65rem;
 	}
 
-	.yweb-timer-hour {
+	.webui-timer-hour {
 		color: var(--pico-muted-color);
 		font-size: 0.62rem;
 	}
 
-	.yweb-timer-empty,
-	.yweb-tuner-empty {
+	.webui-timer-empty,
+	.webui-tuner-empty {
 		color: var(--pico-muted-color);
 		text-align: center;
 		padding: 1rem;
@@ -422,43 +422,43 @@
 	}
 
 	/* Running recording in timer card */
-	.yweb-timer-item.running {
+	.webui-timer-item.running {
 		background: rgba(239, 68, 68, 0.08);
 		border: 1px solid rgba(239, 68, 68, 0.2);
 	}
 
-	.yweb-timer-item.running .yweb-timer-icon {
+	.webui-timer-item.running .webui-timer-icon {
 		background: rgba(239, 68, 68, 0.15);
 	}
 
-	.yweb-timer-item.running .yweb-timer-icon svg {
-		color: var(--yweb-danger);
-		animation: yweb-pulse 1.5s ease-in-out infinite;
+	.webui-timer-item.running .webui-timer-icon svg {
+		color: var(--webui-danger);
+		animation: webui-pulse 1.5s ease-in-out infinite;
 	}
 
-	.yweb-timer-item.running .yweb-timer-remaining {
-		color: var(--yweb-danger);
+	.webui-timer-item.running .webui-timer-remaining {
+		color: var(--webui-danger);
 		font-weight: 600;
 		font-size: 0.65rem;
 		white-space: nowrap;
 	}
 
 	/* Dashboard channel card: 4 buttons need flexible sizing */
-	.yweb-channel-footer .yweb-channel-actions .yweb-action-btn {
+	.webui-channel-footer .webui-channel-actions .webui-action-btn {
 		min-width: 0;
 	}
 
 	/* Rec button in channel card */
-	.yweb-channel-footer .yweb-rec-btn {
-		color: var(--yweb-danger);
+	.webui-channel-footer .webui-rec-btn {
+		color: var(--webui-danger);
 	}
 
-	.yweb-channel-footer .yweb-rec-btn.recording {
-		animation: yweb-pulse 1.5s ease-in-out infinite;
+	.webui-channel-footer .webui-rec-btn.recording {
+		animation: webui-pulse 1.5s ease-in-out infinite;
 	}
 
 	/* Recording info banner */
-	.yweb-rec-info {
+	.webui-rec-info {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
@@ -468,47 +468,47 @@
 		font-size: 0.7rem;
 	}
 
-	.yweb-rec-icon {
-		color: var(--yweb-danger);
-		animation: yweb-pulse 1.5s ease-in-out infinite;
+	.webui-rec-icon {
+		color: var(--webui-danger);
+		animation: webui-pulse 1.5s ease-in-out infinite;
 	}
 
-.yweb-rec-details {
+.webui-rec-details {
 		flex: 1;
 		min-width: 0;
 		line-height: 1.3;
 	}
 
-	.yweb-rec-title {
+	.webui-rec-title {
 		font-weight: 600;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
-	.yweb-rec-channel {
+	.webui-rec-channel {
 		color: var(--pico-muted-color);
 		font-size: 0.62rem;
 	}
 
-	.yweb-rec-time {
+	.webui-rec-time {
 		text-align: right;
 		font-weight: 600;
-		color: var(--yweb-danger);
+		color: var(--webui-danger);
 		white-space: nowrap;
 	}
 
 	/* Playback banner: a recording or a file the player shows */
-	.yweb-play-info {
+	.webui-play-info {
 		background: rgba(59, 130, 246, 0.1);
 		border-top-color: rgba(59, 130, 246, 0.2);
 	}
 
-	.yweb-play-icon {
+	.webui-play-icon {
 		color: var(--pico-primary);
 	}
 
-	.yweb-play-time {
+	.webui-play-time {
 		text-align: right;
 		font-weight: 600;
 		white-space: nowrap;
@@ -516,19 +516,19 @@
 	}
 
 	/* Tuner Signal Widget */
-	.yweb-tuner {
+	.webui-tuner {
 		display: flex;
 		flex-direction: column;
 		gap: 0.6rem;
 	}
 
-	.yweb-signal-row {
+	.webui-signal-row {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 	}
 
-	.yweb-signal-label {
+	.webui-signal-label {
 		width: 32px;
 		font-size: 0.7rem;
 		font-weight: 600;
@@ -536,7 +536,7 @@
 		flex-shrink: 0;
 	}
 
-	.yweb-signal-bar-container {
+	.webui-signal-bar-container {
 		flex: 1;
 		height: 10px;
 		background: var(--pico-muted-border-color);
@@ -545,34 +545,34 @@
 		position: relative;
 	}
 
-	.yweb-signal-bar {
+	.webui-signal-bar {
 		height: 100%;
 		border-radius: 5px;
 		transition: width 0.5s ease, background 0.3s ease;
 		width: 0%;
 	}
 
-	.yweb-signal-bar.excellent {
+	.webui-signal-bar.excellent {
 		background: linear-gradient(90deg, #22c55e, #16a34a);
 	}
 
-	.yweb-signal-bar.good {
+	.webui-signal-bar.good {
 		background: linear-gradient(90deg, #84cc16, #22c55e);
 	}
 
-	.yweb-signal-bar.moderate {
+	.webui-signal-bar.moderate {
 		background: linear-gradient(90deg, #eab308, #84cc16);
 	}
 
-	.yweb-signal-bar.poor {
+	.webui-signal-bar.poor {
 		background: linear-gradient(90deg, #f97316, #eab308);
 	}
 
-	.yweb-signal-bar.bad {
+	.webui-signal-bar.bad {
 		background: linear-gradient(90deg, #ef4444, #f97316);
 	}
 
-	.yweb-signal-value {
+	.webui-signal-value {
 		width: 40px;
 		text-align: right;
 		font-size: 0.72rem;
@@ -580,14 +580,14 @@
 		flex-shrink: 0;
 	}
 
-	.yweb-signal-value.excellent { color: #22c55e; }
-	.yweb-signal-value.good { color: #84cc16; }
-	.yweb-signal-value.moderate { color: #eab308; }
-	.yweb-signal-value.poor { color: #f97316; }
-	.yweb-signal-value.bad { color: #ef4444; }
+	.webui-signal-value.excellent { color: #22c55e; }
+	.webui-signal-value.good { color: #84cc16; }
+	.webui-signal-value.moderate { color: #eab308; }
+	.webui-signal-value.poor { color: #f97316; }
+	.webui-signal-value.bad { color: #ef4444; }
 
 	/* BER special styling (lower is better) */
-	.yweb-ber-row {
+	.webui-ber-row {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
@@ -595,43 +595,43 @@
 		border-top: 1px solid var(--pico-muted-border-color);
 	}
 
-	.yweb-ber-value {
+	.webui-ber-value {
 		font-family: var(--pico-font-family-monospace);
 		font-size: 0.75rem;
 		font-weight: 600;
 	}
 
-	.yweb-ber-value.ok { color: #22c55e; }
-	.yweb-ber-value.warning { color: #eab308; }
-	.yweb-ber-value.error { color: #ef4444; }
+	.webui-ber-value.ok { color: #22c55e; }
+	.webui-ber-value.warning { color: #eab308; }
+	.webui-ber-value.error { color: #ef4444; }
 
-	.yweb-tuner-icon {
+	.webui-tuner-icon {
 		display: flex;
 		align-items: center;
 		gap: 0.3rem;
 	}
 
-	.yweb-tuner-icon svg {
+	.webui-tuner-icon svg {
 		width: 14px;
 		height: 14px;
 		color: var(--pico-muted-color);
 	}
 
 	/* Multi-Tuner List */
-	.yweb-tuner-list {
+	.webui-tuner-list {
 		display: flex;
 		flex-direction: column;
 		gap: 0.8rem;
 	}
 
-	.yweb-tuner-item {
+	.webui-tuner-item {
 		background: var(--pico-card-sectionning-background-color);
 		border-radius: 8px;
 		padding: 0.7rem;
 		border: 1px solid var(--pico-muted-border-color);
 	}
 
-	.yweb-tuner-header {
+	.webui-tuner-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -639,7 +639,7 @@
 		gap: 0.5rem;
 	}
 
-	.yweb-tuner-name {
+	.webui-tuner-name {
 		font-size: 0.75rem;
 		font-weight: 600;
 		color: var(--pico-color);
@@ -649,7 +649,7 @@
 		flex: 1;
 	}
 
-	.yweb-tuner-type {
+	.webui-tuner-type {
 		font-size: 0.65rem;
 		font-weight: 600;
 		padding: 0.15rem 0.4rem;
@@ -659,7 +659,7 @@
 		flex-shrink: 0;
 	}
 
-	.yweb-tuner-state {
+	.webui-tuner-state {
 		font-size: 0.65rem;
 		font-weight: 600;
 		padding: 0.15rem 0.4rem;
@@ -667,28 +667,28 @@
 		flex-shrink: 0;
 	}
 
-	.yweb-tuner-state.viewing {
+	.webui-tuner-state.viewing {
 		background: #22c55e;
 		color: white;
 	}
 
-	.yweb-tuner-state.recording {
+	.webui-tuner-state.recording {
 		background: #ef4444;
 		color: white;
-		animation: yweb-pulse 1.5s infinite;
+		animation: webui-pulse 1.5s infinite;
 	}
 
-	.yweb-tuner-state.busy {
+	.webui-tuner-state.busy {
 		background: #f97316;
 		color: white;
 	}
 
-	.yweb-tuner-state.idle {
+	.webui-tuner-state.idle {
 		background: var(--pico-muted-border-color);
 		color: var(--pico-muted-color);
 	}
 
-.yweb-tuner-channel {
+.webui-tuner-channel {
 		font-size: 0.7rem;
 		color: var(--pico-muted-color);
 		margin-bottom: 0.5rem;
@@ -697,89 +697,89 @@
 		text-overflow: ellipsis;
 	}
 
-	.yweb-tuner-channel:empty {
+	.webui-tuner-channel:empty {
 		display: none;
 	}
 
-	.yweb-tuner-signals {
+	.webui-tuner-signals {
 		display: flex;
 		gap: 1rem;
 	}
 
-	.yweb-tuner-signal {
+	.webui-tuner-signal {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
 		gap: 0.2rem;
 	}
 
-	.yweb-tuner-signal-header {
+	.webui-tuner-signal-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 	}
 
-	.yweb-tuner-signal-label {
+	.webui-tuner-signal-label {
 		font-size: 0.6rem;
 		font-weight: 600;
 		color: var(--pico-muted-color);
 	}
 
-	.yweb-tuner-signal-value {
+	.webui-tuner-signal-value {
 		font-size: 0.65rem;
 		font-weight: 600;
 	}
 
-	.yweb-tuner-signal-bar {
+	.webui-tuner-signal-bar {
 		height: 4px;
 		background: var(--pico-muted-border-color);
 		border-radius: 2px;
 		overflow: hidden;
 	}
 
-	.yweb-tuner-signal-fill {
+	.webui-tuner-signal-fill {
 		height: 100%;
 		border-radius: 2px;
 		transition: width 0.5s ease;
 	}
 
 	/* Stream Info Widget */
-	.yweb-stream-info {
+	.webui-stream-info {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 0.5rem;
 	}
 
-	.yweb-stream-item {
+	.webui-stream-item {
 		display: flex;
 		flex-direction: column;
 		padding: 0.4rem 0.5rem;
 		background: var(--pico-card-sectioning-background-color);
-		border-radius: var(--yweb-radius);
+		border-radius: var(--webui-radius);
 	}
 
-	.yweb-stream-label {
+	.webui-stream-label {
 		font-size: 0.6rem;
 		color: var(--pico-muted-color);
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
 	}
 
-	.yweb-stream-value {
+	.webui-stream-value {
 		font-size: 0.78rem;
 		font-weight: 600;
 		font-family: var(--pico-font-family-monospace);
 	}
 
-	.yweb-stream-value.hd {
+	.webui-stream-value.hd {
 		color: #22c55e;
 	}
 
-	.yweb-stream-value.sd {
+	.webui-stream-value.sd {
 		color: #eab308;
 	}
 
-	.yweb-pids {
+	.webui-pids {
 		grid-column: span 2;
 		display: flex;
 		flex-wrap: wrap;
@@ -788,72 +788,72 @@
 		border-top: 1px solid var(--pico-muted-border-color);
 	}
 
-	.yweb-pid-tag {
+	.webui-pid-tag {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.2rem;
 		padding: 0.15rem 0.4rem;
-		background: var(--yweb-accent-light);
+		background: var(--webui-accent-light);
 		border-radius: 3px;
 		font-size: 0.6rem;
 		font-family: var(--pico-font-family-monospace);
 	}
 
-	.yweb-pid-tag .label {
+	.webui-pid-tag .label {
 		color: var(--pico-muted-color);
 		font-weight: 500;
 	}
 
-	.yweb-pid-tag .value {
-		color: var(--yweb-accent);
+	.webui-pid-tag .value {
+		color: var(--webui-accent);
 		font-weight: 600;
 	}
 
 	/* Mobile Accordion */
 	@media (max-width: 768px) {
-		.yweb-card-indicator {
+		.webui-card-indicator {
 			display: flex;
 		}
 
-		.yweb-dashboard {
+		.webui-dashboard {
 			gap: 0.4rem;
 		}
 
-		.yweb-card {
+		.webui-card {
 			margin-bottom: 0;
 		}
 
-		.yweb-card-header {
+		.webui-card-header {
 			cursor: pointer;
 			position: relative;
 			padding-right: 2rem;
 		}
 
-		.yweb-card .yweb-card-title {
+		.webui-card .webui-card-title {
 			font-size: 0.9rem;
 		}
 
 		/* Show preview only when collapsed on mobile */
-		.yweb-card:not(.expanded) .yweb-card-preview {
+		.webui-card:not(.expanded) .webui-card-preview {
 			display: inline-block;
 			margin-right: 0.8rem;
 		}
 
 		/* Hide other header elements when collapsed to make room for preview */
-		.yweb-card:not(.expanded) .yweb-temp,
-		.yweb-card:not(.expanded) #net-hostname,
-		.yweb-card:not(.expanded) .yweb-tuner-icon,
-		.yweb-card:not(.expanded) .yweb-recording {
+		.webui-card:not(.expanded) .webui-temp,
+		.webui-card:not(.expanded) #net-hostname,
+		.webui-card:not(.expanded) .webui-tuner-icon,
+		.webui-card:not(.expanded) .webui-recording {
 			display: none;
 		}
 
 		/* Ensure right-side elements don't overlap with chevron */
-		.yweb-card-header > *:last-child:not(.yweb-card-title) {
+		.webui-card-header > *:last-child:not(.webui-card-title) {
 			margin-right: 0.8rem;
 			flex-shrink: 0;
 		}
 
-		.yweb-card-header::after {
+		.webui-card-header::after {
 			content: '▼';
 			position: absolute;
 			right: 0.5rem;
@@ -865,24 +865,24 @@
 			pointer-events: none;
 		}
 
-		.yweb-card.expanded .yweb-card-header::after {
+		.webui-card.expanded .webui-card-header::after {
 			transform: translateY(-50%) rotate(180deg);
 		}
 
-		.yweb-card-body,
-		.yweb-card-footer,
-		.yweb-rec-info {
+		.webui-card-body,
+		.webui-card-footer,
+		.webui-rec-info {
 			display: none;
 		}
 
-		.yweb-card.expanded .yweb-card-body,
-		.yweb-card.expanded .yweb-card-footer,
-		.yweb-card.expanded .yweb-rec-info {
+		.webui-card.expanded .webui-card-body,
+		.webui-card.expanded .webui-card-footer,
+		.webui-card.expanded .webui-rec-info {
 			display: block;
 		}
 
 		/* Smooth height animation */
-		.yweb-card-body {
+		.webui-card-body {
 			overflow: hidden;
 		}
 	}
@@ -890,25 +890,25 @@
 </head>
 <body>
 	<!-- Header wird dynamisch von webui-header.js generiert -->
-	<div class="yweb-header-wrapper" data-page="dashboard"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="dashboard"></div>
+	<div class="webui-header-spacer"></div>
 
 	<main>
-		<div class="yweb-dashboard">
+		<div class="webui-dashboard">
 			<!-- Quick Actions -->
-			<article class="yweb-card expanded" id="card-actions">
-				<header class="yweb-card-header" onclick="toggleCard('card-actions')">
-					<h3 class="yweb-card-title">
+			<article class="webui-card expanded" id="card-actions">
+				<header class="webui-card-header" onclick="toggleCard('card-actions')">
+					<h3 class="webui-card-title">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
 						</svg>
 						{=L:yw.dash.quick=}
 					</h3>
-					<span id="actions-preview" class="yweb-card-preview">--</span>
+					<span id="actions-preview" class="webui-card-preview">--</span>
 				</header>
-				<div class="yweb-card-body">
-					<div class="yweb-mode-switch" id="mode-switch">
-						<span class="yweb-mode-current" id="mode-current">
+				<div class="webui-card-body">
+					<div class="webui-mode-switch" id="mode-switch">
+						<span class="webui-mode-current" id="mode-current">
 							<svg id="mode-current-icon-tv" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
 							</svg>
@@ -917,41 +917,41 @@
 							</svg>
 							<span id="mode-current-text">TV</span>
 						</span>
-						<button class="yweb-mode-switch-btn" id="mode-switch-btn" onclick="switchMode()">
+						<button class="webui-mode-switch-btn" id="mode-switch-btn" onclick="switchMode()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
 							</svg>
 							<span id="mode-switch-text">{=L:yw.dash.to_radio=}</span>
 						</button>
 					</div>
-					<div class="yweb-actions">
-						<a href="/screenshot.yhtm" class="yweb-action-btn">
+					<div class="webui-actions">
+						<a href="/screenshot.yhtm" class="webui-action-btn">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
 							</svg>
 							Screenshot
 						</a>
-<a href="/files.yhtm" class="yweb-action-btn">
+<a href="/files.yhtm" class="webui-action-btn">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
 							</svg>
 							{=L:yw.tools.files=}
 						</a>
-						<button class="yweb-action-btn" onclick="ywebShowMessageDialog()">
+						<button class="webui-action-btn" onclick="webuiShowMessageDialog()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
 							</svg>
 							{=L:yw.tools.message=}
 						</button>
-						<button class="yweb-action-btn" onclick="ywebShowRemote()">
+						<button class="webui-action-btn" onclick="webuiShowRemote()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 								<rect x="7" y="2" width="10" height="20" rx="2"/>
 								<circle cx="12" cy="18" r="1"/>
 							</svg>
 							Remote
 						</button>
-						<button class="yweb-action-btn" onclick="sendStandby()">
+						<button class="webui-action-btn" onclick="sendStandby()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z"/>
 							</svg>
@@ -962,66 +962,66 @@
 			</article>
 
 			<!-- Current Channel -->
-			<article class="yweb-card" id="card-channel">
-				<header class="yweb-card-header" onclick="toggleCard('card-channel')">
-					<h3 class="yweb-card-title">
+			<article class="webui-card" id="card-channel">
+				<header class="webui-card-header" onclick="toggleCard('card-channel')">
+					<h3 class="webui-card-title">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
 						</svg>
 						{=L:yw.dash.current_channel=}
 					</h3>
-					<span id="channel-preview" class="yweb-card-preview">--</span>
-					<span id="rec-indicator" class="yweb-recording yweb-hidden"><svg viewBox="0 0 12 12" fill="currentColor" style="width:0.55rem;height:0.55rem"><circle cx="6" cy="6" r="5"/></svg> REC</span>
+					<span id="channel-preview" class="webui-card-preview">--</span>
+					<span id="rec-indicator" class="webui-recording webui-hidden"><svg viewBox="0 0 12 12" fill="currentColor" style="width:0.55rem;height:0.55rem"><circle cx="6" cy="6" r="5"/></svg> REC</span>
 				</header>
-				<div class="yweb-card-body yweb-status">
-					<div class="yweb-status-channel" id="current-channel" onclick="showCurrentEpgInfo()" style="cursor:pointer" title="{=L:yw.dash.epg_info=}">{=L:yw.msg.loading=}</div>
-					<div class="yweb-status-epg" id="current-epg">--</div>
-					<div class="yweb-status-progress">
+				<div class="webui-card-body webui-status">
+					<div class="webui-status-channel" id="current-channel" onclick="showCurrentEpgInfo()" style="cursor:pointer" title="{=L:yw.dash.epg_info=}">{=L:yw.msg.loading=}</div>
+					<div class="webui-status-epg" id="current-epg">--</div>
+					<div class="webui-status-progress">
 						<progress id="epg-progress" value="0" max="100"></progress>
-						<div class="yweb-status-time">
+						<div class="webui-status-time">
 							<span id="epg-start">--:--</span>
 							<span id="epg-end">--:--</span>
 						</div>
 					</div>
 				</div>
-				<div id="rec-info" class="yweb-rec-info yweb-hidden">
-					<span class="yweb-rec-icon">●</span>
-					<div class="yweb-rec-details">
-						<div class="yweb-rec-title" id="rec-title">--</div>
-						<div class="yweb-rec-channel" id="rec-channel">--</div>
+				<div id="rec-info" class="webui-rec-info webui-hidden">
+					<span class="webui-rec-icon">●</span>
+					<div class="webui-rec-details">
+						<div class="webui-rec-title" id="rec-title">--</div>
+						<div class="webui-rec-channel" id="rec-channel">--</div>
 					</div>
-					<div class="yweb-rec-time" id="rec-remaining">--:--</div>
+					<div class="webui-rec-time" id="rec-remaining">--:--</div>
 				</div>
-				<div id="play-info" class="yweb-rec-info yweb-play-info yweb-hidden">
-					<span class="yweb-play-icon" id="play-icon" aria-hidden="true">▶</span>
-					<div class="yweb-rec-details">
-						<div class="yweb-rec-title" id="play-title">--</div>
-						<div class="yweb-rec-channel" id="play-source">--</div>
+				<div id="play-info" class="webui-rec-info webui-play-info webui-hidden">
+					<span class="webui-play-icon" id="play-icon" aria-hidden="true">▶</span>
+					<div class="webui-rec-details">
+						<div class="webui-rec-title" id="play-title">--</div>
+						<div class="webui-rec-channel" id="play-source">--</div>
 					</div>
-					<div class="yweb-play-time" id="play-time">--:--</div>
+					<div class="webui-play-time" id="play-time">--:--</div>
 				</div>
-				<footer class="yweb-card-footer yweb-channel-footer">
-					<div class="yweb-next-epg">{=L:yw.dash.next_prog=}: <span id="next-epg">--</span></div>
-					<div class="yweb-channel-actions">
-						<button type="button" class="yweb-action-btn" onclick="showCurrentEpgInfo()" title="{=L:yw.dash.epg_info=}">
+				<footer class="webui-card-footer webui-channel-footer">
+					<div class="webui-next-epg">{=L:yw.dash.next_prog=}: <span id="next-epg">--</span></div>
+					<div class="webui-channel-actions">
+						<button type="button" class="webui-action-btn" onclick="showCurrentEpgInfo()" title="{=L:yw.dash.epg_info=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
 							</svg>
 							<span>Info</span>
 						</button>
-						<button type="button" class="yweb-action-btn yweb-rec-btn" id="rec-btn" onclick="toggleRecording()" title="{=L:yw.dash.record=}">
+						<button type="button" class="webui-action-btn webui-rec-btn" id="rec-btn" onclick="toggleRecording()" title="{=L:yw.dash.record=}">
 							<svg viewBox="0 0 24 24" fill="currentColor">
 								<circle cx="12" cy="12" r="8"/>
 							</svg>
 							<span>Rec</span>
 						</button>
-						<a href="/epg.yhtm" class="yweb-action-btn" title="{=L:yw.dash.epg_plus=}">
+						<a href="/epg.yhtm" class="webui-action-btn" title="{=L:yw.dash.epg_plus=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
 							</svg>
 							<span>EPGPlus</span>
 						</a>
-						<a href="bouquets.yhtm" class="yweb-action-btn" title="{=L:yw.dash.to_channels=}">
+						<a href="bouquets.yhtm" class="webui-action-btn" title="{=L:yw.dash.to_channels=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M4 6h16M4 12h16M4 18h16"/>
 							</svg>
@@ -1032,117 +1032,117 @@
 			</article>
 
 			<!-- System Metrics -->
-			<article class="yweb-card" id="card-system">
-				<header class="yweb-card-header" onclick="toggleCard('card-system')">
-					<h3 class="yweb-card-title">
+			<article class="webui-card" id="card-system">
+				<header class="webui-card-header" onclick="toggleCard('card-system')">
+					<h3 class="webui-card-title">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
 						</svg>
 						System
 					</h3>
-					<span id="system-preview" class="yweb-card-preview">--</span>
-					<div class="yweb-temp" id="sys-temp">
-						<svg class="yweb-temp-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<span id="system-preview" class="webui-card-preview">--</span>
+					<div class="webui-temp" id="sys-temp">
+						<svg class="webui-temp-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
 						</svg>
-						<span class="yweb-temp-value" id="temp-value">--</span>
+						<span class="webui-temp-value" id="temp-value">--</span>
 					</div>
 				</header>
-				<div class="yweb-card-body">
-					<div class="yweb-metrics" onclick="location.href='/sysinfo.yhtm'" style="cursor:pointer" title="{=L:yw.dash.sys_details=}">
-						<div class="yweb-gauge">
-							<div class="yweb-gauge-ring">
+				<div class="webui-card-body">
+					<div class="webui-metrics" onclick="location.href='/sysinfo.yhtm'" style="cursor:pointer" title="{=L:yw.dash.sys_details=}">
+						<div class="webui-gauge">
+							<div class="webui-gauge-ring">
 								<svg viewBox="0 0 36 36">
 									<circle class="bg" cx="18" cy="18" r="16"></circle>
 									<circle class="fg" id="gauge-cpu" cx="18" cy="18" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle>
 								</svg>
-								<span class="yweb-gauge-value" id="cpu-percent">--%</span>
+								<span class="webui-gauge-value" id="cpu-percent">--%</span>
 							</div>
-							<span class="yweb-gauge-label">CPU</span>
-							<span class="yweb-gauge-sub" id="cpu-load">--</span>
+							<span class="webui-gauge-label">CPU</span>
+							<span class="webui-gauge-sub" id="cpu-load">--</span>
 						</div>
-						<div class="yweb-gauge">
-							<div class="yweb-gauge-ring">
+						<div class="webui-gauge">
+							<div class="webui-gauge-ring">
 								<svg viewBox="0 0 36 36">
 									<circle class="bg" cx="18" cy="18" r="16"></circle>
 									<circle class="fg" id="gauge-ram" cx="18" cy="18" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle>
 								</svg>
-								<span class="yweb-gauge-value" id="ram-percent">--%</span>
+								<span class="webui-gauge-value" id="ram-percent">--%</span>
 							</div>
-							<span class="yweb-gauge-label">RAM</span>
-							<span class="yweb-gauge-sub" id="ram-info">--</span>
+							<span class="webui-gauge-label">RAM</span>
+							<span class="webui-gauge-sub" id="ram-info">--</span>
 						</div>
-						<div class="yweb-gauge">
-							<div class="yweb-gauge-ring">
+						<div class="webui-gauge">
+							<div class="webui-gauge-ring">
 								<svg viewBox="0 0 36 36">
 									<circle class="bg" cx="18" cy="18" r="16"></circle>
 									<circle class="fg" id="gauge-disk" cx="18" cy="18" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle>
 								</svg>
-								<span class="yweb-gauge-value" id="disk-percent">--%</span>
+								<span class="webui-gauge-value" id="disk-percent">--%</span>
 							</div>
-							<span class="yweb-gauge-label">Disk</span>
-							<span class="yweb-gauge-sub" id="disk-info">--</span>
+							<span class="webui-gauge-label">Disk</span>
+							<span class="webui-gauge-sub" id="disk-info">--</span>
 						</div>
 					</div>
 				</div>
-				<footer class="yweb-card-footer">
-					<div class="yweb-sys-footer">
-						<div class="yweb-sys-footer-item">
-							<span class="yweb-sys-footer-label">Up:</span>
-							<span class="yweb-sys-footer-value" id="sys-uptime">--</span>
+				<footer class="webui-card-footer">
+					<div class="webui-sys-footer">
+						<div class="webui-sys-footer-item">
+							<span class="webui-sys-footer-label">Up:</span>
+							<span class="webui-sys-footer-value" id="sys-uptime">--</span>
 						</div>
-						<div class="yweb-sys-footer-item">
-							<span class="yweb-sys-footer-label">Box:</span>
-							<span class="yweb-sys-footer-value" id="sys-box">--</span>
+						<div class="webui-sys-footer-item">
+							<span class="webui-sys-footer-label">Box:</span>
+							<span class="webui-sys-footer-value" id="sys-box">--</span>
 						</div>
-						<div class="yweb-sys-footer-item">
-							<span class="yweb-sys-footer-label">Kernel:</span>
-							<span class="yweb-sys-footer-value" id="sys-kernel">--</span>
+						<div class="webui-sys-footer-item">
+							<span class="webui-sys-footer-label">Kernel:</span>
+							<span class="webui-sys-footer-value" id="sys-kernel">--</span>
 						</div>
 					</div>
 				</footer>
 			</article>
 
 			<!-- Network -->
-			<article class="yweb-card" id="card-network">
-				<header class="yweb-card-header" onclick="toggleCard('card-network')">
-					<h3 class="yweb-card-title">
+			<article class="webui-card" id="card-network">
+				<header class="webui-card-header" onclick="toggleCard('card-network')">
+					<h3 class="webui-card-title">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
 						</svg>
 						{=L:yw.si.network=}
 					</h3>
-					<span id="network-preview" class="yweb-card-preview">--</span>
-					<span class="yweb-hostname" id="net-hostname">--</span>
+					<span id="network-preview" class="webui-card-preview">--</span>
+					<span class="webui-hostname" id="net-hostname">--</span>
 				</header>
-				<div class="yweb-card-body">
-					<div class="yweb-net-list" id="net-interfaces" onclick="location.href='/sysinfo.yhtm#network'" style="cursor:pointer" title="{=L:yw.dash.net_details=}">
-						<div class="yweb-net-item">
-							<span class="yweb-text-muted">{=L:yw.msg.loading=}</span>
+				<div class="webui-card-body">
+					<div class="webui-net-list" id="net-interfaces" onclick="location.href='/sysinfo.yhtm#network'" style="cursor:pointer" title="{=L:yw.dash.net_details=}">
+						<div class="webui-net-item">
+							<span class="webui-text-muted">{=L:yw.msg.loading=}</span>
 						</div>
 					</div>
 				</div>
 			</article>
 
 			<!-- Timer -->
-			<article class="yweb-card" id="card-timer">
-				<header class="yweb-card-header" onclick="toggleCard('card-timer')">
-					<h3 class="yweb-card-title">
+			<article class="webui-card" id="card-timer">
+				<header class="webui-card-header" onclick="toggleCard('card-timer')">
+					<h3 class="webui-card-title">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
 						</svg>
 						{=L:yw.dash.next_timers=}
 					</h3>
-					<span id="timer-preview" class="yweb-card-preview">--</span>
+					<span id="timer-preview" class="webui-card-preview">--</span>
 				</header>
-				<div class="yweb-card-body">
-					<div class="yweb-timer-list" id="timer-list">
-						<div class="yweb-timer-empty">{=L:yw.msg.loading=}</div>
+				<div class="webui-card-body">
+					<div class="webui-timer-list" id="timer-list">
+						<div class="webui-timer-empty">{=L:yw.msg.loading=}</div>
 					</div>
 				</div>
-				<footer class="yweb-card-footer yweb-channel-footer">
-					<div class="yweb-channel-actions">
-						<a href="/timer.yhtm" class="yweb-action-btn" title="{=L:yw.dash.all_timers=}">
+				<footer class="webui-card-footer webui-channel-footer">
+					<div class="webui-channel-actions">
+						<a href="/timer.yhtm" class="webui-action-btn" title="{=L:yw.dash.all_timers=}">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>
 							</svg>
@@ -1153,58 +1153,58 @@
 			</article>
 
 			<!-- Tuner Status -->
-			<article class="yweb-card" id="card-tuner">
-				<header class="yweb-card-header" onclick="toggleCard('card-tuner')">
-					<h3 class="yweb-card-title">
+			<article class="webui-card" id="card-tuner">
+				<header class="webui-card-header" onclick="toggleCard('card-tuner')">
+					<h3 class="webui-card-title">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
 						</svg>
 						Tuner
 					</h3>
-					<span id="tuner-preview" class="yweb-card-preview">--</span>
-					<div class="yweb-tuner-icon" id="tuner-status-icon">
+					<span id="tuner-preview" class="webui-card-preview">--</span>
+					<div class="webui-tuner-icon" id="tuner-status-icon">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
 						</svg>
 					</div>
 				</header>
-				<div class="yweb-card-body">
-					<div class="yweb-tuner-list" id="tuner-list">
+				<div class="webui-card-body">
+					<div class="webui-tuner-list" id="tuner-list">
 						<!-- Tuners will be dynamically inserted here -->
 					</div>
 				</div>
 			</article>
 
 			<!-- Stream Info -->
-			<article class="yweb-card" id="card-stream">
-				<header class="yweb-card-header" onclick="toggleCard('card-stream')">
-					<h3 class="yweb-card-title">
+			<article class="webui-card" id="card-stream">
+				<header class="webui-card-header" onclick="toggleCard('card-stream')">
+					<h3 class="webui-card-title">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
 						</svg>
 						Stream Info
 					</h3>
-					<span id="stream-preview" class="yweb-card-preview">--</span>
+					<span id="stream-preview" class="webui-card-preview">--</span>
 				</header>
-				<div class="yweb-card-body">
-					<div class="yweb-stream-info">
-						<div class="yweb-stream-item">
-							<span class="yweb-stream-label">{=L:yw.bc.resolution=}</span>
-							<span class="yweb-stream-value" id="stream-resolution">--</span>
+				<div class="webui-card-body">
+					<div class="webui-stream-info">
+						<div class="webui-stream-item">
+							<span class="webui-stream-label">{=L:yw.bc.resolution=}</span>
+							<span class="webui-stream-value" id="stream-resolution">--</span>
 						</div>
-						<div class="yweb-stream-item">
-							<span class="yweb-stream-label">Format</span>
-							<span class="yweb-stream-value" id="stream-aspect">--</span>
+						<div class="webui-stream-item">
+							<span class="webui-stream-label">Format</span>
+							<span class="webui-stream-value" id="stream-aspect">--</span>
 						</div>
-						<div class="yweb-stream-item">
-							<span class="yweb-stream-label">Framerate</span>
-							<span class="yweb-stream-value" id="stream-fps">--</span>
+						<div class="webui-stream-item">
+							<span class="webui-stream-label">Framerate</span>
+							<span class="webui-stream-value" id="stream-fps">--</span>
 						</div>
-						<div class="yweb-stream-item">
-							<span class="yweb-stream-label">Audio</span>
-							<span class="yweb-stream-value" id="stream-audio">--</span>
+						<div class="webui-stream-item">
+							<span class="webui-stream-label">Audio</span>
+							<span class="webui-stream-value" id="stream-audio">--</span>
 						</div>
-						<div class="yweb-pids" id="stream-pids">
+						<div class="webui-pids" id="stream-pids">
 							<!-- PIDs werden dynamisch geladen -->
 						</div>
 					</div>
@@ -1212,13 +1212,13 @@
 			</article>
 		</div>
 		<!-- Mobile Card Indicator -->
-		<div class="yweb-card-indicator" id="card-indicator"></div>
+		<div class="webui-card-indicator" id="card-indicator"></div>
 	</main>
 
-	<footer class="yweb-footer">
-		Neutrino-Web-UI <span id="yweb-version">--</span> ·
-		<a href="#" onclick="ywebShowAbout(); return false;">{=L:yw.about.link=}</a> ·
-		<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
+	<footer class="webui-footer">
+		Neutrino-Web-UI <span id="webui-version">--</span> ·
+		<a href="#" onclick="webuiShowAbout(); return false;">{=L:yw.about.link=}</a> ·
+		<span id="webui-footer-copyright">Copyright © Tuxbox Project</span>
 	</footer>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
@@ -1229,12 +1229,12 @@
 	// Show EPG info for current channel
 	function showCurrentEpgInfo() {
 		if (dash.channel)
-			ywebShowEpgModal(dash.channel.id, dash.channel.name);
+			webuiShowEpgModal(dash.channel.id, dash.channel.name);
 	}
 
 	// Format helpers — use shared versions from webui-header.js
-	var formatKB = ywebFormatKB;
-	var formatUptime = ywebFormatUptime;
+	var formatKB = webuiFormatKB;
+	var formatUptime = webuiFormatUptime;
 
 	// DOM micro-helpers replacing the previous jQuery calls. Null-safe:
 	// a missing id is a silent no-op, like an empty jQuery set (the
@@ -1303,22 +1303,22 @@
 	// there is nothing. A refusal for want of a sign-in opens the dialog once
 	// (webui-v1.js) and the read is sent again.
 	function dashGet(path, query) {
-		return ywebV1('GET', path, query ? {query: query} : undefined).catch(function() { return null; });
+		return webuiV1('GET', path, query ? {query: query} : undefined).catch(function() { return null; });
 	}
 
 	function clock(sec) {
-		return sec ? ywebFormatTime(new Date(sec * 1000)) : '--:--';
+		return sec ? webuiFormatTime(new Date(sec * 1000)) : '--:--';
 	}
 
 	function dayAndClock(sec) {
 		const d = new Date(sec * 1000);
-		return {date: ywebPad2(d.getDate()) + '.' + ywebPad2(d.getMonth() + 1) + '.', time: ywebFormatTime(d)};
+		return {date: webuiPad2(d.getDate()) + '.' + webuiPad2(d.getMonth() + 1) + '.', time: webuiFormatTime(d)};
 	}
 
 	function duration(sec) {
 		sec = Math.max(0, Math.floor(sec));
 		const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60, s = sec % 60;
-		return (h > 0 ? h + ':' + ywebPad2(m) : String(m)) + ':' + ywebPad2(s);
+		return (h > 0 ? h + ':' + webuiPad2(m) : String(m)) + ':' + webuiPad2(s);
 	}
 
 	function remaining(stopSec) {
@@ -1385,11 +1385,11 @@
 		const name = ch.name || '--';
 		// with a logo the name steps back (has-logo); a logo that does not
 		// load leaves the name at full size
-		const logo = ywebEl('img', {className: 'yweb-status-channel-logo',
+		const logo = webuiEl('img', {className: 'webui-status-channel-logo',
 			attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: ''},
 			on: {error: function() { chEl.classList.remove('has-logo'); this.remove(); }}});
 		chEl.classList.add('has-logo');
-		chEl.replaceChildren(logo, ywebEl('span', {className: 'yweb-status-channel-name'}, name));
+		chEl.replaceChildren(logo, webuiEl('span', {className: 'webui-status-channel-name'}, name));
 		setText('channel-preview', name);
 	}
 
@@ -1450,7 +1450,7 @@
 
 	// The guide event says which channel in the lower 48 bits of its id.
 	function sameLow48(a, b) {
-		return ywebLegacyChannelId(a).slice(-12).toLowerCase() === ywebLegacyChannelId(b).slice(-12).toLowerCase();
+		return webuiLegacyChannelId(a).slice(-12).toLowerCase() === webuiLegacyChannelId(b).slice(-12).toLowerCase();
 	}
 
 	let guideSoon = null;
@@ -1475,7 +1475,7 @@
 	function showPlayback() {
 		const p = dash.playback;
 		const active = playing();
-		withEl('play-info', function(el) { el.classList.toggle('yweb-hidden', !active); });
+		withEl('play-info', function(el) { el.classList.toggle('webui-hidden', !active); });
 		if (!active) return;
 		const rec = p.recording || {}, file = p.file || {};
 		setText('play-title', (p.source === 'recording' ? (rec.title || rec.channel) : (file.title || file.name)) || '--');
@@ -1492,7 +1492,7 @@
 
 	// Load System Info: /api/v1/system/info in the old shape (webui-header.js)
 	function loadSystemInfo() {
-		ywebSystemInfo(false).then(function(data) {
+		webuiSystemInfo(false).then(function(data) {
 			if (!data) return;
 
 			// Uptime
@@ -1592,21 +1592,21 @@
 				// interface names and addresses go in as text
 				const netList = document.getElementById('net-interfaces');
 				if (netList && relevant.length === 0) {
-					netList.replaceChildren(ywebEl('div', {className: 'yweb-text-muted'}, '{=L:yw.si.no_ifaces=}'));
+					netList.replaceChildren(webuiEl('div', {className: 'webui-text-muted'}, '{=L:yw.si.no_ifaces=}'));
 				} else if (netList) {
-					ywebSync(netList, relevant, function(iface) { return iface.name; }, function(iface) {
+					webuiSync(netList, relevant, function(iface) { return iface.name; }, function(iface) {
 						const isWlan = /^(wlan|wl)/.test(iface.name);
 						const icon = isWlan ?
 							'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>' :
 							'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>';
 						const macStr = iface.mac ? String(iface.mac).toUpperCase() : '';
-						return ywebEl('div', {className: 'yweb-net-item'},
-							ywebEl('div', {className: 'yweb-net-icon'}, ywebMarkup(icon)),
-							ywebEl('div', {className: 'yweb-net-info'},
-								ywebEl('div', {className: 'yweb-net-name'}, iface.name),
-								ywebEl('div', {className: 'yweb-net-ip'}, iface.ip || '{=L:yw.dash.no_ip=}'),
-								macStr ? ywebEl('div', {className: 'yweb-net-mac'}, macStr) : null),
-							ywebEl('div', {className: 'yweb-net-status' + (iface.up ? ' up' : '')}));
+						return webuiEl('div', {className: 'webui-net-item'},
+							webuiEl('div', {className: 'webui-net-icon'}, webuiMarkup(icon)),
+							webuiEl('div', {className: 'webui-net-info'},
+								webuiEl('div', {className: 'webui-net-name'}, iface.name),
+								webuiEl('div', {className: 'webui-net-ip'}, iface.ip || '{=L:yw.dash.no_ip=}'),
+								macStr ? webuiEl('div', {className: 'webui-net-mac'}, macStr) : null),
+							webuiEl('div', {className: 'webui-net-status' + (iface.up ? ' up' : '')}));
 					});
 				}
 			}
@@ -1617,12 +1617,12 @@
 	// Software versions, which do not change while the page is open
 	function loadVersions() {
 		// the reading the header and the footer already made
-		ywebSystemInfoOnce().then(ywebVersions).then(function(data) {
+		webuiSystemInfoOnce().then(webuiVersions).then(function(data) {
 			if (data) {
-				if (data.yweb) setText('yweb-version', data.yweb);
+				if (data.webui) setText('webui-version', data.webui);
 				if (data.api) setText('api-version', data.api);
 				if (data.copyright && data.copyright.text)
-					setText('yweb-footer-copyright', data.copyright.text);
+					setText('webui-footer-copyright', data.copyright.text);
 			}
 		});
 	}
@@ -1639,8 +1639,8 @@
 	function showRecording() {
 		const rec = dash.recordings[0] || null;
 		const isRecording = !!rec;
-		withEl('rec-indicator', function(el) { el.classList.toggle('yweb-hidden', !isRecording); });
-		withEl('rec-info', function(el) { el.classList.toggle('yweb-hidden', !isRecording); });
+		withEl('rec-indicator', function(el) { el.classList.toggle('webui-hidden', !isRecording); });
+		withEl('rec-info', function(el) { el.classList.toggle('webui-hidden', !isRecording); });
 
 		const recBtn = document.getElementById('rec-btn');
 		if (recBtn) {
@@ -1665,34 +1665,34 @@
 		const btn = document.getElementById('rec-btn');
 		if (!btn) return;
 		if (btn.classList.contains('recording'))
-			ywebStopRecording(dash.recordings[0] ? dash.recordings[0].id : null);
+			webuiStopRecording(dash.recordings[0] ? dash.recordings[0].id : null);
 		else if (dash.channel)
-			ywebRecordEvent(dash.channel.id, dash.channel.name, dash.now);
+			webuiRecordEvent(dash.channel.id, dash.channel.name, dash.now);
 		// without the event stream nothing would say so
-		setTimeout(function() { if (!ywebV1EventsLive()) refreshEvented(); }, 1500);
+		setTimeout(function() { if (!webuiV1EventsLive()) refreshEvented(); }, 1500);
 	}
 
 	// Standby: wake a sleeping box, put an awake one to sleep after asking
 	async function toggleStandby(inStandby) {
 		try {
-			await ywebV1('POST', '/system/standby', {body: {on: !inStandby}});
-			ywebShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
+			await webuiV1('POST', '/system/standby', {body: {on: !inStandby}});
+			webuiShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
 		} catch (e) {
-			ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
+			webuiShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
 		}
 	}
 
 	async function sendStandby() {
 		try {
-			const st = await ywebV1('GET', '/system/standby');
+			const st = await webuiV1('GET', '/system/standby');
 			const inStandby = !!(st && st.on);
 			if (!inStandby) {
-				ywebShowConfirm('Standby', '{=L:yw.sb.confirm=}', 'Standby', function() { return toggleStandby(false); }, {variant: 'ok'});
+				webuiShowConfirm('Standby', '{=L:yw.sb.confirm=}', 'Standby', function() { return toggleStandby(false); }, {variant: 'ok'});
 				return;
 			}
 			await toggleStandby(true);
 		} catch (e) {
-			ywebShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
+			webuiShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
 		}
 	}
 
@@ -1709,10 +1709,10 @@
 		const newMode = currentMode === 'tv' ? 'radio' : 'tv';
 		withEl('mode-switch-btn', function(el) { el.disabled = true; el.style.opacity = '0.6'; });
 		try {
-			await ywebV1('POST', '/mode', {body: {mode: newMode}});
+			await webuiV1('POST', '/mode', {body: {mode: newMode}});
 			setMode(newMode);
 		} catch (e) {
-			ywebShowToast(e.message, true);
+			webuiShowToast(e.message, true);
 		}
 		withEl('mode-switch-btn', function(el) { el.disabled = false; el.style.opacity = '1'; });
 	}
@@ -1757,7 +1757,7 @@
 		const r = await dashGet('/timers');
 		if (!r) {
 			withEl('timer-list', function(el) {
-				el.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.timer.unavail=}'));
+				el.replaceChildren(webuiEl('div', {className: 'webui-timer-empty'}, '{=L:yw.timer.unavail=}'));
 			});
 			setText('timer-preview', '--');
 			return;
@@ -1781,7 +1781,7 @@
 			.slice(0, Math.max(3 - running.length, 1));
 
 		if (running.length === 0 && future.length === 0) {
-			container.replaceChildren(ywebEl('div', {className: 'yweb-timer-empty'}, '{=L:yw.dash.no_timers=}'));
+			container.replaceChildren(webuiEl('div', {className: 'webui-timer-empty'}, '{=L:yw.dash.no_timers=}'));
 			setText('timer-preview', '{=L:yw.dash.no_timers_short=}');
 			return;
 		}
@@ -1794,32 +1794,32 @@
 
 		const rows = running.map(function(t) { return {timer: t, running: true}; })
 			.concat(future.map(function(t) { return {timer: t, running: false}; }));
-		ywebSync(container, rows, function(row) {
+		webuiSync(container, rows, function(row) {
 			return (row.running ? 'run-' : 'next-') + row.timer.id;
 		}, function(row) {
 			const timer = row.timer;
 			const channel = dash.names[timer.channel_id] || '';
 			const n = timerTypeNumber(timer);
-			const label = ywebGetTimerType({type_number: n});
+			const label = webuiGetTimerType({type_number: n});
 			if (row.running) {
 				const left = remaining(timer.stop);
-				return ywebEl('div', {className: 'yweb-timer-item running'},
-					ywebEl('div', {className: 'yweb-timer-icon record'}, ywebMarkup('<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>')),
-					ywebEl('div', {className: 'yweb-timer-info'},
-						ywebEl('div', {className: 'yweb-timer-title'}, timer.title || channel || RECORDING),
-						channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
-					left ? ywebEl('div', {className: 'yweb-timer-remaining'}, left) : null);
+				return webuiEl('div', {className: 'webui-timer-item running'},
+					webuiEl('div', {className: 'webui-timer-icon record'}, webuiMarkup('<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>')),
+					webuiEl('div', {className: 'webui-timer-info'},
+						webuiEl('div', {className: 'webui-timer-title'}, timer.title || channel || RECORDING),
+						channel ? webuiEl('div', {className: 'webui-timer-channel'}, channel) : null),
+					left ? webuiEl('div', {className: 'webui-timer-remaining'}, left) : null);
 			}
 			const at = dayAndClock(timer.start);
-			return ywebEl('div', {className: 'yweb-timer-item'},
+			return webuiEl('div', {className: 'webui-timer-item'},
 				// the icon by the type's own name; the label is translated
-				ywebMarkup(ywebGetTimerIconHtml(YWEB_TIMER_TYPES[n] || '', 'yweb-timer-icon')),
-				ywebEl('div', {className: 'yweb-timer-info'},
-					ywebEl('div', {className: 'yweb-timer-title'}, timer.title || channel || label),
-					channel ? ywebEl('div', {className: 'yweb-timer-channel'}, channel) : null),
-				ywebEl('div', {className: 'yweb-timer-time'},
-					ywebEl('div', {className: 'yweb-timer-date'}, at.date),
-					ywebEl('div', {className: 'yweb-timer-hour'}, at.time)));
+				webuiMarkup(webuiGetTimerIconHtml(WEBUI_TIMER_TYPES[n] || '', 'webui-timer-icon')),
+				webuiEl('div', {className: 'webui-timer-info'},
+					webuiEl('div', {className: 'webui-timer-title'}, timer.title || channel || label),
+					channel ? webuiEl('div', {className: 'webui-timer-channel'}, channel) : null),
+				webuiEl('div', {className: 'webui-timer-time'},
+					webuiEl('div', {className: 'webui-timer-date'}, at.date),
+					webuiEl('div', {className: 'webui-timer-hour'}, at.time)));
 		});
 	}
 
@@ -1835,7 +1835,7 @@
 
 	function followTheBox() {
 		let opened = 0;
-		ywebV1Events({
+		webuiV1Events({
 			// the stream's own open event: the first one is the page loading,
 			// every later one a reconnect after a gap
 			open: function() { if (opened++) refreshEvented(); },
@@ -1893,11 +1893,11 @@
 
 		if (bar) {
 			bar.style.width = percent + '%';
-			bar.className = 'yweb-signal-bar ' + quality;
+			bar.className = 'webui-signal-bar ' + quality;
 		}
 		if (value) {
 			value.textContent = percent + '%';
-			value.className = 'yweb-signal-value ' + quality;
+			value.className = 'webui-signal-value ' + quality;
 		}
 	}
 
@@ -1931,7 +1931,7 @@
 		if (!container) return;
 		// a box without a tuner says so rather than showing an empty card
 		if (!tuners.length) {
-			container.replaceChildren(ywebEl('div', {className: 'yweb-tuner-empty'}, NO_TUNER));
+			container.replaceChildren(webuiEl('div', {className: 'webui-tuner-empty'}, NO_TUNER));
 			// the icon greyed as for idle tuners, the preview saying why
 			updateTunerPreview(tuners, 0, 0, 0);
 			setText('tuner-preview', NO_TUNER);
@@ -1978,26 +1978,26 @@
 
 		// the channel name comes from the broadcast and goes in as text; the
 		// state only as a class it is known to be
-		ywebSync(container, rows, function(row, i) {
+		webuiSync(container, rows, function(row, i) {
 			return row.tuner.id !== undefined ? row.tuner.id : '#' + i;
 		}, function(row) {
 			const tuner = row.tuner;
 			const knownState = ['viewing', 'busy', 'idle'].indexOf(tuner.state) >= 0;
 			function signal(label, value, color) {
-				return ywebEl('div', {className: 'yweb-tuner-signal'},
-					ywebEl('div', {className: 'yweb-tuner-signal-header'},
-						ywebEl('span', {className: 'yweb-tuner-signal-label'}, label),
-						ywebEl('span', {className: 'yweb-tuner-signal-value', style: {color: color}}, value + '%')),
-					ywebEl('div', {className: 'yweb-tuner-signal-bar'},
-						ywebEl('div', {className: 'yweb-tuner-signal-fill', style: {width: value + '%', background: color}})));
+				return webuiEl('div', {className: 'webui-tuner-signal'},
+					webuiEl('div', {className: 'webui-tuner-signal-header'},
+						webuiEl('span', {className: 'webui-tuner-signal-label'}, label),
+						webuiEl('span', {className: 'webui-tuner-signal-value', style: {color: color}}, value + '%')),
+					webuiEl('div', {className: 'webui-tuner-signal-bar'},
+						webuiEl('div', {className: 'webui-tuner-signal-fill', style: {width: value + '%', background: color}})));
 			}
-			return ywebEl('div', {className: 'yweb-tuner-item'},
-				ywebEl('div', {className: 'yweb-tuner-header'},
-					ywebEl('span', {className: 'yweb-tuner-name', title: tuner.name || ''}, row.shortName),
-					ywebEl('span', {className: 'yweb-tuner-type'}, tuner.type || 'DVB'),
-					ywebEl('span', {className: 'yweb-tuner-state' + (knownState ? ' ' + tuner.state : '')}, row.stateLabel)),
-				tuner.channel ? ywebEl('div', {className: 'yweb-tuner-channel'}, tuner.channel) : null,
-				ywebEl('div', {className: 'yweb-tuner-signals'},
+			return webuiEl('div', {className: 'webui-tuner-item'},
+				webuiEl('div', {className: 'webui-tuner-header'},
+					webuiEl('span', {className: 'webui-tuner-name', title: tuner.name || ''}, row.shortName),
+					webuiEl('span', {className: 'webui-tuner-type'}, tuner.type || 'DVB'),
+					webuiEl('span', {className: 'webui-tuner-state' + (knownState ? ' ' + tuner.state : '')}, row.stateLabel)),
+				tuner.channel ? webuiEl('div', {className: 'webui-tuner-channel'}, tuner.channel) : null,
+				webuiEl('div', {className: 'webui-tuner-signals'},
 					signal('SIG', row.sig, row.sigColor),
 					signal('SNR', row.snr, row.snrColor)));
 		});
@@ -2099,9 +2099,9 @@
 
 		const tags = [];
 		function tag(label, value) {
-			tags.push(ywebEl('span', {className: 'yweb-pid-tag'},
-				ywebEl('span', {className: 'label'}, label),
-				ywebEl('span', {className: 'value'}, value)));
+			tags.push(webuiEl('span', {className: 'webui-pid-tag'},
+				webuiEl('span', {className: 'label'}, label),
+				webuiEl('span', {className: 'value'}, value)));
 		}
 
 		// Video PID
@@ -2166,20 +2166,20 @@
 
 
 	// M5d: Restreihen-Balancer — Logik lebt seit N2a geteilt in
-	// webui-header.js (ywebBalanceGrid), Tools nutzt sie ebenfalls.
-	function ywebBalanceDashboard() {
-		ywebBalanceGrid('.yweb-dashboard', {wideClass: 'dash-wide'});
+	// webui-header.js (webuiBalanceGrid), Tools nutzt sie ebenfalls.
+	function webuiBalanceDashboard() {
+		webuiBalanceGrid('.webui-dashboard', {wideClass: 'dash-wide'});
 	}
 
 	// Init
 	document.addEventListener('DOMContentLoaded', function() {
-		ywebInitMobileAccordion({
+		webuiInitMobileAccordion({
 			cardOrder: ['card-actions', 'card-channel', 'card-system', 'card-network', 'card-timer', 'card-tuner', 'card-stream'],
-			storageKey: 'yweb-active-card',
+			storageKey: 'webui-active-card',
 			defaultCard: 'card-actions',
 			breakpoint: 768,
 			indicatorId: 'card-indicator',
-			containerSelector: '.yweb-dashboard',
+			containerSelector: '.webui-dashboard',
 			mode: 'expanded'
 		});
 
@@ -2191,18 +2191,18 @@
 		loadStreamInfo();
 
 		// M5d: initial packen, bei Resize neu, und wenn Karten dazukommen
-		// oder verschwinden (Extension-Injektion laeuft nach ywebInit)
-		ywebBalanceDashboard();
-		window.addEventListener('resize', ywebBalanceDashboard);
-		new MutationObserver(ywebBalanceDashboard)
-			.observe(document.querySelector('.yweb-dashboard'), {childList: true});
+		// oder verschwinden (Extension-Injektion laeuft nach webuiInit)
+		webuiBalanceDashboard();
+		window.addEventListener('resize', webuiBalanceDashboard);
+		new MutationObserver(webuiBalanceDashboard)
+			.observe(document.querySelector('.webui-dashboard'), {childList: true});
 
 		// No event for these: asked on a timer, while visible
 		whileVisible(30000, loadSystemInfo);
 		whileVisible(5000, loadTunerStatus);
 		whileVisible(30000, loadStreamInfo);
 		// Without an open event stream the evented cards are asked as well
-		whileVisible(30000, function() { if (!ywebV1EventsLive()) refreshEvented(); });
+		whileVisible(30000, function() { if (!webuiV1EventsLive()) refreshEvented(); });
 		// Counted here between events: guide progress, time left, playback position
 		setInterval(tickGuide, 15000);
 		setInterval(function() { showTimers(); showRecording(); }, 30000);
@@ -2213,8 +2213,8 @@
 		});
 
 		// Register pull-to-refresh callback
-		if (typeof ywebSetRefreshCallback === 'function') {
-			ywebSetRefreshCallback(function() {
+		if (typeof webuiSetRefreshCallback === 'function') {
+			webuiSetRefreshCallback(function() {
 				refreshEvented();
 				loadSystemInfo();
 				loadTunerStatus();

@@ -8,7 +8,7 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
@@ -17,7 +17,7 @@
 		   laengsten Eintrag (Labels sind lokalisiert und verschieden
 		   lang — fix 220px schnitt die deutschen Namen ab), Deckel
 		   18rem; Mobile-Branch unten bleibt einspaltig wie gehabt */
-		main.yweb-timer-grid {
+		main.webui-timer-grid {
 			display: grid;
 			grid-template-columns: fit-content(18rem) 1fr;
 			gap: 0.6rem;
@@ -26,7 +26,7 @@
 		}
 
 		@media (max-width: 800px) {
-			main.yweb-timer-grid {
+			main.webui-timer-grid {
 				grid-template-columns: 1fr;
 				grid-template-rows: auto 1fr;
 			}
@@ -36,8 +36,8 @@
 
 		/* Filter Card */
 
-		.yweb-filter-group-label {
-			font-size: var(--yweb-font-xs);
+		.webui-filter-group-label {
+			font-size: var(--webui-font-xs);
 			color: var(--pico-muted-color);
 			text-transform: uppercase;
 			letter-spacing: 0.05em;
@@ -45,12 +45,12 @@
 			font-weight: 600;
 		}
 
-		/* Abweichungen von .yweb-nav-item/.yweb-nav-count (webui.css) */
-		.yweb-filter-item {
+		/* Abweichungen von .webui-nav-item/.webui-nav-count (webui.css) */
+		.webui-filter-item {
 			padding: 0.45rem 0.7rem;
 		}
 
-		.yweb-filter-count {
+		.webui-filter-count {
 			min-width: 1.4em;
 			text-align: center;
 		}
@@ -59,29 +59,29 @@
 
 
 		/* Timer Row */
-		.yweb-timer-row {
+		.webui-timer-row {
 			display: flex;
 			flex-direction: column;
 			padding: 0.5rem 0.8rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
 			border-left: 3px solid transparent;
-			transition: var(--yweb-transition);
+			transition: var(--webui-transition);
 			cursor: pointer;
 		}
 
-		.yweb-timer-row:hover {
-			background: var(--yweb-accent-light);
+		.webui-timer-row:hover {
+			background: var(--webui-accent-light);
 		}
 
-		.yweb-timer-row.state-running {
-			border-left-color: var(--yweb-accent);
+		.webui-timer-row.state-running {
+			border-left-color: var(--webui-accent);
 		}
 
-		.yweb-timer-row.state-finished {
+		.webui-timer-row.state-finished {
 			opacity: 0.5;
 		}
 
-		.yweb-timer-main {
+		.webui-timer-main {
 			display: flex;
 			align-items: center;
 			gap: 0.6rem;
@@ -89,33 +89,33 @@
 		}
 
 		/* Timer type icon */
-		.yweb-timer-type-icon {
+		.webui-timer-type-icon {
 			width: 28px;
 			height: 28px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			background: var(--yweb-accent-light);
+			background: var(--webui-accent-light);
 			border-radius: 50%;
 			flex-shrink: 0;
 		}
 
-		.yweb-timer-type-icon svg {
+		.webui-timer-type-icon svg {
 			width: 14px;
 			height: 14px;
-			color: var(--yweb-accent);
+			color: var(--webui-accent);
 		}
 
-		.yweb-timer-type-icon.record {
+		.webui-timer-type-icon.record {
 			background: rgba(239, 68, 68, 0.15);
 		}
 
-		.yweb-timer-type-icon.record svg {
-			color: var(--yweb-danger);
+		.webui-timer-type-icon.record svg {
+			color: var(--webui-danger);
 		}
 
 		/* Expand chevron */
-		.yweb-timer-expand-icon {
+		.webui-timer-expand-icon {
 			width: 14px;
 			height: 14px;
 			color: var(--pico-muted-color);
@@ -123,26 +123,26 @@
 			transition: transform 0.2s ease;
 		}
 
-		.yweb-timer-row.row-expanded .yweb-timer-expand-icon {
+		.webui-timer-row.row-expanded .webui-timer-expand-icon {
 			transform: rotate(180deg);
 		}
 
 		/* Timer info */
-		.yweb-timer-row-info {
+		.webui-timer-row-info {
 			flex: 1;
 			min-width: 0;
 		}
 
-		.yweb-timer-row-title {
+		.webui-timer-row-title {
 			font-weight: 500;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 		}
 
-		.yweb-timer-row-meta {
-			font-size: var(--yweb-font-xs);
+		.webui-timer-row-meta {
+			font-size: var(--webui-font-xs);
 			color: var(--pico-muted-color);
 			display: flex;
 			align-items: center;
@@ -150,31 +150,31 @@
 			flex-wrap: wrap;
 		}
 
-		.yweb-timer-row-channel {
+		.webui-timer-row-channel {
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 
 		/* Time display */
-		.yweb-timer-row-time {
+		.webui-timer-row-time {
 			text-align: right;
 			flex-shrink: 0;
 			line-height: 1.3;
 		}
 
-		.yweb-timer-row-date {
+		.webui-timer-row-date {
 			font-weight: 600;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 		}
 
-		.yweb-timer-row-hours {
+		.webui-timer-row-hours {
 			color: var(--pico-muted-color);
-			font-size: var(--yweb-font-xs);
+			font-size: var(--webui-font-xs);
 		}
 
 		/* Badges */
-		.yweb-timer-badge {
+		.webui-timer-badge {
 			font-size: 0.6rem;
 			padding: 0.1rem 0.35rem;
 			border-radius: 8px;
@@ -182,36 +182,36 @@
 			font-weight: 600;
 		}
 
-		.yweb-timer-badge-repeat {
-			background: var(--yweb-accent-light);
-			color: var(--yweb-accent);
+		.webui-timer-badge-repeat {
+			background: var(--webui-accent-light);
+			color: var(--webui-accent);
 		}
 
-		.yweb-timer-badge-state {
+		.webui-timer-badge-state {
 			background: var(--pico-card-sectioning-background-color);
 			color: var(--pico-muted-color);
 		}
 
-		.yweb-timer-badge-state.running {
+		.webui-timer-badge-state.running {
 			background: rgba(34, 197, 94, 0.15);
-			color: var(--yweb-success);
-			animation: yweb-pulse 2s ease-in-out infinite;
+			color: var(--webui-success);
+			animation: webui-pulse 2s ease-in-out infinite;
 		}
 
-		.yweb-timer-badge-state.finished {
+		.webui-timer-badge-state.finished {
 			background: var(--pico-card-sectioning-background-color);
 			color: var(--pico-muted-color);
 		}
 
 		/* Timer actions */
-		.yweb-timer-actions {
+		.webui-timer-actions {
 			display: flex;
 			gap: 0.3rem;
 			flex-shrink: 0;
 		}
 
 		/* Expandable detail */
-		.yweb-timer-detail {
+		.webui-timer-detail {
 			width: 100%;
 			max-height: 0;
 			overflow: hidden;
@@ -219,81 +219,81 @@
 			padding: 0;
 			margin-top: 0.5rem;
 			background: var(--pico-card-sectioning-background-color);
-			border-radius: var(--yweb-radius);
+			border-radius: var(--webui-radius);
 		}
 
-		.yweb-timer-row.row-expanded .yweb-timer-detail {
+		.webui-timer-row.row-expanded .webui-timer-detail {
 			max-height: 400px;
 			padding: 0.8rem 1rem;
 			overflow-y: auto;
 		}
 
-		.yweb-timer-detail-grid {
+		.webui-timer-detail-grid {
 			display: grid;
 			grid-template-columns: auto 1fr;
 			gap: 0.3rem 0.8rem;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 		}
 
-		.yweb-timer-detail-label {
+		.webui-timer-detail-label {
 			color: var(--pico-muted-color);
 			white-space: nowrap;
 		}
 
-		.yweb-timer-detail-value {
+		.webui-timer-detail-value {
 			word-break: break-all;
 		}
 
 		/* Timer count in header */
-		.yweb-timer-count {
-			font-size: var(--yweb-font-xs);
+		.webui-timer-count {
+			font-size: var(--webui-font-xs);
 			color: var(--pico-muted-color);
 			font-weight: normal;
 		}
 
 		/* Mobile Accordion */
 		@media (max-width: 800px) {
-			.yweb-timer-grid {
+			.webui-timer-grid {
 				display: flex;
 				flex-direction: column;
 				gap: 0.4rem;
 				overflow: auto;
 			}
 
-			.yweb-card-indicator {
+			.webui-card-indicator {
 				display: flex;
 			}
 
-			.yweb-filter-card,
-			.yweb-timerlist-card {
+			.webui-filter-card,
+			.webui-timerlist-card {
 				flex: none;
 				max-height: none;
 				min-height: auto;
 			}
 
-			.yweb-filter-card .yweb-card-header,
-			.yweb-timerlist-card .yweb-card-header {
+			.webui-filter-card .webui-card-header,
+			.webui-timerlist-card .webui-card-header {
 				cursor: pointer;
 				position: relative;
 				padding-right: 2rem;
 			}
 
-			.yweb-filter-card .yweb-card-title,
-			.yweb-timerlist-card .yweb-card-title {
+			.webui-filter-card .webui-card-title,
+			.webui-timerlist-card .webui-card-title {
 				font-size: 0.9rem;
 			}
 
-			.yweb-card.collapsed .yweb-card-preview {
+			.webui-card.collapsed .webui-card-preview {
 				display: inline-block;
 			}
 
-			.yweb-card.collapsed .yweb-timer-count {
+			.webui-card.collapsed .webui-timer-count {
 				display: none;
 			}
 
 			/* Chevron indicator */
-			.yweb-filter-card .yweb-card-header::after,
-			.yweb-timerlist-card .yweb-card-header::after {
+			.webui-filter-card .webui-card-header::after,
+			.webui-timerlist-card .webui-card-header::after {
 				content: '▼';
 				position: absolute;
 				right: 0.5rem;
@@ -305,75 +305,75 @@
 				pointer-events: none;
 			}
 
-			.yweb-card:not(.collapsed) .yweb-card-header::after {
+			.webui-card:not(.collapsed) .webui-card-header::after {
 				transform: translateY(-50%) rotate(180deg);
 			}
 
-			.yweb-filter-card .yweb-card-body,
-			.yweb-timerlist-card .yweb-card-body {
+			.webui-filter-card .webui-card-body,
+			.webui-timerlist-card .webui-card-body {
 				display: block;
 				max-height: 60dvh;
 				overflow-y: auto;
 			}
 
-			.yweb-card.collapsed .yweb-card-body {
+			.webui-card.collapsed .webui-card-body {
 				display: none;
 			}
 
-			.yweb-timer-row {
+			.webui-timer-row {
 				padding: 0.4rem 0.6rem;
 			}
 
-			.yweb-timer-main {
+			.webui-timer-main {
 				gap: 0.4rem;
 			}
 
-			.yweb-timer-actions {
+			.webui-timer-actions {
 				gap: 0.2rem;
 			}
 
-			.yweb-timer-actions .yweb-btn {
+			.webui-timer-actions .webui-btn {
 				padding: 0.25rem 0.35rem;
 			}
 
-			.yweb-timer-actions .yweb-btn svg {
+			.webui-timer-actions .webui-btn svg {
 				width: 13px;
 				height: 13px;
 			}
 
-			.yweb-timer-detail {
+			.webui-timer-detail {
 				margin-top: 0.4rem;
 			}
 
-			.yweb-timer-row.row-expanded .yweb-timer-detail {
+			.webui-timer-row.row-expanded .webui-timer-detail {
 				max-height: 60vh;
 				padding: 0.7rem 0.8rem;
 			}
 		}
 
-		[data-theme="light"] .yweb-timer-row {
+		[data-theme="light"] .webui-timer-row {
 			border-bottom-color: #e5e7eb;
 		}
 
-		[data-theme="light"] .yweb-timer-row:hover {
+		[data-theme="light"] .webui-timer-row:hover {
 			background: #f8f9fa;
 		}
 
 
 		/* Confirm dialog styles moved to webui.css */
 
-		.yweb-btn-stop {
-			color: var(--yweb-danger) !important;
+		.webui-btn-stop {
+			color: var(--webui-danger) !important;
 		}
 
-		.yweb-btn-stop .btn-label {
-			color: var(--yweb-danger);
+		.webui-btn-stop .btn-label {
+			color: var(--webui-danger);
 		}
 
-		/* Timer Modal — inherits base styles from webui.css (.yweb-modal-*)
-		   Uses .yweb-modal-backdrop.open class (added by JS) for display.
+		/* Timer Modal — inherits base styles from webui.css (.webui-modal-*)
+		   Uses .webui-modal-backdrop.open class (added by JS) for display.
 		   Only timer-specific overrides here, scoped to #timerModalBackdrop. */
-		#timerModalBackdrop .yweb-modal {
+		#timerModalBackdrop .webui-modal {
 			max-width: 520px;
 			width: 94%;
 			max-height: 90dvh;
@@ -381,124 +381,124 @@
 			flex-direction: column;
 		}
 
-		#timerModalBackdrop .yweb-modal-header {
+		#timerModalBackdrop .webui-modal-header {
 			padding: 0.8rem 1rem;
 		}
 
-		#timerModalBackdrop .yweb-modal-header h3 {
+		#timerModalBackdrop .webui-modal-header h3 {
 			font-size: 1rem;
 		}
 
-		#timerModalBackdrop .yweb-modal-body {
+		#timerModalBackdrop .webui-modal-body {
 			flex: 1;
 			overflow-y: auto;
 			padding: 0.8rem 1rem;
 		}
 
 		/* Timer-specific form overrides (base styles from webui.css) */
-		#timerModalBackdrop .yweb-form-section {
+		#timerModalBackdrop .webui-form-section {
 			margin-bottom: 0.8rem;
 		}
-		#timerModalBackdrop .yweb-form-section-title {
+		#timerModalBackdrop .webui-form-section-title {
 			color: var(--pico-muted-color);
 			letter-spacing: 0.05em;
 			margin-bottom: 0.4rem;
 			padding-bottom: 0.2rem;
 		}
-		#timerModalBackdrop .yweb-form-row {
+		#timerModalBackdrop .webui-form-row {
 			gap: 0.5rem;
 			margin-bottom: 0.5rem;
 			padding: 0;
 		}
-		#timerModalBackdrop .yweb-form-row label {
+		#timerModalBackdrop .webui-form-row label {
 			min-width: 5.5rem;
 		}
-		#timerModalBackdrop .yweb-form-row select,
-		#timerModalBackdrop .yweb-form-row input {
+		#timerModalBackdrop .webui-form-row select,
+		#timerModalBackdrop .webui-form-row input {
 			flex: 1;
 			min-width: 0;
 		}
 
-		.yweb-form-row .yweb-time-group {
+		.webui-form-row .webui-time-group {
 			display: flex;
 			gap: 0.4rem;
 			flex: 1;
 		}
 
-		.yweb-form-row .yweb-time-group input {
+		.webui-form-row .webui-time-group input {
 			flex: 1;
 		}
 
-		.yweb-form-check {
+		.webui-form-check {
 			display: flex;
 			align-items: center;
 			gap: 0.4rem;
 			margin-bottom: 0.3rem;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 		}
 
-		.yweb-form-check input[type="checkbox"] {
+		.webui-form-check input[type="checkbox"] {
 			width: 1rem;
 			height: 1rem;
-			accent-color: var(--yweb-accent);
+			accent-color: var(--webui-accent);
 		}
 
-		.yweb-form-weekdays {
+		.webui-form-weekdays {
 			display: flex;
 			gap: 0.25rem;
 			flex-wrap: wrap;
 		}
 
-		.yweb-form-weekdays label {
+		.webui-form-weekdays label {
 			min-width: auto;
 			display: flex;
 			align-items: center;
 			gap: 0.15rem;
 			padding: 0.2rem 0.4rem;
 			border: 1px solid var(--pico-muted-border-color);
-			border-radius: var(--yweb-radius);
+			border-radius: var(--webui-radius);
 			cursor: pointer;
-			font-size: var(--yweb-font-xs);
-			transition: var(--yweb-transition);
+			font-size: var(--webui-font-xs);
+			transition: var(--webui-transition);
 		}
 
-		.yweb-form-weekdays input:checked + span {
-			color: var(--yweb-accent);
+		.webui-form-weekdays input:checked + span {
+			color: var(--webui-accent);
 		}
 
-		.yweb-form-weekdays input {
+		.webui-form-weekdays input {
 			display: none;
 		}
 
-		.yweb-form-weekdays label:has(input:checked) {
-			border-color: var(--yweb-accent);
-			background: var(--yweb-accent-light);
+		.webui-form-weekdays label:has(input:checked) {
+			border-color: var(--webui-accent);
+			background: var(--webui-accent-light);
 		}
 
-		.yweb-form-hidden {
+		.webui-form-hidden {
 			display: none !important;
 		}
 
 		/* Timer edit button */
-		.yweb-btn-edit {
-			color: var(--yweb-accent);
+		.webui-btn-edit {
+			color: var(--webui-accent);
 		}
 
-		.yweb-btn-edit .btn-label {
-			color: var(--yweb-accent);
+		.webui-btn-edit .btn-label {
+			color: var(--webui-accent);
 		}
 
 		@media (max-width: 800px) {
-			#timerModalBackdrop .yweb-modal {
+			#timerModalBackdrop .webui-modal {
 				width: 98%;
 				max-height: 95dvh;
 			}
 
-			#timerModalBackdrop .yweb-form-row {
+			#timerModalBackdrop .webui-form-row {
 				flex-wrap: wrap;
 			}
 
-			#timerModalBackdrop .yweb-form-row label {
+			#timerModalBackdrop .webui-form-row label {
 				min-width: 100%;
 				margin-bottom: 0.1rem;
 			}
@@ -507,73 +507,73 @@
 </head>
 <body>
 	<!-- Header generated by webui-header.js -->
-	<div class="yweb-header-wrapper" data-page="timer"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="timer"></div>
+	<div class="webui-header-spacer"></div>
 
 	<!-- Main Content: 2-Column Grid -->
-	<main class="yweb-timer-grid">
+	<main class="webui-timer-grid">
 		<!-- Filter Card -->
-		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-filter-card" id="card-filter">
-			<header class="yweb-card-header" onclick="toggleCard('card-filter')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card webui-panel-card webui-card-sm webui-filter-card" id="card-filter">
+			<header class="webui-card-header" onclick="toggleCard('card-filter')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>
 					</svg>
 					Filter
 				</h3>
-				<span class="yweb-card-preview" id="filterPreview">{=L:yw.tm.all=}</span>
+				<span class="webui-card-preview" id="filterPreview">{=L:yw.tm.all=}</span>
 			</header>
-			<div class="yweb-card-body">
-				<ul class="yweb-plain-list yweb-filter-list" id="filterList">
-					<li class="yweb-filter-group-label">Typ</li>
-					<li class="yweb-nav-item yweb-filter-item active" data-filter="all" onclick="setFilter('all')">
+			<div class="webui-card-body">
+				<ul class="webui-plain-list webui-filter-list" id="filterList">
+					<li class="webui-filter-group-label">Typ</li>
+					<li class="webui-nav-item webui-filter-item active" data-filter="all" onclick="setFilter('all')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<circle cx="12" cy="12" r="10"/>
 							<line x1="2" y1="12" x2="22" y2="12"/>
 							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
 						</svg>
-						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.all=}</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-all">0</span>
+						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.all=}</span>
+						<span class="webui-nav-count webui-filter-count" id="count-all">0</span>
 					</li>
-					<li class="yweb-nav-item yweb-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
+					<li class="webui-nav-item webui-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
 						<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
-						<span class="yweb-nav-name yweb-filter-name">{=L:yw.bc.recording=}</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-type-5">0</span>
+						<span class="webui-nav-name webui-filter-name">{=L:yw.bc.recording=}</span>
+						<span class="webui-nav-count webui-filter-count" id="count-type-5">0</span>
 					</li>
-					<li class="yweb-nav-item yweb-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
+					<li class="webui-nav-item webui-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.zap=}</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-type-3">0</span>
+						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.zap=}</span>
+						<span class="webui-nav-count webui-filter-count" id="count-type-3">0</span>
 					</li>
-					<li class="yweb-nav-item yweb-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
+					<li class="webui-nav-item webui-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.364 5.636a9 9 0 11-12.728 12.728 9 9 0 0112.728-12.728zM12 3v4"/></svg>
-						<span class="yweb-nav-name yweb-filter-name">Standby</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-type-4">0</span>
+						<span class="webui-nav-name webui-filter-name">Standby</span>
+						<span class="webui-nav-count webui-filter-count" id="count-type-4">0</span>
 					</li>
-					<li class="yweb-nav-item yweb-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
+					<li class="webui-nav-item webui-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.remind=}</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-type-6">0</span>
+						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.remind=}</span>
+						<span class="webui-nav-count webui-filter-count" id="count-type-6">0</span>
 					</li>
-					<li class="yweb-filter-group-label">Status</li>
-					<li class="yweb-nav-item yweb-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
+					<li class="webui-filter-group-label">Status</li>
+					<li class="webui-nav-item webui-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
-						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.planned=}</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-state-scheduled">0</span>
+						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.planned=}</span>
+						<span class="webui-nav-count webui-filter-count" id="count-state-scheduled">0</span>
 					</li>
-					<li class="yweb-nav-item yweb-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
+					<li class="webui-nav-item webui-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.active=}</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-state-running">0</span>
+						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.active=}</span>
+						<span class="webui-nav-count webui-filter-count" id="count-state-running">0</span>
 					</li>
-					<li class="yweb-nav-item yweb-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
+					<li class="webui-nav-item webui-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-						<span class="yweb-nav-name yweb-filter-name">{=L:yw.tm.expired=}</span>
-						<span class="yweb-nav-count yweb-filter-count" id="count-state-finished">0</span>
+						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.expired=}</span>
+						<span class="webui-nav-count webui-filter-count" id="count-state-finished">0</span>
 					</li>
 				</ul>
 				<div style="padding:0.5rem 0.8rem 0;">
-					<button class="yweb-btn" onclick="openTimerModal()" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;width:100%;padding:0.5rem;font-size:0.75rem;cursor:pointer;">
+					<button class="webui-btn" onclick="openTimerModal()" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;width:100%;padding:0.5rem;font-size:0.75rem;cursor:pointer;">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><path d="M12 5v14m-7-7h14"/></svg>
 						{=L:yw.timer.new=}
 					</button>
@@ -582,27 +582,27 @@
 		</article>
 
 		<!-- Timer List Card -->
-		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-timerlist-card" id="card-timers">
-			<header class="yweb-card-header" onclick="toggleCard('card-timers')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card webui-panel-card webui-card-sm webui-timerlist-card" id="card-timers">
+			<header class="webui-card-header" onclick="toggleCard('card-timers')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="9"/>
 						<path d="M12 6v6l4 2"/>
 					</svg>
 					<span id="timerListTitle">Timer</span>
 				</h3>
-				<span class="yweb-card-preview" id="timerPreview">--</span>
-				<span class="yweb-timer-count" id="timerCount"></span>
+				<span class="webui-card-preview" id="timerPreview">--</span>
+				<span class="webui-timer-count" id="timerCount"></span>
 			</header>
-			<div class="yweb-card-body">
-				<ul class="yweb-plain-list yweb-timer-grid-list" id="timerList">
+			<div class="webui-card-body">
+				<ul class="webui-plain-list webui-timer-grid-list" id="timerList">
 					<li aria-busy="true">{=L:yw.tm.loading=}</li>
 				</ul>
 			</div>
 		</article>
 
 		<!-- Mobile Card Indicator -->
-		<div class="yweb-card-indicator" id="cardIndicator"></div>
+		<div class="webui-card-indicator" id="cardIndicator"></div>
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
@@ -619,8 +619,8 @@
 		let currentMode = 'tv';
 		const names = Object.create(null);	// channel id -> name
 
-		const TIMER_TYPE_LABELS = YWEB_TIMER_TYPE_LABELS;
-		const TIMER_STATE_LABELS = YWEB_TIMER_STATE_LABELS;
+		const TIMER_TYPE_LABELS = WEBUI_TIMER_TYPE_LABELS;
+		const TIMER_STATE_LABELS = WEBUI_TIMER_STATE_LABELS;
 		// The kinds v1 names, as the numbers the shared labels, icons and filters use
 		const KIND_TYPES = {'shutdown': 1, 'zapto': 3, 'standby': 4, 'record': 5, 'remind': 6,
 			'sleeptimer': 7, 'exec-plugin': 8, 'immediate-record': 9};
@@ -637,16 +637,16 @@
 			const r = t.repeat || 0;
 			if (r >= 256) {
 				const days = WEEKDAY_NAMES.filter(d => (r & d[0]) !== 0).map(d => d[1]);
-				return (YWEB_REPEAT_LABELS.weekly || 'Weekly') + ' (' + days.join(', ') + ')';
+				return (WEBUI_REPEAT_LABELS.weekly || 'Weekly') + ' (' + days.join(', ') + ')';
 			}
-			return YWEB_REPEAT_LABELS[REPEAT_NAMES[r] || 'once'] || '';
+			return WEBUI_REPEAT_LABELS[REPEAT_NAMES[r] || 'once'] || '';
 		}
 
 		function dateOf(sec) {
 			const d = new Date(sec * 1000);
-			return ywebPad2(d.getDate()) + '.' + ywebPad2(d.getMonth() + 1) + '.' + d.getFullYear();
+			return webuiPad2(d.getDate()) + '.' + webuiPad2(d.getMonth() + 1) + '.' + d.getFullYear();
 		}
-		function clock(sec) { return ywebFormatTime(new Date(sec * 1000)); }
+		function clock(sec) { return webuiFormatTime(new Date(sec * 1000)); }
 
 		// A timer without a channel names "0"
 		function channelOf(t) {
@@ -660,7 +660,7 @@
 			await Promise.all(ids.map(id => {
 				if (!id || id in names) return null;
 				if (!naming[id]) {
-					naming[id] = ywebV1('GET', '/channels/' + encodeURIComponent(id)).catch(() => null).then(ch => {
+					naming[id] = webuiV1('GET', '/channels/' + encodeURIComponent(id)).catch(() => null).then(ch => {
 						names[id] = (ch && ch.name) || '';
 						delete naming[id];
 					});
@@ -674,7 +674,7 @@
 			const read = ++timersRead;
 			const list = document.getElementById('timerList');
 			try {
-				const r = await ywebV1('GET', '/timers');
+				const r = await webuiV1('GET', '/timers');
 				const items = (r && r.items) || [];
 				await ensureNames(items.map(channelOf));
 				if (read !== timersRead) return;
@@ -684,7 +684,7 @@
 			} catch (e) {
 				if (read !== timersRead) return;	// a newer read has the list
 				console.error('Failed to load timers:', e);
-				list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.timer.unavail=}'));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.timer.unavail=}'));
 			}
 		}
 
@@ -698,7 +698,7 @@
 				const stateKey = state <= 1 ? 'state-scheduled' : (state === 2 ? 'state-running' : 'state-finished');
 				counts[stateKey] = (counts[stateKey] || 0) + 1;
 			});
-			document.querySelectorAll('.yweb-filter-count').forEach(el => {
+			document.querySelectorAll('.webui-filter-count').forEach(el => {
 				el.textContent = counts[el.id.replace('count-', '')] || 0;
 			});
 		}
@@ -722,19 +722,19 @@
 
 		function setFilter(filter) {
 			currentFilter = filter;
-			document.querySelectorAll('.yweb-filter-item').forEach(item => {
+			document.querySelectorAll('.webui-filter-item').forEach(item => {
 				item.classList.toggle('active', item.dataset.filter === filter);
 			});
-			const activeItem = document.querySelector('.yweb-filter-item.active .yweb-filter-name');
+			const activeItem = document.querySelector('.webui-filter-item.active .webui-filter-name');
 			const preview = document.getElementById('filterPreview');
 			if (activeItem && preview) preview.textContent = activeItem.textContent;
 			renderTimerList();
 			if (window.innerWidth <= 800) selectCard('card-timers');
 		}
 
-		const SVG_EXPAND = '<svg class="yweb-timer-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>';
+		const SVG_EXPAND = '<svg class="webui-timer-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>';
 		const SVG_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-		const SVG_STOP = '<svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--yweb-danger)"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>';
+		const SVG_STOP = '<svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--webui-danger)"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>';
 		const SVG_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/></svg>';
 
 		function renderTimerList() {
@@ -752,7 +752,7 @@
 			countEl.textContent = timers.length + ' Timer';
 
 			if (timers.length === 0) {
-				list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.tm.none_found=}'));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.tm.none_found=}'));
 				previewEl.textContent = '{=L:yw.dash.no_timers_short=}';
 				return;
 			}
@@ -760,19 +760,19 @@
 			const now = Math.floor(Date.now() / 1000);
 			const nextTimer = timers.find(t => t.start > now);
 			previewEl.textContent = nextTimer ? dateOf(nextTimer.start) + ' ' + clock(nextTimer.start) : timers.length + ' Timer';
-			ywebSync(list, timers, t => String(t.id), timerRow);
+			webuiSync(list, timers, t => String(t.id), timerRow);
 		}
 
 		function detail(label, value) {
-			return [ywebEl('span', {className: 'yweb-timer-detail-label'}, label + ':'),
-				ywebEl('span', {className: 'yweb-timer-detail-value'}, value)];
+			return [webuiEl('span', {className: 'webui-timer-detail-label'}, label + ':'),
+				webuiEl('span', {className: 'webui-timer-detail-value'}, value)];
 		}
 
 		function timerRow(timer) {
 			const typeNum = typeNumber(timer);
 			const state = timer.state || 0;
 			const channel = names[channelOf(timer)] || '';
-			const typeLabel = TIMER_TYPE_LABELS[typeNum] || YWEB_TIMER_TYPES[typeNum] || String(timer.kind);
+			const typeLabel = TIMER_TYPE_LABELS[typeNum] || WEBUI_TIMER_TYPES[typeNum] || String(timer.kind);
 			const title = timer.title || channel || typeLabel;
 			const stateLabel = TIMER_STATE_LABELS[state] || '';
 			const rep = repeatText(timer);
@@ -780,17 +780,17 @@
 			const isRecording = typeNum === 5 || typeNum === 9;
 
 			const badges = [];
-			if (timer.repeat) badges.push(ywebEl('span', {className: 'yweb-timer-badge yweb-timer-badge-repeat'}, rep));
-			if (state === 2) badges.push(ywebEl('span', {className: 'yweb-timer-badge yweb-timer-badge-state running'}, stateLabel));
-			else if (state >= 3) badges.push(ywebEl('span', {className: 'yweb-timer-badge yweb-timer-badge-state finished'}, stateLabel));
+			if (timer.repeat) badges.push(webuiEl('span', {className: 'webui-timer-badge webui-timer-badge-repeat'}, rep));
+			if (state === 2) badges.push(webuiEl('span', {className: 'webui-timer-badge webui-timer-badge-state running'}, stateLabel));
+			else if (state >= 3) badges.push(webuiEl('span', {className: 'webui-timer-badge webui-timer-badge-state finished'}, stateLabel));
 
 			const actions = [];
 			if (state < 2)
-				actions.push(actionButton('yweb-btn yweb-btn-edit', SVG_EDIT, '{=L:yw.tm.edit=}', '{=L:yw.tm.edit_title=}', () => editTimer(timer.id)));
+				actions.push(actionButton('webui-btn webui-btn-edit', SVG_EDIT, '{=L:yw.tm.edit=}', '{=L:yw.tm.edit_title=}', () => editTimer(timer.id)));
 			if (state === 2 && isRecording)
-				actions.push(actionButton('yweb-btn yweb-btn-stop', SVG_STOP, '{=L:yw.tm.stop=}', '{=L:yw.dash.record_stop=}', () => stopRecording(timer.id, title)));
+				actions.push(actionButton('webui-btn webui-btn-stop', SVG_STOP, '{=L:yw.tm.stop=}', '{=L:yw.dash.record_stop=}', () => stopRecording(timer.id, title)));
 			else
-				actions.push(actionButton('yweb-btn', SVG_DELETE, '{=L:yw.fm.delete=}', '{=L:yw.tm.delete_title=}', () => deleteTimer(timer.id, title)));
+				actions.push(actionButton('webui-btn', SVG_DELETE, '{=L:yw.fm.delete=}', '{=L:yw.tm.delete_title=}', () => deleteTimer(timer.id, title)));
 
 			const details = [].concat(
 				detail('{=L:yw.tm.type=}', typeLabel),
@@ -805,42 +805,42 @@
 				timer.epg_id && timer.epg_id !== '0' ? detail('EPG-ID', timer.epg_id) : [],
 				detail('Timer-ID', String(timer.id)));
 
-			return ywebEl('li', {className: 'yweb-timer-row' + (state === 2 ? ' state-running' : (state >= 3 ? ' state-finished' : '')),
+			return webuiEl('li', {className: 'webui-timer-row' + (state === 2 ? ' state-running' : (state >= 3 ? ' state-finished' : '')),
 				data: {id: String(timer.id)}, on: {click: toggleTimerDetail}},
-				ywebEl('div', {className: 'yweb-timer-main'},
-					ywebMarkup(ywebGetTimerIconHtml(YWEB_TIMER_TYPES[typeNum] || '')),
-					ywebMarkup(SVG_EXPAND),
-					ywebEl('div', {className: 'yweb-timer-row-info'},
-						ywebEl('div', {className: 'yweb-timer-row-title'}, title),
-						ywebEl('div', {className: 'yweb-timer-row-meta'},
-							channel ? ywebEl('span', {className: 'yweb-timer-row-channel'}, channel) : null,
+				webuiEl('div', {className: 'webui-timer-main'},
+					webuiMarkup(webuiGetTimerIconHtml(WEBUI_TIMER_TYPES[typeNum] || '')),
+					webuiMarkup(SVG_EXPAND),
+					webuiEl('div', {className: 'webui-timer-row-info'},
+						webuiEl('div', {className: 'webui-timer-row-title'}, title),
+						webuiEl('div', {className: 'webui-timer-row-meta'},
+							channel ? webuiEl('span', {className: 'webui-timer-row-channel'}, channel) : null,
 							badges)),
-					ywebEl('div', {className: 'yweb-timer-row-time'},
-						ywebEl('div', {className: 'yweb-timer-row-date'}, dateOf(timer.start)),
-						ywebEl('div', {className: 'yweb-timer-row-hours'}, timeRange)),
-					ywebEl('div', {className: 'yweb-timer-actions', on: {click: e => e.stopPropagation()}}, actions)),
-				ywebEl('div', {className: 'yweb-timer-detail', id: 'detail-' + timer.id},
-					ywebEl('div', {className: 'yweb-timer-detail-grid'}, details)));
+					webuiEl('div', {className: 'webui-timer-row-time'},
+						webuiEl('div', {className: 'webui-timer-row-date'}, dateOf(timer.start)),
+						webuiEl('div', {className: 'webui-timer-row-hours'}, timeRange)),
+					webuiEl('div', {className: 'webui-timer-actions', on: {click: e => e.stopPropagation()}}, actions)),
+				webuiEl('div', {className: 'webui-timer-detail', id: 'detail-' + timer.id},
+					webuiEl('div', {className: 'webui-timer-detail-grid'}, details)));
 		}
 
 		function actionButton(cls, svg, label, title, onClick) {
-			return ywebEl('button', {className: cls, title: title, on: {click: onClick}},
-				ywebMarkup(svg), ywebEl('span', {className: 'btn-label'}, label));
+			return webuiEl('button', {className: cls, title: title, on: {click: onClick}},
+				webuiMarkup(svg), webuiEl('span', {className: 'btn-label'}, label));
 		}
 
 		function toggleTimerDetail(event) {
-			if (event.target.closest('.yweb-timer-actions')) return;
-			const row = event.target.closest('.yweb-timer-row');
+			if (event.target.closest('.webui-timer-actions')) return;
+			const row = event.target.closest('.webui-timer-row');
 			if (!row) return;
 			const wasExpanded = row.classList.contains('row-expanded');
-			document.querySelectorAll('.yweb-timer-row.row-expanded').forEach(r => r.classList.remove('row-expanded'));
+			document.querySelectorAll('.webui-timer-row.row-expanded').forEach(r => r.classList.remove('row-expanded'));
 			if (!wasExpanded) row.classList.add('row-expanded');
 		}
 
 		// The questions are sheets; a title goes in as text
 		function ask(heading, text, label, danger) {
 			return new Promise(resolve => {
-				ywebSheet({title: heading, body: ywebEl('p', {}, text),
+				webuiSheet({title: heading, body: webuiEl('p', {}, text),
 					actions: [{label: '{=L:yw.tm.cancel=}', value: false},
 						{label: label, value: true, primary: true, danger: !!danger}],
 					onClose: result => resolve(result === true)});
@@ -849,65 +849,65 @@
 
 		async function stopRecording(id, title) {
 			if (await ask('{=L:yw.dash.record_stop=}', '{=L:yw.bc.recording=} "' + title + '" {=L:yw.tm.stop_confirm=}', '{=L:yw.tm.stop=}', true))
-				await ywebStopRecording(id);	// the record event reads the list again
+				await webuiStopRecording(id);	// the record event reads the list again
 		}
 
 		async function deleteTimer(id, title) {
 			if (!await ask('{=L:yw.tm.delete_title=}', 'Timer "' + title + '" {=L:yw.fm.delete_confirm=}', '{=L:yw.fm.delete=}', true))
 				return;
 			try {
-				await ywebV1('DELETE', '/timers/' + encodeURIComponent(id));
+				await webuiV1('DELETE', '/timers/' + encodeURIComponent(id));
 				await loadTimers();
 			} catch (e) {
-				ywebShowToast(e.message, true);
+				webuiShowToast(e.message, true);
 			}
 		}
 
 		// Initialize: the list follows the timer and record events; without
 		// an open stream it is read every minute
 		loadTimers();
-		ywebV1Events({
+		webuiV1Events({
 			'timer-changed': loadTimers,
 			'record-start': loadTimers,
 			'record-stop': loadTimers
 		});
-		setInterval(() => { if (!ywebV1EventsLive()) loadTimers(); }, 60000);
-		ywebV1('GET', '/channels/current').then(ch => {
+		setInterval(() => { if (!webuiV1EventsLive()) loadTimers(); }, 60000);
+		webuiV1('GET', '/channels/current').then(ch => {
 			currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 		}).catch(() => {});
 
 		document.addEventListener('DOMContentLoaded', function() {
-			ywebInitMobileAccordion({
+			webuiInitMobileAccordion({
 				cardOrder: ['card-filter', 'card-timers'],
-				storageKey: 'yweb-timer-card',
+				storageKey: 'webui-timer-card',
 				defaultCard: 'card-timers',
 				breakpoint: 800,
 				indicatorId: 'cardIndicator',
-				containerSelector: '.yweb-timer-grid',
+				containerSelector: '.webui-timer-grid',
 				mode: 'collapsed'
 			});
 		});
 
 		function isAtScrollTop() {
-			const expandedCard = document.querySelector('.yweb-card:not(.collapsed)');
+			const expandedCard = document.querySelector('.webui-card:not(.collapsed)');
 			if (expandedCard) {
-				const cardBody = expandedCard.querySelector('.yweb-card-body');
+				const cardBody = expandedCard.querySelector('.webui-card-body');
 				if (cardBody && cardBody.scrollTop > 5) return false;
 			}
-			const main = document.querySelector('.yweb-timer-grid');
+			const main = document.querySelector('.webui-timer-grid');
 			if (main && main.scrollTop > 5) return false;
 			return true;
 		}
 
-		if (typeof ywebSetRefreshCallback === 'function') {
-			ywebSetRefreshCallback(function() {
+		if (typeof webuiSetRefreshCallback === 'function') {
+			webuiSetRefreshCallback(function() {
 				if (!isAtScrollTop()) return Promise.resolve();
 				return loadTimers();
 			});
 		}
 
-		if (typeof window.ywebIsAtScrollTop === 'undefined') {
-			window.ywebIsAtScrollTop = isAtScrollTop;
+		if (typeof window.webuiIsAtScrollTop === 'undefined') {
+			window.webuiIsAtScrollTop = isAtScrollTop;
 		}
 
 		// ===== Timer Modal =====
@@ -916,22 +916,22 @@
 
 		function buildTimerModalHtml() {
 			const now = new Date();
-			const todayStr = ywebFormatDateInput(now);
-			const nowTime = ywebFormatTime(now);
+			const todayStr = webuiFormatDateInput(now);
+			const nowTime = webuiFormatTime(now);
 			const stop = new Date(now.getTime() + 2 * 3600000);
-			const stopDate = ywebFormatDateInput(stop);
-			const stopTime = ywebFormatTime(stop);
+			const stopDate = webuiFormatDateInput(stop);
+			const stopTime = webuiFormatTime(stop);
 
 			return `
-			<div class="yweb-modal-header">
+			<div class="webui-modal-header">
 				<h3 id="timerModalTitle">{=L:yw.tm.new=}</h3>
-				<button class="yweb-modal-close" onclick="closeTimerModal()">
+				<button class="webui-modal-close" onclick="closeTimerModal()">
 					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
 				</button>
 			</div>
-			<div class="yweb-modal-body">
-				<div class="yweb-form-section">
-					<div class="yweb-form-row">
+			<div class="webui-modal-body">
+				<div class="webui-form-section">
+					<div class="webui-form-row">
 						<label for="tmType">{=L:yw.tm.type=}</label>
 						<select id="tmType" onchange="onTimerTypeChange()" data-fixed>
 							<option value="5">{=L:yw.bc.recording=}</option>
@@ -945,27 +945,27 @@
 					</div>
 				</div>
 
-				<div class="yweb-form-section">
-					<div class="yweb-form-section-title">Zeiten</div>
-					<div class="yweb-form-row">
+				<div class="webui-form-section">
+					<div class="webui-form-section-title">Zeiten</div>
+					<div class="webui-form-row">
 						<label for="tmAlDate">Start</label>
-						<div class="yweb-time-group">
+						<div class="webui-time-group">
 							<input type="date" id="tmAlDate" value="${todayStr}">
 							<input type="time" id="tmAlTime" value="${nowTime}">
 						</div>
 					</div>
-					<div class="yweb-form-row" id="tmStopRow">
+					<div class="webui-form-row" id="tmStopRow">
 						<label for="tmStDate">{=L:yw.tm.end=}</label>
-						<div class="yweb-time-group">
+						<div class="webui-time-group">
 							<input type="date" id="tmStDate" value="${stopDate}">
 							<input type="time" id="tmStTime" value="${stopTime}">
 						</div>
 					</div>
 				</div>
 
-				<div class="yweb-form-section">
-					<div class="yweb-form-section-title">{=L:yw.tm.repeat=}</div>
-					<div class="yweb-form-row">
+				<div class="webui-form-section">
+					<div class="webui-form-section-title">{=L:yw.tm.repeat=}</div>
+					<div class="webui-form-row">
 						<label for="tmRepeat">{=L:yw.bqe.mode=}</label>
 						<select id="tmRepeat" onchange="onRepeatChange()">
 							<option value="0">{=L:yw.tm.once=}</option>
@@ -977,9 +977,9 @@
 							<option value="256">{=L:yw.tm.weekdays=}</option>
 						</select>
 					</div>
-					<div class="yweb-form-row yweb-form-hidden" id="tmWeekdaysRow">
+					<div class="webui-form-row webui-form-hidden" id="tmWeekdaysRow">
 						<label>{=L:yw.tm.days=}</label>
-						<div class="yweb-form-weekdays">
+						<div class="webui-form-weekdays">
 							<label><input type="checkbox" name="tmWd" value="512"><span>Mo</span></label>
 							<label><input type="checkbox" name="tmWd" value="1024"><span>Di</span></label>
 							<label><input type="checkbox" name="tmWd" value="2048"><span>Mi</span></label>
@@ -989,21 +989,21 @@
 							<label><input type="checkbox" name="tmWd" value="32768"><span>So</span></label>
 						</div>
 					</div>
-					<div class="yweb-form-row yweb-form-hidden" id="tmRepcountRow">
+					<div class="webui-form-row webui-form-hidden" id="tmRepcountRow">
 						<label for="tmRepcount">{=L:yw.tm.count=}</label>
 						<input type="number" id="tmRepcount" min="0" max="999" value="0" placeholder="{=L:yw.tm.unlimited=}">
 					</div>
 				</div>
 
-				<div class="yweb-form-section" id="tmChannelSection">
-					<div class="yweb-form-section-title">{=L:yw.msg.channel=}</div>
-					<div class="yweb-form-row">
+				<div class="webui-form-section" id="tmChannelSection">
+					<div class="webui-form-section-title">{=L:yw.msg.channel=}</div>
+					<div class="webui-form-row">
 						<label for="tmBouquet">Bouquet</label>
 						<select id="tmBouquet" onchange="onBouquetChange()" data-fixed>
 							<option value="">{=L:yw.msg.loading=}</option>
 						</select>
 					</div>
-					<div class="yweb-form-row">
+					<div class="webui-form-row">
 						<label for="tmChannel">{=L:yw.dash.channels=}</label>
 						<select id="tmChannel" data-fixed>
 							<option value="">{=L:yw.timer.choose_bq=}</option>
@@ -1011,27 +1011,27 @@
 					</div>
 				</div>
 
-				<div class="yweb-form-section" id="tmRecordSection">
-					<div class="yweb-form-section-title">Aufnahme-Optionen</div>
-					<div class="yweb-form-row">
+				<div class="webui-form-section" id="tmRecordSection">
+					<div class="webui-form-section-title">Aufnahme-Optionen</div>
+					<div class="webui-form-row">
 						<label for="tmRecDir">{=L:yw.fm.folder=}</label>
 						<select id="tmRecDir" data-fixed onchange="onRecDirChange(this)">
 							<option value="">Standard</option>
 						</select>
 					</div>
-					<div class="yweb-form-check">
+					<div class="webui-form-check">
 						<input type="checkbox" id="tmRecSafety" checked data-fixed>
 						<label for="tmRecSafety">{=L:yw.tm.safety=}</label>
 					</div>
-					<div class="yweb-form-check">
+					<div class="webui-form-check">
 						<input type="checkbox" id="tmAutoAdjust" data-fixed>
 						<label for="tmAutoAdjust">{=L:yw.tm.auto_adjust=}</label>
 					</div>
 				</div>
 
-				<div class="yweb-form-section yweb-form-hidden" id="tmStandbySection">
-					<div class="yweb-form-section-title">Standby</div>
-					<div class="yweb-form-row">
+				<div class="webui-form-section webui-form-hidden" id="tmStandbySection">
+					<div class="webui-form-section-title">Standby</div>
+					<div class="webui-form-row">
 						<label>{=L:yw.bqe.mode=}</label>
 						<select id="tmStandbyOn" data-fixed>
 							<option value="1">Einschalten</option>
@@ -1040,23 +1040,23 @@
 					</div>
 				</div>
 
-				<div class="yweb-form-section yweb-form-hidden" id="tmMessageSection">
-					<div class="yweb-form-section-title">Erinnerung</div>
-					<div class="yweb-form-row">
+				<div class="webui-form-section webui-form-hidden" id="tmMessageSection">
+					<div class="webui-form-section-title">Erinnerung</div>
+					<div class="webui-form-row">
 						<label for="tmMessage">{=L:yw.tools.message=}</label>
 						<input type="text" id="tmMessage" maxlength="30" placeholder="Nachricht eingeben..." data-fixed>
 					</div>
 				</div>
 
-				<div class="yweb-form-section yweb-form-hidden" id="tmPluginSection">
-					<div class="yweb-form-section-title">Plugin</div>
-					<div class="yweb-form-row">
+				<div class="webui-form-section webui-form-hidden" id="tmPluginSection">
+					<div class="webui-form-section-title">Plugin</div>
+					<div class="webui-form-row">
 						<label for="tmPlugin">Name</label>
 						<input type="text" id="tmPlugin" maxlength="30" placeholder="Plugin-Name" data-fixed>
 					</div>
 				</div>
 			</div>
-			<div class="yweb-modal-footer">
+			<div class="webui-modal-footer">
 				<button onclick="closeTimerModal()">{=L:yw.tm.cancel=}</button>
 				<button class="btn-primary" id="tmSubmitBtn" onclick="submitTimer()">{=L:yw.bqe.save=}</button>
 			</div>`;
@@ -1065,13 +1065,13 @@
 		function openTimerModal(editTimer) {
 			timerModalEditId = null;
 			const backdrop = document.createElement('div');
-			backdrop.className = 'yweb-modal-backdrop open';
+			backdrop.className = 'webui-modal-backdrop open';
 			backdrop.id = 'timerModalBackdrop';
 			backdrop.onclick = function(e) {
 				if (e.target === backdrop) closeTimerModal();
 			};
 			const modal = document.createElement('div');
-			modal.className = 'yweb-modal';
+			modal.className = 'webui-modal';
 			// a template of constants and the clock; nothing from the box
 			modal.innerHTML = buildTimerModalHtml();
 			backdrop.appendChild(modal);
@@ -1110,7 +1110,7 @@
 
 		function toggle(id, show) {
 			const el = document.getElementById(id);
-			if (el) el.classList.toggle('yweb-form-hidden', !show);
+			if (el) el.classList.toggle('webui-form-hidden', !show);
 		}
 
 		function onRepeatChange() {
@@ -1128,14 +1128,14 @@
 			const sel = document.getElementById('tmBouquet');
 			if (!sel) return [];
 			try {
-				const r = await ywebV1('GET', '/bouquets');
+				const r = await webuiV1('GET', '/bouquets');
 				const bouquets = ((r && r.items) || []).filter(b =>
 					!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
-				options(sel, [ywebEl('option', {value: ''}, '{=L:yw.timer.choose_bq=}')]
-					.concat(bouquets.map(b => ywebEl('option', {value: String(b.id)}, b.name))));
+				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.timer.choose_bq=}')]
+					.concat(bouquets.map(b => webuiEl('option', {value: String(b.id)}, b.name))));
 				return bouquets;
 			} catch (e) {
-				options(sel, [ywebEl('option', {value: ''}, '{=L:yw.msg.load_fail=}')]);
+				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.msg.load_fail=}')]);
 				return [];
 			}
 		}
@@ -1145,16 +1145,16 @@
 			const sel = document.getElementById('tmChannel');
 			if (!sel) return;
 			if (!bouquet) {
-				options(sel, [ywebEl('option', {value: ''}, '{=L:yw.timer.choose_bq=}')]);
+				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.timer.choose_bq=}')]);
 				return;
 			}
-			options(sel, [ywebEl('option', {value: ''}, '{=L:yw.msg.loading=}')]);
+			options(sel, [webuiEl('option', {value: ''}, '{=L:yw.msg.loading=}')]);
 			try {
-				const channels = await ywebV1All('/channels', {mode: currentMode, bouquet: bouquet});
-				options(sel, channels.length ? channels.map(ch => ywebEl('option', {value: ch.id}, ch.name))
-					: [ywebEl('option', {value: ''}, '{=L:yw.bq.no_channels=}')]);
+				const channels = await webuiV1All('/channels', {mode: currentMode, bouquet: bouquet});
+				options(sel, channels.length ? channels.map(ch => webuiEl('option', {value: ch.id}, ch.name))
+					: [webuiEl('option', {value: ''}, '{=L:yw.bq.no_channels=}')]);
 			} catch (e) {
-				options(sel, [ywebEl('option', {value: ''}, '{=L:yw.msg.load_fail=}')]);
+				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.msg.load_fail=}')]);
 			}
 		}
 
@@ -1169,15 +1169,15 @@
 			if (!sel) return;
 			try {
 				if (!cachedRecDirs) {
-					const data = await ywebV1('GET', '/recordings/folders');
+					const data = await webuiV1('GET', '/recordings/folders');
 					cachedRecDirs = ((data && data.items) || []).filter(f => f.present).map(f => f.path);
 					cachedRecPartial = !!(data && data.partial);
 				}
-				const items = [ywebEl('option', {value: ''}, 'Standard')]
-					.concat(cachedRecDirs.map(dir => ywebEl('option', {value: dir}, dir)));
+				const items = [webuiEl('option', {value: ''}, 'Standard')]
+					.concat(cachedRecDirs.map(dir => webuiEl('option', {value: dir}, dir)));
 				if (cachedRecPartial)
-					items.push(ywebEl('option', {value: '', disabled: true}, '\u2026 {=L:yw.tm.dir_cut=}'));
-				items.push(ywebEl('option', {value: REC_DIR_OTHER}, '{=L:yw.tm.dir_other=}'));
+					items.push(webuiEl('option', {value: '', disabled: true}, '\u2026 {=L:yw.tm.dir_cut=}'));
+				items.push(webuiEl('option', {value: REC_DIR_OTHER}, '{=L:yw.tm.dir_other=}'));
 				options(sel, items);
 				if (sel.dataset.want) offerDir(sel, sel.dataset.want);
 			} catch (e) {
@@ -1192,17 +1192,17 @@
 				sel.dataset.last = sel.value;
 				return;
 			}
-			const input = ywebEl('input', {type: 'text', value: sel.dataset.last || '/', attrs: {'aria-label': '{=L:yw.tm.dir_ask=}'}});
+			const input = webuiEl('input', {type: 'text', value: sel.dataset.last || '/', attrs: {'aria-label': '{=L:yw.tm.dir_ask=}'}});
 			const back = function() { sel.value = sel.dataset.last || ''; };
-			ywebSheet({
+			webuiSheet({
 				title: '{=L:yw.tm.dir_ask=}',
-				body: ywebEl('div', {}, input),
+				body: webuiEl('div', {}, input),
 				actions: [
 					{label: '{=L:yw.msg.cancel=}', value: false},
 					{label: 'OK', primary: true, onClick: function() {
 						const dir = input.value.trim();
 						if (dir.charAt(0) !== '/' || dir.indexOf('/../') >= 0 || /\/\.\.$/.test(dir)) {
-							ywebShowToast('{=L:yw.tm.dir_bad=}', true);
+							webuiShowToast('{=L:yw.tm.dir_bad=}', true);
 							return false;
 						}
 						offerDir(sel, dir);
@@ -1224,7 +1224,7 @@
 				return;
 			}
 			const other = Array.from(sel.options).find(o => o.value === REC_DIR_OTHER);
-			sel.insertBefore(ywebEl('option', {value: dir}, dir), other || null);
+			sel.insertBefore(webuiEl('option', {value: dir}, dir), other || null);
 			sel.value = dir;
 		}
 
@@ -1252,24 +1252,24 @@
 			const stTime = document.getElementById('tmStTime').value;
 
 			if (!alDate || !alTime) {
-				ywebShowToast('{=L:yw.tm.need_start=}', true);
+				webuiShowToast('{=L:yw.tm.need_start=}', true);
 				return;
 			}
 			const needsStop = type === '5';
 			if (needsStop && (!stDate || !stTime)) {
-				ywebShowToast('{=L:yw.tm.need_end=}', true);
+				webuiShowToast('{=L:yw.tm.need_end=}', true);
 				return;
 			}
 			const needsChannel = type === '5' || type === '3';
 			const channelId = document.getElementById('tmChannel') ? document.getElementById('tmChannel').value : '';
 			if (!timerModalEditId && needsChannel && !channelId) {
-				ywebShowToast('{=L:yw.tm.need_channel=}', true);
+				webuiShowToast('{=L:yw.tm.need_channel=}', true);
 				return;
 			}
 
 			const repeat = repeatValue();
 			if (repeat === null) {
-				ywebShowToast('{=L:yw.tm.need_day=}', true);
+				webuiShowToast('{=L:yw.tm.need_day=}', true);
 				return;
 			}
 			const repcount = parseInt(document.getElementById('tmRepcount').value) || 0;
@@ -1297,15 +1297,15 @@
 			btn.disabled = true;
 			try {
 				if (timerModalEditId)
-					await ywebV1('PATCH', '/timers/' + encodeURIComponent(timerModalEditId), {body: body});
+					await webuiV1('PATCH', '/timers/' + encodeURIComponent(timerModalEditId), {body: body});
 				else
-					await ywebV1('POST', '/timers', {body: body});
+					await webuiV1('POST', '/timers', {body: body});
 				const changed = !!timerModalEditId;
 				closeTimerModal();
-				ywebShowToast(changed ? '{=L:yw.tm.changed=}' : '{=L:yw.tm.created=}');
+				webuiShowToast(changed ? '{=L:yw.tm.changed=}' : '{=L:yw.tm.created=}');
 				await loadTimers();
 			} catch (e) {
-				ywebShowToast('{=L:yw.tm.save_fail=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.tm.save_fail=}: ' + e.message, true);
 				btn.textContent = timerModalEditId ? '{=L:yw.tm.change=}' : '{=L:yw.bqe.save=}';
 				btn.disabled = false;
 			}
@@ -1314,7 +1314,7 @@
 		function editTimer(timerId) {
 			const timer = allTimers.find(t => t.id === timerId);
 			if (!timer) {
-				ywebShowToast('{=L:yw.tm.not_found=}', true);
+				webuiShowToast('{=L:yw.tm.not_found=}', true);
 				return;
 			}
 			openTimerModal(timer);
@@ -1329,12 +1329,12 @@
 			onTimerTypeChange();
 
 			const start = new Date(timer.start * 1000);
-			document.getElementById('tmAlDate').value = ywebFormatDateInput(start);
-			document.getElementById('tmAlTime').value = ywebFormatTime(start);
+			document.getElementById('tmAlDate').value = webuiFormatDateInput(start);
+			document.getElementById('tmAlTime').value = webuiFormatTime(start);
 			if (timer.stop) {
 				const stop = new Date(timer.stop * 1000);
-				document.getElementById('tmStDate').value = ywebFormatDateInput(stop);
-				document.getElementById('tmStTime').value = ywebFormatTime(stop);
+				document.getElementById('tmStDate').value = webuiFormatDateInput(stop);
+				document.getElementById('tmStTime').value = webuiFormatTime(stop);
 			}
 
 			const rep = timer.repeat || 0;
@@ -1343,7 +1343,7 @@
 			if (repSel.value === '') {
 				// a repetition this form has no row for (set at the box): kept as
 				// it is and named, rather than turned into "once"
-				repSel.appendChild(ywebEl('option', {value: String(rep), data: {kept: '1'}}, '#' + rep));
+				repSel.appendChild(webuiEl('option', {value: String(rep), data: {kept: '1'}}, '#' + rep));
 				repSel.value = String(rep);
 			}
 			document.querySelectorAll('input[name="tmWd"]').forEach(cb => {
@@ -1369,7 +1369,7 @@
 		// The bouquet holding the channel, asked of the box
 		async function selectChannelById(channelId) {
 			const shown = await loadBouquets();
-			const holding = await ywebV1('GET', '/bouquets', {query: {holds: channelId}}).catch(() => null);
+			const holding = await webuiV1('GET', '/bouquets', {query: {holds: channelId}}).catch(() => null);
 			const found = holding && (holding.items || []).find(x => shown.some(b => b.id === x.id));
 			const cSel = document.getElementById('tmChannel');
 			if (found) {
@@ -1378,7 +1378,7 @@
 				if (cSel) cSel.value = channelId;
 				if (cSel && cSel.value === channelId) return;
 			}
-			if (cSel) options(cSel, [ywebEl('option', {value: channelId}, names[channelId] || channelId)]);
+			if (cSel) options(cSel, [webuiEl('option', {value: channelId}, names[channelId] || channelId)]);
 		}
 	</script>
 </body>

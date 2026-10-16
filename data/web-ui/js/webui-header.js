@@ -1,27 +1,27 @@
 /**
- * yWeb Common Header Component
- * Provides consistent header across all yWeb pages
+ * Neutrino-Web-UI common header
+ * Provides the same header on every page of the interface
  */
 
 // Central configuration
-const YWEB_CONFIG = {
+const WEBUI_CONFIG = {
 	logo: '/img/logo.png',
 	title: 'Neutrino-Web-UI'
 };
 
 // i18n helper: reads the server-rendered dictionary from Y_Lang.yjs
-// (window.YWEB_L, CLanguage chain incl. EN-Fallback). Second argument is
+// (window.WEBUI_L, CLanguage chain incl. EN-Fallback). Second argument is
 // the English fallback for pages that do not load the dictionary and for
 // keys the server marks as missing ("# key #").
-function ywebL(key, fallbackEN) {
-	var d = window.YWEB_L;
+function webuiL(key, fallbackEN) {
+	var d = window.WEBUI_L;
 	var v = d && d[key];
 	if (v && v === '# yw.' + key + ' #') v = ''; // CLanguage missing-marker
 	return v || fallbackEN || key;
 }
 
 // SVG Icons for menu items
-const YWEB_ICONS = {
+const WEBUI_ICONS = {
 	dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
 	bouquets: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>',
 	epg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
@@ -33,61 +33,61 @@ const YWEB_ICONS = {
 };
 
 // Shared modal close button
-function _ywebCloseBtn(onclick) {
-	return '<button type="button" class="yweb-modal-close" aria-label="Close" onclick="' + onclick + '">' +
+function _webuiCloseBtn(onclick) {
+	return '<button type="button" class="webui-modal-close" aria-label="Close" onclick="' + onclick + '">' +
 		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
 	'</button>';
 }
 
 // Footer HTML Template
-const YWEB_FOOTER_HTML = `
-<footer class="yweb-footer">
-	Neutrino-Web-UI <span id="yweb-footer-version">--</span> ·
-	<a href="#" onclick="ywebShowAbout(); return false;">${ywebL('about.link', 'About')}</a> ·
-	<span id="yweb-footer-copyright">Copyright © Tuxbox Project</span>
+const WEBUI_FOOTER_HTML = `
+<footer class="webui-footer">
+	Neutrino-Web-UI <span id="webui-footer-version">--</span> ·
+	<a href="#" onclick="webuiShowAbout(); return false;">${webuiL('about.link', 'About')}</a> ·
+	<span id="webui-footer-copyright">Copyright © Tuxbox Project</span>
 </footer>
 `;
 
 // About Modal HTML Template
-const YWEB_ABOUT_HTML = `
-<div class="yweb-modal-backdrop" id="yweb-about-modal" onclick="ywebCloseAbout(event)">
-	<div class="yweb-modal" onclick="event.stopPropagation()">
-		<div class="yweb-modal-header">
-			<h3><img src="${YWEB_CONFIG.logo}" alt="" onerror="this.remove()"> ${YWEB_CONFIG.title}</h3>
-			${_ywebCloseBtn('ywebCloseAbout()')}
+const WEBUI_ABOUT_HTML = `
+<div class="webui-modal-backdrop" id="webui-about-modal" onclick="webuiCloseAbout(event)">
+	<div class="webui-modal" onclick="event.stopPropagation()">
+		<div class="webui-modal-header">
+			<h3><img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()"> ${WEBUI_CONFIG.title}</h3>
+			${_webuiCloseBtn('webuiCloseAbout()')}
 		</div>
-		<div class="yweb-modal-body">
-			<div class="yweb-about-section">
+		<div class="webui-modal-body">
+			<div class="webui-about-section">
 				<h4>Versionen</h4>
-				<div class="yweb-about-grid">
-					<span class="yweb-about-label">Neutrino-Web-UI</span>
-					<span class="yweb-about-value" id="about-yweb">--</span>
-					<span class="yweb-about-label">Neutrino</span>
-					<span class="yweb-about-value" id="about-neutrino">--</span>
-					<span class="yweb-about-label">API</span>
-					<span class="yweb-about-value" id="about-api">--</span>
+				<div class="webui-about-grid">
+					<span class="webui-about-label">Neutrino-Web-UI</span>
+					<span class="webui-about-value" id="about-webui">--</span>
+					<span class="webui-about-label">Neutrino</span>
+					<span class="webui-about-value" id="about-neutrino">--</span>
+					<span class="webui-about-label">API</span>
+					<span class="webui-about-value" id="about-api">--</span>
 				</div>
 			</div>
-			<div class="yweb-about-section">
+			<div class="webui-about-section">
 				<h4>System</h4>
-				<div class="yweb-about-grid">
-					<span class="yweb-about-label">Box</span>
-					<span class="yweb-about-value" id="about-box">--</span>
-					<span class="yweb-about-label">Architektur</span>
-					<span class="yweb-about-value" id="about-arch">--</span>
-					<span class="yweb-about-label">Betriebssystem</span>
-					<span class="yweb-about-value" id="about-os">--</span>
+				<div class="webui-about-grid">
+					<span class="webui-about-label">Box</span>
+					<span class="webui-about-value" id="about-box">--</span>
+					<span class="webui-about-label">Architektur</span>
+					<span class="webui-about-value" id="about-arch">--</span>
+					<span class="webui-about-label">Betriebssystem</span>
+					<span class="webui-about-value" id="about-os">--</span>
 				</div>
 			</div>
-			<div class="yweb-about-section">
+			<div class="webui-about-section">
 				<h4>Links</h4>
-				<div class="yweb-about-links" id="about-links">
-					<span class="yweb-about-label">Laden...</span>
+				<div class="webui-about-links" id="about-links">
+					<span class="webui-about-label">Laden...</span>
 				</div>
 			</div>
-			<div class="yweb-about-section">
+			<div class="webui-about-section">
 				<h4>Lizenz &amp; Copyright</h4>
-				<div class="yweb-about-legal">
+				<div class="webui-about-legal">
 					<p><strong>Neutrino-Web-UI</strong> - based on yWeb by yjogol<br>
 					<span id="about-copyright">Copyright © Tuxbox Project</span></p>
 					<p>Lizenziert unter der <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank">GNU GPL v2</a></p>
@@ -101,60 +101,60 @@ const YWEB_ABOUT_HTML = `
 `;
 
 // Generate header HTML with optional active page
-function ywebGetHeaderHTML(activePage) {
-	const nav = YWEB_CONFIG.navigation || [
-		{ page: 'dashboard', href: '/dashboard.yhtm', icon: 'dashboard', label: ywebL('nav.dashboard', 'Dashboard') },
-		{ page: 'bouquets', href: '/bouquets.yhtm', icon: 'bouquets', label: ywebL('nav.bouquets', 'Bouquets') },
-		{ page: 'epg', href: '/epg.yhtm', icon: 'epg', label: ywebL('nav.epg', 'EPG') },
-		{ page: 'timer', href: '/timer.yhtm', icon: 'timer', label: ywebL('nav.timer', 'Timer') },
-		{ page: 'recordings', href: '/recordings.yhtm', icon: 'recordings', label: ywebL('nav.recordings', 'Recordings') },
-		{ page: 'settings', href: '/settings.yhtm', icon: 'settings', label: ywebL('nav.settings', 'Settings') },
-		{ page: 'tools', href: '/tools.yhtm', icon: 'tools', label: ywebL('nav.tools', 'Tools') }
+function webuiGetHeaderHTML(activePage) {
+	const nav = WEBUI_CONFIG.navigation || [
+		{ page: 'dashboard', href: '/dashboard.yhtm', icon: 'dashboard', label: webuiL('nav.dashboard', 'Dashboard') },
+		{ page: 'bouquets', href: '/bouquets.yhtm', icon: 'bouquets', label: webuiL('nav.bouquets', 'Bouquets') },
+		{ page: 'epg', href: '/epg.yhtm', icon: 'epg', label: webuiL('nav.epg', 'EPG') },
+		{ page: 'timer', href: '/timer.yhtm', icon: 'timer', label: webuiL('nav.timer', 'Timer') },
+		{ page: 'recordings', href: '/recordings.yhtm', icon: 'recordings', label: webuiL('nav.recordings', 'Recordings') },
+		{ page: 'settings', href: '/settings.yhtm', icon: 'settings', label: webuiL('nav.settings', 'Settings') },
+		{ page: 'tools', href: '/tools.yhtm', icon: 'tools', label: webuiL('nav.tools', 'Tools') }
 	];
 
 	const navItems = nav.map(item => {
 		const active = item.page === activePage ? ' class="active"' : '';
-		return `<li><a href="${item.href}" data-page="${item.page}"${active}>${YWEB_ICONS[item.icon]}<span>${item.label}</span></a></li>`;
+		return `<li><a href="${item.href}" data-page="${item.page}"${active}>${WEBUI_ICONS[item.icon]}<span>${item.label}</span></a></li>`;
 	}).join('\n\t\t\t');
 
 	return `
-<header class="yweb-header">
+<header class="webui-header">
 	<nav>
-		<a href="/dashboard.yhtm" class="yweb-logo">
-			<img src="${YWEB_CONFIG.logo}" alt="" onerror="this.remove()">
-			<span>${YWEB_CONFIG.title}</span>
+		<a href="/dashboard.yhtm" class="webui-logo">
+			<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
+			<span>${WEBUI_CONFIG.title}</span>
 		</a>
 
-		<ul class="yweb-nav-links" id="yweb-nav-menu">
+		<ul class="webui-nav-links" id="webui-nav-menu">
 			${navItems}
 		</ul>
 
-		<div class="yweb-header-right">
-			<span class="yweb-hostname" id="yweb-hostname">--</span>
-			<span class="yweb-clock" id="yweb-clock">--:--</span>
-			<button class="yweb-theme-toggle yweb-lang-btn" onclick="ywebToggleLangMenu(event)" title="${ywebL('lang.title', 'Language')}">
+		<div class="webui-header-right">
+			<span class="webui-hostname" id="webui-hostname">--</span>
+			<span class="webui-clock" id="webui-clock">--:--</span>
+			<button class="webui-theme-toggle webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiL('lang.title', 'Language')}">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<circle cx="12" cy="12" r="9" stroke-width="2"/>
 					<path stroke-width="2" d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
 				</svg>
-				<span class="yweb-lang-code">${ywebActiveLangLabel()}</span>
+				<span class="webui-lang-code">${webuiActiveLangLabel()}</span>
 			</button>
-			<button class="yweb-theme-toggle" onclick="ywebToggleTheme()" title="${ywebL('theme.toggle', 'Toggle theme')}">
-				<svg id="yweb-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<button class="webui-theme-toggle" onclick="webuiToggleTheme()" title="${webuiL('theme.toggle', 'Toggle theme')}">
+				<svg id="webui-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
 				</svg>
-				<svg id="yweb-theme-icon-light" class="yweb-hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<svg id="webui-theme-icon-light" class="webui-hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
 				</svg>
 			</button>
-			<button class="yweb-theme-toggle" id="yweb-logout-btn" hidden onclick="ywebLogout()" aria-label="${ywebL('hdr.logout', 'Log out')}" title="${ywebL('hdr.logout', 'Log out')}">
+			<button class="webui-theme-toggle" id="webui-logout-btn" hidden onclick="webuiLogout()" aria-label="${webuiL('hdr.logout', 'Log out')}" title="${webuiL('hdr.logout', 'Log out')}">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
 					<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="16 17 21 12 16 7"/>
 					<line stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="21" y1="12" x2="9" y2="12"/>
 				</svg>
 			</button>
-			<button class="yweb-menu-toggle" onclick="ywebToggleMenu()" aria-label="Menü">
+			<button class="webui-menu-toggle" onclick="webuiToggleMenu()" aria-label="Menü">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
 				</svg>
@@ -165,28 +165,30 @@ function ywebGetHeaderHTML(activePage) {
 }
 
 // Legacy: static header HTML (for backward compatibility)
-const YWEB_HEADER_HTML = ywebGetHeaderHTML();
+const WEBUI_HEADER_HTML = webuiGetHeaderHTML();
 
-// Theme Management
-function ywebGetTheme() {
-	return localStorage.getItem('yweb-theme') || 'dark';
+// Theme Management. The choice was kept under 'yweb-theme' before the
+// interface took its own name; it is read from there until it is set again.
+function webuiGetTheme() {
+	return localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark';
 }
 
-function ywebSetTheme(theme) {
+function webuiSetTheme(theme) {
 	document.documentElement.setAttribute('data-theme', theme);
-	localStorage.setItem('yweb-theme', theme);
-	ywebUpdateThemeIcon(theme);
+	localStorage.setItem('webui-theme', theme);
+	localStorage.removeItem('yweb-theme');
+	webuiUpdateThemeIcon(theme);
 }
 
 // ═══ Sprachwechsler ═══
-// Sprachliste kommt aus Y_Lang.yjs (window.YWEB_LANGS_HTML, yparsed
+// Sprachliste kommt aus Y_Lang.yjs (window.WEBUI_LANGS_HTML, yparsed
 // option-Liste des languages/-Verzeichnisses, aktive Sprache selected)
 // Kuerzel der aktiven Sprache fuer den Header-Button (EN, DE, ...).
 // Der Globus allein war nicht als Sprachumschalter erkennbar; das aktive
 // Kuerzel daneben macht den Button eindeutig. Bekannte Sprachen werden auf
 // ihr ISO-Kuerzel gemappt, unbekannte auf die ersten zwei Buchstaben.
-function ywebActiveLangLabel() {
-	var langs = ywebGetLanguages();
+function webuiActiveLangLabel() {
+	var langs = webuiGetLanguages();
 	var name = '';
 	for (var i = 0; i < langs.length; i++)
 		if (langs[i].active) { name = langs[i].name; break; }
@@ -199,11 +201,11 @@ function ywebActiveLangLabel() {
 	return codes[name] || name.slice(0, 2).toUpperCase();
 }
 
-function ywebGetLanguages() {
+function webuiGetLanguages() {
 	var langs = [];
-	if (!window.YWEB_LANGS_HTML) return langs;
+	if (!window.WEBUI_LANGS_HTML) return langs;
 	var sel = document.createElement('select');
-	sel.innerHTML = window.YWEB_LANGS_HTML;
+	sel.innerHTML = window.WEBUI_LANGS_HTML;
 	for (var i = 0; i < sel.options.length; i++)
 		langs.push({name: sel.options[i].value, active: sel.options[i].hasAttribute('selected')});
 	return langs;
@@ -215,53 +217,53 @@ function ywebGetLanguages() {
 // (English.json, Deutsch.json, ...). English texts live inline in the
 // markup/manifest as fallback; there is deliberately no second fetch
 // of English.json. Reserved keys manifest.name/manifest.description
-// localize tile/nav/manager (hook in ywebDiscoverExtensions).
-var _ywebExtLang = {};
+// localize tile/nav/manager (hook in webuiDiscoverExtensions).
+var _webuiExtLang = {};
 
-function ywebActiveLangName() {
-	var langs = ywebGetLanguages();
+function webuiActiveLangName() {
+	var langs = webuiGetLanguages();
 	for (var i = 0; i < langs.length; i++)
 		if (langs[i].active) return langs[i].name;
 	return 'English';
 }
 
-async function ywebExtLangLoad(dir) {
-	if (_ywebExtLang[dir]) return _ywebExtLang[dir];
+async function webuiExtLangLoad(dir) {
+	if (_webuiExtLang[dir]) return _webuiExtLang[dir];
 	var dict = {};
 	try {
 		var resp = await fetch('/extensions/' + encodeURIComponent(dir) +
-			'/languages/' + encodeURIComponent(ywebActiveLangName()) + '.json',
+			'/languages/' + encodeURIComponent(webuiActiveLangName()) + '.json',
 			{cache: 'no-cache'});
 		if (resp.ok) dict = (await resp.json()) || {};
 	} catch (ignore) {} // a missing language pack is NOT an error
-	_ywebExtLang[dir] = dict;
+	_webuiExtLang[dir] = dict;
 	return dict;
 }
 
-function ywebExtL(dir, key, fallbackEN) {
-	var d = _ywebExtLang[dir];
+function webuiExtL(dir, key, fallbackEN) {
+	var d = _webuiExtLang[dir];
 	var v = d && d[key];
 	return v || fallbackEN || key;
 }
 
-function ywebToggleLangMenu(ev) {
+function webuiToggleLangMenu(ev) {
 	ev.stopPropagation();
-	var menu = document.getElementById('yweb-lang-menu');
+	var menu = document.getElementById('webui-lang-menu');
 	if (menu) { menu.remove(); return; }
-	var langs = ywebGetLanguages();
+	var langs = webuiGetLanguages();
 	if (!langs.length) {
-		ywebShowToast(ywebL('lang.none', 'No languages installed'), true);
+		webuiShowToast(webuiL('lang.none', 'No languages installed'), true);
 		return;
 	}
 	menu = document.createElement('div');
-	menu.id = 'yweb-lang-menu';
-	menu.className = 'yweb-lang-menu';
+	menu.id = 'webui-lang-menu';
+	menu.className = 'webui-lang-menu';
 	langs.forEach(function(l) {
 		var b = document.createElement('button');
 		b.type = 'button';
 		b.textContent = l.name;
 		if (l.active) b.classList.add('active');
-		b.onclick = function() { ywebSetLanguage(l.name); };
+		b.onclick = function() { webuiSetLanguage(l.name); };
 		menu.appendChild(b);
 	});
 	var r = ev.currentTarget.getBoundingClientRect();
@@ -271,61 +273,61 @@ function ywebToggleLangMenu(ev) {
 	setTimeout(function() {
 		document.addEventListener('click', function close() {
 			document.removeEventListener('click', close);
-			var m = document.getElementById('yweb-lang-menu');
+			var m = document.getElementById('webui-lang-menu');
 			if (m) m.remove();
 		});
 	}, 0);
 }
 
-async function ywebSetLanguage(lang) {
+async function webuiSetLanguage(lang) {
 	try {
 		// set-lang.yhtm ruft set_language: schreibt nhttpd.conf und
 		// laedt die Sprachdateien im Webserver neu; danach Reload
 		await fetch('/set-lang.yhtm?' + encodeURIComponent(lang), {cache: 'no-store'});
 		location.reload();
 	} catch (e) {
-		ywebShowToast('Error: ' + e.message, true);
+		webuiShowToast('Error: ' + e.message, true);
 	}
 }
 
-function ywebToggleTheme() {
-	const current = ywebGetTheme();
-	ywebSetTheme(current === 'dark' ? 'light' : 'dark');
+function webuiToggleTheme() {
+	const current = webuiGetTheme();
+	webuiSetTheme(current === 'dark' ? 'light' : 'dark');
 }
 
-function ywebUpdateThemeIcon(theme) {
-	const darkIcon = document.getElementById('yweb-theme-icon-dark');
-	const lightIcon = document.getElementById('yweb-theme-icon-light');
-	if (darkIcon) darkIcon.classList.toggle('yweb-hidden', theme === 'light');
-	if (lightIcon) lightIcon.classList.toggle('yweb-hidden', theme === 'dark');
+function webuiUpdateThemeIcon(theme) {
+	const darkIcon = document.getElementById('webui-theme-icon-dark');
+	const lightIcon = document.getElementById('webui-theme-icon-light');
+	if (darkIcon) darkIcon.classList.toggle('webui-hidden', theme === 'light');
+	if (lightIcon) lightIcon.classList.toggle('webui-hidden', theme === 'dark');
 }
 
 // Mobile Menu
-function ywebToggleMenu() {
-	const menu = document.getElementById('yweb-nav-menu');
-	let backdrop = document.getElementById('yweb-menu-backdrop');
-	let menuHeader = document.getElementById('yweb-menu-header');
+function webuiToggleMenu() {
+	const menu = document.getElementById('webui-nav-menu');
+	let backdrop = document.getElementById('webui-menu-backdrop');
+	let menuHeader = document.getElementById('webui-menu-header');
 
 	// Create backdrop if it doesn't exist
 	if (!backdrop) {
 		backdrop = document.createElement('div');
-		backdrop.id = 'yweb-menu-backdrop';
-		backdrop.className = 'yweb-menu-backdrop';
-		backdrop.onclick = ywebCloseMenu;
+		backdrop.id = 'webui-menu-backdrop';
+		backdrop.className = 'webui-menu-backdrop';
+		backdrop.onclick = webuiCloseMenu;
 		document.body.appendChild(backdrop);
 	}
 
 	// Create menu header with logo and close button
 	if (!menuHeader && menu) {
 		menuHeader = document.createElement('div');
-		menuHeader.id = 'yweb-menu-header';
-		menuHeader.className = 'yweb-menu-header';
+		menuHeader.id = 'webui-menu-header';
+		menuHeader.className = 'webui-menu-header';
 		menuHeader.innerHTML = `
-			<div class="yweb-menu-logo">
-				<img src="${YWEB_CONFIG.logo}" alt="" onerror="this.remove()">
-				<span>${YWEB_CONFIG.title}</span>
+			<div class="webui-menu-logo">
+				<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
+				<span>${WEBUI_CONFIG.title}</span>
 			</div>
-			<button class="yweb-menu-close" onclick="ywebCloseMenu()">
+			<button class="webui-menu-close" onclick="webuiCloseMenu()">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
 				</svg>
@@ -342,40 +344,40 @@ function ywebToggleMenu() {
 	}
 }
 
-function ywebCloseMenu() {
-	const menu = document.getElementById('yweb-nav-menu');
-	const backdrop = document.getElementById('yweb-menu-backdrop');
+function webuiCloseMenu() {
+	const menu = document.getElementById('webui-nav-menu');
+	const backdrop = document.getElementById('webui-menu-backdrop');
 
 	if (menu) menu.classList.remove('open');
 	if (backdrop) backdrop.classList.remove('open');
 	document.body.style.overflow = '';
 }
 
-function ywebOpenMenu() {
-	const menu = document.getElementById('yweb-nav-menu');
-	let backdrop = document.getElementById('yweb-menu-backdrop');
-	let menuHeader = document.getElementById('yweb-menu-header');
+function webuiOpenMenu() {
+	const menu = document.getElementById('webui-nav-menu');
+	let backdrop = document.getElementById('webui-menu-backdrop');
+	let menuHeader = document.getElementById('webui-menu-header');
 
 	// Create backdrop if needed
 	if (!backdrop) {
 		backdrop = document.createElement('div');
-		backdrop.id = 'yweb-menu-backdrop';
-		backdrop.className = 'yweb-menu-backdrop';
-		backdrop.onclick = ywebCloseMenu;
+		backdrop.id = 'webui-menu-backdrop';
+		backdrop.className = 'webui-menu-backdrop';
+		backdrop.onclick = webuiCloseMenu;
 		document.body.appendChild(backdrop);
 	}
 
 	// Create menu header if needed
 	if (!menuHeader && menu) {
 		menuHeader = document.createElement('div');
-		menuHeader.id = 'yweb-menu-header';
-		menuHeader.className = 'yweb-menu-header';
+		menuHeader.id = 'webui-menu-header';
+		menuHeader.className = 'webui-menu-header';
 		menuHeader.innerHTML = `
-			<div class="yweb-menu-logo">
-				<img src="${YWEB_CONFIG.logo}" alt="" onerror="this.remove()">
-				<span>${YWEB_CONFIG.title}</span>
+			<div class="webui-menu-logo">
+				<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
+				<span>${WEBUI_CONFIG.title}</span>
 			</div>
-			<button class="yweb-menu-close" onclick="ywebCloseMenu()">
+			<button class="webui-menu-close" onclick="webuiCloseMenu()">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
 				</svg>
@@ -399,7 +401,7 @@ let menuIsSwiping = false;
 const MENU_SWIPE_THRESHOLD = 50;
 const EDGE_SWIPE_ZONE = 30;
 
-function ywebMenuTouchStart(e) {
+function webuiMenuTouchStart(e) {
 	const touch = e.touches[0];
 	menuTouchStartX = touch.clientX;
 	menuTouchStartY = touch.clientY;
@@ -407,7 +409,7 @@ function ywebMenuTouchStart(e) {
 	menuIsSwiping = false;
 }
 
-function ywebMenuTouchMove(e) {
+function webuiMenuTouchMove(e) {
 	if (!e.touches[0]) return;
 	const touch = e.touches[0];
 	menuTouchCurrentX = touch.clientX;
@@ -420,16 +422,16 @@ function ywebMenuTouchMove(e) {
 	}
 }
 
-function ywebMenuTouchEnd(e) {
+function webuiMenuTouchEnd(e) {
 	if (!menuIsSwiping) return;
 
 	const deltaX = menuTouchCurrentX - menuTouchStartX;
-	const menu = document.getElementById('yweb-nav-menu');
+	const menu = document.getElementById('webui-nav-menu');
 
 	if (menu && menu.classList.contains('open')) {
 		// Menu is open - swipe left to close
 		if (deltaX < -MENU_SWIPE_THRESHOLD) {
-			ywebCloseMenu();
+			webuiCloseMenu();
 		}
 	}
 
@@ -437,7 +439,7 @@ function ywebMenuTouchEnd(e) {
 }
 
 // Edge swipe to open menu
-function ywebEdgeTouchStart(e) {
+function webuiEdgeTouchStart(e) {
 	const touch = e.touches[0];
 	menuTouchStartX = touch.clientX;
 	menuTouchStartY = touch.clientY;
@@ -445,7 +447,7 @@ function ywebEdgeTouchStart(e) {
 	menuIsSwiping = false;
 }
 
-function ywebEdgeTouchMove(e) {
+function webuiEdgeTouchMove(e) {
 	if (!e.touches[0]) return;
 	const touch = e.touches[0];
 	menuTouchCurrentX = touch.clientX;
@@ -457,16 +459,16 @@ function ywebEdgeTouchMove(e) {
 	}
 }
 
-function ywebEdgeTouchEnd(e) {
+function webuiEdgeTouchEnd(e) {
 	if (!menuIsSwiping) return;
 
 	const deltaX = menuTouchCurrentX - menuTouchStartX;
-	const menu = document.getElementById('yweb-nav-menu');
+	const menu = document.getElementById('webui-nav-menu');
 
 	// Swipe right from left edge to open
 	if (menuTouchStartX < EDGE_SWIPE_ZONE && deltaX > MENU_SWIPE_THRESHOLD) {
 		if (!menu || !menu.classList.contains('open')) {
-			ywebOpenMenu();
+			webuiOpenMenu();
 		}
 	}
 
@@ -474,28 +476,28 @@ function ywebEdgeTouchEnd(e) {
 }
 
 // Initialize menu swipe gestures
-function ywebInitMenuSwipe() {
+function webuiInitMenuSwipe() {
 	if (window.innerWidth > 480) return;
 
-	const menu = document.getElementById('yweb-nav-menu');
+	const menu = document.getElementById('webui-nav-menu');
 
 	// Swipe on menu to close
 	if (menu) {
-		menu.addEventListener('touchstart', ywebMenuTouchStart, { passive: true });
-		menu.addEventListener('touchmove', ywebMenuTouchMove, { passive: true });
-		menu.addEventListener('touchend', ywebMenuTouchEnd, { passive: true });
+		menu.addEventListener('touchstart', webuiMenuTouchStart, { passive: true });
+		menu.addEventListener('touchmove', webuiMenuTouchMove, { passive: true });
+		menu.addEventListener('touchend', webuiMenuTouchEnd, { passive: true });
 	}
 
 	// Edge swipe to open - listen on body
-	document.body.addEventListener('touchstart', ywebEdgeTouchStart, { passive: true });
-	document.body.addEventListener('touchmove', ywebEdgeTouchMove, { passive: true });
-	document.body.addEventListener('touchend', ywebEdgeTouchEnd, { passive: true });
+	document.body.addEventListener('touchstart', webuiEdgeTouchStart, { passive: true });
+	document.body.addEventListener('touchmove', webuiEdgeTouchMove, { passive: true });
+	document.body.addEventListener('touchend', webuiEdgeTouchEnd, { passive: true });
 }
 
 // Clock
-function ywebUpdateClock() {
-	const clock = document.getElementById('yweb-clock');
-	if (clock) clock.textContent = ywebFormatTime(new Date());
+function webuiUpdateClock() {
+	const clock = document.getElementById('webui-clock');
+	if (clock) clock.textContent = webuiFormatTime(new Date());
 }
 
 /* What the box says about itself, over /api/v1, in the shape the pages
@@ -504,7 +506,7 @@ function ywebUpdateClock() {
    ip. Readable without a sign-in from the home network; null where the box
    does not answer. full asks for the filesystems and the interfaces as well,
    which only the information page shows. */
-async function ywebSystemInfo(full) {
+async function webuiSystemInfo(full) {
 	var read = async function(path) {
 		try {
 			var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
@@ -556,7 +558,7 @@ async function ywebSystemInfo(full) {
 /* The versions and links in the shape of the old versions answer: the
    program's and the interface's from /api/v1/system/info, the pages' own
    from the Y_Version.txt they ship. */
-async function ywebVersions(sys) {
+async function webuiVersions(sys) {
 	var info = sys ? sys.info : null;
 	if (!info) {
 		try {
@@ -574,8 +576,8 @@ async function ywebVersions(sys) {
 	try {
 		var v = await fetch('/Y_Version.txt', {cache: 'no-cache'});
 		if (v.ok) (await v.text()).split('\n').forEach(function(line) {
-			if (line.indexOf('version=') === 0) out.yweb = line.slice(8).trim();
-			else if (line.indexOf('date=') === 0) out.yweb_date = line.slice(5).trim();
+			if (line.indexOf('version=') === 0) out.webui = line.slice(8).trim();
+			else if (line.indexOf('date=') === 0) out.webui_date = line.slice(5).trim();
 		});
 	} catch (e) { /* no version file */ }
 	return out;
@@ -583,17 +585,17 @@ async function ywebVersions(sys) {
 
 // One reading per page for the header's name and the footer: each reading
 // measures the processor for a tenth of a second.
-var _ywebSystemInfoOnce = null;
-function ywebSystemInfoOnce() {
-	if (!_ywebSystemInfoOnce) _ywebSystemInfoOnce = ywebSystemInfo(false);
-	return _ywebSystemInfoOnce;
+var _webuiSystemInfoOnce = null;
+function webuiSystemInfoOnce() {
+	if (!_webuiSystemInfoOnce) _webuiSystemInfoOnce = webuiSystemInfo(false);
+	return _webuiSystemInfoOnce;
 }
 
 // Load hostname
-function ywebLoadHostname() {
-	const el = document.getElementById('yweb-hostname');
+function webuiLoadHostname() {
+	const el = document.getElementById('webui-hostname');
 	if (!el) return;
-	ywebSystemInfoOnce()
+	webuiSystemInfoOnce()
 		.then(data => {
 			el.textContent = (data && (data.hostname || (data.box && data.box.name))) || 'neutrino';
 		})
@@ -601,8 +603,8 @@ function ywebLoadHostname() {
 }
 
 // Set active navigation link
-function ywebSetActivePage(pageName) {
-	const links = document.querySelectorAll('.yweb-nav-links a');
+function webuiSetActivePage(pageName) {
+	const links = document.querySelectorAll('.webui-nav-links a');
 	links.forEach(link => {
 		if (link.getAttribute('data-page') === pageName) {
 			link.classList.add('active');
@@ -613,34 +615,34 @@ function ywebSetActivePage(pageName) {
 }
 
 // Initialize header
-function ywebInitHeader(pageName) {
+function webuiInitHeader(pageName) {
 	// Insert header at beginning of body
-	const headerContainer = document.getElementById('yweb-header-container');
+	const headerContainer = document.getElementById('webui-header-container');
 	if (headerContainer) {
-		headerContainer.innerHTML = YWEB_HEADER_HTML;
+		headerContainer.innerHTML = WEBUI_HEADER_HTML;
 	} else {
-		document.body.insertAdjacentHTML('afterbegin', YWEB_HEADER_HTML);
+		document.body.insertAdjacentHTML('afterbegin', WEBUI_HEADER_HTML);
 	}
 
 	// Set theme
-	ywebSetTheme(ywebGetTheme());
+	webuiSetTheme(webuiGetTheme());
 
 	// Set active page
 	if (pageName) {
-		ywebSetActivePage(pageName);
+		webuiSetActivePage(pageName);
 	}
 
 	// Start clock
-	ywebUpdateClock();
-	setInterval(ywebUpdateClock, 10000);
+	webuiUpdateClock();
+	setInterval(webuiUpdateClock, 10000);
 
 	// Load hostname
-	ywebLoadHostname();
+	webuiLoadHostname();
 	// Erweiterungen in die Slots dieser Seite injizieren (async, still)
-	if (typeof ywebInjectExtensions === 'function')
-		setTimeout(function() { ywebInjectExtensions(pageName); }, 0);
+	if (typeof webuiInjectExtensions === 'function')
+		setTimeout(function() { webuiInjectExtensions(pageName); }, 0);
 
-	ywebCheckDefaultPassword();
+	webuiCheckDefaultPassword();
 }
 
 // A session opened with the password the box shipped with is to set one of
@@ -649,7 +651,7 @@ function ywebInitHeader(pageName) {
 // where that is done. Asked on every page load, which costs one request; a
 // page without a session is not asked, having signed in with nothing.
 // password.yhtm and login.yhtm do not load this script, so this cannot loop.
-function ywebCheckDefaultPassword() {
+function webuiCheckDefaultPassword() {
 	fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'})
 		.then(function(r) { return r.ok ? r.json() : null; })
 		.then(function(s) {
@@ -657,7 +659,7 @@ function ywebCheckDefaultPassword() {
 				location.replace('/password.yhtm?next=' + encodeURIComponent(location.pathname + location.search));
 				return;
 			}
-			ywebUpdateLogoutBtn(!!(s && s.authenticated));
+			webuiUpdateLogoutBtn(!!(s && s.authenticated));
 		})
 		.catch(function() {});
 }
@@ -665,8 +667,8 @@ function ywebCheckDefaultPassword() {
 // The button shows while a session of the one login is open (the page
 // login opens one too): what was signed into can be ended. Set from the
 // session document the password check above reads.
-function ywebUpdateLogoutBtn(show) {
-	var btn = document.getElementById('yweb-logout-btn');
+function webuiUpdateLogoutBtn(show) {
+	var btn = document.getElementById('webui-logout-btn');
 	if (btn) btn.hidden = !show;
 }
 
@@ -674,14 +676,14 @@ function ywebUpdateLogoutBtn(show) {
 // With the page login on it answers 401 to whatever still carries Basic
 // credentials, which makes the browser drop them; with it off it goes
 // back to the start page.
-function ywebLogout() {
+function webuiLogout() {
 	location.href = '/logout';
 }
 
 // Update spacer height based on actual header dimensions
-function ywebUpdateHeaderSpacer() {
-	const wrapper = document.querySelector('.yweb-header-wrapper');
-	const spacer = document.querySelector('.yweb-header-spacer');
+function webuiUpdateHeaderSpacer() {
+	const wrapper = document.querySelector('.webui-header-wrapper');
+	const spacer = document.querySelector('.webui-header-spacer');
 
 	if (wrapper && spacer) {
 		const height = wrapper.offsetHeight;
@@ -690,32 +692,32 @@ function ywebUpdateHeaderSpacer() {
 }
 
 // Initialize footer
-function ywebInitFooter() {
+function webuiInitFooter() {
 	// Check if footer already exists
-	if (document.querySelector('.yweb-footer')) return;
+	if (document.querySelector('.webui-footer')) return;
 
 	// Insert footer at end of body
-	document.body.insertAdjacentHTML('beforeend', YWEB_FOOTER_HTML);
+	document.body.insertAdjacentHTML('beforeend', WEBUI_FOOTER_HTML);
 
 	// Insert about modal
-	if (!document.getElementById('yweb-about-modal')) {
-		document.body.insertAdjacentHTML('beforeend', YWEB_ABOUT_HTML);
+	if (!document.getElementById('webui-about-modal')) {
+		document.body.insertAdjacentHTML('beforeend', WEBUI_ABOUT_HTML);
 	}
 
 	// Load versions from API
-	ywebSystemInfoOnce()
-		.then(sys => ywebVersions(sys))
+	webuiSystemInfoOnce()
+		.then(sys => webuiVersions(sys))
 		.then(data => {
-			if (data.yweb) {
-				const el = document.getElementById('yweb-footer-version');
-				if (el) el.textContent = data.yweb;
+			if (data.webui) {
+				const el = document.getElementById('webui-footer-version');
+				if (el) el.textContent = data.webui;
 			}
 			if (data.api) {
-				const el = document.getElementById('yweb-footer-api');
+				const el = document.getElementById('webui-footer-api');
 				if (el) el.textContent = data.api;
 			}
 			if (data.copyright && data.copyright.text) {
-				const el = document.getElementById('yweb-footer-copyright');
+				const el = document.getElementById('webui-footer-copyright');
 				if (el) el.textContent = data.copyright.text;
 			}
 		})
@@ -723,37 +725,37 @@ function ywebInitFooter() {
 }
 
 // Shared helper functions
-function ywebPad2(n) {
+function webuiPad2(n) {
 	return String(n).padStart(2, '0');
 }
 
-function ywebFormatTime(date) {
-	return ywebPad2(date.getHours()) + ':' + ywebPad2(date.getMinutes());
+function webuiFormatTime(date) {
+	return webuiPad2(date.getHours()) + ':' + webuiPad2(date.getMinutes());
 }
 
-function ywebFormatDateInput(date) {
-	return date.getFullYear() + '-' + ywebPad2(date.getMonth() + 1) + '-' + ywebPad2(date.getDate());
+function webuiFormatDateInput(date) {
+	return date.getFullYear() + '-' + webuiPad2(date.getMonth() + 1) + '-' + webuiPad2(date.getDate());
 }
 
 // Fetch helpers — simple wrappers for common patterns
-async function ywebFetchText(url) {
+async function webuiFetchText(url) {
 	var resp = await fetch(url);
 	return resp.text();
 }
 
-async function ywebFetchJson(url) {
+async function webuiFetchJson(url) {
 	var resp = await fetch(url);
 	return resp.json();
 }
 
 // Central /api/v4/ fetch helper — the ONLY way modern pages talk to the box.
-//   ywebApi('timer')                            -> parsed JSON payload
-//   ywebApi('timer', {action:'new', type:5})    -> envelope-checked action
-//   ywebApi('setmode', {status:''})             -> key-only query param
-//   ywebApi('exec', 'Y_Tools&getline&/tmp/lcd/service', {raw:true}) -> raw text (exec/rcem)
+//   webuiApi('timer')                            -> parsed JSON payload
+//   webuiApi('timer', {action:'new', type:5})    -> envelope-checked action
+//   webuiApi('setmode', {status:''})             -> key-only query param
+//   webuiApi('exec', 'Y_Tools&getline&/tmp/lcd/service', {raw:true}) -> raw text (exec/rcem)
 // Throws Error on HTTP failure or {"success":"false"} envelopes; the
 // error message carries error.msg from the box when available.
-async function ywebApi(endpoint, params, opts) {
+async function webuiApi(endpoint, params, opts) {
 	opts = opts || {};
 	var url = '/api/v4/' + endpoint;
 	if (params) {
@@ -796,26 +798,26 @@ async function ywebApi(endpoint, params, opts) {
 	if (opts.raw) return resp.text();
 	var data = await resp.json();
 	if (data && data.success === 'false')
-		throw new Error((data.error && data.error.msg) ? data.error.msg : (ywebL('msg.error', 'Error') + ': ' + endpoint));
+		throw new Error((data.error && data.error.msg) ? data.error.msg : (webuiL('msg.error', 'Error') + ': ' + endpoint));
 	return data;
 }
 
 // A key of the remote control. Over /api/v1 where the page loads webui-v1.js
 // (session, CSRF token), else over the old interface, which extensions and
 // older pages still use.
-async function ywebSendKey(key) {
-	var v1 = typeof ywebV1 === 'function';
+async function webuiSendKey(key) {
+	var v1 = typeof webuiV1 === 'function';
 	var send = v1
-		? function() { return ywebV1('POST', '/osd/remote/key', {body: {name: key}}); }
-		: function() { return ywebApi('rcem', key, {raw: true}); };
+		? function() { return webuiV1('POST', '/osd/remote/key', {body: {name: key}}); }
+		: function() { return webuiApi('rcem', key, {raw: true}); };
 	if (key === 'KEY_POWER') {
 		try {
 			var awake = v1
-				? (await ywebV1('GET', '/system/standby')).on === false
-				: (await ywebApi('standby', {status: ''})).standby === false;
+				? (await webuiV1('GET', '/system/standby')).on === false
+				: (await webuiApi('standby', {status: ''})).standby === false;
 			if (awake) {
-				// Rueckfrage als yweb-Dialog statt nativem confirm()
-				ywebShowConfirm('Standby', ywebL('sb.confirm', 'Put the box into standby?'), 'Standby',
+				// Rueckfrage als webui-Dialog statt nativem confirm()
+				webuiShowConfirm('Standby', webuiL('sb.confirm', 'Put the box into standby?'), 'Standby',
 					send, {variant: 'ok'});
 				return;
 			}
@@ -832,13 +834,13 @@ async function ywebSendKey(key) {
 /**
  * Returns generic remote control HTML.
  * @param {Object} [opts]
- * @param {string} [opts.onKey='ywebSendKey'] - Global function NAME called with a KEY_* string
- * @param {string} [opts.id='yweb-remote'] - id of the returned root element
+ * @param {string} [opts.onKey='webuiSendKey'] - Global function NAME called with a KEY_* string
+ * @param {string} [opts.id='webui-remote'] - id of the returned root element
  *
  * Custom renderer contract (hardware-specific remote skins):
- *   Register with ywebRegisterRemoteRenderer(function(opts) { return html; })
+ *   Register with webuiRegisterRemoteRenderer(function(opts) { return html; })
  *   from an extension runtime script (manifest key entry_js) - never set
- *   YWEB_CONFIG.remoteRenderer directly, the register call also re-renders
+ *   WEBUI_CONFIG.remoteRenderer directly, the register call also re-renders
  *   already-built instances (registration timing is not guaranteed).
  *   The returned HTML must have a single root element with id=opts.id and
  *   data-rc-onkey=opts.onKey. Buttons call the opts.onKey global with a
@@ -848,30 +850,30 @@ async function ywebSendKey(key) {
  *   aria-labels on icon-only keys and aria-hidden SVGs.
  *   See extensions/README.md for a minimal renderer example.
  */
-function ywebGetRemoteHTML(opts) {
+function webuiGetRemoteHTML(opts) {
 	opts = opts || {};
-	var onKey = opts.onKey || 'ywebSendKey';
-	var id = opts.id || 'yweb-remote';
+	var onKey = opts.onKey || 'webuiSendKey';
+	var id = opts.id || 'webui-remote';
 
-	if (YWEB_CONFIG.remoteRenderer) {
-		return YWEB_CONFIG.remoteRenderer(opts);
+	if (WEBUI_CONFIG.remoteRenderer) {
+		return WEBUI_CONFIG.remoteRenderer(opts);
 	}
 
 	function btn(cls, key, label, title) {
-		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + escapeHtml(title || label || key) + '">' + escapeHtml(label) + '</button>';
+		return '<button type="button" class="webui-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + escapeHtml(title || label || key) + '">' + escapeHtml(label) + '</button>';
 	}
 	function iconBtn(cls, key, title, svg) {
 		var t = escapeHtml(title);
-		return '<button type="button" class="yweb-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + t + '" aria-label="' + t + '">' +
+		return '<button type="button" class="webui-rc-btn ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + t + '" aria-label="' + t + '">' +
 			svg.replace('<svg ', '<svg aria-hidden="true" focusable="false" ') + '</button>';
 	}
 	function repBtn(cls, key, label, title) {
 		var t = escapeHtml(title || label || key);
-		return '<button type="button" class="yweb-rc-btn ' + cls + '" title="' + t + '" aria-label="' + t + '" data-rc-repeat="1" data-rc-key="' + key + '">' + escapeHtml(label) + '</button>';
+		return '<button type="button" class="webui-rc-btn ' + cls + '" title="' + t + '" aria-label="' + t + '" data-rc-repeat="1" data-rc-key="' + key + '">' + escapeHtml(label) + '</button>';
 	}
 	function colorBtn(cls, key, title) {
 		var t = escapeHtml(title);
-		return '<button type="button" class="yweb-rc-color ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + t + '" aria-label="' + t + '"></button>';
+		return '<button type="button" class="webui-rc-color ' + cls + '" onclick="' + onKey + "('" + key + "')\" title=\"" + t + '" aria-label="' + t + '"></button>';
 	}
 
 	var svgUp = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>';
@@ -881,77 +883,77 @@ function ywebGetRemoteHTML(opts) {
 	var svgPower = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>';
 	var svgMute = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
 
-	return '<div class="yweb-remote" id="' + id + '" data-rc-onkey="' + onKey + '">' +
+	return '<div class="webui-remote" id="' + id + '" data-rc-onkey="' + onKey + '">' +
 
 		/* Zone A: Power / Mute */
-		'<div class="yweb-rc-row yweb-rc-top">' +
-			iconBtn('yweb-rc-power', 'KEY_POWER', ywebL('rc.power', 'Power'), svgPower) +
-			iconBtn('', 'KEY_MUTE', ywebL('rc.mute', 'Mute'), svgMute) +
+		'<div class="webui-rc-row webui-rc-top">' +
+			iconBtn('webui-rc-power', 'KEY_POWER', webuiL('rc.power', 'Power'), svgPower) +
+			iconBtn('', 'KEY_MUTE', webuiL('rc.mute', 'Mute'), svgMute) +
 		'</div>' +
 
 		/* Zone B: Core thumb zone (VOL | D-Pad | CH) */
-		'<div class="yweb-rc-core">' +
-			'<div class="yweb-rc-rocker">' +
-				'<span class="yweb-rc-rocker-label">VOL</span>' +
-				repBtn('yweb-rc-rocker-top', 'KEY_VOLUMEUP', '+', ywebL('rc.vol_up', 'Volume up')) +
-				repBtn('yweb-rc-rocker-bot', 'KEY_VOLUMEDOWN', '\u2212', ywebL('rc.vol_down', 'Volume down')) +
+		'<div class="webui-rc-core">' +
+			'<div class="webui-rc-rocker">' +
+				'<span class="webui-rc-rocker-label">VOL</span>' +
+				repBtn('webui-rc-rocker-top', 'KEY_VOLUMEUP', '+', webuiL('rc.vol_up', 'Volume up')) +
+				repBtn('webui-rc-rocker-bot', 'KEY_VOLUMEDOWN', '\u2212', webuiL('rc.vol_down', 'Volume down')) +
 			'</div>' +
-			'<div class="yweb-rc-dpad">' +
-				'<div></div>' + iconBtn('yweb-rc-arrow', 'KEY_UP', ywebL('rc.up', 'Up'), svgUp) + '<div></div>' +
-				iconBtn('yweb-rc-arrow', 'KEY_LEFT', ywebL('rc.left', 'Left'), svgLeft) +
-				btn('yweb-rc-ok', 'KEY_OK', 'OK', ywebL('rc.ok', 'OK')) +
-				iconBtn('yweb-rc-arrow', 'KEY_RIGHT', ywebL('rc.right', 'Right'), svgRight) +
-				'<div></div>' + iconBtn('yweb-rc-arrow', 'KEY_DOWN', ywebL('rc.down', 'Down'), svgDown) + '<div></div>' +
+			'<div class="webui-rc-dpad">' +
+				'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_UP', webuiL('rc.up', 'Up'), svgUp) + '<div></div>' +
+				iconBtn('webui-rc-arrow', 'KEY_LEFT', webuiL('rc.left', 'Left'), svgLeft) +
+				btn('webui-rc-ok', 'KEY_OK', 'OK', webuiL('rc.ok', 'OK')) +
+				iconBtn('webui-rc-arrow', 'KEY_RIGHT', webuiL('rc.right', 'Right'), svgRight) +
+				'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_DOWN', webuiL('rc.down', 'Down'), svgDown) + '<div></div>' +
 			'</div>' +
-			'<div class="yweb-rc-rocker">' +
-				'<span class="yweb-rc-rocker-label">CH</span>' +
-				repBtn('yweb-rc-rocker-top', 'KEY_PAGEUP', '+', ywebL('rc.ch_up', 'Channel up')) +
-				repBtn('yweb-rc-rocker-bot', 'KEY_PAGEDOWN', '\u2212', ywebL('rc.ch_down', 'Channel down')) +
+			'<div class="webui-rc-rocker">' +
+				'<span class="webui-rc-rocker-label">CH</span>' +
+				repBtn('webui-rc-rocker-top', 'KEY_PAGEUP', '+', webuiL('rc.ch_up', 'Channel up')) +
+				repBtn('webui-rc-rocker-bot', 'KEY_PAGEDOWN', '\u2212', webuiL('rc.ch_down', 'Channel down')) +
 			'</div>' +
 		'</div>' +
 
 		/* Zone C: Navigation */
-		'<div class="yweb-rc-row yweb-rc-nav">' +
-			btn('yweb-rc-func', 'KEY_EXIT', 'Back', ywebL('rc.back', 'Back')) +
-			btn('yweb-rc-func', 'KEY_HOME', 'Home', ywebL('rc.home', 'Home')) +
-			btn('yweb-rc-func', 'KEY_SETUP', 'Menu', ywebL('rc.menu', 'Menu')) +
-			btn('yweb-rc-func', 'KEY_HELP', 'Info', ywebL('rc.info', 'Info')) +
+		'<div class="webui-rc-row webui-rc-nav">' +
+			btn('webui-rc-func', 'KEY_EXIT', 'Back', webuiL('rc.back', 'Back')) +
+			btn('webui-rc-func', 'KEY_HOME', 'Home', webuiL('rc.home', 'Home')) +
+			btn('webui-rc-func', 'KEY_SETUP', 'Menu', webuiL('rc.menu', 'Menu')) +
+			btn('webui-rc-func', 'KEY_HELP', 'Info', webuiL('rc.info', 'Info')) +
 		'</div>' +
 
 		/* Zone D: Media */
-		'<div class="yweb-rc-row yweb-rc-media">' +
-			iconBtn('', 'KEY_REWIND', ywebL('rc.rewind', 'Rewind'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4"/><polygon points="14 20 4 12 14 4"/></svg>') +
-			iconBtn('', 'KEY_PLAY', ywebL('rc.play', 'Play'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>') +
-			iconBtn('', 'KEY_FORWARD', ywebL('rc.forward', 'Forward'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20"/><polygon points="10 4 20 12 10 20"/></svg>') +
-			iconBtn('', 'KEY_STOP', ywebL('rc.stop', 'Stop'), '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>') +
+		'<div class="webui-rc-row webui-rc-media">' +
+			iconBtn('', 'KEY_REWIND', webuiL('rc.rewind', 'Rewind'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4"/><polygon points="14 20 4 12 14 4"/></svg>') +
+			iconBtn('', 'KEY_PLAY', webuiL('rc.play', 'Play'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>') +
+			iconBtn('', 'KEY_FORWARD', webuiL('rc.forward', 'Forward'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20"/><polygon points="10 4 20 12 10 20"/></svg>') +
+			iconBtn('', 'KEY_STOP', webuiL('rc.stop', 'Stop'), '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>') +
 		'</div>' +
 
 		/* Zone E: Colour keys (always visible) */
-		'<div class="yweb-rc-row yweb-rc-colors">' +
-			colorBtn('yweb-rc-red', 'KEY_RED', ywebL('rc.red', 'Red')) +
-			colorBtn('yweb-rc-green', 'KEY_GREEN', ywebL('rc.green', 'Green')) +
-			colorBtn('yweb-rc-yellow', 'KEY_YELLOW', ywebL('rc.yellow', 'Yellow')) +
-			colorBtn('yweb-rc-blue', 'KEY_BLUE', ywebL('rc.blue', 'Blue')) +
+		'<div class="webui-rc-row webui-rc-colors">' +
+			colorBtn('webui-rc-red', 'KEY_RED', webuiL('rc.red', 'Red')) +
+			colorBtn('webui-rc-green', 'KEY_GREEN', webuiL('rc.green', 'Green')) +
+			colorBtn('webui-rc-yellow', 'KEY_YELLOW', webuiL('rc.yellow', 'Yellow')) +
+			colorBtn('webui-rc-blue', 'KEY_BLUE', webuiL('rc.blue', 'Blue')) +
 		'</div>' +
 
 		/* Zone F: EPG / Text / Fav / Timer (always visible) */
-		'<div class="yweb-rc-row yweb-rc-nav">' +
-			btn('yweb-rc-func', 'KEY_EPG', 'EPG', ywebL('rc.epg', 'EPG')) +
-			btn('yweb-rc-func', 'KEY_TEXT', 'Text', ywebL('rc.text', 'Teletext')) +
-			btn('yweb-rc-func', 'KEY_FAVORITES', ywebL('rc.fav', 'Fav')) +
-			btn('yweb-rc-func', 'KEY_TIME', ywebL('rc.time', 'Timer')) +
+		'<div class="webui-rc-row webui-rc-nav">' +
+			btn('webui-rc-func', 'KEY_EPG', 'EPG', webuiL('rc.epg', 'EPG')) +
+			btn('webui-rc-func', 'KEY_TEXT', 'Text', webuiL('rc.text', 'Teletext')) +
+			btn('webui-rc-func', 'KEY_FAVORITES', webuiL('rc.fav', 'Fav')) +
+			btn('webui-rc-func', 'KEY_TIME', webuiL('rc.time', 'Timer')) +
 		'</div>' +
 
 		/* Numpad trigger — reveals the numpad sheet on every viewport */
-		'<button type="button" class="yweb-rc-btn yweb-rc-sheet-trigger" aria-label="' + escapeHtml(ywebL('rc.numpad', 'Numpad')) + '" aria-expanded="false" onclick="ywebToggleRcSheet(\'' + id + '\')">123' +
+		'<button type="button" class="webui-rc-btn webui-rc-sheet-trigger" aria-label="' + escapeHtml(webuiL('rc.numpad', 'Numpad')) + '" aria-expanded="false" onclick="webuiToggleRcSheet(\'' + id + '\')">123' +
 			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false"><polyline points="6 9 12 15 18 9"/></svg>' +
 		'</button>' +
 
 		/* Numpad sheet (bottom sheet on mobile, inline panel on desktop) */
-		'<div class="yweb-rc-sheet-backdrop" id="' + id + '-sheet" onclick="ywebToggleRcSheet(\'' + id + '\')">' +
-			'<div class="yweb-rc-sheet" onclick="event.stopPropagation()">' +
-				'<div class="yweb-rc-sheet-handle"></div>' +
-				'<div class="yweb-rc-numpad">' +
+		'<div class="webui-rc-sheet-backdrop" id="' + id + '-sheet" onclick="webuiToggleRcSheet(\'' + id + '\')">' +
+			'<div class="webui-rc-sheet" onclick="event.stopPropagation()">' +
+				'<div class="webui-rc-sheet-handle"></div>' +
+				'<div class="webui-rc-numpad">' +
 					btn('', 'KEY_1', '1') + btn('', 'KEY_2', '2') + btn('', 'KEY_3', '3') +
 					btn('', 'KEY_4', '4') + btn('', 'KEY_5', '5') + btn('', 'KEY_6', '6') +
 					btn('', 'KEY_7', '7') + btn('', 'KEY_8', '8') + btn('', 'KEY_9', '9') +
@@ -966,11 +968,11 @@ function ywebGetRemoteHTML(opts) {
 /* Numpad sheet toggle. Works on every viewport: a bottom sheet on
    mobile, an inline panel on desktop (CSS decides the presentation via
    the media query; the JS only flips display). */
-function ywebToggleRcSheet(id) {
+function webuiToggleRcSheet(id) {
 	var backdrop = document.getElementById(id + '-sheet');
 	if (!backdrop) return;
 	var root = document.getElementById(id);
-	var trigger = root ? root.querySelector('.yweb-rc-sheet-trigger') : null;
+	var trigger = root ? root.querySelector('.webui-rc-sheet-trigger') : null;
 
 	var isOpen = backdrop.style.display === 'flex';
 	if (isOpen) {
@@ -987,14 +989,14 @@ function ywebToggleRcSheet(id) {
 		   panel (modal body / card body) - bring it into view */
 		if (window.innerWidth > 768) backdrop.scrollIntoView({ block: 'nearest' });
 		backdrop._escHandler = function(e) {
-			if (e.key === 'Escape') ywebToggleRcSheet(id);
+			if (e.key === 'Escape') webuiToggleRcSheet(id);
 		};
 		document.addEventListener('keydown', backdrop._escHandler);
 		/* Init swipe-to-dismiss on handle */
 		if (!backdrop._swipeInit) {
 			backdrop._swipeInit = true;
-			var panel = backdrop.querySelector('.yweb-rc-sheet');
-			var handle = backdrop.querySelector('.yweb-rc-sheet-handle');
+			var panel = backdrop.querySelector('.webui-rc-sheet');
+			var handle = backdrop.querySelector('.webui-rc-sheet-handle');
 			if (panel && handle) {
 				var startY = 0, dragging = false;
 				handle.addEventListener('touchstart', function(e) {
@@ -1014,7 +1016,7 @@ function ywebToggleRcSheet(id) {
 					dragging = false;
 					var diff = (e.changedTouches[0] ? e.changedTouches[0].clientY : 0) - startY;
 					panel.style.transform = '';
-					if (diff > 80) ywebToggleRcSheet(id);
+					if (diff > 80) webuiToggleRcSheet(id);
 				});
 			}
 		}
@@ -1022,7 +1024,7 @@ function ywebToggleRcSheet(id) {
 }
 
 /* Long-press auto-repeat for VOL/CH buttons + visual press feedback */
-function ywebInitRemoteRepeat(containerId) {
+function webuiInitRemoteRepeat(containerId) {
 	var container = document.getElementById(containerId);
 	if (!container) return;
 
@@ -1032,18 +1034,18 @@ function ywebInitRemoteRepeat(containerId) {
 	if (!container._pressInit) {
 		container._pressInit = true;
 		container.addEventListener('pointerdown', function(e) {
-			var el = e.target.closest('.yweb-rc-btn, .yweb-rc-color');
+			var el = e.target.closest('.webui-rc-btn, .webui-rc-color');
 			if (!el || !container.contains(el)) return;
 			if (e.pointerType === 'touch' && navigator.vibrate) navigator.vibrate(10);
 			/* Restart-safe: cancel the previous removal hooks before
 			   re-triggering, then force a reflow so the animation restarts. */
 			if (el._pressTimer) { clearTimeout(el._pressTimer); el._pressTimer = null; }
 			if (el._pressEnd) { el.removeEventListener('animationend', el._pressEnd); el._pressEnd = null; }
-			el.classList.remove('yweb-rc-pressed');
+			el.classList.remove('webui-rc-pressed');
 			void el.offsetWidth;
-			el.classList.add('yweb-rc-pressed');
+			el.classList.add('webui-rc-pressed');
 			var clear = function() {
-				el.classList.remove('yweb-rc-pressed');
+				el.classList.remove('webui-rc-pressed');
 				if (el._pressTimer) { clearTimeout(el._pressTimer); el._pressTimer = null; }
 				if (el._pressEnd) { el.removeEventListener('animationend', el._pressEnd); el._pressEnd = null; }
 			};
@@ -1089,95 +1091,95 @@ function ywebInitRemoteRepeat(containerId) {
 /* Registry of rendered remote instances, keyed by HOST element id (the
    wrapper the remote is rendered into; opts.id names the inner root).
    Lets a late-registered skin renderer replace existing instances. */
-var _ywebRemoteInstances = {};
+var _webuiRemoteInstances = {};
 
-function ywebRenderRemote(hostId, opts) {
+function webuiRenderRemote(hostId, opts) {
 	var host = document.getElementById(hostId);
 	if (!host) {
-		delete _ywebRemoteInstances[hostId];
+		delete _webuiRemoteInstances[hostId];
 		return;
 	}
 	opts = opts || {};
-	host.innerHTML = ywebGetRemoteHTML(opts);
-	ywebInitRemoteRepeat(opts.id || 'yweb-remote');
-	_ywebRemoteInstances[hostId] = opts;
+	host.innerHTML = webuiGetRemoteHTML(opts);
+	webuiInitRemoteRepeat(opts.id || 'webui-remote');
+	_webuiRemoteInstances[hostId] = opts;
 }
 
 /**
  * Registers a hardware-specific remote skin renderer (see the contract
- * at ywebGetRemoteHTML). Last registration wins; already-rendered
+ * at webuiGetRemoteHTML). Last registration wins; already-rendered
  * instances are re-rendered in place, an open remote modal stays open.
  */
-function ywebRegisterRemoteRenderer(fn) {
-	if (YWEB_CONFIG.remoteRenderer && YWEB_CONFIG.remoteRenderer !== fn)
-		console.warn('yweb: remote renderer already registered - overwriting (last one wins)');
-	YWEB_CONFIG.remoteRenderer = fn;
+function webuiRegisterRemoteRenderer(fn) {
+	if (WEBUI_CONFIG.remoteRenderer && WEBUI_CONFIG.remoteRenderer !== fn)
+		console.warn('webui: remote renderer already registered - overwriting (last one wins)');
+	WEBUI_CONFIG.remoteRenderer = fn;
 
-	var modal = document.getElementById('yweb-remote-modal');
+	var modal = document.getElementById('webui-remote-modal');
 	if (modal && getComputedStyle(modal).display !== 'none') {
 		/* Open modal: swap the panel in place; scroll lock and dialog
 		   stay untouched. Restore focus if it sat in the replaced tree. */
-		ywebRenderRemote('yweb-remote-modal-host',
-			_ywebRemoteInstances['yweb-remote-modal-host'] ||
-			{ id: 'yweb-remote-modal-panel', onKey: _ywebRemoteModalOnKey || 'ywebSendKey' });
+		webuiRenderRemote('webui-remote-modal-host',
+			_webuiRemoteInstances['webui-remote-modal-host'] ||
+			{ id: 'webui-remote-modal-panel', onKey: _webuiRemoteModalOnKey || 'webuiSendKey' });
 		if (!modal.contains(document.activeElement)) {
-			var closeBtn = modal.querySelector('.yweb-modal-close');
+			var closeBtn = modal.querySelector('.webui-modal-close');
 			if (closeBtn) closeBtn.focus();
 		}
 	} else if (modal) {
 		/* Closed modal: drop it so the next open builds with the skin */
 		if (modal._keyHandler) document.removeEventListener('keydown', modal._keyHandler);
 		modal.remove();
-		_ywebRemoteModalOnKey = null;
-		delete _ywebRemoteInstances['yweb-remote-modal-host'];
+		_webuiRemoteModalOnKey = null;
+		delete _webuiRemoteInstances['webui-remote-modal-host'];
 	}
 
 	/* Re-render all remaining registered instances (covers the
 	   screenshot page, whose remote is built before async discovery) */
-	Object.keys(_ywebRemoteInstances).forEach(function(hostId) {
-		if (hostId === 'yweb-remote-modal-host') return;
+	Object.keys(_webuiRemoteInstances).forEach(function(hostId) {
+		if (hostId === 'webui-remote-modal-host') return;
 		if (!document.getElementById(hostId)) {
-			delete _ywebRemoteInstances[hostId];
+			delete _webuiRemoteInstances[hostId];
 			return;
 		}
-		ywebRenderRemote(hostId, _ywebRemoteInstances[hostId]);
+		webuiRenderRemote(hostId, _webuiRemoteInstances[hostId]);
 	});
 }
 
 // Remote Modal
-var _ywebRemoteModalOnKey = null;
+var _webuiRemoteModalOnKey = null;
 
-function ywebShowRemote(opts) {
+function webuiShowRemote(opts) {
 	opts = opts || {};
-	var onKey = opts.onKey || 'ywebSendKey';
-	var modal = document.getElementById('yweb-remote-modal');
+	var onKey = opts.onKey || 'webuiSendKey';
+	var modal = document.getElementById('webui-remote-modal');
 
 	// Rebuild modal if onKey changed
-	if (modal && _ywebRemoteModalOnKey !== onKey) {
+	if (modal && _webuiRemoteModalOnKey !== onKey) {
 		if (modal._keyHandler) document.removeEventListener('keydown', modal._keyHandler);
 		modal.remove();
-		delete _ywebRemoteInstances['yweb-remote-modal-host'];
+		delete _webuiRemoteInstances['webui-remote-modal-host'];
 		modal = null;
 	}
 
 	if (!modal) {
-		_ywebRemoteModalOnKey = onKey;
-		var html = '<div class="yweb-remote-backdrop" id="yweb-remote-modal" onclick="ywebCloseRemote(event)">' +
-			'<div class="yweb-remote-dialog" role="dialog" aria-modal="true" aria-labelledby="yweb-remote-modal-title" onclick="event.stopPropagation()">' +
-				'<div class="yweb-remote-modal-header">' +
-					'<span id="yweb-remote-modal-title">' + YWEB_ICONS.remote + ' ' + ywebL('tools.remote_sub', 'Remote control') + '</span>' +
-					_ywebCloseBtn('ywebCloseRemote()') +
+		_webuiRemoteModalOnKey = onKey;
+		var html = '<div class="webui-remote-backdrop" id="webui-remote-modal" onclick="webuiCloseRemote(event)">' +
+			'<div class="webui-remote-dialog" role="dialog" aria-modal="true" aria-labelledby="webui-remote-modal-title" onclick="event.stopPropagation()">' +
+				'<div class="webui-remote-modal-header">' +
+					'<span id="webui-remote-modal-title">' + WEBUI_ICONS.remote + ' ' + webuiL('tools.remote_sub', 'Remote control') + '</span>' +
+					_webuiCloseBtn('webuiCloseRemote()') +
 				'</div>' +
-				'<div id="yweb-remote-modal-host"></div>' +
+				'<div id="webui-remote-modal-host"></div>' +
 			'</div>' +
 		'</div>';
 		document.body.insertAdjacentHTML('beforeend', html);
-		modal = document.getElementById('yweb-remote-modal');
-		ywebRenderRemote('yweb-remote-modal-host', { id: 'yweb-remote-modal-panel', onKey: onKey });
+		modal = document.getElementById('webui-remote-modal');
+		webuiRenderRemote('webui-remote-modal-host', { id: 'webui-remote-modal-panel', onKey: onKey });
 	}
 	modal._opener = document.activeElement;
 	modal.style.display = 'flex';
-	document.body.classList.add('yweb-remote-open');
+	document.body.classList.add('webui-remote-open');
 
 	/* ESC with sheet priority + Tab focus trap. Registered before any
 	   sheet ESC handler, so on Escape the sheet is closed here first and
@@ -1187,12 +1189,12 @@ function ywebShowRemote(opts) {
 	if (!modal._keyHandler) {
 		modal._keyHandler = function(e) {
 			if (e.key === 'Escape') {
-				var sheet = document.getElementById('yweb-remote-modal-panel-sheet');
+				var sheet = document.getElementById('webui-remote-modal-panel-sheet');
 				if (sheet && sheet.style.display === 'flex') {
-					ywebToggleRcSheet('yweb-remote-modal-panel');
+					webuiToggleRcSheet('webui-remote-modal-panel');
 					return;
 				}
-				ywebCloseRemote();
+				webuiCloseRemote();
 				return;
 			}
 			if (e.key === 'Tab') {
@@ -1205,9 +1207,9 @@ function ywebShowRemote(opts) {
 				   target with a class that joins the focus-ring selector. */
 				var kbdFocus = function(el) {
 					el.focus();
-					el.classList.add('yweb-rc-kbd-focus');
+					el.classList.add('webui-rc-kbd-focus');
 					el.addEventListener('blur', function() {
-						el.classList.remove('yweb-rc-kbd-focus');
+						el.classList.remove('webui-rc-kbd-focus');
 					}, { once: true });
 				};
 				var first = items[0];
@@ -1223,16 +1225,16 @@ function ywebShowRemote(opts) {
 		};
 		document.addEventListener('keydown', modal._keyHandler);
 	}
-	var closeBtn = modal.querySelector('.yweb-modal-close');
+	var closeBtn = modal.querySelector('.webui-modal-close');
 	if (closeBtn) closeBtn.focus();
 }
 
-function ywebCloseRemote(event) {
+function webuiCloseRemote(event) {
 	if (event && event.target !== event.currentTarget) return;
-	var modal = document.getElementById('yweb-remote-modal');
+	var modal = document.getElementById('webui-remote-modal');
 	if (modal) {
 		modal.style.display = 'none';
-		var sheet = modal.querySelector('.yweb-rc-sheet-backdrop');
+		var sheet = modal.querySelector('.webui-rc-sheet-backdrop');
 		if (sheet) {
 			/* Clear the inline style instead of forcing display:none - the
 			   desktop media query shows this block inline via display:flex,
@@ -1252,7 +1254,7 @@ function ywebCloseRemote(event) {
 		}
 		modal._opener = null;
 	}
-	document.body.classList.remove('yweb-remote-open');
+	document.body.classList.remove('webui-remote-open');
 }
 
 // Also escapes quotes so the result is safe in attribute values.
@@ -1270,78 +1272,78 @@ function escapeJs(text) {
 
 // Generic modal on the EPG-modal backdrop pattern. Reuses the element
 // per id and replaces title/body on every call (reset on reopen).
-function ywebModal(id, title, bodyHtml) {
+function webuiModal(id, title, bodyHtml) {
 	var backdrop = document.getElementById(id);
 	if (!backdrop) {
 		backdrop = document.createElement('div');
 		backdrop.id = id;
-		backdrop.className = 'yweb-epg-modal-backdrop';
-		backdrop.innerHTML = '<div class="yweb-epg-modal" onclick="event.stopPropagation()">' +
-			'<div class="yweb-epg-modal-header"><h3></h3>' +
-			_ywebCloseBtn('ywebCloseModal(\'' + id + '\')') + '</div>' +
-			'<div class="yweb-epg-modal-body"></div></div>';
+		backdrop.className = 'webui-epg-modal-backdrop';
+		backdrop.innerHTML = '<div class="webui-epg-modal" onclick="event.stopPropagation()">' +
+			'<div class="webui-epg-modal-header"><h3></h3>' +
+			_webuiCloseBtn('webuiCloseModal(\'' + id + '\')') + '</div>' +
+			'<div class="webui-epg-modal-body"></div></div>';
 		backdrop.addEventListener('click', function(e) {
-			if (e.target === backdrop) ywebCloseModal(id);
+			if (e.target === backdrop) webuiCloseModal(id);
 		});
 		document.body.appendChild(backdrop);
 	}
-	backdrop.querySelector('.yweb-epg-modal-header h3').textContent = title;
-	backdrop.querySelector('.yweb-epg-modal-body').innerHTML = bodyHtml;
+	backdrop.querySelector('.webui-epg-modal-header h3').textContent = title;
+	backdrop.querySelector('.webui-epg-modal-body').innerHTML = bodyHtml;
 	backdrop.classList.add('open');
 	document.body.style.overflow = 'hidden';
 	return backdrop;
 }
 
-function ywebCloseModal(id) {
+function webuiCloseModal(id) {
 	var backdrop = document.getElementById(id);
 	if (backdrop) backdrop.classList.remove('open');
 	document.body.style.overflow = '';
 }
 
-// Companion des geteilten .yweb-file-Controls (webui.css): zeigt den
-// gewaehlten Dateinamen im Control an — onchange="ywebFileName(this)"
-function ywebFileName(inp) {
-	var box = inp.closest('.yweb-file');
-	var n = box && box.querySelector('.yweb-file-name');
+// Companion des geteilten .webui-file-Controls (webui.css): zeigt den
+// gewaehlten Dateinamen im Control an — onchange="webuiFileName(this)"
+function webuiFileName(inp) {
+	var box = inp.closest('.webui-file');
+	var n = box && box.querySelector('.webui-file-name');
 	if (n) n.textContent = (inp.files && inp.files.length) ? inp.files[0].name : '–';
 }
 
 // ═══ Verzeichnis-/Datei-Picker (nutzt FileCGI action=list) ═══
 // Elternpfad von p (POSIX), '/' bleibt '/'
-function ywebParentPath(p) {
+function webuiParentPath(p) {
 	if (!p || p === '/') return '/';
 	p = p.replace(/\/+$/, '');
 	var i = p.lastIndexOf('/');
 	return i <= 0 ? '/' : p.substring(0, i);
 }
 
-var _ywebPickerState = null;
+var _webuiPickerState = null;
 
-// ywebShowPathPicker(startPath, onPick, opts)
+// webuiShowPathPicker(startPath, onPick, opts)
 //   onPick(path) erhaelt den gewaehlten Ordner (oder mit opts.filesToo:true
 //   auch eine Datei). opts.filesToo zeigt zusaetzlich Dateien an.
-function ywebShowPathPicker(startPath, onPick, opts) {
+function webuiShowPathPicker(startPath, onPick, opts) {
 	opts = opts || {};
-	_ywebPickerState = {onPick: onPick, filesToo: !!opts.filesToo, path: startPath || '/'};
-	ywebModal('yweb-picker', ywebL('picker.title', 'Choose folder'),
-		'<div id="yweb-picker-crumb" style="font-size:0.8rem;color:var(--pico-muted-color);margin-bottom:0.5rem;word-break:break-all"></div>' +
-		'<ul id="yweb-picker-list" style="list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto"></ul>' +
-		'<div class="yweb-form-row" style="margin-top:0.8rem"><label></label>' +
-		'<button type="button" class="yweb-btn primary" onclick="ywebPickerChoose()">' +
-		ywebL('picker.choose_folder', 'Choose this folder') + '</button></div>');
-	ywebPickerLoad(_ywebPickerState.path);
+	_webuiPickerState = {onPick: onPick, filesToo: !!opts.filesToo, path: startPath || '/'};
+	webuiModal('webui-picker', webuiL('picker.title', 'Choose folder'),
+		'<div id="webui-picker-crumb" style="font-size:0.8rem;color:var(--pico-muted-color);margin-bottom:0.5rem;word-break:break-all"></div>' +
+		'<ul id="webui-picker-list" style="list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto"></ul>' +
+		'<div class="webui-form-row" style="margin-top:0.8rem"><label></label>' +
+		'<button type="button" class="webui-btn primary" onclick="webuiPickerChoose()">' +
+		webuiL('picker.choose_folder', 'Choose this folder') + '</button></div>');
+	webuiPickerLoad(_webuiPickerState.path);
 }
 
 /* Over /api/v1 where the page loads webui-v1.js: the picker then reaches the
    box's roots and what lies below them, as the file manager does. Its top
    level ('') is the list of roots, and a start outside them leads there. */
-async function _ywebPickerRows(path) {
+async function _webuiPickerRows(path) {
 	if (path) {
 		try {
-			var listed = await ywebV1('GET', '/storage/files', {query: {path: path}});
-			var roots0 = await ywebV1('GET', '/storage/roots');
+			var listed = await webuiV1('GET', '/storage/files', {query: {path: path}});
+			var roots0 = await webuiV1('GET', '/storage/roots');
 			var isRoot = ((roots0 && roots0.items) || []).some(function(r) { return r.present && r.id === path; });
-			return {path: path, parent: isRoot ? '' : ywebParentPath(path),
+			return {path: path, parent: isRoot ? '' : webuiParentPath(path),
 				entries: ((listed && listed.items) || []).map(function(e) {
 					return {name: e.id, dir: e.kind === 'dir', full: path.replace(/\/+$/, '') + '/' + e.id};
 				})};
@@ -1349,87 +1351,87 @@ async function _ywebPickerRows(path) {
 			if (e.code !== 'outside-roots' && e.code !== 'no-such-name') throw e;
 		}
 	}
-	var roots = await ywebV1('GET', '/storage/roots');
+	var roots = await webuiV1('GET', '/storage/roots');
 	return {path: '', parent: null, entries: ((roots && roots.items) || []).filter(function(r) { return r.present; })
 		.map(function(r) { return {name: r.id, dir: true, full: r.id}; })};
 }
 
-async function ywebPickerLoad(path) {
-	var listEl = document.getElementById('yweb-picker-list');
-	var crumbEl = document.getElementById('yweb-picker-crumb');
+async function webuiPickerLoad(path) {
+	var listEl = document.getElementById('webui-picker-list');
+	var crumbEl = document.getElementById('webui-picker-crumb');
 	if (!listEl) return;
-	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + ywebL('msg.loading', 'Loading...') + '</li>';
+	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + webuiL('msg.loading', 'Loading...') + '</li>';
 	// both: a page that loads webui-v1.js without webui-dom.js keeps the old list
-	if (typeof ywebV1 === 'function' && typeof ywebEl === 'function') {
+	if (typeof webuiV1 === 'function' && typeof webuiEl === 'function') {
 		var rows;
 		try {
-			rows = await _ywebPickerRows(path);
+			rows = await _webuiPickerRows(path);
 		} catch (e) {
-			ywebShowToast(ywebL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
+			webuiShowToast(webuiL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
 			return;
 		}
-		_ywebPickerState.path = rows.path;
-		if (crumbEl) crumbEl.textContent = rows.path || ywebL('picker.roots', 'Permitted folders');
-		var chooseBtn = document.querySelector('#yweb-picker .yweb-btn.primary');
+		_webuiPickerState.path = rows.path;
+		if (crumbEl) crumbEl.textContent = rows.path || webuiL('picker.roots', 'Permitted folders');
+		var chooseBtn = document.querySelector('#webui-picker .webui-btn.primary');
 		if (chooseBtn) chooseBtn.disabled = !rows.path;	// the list of roots is no folder
 		// Rows as elements with their handlers, so a folder name is text
 		// whatever it holds (webui-dom.js comes with webui-v1.js)
 		var row = function(label, onClick) {
-			return ywebEl('li', {}, ywebEl('button', {type: 'button', className: 'yweb-btn',
+			return webuiEl('li', {}, webuiEl('button', {type: 'button', className: 'webui-btn',
 				style: {width: '100%', 'text-align': 'left', border: 'none'}, on: {click: onClick}}, label));
 		};
 		var items = [];
 		if (rows.parent !== null)
-			items.push(row('↑ ..', function() { ywebPickerLoad(rows.parent); }));
+			items.push(row('↑ ..', function() { webuiPickerLoad(rows.parent); }));
 		rows.entries.forEach(function(e) {
-			if (!e.dir && !_ywebPickerState.filesToo) return;
+			if (!e.dir && !_webuiPickerState.filesToo) return;
 			items.push(row((e.dir ? '📁' : '📄') + ' ' + e.name,
-				function() { if (e.dir) ywebPickerLoad(e.full); else ywebPickerPickFile(e.full); }));
+				function() { if (e.dir) webuiPickerLoad(e.full); else webuiPickerPickFile(e.full); }));
 		});
 		if (!items.length)
-			items.push(ywebEl('li', {style: {padding: '0.5rem', color: 'var(--pico-muted-color)'}}, ywebL('picker.empty', 'empty')));
+			items.push(webuiEl('li', {style: {padding: '0.5rem', color: 'var(--pico-muted-color)'}}, webuiL('picker.empty', 'empty')));
 		listEl.replaceChildren.apply(listEl, items);
 		return;
 	}
 	var data;
 	try {
-		data = await ywebApi('file', {action: 'list', path: path});
+		data = await webuiApi('file', {action: 'list', path: path});
 	} catch (e) {
-		ywebShowToast(ywebL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
+		webuiShowToast(webuiL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
 		return;
 	}
-	_ywebPickerState.path = path;
+	_webuiPickerState.path = path;
 	if (crumbEl) crumbEl.textContent = path;
 	var entries = (data.data && data.data.filelist) || data.filelist || [];
 	var html = '';
 	if (path !== '/')
-		html += '<li><button type="button" class="yweb-btn" style="width:100%;text-align:left;border:none" ' +
-			'onclick="ywebPickerLoad(' + escapeHtml(JSON.stringify(ywebParentPath(path))) + ')">↑ ..</button></li>';
+		html += '<li><button type="button" class="webui-btn" style="width:100%;text-align:left;border:none" ' +
+			'onclick="webuiPickerLoad(' + escapeHtml(JSON.stringify(webuiParentPath(path))) + ')">↑ ..</button></li>';
 	entries.forEach(function(e) {
 		if (!e.name || e.name === '.' || e.name === '..') return;
 		var isDir = (e.type_str === 'dir' || e.type === 4 || e.type === '4');
-		if (!isDir && !_ywebPickerState.filesToo) return;
+		if (!isDir && !_webuiPickerState.filesToo) return;
 		var full = e.fullname || (path.replace(/\/+$/, '') + '/' + e.name);
 		// escaped as a whole: the attribute is decoded before the handler is
 		// read, so an & in a name must not become a quote there
 		var arg = escapeHtml(JSON.stringify(full));
 		var icon = isDir ? '📁' : '📄';
-		var action = isDir ? 'ywebPickerLoad(' + arg + ')' : 'ywebPickerPickFile(' + arg + ')';
-		html += '<li><button type="button" class="yweb-btn" style="width:100%;text-align:left;border:none" onclick="' + action + '">' +
+		var action = isDir ? 'webuiPickerLoad(' + arg + ')' : 'webuiPickerPickFile(' + arg + ')';
+		html += '<li><button type="button" class="webui-btn" style="width:100%;text-align:left;border:none" onclick="' + action + '">' +
 			icon + ' ' + escapeHtml(e.name) + '</button></li>';
 	});
-	listEl.innerHTML = html || '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + ywebL('picker.empty', 'empty') + '</li>';
+	listEl.innerHTML = html || '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + webuiL('picker.empty', 'empty') + '</li>';
 }
 
-function ywebPickerChoose() {
-	var st = _ywebPickerState;
-	ywebCloseModal('yweb-picker');
+function webuiPickerChoose() {
+	var st = _webuiPickerState;
+	webuiCloseModal('webui-picker');
 	if (st && typeof st.onPick === 'function') st.onPick(st.path);
 }
 
-function ywebPickerPickFile(full) {
-	var st = _ywebPickerState;
-	ywebCloseModal('yweb-picker');
+function webuiPickerPickFile(full) {
+	var st = _webuiPickerState;
+	webuiCloseModal('webui-picker');
 	if (st && typeof st.onPick === 'function') st.onPick(full);
 }
 
@@ -1437,66 +1439,66 @@ function ywebPickerPickFile(full) {
 // which the pages offering them load after this file.
 
 // Timer constants — shared across all pages. Interne Typnamen (EN,
-// stabil fuer Logik); Anzeige-Labels kommen lokalisiert via ywebL —
+// stabil fuer Logik); Anzeige-Labels kommen lokalisiert via webuiL —
 // Y_Lang.yjs ist vor dieser Datei geladen, daher sind die Konstanten
 // hier bereits uebersetzt.
-const YWEB_TIMER_TYPES = {
+const WEBUI_TIMER_TYPES = {
 	1: 'Shutdown', 2: 'Nextprogram', 3: 'Zapto', 4: 'Standby',
 	5: 'Record', 6: 'Remind', 7: 'Sleeptimer', 8: 'Plugin', 9: 'Immediate Record'
 };
 
-const YWEB_TIMER_TYPE_LABELS = {
-	1: ywebL('timer.type.1', 'Shutdown'), 3: ywebL('timer.type.3', 'Zap'),
-	4: ywebL('timer.type.4', 'Standby'), 5: ywebL('timer.type.5', 'Record'),
-	6: ywebL('timer.type.6', 'Reminder'), 7: ywebL('timer.type.7', 'Sleep timer'),
-	8: ywebL('timer.type.8', 'Plugin'), 9: ywebL('timer.type.9', 'Instant record')
+const WEBUI_TIMER_TYPE_LABELS = {
+	1: webuiL('timer.type.1', 'Shutdown'), 3: webuiL('timer.type.3', 'Zap'),
+	4: webuiL('timer.type.4', 'Standby'), 5: webuiL('timer.type.5', 'Record'),
+	6: webuiL('timer.type.6', 'Reminder'), 7: webuiL('timer.type.7', 'Sleep timer'),
+	8: webuiL('timer.type.8', 'Plugin'), 9: webuiL('timer.type.9', 'Instant record')
 };
 
-const YWEB_TIMER_STATE_LABELS = {
-	0: ywebL('timer.state.0', 'Scheduled'), 1: ywebL('timer.state.1', 'Announced'),
-	2: ywebL('timer.state.2', 'Active'), 3: ywebL('timer.state.3', 'Finished'),
-	4: ywebL('timer.state.4', 'Cancelled')
+const WEBUI_TIMER_STATE_LABELS = {
+	0: webuiL('timer.state.0', 'Scheduled'), 1: webuiL('timer.state.1', 'Announced'),
+	2: webuiL('timer.state.2', 'Active'), 3: webuiL('timer.state.3', 'Finished'),
+	4: webuiL('timer.state.4', 'Cancelled')
 };
 
-const YWEB_REPEAT_LABELS = {
-	'once': ywebL('timer.rep.once', 'Once'), 'daily': ywebL('timer.rep.daily', 'Daily'),
-	'weekly': ywebL('timer.rep.weekly', 'Weekly'), 'biweekly': ywebL('timer.rep.biweekly', 'Every 2 weeks'),
-	'fourweekly': ywebL('timer.rep.fourweekly', 'Every 4 weeks'),
-	'monthly': ywebL('timer.rep.monthly', 'Monthly'), 'byeventdescription': ywebL('timer.rep.bydesc', 'By description')
+const WEBUI_REPEAT_LABELS = {
+	'once': webuiL('timer.rep.once', 'Once'), 'daily': webuiL('timer.rep.daily', 'Daily'),
+	'weekly': webuiL('timer.rep.weekly', 'Weekly'), 'biweekly': webuiL('timer.rep.biweekly', 'Every 2 weeks'),
+	'fourweekly': webuiL('timer.rep.fourweekly', 'Every 4 weeks'),
+	'monthly': webuiL('timer.rep.monthly', 'Monthly'), 'byeventdescription': webuiL('timer.rep.bydesc', 'By description')
 };
 
 // Timer helper functions — shared across all pages
-function ywebGetTimerType(timer) {
+function webuiGetTimerType(timer) {
 	var n = parseInt(timer.type_number) || 0;
-	return YWEB_TIMER_TYPE_LABELS[n] || YWEB_TIMER_TYPES[n] || 'Timer';
+	return WEBUI_TIMER_TYPE_LABELS[n] || WEBUI_TIMER_TYPES[n] || 'Timer';
 }
 
-function ywebGetTimerAlarm(timer) {
+function webuiGetTimerAlarm(timer) {
 	if (Array.isArray(timer.alarm) && timer.alarm.length > 0)
 		return timer.alarm[0];
 	return timer.alarm && timer.alarm.normal ? timer.alarm.normal : {};
 }
 
-function ywebGetTimerStop(timer) {
+function webuiGetTimerStop(timer) {
 	if (Array.isArray(timer.stop) && timer.stop.length > 0)
 		return timer.stop[0];
 	return timer.stop || {};
 }
 
-function ywebGetTimerStopSec(timer) {
-	var stop = ywebGetTimerStop(timer);
+function webuiGetTimerStopSec(timer) {
+	var stop = webuiGetTimerStop(timer);
 	return parseInt(stop.digits) || 0;
 }
 
-function ywebResolveRepeatText(raw) {
+function webuiResolveRepeatText(raw) {
 	if (!raw) return 'Einmalig';
 	var m = raw.match(/\{=L:timerlist\.repeat\.(\w+)=\}/);
-	if (m) return YWEB_REPEAT_LABELS[m[1]] || m[1];
-	return YWEB_REPEAT_LABELS[raw.toLowerCase()] || raw;
+	if (m) return WEBUI_REPEAT_LABELS[m[1]] || m[1];
+	return WEBUI_REPEAT_LABELS[raw.toLowerCase()] || raw;
 }
 
-function ywebGetTimerIconHtml(type, cssPrefix) {
-	var cls = cssPrefix || 'yweb-timer-type-icon';
+function webuiGetTimerIconHtml(type, cssPrefix) {
+	var cls = cssPrefix || 'webui-timer-type-icon';
 	if (type === 'Record' || type === 'Immediate Record')
 		return '<div class="' + cls + ' record"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg></div>';
 	if (type === 'Zapto')
@@ -1510,7 +1512,7 @@ function ywebGetTimerIconHtml(type, cssPrefix) {
 
 // Parse timer list from API JSON response — shared across all pages
 // Handles: {data: {timer: {timer: [{timer_list: [...]}]}}}, {timer: [...]}, etc.
-function ywebParseTimerList(data) {
+function webuiParseTimerList(data) {
 	var root = data.data || data;
 	var timerRoot = root.timer ? (root.timer.timer || root.timer) : null;
 	if (!timerRoot) return [];
@@ -1524,23 +1526,23 @@ function ywebParseTimerList(data) {
 }
 
 // Fetch bouquets — cached, shared across all pages
-let _ywebBouquetCache = null;
-async function ywebFetchBouquets() {
-	if (_ywebBouquetCache) return _ywebBouquetCache;
-	const data = await ywebApi('bouquets');
+let _webuiBouquetCache = null;
+async function webuiFetchBouquets() {
+	if (_webuiBouquetCache) return _webuiBouquetCache;
+	const data = await webuiApi('bouquets');
 	const root = data.data || data;
-	_ywebBouquetCache = root.bouquets || [];
-	return _ywebBouquetCache;
+	_webuiBouquetCache = root.bouquets || [];
+	return _webuiBouquetCache;
 }
 
 // Fetch channels for a bouquet — cached per bouquet number
-let _ywebChannelCache = {};
-async function ywebFetchChannels(bouquetNr) {
-	if (_ywebChannelCache[bouquetNr]) return _ywebChannelCache[bouquetNr];
-	const data = await ywebApi('bouquet', {bouquet: bouquetNr});
+let _webuiChannelCache = {};
+async function webuiFetchChannels(bouquetNr) {
+	if (_webuiChannelCache[bouquetNr]) return _webuiChannelCache[bouquetNr];
+	const data = await webuiApi('bouquet', {bouquet: bouquetNr});
 	const root = data.data || data;
-	_ywebChannelCache[bouquetNr] = root.channels || [];
-	return _ywebChannelCache[bouquetNr];
+	_webuiChannelCache[bouquetNr] = root.channels || [];
+	return _webuiChannelCache[bouquetNr];
 }
 
 // Confirm dialog — shared across all pages
@@ -1548,19 +1550,19 @@ async function ywebFetchChannels(bouquetNr) {
 // onConfirm: async function(btn) — called when user clicks confirm, btn shows loading state
 // opts.variant 'ok': Akzent-Knopf fuer nicht-destruktive Rueckfragen
 // (Standby, Neustart-Frage o.ae.); Default bleibt rot (destruktiv)
-function ywebShowConfirm(title, message, confirmLabel, onConfirm, opts) {
+function webuiShowConfirm(title, message, confirmLabel, onConfirm, opts) {
 	var confirmClass = (opts && opts.variant === 'ok') ? 'confirm-ok' : 'confirm-delete';
 	var backdrop = document.createElement('div');
-	backdrop.className = 'yweb-confirm-backdrop';
+	backdrop.className = 'webui-confirm-backdrop';
 	backdrop.onclick = function(e) {
 		if (e.target === backdrop) backdrop.remove();
 	};
 	backdrop.innerHTML =
-		'<div class="yweb-confirm-dialog">' +
+		'<div class="webui-confirm-dialog">' +
 			'<h4>' + title + '</h4>' +
 			'<p>' + message + '</p>' +
-			'<div class="yweb-confirm-actions">' +
-				'<button class="confirm-cancel">' + ywebL('msg.cancel', 'Cancel') + '</button>' +
+			'<div class="webui-confirm-actions">' +
+				'<button class="confirm-cancel">' + webuiL('msg.cancel', 'Cancel') + '</button>' +
 				'<button class="' + confirmClass + '">' + confirmLabel + '</button>' +
 			'</div>' +
 		'</div>';
@@ -1574,7 +1576,7 @@ function ywebShowConfirm(title, message, confirmLabel, onConfirm, opts) {
 			backdrop.remove();
 		} catch (e) {
 			console.error('Confirm action failed:', e);
-			btn.textContent = ywebL('msg.error', 'Error');
+			btn.textContent = webuiL('msg.error', 'Error');
 			setTimeout(function() { backdrop.remove(); }, 1500);
 		}
 	};
@@ -1584,26 +1586,26 @@ function ywebShowConfirm(title, message, confirmLabel, onConfirm, opts) {
 // Prompt dialog — shared: Textfeld mit OK/Abbrechen im Look des
 // Confirm-Dialogs, Ersatz fuer natives prompt(). onOk(value) darf
 // async sein; Enter bestaetigt, Escape/Backdrop bricht ab.
-function ywebShowPrompt(title, label, value, onOk) {
+function webuiShowPrompt(title, label, value, onOk) {
 	var backdrop = document.createElement('div');
-	backdrop.className = 'yweb-confirm-backdrop';
+	backdrop.className = 'webui-confirm-backdrop';
 	backdrop.onclick = function(e) {
 		if (e.target === backdrop) backdrop.remove();
 	};
 	backdrop.innerHTML =
-		'<div class="yweb-confirm-dialog">' +
+		'<div class="webui-confirm-dialog">' +
 			'<h4></h4>' +
-			'<label class="yweb-prompt-label"></label>' +
-			'<input type="text" class="yweb-prompt-input" maxlength="255">' +
-			'<div class="yweb-confirm-actions">' +
-				'<button class="confirm-cancel">' + ywebL('msg.cancel', 'Cancel') + '</button>' +
+			'<label class="webui-prompt-label"></label>' +
+			'<input type="text" class="webui-prompt-input" maxlength="255">' +
+			'<div class="webui-confirm-actions">' +
+				'<button class="confirm-cancel">' + webuiL('msg.cancel', 'Cancel') + '</button>' +
 				'<button class="confirm-ok">OK</button>' +
 			'</div>' +
 		'</div>';
 	backdrop.querySelector('h4').textContent = title;
-	var lab = backdrop.querySelector('.yweb-prompt-label');
+	var lab = backdrop.querySelector('.webui-prompt-label');
 	if (label) lab.textContent = label; else lab.remove();
-	var inp = backdrop.querySelector('.yweb-prompt-input');
+	var inp = backdrop.querySelector('.webui-prompt-input');
 	inp.value = value || '';
 	var ok = async function(btn) {
 		// Enter while the first OK is still running would send it twice
@@ -1615,7 +1617,7 @@ function ywebShowPrompt(title, label, value, onOk) {
 			backdrop.remove();
 		} catch (e) {
 			console.error('Prompt action failed:', e);
-			btn.textContent = ywebL('msg.error', 'Error');
+			btn.textContent = webuiL('msg.error', 'Error');
 			setTimeout(function() { backdrop.remove(); }, 1500);
 		}
 	};
@@ -1631,33 +1633,33 @@ function ywebShowPrompt(title, label, value, onOk) {
 }
 
 // Message popover — send ticker or popup messages to the box
-function ywebShowMessageDialog() {
-	var pop = document.getElementById('yweb-message-pop');
+function webuiShowMessageDialog() {
+	var pop = document.getElementById('webui-message-pop');
 	if (pop) { pop.classList.toggle('open'); return; }
 
 	pop = document.createElement('div');
-	pop.id = 'yweb-message-pop';
-	pop.className = 'yweb-popover open';
+	pop.id = 'webui-message-pop';
+	pop.className = 'webui-popover open';
 	pop.innerHTML =
-		'<button type="button" class="yweb-popover-close" onclick="document.getElementById(\'yweb-message-pop\').classList.remove(\'open\')" aria-label="Close">\u00d7</button>' +
+		'<button type="button" class="webui-popover-close" onclick="document.getElementById(\'webui-message-pop\').classList.remove(\'open\')" aria-label="Close">\u00d7</button>' +
 		'<form onsubmit="return false">' +
-			'<input type="text" id="yweb-msg-text" placeholder="' + ywebL('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
-			'<div class="yweb-popover-actions">' +
-				'<small id="yweb-msg-result">\u00a0</small>' +
-				'<button type="button" class="yweb-btn" onclick="ywebSendMessage(\'nmsg\')">' + ywebL('tools.message', 'Message') + '</button>' +
-				'<button type="button" class="yweb-btn primary" onclick="ywebSendMessage(\'popup\')">Popup</button>' +
+			'<input type="text" id="webui-msg-text" placeholder="' + webuiL('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
+			'<div class="webui-popover-actions">' +
+				'<small id="webui-msg-result">\u00a0</small>' +
+				'<button type="button" class="webui-btn" onclick="webuiSendMessage(\'nmsg\')">' + webuiL('tools.message', 'Message') + '</button>' +
+				'<button type="button" class="webui-btn primary" onclick="webuiSendMessage(\'popup\')">Popup</button>' +
 			'</div>' +
 		'</form>';
 	document.body.appendChild(pop);
 
-	var input = pop.querySelector('#yweb-msg-text');
-	input.onkeydown = function(e) { if (e.key === 'Enter') ywebSendMessage('nmsg'); };
+	var input = pop.querySelector('#webui-msg-text');
+	input.onkeydown = function(e) { if (e.key === 'Enter') webuiSendMessage('nmsg'); };
 	input.focus();
 
 	// Close on outside click
 	setTimeout(function() {
 		document.addEventListener('click', function close(e) {
-			if (!pop.contains(e.target) && !e.target.closest('[onclick*="ywebShowMessageDialog"]')) {
+			if (!pop.contains(e.target) && !e.target.closest('[onclick*="webuiShowMessageDialog"]')) {
 				pop.classList.remove('open');
 				document.removeEventListener('click', close);
 			}
@@ -1665,39 +1667,39 @@ function ywebShowMessageDialog() {
 	}, 10);
 }
 
-async function ywebSendMessage(mode) {
-	var input = document.getElementById('yweb-msg-text');
+async function webuiSendMessage(mode) {
+	var input = document.getElementById('webui-msg-text');
 	var text = input.value.trim();
 	if (!text) return;
 
-	var result = document.getElementById('yweb-msg-result');
+	var result = document.getElementById('webui-msg-result');
 	try {
-		if (typeof ywebV1 === 'function') {
+		if (typeof webuiV1 === 'function') {
 			// nmsg: a hint that goes by itself; popup: a box that waits
-			await ywebV1('POST', '/osd/message', {body: {text: text, kind: mode === 'popup' ? 'box' : 'hint'}});
+			await webuiV1('POST', '/osd/message', {body: {text: text, kind: mode === 'popup' ? 'box' : 'hint'}});
 		} else {
 			var params = {};
 			params[mode] = text;
-			await ywebApi('message', params);
+			await webuiApi('message', params);
 		}
 		result.textContent = 'Gesendet';
-		result.style.color = 'var(--yweb-success)';
+		result.style.color = 'var(--webui-success)';
 		input.value = '';
 		setTimeout(function() { result.textContent = '\u00a0'; result.style.color = ''; }, 2500);
 	} catch (e) {
-		result.textContent = ywebL('msg.error', 'Error') + ': ' + e.message;
-		result.style.color = 'var(--yweb-danger)';
+		result.textContent = webuiL('msg.error', 'Error') + ': ' + e.message;
+		result.style.color = 'var(--webui-danger)';
 	}
 }
 
 // Format helpers (shared across pages)
-function ywebFormatKB(kb) {
+function webuiFormatKB(kb) {
 	if (kb < 1024) return kb + ' KB';
 	if (kb < 1048576) return (kb / 1024).toFixed(1) + ' MB';
 	return (kb / 1048576).toFixed(1) + ' GB';
 }
 
-function ywebFormatUptime(seconds) {
+function webuiFormatUptime(seconds) {
 	var days = Math.floor(seconds / 86400);
 	var hours = Math.floor((seconds % 86400) / 3600);
 	var mins = Math.floor((seconds % 3600) / 60);
@@ -1707,13 +1709,13 @@ function ywebFormatUptime(seconds) {
 }
 
 // Toast notification
-function ywebShowToast(message, isError) {
+function webuiShowToast(message, isError) {
 	// Remove existing toast
-	const existing = document.getElementById('yweb-toast');
+	const existing = document.getElementById('webui-toast');
 	if (existing) existing.remove();
 
 	const toast = document.createElement('div');
-	toast.id = 'yweb-toast';
+	toast.id = 'webui-toast';
 	toast.textContent = message;
 	toast.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);' +
 		'padding:0.6rem 1.2rem;border-radius:0.4rem;font-size:0.85rem;z-index:10000;' +
@@ -1725,19 +1727,19 @@ function ywebShowToast(message, isError) {
 }
 
 // About Modal
-function ywebShowAbout() {
-	const modal = document.getElementById('yweb-about-modal');
+function webuiShowAbout() {
+	const modal = document.getElementById('webui-about-modal');
 	if (!modal) return;
 
 	// Load data from API (versions and links)
-	ywebSystemInfoOnce()
-		.then(sys => ywebVersions(sys))
+	webuiSystemInfoOnce()
+		.then(sys => webuiVersions(sys))
 		.then(data => {
 			const setEl = (id, val) => {
 				const el = document.getElementById(id);
 				if (el && val) el.textContent = val;
 			};
-			setEl('about-yweb', data.yweb ? data.yweb + (data.yweb_date ? ' (' + data.yweb_date + ')' : '') : '--');
+			setEl('about-webui', data.webui ? data.webui + (data.webui_date ? ' (' + data.webui_date + ')' : '') : '--');
 			setEl('about-neutrino', data.neutrino || '--');
 			setEl('about-api', data.api || '--');
 
@@ -1750,19 +1752,19 @@ function ywebShowAbout() {
 				};
 				html += link(data.links.homepage, 'Homepage') + link(data.links.docs, 'Dokumentation') +
 					link(data.links.forum, 'Forum');
-				linksEl.innerHTML = html || '<span class="yweb-about-label">' + ywebL('about.no_links', 'No links available') + '</span>';
+				linksEl.innerHTML = html || '<span class="webui-about-label">' + webuiL('about.no_links', 'No links available') + '</span>';
 			}
 
 			// Update copyright from API
 			if (data.copyright && data.copyright.text) {
 				setEl('about-copyright', data.copyright.text);
-				setEl('yweb-footer-copyright', data.copyright.text);
+				setEl('webui-footer-copyright', data.copyright.text);
 			}
 		})
 		.catch(() => {});
 
 	// the box and its system, over /api/v1/system/info
-	ywebSystemInfoOnce()
+	webuiSystemInfoOnce()
 		.then(data => {
 			if (!data) return;
 			const boxEl = document.getElementById('about-box');
@@ -1778,9 +1780,9 @@ function ywebShowAbout() {
 	document.body.style.overflow = 'hidden';
 }
 
-function ywebCloseAbout(event) {
+function webuiCloseAbout(event) {
 	if (event && event.target !== event.currentTarget) return;
-	const modal = document.getElementById('yweb-about-modal');
+	const modal = document.getElementById('webui-about-modal');
 	if (modal) modal.classList.remove('open');
 	document.body.style.overflow = '';
 }
@@ -1792,21 +1794,21 @@ function ywebCloseAbout(event) {
 // (Slot-Override). Which are installed comes from GET /api/v1/webui/extensions,
 // the switches from GET /api/v1/webui/settings, both readable without a
 // sign-in from the home network; a page that may read neither shows none.
-var _ywebExtensions = null;
+var _webuiExtensions = null;
 
-async function _ywebV1Read(path) {
+async function _webuiV1Read(path) {
 	var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
 	return r.ok ? r.json() : null;
 }
 
-async function ywebDiscoverExtensions() {
-	if (_ywebExtensions !== null) return _ywebExtensions;
-	_ywebExtensions = [];
+async function webuiDiscoverExtensions() {
+	if (_webuiExtensions !== null) return _webuiExtensions;
+	_webuiExtensions = [];
 	try {
-		var list = await _ywebV1Read('/webui/extensions');
+		var list = await _webuiV1Read('/webui/extensions');
 		var entries = (list && list.items) || [];
-		if (!entries.length) return _ywebExtensions;
-		var settings = await _ywebV1Read('/webui/settings');
+		if (!entries.length) return _webuiExtensions;
+		var settings = await _webuiV1Read('/webui/settings');
 		var yCfg = {};
 		((settings && settings.items) || []).forEach(function(it) { yCfg[it.key] = it.value; });
 		for (var i = 0; i < entries.length; i++) {
@@ -1831,24 +1833,24 @@ async function ywebDiscoverExtensions() {
 				// Load the language pack for enabled extensions only;
 				// reserved keys translate name/description
 				if (m.enabled) {
-					var xl = await ywebExtLangLoad(m.dir);
+					var xl = await webuiExtLangLoad(m.dir);
 					if (xl['manifest.name']) m.name = xl['manifest.name'];
 					if (xl['manifest.description']) m.description = xl['manifest.description'];
 				}
-				_ywebExtensions.push(m);
+				_webuiExtensions.push(m);
 			} catch (ignore) {}
 		}
 	} catch (ignore) {}
-	return _ywebExtensions;
+	return _webuiExtensions;
 }
 
-var _ywebExtInjected = false;
+var _webuiExtInjected = false;
 
-async function ywebInjectExtensions(pageName) {
+async function webuiInjectExtensions(pageName) {
 	// Nur einmal pro Seitenaufruf injizieren, egal ueber welchen Init-Pfad
-	if (_ywebExtInjected) return;
-	_ywebExtInjected = true;
-	var exts = await ywebDiscoverExtensions();
+	if (_webuiExtInjected) return;
+	_webuiExtInjected = true;
+	var exts = await webuiDiscoverExtensions();
 
 	// Runtime scripts (entry_js): loaded for every enabled extension on
 	// every modern page, independent of slot/url (the slot only governs
@@ -1869,29 +1871,29 @@ async function ywebInjectExtensions(pageName) {
 	exts.forEach(function(m) {
 		if (!m.enabled || !m.url) return; // settings-only hat keine Seite
 		if (m.slot === 'nav') {
-			var ul = document.querySelector('.yweb-nav-links');
+			var ul = document.querySelector('.webui-nav-links');
 			if (ul) {
 				var li = document.createElement('li');
 				li.innerHTML = '<a href="' + escapeHtml(m.url) + '" data-page="ext-' + escapeHtml(m.dir) + '">' + escapeHtml(m.name) + '</a>';
 				ul.appendChild(li);
 			}
 		} else if (m.slot === 'tools') {
-			var grid = document.querySelector('.yweb-tools-grid');
+			var grid = document.querySelector('.webui-tools-grid');
 			if (grid) {
 				var a = document.createElement('a');
 				a.href = m.url;
-				a.className = 'yweb-tool-card';
+				a.className = 'webui-tool-card';
 				a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4.5 4.4 1 6.6-5.5-3-5.5 3 1-6.6L3 9l6-1z"/></svg>' +
-					'<span>' + escapeHtml(m.name) + '</span><small>' + escapeHtml(m.description || ywebL('ext.extension', 'Extension')) + '</small>';
+					'<span>' + escapeHtml(m.name) + '</span><small>' + escapeHtml(m.description || webuiL('ext.extension', 'Extension')) + '</small>';
 				grid.appendChild(a);
 			}
 		} else if (m.slot === 'dashboard') {
-			var dash = document.querySelector('.yweb-dashboard');
+			var dash = document.querySelector('.webui-dashboard');
 			if (dash) {
 				var card = document.createElement('div');
-				card.className = 'yweb-card';
+				card.className = 'webui-card';
 				card.innerHTML = '<h3>' + escapeHtml(m.name) + '</h3>' +
-					'<p><a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.description || ywebL('ext.open', 'Open extension')) + '</a></p>';
+					'<p><a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.description || webuiL('ext.open', 'Open extension')) + '</a></p>';
 				dash.appendChild(card);
 			}
 		}
@@ -1901,84 +1903,84 @@ async function ywebInjectExtensions(pageName) {
 }
 
 // Pull-to-refresh
-let ywebRefreshCallback = null;
-let ywebPullStartY = 0;
-let ywebPullCurrentY = 0;
-let ywebIsPulling = false;
-let ywebIsRefreshing = false;
-const YWEB_PULL_THRESHOLD = 60;
-const YWEB_PULL_MAX = 80;
+let webuiRefreshCallback = null;
+let webuiPullStartY = 0;
+let webuiPullCurrentY = 0;
+let webuiIsPulling = false;
+let webuiIsRefreshing = false;
+const WEBUI_PULL_THRESHOLD = 60;
+const WEBUI_PULL_MAX = 80;
 
-function ywebSetRefreshCallback(fn) {
-	ywebRefreshCallback = fn;
+function webuiSetRefreshCallback(fn) {
+	webuiRefreshCallback = fn;
 }
 
-function ywebCreatePullIndicator() {
-	if (document.getElementById('yweb-pull-indicator')) return;
+function webuiCreatePullIndicator() {
+	if (document.getElementById('webui-pull-indicator')) return;
 
 	const indicator = document.createElement('div');
-	indicator.id = 'yweb-pull-indicator';
-	indicator.className = 'yweb-pull-indicator';
+	indicator.id = 'webui-pull-indicator';
+	indicator.className = 'webui-pull-indicator';
 	indicator.innerHTML = `
-		<div class="yweb-pull-icon">
+		<div class="webui-pull-icon">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 				<path d="M12 5v14M5 12l7 7 7-7"/>
 			</svg>
 		</div>
-		<span class="yweb-pull-text"></span>
+		<span class="webui-pull-text"></span>
 	`;
 	document.body.insertBefore(indicator, document.body.firstChild);
 }
 
-function ywebUpdatePullIndicator(distance) {
-	const indicator = document.getElementById('yweb-pull-indicator');
+function webuiUpdatePullIndicator(distance) {
+	const indicator = document.getElementById('webui-pull-indicator');
 	if (!indicator) return;
 
-	const progress = Math.min(distance / YWEB_PULL_THRESHOLD, 1);
-	const translateY = Math.min(distance, YWEB_PULL_MAX) - 50;
-	const textEl = indicator.querySelector('.yweb-pull-text');
-	const iconEl = indicator.querySelector('.yweb-pull-icon');
+	const progress = Math.min(distance / WEBUI_PULL_THRESHOLD, 1);
+	const translateY = Math.min(distance, WEBUI_PULL_MAX) - 50;
+	const textEl = indicator.querySelector('.webui-pull-text');
+	const iconEl = indicator.querySelector('.webui-pull-icon');
 
 	indicator.style.transform = `translateY(${translateY}px)`;
-	indicator.classList.toggle('ready', distance >= YWEB_PULL_THRESHOLD);
+	indicator.classList.toggle('ready', distance >= WEBUI_PULL_THRESHOLD);
 
 	if (iconEl) {
 		iconEl.style.transform = `rotate(${progress * 180}deg)`;
 	}
 
 	if (textEl) {
-		textEl.textContent = distance >= YWEB_PULL_THRESHOLD ? 'Loslassen' : 'Ziehen...';
+		textEl.textContent = distance >= WEBUI_PULL_THRESHOLD ? 'Loslassen' : 'Ziehen...';
 	}
 }
 
-function ywebShowRefreshing() {
-	const indicator = document.getElementById('yweb-pull-indicator');
+function webuiShowRefreshing() {
+	const indicator = document.getElementById('webui-pull-indicator');
 	if (!indicator) return;
 
 	indicator.classList.remove('ready');
 	indicator.classList.add('refreshing');
 	indicator.style.transform = 'translateY(10px)';
 
-	const textEl = indicator.querySelector('.yweb-pull-text');
+	const textEl = indicator.querySelector('.webui-pull-text');
 	if (textEl) textEl.textContent = 'Aktualisiere...';
 }
 
-function ywebHidePullIndicator() {
-	const indicator = document.getElementById('yweb-pull-indicator');
+function webuiHidePullIndicator() {
+	const indicator = document.getElementById('webui-pull-indicator');
 	if (!indicator) return;
 
 	indicator.classList.remove('ready', 'refreshing');
 	indicator.style.transform = 'translateY(-50px)';
 
-	const iconEl = indicator.querySelector('.yweb-pull-icon');
+	const iconEl = indicator.querySelector('.webui-pull-icon');
 	if (iconEl) iconEl.style.transform = 'rotate(0deg)';
 }
 
 // Check if at scroll top - can be overridden by pages with custom scroll containers
-function ywebDefaultIsAtScrollTop() {
+function webuiDefaultIsAtScrollTop() {
 	// If page defines custom check, use it
-	if (typeof window.ywebIsAtScrollTop === 'function') {
-		return window.ywebIsAtScrollTop();
+	if (typeof window.webuiIsAtScrollTop === 'function') {
+		return window.webuiIsAtScrollTop();
 	}
 	// Default: check window scroll and main element
 	if (window.scrollY > 5) return false;
@@ -1987,154 +1989,154 @@ function ywebDefaultIsAtScrollTop() {
 	return true;
 }
 
-function ywebPullTouchStart(e) {
-	if (ywebIsRefreshing) return;
+function webuiPullTouchStart(e) {
+	if (webuiIsRefreshing) return;
 	if (window.innerWidth > 768) return;
-	if (!ywebDefaultIsAtScrollTop()) return;
+	if (!webuiDefaultIsAtScrollTop()) return;
 
-	ywebPullStartY = e.touches[0].clientY;
-	ywebPullCurrentY = ywebPullStartY;
-	ywebIsPulling = false;
+	webuiPullStartY = e.touches[0].clientY;
+	webuiPullCurrentY = webuiPullStartY;
+	webuiIsPulling = false;
 }
 
-function ywebPullTouchMove(e) {
-	if (ywebIsRefreshing) return;
+function webuiPullTouchMove(e) {
+	if (webuiIsRefreshing) return;
 	if (window.innerWidth > 768) return;
-	if (ywebPullStartY === 0) return;
+	if (webuiPullStartY === 0) return;
 
 	const touch = e.touches[0];
-	const deltaY = touch.clientY - ywebPullStartY;
-	const deltaX = Math.abs(touch.clientX - (ywebPullCurrentY ? touch.clientX : 0));
+	const deltaY = touch.clientY - webuiPullStartY;
+	const deltaX = Math.abs(touch.clientX - (webuiPullCurrentY ? touch.clientX : 0));
 
 	// Only pull down, not up, and only if mostly vertical
-	if (deltaY > 10 && ywebDefaultIsAtScrollTop() && deltaX < 30) {
-		ywebIsPulling = true;
-		ywebPullCurrentY = touch.clientY;
+	if (deltaY > 10 && webuiDefaultIsAtScrollTop() && deltaX < 30) {
+		webuiIsPulling = true;
+		webuiPullCurrentY = touch.clientY;
 
 		// Dampen the pull distance
 		const pullDistance = Math.pow(deltaY, 0.8);
-		ywebUpdatePullIndicator(pullDistance);
+		webuiUpdatePullIndicator(pullDistance);
 
 		// Prevent default scroll to enable pull effect
-		if (deltaY > 0 && ywebDefaultIsAtScrollTop()) {
+		if (deltaY > 0 && webuiDefaultIsAtScrollTop()) {
 			e.preventDefault();
 		}
 	}
 }
 
-function ywebPullTouchEnd(e) {
-	if (ywebIsRefreshing) return;
-	if (!ywebIsPulling) {
-		ywebPullStartY = 0;
+function webuiPullTouchEnd(e) {
+	if (webuiIsRefreshing) return;
+	if (!webuiIsPulling) {
+		webuiPullStartY = 0;
 		return;
 	}
 
-	const deltaY = ywebPullCurrentY - ywebPullStartY;
+	const deltaY = webuiPullCurrentY - webuiPullStartY;
 	const pullDistance = Math.pow(deltaY, 0.8);
 
-	if (pullDistance >= YWEB_PULL_THRESHOLD && ywebRefreshCallback) {
-		ywebIsRefreshing = true;
-		ywebShowRefreshing();
+	if (pullDistance >= WEBUI_PULL_THRESHOLD && webuiRefreshCallback) {
+		webuiIsRefreshing = true;
+		webuiShowRefreshing();
 
 		// Execute refresh callback
-		const result = ywebRefreshCallback();
+		const result = webuiRefreshCallback();
 
 		// Handle both Promise and non-Promise returns
 		if (result && typeof result.then === 'function') {
 			result.finally(() => {
-				ywebIsRefreshing = false;
-				ywebHidePullIndicator();
+				webuiIsRefreshing = false;
+				webuiHidePullIndicator();
 			});
 		} else {
 			// Non-promise: assume quick operation, hide after delay
 			setTimeout(() => {
-				ywebIsRefreshing = false;
-				ywebHidePullIndicator();
+				webuiIsRefreshing = false;
+				webuiHidePullIndicator();
 			}, 500);
 		}
 	} else {
-		ywebHidePullIndicator();
+		webuiHidePullIndicator();
 	}
 
-	ywebPullStartY = 0;
-	ywebPullCurrentY = 0;
-	ywebIsPulling = false;
+	webuiPullStartY = 0;
+	webuiPullCurrentY = 0;
+	webuiIsPulling = false;
 }
 
-function ywebInitPullRefresh() {
+function webuiInitPullRefresh() {
 	if (window.innerWidth > 768) return;
 
-	ywebCreatePullIndicator();
+	webuiCreatePullIndicator();
 
-	document.addEventListener('touchstart', ywebPullTouchStart, { passive: true });
-	document.addEventListener('touchmove', ywebPullTouchMove, { passive: false });
-	document.addEventListener('touchend', ywebPullTouchEnd, { passive: true });
+	document.addEventListener('touchstart', webuiPullTouchStart, { passive: true });
+	document.addEventListener('touchmove', webuiPullTouchMove, { passive: false });
+	document.addEventListener('touchend', webuiPullTouchEnd, { passive: true });
 }
 
-// Initialize yWeb header and components
-function ywebInit() {
-	const headerWrapper = document.querySelector('.yweb-header-wrapper');
-	const existingHeader = document.querySelector('.yweb-header');
+// Initialize the header and its components
+function webuiInit() {
+	const headerWrapper = document.querySelector('.webui-header-wrapper');
+	const existingHeader = document.querySelector('.webui-header');
 
 	// Check for dynamic header generation (wrapper with data-page, no header yet)
 	if (headerWrapper && !existingHeader) {
 		const activePage = headerWrapper.dataset.page || null;
 		// Prepend header before any existing content (e.g., subheaders)
-		headerWrapper.insertAdjacentHTML('afterbegin', ywebGetHeaderHTML(activePage));
+		headerWrapper.insertAdjacentHTML('afterbegin', webuiGetHeaderHTML(activePage));
 
 		// Create spacer if not present
-		if (!document.querySelector('.yweb-header-spacer')) {
-			headerWrapper.insertAdjacentHTML('afterend', '<div class="yweb-header-spacer"></div>');
+		if (!document.querySelector('.webui-header-spacer')) {
+			headerWrapper.insertAdjacentHTML('afterend', '<div class="webui-header-spacer"></div>');
 		}
 	}
 
 	// Initialize if header exists (either pre-rendered or just generated)
-	if (document.querySelector('.yweb-header')) {
+	if (document.querySelector('.webui-header')) {
 		// Set theme
-		ywebSetTheme(ywebGetTheme());
+		webuiSetTheme(webuiGetTheme());
 
 		// Start clock
-		ywebUpdateClock();
-		setInterval(ywebUpdateClock, 10000);
+		webuiUpdateClock();
+		setInterval(webuiUpdateClock, 10000);
 
 		// Load hostname
-		ywebLoadHostname();
+		webuiLoadHostname();
 
 		// Calculate and set spacer height
-		ywebUpdateHeaderSpacer();
+		webuiUpdateHeaderSpacer();
 
 		// Update on window resize
-		window.addEventListener('resize', ywebUpdateHeaderSpacer);
+		window.addEventListener('resize', webuiUpdateHeaderSpacer);
 
 		// Close menu when clicking on nav links (mobile)
-		const navLinks = document.querySelectorAll('.yweb-nav-links a');
+		const navLinks = document.querySelectorAll('.webui-nav-links a');
 		navLinks.forEach(link => {
-			link.addEventListener('click', ywebCloseMenu);
+			link.addEventListener('click', webuiCloseMenu);
 		});
 
 		// Initialize footer (if not already present)
-		ywebInitFooter();
+		webuiInitFooter();
 
 		// Always insert about modal if not present
-		if (!document.getElementById('yweb-about-modal')) {
-			document.body.insertAdjacentHTML('beforeend', YWEB_ABOUT_HTML);
+		if (!document.getElementById('webui-about-modal')) {
+			document.body.insertAdjacentHTML('beforeend', WEBUI_ABOUT_HTML);
 		}
 
 		// Initialize mobile menu swipe gestures
-		ywebInitMenuSwipe();
+		webuiInitMenuSwipe();
 
 		// Initialize pull-to-refresh
-		ywebInitPullRefresh();
+		webuiInitPullRefresh();
 
 		// Erweiterungen in die Slots dieser Seite injizieren (async, still).
-		// Host-Seiten booten ueber diesen Pfad, nicht ueber ywebInitHeader.
-		if (typeof ywebInjectExtensions === 'function') {
+		// Host-Seiten booten ueber diesen Pfad, nicht ueber webuiInitHeader.
+		if (typeof webuiInjectExtensions === 'function') {
 			setTimeout(function() {
-				ywebInjectExtensions(headerWrapper ? headerWrapper.dataset.page : null);
+				webuiInjectExtensions(headerWrapper ? headerWrapper.dataset.page : null);
 			}, 0);
 		}
 
-		ywebCheckDefaultPassword();
+		webuiCheckDefaultPassword();
 	}
 }
 
@@ -2158,7 +2160,7 @@ function ywebInit() {
  * @param {boolean} [opts.even] - Reihen glatt teilen, wenn die
  *        Kartenzahl es hergibt (verhindert gestreckte Restreihen)
  */
-function ywebBalanceGrid(selector, opts) {
+function webuiBalanceGrid(selector, opts) {
 	opts = opts || {};
 	var grid = document.querySelector(selector);
 	if (!grid) return;
@@ -2193,8 +2195,8 @@ function ywebBalanceGrid(selector, opts) {
 /* ============================================
    Mobile Accordion (shared card toggle/swipe)
    ============================================ */
-var _ywebAcc = null; /* accordion config */
-var _ywebAccTouchStart = {x: 0, y: 0};
+var _webuiAcc = null; /* accordion config */
+var _webuiAccTouchStart = {x: 0, y: 0};
 
 /**
  * Initialize mobile accordion for card-based pages.
@@ -2207,10 +2209,10 @@ var _ywebAccTouchStart = {x: 0, y: 0};
  * @param {string} cfg.containerSelector - CSS selector for swipe container
  * @param {string} cfg.mode - 'collapsed' (add to hide) or 'expanded' (add to show)
  */
-function ywebInitMobileAccordion(cfg) {
+function webuiInitMobileAccordion(cfg) {
 	cfg.breakpoint = cfg.breakpoint || 800;
 	cfg.mode = cfg.mode || 'collapsed';
-	_ywebAcc = cfg;
+	_webuiAcc = cfg;
 
 	initMobileAccordion();
 	buildCardIndicator();
@@ -2218,13 +2220,13 @@ function ywebInitMobileAccordion(cfg) {
 	var container = document.querySelector(cfg.containerSelector);
 	if (container) {
 		container.addEventListener('touchstart', function(e) {
-			_ywebAccTouchStart.x = e.changedTouches[0].screenX;
-			_ywebAccTouchStart.y = e.changedTouches[0].screenY;
+			_webuiAccTouchStart.x = e.changedTouches[0].screenX;
+			_webuiAccTouchStart.y = e.changedTouches[0].screenY;
 		}, {passive: true});
 		container.addEventListener('touchend', function(e) {
-			if (!_ywebAcc || window.innerWidth > _ywebAcc.breakpoint) return;
-			var dx = e.changedTouches[0].screenX - _ywebAccTouchStart.x;
-			var dy = Math.abs(e.changedTouches[0].screenY - _ywebAccTouchStart.y);
+			if (!_webuiAcc || window.innerWidth > _webuiAcc.breakpoint) return;
+			var dx = e.changedTouches[0].screenX - _webuiAccTouchStart.x;
+			var dy = Math.abs(e.changedTouches[0].screenY - _webuiAccTouchStart.y);
 			if (Math.abs(dx) > 50 && dy < 100) navigateCard(dx > 0 ? -1 : 1);
 		}, {passive: true});
 	}
@@ -2236,67 +2238,67 @@ function ywebInitMobileAccordion(cfg) {
 	});
 }
 
-function _ywebAccGetActive() {
+function _webuiAccGetActive() {
 	var id;
-	try { id = localStorage.getItem(_ywebAcc.storageKey); } catch(e) {}
-	return id || _ywebAcc.defaultCard;
+	try { id = localStorage.getItem(_webuiAcc.storageKey); } catch(e) {}
+	return id || _webuiAcc.defaultCard;
 }
 
-function _ywebAccSetCard(card, cardId) {
-	if (_ywebAcc.mode === 'collapsed') {
-		document.querySelectorAll('.yweb-card').forEach(function(c) { c.classList.add('collapsed'); });
+function _webuiAccSetCard(card, cardId) {
+	if (_webuiAcc.mode === 'collapsed') {
+		document.querySelectorAll('.webui-card').forEach(function(c) { c.classList.add('collapsed'); });
 		card.classList.remove('collapsed');
 	} else {
-		document.querySelectorAll('.yweb-card.expanded').forEach(function(c) { c.classList.remove('expanded'); });
+		document.querySelectorAll('.webui-card.expanded').forEach(function(c) { c.classList.remove('expanded'); });
 		card.classList.add('expanded');
 	}
-	try { localStorage.setItem(_ywebAcc.storageKey, cardId); } catch(e) {}
+	try { localStorage.setItem(_webuiAcc.storageKey, cardId); } catch(e) {}
 	updateCardIndicator();
 }
 
 function toggleCard(cardId) {
-	if (!_ywebAcc || window.innerWidth > _ywebAcc.breakpoint) return;
+	if (!_webuiAcc || window.innerWidth > _webuiAcc.breakpoint) return;
 	var card = document.getElementById(cardId);
 	if (!card) return;
 
-	if (_ywebAcc.mode === 'collapsed') {
+	if (_webuiAcc.mode === 'collapsed') {
 		var isCollapsed = card.classList.contains('collapsed');
-		document.querySelectorAll('.yweb-card').forEach(function(c) { c.classList.add('collapsed'); });
+		document.querySelectorAll('.webui-card').forEach(function(c) { c.classList.add('collapsed'); });
 		if (isCollapsed) card.classList.remove('collapsed');
 	} else {
-		document.querySelectorAll('.yweb-card.expanded').forEach(function(c) {
+		document.querySelectorAll('.webui-card.expanded').forEach(function(c) {
 			if (c !== card) c.classList.remove('expanded');
 		});
 		card.classList.toggle('expanded');
 	}
-	var isActive = _ywebAcc.mode === 'collapsed' ? !card.classList.contains('collapsed') : card.classList.contains('expanded');
+	var isActive = _webuiAcc.mode === 'collapsed' ? !card.classList.contains('collapsed') : card.classList.contains('expanded');
 	if (isActive) {
-		try { localStorage.setItem(_ywebAcc.storageKey, cardId); } catch(e) {}
+		try { localStorage.setItem(_webuiAcc.storageKey, cardId); } catch(e) {}
 	}
 	updateCardIndicator();
 }
 
 function navigateCard(delta) {
-	if (!_ywebAcc || window.innerWidth > _ywebAcc.breakpoint) return;
-	var currentId = _ywebAccGetActive();
-	var idx = _ywebAcc.cardOrder.indexOf(currentId);
+	if (!_webuiAcc || window.innerWidth > _webuiAcc.breakpoint) return;
+	var currentId = _webuiAccGetActive();
+	var idx = _webuiAcc.cardOrder.indexOf(currentId);
 	if (idx === -1) return;
 	var newIdx = idx + delta;
-	if (newIdx < 0) newIdx = _ywebAcc.cardOrder.length - 1;
-	if (newIdx >= _ywebAcc.cardOrder.length) newIdx = 0;
-	var newId = _ywebAcc.cardOrder[newIdx];
+	if (newIdx < 0) newIdx = _webuiAcc.cardOrder.length - 1;
+	if (newIdx >= _webuiAcc.cardOrder.length) newIdx = 0;
+	var newId = _webuiAcc.cardOrder[newIdx];
 	var newCard = document.getElementById(newId);
 	if (newCard) {
-		_ywebAccSetCard(newCard, newId);
+		_webuiAccSetCard(newCard, newId);
 		newCard.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 	}
 }
 
 function selectCard(cardId) {
-	if (!_ywebAcc || window.innerWidth > _ywebAcc.breakpoint) return;
+	if (!_webuiAcc || window.innerWidth > _webuiAcc.breakpoint) return;
 	var card = document.getElementById(cardId);
 	if (card) {
-		_ywebAccSetCard(card, cardId);
+		_webuiAccSetCard(card, cardId);
 		card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 	}
 }
@@ -2304,44 +2306,44 @@ function selectCard(cardId) {
 var navigateToCard = selectCard;
 
 function buildCardIndicator() {
-	if (!_ywebAcc) return;
-	var el = document.getElementById(_ywebAcc.indicatorId);
+	if (!_webuiAcc) return;
+	var el = document.getElementById(_webuiAcc.indicatorId);
 	if (!el) return;
-	el.innerHTML = _ywebAcc.cardOrder.map(function(id) {
-		return '<div class="yweb-card-dot" data-card="' + id + '" onclick="selectCard(\'' + id + '\')"></div>';
+	el.innerHTML = _webuiAcc.cardOrder.map(function(id) {
+		return '<div class="webui-card-dot" data-card="' + id + '" onclick="selectCard(\'' + id + '\')"></div>';
 	}).join('');
 	updateCardIndicator();
 }
 
 function updateCardIndicator() {
-	if (!_ywebAcc) return;
-	var activeId = _ywebAccGetActive();
-	document.querySelectorAll('.yweb-card-dot').forEach(function(dot) {
+	if (!_webuiAcc) return;
+	var activeId = _webuiAccGetActive();
+	document.querySelectorAll('.webui-card-dot').forEach(function(dot) {
 		var dotCard = dot.dataset ? dot.dataset.card : null;
 		if (!dotCard) {
 			var idx = Array.prototype.indexOf.call(dot.parentNode.children, dot);
-			dotCard = _ywebAcc.cardOrder[idx];
+			dotCard = _webuiAcc.cardOrder[idx];
 		}
 		dot.classList.toggle('active', dotCard === activeId);
 	});
 }
 
 function initMobileAccordion() {
-	if (!_ywebAcc) return;
-	if (window.innerWidth > _ywebAcc.breakpoint) {
-		if (_ywebAcc.mode === 'collapsed') {
-			document.querySelectorAll('.yweb-card').forEach(function(c) { c.classList.remove('collapsed'); });
+	if (!_webuiAcc) return;
+	if (window.innerWidth > _webuiAcc.breakpoint) {
+		if (_webuiAcc.mode === 'collapsed') {
+			document.querySelectorAll('.webui-card').forEach(function(c) { c.classList.remove('collapsed'); });
 		} else {
-			document.querySelectorAll('.yweb-card').forEach(function(c) { c.classList.add('expanded'); });
+			document.querySelectorAll('.webui-card').forEach(function(c) { c.classList.add('expanded'); });
 		}
 	} else {
-		var savedCard = _ywebAccGetActive();
-		if (_ywebAcc.mode === 'collapsed') {
-			document.querySelectorAll('.yweb-card').forEach(function(c) { c.classList.add('collapsed'); });
+		var savedCard = _webuiAccGetActive();
+		if (_webuiAcc.mode === 'collapsed') {
+			document.querySelectorAll('.webui-card').forEach(function(c) { c.classList.add('collapsed'); });
 			var active = document.getElementById(savedCard);
 			if (active) active.classList.remove('collapsed');
 		} else {
-			document.querySelectorAll('.yweb-card').forEach(function(c) { c.classList.remove('expanded'); });
+			document.querySelectorAll('.webui-card').forEach(function(c) { c.classList.remove('expanded'); });
 			var active = document.getElementById(savedCard);
 			if (active) active.classList.add('expanded');
 		}
@@ -2352,8 +2354,8 @@ function initMobileAccordion() {
 // Auto-detect page from URL and initialize
 // Handle both cases: script in head (DOMContentLoaded) and script at end of body (already ready)
 if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', ywebInit);
+	document.addEventListener('DOMContentLoaded', webuiInit);
 } else {
 	// DOM already loaded, init immediately
-	ywebInit();
+	webuiInit();
 }

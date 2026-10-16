@@ -52,7 +52,7 @@ verglichen und gespeichert — kein eigener JS-Code nötig:
 ```json
 "settings": {
 	"label": "Meine Erweiterung",
-	"config": "yweb",
+	"config": "webui",
 	"sections": [
 		{ "title": "Abschnitt", "fields": [
 			{ "key": "meine_option", "label": "Option", "type": "text" },
@@ -69,7 +69,7 @@ verglichen und gespeichert — kein eigener JS-Code nötig:
 | Feld | Bedeutung |
 |------|-----------|
 | `label` | Kategoriename in der Seitenleiste (Default: `name`) |
-| `config` | Ziel-Config fuer `key`-Felder: `yweb` (Default), `neutrino`, `nhttpd` |
+| `config` | Ziel-Config fuer `key`-Felder: `webui` (Default), `neutrino`, `nhttpd` |
 | `sections[].fields[]` | Feldtypen `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
 
 `key`-Felder werden in der gewählten Config-Datei persistiert;
@@ -106,8 +106,8 @@ meine-erweiterung/
   `button`, `success`) werden übersetzt, wenn ihr Wert mit `L:` beginnt:
   `"label": "L:settings.greeting"` → Key `settings.greeting` aus dem
   Sprachpaket. Werte ohne `L:` bleiben Literale.
-- **Auf eigenen Seiten**: beim Init `await ywebExtLangLoad('<ordner>')`,
-  danach `ywebExtL('<ordner>', 'page.title', 'Hello!')` — der dritte
+- **Auf eigenen Seiten**: beim Init `await webuiExtLangLoad('<ordner>')`,
+  danach `webuiExtL('<ordner>', 'page.title', 'Hello!')` — der dritte
   Parameter ist der englische Fallback, der auch inline im Markup steht.
   Es wird nur die aktive Sprache geladen (kein Zweit-Fetch auf Englisch).
 - Englisch + Deutsch immer paarig pflegen; gleiche Keysets.
@@ -130,10 +130,10 @@ hardware-spezifisches Layout für die Bildschirm-Fernbedienung:
 
 ```js
 // skin.js — Manifest: { "name": "…", "version": "1.0", "entry_js": "skin.js" }
-ywebRegisterRemoteRenderer(function (opts) {
-	return '<div class="yweb-remote" id="' + opts.id +
+webuiRegisterRemoteRenderer(function (opts) {
+	return '<div class="webui-remote" id="' + opts.id +
 		'" data-rc-onkey="' + opts.onKey + '">' +
-		'<button type="button" class="yweb-rc-btn" ' +
+		'<button type="button" class="webui-rc-btn" ' +
 			'onclick="' + opts.onKey + "('KEY_OK')\">OK</button>" +
 		'</div>';
 });
@@ -151,8 +151,8 @@ Vertrag:
   brauchen `aria-label`, Inline-SVGs `aria-hidden="true"`. Tasten
   melden sich mit `data-rc-repeat="1"` + `data-rc-key="KEY_…"` für
   Auto-Repeat und Press-Feedback an.
-- Nie `YWEB_CONFIG.remoteRenderer` direkt setzen —
-  `ywebRegisterRemoteRenderer()` rendert auch Instanzen neu, die vor
+- Nie `WEBUI_CONFIG.remoteRenderer` direkt setzen —
+  `webuiRegisterRemoteRenderer()` rendert auch Instanzen neu, die vor
   dem Skript-Load gebaut wurden (offene Modals bleiben offen). Sind
   zwei Skins aktiv, gewinnt der alphabetisch spätere Ordner (mit
   console-Warnung).
@@ -162,19 +162,19 @@ Vertrag:
 Kernpunkte:
 
 - Header/Nav der Neutrino-Web-UI einbinden:
-  `<div class="yweb-header-wrapper" data-page="tools"></div>` +
-  `<script src="/js/webui-header.js"></script>` + `ywebInitHeader('tools');`
+  `<div class="webui-header-wrapper" data-page="tools"></div>` +
+  `<script src="/js/webui-header.js"></script>` + `webuiInitHeader('tools');`
 - Styling: Pico CSS + `/css/webui.css` verlinken — fertige Klassen
-  (`yweb-card`, `yweb-form-row`, `yweb-btn`) nutzen.
+  (`webui-card`, `webui-form-row`, `webui-btn`) nutzen.
 - Theme **vor** diesen Stylesheets setzen, sonst malt die Seite erst
   dunkel und springt dann auf das Theme des Benutzers:
   ```html
   <script>
-  try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+  try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || 'dark'); } catch (e) {}
   </script>
   ```
 - **Daten nur über `/api/v4/`** holen, am einfachsten mit dem Helfer:
-  `var sys = await ywebApi('sysinfo');`
+  `var sys = await webuiApi('sysinfo');`
   Referenz aller Endpoints: Doxygen-Seite „Neutrino Web-API v4"
   (`doc/nhttpd/apiv4.dox` im Quellbaum).
 

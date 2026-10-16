@@ -8,7 +8,7 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
@@ -17,18 +17,18 @@
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */
 		.bqe-wrap { max-width: none; margin: 0; padding: 0.8rem 1.2rem; }
 		.bqe-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.8rem; }
-		/* Modus-Select auf .yweb-btn-Metrik (Schrift/Padding/Hoehe),
+		/* Modus-Select auf .webui-btn-Metrik (Schrift/Padding/Hoehe),
 		   sonst steht die Leiste nicht auf einer Linie: Pico gibt dem
 		   select 1rem-Schrift + Margins → 4px hoeher und 7px tiefer
 		   zentriert als die Speichern-Buttons daneben */
-		.bqe-mode { display: flex; align-items: center; gap: 0.3rem; margin: 0; font-size: var(--yweb-font-xs); }
-		.bqe-mode select { margin: 0; padding: 0.3rem 0.5rem; height: auto; font-size: var(--yweb-font-xs); line-height: normal; border-radius: var(--yweb-radius); }
-		.bqe-dirty { display: none; align-items: center; gap: 0.3rem; color: var(--yweb-accent); border: 1px solid var(--yweb-accent); border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.75rem; }
+		.bqe-mode { display: flex; align-items: center; gap: 0.3rem; margin: 0; font-size: var(--webui-font-xs); }
+		.bqe-mode select { margin: 0; padding: 0.3rem 0.5rem; height: auto; font-size: var(--webui-font-xs); line-height: normal; border-radius: var(--webui-radius); }
+		.bqe-dirty { display: none; align-items: center; gap: 0.3rem; color: var(--webui-accent); border: 1px solid var(--webui-accent); border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.75rem; }
 		.bqe-dirty.on { display: inline-flex; }
 		.bqe-grid { display: grid; grid-template-columns: minmax(260px, 320px) 1fr 1fr; gap: 0.8rem; }
 		.bqe-pane { min-height: 320px; height: calc(100dvh - 200px); }
-		.bqe-pane .yweb-card-body { padding: 0.25rem 0.3rem; }
-		.bqe-pane .yweb-card-title small { color: var(--pico-muted-color); font-weight: 400; }
+		.bqe-pane .webui-card-body { padding: 0.25rem 0.3rem; }
+		.bqe-pane .webui-card-title small { color: var(--pico-muted-color); font-weight: 400; }
 		/* Kompakte Zeilen: Picos li-Margin und die button-margin-bottom
 		   (1rem!) neutralisieren, sonst blaehen Zeilen mit Knoepfen auf
 		   ~51px auf; Ziel ~30px. min-height haelt Zeilen ohne sichtbare
@@ -37,15 +37,15 @@
 		.bqe-list li { display: flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.22rem 0.4rem; min-height: 1.85rem; border-radius: 4px; font-size: 0.78rem; line-height: 1.3; cursor: pointer; }
 		.bqe-list li:hover { background: rgba(255,255,255,0.04); }
 		[data-theme="light"] .bqe-list li:hover { background: rgba(0,0,0,0.05); }
-		.bqe-list li.sel { background: var(--yweb-accent-light); outline: 1px solid var(--yweb-accent); }
+		.bqe-list li.sel { background: var(--webui-accent-light); outline: 1px solid var(--webui-accent); }
 		.bqe-list li .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; font-variant-numeric: tabular-nums; }
 		.bqe-list li .flags svg { width: 11px; height: 11px; vertical-align: -1px; }
 		.bqe-list li.bqe-empty { color: var(--pico-muted-color); cursor: default; }
 		.bqe-mini { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; margin: 0; background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.75rem; line-height: 1.5; }
-		.bqe-mini:hover { color: var(--yweb-accent); border-color: var(--yweb-accent); }
+		.bqe-mini:hover { color: var(--webui-accent); border-color: var(--webui-accent); }
 		.bqe-mini svg { width: 12px; height: 12px; flex-shrink: 0; }
-		.bqe-mini.attn { color: #fff; background: var(--yweb-accent); border-color: var(--yweb-accent); }
+		.bqe-mini.attn { color: #fff; background: var(--webui-accent); border-color: var(--webui-accent); }
 		/* Bouquet-Zeilen: Aktionen erst bei Hover bzw. Auswahl zeigen,
 		   sonst frisst die Knopfleiste die Spalte auf und die Namen
 		   trunkieren zu "1…" (Touch: Tap waehlt aus → Aktionen) */
@@ -53,16 +53,16 @@
 		#bqeBouquets li:hover .bqe-mini,
 		#bqeBouquets li.sel .bqe-mini,
 		#bqeBouquets li:focus-within .bqe-mini { display: inline-flex; }
-		.bqe-mini.on { color: var(--yweb-accent); border-color: var(--yweb-accent); }
+		.bqe-mini.on { color: var(--webui-accent); border-color: var(--webui-accent); }
 		.bqe-mini:disabled { opacity: 0.5; cursor: default; }
-		.bqe-stale { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.8rem; padding: 0.4rem 0.8rem; border: 1px solid var(--yweb-accent); border-radius: var(--yweb-radius); font-size: var(--yweb-font-xs); }
+		.bqe-stale { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.8rem; padding: 0.4rem 0.8rem; border: 1px solid var(--webui-accent); border-radius: var(--webui-radius); font-size: var(--webui-font-xs); }
 		.bqe-stale[hidden] { display: none; }
 		/* Drag & Drop: Einfuegelinie oben/unten, Ziel-Rahmen der Liste */
 		.bqe-list li[draggable="true"] { cursor: grab; }
 		.bqe-list li[draggable="true"]:active { cursor: grabbing; }
-		.bqe-list li.drop-top { box-shadow: inset 0 2px 0 var(--yweb-accent); }
-		.bqe-list li.drop-bottom { box-shadow: inset 0 -2px 0 var(--yweb-accent); }
-		#bqeChannels.drop-hover { outline: 1px dashed var(--yweb-accent); outline-offset: -2px; border-radius: 4px; }
+		.bqe-list li.drop-top { box-shadow: inset 0 2px 0 var(--webui-accent); }
+		.bqe-list li.drop-bottom { box-shadow: inset 0 -2px 0 var(--webui-accent); }
+		#bqeChannels.drop-hover { outline: 1px dashed var(--webui-accent); outline-offset: -2px; border-radius: 4px; }
 		.bqe-search { flex: 1; min-width: 140px; }
 		/* Flach genug fuer die 2.4rem-Kopfhoehe (webui.css), sonst ist
 		   dieses Panel hoeher als seine Nachbarn */
@@ -71,13 +71,13 @@
 		@media (max-width: 900px) {
 			.bqe-grid { grid-template-columns: 1fr; }
 			.bqe-pane { min-height: 240px; height: auto; }
-			.bqe-pane .yweb-card-body { max-height: calc(100vh - 300px); }
+			.bqe-pane .webui-card-body { max-height: calc(100vh - 300px); }
 		}
 	</style>
 </head>
 <body>
-	<div class="yweb-header-wrapper" data-page="tools"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="tools"></div>
+	<div class="webui-header-spacer"></div>
 
 	<main class="bqe-wrap">
 		<div class="bqe-toolbar">
@@ -87,7 +87,7 @@
 					<option value="RADIO">Radio</option>
 				</select>
 			</label>
-			<button type="button" class="yweb-btn" onclick="bqeAddBouquet()">
+			<button type="button" class="webui-btn" onclick="bqeAddBouquet()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
 					<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
 				</svg>
@@ -101,22 +101,22 @@
 		</div>
 
 		<div class="bqe-grid">
-			<article class="yweb-card yweb-panel-card yweb-card-sm bqe-pane">
-				<header class="yweb-card-header">
-					<h3 class="yweb-card-title">
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+				<header class="webui-card-header">
+					<h3 class="webui-card-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
 						</svg>
 						Bouquets <small id="bqeBqCount"></small>
 					</h3>
 				</header>
-				<div class="yweb-card-body">
-					<ul class="yweb-plain-list bqe-list" id="bqeBouquets"></ul>
+				<div class="webui-card-body">
+					<ul class="webui-plain-list bqe-list" id="bqeBouquets"></ul>
 				</div>
 			</article>
-			<article class="yweb-card yweb-panel-card yweb-card-sm bqe-pane">
-				<header class="yweb-card-header">
-					<h3 class="yweb-card-title">
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+				<header class="webui-card-header">
+					<h3 class="webui-card-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/>
 						</svg>
@@ -129,13 +129,13 @@
 						{=L:yw.bqe.apply=}</button>
 					<button type="button" class="bqe-mini" id="bqeDiscardBtn" onclick="bqeDiscard()" title="{=L:yw.bqe.discard_title=}" disabled>{=L:yw.bqe.discard=}</button>
 				</header>
-				<div class="yweb-card-body">
-					<ul class="yweb-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
+				<div class="webui-card-body">
+					<ul class="webui-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
 				</div>
 			</article>
-			<article class="yweb-card yweb-panel-card yweb-card-sm bqe-pane">
-				<header class="yweb-card-header">
-					<h3 class="yweb-card-title">
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+				<header class="webui-card-header">
+					<h3 class="webui-card-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
 						</svg>
@@ -143,8 +143,8 @@
 					</h3>
 					<span class="bqe-search"><input id="bqeFilter" placeholder="{=L:yw.bqe.search=}" aria-label="{=L:yw.bqe.search=}" oninput="bqeRenderAll()"></span>
 				</header>
-				<div class="yweb-card-body">
-					<ul class="yweb-plain-list bqe-list" id="bqeAll"></ul>
+				<div class="webui-card-body">
+					<ul class="webui-plain-list bqe-list" id="bqeAll"></ul>
 				</div>
 			</article>
 		</div>
@@ -279,7 +279,7 @@
 		// there are none or when the user agrees, cancelling changes nothing.
 		function bqeUnlessDirty(go) {
 			if (!bqeChanDirty) { go(); return; }
-			ywebShowConfirm('{=L:yw.bqe.drop_title=}', '{=L:yw.bqe.drop_msg=}', '{=L:yw.bqe.discard=}',
+			webuiShowConfirm('{=L:yw.bqe.drop_title=}', '{=L:yw.bqe.drop_msg=}', '{=L:yw.bqe.discard=}',
 				function() { setDirty(false); go(); });
 		}
 
@@ -318,7 +318,7 @@
 				retried: function() { counted = true; bqeOwn.sent++; }
 			});
 			try {
-				var r = await ywebV1(method, path, o);
+				var r = await webuiV1(method, path, o);
 				through = true;
 				return r;
 			} finally {
@@ -367,10 +367,10 @@
 			var read = ++bqeReads.bouquets;
 			var list = null;
 			try {
-				var resp = await ywebV1('GET', '/bouquets');
+				var resp = await webuiV1('GET', '/bouquets');
 				list = (resp && resp.items) || [];
 			} catch (e) {
-				if (read === bqeReads.bouquets) ywebShowToast('Bouquets: ' + e.message, true);
+				if (read === bqeReads.bouquets) webuiShowToast('Bouquets: ' + e.message, true);
 			}
 			if (read !== bqeReads.bouquets || list === null) return;
 			bqeBouquets = list;
@@ -384,10 +384,10 @@
 			var mode = bqeMode();
 			var list = null;
 			try {
-				list = (await ywebV1All('/channels', {mode: mode}))
+				list = (await webuiV1All('/channels', {mode: mode}))
 					.map(function(c) { return {id: c.id, name: c.name}; });
 			} catch (e) {
-				if (read === bqeReads.all) ywebShowToast('{=L:yw.bqe.all_channels=}: ' + e.message, true);
+				if (read === bqeReads.all) webuiShowToast('{=L:yw.bqe.all_channels=}: ' + e.message, true);
 			}
 			if (read !== bqeReads.all || list === null) return;
 			bqeAllChan = list;
@@ -406,10 +406,10 @@
 			var list = null;
 			bqeChanReading = true;
 			try {
-				list = !sel ? [] : (await ywebV1All('/channels', {bouquet: sel.id, mode: mode}))
+				list = !sel ? [] : (await webuiV1All('/channels', {bouquet: sel.id, mode: mode}))
 					.map(function(c) { return {id: c.id, name: c.name}; });
 			} catch (e) {
-				if (read === bqeReads.chan) ywebShowToast('{=L:yw.bqe.channels=}: ' + e.message, true);
+				if (read === bqeReads.chan) webuiShowToast('{=L:yw.bqe.channels=}: ' + e.message, true);
 			}
 			if (read !== bqeReads.chan) return;
 			bqeChanReading = false;
@@ -695,7 +695,7 @@
 			if (had) bqeFocusRow(ul.children[Math.min(i, bqeChan.length - 1)], 'remove');
 		}
 		function bqeChAdd(id, name) {
-			if (!bqeSel) { ywebShowToast('{=L:yw.bqe.pick_first=}', true); return; }
+			if (!bqeSel) { webuiShowToast('{=L:yw.bqe.pick_first=}', true); return; }
 			if (!bqeEditable() || bqeAllOf !== bqeMode()) return;
 			if (bqeChan.some(function(c) { return c.id === id; })) return;
 			bqeChan.push({id: id, name: name});
@@ -707,10 +707,10 @@
 		// leaves out a channel no other bouquet holds would take that channel
 		// off the box, so the box refuses it until the user has said so here.
 		async function bqeApplyChannels(remove, fromQuestion) {
-			if (!bqeSel) { ywebShowToast('{=L:yw.bqe.none_picked=}', true); return; }
+			if (!bqeSel) { webuiShowToast('{=L:yw.bqe.none_picked=}', true); return; }
 			if (bqeApplying || !bqeChanDirty || !bqeChanReady() || bqeShared(bqeSel.name)) return;
 			// while the question is open, only its answer sends the list
-			if (!fromQuestion && document.querySelector('.yweb-confirm-backdrop')) return;
+			if (!fromQuestion && document.querySelector('.webui-confirm-backdrop')) return;
 			bqeApplying = true;
 			bqeUpdateApply();
 			// the list as sent, so that a confirmation answers for it and no other
@@ -721,14 +721,14 @@
 					body: sent.ids
 				});
 				setDirty(false);
-				ywebShowToast('{=L:yw.bqe.applied=}');
+				webuiShowToast('{=L:yw.bqe.applied=}');
 				bqeApplying = false;
 				await bqeReloadAll();
 			} catch (e) {
 				if (e.code === 'channel-would-be-removed' && !remove)
 					bqeAskRemove(e.message, sent);
 				else
-					ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+					webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			} finally {
 				bqeApplying = false;
 				bqeRenderChannels();
@@ -745,7 +745,7 @@
 					if (bqeAllChan[i].id === id) return esc(bqeAllChan[i].name);
 				return esc(id);
 			}).join(', ') + (m[2] ? ', …' : '');
-			ywebShowConfirm('{=L:yw.bqe.gone_title=}', '{=L:yw.bqe.gone_msg=}<br><strong>' + which + '<\/strong>',
+			webuiShowConfirm('{=L:yw.bqe.gone_title=}', '{=L:yw.bqe.gone_msg=}<br><strong>' + which + '<\/strong>',
 				'{=L:yw.bqe.gone_btn=}', function() {
 					// a list that changed since it was refused is asked about again
 					var same = bqeSel === sent.sel && bqeMode() === sent.mode &&
@@ -766,22 +766,22 @@
 				await bqeOwnRequest(method, path, body === undefined ? {} : {body: body});
 				return true;
 			} catch (e) {
-				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 				return false;
 			}
 		}
 
 		function bqeAddBouquet() {
-			ywebShowPrompt('{=L:yw.bqe.new=}', '{=L:yw.bqe.new_name=}', '', async function(name) {
+			webuiShowPrompt('{=L:yw.bqe.new=}', '{=L:yw.bqe.new_name=}', '', async function(name) {
 				if (await bqeChange('POST', '/bouquets', {name: name})) {
-					ywebShowToast('{=L:yw.bqe.created=}');
+					webuiShowToast('{=L:yw.bqe.created=}');
 					await bqeLoadBouquets();
 				}
 			});
 		}
 
 		function bqeRename(b) {
-			ywebShowPrompt(b.name, '{=L:yw.bqe.rename_name=}', b.name, async function(name) {
+			webuiShowPrompt(b.name, '{=L:yw.bqe.rename_name=}', b.name, async function(name) {
 				if (name === b.name) return;
 				var mine = bqeSel && bqeSel.name === b.name ? bqeSel : null;
 				if (mine) mine.renaming = name;
@@ -791,7 +791,7 @@
 					if (done && bqeSel === mine) mine.name = name;
 				}
 				if (done) {
-					ywebShowToast('{=L:yw.bqe.renamed=}');
+					webuiShowToast('{=L:yw.bqe.renamed=}');
 					await bqeLoadBouquets();
 				}
 			});
@@ -810,14 +810,14 @@
 		// The list is read again either way: a delete the box refused may
 		// mean the bouquet went or changed meanwhile.
 		function bqeDelete(b) {
-			ywebShowConfirm('{=L:yw.bqe.del_title=}', '{=L:yw.bqe.del_msg=} "' + esc(b.name) + '"?', '{=L:yw.bqe.del_btn=}',
+			webuiShowConfirm('{=L:yw.bqe.del_title=}', '{=L:yw.bqe.del_msg=} "' + esc(b.name) + '"?', '{=L:yw.bqe.del_btn=}',
 				async function() {
 					var done = await bqeChange('DELETE', bqePath(b.name));
 					if (done && bqeSel && bqeSel.name === b.name) { bqeSel = null; bqeChanClear(); }
 					await bqeLoadBouquets();
 					bqeRenderChannels();
 					bqeRenderAll();
-					if (done) ywebShowToast('{=L:yw.bqe.deleted=}');
+					if (done) webuiShowToast('{=L:yw.bqe.deleted=}');
 				});
 		}
 
@@ -850,8 +850,8 @@
 		document.getElementById('bqeAll').addEventListener('click', bqeAllEvent);
 		document.getElementById('bqeAll').addEventListener('dblclick', bqeAllEvent);
 		document.getElementById('bqeAll').addEventListener('dragstart', bqeAllEvent);
-		ywebInitHeader('tools');
-		ywebV1Events({'bouquets-changed': bqeBouquetsChanged});
+		webuiInitHeader('tools');
+		webuiV1Events({'bouquets-changed': bqeBouquetsChanged});
 		bqeReloadAll(true);
 	</script>
 </body>

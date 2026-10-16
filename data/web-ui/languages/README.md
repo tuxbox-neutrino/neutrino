@@ -17,7 +17,7 @@ submit=Submit
 - Left of `=` is the **key** — never change or translate it.
 - Right of `=` is the **value** — translate this.
 - **No double quotes (`"`) in values.** Values are embedded verbatim into
-  the JavaScript dictionary (`Y_Lang.yjs` → `window.YWEB_L`) and into the
+  the JavaScript dictionary (`Y_Lang.yjs` → `window.WEBUI_L`) and into the
   switcher's `<option>` list; a `"` would break them.
 - A missing key falls back to **English** (`HTTPD_DEFAULT_LANGUAGE`), so a
   partial translation never shows a broken page — untranslated strings
@@ -88,5 +88,5 @@ switcher. To bring one back:
 - The active language is stored as `Language.selected` in `nhttpd.conf`
   and switched at runtime via the header globe button (→ `set-lang.yhtm`),
   which reloads the yWeb config.
-- No client-side changes are needed: `Y_Lang.yjs` and `ywebL()` read the
+- No client-side changes are needed: `Y_Lang.yjs` and `webuiL()` read the
   same keys, and the header button shows the active language's short code.

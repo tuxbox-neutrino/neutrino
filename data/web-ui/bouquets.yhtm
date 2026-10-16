@@ -8,7 +8,7 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
@@ -17,7 +17,7 @@
 		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —
 		   extrem lange Bouquetnamen ellipsen weiterhin; Mobile-Branch
 		   unten bleibt einspaltig wie gehabt */
-		main.yweb-bouquets-grid {
+		main.webui-bouquets-grid {
 			display: grid;
 			grid-template-columns: fit-content(22rem) 1fr;
 			gap: 0.6rem;
@@ -27,7 +27,7 @@
 		}
 
 		@media (max-width: 800px) {
-			main.yweb-bouquets-grid {
+			main.webui-bouquets-grid {
 				grid-template-columns: 1fr;
 				grid-template-rows: auto 1fr; /* Bouquets fixed, channels flex */
 			}
@@ -39,30 +39,30 @@
 
 
 
-		.yweb-channel-row {
+		.webui-channel-row {
 			display: flex;
 			flex-direction: column;
 			padding: 0.5rem 0.8rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
 			border-left: 3px solid transparent;
-			transition: var(--yweb-transition);
+			transition: var(--webui-transition);
 			cursor: pointer;
 		}
 
-		.yweb-channel-main {
+		.webui-channel-main {
 			display: flex;
 			align-items: center;
 			gap: 0.6rem;
 			width: 100%;
 		}
 
-		.yweb-channel-row:hover {
-			background: var(--yweb-accent-light);
+		.webui-channel-row:hover {
+			background: var(--webui-accent-light);
 		}
 
-		.yweb-channel-row.current {
-			background: var(--yweb-accent-light);
-			border-left-color: var(--yweb-accent);
+		.webui-channel-row.current {
+			background: var(--webui-accent-light);
+			border-left-color: var(--webui-accent);
 		}
 
 		/* Die Logo-Packs bestehen fast nur aus Breitbannern (ZDF 2.8:1
@@ -70,32 +70,32 @@
 		   ueber die Breite und laesst 8:1-Banner auf ~9px Resthoehe
 		   schrumpfen. Mit Logo bekommt die Kachel deshalb Bannerbreite;
 		   ohne Logo bleibt der schmale TV-Fallback. */
-		.yweb-channel-row.has-logo .yweb-icon-placeholder {
+		.webui-channel-row.has-logo .webui-icon-placeholder {
 			width: 160px;
 		}
 
-		.yweb-channel-info {
+		.webui-channel-info {
 			flex: 1;
 			min-width: 0;
 		}
 
-		.yweb-channel-name {
+		.webui-channel-name {
 			font-weight: 500;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 		}
 
-		.yweb-channel-epg {
-			font-size: var(--yweb-font-xs);
+		.webui-channel-epg {
+			font-size: var(--webui-font-xs);
 			color: var(--pico-muted-color);
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 
-		.yweb-channel-progress {
+		.webui-channel-progress {
 			width: 100%;
 			height: 3px;
 			margin-top: 4px;
@@ -106,75 +106,75 @@
 			transition: opacity 0.3s ease;
 		}
 
-		.yweb-channel-progress.active {
+		.webui-channel-progress.active {
 			opacity: 1;
 		}
 
-		.yweb-channel-progress-bar {
+		.webui-channel-progress-bar {
 			height: 100%;
-			background: linear-gradient(90deg, var(--yweb-accent), var(--yweb-accent-hover));
+			background: linear-gradient(90deg, var(--webui-accent), var(--webui-accent-hover));
 			border-radius: 2px;
 			transition: width 0.5s ease;
 		}
 
-		.yweb-channel-actions {
+		.webui-channel-actions {
 			display: flex;
 			gap: 0.3rem;
 			flex-shrink: 0;
 		}
 
 		/* Channel count in header */
-		.yweb-channel-count {
-			font-size: var(--yweb-font-xs);
+		.webui-channel-count {
+			font-size: var(--webui-font-xs);
 			color: var(--pico-muted-color);
 			font-weight: normal;
 		}
 
 		/* Mobile Accordion */
 		@media (max-width: 800px) {
-			.yweb-bouquets-grid {
+			.webui-bouquets-grid {
 				display: flex;
 				flex-direction: column;
 				gap: 0.4rem;
 				overflow: auto;
 			}
 
-			.yweb-card-indicator {
+			.webui-card-indicator {
 				display: flex;
 			}
 
-			.yweb-bouquet-card,
-			.yweb-channel-card {
+			.webui-bouquet-card,
+			.webui-channel-card {
 				flex: none;
 				max-height: none;
 				min-height: auto;
 			}
 
-			.yweb-bouquet-card .yweb-card-header,
-			.yweb-channel-card .yweb-card-header {
+			.webui-bouquet-card .webui-card-header,
+			.webui-channel-card .webui-card-header {
 				cursor: pointer;
 				position: relative;
 				padding-right: 2rem;
 			}
 
-			.yweb-bouquet-card .yweb-card-title,
-			.yweb-channel-card .yweb-card-title {
+			.webui-bouquet-card .webui-card-title,
+			.webui-channel-card .webui-card-title {
 				font-size: 0.9rem;
 			}
 
 			/* Show preview only when collapsed */
-			.yweb-card.collapsed .yweb-card-preview {
+			.webui-card.collapsed .webui-card-preview {
 				display: inline-block;
 			}
 
 			/* Hide channel count when collapsed */
-			.yweb-card.collapsed .yweb-channel-count {
+			.webui-card.collapsed .webui-channel-count {
 				display: none;
 			}
 
 			/* Chevron indicator */
-			.yweb-bouquet-card .yweb-card-header::after,
-			.yweb-channel-card .yweb-card-header::after {
+			.webui-bouquet-card .webui-card-header::after,
+			.webui-channel-card .webui-card-header::after {
 				content: '▼';
 				position: absolute;
 				right: 0.5rem;
@@ -187,32 +187,32 @@
 			}
 
 			/* Chevron rotated when not collapsed (= expanded) */
-			.yweb-card:not(.collapsed) .yweb-card-header::after {
+			.webui-card:not(.collapsed) .webui-card-header::after {
 				transform: translateY(-50%) rotate(180deg);
 			}
 
 			/* Mobile: show card body by default (graceful fallback without JS) */
-			.yweb-bouquet-card .yweb-card-body,
-			.yweb-channel-card .yweb-card-body {
+			.webui-bouquet-card .webui-card-body,
+			.webui-channel-card .webui-card-body {
 				display: block;
 				max-height: 60dvh;
 				overflow-y: auto;
 			}
 
 			/* Hide body when JS has initialized and card is collapsed */
-			.yweb-card.collapsed .yweb-card-body {
+			.webui-card.collapsed .webui-card-body {
 				display: none;
 			}
 
-			.yweb-channel-row {
+			.webui-channel-row {
 				padding: 0.4rem 0.6rem;
 			}
 
-			.yweb-channel-main {
+			.webui-channel-main {
 				gap: 0.4rem;
 			}
 
-			.yweb-icon-placeholder {
+			.webui-icon-placeholder {
 				width: 44px;
 				height: 30px;
 			}
@@ -221,42 +221,42 @@
 			   der Textname faellt weg (das Logo hat den Namen als alt), das
 			   Logo bekommt den freigewordenen Platz. Faellt das Logo aus
 			   (onerror entfernt .has-logo), erscheint der Name wieder. */
-			.yweb-channel-row.has-logo .yweb-icon-placeholder {
+			.webui-channel-row.has-logo .webui-icon-placeholder {
 				width: 140px;
 				height: 40px;
 			}
 
-			.yweb-channel-row.has-logo .yweb-channel-name {
+			.webui-channel-row.has-logo .webui-channel-name {
 				display: none;
 			}
 
-			.yweb-channel-actions {
+			.webui-channel-actions {
 				gap: 0.2rem;
 				flex-wrap: wrap;
 				justify-content: flex-end;
 			}
 
-			.yweb-channel-actions .yweb-btn {
+			.webui-channel-actions .webui-btn {
 				padding: 0.25rem 0.35rem;
 			}
 
-			.yweb-channel-actions .yweb-btn svg {
+			.webui-channel-actions .webui-btn svg {
 				width: 13px;
 				height: 13px;
 			}
 		}
 
-		[data-theme="light"] .yweb-channel-row {
+		[data-theme="light"] .webui-channel-row {
 			border-bottom-color: #e5e7eb;
 		}
 
-		[data-theme="light"] .yweb-channel-row:hover {
+		[data-theme="light"] .webui-channel-row:hover {
 			background: #f8f9fa;
 		}
 
 
 		/* Expandable Channel Row Detail */
-		.yweb-channel-detail {
+		.webui-channel-detail {
 			width: 100%;
 			max-height: 0;
 			overflow: hidden;
@@ -264,41 +264,41 @@
 			padding: 0;
 			margin-top: 0.5rem;
 			background: var(--pico-card-sectioning-background-color);
-			border-radius: var(--yweb-radius);
+			border-radius: var(--webui-radius);
 		}
 
-		.yweb-channel-row.row-expanded .yweb-channel-detail {
+		.webui-channel-row.row-expanded .webui-channel-detail {
 			max-height: 500px;
 			padding: 0.8rem 1rem;
 			overflow-y: auto;
 		}
 
-		.yweb-channel-detail-loading {
+		.webui-channel-detail-loading {
 			font-size: 0.85rem;
 			color: var(--pico-muted-color);
 			font-style: italic;
 		}
 
-		.yweb-channel-detail-content {
+		.webui-channel-detail-content {
 			font-size: 0.9rem;
 			line-height: 1.6;
 			color: var(--pico-color);
 		}
 
-		.yweb-channel-detail-time {
+		.webui-channel-detail-time {
 			font-size: 0.8rem;
 			color: var(--pico-muted-color);
 			margin-bottom: 0.5rem;
 		}
 
-		.yweb-channel-detail-title {
+		.webui-channel-detail-title {
 			font-weight: 600;
 			font-size: 1rem;
-			color: var(--yweb-accent);
+			color: var(--webui-accent);
 			margin-bottom: 0.5rem;
 		}
 
-		.yweb-channel-detail-desc {
+		.webui-channel-detail-desc {
 			font-size: 0.9rem;
 			line-height: 1.6;
 			white-space: pre-wrap;
@@ -306,7 +306,7 @@
 		}
 
 		/* Expand indicator on row */
-		.yweb-channel-row .yweb-expand-icon {
+		.webui-channel-row .webui-expand-icon {
 			width: 14px;
 			height: 14px;
 			color: var(--pico-muted-color);
@@ -314,25 +314,25 @@
 			transition: transform 0.2s ease;
 		}
 
-		.yweb-channel-row.row-expanded .yweb-expand-icon {
+		.webui-channel-row.row-expanded .webui-expand-icon {
 			transform: rotate(180deg);
 		}
 
 		@media (max-width: 800px) {
-			.yweb-channel-detail {
+			.webui-channel-detail {
 				margin-top: 0.4rem;
 			}
 
-			.yweb-channel-row.row-expanded .yweb-channel-detail {
+			.webui-channel-row.row-expanded .webui-channel-detail {
 				max-height: 60vh;
 				padding: 0.7rem 0.8rem;
 			}
 
-			.yweb-channel-detail-content {
+			.webui-channel-detail-content {
 				font-size: 0.95rem;
 			}
 
-			.yweb-channel-detail-desc {
+			.webui-channel-detail-desc {
 				font-size: 0.95rem;
 				line-height: 1.7;
 			}
@@ -341,51 +341,51 @@
 </head>
 <body>
 	<!-- Header wird dynamisch von webui-header.js generiert -->
-	<div class="yweb-header-wrapper" data-page="bouquets"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="bouquets"></div>
+	<div class="webui-header-spacer"></div>
 
 	<!-- Main Content: 2-Column Grid -->
-	<main class="yweb-bouquets-grid">
+	<main class="webui-bouquets-grid">
 		<!-- Bouquet List Card -->
-		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-bouquet-card" id="card-bouquets">
-			<header class="yweb-card-header" onclick="toggleCard('card-bouquets')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card webui-panel-card webui-card-sm webui-bouquet-card" id="card-bouquets">
+			<header class="webui-card-header" onclick="toggleCard('card-bouquets')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M3 6h18M3 12h18M3 18h18"/>
 					</svg>
 					Bouquets
 				</h3>
-				<span class="yweb-card-preview" id="bouquetPreview">--</span>
+				<span class="webui-card-preview" id="bouquetPreview">--</span>
 			</header>
-			<div class="yweb-card-body">
-				<ul class="yweb-plain-list yweb-bouquet-list" id="bouquetList">
+			<div class="webui-card-body">
+				<ul class="webui-plain-list webui-bouquet-list" id="bouquetList">
 					<li aria-busy="true">{=L:yw.bq.loading_bouquets=}</li>
 				</ul>
 			</div>
 		</article>
 
 		<!-- Channel List Card -->
-		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-channel-card" id="card-channels">
-			<header class="yweb-card-header" onclick="toggleCard('card-channels')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card webui-panel-card webui-card-sm webui-channel-card" id="card-channels">
+			<header class="webui-card-header" onclick="toggleCard('card-channels')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
 						<polyline points="17,2 12,7 7,2"/>
 					</svg>
 					<span id="currentBouquetName">{=L:yw.dash.channels=}</span>
 				</h3>
-				<span class="yweb-card-preview" id="channelPreview">--</span>
-				<span class="yweb-channel-count" id="channelCount"></span>
+				<span class="webui-card-preview" id="channelPreview">--</span>
+				<span class="webui-channel-count" id="channelCount"></span>
 			</header>
-			<div class="yweb-card-body">
-				<ul class="yweb-plain-list yweb-channel-grid" id="channelList">
+			<div class="webui-card-body">
+				<ul class="webui-plain-list webui-channel-grid" id="channelList">
 					<li aria-busy="true">{=L:yw.bq.loading_channels=}</li>
 				</ul>
 			</div>
 		</article>
 
 		<!-- Mobile Card Indicator -->
-		<div class="yweb-card-indicator" id="cardIndicator"></div>
+		<div class="webui-card-indicator" id="cardIndicator"></div>
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
@@ -404,22 +404,22 @@
 
 		const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>';
 		const SVG_GLOBE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
-		const SVG_EXPAND = '<svg class="yweb-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>';
+		const SVG_EXPAND = '<svg class="webui-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>';
 		const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
 		const SVG_REC = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>';
 		const SVG_STREAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12,15 17,21 7,21"/></svg>';
 
 		function clock(sec) {
-			return ywebFormatTime(new Date(sec * 1000));
+			return webuiFormatTime(new Date(sec * 1000));
 		}
 
 		function rowOf(channelId) {
-			return document.querySelector('.yweb-channel-row[data-id="' + CSS.escape(String(channelId)) + '"]');
+			return document.querySelector('.webui-channel-row[data-id="' + CSS.escape(String(channelId)) + '"]');
 		}
 
 		// The channel the box plays, and with it which list to show
 		async function loadCurrentChannel() {
-			const ch = await ywebV1('GET', '/channels/current').catch(() => null);
+			const ch = await webuiV1('GET', '/channels/current').catch(() => null);
 			currentChannelId = ch ? ch.id : null;
 			currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 		}
@@ -428,40 +428,40 @@
 		async function loadBouquets() {
 			const list = document.getElementById('bouquetList');
 			try {
-				const r = await ywebV1('GET', '/bouquets');
+				const r = await webuiV1('GET', '/bouquets');
 				bouquetsData = ((r && r.items) || []).filter(b =>
 					!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
 
 				let active = '';
 				if (currentChannelId) {
-					const holding = await ywebV1('GET', '/bouquets', {query: {holds: currentChannelId}}).catch(() => null);
+					const holding = await webuiV1('GET', '/bouquets', {query: {holds: currentChannelId}}).catch(() => null);
 					const found = holding && (holding.items || []).find(x => bouquetsData.some(b => b.id === x.id));
 					if (found) active = String(found.id);
 				}
 				renderBouquetList(active || (bouquetsData[0] ? String(bouquetsData[0].id) : ''));
 			} catch (e) {
 				console.error('Failed to load bouquets:', e);
-				list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.msg.load_fail=}'));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.msg.load_fail=}'));
 			}
 		}
 
 		function renderBouquetList(activeBouquet) {
 			const list = document.getElementById('bouquetList');
-			const items = [ywebEl('li', {className: 'yweb-nav-item yweb-bouquet-item' + (activeBouquet === '' ? ' active' : ''),
+			const items = [webuiEl('li', {className: 'webui-nav-item webui-bouquet-item' + (activeBouquet === '' ? ' active' : ''),
 				on: {click: () => selectBouquet('')}},
-				ywebMarkup(SVG_GLOBE),
-				ywebEl('span', {className: 'yweb-nav-name yweb-bouquet-name'}, '{=L:yw.bq.all_channels=}'))];
+				webuiMarkup(SVG_GLOBE),
+				webuiEl('span', {className: 'webui-nav-name webui-bouquet-name'}, '{=L:yw.bq.all_channels=}'))];
 			bouquetsData.forEach(b => {
-				items.push(ywebEl('li', {className: 'yweb-nav-item yweb-bouquet-item' + (String(activeBouquet) === String(b.id) ? ' active' : ''),
+				items.push(webuiEl('li', {className: 'webui-nav-item webui-bouquet-item' + (String(activeBouquet) === String(b.id) ? ' active' : ''),
 					data: {bouquet: String(b.id)}, on: {click: () => selectBouquet(String(b.id))}},
-					ywebMarkup(SVG_PLAY),
-					ywebEl('span', {className: 'yweb-nav-name yweb-bouquet-name'}, b.name)));
+					webuiMarkup(SVG_PLAY),
+					webuiEl('span', {className: 'webui-nav-name webui-bouquet-name'}, b.name)));
 			});
 			list.replaceChildren.apply(list, items);
 			currentBouquetNumber = activeBouquet;
 
 			setTimeout(() => {
-				const activeItem = list.querySelector('.yweb-bouquet-item.active');
+				const activeItem = list.querySelector('.webui-bouquet-item.active');
 				if (activeItem) scrollToElementInContainer(activeItem, list);
 			}, 200);
 
@@ -470,7 +470,7 @@
 		}
 
 		function selectBouquet(bouquet) {
-			document.querySelectorAll('.yweb-bouquet-item').forEach(item => {
+			document.querySelectorAll('.webui-bouquet-item').forEach(item => {
 				const itemBouquet = item.dataset.bouquet || '';
 				item.classList.toggle('active', itemBouquet === bouquet);
 			});
@@ -483,26 +483,26 @@
 
 		function channelRow(ch) {
 			const isCurrent = ch.id === currentChannelId;
-			const placeholder = ywebEl('div', {className: 'yweb-icon-placeholder'}, currentMode === 'radio' ? 'Radio' : 'TV');
-			const row = ywebEl('li', {className: 'yweb-channel-row' + (isCurrent ? ' current' : ''),
+			const placeholder = webuiEl('div', {className: 'webui-icon-placeholder'}, currentMode === 'radio' ? 'Radio' : 'TV');
+			const row = webuiEl('li', {className: 'webui-channel-row' + (isCurrent ? ' current' : ''),
 				data: {id: ch.id}, on: {click: event => toggleChannelDetail(event, ch.id)}},
-				ywebEl('div', {className: 'yweb-channel-main'},
+				webuiEl('div', {className: 'webui-channel-main'},
 					placeholder,
-					ywebMarkup(SVG_EXPAND),
-					ywebEl('div', {className: 'yweb-channel-info'},
-						ywebEl('div', {className: 'yweb-channel-name'}, ch.name),
-						ywebEl('div', {className: 'yweb-channel-epg'}),
-						ywebEl('div', {className: 'yweb-channel-progress'}, ywebEl('div', {className: 'yweb-channel-progress-bar'}))),
-					ywebEl('div', {className: 'yweb-channel-actions', on: {click: event => event.stopPropagation()}},
+					webuiMarkup(SVG_EXPAND),
+					webuiEl('div', {className: 'webui-channel-info'},
+						webuiEl('div', {className: 'webui-channel-name'}, ch.name),
+						webuiEl('div', {className: 'webui-channel-epg'}),
+						webuiEl('div', {className: 'webui-channel-progress'}, webuiEl('div', {className: 'webui-channel-progress-bar'}))),
+					webuiEl('div', {className: 'webui-channel-actions', on: {click: event => event.stopPropagation()}},
 						actionButton(SVG_PLAY, '{=L:yw.epg.zap=}', '{=L:yw.bq.zap_title=}', () => zapTo(ch.id)),
 						actionButton(SVG_INFO, 'Info', '{=L:yw.dash.epg_info=}', () => showEpg(ch.id, ch.name)),
-						actionButton(SVG_REC, 'Rec', '{=L:yw.bq.rec_title=}', () => ywebRecordEvent(ch.id, ch.name, epgNow[ch.id]), true),
-						actionButton(SVG_STREAM, 'Stream', '{=L:yw.bq.stream_title=}', () => ywebStreamChannel(ch.id, ch.name)))),
-				ywebEl('div', {className: 'yweb-channel-detail', id: 'detail-' + ch.id},
-					ywebEl('div', {className: 'yweb-channel-detail-loading'}, '{=L:yw.bq.tap_info=}')));
+						actionButton(SVG_REC, 'Rec', '{=L:yw.bq.rec_title=}', () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id]), true),
+						actionButton(SVG_STREAM, 'Stream', '{=L:yw.bq.stream_title=}', () => webuiStreamChannel(ch.id, ch.name)))),
+				webuiEl('div', {className: 'webui-channel-detail', id: 'detail-' + ch.id},
+					webuiEl('div', {className: 'webui-channel-detail-loading'}, '{=L:yw.bq.tap_info=}')));
 			// a logo only while the box hands them out; one that fails leaves the placeholder text
 			if (logosOffered) {
-				const img = ywebEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: '', loading: 'lazy'},
+				const img = webuiEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: '', loading: 'lazy'},
 					on: {error: function() {
 						row.classList.remove('has-logo');
 						placeholder.textContent = currentMode === 'radio' ? 'Radio' : 'TV';
@@ -514,10 +514,10 @@
 		}
 
 		function actionButton(svg, label, title, onClick, danger) {
-			return ywebEl('button', {className: 'yweb-btn', title: title, style: danger ? {color: 'var(--yweb-danger)'} : undefined,
+			return webuiEl('button', {className: 'webui-btn', title: title, style: danger ? {color: 'var(--webui-danger)'} : undefined,
 				on: {click: onClick}},
-				ywebMarkup(svg),
-				ywebEl('span', {className: 'btn-label'}, label));
+				webuiMarkup(svg),
+				webuiEl('span', {className: 'btn-label'}, label));
 		}
 
 		// Whether the box hands logos out at all, asked once with the first
@@ -538,7 +538,7 @@
 			const list = document.getElementById('channelList');
 			const countEl = document.getElementById('channelCount');
 			const titleEl = document.getElementById('currentBouquetName');
-			list.replaceChildren(ywebEl('li', {attrs: {'aria-busy': 'true'}}, '{=L:yw.bq.loading_channels=}'));
+			list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}}, '{=L:yw.bq.loading_channels=}'));
 
 			if (bouquet === '') {
 				titleEl.textContent = '{=L:yw.bq.all_channels=}';
@@ -550,12 +550,12 @@
 			try {
 				const query = {mode: currentMode};
 				if (bouquet) query.bouquet = bouquet;
-				const channels = await ywebV1All('/channels', query);
+				const channels = await webuiV1All('/channels', query);
 				if (token !== channelsToken) return;	// another bouquet was chosen meanwhile
 
 				countEl.textContent = channels.length + ' {=L:yw.bq.channels_unit=}';
 				if (channels.length === 0) {
-					list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.bq.no_channels=}'));
+					list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.bq.no_channels=}'));
 					return;
 				}
 				if (logosOffered) await checkLogos(channels[0].id);
@@ -577,7 +577,7 @@
 				loadEpgInfo(channels, bouquet, token);
 			} catch (e) {
 				if (token !== channelsToken) return;
-				list.replaceChildren(ywebEl('li', {className: 'yweb-empty'}, '{=L:yw.msg.load_fail=}'));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.msg.load_fail=}'));
 				console.error('Failed to load channels:', e);
 			}
 		}
@@ -604,7 +604,7 @@
 					if (cursor) query.cursor = cursor;
 					let page;
 					try {
-						page = await ywebV1('GET', '/epg/grid', {query: query});
+						page = await webuiV1('GET', '/epg/grid', {query: query});
 					} catch (e) {
 						break;	// no guide for this page; the rows stay without one
 					}
@@ -621,7 +621,7 @@
 			const row = rowOf(channelId);
 			if (!ev || !row) return;
 			epgNow[channelId] = ev;
-			row.querySelector('.yweb-channel-epg').textContent =
+			row.querySelector('.webui-channel-epg').textContent =
 				clock(ev.start) + '-' + clock(ev.start + ev.duration) + ' ' + (ev.title || '');
 			updateChannelProgress(channelId);
 		}
@@ -630,8 +630,8 @@
 			const ev = epgNow[channelId];
 			const row = rowOf(channelId);
 			if (!ev || !row) return;
-			const container = row.querySelector('.yweb-channel-progress');
-			const bar = row.querySelector('.yweb-channel-progress-bar');
+			const container = row.querySelector('.webui-channel-progress');
+			const bar = row.querySelector('.webui-channel-progress-bar');
 			const now = Date.now() / 1000;
 			const percent = Math.min(100, Math.max(0, (now - ev.start) / ev.duration * 100));
 			bar.style.width = percent + '%';
@@ -655,7 +655,7 @@
 		}
 
 		function markCurrent() {
-			document.querySelectorAll('.yweb-channel-row').forEach(row => {
+			document.querySelectorAll('.webui-channel-row').forEach(row => {
 				row.classList.toggle('current', row.dataset.id === currentChannelId);
 			});
 			updateChannelPreview();
@@ -664,21 +664,21 @@
 		// Zap: a file the player plays, or a box in standby, is asked about first
 		async function zapTo(channelId) {
 			try {
-				if (await ywebV1Zap(channelId)) {
+				if (await webuiV1Zap(channelId)) {
 					currentChannelId = channelId;
 					markCurrent();
 				}
 			} catch (e) {
-				ywebShowToast(e.message, true);
+				webuiShowToast(e.message, true);
 			}
 		}
 
 		function showEpg(channelId, channelName) {
-			ywebShowEpgModal(channelId, channelName);
+			webuiShowEpgModal(channelId, channelName);
 		}
 
 		async function toggleChannelDetail(event, channelId) {
-			if (event.target.closest('.yweb-channel-actions')) return;
+			if (event.target.closest('.webui-channel-actions')) return;
 			const row = rowOf(channelId);
 			if (!row) return;
 			const detailEl = document.getElementById('detail-' + channelId);
@@ -686,27 +686,27 @@
 				row.classList.remove('row-expanded');
 				return;
 			}
-			document.querySelectorAll('.yweb-channel-row.row-expanded').forEach(r => r.classList.remove('row-expanded'));
+			document.querySelectorAll('.webui-channel-row.row-expanded').forEach(r => r.classList.remove('row-expanded'));
 			row.classList.add('row-expanded');
-			if (detailEl && detailEl.querySelector('.yweb-channel-detail-loading'))
+			if (detailEl && detailEl.querySelector('.webui-channel-detail-loading'))
 				await loadChannelDetail(channelId, detailEl);
 		}
 
 		// The long text of what runs now
 		async function loadChannelDetail(channelId, detailEl) {
 			function content(text, muted) {
-				detailEl.replaceChildren(ywebEl('div', {className: 'yweb-channel-detail-content'},
-					ywebEl('div', {className: 'yweb-channel-detail-desc',
+				detailEl.replaceChildren(webuiEl('div', {className: 'webui-channel-detail-content'},
+					webuiEl('div', {className: 'webui-channel-detail-desc',
 						style: muted ? {'font-style': 'italic', color: 'var(--pico-muted-color)'} : undefined}, text)));
 			}
 			try {
 				let ev = epgNow[channelId];
-				if (!ev) ev = await ywebV1('GET', '/epg/current', {query: {channel: channelId}}).catch(() => null);
+				if (!ev) ev = await webuiV1('GET', '/epg/current', {query: {channel: channelId}}).catch(() => null);
 				if (!ev) {
 					content('{=L:yw.bq.no_epg=}');
 					return;
 				}
-				const full = await ywebV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => ev);
+				const full = await webuiV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => ev);
 				const desc = [full.description, full.long_description].filter(Boolean).join('\n\n');
 				if (desc) content(desc);
 				else content('{=L:yw.epg.no_desc=}', true);
@@ -743,7 +743,7 @@
 			const preview = document.getElementById('channelPreview');
 			const count = document.getElementById('channelCount');
 			if (preview) {
-				const currentRow = document.querySelector('.yweb-channel-row.current .yweb-channel-name');
+				const currentRow = document.querySelector('.webui-channel-row.current .webui-channel-name');
 				if (currentRow) preview.textContent = currentRow.textContent;
 				else if (count) preview.textContent = count.textContent;
 			}
@@ -752,11 +752,11 @@
 		// Initialize; a zap from anywhere else (remote control, timer) moves the mark
 		loadCurrentChannel().then(() => loadBouquets());
 		let zapRead = 0;	// an older answer arriving after a newer one is dropped
-		ywebV1Events({
+		webuiV1Events({
 			zap: async function() {
 				const read = ++zapRead;
 				const mode = currentMode;
-				const ch = await ywebV1('GET', '/channels/current').catch(() => null);
+				const ch = await webuiV1('GET', '/channels/current').catch(() => null);
 				if (read !== zapRead) return;
 				currentChannelId = ch ? ch.id : null;
 				currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
@@ -766,13 +766,13 @@
 		});
 
 		document.addEventListener('DOMContentLoaded', function() {
-			ywebInitMobileAccordion({
+			webuiInitMobileAccordion({
 				cardOrder: ['card-bouquets', 'card-channels'],
-				storageKey: 'yweb-bouquets-card',
+				storageKey: 'webui-bouquets-card',
 				defaultCard: 'card-channels',
 				breakpoint: 800,
 				indicatorId: 'cardIndicator',
-				containerSelector: '.yweb-bouquets-grid',
+				containerSelector: '.webui-bouquets-grid',
 				mode: 'collapsed'
 			});
 		});
@@ -780,25 +780,25 @@
 		// Custom pull-to-refresh for bouquets page
 		// Check if expanded card's body is at top before allowing refresh
 		function isAtScrollTop() {
-			const expandedCard = document.querySelector('.yweb-card:not(.collapsed)');
+			const expandedCard = document.querySelector('.webui-card:not(.collapsed)');
 			if (expandedCard) {
-				const cardBody = expandedCard.querySelector('.yweb-card-body');
+				const cardBody = expandedCard.querySelector('.webui-card-body');
 				if (cardBody && cardBody.scrollTop > 5) return false;
 			}
-			const main = document.querySelector('.yweb-bouquets-grid');
+			const main = document.querySelector('.webui-bouquets-grid');
 			if (main && main.scrollTop > 5) return false;
 			return true;
 		}
 
-		if (typeof ywebSetRefreshCallback === 'function') {
-			ywebSetRefreshCallback(function() {
+		if (typeof webuiSetRefreshCallback === 'function') {
+			webuiSetRefreshCallback(function() {
 				if (!isAtScrollTop()) return Promise.resolve();
 				return loadCurrentChannel().then(() => loadBouquets());
 			});
 		}
 
-		if (typeof window.ywebIsAtScrollTop === 'undefined') {
-			window.ywebIsAtScrollTop = isAtScrollTop;
+		if (typeof window.webuiIsAtScrollTop === 'undefined') {
+			window.webuiIsAtScrollTop = isAtScrollTop;
 		}
 	</script>
 </body>

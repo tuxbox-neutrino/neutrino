@@ -1,5 +1,5 @@
 /**
- * yWeb Modern UI - Custom Styles
+ * Neutrino-Web-UI - custom styles
  * Built on top of Pico CSS
  * Percentage-based responsive layout
  */
@@ -9,211 +9,211 @@
    ============================================ */
 :root {
 	/* Brand colors */
-	--yweb-accent: #fd6d13;
-	--yweb-accent-hover: #e55a00;
-	--yweb-accent-light: rgba(253, 109, 19, 0.15);
+	--webui-accent: #fd6d13;
+	--webui-accent-hover: #e55a00;
+	--webui-accent-light: rgba(253, 109, 19, 0.15);
 	/* Focus outline colour — theme-dependent for 3:1 contrast: plain
 	   accent clears 3:1 on the dark form background, the darker hover
 	   accent is needed on the light one (see [data-theme="light"]). */
-	--yweb-focus-color: var(--yweb-accent);
+	--webui-focus-color: var(--webui-accent);
 
 	/* Text on accent (for buttons, active states) */
-	--yweb-on-accent: #ffffff;
+	--webui-on-accent: #ffffff;
 
 	/* Status colors */
-	--yweb-success: #2ecc71;
-	--yweb-warning: #f1c40f;
-	--yweb-danger: #e74c3c;
-	--yweb-danger-hover: #c0392b;
-	--yweb-recording: #e74c3c;
+	--webui-success: #2ecc71;
+	--webui-warning: #f1c40f;
+	--webui-danger: #e74c3c;
+	--webui-danger-hover: #c0392b;
+	--webui-recording: #e74c3c;
 
 	/* Theme-adaptive colors (dark mode defaults) */
-	--yweb-text-primary: #e5e5e5;
-	--yweb-text-secondary: #9ca3af;
-	--yweb-bg-elevated: rgba(255, 255, 255, 0.05);
-	--yweb-border-subtle: rgba(255, 255, 255, 0.1);
+	--webui-text-primary: #e5e5e5;
+	--webui-text-secondary: #9ca3af;
+	--webui-bg-elevated: rgba(255, 255, 255, 0.05);
+	--webui-border-subtle: rgba(255, 255, 255, 0.1);
 
 	/* Spacing - using relative units */
-	--yweb-gap: 0.8%;
-	--yweb-card-padding: 3%;
+	--webui-gap: 0.8%;
+	--webui-card-padding: 3%;
 
 	/* Border radius */
-	--yweb-radius: 0.4rem;
-	--yweb-radius-lg: 0.6rem;
+	--webui-radius: 0.4rem;
+	--webui-radius-lg: 0.6rem;
 
 	/* Shadows */
-	--yweb-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-	--yweb-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+	--webui-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	--webui-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
 
 	/* Transitions */
-	--yweb-transition: 0.2s ease;
+	--webui-transition: 0.2s ease;
 
 	/* Font sizes - relative to viewport */
-	--yweb-font-xs: clamp(0.6rem, 1.5vw, 0.75rem);
-	--yweb-font-sm: clamp(0.7rem, 1.8vw, 0.85rem);
-	--yweb-font-base: clamp(0.8rem, 2vw, 1rem);
-	--yweb-font-lg: clamp(1rem, 2.5vw, 1.25rem);
-	--yweb-font-xl: clamp(1.1rem, 3vw, 1.5rem);
+	--webui-font-xs: clamp(0.6rem, 1.5vw, 0.75rem);
+	--webui-font-sm: clamp(0.7rem, 1.8vw, 0.85rem);
+	--webui-font-base: clamp(0.8rem, 2vw, 1rem);
+	--webui-font-lg: clamp(1rem, 2.5vw, 1.25rem);
+	--webui-font-xl: clamp(1.1rem, 3vw, 1.5rem);
 }
 
 /* Light theme - override variables */
 [data-theme="light"] {
-	--yweb-accent-light: rgba(253, 109, 19, 0.12);
-	--yweb-focus-color: var(--yweb-accent-hover);
-	--yweb-on-accent: #1a1a1a;
-	--yweb-text-primary: #1a1a1a;
-	--yweb-text-secondary: #4b5563;
-	--yweb-bg-elevated: #f3f4f6;
-	--yweb-border-subtle: #e5e7eb;
-	--yweb-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-	--yweb-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+	--webui-accent-light: rgba(253, 109, 19, 0.12);
+	--webui-focus-color: var(--webui-accent-hover);
+	--webui-on-accent: #1a1a1a;
+	--webui-text-primary: #1a1a1a;
+	--webui-text-secondary: #4b5563;
+	--webui-bg-elevated: #f3f4f6;
+	--webui-border-subtle: #e5e7eb;
+	--webui-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--webui-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 /* Light theme component overrides - using centralized variables */
-[data-theme="light"] .yweb-theme-toggle {
-	color: var(--yweb-text-secondary);
+[data-theme="light"] .webui-theme-toggle {
+	color: var(--webui-text-secondary);
 }
 
-[data-theme="light"] .yweb-theme-toggle:hover {
-	background: var(--yweb-accent-light);
-	color: var(--yweb-text-primary);
+[data-theme="light"] .webui-theme-toggle:hover {
+	background: var(--webui-accent-light);
+	color: var(--webui-text-primary);
 }
 
-[data-theme="light"] .yweb-action-btn {
-	background: var(--yweb-bg-elevated);
-	border-color: var(--yweb-border-subtle);
-	color: var(--yweb-text-secondary);
+[data-theme="light"] .webui-action-btn {
+	background: var(--webui-bg-elevated);
+	border-color: var(--webui-border-subtle);
+	color: var(--webui-text-secondary);
 }
 
-[data-theme="light"] .yweb-action-btn:hover {
-	background: var(--yweb-accent-light);
-	border-color: var(--yweb-accent);
-	color: var(--yweb-accent);
+[data-theme="light"] .webui-action-btn:hover {
+	background: var(--webui-accent-light);
+	border-color: var(--webui-accent);
+	color: var(--webui-accent);
 }
 
-[data-theme="light"] .yweb-card {
-	border: 1px solid var(--yweb-border-subtle);
+[data-theme="light"] .webui-card {
+	border: 1px solid var(--webui-border-subtle);
 }
 
-[data-theme="light"] .yweb-info-label {
-	color: var(--yweb-text-secondary);
+[data-theme="light"] .webui-info-label {
+	color: var(--webui-text-secondary);
 }
 
-[data-theme="light"] .yweb-nav-links a {
-	color: var(--yweb-text-primary);
+[data-theme="light"] .webui-nav-links a {
+	color: var(--webui-text-primary);
 	font-weight: 500;
 }
 
-[data-theme="light"] .yweb-nav-links a:hover {
-	color: var(--yweb-accent);
+[data-theme="light"] .webui-nav-links a:hover {
+	color: var(--webui-accent);
 }
 
-[data-theme="light"] .yweb-nav-links a.active {
-	color: var(--yweb-accent);
+[data-theme="light"] .webui-nav-links a.active {
+	color: var(--webui-accent);
 	font-weight: 600;
 }
 
-[data-theme="light"] .yweb-clock {
-	color: var(--yweb-text-secondary);
+[data-theme="light"] .webui-clock {
+	color: var(--webui-text-secondary);
 	font-weight: 500;
 }
 
-[data-theme="light"] .yweb-hostname {
-	color: var(--yweb-accent);
+[data-theme="light"] .webui-hostname {
+	color: var(--webui-accent);
 	font-weight: 600;
 }
 
-[data-theme="light"] .yweb-logo span {
-	color: var(--yweb-text-primary);
+[data-theme="light"] .webui-logo span {
+	color: var(--webui-text-primary);
 }
 
-[data-theme="light"] .yweb-card-title {
-	color: var(--yweb-text-primary);
+[data-theme="light"] .webui-card-title {
+	color: var(--webui-text-primary);
 }
 
-[data-theme="light"] .yweb-card-header {
-	border-bottom-color: var(--yweb-border-subtle);
+[data-theme="light"] .webui-card-header {
+	border-bottom-color: var(--webui-border-subtle);
 }
 
-[data-theme="light"] .yweb-footer {
-	color: var(--yweb-text-secondary);
-	border-top-color: var(--yweb-border-subtle);
+[data-theme="light"] .webui-footer {
+	color: var(--webui-text-secondary);
+	border-top-color: var(--webui-border-subtle);
 }
 
-[data-theme="light"] .yweb-footer a {
-	color: var(--yweb-accent);
+[data-theme="light"] .webui-footer a {
+	color: var(--webui-accent);
 }
 
 /* Light theme - Bouquets channel buttons */
-[data-theme="light"] .yweb-channel-btn {
+[data-theme="light"] .webui-channel-btn {
 	background: #f0f2f5;
 	border: 1px solid #d0d7de;
 	color: #24292f;
 }
 
-[data-theme="light"] .yweb-channel-btn:hover {
-	background: var(--yweb-accent);
-	border-color: var(--yweb-accent);
+[data-theme="light"] .webui-channel-btn:hover {
+	background: var(--webui-accent);
+	border-color: var(--webui-accent);
 	color: white;
 }
 
-[data-theme="light"] .yweb-channel-btn svg {
+[data-theme="light"] .webui-channel-btn svg {
 	stroke: currentColor;
 }
 
 /* Light theme - Bouquets dropdown */
-[data-theme="light"] .yweb-bouquet-dropdown {
+[data-theme="light"] .webui-bouquet-dropdown {
 	background: #fff;
 	border-color: #d0d7de;
 	color: #24292f;
 }
 
-[data-theme="light"] .yweb-bouquet-dropdown:focus {
-	border-color: var(--yweb-accent);
+[data-theme="light"] .webui-bouquet-dropdown:focus {
+	border-color: var(--webui-accent);
 	box-shadow: 0 0 0 2px rgba(253, 109, 19, 0.2);
 }
 
 /* Light theme - Channel row */
-[data-theme="light"] .yweb-channel-row {
+[data-theme="light"] .webui-channel-row {
 	border-bottom-color: #e5e7eb;
 }
 
-[data-theme="light"] .yweb-channel-row:hover {
+[data-theme="light"] .webui-channel-row:hover {
 	background: #f8f9fa;
 }
 
-[data-theme="light"] .yweb-channel-row.current {
+[data-theme="light"] .webui-channel-row.current {
 	background: rgba(253, 109, 19, 0.08);
 }
 
 /* Light theme - Remote control buttons (see Remote Control section below) */
 
 /* Light theme - EPG buttons and elements */
-[data-theme="light"] .yweb-epg-btn {
+[data-theme="light"] .webui-epg-btn {
 	background: #f0f2f5;
 	border-color: #d0d7de;
 	color: #24292f;
 }
 
-[data-theme="light"] .yweb-epg-btn:hover {
+[data-theme="light"] .webui-epg-btn:hover {
 	background: #e0e0e0;
-	border-color: var(--yweb-accent);
+	border-color: var(--webui-accent);
 }
 
-[data-theme="light"] .yweb-epg-select {
+[data-theme="light"] .webui-epg-select {
 	background: #fff;
 	border-color: #d0d7de;
 	color: #24292f;
 }
 
 /* Light theme - Subheader */
-[data-theme="light"] .yweb-subheader {
+[data-theme="light"] .webui-subheader {
 	background: #f6f8fa;
 	border-bottom-color: #e5e7eb;
 }
 
 /* Light theme - Header */
-[data-theme="light"] .yweb-header {
+[data-theme="light"] .webui-header {
 	background: #fff;
 	border-bottom-color: #e5e7eb;
 }
@@ -247,7 +247,7 @@ main {
    ============================================ */
 
 /* Wrapper für beide Header - ermöglicht flexibles Stacking */
-.yweb-header-wrapper {
+.webui-header-wrapper {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -257,7 +257,7 @@ main {
 	flex-direction: column;
 }
 
-.yweb-header {
+.webui-header {
 	background: var(--pico-card-background-color);
 	border-bottom: 1px solid var(--pico-muted-border-color);
 	padding: 0.5rem 1.5%;
@@ -265,7 +265,7 @@ main {
 }
 
 /* Sub-Header Template - für Seiten mit zusätzlichem Header */
-.yweb-subheader {
+.webui-subheader {
 	background: var(--pico-card-sectioning-background-color);
 	border-bottom: 1px solid var(--pico-muted-border-color);
 	padding: 0.4rem 1.5%;
@@ -276,20 +276,20 @@ main {
 }
 
 /* Spacer - unsichtbares Element das den Platz für die fixed Header reserviert */
-.yweb-header-spacer {
+.webui-header-spacer {
 	flex-shrink: 0;
 }
 
 /* Fallback für Seiten ohne JavaScript-berechneten Spacer */
-body.has-subheader .yweb-header-spacer {
+body.has-subheader .webui-header-spacer {
 	height: 5.5rem; /* Geschätzte Höhe für Header + Subheader */
 }
 
-body:not(.has-subheader) .yweb-header-spacer {
+body:not(.has-subheader) .webui-header-spacer {
 	height: 2.8rem; /* Geschätzte Höhe für nur Header */
 }
 
-.yweb-header nav {
+.webui-header nav {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -297,33 +297,33 @@ body:not(.has-subheader) .yweb-header-spacer {
 	width: 100%;
 }
 
-.yweb-logo {
+.webui-logo {
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
 	font-weight: 700;
-	font-size: var(--yweb-font-sm);
-	color: var(--yweb-accent);
+	font-size: var(--webui-font-sm);
+	color: var(--webui-accent);
 	text-decoration: none;
 	flex-shrink: 0;
 }
 
-.yweb-logo img {
+.webui-logo img {
 	height: clamp(18px, 2.5vw, 24px);
 	width: auto;
 }
 
-.yweb-logo span {
+.webui-logo span {
 	display: inline;
 }
 
 /* hide text when logo image is present
    (img is removed via onerror if logo doesn't exist) */
-.yweb-logo img + span {
+.webui-logo img + span {
 	display: none;
 }
 
-.yweb-nav-links {
+.webui-nav-links {
 	display: flex;
 	gap: 0.3rem;
 	list-style: none;
@@ -334,107 +334,107 @@ body:not(.has-subheader) .yweb-header-spacer {
 	align-items: center;
 }
 
-.yweb-nav-links a {
+.webui-nav-links a {
 	display: flex;
 	align-items: center;
 	padding: 0.2rem 0.5rem;
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	color: var(--pico-color);
 	text-decoration: none;
-	transition: var(--yweb-transition);
-	font-size: var(--yweb-font-xs);
+	transition: var(--webui-transition);
+	font-size: var(--webui-font-xs);
 	white-space: nowrap;
 }
 
-.yweb-nav-links a:hover,
-.yweb-nav-links a.active {
-	background: var(--yweb-accent-light);
-	color: var(--yweb-accent);
+.webui-nav-links a:hover,
+.webui-nav-links a.active {
+	background: var(--webui-accent-light);
+	color: var(--webui-accent);
 }
 
-.yweb-header-right {
+.webui-header-right {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	flex-shrink: 0;
 }
 
-.yweb-clock {
+.webui-clock {
 	font-family: var(--pico-font-family-monospace);
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 	color: var(--pico-muted-color);
 }
 
-.yweb-hostname {
-	color: var(--yweb-accent);
+.webui-hostname {
+	color: var(--webui-accent);
 	font-weight: 600;
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 }
 
 /* Hamburger menu for mobile */
-.yweb-menu-toggle {
+.webui-menu-toggle {
 	display: none;
 	background: none;
 	border: none;
 	padding: 0.3rem;
 	cursor: pointer;
 	color: var(--pico-color);
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	transition: background 0.2s ease;
 }
 
-.yweb-menu-toggle:hover {
-	background: var(--yweb-accent-light);
+.webui-menu-toggle:hover {
+	background: var(--webui-accent-light);
 }
 
-.yweb-menu-toggle svg {
+.webui-menu-toggle svg {
 	width: 1.25rem;
 	height: 1.25rem;
 }
 
 /* Light mode: ensure hamburger is visible */
-[data-theme="light"] .yweb-menu-toggle {
+[data-theme="light"] .webui-menu-toggle {
 	color: #333;
 }
 
-[data-theme="light"] .yweb-menu-toggle:hover {
-	background: var(--yweb-accent-light);
+[data-theme="light"] .webui-menu-toggle:hover {
+	background: var(--webui-accent-light);
 }
 
 /* Theme toggle button — single definition (the former duplicate near
    the button templates has been removed; its winning padding/svg size
    are folded in here so the rendering is unchanged). */
-.yweb-theme-toggle {
+.webui-theme-toggle {
 	background: none;
 	border: none;
 	padding: 0.3rem;
 	cursor: pointer;
 	color: var(--pico-color);
-	border-radius: var(--yweb-radius);
-	transition: var(--yweb-transition);
+	border-radius: var(--webui-radius);
+	transition: var(--webui-transition);
 	display: flex;
 	align-items: center;
 }
 
-.yweb-theme-toggle:hover {
-	background: var(--yweb-accent-light);
+.webui-theme-toggle:hover {
+	background: var(--webui-accent-light);
 }
 
-.yweb-theme-toggle svg {
+.webui-theme-toggle svg {
 	width: 18px;
 	height: 18px;
 }
 
 /* Language button: globe + active language code (EN/DE/...) so the
    switcher is recognizable and not mistaken for a second theme icon. */
-.yweb-lang-btn {
+.webui-lang-btn {
 	width: auto;
 	gap: 0.25rem;
 	padding-left: 0.4rem;
 	padding-right: 0.4rem;
 }
 
-.yweb-lang-code {
+.webui-lang-code {
 	font-size: 0.72rem;
 	font-weight: 700;
 	letter-spacing: 0.02em;
@@ -443,7 +443,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 @media (max-width: 480px) {
 	/* Mobile menu backdrop */
-	.yweb-menu-backdrop {
+	.webui-menu-backdrop {
 		display: none;
 		position: fixed;
 		top: 0;
@@ -458,13 +458,13 @@ body:not(.has-subheader) .yweb-header-spacer {
 		transition: opacity 0.3s ease;
 	}
 
-	.yweb-menu-backdrop.open {
+	.webui-menu-backdrop.open {
 		display: block;
 		opacity: 1;
 	}
 
 	/* Slide-in drawer menu */
-	.yweb-nav-links {
+	.webui-nav-links {
 		display: flex !important;
 		position: fixed;
 		top: 0;
@@ -487,12 +487,12 @@ body:not(.has-subheader) .yweb-header-spacer {
 		will-change: transform;
 	}
 
-	.yweb-nav-links.open {
+	.webui-nav-links.open {
 		transform: translateX(0);
 	}
 
 	/* Swipe handle indicator on right edge */
-	.yweb-nav-links::after {
+	.webui-nav-links::after {
 		content: '';
 		position: absolute;
 		right: 0;
@@ -506,14 +506,14 @@ body:not(.has-subheader) .yweb-header-spacer {
 		transition: opacity 0.2s ease, height 0.2s ease;
 	}
 
-	.yweb-nav-links:hover::after,
-	.yweb-nav-links.open::after {
+	.webui-nav-links:hover::after,
+	.webui-nav-links.open::after {
 		opacity: 0.8;
 		height: 64px;
 	}
 
 	/* Menu header area - compact design like Thunderbird */
-	.yweb-menu-header {
+	.webui-menu-header {
 		display: flex !important;
 		align-items: center;
 		justify-content: space-between;
@@ -523,7 +523,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 		flex-shrink: 0;
 	}
 
-	.yweb-menu-header .yweb-menu-logo {
+	.webui-menu-header .webui-menu-logo {
 		display: flex;
 		align-items: center;
 		gap: 0.6rem;
@@ -532,7 +532,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 		color: var(--pico-color);
 	}
 
-	.yweb-menu-header .yweb-menu-logo img {
+	.webui-menu-header .webui-menu-logo img {
 		width: 28px;
 		height: 28px;
 		object-fit: contain;
@@ -540,7 +540,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	}
 
 	/* Menu close button - minimal */
-	.yweb-menu-close {
+	.webui-menu-close {
 		width: 32px;
 		height: 32px;
 		min-width: 32px;
@@ -557,16 +557,16 @@ body:not(.has-subheader) .yweb-header-spacer {
 		margin: 0;
 	}
 
-	.yweb-menu-close:hover {
-		background: var(--yweb-accent-light);
+	.webui-menu-close:hover {
+		background: var(--webui-accent-light);
 		color: var(--pico-color);
 	}
 
-	.yweb-menu-close:active {
+	.webui-menu-close:active {
 		transform: scale(0.95);
 	}
 
-	.yweb-menu-close svg {
+	.webui-menu-close svg {
 		width: 18px;
 		height: 18px;
 		stroke: currentColor;
@@ -574,18 +574,18 @@ body:not(.has-subheader) .yweb-header-spacer {
 	}
 
 	/* Remove ::before pseudo element */
-	.yweb-nav-links::before {
+	.webui-nav-links::before {
 		display: none;
 	}
 
 	/* Menu items container - compact like Thunderbird */
-	.yweb-nav-links li {
+	.webui-nav-links li {
 		width: 100%;
 		padding: 0.15rem 0.5rem;
 	}
 
 	/* Menu items with icons - compact pill style */
-	.yweb-nav-links a {
+	.webui-nav-links a {
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
@@ -598,7 +598,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 		margin: 0;
 	}
 
-	.yweb-nav-links a svg {
+	.webui-nav-links a svg {
 		width: 20px;
 		height: 20px;
 		opacity: 0.5;
@@ -606,32 +606,32 @@ body:not(.has-subheader) .yweb-header-spacer {
 		transition: opacity 0.15s ease;
 	}
 
-	.yweb-nav-links a span {
+	.webui-nav-links a span {
 		font-weight: 500;
 	}
 
-	.yweb-nav-links a:hover {
+	.webui-nav-links a:hover {
 		background: var(--pico-muted-border-color);
 	}
 
-	.yweb-nav-links a:hover svg {
+	.webui-nav-links a:hover svg {
 		opacity: 0.8;
 	}
 
 	/* Active item - pill style like Thunderbird */
-	.yweb-nav-links a.active {
-		background: var(--yweb-accent);
-		color: var(--yweb-on-accent);
+	.webui-nav-links a.active {
+		background: var(--webui-accent);
+		color: var(--webui-on-accent);
 		font-weight: 600;
 	}
 
-	.yweb-nav-links a.active svg {
+	.webui-nav-links a.active svg {
 		opacity: 1;
-		color: var(--yweb-on-accent);
+		color: var(--webui-on-accent);
 	}
 
 	/* Hamburger toggle button */
-	.yweb-menu-toggle {
+	.webui-menu-toggle {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -641,29 +641,29 @@ body:not(.has-subheader) .yweb-header-spacer {
 		transition: all 0.2s ease;
 	}
 
-	.yweb-menu-toggle:hover {
-		background: var(--yweb-accent-light);
+	.webui-menu-toggle:hover {
+		background: var(--webui-accent-light);
 	}
 
-	.yweb-menu-toggle:active {
+	.webui-menu-toggle:active {
 		transform: scale(0.95);
 	}
 
-	.yweb-menu-toggle svg {
+	.webui-menu-toggle svg {
 		width: 1.4rem;
 		height: 1.4rem;
 	}
 
-	.yweb-header-right {
+	.webui-header-right {
 		gap: 0.3rem;
 	}
 
-	.yweb-hostname {
+	.webui-hostname {
 		display: none;
 	}
 
 	/* Edge swipe indicator (left edge of screen) */
-	.yweb-edge-swipe {
+	.webui-edge-swipe {
 		position: fixed;
 		top: 0;
 		left: 0;
@@ -678,7 +678,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* ============================================
    Footer
    ============================================ */
-.yweb-footer {
+.webui-footer {
 	flex-shrink: 0; /* Don't shrink footer */
 	text-align: center;
 	padding: 0.5rem 1rem;
@@ -687,19 +687,19 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-top: 1px solid var(--pico-muted-border-color);
 }
 
-.yweb-footer a {
-	color: var(--yweb-accent);
+.webui-footer a {
+	color: var(--webui-accent);
 	text-decoration: none;
 }
 
-.yweb-footer a:hover {
+.webui-footer a:hover {
 	text-decoration: underline;
 }
 
 /* ============================================
    About Modal
    ============================================ */
-.yweb-modal-backdrop {
+.webui-modal-backdrop {
 	display: none;
 	position: fixed;
 	top: 0;
@@ -714,13 +714,13 @@ body:not(.has-subheader) .yweb-header-spacer {
 	align-items: center;
 }
 
-.yweb-modal-backdrop.open {
+.webui-modal-backdrop.open {
 	display: flex;
 }
 
-.yweb-modal {
+.webui-modal {
 	background: var(--pico-card-background-color);
-	border-radius: var(--yweb-radius-lg);
+	border-radius: var(--webui-radius-lg);
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 	max-width: 480px;
 	width: 90%;
@@ -741,7 +741,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 /* Compact popover for inline forms (e.g. message send) */
-.yweb-popover {
+.webui-popover {
 	display: none;
 	position: fixed;
 	top: 50%;
@@ -749,19 +749,19 @@ body:not(.has-subheader) .yweb-header-spacer {
 	transform: translate(-50%, -50%);
 	z-index: 1001;
 	background: var(--pico-card-background-color);
-	border: 1px solid var(--yweb-border-subtle);
-	border-radius: var(--yweb-radius-lg);
+	border: 1px solid var(--webui-border-subtle);
+	border-radius: var(--webui-radius-lg);
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 	padding: 1.8rem 1.25rem 1rem;
 	width: min(360px, 90vw);
 	animation: modalSlideIn 0.15s ease;
 }
 
-.yweb-popover.open {
+.webui-popover.open {
 	display: block;
 }
 
-.yweb-popover-close {
+.webui-popover-close {
 	position: absolute;
 	top: 0.25rem;
 	right: 0.25rem;
@@ -774,35 +774,35 @@ body:not(.has-subheader) .yweb-header-spacer {
 	cursor: pointer;
 	margin: 0;
 	width: auto;
-	border-radius: var(--yweb-radius);
-	transition: var(--yweb-transition);
+	border-radius: var(--webui-radius);
+	transition: var(--webui-transition);
 }
 
-.yweb-popover-close:hover {
-	background: var(--yweb-accent-light);
+.webui-popover-close:hover {
+	background: var(--webui-accent-light);
 }
 
-.yweb-popover form {
+.webui-popover form {
 	margin-bottom: 0;
 }
 
-.yweb-popover input {
+.webui-popover input {
 	margin-bottom: 0.5rem;
 }
 
-.yweb-popover-actions {
+.webui-popover-actions {
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
 }
 
-.yweb-popover-actions small {
+.webui-popover-actions small {
 	flex: 1;
 	font-size: 0.75rem;
 	min-height: 1em;
 }
 
-.yweb-popover-actions button {
+.webui-popover-actions button {
 	padding: 0.25rem 0.75rem;
 	font-size: 0.8rem;
 	margin: 0;
@@ -810,7 +810,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	--pico-font-size: 0.8rem;
 }
 
-.yweb-modal-header {
+.webui-modal-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -818,7 +818,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-bottom: 1px solid var(--pico-muted-border-color);
 }
 
-.yweb-modal-header h3 {
+.webui-modal-header h3 {
 	margin: 0;
 	font-size: 1.1rem;
 	display: flex;
@@ -826,37 +826,37 @@ body:not(.has-subheader) .yweb-header-spacer {
 	gap: 0.5rem;
 }
 
-.yweb-modal-header img {
+.webui-modal-header img {
 	height: 32px;
 	width: auto;
 	object-fit: contain;
 }
 
-.yweb-modal-close {
+.webui-modal-close {
 	background: none;
 	border: none;
 	color: var(--pico-muted-color);
 	cursor: pointer;
 	padding: 0.25rem;
 	border-radius: 50%;
-	transition: var(--yweb-transition);
+	transition: var(--webui-transition);
 }
 
-.yweb-modal-close:hover {
-	background: var(--yweb-accent-light);
+.webui-modal-close:hover {
+	background: var(--webui-accent-light);
 	color: var(--pico-color);
 }
 
-.yweb-modal-close svg {
+.webui-modal-close svg {
 	width: 20px;
 	height: 20px;
 }
 
-.yweb-modal-body {
+.webui-modal-body {
 	padding: 1.25rem;
 }
 
-.yweb-modal-footer {
+.webui-modal-footer {
 	display: flex;
 	gap: 0.5rem;
 	justify-content: flex-end;
@@ -864,23 +864,23 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-top: 1px solid var(--pico-muted-border-color);
 }
 
-.yweb-modal-footer button {
+.webui-modal-footer button {
 	padding: 0.45rem 1.2rem;
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	border: 1px solid var(--pico-muted-border-color);
 	background: var(--pico-card-sectioning-background-color);
 	color: var(--pico-color);
 	cursor: pointer;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 }
 
-.yweb-modal-footer .btn-primary {
-	background: var(--yweb-accent);
-	border-color: var(--yweb-accent);
+.webui-modal-footer .btn-primary {
+	background: var(--webui-accent);
+	border-color: var(--webui-accent);
 	color: white;
 }
 
-.yweb-modal-footer .btn-primary:disabled {
+.webui-modal-footer .btn-primary:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
@@ -888,7 +888,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* ============================================
    Confirm Dialog
    ============================================ */
-.yweb-confirm-backdrop {
+.webui-confirm-backdrop {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -904,35 +904,35 @@ body:not(.has-subheader) .yweb-header-spacer {
 	z-index: 1300;
 }
 
-.yweb-confirm-dialog {
+.webui-confirm-dialog {
 	background: var(--pico-card-background-color);
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	padding: 1.5rem;
 	max-width: 400px;
 	width: 90%;
-	box-shadow: var(--yweb-shadow);
+	box-shadow: var(--webui-shadow);
 }
 
-.yweb-confirm-dialog h4 {
+.webui-confirm-dialog h4 {
 	margin: 0 0 0.5rem;
 	font-size: 1rem;
 }
 
-.yweb-confirm-dialog p {
+.webui-confirm-dialog p {
 	margin: 0 0 1rem;
 	color: var(--pico-muted-color);
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 }
 
-.yweb-confirm-actions {
+.webui-confirm-actions {
 	display: flex;
 	gap: 0.5rem;
 	justify-content: flex-end;
 }
 
-.yweb-confirm-actions button {
+.webui-confirm-actions button {
 	padding: 0.4rem 1rem;
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	border: 1px solid var(--pico-muted-border-color);
 	background: var(--pico-card-sectioning-background-color);
 	/* Picos button-Regel setzt lokal --pico-color auf primary-inverse
@@ -940,108 +940,108 @@ body:not(.has-subheader) .yweb-header-spacer {
 	--pico-color: inherit;
 	color: var(--pico-color);
 	cursor: pointer;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 }
 
-.yweb-confirm-actions .confirm-delete {
-	background: var(--yweb-danger);
-	border-color: var(--yweb-danger);
+.webui-confirm-actions .confirm-delete {
+	background: var(--webui-danger);
+	border-color: var(--webui-danger);
 	color: white;
 }
 
-/* Bestaetigen-Variante des Prompt-Dialogs (ywebShowPrompt) —
+/* Bestaetigen-Variante des Prompt-Dialogs (webuiShowPrompt) —
    Akzent statt Danger, gleiche Geometrie wie confirm-delete */
-.yweb-confirm-actions .confirm-ok {
-	background: var(--yweb-accent);
-	border-color: var(--yweb-accent);
+.webui-confirm-actions .confirm-ok {
+	background: var(--webui-accent);
+	border-color: var(--webui-accent);
 	color: white;
 }
 
-.yweb-confirm-dialog .yweb-prompt-label {
+.webui-confirm-dialog .webui-prompt-label {
 	display: block;
 	margin-bottom: 0.3rem;
 	color: var(--pico-muted-color);
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 }
 
-.yweb-confirm-dialog .yweb-prompt-input {
+.webui-confirm-dialog .webui-prompt-input {
 	width: 100%;
 	margin: 0 0 1rem;
 }
 
 /* Sign-in dialog of webui-v1.js: the refusal below the fields */
-.yweb-confirm-dialog .yweb-v1-err {
+.webui-confirm-dialog .webui-v1-err {
 	margin: -0.5rem 0 1rem;
-	color: var(--yweb-danger);
+	color: var(--webui-danger);
 }
 
-.yweb-about-section {
+.webui-about-section {
 	margin-bottom: 1.25rem;
 }
 
-.yweb-about-section:last-child {
+.webui-about-section:last-child {
 	margin-bottom: 0;
 }
 
-.yweb-about-section h4 {
+.webui-about-section h4 {
 	font-size: 0.7rem;
 	text-transform: uppercase;
-	color: var(--yweb-accent);
+	color: var(--webui-accent);
 	font-weight: 600;
 	margin: 0 0 0.5rem 0;
 	letter-spacing: 0.08em;
 }
 
-.yweb-about-grid {
+.webui-about-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 0.5rem 1rem;
 	font-size: 0.85rem;
 }
 
-.yweb-about-label {
+.webui-about-label {
 	color: var(--pico-muted-color);
 }
 
-.yweb-about-value {
+.webui-about-value {
 	font-weight: 500;
 	text-align: right;
 }
 
-.yweb-about-links {
+.webui-about-links {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.75rem;
 }
 
-.yweb-about-links a {
-	color: var(--yweb-accent);
+.webui-about-links a {
+	color: var(--webui-accent);
 	text-decoration: none;
 	font-size: 0.85rem;
 }
 
-.yweb-about-links a:hover {
+.webui-about-links a:hover {
 	text-decoration: underline;
 }
 
-.yweb-about-legal {
+.webui-about-legal {
 	font-size: 0.75rem;
 	color: var(--pico-muted-color);
 	line-height: 1.5;
 }
 
-.yweb-about-legal p {
+.webui-about-legal p {
 	margin: 0 0 0.5rem 0;
 }
 
-.yweb-about-legal a {
-	color: var(--yweb-accent);
+.webui-about-legal a {
+	color: var(--webui-accent);
 }
 
 /* ============================================
    EPG Info Modal
    ============================================ */
-.yweb-epg-modal-backdrop {
+.webui-epg-modal-backdrop {
 	position: fixed;
 	inset: 0;
 	background: rgba(0, 0, 0, 0.7);
@@ -1055,14 +1055,14 @@ body:not(.has-subheader) .yweb-header-spacer {
 	transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.yweb-epg-modal-backdrop.open {
+.webui-epg-modal-backdrop.open {
 	opacity: 1;
 	visibility: visible;
 }
 
-.yweb-epg-modal {
+.webui-epg-modal {
 	background: var(--pico-card-background-color);
-	border-radius: var(--yweb-radius-lg);
+	border-radius: var(--webui-radius-lg);
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 	width: 90%;
 	max-width: 500px;
@@ -1074,11 +1074,11 @@ body:not(.has-subheader) .yweb-header-spacer {
 	transition: transform 0.2s ease;
 }
 
-.yweb-epg-modal-backdrop.open .yweb-epg-modal {
+.webui-epg-modal-backdrop.open .webui-epg-modal {
 	transform: scale(1);
 }
 
-.yweb-epg-modal-header {
+.webui-epg-modal-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -1086,7 +1086,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-bottom: 1px solid var(--pico-muted-border-color);
 }
 
-.yweb-epg-modal-header h3 {
+.webui-epg-modal-header h3 {
 	margin: 0;
 	font-size: 1.1rem;
 	font-weight: 600;
@@ -1095,29 +1095,29 @@ body:not(.has-subheader) .yweb-header-spacer {
 	white-space: nowrap;
 }
 
-.yweb-epg-modal-body {
+.webui-epg-modal-body {
 	padding: 1.25rem;
 	overflow-y: auto;
 	flex: 1;
 }
 
-.yweb-epg-current {
+.webui-epg-current {
 	margin-bottom: 1rem;
 }
 
-.yweb-epg-title {
+.webui-epg-title {
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin-bottom: 0.25rem;
 }
 
-.yweb-epg-time {
+.webui-epg-time {
 	font-size: 0.85rem;
-	color: var(--yweb-accent);
+	color: var(--webui-accent);
 	margin-bottom: 0.5rem;
 }
 
-.yweb-epg-progress {
+.webui-epg-progress {
 	height: 4px;
 	background: var(--pico-muted-border-color);
 	border-radius: 2px;
@@ -1125,25 +1125,25 @@ body:not(.has-subheader) .yweb-header-spacer {
 	margin-bottom: 0.75rem;
 }
 
-.yweb-epg-progress-bar {
+.webui-epg-progress-bar {
 	height: 100%;
-	background: var(--yweb-accent);
+	background: var(--webui-accent);
 	transition: width 0.3s ease;
 }
 
-.yweb-epg-description {
+.webui-epg-description {
 	font-size: 0.9rem;
 	color: var(--pico-muted-color);
 	line-height: 1.5;
 	white-space: pre-line;
 }
 
-.yweb-epg-next {
+.webui-epg-next {
 	padding-top: 1rem;
 	border-top: 1px solid var(--pico-muted-border-color);
 }
 
-.yweb-epg-next-label {
+.webui-epg-next-label {
 	font-size: 0.7rem;
 	text-transform: uppercase;
 	color: var(--pico-muted-color);
@@ -1152,17 +1152,17 @@ body:not(.has-subheader) .yweb-header-spacer {
 	margin-bottom: 0.25rem;
 }
 
-.yweb-epg-next-title {
+.webui-epg-next-title {
 	font-weight: 500;
 	margin-bottom: 0.15rem;
 }
 
-.yweb-epg-next-time {
+.webui-epg-next-time {
 	font-size: 0.85rem;
 	color: var(--pico-muted-color);
 }
 
-.yweb-epg-modal-footer {
+.webui-epg-modal-footer {
 	display: flex;
 	justify-content: flex-end;
 	gap: 0.5rem;
@@ -1170,19 +1170,19 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-top: 1px solid var(--pico-muted-border-color);
 }
 
-/* Modal footer buttons use existing .yweb-btn styles */
-.yweb-epg-modal-footer .yweb-btn {
+/* Modal footer buttons use existing .webui-btn styles */
+.webui-epg-modal-footer .webui-btn {
 	padding: 0.4rem 1rem;
 	font-size: 0.85rem;
 }
 
 @media (max-width: 600px) {
-	.yweb-epg-modal-footer {
+	.webui-epg-modal-footer {
 		justify-content: stretch;
 		gap: 0.4rem;
 		padding: 0.75rem 1rem;
 	}
-	.yweb-epg-modal-footer .yweb-btn {
+	.webui-epg-modal-footer .webui-btn {
 		flex: 1;
 		padding: 0.5rem 0.25rem;
 		font-size: 0.8rem;
@@ -1194,7 +1194,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* ============================================
    Dashboard Grid - Percentage Based
    ============================================ */
-.yweb-dashboard {
+.webui-dashboard {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
 	gap: 0.8%;
@@ -1203,13 +1203,13 @@ body:not(.has-subheader) .yweb-header-spacer {
 }
 
 @media (max-width: 1100px) {
-	.yweb-dashboard {
+	.webui-dashboard {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
 
 @media (max-width: 600px) {
-	.yweb-dashboard {
+	.webui-dashboard {
 		grid-template-columns: 1fr;
 		gap: 2%;
 		padding: 2%;
@@ -1219,20 +1219,20 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* ============================================
    Cards / Widgets
    ============================================ */
-.yweb-card {
+.webui-card {
 	background: var(--pico-card-background-color);
-	border-radius: var(--yweb-radius-lg);
-	box-shadow: var(--yweb-shadow);
+	border-radius: var(--webui-radius-lg);
+	box-shadow: var(--webui-shadow);
 	overflow: hidden;
-	transition: var(--yweb-transition);
+	transition: var(--webui-transition);
 	min-width: 0; /* Prevent grid blowout */
 }
 
-.yweb-card:hover {
-	box-shadow: var(--yweb-shadow-hover);
+.webui-card:hover {
+	box-shadow: var(--webui-shadow-hover);
 }
 
-.yweb-card-header {
+.webui-card-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -1242,18 +1242,18 @@ body:not(.has-subheader) .yweb-header-spacer {
 	min-height: 2.4rem;
 	border-bottom: 1px solid var(--pico-muted-border-color);
 	gap: 0.5rem;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 }
 
 /* Bedienelemente im Kartenkopf duerfen die Kopfhoehe nicht aufblaehen */
-.yweb-card-header .yweb-btn,
-.yweb-card-header button,
-.yweb-card-header input,
-.yweb-card-header select {
+.webui-card-header .webui-btn,
+.webui-card-header button,
+.webui-card-header input,
+.webui-card-header select {
 	margin: 0;
 }
 
-.yweb-card-title {
+.webui-card-title {
 	margin: 0;
 	font-size: inherit;
 	font-weight: 600;
@@ -1264,33 +1264,33 @@ body:not(.has-subheader) .yweb-header-spacer {
 	overflow: hidden;
 }
 
-.yweb-card-title svg {
+.webui-card-title svg {
 	width: 16px;
 	height: 16px;
-	color: var(--yweb-accent);
+	color: var(--webui-accent);
 	flex-shrink: 0;
 }
 
-.yweb-card-body {
+.webui-card-body {
 	padding: 0.5rem 0.75rem;
 }
 
-.yweb-card-footer {
+.webui-card-footer {
 	padding: 2% 3%;
 	border-top: 1px solid var(--pico-muted-border-color);
 	background: var(--pico-card-sectioning-background-color);
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 }
 
 /* ============================================
    Status Widget
    ============================================ */
-.yweb-status {
+.webui-status {
 	text-align: center;
 }
 
-.yweb-status-channel {
-	font-size: var(--yweb-font-xl);
+.webui-status-channel {
+	font-size: var(--webui-font-xl);
 	font-weight: 700;
 	color: var(--pico-h2-color);
 	overflow: hidden;
@@ -1304,7 +1304,7 @@ body:not(.has-subheader) .yweb-header-spacer {
 	min-width: 0;
 }
 
-.yweb-status-channel-logo {
+.webui-status-channel-logo {
 	height: 2.2rem;
 	/* breit genug fuer 8:1-Bannerlogos (Sky), sonst schrumpfen sie
 	   auf Streifenhoehe */
@@ -1315,14 +1315,14 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* wie bei den Listen-Logos: dunkle Kachel im Light-Theme, sonst sind
    weisse Wordmarks auf der hellen Karte unsichtbar; weicher Schatten
    nimmt der Kachelkante die Haerte */
-[data-theme="light"] .yweb-status-channel-logo {
+[data-theme="light"] .webui-status-channel-logo {
 	background: #1e242e;
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	padding: 0.2rem 0.4rem;
 	box-shadow: 0 2px 10px rgba(30, 36, 46, 0.35);
 }
 
-.yweb-status-channel-name {
+.webui-status-channel-name {
 	max-width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -1331,13 +1331,13 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* Traegt das Logo die Karte, tritt der Textname deutlich zurueck —
    Logo plus voller XL-Name wirkt ueberfrachtet. Die Klasse setzt das
    Dashboard-JS; bricht der Logo-Load, nimmt es sie wieder weg. */
-.yweb-status-channel.has-logo .yweb-status-channel-name {
-	font-size: var(--yweb-font-base);
+.webui-status-channel.has-logo .webui-status-channel-name {
+	font-size: var(--webui-font-base);
 	font-weight: 600;
 	color: var(--pico-color);
 }
 
-.yweb-channel-footer {
+.webui-channel-footer {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
@@ -1345,14 +1345,14 @@ body:not(.has-subheader) .yweb-header-spacer {
 	text-align: center;
 }
 
-.yweb-channel-footer .yweb-next-epg {
+.webui-channel-footer .webui-next-epg {
 	width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-channel-footer .yweb-channel-actions {
+.webui-channel-footer .webui-channel-actions {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.35rem;
@@ -1362,46 +1362,46 @@ body:not(.has-subheader) .yweb-header-spacer {
 
 /* Channel action buttons - placeholder, actual styles at end of file */
 
-.yweb-status-epg {
+.webui-status-epg {
 	color: var(--pico-muted-color);
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-status-progress {
+.webui-status-progress {
 	margin-top: 0.5rem;
 }
 
-.yweb-status-progress progress {
+.webui-status-progress progress {
 	width: 100%;
 	height: 4px;
 }
 
-.yweb-status-time {
+.webui-status-time {
 	display: flex;
 	justify-content: space-between;
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 	color: var(--pico-muted-color);
 	margin-top: 0.2rem;
 }
 
 /* Recording indicator */
-.yweb-recording {
+.webui-recording {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.3rem;
 	padding: 0.15rem 0.5rem;
-	background: var(--yweb-danger);
+	background: var(--webui-danger);
 	color: white;
 	border-radius: 1rem;
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 	font-weight: 600;
-	animation: yweb-pulse 1.5s infinite;
+	animation: webui-pulse 1.5s infinite;
 }
 
-@keyframes yweb-pulse {
+@keyframes webui-pulse {
 	0%, 100% { opacity: 1; }
 	50% { opacity: 0.6; }
 }
@@ -1409,45 +1409,45 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* ============================================
    Quick Actions
    ============================================ */
-.yweb-actions {
+.webui-actions {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: 3%;
 }
 
-/* .yweb-action-btn is now driven by the shared .yweb-btn base; only its
+/* .webui-action-btn is now driven by the shared .webui-btn base; only its
    layout delta remains, defined just after that base (see above). */
 
 /* ============================================
    Info List
    ============================================ */
-.yweb-info-list {
+.webui-info-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.yweb-info-list li {
+.webui-info-list li {
 	display: grid;
 	grid-template-columns: 35% 65%;
 	gap: 2%;
 	padding: 0.4rem 0;
 	border-bottom: 1px solid var(--pico-muted-border-color);
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 }
 
-.yweb-info-list li:last-child {
+.webui-info-list li:last-child {
 	border-bottom: none;
 }
 
-.yweb-info-label {
+.webui-info-label {
 	color: var(--pico-muted-color);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-info-value {
+.webui-info-value {
 	font-weight: 500;
 	text-align: right;
 	overflow: hidden;
@@ -1458,13 +1458,13 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* ============================================
    Bouquet / Channel List
    ============================================ */
-.yweb-channel-list {
+.webui-channel-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.yweb-channel-item {
+.webui-channel-item {
 	display: flex;
 	align-items: center;
 	gap: 2%;
@@ -1472,19 +1472,19 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-bottom: 1px solid var(--pico-muted-border-color);
 	border-left: 3px solid transparent;
 	cursor: pointer;
-	transition: var(--yweb-transition);
+	transition: var(--webui-transition);
 }
 
-.yweb-channel-item:hover {
-	background: var(--yweb-accent-light);
+.webui-channel-item:hover {
+	background: var(--webui-accent-light);
 }
 
-.yweb-channel-item.active {
-	background: var(--yweb-accent-light);
-	border-left-color: var(--yweb-accent);
+.webui-channel-item.active {
+	background: var(--webui-accent-light);
+	border-left-color: var(--webui-accent);
 }
 
-.yweb-channel-logo {
+.webui-channel-logo {
 	width: 8%;
 	min-width: 30px;
 	max-width: 40px;
@@ -1494,22 +1494,22 @@ body:not(.has-subheader) .yweb-header-spacer {
 	border-radius: 4px;
 }
 
-.yweb-channel-name {
+.webui-channel-name {
 	flex: 1;
 	font-weight: 500;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-channel-epg {
-	font-size: var(--yweb-font-xs);
+.webui-channel-epg {
+	font-size: var(--webui-font-xs);
 	color: var(--pico-muted-color);
 }
 
 /* Note: Footer styles are defined earlier in this file */
-/* Note: .yweb-theme-toggle is defined once, near the header icon buttons */
+/* Note: .webui-theme-toggle is defined once, near the header icon buttons */
 
 /* ============================================
    Unified Button Templates
@@ -1518,9 +1518,9 @@ body:not(.has-subheader) .yweb-header-spacer {
 /* Base button - verwendet überall.
    --pico-color-Reset: Pico färbt <a> lokal primär-blau; Buttons sind
    Aktionen, keine Textlinks → neutrale Textfarbe (Blau nur echte Links) */
-.yweb-btn,
-.yweb-action-btn,
-.yweb-mode-switch-btn {
+.webui-btn,
+.webui-action-btn,
+.webui-mode-switch-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1532,51 +1532,51 @@ body:not(.has-subheader) .yweb-header-spacer {
 	padding: 0.3rem 0.5rem;
 	background: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-muted-border-color);
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	--pico-color: inherit;
 	color: var(--pico-color);
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 	font-weight: 500;
 	cursor: pointer;
-	transition: var(--yweb-transition);
+	transition: var(--webui-transition);
 	white-space: nowrap;
 	text-decoration: none;
 }
 
-.yweb-btn:hover,
-.yweb-action-btn:hover,
-.yweb-mode-switch-btn:hover {
-	background: var(--yweb-accent-light);
-	border-color: var(--yweb-accent);
-	color: var(--yweb-accent);
+.webui-btn:hover,
+.webui-action-btn:hover,
+.webui-mode-switch-btn:hover {
+	background: var(--webui-accent-light);
+	border-color: var(--webui-accent);
+	color: var(--webui-accent);
 	transform: translateY(-1px);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.yweb-btn:active,
-.yweb-action-btn:active,
-.yweb-mode-switch-btn:active {
+.webui-btn:active,
+.webui-action-btn:active,
+.webui-mode-switch-btn:active {
 	transform: translateY(0);
 	box-shadow: none;
 }
 
 /* M5a: einheitliche Interaktionszustände — eine geteilte Fokus-Regel für
    alle Buttons und rahmenlosen Icon-Buttons. Flache, komma-getrennte
-   Selektorliste (kein CSS-Nesting: yWeb hat keinen Build-Step). Field-
+   Selektorliste (kein CSS-Nesting: die Oberfläche hat keinen Build-Step). Field-
    Selektoren treten in Area B derselben Liste bei. box-shadow/--pico-box-
    shadow: none unterdrückt Picos blauen Fokus-Schatten. */
-.yweb-btn:focus-visible,
-.yweb-file-btn:focus-visible,
-.yweb-action-btn:focus-visible,
-.yweb-mode-switch-btn:focus-visible,
-.yweb-menu-toggle:focus-visible,
-.yweb-theme-toggle:focus-visible,
-.yweb-menu-close:focus-visible,
-.yweb-popover-close:focus-visible,
-.yweb-modal-close:focus-visible,
-.yweb-remote .yweb-rc-btn:focus-visible,
-.yweb-rc-color:focus-visible,
-.yweb-rc-kbd-focus,
+.webui-btn:focus-visible,
+.webui-file-btn:focus-visible,
+.webui-action-btn:focus-visible,
+.webui-mode-switch-btn:focus-visible,
+.webui-menu-toggle:focus-visible,
+.webui-theme-toggle:focus-visible,
+.webui-menu-close:focus-visible,
+.webui-popover-close:focus-visible,
+.webui-modal-close:focus-visible,
+.webui-remote .webui-rc-btn:focus-visible,
+.webui-rc-color:focus-visible,
+.webui-rc-kbd-focus,
 input[type=text]:focus-visible,
 input[type=search]:focus-visible,
 input[type=number]:focus-visible,
@@ -1591,29 +1591,29 @@ input[type=month]:focus-visible,
 input[type=week]:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-	outline: 2px solid var(--yweb-focus-color);
+	outline: 2px solid var(--webui-focus-color);
 	outline-offset: 2px;
 	box-shadow: none;
 	--pico-box-shadow: none;
 }
 
-.yweb-btn[disabled],
-.yweb-action-btn[disabled],
-.yweb-mode-switch-btn[disabled] {
+.webui-btn[disabled],
+.webui-action-btn[disabled],
+.webui-mode-switch-btn[disabled] {
 	opacity: 0.45;
 	pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.yweb-btn, .yweb-btn:hover,
-	.yweb-action-btn, .yweb-action-btn:hover,
-	.yweb-mode-switch-btn, .yweb-mode-switch-btn:hover {
+	.webui-btn, .webui-btn:hover,
+	.webui-action-btn, .webui-action-btn:hover,
+	.webui-mode-switch-btn, .webui-mode-switch-btn:hover {
 		transition: none;
 		transform: none;
 	}
 }
 
-.yweb-btn svg {
+.webui-btn svg {
 	width: 14px;
 	height: 14px;
 	flex-shrink: 0;
@@ -1622,148 +1622,148 @@ textarea:focus-visible {
 /* Quick-Action tile — layout-only delta on top of the shared button
    base above (colour/frame/hover/focus/light come from there). Must
    sit AFTER the base so its column direction and tile padding win. */
-.yweb-action-btn {
+.webui-action-btn {
 	flex-direction: column;
 	gap: 0.3rem;
 	padding: 8% 4%;
 }
 
-.yweb-action-btn svg {
+.webui-action-btn svg {
 	width: clamp(18px, 4vw, 24px);
 	height: clamp(18px, 4vw, 24px);
 }
 
 /* Button Varianten */
-.yweb-btn.primary {
-	background: var(--yweb-accent);
-	border-color: var(--yweb-accent);
+.webui-btn.primary {
+	background: var(--webui-accent);
+	border-color: var(--webui-accent);
 	color: white;
 }
 
-.yweb-btn.primary:hover {
-	background: var(--yweb-accent-hover);
-	border-color: var(--yweb-accent-hover);
+.webui-btn.primary:hover {
+	background: var(--webui-accent-hover);
+	border-color: var(--webui-accent-hover);
 	color: white;
 }
 
-.yweb-btn.danger {
-	background: var(--yweb-danger);
-	border-color: var(--yweb-danger);
+.webui-btn.danger {
+	background: var(--webui-danger);
+	border-color: var(--webui-danger);
 	color: white;
 }
 
-/* Eigener Hover: der generische .yweb-btn:hover faerbt sonst
+/* Eigener Hover: der generische .webui-btn:hover faerbt sonst
    destruktive Knoepfe akzent-orange um */
-.yweb-btn.danger:hover {
-	background: var(--yweb-danger-hover);
-	border-color: var(--yweb-danger-hover);
+.webui-btn.danger:hover {
+	background: var(--webui-danger-hover);
+	border-color: var(--webui-danger-hover);
 	color: white;
 }
 
-.yweb-btn.sm {
+.webui-btn.sm {
 	padding: 0.2rem 0.4rem;
-	font-size: calc(var(--yweb-font-xs) * 0.9);
+	font-size: calc(var(--webui-font-xs) * 0.9);
 }
 
-.yweb-btn.sm svg {
+.webui-btn.sm svg {
 	width: 12px;
 	height: 12px;
 }
 
-.yweb-btn.lg {
+.webui-btn.lg {
 	padding: 0.5rem 0.8rem;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 }
 
-.yweb-btn.lg svg {
+.webui-btn.lg svg {
 	width: 18px;
 	height: 18px;
 }
 
 /* Button mit Label das auf Mobil versteckt wird */
-.yweb-btn .btn-label {
+.webui-btn .btn-label {
 	display: none;
 }
 
 @media (min-width: 800px) {
-	.yweb-btn .btn-label {
+	.webui-btn .btn-label {
 		display: inline;
 	}
 }
 
 /* Light theme buttons */
-[data-theme="light"] .yweb-btn,
-[data-theme="light"] .yweb-action-btn,
-[data-theme="light"] .yweb-mode-switch-btn {
+[data-theme="light"] .webui-btn,
+[data-theme="light"] .webui-action-btn,
+[data-theme="light"] .webui-mode-switch-btn {
 	background: #e9ecef;
 	border-color: #ced4da;
 	color: #212529;
 }
 
-[data-theme="light"] .yweb-btn:hover,
-[data-theme="light"] .yweb-action-btn:hover,
-[data-theme="light"] .yweb-mode-switch-btn:hover {
-	background: var(--yweb-accent-light);
-	border-color: var(--yweb-accent);
-	color: var(--yweb-accent);
+[data-theme="light"] .webui-btn:hover,
+[data-theme="light"] .webui-action-btn:hover,
+[data-theme="light"] .webui-mode-switch-btn:hover {
+	background: var(--webui-accent-light);
+	border-color: var(--webui-accent);
+	color: var(--webui-accent);
 }
 
-[data-theme="light"] .yweb-btn.primary {
-	background: var(--yweb-accent);
-	border-color: var(--yweb-accent);
+[data-theme="light"] .webui-btn.primary {
+	background: var(--webui-accent);
+	border-color: var(--webui-accent);
 	color: white;
 }
 
-[data-theme="light"] .yweb-btn.primary:hover {
-	background: var(--yweb-accent-hover);
+[data-theme="light"] .webui-btn.primary:hover {
+	background: var(--webui-accent-hover);
 	color: white;
 }
 
 /* danger braucht wie primary einen Light-Override, sonst gewinnt
    der spaeter definierte graue Light-Basisknopf (gleiche Spezifitaet) */
-[data-theme="light"] .yweb-btn.danger {
-	background: var(--yweb-danger);
-	border-color: var(--yweb-danger);
+[data-theme="light"] .webui-btn.danger {
+	background: var(--webui-danger);
+	border-color: var(--webui-danger);
 	color: white;
 }
 
-[data-theme="light"] .yweb-btn.danger:hover {
-	background: var(--yweb-danger-hover);
-	border-color: var(--yweb-danger-hover);
+[data-theme="light"] .webui-btn.danger:hover {
+	background: var(--webui-danger-hover);
+	border-color: var(--webui-danger-hover);
 	color: white;
 }
 
 /* Ghost-Variante: rahmenlos für Sekundär-Aktionen — nach den
    Theme-Overrides definiert, damit sie in beiden Themes greift */
-.yweb-btn.ghost {
+.webui-btn.ghost {
 	background: transparent;
 	border-color: transparent;
 }
 
-.yweb-btn.ghost:hover {
+.webui-btn.ghost:hover {
 	border-color: var(--pico-muted-border-color);
 }
 
 /* ============================================
    Styled File Input (M5a) — Markup:
-   <label class="yweb-file">
+   <label class="webui-file">
      <input type="file" ...>
-     <span class="yweb-file-btn">{=L:yw.set.choose_file=}</span>
-     <span class="yweb-file-name">–</span>
+     <span class="webui-file-btn">{=L:yw.set.choose_file=}</span>
+     <span class="webui-file-name">–</span>
    </label>
    ============================================ */
-.yweb-file {
+.webui-file {
 	position: relative;
 	display: inline-flex;
 	align-items: stretch;
 	border: 1px dashed var(--pico-muted-border-color);
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	overflow: hidden;
 	cursor: pointer;
 	max-width: 100%;
 }
 
-.yweb-file input[type="file"] {
+.webui-file input[type="file"] {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -1771,23 +1771,23 @@ textarea:focus-visible {
 }
 
 /* Tastatur-Fokus liegt auf dem versteckten Input → Rahmen aufs Control */
-.yweb-file:focus-within {
-	outline: 2px solid var(--yweb-focus-color);
+.webui-file:focus-within {
+	outline: 2px solid var(--webui-focus-color);
 	outline-offset: 2px;
 }
 
-.yweb-file-btn {
+.webui-file-btn {
 	background: var(--pico-card-background-color);
 	border-right: 1px solid var(--pico-muted-border-color);
 	padding: 0.4rem 0.8rem;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	font-weight: 500;
 	white-space: nowrap;
 }
 
-.yweb-file-name {
+.webui-file-name {
 	padding: 0.4rem 0.8rem;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	color: var(--pico-muted-color);
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -1801,14 +1801,14 @@ textarea:focus-visible {
    Listen-Reset und Sidebar-Navigationszeile. Reiner Umzug der
    vorher je Seite duplizierten Blöcke — visueller No-Op.
    ============================================ */
-.yweb-panel-card {
+.webui-panel-card {
 	display: flex;
 	flex-direction: column;
 	min-height: 0; /* Karte darf im Grid schrumpfen */
 	overflow: hidden;
 }
 
-.yweb-panel-card .yweb-card-body {
+.webui-panel-card .webui-card-body {
 	flex: 1;
 	overflow-y: auto;
 	padding: 0;
@@ -1816,13 +1816,13 @@ textarea:focus-visible {
 	min-height: 0;
 }
 
-.yweb-plain-list {
+.webui-plain-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.yweb-nav-item {
+.webui-nav-item {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -1832,75 +1832,75 @@ textarea:focus-visible {
 	   Inhalt bei Auswahl 3px nach rechts */
 	border-left: 3px solid transparent;
 	cursor: pointer;
-	transition: var(--yweb-transition);
-	font-size: var(--yweb-font-sm);
+	transition: var(--webui-transition);
+	font-size: var(--webui-font-sm);
 }
 
-.yweb-nav-item:last-child {
+.webui-nav-item:last-child {
 	border-bottom: none;
 }
 
-.yweb-nav-item:hover {
-	background: var(--yweb-accent-light);
+.webui-nav-item:hover {
+	background: var(--webui-accent-light);
 }
 
-.yweb-nav-item.active {
-	background: var(--yweb-accent-light);
-	border-left-color: var(--yweb-accent);
-	color: var(--yweb-accent);
+.webui-nav-item.active {
+	background: var(--webui-accent-light);
+	border-left-color: var(--webui-accent);
+	color: var(--webui-accent);
 	font-weight: 600;
 }
 
-.yweb-nav-item svg {
+.webui-nav-item svg {
 	width: 16px;
 	height: 16px;
 	color: var(--pico-muted-color);
 	flex-shrink: 0;
 }
 
-.yweb-nav-item.active svg {
-	color: var(--yweb-accent);
+.webui-nav-item.active svg {
+	color: var(--webui-accent);
 }
 
-.yweb-nav-name {
+.webui-nav-name {
 	flex: 1;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-nav-count {
-	font-size: var(--yweb-font-xs);
+.webui-nav-count {
+	font-size: var(--webui-font-xs);
 	color: var(--pico-muted-color);
 	background: var(--pico-card-sectioning-background-color);
 	padding: 0.1rem 0.4rem;
 	border-radius: 10px;
 }
 
-.yweb-nav-item.active .yweb-nav-count {
-	background: var(--yweb-accent);
+.webui-nav-item.active .webui-nav-count {
+	background: var(--webui-accent);
 	color: white;
 }
 
-[data-theme="light"] .yweb-nav-item {
+[data-theme="light"] .webui-nav-item {
 	border-bottom-color: #e5e7eb;
 }
 
-[data-theme="light"] .yweb-nav-item:hover {
+[data-theme="light"] .webui-nav-item:hover {
 	background: #f8f9fa;
 }
 
 /* Kompakter Karten-Kopf (M5e) — schlanke Panel-Karten der
    Listen-Seiten; Werte vorher je Seite dupliziert */
-.yweb-card-sm .yweb-card-header {
+.webui-card-sm .webui-card-header {
 	padding: 0.4rem 0.6rem;
 }
 
-.yweb-card-sm .yweb-card-title {
-	font-size: var(--yweb-font-sm);
+.webui-card-sm .webui-card-title {
+	font-size: var(--webui-font-sm);
 }
 
-.yweb-card-sm .yweb-card-title svg {
+.webui-card-sm .webui-card-title svg {
 	width: 14px;
 	height: 14px;
 }
@@ -1908,21 +1908,21 @@ textarea:focus-visible {
 /* ============================================
    Unified Toolbar Template
    ============================================ */
-.yweb-toolbar {
+.webui-toolbar {
 	display: flex;
 	gap: 0.4rem;
 	padding: 0.4rem 0.6rem;
 	background: var(--pico-card-background-color);
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	align-items: center;
 	flex-wrap: wrap;
 }
 
-.yweb-toolbar-spacer {
+.webui-toolbar-spacer {
 	flex: 1;
 }
 
-[data-theme="light"] .yweb-toolbar {
+[data-theme="light"] .webui-toolbar {
 	background: #fff;
 	border: 1px solid #e5e7eb;
 }
@@ -1930,31 +1930,31 @@ textarea:focus-visible {
 /* ============================================
    Unified Select/Dropdown Template
    ============================================ */
-.yweb-select {
-	/* Wie bei .yweb-btn: Picos Form-Margin (1rem unten) neutralisieren.
+.webui-select {
+	/* Wie bei .webui-btn: Picos Form-Margin (1rem unten) neutralisieren.
 	   Flex/Grid zentrieren die Margin-Box — Selects standen sonst neben
 	   Buttons derselben Zeile sichtbar zu hoch (EPG-Toolbar). */
 	margin: 0;
 	padding: 0.3rem 0.5rem;
 	background: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-muted-border-color);
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	color: var(--pico-color);
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 	cursor: pointer;
-	transition: var(--yweb-transition);
+	transition: var(--webui-transition);
 }
 
-.yweb-select:focus {
+.webui-select:focus {
 	/* accent border as field cue; the shared themed outline above
 	   provides the keyboard ring — don't suppress it, and drop the
 	   old low-contrast alpha glow */
-	border-color: var(--yweb-accent);
+	border-color: var(--webui-accent);
 	box-shadow: none;
 	--pico-box-shadow: none;
 }
 
-[data-theme="light"] .yweb-select {
+[data-theme="light"] .webui-select {
 	background: #fff;
 	border-color: #ced4da;
 	color: #212529;
@@ -1963,114 +1963,114 @@ textarea:focus-visible {
 /* ============================================
    Unified Panel Template
    ============================================ */
-.yweb-panel {
+.webui-panel {
 	background: var(--pico-card-background-color);
-	border-radius: var(--yweb-radius-lg);
-	box-shadow: var(--yweb-shadow);
+	border-radius: var(--webui-radius-lg);
+	box-shadow: var(--webui-shadow);
 	overflow: hidden;
 }
 
-.yweb-panel-header {
+.webui-panel-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	padding: 0.6rem 0.8rem;
 	border-bottom: 1px solid var(--pico-muted-border-color);
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	font-weight: 600;
 }
 
-.yweb-panel-header svg {
+.webui-panel-header svg {
 	width: 18px;
 	height: 18px;
-	color: var(--yweb-accent);
+	color: var(--webui-accent);
 }
 
-.yweb-panel-title {
+.webui-panel-title {
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
 }
 
-.yweb-panel-body {
+.webui-panel-body {
 	padding: 0.8rem;
 }
 
-[data-theme="light"] .yweb-panel {
+[data-theme="light"] .webui-panel {
 	border: 1px solid #e5e7eb;
 }
 
 /* ============================================
    Unified List Row Template
    ============================================ */
-.yweb-list {
+.webui-list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.yweb-list-row {
+.webui-list-row {
 	display: flex;
 	align-items: center;
 	gap: 0.6rem;
 	padding: 0.5rem 0.8rem;
 	border-bottom: 1px solid var(--pico-muted-border-color);
 	border-left: 3px solid transparent;
-	transition: var(--yweb-transition);
+	transition: var(--webui-transition);
 }
 
-.yweb-list-row:last-child {
+.webui-list-row:last-child {
 	border-bottom: none;
 }
 
-.yweb-list-row:hover {
-	background: var(--yweb-accent-light);
+.webui-list-row:hover {
+	background: var(--webui-accent-light);
 }
 
-.yweb-list-row.active {
-	background: var(--yweb-accent-light);
-	border-left-color: var(--yweb-accent);
+.webui-list-row.active {
+	background: var(--webui-accent-light);
+	border-left-color: var(--webui-accent);
 }
 
-.yweb-list-content {
+.webui-list-content {
 	flex: 1;
 	min-width: 0;
 }
 
-.yweb-list-title {
+.webui-list-title {
 	font-weight: 500;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-list-subtitle {
-	font-size: var(--yweb-font-xs);
+.webui-list-subtitle {
+	font-size: var(--webui-font-xs);
 	color: var(--pico-muted-color);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-list-actions {
+.webui-list-actions {
 	display: flex;
 	gap: 0.3rem;
 	flex-shrink: 0;
 }
 
-[data-theme="light"] .yweb-list-row {
+[data-theme="light"] .webui-list-row {
 	border-bottom-color: #e5e7eb;
 }
 
-[data-theme="light"] .yweb-list-row:hover {
+[data-theme="light"] .webui-list-row:hover {
 	background: #f8f9fa;
 }
 
 /* ============================================
    Unified Icon Placeholder
    ============================================ */
-.yweb-icon-placeholder {
+.webui-icon-placeholder {
 	/* wide enough for wordmark logos (arte, tagesschau24) — 40px
 	   squeezed them illegibly small */
 	width: 72px;
@@ -2081,14 +2081,14 @@ textarea:focus-visible {
 	align-items: center;
 	justify-content: center;
 	color: var(--pico-muted-color);
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 	flex-shrink: 0;
 	/* weicher Verlauf statt harter Kachelkante — faellt vor allem auf
 	   dem hellen Grund und auf der akzentuierten selektierten Zeile auf */
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
 }
 
-.yweb-icon-placeholder img {
+.webui-icon-placeholder img {
 	width: 100%;
 	height: 100%;
 	object-fit: contain;
@@ -2098,7 +2098,7 @@ textarea:focus-visible {
 /* Senderlogos sind fuer dunkle TV-OSDs gezeichnet (weisse Wordmarks) —
    im Light-Theme bleibt die Logo-Kachel deshalb dunkel, sonst sind
    Das Erste/zdf_neo & Co. unsichtbar */
-[data-theme="light"] .yweb-icon-placeholder {
+[data-theme="light"] .webui-icon-placeholder {
 	background: #1e242e;
 	color: #9ca3af;
 	box-shadow: 0 2px 10px rgba(30, 36, 46, 0.35);
@@ -2109,61 +2109,61 @@ textarea:focus-visible {
    ============================================ */
 /* Segmented control: the buttons share flat inner edges, so they must
    sit flush — a gap would leave those square corners floating. */
-.yweb-btn-group {
+.webui-btn-group {
 	display: flex;
 	gap: 0;
 }
 
-.yweb-btn-group .yweb-btn {
+.webui-btn-group .webui-btn {
 	border-radius: 0;
 }
 
-.yweb-btn-group .yweb-btn + .yweb-btn {
+.webui-btn-group .webui-btn + .webui-btn {
 	margin-left: -1px;
 }
 
-.yweb-btn-group .yweb-btn:first-child {
-	border-radius: var(--yweb-radius) 0 0 var(--yweb-radius);
+.webui-btn-group .webui-btn:first-child {
+	border-radius: var(--webui-radius) 0 0 var(--webui-radius);
 }
 
-.yweb-btn-group .yweb-btn:last-child {
-	border-radius: 0 var(--yweb-radius) var(--yweb-radius) 0;
+.webui-btn-group .webui-btn:last-child {
+	border-radius: 0 var(--webui-radius) var(--webui-radius) 0;
 }
 
-.yweb-btn-group .yweb-btn:only-child {
-	border-radius: var(--yweb-radius);
+.webui-btn-group .webui-btn:only-child {
+	border-radius: var(--webui-radius);
 }
 
 /* ============================================
    Utility Classes
    ============================================ */
-.yweb-text-center { text-align: center; }
-.yweb-text-muted { color: var(--pico-muted-color); }
-.yweb-text-accent { color: var(--yweb-accent); }
-.yweb-text-success { color: var(--yweb-success); }
-.yweb-text-warning { color: var(--yweb-warning); }
-.yweb-text-danger { color: var(--yweb-danger); }
+.webui-text-center { text-align: center; }
+.webui-text-muted { color: var(--pico-muted-color); }
+.webui-text-accent { color: var(--webui-accent); }
+.webui-text-success { color: var(--webui-success); }
+.webui-text-warning { color: var(--webui-warning); }
+.webui-text-danger { color: var(--webui-danger); }
 
-.yweb-truncate {
+.webui-truncate {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
-.yweb-hidden { display: none !important; }
+.webui-hidden { display: none !important; }
 
 @media (max-width: 700px) {
-	.yweb-hide-mobile { display: none !important; }
+	.webui-hide-mobile { display: none !important; }
 }
 
 @media (min-width: 701px) {
-	.yweb-hide-desktop { display: none !important; }
+	.webui-hide-desktop { display: none !important; }
 }
 
 /* ============================================
    Pull-to-Refresh (Mobile)
    ============================================ */
-.yweb-pull-indicator {
+.webui-pull-indicator {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -2182,43 +2182,43 @@ textarea:focus-visible {
 	pointer-events: none;
 }
 
-.yweb-pull-icon {
+.webui-pull-icon {
 	width: 20px;
 	height: 20px;
 	transition: transform 0.1s ease;
 }
 
-.yweb-pull-icon svg {
+.webui-pull-icon svg {
 	width: 100%;
 	height: 100%;
 }
 
-.yweb-pull-indicator.ready {
-	color: var(--yweb-accent);
+.webui-pull-indicator.ready {
+	color: var(--webui-accent);
 }
 
-.yweb-pull-indicator.ready .yweb-pull-icon {
+.webui-pull-indicator.ready .webui-pull-icon {
 	transform: rotate(180deg) !important;
 }
 
-.yweb-pull-indicator.refreshing .yweb-pull-icon {
-	animation: yweb-spin 0.8s linear infinite;
+.webui-pull-indicator.refreshing .webui-pull-icon {
+	animation: webui-spin 0.8s linear infinite;
 }
 
-@keyframes yweb-spin {
+@keyframes webui-spin {
 	from { transform: rotate(0deg); }
 	to { transform: rotate(360deg); }
 }
 
 /* ── Shared empty state ── */
-.yweb-empty {
+.webui-empty {
 	text-align: center;
 	padding: 3rem;
 	color: var(--pico-muted-color);
 }
 
 /* ── Mobile card indicator (dots) ── */
-.yweb-card-indicator {
+.webui-card-indicator {
 	display: none;
 	justify-content: center;
 	gap: 0.5rem;
@@ -2230,7 +2230,7 @@ textarea:focus-visible {
 	border-top: 1px solid var(--pico-muted-border-color);
 }
 
-.yweb-card-dot {
+.webui-card-dot {
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
@@ -2239,18 +2239,18 @@ textarea:focus-visible {
 	cursor: pointer;
 }
 
-.yweb-card-dot.active {
-	background: var(--yweb-accent);
+.webui-card-dot.active {
+	background: var(--webui-accent);
 	transform: scale(1.2);
 }
 
-.yweb-card-dot:hover {
-	background: var(--yweb-accent);
+.webui-card-dot:hover {
+	background: var(--webui-accent);
 	opacity: 0.7;
 }
 
 /* ── Card preview (mobile collapsed state) ── */
-.yweb-card-preview {
+.webui-card-preview {
 	display: none;
 	font-size: 0.75rem;
 	color: var(--pico-muted-color);
@@ -2265,12 +2265,12 @@ textarea:focus-visible {
 
 /* ============================================
    Remote Control (shared component)
-   Scoped to .yweb-remote (panel) and
-   #yweb-remote-modal (modal wrapper)
+   Scoped to .webui-remote (panel) and
+   #webui-remote-modal (modal wrapper)
    ============================================ */
 
 /* ── Remote panel ── */
-.yweb-remote {
+.webui-remote {
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;
@@ -2280,7 +2280,7 @@ textarea:focus-visible {
 }
 
 /* ── Base button ── */
-.yweb-remote .yweb-rc-btn {
+.webui-remote .webui-rc-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -2297,48 +2297,48 @@ textarea:focus-visible {
 	min-height: 36px;
 }
 
-[data-theme="dark"] .yweb-remote .yweb-rc-btn {
+[data-theme="dark"] .webui-remote .webui-rc-btn {
 	background: #2c2f38;
 	color: #ddd;
 	box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
-html:not([data-theme="dark"]) .yweb-remote .yweb-rc-btn {
+html:not([data-theme="dark"]) .webui-remote .webui-rc-btn {
 	background: #e2e3e8;
 	color: #1a1a1a;
 	box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.85);
 }
 
-.yweb-remote .yweb-rc-btn:active {
+.webui-remote .webui-rc-btn:active {
 	transform: scale(0.94);
 	box-shadow: 0 0 1px rgba(0,0,0,0.3);
 }
 
-[data-theme="dark"] .yweb-remote .yweb-rc-btn:active { background: #3a3d47; }
-html:not([data-theme="dark"]) .yweb-remote .yweb-rc-btn:active { background: #d0d1d8; }
+[data-theme="dark"] .webui-remote .webui-rc-btn:active { background: #3a3d47; }
+html:not([data-theme="dark"]) .webui-remote .webui-rc-btn:active { background: #d0d1d8; }
 
-/* ── Press feedback (JS-driven .yweb-rc-pressed; :active stays as the
+/* ── Press feedback (JS-driven .webui-rc-pressed; :active stays as the
       no-JS fallback) ── */
-@keyframes ywebRcPress {
+@keyframes webuiRcPress {
 	0% { transform: scale(1); }
 	40% { transform: scale(0.94); }
 	100% { transform: scale(1); }
 }
 
-.yweb-remote .yweb-rc-pressed {
-	animation: ywebRcPress 0.15s ease-out;
+.webui-remote .webui-rc-pressed {
+	animation: webuiRcPress 0.15s ease-out;
 }
 
-[data-theme="dark"] .yweb-remote .yweb-rc-pressed {
+[data-theme="dark"] .webui-remote .webui-rc-pressed {
 	box-shadow: 0 0 10px rgba(27, 132, 224, 0.55);
 }
 
-html:not([data-theme="dark"]) .yweb-remote .yweb-rc-pressed {
+html:not([data-theme="dark"]) .webui-remote .webui-rc-pressed {
 	box-shadow: 0 0 10px rgba(26, 127, 212, 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.yweb-remote .yweb-rc-pressed {
+	.webui-remote .webui-rc-pressed {
 		/* Static tint instead of the scale animation; works on the color
 		   keys and the themed OK button without clobbering their colors */
 		animation: none;
@@ -2346,7 +2346,7 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-pressed {
 	}
 }
 
-.yweb-remote .yweb-rc-btn svg {
+.webui-remote .webui-rc-btn svg {
 	width: 20px;
 	height: 20px;
 	/* Without this, flex squishes the icon to its content width - the
@@ -2355,46 +2355,46 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-pressed {
 }
 
 /* ── Power / Mute row ── */
-/* Compound selector: the generic .yweb-rc-row {display:flex} helper is
+/* Compound selector: the generic .webui-rc-row {display:flex} helper is
    declared later in the file and would win at equal specificity. */
-.yweb-remote .yweb-rc-row.yweb-rc-top {
+.webui-remote .webui-rc-row.webui-rc-top {
 	display: grid;
 	grid-template-columns: 56px 1fr 56px;
 	justify-items: center;
 }
 
-.yweb-remote .yweb-rc-top > .yweb-rc-btn:last-child {
+.webui-remote .webui-rc-top > .webui-rc-btn:last-child {
 	grid-column: 3;
 }
 
-.yweb-remote .yweb-rc-power,
-.yweb-remote .yweb-rc-top > .yweb-rc-btn {
+.webui-remote .webui-rc-power,
+.webui-remote .webui-rc-top > .webui-rc-btn {
 	width: 56px;
 	height: 40px;
 }
 
-.yweb-remote .yweb-rc-power svg,
-.yweb-remote .yweb-rc-top > .yweb-rc-btn svg {
+.webui-remote .webui-rc-power svg,
+.webui-remote .webui-rc-top > .webui-rc-btn svg {
 	width: 22px;
 	height: 22px;
 }
 
-.yweb-remote .yweb-rc-power {
+.webui-remote .webui-rc-power {
 	color: #e44 !important;
 }
 
-[data-theme="dark"] .yweb-remote .yweb-rc-power {
+[data-theme="dark"] .webui-remote .webui-rc-power {
 	background: rgba(228, 68, 68, 0.18);
 	box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(228,68,68,0.15);
 }
 
-html:not([data-theme="dark"]) .yweb-remote .yweb-rc-power {
+html:not([data-theme="dark"]) .webui-remote .webui-rc-power {
 	background: rgba(228, 68, 68, 0.1);
 	box-shadow: 0 2px 4px rgba(228,68,68,0.15), inset 0 1px 0 rgba(255,255,255,0.7);
 }
 
 /* ── Core thumb zone (VOL | D-Pad | CH) ── */
-.yweb-remote .yweb-rc-core {
+.webui-remote .webui-rc-core {
 	display: grid;
 	/* minmax(0,…) drops the fr track's min-content floor so the D-pad
 	   cannot push the outer 56px columns past the panel edges */
@@ -2404,14 +2404,14 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-power {
 	gap: 0.25rem;
 }
 
-.yweb-remote .yweb-rc-rocker {
+.webui-remote .webui-rc-rocker {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 0;
 }
 
-.yweb-remote .yweb-rc-rocker-label {
+.webui-remote .webui-rc-rocker-label {
 	font-size: 0.6rem;
 	font-weight: 700;
 	text-transform: uppercase;
@@ -2419,11 +2419,11 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-power {
 	margin-bottom: 4px;
 }
 
-[data-theme="dark"] .yweb-remote .yweb-rc-rocker-label { color: #777; }
-html:not([data-theme="dark"]) .yweb-remote .yweb-rc-rocker-label { color: #999; }
+[data-theme="dark"] .webui-remote .webui-rc-rocker-label { color: #777; }
+html:not([data-theme="dark"]) .webui-remote .webui-rc-rocker-label { color: #999; }
 
-.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-top,
-.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-bot {
+.webui-remote .webui-rc-rocker .webui-rc-rocker-top,
+.webui-remote .webui-rc-rocker .webui-rc-rocker-bot {
 	width: 56px;
 	height: 36px;
 	font-size: 1.2rem;
@@ -2431,17 +2431,17 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-rocker-label { color: #999; 
 	border-radius: 0;
 }
 
-.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-top {
+.webui-remote .webui-rc-rocker .webui-rc-rocker-top {
 	border-radius: 12px 12px 2px 2px;
 }
 
-.yweb-remote .yweb-rc-rocker .yweb-rc-rocker-bot {
+.webui-remote .webui-rc-rocker .webui-rc-rocker-bot {
 	border-radius: 2px 2px 12px 12px;
 	margin-top: 2px;
 }
 
 /* ── D-Pad ── */
-.yweb-remote .yweb-rc-dpad {
+.webui-remote .webui-rc-dpad {
 	display: grid;
 	/* Rows mirror the columns so the pad is a square: every arrow is
 	   the same shape (rotated 90deg) and 50% radius yields a circle. */
@@ -2457,26 +2457,26 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-rocker-label { color: #999; 
 	margin: 0 auto;
 }
 
-[data-theme="dark"] .yweb-remote .yweb-rc-dpad {
+[data-theme="dark"] .webui-remote .webui-rc-dpad {
 	background: rgba(255,255,255,0.04);
 }
 
-html:not([data-theme="dark"]) .yweb-remote .yweb-rc-dpad {
+html:not([data-theme="dark"]) .webui-remote .webui-rc-dpad {
 	background: rgba(0,0,0,0.035);
 }
 
-.yweb-remote .yweb-rc-arrow {
+.webui-remote .webui-rc-arrow {
 	width: 100%;
 	height: 100%;
 	border-radius: 10px;
 }
 
-.yweb-remote .yweb-rc-arrow svg {
+.webui-remote .webui-rc-arrow svg {
 	width: 22px;
 	height: 22px;
 }
 
-.yweb-remote .yweb-rc-ok {
+.webui-remote .webui-rc-ok {
 	/* True circle filling the 56px center cell (was a 52x44 ellipse) */
 	width: 56px;
 	height: 56px;
@@ -2487,27 +2487,27 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-dpad {
 	letter-spacing: 0.02em;
 }
 
-[data-theme="dark"] .yweb-remote .yweb-rc-ok {
+[data-theme="dark"] .webui-remote .webui-rc-ok {
 	background: #1b84e0;
 	box-shadow: 0 3px 10px rgba(27,132,224,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 
-html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
+html:not([data-theme="dark"]) .webui-remote .webui-rc-ok {
 	background: #1a7fd4;
 	box-shadow: 0 3px 10px rgba(26,127,212,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
-.yweb-remote .yweb-rc-ok:active {
+.webui-remote .webui-rc-ok:active {
 	box-shadow: 0 1px 4px rgba(27,132,224,0.3);
 }
 
 /* ── Navigation + Function rows ── */
-.yweb-remote .yweb-rc-nav {
+.webui-remote .webui-rc-nav {
 	display: flex;
 	gap: 5px;
 }
 
-.yweb-remote .yweb-rc-func {
+.webui-remote .webui-rc-func {
 	flex: 1;
 	height: 36px;
 	font-size: 0.78rem;
@@ -2516,12 +2516,12 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
 }
 
 /* ── Color buttons ── */
-.yweb-remote .yweb-rc-colors {
+.webui-remote .webui-rc-colors {
 	display: flex;
 	gap: 5px;
 }
 
-.yweb-remote .yweb-rc-color {
+.webui-remote .webui-rc-color {
 	flex: 1;
 	height: 8px;
 	border-radius: 4px;
@@ -2532,18 +2532,18 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
 	-webkit-tap-highlight-color: transparent;
 }
 
-.yweb-remote .yweb-rc-red { background: #e53935; }
-.yweb-remote .yweb-rc-green { background: #43a047; }
-.yweb-remote .yweb-rc-yellow { background: #fdd835; }
-.yweb-remote .yweb-rc-blue { background: #1e88e5; }
+.webui-remote .webui-rc-red { background: #e53935; }
+.webui-remote .webui-rc-green { background: #43a047; }
+.webui-remote .webui-rc-yellow { background: #fdd835; }
+.webui-remote .webui-rc-blue { background: #1e88e5; }
 
-.yweb-remote .yweb-rc-color:active {
+.webui-remote .webui-rc-color:active {
 	filter: brightness(1.3);
 	transform: scale(0.95);
 }
 
 /* ── Sheet trigger (123 button) ── */
-.yweb-remote .yweb-rc-sheet-trigger {
+.webui-remote .webui-rc-sheet-trigger {
 	width: 100%;
 	height: 36px;
 	font-size: 0.9rem;
@@ -2555,19 +2555,19 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
 	gap: 0.35rem;
 }
 
-.yweb-remote .yweb-rc-sheet-trigger svg {
+.webui-remote .webui-rc-sheet-trigger svg {
 	width: 14px;
 	height: 14px;
 	flex-shrink: 0;
 	transition: transform 0.15s ease;
 }
 
-.yweb-remote .yweb-rc-sheet-trigger[aria-expanded="true"] svg {
+.webui-remote .webui-rc-sheet-trigger[aria-expanded="true"] svg {
 	transform: rotate(180deg);
 }
 
 /* ── Bottom sheet overlay (mobile) ── */
-.yweb-rc-sheet-backdrop {
+.webui-rc-sheet-backdrop {
 	position: fixed;
 	inset: 0;
 	background: rgba(0, 0, 0, 0.5);
@@ -2578,7 +2578,7 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
 	overscroll-behavior: none;
 }
 
-.yweb-rc-sheet {
+.webui-rc-sheet {
 	width: 100%;
 	max-width: 360px;
 	max-height: 70vh;
@@ -2589,13 +2589,13 @@ html:not([data-theme="dark"]) .yweb-remote .yweb-rc-ok {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
-	animation: ywebSheetSlideUp 0.25s ease;
+	animation: webuiSheetSlideUp 0.25s ease;
 }
 
-[data-theme="dark"] .yweb-rc-sheet { background: #1e2028; }
-html:not([data-theme="dark"]) .yweb-rc-sheet { background: #ffffff; }
+[data-theme="dark"] .webui-rc-sheet { background: #1e2028; }
+html:not([data-theme="dark"]) .webui-rc-sheet { background: #ffffff; }
 
-.yweb-rc-sheet-handle {
+.webui-rc-sheet-handle {
 	width: 48px;
 	height: 5px;
 	border-radius: 3px;
@@ -2606,26 +2606,26 @@ html:not([data-theme="dark"]) .yweb-rc-sheet { background: #ffffff; }
 	touch-action: none;
 }
 
-[data-theme="dark"] .yweb-rc-sheet-handle { background-color: #666; }
-html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
+[data-theme="dark"] .webui-rc-sheet-handle { background-color: #666; }
+html:not([data-theme="dark"]) .webui-rc-sheet-handle { background-color: #aaa; }
 
-@keyframes ywebSheetSlideUp {
+@keyframes webuiSheetSlideUp {
 	from { transform: translateY(100%); }
 	to   { transform: translateY(0); }
 }
 
 /* ── Mobile: touch targets at least 44px ── */
 @media (max-width: 768px) {
-	.yweb-remote .yweb-rc-btn {
+	.webui-remote .webui-rc-btn {
 		min-height: 44px;
 	}
 	/* Arrow buttons fill their grid track, so the track must grow too */
-	.yweb-remote .yweb-rc-dpad {
+	.webui-remote .webui-rc-dpad {
 		grid-template-rows: 44px 56px 44px;
 	}
 	/* Colour keys: 16px visible bar, 44px real hitbox (border-box) */
-	.yweb-remote .yweb-rc-colors { gap: 8px; }
-	.yweb-remote .yweb-rc-color {
+	.webui-remote .webui-rc-colors { gap: 8px; }
+	.webui-remote .webui-rc-color {
 		height: 44px;
 		padding-block: 14px;
 		background-clip: content-box;
@@ -2636,7 +2636,7 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
       bottom sheet. The 123 trigger stays visible; JS flips display, so
       these overrides only take effect once the sheet is open. ── */
 @media (min-width: 769px) {
-	.yweb-remote .yweb-rc-sheet-backdrop {
+	.webui-remote .webui-rc-sheet-backdrop {
 		position: static;
 		inset: auto;
 		background: none;
@@ -2644,7 +2644,7 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 		align-items: stretch;
 		flex-direction: column;
 	}
-	.yweb-rc-sheet {
+	.webui-rc-sheet {
 		max-width: none;
 		max-height: none;
 		border-radius: 0;
@@ -2652,28 +2652,28 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 		animation: none;
 		gap: 0.5rem;
 	}
-	[data-theme="dark"] .yweb-rc-sheet { background: transparent; }
-	html:not([data-theme="dark"]) .yweb-rc-sheet { background: transparent; }
-	.yweb-rc-sheet-handle {
+	[data-theme="dark"] .webui-rc-sheet { background: transparent; }
+	html:not([data-theme="dark"]) .webui-rc-sheet { background: transparent; }
+	.webui-rc-sheet-handle {
 		display: none;
 	}
 	/* Compact numpad on desktop: pointer targets need less height than
 	   touch, and the open sheet must fit the 90vh modal. One class
 	   deeper than the base rule below, which follows this block. */
-	.yweb-remote .yweb-rc-sheet .yweb-rc-numpad .yweb-rc-btn {
+	.webui-remote .webui-rc-sheet .webui-rc-numpad .webui-rc-btn {
 		height: 40px;
 		font-size: 1.05rem;
 	}
 }
 
 /* ── Numpad (inside sheet) ── */
-.yweb-rc-sheet .yweb-rc-numpad {
+.webui-rc-sheet .webui-rc-numpad {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 5px;
 }
 
-.yweb-rc-sheet .yweb-rc-numpad .yweb-rc-btn {
+.webui-rc-sheet .webui-rc-numpad .webui-rc-btn {
 	height: 48px;
 	font-size: 1.2rem;
 	font-weight: 600;
@@ -2681,34 +2681,34 @@ html:not([data-theme="dark"]) .yweb-rc-sheet-handle { background-color: #aaa; }
 }
 
 /* ── Media controls ── */
-.yweb-remote .yweb-rc-media {
+.webui-remote .webui-rc-media {
 	display: flex;
 	gap: 5px;
 }
 
-.yweb-remote .yweb-rc-media .yweb-rc-btn {
+.webui-remote .webui-rc-media .webui-rc-btn {
 	flex: 1;
 	height: 36px;
 }
 
-.yweb-remote .yweb-rc-media .yweb-rc-btn svg {
+.webui-remote .webui-rc-media .webui-rc-btn svg {
 	width: 16px;
 	height: 16px;
 }
 
 /* ── Remote row helper ── */
-.yweb-remote .yweb-rc-row {
+.webui-remote .webui-rc-row {
 	display: flex;
 }
 
 /* ============================================
-   Remote Modal (#yweb-remote-modal)
+   Remote Modal (#webui-remote-modal)
    ============================================ */
-body.yweb-remote-open {
+body.webui-remote-open {
 	overflow: hidden;
 }
 
-.yweb-remote-backdrop {
+.webui-remote-backdrop {
 	display: none;
 	position: fixed;
 	inset: 0;
@@ -2720,9 +2720,9 @@ body.yweb-remote-open {
 	align-items: center;
 }
 
-.yweb-remote-dialog {
+.webui-remote-dialog {
 	background: var(--pico-card-background-color);
-	border-radius: var(--yweb-radius-lg);
+	border-radius: var(--webui-radius-lg);
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 	max-width: 320px;
 	width: 90%;
@@ -2735,12 +2735,12 @@ body.yweb-remote-open {
 
 /* The modal host div is only a re-render anchor for skin swaps; keep it
    transparent for layout so the dialog's flex/scroll chain reaches the
-   .yweb-remote panel (otherwise the open numpad clips at 90vh). */
-#yweb-remote-modal-host {
+   .webui-remote panel (otherwise the open numpad clips at 90vh). */
+#webui-remote-modal-host {
 	display: contents;
 }
 
-.yweb-remote-modal-header {
+.webui-remote-modal-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -2750,18 +2750,18 @@ body.yweb-remote-open {
 	font-size: 0.95rem;
 }
 
-.yweb-remote-modal-header span {
+.webui-remote-modal-header span {
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
 }
 
-.yweb-remote-modal-header svg {
+.webui-remote-modal-header svg {
 	width: 18px;
 	height: 18px;
 }
 
-.yweb-remote-dialog .yweb-remote {
+.webui-remote-dialog .webui-remote {
 	flex: 1;
 	min-height: 0;
 	/* "safe" avoids the flexbox scroll trap: content taller than the
@@ -2777,7 +2777,7 @@ body.yweb-remote-open {
 
 /* Mobile fullscreen */
 @media (max-width: 768px) {
-	.yweb-remote-dialog {
+	.webui-remote-dialog {
 		max-width: none;
 		width: 100%;
 		height: 100dvh;
@@ -2787,7 +2787,7 @@ body.yweb-remote-open {
 		flex-direction: column;
 	}
 
-	.yweb-remote-dialog .yweb-remote {
+	.webui-remote-dialog .webui-remote {
 		flex: 1;
 		justify-content: center;
 		gap: 0.5rem;
@@ -2803,8 +2803,8 @@ body.yweb-remote-open {
 /* Contextual JS-injected variant — keep only the geometry deltas; the
    higher specificity here would otherwise re-assert the general tile
    padding, so it must stay explicit. Colour/frame/hover now come from
-   the shared .yweb-btn base. */
-.yweb-channel-actions .yweb-action-btn {
+   the shared .webui-btn base. */
+.webui-channel-actions .webui-action-btn {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -2818,24 +2818,24 @@ body.yweb-remote-open {
 	font-size: 0.75rem;
 	font-family: inherit;
 	text-decoration: none;
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	cursor: pointer;
 	transition: all 0.15s ease;
 }
 
-.yweb-channel-actions .yweb-action-btn svg {
+.webui-channel-actions .webui-action-btn svg {
 	width: 1.25rem;
 	height: 1.25rem;
-	stroke: var(--yweb-accent);
+	stroke: var(--webui-accent);
 	flex-shrink: 0;
 }
 
-.yweb-channel-actions .yweb-action-btn span {
+.webui-channel-actions .webui-action-btn span {
 	line-height: 1;
 	white-space: nowrap;
 }
 
-.yweb-channel-actions .yweb-action-btn:active {
+.webui-channel-actions .webui-action-btn:active {
 	transform: scale(0.95);
 }
 
@@ -2846,7 +2846,7 @@ body.yweb-remote-open {
    ============================================ */
 
 /* ── Toggle Switch ── */
-.yweb-toggle {
+.webui-toggle {
 	position: relative;
 	display: inline-block !important;
 	/* px on purpose: settings pages run a 20px root font, rem sizes
@@ -2860,13 +2860,13 @@ body.yweb-remote-open {
 	flex: none;
 	cursor: pointer;
 }
-.yweb-toggle input {
+.webui-toggle input {
 	opacity: 0;
 	width: 0 !important;
 	height: 0 !important;
 	position: absolute;
 }
-.yweb-toggle-slider {
+.webui-toggle-slider {
 	position: absolute;
 	inset: 0;
 	background: var(--pico-muted-border-color);
@@ -2874,7 +2874,7 @@ body.yweb-remote-open {
 	cursor: pointer;
 	transition: background 0.2s;
 }
-.yweb-toggle-slider::before {
+.webui-toggle-slider::before {
 	content: '';
 	position: absolute;
 	left: 2px;
@@ -2886,17 +2886,17 @@ body.yweb-remote-open {
 	box-shadow: 0 1px 2px rgba(0,0,0,0.35);
 	transition: transform 0.2s;
 }
-.yweb-toggle input:checked + .yweb-toggle-slider {
+.webui-toggle input:checked + .webui-toggle-slider {
 	/* softened accent — a wall of solid-orange pills dominates the
 	   panel; color-mix falls back to the plain accent line above */
-	background: var(--yweb-accent);
-	background: color-mix(in srgb, var(--yweb-accent) 62%, var(--pico-card-background-color));
+	background: var(--webui-accent);
+	background: color-mix(in srgb, var(--webui-accent) 62%, var(--pico-card-background-color));
 }
-.yweb-toggle input:checked + .yweb-toggle-slider::before {
+.webui-toggle input:checked + .webui-toggle-slider::before {
 	transform: translateX(16px);
 }
-.yweb-toggle input:focus-visible + .yweb-toggle-slider {
-	outline: 2px solid var(--yweb-focus-color);
+.webui-toggle input:focus-visible + .webui-toggle-slider {
+	outline: 2px solid var(--webui-focus-color);
 	outline-offset: 2px;
 }
 
@@ -2905,24 +2905,24 @@ body.yweb-remote-open {
    the wrapping <label>, so clicking the text toggles the box and the
    text is the accessible name. No pill background — the canonical switch
    carries the whole affordance. */
-.yweb-toggle-field {
+.webui-toggle-field {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
 	cursor: pointer;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	white-space: nowrap;
 	padding: 0.3rem 0.5rem;
 	margin: 0;
 }
-.yweb-toggle-text {
+.webui-toggle-text {
 	line-height: 1;
 }
 
 /* ── Form Rows ──
    M5a: festes 2-Spalten-Grid (Label | Control) statt Flex-Freiflug,
    damit Zeilen innerhalb eines Panels bündig ausrichten */
-.yweb-form-row {
+.webui-form-row {
 	display: grid;
 	grid-template-columns: minmax(9rem, 38%) 1fr;
 	align-items: center;
@@ -2930,24 +2930,24 @@ body.yweb-remote-open {
 	margin-bottom: 0.4rem;
 	padding: 0.2rem 0;
 }
-.yweb-form-row > label {
+.webui-form-row > label {
 	margin: 0;
 }
-.yweb-form-row label:not(.yweb-toggle) {
-	font-size: var(--yweb-font-sm);
+.webui-form-row label:not(.webui-toggle) {
+	font-size: var(--webui-font-sm);
 	color: var(--pico-muted-color);
 	flex-shrink: 0;
 }
 /* Control-Zelle mit Mehrfachinhalt (Input+Picker, Button-Gruppen):
    inline nebeneinander, bricht bei Platzmangel um */
-.yweb-form-row > span {
+.webui-form-row > span {
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
 	flex-wrap: wrap;
 	min-width: 0;
 }
-.yweb-form-row .yweb-row-actions {
+.webui-form-row .webui-row-actions {
 	display: flex;
 	gap: 0.5rem;
 	flex-wrap: wrap;
@@ -2955,49 +2955,49 @@ body.yweb-remote-open {
 }
 
 /* ── Form Inputs ── */
-.yweb-form-row select,
-.yweb-form-row input[type="text"],
-.yweb-form-row input[type="number"],
-.yweb-form-row input[type="password"],
-.yweb-form-row input[type="date"],
-.yweb-form-row input[type="time"] {
+.webui-form-row select,
+.webui-form-row input[type="text"],
+.webui-form-row input[type="number"],
+.webui-form-row input[type="password"],
+.webui-form-row input[type="date"],
+.webui-form-row input[type="time"] {
 	padding: 0.3rem 0.5rem !important;
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	border: 1px solid var(--pico-muted-border-color);
 	background: var(--pico-background-color);
 	color: var(--pico-color);
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	margin-bottom: 0 !important;
 	height: auto !important;
 	line-height: 1.4;
 }
-.yweb-form-row select:focus,
-.yweb-form-row input:focus {
+.webui-form-row select:focus,
+.webui-form-row input:focus {
 	/* accent border stays as the field cue; the shared themed outline
 	   (input[type=..]:focus-visible above) provides the keyboard ring.
 	   Suppress Pico's blue focus shadow. */
-	border-color: var(--yweb-accent);
+	border-color: var(--webui-accent);
 	box-shadow: none;
 	--pico-box-shadow: none;
 }
 /* M5a: Controls kompakt halten — Zeile bleibt lesbar, Label-Spalte trägt */
-.yweb-form-row select,
-.yweb-form-row input[type="text"],
-.yweb-form-row input[type="number"],
-.yweb-form-row input[type="password"] {
+.webui-form-row select,
+.webui-form-row input[type="text"],
+.webui-form-row input[type="number"],
+.webui-form-row input[type="password"] {
 	max-width: 300px;
 }
 
 /* ── Form Section Title ── */
-.yweb-form-section {
+.webui-form-section {
 	margin-bottom: 1.2rem;
 }
-.yweb-form-section:last-of-type {
+.webui-form-section:last-of-type {
 	margin-bottom: 0;
 }
-.yweb-form-section-title {
-	font-size: var(--yweb-font-xs);
-	color: var(--yweb-accent);
+.webui-form-section-title {
+	font-size: var(--webui-font-xs);
+	color: var(--webui-accent);
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 	font-weight: 600;
@@ -3011,40 +3011,40 @@ body.yweb-remote-open {
    Untermenue, per <details> auf-/zuklappbar. Chevron und Klapp-Animation
    liefert Pico; die Summary-Farbe laeuft ueber Picos eigene Accordion-
    Variablen, sonst ueberschreibt Picos [open]>summary-Regel den Akzent. */
-.yweb-form-group {
-	--pico-accordion-close-summary-color: var(--yweb-accent);
-	--pico-accordion-open-summary-color: var(--yweb-accent);
+.webui-form-group {
+	--pico-accordion-close-summary-color: var(--webui-accent);
+	--pico-accordion-open-summary-color: var(--webui-accent);
 	margin-bottom: 0.5rem;
 	border: 1px solid var(--pico-muted-border-color);
-	border-radius: var(--yweb-radius);
+	border-radius: var(--webui-radius);
 	background: var(--pico-background-color);
 }
-[data-theme="light"] .yweb-form-group {
-	border-color: var(--yweb-border-subtle);
+[data-theme="light"] .webui-form-group {
+	border-color: var(--webui-border-subtle);
 }
-.yweb-form-group > summary {
+.webui-form-group > summary {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 0.7rem;
-	font-size: var(--yweb-font-xs);
+	font-size: var(--webui-font-xs);
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 	cursor: pointer;
 	user-select: none;
 }
-.yweb-form-group[open] > summary {
+.webui-form-group[open] > summary {
 	margin-bottom: 0;
 	border-bottom: 1px solid var(--pico-muted-border-color);
 }
-[data-theme="light"] .yweb-form-group[open] > summary {
-	border-bottom-color: var(--yweb-border-subtle);
+[data-theme="light"] .webui-form-group[open] > summary {
+	border-bottom-color: var(--webui-border-subtle);
 }
-.yweb-form-group > summary:hover {
+.webui-form-group > summary:hover {
 	background: var(--pico-card-background-color);
 }
-.yweb-form-group-count {
+.webui-form-group-count {
 	margin-left: auto;
 	padding: 0.05rem 0.4rem;
 	border-radius: 999px;
@@ -3054,47 +3054,47 @@ body.yweb-remote-open {
 	font-weight: 600;
 	letter-spacing: 0;
 }
-.yweb-form-group-body {
+.webui-form-group-body {
 	padding: 0.7rem;
 }
-.yweb-form-group-body .yweb-form-row:last-child {
+.webui-form-group-body .webui-form-row:last-child {
 	margin-bottom: 0;
 }
 
 /* Vom uebergeordneten Eintrag gesperrte Zeile (renderField/disabledIf):
    Control traegt disabled (Picos Optik), das Label dimmt mit */
-.yweb-form-row.is-disabled > label:not(.yweb-toggle) {
+.webui-form-row.is-disabled > label:not(.webui-toggle) {
 	opacity: 0.55;
 }
-.yweb-form-row.is-disabled select:disabled,
-.yweb-form-row.is-disabled input:disabled {
+.webui-form-row.is-disabled select:disabled,
+.webui-form-row.is-disabled input:disabled {
 	cursor: not-allowed;
 }
-.yweb-form-row.is-disabled .yweb-toggle {
+.webui-form-row.is-disabled .webui-toggle {
 	opacity: 0.55;
 	cursor: not-allowed;
 }
 
 /* ── Form Mobile Responsive ── */
 @media (max-width: 800px) {
-	.yweb-form-row {
+	.webui-form-row {
 		grid-template-columns: 1fr;
 		align-items: stretch;
 		gap: 0.2rem;
 	}
-	.yweb-form-row label:not(.yweb-toggle) { min-width: unset; }
-	.yweb-form-row select,
-	.yweb-form-row input[type="text"],
-	.yweb-form-row input[type="number"],
-	.yweb-form-row input[type="password"],
-	.yweb-form-row input[type="date"],
-	.yweb-form-row input[type="time"] {
+	.webui-form-row label:not(.webui-toggle) { min-width: unset; }
+	.webui-form-row select,
+	.webui-form-row input[type="text"],
+	.webui-form-row input[type="number"],
+	.webui-form-row input[type="password"],
+	.webui-form-row input[type="date"],
+	.webui-form-row input[type="time"] {
 		width: 100%;
 		max-width: none;
 		flex: auto;
 	}
 	/* Toggle row: keep horizontal on mobile */
-	.yweb-form-row:has(.yweb-toggle) {
+	.webui-form-row:has(.webui-toggle) {
 		grid-template-columns: 1fr auto;
 		align-items: center;
 	}
@@ -3102,7 +3102,7 @@ body.yweb-remote-open {
 
 
 /* ═══ Sprachwechsler-Menü (Header-Globus) ═══ */
-.yweb-lang-menu {
+.webui-lang-menu {
 	position: fixed;
 	z-index: 1200;
 	display: flex;
@@ -3110,32 +3110,32 @@ body.yweb-remote-open {
 	min-width: 8rem;
 	background: var(--pico-card-background-color);
 	border: 1px solid var(--pico-muted-border-color);
-	border-radius: var(--yweb-radius);
-	box-shadow: var(--yweb-shadow-hover);
+	border-radius: var(--webui-radius);
+	box-shadow: var(--webui-shadow-hover);
 	overflow: hidden;
 }
 
-.yweb-lang-menu button {
+.webui-lang-menu button {
 	background: none;
 	border: none;
 	text-align: left;
 	padding: 0.5rem 0.9rem;
-	font-size: var(--yweb-font-sm);
+	font-size: var(--webui-font-sm);
 	color: var(--pico-color);
 	cursor: pointer;
 }
 
-.yweb-lang-menu button:hover {
-	background: var(--yweb-accent-light);
+.webui-lang-menu button:hover {
+	background: var(--webui-accent-light);
 }
 
-.yweb-lang-menu button.active {
-	color: var(--yweb-accent);
+.webui-lang-menu button.active {
+	color: var(--webui-accent);
 	font-weight: 600;
 }
 
 /* Settings field info hint (i) */
-.yweb-hint {
+.webui-hint {
 	color: var(--pico-muted-color);
 	cursor: help;
 	font-size: 0.85em;
@@ -3145,35 +3145,35 @@ body.yweb-remote-open {
 /* ============================================
    webui-dom.js: sheet, dock, row actions
    ============================================ */
-dialog.yweb-sheet > article {
+dialog.webui-sheet > article {
 	width: min(32rem, 92vw);
 	max-height: 85vh;
 	overflow-y: auto;
 }
 
-dialog.yweb-sheet > article > header h3 {
+dialog.webui-sheet > article > header h3 {
 	margin: 0;
 	font-size: 1.1rem;
 }
 
-dialog.yweb-sheet footer {
+dialog.webui-sheet footer {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-end;
 	gap: 0.5rem;
 }
 
-dialog.yweb-sheet footer button {
+dialog.webui-sheet footer button {
 	width: auto;
 	margin: 0;
 }
 
-dialog.yweb-sheet footer button.danger {
+dialog.webui-sheet footer button.danger {
 	--pico-background-color: var(--pico-del-color);
 	--pico-border-color: var(--pico-del-color);
 }
 
-.yweb-dock {
+.webui-dock {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -3181,22 +3181,22 @@ dialog.yweb-sheet footer button.danger {
 	font-size: 0.85em;
 }
 
-.yweb-dock:empty {
+.webui-dock:empty {
 	display: none;
 }
 
-.yweb-dock-item {
+.webui-dock-item {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
 }
 
-.yweb-row-actions {
+.webui-row-actions {
 	display: inline-flex;
 	gap: 0.25rem;
 }
 
-.yweb-row-actions button {
+.webui-row-actions button {
 	width: auto;
 	margin: 0;
 	padding: 0.25rem 0.4rem;
@@ -3206,11 +3206,11 @@ dialog.yweb-sheet footer button.danger {
 	line-height: 1;
 }
 
-.yweb-row-actions button svg {
+.webui-row-actions button svg {
 	width: 1rem;
 	height: 1rem;
 }
 
-.yweb-row-actions button.danger {
+.webui-row-actions button.danger {
 	color: var(--pico-del-color);
 }

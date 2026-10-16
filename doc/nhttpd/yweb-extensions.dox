@@ -7,8 +7,8 @@ English version: \ref ywebext_en
 
 Die Neutrino-Web-UI laedt Erweiterungen deklarativ aus
 `<webroot>/extensions/<name>/manifest.json` — kein Patchen von Kernseiten.
-Der Loader lebt in `data/web-ui/js/webui-header.js` (`ywebDiscoverExtensions` /
-`ywebInjectExtensions`) und laeuft beim Seiten-Init jeder modernen Seite.
+Der Loader lebt in `data/web-ui/js/webui-header.js` (`webuiDiscoverExtensions` /
+`webuiInjectExtensions`) und laeuft beim Seiten-Init jeder modernen Seite.
 
 \section ywebext_manifest Manifest-Schema
 
@@ -44,12 +44,12 @@ Erweiterungen lokalisieren sich selbst ueber flache JSON-Woerterbuecher
 `<ordner>/languages/<Sprache>.json` (Dateiname wie die Kern-Sprachdatei,
 z.B. `English.json`, `Deutsch.json`). Helfer in `webui-header.js`:
 
-- `ywebActiveLangName()` — aktiver Sprachname (aus der Dropdown-Liste,
+- `webuiActiveLangName()` — aktiver Sprachname (aus der Dropdown-Liste,
   Fallback `English`).
-- `ywebExtLangLoad(dir)` — laedt das Woerterbuch der aktiven Sprache
+- `webuiExtLangLoad(dir)` — laedt das Woerterbuch der aktiven Sprache
   (`cache: no-cache`, pro Seitenaufruf gecacht); fehlendes Paket ist
   KEIN Fehler (leeres Objekt).
-- `ywebExtL(dir, key, fallbackEN)` — Lookup mit englischem
+- `webuiExtL(dir, key, fallbackEN)` — Lookup mit englischem
   Inline-Fallback; es gibt bewusst keinen Zweit-Fetch auf English.json.
 
 Konventionen:
@@ -59,8 +59,8 @@ Konventionen:
 - Manifest-Strings (settings-`label`, Section-`title`, Feld-`label`,
   `button`, `success`) mit Praefix `L:` werden aus dem Paket aufgeloest
   (`"label": "L:settings.greeting"`); Literale bleiben gueltig.
-- Seiten-Muster: beim Init `await ywebExtLangLoad('<ordner>')`, Texte via
-  `ywebExtL`; Englisch steht inline im Markup und ist der Fallback.
+- Seiten-Muster: beim Init `await webuiExtLangLoad('<ordner>')`, Texte via
+  `webuiExtL`; Englisch steht inline im Markup und ist der Fallback.
 - Englisch + Deutsch immer paarig pflegen (gleiche Keysets).
 
 \section ywebext_manager Verwaltung: Installieren / Aktualisieren / Deinstallieren
@@ -167,7 +167,7 @@ Deutsche Fassung: \ref ywebext
 The Neutrino-Web-UI loads extensions declaratively from
 `<webroot>/extensions/<name>/manifest.json` — no patching of core pages.
 The loader lives in `data/web-ui/js/webui-header.js`
-(`ywebDiscoverExtensions` / `ywebInjectExtensions`) and runs on page
+(`webuiDiscoverExtensions` / `webuiInjectExtensions`) and runs on page
 init of every modern page.
 
 \section ywebext_en_manifest Manifest schema
@@ -205,12 +205,12 @@ Extensions localize themselves through flat JSON dictionaries
 file, e.g. `English.json`, `Deutsch.json`). Helpers in
 `webui-header.js`:
 
-- `ywebActiveLangName()` — active language name (from the dropdown
+- `webuiActiveLangName()` — active language name (from the dropdown
   data, fallback `English`).
-- `ywebExtLangLoad(dir)` — fetches the active language's dictionary
+- `webuiExtLangLoad(dir)` — fetches the active language's dictionary
   (`cache: no-cache`, cached per page view); a missing pack is NOT an
   error (empty object).
-- `ywebExtL(dir, key, fallbackEN)` — lookup with the English inline
+- `webuiExtL(dir, key, fallbackEN)` — lookup with the English inline
   fallback; there is deliberately no second fetch of English.json.
 
 Conventions:
@@ -220,8 +220,8 @@ Conventions:
 - Manifest strings (settings `label`, section `title`, field `label`,
   `button`, `success`) prefixed with `L:` resolve from the pack
   (`"label": "L:settings.greeting"`); literals stay valid.
-- Page pattern: at init `await ywebExtLangLoad('<folder>')`, texts via
-  `ywebExtL`; English lives inline in the markup and doubles as the
+- Page pattern: at init `await webuiExtLangLoad('<folder>')`, texts via
+  `webuiExtL`; English lives inline in the markup and doubles as the
   fallback.
 - Always keep English + German in step (identical keysets).
 

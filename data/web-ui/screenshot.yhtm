@@ -8,13 +8,13 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* 2-column grid: Remote (auto) + Screenshot (flex) */
-		.yweb-screenshot-grid {
+		.webui-screenshot-grid {
 			display: grid;
 			grid-template-columns: auto 1fr;
 			grid-template-rows: minmax(0, 1fr);
@@ -26,56 +26,56 @@
 		}
 
 		/* Screenshot card fills available space */
-		.yweb-screenshot-grid #card-screenshot {
+		.webui-screenshot-grid #card-screenshot {
 			display: flex;
 			flex-direction: column;
 			min-height: 0;
 		}
 
 		/* ── Toolbar ── */
-		.yweb-screenshot-toolbar {
+		.webui-screenshot-toolbar {
 			display: flex;
 			flex-wrap: wrap;
 			gap: 0.5rem;
 			align-items: center;
 		}
 
-		.yweb-screenshot-actions {
+		.webui-screenshot-actions {
 			display: flex;
 			gap: 0.4rem;
 		}
 
-		.yweb-screenshot-options {
+		.webui-screenshot-options {
 			display: flex;
 			gap: 1rem;
 			align-items: center;
 			margin-left: auto;
 		}
 
-		/* Toggle switch + label now use the shared .yweb-toggle /
-		   .yweb-toggle-slider / .yweb-toggle-field from webui.css. */
+		/* Toggle switch + label now use the shared .webui-toggle /
+		   .webui-toggle-slider / .webui-toggle-field from webui.css. */
 
 		/* ── Reload group (same pill style as toggles) ── */
-		.yweb-reload-group {
+		.webui-reload-group {
 			display: flex;
 			align-items: center;
 			gap: 0.4rem;
 			margin-left: auto;
 			padding: 0.3rem 0.5rem;
 			border-radius: 999px;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 		}
 
-		[data-theme="dark"] .yweb-reload-group { background: rgba(255,255,255,0.06); }
-		html:not([data-theme="dark"]) .yweb-reload-group { background: rgba(0,0,0,0.05); }
+		[data-theme="dark"] .webui-reload-group { background: rgba(255,255,255,0.06); }
+		html:not([data-theme="dark"]) .webui-reload-group { background: rgba(0,0,0,0.05); }
 
-		.yweb-reload-group .yweb-toggle-field {
+		.webui-reload-group .webui-toggle-field {
 			background: none;
 			padding: 0;
 		}
 
 		/* Borderless inline input */
-		.yweb-reload-group input[type="number"] {
+		.webui-reload-group input[type="number"] {
 			all: unset;
 			box-sizing: border-box;
 			width: 2ch;
@@ -87,23 +87,23 @@
 			opacity: 0.7;
 		}
 
-		.yweb-reload-group input[type="number"]:disabled { opacity: 0.3; }
+		.webui-reload-group input[type="number"]:disabled { opacity: 0.3; }
 
-		.yweb-reload-group input[type="number"]:focus { opacity: 1; }
+		.webui-reload-group input[type="number"]:focus { opacity: 1; }
 
-		.yweb-reload-group input[type="number"]::-webkit-inner-spin-button,
-		.yweb-reload-group input[type="number"]::-webkit-outer-spin-button {
+		.webui-reload-group input[type="number"]::-webkit-inner-spin-button,
+		.webui-reload-group input[type="number"]::-webkit-outer-spin-button {
 			-webkit-appearance: none;
 			margin: 0;
 		}
 
-		.yweb-reload-group .yweb-unit {
+		.webui-reload-group .webui-unit {
 			font-size: inherit;
 			opacity: 0.5;
 		}
 
 		/* ── Screenshot display area ── */
-		.yweb-screenshot-display {
+		.webui-screenshot-display {
 			position: relative;
 			flex: 1;
 			min-height: 0;
@@ -112,17 +112,17 @@
 			justify-content: center;
 			padding: 0.5rem;
 			background: var(--pico-card-sectioning-background-color);
-			border-radius: 0 0 var(--yweb-radius-lg) var(--yweb-radius-lg);
+			border-radius: 0 0 var(--webui-radius-lg) var(--webui-radius-lg);
 		}
 
-		.yweb-screenshot-display img {
+		.webui-screenshot-display img {
 			max-width: 100%;
 			max-height: 100%;
 			object-fit: contain;
 			display: block;
 		}
 
-		.yweb-screenshot-placeholder {
+		.webui-screenshot-placeholder {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -130,20 +130,20 @@
 			color: var(--pico-muted-color);
 		}
 
-		.yweb-screenshot-placeholder svg {
+		.webui-screenshot-placeholder svg {
 			width: 64px;
 			height: 64px;
 			opacity: 0.5;
 		}
 
 		/* ── Remote card ── */
-		.yweb-screenshot-grid #card-remote {
+		.webui-screenshot-grid #card-remote {
 			display: flex;
 			flex-direction: column;
 			min-height: 0;
 		}
 
-		.yweb-screenshot-grid #card-remote .yweb-card-body {
+		.webui-screenshot-grid #card-remote .webui-card-body {
 			flex: 1;
 			min-height: 0;
 			/* Scroll instead of clipping when the numpad is opened and
@@ -154,7 +154,7 @@
 
 		/* ── Mobile: single column + accordion ── */
 		@media (max-width: 768px) {
-			.yweb-screenshot-grid {
+			.webui-screenshot-grid {
 				grid-template-columns: 1fr;
 				grid-template-rows: auto auto;
 				height: auto;
@@ -162,13 +162,13 @@
 			}
 
 			/* Accordion header */
-			.yweb-screenshot-grid .yweb-card-header {
+			.webui-screenshot-grid .webui-card-header {
 				cursor: pointer;
 				position: relative;
 				padding-right: 2rem;
 			}
 
-			.yweb-screenshot-grid .yweb-card-header::after {
+			.webui-screenshot-grid .webui-card-header::after {
 				content: '\25BC';
 				position: absolute;
 				right: 0.5rem;
@@ -180,50 +180,50 @@
 				pointer-events: none;
 			}
 
-			.yweb-screenshot-grid .yweb-card.expanded .yweb-card-header::after {
+			.webui-screenshot-grid .webui-card.expanded .webui-card-header::after {
 				transform: translateY(-50%) rotate(180deg);
 			}
 
 			/* Hide body + display when collapsed */
-			.yweb-screenshot-grid .yweb-card:not(.expanded) .yweb-card-body,
-			.yweb-screenshot-grid .yweb-card:not(.expanded) .yweb-screenshot-display {
+			.webui-screenshot-grid .webui-card:not(.expanded) .webui-card-body,
+			.webui-screenshot-grid .webui-card:not(.expanded) .webui-screenshot-display {
 				display: none;
 			}
 
 			/* Screenshot display on mobile */
-			.yweb-screenshot-display {
+			.webui-screenshot-display {
 				min-height: 200px;
 			}
 
 			/* Toolbar: vertical stack on mobile */
-			.yweb-screenshot-toolbar {
+			.webui-screenshot-toolbar {
 				flex-direction: column;
 				gap: 1rem;
 			}
 
 			/* Buttons: full width, larger touch targets */
-			.yweb-screenshot-actions {
+			.webui-screenshot-actions {
 				width: 100%;
 				gap: 0.6rem;
 			}
 
-			.yweb-screenshot-actions .yweb-btn {
+			.webui-screenshot-actions .webui-btn {
 				flex: 1;
 				padding: 0.7rem 0.75rem;
-				font-size: var(--yweb-font-base);
+				font-size: var(--webui-font-base);
 			}
 
-			.yweb-screenshot-actions .yweb-btn svg {
+			.webui-screenshot-actions .webui-btn svg {
 				width: 20px;
 				height: 20px;
 			}
 
-			.yweb-screenshot-actions .yweb-btn .btn-label {
+			.webui-screenshot-actions .webui-btn .btn-label {
 				display: inline;
 			}
 
 			/* Options: 2x2 grid on mobile */
-			.yweb-screenshot-options {
+			.webui-screenshot-options {
 				display: grid;
 				grid-template-columns: 1fr 1fr;
 				gap: 0.75rem 1rem;
@@ -233,33 +233,33 @@
 			}
 
 			/* Reload group: second row */
-			.yweb-reload-group {
+			.webui-reload-group {
 				grid-column: 1 / -1;
 				margin-left: 0;
 				justify-self: start;
 				padding: 0.4rem 0.75rem;
-				font-size: var(--yweb-font-base);
+				font-size: var(--webui-font-base);
 			}
 
 			/* Touch: the field padding provides the target size, the
 			   switch keeps the shared 36x20 geometry */
-			.yweb-toggle-field {
-				font-size: var(--yweb-font-base);
+			.webui-toggle-field {
+				font-size: var(--webui-font-base);
 				gap: 0.5rem;
 				padding: 0.4rem 0.75rem;
 			}
 
-			.yweb-reload-group input[type="number"] {
+			.webui-reload-group input[type="number"] {
 				width: 2.5ch;
 			}
 
 			/* Remote card: natural height on mobile */
-			.yweb-screenshot-grid #card-remote {
+			.webui-screenshot-grid #card-remote {
 				min-height: auto;
 				overflow: visible;
 			}
 
-			.yweb-screenshot-grid #card-remote .yweb-card-body {
+			.webui-screenshot-grid #card-remote .webui-card-body {
 				flex: none;
 				overflow: visible;
 			}
@@ -268,15 +268,15 @@
 </head>
 <body>
 	<!-- Header wird dynamisch von webui-header.js generiert -->
-	<div class="yweb-header-wrapper" data-page="tools"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="tools"></div>
+	<div class="webui-header-spacer"></div>
 
 	<!-- Main Content -->
-	<main class="yweb-screenshot-grid">
+	<main class="webui-screenshot-grid">
 		<!-- Remote Card (left) -->
-		<article class="yweb-card" id="card-remote">
-			<header class="yweb-card-header" onclick="toggleCard('card-remote')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card" id="card-remote">
+			<header class="webui-card-header" onclick="toggleCard('card-remote')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<rect x="7" y="2" width="10" height="20" rx="2"/>
 						<circle cx="12" cy="18" r="1"/>
@@ -284,13 +284,13 @@
 					{=L:yw.tools.remote_sub=}
 				</h3>
 			</header>
-			<div class="yweb-card-body" id="remoteContainer"></div>
+			<div class="webui-card-body" id="remoteContainer"></div>
 		</article>
 
 		<!-- Screenshot Card (right) -->
-		<article class="yweb-card" id="card-screenshot">
-			<header class="yweb-card-header" onclick="toggleCard('card-screenshot')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card" id="card-screenshot">
+			<header class="webui-card-header" onclick="toggleCard('card-screenshot')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
 						<circle cx="12" cy="13" r="4"/>
@@ -298,24 +298,24 @@
 					Screenshot
 				</h3>
 			</header>
-			<div class="yweb-card-body">
-				<div class="yweb-screenshot-toolbar">
-					<div class="yweb-screenshot-actions">
-						<button class="yweb-btn primary" onclick="doSnapshot()" id="btnSnapshot">
+			<div class="webui-card-body">
+				<div class="webui-screenshot-toolbar">
+					<div class="webui-screenshot-actions">
+						<button class="webui-btn primary" onclick="doSnapshot()" id="btnSnapshot">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
 								<circle cx="12" cy="13" r="4"/>
 							</svg>
 							<span class="btn-label">Screenshot</span>
 						</button>
-						<button class="yweb-btn" onclick="doClear()">
+						<button class="webui-btn" onclick="doClear()">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<polyline points="3,6 5,6 21,6"/>
 								<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
 							</svg>
 							<span class="btn-label">{=L:yw.shot.clear=}</span>
 						</button>
-						<button class="yweb-btn" onclick="doGlcdSnapshot(this)" id="btnGlcd" style="display:none">
+						<button class="webui-btn" onclick="doGlcdSnapshot(this)" id="btnGlcd" style="display:none">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<rect x="2" y="7" width="20" height="10" rx="2"/>
 							</svg>
@@ -323,38 +323,38 @@
 						</button>
 					</div>
 
-					<div class="yweb-screenshot-options">
-						<label class="yweb-toggle-field">
-							<span class="yweb-toggle">
+					<div class="webui-screenshot-options">
+						<label class="webui-toggle-field">
+							<span class="webui-toggle">
 								<input type="checkbox" id="checkOSD" checked>
-								<span class="yweb-toggle-slider"></span>
+								<span class="webui-toggle-slider"></span>
 							</span>
-							<span class="yweb-toggle-text">OSD</span>
+							<span class="webui-toggle-text">OSD</span>
 						</label>
-						<label class="yweb-toggle-field">
-							<span class="yweb-toggle">
+						<label class="webui-toggle-field">
+							<span class="webui-toggle">
 								<input type="checkbox" id="checkVideo" checked>
-								<span class="yweb-toggle-slider"></span>
+								<span class="webui-toggle-slider"></span>
 							</span>
-							<span class="yweb-toggle-text">Video</span>
+							<span class="webui-toggle-text">Video</span>
 						</label>
-						<div class="yweb-reload-group">
-							<label class="yweb-toggle-field">
-								<span class="yweb-toggle">
+						<div class="webui-reload-group">
+							<label class="webui-toggle-field">
+								<span class="webui-toggle">
 									<input type="checkbox" id="checkReload">
-									<span class="yweb-toggle-slider"></span>
+									<span class="webui-toggle-slider"></span>
 								</span>
-								<span class="yweb-toggle-text">Reload</span>
+								<span class="webui-toggle-text">Reload</span>
 							</label>
 							<input type="number" id="inputReload" value="15" min="1" max="180" disabled>
-							<span class="yweb-unit">s</span>
+							<span class="webui-unit">s</span>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="yweb-screenshot-display" id="screenshotDisplay">
-				<div class="yweb-screenshot-placeholder" id="placeholder">
+			<div class="webui-screenshot-display" id="screenshotDisplay">
+				<div class="webui-screenshot-placeholder" id="placeholder">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
 						<circle cx="8.5" cy="8.5" r="1.5"/>
@@ -380,18 +380,18 @@
 
 		// Inject shared remote template; registering via the host keeps
 		// this instance replaceable by a late-loaded skin renderer
-		ywebRenderRemote('remoteContainer', {
+		webuiRenderRemote('remoteContainer', {
 			onKey: 'rcsim',
 			id: 'screenshotRemote'
 		});
 
 		// Mobile accordion (shared)
-		ywebInitMobileAccordion({
+		webuiInitMobileAccordion({
 			cardOrder: ['card-remote', 'card-screenshot'],
-			storageKey: 'yweb-screenshot-card',
+			storageKey: 'webui-screenshot-card',
 			defaultCard: 'card-screenshot',
 			breakpoint: 768,
-			containerSelector: '.yweb-screenshot-grid',
+			containerSelector: '.webui-screenshot-grid',
 			mode: 'expanded'
 		});
 
@@ -399,7 +399,7 @@
 		async function rcsim(key) {
 			if (!checkEnable()) return;
 			try {
-				await ywebSendKey(key);
+				await webuiSendKey(key);
 				if (document.getElementById('checkReload').checked) {
 					setTimeout(doSnapshot, 750);
 				}
@@ -414,7 +414,7 @@
 			const video = document.getElementById('checkVideo').checked;
 
 			if (!osd && !video) {
-				ywebShowToast('{=L:yw.shot.select=}', true);
+				webuiShowToast('{=L:yw.shot.select=}', true);
 				return false;
 			}
 			return true;
@@ -435,7 +435,7 @@
 			if (shotBusy) return false;	// the running one answers
 			shotBusy = true;
 			try {
-				showPicture(await ywebV1Blob(path, Object.assign({at: Date.now()}, query || {})));
+				showPicture(await webuiV1Blob(path, Object.assign({at: Date.now()}, query || {})));
 			} finally {
 				shotBusy = false;
 			}
@@ -468,7 +468,7 @@
 			} catch (e) {
 				// another capture still running keeps the picture there is
 				if (e.status !== 409)
-					ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+					webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 				if (!had) placeholder.style.display = 'flex';
 			}
 			loading.style.display = 'none';
@@ -477,7 +477,7 @@
 		// The front display only where the box can read it: 501 says it cannot
 		async function probeDisplay() {
 			try {
-				await ywebV1Blob('/osd/display/screenshot', {at: Date.now()}, {quiet: true});
+				await webuiV1Blob('/osd/display/screenshot', {at: Date.now()}, {quiet: true});
 				document.getElementById('btnGlcd').style.display = '';
 				displayProbe = 'shown';
 			} catch (e) {
@@ -491,7 +491,7 @@
 			try {
 				await capture('/osd/display/screenshot');
 			} catch (e) {
-				ywebShowToast('{=L:yw.shot.glcdfail=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.shot.glcdfail=}: ' + e.message, true);
 			}
 			btn.disabled = false;
 		}

@@ -8,13 +8,13 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css?v=89">
 	<style>
 		/* 2-column grid layout */
-		main.yweb-files-grid {
+		main.webui-files-grid {
 			display: grid;
 			grid-template-columns: 240px 1fr;
 			gap: 0.6rem;
@@ -23,7 +23,7 @@
 		}
 
 		@media (max-width: 800px) {
-			main.yweb-files-grid {
+			main.webui-files-grid {
 				grid-template-columns: 1fr;
 				grid-template-rows: auto 1fr;
 			}
@@ -34,8 +34,8 @@
 		/* Sidebar card */
 
 		/* Disk usage badge */
-		.yweb-disk-usage {
-			font-size: var(--yweb-font-xs);
+		.webui-disk-usage {
+			font-size: var(--webui-font-xs);
 			color: var(--pico-muted-color);
 			background: var(--pico-card-sectioning-background-color);
 			padding: 0.1rem 0.4rem;
@@ -45,7 +45,7 @@
 		/* File list card */
 
 		/* Toolbar (inside card header) */
-		.yweb-files-toolbar {
+		.webui-files-toolbar {
 			display: flex;
 			align-items: center;
 			gap: 0.4rem;
@@ -55,96 +55,96 @@
 			background: var(--pico-card-sectioning-background-color);
 		}
 
-		.yweb-files-toolbar .yweb-btn {
+		.webui-files-toolbar .webui-btn {
 			padding: 0.25rem 0.5rem;
 		}
 
-		.yweb-files-toolbar .yweb-btn svg {
+		.webui-files-toolbar .webui-btn svg {
 			width: 14px;
 			height: 14px;
 		}
 
-		.yweb-toolbar-spacer {
+		.webui-toolbar-spacer {
 			flex: 1;
 		}
 
-		.yweb-disk-info {
-			font-size: var(--yweb-font-xs);
+		.webui-disk-info {
+			font-size: var(--webui-font-xs);
 			color: var(--pico-muted-color);
 		}
 
 		/* Breadcrumb */
-		.yweb-breadcrumb {
+		.webui-breadcrumb {
 			display: flex;
 			align-items: center;
 			gap: 0.2rem;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 			overflow-x: auto;
 			white-space: nowrap;
 			padding: 0.3rem 0.6rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
 		}
 
-		.yweb-breadcrumb a {
-			color: var(--yweb-accent);
+		.webui-breadcrumb a {
+			color: var(--webui-accent);
 			text-decoration: none;
 			padding: 0.1rem 0.2rem;
-			border-radius: var(--yweb-radius);
+			border-radius: var(--webui-radius);
 		}
 
-		.yweb-breadcrumb a:hover {
-			background: var(--yweb-accent-light);
+		.webui-breadcrumb a:hover {
+			background: var(--webui-accent-light);
 		}
 
-		.yweb-breadcrumb-sep {
+		.webui-breadcrumb-sep {
 			color: var(--pico-muted-color);
 			font-size: 0.7em;
 		}
 
-		.yweb-breadcrumb-current {
+		.webui-breadcrumb-current {
 			color: var(--pico-color);
 			font-weight: 500;
 		}
 
 		/* File list */
 
-		.yweb-file-row {
+		.webui-file-row {
 			display: flex;
 			align-items: center;
 			gap: 0.6rem;
 			padding: 0.4rem 0.8rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
-			transition: var(--yweb-transition);
+			transition: var(--webui-transition);
 			cursor: default;
-			font-size: var(--yweb-font-sm);
+			font-size: var(--webui-font-sm);
 		}
 
-		.yweb-file-row:last-child {
+		.webui-file-row:last-child {
 			border-bottom: none;
 		}
 
-		.yweb-file-row:hover {
-			background: var(--yweb-accent-light);
+		.webui-file-row:hover {
+			background: var(--webui-accent-light);
 		}
 
-		.yweb-file-row.is-dir {
+		.webui-file-row.is-dir {
 			cursor: pointer;
 		}
 
 		/* File icon */
-		.yweb-file-icon {
+		.webui-file-icon {
 			width: 20px;
 			height: 20px;
 			flex-shrink: 0;
 			color: var(--pico-muted-color);
 		}
 
-		.yweb-file-row.is-dir .yweb-file-icon {
-			color: var(--yweb-accent);
+		.webui-file-row.is-dir .webui-file-icon {
+			color: var(--webui-accent);
 		}
 
 		/* File info */
-		.yweb-file-info {
+		.webui-file-info {
 			flex: 1;
 			min-width: 0;
 			display: flex;
@@ -152,48 +152,48 @@
 			gap: 0.6rem;
 		}
 
-		.yweb-file-name {
+		.webui-file-name {
 			flex: 1;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 		}
 
-		.yweb-file-name.editing {
+		.webui-file-name.editing {
 			display: flex;
 			gap: 0.3rem;
 		}
 
-		.yweb-file-name.editing input {
+		.webui-file-name.editing input {
 			all: unset;
 			box-sizing: border-box;
 			flex: 1;
 			padding: 0.15rem 0.3rem;
-			border: 1px solid var(--yweb-accent);
-			border-radius: var(--yweb-radius);
+			border: 1px solid var(--webui-accent);
+			border-radius: var(--webui-radius);
 			font-size: inherit;
 			font-family: inherit;
 			color: inherit;
 			background: var(--pico-card-background-color);
 		}
 
-		.yweb-file-size {
+		.webui-file-size {
 			width: 70px;
 			text-align: right;
 			color: var(--pico-muted-color);
 			flex-shrink: 0;
-			font-size: var(--yweb-font-xs);
+			font-size: var(--webui-font-xs);
 		}
 
-		.yweb-file-date {
+		.webui-file-date {
 			width: 120px;
 			color: var(--pico-muted-color);
 			flex-shrink: 0;
-			font-size: var(--yweb-font-xs);
+			font-size: var(--webui-font-xs);
 		}
 
 		/* File actions */
-		.yweb-file-actions {
+		.webui-file-actions {
 			display: flex;
 			gap: 0.2rem;
 			flex-shrink: 0;
@@ -201,66 +201,66 @@
 			transition: opacity 0.15s ease;
 		}
 
-		.yweb-file-row:hover .yweb-file-actions {
+		.webui-file-row:hover .webui-file-actions {
 			opacity: 1;
 		}
 
-		.yweb-file-actions .yweb-btn {
+		.webui-file-actions .webui-btn {
 			padding: 0.2rem 0.3rem;
 		}
 
-		.yweb-file-actions .yweb-btn svg {
+		.webui-file-actions .webui-btn svg {
 			width: 13px;
 			height: 13px;
 		}
 
 		/* Parent dir row */
-		.yweb-file-row.parent-dir {
+		.webui-file-row.parent-dir {
 			color: var(--pico-muted-color);
 			font-weight: 500;
 		}
 
-		.yweb-file-row.parent-dir .yweb-file-icon {
+		.webui-file-row.parent-dir .webui-file-icon {
 			color: var(--pico-muted-color);
 		}
 
 		/* Upload area */
-		.yweb-upload-area {
+		.webui-upload-area {
 			display: none;
 			padding: 0.8rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
 			background: var(--pico-card-sectioning-background-color);
 		}
 
-		.yweb-upload-area.active {
+		.webui-upload-area.active {
 			display: block;
 		}
 
-		.yweb-upload-dropzone {
+		.webui-upload-dropzone {
 			border: 2px dashed var(--pico-muted-border-color);
-			border-radius: var(--yweb-radius-lg);
+			border-radius: var(--webui-radius-lg);
 			padding: 1.5rem;
 			text-align: center;
 			color: var(--pico-muted-color);
-			transition: var(--yweb-transition);
+			transition: var(--webui-transition);
 		}
 
-		.yweb-upload-dropzone.dragover {
-			border-color: var(--yweb-accent);
-			background: var(--yweb-accent-light);
-			color: var(--yweb-accent);
+		.webui-upload-dropzone.dragover {
+			border-color: var(--webui-accent);
+			background: var(--webui-accent-light);
+			color: var(--webui-accent);
 		}
 
-		.yweb-upload-progress {
+		.webui-upload-progress {
 			margin-top: 0.5rem;
 			display: none;
 		}
 
-		.yweb-upload-progress.active {
+		.webui-upload-progress.active {
 			display: block;
 		}
 
-		.yweb-upload-progress progress {
+		.webui-upload-progress progress {
 			width: 100%;
 			height: 4px;
 		}
@@ -284,9 +284,9 @@
 			box-sizing: border-box;
 			flex: 1;
 			padding: 0.3rem 0.5rem;
-			border: 1px solid var(--yweb-accent);
-			border-radius: var(--yweb-radius);
-			font-size: var(--yweb-font-sm);
+			border: 1px solid var(--webui-accent);
+			border-radius: var(--webui-radius);
+			font-size: var(--webui-font-sm);
 			font-family: inherit;
 			color: inherit;
 			background: var(--pico-card-background-color);
@@ -294,43 +294,43 @@
 
 		/* Mobile Accordion */
 		@media (max-width: 800px) {
-			.yweb-files-grid {
+			.webui-files-grid {
 				display: flex;
 				flex-direction: column;
 				gap: 0.4rem;
 				overflow: auto;
 			}
 
-			.yweb-card-indicator {
+			.webui-card-indicator {
 				display: flex;
 			}
 
-			.yweb-sidebar-card,
-			.yweb-filelist-card {
+			.webui-sidebar-card,
+			.webui-filelist-card {
 				flex: none;
 				max-height: none;
 				min-height: auto;
 			}
 
-			.yweb-sidebar-card .yweb-card-header,
-			.yweb-filelist-card .yweb-card-header {
+			.webui-sidebar-card .webui-card-header,
+			.webui-filelist-card .webui-card-header {
 				cursor: pointer;
 				position: relative;
 				padding-right: 2rem;
 			}
 
-			.yweb-sidebar-card .yweb-card-title,
-			.yweb-filelist-card .yweb-card-title {
+			.webui-sidebar-card .webui-card-title,
+			.webui-filelist-card .webui-card-title {
 				font-size: 0.9rem;
 			}
 
-			.yweb-card.collapsed .yweb-card-preview {
+			.webui-card.collapsed .webui-card-preview {
 				display: inline-block;
 			}
 
 			/* Chevron indicator */
-			.yweb-sidebar-card .yweb-card-header::after,
-			.yweb-filelist-card .yweb-card-header::after {
+			.webui-sidebar-card .webui-card-header::after,
+			.webui-filelist-card .webui-card-header::after {
 				content: '\25BC';
 				position: absolute;
 				right: 0.5rem;
@@ -342,91 +342,91 @@
 				pointer-events: none;
 			}
 
-			.yweb-card:not(.collapsed) .yweb-card-header::after {
+			.webui-card:not(.collapsed) .webui-card-header::after {
 				transform: translateY(-50%) rotate(180deg);
 			}
 
-			.yweb-sidebar-card .yweb-card-body,
-			.yweb-filelist-card .yweb-card-body {
+			.webui-sidebar-card .webui-card-body,
+			.webui-filelist-card .webui-card-body {
 				display: block;
 				max-height: 60dvh;
 				overflow-y: auto;
 			}
 
-			.yweb-card.collapsed .yweb-card-body,
-			.yweb-card.collapsed .yweb-files-toolbar,
-			.yweb-card.collapsed .yweb-breadcrumb,
-			.yweb-card.collapsed .yweb-upload-area,
-			.yweb-card.collapsed #newFolderRow {
+			.webui-card.collapsed .webui-card-body,
+			.webui-card.collapsed .webui-files-toolbar,
+			.webui-card.collapsed .webui-breadcrumb,
+			.webui-card.collapsed .webui-upload-area,
+			.webui-card.collapsed #newFolderRow {
 				display: none;
 			}
 
 			/* File actions always visible on mobile */
-			.yweb-file-actions {
+			.webui-file-actions {
 				opacity: 1;
 			}
 
-			.yweb-file-row {
+			.webui-file-row {
 				padding: 0.5rem 0.6rem;
 			}
 
 			/* Hide date on mobile */
-			.yweb-file-date {
+			.webui-file-date {
 				display: none;
 			}
 		}
 
-		[data-theme="light"] .yweb-file-row {
+		[data-theme="light"] .webui-file-row {
 			border-bottom-color: #e5e7eb;
 		}
 
-		[data-theme="light"] .yweb-file-row:hover {
+		[data-theme="light"] .webui-file-row:hover {
 			background: #f8f9fa;
 		}
 
 	</style>
 </head>
 <body>
-	<div class="yweb-header-wrapper" data-page="tools"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="tools"></div>
+	<div class="webui-header-spacer"></div>
 
 	<!-- Main Content: 2-Column Grid -->
-	<main class="yweb-files-grid">
+	<main class="webui-files-grid">
 		<!-- Sidebar Card -->
-		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-sidebar-card" id="card-sidebar">
-			<header class="yweb-card-header" onclick="toggleCard('card-sidebar')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card webui-panel-card webui-card-sm webui-sidebar-card" id="card-sidebar">
+			<header class="webui-card-header" onclick="toggleCard('card-sidebar')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
 					</svg>
 					{=L:yw.fm.dirs=}
 				</h3>
-				<span class="yweb-card-preview" id="sidebarPreview">--</span>
+				<span class="webui-card-preview" id="sidebarPreview">--</span>
 			</header>
-			<div class="yweb-card-body">
-				<ul class="yweb-plain-list yweb-quick-list" id="quickList"></ul>
+			<div class="webui-card-body">
+				<ul class="webui-plain-list webui-quick-list" id="quickList"></ul>
 			</div>
 		</article>
 
 		<!-- File List Card -->
-		<article class="yweb-card yweb-panel-card yweb-card-sm yweb-filelist-card" id="card-files">
-			<header class="yweb-card-header" onclick="toggleCard('card-files')">
-				<h3 class="yweb-card-title">
+		<article class="webui-card webui-panel-card webui-card-sm webui-filelist-card" id="card-files">
+			<header class="webui-card-header" onclick="toggleCard('card-files')">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
 						<polyline points="14,2 14,8 20,8"/>
 					</svg>
 					<span id="fileListTitle">{=L:yw.tools.files=}</span>
 				</h3>
-				<span class="yweb-card-preview" id="filesPreview">--</span>
+				<span class="webui-card-preview" id="filesPreview">--</span>
 			</header>
 
 			<!-- Breadcrumb -->
-			<nav class="yweb-breadcrumb" id="breadcrumb"></nav>
+			<nav class="webui-breadcrumb" id="breadcrumb"></nav>
 
 			<!-- Toolbar -->
-			<div class="yweb-files-toolbar">
-				<button class="yweb-btn" onclick="showNewFolderInput()" title="{=L:yw.fm.new_folder=}">
+			<div class="webui-files-toolbar">
+				<button class="webui-btn" onclick="showNewFolderInput()" title="{=L:yw.fm.new_folder=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 						<line x1="12" y1="11" x2="12" y2="17"/>
@@ -434,7 +434,7 @@
 					</svg>
 					<span class="btn-label">{=L:yw.fm.folder=}</span>
 				</button>
-				<button class="yweb-btn" onclick="toggleUpload()" title="{=L:yw.fm.upload=}">
+				<button class="webui-btn" onclick="toggleUpload()" title="{=L:yw.fm.upload=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
 						<polyline points="17,8 12,3 7,8"/>
@@ -442,28 +442,28 @@
 					</svg>
 					<span class="btn-label">Upload</span>
 				</button>
-				<button class="yweb-btn" onclick="refreshDir()" title="{=L:yw.si.refresh=}">
+				<button class="webui-btn" onclick="refreshDir()" title="{=L:yw.si.refresh=}">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polyline points="23,4 23,10 17,10"/>
 						<path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
 					</svg>
 				</button>
-				<span class="yweb-toolbar-spacer"></span>
-				<span class="yweb-disk-info" id="diskInfo"></span>
+				<span class="webui-toolbar-spacer"></span>
+				<span class="webui-disk-info" id="diskInfo"></span>
 			</div>
 
 			<!-- New folder input -->
 			<div id="newFolderRow">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--yweb-accent);flex-shrink:0">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--webui-accent);flex-shrink:0">
 					<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 				</svg>
 				<input type="text" id="newFolderName" placeholder="{=L:yw.fm.folder_name=}" onkeydown="handleNewFolderKey(event)">
-				<button class="yweb-btn primary" onclick="createFolder()" style="padding:0.25rem 0.5rem">
+				<button class="webui-btn primary" onclick="createFolder()" style="padding:0.25rem 0.5rem">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
 						<polyline points="20,6 9,17 4,12"/>
 					</svg>
 				</button>
-				<button class="yweb-btn" onclick="hideNewFolderInput()" style="padding:0.25rem 0.5rem">
+				<button class="webui-btn" onclick="hideNewFolderInput()" style="padding:0.25rem 0.5rem">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
 						<line x1="18" y1="6" x2="6" y2="18"/>
 						<line x1="6" y1="6" x2="18" y2="18"/>
@@ -472,8 +472,8 @@
 			</div>
 
 			<!-- Upload area -->
-			<div class="yweb-upload-area" id="uploadArea">
-				<div class="yweb-upload-dropzone" id="dropzone">
+			<div class="webui-upload-area" id="uploadArea">
+				<div class="webui-upload-dropzone" id="dropzone">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px;height:32px;margin-bottom:0.5rem">
 						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
 						<polyline points="17,8 12,3 7,8"/>
@@ -482,22 +482,22 @@
 					<div>{=L:yw.fm.drop_here=} <a href="#" onclick="document.getElementById('fileInput').click(); return false;">{=L:yw.fm.choose=}</a></div>
 					<input type="file" id="fileInput" style="display:none" onchange="uploadFile(this.files[0])">
 				</div>
-				<div class="yweb-upload-progress" id="uploadProgress">
+				<div class="webui-upload-progress" id="uploadProgress">
 					<progress id="uploadBar" value="0" max="100"></progress>
-					<div style="font-size:var(--yweb-font-xs);color:var(--pico-muted-color);margin-top:0.3rem" id="uploadStatus"></div>
+					<div style="font-size:var(--webui-font-xs);color:var(--pico-muted-color);margin-top:0.3rem" id="uploadStatus"></div>
 				</div>
 			</div>
 
 			<!-- File list -->
-			<div class="yweb-card-body">
-				<ul class="yweb-plain-list yweb-file-list" id="fileList">
+			<div class="webui-card-body">
+				<ul class="webui-plain-list webui-file-list" id="fileList">
 					<li aria-busy="true" style="padding:1rem;text-align:center">{=L:yw.msg.loading=}</li>
 				</ul>
 			</div>
 		</article>
 
 		<!-- Mobile Card Indicator -->
-		<div class="yweb-card-indicator" id="cardIndicator"></div>
+		<div class="webui-card-indicator" id="cardIndicator"></div>
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
@@ -509,7 +509,7 @@
 		// directories the box names as its roots (where it records, where its
 		// movie browser looks, its plugin folders and the usual media and
 		// temporary directories) and nothing else on the box. The top level
-		// lists those roots. Rows are built with ywebEl, so a file name is
+		// lists those roots. Rows are built with webuiEl, so a file name is
 		// always text, whatever characters it carries.
 
 		// State: '' is the top level, the list of roots
@@ -518,10 +518,10 @@
 
 		// SVG icon templates (page source, not data)
 		const ICONS = {
-			folder: '<svg class="yweb-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>',
-			file: '<svg class="yweb-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>',
-			link: '<svg class="yweb-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
-			parent: '<svg class="yweb-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>',
+			folder: '<svg class="webui-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>',
+			file: '<svg class="webui-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>',
+			link: '<svg class="webui-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
+			parent: '<svg class="webui-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>',
 			download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
 			rename: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
 			delete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
@@ -573,11 +573,11 @@
 		// A yes or no that shows its text as text (file names among it)
 		function askFirst(title, text, ok) {
 			return new Promise(resolve => {
-				ywebSheet({
+				webuiSheet({
 					title: title,
-					body: ywebEl('p', {}, text),
+					body: webuiEl('p', {}, text),
 					actions: [
-						{label: ywebL('msg.cancel', 'Cancel'), value: false},
+						{label: webuiL('msg.cancel', 'Cancel'), value: false},
 						{label: ok, value: true, danger: true}
 					],
 					onClose: result => resolve(result === true)
@@ -589,11 +589,11 @@
 
 		async function loadQuickDirs() {
 			try {
-				const r = await ywebV1('GET', '/storage/roots');
+				const r = await webuiV1('GET', '/storage/roots');
 				roots = ((r && r.items) || []).filter(x => x.present).map(x => normPath(x.id));
 			} catch (e) {
 				roots = [];
-				ywebShowToast('{=L:yw.msg.load_fail=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.msg.load_fail=}: ' + e.message, true);
 			}
 			renderQuickDirs();
 		}
@@ -601,11 +601,11 @@
 		function renderQuickDirs() {
 			const list = document.getElementById('quickList');
 			const items = [{name: '{=L:yw.fm.roots=}', path: ''}].concat(roots.map(r => ({name: r, path: r})));
-			list.replaceChildren(...items.map(d => ywebEl('li', {
-				className: 'yweb-nav-item yweb-quick-item' + (d.path === currentPath ? ' active' : ''),
+			list.replaceChildren(...items.map(d => webuiEl('li', {
+				className: 'webui-nav-item webui-quick-item' + (d.path === currentPath ? ' active' : ''),
 				on: {click: () => navigateTo(d.path)}
-			}, ywebMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'),
-				ywebEl('span', {className: 'yweb-nav-name yweb-quick-name'}, d.name))));
+			}, webuiMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'),
+				webuiEl('span', {className: 'webui-nav-name webui-quick-name'}, d.name))));
 		}
 
 		// ===== Breadcrumb: the roots, the root, then what lies below it =====
@@ -624,11 +624,11 @@
 			}
 			const parts = [];
 			crumbs.forEach((c, i) => {
-				if (i > 0) parts.push(ywebEl('span', {className: 'yweb-breadcrumb-sep'}, '/'));
+				if (i > 0) parts.push(webuiEl('span', {className: 'webui-breadcrumb-sep'}, '/'));
 				if (i === crumbs.length - 1)
-					parts.push(ywebEl('span', {className: 'yweb-breadcrumb-current'}, c.name));
+					parts.push(webuiEl('span', {className: 'webui-breadcrumb-current'}, c.name));
 				else
-					parts.push(ywebEl('a', {attrs: {href: '#'}, on: {click: ev => { ev.preventDefault(); navigateTo(c.path); }}}, c.name));
+					parts.push(webuiEl('a', {attrs: {href: '#'}, on: {click: ev => { ev.preventDefault(); navigateTo(c.path); }}}, c.name));
 			});
 			el.replaceChildren(...parts);
 		}
@@ -639,35 +639,35 @@
 			const isDir = entry.kind === 'dir';
 			const isLink = entry.kind === 'link';
 			const fullpath = joinPath(currentPath, entry.id);
-			const actions = ywebEl('div', {className: 'yweb-file-actions', on: {click: ev => ev.stopPropagation()}});
+			const actions = webuiEl('div', {className: 'webui-file-actions', on: {click: ev => ev.stopPropagation()}});
 			if (!isDir)
-				actions.appendChild(ywebEl('a', {className: 'yweb-btn', title: '{=L:yw.fm.download=}',
-					attrs: {href: '/api/v1/storage/file' + storageQuery(fullpath), download: entry.id}}, ywebMarkup(ICONS.download)));
-			actions.appendChild(ywebEl('button', {type: 'button', className: 'yweb-btn', title: '{=L:yw.fm.rename=}',
-				on: {click: () => startRename(fullpath, entry.id)}}, ywebMarkup(ICONS.rename)));
-			actions.appendChild(ywebEl('button', {type: 'button', className: 'yweb-btn', title: '{=L:yw.fm.delete=}',
-				style: {color: 'var(--yweb-danger)'}, on: {click: () => deleteItem(fullpath, entry.id, isDir)}}, ywebMarkup(ICONS.delete)));
+				actions.appendChild(webuiEl('a', {className: 'webui-btn', title: '{=L:yw.fm.download=}',
+					attrs: {href: '/api/v1/storage/file' + storageQuery(fullpath), download: entry.id}}, webuiMarkup(ICONS.download)));
+			actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: '{=L:yw.fm.rename=}',
+				on: {click: () => startRename(fullpath, entry.id)}}, webuiMarkup(ICONS.rename)));
+			actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: '{=L:yw.fm.delete=}',
+				style: {color: 'var(--webui-danger)'}, on: {click: () => deleteItem(fullpath, entry.id, isDir)}}, webuiMarkup(ICONS.delete)));
 
 			const size = isDir || !entry.attributes_read ? '' : formatFileSize(entry.size || 0);
 			const date = entry.attributes_read ? formatFileDate(entry.mtime || 0) : '';
-			return ywebEl('li', {className: 'yweb-file-row' + (isDir ? ' is-dir' : ''), data: {path: fullpath, name: entry.id},
+			return webuiEl('li', {className: 'webui-file-row' + (isDir ? ' is-dir' : ''), data: {path: fullpath, name: entry.id},
 				on: isDir ? {click: () => navigateTo(fullpath)} : {}},
-				ywebMarkup(isDir ? ICONS.folder : (isLink ? ICONS.link : ICONS.file)),
-				ywebEl('div', {className: 'yweb-file-info'},
-					ywebEl('span', {className: 'yweb-file-name'}, entry.id),
-					ywebEl('span', {className: 'yweb-file-size'}, size),
-					ywebEl('span', {className: 'yweb-file-date'}, date)),
+				webuiMarkup(isDir ? ICONS.folder : (isLink ? ICONS.link : ICONS.file)),
+				webuiEl('div', {className: 'webui-file-info'},
+					webuiEl('span', {className: 'webui-file-name'}, entry.id),
+					webuiEl('span', {className: 'webui-file-size'}, size),
+					webuiEl('span', {className: 'webui-file-date'}, date)),
 				actions);
 		}
 
 		function rootRow(root) {
-			return ywebEl('li', {className: 'yweb-file-row is-dir', data: {path: root}, on: {click: () => navigateTo(root)}},
-				ywebMarkup(ICONS.folder),
-				ywebEl('div', {className: 'yweb-file-info'}, ywebEl('span', {className: 'yweb-file-name'}, root)));
+			return webuiEl('li', {className: 'webui-file-row is-dir', data: {path: root}, on: {click: () => navigateTo(root)}},
+				webuiMarkup(ICONS.folder),
+				webuiEl('div', {className: 'webui-file-info'}, webuiEl('span', {className: 'webui-file-name'}, root)));
 		}
 
 		function note(text, color) {
-			return ywebEl('li', {style: {padding: '1rem', 'text-align': 'center', color: color || 'var(--pico-muted-color)'}}, text);
+			return webuiEl('li', {style: {padding: '1rem', 'text-align': 'center', color: color || 'var(--pico-muted-color)'}}, text);
 		}
 
 		let listToken = 0;	// a slower answer for a directory left already is dropped
@@ -691,10 +691,10 @@
 			}
 
 			title.textContent = currentPath.split('/').filter(Boolean).pop() || currentPath;
-			list.replaceChildren(ywebEl('li', {attrs: {'aria-busy': 'true'}, style: {padding: '1rem', 'text-align': 'center'}}, '{=L:yw.msg.loading=}'));
+			list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}, style: {padding: '1rem', 'text-align': 'center'}}, '{=L:yw.msg.loading=}'));
 
 			try {
-				const data = await ywebV1('GET', '/storage/files', {query: {path: currentPath}});
+				const data = await webuiV1('GET', '/storage/files', {query: {path: currentPath}});
 				if (mine !== listToken) return;
 				const files = (data && data.items) || [];
 
@@ -710,9 +710,9 @@
 				// Up: from a root to the list of roots, else one directory up
 				const parentPath = rootOf(currentPath) === currentPath ? '' :
 					(currentPath.substring(0, currentPath.lastIndexOf('/')) || '/');
-				const rows = [ywebEl('li', {className: 'yweb-file-row parent-dir is-dir', on: {click: () => navigateTo(parentPath)}},
-					ywebMarkup(ICONS.parent),
-					ywebEl('div', {className: 'yweb-file-info'}, ywebEl('span', {className: 'yweb-file-name'}, '..')))];
+				const rows = [webuiEl('li', {className: 'webui-file-row parent-dir is-dir', on: {click: () => navigateTo(parentPath)}},
+					webuiMarkup(ICONS.parent),
+					webuiEl('div', {className: 'webui-file-info'}, webuiEl('span', {className: 'webui-file-name'}, '..')))];
 				files.forEach(f => rows.push(fileRow(f)));
 				if (!files.length) rows.push(note('{=L:yw.fm.empty=}'));
 				list.replaceChildren(...rows);
@@ -720,7 +720,7 @@
 				loadDiskInfo(mine);
 			} catch (e) {
 				if (mine !== listToken) return;
-				list.replaceChildren(note('{=L:yw.msg.load_fail=}: ' + e.message, 'var(--yweb-danger)'));
+				list.replaceChildren(note('{=L:yw.msg.load_fail=}: ' + e.message, 'var(--webui-danger)'));
 			}
 		}
 
@@ -741,7 +741,7 @@
 		async function loadDiskInfo(mine) {
 			const el = document.getElementById('diskInfo');
 			try {
-				const data = await ywebV1('GET', '/storage/mounts');
+				const data = await webuiV1('GET', '/storage/mounts');
 				if (mine !== listToken) return;
 				let best = null;
 				((data && data.items) || []).forEach(m => {
@@ -770,27 +770,27 @@
 				'{=L:yw.fm.delete=}');
 			if (!ok) return;
 			try {
-				await ywebV1('DELETE', '/storage/path', {query: {path: fullpath}});
-				ywebShowToast('{=L:yw.fm.deleted=}');
+				await webuiV1('DELETE', '/storage/path', {query: {path: fullpath}});
+				webuiShowToast('{=L:yw.fm.deleted=}');
 				refreshDir();
 			} catch (e) {
-				ywebShowToast((e.code === 'not-empty' ? '{=L:yw.fm.not_empty=}' : '{=L:yw.fm.delete_fail=}') + ': ' + e.message, true);
+				webuiShowToast((e.code === 'not-empty' ? '{=L:yw.fm.not_empty=}' : '{=L:yw.fm.delete_fail=}') + ': ' + e.message, true);
 			}
 		}
 
 		// Rename in place: the name field takes the row's name
 		function startRename(fullpath, name) {
-			const row = Array.prototype.find.call(document.querySelectorAll('.yweb-file-row'), r => r.dataset.path === fullpath);
+			const row = Array.prototype.find.call(document.querySelectorAll('.webui-file-row'), r => r.dataset.path === fullpath);
 			if (!row) return;
-			const nameEl = row.querySelector('.yweb-file-name');
-			const input = ywebEl('input', {type: 'text', value: name});
+			const nameEl = row.querySelector('.webui-file-name');
+			const input = webuiEl('input', {type: 'text', value: name});
 			const go = () => doRename(fullpath, name, input.value.trim());
 			nameEl.classList.add('editing');
 			nameEl.replaceChildren(input,
-				ywebEl('button', {type: 'button', className: 'yweb-btn primary', style: {padding: '0.15rem 0.3rem'},
-					attrs: {'aria-label': '{=L:yw.fm.rename=}'}, on: {click: go}}, ywebMarkup(ICONS.ok)),
-				ywebEl('button', {type: 'button', className: 'yweb-btn', style: {padding: '0.15rem 0.3rem'},
-					attrs: {'aria-label': ywebL('msg.cancel', 'Cancel')}, on: {click: () => refreshDir()}}, ywebMarkup(ICONS.cancel)));
+				webuiEl('button', {type: 'button', className: 'webui-btn primary', style: {padding: '0.15rem 0.3rem'},
+					attrs: {'aria-label': '{=L:yw.fm.rename=}'}, on: {click: go}}, webuiMarkup(ICONS.ok)),
+				webuiEl('button', {type: 'button', className: 'webui-btn', style: {padding: '0.15rem 0.3rem'},
+					attrs: {'aria-label': webuiL('msg.cancel', 'Cancel')}, on: {click: () => refreshDir()}}, webuiMarkup(ICONS.cancel)));
 			input.focus();
 			// Select filename without extension
 			const dotIdx = name.lastIndexOf('.');
@@ -808,16 +808,16 @@
 				return;
 			}
 			if (newName.indexOf('/') >= 0) {
-				ywebShowToast('{=L:yw.fm.rename_fail=}: {=L:yw.fm.bad_name=}', true);
+				webuiShowToast('{=L:yw.fm.rename_fail=}: {=L:yw.fm.bad_name=}', true);
 				return;
 			}
 			try {
 				const dir = fullpath.substring(0, fullpath.lastIndexOf('/')) || '/';
-				await ywebV1('POST', '/storage/rename', {body: {from: fullpath, to: joinPath(dir, newName)}});
-				ywebShowToast('{=L:yw.fm.renamed=}');
+				await webuiV1('POST', '/storage/rename', {body: {from: fullpath, to: joinPath(dir, newName)}});
+				webuiShowToast('{=L:yw.fm.renamed=}');
 				refreshDir();
 			} catch (e) {
-				ywebShowToast('{=L:yw.fm.rename_fail=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.fm.rename_fail=}: ' + e.message, true);
 			}
 		}
 
@@ -846,16 +846,16 @@
 			const name = input.value.trim();
 			if (!name || !currentPath) return;
 			if (name.indexOf('/') >= 0) {
-				ywebShowToast('{=L:yw.msg.error=}: {=L:yw.fm.bad_name=}', true);
+				webuiShowToast('{=L:yw.msg.error=}: {=L:yw.fm.bad_name=}', true);
 				return;
 			}
 			try {
-				await ywebV1('POST', '/storage/directory', {body: {path: joinPath(currentPath, name)}});
+				await webuiV1('POST', '/storage/directory', {body: {path: joinPath(currentPath, name)}});
 				hideNewFolderInput();
-				ywebShowToast('{=L:yw.fm.folder_created=}');
+				webuiShowToast('{=L:yw.fm.folder_created=}');
 				refreshDir();
 			} catch (e) {
-				ywebShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
 			}
 		}
 
@@ -890,23 +890,23 @@
 			// piece file is this upload's to take away
 			let uploaded = false;
 			try {
-				await ywebV1UploadPieces(file, part, (sent, total) => {
+				await webuiV1UploadPieces(file, part, (sent, total) => {
 					bar.value = total ? Math.round(sent * 100 / total) : 100;
 				});
 				uploaded = true;
 
 				try {
-					await ywebV1('POST', '/storage/rename', {body: {from: part, to: target}});
+					await webuiV1('POST', '/storage/rename', {body: {from: part, to: target}});
 				} catch (e) {
 					if (e.code !== 'name-taken') throw e;
 					const replace = await askFirst('{=L:yw.fm.upload=}', '"' + file.name + '" {=L:yw.fm.replace_ask=}', '{=L:yw.fm.replace=}');
 					if (!replace) throw new Error('{=L:yw.fm.not_replaced=}');
-					await ywebV1('POST', '/storage/rename', {body: {from: part, to: target, overwrite: true}});
+					await webuiV1('POST', '/storage/rename', {body: {from: part, to: target, overwrite: true}});
 				}
 				uploaded = false;
 
 				status.textContent = '{=L:yw.fm.done=}: ' + file.name;
-				ywebShowToast('{=L:yw.fm.uploaded=}: ' + file.name);
+				webuiShowToast('{=L:yw.fm.uploaded=}: ' + file.name);
 				setTimeout(() => {
 					progress.classList.remove('active');
 					document.getElementById('uploadArea').classList.remove('active');
@@ -914,9 +914,9 @@
 				if (currentPath === dir) refreshDir();
 			} catch (e) {
 				status.textContent = '{=L:yw.msg.error=}: ' + e.message;
-				ywebShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true);
+				webuiShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true);
 				if (uploaded)
-					ywebV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
+					webuiV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
 			}
 
 			// Reset file input
@@ -953,12 +953,12 @@
 		// ===== Pull-to-Refresh =====
 
 		function isAtScrollTop() {
-			const expandedCard = document.querySelector('.yweb-card:not(.collapsed)');
+			const expandedCard = document.querySelector('.webui-card:not(.collapsed)');
 			if (expandedCard) {
-				const cardBody = expandedCard.querySelector('.yweb-card-body');
+				const cardBody = expandedCard.querySelector('.webui-card-body');
 				if (cardBody && cardBody.scrollTop > 5) return false;
 			}
-			const main = document.querySelector('.yweb-files-grid');
+			const main = document.querySelector('.webui-files-grid');
 			if (main && main.scrollTop > 5) return false;
 			return true;
 		}
@@ -975,26 +975,26 @@
 		})();
 
 		document.addEventListener('DOMContentLoaded', function() {
-			ywebInitMobileAccordion({
+			webuiInitMobileAccordion({
 				cardOrder: ['card-sidebar', 'card-files'],
-				storageKey: 'yweb-files-card',
+				storageKey: 'webui-files-card',
 				defaultCard: 'card-files',
 				breakpoint: 800,
 				indicatorId: 'cardIndicator',
-				containerSelector: '.yweb-files-grid',
+				containerSelector: '.webui-files-grid',
 				mode: 'collapsed'
 			});
 		});
 
-		if (typeof ywebSetRefreshCallback === 'function') {
-			ywebSetRefreshCallback(function() {
+		if (typeof webuiSetRefreshCallback === 'function') {
+			webuiSetRefreshCallback(function() {
 				if (!isAtScrollTop()) return Promise.resolve();
 				return loadDir(currentPath);
 			});
 		}
 
-		if (typeof window.ywebIsAtScrollTop === 'undefined') {
-			window.ywebIsAtScrollTop = isAtScrollTop;
+		if (typeof window.webuiIsAtScrollTop === 'undefined') {
+			window.webuiIsAtScrollTop = isAtScrollTop;
 		}
 	</script>
 </body>
