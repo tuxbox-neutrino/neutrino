@@ -451,6 +451,17 @@ void Cyhttpd::ReadConfig(void) {
 			Config->setInt32("configfile.version", 5);
 			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 		}
+		// Add Defaults for Version 6: the file types the pages load now
+		// (svg, webp, json, fonts, module scripts) join a list that was
+		// written before they were in it, and a js sent as text/plain is
+		// sent as JavaScript; what else the list says is kept.
+		if (Config->getInt32("configfile.version") < 6) {
+			Config->setString("mod_sendfile.mime_types", mergeMimeTypes(
+				Config->getString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT),
+				HTTPD_SENDFILE_EXT));
+			Config->setInt32("configfile.version", 6);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
+		}
 	}
 	if (Config->getString("WebsiteMain.host", "").empty()) {
 		Config->setString("WebsiteMain.host", HTTPD_DEFAULT_HOST);

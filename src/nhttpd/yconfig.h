@@ -33,7 +33,7 @@
 #define HTTPD_NAME			"yhttpd"	// Webserver name (can be overloaded)
 #define YHTTPD_NAME			"yhttpd_core"	// Webserver name (Name of yhttpd-core!)
 #define AUTH_NAME_MSG			"yhttpd"	// Name in Authentication Dialogue
-#define CONF_VERSION			5		// Version of yhttpd-conf file
+#define CONF_VERSION			6		// Version of yhttpd-conf file
 #define HTTPD_KEEPALIVE_TIMEOUT		500000		// Timeout for Keep-Alive in mircoseconds
 //=============================================================================
 // Features wanted <configure!>
@@ -97,7 +97,7 @@
 #define UPLOAD_TMP_FILE			"/tmp/upload.tmp"
 #define CACHE_DIR			"/tmp/.cache"
 #define HTTPD_ERRORPAGE			"/Y_ErrorPage.yhtm"
-#define HTTPD_SENDFILE_EXT		"htm:text/html,html:text/html,xml:application/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/x-ms-bmp,css:text/css,js:application/javascript,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:audio/x-mpegURL,m3u8:application/x-mpegURL,tar:application/x-tar,gz:application/gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/x-msvideo,mp3:audio/mpeg,ogg:audio/ogg"
+#define HTTPD_SENDFILE_EXT		"htm:text/html,html:text/html,xml:application/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/x-ms-bmp,css:text/css,js:application/javascript,mjs:application/javascript,json:application/json,svg:image/svg+xml,webp:image/webp,woff:font/woff,woff2:font/woff2,webmanifest:application/manifest+json,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:audio/x-mpegURL,m3u8:application/x-mpegURL,tar:application/x-tar,gz:application/gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/x-msvideo,mp3:audio/mpeg,ogg:audio/ogg"
 #define HTTPD_SENDFILE_ALL		"true"
 #define HTTPD_LANGUAGEDIR		"languages"
 #define HTTPD_DEFAULT_LANGUAGE 		"English"

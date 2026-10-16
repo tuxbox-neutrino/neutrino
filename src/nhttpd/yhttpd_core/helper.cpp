@@ -11,6 +11,8 @@
 #include <cerrno>
 #include <sstream>
 #include <iomanip>
+#include <set>
+#include <utility>
 #include <vector>
 
 #include <unistd.h>
@@ -155,6 +157,55 @@ CStringArray ySplitStringVector(std::string str, std::string delimiter) {
 		rest = right;
 	} while (found);
 	return split;
+}
+//-------------------------------------------------------------------------
+// mergeMimeTypes: the configured ext:type list with the defaults it lacks
+//-------------------------------------------------------------------------
+namespace {
+typedef std::vector<std::pair<std::string, std::string> > MimePairs;
+
+MimePairs mimePairsOf(const std::string &list) {
+	MimePairs out;
+	std::string rest = list, item, ext, type;
+	bool more = true;
+	while (more) {
+		more = ySplitStringExact(rest, ",", item, rest);
+		if (!ySplitStringExact(item, ":", ext, type))
+			continue;
+		ext = trim(ext);
+		type = trim(type);
+		if (!ext.empty())
+			out.push_back(std::make_pair(ext, type));
+	}
+	return out;
+}
+} // namespace
+
+std::string mergeMimeTypes(const std::string &configured, const std::string &defaults) {
+	const MimePairs wanted = mimePairsOf(defaults);
+	std::string js_type;
+	for (MimePairs::const_iterator it = wanted.begin(); it != wanted.end(); ++it)
+		if (it->first == "js")
+			js_type = it->second;
+
+	MimePairs out = mimePairsOf(configured);
+	std::set<std::string> named;
+	for (MimePairs::iterator it = out.begin(); it != out.end(); ++it) {
+		named.insert(it->first);
+		if (it->first == "js" && it->second == "text/plain" && !js_type.empty())
+			it->second = js_type;
+	}
+	for (MimePairs::const_iterator it = wanted.begin(); it != wanted.end(); ++it)
+		if (named.insert(it->first).second)
+			out.push_back(*it);
+
+	std::string list;
+	for (MimePairs::const_iterator it = out.begin(); it != out.end(); ++it) {
+		if (!list.empty())
+			list += ",";
+		list += it->first + ":" + it->second;
+	}
+	return list;
 }
 //-------------------------------------------------------------------------
 // trim whitespaces

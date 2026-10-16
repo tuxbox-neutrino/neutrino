@@ -33,6 +33,12 @@ bool ySplitString(std::string str, std::string delimiter, std::string& left, std
 bool ySplitStringExact(std::string str, std::string delimiter, std::string& left, std::string& right);
 bool ySplitStringLast(std::string str, std::string delimiter, std::string& left, std::string& right);
 CStringArray ySplitStringVector(std::string str, std::string delimiter);
+// The ext:type pairs of a mod_sendfile.mime_types value, with every pair of
+// defaults whose extension it does not name added at its end. A js kept as
+// text/plain, as the configuration shipped before version 6 said, takes the
+// type defaults gives js: a browser runs no module script that is not sent
+// as JavaScript. Every other pair is kept as it was set.
+std::string mergeMimeTypes(const std::string &configured, const std::string &defaults);
 bool nocase_compare (char c1, char c2);
 std::string timeString(time_t time);
 bool write_to_file(std::string filename, std::string content, bool append=false);

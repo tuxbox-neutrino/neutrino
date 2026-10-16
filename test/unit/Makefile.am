@@ -99,6 +99,7 @@ coreapi_tests_SOURCES = \
 	system/test_mysystem_local.cpp \
 	nhttpd/test_yhttpd_api.cpp \
 	nhttpd/test_bridge.cpp \
+	nhttpd/test_yhttpd_config.cpp \
 	httpd/test_openapi.cpp \
 	httpd/test_openapi_basic.cpp \
 	httpd/test_router.cpp \
