@@ -407,7 +407,8 @@ void Cyhttpd::ReadConfig(void) {
 			Config->clear();
 
 			Config->setInt32("server.log.loglevel", OrgConfig.getInt32("LogLevel", 0));
-			Config->setInt32("configfile.version", CONF_VERSION);
+			// version 1, so the file goes through every step below
+			Config->setInt32("configfile.version", 1);
 			Config->setString("webserver.websites", "WebsiteMain");
 			Config->setBool("webserver.threading", OrgConfig.getBool("THREADS", true));
 			Config->setInt32("WebsiteMain.port", OrgConfig.getInt32("Port", HTTPD_STANDARD_PORT));
@@ -426,15 +427,17 @@ void Cyhttpd::ReadConfig(void) {
 
 		}
 		// Add Defaults for Version 2
+		// Each step below sets its own number, not CONF_VERSION, so the
+		// steps after it still run.
 		if (Config->getInt32("configfile.version") < 2) {
 			Config->setString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT);
-			Config->setInt32("configfile.version", CONF_VERSION);
+			Config->setInt32("configfile.version", 2);
 			Config->setString("mod_sendfile.sendAll", HTTPD_SENDFILE_ALL);
 			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 		}
 		// Add Defaults for Version 4
 		if (Config->getInt32("configfile.version") < 4) {
-			Config->setInt32("configfile.version", CONF_VERSION);
+			Config->setInt32("configfile.version", 4);
 			Config->setString("Language.selected", HTTPD_DEFAULT_LANGUAGE);
 			Config->setString("Language.directory", HTTPD_LANGUAGEDIR);
 			if (Config->getString("WebsiteMain.hosted_directory", "").empty())
@@ -445,7 +448,7 @@ void Cyhttpd::ReadConfig(void) {
 		if (Config->getInt32("configfile.version") < 5) {
 			if (Config->getString("WebsiteMain.host", "").empty())
 				Config->setString("WebsiteMain.host", HTTPD_DEFAULT_HOST);
-			Config->setInt32("configfile.version", CONF_VERSION);
+			Config->setInt32("configfile.version", 5);
 			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 		}
 	}
