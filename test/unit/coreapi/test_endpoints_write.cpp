@@ -1465,6 +1465,10 @@ TEST_CASE("a write asking for the box's own credential is refused a write", "[wr
 	REQUIRE(send(Post, "/api/v1/plugins/tuxtxt/start", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(box.events.sent.empty());
 
+	// The level these ask for still reaches them.
+	REQUIRE(authedPost("/api/v1/plugins/tuxtxt/start", "{}").code == 202);
+	REQUIRE(box.events.sent.size() == 1u);
+
 	// And a write is enough for the routes that ask for one.
 	REQUIRE(send(Post, "/api/v1/zap", "{\"channel_id\":\"2b66\"}", AuthLevel::Write, "127.0.0.1").code == 202);
 }

@@ -163,10 +163,10 @@ Response reloadPlugins(const Request &)
 /* The one write here that touches a file rather than sending a message.
 
    Write and not System: it changes which of the box's own plugins the box
-   offers in its menus, which is the sort of thing every other setting on this
-   interface is, and it reaches one line of one file the box already owns. The
-   route below that runs a named file out of a directory is the System one, and
-   the difference between the two is the point of their being two routes. */
+   offers in its menus, and it reaches one line of one file the box already
+   owns. Starting a plugin and running a named file out of a directory are the
+   System routes, and the difference is the point of their being separate
+   routes. */
 Response hidePlugin(const Request &r)
 {
 	coreapi::Result<void> done =

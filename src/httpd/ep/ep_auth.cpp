@@ -94,7 +94,7 @@ const FieldDesc kSessionStateFields[] = {
 		"what the caller is granted, under the name the document describing these routes uses for it",
 		"public: the level a request falls back to when neither a session, a token nor a network listed under lan_read grants it more\n"
 		"read: may read data, granted to a caller on a network listed under lan_read, or by a token minted at this level\n"
-		"write: may also read and change settings and state, granted by a token minted at this level\n"
+		"write: may also change what the box is doing (what it plays, timers, bouquets, the screen), granted by a token minted at this level; writing the settings, starting a plugin and running a script take system\n"
 		"system: may reach every route, including session management and this server's own configuration, granted by a live login session or by a token minted at this level"),
 	HTTPD_MEMBER("user", FieldType::String,
 		"who the session belongs to, as the box knows the name, and empty for a caller holding none"),
