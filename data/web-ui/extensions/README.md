@@ -37,6 +37,7 @@ extensions/
 | `entry` | Entry file relative to the extension folder |
 | `entry_js` | optional: runtime script, loaded on every modern page (see below) |
 | `description` | optional subtitle |
+| `icon` | optional: a monochrome SVG in the folder (e.g. `icon.svg`), drawn in the text colour on the nav entry and the tile; a star without it |
 | `settings` | optional: own category under Settings (see below) |
 | `scripts` | optional: the shell scripts the box runs for it, by name without `.sh` (see the packaging contract) |
 
@@ -168,8 +169,10 @@ Contract:
 Key points:
 
 - Embed the Neutrino-Web-UI header/nav:
-  `<div class="webui-header-wrapper" data-page="tools"></div>` +
-  `<script src="/js/webui-header.js"></script>` + `webuiInitHeader('tools');`
+  `<div class="webui-header-wrapper" data-page="ext-<folder>"></div>` +
+  `<script src="/js/webui-header.js"></script>` +
+  `webuiInitHeader('ext-<folder>');` — with `slot: "nav"` the extension's
+  nav entry is then marked as the page shown.
 - Styling: link Pico CSS + `/css/webui.css` — use the ready-made classes
   (`webui-card`, `webui-form-row`, `webui-btn`).
 - Apply the theme **before** those stylesheets, otherwise the page paints

@@ -37,6 +37,7 @@ extensions/
 | `entry` | Einstiegsdatei relativ zum Erweiterungsordner |
 | `entry_js` | optional: Laufzeit-Skript, wird auf jeder modernen Seite geladen (siehe unten) |
 | `description` | optionaler Untertitel |
+| `icon` | optional: ein einfarbiges SVG im Ordner (z.B. `icon.svg`), in der Textfarbe auf dem Nav-Eintrag und der Kachel gezeichnet; ohne es ein Stern |
 | `settings` | optional: eigene Kategorie unter Einstellungen (siehe unten) |
 | `scripts` | optional: die Shell-Skripte, die die Box für sie ausführt, mit Namen ohne `.sh` (siehe Packaging-Vertrag) |
 
@@ -169,8 +170,10 @@ Vertrag:
 Kernpunkte:
 
 - Header/Nav der Neutrino-Web-UI einbinden:
-  `<div class="webui-header-wrapper" data-page="tools"></div>` +
-  `<script src="/js/webui-header.js"></script>` + `webuiInitHeader('tools');`
+  `<div class="webui-header-wrapper" data-page="ext-<ordner>"></div>` +
+  `<script src="/js/webui-header.js"></script>` +
+  `webuiInitHeader('ext-<ordner>');` — mit `slot: "nav"` ist der
+  Nav-Eintrag der Erweiterung dann als gezeigte Seite markiert.
 - Styling: Pico CSS + `/css/webui.css` verlinken — fertige Klassen
   (`webui-card`, `webui-form-row`, `webui-btn`) nutzen.
 - Theme **vor** diesen Stylesheets setzen, sonst malt die Seite erst

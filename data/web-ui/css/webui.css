@@ -604,7 +604,8 @@ body:not(.has-subheader) .webui-header-spacer {
 		margin: 0;
 	}
 
-	.webui-nav-links a svg {
+	.webui-nav-links a svg,
+	.webui-nav-links a .webui-ext-icon {
 		width: 20px;
 		height: 20px;
 		opacity: 0.5;
@@ -620,7 +621,8 @@ body:not(.has-subheader) .webui-header-spacer {
 		background: var(--pico-muted-border-color);
 	}
 
-	.webui-nav-links a:hover svg {
+	.webui-nav-links a:hover svg,
+	.webui-nav-links a:hover .webui-ext-icon {
 		opacity: 0.8;
 	}
 
@@ -631,7 +633,8 @@ body:not(.has-subheader) .webui-header-spacer {
 		font-weight: 600;
 	}
 
-	.webui-nav-links a.active svg {
+	.webui-nav-links a.active svg,
+	.webui-nav-links a.active .webui-ext-icon {
 		opacity: 1;
 		color: var(--webui-on-accent);
 	}
@@ -3219,4 +3222,20 @@ dialog.webui-sheet footer button.danger {
 
 .webui-row-actions button.danger {
 	color: var(--pico-del-color);
+}
+
+/* An extension's own icon: its SVG as a mask, drawn in the colour of the
+   text around it (webuiExtIcon in webui-header.js) */
+.webui-ext-icon {
+	display: inline-block;
+	flex-shrink: 0;
+	background-color: currentColor;
+	-webkit-mask: var(--webui-ext-icon) center / contain no-repeat;
+	mask: var(--webui-ext-icon) center / contain no-repeat;
+}
+
+.webui-tool-card .webui-ext-icon {
+	width: 36px;
+	height: 36px;
+	color: var(--webui-accent);
 }

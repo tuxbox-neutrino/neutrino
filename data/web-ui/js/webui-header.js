@@ -1928,6 +1928,39 @@ async function _webuiFindExtensions() {
 
 var _webuiExtInjected = false;
 
+// The icon an extension's link carries where its manifest names none.
+var WEBUI_EXT_STAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3 6 6 1-4.5 4.4 1 6.6-5.5-3-5.5 3 1-6.6L3 9l6-1z"/></svg>';
+
+/* An extension's own icon, the monochrome SVG its manifest names as "icon"
+   in its folder, drawn in the colour of the text around it: a mask, so
+   nothing of the file becomes markup. null for none, or for a name no path
+   inside the folder can carry. */
+function webuiExtIcon(m) {
+	var icon = String(m.icon || '');
+	if (!/^[A-Za-z0-9_-][A-Za-z0-9._-]*(\/[A-Za-z0-9_-][A-Za-z0-9._-]*)*\.svg$/.test(icon)) return null;
+	var span = document.createElement('span');
+	span.className = 'webui-ext-icon';
+	span.setAttribute('aria-hidden', 'true');
+	var url = '/extensions/' + encodeURIComponent(m.dir) + '/' + icon.split('/').map(encodeURIComponent).join('/');
+	span.style.setProperty('--webui-ext-icon', 'url("' + url + '")');
+	return span;
+}
+
+// Its icon, or the star, then its name and what else is given, as text.
+function _webuiExtLink(el, m, small) {
+	var icon = webuiExtIcon(m);
+	if (icon) el.appendChild(icon);
+	else el.insertAdjacentHTML('beforeend', WEBUI_EXT_STAR);
+	var name = document.createElement('span');
+	name.textContent = m.name;
+	el.appendChild(name);
+	if (small) {
+		var sub = document.createElement('small');
+		sub.textContent = small;
+		el.appendChild(sub);
+	}
+}
+
 async function webuiInjectExtensions(pageName) {
 	// Nur einmal pro Seitenaufruf injizieren, egal ueber welchen Init-Pfad
 	if (_webuiExtInjected) return;
@@ -1953,10 +1986,16 @@ async function webuiInjectExtensions(pageName) {
 	exts.forEach(function(m) {
 		if (!m.enabled || !m.url) return; // settings-only hat keine Seite
 		if (m.slot === 'nav') {
+			// drawn as the core's own entries are, and marked on the extension's page
 			var ul = document.querySelector('.webui-nav-links');
 			if (ul) {
 				var li = document.createElement('li');
-				li.innerHTML = '<a href="' + escapeHtml(m.url) + '" data-page="ext-' + escapeHtml(m.dir) + '">' + escapeHtml(m.name) + '</a>';
+				var link = document.createElement('a');
+				link.href = m.url;
+				link.setAttribute('data-page', 'ext-' + m.dir);
+				if (pageName === 'ext-' + m.dir) link.className = 'active';
+				_webuiExtLink(link, m);
+				li.appendChild(link);
 				ul.appendChild(li);
 			}
 		} else if (m.slot === 'tools') {
@@ -1965,8 +2004,7 @@ async function webuiInjectExtensions(pageName) {
 				var a = document.createElement('a');
 				a.href = m.url;
 				a.className = 'webui-tool-card';
-				a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 1-4.5 4.4 1 6.6-5.5-3-5.5 3 1-6.6L3 9l6-1z"/></svg>' +
-					'<span>' + escapeHtml(m.name) + '</span><small>' + escapeHtml(m.description || webuiL('ext.extension', 'Extension')) + '</small>';
+				_webuiExtLink(a, m, m.description || webuiL('ext.extension', 'Extension'));
 				grid.appendChild(a);
 			}
 		} else if (m.slot === 'dashboard') {
