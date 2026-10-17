@@ -9,6 +9,7 @@
 #include <config.h>
 
 #include "coreapi/extensions.h"
+#include "coreapi/extensionindex.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/shellcontract.h"
 #include "coreapi/tarfile.h"
@@ -631,37 +632,79 @@ Result<std::vector<Extension> > list()
 
 namespace
 {
-Result<Extension> installChecked(const std::string &file, const std::string *expected);
+
+/* An index uploaded beside the archive goes with any refusal that comes
+   before readIndex takes it over, as it goes whatever comes of that. */
+void dropIndex(const Origin &origin)
+{
+	const std::string &index = origin.index;
+	if (!index.empty() && index[0] != '.' && index.find('/') == std::string::npos && endsWith(index, ".json"))
+		unlink((std::string(internal::tmp_dir) + "/" + index).c_str());
+}
+
+// The upload goes where a refusal comes before it is taken over, and the index with it.
+void dropUploads(const std::string &upload, const Origin &origin)
+{
+	unlink(upload.c_str());
+	dropIndex(origin);
+}
+
 } // namespace
 
-Result<Extension> install(const std::string &file)
-{
-	return installChecked(file, NULL);
-}
-
-Result<Extension> install(const std::string &file, const std::string &expected)
-{
-	return installChecked(file, &expected);
-}
-
-namespace
-{
-
-Result<Extension> installChecked(const std::string &file, const std::string *expected)
+Result<Extension> install(const std::string &file, const Origin &origin)
 {
 	if (!plainUpload(file))
+	{
+		dropIndex(origin);
 		return fail(Status::InvalidArgument, ErrorCode::BadName,
 			    "the archive is a plain name in the temporary directory, of letters, digits, dots, "
 			    "dashes and underscores, ending in .tar.gz, .tgz or .tar");
+	}
 	const std::string upload = std::string(internal::tmp_dir) + "/" + file;
 	struct stat st;
 	if (lstat(upload.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
+	{
+		dropIndex(origin);
 		return fail(Status::NotFound, ErrorCode::NoSuchName, "there is no uploaded archive of that name");
+	}
+	const std::string *expected = origin.expected.empty() ? NULL : &origin.expected;
 	if (expected != NULL && !extensionName(*expected))
 	{
-		unlink(upload.c_str());
+		dropUploads(upload, origin);
 		return fail(Status::InvalidArgument, ErrorCode::BadName,
 			    "an extension is named with letters, digits, dashes and underscores");
+	}
+
+	// from a signed index that offers it, or taken unsigned on the caller's word
+	std::string want_sha256;
+	if (!origin.index.empty())
+	{
+		if (expected == NULL)
+		{
+			dropUploads(upload, origin);
+			return fail(Status::InvalidArgument, ErrorCode::BadName,
+				    "an install from an index names the extension it installs");
+		}
+		Result<std::vector<IndexEntry> > offered = readIndex(origin.index, origin.signature);
+		if (!offered.ok())
+		{
+			unlink(upload.c_str());
+			return fail(offered.error());
+		}
+		const std::vector<IndexEntry> entries = offered.value();
+		for (size_t i = 0; i < entries.size() && want_sha256.empty(); ++i)
+			if (entries[i].id == *expected)
+				want_sha256 = entries[i].sha256;
+		if (want_sha256.empty())
+		{
+			unlink(upload.c_str());
+			return refused("the index offers no extension " + *expected);
+		}
+	}
+	else if (!origin.unsigned_ok)
+	{
+		unlink(upload.c_str());
+		return refused("an archive is installed from a signed index, or unsigned on the caller's word");
 	}
 
 	// the upload goes whatever comes of it, as it does once taken over
@@ -697,6 +740,8 @@ Result<Extension> installChecked(const std::string &file, const std::string *exp
 		return refused("the archive is larger than 16 MiB");
 	if (staged != Staged::Done)
 		return diskRefused("the archive could not be taken over");
+	if (!want_sha256.empty() && fileSha256(archive) != want_sha256)
+		return refused("the archive is not the one the index offers: its SHA-256 differs");
 
 	std::vector<tarfile::Member> members;
 	std::string why;
@@ -875,8 +920,6 @@ Result<Extension> installChecked(const std::string &file, const std::string *exp
 	x.scripts = scripts;
 	return Result<Extension>::success(x);
 }
-
-} // namespace
 
 Result<void> remove(const std::string &dir)
 {

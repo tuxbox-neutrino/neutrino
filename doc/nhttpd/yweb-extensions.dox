@@ -72,14 +72,19 @@ Konventionen:
 
 \section ywebext_manager Verwaltung: Installieren / Aktualisieren / Deinstallieren
 
-Einstellungen → Erweiterungen verwaltet den Lebenszyklus ueber `/api/v1`:
+Einstellungen → Erweiterungen verwaltet den Lebenszyklus ueber `/api/v1`;
+die Box holt nichts, Index und Archive laedt der Browser und laedt sie
+nach /tmp hoch (`PUT`/`PATCH /api/v1/storage/file`):
 
-- Installieren: die Seite laedt das Archiv nach /tmp hoch
-  (`PUT`/`PATCH /api/v1/storage/file`) und ruft
-  `POST /api/v1/webui/extensions` mit `{"file": "<name>.tar.gz"}`. Von
-  einer Adresse laedt die Seite das Archiv selbst und dann hoch; die Box
-  holt nichts. Ein Update ist eine erneute Installation: der Ordner wird
-  ersetzt, Config-Keys (Enable/Slot, Einstellungen) ueberleben.
+- Aus dem signierten Index: `POST /api/v1/webui/extension-index` mit
+  `{"index": "<name>.json", "signature": "<base64>"}` prueft die Signatur
+  und nennt die Eintraege; `POST /api/v1/webui/extensions` mit `file`,
+  `dir`, `index` und `signature` installiert ein Archiv, das der Index
+  unter diesem Ordnernamen mit seiner SHA-256 anbietet.
+- Als Datei: `POST /api/v1/webui/extensions` mit `{"file": "<name>.tar.gz",
+  "unsigned": true}`, nach der Zustimmung des Nutzers zu „nicht signiert".
+- Ein Update ist eine Installation aus dem Index unter demselben
+  Ordnernamen; Config-Keys (Enable/Slot, Einstellungen) ueberleben.
 - Deinstallieren: `DELETE /api/v1/webui/extensions/<ordner>` entfernt
   den Ordner mit seinen Scripts und Kopien, die eine fruehere Version
   in `<webroot>/scripts/` abgelegt hat; die Seite nimmt danach
@@ -87,11 +92,10 @@ Einstellungen → Erweiterungen verwaltet den Lebenszyklus ueber `/api/v1`:
   `PATCH /api/v1/webui/settings`).
 - Was installiert ist, nennt `GET /api/v1/webui/extensions`.
 
-Update-Check: expliziter Knopf (kein Auto-Fetch externer URLs);
-vergleicht installierte Versionen numerisch gegen die gehostete
-index.json. Default-URL ist der Raw-Link des Meta-Repos
+Index und Update-Check nur auf Knopfdruck (kein Auto-Fetch externer
+URLs). Default-URL des Index ist der Raw-Link des Meta-Repos
 `tuxbox-neutrino/yweb-extensions`; ueberschreibbar per webui.conf-Key
-`ext_index_url` (z.B. lokaler Spiegel).
+`ext_index_url`, die Signatur liegt daneben als `<url>.sig`.
 
 \section ywebext_tarball tar.gz-Vertrag
 
@@ -125,19 +129,29 @@ rsync -a --exclude .git --exclude .github ./ /tmp/stage/<ordner>/ && \
 tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 \endcode
 
-\section ywebext_index index.json (Update-Index)
+\section ywebext_index index.json (signierter Index)
 
 \code{.json}
-{"updated": "2026-07-11", "extensions": [
-  {"dir": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
-   "tarball": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/latest/download/m3u-converter.tar.gz",
-   "info": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter"}
+{"format": 1, "extensions": [
+  {"id": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
+   "url": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
+   "sha256": "<64 Hex-Ziffern>", "description": "..."}
 ]}
 \endcode
 
-`releases/latest/download/<dir>.tar.gz` ist eine stabile URL unabhaengig
-vom Tag-Namen; `version` haelt der Release-Workflow synchron zur
-manifest.json der Erweiterung.
+`id` = Ordnername (einmal je Index), `url` https, `sha256` die des
+Archivs; `name` und `description` optional. Weil die SHA-256 genau ein
+Archiv festhaelt, zeigt `url` auf das versionierte Release, nicht auf
+`releases/latest`. Signatur: Ed25519 ueber die Bytes der Datei, base64,
+als `index.json.sig`. Oeffentlicher Schluessel im Image als PEM unter
+`<datadir>/tuxbox/neutrino/webui-index.pub`; der private ist ein Secret
+des Index-Repos. Ohne Schluessel installiert ein Image aus keinem Index.
+
+\code{.sh}
+openssl genpkey -algorithm ed25519 -out index-key.pem
+openssl pkey -in index-key.pem -pubout -out webui-index.pub
+openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > index.json.sig
+\endcode
 
 \section ywebext_repos Repo-Vorlage und Versionierung
 
@@ -249,13 +263,18 @@ Conventions:
 
 \section ywebext_en_manager Manager: install / update / uninstall
 
-Settings → Extensions manages the lifecycle over `/api/v1`:
+Settings → Extensions manages the lifecycle over `/api/v1`; the box
+fetches nothing, the browser loads index and archives and uploads them to
+/tmp (`PUT`/`PATCH /api/v1/storage/file`):
 
-- Install: the page uploads the archive to /tmp
-  (`PUT`/`PATCH /api/v1/storage/file`) and calls
-  `POST /api/v1/webui/extensions` with `{"file": "<name>.tar.gz"}`. From an
-  address the page fetches the archive itself and uploads it; the box
-  fetches nothing. An update is a re-install: the folder is replaced,
+- From the signed index: `POST /api/v1/webui/extension-index` with
+  `{"index": "<name>.json", "signature": "<base64>"}` checks the signature
+  and names the entries; `POST /api/v1/webui/extensions` with `file`,
+  `dir`, `index` and `signature` installs an archive the index offers
+  under that folder name with its SHA-256.
+- As a file: `POST /api/v1/webui/extensions` with `{"file": "<name>.tar.gz",
+  "unsigned": true}`, after the user consents to "not signed".
+- An update is an install from the index under the same folder name;
   config keys (enable/slot, settings) survive.
 - Uninstall: `DELETE /api/v1/webui/extensions/<folder>` removes the folder
   with its scripts, and copies an earlier version left in
@@ -264,11 +283,10 @@ Settings → Extensions manages the lifecycle over `/api/v1`:
   `PATCH /api/v1/webui/settings`).
 - `GET /api/v1/webui/extensions` names what is installed.
 
-Update check: explicit button (no automatic external fetches);
-compares installed versions numerically against the hosted index.json.
-The default URL is the raw link of the `tuxbox-neutrino/yweb-extensions`
-meta repo; overridable via the webui.conf key `ext_index_url` (e.g. a
-local mirror).
+Index and update check only on the user's asking (no automatic external
+fetches). The index's default URL is the raw link of the
+`tuxbox-neutrino/yweb-extensions` meta repo; overridable via the webui.conf
+key `ext_index_url`, its signature beside it as `<url>.sig`.
 
 \section ywebext_en_tarball tar.gz contract
 
@@ -302,19 +320,29 @@ rsync -a --exclude .git --exclude .github ./ /tmp/stage/<folder>/ && \
 tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 \endcode
 
-\section ywebext_en_index index.json (update index)
+\section ywebext_en_index index.json (signed index)
 
 \code{.json}
-{"updated": "2026-07-11", "extensions": [
-  {"dir": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
-   "tarball": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/latest/download/m3u-converter.tar.gz",
-   "info": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter"}
+{"format": 1, "extensions": [
+  {"id": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
+   "url": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
+   "sha256": "<64 hex digits>", "description": "..."}
 ]}
 \endcode
 
-`releases/latest/download/<dir>.tar.gz` is a stable URL independent of
-the tag name; `version` is kept in sync with the extension's
-manifest.json by its release workflow.
+`id` = folder name (once per index), `url` https, `sha256` that of the
+archive; `name` and `description` optional. As the SHA-256 pins exactly
+one archive, `url` points at the versioned release, not at
+`releases/latest`. Signature: Ed25519 over the file's bytes, base64, as
+`index.json.sig`. Public key in the image as PEM in
+`<datadir>/tuxbox/neutrino/webui-index.pub`; the private one is a secret
+of the index repo. Without the key an image installs from no index.
+
+\code{.sh}
+openssl genpkey -algorithm ed25519 -out index-key.pem
+openssl pkey -in index-key.pem -pubout -out webui-index.pub
+openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > index.json.sig
+\endcode
 
 \section ywebext_en_repos Repo template and versioning
 

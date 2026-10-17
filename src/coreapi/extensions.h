@@ -37,6 +37,20 @@ struct Extension
 // More than an extension comes to; a larger archive is refused.
 const size_t kMaxArchiveBytes = 16u * 1024u * 1024u;
 
+/* Where an archive comes from, as the caller vouches for it: from an index
+   the caller uploaded beside it, with the index's signature (readIndex), or
+   as a file the caller takes without one. expected is the extension the
+   archive has to hold; an install from an index names it, an update too. */
+struct Origin
+{
+	std::string expected;
+	std::string index;
+	std::string signature;
+	bool        unsigned_ok;
+
+	Origin() : unsigned_ok(false) {}
+};
+
 /* Every installed extension, by name, with a manifest.json, and the scripts its
    manifest names that are there. A directory of another name, a link, or one
    without a manifest is not an extension and left out. A box without the
@@ -50,6 +64,14 @@ Result<std::vector<Extension> > list();
    file is a plain name in the temporary directory, of letters, digits, dots,
    dashes and underscores, ending in .tar.gz, .tgz or .tar: InvalidArgument
    BadName otherwise, NotFound NoSuchName for a name with no file behind it.
+
+   Where it comes from (Origin): from an index, which readIndex reads and
+   checks, refusing as it does, and which has to offer expected, by that id
+   and with the archive's SHA-256; or, with unsigned_ok, from wherever the
+   caller took it. Neither: InvalidArgument ExtensionRefused. expected has to
+   be a name an extension carries (InvalidArgument BadName) and is required
+   with an index; the archive's directory has to be it (InvalidArgument
+   ExtensionRefused).
 
    The upload is copied into a directory of this program's own, no more than
    kMaxArchiveBytes of it, and the upload goes. The copy is read from its own
@@ -72,14 +94,9 @@ Result<std::vector<Extension> > list();
    own scripts, as installs did before, go where they are still that install's.
    Internal ExtensionRefused where the disc refused, the installed one as it
    was. Conflict ExtensionRefused while another install or removal is under
-   way. The upload goes in every case. */
-Result<Extension> install(const std::string &file);
-
-/* The same, for an archive that has to hold the extension expected, as an
-   update or an install from an index names it: InvalidArgument BadName for a
-   name no extension carries, InvalidArgument ExtensionRefused for an archive
-   whose directory is another one, and nothing changes. */
-Result<Extension> install(const std::string &file, const std::string &expected);
+   way. The upload goes in every case, and so does an index uploaded beside
+   it. */
+Result<Extension> install(const std::string &file, const Origin &origin);
 
 /* Takes an installed extension away, its scripts with it, and copies an
    earlier install of it left beside the pages' own scripts, each only where

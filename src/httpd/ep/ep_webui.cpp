@@ -18,6 +18,7 @@
 
 #include "coreapi/base/errors.h"
 #include "coreapi/base/result.h"
+#include "coreapi/extensionindex.h"
 #include "coreapi/extensions.h"
 #include "coreapi/webui.h"
 
@@ -280,15 +281,72 @@ Response listExtensions(const Request &)
 
 Response installExtension(const Request &r)
 {
-	// an update names the extension it updates, and an archive holding another is refused
-	coreapi::Result<coreapi::extensions::Extension> got = r.has("dir")
-		? coreapi::extensions::install(r.asString("file"), r.asString("dir"))
-		: coreapi::extensions::install(r.asString("file"));
+	// from a signed index that offers it, or a file the caller takes unsigned
+	coreapi::extensions::Origin origin;
+	if (r.has("dir"))
+		origin.expected = r.asString("dir");
+	if (r.has("index"))
+		origin.index = r.asString("index");
+	if (r.has("signature"))
+		origin.signature = r.asString("signature");
+	origin.unsigned_ok = r.has("unsigned") && r.asBool("unsigned");
+	coreapi::Result<coreapi::extensions::Extension> got = coreapi::extensions::install(r.asString("file"), origin);
 	if (!got.ok())
 		return problemFor(got.error());
 	Response out = createdJson();
 	Json j(out.body, 128);
 	writeExtension(j, got.value());
+	return out;
+}
+
+const FieldDesc kIndexEntryFields[] = {
+	HTTPD_MEMBER("id", FieldType::String, "the extension's directory name, the one directory its archive holds"),
+	HTTPD_MEMBER("name", FieldType::String, "what the pages call it, and empty where the index gives no name"),
+	HTTPD_MEMBER("version", FieldType::String, "the version the index offers"),
+	HTTPD_MEMBER("description", FieldType::String, "a line about it, and empty where the index gives none"),
+	HTTPD_MEMBER("url", FieldType::String, "the https address the browser loads the archive from"),
+	HTTPD_MEMBER("sha256", FieldType::String, "the SHA-256 of that archive in lower case hexadecimal, which the install holds it to"),
+};
+
+const Schema kIndexEntrySchema = { "extension-offer", HTTPD_FIELDS(kIndexEntryFields) };
+
+const FieldDesc kIndexFields[] = {
+	HTTPD_LIST_OF("items", &kIndexEntrySchema, "every extension the index offers, in its order"),
+};
+
+const Schema kIndexSchema = { "extension-index", HTTPD_FIELDS(kIndexFields) };
+
+Response readExtensionIndex(const Request &r)
+{
+	coreapi::Result<std::vector<coreapi::extensions::IndexEntry> > got =
+		coreapi::extensions::readIndex(r.asString("index"), r.asString("signature"));
+	if (!got.ok())
+		return problemFor(got.error());
+	const std::vector<coreapi::extensions::IndexEntry> all = std::move(got).value();
+	Response out = okJson();
+	Json j(out.body, 32 + 384 * all.size());
+	j.beginObject();
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		j.beginObject();
+		j.key("id");
+		j.value(all[i].id);
+		j.key("name");
+		j.value(all[i].name);
+		j.key("version");
+		j.value(all[i].version);
+		j.key("description");
+		j.value(all[i].description);
+		j.key("url");
+		j.value(all[i].url);
+		j.key("sha256");
+		j.value(all[i].sha256);
+		j.endObject();
+	}
+	j.endArray();
+	j.endObject();
 	return out;
 }
 
@@ -345,6 +403,29 @@ const Param kInstallParams[] = {
 	HTTPD_BODY_TEXT("dir",
 		"the extension the archive has to hold, as an update or an install from an index names it; "
 		"an archive whose directory is another one is refused and nothing changes", 64),
+	HTTPD_BODY_TEXT("index",
+		"the name in /tmp of the index the archive comes from, uploaded beside it as the browser "
+		"loaded it: letters, digits, dots, dashes and underscores, ending in .json; it goes with the "
+		"archive", 255),
+	HTTPD_BODY_TEXT("signature", "the index's Ed25519 signature, base64, as it is published beside it", 128),
+	HTTPD_BODY("unsigned", ParamType::Bool,
+		"`true` takes an archive without an index, on the caller's word that it trusts it"),
+};
+
+const Param kIndexParams[] = {
+	HTTPD_BODY_REQUIRED_TEXT("index",
+		"the index's name in /tmp, uploaded as the browser loaded it: letters, digits, dots, dashes "
+		"and underscores, ending in .json", 255),
+	HTTPD_BODY_REQUIRED_TEXT("signature", "the index's Ed25519 signature, base64, as it is published beside it", 128),
+};
+
+const RouteRefusal kIndexRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"the index is a plain name in the temporary directory, of letters, digits, dots, dashes and "
+		"underscores, ending in .json"),
+	HTTPD_REFUSES(NotFound, NoSuchName, "there is no uploaded index of that name"),
+	HTTPD_REFUSES(InvalidArgument, ExtensionRefused, "the index does not hold to its signature"),
+	HTTPD_REFUSES(NotSupported, ExtensionRefused, "this image carries no Ed25519 key to check an index with"),
 };
 
 const Param kExtensionParams[] = {
@@ -359,6 +440,7 @@ const RouteRefusal kInstallRefusals[] = {
 		"the archive holds more than one top-level directory"),
 	HTTPD_REFUSES(Conflict, ExtensionRefused, "another extension is being installed or removed"),
 	HTTPD_REFUSES(Internal, ExtensionRefused, "the extension could not be put in place"),
+	HTTPD_REFUSES(NotSupported, ExtensionRefused, "this image carries no Ed25519 key to check an index with"),
 };
 
 const Param kExtensionScriptParams[] = {
@@ -445,7 +527,11 @@ const Endpoint kWebuiEndpoints[] = {
 	  "Installs the extension in an archive uploaded to /tmp beforehand, with `PUT` and `PATCH "
 	  "/api/v1/storage/file` for one larger than a request; an installed extension of that name is "
 	  "replaced, which is how one is updated. The box fetches nothing: a page that installs from "
-	  "an address loads the archive itself and uploads it. The box takes the upload over into a "
+	  "an index loads the index and the archive itself and uploads both. An archive comes from a "
+	  "signed index, named in `index` with its `signature` and checked as "
+	  "`POST /api/v1/webui/extension-index` checks it, which has to offer the extension `dir` "
+	  "names with the archive's SHA-256; or, with `unsigned: true`, it is taken on the caller's "
+	  "word, which a page asks the user for. The box takes the upload over into a "
 	  "directory of its own and removes it, and reads the archive from its own headers: it has to "
 	  "hold exactly one directory, named with letters, digits, dashes and underscores, with a "
 	  "`manifest.json` in it, and only directories and regular files, no name that climbs or is "
@@ -458,19 +544,42 @@ const Endpoint kWebuiEndpoints[] = {
 	  "`POST /api/v1/webui/extensions/{dir}/scripts/{name}` runs them; copies an earlier install of "
 	  "it left beside the pages' own scripts go, where they are still as that install left them. "
 	  "An update names the extension it updates in `dir`, and an archive holding another one is "
-	  "refused. The upload goes in every case.\n\n"
+	  "refused. The upload goes in every case, and an index uploaded beside it with it.\n\n"
 	  "**Refusals:**\n"
-	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar, or "
-	  "`dir` is no name an extension carries.\n"
+	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar, "
+	  "`dir` is no name an extension carries, or an install from an index names none.\n"
 	  "- `404 no-such-name`: no archive of that name was uploaded.\n"
-	  "- `400 extension-refused`: the archive is not an extension this box takes, or not the one "
-	  "`dir` names; the detail says why.\n"
+	  "- `400 extension-refused`: the archive comes neither from an index nor unsigned, the index "
+	  "does not hold to its signature or does not offer it, its SHA-256 differs, or it is not an "
+	  "extension this box takes or not the one `dir` names; the detail says why.\n"
+	  "- `501 extension-refused`: an index was named and this image carries no key to check it "
+	  "with.\n"
 	  "- `409 extension-refused`: another extension is being installed or removed.\n"
 	  "- `500 extension-refused`: the disc refused; an installed extension of that name is as it "
 	  "was.\n\n"
 	  "**Related:** `GET /api/v1/webui/extensions`, `DELETE /api/v1/webui/extensions/{dir}`.",
 	  HTTPD_PARAMS(kInstallParams), &kExtensionSchema, &installExtension, false,
-	  Answers201, HTTPD_REFUSALS_AND_BODY(kInstallRefusals, "{\"file\":\"clock.tar.gz\"}") },
+	  Answers201, HTTPD_REFUSALS_AND_BODY(kInstallRefusals, "{\"file\":\"clock.tar.gz\",\"unsigned\":true}") },
+	{ Method::Post, "/api/v1/webui/extension-index", AuthLevel::System,
+	  "checks an index of extensions against its signature and lists what it offers",
+	  "Reads an index of extensions uploaded to /tmp beforehand, as the browser loaded it, after "
+	  "checking its Ed25519 signature over the file's bytes with the public key the image carries; "
+	  "the box fetches neither. The index is a JSON object with `\"format\": 1` and "
+	  "`extensions`, a list of objects with `id` (the extension's directory name, once), `version`, "
+	  "`url` (an https address the browser loads the archive from) and `sha256` (of that archive), "
+	  "and optionally `name` and `description`. Nothing is installed; "
+	  "`POST /api/v1/webui/extensions` installs an archive the index offers. The upload goes in "
+	  "every case.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-name`: `index` is not a plain name in /tmp ending in .json.\n"
+	  "- `404 no-such-name`: no index of that name was uploaded.\n"
+	  "- `400 extension-refused`: the signature is not 64 bytes of base64, the index does not hold "
+	  "to it, is larger than 256 KiB or is not of that shape; the detail says why.\n"
+	  "- `501 extension-refused`: this image carries no key to check an index with.\n\n"
+	  "**Related:** `POST /api/v1/webui/extensions`.",
+	  HTTPD_PARAMS(kIndexParams), &kIndexSchema, &readExtensionIndex, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kIndexRefusals,
+		"{\"index\":\"index.json\",\"signature\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==\"}") },
 	{ Method::Delete, "/api/v1/webui/extensions/{dir}", AuthLevel::System,
 	  "removes an extension and its scripts",
 	  "Removes an installed extension with its shell scripts, and the copies an earlier install of "

@@ -206,22 +206,59 @@ Settings → **Extensions** also manages the lifecycle
 (backend: `/api/v1/webui/extensions`; the box itself never downloads
 anything):
 
-- **Install**: upload a `tar.gz` archive, or paste a download URL
-  (e.g. a GitHub release asset). For a URL, the browser loads the
-  archive and uploads it like a file, so the address has to let a web
-  page read it (GitHub does); otherwise download it and install it as a
-  file. An update is simply installing the same extension again — the
-  folder is replaced once the new one is unpacked whole, all config
-  keys (enable/slot and extension settings) survive.
-- **Check for updates**: explicit button; the browser compares the
-  installed versions against a hosted `index.json`
-  (default: the `tuxbox-neutrino/yweb-extensions` repository,
-  overridable via the `webui.conf` key `ext_index_url`). Available
-  updates show a badge and an update button in the row.
+- **Install from the signed index**: "Load list" in the install
+  dialog. The browser loads the index and its signature, uploads the
+  index, and the box checks the signature
+  (`POST /api/v1/webui/extension-index`) before anything of it is
+  shown. Installing an entry loads its archive in the browser and
+  uploads it with the index again; the box installs it only if the
+  index offers that folder name with the archive's SHA-256.
+- **Install an archive file**: upload a `tar.gz`; it is **not signed**,
+  so the page asks first, and the box takes it only with that consent
+  (`"unsigned": true`). An archive found elsewhere on the web is
+  downloaded and installed this way.
+- **Check for updates**: explicit button; the box checks the index as
+  above and the page compares the versions with the installed ones.
+  An update installs the index's archive under the same folder name;
+  all config keys (enable/slot and extension settings) survive.
 - **Uninstall**: row button with confirmation. Removes the extension
   folder with its scripts, and the copies an earlier version of the
   manager left in `<webroot>/scripts/`, each only where it is still the
   copy it installed; the `ext_<folder>_*` config keys are taken out.
+
+### The signed index
+
+The index lives at `ext_index_url` in `webui.conf` (default: the
+`tuxbox-neutrino/yweb-extensions` repository), its signature beside it
+as `<index-url>.sig`; both have to let a web page read them (GitHub
+raw files do).
+
+```json
+{
+	"format": 1,
+	"extensions": [
+		{ "id": "my-extension", "name": "My Extension", "version": "1.2.0",
+		  "url": "https://github.com/…/releases/download/v1.2.0/my-extension.tar.gz",
+		  "sha256": "<64 hex digits of that archive>",
+		  "description": "Short subtitle" }
+	]
+}
+```
+
+`id` is the folder name (once per index), `url` an https address,
+`version` letters, digits, dots, pluses and dashes; `name` and
+`description` are optional. The signature is Ed25519 over the file's
+bytes as published, in base64. The public key is part of the image, as
+PEM in `<datadir>/tuxbox/neutrino/webui-index.pub`; the private key
+stays with whoever publishes the index (a secret of the index
+repository). An image without the key installs from no index.
+
+```sh
+openssl genpkey -algorithm ed25519 -out index-key.pem       # private, keep it secret
+openssl pkey -in index-key.pem -pubout -out webui-index.pub  # public, into the image
+sha256sum my-extension.tar.gz                                # the entry's sha256
+openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > index.json.sig
+```
 
 ### Packaging contract (`<folder>.tar.gz`)
 

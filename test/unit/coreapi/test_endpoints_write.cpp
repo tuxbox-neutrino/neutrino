@@ -44,6 +44,7 @@
 #include "configfile.h"
 #include "coreapi/netfs.h"
 #include "coreapi/shares.h"
+#include "coreapi/extensionindex.h"
 #include "coreapi/extensions.h"
 #include "coreapi/osd.h"
 #include "coreapi/plugins.h"
@@ -72,6 +73,9 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#include <openssl/evp.h>
+#include <openssl/pem.h>
 
 #include <fcntl.h>
 #include <limits.h>
@@ -1443,7 +1447,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 67);
+	REQUIRE(changing == 68);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4895,6 +4899,76 @@ Reply runClock(const std::string &script, const std::string &body)
 	return authedPost("/api/v1/webui/extensions/clock/scripts/" + script, body);
 }
 
+/* A key pair of a case's own, its public half where the box looks for the
+   image's, put back after; sign() answers the base64 signature an index
+   publishes beside it. */
+struct IndexSigner
+{
+	EVP_PKEY   *key;
+	std::string pub;
+	const char *before;
+
+	explicit IndexSigner(const std::string &dir)
+		: key(NULL), pub(dir + "/webui-index.pub"), before(coreapi::extensions::internal::index_key)
+	{
+		REQUIRE(::mkdir(dir.c_str(), 0700) == 0);
+		EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, NULL);
+		REQUIRE(ctx != NULL);
+		REQUIRE(EVP_PKEY_keygen_init(ctx) == 1);
+		REQUIRE(EVP_PKEY_keygen(ctx, &key) == 1);
+		EVP_PKEY_CTX_free(ctx);
+		std::FILE *f = std::fopen(pub.c_str(), "w");
+		REQUIRE(f != NULL);
+		REQUIRE(PEM_write_PUBKEY(f, key) == 1);
+		REQUIRE(std::fclose(f) == 0);
+		coreapi::extensions::internal::index_key = pub.c_str();
+	}
+
+	~IndexSigner()
+	{
+		coreapi::extensions::internal::index_key = before;
+		EVP_PKEY_free(key);
+	}
+
+	std::string sign(const std::string &data) const
+	{
+		EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+		size_t len = 0;
+		REQUIRE(EVP_DigestSignInit(ctx, NULL, NULL, NULL, key) == 1);
+		REQUIRE(EVP_DigestSign(ctx, NULL, &len, (const unsigned char *) data.data(), data.size()) == 1);
+		std::vector<unsigned char> sig(len);
+		REQUIRE(EVP_DigestSign(ctx, &sig[0], &len, (const unsigned char *) data.data(), data.size()) == 1);
+		EVP_MD_CTX_free(ctx);
+		std::vector<unsigned char> b64(((len + 2) / 3) * 4 + 1);
+		const int n = EVP_EncodeBlock(&b64[0], &sig[0], (int) len);
+		return std::string((const char *) &b64[0], (size_t) n);
+	}
+
+	private:
+		IndexSigner(const IndexSigner &);
+		IndexSigner &operator=(const IndexSigner &);
+};
+
+// An index offering clock alone, at that SHA-256.
+std::string clockIndex(const std::string &sha)
+{
+	return "{\"format\":1,\"extensions\":[{\"id\":\"clock\",\"name\":\"Clock\",\"version\":\"1.0\","
+	       "\"url\":\"https://ext.example/clock.tar.gz\",\"sha256\":\"" + sha + "\"}]}";
+}
+
+// clock.tar.gz installed from index.json, both uploaded beside each other.
+Reply installFromIndex(ExtFixture &x, const std::string &dir, const std::string &index, const std::string &sig)
+{
+	ExtFixture::write(x.tmp + "/index.json", index);
+	return authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"dir\":\"" + dir +
+		"\",\"index\":\"index.json\",\"signature\":\"" + sig + "\"}");
+}
+
+std::string indexBody(const std::string &file, const std::string &sig)
+{
+	return "{\"index\":\"" + file + "\",\"signature\":\"" + sig + "\"}";
+}
+
 } // namespace
 
 TEST_CASE("an extension uploaded as an archive is installed, listed, replaced and removed with its scripts", "[write][extensions]")
@@ -4910,7 +4984,7 @@ TEST_CASE("an extension uploaded as an archive is installed, listed, replaced an
 	files.push_back(std::make_pair("clock/scripts/old_tool.sh", "#!/bin/sh\necho old\n"));
 	x.tree(files);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	const Reply in = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	const Reply in = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}");
 	REQUIRE(in.code == 201);
 	const ::Json::Value got = parsed(in.body);
 	REQUIRE(got["dir"].asString() == "clock");
@@ -4980,20 +5054,20 @@ TEST_CASE("an extension uploaded as an archive is installed, listed, replaced an
 	x.tree(clockFiles("2.0", sayingTool("two")));
 	// an update that names another extension, or none an extension carries, changes nothing
 	REQUIRE(x.pack("clock2.tar.gz", "clock"));
-	const Reply other = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"radio\"}");
+	const Reply other = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"radio\",\"unsigned\":true}");
 	REQUIRE(other.code == 400);
 	REQUIRE(other.body.find("extension-refused") != std::string::npos);
 	REQUIRE(other.body.find("holds the extension clock, not radio") != std::string::npos);
 	REQUIRE(access((x.tmp + "/clock2.tar.gz").c_str(), F_OK) != 0);
 	REQUIRE(x.pack("clock2.tar.gz", "clock"));
-	const Reply unnamable = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"bad.name\"}");
+	const Reply unnamable = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"bad.name\",\"unsigned\":true}");
 	REQUIRE(unnamable.code == 400);
 	REQUIRE(unnamable.body.find("bad-name") != std::string::npos);
 	REQUIRE(access((x.tmp + "/clock2.tar.gz").c_str(), F_OK) != 0);
 	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
 	REQUIRE(x.leftovers().empty());
 	REQUIRE(x.pack("clock2.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"clock\"}").code == 201);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"clock\",\"unsigned\":true}").code == 201);
 	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");
 	REQUIRE(access((x.web + "/extensions/clock/scripts/old_tool.sh").c_str(), F_OK) != 0);
 	REQUIRE(access((x.web + "/scripts/clock_tool.sh").c_str(), F_OK) != 0);
@@ -5018,13 +5092,144 @@ TEST_CASE("an extension uploaded as an archive is installed, listed, replaced an
 	REQUIRE(x.leftovers().empty());
 }
 
+TEST_CASE("an extension from a signed index is held to it, and a file without one to the caller's word", "[write][extensions]")
+{
+	ShippedRoutes shipped;
+	ExtFixture x;
+	IndexSigner signer(x.box.at("key"));
+	x.tree(clockFiles("1.0", sayingTool("one")));
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	const std::string sha = coreapi::extensions::fileSha256(x.tmp + "/clock.tar.gz");
+	REQUIRE(sha.size() == 64);
+	const std::string index = clockIndex(sha);
+	const std::string sig = signer.sign(index);
+
+	// what a signed index offers, read by the box; the upload goes
+	ExtFixture::write(x.tmp + "/index.json", index);
+	const Reply listed = authedPost("/api/v1/webui/extension-index", indexBody("index.json", sig));
+	REQUIRE(listed.code == 200);
+	const ::Json::Value offers = parsed(listed.body)["items"];
+	REQUIRE(offers.size() == 1);
+	REQUIRE(offers[0]["id"].asString() == "clock");
+	REQUIRE(offers[0]["name"].asString() == "Clock");
+	REQUIRE(offers[0]["version"].asString() == "1.0");
+	REQUIRE(offers[0]["url"].asString() == "https://ext.example/clock.tar.gz");
+	REQUIRE(offers[0]["sha256"].asString() == sha);
+	REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+	// the example the document gives, with the signature this index carries in place of its stand-in
+	ExtFixture::write(x.tmp + "/index.json", index);
+	REQUIRE(sendBodyExample("POST", "/api/v1/webui/extension-index", std::map<std::string, std::string>(),
+				std::string(86, 'A') + "==", sig) == 200);
+
+	/* A changed index, an archive the index does not name, one it does not
+	   offer, a signature of another length: nothing installed, both uploads gone. */
+	struct Refused { std::string dir; std::string index; std::string sig; const char *says; };
+	const std::string zeros(64, '0');
+	const Refused refused[] = {
+		{ "clock", index + " ", sig, "does not hold to its signature" },
+		{ "clock", clockIndex(zeros), signer.sign(clockIndex(zeros)), "its SHA-256 differs" },
+		{ "radio", index, sig, "offers no extension radio" },
+		{ "clock", index, "c2hvcnQ=", "not 64 bytes in base64" },
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i].says);
+		REQUIRE(x.pack("clock.tar.gz", "clock"));
+		const Reply r = installFromIndex(x, refused[i].dir, refused[i].index, refused[i].sig);
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("extension-refused") != std::string::npos);
+		REQUIRE(r.body.find(refused[i].says) != std::string::npos);
+		REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
+		REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+		REQUIRE(access((x.web + "/extensions/clock").c_str(), F_OK) != 0);
+		REQUIRE(x.leftovers().empty());
+	}
+
+	// neither an index nor the caller's word
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	const Reply neither = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	REQUIRE(neither.code == 400);
+	REQUIRE(neither.body.find("from a signed index, or unsigned") != std::string::npos);
+	REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
+	// an index without the extension it installs named
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	ExtFixture::write(x.tmp + "/index.json", index);
+	const Reply unnamed = authedPost("/api/v1/webui/extensions",
+		"{\"file\":\"clock.tar.gz\",\"index\":\"index.json\",\"signature\":\"" + sig + "\"}");
+	REQUIRE(unnamed.code == 400);
+	REQUIRE(unnamed.body.find("bad-name") != std::string::npos);
+	REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+	REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
+
+	// an archive that is not there, or not named as one: the index goes all the same
+	ExtFixture::write(x.tmp + "/index.json", index);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"gone.tar.gz\",\"dir\":\"clock\",\"index\":\"index.json\","
+		"\"signature\":\"" + sig + "\"}").code == 404);
+	REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+	ExtFixture::write(x.tmp + "/index.json", index);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.zip\",\"dir\":\"clock\",\"index\":\"index.json\","
+		"\"signature\":\"" + sig + "\"}").code == 400);
+	REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+
+	// the archive the index offers, by its id and its SHA-256
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	const Reply in = installFromIndex(x, "clock", index, sig);
+	REQUIRE(in.code == 201);
+	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
+	REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+	REQUIRE(x.leftovers().empty());
+
+	// an index of another shape is refused whole, however well signed
+	const std::string good = "{\"id\":\"clock\",\"version\":\"1.0\",\"url\":\"https://ext.example/c.tar.gz\",\"sha256\":\"" + sha + "\"}";
+	const std::string entry_head = "{\"format\":1,\"extensions\":[{\"id\":";
+	struct Shape { std::string text; const char *says; };
+	const Shape shapes[] = {
+		{ "[]", "not a JSON object" },
+		{ "{\"format\":2,\"extensions\":[]}", "not of format 1" },
+		{ "{\"format\":1,\"extensions\":{}}", "something other than a list" },
+		{ "{\"format\":1,\"extensions\":[" + good + "," + good + "]}", "lists clock twice" },
+		{ entry_head + "\"bad.name\",\"version\":\"1\",\"url\":\"https://e/x\",\"sha256\":\"" + sha + "\"}]}", "no id an extension can carry" },
+		{ entry_head + "\"clock\",\"version\":\"1 0\",\"url\":\"https://e/x\",\"sha256\":\"" + sha + "\"}]}", "no version" },
+		{ entry_head + "\"clock\",\"version\":\"1\",\"url\":\"http://e/x\",\"sha256\":\"" + sha + "\"}]}", "no https address" },
+		{ entry_head + "\"clock\",\"version\":\"1\",\"url\":\"https://e/x\",\"sha256\":\"abc\"}]}", "no SHA-256" },
+	};
+	for (size_t i = 0; i < sizeof(shapes) / sizeof(shapes[0]); ++i)
+	{
+		INFO(shapes[i].says);
+		ExtFixture::write(x.tmp + "/index.json", shapes[i].text);
+		const Reply r = authedPost("/api/v1/webui/extension-index", indexBody("index.json", signer.sign(shapes[i].text)));
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find(shapes[i].says) != std::string::npos);
+		REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+	}
+	REQUIRE(authedPost("/api/v1/webui/extension-index", indexBody("../index.json", sig)).code == 400);
+	const Reply none = authedPost("/api/v1/webui/extension-index", indexBody("none.json", sig));
+	REQUIRE(none.code == 404);
+	REQUIRE(none.body.find("no-such-name") != std::string::npos);
+	REQUIRE(send(Post, "/api/v1/webui/extension-index", indexBody("index.json", sig), AuthLevel::Write, "127.0.0.1").code == 403);
+
+	// an image without a key checks no index, and installs nothing from one
+	const std::string missing = x.box.at("no-key.pub");
+	coreapi::extensions::internal::index_key = missing.c_str();
+	ExtFixture::write(x.tmp + "/index.json", index);
+	const Reply keyless = authedPost("/api/v1/webui/extension-index", indexBody("index.json", sig));
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	const Reply keyless_install = installFromIndex(x, "clock", index, sig);
+	coreapi::extensions::internal::index_key = signer.pub.c_str();
+	REQUIRE(keyless.code == 501);
+	REQUIRE(keyless.body.find("no Ed25519 key") != std::string::npos);
+	REQUIRE(keyless_install.code == 501);
+	REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
+	REQUIRE(access((x.tmp + "/index.json").c_str(), F_OK) != 0);
+}
+
 TEST_CASE("an archive that is not one extension's files and directories is refused, and nothing changes", "[write][extensions]")
 {
 	ShippedRoutes shipped;
 	ExtFixture x;
 
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"../clock.tar.gz\"}").code == 400);
-	const Reply none = authedPost("/api/v1/webui/extensions", "{\"file\":\"none.tar.gz\"}");
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"../clock.tar.gz\",\"unsigned\":true}").code == 400);
+	const Reply none = authedPost("/api/v1/webui/extensions", "{\"file\":\"none.tar.gz\",\"unsigned\":true}");
 	REQUIRE(none.code == 404);
 	REQUIRE(none.body.find("no-such-name") != std::string::npos);
 
@@ -5134,7 +5339,7 @@ TEST_CASE("an archive that is not one extension's files and directories is refus
 	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
 	{
 		INFO(refused[i].file);
-		const Reply r = authedPost("/api/v1/webui/extensions", std::string("{\"file\":\"") + refused[i].file + "\"}");
+		const Reply r = authedPost("/api/v1/webui/extensions", std::string("{\"file\":\"") + refused[i].file + "\",\"unsigned\":true}");
 		REQUIRE(r.code == 400);
 		REQUIRE(r.body.find("extension-refused") != std::string::npos);
 		REQUIRE(r.body.find(refused[i].says) != std::string::npos);
@@ -5156,7 +5361,7 @@ TEST_CASE("an extension's script that fails, runs too long or writes too much is
 	files.push_back(std::make_pair("clock/scripts/clock_tool.sh", sayingTool("one")));
 	x.tree(files);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}").code == 201);
 
 	const Reply failed = runClock("fails", "[]");
 	REQUIRE(failed.code == 500);
@@ -5184,7 +5389,7 @@ TEST_CASE("one extension change at a time, and a disc that refuses is said", "[w
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
 
 	coreapi::extensions::internal::holdTurnForTest(true);
-	const Reply busy = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	const Reply busy = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}");
 	const Reply busy_remove = authedDelete("/api/v1/webui/extensions/clock");
 	coreapi::extensions::internal::holdTurnForTest(false);
 	REQUIRE(busy.code == 409);
@@ -5196,10 +5401,10 @@ TEST_CASE("one extension change at a time, and a disc that refuses is said", "[w
 		// the extensions directory not writable: nothing is put in place or taken away
 		REQUIRE(::mkdir((x.web + "/extensions").c_str(), 0755) == 0);
 		REQUIRE(x.pack("clock.tar.gz", "clock"));
-		REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+		REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}").code == 201);
 		chmod((x.web + "/extensions").c_str(), 0555);
 		REQUIRE(x.pack("clock.tar.gz", "clock"));
-		const Reply refused = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+		const Reply refused = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}");
 		const Reply kept = authedDelete("/api/v1/webui/extensions/clock");
 		chmod((x.web + "/extensions").c_str(), 0755);
 		REQUIRE(refused.code == 500);
@@ -5224,7 +5429,7 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 	files.push_back(std::make_pair("clock/scripts/Y_Tools.sh", "#!/bin/sh\necho the pages' own\n"));
 	x.tree(files);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}").code == 201);
 	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
 	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
@@ -5234,9 +5439,9 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 	REQUIRE(symlink(x.box.at("elsewhere.sh").c_str(), (x.web + "/scripts/clock_tool.sh").c_str()) == 0);
 	x.tree(clockFiles("1.0", sayingTool("one")));
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}").code == 201);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}").code == 201);
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
 	struct stat link_st;
 	REQUIRE(lstat((x.web + "/scripts/clock_tool.sh").c_str(), &link_st) == 0);
@@ -5254,7 +5459,7 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 	REQUIRE(runClock("clock_tool", "[]").code == 404);
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 404);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}").code == 201);
 	REQUIRE(x.read(x.box.at("outside/manifest.json")) == "{\"scripts\":[\"clock_tool\"]}");
 	struct stat st;
 	REQUIRE(lstat((x.web + "/extensions/clock").c_str(), &st) == 0);
@@ -5293,7 +5498,7 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 	deeper.push_back(std::make_pair("clock/scripts/lib/helper.sh", "#!/bin/sh\n"));
 	x.tree(deeper);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	const Reply in = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	const Reply in = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}");
 	REQUIRE(in.code == 201);
 	REQUIRE(parsed(in.body)["scripts"].size() == 1);
 	REQUIRE(stat((x.web + "/extensions/clock/scripts/lib/helper.sh").c_str(), &st) == 0);
@@ -5307,7 +5512,7 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 		REQUIRE(ftruncate(fileno(f), (off_t) coreapi::extensions::kMaxArchiveBytes + 1) == 0);
 		std::fclose(f);
 	}
-	const Reply big = authedPost("/api/v1/webui/extensions", "{\"file\":\"big.tar.gz\"}");
+	const Reply big = authedPost("/api/v1/webui/extensions", "{\"file\":\"big.tar.gz\",\"unsigned\":true}");
 	REQUIRE(big.code == 400);
 	REQUIRE(big.body.find("16 MiB") != std::string::npos);
 	REQUIRE(access((x.tmp + "/big.tar.gz").c_str(), F_OK) != 0);
@@ -5315,7 +5520,7 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 	// A second change while one is under way: the upload goes all the same.
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
 	coreapi::extensions::internal::holdTurnForTest(true);
-	const Reply busy = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+	const Reply busy = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}");
 	coreapi::extensions::internal::holdTurnForTest(false);
 	REQUIRE(busy.code == 409);
 	REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
@@ -5326,7 +5531,7 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 		x.tree(clockFiles("2.0", sayingTool("two")));
 		REQUIRE(x.pack("clock.tar.gz", "clock"));
 		chmod((x.web + "/scripts").c_str(), 0555);
-		const Reply in_place = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+		const Reply in_place = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\",\"unsigned\":true}");
 		chmod((x.web + "/scripts").c_str(), 0755);
 		REQUIRE(in_place.code == 201);
 		REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");

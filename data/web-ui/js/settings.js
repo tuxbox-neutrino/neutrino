@@ -595,15 +595,15 @@ async function webuiRestoreGo(btn) {
 // Extension manager: discovered manifests with enable toggle, slot
 // override (persisted in webui.conf, loader in webui-header.js) and
 // install/update/uninstall over /api/v1/webui/extensions. The box fetches
-// nothing: an archive from an address is loaded by the browser and
-// uploaded like a file.
+// nothing: the signed index and an archive it offers are loaded by the
+// browser and uploaded, and the box checks them.
 function renderExtensionsPanel() {
 	setTimeout(loadExtensionsPanel, 0);
 	return '<div class="settings-card">' + makeCardHeader(webuiL('set.ext_title', 'Neutrino-Web-UI extensions')) +
 		'<div id="extPanel"><p aria-busy="true">' + webuiLH('set.ext_search', 'Searching for extensions...') + '</p></div></div>';
 }
 
-// dir -> {version, tarball} filled by an explicit update check
+// dir -> {version, url} filled by an explicit update check
 var _extUpdates = {};
 
 async function loadExtensionsPanel() {
@@ -647,7 +647,7 @@ async function loadExtensionsPanel() {
 	}
 	// install/update row — also shown when no extension is installed
 	html += '<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.extinst_section', 'Install / update') + '</div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('set.extinst_label', 'New extension (tar.gz or URL)') + '</label>' +
+		'<div class="webui-form-row"><label>' + webuiLH('set.extinst_label', 'New extension (signed index or tar.gz)') + '</label>' +
 		'<span class="webui-row-actions">' +
 		'<button type="button" class="webui-btn primary" onclick="extInstallDialog()">' + UP_ICON + webuiLH('set.extinst_btn', 'Install') + '</button>' +
 		'<button type="button" class="webui-btn" onclick="extCheckUpdates(this)">' + REFRESH_ICON + webuiLH('set.extup_check', 'Check for updates') + '</button>' +
@@ -655,30 +655,20 @@ async function loadExtensionsPanel() {
 	el.innerHTML = html;
 }
 
-// install dialog: tar.gz upload OR direct URL (the browser loads the
-// archive and uploads it the same way; update = re-install)
+// The install dialog: an extension from the signed index, or an archive the
+// user takes unsigned after a warning. The browser loads index and archive
+// and uploads them; the box checks the index against its signature and the
+// archive against the index (/api/v1/webui/extension-index), and fetches
+// nothing. An update is an install from the index under the same name.
 function extInstallDialog() {
 	webuiModal('extInstallModal', webuiL('set.extinst_title', 'Install extension'),
+		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.extinst_index', 'From the signed index') + '</div>' +
+		'<div id="extOffers"><div class="webui-form-row"><label>' + webuiLH('set.extinst_index_hint', 'What the index offers, checked by the box against its signature') + '</label>' +
+		'<span class="webui-row-actions"><button type="button" class="webui-btn" onclick="extShowOffers(this)">' + REFRESH_ICON + webuiLH('set.extinst_index_load', 'Load list') + '</button></span></div></div></div>' +
 		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.extinst_file', 'Upload archive (tar.gz)') + '</div>' +
-		'<div class="webui-form-row"><label>tar.gz</label><span class="webui-row-actions">' +
-		makeFileControl('extInstFile', '.tar.gz,.tgz,.tar') +
-		'<button type="button" class="webui-btn primary" onclick="extInstallUpload(this)">' + UP_ICON + webuiLH('set.extinst_btn', 'Install') + '</button></span></div></div>' +
-		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.extinst_url', 'Install from URL') + '</div>' +
-		'<div class="webui-form-row"><label>URL</label><span class="webui-row-actions">' +
-		'<input type="url" id="extInstUrl" placeholder="https://…/extension.tar.gz" style="min-width:240px">' +
-		'<button type="button" class="webui-btn" onclick="extInstallUrl(this)">' + DL_ICON + webuiLH('set.extinst_btn', 'Install') + '</button></span></div></div>');
-}
-
-// The archive up to /tmp under a name of the page's own, then installed
-// from there; the box takes the upload over and removes it. An update
-// names the extension it updates, and the box refuses an archive of another.
-async function extUploadAndInstall(blob, originalName, dir) {
-	var tar = /\.tar$/i.test(String(originalName || ''));
-	var name = 'ext-' + Date.now() + (tar ? '.tar' : '.tar.gz');
-	await webuiV1UploadPieces(blob, '/tmp/' + name);
-	var body = {file: name};
-	if (dir) body.dir = dir;
-	return webuiV1('POST', '/webui/extensions', {body: body});
+		'<div class="webui-form-row"><label>tar.gz <small style="color:var(--pico-del-color)">' + webuiLH('set.extinst_unsigned', 'not signed: install only an archive you trust') + '</small></label>' +
+		'<span class="webui-row-actions">' + makeFileControl('extInstFile', '.tar.gz,.tgz,.tar') +
+		'<button type="button" class="webui-btn primary" onclick="extInstallUpload(this)">' + UP_ICON + webuiLH('set.extinst_btn', 'Install') + '</button></span></div></div>');
 }
 
 // The browser loads it; an address that does not let a page read it is said.
@@ -693,30 +683,149 @@ async function extFetchArchive(url) {
 	return r.blob();
 }
 
+// A name in /tmp no other upload has, so a cleanup never takes another's file.
+function extTmpName(prefix, ending) {
+	var r = new Uint32Array(2);
+	crypto.getRandomValues(r);
+	return prefix + Date.now().toString(36) + '-' + r[0].toString(16) + r[1].toString(16) + ending;
+}
+
+// The index up to /tmp under a name of the page's own, its bytes as the
+// browser loaded them (the signature is over those); the box takes it over
+// and removes it.
+async function extUploadIndex(blob) {
+	var name = extTmpName('ext-index-', '.json');
+	try {
+		await webuiV1UploadPieces(blob, '/tmp/' + name);
+	} catch (e) {
+		await extDropUploads([name]);
+		throw e;
+	}
+	return name;
+}
+
+// Takes away what went up for an install that never reached the box.
+function extDropUploads(names) {
+	return Promise.all(names.map(function(n) {
+		return webuiV1('DELETE', '/storage/path', {query: {path: '/tmp/' + n}}).catch(function() {});
+	}));
+}
+
+// The archive up to /tmp, then installed from there: from the index, which
+// goes up again beside it, under the name the index gives it, or as a file
+// the user takes unsigned. The box takes both uploads over and removes them
+// whatever comes of the install; where the request fails, the page tries
+// too, and a name the box already took away is no failure.
+async function extUploadAndInstall(blob, originalName, fromIndex, dir) {
+	var tar = /\.tar$/i.test(String(originalName || ''));
+	var body = {};
+	var sent = [];
+	try {
+		if (fromIndex) {
+			body.index = await extUploadIndex(fromIndex.blob);
+			sent.push(body.index);
+			body.signature = fromIndex.signature;
+			body.dir = dir;
+		} else {
+			body.unsigned = true;
+		}
+		body.file = extTmpName('ext-', tar ? '.tar' : '.tar.gz');
+		sent.push(body.file);
+		await webuiV1UploadPieces(blob, '/tmp/' + body.file);
+		return await webuiV1('POST', '/webui/extensions', {body: body});
+	} catch (e) {
+		await extDropUploads(sent);
+		throw e;
+	}
+}
+
+// update check and index are explicit user actions (no automatic calls to
+// external URLs); index URL overridable via webui key ext_index_url
+var EXT_INDEX_DEFAULT = 'https://raw.githubusercontent.com/tuxbox-neutrino/yweb-extensions/master/index.json';
+
+// The index as the browser loaded it (a Blob, its bytes untouched), its
+// signature beside it, and what the box read from it once the signature
+// held; loaded on the user's asking.
+var _extIndex = null;
+
+async function extReadIndex(again) {
+	if (_extIndex && !again) return _extIndex;
+	var cfg = await webuiSettingsRead();
+	var url = cfg['ext_index_url'] || EXT_INDEX_DEFAULT;
+	var blob = await extFetchArchive(url);
+	var signature = (await (await extFetchArchive(url + '.sig')).text()).trim();
+	var name = await extUploadIndex(blob);
+	var read;
+	try {
+		read = await webuiV1('POST', '/webui/extension-index', {body: {index: name, signature: signature}});
+	} catch (e) {
+		await extDropUploads([name]);
+		throw e;
+	}
+	_extIndex = {blob: blob, signature: signature, items: (read && read.items) || []};
+	return _extIndex;
+}
+
 async function extInstallUpload(btn) {
 	var inp = document.getElementById('extInstFile');
 	if (!inp || !inp.files || !inp.files.length) { webuiShowToast(webuiL('inst.nofile', 'No file selected'), true); return; }
+	var f = inp.files[0];
+	webuiShowConfirm(webuiL('set.extinst_title', 'Install extension'),
+		webuiLH('set.extinst_unsigned_confirm', 'This archive is not signed. Install it only if you trust where it comes from: an extension can do everything your session can.'),
+		webuiL('set.extinst_btn', 'Install'), async function() {
+		btn.disabled = true;
+		try {
+			var res = await extUploadAndInstall(f, f.name, null);
+			webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir));
+			webuiCloseModal('extInstallModal');
+			await loadExtensionsPanel();
+		} catch (e) { webuiShowToast(webuiL('set.extinst_fail', 'Installation failed') + ': ' + e.message, true); }
+		btn.disabled = false;
+	}, {variant: 'ok'});
+}
+
+// What the index offers, each with what is installed of it: install, update
+// or nothing to do. Its names are text.
+async function extShowOffers(btn) {
+	var box = document.getElementById('extOffers');
 	btn.disabled = true;
 	try {
-		var f = inp.files[0];
-		var res = await extUploadAndInstall(f, f.name);
-		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir));
-		webuiCloseModal('extInstallModal');
-		await loadExtensionsPanel();
-	} catch (e) { webuiShowToast(webuiL('set.extinst_fail', 'Installation failed') + ': ' + e.message, true); }
+		var idx = await extReadIndex(true);
+		var have = {};
+		(await webuiDiscoverExtensions()).forEach(function(m) { have[m.dir] = m.version || '0'; });
+		box.textContent = '';
+		if (!idx.items.length)
+			box.appendChild(webuiEl('div', {className: 'webui-form-row'}, webuiEl('label', {}, webuiL('set.extinst_index_empty', 'The index offers no extensions'))));
+		idx.items.forEach(function(e) {
+			var label = webuiEl('label', {}, (e.name || e.id) + ' v' + e.version + ' ',
+				webuiEl('small', {style: {color: 'var(--pico-muted-color)'}}, e.description || e.id));
+			var action;
+			if (have[e.id] !== undefined && !extVerNewer(e.version, have[e.id]))
+				action = webuiEl('small', {}, webuiL('set.extinst_installed', 'installed'));
+			else
+				action = webuiEl('button', {type: 'button', className: 'webui-btn primary', data: {extOffer: e.id},
+					on: {click: function() { extInstallOffered(e.id, this); }}},
+					have[e.id] !== undefined ? webuiL('set.extinst_update', 'Update') : webuiL('set.extinst_btn', 'Install'));
+			box.appendChild(webuiEl('div', {className: 'webui-form-row'}, label, webuiEl('span', {className: 'webui-row-actions'}, action)));
+		});
+	} catch (e) {
+		webuiShowToast(webuiL('set.extup_fail', 'Update check failed') + ': ' + e.message, true);
+	}
 	btn.disabled = false;
 }
 
-async function extInstallUrl(btn) {
-	var url = ((document.getElementById('extInstUrl') || {}).value || '').trim();
-	if (!url) { webuiShowToast(webuiL('set.extinst_nourl', 'Please enter a URL'), true); return; }
+async function extInstallOffered(id, btn) {
 	btn.disabled = true;
 	try {
-		var res = await extUploadAndInstall(await extFetchArchive(url), url.split(/[?#]/)[0]);
-		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir));
+		var idx = await extReadIndex();
+		var e = idx.items.filter(function(x) { return x.id === id; })[0];
+		if (!e) throw new Error(id);
+		var res = await extUploadAndInstall(await extFetchArchive(e.url), e.url.split(/[?#]/)[0], idx, e.id);
+		delete _extUpdates[e.id];
+		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir) + ' v' + e.version);
 		webuiCloseModal('extInstallModal');
 		await loadExtensionsPanel();
-	} catch (e) { webuiShowToast(webuiL('set.extinst_fail', 'Installation failed') + ': ' + e.message, true); }
+	} catch (err) { webuiShowToast(webuiL('set.extinst_fail', 'Installation failed') + ': ' + err.message, true); }
 	btn.disabled = false;
 }
 
@@ -741,10 +850,6 @@ function extUninstall(dir) {
 	});
 }
 
-// update check is an explicit user action (no automatic calls to
-// external URLs); index URL overridable via webui key ext_index_url
-var EXT_INDEX_DEFAULT = 'https://raw.githubusercontent.com/tuxbox-neutrino/yweb-extensions/master/index.json';
-
 function extVerNewer(a, b) {
 	var pa = String(a || '').split('.'), pb = String(b || '').split('.');
 	for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
@@ -757,17 +862,14 @@ function extVerNewer(a, b) {
 async function extCheckUpdates(btn) {
 	btn.disabled = true;
 	try {
-		var cfg = await webuiSettingsRead();
-		var url = cfg['ext_index_url'] || EXT_INDEX_DEFAULT;
-		// the browser reads the index; the box fetches nothing
-		var idx = JSON.parse(await (await extFetchArchive(url)).text());
+		var idx = await extReadIndex(true);
 		var exts = await webuiDiscoverExtensions();
 		_extUpdates = {};
 		var found = 0;
-		((idx && idx.extensions) || []).forEach(function(e) {
+		idx.items.forEach(function(e) {
 			exts.forEach(function(m) {
-				if (m.dir === e.dir && e.tarball && extVerNewer(e.version, m.version)) {
-					_extUpdates[m.dir] = {version: e.version, tarball: e.tarball};
+				if (m.dir === e.id && extVerNewer(e.version, m.version)) {
+					_extUpdates[m.dir] = {version: e.version, url: e.url};
 					found++;
 				}
 			});
@@ -783,7 +885,7 @@ async function extUpdate(dir, btn) {
 	if (!u) return;
 	btn.disabled = true;
 	try {
-		var res = await extUploadAndInstall(await extFetchArchive(u.tarball), u.tarball.split(/[?#]/)[0], dir);
+		var res = await extUploadAndInstall(await extFetchArchive(u.url), u.url.split(/[?#]/)[0], await extReadIndex(), dir);
 		delete _extUpdates[dir];
 		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir) + ' v' + u.version);
 		await loadExtensionsPanel();

@@ -91,6 +91,7 @@ libcoreapi_a_SOURCES = \
 	network.cpp \
 	backup.cpp \
 	tarfile.cpp \
+	extensionindex.cpp \
 	extensions.cpp \
 	websources.cpp \
 	archive.cpp \
@@ -134,6 +135,7 @@ noinst_HEADERS = \
 	shares.h \
 	backup.h \
 	tarfile.h \
+	extensionindex.h \
 	extensions.h \
 	archive.h \
 	archive_internal.h \

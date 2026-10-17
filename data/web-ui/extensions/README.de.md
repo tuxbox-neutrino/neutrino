@@ -207,24 +207,63 @@ Einstellungen → **Erweiterungen** verwaltet auch den Lebenszyklus
 (Backend: `/api/v1/webui/extensions`; die Box selbst lädt nichts
 herunter):
 
-- **Installieren**: `tar.gz`-Archiv hochladen oder eine Download-URL
-  einfügen (z.B. ein GitHub-Release-Asset). Bei einer URL lädt der
-  Browser das Archiv und lädt es wie eine Datei hoch; die Adresse muss
-  das Lesen aus einer Webseite erlauben (GitHub tut das), sonst das
-  Archiv herunterladen und als Datei installieren. Ein Update ist
-  einfach die erneute Installation derselben Erweiterung — der Ordner
-  wird ersetzt, sobald der neue ganz entpackt ist, alle Config-Keys
-  (Enable/Slot und Erweiterungs-Einstellungen) überleben.
-- **Updates prüfen**: expliziter Knopf; der Browser vergleicht die
-  installierten Versionen gegen eine gehostete `index.json`
-  (Default: das Repository `tuxbox-neutrino/yweb-extensions`,
-  überschreibbar per `webui.conf`-Key `ext_index_url`). Verfügbare
-  Updates zeigen Badge und Update-Knopf in der Zeile.
+- **Aus dem signierten Index installieren**: „Liste laden" im
+  Installationsdialog. Der Browser lädt Index und Signatur, lädt den
+  Index hoch, und die Box prüft die Signatur
+  (`POST /api/v1/webui/extension-index`), bevor etwas davon angezeigt
+  wird. Ein Eintrag wird installiert, indem der Browser sein Archiv
+  lädt und mit dem Index erneut hochlädt; die Box installiert es nur,
+  wenn der Index diesen Ordnernamen mit der SHA-256 des Archivs
+  anbietet.
+- **Eine Archivdatei installieren**: ein `tar.gz` hochladen; es ist
+  **nicht signiert**, die Seite fragt deshalb vorher, und die Box nimmt
+  es nur mit dieser Zustimmung (`"unsigned": true`). Ein Archiv von
+  anderswo im Netz wird heruntergeladen und so installiert.
+- **Updates prüfen**: expliziter Knopf; die Box prüft den Index wie
+  oben, und die Seite vergleicht die Versionen mit den installierten.
+  Ein Update installiert das Archiv aus dem Index unter demselben
+  Ordnernamen; alle Config-Keys (Enable/Slot und
+  Erweiterungs-Einstellungen) überleben.
 - **Deinstallieren**: Zeilen-Knopf mit Bestätigung. Entfernt den
   Erweiterungsordner mit seinen Skripten und die Kopien, die eine
   frühere Version der Verwaltung in `<webroot>/scripts/` abgelegt hat,
   jede nur, solange sie noch die installierte Kopie ist; die
   `ext_<ordner>_*`-Config-Keys werden entfernt.
+
+### Der signierte Index
+
+Der Index liegt unter `ext_index_url` in `webui.conf` (Default: das
+Repository `tuxbox-neutrino/yweb-extensions`), seine Signatur daneben
+als `<index-url>.sig`; beide müssen das Lesen aus einer Webseite
+erlauben (Raw-Dateien auf GitHub tun das).
+
+```json
+{
+	"format": 1,
+	"extensions": [
+		{ "id": "meine-erweiterung", "name": "Meine Erweiterung", "version": "1.2.0",
+		  "url": "https://github.com/…/releases/download/v1.2.0/meine-erweiterung.tar.gz",
+		  "sha256": "<64 Hex-Ziffern dieses Archivs>",
+		  "description": "Kurzer Untertitel" }
+	]
+}
+```
+
+`id` ist der Ordnername (einmal je Index), `url` eine https-Adresse,
+`version` Buchstaben, Ziffern, Punkte, Plus- und Bindestriche; `name`
+und `description` sind optional. Die Signatur ist Ed25519 über die
+Bytes der Datei, wie sie veröffentlicht ist, in base64. Der öffentliche
+Schlüssel gehört zum Image, als PEM in
+`<datadir>/tuxbox/neutrino/webui-index.pub`; der private bleibt bei
+dem, der den Index veröffentlicht (ein Secret des Index-Repositorys).
+Ein Image ohne den Schlüssel installiert aus keinem Index.
+
+```sh
+openssl genpkey -algorithm ed25519 -out index-key.pem       # privat, geheim halten
+openssl pkey -in index-key.pem -pubout -out webui-index.pub  # öffentlich, ins Image
+sha256sum meine-erweiterung.tar.gz                           # sha256 des Eintrags
+openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > index.json.sig
+```
 
 ### Packaging-Vertrag (`<ordner>.tar.gz`)
 
