@@ -61,8 +61,6 @@ const Walked kWalked[] = {
 	CODE(NoSuchTimer),
 	CODE(NoSuchDaemon),
 	CODE(NoSuchDisplay),
-	CODE(NoSuchVerb),
-	CODE(NoSuchCommand),
 	CODE(NoSuchRoute),
 	CODE(NoSuchMethod),
 	CODE(NoSuchParameter),
@@ -420,8 +418,7 @@ TEST_CASE("everything a lookup did not find is spelt the same way", "[result]")
 {
 	static const ErrorCode absent[] = {
 		ErrorCode::NoSuchChannel, ErrorCode::NoSuchBouquet, ErrorCode::NoSuchTimer,
-		ErrorCode::NoSuchDaemon, ErrorCode::NoSuchDisplay, ErrorCode::NoSuchVerb,
-		ErrorCode::NoSuchCommand,
+		ErrorCode::NoSuchDaemon, ErrorCode::NoSuchDisplay,
 		ErrorCode::NoSuchRoute, ErrorCode::NoSuchMethod,
 		ErrorCode::NoSuchParameter, ErrorCode::NoSuchTimerType, ErrorCode::NoSuchName,
 		ErrorCode::NoSuchParent, ErrorCode::NoSuchFilesystem,

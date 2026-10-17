@@ -103,7 +103,6 @@ libcoreapi_a_SOURCES = \
 	streaming.cpp \
 	browserplay.cpp \
 	shellcontract.cpp \
-	shelltable.cpp \
 	storage.cpp \
 	netfs.cpp \
 	shares.cpp \
@@ -154,7 +153,6 @@ noinst_HEADERS = \
 	browserplay.h \
 	shellcontract.h \
 	box/shellcontract_internal.h \
-	shelltable.h \
 	storage.h \
 	box/proc_internal.h \
 	box/storage_internal.h \

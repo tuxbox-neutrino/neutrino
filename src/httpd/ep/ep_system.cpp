@@ -131,26 +131,21 @@ const FieldDesc kBoxFields[] = {
 
 const Schema kBoxSchema = { "box", HTTPD_FIELDS(kBoxFields) };
 
-/* The two sorts of thing this one list carries.
-
-   Answered rather than left for a reader to work out from the name, because
-   working it out means keeping a second copy of the seven softcam names
-   wherever the list is drawn, and a copy is what goes out of step. The surface
-   this replaces had no word for the difference at all and put both on one page
-   under a heading that named neither. */
+/* The sorts of thing this one list carries: one for now, as softcams are left
+   out until they come the way any extension from another source does.
+   Answered all the same, so a second sort can come back without a reader
+   having to work it out from the name. */
 const char *kindName(coreapi::daemons::Kind k)
 {
 	switch (k)
 	{
-		case coreapi::daemons::Kind::Softcam: return "softcam";
 		case coreapi::daemons::Kind::Service: break;
 	}
 	return "service";
 }
 
 const char kDaemonKindDocs[] =
-	"softcam: a conditional access daemon the box descrambles with and can drive from its own screen\n"
-	"service: any other background service this image can carry";
+	"service: a background service this image can carry";
 
 const FieldDesc kDaemonFields[] = {
 	/* The same set the three routes that act on a daemon take, out of the same
@@ -160,12 +155,12 @@ const FieldDesc kDaemonFields[] = {
 	HTTPD_MEMBER_FROM_ASKED_SET("id",
 		"the identifier the start, stop and restart routes take; the full set and what each one is comes from GET /api/v1/daemons",
 		&daemonNames),
-	HTTPD_MEMBER_OF_SET("kind", "softcam,service",
+	HTTPD_MEMBER_OF_SET("kind", "service",
 		"the kind of daemon this is, which decides where a caller controls it from", kDaemonKindDocs),
 	HTTPD_MEMBER("running", FieldType::Bool,
 		"whether a process of its name is in the process table, which is not the same as its having been asked for"),
 	HTTPD_MEMBER("installed", FieldType::Bool,
-		"whether this box carries the thing at all: for a softcam, whether its program exists under /var/bin; for a service, whether its start script exists in either init directory; false for a name every image knows but this build was not given"),
+		"whether this box carries the thing at all: on a box run by systemd, whether its unit file is installed or its init script is in /etc/init.d; otherwise whether its init script is in either init directory; false for a name every image knows but this build was not given"),
 };
 
 const Schema kDaemonSchema = { "daemon", HTTPD_FIELDS(kDaemonFields) };
@@ -752,11 +747,10 @@ const Endpoint kSystemEndpoints[] = {
 	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/daemons", AuthLevel::Read,
 	  "the daemons this box can drive and which of them are running", "Lists every daemon this "
-	  "box can drive: the softcams it can descramble with and the background services an image "
-	  "can carry, such as nfs, samba or dropbear. For each one, says whether a process of its "
-	  "name is currently in the process table and whether this box carries the program or "
-	  "start script for it at all, which may be false for a name every image knows but this "
-	  "build was not given.\n\n"
+	  "box can drive: the background services an image can carry, such as nfs, samba or crond. "
+	  "For each one, says whether a process of its name is currently in the process table and "
+	  "whether this box carries its systemd unit or init script at all, which may be false for "
+	  "a name every image knows but this build was not given. Softcams are not in this list.\n\n"
 	  "**Related:** `POST /api/v1/daemons/{name}/start`, `POST /api/v1/daemons/{name}/stop`, "
 	  "`POST /api/v1/daemons/{name}/restart`.",
 	  NULL, 0, &kDaemonListSchema, &listDaemons, false,

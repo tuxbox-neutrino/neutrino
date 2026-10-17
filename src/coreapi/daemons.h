@@ -2,6 +2,7 @@
  * daemons.h - which of the box daemons are up
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,18 +34,12 @@ namespace daemons
 
 /* What sort of thing a name in the list is.
 
-   Two sorts, because the box drives them through two different scripts and they
-   answer two different questions. A softcam is part of what the box is: the
-   television has its own screen for these seven and starts them through the same
-   init script this does. A service is something an image was built to carry and
-   a box may not have installed at all.
-
-   The sort is stated once in the table beside the two things that already differ
-   per sort, which are the script that drives it and the place its presence is
-   read from. */
+   One sort for now: a service, something an image was built to carry and a box
+   may not have installed at all. Softcams are left out of this list until they
+   are offered the way any extension from another source is; the sort stays, so
+   a second one can come back without the list changing its shape. */
 enum class Kind
 {
-	Softcam,
 	Service
 };
 
@@ -70,17 +65,19 @@ struct Entry
 // started through a wrapper carries the wrapper's name and is missed, which is
 // the same hole every reader of the process table has.
 //
-// Installed is read the way the two things that start these read it. A softcam
-// is there when its program is under /var/bin, which is what the television's
-// own softcam screen looks at; a service is there when an executable init script
-// of its name is in one of the two directories the box's own service command
-// searches. Neither answers whether the thing works, only whether it is on the
-// box.
+// Installed is read the way the thing that starts it reads it. On a box run by
+// systemd a service is there when its unit file is in one of the unit
+// directories, or an executable init script of its name is in /etc/init.d,
+// which systemd turns into a unit of that name; on a box without it, when an
+// executable init script of its name is in one of the two init directories.
+// Neither answers whether the thing works, only whether it is on the box.
 Result<std::vector<Entry> > list();
 
-// NotFound for a name this box has no daemon of, NotSupported for one that has
-// no branch for the verb, and whatever the runner answers for the rest, so a
-// script that failed is Internal and one that outran its timeout is Busy.
+// Runs systemctl with the verb and the unit, or the init script with the verb,
+// whichever list() found the service by, and no shell. NotFound NoSuchDaemon
+// for a name this box has no daemon of, NotFound ScriptMissing for one it does
+// not carry, and whatever the runner answers for the rest, so a command that
+// failed is Internal and one that outran its timeout is Busy.
 Result<void> start(const std::string &name);
 Result<void> stop(const std::string &name);
 Result<void> restart(const std::string &name);
@@ -92,8 +89,9 @@ void setProcRoot(const std::string &dir);
 std::string procRoot();
 
 // What is put in front of the absolute paths the presence of a daemon is read
-// from, empty on a box. Here for the reason above and for one more: a machine
-// running the suite has an /etc/init.d of its own, and a check that read it
+// from and the command that drives it is run from, empty on a box. Here for the
+// reason above and for one more: a machine running the suite has an
+// /etc/init.d and a systemctl of its own, and a check that read or ran them
 // would answer differently on every machine.
 void setSystemRoot(const std::string &dir);
 std::string systemRoot();

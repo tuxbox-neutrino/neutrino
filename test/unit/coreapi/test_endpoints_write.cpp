@@ -1472,7 +1472,7 @@ TEST_CASE("a write asking for the box's own credential is refused a write", "[wr
 	BoxFixture box;
 
 	REQUIRE(send(Post, "/api/v1/system/reboot", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
-	REQUIRE(send(Post, "/api/v1/daemons/oscam/start", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
+	REQUIRE(send(Post, "/api/v1/daemons/samba/start", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(send(Delete, "/api/v1/storage/path?path=/tmp/x", "", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(send(Patch, "/api/v1/settings/audio", "{\"audio_volume_percent_ac3\":\"3\"}", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(send(Post, "/api/v1/plugins/tuxtxt/start", "{}", AuthLevel::Write, "127.0.0.1").code == 403);
@@ -2228,8 +2228,17 @@ TEST_CASE("a daemon nobody declared is not found and nothing is started", "[writ
 
 	// The verb is a segment of the path and not a value in the body, so a verb
 	// this server does not have is a path it does not have.
-	REQUIRE(authedPost("/api/v1/daemons/oscam/detonate", "{}").code == 404);
-	REQUIRE(authedPost("/api/v1/daemons/oscam/detonate", "{}").body.find("no-such-route") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/daemons/samba/detonate", "{}").code == 404);
+	REQUIRE(authedPost("/api/v1/daemons/samba/detonate", "{}").body.find("no-such-route") != std::string::npos);
+
+	// A daemon every image knows and this box does not carry: said, and nothing runs.
+	Sandbox none;
+	const std::string before = coreapi::daemons::systemRoot();
+	coreapi::daemons::setSystemRoot(none.dir);
+	const Reply missing = authedPost("/api/v1/daemons/samba/start", "{}");
+	coreapi::daemons::setSystemRoot(before);
+	REQUIRE(missing.code == 404);
+	REQUIRE(missing.body.find("script-missing") != std::string::npos);
 }
 
 TEST_CASE("an OSD message over the ceiling is refused before the box sees it", "[write]")

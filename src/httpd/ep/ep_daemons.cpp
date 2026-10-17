@@ -2,6 +2,7 @@
  * ep_daemons.cpp - routes for daemons
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,8 +45,8 @@ namespace
    below is asked. With the verb in a body the set of them would be a list written
    here beside the list the layer below keeps, and the two could come to disagree.
 
-   Every one of them is System. Starting a daemon on this box is running a script as
-   the account this server runs as, which is the whole of the box. */
+   Every one of them is System. Starting a daemon on this box is running systemctl or
+   an init script as the account this server runs as, which is the whole of the box. */
 
 Response answerFor(const coreapi::Result<void> &done)
 {
@@ -80,35 +81,38 @@ const Param kNameParams[] = {
 const RouteRefusal kStartDaemonRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchDaemon,
 		"this box has no daemon called example"),
+	HTTPD_REFUSES(NotFound, ScriptMissing, "this box does not carry samba"),
 };
 
 const Endpoint kDaemonEndpoints[] = {
 	{ Method::Post, "/api/v1/daemons/{name}/start", AuthLevel::System,
-	  "starts one daemon", "Starts one named daemon by running its start script as the account "
-	  "this server runs as. `204` means the script ran and returned without an error; it does "
-	  "not by itself mean the process is now in the process table, which is read back with "
+	  "starts one daemon", "Starts one named daemon as the account this server runs as: with "
+	  "`systemctl start` and its unit on a box run by systemd, with its init script otherwise, "
+	  "and no shell. `204` means the command returned without an error; it does not by itself "
+	  "mean the process is now in the process table, which is read back with "
 	  "`GET /api/v1/daemons`.\n\n"
-	  "**Preconditions:** `name` is one of the daemons this box knows; whether this box also "
-	  "carries the program or script for it is separate, see `installed` on "
-	  "`GET /api/v1/daemons`.\n\n"
+	  "**Preconditions:** `name` is one of the daemons this box knows, and the box carries it "
+	  "(`installed` on `GET /api/v1/daemons`).\n\n"
 	  "**Refusals:**\n"
-	  "- `404 no-such-daemon`: no daemon has that name. Take names from `GET /api/v1/daemons`.\n\n"
+	  "- `404 no-such-daemon`: no daemon has that name. Take names from `GET /api/v1/daemons`.\n"
+	  "- `404 script-missing`: this box does not carry it.\n\n"
 	  "**Related:** `GET /api/v1/daemons`, `POST /api/v1/daemons/{name}/stop`.",
 	  HTTPD_PARAMS(kNameParams), NULL, &startDaemon, false,
 	  Answers204, HTTPD_REFUSALS(kStartDaemonRefusals) },
 	{ Method::Post, "/api/v1/daemons/{name}/stop", AuthLevel::System,
-	  "stops one daemon", "Stops one named daemon by running its stop script as the account "
-	  "this server runs as. `204` means the script ran and returned without an error; whether "
-	  "the process has actually left the process table is read back with "
-	  "`GET /api/v1/daemons`.\n\n"
+	  "stops one daemon", "Stops one named daemon as the account this server runs as, with "
+	  "`systemctl stop` or its init script, as `POST /api/v1/daemons/{name}/start` starts it. "
+	  "`204` means the command returned without an error; whether the process has actually left "
+	  "the process table is read back with `GET /api/v1/daemons`.\n\n"
 	  "**Related:** `GET /api/v1/daemons`, `POST /api/v1/daemons/{name}/start`.",
 	  HTTPD_PARAMS(kNameParams), NULL, &stopDaemon, false,
 	  Answers204, HTTPD_NO_REFUSALS },
 	{ Method::Post, "/api/v1/daemons/{name}/restart", AuthLevel::System,
-	  "stops one daemon and starts it again", "Stops one named daemon and starts it again, by "
-	  "running its stop script and then its start script as the account this server runs as. "
-	  "`204` means both scripts ran and returned without an error; whether the process is "
-	  "running again afterwards is read back with `GET /api/v1/daemons`.\n\n"
+	  "stops one daemon and starts it again", "Stops one named daemon and starts it again as the "
+	  "account this server runs as, with `systemctl restart` or its init script's restart, as "
+	  "`POST /api/v1/daemons/{name}/start` starts it. `204` means the command returned without "
+	  "an error; whether the process is running again afterwards is read back with "
+	  "`GET /api/v1/daemons`.\n\n"
 	  "**Related:** `GET /api/v1/daemons`.",
 	  HTTPD_PARAMS(kNameParams), NULL, &restartDaemon, false,
 	  Answers204, HTTPD_NO_REFUSALS },

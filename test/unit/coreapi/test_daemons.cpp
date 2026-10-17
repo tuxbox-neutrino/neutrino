@@ -2,6 +2,7 @@
  * test_daemons.cpp - tests for the daemon list
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +21,6 @@
 
 #include "support/catch.hpp"
 #include "coreapi/daemons.h"
-#include "coreapi/shelltable.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -88,14 +88,13 @@ bool installed(const std::vector<daemons::Entry> &all, const char *name)
 	return named(all, name).installed;
 }
 
-// A process table and a directory of scripts of its own, and both settings put
-// back the way they were found.
+// A process table and a box of its own, and both settings put back the way
+// they were found.
 struct Fixture
 {
 	std::string      dir;
 	std::string      proc_before;
 	std::string      system_before;
-	std::string      root_before;
 	struct sigaction chld_before;
 	bool             chld_saved;
 
@@ -106,11 +105,10 @@ struct Fixture
 			dir = tmpl;
 		proc_before = daemons::procRoot();
 		system_before = daemons::systemRoot();
-		root_before = shell::scriptRoot();
-		/* A machine running the suite has an /etc/init.d of its own, and
-		   dropbear or crond may well be in it. Pointed at nothing, so a case
-		   that says nothing about what is installed reads the same answer
-		   wherever it runs. */
+		/* A machine running the suite has an /etc/init.d and a systemctl
+		   of its own, and dropbear or crond may well be in it. Pointed at
+		   nothing, so a case that says nothing about what is installed reads
+		   the same answer wherever it runs. */
 		daemons::setSystemRoot(dir + "/nowhere");
 
 		// The runner refuses to start anything in a process that discards what
@@ -127,7 +125,6 @@ struct Fixture
 	{
 		daemons::setProcRoot(proc_before);
 		daemons::setSystemRoot(system_before);
-		shell::setScriptRoot(root_before);
 		if (chld_saved)
 			sigaction(SIGCHLD, &chld_before, NULL);
 		if (!dir.empty())
@@ -135,11 +132,40 @@ struct Fixture
 	}
 
 	std::string at(const std::string &name) const { return dir + "/" + name; }
+
+	/* A box under box/: run by systemd or not, with a systemctl that writes
+	   what it was handed to argv and answers as told. */
+	std::string box(bool systemd, int exit_code = 0) const
+	{
+		const std::string root = at("box");
+		const char *const dirs[] = { "", "/bin", "/etc", "/etc/init.d", "/var", "/var/etc",
+					     "/var/etc/init.d", "/lib", "/lib/systemd", "/lib/systemd/system",
+					     "/run", "/run/systemd", "/run/systemd/system" };
+		for (size_t i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++)
+		{
+			if (!systemd && std::string(dirs[i]) == "/run/systemd/system")
+				continue;
+			mkdir((root + dirs[i]).c_str(), 0700);
+		}
+		char code[16];
+		snprintf(code, sizeof(code), "%d", exit_code);
+		const std::string systemctl = "#!/bin/sh\nprintf 'systemctl %s\\n' \"$*\" >> " + at("argv") +
+			"\nexit " + code + "\n";
+		writeBytes(root + "/bin/systemctl", systemctl.data(), systemctl.size(), 0700);
+		return root;
+	}
+
+	// An init script that writes its own name and what it was handed to argv.
+	void script(const std::string &path) const
+	{
+		const std::string body = "#!/bin/sh\nprintf '%s %s\\n' \"${0##*/}\" \"$*\" >> " + at("argv") + "\n";
+		writeBytes(path, body.data(), body.size(), 0700);
+	}
 };
 
 } // namespace
 
-TEST_CASE("the daemons are the ones the table can drive", "[daemons]")
+TEST_CASE("the daemons are the services the box can drive", "[daemons]")
 {
 	Fixture fx;
 	REQUIRE_FALSE(fx.dir.empty());
@@ -150,81 +176,78 @@ TEST_CASE("the daemons are the ones the table can drive", "[daemons]")
 	REQUIRE(r.ok());
 	const std::vector<daemons::Entry> &all = r.value();
 
+	// Softcams are left out until they come as extensions from another source.
 	static const char *const expected[] = {
-		"mgcamd", "gbox", "oscam", "osmod", "ncam", "cccam", "doscam",
 		"fritzcallmonitor", "nfs", "samba", "tuxcald", "tuxmaild",
 		"inadyn", "dropbear", "ushare", "djmount", "minidlna", "xupnpd",
 		"crond"
 	};
 	REQUIRE(all.size() == sizeof(expected) / sizeof(expected[0]));
 	for (size_t i = 0; i < all.size(); i++)
+	{
 		REQUIRE(all[i].name == expected[i]);
-
-	// Every name in the list can be started and stopped, or the list would be
-	// offering something nothing behind it carries.
-	for (size_t i = 0; i < all.size(); i++)
-	{
-		REQUIRE(shell::find(all[i].name + ".start") != NULL);
-		REQUIRE(shell::find(all[i].name + ".stop") != NULL);
-	}
-
-	/* And every one of them says which of the two sorts it is, because the
-	   list is drawn as two groups and a sort worked out from the name on the
-	   other side would be a second copy of this table. The seven that restart
-	   are the seven softcams: the branch that restarts one is the camd script's
-	   own, and the services have a start and a stop and nothing else. */
-	for (size_t i = 0; i < all.size(); i++)
-	{
-		INFO(all[i].name);
-		const bool camd = all[i].kind == daemons::Kind::Softcam;
-		REQUIRE(camd == (shell::find(all[i].name + ".restart") != NULL));
+		REQUIRE(all[i].kind == daemons::Kind::Service);
 	}
 }
 
-TEST_CASE("a name every image knows is not a thing this box carries", "[daemons]")
+TEST_CASE("on a box run by systemd a service is there by its unit or its init script", "[daemons]")
 {
 	Fixture fx;
 	REQUIRE_FALSE(fx.dir.empty());
-	const std::string root = fx.at("box");
-	REQUIRE(mkdir(root.c_str(), 0700) == 0);
-	REQUIRE(mkdir((root + "/var").c_str(), 0700) == 0);
-	REQUIRE(mkdir((root + "/var/bin").c_str(), 0700) == 0);
-	REQUIRE(mkdir((root + "/etc").c_str(), 0700) == 0);
-	REQUIRE(mkdir((root + "/etc/init.d").c_str(), 0700) == 0);
-	REQUIRE(mkdir((root + "/var/etc").c_str(), 0700) == 0);
-	REQUIRE(mkdir((root + "/var/etc/init.d").c_str(), 0700) == 0);
+	const std::string root = fx.box(true);
 
-	// A softcam is where the television's own softcam screen looks for it.
-	REQUIRE(writeBytes(root + "/var/bin/oscam", "#!/bin/sh\n", 10, 0700));
-	// A service is an executable init script in either of the two directories
-	// the box's own service command searches.
-	REQUIRE(writeBytes(root + "/etc/init.d/dropbear", "#!/bin/sh\n", 10, 0700));
-	REQUIRE(writeBytes(root + "/var/etc/init.d/xupnpd", "#!/bin/sh\n", 10, 0700));
-	// There and not runnable is not there: the box cannot start it either.
-	REQUIRE(writeBytes(root + "/etc/init.d/samba", "#!/bin/sh\n", 10, 0600));
-	// And an init script is not what makes a softcam present.
-	REQUIRE(writeBytes(root + "/etc/init.d/ncam", "#!/bin/sh\n", 10, 0700));
+	// a unit file in one of the unit directories, under the unit's own name
+	REQUIRE(writeText(root + "/lib/systemd/system/smb.service", "[Unit]\n"));
+	REQUIRE(writeText(root + "/lib/systemd/system/crond.service", "[Unit]\n"));
+	// an init script in /etc/init.d, which systemd makes a unit of
+	fx.script(root + "/etc/init.d/tuxcald");
+	// one in the second init directory, run as it is
+	fx.script(root + "/var/etc/init.d/xupnpd");
+	// there and not runnable is not there: the box cannot start it either
+	REQUIRE(writeBytes(root + "/etc/init.d/inadyn", "#!/bin/sh\n", 10, 0600));
+	// a unit under the program's name and not the unit's is not that unit
+	REQUIRE(writeText(root + "/lib/systemd/system/samba.service", "[Unit]\n"));
+	REQUIRE(writeText(root + "/lib/systemd/system/minidlnad.service", "[Unit]\n"));
 
 	daemons::setSystemRoot(root);
 	DaemonList r = daemons::list();
 	REQUIRE(r.ok());
 	const std::vector<daemons::Entry> &all = r.value();
-
-	REQUIRE(installed(all, "oscam"));
-	REQUIRE(installed(all, "dropbear"));
+	REQUIRE(installed(all, "samba"));
+	REQUIRE(installed(all, "crond"));
+	REQUIRE(installed(all, "tuxcald"));
 	REQUIRE(installed(all, "xupnpd"));
-	REQUIRE_FALSE(installed(all, "samba"));
-	REQUIRE_FALSE(installed(all, "ncam"));
-	REQUIRE_FALSE(installed(all, "fritzcallmonitor"));
+	REQUIRE_FALSE(installed(all, "inadyn"));
+	REQUIRE_FALSE(installed(all, "minidlna"));
+	REQUIRE_FALSE(installed(all, "dropbear"));
 
-	// The name it is looked for under is the init script's and not the
-	// program's, and those two differ for three of the twelve.
-	REQUIRE(writeBytes(root + "/etc/init.d/smbd", "#!/bin/sh\n", 10, 0700));
-	REQUIRE(writeBytes(root + "/etc/init.d/minidlnad", "#!/bin/sh\n", 10, 0700));
-	DaemonList again = daemons::list();
-	REQUIRE(again.ok());
-	REQUIRE_FALSE(installed(again.value(), "samba"));
-	REQUIRE(installed(again.value(), "minidlna"));
+	// without a systemctl to hand them to, the units are not a way to start anything
+	REQUIRE(unlink((root + "/bin/systemctl").c_str()) == 0);
+	DaemonList bare = daemons::list();
+	REQUIRE(bare.ok());
+	REQUIRE_FALSE(installed(bare.value(), "samba"));
+	REQUIRE(installed(bare.value(), "tuxcald"));
+	REQUIRE(installed(bare.value(), "xupnpd"));
+}
+
+TEST_CASE("on a box without systemd a service is there by its init script", "[daemons]")
+{
+	Fixture fx;
+	REQUIRE_FALSE(fx.dir.empty());
+	const std::string root = fx.box(false);
+
+	REQUIRE(writeText(root + "/lib/systemd/system/smb.service", "[Unit]\n"));
+	fx.script(root + "/etc/init.d/dropbear");
+	fx.script(root + "/var/etc/init.d/minidlnad");
+
+	daemons::setSystemRoot(root);
+	DaemonList r = daemons::list();
+	REQUIRE(r.ok());
+	const std::vector<daemons::Entry> &all = r.value();
+	REQUIRE_FALSE(installed(all, "samba"));
+	REQUIRE(installed(all, "dropbear"));
+	REQUIRE(installed(all, "minidlna"));
+	REQUIRE_FALSE(installed(all, "fritzcallmonitor"));
 }
 
 TEST_CASE("what is installed and what is running are two questions", "[daemons]")
@@ -234,7 +257,7 @@ TEST_CASE("what is installed and what is running are two questions", "[daemons]"
 	const std::string proc = fx.at("proc");
 	REQUIRE(mkdir(proc.c_str(), 0700) == 0);
 	REQUIRE(mkdir((proc + "/101").c_str(), 0700) == 0);
-	REQUIRE(writeText(proc + "/101/comm", "oscam\n"));
+	REQUIRE(writeText(proc + "/101/comm", "crond\n"));
 	daemons::setProcRoot(proc);
 
 	// Nothing is installed under this root, and one of them is running all the
@@ -243,8 +266,8 @@ TEST_CASE("what is installed and what is running are two questions", "[daemons]"
 	// wrong.
 	DaemonList r = daemons::list();
 	REQUIRE(r.ok());
-	REQUIRE(runs(r.value(), "oscam"));
-	REQUIRE_FALSE(installed(r.value(), "oscam"));
+	REQUIRE(runs(r.value(), "crond"));
+	REQUIRE_FALSE(installed(r.value(), "crond"));
 }
 
 TEST_CASE("running is read from the process table", "[daemons]")
@@ -255,7 +278,7 @@ TEST_CASE("running is read from the process table", "[daemons]")
 	REQUIRE(mkdir(proc.c_str(), 0700) == 0);
 
 	REQUIRE(mkdir((proc + "/101").c_str(), 0700) == 0);
-	REQUIRE(writeText(proc + "/101/comm", "oscam\n"));
+	REQUIRE(writeText(proc + "/101/comm", "crond\n"));
 
 	// Its name in the process table is cut at fifteen characters, so only the
 	// arguments still carry the whole of it.
@@ -270,19 +293,18 @@ TEST_CASE("running is read from the process table", "[daemons]")
 
 	// Not a process at all, so whatever it says is not an answer.
 	REQUIRE(mkdir((proc + "/notapid").c_str(), 0700) == 0);
-	REQUIRE(writeText(proc + "/notapid/comm", "ncam\n"));
+	REQUIRE(writeText(proc + "/notapid/comm", "xupnpd\n"));
 
 	daemons::setProcRoot(proc);
 	DaemonList r = daemons::list();
 	REQUIRE(r.ok());
 	const std::vector<daemons::Entry> &all = r.value();
 
-	REQUIRE(runs(all, "oscam"));
+	REQUIRE(runs(all, "crond"));
 	REQUIRE(runs(all, "fritzcallmonitor"));
 	REQUIRE(runs(all, "nfs"));
-	REQUIRE_FALSE(runs(all, "ncam"));
-	REQUIRE_FALSE(runs(all, "gbox"));
-	REQUIRE_FALSE(runs(all, "crond"));
+	REQUIRE_FALSE(runs(all, "xupnpd"));
+	REQUIRE_FALSE(runs(all, "samba"));
 }
 
 TEST_CASE("a process table that cannot be read leaves everything stopped", "[daemons]")
@@ -300,102 +322,96 @@ TEST_CASE("a process table that cannot be read leaves everything stopped", "[dae
 
 TEST_CASE("a daemon this box has no name for is not found", "[daemons]")
 {
-	Result<void> started = daemons::start("nosuchcam");
-	REQUIRE_FALSE(started.ok());
-	REQUIRE(started.error().status == Status::NotFound);
-	REQUIRE(started.error().code == ErrorCode::NoSuchDaemon);
+	const char *const names[] = { "nosuchcam", "oscam", "samba.start" };
+	for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); i++)
+	{
+		INFO(names[i]);
+		Result<void> started = daemons::start(names[i]);
+		REQUIRE_FALSE(started.ok());
+		REQUIRE(started.error().status == Status::NotFound);
+		REQUIRE(started.error().code == ErrorCode::NoSuchDaemon);
 
-	Result<void> stopped = daemons::stop("nosuchcam");
-	REQUIRE_FALSE(stopped.ok());
-	REQUIRE(stopped.error().status == Status::NotFound);
-	REQUIRE(stopped.error().code == ErrorCode::NoSuchDaemon);
+		Result<void> stopped = daemons::stop(names[i]);
+		REQUIRE_FALSE(stopped.ok());
+		REQUIRE(stopped.error().code == ErrorCode::NoSuchDaemon);
 
-	Result<void> restarted = daemons::restart("nosuchcam");
-	REQUIRE_FALSE(restarted.ok());
-	REQUIRE(restarted.error().status == Status::NotFound);
-	REQUIRE(restarted.error().code == ErrorCode::NoSuchDaemon);
-
-	// A name the table happens to carry a command for is still not a daemon:
-	// the two lists are asked in that order and the first one decides.
-	Result<void> command = daemons::start("oscam.start");
-	REQUIRE_FALSE(command.ok());
-	REQUIRE(command.error().code == ErrorCode::NoSuchDaemon);
+		Result<void> restarted = daemons::restart(names[i]);
+		REQUIRE_FALSE(restarted.ok());
+		REQUIRE(restarted.error().code == ErrorCode::NoSuchDaemon);
+	}
 }
 
-TEST_CASE("a daemon with no branch for a verb says so and starts nothing", "[daemons]")
+TEST_CASE("a service is driven with systemctl and its unit where systemd runs the box", "[daemons]")
 {
 	Fixture fx;
 	REQUIRE_FALSE(fx.dir.empty());
-	REQUIRE(writeBytes(fx.at("Y_Plugins.sh"),
-			   "#!/bin/sh\nprintf 'ran\\n'\n", 25, 0700));
-	shell::setScriptRoot(fx.dir);
+	const std::string root = fx.box(true);
+	REQUIRE(writeText(root + "/lib/systemd/system/smb.service", "[Unit]\n"));
+	REQUIRE(writeText(root + "/lib/systemd/system/crond.service", "[Unit]\n"));
+	fx.script(root + "/etc/init.d/tuxcald");
+	fx.script(root + "/var/etc/init.d/xupnpd");
+	daemons::setSystemRoot(root);
 
-	// The plugin scripts have a start and a stop and nothing that restarts.
-	Result<void> r = daemons::restart("dropbear");
-	REQUIRE_FALSE(r.ok());
-	REQUIRE(r.error().status == Status::NotSupported);
-	// Its own code, not the one a name nothing knows would get: the caller has
-	// to be able to tell a daemon it may not restart from one that is not there.
-	REQUIRE(r.error().code == ErrorCode::NoSuchVerb);
-
-	// A camd has all three.
-	REQUIRE(shell::find("oscam.restart") != NULL);
-}
-
-TEST_CASE("starting a daemon runs the branch the table names", "[daemons]")
-{
-	Fixture fx;
-	REQUIRE_FALSE(fx.dir.empty());
-	// The two scripts write different marks, so the record says which of them
-	// ran and not only which branch was asked for.
-	const std::string camds =
-		"#!/bin/sh\nprintf 'camds %s\\n' \"$1\" >> " + fx.at("argv") + "\nprintf 'ok\\n'\n";
-	REQUIRE(writeBytes(fx.at("Y_Camds.sh"), camds.data(), camds.size(), 0700));
-	const std::string plugins =
-		"#!/bin/sh\nprintf 'plugins %s\\n' \"$1\" >> " + fx.at("argv") + "\nprintf 'ok\\n'\n";
-	REQUIRE(writeBytes(fx.at("Y_Plugins.sh"), plugins.data(), plugins.size(), 0700));
-	shell::setScriptRoot(fx.dir);
-
-	REQUIRE(daemons::start("oscam").ok());
-	REQUIRE(daemons::stop("cccam").ok());
-	REQUIRE(daemons::restart("mgcamd").ok());
-	REQUIRE(daemons::start("dropbear").ok());
-	REQUIRE(daemons::stop("minidlna").ok());
+	REQUIRE(daemons::start("samba").ok());
+	REQUIRE(daemons::stop("tuxcald").ok());
+	REQUIRE(daemons::restart("crond").ok());
+	REQUIRE(daemons::start("xupnpd").ok());
 
 	REQUIRE(readAll(fx.at("argv")) ==
-		"camds oscam_start\n"
-		"camds cccam_stop\n"
-		"camds mgcamd_reset\n"
-		"plugins dropbear_start\n"
-		"plugins minidlna_stop\n");
+		"systemctl start smb.service\n"
+		"systemctl stop tuxcald.service\n"
+		"systemctl restart crond.service\n"
+		"xupnpd start\n");
 }
 
-TEST_CASE("a script that failed is carried up rather than read as success", "[daemons]")
+TEST_CASE("a service is driven with its init script where systemd does not run the box", "[daemons]")
 {
 	Fixture fx;
 	REQUIRE_FALSE(fx.dir.empty());
-	REQUIRE(writeBytes(fx.at("Y_Camds.sh"), "#!/bin/sh\nexit 3\n", 17, 0700));
-	shell::setScriptRoot(fx.dir);
+	const std::string root = fx.box(false);
+	REQUIRE(writeText(root + "/lib/systemd/system/smb.service", "[Unit]\n"));
+	fx.script(root + "/etc/init.d/samba");
+	fx.script(root + "/var/etc/init.d/minidlnad");
+	daemons::setSystemRoot(root);
 
-	Result<void> r = daemons::start("oscam");
-	REQUIRE_FALSE(r.ok());
-	REQUIRE(r.error().status == Status::Internal);
-	// The runner's own code, carried up as it was given rather than replaced
-	// with one of this layer's, or a caller cannot tell a script that failed
-	// from one that was never there.
-	REQUIRE(r.error().code == ErrorCode::ExitStatus);
+	REQUIRE(daemons::start("samba").ok());
+	REQUIRE(daemons::restart("minidlna").ok());
+	REQUIRE(daemons::stop("samba").ok());
+
+	REQUIRE(readAll(fx.at("argv")) ==
+		"samba start\n"
+		"minidlnad restart\n"
+		"samba stop\n");
 }
 
-TEST_CASE("a script that is not there is told apart from one that failed", "[daemons]")
+TEST_CASE("a service this box does not carry is said, and nothing runs", "[daemons]")
 {
 	Fixture fx;
 	REQUIRE_FALSE(fx.dir.empty());
-	shell::setScriptRoot(fx.dir);
+	daemons::setSystemRoot(fx.box(true));
 
-	Result<void> r = daemons::start("oscam");
+	Result<void> r = daemons::start("samba");
 	REQUIRE_FALSE(r.ok());
 	REQUIRE(r.error().status == Status::NotFound);
 	REQUIRE(r.error().code == ErrorCode::ScriptMissing);
+	REQUIRE(readAll(fx.at("argv")).empty());
+}
+
+TEST_CASE("a command that failed is carried up rather than read as success", "[daemons]")
+{
+	Fixture fx;
+	REQUIRE_FALSE(fx.dir.empty());
+	const std::string root = fx.box(true, 5);
+	REQUIRE(writeText(root + "/lib/systemd/system/smb.service", "[Unit]\n"));
+	daemons::setSystemRoot(root);
+
+	Result<void> r = daemons::start("samba");
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Internal);
+	// The runner's own code, carried up as it was given rather than replaced
+	// with one of this layer's, or a caller cannot tell a command that failed
+	// from one that was never there.
+	REQUIRE(r.error().code == ErrorCode::ExitStatus);
 }
 
 TEST_CASE("each daemon is looked for under the name its program carries", "[daemons]")
@@ -410,13 +426,6 @@ TEST_CASE("each daemon is looked for under the name its program carries", "[daem
 	// report a running daemon as stopped with nothing else failing.
 	struct Pair { const char *daemon; const char *process; };
 	static const Pair expected[] = {
-		{ "mgcamd", "mgcamd" },
-		{ "gbox", "gbox" },
-		{ "oscam", "oscam" },
-		{ "osmod", "osmod" },
-		{ "ncam", "ncam" },
-		{ "cccam", "cccam" },
-		{ "doscam", "doscam" },
 		{ "fritzcallmonitor", "fritzcallmonitor" },
 		{ "nfs", "nfsd" },
 		{ "samba", "smbd" },

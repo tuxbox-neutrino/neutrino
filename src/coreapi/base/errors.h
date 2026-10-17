@@ -44,12 +44,9 @@ enum class ErrorCode
 	NoSuchTimer,
 	NoSuchDaemon,
 	NoSuchDisplay,
-	NoSuchVerb,
-	NoSuchCommand,
 	/* A path this server does not route, and a method it does not answer at a
 	   path it does route. Two codes, because a caller either asks for a path
-	   that is there or asks for this one the way it answers. Apart from
-	   NoSuchVerb above, which is a daemon and the verbs that daemon takes. */
+	   that is there or asks for this one the way it answers. */
 	NoSuchRoute,
 	NoSuchMethod,
 	NoSuchParameter,
@@ -499,8 +496,6 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::NoSuchTimer: return "no-such-timer";
 		case ErrorCode::NoSuchDaemon: return "no-such-daemon";
 		case ErrorCode::NoSuchDisplay: return "no-such-display";
-		case ErrorCode::NoSuchVerb: return "no-such-verb";
-		case ErrorCode::NoSuchCommand: return "no-such-command";
 		case ErrorCode::NoSuchRoute: return "no-such-route";
 		case ErrorCode::NoSuchMethod: return "no-such-method";
 		case ErrorCode::NoSuchParameter: return "no-such-parameter";
