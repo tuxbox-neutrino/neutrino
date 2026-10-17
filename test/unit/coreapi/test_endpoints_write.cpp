@@ -4969,8 +4969,22 @@ TEST_CASE("an extension uploaded as an archive is installed, listed, replaced an
 	ExtFixture::write(x.web + "/scripts/clock_tool.sh", sayingTool("one"));
 	ExtFixture::write(x.web + "/scripts/old_tool.sh", "#!/bin/sh\necho changed at the box\n");
 	x.tree(clockFiles("2.0", sayingTool("two")));
+	// an update that names another extension, or none an extension carries, changes nothing
 	REQUIRE(x.pack("clock2.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\"}").code == 201);
+	const Reply other = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"radio\"}");
+	REQUIRE(other.code == 400);
+	REQUIRE(other.body.find("extension-refused") != std::string::npos);
+	REQUIRE(other.body.find("holds the extension clock, not radio") != std::string::npos);
+	REQUIRE(access((x.tmp + "/clock2.tar.gz").c_str(), F_OK) != 0);
+	REQUIRE(x.pack("clock2.tar.gz", "clock"));
+	const Reply unnamable = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"bad.name\"}");
+	REQUIRE(unnamable.code == 400);
+	REQUIRE(unnamable.body.find("bad-name") != std::string::npos);
+	REQUIRE(access((x.tmp + "/clock2.tar.gz").c_str(), F_OK) != 0);
+	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
+	REQUIRE(x.leftovers().empty());
+	REQUIRE(x.pack("clock2.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\",\"dir\":\"clock\"}").code == 201);
 	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");
 	REQUIRE(access((x.web + "/extensions/clock/scripts/old_tool.sh").c_str(), F_OK) != 0);
 	REQUIRE(access((x.web + "/scripts/clock_tool.sh").c_str(), F_OK) != 0);

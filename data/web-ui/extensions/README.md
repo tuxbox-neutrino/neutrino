@@ -70,7 +70,7 @@ needed:
 | Field | Meaning |
 |------|-----------|
 | `label` | Category name in the sidebar (default: `name`) |
-| `config` | Target config for `key` fields: `webui` (default), `neutrino`, `nhttpd` |
+| `config` | Where `key` fields are kept: `webui` (default, the web interface's own `webui.conf`), `nhttpd` (the web server), or `settings/<section>` (one section of the box's settings: `GET /api/v1/settings/sections` names them, a key is a setting's id there) |
 | `sections[].fields[]` | Field types `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
 
 `key` fields are persisted in the chosen config file. An `action`
@@ -179,10 +179,14 @@ Key points:
   try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || 'dark'); } catch (e) {}
   </script>
   ```
-- **Fetch data only through `/api/v4/`**, easiest via the helper:
-  `var sys = await webuiApi('sysinfo');`
-  Reference of all endpoints: Doxygen page "Neutrino Web-API v4"
-  (`doc/nhttpd/apiv4.dox` in the source tree).
+- **Talk to the box only through `/api/v1/`**, with the helper from
+  `<script src="/js/webui-v1.js"></script>`:
+  `var info = await webuiV1('GET', '/system/info');` — it signs in
+  again on a stale session and throws an `Error` carrying the refusal's
+  `code`. Every route is described in the box's own document,
+  `/api/openapi.json`, browsable at `/swagger/` where the API reference
+  package is installed. The old `/api/v4/` and `/control/` routes are
+  not part of this contract.
 
 ## 4. Enable
 
@@ -226,6 +230,10 @@ anything):
   names and 64 MiB unpacked.
 - It unpacks to `<webroot>/extensions/<folder>/`, files readable by
   all (0644), directories 0755.
+- A release is published as `<folder>.tar.gz` holding `<folder>/`.
+  An update keeps the folder name: the manager names the extension it
+  updates (`"dir"` in `POST /api/v1/webui/extensions`), and the box
+  refuses an archive that holds another one.
 - The shell scripts the box runs for it are the ones `manifest.json`
   names under `scripts`: a list of at most 64 names of letters, digits,
   dots, dashes and underscores, not beginning with a dash or a dot;
@@ -254,8 +262,9 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 
 ## Rules
 
-- No dependencies on core internals — only the documented
-  `/api/v4/` surface (plus the script route above for actions).
+- No dependencies on core internals — only the documented `/api/v1/`
+  surface, the `webui-*` classes and helpers of the pages, and the
+  script route above for actions.
 - The folder name is the stable key (config keys, URL
   `/extensions/<folder>/...`) — do not change it after publication.
 - Extensions are **off** by default (opt-in by the user).

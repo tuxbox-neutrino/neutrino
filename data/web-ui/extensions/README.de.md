@@ -70,7 +70,7 @@ verglichen und gespeichert — kein eigener JS-Code nötig:
 | Feld | Bedeutung |
 |------|-----------|
 | `label` | Kategoriename in der Seitenleiste (Default: `name`) |
-| `config` | Ziel-Config fuer `key`-Felder: `webui` (Default), `neutrino`, `nhttpd` |
+| `config` | Wo `key`-Felder liegen: `webui` (Default, die eigene `webui.conf` der Weboberfläche), `nhttpd` (der Webserver) oder `settings/<abschnitt>` (ein Abschnitt der Box-Einstellungen: `GET /api/v1/settings/sections` nennt sie, ein Key ist dort die id einer Einstellung) |
 | `sections[].fields[]` | Feldtypen `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
 
 `key`-Felder werden in der gewählten Config-Datei persistiert. Ein
@@ -180,10 +180,14 @@ Kernpunkte:
   try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || 'dark'); } catch (e) {}
   </script>
   ```
-- **Daten nur über `/api/v4/`** holen, am einfachsten mit dem Helfer:
-  `var sys = await webuiApi('sysinfo');`
-  Referenz aller Endpoints: Doxygen-Seite „Neutrino Web-API v4"
-  (`doc/nhttpd/apiv4.dox` im Quellbaum).
+- **Mit der Box nur über `/api/v1/`** sprechen, mit dem Helfer aus
+  `<script src="/js/webui-v1.js"></script>`:
+  `var info = await webuiV1('GET', '/system/info');` — er meldet sich
+  bei einer abgelaufenen Sitzung neu an und wirft einen `Error` mit dem
+  `code` der Ablehnung. Jede Route beschreibt das Dokument der Box
+  selbst, `/api/openapi.json`, durchsuchbar unter `/swagger/`, wo das
+  Paket der API-Referenz installiert ist. Die alten Routen `/api/v4/`
+  und `/control/` gehören nicht zu diesem Vertrag.
 
 ## 4. Aktivieren
 
@@ -229,6 +233,11 @@ herunter):
   16 MiB gepackt, 2000 Namen und 64 MiB entpackt.
 - Es entpackt nach `<webroot>/extensions/<ordner>/`, Dateien für alle
   lesbar (0644), Verzeichnisse 0755.
+- Ein Release erscheint als `<ordner>.tar.gz` mit `<ordner>/` darin.
+  Ein Update behält den Ordnernamen: die Verwaltung nennt die
+  Erweiterung, die sie aktualisiert (`"dir"` in
+  `POST /api/v1/webui/extensions`), und die Box weist ein Archiv ab,
+  das eine andere enthält.
 - Die Shell-Skripte, die die Box für sie ausführt, sind die, die
   `manifest.json` unter `scripts` nennt: eine Liste von höchstens 64
   Namen aus Buchstaben, Ziffern, Punkten, Bindestrichen und
@@ -261,7 +270,8 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 ## Regeln
 
 - Keine Abhängigkeiten auf Kern-Interna — nur die dokumentierte
-  `/api/v4/`-Fläche (plus die Skript-Route oben für Aktionen).
+  `/api/v1/`-Fläche, die `webui-*`-Klassen und -Helfer der Seiten und
+  die Skript-Route oben für Aktionen.
 - Der Ordnername ist der stabile Schlüssel (Config-Keys, URL
   `/extensions/<ordner>/...`) — nach der Veröffentlichung nicht ändern.
 - Erweiterungen sind standardmäßig **aus** (Opt-in durch den Nutzer).

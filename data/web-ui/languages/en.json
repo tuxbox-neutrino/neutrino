@@ -370,6 +370,7 @@
 	"set.ext_col_action": "Action",
 	"set.ext_action_done": "Done",
 	"set.ext_action_old": "This action is written for an older extension contract and cannot run",
+	"set.ext_config_old": "this extension keeps its settings in a place this version no longer reaches",
 	"set.extinst_section": "Install / update",
 	"set.extinst_label": "New extension (tar.gz or URL)",
 	"set.extinst_btn": "Install",

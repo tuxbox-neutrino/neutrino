@@ -28,15 +28,21 @@ Der Loader lebt in `data/web-ui/js/webui-header.js` (`webuiDiscoverExtensions` /
   `/extensions/<ordner>/<entry>`
 - `version`: kanonische Version der Erweiterung (semantisch
   `major.minor.patch`, siehe \ref ywebext_repos)
+- `scripts`: optional, die Shell-Scripts, die die Box fuer sie ausfuehrt
+  (siehe \ref ywebext_tarball)
+
+Erweiterungen sprechen mit der Box nur ueber `/api/v1/` (Helfer
+`webuiV1` aus `/js/webui-v1.js`); jede Route beschreibt das Dokument
+`/api/openapi.json`. `/api/v4/` und `/control/` gehoeren nicht zum
+Vertrag.
 
 \section ywebext_gating Config-Schaltung (webui.conf)
 
 - `ext_<ordner>_enabled` = `0|1` — Erweiterungen sind standardmaessig AUS
   (Opt-in), verwaltet ueber Einstellungen → Erweiterungen.
 - `ext_<ordner>_slot` — optionaler Slot-Override.
-- Achtung Encoding: die Config-Ausgabe von CControlAPI::ConfigCGI encodiert
-  `-` als `_bind_` und `.` als `_dot_`; Clients muessen beim LESEN die
-  encodierte Form verwenden (Submit nimmt die rohe Form an).
+- Gelesen und geschrieben ueber `GET`/`PATCH /api/v1/webui/settings`, mit
+  den Keys, wie sie sind.
 
 \section ywebext_lang Sprachpakete (languages/)
 
@@ -94,7 +100,12 @@ Die Installation (`POST /api/v1/webui/extensions`) erzwingt:
 - genau EIN Top-Level-Ordner; Name = Erweiterungs-Schluessel, Muster
   `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
 - `manifest.json` im Ordner ist Pflicht;
-- absolute Pfade oder `..`-Komponenten im Archiv werden abgewiesen;
+- absolute Pfade oder `..`-Komponenten im Archiv werden abgewiesen, ebenso
+  Links und Geraete; hoechstens 16 MiB gepackt, 2000 Namen, 64 MiB
+  entpackt; Dateien 0644, Verzeichnisse 0755;
+- ein Release heisst `<ordner>.tar.gz` und enthaelt `<ordner>/`; ein Update
+  behaelt den Ordnernamen, die Verwaltung nennt ihn (`"dir"`), und die Box
+  weist ein Archiv mit einer anderen Erweiterung ab;
 - die Shell-Scripts, die die Box ausfuehrt, nennt `manifest.json` unter
   `scripts` (Namen ohne `.sh`, hoechstens 64); jedes muss als
   `<ordner>/scripts/<name>.sh` im Archiv liegen. Nur diese werden
@@ -194,15 +205,20 @@ init of every modern page.
   `/extensions/<folder>/<entry>`
 - `version`: canonical extension version (semantic
   `major.minor.patch`, see \ref ywebext_en_repos)
+- `scripts`: optional, the shell scripts the box runs for it (see
+  \ref ywebext_en_tarball)
+
+Extensions talk to the box only over `/api/v1/` (helper `webuiV1` from
+`/js/webui-v1.js`); the document `/api/openapi.json` describes every
+route. `/api/v4/` and `/control/` are not part of the contract.
 
 \section ywebext_en_gating Config gating (webui.conf)
 
 - `ext_<folder>_enabled` = `0|1` — extensions are OFF by default
   (opt-in), managed via Settings → Extensions.
 - `ext_<folder>_slot` — optional slot override.
-- Encoding caveat: the config output of CControlAPI::ConfigCGI encodes
-  `-` as `_bind_` and `.` as `_dot_`; clients must READ the encoded
-  form (submit accepts the raw form).
+- Read and written over `GET`/`PATCH /api/v1/webui/settings`, with the
+  keys as they are.
 
 \section ywebext_en_lang Language packs (languages/)
 
@@ -261,7 +277,12 @@ The install (`POST /api/v1/webui/extensions`) enforces:
 - exactly ONE top-level folder; its name is the extension key, pattern
   `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
 - `manifest.json` inside the folder is mandatory;
-- archives with absolute paths or `..` components are rejected;
+- archives with absolute paths or `..` components are rejected, and so
+  are links and devices; at most 16 MiB packed, 2000 names, 64 MiB
+  unpacked; files 0644, directories 0755;
+- a release is `<folder>.tar.gz` holding `<folder>/`; an update keeps the
+  folder name, the manager names it (`"dir"`), and the box refuses an
+  archive holding another extension;
 - the shell scripts the box runs are named by `manifest.json` under
   `scripts` (names without `.sh`, at most 64); each has to be
   `<folder>/scripts/<name>.sh` in the archive. Only these are made

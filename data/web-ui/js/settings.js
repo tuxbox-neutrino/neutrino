@@ -403,6 +403,13 @@ async function webserverAfterWrite(answer) {
 	}
 	return 'restarting';
 }
+// An extension's settings kept in one section of the box's own settings,
+// "settings/<section>", read and written over /api/v1; '' for any other.
+function extSettingsSection(cfgName) {
+	var m = /^settings\/([A-Za-z0-9_.-]{1,64})$/.exec(String(cfgName || ''));
+	return m ? m[1] : '';
+}
+
 function renderExtConfigPanel(cat) {
 	setTimeout(function() { loadExtConfigPanel(cat); }, 0);
 	return '<div class="settings-card">' + makeCardHeader(cat.label) +
@@ -420,10 +427,13 @@ async function loadExtConfigPanel(cat) {
 		} else if (cat.config === 'nhttpd') {
 			cfg = await webuiV1('GET', '/system/webserver');
 			get = function(key) { return webserverFieldValue(cfg, key); };
+		} else if (extSettingsSection(cat.config)) {
+			var read = await webuiV1('GET', '/settings/' + encodeURIComponent(extSettingsSection(cat.config)));
+			cfg = {};
+			((read && read.items) || []).forEach(function(it) { cfg[it.id] = String(it.value); });
+			get = function(key) { return cfg[key] !== undefined ? cfg[key] : ''; };
 		} else {
-			var resp = await webuiApi('config', {config: cat.config});
-			cfg = (resp && resp.data && resp.data.config) || {};
-			get = function(key) { return cfg[String(key).replace(/\./g, '_dot_').replace(/-/g, '_bind_')] || ''; };
+			throw new Error(webuiL('set.ext_config_old', 'this extension keeps its settings in a place this version no longer reaches'));
 		}
 		EXT_CONFIG_CACHE[cat.config] = cfg;
 		var html = '';
@@ -469,7 +479,8 @@ async function saveExtConfig(catId, cfgName, btn) {
 	// by their plain keys and member names
 	var webui = cfgName === 'webui';
 	var webserver = cfgName === 'nhttpd';
-	var params = 'action=submit';
+	var section = extSettingsSection(cfgName);
+	if (!webui && !webserver && !section) return;
 	var changes = {};
 	var changed = 0;
 	root.querySelectorAll('[data-key][data-extcfg]').forEach(function(el) {
@@ -482,9 +493,7 @@ async function saveExtConfig(catId, cfgName, btn) {
 			changed++;
 			return;
 		}
-		var ck = webui ? key : key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
-		if (val !== (cfg[ck] || '')) {
-			params += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(val);
+		if (val !== (cfg[key] || '')) {
 			changes[key] = val;
 			changed++;
 		}
@@ -497,9 +506,14 @@ async function saveExtConfig(catId, cfgName, btn) {
 			await webuiSettingsWrite(changes);
 		else if (webserver)
 			after = await webserverAfterWrite(await webuiV1('PUT', '/system/webserver', {body: changes}));
-		else
-			// in the body: the password field travels with it
-			await webuiApi('config', 'config=' + cfgName + '&' + params, {post: true});
+		else {
+			// 207: some keys landed, the others name their refusal
+			var answer = await webuiV1('PATCH', '/settings/' + encodeURIComponent(section), {body: changes});
+			var results = (answer && answer.results) || {};
+			var refused = Object.keys(results).filter(function(k) { return results[k] && results[k].status >= 300; });
+			if (refused.length)
+				throw new Error(refused.map(function(k) { return k + ': ' + (results[k].detail || results[k].code || results[k].status); }).join('; '));
+		}
 		if (after === 'moving') return;
 		if (after !== 'restarting') webuiShowToast(changed + ' ' + (changed > 1 ? webuiL('set.saved_many', 'settings saved') : webuiL('set.saved_one', 'setting saved')));
 		await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
@@ -656,12 +670,15 @@ function extInstallDialog() {
 }
 
 // The archive up to /tmp under a name of the page's own, then installed
-// from there; the box takes the upload over and removes it.
-async function extUploadAndInstall(blob, originalName) {
+// from there; the box takes the upload over and removes it. An update
+// names the extension it updates, and the box refuses an archive of another.
+async function extUploadAndInstall(blob, originalName, dir) {
 	var tar = /\.tar$/i.test(String(originalName || ''));
 	var name = 'ext-' + Date.now() + (tar ? '.tar' : '.tar.gz');
 	await webuiV1UploadPieces(blob, '/tmp/' + name);
-	return webuiV1('POST', '/webui/extensions', {body: {file: name}});
+	var body = {file: name};
+	if (dir) body.dir = dir;
+	return webuiV1('POST', '/webui/extensions', {body: body});
 }
 
 // The browser loads it; an address that does not let a page read it is said.
@@ -766,7 +783,7 @@ async function extUpdate(dir, btn) {
 	if (!u) return;
 	btn.disabled = true;
 	try {
-		var res = await extUploadAndInstall(await extFetchArchive(u.tarball), u.tarball.split(/[?#]/)[0]);
+		var res = await extUploadAndInstall(await extFetchArchive(u.tarball), u.tarball.split(/[?#]/)[0], dir);
 		delete _extUpdates[dir];
 		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir) + ' v' + u.version);
 		await loadExtensionsPanel();

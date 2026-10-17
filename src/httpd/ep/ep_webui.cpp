@@ -280,7 +280,10 @@ Response listExtensions(const Request &)
 
 Response installExtension(const Request &r)
 {
-	coreapi::Result<coreapi::extensions::Extension> got = coreapi::extensions::install(r.asString("file"));
+	// an update names the extension it updates, and an archive holding another is refused
+	coreapi::Result<coreapi::extensions::Extension> got = r.has("dir")
+		? coreapi::extensions::install(r.asString("file"), r.asString("dir"))
+		: coreapi::extensions::install(r.asString("file"));
 	if (!got.ok())
 		return problemFor(got.error());
 	Response out = createdJson();
@@ -339,6 +342,9 @@ const Param kInstallParams[] = {
 	HTTPD_BODY_REQUIRED_TEXT("file",
 		"the archive's name in /tmp, where `PUT` and `PATCH /api/v1/storage/file` uploaded it: letters, "
 		"digits, dots, dashes and underscores, ending in .tar.gz, .tgz or .tar", 255),
+	HTTPD_BODY_TEXT("dir",
+		"the extension the archive has to hold, as an update or an install from an index names it; "
+		"an archive whose directory is another one is refused and nothing changes", 64),
 };
 
 const Param kExtensionParams[] = {
@@ -451,11 +457,14 @@ const Endpoint kWebuiEndpoints[] = {
 	  "scripts stay in its directory, where "
 	  "`POST /api/v1/webui/extensions/{dir}/scripts/{name}` runs them; copies an earlier install of "
 	  "it left beside the pages' own scripts go, where they are still as that install left them. "
-	  "The upload goes in every case.\n\n"
+	  "An update names the extension it updates in `dir`, and an archive holding another one is "
+	  "refused. The upload goes in every case.\n\n"
 	  "**Refusals:**\n"
-	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar.\n"
+	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar, or "
+	  "`dir` is no name an extension carries.\n"
 	  "- `404 no-such-name`: no archive of that name was uploaded.\n"
-	  "- `400 extension-refused`: the archive is not an extension this box takes; the detail says why.\n"
+	  "- `400 extension-refused`: the archive is not an extension this box takes, or not the one "
+	  "`dir` names; the detail says why.\n"
 	  "- `409 extension-refused`: another extension is being installed or removed.\n"
 	  "- `500 extension-refused`: the disc refused; an installed extension of that name is as it "
 	  "was.\n\n"

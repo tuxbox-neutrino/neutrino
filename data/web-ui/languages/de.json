@@ -370,6 +370,7 @@
 	"set.ext_col_action": "Aktion",
 	"set.ext_action_done": "Ausgeführt",
 	"set.ext_action_old": "Diese Aktion ist für einen älteren Erweiterungsvertrag geschrieben und kann nicht laufen",
+	"set.ext_config_old": "diese Erweiterung hält ihre Einstellungen an einem Ort, den diese Version nicht mehr erreicht",
 	"set.extinst_section": "Installieren / Aktualisieren",
 	"set.extinst_label": "Neue Erweiterung (tar.gz oder URL)",
 	"set.extinst_btn": "Installieren",

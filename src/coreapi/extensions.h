@@ -75,6 +75,12 @@ Result<std::vector<Extension> > list();
    way. The upload goes in every case. */
 Result<Extension> install(const std::string &file);
 
+/* The same, for an archive that has to hold the extension expected, as an
+   update or an install from an index names it: InvalidArgument BadName for a
+   name no extension carries, InvalidArgument ExtensionRefused for an archive
+   whose directory is another one, and nothing changes. */
+Result<Extension> install(const std::string &file, const std::string &expected);
+
 /* Takes an installed extension away, its scripts with it, and copies an
    earlier install of it left beside the pages' own scripts, each only where
    the pages' script of that name is still the one it installed and is not one

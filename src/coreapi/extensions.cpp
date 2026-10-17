@@ -629,7 +629,25 @@ Result<std::vector<Extension> > list()
 	return Result<std::vector<Extension> >::success(out);
 }
 
+namespace
+{
+Result<Extension> installChecked(const std::string &file, const std::string *expected);
+} // namespace
+
 Result<Extension> install(const std::string &file)
+{
+	return installChecked(file, NULL);
+}
+
+Result<Extension> install(const std::string &file, const std::string &expected)
+{
+	return installChecked(file, &expected);
+}
+
+namespace
+{
+
+Result<Extension> installChecked(const std::string &file, const std::string *expected)
 {
 	if (!plainUpload(file))
 		return fail(Status::InvalidArgument, ErrorCode::BadName,
@@ -639,6 +657,12 @@ Result<Extension> install(const std::string &file)
 	struct stat st;
 	if (lstat(upload.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
 		return fail(Status::NotFound, ErrorCode::NoSuchName, "there is no uploaded archive of that name");
+	if (expected != NULL && !extensionName(*expected))
+	{
+		unlink(upload.c_str());
+		return fail(Status::InvalidArgument, ErrorCode::BadName,
+			    "an extension is named with letters, digits, dashes and underscores");
+	}
 
 	// the upload goes whatever comes of it, as it does once taken over
 	if (changing().trylock() != 0)
@@ -739,6 +763,8 @@ Result<Extension> install(const std::string &file)
 			       "beginning with a letter or a digit: " + name);
 	if (!manifest)
 		return refused("the archive holds no " + std::string(kManifest) + " in its directory");
+	if (expected != NULL && name != *expected)
+		return refused("the archive holds the extension " + name + ", not " + *expected);
 
 	/* Copies an earlier install of it left beside the pages' own scripts, as
 	   installs once did, still as that install left them. */
@@ -849,6 +875,8 @@ Result<Extension> install(const std::string &file)
 	x.scripts = scripts;
 	return Result<Extension>::success(x);
 }
+
+} // namespace
 
 Result<void> remove(const std::string &dir)
 {
