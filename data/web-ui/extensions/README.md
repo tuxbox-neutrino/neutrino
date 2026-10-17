@@ -38,6 +38,7 @@ extensions/
 | `entry_js` | optional: runtime script, loaded on every modern page (see below) |
 | `description` | optional subtitle |
 | `settings` | optional: own category under Settings (see below) |
+| `scripts` | optional: the shell scripts the box runs for it, by name without `.sh` (see the packaging contract) |
 
 At least one of `entry`, `entry_js` or `settings.sections` must be
 present, otherwise the manifest is ignored.
@@ -58,8 +59,8 @@ needed:
 			{ "key": "my_option", "label": "Option", "type": "text" },
 			{ "key": "my_switch", "label": "Switch", "type": "bool01" },
 			{ "type": "action", "id": "my-button", "label": "Action",
-			  "button": "Go", "api": { "endpoint": "exec",
-			  "params": "MyScript&action", "raw": true },
+			  "button": "Go",
+			  "api": { "script": "my-action", "args": ["run"] },
 			  "success": "Done" }
 		] }
 	]
@@ -72,9 +73,13 @@ needed:
 | `config` | Target config for `key` fields: `webui` (default), `neutrino`, `nhttpd` |
 | `sections[].fields[]` | Field types `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
 
-`key` fields are persisted in the chosen config file; `action` fields
-fire a v4 call (typically `exec` on a script); without a `success` text
-the script output is shown as toast feedback.
+`key` fields are persisted in the chosen config file. An `action`
+field runs one of the extension's own scripts: `api.script` names it
+as the manifest's `scripts` list does (`"scripts": ["my-action"]` for
+the example), `api.args` is the list of its arguments, each reaching
+the script as one and none beginning with a dash. It goes over
+`POST /api/v1/webui/extensions/<folder>/scripts/<name>`; without a
+`success` text the script's output is shown as toast feedback.
 
 ### Optional: own language pack (`languages/`)
 
@@ -207,7 +212,8 @@ anything):
   overridable via the `webui.conf` key `ext_index_url`). Available
   updates show a badge and an update button in the row.
 - **Uninstall**: row button with confirmation. Removes the extension
-  folder and the scripts it shipped, each only where it is still the
+  folder with its scripts, and the copies an earlier version of the
+  manager left in `<webroot>/scripts/`, each only where it is still the
   copy it installed; the `ext_<folder>_*` config keys are taken out.
 
 ### Packaging contract (`<folder>.tar.gz`)
@@ -220,19 +226,23 @@ anything):
   names and 64 MiB unpacked.
 - It unpacks to `<webroot>/extensions/<folder>/`, files readable by
   all (0644), directories 0755.
-- Shell scripts in `<folder>/scripts/*.sh` (letters, digits, dots,
-  dashes and underscores) are copied to `<webroot>/scripts/` on install,
-  executable (available for `exec`/`action` fields), and removed on
-  uninstall. A script may not take the name of one the pages already
-  have — the box's own or another extension's — so name them uniquely;
-  only the same extension's earlier copy, unchanged, is replaced.
-- Scripts are copied **verbatim** — build-time placeholders like
+- The shell scripts the box runs for it are the ones `manifest.json`
+  names under `scripts`: a list of at most 64 names of letters, digits,
+  dots, dashes and underscores, not beginning with a dash or a dot;
+  each has to be the regular file `<folder>/scripts/<name>.sh` in the
+  archive, or the install is refused. These and no other file are made
+  executable (0755). They stay in the folder and run from there over
+  `POST /api/v1/webui/extensions/<folder>/scripts/<name>` (system level,
+  the arguments as a JSON list, no shell, at most 10 seconds and 64 KiB
+  of output); nothing is copied to `<webroot>/scripts/`, so a name only
+  has to be unique within the extension.
+- Scripts run **verbatim** — build-time placeholders like
   `%(PRIVATE_HTTPDDIR)` are *not* expanded (that only happens during
-  the core's `make install`). Locate shared libraries from the script
-  path instead:
+  the core's `make install`). Find the extension's own files from the
+  script path instead:
   ```sh
   SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
-  [ -r "$SCRIPTDIR/_Y_Globals.sh" ] && . "$SCRIPTDIR/_Y_Globals.sh"
+  EXTDIR=$(dirname -- "$SCRIPTDIR")
   ```
 - Build command (used by the release workflows):
 
@@ -245,7 +255,7 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 ## Rules
 
 - No dependencies on core internals — only the documented
-  `/api/v4/` surface (plus the `exec` contract for script actions).
+  `/api/v4/` surface (plus the script route above for actions).
 - The folder name is the stable key (config keys, URL
   `/extensions/<folder>/...`) — do not change it after publication.
 - Extensions are **off** by default (opt-in by the user).

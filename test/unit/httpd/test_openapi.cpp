@@ -936,7 +936,7 @@ TEST_CASE("a body of its own is in the document for the routes that declare one 
 			++whole;
 		}
 	}
-	REQUIRE(whole == 6);
+	REQUIRE(whole == 7);
 }
 
 const Param kWholeListParams[] = {

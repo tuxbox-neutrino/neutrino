@@ -1443,7 +1443,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 66);
+	REQUIRE(changing == 67);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -4868,10 +4868,22 @@ struct ExtFixture
 std::vector<std::pair<std::string, std::string> > clockFiles(const std::string &version, const std::string &tool)
 {
 	std::vector<std::pair<std::string, std::string> > f;
-	f.push_back(std::make_pair("clock/manifest.json", "{\"name\":\"Clock\",\"version\":\"" + version + "\",\"slot\":\"tools\",\"entry\":\"index.html\"}"));
+	f.push_back(std::make_pair("clock/manifest.json", "{\"name\":\"Clock\",\"version\":\"" + version +
+		"\",\"slot\":\"tools\",\"entry\":\"index.html\",\"scripts\":[\"clock_tool\"]}"));
 	f.push_back(std::make_pair("clock/index.html", "<p>clock " + version + "</p>"));
 	f.push_back(std::make_pair("clock/scripts/clock_tool.sh", tool));
 	return f;
+}
+
+// A script that says which version it is and every argument it was handed.
+std::string sayingTool(const std::string &version)
+{
+	return "#!/bin/sh\nprintf '" + version + ":%s|' \"$@\"\n";
+}
+
+Reply runClock(const std::string &script, const std::string &body)
+{
+	return authedPost("/api/v1/webui/extensions/clock/scripts/" + script, body);
 }
 
 } // namespace
@@ -4884,7 +4896,8 @@ TEST_CASE("an extension uploaded as an archive is installed, listed, replaced an
 	// none yet, and the list says so to a reader on the home network
 	REQUIRE(parsed(send(Get, "/api/v1/webui/extensions", "", AuthLevel::Read, "192.168.1.20").body)["items"].size() == 0);
 
-	std::vector<std::pair<std::string, std::string> > files = clockFiles("1.0", "#!/bin/sh\necho one\n");
+	// a script its manifest does not name is a file of it like any other
+	std::vector<std::pair<std::string, std::string> > files = clockFiles("1.0", sayingTool("one"));
 	files.push_back(std::make_pair("clock/scripts/old_tool.sh", "#!/bin/sh\necho old\n"));
 	x.tree(files);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
@@ -4892,54 +4905,89 @@ TEST_CASE("an extension uploaded as an archive is installed, listed, replaced an
 	REQUIRE(in.code == 201);
 	const ::Json::Value got = parsed(in.body);
 	REQUIRE(got["dir"].asString() == "clock");
-	REQUIRE(got["scripts"].size() == 2);
+	REQUIRE(got["scripts"].size() == 1);
+	REQUIRE(got["scripts"][0].asString() == "clock_tool");
 	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
-	REQUIRE(x.read(x.web + "/scripts/clock_tool.sh") == "#!/bin/sh\necho one\n");
 	struct stat st;
-	REQUIRE(stat((x.web + "/scripts/clock_tool.sh").c_str(), &st) == 0);
+	REQUIRE(stat((x.web + "/extensions/clock/scripts/clock_tool.sh").c_str(), &st) == 0);
 	REQUIRE((st.st_mode & 0777) == 0755);
+	REQUIRE(stat((x.web + "/extensions/clock/scripts/old_tool.sh").c_str(), &st) == 0);
+	REQUIRE((st.st_mode & 0777) == 0644);
 	REQUIRE(stat((x.web + "/extensions/clock/index.html").c_str(), &st) == 0);
 	REQUIRE((st.st_mode & 0777) == 0644);
+	// its scripts stay in its directory: nothing beside the pages' own
+	REQUIRE(access((x.web + "/scripts/clock_tool.sh").c_str(), F_OK) != 0);
+	REQUIRE(access((x.web + "/scripts/old_tool.sh").c_str(), F_OK) != 0);
 	REQUIRE(access((x.tmp + "/clock.tar.gz").c_str(), F_OK) != 0);
 	REQUIRE(x.leftovers().empty());
 
 	const ::Json::Value listed = parsed(send(Get, "/api/v1/webui/extensions", "", AuthLevel::Read, "192.168.1.20").body);
 	REQUIRE(listed["items"].size() == 1);
 	REQUIRE(listed["items"][0]["dir"].asString() == "clock");
+	REQUIRE(listed["items"][0]["scripts"].size() == 1);
+	REQUIRE(listed["items"][0]["scripts"][0].asString() == "clock_tool");
 
-	// A newer version takes its place; the script it no longer ships goes, a
-	// script of its changed by hand would not.
-	x.tree(clockFiles("2.0", "#!/bin/sh\necho two\n"));
+	// run from there, each element one argument, a space and a quote in it kept
+	const Reply ran = runClock("clock_tool", "[\"a b\",\"it's\"]");
+	REQUIRE(ran.code == 200);
+	REQUIRE(parsed(ran.body)["output"].asString() == "one:a b|one:it's|");
+	REQUIRE(parsed(runClock("clock_tool", "[]").body)["output"].asString() == "one:|");
+
+	// only what the manifest names, of an extension that is there, by a plain name
+	const Reply unnamed = runClock("old_tool", "[]");
+	REQUIRE(unnamed.code == 404);
+	REQUIRE(unnamed.body.find("script-missing") != std::string::npos);
+	const Reply nobody = authedPost("/api/v1/webui/extensions/other/scripts/clock_tool", "[]");
+	REQUIRE(nobody.code == 404);
+	REQUIRE(nobody.body.find("no-such-name") != std::string::npos);
+	REQUIRE(runClock("-clock_tool", "[]").code == 400);
+	REQUIRE(runClock(".clock_tool", "[]").code == 400);
+	REQUIRE(authedPost("/api/v1/webui/extensions/bad.name/scripts/clock_tool", "[]").code == 400);
+
+	// what the script is handed: strings, a list of them, none read as an option
+	const Reply dash = runClock("clock_tool", "[\"-n\"]");
+	REQUIRE(dash.code == 400);
+	REQUIRE(dash.body.find("leading-dash") != std::string::npos);
+	REQUIRE(runClock("clock_tool", "{\"args\":[]}").code == 400);
+	REQUIRE(runClock("clock_tool", "[1]").code == 400);
+	std::string many = "[";
+	for (size_t i = 0; i <= coreapi::extensions::kMaxScriptArgs; ++i)
+		many += std::string(i ? "," : "") + "\"a\"";
+	many += "]";
+	const Reply too_many = runClock("clock_tool", many);
+	REQUIRE(too_many.code == 400);
+	REQUIRE(too_many.body.find("bad-string") != std::string::npos);
+	const Reply too_long = runClock("clock_tool", "[\"" + std::string(coreapi::extensions::kMaxScriptArgument + 1, 'a') + "\"]");
+	REQUIRE(too_long.code == 400);
+	REQUIRE(too_long.body.find("bad-string") != std::string::npos);
+	// and only for a caller at the system level
+	REQUIRE(send(Post, "/api/v1/webui/extensions/clock/scripts/clock_tool", "[]", AuthLevel::Write, "127.0.0.1").code == 403);
+
+	/* A newer version takes its place. The copies an earlier install left
+	   beside the pages' own scripts go where they are still as it left them;
+	   one changed at the box stays. */
+	ExtFixture::write(x.web + "/scripts/clock_tool.sh", sayingTool("one"));
+	ExtFixture::write(x.web + "/scripts/old_tool.sh", "#!/bin/sh\necho changed at the box\n");
+	x.tree(clockFiles("2.0", sayingTool("two")));
 	REQUIRE(x.pack("clock2.tar.gz", "clock"));
 	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock2.tar.gz\"}").code == 201);
 	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");
-	REQUIRE(x.read(x.web + "/scripts/clock_tool.sh") == "#!/bin/sh\necho two\n");
-	REQUIRE(access((x.web + "/scripts/old_tool.sh").c_str(), F_OK) != 0);
+	REQUIRE(access((x.web + "/extensions/clock/scripts/old_tool.sh").c_str(), F_OK) != 0);
+	REQUIRE(access((x.web + "/scripts/clock_tool.sh").c_str(), F_OK) != 0);
+	REQUIRE(x.read(x.web + "/scripts/old_tool.sh") == "#!/bin/sh\necho changed at the box\n");
+	REQUIRE(parsed(runClock("clock_tool", "[\"x\"]").body)["output"].asString() == "two:x|");
 	REQUIRE(x.leftovers().empty());
 
-	// The pages' own script is never taken, and an extension's own changed by
-	// hand is no longer its own: nothing changes then.
-	std::vector<std::pair<std::string, std::string> > taking = clockFiles("3.0", "#!/bin/sh\necho three\n");
-	taking.push_back(std::make_pair("clock/scripts/Y_Tools.sh", "#!/bin/sh\necho mine now\n"));
-	x.tree(taking);
-	REQUIRE(x.pack("taking.tar.gz", "clock"));
-	const Reply taken = authedPost("/api/v1/webui/extensions", "{\"file\":\"taking.tar.gz\"}");
-	REQUIRE(taken.code == 409);
-	REQUIRE(taken.body.find("script-name-taken") != std::string::npos);
-	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
-	REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");
-	ExtFixture::write(x.web + "/scripts/clock_tool.sh", "#!/bin/sh\necho changed at the box\n");
-	x.tree(clockFiles("3.0", "#!/bin/sh\necho three\n"));
-	REQUIRE(x.pack("changed.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"changed.tar.gz\"}").code == 409);
-	ExtFixture::write(x.web + "/scripts/clock_tool.sh", "#!/bin/sh\necho two\n");
-	REQUIRE(x.leftovers().empty());
-
-	// Removed, with its script, and the pages' own left.
+	// Removed with its scripts and the copy an earlier install left, the pages' own left.
+	ExtFixture::write(x.web + "/scripts/clock_tool.sh", sayingTool("two"));
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
 	REQUIRE(access((x.web + "/extensions/clock").c_str(), F_OK) != 0);
 	REQUIRE(access((x.web + "/scripts/clock_tool.sh").c_str(), F_OK) != 0);
+	REQUIRE(x.read(x.web + "/scripts/old_tool.sh") == "#!/bin/sh\necho changed at the box\n");
 	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
+	const Reply gone = runClock("clock_tool", "[]");
+	REQUIRE(gone.code == 404);
+	REQUIRE(gone.body.find("no-such-name") != std::string::npos);
 	const Reply again = authedDelete("/api/v1/webui/extensions/clock");
 	REQUIRE(again.code == 404);
 	REQUIRE(again.body.find("no-such-name") != std::string::npos);
@@ -4996,10 +5044,35 @@ TEST_CASE("an archive that is not one extension's files and directories is refus
 	raw.push_back(badname);
 	x.raw("badname.tar", raw);
 	raw.clear();
-	BackupFixture::RawEntry script = { "clock/scripts/bad$name.sh", '0', "#!/bin/sh\n" };
-	raw.push_back(manifest);
-	raw.push_back(script);
-	x.raw("badscript.tar", raw);
+	// what the manifest says of its scripts
+	struct Manifest
+	{
+		const char *file;
+		const char *text;
+	};
+	const Manifest manifests[] = {
+		{ "notobject.tar",  "[]" },
+		{ "extra.tar",      "{} {}" },
+		{ "comment.tar",    "{\"name\":\"Clock\" /* a note */}" },
+		{ "linecomment.tar", "{\"scripts\":[] // a note\n}" },
+		{ "notlist.tar",    "{\"scripts\":\"tool\"}" },
+		{ "badscript.tar",  "{\"scripts\":[\"bad$name\"]}" },
+		{ "dashscript.tar", "{\"scripts\":[\"-tool\"]}" },
+		{ "notext.tar",     "{\"scripts\":[1]}" },
+		{ "missing.tar",    "{\"scripts\":[\"tool\"]}" },
+	};
+	for (size_t i = 0; i < sizeof(manifests) / sizeof(manifests[0]); ++i)
+	{
+		BackupFixture::RawEntry m = { "clock/manifest.json", '0', manifests[i].text };
+		raw.push_back(m);
+		x.raw(manifests[i].file, raw);
+		raw.clear();
+	}
+	BackupFixture::RawEntry tool_manifest = { "clock/manifest.json", '0', "{\"scripts\":[\"tool\"]}" };
+	BackupFixture::RawEntry tool_dir = { "clock/scripts/tool.sh/", '5', "" };
+	raw.push_back(tool_manifest);
+	raw.push_back(tool_dir);
+	x.raw("scriptdir.tar", raw);
 	raw.clear();
 	BackupFixture::RawEntry twice = { "clock/manifest.json", '0', "{\"again\":1}" };
 	raw.push_back(manifest);
@@ -5021,7 +5094,16 @@ TEST_CASE("an archive that is not one extension's files and directories is refus
 		{ "absolute.tar",   "absolute" },
 		{ "loose.tar",      "a file beside its directory" },
 		{ "badname.tar",    "letters, digits, dashes and underscores" },
-		{ "badscript.tar",  "the script" },
+		{ "notobject.tar",  "is not a JSON object" },
+		{ "extra.tar",      "is not a JSON object" },
+		{ "comment.tar",    "is not a JSON object" },
+		{ "linecomment.tar", "is not a JSON object" },
+		{ "notlist.tar",    "other than a list" },
+		{ "badscript.tar",  "names a script other than" },
+		{ "dashscript.tar", "names a script other than" },
+		{ "notext.tar",     "names a script other than" },
+		{ "missing.tar",    "the archive holds no scripts" },
+		{ "scriptdir.tar",  "the archive holds no scripts" },
 		{ "twice.tar",      "twice" },
 		{ "fileanddir.tar", "as a file and as a directory" },
 		{ "junk.tar.gz",    "cannot be read" },
@@ -5037,6 +5119,38 @@ TEST_CASE("an archive that is not one extension's files and directories is refus
 		REQUIRE(access((x.web + "/extensions/clock").c_str(), F_OK) != 0);
 		REQUIRE(x.leftovers().empty());
 	}
+}
+
+TEST_CASE("an extension's script that fails, runs too long or writes too much is said", "[write][extensions]")
+{
+	ShippedRoutes shipped;
+	ExtFixture x;
+	std::vector<std::pair<std::string, std::string> > files;
+	files.push_back(std::make_pair("clock/manifest.json", "{\"name\":\"Clock\",\"scripts\":[\"fails\",\"slow\",\"loud\",\"clock_tool\"]}"));
+	files.push_back(std::make_pair("clock/scripts/fails.sh", "#!/bin/sh\nexit 3\n"));
+	files.push_back(std::make_pair("clock/scripts/slow.sh", "#!/bin/sh\nsleep 5\n"));
+	files.push_back(std::make_pair("clock/scripts/loud.sh", "#!/bin/sh\nhead -c 70000 /dev/zero | tr '\\0' a\n"));
+	files.push_back(std::make_pair("clock/scripts/clock_tool.sh", sayingTool("one")));
+	x.tree(files);
+	REQUIRE(x.pack("clock.tar.gz", "clock"));
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+
+	const Reply failed = runClock("fails", "[]");
+	REQUIRE(failed.code == 500);
+	REQUIRE(failed.body.find("exit-status") != std::string::npos);
+	const Reply loud = runClock("loud", "[]");
+	REQUIRE(loud.code == 500);
+	REQUIRE(loud.body.find("output-too-large") != std::string::npos);
+	// a time of its own, so the case does not wait the ten seconds a box gives a script
+	coreapi::extensions::internal::script_timeout_ms = 300;
+	const Reply slow = runClock("slow", "[]");
+	coreapi::extensions::internal::script_timeout_ms = coreapi::extensions::kScriptTimeoutMs;
+	REQUIRE(slow.code == 409);
+	REQUIRE(slow.body.find("timeout") != std::string::npos);
+	const Reply zero = runClock("clock_tool", "[\"a\\u0000b\"]");
+	REQUIRE(zero.code == 400);
+	REQUIRE(zero.body.find("value-has-zero-byte") != std::string::npos);
+	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
 }
 
 TEST_CASE("one extension change at a time, and a disc that refuses is said", "[write][extensions]")
@@ -5078,8 +5192,8 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 	ExtFixture x;
 
 	/* Y_Tools.sh as an extension installed by the old manager left it: its
-	   copy in the pages' place. Still never the extension's to replace or take. */
-	std::vector<std::pair<std::string, std::string> > files = clockFiles("1.0", "#!/bin/sh\necho one\n");
+	   copy in the pages' place. Never the extension's to take away. */
+	std::vector<std::pair<std::string, std::string> > files = clockFiles("1.0", sayingTool("one"));
 	REQUIRE(::mkdir((x.web + "/extensions").c_str(), 0755) == 0);
 	REQUIRE(std::system(("mkdir -p '" + x.web + "/extensions/clock/scripts'").c_str()) == 0);
 	ExtFixture::write(x.web + "/extensions/clock/manifest.json", "{}");
@@ -5087,55 +5201,80 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 	files.push_back(std::make_pair("clock/scripts/Y_Tools.sh", "#!/bin/sh\necho the pages' own\n"));
 	x.tree(files);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	const Reply own = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
-	REQUIRE(own.code == 409);
-	REQUIRE(own.body.find("script-name-taken") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
+	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
 	REQUIRE(x.read(x.web + "/scripts/Y_Tools.sh") == "#!/bin/sh\necho the pages' own\n");
 
-	// A link in the pages' scripts under a shipped name is not taken, nor followed.
-	ExtFixture::write(x.box.at("elsewhere.sh"), "#!/bin/sh\necho elsewhere\n");
+	// A link in the pages' scripts under the name of one of its scripts is neither its copy nor followed.
+	ExtFixture::write(x.box.at("elsewhere.sh"), sayingTool("one"));
 	REQUIRE(symlink(x.box.at("elsewhere.sh").c_str(), (x.web + "/scripts/clock_tool.sh").c_str()) == 0);
-	x.tree(clockFiles("1.0", "#!/bin/sh\necho elsewhere\n"));
-	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 409);
-	REQUIRE(x.read(x.box.at("elsewhere.sh")) == "#!/bin/sh\necho elsewhere\n");
-	REQUIRE(::unlink((x.web + "/scripts/clock_tool.sh").c_str()) == 0);
-	// and with the extension installed, its own script's name turned into a link is no longer its own
+	x.tree(clockFiles("1.0", sayingTool("one")));
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
 	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
-	REQUIRE(::unlink((x.web + "/scripts/clock_tool.sh").c_str()) == 0);
-	REQUIRE(symlink(x.box.at("elsewhere.sh").c_str(), (x.web + "/scripts/clock_tool.sh").c_str()) == 0);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
-	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 409);
+	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
 	struct stat link_st;
 	REQUIRE(lstat((x.web + "/scripts/clock_tool.sh").c_str(), &link_st) == 0);
 	REQUIRE(S_ISLNK(link_st.st_mode));
-	REQUIRE(x.read(x.box.at("elsewhere.sh")) == "#!/bin/sh\necho elsewhere\n");
+	REQUIRE(x.read(x.box.at("elsewhere.sh")) == sayingTool("one"));
 	REQUIRE(::unlink((x.web + "/scripts/clock_tool.sh").c_str()) == 0);
 
-	// An extension directory that is a link is no extension: not written through, not removed.
+	// An extension directory that is a link is no extension: not written through, not removed, not run.
 	REQUIRE(::mkdir(x.box.at("outside").c_str(), 0755) == 0);
+	REQUIRE(std::system(("mkdir -p '" + x.box.at("outside") + "/scripts'").c_str()) == 0);
+	ExtFixture::write(x.box.at("outside/manifest.json"), "{\"scripts\":[\"clock_tool\"]}");
+	ExtFixture::write(x.box.at("outside/scripts/clock_tool.sh"), sayingTool("outside"));
+	REQUIRE(chmod(x.box.at("outside/scripts/clock_tool.sh").c_str(), 0755) == 0);
 	REQUIRE(symlink(x.box.at("outside").c_str(), (x.web + "/extensions/clock").c_str()) == 0);
+	REQUIRE(runClock("clock_tool", "[]").code == 404);
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 404);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
 	REQUIRE(authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}").code == 201);
-	REQUIRE(access(x.box.at("outside/manifest.json").c_str(), F_OK) != 0);
+	REQUIRE(x.read(x.box.at("outside/manifest.json")) == "{\"scripts\":[\"clock_tool\"]}");
 	struct stat st;
 	REQUIRE(lstat((x.web + "/extensions/clock").c_str(), &st) == 0);
 	REQUIRE(S_ISDIR(st.st_mode));
+
+	/* What runs is the file in its own scripts/: not one changed into a link
+	   at the box, not through a scripts/ that is a link, not one that cannot
+	   be run, and nothing a manifest changed at the box no longer names. */
+	const std::string own = x.web + "/extensions/clock/scripts";
+	REQUIRE(::rename((own + "/clock_tool.sh").c_str(), (own + "/kept.sh").c_str()) == 0);
+	REQUIRE(symlink(x.box.at("outside/scripts/clock_tool.sh").c_str(), (own + "/clock_tool.sh").c_str()) == 0);
+	const Reply through = runClock("clock_tool", "[]");
+	REQUIRE(through.code == 404);
+	REQUIRE(through.body.find("script-missing") != std::string::npos);
+	REQUIRE(::unlink((own + "/clock_tool.sh").c_str()) == 0);
+	REQUIRE(::rename((own + "/kept.sh").c_str(), (own + "/clock_tool.sh").c_str()) == 0);
+	REQUIRE(::rename(own.c_str(), (own + ".kept").c_str()) == 0);
+	REQUIRE(symlink(x.box.at("outside/scripts").c_str(), own.c_str()) == 0);
+	REQUIRE(runClock("clock_tool", "[]").code == 404);
+	REQUIRE(parsed(send(Get, "/api/v1/webui/extensions", "", AuthLevel::Read, "192.168.1.20").body)["items"][0]["scripts"].size() == 0);
+	REQUIRE(::unlink(own.c_str()) == 0);
+	REQUIRE(::rename((own + ".kept").c_str(), own.c_str()) == 0);
+	REQUIRE(chmod((own + "/clock_tool.sh").c_str(), 0644) == 0);
+	REQUIRE(runClock("clock_tool", "[]").code == 404);
+	REQUIRE(chmod((own + "/clock_tool.sh").c_str(), 0755) == 0);
+	REQUIRE(parsed(runClock("clock_tool", "[]").body)["output"].asString() == "one:|");
+	ExtFixture::write(x.web + "/extensions/clock/manifest.json", "{\"scripts\":[]}");
+	REQUIRE(runClock("clock_tool", "[]").code == 404);
+	ExtFixture::write(x.web + "/extensions/clock/manifest.json", "not json");
+	REQUIRE(runClock("clock_tool", "[]").code == 404);
+	REQUIRE(parsed(send(Get, "/api/v1/webui/extensions", "", AuthLevel::Read, "192.168.1.20").body)["items"][0]["scripts"].size() == 0);
 	REQUIRE(authedDelete("/api/v1/webui/extensions/clock").code == 204);
 
-	// A script in a directory below scripts/ is unpacked and not put beside the pages' own.
-	std::vector<std::pair<std::string, std::string> > deeper = clockFiles("1.0", "#!/bin/sh\necho one\n");
+	// A script in a directory below scripts/ is unpacked as a file of it, not one it runs.
+	std::vector<std::pair<std::string, std::string> > deeper = clockFiles("1.0", sayingTool("one"));
 	deeper.push_back(std::make_pair("clock/scripts/lib/helper.sh", "#!/bin/sh\n"));
 	x.tree(deeper);
 	REQUIRE(x.pack("clock.tar.gz", "clock"));
 	const Reply in = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
 	REQUIRE(in.code == 201);
 	REQUIRE(parsed(in.body)["scripts"].size() == 1);
-	REQUIRE(access((x.web + "/extensions/clock/scripts/lib/helper.sh").c_str(), F_OK) == 0);
+	REQUIRE(stat((x.web + "/extensions/clock/scripts/lib/helper.sh").c_str(), &st) == 0);
+	REQUIRE((st.st_mode & 0777) == 0644);
 	REQUIRE(access((x.web + "/scripts/helper.sh").c_str(), F_OK) != 0);
 
 	// An upload past 16 MiB is refused and goes.
@@ -5160,15 +5299,14 @@ TEST_CASE("the pages' own scripts and what is not a plain file are never an exte
 
 	if (geteuid() != 0)
 	{
-		// Scripts that cannot be written leave the installed version as it was.
-		x.tree(clockFiles("2.0", "#!/bin/sh\necho two\n"));
+		// The pages' scripts directory is no concern of an install any more.
+		x.tree(clockFiles("2.0", sayingTool("two")));
 		REQUIRE(x.pack("clock.tar.gz", "clock"));
 		chmod((x.web + "/scripts").c_str(), 0555);
-		const Reply stuck = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
+		const Reply in_place = authedPost("/api/v1/webui/extensions", "{\"file\":\"clock.tar.gz\"}");
 		chmod((x.web + "/scripts").c_str(), 0755);
-		REQUIRE(stuck.code == 500);
-		REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 1.0</p>");
-		REQUIRE(x.read(x.web + "/scripts/clock_tool.sh") == "#!/bin/sh\necho one\n");
+		REQUIRE(in_place.code == 201);
+		REQUIRE(x.read(x.web + "/extensions/clock/index.html") == "<p>clock 2.0</p>");
 	}
 	REQUIRE(x.leftovers().empty());
 }
@@ -5588,6 +5726,10 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 		REQUIRE(x.pack("clock.tar.gz", "clock"));
 		REQUIRE(sendBodyExample("POST", "/api/v1/webui/extensions",
 		                        std::map<std::string, std::string>()) == 201);
+		std::map<std::string, std::string> script;
+		script["dir"] = "clock";
+		script["name"] = "clock_tool";
+		REQUIRE(sendBodyExample("POST", "/api/v1/webui/extensions/{dir}/scripts/{name}", script) == 200);
 	}
 	{
 		WebFile file("example", kWebFileHead);

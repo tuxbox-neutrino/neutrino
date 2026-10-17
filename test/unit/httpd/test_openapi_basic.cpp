@@ -85,9 +85,10 @@ TEST_CASE("the routes of this slice that take a whole list as their body say so"
 					where.push_back(p.name());
 			}
 	std::sort(where.begin(), where.end());
-	REQUIRE(where.size() == 2);
+	REQUIRE(where.size() == 3);
 	CHECK(where[0] == "/api/v1/bouquets/{bouquet}/channels");
 	CHECK(where[1] == "/api/v1/channels/sources/{kind}");
+	CHECK(where[2] == "/api/v1/webui/extensions/{dir}/scripts/{name}");
 }
 
 TEST_CASE("a build without the prose keeps every path and every shape of this slice", "[openapi-basic]")

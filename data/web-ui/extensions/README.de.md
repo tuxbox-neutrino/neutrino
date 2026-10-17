@@ -38,6 +38,7 @@ extensions/
 | `entry_js` | optional: Laufzeit-Skript, wird auf jeder modernen Seite geladen (siehe unten) |
 | `description` | optionaler Untertitel |
 | `settings` | optional: eigene Kategorie unter Einstellungen (siehe unten) |
+| `scripts` | optional: die Shell-Skripte, die die Box für sie ausführt, mit Namen ohne `.sh` (siehe Packaging-Vertrag) |
 
 Mindestens eines von `entry`, `entry_js` oder `settings.sections` muss
 vorhanden sein, sonst wird das Manifest ignoriert.
@@ -58,8 +59,8 @@ verglichen und gespeichert — kein eigener JS-Code nötig:
 			{ "key": "meine_option", "label": "Option", "type": "text" },
 			{ "key": "mein_schalter", "label": "Schalter", "type": "bool01" },
 			{ "type": "action", "id": "mein-knopf", "label": "Aktion",
-			  "button": "Los", "api": { "endpoint": "exec",
-			  "params": "MeinScript&aktion", "raw": true },
+			  "button": "Los",
+			  "api": { "script": "meine-aktion", "args": ["start"] },
 			  "success": "Ausgefuehrt" }
 		] }
 	]
@@ -72,9 +73,14 @@ verglichen und gespeichert — kein eigener JS-Code nötig:
 | `config` | Ziel-Config fuer `key`-Felder: `webui` (Default), `neutrino`, `nhttpd` |
 | `sections[].fields[]` | Feldtypen `text`, `number`, `select`, `bool`, `bool01`, `password`, `info`, `action` |
 
-`key`-Felder werden in der gewählten Config-Datei persistiert;
-`action`-Felder feuern einen v4-Call (typisch `exec` auf ein Script);
-ohne `success`-Text erscheint die Script-Ausgabe als Toast-Feedback.
+`key`-Felder werden in der gewählten Config-Datei persistiert. Ein
+`action`-Feld führt eines der eigenen Skripte der Erweiterung aus:
+`api.script` nennt es so wie die `scripts`-Liste des Manifests
+(`"scripts": ["meine-aktion"]` für das Beispiel), `api.args` ist die
+Liste seiner Argumente, jedes kommt als eines beim Skript an, keines
+darf mit einem Bindestrich beginnen. Der Aufruf geht über
+`POST /api/v1/webui/extensions/<ordner>/scripts/<name>`; ohne
+`success`-Text erscheint die Ausgabe des Skripts als Toast-Feedback.
 
 ### Optional: eigenes Sprachpaket (`languages/`)
 
@@ -208,9 +214,10 @@ herunter):
   überschreibbar per `webui.conf`-Key `ext_index_url`). Verfügbare
   Updates zeigen Badge und Update-Knopf in der Zeile.
 - **Deinstallieren**: Zeilen-Knopf mit Bestätigung. Entfernt den
-  Erweiterungsordner und die mitgelieferten Skripte, jedes nur, solange
-  es noch die installierte Kopie ist; die `ext_<ordner>_*`-Config-Keys
-  werden entfernt.
+  Erweiterungsordner mit seinen Skripten und die Kopien, die eine
+  frühere Version der Verwaltung in `<webroot>/scripts/` abgelegt hat,
+  jede nur, solange sie noch die installierte Kopie ist; die
+  `ext_<ordner>_*`-Config-Keys werden entfernt.
 
 ### Packaging-Vertrag (`<ordner>.tar.gz`)
 
@@ -222,20 +229,26 @@ herunter):
   16 MiB gepackt, 2000 Namen und 64 MiB entpackt.
 - Es entpackt nach `<webroot>/extensions/<ordner>/`, Dateien für alle
   lesbar (0644), Verzeichnisse 0755.
-- Shell-Skripte in `<ordner>/scripts/*.sh` (Buchstaben, Ziffern,
-  Punkte, Bindestriche, Unterstriche) werden bei der Installation nach
-  `<webroot>/scripts/` kopiert, ausführbar (für `exec`-/`action`-Felder
-  verfügbar), und bei der Deinstallation entfernt. Ein Skript darf
-  keinen Namen tragen, den die Seiten schon haben — ein eigenes der Box
-  oder das einer anderen Erweiterung —, also eindeutig benennen; ersetzt
-  wird nur die unveränderte frühere Kopie derselben Erweiterung.
-- Skripte werden **unverändert** kopiert — Build-Zeit-Platzhalter wie
+- Die Shell-Skripte, die die Box für sie ausführt, sind die, die
+  `manifest.json` unter `scripts` nennt: eine Liste von höchstens 64
+  Namen aus Buchstaben, Ziffern, Punkten, Bindestrichen und
+  Unterstrichen, die weder mit einem Bindestrich noch mit einem Punkt
+  beginnen; jeder muss als normale Datei `<ordner>/scripts/<name>.sh`
+  im Archiv liegen, sonst wird die Installation abgewiesen. Diese und
+  keine andere Datei werden ausführbar (0755). Sie bleiben im Ordner
+  und laufen von dort, über
+  `POST /api/v1/webui/extensions/<ordner>/scripts/<name>` (Stufe
+  System, die Argumente als JSON-Liste, ohne Shell, höchstens 10
+  Sekunden und 64 KiB Ausgabe); nach `<webroot>/scripts/` wird nichts
+  kopiert, ein Name muss also nur innerhalb der Erweiterung eindeutig
+  sein.
+- Skripte laufen **unverändert** — Build-Zeit-Platzhalter wie
   `%(PRIVATE_HTTPDDIR)` werden *nicht* expandiert (das passiert nur
-  beim `make install` des Kerns). Geteilte Libraries stattdessen über
-  den Skript-Pfad finden:
+  beim `make install` des Kerns). Die eigenen Dateien der Erweiterung
+  stattdessen über den Skript-Pfad finden:
   ```sh
   SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
-  [ -r "$SCRIPTDIR/_Y_Globals.sh" ] && . "$SCRIPTDIR/_Y_Globals.sh"
+  EXTDIR=$(dirname -- "$SCRIPTDIR")
   ```
 - Bau-Kommando (nutzen auch die Release-Workflows):
 
@@ -248,7 +261,7 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 ## Regeln
 
 - Keine Abhängigkeiten auf Kern-Interna — nur die dokumentierte
-  `/api/v4/`-Fläche (plus `exec`-Vertrag für Script-Aktionen).
+  `/api/v4/`-Fläche (plus die Skript-Route oben für Aktionen).
 - Der Ordnername ist der stabile Schlüssel (Config-Keys, URL
   `/extensions/<ordner>/...`) — nach der Veröffentlichung nicht ändern.
 - Erweiterungen sind standardmäßig **aus** (Opt-in durch den Nutzer).

@@ -31,19 +31,27 @@ function hasConfigKey(key) {
 	return configData[key.replace(/\./g, '_dot_').replace(/-/g, '_bind_')] !== undefined;
 }
 
-// Action-Buttons: Registry-Felder vom Typ 'action' registrieren sich
-// hier und feuern v4-Calls (exec, startplugin, ...) mit Toast-Feedback
+/* An extension's action buttons register here: each runs one of that
+   extension's scripts, the one its api.script names (listed under "scripts"
+   in its manifest), with api.args as its arguments, over /api/v1, and says
+   what the script wrote, or the success text, as a toast. */
 var SETTINGS_ACTIONS = {};
 async function runSettingsAction(aid, btn) {
 	var f = SETTINGS_ACTIONS[aid];
 	if (!f || !f.api) return;
+	if (typeof f.api.script !== 'string' || !f.extDir) {
+		webuiShowToast(webuiL('set.ext_action_old', 'This action is written for an older extension contract and cannot run'), true);
+		return;
+	}
 	if (f.confirm && !confirm(f.confirm)) return;
 	var orig = btn.textContent;
 	btn.disabled = true;
 	btn.textContent = '...';
 	try {
-		var res = await webuiApi(f.api.endpoint, f.api.params, f.api.raw ? {raw: true} : undefined);
-		webuiShowToast(f.success || (typeof res === 'string' && res.trim()) || 'Ausgef\u00fchrt');
+		var args = Array.isArray(f.api.args) ? f.api.args.map(String) : [];
+		var ran = await webuiV1('POST', '/webui/extensions/' + encodeURIComponent(f.extDir) + '/scripts/' + encodeURIComponent(f.api.script), {body: args});
+		var res = (ran && typeof ran.output === 'string') ? ran.output : '';
+		webuiShowToast(f.success || res.trim() || webuiL('set.ext_action_done', 'Done'));
 		if (f.refresh) await loadSettings();
 		if (typeof f.after === 'function') f.after(res);
 	} catch (e) {
@@ -116,8 +124,9 @@ function renderField(f, opts) {
 		var acts = f.actions || [f];
 		var btns = '';
 		acts.forEach(function(a) {
-			var aid = a.id || a.label || f.label;
-			SETTINGS_ACTIONS[aid] = a;
+			// an extension's action runs a script of that extension and of no other
+			var aid = (opts.idPrefix || '') + (a.id || a.label || f.label);
+			SETTINGS_ACTIONS[aid] = opts.extDir ? Object.assign({}, a, {extDir: opts.extDir}) : a;
 			btns += '<button type="button" class="webui-btn" onclick="runSettingsAction(' + escapeHtml(JSON.stringify(aid)) + ', this)">' + escapeHtml(a.button || a.label || f.label) + '</button> ';
 		});
 		return row + '<label>' + labelHtml + '</label><span>' + btns.trim() + '</span></div>';
@@ -423,7 +432,7 @@ async function loadExtConfigPanel(cat) {
 			html += '<div class="webui-form-section"><div class="webui-form-section-title">' + escapeHtml(sec.title) + '</div>';
 			sec.fields.forEach(function(f) {
 				if (f.key && f.type !== 'info' && f.type !== 'action') savable++;
-				html += renderField(f, {get: get, dataConfig: cat.config, idPrefix: cat.id + '_'});
+				html += renderField(f, {get: get, dataConfig: cat.config, idPrefix: cat.id + '_', extDir: cat.dir});
 			});
 			html += '</div>';
 		});
@@ -1554,6 +1563,7 @@ async function loadSettings() {
 			var cid = 'ext-' + m.dir;
 			EXT_SETTINGS_CATS[cid] = {
 				id: cid,
+				dir: m.dir,
 				label: resolveExtL(m.dir, m.settings.label || m.name),
 				config: m.settings.config || 'webui',
 				sections: resolveExtL(m.dir, m.settings.sections)

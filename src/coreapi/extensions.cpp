@@ -10,18 +10,23 @@
 
 #include "coreapi/extensions.h"
 #include "coreapi/base/errors.h"
+#include "coreapi/shellcontract.h"
 #include "coreapi/tarfile.h"
 
 #include <algorithm>
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <exception>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <OpenThreads/Mutex>
+#include <json/json.h>
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -41,6 +46,7 @@ namespace extensions
 
 namespace internal
 {
+int script_timeout_ms = kScriptTimeoutMs;
 const char *web_root = PRIVATE_HTTPDDIR;
 const char *tmp_dir = "/tmp";
 size_t max_members = 2000;
@@ -102,7 +108,7 @@ bool pagesOwn(const std::string &n)
 	return false;
 }
 
-// A script name an extension may ship: letters, digits, dots, dashes and underscores, ending in .sh.
+// A script name an earlier install copied beside the pages' own: letters, digits, dots, dashes and underscores, ending in .sh.
 bool scriptName(const std::string &n)
 {
 	if (n.size() < 4 || n.size() > 255 || n[0] == '.' || !endsWith(n, ".sh"))
@@ -116,6 +122,27 @@ bool scriptName(const std::string &n)
 	}
 	return true;
 }
+
+/* A script as a manifest names it and the route takes it, without .sh:
+   letters, digits, dots, dashes and underscores, beginning with neither a dash,
+   which a program reads as an option, nor a dot, which leaves . and .. out. */
+bool scriptWord(const std::string &n)
+{
+	if (n.empty() || n.size() > 64 || n[0] == '-' || n[0] == '.')
+		return false;
+	for (size_t i = 0; i < n.size(); ++i)
+	{
+		const char c = n[i];
+		if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+		      c == '.' || c == '-' || c == '_'))
+			return false;
+	}
+	return true;
+}
+
+// Far more than a manifest comes to, and the most scripts one may name.
+const size_t kMaxManifest = 256 * 1024;
+const size_t kMaxNamedScripts = 64;
 
 std::string randomWord()
 {
@@ -248,7 +275,8 @@ bool isRegular(const std::string &path)
 	return lstat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode);
 }
 
-// The scripts an installed extension directory ships, by name, sorted.
+/* The scripts in an installed extension directory's scripts/, by file name,
+   sorted: those an earlier install would have copied beside the pages' own. */
 std::vector<std::string> shippedScripts(const std::string &extdir)
 {
 	std::vector<std::string> out;
@@ -393,47 +421,123 @@ int walkDown(int base, const std::vector<std::string> &path, bool directory, std
 	return fd;
 }
 
-/* Copies one file beside the pages' scripts under a working name, executable
-   and on the disc, for a rename into its own name once the extension is in
-   place. The working name, or empty where it could not be written. */
-std::string stageScript(const std::string &from, const std::string &name, const std::string &word)
+/* Whether JSON text carries a slash outside its strings: a comment, which a
+   browser refuses and the parser here lets through inside an object, or
+   nothing JSON knows at all. */
+bool carriesComment(const std::string &text)
 {
+	bool in_string = false;
+	for (size_t i = 0; i < text.size(); ++i)
+	{
+		const char c = text[i];
+		if (in_string)
+		{
+			if (c == '\\')
+				++i;
+			else if (c == '"')
+				in_string = false;
+		}
+		else if (c == '"')
+			in_string = true;
+		else if (c == '/')
+			return true;
+	}
+	return false;
+}
+
+/* What a manifest names under "scripts", in its order, each once; nothing for
+   a manifest without the key. False, with why, for a manifest that is not a
+   JSON object as the pages' own parser reads one, or whose "scripts" is not a
+   list of names scriptWord takes. Read whole, from a regular file and not
+   through a link. */
+bool manifestScripts(const std::string &path, std::vector<std::string> &out, std::string &why)
+{
+	out.clear();
 	struct stat st;
-	const int in = openRegular(from, st);
-	if (in < 0)
-		return std::string();
-	const std::string temp = scriptsDir() + "/.ext-" + word + "-" + name;
-	const int fd = open(temp.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0700);
+	const int fd = openRegular(path, st);
 	if (fd < 0)
 	{
-		close(in);
-		return std::string();
+		why = "its manifest.json cannot be read";
+		return false;
 	}
-	bool ok = true;
+	std::string text;
 	char buf[8192];
-	for (;;)
+	ssize_t n = 0;
+	while (text.size() <= kMaxManifest && (n = readSome(fd, buf, sizeof(buf))) > 0)
+		text.append(buf, (size_t) n);
+	close(fd);
+	if (n < 0)
 	{
-		const ssize_t n = readSome(in, buf, sizeof(buf));
-		if (n <= 0)
-		{
-			ok = n == 0;
-			break;
-		}
-		if (!writeAll(fd, std::string(buf, (size_t) n)))
-		{
-			ok = false;
-			break;
-		}
+		why = "its manifest.json cannot be read";
+		return false;
 	}
-	close(in);
-	ok = ok && fchmod(fd, 0755) == 0 && fsync(fd) == 0;
-	ok = close(fd) == 0 && ok;
-	if (!ok)
+	if (text.size() > kMaxManifest)
 	{
-		unlink(temp.c_str());
-		return std::string();
+		why = "its manifest.json is larger than 256 KiB";
+		return false;
 	}
-	return temp;
+	// a mark of the encoding at its start, which a browser reads past
+	if (text.compare(0, 3, "\xef\xbb\xbf") == 0)
+		text.erase(0, 3);
+
+	/* Strict, near what a browser reads: no single quotes, no trailing
+	   commas, nothing behind the object; a key given twice is the last one,
+	   as there. */
+	Json::CharReaderBuilder builder;
+	Json::CharReaderBuilder::strictMode(&builder.settings_);
+	builder.settings_["rejectDupKeys"] = false;
+	builder.settings_["stackLimit"] = 64;
+	std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+	Json::Value root;
+	std::string errors;
+	bool parsed = false;
+	try
+	{
+		parsed = reader->parse(text.data(), text.data() + text.size(), &root, &errors);
+	}
+	catch (const std::exception &)
+	{
+		parsed = false;
+	}
+	if (!parsed || !root.isObject() || carriesComment(text))
+	{
+		why = "its manifest.json is not a JSON object";
+		return false;
+	}
+	if (!root.isMember("scripts"))
+		return true;
+	const Json::Value &named = root["scripts"];
+	if (!named.isArray())
+	{
+		why = "its manifest names its scripts in something other than a list";
+		return false;
+	}
+	if (named.size() > kMaxNamedScripts)
+	{
+		why = "its manifest names more than 64 scripts";
+		return false;
+	}
+	for (Json::ArrayIndex i = 0; i < named.size(); ++i)
+	{
+		if (!named[i].isString() || !scriptWord(named[i].asString()))
+		{
+			why = "its manifest names a script other than by up to 64 letters, digits, dots, dashes and "
+			      "underscores, beginning with a letter, a digit or an underscore";
+			return false;
+		}
+		const std::string s = named[i].asString();
+		if (std::find(out.begin(), out.end(), s) == out.end())
+			out.push_back(s);
+	}
+	return true;
+}
+
+// The position an argument arrives at, as the name it is handed over under.
+std::string positionName(size_t n)
+{
+	char buf[24];
+	std::snprintf(buf, sizeof(buf), "%lu", (unsigned long) n);
+	return std::string(buf);
 }
 
 /* The new directory takes the installed one's place in one step where the
@@ -505,7 +609,15 @@ Result<std::vector<Extension> > list()
 			continue;
 		Extension x;
 		x.dir = n;
-		x.scripts = shippedScripts(dir);
+		// a manifest no install would take names none
+		std::vector<std::string> named;
+		std::string why;
+		if (manifestScripts(dir + "/" + kManifest, named, why))
+		{
+			for (size_t i = 0; i < named.size(); ++i)
+				if (isDirectory(dir + "/scripts") && isRegular(dir + "/scripts/" + named[i] + ".sh"))
+					x.scripts.push_back(named[i]);
+		}
 		out.push_back(x);
 	}
 	closedir(d);
@@ -572,7 +684,6 @@ Result<Extension> install(const std::string &file)
 	// one top-level directory, a manifest in it, nothing but files and directories
 	std::string name;
 	bool manifest = false;
-	std::vector<std::string> scripts;
 	for (size_t i = 0; i < members.size(); ++i)
 	{
 		const tarfile::Member &m = members[i];
@@ -596,13 +707,6 @@ Result<Extension> install(const std::string &file)
 			return refused("the archive holds a file beside its directory: " + m.path);
 		if (p.size() == 2 && !directory && p[1] == kManifest)
 			manifest = true;
-		if (p.size() == 3 && !directory && p[1] == "scripts" && endsWith(p[2], ".sh"))
-		{
-			if (!scriptName(p[2]))
-				return refused("the script " + p[2] + " is not named with letters, digits, dots, dashes and "
-					       "underscores");
-			scripts.push_back(p[2]);
-		}
 	}
 	/* The archive at odds with itself: a file given twice, one name a file and
 	   a directory, or an entry below one of its files. Refused here and not
@@ -635,11 +739,9 @@ Result<Extension> install(const std::string &file)
 			       "beginning with a letter or a digit: " + name);
 	if (!manifest)
 		return refused("the archive holds no " + std::string(kManifest) + " in its directory");
-	std::sort(scripts.begin(), scripts.end());
-	scripts.erase(std::unique(scripts.begin(), scripts.end()), scripts.end());
 
-	/* A script the pages have keeps its name, unless it is this extension's own
-	   from an earlier install and still as that install left it. */
+	/* Copies an earlier install of it left beside the pages' own scripts, as
+	   installs once did, still as that install left them. */
 	const std::string target = root() + "/" + name;
 	const bool had = isDirectory(target);
 	std::set<std::string> owned;
@@ -649,15 +751,6 @@ Result<Extension> install(const std::string &file)
 		for (size_t i = 0; i < before.size(); ++i)
 			if (stillOurs(target, before[i]))
 				owned.insert(before[i]);
-	}
-	for (size_t i = 0; i < scripts.size(); ++i)
-	{
-		struct stat there;
-		if (pagesOwn(scripts[i]) ||
-		    (lstat((scriptsDir() + "/" + scripts[i]).c_str(), &there) == 0 && owned.count(scripts[i]) == 0))
-			return fail(Status::Conflict, ErrorCode::ScriptNameTaken,
-				    "the pages already have a script named " + scripts[i] + ", which is not this "
-				    "extension's own");
 	}
 
 	// unpacked beside the extensions under a name of this install's own
@@ -723,47 +816,33 @@ Result<Extension> install(const std::string &file)
 	close(base);
 	if (!ok)
 		return diskRefused(why);
-	sync();
 
-	/* Its scripts beside the pages' own under working names first, so a
-	   script that cannot be written leaves the installed extension as it was. */
-	std::vector<std::string> staged_scripts;
-	struct Temps
-	{
-		std::vector<std::string> *names;
-		~Temps()
-		{
-			for (size_t i = 0; i < names->size(); ++i)
-				unlink((*names)[i].c_str());
-		}
-	} temps = { &staged_scripts };
+	/* The scripts its manifest names, read from what was unpacked: each a
+	   regular file in its scripts/, and the only files made executable. */
+	const std::string unpacked = fresh + "/" + name;
+	std::vector<std::string> scripts;
+	if (!manifestScripts(unpacked + "/" + kManifest, scripts, why))
+		return refused(why);
 	for (size_t i = 0; i < scripts.size(); ++i)
 	{
-		const std::string temp = stageScript(fresh + "/" + name + "/scripts/" + scripts[i], scripts[i], word);
-		if (temp.empty())
-			return diskRefused("a script of the extension could not be put beside the pages' own: " + scripts[i]);
-		staged_scripts.push_back(temp);
+		const std::string script = unpacked + "/scripts/" + scripts[i] + ".sh";
+		if (!isDirectory(unpacked + "/scripts") || !isRegular(script))
+			return refused("its manifest names the script " + scripts[i] + ", and the archive holds no scripts/" +
+				       scripts[i] + ".sh");
+		if (chmod(script.c_str(), 0755) != 0)
+			return diskRefused("a script of the extension could not be made executable: " + scripts[i]);
 	}
+	sync();
 
 	// it takes the place of the installed one only now, whole
 	const std::string aside = root() + "/.old-" + word;
-	if (!swapIn(fresh + "/" + name, target, aside, had))
+	if (!swapIn(unpacked, target, aside, had))
 		return diskRefused("the extension could not be put in place");
 	removeTree(aside);
 
-	/* The scripts take their names, then the ones the earlier install shipped
-	   and this one does not go, where they were still that install's. */
-	std::string missing;
-	for (size_t i = 0; i < scripts.size(); ++i)
-	{
-		if (rename(staged_scripts[i].c_str(), (scriptsDir() + "/" + scripts[i]).c_str()) != 0 && missing.empty())
-			missing = scripts[i];
-	}
+	// the copies of an earlier install go, nothing runs them any more
 	for (std::set<std::string>::iterator o = owned.begin(); o != owned.end(); ++o)
-		if (std::find(scripts.begin(), scripts.end(), *o) == scripts.end())
-			unlink((scriptsDir() + "/" + *o).c_str());
-	if (!missing.empty())
-		return diskRefused("the extension is installed, and its script " + missing + " could not take its name");
+		unlink((scriptsDir() + "/" + *o).c_str());
 
 	Extension x;
 	x.dir = name;
@@ -797,6 +876,69 @@ Result<void> remove(const std::string &dir)
 			unlink((scriptsDir() + "/" + scripts[i]).c_str());
 	removeTree(gone);
 	return ok();
+}
+
+Result<std::string> runScript(const std::string &dir, const std::string &name,
+			      const std::vector<std::string> &args)
+{
+	if (!extensionName(dir))
+		return fail(Status::InvalidArgument, ErrorCode::BadName,
+			    "an extension is named with letters, digits, dashes and underscores");
+	if (!scriptWord(name))
+		return fail(Status::InvalidArgument, ErrorCode::BadName,
+			    "a script is named with up to 64 letters, digits, dots, dashes and underscores, "
+			    "beginning with a letter, a digit or an underscore");
+
+	const std::string extdir = root() + "/" + dir;
+	if (!isDirectory(extdir) || !isRegular(extdir + "/" + kManifest))
+		return fail(Status::NotFound, ErrorCode::NoSuchName, "no extension of that name is installed");
+	std::vector<std::string> named;
+	std::string why;
+	if (!manifestScripts(extdir + "/" + kManifest, named, why) ||
+	    std::find(named.begin(), named.end(), name) == named.end())
+		return fail(Status::NotFound, ErrorCode::ScriptMissing,
+			    "the extension's manifest names no script of that name");
+
+	/* Its own scripts/ and the file in it, neither a link: what runs is in the
+	   extension's directory and nowhere else. */
+	const std::string script = extdir + "/scripts/" + name + ".sh";
+	if (!isDirectory(extdir + "/scripts") || !isRegular(script))
+		return fail(Status::NotFound, ErrorCode::ScriptMissing, "the extension holds no script of that name");
+
+	// one declared position per argument, in the order they came
+	std::vector<std::string> names;
+	names.reserve(args.size());
+	std::vector<Param> params;
+	params.reserve(args.size());
+	std::vector<std::pair<std::string, std::string> > given;
+	given.reserve(args.size());
+	for (size_t i = 0; i < args.size(); ++i)
+	{
+		names.push_back(positionName(i + 1));
+		Param p;
+		p.name = names[i].c_str();
+		p.type = ParamType::String;
+		p.required = false;
+		p.doc = "";
+		p.min = 0;
+		p.max = (long) kMaxScriptArgument;
+		p.values = NULL;
+		p.root = NULL;
+		params.push_back(p);
+		given.push_back(std::make_pair(names[i], args[i]));
+	}
+
+	ShellCommand cmd;
+	cmd.script = script.c_str();
+	cmd.verb = NULL;
+	cmd.params = params.empty() ? NULL : &params[0];
+	cmd.param_count = params.size();
+	cmd.output = OutputFormat::Raw;
+	cmd.timeout_ms = internal::script_timeout_ms;
+	cmd.max_output = kMaxScriptOutput;
+	// an argument that would be read as an option is refused, not let through
+	cmd.end_options = false;
+	return shell::run(cmd, given);
 }
 
 } // namespace extensions

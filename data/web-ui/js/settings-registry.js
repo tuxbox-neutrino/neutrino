@@ -5,7 +5,8 @@
  * Field types: select, bool, bool01, number, text, password,
  *   info   { label, text | key }                    — readonly display
  *   action { id, label, button, confirm?, success?, refresh?,
- *            api: {endpoint, params, raw?} }        — v4 call button
+ *            api: {script, args?} }                 — an extension's button:
+ *            runs a script its manifest names (settings.js)
  * Optional: showIf: {key, value} for conditional visibility
  * v1section: the section of GET /api/v1/settings/sections this category
  *   goes into when the box declares it (settings-v1.js); its fields the

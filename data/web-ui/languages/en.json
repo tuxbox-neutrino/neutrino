@@ -368,6 +368,8 @@
 	"set.ext_settings_only": "settings only",
 	"set.ext_saved": "Saved - reload the page to apply",
 	"set.ext_col_action": "Action",
+	"set.ext_action_done": "Done",
+	"set.ext_action_old": "This action is written for an older extension contract and cannot run",
 	"set.extinst_section": "Install / update",
 	"set.extinst_label": "New extension (tar.gz or URL)",
 	"set.extinst_btn": "Install",

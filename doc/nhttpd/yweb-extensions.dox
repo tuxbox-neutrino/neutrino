@@ -75,7 +75,8 @@ Einstellungen → Erweiterungen verwaltet den Lebenszyklus ueber `/api/v1`:
   holt nichts. Ein Update ist eine erneute Installation: der Ordner wird
   ersetzt, Config-Keys (Enable/Slot, Einstellungen) ueberleben.
 - Deinstallieren: `DELETE /api/v1/webui/extensions/<ordner>` entfernt
-  Ordner und mitgelieferte Scripts; die Seite nimmt danach
+  den Ordner mit seinen Scripts und Kopien, die eine fruehere Version
+  in `<webroot>/scripts/` abgelegt hat; die Seite nimmt danach
   `ext_<ordner>_enabled`/`_slot` aus webui.conf (leerer Wert ueber
   `PATCH /api/v1/webui/settings`).
 - Was installiert ist, nennt `GET /api/v1/webui/extensions`.
@@ -94,12 +95,16 @@ Die Installation (`POST /api/v1/webui/extensions`) erzwingt:
   `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
 - `manifest.json` im Ordner ist Pflicht;
 - absolute Pfade oder `..`-Komponenten im Archiv werden abgewiesen;
-- Shell-Scripts in `<ordner>/scripts/*.sh` werden nach
-  `<webroot>/scripts/` kopiert (Uninstall entfernt sie wieder) —
-  eindeutige Namen verwenden (Beispiel `Y_Camds.sh`).
-- Scripts werden UNVERAENDERT kopiert: Build-Zeit-Platzhalter wie
+- die Shell-Scripts, die die Box ausfuehrt, nennt `manifest.json` unter
+  `scripts` (Namen ohne `.sh`, hoechstens 64); jedes muss als
+  `<ordner>/scripts/<name>.sh` im Archiv liegen. Nur diese werden
+  ausfuehrbar; sie bleiben im Ordner und laufen ueber
+  `POST /api/v1/webui/extensions/<ordner>/scripts/<name>` (Stufe System,
+  Argumente als JSON-Liste, ohne Shell, 10 s, 64 KiB Ausgabe). Nach
+  `<webroot>/scripts/` wird nichts kopiert.
+- Scripts laufen UNVERAENDERT: Build-Zeit-Platzhalter wie
   `%(PRIVATE_HTTPDDIR)` werden nicht expandiert (das macht nur das
-  make install des Kerns) — Libraries via `$0`-Pfad sourcen
+  make install des Kerns) — eigene Dateien via `$0`-Pfad finden
   (`SCRIPTDIR=$(cd -- "$(dirname -- "$0")" && pwd)`).
 
 Bau-Kommando (identisch im Release-Workflow):
@@ -237,7 +242,8 @@ Settings → Extensions manages the lifecycle over `/api/v1`:
   fetches nothing. An update is a re-install: the folder is replaced,
   config keys (enable/slot, settings) survive.
 - Uninstall: `DELETE /api/v1/webui/extensions/<folder>` removes the folder
-  and the scripts it shipped; the page then takes
+  with its scripts, and copies an earlier version left in
+  `<webroot>/scripts/`; the page then takes
   `ext_<folder>_enabled`/`_slot` out of webui.conf (an empty value through
   `PATCH /api/v1/webui/settings`).
 - `GET /api/v1/webui/extensions` names what is installed.
@@ -256,13 +262,17 @@ The install (`POST /api/v1/webui/extensions`) enforces:
   `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
 - `manifest.json` inside the folder is mandatory;
 - archives with absolute paths or `..` components are rejected;
-- shell scripts in `<folder>/scripts/*.sh` are copied to
-  `<webroot>/scripts/` (uninstall removes them again) — use unique
-  names (example `Y_Camds.sh`).
-- scripts are copied VERBATIM: build-time placeholders like
+- the shell scripts the box runs are named by `manifest.json` under
+  `scripts` (names without `.sh`, at most 64); each has to be
+  `<folder>/scripts/<name>.sh` in the archive. Only these are made
+  executable; they stay in the folder and run over
+  `POST /api/v1/webui/extensions/<folder>/scripts/<name>` (system level,
+  arguments as a JSON list, no shell, 10 s, 64 KiB of output). Nothing
+  is copied to `<webroot>/scripts/`.
+- scripts run VERBATIM: build-time placeholders like
   `%(PRIVATE_HTTPDDIR)` are not expanded (only the core's
-  make install does that) — source libraries via the `$0` path
-  (`SCRIPTDIR=$(cd -- "$(dirname -- "$0")" && pwd)`).
+  make install does that) — find the extension's own files via the `$0`
+  path (`SCRIPTDIR=$(cd -- "$(dirname -- "$0")" && pwd)`).
 
 Build command (identical in the release workflow):
 \code{.sh}

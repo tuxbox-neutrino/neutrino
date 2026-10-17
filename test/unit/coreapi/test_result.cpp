@@ -213,7 +213,6 @@ const Walked kWalked[] = {
 	CODE(ShareNotMounted),
 	CODE(UnmountFailed),
 	CODE(ExtensionRefused),
-	CODE(ScriptNameTaken),
 	CODE(CommandNotStarted),
 	CODE(CommandOutputUnreadable),
 	CODE(Timeout),

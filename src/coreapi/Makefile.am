@@ -19,6 +19,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/timerdclient \
 	-I$(top_srcdir)/lib/sectionsdclient \
 	-I$(top_srcdir)/lib/xmltree \
+	-I$(top_srcdir)/lib/jsoncpp \
 	@HWLIB_CFLAGS@
 
 # The table of key names is generated beside the tool that first needed it, out

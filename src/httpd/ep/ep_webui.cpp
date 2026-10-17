@@ -22,7 +22,9 @@
 #include "coreapi/webui.h"
 
 #include <cstddef>
+#include <cstdio>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace httpd
@@ -233,7 +235,8 @@ const FieldDesc kExtensionFields[] = {
 	HTTPD_MEMBER("dir", FieldType::String,
 		"the extension's directory under /extensions/, where its manifest.json is served"),
 	HTTPD_LIST_OF_VALUES("scripts", ElementType::String,
-		"the shell scripts it ships, which are installed beside the pages' own"),
+		"the shell scripts its manifest names under `scripts` and it holds, each scripts/<name>.sh in its "
+		"directory, which `POST /api/v1/webui/extensions/{dir}/scripts/{name}` runs"),
 };
 
 const Schema kExtensionSchema = { "extension", HTTPD_FIELDS(kExtensionFields) };
@@ -294,6 +297,44 @@ Response removeExtension(const Request &r)
 	return noContent();
 }
 
+const FieldDesc kExtensionScriptOutputFields[] = {
+	HTTPD_MEMBER("output", FieldType::String,
+		"what the script wrote on its standard output, as it wrote it and read by nothing here"),
+};
+
+const Schema kExtensionScriptOutputSchema = { "extension-script-output", HTTPD_FIELDS(kExtensionScriptOutputFields) };
+
+/* The arguments as the whole body, one element each, so a space or a quote in
+   one reaches the script as part of it and never splits it. */
+Response runExtensionScript(const Request &r)
+{
+	std::vector<std::string> args;
+	const ArrayRead read = readStringArray(r.body(), coreapi::extensions::kMaxScriptArgs, args);
+	if (read == ArrayRead::TooMany)
+	{
+		char most[32];
+		std::snprintf(most, sizeof(most), "%lu", (unsigned long) coreapi::extensions::kMaxScriptArgs);
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString,
+		                       std::string("a script is handed at most ") + most + " arguments");
+	}
+	if (read != ArrayRead::Ok)
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString,
+		                       "the body is not one array of strings");
+
+	coreapi::Result<std::string> got =
+		coreapi::extensions::runScript(r.asString("dir"), r.asString("name"), args);
+	if (!got.ok())
+		return problemFor(got.error());
+	const std::string written = std::move(got).value();
+	Response out = okJson();
+	Json j(out.body, 32 + written.size());
+	j.beginObject();
+	j.key("output");
+	j.value(written);
+	j.endObject();
+	return out;
+}
+
 const Param kInstallParams[] = {
 	HTTPD_BODY_REQUIRED_TEXT("file",
 		"the archive's name in /tmp, where `PUT` and `PATCH /api/v1/storage/file` uploaded it: letters, "
@@ -310,10 +351,33 @@ const RouteRefusal kInstallRefusals[] = {
 	HTTPD_REFUSES(NotFound, NoSuchName, "there is no uploaded archive of that name"),
 	HTTPD_REFUSES(InvalidArgument, ExtensionRefused,
 		"the archive holds more than one top-level directory"),
-	HTTPD_REFUSES(Conflict, ScriptNameTaken,
-		"the pages already have a script named Y_Tools.sh, which is not this extension's own"),
 	HTTPD_REFUSES(Conflict, ExtensionRefused, "another extension is being installed or removed"),
 	HTTPD_REFUSES(Internal, ExtensionRefused, "the extension could not be put in place"),
+};
+
+const Param kExtensionScriptParams[] = {
+	HTTPD_SEGMENT_TEXT("dir", "the extension's directory name", 64),
+	HTTPD_SEGMENT_TEXT("name",
+		"the script as the extension's manifest names it under `scripts`, without `.sh`: the file "
+		"scripts/<name>.sh in the extension's directory", 64),
+	HTTPD_BODY_IS_LIST_OF("args", ParamType::String,
+		"a JSON array of what to hand the script, each element one argument in the order given, of up to "
+		"1024 bytes and not beginning with a dash; `[]` for none",
+		0, (long) coreapi::extensions::kMaxScriptArgs),
+};
+
+const RouteRefusal kExtensionScriptRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, BadName,
+		"a script is named with up to 64 letters, digits, dots, dashes and underscores, beginning with a "
+		"letter, a digit or an underscore"),
+	HTTPD_REFUSES(InvalidArgument, BadString, "the body is not one array of strings"),
+	HTTPD_REFUSES(InvalidArgument, LeadingDash, "parameter 1 would be read as an option and not as a value"),
+	HTTPD_REFUSES(NotFound, NoSuchName, "no extension of that name is installed"),
+	HTTPD_REFUSES(NotFound, ScriptMissing, "the extension's manifest names no script of that name"),
+	HTTPD_REFUSES(InvalidArgument, ValueHasZeroByte, "parameter 1 carries a zero byte"),
+	HTTPD_REFUSES(Busy, Timeout, "the script ran longer than it may"),
+	HTTPD_REFUSES(Internal, ExitStatus, "the script exited with status 3"),
+	HTTPD_REFUSES(Internal, OutputTooLarge, "the script wrote more than it may"),
 };
 
 const RouteRefusal kRemoveRefusals[] = {
@@ -363,7 +427,8 @@ const Endpoint kWebuiEndpoints[] = {
 	{ Method::Get, "/api/v1/webui/extensions", AuthLevel::Read,
 	  "the extensions of the web interface that are installed",
 	  "Lists the installed extensions of the web interface: each a directory under `/extensions/` "
-	  "with a `manifest.json`, which the pages read from there, and the shell scripts it ships. "
+	  "with a `manifest.json`, which the pages read from there, and the shell scripts its manifest "
+	  "names that it holds. "
 	  "Which of them the pages show, and where, is in `GET /api/v1/webui/settings` "
 	  "(`ext_<dir>_enabled`, `ext_<dir>_slot`).\n\n"
 	  "**Related:** `POST /api/v1/webui/extensions`, `DELETE /api/v1/webui/extensions/{dir}`.",
@@ -378,30 +443,31 @@ const Endpoint kWebuiEndpoints[] = {
 	  "directory of its own and removes it, and reads the archive from its own headers: it has to "
 	  "hold exactly one directory, named with letters, digits, dashes and underscores, with a "
 	  "`manifest.json` in it, and only directories and regular files, no name that climbs or is "
-	  "absolute, no more than 16 MiB, 2000 names and 64 MiB unpacked. The extension is unpacked "
-	  "beside the installed ones, its shell scripts (its `scripts/*.sh`) are written beside the "
-	  "pages' own, executable, and only then does it take the place of one of its name; a file or a "
-	  "link in that place is replaced, never followed. A script "
-	  "may not take the name of one the pages ship themselves, nor of any other script the pages "
-	  "have unless it is this extension's own from an earlier install, still as that install left "
-	  "it. The upload goes in every case.\n\n"
+	  "absolute, no more than 16 MiB, 2000 names and 64 MiB unpacked. The manifest is a JSON object; "
+	  "the shell scripts it names under `scripts`, a list of names, are each `scripts/<name>.sh` in "
+	  "the archive. The extension is unpacked beside the installed ones, files readable by all, the "
+	  "scripts its manifest names executable and no other file, and only then does it take the "
+	  "place of one of its name; a file or a link in that place is replaced, never followed. Its "
+	  "scripts stay in its directory, where "
+	  "`POST /api/v1/webui/extensions/{dir}/scripts/{name}` runs them; copies an earlier install of "
+	  "it left beside the pages' own scripts go, where they are still as that install left them. "
+	  "The upload goes in every case.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar.\n"
 	  "- `404 no-such-name`: no archive of that name was uploaded.\n"
 	  "- `400 extension-refused`: the archive is not an extension this box takes; the detail says why.\n"
-	  "- `409 script-name-taken`: a script it ships would take the name of one the pages already have.\n"
 	  "- `409 extension-refused`: another extension is being installed or removed.\n"
 	  "- `500 extension-refused`: the disc refused; an installed extension of that name is as it "
-	  "was, unless the detail says the new one is in place and names a script that could not take "
-	  "its name.\n\n"
+	  "was.\n\n"
 	  "**Related:** `GET /api/v1/webui/extensions`, `DELETE /api/v1/webui/extensions/{dir}`.",
 	  HTTPD_PARAMS(kInstallParams), &kExtensionSchema, &installExtension, false,
 	  Answers201, HTTPD_REFUSALS_AND_BODY(kInstallRefusals, "{\"file\":\"clock.tar.gz\"}") },
 	{ Method::Delete, "/api/v1/webui/extensions/{dir}", AuthLevel::System,
-	  "removes an extension and the scripts it shipped",
-	  "Removes an installed extension, and the shell scripts it shipped, each only where the "
-	  "pages' script of that name is still the one it installed and not one the pages ship "
-	  "themselves. Its keys in the web interface's "
+	  "removes an extension and its scripts",
+	  "Removes an installed extension with its shell scripts, and the copies an earlier install of "
+	  "it left beside the pages' own scripts, each only where the pages' script of that name is "
+	  "still the one it installed and not one the pages ship themselves. Its keys in the web "
+	  "interface's "
 	  "settings are left; `PATCH /api/v1/webui/settings` takes them out.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 bad-name`: no extension can carry that name.\n"
@@ -411,6 +477,33 @@ const Endpoint kWebuiEndpoints[] = {
 	  "**Related:** `POST /api/v1/webui/extensions`.",
 	  HTTPD_PARAMS(kExtensionParams), NULL, &removeExtension, false,
 	  Answers204, HTTPD_REFUSALS(kRemoveRefusals) },
+	{ Method::Post, "/api/v1/webui/extensions/{dir}/scripts/{name}", AuthLevel::System,
+	  "runs one of an extension's scripts and answers what it wrote",
+	  "Runs a shell script of the installed extension `dir`, one its `manifest.json` names under "
+	  "`scripts`, from `scripts/<name>.sh` in the extension's own directory and nowhere else, waits "
+	  "for it to finish and answers what it wrote on its standard output as `output`. Each element "
+	  "of the body reaches the script as one argument, in order; no shell is involved, so a space or "
+	  "a quoting character reaches it as part of the argument. The settings page runs an "
+	  "extension's actions through this route.\n\n"
+	  "**Preconditions:** the script finishes within 10 seconds and writes no more than 64 KiB; one "
+	  "that runs longer is stopped and refused. It runs as the account the server itself runs as, "
+	  "which can do anything on the box, so the route needs the `system` level.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-name`: no extension or script can carry that name.\n"
+	  "- `400 bad-string`: the body is not one array of up to 32 strings, or an argument is longer "
+	  "than 1024 bytes.\n"
+	  "- `400 leading-dash`: an argument begins with a dash, which the script would read as an "
+	  "option.\n"
+	  "- `400 value-has-zero-byte`: an argument carries a zero byte.\n"
+	  "- `404 no-such-name`: no extension of that name is installed.\n"
+	  "- `404 script-missing`: its manifest names no script of that name, or the file is not there "
+	  "or cannot be run.\n"
+	  "- `409 timeout`: the script ran longer than 10 seconds and was stopped.\n"
+	  "- `500 exit-status`: the script failed, exiting with another status than 0.\n"
+	  "- `500 output-too-large`: the script wrote more than 64 KiB.\n\n"
+	  "**Related:** `GET /api/v1/webui/extensions`.",
+	  HTTPD_PARAMS(kExtensionScriptParams), &kExtensionScriptOutputSchema, &runExtensionScript, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kExtensionScriptRefusals, "[\"status\"]") },
 	{ Method::Get, "/api/v1/webui/language", AuthLevel::Read,
 	  "the language the pages are shown in, and the ones they can be",
 	  "Reads the language the pages are shown in, as its code, and every language they can be "
