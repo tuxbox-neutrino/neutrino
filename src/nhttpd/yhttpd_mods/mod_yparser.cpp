@@ -596,7 +596,7 @@ std::string CyParser::YWeb_cgi_get_ini(CyhookHandler *, std::string filename,
 //-------------------------------------------------------------------------
 void CyParser::YWeb_cgi_set_ini(CyhookHandler *, std::string filename,
 		std::string varname, std::string varvalue, std::string yaccess) {
-	const bool yweb = filename == YWEB_CONFIGFILE;
+	const bool yweb = filename == WEBUI_CONFIGFILE;
 	if ((yaccess == "open") || (yaccess.empty())) {
 		yConfig->clear();
 		yConfig->loadConfig(filename);

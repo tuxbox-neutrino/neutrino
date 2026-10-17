@@ -329,7 +329,8 @@ const Endpoint kWebuiEndpoints[] = {
 	  "what the web interface keeps of its own beside the box's settings",
 	  "Reads the web interface's own settings file: the start page, the box's name and colour as "
 	  "the pages show them, the devices it wakes over the network, which extensions it shows and "
-	  "where, and what an extension keeps for itself. These are not the box's settings, which "
+	  "where, and what an extension keeps for itself, in `webui.conf`; a key nobody set is answered "
+	  "with the value the interface ships with. These are not the box's settings, which "
 	  "`/api/v1/settings` reads and writes. A key whose name says it holds a password, a PIN, a "
 	  "token or a key to a service is never answered; it is named in `withheld`.\n\n"
 	  "**Related:** `PATCH /api/v1/webui/settings`.",

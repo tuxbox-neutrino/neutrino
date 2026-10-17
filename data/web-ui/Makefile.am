@@ -47,9 +47,6 @@ install_DATA = \
 	Y_User.css \
 	Y_Version.txt
 
-configdir = $(CONFIGDIR)
-config_DATA = yWeb.conf
-
 install-data-hook:
 	@# ===========================================================================
 	@# DEPRECATION NOTICE:

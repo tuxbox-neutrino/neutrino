@@ -26,7 +26,7 @@ namespace extensions
    underscores, with a manifest.json the pages read. The shell scripts it ships
    in its scripts/ directory are copied beside the pages' own scripts, where the
    old exec route runs them; scripts names those. Whether it is shown, and where,
-   is the pages' business (yWeb.conf, coreapi::webui). */
+   is the pages' business (webui.conf, coreapi::webui). */
 struct Extension
 {
 	std::string dir;

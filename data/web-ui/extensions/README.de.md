@@ -185,7 +185,7 @@ Einstellungen → **Erweiterungen**: die neue Erweiterung erscheint
 automatisch in der Liste → Schalter aktivieren, optional den Slot
 ändern → Speichern → Seite neu laden.
 
-Technisch: die Schaltung liegt in `yWeb.conf`
+Technisch: die Schaltung liegt in `webui.conf`
 (`ext_<ordnername>_enabled=1`, optional `ext_<ordnername>_slot=...`).
 
 ## 5. Installieren / Aktualisieren / Deinstallieren (Verwaltung)
@@ -205,7 +205,7 @@ herunter):
 - **Updates prüfen**: expliziter Knopf; der Browser vergleicht die
   installierten Versionen gegen eine gehostete `index.json`
   (Default: das Repository `tuxbox-neutrino/yweb-extensions`,
-  überschreibbar per `yWeb.conf`-Key `ext_index_url`). Verfügbare
+  überschreibbar per `webui.conf`-Key `ext_index_url`). Verfügbare
   Updates zeigen Badge und Update-Knopf in der Zeile.
 - **Deinstallieren**: Zeilen-Knopf mit Bestätigung. Entfernt den
   Erweiterungsordner und die mitgelieferten Skripte, jedes nur, solange

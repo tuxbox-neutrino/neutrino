@@ -315,12 +315,12 @@ function renderCategory(catId) {
 	return '<div class="settings-card">' + html + '</div>';
 }
 
-// Kategorien mit eigener Config-Datei (nhttpd.conf, yWeb.conf, ...):
+// Kategorien mit eigener Config-Datei (nhttpd.conf, webui.conf, ...):
 // eigener Load/Diff/Save-Zyklus gegen config=<name>, getrennt vom
 // neutrino-Hauptformular (collectValues ignoriert data-extcfg-Felder)
 var EXT_CONFIG_CACHE = {};
 
-// The web interface's own settings (yWeb.conf) over /api/v1, as a plain
+// The web interface's own settings (webui.conf) over /api/v1, as a plain
 // object; a write names only the keys to change, and an empty value takes
 // a key out, which the pages read the same as a key that is not there
 async function webuiSettingsRead() {
@@ -570,7 +570,7 @@ async function webuiRestoreGo(btn) {
 }
 
 // Extension manager: discovered manifests with enable toggle, slot
-// override (persisted in yWeb.conf, loader in webui-header.js) and
+// override (persisted in webui.conf, loader in webui-header.js) and
 // install/update/uninstall over /api/v1/webui/extensions. The box fetches
 // nothing: an archive from an address is loaded by the browser and
 // uploaded like a file.
@@ -586,7 +586,7 @@ var _extUpdates = {};
 async function loadExtensionsPanel() {
 	var el = document.getElementById('extPanel');
 	if (!el) return;
-	_webuiExtensions = null; // Discovery-Cache invalidieren
+	webuiForgetExtensions(); // Discovery-Cache invalidieren
 	var exts = await webuiDiscoverExtensions();
 	var html = '';
 	if (!exts.length) {
@@ -1548,7 +1548,7 @@ async function loadSettings() {
 	}
 	EXT_SETTINGS_CATS = {};
 	try {
-		_webuiExtensions = null; // frisch entdecken (Enable kann sich geaendert haben)
+		webuiForgetExtensions(); // frisch entdecken (Enable kann sich geaendert haben)
 		(await webuiDiscoverExtensions()).forEach(function(m) {
 			if (!m.enabled || !m.settings || !m.settings.sections) return;
 			var cid = 'ext-' + m.dir;
@@ -1602,11 +1602,13 @@ document.getElementById('settingsContent').addEventListener('input', function(e)
 document.getElementById('settingsContent').addEventListener('change', function(e) { v1setEdited(e.target); });
 
 // The rows' labels are written in settings-registry.js, which is read once
-// the texts are in: it states them as it loads. settings-v1.js builds its
-// icons with the registry's helper, so it comes after.
+// the texts are in: it states them as it loads, the start pages to choose
+// among too, the extensions' with them. settings-v1.js builds its icons with
+// the registry's helper, so it comes after.
 webuiAfterTexts(async function() {
 	DEP_HINT = webuiL('set.dep_locked', 'Controlled by the entry above — no effect while that one is enabled');
-	await webuiLoadScript('/js/settings-registry.js?v=18');
+	await webuiDiscoverExtensions();
+	await webuiLoadScript('/js/settings-registry.js?v=19');
 	await webuiLoadScript('/js/settings-v1.js?v=5');
 	// Was anderswo gespeichert wird (am Geraet, von einer zweiten Seite),
 	// liest die Seite nach

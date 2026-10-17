@@ -83,6 +83,8 @@
 	"tools.message": "Message",
 	"tools.message_ph": "Enter message…",
 	"tools.message_sub": "Send a message to the box",
+	"tools.sysinfo": "System information",
+	"tools.screenshot": "Screenshot",
 	"tools.sysinfo_sub": "Hardware and software",
 	"tools.settings_sub": "Video, audio, display",
 	"tools.boxcontrol_sub": "Restart, recording, tuner",

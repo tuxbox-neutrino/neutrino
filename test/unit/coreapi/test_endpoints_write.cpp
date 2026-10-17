@@ -822,11 +822,17 @@ struct WebuiFixture
 {
 	Sandbox     box;
 	std::string path;
+	std::string former;
 	const char *before;
+	const char *before_former;
 
-	WebuiFixture() : path(box.at("yWeb.conf")), before(coreapi::webui::internal::config_path)
+	WebuiFixture() : path(box.at("webui.conf")), former(box.at("yWeb.conf")),
+		before(coreapi::webui::internal::config_path),
+		before_former(coreapi::webui::internal::former_path)
 	{
 		coreapi::webui::internal::config_path = path.c_str();
+		// the file taken over is the case's own, and there is none unless it writes one
+		coreapi::webui::internal::former_path = former.c_str();
 		FILE *f = std::fopen(path.c_str(), "w");
 		if (f != NULL)
 		{
@@ -835,7 +841,11 @@ struct WebuiFixture
 		}
 	}
 
-	~WebuiFixture() { coreapi::webui::internal::config_path = before; }
+	~WebuiFixture()
+	{
+		coreapi::webui::internal::config_path = before;
+		coreapi::webui::internal::former_path = before_former;
+	}
 
 	std::string file() const
 	{
@@ -6185,6 +6195,96 @@ TEST_CASE("the body examples of the script and the plugin routes are requests th
 	REQUIRE(sendBodyExample("PUT", "/api/v1/plugins/{name}/hidden", plugin_name) == 204);
 }
 
+TEST_CASE("the file the web interface kept before is taken over once, and nobody's values are shipped ones", "[write][webui]")
+{
+	ShippedRoutes shipped;
+	WebuiFixture webui;
+
+	// a box that never set anything: the shipped values, and a file holding nothing of them
+	std::remove(webui.path.c_str());
+	coreapi::webui::Settings now = coreapi::webui::read();
+	REQUIRE(now["startup"] == "true");
+	REQUIRE(now["start_page"] == "none");
+	REQUIRE(now["yweb_box_color"] == "fd6d13");
+	REQUIRE(access(webui.path.c_str(), F_OK) != 0);
+
+	// the file kept before: a start page under its old name, a key the new file
+	// holds already, and a line the new file could not keep
+	const std::string former_text =
+		"start_page=epg.yhtm\nyweb_box_name=Kueche\nwol_mac_1=aa:bb:cc:dd:ee:ff\nbad key=1\n";
+	FILE *f = std::fopen(webui.former.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fputs(former_text.c_str(), f);
+	std::fclose(f);
+	f = std::fopen(webui.path.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fputs("yweb_box_name=Wohnzimmer\n", f);
+	std::fclose(f);
+
+	REQUIRE(coreapi::webui::migrate());
+	const std::string taken = webui.file();
+	REQUIRE(taken.find("start_page=epg.html\n") != std::string::npos);
+	REQUIRE(taken.find("yweb_box_name=Wohnzimmer\n") != std::string::npos);
+	REQUIRE(taken.find("wol_mac_1=aa:bb:cc:dd:ee:ff\n") != std::string::npos);
+	REQUIRE(taken.find("bad key") == std::string::npos);
+	REQUIRE(taken.find("migrated_from=yWeb.conf\n") != std::string::npos);
+	// the shipped values are answered, not written
+	REQUIRE(taken.find("startup=") == std::string::npos);
+
+	// done once: a later change to the old file comes over no more, and the old file stays
+	f = std::fopen(webui.former.c_str(), "a");
+	REQUIRE(f != NULL);
+	std::fputs("style=light\n", f);
+	std::fclose(f);
+	REQUIRE(coreapi::webui::migrate());
+	REQUIRE(webui.file() == taken);
+	REQUIRE(access(webui.former.c_str(), R_OK) == 0);
+
+	// the routes answer the file as it now reads
+	const Reply read = authedGet("/api/v1/webui/settings");
+	REQUIRE(read.body.find("{\"key\":\"start_page\",\"value\":\"epg.html\"}") != std::string::npos);
+	REQUIRE(read.body.find("{\"key\":\"startup\",\"value\":\"true\"}") != std::string::npos);
+}
+
+TEST_CASE("only the interface's own pages are taken over under their new names", "[write][webui]")
+{
+	WebuiFixture webui;
+	std::remove(webui.path.c_str());
+	FILE *f = std::fopen(webui.former.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fputs("start_page=extensions/foo/index.yhtm\n", f);
+	std::fclose(f);
+	REQUIRE(coreapi::webui::migrate());
+	// an extension's page keeps the name its manifest gives it
+	REQUIRE(webui.file().find("start_page=extensions/foo/index.yhtm\n") != std::string::npos);
+}
+
+TEST_CASE("a full file taken over still takes a change, its mark counting against no limit", "[write][webui]")
+{
+	WebuiFixture webui;
+	std::remove(webui.path.c_str());
+	FILE *f = std::fopen(webui.former.c_str(), "w");
+	REQUIRE(f != NULL);
+	for (size_t i = 0; i < coreapi::webui::kMaxKeys; ++i)
+		std::fprintf(f, "k%03u=1\n", (unsigned) i);
+	std::fclose(f);
+
+	REQUIRE(coreapi::webui::migrate());
+	const std::string taken = webui.file();
+	REQUIRE(taken.find("k255=1\n") != std::string::npos);
+	REQUIRE(taken.find("migrated_from=yWeb.conf\n") != std::string::npos);
+
+	// a key that is there changes, one more does not fit
+	coreapi::webui::Settings one;
+	one["k000"] = "2";
+	REQUIRE(coreapi::webui::change(one).ok());
+	coreapi::webui::Settings more;
+	more["k999"] = "1";
+	const coreapi::Result<coreapi::webui::Settings> refused = coreapi::webui::change(more);
+	REQUIRE_FALSE(refused.ok());
+	REQUIRE(refused.error().code == coreapi::ErrorCode::TooManySettings);
+}
+
 TEST_CASE("the web interface's own settings are read and written whole, held to their shape", "[write][webui]")
 {
 	ShippedRoutes shipped;
@@ -6204,7 +6304,8 @@ TEST_CASE("the web interface's own settings are read and written whole, held to 
 		"\"ext_epg-plus.v2_enabled\":\"1\"}");
 	REQUIRE(wrote.code == 200);
 	REQUIRE(wrote.body.find("Wohnzimmer") != std::string::npos);
-	REQUIRE(wrote.body.find("start_page") == std::string::npos);
+	// a key taken out is answered as shipped again
+	REQUIRE(wrote.body.find("{\"key\":\"start_page\",\"value\":\"none\"}") != std::string::npos);
 	const std::string after = webui.file();
 	REQUIRE(after.find("yweb_box_name=Wohnzimmer") != std::string::npos);
 	REQUIRE(after.find("start_page") == std::string::npos);
@@ -6272,7 +6373,7 @@ TEST_CASE("the web interface's own settings are read and written whole, held to 
 
 	// A file that cannot be saved says so: no directory to write it in, and a
 	// file that cannot be put in place, which leaves what stood there.
-	const std::string nowhere = webui.box.at("no-such-dir/yWeb.conf");
+	const std::string nowhere = webui.box.at("no-such-dir/webui.conf");
 	coreapi::webui::internal::config_path = nowhere.c_str();
 	const Reply unsaved = authedPatch("/api/v1/webui/settings", "{\"page\":\"x\"}");
 	const std::string occupied = webui.box.at("taken");

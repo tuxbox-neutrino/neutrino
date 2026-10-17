@@ -33,7 +33,8 @@ namespace webui
 
 namespace internal
 {
-const char *config_path = CONFIGDIR "/yWeb.conf";
+const char *config_path = CONFIGDIR "/webui.conf";
+const char *former_path = CONFIGDIR "/yWeb.conf";
 } // namespace internal
 
 namespace
@@ -140,13 +141,6 @@ bool save(const Settings &all)
 	return synced;
 }
 
-// Asked first: the reader complains on the error stream about a missing file.
-void load(CConfigFile &file)
-{
-	if (access(internal::config_path, R_OK) == 0)
-		file.loadConfig(internal::config_path);
-}
-
 Settings mapOf(CConfigFile &file)
 {
 	const ConfigDataMap all = file.getConfigDataMap();
@@ -154,6 +148,92 @@ Settings mapOf(CConfigFile &file)
 	for (ConfigDataMap::const_iterator it = all.begin(); it != all.end(); ++it)
 		out[it->first] = it->second;
 	return out;
+}
+
+// Asked first: the reader complains on the error stream about a missing file.
+void load(CConfigFile &file, const char *path = NULL)
+{
+	if (path == NULL)
+		path = internal::config_path;
+	if (access(path, R_OK) == 0)
+		file.loadConfig(path);
+}
+
+/* What a box nobody set anything on runs on: what the file this one replaces
+   was shipped with, so a box answers as it did. */
+const char *const kShipped[][2] = {
+	{ "start_page", "none" },
+	{ "startup", "true" },
+	{ "style", "dark" },
+	{ "yweb_box_color", "fd6d13" },
+	{ "yweb_box_name", "${HOSTNAME}" },
+};
+
+// The mark the new file keeps once the former one was taken over.
+const char kTakenOver[] = "migrated_from";
+
+/* A value carried over as the pages name it now: the interface's own pages
+   were templates of the old engine (.yhtm) and are plain files (.html). Only
+   those; an extension's page keeps the name its manifest gives it. */
+const char *const kRenamedPages[] = {
+	"bouquet-editor", "bouquets", "dashboard", "epg", "files", "recordings",
+	"screenshot", "settings", "sysinfo", "timer", "tools", "wizard",
+};
+
+std::string carried(const std::string &key, const std::string &value)
+{
+	if (key != "start_page" || !endsWith(value, ".yhtm"))
+		return value;
+	const std::string name = value.substr(value[0] == '/' ? 1 : 0, value.size() - (value[0] == '/' ? 1 : 0) - 5);
+	for (size_t i = 0; i < sizeof(kRenamedPages) / sizeof(kRenamedPages[0]); ++i)
+		if (name == kRenamedPages[i])
+			return name + ".html";
+	return value;
+}
+
+// The keys somebody set, the mark of the takeover not counted.
+size_t ownKeys(const Settings &set)
+{
+	return set.size() - set.count(kTakenOver);
+}
+
+// Under FileLock.
+bool migrateHeld()
+{
+	CConfigFile file(',');
+	load(file);
+	Settings now = mapOf(file);
+	if (now.count(kTakenOver) != 0 || access(internal::former_path, R_OK) != 0)
+		return true;
+	CConfigFile former(',');
+	load(former, internal::former_path);
+	const Settings was = mapOf(former);
+	for (Settings::const_iterator it = was.begin(); it != was.end(); ++it)
+	{
+		if (now.count(it->first) != 0)
+			continue;
+		const std::string value = carried(it->first, it->second);
+		if (keyOk(it->first) && !value.empty() && value.size() <= kMaxValueLength
+				&& valueOk(value) && ownKeys(now) < kMaxKeys)
+			now[it->first] = value;
+		else
+			/* A line the new file could not keep stays behind in the old one,
+			   named here so whoever misses it knows where it is; the takeover
+			   is not tried again. The value is not repeated: it may be a key
+			   to a service. */
+			std::fprintf(stderr, "[webui] %s in %s is not taken over into %s; it stays in the old file\n",
+				     it->first.c_str(), internal::former_path, internal::config_path);
+	}
+	now[kTakenOver] = "yWeb.conf";
+	return save(now);
+}
+
+Settings withShipped(const Settings &set)
+{
+	Settings all = set;
+	for (size_t i = 0; i < sizeof(kShipped) / sizeof(kShipped[0]); ++i)
+		all.insert(std::make_pair(std::string(kShipped[i][0]), std::string(kShipped[i][1])));
+	return all;
 }
 
 } // namespace
@@ -169,12 +249,19 @@ bool isSecret(const std::string &key)
 	       key.find("_token") != std::string::npos;
 }
 
+bool migrate()
+{
+	FileLock held;
+	return migrateHeld();
+}
+
 Settings read()
 {
 	FileLock held;
+	migrateHeld();
 	CConfigFile file(',');
 	load(file);
-	return mapOf(file);
+	return withShipped(mapOf(file));
 }
 
 Result<Settings> change(const Settings &set)
@@ -195,6 +282,7 @@ Result<Settings> change(const Settings &set)
 	}
 
 	FileLock held;
+	migrateHeld();
 	CConfigFile file(',');
 	load(file);
 	Settings now = mapOf(file);
@@ -205,14 +293,14 @@ Result<Settings> change(const Settings &set)
 		else
 			now[it->first] = it->second;
 	}
-	if (now.size() > kMaxKeys)
+	if (ownKeys(now) > kMaxKeys)
 		return fail(Status::Conflict, ErrorCode::TooManySettings,
 			    "the file holds as many keys as it takes; take one out first");
 
 	if (!save(now))
 		return fail(Status::Internal, ErrorCode::SettingNotWritten,
 			    "the web interface's settings file could not be saved");
-	return ok(std::move(now));
+	return ok(withShipped(now));
 }
 
 } // namespace webui

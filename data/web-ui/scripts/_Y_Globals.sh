@@ -29,7 +29,7 @@ y_url_control="http://localhost/control"
 # -----------------------------------------------------------
 # Files
 # -----------------------------------------------------------
-y_config_yWeb="$y_path_config/yWeb.conf"
+y_config_yWeb="$y_path_config/webui.conf"
 y_config_nhttpd="$y_path_config/nhttpd.conf"
 y_config_neutrino="$y_path_config/neutrino.conf"
 y_upload_file="$y_path_tmp/upload.tmp"

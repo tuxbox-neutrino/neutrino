@@ -83,6 +83,8 @@
 	"tools.message": "Nachricht",
 	"tools.message_ph": "Nachricht eingeben…",
 	"tools.message_sub": "Meldung an Box senden",
+	"tools.sysinfo": "Systeminformation",
+	"tools.screenshot": "Screenshot",
 	"tools.sysinfo_sub": "Hardware und Software",
 	"tools.settings_sub": "Video, Audio, Display",
 	"tools.boxcontrol_sub": "Neustart, Aufnahme, Tuner",

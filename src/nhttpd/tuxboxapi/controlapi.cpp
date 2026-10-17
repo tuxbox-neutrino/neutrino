@@ -5190,7 +5190,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 		else if (configFileName == "nhttpd")
 			config_filename = HTTPD_CONFIGFILE;
 		else if (configFileName == "yweb")
-			config_filename = YWEB_CONFIGFILE;
+			config_filename = WEBUI_CONFIGFILE;
 
 		if (!config_filename.empty())
 			Config->loadConfig(config_filename);

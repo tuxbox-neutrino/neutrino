@@ -1824,24 +1824,72 @@ function webuiCloseAbout(event) {
 // ═══ Extension-Loader (WORK-146 Spec §4) ═══
 // Konvention: <webroot>/extensions/<name>/manifest.json mit
 //   {"name","version","slot":"nav|tools|dashboard|page","entry","description"?}
-// Schaltung: yWeb.conf ext_<name>_enabled=1, optional ext_<name>_slot
+// Schaltung: webui.conf ext_<name>_enabled=1, optional ext_<name>_slot
 // (Slot-Override). Which are installed comes from GET /api/v1/webui/extensions,
 // the switches from GET /api/v1/webui/settings, both readable without a
 // sign-in from the home network; a page that may read neither shows none.
-var _webuiExtensions = null;
+var _webuiExtensions = null;		// the list, once found
+var _webuiExtensionsAsked = null;	// the finding, while and after it runs
+
+// The interface's own pages a start page can be: page, text key, English.
+var WEBUI_START_PAGES = [
+	['dashboard.html', 'nav.dashboard', 'Dashboard'],
+	['bouquets.html', 'nav.bouquets', 'Bouquets'],
+	['epg.html', 'nav.epg', 'EPG'],
+	['timer.html', 'nav.timer', 'Timer'],
+	['recordings.html', 'nav.recordings', 'Recordings'],
+	['tools.html', 'nav.tools', 'Tools'],
+	['settings.html', 'nav.settings', 'Settings'],
+	['files.html', 'tools.files', 'Files'],
+	['sysinfo.html', 'tools.sysinfo', 'System information'],
+	['screenshot.html', 'tools.screenshot', 'Screenshot'],
+	['bouquet-editor.html', 'tools.bqedit', 'Bouquet editor']
+];
+
+/* What a start page can be, for a choice: the pages above and the page of
+   every extension that is switched on (webuiDiscoverExtensions must have
+   run), as {v: page, l: label}, both text. index.js holds a stored start
+   page to the same. */
+function webuiStartPages() {
+	var out = WEBUI_START_PAGES.map(function(p) {
+		return {v: p[0], l: webuiL(p[1], p[2])};
+	});
+	(_webuiExtensions || []).forEach(function(m) {
+		if (m.enabled && m.url)
+			out.push({v: m.url.replace(/^\//, ''), l: m.name});
+	});
+	return out;
+}
 
 async function _webuiV1Read(path) {
 	var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
 	return r.ok ? r.json() : null;
 }
 
-async function webuiDiscoverExtensions() {
-	if (_webuiExtensions !== null) return _webuiExtensions;
-	_webuiExtensions = [];
+/* Asked once per page: whoever asks while the answer is on its way waits for
+   the same answer instead of taking a list still being filled. */
+function webuiDiscoverExtensions() {
+	if (!_webuiExtensionsAsked)
+		_webuiExtensionsAsked = _webuiFindExtensions().then(function(found) {
+			_webuiExtensions = found;
+			return found;
+		});
+	return _webuiExtensionsAsked;
+}
+
+// Asked anew by the next webuiDiscoverExtensions (an extension was installed,
+// taken out or switched).
+function webuiForgetExtensions() {
+	_webuiExtensions = null;
+	_webuiExtensionsAsked = null;
+}
+
+async function _webuiFindExtensions() {
+	var found = [];
 	try {
 		var list = await _webuiV1Read('/webui/extensions');
 		var entries = (list && list.items) || [];
-		if (!entries.length) return _webuiExtensions;
+		if (!entries.length) return found;
 		var settings = await _webuiV1Read('/webui/settings');
 		var yCfg = {};
 		((settings && settings.items) || []).forEach(function(it) { yCfg[it.key] = it.value; });
@@ -1871,11 +1919,11 @@ async function webuiDiscoverExtensions() {
 					if (xl['manifest.name']) m.name = xl['manifest.name'];
 					if (xl['manifest.description']) m.description = xl['manifest.description'];
 				}
-				_webuiExtensions.push(m);
+				found.push(m);
 			} catch (ignore) {}
 		}
 	} catch (ignore) {}
-	return _webuiExtensions;
+	return found;
 }
 
 var _webuiExtInjected = false;

@@ -185,7 +185,7 @@ Settings → **Extensions**: the new extension shows up automatically in
 the list → enable the switch, optionally change the slot → save →
 reload the page.
 
-Technically the switch lives in `yWeb.conf`
+Technically the switch lives in `webui.conf`
 (`ext_<foldername>_enabled=1`, optionally `ext_<foldername>_slot=...`).
 
 ## 5. Install / update / uninstall (manager)
@@ -204,7 +204,7 @@ anything):
 - **Check for updates**: explicit button; the browser compares the
   installed versions against a hosted `index.json`
   (default: the `tuxbox-neutrino/yweb-extensions` repository,
-  overridable via the `yWeb.conf` key `ext_index_url`). Available
+  overridable via the `webui.conf` key `ext_index_url`). Available
   updates show a badge and an update button in the row.
 - **Uninstall**: row button with confirmation. Removes the extension
   folder and the scripts it shipped, each only where it is still the

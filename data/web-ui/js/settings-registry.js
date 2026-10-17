@@ -492,7 +492,7 @@ var SETTINGS_REGISTRY = [
 			{
 				title: webuiL('reg.ui', 'User interface'),
 				fields: [
-					{ key: 'start_page', label: webuiL('reg.start_page', 'Start page'), type: 'text' },
+					{ key: 'start_page', label: webuiL('reg.start_page', 'Start page'), type: 'select', options: webuiStartPages() },
 					{ key: 'yweb_box_name', label: webuiL('reg.box_name', 'Box name'), type: 'text' },
 					{ key: 'yweb_box_color', label: webuiL('reg.box_color', 'Box color'), type: 'text' }
 				]

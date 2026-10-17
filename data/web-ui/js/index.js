@@ -1,10 +1,13 @@
 // The script of index.html.
 
-// First run (yWeb.conf startup != true) -> setup wizard,
+// First run (webui.conf startup != true) -> setup wizard,
 // otherwise jump to the configured start page. Any error
 // falls back to the dashboard so the UI is always reachable.
 (function () {
 	var fallback = '/dashboard.html';
+	// the interface's own pages a start page can be
+	var core = ['dashboard', 'bouquets', 'epg', 'timer', 'recordings', 'tools',
+		'settings', 'files', 'sysinfo', 'screenshot', 'bouquet-editor'];
 	// what the classic settings page and the shipped yWeb.conf
 	// write ("none" there), mapped onto the modern pages
 	var classic = {
@@ -38,15 +41,28 @@
 			var page = cfg.start_page || '';
 			if (Object.prototype.hasOwnProperty.call(classic, page))
 				page = classic[page];
-			// the pages were templates before (.yhtm); a start page
-			// kept from then is the page under its present name
-			page = page.replace(/\.yhtm$/, '.html');
-			// a page of this UI only, never an address elsewhere and
-			// never this page itself (it would load itself forever)
-			if (!/^\/?[A-Za-z0-9_-]+\.html$/.test(page) || /^\/?index\.html$/.test(page))
-				page = 'dashboard.html';
-			if (page.charAt(0) !== '/') page = '/' + page;
-			location.replace(page);
+			page = page.replace(/^\//, '');
+			// one of the interface's own pages, never an address elsewhere
+			// and never this page itself (it would load itself forever)
+			var own = /^([A-Za-z0-9_-]+)\.html$/.exec(page);
+			if (own && core.indexOf(own[1]) >= 0) {
+				location.replace('/' + page);
+				return;
+			}
+			/* or the page of an extension that is installed and switched
+			   on, the one its manifest names; one taken out or switched off
+			   since leaves the dashboard */
+			var ext = /^extensions\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_.%-]+)$/.exec(page);
+			if (!ext || cfg['ext_' + ext[1] + '_enabled'] !== '1') {
+				location.replace(fallback);
+				return;
+			}
+			return fetch('/extensions/' + ext[1] + '/manifest.json', {credentials: 'same-origin', cache: 'no-cache'})
+				.then(function (r) { return r.ok ? r.json() : null; })
+				.then(function (m) {
+					var named = m && typeof m.entry === 'string' && encodeURIComponent(m.entry) === ext[2];
+					location.replace(named ? '/' + page : fallback);
+				});
 		})
 		.catch(function (e) {
 			// on the way to the sign-in already

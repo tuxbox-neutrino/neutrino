@@ -29,7 +29,7 @@ Der Loader lebt in `data/web-ui/js/webui-header.js` (`webuiDiscoverExtensions` /
 - `version`: kanonische Version der Erweiterung (semantisch
   `major.minor.patch`, siehe \ref ywebext_repos)
 
-\section ywebext_gating Config-Schaltung (yWeb.conf)
+\section ywebext_gating Config-Schaltung (webui.conf)
 
 - `ext_<ordner>_enabled` = `0|1` — Erweiterungen sind standardmaessig AUS
   (Opt-in), verwaltet ueber Einstellungen → Erweiterungen.
@@ -83,7 +83,7 @@ Einstellungen → Erweiterungen verwaltet den Lebenszyklus; Backend ist
 Update-Check: expliziter Knopf (kein Auto-Fetch externer URLs);
 vergleicht installierte Versionen numerisch gegen die gehostete
 index.json. Default-URL ist der Raw-Link des Meta-Repos
-`tuxbox-neutrino/yweb-extensions`; ueberschreibbar per yWeb.conf-Key
+`tuxbox-neutrino/yweb-extensions`; ueberschreibbar per webui.conf-Key
 `ext_index_url` (z.B. lokaler Spiegel).
 
 \section ywebext_tarball tar.gz-Vertrag
@@ -190,7 +190,7 @@ init of every modern page.
 - `version`: canonical extension version (semantic
   `major.minor.patch`, see \ref ywebext_en_repos)
 
-\section ywebext_en_gating Config gating (yWeb.conf)
+\section ywebext_en_gating Config gating (webui.conf)
 
 - `ext_<folder>_enabled` = `0|1` — extensions are OFF by default
   (opt-in), managed via Settings → Extensions.
@@ -245,7 +245,7 @@ Settings → Extensions manages the lifecycle; the backend is
 Update check: explicit button (no automatic external fetches);
 compares installed versions numerically against the hosted index.json.
 The default URL is the raw link of the `tuxbox-neutrino/yweb-extensions`
-meta repo; overridable via the yWeb.conf key `ext_index_url` (e.g. a
+meta repo; overridable via the webui.conf key `ext_index_url` (e.g. a
 local mirror).
 
 \section ywebext_en_tarball tar.gz contract

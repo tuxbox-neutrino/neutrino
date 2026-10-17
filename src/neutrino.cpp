@@ -59,6 +59,7 @@
 #include <coreapi/channels.h>
 #include <coreapi/system.h>
 #include <coreapi/websources.h>
+#include <coreapi/webui.h>
 #include <coreapi/shares.h>
 #include <coreapi/settings/settings.h>
 #include <coreapi/base/deps.h>
@@ -3386,6 +3387,11 @@ TIMER_START();
 	 * the server answers is read out of nhttpd's file, the one nhttpd binds
 	 * from, so both layers start on the same port. */
 	httpd::load(HTTPD_ACCESS_FILE, HTTPD_SERVER_FILE);
+
+	/* The web interface's own settings moved to webui.conf; the file kept
+	 * before is taken over once, before the server or the old pages read
+	 * the new one. */
+	coreapi::webui::migrate();
 
 	/* The API layer's server seam gets its two hands before the first
 	 * request can ask for a restart: with them installed, a webserver

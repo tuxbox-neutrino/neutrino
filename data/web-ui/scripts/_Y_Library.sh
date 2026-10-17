@@ -205,7 +205,7 @@ msg_popup()
 }
 
 # -----------------------------------------------------------
-# create yWeb.conf if does not exists
+# create webui.conf if does not exists
 # -----------------------------------------------------------
 check_yWeb_conf()
 {
