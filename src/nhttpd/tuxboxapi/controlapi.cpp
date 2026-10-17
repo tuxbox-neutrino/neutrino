@@ -3204,7 +3204,7 @@ void CControlAPI::VersionCGI(CyhookHandler *hh)
 // JSON endpoint for all software versions and support info
 void CControlAPI::VersionsCGI(CyhookHandler *hh)
 {
-	// Read yWeb version from Y_Version.txt
+	// The web interface's version from the version.txt its pages ship
 	// Use runtime config paths (same priority as mod_sendfile: public -> private -> hosted)
 	std::string yweb_version = "";
 	std::string yweb_date = "";
@@ -3218,7 +3218,7 @@ void CControlAPI::VersionsCGI(CyhookHandler *hh)
 	{
 		if (search_paths[i].empty())
 			continue;
-		std::string path = search_paths[i] + "/Y_Version.txt";
+		std::string path = search_paths[i] + "/version.txt";
 		std::ifstream yweb_file(path);
 		if (yweb_file.is_open())
 		{

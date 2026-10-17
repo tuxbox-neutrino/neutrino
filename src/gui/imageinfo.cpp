@@ -594,7 +594,7 @@ string CImageInfo::getYWebVersion()
 {
 	CConfigFile yConf('=', false);
 	yConf.loadConfig(CONFIGDIR "/nhttpd.conf");
-	std::string ver = yConf.getString("WebsiteMain.directory", "n/a") + "/Y_Version.txt";
+	std::string ver = yConf.getString("WebsiteMain.directory", "n/a") + "/version.txt";
 
 	CConfigFile yV('=', false);
 	if (file_exists(ver.c_str()))

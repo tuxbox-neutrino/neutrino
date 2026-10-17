@@ -45,7 +45,7 @@ install_DATA = \
 	Y_Tools_NetFS_edit.yhtm \
 	Y_Tools_NetFS_init.yhtm \
 	Y_User.css \
-	Y_Version.txt
+	version.txt
 
 install-data-hook:
 	@# ===========================================================================

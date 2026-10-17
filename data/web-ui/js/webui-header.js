@@ -565,7 +565,7 @@ async function webuiSystemInfo(full) {
 
 /* The versions and links in the shape of the old versions answer: the
    program's and the interface's from /api/v1/system/info, the pages' own
-   from the Y_Version.txt they ship. */
+   from the version.txt they ship. */
 async function webuiVersions(sys) {
 	var info = sys ? sys.info : null;
 	if (!info) {
@@ -582,7 +582,7 @@ async function webuiVersions(sys) {
 		copyright: {text: info.support ? info.support.copyright : ''}
 	};
 	try {
-		var v = await fetch('/Y_Version.txt', {cache: 'no-cache'});
+		var v = await fetch('/version.txt', {cache: 'no-cache'});
 		if (v.ok) (await v.text()).split('\n').forEach(function(line) {
 			if (line.indexOf('version=') === 0) out.webui = line.slice(8).trim();
 			else if (line.indexOf('date=') === 0) out.webui_date = line.slice(5).trim();
