@@ -66,19 +66,19 @@ Konventionen:
 
 \section ywebext_manager Verwaltung: Installieren / Aktualisieren / Deinstallieren
 
-Einstellungen → Erweiterungen verwaltet den Lebenszyklus; Backend ist
-`data/y-web/scripts/Y_Extensions.sh` ueber den exec-Vertrag:
+Einstellungen → Erweiterungen verwaltet den Lebenszyklus ueber `/api/v1`:
 
-- `install_archive </tmp/f.tar.gz>` — Upload-Weg der UI
-  (`/api/v4/file?action=upload&path=/tmp`, dann exec).
-- `install_url <url>` — Download auf der Box (wget), dann wie Archive.
-  Ein Update ist eine erneute Installation: der Ordner wird ersetzt,
-  Config-Keys (Enable/Slot, Einstellungen) ueberleben.
-- `uninstall <ordner>` — entfernt Ordner + mitgelieferte Scripts; die UI
-  blankt danach `ext_<ordner>_enabled`/`_slot` (die Config-API kann keine
-  Keys loeschen; leere Werte sind inerte Reste).
-- `fetch_index <url>` — Fallback fuer den Update-Check, wenn der Browser
-  den Index nicht direkt laden darf (CORS/Netz).
+- Installieren: die Seite laedt das Archiv nach /tmp hoch
+  (`PUT`/`PATCH /api/v1/storage/file`) und ruft
+  `POST /api/v1/webui/extensions` mit `{"file": "<name>.tar.gz"}`. Von
+  einer Adresse laedt die Seite das Archiv selbst und dann hoch; die Box
+  holt nichts. Ein Update ist eine erneute Installation: der Ordner wird
+  ersetzt, Config-Keys (Enable/Slot, Einstellungen) ueberleben.
+- Deinstallieren: `DELETE /api/v1/webui/extensions/<ordner>` entfernt
+  Ordner und mitgelieferte Scripts; die Seite nimmt danach
+  `ext_<ordner>_enabled`/`_slot` aus webui.conf (leerer Wert ueber
+  `PATCH /api/v1/webui/settings`).
+- Was installiert ist, nennt `GET /api/v1/webui/extensions`.
 
 Update-Check: expliziter Knopf (kein Auto-Fetch externer URLs);
 vergleicht installierte Versionen numerisch gegen die gehostete
@@ -88,7 +88,7 @@ index.json. Default-URL ist der Raw-Link des Meta-Repos
 
 \section ywebext_tarball tar.gz-Vertrag
 
-Y_Extensions.sh erzwingt beim Installieren:
+Die Installation (`POST /api/v1/webui/extensions`) erzwingt:
 
 - genau EIN Top-Level-Ordner; Name = Erweiterungs-Schluessel, Muster
   `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
@@ -228,19 +228,19 @@ Conventions:
 
 \section ywebext_en_manager Manager: install / update / uninstall
 
-Settings → Extensions manages the lifecycle; the backend is
-`data/y-web/scripts/Y_Extensions.sh` through the exec contract:
+Settings → Extensions manages the lifecycle over `/api/v1`:
 
-- `install_archive </tmp/f.tar.gz>` — the UI upload path
-  (`/api/v4/file?action=upload&path=/tmp`, then exec).
-- `install_url <url>` — download on the box (wget), then like archive.
-  An update is a re-install: the folder is replaced, config keys
-  (enable/slot, settings) survive.
-- `uninstall <folder>` — removes folder + shipped scripts; the UI then
-  blanks `ext_<folder>_enabled`/`_slot` (the config API cannot delete
-  keys; empty values are inert leftovers).
-- `fetch_index <url>` — fallback for the update check when the browser
-  may not fetch the index directly (CORS/network).
+- Install: the page uploads the archive to /tmp
+  (`PUT`/`PATCH /api/v1/storage/file`) and calls
+  `POST /api/v1/webui/extensions` with `{"file": "<name>.tar.gz"}`. From an
+  address the page fetches the archive itself and uploads it; the box
+  fetches nothing. An update is a re-install: the folder is replaced,
+  config keys (enable/slot, settings) survive.
+- Uninstall: `DELETE /api/v1/webui/extensions/<folder>` removes the folder
+  and the scripts it shipped; the page then takes
+  `ext_<folder>_enabled`/`_slot` out of webui.conf (an empty value through
+  `PATCH /api/v1/webui/settings`).
+- `GET /api/v1/webui/extensions` names what is installed.
 
 Update check: explicit button (no automatic external fetches);
 compares installed versions numerically against the hosted index.json.
@@ -250,7 +250,7 @@ local mirror).
 
 \section ywebext_en_tarball tar.gz contract
 
-Y_Extensions.sh enforces on install:
+The install (`POST /api/v1/webui/extensions`) enforces:
 
 - exactly ONE top-level folder; its name is the extension key, pattern
   `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`;
