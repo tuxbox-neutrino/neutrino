@@ -2,6 +2,7 @@
  * test_choicesources.cpp - tests for the lists a text setting offers
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -241,6 +242,18 @@ TEST_CASE("the language, the zone and the interface offer the box's lists", "[ch
 	CHECK(settings::describe("language").value().field.choices_from == installedLocales);
 	CHECK(settings::describe("timezone").value().field.choices_from == timezoneNames);
 	CHECK(settings::describe("ifname").value().field.choices_from == interfaceNames);
+}
+
+// The runner puts every place of the box in an empty directory, so no case
+// depends on the lists of the host it runs on.
+TEST_CASE("the suite reads none of the host's lists", "[choices]")
+{
+	std::vector<SettingChoice> got;
+	CHECK_FALSE(installedLocales(got));
+	CHECK_FALSE(languageNames(got));
+	CHECK_FALSE(timezoneNames(got));
+	CHECK_FALSE(interfaceNames(got));
+	CHECK(got.empty());
 }
 
 TEST_CASE("a text the box offers a list for is held to it, its default and what it holds", "[choices]")

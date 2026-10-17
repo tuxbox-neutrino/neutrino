@@ -2,6 +2,7 @@
  * choicesources.cpp - the lists of installed languages and zones a text setting offers
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (test hooks)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,13 +57,31 @@ std::string zoneinfoPath(const std::string &root, const std::string &zone)
 	return standard;
 }
 
+// Where a case has put the box's places; empty is the box itself.
+std::string place;
+
+std::string placed(const std::string &path)
+{
+	return place + path;
+}
+
 } // namespace
+
+namespace internal
+{
+
+void setChoicePlaceForTest(const std::string &root)
+{
+	place = root;
+}
+
+} // namespace internal
 
 bool installedLocales(std::vector<SettingChoice> &out)
 {
 	std::vector<std::string> dirs;
-	dirs.push_back(LOCALEDIR);
-	dirs.push_back(LOCALEDIR_VAR);
+	dirs.push_back(placed(LOCALEDIR));
+	dirs.push_back(placed(LOCALEDIR_VAR));
 	return localesIn(dirs, out);
 }
 
@@ -104,7 +123,7 @@ bool localesIn(const std::vector<std::string> &dirs, std::vector<SettingChoice> 
 
 bool languageNames(std::vector<SettingChoice> &out)
 {
-	return languagesFrom(DATADIR "/iso-codes/iso-639.tab", out);
+	return languagesFrom(placed(DATADIR "/iso-codes/iso-639.tab"), out);
 }
 
 /* The table's lines are three codes and then the name, which may hold blanks; a line
@@ -152,7 +171,7 @@ bool languagesFrom(const std::string &table, std::vector<SettingChoice> &out)
 
 bool timezoneNames(std::vector<SettingChoice> &out)
 {
-	return timezonesFrom("/etc/timezone.xml", TARGET_PREFIX, out);
+	return timezonesFrom(placed("/etc/timezone.xml"), placed(TARGET_PREFIX), out);
 }
 
 bool timezonesFrom(const std::string &list, const std::string &root, std::vector<SettingChoice> &out)
@@ -190,7 +209,7 @@ bool timezonesFrom(const std::string &list, const std::string &root, std::vector
 
 bool interfaceNames(std::vector<SettingChoice> &out)
 {
-	return interfacesIn("/sys/class/net", out);
+	return interfacesIn(placed("/sys/class/net"), out);
 }
 
 bool interfacesIn(const std::string &dir, std::vector<SettingChoice> &out)

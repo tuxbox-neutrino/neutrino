@@ -24,7 +24,11 @@
 #include "answers.h"
 #include "counts.h"
 
+#include "coreapi/settings/choicesources.h"
+
 #include <cstdio>
+#include <stdlib.h>
+#include <unistd.h>
 
 /* The runner is written out rather than taken from the header, because what
    each case compared is only whole once every case has run and Catch promises
@@ -37,8 +41,21 @@ int main(int argc, char *argv[])
 	if (bad != 0)
 		return bad;
 
+	/* What a text setting offers is read from the box's places, and the suite
+	   answers the same whatever the host it runs on has installed there: every
+	   case reads them from an empty directory, and a case that wants a list
+	   makes its own. */
+	char empty[] = "/tmp/coreapi-unit-XXXXXX";
+	if (mkdtemp(empty) == NULL)
+	{
+		std::perror("no empty directory for the lists of the box");
+		return 1;
+	}
+	coreapi::internal::setChoicePlaceForTest(empty);
+
 	watchAnswers();
 	const int failed = session.run();
+	rmdir(empty);
 
 	// A run given a name or a tag to pick out is not the whole suite, so the
 	// counts of it are not the suite's counts and nothing is compared.

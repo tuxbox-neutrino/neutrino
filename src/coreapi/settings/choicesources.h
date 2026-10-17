@@ -60,6 +60,13 @@ bool timezonesFrom(const std::string &list, const std::string &root, std::vector
 bool interfaceNames(std::vector<SettingChoice> &out);
 bool interfacesIn(const std::string &dir, std::vector<SettingChoice> &out);
 
+namespace internal
+{
+/* Puts root in front of every place the lists above are read from, so the unit
+   tests read none of the host they run on. Empty reads the box's own again. */
+void setChoicePlaceForTest(const std::string &root);
+} // namespace internal
+
 } // namespace coreapi
 
 #endif

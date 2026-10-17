@@ -182,6 +182,37 @@ TEST_CASE("a setting that is not a String whose field holds text is not sane", "
 	REQUIRE(descriptorIsSane(e));
 }
 
+namespace
+{
+bool someTexts(std::vector<SettingChoice> &) { return false; }
+} // namespace
+
+/* The box's list of texts is for a text row with no list of its own: on a number
+   it lists nothing the row could hold, and beside the row's own list it leaves
+   two answers to what the row takes. Each of the two rows below is sane without
+   the box's list. */
+TEST_CASE("a list of the box's texts on a row that is not plain text is not sane", "[schema]")
+{
+	FieldRef offered = kText;
+	offered.choices_from = someTexts;
+	Descriptor d = { "k", ValueType::String, "s", "l", "h", 0, 0, COREAPI_ENUM(kTwo), 0, "", false, false,
+			 COREAPI_ALWAYS, kText };
+	REQUIRE(descriptorIsSane(d));
+	d.field = offered;
+	REQUIRE_FALSE(descriptorIsSane(d));
+	d.values = NULL;
+	d.value_count = 0;
+	REQUIRE(descriptorIsSane(d));
+
+	FieldRef counted = kNumber;
+	counted.choices_from = someTexts;
+	Descriptor b = { "k", ValueType::Bool, "s", "l", "h", 0, 1, NULL, 0, 1, NULL, false, false,
+			 COREAPI_ALWAYS, kNumber };
+	REQUIRE(descriptorIsSane(b));
+	b.field = counted;
+	REQUIRE_FALSE(descriptorIsSane(b));
+}
+
 // A row that reaches nothing is the ordinary case for a setting the program
 // keeps out of its settings struct, so it stays sane.
 TEST_CASE("a row that names no field at all is sane", "[schema]")
