@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Neutrino API</title>
-<link rel="stylesheet" href="vendor/swagger-ui.css">
+<link rel="stylesheet" href="/swagger/vendor/swagger-ui.css">
 <script>
 /* The theme the rest of this interface is shown in, so the reference
    follows a switch to light: the viewer's own light look is that theme,
@@ -228,7 +228,7 @@ if (theme !== "dark") { document.getElementById("dark-colours").disabled = true;
   allowed to set one.
 </div>
 <div id="swagger-ui"></div>
-<script src="vendor/swagger-ui-bundle.js"></script>
+<script src="/swagger/vendor/swagger-ui-bundle.js"></script>
 <script>
 "use strict";
 
@@ -381,7 +381,10 @@ function bodyOf(response) {
 
 var SAFE_METHODS = { GET: true, HEAD: true, OPTIONS: true, TRACE: true };
 
-window.ui = SwaggerUIBundle({
+/* The viewer comes with the optional package swagger-ui (/swagger/vendor/),
+   which an image carries only where its flash has room for it. Without it
+   the page says so instead of failing where nobody sees it. */
+if (typeof SwaggerUIBundle === "function") window.ui = SwaggerUIBundle({
   url: "/api/openapi.json",
   dom_id: "#swagger-ui",
   presets: [ SwaggerUIBundle.presets.apis ],
@@ -469,7 +472,20 @@ function askSession() {
   });
 }
 
-askSession();
+function sayPackageMissing() {
+  var note = document.createElement("p");
+  note.id = "package-missing";
+  note.style.cssText = "font: 15px/1.5 system-ui, sans-serif; padding: 20px;";
+  note.textContent = "The API reference needs the optional package swagger-ui, which " +
+    "this image does not carry. The description itself is at /api/openapi.json.";
+  document.getElementById("swagger-ui").appendChild(note);
+}
+
+if (window.ui) {
+  askSession();
+} else {
+  sayPackageMissing();
+}
 </script>
 </body>
 </html>
