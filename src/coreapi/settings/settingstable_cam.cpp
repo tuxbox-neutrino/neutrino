@@ -19,6 +19,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 namespace coreapi
@@ -47,7 +48,7 @@ const Descriptor kCam[] =
 		"ci_standby_reset", ValueType::Bool, "cam",
 		"ci.reset_standby", NULL,
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(ci_standby_reset)
+		COREAPI_NUMBER_FIELD_ON(ci_standby_reset, hasCiSlot)
 	},
 	// src/neutrino.cpp:583 src/gui/cam_menu.cpp:165
 	{
@@ -95,7 +96,7 @@ const Descriptor kCam[] =
 		"ci_delay", ValueType::Int, "cam",
 		"ci.delay", NULL,
 		16, 256, NULL, 0, 128, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(ci_delay)
+		COREAPI_NUMBER_FIELD_ON(ci_delay, hasCiSlot)
 	},
 #endif
 };

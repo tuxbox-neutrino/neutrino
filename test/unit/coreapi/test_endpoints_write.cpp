@@ -2491,6 +2491,35 @@ TEST_CASE("a write keeps the start channel and the weather place together", "[wr
 	CHECK(box.store.strings["weather_postalcode"].empty());
 }
 
+TEST_CASE("a write the parental lock holds is refused as setting-locked", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.box.parental_locked = true;
+
+	const Reply r = authedPatch("/api/v1/settings/parental", "{\"parentallock_lockage\":\"16\"}");
+	REQUIRE(r.code == 409);
+	REQUIRE(r.body.find("setting-locked") != std::string::npos);
+	REQUIRE(box.store.ints.count("parentallock_lockage") == 0);
+}
+
+TEST_CASE("a write of a setting the box lacks is refused as setting-not-on-this-box", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	box.box.caps.has_fan = 0;
+	const Reply r = authedPatch("/api/v1/settings/misc", "{\"fan_speed\":\"3\"}");
+	REQUIRE(r.code == 409);
+	REQUIRE(r.body.find("setting-not-on-this-box") != std::string::npos);
+	REQUIRE(box.store.ints.count("fan_speed") == 0);
+
+	box.box.caps.has_fan = 1;
+	const Reply taken = authedPatch("/api/v1/settings/misc", "{\"fan_speed\":\"3\"}");
+	REQUIRE(taken.code == 200);
+	REQUIRE(box.store.ints["fan_speed"] == 3);
+}
+
 /* An id written alone has to bring a name, so the route answers for the channel it
    names: none the box holds, one of the other list, or a list that cannot be read.
    Nothing of the pair is stored in any of the three. */

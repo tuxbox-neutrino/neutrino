@@ -79,6 +79,16 @@ Result<std::string> get(const std::string &key);
    other. The one thing it cannot promise is that nothing landed. */
 Result<void> set(const std::string &key, const std::string &value);
 
+/* Whether the parental lock holds this row right now. Also true when whether the
+   box is locked cannot be read, so a failed read never unlocks a row. Asks the
+   box only for a row the lock can hold. */
+bool lockedNow(const std::string &key);
+
+/* Whether this box has what the row controls, asked of the box every time. A row
+   the box lacks is still declared and still read, and every write of it is
+   refused; one every box has is always there. */
+bool availableNow(const Descriptor &d);
+
 /* Every rule set() holds a value to, without the store: what set() would refuse, check()
    refuses with the same answer, and ok says set() would come as far as the store. For a
    write of several settings that must not land in part, which asks each of them first. */

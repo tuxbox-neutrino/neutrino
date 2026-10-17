@@ -29,7 +29,7 @@ trap 'rm -rf "$tmp"' EXIT
 
 # The name is the second argument of the macro a row writes.
 awk -v keepstrings=1 -f "$HERE/strip-comments.awk" "$SRC"/src/coreapi/settings/settingstable*.cpp \
-	| grep -oE 'COREAPI_NUMBER_FIELD_ASKED\([A-Za-z_][A-Za-z_0-9]*, *"[^"]*"' \
+	| grep -oE 'COREAPI_NUMBER_FIELD_ASKED(_ON)?\([A-Za-z_][A-Za-z_0-9]*, *"[^"]*"' \
 	| sed -E 's/.*"([^"]*)"$/\1/' | sort -u > "$tmp/asked"
 
 # What the screen answers for, read off the comparisons its own answer makes.

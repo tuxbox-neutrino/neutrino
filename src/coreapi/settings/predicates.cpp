@@ -39,7 +39,7 @@ BoxCapabilities capabilities(bool *ok = NULL)
 {
 	BoxCapabilities caps;
 	memset(&caps, 0, sizeof(caps));
-	const bool asked = systemSource().capabilities(caps) == Status::Ok;
+	const bool asked = systemSourceInstalled() && systemSource().capabilities(caps) == Status::Ok;
 	if (!asked)
 		memset(&caps, 0, sizeof(caps));
 	if (ok != NULL)
@@ -169,7 +169,7 @@ bool canSelectRemote()
 bool ciSlotFitted(unsigned slot)
 {
 	unsigned n = 0;
-	if (systemSource().ciSlotCount(n) != Status::Ok)
+	if (!systemSourceInstalled() || systemSource().ciSlotCount(n) != Status::Ok)
 		return false;
 	return slot < n;
 }

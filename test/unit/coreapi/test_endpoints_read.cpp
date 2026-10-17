@@ -67,6 +67,7 @@
 #include <cstdlib>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -1621,6 +1622,74 @@ TEST_CASE("a schema label resolves through the installed catalog, not the key", 
 		CHECK(found["values"][i]["label"].asString() != "videomenu.videoformat_169");
 	}
 	REQUIRE(have_choice);
+}
+
+TEST_CASE("the schema reports the rows the parental lock holds only while the box is locked", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+
+	box.parental_locked = true;
+	::Json::Value items = parsed(get("/api/v1/settings/schema").body)["items"];
+	REQUIRE(items.size() > 0);
+	std::set<std::string> locked;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		const std::string id = items[i]["id"].asString();
+		// Only a row held right now carries the member, and then it is true.
+		if (items[i].isMember("locked"))
+		{
+			CHECK(items[i]["locked"].asBool());
+			locked.insert(id);
+		}
+	}
+	const char *const held[] = { "parentallock_prompt", "parentallock_lockage",
+	                             "parentallock_defaultlocked", "parentallock_zaptime" };
+	REQUIRE(locked == std::set<std::string>(held, held + 4));
+
+	box.parental_locked = false;
+	items = parsed(get("/api/v1/settings/schema").body)["items"];
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+		CHECK_FALSE(items[i].isMember("locked"));
+}
+
+/* A row the box lacks is in the schema with available false, and only such a row:
+   the member is absent wherever the box has what the row controls. */
+TEST_CASE("the schema marks a row the box lacks unavailable and no other", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	box.hasEverything();
+
+	::Json::Value items = parsed(get("/api/v1/settings/schema").body)["items"];
+	REQUIRE(items.size() > 0);
+	// The newer library of one family drives SCART and Cinch together, so a box of
+	// that build has no Cinch row of its own whatever else it has.
+#if defined(BOXMODEL_CST_HD2) && defined(ANALOG_MODE)
+	const std::string lacked = "analog_mode2";
+#else
+	const std::string lacked;
+#endif
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		INFO(items[i]["id"].asString());
+		CHECK(items[i].isMember("available") == (items[i]["id"].asString() == lacked));
+	}
+
+	box.caps.has_fan = 0;
+	items = parsed(get("/api/v1/settings/schema").body)["items"];
+	std::set<std::string> lacking;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		if (!items[i].isMember("available") || items[i]["id"].asString() == lacked)
+			continue;
+		CHECK_FALSE(items[i]["available"].asBool());
+		lacking.insert(items[i]["id"].asString());
+	}
+	REQUIRE(lacking.size() == 1);
+	CHECK(*lacking.begin() == "fan_speed");
 }
 
 /* The two halves of a pair name each other and how they are written, and a start

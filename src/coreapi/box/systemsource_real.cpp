@@ -306,6 +306,13 @@ class RealSystemSource : public SystemSource
 			out.frontend_count = CFEManager::getInstance()->getFrontendCount();
 			return Status::Ok;
 		}
+
+		// The test the program's own start applies.
+		Status parentalLocked(bool &out) const
+		{
+			out = access(NEUTRINO_PARENTALLOCKED_FILE, R_OK) == 0;
+			return Status::Ok;
+		}
 };
 
 RealSystemSource g_real_system;

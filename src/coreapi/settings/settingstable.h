@@ -84,6 +84,10 @@ const Descriptor *settingsTableKeys(size_t &count);
 const Descriptor *settingsTableDisplay(size_t &count);
 const Descriptor *settingsTablePlayer(size_t &count);
 const Descriptor *settingsTableParental(size_t &count);
+
+/* The rows a box whose image fixes the parental lock refuses to change. Kept as
+   a list beside the parental rows rather than as a member of every row. */
+bool heldByParentalLock(const char *key);
 const Descriptor *settingsTableCam(size_t &count);
 const Descriptor *settingsTableHdd(size_t &count);
 const Descriptor *settingsTableUpdate(size_t &count);

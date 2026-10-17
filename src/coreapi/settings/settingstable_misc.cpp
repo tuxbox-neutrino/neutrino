@@ -20,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 namespace coreapi
@@ -132,7 +133,7 @@ const Descriptor kMisc[] =
 		"fan_speed", ValueType::Int, "misc",
 		"fan_speed", "menu.hint_fan_speed",
 		1, 14, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(fan_speed)
+		COREAPI_NUMBER_FIELD_ON(fan_speed, hasFan)
 	},
 
 	// energy and shutdown
@@ -157,7 +158,7 @@ const Descriptor kMisc[] =
 		"shutdown_block_while_recording", ValueType::Bool, "misc",
 		"miscsettings.shutdown_block_recording", "menu.hint_shutdown_block_recording",
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(shutdown_block_while_recording)
+		COREAPI_NUMBER_FIELD_ON(shutdown_block_while_recording, canShutdown)
 	},
 	/* Minutes, and nought says the box takes the length off the programme it is
 	   showing. A number and not a choice, because the screen names its six
@@ -465,14 +466,14 @@ const Descriptor kMisc[] =
 		"cpufreq", ValueType::Int, "misc",
 		"cpu.freq_normal", NULL,
 		0, 600, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(cpufreq)
+		COREAPI_NUMBER_FIELD_ON(cpufreq, canCpufreq)
 	},
 	// src/neutrino.cpp:579 src/gui/miscsettings_menu.cpp:775
 	{
 		"standby_cpufreq", ValueType::Int, "misc",
 		"cpu.freq_standby", NULL,
 		0, 600, NULL, 0, 100, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(standby_cpufreq)
+		COREAPI_NUMBER_FIELD_ON(standby_cpufreq, canCpufreq)
 	},
 
 	/* What follows has no item on any screen, or an item a screen offers

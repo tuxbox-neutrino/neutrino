@@ -20,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 namespace coreapi
@@ -90,14 +91,14 @@ const Descriptor kSettings[] =
 		"lcd_info_line", ValueType::Enum, "display",
 		"lcd_info_line", "menu.hint_vfd_infoline",
 		0, 0, COREAPI_ENUM(kLcdInfoLine), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(lcd_info_line)
+		COREAPI_NUMBER_FIELD_ON(lcd_info_line, vfdEnabled)
 	},
 	// src/neutrino.cpp:638 src/gui/vfd_setup.cpp:211
 	{
 		"lcd_notify_rclock", ValueType::Bool, "display",
 		"lcdmenu.notify_rclock", "menu.hint_vfd_notify_rclock",
 		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(lcd_notify_rclock)
+		COREAPI_NUMBER_FIELD_ON(lcd_notify_rclock, vfdEnabled)
 	},
 	/* How many times a line too long for the panel is scrolled past, and nought
 	   is off. The second item the screen offers for it is this number held to
@@ -122,7 +123,7 @@ const Descriptor kSettings[] =
 		-1, 15,
 #endif
 		NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(lcd_setting_dim_brightness)
+		COREAPI_NUMBER_FIELD_ON(lcd_setting_dim_brightness, canSetPanelBrightness)
 	},
 	/* Minutes kept as text. The screen takes three digits and nothing else,
 	   src/gui/vfd_setup.cpp:333, and the driver reads the text with atoi,
@@ -133,63 +134,63 @@ const Descriptor kSettings[] =
 		"lcd_dim_time", ValueType::String, "display",
 		"lcdmenu.dim_time", "menu.hint_vfd_dimtime",
 		0, 0, NULL, 0, 0, "0", false, false, COREAPI_ALWAYS,
-		COREAPI_TEXT_FIELD(lcd_setting_dim_time)
+		COREAPI_TEXT_FIELD_ON(lcd_setting_dim_time, canSetPanelBrightness)
 	},
 	// src/neutrino.cpp:644 src/gui/vfd_setup.cpp:359
 	{
 		"led_tv_mode", ValueType::Enum, "display",
 		"ledcontroler.mode.tv", "menu.hint_leds_tv",
 		0, 0, COREAPI_ENUM(kLedMode), 2, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(led_tv_mode)
+		COREAPI_NUMBER_FIELD_ON(led_tv_mode, hasLedMenu)
 	},
 	// src/neutrino.cpp:645 src/gui/vfd_setup.cpp:363
 	{
 		"led_standby_mode", ValueType::Enum, "display",
 		"ledcontroler.mode.standby", "menu.hint_leds_standby",
 		0, 0, COREAPI_ENUM(kLedMode), 3, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(led_standby_mode)
+		COREAPI_NUMBER_FIELD_ON(led_standby_mode, hasLedMenu)
 	},
 	// src/neutrino.cpp:646 src/gui/vfd_setup.cpp:367
 	{
 		"led_deep_mode", ValueType::Enum, "display",
 		"ledcontroler.mode.deepstandby", "menu.hint_leds_deepstandby",
 		0, 0, COREAPI_ENUM(kLedMode), 3, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(led_deep_mode)
+		COREAPI_NUMBER_FIELD_ON(led_deep_mode, hasLedMenu)
 	},
 	// src/neutrino.cpp:647 src/gui/vfd_setup.cpp:371
 	{
 		"led_rec_mode", ValueType::Enum, "display",
 		"ledcontroler.mode.record", "menu.hint_leds_record",
 		0, 0, COREAPI_ENUM(kLedMode), 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(led_rec_mode)
+		COREAPI_NUMBER_FIELD_ON(led_rec_mode, hasLedMenu)
 	},
 	// src/neutrino.cpp:648 src/gui/vfd_setup.cpp:375
 	{
 		"led_blink", ValueType::Bool, "display",
 		"ledcontroler.blink", "menu.hint_leds_blink",
 		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(led_blink)
+		COREAPI_NUMBER_FIELD_ON(led_blink, hasLedMenu)
 	},
 	// src/neutrino.cpp:640 src/gui/vfd_setup.cpp:385
 	{
 		"backlight_tv", ValueType::Bool, "display",
 		"ledcontroler.backlight.tv", "menu.hint_leds_tv",
 		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(backlight_tv)
+		COREAPI_NUMBER_FIELD_ON(backlight_tv, hasBacklight)
 	},
 	// src/neutrino.cpp:641 src/gui/vfd_setup.cpp:389
 	{
 		"backlight_standby", ValueType::Bool, "display",
 		"ledcontroler.mode.standby", "menu.hint_leds_standby",
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(backlight_standby)
+		COREAPI_NUMBER_FIELD_ON(backlight_standby, hasBacklight)
 	},
 	// src/neutrino.cpp:642 src/gui/vfd_setup.cpp:393
 	{
 		"backlight_deepstandby", ValueType::Bool, "display",
 		"ledcontroler.mode.deepstandby", "menu.hint_leds_deepstandby",
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(backlight_deepstandby)
+		COREAPI_NUMBER_FIELD_ON(backlight_deepstandby, hasBacklight)
 	},
 #ifdef ENABLE_GRAPHLCD
 	/* The default is the box's own display and no constant states it: the

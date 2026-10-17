@@ -20,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 // The remote control codes a keybinding stores, as the program names them, so
@@ -423,7 +424,7 @@ const Descriptor kSettings[] =
 		"key_format_mode_active", ValueType::Bool, "keybindings",
 		"extra.key_format_mode", "menu.hint_key_format_mode_active",
 		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(key_format_mode_active)
+		COREAPI_NUMBER_FIELD_ON(key_format_mode_active, hasFormatButton)
 	},
 	// src/neutrino.cpp:6227 src/gui/keybind_setup.cpp:234
 	{
@@ -510,7 +511,7 @@ const Descriptor kSettings[] =
 		"remote_control_hardware", ValueType::Enum, "keybindings",
 		"keybindingmenu.remotecontrol_hardware", "menu.hint_key_hardware",
 		0, 0, COREAPI_ENUM(kRemoteHardware), 0, NULL, true, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(remote_control_hardware)
+		COREAPI_NUMBER_FIELD_ON(remote_control_hardware, canSelectRemote)
 	},
 	// Milliseconds, and zero is what the screen offers as off.
 	// src/neutrino.cpp:6297 src/gui/keybind_setup.cpp:335

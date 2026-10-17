@@ -409,6 +409,15 @@ namespace
    stores in number. Shared by set() and check(), so the two cannot come to disagree. */
 Result<void> heldToRow(const Descriptor *d, const std::string &value, long &number)
 {
+	// Ahead of every rule about the value: a row the lock fixes takes none.
+	if (lockedNow(d->key))
+		return fail(Status::Conflict, ErrorCode::SettingLocked,
+			    "the box's parental lock fixes this setting");
+	// Refused where the box lacks what the setting controls.
+	if (!availableNow(*d))
+		return fail(Status::Conflict, ErrorCode::SettingNotOnThisBox,
+			    "this box does not have what the setting controls");
+
 	/* A credential reads as nothing, so a form that redraws itself from what it read offers
 	   nothing back here, and taking that would wipe the value the read protected. Refused for
 	   every kind rather than only for text, so the answer says why: a number row would
@@ -491,6 +500,21 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 }
 
 } // anonymous namespace
+
+bool lockedNow(const std::string &key)
+{
+	if (!heldByParentalLock(key.c_str()))
+		return false;
+	bool locked = true;
+	if (!systemSourceInstalled() || systemSource().parentalLocked(locked) != Status::Ok)
+		return true;
+	return locked;
+}
+
+bool availableNow(const Descriptor &d)
+{
+	return d.field.available == NULL || d.field.available();
+}
 
 Result<void> check(const std::string &key, const std::string &value)
 {

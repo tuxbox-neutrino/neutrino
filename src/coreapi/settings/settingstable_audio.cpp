@@ -19,6 +19,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 namespace coreapi
@@ -107,7 +108,7 @@ const Descriptor kAudio[] =
 		"hdmi_dd", ValueType::Enum, "audio",
 		"audiomenu.hdmi_dd", "menu.hint_audio_hdmi_dd",
 		0, 0, COREAPI_VALUES(kHdmiDD), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdmi_dd)
+		COREAPI_NUMBER_FIELD_ON(hdmi_dd, hasHdmi)
 	},
 	// src/neutrino.cpp:540 src/gui/audio_setup.cpp:159
 	{

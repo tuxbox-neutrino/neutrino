@@ -2,6 +2,7 @@
  * settingstable_video.cpp - video settings, one row per field
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 namespace coreapi
@@ -114,7 +116,7 @@ const Descriptor kVideo[] =
 		"video_dbdr", ValueType::Enum, "video",
 		"videomenu.dbdr", "menu.hint_video_dbdr",
 		0, 0, COREAPI_VALUES(kDbDr), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(video_dbdr)
+		COREAPI_NUMBER_FIELD_ON(video_dbdr, hasDbdr)
 	},
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	// One box model falls back to 2 instead, which is a model read at run time
@@ -124,7 +126,7 @@ const Descriptor kVideo[] =
 		"zappingmode", ValueType::Enum, "video",
 		"videomenu.zappingmode", "menu.hint_video_zappingmode",
 		0, 0, COREAPI_VALUES(kZappingMode), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(zappingmode)
+		COREAPI_NUMBER_FIELD_ON(zappingmode, takesZappingMode)
 	},
 	/* A number and not a choice, and the ceiling differs by box: the same
 	   stored number names a different colorimetry on the two arms below, so no
@@ -140,7 +142,7 @@ const Descriptor kVideo[] =
 		0, 3,
 #endif
 		NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdmi_colorimetry)
+		COREAPI_NUMBER_FIELD_ON(hdmi_colorimetry, takesHdmiColorimetry)
 	},
 	/* The five below are edited by src/gui/psisetup.cpp, which holds each of
 	   the four values to 0..255 at :206 and :215 and states no bound for the
@@ -191,28 +193,28 @@ const Descriptor kVideo[] =
 		"hdmi_cec_mode", ValueType::Enum, "video",
 		"videomenu.hdmi_cec_mode", "menu.hint_cec_mode",
 		0, 0, COREAPI_ENUM(kCecMode), 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(hdmi_cec_mode)
+		COREAPI_NUMBER_FIELD_ON(hdmi_cec_mode, canCec)
 	},
 	// src/neutrino.cpp:502 src/gui/cec_setup.cpp:105
 	{
 		"hdmi_cec_view_on", ValueType::Bool, "video",
 		"videomenu.hdmi_cec_view_on", "menu.hint_cec_view_on",
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kCecOn),
-		COREAPI_NUMBER_FIELD(hdmi_cec_view_on)
+		COREAPI_NUMBER_FIELD_ON(hdmi_cec_view_on, canCec)
 	},
 	// src/neutrino.cpp:503 src/gui/cec_setup.cpp:107
 	{
 		"hdmi_cec_standby", ValueType::Bool, "video",
 		"videomenu.hdmi_cec_standby", "menu.hint_cec_standby",
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kCecOn),
-		COREAPI_NUMBER_FIELD(hdmi_cec_standby)
+		COREAPI_NUMBER_FIELD_ON(hdmi_cec_standby, canCec)
 	},
 	// src/neutrino.cpp:504 src/gui/cec_setup.cpp:110
 	{
 		"hdmi_cec_volume", ValueType::Enum, "video",
 		"videomenu.hdmi_cec_volume", "menu.hint_cec_volume",
 		0, 0, COREAPI_ENUM(kCecVolume), 0, NULL, false, false, COREAPI_CONDITIONS(kCecOn),
-		COREAPI_NUMBER_FIELD(hdmi_cec_volume)
+		COREAPI_NUMBER_FIELD_ON(hdmi_cec_volume, canCec)
 	},
 #if ENABLE_PIP
 	/* The small picture's place and size, which the video menu opens as a
@@ -230,28 +232,28 @@ const Descriptor kVideo[] =
 		"pip_x", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1920, NULL, 0, 50, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_x)
+		COREAPI_NUMBER_FIELD_ON(pip_x, pipUsable)
 	},
 	// src/neutrino.cpp:1211 src/gui/pipsetup.cpp:61
 	{
 		"pip_y", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1080, NULL, 0, 50, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_y)
+		COREAPI_NUMBER_FIELD_ON(pip_y, pipUsable)
 	},
 	// src/neutrino.cpp:1212 src/gui/pipsetup.cpp:132
 	{
 		"pip_width", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1920, NULL, 0, 365, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_width)
+		COREAPI_NUMBER_FIELD_ON(pip_width, pipUsable)
 	},
 	// src/neutrino.cpp:1213 src/gui/pipsetup.cpp:133
 	{
 		"pip_height", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1080, NULL, 0, 200, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_height)
+		COREAPI_NUMBER_FIELD_ON(pip_height, pipUsable)
 	},
 	// The radio pair falls back to the television one rather than to a number.
 	// src/neutrino.cpp:1215 src/gui/pipsetup.cpp:60
@@ -259,28 +261,28 @@ const Descriptor kVideo[] =
 		"pip_radio_x", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1920, NULL, 0, 50, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_radio_x)
+		COREAPI_NUMBER_FIELD_ON(pip_radio_x, pipUsable)
 	},
 	// src/neutrino.cpp:1216 src/gui/pipsetup.cpp:61
 	{
 		"pip_radio_y", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1080, NULL, 0, 50, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_radio_y)
+		COREAPI_NUMBER_FIELD_ON(pip_radio_y, pipUsable)
 	},
 	// src/neutrino.cpp:1217 src/gui/pipsetup.cpp:132
 	{
 		"pip_radio_width", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1920, NULL, 0, 365, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_radio_width)
+		COREAPI_NUMBER_FIELD_ON(pip_radio_width, pipUsable)
 	},
 	// src/neutrino.cpp:1218 src/gui/pipsetup.cpp:133
 	{
 		"pip_radio_height", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		0, 1080, NULL, 0, 200, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_radio_height)
+		COREAPI_NUMBER_FIELD_ON(pip_radio_height, pipUsable)
 	},
 	/* Which corner the small picture was last moved to. The floor is the value
 	   that means no corner at all and the rest are the four,
@@ -290,7 +292,7 @@ const Descriptor kVideo[] =
 		"pip_rotate_lastpos", ValueType::Int, "video",
 		"videomenu.pip", "menu.hint_video_pip",
 		-1, 3, NULL, 0, -1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(pip_rotate_lastpos)
+		COREAPI_NUMBER_FIELD_ON(pip_rotate_lastpos, pipUsable)
 	},
 #endif
 	/* The three whose set of values the box decides. The numbering is the
@@ -357,7 +359,7 @@ const Descriptor kVideo[] =
 		0x01,
 #endif
 		NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD_ASKED(analog_mode2, "analog_mode2")
+		COREAPI_NUMBER_FIELD_ASKED_ON(analog_mode2, "analog_mode2", hasAnalogCinch)
 	},
 #ifdef BOXMODEL_CST_HD2
 	/* The driver takes -128..127 for the three below and the screen offers a

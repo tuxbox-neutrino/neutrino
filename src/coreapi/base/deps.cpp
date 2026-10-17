@@ -89,6 +89,8 @@ SystemSource &systemSource()
 
 void setSystemSource(SystemSource *s) { g_system_source = s; }
 
+bool systemSourceInstalled() { return g_system_source != 0; }
+
 static TunerSource *g_tuner_source = 0;
 
 TunerSource &tunerSource()

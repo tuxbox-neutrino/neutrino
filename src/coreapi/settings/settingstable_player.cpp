@@ -19,6 +19,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 namespace coreapi
@@ -149,7 +150,7 @@ const Descriptor kSettings[] =
 		"movieplayer_display_playtime", ValueType::Bool, "player",
 		"movieplayer.display_playtime", "menu.hint_movieplayer_display_playtime",
 		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(movieplayer_display_playtime)
+		COREAPI_NUMBER_FIELD_ON(movieplayer_display_playtime, displayFitsPlaytime)
 	},
 	/* Local resolution: the source declares movieplayer_timeosd_while_searching
 	   here. In this fork the key is loaded and saved but nothing reads the

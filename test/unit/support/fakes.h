@@ -967,6 +967,8 @@ struct FakeSystemSource : public coreapi::SystemSource
 
 	coreapi::BoxCapabilities caps;
 	coreapi::Status          caps_status;
+	bool                     parental_locked;
+	coreapi::Status          parental_status;
 
 	FakeSystemSource()
 		: volume_level(0), is_muted(false),
@@ -977,9 +979,30 @@ struct FakeSystemSource : public coreapi::SystemSource
 		  ci_slot_status(coreapi::Status::Ok),
 		  ci_present_status(coreapi::Status::Ok),
 		  ci_use_status(coreapi::Status::Ok),
-		  caps_status(coreapi::Status::Ok)
+		  caps_status(coreapi::Status::Ok),
+		  parental_locked(false),
+		  parental_status(coreapi::Status::Ok)
 	{
 		memset(&caps, 0, sizeof(caps));
+	}
+
+	/* A box that has all the hardware a settings row asks about, and one module
+	   slot. Revision 9 is the one every board test the rows ask passes on. */
+	void hasEverything()
+	{
+		memset(&caps, 0, sizeof(caps));
+		caps.can_cec = caps.can_cpufreq = caps.can_pip = caps.can_shutdown = 1;
+		caps.has_fan = caps.has_HDMI = caps.has_SCART = caps.has_button_vformat = 1;
+		caps.display_can_set_brightness = 1;
+		caps.display_type = HW_DISPLAY_LINE_TEXT;
+		caps.display_xres = 16;
+		caps.video_zapmode = caps.video_hdmi_colorimetry = 1;
+		caps.pip_devs = 1;
+		caps.pip_boot_mode_ok = 1;
+		caps.rc_hw_select = 1;
+		caps.frontend_count = 2;
+		caps.board_revision = 9;
+		ci_slots = 1;
 	}
 
 	coreapi::Status capabilities(coreapi::BoxCapabilities &out) const
@@ -987,6 +1010,14 @@ struct FakeSystemSource : public coreapi::SystemSource
 		if (caps_status != coreapi::Status::Ok)
 			return caps_status;
 		out = caps;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status parentalLocked(bool &out) const
+	{
+		if (parental_status != coreapi::Status::Ok)
+			return parental_status;
+		out = parental_locked;
 		return coreapi::Status::Ok;
 	}
 

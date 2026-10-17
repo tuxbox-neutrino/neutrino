@@ -180,6 +180,13 @@ const FieldDesc kSettingFields[] = {
 		"whether the setting is a credential, which is described here and never valued"),
 	HTTPD_LIST_OF("conditions", &kConditionSchema,
 		"every comparison that has to hold before the setting is worth showing, all of them together, empty for one always shown"),
+	HTTPD_MEMBER_OPTIONAL("locked", FieldType::Bool,
+		"present and true only while the box's parental lock fixes the setting, so every write of it is "
+		"refused; absent means false"),
+	HTTPD_MEMBER_OPTIONAL("available", FieldType::Bool,
+		"present and false only where this box lacks what the setting controls, such as a fan, or cannot "
+		"say; absent means true. A setting that is not available is offered on no screen and every write "
+		"of it is refused, while its value still reads"),
 	HTTPD_MEMBER_OPTIONAL("pair", FieldType::String,
 		"the other half of a setting that is one fact in two parts, present on both halves; how the two "
 		"are written is pair_writes"),
@@ -383,6 +390,17 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	j.value(d.needs_restart);
 	j.key("secret");
 	j.value(d.secret);
+
+	if (coreapi::settings::lockedNow(d.key))
+	{
+		j.key("locked");
+		j.value(true);
+	}
+	if (!coreapi::settings::availableNow(d))
+	{
+		j.key("available");
+		j.value(false);
+	}
 
 	const char *writes = NULL;
 	const char *partner = coreapi::settings::pairPartner(d.key, &writes);
@@ -941,6 +959,10 @@ const RouteRefusal kSettingsWriteRefusals[] = {
 		"the channel is a radio channel, and this start channel takes a television one"),
 	HTTPD_REFUSES(Internal, ChannelListUnavailable,
 		"the channel list could not be read"),
+	HTTPD_REFUSES(Conflict, SettingLocked,
+		"the box's parental lock fixes this setting"),
+	HTTPD_REFUSES(Conflict, SettingNotOnThisBox,
+		"this box does not have what the setting controls"),
 };
 
 const Endpoint kSettingsEndpoints[] = {
@@ -954,6 +976,11 @@ const Endpoint kSettingsEndpoints[] = {
 	  "\n"
 	  "Each item's `conditions` list states every comparison against another setting's current value "
 	  "that must hold before this setting is worth showing; an empty list means it is always shown.\n"
+	  "\n"
+	  "`available` is false for a setting whose hardware this box lacks or cannot say it has; such a "
+	  "setting is not worth showing and refuses every write, while its value still reads. `locked` is "
+	  "true for a setting the box's parental lock fixes right now, which refuses every write too. Both "
+	  "are left out where they do not apply.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/settings/sections`, `GET /api/v1/settings/{section}`, "
 	  "`PATCH /api/v1/settings/{section}`.",
@@ -1075,6 +1102,10 @@ const Endpoint kSettingsEndpoints[] = {
 	  "so there is no name to write beside it.\n"
 	  "- `404 no-such-setting`: a named key does not belong to this section, whether or not it exists "
 	  "elsewhere on the box.\n"
+	  "- `409 setting-locked`: the schema marks the key `locked` (the parental lock); no write "
+	  "changes it.\n"
+	  "- `409 setting-not-on-this-box`: the schema marks the key not `available`; this box does not "
+	  "have what it controls.\n"
 	  "- `409 setting-condition-not-met`: one half of a pair was sent without the other, together "
 	  "with a value that contradicts it, or beside a partner that was refused; `detail` names the "
 	  "other settings.\n"

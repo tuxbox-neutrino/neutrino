@@ -79,9 +79,9 @@ void readText(const SNeutrinoSettings &, std::string &) {}
 void writeText(SNeutrinoSettings &, const std::string &) {}
 
 const FieldRef kNumber = { readNumber, writeNumber, fitsNumber, NULL, NULL, NULL, NULL, NULL,
-			   "number", FieldOrigin::Member, NULL };
+			   "number", FieldOrigin::Member, NULL, NULL };
 const FieldRef kText = { NULL, NULL, NULL, readText, writeText, NULL, NULL, NULL,
-			 "text", FieldOrigin::Member, NULL };
+			 "text", FieldOrigin::Member, NULL, NULL };
 } // namespace
 
 TEST_CASE("a field that can be read and not written is not sane", "[schema]")

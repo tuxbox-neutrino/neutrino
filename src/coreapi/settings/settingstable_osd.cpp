@@ -20,6 +20,7 @@
  */
 
 #include "settingstable.h"
+#include "predicates.h"
 #include "settingsfield.h"
 
 #include "coreapi/base/deps.h"
@@ -477,7 +478,7 @@ const Descriptor kOsd[] =
 		"infobar_show_tuner", ValueType::Bool, "osd",
 		"miscsettings.infobar_show_tuner", "menu.hint_infobar_tuner",
 		0, 1, NULL, 0, 1, NULL, false, false, COREAPI_ALWAYS,
-		COREAPI_NUMBER_FIELD(infobar_show_tuner)
+		COREAPI_NUMBER_FIELD_ON(infobar_show_tuner, severalTunersFitted)
 	},
 	// src/neutrino.cpp:1321 src/gui/osd_setup.cpp:1396
 	{

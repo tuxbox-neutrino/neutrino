@@ -471,6 +471,12 @@ enum class ErrorCode
 	   value that contradicts one the same write brings, or a half whose partner
 	   was refused. Which settings it belongs with is said with it. */
 	SettingConditionNotMet,
+	/* The box's image fixes this setting, so no caller may change it here.
+	   Also answered when whether the box is locked cannot be read. */
+	SettingLocked,
+	/* The box lacks what this setting controls, a fan or a socket, or cannot
+	   say whether it has it. The schema marks such a row unavailable. */
+	SettingNotOnThisBox,
 };
 
 /* The wire form. A code with no case here answers with nothing, and two things
@@ -661,6 +667,8 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::ExitStatus: return "exit-status";
 		case ErrorCode::ChoicesUnavailable: return "choices-unavailable";
 		case ErrorCode::SettingConditionNotMet: return "setting-condition-not-met";
+		case ErrorCode::SettingLocked: return "setting-locked";
+		case ErrorCode::SettingNotOnThisBox: return "setting-not-on-this-box";
 	}
 	return "";
 }

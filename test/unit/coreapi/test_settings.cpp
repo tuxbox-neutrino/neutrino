@@ -1425,6 +1425,10 @@ TEST_CASE("no text row the program declares takes a value carrying a line end", 
 {
 	FakeSettingsSource f;
 	InstalledSettingsSource installed(&f);
+	// A box that has every row, so the value is what each row answers for.
+	FakeSystemSource box;
+	box.hasEverything();
+	InstalledSystemSource installed_box(&box);
 
 	Result<std::vector<Descriptor> > sch = settings::schema();
 	REQUIRE(sch.ok());

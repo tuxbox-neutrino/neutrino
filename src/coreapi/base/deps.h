@@ -332,10 +332,19 @@ struct SystemSource
 
 	// What the hardware library says the box can do.
 	virtual Status capabilities(BoxCapabilities &out) const = 0;
+	// Whether the image fixes the parental lock. Read at every call, so a
+	// caller never acts on a state older than the request.
+	virtual Status parentalLocked(bool &out) const = 0;
 };
 
 SystemSource &systemSource();
 void setSystemSource(SystemSource *s);
+
+/* Whether a box source is installed, asked without ending the process. For the
+   settings that only some boxes have, whose tests run on every read of the
+   schema: a build or a case with no box behind it answers that the box cannot
+   say, which is no. */
+bool systemSourceInstalled();
 
 // Binds the accessors above to the running box.
 void installRealSystemSource();

@@ -180,6 +180,10 @@ struct FieldRef
 	   names of the catalogs installed, the zones the box lists. The text kind of
 	   choices above, which name a set a number row is held to. */
 	ChoiceSource choices_from;
+	/* Whether this box has what the setting controls, asked of the box every time;
+	   NULL for a setting every box has. A row the box lacks is still declared and
+	   still read, and no write of it is taken. */
+	bool (*available)();
 };
 
 /* Whether the value is in the member the row is named after. Two things follow
@@ -193,7 +197,7 @@ inline bool valueIsInNamedMember(const FieldRef &f)
 
 // What a setting whose value this layer cannot reach writes.
 #define COREAPI_NO_FIELD \
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, coreapi::FieldOrigin::Nowhere, NULL }
+	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, coreapi::FieldOrigin::Nowhere, NULL, NULL }
 
 /* Hexadecimal, one to sixteen digits, no prefix. Read in either case and
    written back in lower. Beside the type rather than beside the field it stores

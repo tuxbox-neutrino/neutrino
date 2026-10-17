@@ -21,6 +21,8 @@
 #include "settingstable.h"
 #include "settingsfield.h"
 
+#include <string.h>
+
 namespace coreapi
 {
 
@@ -101,12 +103,32 @@ const Descriptor kSettings[] =
 	},
 };
 
+/* What the lock holds. The pin is not among them: it stays changeable on a
+   locked box. */
+const char *const kLocked[] =
+{
+	"parentallock_prompt",
+	"parentallock_lockage",
+	"parentallock_defaultlocked",
+	"parentallock_zaptime"
+};
+
 } // anonymous namespace
 
 const Descriptor *settingsTableParental(size_t &count)
 {
 	count = sizeof(kSettings) / sizeof(kSettings[0]);
 	return kSettings;
+}
+
+bool heldByParentalLock(const char *key)
+{
+	if (key == NULL)
+		return false;
+	for (size_t i = 0; i < sizeof(kLocked) / sizeof(kLocked[0]); ++i)
+		if (strcmp(key, kLocked[i]) == 0)
+			return true;
+	return false;
 }
 
 } // namespace coreapi
