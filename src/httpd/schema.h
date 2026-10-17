@@ -166,6 +166,10 @@ struct Schema
 #define HTTPD_MEMBER_OF_SET(name, set, doc, value_docs) \
 	(name), httpd::FieldType::String, false, (doc), NULL, (set), (value_docs), httpd::ElementType::None, NULL
 
+// The same, left out of the answers it says nothing for.
+#define HTTPD_MEMBER_OF_SET_OPTIONAL(name, set, doc, value_docs) \
+	(name), httpd::FieldType::String, true, (doc), NULL, (set), (value_docs), httpd::ElementType::None, NULL
+
 // A member that is an object of a named shape. Always a named one: an object
 // with no shape beside it is a member a reader is told nothing about.
 #define HTTPD_OBJECT(name, shape, doc) \

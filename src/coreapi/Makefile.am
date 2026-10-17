@@ -97,6 +97,7 @@ libcoreapi_a_SOURCES = \
 	playback.cpp \
 	osd.cpp \
 	settings/settings.cpp \
+	settings/couple.cpp \
 	streaming.cpp \
 	browserplay.cpp \
 	shellcontract.cpp \
@@ -141,6 +142,7 @@ noinst_HEADERS = \
 	osd.h \
 	base/schema.h \
 	settings/choicesources.h \
+	settings/couple.h \
 	settings/settings.h \
 	settings/settingsfield.h \
 	settings/settingstable.h \

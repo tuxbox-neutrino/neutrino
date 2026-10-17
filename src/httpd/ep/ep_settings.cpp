@@ -31,10 +31,12 @@
 #include "coreapi/base/errors.h"
 #include "coreapi/base/result.h"
 #include "coreapi/base/schema.h"
+#include "coreapi/settings/couple.h"
 #include "coreapi/settings/settings.h"
 
 #include <cstddef>
 #include <cstdio>
+#include <cstring>
 #include <string>
 #include <utility>
 #include <vector>
@@ -85,6 +87,21 @@ std::string decimal(long v)
 	// the process locale out of the environment and never puts it back.
 	std::snprintf(buf, sizeof(buf), "%ld", v);
 	return std::string(buf);
+}
+
+// The words the two members below are stated with, held to the layer's own by name.
+const char *pairWritesName(const char *writes)
+{
+	if (std::strcmp(writes, "id") == 0)
+		return "id";
+	return "both";
+}
+
+const char *channelKindName(const char *kind)
+{
+	if (std::strcmp(kind, "radio") == 0)
+		return "radio";
+	return "tv";
 }
 
 /* label is not optional here the way the setting's own is: an Enum's own choice never
@@ -163,6 +180,18 @@ const FieldDesc kSettingFields[] = {
 		"whether the setting is a credential, which is described here and never valued"),
 	HTTPD_LIST_OF("conditions", &kConditionSchema,
 		"every comparison that has to hold before the setting is worth showing, all of them together, empty for one always shown"),
+	HTTPD_MEMBER_OPTIONAL("pair", FieldType::String,
+		"the other half of a setting that is one fact in two parts, present on both halves; how the two "
+		"are written is pair_writes"),
+	HTTPD_MEMBER_OF_SET_OPTIONAL("pair_writes", "both,id",
+		"how a pair is written, present wherever pair is",
+		"both: the two are written in one request or not at all; either alone is refused\n"
+		"id: the identifier alone is written and the box fills the other half from it; the other half "
+		"written alone is refused"),
+	HTTPD_MEMBER_OF_SET_OPTIONAL("channel_kind", "tv,radio",
+		"present only on a start channel row: which channel list its channel comes from",
+		"tv: the television list, GET /api/v1/channels with mode tv\n"
+		"radio: the radio list, GET /api/v1/channels with mode radio"),
 };
 
 const Schema kSettingSchema = { "setting", HTTPD_FIELDS(kSettingFields) };
@@ -355,6 +384,22 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 	j.key("secret");
 	j.value(d.secret);
 
+	const char *writes = NULL;
+	const char *partner = coreapi::settings::pairPartner(d.key, &writes);
+	if (partner != NULL)
+	{
+		j.key("pair");
+		j.value(partner);
+		j.key("pair_writes");
+		j.value(pairWritesName(writes));
+	}
+	const char *kind = coreapi::settings::startChannelKind(d.key);
+	if (kind != NULL)
+	{
+		j.key("channel_kind");
+		j.value(channelKindName(kind));
+	}
+
 	j.key("conditions");
 	j.beginArray();
 	for (size_t i = 0; d.conditions != NULL && i < d.condition_count; ++i)
@@ -544,6 +589,8 @@ struct Written
 	int           code;
 	bool          failed;
 	coreapi::Error error;
+	// The settings that took this one down with them, none where its own value was refused.
+	std::vector<std::string> depends_on;
 
 	Written() : code(StatusOk), failed(false) {}
 };
@@ -590,6 +637,14 @@ Response perKeyAnswer(const std::vector<Written> &results)
 			j.value(coreapi::codeString(w.error.code));
 			j.key("detail");
 			j.value(w.error.message);
+			if (!w.depends_on.empty())
+			{
+				j.key("depends_on");
+				j.beginArray();
+				for (size_t k = 0; k < w.depends_on.size(); ++k)
+					j.value(w.depends_on[k]);
+				j.endArray();
+			}
 		}
 		j.endObject();
 	}
@@ -648,30 +703,27 @@ Response settingsWrite(const Request &r)
 		return problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchName,
 		                       "no settings are declared under a section of that name");
 
-	std::vector<Written> results;
-	results.reserve(members.size());
-	bool all_ok = true;
+	std::vector<coreapi::settings::BatchMember> batch;
+	std::vector<coreapi::settings::BatchRefusal> refused;
 
 	for (size_t i = 0; i < members.size(); ++i)
 	{
-		Written w;
 		/* The caller's spelling, because for a key nobody declares there is no other, and a
 		   result a caller cannot match to what it sent is one it cannot act on. Everything that
 		   reaches the answer goes through the writer, which escapes it. */
-		w.key = members[i].name;
+		const std::string &key = members[i].name;
+		coreapi::settings::BatchRefusal no;
+		no.key = key;
 
-		const coreapi::Descriptor *d = rowFor(rows, w.key);
+		const coreapi::Descriptor *d = rowFor(rows, key);
 		if (d == NULL || d->section == NULL || section != d->section)
 		{
 			/* One answer for a key nothing declares and for a key declared on another page. Both
 			   are the same act from where the caller sits, and a second code for it would tell a
 			   caller which keys exist elsewhere on the box, one guess at a time. */
-			w.failed = true;
-			w.code = StatusNotFound;
-			w.error = coreapi::Error(coreapi::Status::NotFound, coreapi::ErrorCode::UnknownSetting,
-			                         "this section declares no setting under that key");
-			all_ok = false;
-			results.push_back(w);
+			no.error = coreapi::Error(coreapi::Status::NotFound, coreapi::ErrorCode::UnknownSetting,
+			                          "this section declares no setting under that key");
+			refused.push_back(no);
 			continue;
 		}
 
@@ -682,28 +734,84 @@ Response settingsWrite(const Request &r)
 		   substituted is a round trip that never settles. */
 		if (!isUtf8(members[i].text.data(), members[i].text.size()))
 		{
-			w.failed = true;
-			w.code = StatusBadRequest;
-			w.error = coreapi::Error(coreapi::Status::InvalidArgument, coreapi::ErrorCode::BadString,
-			                         "the value is not text this server can answer back unchanged");
-			all_ok = false;
-			results.push_back(w);
+			no.error = coreapi::Error(coreapi::Status::InvalidArgument, coreapi::ErrorCode::BadString,
+			                          "the value is not text this server can answer back unchanged");
+			refused.push_back(no);
 			continue;
 		}
 
-		/* Every other rule about the value is the layer below's: what one line of the settings
-		   file can carry, what the row declares, and what the field behind it holds. That
-		   includes the one this route exists beside: a row marked secret refuses an empty value,
-		   so a form redrawn from a read that answered nothing cannot wipe the credential. */
-		coreapi::Result<void> done = coreapi::settings::set(w.key, members[i].text);
-		if (!done.ok())
+		coreapi::settings::BatchMember m;
+		m.key = key;
+		m.value = members[i].text;
+		batch.push_back(m);
+	}
+
+	/* Every other rule about the value is the layer below's: what one line of the settings
+	   file can carry, what the row declares, and what the field behind it holds. That
+	   includes the one this route exists beside: a row marked secret refuses an empty value,
+	   so a form redrawn from a read that answered nothing cannot wipe the credential. The
+	   layer also holds the write to the settings that are one fact in two parts, and asks
+	   every value before any is stored, so a pair does not land in part for a value it could
+	   have refused beforehand. */
+	coreapi::settings::keepTogether(batch, refused);
+
+	std::vector<Written> results;
+	results.reserve(members.size() + batch.size());
+	bool all_ok = true;
+
+	/* The caller's keys in the caller's order, then what the write brought with them, which
+	   a caller finds in the answer under its own key. Only the store can still refuse one
+	   of these, which nothing beforehand can foresee. */
+	for (size_t round = 0; round < 2; ++round)
+	{
+		const size_t count = round == 0 ? members.size() : batch.size();
+		for (size_t i = 0; i < count; ++i)
 		{
-			w.failed = true;
-			w.error = done.error();
-			w.code = httpStatus(w.error.status);
-			all_ok = false;
+			Written w;
+			std::string value;
+			if (round == 0)
+			{
+				w.key = members[i].name;
+				const coreapi::settings::BatchRefusal *no = NULL;
+				for (size_t n = 0; no == NULL && n < refused.size(); ++n)
+				{
+					if (refused[n].key == w.key)
+						no = &refused[n];
+				}
+				if (no != NULL)
+				{
+					w.failed = true;
+					w.error = no->error;
+					w.depends_on = no->depends_on;
+					w.code = httpStatus(w.error.status);
+					all_ok = false;
+					results.push_back(w);
+					continue;
+				}
+				for (size_t b = 0; b < batch.size(); ++b)
+				{
+					if (batch[b].key == w.key)
+						value = batch[b].value;
+				}
+			}
+			else
+			{
+				if (batch[i].because.empty())
+					continue;
+				w.key = batch[i].key;
+				value = batch[i].value;
+			}
+
+			coreapi::Result<void> done = coreapi::settings::set(w.key, value);
+			if (!done.ok())
+			{
+				w.failed = true;
+				w.error = done.error();
+				w.code = httpStatus(w.error.status);
+				all_ok = false;
+			}
+			results.push_back(w);
 		}
-		results.push_back(w);
 	}
 
 	/* One key is answered as itself. There is nothing for a per key answer to say that the
@@ -825,6 +933,14 @@ const RouteRefusal kSettingsWriteRefusals[] = {
 		"no settings are declared under a section of that name"),
 	HTTPD_REFUSES(NotFound, UnknownSetting,
 		"this section declares no setting under that key"),
+	HTTPD_REFUSES(Conflict, SettingConditionNotMet,
+		"the setting is one fact with another and is written together with it: startchanneltv_id"),
+	HTTPD_REFUSES(NotFound, NoSuchChannel,
+		"no channel with that id"),
+	HTTPD_REFUSES(InvalidArgument, NotAListedValue,
+		"the channel is a radio channel, and this start channel takes a television one"),
+	HTTPD_REFUSES(Internal, ChannelListUnavailable,
+		"the channel list could not be read"),
 };
 
 const Endpoint kSettingsEndpoints[] = {
@@ -921,6 +1037,17 @@ const Endpoint kSettingsEndpoints[] = {
 	  "and, for a failed one, its own status, `code` and `detail`; a request naming only one key that "
 	  "failed is instead answered as that one refusal, at its own status.\n"
 	  "\n"
+	  "Two settings that are one fact in two parts carry `pair` and `pair_writes` in the schema. "
+	  "The id of a start channel sent alone is taken, and the box writes the name beside it from its "
+	  "channel list; that name is answered under its own key like a key that was sent. The name sent "
+	  "alone is refused. The city and the location of the weather are refused when sent without each "
+	  "other, and sending them empties `weather_postalcode`; a postal code sent with text in the same "
+	  "request is refused together with the city. Every value of a request is checked before any of "
+	  "them is taken, so a pair is not left half written by a value that could be refused beforehand; "
+	  "only a failure to store can still split one. A setting refused because another one was is "
+	  "answered `setting-condition-not-met`, and in a `207` its `depends_on` lists the settings that "
+	  "took it down.\n"
+	  "\n"
 	  "A setting marked `needs_restart` in the schema takes effect only the next time the box "
 	  "restarts, whatever this answers.\n"
 	  "\n"
@@ -938,12 +1065,21 @@ const Endpoint kSettingsEndpoints[] = {
 	  "- `400 empty-credential`: a key marked a credential was sent an empty value; clear it with "
 	  "`POST /api/v1/settings/secret/clear` instead.\n"
 	  "- `400 missing-parameter`: the body names no setting at all.\n"
+	  "- `400 not-a-listed-value`: the value is not one the setting offers, among them the id of a "
+	  "radio channel sent for the television start channel or the other way round.\n"
 	  "- `400 out-of-range`: a whole number value falls outside the min and max the schema states for "
 	  "that key.\n"
 	  "- `404 no-such-name`: the section itself is not one the schema declares. Take section ids from "
 	  "`GET /api/v1/settings/sections`.\n"
+	  "- `404 no-such-channel`: the id sent alone for a start channel names no channel the box holds, "
+	  "so there is no name to write beside it.\n"
 	  "- `404 no-such-setting`: a named key does not belong to this section, whether or not it exists "
 	  "elsewhere on the box.\n"
+	  "- `409 setting-condition-not-met`: one half of a pair was sent without the other, together "
+	  "with a value that contradicts it, or beside a partner that was refused; `detail` names the "
+	  "other settings.\n"
+	  "- `500 channel-list-unavailable`: the id of a start channel was sent alone and the channel list "
+	  "could not be read to name it.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/settings/schema`, `GET /api/v1/settings/{section}`, "
 	  "`POST /api/v1/settings/secret/clear`.",

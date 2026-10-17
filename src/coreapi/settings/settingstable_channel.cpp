@@ -39,11 +39,12 @@ namespace
    four bits wide and so carried as the text a channel is named by everywhere
    else in this layer. The two beside them hold the name a person reads.
 
-   The screen writes the pair together, src/gui/zapit_setup.cpp:152, and nothing
-   here couples them: a caller that writes an identifier alone leaves the old
-   name standing beside it. Both rows say so, because the alternative is
-   reaching the channel stack from the thread that carries a settings write,
-   which is not a thread that may take that lock. */
+   The screen writes the pair together, src/gui/zapit_setup.cpp:152, and a write
+   of several settings keeps it together too, settings/couple.cpp: an identifier
+   written alone brings the name of its channel and a name written alone is
+   refused. The name is read through channels::get, which takes the channel
+   stack's lock for one lookup the way GET /api/v1/channels/{id} does from the
+   same thread. */
 
 /* The list the screen offers, which is not the whole of the enum: LIST_MODE_WEB
    is 2 and is not among them. Nought below is the value the program falls back

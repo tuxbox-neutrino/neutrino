@@ -2458,6 +2458,109 @@ TEST_CASE("every key of an answer with a result per key is named once", "[write]
 	}
 }
 
+/* The settings that are one fact in two parts, through the route: the id of a start
+   channel alone brings the name of its channel, the name alone is refused, and the
+   weather place is written whole, emptying the postal code a search had entered. */
+TEST_CASE("a write keeps the start channel and the weather place together", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	coreapi::ChannelInfo tv;
+	tv.id = 0x1e2404020001a001ULL;
+	tv.name = "First Channel Television HD";
+	tv.kind = coreapi::ServiceKind::Tv;
+	box.channels.channels.push_back(tv);
+
+	const Reply r = authedPatch("/api/v1/settings/channel", "{\"startchanneltv_id\":\"1e2404020001a001\"}");
+	REQUIRE(r.code == 200);
+	CHECK(box.store.strings["startchanneltv_id"] == "1e2404020001a001");
+	CHECK(box.store.strings["startchanneltv"] == "First Channel Television HD");
+
+	const Reply alone = authedPatch("/api/v1/settings/channel", "{\"startchanneltv\":\"Another Name\"}");
+	REQUIRE(alone.code == 409);
+	CHECK(alone.body.find("setting-condition-not-met") != std::string::npos);
+	CHECK(alone.body.find("startchanneltv_id") != std::string::npos);
+	CHECK(box.store.strings["startchanneltv"] == "First Channel Television HD");
+
+	box.store.strings["weather_postalcode"] = "10178";
+	const Reply place = authedPatch("/api/v1/settings/weather",
+	                                "{\"weather_city\":\"Hamburg\",\"weather_location\":\"53.55,9.99\"}");
+	REQUIRE(place.code == 200);
+	CHECK(box.store.strings["weather_city"] == "Hamburg");
+	CHECK(box.store.strings["weather_location"] == "53.55,9.99");
+	CHECK(box.store.strings["weather_postalcode"].empty());
+}
+
+/* An id written alone has to bring a name, so the route answers for the channel it
+   names: none the box holds, one of the other list, or a list that cannot be read.
+   Nothing of the pair is stored in any of the three. */
+TEST_CASE("a start channel id that brings no name is refused for the channel it names", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	coreapi::ChannelInfo radio;
+	radio.id = 0x1e2404020001b002ULL;
+	radio.name = "First Channel Radio Programme";
+	radio.kind = coreapi::ServiceKind::Radio;
+	box.channels.channels.push_back(radio);
+
+	const Reply none = authedPatch("/api/v1/settings/channel", "{\"startchanneltv_id\":\"dead\"}");
+	REQUIRE(none.code == 404);
+	CHECK(none.body.find("no-such-channel") != std::string::npos);
+
+	const Reply other = authedPatch("/api/v1/settings/channel", "{\"startchanneltv_id\":\"1e2404020001b002\"}");
+	REQUIRE(other.code == 400);
+	CHECK(other.body.find("not-a-listed-value") != std::string::npos);
+
+	box.channels.channels_status = coreapi::Status::Internal;
+	const Reply unread = authedPatch("/api/v1/settings/channel", "{\"startchanneltv_id\":\"1e2404020001b002\"}");
+	REQUIRE(unread.code == 500);
+	CHECK(unread.body.find("channel-list-unavailable") != std::string::npos);
+
+	CHECK(box.store.strings.find("startchanneltv_id") == box.store.strings.end());
+	CHECK(box.store.strings.find("startchanneltv") == box.store.strings.end());
+}
+
+/* What the write brought is answered under its own key, and a half taken down by the
+   other names it, in an answer a parser reads back with every key once. */
+TEST_CASE("an answer with a result per key names what a write brought and what took a half down", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	coreapi::ChannelInfo tv;
+	tv.id = 0x1e2404020001a001ULL;
+	tv.name = "First Channel Television HD";
+	tv.kind = coreapi::ServiceKind::Tv;
+	box.channels.channels.push_back(tv);
+
+	const Reply brought = authedPatch("/api/v1/settings/channel",
+	                                  "{\"startchanneltv_id\":\"1e2404020001a001\",\"nope\":\"1\"}");
+	REQUIRE(brought.code == 207);
+	const ::Json::Value results = parsed(brought.body)["results"];
+	REQUIRE(results.size() == 3);
+	CHECK(results["startchanneltv_id"]["status"].asInt() == 200);
+	CHECK(results["startchanneltv"]["status"].asInt() == 200);
+	CHECK(results["nope"]["status"].asInt() == 404);
+	CHECK_FALSE(results["nope"].isMember("depends_on"));
+
+	box.store.strings["weather_city"] = "Berlin";
+	const Reply down = authedPatch("/api/v1/settings/weather",
+	                               "{\"weather_city\":\"Ham\\nburg\",\"weather_location\":\"53.55,9.99\"}");
+	REQUIRE(down.code == 207);
+	const ::Json::Value halves = parsed(down.body)["results"];
+	REQUIRE(halves.size() == 2);
+	CHECK(halves["weather_city"]["code"].asString() == "bad-string");
+	CHECK_FALSE(halves["weather_city"].isMember("depends_on"));
+	CHECK(halves["weather_location"]["status"].asInt() == 409);
+	CHECK(halves["weather_location"]["code"].asString() == "setting-condition-not-met");
+	REQUIRE(halves["weather_location"]["depends_on"].size() == 1);
+	CHECK(halves["weather_location"]["depends_on"][0].asString() == "weather_city");
+	// Neither half, and not the postal code the place would have emptied.
+	CHECK(box.store.strings["weather_city"] == "Berlin");
+	CHECK(box.store.strings.find("weather_location") == box.store.strings.end());
+	CHECK(box.store.strings.find("weather_postalcode") == box.store.strings.end());
+}
+
 TEST_CASE("a settings value that cannot be answered back is not stored", "[write]")
 {
 	/* The writer replaces a byte it cannot read with the character that says

@@ -2,6 +2,7 @@
  * settings.cpp - reading and writing the box settings
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions, fixes)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -401,13 +402,13 @@ Result<std::string> get(const std::string &key)
 	return ok(decimal(value));
 }
 
-Result<void> set(const std::string &key, const std::string &value)
+namespace
 {
-	const Descriptor *d = row(key);
-	if (d == NULL)
-		return fail(Status::NotFound, ErrorCode::UnknownSetting,
-			    "no setting is declared under that key");
 
+/* Every rule set() holds a value to before the store, with the number a number row
+   stores in number. Shared by set() and check(), so the two cannot come to disagree. */
+Result<void> heldToRow(const Descriptor *d, const std::string &value, long &number)
+{
 	/* A credential reads as nothing, so a form that redraws itself from what it read offers
 	   nothing back here, and taking that would wipe the value the read protected. Refused for
 	   every kind rather than only for text, so the answer says why: a number row would
@@ -422,7 +423,6 @@ Result<void> set(const std::string &key, const std::string &value)
 	if (!shape.ok())
 		return fail(shape.error());
 
-	Status written;
 	if (d->type == ValueType::String)
 	{
 		Result<void> text = allowedAsText(value);
@@ -457,42 +457,65 @@ Result<void> set(const std::string &key, const std::string &value)
 			if (!offered.ok())
 				return fail(offered.error());
 		}
-
-		written = settingsSource().writeString(d->key, value);
+		return ok();
 	}
-	else
+
+	if (!parseNumber(value, number))
+		return fail(Status::InvalidArgument, ErrorCode::NotANumber,
+			    "the setting takes a whole number");
+
+	Result<void> allowed = allowedByRow(*d, number);
+	if (!allowed.ok())
+		return fail(allowed.error());
+
+	/* A row whose set is the box's own is held to what the box offers rather than to a list
+	   nothing here has. Every value is refused while nobody can say what the set is: taking
+	   one then would write a number the box cannot show, which is a picture nobody gets back
+	   from with the remote control. */
+	if (d->field.choices != NULL)
 	{
-		long number = 0;
-		if (!parseNumber(value, number))
-			return fail(Status::InvalidArgument, ErrorCode::NotANumber,
-				    "the setting takes a whole number");
+		std::vector<SettingChoice> offered;
+		if (!valuesOffered(*d, offered))
+			return fail(Status::InvalidArgument, ErrorCode::ChoicesUnavailable,
+				    "the values this setting offers are the box's own and nothing has said what they are");
 
-		Result<void> allowed = allowedByRow(*d, number);
-		if (!allowed.ok())
-			return fail(allowed.error());
-
-		/* A row whose set is the box's own is held to what the box offers rather than to a list
-		   nothing here has. Every value is refused while nobody can say what the set is: taking
-		   one then would write a number the box cannot show, which is a picture nobody gets back
-		   from with the remote control. */
-		if (d->field.choices != NULL)
-		{
-			std::vector<SettingChoice> offered;
-			if (!valuesOffered(*d, offered))
-				return fail(Status::InvalidArgument, ErrorCode::ChoicesUnavailable,
-					    "the values this setting offers are the box's own and nothing has said what they are");
-
-			bool listed = false;
-			for (size_t i = 0; !listed && i < offered.size(); ++i)
-				listed = offered[i].value == number;
-			if (!listed)
-				return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
-					    "the setting does not offer that value");
-		}
-
-		written = settingsSource().writeInt(d->key, number);
+		bool listed = false;
+		for (size_t i = 0; !listed && i < offered.size(); ++i)
+			listed = offered[i].value == number;
+		if (!listed)
+			return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+				    "the setting does not offer that value");
 	}
 
+	return ok();
+}
+
+} // anonymous namespace
+
+Result<void> check(const std::string &key, const std::string &value)
+{
+	const Descriptor *d = row(key);
+	if (d == NULL)
+		return fail(Status::NotFound, ErrorCode::UnknownSetting,
+			    "no setting is declared under that key");
+	long number = 0;
+	return heldToRow(d, value, number);
+}
+
+Result<void> set(const std::string &key, const std::string &value)
+{
+	const Descriptor *d = row(key);
+	if (d == NULL)
+		return fail(Status::NotFound, ErrorCode::UnknownSetting,
+			    "no setting is declared under that key");
+
+	long number = 0;
+	Result<void> held = heldToRow(d, value, number);
+	if (!held.ok())
+		return held;
+
+	const Status written = d->type == ValueType::String ? settingsSource().writeString(d->key, value)
+	                                                    : settingsSource().writeInt(d->key, number);
 	if (written != Status::Ok)
 		return fail(written, ErrorCode::SettingNotWritten,
 			    "the setting could not be written");

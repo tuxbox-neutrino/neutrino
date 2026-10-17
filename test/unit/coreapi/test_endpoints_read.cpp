@@ -65,6 +65,7 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -1620,6 +1621,52 @@ TEST_CASE("a schema label resolves through the installed catalog, not the key", 
 		CHECK(found["values"][i]["label"].asString() != "videomenu.videoformat_169");
 	}
 	REQUIRE(have_choice);
+}
+
+/* The two halves of a pair name each other and how they are written, and a start
+   channel which list its channel comes from; a setting in no pair carries none of it. */
+TEST_CASE("a schema names the halves of a pair and the list of a start channel", "[endpoints]")
+{
+	ShippedRoutes shipped;
+
+	const Reply r = get("/api/v1/settings/schema");
+	REQUIRE(r.code == 200);
+	const ::Json::Value items = parsed(r.body)["items"];
+
+	std::map<std::string, ::Json::Value> by;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+		by[items[i]["id"].asString()] = items[i];
+
+	const char *const halves[][4] = {
+		{ "startchanneltv", "startchanneltv_id", "id", "tv" },
+		{ "startchanneltv_id", "startchanneltv", "id", "tv" },
+		{ "startchannelradio", "startchannelradio_id", "id", "radio" },
+		{ "startchannelradio_id", "startchannelradio", "id", "radio" },
+		{ "weather_city", "weather_location", "both", NULL },
+		{ "weather_location", "weather_city", "both", NULL },
+	};
+	for (size_t i = 0; i < sizeof(halves) / sizeof(halves[0]); ++i)
+	{
+		INFO(halves[i][0]);
+		REQUIRE(by.count(halves[i][0]) == 1);
+		const ::Json::Value &one = by[halves[i][0]];
+		CHECK(one["pair"].asString() == halves[i][1]);
+		CHECK(one["pair_writes"].asString() == halves[i][2]);
+		if (halves[i][3] != NULL)
+			CHECK(one["channel_kind"].asString() == halves[i][3]);
+		else
+			CHECK_FALSE(one.isMember("channel_kind"));
+	}
+
+	const char *const lone[] = { "weather_postalcode", "language", "audio_AnalogMode" };
+	for (size_t i = 0; i < sizeof(lone) / sizeof(lone[0]); ++i)
+	{
+		INFO(lone[i]);
+		REQUIRE(by.count(lone[i]) == 1);
+		CHECK_FALSE(by[lone[i]].isMember("pair"));
+		CHECK_FALSE(by[lone[i]].isMember("pair_writes"));
+		CHECK_FALSE(by[lone[i]].isMember("channel_kind"));
+	}
 }
 
 /* The hint beside a setting: its name as before, and the text the name stands

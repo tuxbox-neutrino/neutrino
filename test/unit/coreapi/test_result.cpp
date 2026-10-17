@@ -225,7 +225,8 @@ const Walked kWalked[] = {
 	CODE(DidNotExit),
 	CODE(Killed),
 	CODE(ExitStatus),
-	CODE(ChoicesUnavailable)
+	CODE(ChoicesUnavailable),
+	CODE(SettingConditionNotMet)
 };
 
 #undef CODE

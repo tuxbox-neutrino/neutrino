@@ -2,6 +2,7 @@
  * settings.h - reading and writing the box settings
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (additions)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +78,11 @@ Result<std::string> get(const std::string &key);
    in. What is taken back is this call's own write, so two requests at once do not undo each
    other. The one thing it cannot promise is that nothing landed. */
 Result<void> set(const std::string &key, const std::string &value);
+
+/* Every rule set() holds a value to, without the store: what set() would refuse, check()
+   refuses with the same answer, and ok says set() would come as far as the store. For a
+   write of several settings that must not land in part, which asks each of them first. */
+Result<void> check(const std::string &key, const std::string &value);
 
 /* Empties a credential, the one thing set() will not do. The two rules that protect one
    leave no way to remove it: a read answers nothing, so a form redrawn from what it read

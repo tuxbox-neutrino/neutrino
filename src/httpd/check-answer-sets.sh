@@ -47,8 +47,8 @@ STRIP="$2"
 }
 
 # Below this the scan is not reading the rows any more, and a comparison of two
-# empty sets holds every time. The tree states thirteen of these, the newest being
-# the scope a token is minted for; the floor is well under that on purpose, being a
+# empty sets holds every time. The tree states eighteen of these, the newest being
+# which list a start channel comes from; the floor is well under that on purpose, being a
 # guard against the scan going blind rather than a count of what there is.
 FLOOR=6
 
@@ -119,9 +119,10 @@ function sorted(list,   n, i, j, t, a, out) {
 	next
 }
 
-/HTTPD_MEMBER_OF_SET\(/ {
+/HTTPD_MEMBER_OF_SET(_OPTIONAL)?\(/ {
 	member = quoted($0, 1)
-	rest = substr($0, index($0, "HTTPD_MEMBER_OF_SET(") + 20)
+	match($0, /HTTPD_MEMBER_OF_SET(_OPTIONAL)?\(/)
+	rest = substr($0, RSTART + RLENGTH)
 	sub(/^[^,]*, */, "", rest)
 	if (substr(rest, 1, 1) == "\"")
 		set = quoted(rest, 1)

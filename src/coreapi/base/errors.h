@@ -466,6 +466,11 @@ enum class ErrorCode
 	   that offers a set, or the set is the box's own and nobody has said what
 	   it is. Either way the caller has no list to draw from. */
 	ChoicesUnavailable,
+	/* A write of several settings could not keep one of them together with the
+	   others it belongs with: one half of a pair written without the other, a
+	   value that contradicts one the same write brings, or a half whose partner
+	   was refused. Which settings it belongs with is said with it. */
+	SettingConditionNotMet,
 };
 
 /* The wire form. A code with no case here answers with nothing, and two things
@@ -655,6 +660,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::Killed: return "killed";
 		case ErrorCode::ExitStatus: return "exit-status";
 		case ErrorCode::ChoicesUnavailable: return "choices-unavailable";
+		case ErrorCode::SettingConditionNotMet: return "setting-condition-not-met";
 	}
 	return "";
 }
