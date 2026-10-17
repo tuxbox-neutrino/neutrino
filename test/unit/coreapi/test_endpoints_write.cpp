@@ -6446,6 +6446,8 @@ TEST_CASE("the pages' language is read and written by its code, and the session 
 	REQUIRE(read.body == "{\"selected\":\"en\",\"items\":[{\"code\":\"en\",\"name\":\"English\"},"
 		"{\"code\":\"de\",\"name\":\"Deutsch\"}]}");
 	REQUIRE(send(Get, "/api/v1/webui/language", "", AuthLevel::Read, "192.168.1.9").code == 200);
+	// the example the document gives is a request the route takes
+	REQUIRE(sendBodyExample("PUT", "/api/v1/webui/language", std::map<std::string, std::string>()) == 200);
 
 	// written by its code, kept by its file's name, and answered as GET reads it
 	const Reply wrote = authedPut("/api/v1/webui/language", "{\"language\":\"de\"}");
@@ -6467,6 +6469,15 @@ TEST_CASE("the pages' language is read and written by its code, and the session 
 	REQUIRE(authedPut("/api/v1/webui/language", "{}").code == 400);
 	REQUIRE(send(Put, "/api/v1/webui/language", "{\"language\":\"en\"}", AuthLevel::Write, "127.0.0.1").code == 403);
 	REQUIRE(wholeOf(web.server) == before);
+
+	// a server file that cannot be read back and written again says so
+	REQUIRE(::unlink(web.server.c_str()) == 0);
+	REQUIRE(::mkdir(web.server.c_str(), 0700) == 0);
+	const Reply unwritten = authedPut("/api/v1/webui/language", "{\"language\":\"en\"}");
+	REQUIRE(::rmdir(web.server.c_str()) == 0);
+	WebFile::put(web.server, before);
+	REQUIRE(unwritten.code == 500);
+	REQUIRE(unwritten.body.find("setting-not-written") != std::string::npos);
 }
 
 TEST_CASE("a device on the box's network is woken with the packet its card listens for", "[write][network]")

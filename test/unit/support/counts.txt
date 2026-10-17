@@ -18,7 +18,7 @@ acted options matched to a declared row	26
 acted options whose row writes another member	5
 answer members narrower than free text	52
 applier sections registered	8
-body examples their routes accepted	37
+body examples their routes accepted	38
 body members the examples carry	25
 bounds compared against a screen	28
 bounds read off the screens	46
@@ -54,7 +54,7 @@ options an applier or its notifier branches on	49
 parameters the document describes	176
 refusals the document states against a route	1179
 refusals the routes declare of their own	208
-refusals the shipped routes were seen to give	296
+refusals the shipped routes were seen to give	297
 routes the document describes	129
 rows an applier acts on	25
 rows compared against the load and save pass	353
