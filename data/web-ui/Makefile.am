@@ -101,7 +101,13 @@ install-data-hook:
 	;
 	@# install dark style as default
 	cp $(DESTDIR)$(PRIVATE_HTTPDDIR)/styles/Y_Dist-dark.css $(DESTDIR)$(PRIVATE_HTTPDDIR)/Y_Dist.css
+	@# every extension carried along, by its folder alone (after the
+	@# placeholders above: an extension goes in as it is)
+	$(SHELL) $(srcdir)/install-extensions.sh $(srcdir)/extensions $(DESTDIR)$(PRIVATE_HTTPDDIR)/extensions
 	@# name the scripts and styles the pages load by their content
 	$(SHELL) $(srcdir)/stamp-versions.sh $(DESTDIR)$(PRIVATE_HTTPDDIR)
 
-EXTRA_DIST = stamp-versions.sh
+uninstall-hook:
+	$(SHELL) $(srcdir)/install-extensions.sh --remove $(srcdir)/extensions $(DESTDIR)$(PRIVATE_HTTPDDIR)/extensions
+
+EXTRA_DIST = stamp-versions.sh install-extensions.sh extensions
