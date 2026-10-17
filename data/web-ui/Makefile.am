@@ -101,3 +101,7 @@ install-data-hook:
 	;
 	@# install dark style as default
 	cp $(DESTDIR)$(PRIVATE_HTTPDDIR)/styles/Y_Dist-dark.css $(DESTDIR)$(PRIVATE_HTTPDDIR)/Y_Dist.css
+	@# name the scripts and styles the pages load by their content
+	$(SHELL) $(srcdir)/stamp-versions.sh $(DESTDIR)$(PRIVATE_HTTPDDIR)
+
+EXTRA_DIST = stamp-versions.sh
