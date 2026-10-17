@@ -33,6 +33,8 @@ var V1SET = {
 	claimed: Object.create(null),	// keys a kept registry category draws
 	dissolved: Object.create(null),	// registry category id -> section it went into
 	regLabels: Object.create(null),	// key -> registry label, for rows without one
+	keys: null,			// [{code, name}] the box names for key rows, null when unread
+	unavailable: Object.create(null),	// keys the box declares and does not have
 	saving: false,
 	rereadDue: false,
 	opened: false,
@@ -144,13 +146,24 @@ async function v1setLoad() {
 			var schema = await ywebV1('GET', '/settings/schema');
 			var sections = await ywebV1('GET', '/settings/sections');
 			V1SET.items = Object.create(null);
+			V1SET.unavailable = Object.create(null);
 			V1SET.bySection = Object.create(null);
 			V1SET.order = ((sections && sections.items) || []).map(function(s) { return String(s.id); });
+			var lists = (schema && schema.value_lists) || {};
 			((schema && schema.items) || []).forEach(function(item) {
 				// a section's id goes into the sidebar's markup and the
 				// address; one that is not a plain name is left out
 				if (!/^[A-Za-z0-9_-]+$/.test(item.section))
 					return;
+				// a setting this box does not have is not shown at all, and
+				// not by the old registry either (v1setDeclared)
+				if (item.available === false) {
+					V1SET.unavailable[item.id] = true;
+					return;
+				}
+				// a list several rows share is stated once, beside the rows
+				if (item.values_from && Array.isArray(lists[item.values_from]))
+					item.values = lists[item.values_from];
 				V1SET.items[item.id] = item;
 				if (!V1SET.bySection[item.section]) {
 					V1SET.bySection[item.section] = [];
@@ -161,6 +174,16 @@ async function v1setLoad() {
 			});
 			// a section listed without a single setting has nothing to show
 			V1SET.order = V1SET.order.filter(function(s) { return V1SET.bySection[s]; });
+			// the names of the remote control's keys, for the key rows; a box
+			// that has none to give leaves them number fields
+			if (Object.keys(V1SET.items).some(function(k) { return V1SET.items[k].type === 'key'; })) {
+				try {
+					var keys = await ywebV1('GET', '/settings/keys');
+					V1SET.keys = (keys && Array.isArray(keys.items)) ? keys.items : null;
+				} catch (e) {
+					V1SET.keys = null;
+				}
+			}
 		}
 		var values = await _v1setReadFresh();
 		if (values)
@@ -223,6 +246,13 @@ function v1setCategories() {
 		cats.push(cat);
 	});
 	return cats;
+}
+
+// Whether the box declares a key, shown or not: the old registry draws none
+// of these, or a setting the box lacks would come back as an old field and
+// be written past every check of the schema.
+function v1setDeclared(key) {
+	return !!(V1SET.items[key] || V1SET.unavailable[key]);
 }
 
 // ---- rows -----------------------------------------------------------------
@@ -290,13 +320,24 @@ function _v1setSetControl(el, item, v) {
 	el.value = v;
 }
 
+// what a choice stands for: its text where the setting holds text (the box
+// then says 0 as its number), else the number
+function _v1setOptValue(c) {
+	return (c.text !== undefined && c.text !== null) ? String(c.text) : String(c.value);
+}
+
 function _v1setDefaultText(item) {
 	var d = (item.default === undefined || item.default === null) ? '' : String(item.default);
 	if (item.type === 'bool')
 		return _v1setIsOn(d) ? ywebL('reg.on', 'On') : ywebL('reg.off', 'Off');
-	var o = (item.values || []).find(function(c) { return String(c.value) === d; });
+	var o = (item.values || []).find(function(c) { return _v1setOptValue(c) === d; });
 	if (o)
 		return o.label || d;
+	if (item.type === 'key' && V1SET.keys) {
+		var k = V1SET.keys.find(function(n) { return String(n.code) === d; });
+		if (k)
+			return k.name || d;
+	}
 	return d === '' ? '–' : d;
 }
 
@@ -312,25 +353,49 @@ function _v1setControl(item, id, val) {
 		return ywebEl('label', {className: 'yweb-toggle'},
 			ywebEl('input', {type: 'checkbox', id: id, checked: _v1setIsOn(val), data: data}),
 			ywebEl('span', {className: 'yweb-toggle-slider'}));
-	if (item.type === 'enum' && !(item.values && item.values.length)) {
-		// a choice this box has none of (an output it lacks): shown, never written
+	// A choice the box has none of (an output it lacks) is shown, never written;
+	// so is a listed number with an empty list. A text row whose list comes
+	// empty is one the box cannot say anything about: it stays free text,
+	// which the box takes then too.
+	if ((item.type === 'enum' || item.listed) && !(item.values && item.values.length)) {
 		return ywebEl('select', {id: id, disabled: true, data: {v1key: item.id, v1fixed: '1'}},
 			ywebEl('option', {value: val}, (val === '' ? '' : val + ' \u2013 ') + ywebL('set.notavail', 'Not available')));
+	}
+	if (item.type === 'key' && V1SET.keys && V1SET.keys.length) {
+		// a key by its name; a code the box takes but names not stays
+		var keySel = ywebEl('select', {id: id, data: data});
+		V1SET.keys.forEach(function(k) {
+			keySel.appendChild(ywebEl('option', {value: String(k.code)}, k.name || String(k.code)));
+		});
+		_v1setChoice(keySel, val);
+		keySel.value = val;
+		return keySel;
+	}
+	// a number with some values named: still any number, the names as
+	// suggestions; only a listed one takes nothing but its list
+	if ((item.type === 'int' || item.type === 'key') && !item.listed) {
+		var attrs = {};
+		if (item.min !== undefined) attrs.min = item.min;
+		if (item.max !== undefined) attrs.max = item.max;
+		var named = (item.values || []).filter(function(c) { return c.text === undefined; });
+		if (!named.length)
+			return ywebEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs});
+		attrs.list = id + '_names';
+		var names = ywebEl('datalist', {id: id + '_names'});
+		named.forEach(function(c) {
+			names.appendChild(ywebEl('option', {value: String(c.value)}, c.label || String(c.value)));
+		});
+		return ywebEl('span', {}, ywebEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs}), names);
 	}
 	if (item.values && item.values.length) {
 		var sel = ywebEl('select', {id: id, data: data});
 		item.values.forEach(function(c) {
-			sel.appendChild(ywebEl('option', {value: String(c.value)}, c.label || String(c.value)));
+			var v = _v1setOptValue(c);
+			sel.appendChild(ywebEl('option', {value: v}, c.label || v));
 		});
 		_v1setChoice(sel, val);
 		sel.value = val;
 		return sel;
-	}
-	if (item.type === 'int') {
-		var attrs = {};
-		if (item.min !== undefined) attrs.min = item.min;
-		if (item.max !== undefined) attrs.max = item.max;
-		return ywebEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs});
 	}
 	if (item.secret) {
 		// a credential reads as nothing: empty leaves it as it is, and
@@ -356,11 +421,27 @@ function _v1setControl(item, id, val) {
 		on: {click: function() { ywebPickInto(id, input.value || '/'); }}}, ywebMarkup(FOLDER_ICON)));
 }
 
+// A row the parental lock holds is shown and not written: its fields and
+// buttons stay locked whatever its conditions say.
+function _v1setLock(control) {
+	var list = control.matches('[data-v1key], .yweb-set-act') ? [control] :
+		Array.prototype.slice.call(control.querySelectorAll('[data-v1key], .yweb-set-act'));
+	list.forEach(function(el) {
+		el.disabled = true;
+		el.dataset.v1fixed = '1';
+	});
+}
+
 function v1setRow(item) {
 	var id = v1setId(item.id);
 	var label = _v1setLabel(item);
 	var control = _v1setControl(item, id, _v1setShown(item));
+	if (item.locked)
+		_v1setLock(control);
 	var labelCell = ywebEl('div', {className: 'yweb-set-label'}, ywebEl('label', {htmlFor: id}, label));
+	if (item.locked)
+		labelCell.appendChild(ywebEl('span', {className: 'yweb-set-locked'},
+			ywebL('set.locked', 'locked by the parental lock')));
 	var restart = ywebL('set.restart_title', 'Takes effect after a restart');
 	if (item.needs_restart)
 		labelCell.appendChild(ywebEl('span', {className: 'yweb-set-restart', title: restart,
@@ -475,7 +556,7 @@ function v1setApplyConditions() {
 				}).join(', ');
 		else
 			row.removeAttribute('title');
-		row.querySelectorAll('[data-v1key]:not([data-v1fixed]), .yweb-set-act').forEach(function(el) { el.disabled = off; });
+		row.querySelectorAll('[data-v1key]:not([data-v1fixed]), .yweb-set-act:not([data-v1fixed])').forEach(function(el) { el.disabled = off; });
 	});
 }
 

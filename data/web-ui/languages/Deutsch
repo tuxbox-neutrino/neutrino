@@ -466,6 +466,7 @@ yw.tm.dir_bad=Bitte einen ganzen Pfad auf der Box angeben, beginnend mit /
 yw.set.loading=Lade Einstellungen...
 yw.set.load_fail=Fehler beim Laden der Einstellungen
 yw.set.notavail=Nicht verfügbar
+yw.set.locked=von der Jugendschutzsperre gesperrt
 yw.set.nochanges=Keine Änderungen
 yw.set.pw_show=Passwort anzeigen
 yw.set.pw_isset=Ein Passwort ist gesetzt. Zum Ändern neues eingeben.

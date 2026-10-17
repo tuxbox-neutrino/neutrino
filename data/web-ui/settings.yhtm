@@ -193,6 +193,12 @@
 			flex-shrink: 1;
 			overflow-wrap: anywhere;
 		}
+		/* a row the parental lock holds says so beside its name */
+		.yweb-set-locked {
+			flex: none;
+			font-size: 0.8em;
+			color: var(--pico-muted-color);
+		}
 		.yweb-set-info {
 			flex: none;
 			display: inline-flex;
@@ -467,7 +473,7 @@
 	<script src="/yweb-dom.js?v=1"></script>
 	<script src="/yweb-v1.js?v=14"></script>
 	<script src="/settings-registry.js?v=17"></script>
-	<script src="/settings-v1.js?v=1"></script>
+	<script src="/settings-v1.js?v=3"></script>
 	<script>
 	var configData = {};
 	var originalValues = {};
@@ -721,7 +727,7 @@
 			cat.sections.forEach(function(sec) {
 				var body = '';
 				sec.fields.forEach(function(f) {
-					if (f.key && (V1SET.items[f.key] || !hasConfigKey(f.key))) return;
+					if (f.key && (v1setDeclared(f.key) || !hasConfigKey(f.key))) return;
 					body += renderField(f);
 				});
 				if (body)
@@ -761,6 +767,8 @@
 			sec.fields.forEach(function(f) {
 				// a key the box declares is drawn by settings-v1.js
 				if (f.key && V1SET.claimed[f.key]) { body += v1setSlot(f.key); n++; return; }
+				// one the box declares and does not have is not drawn at all
+				if (f.key && V1SET.unavailable[f.key]) return;
 				if (cat.requireKeys && f.key && !hasConfigKey(f.key)) return;
 				var fh = renderField(f);
 				if (fh) { body += fh; n++; }
