@@ -2,4 +2,6 @@ installdir = $(PRIVATE_HTTPDDIR)/languages
 
 install_DATA = \
 	Deutsch \
-	English
+	English \
+	de.json \
+	en.json

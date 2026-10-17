@@ -24,8 +24,8 @@ install_DATA = \
 	dashboard.yhtm \
 	epg.yhtm \
 	files.yhtm \
-	login.yhtm \
-	password.yhtm \
+	login.html \
+	password.html \
 	screenshot.yhtm \
 	settings.yhtm \
 	sysinfo.yhtm \

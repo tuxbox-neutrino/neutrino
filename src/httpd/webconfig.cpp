@@ -39,7 +39,6 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
-#include <fstream>
 #include <map>
 #include <string>
 #include <vector>
@@ -2275,9 +2274,9 @@ ServerOptions currentServerOptions()
 namespace
 {
 
-/* Every language the pages have a file for (data/web-ui/languages): its code, the
-   name of its file, which is what nhttpd.conf names, and what it calls itself. A
-   file under a name not here is one this server has no code for. */
+/* Every language the pages have texts for (data/web-ui/languages): its code, the
+   name of the old pages' file, which is what nhttpd.conf names, and what it calls
+   itself. A language not here is one this server has no code for. */
 struct LanguageRow
 {
 	const char *code;
@@ -2294,18 +2293,12 @@ const LanguageRow kLanguages[] = {
 	{ "sk", "Slovak",     "Sloven\xc4\x8dina" },
 };
 
-const char kServerLanguage[]    = "Language.selected";
-const char kServerLanguageDir[] = "Language.directory";
-const char kServerDirectory[]   = "WebsiteMain.directory";
+const char kServerLanguage[]  = "Language.selected";
+const char kServerDirectory[] = "WebsiteMain.directory";
 
-// nhttpd's own defaults for these (yconfig.h, HTTPD_DEFAULT_LANGUAGE and
-// HTTPD_LANGUAGEDIR), for a file that names none.
-const char kDefaultLanguage[]    = "English";
-const char kDefaultLanguageDir[] = "languages";
-
-/* The line a language file carries once it holds the interface's own texts, the
-   one the old language menu looked for too (mod_yparser.cpp). */
-const char kInterfaceTextLine[] = "yw.nav.dashboard=";
+// nhttpd's own default (yconfig.h, HTTPD_DEFAULT_LANGUAGE), for a file that
+// names none.
+const char kDefaultLanguage[] = "English";
 
 // nhttpd.conf through nhttpd's own reader, empty where there is no such file,
 // none was named or it does not parse, so every default applies.
@@ -2315,28 +2308,23 @@ void readServerFileInto(CConfigFile &file)
 		file.loadConfig(heldServerPath());
 }
 
-/* The language directory where nhttpd looks for it (CLanguage::getLanguageDir):
-   under the override directory where it is there, else under the pages' own. */
-std::string languageDirectory(CConfigFile &file)
-{
-	const std::string sub = "/" + file.getString(kServerLanguageDir, kDefaultLanguageDir);
-	const std::string over = file.getString(kServerOverride, PUBLIC_HTTPDDIR) + sub;
-	if (::access(over.c_str(), R_OK) == 0)
-		return over;
-	return file.getString(kServerDirectory, PRIVATE_HTTPDDIR) + sub;
-}
-
-bool carriesInterfaceTexts(const std::string &path)
+bool regularFile(const std::string &path)
 {
 	struct stat st;
-	if (::stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
-		return false;
-	std::ifstream in(path.c_str());
-	std::string line;
-	while (std::getline(in, line))
-		if (line.compare(0, sizeof(kInterfaceTextLine) - 1, kInterfaceTextLine) == 0)
-			return true;
-	return false;
+	return ::stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode);
+}
+
+/* The interface's texts in a language, as the pages ask for them:
+   /languages/<code>.json, found the way the server finds every file it hands
+   out (ystatic::resolveName), file by file in the override directory, then in
+   the pages' own, each also compressed. Not Language.directory, which names
+   the old pages' files and is no part of the address a page asks for. */
+bool hasInterfaceTexts(CConfigFile &file, const char *code)
+{
+	const std::string name = std::string("/languages/") + code + ".json";
+	const std::string over = file.getString(kServerOverride, PUBLIC_HTTPDDIR) + name;
+	const std::string core = file.getString(kServerDirectory, PRIVATE_HTTPDDIR) + name;
+	return regularFile(over) || regularFile(over + ".gz") || regularFile(core) || regularFile(core + ".gz");
 }
 
 } // namespace
@@ -2345,12 +2333,11 @@ std::vector<WebLanguage> webLanguages()
 {
 	CConfigFile file(',');
 	readServerFileInto(file);
-	const std::string dir = languageDirectory(file);
 
 	std::vector<WebLanguage> offered;
 	for (size_t i = 0; i < sizeof(kLanguages) / sizeof(kLanguages[0]); ++i)
 	{
-		if (!carriesInterfaceTexts(dir + "/" + kLanguages[i].file))
+		if (!hasInterfaceTexts(file, kLanguages[i].code))
 			continue;
 		WebLanguage l;
 		l.code = kLanguages[i].code;

@@ -45,18 +45,11 @@ bool inReservedSpace(const std::string &url);
 // .gz): such a file is never handed out without a login.
 bool templateOrScript(const std::string &name);
 
-// The web directory's own sign-in page, opened: /login.yhtm found there
-// and not in the override directory (the parser would run that copy
-// unasked), and the regular file login.yhtm of the web directory itself,
-// not a link to another page, a compressed copy, or out of the directory.
-// Answers the descriptor or -1. Only that page is open while it is a
-// template, and the parser reads it from this descriptor (PublicFd), not
-// by its name again.
-int openLoginPage(CyhookHandler *hh);
-
-// Whether openLoginPage finds one. Only to that page are browsers sent to
-// sign in: a web directory without one (another interface in its place)
-// must not send them to a page that is itself behind the login.
+// Whether the web directory has its own sign-in page, /login.html, that goes
+// out without a login (openPublic). Only to that page are browsers sent to
+// sign in: a web directory without one (another interface in its place), or
+// with only a copy in the override directory, must not send them to a page
+// that is itself behind the login.
 bool ownLoginPage(CyhookHandler *hh);
 
 // Whether the opened descriptor fd is a regular file of the web directory:

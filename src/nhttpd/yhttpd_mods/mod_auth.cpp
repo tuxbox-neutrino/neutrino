@@ -53,8 +53,8 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 
 	// What may be answered without credentials: the files of the web
 	// directory itself (the pages load before anybody signs in, as the
-	// pages of a single-page interface must), and the sign-in page while
-	// it is still a template. Never through a traversal: analyzeURL
+	// pages of a single-page interface must), the sign-in page among
+	// them. Never through a traversal: analyzeURL
 	// matches the percent-decoded URL and mod_sendfile does not sanitize
 	// "..". The template parser runs an `execute` parameter (and prints
 	// its trace for `debug`) before it renders a page, and before it even
@@ -67,27 +67,16 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	const bool runs_template = hh->ParamList.find("execute") != hh->ParamList.end()
 		|| hh->ParamList.find("debug") != hh->ParamList.end();
 	bool authfree = false;
-	if (url.find("..") == std::string::npos && !runs_template) {
-		if (url == "/login.yhtm") {
-			// the parser reads the checked page from this descriptor
-			const int fd = ystatic::openLoginPage(hh);
-			if (fd >= 0) {
-				authfree = true;
-				hh->dropPublicFd();
-				hh->PublicFd = fd;
-				hh->HookVarList["public.template"] = url;
-			}
-		}
-		else if ((hh->Method == M_GET || hh->Method == M_HEAD) && !ystatic::inReservedSpace(url)) {
-			const ystatic::Target target = ystatic::resolve(hh);
-			const int fd = ystatic::openPublic(hh, target);
-			if (fd >= 0) {
-				authfree = true;
-				hh->dropPublicFd();
-				hh->PublicFd = fd;
-				hh->HookVarList["sendfile.public"] = target.file;
-				hh->HookVarList["sendfile.fallback"] = target.fallback ? "true" : "false";
-			}
+	if (url.find("..") == std::string::npos && !runs_template
+			&& (hh->Method == M_GET || hh->Method == M_HEAD) && !ystatic::inReservedSpace(url)) {
+		const ystatic::Target target = ystatic::resolve(hh);
+		const int fd = ystatic::openPublic(hh, target);
+		if (fd >= 0) {
+			authfree = true;
+			hh->dropPublicFd();
+			hh->PublicFd = fd;
+			hh->HookVarList["sendfile.public"] = target.file;
+			hh->HookVarList["sendfile.fallback"] = target.fallback ? "true" : "false";
 		}
 	}
 
@@ -95,7 +84,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	// or a form cached before the login moved to POST /api/v1/login
 	// lands on the page instead of a 404
 	if (url == "/login") {
-		hh->SendRedirect("/login.yhtm");
+		hh->SendRedirect("/login.html");
 		return HANDLED_REDIRECTION;
 	}
 
@@ -115,7 +104,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 		// (this page is reachable without credentials).
 		if (!exempt && GetHeader(hh, "Authorization").empty()
 				&& IsBrowserNavigation(hh)) {
-			hh->SendRedirect("/login.yhtm?out=1");
+			hh->SendRedirect("/login.html?out=1");
 			return HANDLED_REDIRECTION;
 		}
 		// the exempt explanation page is purely informational — there
@@ -173,7 +162,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 			// its own: sent to a missing or overridden one, they would
 			// be sent on to it again and again
 			if (IsBrowserNavigation(hh) && ystatic::ownLoginPage(hh)) {
-				hh->SendRedirect("/login.yhtm?next="
+				hh->SendRedirect("/login.html?next="
 					+ UrlEncode(hh->UrlData["fullurl"]));
 				return HANDLED_REDIRECTION;
 			}

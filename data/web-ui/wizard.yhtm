@@ -159,11 +159,11 @@
 			var s = sr.ok ? await sr.json() : null;
 			var back = encodeURIComponent(location.pathname + location.search);
 			if (s && s.authenticated && s.password_change_required) {
-				location.replace('/password.yhtm?next=' + back);
+				location.replace('/password.html?next=' + back);
 				throw new Error(WIZ_AWAY);
 			}
 			if (!s || !s.authenticated) {
-				location.replace('/login.yhtm?next=' + back);
+				location.replace('/login.html?next=' + back);
 				throw new Error(WIZ_AWAY);
 			}
 			var headers = {};

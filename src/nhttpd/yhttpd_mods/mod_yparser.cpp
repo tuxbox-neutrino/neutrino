@@ -293,28 +293,6 @@ std::string CyParser::cgi_file_parsing(CyhookHandler *hh,
 	bool found = false;
 	std::string htmlfullfilename, yresult;
 
-	// A page open without a login (the sign-in page) is read from the
-	// file mod_auth opened and checked (ystatic::openLoginPage), never by
-	// its name again: a copy put into the override directory, or a link
-	// put in its place, after the check is not what runs.
-	if (hh->PublicFd >= 0 && hh->HookVarList["public.template"] == htmlfilename) {
-		const int fd = hh->PublicFd;
-		hh->PublicFd = -1;
-		std::string content;
-		char buf[4096];
-		ssize_t n;
-		while ((n = read(fd, buf, sizeof(buf))) > 0)
-			content.append(buf, (size_t) n);
-		close(fd);
-		std::istringstream fin(content);
-		char cwd[255];
-		getcwd(cwd, 254);
-		chdir(HTML_DIRS[1].c_str()); // the web directory, where it was found
-		yresult += cgi_cmd_parsing(hh, readTemplate(fin), ydebug);
-		chdir(cwd);
-		return yresult;
-	}
-
 	bool isHosted = false;
 #ifdef Y_CONFIG_USE_HOSTEDWEB
 	// for hosted webs: search in hosted_directory only

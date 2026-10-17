@@ -3083,16 +3083,19 @@ struct PagesWithLanguages
 
 TEST_CASE("the pages' language is said as its code and written as the name of its file", "[webconf]")
 {
-	/* nhttpd.conf names the language by its file (Deutsch), which the old pages and
-	   the server's texts read; a page is told and tells it by its code (de). A file
-	   with only the old pages' texts is not offered, nor one this server has no
-	   code for. */
+	/* nhttpd.conf names the language by the old pages' file (Deutsch), which they
+	   and the server's texts read; a page is told and tells it by its code (de). A
+	   language is offered where the interface's texts are there as <code>.json: not
+	   one with only the old pages' file, nor texts under a code this server does not
+	   know. */
 	Restore back;
 	PagesWithLanguages pages;
-	pages.file("languages/English", "yw.nav.dashboard=Dashboard\n");
-	pages.file("languages/Deutsch", "Y_Old=alt\nyw.nav.dashboard=Dashboard\n");
+	pages.file("languages/English", "Y_Old=old\n");
+	pages.file("languages/en.json", "{}\n");
+	pages.file("languages/Deutsch", "Y_Old=alt\n");
+	pages.file("languages/de.json", "{}\n");
 	pages.file("languages/Polski", "Y_Old=stare\n");
-	pages.file("languages/Klingon", "yw.nav.dashboard=x\n");
+	pages.file("languages/tlh.json", "{}\n");
 	const std::string where = "WebsiteMain.directory=" + pages.root + "\n"
 		"WebsiteMain.override_directory=" + pages.root + "/nothing-here\n";
 
@@ -3117,7 +3120,7 @@ TEST_CASE("the pages' language is said as its code and written as the name of it
 	// what is not offered is not written: old texts only, no code, nothing at all
 	const std::string before = readFile(server.path());
 	REQUIRE_FALSE(httpd::setWebLanguage("pl"));
-	REQUIRE_FALSE(httpd::setWebLanguage("Klingon"));
+	REQUIRE_FALSE(httpd::setWebLanguage("tlh"));
 	REQUIRE_FALSE(httpd::setWebLanguage("Deutsch"));
 	REQUIRE_FALSE(httpd::setWebLanguage(""));
 	REQUIRE(readFile(server.path()) == before);
@@ -3127,12 +3130,20 @@ TEST_CASE("the pages' language is said as its code and written as the name of it
 	REQUIRE(httpd::load(conf.path(), server.path()));
 	REQUIRE(httpd::webLanguage() == "en");
 
-	// where the override directory has a language directory, nhttpd reads that one
-	pages.file("over/languages/Deutsch", "yw.nav.dashboard=Dashboard\n");
-	writeFile(server.path(), "Language.selected=Deutsch\nWebsiteMain.directory=" + pages.root + "\n"
+	/* found file by file, as the server hands them out: an override directory
+	   holding only an old language file hides nothing of the pages' own, and
+	   one holding texts the pages lack adds them; Language.directory, which
+	   names the old pages' files, plays no part */
+	pages.file("over/languages/Deutsch", "Y_Old=alt\n");
+	pages.file("over/languages/pl.json.gz", "x");
+	pages.file("languages/de.json.gz", "x");
+	writeFile(server.path(), "Language.selected=Deutsch\nLanguage.directory=elsewhere\n"
+		"WebsiteMain.directory=" + pages.root + "\n"
 		"WebsiteMain.override_directory=" + pages.root + "/over\n");
 	REQUIRE(httpd::load(conf.path(), server.path()));
 	offered = httpd::webLanguages();
-	REQUIRE(offered.size() == 1);
-	REQUIRE(offered[0].code == "de");
+	REQUIRE(offered.size() == 3);
+	REQUIRE(offered[0].code == "en");
+	REQUIRE(offered[1].code == "de");
+	REQUIRE(offered[2].code == "pl");
 }

@@ -42,7 +42,7 @@
 					if (r.status === 403) {
 						return r.json().catch(function () { return null; }).then(function (p) {
 							var owed = p && p.type === '/errors/password-change-required';
-							location.replace((owed ? '/password.yhtm' : '/login.yhtm') + '?next=%2F');
+							location.replace((owed ? '/password.html' : '/login.html') + '?next=%2F');
 							throw new Error('sign-in');
 						});
 					}

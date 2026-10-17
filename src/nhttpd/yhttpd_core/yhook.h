@@ -160,9 +160,7 @@ public:
 	off_t		SendFdLength;		// how many bytes to send
 	// A file mod_auth opened and checked because the request may go out
 	// without a login (ystatic::openPublic); mod_sendfile answers from it
-	// instead of looking the name up again. For the sign-in page, a
-	// template (HookVarList "public.template", ystatic::openLoginPage),
-	// the parser reads it instead. -1 = none.
+	// instead of looking the name up again. -1 = none.
 	int		PublicFd;
 	// A HANDLED_SENDFILE answer from a file a hook already opened
 	// (SendOpenedFile): the transport sends from this descriptor and never

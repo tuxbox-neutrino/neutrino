@@ -225,57 +225,35 @@ TEST_CASE("nothing outside the web directory's own files goes out without a logi
 TEST_CASE("the sign-in page counts only as the web directory's own", "[nhttpd]")
 {
 	Box b;
-	b.file(b.core + "/login.yhtm", "core");
+	b.file(b.core + "/login.html", "core");
 	CHECK(ystatic::ownLoginPage(&b.hh));
 
-	// a copy in the override directory is what the parser would run
-	b.file(b.over + "/login.yhtm", "override");
+	// a copy in the override directory is behind the login
+	b.file(b.over + "/login.html", "override");
 	CHECK_FALSE(ystatic::ownLoginPage(&b.hh));
 
-	// another interface in the web directory's place has none
+	// another interface in the web directory's place has none, nor the
+	// sign-in page of the template days
 	Box c;
 	c.file(c.core + "/index.html", "<shell>");
+	c.file(c.core + "/login.yhtm", "template");
 	CHECK_FALSE(ystatic::ownLoginPage(&c.hh));
 
 	// a link out of the web directory or into its extensions/
 	Box d;
-	d.file(d.outside + "/login.yhtm", "elsewhere");
-	d.link(d.outside + "/login.yhtm", d.core + "/login.yhtm");
+	d.file(d.outside + "/login.html", "elsewhere");
+	d.link(d.outside + "/login.html", d.core + "/login.html");
 	CHECK_FALSE(ystatic::ownLoginPage(&d.hh));
 	Box e;
-	e.file(e.core + "/extensions/x/login.yhtm", "extension");
-	e.link(e.core + "/extensions/x/login.yhtm", e.core + "/login.yhtm");
+	e.file(e.core + "/extensions/x/login.html", "extension");
+	e.link(e.core + "/extensions/x/login.html", e.core + "/login.html");
 	CHECK_FALSE(ystatic::ownLoginPage(&e.hh));
 
-	// only compressed, which the parser does not read, directly or as the
-	// target of a link
-	Box f;
-	f.file(f.core + "/login.yhtm.gz", "compressed");
-	CHECK_FALSE(ystatic::ownLoginPage(&f.hh));
-	f.link(f.core + "/login.yhtm.gz", f.core + "/login.yhtm");
-	CHECK_FALSE(ystatic::ownLoginPage(&f.hh));
-
-	// a link to another page of the web directory
+	// a link to a template of the web directory, which never goes out openly
 	Box g;
-	g.file(g.core + "/dashboard.yhtm", "another page");
-	g.link(g.core + "/dashboard.yhtm", g.core + "/login.yhtm");
+	g.file(g.core + "/dashboard.yhtm", "a template");
+	g.link(g.core + "/dashboard.yhtm", g.core + "/login.html");
 	CHECK_FALSE(ystatic::ownLoginPage(&g.hh));
-}
-
-TEST_CASE("the sign-in page checked is the page the parser reads", "[nhttpd]")
-{
-	Box b;
-	b.file(b.core + "/login.yhtm", "the checked page");
-	b.file(b.outside + "/login.yhtm", "elsewhere");
-
-	const int fd = ystatic::openLoginPage(&b.hh);
-	REQUIRE(fd >= 0);
-	// a copy in the override directory and a link in its place, afterwards
-	b.file(b.over + "/login.yhtm", "override");
-	REQUIRE(rename((b.core + "/login.yhtm").c_str(), (b.root + "/moved.yhtm").c_str()) == 0);
-	b.link(b.outside + "/login.yhtm", b.core + "/login.yhtm");
-	CHECK(readAll(fd) == "the checked page");
-	close(fd);
 }
 
 TEST_CASE("a request let through without a login is not answered from the cache", "[nhttpd]")

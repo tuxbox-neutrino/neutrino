@@ -132,8 +132,8 @@ const FieldDesc kLanguagesFields[] = {
 		"the code of the language the pages are shown in now, and en where the server's file names "
 		"one this server knows no code for, which the pages show in English"),
 	HTTPD_LIST_OF("items", &kLanguageSchema,
-		"every language the pages can be shown in: those whose file carries the interface's own "
-		"texts, not only the old pages'"),
+		"every language the pages can be shown in: those whose texts this server hands out as "
+		"/languages/<code>.json, not only the old pages' file"),
 };
 
 const Schema kLanguagesSchema = { "web-languages", HTTPD_FIELDS(kLanguagesFields) };
@@ -413,9 +413,9 @@ const Endpoint kWebuiEndpoints[] = {
 	{ Method::Get, "/api/v1/webui/language", AuthLevel::Read,
 	  "the language the pages are shown in, and the ones they can be",
 	  "Reads the language the pages are shown in, as its code, and every language they can be "
-	  "shown in: those whose file in the pages' language directory carries the interface's own "
-	  "texts. A file holding only the old pages' texts is not offered, as the interface would show "
-	  "English throughout. The server keeps the language in its own file, `nhttpd.conf`, not with "
+	  "shown in: those whose texts this server hands out as `/languages/<code>.json`, from the "
+	  "override directory or the pages' own. A language with only the old pages' file is not offered, as the interface "
+	  "would show English throughout. The server keeps the language in its own file, `nhttpd.conf`, not with "
 	  "the web interface's settings, and `GET /api/v1/session` says it to a caller that has not "
 	  "signed in yet.\n\n"
 	  "**Related:** `PUT /api/v1/webui/language`, `GET /api/v1/session`.",

@@ -108,7 +108,7 @@ async function _webuiV1ChangeOwed(resp) {
 	try {
 		var p = await resp.clone().json();
 		if (p && p.type === '/errors/password-change-required') {
-			location.replace('/password.yhtm?next=' + encodeURIComponent(location.pathname + location.search));
+			location.replace('/password.html?next=' + encodeURIComponent(location.pathname + location.search));
 			return true;
 		}
 	} catch (e) { /* not a problem document */ }

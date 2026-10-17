@@ -447,9 +447,9 @@ struct WebLanguage
 };
 
 /* The languages the pages can be shown in, in the order of the table: those whose
-   file in the language directory carries the interface's own texts. A file
-   holding only the old pages' texts is left out, as the old language menu left it
-   out, since the interface would show English throughout. */
+   texts the server hands out as /languages/<code>.json, from the override
+   directory or the pages' own. A language with only the old pages' file is left
+   out, as the interface would show English throughout. */
 std::vector<WebLanguage> webLanguages();
 
 /* The code of the language nhttpd.conf names, and "en" where it names one this

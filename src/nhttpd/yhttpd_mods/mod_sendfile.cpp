@@ -84,11 +84,10 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 	// A file mod_auth opened and checked for an answer without a login is
 	// the one that goes out (ystatic::openPublic); any other request is
 	// looked up here in the same way. Either way the file is opened once
-	// and sent from that descriptor. The sign-in page's descriptor is the
-	// parser's (public.template).
+	// and sent from that descriptor.
 	ystatic::Target target;
 	int filed = -1;
-	if (hh->PublicFd >= 0 && hh->HookVarList["public.template"].empty()) {
+	if (hh->PublicFd >= 0) {
 		filed = hh->PublicFd;
 		hh->PublicFd = -1;
 		target.origin = ystatic::Target::CORE;

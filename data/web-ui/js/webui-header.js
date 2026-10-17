@@ -652,14 +652,14 @@ function webuiInitHeader(pageName) {
 // (password_change_required in GET /api/v1/session), so the page goes to
 // where that is done. Asked on every page load, which costs one request; a
 // page without a session is not asked, having signed in with nothing.
-// password.yhtm and login.yhtm do not load this script, so this cannot loop.
+// password.html and login.html do not load this script, so this cannot loop.
 function webuiCheckDefaultPassword() {
 	webuiSessionInfo()
 		.then(function(s) {
 			var code = document.getElementById('webui-lang-code');
 			if (code) code.textContent = ((s && s.language) || 'en').toUpperCase();
 			if (s && s.password_change_required) {
-				location.replace('/password.yhtm?next=' + encodeURIComponent(location.pathname + location.search));
+				location.replace('/password.html?next=' + encodeURIComponent(location.pathname + location.search));
 				return;
 			}
 			webuiUpdateLogoutBtn(!!(s && s.authenticated));

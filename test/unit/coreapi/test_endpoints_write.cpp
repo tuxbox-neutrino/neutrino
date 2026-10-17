@@ -6332,8 +6332,10 @@ TEST_CASE("the pages' language is read and written by its code, and the session 
 {
 	ShippedRoutes shipped;
 	LanguagePages pages;
-	pages.language("English", "yw.nav.dashboard=Dashboard\n");
-	pages.language("Deutsch", "yw.nav.dashboard=Dashboard\n");
+	pages.language("English", "Y_Old=old\n");
+	pages.language("en.json", "{}\n");
+	pages.language("Deutsch", "Y_Old=alt\n");
+	pages.language("de.json", "{}\n");
 	pages.language("Polski", "Y_Old=stare\n");
 	WebFile web("language", kWebFileHead, std::string(kServerFileHead) + "Language.selected=English\n"
 		"WebsiteMain.directory=" + pages.root + "\nWebsiteMain.override_directory=" + pages.root + "/none\n");

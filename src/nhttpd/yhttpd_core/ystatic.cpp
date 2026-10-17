@@ -168,23 +168,9 @@ bool ownOpened(CyhookHandler *hh, int fd, std::string &below)
 	return true;
 }
 
-int openLoginPage(CyhookHandler *hh)
-{
-	if (resolveName(hh, "/", "login.yhtm").origin != Target::CORE)
-		return -1;
-	// the file itself, not a link to another page or to a compressed copy
-	std::string below;
-	const int fd = openOwnFile(hh, hh->WebserverConfigList["WebsiteMain.directory"] + "/login.yhtm", below);
-	if (fd >= 0 && below != "login.yhtm") {
-		close(fd);
-		return -1;
-	}
-	return fd;
-}
-
 bool ownLoginPage(CyhookHandler *hh)
 {
-	const int fd = openLoginPage(hh);
+	const int fd = openPublic(hh, resolveName(hh, "/", "login.html"));
 	if (fd < 0)
 		return false;
 	close(fd);

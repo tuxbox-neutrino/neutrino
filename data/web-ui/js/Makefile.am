@@ -5,4 +5,5 @@ install_DATA = \
 	settings-v1.js \
 	webui-dom.js \
 	webui-header.js \
+	webui-i18n.js \
 	webui-v1.js
